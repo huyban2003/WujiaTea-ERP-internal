@@ -1,25 +1,19 @@
-name: Deploy to Windows Server
-
+name: Deploy
 on:
   push:
     branches: [main]
+  workflow_dispatch:
 
 jobs:
   deploy:
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
+      - name: Pull latest code
+        run: |
+          cd /d D:\wujia-tea
+          git pull origin main
+        shell: cmd
 
-      - name: Deploy via SSH
-        uses: appleboy/ssh-action@v1
-        with:
-          host: ${{ secrets.SERVER_HOST }}
-          username: ${{ secrets.SERVER_USER }}
-          password: ${{ secrets.SERVER_PASS }}
-          port: 22
-          script: |
-            cd C:\wujia-tea
-            git pull origin main
-            docker compose pull
-            docker compose up -d --build
+      - name: Restart Odoo
+        run: nssm restart Odoo
+        shell: cmd
