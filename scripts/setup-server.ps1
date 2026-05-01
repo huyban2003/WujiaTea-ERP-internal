@@ -36,7 +36,7 @@ Write-Host "  PostgreSQL OK" -ForegroundColor Green
 # 4. Clone repo
 Write-Host "[4/6] Clone WujiaTea repo..." -ForegroundColor Yellow
 $repoUrl = "https://github.com/huyban2003/WujiaTea-ERP-internal.git"
-$targetDir = "C:\wujia-tea"
+$targetDir = "D:\wujia-tea"
 if (!(Test-Path $targetDir)) {
     git clone $repoUrl $targetDir
 } else {
@@ -74,5 +74,5 @@ New-NetFirewallRule -Name "Odoo-8020" -DisplayName "Odoo Longpolling 8020" `
 Write-Host ""
 Write-Host "=== XONG! ===" -ForegroundColor Green
 Write-Host "Chay Odoo bang lenh sau:"
-Write-Host "  cd C:\wujia-tea"
+Write-Host "  cd D:\wujia-tea"
 Write-Host "  python odoo19\odoo-bin -c config\odoo.conf"
