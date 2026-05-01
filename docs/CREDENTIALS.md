@@ -12,7 +12,7 @@
 | | |
 |---|---|
 | Repo | https://github.com/huyban2003/WujiaTea-ERP-internal |
-| Token | `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` |
+| Token | (xem trong password manager — không lưu ở đây) |
 
 ## Odoo
 | | |
