@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <template id="asset_vendor">
+            <link rel="stylesheet" type="text/css" href="/wujia_portal_layout/static/assets/vendors/css/vendors.min.css"/>
+            <link rel="stylesheet" type="text/css" href="/wujia_portal_layout/static/assets/vendors/css/charts/apexcharts.css"/>
+            <link rel="stylesheet" type="text/css" href="/wujia_portal_layout/static/assets/vendors/css/tables/datatable/datatables.min.css"/>
+            <link rel="stylesheet" type="text/css" href="/wujia_portal_layout/static/assets/vendors/css/pickers/pickadate/pickadate.css"/>
+        </template>
+        <template id="asset_theme">
+            <link rel="stylesheet" type="text/css" href="/wujia_portal_layout/static/assets/css/bootstrap.css"/>
+            <link rel="stylesheet" type="text/css" href="/wujia_portal_layout/static/assets/css/bootstrap-extended.css"/>
+            <link rel="stylesheet" type="text/css" href="/wujia_portal_layout/static/assets/css/colors.css"/>
+            <link rel="stylesheet" type="text/css" href="/wujia_portal_layout/static/assets/css/components.css"/>
+            <link rel="stylesheet" type="text/css" href="/wujia_portal_layout/static/assets/css/themes/dark-layout.css"/>
+            <link rel="stylesheet" type="text/css" href="/wujia_portal_layout/static/assets/css/themes/semi-dark-layout.css"/>
+        </template>
+        <template id="asset_frontend">
+            <t t-call="wujia_portal_layout.asset_vendor"/>
+            <t t-call="wujia_portal_layout.asset_theme"/>
+            <t t-call="wujia_portal_layout.asset_page_css"/>
+            <t t-call="wujia_portal_layout.asset_style_css"/>
+        </template>
+        <template id="asset_frontend_js">
+            <!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script> -->
+            <script src="/wujia_portal_layout/static/assets/js/core/libraries/jquery.min.js"/>
+            <script src="/wujia_portal_layout/static/assets/vendors/js/vendors.min.js"/>
+            <script src="/wujia_portal_layout/static/assets/vendors/js/pickers/pickadate/picker.js"/>
+            <script src="/wujia_portal_layout/static/assets/vendors/js/pickers/pickadate/picker.date.js"/>
+            <script src="/wujia_portal_layout/static/assets/vendors/js/pickers/pickadate/picker.time.js"/>
+            <script src="/wujia_portal_layout/static/assets/vendors/js/pickers/pickadate/legacy.js"/>
+            <script src="/wujia_portal_layout/static/assets/js/scripts/pickers/dateTime/pick-a-datetime.js"/>
+            <script src="/wujia_portal_layout/static/assets/vendors/js/charts/apexcharts.min.js"/>
+            <!-- <script src="/wujia_portal_layout/static/assets/js/scripts/charts/chart-apex.js"></script> -->
+            <!-- <script src="/wujia_portal_layout/static/assets/js/charts/chart-apex.js"></script>
+            <script src="/wujia_portal_layout/static/assets/js/charts/chart-apex-detail-fund.js"></script>
+            <script src="/wujia_portal_layout/static/assets/js/charts/chart-apex-overview.js"></script> -->
+            <script src="/wujia_portal_layout/static/assets/js/scripts/components.js"/>
+            <t t-call="wujia_portal_layout.asset_page_js"/>
+
+            <t t-call="wujia_portal_layout.asset_style_js"/>
+
+            <t t-call="wujia_portal_layout.tables_js"/>
+            <script src="/wujia_portal_layout/static/assets/js/orgchart/jquery.orgchart.js"></script>
+            
+        </template>
+
+        <template id="asset_page_css">
+            <t t-call="wujia_portal_layout.asset_css_menu" t-if="asset_menu"/>
+            <t t-call="wujia_portal_layout.asset_css_authentication" t-if="authentication"/>
+            <link rel="stylesheet" type="text/css" href="/wujia_portal_layout/static/assets/css/pages/dashboard-ecommerce.css"/>
+            <link rel="stylesheet" type="text/css" href="/wujia_portal_layout/static/assets/css/pages/card-analytics.css"/>
+        </template>
+
+        <template id="asset_page_js">
+            <t t-call="wujia_portal_layout.asset_js_menu" t-if="asset_menu"/>
+        </template>
+
+        <template id="asset_css_menu">
+            <link rel="stylesheet" type="text/css" href="/wujia_portal_layout/static/assets/css/core/menu/menu-types/vertical-menu.css"/>
+            <link rel="stylesheet" type="text/css" href="/wujia_portal_layout/static/assets/css/core/colors/palette-gradient.css"/>
+        </template>
+        <template id="asset_js_menu">
+            <script src="/wujia_portal_layout/static/assets/js/core/app-menu.js"/>
+            <script src="/wujia_portal_layout/static/assets/js/core/app.js"/>
+            
+        </template>
+
+        <template id="asset_style_css">
+            <link rel="stylesheet" type="text/css" href="/wujia_portal_layout/static/assets/css/orgchart/jquery.orgchart.css"/>
+            <link rel="stylesheet" type="text/css" href="/wujia_portal_layout/static/assets/css/orgchart/org_chart_customize.css"/>
+            <link rel="stylesheet" type="text/css" href="/wujia_portal_layout/static/assets/css/style.css"/>
+            <link rel="stylesheet" type="text/css" href="/wujia_portal_layout/static/assets/css/dashboard.css"/>
+            <link rel="stylesheet" type="text/css" href="/wujia_portal_layout/static/assets/css/member_dashboard_style.css"/>
+        </template>
+
+        <template id="tables_js">
+            <script src="/wujia_portal_layout/static/assets/js/scripts/datatables/datatable.js"></script>
+            <script src="/wujia_portal_layout/static/assets/js/scripts/tables/datatable/pdfmake.min.js"></script>
+            <script src="/wujia_portal_layout/static/assets/js/scripts/tables/datatable/vfs_fonts.js"></script>
+            <script src="/wujia_portal_layout/static/assets/js/scripts/tables/datatable/datatables.min.js"></script>
+            <script src="/wujia_portal_layout/static/assets/js/scripts/tables/datatable/datatables.buttons.min.js"></script>
+            <script src="/wujia_portal_layout/static/assets/js/scripts/tables/datatable/buttons.html5.min.js"></script>
+            <script src="/wujia_portal_layout/static/assets/js/scripts/tables/datatable/buttons.print.min.js"></script>
+            <script src="/wujia_portal_layout/static/assets/js/scripts/tables/datatable/buttons.bootstrap.min.js"></script>
+            <script src="/wujia_portal_layout/static/assets/js/scripts/tables/datatable/datatables.bootstrap4.min.js"></script>
+     
+        </template>
+
+         <template id="asset_style_js">
+
+             
+             <script src="/wujia_portal_layout/static/assets/js/orgchart/jquery.orgchart.js"/>
+             <script src="/wujia_portal_layout/static/assets/js/app.js"/>
+             <script src="/wujia_portal_layout/static/assets/js/lang.js"/>
+             <script src="/wujia_portal_layout/static/assets/js/my_js.js"/>
+
+
+             <script src="/wujia_portal_layout/static/assets/js/scripts/sweetalert2@11.js"/>
+             
+             <script src="https://cdnjs.com/libraries/orgchart"></script>
+            
+        </template>
+
+
+        <template id="asset_css_authentication">
+            <link rel="stylesheet" type="text/css" href="/wujia_portal_layout/static/assets/css/pages/authentication.css"/>
+        </template>
+       
+    </data>
+</odoo>

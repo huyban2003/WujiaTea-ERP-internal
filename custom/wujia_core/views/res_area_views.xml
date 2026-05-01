@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="view_res_area_list" model="ir.ui.view">
+        <field name="name">res.area.list</field>
+        <field name="model">res.area</field>
+        <field name="arch" type="xml">
+            <list string="Khu vực" sample="1">
+                <field name="sequence" widget="handle"/>
+                <field name="code"/>
+                <field name="name"/>
+                <field name="manager_user_id" optional="show"/>
+                <field name="active" column_invisible="True"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_res_area_form" model="ir.ui.view">
+        <field name="name">res.area.form</field>
+        <field name="model">res.area</field>
+        <field name="arch" type="xml">
+            <form string="Khu vực">
+                <sheet>
+                    <div class="oe_button_box" name="button_box">
+                        <button name="action_view_wards" type="object"
+                                class="oe_stat_button" icon="fa-map-marker">
+                            <span class="o_stat_text">Xem phường/xã</span>
+                        </button>
+                    </div>
+                    <widget name="web_ribbon" title="Archived" bg_color="text-bg-danger"
+                            invisible="active"/>
+                    <div class="oe_title">
+                        <label for="name" class="oe_edit_only"/>
+                        <h1>
+                            <field name="name" placeholder="VD: TP HCM Quận 1-3"/>
+                        </h1>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="code" placeholder="KV-HCM-01"/>
+                            <field name="sequence"/>
+                            <field name="manager_user_id"/>
+                            <field name="active"/>
+                        </group>
+                        <group>
+                            <field name="state_ids" widget="many2many_tags" readonly="1"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="Phường/Xã" name="wards">
+                            <field name="ward_ids" context="{'default_area_id': id}">
+                                <list editable="bottom">
+                                    <field name="code"/>
+                                    <field name="name"/>
+                                    <field name="state_id"
+                                           options="{'no_create': True}"/>
+                                    <field name="active" widget="boolean_toggle"/>
+                                </list>
+                            </field>
+                        </page>
+                        <page string="Mô tả" name="description">
+                            <field name="description" nolabel="1" placeholder="Phạm vi khu vực, ranh giới giao hàng..."/>
+                        </page>
+                        <page string="Ghi chú nội bộ" name="note">
+                            <field name="note" nolabel="1"/>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_res_area_search" model="ir.ui.view">
+        <field name="name">res.area.search</field>
+        <field name="model">res.area</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="code"/>
+                <field name="name"/>
+                <field name="manager_user_id"/>
+                <separator/>
+                <filter string="Archived" name="filter_inactive"
+                        domain="[('active', '=', False)]"/>
+                <filter string="Người phụ trách" name="group_manager"
+                        context="{'group_by': 'manager_user_id'}"/>
+            </search>
+        </field>
+    </record>
+
+    <record id="action_res_area" model="ir.actions.act_window">
+        <field name="name">Khu vực</field>
+        <field name="res_model">res.area</field>
+        <field name="view_mode">list,form</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">Tạo khu vực đầu tiên</p>
+            <p>Khu vực gom nhóm các phường/xã cho mục đích vận hành: giao hàng, quản lý cửa hàng, báo cáo.</p>
+        </field>
+    </record>
+
+</odoo>

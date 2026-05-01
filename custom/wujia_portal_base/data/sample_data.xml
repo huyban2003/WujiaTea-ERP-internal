@@ -1,0 +1,172 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo noupdate="1">
+
+    <!-- ============== Areas (res.area, từ wujia_core) ============== -->
+    <record id="area_hcm_q1" model="res.area">
+        <field name="code">KV-HCM-01</field>
+        <field name="name">TP HCM Quận 1-3</field>
+        <field name="sequence">10</field>
+    </record>
+
+    <record id="area_hn_central" model="res.area">
+        <field name="code">KV-HN-01</field>
+        <field name="name">Hà Nội Trung tâm</field>
+        <field name="sequence">20</field>
+    </record>
+
+    <!-- ============== Partner cửa hàng (res.partner) ============== -->
+    <record id="partner_hn_01" model="res.partner">
+        <field name="name">Wujia Tea — Hà Nội Cầu Giấy</field>
+        <field name="company_type">company</field>
+        <field name="city">Hà Nội</field>
+        <field name="phone">+84 24 1234 5678</field>
+        <field name="email">hncaugiay@wujiatea.vn</field>
+    </record>
+
+    <record id="partner_hn_02" model="res.partner">
+        <field name="name">Wujia Tea — Hà Nội Đống Đa</field>
+        <field name="company_type">company</field>
+        <field name="city">Hà Nội</field>
+        <field name="phone">+84 24 1234 5679</field>
+        <field name="email">hndongda@wujiatea.vn</field>
+    </record>
+
+    <record id="partner_hcm_01" model="res.partner">
+        <field name="name">Wujia Tea — TP HCM Quận 1</field>
+        <field name="company_type">company</field>
+        <field name="city">Hồ Chí Minh</field>
+        <field name="phone">+84 28 1234 5680</field>
+        <field name="email">hcmq1@wujiatea.vn</field>
+    </record>
+
+    <!-- ============== Franchise Management (cửa hàng nhượng quyền) ============== -->
+    <record id="franchise_hn_01" model="wujia.franchise.management">
+        <field name="code">HN-01</field>
+        <field name="name">Cầu Giấy</field>
+        <field name="partner_id" ref="partner_hn_01"/>
+        <field name="area_id" ref="area_hn_central"/>
+        <field name="opening_date" eval="(DateTime.now()).strftime('%Y-%m-%d')"/>
+        <field name="franchise_start_date" eval="(DateTime.now()).strftime('%Y-%m-%d')"/>
+        <field name="franchise_end_date" eval="(DateTime.now() + timedelta(days=730)).strftime('%Y-%m-%d')"/>
+        <field name="phone">+84 24 1234 5678</field>
+        <field name="email">hncaugiay@wujiatea.vn</field>
+        <field name="address">219 Vĩnh Viễn, Cầu Giấy, Hà Nội</field>
+        <field name="status">active</field>
+    </record>
+
+    <record id="franchise_hn_02" model="wujia.franchise.management">
+        <field name="code">HN-02</field>
+        <field name="name">Đống Đa</field>
+        <field name="partner_id" ref="partner_hn_02"/>
+        <field name="area_id" ref="area_hn_central"/>
+        <field name="opening_date" eval="(DateTime.now()).strftime('%Y-%m-%d')"/>
+        <field name="franchise_start_date" eval="(DateTime.now()).strftime('%Y-%m-%d')"/>
+        <field name="franchise_end_date" eval="(DateTime.now() + timedelta(days=730)).strftime('%Y-%m-%d')"/>
+        <field name="phone">+84 24 1234 5679</field>
+        <field name="email">hndongda@wujiatea.vn</field>
+        <field name="status">active</field>
+    </record>
+
+    <record id="franchise_hcm_01" model="wujia.franchise.management">
+        <field name="code">HCM-01</field>
+        <field name="name">TP HCM Quận 1</field>
+        <field name="partner_id" ref="partner_hcm_01"/>
+        <field name="area_id" ref="area_hcm_q1"/>
+        <field name="opening_date" eval="(DateTime.now()).strftime('%Y-%m-%d')"/>
+        <field name="franchise_start_date" eval="(DateTime.now()).strftime('%Y-%m-%d')"/>
+        <field name="franchise_end_date" eval="(DateTime.now() + timedelta(days=730)).strftime('%Y-%m-%d')"/>
+        <field name="phone">+84 28 1234 5680</field>
+        <field name="email">hcmq1@wujiatea.vn</field>
+        <field name="status">active</field>
+    </record>
+
+    <!-- ============== Portal users ============== -->
+    <record id="user_anh_owner" model="res.users">
+        <field name="name">Nguyễn Văn Anh (Chủ HN-01)</field>
+        <field name="login">anh.owner</field>
+        <field name="password">demo123</field>
+        <field name="email">anh.owner@wujiatea.vn</field>
+        <field name="group_ids" eval="[(6, 0, [ref('base.group_portal')])]"/>
+    </record>
+
+    <record id="user_binh_manager" model="res.users">
+        <field name="name">Trần Thị Bình (QL HN-01)</field>
+        <field name="login">binh.manager</field>
+        <field name="password">demo123</field>
+        <field name="email">binh.manager@wujiatea.vn</field>
+        <field name="group_ids" eval="[(6, 0, [ref('base.group_portal')])]"/>
+    </record>
+
+    <record id="user_cuong_staff" model="res.users">
+        <field name="name">Lê Văn Cường (NV HN-01)</field>
+        <field name="login">cuong.staff</field>
+        <field name="password">demo123</field>
+        <field name="email">cuong.staff@wujiatea.vn</field>
+        <field name="group_ids" eval="[(6, 0, [ref('base.group_portal')])]"/>
+    </record>
+
+    <record id="user_dung_multi" model="res.users">
+        <field name="name">Phạm Thị Dung (đa cửa hàng)</field>
+        <field name="login">dung.multi</field>
+        <field name="password">demo123</field>
+        <field name="email">dung.multi@wujiatea.vn</field>
+        <field name="group_ids" eval="[(6, 0, [ref('base.group_portal')])]"/>
+    </record>
+
+    <record id="user_em_hcm" model="res.users">
+        <field name="name">Hoàng Văn Em (Chủ HCM-01)</field>
+        <field name="login">em.hcm</field>
+        <field name="password">demo123</field>
+        <field name="email">em.hcm@wujiatea.vn</field>
+        <field name="group_ids" eval="[(6, 0, [ref('base.group_portal')])]"/>
+    </record>
+
+    <!-- ============== Memberships (wujia.franchise.member) ============== -->
+    <!-- HN-01: Anh = Chủ chính, Bình = QL, Cường = NV, Dung = NV -->
+    <record id="member_anh_hn01_owner" model="wujia.franchise.member">
+        <field name="user_id" ref="user_anh_owner"/>
+        <field name="franchise_id" ref="franchise_hn_01"/>
+        <field name="role">owner</field>
+        <field name="is_primary_owner" eval="True"/>
+    </record>
+
+    <record id="member_binh_hn01_manager" model="wujia.franchise.member">
+        <field name="user_id" ref="user_binh_manager"/>
+        <field name="franchise_id" ref="franchise_hn_01"/>
+        <field name="role">manager</field>
+    </record>
+
+    <record id="member_cuong_hn01_staff" model="wujia.franchise.member">
+        <field name="user_id" ref="user_cuong_staff"/>
+        <field name="franchise_id" ref="franchise_hn_01"/>
+        <field name="role">staff</field>
+    </record>
+
+    <record id="member_dung_hn01_staff" model="wujia.franchise.member">
+        <field name="user_id" ref="user_dung_multi"/>
+        <field name="franchise_id" ref="franchise_hn_01"/>
+        <field name="role">staff</field>
+    </record>
+
+    <!-- HN-02: Dung = QL (cùng user, cửa hàng khác, role khác) -->
+    <record id="member_dung_hn02_manager" model="wujia.franchise.member">
+        <field name="user_id" ref="user_dung_multi"/>
+        <field name="franchise_id" ref="franchise_hn_02"/>
+        <field name="role">manager</field>
+    </record>
+
+    <!-- HCM-01: Em = Chủ chính, Dung = NV -->
+    <record id="member_em_hcm01_owner" model="wujia.franchise.member">
+        <field name="user_id" ref="user_em_hcm"/>
+        <field name="franchise_id" ref="franchise_hcm_01"/>
+        <field name="role">owner</field>
+        <field name="is_primary_owner" eval="True"/>
+    </record>
+
+    <record id="member_dung_hcm01_staff" model="wujia.franchise.member">
+        <field name="user_id" ref="user_dung_multi"/>
+        <field name="franchise_id" ref="franchise_hcm_01"/>
+        <field name="role">staff</field>
+    </record>
+
+</odoo>

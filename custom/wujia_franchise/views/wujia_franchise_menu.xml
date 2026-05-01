@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!--
+        Menu structure theo BA spec:
+        Franchise Management
+          ├─ Operation
+          │   ├─ Franchise Management   (wujia.franchise.management)
+          │   └─ Franchise Member       (wujia.franchise.member)
+          └─ Configuration
+              ├─ Area                   (res.area, từ wujia_core)
+              ├─ Province / City        (base.action_country_state)
+              └─ Ward                   (res.ward, từ wujia_core)
+    -->
+
+    <menuitem id="menu_wujia_root"
+              name="Franchise Management"
+              sequence="20"
+              groups="group_franchise_user"/>
+
+    <menuitem id="menu_wujia_operation_root"
+              name="Operation"
+              parent="menu_wujia_root"
+              sequence="10"/>
+
+    <menuitem id="menu_wujia_franchise_management"
+              name="Franchise Management"
+              parent="menu_wujia_operation_root"
+              action="action_franchise_management"
+              sequence="10"/>
+
+    <menuitem id="menu_wujia_franchise_member"
+              name="Franchise Member"
+              parent="menu_wujia_operation_root"
+              action="action_wujia_franchise_member"
+              sequence="20"/>
+
+    <menuitem id="menu_wujia_config_root"
+              name="Configuration"
+              parent="menu_wujia_root"
+              sequence="90"
+              groups="group_franchise_manager"/>
+
+    <menuitem id="menu_wujia_config_area_root"
+              name="Area Management"
+              parent="menu_wujia_config_root"
+              sequence="10"/>
+
+    <menuitem id="menu_wujia_config_area"
+              name="Area"
+              parent="menu_wujia_config_area_root"
+              action="wujia_core.action_res_area"
+              sequence="10"/>
+
+    <menuitem id="menu_wujia_config_state"
+              name="Province / City"
+              parent="menu_wujia_config_area_root"
+              action="base.action_country_state"
+              sequence="20"/>
+
+    <menuitem id="menu_wujia_config_ward"
+              name="Ward"
+              parent="menu_wujia_config_area_root"
+              action="wujia_core.action_res_ward"
+              sequence="30"/>
+
+</odoo>

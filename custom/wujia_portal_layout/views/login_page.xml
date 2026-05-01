@@ -1,0 +1,321 @@
+<odoo>
+    <data>
+        <template id="wujia_portal_layout.login_form">
+            <div class="card rounded-0 mb-0 px-2">
+                <div class="card-header pb-1">
+                
+                    <div class="card-title d-flex flex-column align-items-center w-100 text-center">
+                        <img t-attf-src="data:image/png;base64,{{env.company.logo_web}}" alt="" width="200" height="100" style="object-fit: contain"/>
+                    </div>
+                </div>
+                <p class="px-2">Welcome back, please login to your account.</p>
+                <div class="card-content">
+                    <div class="card-body pt-1">
+                        <form action="login" method="POST">
+                            <input type="hidden" name="csrf_token"
+                                   t-att-value="request.csrf_token()"/>
+                            <fieldset
+                                    class="form-label-group form-group position-relative has-icon-left">
+                                <input type="text" class="form-control"
+                                       id="user-name" name="login"
+                                       placeholder="Username" required="required"/>
+                                <div class="form-control-position">
+                                    <i class="feather icon-user"/>
+                                </div>
+                                <label for="user-name">Username</label>
+                            </fieldset>
+
+                            <fieldset
+                                    class="form-label-group position-relative has-icon-left">
+                                <input type="password" class="form-control"
+                                       id="user-password" name="password"
+                                       placeholder="Password" required="required"/>
+                                <div class="form-control-position">
+                                    <i class="feather icon-lock"/>
+                                </div>
+                                <label for="user-password">Password</label>
+                            </fieldset>
+                            <p class="alert alert-danger" t-if="error" role="alert">
+                                <t t-esc="error"/>
+                            </p>
+
+                            <p class="alert alert-success" t-if="message"
+                               role="status">
+                                <t t-esc="message"/>
+                            </p>
+                            <div class="form-group d-flex justify-content-between align-items-center">
+                                <div class="text-left">
+                                    <fieldset class="checkbox">
+                                        <div class="vs-checkbox-con vs-checkbox-primary">
+                                            <input type="checkbox"/>
+                                            <span class="vs-checkbox">
+                                                <span class="vs-checkbox--check">
+                                                    <i class="vs-icon feather icon-check"/>
+                                                </span>
+                                            </span>
+                                            <span class="">Remember me</span>
+                                        </div>
+                                    </fieldset>
+                                </div>
+                                <div class="text-right">
+                                    <a href="/portal/forgot-pass"
+                                       class="card-link">Forgot Password?
+                                    </a>
+                                </div>
+                            </div>
+                            <button type="submit"
+                                    class="primary-btn float-right btn-inline">
+                                Login
+                            </button>
+                        </form>
+                        <!--<strong class="text-center">Chưa có tài khoản? <a href="/portal/signup" style="color: #1e4080;">Đăng ký ngay</a></strong>-->
+                    </div>
+                </div>
+                <div class="login-footer">
+
+                </div>
+            </div>
+        </template>
+        <template id="wujia_portal_layout.login_2fa_form">
+            <div class="card rounded-0 mb-0 px-2">
+                <div class="card-header pb-1">
+                    <div class="card-title d-flex flex-column align-items-center w-100 text-center">
+                        <img t-attf-src="data:image/png;base64,{{env.company.logo_web}}" alt="" width="200" height="100" style="object-fit: contain"/>
+                    </div>
+                </div>
+                <p class="px-2">Two-factor Authentication.</p>
+                <div class="card-content">
+                    <div class="card-body pt-1">
+                        <form method="POST">
+                            <input type="hidden" name="csrf_token"
+                                   t-att-value="request.csrf_token()"/>
+                            <fieldset
+                                    class="form-label-group form-group position-relative has-icon-left">
+                                <input type="text" class="form-control"
+                                       id="user-name" name="totp_token"
+                                       placeholder="6 digits" required="required"/>
+                                <div class="form-control-position">
+                                    <i class="feather icon-user"/>
+                                </div>
+                                <label for="user-name">Authentication Code (6 digits)</label>
+                            </fieldset>
+
+                            <p class="alert alert-danger" t-if="error" role="alert">
+                                <t t-esc="error"/>
+                            </p>
+
+                            <p class="alert alert-success" t-if="message"
+                               role="status">
+                                <t t-esc="message"/>
+                            </p>
+                            <p class="alert alert-success"
+                               role="status">
+                                Open the two-factor authentication app on your device to obtain a code and verify your identity
+                            </p>
+                            <button type="submit"
+                                    class="btn btn-primary float-right btn-inline">
+                                Verify
+                            </button>
+
+                        </form>
+                    </div>
+                </div>
+                <div class="login-footer">
+
+                </div>
+            </div>
+        </template>
+        <template id="wujia_portal_layout.login_container">
+            <t t-call="wujia_portal_layout.login_layout">
+                <!-- BEGIN: Content-->
+                <div class="app-content content">
+                    <div class="content-overlay"/>
+                    <div class="header-navbar-shadow"/>
+                    <div class="content-wrapper">
+                        <div class="content-header row">
+                        </div>
+                        <div class="content-body">
+                            <section class="row flexbox-container" style="background-image:url('wujia_portal_layout/static/assets/images/wujia_banner.jpg');">
+                                <div class="col-xl-8 col-11 d-flex justify-content-center">
+                                    <div class="card bg-authentication rounded-0 mb-0">
+                                        <div class="row m-0"  style="background: rgb(128,128,128); background: linear-gradient(to right,rgba(128,128,128,0), rgba(128,128,128,0) 100%);
+                                                                    border-top-left-radius: 20px; border-bottom-left-radius: 20px; border-top-right-radius: 20px;
+                                                                    border-bottom-right-radius: 20px;">
+                                            <div class="col-lg-6 d-lg-block d-none text-center align-self-center px-0 py-0">
+                                            
+                                                <img src="/wujia_portal_layout/static/assets/images/wujia_login_1.png" style="object-fit:contain; padding:16px; width: 100%; height: 337px; border-top-left-radius: 20px; border-bottom-left-radius: 20px;"
+                                                     alt="branding logo"/>
+                                            </div>
+                                            <div class="col-lg-6 col-12 p-0">
+                                                
+                                                <t t-out="0"/>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </section>
+
+                        </div>
+                    </div>
+                </div>
+                <!-- END: Content-->
+            </t>
+        </template>
+        <template id="wujia_portal_layout.forgot_pass_form">
+            <div class="card rounded-0 mb-0 px-2 py-1">
+                <div class="card-header pb-1">
+                    <div class="card-title d-flex flex-column align-items-center w-100 text-center">
+                        <img t-attf-src="data:image/png;base64,{{env.company.logo_web}}" alt="" width="200" height="100" style="object-fit: contain"/>
+                         <h4 class="mb-0">Recover your password</h4>
+                    </div>
+
+                </div>
+                <t t-if="message">
+                    <p class="alert alert-success" t-if="message" role="alert">
+                        <t t-esc="message"/>
+                    </p>
+                    <div class="float-md-left d-block mb-1">
+                        <a href="login" class="btn btn-outline-primary btn-block px-75">Back to Login</a>
+                    </div>
+                </t>
+                <t t-else="">
+                    <p class="px-2 mb-0">Please enter your email address and we'll send you instructions on how to reset your password.</p>
+                    <div class="card-content">
+                        <div class="card-body">
+                            <form method="POST">
+                                <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
+                                <div class="form-label-group">
+                                    <input type="email" name="login" id="inputEmail" class="form-control" placeholder="Email"/>
+                                    <label for="inputEmail">Email</label>
+                                </div>
+                                <p class="alert alert-danger" t-if="error" role="alert">
+                                    <t t-esc="error"/>
+                                </p>
+                                <div class="float-md-left d-block mb-1">
+                                    <a href="login" class="btn btn-outline-primary btn-block px-75" style="color: #1e4080;">Back to Login</a>
+                                </div>
+                                <div class="float-md-right d-block mb-1">
+                                    <button type="submit" class="btn btn-primary btn-block px-75" style="color: #1e4080;">Recover Password</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </t>
+            </div>
+        </template>
+        <template id="wujia_portal_layout.reset_pass_form">
+            <div class="card rounded-0 mb-0 px-2 py-1">
+                <div class="card-header pb-1">
+                    <div class="card-title d-flex flex-column align-items-center w-100 text-center">
+                        <img t-attf-src="data:image/png;base64,{{env.company.logo_web}}" alt="" width="200" height="100" style="object-fit: contain"/>
+                        <h4 class="mb-0">Reset your password</h4>
+                    </div>
+
+                </div>
+                <p class="px-2 mb-0">Please enter your email address and we'll send you instructions on how to reset your password.</p>
+                <div class="card-content">
+                    <div class="card-body">
+                        <form method="POST">
+                            <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
+                            <input type="hidden" name="token" t-att-value="token"/>
+                            <div class="form-label-group">
+                                <input type="email" name="login" id="inputEmail" class="form-control" placeholder="Email" readonly="readonly" t-att-value="login"/>
+                                <label for="inputEmail">Your Email</label>
+                            </div>
+                            <div class="form-label-group">
+                                <input type="text" name="name" id="name" class="form-control" placeholder="Name" readonly="readonly"  t-att-value="name"/>
+                                <label for="inputEmail">Your Name</label>
+                            </div>
+                            <div class="form-label-group">
+                                <input type="password" name="password" id="password" class="form-control" placeholder="Password"/>
+                                <label for="inputEmail">Password</label>
+                            </div>
+                            <div class="form-label-group">
+                                <input type="password" name="confirm_password" id="confirm_password" class="form-control" placeholder="Confirm password"/>
+                                <label for="inputEmail">Confirm Password</label>
+                            </div>
+                            <p class="alert alert-danger" t-if="error" role="alert">
+                                <t t-esc="error"/>
+                            </p>
+                            <div class="float-md-left d-block mb-1">
+                                <a href="login" class="btn btn-outline-primary btn-block px-75">Back to Login</a>
+                            </div>
+                            <div class="float-md-right d-block mb-1">
+                                <button type="submit" class="btn btn-primary btn-block px-75">Confirm</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </template>
+        <template id="wujia_portal_layout.signup_form">
+            <div class="card rounded-0 mb-0 px-2 py-1">
+                <div class="card-header pb-1">
+                    <div class="card-title d-flex flex-column align-items-center w-100 text-center">
+                        <img t-attf-src="data:image/png;base64,{{env.company.logo_web}}" alt="" width="200" height="100" style="object-fit: contain"/>
+                    </div>
+
+                </div>
+                <div class="card-content">
+                    <div class="card-body">
+                        <form method="POST">
+                            <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
+                            <input type="hidden" name="token" t-att-value="token"/>
+                            <div class="form-label-group">
+                                <input type="email" name="login" id="login" class="form-control" placeholder="Email"/>
+                                <label for="inputEmail">Your Email</label>
+                            </div>
+                            <div class="form-label-group">
+                                <input type="text" name="name" id="name" class="form-control" placeholder="Name"/>
+                                <label for="inputEmail">Your Name</label>
+                            </div>
+                            <div class="form-label-group">
+                                <input type="password" name="password" id="password" class="form-control" placeholder="Password"/>
+                                <label for="inputEmail">Password</label>
+                            </div>
+                            <div class="form-label-group">
+                                <input type="password" name="confirm_password" id="confirm_password" class="form-control" placeholder="Confirm password"/>
+                                <label for="inputEmail">Confirm Password</label>
+                            </div>
+                            <p class="alert alert-danger" t-if="error" role="alert">
+                                <t t-esc="error"/>
+                            </p>
+                            <div class="float-md-left d-block mb-1">
+                                <a href="login" class="btn btn-outline-primary btn-block px-75">Back to Login</a>
+                            </div>
+                            <div class="float-md-right d-block mb-1">
+                                <button type="submit" class="btn btn-primary btn-block px-75">Confirm</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </template>
+
+        <template id="wujia_portal_layout.login">
+            <t t-call="wujia_portal_layout.login_container">
+                <t t-call="wujia_portal_layout.login_form"/>
+            </t>
+        </template>
+        <template id="wujia_portal_layout.login_totp">
+            <t t-call="wujia_portal_layout.login_container">
+                <t t-call="wujia_portal_layout.login_2fa_form"/>
+            </t>
+        </template>
+        <template id="wujia_portal_layout.forgot_pass">
+            <t t-call="wujia_portal_layout.login_container">
+                <t t-call="wujia_portal_layout.forgot_pass_form"/>
+            </t>
+        </template>
+        <template id="wujia_portal_layout.reset_pass">
+            <t t-call="wujia_portal_layout.login_container">
+                <t t-call="wujia_portal_layout.reset_pass_form"/>
+            </t>
+        </template>
+        <template id="wujia_portal_layout.signup">
+            <t t-call="wujia_portal_layout.login_container">
+                <t t-call="wujia_portal_layout.signup_form"/>
+            </t>
+        </template>
+    </data>
+</odoo>

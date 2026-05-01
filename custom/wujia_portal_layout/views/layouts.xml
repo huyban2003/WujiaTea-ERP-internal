@@ -1,0 +1,222 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data>
+        <template id="layout" name="Basic layout">
+            <html lass="no-js" lang="en">
+                <head>
+                    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+                    <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+                    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=0, minimal-ui"/>
+                    <meta t-if="description" name="description" t-att-content="description"/>
+                    <meta t-if="keywords" name="keywords" t-att-content="keywords"/>
+                    <meta name="author" content="Cloudmedia"/>
+                    <title>
+                        <t t-esc="title or 'Portal'"/>
+                    </title>
+                    <link rel="apple-touch-icon" t-attf-href="data:image/png;base64,{{env.company.favicon}}"/>
+                    <link rel="shortcut icon" type="image/x-icon"
+                          t-attf-href="data:image/png;base64,{{env.company.favicon}}"/>
+                    <link href="https://fonts.googleapis.com/css?family=Montserrat:300,400,500,600" rel="stylesheet"/>
+                    <t t-call="wujia_portal_layout.asset_frontend"/>
+                    <t t-call-assets="web.assets_frontend" t-js="false" t-css="true"/>
+                </head>
+                <body class="vertical-layout  navbar-floating  vertical-menu-modern footer-static" data-open="click"
+                      data-menu="vertical-menu-modern" style="font-family: Arial;">
+                    <t t-out="0"/>
+                    <t t-call="wujia_portal_layout.asset_frontend_js"/>
+                    <t t-call-assets="web.assets_frontend" t-js="true" t-css="false"/>
+                </body>
+            </html>
+        </template>
+
+        <template id="layout_top_navbar">
+            <nav class="header-navbar navbar-expand-lg navbar navbar-with-menu floating-nav navbar-light navbar-shadow" style="background-color: #1f4180;">
+                <div class="navbar-wrapper">
+                    <div class="navbar-container content">
+                        <div class="navbar-collapse" id="navbar-mobile">
+                            <div class="mr-auto float-left bookmark-wrapper d-flex align-items-center">
+                                <ul class="nav navbar-nav">
+                                    <li class="nav-item mobile-menu d-xl-none mr-auto">
+                                        <a class="nav-link nav-menu-main menu-toggle hidden-xs" href="#">
+                                            <i class="ficon feather icon-menu" style="color: #ccc;"/>
+                                        </a>
+                                    </li>
+                                </ul>
+                            </div>
+                            <ul class="nav navbar-nav float-right">
+                                <li class="dropdown dropdown-language nav-item">
+                                    <!-- <a class="dropdown-toggle nav-link" id="dropdown-flag" href="#" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                        <i class="flag-icon flag-icon-us"/>
+                                        <span class="selected-language">English</span>
+                                    </a> -->
+                                    <a class="dropdown-toggle nav-link text-white" id="dropdown-flag" href="#"
+                                       data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+
+                                        <t t-if="lang == 'vi_VN'">
+                                            <i class="flag-icon flag-icon-vn"/>
+                                            <span class="selected-language ">Việt Nam</span>
+                                        </t>
+                                        <t t-else="">
+                                            <i class="flag-icon flag-icon-us"/>
+                                            <span class="selected-language ">English</span>
+                                        </t>
+
+
+                                    </a>
+                                    <div class="dropdown-menu" aria-labelledby="dropdown-flag">
+                                        <a class="dropdown-item " t-attf-href="/website/lang/en" data-url_code="en">
+                                            <i class="flag-icon flag-icon-us"/>
+                                            English
+                                        </a>
+                                        <a class="dropdown-item " t-attf-href="/website/lang/vi" data-url_code="vi">
+                                            <i class="flag-icon flag-icon-vn"/>
+                                            Việt Nam
+                                        </a>
+                                    </div>
+                                </li>
+
+                                <li class="dropdown dropdown-user nav-item">
+                                    <a class="dropdown-toggle nav-link dropdown-user-link" href="#"
+                                       data-toggle="dropdown">
+                                        <div class="user-nav d-sm-flex d-none ">
+                                            <span class="user-name text-bold-600 text-white"
+                                                  style="margin-bottom: 0px;">
+                                                <t t-esc="request.env.user.name"/>
+                                            </span>
+                                        </div>
+                                        <span>
+                                            <img class="round" t-att-src="'/profile/avatar/'+ str(request.env.user.id)"
+                                                 alt="avatar" height="40" width="40" style="border: 3px solid transparent;
+                                                 border-color: #fff;"/>
+                                        </span>
+                                    </a>
+                                    <div class="dropdown-menu dropdown-menu-right">
+                                        <a class="dropdown-item" href="/portal/profile">
+                                            <i class="feather icon-user"/>
+                                            Personal Information
+                                        </a>
+                                        <a class="dropdown-item" href="/portal/change-password">
+                                            <i class="feather icon-lock"/>
+                                            Change Password
+                                        </a>
+                                        <!--                                        <a class="dropdown-item" href="/portal/two-factor-setting">-->
+                                        <!--                                            <i class="feather icon-lock"/>Setup 2FA-->
+                                        <!--                                        </a>-->
+                                        <div class="dropdown-divider"/>
+                                        <a class="dropdown-item" href="/portal/logout">
+                                            <i class="feather icon-power"/>
+                                            Log out
+                                        </a>
+                                    </div>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </nav>
+        </template>
+
+        <template id="layout_sidenav">
+            <div class="main-menu menu-fixed menu-light menu-accordion menu-shadow"
+                 data-scroll-to-active="true">
+                <div class="navbar-header mb-5">
+                    <ul class="nav navbar-nav flex-row justify-content-center">
+                        <li class="nav-item">
+                            <a class="navbar-brand  text-color-title" href="/portal">
+                                <!-- <div class="brand-logo"/> -->
+                                <img t-attf-src="data:image/png;base64,{{env.company.logo_web}}" alt="" width="200" height="100" style="object-fit: contain"/>
+
+                                
+
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+
+                <div class="sidebar-header mt-3">
+                    <div class="user-pic">
+                        <img class="img-responsive img-rounded" t-att-src="'/profile/avatar/'+ str(request.env.user.id)"
+                             alt="User picture"/>
+                    </div>
+                    <div class="user-info" t-if="request.env.user.partner_id">
+                        <span class="user-name text-truncate text-color-title text-bold-700" style="max-width: 125px;"
+                              t-att-title="request.env.user.name">
+                            <t t-esc="request.env.user.name"/>
+                        </span>
+                    </div>
+                </div>
+
+                <div class="shadow-bottom"/>
+                <div class="main-menu-content " >
+                    <ul class="navigation navigation-main" id="main-menu-navigation"
+                        data-menu="menu-navigation" >
+                        <li class="nav-item" >
+                            <a href="/portal" class="text-black">
+                                <i class="fa fa-home" aria-hidden="true"></i>
+                                <span class="menu-title">Home</span>
+                            </a>
+                        </li>
+                        <t t-out="0"/>
+                    </ul>
+                </div>
+                
+            </div>
+        </template>
+
+
+        <template id="wujia_portal_layout.app_layout">
+            <t t-call="wujia_portal_layout.layout">
+                <t t-set="asset_menu" t-value="True"/>
+                <t t-set="asset_menu" t-value="True"/>
+                <t t-call="wujia_portal_layout.layout_top_navbar"/>
+                <t t-call="wujia_portal_layout.layout_sidenav"/>
+                <div class="app-content content">
+                    <div class="content-overlay"/>
+                    <div class="header-navbar-shadow"/>
+                    <t t-out="0"/>
+                </div>
+                <div class="sidenav-overlay"/>
+                <div class="drag-target"/>
+                <!--                <t t-call="wujia_portal_layout.layout_footer"/>-->
+            </t>
+        </template>
+
+
+        <template id="login_layout" name="Login layout">
+            <html lass="no-js" lang="vi">
+                <head>
+                    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+                    <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+                    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=0, minimal-ui"/>
+                    <meta name="description"
+                          content=""/>
+                    <meta name="keywords"
+                          content=""/>
+                    <meta name="author" content="Cloudmedia"/>
+                    <title>
+                        <t t-esc="title or 'Portal'"/>
+                    </title>
+                    <link rel="apple-touch-icon" t-attf-src="data:image/png;base64,{{env.company.logo_web}}"/>
+                    <link rel="shortcut icon" type="image/x-icon"
+                          t-attf-src="data:image/png;base64,{{env.company.logo_web}}"/>
+                    <link href="https://fonts.googleapis.com/css?family=Montserrat:300,400,500,600" rel="stylesheet"/>
+                    <t t-call="wujia_portal_layout.asset_frontend"/>
+                    <t t-call="wujia_portal_layout.asset_css_authentication"/>
+                </head>
+                <body class="vertical-layout vertical-menu-modern 1-column  navbar-floating footer-static bg-full-login  blank-page blank-page"
+                      data-open="click" data-menu="vertical-menu-modern" data-col="1-column">
+                    <t t-out="0"/>
+                    <t t-call="wujia_portal_layout.asset_frontend_js"/>
+                </body>
+            </html>
+        </template>
+
+        <template id="dashboard">
+            <t t-call="wujia_portal_layout.layout">
+                <t t-out="0"/>
+            </t>
+        </template>
+
+
+    </data>
+</odoo>

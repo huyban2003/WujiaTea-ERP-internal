@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="view_product_template_form_wujia" model="ir.ui.view">
+        <field name="name">product.template.form.wujia</field>
+        <field name="model">product.template</field>
+        <field name="inherit_id" ref="product.product_template_form_view"/>
+        <field name="arch" type="xml">
+            <xpath expr="//notebook" position="inside">
+                <page string="Wujia Portal" name="wujia_portal_settings">
+                    <group>
+                        <group string="Hiển thị portal">
+                            <field name="is_public_website"/>
+                        </group>
+                        <group string="Giới hạn số lượng/đơn">
+                            <field name="min_qty"/>
+                            <field name="max_qty"/>
+                        </group>
+                    </group>
+                </page>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="view_product_template_tree_wujia" model="ir.ui.view">
+        <field name="name">product.template.list.wujia</field>
+        <field name="model">product.template</field>
+        <field name="inherit_id" ref="product.product_template_tree_view"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='name']" position="after">
+                <field name="is_public_website" optional="hide"/>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="product_template_search_wujia" model="ir.ui.view">
+        <field name="name">product.template.search.wujia</field>
+        <field name="model">product.template</field>
+        <field name="inherit_id" ref="product.product_template_search_view"/>
+        <field name="arch" type="xml">
+            <xpath expr="//search" position="inside">
+                <separator/>
+                <filter string="Đang hiện trên Portal" name="filter_public_website"
+                        domain="[('is_public_website', '=', True)]"/>
+            </xpath>
+        </field>
+    </record>
+
+</odoo>

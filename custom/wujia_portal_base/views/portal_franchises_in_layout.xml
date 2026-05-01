@@ -1,0 +1,151 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- Add "Cửa hàng" entry to the Vuexy sidenav -->
+    <template id="layout_sidenav_franchises"
+              inherit_id="wujia_portal_layout.layout_sidenav"
+              name="Wujia Sidenav - Cửa hàng">
+        <xpath expr="//ul[@id='main-menu-navigation']" position="inside">
+            <li class="nav-item">
+                <a href="/portal/franchises" class="text-black">
+                    <i class="fa fa-building" aria-hidden="true"/>
+                    <span class="menu-title">Cửa hàng</span>
+                </a>
+            </li>
+        </xpath>
+    </template>
+
+    <!-- /portal/franchises — list page -->
+    <template id="portal_franchises_list" name="Wujia Portal — Franchises">
+        <t t-call="wujia_portal_layout.app_layout">
+            <t t-set="title">Cửa hàng</t>
+            <div class="content-wrapper">
+                <div class="content-header row mt-3">
+                    <div class="content-header-left col-12 mb-1">
+                        <h2 class="content-header-title float-left mb-0">Cửa hàng của tôi</h2>
+                    </div>
+                </div>
+                <div class="content-body">
+                    <div t-if="not memberships" class="alert alert-info">
+                        Bạn chưa được gán vào cửa hàng nào. Liên hệ quản trị viên.
+                    </div>
+                    <div t-if="memberships" class="card">
+                        <div class="card-content">
+                            <div class="card-body p-0">
+                                <table class="table table-hover mb-0">
+                                    <thead>
+                                        <tr>
+                                            <th>Cửa hàng</th>
+                                            <th>Mã</th>
+                                            <th>Vai trò</th>
+                                            <th>Hiệu lực</th>
+                                            <th></th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr t-foreach="memberships" t-as="m">
+                                            <t t-set="role_color"
+                                               t-value="{'owner': 'primary', 'manager': 'info', 'staff': 'secondary'}.get(m.role, 'secondary')"/>
+                                            <td>
+                                                <a t-attf-href="/portal/franchises/#{m.franchise_id.id}">
+                                                    <t t-out="m.franchise_id.name"/>
+                                                </a>
+                                            </td>
+                                            <td><t t-out="m.franchise_id.code or '—'"/></td>
+                                            <td>
+                                                <span t-attf-class="badge badge-#{role_color}">
+                                                    <t t-out="role_labels.get(m.role, m.role)"/>
+                                                </span>
+                                                <span t-if="m.is_primary_owner"
+                                                      class="badge badge-warning ml-1">Chủ chính</span>
+                                            </td>
+                                            <td>
+                                                <t t-out="m.date_from"/> —
+                                                <t t-out="m.date_to or 'Không giới hạn'"/>
+                                            </td>
+                                            <td class="text-right">
+                                                <a t-attf-href="/portal/franchises/#{m.franchise_id.id}"
+                                                   class="btn btn-sm btn-primary">Vào cửa hàng</a>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </t>
+    </template>
+
+    <!-- /portal/franchises/<id> — detail with realtime member list -->
+    <template id="portal_franchise_detail" name="Wujia Portal — Franchise Detail">
+        <t t-call="wujia_portal_layout.app_layout">
+            <t t-set="title" t-value="franchise.name"/>
+            <div class="content-wrapper">
+                <div class="content-header row mt-3">
+                    <div class="content-header-left col-12 mb-1">
+                        <h2 class="content-header-title float-left mb-0">
+                            <t t-out="franchise.name"/>
+                            <small class="text-muted">
+                                (<t t-out="franchise.code or '—'"/>)
+                            </small>
+                        </h2>
+                        <p class="mt-2">
+                            Bạn đang là
+                            <strong>
+                                <t t-out="role_labels.get(membership.role, membership.role)"/>
+                            </strong>
+                            tại cửa hàng này.
+                        </p>
+                    </div>
+                </div>
+                <div class="content-body">
+                    <div class="card">
+                        <div class="card-header d-flex align-items-center justify-content-between">
+                            <h4 class="card-title mb-0">Thành viên cửa hàng</h4>
+                            <span id="o_wujia_realtime_indicator"
+                                  class="badge badge-success d-none">Đã cập nhật</span>
+                        </div>
+                        <div class="card-content">
+                            <div class="card-body p-0">
+                                <table id="o_wujia_franchise_members"
+                                       t-att-data-franchise-id="franchise.id"
+                                       class="table mb-0">
+                                    <thead>
+                                        <tr>
+                                            <th>User</th>
+                                            <th>Vai trò</th>
+                                            <th>Hiệu lực</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr t-foreach="members" t-as="member">
+                                            <t t-set="role_color"
+                                               t-value="{'owner': 'primary', 'manager': 'info', 'staff': 'secondary'}.get(member.role, 'secondary')"/>
+                                            <td>
+                                                <t t-out="member.user_id.name"/>
+                                                <span t-if="member.is_primary_owner"
+                                                      class="badge badge-warning ml-1">Chủ chính</span>
+                                            </td>
+                                            <td>
+                                                <span t-attf-class="badge badge-#{role_color}">
+                                                    <t t-out="role_labels.get(member.role, member.role)"/>
+                                                </span>
+                                            </td>
+                                            <td>
+                                                <t t-out="member.date_from"/> —
+                                                <t t-out="member.date_to or '—'"/>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </t>
+    </template>
+
+</odoo>

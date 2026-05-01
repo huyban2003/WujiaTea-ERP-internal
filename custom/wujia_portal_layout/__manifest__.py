@@ -1,0 +1,25 @@
+{
+    'name': 'Wujia Portal Layout',
+    'version': '19.0.1.0.0',
+    'category': 'Wujia',
+    'summary': 'Custom Vuexy-style portal layout (independent from Odoo /my)',
+    'description': 'Standalone portal layout for WujiaTea — fully replicates the v14 portal '
+                   'shell (sidebar, top nav, login, dashboard wrapper). Templates and assets '
+                   'are self-contained; downstream modules render their pages inside this layout.',
+    'author': 'WujiaTea',
+    'license': 'LGPL-3',
+    'depends': ['base', 'web'],
+    'data': [
+        'views/assets.xml',
+        'views/layouts.xml',
+        'views/login_page.xml',
+        'views/forgot_pass.xml',
+        'views/change_password_page.xml',
+        'views/dashboard_page.xml',
+        'views/profile_page.xml',
+        'views/error_page.xml',
+    ],
+    'installable': True,
+    'application': False,
+    'auto_install': False,
+}

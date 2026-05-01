@@ -1,0 +1,81 @@
+<odoo>
+    <data>
+        <template id="wujia_portal_layout.profile_page">
+            <t t-call="wujia_portal_layout.app_layout">
+
+                <div class="content-wrapper">
+                    <div class="content-body">
+                        <!-- account setting page start -->
+                        <section id="page-account-settings">
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <div class="card">
+                                        <div class="card-content">
+                                            <div class="card-body">
+                                                <form class="novalidate">
+                                                    <div class="row">
+                                                        <div class="col-12">
+                                                            <div class="row">
+                                                                <div class="col-12">
+                                                                    <img id="img-upload" class="img-upload-user-profile" t-att-src="'/profile/avatar/'+ str(request.env.user.id)"/>
+                                                                        <!-- t-attf-src="data:image/*;base64,{{data.image_1920}}" /> -->
+                                                                </div>
+                                                                <div class="col-12 mb-2">
+                                                                    <label for="file_avatar_user_profile" class="custom-file-upload">
+                                                                        Chọn hình
+                                                                    </label>
+                                                                    <input id="file_avatar_user_profile" type="file" accept="image/png, image/jpeg" name="file_avatar_user_profile" style="display: none;"
+                                                                        onchange="readURL(this);" />
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-12">
+                                                            <div class="form-group">
+                                                                <div class="controls">
+                                                                    <label for="account-name">Name</label>
+                                                                    <input type="text" class="form-control" id="account-name" placeholder="Name" t-att-value="profile.name" required="required" data-validation-required-message="This name field is required" disabled="disabled"/>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-12">
+                                                            <div class="form-group">
+                                                                <div class="controls">
+                                                                    <label for="account-e-mail">Email</label>
+                                                                    <input type="email" class="form-control" id="account-e-mail" placeholder="Email" t-att-value="profile.email" required="required" data-validation-required-message="This email field is required" disabled="disabled"/>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-12">
+                                                            <div class="form-group">
+                                                                <div class="controls">
+                                                                    <label for="account-e-mail">Phone</label>
+                                                                    <input type="text" class="form-control" id="" placeholder="Số điện thoại" required="required" t-att-value="profile.phone" data-validation-required-message="This email field is required" disabled="disabled"/>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-12">
+                                                            <div class="form-group">
+                                                                <div class="controls">
+                                                                    <label for="account-e-mail">Address</label>
+                                                                    <textarea name="" id="" class="form-control" placeholder="Địa chỉ" disabled="disabled"><t t-esc="profile.street"/></textarea>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                        
+                                                    </div>
+                                                </form>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                </div>
+                            </div>
+                        </section>
+                        <!-- account setting page end -->
+
+                    </div>
+                </div>
+            </t>
+        </template>
+    </data>
+</odoo>

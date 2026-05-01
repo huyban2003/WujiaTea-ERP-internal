@@ -1,0 +1,92 @@
+.orgchart {
+    background-image: none;
+}
+
+.orgchart_person {
+    display: flex;
+    /* border: 1px solid orangered; */
+    border-radius: 4px;
+    width: 235px;
+    max-width: 235px;
+    background-color: whitesmoke;
+    margin: 10px;
+    box-shadow: 0 0 15px 0 rgba(0, 0, 0, 0.3);
+}
+
+.orgchart_person .avatar {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+}
+
+.person_info {
+    margin-top: 10px;
+    padding: 2px;
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+}
+
+.person_info .name {
+    font-weight: bold;
+    /*align-self: center;*/
+    text-align: left;
+}
+
+.person_info .level, .email {
+    text-align: left;
+}
+
+.person_info .level .level_rank {
+    border: 1px rgb(3, 3, 3) solid;
+    border-radius: 5px;
+    padding: 1px;
+}
+
+.person_info .level span:last-child {
+    padding-left: 1rem;
+}
+
+.orgchart .nodes.vertical::before {
+    left: -6px;
+    margin-top: -4px;
+}
+
+.orgchart .nodes.vertical > .hierarchy:first-child::before {
+    width: 0;
+}
+
+.orgchart .nodes.vertical .hierarchy:first-child::after {
+    width: 35px;
+}
+
+.orgchart .nodes.vertical .node {
+    margin-left: 25px;
+}
+
+.orgchart .nodes.vertical .nodes {
+    padding-left: 50px;
+}
+
+.orgchart .nodes.vertical .hierarchy::before {
+    width: 35px;
+}
+
+
+.orgchart_person1 {
+    display: flex;
+    border: 1px solid orangered;
+    border-radius: 4px;
+    width: 235px;
+    max-width: 235px;
+    background-color: whitesmoke;
+    margin: 15px;
+}
+
+.orgchart_person1 .avatar {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+}
+
+

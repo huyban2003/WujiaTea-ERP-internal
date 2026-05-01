@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="view_order_form_wujia" model="ir.ui.view">
+        <field name="name">sale.order.form.wujia</field>
+        <field name="model">sale.order</field>
+        <field name="inherit_id" ref="sale.view_order_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='partner_id']" position="after">
+                <field name="is_portal_order" readonly="1"/>
+                <field name="franchise_id"
+                       options="{'no_create': True}"
+                       required="is_portal_order"/>
+                <field name="franchise_partner_id"
+                       options="{'no_create': True}"
+                       required="is_portal_order"/>
+                <field name="area_id" readonly="1" optional="show"/>
+            </xpath>
+
+            <xpath expr="//notebook" position="inside">
+                <page string="Wujia Portal" name="wujia_portal_info"
+                      invisible="not portal_requester_user_id and not is_portal_order">
+                    <group>
+                        <group string="Người tạo (audit trail)">
+                            <field name="portal_requester_user_id"/>
+                            <field name="portal_member_id"/>
+                        </group>
+                        <group string="Giao hàng (override)">
+                            <field name="portal_delivery_street"/>
+                            <field name="portal_delivery_phone"/>
+                            <field name="portal_note"/>
+                        </group>
+                    </group>
+                </page>
+                <page string="Khối lượng" name="wujia_weight_info">
+                    <group>
+                        <group>
+                            <field name="total_planned_weight" widget="float"/>
+                        </group>
+                    </group>
+                </page>
+            </xpath>
+
+            <xpath expr="//list/field[@name='product_uom_qty']" position="after">
+                <field name="weight_per_unit" optional="hide"/>
+                <field name="planned_weight" optional="hide"/>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="view_order_tree_wujia" model="ir.ui.view">
+        <field name="name">sale.order.list.wujia</field>
+        <field name="model">sale.order</field>
+        <field name="inherit_id" ref="sale.view_order_tree"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='partner_id']" position="after">
+                <field name="is_portal_order" optional="hide"/>
+                <field name="franchise_id" optional="show"/>
+                <field name="area_id" optional="hide"/>
+                <field name="portal_requester_user_id" optional="hide"/>
+                <field name="total_planned_weight" optional="hide" sum="Total"/>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="view_sales_order_filter_wujia" model="ir.ui.view">
+        <field name="name">sale.order.filter.wujia</field>
+        <field name="model">sale.order</field>
+        <field name="inherit_id" ref="sale.view_sales_order_filter"/>
+        <field name="arch" type="xml">
+            <xpath expr="//search" position="inside">
+                <field name="franchise_id"/>
+                <field name="franchise_partner_id"/>
+                <field name="area_id"/>
+                <field name="portal_requester_user_id"/>
+                <separator/>
+                <filter string="Đơn từ Portal" name="filter_portal_only"
+                        domain="[('is_portal_order', '=', True)]"/>
+                <separator/>
+                <filter string="Theo cửa hàng" name="group_franchise"
+                        context="{'group_by': 'franchise_id'}"/>
+                <filter string="Theo khu vực" name="group_area"
+                        context="{'group_by': 'area_id'}"/>
+            </xpath>
+        </field>
+    </record>
+
+</odoo>
