@@ -15,17 +15,20 @@ class ResArea(models.Model):
         string='Người phụ trách',
         help='Người chịu trách nhiệm vận hành khu vực.',
     )
-    ward_ids = fields.One2many(
+    ward_ids = fields.Many2many(
         'res.ward',
+        'res_area_ward_rel',
         'area_id',
+        'ward_id',
         string='Phường/Xã',
+        help='Danh sách phường/xã thuộc khu vực — chọn từ danh mục res.ward.',
     )
     state_ids = fields.Many2many(
         'res.country.state',
         string='Tỉnh/Thành',
         compute='_compute_state_ids',
         store=True,
-        help='Danh sách tỉnh/thành tổng hợp từ ward thuộc khu vực — cập nhật tự động.',
+        help='Danh sách tỉnh/thành tổng hợp từ phường/xã thuộc khu vực — cập nhật tự động.',
     )
     description = fields.Text(string='Mô tả phạm vi khu vực')
     note = fields.Text(string='Ghi chú nội bộ')
@@ -48,6 +51,5 @@ class ResArea(models.Model):
             'name': _('Phường/Xã thuộc %s', self.name),
             'res_model': 'res.ward',
             'view_mode': 'list,form',
-            'domain': [('area_id', '=', self.id)],
-            'context': {'default_area_id': self.id},
+            'domain': [('id', 'in', self.ward_ids.ids)],
         }

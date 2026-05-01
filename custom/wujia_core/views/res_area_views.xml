@@ -48,12 +48,11 @@
                     </group>
                     <notebook>
                         <page string="Phường/Xã" name="wards">
-                            <field name="ward_ids" context="{'default_area_id': id}">
-                                <list editable="bottom">
+                            <field name="ward_ids" widget="many2many">
+                                <list>
                                     <field name="code"/>
                                     <field name="name"/>
-                                    <field name="state_id"
-                                           options="{'no_create': True}"/>
+                                    <field name="state_id"/>
                                     <field name="active" widget="boolean_toggle"/>
                                 </list>
                             </field>

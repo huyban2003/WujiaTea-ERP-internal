@@ -1,0 +1,1041 @@
+% ===========================================================================
+% WujiaTea Odoo 19 — Project Documentation
+% Compile:  pdflatex wujia-tea-doc.tex (chạy 2 lần để resolve cross-ref)
+% (hoặc dùng scripts/build-doc.sh)
+% ===========================================================================
+\documentclass[11pt,a4paper]{report}
+
+% --- Unicode + Vietnamese support (lualatex + fontspec) ---
+\usepackage{fontspec}
+\setmainfont{Lato}
+\setsansfont{Lato}
+\setmonofont{DejaVu Sans Mono}[Scale=0.9]
+
+% --- Layout ---
+\usepackage[margin=2.5cm]{geometry}
+\usepackage{parskip}
+\setlength{\parindent}{0pt}
+
+% --- Tables, lists ---
+\usepackage{booktabs}
+\usepackage{longtable}
+\usepackage{array}
+\usepackage{tabularx}
+\usepackage{enumitem}
+
+% --- Code listings ---
+\usepackage{listings}
+\usepackage{xcolor}
+\definecolor{codebg}{RGB}{245,245,250}
+\definecolor{codekw}{RGB}{0,0,180}
+\definecolor{codestr}{RGB}{120,80,30}
+\definecolor{codecmt}{RGB}{120,120,120}
+\lstset{
+    basicstyle=\ttfamily\small,
+    backgroundcolor=\color{codebg},
+    breaklines=true,
+    breakatwhitespace=true,
+    keywordstyle=\color{codekw}\bfseries,
+    stringstyle=\color{codestr},
+    commentstyle=\color{codecmt}\itshape,
+    showstringspaces=false,
+    columns=fullflexible,
+    frame=single,
+    framesep=4pt,
+    rulecolor=\color{black!15},
+    xleftmargin=8pt,
+    xrightmargin=4pt,
+    aboveskip=8pt,
+    belowskip=8pt,
+}
+\lstdefinestyle{python}{language=Python}
+\lstdefinestyle{xml}{language=XML, morekeywords={t-out,t-set,t-call,t-if,t-foreach,t-as,t-att-value,t-attf-href}}
+\lstdefinestyle{shell}{basicstyle=\ttfamily\small}
+
+% --- Hyperlinks + bookmarks ---
+\usepackage{hyperref}
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue!50!black,
+    urlcolor=blue!60!black,
+    pdftitle={WujiaTea Odoo 19 — Documentation},
+    pdfauthor={WujiaTea Dev Team},
+}
+
+% --- Title block ---
+\title{
+    \vspace{2cm}
+    \textbf{WujiaTea Odoo 19} \\[0.3cm]
+    \large Tài liệu kiến trúc \& sprint log \\[0.2cm]
+    \large Hồng Trà Ngô Gia
+}
+\author{Dev Team \\ \texttt{huyban.han@gmail.com}}
+\date{Cập nhật: \today}
+
+% ===========================================================================
+\begin{document}
+
+\maketitle
+\tableofcontents
+\newpage
+
+% ===========================================================================
+\chapter{Tổng quan dự án}
+
+\section{Mục tiêu}
+
+Migrate hệ thống ERP WujiaTea (Hồng Trà Ngô Gia) từ Odoo 14 + portal custom Vuexy lên Odoo 19 Community, giữ nguyên giao diện portal user quen thuộc, đồng thời:
+
+\begin{itemize}
+    \item Sửa các vấn đề kiến trúc của bản v14 (1 user = 1 chi nhánh, không real-time, code rời rạc).
+    \item Thêm real-time update cho portal (data đổi → page tự cập nhật, không cần F5).
+    \item Tách module rõ ràng theo nguyên tắc 1 module = 1 trách nhiệm.
+    \item Document đầy đủ để BA review và đề xuất điều chỉnh.
+\end{itemize}
+
+\section{Cấu trúc thư mục}
+
+\begin{lstlisting}[style=shell]
+WujiaTea/
++-- odoo19/                 Source code Odoo 19 (Python, không sửa)
++-- themes/                 Muk Backend Theme + OCA queue
++-- custom/                 Code WujiaTea (chỗ sửa nghiệp vụ)
+|   +-- wujia_core                   res.area, res.ward (master data)
+|   +-- wujia_franchise              franchise.management + franchise.member
+|   +-- wujia_portal_layout          Vuexy template
+|   +-- wujia_portal_base            /my/franchises route + bus realtime
+|   +-- wujia_sale                   sale.order ext + weight calc
+|   +-- wujia_account                (placeholder, chưa dùng)
++-- config/odoo.conf        Config Odoo
++-- data/                   Filestore (file đính kèm)
++-- logs/                   Log file
++-- scripts/                Lệnh start / upgrade / init-db
++-- docs/                   Tài liệu (BA xem ở đây)
+\end{lstlisting}
+
+\textbf{Refactor 2026-04-30:} Module \texttt{wujia\_franchise\_management} cũ đã \emph{gộp vào} \texttt{wujia\_franchise} để tránh circular dependency (\texttt{member.franchise\_id} link tới \texttt{wujia.franchise.management}, mà management khi đó nằm ở module phụ thuộc ngược --- xem ADR-015).
+
+\section{Modules đã hoàn thành}
+
+\subsection{Sprint 1 + Sprint 2 (sau refactor 2026-04-30)}
+
+\begin{longtable}{p{4cm} p{10cm}}
+\toprule
+\textbf{Module} & \textbf{Vai trò nghiệp vụ} \\
+\midrule
+\endhead
+\texttt{wujia\_core} & Master data dùng chung: \texttt{res.area} (khu vực kinh doanh), \texttt{res.ward} (phường/xã, link \texttt{res.country.state}). Mọi module khác depend lên đây để dùng địa lý. \\
+\texttt{wujia\_franchise} & Hợp nhất 2 model lõi của BA spec mục A: \texttt{wujia.franchise.management} (hồ sơ cửa hàng, hợp đồng start/end, status, area) + \texttt{wujia.franchise.member} (user × cửa hàng × role, có UI độc lập). Mở rộng \texttt{res.partner.is\_franchise} (compute), \texttt{res.users.member\_ids}. \\
+\texttt{wujia\_portal\_layout} & Khung Vuexy (sidebar đen, top nav xanh, login). Không thay đổi trong sprint này. \\
+\texttt{wujia\_portal\_base} & Routes \texttt{/my/franchises} + \texttt{/portal/franchises} + bus channel \texttt{wujia.franchise\_<id>}. Sample\_data 5 user × 3 cửa hàng × 7 membership. \\
+\texttt{wujia\_sale} & sale.order extension cho đơn portal: \texttt{is\_portal\_order}, \texttt{franchise\_partner\_id}, \texttt{franchise\_id}, \texttt{portal\_member\_id}, \texttt{area\_id}. Cộng tính khối lượng \emph{snapshot} trên \texttt{sale.order.line} / \texttt{stock.move} / \texttt{stock.picking} / \texttt{stock.picking.batch} (BA spec mục 3). \\
+\bottomrule
+\end{longtable}
+
+\subsection{Còn lại (chưa làm)}
+
+\begin{longtable}{p{5cm} p{9cm}}
+\toprule
+\textbf{Module dự kiến} & \textbf{Vai trò} \\
+\midrule
+\endhead
+\texttt{wujia\_portal\_sale} & UI \texttt{/portal/order} (catalog + cart + submit) --- Day 5+. \\
+\texttt{wujia\_portal\_purchase\_history} & UI \texttt{/portal/purchase-history} --- Day 8+. \\
+\texttt{wujia\_fleet} (BA spec mục B) & Đội xe / nhà xe / pricelist --- sprint sau. \\
+\texttt{wujia\_delivery\_cost} (BA spec mục B) & Bảng giá đội xe + chi phí batch --- sprint sau. \\
+\bottomrule
+\end{longtable>
+
+\section{Dependency tree (sau refactor)}
+
+\begin{lstlisting}[style=shell]
+base, mail, contacts, portal, sale, stock, stock_picking_batch, bus
+       |
+       v
+wujia_core (res.area, res.ward)
+       |
+       v
+wujia_franchise (franchise.management + franchise.member,
+                 res.partner.is_franchise, res.users.member_ids)
+       |
+       +--> wujia_sale (sale.order ext + weight calc)
+       |
+       +--> wujia_portal_layout (Vuexy)
+                |
+                v
+            wujia_portal_base (/my/franchises + bus realtime)
+\end{lstlisting}
+
+Cây không còn nhánh ngược. Đặc biệt: \texttt{wujia.franchise.member.franchise\_id} \emph{cùng module} với \texttt{wujia.franchise.management} → registry không bị thiếu model khi cài độc lập \texttt{wujia\_franchise}.
+
+\section{Khác biệt lớn so với bản Odoo 14}
+
+\begin{longtable}{p{5cm} p{5cm} p{4cm}}
+\toprule
+\textbf{Vấn đề bản 14} & \textbf{Giải pháp bản 19} & \textbf{Lý do} \\
+\midrule
+\endhead
+1 user = 1 chi nhánh & Model mới N-N với role & Hỗ trợ chủ đa cửa hàng \\
+\midrule
+Cart lưu localStorage & Draft SO trên server là source of truth & Đổi thiết bị vẫn còn cart \\
+\midrule
+8 endpoint \texttt{/api/v1/*} rời rạc & Gộp \texttt{/portal/order/*} JSON-RPC & Discoverable \\
+\midrule
+Không real-time & Bus + WebSocket & UX không phải F5 \\
+\midrule
+Filter chỉ ở controller & Record rule ở ORM & Phòng exploit \\
+\midrule
+jQuery + SweetAlert mixed & OWL Interaction reactive & Modern, testable \\
+\midrule
+Code dồn vào 1 module & Tách 5 module nhỏ & Audit, rollback dễ \\
+\bottomrule
+\end{longtable}
+
+\section{Cách chạy}
+
+\begin{lstlisting}[style=shell]
+# Khởi động dev server
+bash /home/huyban/odoo-dev/WujiaTea/scripts/start.sh
+
+# URLs
+http://localhost:8019/portal/login    Portal user login (Vuexy)
+http://localhost:8019/web/login       Backend admin login
+http://localhost:8019/odoo            Backend admin (Muk theme)
+
+# Demo accounts (password = demo123)
+anh.owner    -> Chủ HN-01
+binh.manager -> Quản lý HN-01
+cuong.staff  -> Nhân viên HN-01
+dung.multi   -> 3 cửa hàng cùng lúc (test multi-franchise)
+em.hcm       -> Chủ HCM-01
+
+# Admin
+admin / admin
+
+# Routes mới
+/my/franchises             list cửa hàng của user
+/my/franchises/<id>        detail + realtime member list
+/my/branches*              -> 301 redirect tới /my/franchises*
+\end{lstlisting}
+
+% ===========================================================================
+\chapter{Quyết định kiến trúc (ADR)}
+
+Mỗi quyết định lớn ghi 1 mục. BA muốn thay đổi → mở PR sửa file \texttt{.tex} + module liên quan.
+
+\section{ADR-001: Tách \texttt{odoo19} source ra khỏi project khác}
+
+\textbf{Quyết định:} Đặt source Odoo 19 trong \texttt{WujiaTea/odoo19/} thay vì \texttt{$\sim$/odoo-dev/odoo19/} chung.
+
+\textbf{Lý do:} Mỗi project có thể dùng version khác. Tách giúp \texttt{git clone} là đủ.
+
+\textbf{Trade-off:} Tốn 17GB disk. Chấp nhận được.
+
+\section{ADR-002: Dùng venv conda \texttt{odoo} (Python 3.10)}
+
+\textbf{Quyết định:} Run Odoo 19 bằng \texttt{$\sim$/miniconda3/envs/odoo/bin/python}.
+
+\textbf{Lý do:} Conda env đã có sẵn deps cơ bản, không cần build lại. Tránh \texttt{apt install python3-venv}.
+
+\textbf{Trade-off:} Python 3.10 OK với Odoo 19.
+
+\section{ADR-003: Postgres role riêng \texttt{odoo19}}
+
+\textbf{Quyết định:} Tạo role \texttt{odoo19} superuser, không dùng chung \texttt{odoo16}.
+
+\textbf{Lý do:} Cô lập DB project — drop role không ảnh hưởng project khác.
+
+\textbf{DB:} \texttt{wujia\_tea\_19} (owner = \texttt{odoo19}).
+
+\section{ADR-004: Custom portal Vuexy thay vì /my chuẩn Odoo}
+
+\textbf{Quyết định:} Build module riêng \texttt{wujia\_portal\_layout} clone giao diện Vuexy từ v14.
+
+\textbf{Lý do (BA đã đưa):}
+\begin{itemize}
+    \item Production v14 đã có giao diện Vuexy quen thuộc với user.
+    \item /my chuẩn Odoo không phát triển được — sidebar layout không linh hoạt.
+    \item Bê y chang để user không cần học lại UI.
+\end{itemize}
+
+\textbf{Trade-off:}
+\begin{itemize}
+    \item Bê 53MB static assets vào repo.
+    \item Maintain thêm 1 layer CSS song song với BS5.
+    \item Bù lại: full control UX.
+\end{itemize}
+
+\section{ADR-005: Model mới \texttt{wujia.franchise.member} thay vì sửa \texttt{franchise.management} v14}
+
+\textbf{Quyết định:} Tạo model mới hoàn toàn, không bê \texttt{franchise.management} v14.
+
+\textbf{Lý do:} v14 design 1 user = 1 chi nhánh (constraint cứng \texttt{\_check\_related\_user}) không đủ cho nghiệp vụ thực --- chủ chuỗi có nhiều cửa hàng, 1 cửa hàng có nhiều nhân viên.
+
+\textbf{Schema:} \texttt{user\_id} × \texttt{franchise\_id} × \texttt{role} (owner / manager / staff). Cộng \texttt{is\_primary\_owner}, \texttt{date\_from/to}, \texttt{active}, \texttt{is\_currently\_valid} (stored compute).
+
+\textbf{Cập nhật 2026-04-30 (BA spec):} Đổi tên model \texttt{wujia.branch.member} → \texttt{wujia.franchise.member}, đổi field \texttt{branch\_partner\_id} (M2o \texttt{res.partner}) → \texttt{franchise\_id} (M2o \texttt{wujia.franchise.management}). Member giờ link trực tiếp tới entity hợp đồng thay vì proxy qua partner.
+
+\section{ADR-006: Real-time qua \texttt{bus.bus} + WebSocket Odoo native}
+
+\textbf{Quyết định:} Dùng \texttt{bus.bus} chuẩn Odoo 19 cho mọi real-time push.
+
+\textbf{Channel naming convention (sau refactor 2026-04-30):}
+\begin{itemize}
+    \item \texttt{wujia.franchise\_<id>} --- events liên quan đến cửa hàng (rename từ \texttt{wujia.branch\_<id>})
+    \item \texttt{wujia.franchise\_<id>.orders} --- events đơn hàng (planned, chưa làm)
+\end{itemize}
+
+\textbf{Channel gating:} mỗi module sở hữu namespace của mình, override \texttt{ir.websocket.\_build\_bus\_channel\_list} verify quyền subscribe. Regex hiện dùng: \verb|^wujia\.franchise_(\d+)$|.
+
+\section{ADR-007: Tách 3 module cho sprint Order + History}
+
+\textbf{Quyết định:} \texttt{wujia\_sale} (data) + \texttt{wujia\_portal\_sale} (UI order) + \texttt{wujia\_portal\_purchase\_history} (UI history).
+
+\textbf{Lý do:} v14 nhồi tất cả vào \texttt{co\_portal\_wujia} (243 dòng controller + 251 dòng XML + 288 dòng JS) → khó audit. Tách 3 layer giúp model layer cài được không cần portal (cho API/headless).
+
+\section{ADR-008: URL kebab-case + 301 redirect từ snake\_case v14}
+
+\textbf{Quyết định:} \texttt{/portal/purchase-history} (mới); \texttt{/portal/purchase\_history} → 301.
+
+\textbf{Lý do:} Convention modern web. Đồng nhất với \texttt{/portal/order}.
+
+\section{ADR-009: Block portal feature → Defer sprint sau}
+
+\textbf{Quyết định BA chốt:} Không làm trong sprint 2.
+
+\section{ADR-010: 3 field địa chỉ giao trên \texttt{sale.order}}
+
+\textbf{Quyết định BA chốt:} \texttt{portal\_delivery\_street} + \texttt{portal\_delivery\_phone} + \texttt{portal\_note} char/text trực tiếp trên SO.
+
+\textbf{Lý do:} Đơn giản, match contract v14. Tránh tạo \texttt{res.partner} shipping rác.
+
+\section{ADR-011: Active branch picker xảy ra TẠI LOGIN}
+
+\textbf{Quyết định BA chốt:} Sau login → 2+ chi nhánh → BẮT BUỘC chọn trước khi vào \texttt{/portal}.
+
+\textbf{Implementation:} Set \texttt{request.session['wujia\_active\_branch\_id']} ngay sau authenticate. Có dropdown topnav để đổi nhanh runtime.
+
+\section{ADR-012: Tách \texttt{wujia\_franchise\_management} ra khỏi \texttt{wujia\_franchise} (\emph{bị overrule bởi ADR-015})}
+
+\textbf{Quyết định ban đầu:} Tạo module riêng \texttt{wujia\_franchise\_management} cho phần ``hồ sơ hợp đồng''. Module gốc \texttt{wujia\_franchise} chỉ giữ membership/role.
+
+\textbf{Vấn đề phát sinh khi áp BA spec mới:} Member field \texttt{franchise\_id} link tới \texttt{wujia.franchise.management} → khi đó management ở module phụ thuộc ngược trên membership → registry validation fail nếu cài độc lập \texttt{wujia\_franchise}.
+
+\textbf{Quyết định ngày 2026-04-30:} Overrule. Gộp cả management + member vào 1 module. Xem ADR-015. Module \texttt{wujia\_franchise\_management} bị xóa hoàn toàn.
+
+\section{ADR-013: \texttt{res.area} / \texttt{res.ward} đặt trong \texttt{wujia\_core}}
+
+\textbf{Quyết định:} 2 model master data địa lý \texttt{res.area} (khu vực kinh doanh) và \texttt{res.ward} (phường/xã) đặt trong \texttt{wujia\_core}, không gắn vào \texttt{wujia\_franchise}.
+
+\textbf{Lý do:}
+\begin{itemize}
+    \item Khu vực / phường/xã không chỉ phục vụ franchise. Tương lai sale/delivery/customer-address đều dùng được.
+    \item Tránh circular dependency tương lai (vd \texttt{wujia\_delivery} muốn dùng \texttt{res.area} thì khỏi phải depend cứng \texttt{wujia\_franchise}).
+    \item Naming \texttt{res.*} (thay vì \texttt{wujia.*}) gợi ý đây là master data chung, không nghiệp vụ chuyên biệt.
+\end{itemize}
+
+\textbf{Quan hệ:} \texttt{res.area.ward\_ids} là Many2many \texttt{res.ward} (junction \texttt{res\_area\_ward\_rel}) --- 1 ward có thể thuộc nhiều area khác nhau cho mục đích vận hành/giao hàng. \texttt{res.area.state\_ids} compute store (distinct \texttt{ward\_ids.state\_id}). \texttt{res.ward} không có \texttt{area\_id} (theo BA spec mới --- ward là master data thuần địa lý, area là grouping kinh doanh chồng lên).
+
+\section{ADR-014: \texttt{wujia.franchise.member} có UI độc lập, không sửa form \texttt{res.users} gốc}
+
+\textbf{Quyết định BA chốt:} Member là entity độc lập (form / list / search action riêng, menu \emph{Operation > Franchise Member}). Form chuẩn \texttt{res.users} của Odoo \emph{chỉ thêm 1 smart-button} ``Franchise Members'' mở list filter; không nhúng tab editable.
+
+\textbf{Lý do BA đưa:}
+\begin{itemize}
+    \item Đụng vào \texttt{res.users} form gốc dễ break kế thừa từ HR / Sales / các app khác.
+    \item Audit trail rõ ràng: ai gán role gì cho user nào, khi nào --- xem trong list view của \texttt{wujia.franchise.member}.
+    \item Tránh case admin/HR vô tình tạo membership rời rạc qua res.users form mà không thấy được constraint primary owner.
+\end{itemize}
+
+\section{ADR-015: Gộp \texttt{wujia\_franchise\_management} → \texttt{wujia\_franchise} (chống circular dep)}
+
+\textbf{Quyết định ngày 2026-04-30:} Xóa module \texttt{wujia\_franchise\_management}, di chuyển toàn bộ model + view + security vào \texttt{wujia\_franchise}.
+
+\textbf{Lý do:} BA spec mới yêu cầu \texttt{wujia.franchise.member.franchise\_id} là M2o trực tiếp tới \texttt{wujia.franchise.management} (thay cho M2o tới \texttt{res.partner} ở thiết kế cũ). Hai model trở nên tightly-coupled: management có \texttt{member\_ids} One2many, member có \texttt{franchise\_id} M2o. Tách 2 module sẽ tạo registry error khi cài độc lập một bên.
+
+\textbf{Được/Mất:}
+\begin{itemize}
+    \item[$+$] Hết circular dep, registry validation pass.
+    \item[$+$] Đỡ 1 module → đỡ 1 manifest, ít boilerplate.
+    \item[$-$] Mất khả năng cài/uninstall riêng "hồ sơ hợp đồng". Đánh giá: không quan trọng vì cả 2 model đều phải có để chạy nghiệp vụ portal.
+\end{itemize}
+
+% ===========================================================================
+\chapter{Refactor 2026-04-30 --- BA spec mục A + Tính khối lượng}
+
+\section{Bối cảnh}
+
+BA gửi spec mới (sheet \emph{Model Field} trong \texttt{Wujia\_Internal ERP Master Plan.xlsm}) yêu cầu reshape lại phần \emph{Quản lý nhượng quyền} (mục A) và \emph{Tính toán khối lượng} (mục 3) trước khi đi tiếp Day 5+. Các vấn đề BA muốn fix dựa trên review v14:
+
+\begin{itemize}
+    \item v14 hard-code \emph{1 user = 1 chi nhánh} (constraint cứng \texttt{\_check\_related\_user} trong \texttt{franchise.management}). Không cho chủ chuỗi quản lý nhiều cửa hàng.
+    \item v14 chỉ có \texttt{is\_block} boolean --- không có khái niệm role (Owner / Manager / Staff).
+    \item v14 \texttt{franchise.management.code} là related từ \texttt{partner.code}; BA muốn tách độc lập (Char unique trực tiếp trên management) để code không phụ thuộc partner.
+    \item v14 \texttt{res.area} chỉ là 4 field phẳng (name + state + district + ward M2o đơn). BA muốn area là khu vực \emph{kinh doanh} có \texttt{manager\_user\_id}, \texttt{state\_ids}/\texttt{ward\_ids} compute từ ward children → search/report nhanh.
+    \item v14 \texttt{res.ward} chỉ phục vụ địa chỉ. BA muốn ward là master phẳng (không có \texttt{area\_id}); quan hệ ward-area expose qua \texttt{res.area.ward\_ids} M2M để 1 ward có thể nằm trong nhiều khu vực vận hành (case overlap khu giao hàng).
+    \item v14 không có \texttt{is\_franchise} flag trên partner --- BA muốn flag rõ ràng (compute từ \texttt{franchise\_ids != False}, store + index).
+    \item v14 không lưu snapshot weight; sửa product master = thay đổi cân nặng đơn cũ → sai số liệu lịch sử. BA yêu cầu snapshot xuống \texttt{sale.order.line}, \texttt{stock.move}.
+    \item v14 không có state machine cửa hàng (chỉ \texttt{is\_block}). BA muốn 5-state Draft/Active/Locked/Closed/Expired + cron auto-expire.
+    \item Naming \emph{branch} (chi nhánh công ty) gây nhầm với multi-company của Odoo. BA chuẩn hóa thành \emph{franchise} (cửa hàng nhượng quyền).
+\end{itemize}
+
+\textbf{Phạm vi đã chốt với BA:} mục A + tính khối lượng. Mục B (Fleet / Delivery cost) để sprint sau.
+
+\section{Module sau refactor}
+
+\begin{longtable}{p{4.5cm} p{9.5cm}}
+\toprule
+\textbf{Module} & \textbf{Models / vai trò} \\
+\midrule
+\endhead
+\texttt{wujia\_core} & \texttt{res.area}, \texttt{res.ward} (master data dùng chung). \\
+\texttt{wujia\_franchise} & \texttt{wujia.franchise.management} + \texttt{wujia.franchise.member} + ext \texttt{res.partner}, \texttt{res.users}. Gộp 2 model vào cùng module để chống circular dep (xem ADR-015). \\
+\texttt{wujia\_sale} & \texttt{sale.order} ext (portal + franchise) + tính khối lượng trên line / stock.move / stock.picking / stock.picking.batch. \\
+\texttt{wujia\_portal\_base} & Routes \texttt{/my/franchises}, bus channel \texttt{wujia.franchise\_<id>}, sample\_data. \\
+\bottomrule
+\end{longtable}
+
+\section{Model \texttt{res.ward} (Phường/Xã)}
+
+File: \texttt{custom/wujia\_core/models/res\_ward.py}
+
+\begin{longtable}{p{4cm} p{4cm} p{7cm}}
+\toprule
+\textbf{Field} & \textbf{Kiểu} & \textbf{Vai trò} \\
+\midrule
+\endhead
+\texttt{name} & Char required & Tên phường/xã \\
+\texttt{code} & Char required (unique theo state) & Mã hành chính \\
+\texttt{state\_id} & M2O \texttt{res.country.state} required & Tỉnh/Thành \\
+\texttt{country\_id} & M2O \texttt{res.country} related store & Quốc gia (cache) \\
+\texttt{active} & Boolean & Bật/tắt \\
+\bottomrule
+\end{longtable}
+
+Constraint SQL: \texttt{UNIQUE (state\_id, code)} --- mã ward duy nhất trong từng tỉnh.
+
+\section{Model \texttt{res.area} (Khu vực kinh doanh)}
+
+File: \texttt{custom/wujia\_core/models/res\_area.py}
+
+\begin{longtable}{p{4cm} p{4cm} p{7cm}}
+\toprule
+\textbf{Field} & \textbf{Kiểu} & \textbf{Vai trò} \\
+\midrule
+\endhead
+\texttt{code} & Char required unique & Mã khu vực, vd KV-HCM-01 \\
+\texttt{name} & Char required translate & Tên khu vực \\
+\texttt{sequence} & Integer (default 10) & Thứ tự hiển thị \\
+\texttt{manager\_user\_id} & M2O \texttt{res.users} & Người phụ trách khu vực \\
+\texttt{ward\_ids} & M2M \texttt{res.ward} (rel \texttt{res\_area\_ward\_rel}) & Phường/xã thuộc khu vực --- chọn từ danh mục \\
+\texttt{state\_ids} & M2M compute store & Tỉnh/Thành tổng hợp từ \texttt{ward\_ids.state\_id} \\
+\texttt{description}, \texttt{note} & Text & Mô tả + ghi chú \\
+\texttt{active} & Boolean & Bật/tắt \\
+\bottomrule
+\end{longtable}
+
+\section{Model \texttt{wujia.franchise.management} (Hồ sơ cửa hàng nhượng quyền)}
+
+File: \texttt{custom/wujia\_franchise/models/wujia\_franchise\_management.py}. Inherit \texttt{mail.thread, mail.activity.mixin}.
+
+\subsection{Định danh}
+
+\begin{longtable}{p{5cm} p{4cm} p{6cm}}
+\toprule
+\textbf{Field} & \textbf{Kiểu} & \textbf{Vai trò} \\
+\midrule
+\endhead
+\texttt{code} & Char required unique tracking & Mã cửa hàng (vd H010, HN-01). \emph{Không} còn related từ partner. \\
+\texttt{name} & Char required tracking & Tên cửa hàng \\
+\texttt{display\_name} & Char compute store & Format ``[code] name'' \\
+\texttt{partner\_id} & M2O \texttt{res.partner}, \texttt{ondelete=restrict} & Partner liên kết. \emph{Required khi status='active'} qua \texttt{@constrains}, không required ở field level. \\
+\bottomrule
+\end{longtable}
+
+\subsection{Hợp đồng}
+
+\begin{longtable}{p{5cm} p{4cm} p{6cm}}
+\toprule
+\textbf{Field} & \textbf{Kiểu} & \textbf{Vai trò} \\
+\midrule
+\endhead
+\texttt{franchise\_start\_date} & Date required default today & Ngày bắt đầu \\
+\texttt{franchise\_end\_date} & Date required & Ngày kết thúc (\texttt{@constrains} $\geq$ start) \\
+\texttt{remaining\_days} & Integer compute store & Số ngày còn lại = end - today \\
+\texttt{is\_expired} & Boolean compute store & remaining\_days < 0 \\
+\texttt{opening\_date} & Date & Ngày khai trương \\
+\texttt{status} & Selection 5 trạng thái & draft / active / locked / closed / expired \\
+\bottomrule
+\end{longtable}
+
+\subsection{Khu vực + Liên hệ}
+
+\begin{longtable}{p{5cm} p{4cm} p{6cm}}
+\toprule
+\textbf{Field} & \textbf{Kiểu} & \textbf{Vai trò} \\
+\midrule
+\endhead
+\texttt{area\_id} & M2O \texttt{res.area} \texttt{ondelete=restrict} & Khu vực \\
+\texttt{area\_name} & Char related store readonly & Tên khu vực (cache) \\
+\texttt{state\_id} & M2O \texttt{res.country.state} & Tỉnh/Thành \\
+\texttt{address} & Text & Địa chỉ (đa dòng) \\
+\texttt{phone} & Char & SĐT \\
+\texttt{email} & Char (regex validate) & Email \\
+\bottomrule
+\end{longtable}
+
+\subsection{Thành viên + cờ điều khiển}
+
+\begin{longtable}{p{5cm} p{4cm} p{6cm}}
+\toprule
+\textbf{Field} & \textbf{Kiểu} & \textbf{Vai trò} \\
+\midrule
+\endhead
+\texttt{member\_ids} & O2M \texttt{wujia.franchise.member.franchise\_id} & Danh sách member \\
+\texttt{member\_count} & Integer compute & Đếm member \texttt{is\_currently\_valid=True} \\
+\texttt{main\_owner\_member\_id} & M2O \texttt{wujia.franchise.member} compute & Owner active đầu tiên (BA: bỏ yêu cầu \texttt{is\_primary\_owner=True}) \\
+\texttt{portal\_locked} & Boolean tracking & Khóa portal \\
+\texttt{invoiced} & Boolean & Cờ đã xuất hóa đơn \\
+\texttt{description}, \texttt{note} & Text & Mô tả vận hành + ghi chú \\
+\texttt{active} & Boolean & Bật/tắt record \\
+\bottomrule
+\end{longtable}
+
+\subsection{Action + Cron}
+
+\begin{itemize}
+    \item \textbf{Kích hoạt}: status=active, portal\_locked=False.
+    \item \textbf{Khóa portal}: status=locked, portal\_locked=True.
+    \item \textbf{Đóng cửa hàng}: status=closed, portal\_locked=True (cần confirm).
+    \item \textbf{Stat button ``Thành viên''}: mở list \texttt{wujia.franchise.member} filter theo \texttt{franchise\_id}.
+    \item \textbf{Cron \texttt{ir\_cron\_check\_franchise\_expired}}: daily, set status=expired nếu end\_date < today (đã wire trong views XML).
+\end{itemize}
+
+\section{Model \texttt{wujia.franchise.member} (UI độc lập theo BA spec)}
+
+File: \texttt{custom/wujia\_franchise/models/wujia\_franchise\_member.py}.
+
+\begin{longtable}{p{5cm} p{4cm} p{6cm}}
+\toprule
+\textbf{Field} & \textbf{Kiểu} & \textbf{Vai trò} \\
+\midrule
+\endhead
+\texttt{user\_id} & M2O \texttt{res.users} required cascade & User portal \\
+\texttt{franchise\_id} & M2O \texttt{wujia.franchise.management} required cascade & Cửa hàng (link \emph{trực tiếp}, không qua partner) \\
+\texttt{role} & Selection [owner, manager, staff] & Vai trò \\
+\texttt{is\_primary\_owner} & Boolean & Chủ chính, max 1/cửa hàng \\
+\texttt{date\_from}, \texttt{date\_to} & Date & Hiệu lực \\
+\texttt{is\_currently\_valid} & Boolean compute store index & active AND date range valid \\
+\texttt{display\_name} & Char compute store & ``user @ franchise (role)'' \\
+\texttt{active} & Boolean & Archive \\
+\bottomrule
+\end{longtable}
+
+\textbf{Constraints:}
+\begin{itemize}
+    \item \texttt{date\_from $\leq$ date\_to}.
+    \item \texttt{is\_primary\_owner=True} → \texttt{role=owner}, unique 1 primary/active per franchise.
+    \item \texttt{(user, franchise, active=True)} unique --- vẫn cho user có membership ở nhiều franchise khác nhau.
+\end{itemize}
+
+\textbf{UI độc lập (yêu cầu BA --- ADR-014):} list / form / search action riêng. Menu \emph{Operation > Franchise Member}. Form \texttt{res.users} chuẩn của Odoo \emph{chỉ thêm 1 smart-button} ``Franchise Members'' --- KHÔNG nhúng tab editable.
+
+\section{Extension \texttt{res.partner}}
+
+\begin{longtable}{p{4cm} p{4cm} p{7cm}}
+\toprule
+\textbf{Field} & \textbf{Kiểu} & \textbf{Vai trò} \\
+\midrule
+\endhead
+\texttt{franchise\_ids} & O2M \texttt{wujia.franchise.management.partner\_id} & Danh sách cửa hàng partner đại diện \\
+\texttt{is\_franchise} & Boolean compute store index & \texttt{bool(franchise\_ids)} --- thay cho \texttt{is\_branch} cũ \\
+\texttt{franchise\_count} & Integer compute & Smart-button counter \\
+\bottomrule
+\end{longtable}
+
+Smart-button \emph{Franchise Stores} hiện ra trên form partner khi \texttt{is\_franchise=True}.
+
+\section{Extension \texttt{res.users}}
+
+\begin{longtable}{p{4cm} p{4cm} p{7cm}}
+\toprule
+\textbf{Field / Method} & \textbf{Kiểu} & \textbf{Vai trò} \\
+\midrule
+\endhead
+\texttt{member\_ids} & O2M \texttt{wujia.franchise.member.user\_id} & Memberships của user \\
+\texttt{member\_count} & Integer compute & Đếm member \texttt{is\_currently\_valid} \\
+\texttt{\_get\_active\_franchise\_memberships()} & Method & Filter member valid \\
+\texttt{\_get\_accessible\_franchise\_ids()} & Method \texttt{@ormcache('self.id')} & Trả tuple \texttt{wujia.franchise.management.id} \\
+\texttt{\_get\_franchise\_role(franchise\_id)} & Method & Lookup role trong cửa hàng \\
+\bottomrule
+\end{longtable}
+
+\textbf{Tên method đổi:} \texttt{\_get\_accessible\_branch\_partner\_ids} → \texttt{\_get\_accessible\_franchise\_ids}. Caller nào dùng phải đổi (đã update \texttt{wujia\_sale} record rule + \texttt{wujia\_portal\_base} ir.websocket).
+
+\section{Menu structure}
+
+\begin{lstlisting}[style=shell]
+Franchise Management
++-- Operation
+|   +-- Franchise Management   -> wujia.franchise.management
+|   +-- Franchise Member       -> wujia.franchise.member
++-- Configuration
+    +-- Area Management
+        +-- Area               -> res.area
+        +-- Province / City    -> base.action_country_state
+        +-- Ward               -> res.ward
+\end{lstlisting}
+
+\section{Tính khối lượng (BA spec mục 3)}
+
+Snapshot \texttt{product.weight} xuống line/move tại lúc tạo, để dữ liệu cũ không đổi khi product master cập nhật.
+
+\subsection{\texttt{sale.order.line}}
+
+\begin{longtable}{p{4cm} p{4cm} p{7cm}}
+\toprule
+\textbf{Field} & \textbf{Kiểu} & \textbf{Vai trò} \\
+\midrule
+\endhead
+\texttt{weight\_per\_unit} & Float readonly & Snapshot từ \texttt{product\_id.weight} (set trong \texttt{onchange} + \texttt{create}). \\
+\texttt{planned\_weight} & Float compute store & = qty $\times$ weight\_per\_unit \\
+\bottomrule
+\end{longtable}
+
+\subsection{\texttt{sale.order}}
+
+\texttt{total\_planned\_weight} (Float compute store) = \texttt{sum(order\_line.planned\_weight)}.
+
+\subsection{\texttt{stock.move}}
+
+\begin{longtable}{p{4cm} p{4cm} p{7cm}}
+\toprule
+\textbf{Field} & \textbf{Kiểu} & \textbf{Vai trò} \\
+\midrule
+\endhead
+\texttt{weight\_per\_unit} & Float readonly & Snapshot trong \texttt{create}: ưu tiên \texttt{sale\_line\_id.weight\_per\_unit}, fallback \texttt{product.weight}. \\
+\texttt{planned\_weight} & Float compute store & = \texttt{product\_uom\_qty} $\times$ weight\_per\_unit \\
+\texttt{done\_weight} & Float compute store & = \texttt{quantity} $\times$ weight\_per\_unit \\
+\bottomrule
+\end{longtable}
+
+\textbf{Lưu ý Odoo 19:} stock.move dùng field \texttt{quantity} (không phải \texttt{quantity\_done} của v14--v16).
+
+\subsection{\texttt{stock.picking} + \texttt{stock.picking.batch}}
+
+Aggregate compute store:
+\begin{itemize}
+    \item \texttt{stock.picking.planned\_weight = sum(move\_ids.planned\_weight)}.
+    \item \texttt{stock.picking.done\_weight = sum(move\_ids.done\_weight)}.
+    \item \texttt{stock.picking.batch.planned\_weight = sum(picking\_ids.planned\_weight)}.
+    \item \texttt{stock.picking.batch.done\_weight = sum(picking\_ids.done\_weight)}.
+\end{itemize}
+
+\textbf{Lưu ý Odoo 19:} \texttt{stock.picking.move\_ids} (rename từ \texttt{move\_ids\_without\_package} của v17--v18). Đã verify khi install.
+
+\section{Verify install (đã pass)}
+
+\begin{lstlisting}[style=shell]
+# Drop + reinstall fresh
+PGPASSWORD=1 dropdb -h 127.0.0.1 -U odoo19 wujia_tea_19
+PGPASSWORD=1 createdb -h 127.0.0.1 -U odoo19 wujia_tea_19
+~/miniconda3/envs/odoo/bin/python odoo19/odoo-bin \
+   -c config/odoo.conf -d wujia_tea_19 \
+   -i wujia_core,wujia_franchise,wujia_sale,wujia_portal_base \
+   --stop-after-init
+# 70 modules loaded clean (chỉ 1 warning vô hại về translated stored related)
+\end{lstlisting}
+
+Kết quả schema check (psql):
+\begin{itemize}
+    \item \texttt{res\_area} 12 cột; \texttt{res\_ward} 11 cột.
+    \item \texttt{wujia\_franchise\_management} 26 cột (đủ spec); \texttt{code} unique.
+    \item \texttt{wujia\_franchise\_member} 13 cột; \texttt{franchise\_id} M2o cascade tới management.
+    \item \texttt{sale\_order} có 7 field mới (\texttt{is\_portal\_order, franchise\_partner\_id, franchise\_id, portal\_member\_id, portal\_requester\_user\_id, area\_id, total\_planned\_weight}).
+    \item \texttt{sale\_order\_line} có \texttt{weight\_per\_unit, planned\_weight}.
+    \item \texttt{stock\_move} có 3 weight column, \texttt{stock\_picking} + \texttt{stock\_picking\_batch} có aggregate.
+    \item Sample data: 2 area, 3 partner \texttt{is\_franchise=True}, 3 franchise.management, 7 membership.
+\end{itemize}
+
+Kết quả end-to-end test (Odoo shell):
+\begin{itemize}
+    \item \texttt{anh.owner} → \texttt{\_get\_accessible\_franchise\_ids}=(1,) → ['HN-01'] ✓
+    \item \texttt{dung.multi} → (3,1,2) → ['HCM-01','HN-01','HN-02'] (multi-franchise) ✓
+    \item \texttt{em.hcm} → (3,) → ['HCM-01'] ✓
+    \item \texttt{HN-01.member\_count}=4, \texttt{main\_owner}=anh.owner ✓
+    \item \texttt{HCM-01.member\_count}=2, \texttt{main\_owner}=em.hcm ✓
+    \item \texttt{HN-02.member\_count}=1, \texttt{main\_owner}=— (chỉ có Dung manager, không có owner) ✓
+    \item Weight calc: SO line qty=3 × weight=0.5 → \texttt{planned\_weight}=1.5; sau confirm stock.move \texttt{planned\_weight}=1.5 ✓
+\end{itemize}
+
+% ===========================================================================
+\chapter{Sprint 2 --- Day 1 (lịch sử): \texttt{wujia\_sale} (đã refactor)}
+
+\textbf{Đã rewrite:} Day 1 ban đầu dùng tên field \texttt{branch\_partner\_id} / \texttt{portal\_membership\_id}. Sau refactor 2026-04-30 đã đổi thành \texttt{franchise\_partner\_id} / \texttt{franchise\_id} / \texttt{portal\_member\_id} + thêm \texttt{is\_portal\_order} + \texttt{area\_id} + tính khối lượng. Chi tiết spec mới ở Chapter 3. Nội dung dưới đây là log lịch sử.
+
+\section{Phạm vi Day 1}
+
+Tạo module \texttt{wujia\_sale} với chỉ data layer (model + security + views), KHÔNG có HTTP/UI/JS. Real-time bus và method \texttt{\_create\_portal\_order} thêm Day 2.
+
+\section{File tree đã tạo}
+
+\begin{lstlisting}[style=shell]
+custom/wujia_sale/
++-- __init__.py
++-- __manifest__.py
++-- models/
+|   +-- __init__.py
+|   +-- sale_order.py             6 field + 1 constraint
+|   +-- sale_order_line.py        constraint min/max qty cho portal
+|   +-- product_template.py       3 field + constraint bounds
++-- security/
+|   +-- ir.model.access.csv       4 ACL row cho group_portal
+|   +-- wujia_sale_rules.xml      4 record rule cho group_portal
++-- views/
+|   +-- sale_order_views.xml      form / list / search inherit
+|   +-- product_template_views.xml form / list / search inherit
++-- demo/                         (rỗng, Day 3 sẽ thêm)
++-- tests/                        (rỗng, Day 2 sẽ thêm)
+\end{lstlisting}
+
+\section{6 field mới trên \texttt{sale.order}}
+
+\begin{longtable}{p{5cm} p{4cm} p{6cm}}
+\toprule
+\textbf{Field} & \textbf{Kiểu} & \textbf{Vai trò} \\
+\midrule
+\endhead
+\texttt{branch\_partner\_id} & M2O \texttt{res.partner} & Chi nhánh sở hữu đơn (domain \texttt{is\_branch=True}). \\
+\texttt{portal\_requester\_user\_id} & M2O \texttt{res.users}, readonly & User portal trực tiếp tạo đơn (audit trail). \\
+\texttt{portal\_membership\_id} & M2O \texttt{wujia.branch.member}, readonly & Snapshot membership tại lúc tạo. \\
+\texttt{portal\_delivery\_street} & Char & Override địa chỉ giao mỗi đơn. \\
+\texttt{portal\_delivery\_phone} & Char & Override SĐT giao mỗi đơn. \\
+\texttt{portal\_note} & Text & Ghi chú đơn hàng. \\
+\bottomrule
+\end{longtable}
+
+\section{3 field mới trên \texttt{product.template}}
+
+\begin{longtable}{p{4cm} p{3cm} p{8cm}}
+\toprule
+\textbf{Field} & \textbf{Kiểu} & \textbf{Vai trò} \\
+\midrule
+\endhead
+\texttt{is\_public\_website} & Boolean & Toggle hiển thị trên \texttt{/portal/order} catalog. \\
+\texttt{min\_qty} & Integer (default 1) & Tối thiểu mỗi dòng cart. \\
+\texttt{max\_qty} & Integer (default 0) & Tối đa mỗi dòng cart (0 = unlimited). \\
+\bottomrule
+\end{longtable}
+
+\section{Constraints (validate ở ORM, không phải JS)}
+
+\subsection{\texttt{sale.order}}
+
+\textbf{\texttt{\_check\_portal\_branch\_membership}:} Nếu đơn có \texttt{portal\_requester\_user\_id} thì user đó phải có \texttt{wujia.branch.member} active trong \texttt{branch\_partner\_id}. Đây là defense in depth — controller cũng đã check, nhưng record rule ORM đảm bảo cả khi gọi qua API/RPC.
+
+\subsection{\texttt{sale.order.line}}
+
+\textbf{\texttt{\_check\_min\_max\_qty\_portal}:} Validate \texttt{product\_uom\_qty} với \texttt{product\_id.product\_tmpl\_id.min\_qty} / \texttt{max\_qty}. Chỉ áp với đơn có \texttt{portal\_requester\_user\_id} (admin tạo manual không bị ràng).
+
+\subsection{\texttt{product.template}}
+
+\textbf{\texttt{\_check\_min\_max\_qty\_bounds}:} \texttt{min\_qty} và \texttt{max\_qty} không âm; \texttt{max\_qty $\geq$ min\_qty}.
+
+\section{Record rules cho portal user}
+
+4 rule áp dụng cho group \texttt{base.group\_portal} (read-only):
+
+\begin{enumerate}
+    \item \textbf{Sale Order:} chỉ thấy đơn có \texttt{portal\_requester\_user\_id = current user} HOẶC \texttt{branch\_partner\_id} thuộc các chi nhánh user là member.
+    \item \textbf{Sale Order Line:} chỉ thấy line của các đơn user được thấy.
+    \item \textbf{Product Template:} chỉ thấy product có \texttt{is\_public\_website = True}.
+    \item \textbf{Product:} chỉ thấy product có \texttt{product\_tmpl\_id.is\_public\_website = True}.
+\end{enumerate}
+
+\section{ACL (\texttt{ir.model.access.csv})}
+
+Group \texttt{base.group\_portal} có quyền đọc (1,0,0,0) trên \texttt{sale.order}, \texttt{sale.order.line}, \texttt{product.template}, \texttt{product.product}. Không có write/create/unlink — đảm bảo portal user không sửa data trực tiếp qua RPC, chỉ qua các action được expose ở Day 2+.
+
+\section{Verify install}
+
+\begin{lstlisting}[style=shell]
+# Install module
+bash scripts/upgrade.sh wujia_sale
+# Hoặc fresh install:
+python odoo19/odoo-bin -c config/odoo.conf -d wujia_tea_19 -i wujia_sale --stop-after-init
+
+# Kiểm tra DB schema
+psql -h 127.0.0.1 -U odoo19 -d wujia_tea_19 -c \\
+  "\d sale_order" | grep -E "branch|portal_"
+\end{lstlisting}
+
+Kết quả test (Day 1):
+\begin{itemize}
+    \item Module install clean (308 queries, 0 error).
+    \item 6 cột mới trên \texttt{sale\_order} đã có trong DB.
+    \item 3 cột mới trên \texttt{product\_template} đã có.
+    \item 4 record rule đã active.
+    \item Constraint hoạt động: admin tạo SO với user không có membership trong branch → \texttt{ValidationError} ``User Nguyễn Văn Anh không có membership active trong chi nhánh Wujia Tea TP HCM Q1''.
+    \item Record rule hoạt động: \texttt{anh.owner} login backend qua RPC chỉ thấy đơn của HN-01, không thấy của HCM-01 (đã test với \texttt{search\_read} trả về 1/2 đơn admin tạo).
+\end{itemize}
+
+% ===========================================================================
+\chapter{Sprint 2 --- Day 2 (partial): Performance optimizations}
+
+\textbf{Cập nhật 2026-04-30:} Method \texttt{\_get\_accessible\_branch\_partner\_ids} đã đổi tên thành \texttt{\_get\_accessible\_franchise\_ids} (trả tuple \texttt{wujia.franchise.management.id} thay cho \texttt{res.partner.id}). Cache invalidation hooks vẫn ở CRUD của member model (chỉ đổi tên model \texttt{wujia.branch.member} → \texttt{wujia.franchise.member}). Logic + chiến thuật cache không thay đổi.
+
+\section{Phạm vi Day 2 (đã làm)}
+
+Theo BA chỉ đạo "tập trung tối ưu trước, các phần khác từ từ", Day 2 thu hẹp scope còn:
+\begin{itemize}
+    \item Cài \texttt{queue\_job} (OCA branch 19.0) làm tool async cho tương lai
+    \item Fix \textbf{P0-1}: Apply \texttt{@ormcache} cho \texttt{res.users.\_get\_accessible\_franchise\_ids} (rename từ \texttt{\_branch\_partner\_ids})
+    \item Fix \textbf{P0-2}: Store + index \texttt{is\_currently\_valid} trên \texttt{wujia.franchise.member} (rename từ \texttt{wujia.branch.member})
+\end{itemize}
+
+Defer Day 2 còn lại (service layer, bus emit cho sale.order, unit tests) sang lần làm sau.
+
+\section{Setup \texttt{queue\_job} (chưa dùng, sẵn sàng cho sau)}
+
+\begin{lstlisting}[style=shell]
+cd /home/huyban/odoo-dev/WujiaTea/themes
+git clone --branch 19.0 --single-branch --depth 1 \
+  https://github.com/OCA/queue.git oca_queue
+\end{lstlisting}
+
+Cập nhật \texttt{config/odoo.conf} \texttt{addons\_path} thêm \texttt{themes/oca\_queue}.
+Install: \texttt{python odoo-bin -i queue\_job --stop-after-init}.
+
+\section{Fix P0-1: \texttt{ormcache} cho lookup chi nhánh user}
+
+\textbf{Vấn đề trước fix:} Mỗi câu \texttt{SELECT * FROM sale\_order} từ portal user
+trigger eval record rule → gọi \texttt{user.\_get\_accessible\_branch\_partners().ids}
+→ 2 query phụ (membership + partner mapped). Với 1000 user concurrent =
+2000+ query/giây chỉ để check security.
+
+\textbf{Sau fix:} Method \texttt{\_get\_accessible\_branch\_partner\_ids()} cache
+per-worker. Subsequent calls trả về tuple từ memory, không hit DB.
+
+\subsection{Code thay đổi}
+
+File: \texttt{custom/wujia\_franchise/models/res\_users.py}
+
+\begin{lstlisting}[style=python]
+from odoo.tools import ormcache
+
+@ormcache('self.id')
+def _get_accessible_branch_partner_ids(self):
+    self.ensure_one()
+    return tuple(self._get_active_branch_memberships()
+                 .mapped('branch_partner_id').ids)
+
+def _get_accessible_branch_partners(self):
+    self.ensure_one()
+    return self.env['res.partner'].browse(
+        self._get_accessible_branch_partner_ids()
+    )
+\end{lstlisting}
+
+\subsection{Cache invalidation}
+
+File: \texttt{custom/wujia\_franchise/models/wujia\_branch\_member.py}
+
+Hook vào \texttt{create/write/unlink}:
+
+\begin{lstlisting}[style=python]
+def _invalidate_user_cache(self):
+    if self:
+        self.env.registry.clear_cache()  # cross-worker safe
+
+@api.model_create_multi
+def create(self, vals_list):
+    records = super().create(vals_list)
+    records._invalidate_user_cache()
+    return records
+
+def write(self, vals):
+    res = super().write(vals)
+    self._invalidate_user_cache()
+    return res
+
+def unlink(self):
+    had_records = bool(self)
+    res = super().unlink()
+    if had_records:
+        self.env.registry.clear_cache()
+    return res
+\end{lstlisting}
+
+\textbf{Lưu ý:} Dùng \texttt{env.registry.clear\_cache()} thay vì
+\texttt{method.clear\_cache(records)} — Odoo 19 tự signal qua DB để
+invalidate cache trên mọi worker khác. Heavy hơn 1 chút nhưng cross-worker safe.
+
+\subsection{Update record rule dùng method mới}
+
+File: \texttt{custom/wujia\_sale/security/wujia\_sale\_rules.xml}
+
+Đổi \texttt{user.\_get\_accessible\_branch\_partners().ids} →
+\texttt{user.\_get\_accessible\_branch\_partner\_ids()} (tuple cached, không
+trigger ORM search mỗi query).
+
+\section{Fix P0-2: Store + index \texttt{is\_currently\_valid}}
+
+\textbf{Vấn đề trước fix:} \texttt{is\_currently\_valid} là compute non-stored với
+search method tự viết. Mọi search \texttt{[('is\_currently\_valid', '=', True)]}
+phải iterate trong Python — không dùng được index, không scale 9000 membership.
+
+\textbf{Sau fix:} Field stored + B-tree index → SQL search direct, query
+plan dùng index scan thay vì sequential scan.
+
+\subsection{Code thay đổi}
+
+File: \texttt{custom/wujia\_franchise/models/wujia\_branch\_member.py}
+
+\begin{lstlisting}[style=python]
+is_currently_valid = fields.Boolean(
+    compute='_compute_is_currently_valid',
+    store=True,           # Đã thêm
+    index=True,           # Đã thêm
+)
+# Bỏ method _search_is_currently_valid (không cần khi store)
+\end{lstlisting}
+
+\subsection{Cron daily recompute}
+
+Compute phụ thuộc \texttt{today} → không tự re-trigger qua \texttt{@api.depends}.
+Cần cron daily update các record vừa enter/exit hiệu lực.
+
+File: \texttt{custom/wujia\_franchise/models/wujia\_branch\_member.py}
+
+\begin{lstlisting}[style=python]
+@api.model
+def _cron_recompute_validity(self):
+    from datetime import timedelta
+    today = fields.Date.context_today(self)
+    affected = self.search([
+        '|',
+        ('date_from', '=', today),               # vừa active
+        ('date_to', '=', today - timedelta(days=1)),  # vừa hết hạn
+    ])
+    if affected:
+        affected._compute_is_currently_valid()
+        affected.flush_recordset()
+        affected._invalidate_user_cache()
+\end{lstlisting}
+
+File mới: \texttt{custom/wujia\_franchise/data/ir\_cron\_data.xml} — cron
+chạy hàng ngày interval=1 day.
+
+\subsection{Migration}
+
+Khi upgrade module, Odoo tự re-init compute cho mọi record → store column
+populated tự động. Verify 7/7 record demo có \texttt{is\_currently\_valid=True}.
+
+\section{Verify đã pass}
+
+\begin{itemize}
+    \item Module install/upgrade clean (0 error)
+    \item Cột \texttt{is\_currently\_valid} stored, có B-tree index
+    \texttt{wujia\_branch\_member\_\_is\_currently\_valid\_index}
+    \item Cron \texttt{Wujia: Recompute branch member is\_currently\_valid}
+    active, daily
+    \item Test cache: 1st call → DB hit, 2nd call → memory hit
+    \item Test invalidate: \texttt{member.active=False} → cache cleared,
+    next call trả về tuple rỗng đúng
+    \item Test record rule: \texttt{anh.owner} (HN-01 only) search SO chỉ
+    thấy 2 đơn HN-01, không thấy đơn HCM-01 admin tạo
+\end{itemize}
+
+\section{Đo lường impact (theoretical)}
+
+\begin{longtable}{p{4cm} p{4cm} p{6cm}}
+\toprule
+\textbf{Metric} & \textbf{Trước fix} & \textbf{Sau fix} \\
+\midrule
+\endhead
+Query/page-load (record rule) & 2--3 query/user/page & 0 (cache hit ratio $>$ 90\%) \\
+Search \texttt{is\_currently\_valid=True} & Sequential scan (Python iter) & Index scan (B-tree) \\
+Multi-user concurrent (1000 user × 5 page-load/min) & 10k--15k query/min & 1k--2k query/min \\
+Worst case @ 9k membership records & 9k row Python loop & 1 SQL query (millis) \\
+\bottomrule
+\end{longtable}
+
+\section{Files đã chạm Day 2}
+
+\begin{itemize}
+    \item Mới: \texttt{themes/oca\_queue/} (clone)
+    \item Mới: \texttt{custom/wujia\_franchise/data/ir\_cron\_data.xml}
+    \item Edit: \texttt{config/odoo.conf} — \texttt{addons\_path} thêm \texttt{themes/oca\_queue}
+    \item Edit: \texttt{custom/wujia\_franchise/\_\_manifest\_\_.py} — data thêm cron
+    \item Edit: \texttt{custom/wujia\_franchise/models/res\_users.py} — \texttt{ormcache}
+    \item Edit: \texttt{custom/wujia\_franchise/models/wujia\_branch\_member.py} — \texttt{store=True, index=True}; bỏ \texttt{\_search\_*}; thêm CRUD hooks invalidate cache; thêm \texttt{\_cron\_recompute\_validity}
+    \item Edit: \texttt{custom/wujia\_sale/security/wujia\_sale\_rules.xml} — đổi domain dùng method tuple cached
+\end{itemize}
+
+% ===========================================================================
+\chapter{Roadmap Sprint 2 còn lại}
+
+\section{Day 2: Method + Bus + Tests}
+
+\begin{itemize}
+    \item Thêm \texttt{\_create\_portal\_order(branch\_partner\_id, lines, ...)} model method (single entry point cho controller portal Day 7).
+    \item Inherit \texttt{bus.listener.mixin} trên \texttt{sale.order}, override \texttt{action\_confirm}, \texttt{\_action\_cancel}, \texttt{write} để emit channel \texttt{wujia.branch\_<id>.orders} type \texttt{wujia\_order\_state\_changed}.
+    \item Channel gating: thêm regex \texttt{wujia.branch\_<id>.orders} vào \texttt{ir.websocket} của \texttt{wujia\_sale}.
+    \item Unit tests: \texttt{test\_sale\_order\_branch.py} (constraint), \texttt{test\_record\_rules.py} (visibility).
+\end{itemize}
+
+\section{Day 3: Demo data}
+
+5--6 đơn cho mỗi chi nhánh demo (HN-01, HN-02, HCM-01) trộn state. 2--3 đơn của \texttt{dung.multi} rải đều 3 chi nhánh để demo flow multi-branch. Toggle \texttt{is\_public\_website} cho 5--10 sản phẩm.
+
+\section{Day 4: Branch picker tại login}
+
+\begin{itemize}
+    \item Update \texttt{wujia\_portal\_layout/controllers/auth.py} để sau login → check membership count → redirect \texttt{/portal/branches/pick} nếu 2+.
+    \item Routes mới trong \texttt{wujia\_portal\_base}: \texttt{/portal/branches/pick} + \texttt{/portal/branches/pick/<id>}.
+    \item Helper \texttt{\_ensure\_active\_branch} reusable.
+    \item Dropdown topnav cho đổi chi nhánh runtime.
+\end{itemize}
+
+\section{Day 5--7: \texttt{wujia\_portal\_sale}}
+
+\begin{itemize}
+    \item Day 5: scaffold + Vuexy template + sidenav inject.
+    \item Day 6: OWL components \texttt{branch\_picker}, \texttt{product\_list} (server-side pagination + debounced search).
+    \item Day 7: cart RPC routes + \texttt{cart\_panel} OWL component + submit flow + bus subscribe.
+\end{itemize}
+
+\section{Day 8--9: \texttt{wujia\_portal\_purchase\_history}}
+
+\begin{itemize}
+    \item Day 8: list page + filters + server-side pagination.
+    \item Day 9: detail page + 4-step ribbon + bus subscribers (list + detail real-time).
+\end{itemize}
+
+\section{Day 10: Polish}
+
+i18n Vietnamese, edge cases (empty cart, network errors), smoke tests, update doc.
+
+% ===========================================================================
+\chapter{Phụ lục — Lệnh thường dùng}
+
+\begin{lstlisting}[style=shell]
+# Build doc PDF
+bash /home/huyban/odoo-dev/WujiaTea/scripts/build-doc.sh
+
+# Khởi động dev server
+bash /home/huyban/odoo-dev/WujiaTea/scripts/start.sh
+
+# Upgrade module
+bash /home/huyban/odoo-dev/WujiaTea/scripts/upgrade.sh wujia_sale
+
+# Init DB từ đầu
+bash /home/huyban/odoo-dev/WujiaTea/scripts/init-db.sh
+
+# Drop + recreate DB
+PGPASSWORD=1 psql -h 127.0.0.1 -U odoo19 -d postgres \\
+  -c "DROP DATABASE IF EXISTS wujia_tea_19;"
+bash /home/huyban/odoo-dev/WujiaTea/scripts/init-db.sh
+\end{lstlisting}
+
+\end{document}
