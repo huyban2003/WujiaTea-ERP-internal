@@ -1,0 +1,160 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="view_wujia_fleet_management_list" model="ir.ui.view">
+        <field name="name">wujia.fleet.management.list</field>
+        <field name="model">wujia.fleet.management</field>
+        <field name="arch" type="xml">
+            <list string="Xe" sample="1"
+                  decoration-muted="vehicle_status == 'inactive'"
+                  decoration-warning="vehicle_status == 'maintenance'"
+                  decoration-success="vehicle_status == 'available'">
+                <field name="code"/>
+                <field name="name"/>
+                <field name="provider_id"/>
+                <field name="fleet_type_id"/>
+                <field name="payload_capacity_ton"/>
+                <field name="license_plate"/>
+                <field name="driver_name" optional="show"/>
+                <field name="driver_phone" optional="hide"/>
+                <field name="vehicle_status" widget="badge"
+                       decoration-success="vehicle_status == 'available'"
+                       decoration-info="vehicle_status in ('in_yard', 'assigned')"
+                       decoration-warning="vehicle_status in ('delivering', 'maintenance')"
+                       decoration-muted="vehicle_status == 'inactive'"/>
+                <field name="active" column_invisible="True"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_wujia_fleet_management_form" model="ir.ui.view">
+        <field name="name">wujia.fleet.management.form</field>
+        <field name="model">wujia.fleet.management</field>
+        <field name="arch" type="xml">
+            <form string="Xe">
+                <sheet>
+                    <div class="oe_button_box" name="button_box"/>
+                    <widget name="web_ribbon" title="Archived" bg_color="text-bg-danger"
+                            invisible="active"/>
+                    <field name="qr_code" widget="image" class="oe_avatar"
+                           invisible="not qr_code"/>
+                    <div class="oe_title">
+                        <label for="name" class="oe_edit_only"/>
+                        <h1><field name="name" placeholder="51C-12345 — Tải 3.5T"/></h1>
+                    </div>
+                    <group>
+                        <group string="Định danh">
+                            <field name="code" placeholder="V001"/>
+                            <field name="provider_id"/>
+                            <field name="fleet_type_id"/>
+                            <field name="vehicle_category" readonly="1"/>
+                            <field name="active"/>
+                        </group>
+                        <group string="Thông số">
+                            <field name="payload_capacity_ton"/>
+                            <field name="max_payload_kg"/>
+                            <field name="license_plate" placeholder="51C-12345"/>
+                            <field name="vehicle_status"/>
+                            <field name="last_update_datetime" readonly="1"/>
+                        </group>
+                    </group>
+                    <group>
+                        <group string="Tài xế">
+                            <field name="driver_name"/>
+                            <field name="driver_phone" widget="phone"/>
+                            <field name="contact"/>
+                        </group>
+                        <group string="Phân bổ">
+                            <field name="franchise_ids" widget="many2many_tags"
+                                   options="{'no_create_edit': True}"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="Mô tả" name="description">
+                            <field name="description"/>
+                        </page>
+                        <page string="Ghi chú" name="note">
+                            <field name="note"/>
+                        </page>
+                    </notebook>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_wujia_fleet_management_kanban" model="ir.ui.view">
+        <field name="name">wujia.fleet.management.kanban</field>
+        <field name="model">wujia.fleet.management</field>
+        <field name="arch" type="xml">
+            <kanban default_group_by="vehicle_status" sample="1">
+                <field name="name"/>
+                <field name="code"/>
+                <field name="provider_id"/>
+                <field name="fleet_type_id"/>
+                <field name="payload_capacity_ton"/>
+                <field name="license_plate"/>
+                <field name="driver_name"/>
+                <field name="vehicle_status"/>
+                <templates>
+                    <t t-name="card">
+                        <div class="oe_kanban_card">
+                            <div class="o_kanban_record_top">
+                                <strong><field name="name"/></strong>
+                            </div>
+                            <ul>
+                                <li>Đội: <field name="provider_id"/></li>
+                                <li>Loại: <field name="fleet_type_id"/></li>
+                                <li>Tải: <field name="payload_capacity_ton"/> tấn</li>
+                                <li>Biển số: <field name="license_plate"/></li>
+                                <li>Tài xế: <field name="driver_name"/></li>
+                            </ul>
+                        </div>
+                    </t>
+                </templates>
+            </kanban>
+        </field>
+    </record>
+
+    <record id="view_wujia_fleet_management_search" model="ir.ui.view">
+        <field name="name">wujia.fleet.management.search</field>
+        <field name="model">wujia.fleet.management</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="name"/>
+                <field name="code"/>
+                <field name="license_plate"/>
+                <field name="provider_id"/>
+                <field name="fleet_type_id"/>
+                <field name="driver_name"/>
+                <separator/>
+                <filter string="Sẵn sàng" name="filter_available"
+                        domain="[('vehicle_status', '=', 'available')]"/>
+                <filter string="Đang giao" name="filter_delivering"
+                        domain="[('vehicle_status', '=', 'delivering')]"/>
+                <filter string="Bảo trì" name="filter_maintenance"
+                        domain="[('vehicle_status', '=', 'maintenance')]"/>
+                <separator/>
+                <filter string="Archived" name="filter_inactive"
+                        domain="[('active', '=', False)]"/>
+                <filter string="Đội xe" name="group_provider"
+                        context="{'group_by': 'provider_id'}"/>
+                <filter string="Loại xe" name="group_type"
+                        context="{'group_by': 'fleet_type_id'}"/>
+                <filter string="Trạng thái" name="group_status"
+                        context="{'group_by': 'vehicle_status'}"/>
+            </search>
+        </field>
+    </record>
+
+    <record id="action_wujia_fleet_management" model="ir.actions.act_window">
+        <field name="name">Vehicles</field>
+        <field name="res_model">wujia.fleet.management</field>
+        <field name="view_mode">list,kanban,form</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">Khai báo xe đầu tiên</p>
+            <p>Mỗi xe gắn với 1 đội xe (provider) và 1 loại xe (fleet_type) — payload tự lấy từ loại xe.</p>
+        </field>
+    </record>
+
+</odoo>

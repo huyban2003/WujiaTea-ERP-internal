@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="view_wujia_fleet_shipping_report_list" model="ir.ui.view">
+        <field name="name">wujia.fleet.shipping.report.list</field>
+        <field name="model">wujia.fleet.shipping.report</field>
+        <field name="arch" type="xml">
+            <list string="Chi phí đội xe" create="false" edit="false">
+                <field name="report_date"/>
+                <field name="batch_id"/>
+                <field name="vehicle_id"/>
+                <field name="provider_id"/>
+                <field name="fleet_type_id"/>
+                <field name="picking_count"/>
+                <field name="franchise_count"/>
+                <field name="planned_weight" sum="Tổng dự kiến"/>
+                <field name="done_weight" sum="Tổng thực xuất"/>
+                <field name="capacity_usage_percent" widget="percentage" optional="show"/>
+                <field name="shipping_cost" sum="Tổng cước" widget="monetary"/>
+                <field name="drop_fee_total" sum="Tổng drop" widget="monetary"/>
+                <field name="total_shipping_cost" sum="Tổng chi phí" widget="monetary"/>
+                <field name="currency_id" column_invisible="True"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_wujia_fleet_shipping_report_pivot" model="ir.ui.view">
+        <field name="name">wujia.fleet.shipping.report.pivot</field>
+        <field name="model">wujia.fleet.shipping.report</field>
+        <field name="arch" type="xml">
+            <pivot string="Chi phí đội xe">
+                <field name="provider_id" type="row"/>
+                <field name="fleet_type_id" type="row"/>
+                <field name="report_date" type="col" interval="month"/>
+                <field name="planned_weight" type="measure"/>
+                <field name="total_shipping_cost" type="measure"/>
+            </pivot>
+        </field>
+    </record>
+
+    <record id="view_wujia_fleet_shipping_report_graph" model="ir.ui.view">
+        <field name="name">wujia.fleet.shipping.report.graph</field>
+        <field name="model">wujia.fleet.shipping.report</field>
+        <field name="arch" type="xml">
+            <graph string="Chi phí đội xe" type="bar" stacked="0">
+                <field name="provider_id"/>
+                <field name="total_shipping_cost" type="measure"/>
+            </graph>
+        </field>
+    </record>
+
+    <record id="view_wujia_fleet_shipping_report_search" model="ir.ui.view">
+        <field name="name">wujia.fleet.shipping.report.search</field>
+        <field name="model">wujia.fleet.shipping.report</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="batch_id"/>
+                <field name="vehicle_id"/>
+                <field name="provider_id"/>
+                <field name="fleet_type_id"/>
+                <separator/>
+                <filter string="Tháng này" name="filter_this_month"
+                        domain="[('report_date', '&gt;=', context_today().strftime('%Y-%m-01'))]"/>
+                <filter string="Vượt tải" name="filter_over_capacity"
+                        domain="[('capacity_usage_percent', '&gt;', 100)]"/>
+                <separator/>
+                <filter string="Đội xe" name="group_provider"
+                        context="{'group_by': 'provider_id'}"/>
+                <filter string="Loại xe" name="group_fleet_type"
+                        context="{'group_by': 'fleet_type_id'}"/>
+                <filter string="Tháng" name="group_month"
+                        context="{'group_by': 'report_date:month'}"/>
+            </search>
+        </field>
+    </record>
+
+    <record id="action_wujia_fleet_shipping_report" model="ir.actions.act_window">
+        <field name="name">Fleet Expense Report</field>
+        <field name="res_model">wujia.fleet.shipping.report</field>
+        <field name="view_mode">list,pivot,graph</field>
+        <field name="context">{'search_default_filter_this_month': 1, 'search_default_group_provider': 1}</field>
+    </record>
+
+</odoo>

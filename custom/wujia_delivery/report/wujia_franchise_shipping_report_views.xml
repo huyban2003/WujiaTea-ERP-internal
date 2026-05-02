@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="view_wujia_franchise_shipping_report_list" model="ir.ui.view">
+        <field name="name">wujia.franchise.shipping.report.list</field>
+        <field name="model">wujia.franchise.shipping.report</field>
+        <field name="arch" type="xml">
+            <list string="Chi phí giao hàng theo cửa hàng" create="false" edit="false">
+                <field name="report_date"/>
+                <field name="franchise_id"/>
+                <field name="area_id"/>
+                <field name="picking_id"/>
+                <field name="batch_id" optional="show"/>
+                <field name="vehicle_id" optional="show"/>
+                <field name="provider_id" optional="show"/>
+                <field name="planned_weight" sum="Tổng dự kiến"/>
+                <field name="done_weight" sum="Tổng thực xuất"/>
+                <field name="shipping_cost_allocated" sum="Tổng cước phân bổ" widget="monetary"/>
+                <field name="drop_fee_allocated" sum="Tổng drop phân bổ" widget="monetary"/>
+                <field name="total_cost_allocated" sum="Tổng phân bổ" widget="monetary"/>
+                <field name="currency_id" column_invisible="True"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_wujia_franchise_shipping_report_pivot" model="ir.ui.view">
+        <field name="name">wujia.franchise.shipping.report.pivot</field>
+        <field name="model">wujia.franchise.shipping.report</field>
+        <field name="arch" type="xml">
+            <pivot string="Chi phí giao hàng theo cửa hàng">
+                <field name="franchise_id" type="row"/>
+                <field name="report_date" type="col" interval="month"/>
+                <field name="planned_weight" type="measure"/>
+                <field name="total_cost_allocated" type="measure"/>
+            </pivot>
+        </field>
+    </record>
+
+    <record id="view_wujia_franchise_shipping_report_graph" model="ir.ui.view">
+        <field name="name">wujia.franchise.shipping.report.graph</field>
+        <field name="model">wujia.franchise.shipping.report</field>
+        <field name="arch" type="xml">
+            <graph string="Chi phí giao hàng theo cửa hàng" type="bar" stacked="0">
+                <field name="franchise_id"/>
+                <field name="total_cost_allocated" type="measure"/>
+            </graph>
+        </field>
+    </record>
+
+    <record id="view_wujia_franchise_shipping_report_search" model="ir.ui.view">
+        <field name="name">wujia.franchise.shipping.report.search</field>
+        <field name="model">wujia.franchise.shipping.report</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="franchise_id"/>
+                <field name="area_id"/>
+                <field name="batch_id"/>
+                <field name="vehicle_id"/>
+                <field name="provider_id"/>
+                <separator/>
+                <filter string="Tháng này" name="filter_this_month"
+                        domain="[('report_date', '&gt;=', context_today().strftime('%Y-%m-01'))]"/>
+                <separator/>
+                <filter string="Cửa hàng" name="group_franchise"
+                        context="{'group_by': 'franchise_id'}"/>
+                <filter string="Khu vực" name="group_area"
+                        context="{'group_by': 'area_id'}"/>
+                <filter string="Đội xe" name="group_provider"
+                        context="{'group_by': 'provider_id'}"/>
+                <filter string="Tháng" name="group_month"
+                        context="{'group_by': 'report_date:month'}"/>
+            </search>
+        </field>
+    </record>
+
+    <record id="action_wujia_franchise_shipping_report" model="ir.actions.act_window">
+        <field name="name">Franchise Shipping Cost Report</field>
+        <field name="res_model">wujia.franchise.shipping.report</field>
+        <field name="view_mode">list,pivot,graph</field>
+        <field name="context">{'search_default_filter_this_month': 1, 'search_default_group_franchise': 1}</field>
+    </record>
+
+</odoo>

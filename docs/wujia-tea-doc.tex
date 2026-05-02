@@ -1017,6 +1017,105 @@ Worst case @ 9k membership records & 9k row Python loop & 1 SQL query (millis) \
 i18n Vietnamese, edge cases (empty cart, network errors), smoke tests, update doc.
 
 % ===========================================================================
+\chapter{Sprint 3 --- Feature B: Quản lý đội xe (\texttt{wujia\_fleet} + \texttt{wujia\_delivery})}
+
+\section{Phạm vi}
+
+Triển khai BA spec mục B (sheet \texttt{Model Field} rows 184--342). Backend only --- portal cho điều phối defer per ADR-009.
+
+\textbf{Quyết định kiến trúc (ngày 2026-05-02):} Gộp 3 module BA đề xuất (\texttt{wujia\_fleet}, \texttt{wujia\_delivery}, \texttt{wujia\_delivery\_cost}) thành 2 module:
+
+\begin{itemize}
+    \item \texttt{wujia\_fleet} --- master data: provider / type / vehicle / pricelist + line. Depends \texttt{wujia\_core}, \texttt{wujia\_franchise}.
+    \item \texttt{wujia\_delivery} --- extension \texttt{stock.picking} + \texttt{stock.picking.batch} + cost compute + 2 SQL view report. Depends \texttt{wujia\_fleet}, \texttt{wujia\_sale}, \texttt{stock\_picking\_batch}.
+\end{itemize}
+
+Lý do: tránh 1 module quá nhỏ (delivery\_cost), tránh circular dep cost vs batch. Field \texttt{current\_batch\_id} trên vehicle đặt trong \texttt{wujia\_delivery} (chứ không \texttt{wujia\_fleet}) vì nó cần biết \texttt{stock.picking.batch.vehicle\_id} --- do \texttt{wujia\_delivery} thêm vào.
+
+\section{Module \texttt{wujia\_fleet}}
+
+5 model (BA spec rows 197--268):
+
+\begin{itemize}
+    \item \texttt{wujia.fleet.provider} --- nhà xe, \texttt{provider\_type} (\texttt{company}/\texttt{outsource}), \texttt{vehicle\_count} compute.
+    \item \texttt{wujia.fleet.type} --- loại xe, \texttt{vehicle\_category} (truck/pickup/van/other), \texttt{payload\_capacity\_ton} + \texttt{max\_payload\_kg} (compute store = ton x 1000).
+    \item \texttt{wujia.fleet.management} --- xe cụ thể, related fields từ type, \texttt{vehicle\_status} 6-state, \texttt{license\_plate}, driver, \texttt{franchise\_ids} M2M, \texttt{qr\_code} compute (skip nếu thiếu \texttt{qrcode} package), \texttt{last\_update\_datetime} auto-update qua \texttt{write} override.
+    \item \texttt{wujia.fleet.pricelist} --- bảng giá, \texttt{state} 4-state (draft/active/expired/archived), cron \texttt{\_cron\_expire\_pricelists} daily.
+    \item \texttt{wujia.fleet.pricelist.line} --- dòng giá theo \texttt{area\_ids} M2M, \texttt{price} + \texttt{drop\_fee}.
+\end{itemize}
+
+Security: 2 group \texttt{group\_fleet\_user} (read) + \texttt{group\_fleet\_manager} (CRUD) trong privilege "Wujia Fleet".
+
+Menu: root \textbf{Fleet Management} -- Operation (Vehicles, Pricelists) + Configuration (Providers, Types).
+
+\section{Module \texttt{wujia\_delivery}}
+
+\subsection{Auto-fill franchise xuống picking}
+
+Override \texttt{sale.order.\_action\_confirm}: sau khi confirm SO, copy \texttt{franchise\_id} sang các picking sinh ra. \texttt{area\_id} của picking là related store từ \texttt{franchise\_id.area\_id} -- tự fill.
+
+\subsection{Mở rộng \texttt{stock.picking}}
+
+Fields mới: \texttt{franchise\_id}, \texttt{area\_id} (related store), \texttt{delivery\_sequence}, \texttt{vehicle\_id}/\texttt{provider\_id} (related từ \texttt{batch\_id}), \texttt{delivery\_status} (6-state, parallel với native state), \texttt{shipping\_cost} + \texttt{drop\_fee} (compute store, phân bổ theo tỉ lệ \texttt{planned\_weight}), \texttt{delivery\_note}.
+
+Lưu ý: \texttt{planned\_weight} + \texttt{done\_weight} đã có từ \texttt{wujia\_sale} Sprint 2 Day 1 --- KHÔNG khai lại.
+
+Auto-transition \texttt{delivery\_status}: gán batch -- \texttt{assigned}; native state \texttt{done} -- \texttt{done}; \texttt{action\_cancel} -- \texttt{cancelled}.
+
+\subsection{Mở rộng \texttt{stock.picking.batch}}
+
+\begin{itemize}
+    \item \texttt{vehicle\_id} M2o + related \texttt{provider\_id}, \texttt{fleet\_type\_id}, \texttt{vehicle\_capacity\_ton}/\texttt{kg}.
+    \item \texttt{capacity\_usage\_percent} compute = planned\_weight / capacity\_kg x 100.
+    \item \texttt{is\_over\_capacity} + \texttt{over\_capacity\_weight} compute store.
+    \item \texttt{franchise\_count} + \texttt{area\_ids} compute từ \texttt{picking\_ids}.
+    \item \texttt{pricelist\_id} compute store, readonly=False --- auto-suggest theo \texttt{fleet\_type\_id} + \texttt{provider\_id} + \texttt{scheduled\_date}; user override được.
+    \item \texttt{shipping\_cost}, \texttt{drop\_fee\_total}, \texttt{total\_shipping\_cost} compute store.
+    \item \texttt{planned\_departure}, \texttt{actual\_departure}.
+    \item \texttt{delivery\_batch\_status} 6-state, parallel native state.
+    \item Action buttons: \texttt{action\_delivery\_assign} / \texttt{loading} / \texttt{start} (set actual\_departure + push picking -- delivering) / \texttt{done} / \texttt{cancel}.
+\end{itemize}
+
+\subsection{Cost compute logic}
+
+Tham khảo v14 \texttt{co\_franchise\_store\_wujia/models/stock.py:175-228}, đơn giản hóa: lấy giá max trong các pricelist line match khu vực batch + sum drop\_fee per picking (fallback default\_drop\_fee). Phân bổ xuống picking theo tỉ lệ planned\_weight.
+
+\subsection{2 SQL view report}
+
+\texttt{wujia.fleet.shipping.report} (1 row / batch): aggregate cost theo \texttt{provider\_id}, \texttt{fleet\_type\_id}, \texttt{vehicle\_id}; pivot/graph theo tháng.
+
+\texttt{wujia.franchise.shipping.report} (1 row / picking): chi phí phân bổ theo cửa hàng + khu vực; group by \texttt{franchise\_id}.
+
+Cả 2 dùng \texttt{tools.drop\_view\_if\_exists} trong \texttt{init()} để upgrade idempotent.
+
+\section{Demo data --- không load qua manifest}
+
+BA quyết định: KHÔNG đặt demo data trong file XML để tránh đẩy lên server. Script local: \texttt{scripts/seed\_fleet\_demo.py}.
+
+\begin{lstlisting}[style=shell]
+cd /home/huyban/odoo-dev/WujiaTea/odoo19
+/home/huyban/miniconda3/envs/odoo/bin/python odoo-bin shell \\
+  -c /home/huyban/odoo-dev/WujiaTea/config/odoo.conf \\
+  -d wujia_tea_19 --no-http \\
+  < /home/huyban/odoo-dev/WujiaTea/scripts/seed_fleet_demo.py
+\end{lstlisting}
+
+Idempotent (lookup theo \texttt{code}). Tạo: 2 provider + 4 type + 5 vehicle + 1 pricelist 2 line.
+
+\section{Verify install (đã pass)}
+
+Drop + reinstall fresh, install 7 module + check schema:
+
+\begin{itemize}
+    \item \texttt{wujia\_fleet\_provider}, \texttt{wujia\_fleet\_type}, \texttt{wujia\_fleet\_management}, \texttt{wujia\_fleet\_pricelist}, \texttt{wujia\_fleet\_pricelist\_line} đều tồn tại.
+    \item \texttt{stock\_picking}: thêm 9 cột (\texttt{franchise\_id}, \texttt{area\_id}, \texttt{delivery\_sequence}, \texttt{vehicle\_id}, \texttt{provider\_id}, \texttt{delivery\_status}, \texttt{shipping\_cost}, \texttt{drop\_fee}, \texttt{delivery\_note}).
+    \item \texttt{stock\_picking\_batch}: thêm 14 cột.
+    \item 2 SQL view: \texttt{wujia\_fleet\_shipping\_report}, \texttt{wujia\_franchise\_shipping\_report}.
+\end{itemize}
+
+Smoke test (10 case) đã pass: provider create, type compute \texttt{max\_payload\_kg}, vehicle related fields, \texttt{vehicle\_count}, pricelist + lines, cron expire, schema check.
+
+% ===========================================================================
 \chapter{Phụ lục — Lệnh thường dùng}
 
 \begin{lstlisting}[style=shell]

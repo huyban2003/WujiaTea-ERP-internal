@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!--
+        Bổ sung dưới gốc menu Fleet Management (từ wujia_fleet):
+          ├─ Operation
+          │   ├─ Vehicles            (wujia_fleet)
+          │   ├─ Pricelists          (wujia_fleet)
+          │   ├─ Delivery Orders     (NEW — stock.picking filtered)
+          │   └─ Batch Management    (NEW — stock.picking.batch filtered)
+          ├─ Report                  (NEW)
+          │   ├─ Fleet Expense Report
+          │   └─ Franchise Shipping Cost Report
+          └─ Configuration           (wujia_fleet)
+    -->
+
+    <menuitem id="menu_wujia_delivery_orders"
+              name="Delivery Orders"
+              parent="wujia_fleet.menu_wujia_fleet_operation_root"
+              action="action_stock_picking_wujia_delivery"
+              sequence="30"/>
+
+    <menuitem id="menu_wujia_delivery_batch"
+              name="Batch Management"
+              parent="wujia_fleet.menu_wujia_fleet_operation_root"
+              action="action_stock_picking_batch_wujia_delivery"
+              sequence="40"/>
+
+    <menuitem id="menu_wujia_delivery_report_root"
+              name="Reports"
+              parent="wujia_fleet.menu_wujia_fleet_root"
+              sequence="50"/>
+
+    <menuitem id="menu_wujia_delivery_report_fleet"
+              name="Fleet Expense Report"
+              parent="menu_wujia_delivery_report_root"
+              action="action_wujia_fleet_shipping_report"
+              sequence="10"/>
+
+    <menuitem id="menu_wujia_delivery_report_franchise"
+              name="Franchise Shipping Cost Report"
+              parent="menu_wujia_delivery_report_root"
+              action="action_wujia_franchise_shipping_report"
+              sequence="20"/>
+
+</odoo>

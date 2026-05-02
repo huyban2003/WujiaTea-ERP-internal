@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="view_stock_picking_form_wujia_delivery" model="ir.ui.view">
+        <field name="name">stock.picking.form.wujia.delivery</field>
+        <field name="model">stock.picking</field>
+        <field name="inherit_id" ref="stock.view_picking_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='partner_id']" position="after">
+                <field name="franchise_id" options="{'no_create_edit': True}"/>
+                <field name="area_id" readonly="1"/>
+            </xpath>
+            <xpath expr="//notebook" position="inside">
+                <page string="Điều phối" name="wujia_delivery">
+                    <group>
+                        <group string="Chuyến">
+                            <field name="batch_id" readonly="1"/>
+                            <field name="vehicle_id" readonly="1"/>
+                            <field name="provider_id" readonly="1"/>
+                            <field name="delivery_sequence"/>
+                            <field name="delivery_status" widget="badge"
+                                   decoration-info="delivery_status in ('assigned', 'loaded')"
+                                   decoration-warning="delivery_status == 'delivering'"
+                                   decoration-success="delivery_status == 'done'"
+                                   decoration-muted="delivery_status == 'cancelled'"/>
+                        </group>
+                        <group string="Chi phí (phân bổ)">
+                            <field name="shipping_cost" readonly="1"/>
+                            <field name="drop_fee" readonly="1"/>
+                            <field name="currency_id" invisible="1"/>
+                        </group>
+                    </group>
+                    <field name="delivery_note" placeholder="Ghi chú giao hàng cho chuyến..."/>
+                </page>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="view_stock_picking_tree_wujia_delivery" model="ir.ui.view">
+        <field name="name">stock.picking.list.wujia.delivery</field>
+        <field name="model">stock.picking</field>
+        <field name="inherit_id" ref="stock.vpicktree"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='partner_id']" position="after">
+                <field name="franchise_id" optional="show"/>
+                <field name="area_id" optional="hide"/>
+                <field name="vehicle_id" optional="hide"/>
+                <field name="delivery_status" optional="hide" widget="badge"/>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="view_stock_picking_search_wujia_delivery" model="ir.ui.view">
+        <field name="name">stock.picking.search.wujia.delivery</field>
+        <field name="model">stock.picking</field>
+        <field name="inherit_id" ref="stock.view_picking_internal_search"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='partner_id']" position="after">
+                <field name="franchise_id"/>
+                <field name="area_id"/>
+                <field name="vehicle_id"/>
+                <field name="provider_id"/>
+            </xpath>
+            <xpath expr="//filter[@name='available']" position="after">
+                <separator/>
+                <filter string="Chờ điều phối" name="filter_pending_delivery"
+                        domain="[('delivery_status', '=', 'pending')]"/>
+                <filter string="Đang giao" name="filter_delivering"
+                        domain="[('delivery_status', '=', 'delivering')]"/>
+                <filter string="Có cửa hàng nhượng quyền" name="filter_has_franchise"
+                        domain="[('franchise_id', '!=', False)]"/>
+            </xpath>
+            <xpath expr="//group" position="inside">
+                <filter string="Cửa hàng" name="group_franchise"
+                        context="{'group_by': 'franchise_id'}"/>
+                <filter string="Khu vực" name="group_area"
+                        context="{'group_by': 'area_id'}"/>
+                <filter string="Đội xe" name="group_provider"
+                        context="{'group_by': 'provider_id'}"/>
+                <filter string="Trạng thái giao" name="group_delivery_status"
+                        context="{'group_by': 'delivery_status'}"/>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="action_stock_picking_wujia_delivery" model="ir.actions.act_window">
+        <field name="name">Delivery Orders</field>
+        <field name="res_model">stock.picking</field>
+        <field name="view_mode">list,form</field>
+        <field name="domain">[('picking_type_id.code', '=', 'outgoing')]</field>
+        <field name="context">{'search_default_filter_has_franchise': 1, 'contact_display': 'partner_address'}</field>
+    </record>
+
+</odoo>

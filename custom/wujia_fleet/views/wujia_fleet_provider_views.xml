@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="view_wujia_fleet_provider_list" model="ir.ui.view">
+        <field name="name">wujia.fleet.provider.list</field>
+        <field name="model">wujia.fleet.provider</field>
+        <field name="arch" type="xml">
+            <list string="Đội xe" sample="1">
+                <field name="code"/>
+                <field name="name"/>
+                <field name="provider_type" widget="badge"
+                       decoration-info="provider_type == 'company'"
+                       decoration-warning="provider_type == 'outsource'"/>
+                <field name="contact_name" optional="show"/>
+                <field name="phone" optional="show"/>
+                <field name="vehicle_count"/>
+                <field name="active" column_invisible="True"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_wujia_fleet_provider_form" model="ir.ui.view">
+        <field name="name">wujia.fleet.provider.form</field>
+        <field name="model">wujia.fleet.provider</field>
+        <field name="arch" type="xml">
+            <form string="Đội xe">
+                <sheet>
+                    <div class="oe_button_box" name="button_box">
+                        <button name="action_view_vehicles" type="object"
+                                class="oe_stat_button" icon="fa-truck">
+                            <field name="vehicle_count" widget="statinfo" string="Xe"/>
+                        </button>
+                    </div>
+                    <widget name="web_ribbon" title="Archived" bg_color="text-bg-danger"
+                            invisible="active"/>
+                    <div class="oe_title">
+                        <label for="name" class="oe_edit_only"/>
+                        <h1><field name="name" placeholder="CTY TNHH Vận Tải Nguyễn Dũng"/></h1>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="code" placeholder="NDUNG"/>
+                            <field name="provider_type"/>
+                            <field name="partner_id" options="{'no_create_edit': True}"/>
+                            <field name="active"/>
+                        </group>
+                        <group string="Liên hệ">
+                            <field name="contact_name"/>
+                            <field name="phone" widget="phone"/>
+                            <field name="email" widget="email"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="Xe" name="vehicles">
+                            <field name="vehicle_ids" readonly="1">
+                                <list>
+                                    <field name="code"/>
+                                    <field name="name"/>
+                                    <field name="fleet_type_id"/>
+                                    <field name="license_plate"/>
+                                    <field name="driver_name"/>
+                                    <field name="vehicle_status" widget="badge"/>
+                                </list>
+                            </field>
+                        </page>
+                        <page string="Mô tả" name="description">
+                            <field name="description"/>
+                        </page>
+                    </notebook>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_wujia_fleet_provider_search" model="ir.ui.view">
+        <field name="name">wujia.fleet.provider.search</field>
+        <field name="model">wujia.fleet.provider</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="name"/>
+                <field name="code"/>
+                <field name="contact_name"/>
+                <filter string="Xe công ty" name="filter_company"
+                        domain="[('provider_type', '=', 'company')]"/>
+                <filter string="Thuê ngoài" name="filter_outsource"
+                        domain="[('provider_type', '=', 'outsource')]"/>
+                <separator/>
+                <filter string="Archived" name="filter_inactive"
+                        domain="[('active', '=', False)]"/>
+                <filter string="Loại đội xe" name="group_type"
+                        context="{'group_by': 'provider_type'}"/>
+            </search>
+        </field>
+    </record>
+
+    <record id="action_wujia_fleet_provider" model="ir.actions.act_window">
+        <field name="name">Fleet Providers</field>
+        <field name="res_model">wujia.fleet.provider</field>
+        <field name="view_mode">list,form</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">Tạo đội xe / nhà xe đầu tiên</p>
+            <p>Mỗi đội xe có thể là xe công ty (tự sở hữu) hoặc thuê ngoài.</p>
+        </field>
+    </record>
+
+</odoo>

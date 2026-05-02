@@ -1,0 +1,52 @@
+from odoo import fields, models, tools
+
+
+class WujiaFleetShippingReport(models.Model):
+    _name = 'wujia.fleet.shipping.report'
+    _description = 'Báo cáo chi phí theo đội xe (per batch)'
+    _auto = False
+    _order = 'report_date desc, batch_id'
+
+    report_date = fields.Date(string='Ngày báo cáo', readonly=True)
+    batch_id = fields.Many2one('stock.picking.batch', string='Batch', readonly=True)
+    vehicle_id = fields.Many2one('wujia.fleet.management', string='Xe', readonly=True)
+    provider_id = fields.Many2one('wujia.fleet.provider', string='Đội xe', readonly=True)
+    fleet_type_id = fields.Many2one('wujia.fleet.type', string='Loại xe', readonly=True)
+    picking_count = fields.Integer(string='Số phiếu xuất', readonly=True)
+    franchise_count = fields.Integer(string='Số cửa hàng', readonly=True)
+    planned_weight = fields.Float(string='KL dự kiến', readonly=True, digits='Stock Weight')
+    done_weight = fields.Float(string='KL thực xuất', readonly=True, digits='Stock Weight')
+    capacity_usage_percent = fields.Float(string='% sử dụng tải', readonly=True, digits=(8, 2))
+    shipping_cost = fields.Monetary(string='Cước cơ bản', currency_field='currency_id', readonly=True)
+    drop_fee_total = fields.Monetary(string='Tổng phí drop', currency_field='currency_id', readonly=True)
+    total_shipping_cost = fields.Monetary(string='Tổng chi phí', currency_field='currency_id', readonly=True)
+    currency_id = fields.Many2one('res.currency', string='Tiền tệ', readonly=True)
+
+    def init(self):
+        tools.drop_view_if_exists(self.env.cr, self._table)
+        self.env.cr.execute("""
+            CREATE OR REPLACE VIEW %s AS (
+                SELECT
+                    b.id AS id,
+                    COALESCE(b.scheduled_date::date, b.create_date::date) AS report_date,
+                    b.id AS batch_id,
+                    b.vehicle_id AS vehicle_id,
+                    b.provider_id AS provider_id,
+                    b.fleet_type_id AS fleet_type_id,
+                    (
+                        SELECT COUNT(p.id)
+                        FROM stock_picking p
+                        WHERE p.batch_id = b.id
+                    ) AS picking_count,
+                    b.franchise_count AS franchise_count,
+                    b.planned_weight AS planned_weight,
+                    b.done_weight AS done_weight,
+                    b.capacity_usage_percent AS capacity_usage_percent,
+                    b.shipping_cost AS shipping_cost,
+                    b.drop_fee_total AS drop_fee_total,
+                    b.total_shipping_cost AS total_shipping_cost,
+                    b.currency_id AS currency_id
+                FROM stock_picking_batch b
+                WHERE b.vehicle_id IS NOT NULL
+            )
+        """ % self._table)

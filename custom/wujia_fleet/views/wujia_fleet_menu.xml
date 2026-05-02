@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!--
+        Menu Fleet Management:
+          ├─ Operation
+          │   ├─ Vehicles                (wujia.fleet.management)
+          │   └─ Pricelists              (wujia.fleet.pricelist)
+          └─ Configuration
+              ├─ Fleet Providers         (wujia.fleet.provider)
+              └─ Fleet Types             (wujia.fleet.type)
+
+        Phần Delivery Orders / Batch / Reports do module wujia_delivery
+        thêm vào dưới gốc menu_wujia_fleet_root.
+    -->
+
+    <menuitem id="menu_wujia_fleet_root"
+              name="Fleet Management"
+              sequence="25"
+              groups="group_fleet_user"/>
+
+    <menuitem id="menu_wujia_fleet_operation_root"
+              name="Operation"
+              parent="menu_wujia_fleet_root"
+              sequence="10"/>
+
+    <menuitem id="menu_wujia_fleet_management"
+              name="Vehicles"
+              parent="menu_wujia_fleet_operation_root"
+              action="action_wujia_fleet_management"
+              sequence="10"/>
+
+    <menuitem id="menu_wujia_fleet_pricelist"
+              name="Pricelists"
+              parent="menu_wujia_fleet_operation_root"
+              action="action_wujia_fleet_pricelist"
+              sequence="20"/>
+
+    <menuitem id="menu_wujia_fleet_config_root"
+              name="Configuration"
+              parent="menu_wujia_fleet_root"
+              sequence="90"
+              groups="group_fleet_manager"/>
+
+    <menuitem id="menu_wujia_fleet_provider"
+              name="Fleet Providers"
+              parent="menu_wujia_fleet_config_root"
+              action="action_wujia_fleet_provider"
+              sequence="10"/>
+
+    <menuitem id="menu_wujia_fleet_type"
+              name="Fleet Types"
+              parent="menu_wujia_fleet_config_root"
+              action="action_wujia_fleet_type"
+              sequence="20"/>
+
+</odoo>
