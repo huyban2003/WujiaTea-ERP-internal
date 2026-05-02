@@ -30,12 +30,14 @@ class WujiaFleetPricelist(models.Model):
         required=True,
         ondelete='restrict',
         tracking=True,
+        index=True,
     )
     provider_id = fields.Many2one(
         'wujia.fleet.provider',
         string='Đội xe',
         ondelete='restrict',
         tracking=True,
+        index=True,
         help='Để trống nếu áp dụng chung cho mọi đội xe của loại xe này.',
     )
     trip_scope = fields.Selection(
@@ -66,8 +68,9 @@ class WujiaFleetPricelist(models.Model):
         required=True,
         default=fields.Date.context_today,
         tracking=True,
+        index=True,
     )
-    date_to = fields.Date(string='Hiệu lực đến', tracking=True)
+    date_to = fields.Date(string='Hiệu lực đến', tracking=True, index=True)
 
     line_ids = fields.One2many(
         'wujia.fleet.pricelist.line',
@@ -82,6 +85,7 @@ class WujiaFleetPricelist(models.Model):
         required=True,
         default='draft',
         tracking=True,
+        index=True,
     )
     active = fields.Boolean(default=True)
     note = fields.Text(string='Ghi chú')

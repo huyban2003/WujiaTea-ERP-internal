@@ -19,6 +19,7 @@ class StockPickingBatch(models.Model):
         string='Xe',
         domain=[('active', '=', True)],
         tracking=True,
+        index=True,
         help='Xe được chọn cho chuyến.',
     )
     provider_id = fields.Many2one(
@@ -27,6 +28,7 @@ class StockPickingBatch(models.Model):
         related='vehicle_id.provider_id',
         store=True,
         readonly=True,
+        index=True,
     )
     fleet_type_id = fields.Many2one(
         'wujia.fleet.type',
@@ -34,6 +36,7 @@ class StockPickingBatch(models.Model):
         related='vehicle_id.fleet_type_id',
         store=True,
         readonly=True,
+        index=True,
     )
     vehicle_capacity_ton = fields.Float(
         string='Tải trọng (tấn)',
@@ -90,6 +93,7 @@ class StockPickingBatch(models.Model):
         store=True,
         readonly=False,
         tracking=True,
+        index=True,
         help='Bảng giá vận chuyển. Auto-suggest theo loại xe + đội xe + ngày; '
              'có thể override thủ công.',
     )
@@ -130,6 +134,7 @@ class StockPickingBatch(models.Model):
         DELIVERY_BATCH_STATUS,
         string='Trạng thái điều phối',
         default='draft',
+        index=True,
         tracking=True,
         help='Song song với state chuẩn — không thay state Odoo.',
     )
@@ -162,26 +167,31 @@ class StockPickingBatch(models.Model):
 
     @api.depends('vehicle_id', 'fleet_type_id', 'provider_id', 'scheduled_date', 'area_ids')
     def _compute_pricelist_id(self):
+        # Prefetch tất cả pricelist active 1 lần thay vì search per batch
+        # → tránh O(n) query khi compute trên list nhiều batch.
+        batches_need_compute = self.filtered(lambda b: not b.pricelist_id and b.fleet_type_id)
+        for b in self - batches_need_compute:
+            if not b.fleet_type_id:
+                b.pricelist_id = False
+        if not batches_need_compute:
+            return
+
+        type_ids = batches_need_compute.fleet_type_id.ids
         Pricelist = self.env['wujia.fleet.pricelist']
-        for batch in self:
-            if batch.pricelist_id:
-                # Người dùng đã chọn → giữ nguyên (readonly=False).
-                continue
-            if not batch.fleet_type_id:
-                batch.pricelist_id = False
-                continue
+        all_pricelists = Pricelist.search([
+            ('state', '=', 'active'),
+            ('fleet_type_id', 'in', type_ids),
+        ], order='sequence, id')
+
+        for batch in batches_need_compute:
             ref_date = (batch.scheduled_date and batch.scheduled_date.date()) or fields.Date.context_today(batch)
-            domain = [
-                ('state', '=', 'active'),
-                ('fleet_type_id', '=', batch.fleet_type_id.id),
-                ('date_from', '<=', ref_date),
-                '|', ('date_to', '=', False), ('date_to', '>=', ref_date),
-            ]
-            if batch.provider_id:
-                domain.extend(['|', ('provider_id', '=', batch.provider_id.id), ('provider_id', '=', False)])
-            else:
-                domain.append(('provider_id', '=', False))
-            batch.pricelist_id = Pricelist.search(domain, order='sequence, id', limit=1)
+            candidates = all_pricelists.filtered(lambda p: (
+                p.fleet_type_id == batch.fleet_type_id
+                and p.date_from <= ref_date
+                and (not p.date_to or p.date_to >= ref_date)
+                and (not batch.provider_id or not p.provider_id or p.provider_id == batch.provider_id)
+            ))
+            batch.pricelist_id = candidates[:1]
 
     @api.depends(
         'pricelist_id',

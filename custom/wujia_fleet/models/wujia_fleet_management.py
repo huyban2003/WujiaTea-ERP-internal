@@ -42,6 +42,7 @@ class WujiaFleetManagement(models.Model):
         required=True,
         ondelete='restrict',
         tracking=True,
+        index=True,
         domain=[('active', '=', True)],
     )
     fleet_type_id = fields.Many2one(
@@ -50,6 +51,7 @@ class WujiaFleetManagement(models.Model):
         required=True,
         ondelete='restrict',
         tracking=True,
+        index=True,
     )
     vehicle_category = fields.Selection(
         related='fleet_type_id.vehicle_category',
@@ -69,7 +71,7 @@ class WujiaFleetManagement(models.Model):
         digits='Stock Weight',
     )
 
-    license_plate = fields.Char(string='Biển số', tracking=True)
+    license_plate = fields.Char(string='Biển số', tracking=True, index=True)
     driver_name = fields.Char(string='Tài xế')
     driver_phone = fields.Char(string='SĐT tài xế')
     contact = fields.Char(
@@ -83,6 +85,7 @@ class WujiaFleetManagement(models.Model):
         required=True,
         default='available',
         tracking=True,
+        index=True,
     )
 
     franchise_ids = fields.Many2many(

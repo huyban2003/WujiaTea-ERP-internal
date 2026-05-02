@@ -17,6 +17,11 @@ if command -v lualatex >/dev/null 2>&1 && \
     echo "==> Using lualatex (direct .tex -> .pdf)"
     lualatex -interaction=nonstopmode -halt-on-error "${TEX_FILE}" >/dev/null
     lualatex -interaction=nonstopmode -halt-on-error "${TEX_FILE}" >/dev/null
+# Fallback: xelatex cũng support fontspec, có sẵn trong texlive-xetex
+elif command -v xelatex >/dev/null 2>&1; then
+    echo "==> Using xelatex (direct .tex -> .pdf)"
+    xelatex -interaction=nonstopmode -halt-on-error "${TEX_FILE}" >/dev/null
+    xelatex -interaction=nonstopmode -halt-on-error "${TEX_FILE}" >/dev/null
 elif command -v pandoc >/dev/null 2>&1 && \
      command -v wkhtmltopdf >/dev/null 2>&1; then
     echo "==> Using pandoc + wkhtmltopdf (fallback — cài texlive-luatex để có quality cao hơn)"

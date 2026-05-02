@@ -41,6 +41,7 @@ class StockPicking(models.Model):
         related='batch_id.vehicle_id',
         store=True,
         readonly=True,
+        index=True,
     )
     provider_id = fields.Many2one(
         'wujia.fleet.provider',
@@ -48,12 +49,14 @@ class StockPicking(models.Model):
         related='vehicle_id.provider_id',
         store=True,
         readonly=True,
+        index=True,
     )
     delivery_status = fields.Selection(
         DELIVERY_STATUS,
         string='Trạng thái giao',
         default='pending',
         tracking=True,
+        index=True,
         help='Trạng thái điều phối — KHÔNG thay state chuẩn của picking.',
     )
     currency_id = fields.Many2one(

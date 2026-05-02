@@ -42,6 +42,7 @@ class WujiaFleetProvider(models.Model):
         required=True,
         default='outsource',
         tracking=True,
+        index=True,
     )
     description = fields.Text(string='Mô tả')
     contact_name = fields.Char(string='Người liên hệ')
@@ -56,6 +57,8 @@ class WujiaFleetProvider(models.Model):
     vehicle_count = fields.Integer(
         string='Số xe',
         compute='_compute_vehicle_count',
+        store=True,
+        compute_sudo=True,
     )
 
     active = fields.Boolean(default=True)
