@@ -8,9 +8,12 @@ class WujiaPortalLayout(http.Controller):
 
     @http.route('/portal/profile', type='http', auth='user', website=False, sitemap=False)
     def portal_profile(self, **kw):
+        # Template profile_page expect biến `profile` với name/email/phone/street.
+        # → dùng partner của user (đã có sẵn các field này).
         return request.render('wujia_portal_layout.profile_page', {
             'title': _('Hồ sơ'),
             'lang': request.env.lang or 'en',
+            'profile': request.env.user.partner_id,
             'user': request.env.user,
         })
 
