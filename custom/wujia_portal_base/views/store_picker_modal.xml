@@ -1,66 +1,103 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
 
-    <!-- Modal store picker — render SSR (không cần JS để show ban đầu).
-         Khi must_pick=True: thêm class "show d-block" + backdrop ngay từ HTML
-         → modal hiện ngay khi browser render trang, KHÔNG phụ thuộc JS/Bootstrap. -->
+    <!-- Store picker — render hoàn toàn SSR.
+         KHÔNG dùng Bootstrap modal class (.modal.show, .modal-backdrop) để
+         tránh xung đột với CSS theme Vuexy. Dùng overlay div riêng với
+         class wujia-* — CSS namespace riêng, hoạt động bất kể browser/theme. -->
     <template id="store_picker_modal" name="Wujia Portal — Store Picker Modal">
-        <!-- Modal: nếu must_pick → hiện ngay (class show + style display:block). -->
-        <div t-attf-class="modal fade#{' show' if _wujia_must_pick else ''}"
-             t-attf-style="#{'display: block !important; padding-right: 0;' if _wujia_must_pick else ''}"
-             id="wujiaStorePickerModal" tabindex="-1"
-             role="dialog" aria-labelledby="wujiaStorePickerLabel"
-             data-backdrop="static" data-keyboard="false"
-             data-bs-backdrop="static" data-bs-keyboard="false">
-            <div class="modal-dialog modal-dialog-centered" role="document">
-                <div class="modal-content">
-                    <div class="modal-header" style="background-color: #1f4180; color: #fff;">
-                        <h5 class="modal-title" id="wujiaStorePickerLabel">
-                            <i class="fa fa-building me-1"/>Chọn cửa hàng đang thao tác
-                        </h5>
-                    </div>
-                    <form action="/portal/franchise/switch" method="POST" id="wujiaStorePickerForm">
-                        <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
-                        <input type="hidden" name="redirect" t-att-value="request.httprequest.full_path or '/portal'"/>
-                        <div class="modal-body">
-                            <p class="text-muted mb-3">
-                                Bạn thuộc nhiều cửa hàng. Vui lòng chọn cửa hàng đang thao tác để
-                                hệ thống chỉ hiển thị dữ liệu liên quan (đơn hàng, đổi trả, thông báo).
-                            </p>
-                            <div class="list-group store-picker-list">
-                                <t t-foreach="all_accessible_franchises" t-as="f">
-                                    <label t-attf-class="list-group-item list-group-item-action store-picker-item#{' active' if f.id == active_franchise_id else ''}">
-                                        <input type="radio" name="franchise_id"
-                                               t-att-value="f.id"
-                                               t-att-checked="'checked' if f.id == active_franchise_id else None"
-                                               required="required"
-                                               class="store-picker-radio"/>
-                                        <span class="store-picker-name">
-                                            <strong t-out="f.name"/>
-                                            <small t-if="f.code" class="text-muted ms-1">
-                                                (<t t-out="f.code"/>)
-                                            </small>
-                                        </span>
-                                        <small t-if="f.address" class="d-block text-muted store-picker-addr"
-                                               t-out="f.address"/>
-                                    </label>
-                                </t>
-                            </div>
-                        </div>
-                        <div class="modal-footer">
-                            <button type="submit" class="btn btn-primary">
-                                <i class="fa fa-check me-1"/>Xác nhận
-                            </button>
-                        </div>
-                    </form>
+        <!-- Overlay chỉ render khi must_pick=True. Khi user đã chọn → trang
+             KHÔNG có overlay này, badge top navbar đảm nhận trigger lại. -->
+        <div t-if="_wujia_must_pick" class="wujia-store-overlay">
+            <div class="wujia-store-card">
+                <div class="wujia-store-header">
+                    <i class="fa fa-building me-1"/>
+                    <span>Chọn cửa hàng đang thao tác</span>
                 </div>
+                <form action="/portal/franchise/switch" method="POST"
+                      class="wujia-store-form">
+                    <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
+                    <input type="hidden" name="redirect" t-att-value="request.httprequest.full_path or '/portal'"/>
+                    <div class="wujia-store-body">
+                        <p class="wujia-store-intro">
+                            Bạn thuộc nhiều cửa hàng. Vui lòng chọn cửa hàng đang
+                            thao tác để hệ thống chỉ hiển thị dữ liệu liên quan
+                            (đơn hàng, đổi trả, thông báo).
+                        </p>
+                        <div class="wujia-store-list">
+                            <t t-foreach="all_accessible_franchises" t-as="f">
+                                <label class="wujia-store-item">
+                                    <input type="radio" name="franchise_id"
+                                           t-att-value="f.id"
+                                           required="required"
+                                           class="wujia-store-radio"/>
+                                    <span class="wujia-store-info">
+                                        <strong t-out="f.name"/>
+                                        <small t-if="f.code" class="wujia-store-code">
+                                            (<t t-out="f.code"/>)
+                                        </small>
+                                        <small t-if="f.address" class="wujia-store-addr"
+                                               t-out="f.address"/>
+                                    </span>
+                                </label>
+                            </t>
+                        </div>
+                    </div>
+                    <div class="wujia-store-footer">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fa fa-check me-1"/>Xác nhận
+                        </button>
+                    </div>
+                </form>
             </div>
         </div>
 
-        <!-- Backdrop SSR: render khi must_pick để chặn click ra ngoài. -->
-        <div t-if="_wujia_must_pick"
-             class="modal-backdrop fade show wujia-store-picker-backdrop"
-             style="z-index: 1040;"/>
+        <!-- Inline CSS — đảm bảo hiển thị bất kể asset bundle có load CSS hay không.
+             Render INLINE trong page để loại trừ trường hợp CSS file 404. -->
+        <style t-if="_wujia_must_pick">
+            .wujia-store-overlay {
+                position: fixed !important; top: 0 !important; left: 0 !important;
+                width: 100% !important; height: 100% !important;
+                background: rgba(0, 0, 0, 0.55) !important;
+                z-index: 99999 !important;
+                display: flex !important;
+                align-items: center !important; justify-content: center !important;
+                padding: 20px;
+            }
+            .wujia-store-card {
+                background: #fff; border-radius: 12px; max-width: 540px;
+                width: 100%; max-height: 90vh; overflow-y: auto;
+                box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+                font-family: inherit;
+            }
+            .wujia-store-header {
+                background: #1f4180; color: #fff; padding: 16px 20px;
+                font-size: 1.1rem; font-weight: 600;
+                border-radius: 12px 12px 0 0;
+            }
+            .wujia-store-body { padding: 20px; }
+            .wujia-store-intro { color: #6c757d; margin-bottom: 16px; line-height: 1.5; }
+            .wujia-store-list { display: flex; flex-direction: column; gap: 8px; }
+            .wujia-store-item {
+                display: flex; align-items: flex-start; gap: 12px;
+                padding: 12px 14px; border: 1px solid #dee2e6;
+                border-radius: 8px; cursor: pointer; margin: 0;
+                transition: all 0.15s ease;
+            }
+            .wujia-store-item:hover { background: #f5f7fa; border-color: #1f4180; }
+            .wujia-store-item:has(.wujia-store-radio:checked) {
+                background: #e7eef9; border-color: #1f4180; border-width: 2px;
+            }
+            .wujia-store-radio { margin-top: 4px; cursor: pointer; }
+            .wujia-store-info { flex: 1; display: flex; flex-direction: column; gap: 2px; }
+            .wujia-store-info strong { font-size: 1rem; color: #212529; }
+            .wujia-store-code { color: #6c757d; }
+            .wujia-store-addr { color: #6c757d; font-size: 0.85rem; }
+            .wujia-store-footer {
+                padding: 14px 20px; text-align: right;
+                border-top: 1px solid #eaeaea;
+            }
+        </style>
     </template>
 
 </odoo>
