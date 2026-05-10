@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- Notification: portal user thấy noti broadcast (franchise_ids empty)
+         hoặc noti gắn franchise mình. Chỉ noti đã published. -->
+    <record id="rule_wujia_notification_portal" model="ir.rule">
+        <field name="name">Wujia Notification — Portal published only</field>
+        <field name="model_id" ref="model_wujia_notification"/>
+        <field name="domain_force">[('published', '=', True), '|', ('franchise_ids', '=', False), ('franchise_ids', 'in', user._get_accessible_franchise_ids())]</field>
+        <field name="groups" eval="[(4, ref('base.group_portal'))]"/>
+        <field name="perm_read" eval="True"/>
+    </record>
+
+    <!-- Read tracking: user chỉ thấy/ghi của mình -->
+    <record id="rule_wujia_notification_read_portal" model="ir.rule">
+        <field name="name">Wujia Notification Read — Portal own</field>
+        <field name="model_id" ref="model_wujia_notification_read"/>
+        <field name="domain_force">[('user_id', '=', user.id)]</field>
+        <field name="groups" eval="[(4, ref('base.group_portal'))]"/>
+    </record>
+
+</odoo>

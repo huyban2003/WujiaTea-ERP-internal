@@ -1,0 +1,212 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- Dashboard /portal — 4 stat card + 4 list block (BA spec) -->
+    <template id="portal_home_page" name="Wujia Portal — Dashboard">
+        <t t-call="wujia_portal_layout.app_layout">
+            <t t-set="title">Trang chủ</t>
+            <div class="content-wrapper">
+                <div class="content-header row mt-3">
+                    <div class="content-header-left col-12 mb-1">
+                        <h2 class="content-header-title float-left mb-0">Tổng quan cửa hàng</h2>
+                        <p class="text-muted">Chào mừng <strong t-out="request.env.user.name"/>! Đây là tóm tắt hoạt động cửa hàng nhượng quyền của bạn.</p>
+                    </div>
+                </div>
+
+                <div t-if="not franchise_ids" class="alert alert-warning m-3" role="alert">
+                    Bạn chưa được gán vào cửa hàng nào. Vui lòng liên hệ quản trị viên để được cấp quyền.
+                </div>
+
+                <div t-if="franchise_ids" class="content-body">
+                    <!-- ============ 4 stat cards ============ -->
+                    <section id="dashboard-stats">
+                        <div class="row">
+                            <div class="col-lg-3 col-md-6 col-6 mb-2">
+                                <a href="/portal/notification" class="text-decoration-none">
+                                    <div class="card stat-card stat-card-primary mb-0">
+                                        <div class="card-body d-flex align-items-center justify-content-between p-2">
+                                            <div>
+                                                <p class="mb-0 stat-card-label">Thông báo chưa đọc</p>
+                                                <h2 class="text-bold-700 stat-card-value mb-0" t-out="unread_count or 0"/>
+                                            </div>
+                                            <div class="stat-card-icon">
+                                                <i class="fa fa-bell"></i>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </a>
+                            </div>
+                            <div class="col-lg-3 col-md-6 col-6 mb-2">
+                                <a href="/portal/purchase-history" class="text-decoration-none">
+                                    <div class="card stat-card stat-card-info mb-0">
+                                        <div class="card-body d-flex align-items-center justify-content-between p-2">
+                                            <div>
+                                                <p class="mb-0 stat-card-label">Đơn hàng (30 ngày)</p>
+                                                <h2 class="text-bold-700 stat-card-value mb-0" t-out="recent_orders_count or 0"/>
+                                            </div>
+                                            <div class="stat-card-icon">
+                                                <i class="fa fa-shopping-cart"></i>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </a>
+                            </div>
+                            <div class="col-lg-3 col-md-6 col-6 mb-2">
+                                <a href="/portal/purchase-history" class="text-decoration-none">
+                                    <div class="card stat-card stat-card-warning mb-0">
+                                        <div class="card-body d-flex align-items-center justify-content-between p-2">
+                                            <div>
+                                                <p class="mb-0 stat-card-label">Đơn chờ xử lý</p>
+                                                <h2 class="text-bold-700 stat-card-value mb-0" t-out="waiting_orders_count or 0"/>
+                                            </div>
+                                            <div class="stat-card-icon">
+                                                <i class="fa fa-clock-o"></i>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </a>
+                            </div>
+                            <div class="col-lg-3 col-md-6 col-6 mb-2">
+                                <a href="/portal/return" class="text-decoration-none">
+                                    <div class="card stat-card stat-card-danger mb-0">
+                                        <div class="card-body d-flex align-items-center justify-content-between p-2">
+                                            <div>
+                                                <p class="mb-0 stat-card-label">Đổi trả đang mở</p>
+                                                <h2 class="text-bold-700 stat-card-value mb-0" t-out="return_requests_count or 0"/>
+                                            </div>
+                                            <div class="stat-card-icon">
+                                                <i class="fa fa-undo"></i>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </a>
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- ============ 4 list blocks ============ -->
+                    <div class="row">
+                        <!-- Latest notifications -->
+                        <div class="col-lg-6 col-12 mb-2">
+                            <div class="card h-100">
+                                <div class="card-header d-flex justify-content-between align-items-center">
+                                    <h4 class="card-title mb-0">Thông báo mới nhất</h4>
+                                    <a href="/portal/notification" class="btn btn-sm btn-outline-primary">Xem tất cả</a>
+                                </div>
+                                <div class="card-body p-0">
+                                    <div t-if="not latest_notifications" class="p-3 text-muted">Chưa có thông báo nào.</div>
+                                    <ul t-else="" class="list-group list-group-flush dashboard-list">
+                                        <t t-foreach="latest_notifications" t-as="noti">
+                                            <li class="list-group-item d-flex justify-content-between align-items-start py-2">
+                                                <a t-attf-href="/portal/notification/#{noti.id}" class="dashboard-list-link flex-grow-1 me-2">
+                                                    <strong t-out="noti.name"/>
+                                                    <small class="d-block text-muted" t-out="noti.date and noti.date.strftime('%d/%m/%Y %H:%M') or ''"/>
+                                                </a>
+                                                <span t-if="noti.type_id" class="badge"
+                                                      t-attf-style="background-color: #{noti.type_id.bg_color or '#6c757d'}; color: #{noti.type_id.text_color or '#fff'};"
+                                                      t-out="noti.type_id.name"/>
+                                            </li>
+                                        </t>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Recent orders -->
+                        <div class="col-lg-6 col-12 mb-2">
+                            <div class="card h-100">
+                                <div class="card-header d-flex justify-content-between align-items-center">
+                                    <h4 class="card-title mb-0">Đơn hàng gần đây</h4>
+                                    <a href="/portal/purchase-history" class="btn btn-sm btn-outline-primary">Xem tất cả</a>
+                                </div>
+                                <div class="card-body p-0">
+                                    <div t-if="not recent_orders" class="p-3 text-muted">Chưa có đơn hàng nào.</div>
+                                    <table t-else="" class="table table-sm mb-0 dashboard-list">
+                                        <thead>
+                                            <tr>
+                                                <th>Mã đơn</th>
+                                                <th>Ngày</th>
+                                                <th class="text-end">Tổng tiền</th>
+                                                <th>Trạng thái</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr t-foreach="recent_orders" t-as="order">
+                                                <td><a t-attf-href="/portal/purchase-history/#{order.id}" t-out="order.name"/></td>
+                                                <td t-out="order.date_order and order.date_order.strftime('%d/%m/%Y') or ''"/>
+                                                <td class="text-end" t-out="'{:,.0f}'.format(order.amount_total or 0).replace(',', '.') + ' ₫'"/>
+                                                <td>
+                                                    <span t-attf-class="badge state-badge state-#{order.state}" t-out="order.state"/>
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Latest return requests -->
+                        <div class="col-lg-6 col-12 mb-2">
+                            <div class="card h-100">
+                                <div class="card-header d-flex justify-content-between align-items-center">
+                                    <h4 class="card-title mb-0">Yêu cầu đổi trả gần đây</h4>
+                                    <a href="/portal/return" class="btn btn-sm btn-outline-primary">Xem tất cả</a>
+                                </div>
+                                <div class="card-body p-0">
+                                    <div t-if="not latest_returns" class="p-3 text-muted">Chưa có yêu cầu nào.</div>
+                                    <table t-else="" class="table table-sm mb-0 dashboard-list">
+                                        <thead>
+                                            <tr>
+                                                <th>Mã</th>
+                                                <th>Ngày</th>
+                                                <th>Trạng thái</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr t-foreach="latest_returns" t-as="rr">
+                                                <td><a t-attf-href="/portal/return/#{rr.id}" t-out="rr.name or '—'"/></td>
+                                                <td t-out="rr.request_date and rr.request_date.strftime('%d/%m/%Y') or ''"/>
+                                                <td><span t-attf-class="badge state-badge state-#{rr.state}" t-out="rr.state"/></td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Top products -->
+                        <div class="col-lg-6 col-12 mb-2">
+                            <div class="card h-100">
+                                <div class="card-header">
+                                    <h4 class="card-title mb-0">Sản phẩm mua nhiều nhất</h4>
+                                </div>
+                                <div class="card-body p-0">
+                                    <div t-if="not top_products" class="p-3 text-muted">Chưa có dữ liệu.</div>
+                                    <table t-else="" class="table table-sm mb-0 dashboard-list">
+                                        <thead>
+                                            <tr>
+                                                <th>Sản phẩm</th>
+                                                <th class="text-end">SL</th>
+                                                <th>ĐVT</th>
+                                                <th class="text-end">Tổng</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr t-foreach="top_products" t-as="p">
+                                                <td t-out="p['name']"/>
+                                                <td class="text-end" t-out="'{:,.0f}'.format(p['qty']).replace(',', '.')"/>
+                                                <td t-out="p['uom']"/>
+                                                <td class="text-end" t-out="'{:,.0f}'.format(p['total']).replace(',', '.') + ' ₫'"/>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </t>
+    </template>
+
+</odoo>

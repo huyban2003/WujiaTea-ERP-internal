@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- Portal user chỉ thấy ticket do chính mình tạo (manager / owner xem
+         tất cả ticket franchise sẽ làm sprint sau qua role-based domain). -->
+    <record id="rule_wujia_support_ticket_portal_own" model="ir.rule">
+        <field name="name">Wujia Support Ticket — Portal own</field>
+        <field name="model_id" ref="model_wujia_support_ticket"/>
+        <field name="domain_force">[('user_id', '=', user.id)]</field>
+        <field name="groups" eval="[(4, ref('base.group_portal'))]"/>
+        <field name="perm_read" eval="True"/>
+        <field name="perm_write" eval="True"/>
+        <field name="perm_create" eval="True"/>
+        <field name="perm_unlink" eval="False"/>
+    </record>
+
+</odoo>

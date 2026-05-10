@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <template id="portal_return_list" name="Wujia Portal — Return List">
+        <t t-call="wujia_portal_layout.app_layout">
+            <t t-set="title">Yêu cầu đổi trả</t>
+            <div class="content-wrapper">
+                <div class="content-header row mt-3">
+                    <div class="content-header-left col-12 mb-1 d-flex align-items-center justify-content-between flex-wrap">
+                        <h2 class="content-header-title float-left mb-0">
+                            <i class="fa fa-undo me-1"/>Yêu cầu đổi trả
+                        </h2>
+                        <a href="/portal/return/new" class="btn btn-primary">
+                            <i class="fa fa-plus me-1"/>Tạo yêu cầu
+                        </a>
+                    </div>
+                </div>
+
+                <div t-if="no_franchise" class="alert alert-warning m-3">
+                    Bạn chưa được gán vào cửa hàng nào.
+                </div>
+
+                <div t-if="not no_franchise" class="content-body">
+                    <!-- Filter -->
+                    <div class="card mb-2">
+                        <div class="card-body p-2">
+                            <form method="get" action="/portal/return" class="row g-2 align-items-center">
+                                <div class="col-md-3 col-12">
+                                    <label class="small text-muted mb-1">Trạng thái</label>
+                                    <select name="state" class="form-select form-select-sm">
+                                        <option value="">— Tất cả —</option>
+                                        <t t-foreach="state_labels.items()" t-as="kv">
+                                            <option t-att-value="kv[0]"
+                                                    t-att-selected="'selected' if state == kv[0] else None"
+                                                    t-out="kv[1][0]"/>
+                                        </t>
+                                    </select>
+                                </div>
+                                <div class="col-md-3 col-6">
+                                    <label class="small text-muted mb-1">Từ ngày</label>
+                                    <input type="date" name="date_from" class="form-control form-control-sm" t-att-value="date_from"/>
+                                </div>
+                                <div class="col-md-3 col-6">
+                                    <label class="small text-muted mb-1">Đến ngày</label>
+                                    <input type="date" name="date_to" class="form-control form-control-sm" t-att-value="date_to"/>
+                                </div>
+                                <div class="col-md-3 col-12 text-end">
+                                    <label class="small text-muted mb-1 d-block">&#160;</label>
+                                    <button type="submit" class="btn btn-primary btn-sm">
+                                        <i class="fa fa-search"/> Lọc
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+
+                    <!-- Table -->
+                    <div class="card">
+                        <div class="card-body p-0">
+                            <div t-if="not returns" class="alert alert-info m-3 mb-0">
+                                Chưa có yêu cầu nào. <a href="/portal/return/new">Tạo yêu cầu đầu tiên</a>.
+                            </div>
+                            <div t-else="" class="table-responsive">
+                                <table class="table table-hover mb-0">
+                                    <thead class="bg-light">
+                                        <tr>
+                                            <th>Mã</th>
+                                            <th>Ngày yêu cầu</th>
+                                            <th>Cửa hàng</th>
+                                            <th>Loại lỗi</th>
+                                            <th>Đơn gốc</th>
+                                            <th class="text-center">Trạng thái</th>
+                                            <th></th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr t-foreach="returns" t-as="rr">
+                                            <td><a t-attf-href="/portal/return/#{rr.id}" t-out="rr.name"/></td>
+                                            <td t-out="rr.request_date and rr.request_date.strftime('%d/%m/%Y %H:%M') or ''"/>
+                                            <td t-out="rr.franchise_id.name or '—'"/>
+                                            <td t-out="rr.error_id.name or '—'"/>
+                                            <td t-out="rr.order_id.name or '—'"/>
+                                            <td class="text-center">
+                                                <t t-set="lbl" t-value="state_labels.get(rr.state, (rr.state, 'state-draft'))"/>
+                                                <span t-attf-class="badge state-badge #{lbl[1]}" t-out="lbl[0]"/>
+                                            </td>
+                                            <td class="text-end">
+                                                <a t-attf-href="/portal/return/#{rr.id}" class="btn btn-sm btn-outline-primary">
+                                                    <i class="fa fa-eye"/>
+                                                </a>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
+                    <nav t-if="pager and pager.get('page_count', 0) &gt; 1" class="mt-2">
+                        <ul class="pagination justify-content-center mb-0">
+                            <li class="page-item">
+                                <a class="page-link"
+                                   t-attf-href="/portal/return?page=#{pager['page_previous']['num']}&amp;#{pager.get('querystring','')}">«</a>
+                            </li>
+                            <li class="page-item active">
+                                <span class="page-link">
+                                    Trang <t t-out="pager['page']['num']"/> / <t t-out="pager['page_count']"/>
+                                </span>
+                            </li>
+                            <li class="page-item">
+                                <a class="page-link"
+                                   t-attf-href="/portal/return?page=#{pager['page_next']['num']}&amp;#{pager.get('querystring','')}">»</a>
+                            </li>
+                        </ul>
+                    </nav>
+                </div>
+            </div>
+        </t>
+    </template>
+
+</odoo>

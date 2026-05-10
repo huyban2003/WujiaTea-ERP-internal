@@ -1,0 +1,178 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- ============== List ============== -->
+    <template id="portal_knowledge_list" name="Wujia Portal — Knowledge List">
+        <t t-call="wujia_portal_layout.app_layout">
+            <t t-set="title">Thư viện kiến thức</t>
+            <div class="content-wrapper">
+                <div class="content-header row mt-3">
+                    <div class="content-header-left col-12 mb-1">
+                        <h2 class="content-header-title float-left mb-0">
+                            <i class="fa fa-book me-1"/>
+                            <t t-if="current_category">
+                                Kiến thức — <t t-out="current_category.name"/>
+                            </t>
+                            <t t-else="">Thư viện kiến thức</t>
+                        </h2>
+                    </div>
+                </div>
+                <div class="content-body">
+                    <!-- Search bar -->
+                    <div class="card mb-2">
+                        <div class="card-body p-2">
+                            <form method="get" action="/portal/knowledge" class="row g-2">
+                                <div class="col-md-8 col-12">
+                                    <input type="text" name="keyword" class="form-control form-control-sm"
+                                           placeholder="Tìm bài viết..."
+                                           t-att-value="keyword"/>
+                                </div>
+                                <div class="col-md-4 col-12 text-end">
+                                    <button type="submit" class="btn btn-primary btn-sm me-1">
+                                        <i class="fa fa-search"/>
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <!-- Category nav -->
+                        <div class="col-md-3 col-12 mb-2">
+                            <div class="card">
+                                <div class="card-header py-2"><h6 class="mb-0">Danh mục</h6></div>
+                                <div class="list-group list-group-flush knowledge-cat-list">
+                                    <a href="/portal/knowledge"
+                                       t-attf-class="list-group-item list-group-item-action#{' active' if not category_id else ''}">
+                                        <i class="fa fa-list me-1"/>Tất cả
+                                    </a>
+                                    <t t-foreach="categories" t-as="cat">
+                                        <a t-attf-href="/portal/knowledge?category_id=#{cat.id}"
+                                           t-attf-class="list-group-item list-group-item-action#{' active' if category_id == cat.id else ''}">
+                                            <span t-out="cat.name"/>
+                                            <span class="badge bg-light text-dark float-end" t-out="cat.article_count"/>
+                                        </a>
+                                    </t>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Articles grid -->
+                        <div class="col-md-9 col-12">
+                            <div t-if="not articles" class="alert alert-info">Chưa có bài viết.</div>
+                            <div t-else="" class="row g-2">
+                                <t t-foreach="articles" t-as="art">
+                                    <div class="col-md-6 col-lg-4 col-12">
+                                        <div class="card knowledge-card h-100">
+                                            <a t-attf-href="/portal/knowledge/#{art.slug}">
+                                                <img loading="lazy"
+                                                     t-attf-src="/web/image/wujia.knowledge.article/#{art.id}/cover_image"
+                                                     class="card-img-top knowledge-card-img"
+                                                     t-att-alt="art.name"/>
+                                            </a>
+                                            <div class="card-body">
+                                                <span t-if="art.category_id" class="badge bg-light text-dark mb-1" t-out="art.category_id.name"/>
+                                                <h6 class="card-title">
+                                                    <a t-attf-href="/portal/knowledge/#{art.slug}" class="text-dark text-decoration-none" t-out="art.name"/>
+                                                </h6>
+                                                <p class="text-muted small mb-1" t-out="art.summary or ''"/>
+                                                <div class="d-flex justify-content-between text-muted small">
+                                                    <span>
+                                                        <i class="fa fa-clock me-1"/>
+                                                        <t t-out="art.publish_date and art.publish_date.strftime('%d/%m/%Y') or ''"/>
+                                                    </span>
+                                                    <span>
+                                                        <i class="fa fa-eye me-1"/><t t-out="art.view_count or 0"/>
+                                                    </span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </t>
+                            </div>
+
+                            <nav t-if="pager and pager.get('page_count', 0) &gt; 1" class="mt-2">
+                                <ul class="pagination justify-content-center mb-0">
+                                    <li class="page-item">
+                                        <a class="page-link"
+                                           t-attf-href="/portal/knowledge?page=#{pager['page_previous']['num']}&amp;#{pager.get('querystring','')}">«</a>
+                                    </li>
+                                    <li class="page-item active">
+                                        <span class="page-link">Trang <t t-out="pager['page']['num']"/> / <t t-out="pager['page_count']"/></span>
+                                    </li>
+                                    <li class="page-item">
+                                        <a class="page-link"
+                                           t-attf-href="/portal/knowledge?page=#{pager['page_next']['num']}&amp;#{pager.get('querystring','')}">»</a>
+                                    </li>
+                                </ul>
+                            </nav>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </t>
+    </template>
+
+    <!-- ============== Detail ============== -->
+    <template id="portal_knowledge_detail" name="Wujia Portal — Knowledge Detail">
+        <t t-call="wujia_portal_layout.app_layout">
+            <t t-set="title" t-value="article.name"/>
+            <div class="content-wrapper">
+                <div class="content-header row mt-3">
+                    <div class="content-header-left col-12 mb-1">
+                        <nav><ol class="breadcrumb">
+                            <li class="breadcrumb-item"><a href="/portal/knowledge">Kiến thức</a></li>
+                            <li t-if="article.category_id" class="breadcrumb-item">
+                                <a t-attf-href="/portal/knowledge?category_id=#{article.category_id.id}" t-out="article.category_id.name"/>
+                            </li>
+                            <li class="breadcrumb-item active" t-out="article.name"/>
+                        </ol></nav>
+                    </div>
+                </div>
+
+                <div class="content-body">
+                    <div class="row">
+                        <div class="col-lg-9 col-12">
+                            <article class="card knowledge-detail">
+                                <img t-if="article.cover_image"
+                                     t-attf-src="/web/image/wujia.knowledge.article/#{article.id}/cover_image"
+                                     class="card-img-top knowledge-detail-cover"
+                                     t-att-alt="article.name"/>
+                                <div class="card-body">
+                                    <h1 class="article-title" t-out="article.name"/>
+                                    <p class="text-muted small mb-3">
+                                        <span t-if="article.author_id"><i class="fa fa-user me-1"/><t t-out="article.author_id.name"/></span>
+                                        <span class="ms-3"><i class="fa fa-clock me-1"/><t t-out="article.publish_date and article.publish_date.strftime('%d/%m/%Y %H:%M') or ''"/></span>
+                                        <span class="ms-3"><i class="fa fa-eye me-1"/><t t-out="article.view_count or 0"/> lượt xem</span>
+                                    </p>
+                                    <div class="article-content" t-out="article.content"/>
+                                </div>
+                            </article>
+                        </div>
+
+                        <div class="col-lg-3 col-12">
+                            <div t-if="related" class="card">
+                                <div class="card-header py-2"><h6 class="mb-0">Bài liên quan</h6></div>
+                                <div class="list-group list-group-flush">
+                                    <t t-foreach="related" t-as="r">
+                                        <a t-attf-href="/portal/knowledge/#{r.slug}" class="list-group-item list-group-item-action py-2">
+                                            <strong class="d-block small" t-out="r.name"/>
+                                            <small class="text-muted" t-out="r.publish_date and r.publish_date.strftime('%d/%m/%Y') or ''"/>
+                                        </a>
+                                    </t>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mt-2">
+                        <a href="/portal/knowledge" class="btn btn-secondary">
+                            <i class="fa fa-arrow-left me-1"/>Về thư viện
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </t>
+    </template>
+
+</odoo>

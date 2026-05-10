@@ -1,0 +1,160 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <template id="portal_order_catalog" name="Wujia Portal — Order Catalog">
+        <t t-call="wujia_portal_layout.app_layout">
+            <t t-set="title">Đặt hàng</t>
+            <div class="content-wrapper">
+                <div class="content-header row mt-3">
+                    <div class="content-header-left col-12 mb-1">
+                        <h2 class="content-header-title float-left mb-0">
+                            <i class="fa fa-shopping-cart me-1"/>Sản phẩm
+                        </h2>
+                    </div>
+                </div>
+
+                <div t-if="no_franchise" class="alert alert-warning m-3">
+                    Bạn chưa được gán vào cửa hàng nào — không thể đặt hàng.
+                </div>
+
+                <div t-if="not no_franchise" class="content-body">
+                    <!-- ============ Search + filter row ============ -->
+                    <div class="card">
+                        <div class="card-body p-2">
+                            <form method="get" action="/portal/order" class="row g-2 align-items-center">
+                                <div class="col-md-4 col-12">
+                                    <div class="input-group">
+                                        <input type="text" name="keyword" class="form-control"
+                                               placeholder="Nhập tên sản phẩm cần tìm"
+                                               t-att-value="keyword"/>
+                                        <button class="btn btn-primary" type="submit">
+                                            <i class="fa fa-search me-1"/>Tìm kiếm
+                                        </button>
+                                    </div>
+                                </div>
+                                <div class="col-md-3 col-12">
+                                    <select name="category_id" class="form-select" onchange="this.form.submit()">
+                                        <option value="">— Tất cả nhóm —</option>
+                                        <t t-foreach="categories" t-as="cat">
+                                            <option t-att-value="cat.id"
+                                                    t-att-selected="'selected' if category_id == cat.id else None"
+                                                    t-out="cat.complete_name"/>
+                                        </t>
+                                    </select>
+                                </div>
+                                <div class="col-md-5 col-12 text-end">
+                                    <small class="text-muted">
+                                        Khung giờ đặt hàng: <strong t-out="order_time_from"/> — <strong t-out="order_time_to"/>
+                                    </small>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+
+                    <div class="row mt-2">
+                        <!-- ============ Product grid (left) ============ -->
+                        <div class="col-12 col-lg-8">
+                            <div class="card">
+                                <div class="card-header py-2"><h5 class="card-title mb-0">Danh sách sản phẩm</h5></div>
+                                <div class="card-body p-2">
+                                    <div t-if="not products" class="alert alert-info mb-0">Không có sản phẩm phù hợp.</div>
+                                    <div t-else="" class="row g-2">
+                                        <t t-foreach="products" t-as="product">
+                                            <div class="col-12 col-sm-6 col-md-4">
+                                                <div class="card product-card h-100">
+                                                    <a t-attf-href="/portal/order/product/#{product.id}" class="product-card-img-link">
+                                                        <img loading="lazy"
+                                                             t-attf-src="/web/image/product.template/#{product.id}/image_512"
+                                                             class="card-img-top product-card-img"
+                                                             t-att-alt="product.name"/>
+                                                    </a>
+                                                    <div class="card-body p-2">
+                                                        <h6 class="product-card-title mb-1" t-out="product.name"/>
+                                                        <p class="text-muted small mb-1">
+                                                            ĐVT: <span t-out="product.uom_id.name or '—'"/>
+                                                        </p>
+                                                        <p class="text-primary fw-bold mb-2">
+                                                            <t t-out="'{:,.0f}'.format(product.list_price or 0).replace(',', '.')"/> ₫
+                                                        </p>
+                                                        <div class="d-flex align-items-center justify-content-between">
+                                                            <input type="number" class="form-control form-control-sm product-qty-input"
+                                                                   t-att-min="product.min_qty or 1"
+                                                                   t-att-max="product.max_qty or None"
+                                                                   t-att-value="product.min_qty or 1"
+                                                                   style="width: 70px;"/>
+                                                            <button type="button"
+                                                                    class="btn btn-sm btn-primary btn-add-cart"
+                                                                    t-att-data-product-id="product.id">
+                                                                <i class="fa fa-cart-plus"/>
+                                                            </button>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </t>
+                                    </div>
+
+                                    <!-- Pager -->
+                                    <nav t-if="pager and pager.get('page_count', 0) &gt; 1" aria-label="pagination" class="mt-2">
+                                        <ul class="pagination justify-content-center mb-0">
+                                            <li class="page-item">
+                                                <a class="page-link" t-att-href="pager['page_previous']['url']">«</a>
+                                            </li>
+                                            <li class="page-item active">
+                                                <span class="page-link">
+                                                    Trang <t t-out="pager['page']['num']"/> / <t t-out="pager['page_count']"/>
+                                                </span>
+                                            </li>
+                                            <li class="page-item">
+                                                <a class="page-link" t-att-href="pager['page_next']['url']">»</a>
+                                            </li>
+                                        </ul>
+                                    </nav>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- ============ Cart side panel (right) ============ -->
+                        <div class="col-12 col-lg-4">
+                            <div class="card cart-panel sticky-top" style="top: 20px;">
+                                <div class="card-header py-2 d-flex justify-content-between align-items-center">
+                                    <h5 class="card-title mb-0"><i class="fa fa-shopping-basket me-1"/>Giỏ hàng</h5>
+                                    <span class="badge bg-primary" t-out="len(cart_lines)"/>
+                                </div>
+                                <div class="card-body p-2">
+                                    <div t-if="not cart_lines" class="text-muted text-center py-4">
+                                        <i class="fa fa-shopping-basket fa-2x mb-2 opacity-25"/>
+                                        <p class="mb-0">Giỏ hàng trống</p>
+                                    </div>
+                                    <ul t-else="" class="list-group list-group-flush mb-2">
+                                        <li t-foreach="cart_lines" t-as="line" class="list-group-item px-0 py-2">
+                                            <div class="d-flex justify-content-between">
+                                                <div class="flex-grow-1 me-2">
+                                                    <strong t-out="line.product_id.name" class="d-block"/>
+                                                    <small class="text-muted">
+                                                        SL: <t t-out="'{:,.0f}'.format(line.product_uom_qty or 0)"/>
+                                                        × <t t-out="'{:,.0f}'.format(line.price_unit or 0).replace(',', '.')"/> ₫
+                                                    </small>
+                                                </div>
+                                                <button class="btn btn-sm btn-outline-danger btn-remove-line"
+                                                        t-att-data-line-id="line.id">
+                                                    <i class="fa fa-times"/>
+                                                </button>
+                                            </div>
+                                        </li>
+                                    </ul>
+                                    <div t-if="cart_lines" class="d-grid">
+                                        <button type="button" class="btn btn-success btn-submit-order">
+                                            <i class="fa fa-check me-1"/>Đặt hàng
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </t>
+    </template>
+
+</odoo>

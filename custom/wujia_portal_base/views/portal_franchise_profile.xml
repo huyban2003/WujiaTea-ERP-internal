@@ -1,0 +1,143 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- /portal/franchises/<id>/profile — full info + status + contract -->
+    <template id="portal_franchise_profile_full" name="Wujia Portal — Franchise Profile">
+        <t t-call="wujia_portal_layout.app_layout">
+            <t t-set="title" t-value="franchise.name"/>
+            <div class="content-wrapper">
+                <div class="content-header row mt-3">
+                    <div class="content-header-left col-12 mb-1">
+                        <h2 class="content-header-title float-left mb-0">
+                            <i class="fa fa-building me-1"/>
+                            Hồ sơ cửa hàng — <t t-out="franchise.name"/>
+                        </h2>
+                    </div>
+                </div>
+
+                <div class="content-body">
+                    <div class="row">
+                        <!-- Định danh + Trạng thái -->
+                        <div class="col-lg-6 col-12 mb-2">
+                            <div class="card h-100">
+                                <div class="card-header">
+                                    <h4 class="card-title mb-0">Thông tin định danh</h4>
+                                </div>
+                                <div class="card-body">
+                                    <dl class="row mb-0 profile-dl">
+                                        <dt class="col-sm-4">Mã</dt>
+                                        <dd class="col-sm-8" t-out="franchise.code or '—'"/>
+                                        <dt class="col-sm-4">Tên</dt>
+                                        <dd class="col-sm-8" t-out="franchise.name or '—'"/>
+                                        <dt class="col-sm-4">Trạng thái</dt>
+                                        <dd class="col-sm-8">
+                                            <span t-attf-class="badge state-badge state-#{franchise.status}"
+                                                  t-out="dict(franchise._fields['status'].selection).get(franchise.status, franchise.status)"/>
+                                            <span t-if="franchise.portal_locked" class="badge bg-danger ms-1">
+                                                <i class="fa fa-lock me-1"/>Đã khóa portal
+                                            </span>
+                                        </dd>
+                                        <dt class="col-sm-4">Ngày khai trương</dt>
+                                        <dd class="col-sm-8" t-out="franchise.opening_date and franchise.opening_date.strftime('%d/%m/%Y') or '—'"/>
+                                        <dt class="col-sm-4">Khu vực</dt>
+                                        <dd class="col-sm-8" t-out="franchise.area_id.name or '—'"/>
+                                        <dt class="col-sm-4">Vai trò của tôi</dt>
+                                        <dd class="col-sm-8">
+                                            <strong t-out="role_labels.get(membership.role, membership.role)"/>
+                                            <span t-if="membership.is_primary_owner" class="badge bg-warning text-dark ms-1">Chủ chính</span>
+                                        </dd>
+                                    </dl>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Liên hệ -->
+                        <div class="col-lg-6 col-12 mb-2">
+                            <div class="card h-100">
+                                <div class="card-header">
+                                    <h4 class="card-title mb-0">Liên hệ</h4>
+                                </div>
+                                <div class="card-body">
+                                    <dl class="row mb-0 profile-dl">
+                                        <dt class="col-sm-4">Địa chỉ</dt>
+                                        <dd class="col-sm-8" t-out="franchise.address or '—'"/>
+                                        <dt class="col-sm-4">Tỉnh/Thành</dt>
+                                        <dd class="col-sm-8" t-out="franchise.state_id.name or '—'"/>
+                                        <dt class="col-sm-4">Điện thoại</dt>
+                                        <dd class="col-sm-8" t-out="franchise.phone or '—'"/>
+                                        <dt class="col-sm-4">Email</dt>
+                                        <dd class="col-sm-8" t-out="franchise.email or '—'"/>
+                                        <dt class="col-sm-4">Đại diện</dt>
+                                        <dd class="col-sm-8">
+                                            <t t-if="franchise.main_owner_member_id">
+                                                <t t-out="franchise.main_owner_member_id.user_id.name"/>
+                                            </t>
+                                            <t t-else="">—</t>
+                                        </dd>
+                                    </dl>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Hợp đồng -->
+                        <div class="col-lg-6 col-12 mb-2">
+                            <div class="card h-100">
+                                <div class="card-header">
+                                    <h4 class="card-title mb-0">Hợp đồng nhượng quyền</h4>
+                                </div>
+                                <div class="card-body">
+                                    <dl class="row mb-0 profile-dl">
+                                        <dt class="col-sm-5">Bắt đầu</dt>
+                                        <dd class="col-sm-7" t-out="franchise.franchise_start_date and franchise.franchise_start_date.strftime('%d/%m/%Y') or '—'"/>
+                                        <dt class="col-sm-5">Kết thúc</dt>
+                                        <dd class="col-sm-7" t-out="franchise.franchise_end_date and franchise.franchise_end_date.strftime('%d/%m/%Y') or '—'"/>
+                                        <dt class="col-sm-5">Còn lại</dt>
+                                        <dd class="col-sm-7">
+                                            <t t-if="franchise.is_expired">
+                                                <span class="badge bg-danger">Đã hết hạn</span>
+                                            </t>
+                                            <t t-elif="franchise.remaining_days &lt;= 30 and franchise.remaining_days &gt; 0">
+                                                <span class="badge bg-warning text-dark"><t t-out="franchise.remaining_days"/> ngày (sắp hết hạn)</span>
+                                            </t>
+                                            <t t-else="">
+                                                <span class="text-muted"><t t-out="franchise.remaining_days or 0"/> ngày</span>
+                                            </t>
+                                        </dd>
+                                    </dl>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Yêu cầu cập nhật (placeholder cho Phase 2) -->
+                        <div class="col-lg-6 col-12 mb-2">
+                            <div class="card h-100">
+                                <div class="card-header">
+                                    <h4 class="card-title mb-0">Yêu cầu cập nhật thông tin</h4>
+                                </div>
+                                <div class="card-body">
+                                    <p class="text-muted">
+                                        Để cập nhật thông tin cửa hàng (địa chỉ, SĐT, giấy tờ...), vui lòng
+                                        <a href="/portal/support/new">gửi yêu cầu hỗ trợ</a> kèm thông tin cần đổi.
+                                        Quản trị viên sẽ phê duyệt trước khi áp dụng.
+                                    </p>
+                                    <a href="/portal/support/new" class="btn btn-outline-primary">
+                                        <i class="fa fa-paper-plane me-1"/>Gửi yêu cầu
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-12">
+                            <a t-attf-href="/portal/franchises/#{franchise.id}" class="btn btn-secondary">
+                                <i class="fa fa-arrow-left me-1"/>Quay lại
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </t>
+    </template>
+
+</odoo>

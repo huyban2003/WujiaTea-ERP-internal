@@ -3,13 +3,8 @@ from odoo.http import request
 
 
 class WujiaPortalLayout(http.Controller):
-
-    @http.route('/portal', type='http', auth='user', website=False, sitemap=False)
-    def portal_home(self, **kw):
-        return request.render('wujia_portal_layout.dashboard_page', {
-            'title': _('Trang chủ - Portal'),
-            'lang': request.env.lang or 'en',
-        })
+    """Layout-only routes. Route `/portal` (dashboard) đã chuyển sang
+    wujia_portal_base để aggregate counter từ các module khác (xem ADR-016)."""
 
     @http.route('/portal/profile', type='http', auth='user', website=False, sitemap=False)
     def portal_profile(self, **kw):

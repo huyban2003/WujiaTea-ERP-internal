@@ -1,0 +1,13 @@
+/* Knowledge — list grid + detail */
+.knowledge-card { border-radius: 10px; transition: box-shadow 0.15s ease; overflow: hidden; }
+.knowledge-card:hover { box-shadow: 0 4px 16px rgba(0,0,0,0.12); }
+.knowledge-card-img { height: 160px; object-fit: cover; background: #f5f7fa; }
+.knowledge-cat-list .list-group-item { border: none; border-bottom: 1px solid #f0f0f0; }
+.knowledge-cat-list .list-group-item.active { background-color: #1f4180; border-color: #1f4180; color: #fff; }
+.knowledge-cat-list .list-group-item.active .badge { background: rgba(255,255,255,0.3) !important; color: #fff !important; }
+
+.knowledge-detail-cover { height: 320px; object-fit: cover; }
+.article-title { font-size: 1.8rem; font-weight: 700; color: #1f4180; margin-bottom: 0.5rem; }
+.article-content { font-size: 1rem; line-height: 1.7; }
+.article-content img { max-width: 100%; height: auto; border-radius: 6px; margin: 1rem 0; }
+.article-content h2, .article-content h3 { color: #1f4180; margin-top: 1.5rem; }

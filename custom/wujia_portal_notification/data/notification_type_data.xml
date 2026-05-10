@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo noupdate="1">
+
+    <record id="ntype_urgent" model="wujia.notification.type">
+        <field name="code">URG</field>
+        <field name="name">Khẩn cấp</field>
+        <field name="bg_color">#dc3545</field>
+        <field name="text_color">#ffffff</field>
+        <field name="icon">fa-exclamation-circle</field>
+        <field name="sequence">10</field>
+    </record>
+
+    <record id="ntype_general" model="wujia.notification.type">
+        <field name="code">GEN</field>
+        <field name="name">Thông báo chung</field>
+        <field name="bg_color">#1f4180</field>
+        <field name="text_color">#ffffff</field>
+        <field name="icon">fa-bell</field>
+        <field name="sequence">20</field>
+    </record>
+
+    <record id="ntype_promo" model="wujia.notification.type">
+        <field name="code">PROMO</field>
+        <field name="name">Khuyến mãi</field>
+        <field name="bg_color">#ff9f43</field>
+        <field name="text_color">#ffffff</field>
+        <field name="icon">fa-tag</field>
+        <field name="sequence">30</field>
+    </record>
+
+    <record id="ntype_system" model="wujia.notification.type">
+        <field name="code">SYS</field>
+        <field name="name">Hệ thống</field>
+        <field name="bg_color">#6c757d</field>
+        <field name="text_color">#ffffff</field>
+        <field name="icon">fa-cog</field>
+        <field name="sequence">40</field>
+    </record>
+
+    <record id="ntype_other" model="wujia.notification.type">
+        <field name="code">OTH</field>
+        <field name="name">Khác</field>
+        <field name="bg_color">#20c997</field>
+        <field name="text_color">#ffffff</field>
+        <field name="icon">fa-info-circle</field>
+        <field name="sequence">99</field>
+    </record>
+
+</odoo>

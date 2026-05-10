@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <template id="layout_sidenav_knowledge"
+              inherit_id="wujia_portal_layout.layout_sidenav"
+              priority="50"
+              name="Wujia Sidenav — Kiến thức">
+        <xpath expr="//ul[@id='main-menu-navigation']" position="inside">
+            <li class="nav-item" id="nav_item_knowledge">
+                <a href="/portal/knowledge" class="text-black">
+                    <i class="fa fa-book" aria-hidden="true"/>
+                    <span class="menu-title">Kiến thức</span>
+                </a>
+            </li>
+        </xpath>
+    </template>
+
+</odoo>

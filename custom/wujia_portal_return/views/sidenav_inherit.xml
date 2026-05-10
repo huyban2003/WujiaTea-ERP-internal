@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <template id="layout_sidenav_return"
+              inherit_id="wujia_portal_layout.layout_sidenav"
+              priority="30"
+              name="Wujia Sidenav — Đổi trả">
+        <xpath expr="//ul[@id='main-menu-navigation']" position="inside">
+            <li class="nav-item" id="nav_item_return">
+                <a href="/portal/return" class="text-black">
+                    <i class="fa fa-undo" aria-hidden="true"/>
+                    <span class="menu-title">Đổi trả</span>
+                </a>
+            </li>
+        </xpath>
+    </template>
+
+</odoo>

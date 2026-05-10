@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo noupdate="1">
+
+    <!-- Master data: 5 loại lỗi đổi trả phổ biến (BA spec).
+         Đặt trong data/ key — system data, KHÔNG phải demo data. -->
+
+    <record id="error_type_packaging" model="wujia.return.error.type">
+        <field name="code">PKG</field>
+        <field name="name">Hỏng bao bì</field>
+        <field name="description">Bao bì rách, móp, ướt khi giao</field>
+        <field name="sequence">10</field>
+    </record>
+
+    <record id="error_type_wrong_product" model="wujia.return.error.type">
+        <field name="code">WRG</field>
+        <field name="name">Sai sản phẩm</field>
+        <field name="description">Giao sai sản phẩm so với đơn đặt</field>
+        <field name="sequence">20</field>
+    </record>
+
+    <record id="error_type_expired" model="wujia.return.error.type">
+        <field name="code">EXP</field>
+        <field name="name">Hết hạn / cận date</field>
+        <field name="description">Sản phẩm đã hết hạn hoặc cận date theo quy định</field>
+        <field name="sequence">30</field>
+    </record>
+
+    <record id="error_type_short_qty" model="wujia.return.error.type">
+        <field name="code">SHT</field>
+        <field name="name">Thiếu số lượng</field>
+        <field name="description">Giao thiếu so với SL trên đơn</field>
+        <field name="sequence">40</field>
+    </record>
+
+    <record id="error_type_other" model="wujia.return.error.type">
+        <field name="code">OTH</field>
+        <field name="name">Lỗi khác</field>
+        <field name="description">Các trường hợp khác — ghi chú trong phần lý do</field>
+        <field name="sequence">99</field>
+    </record>
+
+</odoo>

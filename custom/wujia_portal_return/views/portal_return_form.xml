@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <template id="portal_return_form" name="Wujia Portal — Return Form">
+        <t t-call="wujia_portal_layout.app_layout">
+            <t t-set="title">Tạo yêu cầu đổi trả</t>
+            <div class="content-wrapper">
+                <div class="content-header row mt-3">
+                    <div class="content-header-left col-12 mb-1">
+                        <nav><ol class="breadcrumb">
+                            <li class="breadcrumb-item"><a href="/portal/return">Đổi trả</a></li>
+                            <li class="breadcrumb-item active">Tạo yêu cầu</li>
+                        </ol></nav>
+                        <h2 class="content-header-title float-left mb-0">Tạo yêu cầu đổi trả</h2>
+                    </div>
+                </div>
+
+                <div class="content-body">
+                    <form method="post" action="/portal/return/new" enctype="multipart/form-data" class="card">
+                        <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
+                        <div class="card-body">
+                            <div class="row g-2">
+                                <div class="col-md-6 col-12">
+                                    <label class="form-label">Cửa hàng</label>
+                                    <select name="franchise_id" class="form-select" required="required">
+                                        <t t-foreach="franchises" t-as="f">
+                                            <option t-att-value="f.id" t-out="f.name"/>
+                                        </t>
+                                    </select>
+                                </div>
+                                <div class="col-md-6 col-12">
+                                    <label class="form-label">Đơn hàng gốc</label>
+                                    <select name="order_id" class="form-select">
+                                        <option value="">— Không gắn đơn —</option>
+                                        <t t-foreach="recent_orders" t-as="o">
+                                            <option t-att-value="o.id">
+                                                <t t-out="o.name"/> — <t t-out="o.date_order and o.date_order.strftime('%d/%m/%Y') or ''"/>
+                                            </option>
+                                        </t>
+                                    </select>
+                                </div>
+                                <div class="col-md-6 col-12">
+                                    <label class="form-label">Loại lỗi</label>
+                                    <select name="error_id" class="form-select" required="required">
+                                        <option value="">— Chọn loại lỗi —</option>
+                                        <t t-foreach="error_types" t-as="et">
+                                            <option t-att-value="et.id" t-out="et.name"/>
+                                        </t>
+                                    </select>
+                                </div>
+                                <div class="col-md-6 col-12">
+                                    <label class="form-label">Ngày giao dự kiến</label>
+                                    <input type="date" name="expected_delivery_date" class="form-control"/>
+                                </div>
+                                <div class="col-12">
+                                    <label class="form-label">Mô tả / Ghi chú</label>
+                                    <textarea name="note" rows="4" class="form-control"
+                                              placeholder="Mô tả chi tiết tình trạng hàng cần đổi/trả..."/>
+                                </div>
+                                <div class="col-12">
+                                    <label class="form-label">Ảnh minh chứng (tối thiểu 3 ảnh)</label>
+                                    <input type="file" name="images" class="form-control"
+                                           accept="image/png,image/jpeg" multiple="multiple"/>
+                                    <small class="text-muted">JPG/PNG, dung lượng &lt; 5MB/ảnh.</small>
+                                    <div id="image-preview-grid" class="row g-2 mt-2"></div>
+                                </div>
+                            </div>
+
+                            <hr class="my-3"/>
+                            <h5>Sản phẩm cần đổi trả</h5>
+                            <div class="table-responsive">
+                                <table class="table" id="return-line-table">
+                                    <thead>
+                                        <tr><th>Sản phẩm</th><th class="text-end">Số lượng</th><th>Lý do dòng</th><th></th></tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr class="return-line-row">
+                                            <td><input type="text" name="line_product_name[]" class="form-control" placeholder="Tên sản phẩm"/></td>
+                                            <td><input type="number" name="line_qty[]" class="form-control text-end" min="1" value="1"/></td>
+                                            <td><input type="text" name="line_reason[]" class="form-control"/></td>
+                                            <td><button type="button" class="btn btn-sm btn-outline-danger btn-remove-line"><i class="fa fa-trash"/></button></td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                                <button type="button" class="btn btn-sm btn-outline-secondary" id="btn-add-line">
+                                    <i class="fa fa-plus me-1"/>Thêm dòng
+                                </button>
+                            </div>
+                        </div>
+                        <div class="card-footer text-end">
+                            <a href="/portal/return" class="btn btn-secondary me-2">Hủy</a>
+                            <button type="submit" name="action" value="draft" class="btn btn-outline-primary me-2">Lưu nháp</button>
+                            <button type="submit" name="action" value="send" class="btn btn-primary">
+                                <i class="fa fa-paper-plane me-1"/>Gửi yêu cầu
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </t>
+    </template>
+
+</odoo>
