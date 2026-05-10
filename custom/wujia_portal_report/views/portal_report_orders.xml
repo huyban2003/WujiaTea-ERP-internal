@@ -1,0 +1,169 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <template id="portal_report_orders" name="Wujia Portal — Báo cáo đặt hàng">
+        <t t-call="wujia_portal_layout.app_layout">
+            <t t-set="title">Báo cáo đặt hàng</t>
+            <div class="content-wrapper">
+                <div class="content-header row mt-3">
+                    <div class="content-header-left col-12 mb-1">
+                        <h2 class="content-header-title float-left mb-0">
+                            <i class="fa fa-bar-chart me-1"/>Báo cáo đặt hàng
+                        </h2>
+                        <p class="text-muted small mt-1">
+                            Tổng hợp đơn hàng theo tháng, sản phẩm bán nhiều, phân bố trạng thái.
+                            Quyền xem: <strong t-out="max_role"/>.
+                        </p>
+                    </div>
+                </div>
+
+                <div class="content-body">
+                    <!-- Filter bar -->
+                    <div class="card mb-2">
+                        <div class="card-body p-2">
+                            <form method="get" action="/portal/reports/orders" class="row g-2 align-items-end">
+                                <div class="col-md-3 col-6">
+                                    <label class="small text-muted mb-1">Từ ngày</label>
+                                    <input type="date" name="date_from" class="form-control form-control-sm"
+                                           t-att-value="date_from"/>
+                                </div>
+                                <div class="col-md-3 col-6">
+                                    <label class="small text-muted mb-1">Đến ngày</label>
+                                    <input type="date" name="date_to" class="form-control form-control-sm"
+                                           t-att-value="date_to"/>
+                                </div>
+                                <div class="col-md-6 col-12 text-end">
+                                    <button type="submit" class="btn btn-primary btn-sm">
+                                        <i class="fa fa-filter me-1"/>Áp dụng
+                                    </button>
+                                    <a href="/portal/reports/orders" class="btn btn-outline-secondary btn-sm">
+                                        <i class="fa fa-undo me-1"/>Reset
+                                    </a>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+
+                    <!-- ============ Block 1: 4 KPI cards ============ -->
+                    <div class="row">
+                        <div class="col-lg-3 col-md-6 col-6 mb-2">
+                            <div class="card report-kpi report-kpi-primary mb-0">
+                                <div class="card-body p-2">
+                                    <p class="report-kpi-label mb-1">Tổng số đơn</p>
+                                    <h2 class="report-kpi-value mb-0" t-out="'{:,}'.format(total_orders).replace(',', '.')"/>
+                                    <small class="text-muted">không tính đơn hủy</small>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-lg-3 col-md-6 col-6 mb-2">
+                            <div class="card report-kpi report-kpi-success mb-0">
+                                <div class="card-body p-2">
+                                    <p class="report-kpi-label mb-1">Tổng doanh thu</p>
+                                    <h2 class="report-kpi-value mb-0">
+                                        <t t-out="'{:,.0f}'.format(total_revenue).replace(',', '.')"/> ₫
+                                    </h2>
+                                    <small class="text-muted">trong khoảng đã chọn</small>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-lg-3 col-md-6 col-6 mb-2">
+                            <div class="card report-kpi report-kpi-info mb-0">
+                                <div class="card-body p-2">
+                                    <p class="report-kpi-label mb-1">Đơn hoàn thành</p>
+                                    <h2 class="report-kpi-value mb-0" t-out="'{:,}'.format(done_orders).replace(',', '.')"/>
+                                    <small class="text-muted">state = done</small>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-lg-3 col-md-6 col-6 mb-2">
+                            <div class="card report-kpi report-kpi-danger mb-0">
+                                <div class="card-body p-2">
+                                    <p class="report-kpi-label mb-1">Đơn bị hủy</p>
+                                    <h2 class="report-kpi-value mb-0" t-out="'{:,}'.format(cancel_orders).replace(',', '.')"/>
+                                    <small class="text-muted">cần phân tích nguyên nhân</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- ============ Block 2: Bar chart 12 tháng ============ -->
+                    <div class="row">
+                        <div class="col-lg-8 col-12 mb-2">
+                            <div class="card h-100">
+                                <div class="card-header py-2">
+                                    <h5 class="card-title mb-0">Đơn hàng theo tháng</h5>
+                                </div>
+                                <div class="card-body">
+                                    <div id="report-chart-months"
+                                         class="report-chart-area"
+                                         t-att-data-chart-payload="chart_payload_json"/>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Block 4: Donut state -->
+                        <div class="col-lg-4 col-12 mb-2">
+                            <div class="card h-100">
+                                <div class="card-header py-2">
+                                    <h5 class="card-title mb-0">Phân bố trạng thái</h5>
+                                </div>
+                                <div class="card-body">
+                                    <div id="report-chart-state" class="report-chart-area"/>
+                                    <ul class="list-unstyled mt-2 mb-0 small">
+                                        <li t-foreach="state_summary" t-as="s" class="d-flex justify-content-between py-1">
+                                            <span>
+                                                <i class="fa fa-circle me-1" t-attf-style="color: #{s['color']}"/>
+                                                <t t-out="s['label']"/>
+                                            </span>
+                                            <span>
+                                                <strong t-out="'{:,}'.format(s['count']).replace(',', '.')"/>
+                                                <small class="text-muted ms-1">
+                                                    (<t t-out="'{:.1f}'.format(s['ratio'])"/>%)
+                                                </small>
+                                            </span>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- ============ Block 3: Top 10 sản phẩm ============ -->
+                    <div class="card">
+                        <div class="card-header py-2">
+                            <h5 class="card-title mb-0">Top 10 sản phẩm bán nhiều nhất</h5>
+                        </div>
+                        <div class="card-body p-0">
+                            <div t-if="not top_products" class="alert alert-info m-3 mb-0">
+                                Chưa có sản phẩm nào trong khoảng thời gian đã chọn.
+                            </div>
+                            <div t-else="" class="table-responsive">
+                                <table class="table table-hover mb-0">
+                                    <thead class="bg-light">
+                                        <tr>
+                                            <th>STT</th>
+                                            <th>Sản phẩm</th>
+                                            <th class="text-end">Số lượng</th>
+                                            <th>Đơn vị</th>
+                                            <th class="text-end">Doanh thu</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr t-foreach="top_products" t-as="p">
+                                            <td t-out="p_index + 1"/>
+                                            <td t-out="p['name']"/>
+                                            <td class="text-end" t-out="'{:,.0f}'.format(p['qty']).replace(',', '.')"/>
+                                            <td t-out="p['uom']"/>
+                                            <td class="text-end" t-out="'{:,.0f}'.format(p['total']).replace(',', '.') + ' ₫'"/>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </t>
+    </template>
+
+</odoo>

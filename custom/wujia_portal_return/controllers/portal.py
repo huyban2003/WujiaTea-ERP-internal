@@ -3,6 +3,10 @@ from datetime import datetime
 from odoo import http
 from odoo.http import request
 
+from odoo.addons.wujia_portal_base.controllers.portal import (
+    get_active_franchise_ids_filter,
+)
+
 
 PAGE_SIZE = 20
 
@@ -19,7 +23,7 @@ class WujiaPortalReturn(http.Controller):
 
     @http.route(['/portal/return'], type='http', auth='user', sitemap=False)
     def portal_return_list(self, page=1, state='', date_from='', date_to='', **kw):
-        franchise_ids = request.env.user._get_accessible_franchise_ids()
+        franchise_ids = get_active_franchise_ids_filter()
         if not franchise_ids:
             return request.render('wujia_portal_return.portal_return_list', {
                 'returns': [], 'pager': {}, 'state_labels': STATE_LABELS,
@@ -69,7 +73,7 @@ class WujiaPortalReturn(http.Controller):
 
     @http.route(['/portal/return/new'], type='http', auth='user', sitemap=False)
     def portal_return_new(self, **kw):
-        franchise_ids = request.env.user._get_accessible_franchise_ids()
+        franchise_ids = get_active_franchise_ids_filter()
         if not franchise_ids:
             return request.redirect('/portal/return')
         franchises = request.env['wujia.franchise.management'].sudo().browse(franchise_ids)
@@ -86,7 +90,7 @@ class WujiaPortalReturn(http.Controller):
 
     @http.route(['/portal/return/<int:request_id>'], type='http', auth='user', sitemap=False)
     def portal_return_detail(self, request_id, **kw):
-        franchise_ids = request.env.user._get_accessible_franchise_ids()
+        franchise_ids = get_active_franchise_ids_filter()
         if not franchise_ids:
             return request.redirect('/portal/return')
         rr = request.env['wujia.return.request'].sudo().search([

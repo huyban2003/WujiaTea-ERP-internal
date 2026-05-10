@@ -1,6 +1,10 @@
 from odoo import http
 from odoo.http import request
 
+from odoo.addons.wujia_portal_base.controllers.portal import (
+    get_active_franchise_ids_filter,
+)
+
 
 PAGE_SIZE = 20
 
@@ -53,7 +57,7 @@ class WujiaPortalSupport(http.Controller):
 
     @http.route(['/portal/support/new'], type='http', auth='user', sitemap=False)
     def portal_support_new(self, **kw):
-        franchise_ids = request.env.user._get_accessible_franchise_ids()
+        franchise_ids = get_active_franchise_ids_filter()
         if not franchise_ids:
             return request.redirect('/portal/support')
         franchises = request.env['wujia.franchise.management'].sudo().browse(franchise_ids)

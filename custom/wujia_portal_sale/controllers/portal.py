@@ -1,6 +1,10 @@
 from odoo import http
 from odoo.http import request
 
+from odoo.addons.wujia_portal_base.controllers.portal import (
+    get_active_franchise_ids_filter,
+)
+
 
 PAGE_SIZE = 24
 
@@ -13,7 +17,7 @@ class WujiaPortalSale(http.Controller):
 
     @http.route(['/portal/order'], type='http', auth='user', sitemap=False)
     def portal_order_catalog(self, page=1, category_id=None, keyword='', **kw):
-        franchise_ids = request.env.user._get_accessible_franchise_ids()
+        franchise_ids = get_active_franchise_ids_filter()
         if not franchise_ids:
             return request.render('wujia_portal_sale.portal_order_catalog', {
                 'no_franchise': True, 'products': [], 'categories': [],

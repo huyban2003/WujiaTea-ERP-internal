@@ -1,6 +1,10 @@
 from odoo import http
 from odoo.http import request
 
+from odoo.addons.wujia_portal_base.controllers.portal import (
+    get_active_franchise_ids_filter,
+)
+
 
 PAGE_SIZE = 20
 
@@ -26,7 +30,7 @@ class WujiaPortalDelivery(http.Controller):
 
     @http.route(['/portal/delivery'], type='http', auth='user', sitemap=False)
     def portal_delivery_list(self, page=1, status='', **kw):
-        franchise_ids = request.env.user._get_accessible_franchise_ids()
+        franchise_ids = get_active_franchise_ids_filter()
         if not franchise_ids:
             return request.render('wujia_portal_delivery.portal_delivery_tracking', {
                 'no_franchise': True, 'pickings': [], 'pager': {},
@@ -65,7 +69,7 @@ class WujiaPortalDelivery(http.Controller):
 
     @http.route(['/portal/delivery/<int:batch_id>'], type='http', auth='user', sitemap=False)
     def portal_delivery_detail(self, batch_id, **kw):
-        franchise_ids = request.env.user._get_accessible_franchise_ids()
+        franchise_ids = get_active_franchise_ids_filter()
         if not franchise_ids:
             return request.redirect('/portal/delivery')
         Batch = request.env['stock.picking.batch'].sudo()

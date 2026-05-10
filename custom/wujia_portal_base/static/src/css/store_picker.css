@@ -1,0 +1,30 @@
+/* Store picker modal — Wujia Portal */
+#wujiaStorePickerModal .modal-content { border-radius: 12px; overflow: hidden; }
+#wujiaStorePickerModal .modal-header { border-bottom: none; }
+.store-picker-list { max-height: 50vh; overflow-y: auto; }
+.store-picker-item { cursor: pointer; padding: 12px 16px; border-radius: 0 !important; }
+.store-picker-item:hover { background-color: #f5f7fa; }
+.store-picker-item.active { background-color: #1f4180 !important; color: #fff !important; border-color: #1f4180 !important; }
+.store-picker-item.active .text-muted { color: #cdd5e0 !important; }
+.store-picker-radio { margin-right: 10px; }
+.store-picker-name { font-size: 1rem; }
+.store-picker-addr { margin-top: 2px; font-size: 0.8rem; }
+
+/* Top navbar badge — đang ở cửa hàng nào */
+.wujia-active-store-badge {
+    background-color: rgba(255,255,255,0.15);
+    color: #fff;
+    border-radius: 20px;
+    padding: 4px 12px;
+    margin-right: 8px;
+    font-size: 0.85rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    text-decoration: none;
+}
+.wujia-active-store-badge:hover {
+    background-color: rgba(255,255,255,0.25);
+    color: #fff;
+}
+.wujia-active-store-badge i { opacity: 0.8; }

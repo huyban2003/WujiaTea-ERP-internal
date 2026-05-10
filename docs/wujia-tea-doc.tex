@@ -1532,9 +1532,168 @@ Schema check:
     \item BE workflow: Cart submit → tạo SO; Return approve → tự sinh SO 0đ bù hàng (POR-043); Exam registration approve flow.
     \item Wire \texttt{mail.thread} chatter của Support ticket vào template detail page (chưa enable widget — đang là placeholder).
     \item Notification realtime push qua \texttt{bus.bus} (đã có pattern ở \texttt{wujia\_portal\_base.franchise\_realtime.js}).
-    \item Pop-up chọn cửa hàng đăng nhập (BA spec mục \emph{Giao diện chung}) cho user multi-franchise như \texttt{dung.multi}.
     \item Refactor \texttt{\_sql\_constraints} → \texttt{models.Constraint} (Odoo 19 deprecation warning).
 \end{itemize}
+
+% ===========================================================================
+\chapter{Sprint 4.1 --- Fix BA spec gaps + Báo cáo + Pop-up chọn cửa hàng}
+
+\section{Bối cảnh}
+
+Sau khi Sprint 4 push lên GitHub, review lại \emph{2 - FE Portal} sheet → phát hiện 6 chỗ lệch:
+
+\begin{itemize}
+    \item 4 bug số đếm dashboard không đúng spec.
+    \item 2 trang Phase 1 BA bắt buộc bị xếp nhầm vào Phase 2: \emph{Báo cáo đặt hàng} + \emph{Pop-up chọn cửa hàng}.
+    \item Tab \emph{Lịch sử thông báo} chưa tách khỏi \emph{Thông báo từ HQ}.
+\end{itemize}
+
+Sprint 4.1 fix toàn bộ trong cùng commit, giữ tinh thần \emph{follow đúng BA Phase 1}.
+
+\section{4 bug fix dashboard}
+
+\begin{longtable}{p{4.5cm} p{4.5cm} p{5.5cm}}
+\toprule
+\textbf{Block dashboard} & \textbf{BA yêu cầu} & \textbf{Đã fix} \\
+\midrule
+\endhead
+Return requests count & state in (\texttt{sent},\texttt{approved}) — KHÔNG tính \texttt{draft} & Loại \texttt{draft} ra khỏi list. \\
+Most purchased products & \texttt{date\_order >= today - 90 days} & Thêm filter 90 ngày trong \texttt{\_top\_products}. \\
+Latest notifications + Latest returns & \texttt{limit 3} & Đổi từ 5 → 3. \\
+Latest returns list & \texttt{state != cancel} (skeleton: \texttt{!= rejected}) & Thêm \texttt{('state', 'not in', ['rejected'])}. \\
+\bottomrule
+\end{longtable}
+
+Verify: \texttt{anh.owner} có 1 RR \texttt{sent} + 1 RR \texttt{done} → counter dashboard hiển thị \emph{1} (chỉ sent).
+
+\section{Module \texttt{wujia\_portal\_report} (BA Phase 1)}
+
+URL \texttt{/portal/reports/orders}, role check: chỉ \emph{Owner} hoặc \emph{Manager} truy cập, \emph{Staff} bị 303 redirect.
+
+\subsection{4 block render trong 5 query}
+
+\begin{itemize}
+    \item \textbf{Block 1 --- 4 KPI cards:} Tổng đơn / Doanh thu / Đơn hoàn thành / Đơn hủy. Từ \emph{1 \texttt{\_read\_group}} group by \texttt{state} → tách 4 KPI từ kết quả.
+    \item \textbf{Block 2 --- Bar chart 12 tháng:} đơn theo tháng + doanh thu (column + line). Dùng \texttt{\_read\_group(groupby=['date\_order:month'])}.
+    \item \textbf{Block 3 --- Top 10 sản phẩm:} \texttt{sale.order.line.\_read\_group} group by \texttt{product\_id}, sum qty + total. \emph{1 query}.
+    \item \textbf{Block 4 --- Donut state distribution:} reuse data Block 1 (không query thêm). Render donut + table tỷ lệ \%.
+\end{itemize}
+
+\subsection{Performance design}
+
+\begin{lstlisting}[style=python]
+# 5 query / page render. Pre-format số liệu ở controller.
+state_groups = SO._read_group(domain=base, groupby=['state'],
+                              aggregates=['__count', 'amount_total:sum'])
+# → 4 KPI từ 1 result, donut chart từ cùng result.
+
+month_groups = SO._read_group(domain=..., groupby=['date_order:month'], ...)
+top_groups = SOL._read_group(domain=..., groupby=['product_id'], limit=10, ...)
+# Chart payload dump JSON 1 lần qua data-chart-payload attribute,
+# ApexCharts client đọc + render, KHÔNG AJAX thêm.
+\end{lstlisting}
+
+Default date range = năm hiện tại — giới hạn dataset, dùng index \texttt{date\_order} + \texttt{franchise\_id} đã có.
+
+\section{Pop-up chọn cửa hàng (BA Phase 1)}
+
+User multi-franchise như \texttt{dung.multi} (3 cửa hàng) khi vào \texttt{/portal} sẽ thấy \emph{modal chặn} (Bootstrap \texttt{static} backdrop) yêu cầu chọn 1 cửa hàng. Sau khi chọn, cookie \texttt{wujia\_active\_franchise\_id} được set 30 ngày.
+
+\subsection{Cookie pattern (ADR-021)}
+
+Lưu \texttt{active\_franchise\_id} vào \emph{cookie HTTP} thay vì \emph{DB column trên \texttt{res.users}}:
+
+\begin{itemize}
+    \item Cookie: max-age 30 ngày, samesite=Lax, httponly=False (JS đọc tên cửa hàng).
+    \item Validate ở controller: cookie \emph{phải in} \texttt{user.\_get\_accessible\_franchise\_ids()} (ormcached). Cookie không hợp lệ → fallback all.
+    \item Single-franchise user → auto-pick first (không cần modal).
+\end{itemize}
+
+\textbf{Lý do không dùng DB column:}
+\begin{itemize}
+    \item DB write mỗi lần switch → tốn I/O.
+    \item Phải invalidate ormcache \texttt{\_get\_accessible\_franchise\_ids} khi đổi.
+    \item Cookie expire tự nhiên → user idle 30+ ngày → reset mặc định, đỡ stale.
+    \item Cookie cùng scope với session, logout xóa kèm.
+\end{itemize}
+
+\subsection{UX flow}
+
+\begin{lstlisting}[style=shell]
+1. dung.multi login → / portal → must_pick_franchise=True → modal HIỆN.
+2. Chọn cửa hàng → POST /portal/franchise/switch → cookie set → 303 redirect.
+3. F5 dashboard → modal KHÔNG hiện. Top navbar badge "Đang tại: <tên>" hiện.
+4. Click badge → modal hiện lại (data-action="open-store-picker").
+5. Logout → cookie xóa kèm session.
+\end{lstlisting}
+
+\subsection{Helper module-level cho các module portal\_*}
+
+\texttt{wujia\_portal\_base/controllers/portal.py} export 3 function:
+
+\begin{itemize}
+    \item \texttt{get\_active\_franchise\_id()} --- đọc cookie + validate, cache trong request lifetime.
+    \item \texttt{get\_active\_franchise\_ids\_filter()} --- tuple cho \texttt{('franchise\_id', 'in', ...)} domain.
+    \item \texttt{get\_max\_role\_in\_franchises()} --- role cao nhất user có (Owner > Manager > Staff).
+\end{itemize}
+
+9 callsite trong 7 module portal\_* refactor từ \texttt{user.\_get\_accessible\_franchise\_ids()} → \texttt{get\_active\_franchise\_ids\_filter()}. Khi chưa chọn cửa hàng → fallback all (giữ behavior cũ).
+
+\section{Tab "Mới" / "Lịch sử thông báo"}
+
+Trong \texttt{/portal/notification}, thêm 2 tab Bootstrap với badge số đếm:
+
+\begin{itemize}
+    \item Tab \emph{Mới}: \texttt{date >= today - 30 days}.
+    \item Tab \emph{Lịch sử}: \texttt{date < today - 30 days}.
+\end{itemize}
+
+Cùng 1 controller, query string \texttt{?tab=recent|history}. Domain riêng, KHÔNG thêm route.
+
+\section{ADR mới}
+
+\subsection{ADR-021: Cookie HTTP cho \texttt{active\_franchise\_id}}
+Đã giải thích ở section pop-up. Trade-off chính: cookie rẻ hơn DB column khi user chuyển cửa hàng thường xuyên, đặc biệt với 1500 user concurrent.
+
+\subsection{ADR-022: Module-level helper cho portal\_* modules}
+3 function module-level (\texttt{get\_*}) trong \texttt{wujia\_portal\_base/controllers/portal.py} — các module phụ \texttt{from odoo.addons.wujia\_portal\_base.controllers.portal import ...}. Pattern này đơn giản hơn extend \texttt{res.users} vì cookie cần \texttt{request} (model-level method với \texttt{ormcache} không thấy được request).
+
+\section{Verify Sprint 4.1 (đã pass)}
+
+\begin{lstlisting}[style=shell]
+14 routes test với 3 user role:
+  - anh.owner (owner, 1 cửa hàng): tất cả 200, badge "Đang tại: Cầu Giấy"
+                                    auto hiện vì single franchise.
+  - dung.multi (manager, 3 cửa hàng): tất cả 200, modal chặn dashboard
+                                       cho đến khi chọn. Cookie set sau switch.
+  - cuong.staff (staff): /portal/reports/orders → 303 redirect (role check).
+
+Bug R1 verify: anh.owner có 1 RR sent + 1 RR done.
+  - Dashboard counter "Đổi trả đang mở" hiển thị 1 (chỉ sent, KHÔNG tính done).
+
+Tab notification: cnt_recent=10, cnt_history=0 (noti demo đều mới).
+\end{lstlisting}
+
+\section{Files thay đổi Sprint 4.1}
+
+\begin{lstlisting}[style=shell]
+SỬA:
+  custom/wujia_portal_base/controllers/portal.py     # 4 bug fix + 3 helper + 2 route
+  custom/wujia_portal_base/__manifest__.py           # bump v19.0.4.0.0 + thêm files
+  custom/wujia_portal_layout/views/layouts.xml       # giữ nguyên (inherit ở base)
+  custom/wujia_portal_notification/controllers/      # tab Mới/Lịch sử
+  custom/wujia_portal_notification/views/            # 2 tab + badge số đếm
+  custom/wujia_portal_notification/static/src/css/   # tab styling
+  custom/wujia_portal_*/controllers/portal.py        # 7 file: refactor 9 callsite
+  docs/wujia-tea-doc.tex                              # chapter Sprint 4.1
+
+TẠO MỚI:
+  custom/wujia_portal_base/views/store_picker_modal.xml
+  custom/wujia_portal_base/views/store_picker_navbar.xml
+  custom/wujia_portal_base/static/src/js/store_picker.js
+  custom/wujia_portal_base/static/src/css/store_picker.css
+  custom/wujia_portal_report/                         # module mới (KPI + chart + role)
+\end{lstlisting}
 
 % ===========================================================================
 \chapter{Phụ lục — Lệnh thường dùng}
@@ -1549,12 +1708,12 @@ bash /home/huyban/odoo-dev/WujiaTea/scripts/start.sh
 # Upgrade module
 bash /home/huyban/odoo-dev/WujiaTea/scripts/upgrade.sh wujia_sale
 
-# Install toàn bộ Portal Phase 1.0 (Sprint 4)
+# Install toàn bộ Portal Phase 1.0 (Sprint 4) + module Báo cáo (Sprint 4.1)
 bash /home/huyban/odoo-dev/WujiaTea/scripts/upgrade.sh \
   wujia_portal_layout,wujia_portal_base,wujia_portal_sale,\
   wujia_portal_purchase_history,wujia_portal_return,\
   wujia_portal_delivery,wujia_portal_exam,wujia_portal_knowledge,\
-  wujia_portal_notification,wujia_portal_support
+  wujia_portal_notification,wujia_portal_support,wujia_portal_report
 
 # Seed demo data Portal (sau khi install xong)
 /home/huyban/miniconda3/envs/odoo/bin/python odoo19/odoo-bin shell \

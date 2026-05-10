@@ -1,6 +1,10 @@
 from odoo import fields, http
 from odoo.http import request
 
+from odoo.addons.wujia_portal_base.controllers.portal import (
+    get_active_franchise_ids_filter,
+)
+
 
 PAGE_SIZE = 20
 
@@ -22,7 +26,7 @@ class WujiaPortalExam(http.Controller):
 
     @http.route(['/portal/exam'], type='http', auth='user', sitemap=False)
     def portal_exam_schedule(self, **kw):
-        franchise_ids = request.env.user._get_accessible_franchise_ids()
+        franchise_ids = get_active_franchise_ids_filter()
         Schedule = request.env['wujia.exam.schedule'].sudo()
         # Hiện tại chỉ list lịch thi sắp diễn ra (exam_date >= now) và mở
         upcoming = Schedule.search([

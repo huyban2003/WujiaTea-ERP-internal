@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- Modal store picker — chèn vào layout, hiển thị qua JS khi must_pick_franchise=True -->
+    <template id="store_picker_modal" name="Wujia Portal — Store Picker Modal">
+        <div class="modal fade" id="wujiaStorePickerModal" tabindex="-1"
+             role="dialog" aria-labelledby="wujiaStorePickerLabel"
+             data-bs-backdrop="static" data-bs-keyboard="false">
+            <div class="modal-dialog modal-dialog-centered" role="document">
+                <div class="modal-content">
+                    <div class="modal-header" style="background-color: #1f4180; color: #fff;">
+                        <h5 class="modal-title" id="wujiaStorePickerLabel">
+                            <i class="fa fa-building me-1"/>Chọn cửa hàng đang thao tác
+                        </h5>
+                    </div>
+                    <form action="/portal/franchise/switch" method="POST" id="wujiaStorePickerForm">
+                        <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
+                        <input type="hidden" name="redirect" t-att-value="request.httprequest.full_path or '/portal'"/>
+                        <div class="modal-body">
+                            <p class="text-muted mb-3">
+                                Bạn thuộc nhiều cửa hàng. Vui lòng chọn cửa hàng đang thao tác để
+                                hệ thống chỉ hiển thị dữ liệu liên quan (đơn hàng, đổi trả, thông báo).
+                            </p>
+                            <div class="list-group store-picker-list">
+                                <t t-foreach="all_accessible_franchises" t-as="f">
+                                    <label t-attf-class="list-group-item list-group-item-action store-picker-item#{' active' if f.id == active_franchise_id else ''}">
+                                        <input type="radio" name="franchise_id"
+                                               t-att-value="f.id"
+                                               t-att-checked="'checked' if f.id == active_franchise_id else None"
+                                               required="required"
+                                               class="store-picker-radio"/>
+                                        <span class="store-picker-name">
+                                            <strong t-out="f.name"/>
+                                            <small t-if="f.code" class="text-muted ms-1">
+                                                (<t t-out="f.code"/>)
+                                            </small>
+                                        </span>
+                                        <small t-if="f.address" class="d-block text-muted store-picker-addr"
+                                               t-out="f.address"/>
+                                    </label>
+                                </t>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fa fa-check me-1"/>Xác nhận
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </template>
+
+</odoo>

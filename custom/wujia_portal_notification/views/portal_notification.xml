@@ -14,10 +14,31 @@
                     </div>
                 </div>
                 <div class="content-body">
+                    <!-- Tab BA spec: Thông báo từ HQ (Mới — 30 ngày) vs Lịch sử thông báo -->
+                    <ul class="nav nav-tabs notification-tabs mb-2" role="tablist">
+                        <li class="nav-item" role="presentation">
+                            <a t-attf-class="nav-link#{' active' if tab == tab_recent else ''}"
+                               t-attf-href="/portal/notification?tab=#{tab_recent}"
+                               role="tab">
+                                <i class="fa fa-bell me-1"/>Thông báo từ HQ
+                                <span class="badge bg-primary ms-1" t-out="cnt_recent"/>
+                            </a>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <a t-attf-class="nav-link#{' active' if tab == tab_history else ''}"
+                               t-attf-href="/portal/notification?tab=#{tab_history}"
+                               role="tab">
+                                <i class="fa fa-history me-1"/>Lịch sử thông báo
+                                <span class="badge bg-secondary ms-1" t-out="cnt_history"/>
+                            </a>
+                        </li>
+                    </ul>
+
                     <!-- Filter -->
                     <div class="card mb-2">
                         <div class="card-body p-2">
                             <form method="get" action="/portal/notification" class="row g-2">
+                                <input type="hidden" name="tab" t-att-value="tab"/>
                                 <div class="col-md-3 col-12">
                                     <select name="type_id" class="form-select form-select-sm">
                                         <option value="">— Tất cả loại —</option>

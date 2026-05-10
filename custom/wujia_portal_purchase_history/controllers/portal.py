@@ -3,6 +3,10 @@ from datetime import date, datetime, timedelta
 from odoo import http
 from odoo.http import request
 
+from odoo.addons.wujia_portal_base.controllers.portal import (
+    get_active_franchise_ids_filter,
+)
+
 
 PAGE_SIZE = 20
 
@@ -28,7 +32,7 @@ class WujiaPortalHistory(http.Controller):
 
     @http.route(['/portal/purchase-history'], type='http', auth='user', sitemap=False)
     def portal_history_list(self, page=1, date_from='', date_to='', state='', preset='', **kw):
-        franchise_ids = request.env.user._get_accessible_franchise_ids()
+        franchise_ids = get_active_franchise_ids_filter()
         if not franchise_ids:
             return request.render('wujia_portal_purchase_history.portal_history_list', {
                 'orders': [], 'pager': {}, 'no_franchise': True,
@@ -86,7 +90,7 @@ class WujiaPortalHistory(http.Controller):
     @http.route(['/portal/purchase-history/<int:order_id>'],
                 type='http', auth='user', sitemap=False)
     def portal_history_detail(self, order_id, **kw):
-        franchise_ids = request.env.user._get_accessible_franchise_ids()
+        franchise_ids = get_active_franchise_ids_filter()
         if not franchise_ids:
             return request.redirect('/portal/purchase-history')
         order = request.env['sale.order'].sudo().search([
