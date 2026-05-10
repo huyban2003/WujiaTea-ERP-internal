@@ -1,10 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
 
-    <!-- Modal store picker — chèn vào layout, hiển thị qua JS khi must_pick_franchise=True -->
+    <!-- Modal store picker — render SSR (không cần JS để show ban đầu).
+         Khi must_pick=True: thêm class "show d-block" + backdrop ngay từ HTML
+         → modal hiện ngay khi browser render trang, KHÔNG phụ thuộc JS/Bootstrap. -->
     <template id="store_picker_modal" name="Wujia Portal — Store Picker Modal">
-        <div class="modal fade" id="wujiaStorePickerModal" tabindex="-1"
+        <!-- Modal: nếu must_pick → hiện ngay (class show + style display:block). -->
+        <div t-attf-class="modal fade#{' show' if _wujia_must_pick else ''}"
+             t-attf-style="#{'display: block !important; padding-right: 0;' if _wujia_must_pick else ''}"
+             id="wujiaStorePickerModal" tabindex="-1"
              role="dialog" aria-labelledby="wujiaStorePickerLabel"
+             data-backdrop="static" data-keyboard="false"
              data-bs-backdrop="static" data-bs-keyboard="false">
             <div class="modal-dialog modal-dialog-centered" role="document">
                 <div class="modal-content">
@@ -50,6 +56,11 @@
                 </div>
             </div>
         </div>
+
+        <!-- Backdrop SSR: render khi must_pick để chặn click ra ngoài. -->
+        <div t-if="_wujia_must_pick"
+             class="modal-backdrop fade show wujia-store-picker-backdrop"
+             style="z-index: 1040;"/>
     </template>
 
 </odoo>
