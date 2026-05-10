@@ -1,18 +1,24 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
 
-    <!-- Store picker — render hoàn toàn SSR.
-         KHÔNG dùng Bootstrap modal class (.modal.show, .modal-backdrop) để
-         tránh xung đột với CSS theme Vuexy. Dùng overlay div riêng với
-         class wujia-* — CSS namespace riêng, hoạt động bất kể browser/theme. -->
+    <!-- Store picker overlay — luôn render trong DOM cho user multi-franchise.
+         must_pick=True: hiện ngay. must_pick=False: ẩn, click badge top navbar
+         JS toggle class wujia-store-overlay (suffix show) để mở. -->
     <template id="store_picker_modal" name="Wujia Portal — Store Picker Modal">
-        <!-- Overlay chỉ render khi must_pick=True. Khi user đã chọn → trang
-             KHÔNG có overlay này, badge top navbar đảm nhận trigger lại. -->
-        <div t-if="_wujia_must_pick" class="wujia-store-overlay">
+        <div t-if="_wujia_accessible_ids and len(_wujia_accessible_ids) &gt; 1"
+             t-attf-class="wujia-store-overlay#{' wujia-store-overlay--show' if _wujia_must_pick else ''}"
+             id="wujiaStoreOverlay">
             <div class="wujia-store-card">
                 <div class="wujia-store-header">
-                    <i class="fa fa-building me-1"/>
-                    <span>Chọn cửa hàng đang thao tác</span>
+                    <span>
+                        <i class="fa fa-building me-1"/>
+                        <t t-if="_wujia_must_pick">Chọn cửa hàng đang thao tác</t>
+                        <t t-else="">Đổi cửa hàng đang thao tác</t>
+                    </span>
+                    <!-- Nút đóng chỉ hiện khi user đã pick (không bắt buộc) -->
+                    <button t-if="not _wujia_must_pick" type="button"
+                            class="wujia-store-close" data-action="close-store-picker"
+                            aria-label="Đóng">×</button>
                 </div>
                 <form action="/portal/franchise/switch" method="POST"
                       class="wujia-store-form">
@@ -20,15 +26,23 @@
                     <input type="hidden" name="redirect" t-att-value="request.httprequest.full_path or '/portal'"/>
                     <div class="wujia-store-body">
                         <p class="wujia-store-intro">
-                            Bạn thuộc nhiều cửa hàng. Vui lòng chọn cửa hàng đang
-                            thao tác để hệ thống chỉ hiển thị dữ liệu liên quan
-                            (đơn hàng, đổi trả, thông báo).
+                            <t t-if="_wujia_must_pick">
+                                Bạn thuộc nhiều cửa hàng. Vui lòng chọn cửa hàng đang
+                                thao tác để hệ thống chỉ hiển thị dữ liệu liên quan
+                                (đơn hàng, đổi trả, thông báo).
+                            </t>
+                            <t t-else="">
+                                Bạn đang thao tác tại
+                                <strong t-out="_wujia_active_franchise.name if _wujia_active_franchise else ''"/>.
+                                Chọn cửa hàng khác để chuyển dữ liệu hiển thị.
+                            </t>
                         </p>
                         <div class="wujia-store-list">
                             <t t-foreach="all_accessible_franchises" t-as="f">
-                                <label class="wujia-store-item">
+                                <label t-attf-class="wujia-store-item#{' wujia-store-item--active' if f.id == _wujia_active_fid else ''}">
                                     <input type="radio" name="franchise_id"
                                            t-att-value="f.id"
+                                           t-att-checked="'checked' if f.id == _wujia_active_fid else None"
                                            required="required"
                                            class="wujia-store-radio"/>
                                     <span class="wujia-store-info">
@@ -39,60 +53,79 @@
                                         <small t-if="f.address" class="wujia-store-addr"
                                                t-out="f.address"/>
                                     </span>
+                                    <span t-if="f.id == _wujia_active_fid"
+                                          class="wujia-store-current-badge">đang thao tác</span>
                                 </label>
                             </t>
                         </div>
                     </div>
                     <div class="wujia-store-footer">
+                        <button t-if="not _wujia_must_pick" type="button"
+                                class="btn btn-outline-secondary me-2"
+                                data-action="close-store-picker">Hủy</button>
                         <button type="submit" class="btn btn-primary">
-                            <i class="fa fa-check me-1"/>Xác nhận
+                            <i class="fa fa-check me-1"/>
+                            <t t-if="_wujia_must_pick">Xác nhận</t>
+                            <t t-else="">Đổi cửa hàng</t>
                         </button>
                     </div>
                 </form>
             </div>
         </div>
 
-        <!-- Inline CSS — đảm bảo hiển thị bất kể asset bundle có load CSS hay không.
-             Render INLINE trong page để loại trừ trường hợp CSS file 404. -->
-        <style t-if="_wujia_must_pick">
+        <!-- CSS inline — đảm bảo render bất kể asset bundle status. -->
+        <style t-if="_wujia_accessible_ids and len(_wujia_accessible_ids) &gt; 1">
             .wujia-store-overlay {
                 position: fixed !important; top: 0 !important; left: 0 !important;
                 width: 100% !important; height: 100% !important;
                 background: rgba(0, 0, 0, 0.55) !important;
                 z-index: 99999 !important;
-                display: flex !important;
+                display: none !important;
                 align-items: center !important; justify-content: center !important;
                 padding: 20px;
             }
+            .wujia-store-overlay.wujia-store-overlay--show { display: flex !important; }
             .wujia-store-card {
-                background: #fff; border-radius: 12px; max-width: 540px;
+                background: #fff; border-radius: 12px; max-width: 560px;
                 width: 100%; max-height: 90vh; overflow-y: auto;
                 box-shadow: 0 20px 60px rgba(0,0,0,0.3);
                 font-family: inherit;
             }
             .wujia-store-header {
-                background: #1f4180; color: #fff; padding: 16px 20px;
-                font-size: 1.1rem; font-weight: 600;
+                background: #1f4180; color: #fff; padding: 14px 20px;
+                font-size: 1.05rem; font-weight: 600;
                 border-radius: 12px 12px 0 0;
+                display: flex; align-items: center; justify-content: space-between;
             }
+            .wujia-store-close {
+                background: transparent; border: none; color: #fff;
+                font-size: 1.6rem; line-height: 1; cursor: pointer; padding: 0 6px;
+                opacity: 0.85;
+            }
+            .wujia-store-close:hover { opacity: 1; }
             .wujia-store-body { padding: 20px; }
             .wujia-store-intro { color: #6c757d; margin-bottom: 16px; line-height: 1.5; }
             .wujia-store-list { display: flex; flex-direction: column; gap: 8px; }
             .wujia-store-item {
-                display: flex; align-items: flex-start; gap: 12px;
+                display: flex; align-items: center; gap: 12px;
                 padding: 12px 14px; border: 1px solid #dee2e6;
                 border-radius: 8px; cursor: pointer; margin: 0;
                 transition: all 0.15s ease;
             }
             .wujia-store-item:hover { background: #f5f7fa; border-color: #1f4180; }
+            .wujia-store-item--active,
             .wujia-store-item:has(.wujia-store-radio:checked) {
                 background: #e7eef9; border-color: #1f4180; border-width: 2px;
             }
-            .wujia-store-radio { margin-top: 4px; cursor: pointer; }
+            .wujia-store-radio { margin: 0; cursor: pointer; }
             .wujia-store-info { flex: 1; display: flex; flex-direction: column; gap: 2px; }
             .wujia-store-info strong { font-size: 1rem; color: #212529; }
             .wujia-store-code { color: #6c757d; }
             .wujia-store-addr { color: #6c757d; font-size: 0.85rem; }
+            .wujia-store-current-badge {
+                background: #28a745; color: #fff;
+                font-size: 0.75rem; padding: 3px 8px; border-radius: 12px;
+            }
             .wujia-store-footer {
                 padding: 14px 20px; text-align: right;
                 border-top: 1px solid #eaeaea;

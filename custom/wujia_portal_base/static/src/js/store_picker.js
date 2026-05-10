@@ -1,80 +1,65 @@
-/* WujiaTea Portal — store picker
-   Hỗ trợ cả Bootstrap 4 (jQuery $.fn.modal) và Bootstrap 5 (window.bootstrap.Modal).
-   Vuexy theme dùng BS4. Fallback manual class manipulation nếu cả hai không có. */
+/* WujiaTea Portal — store picker overlay toggle.
+   - Modal đã render SSR trong DOM (luôn có nếu user multi-franchise).
+   - Khi must_pick=True: server đã thêm class wujia-store-overlay--show.
+   - Click button "Đổi cửa hàng" trên top navbar → toggle class.
+   - Click nút × hoặc Hủy → ẩn (chỉ khi user đã pick — lúc must_pick thì
+     không có button đóng → không thoát được).
+   - Click nền (overlay) ngoài card cũng ẩn (chỉ khi đã pick). */
 (function () {
     "use strict";
 
-    function showModalNow() {
-        const modal = document.getElementById("wujiaStorePickerModal");
-        if (!modal) return;
+    function init() {
+        const overlay = document.getElementById("wujiaStoreOverlay");
+        if (!overlay) return;
 
-        // 1. Bootstrap 5 (window.bootstrap)
-        if (window.bootstrap && window.bootstrap.Modal) {
-            const m = window.bootstrap.Modal.getOrCreateInstance(modal, {
-                backdrop: "static", keyboard: false,
+        function show() {
+            overlay.classList.add("wujia-store-overlay--show");
+        }
+        function hide() {
+            overlay.classList.remove("wujia-store-overlay--show");
+        }
+
+        // Trigger từ badge top navbar / button "Đổi cửa hàng"
+        document.querySelectorAll('[data-action="open-store-picker"]').forEach(function (btn) {
+            btn.addEventListener("click", function (ev) {
+                ev.preventDefault();
+                show();
             });
-            m.show();
-            return;
+        });
+
+        // Nút × và Hủy đóng modal (chỉ tồn tại khi must_pick=False)
+        overlay.querySelectorAll('[data-action="close-store-picker"]').forEach(function (btn) {
+            btn.addEventListener("click", function (ev) {
+                ev.preventDefault();
+                hide();
+            });
+        });
+
+        // Click nền (overlay) đóng nếu cho phép — phát hiện qua data-action close
+        // sự tồn tại của nút Hủy trong card thì cho phép đóng nền.
+        const allowDismissOnBackdrop = overlay.querySelector('[data-action="close-store-picker"]') !== null;
+        if (allowDismissOnBackdrop) {
+            overlay.addEventListener("click", function (ev) {
+                if (ev.target === overlay) hide();
+            });
         }
 
-        // 2. Bootstrap 4 (jQuery $.fn.modal — Vuexy theme dùng cái này)
-        if (window.jQuery && window.jQuery.fn && window.jQuery.fn.modal) {
-            window.jQuery(modal).modal({ backdrop: "static", keyboard: false });
-            return;
-        }
-
-        // 3. Fallback manual — class + inline style + backdrop div
-        modal.classList.add("show", "d-block");
-        modal.setAttribute("aria-hidden", "false");
-        modal.setAttribute("role", "dialog");
-        modal.style.cssText = "display: block !important; padding-right: 17px;";
-        document.body.classList.add("modal-open");
-        if (!document.querySelector(".wujia-store-picker-backdrop")) {
-            const bd = document.createElement("div");
-            bd.className = "modal-backdrop fade show wujia-store-picker-backdrop";
-            bd.style.cssText = "z-index: 1040;";
-            document.body.appendChild(bd);
-        }
-        modal.style.zIndex = "1050";
-    }
-
-    function highlightSelectedRadio(modal) {
-        modal.querySelectorAll(".store-picker-item").forEach(function (item) {
+        // UX: highlight item khi click, sync radio
+        overlay.querySelectorAll(".wujia-store-item").forEach(function (item) {
             item.addEventListener("click", function () {
-                modal.querySelectorAll(".store-picker-item").forEach(function (it) {
-                    it.classList.remove("active");
+                overlay.querySelectorAll(".wujia-store-item").forEach(function (it) {
+                    it.classList.remove("wujia-store-item--active");
                 });
-                item.classList.add("active");
-                const radio = item.querySelector(".store-picker-radio");
+                item.classList.add("wujia-store-item--active");
+                const radio = item.querySelector(".wujia-store-radio");
                 if (radio) radio.checked = true;
             });
         });
     }
 
-    function init() {
-        const modal = document.getElementById("wujiaStorePickerModal");
-        if (!modal) return;
-
-        const mustPick = document.body.dataset.mustPickFranchise === "1";
-        if (mustPick) {
-            showModalNow();
-        }
-
-        // Trigger button "Đổi cửa hàng" trên top navbar
-        document.querySelectorAll('[data-action="open-store-picker"]').forEach(function (btn) {
-            btn.addEventListener("click", function (ev) {
-                ev.preventDefault();
-                showModalNow();
-            });
-        });
-
-        highlightSelectedRadio(modal);
-    }
-
     if (document.readyState === "loading") {
         document.addEventListener("DOMContentLoaded", init);
     } else {
-        // DOM đã sẵn — chạy ngay (trường hợp script load defer SAU DOMContentLoaded)
         init();
     }
 })();
