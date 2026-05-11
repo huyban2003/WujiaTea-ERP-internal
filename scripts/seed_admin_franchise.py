@@ -4,10 +4,23 @@ Mục đích: trên server production, admin (Mitchell Admin) chưa có
 wujia.franchise.member nào → portal dashboard trống. Script này gán admin
 làm owner toàn bộ franchise để test portal.
 
-Cách chạy (trên server Windows qua SSH/RDP):
+Cách chạy:
+
+  Linux/macOS:
+    cd /home/huyban/odoo-dev/WujiaTea/odoo19
+    python odoo-bin shell -c ../config/odoo.conf -d wujia_tea_19 --no-http \\
+        < ../scripts/seed_admin_franchise.py
+
+  Windows cmd.exe:
     cd D:\\wujia-tea
-    python odoo19\\odoo-bin shell -c config\\odoo.conf -d wujia_tea_19 ^
+    python odoo19\\odoo-bin shell -c config\\odoo-server.conf -d wujia_tea_19 ^
         --no-http < scripts\\seed_admin_franchise.py
+
+  Windows PowerShell (KHÔNG hỗ trợ < redirect — dùng Get-Content pipe):
+    cd D:\\wujia-tea
+    Get-Content scripts\\seed_admin_franchise.py | `
+        python odoo19\\odoo-bin shell -c config\\odoo-server.conf `
+        -d wujia_tea_19 --no-http
 
 Idempotent: search-or-create theo (user_id, franchise_id).
 """

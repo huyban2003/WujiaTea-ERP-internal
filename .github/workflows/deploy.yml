@@ -27,7 +27,7 @@ jobs:
       - name: Install / Upgrade Wujia modules
         run: |
           cd /d D:\wujia-tea
-          python odoo19\odoo-bin -c config\odoo.conf -d wujia_tea_19 ^
+          python odoo19\odoo-bin -c config\odoo-server.conf -d wujia_tea_19 ^
             -u wujia_core,wujia_franchise,wujia_sale,wujia_fleet,wujia_delivery,wujia_portal_layout,wujia_portal_base ^
             -i wujia_portal_sale,wujia_portal_purchase_history,wujia_portal_return,wujia_portal_delivery,wujia_portal_exam,wujia_portal_knowledge,wujia_portal_notification,wujia_portal_support,wujia_portal_report ^
             --stop-after-init --no-http
