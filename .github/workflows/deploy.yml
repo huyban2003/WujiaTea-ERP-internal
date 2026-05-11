@@ -14,6 +14,25 @@ jobs:
           git pull origin main
         shell: cmd
 
-      - name: Restart Odoo
-        run: nssm restart Odoo
+      # Phải stop service trước khi chạy odoo-bin upgrade vì cùng DB lock.
+      - name: Stop Odoo service
+        run: nssm stop Odoo
+        shell: cmd
+        continue-on-error: true
+
+      # Auto install + upgrade modules Wujia mỗi lần deploy.
+      # -i: install nếu chưa có. -u: upgrade nếu đã có. Odoo cho phép cùng lúc:
+      # module nào chưa cài → -i tạo mới, đã có → -u update schema + assets bundle.
+      # --stop-after-init: chạy 1 lần rồi exit, không bind port.
+      - name: Install / Upgrade Wujia modules
+        run: |
+          cd /d D:\wujia-tea
+          python odoo19\odoo-bin -c config\odoo.conf -d wujia_tea_19 ^
+            -u wujia_core,wujia_franchise,wujia_sale,wujia_fleet,wujia_delivery,wujia_portal_layout,wujia_portal_base ^
+            -i wujia_portal_sale,wujia_portal_purchase_history,wujia_portal_return,wujia_portal_delivery,wujia_portal_exam,wujia_portal_knowledge,wujia_portal_notification,wujia_portal_support,wujia_portal_report ^
+            --stop-after-init --no-http
+        shell: cmd
+
+      - name: Start Odoo service
+        run: nssm start Odoo
         shell: cmd
