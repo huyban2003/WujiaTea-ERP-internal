@@ -1696,6 +1696,131 @@ TẠO MỚI:
 \end{lstlisting}
 
 % ===========================================================================
+\chapter{Sprint 4.2 --- UI polish: sidebar overlay + card header}
+
+\section{Bối cảnh}
+
+Sau khi Sprint 4.1 push lên GitHub và auto-deploy ra server Windows, mở \texttt{/portal} thực tế phát hiện 2 lỗi giao diện không thấy được khi dev local:
+
+\begin{itemize}
+    \item \textbf{Bug L1 --- Sidebar bị overlay xám đè lên trên server.} Phần user-info \emph{Mitchell Admin} còn hiện, các menu items (Trang chủ + dropdown module) bị che hoàn toàn bởi lớp \texttt{rgba(0,0,0,0.5)}. Force \texttt{Ctrl+Shift+R} cache-bust không fix.
+    \item \textbf{Bug L2 --- Card header lệch viền bo tròn.} 4 block dashboard (\emph{Thông báo mới nhất / Đơn hàng gần đây / Yêu cầu đổi trả / Sản phẩm mua nhiều}) có \texttt{.card \{border-radius: 20px\}} nhưng \texttt{.card-header} background "lòi" ra khỏi 4 góc do thiếu \texttt{overflow: hidden}.
+\end{itemize}
+
+\section{Root cause Bug L1}
+
+Element thủ phạm là \texttt{.content-overlay} render trong \texttt{layouts.xml} (line 174). CSS \texttt{components.css} (line 30--51):
+
+\begin{itemize}
+    \item Mặc định: \texttt{z-index: -1; opacity: 0;} --- ẩn.
+    \item Khi \texttt{.app-content} có class \texttt{.show-overlay}: \texttt{z-index: 10; opacity: 1; position: fixed; top:0; left:0; width:100\%; height:100\%; background: rgba(0,0,0,0.5)} --- phủ toàn màn hình kể cả sidebar.
+\end{itemize}
+
+Class \texttt{.show-overlay} chỉ được add khi user gõ vào search input ở navbar (\texttt{app.js:653}). Local Linux JS init nhanh, không bị stuck. Server Windows, do Odoo \texttt{web.assets\_frontend} load chậm hơn, JS init order khác làm class bị stuck từ lúc page mount.
+
+Theo lý thuyết \texttt{.main-menu} có \texttt{z-index: 1031} (components.css:357), cao hơn 10. Nhưng \texttt{.main-menu} là \texttt{position: absolute} trong khi \texttt{.content-overlay} là \texttt{position: fixed} --- 2 stacking context khác nhau, kết quả render phụ thuộc DOM order khi Odoo's frontend bundle wrap thêm wrapper.
+
+\section{Fix --- defense in depth 3 lớp}
+
+\subsection{Lớp 1: Sidebar z-index cao hơn modal-backdrop}
+
+Trong \texttt{custom/wujia\_portal\_layout/static/assets/css/style.css}:
+
+\begin{lstlisting}[style=python]
+.main-menu {
+    z-index: 1040 !important;
+}
+\end{lstlisting}
+
+1040 = Bootstrap modal-backdrop level. Đảm bảo sidebar luôn nổi trên mọi overlay không phải Bootstrap modal.
+
+\subsection{Lớp 2: Overlay không phủ sidebar}
+
+Đặt \texttt{left: 260px} cho \texttt{.content-overlay} desktop --- chỉ phủ content area:
+
+\begin{lstlisting}[style=python]
+html body .content.app-content .content-overlay {
+    left: 260px;
+    width: calc(100% - 260px);
+}
+@media (max-width: 1199.98px) {
+    /* Mobile: sidebar hidden, overlay vẫn full width */
+    .content-overlay { left: 0; width: 100%; }
+}
+\end{lstlisting}
+
+Kể cả khi class \texttt{show-overlay} bị stuck, sidebar vẫn click được.
+
+\subsection{Lớp 3: JS safety reset trên page load}
+
+Trong \texttt{custom/wujia\_portal\_layout/static/assets/js/my\_js.js}:
+
+\begin{lstlisting}[style=python]
+$(document).ready(function () {
+    $('.app-content').removeClass('show-overlay');
+});
+$(window).on('load', function () {
+    $('.app-content').removeClass('show-overlay');
+});
+\end{lstlisting}
+
+Reset 2 lần (DOMContentLoaded + window.load) cover toàn bộ JS init race condition.
+
+\section{Fix Bug L2 --- card header}
+
+Sửa \texttt{style.css:143-145}, từ:
+
+\begin{lstlisting}[style=python]
+.card { border-radius: 20px !important; }
+\end{lstlisting}
+
+Thành:
+
+\begin{lstlisting}[style=python]
+.card {
+    border-radius: 20px !important;
+    overflow: hidden;        /* clip children theo viền card */
+}
+.card-header {
+    border-top-left-radius: 20px;
+    border-top-right-radius: 20px;
+}
+.card-footer {
+    border-bottom-left-radius: 20px;
+    border-bottom-right-radius: 20px;
+}
+\end{lstlisting}
+
+\texttt{overflow: hidden} đủ để clip header/footer theo viền card. Thêm \texttt{border-radius} match-explicit cho header/footer như fallback nếu module nào override \texttt{overflow}.
+
+\section{Files thay đổi}
+
+\begin{lstlisting}[style=shell]
+SỬA:
+  custom/wujia_portal_layout/__manifest__.py             # 19.0.2.0.0 → 19.0.2.1.0
+  custom/wujia_portal_layout/static/assets/css/style.css # card + sidebar/overlay CSS
+  custom/wujia_portal_layout/static/assets/js/my_js.js   # reset show-overlay
+  docs/wujia-tea-doc.tex                                  # chapter Sprint 4.2
+\end{lstlisting}
+
+\section{Verify}
+
+\begin{lstlisting}[style=shell]
+1. Upgrade portal_layout local:
+   bash scripts/upgrade.sh wujia_portal_layout
+
+2. Mở http://localhost:8019/portal, hard-refresh Ctrl+Shift+R:
+   - Sidebar menu hiện đủ items, không có overlay xám.
+   - 4 card dashboard: header bo tròn 20px khớp với viền card, không lòi.
+
+3. Devtools toggle mobile (≤ 1199px): overlay phủ full width khi mở
+   search dropdown (giữ behavior cũ trên mobile).
+
+4. Push lên GitHub → auto-deploy → mở server URL, F5 cache-bust:
+   - Sidebar không còn bị overlay.
+\end{lstlisting}
+
+% ===========================================================================
 \chapter{Phụ lục — Lệnh thường dùng}
 
 \begin{lstlisting}[style=shell]

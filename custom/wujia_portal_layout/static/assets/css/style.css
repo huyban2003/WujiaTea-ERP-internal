@@ -142,6 +142,38 @@ html .pace .pace-progress {
 
 .card {
     border-radius: 20px !important;
+    overflow: hidden;
+}
+
+.card-header {
+    border-top-left-radius: 20px;
+    border-top-right-radius: 20px;
+}
+
+.card-footer {
+    border-bottom-left-radius: 20px;
+    border-bottom-right-radius: 20px;
+}
+
+/* Sprint 4.2: harden sidebar against accidental .show-overlay on server.
+   Sidebar must stay on top, and .content-overlay must only cover the
+   content area (260px right of the fixed sidebar), never the sidebar itself. */
+.main-menu {
+    z-index: 1040 !important;
+}
+
+html body .content.app-content.show-overlay .content-overlay,
+html body .content.app-content .content-overlay {
+    left: 260px;
+    width: calc(100% - 260px);
+}
+
+@media (max-width: 1199.98px) {
+    html body .content.app-content.show-overlay .content-overlay,
+    html body .content.app-content .content-overlay {
+        left: 0;
+        width: 100%;
+    }
 }
 
 table th {

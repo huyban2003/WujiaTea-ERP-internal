@@ -266,3 +266,13 @@ function payment_confirmation() {
         })
     }
 }
+/* Sprint 4.2: defensive — ensure .show-overlay class is never stuck after
+   page load. On the production server, JS init ordering with Odoo's
+   web.assets_frontend bundle can leave this class active, which causes
+   the content-overlay (rgba(0,0,0,0.5)) to cover the sidebar. */
+$(document).ready(function () {
+    $('.app-content').removeClass('show-overlay');
+});
+$(window).on('load', function () {
+    $('.app-content').removeClass('show-overlay');
+});
