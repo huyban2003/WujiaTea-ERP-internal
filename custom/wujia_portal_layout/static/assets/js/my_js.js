@@ -276,3 +276,16 @@ $(document).ready(function () {
 $(window).on('load', function () {
     $('.app-content').removeClass('show-overlay');
 });
+
+/* Sprint 4.2+: force body.menu-expanded on desktop so Vuexy's menu-modern
+   CSS shows the sidebar even when app-menu.js init() bails out without
+   adding the class. Pair with CSS in style.css that forces .main-menu
+   visible at >= 992px regardless of body classes. */
+function _wujiaForceMenuExpanded() {
+    if ($(window).width() >= 992) {
+        $('body').removeClass('menu-hide menu-collapsed').addClass('menu-expanded menu-open');
+    }
+}
+$(document).ready(_wujiaForceMenuExpanded);
+$(window).on('load', _wujiaForceMenuExpanded);
+$(window).on('resize', _wujiaForceMenuExpanded);

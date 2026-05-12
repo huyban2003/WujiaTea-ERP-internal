@@ -176,6 +176,42 @@ html body .content.app-content .content-overlay {
     }
 }
 
+/* Sprint 4.2+: Force sidebar visible on desktop (>= 992px). Vuexy's
+   vertical-menu-modern auto-hides .main-menu at <= 1199.98px (width:0;
+   opacity:0; left:-260px) and relies on JS to add body.menu-expanded.
+   That JS init is fragile (bug existed since v14): on production server
+   the timing makes the menu either stay hidden or load then disappear.
+   We bypass the dance and force the menu visible at >= 992px via CSS,
+   plus an explicit height + overflow on .main-menu-content because
+   PerfectScrollbar can leave it at height:0 when init fails. */
+@media (min-width: 992px) {
+    body.vertical-layout.vertical-menu-modern .main-menu {
+        width: 260px !important;
+        opacity: 1 !important;
+        left: 0 !important;
+    }
+    body.vertical-layout.vertical-menu-modern .main-menu .navigation > li > a > span {
+        animation: none !important;
+        opacity: 1 !important;
+    }
+    .main-menu .main-menu-content {
+        height: calc(100vh - 6rem) !important;
+        overflow-y: auto !important;
+    }
+    .main-menu .navigation,
+    .main-menu .navigation-main,
+    .main-menu .navigation > li,
+    .main-menu .navigation-main > li {
+        display: block !important;
+        visibility: visible !important;
+        opacity: 1 !important;
+    }
+    /* Push content right by sidebar width so it doesn't tuck behind */
+    html body .content {
+        margin-left: 260px;
+    }
+}
+
 table th {
     font-size: 16px!important;
 }
