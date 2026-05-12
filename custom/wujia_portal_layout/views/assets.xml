@@ -75,7 +75,13 @@
         </template>
 
         <template id="tables_js">
-            <script src="/wujia_portal_layout/static/assets/js/scripts/datatables/datatable.js"></script>
+            <!-- Sprint 4.2: removed scripts/datatables/datatable.js — it calls
+                 $('.zero-configuration').DataTable() on classes that don't exist
+                 in portal pages, and Odoo's AMD loader makes datatables.min.js
+                 register as AMD module instead of attaching $.fn.DataTable,
+                 so .DataTable() is undefined → uncaught TypeError that aborts
+                 every $(document).ready callback registered after it (including
+                 our _wujiaForceMenuExpanded sidebar fix). -->
             <script src="/wujia_portal_layout/static/assets/js/scripts/tables/datatable/pdfmake.min.js"></script>
             <script src="/wujia_portal_layout/static/assets/js/scripts/tables/datatable/vfs_fonts.js"></script>
             <script src="/wujia_portal_layout/static/assets/js/scripts/tables/datatable/datatables.min.js"></script>

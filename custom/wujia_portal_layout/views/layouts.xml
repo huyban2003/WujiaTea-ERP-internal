@@ -85,7 +85,7 @@
                                             </span>
                                         </div>
                                         <span>
-                                            <img class="round" t-att-src="'/profile/avatar/'+ str(request.env.user.id)"
+                                            <img class="round" t-att-src="'/web/image/res.users/'+ str(request.env.user.id) +'/avatar_128'"
                                                  alt="avatar" height="40" width="40" style="border: 3px solid transparent;
                                                  border-color: #fff;"/>
                                         </span>
@@ -135,8 +135,8 @@
 
                 <div class="sidebar-header mt-3">
                     <div class="user-pic">
-                        <img class="img-responsive img-rounded" t-att-src="'/profile/avatar/'+ str(request.env.user.id)"
-                             alt="User picture"/>
+                        <img class="img-responsive img-rounded" t-att-src="'/web/image/res.users/'+ str(request.env.user.id) +'/avatar_128'"
+                             alt=""/>
                     </div>
                     <div class="user-info" t-if="request.env.user.partner_id">
                         <span class="user-name text-truncate text-color-title text-bold-700" style="max-width: 125px;"
