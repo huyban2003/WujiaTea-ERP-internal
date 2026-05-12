@@ -289,3 +289,20 @@ function _wujiaForceMenuExpanded() {
 $(document).ready(_wujiaForceMenuExpanded);
 $(window).on('load', _wujiaForceMenuExpanded);
 $(window).on('resize', _wujiaForceMenuExpanded);
+
+/* Sprint 4.2+: neutralize Vuexy app-menu.js so it doesn't run hide/expand/
+   PerfectScrollbar animations at window.load that cause a visible flicker
+   ("load twice"). The sidebar has only one static item — we don't need
+   accordion, scrollbar, or breakpoint-aware hide. Override before Vuexy's
+   $(window).on('load') handler in app.js fires (handlers run in registration
+   order, my_js.js is loaded after app-menu.js and app.js so by the time
+   app.js's load handler runs, $.app.menu.init is our no-op). */
+if (typeof $ !== 'undefined' && $.app && $.app.menu) {
+    $.app.menu.init = function () {};
+    $.app.menu.change = function () {};
+    if ($.app.menu.manualScroller) {
+        $.app.menu.manualScroller.init = function () {};
+        $.app.menu.manualScroller.update = function () {};
+        $.app.menu.manualScroller.updateHeight = function () {};
+    }
+}

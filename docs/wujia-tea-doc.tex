@@ -1816,6 +1816,24 @@ $(window).on('load resize', _wujiaForceMenuExpanded);
 
 Bug này tồn tại từ v14 (cùng Vuexy template). v14 sống chung; v19 fix triệt để vì 1500 user concurrent không tolerate UI flaky.
 
+\subsection{Lớp 5: Vô hiệu hóa Vuexy app-menu.js}
+
+Sau khi áp lớp 4, sidebar hiện đúng nhưng vẫn flicker (\emph{"load 2 lần"}) vì Vuexy \texttt{f.app.menu.init()} chạy ở \texttt{window.load} → animate hide/expand → PerfectScrollbar reflow. Menu của ta chỉ có 1 item tĩnh, không cần accordion/scrollbar/breakpoint logic. Vô hiệu hóa bằng override hàm thành no-op trước khi \texttt{app.js} chạy load handler:
+
+\begin{lstlisting}[style=python]
+if (typeof $ !== 'undefined' && $.app && $.app.menu) {
+    $.app.menu.init = function () {};
+    $.app.menu.change = function () {};
+    if ($.app.menu.manualScroller) {
+        $.app.menu.manualScroller.init = function () {};
+        $.app.menu.manualScroller.update = function () {};
+        $.app.menu.manualScroller.updateHeight = function () {};
+    }
+}
+\end{lstlisting}
+
+\texttt{my\_js.js} load sau \texttt{app-menu.js + app.js} (theo thứ tự \texttt{assets.xml}) nên khi \texttt{app.js} kích hoạt load handler gọi \texttt{f.app.menu.init(e)}, hàm \texttt{init} đã là no-op. Không animation → không flicker.
+
 \section{Fix Bug L2 --- card header}
 
 Sửa \texttt{style.css:143-145}, từ:
