@@ -1834,6 +1834,58 @@ if (typeof $ !== 'undefined' && $.app && $.app.menu) {
 
 \texttt{my\_js.js} load sau \texttt{app-menu.js + app.js} (theo thứ tự \texttt{assets.xml}) nên khi \texttt{app.js} kích hoạt load handler gọi \texttt{f.app.menu.init(e)}, hàm \texttt{init} đã là no-op. Không animation → không flicker.
 
+\subsection{Lớp 6: Fix DataTable AMD conflict + avatar 404 (phát hiện qua DevTools)}
+
+Sau deploy lớp 1--5 lên server, sidebar vẫn ẩn và xuất hiện 2 mảnh text \emph{"ser"} / \emph{"ure"} ở cạnh trái sidebar. Mở DevTools console (F12) trên browser server, lộ ra 3 lỗi:
+
+\begin{lstlisting}[style=shell]
+GET http://localhost:8019/profile/avatar/2 404 (NOT FOUND)
+Uncaught TypeError: $(...).DataTable is not a function
+    at HTMLDocument.<anonymous> (datatable.js:16:30)
+GET http://localhost:8019/app-assets/data/locales/en.json 404
+\end{lstlisting}
+
+\textbf{Lỗi 1 --- avatar 404 → \emph{"ser ure"} fragments:} Route \texttt{/profile/avatar/<uid>} được tham chiếu từ \texttt{layouts.xml} (navbar + sidebar) và \texttt{profile\_page.xml} nhưng \emph{không có controller nào define}. Khi \texttt{<img>} fail, browser hiển thị \texttt{alt="User picture"} thay ảnh. Bên trong \texttt{.user-pic} (\texttt{border-radius: 50\%; overflow: hidden; width: 35\%}), chữ "User picture" bị crop theo hình tròn → chỉ thấy phần giữa mỗi từ = \emph{ser} (từ "User") + \emph{ure} (từ "picture"). Fix:
+
+\begin{lstlisting}[style=python]
+# Cũ:
+t-att-src="'/profile/avatar/'+ str(request.env.user.id)" alt="User picture"
+
+# Mới: dùng built-in route, luôn có placeholder fallback
+t-att-src="'/web/image/res.users/'+ str(request.env.user.id) +'/avatar_128'"
+alt=""  # decorative — silent nếu fail
+\end{lstlisting}
+
+\textbf{Lỗi 2 (root cause menu ẩn) --- DataTable AMD conflict:} Odoo's frontend bundle inject \texttt{define()} (AMD loader) global. \texttt{datatables.min.js} dùng UMD wrapper: nếu thấy \texttt{define \&\& define.amd}, register dạng AMD \emph{không attach \texttt{\$.fn.DataTable}}. Init script \texttt{scripts/datatables/datatable.js} ở dòng 16 gọi \texttt{\$('.zero-configuration').DataTable()} → \texttt{Uncaught TypeError}.
+
+Crash này quan trọng vì \emph{nó throw bên trong} \texttt{\$(document).ready} callback đầu tiên trong queue → jQuery dừng iterate → mọi \texttt{\$(document).ready(\dots)} đăng ký sau đó \emph{không chạy}, bao gồm \texttt{\_wujiaForceMenuExpanded} (add \texttt{body.menu-expanded}). Layer 4 CSS có \texttt{!important} nhưng vẫn bị Vuexy rule có specificity cao hơn (\texttt{body.menu-expanded \dots}) override. Vì class không add → menu ẩn.
+
+Fix: bỏ \texttt{datatable.js} khỏi bundle \texttt{tables\_js} trong \texttt{assets.xml} (portal pages không dùng class \texttt{.zero-configuration} / \texttt{.row-grouping}):
+
+\begin{lstlisting}[style=python]
+<template id="tables_js">
+    <!-- REMOVED: scripts/datatables/datatable.js — AMD conflict crash -->
+    <script src=".../tables/datatable/pdfmake.min.js"/>
+    ...
+</template>
+\end{lstlisting}
+
+\textbf{Lỗi 3 --- i18next 404:} \texttt{app.js:492} gọi \texttt{i18next.init(\{loadPath: '../../../app-assets/data/locales/\{\{lng\}\}.json'\})} → path không serve được file → 404. Translation thực tế ta dùng \texttt{lang.js} (hàm \texttt{\_t}), i18next vô dụng. Override no-op trong \texttt{my\_js.js}:
+
+\begin{lstlisting}[style=python]
+if (typeof i18next !== 'undefined') {
+    i18next.use = function () { return i18next; };
+    i18next.init = function (opts, cb) {
+        if (typeof cb === 'function') {
+            cb(null, function (k) { return k; });
+        }
+        return i18next;
+    };
+}
+\end{lstlisting}
+
+Manifest bump: \texttt{19.0.2.0.0 → 19.0.2.1.0 → 19.0.2.2.0 → 19.0.2.3.0}.
+
 \section{Fix Bug L2 --- card header}
 
 Sửa \texttt{style.css:143-145}, từ:
@@ -1871,22 +1923,69 @@ SỬA:
   docs/wujia-tea-doc.tex                                  # chapter Sprint 4.2
 \end{lstlisting}
 
-\section{Verify}
+\section{Files thay đổi (full Sprint 4.2)}
 
 \begin{lstlisting}[style=shell]
-1. Upgrade portal_layout local:
-   bash scripts/upgrade.sh wujia_portal_layout
-
-2. Mở http://localhost:8019/portal, hard-refresh Ctrl+Shift+R:
-   - Sidebar menu hiện đủ items, không có overlay xám.
-   - 4 card dashboard: header bo tròn 20px khớp với viền card, không lòi.
-
-3. Devtools toggle mobile (≤ 1199px): overlay phủ full width khi mở
-   search dropdown (giữ behavior cũ trên mobile).
-
-4. Push lên GitHub → auto-deploy → mở server URL, F5 cache-bust:
-   - Sidebar không còn bị overlay.
+SỬA:
+  custom/wujia_portal_layout/__manifest__.py
+      19.0.2.0.0 → 19.0.2.3.0 (4 lần bump qua các commit con)
+  custom/wujia_portal_layout/static/assets/css/style.css
+      + card-header/footer border-radius + overflow: hidden (L2)
+      + .main-menu z-index: 1040 (L1.1)
+      + .content-overlay left: 260px desktop (L1.2)
+      + @media min-width 992px force .main-menu visible (L4)
+  custom/wujia_portal_layout/static/assets/js/my_js.js
+      + reset .show-overlay on ready/load (L1.3)
+      + _wujiaForceMenuExpanded on ready/load/resize (L4 JS)
+      + neutralize $.app.menu + manualScroller (L5)
+      + neutralize i18next.use/init (L6 lỗi 3)
+  custom/wujia_portal_layout/views/layouts.xml
+      avatar src: /profile/avatar/<id> → /web/image/res.users/<id>/avatar_128
+      alt: "User picture" → "" (L6 lỗi 1)
+  custom/wujia_portal_layout/views/profile_page.xml
+      avatar src: cùng pattern trên
+  custom/wujia_portal_layout/views/assets.xml
+      REMOVE scripts/datatables/datatable.js khỏi tables_js bundle (L6 lỗi 2)
+  docs/wujia-tea-doc.tex   chapter Sprint 4.2 (Bối cảnh → L1..L6 → Verify)
 \end{lstlisting}
+
+\section{Verify (đã pass trên server production)}
+
+\begin{lstlisting}[style=shell]
+1. Pull + upgrade module trên server (PowerShell Administrator):
+   cd D:\wujia-tea
+   git pull origin main
+   nssm stop Odoo
+   python odoo19\odoo-bin -c config\odoo-server.conf -d wujia_tea_19 `
+       -u wujia_portal_layout --stop-after-init --no-http
+   nssm start Odoo
+
+2. Mở http://localhost:8019/portal trên server, Ctrl+Shift+R:
+   ✓ Sidebar menu hiện đủ "Trang chủ", không bị overlay xám đè.
+   ✓ Avatar Mitchell Admin hiện ảnh (placeholder Odoo), không còn
+     fragments "ser" / "ure" do alt text crop bởi border-radius 50%.
+   ✓ 4 card dashboard có header bo tròn 20px khớp viền, không lòi.
+   ✓ Không còn flicker "load 2 lần" (Vuexy menu animations bị disable).
+   ✓ DevTools console: 0 uncaught error. Chỉ còn warning từ web.assets
+     của Odoo (không liên quan portal).
+
+3. Devtools toggle viewport <= 1199px: overlay phủ full width khi mở
+   search dropdown (giữ behavior cũ mobile).
+\end{lstlisting}
+
+\section{ADR Sprint 4.2}
+
+\subsection{ADR-023: Bypass Vuexy menu init thay vì fix tại chỗ}
+
+Vuexy \texttt{app-menu.js} có nhiều bug timing/guard sai (\texttt{this.expanded === false} vs \texttt{undefined}, PerfectScrollbar fail trên container 0 height, JS init order phụ thuộc \texttt{Unison.fetch}). Cố fix từng case sẽ phình ra phức tạp + dễ regress.
+
+Quyết định: \emph{neutralize toàn bộ} Vuexy menu init (override thành no-op) thay vì sửa từng hàm. Sidebar của ta chỉ có 1 item tĩnh, không cần accordion / submenu / breakpoint-aware hide / PerfectScrollbar — gỡ hết animations + chỉ dùng CSS \texttt{!important} force visible.
+
+Trade-off: nếu Phase 2 BA yêu cầu sidebar có submenu dạng accordion → phải tự implement, không reuse Vuexy. Hiện tại Phase 1.0 chỉ flat list nên OK.
+
+\subsection{ADR-024: \texttt{/web/image/res.users/<id>/avatar\_128} thay route custom}
+
+Route \texttt{/profile/avatar/<uid>} không có controller (legacy reference từ v14). Thay vì viết controller mới, dùng built-in Odoo route \texttt{/web/image/res.users/<id>/avatar\_128}: luôn 200 (placeholder nếu user chưa upload avatar), có \texttt{Cache-Control} header chuẩn, không reinvent wheel.
 
 % ===========================================================================
 \chapter{Phụ lục — Lệnh thường dùng}

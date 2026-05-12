@@ -306,3 +306,16 @@ if (typeof $ !== 'undefined' && $.app && $.app.menu) {
         $.app.menu.manualScroller.updateHeight = function () {};
     }
 }
+
+/* Sprint 4.2+: app.js line 492 calls i18next.use(XHRBackend).init({...})
+   with loadPath '../../../app-assets/data/locales/{{lng}}.json' which
+   returns 404 — that path isn't served anywhere in this repo. We have
+   our own translations in lang.js (_t function), so i18next is unused.
+   No-op the chain to silence the console 404. */
+if (typeof i18next !== 'undefined') {
+    i18next.use = function () { return i18next; };
+    i18next.init = function (opts, cb) {
+        if (typeof cb === 'function') { cb(null, function (k) { return k; }); }
+        return i18next;
+    };
+}
