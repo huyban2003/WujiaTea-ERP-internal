@@ -1,0 +1,177 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- ============================================================
+         Category views
+    ============================================================ -->
+
+    <record id="view_knowledge_category_form" model="ir.ui.view">
+        <field name="name">wujia.knowledge.category.form</field>
+        <field name="model">wujia.knowledge.category</field>
+        <field name="arch" type="xml">
+            <form>
+                <sheet>
+                    <widget name="web_ribbon" title="Archived"
+                            invisible="active"/>
+                    <group>
+                        <group>
+                            <field name="name"/>
+                            <field name="code"/>
+                            <field name="sequence"/>
+                        </group>
+                        <group>
+                            <field name="parent_id"/>
+                            <field name="active"/>
+                            <field name="article_count" string="Bài viết đã xuất bản"/>
+                        </group>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_knowledge_category_list" model="ir.ui.view">
+        <field name="name">wujia.knowledge.category.list</field>
+        <field name="model">wujia.knowledge.category</field>
+        <field name="arch" type="xml">
+            <list string="Danh mục kiến thức" editable="top">
+                <field name="sequence" widget="handle"/>
+                <field name="name"/>
+                <field name="code"/>
+                <field name="parent_id"/>
+                <field name="article_count" string="Bài viết"/>
+                <field name="active" column_invisible="True"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="action_knowledge_category" model="ir.actions.act_window">
+        <field name="name">Danh mục kiến thức</field>
+        <field name="res_model">wujia.knowledge.category</field>
+        <field name="view_mode">list,form</field>
+        <field name="context">{'active_test': False}</field>
+    </record>
+
+    <!-- ============================================================
+         Article views
+    ============================================================ -->
+
+    <record id="view_knowledge_article_form" model="ir.ui.view">
+        <field name="name">wujia.knowledge.article.form</field>
+        <field name="model">wujia.knowledge.article</field>
+        <field name="arch" type="xml">
+            <form>
+                <sheet>
+                    <div class="oe_button_box" name="button_box">
+                        <button name="action_increment_view" type="object"
+                                class="oe_stat_button" icon="fa-eye" invisible="True">
+                            <field name="view_count" widget="statinfo" string="Lượt xem"/>
+                        </button>
+                    </div>
+                    <div class="oe_title">
+                        <label for="name"/>
+                        <h1><field name="name" placeholder="Tiêu đề bài viết..."/></h1>
+                    </div>
+                    <group>
+                        <group string="Phân loại">
+                            <field name="category_id"/>
+                            <field name="slug"/>
+                            <field name="author_id"/>
+                            <field name="tag_ids" string="Tags (phân cách bằng dấu phẩy)"/>
+                        </group>
+                        <group string="Xuất bản">
+                            <field name="published"/>
+                            <field name="publish_date" invisible="not published"/>
+                            <field name="view_count" string="Lượt xem"/>
+                        </group>
+                    </group>
+                    <group string="Tóm tắt">
+                        <field name="summary" nolabel="1"
+                               placeholder="Tóm tắt ngắn (tối đa 250 ký tự)..."/>
+                    </group>
+                    <group string="Ảnh bìa">
+                        <field name="cover_image" widget="image" nolabel="1"
+                               options="{'size': [960, 320]}"/>
+                    </group>
+                    <notebook>
+                        <page string="Nội dung">
+                            <field name="content" widget="html" nolabel="1"
+                                   options="{'codeview': True}"/>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_knowledge_article_list" model="ir.ui.view">
+        <field name="name">wujia.knowledge.article.list</field>
+        <field name="model">wujia.knowledge.article</field>
+        <field name="arch" type="xml">
+            <list string="Bài viết kiến thức"
+                  decoration-muted="not published">
+                <field name="name"/>
+                <field name="category_id"/>
+                <field name="author_id"/>
+                <field name="publish_date" string="Ngày đăng"/>
+                <field name="view_count" string="Lượt xem"/>
+                <field name="published" widget="boolean_toggle"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_knowledge_article_search" model="ir.ui.view">
+        <field name="name">wujia.knowledge.article.search</field>
+        <field name="model">wujia.knowledge.article</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="name" string="Tiêu đề"/>
+                <field name="category_id"/>
+                <field name="author_id"/>
+                <filter string="Đã xuất bản" name="published"
+                        domain="[('published', '=', True)]"/>
+                <filter string="Chưa xuất bản" name="draft"
+                        domain="[('published', '=', False)]"/>
+                <separator/>
+                <filter string="Của tôi" name="my_articles"
+                        domain="[('author_id', '=', uid)]"/>
+                <group name="group_by">
+                    <filter string="Danh mục" name="group_category"
+                            context="{'group_by': 'category_id'}"/>
+                    <filter string="Tác giả" name="group_author"
+                            context="{'group_by': 'author_id'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <record id="action_knowledge_article" model="ir.actions.act_window">
+        <field name="name">Bài viết kiến thức</field>
+        <field name="res_model">wujia.knowledge.article</field>
+        <field name="view_mode">list,form</field>
+        <field name="search_view_id" ref="view_knowledge_article_search"/>
+        <field name="context">{'search_default_published': 0}</field>
+    </record>
+
+    <!-- ============================================================
+         Menu items (under wujia_franchise root menu)
+    ============================================================ -->
+
+    <menuitem id="menu_wujia_knowledge_root"
+              name="Kiến Thức"
+              parent="wujia_franchise.menu_wujia_root"
+              sequence="40"/>
+
+    <menuitem id="menu_wujia_knowledge_articles"
+              name="Bài viết"
+              parent="menu_wujia_knowledge_root"
+              action="action_knowledge_article"
+              sequence="10"/>
+
+    <menuitem id="menu_wujia_knowledge_categories"
+              name="Danh mục"
+              parent="menu_wujia_knowledge_root"
+              action="action_knowledge_category"
+              sequence="20"/>
+
+</odoo>

@@ -100,16 +100,26 @@ WujiaTea/
 +-- odoo19/                 Source code Odoo 19 (Python, không sửa)
 +-- themes/                 Muk Backend Theme + OCA queue
 +-- custom/                 Code WujiaTea (chỗ sửa nghiệp vụ)
-|   +-- wujia_core                   res.area, res.ward (master data)
-|   +-- wujia_franchise              franchise.management + franchise.member
-|   +-- wujia_portal_layout          Vuexy template
-|   +-- wujia_portal_base            /my/franchises route + bus realtime
-|   +-- wujia_sale                   sale.order ext + weight calc
-|   +-- wujia_account                (placeholder, chưa dùng)
+|   +-- wujia_core                      res.area, res.ward (master data)
+|   +-- wujia_franchise                 franchise.management + franchise.member
+|   +-- wujia_sale                      sale.order ext + weight calc
+|   +-- wujia_fleet                     nhà xe / loại xe / xe / bảng giá
+|   +-- wujia_delivery                  stock.picking/batch ext + cước
+|   +-- wujia_portal_layout             Vuexy shell, CSS vars, Inter font
+|   +-- wujia_portal_base               /portal dashboard + bus realtime
+|   +-- wujia_portal_sale               /portal/order (catalog + cart)
+|   +-- wujia_portal_purchase_history   /portal/purchase-history
+|   +-- wujia_portal_delivery           /portal/delivery
+|   +-- wujia_portal_return             /portal/return + models
+|   +-- wujia_portal_notification       /portal/notification + models
+|   +-- wujia_portal_exam               /portal/exam + models
+|   +-- wujia_portal_knowledge          /portal/knowledge + models
+|   +-- wujia_portal_report             /portal/reports/orders
+|   +-- wujia_portal_support            /portal/support (skeleton)
 +-- config/odoo.conf        Config Odoo
 +-- data/                   Filestore (file đính kèm)
 +-- logs/                   Log file
-+-- scripts/                Lệnh start / upgrade / init-db
++-- scripts/                Lệnh start / upgrade / init-db / seed
 +-- docs/                   Tài liệu (BA xem ở đây)
 \end{lstlisting}
 
@@ -126,27 +136,61 @@ WujiaTea/
 \endhead
 \texttt{wujia\_core} & Master data dùng chung: \texttt{res.area} (khu vực kinh doanh), \texttt{res.ward} (phường/xã, link \texttt{res.country.state}). Mọi module khác depend lên đây để dùng địa lý. \\
 \texttt{wujia\_franchise} & Hợp nhất 2 model lõi của BA spec mục A: \texttt{wujia.franchise.management} (hồ sơ cửa hàng, hợp đồng start/end, status, area) + \texttt{wujia.franchise.member} (user × cửa hàng × role, có UI độc lập). Mở rộng \texttt{res.partner.is\_franchise} (compute), \texttt{res.users.member\_ids}. \\
-\texttt{wujia\_portal\_layout} & Khung Vuexy (sidebar đen, top nav xanh, login). Không thay đổi trong sprint này. \\
-\texttt{wujia\_portal\_base} & Routes \texttt{/my/franchises} + \texttt{/portal/franchises} + bus channel \texttt{wujia.franchise\_<id>}. Sample\_data 5 user × 3 cửa hàng × 7 membership. \\
 \texttt{wujia\_sale} & sale.order extension cho đơn portal: \texttt{is\_portal\_order}, \texttt{franchise\_partner\_id}, \texttt{franchise\_id}, \texttt{portal\_member\_id}, \texttt{area\_id}. Cộng tính khối lượng \emph{snapshot} trên \texttt{sale.order.line} / \texttt{stock.move} / \texttt{stock.picking} / \texttt{stock.picking.batch} (BA spec mục 3). \\
 \bottomrule
 \end{longtable}
 
-\subsection{Còn lại (chưa làm)}
+\subsection{Sprint 3 --- Feature B (Đội xe + Giao hàng)}
 
-\begin{longtable}{p{5cm} p{9cm}}
+\begin{longtable}{p{4cm} p{10cm}}
 \toprule
-\textbf{Module dự kiến} & \textbf{Vai trò} \\
+\textbf{Module} & \textbf{Vai trò nghiệp vụ} \\
 \midrule
 \endhead
-\texttt{wujia\_portal\_sale} & UI \texttt{/portal/order} (catalog + cart + submit) --- Day 5+. \\
-\texttt{wujia\_portal\_purchase\_history} & UI \texttt{/portal/purchase-history} --- Day 8+. \\
-\texttt{wujia\_fleet} (BA spec mục B) & Đội xe / nhà xe / pricelist --- sprint sau. \\
-\texttt{wujia\_delivery\_cost} (BA spec mục B) & Bảng giá đội xe + chi phí batch --- sprint sau. \\
+\texttt{wujia\_fleet} & Master data đội xe: nhà xe (\texttt{wujia.fleet.provider}), loại xe (\texttt{wujia.fleet.type}), xe (\texttt{wujia.fleet.vehicle}, 6-state kanban), bảng giá (\texttt{wujia.fleet.pricelist} + \texttt{wujia.fleet.pricelist.line}). \\
+\texttt{wujia\_delivery} & Extension \texttt{stock.picking} + \texttt{stock.picking.batch}: gắn xe/tài xế, tính cước, 2 SQL view báo cáo. Depend \texttt{wujia\_fleet} + \texttt{wujia\_sale} + \texttt{stock\_picking\_batch}. \\
 \bottomrule
 \end{longtable}
 
-\section{Dependency tree (sau refactor)}
+\subsection{Sprint 4 --- Portal Phase 1.0 (16 modules tổng cộng)}
+
+\begin{longtable}{p{4.5cm} p{9.5cm}}
+\toprule
+\textbf{Module} & \textbf{Vai trò nghiệp vụ} \\
+\midrule
+\endhead
+\texttt{wujia\_portal\_layout} & Khung Vuexy (sidebar, top nav, login page). CSS variable palette 19 token + Inter font self-host (Sprint 4.3). \\
+\texttt{wujia\_portal\_base} & Dashboard \texttt{/portal} (4 stat card + 4 list block) + \texttt{/portal/franchises} + bus realtime + pop-up chọn cửa hàng (cookie pattern, Sprint 4.1). \\
+\texttt{wujia\_portal\_sale} & Catalog \texttt{/portal/order} + cart side panel (sticky, skeleton). \\
+\texttt{wujia\_portal\_purchase\_history} & Lịch sử đặt hàng \texttt{/portal/purchase-history}: list + detail (4-state badge progress). \\
+\texttt{wujia\_portal\_delivery} & Theo dõi giao hàng \texttt{/portal/delivery}: list picking + detail batch + driver/vehicle info. \\
+\texttt{wujia\_portal\_return} & Đổi trả \texttt{/portal/return}: list + create form (image multi-upload) + detail. Models: \texttt{wujia.return.request}, \texttt{wujia.return.request.line}, \texttt{wujia.return.error.type}. \\
+\texttt{wujia\_portal\_notification} & Thông báo \texttt{/portal/notification}: list 2 tab (Mới / Lịch sử) + detail + mark-as-read. Models: \texttt{wujia.notification}, \texttt{wujia.notification.type}, \texttt{wujia.notification.read}. \\
+\texttt{wujia\_portal\_exam} & Lịch thi \texttt{/portal/exam}: lịch thi + đăng ký + kết quả. Models: \texttt{wujia.exam.schedule}, \texttt{wujia.exam.registration}, \texttt{wujia.exam.result}. \\
+\texttt{wujia\_portal\_knowledge} & Thư viện kiến thức \texttt{/portal/knowledge}: list grid + category nav + detail. Models: \texttt{wujia.knowledge.category}, \texttt{wujia.knowledge.article}. \\
+\texttt{wujia\_portal\_report} & Báo cáo đặt hàng \texttt{/portal/reports/orders}: 4 KPI card + bar chart 12 tháng + top 10 SP + donut state. Owner/Manager only. \\
+\texttt{wujia\_portal\_support} & Hỗ trợ \texttt{/portal/support}: ticket list + create + detail. Model \texttt{wujia.support.ticket} (\texttt{mail.thread}). Skeleton: model + routes, workflow approval chưa làm. \\
+\bottomrule
+\end{longtable}
+
+\section{Còn lại (Sprint 5+)}
+
+\begin{longtable}{p{5cm} p{9cm}}
+\toprule
+\textbf{Hạng mục} & \textbf{Mô tả} \\
+\midrule
+\endhead
+BE workflow đặt hàng & Cart submit → tạo SO thật; confirm → notify realtime. \\
+BE workflow đổi trả & Return approve → SO 0đ bù hàng; email notify. \\
+BE workflow lịch thi & Exam registration approve + kết quả auto-pass/fail. \\
+\texttt{wujia\_portal\_support} workflow & Chatter trong template detail; HQ assignee flow; resolve/close state machine. \\
+Bus realtime portal & Push thông báo mới qua \texttt{bus.bus} (pattern có sẵn ở \texttt{wujia\_portal\_base}). \\
+Unit tests & \texttt{test\_sale\_order.py}, \texttt{test\_record\_rules.py}, \texttt{test\_return\_request.py}. \\
+i18n Vietnamese & Scan \texttt{pot} + dịch toàn portal qua \texttt{vi\_VN.po}. \\
+\bottomrule
+\end{longtable}
+
+\section{Dependency tree (cập nhật Sprint 4.3)}
 
 \begin{lstlisting}[style=shell]
 base, mail, contacts, portal, sale, stock, stock_picking_batch, bus
@@ -159,14 +203,30 @@ wujia_franchise (franchise.management + franchise.member,
                  res.partner.is_franchise, res.users.member_ids)
        |
        +--> wujia_sale (sale.order ext + weight calc)
+       |       |
+       |       v
+       |    wujia_delivery (stock.picking/batch ext, cước)
+       |       |
+       |       ^--- wujia_fleet (provider/type/vehicle/pricelist)
        |
-       +--> wujia_portal_layout (Vuexy)
+       +--> wujia_portal_layout (Vuexy shell, CSS vars, Inter font)
                 |
                 v
-            wujia_portal_base (/my/franchises + bus realtime)
+            wujia_portal_base (/portal dashboard, bus realtime,
+                               cookie franchise picker)
+                |
+                +--> wujia_portal_sale          (/portal/order)
+                +--> wujia_portal_purchase_history (/portal/purchase-history)
+                +--> wujia_portal_delivery      (/portal/delivery)
+                +--> wujia_portal_return        (/portal/return)
+                +--> wujia_portal_notification  (/portal/notification)
+                +--> wujia_portal_exam          (/portal/exam)
+                +--> wujia_portal_knowledge     (/portal/knowledge)
+                +--> wujia_portal_report        (/portal/reports/orders)
+                +--> wujia_portal_support       (/portal/support)
 \end{lstlisting}
 
-Cây không còn nhánh ngược. Đặc biệt: \texttt{wujia.franchise.member.franchise\_id} \emph{cùng module} với \texttt{wujia.franchise.management} → registry không bị thiếu model khi cài độc lập \texttt{wujia\_franchise}.
+Cây không còn nhánh ngược. \texttt{wujia\_fleet} depend lên \texttt{wujia\_core} + \texttt{wujia\_franchise}; \texttt{wujia\_delivery} depend lên \texttt{wujia\_fleet} + \texttt{wujia\_sale}. Mọi module \texttt{wujia\_portal\_*} depend lên \texttt{wujia\_portal\_base} và inherit layout từ \texttt{wujia\_portal\_layout} thông qua \texttt{wujia\_portal\_base}.
 
 \section{Khác biệt lớn so với bản Odoo 14}
 
@@ -203,19 +263,32 @@ http://localhost:8019/web/login       Backend admin login
 http://localhost:8019/odoo            Backend admin (Muk theme)
 
 # Demo accounts (password = demo123)
-anh.owner    -> Chủ HN-01
-binh.manager -> Quản lý HN-01
-cuong.staff  -> Nhân viên HN-01
-dung.multi   -> 3 cửa hàng cùng lúc (test multi-franchise)
+anh.owner    -> Chủ HN-01 (single franchise, Owner role)
+binh.manager -> Quản lý HN-01 (Manager role)
+cuong.staff  -> Nhân viên HN-01 (Staff role)
+dung.multi   -> 3 cửa hàng cùng lúc (test multi-franchise, cookie picker)
 em.hcm       -> Chủ HCM-01
 
 # Admin
 admin / admin
 
-# Routes mới
-/my/franchises             list cửa hàng của user
-/my/franchises/<id>        detail + realtime member list
-/my/branches*              -> 301 redirect tới /my/franchises*
+# Routes Portal Phase 1.0 (Sprint 4)
+/portal                      Dashboard (4 stat card + 4 list block)
+/portal/order                Catalog + cart side panel
+/portal/purchase-history     Lịch sử đặt hàng (list + detail)
+/portal/delivery             Theo dõi giao hàng
+/portal/return               Đổi trả (list + create + detail)
+/portal/notification         Thông báo (tab Mới / Lịch sử + detail)
+/portal/exam                 Lịch thi (3 tab: lịch / đăng ký / kết quả)
+/portal/knowledge            Thư viện kiến thức (grid + detail)
+/portal/reports/orders       Báo cáo đặt hàng (Owner/Manager only)
+/portal/support              Hỗ trợ (ticket list + create + detail)
+/portal/franchises           Danh sách cửa hàng của user
+/portal/franchise/switch     POST: chọn cửa hàng active (cookie)
+
+# Legacy redirects
+/my/franchises             -> 301 /portal/franchises
+/my/branches*              -> 301 /my/franchises*
 \end{lstlisting}
 
 % ===========================================================================
@@ -973,48 +1046,25 @@ Worst case @ 9k membership records & 9k row Python loop & 1 SQL query (millis) \
 \end{itemize}
 
 % ===========================================================================
-\chapter{Roadmap Sprint 2 còn lại}
+% ===========================================================================
+\chapter{Roadmap Sprint 2 còn lại \emph{(Lưu trữ lịch sử)}}
 
-\section{Day 2: Method + Bus + Tests}
+\textbf{Ghi chú 2026-05-15:} Tất cả task trong roadmap này \textbf{đã được hoàn thành trong Sprint 4 và Sprint 4.1--4.3}. Chapter giữ lại như \emph{lưu trữ lịch sử kế hoạch ban đầu}. Thực tế thực hiện xem Chapter 8--11.
 
-\begin{itemize}
-    \item Thêm \texttt{\_create\_portal\_order(branch\_partner\_id, lines, ...)} model method (single entry point cho controller portal Day 7).
-    \item Inherit \texttt{bus.listener.mixin} trên \texttt{sale.order}, override \texttt{action\_confirm}, \texttt{\_action\_cancel}, \texttt{write} để emit channel \texttt{wujia.branch\_<id>.orders} type \texttt{wujia\_order\_state\_changed}.
-    \item Channel gating: thêm regex \texttt{wujia.branch\_<id>.orders} vào \texttt{ir.websocket} của \texttt{wujia\_sale}.
-    \item Unit tests: \texttt{test\_sale\_order\_branch.py} (constraint), \texttt{test\_record\_rules.py} (visibility).
-\end{itemize}
-
-\section{Day 3: Demo data}
-
-5--6 đơn cho mỗi chi nhánh demo (HN-01, HN-02, HCM-01) trộn state. 2--3 đơn của \texttt{dung.multi} rải đều 3 chi nhánh để demo flow multi-branch. Toggle \texttt{is\_public\_website} cho 5--10 sản phẩm.
-
-\section{Day 4: Branch picker tại login}
-
-\begin{itemize}
-    \item Update \texttt{wujia\_portal\_layout/controllers/auth.py} để sau login → check membership count → redirect \texttt{/portal/branches/pick} nếu 2+.
-    \item Routes mới trong \texttt{wujia\_portal\_base}: \texttt{/portal/branches/pick} + \texttt{/portal/branches/pick/<id>}.
-    \item Helper \texttt{\_ensure\_active\_branch} reusable.
-    \item Dropdown topnav cho đổi chi nhánh runtime.
-\end{itemize}
-
-\section{Day 5--7: \texttt{wujia\_portal\_sale}}
-
-\begin{itemize}
-    \item Day 5: scaffold + Vuexy template + sidenav inject.
-    \item Day 6: OWL components \texttt{branch\_picker}, \texttt{product\_list} (server-side pagination + debounced search).
-    \item Day 7: cart RPC routes + \texttt{cart\_panel} OWL component + submit flow + bus subscribe.
-\end{itemize}
-
-\section{Day 8--9: \texttt{wujia\_portal\_purchase\_history}}
-
-\begin{itemize}
-    \item Day 8: list page + filters + server-side pagination.
-    \item Day 9: detail page + 4-step ribbon + bus subscribers (list + detail real-time).
-\end{itemize}
-
-\section{Day 10: Polish}
-
-i18n Vietnamese, edge cases (empty cart, network errors), smoke tests, update doc.
+\begin{longtable}{p{3.5cm} p{4.5cm} p{6cm}}
+\toprule
+\textbf{Task kế hoạch} & \textbf{Planned (Sprint 2)} & \textbf{Thực tế hoàn thành} \\
+\midrule
+\endhead
+Bus emit \texttt{sale.order} & Day 2 & Defer Sprint 5 (bus pattern có sẵn) \\
+Unit tests & Day 2 & Defer Sprint 5 \\
+Demo data đơn hàng & Day 3 & Sprint 4 (\texttt{seed\_portal\_demo.py}) \\
+Branch/store picker & Day 4 & Sprint 4.1 (pop-up modal + cookie, ADR-021) \\
+\texttt{wujia\_portal\_sale} & Day 5--7 & Sprint 4 (\texttt{/portal/order}, catalog + cart) \\
+\texttt{wujia\_portal\_purchase\_history} & Day 8--9 & Sprint 4 (\texttt{/portal/purchase-history}) \\
+i18n Vietnamese & Day 10 & Defer Sprint 5 \\
+\bottomrule
+\end{longtable}
 
 % ===========================================================================
 \chapter{Sprint 3 --- Feature B: Quản lý đội xe (\texttt{wujia\_fleet} + \texttt{wujia\_delivery})}
@@ -2228,6 +2278,47 @@ grep -rE '#1f4180|#2aaae2|#14242A|#ff9f43|#ea5455' \
 \textbf{Trade-off:} mỗi lần Inter ra version mới phải tự pull về. Hiện tại Inter ổn định v4.0, cập nhật ~6 tháng/lần --- chấp nhận.
 
 % ===========================================================================
+\chapter{Sprint 4.4 --- Cập nhật tài liệu (2026-05-15)}
+
+\section{Bối cảnh}
+
+Không thêm tính năng mới. Session này chỉ đồng bộ tài liệu với trạng thái code thực tế sau Sprint 4.3: Chapter 1 cũ chỉ list 5 modules trong khi codebase đã có 16 modules active.
+
+\section{Thay đổi tài liệu}
+
+\begin{longtable}{p{4cm} p{10cm}}
+\toprule
+\textbf{Mục} & \textbf{Nội dung cập nhật} \\
+\midrule
+\endhead
+Chapter 1 --- Cấu trúc thư mục & Bổ sung đủ 20 entry trong \texttt{custom/}: từ 6 lên 20 module (bao gồm 9 portal module). \\
+Chapter 1 --- Module list & Bổ sung từ 5 module (Sprint 1+2) lên \textbf{16 module active}, chia 3 subsection theo sprint. \\
+Chapter 1 --- Còn lại & Cập nhật: bỏ task đã done, giữ Sprint 5+ backlog (BE workflow, bus realtime, unit tests, i18n). \\
+Chapter 1 --- Dependency tree & Vẽ lại cây đầy đủ: thêm nhánh \texttt{wujia\_fleet}/\texttt{wujia\_delivery} và 9 nhánh \texttt{wujia\_portal\_*}. \\
+Chapter 1 --- Cách chạy & Bổ sung 12 route Portal Phase 1.0 (\texttt{/portal} đến \texttt{/portal/support}). \\
+Chapter 6 & Đánh dấu ``Lưu trữ lịch sử''; thêm bảng mapping task kế hoạch → sprint thực tế. \\
+Phụ lục & Cập nhật lệnh upgrade đủ 16 module; thêm lệnh upgrade chỉ portal; thêm lệnh Windows server (nssm). \\
+\bottomrule
+\end{longtable}
+
+\section{Không thay đổi}
+
+\begin{itemize}
+    \item Không thêm module mới.
+    \item Không sửa code Python / XML / JS / CSS.
+    \item ADR-001 đến ADR-026 giữ nguyên.
+    \item Card-header \texttt{padding-left: 6px} giữ nguyên (xác nhận là đúng, xem Sprint 4.3 Iteration 3).
+\end{itemize}
+
+\section{Files chạm trong session này}
+
+\begin{lstlisting}[style=shell]
+SỬA:
+  docs/wujia-tea-doc.tex    # 7 vị trí + chapter Sprint 4.4 này
+  docs/wujia-tea-doc.pdf    # rebuild từ .tex
+\end{lstlisting}
+
+% ===========================================================================
 \chapter{Phụ lục — Lệnh thường dùng}
 
 \begin{lstlisting}[style=shell]
@@ -2237,27 +2328,47 @@ bash /home/huyban/odoo-dev/WujiaTea/scripts/build-doc.sh
 # Khởi động dev server
 bash /home/huyban/odoo-dev/WujiaTea/scripts/start.sh
 
-# Upgrade module
+# Upgrade 1 module
 bash /home/huyban/odoo-dev/WujiaTea/scripts/upgrade.sh wujia_sale
 
-# Install toàn bộ Portal Phase 1.0 (Sprint 4) + module Báo cáo (Sprint 4.1)
+# Upgrade toàn bộ 16 module (dùng sau mỗi sprint)
+bash /home/huyban/odoo-dev/WujiaTea/scripts/upgrade.sh \
+  wujia_core,wujia_franchise,wujia_sale,wujia_fleet,wujia_delivery,\
+  wujia_portal_layout,wujia_portal_base,wujia_portal_sale,\
+  wujia_portal_purchase_history,wujia_portal_return,\
+  wujia_portal_delivery,wujia_portal_exam,wujia_portal_knowledge,\
+  wujia_portal_notification,wujia_portal_report,wujia_portal_support
+
+# Upgrade chỉ portal (không động backend modules)
 bash /home/huyban/odoo-dev/WujiaTea/scripts/upgrade.sh \
   wujia_portal_layout,wujia_portal_base,wujia_portal_sale,\
   wujia_portal_purchase_history,wujia_portal_return,\
   wujia_portal_delivery,wujia_portal_exam,wujia_portal_knowledge,\
-  wujia_portal_notification,wujia_portal_support,wujia_portal_report
+  wujia_portal_notification,wujia_portal_report,wujia_portal_support
 
-# Seed demo data Portal (sau khi install xong)
+# Seed demo data Portal (chạy 1 lần sau install)
 /home/huyban/miniconda3/envs/odoo/bin/python odoo19/odoo-bin shell \
     -c /home/huyban/odoo-dev/WujiaTea/config/odoo.conf \
     -d wujia_tea_19 --no-http \
     < /home/huyban/odoo-dev/WujiaTea/scripts/seed_portal_demo.py
 
+# Seed demo data Fleet (chạy 1 lần sau install Sprint 3)
+/home/huyban/miniconda3/envs/odoo/bin/python odoo19/odoo-bin shell \
+    -c /home/huyban/odoo-dev/WujiaTea/config/odoo.conf \
+    -d wujia_tea_19 --no-http \
+    < /home/huyban/odoo-dev/WujiaTea/scripts/seed_fleet_demo.py
+
+# Upgrade trên Windows server (PowerShell Administrator)
+nssm stop Odoo
+python odoo19\odoo-bin -c config\odoo-server.conf -d wujia_tea_19 ^
+    -u wujia_portal_layout --stop-after-init --no-http
+nssm start Odoo
+
 # Init DB từ đầu
 bash /home/huyban/odoo-dev/WujiaTea/scripts/init-db.sh
 
 # Drop + recreate DB
-PGPASSWORD=1 psql -h 127.0.0.1 -U odoo19 -d postgres \\
+PGPASSWORD=1 psql -h 127.0.0.1 -U odoo19 -d postgres \
   -c "DROP DATABASE IF EXISTS wujia_tea_19;"
 bash /home/huyban/odoo-dev/WujiaTea/scripts/init-db.sh
 \end{lstlisting}

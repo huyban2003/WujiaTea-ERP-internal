@@ -84,3 +84,15 @@ class WujiaSupportTicket(models.Model):
         if 'state' in vals and vals['state'] == 'resolved':
             vals.setdefault('resolved_date', fields.Datetime.now())
         return super().write(vals)
+
+    def action_set_in_progress(self):
+        self.filtered(lambda t: t.state == 'new').write({'state': 'in_progress'})
+
+    def action_set_resolved(self):
+        self.filtered(lambda t: t.state in ('new', 'in_progress')).write({
+            'state': 'resolved',
+            'resolved_date': fields.Datetime.now(),
+        })
+
+    def action_set_closed(self):
+        self.filtered(lambda t: t.state != 'closed').write({'state': 'closed'})

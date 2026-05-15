@@ -1,5 +1,6 @@
 from odoo import http
 from odoo.http import request
+from odoo.exceptions import ValidationError
 
 from odoo.addons.wujia_portal_base.controllers.portal import (
     get_active_franchise_ids_filter,
@@ -55,7 +56,8 @@ class WujiaPortalSupport(http.Controller):
             'state': state,
         })
 
-    @http.route(['/portal/support/new'], type='http', auth='user', sitemap=False)
+    @http.route(['/portal/support/new'], type='http', auth='user', sitemap=False,
+                methods=['GET'])
     def portal_support_new(self, **kw):
         franchise_ids = get_active_franchise_ids_filter()
         if not franchise_ids:
@@ -64,7 +66,49 @@ class WujiaPortalSupport(http.Controller):
         return request.render('wujia_portal_support.portal_support_form', {
             'franchises': franchises,
             'category_labels': CATEGORY_LABELS,
+            'error': kw.get('error', ''),
         })
+
+    @http.route(['/portal/support/new'], type='http', auth='user', sitemap=False,
+                methods=['POST'], csrf=True)
+    def portal_support_create(self, **post):
+        franchise_id = int(post.get('franchise_id') or 0)
+        category = post.get('category', 'other')
+        priority = post.get('priority', 'normal')
+        subject = (post.get('subject') or '').strip()
+        description = (post.get('description') or '').strip()
+
+        if not subject or not franchise_id:
+            return request.redirect('/portal/support/new?error=missing_fields')
+
+        # Verify user has access to the selected franchise
+        franchise_ids = get_active_franchise_ids_filter()
+        if franchise_id not in franchise_ids:
+            return request.redirect('/portal/support/new?error=invalid_franchise')
+
+        ticket = request.env['wujia.support.ticket'].sudo().create({
+            'subject': subject,
+            'description': description,
+            'franchise_id': franchise_id,
+            'user_id': request.env.user.id,
+            'category': category,
+            'priority': priority,
+        })
+
+        # Handle file attachments
+        files = request.httprequest.files.getlist('attachments')
+        for f in files:
+            if f and f.filename:
+                data = f.read()
+                if data:
+                    request.env['ir.attachment'].sudo().create({
+                        'name': f.filename,
+                        'datas': data,
+                        'res_model': 'wujia.support.ticket',
+                        'res_id': ticket.id,
+                    })
+
+        return request.redirect(f'/portal/support/{ticket.id}')
 
     @http.route(['/portal/support/<int:ticket_id>'],
                 type='http', auth='user', sitemap=False)
