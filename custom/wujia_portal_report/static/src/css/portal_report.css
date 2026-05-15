@@ -1,9 +1,10 @@
-/* Báo cáo — KPI cards + chart container */
-.report-kpi { border-radius: 12px; border-left: 4px solid #1f4180; }
-.report-kpi-success { border-left-color: #28a745; }
-.report-kpi-info { border-left-color: #17a2b8; }
-.report-kpi-danger { border-left-color: #dc3545; }
-.report-kpi-label { color: #6c757d; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.5px; }
-.report-kpi-value { font-size: 1.6rem; font-weight: 700; color: #212529; line-height: 1.2; }
+/* Report — KPI cards + chart container. Sprint 4.3: BA palette tokens. */
+.report-kpi { border-radius: var(--wujia-card-radius); border-left: 4px solid var(--wujia-primary); }
+.report-kpi-success { border-left-color: var(--wujia-success); }
+.report-kpi-info    { border-left-color: var(--wujia-primary-dark); }
+.report-kpi-danger  { border-left-color: var(--wujia-danger); }
+.report-kpi-warning { border-left-color: var(--wujia-warning); }
+.report-kpi-label { color: var(--wujia-text-secondary); font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.5px; }
+.report-kpi-value { font-size: 1.6rem; font-weight: 700; color: var(--wujia-text-primary); line-height: 1.2; }
 
 .report-chart-area { width: 100%; min-height: 280px; }

@@ -92,7 +92,7 @@
                 font-family: inherit;
             }
             .wujia-store-header {
-                background: #1f4180; color: #fff; padding: 14px 20px;
+                background: var(--wujia-primary); color: #fff; padding: 14px 20px;
                 font-size: 1.05rem; font-weight: 600;
                 border-radius: 12px 12px 0 0;
                 display: flex; align-items: center; justify-content: space-between;
@@ -104,31 +104,31 @@
             }
             .wujia-store-close:hover { opacity: 1; }
             .wujia-store-body { padding: 20px; }
-            .wujia-store-intro { color: #6c757d; margin-bottom: 16px; line-height: 1.5; }
+            .wujia-store-intro { color: var(--wujia-text-secondary); margin-bottom: 16px; line-height: 1.5; }
             .wujia-store-list { display: flex; flex-direction: column; gap: 8px; }
             .wujia-store-item {
                 display: flex; align-items: center; gap: 12px;
-                padding: 12px 14px; border: 1px solid #dee2e6;
+                padding: 12px 14px; border: 1px solid var(--wujia-border);
                 border-radius: 8px; cursor: pointer; margin: 0;
                 transition: all 0.15s ease;
             }
-            .wujia-store-item:hover { background: #f5f7fa; border-color: #1f4180; }
+            .wujia-store-item:hover { background: var(--wujia-bg-page); border-color: var(--wujia-primary); }
             .wujia-store-item--active,
             .wujia-store-item:has(.wujia-store-radio:checked) {
-                background: #e7eef9; border-color: #1f4180; border-width: 2px;
+                background: var(--wujia-primary-light); border-color: var(--wujia-primary); border-width: 2px;
             }
             .wujia-store-radio { margin: 0; cursor: pointer; }
             .wujia-store-info { flex: 1; display: flex; flex-direction: column; gap: 2px; }
-            .wujia-store-info strong { font-size: 1rem; color: #212529; }
-            .wujia-store-code { color: #6c757d; }
-            .wujia-store-addr { color: #6c757d; font-size: 0.85rem; }
+            .wujia-store-info strong { font-size: 1rem; color: var(--wujia-text-primary); }
+            .wujia-store-code { color: var(--wujia-text-secondary); }
+            .wujia-store-addr { color: var(--wujia-text-secondary); font-size: 0.85rem; }
             .wujia-store-current-badge {
-                background: #28a745; color: #fff;
+                background: var(--wujia-success); color: #fff;
                 font-size: 0.75rem; padding: 3px 8px; border-radius: 12px;
             }
             .wujia-store-footer {
                 padding: 14px 20px; text-align: right;
-                border-top: 1px solid #eaeaea;
+                border-top: 1px solid var(--wujia-border);
             }
         </style>
     </template>

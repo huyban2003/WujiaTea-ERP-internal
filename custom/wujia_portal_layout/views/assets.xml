@@ -8,6 +8,10 @@
             <link rel="stylesheet" type="text/css" href="/wujia_portal_layout/static/assets/vendors/css/pickers/pickadate/pickadate.css"/>
         </template>
         <template id="asset_theme">
+            <!-- Sprint 4.3: load Wujia design tokens + Inter font BEFORE Vuexy
+                 vendor so cascade order keeps our CSS var :root rules active. -->
+            <link rel="stylesheet" type="text/css" href="/wujia_portal_layout/static/assets/css/_variables.css"/>
+            <link rel="stylesheet" type="text/css" href="/wujia_portal_layout/static/assets/fonts/inter/inter.css"/>
             <link rel="stylesheet" type="text/css" href="/wujia_portal_layout/static/assets/css/bootstrap.css"/>
             <link rel="stylesheet" type="text/css" href="/wujia_portal_layout/static/assets/css/bootstrap-extended.css"/>
             <link rel="stylesheet" type="text/css" href="/wujia_portal_layout/static/assets/css/colors.css"/>
@@ -72,6 +76,9 @@
             <link rel="stylesheet" type="text/css" href="/wujia_portal_layout/static/assets/css/style.css"/>
             <link rel="stylesheet" type="text/css" href="/wujia_portal_layout/static/assets/css/dashboard.css"/>
             <link rel="stylesheet" type="text/css" href="/wujia_portal_layout/static/assets/css/member_dashboard_style.css"/>
+            <!-- Sprint 4.3: Wujia overrides last so it wins specificity over
+                 both Vuexy vendor and legacy style.css. -->
+            <link rel="stylesheet" type="text/css" href="/wujia_portal_layout/static/assets/css/_wujia_theme.css"/>
         </template>
 
         <template id="tables_js">

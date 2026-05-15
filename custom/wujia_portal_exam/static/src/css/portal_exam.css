@@ -1,9 +1,9 @@
-/* Exam — schedule cards + result score */
-.exam-card { border-radius: 10px; transition: box-shadow 0.15s ease; }
+/* Exam — schedule cards + result score. Sprint 4.3: BA palette tokens. */
+.exam-card { border-radius: var(--wujia-card-radius); transition: box-shadow 0.15s ease; }
 .exam-card:hover { box-shadow: 0 4px 16px rgba(0,0,0,0.12); }
-.exam-card-desc { font-size: 0.9rem; max-height: 4rem; overflow: hidden; }
+.exam-card-desc { font-size: 0.9rem; max-height: 4rem; overflow: hidden; color: var(--wujia-text-secondary); }
 
-.exam-result-card { border-radius: 12px; }
+.exam-result-card { border-radius: var(--wujia-card-radius); }
 .exam-score-wrap { font-size: 0; }
-.exam-score { font-size: 3rem; font-weight: 700; color: #1f4180; line-height: 1; }
-.exam-score-max { font-size: 1.2rem; color: #6c757d; vertical-align: super; }
+.exam-score { font-size: 3rem; font-weight: 700; color: var(--wujia-primary); line-height: 1; }
+.exam-score-max { font-size: 1.2rem; color: var(--wujia-text-secondary); vertical-align: super; }

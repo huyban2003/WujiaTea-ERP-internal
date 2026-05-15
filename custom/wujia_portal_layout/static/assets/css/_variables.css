@@ -1,0 +1,42 @@
+/* Wujia Portal — single source of truth for color palette + dimensions.
+   Synced with BA master plan sheet "2 - FE portal" (2026-05-15).
+   Loaded BEFORE any other portal CSS so downstream rules can use var(...). */
+
+:root {
+    /* ---------- Brand / primary ---------- */
+    --wujia-primary:        #22A9DE;
+    --wujia-primary-dark:   #1598CF;
+    --wujia-primary-light:  #E0F7FF;
+
+    /* ---------- Surface / layout ---------- */
+    --wujia-bg-page:        #F6F8FB;
+    --wujia-bg-sidebar:     #FFFFFF;
+    --wujia-bg-card:        #FFFFFF;
+    --wujia-border:         #E5EAF1;
+    --wujia-table-header-line: #9AA0A6;
+
+    /* ---------- Text ---------- */
+    --wujia-text-primary:   #272A30;
+    --wujia-text-secondary: #69707A;
+    --wujia-text-muted:     #8A9099;
+
+    /* ---------- State / semantic ---------- */
+    --wujia-success:        #24B269;
+    --wujia-success-bg:     #E1F8EC;
+    --wujia-warning:        #F29A1F;
+    --wujia-warning-bg:     #FFF3E0;
+    --wujia-danger:         #EC3845;
+    --wujia-danger-bg:      #FFE8EB;
+    --wujia-info-bg:        #D6F4E0;
+    --wujia-info-text:      #1FC160;
+
+    /* ---------- Layout dimensions ---------- */
+    --wujia-sidebar-width:  300px;
+    --wujia-header-height:  76px;
+    --wujia-card-radius:    10px;
+    --wujia-card-padding:   24px;
+    --wujia-section-gap:    28px;
+
+    /* ---------- Typography ---------- */
+    --wujia-font-family:    'Inter', 'Roboto', Arial, sans-serif;
+}

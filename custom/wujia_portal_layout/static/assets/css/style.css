@@ -1,7 +1,5 @@
 
-html body{
-    font-family: sans-serif !important;
-}
+/* Sprint 4.3: font-family moved to _wujia_theme.css (uses --wujia-font-family). */
 .sidebar-header {
     padding: 20px;
     overflow: hidden;
@@ -44,36 +42,36 @@ html body{
 /* MY COLOR */
 
 .text-color-title {
-    color: #1f4180 !important;
+    color: var(--wujia-primary) !important;
 }
 .bg-btn-primary {
     color: #FFFFFF;
-    background-color: #1f4180;
+    background-color: var(--wujia-primary);
 }
 .bg-btn-primary:hover {
     color: #FFFFFF;
 }
 .bg-primary {
-    background-color: #14242A !important;
+    background-color: var(--wujia-text-primary) !important;
 }
 
 .bg-black {
-    background-color: #14242A !important;
+    background-color: var(--wujia-text-primary) !important;
 }
 
 .border-custom-primary {
-    border-right:  3px solid #14242A;
-    border-left:  3px solid #14242A;
+    border-right:  3px solid var(--wujia-text-primary);
+    border-left:  3px solid var(--wujia-text-primary);
 
 }
 
 .btn-outline-primary-custom {
-    border: 1px solid #1f4180;
+    border: 1px solid var(--wujia-primary);
     background-color: transparent;
-    color: #1f4180;
+    color: var(--wujia-primary);
 }
 .main-menu.menu-light .navigation > li.active > a {
-  background-color: #1f4180 !important;
+  background-color: var(--wujia-primary) !important;
   color : #FFFFFF;
   font-weight : 400;
   border-radius : 4px;
@@ -82,8 +80,8 @@ html body{
 
 .btn-outline-primary-custom:not(:disabled):not(.disabled):active, .btn-outline-primary-custom:not(:disabled):not(.disabled).active, .show > .btn-outline-primary-custom.dropdown-toggle {
     color: #FFFFFF;
-    background-color: #1f4180;
-    border-color: #1f4180;
+    background-color: var(--wujia-primary);
+    border-color: var(--wujia-primary);
 }
 
 .investment_packagestop,.investment_packagestop_hover:hover {
@@ -93,11 +91,11 @@ html body{
 }
 
 .card-header-packges {
-    background-color: #1f4180 !important;
+    background-color: var(--wujia-primary) !important;
 }
 
 .header-navbar .navbar-container ul.nav li.dropdown-user .dropdown-menu-right .dropdown-item:hover {
-    background: #1f4180 !important;
+    background: var(--wujia-primary) !important;
     color: #FFFFFF !important;
 }
 
@@ -113,7 +111,7 @@ html body{
 }
 
 .main-menu.menu-light .navigation > li ul .active {
-    background: #1f4180 !important;
+    background: var(--wujia-primary) !important;
     color: #FFFFFF !important;
     outline: none;
 }
@@ -123,37 +121,26 @@ html body{
 }
 
 .form-control:focus {
-    border-color: #1f4180 !important;
+    border-color: var(--wujia-primary) !important;
 }
 
 html .pace .pace-progress {
-    background: #1f4180 !important;
+    background: var(--wujia-primary) !important;
 }
 
 
 .vs-checkbox-con input:checked ~ .vs-checkbox {
-    border-color: #1f4180!important;
+    border-color: var(--wujia-primary)!important;
 
 }
 .vs-checkbox-primary input:checked ~ .vs-checkbox .vs-checkbox--check {
-    background-color: #1f4180!important;
+    background-color: var(--wujia-primary)!important;
 
 }
 
-.card {
-    border-radius: 20px !important;
-    overflow: hidden;
-}
-
-.card-header {
-    border-top-left-radius: 20px;
-    border-top-right-radius: 20px;
-}
-
-.card-footer {
-    border-bottom-left-radius: 20px;
-    border-bottom-right-radius: 20px;
-}
+/* Sprint 4.3: .card / .card-header / .card-footer rules moved to
+   _wujia_theme.css with var(--wujia-card-radius) and flush-left section
+   accent stripe. Legacy 20px hard-coded values dropped. */
 
 /* Sprint 4.2: harden sidebar against accidental .show-overlay on server.
    Sidebar must stay on top, and .content-overlay must only cover the
@@ -217,15 +204,15 @@ table th {
 }
 
 .color-balance {
-    color: #0776be;
+    color: var(--wujia-primary);
 }
 
 .color-deposit {
-    color: #0E623B;
+    color: var(--wujia-success);
 }
 
 .color-withdrawal {
-    color: #B32F1C;
+    color: var(--wujia-danger);
 }
 
 .font-bcore-text {
@@ -233,7 +220,7 @@ table th {
 }
 
 .bg-deposit {
-    background-color: #0E623B;
+    background-color: var(--wujia-success);
     color: #FFFFFF;
 }
 .bg-deposit:hover{
@@ -241,7 +228,7 @@ table th {
 }
 
 .bg-withdrawal {
-    background-color: #B32F1C;
+    background-color: var(--wujia-danger);
     color: #FFFFFF;
 }
 .bg-withdrawal:hover{
@@ -249,22 +236,22 @@ table th {
 }
 
 .badge.badge-success {
-    background-color: #0E623B !important;
+    background-color: var(--wujia-success) !important;
 
 }
 
 .badge.badge-danger {
-    background-color: #B32F1C !important;
+    background-color: var(--wujia-danger) !important;
 }
 .badge.badge-processing {
-    background-color: #007bff;
+    background-color: var(--wujia-primary);
 }
 .badge.badge-primary {
-    background-color: #1f4180!important;
+    background-color: var(--wujia-primary)!important;
 }
 
 .text-color-primary {
-	color:#1f4180;
+	color:var(--wujia-primary);
 	font-size:20px;
 }
 

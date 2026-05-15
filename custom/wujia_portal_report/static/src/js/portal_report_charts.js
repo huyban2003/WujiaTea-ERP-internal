@@ -2,6 +2,12 @@
    Đọc payload JSON từ data-chart-payload attribute → 1 init / chart, KHÔNG thêm AJAX. */
 (function () {
     "use strict";
+    function wujiaColor(name, fallback) {
+        const v = getComputedStyle(document.documentElement)
+            .getPropertyValue("--wujia-" + name).trim();
+        return v || fallback;
+    }
+
     document.addEventListener("DOMContentLoaded", function () {
         const wrap = document.getElementById("report-chart-months");
         if (!wrap || typeof ApexCharts === "undefined") return;
@@ -14,6 +20,9 @@
             return;
         }
 
+        const colorPrimary = wujiaColor("primary", "#22A9DE");
+        const colorSuccess = wujiaColor("success", "#24B269");
+
         // ---- Chart 1: Bar — đơn hàng theo tháng ----
         if (payload.months_label && payload.months_label.length) {
             const optionsMonths = {
@@ -23,7 +32,7 @@
                     { name: "Doanh thu (₫)", data: payload.months_total || [], type: "line" },
                 ],
                 stroke: { width: [0, 3], curve: "smooth" },
-                colors: ["#1f4180", "#28a745"],
+                colors: [colorPrimary, colorSuccess],
                 plotOptions: { bar: { columnWidth: "50%", borderRadius: 4 } },
                 xaxis: { categories: payload.months_label },
                 yaxis: [

@@ -72,7 +72,7 @@
                                     <t t-set="is_read" t-value="n.id in read_ids"/>
                                     <li t-attf-class="list-group-item notification-item d-flex align-items-start#{' notification-unread' if not is_read else ''}">
                                         <div class="me-3 notification-icon"
-                                             t-attf-style="background-color: #{n.type_id.bg_color or '#1f4180'}; color: #{n.type_id.text_color or '#fff'};">
+                                             t-attf-style="background-color: #{n.type_id.bg_color or 'var(--wujia-primary)'}; color: #{n.type_id.text_color or '#fff'};">
                                             <i t-attf-class="fa #{n.type_id.icon or 'fa-bell'}"/>
                                         </div>
                                         <div class="flex-grow-1">
@@ -129,7 +129,7 @@
                 <div class="content-body">
                     <article class="card">
                         <div class="card-header"
-                             t-attf-style="background-color: #{noti.type_id.bg_color or '#1f4180'}; color: #{noti.type_id.text_color or '#fff'};">
+                             t-attf-style="background-color: #{noti.type_id.bg_color or 'var(--wujia-primary)'}; color: #{noti.type_id.text_color or '#fff'};">
                             <div class="d-flex justify-content-between align-items-center flex-wrap">
                                 <h4 class="mb-0">
                                     <i t-attf-class="fa #{noti.type_id.icon or 'fa-bell'} me-1"/>

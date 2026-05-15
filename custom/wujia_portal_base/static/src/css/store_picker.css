@@ -1,20 +1,20 @@
-/* Store picker modal — Wujia Portal
-   Force visible when has class .show — ưu tiên cao hơn Vuexy theme CSS để
-   tránh bị ẩn bởi rule `.modal { display: none }` không có !important. */
+/* Store picker modal — Wujia Portal.
+   Force visible when class .show present — higher priority than Vuexy theme
+   rules that have `display: none` without !important. */
 #wujiaStorePickerModal.modal.show { display: block !important; }
-#wujiaStorePickerModal .modal-content { border-radius: 12px; overflow: hidden; position: relative; z-index: 1051; }
+#wujiaStorePickerModal .modal-content { border-radius: var(--wujia-card-radius); overflow: hidden; position: relative; z-index: 1051; }
 #wujiaStorePickerModal .modal-header { border-bottom: none; }
 .wujia-store-picker-backdrop { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.5); }
 .store-picker-list { max-height: 50vh; overflow-y: auto; }
-.store-picker-item { cursor: pointer; padding: 12px 16px; border-radius: 0 !important; }
-.store-picker-item:hover { background-color: #f5f7fa; }
-.store-picker-item.active { background-color: #1f4180 !important; color: #fff !important; border-color: #1f4180 !important; }
-.store-picker-item.active .text-muted { color: #cdd5e0 !important; }
+.store-picker-item { cursor: pointer; padding: 12px 16px; border-radius: 0 !important; border-color: var(--wujia-border) !important; }
+.store-picker-item:hover { background-color: var(--wujia-primary-light); }
+.store-picker-item.active { background-color: var(--wujia-primary) !important; color: #fff !important; border-color: var(--wujia-primary) !important; }
+.store-picker-item.active .text-muted { color: rgba(255,255,255,0.85) !important; }
 .store-picker-radio { margin-right: 10px; }
 .store-picker-name { font-size: 1rem; }
 .store-picker-addr { margin-top: 2px; font-size: 0.8rem; }
 
-/* Top navbar badge — đang ở cửa hàng nào */
+/* Top navbar badge — currently-selected store. */
 .wujia-active-store-badge {
     background-color: rgba(255,255,255,0.15);
     color: #fff;

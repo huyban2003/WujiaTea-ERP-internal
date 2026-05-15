@@ -103,7 +103,7 @@
                                                     <small class="d-block text-muted" t-out="noti.date and noti.date.strftime('%d/%m/%Y %H:%M') or ''"/>
                                                 </a>
                                                 <span t-if="noti.type_id" class="badge"
-                                                      t-attf-style="background-color: #{noti.type_id.bg_color or '#6c757d'}; color: #{noti.type_id.text_color or '#fff'};"
+                                                      t-attf-style="background-color: #{noti.type_id.bg_color or 'var(--wujia-text-muted)'}; color: #{noti.type_id.text_color or '#fff'};"
                                                       t-out="noti.type_id.name"/>
                                             </li>
                                         </t>

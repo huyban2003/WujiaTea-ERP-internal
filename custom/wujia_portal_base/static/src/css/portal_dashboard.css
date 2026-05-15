@@ -1,46 +1,45 @@
-/* WujiaTea Portal — Dashboard + shared list/badge styles
-   Áp dụng toàn bộ portal: stat-card, state-badge, dashboard-list. */
+/* WujiaTea Portal — Dashboard + shared list/badge styles.
+   Sprint 4.3: refactored to use --wujia-* design tokens. */
 
-.stat-card { border-radius: 12px !important; transition: transform 0.15s ease, box-shadow 0.15s ease; cursor: pointer; }
+.stat-card { border-radius: var(--wujia-card-radius); transition: transform 0.15s ease, box-shadow 0.15s ease; cursor: pointer; }
 .stat-card:hover { transform: translateY(-2px); box-shadow: 0 4px 18px rgba(0,0,0,0.10); }
-.stat-card-label { color: #6c757d; font-size: 0.85rem; }
+.stat-card-label { color: var(--wujia-text-secondary); font-size: 0.85rem; }
 .stat-card-value { font-size: 1.8rem; line-height: 1.2; }
 .stat-card-icon { width: 50px; height: 50px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.4rem; color: #fff; flex-shrink: 0; }
-.stat-card-primary .stat-card-icon { background-color: #1f4180; }
-.stat-card-info .stat-card-icon { background-color: #2aaae2; }
-.stat-card-warning .stat-card-icon { background-color: #ff9f43; }
-.stat-card-danger .stat-card-icon { background-color: #ea5455; }
+.stat-card-primary .stat-card-icon { background-color: var(--wujia-primary); }
+.stat-card-info .stat-card-icon    { background-color: var(--wujia-primary-dark); }
+.stat-card-warning .stat-card-icon { background-color: var(--wujia-warning); }
+.stat-card-danger .stat-card-icon  { background-color: var(--wujia-danger); }
 
-.dashboard-list .list-group-item { border-left: none; border-right: none; }
-.dashboard-list-link { color: #212529; text-decoration: none; }
-.dashboard-list-link:hover { color: #1f4180; }
-.dashboard-list table th { font-weight: 600; font-size: 0.8rem; text-transform: uppercase; color: #6c757d; border-bottom: 2px solid #eaeaea; }
+.dashboard-list .list-group-item { border-left: none; border-right: none; border-color: var(--wujia-border); }
+.dashboard-list-link { color: var(--wujia-text-primary); text-decoration: none; }
+.dashboard-list-link:hover { color: var(--wujia-primary); }
+.dashboard-list table th { font-weight: 600; font-size: 0.8rem; text-transform: uppercase; color: var(--wujia-text-secondary); border-bottom: 2px solid var(--wujia-table-header-line); }
 
-/* State badges — chia màu theo nghiệp vụ */
+/* State badges — semantic mapping per BA palette. */
 .state-badge { padding: 0.35em 0.7em; font-size: 0.78rem; font-weight: 600; border-radius: 6px; text-transform: capitalize; }
-.state-draft, .state-new        { background: #6c757d; color: #fff; }
-.state-sent                     { background: #17a2b8; color: #fff; }
-.state-sale                     { background: #28a745; color: #fff; }
-.state-done, .state-completed   { background: #1f4180; color: #fff; }
-.state-cancel, .state-cancelled, .state-rejected, .state-refused { background: #dc3545; color: #fff; }
-.state-approved                 { background: #20c997; color: #fff; }
-.state-partial, .state-in_progress { background: #ff9f43; color: #fff; }
-.state-resolved                 { background: #6f42c1; color: #fff; }
-.state-closed                   { background: #495057; color: #fff; }
-
-.state-active                   { background: #28a745; color: #fff; }
-.state-locked                   { background: #dc3545; color: #fff; }
-.state-expired                  { background: #ffc107; color: #212529; }
-.state-closed                   { background: #495057; color: #fff; }
+.state-draft, .state-new          { background: var(--wujia-text-muted); color: #fff; }
+.state-sent                       { background: var(--wujia-primary-light); color: var(--wujia-primary-dark); }
+.state-sale                       { background: var(--wujia-success); color: #fff; }
+.state-done, .state-completed     { background: var(--wujia-primary); color: #fff; }
+.state-cancel, .state-cancelled,
+.state-rejected, .state-refused   { background: var(--wujia-danger); color: #fff; }
+.state-approved                   { background: var(--wujia-success); color: #fff; }
+.state-partial, .state-in_progress { background: var(--wujia-warning); color: #fff; }
+.state-resolved                   { background: var(--wujia-primary); color: #fff; }
+.state-active                     { background: var(--wujia-success); color: #fff; }
+.state-locked                     { background: var(--wujia-danger); color: #fff; }
+.state-expired                    { background: var(--wujia-warning); color: #fff; }
+.state-closed                     { background: var(--wujia-text-secondary); color: #fff; }
 
 /* Profile dl */
-.profile-dl dt { font-weight: 500; color: #6c757d; }
-.profile-dl dd { color: #212529; margin-bottom: 0.5rem; }
+.profile-dl dt { font-weight: 500; color: var(--wujia-text-secondary); }
+.profile-dl dd { color: var(--wujia-text-primary); margin-bottom: 0.5rem; }
 
 /* Sidenav dropdown indicator (Vuexy has-sub) */
 .main-menu .navigation .nav-item.has-sub > a::after { content: '\f078'; font-family: 'FontAwesome'; font-size: 0.7rem; float: right; margin-top: 4px; transition: transform 0.2s; }
 .main-menu .navigation .nav-item.has-sub.open > a::after { transform: rotate(180deg); }
 .main-menu .navigation .menu-content { display: none; padding-left: 1rem; list-style: none; }
 .main-menu .navigation .nav-item.has-sub.open > .menu-content { display: block; }
-.main-menu .navigation .menu-content li a { padding: 6px 12px; display: block; color: #555; text-decoration: none; font-size: 0.9rem; }
-.main-menu .navigation .menu-content li a:hover { color: #1f4180; background: #f5f7fa; border-radius: 4px; }
+.main-menu .navigation .menu-content li a { padding: 6px 12px; display: block; color: var(--wujia-text-secondary); text-decoration: none; font-size: 0.9rem; }
+.main-menu .navigation .menu-content li a:hover { color: var(--wujia-primary); background: var(--wujia-primary-light); border-radius: 4px; }
