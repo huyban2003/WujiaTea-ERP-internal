@@ -8,10 +8,27 @@ Phương án chốt với user (16/05/2026): cả dev và prod đều là **skel
 
 `auto-deploy.yml` chỉ làm `git pull + nssm restart Odoo`. Cần chạy thêm các bước dưới qua RDP/PowerShell.
 
-### Bước 1 — Stop Odoo service
+### Bước 0 — Verify code mới nhất (belt-and-suspenders)
+
+Auto-deploy đã `git pull` rồi nhưng vẫn nên xác nhận:
+
+```powershell
+cd D:\wujia-tea
+git pull origin main
+git log -1 --oneline   # phải là `docs(sprint-log): record sprint 5 chapter` hoặc mới hơn
+```
+
+### Bước 1 — Stop Odoo service (đang crash với code mới + schema cũ)
 
 ```powershell
 nssm stop Odoo
+```
+
+(Tuỳ chọn) backup DB phòng cần rollback:
+
+```powershell
+$env:PGPASSWORD = "wujia_admin"
+pg_dump -h 127.0.0.1 -U odoo wujia_tea > D:\backup\wujia_tea_pre_sprint5_$(Get-Date -Format yyyyMMdd_HHmm).sql
 ```
 
 ### Bước 2 — Drop + create DB
