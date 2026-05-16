@@ -47,6 +47,14 @@ Tên DB, user, password lấy từ `D:\wujia-tea\config\odoo-server.conf`. Postg
 
 ### Bước 3 — Install full module chain
 
+PowerShell mặc định cp1252 → Python sẽ crash khi log ký tự Đ/â/ô trong tên module ('Wujia Portal — Đào tạo'). **Set encoding trước**:
+
+```powershell
+$env:PYTHONIOENCODING = "utf-8"
+chcp 65001 > $null
+[Console]::OutputEncoding = [System.Text.Encoding]::UTF8
+```
+
 ```powershell
 cd D:\wujia-tea\odoo19
 python odoo-bin -c ..\config\odoo-server.conf -d wujia_tea_19 `
