@@ -9,10 +9,10 @@
                 <div class="content-header row mt-3">
                     <div class="content-header-left col-12 mb-1 d-flex justify-content-between align-items-center flex-wrap">
                         <h2 class="content-header-title float-left mb-0">
-                            <i class="fa fa-life-ring me-1"/>Yêu cầu hỗ trợ
+                            <i class="fa fa-life-ring me-1" title="Support"/>Yêu cầu hỗ trợ
                         </h2>
                         <a href="/portal/support/new" class="btn btn-primary">
-                            <i class="fa fa-plus me-1"/>Tạo yêu cầu mới
+                            <i class="fa fa-plus me-1" title="New"/>Tạo yêu cầu mới
                         </a>
                     </div>
                 </div>
@@ -33,7 +33,9 @@
                                 </div>
                                 <div class="col-md-9 col-12 text-end">
                                     <label class="small text-muted mb-1 d-block">&#160;</label>
-                                    <button class="btn btn-primary btn-sm" type="submit"><i class="fa fa-search"/> Lọc</button>
+                                    <button class="btn btn-primary btn-sm" type="submit">
+                                        <i class="fa fa-search" title="Search"/> Lọc
+                                    </button>
                                 </div>
                             </form>
                         </div>
@@ -56,8 +58,8 @@
                                     <tbody>
                                         <tr t-foreach="tickets" t-as="t">
                                             <td><a t-attf-href="/portal/support/#{t.id}" t-out="t.name"/></td>
-                                            <td t-out="t.subject"/>
-                                            <td t-out="category_labels.get(t.category, t.category)"/>
+                                            <td t-out="t.title"/>
+                                            <td t-out="t.category_id.name or '—'"/>
                                             <td t-out="t.franchise_id.name or '—'"/>
                                             <td t-out="t.create_date and t.create_date.strftime('%d/%m/%Y') or ''"/>
                                             <td class="text-center">
@@ -66,7 +68,7 @@
                                             </td>
                                             <td class="text-end">
                                                 <a t-attf-href="/portal/support/#{t.id}" class="btn btn-sm btn-outline-primary">
-                                                    <i class="fa fa-eye"/>
+                                                    <i class="fa fa-eye" title="View"/>
                                                 </a>
                                             </td>
                                         </tr>
@@ -125,24 +127,22 @@
                                 </div>
                                 <div class="col-md-3 col-12">
                                     <label class="form-label">Phân loại</label>
-                                    <select name="category" class="form-select" required="required">
-                                        <t t-foreach="category_labels.items()" t-as="kv">
-                                            <option t-att-value="kv[0]" t-out="kv[1]"/>
+                                    <select name="category_id" class="form-select" required="required">
+                                        <t t-foreach="categories" t-as="c">
+                                            <option t-att-value="c.id" t-out="c.name"/>
                                         </t>
                                     </select>
                                 </div>
                                 <div class="col-md-3 col-12">
                                     <label class="form-label">Mức độ</label>
                                     <select name="priority" class="form-select">
-                                        <option value="low">Thấp</option>
                                         <option value="normal" selected="selected">Bình thường</option>
-                                        <option value="high">Cao</option>
                                         <option value="urgent">Khẩn</option>
                                     </select>
                                 </div>
                                 <div class="col-12">
                                     <label class="form-label">Tiêu đề</label>
-                                    <input type="text" name="subject" class="form-control" required="required"
+                                    <input type="text" name="title" class="form-control" required="required"
                                            placeholder="VD: Không đặt được đơn hàng số ..."/>
                                 </div>
                                 <div class="col-12">
@@ -159,7 +159,7 @@
                         <div class="card-footer text-end">
                             <a href="/portal/support" class="btn btn-secondary me-2">Hủy</a>
                             <button type="submit" class="btn btn-primary">
-                                <i class="fa fa-paper-plane me-1"/>Gửi yêu cầu
+                                <i class="fa fa-paper-plane me-1" title="Send"/>Gửi yêu cầu
                             </button>
                         </div>
                     </form>
@@ -180,7 +180,7 @@
                             <li class="breadcrumb-item active" t-out="ticket.name"/>
                         </ol></nav>
                         <h2 class="content-header-title float-left mb-0 d-flex align-items-center">
-                            <span class="me-2"><t t-out="ticket.name"/> — <t t-out="ticket.subject"/></span>
+                            <span class="me-2"><t t-out="ticket.name"/> — <t t-out="ticket.title"/></span>
                             <t t-set="lbl" t-value="state_labels.get(ticket.state, (ticket.state, 'state-draft'))"/>
                             <span t-attf-class="badge state-badge #{lbl[1]}" t-out="lbl[0]"/>
                         </h2>
@@ -192,7 +192,7 @@
                             <div class="card mb-2">
                                 <div class="card-header"><h5 class="mb-0">Nội dung yêu cầu</h5></div>
                                 <div class="card-body">
-                                    <p style="white-space: pre-wrap;" t-out="ticket.description or '—'"/>
+                                    <div t-out="ticket.description or '—'"/>
                                 </div>
                             </div>
                             <div t-if="ticket.attachment_ids" class="card mb-2">
@@ -200,19 +200,40 @@
                                 <ul class="list-group list-group-flush">
                                     <li t-foreach="ticket.attachment_ids" t-as="att" class="list-group-item">
                                         <a t-attf-href="/web/content/ir.attachment/#{att.id}/datas?download=true">
-                                            <i class="fa fa-paperclip me-1"/><t t-out="att.name"/>
+                                            <i class="fa fa-paperclip me-1" title="Attachment"/><t t-out="att.name"/>
                                         </a>
                                     </li>
                                 </ul>
                             </div>
-                            <!-- Chatter placeholder — sprint sau wire bằng mail thread widget -->
-                            <div class="card support-chatter">
+
+                            <!-- Chatter — show comment messages, oldest first -->
+                            <div class="card support-chatter mb-2">
                                 <div class="card-header"><h6 class="mb-0">Trao đổi</h6></div>
                                 <div class="card-body">
-                                    <p class="text-muted text-center py-4">
-                                        <i class="fa fa-comments fa-2x mb-2 opacity-25 d-block"/>
-                                        Conversation từ HQ sẽ hiển thị ở đây. (Tính năng đầy đủ sẽ kích hoạt ở sprint BE workflow.)
-                                    </p>
+                                    <t t-set="comments" t-value="ticket.message_ids.filtered(lambda m: m.message_type == 'comment').sorted('date')"/>
+                                    <div t-if="not comments" class="text-muted text-center py-4">
+                                        <i class="fa fa-comments fa-2x mb-2 opacity-25 d-block" title="Conversation"/>
+                                        Chưa có trao đổi.
+                                    </div>
+                                    <div t-else="">
+                                        <div t-foreach="comments" t-as="msg" class="mb-2 pb-2 border-bottom">
+                                            <div class="d-flex justify-content-between">
+                                                <strong t-out="msg.author_id.name or 'System'"/>
+                                                <small class="text-muted" t-out="msg.date and msg.date.strftime('%d/%m/%Y %H:%M') or ''"/>
+                                            </div>
+                                            <div t-out="msg.body"/>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div t-if="ticket.state not in ('closed', 'cancelled')" class="card-footer">
+                                    <form method="post" t-attf-action="/portal/support/#{ticket.id}/reply">
+                                        <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
+                                        <textarea name="body" rows="3" class="form-control mb-2"
+                                                  placeholder="Trả lời cho HQ..." required="required"/>
+                                        <button type="submit" class="btn btn-primary btn-sm">
+                                            <i class="fa fa-paper-plane me-1" title="Send"/>Gửi
+                                        </button>
+                                    </form>
                                 </div>
                             </div>
                         </div>
@@ -225,13 +246,13 @@
                                         <dt class="col-5">Cửa hàng</dt>
                                         <dd class="col-7" t-out="ticket.franchise_id.name or '—'"/>
                                         <dt class="col-5">Phân loại</dt>
-                                        <dd class="col-7" t-out="category_labels.get(ticket.category, ticket.category)"/>
+                                        <dd class="col-7" t-out="ticket.category_id.name or '—'"/>
                                         <dt class="col-5">Mức độ</dt>
                                         <dd class="col-7" t-out="dict(ticket._fields['priority'].selection).get(ticket.priority, ticket.priority)"/>
                                         <dt class="col-5">Ngày gửi</dt>
                                         <dd class="col-7" t-out="ticket.create_date and ticket.create_date.strftime('%d/%m/%Y %H:%M') or ''"/>
                                         <dt class="col-5">Người xử lý</dt>
-                                        <dd class="col-7" t-out="ticket.handler_user_id.name or '—'"/>
+                                        <dd class="col-7" t-out="ticket.assigned_user_id.name or '—'"/>
                                         <dt class="col-5">Ngày giải quyết</dt>
                                         <dd class="col-7" t-out="ticket.resolved_date and ticket.resolved_date.strftime('%d/%m/%Y') or '—'"/>
                                     </dl>
@@ -241,7 +262,7 @@
                     </div>
                     <div class="mt-2">
                         <a href="/portal/support" class="btn btn-secondary">
-                            <i class="fa fa-arrow-left me-1"/>Quay lại
+                            <i class="fa fa-arrow-left me-1" title="Back"/>Quay lại
                         </a>
                     </div>
                 </div>
