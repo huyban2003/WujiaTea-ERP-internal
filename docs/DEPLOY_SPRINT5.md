@@ -8,6 +8,18 @@ Phương án chốt với user (16/05/2026): cả dev và prod đều là **skel
 
 `auto-deploy.yml` chỉ làm `git pull + nssm restart Odoo`. Cần chạy thêm các bước dưới qua RDP/PowerShell.
 
+### TL;DR — 1 lệnh duy nhất
+
+Sau khi `git pull` xong, stop service rồi:
+
+```powershell
+nssm stop Odoo
+powershell -ExecutionPolicy Bypass -File D:\wujia-tea\scripts\reseed_full.ps1
+nssm start Odoo
+```
+
+Script `reseed_full.ps1` đã encapsulate hết: set encoding env, drop+create DB, install modules, seed 5 file, smoke test. Nếu muốn từng bước thủ công thì xem dưới.
+
 ### Bước 0 — Verify code mới nhất (belt-and-suspenders)
 
 Auto-deploy đã `git pull` rồi nhưng vẫn nên xác nhận:
@@ -70,17 +82,17 @@ Sequence categories cho support (7 record) tự load từ `data/wujia_support_ca
 Lấy 5 script từ repo:
 
 ```powershell
-Get-Content D:\wujia-tea\scripts\seed_admin_franchise.py -Raw | python odoo-bin shell -c ..\config\odoo-server.conf -d wujia_tea_19 --no-http
-Get-Content D:\wujia-tea\scripts\seed_fleet_demo.py -Raw     | python odoo-bin shell -c ..\config\odoo-server.conf -d wujia_tea_19 --no-http
-Get-Content D:\wujia-tea\scripts\seed_portal_demo.py -Raw    | python odoo-bin shell -c ..\config\odoo-server.conf -d wujia_tea_19 --no-http
-Get-Content D:\wujia-tea\scripts\seed_knowledge_demo.py -Raw | python odoo-bin shell -c ..\config\odoo-server.conf -d wujia_tea_19 --no-http
-Get-Content D:\wujia-tea\scripts\seed_support_demo.py -Raw   | python odoo-bin shell -c ..\config\odoo-server.conf -d wujia_tea_19 --no-http
+cmd /c "python odoo-bin shell -c ..\config\odoo-server.conf -d wujia_tea_19 --no-http < D:\wujia-tea\scripts\seed_admin_franchise.py"
+cmd /c "python odoo-bin shell -c ..\config\odoo-server.conf -d wujia_tea_19 --no-http < D:\wujia-tea\scripts\seed_fleet_demo.py"
+cmd /c "python odoo-bin shell -c ..\config\odoo-server.conf -d wujia_tea_19 --no-http < D:\wujia-tea\scripts\seed_portal_demo.py"
+cmd /c "python odoo-bin shell -c ..\config\odoo-server.conf -d wujia_tea_19 --no-http < D:\wujia-tea\scripts\seed_knowledge_demo.py"
+cmd /c "python odoo-bin shell -c ..\config\odoo-server.conf -d wujia_tea_19 --no-http < D:\wujia-tea\scripts\seed_support_demo.py"
 ```
 
 ### Bước 5 — Smoke test
 
 ```powershell
-Get-Content D:\wujia-tea\scripts\test_sprint5.py -Raw | python odoo-bin shell -c ..\config\odoo-server.conf -d wujia_tea_19 --no-http
+cmd /c "python odoo-bin shell -c ..\config\odoo-server.conf -d wujia_tea_19 --no-http < D:\wujia-tea\scripts\test_sprint5.py"
 ```
 
 Output mong đợi: `=== RESULT: 20 PASS / 0 FAIL ===` (có 1 SKIP cho `batch_id` test nếu seed chưa tạo picking — không phải lỗi).
