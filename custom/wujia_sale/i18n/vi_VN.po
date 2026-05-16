@@ -1,0 +1,380 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+# 	* wujia_sale
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 19.0\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-05-16 04:08+0000\n"
+"PO-Revision-Date: 2026-05-16 04:08+0000\n"
+"Last-Translator: \n"
+"Language-Team: Vietnamese (https://www.transifex.com/odoo/)\n"
+"Language: vi_VN\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: \n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+
+#. module: wujia_sale
+#: model:ir.model.fields,help:wujia_sale.field_sale_order_line__planned_weight
+msgid "= product_uom_qty × weight_per_unit."
+msgstr ""
+
+#. module: wujia_sale
+#: model:ir.model.fields,help:wujia_sale.field_stock_move__done_weight
+msgid "= quantity (đã xuất) × weight_per_unit. Odoo 19 dùng field `quantity`."
+msgstr ""
+
+#. module: wujia_sale
+#: model:ir.model,name:wujia_sale.model_stock_picking_batch
+msgid "Batch Transfer"
+msgstr ""
+
+#. module: wujia_sale
+#: model:ir.model.fields,help:wujia_sale.field_sale_order__batch_id
+msgid ""
+"Batch of the first non-cancelled delivery picking (id ASC). Auto-derived "
+"from picking_ids — null if SO has no picking yet."
+msgstr ""
+
+#. module: wujia_sale
+#: model:ir.model.fields,field_description:wujia_sale.field_sale_order__franchise_id
+msgid "Cửa hàng nhượng quyền"
+msgstr ""
+
+#. module: wujia_sale
+#: model:ir.model.fields,help:wujia_sale.field_sale_order__franchise_id
+msgid "Cửa hàng sở hữu đơn — bắt buộc khi is_portal_order=True."
+msgstr ""
+
+#. module: wujia_sale
+#: model:ir.model.fields,field_description:wujia_sale.field_sale_order__batch_id
+msgid "Delivery batch"
+msgstr ""
+
+#. module: wujia_sale
+#: model:ir.model.fields,field_description:wujia_sale.field_product_template__display_name
+#: model:ir.model.fields,field_description:wujia_sale.field_sale_order__display_name
+#: model:ir.model.fields,field_description:wujia_sale.field_sale_order_line__display_name
+#: model:ir.model.fields,field_description:wujia_sale.field_stock_move__display_name
+#: model:ir.model.fields,field_description:wujia_sale.field_stock_picking__display_name
+#: model:ir.model.fields,field_description:wujia_sale.field_stock_picking_batch__display_name
+msgid "Display Name"
+msgstr ""
+
+#. module: wujia_sale
+#: model:ir.model.fields,field_description:wujia_sale.field_sale_order__portal_note
+msgid "Ghi chú đơn (portal)"
+msgstr ""
+
+#. module: wujia_sale
+#: model_terms:ir.ui.view,arch_db:wujia_sale.view_order_form_wujia
+msgid "Giao hàng (override)"
+msgstr ""
+
+#. module: wujia_sale
+#: model_terms:ir.ui.view,arch_db:wujia_sale.view_product_template_form_wujia
+msgid "Giới hạn số lượng/đơn"
+msgstr ""
+
+#. module: wujia_sale
+#: model_terms:ir.ui.view,arch_db:wujia_sale.view_product_template_form_wujia
+msgid "Hiển thị portal"
+msgstr ""
+
+#. module: wujia_sale
+#: model:ir.model.fields,field_description:wujia_sale.field_product_product__is_public_website
+#: model:ir.model.fields,field_description:wujia_sale.field_product_template__is_public_website
+msgid "Hiện trên portal"
+msgstr ""
+
+#. module: wujia_sale
+#: model:ir.model.fields,field_description:wujia_sale.field_product_template__id
+#: model:ir.model.fields,field_description:wujia_sale.field_sale_order__id
+#: model:ir.model.fields,field_description:wujia_sale.field_sale_order_line__id
+#: model:ir.model.fields,field_description:wujia_sale.field_stock_move__id
+#: model:ir.model.fields,field_description:wujia_sale.field_stock_picking__id
+#: model:ir.model.fields,field_description:wujia_sale.field_stock_picking_batch__id
+msgid "ID"
+msgstr ""
+
+#. module: wujia_sale
+#: model:ir.model.fields,field_description:wujia_sale.field_sale_order__area_id
+msgid "Khu vực"
+msgstr ""
+
+#. module: wujia_sale
+#: model_terms:ir.ui.view,arch_db:wujia_sale.view_order_form_wujia
+msgid "Khối lượng"
+msgstr ""
+
+#. module: wujia_sale
+#: model:ir.model.fields,field_description:wujia_sale.field_sale_order__total_planned_weight
+#: model:ir.model.fields,field_description:wujia_sale.field_sale_order_line__planned_weight
+#: model:ir.model.fields,field_description:wujia_sale.field_stock_move__planned_weight
+#: model:ir.model.fields,field_description:wujia_sale.field_stock_picking__planned_weight
+#: model:ir.model.fields,field_description:wujia_sale.field_stock_picking_batch__planned_weight
+msgid "Khối lượng dự kiến"
+msgstr ""
+
+#. module: wujia_sale
+#: model:ir.model.fields,field_description:wujia_sale.field_stock_move__done_weight
+#: model:ir.model.fields,field_description:wujia_sale.field_stock_picking__done_weight
+#: model:ir.model.fields,field_description:wujia_sale.field_stock_picking_batch__done_weight
+msgid "Khối lượng đã xuất"
+msgstr ""
+
+#. module: wujia_sale
+#: model:ir.model.fields,field_description:wujia_sale.field_sale_order_line__weight_per_unit
+#: model:ir.model.fields,field_description:wujia_sale.field_stock_move__weight_per_unit
+msgid "Khối lượng/đơn vị"
+msgstr ""
+
+#. module: wujia_sale
+#. odoo-python
+#: code:addons/wujia_sale/models/sale_order.py:0
+msgid "Member của đơn '%s' không khớp user/cửa hàng đã chọn."
+msgstr ""
+
+#. module: wujia_sale
+#: model:ir.model.fields,field_description:wujia_sale.field_sale_order__portal_member_id
+msgid "Member tạo đơn"
+msgstr ""
+
+#. module: wujia_sale
+#: model_terms:ir.ui.view,arch_db:wujia_sale.view_order_form_wujia
+msgid "Người tạo (audit trail)"
+msgstr ""
+
+#. module: wujia_sale
+#: model:ir.model.fields,field_description:wujia_sale.field_sale_order__portal_requester_user_id
+msgid "Người tạo (portal)"
+msgstr ""
+
+#. module: wujia_sale
+#: model:ir.model.fields,field_description:wujia_sale.field_sale_order__franchise_partner_id
+msgid "Partner cửa hàng"
+msgstr ""
+
+#. module: wujia_sale
+#: model:ir.model.fields,help:wujia_sale.field_sale_order__franchise_partner_id
+msgid ""
+"Partner đại diện cửa hàng nhượng quyền sở hữu đơn — bắt buộc khi "
+"is_portal_order=True."
+msgstr ""
+
+#. module: wujia_sale
+#: model:ir.model,name:wujia_sale.model_product_template
+msgid "Product"
+msgstr ""
+
+#. module: wujia_sale
+#: model:ir.model,name:wujia_sale.model_sale_order
+msgid "Sales Order"
+msgstr ""
+
+#. module: wujia_sale
+#: model:ir.model,name:wujia_sale.model_sale_order_line
+msgid "Sales Order Line"
+msgstr ""
+
+#. module: wujia_sale
+#: model:ir.model.fields,help:wujia_sale.field_sale_order_line__weight_per_unit
+msgid ""
+"Snapshot khối lượng 1 đơn vị product tại lúc chọn sản phẩm. Không cho user "
+"nhập tay; lưu để dữ liệu cũ giữ nguyên kể cả khi product.weight đổi."
+msgstr ""
+
+#. module: wujia_sale
+#: model:ir.model.fields,help:wujia_sale.field_sale_order__portal_member_id
+msgid "Snapshot membership user × cửa hàng tại thời điểm tạo đơn."
+msgstr ""
+
+#. module: wujia_sale
+#: model:ir.model.fields,help:wujia_sale.field_stock_move__weight_per_unit
+msgid ""
+"Snapshot weight_per_unit từ sale.order.line nếu move sinh từ SO; fallback "
+"product_id.weight cho move không gắn SO line."
+msgstr ""
+
+#. module: wujia_sale
+#: model:ir.model,name:wujia_sale.model_stock_move
+msgid "Stock Move"
+msgstr ""
+
+#. module: wujia_sale
+#: model:ir.model.fields,field_description:wujia_sale.field_sale_order__portal_delivery_phone
+msgid "SĐT giao (portal)"
+msgstr ""
+
+#. module: wujia_sale
+#. odoo-python
+#: code:addons/wujia_sale/models/sale_order_line.py:0
+msgid "Sản phẩm '%s' chỉ cho phép tối đa %s/đơn, đang đặt %s."
+msgstr ""
+
+#. module: wujia_sale
+#. odoo-python
+#: code:addons/wujia_sale/models/sale_order_line.py:0
+msgid "Sản phẩm '%s' yêu cầu số lượng tối thiểu %s, đang đặt %s."
+msgstr ""
+
+#. module: wujia_sale
+#. odoo-python
+#: code:addons/wujia_sale/models/product_template.py:0
+msgid "Số lượng tối thiểu không thể âm."
+msgstr ""
+
+#. module: wujia_sale
+#: model:ir.model.fields,field_description:wujia_sale.field_product_product__min_qty
+#: model:ir.model.fields,field_description:wujia_sale.field_product_template__min_qty
+msgid "Số lượng tối thiểu/đơn"
+msgstr ""
+
+#. module: wujia_sale
+#. odoo-python
+#: code:addons/wujia_sale/models/product_template.py:0
+msgid "Số lượng tối đa (%s) phải >= số lượng tối thiểu (%s)."
+msgstr ""
+
+#. module: wujia_sale
+#. odoo-python
+#: code:addons/wujia_sale/models/product_template.py:0
+msgid "Số lượng tối đa không thể âm."
+msgstr ""
+
+#. module: wujia_sale
+#: model:ir.model.fields,field_description:wujia_sale.field_product_product__max_qty
+#: model:ir.model.fields,field_description:wujia_sale.field_product_template__max_qty
+msgid "Số lượng tối đa/đơn"
+msgstr ""
+
+#. module: wujia_sale
+#: model_terms:ir.ui.view,arch_db:wujia_sale.view_sales_order_filter_wujia
+msgid "Theo batch"
+msgstr ""
+
+#. module: wujia_sale
+#: model_terms:ir.ui.view,arch_db:wujia_sale.view_sales_order_filter_wujia
+msgid "Theo cửa hàng"
+msgstr ""
+
+#. module: wujia_sale
+#: model_terms:ir.ui.view,arch_db:wujia_sale.view_sales_order_filter_wujia
+msgid "Theo khu vực"
+msgstr ""
+
+#. module: wujia_sale
+#: model_terms:ir.ui.view,arch_db:wujia_sale.view_order_tree_wujia
+msgid "Total"
+msgstr ""
+
+#. module: wujia_sale
+#: model:ir.model,name:wujia_sale.model_stock_picking
+msgid "Transfer"
+msgstr ""
+
+#. module: wujia_sale
+#: model:ir.model.fields,help:wujia_sale.field_product_product__min_qty
+#: model:ir.model.fields,help:wujia_sale.field_product_template__min_qty
+msgid "Tối thiểu mỗi dòng cart. 0 hoặc 1 = không giới hạn dưới."
+msgstr ""
+
+#. module: wujia_sale
+#: model:ir.model.fields,help:wujia_sale.field_product_product__max_qty
+#: model:ir.model.fields,help:wujia_sale.field_product_template__max_qty
+msgid "Tối đa mỗi dòng cart. 0 = không giới hạn trên."
+msgstr ""
+
+#. module: wujia_sale
+#: model:ir.model.fields,help:wujia_sale.field_sale_order__total_planned_weight
+msgid ""
+"Tổng khối lượng dự kiến của SO = sum(line.planned_weight). Tham khảo sớm, "
+"không phải nguồn chính sắp xe."
+msgstr ""
+
+#. module: wujia_sale
+#: model:ir.model.fields,help:wujia_sale.field_stock_picking_batch__planned_weight
+msgid ""
+"Tổng khối lượng dự kiến của batch = sum(picking_ids.planned_weight). Dùng để"
+" chọn xe phù hợp."
+msgstr ""
+
+#. module: wujia_sale
+#: model:ir.model.fields,help:wujia_sale.field_stock_picking__planned_weight
+msgid ""
+"Tổng khối lượng dự kiến của phiếu xuất = sum(move_ids.planned_weight). Đây "
+"là nguồn chính để sắp batch/chuyến xe."
+msgstr ""
+
+#. module: wujia_sale
+#. odoo-python
+#: code:addons/wujia_sale/models/sale_order.py:0
+msgid "User '%s' không có membership active trong cửa hàng '%s'."
+msgstr ""
+
+#. module: wujia_sale
+#: model:ir.model.fields,help:wujia_sale.field_sale_order__portal_requester_user_id
+msgid ""
+"User portal trực tiếp bấm tạo đơn. Set tại thời điểm tạo, không đổi sau đó "
+"(audit trail)."
+msgstr ""
+
+#. module: wujia_sale
+#: model_terms:ir.ui.view,arch_db:wujia_sale.view_order_form_wujia
+#: model_terms:ir.ui.view,arch_db:wujia_sale.view_product_template_form_wujia
+msgid "Wujia Portal"
+msgstr ""
+
+#. module: wujia_sale
+#: model_terms:ir.ui.view,arch_db:wujia_sale.product_template_search_wujia
+msgid "Đang hiện trên Portal"
+msgstr ""
+
+#. module: wujia_sale
+#: model:ir.model.fields,help:wujia_sale.field_product_product__is_public_website
+#: model:ir.model.fields,help:wujia_sale.field_product_template__is_public_website
+msgid ""
+"Đánh dấu sản phẩm hiển thị trong catalog /portal/order. Chỉ những sản phẩm "
+"có flag này mới được phép user portal đặt mua."
+msgstr ""
+
+#. module: wujia_sale
+#: model:ir.model.fields,help:wujia_sale.field_sale_order__is_portal_order
+msgid "Đánh dấu đơn được tạo từ portal (phân biệt với đơn admin tạo manual)."
+msgstr ""
+
+#. module: wujia_sale
+#: model_terms:ir.ui.view,arch_db:wujia_sale.view_sales_order_filter_wujia
+msgid "Đã có batch"
+msgstr ""
+
+#. module: wujia_sale
+#. odoo-python
+#: code:addons/wujia_sale/models/sale_order.py:0
+msgid "Đơn '%s' tạo từ portal phải có cửa hàng (franchise_id)."
+msgstr ""
+
+#. module: wujia_sale
+#. odoo-python
+#: code:addons/wujia_sale/models/sale_order.py:0
+msgid "Đơn '%s' từ portal phải có cửa hàng nhượng quyền (franchise_id)."
+msgstr ""
+
+#. module: wujia_sale
+#. odoo-python
+#: code:addons/wujia_sale/models/sale_order.py:0
+msgid "Đơn '%s' từ portal phải có partner cửa hàng (franchise_partner_id)."
+msgstr ""
+
+#. module: wujia_sale
+#: model:ir.model.fields,field_description:wujia_sale.field_sale_order__is_portal_order
+#: model_terms:ir.ui.view,arch_db:wujia_sale.view_sales_order_filter_wujia
+msgid "Đơn từ Portal"
+msgstr ""
+
+#. module: wujia_sale
+#: model:ir.model.fields,field_description:wujia_sale.field_sale_order__portal_delivery_street
+msgid "Địa chỉ giao (portal)"
+msgstr ""
