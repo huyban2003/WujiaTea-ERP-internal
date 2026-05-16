@@ -15,6 +15,7 @@
                        options="{'no_create': True}"
                        required="is_portal_order"/>
                 <field name="area_id" readonly="1" optional="show"/>
+                <field name="batch_id" readonly="1" optional="show"/>
             </xpath>
 
             <xpath expr="//notebook" position="inside">
@@ -59,6 +60,7 @@
                 <field name="area_id" optional="hide"/>
                 <field name="portal_requester_user_id" optional="hide"/>
                 <field name="total_planned_weight" optional="hide" sum="Total"/>
+                <field name="batch_id" optional="hide"/>
             </xpath>
         </field>
     </record>
@@ -73,14 +75,19 @@
                 <field name="franchise_partner_id"/>
                 <field name="area_id"/>
                 <field name="portal_requester_user_id"/>
+                <field name="batch_id"/>
                 <separator/>
                 <filter string="Đơn từ Portal" name="filter_portal_only"
                         domain="[('is_portal_order', '=', True)]"/>
+                <filter string="Đã có batch" name="filter_has_batch"
+                        domain="[('batch_id', '!=', False)]"/>
                 <separator/>
                 <filter string="Theo cửa hàng" name="group_franchise"
                         context="{'group_by': 'franchise_id'}"/>
                 <filter string="Theo khu vực" name="group_area"
                         context="{'group_by': 'area_id'}"/>
+                <filter string="Theo batch" name="group_batch"
+                        context="{'group_by': 'batch_id'}"/>
             </xpath>
         </field>
     </record>

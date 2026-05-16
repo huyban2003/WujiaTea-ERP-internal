@@ -62,10 +62,30 @@ class SaleOrder(models.Model):
              'Tham khảo sớm, không phải nguồn chính sắp xe.',
     )
 
+    batch_id = fields.Many2one(
+        'stock.picking.batch',
+        string='Delivery batch',
+        compute='_compute_batch_id',
+        store=True,
+        index=True,
+        help='Batch of the first non-cancelled delivery picking (id ASC). '
+             'Auto-derived from picking_ids — null if SO has no picking yet.',
+    )
+
     @api.depends('order_line.planned_weight')
     def _compute_total_planned_weight(self):
         for order in self:
             order.total_planned_weight = sum(order.order_line.mapped('planned_weight'))
+
+    @api.depends('picking_ids.batch_id', 'picking_ids.state')
+    def _compute_batch_id(self):
+        # picking_ids đã prefetch sẵn qua O2m relation cache — sorted in-memory,
+        # không gọi search() để tránh O(n) query khi compute trên list nhiều SO.
+        for order in self:
+            pickings = order.picking_ids.filtered(
+                lambda p: p.state != 'cancel' and p.batch_id
+            ).sorted('id')
+            order.batch_id = pickings[:1].batch_id
 
     @api.constrains('is_portal_order', 'franchise_id', 'franchise_partner_id')
     def _check_portal_franchise_required(self):
