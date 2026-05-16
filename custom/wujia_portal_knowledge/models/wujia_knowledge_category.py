@@ -8,23 +8,28 @@ class WujiaKnowledgeCategory(models.Model):
     _parent_store = True
     _parent_name = 'parent_id'
 
-    name = fields.Char(required=True, translate=True)
-    code = fields.Char(string='Mã', help='Slug ngắn cho URL filter')
-    parent_id = fields.Many2one('wujia.knowledge.category', string='Danh mục cha',
-                                ondelete='set null', index=True)
+    name = fields.Char(string='Name', required=True, translate=True)
+    code = fields.Char(string='Code', help='Short slug for URL filter.')
+    description = fields.Text(string='Description', translate=True)
+    parent_id = fields.Many2one(
+        'wujia.knowledge.category', string='Parent category',
+        ondelete='set null', index=True,
+    )
     parent_path = fields.Char(index=True)
-    sequence = fields.Integer(default=10)
-    article_count = fields.Integer(compute='_compute_article_count')
-    active = fields.Boolean(default=True)
+    sequence = fields.Integer(string='Sequence', default=10)
+    article_count = fields.Integer(
+        string='Articles', compute='_compute_article_count',
+    )
+    active = fields.Boolean(string='Active', default=True)
 
     _sql_constraints = [
-        ('uniq_code', 'unique(code)', 'Mã danh mục phải duy nhất.'),
+        ('uniq_code', 'unique(code)', 'Category code must be unique.'),
     ]
 
     def _compute_article_count(self):
         Article = self.env['wujia.knowledge.article'].sudo()
         groups = Article._read_group(
-            [('category_id', 'in', self.ids), ('published', '=', True)],
+            [('category_id', 'in', self.ids), ('state', '=', 'published')],
             groupby=['category_id'], aggregates=['__count'],
         )
         mapping = {cat.id: count for cat, count in groups}

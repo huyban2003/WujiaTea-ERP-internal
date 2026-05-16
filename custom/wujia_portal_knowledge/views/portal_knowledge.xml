@@ -71,7 +71,12 @@
                                                      t-att-alt="art.name"/>
                                             </a>
                                             <div class="card-body">
-                                                <span t-if="art.category_id" class="badge bg-light text-dark mb-1" t-out="art.category_id.name"/>
+                                                <div class="mb-1">
+                                                    <span t-if="art.category_id" class="badge bg-light text-dark me-1" t-out="art.category_id.name"/>
+                                                    <span t-if="art.portal_badge == 'mandatory'" class="badge text-bg-danger me-1">Mandatory</span>
+                                                    <span t-if="art.portal_badge == 'important'" class="badge text-bg-warning me-1">Important</span>
+                                                    <span t-if="art.portal_badge == 'new'" class="badge text-bg-info me-1">New</span>
+                                                </div>
                                                 <h6 class="card-title">
                                                     <a t-attf-href="/portal/knowledge/#{art.slug}" class="text-dark text-decoration-none" t-out="art.name"/>
                                                 </h6>

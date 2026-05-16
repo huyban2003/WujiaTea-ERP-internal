@@ -2,6 +2,30 @@
 <odoo>
 
     <!-- ============================================================
+         Tag views
+    ============================================================ -->
+
+    <record id="view_knowledge_tag_list" model="ir.ui.view">
+        <field name="name">wujia.knowledge.tag.list</field>
+        <field name="model">wujia.knowledge.tag</field>
+        <field name="arch" type="xml">
+            <list string="Knowledge tags" editable="bottom">
+                <field name="name"/>
+                <field name="color" widget="color_picker"/>
+                <field name="article_count"/>
+                <field name="active"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="action_knowledge_tag" model="ir.actions.act_window">
+        <field name="name">Knowledge tags</field>
+        <field name="res_model">wujia.knowledge.tag</field>
+        <field name="view_mode">list</field>
+        <field name="context">{'active_test': False}</field>
+    </record>
+
+    <!-- ============================================================
          Category views
     ============================================================ -->
 
@@ -22,8 +46,11 @@
                         <group>
                             <field name="parent_id"/>
                             <field name="active"/>
-                            <field name="article_count" string="Bài viết đã xuất bản"/>
+                            <field name="article_count" string="Published articles"/>
                         </group>
+                    </group>
+                    <group string="Description">
+                        <field name="description" nolabel="1"/>
                     </group>
                 </sheet>
             </form>
@@ -34,19 +61,19 @@
         <field name="name">wujia.knowledge.category.list</field>
         <field name="model">wujia.knowledge.category</field>
         <field name="arch" type="xml">
-            <list string="Danh mục kiến thức" editable="top">
+            <list string="Knowledge categories" editable="top">
                 <field name="sequence" widget="handle"/>
                 <field name="name"/>
                 <field name="code"/>
                 <field name="parent_id"/>
-                <field name="article_count" string="Bài viết"/>
+                <field name="article_count" string="Articles"/>
                 <field name="active" column_invisible="True"/>
             </list>
         </field>
     </record>
 
     <record id="action_knowledge_category" model="ir.actions.act_window">
-        <field name="name">Danh mục kiến thức</field>
+        <field name="name">Knowledge categories</field>
         <field name="res_model">wujia.knowledge.category</field>
         <field name="view_mode">list,form</field>
         <field name="context">{'active_test': False}</field>
@@ -61,45 +88,71 @@
         <field name="model">wujia.knowledge.article</field>
         <field name="arch" type="xml">
             <form>
+                <header>
+                    <button name="action_publish" type="object"
+                            string="Publish" class="btn-primary"
+                            invisible="state == 'published'"/>
+                    <button name="action_back_to_draft" type="object"
+                            string="Back to draft"
+                            invisible="state == 'draft'"/>
+                    <button name="action_archive_article" type="object"
+                            string="Archive"
+                            invisible="state == 'archived'"/>
+                    <field name="state" widget="statusbar"
+                           statusbar_visible="draft,published,archived"/>
+                </header>
                 <sheet>
+                    <widget name="web_ribbon" title="Archived"
+                            invisible="active" bg_color="text-bg-secondary"/>
                     <div class="oe_button_box" name="button_box">
                         <button name="action_increment_view" type="object"
                                 class="oe_stat_button" icon="fa-eye" invisible="True">
-                            <field name="view_count" widget="statinfo" string="Lượt xem"/>
+                            <field name="view_count" widget="statinfo" string="Views"/>
                         </button>
                     </div>
                     <div class="oe_title">
                         <label for="name"/>
-                        <h1><field name="name" placeholder="Tiêu đề bài viết..."/></h1>
+                        <h1><field name="name" placeholder="Article title..."/></h1>
+                        <field name="code" readonly="1"/>
                     </div>
                     <group>
-                        <group string="Phân loại">
+                        <group string="Classification">
                             <field name="category_id"/>
+                            <field name="tag_ids" widget="many2many_tags"
+                                   options="{'color_field': 'color', 'no_create_edit': True}"/>
                             <field name="slug"/>
                             <field name="author_id"/>
-                            <field name="tag_ids" string="Tags (phân cách bằng dấu phẩy)"/>
+                            <field name="sequence"/>
                         </group>
-                        <group string="Xuất bản">
-                            <field name="published"/>
-                            <field name="publish_date" invisible="not published"/>
-                            <field name="view_count" string="Lượt xem"/>
+                        <group string="Publication">
+                            <field name="portal_badge"/>
+                            <field name="publish_date"
+                                   invisible="state != 'published'"/>
+                            <field name="expired_date"/>
+                            <field name="is_published_portal" readonly="1"/>
+                            <field name="view_count" string="Views"/>
+                            <field name="active"/>
                         </group>
                     </group>
-                    <group string="Tóm tắt">
+                    <group string="Summary">
                         <field name="summary" nolabel="1"
-                               placeholder="Tóm tắt ngắn (tối đa 250 ký tự)..."/>
+                               placeholder="Short summary shown on portal card..."/>
                     </group>
-                    <group string="Ảnh bìa">
+                    <group string="Cover image">
                         <field name="cover_image" widget="image" nolabel="1"
                                options="{'size': [960, 320]}"/>
                     </group>
                     <notebook>
-                        <page string="Nội dung">
+                        <page string="Content" name="content">
                             <field name="content" widget="html" nolabel="1"
                                    options="{'codeview': True}"/>
                         </page>
+                        <page string="Attachments" name="attachments">
+                            <field name="attachment_ids" widget="many2many_binary"/>
+                        </page>
                     </notebook>
                 </sheet>
+                <chatter/>
             </form>
         </field>
     </record>
@@ -108,15 +161,66 @@
         <field name="name">wujia.knowledge.article.list</field>
         <field name="model">wujia.knowledge.article</field>
         <field name="arch" type="xml">
-            <list string="Bài viết kiến thức"
-                  decoration-muted="not published">
+            <list string="Knowledge articles"
+                  decoration-muted="state == 'archived'"
+                  decoration-success="state == 'published'"
+                  decoration-info="state == 'draft'">
+                <field name="sequence" widget="handle"/>
+                <field name="code"/>
                 <field name="name"/>
                 <field name="category_id"/>
+                <field name="portal_badge" widget="badge"
+                       decoration-info="portal_badge == 'new'"
+                       decoration-warning="portal_badge == 'important'"
+                       decoration-danger="portal_badge == 'mandatory'"/>
+                <field name="state" widget="badge"
+                       decoration-success="state == 'published'"
+                       decoration-muted="state == 'archived'"/>
                 <field name="author_id"/>
-                <field name="publish_date" string="Ngày đăng"/>
-                <field name="view_count" string="Lượt xem"/>
-                <field name="published" widget="boolean_toggle"/>
+                <field name="publish_date"/>
+                <field name="expired_date" optional="hide"/>
+                <field name="view_count" string="Views"/>
+                <field name="is_published_portal" optional="hide"/>
+                <field name="active" column_invisible="True"/>
             </list>
+        </field>
+    </record>
+
+    <record id="view_knowledge_article_kanban" model="ir.ui.view">
+        <field name="name">wujia.knowledge.article.kanban</field>
+        <field name="model">wujia.knowledge.article</field>
+        <field name="arch" type="xml">
+            <kanban default_group_by="state">
+                <field name="state"/>
+                <field name="portal_badge"/>
+                <field name="cover_image"/>
+                <field name="category_id"/>
+                <field name="publish_date"/>
+                <templates>
+                    <t t-name="kanban-box">
+                        <div class="oe_kanban_card">
+                            <img t-if="record.cover_image.raw_value"
+                                 t-attf-src="/web/image/wujia.knowledge.article/#{record.id.raw_value}/cover_image"
+                                 class="img-fluid mb-1" alt="cover"/>
+                            <strong><field name="name"/></strong>
+                            <div class="text-muted small">
+                                <field name="category_id"/>
+                            </div>
+                            <div class="mt-1">
+                                <span t-if="record.portal_badge.raw_value == 'mandatory'" class="badge text-bg-danger">
+                                    Mandatory
+                                </span>
+                                <span t-if="record.portal_badge.raw_value == 'important'" class="badge text-bg-warning">
+                                    Important
+                                </span>
+                                <span t-if="record.portal_badge.raw_value == 'new'" class="badge text-bg-info">
+                                    New
+                                </span>
+                            </div>
+                        </div>
+                    </t>
+                </templates>
+            </kanban>
         </field>
     </record>
 
@@ -125,20 +229,35 @@
         <field name="model">wujia.knowledge.article</field>
         <field name="arch" type="xml">
             <search>
-                <field name="name" string="Tiêu đề"/>
+                <field name="name" string="Title"/>
+                <field name="code"/>
                 <field name="category_id"/>
+                <field name="tag_ids"/>
                 <field name="author_id"/>
-                <filter string="Đã xuất bản" name="published"
-                        domain="[('published', '=', True)]"/>
-                <filter string="Chưa xuất bản" name="draft"
-                        domain="[('published', '=', False)]"/>
+                <filter string="Draft" name="filter_draft"
+                        domain="[('state', '=', 'draft')]"/>
+                <filter string="Published" name="filter_published"
+                        domain="[('state', '=', 'published')]"/>
+                <filter string="Archived" name="filter_archived"
+                        domain="[('state', '=', 'archived')]"/>
                 <separator/>
-                <filter string="Của tôi" name="my_articles"
+                <filter string="Visible on portal" name="filter_visible_portal"
+                        domain="[('is_published_portal', '=', True)]"/>
+                <filter string="Expired" name="filter_expired"
+                        domain="[('expired_date', '!=', False), ('expired_date', '&lt;=', context_today().strftime('%Y-%m-%d %H:%M:%S'))]"/>
+                <filter string="Mandatory" name="filter_mandatory"
+                        domain="[('portal_badge', '=', 'mandatory')]"/>
+                <separator/>
+                <filter string="My articles" name="my_articles"
                         domain="[('author_id', '=', uid)]"/>
                 <group name="group_by">
-                    <filter string="Danh mục" name="group_category"
+                    <filter string="Category" name="group_category"
                             context="{'group_by': 'category_id'}"/>
-                    <filter string="Tác giả" name="group_author"
+                    <filter string="State" name="group_state"
+                            context="{'group_by': 'state'}"/>
+                    <filter string="Portal badge" name="group_badge"
+                            context="{'group_by': 'portal_badge'}"/>
+                    <filter string="Author" name="group_author"
                             context="{'group_by': 'author_id'}"/>
                 </group>
             </search>
@@ -146,11 +265,11 @@
     </record>
 
     <record id="action_knowledge_article" model="ir.actions.act_window">
-        <field name="name">Bài viết kiến thức</field>
+        <field name="name">Knowledge articles</field>
         <field name="res_model">wujia.knowledge.article</field>
-        <field name="view_mode">list,form</field>
+        <field name="view_mode">list,kanban,form</field>
         <field name="search_view_id" ref="view_knowledge_article_search"/>
-        <field name="context">{'search_default_published': 0}</field>
+        <field name="context">{}</field>
     </record>
 
     <!-- ============================================================
@@ -173,5 +292,11 @@
               parent="menu_wujia_knowledge_root"
               action="action_knowledge_category"
               sequence="20"/>
+
+    <menuitem id="menu_wujia_knowledge_tags"
+              name="Tags"
+              parent="menu_wujia_knowledge_root"
+              action="action_knowledge_tag"
+              sequence="30"/>
 
 </odoo>
