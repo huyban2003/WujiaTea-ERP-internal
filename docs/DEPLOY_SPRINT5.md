@@ -27,8 +27,9 @@ nssm stop Odoo
 (Tuỳ chọn) backup DB phòng cần rollback:
 
 ```powershell
-$env:PGPASSWORD = "wujia_admin"
-pg_dump -h 127.0.0.1 -U odoo wujia_tea > D:\backup\wujia_tea_pre_sprint5_$(Get-Date -Format yyyyMMdd_HHmm).sql
+$env:PGPASSWORD = "1"
+$env:Path = "C:\Program Files\PostgreSQL\16\bin;" + $env:Path
+pg_dump -h 127.0.0.1 -U odoo19 wujia_tea_19 | Out-File -Encoding utf8 D:\backup\wujia_tea_19_pre_sprint5_$(Get-Date -Format yyyyMMdd_HHmm).sql
 ```
 
 ### Bước 2 — Drop + create DB
@@ -36,18 +37,19 @@ pg_dump -h 127.0.0.1 -U odoo wujia_tea > D:\backup\wujia_tea_pre_sprint5_$(Get-D
 Đăng nhập psql với master pass `wujia_admin`:
 
 ```powershell
-$env:PGPASSWORD = "wujia_admin"
-dropdb -h 127.0.0.1 -U odoo wujia_tea
-createdb -h 127.0.0.1 -U odoo -O odoo wujia_tea
+$env:PGPASSWORD = "1"
+$env:Path = "C:\Program Files\PostgreSQL\16\bin;" + $env:Path
+dropdb -h 127.0.0.1 -U odoo19 wujia_tea_19
+createdb -h 127.0.0.1 -U odoo19 -O odoo19 wujia_tea_19
 ```
 
-Tên DB, user, password lấy từ `D:\wujia-tea\config\odoo.conf` — sửa lại nếu khác.
+Tên DB, user, password lấy từ `D:\wujia-tea\config\odoo-server.conf`. PostgreSQL bin tại `C:\Program Files\PostgreSQL\16\bin\` — không trong PATH mặc định.
 
 ### Bước 3 — Install full module chain
 
 ```powershell
 cd D:\wujia-tea\odoo19
-python odoo-bin -c ..\config\odoo.conf -d wujia_tea `
+python odoo-bin -c ..\config\odoo-server.conf -d wujia_tea_19 `
   -i wujia_core,wujia_franchise,wujia_sale,wujia_fleet,wujia_delivery,wujia_portal_base,wujia_portal_layout,wujia_portal_sale,wujia_portal_purchase_history,wujia_portal_delivery,wujia_portal_return,wujia_portal_notification,wujia_portal_exam,wujia_portal_knowledge,wujia_portal_report,wujia_portal_support `
   --without-demo=True --stop-after-init
 ```
@@ -59,17 +61,17 @@ Sequence categories cho support (7 record) tự load từ `data/wujia_support_ca
 Lấy 5 script từ repo:
 
 ```powershell
-python odoo-bin shell -c ..\config\odoo.conf -d wujia_tea --no-http < D:\wujia-tea\scripts\seed_admin_franchise.py
-python odoo-bin shell -c ..\config\odoo.conf -d wujia_tea --no-http < D:\wujia-tea\scripts\seed_fleet_demo.py
-python odoo-bin shell -c ..\config\odoo.conf -d wujia_tea --no-http < D:\wujia-tea\scripts\seed_portal_demo.py
-python odoo-bin shell -c ..\config\odoo.conf -d wujia_tea --no-http < D:\wujia-tea\scripts\seed_knowledge_demo.py
-python odoo-bin shell -c ..\config\odoo.conf -d wujia_tea --no-http < D:\wujia-tea\scripts\seed_support_demo.py
+python odoo-bin shell -c ..\config\odoo-server.conf -d wujia_tea_19 --no-http < D:\wujia-tea\scripts\seed_admin_franchise.py
+python odoo-bin shell -c ..\config\odoo-server.conf -d wujia_tea_19 --no-http < D:\wujia-tea\scripts\seed_fleet_demo.py
+python odoo-bin shell -c ..\config\odoo-server.conf -d wujia_tea_19 --no-http < D:\wujia-tea\scripts\seed_portal_demo.py
+python odoo-bin shell -c ..\config\odoo-server.conf -d wujia_tea_19 --no-http < D:\wujia-tea\scripts\seed_knowledge_demo.py
+python odoo-bin shell -c ..\config\odoo-server.conf -d wujia_tea_19 --no-http < D:\wujia-tea\scripts\seed_support_demo.py
 ```
 
 ### Bước 5 — Smoke test
 
 ```powershell
-python odoo-bin shell -c ..\config\odoo.conf -d wujia_tea --no-http < D:\wujia-tea\scripts\test_sprint5.py
+python odoo-bin shell -c ..\config\odoo-server.conf -d wujia_tea_19 --no-http < D:\wujia-tea\scripts\test_sprint5.py
 ```
 
 Output mong đợi: `=== RESULT: 20 PASS / 0 FAIL ===` (có 1 SKIP cho `batch_id` test nếu seed chưa tạo picking — không phải lỗi).
@@ -116,6 +118,7 @@ git push origin main
 Backup DB trước khi drop nếu prod có bất kỳ data nào nghi ngờ cần giữ:
 
 ```powershell
-$env:PGPASSWORD = "wujia_admin"
-pg_dump -h 127.0.0.1 -U odoo wujia_tea > D:\backup\wujia_tea_pre_sprint5_$(Get-Date -Format yyyyMMdd_HHmm).sql
+$env:PGPASSWORD = "1"
+$env:Path = "C:\Program Files\PostgreSQL\16\bin;" + $env:Path
+pg_dump -h 127.0.0.1 -U odoo19 wujia_tea_19 | Out-File -Encoding utf8 D:\backup\wujia_tea_19_pre_sprint5_$(Get-Date -Format yyyyMMdd_HHmm).sql
 ```
