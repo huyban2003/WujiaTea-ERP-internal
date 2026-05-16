@@ -136,7 +136,7 @@ if has_model('wujia.knowledge.category'):
                 'category_id': cats[cat_code].id,
                 'summary': summary,
                 'content': f'<p>{summary}</p><p>Chi tiết hướng dẫn cho bài viết &lt;{name}&gt; sẽ được biên tập đầy đủ ở giai đoạn nội dung.</p>',
-                'published': True,
+                'state': 'published',
                 'publish_date': now - timedelta(days=sample_articles.index((cat_code, name, summary))),
             },
             f'article {name[:30]}',
@@ -206,21 +206,28 @@ if has_model('wujia.exam.schedule') and franchises:
 # ============================================================
 if has_model('wujia.support.ticket') and franchises:
     print("\n[7] Support tickets (3 records)")
-    for i, (st, cat, prio, subj) in enumerate([
-        ('new', 'order', 'high', 'Không đặt được đơn hàng giao ngày 12/05'),
+    Category = env['wujia.support.category']
+    cat_by_code = {c.code: c for c in Category.search([])}
+    for i, (st, cat_code, prio, title) in enumerate([
+        ('new', 'order', 'urgent', 'Không đặt được đơn hàng giao ngày 12/05'),
         ('in_progress', 'product', 'normal', 'Sản phẩm Hồng Trà Sữa lon bị méo bao bì'),
-        ('resolved', 'pos', 'low', 'Máy POS in hóa đơn lệch nội dung'),
+        ('resolved', 'pos', 'normal', 'Máy POS in hóa đơn lệch nội dung'),
     ]):
+        if cat_code not in cat_by_code:
+            print(f"  WARNING: missing category code '{cat_code}' — skip ticket {title[:30]}")
+            continue
         upsert(
             'wujia.support.ticket',
-            [('subject', '=', subj)],
+            [('title', '=', title)],
             {
-                'subject': subj,
-                'description': f'Mô tả chi tiết cho ticket #{i+1}: {subj}. Nhập lại đầy đủ thông tin để HQ xử lý.',
+                'title': title,
+                'description': f'<p>Mô tả chi tiết cho ticket #{i+1}: {title}. Nhập lại đầy đủ thông tin để HQ xử lý.</p>',
                 'franchise_id': franchises[i % len(franchises)].id,
-                'category': cat, 'priority': prio, 'state': st,
+                'category_id': cat_by_code[cat_code].id,
+                'priority': prio,
+                'state': st,
             },
-            f'ticket {subj[:25]}',
+            f'ticket {title[:25]}',
         )
 
 # ============================================================
