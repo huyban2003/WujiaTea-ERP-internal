@@ -70,17 +70,17 @@ Sequence categories cho support (7 record) tự load từ `data/wujia_support_ca
 Lấy 5 script từ repo:
 
 ```powershell
-python odoo-bin shell -c ..\config\odoo-server.conf -d wujia_tea_19 --no-http < D:\wujia-tea\scripts\seed_admin_franchise.py
-python odoo-bin shell -c ..\config\odoo-server.conf -d wujia_tea_19 --no-http < D:\wujia-tea\scripts\seed_fleet_demo.py
-python odoo-bin shell -c ..\config\odoo-server.conf -d wujia_tea_19 --no-http < D:\wujia-tea\scripts\seed_portal_demo.py
-python odoo-bin shell -c ..\config\odoo-server.conf -d wujia_tea_19 --no-http < D:\wujia-tea\scripts\seed_knowledge_demo.py
-python odoo-bin shell -c ..\config\odoo-server.conf -d wujia_tea_19 --no-http < D:\wujia-tea\scripts\seed_support_demo.py
+Get-Content D:\wujia-tea\scripts\seed_admin_franchise.py -Raw | python odoo-bin shell -c ..\config\odoo-server.conf -d wujia_tea_19 --no-http
+Get-Content D:\wujia-tea\scripts\seed_fleet_demo.py -Raw     | python odoo-bin shell -c ..\config\odoo-server.conf -d wujia_tea_19 --no-http
+Get-Content D:\wujia-tea\scripts\seed_portal_demo.py -Raw    | python odoo-bin shell -c ..\config\odoo-server.conf -d wujia_tea_19 --no-http
+Get-Content D:\wujia-tea\scripts\seed_knowledge_demo.py -Raw | python odoo-bin shell -c ..\config\odoo-server.conf -d wujia_tea_19 --no-http
+Get-Content D:\wujia-tea\scripts\seed_support_demo.py -Raw   | python odoo-bin shell -c ..\config\odoo-server.conf -d wujia_tea_19 --no-http
 ```
 
 ### Bước 5 — Smoke test
 
 ```powershell
-python odoo-bin shell -c ..\config\odoo-server.conf -d wujia_tea_19 --no-http < D:\wujia-tea\scripts\test_sprint5.py
+Get-Content D:\wujia-tea\scripts\test_sprint5.py -Raw | python odoo-bin shell -c ..\config\odoo-server.conf -d wujia_tea_19 --no-http
 ```
 
 Output mong đợi: `=== RESULT: 20 PASS / 0 FAIL ===` (có 1 SKIP cho `batch_id` test nếu seed chưa tạo picking — không phải lỗi).
