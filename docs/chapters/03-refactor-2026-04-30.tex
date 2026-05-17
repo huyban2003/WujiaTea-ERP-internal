@@ -1,0 +1,308 @@
+\chapter{Refactor 2026-04-30 --- BA spec mục A + Tính khối lượng}
+
+\section{Bối cảnh}
+
+BA gửi spec mới (sheet \emph{Model Field} trong \texttt{Wujia\_Internal ERP Master Plan.xlsm}) yêu cầu reshape lại phần \emph{Quản lý nhượng quyền} (mục A) và \emph{Tính toán khối lượng} (mục 3) trước khi đi tiếp Day 5+. Các vấn đề BA muốn fix dựa trên review v14:
+
+\begin{itemize}
+    \item v14 hard-code \emph{1 user = 1 chi nhánh} (constraint cứng \texttt{\_check\_related\_user} trong \texttt{franchise.management}). Không cho chủ chuỗi quản lý nhiều cửa hàng.
+    \item v14 chỉ có \texttt{is\_block} boolean --- không có khái niệm role (Owner / Manager / Staff).
+    \item v14 \texttt{franchise.management.code} là related từ \texttt{partner.code}; BA muốn tách độc lập (Char unique trực tiếp trên management) để code không phụ thuộc partner.
+    \item v14 \texttt{res.area} chỉ là 4 field phẳng (name + state + district + ward M2o đơn). BA muốn area là khu vực \emph{kinh doanh} có \texttt{manager\_user\_id}, \texttt{state\_ids}/\texttt{ward\_ids} compute từ ward children → search/report nhanh.
+    \item v14 \texttt{res.ward} chỉ phục vụ địa chỉ. BA muốn ward là master phẳng (không có \texttt{area\_id}); quan hệ ward-area expose qua \texttt{res.area.ward\_ids} M2M để 1 ward có thể nằm trong nhiều khu vực vận hành (case overlap khu giao hàng).
+    \item v14 không có \texttt{is\_franchise} flag trên partner --- BA muốn flag rõ ràng (compute từ \texttt{franchise\_ids != False}, store + index).
+    \item v14 không lưu snapshot weight; sửa product master = thay đổi cân nặng đơn cũ → sai số liệu lịch sử. BA yêu cầu snapshot xuống \texttt{sale.order.line}, \texttt{stock.move}.
+    \item v14 không có state machine cửa hàng (chỉ \texttt{is\_block}). BA muốn 5-state Draft/Active/Locked/Closed/Expired + cron auto-expire.
+    \item Naming \emph{branch} (chi nhánh công ty) gây nhầm với multi-company của Odoo. BA chuẩn hóa thành \emph{franchise} (cửa hàng nhượng quyền).
+\end{itemize}
+
+\textbf{Phạm vi đã chốt với BA:} mục A + tính khối lượng. Mục B (Fleet / Delivery cost) để sprint sau.
+
+\section{Module sau refactor}
+
+\begin{longtable}{p{4.5cm} p{9.5cm}}
+\toprule
+\textbf{Module} & \textbf{Models / vai trò} \\
+\midrule
+\endhead
+\texttt{wujia\_core} & \texttt{res.area}, \texttt{res.ward} (master data dùng chung). \\
+\texttt{wujia\_franchise} & \texttt{wujia.franchise.management} + \texttt{wujia.franchise.member} + ext \texttt{res.partner}, \texttt{res.users}. Gộp 2 model vào cùng module để chống circular dep (xem ADR-015). \\
+\texttt{wujia\_sale} & \texttt{sale.order} ext (portal + franchise) + tính khối lượng trên line / stock.move / stock.picking / stock.picking.batch. \\
+\texttt{wujia\_portal\_base} & Routes \texttt{/my/franchises}, bus channel \texttt{wujia.franchise\_<id>}, sample\_data. \\
+\bottomrule
+\end{longtable}
+
+\section{Model \texttt{res.ward} (Phường/Xã)}
+
+File: \texttt{custom/wujia\_core/models/res\_ward.py}
+
+\begin{longtable}{p{4cm} p{4cm} p{7cm}}
+\toprule
+\textbf{Field} & \textbf{Kiểu} & \textbf{Vai trò} \\
+\midrule
+\endhead
+\texttt{name} & Char required & Tên phường/xã \\
+\texttt{code} & Char required (unique theo state) & Mã hành chính \\
+\texttt{state\_id} & M2O \texttt{res.country.state} required & Tỉnh/Thành \\
+\texttt{country\_id} & M2O \texttt{res.country} related store & Quốc gia (cache) \\
+\texttt{active} & Boolean & Bật/tắt \\
+\bottomrule
+\end{longtable}
+
+Constraint SQL: \texttt{UNIQUE (state\_id, code)} --- mã ward duy nhất trong từng tỉnh.
+
+\section{Model \texttt{res.area} (Khu vực kinh doanh)}
+
+File: \texttt{custom/wujia\_core/models/res\_area.py}
+
+\begin{longtable}{p{4cm} p{4cm} p{7cm}}
+\toprule
+\textbf{Field} & \textbf{Kiểu} & \textbf{Vai trò} \\
+\midrule
+\endhead
+\texttt{code} & Char required unique & Mã khu vực, vd KV-HCM-01 \\
+\texttt{name} & Char required translate & Tên khu vực \\
+\texttt{sequence} & Integer (default 10) & Thứ tự hiển thị \\
+\texttt{manager\_user\_id} & M2O \texttt{res.users} & Người phụ trách khu vực \\
+\texttt{ward\_ids} & M2M \texttt{res.ward} (rel \texttt{res\_area\_ward\_rel}) & Phường/xã thuộc khu vực --- chọn từ danh mục \\
+\texttt{state\_ids} & M2M compute store & Tỉnh/Thành tổng hợp từ \texttt{ward\_ids.state\_id} \\
+\texttt{description}, \texttt{note} & Text & Mô tả + ghi chú \\
+\texttt{active} & Boolean & Bật/tắt \\
+\bottomrule
+\end{longtable}
+
+\section{Model \texttt{wujia.franchise.management} (Hồ sơ cửa hàng nhượng quyền)}
+
+File: \texttt{custom/wujia\_franchise/models/wujia\_franchise\_management.py}. Inherit \texttt{mail.thread, mail.activity.mixin}.
+
+\subsection{Định danh}
+
+\begin{longtable}{p{5cm} p{4cm} p{6cm}}
+\toprule
+\textbf{Field} & \textbf{Kiểu} & \textbf{Vai trò} \\
+\midrule
+\endhead
+\texttt{code} & Char required unique tracking & Mã cửa hàng (vd H010, HN-01). \emph{Không} còn related từ partner. \\
+\texttt{name} & Char required tracking & Tên cửa hàng \\
+\texttt{display\_name} & Char compute store & Format ``[code] name'' \\
+\texttt{partner\_id} & M2O \texttt{res.partner}, \texttt{ondelete=restrict} & Partner liên kết. \emph{Required khi status='active'} qua \texttt{@constrains}, không required ở field level. \\
+\bottomrule
+\end{longtable}
+
+\subsection{Hợp đồng}
+
+\begin{longtable}{p{5cm} p{4cm} p{6cm}}
+\toprule
+\textbf{Field} & \textbf{Kiểu} & \textbf{Vai trò} \\
+\midrule
+\endhead
+\texttt{franchise\_start\_date} & Date required default today & Ngày bắt đầu \\
+\texttt{franchise\_end\_date} & Date required & Ngày kết thúc (\texttt{@constrains} $\geq$ start) \\
+\texttt{remaining\_days} & Integer compute store & Số ngày còn lại = end - today \\
+\texttt{is\_expired} & Boolean compute store & remaining\_days < 0 \\
+\texttt{opening\_date} & Date & Ngày khai trương \\
+\texttt{status} & Selection 5 trạng thái & draft / active / locked / closed / expired \\
+\bottomrule
+\end{longtable}
+
+\subsection{Khu vực + Liên hệ}
+
+\begin{longtable}{p{5cm} p{4cm} p{6cm}}
+\toprule
+\textbf{Field} & \textbf{Kiểu} & \textbf{Vai trò} \\
+\midrule
+\endhead
+\texttt{area\_id} & M2O \texttt{res.area} \texttt{ondelete=restrict} & Khu vực \\
+\texttt{area\_name} & Char related store readonly & Tên khu vực (cache) \\
+\texttt{state\_id} & M2O \texttt{res.country.state} & Tỉnh/Thành \\
+\texttt{address} & Text & Địa chỉ (đa dòng) \\
+\texttt{phone} & Char & SĐT \\
+\texttt{email} & Char (regex validate) & Email \\
+\bottomrule
+\end{longtable}
+
+\subsection{Thành viên + cờ điều khiển}
+
+\begin{longtable}{p{5cm} p{4cm} p{6cm}}
+\toprule
+\textbf{Field} & \textbf{Kiểu} & \textbf{Vai trò} \\
+\midrule
+\endhead
+\texttt{member\_ids} & O2M \texttt{wujia.franchise.member.franchise\_id} & Danh sách member \\
+\texttt{member\_count} & Integer compute & Đếm member \texttt{is\_currently\_valid=True} \\
+\texttt{main\_owner\_member\_id} & M2O \texttt{wujia.franchise.member} compute & Owner active đầu tiên (BA: bỏ yêu cầu \texttt{is\_primary\_owner=True}) \\
+\texttt{portal\_locked} & Boolean tracking & Khóa portal \\
+\texttt{invoiced} & Boolean & Cờ đã xuất hóa đơn \\
+\texttt{description}, \texttt{note} & Text & Mô tả vận hành + ghi chú \\
+\texttt{active} & Boolean & Bật/tắt record \\
+\bottomrule
+\end{longtable}
+
+\subsection{Action + Cron}
+
+\begin{itemize}
+    \item \textbf{Kích hoạt}: status=active, portal\_locked=False.
+    \item \textbf{Khóa portal}: status=locked, portal\_locked=True.
+    \item \textbf{Đóng cửa hàng}: status=closed, portal\_locked=True (cần confirm).
+    \item \textbf{Stat button ``Thành viên''}: mở list \texttt{wujia.franchise.member} filter theo \texttt{franchise\_id}.
+    \item \textbf{Cron \texttt{ir\_cron\_check\_franchise\_expired}}: daily, set status=expired nếu end\_date < today (đã wire trong views XML).
+\end{itemize}
+
+\section{Model \texttt{wujia.franchise.member} (UI độc lập theo BA spec)}
+
+File: \texttt{custom/wujia\_franchise/models/wujia\_franchise\_member.py}.
+
+\begin{longtable}{p{5cm} p{4cm} p{6cm}}
+\toprule
+\textbf{Field} & \textbf{Kiểu} & \textbf{Vai trò} \\
+\midrule
+\endhead
+\texttt{user\_id} & M2O \texttt{res.users} required cascade & User portal \\
+\texttt{franchise\_id} & M2O \texttt{wujia.franchise.management} required cascade & Cửa hàng (link \emph{trực tiếp}, không qua partner) \\
+\texttt{role} & Selection [owner, manager, staff] & Vai trò \\
+\texttt{is\_primary\_owner} & Boolean & Chủ chính, max 1/cửa hàng \\
+\texttt{date\_from}, \texttt{date\_to} & Date & Hiệu lực \\
+\texttt{is\_currently\_valid} & Boolean compute store index & active AND date range valid \\
+\texttt{display\_name} & Char compute store & ``user @ franchise (role)'' \\
+\texttt{active} & Boolean & Archive \\
+\bottomrule
+\end{longtable}
+
+\textbf{Constraints:}
+\begin{itemize}
+    \item \texttt{date\_from $\leq$ date\_to}.
+    \item \texttt{is\_primary\_owner=True} → \texttt{role=owner}, unique 1 primary/active per franchise.
+    \item \texttt{(user, franchise, active=True)} unique --- vẫn cho user có membership ở nhiều franchise khác nhau.
+\end{itemize}
+
+\textbf{UI độc lập (yêu cầu BA --- ADR-014):} list / form / search action riêng. Menu \emph{Operation > Franchise Member}. Form \texttt{res.users} chuẩn của Odoo \emph{chỉ thêm 1 smart-button} ``Franchise Members'' --- KHÔNG nhúng tab editable.
+
+\section{Extension \texttt{res.partner}}
+
+\begin{longtable}{p{4cm} p{4cm} p{7cm}}
+\toprule
+\textbf{Field} & \textbf{Kiểu} & \textbf{Vai trò} \\
+\midrule
+\endhead
+\texttt{franchise\_ids} & O2M \texttt{wujia.franchise.management.partner\_id} & Danh sách cửa hàng partner đại diện \\
+\texttt{is\_franchise} & Boolean compute store index & \texttt{bool(franchise\_ids)} --- thay cho \texttt{is\_branch} cũ \\
+\texttt{franchise\_count} & Integer compute & Smart-button counter \\
+\bottomrule
+\end{longtable}
+
+Smart-button \emph{Franchise Stores} hiện ra trên form partner khi \texttt{is\_franchise=True}.
+
+\section{Extension \texttt{res.users}}
+
+\begin{longtable}{p{4cm} p{4cm} p{7cm}}
+\toprule
+\textbf{Field / Method} & \textbf{Kiểu} & \textbf{Vai trò} \\
+\midrule
+\endhead
+\texttt{member\_ids} & O2M \texttt{wujia.franchise.member.user\_id} & Memberships của user \\
+\texttt{member\_count} & Integer compute & Đếm member \texttt{is\_currently\_valid} \\
+\texttt{\_get\_active\_franchise\_memberships()} & Method & Filter member valid \\
+\texttt{\_get\_accessible\_franchise\_ids()} & Method \texttt{@ormcache('self.id')} & Trả tuple \texttt{wujia.franchise.management.id} \\
+\texttt{\_get\_franchise\_role(franchise\_id)} & Method & Lookup role trong cửa hàng \\
+\bottomrule
+\end{longtable}
+
+\textbf{Tên method đổi:} \texttt{\_get\_accessible\_branch\_partner\_ids} → \texttt{\_get\_accessible\_franchise\_ids}. Caller nào dùng phải đổi (đã update \texttt{wujia\_sale} record rule + \texttt{wujia\_portal\_base} ir.websocket).
+
+\section{Menu structure}
+
+\begin{lstlisting}[style=shell]
+Franchise Management
++-- Operation
+|   +-- Franchise Management   -> wujia.franchise.management
+|   +-- Franchise Member       -> wujia.franchise.member
++-- Configuration
+    +-- Area Management
+        +-- Area               -> res.area
+        +-- Province / City    -> base.action_country_state
+        +-- Ward               -> res.ward
+\end{lstlisting}
+
+\section{Tính khối lượng (BA spec mục 3)}
+
+Snapshot \texttt{product.weight} xuống line/move tại lúc tạo, để dữ liệu cũ không đổi khi product master cập nhật.
+
+\subsection{\texttt{sale.order.line}}
+
+\begin{longtable}{p{4cm} p{4cm} p{7cm}}
+\toprule
+\textbf{Field} & \textbf{Kiểu} & \textbf{Vai trò} \\
+\midrule
+\endhead
+\texttt{weight\_per\_unit} & Float readonly & Snapshot từ \texttt{product\_id.weight} (set trong \texttt{onchange} + \texttt{create}). \\
+\texttt{planned\_weight} & Float compute store & = qty $\times$ weight\_per\_unit \\
+\bottomrule
+\end{longtable}
+
+\subsection{\texttt{sale.order}}
+
+\texttt{total\_planned\_weight} (Float compute store) = \texttt{sum(order\_line.planned\_weight)}.
+
+\subsection{\texttt{stock.move}}
+
+\begin{longtable}{p{4cm} p{4cm} p{7cm}}
+\toprule
+\textbf{Field} & \textbf{Kiểu} & \textbf{Vai trò} \\
+\midrule
+\endhead
+\texttt{weight\_per\_unit} & Float readonly & Snapshot trong \texttt{create}: ưu tiên \texttt{sale\_line\_id.weight\_per\_unit}, fallback \texttt{product.weight}. \\
+\texttt{planned\_weight} & Float compute store & = \texttt{product\_uom\_qty} $\times$ weight\_per\_unit \\
+\texttt{done\_weight} & Float compute store & = \texttt{quantity} $\times$ weight\_per\_unit \\
+\bottomrule
+\end{longtable}
+
+\textbf{Lưu ý Odoo 19:} stock.move dùng field \texttt{quantity} (không phải \texttt{quantity\_done} của v14--v16).
+
+\subsection{\texttt{stock.picking} + \texttt{stock.picking.batch}}
+
+Aggregate compute store:
+\begin{itemize}
+    \item \texttt{stock.picking.planned\_weight = sum(move\_ids.planned\_weight)}.
+    \item \texttt{stock.picking.done\_weight = sum(move\_ids.done\_weight)}.
+    \item \texttt{stock.picking.batch.planned\_weight = sum(picking\_ids.planned\_weight)}.
+    \item \texttt{stock.picking.batch.done\_weight = sum(picking\_ids.done\_weight)}.
+\end{itemize}
+
+\textbf{Lưu ý Odoo 19:} \texttt{stock.picking.move\_ids} (rename từ \texttt{move\_ids\_without\_package} của v17--v18). Đã verify khi install.
+
+\section{Verify install (đã pass)}
+
+\begin{lstlisting}[style=shell]
+# Drop + reinstall fresh
+PGPASSWORD=1 dropdb -h 127.0.0.1 -U odoo19 wujia_tea_19
+PGPASSWORD=1 createdb -h 127.0.0.1 -U odoo19 wujia_tea_19
+~/miniconda3/envs/odoo/bin/python odoo19/odoo-bin \
+   -c config/odoo.conf -d wujia_tea_19 \
+   -i wujia_core,wujia_franchise,wujia_sale,wujia_portal_base \
+   --stop-after-init
+# 70 modules loaded clean (chỉ 1 warning vô hại về translated stored related)
+\end{lstlisting}
+
+Kết quả schema check (psql):
+\begin{itemize}
+    \item \texttt{res\_area} 12 cột; \texttt{res\_ward} 11 cột.
+    \item \texttt{wujia\_franchise\_management} 26 cột (đủ spec); \texttt{code} unique.
+    \item \texttt{wujia\_franchise\_member} 13 cột; \texttt{franchise\_id} M2o cascade tới management.
+    \item \texttt{sale\_order} có 7 field mới (\texttt{is\_portal\_order, franchise\_partner\_id, franchise\_id, portal\_member\_id, portal\_requester\_user\_id, area\_id, total\_planned\_weight}).
+    \item \texttt{sale\_order\_line} có \texttt{weight\_per\_unit, planned\_weight}.
+    \item \texttt{stock\_move} có 3 weight column, \texttt{stock\_picking} + \texttt{stock\_picking\_batch} có aggregate.
+    \item Sample data: 2 area, 3 partner \texttt{is\_franchise=True}, 3 franchise.management, 7 membership.
+\end{itemize}
+
+Kết quả end-to-end test (Odoo shell):
+\begin{itemize}
+    \item \texttt{anh.owner} → \texttt{\_get\_accessible\_franchise\_ids}=(1,) → ['HN-01'] ✓
+    \item \texttt{dung.multi} → (3,1,2) → ['HCM-01','HN-01','HN-02'] (multi-franchise) ✓
+    \item \texttt{em.hcm} → (3,) → ['HCM-01'] ✓
+    \item \texttt{HN-01.member\_count}=4, \texttt{main\_owner}=anh.owner ✓
+    \item \texttt{HCM-01.member\_count}=2, \texttt{main\_owner}=em.hcm ✓
+    \item \texttt{HN-02.member\_count}=1, \texttt{main\_owner}=— (chỉ có Dung manager, không có owner) ✓
+    \item Weight calc: SO line qty=3 × weight=0.5 → \texttt{planned\_weight}=1.5; sau confirm stock.move \texttt{planned\_weight}=1.5 ✓
+\end{itemize}
+
+% ===========================================================================

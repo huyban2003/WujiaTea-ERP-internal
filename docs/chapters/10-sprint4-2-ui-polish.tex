@@ -1,0 +1,292 @@
+\chapter{Sprint 4.2 --- UI polish: sidebar overlay + card header}
+
+\section{Bối cảnh}
+
+Sau khi Sprint 4.1 push lên GitHub và auto-deploy ra server Windows, mở \texttt{/portal} thực tế phát hiện 2 lỗi giao diện không thấy được khi dev local:
+
+\begin{itemize}
+    \item \textbf{Bug L1 --- Sidebar bị overlay xám đè lên trên server.} Phần user-info \emph{Mitchell Admin} còn hiện, các menu items (Trang chủ + dropdown module) bị che hoàn toàn bởi lớp \texttt{rgba(0,0,0,0.5)}. Force \texttt{Ctrl+Shift+R} cache-bust không fix.
+    \item \textbf{Bug L2 --- Card header lệch viền bo tròn.} 4 block dashboard (\emph{Thông báo mới nhất / Đơn hàng gần đây / Yêu cầu đổi trả / Sản phẩm mua nhiều}) có \texttt{.card \{border-radius: 20px\}} nhưng \texttt{.card-header} background "lòi" ra khỏi 4 góc do thiếu \texttt{overflow: hidden}.
+\end{itemize}
+
+\section{Root cause Bug L1}
+
+Element thủ phạm là \texttt{.content-overlay} render trong \texttt{layouts.xml} (line 174). CSS \texttt{components.css} (line 30--51):
+
+\begin{itemize}
+    \item Mặc định: \texttt{z-index: -1; opacity: 0;} --- ẩn.
+    \item Khi \texttt{.app-content} có class \texttt{.show-overlay}: \texttt{z-index: 10; opacity: 1; position: fixed; top:0; left:0; width:100\%; height:100\%; background: rgba(0,0,0,0.5)} --- phủ toàn màn hình kể cả sidebar.
+\end{itemize}
+
+Class \texttt{.show-overlay} chỉ được add khi user gõ vào search input ở navbar (\texttt{app.js:653}). Local Linux JS init nhanh, không bị stuck. Server Windows, do Odoo \texttt{web.assets\_frontend} load chậm hơn, JS init order khác làm class bị stuck từ lúc page mount.
+
+Theo lý thuyết \texttt{.main-menu} có \texttt{z-index: 1031} (components.css:357), cao hơn 10. Nhưng \texttt{.main-menu} là \texttt{position: absolute} trong khi \texttt{.content-overlay} là \texttt{position: fixed} --- 2 stacking context khác nhau, kết quả render phụ thuộc DOM order khi Odoo's frontend bundle wrap thêm wrapper.
+
+\section{Root cause Bug L1 phần 2 (deep dive sau khi push lần đầu)}
+
+Sau push Sprint 4.2 lần đầu, deploy lên server vẫn còn bug: sidebar load ra rồi mất. Đào sâu Vuexy template:
+
+\begin{itemize}
+    \item \texttt{vertical-menu.css} line 329--334 ẩn \texttt{.main-menu} mặc định ở viewport \texttt{<=1199.98px}: \texttt{width:0; opacity:0; left:-260px}.
+    \item Để show, JS \texttt{app-menu.js} phải add class \texttt{menu-expanded} vào \texttt{body}. Nhưng hàm \texttt{expand()} có guard \texttt{if (this.expanded === false)} --- giá trị mặc định là \texttt{undefined}, không strict-equal \texttt{false} → \emph{expand() không chạy}, body không có class \texttt{menu-expanded}.
+    \item Server vs local khác nhau ở timing: local JS chạy đủ nhanh để hit code path expand qua resize hoặc DOM-ready handler khác; server bị stale.
+\end{itemize}
+
+Đây là bug tồn tại từ v14 (cùng Vuexy template) --- v14 sống chung với nó. v19 fix triệt để bằng CSS-only override + JS class-force, bỏ qua hoàn toàn cơ chế expand() của Vuexy.
+
+\section{Fix --- defense in depth 3 lớp}
+
+\subsection{Lớp 1: Sidebar z-index cao hơn modal-backdrop}
+
+Trong \texttt{custom/wujia\_portal\_layout/static/assets/css/style.css}:
+
+\begin{lstlisting}[style=python]
+.main-menu {
+    z-index: 1040 !important;
+}
+\end{lstlisting}
+
+1040 = Bootstrap modal-backdrop level. Đảm bảo sidebar luôn nổi trên mọi overlay không phải Bootstrap modal.
+
+\subsection{Lớp 2: Overlay không phủ sidebar}
+
+Đặt \texttt{left: 260px} cho \texttt{.content-overlay} desktop --- chỉ phủ content area:
+
+\begin{lstlisting}[style=python]
+html body .content.app-content .content-overlay {
+    left: 260px;
+    width: calc(100% - 260px);
+}
+@media (max-width: 1199.98px) {
+    /* Mobile: sidebar hidden, overlay vẫn full width */
+    .content-overlay { left: 0; width: 100%; }
+}
+\end{lstlisting}
+
+Kể cả khi class \texttt{show-overlay} bị stuck, sidebar vẫn click được.
+
+\subsection{Lớp 3: JS safety reset trên page load}
+
+Trong \texttt{custom/wujia\_portal\_layout/static/assets/js/my\_js.js}:
+
+\begin{lstlisting}[style=python]
+$(document).ready(function () {
+    $('.app-content').removeClass('show-overlay');
+});
+$(window).on('load', function () {
+    $('.app-content').removeClass('show-overlay');
+});
+\end{lstlisting}
+
+Reset 2 lần (DOMContentLoaded + window.load) cover toàn bộ JS init race condition.
+
+\subsection{Lớp 4: Bypass Vuexy menu-modern auto-hide}
+
+Sau khi gỡ overlay xám (lớp 1--3), lộ ra bug sâu hơn từ v14: \texttt{.main-menu} bị Vuexy CSS auto-ẩn khi viewport \texttt{<=1199.98px} (\texttt{width:0; opacity:0; left:-260px}), và JS \texttt{expand()} có guard sai → không add class \texttt{menu-expanded}. Bypass hoàn toàn bằng CSS-only + JS class-force:
+
+\begin{lstlisting}[style=python]
+/* CSS: force visible >= 992px regardless of body classes */
+@media (min-width: 992px) {
+    body.vertical-menu-modern .main-menu {
+        width: 260px !important;
+        opacity: 1 !important;
+        left: 0 !important;
+    }
+    .main-menu .main-menu-content {
+        height: calc(100vh - 6rem) !important;
+        overflow-y: auto !important;
+    }
+    .main-menu .navigation, .main-menu .navigation-main,
+    .main-menu .navigation > li {
+        display: block !important;
+        visibility: visible !important;
+        opacity: 1 !important;
+    }
+    html body .content { margin-left: 260px; }
+}
+
+/* JS: force body.menu-expanded as defensive fallback */
+function _wujiaForceMenuExpanded() {
+    if ($(window).width() >= 992) {
+        $('body').removeClass('menu-hide menu-collapsed')
+                 .addClass('menu-expanded menu-open');
+    }
+}
+$(document).ready(_wujiaForceMenuExpanded);
+$(window).on('load resize', _wujiaForceMenuExpanded);
+\end{lstlisting}
+
+Bug này tồn tại từ v14 (cùng Vuexy template). v14 sống chung; v19 fix triệt để vì 1500 user concurrent không tolerate UI flaky.
+
+\subsection{Lớp 5: Vô hiệu hóa Vuexy app-menu.js}
+
+Sau khi áp lớp 4, sidebar hiện đúng nhưng vẫn flicker (\emph{"load 2 lần"}) vì Vuexy \texttt{f.app.menu.init()} chạy ở \texttt{window.load} → animate hide/expand → PerfectScrollbar reflow. Menu của ta chỉ có 1 item tĩnh, không cần accordion/scrollbar/breakpoint logic. Vô hiệu hóa bằng override hàm thành no-op trước khi \texttt{app.js} chạy load handler:
+
+\begin{lstlisting}[style=python]
+if (typeof $ !== 'undefined' && $.app && $.app.menu) {
+    $.app.menu.init = function () {};
+    $.app.menu.change = function () {};
+    if ($.app.menu.manualScroller) {
+        $.app.menu.manualScroller.init = function () {};
+        $.app.menu.manualScroller.update = function () {};
+        $.app.menu.manualScroller.updateHeight = function () {};
+    }
+}
+\end{lstlisting}
+
+\texttt{my\_js.js} load sau \texttt{app-menu.js + app.js} (theo thứ tự \texttt{assets.xml}) nên khi \texttt{app.js} kích hoạt load handler gọi \texttt{f.app.menu.init(e)}, hàm \texttt{init} đã là no-op. Không animation → không flicker.
+
+\subsection{Lớp 6: Fix DataTable AMD conflict + avatar 404 (phát hiện qua DevTools)}
+
+Sau deploy lớp 1--5 lên server, sidebar vẫn ẩn và xuất hiện 2 mảnh text \emph{"ser"} / \emph{"ure"} ở cạnh trái sidebar. Mở DevTools console (F12) trên browser server, lộ ra 3 lỗi:
+
+\begin{lstlisting}[style=shell]
+GET http://localhost:8019/profile/avatar/2 404 (NOT FOUND)
+Uncaught TypeError: $(...).DataTable is not a function
+    at HTMLDocument.<anonymous> (datatable.js:16:30)
+GET http://localhost:8019/app-assets/data/locales/en.json 404
+\end{lstlisting}
+
+\textbf{Lỗi 1 --- avatar 404 → \emph{"ser ure"} fragments:} Route \texttt{/profile/avatar/<uid>} được tham chiếu từ \texttt{layouts.xml} (navbar + sidebar) và \texttt{profile\_page.xml} nhưng \emph{không có controller nào define}. Khi \texttt{<img>} fail, browser hiển thị \texttt{alt="User picture"} thay ảnh. Bên trong \texttt{.user-pic} (\texttt{border-radius: 50\%; overflow: hidden; width: 35\%}), chữ "User picture" bị crop theo hình tròn → chỉ thấy phần giữa mỗi từ = \emph{ser} (từ "User") + \emph{ure} (từ "picture"). Fix:
+
+\begin{lstlisting}[style=python]
+# Cũ:
+t-att-src="'/profile/avatar/'+ str(request.env.user.id)" alt="User picture"
+
+# Mới: dùng built-in route, luôn có placeholder fallback
+t-att-src="'/web/image/res.users/'+ str(request.env.user.id) +'/avatar_128'"
+alt=""  # decorative — silent nếu fail
+\end{lstlisting}
+
+\textbf{Lỗi 2 (root cause menu ẩn) --- DataTable AMD conflict:} Odoo's frontend bundle inject \texttt{define()} (AMD loader) global. \texttt{datatables.min.js} dùng UMD wrapper: nếu thấy \texttt{define \&\& define.amd}, register dạng AMD \emph{không attach \texttt{\$.fn.DataTable}}. Init script \texttt{scripts/datatables/datatable.js} ở dòng 16 gọi \texttt{\$('.zero-configuration').DataTable()} → \texttt{Uncaught TypeError}.
+
+Crash này quan trọng vì \emph{nó throw bên trong} \texttt{\$(document).ready} callback đầu tiên trong queue → jQuery dừng iterate → mọi \texttt{\$(document).ready(\dots)} đăng ký sau đó \emph{không chạy}, bao gồm \texttt{\_wujiaForceMenuExpanded} (add \texttt{body.menu-expanded}). Layer 4 CSS có \texttt{!important} nhưng vẫn bị Vuexy rule có specificity cao hơn (\texttt{body.menu-expanded \dots}) override. Vì class không add → menu ẩn.
+
+Fix: bỏ \texttt{datatable.js} khỏi bundle \texttt{tables\_js} trong \texttt{assets.xml} (portal pages không dùng class \texttt{.zero-configuration} / \texttt{.row-grouping}):
+
+\begin{lstlisting}[style=python]
+<template id="tables_js">
+    <!-- REMOVED: scripts/datatables/datatable.js — AMD conflict crash -->
+    <script src=".../tables/datatable/pdfmake.min.js"/>
+    ...
+</template>
+\end{lstlisting}
+
+\textbf{Lỗi 3 --- i18next 404:} \texttt{app.js:492} gọi \texttt{i18next.init(\{loadPath: '../../../app-assets/data/locales/\{\{lng\}\}.json'\})} → path không serve được file → 404. Translation thực tế ta dùng \texttt{lang.js} (hàm \texttt{\_t}), i18next vô dụng. Override no-op trong \texttt{my\_js.js}:
+
+\begin{lstlisting}[style=python]
+if (typeof i18next !== 'undefined') {
+    i18next.use = function () { return i18next; };
+    i18next.init = function (opts, cb) {
+        if (typeof cb === 'function') {
+            cb(null, function (k) { return k; });
+        }
+        return i18next;
+    };
+}
+\end{lstlisting}
+
+Manifest bump: \texttt{19.0.2.0.0 → 19.0.2.1.0 → 19.0.2.2.0 → 19.0.2.3.0}.
+
+\section{Fix Bug L2 --- card header}
+
+Sửa \texttt{style.css:143-145}, từ:
+
+\begin{lstlisting}[style=python]
+.card { border-radius: 20px !important; }
+\end{lstlisting}
+
+Thành:
+
+\begin{lstlisting}[style=python]
+.card {
+    border-radius: 20px !important;
+    overflow: hidden;        /* clip children theo viền card */
+}
+.card-header {
+    border-top-left-radius: 20px;
+    border-top-right-radius: 20px;
+}
+.card-footer {
+    border-bottom-left-radius: 20px;
+    border-bottom-right-radius: 20px;
+}
+\end{lstlisting}
+
+\texttt{overflow: hidden} đủ để clip header/footer theo viền card. Thêm \texttt{border-radius} match-explicit cho header/footer như fallback nếu module nào override \texttt{overflow}.
+
+\section{Files thay đổi}
+
+\begin{lstlisting}[style=shell]
+SỬA:
+  custom/wujia_portal_layout/__manifest__.py             # 19.0.2.0.0 → 19.0.2.1.0
+  custom/wujia_portal_layout/static/assets/css/style.css # card + sidebar/overlay CSS
+  custom/wujia_portal_layout/static/assets/js/my_js.js   # reset show-overlay
+  docs/wujia-tea-doc.tex                                  # chapter Sprint 4.2
+\end{lstlisting}
+
+\section{Files thay đổi (full Sprint 4.2)}
+
+\begin{lstlisting}[style=shell]
+SỬA:
+  custom/wujia_portal_layout/__manifest__.py
+      19.0.2.0.0 → 19.0.2.3.0 (4 lần bump qua các commit con)
+  custom/wujia_portal_layout/static/assets/css/style.css
+      + card-header/footer border-radius + overflow: hidden (L2)
+      + .main-menu z-index: 1040 (L1.1)
+      + .content-overlay left: 260px desktop (L1.2)
+      + @media min-width 992px force .main-menu visible (L4)
+  custom/wujia_portal_layout/static/assets/js/my_js.js
+      + reset .show-overlay on ready/load (L1.3)
+      + _wujiaForceMenuExpanded on ready/load/resize (L4 JS)
+      + neutralize $.app.menu + manualScroller (L5)
+      + neutralize i18next.use/init (L6 lỗi 3)
+  custom/wujia_portal_layout/views/layouts.xml
+      avatar src: /profile/avatar/<id> → /web/image/res.users/<id>/avatar_128
+      alt: "User picture" → "" (L6 lỗi 1)
+  custom/wujia_portal_layout/views/profile_page.xml
+      avatar src: cùng pattern trên
+  custom/wujia_portal_layout/views/assets.xml
+      REMOVE scripts/datatables/datatable.js khỏi tables_js bundle (L6 lỗi 2)
+  docs/wujia-tea-doc.tex   chapter Sprint 4.2 (Bối cảnh → L1..L6 → Verify)
+\end{lstlisting}
+
+\section{Verify (đã pass trên server production)}
+
+\begin{lstlisting}[style=shell]
+1. Pull + upgrade module trên server (PowerShell Administrator):
+   cd D:\wujia-tea
+   git pull origin main
+   nssm stop Odoo
+   python odoo19\odoo-bin -c config\odoo-server.conf -d wujia_tea_19 `
+       -u wujia_portal_layout --stop-after-init --no-http
+   nssm start Odoo
+
+2. Mở http://localhost:8019/portal trên server, Ctrl+Shift+R:
+   ✓ Sidebar menu hiện đủ "Trang chủ", không bị overlay xám đè.
+   ✓ Avatar Mitchell Admin hiện ảnh (placeholder Odoo), không còn
+     fragments "ser" / "ure" do alt text crop bởi border-radius 50%.
+   ✓ 4 card dashboard có header bo tròn 20px khớp viền, không lòi.
+   ✓ Không còn flicker "load 2 lần" (Vuexy menu animations bị disable).
+   ✓ DevTools console: 0 uncaught error. Chỉ còn warning từ web.assets
+     của Odoo (không liên quan portal).
+
+3. Devtools toggle viewport <= 1199px: overlay phủ full width khi mở
+   search dropdown (giữ behavior cũ mobile).
+\end{lstlisting}
+
+\section{ADR Sprint 4.2}
+
+\subsection{ADR-023: Bypass Vuexy menu init thay vì fix tại chỗ}
+
+Vuexy \texttt{app-menu.js} có nhiều bug timing/guard sai (\texttt{this.expanded === false} vs \texttt{undefined}, PerfectScrollbar fail trên container 0 height, JS init order phụ thuộc \texttt{Unison.fetch}). Cố fix từng case sẽ phình ra phức tạp + dễ regress.
+
+Quyết định: \emph{neutralize toàn bộ} Vuexy menu init (override thành no-op) thay vì sửa từng hàm. Sidebar của ta chỉ có 1 item tĩnh, không cần accordion / submenu / breakpoint-aware hide / PerfectScrollbar — gỡ hết animations + chỉ dùng CSS \texttt{!important} force visible.
+
+Trade-off: nếu Phase 2 BA yêu cầu sidebar có submenu dạng accordion → phải tự implement, không reuse Vuexy. Hiện tại Phase 1.0 chỉ flat list nên OK.
+
+\subsection{ADR-024: \texttt{/web/image/res.users/<id>/avatar\_128} thay route custom}
+
+Route \texttt{/profile/avatar/<uid>} không có controller (legacy reference từ v14). Thay vì viết controller mới, dùng built-in Odoo route \texttt{/web/image/res.users/<id>/avatar\_128}: luôn 200 (placeholder nếu user chưa upload avatar), có \texttt{Cache-Control} header chuẩn, không reinvent wheel.
+
+% ===========================================================================

@@ -2,77 +2,103 @@
     <data>
         <template id="wujia_portal_layout.profile_page">
             <t t-call="wujia_portal_layout.app_layout">
-
                 <div class="content-wrapper">
                     <div class="content-body">
-                        <!-- account setting page start -->
                         <section id="page-account-settings">
                             <div class="row">
                                 <div class="col-md-12">
                                     <div class="card">
                                         <div class="card-content">
                                             <div class="card-body">
-                                                <form class="novalidate">
+                                                <h4 class="mb-3">Thông tin cá nhân</h4>
+
+                                                <!-- Flash messages -->
+                                                <div t-if="error" class="alert alert-danger" role="alert">
+                                                    <t t-esc="error"/>
+                                                </div>
+                                                <div t-if="message" class="alert alert-success" role="status">
+                                                    <t t-esc="message"/>
+                                                </div>
+
+                                                <form action="/portal/profile/update" method="POST"
+                                                      enctype="multipart/form-data" class="novalidate">
+                                                    <input type="hidden" name="csrf_token"
+                                                           t-att-value="request.csrf_token()"/>
+
                                                     <div class="row">
+                                                        <!-- Avatar block -->
+                                                        <div class="col-12 mb-3">
+                                                            <img id="img-upload" class="img-upload-user-profile"
+                                                                 t-attf-src="/portal/profile/avatar/{{ user.id }}"
+                                                                 alt="Avatar"/>
+                                                            <div class="mt-2">
+                                                                <label for="file_avatar_user_profile" class="custom-file-upload">
+                                                                    Chọn hình (≤ 2MB, png/jpg/webp)
+                                                                </label>
+                                                                <input id="file_avatar_user_profile" type="file"
+                                                                       name="avatar"
+                                                                       accept="image/png,image/jpeg,image/webp"
+                                                                       onchange="readURL(this);"/>
+                                                            </div>
+                                                        </div>
+
                                                         <div class="col-12">
-                                                            <div class="row">
-                                                                <div class="col-12">
-                                                                    <img id="img-upload" class="img-upload-user-profile" t-att-src="'/web/image/res.users/'+ str(request.env.user.id) +'/avatar_128'" alt=""/>
-                                                                        <!-- t-attf-src="data:image/*;base64,{{data.image_1920}}" /> -->
-                                                                </div>
-                                                                <div class="col-12 mb-2">
-                                                                    <label for="file_avatar_user_profile" class="custom-file-upload">
-                                                                        Chọn hình
-                                                                    </label>
-                                                                    <input id="file_avatar_user_profile" type="file" accept="image/png, image/jpeg" name="file_avatar_user_profile" style="display: none;"
-                                                                        onchange="readURL(this);" />
-                                                                </div>
+                                                            <div class="form-group">
+                                                                <label for="account-name">Họ tên *</label>
+                                                                <input type="text" class="form-control"
+                                                                       id="account-name" name="name"
+                                                                       placeholder="Họ tên"
+                                                                       t-att-value="profile.name"
+                                                                       required="required"/>
                                                             </div>
                                                         </div>
                                                         <div class="col-12">
                                                             <div class="form-group">
-                                                                <div class="controls">
-                                                                    <label for="account-name">Name</label>
-                                                                    <input type="text" class="form-control" id="account-name" placeholder="Name" t-att-value="profile.name" required="required" data-validation-required-message="This name field is required" disabled="disabled"/>
-                                                                </div>
+                                                                <label for="account-email">Email liên hệ</label>
+                                                                <input type="email" class="form-control"
+                                                                       id="account-email" name="email"
+                                                                       placeholder="Email"
+                                                                       t-att-value="profile.email"/>
+                                                                <small class="text-muted">
+                                                                    Lưu ý: email này chỉ là email liên hệ. Để đổi email
+                                                                    đăng nhập, liên hệ quản trị viên.
+                                                                </small>
                                                             </div>
                                                         </div>
                                                         <div class="col-12">
                                                             <div class="form-group">
-                                                                <div class="controls">
-                                                                    <label for="account-e-mail">Email</label>
-                                                                    <input type="email" class="form-control" id="account-e-mail" placeholder="Email" t-att-value="profile.email" required="required" data-validation-required-message="This email field is required" disabled="disabled"/>
-                                                                </div>
+                                                                <label for="account-phone">Số điện thoại</label>
+                                                                <input type="text" class="form-control"
+                                                                       id="account-phone" name="phone"
+                                                                       placeholder="Số điện thoại"
+                                                                       t-att-value="profile.phone"/>
                                                             </div>
                                                         </div>
                                                         <div class="col-12">
                                                             <div class="form-group">
-                                                                <div class="controls">
-                                                                    <label for="account-e-mail">Phone</label>
-                                                                    <input type="text" class="form-control" id="" placeholder="Số điện thoại" required="required" t-att-value="profile.phone" data-validation-required-message="This email field is required" disabled="disabled"/>
-                                                                </div>
+                                                                <label for="account-street">Địa chỉ</label>
+                                                                <textarea name="street" id="account-street"
+                                                                          class="form-control"
+                                                                          placeholder="Địa chỉ"><t t-esc="profile.street"/></textarea>
                                                             </div>
                                                         </div>
-                                                        <div class="col-12">
-                                                            <div class="form-group">
-                                                                <div class="controls">
-                                                                    <label for="account-e-mail">Address</label>
-                                                                    <textarea name="" id="" class="form-control" placeholder="Địa chỉ" disabled="disabled"><t t-esc="profile.street"/></textarea>
-                                                                </div>
-                                                            </div>
+
+                                                        <div class="col-12 mt-3 d-flex">
+                                                            <button type="submit" class="btn btn-primary mr-2">
+                                                                Lưu thay đổi
+                                                            </button>
+                                                            <a href="/portal" class="btn btn-outline-secondary">
+                                                                Huỷ
+                                                            </a>
                                                         </div>
-                                                        
                                                     </div>
                                                 </form>
                                             </div>
                                         </div>
                                     </div>
-
                                 </div>
                             </div>
                         </section>
-                        <!-- account setting page end -->
-
                     </div>
                 </div>
             </t>

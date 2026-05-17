@@ -1,10 +1,29 @@
+"""Wujia portal authentication controllers.
+
+Routes:
+- /portal/login (GET/POST)
+- /portal/logout (GET)
+- /portal/redirect (GET)
+- /portal/forgot-pass (GET/POST) — rate-limited 10/hour/IP, defer email-exists leak
+- /portal/reset_password (GET/POST) — token-based reset, uses auth_signup.do_signup
+"""
+import logging
+
 import odoo
 from odoo import _, http
+from odoo.addons.auth_signup.controllers.main import AuthSignupHome
+from odoo.exceptions import UserError
 from odoo.http import request
-from odoo.addons.web.controllers.home import Home, ensure_db
+from odoo.addons.web.controllers.home import ensure_db
+
+from odoo.addons.wujia_portal_base.controllers.utils import rate_limit
+
+_logger = logging.getLogger(__name__)
 
 
-class WujiaAuthController(Home):
+# Inherit AuthSignupHome (subclass của web.Home) — có sẵn get_auth_signup_qcontext()
+# và do_signup() để gọi từ reset_password flow.
+class WujiaAuthController(AuthSignupHome):
 
     @http.route('/portal/login', type='http', auth='public', sitemap=False)
     def portal_login(self, redirect=None, **kw):
@@ -51,3 +70,73 @@ class WujiaAuthController(Home):
         if request.env.user.has_group('base.group_user'):
             return request.redirect('/odoo')
         return request.redirect('/portal')
+
+    # ==================================================================
+    # Forgot password — rate-limited 10/hour/IP, không leak email tồn tại
+    # ==================================================================
+    @http.route('/portal/forgot-pass', type='http', auth='public',
+                methods=['GET', 'POST'], sitemap=False, csrf=True)
+    @rate_limit(max_calls=10, window_sec=3600)
+    def portal_forgot_password(self, **kw):
+        ensure_db()
+        values = {k: v for k, v in kw.items() if k != 'password'}
+
+        if request.httprequest.method == 'POST':
+            login = (kw.get('login') or '').strip()
+            if not login:
+                values['error'] = _('Vui lòng nhập email.')
+                return request.render('wujia_portal_layout.forgot_pass', values)
+            try:
+                # sudo() vì public user không có quyền search res.users
+                request.env['res.users'].sudo().reset_password(login)
+            except UserError as e:
+                # Có thể là "no user found" hoặc "email config missing".
+                # Security: log đầy đủ, nhưng response generic message
+                # để tránh email-enumeration attack.
+                _logger.info(
+                    'Forgot password attempt for %s failed: %s', login, e
+                )
+            except Exception:
+                _logger.exception('Forgot password unexpected error for %s', login)
+            # Luôn show success message (anti email-enumeration)
+            return request.render('wujia_portal_layout.forgot_pass', {
+                'message': _(
+                    'Nếu email tồn tại trong hệ thống, hướng dẫn đặt lại '
+                    'mật khẩu đã được gửi tới hộp thư của bạn.'
+                ),
+            })
+        return request.render('wujia_portal_layout.forgot_pass', values)
+
+    # ==================================================================
+    # Reset password — qua token email
+    # ==================================================================
+    @http.route('/portal/reset_password', type='http', auth='public',
+                methods=['GET', 'POST'], sitemap=False, csrf=True)
+    def portal_reset_password(self, **kw):
+        ensure_db()
+        qcontext = self.get_auth_signup_qcontext()
+        # qcontext có: db, token, login, name (decode từ partner_id qua token)
+
+        if not qcontext.get('token'):
+            return request.redirect('/portal/login?message=invalid_token')
+
+        if request.httprequest.method == 'POST':
+            password = qcontext.get('password') or ''
+            confirm = qcontext.get('confirm_password') or ''
+            if not password or password != confirm:
+                qcontext['error'] = _('Mật khẩu xác nhận không khớp.')
+            elif len(password) < 8:
+                qcontext['error'] = _('Mật khẩu tối thiểu 8 ký tự.')
+            else:
+                try:
+                    self.do_signup(qcontext)
+                    return request.redirect(
+                        '/portal/login?message=password_reset_ok'
+                    )
+                except UserError as e:
+                    qcontext['error'] = str(e)
+                except Exception:
+                    _logger.exception('Reset password error')
+                    qcontext['error'] = _('Có lỗi xảy ra. Vui lòng thử lại.')
+
+        return request.render('wujia_portal_layout.reset_pass', qcontext)

@@ -1,0 +1,286 @@
+\chapter{Sprint 3 --- Feature B: Quản lý đội xe (\texttt{wujia\_fleet} + \texttt{wujia\_delivery})}
+
+\section{Bối cảnh nghiệp vụ}
+
+Sau khi xong mục A (Quản lý nhượng quyền), Wujia cần số hóa luồng \emph{điều phối giao hàng} từ kho công ty xuống các cửa hàng nhượng quyền. Hiện tại đang quản lý qua Excel + Zalo, không tracking được:
+
+\begin{itemize}
+    \item Mỗi tháng tốn bao nhiêu tiền cước cho nhà xe Nguyễn Dũng vs xe nội bộ?
+    \item Cửa hàng HCM-01 tốn cước nhiều hơn HN-01 không? (để đối soát chia phí với chủ tiệm).
+    \item Xe nào hay vượt tải, xe nào ít dùng?
+    \item Bảng giá đi tỉnh năm nay tăng bao nhiêu so với năm ngoái?
+\end{itemize}
+
+Feature B trả lời các câu hỏi này bằng 2 module backend: \texttt{wujia\_fleet} (đăng ký xe + bảng giá) và \texttt{wujia\_delivery} (luồng điều phối + báo cáo cước). Portal cho cửa hàng theo dõi giao hàng được defer (per ADR-009).
+
+\section{Quyết định kiến trúc (2026-05-02)}
+
+Gộp 3 module BA đề xuất (\texttt{wujia\_fleet}, \texttt{wujia\_delivery}, \texttt{wujia\_delivery\_cost}) thành 2 module:
+
+\begin{itemize}
+    \item \texttt{wujia\_fleet} --- master data: nhà xe / loại xe / xe / bảng giá. Depends \texttt{wujia\_core}, \texttt{wujia\_franchise}.
+    \item \texttt{wujia\_delivery} --- extension \texttt{stock.picking} + \texttt{stock.picking.batch} + cost compute + 2 SQL view report. Depends \texttt{wujia\_fleet}, \texttt{wujia\_sale}, \texttt{stock\_picking\_batch}.
+\end{itemize}
+
+Lý do: tránh module quá nhỏ (delivery\_cost), tránh circular dep cost vs batch. Field \texttt{current\_batch\_id} trên vehicle đặt trong \texttt{wujia\_delivery} (không phải \texttt{wujia\_fleet}) vì nó cần biết \texttt{stock.picking.batch.vehicle\_id} --- do \texttt{wujia\_delivery} thêm vào.
+
+\section{Module \texttt{wujia\_fleet} --- Sổ tay đội xe}
+
+\subsection{Nhà xe (Fleet Provider) --- "Ai cho mình thuê?"}
+
+Wujia có 2 loại đội xe:
+
+\begin{itemize}
+    \item \textbf{Xe công ty}: của chính Wujia, tài xế nhân viên.
+    \item \textbf{Xe thuê ngoài}: gọi từ công ty vận tải bên ngoài (vd CTY Nguyễn Dũng) --- mỗi tháng phải xuất Purchase Order trả tiền.
+\end{itemize}
+
+Mỗi nhà xe ghi: tên, mã, người liên hệ, SĐT, email. Nếu thuê ngoài --- link với 1 record Vendor (\texttt{res.partner}) trong Odoo. Có chatter tracking thay đổi.
+
+\subsection{Loại xe (Fleet Type) --- "Xe to nhỏ ra sao?"}
+
+Định nghĩa các "model" xe Wujia hay dùng: Bán tải 0.9T, Tải 1.9T, Tải 3.5T, Đông lạnh 17T... Field quan trọng: \texttt{payload\_capacity\_ton} (tải trọng tối đa, để hệ thống cảnh báo vượt tải sau này).
+
+\subsection{Xe (Vehicle) --- "Cụ thể từng chiếc"}
+
+Từng chiếc xe ngoài đời. Ghi biển số, mã nội bộ, tài xế chính, SĐT. Quan trọng nhất: \textbf{trạng thái xe} 6-state (Sẵn sàng / Vào bãi / Đã sắp chuyến / Đang giao / Bảo trì / Ngưng dùng). Có kanban view group theo trạng thái --- nhìn 1 phát biết "5 xe sẵn sàng, 2 xe đang giao".
+
+Có thể gắn QR code (in dán lên xe) cho check-in tại bãi.
+
+\subsection{Bảng giá vận chuyển (Pricelist) --- "Cước phí thế nào?"}
+
+Cốt lõi tài chính. Cước KHÁC NHAU theo: loại xe + khu vực giao + nhà xe + thời điểm. Nên 1 bảng giá ghi:
+
+\begin{quote}
+\textit{"Bảng giá xe Tải 3.5T của Nguyễn Dũng năm 2026, gồm các dòng:}
+\begin{itemize}
+    \item \textit{HCM Q1 → 800k cước + 50k drop}
+    \item \textit{Hà Nội → 2.5M cước + 100k drop}
+    \item \textit{Đà Nẵng → 1.5M + 75k drop"}
+\end{itemize}
+\end{quote}
+
+Mỗi dòng = mức cước cho 1 nhóm khu vực + phí drop (phí mỗi điểm dừng giao). \textbf{Vòng đời} 4 trạng thái: Nháp → Đang áp dụng → Hết hạn (auto qua cron daily khi quá ngày) → Lưu trữ.
+
+\subsection{Phân quyền}
+
+2 group trong privilege "Wujia Fleet":
+\begin{itemize}
+    \item \texttt{group\_fleet\_user} --- xem master data, không sửa.
+    \item \texttt{group\_fleet\_manager} --- full CRUD.
+\end{itemize}
+
+\subsection{Menu Fleet Management}
+
+\begin{lstlisting}[style=shell]
+Fleet Management
++-- Operation
+|   +-- Vehicles            (xe)
+|   +-- Pricelists          (bang gia)
+|   +-- Delivery Orders     (phieu xuat - tu wujia_delivery)
+|   +-- Batch Management    (chuyen xe - tu wujia_delivery)
++-- Reports                 (tu wujia_delivery)
+|   +-- Fleet Expense Report
+|   +-- Franchise Shipping Cost Report
++-- Configuration           (group_fleet_manager)
+    +-- Fleet Providers     (nha xe)
+    +-- Fleet Types         (loai xe)
+\end{lstlisting}
+
+\section{Module \texttt{wujia\_delivery} --- Quy trình điều phối}
+
+Luồng nghiệp vụ \textbf{end-to-end}:
+
+\subsection{Bước 1: Cửa hàng đặt hàng (đã có từ wujia\_sale)}
+
+Cô Anh chủ tiệm HN-01 vào portal đặt 100kg trà sữa nguyên liệu. Hệ thống tạo Sale Order.
+
+\subsection{Bước 2: Confirm SO → tự sinh phiếu xuất}
+
+Khi admin/auto confirm SO, Odoo tự tạo phiếu xuất kho \texttt{WH/OUT/00123}. \textbf{Module wujia\_delivery vào việc}: override \texttt{sale.order.\_action\_confirm} → copy \texttt{franchise\_id = HN-01} từ SO sang picking. Khu vực (\texttt{area\_id}) tự lấy theo cửa hàng (related store).
+
+→ Mục đích: phòng điều xe cần biết picking này giao cho cửa hàng nào, ở khu vực nào, để chọn xe phù hợp.
+
+\subsection{Bước 3: Phòng điều xe gom phiếu thành chuyến (Batch)}
+
+Cuối ngày, phòng điều xe nhìn 50 phiếu, gom theo tuyến: "5 phiếu HN-01, HN-02, HN-03 chung 1 chuyến đi Hà Nội". → Tạo 1 Batch mới, gán 5 picking.
+
+\subsection{Bước 4: Chọn xe cho chuyến}
+
+Chọn xe \texttt{51C-34567 (Tải 3.5T)}. Hệ thống ngay lập tức:
+
+\begin{itemize}
+    \item Tự điền nhà xe + loại xe + tải trọng (related store, đỡ gõ tay).
+    \item Tính tổng kg các phiếu trong chuyến (vd 600kg).
+    \item Hiển thị \% sử dụng tải = 17.14\% (600/3500).
+    \item Nếu vượt 3500kg → \textbf{badge đỏ "Vượt tải"} + ghi rõ thiếu bao nhiêu kg.
+\end{itemize}
+
+\subsection{Bước 5: Tự đề xuất bảng giá + tính cước}
+
+Hệ thống search bảng giá phù hợp (Tải 3.5T + Nguyễn Dũng + ngày hôm nay) → \textbf{tự đề xuất}. Người dùng có thể đổi tay.
+
+Tính cước:
+\begin{enumerate}
+    \item Nhìn các khu vực batch giao (HN-01, HN-02, HN-03 đều thuộc Hà Nội).
+    \item Lấy giá CAO NHẤT trong các dòng giá match khu vực → cước cơ bản (vd 2.5M).
+    \item Cộng phí drop cho từng điểm (vd 100k × 3 = 300k).
+    \item \textbf{Tổng = 2.8M}.
+\end{enumerate}
+
+\subsection{Bước 6: Phân bổ ngược cước về từng phiếu}
+
+Để báo cáo "cửa hàng nào tốn nhiều cước nhất", hệ thống chia cước theo \textbf{tỉ lệ kg}:
+
+\begin{lstlisting}[style=shell]
+HN-01 (200kg / 600kg = 33%) -> 833k cuoc + 100k drop = 933k
+HN-02 (200kg / 600kg = 33%) -> 933k
+HN-03 (200kg / 600kg = 33%) -> 933k
+\end{lstlisting}
+
+Mỗi phiếu xuất sẽ có 2 cột: \texttt{shipping\_cost}, \texttt{drop\_fee} (đã phân bổ).
+
+\subsection{Bước 7: Theo dõi trạng thái chuyến}
+
+Phòng điều xe bấm các nút:
+
+\begin{enumerate}
+    \item "Đã gán xe" (Draft → Assigned) sau khi xác nhận xe.
+    \item "Bắt đầu chất hàng" (Assigned → Loading).
+    \item "Xuất phát" (Loading → Delivering) → tự ghi \texttt{actual\_departure = now()}, đẩy tất cả phiếu trong chuyến → "Đang giao".
+    \item "Hoàn tất giao" (Delivering → Done).
+    \item "Hủy chuyến" --- nếu sự cố.
+\end{enumerate}
+
+Trạng thái này CHẠY SONG SONG với state chuẩn của Odoo (\texttt{draft}/\texttt{in\_progress}/\texttt{done}) --- không thay thế.
+
+\subsection{Bước 8: Báo cáo}
+
+\textbf{Fleet Expense Report} (chi phí đội xe): mỗi dòng = 1 chuyến. Pivot theo nhà xe + tháng → biết "T5 thuê Nguyễn Dũng tốn bao nhiêu, xe nội bộ tốn bao nhiêu". Filter "Vượt tải" → liệt kê các chuyến từng vượt tải.
+
+\textbf{Franchise Shipping Cost Report} (chi phí theo cửa hàng): mỗi dòng = 1 phiếu xuất. Pivot theo cửa hàng + tháng → biết "HN-01 tháng này tốn 5M cước, HCM-01 tốn 3M". Dùng để \textbf{đối soát} với hợp đồng nhượng quyền.
+
+\section{Performance optimizations (2026-05-02 patch)}
+
+Sau khi triển khai cốt lõi, đã thực hiện các tối ưu sau để ready cho scale tương lai (5000+ batch/tháng, 50000+ picking):
+
+\subsection{17 BTREE index thêm trên hot fields}
+
+\begin{longtable}{p{6cm} p{8cm}}
+\toprule
+\textbf{Field} & \textbf{Lý do} \\
+\midrule
+\endhead
+\texttt{wujia\_fleet\_provider.provider\_type} & Filter "Xe công ty/Thuê ngoài" \\
+\texttt{wujia\_fleet\_management.provider\_id} & FK + filter theo nhà xe \\
+\texttt{wujia\_fleet\_management.fleet\_type\_id} & FK + group by loại xe \\
+\texttt{wujia\_fleet\_management.license\_plate} & Search nhanh theo biển số \\
+\texttt{wujia\_fleet\_management.vehicle\_status} & Kanban group + filter "Sẵn sàng" \\
+\texttt{wujia\_fleet\_pricelist.fleet\_type\_id} & Auto-suggest pricelist theo loại xe \\
+\texttt{wujia\_fleet\_pricelist.provider\_id} & Auto-suggest pricelist theo nhà xe \\
+\texttt{wujia\_fleet\_pricelist.state} & Cron expire + filter "Đang áp dụng" \\
+\texttt{wujia\_fleet\_pricelist.date\_from} & Auto-suggest pricelist theo ngày \\
+\texttt{wujia\_fleet\_pricelist.date\_to} & Cron expire WHERE date\_to < today \\
+\texttt{stock\_picking.vehicle\_id} & Filter list picking theo xe \\
+\texttt{stock\_picking.provider\_id} & Filter list picking theo nhà xe \\
+\texttt{stock\_picking.delivery\_status} & Filter "Chờ điều phối / Đang giao" \\
+\texttt{stock\_picking\_batch.vehicle\_id} & FK + lookup current\_batch \\
+\texttt{stock\_picking\_batch.provider\_id} & Group report by nhà xe \\
+\texttt{stock\_picking\_batch.fleet\_type\_id} & Group report by loại xe \\
+\texttt{stock\_picking\_batch.pricelist\_id} & FK \\
+\texttt{stock\_picking\_batch.delivery\_batch\_status} & Filter "Đang giao" \\
+\bottomrule
+\end{longtable}
+
+\subsection{Store \texttt{vehicle\_count}}
+
+Trước: compute mỗi lần read list provider → O(n) query (1 per provider). Sau: \texttt{store=True, compute\_sudo=True} → 1 query duy nhất, auto-recompute khi vehicle.active đổi.
+
+\subsection{Tối ưu \texttt{\_compute\_pricelist\_id}}
+
+Trước: mỗi batch trong list view trigger 1 SQL search pricelist → 100 batch = 100 query. Sau: prefetch tất cả pricelist active 1 lần, filter in-memory → 1 query duy nhất cho 100 batch.
+
+\section{Cách verify}
+
+\subsection{Drop + reinstall fresh}
+
+\begin{lstlisting}[style=shell]
+PGPASSWORD=1 dropdb -h 127.0.0.1 -U odoo19 wujia_tea_19
+PGPASSWORD=1 createdb -h 127.0.0.1 -U odoo19 wujia_tea_19
+cd /home/huyban/odoo-dev/WujiaTea/odoo19
+/home/huyban/miniconda3/envs/odoo/bin/python odoo-bin \\
+  -c /home/huyban/odoo-dev/WujiaTea/config/odoo.conf -d wujia_tea_19 \\
+  -i wujia_core,wujia_franchise,wujia_sale,wujia_portal_base, \\
+     wujia_portal_layout,wujia_fleet,wujia_delivery \\
+  --stop-after-init --without-demo=False
+\end{lstlisting}
+
+\subsection{Schema check}
+
+\begin{lstlisting}[style=shell]
+psql -d wujia_tea_19 -c "\\d wujia_fleet_management"
+psql -d wujia_tea_19 -c "\\d stock_picking" | grep -E "(franchise|vehicle|delivery)"
+psql -d wujia_tea_19 -c "SELECT viewname FROM pg_views WHERE viewname LIKE 'wujia_%'"
+\end{lstlisting}
+
+Kết quả:
+\begin{itemize}
+    \item 5 table mới (\texttt{wujia\_fleet\_provider/type/management/pricelist/pricelist\_line}).
+    \item \texttt{stock\_picking}: thêm 9 cột; \texttt{stock\_picking\_batch}: thêm 14 cột.
+    \item 2 SQL view: \texttt{wujia\_fleet\_shipping\_report}, \texttt{wujia\_franchise\_shipping\_report}.
+    \item 17 BTREE index mới.
+\end{itemize}
+
+\subsection{End-to-end test cost compute}
+
+Script test ở \texttt{/tmp/test\_cost\_e2e.py}: tạo 2 picking gắn franchise + area, gom thành batch + chọn vehicle, verify auto-suggest pricelist + cost compute + allocation.
+
+Kết quả thực tế (đã pass):
+
+\begin{lstlisting}[style=shell]
+Vehicle: 51C-34567 -- Tai 3.5T (Nguyen Dung) cap=3500kg
+Pricelist: PL-T35-2026 (HCM 800k + 50k drop, HN 2.5M + 100k drop)
+
+Picking p1: HCM-01, planned_weight=200kg
+Picking p2: HN-01,  planned_weight=400kg
+
+Batch BATCH/OUT/00003:
+  planned_weight = 600 kg
+  capacity_usage = 17.14% (600/3500)
+  is_over_capacity = False
+  pricelist (auto-suggest) = PL-T35-2026
+  shipping_cost   = 2,500,000 (max gia trong cac line match area)
+  drop_fee_total  =   150,000 (50k HCM + 100k HN)
+  total_cost      = 2,650,000
+
+Phan bo nguoc:
+  p1 (HCM, 200kg/600kg = 33%): shipping=833,333  drop=50,000
+  p2 (HN,  400kg/600kg = 67%): shipping=1,666,667 drop=100,000
+
+Action_delivery_start():
+  batch.delivery_batch_status = delivering
+  batch.actual_departure = 2026-05-02 13:05:07
+  p1.delivery_status = delivering, p2.delivery_status = delivering
+
+Reports:
+  Fleet report: planned=600 total=2,650,000
+  Franchise report:
+    HCM-01: weight=200 total_alloc=883,333
+    HN-01:  weight=400 total_alloc=1,766,667
+\end{lstlisting}
+
+\section{Demo data --- không load qua manifest}
+
+BA quyết định: KHÔNG đặt demo data trong file XML để tránh đẩy lên server. Script local:
+
+\begin{lstlisting}[style=shell]
+cd /home/huyban/odoo-dev/WujiaTea/odoo19
+/home/huyban/miniconda3/envs/odoo/bin/python odoo-bin shell \\
+  -c /home/huyban/odoo-dev/WujiaTea/config/odoo.conf \\
+  -d wujia_tea_19 --no-http \\
+  < /home/huyban/odoo-dev/WujiaTea/scripts/seed_fleet_demo.py
+\end{lstlisting}
+
+Idempotent (lookup theo \texttt{code}). Tạo: 2 provider + 4 type + 5 vehicle + 1 pricelist 2 line.
+
+% ===========================================================================

@@ -8,7 +8,7 @@
                    'are self-contained; downstream modules render their pages inside this layout.',
     'author': 'WujiaTea',
     'license': 'LGPL-3',
-    'depends': ['base', 'web'],
+    'depends': ['base', 'web', 'auth_signup'],
     'data': [
         'views/assets.xml',
         'views/layouts.xml',

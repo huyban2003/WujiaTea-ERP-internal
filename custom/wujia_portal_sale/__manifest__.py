@@ -9,6 +9,8 @@
     'data': [
         'views/sidenav_inherit.xml',
         'views/portal_order_catalog.xml',
+        'views/portal_order_product_detail.xml',
+        'views/portal_order_cart.xml',
     ],
     'assets': {
         'web.assets_frontend': [

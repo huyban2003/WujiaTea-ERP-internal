@@ -1,0 +1,111 @@
+\chapter{Sprint 2 --- Day 1 (lịch sử): \texttt{wujia\_sale} (đã refactor)}
+
+\textbf{Đã rewrite:} Day 1 ban đầu dùng tên field \texttt{branch\_partner\_id} / \texttt{portal\_membership\_id}. Sau refactor 2026-04-30 đã đổi thành \texttt{franchise\_partner\_id} / \texttt{franchise\_id} / \texttt{portal\_member\_id} + thêm \texttt{is\_portal\_order} + \texttt{area\_id} + tính khối lượng. Chi tiết spec mới ở Chapter 3. Nội dung dưới đây là log lịch sử.
+
+\section{Phạm vi Day 1}
+
+Tạo module \texttt{wujia\_sale} với chỉ data layer (model + security + views), KHÔNG có HTTP/UI/JS. Real-time bus và method \texttt{\_create\_portal\_order} thêm Day 2.
+
+\section{File tree đã tạo}
+
+\begin{lstlisting}[style=shell]
+custom/wujia_sale/
++-- __init__.py
++-- __manifest__.py
++-- models/
+|   +-- __init__.py
+|   +-- sale_order.py             6 field + 1 constraint
+|   +-- sale_order_line.py        constraint min/max qty cho portal
+|   +-- product_template.py       3 field + constraint bounds
++-- security/
+|   +-- ir.model.access.csv       4 ACL row cho group_portal
+|   +-- wujia_sale_rules.xml      4 record rule cho group_portal
++-- views/
+|   +-- sale_order_views.xml      form / list / search inherit
+|   +-- product_template_views.xml form / list / search inherit
++-- demo/                         (rỗng, Day 3 sẽ thêm)
++-- tests/                        (rỗng, Day 2 sẽ thêm)
+\end{lstlisting}
+
+\section{6 field mới trên \texttt{sale.order}}
+
+\begin{longtable}{p{5cm} p{4cm} p{6cm}}
+\toprule
+\textbf{Field} & \textbf{Kiểu} & \textbf{Vai trò} \\
+\midrule
+\endhead
+\texttt{branch\_partner\_id} & M2O \texttt{res.partner} & Chi nhánh sở hữu đơn (domain \texttt{is\_branch=True}). \\
+\texttt{portal\_requester\_user\_id} & M2O \texttt{res.users}, readonly & User portal trực tiếp tạo đơn (audit trail). \\
+\texttt{portal\_membership\_id} & M2O \texttt{wujia.branch.member}, readonly & Snapshot membership tại lúc tạo. \\
+\texttt{portal\_delivery\_street} & Char & Override địa chỉ giao mỗi đơn. \\
+\texttt{portal\_delivery\_phone} & Char & Override SĐT giao mỗi đơn. \\
+\texttt{portal\_note} & Text & Ghi chú đơn hàng. \\
+\bottomrule
+\end{longtable}
+
+\section{3 field mới trên \texttt{product.template}}
+
+\begin{longtable}{p{4cm} p{3cm} p{8cm}}
+\toprule
+\textbf{Field} & \textbf{Kiểu} & \textbf{Vai trò} \\
+\midrule
+\endhead
+\texttt{is\_public\_website} & Boolean & Toggle hiển thị trên \texttt{/portal/order} catalog. \\
+\texttt{min\_qty} & Integer (default 1) & Tối thiểu mỗi dòng cart. \\
+\texttt{max\_qty} & Integer (default 0) & Tối đa mỗi dòng cart (0 = unlimited). \\
+\bottomrule
+\end{longtable}
+
+\section{Constraints (validate ở ORM, không phải JS)}
+
+\subsection{\texttt{sale.order}}
+
+\textbf{\texttt{\_check\_portal\_branch\_membership}:} Nếu đơn có \texttt{portal\_requester\_user\_id} thì user đó phải có \texttt{wujia.branch.member} active trong \texttt{branch\_partner\_id}. Đây là defense in depth — controller cũng đã check, nhưng record rule ORM đảm bảo cả khi gọi qua API/RPC.
+
+\subsection{\texttt{sale.order.line}}
+
+\textbf{\texttt{\_check\_min\_max\_qty\_portal}:} Validate \texttt{product\_uom\_qty} với \texttt{product\_id.product\_tmpl\_id.min\_qty} / \texttt{max\_qty}. Chỉ áp với đơn có \texttt{portal\_requester\_user\_id} (admin tạo manual không bị ràng).
+
+\subsection{\texttt{product.template}}
+
+\textbf{\texttt{\_check\_min\_max\_qty\_bounds}:} \texttt{min\_qty} và \texttt{max\_qty} không âm; \texttt{max\_qty $\geq$ min\_qty}.
+
+\section{Record rules cho portal user}
+
+4 rule áp dụng cho group \texttt{base.group\_portal} (read-only):
+
+\begin{enumerate}
+    \item \textbf{Sale Order:} chỉ thấy đơn có \texttt{portal\_requester\_user\_id = current user} HOẶC \texttt{branch\_partner\_id} thuộc các chi nhánh user là member.
+    \item \textbf{Sale Order Line:} chỉ thấy line của các đơn user được thấy.
+    \item \textbf{Product Template:} chỉ thấy product có \texttt{is\_public\_website = True}.
+    \item \textbf{Product:} chỉ thấy product có \texttt{product\_tmpl\_id.is\_public\_website = True}.
+\end{enumerate}
+
+\section{ACL (\texttt{ir.model.access.csv})}
+
+Group \texttt{base.group\_portal} có quyền đọc (1,0,0,0) trên \texttt{sale.order}, \texttt{sale.order.line}, \texttt{product.template}, \texttt{product.product}. Không có write/create/unlink — đảm bảo portal user không sửa data trực tiếp qua RPC, chỉ qua các action được expose ở Day 2+.
+
+\section{Verify install}
+
+\begin{lstlisting}[style=shell]
+# Install module
+bash scripts/upgrade.sh wujia_sale
+# Hoặc fresh install:
+python odoo19/odoo-bin -c config/odoo.conf -d wujia_tea_19 -i wujia_sale --stop-after-init
+
+# Kiểm tra DB schema
+psql -h 127.0.0.1 -U odoo19 -d wujia_tea_19 -c \\
+  "\d sale_order" | grep -E "branch|portal_"
+\end{lstlisting}
+
+Kết quả test (Day 1):
+\begin{itemize}
+    \item Module install clean (308 queries, 0 error).
+    \item 6 cột mới trên \texttt{sale\_order} đã có trong DB.
+    \item 3 cột mới trên \texttt{product\_template} đã có.
+    \item 4 record rule đã active.
+    \item Constraint hoạt động: admin tạo SO với user không có membership trong branch → \texttt{ValidationError} ``User Nguyễn Văn Anh không có membership active trong chi nhánh Wujia Tea TP HCM Q1''.
+    \item Record rule hoạt động: \texttt{anh.owner} login backend qua RPC chỉ thấy đơn của HN-01, không thấy của HCM-01 (đã test với \texttt{search\_read} trả về 1/2 đơn admin tạo).
+\end{itemize}
+
+% ===========================================================================

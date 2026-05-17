@@ -16,6 +16,7 @@
     'assets': {
         'web.assets_frontend': [
             'wujia_portal_exam/static/src/css/portal_exam.css',
+            'wujia_portal_exam/static/src/js/portal_exam.js',
         ],
     },
     'installable': True,

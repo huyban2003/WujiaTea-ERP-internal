@@ -1,0 +1,128 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <template id="portal_order_cart" name="Wujia Portal — Cart">
+        <t t-call="wujia_portal_layout.app_layout">
+            <t t-set="title">Giỏ hàng</t>
+            <div class="content-wrapper">
+                <div class="content-header row mt-3">
+                    <div class="content-header-left col-12 mb-1">
+                        <nav>
+                            <ol class="breadcrumb">
+                                <li class="breadcrumb-item"><a href="/portal/order">Đặt hàng</a></li>
+                                <li class="breadcrumb-item active">Giỏ hàng</li>
+                            </ol>
+                        </nav>
+                        <h2 class="content-header-title float-left mb-0">
+                            <i class="fa fa-shopping-basket me-1"/>Giỏ hàng
+                        </h2>
+                    </div>
+                </div>
+
+                <div class="content-body">
+                    <div t-if="error" class="alert alert-danger" role="alert">
+                        <t t-esc="error"/>
+                    </div>
+                    <div t-if="message" class="alert alert-success" role="status">
+                        <t t-esc="message"/>
+                    </div>
+
+                    <div t-if="not cart_lines" class="card">
+                        <div class="card-body text-center py-5">
+                            <i class="fa fa-shopping-basket fa-3x opacity-25 mb-3"/>
+                            <p class="text-muted mb-3">Giỏ hàng trống</p>
+                            <a href="/portal/order" class="btn btn-primary">
+                                <i class="fa fa-arrow-left me-1"/>Tiếp tục mua hàng
+                            </a>
+                        </div>
+                    </div>
+
+                    <form t-if="cart_lines" method="POST" action="/portal/order/submit"
+                          class="card">
+                        <input type="hidden" name="csrf_token"
+                               t-att-value="request.csrf_token()"/>
+                        <div class="card-body p-0">
+                            <table class="table mb-0 cart-table">
+                                <thead>
+                                    <tr>
+                                        <th>Sản phẩm</th>
+                                        <th class="text-end" style="width:140px">Đơn giá</th>
+                                        <th class="text-center" style="width:160px">Số lượng</th>
+                                        <th class="text-end" style="width:160px">Thành tiền</th>
+                                        <th style="width:50px"/>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr t-foreach="cart_lines" t-as="line"
+                                        t-att-data-line-id="line.id" class="cart-row">
+                                        <td>
+                                            <strong t-out="line.product_id.name"/>
+                                            <div class="text-muted small">
+                                                <t t-out="line.product_id.uom_id.name or '—'"/>
+                                            </div>
+                                        </td>
+                                        <td class="text-end" t-out="'{:,.0f}'.format(line.price_unit or 0).replace(',', '.') + ' ₫'"/>
+                                        <td class="text-center">
+                                            <input type="number" min="1" t-att-max="9999"
+                                                   class="form-control form-control-sm cart-qty-input mx-auto"
+                                                   style="width: 100px;"
+                                                   t-att-value="int(line.product_uom_qty)"
+                                                   t-att-data-line-id="line.id"/>
+                                        </td>
+                                        <td class="text-end cart-line-subtotal"
+                                            t-out="'{:,.0f}'.format(line.price_subtotal or 0).replace(',', '.') + ' ₫'"/>
+                                        <td class="text-center">
+                                            <button type="button"
+                                                    class="btn btn-sm btn-outline-danger btn-cart-remove"
+                                                    t-att-data-line-id="line.id">
+                                                <i class="fa fa-times"/>
+                                            </button>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                                <tfoot>
+                                    <tr>
+                                        <td colspan="3" class="text-end fw-bold">Tổng cộng:</td>
+                                        <td class="text-end fw-bold cart-grand-total"
+                                            t-out="'{:,.0f}'.format(cart.amount_total or 0).replace(',', '.') + ' ₫'"/>
+                                        <td/>
+                                    </tr>
+                                </tfoot>
+                            </table>
+                        </div>
+
+                        <div class="card-body border-top">
+                            <div class="row g-2">
+                                <div class="col-md-6">
+                                    <label class="form-label">Số điện thoại liên hệ</label>
+                                    <input type="text" name="portal_delivery_phone"
+                                           class="form-control"
+                                           t-att-value="cart.portal_delivery_phone or request.env.user.partner_id.phone or ''"/>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label">Địa chỉ giao</label>
+                                    <input type="text" name="portal_delivery_street"
+                                           class="form-control"
+                                           t-att-value="cart.portal_delivery_street or ''"/>
+                                </div>
+                                <div class="col-12">
+                                    <label class="form-label">Ghi chú đơn</label>
+                                    <textarea name="portal_note" class="form-control" rows="2"
+                                              t-out="cart.portal_note or ''"/>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="card-footer text-end">
+                            <a href="/portal/order" class="btn btn-outline-secondary me-2">
+                                <i class="fa fa-arrow-left me-1"/>Tiếp tục mua
+                            </a>
+                            <button type="submit" class="btn btn-success">
+                                <i class="fa fa-check me-1"/>Xác nhận đặt hàng
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </t>
+    </template>
+</odoo>

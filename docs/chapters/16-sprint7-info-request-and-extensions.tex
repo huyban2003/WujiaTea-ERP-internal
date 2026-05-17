@@ -1,0 +1,161 @@
+\chapter{Sprint 7 --- Info Update Request module + extension routes (2026-05-17)}
+
+\section{Bối cảnh}
+
+Sprint 6 đã wire controller cho 10 module portal hiện có. Sprint 7 bổ sung:
+
+\begin{itemize}[leftmargin=*]
+    \item \textbf{Module mới} \texttt{wujia\_portal\_info\_request} --- cửa hàng nhượng quyền gửi yêu cầu cập nhật thông tin (địa chỉ, SĐT, người đại diện...) qua portal, HQ duyệt qua chatter backend (Phase 1, BA sheet \texttt{2. FE - Portal} row ``Cập nhật thông tin'').
+    \item \textbf{8 extension routes} bổ sung cho các module hiện có để portal đầy đủ (mark-read noti, search-as-you-type knowledge, attachment download, ICS calendar, XLSX export).
+\end{itemize}
+
+\section{Task A --- Module \texttt{wujia\_portal\_info\_request}}
+
+\subsection{Model \texttt{wujia.info.update.request}}
+
+\begin{tabular}{lll}
+\toprule
+\textbf{Field} & \textbf{Type} & \textbf{Note} \\
+\midrule
+\texttt{name} & Char readonly & Sequence \texttt{INF-000001} \\
+\texttt{franchise\_id} & M2o franchise & required, index \\
+\texttt{request\_type} & Selection & address/phone/email/owner\_name/ \\
+ & & bank\_info/representative/other \\
+\texttt{field\_target} & Char & required khi \texttt{request\_type=other} \\
+\texttt{old\_value} & Text compute & Snapshot từ franchise (store=False) \\
+\texttt{new\_value} & Text & required, tracking \\
+\texttt{state} & Selection & draft/submitted/reviewing/ \\
+ & & approved/rejected, tracking \\
+\texttt{priority} & Selection & normal/urgent \\
+\texttt{attachment\_ids} & M2m ir.attachment & Minh chứng \\
+\texttt{created\_by\_user\_id} & M2o res.users & default=env.user, readonly \\
+\texttt{reviewer\_id} & M2o res.users & HQ reviewer (internal only) \\
+\texttt{refuse\_reason} & Text & Tracking \\
+\bottomrule
+\end{tabular}
+
+Inherit \texttt{mail.thread + mail.activity.mixin} cho HQ comment qua chatter backend.
+
+\textbf{SQL constraint}: \texttt{CHECK (state = 'draft' OR submitted\_date IS NOT NULL)} --- đảm bảo \texttt{submitted\_date} luôn có khi state $\geq$ submitted.
+
+\subsection{Controller routes (5)}
+
+\begin{tabular}{lll}
+\toprule
+\textbf{URL} & \textbf{Method} & \textbf{Function} \\
+\midrule
+\texttt{/portal/info-request} & GET & \texttt{portal\_info\_request\_list} \\
+\texttt{/portal/info-request/new} & GET/POST & \texttt{portal\_info\_request\_new} \\
+\texttt{/portal/info-request/<int>} & GET & \texttt{portal\_info\_request\_detail} \\
+\texttt{/portal/info-request/<int>/cancel} & POST & \texttt{portal\_info\_request\_cancel} \\
+\texttt{/portal/info-request/franchise/<int>/values} & jsonrpc & \texttt{portal\_info\_request\_get\_current} \\
+\bottomrule
+\end{tabular}
+
+\textbf{Role gate}: chỉ Owner/Manager mới được tạo (BA spec --- gửi cập nhật thông tin là quyết định cấp shop, không phải Staff). Check qua \texttt{get\_max\_role\_in\_franchises(franchise\_ids)}.
+
+\textbf{AJAX old\_value lookup}: khi user chọn \texttt{franchise\_id + request\_type} ở form mới, JS fetch \texttt{/portal/info-request/franchise/<fid>/values} để hiển thị giá trị hiện tại (UX --- biết đang đổi từ gì sang gì).
+
+\subsection{Security}
+
+\begin{itemize}[leftmargin=*]
+    \item \texttt{ir.model.access.csv}: portal (\texttt{group\_portal}) read/write/create (không unlink), internal user full.
+    \item Record rule portal read: \texttt{[('franchise\_id', 'in', user.\_get\_accessible\_franchise\_ids())]}.
+    \item Record rule portal write: \texttt{[('created\_by\_user\_id', '=', user.id)]} --- chỉ tự sửa của mình.
+    \item Internal: rule \texttt{[(1, '=', 1)]} full access.
+\end{itemize}
+
+\subsection{Views}
+
+5 file XML: list (filter state + request\_type + pager), form (AJAX old\_value), detail (readonly + cancel button form POST), backend (tree/form/search + 3 action buttons start\_review/approve/reject), sidenav\_inherit (menu ``Cập nhật thông tin'' vào \texttt{wujia\_portal\_layout.layout\_sidenav}).
+
+\section{Task C --- Extension routes (8)}
+
+\begin{tabular}{lll}
+\toprule
+\textbf{URL} & \textbf{Module} & \textbf{Note} \\
+\midrule
+\texttt{POST /portal/notification/mark-read} & notification & Bulk mark-read, idempotent \\
+\texttt{POST /portal/notification/unread-count} & notification & Badge realtime \\
+\texttt{POST /portal/knowledge/search} & knowledge & Search-as-you-type debounce 300ms \\
+\texttt{GET /portal/support/<id>/attachment/<int>} & support & Stream với ACL ticket owner \\
+\texttt{GET /portal/return/<id>/attachment/<int>} & return & Stream với ACL accessible franchise \\
+\texttt{GET /portal/purchase-history/<id>.pdf} & purchase\_history & Render qua \texttt{sale.action\_report\_saleorder} \\
+\texttt{GET /portal/delivery/<id>.ics} & delivery & ICS lịch giao --- import Google/Outlook \\
+\texttt{GET /portal/reports/orders/export.xlsx} & report & XLSX qua xlsxwriter \\
+\bottomrule
+\end{tabular}
+
+\textbf{Performance per route}:
+\begin{itemize}[leftmargin=*]
+    \item Attachment download: ACL check \texttt{accessible\_franchise\_ids} trước; stream qua \texttt{ir.binary.\_get\_stream\_from} (không load full bytes vào memory); \texttt{Cache-Control: private, no-cache}.
+    \item PDF/XLSX: dùng Odoo report engine native + xlsxwriter \texttt{in\_memory=True}.
+    \item ICS: text response simple, gen string < 1KB, không cần DB write.
+\end{itemize}
+
+\section{Deferred v14 features (document only)}
+
+\begin{tabular}{lll}
+\toprule
+\textbf{Feature} & \textbf{Lý do defer} & \textbf{Conflict v19?} \\
+\midrule
+TOTP 2FA & Cần \texttt{auth\_totp} install + UX phức tạp & Không (link đã comment-out) \\
+Portal Signup & HQ policy: no self-signup & Có với \texttt{auth\_signup} --- phải override \\
+Calendar booking & Phase 3 BA spec & Không trực tiếp \\
+Dashboard JSON API & v19 dùng server-side render & Không \\
+Cart JSON CRUD v14 & Sprint 6 đã hybrid AJAX & Khác model (v14 \texttt{co.cart.wujia}) \\
+Upload video & Chưa requirement (chỉ ảnh) & Không \\
+QR scan in/out & Backend API, không phải portal & N/A \\
+\bottomrule
+\end{tabular}
+
+\section{Verification}
+
+\begin{itemize}[leftmargin=*]
+    \item \texttt{odoo-bin --stop-after-init -i wujia\_portal\_info\_request -u wujia\_portal\_*}: RC=0, 12 modules \texttt{installed} (verified qua \texttt{ir\_module\_module}).
+    \item 14 portal URLs smoke-tested: public 200, protected 303 (redirect login), JSON-RPC 200.
+    \item Fixed inline during install: search view \texttt{<group>} cần \texttt{name=} thay vì \texttt{string=} trong v19; button \texttt{name="write"} với \texttt{context=} không hợp lệ trong form button --- thay bằng method riêng \texttt{action\_start\_review}.
+\end{itemize}
+
+\section{Routes summary Sprint 6 + 7 cho BA}
+
+Bảng tổng hợp (gửi BA fill vào sheet \texttt{4. Controller}):
+
+\begin{tabular}{p{4.5cm}lll}
+\toprule
+\textbf{URL} & \textbf{Method} & \textbf{Module} & \textbf{Phase} \\
+\midrule
+/portal/forgot-pass & GET/POST & wujia\_portal\_layout & 1 \\
+/portal/reset\_password & GET/POST & wujia\_portal\_layout & 1 \\
+/portal/profile/update & POST & wujia\_portal\_layout & 1 \\
+/portal/profile/avatar/<id> & GET & wujia\_portal\_layout & 1 \\
+/portal/change-password & GET/POST & wujia\_portal\_layout & 1 \\
+/portal/franchise/switch & POST & wujia\_portal\_base & 1 \\
+/portal/order/product/<id> & GET & wujia\_portal\_sale & 1 \\
+/portal/order/cart & GET & wujia\_portal\_sale & 1 \\
+/portal/order/cart/add & POST jsonrpc & wujia\_portal\_sale & 1 \\
+/portal/order/cart/update & POST jsonrpc & wujia\_portal\_sale & 1 \\
+/portal/order/cart/remove & POST jsonrpc & wujia\_portal\_sale & 1 \\
+/portal/order/cart/count & GET jsonrpc & wujia\_portal\_sale & 1 \\
+/portal/order/submit & POST & wujia\_portal\_sale & 1 \\
+/portal/return/new & POST & wujia\_portal\_return & 1 \\
+/portal/return/<id>/attachment/<id> & GET & wujia\_portal\_return & 1 \\
+/portal/exam/schedule/<id> & GET & wujia\_portal\_exam & 1 \\
+/portal/exam/register & POST jsonrpc & wujia\_portal\_exam & 1 \\
+/portal/exam/cancel/<id> & POST jsonrpc & wujia\_portal\_exam & 1 \\
+/portal/info-request & GET & wujia\_portal\_info\_request & 1 \\
+/portal/info-request/new & GET/POST & wujia\_portal\_info\_request & 1 \\
+/portal/info-request/<id> & GET & wujia\_portal\_info\_request & 1 \\
+/portal/info-request/<id>/cancel & POST & wujia\_portal\_info\_request & 1 \\
+/portal/info-request/franchise/<id>/values & POST jsonrpc & wujia\_portal\_info\_request & 1 \\
+/portal/notification/mark-read & POST jsonrpc & wujia\_portal\_notification & 1 \\
+/portal/notification/unread-count & POST jsonrpc & wujia\_portal\_notification & 1 \\
+/portal/knowledge/search & POST jsonrpc & wujia\_portal\_knowledge & 1 \\
+/portal/support/<id>/attachment/<id> & GET & wujia\_portal\_support & 1 \\
+/portal/purchase-history/<id>.pdf & GET & wujia\_portal\_purchase\_history & 1 \\
+/portal/delivery/<id>.ics & GET & wujia\_portal\_delivery & 1 \\
+/portal/reports/orders/export.xlsx & GET & wujia\_portal\_report & 1 \\
+\bottomrule
+\end{tabular}
+
+\textbf{Tổng}: 30 routes mới Sprint 6+7.

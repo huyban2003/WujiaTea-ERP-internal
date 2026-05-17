@@ -1,0 +1,53 @@
+\chapter{Phụ lục — Lệnh thường dùng}
+
+\begin{lstlisting}[style=shell]
+# Build doc PDF
+bash /home/huyban/odoo-dev/WujiaTea/scripts/build-doc.sh
+
+# Khởi động dev server
+bash /home/huyban/odoo-dev/WujiaTea/scripts/start.sh
+
+# Upgrade 1 module
+bash /home/huyban/odoo-dev/WujiaTea/scripts/upgrade.sh wujia_sale
+
+# Upgrade toàn bộ 16 module (dùng sau mỗi sprint)
+bash /home/huyban/odoo-dev/WujiaTea/scripts/upgrade.sh \
+  wujia_core,wujia_franchise,wujia_sale,wujia_fleet,wujia_delivery,\
+  wujia_portal_layout,wujia_portal_base,wujia_portal_sale,\
+  wujia_portal_purchase_history,wujia_portal_return,\
+  wujia_portal_delivery,wujia_portal_exam,wujia_portal_knowledge,\
+  wujia_portal_notification,wujia_portal_report,wujia_portal_support
+
+# Upgrade chỉ portal (không động backend modules)
+bash /home/huyban/odoo-dev/WujiaTea/scripts/upgrade.sh \
+  wujia_portal_layout,wujia_portal_base,wujia_portal_sale,\
+  wujia_portal_purchase_history,wujia_portal_return,\
+  wujia_portal_delivery,wujia_portal_exam,wujia_portal_knowledge,\
+  wujia_portal_notification,wujia_portal_report,wujia_portal_support
+
+# Seed demo data Portal (chạy 1 lần sau install)
+/home/huyban/miniconda3/envs/odoo/bin/python odoo19/odoo-bin shell \
+    -c /home/huyban/odoo-dev/WujiaTea/config/odoo.conf \
+    -d wujia_tea_19 --no-http \
+    < /home/huyban/odoo-dev/WujiaTea/scripts/seed_portal_demo.py
+
+# Seed demo data Fleet (chạy 1 lần sau install Sprint 3)
+/home/huyban/miniconda3/envs/odoo/bin/python odoo19/odoo-bin shell \
+    -c /home/huyban/odoo-dev/WujiaTea/config/odoo.conf \
+    -d wujia_tea_19 --no-http \
+    < /home/huyban/odoo-dev/WujiaTea/scripts/seed_fleet_demo.py
+
+# Upgrade trên Windows server (PowerShell Administrator)
+nssm stop Odoo
+python odoo19\odoo-bin -c config\odoo-server.conf -d wujia_tea_19 ^
+    -u wujia_portal_layout --stop-after-init --no-http
+nssm start Odoo
+
+# Init DB từ đầu
+bash /home/huyban/odoo-dev/WujiaTea/scripts/init-db.sh
+
+# Drop + recreate DB
+PGPASSWORD=1 psql -h 127.0.0.1 -U odoo19 -d postgres \
+  -c "DROP DATABASE IF EXISTS wujia_tea_19;"
+bash /home/huyban/odoo-dev/WujiaTea/scripts/init-db.sh
+\end{lstlisting}

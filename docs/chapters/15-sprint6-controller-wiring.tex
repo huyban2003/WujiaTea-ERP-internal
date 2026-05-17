@@ -1,0 +1,139 @@
+\chapter{Sprint 6 --- Portal controller wiring + performance hardening (2026-05-17)}
+
+\section{Bối cảnh}
+
+Sau Sprint 5, 10 module portal Vuexy v19 đã có template + skeleton model + controller GET render, nhưng \textbf{button/form chỉ là placeholder} --- JS \texttt{alert()} hoặc \texttt{<form>} không POST handler. Sheet \texttt{2. FE - Portal} của BA có 19 màn Phase 1, sheet \texttt{4. Controller} \textbf{rỗng hoàn toàn} (BA chưa fill). Sprint 6 wire đầy đủ POST handlers + AJAX endpoints, đồng thời design cho 1500 concurrent user.
+
+\textbf{Decisions chốt với user}:
+\begin{itemize}[leftmargin=*]
+    \item Cart: hybrid --- AJAX cho mutations (add/update/remove inline), form POST cho submit order cuối.
+    \item v14 extras (TOTP, calendar booking, dashboard JSON): defer + document.
+    \item Doc deliverable: \texttt{.tex} chapter + table route cho BA fill vào sheet \texttt{4. Controller}.
+\end{itemize}
+
+\section{Strategy chung --- Performance hardening}
+
+Áp dụng cho mọi route mới:
+
+\begin{itemize}[leftmargin=*]
+    \item \textbf{ormcache} helpers user-scope (đã có sẵn từ Sprint 4).
+    \item \textbf{Batch query} --- không loop \texttt{search()} trong controller; dùng \texttt{\_read\_group}.
+    \item \textbf{Composite index} cho domain WHERE chính (cart lookup, return list).
+    \item \textbf{Atomic SQL} cho cart line update + \texttt{SELECT FOR UPDATE} cho exam register --- chống race khi 2 tab đồng thời.
+    \item \textbf{Rate limit} sliding-window decorator cho POST nhạy cảm (\texttt{/forgot-pass} 10/h, \texttt{/cart/add} 60/min).
+    \item \textbf{HTTP cache headers} (ETag + Cache-Control) cho avatar serve.
+    \item \textbf{PRG (Post-Redirect-Get)} pattern cho mọi form POST --- chống double submit.
+    \item \textbf{Anti email-enumeration} --- \texttt{/forgot-pass} luôn return generic success.
+\end{itemize}
+
+\section{Task A --- Forgot password + reset (\texttt{wujia\_portal\_layout})}
+
+Mở rộng \texttt{controllers/auth.py}:
+
+\begin{itemize}[leftmargin=*]
+    \item \texttt{GET/POST /portal/forgot-pass} --- nhập email, gọi \texttt{res.users.\_action\_reset\_password}. Try/except wrap để không leak email tồn tại.
+    \item \texttt{GET/POST /portal/reset\_password} --- nhận token query, validate \texttt{password == confirm\_password}, length $\geq 8$, gọi \texttt{do\_signup()} (kế thừa \texttt{AuthSignupHome}).
+    \item Rate limit 10/giờ/IP qua \texttt{ormcache} keyed on \texttt{(ip, hour\_bucket)}.
+\end{itemize}
+
+\section{Task B --- Profile editable + avatar + change password}
+
+\begin{lstlisting}[style=python]
+@http.route('/portal/profile/update', auth='user', methods=['POST'], csrf=True)
+def portal_profile_update(self, **post):
+    # validate name/phone/email
+    # avatar upload <= 2MB, MIME image/(png|jpe?g|webp)
+    user.sudo().write({'image_1920': base64.b64encode(data)})
+    user.partner_id.sudo().write({...})
+    return request.redirect('/portal/profile?message=saved')  # PRG
+
+@http.route('/portal/profile/avatar/<int:user_id>', auth='user')
+def portal_profile_avatar(self, user_id):
+    # ACL: chi accessible franchise members
+    accessible = ...mapped('member_ids.franchise_id.id')
+    if target_user not in accessible: raise Forbidden()
+    return request.env['ir.binary']._get_image_stream_from(
+        user, 'avatar_256'
+    ).get_response()
+\end{lstlisting}
+
+\textbf{Performance}: ETag + \texttt{Cache-Control: private, max-age=300} cho avatar --- HTTP 304 negotiation bypass DB ở lần fetch sau.
+
+\section{Task D --- Cart complete (\texttt{wujia\_portal\_sale})}
+
+7 routes mới:
+
+\begin{tabular}{ll}
+\toprule
+\textbf{URL} & \textbf{Type / Note} \\
+\midrule
+\texttt{GET /portal/order/product/<int:id>} & http --- chi tiết SP \\
+\texttt{GET /portal/order/cart} & http --- full cart page \\
+\texttt{POST /portal/order/cart/add} & jsonrpc --- atomic SQL UPDATE \\
+\texttt{POST /portal/order/cart/update} & jsonrpc --- qty mới \\
+\texttt{POST /portal/order/cart/remove} & jsonrpc --- xóa line \\
+\texttt{GET /portal/order/cart/count} & jsonrpc --- badge \\
+\texttt{POST /portal/order/submit} & http --- confirm SO \\
+\bottomrule
+\end{tabular}
+
+\textbf{Atomic cart add --- race-free khi 2 tab cùng add}:
+
+\begin{lstlisting}[style=python]
+cr.execute("""
+    UPDATE sale_order_line
+    SET product_uom_qty = product_uom_qty + %s
+    WHERE id = %s
+    RETURNING product_uom_qty
+""", (qty, line.id))
+new_qty = cr.fetchone()[0]
+\end{lstlisting}
+
+Tránh read-modify-write race condition. Rate limit \texttt{/cart/add} 60/min/user chống spam.
+
+\section{Task E --- Return request POST + multi-upload}
+
+\begin{itemize}[leftmargin=*]
+    \item \texttt{POST /portal/return/new} với \texttt{action=draft|send}. Khi \texttt{send} validate $\geq 3$ ảnh minh chứng.
+    \item Shared helper \texttt{attach\_files\_to\_record(record, files, allowed\_mime, max\_size\_mb, max\_count)} dùng chung cho support + return + info-request.
+    \item File MIME validate backend (không tin client header), filename sanitize qua \texttt{werkzeug.utils.secure\_filename} chống path traversal.
+    \item Model fix: \texttt{wujia.return.request.line.product\_id} optional + thêm \texttt{product\_name} Char để portal nhập free-text (template gửi \texttt{line\_product\_name[]} thay vì M2o).
+\end{itemize}
+
+\section{Task F --- Exam register AJAX + cancel}
+
+3 routes: detail GET + register POST + cancel POST.
+
+\textbf{Race-safe register}: dùng \texttt{SELECT FOR UPDATE} trên row \texttt{wujia\_exam\_schedule} trước khi đếm \texttt{registration\_count} --- 2 user cùng register lúc slot còn 1 chỗ chỉ có 1 thắng.
+
+\begin{lstlisting}[style=python]
+cr.execute("SELECT id FROM wujia_exam_schedule WHERE id=%s FOR UPDATE",
+           (schedule.id,))
+count = Reg.search_count([('schedule_id','=',schedule.id),
+                          ('state','!=','cancelled')])
+if count >= schedule.max_participants:
+    return {'error': 'full'}
+\end{lstlisting}
+
+JS selector \texttt{.btn-register-exam, .btn-exam-register} cover cả template hiện có + form mới.
+
+\section{Task G --- Shared utilities (\texttt{wujia\_portal\_base/controllers/utils.py})}
+
+\begin{itemize}[leftmargin=*]
+    \item \texttt{rate\_limit(max\_calls, window\_sec)} --- sliding window per (IP, endpoint) qua \texttt{ormcache}.
+    \item \texttt{attach\_files\_to\_record(record, files, allowed\_mime, max\_size\_mb, max\_count)} --- shared upload helper với validation đầy đủ.
+    \item \texttt{DEFAULT\_DOC\_MIME} / \texttt{DEFAULT\_IMG\_MIME} constants.
+\end{itemize}
+
+\section{Verification}
+
+\begin{itemize}[leftmargin=*]
+    \item \texttt{python ast.parse} pass trên 12 controller files.
+    \item \texttt{xmllint --noout} pass trên 30+ view files.
+    \item \texttt{odoo-bin --stop-after-init -u wujia\_portal\_*} return RC=0, 12 modules \texttt{installed}.
+    \item Smoke HTTP: \texttt{/portal/login} 200, public routes 200, authenticated routes 303 (redirect login) như mong đợi.
+\end{itemize}
+
+\section{Known issue (pre-existing, không thuộc Sprint 6)}
+
+Template \texttt{wujia\_portal\_layout.layout} line 16/18 dùng \texttt{env.company.favicon} không tồn tại trong v19 --- gây 500 sau khi login. Bug từ Sprint 4 (commit \texttt{f4e5a3d}), sẽ fix Sprint 7 follow-up.

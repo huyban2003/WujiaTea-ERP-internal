@@ -81,3 +81,31 @@ class WujiaPortalKnowledge(http.Controller):
         return request.render('wujia_portal_knowledge.portal_knowledge_detail', {
             'article': article, 'related': related,
         })
+
+    @http.route(['/portal/knowledge/search'], type='json',
+                auth='user', methods=['POST', 'GET'])
+    def portal_knowledge_search_ajax(self, keyword='', limit=10, **kw):
+        """Search-as-you-type — debounce client-side 300ms."""
+        keyword = (keyword or '').strip()
+        if len(keyword) < 2:
+            return {'results': []}
+        try:
+            limit = max(1, min(int(limit), 20))
+        except (TypeError, ValueError):
+            limit = 10
+        Article = request.env['wujia.knowledge.article'].sudo()
+        articles = Article.search([
+            ('is_published_portal', '=', True),
+            '|', ('name', 'ilike', keyword),
+                 ('content', 'ilike', keyword),
+        ], limit=limit, order='publish_date desc')
+        return {'results': [
+            {
+                'id': a.id,
+                'name': a.name,
+                'slug': a.slug,
+                'category': a.category_id.name or '',
+                'url': '/portal/knowledge/%s' % (a.slug or a.id),
+            }
+            for a in articles
+        ]}

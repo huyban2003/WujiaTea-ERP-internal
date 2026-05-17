@@ -1,0 +1,235 @@
+\chapter{Sprint 5 --- Batch link + Knowledge/Support full BA (2026-05-16)}
+
+\section{Bối cảnh}
+
+Sprint 4.4 đã build skeleton cho \texttt{wujia\_portal\_knowledge} và \texttt{wujia\_portal\_support}, nhưng so với sheet BA \texttt{1. Model Field} (rows 117, 328--360, 372--430) còn thiếu nhiều field. Đồng thời \texttt{sale.order} chưa có field \texttt{batch\_id} để link đơn hàng với chuyến giao (BA row 117). Sprint 5 hoàn thiện 3 mảng song song:
+
+\begin{itemize}[leftmargin=*]
+    \item \textbf{Task A} --- thêm \texttt{sale.order.batch\_id} compute store index.
+    \item \textbf{Task C} --- mở rộng knowledge full BA: state Selection, portal\_badge, tag M2m, sequence KNW-, cron expired.
+    \item \textbf{Task E} --- mở rộng support ticket full BA: rename field, category M2o, 6-state workflow, analytics qua \texttt{message\_post}.
+\end{itemize}
+
+Decisions chốt với user: scope full BA (không cắt), batch\_id order theo id ASC, string mới English + \texttt{vi\_VN.po}, namespace giữ \texttt{wujia.*}, migration drop+init (skeleton chưa có data prod).
+
+\section{Task A --- \texttt{sale.order.batch\_id}}
+
+BA spec row 117: lấy picking của SO (\texttt{picking\_ids}) $\rightarrow$ batch\_id của picking đầu tiên không cancel.
+
+\begin{lstlisting}[style=python]
+batch_id = fields.Many2one(
+    'stock.picking.batch',
+    string='Delivery batch',
+    compute='_compute_batch_id',
+    store=True, index=True,
+)
+
+@api.depends('picking_ids.batch_id', 'picking_ids.state')
+def _compute_batch_id(self):
+    for order in self:
+        pickings = order.picking_ids.filtered(
+            lambda p: p.state != 'cancel' and p.batch_id
+        ).sorted('id')
+        order.batch_id = pickings[:1].batch_id
+\end{lstlisting}
+
+\textbf{Performance cho 1500 user portal}:
+
+\begin{itemize}[leftmargin=*]
+    \item Depend chỉ 2 field (\texttt{picking\_ids.batch\_id}, \texttt{picking\_ids.state}), không depend bare \texttt{picking\_ids} $\rightarrow$ giảm recompute thừa.
+    \item \texttt{sorted('id')} in-memory trên O2m prefetched, không gọi \texttt{search()} $\rightarrow$ không thêm query khi compute trên list nhiều SO.
+    \item \texttt{store=True + index=True} $\rightarrow$ filter "Đã có batch" và group\_by "Theo batch" trên list view nhanh ($O(\log n)$ qua btree).
+    \item Không \texttt{compute\_sudo}: picking ACL đã được sale\_stock grant cho portal user qua record rule.
+\end{itemize}
+
+View update: form (sau \texttt{area\_id}), tree (optional hide), search (input + filter has\_batch + group\_by batch).
+
+\section{Task C --- Knowledge full BA}
+
+\subsection{Field changes \texttt{wujia.knowledge.article}}
+
+\begin{longtable}{p{4cm}p{4cm}p{6cm}}
+\toprule
+Field & Action & Note \\
+\midrule
+\endhead
+\texttt{code} & THÊM & Sequence \texttt{KNW-000001} qua \texttt{ir.sequence}. \\
+\texttt{state} & THÊM (thay \texttt{published}) & Selection draft/published/archived, index + tracking. \\
+\texttt{portal\_badge} & THÊM & Selection normal/new/important/mandatory. \\
+\texttt{expired\_date} & THÊM & Datetime, index. \\
+\texttt{sequence} & THÊM & Integer default 10, index (cho sort portal). \\
+\texttt{is\_published\_portal} & THÊM compute store & Index --- portal domain filter 1 cột thay vì 2 điều kiện. \\
+\texttt{attachment\_ids} & THÊM & M2m \texttt{ir.attachment}. \\
+\texttt{active} & THÊM & Boolean default True (archive mềm). \\
+\texttt{summary} & ĐỔI Char(250) $\rightarrow$ Text & Translate=True. \\
+\texttt{tag\_ids} & ĐỔI Char CSV $\rightarrow$ M2m & Model mới \texttt{wujia.knowledge.tag}. \\
+\texttt{published} & XOÁ & Replaced by \texttt{state}. \\
+\bottomrule
+\end{longtable}
+
+Inherit \texttt{mail.thread} + \texttt{mail.activity.mixin} cho tracking state.
+
+\subsection{Model mới \texttt{wujia.knowledge.tag}}
+
+Fields: \texttt{name} (unique, translate), \texttt{color} (Integer), \texttt{active}, \texttt{article\_count} (compute qua \texttt{\_read\_group} batch không vòng for query).
+
+\subsection{Cron \texttt{\_cron\_recompute\_is\_published}}
+
+\texttt{is\_published\_portal} depend trên \texttt{expired\_date > now} không tự re-trigger theo thời gian. Cron daily 03:00 re-evaluate cho article vừa hết hạn:
+
+\begin{lstlisting}[style=python]
+@api.model
+def _cron_recompute_is_published(self):
+    now = fields.Datetime.now()
+    expired = self.search([
+        ('is_published_portal', '=', True),
+        ('expired_date', '!=', False),
+        ('expired_date', '<=', now),
+    ])
+    if expired:
+        expired._compute_is_published_portal()
+\end{lstlisting}
+
+\section{Task E --- Support Ticket full BA}
+
+\subsection{ADR-016 --- Không tạo \texttt{wujia.support.ticket.message} riêng}
+
+BA gợi ý model song song \texttt{franchise.support.ticket.message} cho author\_role snapshot / is\_internal flag / message\_type. Quyết định KHÔNG implement vì:
+
+\begin{itemize}[leftmargin=*]
+    \item \texttt{mail.message} của Odoo đã có \texttt{author\_id}, \texttt{body}, \texttt{attachment\_ids}, \texttt{message\_type}, \texttt{subtype\_id} (cho is\_internal qua \texttt{mail.mt\_note}).
+    \item Tạo model song song duplicate hệ thống chatter $\rightarrow$ dual write phức tạp, dễ inconsistent.
+    \item Analytics BA cần (\texttt{last\_message\_date}, \texttt{last\_response\_by}, \texttt{need\_customer\_reply}, \texttt{message\_count}) đặt ở level ticket --- update atomic qua \texttt{message\_post()} override.
+\end{itemize}
+
+YAGNI: nếu sprint sau BA yêu cầu report message-level với role snapshot bất biến, lúc đó mới tạo model riêng.
+
+\subsection{Field changes \texttt{wujia.support.ticket}}
+
+\textbf{Rename}: \texttt{subject} $\rightarrow$ \texttt{title}; \texttt{user\_id} $\rightarrow$ \texttt{created\_by\_id}; \texttt{handler\_user\_id} $\rightarrow$ \texttt{assigned\_user\_id}.
+
+\textbf{Đổi kiểu}: \texttt{description} Text $\rightarrow$ Html(sanitize); \texttt{category} Selection $\rightarrow$ \texttt{category\_id} Many2one tới model mới \texttt{wujia.support.category}; \texttt{priority} 4-level $\rightarrow$ 2-level (normal/urgent).
+
+\textbf{State 4 $\rightarrow$ 6 giá trị}: new / in\_progress / \textbf{waiting\_customer} / resolved / closed / \textbf{cancelled}.
+
+\textbf{Thêm}: \texttt{created\_by\_role} (snapshot owner/manager/staff), \texttt{store\_partner\_id} (related store), \texttt{sale\_order\_id}, \texttt{picking\_batch\_id}, \texttt{assigned\_team\_id} (crm.team), \texttt{last\_message\_date}, \texttt{last\_response\_by}, \texttt{need\_customer\_reply}, \texttt{message\_count}, \texttt{attachment\_count}, \texttt{open\_date / in\_progress\_date / resolved\_date / closed\_date}, \texttt{cancel\_reason}, \texttt{internal\_note}, \texttt{portal\_visible}, \texttt{active}.
+
+\subsection{\texttt{message\_post} override --- analytics atomic}
+
+\begin{lstlisting}[style=python]
+def message_post(self, **kwargs):
+    msg = super().message_post(**kwargs)
+    if msg and msg.message_type == 'comment':
+        author = msg.author_id
+        is_portal = bool(author.user_ids and author.user_ids[:1].share)
+        vals = {'last_message_date': msg.date or fields.Datetime.now()}
+        if is_portal:
+            vals.update({
+                'last_response_by': 'customer',
+                'need_customer_reply': False,
+            })
+        else:
+            vals['last_response_by'] = 'hq'
+            vals['need_customer_reply'] = self.state == 'waiting_customer'
+        self.sudo().write(vals)
+    return msg
+\end{lstlisting}
+
+\subsection{Constraint cancel\_reason}
+
+\begin{lstlisting}[style=python]
+@api.constrains('state', 'cancel_reason')
+def _check_cancel_reason(self):
+    for rec in self:
+        if rec.state == 'cancelled' and not (rec.cancel_reason or '').strip():
+            raise ValidationError(_(
+                "Ticket %s requires a cancel reason when state is 'cancelled'.",
+                rec.name or rec.title or '?',
+            ))
+\end{lstlisting}
+
+\subsection{Model mới \texttt{wujia.support.category}}
+
+Tách category Selection thành master data: \texttt{name} unique, \texttt{code} unique, \texttt{default\_assigned\_user\_id}, \texttt{default\_assigned\_team\_id}, \texttt{sequence}, \texttt{active}. 7 default category seed qua \texttt{data/wujia\_support\_category\_data.xml} (order/delivery/product/pos/operation/account/other) --- khớp code với Selection cũ để controller portal mapping được.
+
+\section{Migration --- bài học data loss}
+
+Khi rename/đổi kiểu field trên model có data, Odoo 19 \texttt{-u} sẽ DROP cột cũ aggressively (mất data trong cột đó). Lần đầu chạy \texttt{-u} trên dev DB \texttt{wujia\_tea\_19} bị mất data ticket + article hiện có (subject/user\_id/handler\_user\_id/category/published bị drop).
+
+Bài học: trước khi commit code có rename field trên model có data, hoặc
+
+\begin{itemize}[leftmargin=*]
+    \item Viết \texttt{<module>/migrations/<new\_ver>/pre-migrate.py} copy data sang cột mới trước khi Odoo drop.
+    \item Hoặc xác nhận với user drop+init + reseed (chỉ khi data thuần test/skeleton).
+\end{itemize}
+
+Sprint này chốt phương án drop+init vì cả dev và prod đều là skeleton. Quy trình:
+
+\begin{lstlisting}[style=shell]
+# Trên dev (đã chạy)
+bash /home/huyban/odoo-dev/WujiaTea/scripts/reseed_full.sh
+
+# Trên prod server (sau khi git pull code mới)
+# Xem chi tiết: docs/DEPLOY_SPRINT5.md
+\end{lstlisting}
+
+\section{Files thay đổi}
+
+\begin{lstlisting}[style=shell]
+SỬA:
+  custom/wujia_sale/__manifest__.py                              # bump 19.0.3.0.0
+  custom/wujia_sale/models/sale_order.py                         # +batch_id
+  custom/wujia_sale/views/sale_order_views.xml                   # batch_id 3 views
+
+  custom/wujia_portal_knowledge/__manifest__.py                  # +mail depend
+  custom/wujia_portal_knowledge/models/__init__.py               # +tag
+  custom/wujia_portal_knowledge/models/wujia_knowledge_article.py # full BA spec
+  custom/wujia_portal_knowledge/models/wujia_knowledge_category.py # +description
+  custom/wujia_portal_knowledge/security/ir.model.access.csv     # +tag rows
+  custom/wujia_portal_knowledge/views/wujia_knowledge_backend_views.xml
+  custom/wujia_portal_knowledge/views/portal_knowledge.xml       # render badge
+  custom/wujia_portal_knowledge/controllers/portal.py            # is_published_portal filter
+
+  custom/wujia_portal_support/__manifest__.py                    # +sale,batch,team
+  custom/wujia_portal_support/models/__init__.py                 # +category
+  custom/wujia_portal_support/models/wujia_support_ticket.py     # full BA spec rewrite
+  custom/wujia_portal_support/security/ir.model.access.csv       # +category rows
+  custom/wujia_portal_support/security/wujia_support_rules.xml   # rule split portal/HQ
+  custom/wujia_portal_support/views/wujia_support_backend_views.xml # rewrite full
+  custom/wujia_portal_support/views/portal_support.xml           # rename refs + chatter
+  custom/wujia_portal_support/controllers/portal.py              # dynamic category + reply
+
+  scripts/seed_portal_demo.py                                    # align schema mới
+
+TẠO:
+  custom/wujia_portal_knowledge/models/wujia_knowledge_tag.py
+  custom/wujia_portal_knowledge/data/ir_sequence_data.xml         # seq KNW-
+  custom/wujia_portal_knowledge/data/ir_cron_data.xml             # cron daily
+
+  custom/wujia_portal_support/models/wujia_support_category.py
+  custom/wujia_portal_support/data/wujia_support_category_data.xml # 7 cat
+
+  custom/wujia_sale/i18n/{wujia_sale.pot, vi_VN.po}
+  custom/wujia_portal_knowledge/i18n/{*.pot, vi_VN.po}
+  custom/wujia_portal_support/i18n/{*.pot, vi_VN.po}
+
+  scripts/seed_knowledge_demo.py
+  scripts/seed_support_demo.py
+  scripts/test_sprint5.py
+  scripts/reseed_full.sh
+
+  docs/DEPLOY_SPRINT5.md
+\end{lstlisting}
+
+\section{Verify (đã pass)}
+
+\texttt{scripts/test\_sprint5.py} chạy 20 assertion: \textbf{20 PASS / 0 FAIL} (1 SKIP cho batch\_id vì legacy seed\_portal\_demo chưa tạo SO --- liên quan thiếu product seed, không phải bug Sprint 5).
+
+Check covered:
+
+\begin{itemize}[leftmargin=*]
+    \item Knowledge: published article có \texttt{is\_published\_portal=True}; expired article bị exclude; tag M2m search OK; sequence KNW- assigned; cron exists.
+    \item Support: 7 default category seeded; ticket có title/category\_id/created\_by\_id; priority đúng BA spec; cancel/waiting\_customer states tồn tại; cancel\_reason required (ValidationError); state transition stamp dates; \texttt{message\_post} cập nhật \texttt{last\_message\_date} + \texttt{last\_response\_by}.
+\end{itemize}
+
+% ===========================================================================

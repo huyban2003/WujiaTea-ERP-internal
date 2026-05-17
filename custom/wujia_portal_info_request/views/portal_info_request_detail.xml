@@ -1,0 +1,133 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <template id="portal_info_request_detail" name="Wujia Portal — Info Request Detail">
+        <t t-call="wujia_portal_layout.app_layout">
+            <t t-set="title">Chi tiết yêu cầu</t>
+            <div class="content-wrapper">
+                <div class="content-header row mt-3">
+                    <div class="content-header-left col-12 mb-1">
+                        <nav><ol class="breadcrumb">
+                            <li class="breadcrumb-item"><a href="/portal/info-request">Cập nhật thông tin</a></li>
+                            <li class="breadcrumb-item active" t-out="rec.name"/>
+                        </ol></nav>
+                        <h2 class="content-header-title float-left mb-0">
+                            <t t-out="rec.name"/>
+                            <t t-set="lbl" t-value="state_labels.get(rec.state, (rec.state, 'state-draft'))"/>
+                            <span t-attf-class="badge state-badge #{lbl[1]} ms-2" t-out="lbl[0]"/>
+                        </h2>
+                    </div>
+                </div>
+
+                <div t-if="message" class="alert alert-info m-3">
+                    <t t-if="message == 'created'">Yêu cầu đã được tạo.</t>
+                    <t t-elif="message == 'cancelled'">Yêu cầu đã được huỷ.</t>
+                    <t t-else=""><t t-out="message"/></t>
+                </div>
+
+                <div class="content-body">
+                    <div class="card">
+                        <div class="card-body">
+                            <div class="row g-2">
+                                <div class="col-md-6 col-12">
+                                    <label class="small text-muted">Cửa hàng</label>
+                                    <div class="fw-bold" t-out="rec.franchise_id.name or '—'"/>
+                                </div>
+                                <div class="col-md-6 col-12">
+                                    <label class="small text-muted">Loại thông tin</label>
+                                    <div class="fw-bold">
+                                        <t t-set="rt_opt" t-value="dict(rec._fields['request_type'].selection).get(rec.request_type, '—')"/>
+                                        <t t-out="rt_opt"/>
+                                        <span t-if="rec.field_target" class="text-muted ms-1">
+                                            (<t t-out="rec.field_target"/>)
+                                        </span>
+                                    </div>
+                                </div>
+                                <div class="col-md-6 col-12">
+                                    <label class="small text-muted">Người tạo</label>
+                                    <div t-out="rec.created_by_user_id.name or '—'"/>
+                                </div>
+                                <div class="col-md-6 col-12">
+                                    <label class="small text-muted">Mức độ</label>
+                                    <div>
+                                        <span t-if="rec.priority == 'urgent'" class="badge bg-danger">Khẩn</span>
+                                        <span t-else="" class="badge bg-secondary">Bình thường</span>
+                                    </div>
+                                </div>
+                                <div class="col-md-6 col-12">
+                                    <label class="small text-muted">Ngày tạo</label>
+                                    <div t-out="rec.request_date and rec.request_date.strftime('%d/%m/%Y %H:%M') or '—'"/>
+                                </div>
+                                <div class="col-md-6 col-12">
+                                    <label class="small text-muted">Ngày gửi</label>
+                                    <div t-out="rec.submitted_date and rec.submitted_date.strftime('%d/%m/%Y %H:%M') or '—'"/>
+                                </div>
+
+                                <div class="col-12">
+                                    <label class="small text-muted">Giá trị cũ</label>
+                                    <pre class="form-control bg-light mb-0" style="white-space: pre-wrap;"
+                                         t-out="rec.old_value or '—'"/>
+                                </div>
+                                <div class="col-12">
+                                    <label class="small text-muted">Giá trị mới</label>
+                                    <pre class="form-control mb-0" style="white-space: pre-wrap;"
+                                         t-out="rec.new_value or '—'"/>
+                                </div>
+                                <div class="col-12" t-if="rec.note">
+                                    <label class="small text-muted">Ghi chú</label>
+                                    <pre class="form-control bg-light mb-0" style="white-space: pre-wrap;"
+                                         t-out="rec.note"/>
+                                </div>
+
+                                <div class="col-12" t-if="rec.attachment_ids">
+                                    <label class="small text-muted">Minh chứng</label>
+                                    <ul class="list-unstyled mb-0">
+                                        <li t-foreach="rec.attachment_ids" t-as="att">
+                                            <a t-attf-href="/web/content/#{att.id}?download=true"
+                                               class="text-decoration-none">
+                                                <i class="fa fa-paperclip me-1"/>
+                                                <t t-out="att.name"/>
+                                            </a>
+                                        </li>
+                                    </ul>
+                                </div>
+
+                                <div class="col-12" t-if="rec.state == 'rejected' and rec.refuse_reason">
+                                    <label class="small text-muted">Lý do từ chối</label>
+                                    <pre class="form-control bg-light text-danger mb-0"
+                                         style="white-space: pre-wrap;"
+                                         t-out="rec.refuse_reason"/>
+                                </div>
+                                <div class="col-12" t-if="rec.state == 'approved' and rec.reviewer_id">
+                                    <label class="small text-muted">Người duyệt</label>
+                                    <div>
+                                        <t t-out="rec.reviewer_id.name"/>
+                                        <span class="text-muted ms-2" t-if="rec.reviewed_date">
+                                            (<t t-out="rec.reviewed_date.strftime('%d/%m/%Y %H:%M')"/>)
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card-footer text-end">
+                            <a href="/portal/info-request" class="btn btn-secondary me-2">
+                                <i class="fa fa-arrow-left me-1"/>Quay lại
+                            </a>
+                            <form t-if="rec.state in ('draft', 'submitted') and rec.created_by_user_id.id == request.env.uid"
+                                  method="post"
+                                  t-attf-action="/portal/info-request/#{rec.id}/cancel"
+                                  class="d-inline">
+                                <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
+                                <button type="submit" class="btn btn-outline-danger"
+                                        onclick="return confirm('Huỷ yêu cầu này?');">
+                                    <i class="fa fa-times me-1"/>Huỷ yêu cầu
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </t>
+    </template>
+
+</odoo>

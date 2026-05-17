@@ -1,0 +1,139 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="view_wujia_info_update_request_list" model="ir.ui.view">
+        <field name="name">wujia.info.update.request.list</field>
+        <field name="model">wujia.info.update.request</field>
+        <field name="arch" type="xml">
+            <list string="Yêu cầu cập nhật thông tin"
+                  decoration-info="state == 'submitted'"
+                  decoration-warning="state == 'reviewing'"
+                  decoration-success="state == 'approved'"
+                  decoration-muted="state == 'rejected'">
+                <field name="name"/>
+                <field name="franchise_id"/>
+                <field name="request_type"/>
+                <field name="new_value" optional="show"/>
+                <field name="priority" widget="badge"
+                       decoration-danger="priority == 'urgent'"/>
+                <field name="created_by_user_id"/>
+                <field name="request_date"/>
+                <field name="submitted_date" optional="hide"/>
+                <field name="reviewer_id" optional="show"/>
+                <field name="state" widget="badge"
+                       decoration-info="state == 'submitted'"
+                       decoration-warning="state == 'reviewing'"
+                       decoration-success="state == 'approved'"
+                       decoration-muted="state == 'rejected'"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_wujia_info_update_request_form" model="ir.ui.view">
+        <field name="name">wujia.info.update.request.form</field>
+        <field name="model">wujia.info.update.request</field>
+        <field name="arch" type="xml">
+            <form string="Yêu cầu cập nhật thông tin">
+                <header>
+                    <button name="action_start_review" type="object" string="Bắt đầu xem"
+                            invisible="state != 'submitted'"/>
+                    <button name="action_approve" type="object" string="Duyệt"
+                            class="btn-primary" invisible="state not in ('submitted', 'reviewing')"/>
+                    <button name="action_reject" type="object" string="Từ chối"
+                            class="btn-danger" invisible="state not in ('submitted', 'reviewing')"/>
+                    <field name="state" widget="statusbar"
+                           statusbar_visible="draft,submitted,reviewing,approved"/>
+                </header>
+                <sheet>
+                    <div class="oe_title">
+                        <h1><field name="name" readonly="1"/></h1>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="franchise_id"/>
+                            <field name="request_type"/>
+                            <field name="field_target"
+                                   invisible="request_type != 'other'"
+                                   required="request_type == 'other'"/>
+                            <field name="priority" widget="badge"
+                                   decoration-danger="priority == 'urgent'"/>
+                        </group>
+                        <group>
+                            <field name="created_by_user_id"/>
+                            <field name="request_date"/>
+                            <field name="submitted_date"/>
+                            <field name="reviewer_id"/>
+                            <field name="reviewed_date"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="Nội dung">
+                            <group>
+                                <field name="old_value" readonly="1"/>
+                                <field name="new_value"/>
+                                <field name="note"/>
+                            </group>
+                        </page>
+                        <page string="Minh chứng">
+                            <field name="attachment_ids" widget="many2many_binary"/>
+                        </page>
+                        <page string="Từ chối"
+                              invisible="state != 'rejected'">
+                            <field name="refuse_reason"/>
+                        </page>
+                    </notebook>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_wujia_info_update_request_search" model="ir.ui.view">
+        <field name="name">wujia.info.update.request.search</field>
+        <field name="model">wujia.info.update.request</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="name"/>
+                <field name="franchise_id"/>
+                <field name="created_by_user_id"/>
+                <field name="new_value"/>
+                <filter name="filter_draft" string="Nháp"
+                        domain="[('state', '=', 'draft')]"/>
+                <filter name="filter_submitted" string="Đã gửi"
+                        domain="[('state', '=', 'submitted')]"/>
+                <filter name="filter_reviewing" string="Đang xem"
+                        domain="[('state', '=', 'reviewing')]"/>
+                <filter name="filter_approved" string="Đã duyệt"
+                        domain="[('state', '=', 'approved')]"/>
+                <filter name="filter_urgent" string="Khẩn"
+                        domain="[('priority', '=', 'urgent')]"/>
+                <separator/>
+                <filter name="filter_pending" string="Chờ duyệt"
+                        domain="[('state', 'in', ['submitted', 'reviewing'])]"/>
+                <group name="group_by">
+                    <filter name="group_state" string="Trạng thái"
+                            context="{'group_by': 'state'}"/>
+                    <filter name="group_franchise" string="Cửa hàng"
+                            context="{'group_by': 'franchise_id'}"/>
+                    <filter name="group_type" string="Loại"
+                            context="{'group_by': 'request_type'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <record id="action_wujia_info_update_request" model="ir.actions.act_window">
+        <field name="name">Yêu cầu cập nhật thông tin</field>
+        <field name="res_model">wujia.info.update.request</field>
+        <field name="view_mode">list,form</field>
+        <field name="search_view_id" ref="view_wujia_info_update_request_search"/>
+        <field name="context">{'search_default_filter_pending': 1}</field>
+    </record>
+
+    <menuitem id="menu_wujia_info_update_request_root"
+              name="Info Update Requests"
+              parent="wujia_franchise.menu_wujia_operation_root"
+              action="action_wujia_info_update_request"
+              sequence="60"/>
+
+</odoo>

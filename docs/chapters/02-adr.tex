@@ -1,0 +1,142 @@
+\chapter{Quyết định kiến trúc (ADR)}
+
+Mỗi quyết định lớn ghi 1 mục. BA muốn thay đổi → mở PR sửa file \texttt{.tex} + module liên quan.
+
+\section{ADR-001: Tách \texttt{odoo19} source ra khỏi project khác}
+
+\textbf{Quyết định:} Đặt source Odoo 19 trong \texttt{WujiaTea/odoo19/} thay vì \texttt{$\sim$/odoo-dev/odoo19/} chung.
+
+\textbf{Lý do:} Mỗi project có thể dùng version khác. Tách giúp \texttt{git clone} là đủ.
+
+\textbf{Trade-off:} Tốn 17GB disk. Chấp nhận được.
+
+\section{ADR-002: Dùng venv conda \texttt{odoo} (Python 3.10)}
+
+\textbf{Quyết định:} Run Odoo 19 bằng \texttt{$\sim$/miniconda3/envs/odoo/bin/python}.
+
+\textbf{Lý do:} Conda env đã có sẵn deps cơ bản, không cần build lại. Tránh \texttt{apt install python3-venv}.
+
+\textbf{Trade-off:} Python 3.10 OK với Odoo 19.
+
+\section{ADR-003: Postgres role riêng \texttt{odoo19}}
+
+\textbf{Quyết định:} Tạo role \texttt{odoo19} superuser, không dùng chung \texttt{odoo16}.
+
+\textbf{Lý do:} Cô lập DB project — drop role không ảnh hưởng project khác.
+
+\textbf{DB:} \texttt{wujia\_tea\_19} (owner = \texttt{odoo19}).
+
+\section{ADR-004: Custom portal Vuexy thay vì /my chuẩn Odoo}
+
+\textbf{Quyết định:} Build module riêng \texttt{wujia\_portal\_layout} clone giao diện Vuexy từ v14.
+
+\textbf{Lý do (BA đã đưa):}
+\begin{itemize}
+    \item Production v14 đã có giao diện Vuexy quen thuộc với user.
+    \item /my chuẩn Odoo không phát triển được — sidebar layout không linh hoạt.
+    \item Bê y chang để user không cần học lại UI.
+\end{itemize}
+
+\textbf{Trade-off:}
+\begin{itemize}
+    \item Bê 53MB static assets vào repo.
+    \item Maintain thêm 1 layer CSS song song với BS5.
+    \item Bù lại: full control UX.
+\end{itemize}
+
+\section{ADR-005: Model mới \texttt{wujia.franchise.member} thay vì sửa \texttt{franchise.management} v14}
+
+\textbf{Quyết định:} Tạo model mới hoàn toàn, không bê \texttt{franchise.management} v14.
+
+\textbf{Lý do:} v14 design 1 user = 1 chi nhánh (constraint cứng \texttt{\_check\_related\_user}) không đủ cho nghiệp vụ thực --- chủ chuỗi có nhiều cửa hàng, 1 cửa hàng có nhiều nhân viên.
+
+\textbf{Schema:} \texttt{user\_id} × \texttt{franchise\_id} × \texttt{role} (owner / manager / staff). Cộng \texttt{is\_primary\_owner}, \texttt{date\_from/to}, \texttt{active}, \texttt{is\_currently\_valid} (stored compute).
+
+\textbf{Cập nhật 2026-04-30 (BA spec):} Đổi tên model \texttt{wujia.branch.member} → \texttt{wujia.franchise.member}, đổi field \texttt{branch\_partner\_id} (M2o \texttt{res.partner}) → \texttt{franchise\_id} (M2o \texttt{wujia.franchise.management}). Member giờ link trực tiếp tới entity hợp đồng thay vì proxy qua partner.
+
+\section{ADR-006: Real-time qua \texttt{bus.bus} + WebSocket Odoo native}
+
+\textbf{Quyết định:} Dùng \texttt{bus.bus} chuẩn Odoo 19 cho mọi real-time push.
+
+\textbf{Channel naming convention (sau refactor 2026-04-30):}
+\begin{itemize}
+    \item \texttt{wujia.franchise\_<id>} --- events liên quan đến cửa hàng (rename từ \texttt{wujia.branch\_<id>})
+    \item \texttt{wujia.franchise\_<id>.orders} --- events đơn hàng (planned, chưa làm)
+\end{itemize}
+
+\textbf{Channel gating:} mỗi module sở hữu namespace của mình, override \texttt{ir.websocket.\_build\_bus\_channel\_list} verify quyền subscribe. Regex hiện dùng: \verb|^wujia\.franchise_(\d+)$|.
+
+\section{ADR-007: Tách 3 module cho sprint Order + History}
+
+\textbf{Quyết định:} \texttt{wujia\_sale} (data) + \texttt{wujia\_portal\_sale} (UI order) + \texttt{wujia\_portal\_purchase\_history} (UI history).
+
+\textbf{Lý do:} v14 nhồi tất cả vào \texttt{co\_portal\_wujia} (243 dòng controller + 251 dòng XML + 288 dòng JS) → khó audit. Tách 3 layer giúp model layer cài được không cần portal (cho API/headless).
+
+\section{ADR-008: URL kebab-case + 301 redirect từ snake\_case v14}
+
+\textbf{Quyết định:} \texttt{/portal/purchase-history} (mới); \texttt{/portal/purchase\_history} → 301.
+
+\textbf{Lý do:} Convention modern web. Đồng nhất với \texttt{/portal/order}.
+
+\section{ADR-009: Block portal feature → Defer sprint sau}
+
+\textbf{Quyết định BA chốt:} Không làm trong sprint 2.
+
+\section{ADR-010: 3 field địa chỉ giao trên \texttt{sale.order}}
+
+\textbf{Quyết định BA chốt:} \texttt{portal\_delivery\_street} + \texttt{portal\_delivery\_phone} + \texttt{portal\_note} char/text trực tiếp trên SO.
+
+\textbf{Lý do:} Đơn giản, match contract v14. Tránh tạo \texttt{res.partner} shipping rác.
+
+\section{ADR-011: Active branch picker xảy ra TẠI LOGIN}
+
+\textbf{Quyết định BA chốt:} Sau login → 2+ chi nhánh → BẮT BUỘC chọn trước khi vào \texttt{/portal}.
+
+\textbf{Implementation:} Set \texttt{request.session['wujia\_active\_branch\_id']} ngay sau authenticate. Có dropdown topnav để đổi nhanh runtime.
+
+\section{ADR-012: Tách \texttt{wujia\_franchise\_management} ra khỏi \texttt{wujia\_franchise} (\emph{bị overrule bởi ADR-015})}
+
+\textbf{Quyết định ban đầu:} Tạo module riêng \texttt{wujia\_franchise\_management} cho phần ``hồ sơ hợp đồng''. Module gốc \texttt{wujia\_franchise} chỉ giữ membership/role.
+
+\textbf{Vấn đề phát sinh khi áp BA spec mới:} Member field \texttt{franchise\_id} link tới \texttt{wujia.franchise.management} → khi đó management ở module phụ thuộc ngược trên membership → registry validation fail nếu cài độc lập \texttt{wujia\_franchise}.
+
+\textbf{Quyết định ngày 2026-04-30:} Overrule. Gộp cả management + member vào 1 module. Xem ADR-015. Module \texttt{wujia\_franchise\_management} bị xóa hoàn toàn.
+
+\section{ADR-013: \texttt{res.area} / \texttt{res.ward} đặt trong \texttt{wujia\_core}}
+
+\textbf{Quyết định:} 2 model master data địa lý \texttt{res.area} (khu vực kinh doanh) và \texttt{res.ward} (phường/xã) đặt trong \texttt{wujia\_core}, không gắn vào \texttt{wujia\_franchise}.
+
+\textbf{Lý do:}
+\begin{itemize}
+    \item Khu vực / phường/xã không chỉ phục vụ franchise. Tương lai sale/delivery/customer-address đều dùng được.
+    \item Tránh circular dependency tương lai (vd \texttt{wujia\_delivery} muốn dùng \texttt{res.area} thì khỏi phải depend cứng \texttt{wujia\_franchise}).
+    \item Naming \texttt{res.*} (thay vì \texttt{wujia.*}) gợi ý đây là master data chung, không nghiệp vụ chuyên biệt.
+\end{itemize}
+
+\textbf{Quan hệ:} \texttt{res.area.ward\_ids} là Many2many \texttt{res.ward} (junction \texttt{res\_area\_ward\_rel}) --- 1 ward có thể thuộc nhiều area khác nhau cho mục đích vận hành/giao hàng. \texttt{res.area.state\_ids} compute store (distinct \texttt{ward\_ids.state\_id}). \texttt{res.ward} không có \texttt{area\_id} (theo BA spec mới --- ward là master data thuần địa lý, area là grouping kinh doanh chồng lên).
+
+\section{ADR-014: \texttt{wujia.franchise.member} có UI độc lập, không sửa form \texttt{res.users} gốc}
+
+\textbf{Quyết định BA chốt:} Member là entity độc lập (form / list / search action riêng, menu \emph{Operation > Franchise Member}). Form chuẩn \texttt{res.users} của Odoo \emph{chỉ thêm 1 smart-button} ``Franchise Members'' mở list filter; không nhúng tab editable.
+
+\textbf{Lý do BA đưa:}
+\begin{itemize}
+    \item Đụng vào \texttt{res.users} form gốc dễ break kế thừa từ HR / Sales / các app khác.
+    \item Audit trail rõ ràng: ai gán role gì cho user nào, khi nào --- xem trong list view của \texttt{wujia.franchise.member}.
+    \item Tránh case admin/HR vô tình tạo membership rời rạc qua res.users form mà không thấy được constraint primary owner.
+\end{itemize}
+
+\section{ADR-015: Gộp \texttt{wujia\_franchise\_management} → \texttt{wujia\_franchise} (chống circular dep)}
+
+\textbf{Quyết định ngày 2026-04-30:} Xóa module \texttt{wujia\_franchise\_management}, di chuyển toàn bộ model + view + security vào \texttt{wujia\_franchise}.
+
+\textbf{Lý do:} BA spec mới yêu cầu \texttt{wujia.franchise.member.franchise\_id} là M2o trực tiếp tới \texttt{wujia.franchise.management} (thay cho M2o tới \texttt{res.partner} ở thiết kế cũ). Hai model trở nên tightly-coupled: management có \texttt{member\_ids} One2many, member có \texttt{franchise\_id} M2o. Tách 2 module sẽ tạo registry error khi cài độc lập một bên.
+
+\textbf{Được/Mất:}
+\begin{itemize}
+    \item[$+$] Hết circular dep, registry validation pass.
+    \item[$+$] Đỡ 1 module → đỡ 1 manifest, ít boilerplate.
+    \item[$-$] Mất khả năng cài/uninstall riêng "hồ sơ hợp đồng". Đánh giá: không quan trọng vì cả 2 model đều phải có để chạy nghiệp vụ portal.
+\end{itemize}
+
+% ===========================================================================

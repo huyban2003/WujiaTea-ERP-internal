@@ -123,3 +123,54 @@ class WujiaPortalNotification(http.Controller):
         return request.render('wujia_portal_notification.portal_notification_detail', {
             'noti': noti,
         })
+
+    @http.route(['/portal/notification/mark-read'], type='json',
+                auth='user', methods=['POST'])
+    def portal_notification_mark_read(self, notification_ids=None, **kw):
+        """Bulk mark-read. Idempotent — unique constraint trên DB."""
+        if not notification_ids:
+            return {'success': True, 'created': 0}
+        try:
+            ids = [int(i) for i in notification_ids]
+        except (TypeError, ValueError):
+            return {'error': 'invalid_ids'}
+        franchise_ids = get_active_franchise_ids_filter()
+        Noti = request.env['wujia.notification'].sudo()
+        accessible = Noti.search([
+            ('id', 'in', ids), ('published', '=', True),
+            '|', ('franchise_ids', '=', False),
+                 ('franchise_ids', 'in', list(franchise_ids) if franchise_ids else [-1]),
+        ]).ids
+        Read = request.env['wujia.notification.read'].sudo()
+        existing = set(Read.search([
+            ('notification_id', 'in', accessible),
+            ('user_id', '=', request.env.user.id),
+        ]).mapped('notification_id').ids)
+        to_create = [
+            {'notification_id': nid, 'user_id': request.env.user.id}
+            for nid in accessible if nid not in existing
+        ]
+        if to_create:
+            Read.create(to_create)
+        return {'success': True, 'created': len(to_create)}
+
+    @http.route(['/portal/notification/unread-count'], type='json',
+                auth='user', methods=['POST', 'GET'])
+    def portal_notification_unread_count(self, **kw):
+        """Badge realtime — đếm noti accessible chưa đọc trong 30 ngày."""
+        franchise_ids = get_active_franchise_ids_filter()
+        cutoff = fields.Datetime.now() - timedelta(days=RECENT_DAYS)
+        Noti = request.env['wujia.notification'].sudo()
+        accessible_ids = Noti.search([
+            ('published', '=', True),
+            '|', ('franchise_ids', '=', False),
+                 ('franchise_ids', 'in', list(franchise_ids) if franchise_ids else [-1]),
+            ('date', '>=', cutoff),
+        ]).ids
+        if not accessible_ids:
+            return {'count': 0}
+        read_count = request.env['wujia.notification.read'].sudo().search_count([
+            ('notification_id', 'in', accessible_ids),
+            ('user_id', '=', request.env.user.id),
+        ])
+        return {'count': max(0, len(accessible_ids) - read_count)}

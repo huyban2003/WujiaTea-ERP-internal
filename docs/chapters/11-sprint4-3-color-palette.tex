@@ -1,0 +1,240 @@
+\chapter{Sprint 4.3 --- Đồng bộ BA color palette + card header flush + Inter font}
+
+\section{Bối cảnh}
+
+BA cập nhật bảng màu chuẩn (19 hex) cùng layout dimensions trong sheet \texttt{2 - FE portal} của file \texttt{docs/Wujia\_Internal ERP Master Plan.xlsm} (snapshot 2026-05-14). Portal v19 từ Sprint 4.0--4.2 đang dùng palette tự build (di sản từ Vuexy + v14): \texttt{\#1f4180} làm primary, \texttt{\#14242A} dark, \texttt{\#2aaae2} info, \texttt{\#ff9f43} warning, \texttt{\#ea5455} danger. Các hex cứng rải rác 18+ file CSS/XML/JS, không có CSS variable nên muốn đổi 1 màu phải sửa hàng chục chỗ.
+
+User cũng phản hồi 1 lỗi UI nhỏ: tiêu đề trong các "khung" (card-header / section-header) bị xa border trái --- root cause là \texttt{.card \{ border-radius: 20px; overflow: hidden \}} cộng với Bootstrap \texttt{.card-header \{ padding: 1.5rem 1.5rem \}} làm text title cách border-left của card 24px, trông không cân đối.
+
+Sprint 4.3 mục tiêu: refactor color palette về 1 nguồn (\textbf{CSS custom properties}), self-host Inter, fix card header flush, KHÔNG thêm trang portal mới (defer sang Sprint 4.4).
+
+\section{Mapping --- 19 design tokens}
+
+\begin{longtable}{p{4.5cm} p{2cm} p{8cm}}
+\toprule
+\textbf{Token CSS} & \textbf{Hex} & \textbf{Vai trò} \\
+\midrule
+\endhead
+\texttt{--wujia-primary}        & \texttt{\#22A9DE} & Header, button chính, link, icon primary \\
+\texttt{--wujia-primary-dark}   & \texttt{\#1598CF} & Hover / active state \\
+\texttt{--wujia-primary-light}  & \texttt{\#E0F7FF} & Sidebar active item, icon bg, light badge \\
+\texttt{--wujia-bg-page}        & \texttt{\#F6F8FB} & Content area background \\
+\texttt{--wujia-bg-sidebar}     & \texttt{\#FFFFFF} & Sidebar container \\
+\texttt{--wujia-bg-card}        & \texttt{\#FFFFFF} & Card, table, content block \\
+\texttt{--wujia-border}         & \texttt{\#E5EAF1} & Divider, table row, input border \\
+\texttt{--wujia-table-header-line} & \texttt{\#9AA0A6} & Table header underline \\
+\texttt{--wujia-text-primary}   & \texttt{\#272A30} & Heading, main data \\
+\texttt{--wujia-text-secondary} & \texttt{\#69707A} & Description, date, subtitle \\
+\texttt{--wujia-text-muted}     & \texttt{\#8A9099} & Placeholder, help text \\
+\texttt{--wujia-success}        & \texttt{\#24B269} & Done, Active, Published \\
+\texttt{--wujia-success-bg}     & \texttt{\#E1F8EC} & Success badge container \\
+\texttt{--wujia-warning}        & \texttt{\#F29A1F} & Waiting, Pending, Draft \\
+\texttt{--wujia-warning-bg}     & \texttt{\#FFF3E0} & Warning badge container \\
+\texttt{--wujia-danger}         & \texttt{\#EC3845} & Issue, Cancelled, Rejected \\
+\texttt{--wujia-danger-bg}      & \texttt{\#FFE8EB} & Error badge, light alert \\
+\texttt{--wujia-info-bg}        & \texttt{\#D6F4E0} & Store banner success \\
+\texttt{--wujia-info-text}      & \texttt{\#1FC160} & Text in success/info bar \\
+\bottomrule
+\end{longtable}
+
+\textbf{Layout dimensions:}
+\begin{itemize}
+\item \texttt{--wujia-sidebar-width: 300px} (BA 280--320 → chốt 300)
+\item \texttt{--wujia-header-height: 76px} (BA 72--78)
+\item \texttt{--wujia-card-radius: 10px} (BA 8--10, cũ 20px)
+\item \texttt{--wujia-card-padding: 24px}
+\item \texttt{--wujia-section-gap: 28px}
+\item \texttt{--wujia-font-family: 'Inter', 'Roboto', Arial, sans-serif}
+\end{itemize}
+
+\section{Cấu trúc file mới}
+
+\begin{lstlisting}[style=shell]
+custom/wujia_portal_layout/static/assets/
+  css/
+    _variables.css        # NEW: :root { --wujia-* }
+    _wujia_theme.css      # NEW: overrides Vuexy + card header flush
+    style.css             # refactored — hex → var()
+    dashboard.css         # refactored
+  fonts/inter/            # NEW: self-host Inter v4.0
+    Inter-Regular.woff2
+    Inter-Medium.woff2
+    Inter-SemiBold.woff2
+    Inter-Bold.woff2
+    inter.css             # @font-face × 4 weight, font-display: swap
+\end{lstlisting}
+
+\section{Asset load order}
+
+\texttt{wujia\_portal\_layout/views/assets.xml}, template \texttt{asset\_theme} (load order quan trọng):
+
+\begin{lstlisting}[style=xml]
+<template id="asset_theme">
+    <!-- 1. Design tokens FIRST so var() resolves trong cascade. -->
+    <link rel="stylesheet" href=".../css/_variables.css"/>
+    <link rel="stylesheet" href=".../fonts/inter/inter.css"/>
+    <!-- 2. Vuexy vendor -->
+    <link rel="stylesheet" href=".../css/bootstrap.css"/>
+    <link rel="stylesheet" href=".../css/bootstrap-extended.css"/>
+    <link rel="stylesheet" href=".../css/colors.css"/>
+    <link rel="stylesheet" href=".../css/components.css"/>
+    ...
+</template>
+<template id="asset_style_css">
+    ...vendor + legacy...
+    <!-- 3. Wujia overrides LAST → win specificity. -->
+    <link rel="stylesheet" href=".../css/_wujia_theme.css"/>
+</template>
+\end{lstlisting}
+
+\section{Card-header flush fix}
+
+\textbf{Root cause:} \texttt{.card \{ border-radius: 20px; overflow: hidden \}} (legacy style.css line 143) + Bootstrap \texttt{.card-header \{ padding: 1.5rem 1.5rem \}} → text title cách border-left 24px.
+
+\textbf{Iteration 1 (accent stripe — bị bỏ):} thử đặt 4px stripe \texttt{--wujia-primary} làm \texttt{border-left} của card-header, padding-left 16px. Visual: title cách mép card \textasciitilde 20px, vẫn không flush. User phản hồi tiếp.
+
+\textbf{Iteration 2 (full flush — quá sát):} bỏ stripe, \texttt{padding-left: 0}, title sát mép trái 1px (chỉ còn card's 1px border). User: \emph{"sát mép quá, dịch ra đúng 1 đơn vị thui"}.
+
+\textbf{Iteration 3 (cuối — chốt):} \texttt{padding-left: 6px} --- title cách mép trái card đúng 1 đơn vị spacing (\textasciitilde 1.5mm), vừa flush vừa có breathing room. Border-bottom của card-header span full width card (chỉ inset bởi card's 1px border).
+
+\begin{lstlisting}[style=xml]
+.card {
+  border-radius: var(--wujia-card-radius) !important;
+  border: 1px solid var(--wujia-border);
+  background-color: var(--wujia-bg-card);
+  overflow: hidden;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.02);
+}
+.card > .card-header {
+  /* 6px left padding — just one breathing unit off the edge. */
+  padding: 14px 20px 14px 6px !important;
+  margin: 0 !important;
+  background-color: transparent !important;
+  border-bottom: 1px solid var(--wujia-border) !important;
+  border-left: none !important;
+  border-top: none !important;
+  border-right: none !important;
+  border-radius: 0 !important;
+}
+.card > .card-header .card-title,
+.card > .card-header > h2, ..., .card > .card-header > h6 {
+  margin: 0 !important;
+  padding-left: 0 !important;
+  font-weight: 600;
+  color: var(--wujia-text-primary);
+}
+\end{lstlisting}
+
+\texttt{!important} cần thiết để override Bootstrap default \texttt{.card-header \{ padding: 1.5rem 1.5rem \}} cùng cấp specificity. Cung cấp thêm class utility \texttt{.wujia-section-header} cho section header NẰM TRONG \texttt{.card-body}: margin trừ \texttt{--wujia-card-padding} → bleed full width.
+
+\section{Inter font self-host}
+
+Tải 4 woff2 (Regular 400, Medium 500, SemiBold 600, Bold 700) từ \texttt{https://rsms.me/inter/font-files/} (v4.0). Đặt vào \texttt{wujia\_portal\_layout/static/assets/fonts/inter/}. File \texttt{inter.css} khai báo \texttt{@font-face} cho 4 weight với \texttt{font-display: swap} (fallback system font hiện ngay, Inter swap khi load xong --- tránh FOIT cho 1500 user). \texttt{unicode-range} bao phủ Latin + Latin-Extended để render đúng dấu tiếng Việt (\texttt{U+1E00-1EFF}).
+
+\section{Refactor files (18 file thay đổi)}
+
+\begin{lstlisting}[style=shell]
+custom/wujia_portal_layout/static/assets/css/_variables.css     # NEW
+custom/wujia_portal_layout/static/assets/css/_wujia_theme.css   # NEW
+custom/wujia_portal_layout/static/assets/fonts/inter/*          # NEW
+custom/wujia_portal_layout/static/assets/css/style.css          # 17 hex → var
+custom/wujia_portal_layout/static/assets/css/dashboard.css      # 1 hex → var
+custom/wujia_portal_layout/views/assets.xml                     # add 3 <link>
+custom/wujia_portal_layout/views/layouts.xml                    # navbar inline → .wujia-navbar
+custom/wujia_portal_layout/views/login_page.xml                 # 3 inline color → var
+custom/wujia_portal_base/static/src/css/portal_dashboard.css    # 12 hex → var
+custom/wujia_portal_base/static/src/css/store_picker.css        # 4 hex → var
+custom/wujia_portal_base/views/store_picker_modal.xml           # inline <style> → var
+custom/wujia_portal_base/views/portal_home.xml                  # fallback → var
+custom/wujia_portal_notification/views/portal_notification.xml  # fallback → var
+custom/wujia_portal_notification/data/notification_type_data.xml # bg_color → BA hex
+custom/wujia_portal_notification/static/src/css/portal_notification.css
+custom/wujia_portal_knowledge/static/src/css/portal_knowledge.css
+custom/wujia_portal_sale/static/src/css/portal_order.css
+custom/wujia_portal_exam/static/src/css/portal_exam.css
+custom/wujia_portal_report/static/src/css/portal_report.css
+custom/wujia_portal_report/static/src/js/portal_report_charts.js # đọc CSS var qua getComputedStyle
+\end{lstlisting}
+
+\section{ApexCharts đồng bộ palette}
+
+\texttt{portal\_report\_charts.js} không tham chiếu được \texttt{var()} trong array string. Pattern dùng:
+
+\begin{lstlisting}[style=python]
+function wujiaColor(name, fallback) {
+    const v = getComputedStyle(document.documentElement)
+        .getPropertyValue("--wujia-" + name).trim();
+    return v || fallback;
+}
+const colorPrimary = wujiaColor("primary", "#22A9DE");
+const colorSuccess = wujiaColor("success", "#24B269");
+// ...
+colors: [colorPrimary, colorSuccess],
+\end{lstlisting}
+
+Fallback hex được giữ trong code phòng khi \texttt{\_variables.css} fail load (cực hiếm).
+
+\section{Verify}
+
+\begin{lstlisting}[style=shell]
+# 1. Re-install portal modules
+bash /home/huyban/odoo-dev/WujiaTea/scripts/upgrade.sh \
+  wujia_portal_layout,wujia_portal_base,wujia_portal_sale,\
+wujia_portal_purchase_history,wujia_portal_return,wujia_portal_delivery,\
+wujia_portal_exam,wujia_portal_knowledge,wujia_portal_notification,\
+wujia_portal_support,wujia_portal_report
+
+# 2. CSS variables loaded
+curl -s http://localhost:8019/wujia_portal_layout/static/assets/css/_variables.css \
+  | grep -c -- '--wujia-primary'   # expect: 1
+
+# 3. Inter font reachable
+curl -sI http://localhost:8019/wujia_portal_layout/static/assets/fonts/inter/Inter-Regular.woff2 \
+  | head -n 1   # expect: HTTP/1.1 200 OK
+
+# 4. Hex legacy đã sạch trong custom scope
+grep -rE '#1f4180|#2aaae2|#14242A|#ff9f43|#ea5455' \
+  custom/wujia_portal_*/static/src/ \
+  custom/wujia_portal_*/views/ \
+  custom/wujia_portal_layout/static/assets/css/style.css \
+  custom/wujia_portal_layout/static/assets/css/dashboard.css
+# expect: empty
+
+# 5. Browser visual
+#    - Navbar background = #22A9DE
+#    - Card-header: title flush với border trái + accent stripe 4px primary
+#    - Font Inter (kiểm tra DevTools > Computed > font-family)
+#    - Page bg = #F6F8FB, card bg = #FFFFFF, border = #E5EAF1
+\end{lstlisting}
+
+\section{ADR Sprint 4.3}
+
+\subsection{ADR-025: CSS custom properties thay vì SCSS variables}
+
+\textbf{Quyết định:} dùng native CSS \texttt{:root \{ --wujia-* \}} thay vì SCSS \texttt{\$wujia-*}.
+
+\textbf{Lý do:}
+\begin{itemize}
+\item \emph{Single source of truth runtime:} sửa 1 file \texttt{\_variables.css}, toàn portal recolor ngay --- không cần recompile asset bundle.
+\item \emph{Khả thi cho Phase 2 dark mode:} chỉ cần \texttt{[data-theme="dark"] \{ --wujia-bg-page: \#111; ... \}} là đảo theme runtime.
+\item \emph{Browser support an toàn:} tất cả browser BA test (Chrome / Edge / Safari / Firefox >= 5 năm) đều hỗ trợ \texttt{var()} 100\%.
+\item \emph{Không thêm dependency toolchain:} Odoo asset bundle không cần biết SCSS compiler.
+\end{itemize}
+
+\textbf{Trade-off:} không có math operations trong CSS var như SCSS (\texttt{darken(\$primary, 10\%)}). Chấp nhận vì BA đã cung cấp sẵn các sắc thái primary-dark, primary-light.
+
+\subsection{ADR-026: Inter self-host thay Google Fonts CDN}
+
+\textbf{Quyết định:} bundle 4 woff2 vào \texttt{static/assets/fonts/inter/}, không dùng \texttt{<link href="fonts.googleapis.com">}.
+
+\textbf{Lý do:}
+\begin{itemize}
+\item \emph{Privacy / compliance:} 1500 portal user request về Google = 1500 IP leak/page-load. Tránh.
+\item \emph{Latency stable:} CDN có thể chậm/block ở mạng nội bộ một số chi nhánh. Self-host cùng domain với Odoo → cache headers do Odoo control, không phụ thuộc bên thứ 3.
+\item \emph{Perf:} woff2 subset Latin + Latin-Ext ≈ 110KB / weight, cache-busted theo route Odoo asset (1 lần / version).
+\item \emph{Offline / intranet ready:} cửa hàng không internet vẫn render font đúng (khi VPN portal local).
+\end{itemize}
+
+\textbf{Trade-off:} mỗi lần Inter ra version mới phải tự pull về. Hiện tại Inter ổn định v4.0, cập nhật ~6 tháng/lần --- chấp nhận.
+
+% ===========================================================================

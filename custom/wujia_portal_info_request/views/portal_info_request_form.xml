@@ -1,0 +1,167 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <template id="portal_info_request_form" name="Wujia Portal — Info Request Form">
+        <t t-call="wujia_portal_layout.app_layout">
+            <t t-set="title">Tạo yêu cầu cập nhật thông tin</t>
+            <div class="content-wrapper">
+                <div class="content-header row mt-3">
+                    <div class="content-header-left col-12 mb-1">
+                        <nav><ol class="breadcrumb">
+                            <li class="breadcrumb-item"><a href="/portal/info-request">Cập nhật thông tin</a></li>
+                            <li class="breadcrumb-item active">Tạo yêu cầu</li>
+                        </ol></nav>
+                        <h2 class="content-header-title float-left mb-0">Tạo yêu cầu cập nhật thông tin</h2>
+                    </div>
+                </div>
+
+                <div class="content-body">
+                    <div t-if="error" class="alert alert-danger" role="alert">
+                        <i class="fa fa-exclamation-triangle me-1"/> <t t-out="error"/>
+                    </div>
+
+                    <form method="post" action="/portal/info-request/new"
+                          enctype="multipart/form-data" class="card" id="info-request-form">
+                        <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
+                        <div class="card-body">
+                            <div class="row g-2">
+                                <div class="col-md-6 col-12">
+                                    <label class="form-label">Cửa hàng <span class="text-danger">*</span></label>
+                                    <select name="franchise_id" id="info-franchise-id"
+                                            class="form-select" required="required">
+                                        <option value="">— Chọn cửa hàng —</option>
+                                        <t t-foreach="franchises" t-as="f">
+                                            <option t-att-value="f.id"
+                                                    t-att-selected="'selected' if str(values.get('franchise_id')) == str(f.id) else None"
+                                                    t-out="f.name"/>
+                                        </t>
+                                    </select>
+                                </div>
+                                <div class="col-md-6 col-12">
+                                    <label class="form-label">Loại thông tin <span class="text-danger">*</span></label>
+                                    <select name="request_type" id="info-request-type"
+                                            class="form-select" required="required">
+                                        <option value="">— Chọn loại —</option>
+                                        <t t-foreach="request_type_options" t-as="rt">
+                                            <option t-att-value="rt[0]"
+                                                    t-att-selected="'selected' if values.get('request_type') == rt[0] else None"
+                                                    t-out="rt[1]"/>
+                                        </t>
+                                    </select>
+                                </div>
+
+                                <div class="col-md-6 col-12" id="info-field-target-wrap"
+                                     t-att-style="'' if values.get('request_type') == 'other' else 'display:none;'">
+                                    <label class="form-label">Tên field kỹ thuật (khi chọn "Khác")</label>
+                                    <input type="text" name="field_target" id="info-field-target"
+                                           class="form-control"
+                                           placeholder="vd: tax_code, website, ..."
+                                           t-att-value="values.get('field_target') or ''"/>
+                                </div>
+                                <div class="col-md-6 col-12">
+                                    <label class="form-label">Mức độ</label>
+                                    <select name="priority" class="form-select">
+                                        <option value="normal"
+                                                t-att-selected="'selected' if values.get('priority', 'normal') == 'normal' else None">
+                                            Bình thường
+                                        </option>
+                                        <option value="urgent"
+                                                t-att-selected="'selected' if values.get('priority') == 'urgent' else None">
+                                            Khẩn
+                                        </option>
+                                    </select>
+                                </div>
+
+                                <div class="col-12">
+                                    <label class="form-label">Giá trị hiện tại</label>
+                                    <textarea id="info-old-value" rows="2"
+                                              class="form-control bg-light"
+                                              readonly="readonly"
+                                              placeholder="Chọn cửa hàng + loại thông tin để xem giá trị hiện tại..."/>
+                                </div>
+
+                                <div class="col-12">
+                                    <label class="form-label">Giá trị mới <span class="text-danger">*</span></label>
+                                    <textarea name="new_value" rows="3" class="form-control"
+                                              required="required"
+                                              placeholder="Nhập giá trị mới cần cập nhật..."
+                                              t-out="values.get('new_value') or ''"/>
+                                </div>
+
+                                <div class="col-12">
+                                    <label class="form-label">Ghi chú</label>
+                                    <textarea name="note" rows="3" class="form-control"
+                                              placeholder="Lý do, ngữ cảnh thêm cho HQ duyệt..."
+                                              t-out="values.get('note') or ''"/>
+                                </div>
+
+                                <div class="col-12">
+                                    <label class="form-label">Minh chứng (tuỳ chọn)</label>
+                                    <input type="file" name="attachments" class="form-control"
+                                           multiple="multiple"/>
+                                    <small class="text-muted">PDF / JPG / PNG, tối đa 5MB/file, tối đa 6 file.</small>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card-footer text-end">
+                            <a href="/portal/info-request" class="btn btn-secondary me-2">Hủy</a>
+                            <button type="submit" name="action" value="draft"
+                                    class="btn btn-outline-primary me-2">Lưu nháp</button>
+                            <button type="submit" name="action" value="submit" class="btn btn-primary">
+                                <i class="fa fa-paper-plane me-1"/>Gửi yêu cầu
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <script type="text/javascript">
+            //<![CDATA[
+            (function () {
+                function onChange() {
+                    var fid = document.getElementById('info-franchise-id').value;
+                    var rt = document.getElementById('info-request-type').value;
+                    var ft = (document.getElementById('info-field-target') || {value: ''}).value;
+                    var oldBox = document.getElementById('info-old-value');
+                    var wrap = document.getElementById('info-field-target-wrap');
+                    if (wrap) {
+                        wrap.style.display = (rt === 'other') ? '' : 'none';
+                    }
+                    if (!fid || !rt) {
+                        oldBox.value = '';
+                        return;
+                    }
+                    var body = JSON.stringify({
+                        jsonrpc: '2.0',
+                        method: 'call',
+                        params: {request_type: rt, field_target: ft},
+                    });
+                    fetch('/portal/info-request/franchise/' + fid + '/values', {
+                        method: 'POST',
+                        headers: {'Content-Type': 'application/json'},
+                        body: body,
+                    }).then(function (r) {
+                        return r.json();
+                    }).then(function (j) {
+                        var v = (j &amp;&amp; j.result &amp;&amp; j.result.old_value) || '';
+                        oldBox.value = v;
+                    }).catch(function () {
+                        oldBox.value = '';
+                    });
+                }
+                document.addEventListener('DOMContentLoaded', function () {
+                    var fr = document.getElementById('info-franchise-id');
+                    var rt = document.getElementById('info-request-type');
+                    var ft = document.getElementById('info-field-target');
+                    if (fr) fr.addEventListener('change', onChange);
+                    if (rt) rt.addEventListener('change', onChange);
+                    if (ft) ft.addEventListener('change', onChange);
+                    onChange();
+                });
+            })();
+            //]]>
+            </script>
+        </t>
+    </template>
+
+</odoo>

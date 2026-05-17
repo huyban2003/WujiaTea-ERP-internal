@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <template id="portal_info_request_list" name="Wujia Portal — Info Request List">
+        <t t-call="wujia_portal_layout.app_layout">
+            <t t-set="title">Yêu cầu cập nhật thông tin</t>
+            <div class="content-wrapper">
+                <div class="content-header row mt-3">
+                    <div class="content-header-left col-12 mb-1 d-flex align-items-center justify-content-between flex-wrap">
+                        <h2 class="content-header-title float-left mb-0">
+                            <i class="fa fa-edit me-1"/>Yêu cầu cập nhật thông tin
+                        </h2>
+                        <a href="/portal/info-request/new" class="btn btn-primary">
+                            <i class="fa fa-plus me-1"/>Tạo yêu cầu
+                        </a>
+                    </div>
+                </div>
+
+                <div t-if="no_franchise" class="alert alert-warning m-3">
+                    Bạn chưa được gán vào cửa hàng nào.
+                </div>
+
+                <div t-if="not no_franchise" class="content-body">
+                    <div class="card mb-2">
+                        <div class="card-body p-2">
+                            <form method="get" action="/portal/info-request" class="row g-2 align-items-center">
+                                <div class="col-md-4 col-12">
+                                    <label class="small text-muted mb-1">Trạng thái</label>
+                                    <select name="state" class="form-select form-select-sm">
+                                        <option value="">— Tất cả —</option>
+                                        <t t-foreach="state_labels.items()" t-as="kv">
+                                            <option t-att-value="kv[0]"
+                                                    t-att-selected="'selected' if state == kv[0] else None"
+                                                    t-out="kv[1][0]"/>
+                                        </t>
+                                    </select>
+                                </div>
+                                <div class="col-md-4 col-12">
+                                    <label class="small text-muted mb-1">Loại thông tin</label>
+                                    <select name="request_type" class="form-select form-select-sm">
+                                        <option value="">— Tất cả —</option>
+                                        <t t-foreach="request_type_options" t-as="rt">
+                                            <option t-att-value="rt[0]"
+                                                    t-att-selected="'selected' if request_type == rt[0] else None"
+                                                    t-out="rt[1]"/>
+                                        </t>
+                                    </select>
+                                </div>
+                                <div class="col-md-4 col-12 text-end">
+                                    <label class="small text-muted mb-1 d-block">&#160;</label>
+                                    <button type="submit" class="btn btn-primary btn-sm">
+                                        <i class="fa fa-search"/> Lọc
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-body p-0">
+                            <div t-if="not requests" class="alert alert-info m-3 mb-0">
+                                Chưa có yêu cầu nào. <a href="/portal/info-request/new">Tạo yêu cầu đầu tiên</a>.
+                            </div>
+                            <div t-else="" class="table-responsive">
+                                <table class="table table-hover mb-0">
+                                    <thead class="bg-light">
+                                        <tr>
+                                            <th>Mã</th>
+                                            <th>Ngày tạo</th>
+                                            <th>Cửa hàng</th>
+                                            <th>Loại</th>
+                                            <th>Giá trị mới</th>
+                                            <th>Mức độ</th>
+                                            <th class="text-center">Trạng thái</th>
+                                            <th></th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr t-foreach="requests" t-as="rec">
+                                            <td><a t-attf-href="/portal/info-request/#{rec.id}" t-out="rec.name"/></td>
+                                            <td t-out="rec.request_date and rec.request_date.strftime('%d/%m/%Y %H:%M') or ''"/>
+                                            <td t-out="rec.franchise_id.name or '—'"/>
+                                            <td t-out="dict(request_type_options).get(rec.request_type, '—')"/>
+                                            <td class="text-truncate" style="max-width: 200px;" t-att-title="rec.new_value or ''" t-out="rec.new_value or '—'"/>
+                                            <td>
+                                                <span t-if="rec.priority == 'urgent'" class="badge bg-danger">Khẩn</span>
+                                                <span t-else="" class="badge bg-secondary">Bình thường</span>
+                                            </td>
+                                            <td class="text-center">
+                                                <t t-set="lbl" t-value="state_labels.get(rec.state, (rec.state, 'state-draft'))"/>
+                                                <span t-attf-class="badge state-badge #{lbl[1]}" t-out="lbl[0]"/>
+                                            </td>
+                                            <td class="text-end">
+                                                <a t-attf-href="/portal/info-request/#{rec.id}" class="btn btn-sm btn-outline-primary">
+                                                    <i class="fa fa-eye"/>
+                                                </a>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
+                    <nav t-if="pager and pager.get('page_count', 0) &gt; 1" class="mt-2">
+                        <ul class="pagination justify-content-center mb-0">
+                            <li class="page-item" t-att-class="'disabled' if pager['page']['num'] &lt;= 1 else ''">
+                                <a class="page-link" t-attf-href="?page=#{pager['page_previous']['num']}&amp;state=#{state}&amp;request_type=#{request_type}">«</a>
+                            </li>
+                            <li class="page-item disabled">
+                                <span class="page-link">
+                                    <t t-out="pager['page']['num']"/> / <t t-out="pager['page_count']"/>
+                                </span>
+                            </li>
+                            <li class="page-item" t-att-class="'disabled' if pager['page']['num'] &gt;= pager['page_count'] else ''">
+                                <a class="page-link" t-attf-href="?page=#{pager['page_next']['num']}&amp;state=#{state}&amp;request_type=#{request_type}">»</a>
+                            </li>
+                        </ul>
+                    </nav>
+                </div>
+            </div>
+        </t>
+    </template>
+
+</odoo>

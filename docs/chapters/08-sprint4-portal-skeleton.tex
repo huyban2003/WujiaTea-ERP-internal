@@ -1,0 +1,233 @@
+\chapter{Sprint 4 --- Portal Phase 1.0 (Skeleton UI)}
+
+\section{Bối cảnh}
+
+Sprint 4 build skeleton UI cho \textbf{10 trang Portal Phase 1.0} theo BA spec (sheet \emph{2 - FE Portal} trong \texttt{Wujia\_Internal ERP Master Plan.xlsm}). Mục tiêu: giao diện hiển thị đúng cấu trúc, button placeholder, sẵn sàng cho sprint BE workflow tiếp theo. Constraint: portal phục vụ \emph{1500 user concurrent} → tối ưu pre-compute + ormcache + index + pagination ngay từ đầu.
+
+V14 reference đã đọc: \texttt{co\_portal\_wujia} (dashboard, order, history, notification, change\_password) + \texttt{co\_portal\_wujia\_v2} (return\_request) + \texttt{co\_franchise\_return} + \texttt{co\_exam\_schedule}.
+
+\section{Module split (8 module mới)}
+
+\begin{longtable}{p{4.5cm} p{8.5cm}}
+\toprule
+\textbf{Module} & \textbf{Vai trò} \\
+\midrule
+\endhead
+\texttt{wujia\_portal\_base} (extend) & Dashboard \texttt{/portal} (4 stat card + 4 list block) + Franchise profile mở rộng. Bump v19.0.3.0.0. \\
+\texttt{wujia\_portal\_sale} & Catalog \texttt{/portal/order} + cart side panel (sticky). \\
+\texttt{wujia\_portal\_purchase\_history} & Lịch sử đặt hàng list + detail (4-state badge progress). \\
+\texttt{wujia\_portal\_return} & Đổi trả: list + create form (image multi-upload preview) + detail. Models: \texttt{wujia.return.request}, \texttt{wujia.return.request.line}, \texttt{wujia.return.error.type}. \\
+\texttt{wujia\_portal\_delivery} & Theo dõi chuyến giao (list picking + detail batch + driver/vehicle info). Không model mới. \\
+\texttt{wujia\_portal\_exam} & Lịch thi + đăng ký + kết quả (3 page). Models: \texttt{wujia.exam.\{schedule,registration,result\}}. \\
+\texttt{wujia\_portal\_knowledge} & Thư viện blog (list grid + category nav + detail). Models: \texttt{wujia.knowledge.\{category,article\}}. \\
+\texttt{wujia\_portal\_notification} & List + detail (mark-as-read tracking). Models: \texttt{wujia.notification.\{type,read\}}, \texttt{wujia.notification}. \\
+\texttt{wujia\_portal\_support} & Ticket: list + create form + detail. Model \texttt{wujia.support.ticket} (\textbf{có} \texttt{mail.thread} cho conversation HQ↔store). \\
+\bottomrule
+\end{longtable}
+
+\section{ADR-016: Dashboard nằm trong \texttt{wujia\_portal\_base}}
+
+Không tạo \texttt{wujia\_portal\_dashboard} riêng. Lý do: dashboard aggregate counter từ 8 module phụ (notification, return, sale, ...) → nếu tách module riêng phải depend lên 8 module → vi phạm DAG. Counter dùng \emph{pattern hook}: nếu module phụ không cài, counter trả 0 (try \texttt{request.env.get(model\_name) is None}).
+
+\section{ADR-017: Sidenav flat + dropdown (Vuexy)}
+
+10 menu chia thành \textbf{5 flat + 3 dropdown}. Lý do: 10 \texttt{<li>} flat làm sidebar dài quá; Vuexy hỗ trợ \texttt{class="has-sub"} với \texttt{<ul class="menu-content">}. Mỗi module patch \texttt{wujia\_portal\_layout.layout\_sidenav} qua xpath \texttt{position="inside"} với \texttt{priority} riêng để lock thứ tự.
+
+\begin{lstlisting}[style=shell]
+🏠 Trang chủ              → /portal                  (priority 0  — mặc định)
+🛒 Đặt hàng               → /portal/order            (priority 20)
+📋 Lịch sử đặt hàng       → /portal/purchase-history (priority 22)
+🏢 Cửa hàng               → /portal/franchises       (priority 10 — wujia_portal_base)
+↩  Đổi trả                → /portal/return           (priority 30)
+🚚 Theo dõi giao hàng     → /portal/delivery         (priority 35)
+🎓 Đào tạo ▾                                          (priority 40)
+   ├─ Lịch thi            → /portal/exam
+   ├─ Đăng ký của tôi     → /portal/exam/my
+   └─ Kết quả             → /portal/exam/result
+📚 Kiến thức              → /portal/knowledge        (priority 50)
+🔔 Thông báo              → /portal/notification     (priority 55)
+🛟 Hỗ trợ                → /portal/support          (priority 60)
+\end{lstlisting}
+
+\section{ADR-018: Skeleton models}
+
+Mỗi model mới chỉ có \emph{field tối thiểu để render UI list/form/detail}. \emph{Không} có business logic, không có \texttt{@api.depends compute} phức tạp, không workflow approve. Lý do: BE workflow chưa được BA confirm → skeleton cho phép FE deploy độc lập, sprint sau bổ sung field/method không cần migration đau.
+
+\textbf{Exception:} \texttt{wujia.support.ticket} có \texttt{mail.thread} + \texttt{mail.activity.mixin} vì support inherently cần chat HQ ↔ cửa hàng. Mọi model khác KHÔNG có thread.
+
+Model fields chính:
+
+\begin{itemize}
+    \item \textbf{\texttt{wujia.return.request}}: name (sequence \texttt{WJ-RR/yy/}), franchise\_id, partner\_id (related), order\_id, request\_date, state (draft/sent/approved/rejected/done), error\_id, note, image\_ids (M2m attachment), line\_ids (O2m), refuse\_reason, expected\_delivery\_date.
+    \item \textbf{\texttt{wujia.exam.\{schedule,registration,result\}}}: schedule(name, exam\_date, location, franchise\_ids, max, state) + registration(WJ-EXR/yy/, schedule\_id, user\_id, franchise\_id, state, UNIQUE user×schedule) + result(registration\_id, score, passed, certificate\_url).
+    \item \textbf{\texttt{wujia.knowledge.\{category,article\}}}: parent\_store category + article (slug UNIQUE, published, publish\_date, view\_count, cover\_image attachment).
+    \item \textbf{\texttt{wujia.notification.\{type,read\}}}: type(bg\_color, text\_color, icon Font Awesome) + notification(date, content Html, franchise\_ids M2m, published, priority) + read(notification\_id × user\_id UNIQUE — table riêng để đếm unread nhanh).
+    \item \textbf{\texttt{wujia.support.ticket}}: WJ-TK/yy/, subject, description, franchise\_id, user\_id (creator), category (7 lựa chọn), priority (4), state (new/in\_progress/resolved/closed), attachment\_ids, handler\_user\_id (HQ assignee). MAIL.THREAD enabled.
+\end{itemize}
+
+\section{ADR-019: ormcache theo \texttt{franchise\_id}, không phải \texttt{user\_id}}
+
+Cache count cho dashboard: nếu cache theo \texttt{user\_id} thì 1500 user × N counter = mất bộ nhớ. Cache theo \texttt{franchise\_id} (~100-300 cửa hàng) thay vì user → tiết kiệm 5x bộ nhớ. Đã áp dụng trên \texttt{wujia.return.error.type.\_get\_active\_error\_types\_cached()}.
+
+\section{ADR-020: Notification \texttt{wujia.notification.read} table riêng}
+
+Thay vì \texttt{ir.attachment} mass-mailing-style hoặc \texttt{many2many res\_users\_notification\_rel}, dùng table riêng \texttt{wujia\_notification\_read} với UNIQUE \texttt{(notification\_id, user\_id)}. Đếm unread qua:
+
+\begin{lstlisting}[style=python]
+unread = noti_count - read_count_for_user
+       = SEARCH_COUNT(notification, published=True ∧ franchise_match)
+       - SEARCH_COUNT(notification.read, user_id=current ∧ noti.published=True)
+\end{lstlisting}
+
+Index riêng trên \texttt{(user\_id)} → query unread count cho 1 user là O(log N). Pattern này từ v14 \texttt{co\_portal\_wujia.noti.management.read\_user\_ids} nhưng tách thành table riêng để indexable.
+
+\section{Performance — pre-compute ở controller}
+
+Vi phạm v14: \texttt{co\_portal\_wujia/views/portal/dashboard.xml} gọi \texttt{request.env['sale.order'].search()} trong t-foreach — N+1 query mỗi page render. Sprint 4 fix: tất cả counter + list pre-computed trong \texttt{WujiaPortal.\_dashboard\_values()}, template chỉ render text/dict.
+
+\begin{lstlisting}[style=python]
+@http.route('/portal', type='http', auth='user')
+def portal_home(self, **kw):
+    franchise_ids = request.env.user._get_accessible_franchise_ids()  # ormcached
+    values = self._dashboard_values(franchise_ids)  # 1 batched query / metric
+    return request.render('wujia_portal_base.portal_home_page', values)
+\end{lstlisting}
+
+Top product dùng \texttt{\_read\_group} thay vì search + Python loop:
+
+\begin{lstlisting}[style=python]
+SOL._read_group(
+    domain=[('order_id.franchise_id', 'in', franchise_ids),
+            ('order_id.state', 'in', ['sale', 'done'])],
+    groupby=['product_id'],
+    aggregates=['product_uom_qty:sum', 'price_total:sum'],
+    limit=5, order='product_uom_qty:sum desc',
+)
+\end{lstlisting}
+
+\section{Index BTREE per model}
+
+Đã tạo \emph{tự động} qua \texttt{index=True} trên field. Verify qua psql:
+
+\begin{lstlisting}[style=shell]
+PGPASSWORD=1 psql -U odoo19 -d wujia_tea_19 -c "
+SELECT indexname, tablename FROM pg_indexes
+WHERE tablename ~ '^wujia_(return|exam|knowledge|notification|support)'
+ORDER BY tablename, indexname;"
+\end{lstlisting}
+
+Output: 38 index (chưa kể PKEY) trên 9 bảng mới. Hot fields:
+
+\begin{itemize}
+    \item \texttt{wujia\_return\_request}: franchise\_id, state, request\_date.
+    \item \texttt{wujia\_exam\_registration}: \emph{UNIQUE (schedule\_id, user\_id)} + state.
+    \item \texttt{wujia\_notification}: published, date, type\_id, priority.
+    \item \texttt{wujia\_notification\_read}: \emph{UNIQUE (notification\_id, user\_id)} + user\_id riêng.
+    \item \texttt{wujia\_knowledge\_article}: published, category\_id, publish\_date, slug UNIQUE.
+    \item \texttt{wujia\_support\_ticket}: franchise\_id, state, create\_date.
+\end{itemize}
+
+\section{Security: ACL + record rules cho portal user}
+
+Mỗi module có:
+
+\begin{itemize}
+    \item \texttt{security/ir.model.access.csv}: ACL cho \texttt{base.group\_portal} (read+write+create theo bảng) và \texttt{base.group\_user} (full).
+    \item \texttt{security/wujia\_*\_rules.xml}: record rule domain \texttt{[('franchise\_id', 'in', user.\_get\_accessible\_franchise\_ids())]} hoặc \texttt{[('user\_id', '=', user.id)]} (cho exam reg, support ticket).
+\end{itemize}
+
+Notification rule áp \emph{filter published=True} đồng thời, để portal user chỉ thấy noti đã phát hành.
+
+\section{Sample data --- \texttt{scripts/seed\_portal\_demo.py}}
+
+Idempotent search-or-create. KHÔNG load qua manifest \texttt{demo} key (theo feedback rule). Tạo \textasciitilde 50 record:
+
+\begin{lstlisting}[style=shell]
+cd /home/huyban/odoo-dev/WujiaTea/odoo19
+/home/huyban/miniconda3/envs/odoo/bin/python odoo-bin shell \\
+    -c /home/huyban/odoo-dev/WujiaTea/config/odoo.conf \\
+    -d wujia_tea_19 --no-http \\
+    < /home/huyban/odoo-dev/WujiaTea/scripts/seed_portal_demo.py
+\end{lstlisting}
+
+\begin{itemize}
+    \item 5 \texttt{wujia.notification.type} (Khẩn/General/Promo/SYS/Other) --- master data XML, không phải seed.
+    \item 5 \texttt{wujia.return.error.type} --- master data XML.
+    \item 10 \texttt{wujia.notification} (mix broadcast + targeted, có 1 priority urgent).
+    \item 5 \texttt{wujia.return.request} (mix 5 state).
+    \item 3 \texttt{wujia.knowledge.category} × 8 \texttt{wujia.knowledge.article}.
+    \item 3 \texttt{wujia.exam.schedule} (1 done, 2 upcoming) × 3 \texttt{wujia.exam.registration} × 1 \texttt{wujia.exam.result}.
+    \item 3 \texttt{wujia.support.ticket} (mix new/in\_progress/resolved).
+    \item 10 \texttt{sale.order} portal (mix franchise, có 4 confirmed).
+\end{itemize}
+
+\textbf{Lưu ý:} script kết thúc bằng \texttt{env.cr.commit()} vì \texttt{odoo-bin shell} mặc định không commit.
+
+\section{Verify install (đã pass)}
+
+\begin{lstlisting}[style=shell]
+# Install 8 module mới + upgrade 2 module cũ
+cd /home/huyban/odoo-dev/WujiaTea/odoo19
+/home/huyban/miniconda3/envs/odoo/bin/python odoo-bin \\
+    -c /home/huyban/odoo-dev/WujiaTea/config/odoo.conf \\
+    -d wujia_tea_19 \\
+    -u wujia_portal_layout,wujia_portal_base \\
+    -i wujia_portal_sale,wujia_portal_purchase_history,\\
+       wujia_portal_return,wujia_portal_delivery,\\
+       wujia_portal_exam,wujia_portal_knowledge,\\
+       wujia_portal_notification,wujia_portal_support \\
+    --stop-after-init
+\end{lstlisting}
+
+Browser smoke test (login \texttt{anh.owner} / \texttt{admin} --- portal user có membership):
+
+\begin{lstlisting}[style=shell]
+14 routes  /portal/{order,purchase-history,return,return/new,delivery,
+                    exam,exam/my,exam/result,knowledge,notification,
+                    support,support/new,franchises,...}
+→ tất cả 200 OK
++ 7 detail routes (purchase-history/<id>, return/<id>, knowledge/<slug>, ...)
+→ 200 OK với owned record, 303 redirect với non-owned (record rule fired).
+\end{lstlisting}
+
+Schema check:
+
+\begin{lstlisting}[style=shell]
+38 BTREE index trên 9 bảng mới.
+2 UNIQUE constraint: (schedule_id, user_id), (notification_id, user_id).
+\end{lstlisting}
+
+\section{Module hoàn thành (cập nhật)}
+
+\begin{longtable}{p{4cm} p{10cm}}
+\toprule
+\textbf{Module} & \textbf{Vai trò nghiệp vụ} \\
+\midrule
+\endhead
+\texttt{wujia\_core} & Master data \texttt{res.area}, \texttt{res.ward} (Sprint 1). \\
+\texttt{wujia\_franchise} & \texttt{wujia.franchise.management} + \texttt{wujia.franchise.member} (Sprint 1+2). \\
+\texttt{wujia\_sale} & \texttt{sale.order} portal extension + tính khối lượng (Sprint 2). \\
+\texttt{wujia\_fleet}, \texttt{wujia\_delivery} & Đội xe + chuyến giao (Sprint 3). \\
+\texttt{wujia\_portal\_layout} & Vuexy shell --- bump v19.0.2.0.0 (xóa \texttt{portal\_home} method, ADR-016). \\
+\texttt{wujia\_portal\_base} & Dashboard + franchise profile + \texttt{/portal/franchises} --- bump v19.0.3.0.0. \\
+\texttt{wujia\_portal\_sale} & Catalog + cart panel \emph{(Sprint 4 NEW)}. \\
+\texttt{wujia\_portal\_purchase\_history} & Lịch sử đơn list + detail \emph{(Sprint 4 NEW)}. \\
+\texttt{wujia\_portal\_return} & Đổi trả model + 3 page \emph{(Sprint 4 NEW)}. \\
+\texttt{wujia\_portal\_delivery} & Theo dõi giao hàng \emph{(Sprint 4 NEW)}. \\
+\texttt{wujia\_portal\_exam} & Đào tạo/Thi 3 model + 3 page \emph{(Sprint 4 NEW)}. \\
+\texttt{wujia\_portal\_knowledge} & Thư viện kiến thức \emph{(Sprint 4 NEW)}. \\
+\texttt{wujia\_portal\_notification} & Thông báo + read tracking \emph{(Sprint 4 NEW)}. \\
+\texttt{wujia\_portal\_support} & Support ticket (mail.thread) \emph{(Sprint 4 NEW)}. \\
+\bottomrule
+\end{longtable}
+
+\section{Còn lại cho Sprint 5+}
+
+\begin{itemize}
+    \item BE workflow: Cart submit → tạo SO; Return approve → tự sinh SO 0đ bù hàng (POR-043); Exam registration approve flow.
+    \item Wire \texttt{mail.thread} chatter của Support ticket vào template detail page (chưa enable widget — đang là placeholder).
+    \item Notification realtime push qua \texttt{bus.bus} (đã có pattern ở \texttt{wujia\_portal\_base.franchise\_realtime.js}).
+    \item Refactor \texttt{\_sql\_constraints} → \texttt{models.Constraint} (Odoo 19 deprecation warning).
+\end{itemize}
+
+% ===========================================================================

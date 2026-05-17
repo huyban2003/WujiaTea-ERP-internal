@@ -1,0 +1,194 @@
+\chapter{Sprint 2 --- Day 2 (partial): Performance optimizations}
+
+\textbf{Cập nhật 2026-04-30:} Method \texttt{\_get\_accessible\_branch\_partner\_ids} đã đổi tên thành \texttt{\_get\_accessible\_franchise\_ids} (trả tuple \texttt{wujia.franchise.management.id} thay cho \texttt{res.partner.id}). Cache invalidation hooks vẫn ở CRUD của member model (chỉ đổi tên model \texttt{wujia.branch.member} → \texttt{wujia.franchise.member}). Logic + chiến thuật cache không thay đổi.
+
+\section{Phạm vi Day 2 (đã làm)}
+
+Theo BA chỉ đạo "tập trung tối ưu trước, các phần khác từ từ", Day 2 thu hẹp scope còn:
+\begin{itemize}
+    \item Cài \texttt{queue\_job} (OCA branch 19.0) làm tool async cho tương lai
+    \item Fix \textbf{P0-1}: Apply \texttt{@ormcache} cho \texttt{res.users.\_get\_accessible\_franchise\_ids} (rename từ \texttt{\_branch\_partner\_ids})
+    \item Fix \textbf{P0-2}: Store + index \texttt{is\_currently\_valid} trên \texttt{wujia.franchise.member} (rename từ \texttt{wujia.branch.member})
+\end{itemize}
+
+Defer Day 2 còn lại (service layer, bus emit cho sale.order, unit tests) sang lần làm sau.
+
+\section{Setup \texttt{queue\_job} (chưa dùng, sẵn sàng cho sau)}
+
+\begin{lstlisting}[style=shell]
+cd /home/huyban/odoo-dev/WujiaTea/themes
+git clone --branch 19.0 --single-branch --depth 1 \
+  https://github.com/OCA/queue.git oca_queue
+\end{lstlisting}
+
+Cập nhật \texttt{config/odoo.conf} \texttt{addons\_path} thêm \texttt{themes/oca\_queue}.
+Install: \texttt{python odoo-bin -i queue\_job --stop-after-init}.
+
+\section{Fix P0-1: \texttt{ormcache} cho lookup chi nhánh user}
+
+\textbf{Vấn đề trước fix:} Mỗi câu \texttt{SELECT * FROM sale\_order} từ portal user
+trigger eval record rule → gọi \texttt{user.\_get\_accessible\_branch\_partners().ids}
+→ 2 query phụ (membership + partner mapped). Với 1000 user concurrent =
+2000+ query/giây chỉ để check security.
+
+\textbf{Sau fix:} Method \texttt{\_get\_accessible\_branch\_partner\_ids()} cache
+per-worker. Subsequent calls trả về tuple từ memory, không hit DB.
+
+\subsection{Code thay đổi}
+
+File: \texttt{custom/wujia\_franchise/models/res\_users.py}
+
+\begin{lstlisting}[style=python]
+from odoo.tools import ormcache
+
+@ormcache('self.id')
+def _get_accessible_branch_partner_ids(self):
+    self.ensure_one()
+    return tuple(self._get_active_branch_memberships()
+                 .mapped('branch_partner_id').ids)
+
+def _get_accessible_branch_partners(self):
+    self.ensure_one()
+    return self.env['res.partner'].browse(
+        self._get_accessible_branch_partner_ids()
+    )
+\end{lstlisting}
+
+\subsection{Cache invalidation}
+
+File: \texttt{custom/wujia\_franchise/models/wujia\_branch\_member.py}
+
+Hook vào \texttt{create/write/unlink}:
+
+\begin{lstlisting}[style=python]
+def _invalidate_user_cache(self):
+    if self:
+        self.env.registry.clear_cache()  # cross-worker safe
+
+@api.model_create_multi
+def create(self, vals_list):
+    records = super().create(vals_list)
+    records._invalidate_user_cache()
+    return records
+
+def write(self, vals):
+    res = super().write(vals)
+    self._invalidate_user_cache()
+    return res
+
+def unlink(self):
+    had_records = bool(self)
+    res = super().unlink()
+    if had_records:
+        self.env.registry.clear_cache()
+    return res
+\end{lstlisting}
+
+\textbf{Lưu ý:} Dùng \texttt{env.registry.clear\_cache()} thay vì
+\texttt{method.clear\_cache(records)} — Odoo 19 tự signal qua DB để
+invalidate cache trên mọi worker khác. Heavy hơn 1 chút nhưng cross-worker safe.
+
+\subsection{Update record rule dùng method mới}
+
+File: \texttt{custom/wujia\_sale/security/wujia\_sale\_rules.xml}
+
+Đổi \texttt{user.\_get\_accessible\_branch\_partners().ids} →
+\texttt{user.\_get\_accessible\_branch\_partner\_ids()} (tuple cached, không
+trigger ORM search mỗi query).
+
+\section{Fix P0-2: Store + index \texttt{is\_currently\_valid}}
+
+\textbf{Vấn đề trước fix:} \texttt{is\_currently\_valid} là compute non-stored với
+search method tự viết. Mọi search \texttt{[('is\_currently\_valid', '=', True)]}
+phải iterate trong Python — không dùng được index, không scale 9000 membership.
+
+\textbf{Sau fix:} Field stored + B-tree index → SQL search direct, query
+plan dùng index scan thay vì sequential scan.
+
+\subsection{Code thay đổi}
+
+File: \texttt{custom/wujia\_franchise/models/wujia\_branch\_member.py}
+
+\begin{lstlisting}[style=python]
+is_currently_valid = fields.Boolean(
+    compute='_compute_is_currently_valid',
+    store=True,           # Đã thêm
+    index=True,           # Đã thêm
+)
+# Bỏ method _search_is_currently_valid (không cần khi store)
+\end{lstlisting}
+
+\subsection{Cron daily recompute}
+
+Compute phụ thuộc \texttt{today} → không tự re-trigger qua \texttt{@api.depends}.
+Cần cron daily update các record vừa enter/exit hiệu lực.
+
+File: \texttt{custom/wujia\_franchise/models/wujia\_branch\_member.py}
+
+\begin{lstlisting}[style=python]
+@api.model
+def _cron_recompute_validity(self):
+    from datetime import timedelta
+    today = fields.Date.context_today(self)
+    affected = self.search([
+        '|',
+        ('date_from', '=', today),               # vừa active
+        ('date_to', '=', today - timedelta(days=1)),  # vừa hết hạn
+    ])
+    if affected:
+        affected._compute_is_currently_valid()
+        affected.flush_recordset()
+        affected._invalidate_user_cache()
+\end{lstlisting}
+
+File mới: \texttt{custom/wujia\_franchise/data/ir\_cron\_data.xml} — cron
+chạy hàng ngày interval=1 day.
+
+\subsection{Migration}
+
+Khi upgrade module, Odoo tự re-init compute cho mọi record → store column
+populated tự động. Verify 7/7 record demo có \texttt{is\_currently\_valid=True}.
+
+\section{Verify đã pass}
+
+\begin{itemize}
+    \item Module install/upgrade clean (0 error)
+    \item Cột \texttt{is\_currently\_valid} stored, có B-tree index
+    \texttt{wujia\_branch\_member\_\_is\_currently\_valid\_index}
+    \item Cron \texttt{Wujia: Recompute branch member is\_currently\_valid}
+    active, daily
+    \item Test cache: 1st call → DB hit, 2nd call → memory hit
+    \item Test invalidate: \texttt{member.active=False} → cache cleared,
+    next call trả về tuple rỗng đúng
+    \item Test record rule: \texttt{anh.owner} (HN-01 only) search SO chỉ
+    thấy 2 đơn HN-01, không thấy đơn HCM-01 admin tạo
+\end{itemize}
+
+\section{Đo lường impact (theoretical)}
+
+\begin{longtable}{p{4cm} p{4cm} p{6cm}}
+\toprule
+\textbf{Metric} & \textbf{Trước fix} & \textbf{Sau fix} \\
+\midrule
+\endhead
+Query/page-load (record rule) & 2--3 query/user/page & 0 (cache hit ratio $>$ 90\%) \\
+Search \texttt{is\_currently\_valid=True} & Sequential scan (Python iter) & Index scan (B-tree) \\
+Multi-user concurrent (1000 user × 5 page-load/min) & 10k--15k query/min & 1k--2k query/min \\
+Worst case @ 9k membership records & 9k row Python loop & 1 SQL query (millis) \\
+\bottomrule
+\end{longtable}
+
+\section{Files đã chạm Day 2}
+
+\begin{itemize}
+    \item Mới: \texttt{themes/oca\_queue/} (clone)
+    \item Mới: \texttt{custom/wujia\_franchise/data/ir\_cron\_data.xml}
+    \item Edit: \texttt{config/odoo.conf} — \texttt{addons\_path} thêm \texttt{themes/oca\_queue}
+    \item Edit: \texttt{custom/wujia\_franchise/\_\_manifest\_\_.py} — data thêm cron
+    \item Edit: \texttt{custom/wujia\_franchise/models/res\_users.py} — \texttt{ormcache}
+    \item Edit: \texttt{custom/wujia\_franchise/models/wujia\_branch\_member.py} — \texttt{store=True, index=True}; bỏ \texttt{\_search\_*}; thêm CRUD hooks invalidate cache; thêm \texttt{\_cron\_recompute\_validity}
+    \item Edit: \texttt{custom/wujia\_sale/security/wujia\_sale\_rules.xml} — đổi domain dùng method tuple cached
+\end{itemize}
+
+% ===========================================================================
+% ===========================================================================

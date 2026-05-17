@@ -1,5 +1,7 @@
 from datetime import date, datetime, timedelta
 
+from werkzeug.exceptions import NotFound
+
 from odoo import http
 from odoo.http import request
 
@@ -102,6 +104,34 @@ class WujiaPortalHistory(http.Controller):
         return request.render('wujia_portal_purchase_history.portal_history_detail', {
             'order': order, 'state_badges': STATE_BADGES,
         })
+
+    @http.route(['/portal/purchase-history/<int:order_id>.pdf'],
+                type='http', auth='user', sitemap=False)
+    def portal_history_download_pdf(self, order_id, **kw):
+        """Render hóa đơn PDF qua Odoo native report engine."""
+        franchise_ids = get_active_franchise_ids_filter()
+        if not franchise_ids:
+            raise NotFound()
+        order = request.env['sale.order'].sudo().search([
+            ('id', '=', order_id),
+            ('franchise_id', 'in', list(franchise_ids)),
+        ], limit=1)
+        if not order:
+            raise NotFound()
+        report_ref = 'sale.action_report_saleorder'
+        report = request.env.ref(report_ref, raise_if_not_found=False)
+        if not report:
+            raise NotFound()
+        pdf_bytes, _ = report.sudo()._render_qweb_pdf(report_ref, [order.id])
+        filename = f'{order.name or "order"}.pdf'.replace('/', '_')
+        return request.make_response(
+            pdf_bytes,
+            headers=[
+                ('Content-Type', 'application/pdf'),
+                ('Content-Disposition', f'attachment; filename="{filename}"'),
+                ('Cache-Control', 'private, no-cache'),
+            ],
+        )
 
     def _qs(self, **kw):
         return '&'.join(f'{k}={v}' for k, v in kw.items() if v)

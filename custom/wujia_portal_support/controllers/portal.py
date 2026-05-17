@@ -1,3 +1,5 @@
+from werkzeug.exceptions import Forbidden, NotFound
+
 from odoo import http
 from odoo.http import request
 
@@ -151,3 +153,28 @@ class WujiaPortalSupport(http.Controller):
                 subtype_xmlid='mail.mt_comment',
             )
         return request.redirect(f'/portal/support/{ticket_id}')
+
+    @http.route(['/portal/support/<int:ticket_id>/attachment/<int:att_id>'],
+                type='http', auth='user', sitemap=False)
+    def portal_support_attachment_download(self, ticket_id, att_id, **kw):
+        """Stream attachment với ACL: chỉ owner ticket được tải."""
+        ticket = request.env['wujia.support.ticket'].sudo().search([
+            ('id', '=', ticket_id),
+            ('created_by_id', '=', request.env.user.id),
+            ('portal_visible', '=', True),
+        ], limit=1)
+        if not ticket:
+            raise NotFound()
+        Attachment = request.env['ir.attachment'].sudo()
+        att = Attachment.search([
+            ('id', '=', att_id),
+            '|',
+              '&', ('res_model', '=', 'wujia.support.ticket'),
+                   ('res_id', '=', ticket.id),
+              ('id', 'in', ticket.attachment_ids.ids),
+        ], limit=1)
+        if not att:
+            raise Forbidden()
+        return request.env['ir.binary']._get_stream_from(att).get_response(
+            as_attachment=True,
+        )

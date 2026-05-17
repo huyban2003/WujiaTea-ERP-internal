@@ -1,5 +1,5 @@
 /* Return form — image preview + add/remove dynamic lines.
-   Skeleton: form submit chưa có handler thật, chỉ alert placeholder. */
+   Form submit là multipart standard, không cần JS intercept. */
 (function () {
     "use strict";
     document.addEventListener("DOMContentLoaded", function () {
@@ -47,13 +47,5 @@
                 }
             });
         }
-
-        // Submit placeholder
-        document.querySelectorAll('form[action="/portal/return/new"]').forEach(function (form) {
-            form.addEventListener("submit", function (ev) {
-                ev.preventDefault();
-                alert("Tính năng gửi yêu cầu đổi trả sẽ được kích hoạt ở sprint BE workflow tiếp theo.");
-            });
-        });
     });
 })();

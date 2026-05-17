@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <template id="portal_order_product_detail" name="Wujia Portal — Product Detail">
+        <t t-call="wujia_portal_layout.app_layout">
+            <t t-set="title">Chi tiết sản phẩm</t>
+            <div class="content-wrapper">
+                <div class="content-header row mt-3">
+                    <div class="content-header-left col-12 mb-1">
+                        <nav>
+                            <ol class="breadcrumb">
+                                <li class="breadcrumb-item"><a href="/portal/order">Đặt hàng</a></li>
+                                <li class="breadcrumb-item active" t-out="product.name"/>
+                            </ol>
+                        </nav>
+                    </div>
+                </div>
+                <div class="content-body">
+                    <div class="card">
+                        <div class="card-body">
+                            <div class="row g-3">
+                                <div class="col-md-5">
+                                    <img class="img-fluid rounded"
+                                         t-attf-src="/web/image/product.template/#{product.id}/image_1024"
+                                         t-att-alt="product.name"/>
+                                </div>
+                                <div class="col-md-7">
+                                    <h3 t-out="product.name"/>
+                                    <p class="text-muted">
+                                        <span t-if="product.categ_id">
+                                            Nhóm: <t t-out="product.categ_id.complete_name"/>
+                                        </span>
+                                    </p>
+                                    <p class="text-primary fs-4 fw-bold">
+                                        <t t-out="'{:,.0f}'.format(product.list_price or 0).replace(',', '.')"/> ₫
+                                        <small class="text-muted fs-6"> / <t t-out="product.uom_id.name or '—'"/></small>
+                                    </p>
+                                    <p t-if="product.description_sale" t-out="product.description_sale"/>
+
+                                    <div class="d-flex align-items-center gap-2 mt-3">
+                                        <label class="form-label mb-0">Số lượng</label>
+                                        <input type="number" id="product-detail-qty"
+                                               class="form-control"
+                                               style="width: 100px;"
+                                               t-att-min="product.min_qty or 1"
+                                               t-att-max="product.max_qty or None"
+                                               t-att-value="product.min_qty or 1"/>
+                                        <button type="button"
+                                                class="btn btn-primary btn-add-cart-detail"
+                                                t-att-data-product-id="product.id">
+                                            <i class="fa fa-cart-plus me-1"/>Thêm vào giỏ
+                                        </button>
+                                        <a href="/portal/order/cart" class="btn btn-outline-secondary">
+                                            <i class="fa fa-shopping-basket me-1"/>Xem giỏ
+                                        </a>
+                                    </div>
+                                    <div id="product-detail-msg" class="mt-2"></div>
+                                </div>
+                            </div>
+
+                            <div t-if="related" class="mt-4">
+                                <h5>Sản phẩm liên quan</h5>
+                                <div class="row g-2">
+                                    <t t-foreach="related" t-as="rel">
+                                        <div class="col-6 col-md-2">
+                                            <a t-attf-href="/portal/order/product/#{rel.id}"
+                                               class="text-decoration-none">
+                                                <div class="card h-100">
+                                                    <img class="card-img-top"
+                                                         t-attf-src="/web/image/product.template/#{rel.id}/image_256"/>
+                                                    <div class="card-body p-2">
+                                                        <small t-out="rel.name"/>
+                                                    </div>
+                                                </div>
+                                            </a>
+                                        </div>
+                                    </t>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </t>
+    </template>
+</odoo>

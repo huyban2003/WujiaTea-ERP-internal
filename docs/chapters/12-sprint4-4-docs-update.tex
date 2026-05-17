@@ -1,0 +1,41 @@
+\chapter{Sprint 4.4 --- Cập nhật tài liệu (2026-05-15)}
+
+\section{Bối cảnh}
+
+Không thêm tính năng mới. Session này chỉ đồng bộ tài liệu với trạng thái code thực tế sau Sprint 4.3: Chapter 1 cũ chỉ list 5 modules trong khi codebase đã có 16 modules active.
+
+\section{Thay đổi tài liệu}
+
+\begin{longtable}{p{4cm} p{10cm}}
+\toprule
+\textbf{Mục} & \textbf{Nội dung cập nhật} \\
+\midrule
+\endhead
+Chapter 1 --- Cấu trúc thư mục & Bổ sung đủ 20 entry trong \texttt{custom/}: từ 6 lên 20 module (bao gồm 9 portal module). \\
+Chapter 1 --- Module list & Bổ sung từ 5 module (Sprint 1+2) lên \textbf{16 module active}, chia 3 subsection theo sprint. \\
+Chapter 1 --- Còn lại & Cập nhật: bỏ task đã done, giữ Sprint 5+ backlog (BE workflow, bus realtime, unit tests, i18n). \\
+Chapter 1 --- Dependency tree & Vẽ lại cây đầy đủ: thêm nhánh \texttt{wujia\_fleet}/\texttt{wujia\_delivery} và 9 nhánh \texttt{wujia\_portal\_*}. \\
+Chapter 1 --- Cách chạy & Bổ sung 12 route Portal Phase 1.0 (\texttt{/portal} đến \texttt{/portal/support}). \\
+Chapter 6 & Đánh dấu ``Lưu trữ lịch sử''; thêm bảng mapping task kế hoạch → sprint thực tế. \\
+Phụ lục & Cập nhật lệnh upgrade đủ 16 module; thêm lệnh upgrade chỉ portal; thêm lệnh Windows server (nssm). \\
+\bottomrule
+\end{longtable}
+
+\section{Không thay đổi}
+
+\begin{itemize}
+    \item Không thêm module mới.
+    \item Không sửa code Python / XML / JS / CSS.
+    \item ADR-001 đến ADR-026 giữ nguyên.
+    \item Card-header \texttt{padding-left: 6px} giữ nguyên (xác nhận là đúng, xem Sprint 4.3 Iteration 3).
+\end{itemize}
+
+\section{Files chạm trong session này}
+
+\begin{lstlisting}[style=shell]
+SỬA:
+  docs/wujia-tea-doc.tex    # 7 vị trí + chapter Sprint 4.4 này
+  docs/wujia-tea-doc.pdf    # rebuild từ .tex
+\end{lstlisting}
+
+% ===========================================================================
