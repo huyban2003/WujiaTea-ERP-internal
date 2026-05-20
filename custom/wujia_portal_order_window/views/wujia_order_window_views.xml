@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- List view -->
+    <record id="view_wujia_order_window_list" model="ir.ui.view">
+        <field name="name">wujia.order.window.list</field>
+        <field name="model">wujia.order.window</field>
+        <field name="arch" type="xml">
+            <list string="Khung giờ đặt hàng" multi_edit="1">
+                <field name="sequence" widget="handle"/>
+                <field name="area_id"/>
+                <field name="name"/>
+                <field name="order_time_from" widget="float_time"/>
+                <field name="order_time_to" widget="float_time"/>
+                <field name="is_overnight"/>
+                <field name="active" widget="boolean_toggle"/>
+                <field name="company_id" groups="base.group_multi_company" optional="hide"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- Form view -->
+    <record id="view_wujia_order_window_form" model="ir.ui.view">
+        <field name="name">wujia.order.window.form</field>
+        <field name="model">wujia.order.window</field>
+        <field name="arch" type="xml">
+            <form string="Khung giờ đặt hàng">
+                <sheet>
+                    <widget name="web_ribbon" title="Qua nửa đêm"
+                            bg_color="text-bg-warning"
+                            invisible="not is_overnight"/>
+                    <group>
+                        <group>
+                            <field name="name"/>
+                            <field name="area_id"/>
+                            <field name="sequence"/>
+                            <field name="active"/>
+                        </group>
+                        <group>
+                            <field name="order_time_from" widget="float_time"/>
+                            <field name="order_time_to" widget="float_time"/>
+                            <field name="is_overnight"/>
+                            <field name="company_id" groups="base.group_multi_company"/>
+                        </group>
+                    </group>
+                    <group string="Mô tả">
+                        <field name="description" nolabel="1"/>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- Search view -->
+    <record id="view_wujia_order_window_search" model="ir.ui.view">
+        <field name="name">wujia.order.window.search</field>
+        <field name="model">wujia.order.window</field>
+        <field name="arch" type="xml">
+            <search string="Khung giờ đặt hàng">
+                <field name="name"/>
+                <field name="area_id"/>
+                <filter name="active" string="Đang dùng" domain="[('active','=',True)]"/>
+                <filter name="overnight" string="Qua nửa đêm" domain="[('is_overnight','=',True)]"/>
+                <group>
+                    <filter name="group_area" string="Khu vực" context="{'group_by': 'area_id'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <!-- Action -->
+    <record id="action_wujia_order_window" model="ir.actions.act_window">
+        <field name="name">Khung giờ đặt hàng</field>
+        <field name="res_model">wujia.order.window</field>
+        <field name="view_mode">list,form</field>
+        <field name="search_view_id" ref="view_wujia_order_window_search"/>
+        <field name="context">{'search_default_active': 1, 'search_default_group_area': 1}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">Tạo khung giờ đặt hàng cho khu vực</p>
+            <p>
+                Mỗi khu vực có thể có nhiều khung giờ (ví dụ Khung sáng + Khung tối).
+                Portal sẽ cho phép đặt hàng khi ít nhất một khung giờ của khu vực đang mở.
+                Khu vực không có khung giờ nào → dùng cấu hình mặc định ở Settings.
+            </p>
+        </field>
+    </record>
+
+    <!-- Menu: Sales > Configuration > Wujia Portal > Khung giờ đặt hàng -->
+    <menuitem id="menu_wujia_portal_config_root"
+              name="Wujia Portal"
+              parent="sale.menu_sale_config"
+              sequence="50"/>
+
+    <menuitem id="menu_wujia_order_window"
+              name="Khung giờ đặt hàng"
+              parent="menu_wujia_portal_config_root"
+              action="action_wujia_order_window"
+              sequence="10"/>
+
+</odoo>

@@ -91,7 +91,14 @@ class WujiaPortalSale(http.Controller):
         )
 
         Settings = request.env['res.config.settings'].sudo()
-        allowed, window = Settings._is_within_order_window()
+        # Lấy area của active franchise để áp đúng khung giờ theo khu vực.
+        active_fid = get_active_franchise_id()
+        area_id = False
+        if active_fid:
+            franchise = request.env['res.franchise'].sudo().browse(active_fid).exists()
+            if franchise and franchise.area_id:
+                area_id = franchise.area_id.id
+        allowed, window = Settings._is_within_order_window(area_id=area_id)
         return request.render('wujia_portal_sale.portal_order_catalog', {
             'no_franchise': False,
             'products': products,
@@ -238,7 +245,8 @@ class WujiaPortalSale(http.Controller):
         franchise = cart.franchise_id
         if hasattr(franchise, 'portal_locked') and franchise.portal_locked:
             return request.redirect('/portal/order/cart?error=branch_locked')
-        allowed, _w = request.env['res.config.settings'].sudo()._is_within_order_window()
+        area_id = franchise.area_id.id if franchise and franchise.area_id else False
+        allowed, _w = request.env['res.config.settings'].sudo()._is_within_order_window(area_id=area_id)
         if not allowed:
             return request.redirect('/portal/order/cart?error=outside_order_window')
         # Optional portal note / delivery info

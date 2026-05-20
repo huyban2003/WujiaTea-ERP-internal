@@ -17,30 +17,31 @@ DEFAULT_ENABLED = True
 class ResConfigSettings(models.TransientModel):
     _inherit = 'res.config.settings'
 
+    # Global fallback (áp dụng khi khu vực chưa cấu hình `wujia.order.window`).
     portal_order_time_from = fields.Float(
-        string='Portal Order Time From',
+        string='Portal Order Time From (fallback)',
         config_parameter=CONFIG_KEY_FROM,
         default=DEFAULT_FROM,
-        help='Giờ bắt đầu cho phép portal đặt hàng (float, 0.0–24.0).',
+        help='Giờ bắt đầu mặc định (float 0.0–24.0) khi khu vực chưa có khung giờ riêng.',
     )
     portal_order_time_to = fields.Float(
-        string='Portal Order Time To',
+        string='Portal Order Time To (fallback)',
         config_parameter=CONFIG_KEY_TO,
         default=DEFAULT_TO,
-        help='Giờ kết thúc cho phép portal đặt hàng (float, 0.0–24.0). '
-             'Nếu To < From thì khung giờ chạy qua nửa đêm.',
+        help='Giờ kết thúc mặc định (float 0.0–24.0). Nếu To < From thì khung giờ chạy qua nửa đêm.',
     )
     portal_order_time_limit_enabled = fields.Boolean(
         string='Enable Portal Order Time Limit',
         config_parameter=CONFIG_KEY_ENABLED,
         default=DEFAULT_ENABLED,
-        help='Bật/tắt giới hạn khung giờ đặt hàng cho portal.',
+        help='Bật/tắt giới hạn khung giờ đặt hàng cho portal. '
+             'Nếu tắt thì cho phép đặt mọi lúc, bất kể `wujia.order.window`.',
     )
 
     # -------------------- helpers (class methods on env) --------------------
     @api.model
     def _get_portal_order_window(self):
-        """Read 3 config params + cast. Default if missing."""
+        """Read 3 global config params (fallback). Default if missing."""
         ICP = self.env['ir.config_parameter'].sudo()
 
         def _to_float(key, default):
@@ -70,15 +71,50 @@ class ResConfigSettings(models.TransientModel):
         return now.hour + now.minute / 60.0 + now.second / 3600.0
 
     @api.model
-    def _is_within_order_window(self):
-        """Return (allowed: bool, window: dict). Always allow if disabled."""
-        window = self._get_portal_order_window()
-        if not window['enabled']:
-            return True, window
+    def _is_within_order_window(self, area_id=None):
+        """Kiểm tra giờ hiện tại có nằm trong khung giờ đặt hàng không.
+
+        Thứ tự ưu tiên:
+            1. Nếu global enabled=False → always allowed.
+            2. Nếu `area_id` truyền vào và khu vực có ít nhất 1 `wujia.order.window`
+               active → cho phép khi BẤT KỲ window nào đang mở.
+            3. Fallback: dùng global from/to trong `ir.config_parameter`.
+
+        Return:
+            (allowed: bool, window: dict) — window mang field 'from', 'to',
+            'enabled', và 'source' ∈ {'global', 'area:<id>'} để controller
+            biết đang lấy từ đâu mà render UI.
+        """
+        global_cfg = self._get_portal_order_window()
+        if not global_cfg['enabled']:
+            return True, dict(global_cfg, source='global')
+
         now = self._user_now_hours()
-        f, t = window['from'], window['to']
+
+        # 2. Per-area windows
+        if area_id:
+            Window = self.env['wujia.order.window'].sudo()
+            windows = Window.search([
+                ('area_id', '=', area_id),
+                ('active', '=', True),
+            ])
+            if windows:
+                allowed = any(w.is_now_open(now) for w in windows)
+                # Hiển thị window gần nhất (sequence nhỏ nhất) cho UI banner.
+                first = windows[0]
+                return allowed, {
+                    'from': first.order_time_from,
+                    'to': first.order_time_to,
+                    'enabled': True,
+                    'source': 'area:%s' % area_id,
+                    'window_count': len(windows),
+                    'window_name': first.name,
+                }
+
+        # 3. Fallback global
+        f, t = global_cfg['from'], global_cfg['to']
         if f <= t:
             allowed = (now >= f) and (now <= t)
         else:
             allowed = (now >= f) or (now <= t)
-        return allowed, window
+        return allowed, dict(global_cfg, source='global')

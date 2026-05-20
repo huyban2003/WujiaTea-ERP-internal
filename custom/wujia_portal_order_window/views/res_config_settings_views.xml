@@ -11,30 +11,32 @@
                      string="Wujia Portal Order Window"
                      name="wujia_portal_order_window"
                      groups="base.group_system">
-                    <block title="Khung giờ đặt hàng Portal"
+                    <block title="Khung giờ đặt hàng Portal (fallback)"
                            name="wujia_portal_order_window_block">
                         <setting id="wujia_portal_order_time_limit_enabled"
-                                 help="Bật/tắt giới hạn khung giờ đặt hàng cho portal.">
+                                 help="Bật/tắt giới hạn khung giờ đặt hàng cho portal. Tắt = cho phép đặt mọi lúc.">
                             <field name="portal_order_time_limit_enabled"/>
                             <div class="content-group">
                                 <div class="row mt8">
                                     <label for="portal_order_time_from"
-                                           string="From"
+                                           string="From (fallback)"
                                            class="col-lg-3 o_light_label"/>
                                     <field name="portal_order_time_from"
                                            widget="float_time"/>
                                 </div>
                                 <div class="row">
                                     <label for="portal_order_time_to"
-                                           string="To"
+                                           string="To (fallback)"
                                            class="col-lg-3 o_light_label"/>
                                     <field name="portal_order_time_to"
                                            widget="float_time"/>
                                 </div>
                                 <div class="text-muted mt8">
-                                    Khung giờ portal được phép tạo
-                                    <code>sale.order</code>. Nếu To &lt; From,
-                                    khung giờ chạy qua nửa đêm.
+                                    Khung giờ mặc định <em>chỉ áp dụng cho khu vực
+                                    chưa có cấu hình riêng</em>. Cấu hình theo khu vực
+                                    tại menu <strong>Sales → Configuration →
+                                    Wujia Portal → Khung giờ đặt hàng</strong>.
+                                    Nếu To &lt; From, khung giờ chạy qua nửa đêm.
                                 </div>
                             </div>
                         </setting>

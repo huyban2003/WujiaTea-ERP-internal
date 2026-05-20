@@ -72,9 +72,40 @@ trace nguồn đơn, đã có 9 field portal nhưng \texttt{origin} trống.
 
 \section{Task D --- Section B.5: Module mới \texttt{wujia\_portal\_order\_window}}
 
-\subsection{res.config.settings}
+BA spec đôi: ``1. Model Field'' sheet \textbf{Mục I row 638--646} định nghĩa
+model \texttt{wujia.order.window} theo khu vực; ``4. Controller'' sheet
+Section B.5 row 156--173 định nghĩa global fallback + logic check. Module
+hiện thực \textbf{cả hai}: per-area là primary, global là safety net.
 
-Thêm 3 field, lưu qua \texttt{ir.config\_parameter} (BA spec row 156--163):
+\subsection{Model \texttt{wujia.order.window} (BA Mục I --- per-area)}
+
+\begin{tabular}{lll}
+\toprule
+\textbf{Field} & \textbf{Type} & \textbf{Note} \\
+\midrule
+\texttt{name} & Char(translate) & ``Khung sáng HN'', ``Khung tối SG''\ldots \\
+\texttt{area\_id} & M2o res.area & required, ondelete cascade, indexed \\
+\texttt{order\_time\_from} & Float [0,24) & default 10.0, sql check range \\
+\texttt{order\_time\_to} & Float [0,24) & default 4.0, sql check range \\
+\texttt{is\_overnight} & Boolean & computed store: \(to < from\) \\
+\texttt{sequence} & Integer & default 10, sort UI \\
+\texttt{active}, \texttt{company\_id}, \texttt{description} & --- & boilerplate \\
+\bottomrule
+\end{tabular}
+
+\textbf{Mỗi khu vực có thể có nhiều khung giờ} (vd ``Khung sáng 09:00--12:00''
++ ``Khung tối 17:00--22:00''). Constraint \texttt{from != to} bằng
+\texttt{@api.constrains}. Method \texttt{is\_now\_open(now\_hours)} encapsulate
+logic so sánh (gồm trường hợp qua nửa đêm).
+
+Backend menu: \texttt{Sales > Configuration > Wujia Portal > Khung giờ đặt hàng}
+--- list view group theo area + handle sequence, form view có ribbon
+``Qua nửa đêm'' khi \texttt{is\_overnight=True}.
+
+\subsection{res.config.settings (fallback global)}
+
+3 field lưu qua \texttt{ir.config\_parameter} (BA Section B.5 row 156--163);
+chỉ áp dụng khi khu vực \emph{chưa cấu hình} window riêng:
 
 \begin{tabular}{llll}
 \toprule
@@ -86,41 +117,74 @@ Thêm 3 field, lưu qua \texttt{ir.config\_parameter} (BA spec row 156--163):
 \bottomrule
 \end{tabular}
 
-\subsection{Logic check (BA row 167--173)}
+\subsection{Logic check (cascade priority)}
 
-Helper \texttt{Settings.\_is\_within\_order\_window()} trả \texttt{(allowed, window)}:
+Helper \texttt{Settings.\_is\_within\_order\_window(area\_id=None)} trả
+\texttt{(allowed, window)} theo thứ tự ưu tiên:
 
-\begin{itemize}[leftmargin=*]
-    \item Nếu \texttt{enabled=False} \(\Rightarrow\) always allowed.
-    \item Tính \texttt{now} = giờ hiện tại trong timezone của \texttt{env.user.tz} (fallback UTC) thành float hours.
-    \item Trường hợp \texttt{from <= to}: allowed nếu \(from \le now \le to\).
-    \item Trường hợp \texttt{from > to} (khung qua nửa đêm): allowed nếu \(now \ge from\) hoặc \(now \le to\).
-\end{itemize}
+\begin{enumerate}[leftmargin=*]
+    \item Nếu global \texttt{enabled=False} \(\Rightarrow\) always allowed
+          (source=\texttt{global}).
+    \item Nếu \texttt{area\_id} truyền vào và khu vực có \(\ge 1\)
+          \texttt{wujia.order.window} active \(\Rightarrow\) allowed khi
+          \emph{bất kỳ} window nào đang mở (logic OR --- giúp khu vực có
+          ca sáng + ca tối). Source=\texttt{area:<id>}.
+    \item Fallback global: dùng \texttt{from/to} trong
+          \texttt{ir.config\_parameter}.
+\end{enumerate}
+
+Time được tính theo \texttt{env.user.tz} (fallback UTC) thành float hours.
+Khung qua nửa đêm (\(to < from\)) xử lý trong method
+\texttt{wujia.order.window.is\_now\_open()}.
 
 \subsection{Enforce}
 
 \textbf{Controller-level} (UX) trong \texttt{wujia\_portal\_sale}:
 \begin{itemize}[leftmargin=*]
-    \item \texttt{/portal/order} catalog --- truyền \texttt{order\_window\_enabled} + \texttt{order\_window\_open} + \texttt{order\_time\_from/to} (đã format HH:MM) cho template hiển thị banner ngoài khung giờ.
-    \item \texttt{/portal/order/submit} --- check trước \texttt{action\_confirm}, redirect \texttt{?error=outside\_order\_window}.
+    \item \texttt{/portal/order} catalog --- resolve \texttt{area\_id} từ
+          \texttt{get\_active\_franchise\_id().area\_id}, gọi helper, truyền
+          \texttt{order\_window\_enabled} + \texttt{order\_window\_open} +
+          \texttt{order\_time\_from/to} (format HH:MM) cho banner.
+    \item \texttt{/portal/order/submit} --- cùng pattern, redirect
+          \texttt{?error=outside\_order\_window}.
 \end{itemize}
 
 \textbf{Model-level} (defense-in-depth) trong \texttt{wujia\_portal\_order\_window.sale\_order}:
-\texttt{create()} override chặn mọi \texttt{vals\_list} có \texttt{is\_portal\_order=True} ngoài khung giờ (kể cả khi controller bypass), raise \texttt{ValidationError} với message song ngữ theo BA.
+\texttt{create()} override extract \texttt{area\_id} từ
+\texttt{franchise\_id} trong vals, gọi helper, raise \texttt{ValidationError}
+nếu ngoài khung giờ --- chặn cả khi controller bypass.
 
 \subsection{Module structure}
 
 \begin{verbatim}
 wujia_portal_order_window/
 ├── __init__.py
-├── __manifest__.py            depends=['wujia_sale']
+├── __manifest__.py                    depends=['wujia_sale']
 ├── models/
 │   ├── __init__.py
-│   ├── res_config_settings.py (3 field + 3 helper @api.model)
-│   └── sale_order.py          (create override)
+│   ├── wujia_order_window.py          (model per-area --- BA Mục I)
+│   ├── res_config_settings.py         (3 field global + helper cascade)
+│   └── sale_order.py                  (create override, extract area)
+├── security/
+│   └── ir.model.access.csv            (read=user, full=group_system)
 └── views/
-    └── res_config_settings_views.xml  (app block trong Settings)
+    ├── wujia_order_window_views.xml   (list/form/search + menu Sales config)
+    └── res_config_settings_views.xml  (app block fallback global)
 \end{verbatim}
+
+\subsection{Tại sao cần cả hai (per-area + global)}
+
+\begin{itemize}[leftmargin=*]
+    \item \textbf{Per-area} (Mục I) --- nhượng quyền 1500 cửa hàng ở
+          nhiều khu vực với múi giờ + thói quen kinh doanh khác nhau
+          (HN ăn sáng từ 6h, SG ca tối tới 23h). Một global setting
+          không đủ linh hoạt.
+    \item \textbf{Global fallback} --- khu vực mới chưa kịp cấu hình
+          window vẫn có khung giờ default, tránh case ``khu vực trống
+          \(\Rightarrow\) đặt hàng mọi lúc'' (BA không muốn).
+    \item Toggle \texttt{enabled=False} ở global = master kill switch
+          cho mọi khu vực, dùng khi maintenance.
+\end{itemize}
 
 \section{Task E --- Sheet 5. Issue List: UI refactor}
 
@@ -170,7 +234,7 @@ specificity vẫn đúng, không cần \texttt{!important} cascade lại.
     \item \texttt{wujia\_portal\_layout} 19.0.2.3.0 \(\to\) 19.0.3.0.0 --- favicon fix, \_variables overhaul, \_components mới, sidebar/header theme.
     \item \texttt{wujia\_portal\_base} 19.0.4.0.1 \(\to\) 19.0.5.0.0 --- route Franchise Information + 2 template + sidenav menu link.
     \item \texttt{wujia\_portal\_sale} 19.0.1.0.0 \(\to\) 19.0.2.0.0 --- order window guard + \texttt{origin} + helper format HH:MM.
-    \item \textbf{NEW} \texttt{wujia\_portal\_order\_window} 19.0.1.0.0 --- res.config.settings + helper + sale.order create override.
+    \item \textbf{NEW} \texttt{wujia\_portal\_order\_window} 19.0.2.0.0 --- model \texttt{wujia.order.window} per-area + res.config.settings fallback + helper cascade + sale.order create override.
 \end{itemize}
 
 \section{Còn lại Phase 1.0 sau Sprint 8}
