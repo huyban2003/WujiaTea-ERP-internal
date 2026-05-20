@@ -95,7 +95,7 @@ class WujiaPortalSale(http.Controller):
         active_fid = get_active_franchise_id()
         area_id = False
         if active_fid:
-            franchise = request.env['res.franchise'].sudo().browse(active_fid).exists()
+            franchise = request.env['wujia.franchise.management'].sudo().browse(active_fid).exists()
             if franchise and franchise.area_id:
                 area_id = franchise.area_id.id
         allowed, window = Settings._is_within_order_window(area_id=area_id)

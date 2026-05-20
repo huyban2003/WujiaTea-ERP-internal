@@ -12,7 +12,7 @@ class SaleOrder(models.Model):
         # Khung giờ theo area của franchise; nếu area chưa cấu hình thì
         # fallback global config.
         Settings = self.env['res.config.settings'].sudo()
-        Franchise = self.env['res.franchise'].sudo()
+        Franchise = self.env['wujia.franchise.management'].sudo()
         for vals in vals_list:
             if not vals.get('is_portal_order'):
                 continue

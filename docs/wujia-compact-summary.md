@@ -127,9 +127,10 @@ Cập nhật lần cuối: 2026-05-21.
 - User Invitations / Permissions.
 
 **Lưu ý kỹ thuật cần follow ở mọi sprint mới:**
+- ⚠️ **BẮT BUỘC ĐỌC SOURCE CODE TRƯỚC KHI SỬA — KHÔNG ĐOÁN TÊN MODEL/FIELD/METHOD.** Trước khi reference bất kỳ model nào (vd `wujia.franchise.management` vs `res.franchise`), method nào (vd `_get_accessible_franchise_ids` vs `get_franchise_ids`), helper nào (`get_active_franchise_id` ở `wujia_portal_base/controllers/portal.py` chứ KHÔNG ở `utils.py`) → `grep -rn "_name = '" custom/<module>/models/` + `grep -rn "def <method_name>" custom/`. Tên model thực: `wujia.franchise.management` (NOT `res.franchise`), `wujia.franchise.member`, `wujia.order.window`, `res.area`, `res.ward`. Lỗi 500 do đoán bừa tên model làm production xuống → user feedback nghiêm khắc 2026-05-21.
 - Portal CSS: bắt buộc dùng CSS var trong `_variables.css` + class share trong `_components.css` (`.wujia-btn`, `.wujia-badge-*`, `.wujia-empty-state`), không hex cứng → [[feedback_wujia_portal_conventions]].
 - Demo data: KHÔNG đưa vào manifest XML → dùng `scripts/seed_*.py` local-only → [[feedback_demo_data]].
-- View Odoo 19: không `attrs=`, không `decoration-secondary`, group search dùng `name="group_by"` → [[reference_odoo19_gotchas]].
+- View Odoo 19: không `attrs=`, không `decoration-secondary`, group search dùng `name="group_by"`, **bỏ `expand="0"` ở `<group>` search (RNG schema v19 không còn chấp nhận)**, **`_sql_constraints` → `models.Constraint`** → [[reference_odoo19_gotchas]].
 - Commit message: tiếng Anh, Conventional Commits → [[feedback_git_commit_english]].
 - Field rename: pre-migrate trước khi `-u` để tránh drop column → [[feedback_field_rename_data_loss]].
 - i18n: viết string tiếng Anh, BA dịch `vi_VN.po` → [[feedback_odoo_i18n_workflow]].
@@ -193,6 +194,7 @@ nssm start Odoo
 > - Tránh N+1: prefetch, `read_group` thay vì loop.
 >
 > **Quy tắc (NON-NEGOTIABLE):**
+> - **TUYỆT ĐỐI KHÔNG ĐOÁN TÊN MODEL/FIELD/HELPER.** Mỗi khi cần reference model (`env['xxx']`) hoặc field/method → `grep -rn "_name = '" custom/<mod>/models/` + `grep -rn "def <name>" custom/` trước. Không có exception. Tên thực: `wujia.franchise.management` / `wujia.franchise.member` / `wujia.order.window` / `res.area` / `res.ward`. Helper portal: `get_active_franchise_id()` / `get_active_franchise_ids_filter()` định nghĩa trong `wujia_portal_base/controllers/portal.py` (KHÔNG phải utils.py).
 > - **Không chắc → HỎI**, đừng tự ý code.
 > - **Read-before-write**: xem code v19 hiện tại có gì rồi mới làm tiếp.
 > - **Không demo data trong manifest XML** (Odoo gốc tránh load demo khi production). Nếu cần demo: viết script Python riêng.
