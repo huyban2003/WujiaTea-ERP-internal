@@ -1,11 +1,11 @@
 {
     'name': 'Wujia Portal — Sale (Catalog + Cart)',
-    'version': '19.0.1.0.0',
+    'version': '19.0.2.0.0',
     'category': 'Wujia',
     'summary': 'Trang đặt hàng portal — catalog sản phẩm + giỏ hàng (skeleton UI)',
     'author': 'WujiaTea',
     'license': 'LGPL-3',
-    'depends': ['wujia_sale', 'wujia_portal_base'],
+    'depends': ['wujia_sale', 'wujia_portal_base', 'wujia_portal_order_window'],
     'data': [
         'views/sidenav_inherit.xml',
         'views/portal_order_catalog.xml',

@@ -1,0 +1,110 @@
+/* Wujia Portal — shared component primitives (Sprint 8 — Issue List UI-11..UI-15).
+   Loaded AFTER _wujia_theme.css. Goal: one class per pattern so every page
+   reuses the same look without duplicating CSS. */
+
+/* ---------- UI-10/11: Body type + card shadow ---------- */
+body { font-size: var(--wujia-font-size-body) !important; }
+h1, .wujia-h1 { font-size: var(--wujia-font-size-h1) !important; font-weight: 700; }
+h2, .wujia-h2 { font-size: var(--wujia-font-size-h2) !important; font-weight: 600; }
+.card .card-title,
+.card-header h4,
+.card-header h5 {
+    font-size: var(--wujia-font-size-card-title) !important;
+}
+.card { box-shadow: var(--wujia-card-shadow); }
+
+/* ---------- UI-12: Standardized buttons ---------- */
+.btn,
+.wujia-btn {
+    min-height: var(--wujia-btn-height);
+    border-radius: var(--wujia-btn-radius);
+    font-weight: 500;
+    padding: 0 16px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+}
+.btn.btn-sm { min-height: 32px; padding: 0 12px; font-size: 13px; }
+.btn.btn-lg { min-height: 48px; padding: 0 20px; }
+.btn-primary,
+.wujia-btn-primary {
+    background-color: var(--wujia-primary) !important;
+    border-color: var(--wujia-primary) !important;
+    color: #FFFFFF !important;
+}
+.btn-primary:hover,
+.wujia-btn-primary:hover {
+    background-color: var(--wujia-primary-dark) !important;
+    border-color: var(--wujia-primary-dark) !important;
+}
+.btn-outline-primary,
+.wujia-btn-secondary {
+    background-color: transparent !important;
+    border: 1px solid var(--wujia-primary) !important;
+    color: var(--wujia-primary) !important;
+}
+.btn-outline-primary:hover,
+.wujia-btn-secondary:hover {
+    background-color: var(--wujia-primary-soft) !important;
+    color: var(--wujia-primary-dark) !important;
+}
+
+/* ---------- UI-13: Soft status badges ---------- */
+.wujia-badge {
+    display: inline-block;
+    padding: 4px 10px;
+    border-radius: 999px;
+    font-size: 12px;
+    font-weight: 600;
+    line-height: 1.4;
+    text-transform: none;
+    letter-spacing: 0.2px;
+    background-color: var(--wujia-muted-bg);
+    color: var(--wujia-text-secondary);
+    border: 1px solid transparent;
+}
+.wujia-badge-success { background-color: var(--wujia-success-bg); color: var(--wujia-success); }
+.wujia-badge-warning { background-color: var(--wujia-warning-bg); color: var(--wujia-warning); }
+.wujia-badge-danger  { background-color: var(--wujia-danger-bg);  color: var(--wujia-danger);  }
+.wujia-badge-info    { background-color: var(--wujia-primary-soft); color: var(--wujia-primary-dark); }
+.wujia-badge-muted   { background-color: var(--wujia-muted-bg);   color: var(--wujia-text-muted); }
+
+/* Auto-upgrade legacy state-* badges so old templates pick up the new look
+   without code changes (UI-13). */
+.state-badge {
+    display: inline-block; padding: 4px 10px; border-radius: 999px;
+    font-size: 12px; font-weight: 600;
+    background-color: var(--wujia-muted-bg);
+    color: var(--wujia-text-secondary);
+}
+.state-active   { background-color: var(--wujia-success-bg); color: var(--wujia-success); }
+.state-draft    { background-color: var(--wujia-muted-bg);   color: var(--wujia-text-secondary); }
+.state-locked,
+.state-expired  { background-color: var(--wujia-danger-bg);  color: var(--wujia-danger); }
+.state-closed   { background-color: var(--wujia-warning-bg); color: var(--wujia-warning); }
+
+/* ---------- UI-15: Empty state ---------- */
+.wujia-empty-state {
+    text-align: center;
+    padding: 48px 24px;
+    color: var(--wujia-text-muted);
+}
+.wujia-empty-state i {
+    font-size: 40px;
+    color: var(--wujia-text-muted);
+    opacity: 0.6;
+    display: block;
+    margin-bottom: 12px;
+}
+.wujia-empty-state p,
+.wujia-empty-state h4 {
+    margin: 0;
+    color: var(--wujia-text-secondary);
+}
+
+/* ---------- UI-14: Responsive — let detail panel stack on tablet/mobile ---------- */
+@media (max-width: 991.98px) {
+    .wujia-two-pane { flex-direction: column !important; }
+    .wujia-two-pane > * { width: 100% !important; max-width: 100% !important; }
+}

@@ -33,6 +33,19 @@ PAGE_SIZE = 24
 MAX_QTY_PER_LINE = 9999
 
 
+def _float_to_hhmm(value):
+    """Convert 10.5 → '10:30'. Tolerates None/invalid → '—'."""
+    try:
+        v = float(value or 0.0) % 24.0
+    except (TypeError, ValueError):
+        return '—'
+    h = int(v)
+    m = int(round((v - h) * 60))
+    if m == 60:
+        h, m = (h + 1) % 24, 0
+    return f'{h:02d}:{m:02d}'
+
+
 class WujiaPortalSale(http.Controller):
     """Trang đặt hàng — catalog sản phẩm + cart side panel + endpoints CRUD."""
 
@@ -77,6 +90,8 @@ class WujiaPortalSale(http.Controller):
             else self._fallback_pager(total, page)
         )
 
+        Settings = request.env['res.config.settings'].sudo()
+        allowed, window = Settings._is_within_order_window()
         return request.render('wujia_portal_sale.portal_order_catalog', {
             'no_franchise': False,
             'products': products,
@@ -85,8 +100,10 @@ class WujiaPortalSale(http.Controller):
             'pager': pager,
             'keyword': keyword,
             'category_id': cat_id,
-            'order_time_from': '06:00',
-            'order_time_to': '18:00',
+            'order_time_from': _float_to_hhmm(window['from']),
+            'order_time_to': _float_to_hhmm(window['to']),
+            'order_window_enabled': window['enabled'],
+            'order_window_open': allowed,
         })
 
     # ----------------------------------------------------------- product detail
@@ -221,6 +238,9 @@ class WujiaPortalSale(http.Controller):
         franchise = cart.franchise_id
         if hasattr(franchise, 'portal_locked') and franchise.portal_locked:
             return request.redirect('/portal/order/cart?error=branch_locked')
+        allowed, _w = request.env['res.config.settings'].sudo()._is_within_order_window()
+        if not allowed:
+            return request.redirect('/portal/order/cart?error=outside_order_window')
         # Optional portal note / delivery info
         vals = {}
         if post.get('portal_note'):
@@ -302,6 +322,7 @@ class WujiaPortalSale(http.Controller):
             'partner_id': partner.id,
             'portal_requester_user_id': request.env.uid,
             'portal_member_id': membership.id if membership else False,
+            'origin': 'Wujia Portal',
         })
 
     def _get_owned_line(self, line_id):

@@ -375,6 +375,42 @@ class WujiaPortal(CustomerPortal):
         }
 
     # ==================================================================
+    # Franchise Information menu (BA spec Section A — readonly snapshot
+    # của cửa hàng + user tab + thông tin nhượng quyền cho cửa hàng đang
+    # active. Không cho sửa — chức năng cập nhật đã có module
+    # wujia_portal_info_request.)
+    # ==================================================================
+    @http.route(['/portal/franchise-information'], type='http', auth='user',
+                website=False, sitemap=False)
+    def portal_franchise_information(self, **kw):
+        fid = get_active_franchise_id()
+        if not fid:
+            return request.redirect('/portal')
+        membership = self._get_membership_or_redirect(fid)
+        if isinstance(membership, http.Response):
+            return membership
+        membership_sudo = membership.sudo()
+        franchise = membership_sudo.franchise_id
+        # Hard gate per BA: portal_locked or status != 'active' → block
+        if franchise.portal_locked or franchise.status != 'active':
+            return request.render('wujia_portal_base.portal_franchise_information_locked', {
+                'title': _('Thông tin cửa hàng'),
+                'franchise': franchise,
+            })
+        members = request.env['wujia.franchise.member'].sudo().search([
+            ('franchise_id', '=', fid),
+            ('is_currently_valid', '=', True),
+        ])
+        return request.render('wujia_portal_base.portal_franchise_information', {
+            'title': _('Thông tin cửa hàng'),
+            'page_name': 'franchise_information',
+            'franchise': franchise,
+            'membership': membership_sudo,
+            'members': members,
+            'role_labels': ROLE_LABELS,
+        })
+
+    # ==================================================================
     # Backwards-compat redirects: /my/branches → /my/franchises
     # ==================================================================
     @http.route(['/my/branches'], type='http', auth='user', sitemap=False)

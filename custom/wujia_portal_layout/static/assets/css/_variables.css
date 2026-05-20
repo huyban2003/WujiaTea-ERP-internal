@@ -1,23 +1,26 @@
 /* Wujia Portal — single source of truth for color palette + dimensions.
-   Synced with BA master plan sheet "2 - FE portal" (2026-05-15).
-   Loaded BEFORE any other portal CSS so downstream rules can use var(...). */
+   Synced with BA master plan sheet "2 - FE portal" + sheet "5. Issue List"
+   (Sprint 8 — 2026-05-21). Loaded BEFORE any other portal CSS so downstream
+   rules can use var(...). */
 
 :root {
     /* ---------- Brand / primary ---------- */
     --wujia-primary:        #22A9DE;
     --wujia-primary-dark:   #1598CF;
     --wujia-primary-light:  #E0F7FF;
+    --wujia-primary-soft:   #EAF7FD; /* UI-04 active menu background */
 
     /* ---------- Surface / layout ---------- */
-    --wujia-bg-page:        #F6F8FB;
+    --wujia-bg-page:        #F6F8FA; /* UI-09 unified page background */
     --wujia-bg-sidebar:     #FFFFFF;
     --wujia-bg-card:        #FFFFFF;
-    --wujia-border:         #E5EAF1;
+    --wujia-border:         #E5E7EB; /* UI-11 card border */
+    --wujia-border-soft:    #EEF1F5;
     --wujia-table-header-line: #9AA0A6;
 
     /* ---------- Text ---------- */
-    --wujia-text-primary:   #272A30;
-    --wujia-text-secondary: #69707A;
+    --wujia-text-primary:   #1F2933;
+    --wujia-text-secondary: #5C6470;
     --wujia-text-muted:     #8A9099;
 
     /* ---------- State / semantic ---------- */
@@ -27,16 +30,34 @@
     --wujia-warning-bg:     #FFF3E0;
     --wujia-danger:         #EC3845;
     --wujia-danger-bg:      #FFE8EB;
+    --wujia-info:           #1FC160;
     --wujia-info-bg:        #D6F4E0;
     --wujia-info-text:      #1FC160;
+    --wujia-muted-bg:       #F1F3F6;
 
-    /* ---------- Layout dimensions ---------- */
+    /* ---------- Layout dimensions (UI-06/08/11/12) ---------- */
     --wujia-sidebar-width:  300px;
+    --wujia-sidebar-logo-h: 200px;
     --wujia-header-height:  76px;
-    --wujia-card-radius:    10px;
+    --wujia-header-padding: 28px;
+    --wujia-card-radius:    14px;   /* UI-11 bump 10 → 14 */
     --wujia-card-padding:   24px;
+    --wujia-card-shadow:    0 2px 6px rgba(15, 23, 42, 0.04);
     --wujia-section-gap:    28px;
 
-    /* ---------- Typography ---------- */
+    /* ---------- Sidebar items (UI-03/04) ---------- */
+    --wujia-menu-item-height: 44px;
+    --wujia-menu-icon-size:   20px;
+    --wujia-menu-text-size:   15px;
+
+    /* ---------- Buttons (UI-12) ---------- */
+    --wujia-btn-height:     42px;
+    --wujia-btn-radius:     8px;
+
+    /* ---------- Typography (UI-10) ---------- */
     --wujia-font-family:    'Inter', 'Roboto', Arial, sans-serif;
+    --wujia-font-size-body: 15px;
+    --wujia-font-size-h1:   32px;
+    --wujia-font-size-h2:   24px;
+    --wujia-font-size-card-title: 16px;
 }

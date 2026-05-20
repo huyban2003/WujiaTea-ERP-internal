@@ -1,0 +1,182 @@
+\chapter{Sprint 8 --- Franchise Information + Order Window + UI Issue List (2026-05-21)}
+
+\section{Bối cảnh}
+
+BA (Hùng) bổ sung 3 task vào WORK LOG (T-031 Mockup quản lý vận hành, T-032
+Controller thông tin nhượng quyền + đặt hàng + sản phẩm + khung giờ đặt
+hàng, T-033 Backend khung giờ đặt hàng) cùng với sheet mới \texttt{5. Issue
+List} chứa 13 issue UI (UI-01..UI-15). Sprint 8 gói gọn cả 3 mục tiêu:
+
+\begin{itemize}[leftmargin=*]
+    \item \textbf{Fix-up} pre-existing favicon 500 (Sprint 4 legacy).
+    \item \textbf{BA Section A} --- thêm route \texttt{/portal/franchise-information} readonly menu.
+    \item \textbf{BA Section B + B.5} --- audit mapping \texttt{sale.order} portal, bổ sung \texttt{origin}, thêm module mới \texttt{wujia\_portal\_order\_window} cấu hình khung giờ đặt hàng + defense-in-depth chặn tạo \texttt{sale.order} portal ngoài khung giờ.
+    \item \textbf{Issue List} --- refactor design tokens (\texttt{\_variables.css}) + tạo \texttt{\_components.css} share cho button, badge mềm, empty state, sidebar active item; áp lên toàn portal qua asset bundle, không cần sửa từng template.
+\end{itemize}
+
+\section{Task A --- Fix-up favicon (pre-existing bug Sprint 4)}
+
+\texttt{wujia\_portal\_layout/views/layouts.xml} line 16/18 dùng
+\texttt{env.company.favicon} --- field không tồn tại trên \texttt{res.company}
+Odoo 19 \(\Rightarrow\) QWeb raise \texttt{AttributeError} sau login \(\Rightarrow\)
+500. Thay bằng \texttt{env.company.logo or ''} (đã có trong layout sidenav).
+Cùng pattern đã dùng trong \texttt{login\_layout}.
+
+\section{Task B --- Section A: Franchise Information menu}
+
+Route mới \texttt{/portal/franchise-information} (auth=user). Trả về snapshot
+readonly của cửa hàng đang active (đọc qua cookie \texttt{wujia\_active\_franchise\_id}
+hoặc auto-pick nếu user 1 cửa hàng), gồm 3 card:
+
+\begin{enumerate}[leftmargin=*]
+    \item \textbf{Cửa hàng} --- code, name, status, opening\_date, area, state, address, phone, email (BA Section A row 52--62).
+    \item \textbf{Hợp đồng nhượng quyền} --- start/end date, remaining\_days, is\_expired, invoiced, portal\_locked (BA Section A row 65--71).
+    \item \textbf{Thành viên cửa hàng} --- role, login, name, phone, email, active (BA Section A row 74--81).
+\end{enumerate}
+
+\textbf{Gate per BA}: nếu \texttt{portal\_locked=True} hoặc \texttt{status != 'active'} thì render
+template \texttt{portal\_franchise\_information\_locked} (empty-state thông báo
+liên hệ HQ).
+
+Menu link inject vào sidebar qua inherit \texttt{layout\_sidenav}
+(priority 20, xpath sau \texttt{nav\_item\_home}).
+
+Phân biệt với \texttt{/portal/franchises/<id>/profile} có sẵn từ Sprint 4:
+route mới là menu top-level cho cửa hàng \emph{đang active}, không cần
+\texttt{franchise\_id} trong URL.
+
+\section{Task C --- Section B: Audit mapping \texttt{sale.order}}
+
+Đối chiếu BA mapping row 132--151 với \texttt{wujia\_sale.sale\_order} hiện có:
+
+\begin{tabular}{lll}
+\toprule
+\textbf{BA Field} & \textbf{Status} & \textbf{Note} \\
+\midrule
+\texttt{is\_portal\_order} & OK & Có sẵn từ Sprint 2 \\
+\texttt{partner\_id} & OK & Set = franchise.partner\_id \\
+\texttt{franchise\_partner\_id} & OK & Có sẵn \\
+\texttt{franchise\_id} & OK & Có sẵn, index, tracking \\
+\texttt{portal\_requester\_user\_id} & OK & Có sẵn, readonly \\
+\texttt{portal\_member\_id} & OK & Snapshot membership \\
+\texttt{area\_id} & OK & related store=True \\
+\texttt{pricelist\_id} & defer & Phase 1 default (BA chấp nhận) \\
+\texttt{warehouse\_id} & defer & Phase 1 default (BA chấp nhận) \\
+\texttt{origin} & \textbf{new} & \texttt{"Wujia Portal"} hardcode khi create cart \\
+\bottomrule
+\end{tabular}
+
+Patch chỉ thêm \texttt{origin} trong
+\texttt{wujia\_portal\_sale.controllers.portal.\_get\_or\_create\_cart} --- BA muốn
+trace nguồn đơn, đã có 9 field portal nhưng \texttt{origin} trống.
+
+\section{Task D --- Section B.5: Module mới \texttt{wujia\_portal\_order\_window}}
+
+\subsection{res.config.settings}
+
+Thêm 3 field, lưu qua \texttt{ir.config\_parameter} (BA spec row 156--163):
+
+\begin{tabular}{llll}
+\toprule
+\textbf{Field} & \textbf{Type} & \textbf{Default} & \textbf{Config key} \\
+\midrule
+\texttt{portal\_order\_time\_from} & Float & 10.0 & \texttt{wujia\_portal.portal\_order\_time\_from} \\
+\texttt{portal\_order\_time\_to} & Float & 4.0 & \texttt{wujia\_portal.portal\_order\_time\_to} \\
+\texttt{portal\_order\_time\_limit\_enabled} & Bool & True & \texttt{wujia\_portal.portal\_order\_time\_limit\_enabled} \\
+\bottomrule
+\end{tabular}
+
+\subsection{Logic check (BA row 167--173)}
+
+Helper \texttt{Settings.\_is\_within\_order\_window()} trả \texttt{(allowed, window)}:
+
+\begin{itemize}[leftmargin=*]
+    \item Nếu \texttt{enabled=False} \(\Rightarrow\) always allowed.
+    \item Tính \texttt{now} = giờ hiện tại trong timezone của \texttt{env.user.tz} (fallback UTC) thành float hours.
+    \item Trường hợp \texttt{from <= to}: allowed nếu \(from \le now \le to\).
+    \item Trường hợp \texttt{from > to} (khung qua nửa đêm): allowed nếu \(now \ge from\) hoặc \(now \le to\).
+\end{itemize}
+
+\subsection{Enforce}
+
+\textbf{Controller-level} (UX) trong \texttt{wujia\_portal\_sale}:
+\begin{itemize}[leftmargin=*]
+    \item \texttt{/portal/order} catalog --- truyền \texttt{order\_window\_enabled} + \texttt{order\_window\_open} + \texttt{order\_time\_from/to} (đã format HH:MM) cho template hiển thị banner ngoài khung giờ.
+    \item \texttt{/portal/order/submit} --- check trước \texttt{action\_confirm}, redirect \texttt{?error=outside\_order\_window}.
+\end{itemize}
+
+\textbf{Model-level} (defense-in-depth) trong \texttt{wujia\_portal\_order\_window.sale\_order}:
+\texttt{create()} override chặn mọi \texttt{vals\_list} có \texttt{is\_portal\_order=True} ngoài khung giờ (kể cả khi controller bypass), raise \texttt{ValidationError} với message song ngữ theo BA.
+
+\subsection{Module structure}
+
+\begin{verbatim}
+wujia_portal_order_window/
+├── __init__.py
+├── __manifest__.py            depends=['wujia_sale']
+├── models/
+│   ├── __init__.py
+│   ├── res_config_settings.py (3 field + 3 helper @api.model)
+│   └── sale_order.py          (create override)
+└── views/
+    └── res_config_settings_views.xml  (app block trong Settings)
+\end{verbatim}
+
+\section{Task E --- Sheet 5. Issue List: UI refactor}
+
+Mục tiêu BA: ``một bộ component dùng chung --- chuyển menu thì sidebar /
+header / card / button không đổi style.'' Thay vì sửa từng template, refactor
+3 file CSS shared:
+
+\subsection{\_variables.css --- design tokens mới}
+
+\begin{itemize}[leftmargin=*]
+    \item UI-04: \texttt{--wujia-primary-soft: \#EAF7FD} cho active menu background.
+    \item UI-09: \texttt{--wujia-bg-page: \#F6F8FA} (đồng nhất Home + các page khác).
+    \item UI-11: \texttt{--wujia-card-radius: 14px} (bump từ 10px), border = \texttt{--wujia-border: \#E5E7EB}, shadow nhẹ.
+    \item UI-06: \texttt{--wujia-sidebar-logo-h: 200px} chuẩn cao logo area.
+    \item UI-03/04: \texttt{--wujia-menu-item-height: 44px}, \texttt{--wujia-menu-icon-size: 20px}.
+    \item UI-12: \texttt{--wujia-btn-height: 42px}, \texttt{--wujia-btn-radius: 8px}.
+    \item UI-10: \texttt{--wujia-font-size-body/h1/h2/card-title} chuẩn (15/32/24/16 px).
+\end{itemize}
+
+\subsection{\_wujia\_theme.css --- sidebar + header polish}
+
+\begin{itemize}[leftmargin=*]
+    \item UI-08: navbar padding L/R 28px, min-height 76px lock down.
+    \item UI-06: sidebar logo area cao 200px cố định.
+    \item UI-03: \texttt{.navigation > li > a} flex layout, item-height 44px, icon 20px, gap 12px.
+    \item UI-04: active menu \(\Rightarrow\) bg \texttt{primary-soft}, text \texttt{primary-dark}, font-weight 600 --- bỏ nền đậm \texttt{primary} cũ.
+\end{itemize}
+
+\subsection{\_components.css mới --- shared primitives}
+
+\begin{itemize}[leftmargin=*]
+    \item UI-12: \texttt{.btn, .wujia-btn} pattern (min-height 42px, radius 8px, flex, gap 6px) + variant primary/secondary/outline.
+    \item UI-13: \texttt{.wujia-badge} + \texttt{.wujia-badge-success/warning/danger/info/muted} (background tint nhẹ + text màu, pill 999px) + auto-upgrade legacy \texttt{.state-badge .state-*}.
+    \item UI-15: \texttt{.wujia-empty-state} (icon 40px muted + text secondary, padding 48px).
+    \item UI-14: \texttt{.wujia-two-pane} responsive helper cho support detail panel (stack dưới 992px).
+    \item UI-10: body 15px + heading scale.
+    \item UI-11: \texttt{.card} shadow soft + bump radius (đã ăn theo \texttt{--wujia-card-radius} mới).
+\end{itemize}
+
+Asset bundle (\texttt{wujia\_portal\_layout/views/assets.xml}) load
+\texttt{\_components.css} sau \texttt{\_wujia\_theme.css} \(\Rightarrow\)
+specificity vẫn đúng, không cần \texttt{!important} cascade lại.
+
+\section{Modules touched}
+
+\begin{itemize}[leftmargin=*]
+    \item \texttt{wujia\_portal\_layout} 19.0.2.3.0 \(\to\) 19.0.3.0.0 --- favicon fix, \_variables overhaul, \_components mới, sidebar/header theme.
+    \item \texttt{wujia\_portal\_base} 19.0.4.0.1 \(\to\) 19.0.5.0.0 --- route Franchise Information + 2 template + sidenav menu link.
+    \item \texttt{wujia\_portal\_sale} 19.0.1.0.0 \(\to\) 19.0.2.0.0 --- order window guard + \texttt{origin} + helper format HH:MM.
+    \item \textbf{NEW} \texttt{wujia\_portal\_order\_window} 19.0.1.0.0 --- res.config.settings + helper + sale.order create override.
+\end{itemize}
+
+\section{Còn lại Phase 1.0 sau Sprint 8}
+
+\begin{itemize}[leftmargin=*]
+    \item Load test 100+ concurrent user qua locust.
+    \item Mockup quản lý vận hành nội bộ (T-031) --- BA đã mockup, sprint 9 implement.
+    \item Defer: TOTP 2FA, Portal Signup, Calendar booking, Upload video, QR scan in/out.
+\end{itemize}

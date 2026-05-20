@@ -34,24 +34,57 @@ html, body {
 
 .text-muted { color: var(--wujia-text-muted) !important; }
 
-/* ---------- Top navbar ---------- */
+/* ---------- Top navbar (UI-08) ---------- */
 .wujia-navbar {
     background-color: var(--wujia-primary) !important;
     min-height: var(--wujia-header-height);
+    padding-left: var(--wujia-header-padding);
+    padding-right: var(--wujia-header-padding);
 }
+.wujia-navbar .navbar-wrapper,
+.wujia-navbar .navbar-container { min-height: var(--wujia-header-height); }
 
-/* ---------- Sidebar ---------- */
+/* ---------- Sidebar (UI-03/04/06) ---------- */
 .main-menu {
     background-color: var(--wujia-bg-sidebar) !important;
 }
-.main-menu.menu-light .navigation > li.active > a {
-    background-color: var(--wujia-primary) !important;
-    color: #FFFFFF;
-    border-radius: 4px;
+.main-menu .navbar-header { min-height: var(--wujia-sidebar-logo-h); }
+
+.main-menu .navigation > li > a {
+    display: flex;
+    align-items: center;
+    min-height: var(--wujia-menu-item-height);
+    padding: 0 18px;
+    gap: 12px;
+    border-radius: 8px;
+    margin: 2px 12px;
+    font-size: var(--wujia-menu-text-size);
+    color: var(--wujia-text-secondary) !important;
+    transition: background-color .15s, color .15s;
+}
+.main-menu .navigation > li > a > i,
+.main-menu .navigation > li > a > .fa {
+    font-size: var(--wujia-menu-icon-size) !important;
+    width: var(--wujia-menu-icon-size);
+    text-align: center;
+    color: var(--wujia-text-secondary);
+}
+.main-menu .navigation > li > a:hover {
+    background-color: var(--wujia-muted-bg) !important;
+}
+.main-menu.menu-light .navigation > li.active > a,
+.main-menu .navigation > li.active > a {
+    background-color: var(--wujia-primary-soft) !important;
+    color: var(--wujia-primary-dark) !important;
+    font-weight: 600;
+}
+.main-menu.menu-light .navigation > li.active > a > i,
+.main-menu .navigation > li.active > a > .fa {
+    color: var(--wujia-primary-dark) !important;
 }
 .main-menu.menu-light .navigation > li ul .active {
-    background-color: var(--wujia-primary) !important;
-    color: #FFFFFF !important;
+    background-color: var(--wujia-primary-soft) !important;
+    color: var(--wujia-primary-dark) !important;
 }
 
 /* ---------- Card + section header flush fix ----------

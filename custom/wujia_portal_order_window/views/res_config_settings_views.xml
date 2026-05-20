@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="res_config_settings_view_form_wujia_portal_window"
+            model="ir.ui.view">
+        <field name="name">res.config.settings.view.form.wujia.portal.window</field>
+        <field name="model">res.config.settings</field>
+        <field name="inherit_id" ref="base.res_config_settings_view_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//form" position="inside">
+                <app data-string="Wujia Portal Order Window"
+                     string="Wujia Portal Order Window"
+                     name="wujia_portal_order_window"
+                     groups="base.group_system">
+                    <block title="Khung giờ đặt hàng Portal"
+                           name="wujia_portal_order_window_block">
+                        <setting id="wujia_portal_order_time_limit_enabled"
+                                 help="Bật/tắt giới hạn khung giờ đặt hàng cho portal.">
+                            <field name="portal_order_time_limit_enabled"/>
+                            <div class="content-group">
+                                <div class="row mt8">
+                                    <label for="portal_order_time_from"
+                                           string="From"
+                                           class="col-lg-3 o_light_label"/>
+                                    <field name="portal_order_time_from"
+                                           widget="float_time"/>
+                                </div>
+                                <div class="row">
+                                    <label for="portal_order_time_to"
+                                           string="To"
+                                           class="col-lg-3 o_light_label"/>
+                                    <field name="portal_order_time_to"
+                                           widget="float_time"/>
+                                </div>
+                                <div class="text-muted mt8">
+                                    Khung giờ portal được phép tạo
+                                    <code>sale.order</code>. Nếu To &lt; From,
+                                    khung giờ chạy qua nửa đêm.
+                                </div>
+                            </div>
+                        </setting>
+                    </block>
+                </app>
+            </xpath>
+        </field>
+    </record>
+</odoo>

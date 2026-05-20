@@ -13,9 +13,9 @@
                     <title>
                         <t t-esc="title or 'Portal'"/>
                     </title>
-                    <link rel="apple-touch-icon" t-attf-href="data:image/png;base64,{{env.company.favicon}}"/>
+                    <link rel="apple-touch-icon" t-attf-href="data:image/png;base64,{{env.company.logo or ''}}"/>
                     <link rel="shortcut icon" type="image/x-icon"
-                          t-attf-href="data:image/png;base64,{{env.company.favicon}}"/>
+                          t-attf-href="data:image/png;base64,{{env.company.logo or ''}}"/>
                     <link href="https://fonts.googleapis.com/css?family=Montserrat:300,400,500,600" rel="stylesheet"/>
                     <t t-call="wujia_portal_layout.asset_frontend"/>
                     <t t-call-assets="web.assets_frontend" t-js="false" t-css="true"/>
