@@ -2,7 +2,7 @@
 
 **Mục đích:** file này được agentmemory inject context cho mọi session làm WujiaTea. Mỗi section là 1 entry độc lập, search-able qua `/recall`. Khi cập nhật, chạy lại `scripts/import_wujia_compact_summary.py`. Chi tiết đầy đủ vẫn ở `wujia-tea-doc.tex` (2611 dòng, 14 chapter).
 
-Cập nhật lần cuối: 2026-05-17.
+Cập nhật lần cuối: 2026-05-21.
 
 ---
 
@@ -33,7 +33,7 @@ Cập nhật lần cuối: 2026-05-17.
 
 ## §2 wujia-modules
 
-**17 module active trong `/custom/`** (cập nhật 2026-05-17, sau Sprint 6+7):
+**18 module active trong `/custom/`** (cập nhật 2026-05-21, sau Sprint 8):
 
 | Module | Vai trò |
 |---|---|
@@ -54,6 +54,7 @@ Cập nhật lần cuối: 2026-05-17.
 | `wujia_portal_report` | `/portal/reports/orders` |
 | `wujia_portal_support` | `/portal/support` + backend admin + POST handler (v19.0.2.0.0, Sprint 5) + attachment download (Sprint 7) |
 | `wujia_portal_info_request` | `/portal/info-request` — yêu cầu cập nhật thông tin franchise + HQ duyệt chatter (v19.0.1.0.0, Sprint 7) |
+| `wujia_portal_order_window` | `res.config.settings` khung giờ đặt hàng portal (`order_from`/`order_to`/`enabled` qua `ir.config_parameter`) + `sale.order.create` defense-in-depth block (v19.0.1.0.0, Sprint 8) |
 
 → Chi tiết: `wujia-tea-doc.tex` §1.3 (modules đã hoàn thành) + §1.5 (dependency tree).
 
@@ -102,16 +103,18 @@ Cập nhật lần cuối: 2026-05-17.
 
 **Sprint 7** (2026-05-17) — Module mới `wujia_portal_info_request` (model `wujia.info.update.request` với sequence INF-, request_type 7-option, state draft→submitted→reviewing→approved/rejected, chatter inherit, record rule franchise scope + self-edit only, 5 routes portal + backend HQ duyệt) + 8 extension routes: notification mark-read/unread-count jsonrpc, knowledge search-as-you-type jsonrpc, support/return attachment download stream (ACL franchise gate), purchase-history `.pdf` qua `sale.action_report_saleorder`, delivery `.ics` cho Google/Outlook, report orders `.xlsx` qua `xlsxwriter` in-memory. **Tổng 30 routes Sprint 6+7.** 12 portal modules verified `installed`. Fix inline khi install: search view v19 `<group name=>` không `string=`, button form không cho `name="write"+context=` → dùng method riêng `action_start_review`. Known issue pre-existing (Sprint 4): `layouts.xml` dùng `env.company.favicon` không tồn tại v19 → fix Sprint 8 follow-up.
 
-→ Chi tiết: `wujia-tea-doc.tex` chap 4-16.
+**Sprint 8** (2026-05-21) — Gói 4 mục tiêu trong 1 sprint sau khi BA Hùng bổ sung 3 task T-031/T-032/T-033 + sheet mới "5. Issue List": (1) **Fix-up** favicon 500 (`env.company.favicon` → `env.company.logo or ''`). (2) **BA Section A** — route mới `/portal/franchise-information` readonly menu top-level (cookie active franchise, 3 card: store details / contract / member tab, gate `portal_locked` + `status != 'active'` → locked page); inject sidenav link priority 20 sau `nav_item_home`. (3) **BA Section B + B.5** — audit mapping `sale.order` portal (9/9 BA field đã có sẵn từ Sprint 2-5; chỉ thêm `origin="Wujia Portal"`), module mới `wujia_portal_order_window` (3 field `res.config.settings` lưu qua `ir.config_parameter` keys `wujia_portal.portal_order_time_from/to/enabled`, helper timezone-aware `_is_within_order_window()` handle 2 case from<to và from>to, controller guard trên `/portal/order` + `/portal/order/submit`, `sale.order.create` override defense-in-depth raise `ValidationError`). (4) **Sheet "5. Issue List"** — refactor design token `_variables.css` (UI-04 `primary-soft #EAF7FD`, UI-09 `bg-page #F6F8FA`, UI-11 `card-radius 14px` + `border #E5E7EB`, UI-06 sidebar logo 200px, UI-03 menu-height 44 + icon 20, UI-08 header padding 28, UI-12 btn-height 42, UI-10 body 15px) + tạo `_components.css` shared (`.wujia-btn` chuẩn, `.wujia-badge[-success/warning/danger/info/muted]` soft pill, `.wujia-empty-state`, `.wujia-two-pane` responsive) + override active menu nền soft trong `_wujia_theme.css`. **Install + upgrade 4 module RC=0.** 18 module `/custom/` active.
+
+→ Chi tiết: `wujia-tea-doc.tex` chap 4-17.
 
 ---
 
 ## §5 wujia-current-status-and-remaining
 
-**Tình trạng (2026-05-17):** 17 module active, Sprint 6+7 đã merge (controller layer wired + perf hardening), 30 routes Sprint 6+7 verified RC=0, smoke 14 endpoints pass. Sprint 5 vẫn đã deploy production trước đó, test 20/20 pass.
+**Tình trạng (2026-05-21):** 18 module active, Sprint 8 đã merge + push `main` (favicon fix + franchise-information menu + order time window module + UI token refactor). 4 module install/upgrade RC=0.
 
 **Còn lại Phase 1.0** (BA spec):
-- ⚠️ Fix-up Sprint 8: `wujia_portal_layout/views/layouts.xml` line 16/18 dùng `env.company.favicon` (không tồn tại v19) → gây 500 sau login. Bug pre-existing từ Sprint 4 (commit `f4e5a3d`). Replace bằng `env.company.logo` hoặc guard `getattr(..., None)`.
+- T-031 "Mockup quản lý vận hành nội bộ" (BA Hùng đã mockup) → Sprint 9 implement.
 - Load test 100+ concurrent user qua locust (Task `scripts/locust_portal.py` chưa làm).
 - TOTP 2FA, Portal Signup, Calendar booking, Upload video, QR scan in/out — defer (xem bảng "Deferred v14 features" chap 16).
 - Phase 1.0 các trang khác sẽ liệt kê khi anh start sprint mới.
@@ -124,7 +127,7 @@ Cập nhật lần cuối: 2026-05-17.
 - User Invitations / Permissions.
 
 **Lưu ý kỹ thuật cần follow ở mọi sprint mới:**
-- Portal CSS: bắt buộc dùng CSS var trong `_variables.css`, không hex cứng → [[feedback_wujia_portal_conventions]].
+- Portal CSS: bắt buộc dùng CSS var trong `_variables.css` + class share trong `_components.css` (`.wujia-btn`, `.wujia-badge-*`, `.wujia-empty-state`), không hex cứng → [[feedback_wujia_portal_conventions]].
 - Demo data: KHÔNG đưa vào manifest XML → dùng `scripts/seed_*.py` local-only → [[feedback_demo_data]].
 - View Odoo 19: không `attrs=`, không `decoration-secondary`, group search dùng `name="group_by"` → [[reference_odoo19_gotchas]].
 - Commit message: tiếng Anh, Conventional Commits → [[feedback_git_commit_english]].
