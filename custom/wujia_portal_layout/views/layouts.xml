@@ -133,27 +133,14 @@
                     </ul>
                 </div>
 
-                <div class="sidebar-header mt-3">
-                    <div class="user-pic">
-                        <img class="img-responsive img-rounded" t-att-src="'/web/image/res.users/'+ str(request.env.user.id) +'/avatar_128'"
-                             alt=""/>
-                    </div>
-                    <div class="user-info" t-if="request.env.user.partner_id">
-                        <span class="user-name text-truncate text-color-title text-bold-700" style="max-width: 125px;"
-                              t-att-title="request.env.user.name">
-                            <t t-esc="request.env.user.name"/>
-                        </span>
-                    </div>
-                </div>
-
                 <div class="shadow-bottom"/>
                 <div class="main-menu-content " >
                     <ul class="navigation navigation-main" id="main-menu-navigation"
                         data-menu="menu-navigation" >
                         <li class="nav-item" id="nav_item_home">
-                            <a href="/portal" class="text-black">
-                                <i class="fa fa-home" aria-hidden="true"></i>
-                                <span class="menu-title">Trang chủ</span>
+                            <a href="/portal">
+                                <i class="feather icon-home" aria-hidden="true"></i>
+                                <span class="menu-title">Home</span>
                             </a>
                         </li>
                         <t t-out="0"/>

@@ -2,7 +2,7 @@
 
 **Mục đích:** file này được agentmemory inject context cho mọi session làm WujiaTea. Mỗi section là 1 entry độc lập, search-able qua `/recall`. Khi cập nhật, chạy lại `scripts/import_wujia_compact_summary.py`. Chi tiết đầy đủ vẫn ở `wujia-tea-doc.tex` (2611 dòng, 14 chapter).
 
-Cập nhật lần cuối: 2026-05-21.
+Cập nhật lần cuối: 2026-05-23 (Sprint 9 in progress — UI-01 done, 12 issue + Empty còn lại).
 
 ---
 
@@ -105,18 +105,22 @@ Cập nhật lần cuối: 2026-05-21.
 
 **Sprint 8** (2026-05-21) — Gói 4 mục tiêu trong 1 sprint sau khi BA Hùng bổ sung 3 task T-031/T-032/T-033 + sheet mới "5. Issue List": (1) **Fix-up** favicon 500 (`env.company.favicon` → `env.company.logo or ''`). (2) **BA Section A** — route mới `/portal/franchise-information` readonly menu top-level (cookie active franchise, 3 card: store details / contract / member tab, gate `portal_locked` + `status != 'active'` → locked page); inject sidenav link priority 20 sau `nav_item_home`. (3) **BA Section B + B.5 + Mục I** — audit mapping `sale.order` portal (9/9 BA field đã có sẵn từ Sprint 2-5; chỉ thêm `origin="Wujia Portal"`), module mới `wujia_portal_order_window` triển khai cả BA Mục I (model `wujia.order.window` per-area, multi-record/khu vực) lẫn Section B.5 (global fallback `res.config.settings`). Helper cascade `_is_within_order_window(area_id)` ưu tiên window theo area (OR-merge nhiều ca), fallback global; controller resolve area từ active franchise; `sale.order.create` extract `franchise_id.area_id` cho defense-in-depth. Backend menu Sales → Configuration → Wujia Portal → Khung giờ đặt hàng. **Lưu ý — initial impl chỉ global; user feedback yêu cầu refactor về per-area theo Mục I, đã sửa cùng Sprint 8.** (4) **Sheet "5. Issue List"** — refactor design token `_variables.css` (UI-04 `primary-soft #EAF7FD`, UI-09 `bg-page #F6F8FA`, UI-11 `card-radius 14px` + `border #E5E7EB`, UI-06 sidebar logo 200px, UI-03 menu-height 44 + icon 20, UI-08 header padding 28, UI-12 btn-height 42, UI-10 body 15px) + tạo `_components.css` shared (`.wujia-btn` chuẩn, `.wujia-badge[-success/warning/danger/info/muted]` soft pill, `.wujia-empty-state`, `.wujia-two-pane` responsive) + override active menu nền soft trong `_wujia_theme.css`. **Install + upgrade 4 module RC=0.** 18 module `/custom/` active.
 
-→ Chi tiết: `wujia-tea-doc.tex` chap 4-17.
+**Sprint 9** (2026-05-23, IN PROGRESS — 1 issue = 1 sprint con, BA order) — Refactor Portal UI theo sheet **"5. Issue List"** (13 issue UI-01..UI-15 + 1 unnumbered Empty state), BA Hùng cập nhật 2026-05-22 kèm 12 mockup ảnh `xl/media/image22-33.png`. Nguyên tắc tuyệt đối: **không bịa spec** — mỗi sprint con đọc lại 2 cột G ("Đề xuất điều chỉnh") + H ("Kết quả mong muốn") trực tiếp từ xlsm, không suy diễn, không tự thêm thuộc tính. Code thuần English (BA tự lo `.po`, không tạo `.po` Sprint 9). Workflow: paste BA spec exact → grep v19 hiện trạng → plan ngắn → user approve → edit → `scripts/upgrade.sh` RC=0 → restart Odoo → screenshot vs BA mockup col F/G → loop fix → next issue. **Trạng thái:** **UI-01 DONE** (2026-05-23) — `_wujia_theme.css` active menu item BG `--wujia-primary` #22A9DE + text/icon `#FFFFFF` (BA: "chuyển icon và text sang màu trắng" — chỉ apply khi active, không phải tất cả menu); 11 sidenav_inherit.xml + `layouts.xml` main "Home" replace `fa fa-*` solid → `feather icon-*` outline (truck/shopping-cart/edit/clock/bar-chart-2/bell/award/calendar/user-check/corner-up-left/life-buoy/book/home). Upgrade 11 portal module RC=0. **Còn lại 16 sprint con** (xem §9): UI-02, UI-03, UI-04, UI-05, UI-06, UI-07, UI-09, UI-11, UI-12, UI-14, UI-15, Empty + cleanup (301 redirect + xóa `wujia_account` stub) + final verify + doc + push.
+
+→ Chi tiết: `wujia-tea-doc.tex` chap 4-17 + `chapters/18-sprint9-issue-list-ui-refactor.tex` (sẽ tạo cuối Sprint 9).
 
 ---
 
 ## §5 wujia-current-status-and-remaining
 
-**Tình trạng (2026-05-21):** 18 module active, Sprint 8 đã merge + push `main` (favicon fix + franchise-information menu + order time window module + UI token refactor). 4 module install/upgrade RC=0.
+**Tình trạng (2026-05-23):** 18 module active. Sprint 8 đã merge + push `main`. **Sprint 9 IN PROGRESS** — issue list portal UI refactor, 1 sprint con / issue, BA order. **Sprint 9.1 (UI-01) DONE** local (chưa push). Còn 12 issue UI + Empty + cleanup + verify + doc + push. Xem §9 wujia-sprint9-issue-list-state.
 
 **Còn lại Phase 1.0** (BA spec):
-- T-031 "Mockup quản lý vận hành nội bộ" (BA Hùng đã mockup) → Sprint 9 implement.
+- **Sprint 9 (in progress)** — 12 issue UI + Empty state còn lại (xem §9 bảng trạng thái từng issue).
+- T-031 "Mockup quản lý vận hành nội bộ" (BA Hùng đã mockup) → defer Sprint 10.
 - Load test 100+ concurrent user qua locust (Task `scripts/locust_portal.py` chưa làm).
-- TOTP 2FA, Portal Signup, Calendar booking, Upload video, QR scan in/out — defer (xem bảng "Deferred v14 features" chap 16).
+- Affiliate/commission portal 12 route v14 — defer roadmap (`chapters/19-roadmap-v14-gaps.tex`).
+- Dashboard ApexChart, TOTP 2FA, Portal Signup, Calendar booking, Upload video, QR scan in/out — defer (xem bảng "Deferred v14 features" chap 16).
 - Phase 1.0 các trang khác sẽ liệt kê khi anh start sprint mới.
 
 **Phase 2.0 (future):**
@@ -256,3 +260,68 @@ Xong xuôi chạy /wujia-end-sprint.
 - `/wujia-load-feature <letters>` — load BA spec cho feature cụ thể.
 - `/wujia-save-insight` — lưu insight mới (append markdown + agentmemory).
 - `/wujia-end-sprint` — end-of-session ritual (test → doc → PDF → commit → push → recap).
+
+---
+
+## §9 wujia-sprint9-issue-list-state
+
+**Sprint 9 = 17 sprint con, 1 issue = 1 sprint con, BA order.** Sheet "5. Issue List" trong `WujiaTea/docs/Wujia_Internal ERP Master Plan.xlsm` là **single source of truth**. Mỗi sprint con BẮT ĐẦU bằng việc đọc lại 2 cột G + H của issue đó từ xlsm — **TUYỆT ĐỐI KHÔNG bịa**, không suy diễn thêm thuộc tính ngoài cột G/H.
+
+### Bảng BA spec exact (paste từ xlsm sheet "5. Issue List" 2026-05-22)
+
+| # | ID | Khu vực | Đề xuất điều chỉnh (cột G) / Vấn đề | Kết quả mong muốn (cột H) | Trạng thái |
+|---|---|---|---|---|---|
+| 9.1 | UI-01 | Sidebar | Chuyển icon và text sang **màu trắng** (khi active) | icon **20–22px**, text **16px**, item height **44–48px**, gap **12px** | ✅ DONE 2026-05-23 |
+| 9.2 | UI-02 | Sidebar | **Bỏ phần thông tin user** tại sidebar | (none) | ⬜ pending |
+| 9.3 | UI-03 | Header PC | Xây dựng lại hiển thị thông tin cửa hàng trên header PC | block **Current Store [H000] tên** + **role badge** + **language** + **avatar** | ⬜ pending |
+| 9.4 | UI-04 | Header mobile | Như UI-03 nhưng mobile | block Current Store + role badge + language + avatar (responsive) | ⬜ pending |
+| 9.5 | UI-05 | Button | Chuẩn hoá button toàn portal | Primary: **nền xanh, chữ trắng, h 40–44px**. Secondary: **nền trắng, viền xám, h 36–40px** (BA KHÔNG nói "text xám" — không bịa). Cùng loại phải giống nhau mọi page. | ⬜ pending |
+| 9.6 | UI-06 | Card | Background page chưa chuẩn, cần đậm thêm | Page **#F5F7FA hoặc #F6F8FA**; card **trắng #FFFFFF**. | ⬜ pending |
+| 9.7 | UI-07 | Sidebar | Khoảng cách logo→menu không đồng đều | Logo area height **180–220px**, menu bắt đầu cùng vị trí mọi page | ⬜ pending |
+| 9.8 | UI-09 | Header | Header chưa thống nhất height/padding | Height **72–80px**, padding **24–32px**, **align center** toàn item | ⬜ pending |
+| 9.9 | UI-11 | Font | Font + độ đậm chưa thống nhất | Font **Inter/Arial**. Body **15–16px**, title **32–36px**, card title **20–22px**, table **15–16px** | ⬜ pending |
+| 9.10 | UI-12 | Card | Card Home + Support khác radius/shadow/border | Border **1px solid #E5E7EB**, radius **12–16px**, shadow **rất nhẹ hoặc không** | ⬜ pending |
+| 9.11 | UI-14 | Badge | Status có chỗ là text thường ("Draft") | Tất cả status dùng **badge mềm** | ⬜ pending |
+| 9.12 | UI-15 | Responsive | Detail panel Support cắt khi màn nhỏ | Desktop **2 cột**, tablet/mobile detail xuống dưới hoặc **drawer/modal** | ⬜ pending |
+| 9.13 | Empty | Empty state | Empty state "Chưa có dữ liệu" còn thô | **icon nhỏ + dòng text + khoảng trắng chuẩn** | ⬜ pending |
+| 9.14 | — | Cleanup | (Quick wins, không trong Issue List) | 301 redirect `/portal/purchase_history` → `/portal/purchase-history`, `/portal/return-request-list`, `/portal/exam-registration` + xóa `custom/wujia_account/` stub trống | ⬜ pending |
+| 9.15 | — | Verify | — | `scripts/reseed_full.sh` RC=0 + `scripts/test_sprint9.py` (13 route + 13 CSS assertion) + 8 screenshot | ⬜ pending |
+| 9.16 | — | Doc | — | `chapters/18-sprint9-issue-list-ui-refactor.tex` 13 sub-section + `chapters/19-roadmap-v14-gaps.tex` (affiliate/dashboard/TOTP) + master `\include` + recompile PDF qua `scripts/build-doc.sh` + update §2/§4/§5/§9 file này | ⬜ pending |
+| 9.17 | — | Push | — | Commit Conventional EN + push `main` + cho lệnh deploy Windows | ⬜ pending |
+
+### Files đã chạm (Sprint 9.1)
+
+- `custom/wujia_portal_layout/static/assets/css/_wujia_theme.css` — active state BG primary + color #FFF + icon color #FFF (cũ: primary-soft + active-text).
+- `custom/wujia_portal_layout/views/layouts.xml` — `fa fa-home` → `feather icon-home` + "Trang chủ" → "Home".
+- `custom/wujia_portal_{delivery,sale,info_request,purchase_history,report,notification,exam,return,support,knowledge}/views/sidenav_inherit.xml` — 11 file, replace toàn bộ `fa fa-*` solid → `feather icon-*` outline.
+
+### Nguyên tắc tuyệt đối cho mọi session Sprint 9 tiếp theo
+
+1. **KHÔNG BỊA SPEC.** Trước khi code 1 issue, MỞ `WujiaTea/docs/Wujia_Internal ERP Master Plan.xlsm` → sheet "5. Issue List" → đọc đúng row của issue đó → paste lại cột G + H verbatim vào chat → user xác nhận → mới code. Cột E + F là Vấn đề + Hình minh hoạ tham khảo, KHÔNG phải spec; G/H mới là spec.
+2. **Code English-only.** Chuỗi tiếng Việt chỉ chấp nhận ở template UI text hiện hữu (chưa migrate). Không tạo `.po` Sprint 9 — BA tự lo Sprint 10.
+3. **Read-before-write.** `grep -rn` trong `custom/` xem rule CSS / template hiện có rồi mới sửa. Không đoán selector.
+4. **1 issue ≠ 1 commit lớn.** 1 issue = 1 sprint con = nhiều iteration nhỏ. User screenshot vs mockup → loop fix → 100% khớp → next issue.
+5. **CSS var bắt buộc.** Mọi giá trị (color, radius, height, font-size) PHẢI là `var(--wujia-*)` trong `_variables.css`. Không hex/px cứng trong template hay file CSS module-level.
+6. **Component reuse.** Class chung trong `_components.css` (`.wujia-btn`, `.wujia-badge-*`, `.wujia-empty-state`, `.wujia-two-pane`). Nếu thiếu class — bổ sung ở `_components.css`, không inline style/class riêng từng template.
+7. **Verify gate.** Mỗi sprint con: `bash scripts/upgrade.sh "<module1>,<module2>"` RC=0 → restart Odoo → screenshot trang liên quan → so vs mockup col F → nếu lệch, sửa tiếp → đạt 100% → user OK → mới đánh dấu DONE trong §9 bảng này.
+8. **Update §9 bảng này khi DONE 1 issue.** Đổi ⬜ → ✅ + thêm ngày + 1 dòng "Files đã chạm".
+
+### Handoff prompt cho session sau (paste sau `/wujia-start`)
+
+```
+Trong session này, em tiếp tục Sprint 9 (Issue List UI refactor). UI-01 đã DONE local.
+Em làm Sprint con kế tiếp = <UI-XX> (xem §9 bảng wujia-compact-summary.md).
+
+Quy tắc Sprint 9 (BẮT BUỘC):
+1. Mở WujiaTea/docs/Wujia_Internal ERP Master Plan.xlsm → sheet "5. Issue List" → đọc row UI-XX → paste cột G + H verbatim vào chat → đợi anh xác nhận → mới plan + code. KHÔNG bịa spec ngoài G/H.
+2. Code English-only. Không tạo .po.
+3. CSS dùng var(--wujia-*) trong _variables.css; component reuse class trong _components.css. Không hex cứng, không inline.
+4. Workflow per issue: read xlsm exact → grep v19 hiện trạng → plan ngắn → anh approve → edit → bash scripts/upgrade.sh "<modules>" RC=0 → restart Odoo → screenshot vs BA mockup col F → loop fix → 100% khớp → anh OK → đánh dấu ✅ trong §9 bảng → next issue.
+5. KHÔNG bỏ qua issue, làm tuần tự BA order. KHÔNG gộp nhiều issue 1 commit. KHÔNG push lên main đến hết Sprint 9.17.
+
+Out-of-scope session này: T-031 mockup operations, locust load test, affiliate v14 gap, .po dịch.
+
+Khi hết session: update §9 bảng wujia-compact-summary.md (đổi ⬜ → ✅ + ngày + Files đã chạm) trước khi đóng session.
+```
+
+**→ Quan trọng cho future session:** đừng tin trí nhớ về spec — luôn mở lại xlsm cho mỗi issue. BA Hùng có thể edit sheet bất kỳ lúc nào.

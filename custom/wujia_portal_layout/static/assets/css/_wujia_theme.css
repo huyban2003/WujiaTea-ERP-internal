@@ -44,39 +44,42 @@ html, body {
 .wujia-navbar .navbar-wrapper,
 .wujia-navbar .navbar-container { min-height: var(--wujia-header-height); }
 
-/* ---------- Sidebar (UI-03/04/06) ---------- */
+/* ---------- Sidebar (UI-03/04/06) ----------
+   Vuexy's PerfectScrollbar JS attaches to .main-menu-content but doesn't
+   re-init reliably on Odoo portal route changes. Instead of fighting PS with
+   flex+vh (which PS overrides via inline styles on next page), we make the
+   whole .main-menu scrollable directly. Logo scrolls along with the menu —
+   acceptable trade-off for rock-solid behavior across navigation.
+
+   !important on overflow neutralizes any inline `overflow: hidden` PS sets. */
 .main-menu {
     background-color: var(--wujia-bg-sidebar) !important;
-    /* Fixed sidebar must be a flex column so .main-menu-content can scroll
-       while the logo + user-pic headers stay pinned. Vuexy's PerfectScrollbar
-       JS sometimes fails to init on Odoo portal layout — this CSS fallback
-       guarantees scroll works even without the JS. */
-    display: flex;
-    flex-direction: column;
-    height: 100vh;
 }
-.main-menu .navbar-header,
-.main-menu .sidebar-header,
-.main-menu .shadow-bottom { flex-shrink: 0; }
-.main-menu .navbar-header { min-height: var(--wujia-sidebar-logo-h); }
-
+.main-menu.menu-fixed {
+    height: 100vh !important;
+    overflow-y: auto !important;
+    overflow-x: hidden !important;
+}
+/* Neutralize PerfectScrollbar inline height on the content wrapper so
+   the parent .main-menu owns scrolling. */
 .main-menu .main-menu-content {
-    flex: 1 1 auto;
-    min-height: 0;          /* critical: lets the flex child shrink below content height */
-    overflow-y: auto;
-    overflow-x: hidden;
+    height: auto !important;
+    overflow: visible !important;
 }
+/* Tame Bootstrap `mb-5` (3rem) on the logo wrapper — too much air. */
+.main-menu .navbar-header.mb-5 { margin-bottom: 1rem !important; }
+
 /* Subtle scrollbar to match the soft Wujia palette */
-.main-menu .main-menu-content::-webkit-scrollbar { width: 6px; }
-.main-menu .main-menu-content::-webkit-scrollbar-track { background: transparent; }
-.main-menu .main-menu-content::-webkit-scrollbar-thumb {
+.main-menu::-webkit-scrollbar { width: 6px; }
+.main-menu::-webkit-scrollbar-track { background: transparent; }
+.main-menu::-webkit-scrollbar-thumb {
     background-color: var(--wujia-border);
     border-radius: 3px;
 }
-.main-menu .main-menu-content::-webkit-scrollbar-thumb:hover {
+.main-menu::-webkit-scrollbar-thumb:hover {
     background-color: var(--wujia-text-muted);
 }
-.main-menu .main-menu-content {
+.main-menu {
     scrollbar-width: thin;
     scrollbar-color: var(--wujia-border) transparent;
 }
@@ -103,19 +106,23 @@ html, body {
 .main-menu .navigation > li > a:hover {
     background-color: var(--wujia-muted-bg) !important;
 }
+/* UI-01 (Sprint 9.1): Active menu item — solid brand BG + white icon/text.
+   BA "5. Issue List" UI-01: chuyển icon và text sang màu trắng khi item ở
+   trạng thái active. Inactive items giữ màu text-secondary mặc định. */
 .main-menu.menu-light .navigation > li.active > a,
 .main-menu .navigation > li.active > a {
-    background-color: var(--wujia-primary-soft) !important;  /* UI-04 BA #EAF7FD */
-    color: var(--wujia-active-text) !important;              /* UI-04 BA #24A8E0 */
+    background-color: var(--wujia-primary) !important;
+    color: #FFFFFF !important;
     font-weight: 600;
 }
 .main-menu.menu-light .navigation > li.active > a > i,
-.main-menu .navigation > li.active > a > .fa {
-    color: var(--wujia-active-text) !important;              /* UI-04 BA #24A8E0 */
+.main-menu .navigation > li.active > a > .fa,
+.main-menu.menu-light .navigation > li.active > a > .feather {
+    color: #FFFFFF !important;
 }
 .main-menu.menu-light .navigation > li ul .active {
-    background-color: var(--wujia-primary-soft) !important;
-    color: var(--wujia-active-text) !important;
+    background-color: var(--wujia-primary) !important;
+    color: #FFFFFF !important;
 }
 
 /* ---------- Card + section header flush fix ----------
