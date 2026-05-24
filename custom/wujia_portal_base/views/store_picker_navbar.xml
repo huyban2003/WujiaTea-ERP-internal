@@ -25,6 +25,10 @@
             <t t-set="all_accessible_franchises"
                t-value="request.env['wujia.franchise.management'].sudo().browse(list(_wujia_accessible_ids))"/>
             <t t-set="active_franchise_id" t-value="_wujia_active_fid"/>
+            <t t-set="_wujia_active_membership"
+               t-value="request.env['wujia.franchise.member'].sudo().find_active_membership(request.env.user.id, _wujia_active_fid) if _wujia_active_fid else False"/>
+            <t t-set="_wujia_active_role"
+               t-value="_wujia_active_membership.role if _wujia_active_membership else False"/>
         </xpath>
         <!-- Modal đặt sau cùng + flag body để JS biết phải mở -->
         <xpath expr="//div[hasclass('drag-target')]" position="after">
@@ -36,23 +40,31 @@
         </xpath>
     </template>
 
-    <!-- Inherit top navbar — chèn badge "🏢 Đang tại: <tên>" + nút Đổi
-         vào trước menu language. -->
+    <!-- Inherit top navbar — chèn badge "Đang tại: <tên>" vào SÁT BÊN TRÁI header
+         (UI-03 mockup image28: pill Current Store nằm cụm trái, không phải phải). -->
     <template id="layout_top_navbar_inherit_store_badge"
               inherit_id="wujia_portal_layout.layout_top_navbar"
               priority="20"
               name="Wujia Top Navbar — Active Store Badge">
-        <xpath expr="//ul[hasclass('nav') and hasclass('navbar-nav') and hasclass('float-right')]" position="inside">
+        <xpath expr="//div[hasclass('bookmark-wrapper')]/ul[hasclass('navbar-nav')]" position="inside">
             <li class="nav-item d-none d-md-flex align-items-center"
                 t-if="_wujia_active_franchise">
                 <a href="#" data-action="open-store-picker"
                    class="wujia-active-store-badge"
-                   t-att-title="_wujia_active_franchise.name">
-                    <i class="fa fa-building"/>
-                    <span class="d-none d-lg-inline">Đang tại:</span>
-                    <strong t-out="_wujia_active_franchise.name"/>
-                    <i class="fa fa-exchange ms-1" style="font-size: 0.75rem; opacity: 0.7;"/>
+                   t-att-title="_wujia_active_franchise.display_name">
+                    <span class="wujia-store-badge-text">
+                        <span class="wujia-store-badge-label">Cửa hàng hiện tại</span>
+                        <strong class="wujia-store-badge-name" t-out="_wujia_active_franchise.display_name"/>
+                    </span>
                 </a>
+            </li>
+            <li class="nav-item d-none d-md-flex align-items-center"
+                t-if="_wujia_active_role">
+                <span t-attf-class="wujia-store-role-badge wujia-store-role-badge-#{_wujia_active_role}">
+                    <t t-if="_wujia_active_role == 'manager'">Manager</t>
+                    <t t-elif="_wujia_active_role == 'owner'">Owner</t>
+                    <t t-elif="_wujia_active_role == 'staff'">Staff</t>
+                </span>
             </li>
         </xpath>
     </template>

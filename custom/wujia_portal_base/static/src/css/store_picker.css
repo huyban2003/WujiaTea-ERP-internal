@@ -14,21 +14,63 @@
 .store-picker-name { font-size: 1rem; }
 .store-picker-addr { margin-top: 2px; font-size: 0.8rem; }
 
-/* Top navbar badge — currently-selected store. */
+/* Top navbar badge — currently-selected store (UI-03).
+   Soft pill on dark navbar — mockup `xl/media/image28.png`. */
 .wujia-active-store-badge {
-    background-color: rgba(255,255,255,0.15);
-    color: #fff;
-    border-radius: 20px;
-    padding: 4px 12px;
-    margin-right: 8px;
-    font-size: 0.85rem;
+    background-color: var(--wujia-navbar-pill-bg);
+    color: var(--wujia-navbar-pill-text);
+    border-radius: var(--wujia-navbar-pill-radius);
+    padding: var(--wujia-navbar-pill-padding);
+    margin-right: 12px;
+    font-size: var(--wujia-navbar-pill-font);
+    font-weight: 500;
     display: inline-flex;
     align-items: center;
-    gap: 6px;
+    gap: var(--wujia-navbar-pill-gap);
+    text-decoration: none;
+    transition: background-color 0.15s ease-in-out;
+}
+.wujia-active-store-badge:hover,
+.wujia-active-store-badge:focus {
+    background-color: var(--wujia-navbar-pill-bg-hover);
+    color: var(--wujia-navbar-pill-text);
     text-decoration: none;
 }
-.wujia-active-store-badge:hover {
-    background-color: rgba(255,255,255,0.25);
-    color: #fff;
+.wujia-active-store-badge .wujia-store-badge-text {
+    display: inline-flex;
+    flex-direction: column;
+    line-height: 1.2;
+    gap: 2px;
 }
-.wujia-active-store-badge i { opacity: 0.8; }
+.wujia-active-store-badge .wujia-store-badge-label {
+    font-size: var(--wujia-navbar-pill-label-size);
+    color: var(--wujia-navbar-pill-label-color);
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.6px;
+}
+.wujia-active-store-badge .wujia-store-badge-name {
+    font-size: var(--wujia-navbar-pill-font);
+    font-weight: 700;
+    color: var(--wujia-navbar-pill-text);
+}
+
+/* Role badge — solid color chip next to store pill (UI-03 image26).
+   Bigger to balance 2-row pill height. Sits right after `.wujia-active-store-badge`. */
+.wujia-store-role-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 10px 20px;
+    border-radius: var(--wujia-navbar-pill-radius);
+    font-size: 14px;
+    font-weight: 700;
+    line-height: 1;
+    margin-right: 12px;
+    color: #fff;
+    text-transform: capitalize;
+    letter-spacing: 0.3px;
+    min-height: 46px;
+}
+.wujia-store-role-badge-manager { background-color: var(--wujia-success); }
+.wujia-store-role-badge-owner   { background-color: var(--wujia-warning); }
+.wujia-store-role-badge-staff   { background-color: var(--wujia-text-muted); }
