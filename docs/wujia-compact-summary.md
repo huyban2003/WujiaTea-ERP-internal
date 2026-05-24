@@ -275,7 +275,7 @@ Xong xuôi chạy /wujia-end-sprint.
 | 9.2 | UI-02 | Sidebar | **Bỏ phần thông tin user** tại sidebar | (none) | ✅ DONE 2026-05-24 |
 | 9.3 | UI-03 | Header PC | Xây dựng lại hiển thị thông tin cửa hàng trên header PC | block **Current Store [H000] tên** + **role badge** + **language** + **avatar** | ✅ DONE 2026-05-24 (3 attempts — xem §10 final spec) |
 | 9.4 | UI-04 | Header mobile | Như UI-03 nhưng mobile | block Current Store + role badge + language + avatar (responsive) | ✅ DONE 2026-05-24 (sub-strip below navbar, visual ngược UI-03 — bg white + label cyan + name đen, 3-row stacked) |
-| 9.5 | UI-05 | Button | Chuẩn hoá button toàn portal | Primary: **nền xanh, chữ trắng, h 40–44px**. Secondary: **nền trắng, viền xám, h 36–40px** (BA KHÔNG nói "text xám" — không bịa). Cùng loại phải giống nhau mọi page. | ✅ DONE 2026-05-24 (gom 4 alias secondary thành 1 style, fix icon line-height conflict với Vuexy, cache-bust `?v=951` cho browser, 4 legacy cleanup) |
+| 9.5 | UI-05 | Button | Chuẩn hoá button toàn portal | Primary: **nền xanh, chữ trắng, h 40–44px**. Secondary: **nền trắng, viền xám, h 36–40px** (BA KHÔNG nói "text xám" — không bịa). Cùng loại phải giống nhau mọi page. | ✅ DONE 2026-05-24 (gom 4 alias secondary thành 1 style, fix icon line-height conflict với Vuexy, cache-bust `?v=953` cho browser, 4 legacy cleanup) |
 | 9.6 | UI-06 | Card | Background page chưa chuẩn, cần đậm thêm | Page **#F5F7FA hoặc #F6F8FA**; card **trắng #FFFFFF**. | ⬜ pending |
 | 9.7 | UI-07 | Sidebar | Khoảng cách logo→menu không đồng đều | Logo area height **180–220px**, menu bắt đầu cùng vị trí mọi page | ⬜ pending |
 | 9.8 | UI-09 | Header | Header chưa thống nhất height/padding | Height **72–80px**, padding **24–32px**, **align center** toàn item | ⬜ pending |
@@ -315,10 +315,10 @@ Xong xuôi chạy /wujia-end-sprint.
 - `custom/wujia_portal_layout/static/assets/css/style.css` — xoá `.bg-btn-primary` (zero usage) + `.btn-outline-primary-custom` (zero usage).
 - `custom/wujia_portal_layout/static/assets/css/dashboard.css` — xoá `.primary-btn` legacy v14 navy pill (bg #1e4080 border-radius 50px, chỉ dùng 1 lần ở `login_page.xml`).
 - `custom/wujia_portal_layout/views/login_page.xml` — migrate `.primary-btn` → `.btn .btn-primary` (line 67); xoá inline `style="color: var(--wujia-primary);"` thừa line 194 + line 197 (line 197 là BUG: cyan text trên cyan bg = invisible).
-- `custom/wujia_portal_layout/views/assets.xml` — thêm `?v=951` query string vào 5 CSS file (`_variables` + `style` + `dashboard` + `_wujia_theme` + `_components`) để bust browser cache (TTL 7 ngày).
+- `custom/wujia_portal_layout/views/assets.xml` — thêm `?v=953` query string vào 5 CSS file (`_variables` + `style` + `dashboard` + `_wujia_theme` + `_components`) để bust browser cache (TTL 7 ngày).
 - `custom/wujia_portal_layout/__manifest__.py` — bump version `19.0.3.0.0` → `19.0.3.1.0`.
 
-**Verify:** Upgrade RC=0. wkhtmltoimage screenshot `/portal/info-request` + `/portal/order` xác nhận button cyan + white + icon-text canh giữa. CSS curl xác nhận `_components.css?v=951` serve nội dung mới (không còn `padding 0 16px` xung đột Vuexy).
+**Verify:** Upgrade RC=0. wkhtmltoimage screenshot `/portal/info-request` + `/portal/order` xác nhận button cyan + white + icon-text canh giữa. CSS curl xác nhận `_components.css?v=953` serve nội dung mới (không còn `padding 0 16px` xung đột Vuexy).
 
 **Gotcha mới:**
 1. **Browser cache 7 ngày** — Odoo serve `/module/static/` với `Cache-Control: public, max-age=604800`. Mọi CSS change ở Sprint UI tiếp theo PHẢI bump `?v=` query trong `assets.xml` nếu không user sẽ thấy CSS cũ dù upgrade RC=0.
