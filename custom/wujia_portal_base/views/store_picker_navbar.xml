@@ -30,6 +30,23 @@
             <t t-set="_wujia_active_role"
                t-value="_wujia_active_membership.role if _wujia_active_membership else False"/>
         </xpath>
+        <!-- UI-04 mobile sub-strip — full-width below navbar in app-content area.
+             Hidden ≥768px via @media in store_picker.css (not Bootstrap utility,
+             để escape Vuexy floating-nav wrapper). Inject inside app_layout
+             (not layout_top_navbar) để KHÔNG rơi vào navbar floating box. -->
+        <xpath expr="//div[hasclass('header-navbar-shadow')]" position="after">
+            <div t-if="_wujia_active_franchise" class="wujia-store-mobile-strip">
+                <span class="wujia-store-mobile-strip-label">Cửa hàng hiện tại</span>
+                <strong class="wujia-store-mobile-strip-name"
+                        t-out="_wujia_active_franchise.display_name"/>
+                <span t-if="_wujia_active_role"
+                      t-attf-class="wujia-store-role-badge wujia-store-role-badge-mini wujia-store-role-badge-#{_wujia_active_role}">
+                    <t t-if="_wujia_active_role == 'manager'">Manager</t>
+                    <t t-elif="_wujia_active_role == 'owner'">Owner</t>
+                    <t t-elif="_wujia_active_role == 'staff'">Staff</t>
+                </span>
+            </div>
+        </xpath>
         <!-- Modal đặt sau cùng + flag body để JS biết phải mở -->
         <xpath expr="//div[hasclass('drag-target')]" position="after">
             <t t-call="wujia_portal_base.store_picker_modal"/>

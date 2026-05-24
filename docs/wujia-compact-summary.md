@@ -2,7 +2,7 @@
 
 **Mục đích:** file này được agentmemory inject context cho mọi session làm WujiaTea. Mỗi section là 1 entry độc lập, search-able qua `/recall`. Khi cập nhật, chạy lại `scripts/import_wujia_compact_summary.py`. Chi tiết đầy đủ vẫn ở `wujia-tea-doc.tex` (2611 dòng, 14 chapter).
 
-Cập nhật lần cuối: 2026-05-24 (Sprint 9 in progress — UI-01 + UI-02 + UI-03 done (UI-03 mất 3 attempts, xem §10), 10 issue + Empty còn lại).
+Cập nhật lần cuối: 2026-05-24 (Sprint 9 in progress — UI-01 + UI-02 + UI-03 + UI-04 done (UI-03 mất 3 attempts xem §10, UI-04 mất 2 attempts vì cherry-pick image sai cell), 9 issue + Empty còn lại).
 
 ---
 
@@ -274,7 +274,7 @@ Xong xuôi chạy /wujia-end-sprint.
 | 9.1 | UI-01 | Sidebar | Chuyển icon và text sang **màu trắng** (khi active) | icon **20–22px**, text **16px**, item height **44–48px**, gap **12px** | ✅ DONE 2026-05-23 |
 | 9.2 | UI-02 | Sidebar | **Bỏ phần thông tin user** tại sidebar | (none) | ✅ DONE 2026-05-24 |
 | 9.3 | UI-03 | Header PC | Xây dựng lại hiển thị thông tin cửa hàng trên header PC | block **Current Store [H000] tên** + **role badge** + **language** + **avatar** | ✅ DONE 2026-05-24 (3 attempts — xem §10 final spec) |
-| 9.4 | UI-04 | Header mobile | Như UI-03 nhưng mobile | block Current Store + role badge + language + avatar (responsive) | ⬜ pending (session sau) |
+| 9.4 | UI-04 | Header mobile | Như UI-03 nhưng mobile | block Current Store + role badge + language + avatar (responsive) | ✅ DONE 2026-05-24 (sub-strip below navbar, visual ngược UI-03 — bg white + label cyan + name đen, 3-row stacked) |
 | 9.5 | UI-05 | Button | Chuẩn hoá button toàn portal | Primary: **nền xanh, chữ trắng, h 40–44px**. Secondary: **nền trắng, viền xám, h 36–40px** (BA KHÔNG nói "text xám" — không bịa). Cùng loại phải giống nhau mọi page. | ⬜ pending |
 | 9.6 | UI-06 | Card | Background page chưa chuẩn, cần đậm thêm | Page **#F5F7FA hoặc #F6F8FA**; card **trắng #FFFFFF**. | ⬜ pending |
 | 9.7 | UI-07 | Sidebar | Khoảng cách logo→menu không đồng đều | Logo area height **180–220px**, menu bắt đầu cùng vị trí mọi page | ⬜ pending |
@@ -301,6 +301,27 @@ Xong xuôi chạy /wujia-end-sprint.
 - `custom/wujia_portal_layout/static/assets/css/style.css` — xoá 33 dòng CSS orphan `.sidebar-header*`.
 - `custom/wujia_portal_layout/static/assets/css/_wujia_theme.css` — sửa comment "Logo + user-pic" → "Logo".
 
+### Files đã chạm (Sprint 9.4 — UI-04 Header mobile, 2026-05-24)
+
+- `custom/wujia_portal_base/views/store_picker_navbar.xml` — thêm xpath thứ 2 inject SAU `<div class="header-navbar-shadow">` (KHÔNG sau `</nav>` vì Vuexy nav floating + có shadow wrapper riêng). Block: `<div t-if="_wujia_active_franchise" class="wujia-store-mobile-strip">` gồm label + name `t-out=display_name` + role badge mini. Reuse `_wujia_active_franchise` + `_wujia_active_role` từ `<t t-set>` cùng template (scope OK). KHÔNG dùng Bootstrap class `d-md-none` — gate qua `@media` trong CSS (Bootstrap utility set `display:none` không `!important` nên bị override bởi `.wujia-store-mobile-strip { display: flex }`).
+- `custom/wujia_portal_base/static/src/css/store_picker.css` — append block UI-04:
+  - Default `.wujia-store-mobile-strip { display: none }` (PC hide).
+  - `@media (max-width: 767.98px)` set `display: flex` + `flex-direction: column` + `align-items: flex-start` + `margin-top: 7.5rem` (=105px @ html 14px) để escape Vuexy floating-nav (top 18px + height 90px = bottom 108px).
+  - Adjacent sibling `.wujia-store-mobile-strip + .content-wrapper { margin-top: 0 !important }` để eliminate double-gap (Vuexy default content-wrapper `margin-top: 6rem`).
+  - Children: `.wujia-store-mobile-strip-label` (cyan uppercase 11px), `.wujia-store-mobile-strip-name` (dark bold 15px ellipsis), `.wujia-store-role-badge-mini` (padding 4×12 min-h 26px).
+  - `@media (max-width: 575.98px)` shrink xs font.
+- `custom/wujia_portal_layout/static/assets/css/_variables.css` — thêm 5 token `--wujia-mobile-strip-*` (bg #FFFFFF, label color = var(--wujia-primary), name color = var(--wujia-text-primary), padding 12×16, border-bottom 1px solid var(--wujia-border)).
+
+**Postmortem 2026-05-24:**
+
+1. **Mockup mapping fail (attempts 1-2):** Em sai 2 attempts đầu — attempt 1 plan sub-strip nhưng badge position right (`justify-content: space-between`); attempt 2 confuse image UI-03 PC pill với UI-04 mobile, plan refactor UI-03 instead. Root cause: cherry-pick image theo số file (image23 vs image33) thay vì map qua openpyxl anchor → không biết G6 = image23 (spec chính khoanh đỏ) vs F6 = image33 (variant). Đã update rule §9 #9 + §10 L1 step 2 yêu cầu MAP IMAGE TO CELL qua `openpyxl ws._images[i].anchor._from.row/col`.
+
+2. **Floating navbar collision fail (attempt 3-5):** Sau khi build xong, mobile screenshot → strip rendered nhưng HIDDEN behind navbar (top=0 phía sau `position:fixed` navbar top=18 bottom=108). Vuexy theme `navbar-floating` = `position:fixed` nên element inject sau `.header-navbar-shadow` vẫn ở top=0 vì shadow là sibling fixed. Fix: `margin-top: 7.5rem` (=105px) push strip xuống dưới navbar bottom (108px) + adjacent selector eliminate content-wrapper's default 6rem gap (84px). Final state @ mobile-500: strip top=84 height=91 → content-wrapper top=175 (sát strip).
+
+3. **V14 reference fail (attempt 4):** User reminder "sao bạn ko xem source v14, v14 có làm" → em **chưa check v14 dù §10 L2 đã có rule**. Grep thorough toàn bộ co_*wujia* modules confirm: v14 KHÔNG có Current Store strip (v14 single-franchise model — không cần picker UI). Commands đã chạy (lưu cho session sau): `grep -rln "Cửa hàng\|store\|hiện tại" /home/huyban/odoo-dev/wujia_tea_odoo14/modules/ --include="*.xml" --include="*.html" --include="*.css"` qua `co_portal_wujia`, `co_portal_base`, `co_portal_wujia_v2`, `co_franchise_store_wujia`, `co_filter_wujia`, `co_wujia_api` — đều 0 match. v14 `co_portal_wujia/views/portal/layout_nav_inherit.xml` REPLACE nav: chỉ language + cart + notification + user dropdown, KHÔNG có Current Store. v14 `co_portal_base/static/assets/css/components.css:67-70` set Vuexy default `.content-wrapper { margin-top: 6rem }` y hệt v19 → pattern offset của UI-04 không sẵn có ở v14, build từ đầu. **Bài học: §10 L2 đã có rule v14 check nhưng em vẫn skip — phải tự kiểm rule trước khi code, đừng đợi user nhắc.**
+
+Plan file: `/home/huyban/.claude/plans/sprint-9-4-magical-noodle.md`.
+
 ### Policy update (2026-05-24)
 
 Anh đổi rule: **mỗi sprint con UI xong = commit + push luôn**, không gộp tới Sprint 9.17. Quy tắc §9 #4 "1 issue ≠ 1 commit lớn" vẫn giữ (1 issue có thể nhiều iteration), nhưng khi DONE issue đó → push ngay. Sprint 9.17 chỉ còn deploy + recap nghiệp vụ.
@@ -315,11 +336,13 @@ Anh đổi rule: **mỗi sprint con UI xong = commit + push luôn**, không gộ
 6. **Component reuse.** Class chung trong `_components.css` (`.wujia-btn`, `.wujia-badge-*`, `.wujia-empty-state`, `.wujia-two-pane`). Nếu thiếu class — bổ sung ở `_components.css`, không inline style/class riêng từng template.
 7. **Verify gate.** Mỗi sprint con: `bash scripts/upgrade.sh "<module1>,<module2>"` RC=0 → restart Odoo → screenshot trang liên quan → so vs mockup col F → nếu lệch, sửa tiếp → đạt 100% → user OK → mới đánh dấu DONE trong §9 bảng này.
 8. **Update §9 bảng này khi DONE 1 issue.** Đổi ⬜ → ✅ + thêm ngày + 1 dòng "Files đã chạm".
-9. **EXTRACT HẾT IMAGE TRONG XLSM** (RULE MỚI — sau Sprint 9.3 FAIL 2026-05-24). Sheet "5. Issue List" có nhiều image anchored per row (cell F). PHẢI `unzip -j xlsm "xl/media/imageNN.png"` cho **TẤT CẢ image trong range của issue** (vd UI-03 có image26-33 = 8 ảnh), KHÔNG cherry-pick 1-2 ảnh. Đọc cả 8 bằng Read tool. Quy ước annotation BA:
+9. **EXTRACT HẾT IMAGE TRONG XLSM + MAP IMAGE TO CELL** (RULE expanded sau Sprint 9.3 + 9.4 FAIL 2026-05-24). Sheet "5. Issue List" có nhiều image anchored per row (cell E/F/G). PHẢI `unzip -j xlsm "xl/media/imageNN.png"` cho **TẤT CẢ image trong range của issue** (vd UI-03 có image26-33 = 8 ảnh), KHÔNG cherry-pick 1-2 ảnh. Đọc cả 8 bằng Read tool. Quy ước annotation BA:
    - **Khoanh đỏ** = TARGET CHÍNH (block phải làm chuẩn theo đó).
    - **Gạch chéo đỏ** = XÓA element này.
    - **Gạch chân đỏ** = highlight detail (chú ý thuộc tính cụ thể).
    - Image KHÔNG có annotation = mockup hint/variant, vẫn cần đọc nhưng ưu tiên thấp hơn.
+
+   **MỚI (Sprint 9.4 FAIL 2026-05-24):** PHẢI dùng openpyxl `ws._images[i].anchor._from.row/col` để biết image anchor cell nào (xem §10 L1 step 3). Cherry-pick image theo số file (image23 vs image33) KHÔNG đủ — phải biết cell mapping. Sprint 9.4 sai 2 lần vì cherry-pick image33 (F6 variant không annotation) thay vì image23 (G6 spec chính BA khoanh đỏ), và confuse với mockup UI-03 PC pill. BA có thể đặt mockup chính ở col G chứ không phải col F.
 10. **ĐỌC SOURCE V14 TRƯỚC khi code feature mới** (RULE MỚI — sau Sprint 9.3 FAIL 2026-05-24). Path: `/home/huyban/odoo-dev/wujia_tea_odoo14/enterprise/modules/co_portal_wujia/` + `co_franchise_store_wujia/` + `co_portal_base/`. V14 có thể đã có pattern template/CSS/model chuẩn, copy + adapt v19 dễ hơn build từ đầu. Nếu confirm v14 KHÔNG có (như Current Store block UI-03) → ghi rõ "v14 KHÔNG có" + build từ đầu.
 
 ### Handoff prompt cho session sau (paste sau `/wujia-start`)
@@ -410,19 +433,42 @@ Label "Cửa hàng hiện tại" có thể là caption nhỏ phía trên pill (t
 
 ### 2 lesson TUYỆT ĐỐI cho mọi session sau
 
-- **L1 — EXTRACT FULL IMAGES TỪ XLSM**: trước khi code 1 issue, chạy:
+- **L1 — EXTRACT FULL IMAGES + MAP IMAGE TO CELL TỪ XLSM** (expanded sau Sprint 9.4 FAIL 2026-05-24): trước khi code 1 issue, làm đủ 3 step:
+
+  **Step 1 — list + extract image binary:**
   ```bash
   unzip -l "WujiaTea/docs/Wujia_Internal ERP Master Plan.xlsm" | grep "xl/media/image" | awk '{print $4}'
   mkdir -p /tmp/wujia_<issue>_mockup && cd /tmp/wujia_<issue>_mockup
   unzip -o -j "WujiaTea/docs/Wujia_Internal ERP Master Plan.xlsm" "xl/media/image*.png"
   ```
-  Sau đó Read **TẤT CẢ** image, nhận annotation BA (khoanh đỏ / gạch chéo / gạch chân), xác định mockup chính. KHÔNG cherry-pick. Cách đọc annotation: §9 rule #9.
 
-- **L2 — CHECK V14 TRƯỚC KHI BUILD MỚI**: trước khi viết template/CSS/Python mới, grep `/home/huyban/odoo-dev/wujia_tea_odoo14/enterprise/modules/co_portal_wujia/`, `co_franchise_store_wujia/`, `co_portal_base/`:
+  **Step 2 — MAP image → cell qua openpyxl anchor (NON-NEGOTIABLE):**
+  ```python
+  from openpyxl import load_workbook
+  wb = load_workbook('WujiaTea/docs/Wujia_Internal ERP Master Plan.xlsm', data_only=True)
+  ws = wb['5. Issue List']
+  for i, img in enumerate(ws._images):
+      r = img.anchor._from.row + 1               # 1-indexed Excel row
+      c = chr(65 + img.anchor._from.col)         # A-Z letter
+      print(f"Image {i}: cell {c}{r}, path={img.path}")
+  ```
+  → biết chính xác image nào ở cell F6 vs G6 vs H6 của issue đó. Image NUMBER trong file name (image23.png vs image33.png) KHÔNG có quan hệ thứ tự với cell — phải map qua anchor.
+
+  **Step 3 — Read TẤT CẢ image anchor vào row của issue (cả col E/F/G/H), KHÔNG cherry-pick.** BA có thể đặt mockup chính ở G chứ không phải F (UI-04 case: image chính ở G6 = image23.png, F6 = image33.png là variant). Nhận annotation BA per §9 rule #9 (khoanh đỏ / gạch chéo / gạch chân).
+
+- **L2 — CHECK V14 TRƯỚC KHI BUILD MỚI**: trước khi viết template/CSS/Python mới, grep `/home/huyban/odoo-dev/wujia_tea_odoo14/modules/wujia-erp/` qua TẤT CẢ co_*wujia* modules:
   ```bash
-  grep -rln "<keyword>" /home/huyban/odoo-dev/wujia_tea_odoo14 --include="*.xml" --include="*.css" --include="*.py"
+  # Scope chuẩn: liệt kê modules portal v14 trước khi grep
+  ls /home/huyban/odoo-dev/wujia_tea_odoo14/modules/wujia-erp/ | grep -E "^co_.*(wujia|portal|franchise)"
+  # → co_portal_wujia, co_portal_base, co_portal_wujia_v2, co_franchise_store_wujia,
+  #   co_filter_wujia, co_wujia_api, ...
+  # Grep keyword đa file extension:
+  grep -rln "<keyword1>\|<keyword2>" /home/huyban/odoo-dev/wujia_tea_odoo14/modules/ \
+       --include="*.xml" --include="*.html" --include="*.css" --include="*.scss" --include="*.py"
   ```
   Nếu có → copy + adapt v19. Nếu KHÔNG → ghi rõ "v14 KHÔNG có pattern X" trong plan + build từ đầu. KHÔNG bỏ qua bước check.
+
+  **Sprint 9.4 reinforcement (2026-05-24):** Em đã có rule này từ Sprint 9.3 nhưng vẫn skip ở Sprint 9.4 — user phải nhắc "sao bạn ko xem source v14, v14 có làm" mới chạy grep. **Self-discipline: trước khi gõ Edit file mới, đọc lại §10 L2 + chạy grep trên scope co_*wujia* — đừng đợi user nhắc.** UI-04 case confirmed: v14 KHÔNG có Current Store strip (single-franchise model), build từ đầu OK. Output grep cho UI-04 lưu nguyên format ở §9 Files đã chạm Sprint 9.4 postmortem #3 — reuse pattern cho UI-05+.
 
 ### Final shipped spec UI-03 (attempt 3 — 2026-05-24 DONE)
 
