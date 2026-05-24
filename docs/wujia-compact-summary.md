@@ -2,7 +2,7 @@
 
 **Mục đích:** file này được agentmemory inject context cho mọi session làm WujiaTea. Mỗi section là 1 entry độc lập, search-able qua `/recall`. Khi cập nhật, chạy lại `scripts/import_wujia_compact_summary.py`. Chi tiết đầy đủ vẫn ở `wujia-tea-doc.tex` (2611 dòng, 14 chapter).
 
-Cập nhật lần cuối: 2026-05-23 (Sprint 9 in progress — UI-01 done, 12 issue + Empty còn lại).
+Cập nhật lần cuối: 2026-05-24 (Sprint 9 in progress — UI-01 + UI-02 done, 11 issue + Empty còn lại).
 
 ---
 
@@ -272,7 +272,7 @@ Xong xuôi chạy /wujia-end-sprint.
 | # | ID | Khu vực | Đề xuất điều chỉnh (cột G) / Vấn đề | Kết quả mong muốn (cột H) | Trạng thái |
 |---|---|---|---|---|---|
 | 9.1 | UI-01 | Sidebar | Chuyển icon và text sang **màu trắng** (khi active) | icon **20–22px**, text **16px**, item height **44–48px**, gap **12px** | ✅ DONE 2026-05-23 |
-| 9.2 | UI-02 | Sidebar | **Bỏ phần thông tin user** tại sidebar | (none) | ⬜ pending |
+| 9.2 | UI-02 | Sidebar | **Bỏ phần thông tin user** tại sidebar | (none) | ✅ DONE 2026-05-24 |
 | 9.3 | UI-03 | Header PC | Xây dựng lại hiển thị thông tin cửa hàng trên header PC | block **Current Store [H000] tên** + **role badge** + **language** + **avatar** | ⬜ pending |
 | 9.4 | UI-04 | Header mobile | Như UI-03 nhưng mobile | block Current Store + role badge + language + avatar (responsive) | ⬜ pending |
 | 9.5 | UI-05 | Button | Chuẩn hoá button toàn portal | Primary: **nền xanh, chữ trắng, h 40–44px**. Secondary: **nền trắng, viền xám, h 36–40px** (BA KHÔNG nói "text xám" — không bịa). Cùng loại phải giống nhau mọi page. | ⬜ pending |
@@ -294,6 +294,16 @@ Xong xuôi chạy /wujia-end-sprint.
 - `custom/wujia_portal_layout/static/assets/css/_wujia_theme.css` — active state BG primary + color #FFF + icon color #FFF (cũ: primary-soft + active-text).
 - `custom/wujia_portal_layout/views/layouts.xml` — `fa fa-home` → `feather icon-home` + "Trang chủ" → "Home".
 - `custom/wujia_portal_{delivery,sale,info_request,purchase_history,report,notification,exam,return,support,knowledge}/views/sidenav_inherit.xml` — 11 file, replace toàn bộ `fa fa-*` solid → `feather icon-*` outline.
+
+### Files đã chạm (Sprint 9.2)
+
+- `custom/wujia_portal_layout/views/layouts.xml` — xoá block `<div class="sidebar-header mt-3">…</div>` (user-pic + user-info, 12 dòng).
+- `custom/wujia_portal_layout/static/assets/css/style.css` — xoá 33 dòng CSS orphan `.sidebar-header*`.
+- `custom/wujia_portal_layout/static/assets/css/_wujia_theme.css` — sửa comment "Logo + user-pic" → "Logo".
+
+### Policy update (2026-05-24)
+
+Anh đổi rule: **mỗi sprint con UI xong = commit + push luôn**, không gộp tới Sprint 9.17. Quy tắc §9 #4 "1 issue ≠ 1 commit lớn" vẫn giữ (1 issue có thể nhiều iteration), nhưng khi DONE issue đó → push ngay. Sprint 9.17 chỉ còn deploy + recap nghiệp vụ.
 
 ### Nguyên tắc tuyệt đối cho mọi session Sprint 9 tiếp theo
 
@@ -317,7 +327,7 @@ Quy tắc Sprint 9 (BẮT BUỘC):
 2. Code English-only. Không tạo .po.
 3. CSS dùng var(--wujia-*) trong _variables.css; component reuse class trong _components.css. Không hex cứng, không inline.
 4. Workflow per issue: read xlsm exact → grep v19 hiện trạng → plan ngắn → anh approve → edit → bash scripts/upgrade.sh "<modules>" RC=0 → restart Odoo → screenshot vs BA mockup col F → loop fix → 100% khớp → anh OK → đánh dấu ✅ trong §9 bảng → next issue.
-5. KHÔNG bỏ qua issue, làm tuần tự BA order. KHÔNG gộp nhiều issue 1 commit. KHÔNG push lên main đến hết Sprint 9.17.
+5. KHÔNG bỏ qua issue, làm tuần tự BA order. 1 issue = 1 commit + push ngay khi anh OK screenshot (policy 2026-05-24).
 
 Out-of-scope session này: T-031 mockup operations, locust load test, affiliate v14 gap, .po dịch.
 
