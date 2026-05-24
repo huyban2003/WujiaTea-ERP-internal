@@ -10,16 +10,14 @@ html, body {
     color: var(--wujia-text-primary);
 }
 
-/* ---------- Brand color overrides on Bootstrap utilities ---------- */
+/* ---------- Brand color overrides on Bootstrap utilities ----------
+   .btn-primary rules live in _components.css (UI-05). Keeping bg-/badge-/
+   text-/border- utilities here only. */
 .bg-primary,
-.badge.badge-primary,
-.btn-primary,
-.btn-primary:not(:disabled):not(.disabled):active,
-.btn-primary:not(:disabled):not(.disabled).active {
+.badge.badge-primary {
     background-color: var(--wujia-primary) !important;
     border-color: var(--wujia-primary) !important;
 }
-.btn-primary:hover { background-color: var(--wujia-primary-dark) !important; border-color: var(--wujia-primary-dark) !important; }
 .text-primary { color: var(--wujia-primary) !important; }
 .border-primary { border-color: var(--wujia-primary) !important; }
 

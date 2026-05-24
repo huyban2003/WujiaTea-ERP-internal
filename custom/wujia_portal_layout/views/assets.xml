@@ -9,8 +9,10 @@
         </template>
         <template id="asset_theme">
             <!-- Sprint 4.3: load Wujia design tokens + Inter font BEFORE Vuexy
-                 vendor so cascade order keeps our CSS var :root rules active. -->
-            <link rel="stylesheet" type="text/css" href="/wujia_portal_layout/static/assets/css/_variables.css"/>
+                 vendor so cascade order keeps our CSS var :root rules active.
+                 Sprint 9.5: ?v= query string busts browser cache (7-day TTL)
+                 when we ship CSS changes — bump on every visual sprint. -->
+            <link rel="stylesheet" type="text/css" href="/wujia_portal_layout/static/assets/css/_variables.css?v=953"/>
             <link rel="stylesheet" type="text/css" href="/wujia_portal_layout/static/assets/fonts/inter/inter.css"/>
             <link rel="stylesheet" type="text/css" href="/wujia_portal_layout/static/assets/css/bootstrap.css"/>
             <link rel="stylesheet" type="text/css" href="/wujia_portal_layout/static/assets/css/bootstrap-extended.css"/>
@@ -73,14 +75,14 @@
         <template id="asset_style_css">
             <link rel="stylesheet" type="text/css" href="/wujia_portal_layout/static/assets/css/orgchart/jquery.orgchart.css"/>
             <link rel="stylesheet" type="text/css" href="/wujia_portal_layout/static/assets/css/orgchart/org_chart_customize.css"/>
-            <link rel="stylesheet" type="text/css" href="/wujia_portal_layout/static/assets/css/style.css"/>
-            <link rel="stylesheet" type="text/css" href="/wujia_portal_layout/static/assets/css/dashboard.css"/>
+            <link rel="stylesheet" type="text/css" href="/wujia_portal_layout/static/assets/css/style.css?v=953"/>
+            <link rel="stylesheet" type="text/css" href="/wujia_portal_layout/static/assets/css/dashboard.css?v=953"/>
             <link rel="stylesheet" type="text/css" href="/wujia_portal_layout/static/assets/css/member_dashboard_style.css"/>
             <!-- Sprint 4.3: Wujia overrides last so it wins specificity over
                  both Vuexy vendor and legacy style.css. -->
-            <link rel="stylesheet" type="text/css" href="/wujia_portal_layout/static/assets/css/_wujia_theme.css"/>
+            <link rel="stylesheet" type="text/css" href="/wujia_portal_layout/static/assets/css/_wujia_theme.css?v=953"/>
             <!-- Sprint 8 (Issue List UI-11..UI-15): shared component primitives. -->
-            <link rel="stylesheet" type="text/css" href="/wujia_portal_layout/static/assets/css/_components.css"/>
+            <link rel="stylesheet" type="text/css" href="/wujia_portal_layout/static/assets/css/_components.css?v=953"/>
         </template>
 
         <template id="tables_js">

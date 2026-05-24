@@ -2,7 +2,7 @@
 
 **Mục đích:** file này được agentmemory inject context cho mọi session làm WujiaTea. Mỗi section là 1 entry độc lập, search-able qua `/recall`. Khi cập nhật, chạy lại `scripts/import_wujia_compact_summary.py`. Chi tiết đầy đủ vẫn ở `wujia-tea-doc.tex` (2611 dòng, 14 chapter).
 
-Cập nhật lần cuối: 2026-05-24 (Sprint 9 in progress — UI-01 + UI-02 + UI-03 + UI-04 done (UI-03 mất 3 attempts xem §10, UI-04 mất 2 attempts vì cherry-pick image sai cell), 9 issue + Empty còn lại).
+Cập nhật lần cuối: 2026-05-24 (Sprint 9 in progress — UI-01 + UI-02 + UI-03 + UI-04 + **UI-05** done (UI-03 mất 3 attempts xem §10, UI-04 mất 2 attempts vì cherry-pick image sai cell, UI-05 thêm cache-bust + icon line-height fix), 8 issue + Empty còn lại).
 
 ---
 
@@ -275,7 +275,7 @@ Xong xuôi chạy /wujia-end-sprint.
 | 9.2 | UI-02 | Sidebar | **Bỏ phần thông tin user** tại sidebar | (none) | ✅ DONE 2026-05-24 |
 | 9.3 | UI-03 | Header PC | Xây dựng lại hiển thị thông tin cửa hàng trên header PC | block **Current Store [H000] tên** + **role badge** + **language** + **avatar** | ✅ DONE 2026-05-24 (3 attempts — xem §10 final spec) |
 | 9.4 | UI-04 | Header mobile | Như UI-03 nhưng mobile | block Current Store + role badge + language + avatar (responsive) | ✅ DONE 2026-05-24 (sub-strip below navbar, visual ngược UI-03 — bg white + label cyan + name đen, 3-row stacked) |
-| 9.5 | UI-05 | Button | Chuẩn hoá button toàn portal | Primary: **nền xanh, chữ trắng, h 40–44px**. Secondary: **nền trắng, viền xám, h 36–40px** (BA KHÔNG nói "text xám" — không bịa). Cùng loại phải giống nhau mọi page. | ⬜ pending |
+| 9.5 | UI-05 | Button | Chuẩn hoá button toàn portal | Primary: **nền xanh, chữ trắng, h 40–44px**. Secondary: **nền trắng, viền xám, h 36–40px** (BA KHÔNG nói "text xám" — không bịa). Cùng loại phải giống nhau mọi page. | ✅ DONE 2026-05-24 (gom 4 alias secondary thành 1 style, fix icon line-height conflict với Vuexy, cache-bust `?v=951` cho browser, 4 legacy cleanup) |
 | 9.6 | UI-06 | Card | Background page chưa chuẩn, cần đậm thêm | Page **#F5F7FA hoặc #F6F8FA**; card **trắng #FFFFFF**. | ⬜ pending |
 | 9.7 | UI-07 | Sidebar | Khoảng cách logo→menu không đồng đều | Logo area height **180–220px**, menu bắt đầu cùng vị trí mọi page | ⬜ pending |
 | 9.8 | UI-09 | Header | Header chưa thống nhất height/padding | Height **72–80px**, padding **24–32px**, **align center** toàn item | ⬜ pending |
@@ -300,6 +300,29 @@ Xong xuôi chạy /wujia-end-sprint.
 - `custom/wujia_portal_layout/views/layouts.xml` — xoá block `<div class="sidebar-header mt-3">…</div>` (user-pic + user-info, 12 dòng).
 - `custom/wujia_portal_layout/static/assets/css/style.css` — xoá 33 dòng CSS orphan `.sidebar-header*`.
 - `custom/wujia_portal_layout/static/assets/css/_wujia_theme.css` — sửa comment "Logo + user-pic" → "Logo".
+
+### Files đã chạm (Sprint 9.5 — UI-05 Button, 2026-05-24)
+
+- `custom/wujia_portal_layout/static/assets/css/_variables.css` — thêm token `--wujia-btn-height-secondary: 38px` (mid range BA 36-40).
+- `custom/wujia_portal_layout/static/assets/css/_components.css` — refactor block button:
+  - `.btn / .wujia-btn` base: `min-height var(--wujia-btn-height)` (42), `padding 0 16px`, `display inline-flex` + `align-items center` + `justify-content center` + `gap 6px` + fallback `text-align center` + `vertical-align middle` + `line-height 1.4`.
+  - `.btn.btn-block / .wujia-btn.btn-block` ép `display flex` (vì Bootstrap `.btn-block` set `display:block` huỷ flex-center).
+  - **Icon vertical-align fix:** `.btn > i / .fa / .feather` set `line-height 1` + `display inline-flex` + `align-items center` + `vertical-align middle` — fix Vuexy `bootstrap.css:2552` `.btn { line-height: 1 }` làm icon Font Awesome lệch baseline so với text.
+  - Primary (`.btn-primary, .wujia-btn-primary`): bg `--wujia-primary` cyan + color `#FFFFFF`, hover `--wujia-primary-dark`.
+  - Secondary gom 4 alias (`.btn-secondary, .btn-outline-primary, .btn-outline-secondary, .wujia-btn-secondary`): bg `#FFFFFF` + border `1px solid --wujia-border` + color `--wujia-text-primary` + min-height 38, hover bg `--wujia-bg-page`. **Trade-off:** mất visual outline-primary cyan border cũ → đồng nhất theo BA cột I.
+  - Semantic (`.btn-success/.btn-danger/.btn-warning/.btn-info` + outline variants): chỉ force `min-height: 42` để đồng bộ chiều cao, giữ màu Bootstrap default.
+- `custom/wujia_portal_layout/static/assets/css/_wujia_theme.css` — xoá duplicate `.btn-primary { ... }` rule (đã có ở `_components.css`).
+- `custom/wujia_portal_layout/static/assets/css/style.css` — xoá `.bg-btn-primary` (zero usage) + `.btn-outline-primary-custom` (zero usage).
+- `custom/wujia_portal_layout/static/assets/css/dashboard.css` — xoá `.primary-btn` legacy v14 navy pill (bg #1e4080 border-radius 50px, chỉ dùng 1 lần ở `login_page.xml`).
+- `custom/wujia_portal_layout/views/login_page.xml` — migrate `.primary-btn` → `.btn .btn-primary` (line 67); xoá inline `style="color: var(--wujia-primary);"` thừa line 194 + line 197 (line 197 là BUG: cyan text trên cyan bg = invisible).
+- `custom/wujia_portal_layout/views/assets.xml` — thêm `?v=951` query string vào 5 CSS file (`_variables` + `style` + `dashboard` + `_wujia_theme` + `_components`) để bust browser cache (TTL 7 ngày).
+- `custom/wujia_portal_layout/__manifest__.py` — bump version `19.0.3.0.0` → `19.0.3.1.0`.
+
+**Verify:** Upgrade RC=0. wkhtmltoimage screenshot `/portal/info-request` + `/portal/order` xác nhận button cyan + white + icon-text canh giữa. CSS curl xác nhận `_components.css?v=951` serve nội dung mới (không còn `padding 0 16px` xung đột Vuexy).
+
+**Gotcha mới:**
+1. **Browser cache 7 ngày** — Odoo serve `/module/static/` với `Cache-Control: public, max-age=604800`. Mọi CSS change ở Sprint UI tiếp theo PHẢI bump `?v=` query trong `assets.xml` nếu không user sẽ thấy CSS cũ dù upgrade RC=0.
+2. **Vuexy `.btn { line-height: 1 }`** (`bootstrap.css:2552`) gây icon Font Awesome lệch baseline so với text trong button. Fix bằng rule `.btn > i { line-height: 1; display: inline-flex; align-items: center }` — KHÔNG đụng vào `.btn` base line-height (giữ 1.4 cho text wrap đa dòng).
 
 ### Files đã chạm (Sprint 9.4 — UI-04 Header mobile, 2026-05-24)
 

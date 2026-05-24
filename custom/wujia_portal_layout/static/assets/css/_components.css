@@ -13,20 +13,73 @@ h2, .wujia-h2 { font-size: var(--wujia-font-size-h2) !important; font-weight: 60
 }
 .card { box-shadow: var(--wujia-card-shadow); }
 
-/* ---------- UI-12: Standardized buttons ---------- */
+/* ---------- UI-05: Standardized buttons ----------
+   BA "5. Issue List" UI-05:
+     Primary   = nen xanh + chu trang + height 40-44 (we use 42).
+     Secondary = nen trang + vien xam + height 36-40 (we use 38).
+   Note (cot I): button cung loai phai giong nhau moi page. We collapse
+   .btn-secondary + .btn-outline-primary + .btn-outline-secondary +
+   .wujia-btn-secondary into ONE secondary style so portal stays consistent. */
+/* !important defensive across all properties: Vuexy bootstrap.css:2540 sets
+   .btn { padding: 0.9rem 2rem; line-height: 1 } which (a) inflates height
+   beyond our 42px min-height by adding 28.8px of vertical padding, and
+   (b) breaks vertical centering of icon + text. Equal specificity (1) means
+   load order should make ours win — but some legacy CSS files import out
+   of the documented order, so we lock the contract with !important. */
 .btn,
 .wujia-btn {
-    min-height: var(--wujia-btn-height);
-    border-radius: var(--wujia-btn-radius);
-    font-weight: 500;
-    padding: 0 16px;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    gap: 6px;
+    min-height: var(--wujia-btn-height) !important;
+    border-radius: var(--wujia-btn-radius) !important;
+    font-weight: 500 !important;
+    padding: 0 16px !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 6px !important;
+    text-align: center !important;
+    vertical-align: middle !important;
+    line-height: 1.4 !important;
 }
-.btn.btn-sm { min-height: 32px; padding: 0 12px; font-size: 13px; }
+/* Bootstrap .btn-block sets display:block + width:100% which breaks the
+   inline-flex centering above. Force flex back so block buttons stay
+   centered both axes. */
+.btn.btn-block,
+.wujia-btn.btn-block {
+    display: flex;
+    width: 100%;
+}
+/* Normalize Font Awesome / Feather icon vertical alignment inside buttons.
+   Vuexy bootstrap.css sets .btn { line-height: 1 } — combined with an
+   <i class="fa ..."/> sibling whose intrinsic glyph baseline differs from
+   the text font baseline, the text ends up sitting above the icon's optical
+   center. Forcing line-height:1 + flex-center on icons aligns them. */
+.btn > i,
+.btn > .fa,
+.btn > .feather,
+.wujia-btn > i,
+.wujia-btn > .fa,
+.wujia-btn > .feather {
+    line-height: 1 !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    vertical-align: middle !important;
+    /* Reset Bootstrap me-1 / mr-1 margins — gap on .btn already handles spacing */
+    margin: 0 !important;
+}
+/* !important defensive: Vuexy bootstrap.css:3022 sets .btn-sm font-size 0.7rem
+   + padding 0.5rem 1.5rem + line-height 1 (box height ~27px). Even though our
+   .btn.btn-sm has specificity 20 > Vuexy's .btn-sm specificity 10, we add
+   !important so browser cache + future overrides can't degrade button height. */
+.btn.btn-sm {
+    min-height: 32px !important;
+    padding: 0 12px !important;
+    font-size: 13px !important;
+    line-height: 1.4 !important;
+}
 .btn.btn-lg { min-height: 48px; padding: 0 20px; }
+
+/* Primary: cyan bg + white text + h=42 */
 .btn-primary,
 .wujia-btn-primary {
     background-color: var(--wujia-primary) !important;
@@ -37,17 +90,32 @@ h2, .wujia-h2 { font-size: var(--wujia-font-size-h2) !important; font-weight: 60
 .wujia-btn-primary:hover {
     background-color: var(--wujia-primary-dark) !important;
     border-color: var(--wujia-primary-dark) !important;
+    color: #FFFFFF !important;
 }
+
+/* Secondary: white bg + gray border + h=38 (gom 3 alias cho consistency) */
+.btn-secondary,
 .btn-outline-primary,
+.btn-outline-secondary,
 .wujia-btn-secondary {
-    background-color: transparent !important;
-    border: 1px solid var(--wujia-primary) !important;
-    color: var(--wujia-primary) !important;
+    background-color: #FFFFFF !important;
+    border: 1px solid var(--wujia-border) !important;
+    color: var(--wujia-text-primary) !important;
+    min-height: var(--wujia-btn-height-secondary);
 }
+.btn-secondary:hover,
 .btn-outline-primary:hover,
+.btn-outline-secondary:hover,
 .wujia-btn-secondary:hover {
-    background-color: var(--wujia-primary-soft) !important;
-    color: var(--wujia-primary-dark) !important;
+    background-color: var(--wujia-bg-page) !important;
+    border-color: var(--wujia-border) !important;
+    color: var(--wujia-text-primary) !important;
+}
+
+/* Semantic buttons: keep Bootstrap colors, force h=42 for height parity */
+.btn-success, .btn-danger, .btn-warning, .btn-info,
+.btn-outline-success, .btn-outline-danger, .btn-outline-warning, .btn-outline-info {
+    min-height: var(--wujia-btn-height);
 }
 
 /* ---------- UI-13: Soft status badges ---------- */
