@@ -258,3 +258,42 @@ a:hover { color: var(--wujia-primary-dark); }
 .pace .pace-progress {
     background: var(--wujia-primary) !important;
 }
+
+/* ---------- UI-08 Page Title (Sprint 9.10, 2026-05-25) ----------
+   BA "5. Issue List" UI-08 cột H: page title đổi sang #111827, 24px, weight 700.
+   Override Vuexy `.content-header-title` (currently #636363 from
+   components.css:71 at specificity 0,1,4) qua !important — đơn cử selector
+   thay vì match Vuexy chain dài.
+   Apply 3 selector unified:
+     1. `.content-header-title` — pattern chuẩn 29 portal page (<h2 class=...>).
+     2. `.wujia-page-title` — escape hatch cho trang divergent (vd
+        change_password_page.xml h1 nằm trong card-body, không qua
+        content-header block).
+     3. `h1.article-title` — knowledge article detail (was cyan primary,
+        unify với portal theo quyết định 2026-05-25). */
+.content-header-title,
+.wujia-page-title,
+h1.article-title {
+    color: var(--wujia-page-title-color) !important;
+    font-size: var(--wujia-page-title-size) !important;
+    font-weight: var(--wujia-page-title-weight) !important;
+}
+
+/* UI-08 follow-up (user feedback 2026-05-25): subtitle text canh giữa title.
+   Pattern hiện tại `<h2 class="...float-left">` + `<p>` sibling khiến subtitle
+   nằm baseline-align với title — title 24px / subtitle 15px → trông tụt xuống.
+   Fix: bật flex + align-items center trên parent .content-header-left, vô
+   hiệu float-left của title. flex-wrap giữ responsive (stack ở mobile). */
+.content-header-left {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 14px;
+}
+.content-header-left > .content-header-title {
+    float: none !important;
+}
+.content-header-left > .content-header-title,
+.content-header-left > p {
+    margin-bottom: 0 !important;
+}

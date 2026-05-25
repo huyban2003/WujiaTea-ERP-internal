@@ -88,6 +88,17 @@
     --wujia-font-size-h2:   24px;
     --wujia-font-size-card-title: 20px;  /* UI-10 BA range 20–22, low end */
 
+    /* ---------- Page title (UI-08, Sprint 9.10, 2026-05-25) ----------
+       BA "5. Issue List" UI-08 cột H verbatim:
+         "Đề xuất đổi thành màu #111827 hoặc #0F172A
+          font size khoảng 24px, weight 700"
+       User chose #111827 (Slate-900). Tách token riêng (không reuse
+       --wujia-text-primary #1F2933) vì BA muốn title đậm hơn body
+       text để nổi rõ. */
+    --wujia-page-title-color:  #111827;
+    --wujia-page-title-size:   24px;
+    --wujia-page-title-weight: 700;
+
     /* ---------- Sprint 9.6: sidebar transition ---------- */
     --wujia-sidebar-transition: transform 0.25s ease-in-out;
 

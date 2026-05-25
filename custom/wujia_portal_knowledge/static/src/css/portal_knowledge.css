@@ -7,7 +7,9 @@
 .knowledge-cat-list .list-group-item.active .badge { background: rgba(255,255,255,0.3) !important; color: #fff !important; }
 
 .knowledge-detail-cover { height: 320px; object-fit: cover; }
-.article-title { font-size: 1.8rem; font-weight: 700; color: var(--wujia-primary); margin-bottom: 0.5rem; }
+/* UI-08 (Sprint 9.10, 2026-05-25): font-size + weight + color governed by
+   _wujia_theme.css UI-08 rule (24px / 700 / #111827). Keep margin-bottom only. */
+.article-title { margin-bottom: 0.5rem; }
 .article-content { font-size: 1rem; line-height: 1.7; color: var(--wujia-text-primary); }
 .article-content img { max-width: 100%; height: auto; border-radius: 6px; margin: 1rem 0; }
 .article-content h2, .article-content h3 { color: var(--wujia-primary); margin-top: 1.5rem; }
