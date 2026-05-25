@@ -176,3 +176,39 @@ h2, .wujia-h2 { font-size: var(--wujia-font-size-h2) !important; font-weight: 60
     .wujia-two-pane { flex-direction: column !important; }
     .wujia-two-pane > * { width: 100% !important; max-width: 100% !important; }
 }
+
+/* ============================================================================
+   Sprint 9.6 (2026-05-25): Responsive auto-scale utility classes
+   ---------------------------------------------------------------------------
+   3 utility chung để template KHÔNG phải tune `col-md-X col-lg-Y` riêng từng
+   form. V14 không có pattern này — build mới cho v19. Combined với root
+   font-size scaling trong _variables.css (14→15→16px theo viewport), template
+   dùng rem + utility class này → tự scale free.
+   ============================================================================ */
+
+/* Container responsive: padding-inline scales fluidly between 12px and 32px
+   using clamp() — no media queries needed. max-width 1400px caps on desktop. */
+.wujia-container {
+    width: 100%;
+    padding-inline: clamp(12px, 3vw, 32px);
+    margin-inline: auto;
+    max-width: 1400px;
+}
+
+/* Grid responsive: auto-fit columns, min 280px, gap scales 12-24px.
+   Replaces verbose `col-12 col-md-6 col-lg-4` patterns. */
+.wujia-grid-responsive {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(280px, 100%), 1fr));
+    gap: clamp(12px, 2vw, 24px);
+}
+
+/* Stack on mobile, optionally row at >=md. Add .wujia-row-md to flip to row. */
+.wujia-stack-mobile {
+    display: flex;
+    flex-direction: column;
+    gap: clamp(8px, 1.5vw, 16px);
+}
+@media (min-width: 768px) {
+    .wujia-stack-mobile.wujia-row-md { flex-direction: row; }
+}

@@ -32,15 +32,14 @@ html, body {
 
 .text-muted { color: var(--wujia-text-muted) !important; }
 
-/* ---------- Top navbar (UI-08) ---------- */
+/* ---------- Top navbar (UI-08) — Sprint 9.6 v4 (2026-05-25): match V14 exact.
+   V14 (co_portal_base/views/layouts.xml:32) uses ONLY inline
+   `style="background-color: #1f4180;"` + standard Vuexy classes. No custom
+   height/padding/flex override. Vuexy default `.header-navbar` controls all
+   sizing — items naturally centered. We just swap brand color. ---------- */
 .wujia-navbar {
     background-color: var(--wujia-primary) !important;
-    min-height: var(--wujia-header-height);
-    padding-left: var(--wujia-header-padding);
-    padding-right: var(--wujia-header-padding);
 }
-.wujia-navbar .navbar-wrapper,
-.wujia-navbar .navbar-container { min-height: var(--wujia-header-height); }
 
 /* ---------- Sidebar (UI-03/04/06) ----------
    Vuexy's PerfectScrollbar JS attaches to .main-menu-content but doesn't
@@ -64,8 +63,19 @@ html, body {
     height: auto !important;
     overflow: visible !important;
 }
-/* Tame Bootstrap `mb-5` (3rem) on the logo wrapper — too much air. */
-.main-menu .navbar-header.mb-5 { margin-bottom: 1rem !important; }
+/* Sprint 9.6 v4 (2026-05-25, match V14): V14 leaves Bootstrap `mb-5` (3rem)
+   untouched on navbar-header. V14 then injects a `.sidebar-header` block
+   BETWEEN logo and shadow-bottom — that block provides natural spacing
+   (padding:20px) so menu doesn't feel cramped. So we REVERT the override
+   and let mb-5 + sidebar-header give the breathing room V14 has. */
+/* (no .navbar-header.mb-5 override — Vuexy/Bootstrap default 3rem applies) */
+
+/* ---------- Sidebar spacer (Sprint 9.6 v5, 2026-05-25) ----------
+   BA UI-01/02 KHÔNG có user info trong sidebar trái. Chừa khoảng trống
+   giữa logo và menu navigation bằng spacer chiều cao cố định. */
+.main-menu .sidebar-header-spacer {
+    height: 32px;
+}
 
 /* Subtle scrollbar to match the soft Wujia palette */
 .main-menu::-webkit-scrollbar { width: 6px; }

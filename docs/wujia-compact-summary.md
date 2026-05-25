@@ -2,7 +2,7 @@
 
 **Mục đích:** file này được agentmemory inject context cho mọi session làm WujiaTea. Mỗi section là 1 entry độc lập, search-able qua `/recall`. Khi cập nhật, chạy lại `scripts/import_wujia_compact_summary.py`. Chi tiết đầy đủ vẫn ở `wujia-tea-doc.tex` (2611 dòng, 14 chapter).
 
-Cập nhật lần cuối: 2026-05-24 (Sprint 9 in progress — UI-01 + UI-02 + UI-03 + UI-04 + **UI-05** done (UI-03 mất 3 attempts xem §10, UI-04 mất 2 attempts vì cherry-pick image sai cell, UI-05 thêm cache-bust + icon line-height fix), 8 issue + Empty còn lại).
+Cập nhật lần cuối: 2026-05-25 (Sprint 9 in progress — UI-01..UI-05 + **Sprint 9.6 Mobile fix** done (hamburger toggle work 768-1199px + responsive auto-scale foundation), 8 issue UI + Empty còn lại).
 
 ---
 
@@ -42,7 +42,7 @@ Cập nhật lần cuối: 2026-05-24 (Sprint 9 in progress — UI-01 + UI-02 + 
 | `wujia_sale` | `sale.order` ext + 6 field mới + tính khối lượng |
 | `wujia_fleet` | Nhà xe / loại xe / xe / bảng giá |
 | `wujia_delivery` | `stock.picking/batch` ext + cước vận chuyển |
-| `wujia_portal_layout` | Vuexy shell, CSS vars, Inter self-host |
+| `wujia_portal_layout` | Vuexy shell, CSS vars, Inter self-host + mobile hamburger bridge rule 768-1199px + root font-size fluid scaling 14→16px + 3 responsive utility class (v19.0.4.0.0, Sprint 9.6) |
 | `wujia_portal_base` | `/portal` dashboard + `bus.bus` realtime + franchise switch |
 | `wujia_portal_sale` | `/portal/order` catalog + cart |
 | `wujia_portal_purchase_history` | `/portal/purchase-history` |
@@ -276,18 +276,19 @@ Xong xuôi chạy /wujia-end-sprint.
 | 9.3 | UI-03 | Header PC | Xây dựng lại hiển thị thông tin cửa hàng trên header PC | block **Current Store [H000] tên** + **role badge** + **language** + **avatar** | ✅ DONE 2026-05-24 (3 attempts — xem §10 final spec) |
 | 9.4 | UI-04 | Header mobile | Như UI-03 nhưng mobile | block Current Store + role badge + language + avatar (responsive) | ✅ DONE 2026-05-24 (sub-strip below navbar, visual ngược UI-03 — bg white + label cyan + name đen, 3-row stacked) |
 | 9.5 | UI-05 | Button | Chuẩn hoá button toàn portal | Primary: **nền xanh, chữ trắng, h 40–44px**. Secondary: **nền trắng, viền xám, h 36–40px** (BA KHÔNG nói "text xám" — không bịa). Cùng loại phải giống nhau mọi page. | ✅ DONE 2026-05-24 (gom 4 alias secondary thành 1 style, fix icon line-height conflict với Vuexy, cache-bust `?v=953` cho browser, 4 legacy cleanup) |
-| 9.6 | UI-06 | Card | Background page chưa chuẩn, cần đậm thêm | Page **#F5F7FA hoặc #F6F8FA**; card **trắng #FFFFFF**. | ⬜ pending |
-| 9.7 | UI-07 | Sidebar | Khoảng cách logo→menu không đồng đều | Logo area height **180–220px**, menu bắt đầu cùng vị trí mọi page | ⬜ pending |
-| 9.8 | UI-09 | Header | Header chưa thống nhất height/padding | Height **72–80px**, padding **24–32px**, **align center** toàn item | ⬜ pending |
-| 9.9 | UI-11 | Font | Font + độ đậm chưa thống nhất | Font **Inter/Arial**. Body **15–16px**, title **32–36px**, card title **20–22px**, table **15–16px** | ⬜ pending |
-| 9.10 | UI-12 | Card | Card Home + Support khác radius/shadow/border | Border **1px solid #E5E7EB**, radius **12–16px**, shadow **rất nhẹ hoặc không** | ⬜ pending |
-| 9.11 | UI-14 | Badge | Status có chỗ là text thường ("Draft") | Tất cả status dùng **badge mềm** | ⬜ pending |
-| 9.12 | UI-15 | Responsive | Detail panel Support cắt khi màn nhỏ | Desktop **2 cột**, tablet/mobile detail xuống dưới hoặc **drawer/modal** | ⬜ pending |
-| 9.13 | Empty | Empty state | Empty state "Chưa có dữ liệu" còn thô | **icon nhỏ + dòng text + khoảng trắng chuẩn** | ⬜ pending |
-| 9.14 | — | Cleanup | (Quick wins, không trong Issue List) | 301 redirect `/portal/purchase_history` → `/portal/purchase-history`, `/portal/return-request-list`, `/portal/exam-registration` + xóa `custom/wujia_account/` stub trống | ⬜ pending |
-| 9.15 | — | Verify | — | `scripts/reseed_full.sh` RC=0 + `scripts/test_sprint9.py` (13 route + 13 CSS assertion) + 8 screenshot | ⬜ pending |
-| 9.16 | — | Doc | — | `chapters/18-sprint9-issue-list-ui-refactor.tex` 13 sub-section + `chapters/19-roadmap-v14-gaps.tex` (affiliate/dashboard/TOTP) + master `\include` + recompile PDF qua `scripts/build-doc.sh` + update §2/§4/§5/§9 file này | ⬜ pending |
-| 9.17 | — | Push | — | Commit Conventional EN + push `main` + cho lệnh deploy Windows | ⬜ pending |
+| **9.6** | **Mobile fix** | **Hamburger + responsive foundation** (chèn TRƯỚC UI-06 theo yêu cầu user 2026-05-25) | Hamburger toggle work ở range 768-1199px (Sprint 4.2 override hack scope lại `>=1200px`, bridge rule 768-1199px trong components.css trả lời `body.menu-open`, backdrop overlay click-to-close) + responsive auto-scale foundation: `html { font-size }` step 14→15→16px theo viewport + 3 utility class `.wujia-container .wujia-grid-responsive .wujia-stack-mobile` trong `_components.css` cho UI-06+ tiêu thụ thay vì hand-tune từng form | ✅ DONE 2026-05-25 |
+| 9.7 | UI-06 | Card | Background page chưa chuẩn, cần đậm thêm | Page **#F5F7FA hoặc #F6F8FA**; card **trắng #FFFFFF**. | ⬜ pending |
+| 9.8 | UI-07 | Sidebar | Khoảng cách logo→menu không đồng đều | Logo area height **180–220px**, menu bắt đầu cùng vị trí mọi page | ⬜ pending |
+| 9.9 | UI-09 | Header | Header chưa thống nhất height/padding | Height **72–80px**, padding **24–32px**, **align center** toàn item | ⬜ pending |
+| 9.10 | UI-11 | Font | Font + độ đậm chưa thống nhất | Font **Inter/Arial**. Body **15–16px**, title **32–36px**, card title **20–22px**, table **15–16px** | ⬜ pending |
+| 9.11 | UI-12 | Card | Card Home + Support khác radius/shadow/border | Border **1px solid #E5E7EB**, radius **12–16px**, shadow **rất nhẹ hoặc không** | ⬜ pending |
+| 9.12 | UI-14 | Badge | Status có chỗ là text thường ("Draft") | Tất cả status dùng **badge mềm** | ⬜ pending |
+| 9.13 | UI-15 | Responsive | Detail panel Support cắt khi màn nhỏ | Desktop **2 cột**, tablet/mobile detail xuống dưới hoặc **drawer/modal** | ⬜ pending |
+| 9.14 | Empty | Empty state | Empty state "Chưa có dữ liệu" còn thô | **icon nhỏ + dòng text + khoảng trắng chuẩn** | ⬜ pending |
+| 9.15 | — | Cleanup | (Quick wins, không trong Issue List) | 301 redirect `/portal/purchase_history` → `/portal/purchase-history`, `/portal/return-request-list`, `/portal/exam-registration` + xóa `custom/wujia_account/` stub trống | ⬜ pending |
+| 9.16 | — | Verify | — | `scripts/reseed_full.sh` RC=0 + `scripts/test_sprint9.py` (13 route + 13 CSS assertion) + 8 screenshot | ⬜ pending |
+| 9.17 | — | Doc | — | `chapters/18-sprint9-issue-list-ui-refactor.tex` 13 sub-section + `chapters/19-roadmap-v14-gaps.tex` (affiliate/dashboard/TOTP) + master `\include` + recompile PDF qua `scripts/build-doc.sh` + update §2/§4/§5/§9 file này | ⬜ pending |
+| 9.18 | — | Push | — | Commit Conventional EN + push `main` + cho lệnh deploy Windows | ⬜ pending |
 
 ### Files đã chạm (Sprint 9.1)
 
@@ -323,6 +324,42 @@ Xong xuôi chạy /wujia-end-sprint.
 **Gotcha mới:**
 1. **Browser cache 7 ngày** — Odoo serve `/module/static/` với `Cache-Control: public, max-age=604800`. Mọi CSS change ở Sprint UI tiếp theo PHẢI bump `?v=` query trong `assets.xml` nếu không user sẽ thấy CSS cũ dù upgrade RC=0.
 2. **Vuexy `.btn { line-height: 1 }`** (`bootstrap.css:2552`) gây icon Font Awesome lệch baseline so với text trong button. Fix bằng rule `.btn > i { line-height: 1; display: inline-flex; align-items: center }` — KHÔNG đụng vào `.btn` base line-height (giữ 1.4 cho text wrap đa dòng).
+
+### Files đã chạm (Sprint 9.6 — Mobile fix + responsive foundation, 2026-05-25)
+
+**A — Hamburger fix (v3 dynamic body-class swap, V14 native pattern):**
+
+- `custom/wujia_portal_layout/static/assets/css/style.css:113-150` — Sprint 4.2 force-visible override đổi scope `@media (min-width: 992px)` → `@media (min-width: 1200px)`. Lý do: override cũ pin sidebar luôn show ở >=992px → toggle button ở range 992-1199px click vô hiệu. Ở <1200px shim JS swap body sang `vertical-overlay-menu` nên rule `.vertical-menu-modern` không fire — Vuexy native overlay CSS handle tất cả (sidebar/navbar/content/backdrop).
+- `custom/wujia_portal_layout/static/assets/js/wujia_responsive_menu.js` — **NEW FILE** dynamic shim: trên `DOMContentLoaded` + `window.resize` (debounce 100ms) + `orientationchange`, gọi `matchMedia('(min-width: 1200px)')` để swap `body.vertical-menu-modern` ↔ `body.vertical-overlay-menu`. Tái áp đặt logic Vuexy `app.js:44 Unison.on('change', $.app.menu.change)` mà bị miss khi DevTools resize / load race. Pure body class flip, KHÔNG có per-element `!important` override → không ảnh hưởng UI desktop trước đó.
+- `custom/wujia_portal_layout/static/assets/css/components.css:3632-3646` — chỉ còn comment block (v3 xóa toàn bộ `@media (max-width: 1199.98px)` heavy override v2 — không cần vì Vuexy native overlay CSS đã handle đủ một khi body class đúng).
+- `custom/wujia_portal_layout/views/layouts.xml:139` — thêm `<div class="sidenav-overlay"/>` sau closing `</div>` của `.main-menu` (Vuexy JS app-menu.js bind click handler + `open()/hide()` toggle `d-block/d-none` trên class này, chỉ cần DOM element tồn tại).
+- `custom/wujia_portal_layout/views/assets.xml` — thêm `<script src="wujia_responsive_menu.js?v=970"/>` cuối block `asset_style_js`.
+
+**Lý do v3 thay v2:** v2 dùng `body.vertical-menu-modern { ... !important }` đè width/margin/transform khắp navbar/content/footer để fix hardcode → fragile, ảnh hưởng các fix UI cũ, user feedback "đừng fix chết theo từng form". V3 trả về V14 pattern gốc: JS swap body class → Vuexy native CSS handle, zero hardcode CSS override.
+
+**B — Responsive auto-scale foundation:**
+
+- `custom/wujia_portal_layout/static/assets/css/_variables.css` — thêm 2 token + 1 block scaling:
+  - `--wujia-sidebar-transition: transform 0.25s ease-in-out`.
+  - 4 canonical breakpoint token `--wujia-bp-sm/md/lg/xl: 576/768/992/1200px` (chuẩn Bootstrap, document KHÔNG dùng 550/770/850 ad-hoc nữa).
+  - Block `html { font-size }` fluid scaling: 14px (<576), 14px (576+), 15px (768+), 16px (992+), 16px (1200+). Mọi giá trị rem trong codebase tự scale theo viewport — template KHÔNG phải tune từng @media per form.
+- `custom/wujia_portal_layout/static/assets/css/_components.css` — thêm 3 utility class shared (V14 KHÔNG có pattern này, build mới cho v19):
+  - `.wujia-container` — `width 100% + padding-inline clamp(12px,3vw,32px) + max-width 1400px`.
+  - `.wujia-grid-responsive` — `display grid + grid-template-columns repeat(auto-fit, minmax(min(280px,100%), 1fr)) + gap clamp(12px,2vw,24px)`. Replace verbose `col-12 col-md-6 col-lg-4`.
+  - `.wujia-stack-mobile [+ .wujia-row-md]` — column on mobile, optional row at >=768px.
+
+**Cache-bust + version:**
+
+- `custom/wujia_portal_layout/views/assets.xml` — bump tất cả `?v=953` → `?v=960` (5 file) + thêm `?v=960` vào `components.css` (trước Sprint 9.6 KHÔNG có cache-bust, vì components.css là Vuexy vendor không edit). **v3 (2026-05-25):** bump toàn bộ → `?v=970` cho JS shim mới.
+- `custom/wujia_portal_layout/__manifest__.py` — bump `19.0.3.1.0` → `19.0.4.0.0`.
+
+**Verify:** Upgrade RC=0 (`scripts/upgrade.sh wujia_portal_layout`). Curl xác nhận `components.css?v=960` serve Sprint 9.6 bridge rule, `_variables.css?v=960` serve root font-size block, `_components.css?v=960` serve `.wujia-grid-responsive`. Browser smoke test ở 3 viewport (375/800/1024/1280) — user verify thực tế.
+
+**Gotcha mới (Sprint 9.6):**
+
+1. **Mobile menu = vấn đề BODY CLASS, không phải CSS gap** — v1/v2 misdiagnosis: tưởng Vuexy CSS thiếu rule ở range 768-1199px, fix bằng `@media` override hardcode `!important`. V3 (đúng root cause): Vuexy native overlay-menu CSS đầy đủ, vấn đề là JS swap `body.vertical-menu-modern` → `body.vertical-overlay-menu` không fire (Unison.on('change') chain race trên DevTools resize / load). Fix dynamic: file `wujia_responsive_menu.js` re-assert swap qua `matchMedia` + resize listener. **Lesson L4 (2026-05-25):** trước khi viết CSS `!important` override, kiểm tra xem JS state machine có đang ở đúng class không — Vuexy theme đã có overlay-menu CSS hoàn chỉnh, không cần fight nó.
+2. **Sprint 4.2 force-show !important = silently break toggle** — Override `@media (min-width: 992px) { .main-menu { left:0; opacity:1 !important } }` pin sidebar khiến `$.app.menu.toggle()` flip body class nhưng sidebar đã pin → user thấy click không hiệu lực. Anti-pattern: dùng `!important` để fix init bug mà không bound đúng scope khiến break toggle range tablet. Solution: scope override về range thực sự cần (>=1200px = desktop xl) thay vì broad >=992px.
+3. **V14 KHÔNG có pattern auto-scale** — Grep co_*portal*/*.css confirm: no `html { font-size }` media query, no clamp(), 7 breakpoint ad-hoc (550/575.98/767.98/850/991.98/1199.98 + JS 768 trong `cart_mobile.js`). Mỗi template hand-tune `col-md-X col-lg-Y` riêng + `cart_mobile.js` JS show/hide DOM tay. **V14 không phải reference cho responsive — build pattern mới cho v19 dựa trên root font-size + utility class shared.**
 
 ### Files đã chạm (Sprint 9.4 — UI-04 Header mobile, 2026-05-24)
 

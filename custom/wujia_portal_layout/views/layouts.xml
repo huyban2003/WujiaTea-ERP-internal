@@ -45,7 +45,7 @@
                             </div>
                             <ul class="nav navbar-nav float-right">
                                 <li class="dropdown dropdown-language nav-item">
-                                    <a class="dropdown-toggle nav-link" id="dropdown-flag" href="#"
+                                    <a class="dropdown-toggle nav-link text-white" id="dropdown-flag" href="#"
                                        data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                                         <t t-if="lang == 'vi_VN'">
                                             <i class="flag-icon flag-icon-vn"/>
@@ -70,6 +70,11 @@
                                 <li class="dropdown dropdown-user nav-item">
                                     <a class="dropdown-toggle nav-link dropdown-user-link" href="#"
                                        data-toggle="dropdown">
+                                        <div class="user-nav d-sm-flex d-none">
+                                            <span class="user-name text-bold-600 text-white"
+                                                  style="margin-bottom: 0px;"
+                                                  t-out="request.env.user.name"/>
+                                        </div>
                                         <span>
                                             <img class="round" t-att-src="'/web/image/res.users/'+ str(request.env.user.id) +'/avatar_128'"
                                                  alt="avatar" height="40" width="40" style="border: 3px solid transparent;
@@ -112,12 +117,17 @@
                                 <!-- <div class="brand-logo"/> -->
                                 <img t-attf-src="data:image/png;base64,{{env.company.logo_web}}" alt="" width="200" height="100" style="object-fit: contain"/>
 
-                                
+
 
                             </a>
                         </li>
                     </ul>
                 </div>
+
+                <!-- Sprint 9.6 v5 (2026-05-25): BA UI-01/02 KHÔNG có user info
+                     trong sidebar trái. Chừa khoảng trống bằng spacer thay vì
+                     user-pic/user-info block. -->
+                <div class="sidebar-header-spacer"/>
 
                 <div class="shadow-bottom"/>
                 <div class="main-menu-content " >
@@ -132,8 +142,13 @@
                         <t t-out="0"/>
                     </ul>
                 </div>
-                
+
             </div>
+            <!-- Sprint 9.6: backdrop overlay for mobile/tablet sidebar (<1200px).
+                 Vuexy app-menu.js binds click handler to .sidenav-overlay that
+                 calls menu.hide(), so DOM element existence is sufficient.
+                 CSS in components.css controls show/hide via body.menu-open. -->
+            <div class="sidenav-overlay"/>
         </template>
 
 

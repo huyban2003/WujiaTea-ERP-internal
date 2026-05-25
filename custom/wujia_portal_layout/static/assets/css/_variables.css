@@ -39,8 +39,11 @@
     /* ---------- Layout dimensions (UI-06/08/11/12) ---------- */
     --wujia-sidebar-width:  300px;
     --wujia-sidebar-logo-h: 200px;
-    --wujia-header-height:  76px;
-    --wujia-header-padding: 28px;
+    /* Sprint 9.6 v4 (2026-05-25): bỏ --wujia-header-height/padding override —
+       V14 dùng Vuexy default cho navbar, ta cũng vậy. Giữ token chỉ để các
+       module legacy (UI-04 mobile strip dùng calc margin-top) không break. */
+    --wujia-header-height:  72px;   /* Vuexy default floating-nav height */
+    --wujia-header-padding: 22px;
     --wujia-card-radius:    14px;   /* UI-11 bump 10 → 14 */
     --wujia-card-padding:   24px;
     --wujia-card-shadow:    0 2px 6px rgba(15, 23, 42, 0.04);
@@ -84,4 +87,28 @@
     --wujia-font-size-h1:   32px;   /* UI-10 BA range 32–36, low end */
     --wujia-font-size-h2:   24px;
     --wujia-font-size-card-title: 20px;  /* UI-10 BA range 20–22, low end */
+
+    /* ---------- Sprint 9.6: sidebar transition ---------- */
+    --wujia-sidebar-transition: transform 0.25s ease-in-out;
+
+    /* ---------- Sprint 9.6: canonical breakpoints (Bootstrap-aligned) ----------
+       4 breakpoint chuẩn — KHÔNG dùng 550/770/850 ad-hoc nữa. */
+    --wujia-bp-sm: 576px;
+    --wujia-bp-md: 768px;
+    --wujia-bp-lg: 992px;
+    --wujia-bp-xl: 1200px;
 }
+
+/* ============================================================================
+   Sprint 9.6 (2026-05-25): Root font-size fluid scaling
+   ---------------------------------------------------------------------------
+   V14 không có pattern auto-scale → build mới cho v19. Bumping html font-size
+   per viewport step làm MỌI giá trị rem (font-size, padding, margin, gap) tự
+   scale theo. Template chỉ cần dùng rem — không phải tune từng @media per form.
+   Tránh chỉnh font-size global Vuexy (1rem = 14px Vuexy default), step nhỏ.
+   ============================================================================ */
+html { font-size: 14px; }
+@media (min-width: 576px)  { html { font-size: 14px; } }
+@media (min-width: 768px)  { html { font-size: 15px; } }
+@media (min-width: 992px)  { html { font-size: 16px; } }
+@media (min-width: 1200px) { html { font-size: 16px; } }

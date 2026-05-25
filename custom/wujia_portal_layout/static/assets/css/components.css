@@ -3628,3 +3628,17 @@ tr.group {
             justify-content : center;
   }
 }
+
+/* ============================================================================
+   Sprint 9.6 (2026-05-25, v3 — dynamic body-class swap, V14 native pattern):
+   ---------------------------------------------------------------------------
+   V19 Vuexy JS init wires Unison.on("change", $.app.menu.change) on $(window).load,
+   which is supposed to swap body.vertical-menu-modern ↔ body.vertical-overlay-menu
+   via toOverlayMenu() at <1200px. In practice the swap doesn't fire reliably
+   (DevTools responsive resize, late-load race). Fixed in JS by
+   wujia_responsive_menu.js — pure body-class swap, no per-form CSS override.
+   Once body.vertical-overlay-menu is active, Vuexy's native overlay CSS handles
+   sidebar (width:260, left:-260, transform on menu-open), navbar (margin-left:0),
+   content (margin-left:0), and .sidenav-overlay backdrop d-block/d-none toggle.
+   No !important warfare, no per-element width overrides.
+   ============================================================================ */
