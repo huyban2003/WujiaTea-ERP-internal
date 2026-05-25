@@ -3,8 +3,14 @@
    BEFORE per-page module CSS. Uses var(--wujia-*) so a single edit in
    _variables.css recolors the whole portal. */
 
-/* ---------- Body / typography ---------- */
-html, body {
+/* ---------- Body / typography ----------
+   UI-06 (Sprint 9.7, 2026-05-25): selector "html body" (no comma) has
+   specificity 0,0,2 — matches Vuexy components.css:11 "html body" which
+   was winning the cascade with #f9f9fb default. Same specificity + loaded
+   later = our token wins. Previous selector "html, body" was 0,0,1 each
+   and lost to Vuexy. font-family already had !important so it was fine,
+   but background-color silently fell back to #f9f9fb instead of our token. */
+html body {
     font-family: var(--wujia-font-family) !important;
     background-color: var(--wujia-bg-page);
     color: var(--wujia-text-primary);
