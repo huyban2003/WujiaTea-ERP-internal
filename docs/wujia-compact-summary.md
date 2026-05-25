@@ -2,7 +2,7 @@
 
 **Mục đích:** file này được agentmemory inject context cho mọi session làm WujiaTea. Mỗi section là 1 entry độc lập, search-able qua `/recall`. Khi cập nhật, chạy lại `scripts/import_wujia_compact_summary.py`. Chi tiết đầy đủ vẫn ở `wujia-tea-doc.tex` (2611 dòng, 14 chapter).
 
-Cập nhật lần cuối: 2026-05-25 (Sprint 9 in progress — UI-01..UI-06 + **Sprint 9.6 Mobile fix** done; Sprint 9.7 UI-06 page bg `#E8ECEF` + UI-05 home button follow-up shipped, 7 issue UI + Empty còn lại).
+Cập nhật lần cuối: 2026-05-25 (Sprint 9 in progress — UI-01..UI-09 + Sprint 9.6 Mobile fix done; Sprint 9.8 UI-07 sidebar logo 200px + Sprint 9.9 UI-09 header 72px shipped, 5 issue UI + Empty còn lại).
 
 ---
 
@@ -278,8 +278,8 @@ Xong xuôi chạy /wujia-end-sprint.
 | 9.5 | UI-05 | Button | Chuẩn hoá button toàn portal | Primary: **nền xanh, chữ trắng, h 40–44px**. Secondary: **nền trắng, viền xám, h 36–40px** (BA KHÔNG nói "text xám" — không bịa). Cùng loại phải giống nhau mọi page. | ✅ DONE 2026-05-24 (gom 4 alias secondary thành 1 style, fix icon line-height conflict với Vuexy, cache-bust `?v=953` cho browser, 4 legacy cleanup) |
 | **9.6** | **Mobile fix** | **Hamburger + responsive foundation** (chèn TRƯỚC UI-06 theo yêu cầu user 2026-05-25) | Hamburger toggle work ở range 768-1199px (Sprint 4.2 override hack scope lại `>=1200px`, bridge rule 768-1199px trong components.css trả lời `body.menu-open`, backdrop overlay click-to-close) + responsive auto-scale foundation: `html { font-size }` step 14→15→16px theo viewport + 3 utility class `.wujia-container .wujia-grid-responsive .wujia-stack-mobile` trong `_components.css` cho UI-06+ tiêu thụ thay vì hand-tune từng form | ✅ DONE 2026-05-25 |
 | 9.7 | UI-06 | Card | Background page chưa chuẩn, cần đậm thêm | Page **#F5F7FA hoặc #F6F8FA**; card **trắng #FFFFFF**. | ✅ DONE 2026-05-25 (page bg `#E8ECEF` neutral gray L≈92, đậm hơn BA spec để card trắng nổi rõ — anh chọn sau 2 iter; kèm UI-05 follow-up 3 button "Xem tất cả" home page) |
-| 9.8 | UI-07 | Sidebar | Khoảng cách logo→menu không đồng đều | Logo area height **180–220px**, menu bắt đầu cùng vị trí mọi page | ⬜ pending |
-| 9.9 | UI-09 | Header | Header chưa thống nhất height/padding | Height **72–80px**, padding **24–32px**, **align center** toàn item | ⬜ pending |
+| 9.8 | UI-07 | Sidebar | Khoảng cách logo→menu không đồng đều | Logo area height **180–220px**, menu bắt đầu cùng vị trí mọi page | ✅ DONE 2026-05-25 |
+| 9.9 | UI-09 | Header | Header chưa thống nhất height/padding | Height **72–80px**, padding **24–32px**, **align center** toàn item | ✅ DONE 2026-05-25 |
 | 9.10 | UI-11 | Font | Font + độ đậm chưa thống nhất | Font **Inter/Arial**. Body **15–16px**, title **32–36px**, card title **20–22px**, table **15–16px** | ⬜ pending |
 | 9.11 | UI-12 | Card | Card Home + Support khác radius/shadow/border | Border **1px solid #E5E7EB**, radius **12–16px**, shadow **rất nhẹ hoặc không** | ⬜ pending |
 | 9.12 | UI-14 | Badge | Status có chỗ là text thường ("Draft") | Tất cả status dùng **badge mềm** | ⬜ pending |
@@ -406,6 +406,21 @@ Plan file: `/home/huyban/.claude/plans/sprint-9-4-magical-noodle.md`.
 1. **Token định nghĩa ≠ token render** — Sprint 8 đã add `--wujia-bg-page: #F5F7FA` token với selector `html, body` apply, tưởng DONE. Render thực tế hiện `#f9f9fb` (Vuexy default) trong 4+ tháng vì CSS specificity bug âm thầm. BA Hùng list lại UI-06 mới phát hiện. **Lesson:** mọi token apply qua selector multi-element (`html, body`, `body, html`) PHẢI check specificity vs Vuexy single-element selector (`html body`). Khi audit token, KHÔNG chỉ grep `var(--wujia-*)` mà còn phải computed-value check trong browser DevTools.
 2. **Render `#f9f9fb` quá nhạt cho card-on-white** — V14 dùng `#f9f9fb` nhưng v14 KHÔNG có card-heavy layout nhiều như v19 Sprint 5+. V14 layout đặc trưng table + list inline trên body, ít card border-radius độc lập. V19 sau Sprint 5 inject card khắp portal → BG quá nhạt mất contrast. **Decision:** lệch v14 + lệch BA spec là OK khi UX yêu cầu rõ. Document rationale trong commit + §9.
 3. **`btn-sm` không giảm chiều cao sau Sprint 9.5** — Bootstrap `.btn-sm` set `padding-y: 0.25rem + font-size: 0.875rem` nhưng KHÔNG set height. Sprint 9.5 `min-height: var(--wujia-btn-height)` (42) enforce → button vẫn h=42 dù có `btn-sm`. `btn-sm` chỉ giảm padding-x → chiều rộng gọn. Đây chính xác là điều anh muốn cho "Xem tất cả" (gọn ngang giữ cao chuẩn).
+
+### Files đã chạm (Sprint 9.8 — UI-07 Sidebar logo area height, 2026-05-25)
+
+- `custom/wujia_portal_layout/static/assets/css/_wujia_theme.css` — thêm 2 rule sau `.sidebar-header-spacer` block: `.main-menu .navbar-header { height: var(--wujia-sidebar-logo-h) !important; display: flex !important; align-items: center !important; justify-content: center !important; margin-bottom: 0 !important; }` + `.main-menu .navbar-header img { max-height: calc(var(--wujia-sidebar-logo-h) - 40px) !important; width: auto !important; object-fit: contain !important; }`. Override Bootstrap `mb-5` (3rem) vốn thay đổi theo fluid font-size (42-48px).
+- `custom/wujia_portal_layout/views/assets.xml:83` — bump `?v=1020` → `?v=1040` cho `_wujia_theme.css`.
+- `custom/wujia_portal_layout/__manifest__.py:3` — bump `19.0.5.1.0` → `19.0.5.2.0`.
+
+**Root cause:** Token `--wujia-sidebar-logo-h: 200px` tồn tại từ Sprint 8 nhưng chưa apply vào `.navbar-header`. Bootstrap `mb-5` = `3rem` margin-bottom thay đổi theo viewport (14px base → 42px; 16px base → 48px), làm menu start position lệch theo viewport chứ không phải theo page. Fix: enforce `height: 200px` + `margin-bottom: 0` → logo area = constant 200px mọi viewport, menu luôn bắt đầu tại 232px (200 + 32px spacer). Upgrade RC=0.
+
+### Files đã chạm (Sprint 9.9 — UI-09 Header height + vertical center, 2026-05-25)
+
+- `custom/wujia_portal_layout/static/assets/css/_wujia_theme.css` — thêm 2 rule sau `.wujia-navbar` block: `.header-navbar { height: var(--wujia-header-height) !important; min-height: var(--wujia-header-height) !important; }` + `.header-navbar .navbar-container { height: 100% !important; display: flex !important; align-items: center !important; }`. Token `--wujia-header-height: 72px` (đã có từ Sprint 8, lần này mới apply).
+- `custom/wujia_portal_layout/views/assets.xml:83` — bump `?v=1041` → `?v=1042`.
+
+**Note:** UI-07 và UI-09 ship cùng 1 commit. `_wujia_theme.css` cũng chứa fix logo overflow (UI-07 iter 2): thêm `overflow: hidden` + `max-width: 200px; height: auto` cho `.navbar-header img`.
 
 ### Policy update (2026-05-24)
 

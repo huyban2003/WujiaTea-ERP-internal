@@ -47,6 +47,18 @@ html body {
     background-color: var(--wujia-primary) !important;
 }
 
+/* UI-09 (Sprint 9.9, 2026-05-25): Header height 64–72px + items vertically centered.
+   Scope to .header-navbar (Vuexy class on portal top nav) only. */
+.header-navbar {
+    height: var(--wujia-header-height) !important;      /* 72px */
+    min-height: var(--wujia-header-height) !important;
+}
+.header-navbar .navbar-container {
+    height: 100% !important;
+    display: flex !important;
+    align-items: center !important;
+}
+
 /* ---------- Sidebar (UI-03/04/06) ----------
    Vuexy's PerfectScrollbar JS attaches to .main-menu-content but doesn't
    re-init reliably on Odoo portal route changes. Instead of fighting PS with
@@ -81,6 +93,25 @@ html body {
    giữa logo và menu navigation bằng spacer chiều cao cố định. */
 .main-menu .sidebar-header-spacer {
     height: 32px;
+}
+
+/* UI-07 (Sprint 9.8, 2026-05-25): Enforce constant logo-area height so every
+   page starts the menu at the same vertical position. Overrides Bootstrap mb-5
+   (3rem) which varies with fluid font-size scaling (Sprint 9.6: 14→16px). */
+.main-menu .navbar-header {
+    height: var(--wujia-sidebar-logo-h) !important;  /* 200px */
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    margin-bottom: 0 !important;
+    overflow: hidden !important;
+}
+.main-menu .navbar-header img {
+    max-height: calc(var(--wujia-sidebar-logo-h) - 40px) !important;  /* 160px */
+    max-width: 200px !important;
+    width: auto !important;
+    height: auto !important;
+    object-fit: contain !important;
 }
 
 /* Subtle scrollbar to match the soft Wujia palette */
