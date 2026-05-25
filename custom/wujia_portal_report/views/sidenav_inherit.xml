@@ -6,7 +6,13 @@
               priority="65"
               name="Wujia Sidenav — Báo cáo">
         <xpath expr="//ul[@id='main-menu-navigation']" position="inside">
-            <li class="nav-item" id="nav_item_report">
+            <!-- Only show for owner/manager across ANY accessible franchise.
+                 Staff-only users are silently excluded (clicking would redirect anyway). -->
+            <t t-set="_report_access" t-value="request.env['wujia.franchise.member'].sudo().search_count([
+                ('user_id', '=', request.env.user.id),
+                ('role', 'in', ['owner', 'manager'])
+            ], limit=1)"/>
+            <li t-if="_report_access" class="nav-item" id="nav_item_report">
                 <a href="/portal/reports/orders" class="text-black">
                     <i class="feather icon-bar-chart-2" aria-hidden="true"/>
                     <span class="menu-title">Báo cáo</span>

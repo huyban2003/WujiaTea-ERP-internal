@@ -1,6 +1,6 @@
 {
     'name': 'Wujia Portal — Báo cáo',
-    'version': '19.0.1.0.0',
+    'version': '19.0.1.1.0',
     'category': 'Wujia',
     'summary': 'Báo cáo đặt hàng cho Owner/Manager (BA Phase 1)',
     'description': 'Trang /portal/reports/orders với KPI cards + bar chart 12 tháng + top SP + state distribution. Staff bị block redirect.',

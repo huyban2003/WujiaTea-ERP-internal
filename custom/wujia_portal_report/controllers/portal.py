@@ -49,7 +49,11 @@ class WujiaPortalReport(http.Controller):
             return request.redirect('/portal')
 
         # ---- Role check: Staff KHÔNG được vào (BA Phase 1) ----
-        max_role = get_max_role_in_franchises(franchise_ids)
+        # Check max role across ALL accessible franchises (not just active one).
+        # A user with active franchise = staff_franchise but also manager in
+        # another franchise should still be able to access the report page.
+        all_franchise_ids = request.env.user._get_accessible_franchise_ids()
+        max_role = get_max_role_in_franchises(all_franchise_ids or franchise_ids)
         if max_role not in ('owner', 'manager'):
             return request.redirect('/portal')
 
