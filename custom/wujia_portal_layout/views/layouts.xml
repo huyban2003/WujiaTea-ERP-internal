@@ -15,9 +15,7 @@
                     </title>
                     <link rel="apple-touch-icon" t-attf-href="data:image/png;base64,{{env.company.logo or ''}}"/>
                     <link rel="shortcut icon" type="image/x-icon"
-                          t-attf-href="data:image/png;base64,{{env.company.logo or ''}}"/>
-                    <link href="https://fonts.googleapis.com/css?family=Montserrat:300,400,500,600" rel="stylesheet"/>
-                    <t t-call="wujia_portal_layout.asset_frontend"/>
+                          t-attf-href="data:image/png;base64,{{env.company.logo or ''}}"/>                    <t t-call="wujia_portal_layout.asset_frontend"/>
                     <t t-call-assets="web.assets_frontend" t-js="false" t-css="true"/>
                 </head>
                 <body class="vertical-layout  navbar-floating  vertical-menu-modern footer-static" data-open="click"
@@ -186,9 +184,7 @@
                     </title>
                     <link rel="apple-touch-icon" t-attf-src="data:image/png;base64,{{env.company.logo_web}}"/>
                     <link rel="shortcut icon" type="image/x-icon"
-                          t-attf-src="data:image/png;base64,{{env.company.logo_web}}"/>
-                    <link href="https://fonts.googleapis.com/css?family=Montserrat:300,400,500,600" rel="stylesheet"/>
-                    <t t-call="wujia_portal_layout.asset_frontend"/>
+                          t-attf-src="data:image/png;base64,{{env.company.logo_web}}"/>                    <t t-call="wujia_portal_layout.asset_frontend"/>
                     <t t-call="wujia_portal_layout.asset_css_authentication"/>
                 </head>
                 <body class="vertical-layout vertical-menu-modern 1-column  navbar-floating footer-static bg-full-login  blank-page blank-page"

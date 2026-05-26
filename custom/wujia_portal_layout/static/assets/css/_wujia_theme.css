@@ -297,3 +297,13 @@ h1.article-title {
 .content-header-left > p {
     margin-bottom: 0 !important;
 }
+
+/* UI-09 (2026-05-26): Page subtitle/description — BA #6B7280, 14-15px, weight 400.
+   Targets both the <p> sibling of page title inside content-header-left
+   and any explicit .wujia-page-subtitle class used in templates. */
+.content-header-left > p,
+.wujia-page-subtitle {
+    color: var(--wujia-text-subtitle) !important;
+    font-size: var(--wujia-font-size-subtitle) !important;
+    font-weight: 400 !important;
+}

@@ -265,9 +265,9 @@ Xong xuôi chạy /wujia-end-sprint.
 
 ## §9 wujia-sprint9-issue-list-state
 
-**Sprint 9 = 17 sprint con, 1 issue = 1 sprint con, BA order.** Sheet "5. Issue List" trong `WujiaTea/docs/Wujia_Internal ERP Master Plan.xlsm` là **single source of truth**. Mỗi sprint con BẮT ĐẦU bằng việc đọc lại 2 cột G + H của issue đó từ xlsm — **TUYỆT ĐỐI KHÔNG bịa**, không suy diễn thêm thuộc tính ngoài cột G/H.
+**Sprint 9 = 19 sprint con, 1 issue = 1 sprint con, BA order.** Sheet "5. Issue List" trong `WujiaTea/docs/Wujia_Internal ERP Master Plan.xlsm` là **single source of truth**. Mỗi sprint con BẮT ĐẦU bằng việc đọc lại 2 cột G + H của issue đó từ xlsm — **TUYỆT ĐỐI KHÔNG bịa**, không suy diễn thêm thuộc tính ngoài cột G/H.
 
-### Bảng BA spec exact (paste từ xlsm sheet "5. Issue List" 2026-05-22)
+### Bảng BA spec exact (cập nhật từ xlsm sheet "5. Issue List" 2026-05-26 — BA Hùng đã renumber + thêm issue mới)
 
 | # | ID | Khu vực | Đề xuất điều chỉnh (cột G) / Vấn đề | Kết quả mong muốn (cột H) | Trạng thái |
 |---|---|---|---|---|---|
@@ -276,19 +276,20 @@ Xong xuôi chạy /wujia-end-sprint.
 | 9.3 | UI-03 | Header PC | Xây dựng lại hiển thị thông tin cửa hàng trên header PC | block **Current Store [H000] tên** + **role badge** + **language** + **avatar** | ✅ DONE 2026-05-24 (3 attempts — xem §10 final spec) |
 | 9.4 | UI-04 | Header mobile | Như UI-03 nhưng mobile | block Current Store + role badge + language + avatar (responsive) | ✅ DONE 2026-05-24 (sub-strip below navbar, visual ngược UI-03 — bg white + label cyan + name đen, 3-row stacked) |
 | 9.5 | UI-05 | Button | Chuẩn hoá button toàn portal | Primary: **nền xanh, chữ trắng, h 40–44px**. Secondary: **nền trắng, viền xám, h 36–40px** (BA KHÔNG nói "text xám" — không bịa). Cùng loại phải giống nhau mọi page. | ✅ DONE 2026-05-24 (gom 4 alias secondary thành 1 style, fix icon line-height conflict với Vuexy, cache-bust `?v=953` cho browser, 4 legacy cleanup) |
-| **9.6** | **Mobile fix** | **Hamburger + responsive foundation** (chèn TRƯỚC UI-06 theo yêu cầu user 2026-05-25) | Hamburger toggle work ở range 768-1199px (Sprint 4.2 override hack scope lại `>=1200px`, bridge rule 768-1199px trong components.css trả lời `body.menu-open`, backdrop overlay click-to-close) + responsive auto-scale foundation: `html { font-size }` step 14→15→16px theo viewport + 3 utility class `.wujia-container .wujia-grid-responsive .wujia-stack-mobile` trong `_components.css` cho UI-06+ tiêu thụ thay vì hand-tune từng form | ✅ DONE 2026-05-25 |
-| 9.7 | UI-06 | Card | Background page chưa chuẩn, cần đậm thêm | Page **#F5F7FA hoặc #F6F8FA**; card **trắng #FFFFFF**. | ✅ DONE 2026-05-25 (page bg `#E8ECEF` neutral gray L≈92, đậm hơn BA spec để card trắng nổi rõ — anh chọn sau 2 iter; kèm UI-05 follow-up 3 button "Xem tất cả" home page) |
-| 9.8 | UI-07 | Sidebar | Khoảng cách logo→menu không đồng đều | Logo area height **180–220px**, menu bắt đầu cùng vị trí mọi page | ✅ DONE 2026-05-25 |
-| 9.9 | UI-09 | Header | Header chưa thống nhất height/padding | Height **72–80px**, padding **24–32px**, **align center** toàn item | ✅ DONE 2026-05-25 |
-| 9.10 | UI-11 | Font | Font + độ đậm chưa thống nhất | Font **Inter/Arial**. Body **15–16px**, title **32–36px**, card title **20–22px**, table **15–16px** | ⬜ pending |
-| 9.11 | UI-12 | Card | Card Home + Support khác radius/shadow/border | Border **1px solid #E5E7EB**, radius **12–16px**, shadow **rất nhẹ hoặc không** | ⬜ pending |
-| 9.12 | UI-14 | Badge | Status có chỗ là text thường ("Draft") | Tất cả status dùng **badge mềm** | ⬜ pending |
-| 9.13 | UI-15 | Responsive | Detail panel Support cắt khi màn nhỏ | Desktop **2 cột**, tablet/mobile detail xuống dưới hoặc **drawer/modal** | ⬜ pending |
-| 9.14 | Empty | Empty state | Empty state "Chưa có dữ liệu" còn thô | **icon nhỏ + dòng text + khoảng trắng chuẩn** | ⬜ pending |
-| 9.15 | — | Cleanup | (Quick wins, không trong Issue List) | 301 redirect `/portal/purchase_history` → `/portal/purchase-history`, `/portal/return-request-list`, `/portal/exam-registration` + xóa `custom/wujia_account/` stub trống | ⬜ pending |
-| 9.16 | — | Verify | — | `scripts/reseed_full.sh` RC=0 + `scripts/test_sprint9.py` (13 route + 13 CSS assertion) + 8 screenshot | ⬜ pending |
-| 9.17 | — | Doc | — | `chapters/18-sprint9-issue-list-ui-refactor.tex` 13 sub-section + `chapters/19-roadmap-v14-gaps.tex` (affiliate/dashboard/TOTP) + master `\include` + recompile PDF qua `scripts/build-doc.sh` + update §2/§4/§5/§9 file này | ⬜ pending |
-| 9.18 | — | Push | — | Commit Conventional EN + push `main` + cho lệnh deploy Windows | ⬜ pending |
+| **9.6** | **Mobile fix** | **Hamburger + responsive foundation** (chèn TRƯỚC UI-06 theo yêu cầu user 2026-05-25) | Hamburger toggle work ở range 768-1199px + responsive auto-scale foundation: `html { font-size }` step 14→15→16px theo viewport + 3 utility class `.wujia-container .wujia-grid-responsive .wujia-stack-mobile` | ✅ DONE 2026-05-25 |
+| 9.7 | UI-06 | Card | Background page chưa chuẩn, cần đậm thêm | Page **#F5F7FA hoặc #F6F8FA**; card **trắng #FFFFFF**. | ✅ DONE 2026-05-25 (page bg `#E8ECEF` — đậm hơn BA spec, anh chọn sau 2 iter) |
+| 9.8 | UI-07 | Top Header / Top Bar | Header đang hơi cao, phần trên màn hình nặng | Height **64–72px**, căn giữa item theo chiều dọc | ✅ DONE 2026-05-25 (72px, Sprint 9.9 cũ — logo area sidebar cũng fix cùng sprint) |
+| 9.9 | UI-08 | Page Title | Page Title hơi nhạt và nhỏ | Color **#111827** hoặc #0F172A, font-size **24px**, weight **700** | ✅ DONE 2026-05-25 (token `--wujia-page-title-*` + rule `_wujia_theme.css:274-280`) |
+| 9.10 | UI-09 | Page Subtitle / Description | Màu sắc hiện tại đang hơi nhạt | Text bình thường: **#6B7280**, font-size **14–15px**, weight **400** | ⬜ pending |
+| 9.11 | UI-10 | Font chữ | Đồng nhất một font chữ trên portal, dùng cho tất cả các trang | (H empty — Inter self-hosted, đồng nhất toàn portal) | ⬜ pending |
+| 9.12 | UI-11 | KPI Cards / Summary Cards | — | Card trắng, bo góc **16px**, shadow nhẹ, height **≈100px**, padding **20–24px**; icon area **72×72px** nền **#28A9DF**, icon trắng; line dọc **1px #D1D5DB** tách icon và nội dung | ⬜ pending |
+| 9.13 | UI-12 | Content Card | — | Card trắng, bo góc **16px**, shadow nhẹ, padding **20–24px**; card header: icon tròn **#28A9DF**, title đậm, nút "Xem tất cả" **#28A9DF** phải; list row: bullet **#28A9DF**; Typography: title **#111827**, body **#374151**, phụ/date **#6B7280** | ⬜ pending |
+| 9.14 | UI-13 | Header Right Actions | Thông tin tài khoản cần hiển thị thêm tên user | Icon Language + Cart + Notification + Account (**user name + avatar**) | ⬜ pending |
+| 9.15 | Empty | Empty state | Empty state "Chưa có dữ liệu" còn thô | **icon nhỏ + dòng text + khoảng trắng chuẩn** | ⬜ pending |
+| 9.16 | — | Cleanup | (Quick wins, không trong Issue List) | 301 redirect `/portal/purchase_history` → `/portal/purchase-history`, `/portal/return-request-list`, `/portal/exam-registration` + xóa `custom/wujia_account/` stub trống | ⬜ pending |
+| 9.17 | — | Verify | — | `scripts/reseed_full.sh` RC=0 + `scripts/test_sprint9.py` + screenshot | ⬜ pending |
+| 9.18 | — | Doc | — | `chapters/18-sprint9-issue-list-ui-refactor.tex` + `chapters/19-roadmap-v14-gaps.tex` + master `\include` + recompile PDF + update §2/§4/§5/§9 file này | ⬜ pending |
+| 9.19 | — | Push | — | Commit Conventional EN + push `main` + cho lệnh deploy Windows | ⬜ pending |
 
 ### Files đã chạm (Sprint 9.1)
 
