@@ -2,7 +2,7 @@
 
 **Mục đích:** file này được agentmemory inject context cho mọi session làm WujiaTea. Mỗi section là 1 entry độc lập, search-able qua `/recall`. Khi cập nhật, chạy lại `scripts/import_wujia_compact_summary.py`. Chi tiết đầy đủ vẫn ở `wujia-tea-doc.tex` (2611 dòng, 14 chapter).
 
-Cập nhật lần cuối: 2026-05-25 (Sprint 9 in progress — UI-01..UI-09 + Sprint 9.6 Mobile fix done; Sprint 9.8 UI-07 sidebar logo 200px + Sprint 9.9 UI-09 header 72px shipped, 5 issue UI + Empty còn lại).
+Cập nhật lần cuối: 2026-05-27 (Sprint 9 in progress — UI-01..UI-10 DONE (9.1–9.11); §9 table đồng bộ xlsm mới BA renumber UI-07..UI-13; còn 9.12–9.19: UI-11 KPI Cards, UI-12 Content Card, UI-13 Header Right, Empty, Cleanup, Verify, Doc, Push).
 
 ---
 
@@ -113,10 +113,10 @@ Cập nhật lần cuối: 2026-05-25 (Sprint 9 in progress — UI-01..UI-09 + S
 
 ## §5 wujia-current-status-and-remaining
 
-**Tình trạng (2026-05-23):** 18 module active. Sprint 8 đã merge + push `main`. **Sprint 9 IN PROGRESS** — issue list portal UI refactor, 1 sprint con / issue, BA order. **Sprint 9.1 (UI-01) DONE** local (chưa push). Còn 12 issue UI + Empty + cleanup + verify + doc + push. Xem §9 wujia-sprint9-issue-list-state.
+**Tình trạng (2026-05-27):** 18 module active. **Sprint 9 IN PROGRESS** — issue list portal UI refactor. **UI-01..UI-10 DONE** (push `main` 2026-05-27). BA Hùng renumber issue list → §9 table đã đồng bộ (19 sprint con, UI-07..UI-13 mới). Còn 9.12–9.19: UI-11 KPI Cards, UI-12 Content Card, UI-13 Header Right + Empty + Cleanup + Verify + Doc + Push. Xem §9 wujia-sprint9-issue-list-state.
 
 **Còn lại Phase 1.0** (BA spec):
-- **Sprint 9 (in progress)** — 12 issue UI + Empty state còn lại (xem §9 bảng trạng thái từng issue).
+- **Sprint 9 (in progress)** — UI-11 KPI Cards, UI-12 Content Card, UI-13 Header Right Actions + Empty state + cleanup (xem §9 bảng).
 - T-031 "Mockup quản lý vận hành nội bộ" (BA Hùng đã mockup) → defer Sprint 10.
 - Load test 100+ concurrent user qua locust (Task `scripts/locust_portal.py` chưa làm).
 - Affiliate/commission portal 12 route v14 — defer roadmap (`chapters/19-roadmap-v14-gaps.tex`).
@@ -280,8 +280,8 @@ Xong xuôi chạy /wujia-end-sprint.
 | 9.7 | UI-06 | Card | Background page chưa chuẩn, cần đậm thêm | Page **#F5F7FA hoặc #F6F8FA**; card **trắng #FFFFFF**. | ✅ DONE 2026-05-25 (page bg `#E8ECEF` — đậm hơn BA spec, anh chọn sau 2 iter) |
 | 9.8 | UI-07 | Top Header / Top Bar | Header đang hơi cao, phần trên màn hình nặng | Height **64–72px**, căn giữa item theo chiều dọc | ✅ DONE 2026-05-25 (72px, Sprint 9.9 cũ — logo area sidebar cũng fix cùng sprint) |
 | 9.9 | UI-08 | Page Title | Page Title hơi nhạt và nhỏ | Color **#111827** hoặc #0F172A, font-size **24px**, weight **700** | ✅ DONE 2026-05-25 (token `--wujia-page-title-*` + rule `_wujia_theme.css:274-280`) |
-| 9.10 | UI-09 | Page Subtitle / Description | Màu sắc hiện tại đang hơi nhạt | Text bình thường: **#6B7280**, font-size **14–15px**, weight **400** | ⬜ pending |
-| 9.11 | UI-10 | Font chữ | Đồng nhất một font chữ trên portal, dùng cho tất cả các trang | (H empty — Inter self-hosted, đồng nhất toàn portal) | ⬜ pending |
+| 9.10 | UI-09 | Page Subtitle / Description | Màu sắc hiện tại đang hơi nhạt | Text bình thường: **#6B7280**, font-size **14–15px**, weight **400** | ✅ DONE 2026-05-27 |
+| 9.11 | UI-10 | Font chữ | Đồng nhất một font chữ trên portal, dùng cho tất cả các trang | (H empty — Inter self-hosted, đồng nhất toàn portal) | ✅ DONE 2026-05-27 |
 | 9.12 | UI-11 | KPI Cards / Summary Cards | — | Card trắng, bo góc **16px**, shadow nhẹ, height **≈100px**, padding **20–24px**; icon area **72×72px** nền **#28A9DF**, icon trắng; line dọc **1px #D1D5DB** tách icon và nội dung | ⬜ pending |
 | 9.13 | UI-12 | Content Card | — | Card trắng, bo góc **16px**, shadow nhẹ, padding **20–24px**; card header: icon tròn **#28A9DF**, title đậm, nút "Xem tất cả" **#28A9DF** phải; list row: bullet **#28A9DF**; Typography: title **#111827**, body **#374151**, phụ/date **#6B7280** | ⬜ pending |
 | 9.14 | UI-13 | Header Right Actions | Thông tin tài khoản cần hiển thị thêm tên user | Icon Language + Cart + Notification + Account (**user name + avatar**) | ⬜ pending |
@@ -422,6 +422,23 @@ Plan file: `/home/huyban/.claude/plans/sprint-9-4-magical-noodle.md`.
 - `custom/wujia_portal_layout/views/assets.xml:83` — bump `?v=1041` → `?v=1042`.
 
 **Note:** UI-07 và UI-09 ship cùng 1 commit. `_wujia_theme.css` cũng chứa fix logo overflow (UI-07 iter 2): thêm `overflow: hidden` + `max-width: 200px; height: auto` cho `.navbar-header img`.
+
+### Files đã chạm (Sprint 9.10 — UI-09 Page Subtitle color, 2026-05-27)
+
+- `custom/wujia_portal_layout/static/assets/css/_variables.css` — thêm 2 token: `--wujia-text-subtitle: #6B7280` (BA UI-09 spec) + `--wujia-font-size-subtitle: 14px`. Giữ `--wujia-text-muted: #8A9099` nguyên (dùng cho badge-muted, helper text).
+- `custom/wujia_portal_layout/static/assets/css/_wujia_theme.css` — thêm rule `.content-header-left > p, .wujia-page-subtitle { color: var(--wujia-text-subtitle) !important; font-size: var(--wujia-font-size-subtitle) !important; font-weight: 400 !important; }` ngay sau UI-08 block (line 299).
+- `custom/wujia_portal_layout/views/assets.xml` — bump `_variables.css?v=1050` → `?v=1060`, `_wujia_theme.css?v=1051` → `?v=1061`.
+- `custom/wujia_portal_layout/__manifest__.py` — bump `19.0.6.0.1` → `19.0.6.0.2`.
+
+**v14 reference:** v14 dùng `.text-muted { color: #B8C2CC }` (nhạt hơn nhiều) + không có pattern subtitle riêng. V19 dùng token riêng `--wujia-text-subtitle` để không ảnh hưởng badge-muted.
+
+### Files đã chạm (Sprint 9.11 — UI-10 Font consistency, 2026-05-27)
+
+- `custom/wujia_portal_layout/views/layouts.xml` — xóa 2 dòng Google Fonts Montserrat CDN link (lines 19 + 190, leftover từ v14/Vuexy template). Inter đã self-hosted qua `inter.css` từ Sprint 4.3 → không cần CDN nào.
+- `custom/wujia_portal_layout/static/assets/css/member_dashboard_style.css:372` — đổi `#chart-container { font-family: Arial }` → `font-family: var(--wujia-font-family)`. Outlier duy nhất trong codebase dùng hardcoded Arial thay vì token.
+- `custom/wujia_portal_layout/views/assets.xml` — thêm `?v=1060` vào `member_dashboard_style.css` (lần đầu có cache-bust).
+
+**v14 reference:** v14 dùng Montserrat (Google Fonts) với override `html body { font-family: sans-serif !important }` — messy. V19 dùng Inter self-hosted + `html body { font-family: var(--wujia-font-family) !important }` clean hơn. Montserrat CDN links là copy-paste từ v14 layout template còn sót.
 
 ### Policy update (2026-05-24)
 
