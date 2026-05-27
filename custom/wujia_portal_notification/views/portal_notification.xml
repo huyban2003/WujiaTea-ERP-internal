@@ -63,34 +63,37 @@
                         </div>
                     </div>
 
-                    <!-- List -->
-                    <div class="card">
-                        <div class="card-body p-0">
-                            <div t-if="not notifications" class="alert alert-info m-3 mb-0">Không có thông báo.</div>
-                            <ul t-else="" class="list-group list-group-flush">
-                                <t t-foreach="notifications" t-as="n">
-                                    <t t-set="is_read" t-value="n.id in read_ids"/>
-                                    <li t-attf-class="list-group-item notification-item d-flex align-items-start#{' notification-unread' if not is_read else ''}">
-                                        <div class="me-3 notification-icon"
-                                             t-attf-style="background-color: #{n.type_id.bg_color or 'var(--wujia-primary)'}; color: #{n.type_id.text_color or '#fff'};">
-                                            <i t-attf-class="fa #{n.type_id.icon or 'fa-bell'}"/>
-                                        </div>
-                                        <div class="flex-grow-1">
-                                            <div class="d-flex justify-content-between align-items-start">
-                                                <a t-attf-href="/portal/notification/#{n.id}" class="notification-title text-dark text-decoration-none flex-grow-1 me-2">
-                                                    <strong t-out="n.name"/>
-                                                    <span t-if="not is_read" class="badge bg-danger ms-1">Mới</span>
-                                                    <span t-if="n.priority == 'urgent'" class="badge bg-warning text-dark ms-1">Khẩn</span>
-                                                </a>
-                                                <small class="text-muted text-nowrap" t-out="n.date and n.date.strftime('%d/%m/%Y %H:%M') or ''"/>
-                                            </div>
-                                            <p class="text-muted small mb-0" t-out="n.summary or ''"/>
-                                            <span t-if="n.type_id" class="badge bg-light text-dark mt-1" t-out="n.type_id.name"/>
-                                        </div>
-                                    </li>
-                                </t>
-                            </ul>
+                    <!-- List — MẪU 01 Card danh sách + action (Sprint 9.13b 2026-05-27) -->
+                    <div class="wujia-content-card">
+                        <div class="wujia-content-card-header">
+                            <div class="wujia-content-card-header-icon">
+                                <i class="feather icon-bell"/>
+                            </div>
+                            <h4 class="wujia-content-card-header-title">Danh sách thông báo</h4>
+                            <span t-if="notifications" class="wujia-content-card-header-link">
+                                <t t-out="len(notifications)"/> kết quả
+                            </span>
                         </div>
+                        <div t-if="not notifications" class="wujia-content-card-empty">Không có thông báo.</div>
+                        <ul t-else="" class="wujia-content-card-body">
+                            <t t-foreach="notifications" t-as="n">
+                                <t t-set="is_read" t-value="n.id in read_ids"/>
+                                <t t-set="noti_badge_cls" t-value="{'URG': 'wujia-badge-danger', 'GEN': 'wujia-badge-info', 'PROMO': 'wujia-badge-warning', 'SYS': 'wujia-badge-muted', 'OTH': 'wujia-badge-success'}.get(n.type_id.code, 'wujia-badge-muted')"/>
+                                <li t-attf-class="wujia-content-card-row#{' notification-unread' if not is_read else ''}">
+                                    <span class="wujia-content-card-row-bullet"/>
+                                    <div class="wujia-content-card-row-content">
+                                        <a t-attf-href="/portal/notification/#{n.id}">
+                                            <t t-out="n.name"/>
+                                        </a>
+                                        <span t-if="not is_read" class="wujia-badge wujia-badge-danger ms-1">Mới</span>
+                                        <span t-if="n.priority == 'urgent'" class="wujia-badge wujia-badge-warning ms-1">Khẩn</span>
+                                    </div>
+                                    <span class="wujia-content-card-row-date" t-out="n.date and n.date.strftime('%H:%M %d/%m/%Y') or ''"/>
+                                    <span t-if="n.type_id" t-attf-class="wujia-badge #{noti_badge_cls}" t-out="n.type_id.name"/>
+                                    <span t-else=""/>
+                                </li>
+                            </t>
+                        </ul>
                     </div>
 
                     <nav t-if="pager and pager.get('page_count', 0) &gt; 1" class="mt-2">
