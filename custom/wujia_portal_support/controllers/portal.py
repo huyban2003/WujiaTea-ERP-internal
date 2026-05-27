@@ -12,12 +12,17 @@ PAGE_SIZE = 20
 
 # Display labels for portal templates — keys map to ticket.state values.
 STATE_LABELS = {
-    'new': ('Mới', 'state-sent'),
-    'in_progress': ('Đang xử lý', 'state-in_progress'),
-    'waiting_customer': ('Chờ phản hồi', 'state-warning'),
-    'resolved': ('Đã giải quyết', 'state-done'),
-    'closed': ('Đã đóng', 'state-closed'),
-    'cancelled': ('Đã huỷ', 'state-cancel'),
+    'new': ('Mới', 'wujia-badge-info'),
+    'in_progress': ('Đang xử lý', 'wujia-badge-warning'),
+    'waiting_customer': ('Chờ phản hồi', 'wujia-badge-warning'),
+    'resolved': ('Đã giải quyết', 'wujia-badge-success'),
+    'closed': ('Đã đóng', 'wujia-badge-muted'),
+    'cancelled': ('Đã huỷ', 'wujia-badge-danger'),
+}
+
+PRIORITY_LABELS = {
+    'normal': ('Bình thường', 'wujia-badge-muted'),
+    'urgent': ('Khẩn', 'wujia-badge-danger'),
 }
 
 
@@ -59,6 +64,7 @@ class WujiaPortalSupport(http.Controller):
         return request.render('wujia_portal_support.portal_support_list', {
             'tickets': tickets, 'pager': pager,
             'state_labels': STATE_LABELS,
+            'priority_labels': PRIORITY_LABELS,
             'state': state,
         })
 
@@ -132,6 +138,7 @@ class WujiaPortalSupport(http.Controller):
         return request.render('wujia_portal_support.portal_support_detail', {
             'ticket': ticket,
             'state_labels': STATE_LABELS,
+            'priority_labels': PRIORITY_LABELS,
         })
 
     @http.route(['/portal/support/<int:ticket_id>/reply'],

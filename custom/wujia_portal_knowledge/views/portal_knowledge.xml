@@ -57,43 +57,42 @@
                             </div>
                         </div>
 
-                        <!-- Articles grid -->
+                        <!-- Articles list — MẪU 04 Card danh sách + icon (Sprint 9.13b 2026-05-27) -->
                         <div class="col-md-9 col-12">
-                            <div t-if="not articles" class="alert alert-info">Chưa có bài viết.</div>
-                            <div t-else="" class="row g-2">
-                                <t t-foreach="articles" t-as="art">
-                                    <div class="col-md-6 col-lg-4 col-12">
-                                        <div class="card knowledge-card h-100">
-                                            <a t-attf-href="/portal/knowledge/#{art.slug}">
-                                                <img loading="lazy"
-                                                     t-attf-src="/web/image/wujia.knowledge.article/#{art.id}/cover_image"
-                                                     class="card-img-top knowledge-card-img"
-                                                     t-att-alt="art.name"/>
-                                            </a>
-                                            <div class="card-body">
-                                                <div class="mb-1">
-                                                    <span t-if="art.category_id" class="badge bg-light text-dark me-1" t-out="art.category_id.name"/>
-                                                    <span t-if="art.portal_badge == 'mandatory'" class="badge text-bg-danger me-1">Mandatory</span>
-                                                    <span t-if="art.portal_badge == 'important'" class="badge text-bg-warning me-1">Important</span>
-                                                    <span t-if="art.portal_badge == 'new'" class="badge text-bg-info me-1">New</span>
-                                                </div>
-                                                <h6 class="card-title">
-                                                    <a t-attf-href="/portal/knowledge/#{art.slug}" class="text-dark text-decoration-none" t-out="art.name"/>
-                                                </h6>
-                                                <p class="text-muted small mb-1" t-out="art.summary or ''"/>
-                                                <div class="d-flex justify-content-between text-muted small">
-                                                    <span>
-                                                        <i class="fa fa-clock me-1"/>
-                                                        <t t-out="art.publish_date and art.publish_date.strftime('%d/%m/%Y') or ''"/>
-                                                    </span>
-                                                    <span>
-                                                        <i class="fa fa-eye me-1"/><t t-out="art.view_count or 0"/>
-                                                    </span>
-                                                </div>
-                                            </div>
-                                        </div>
+                            <div class="wujia-content-card">
+                                <div class="wujia-content-card-header">
+                                    <div class="wujia-content-card-header-icon">
+                                        <i class="feather icon-book"/>
                                     </div>
-                                </t>
+                                    <h4 class="wujia-content-card-header-title">
+                                        <t t-if="current_category" t-out="current_category.name"/>
+                                        <t t-else="">Tài liệu mới cập nhật</t>
+                                    </h4>
+                                    <span t-if="articles" class="wujia-content-card-header-link">
+                                        <t t-out="len(articles)"/> bài viết
+                                    </span>
+                                </div>
+                                <div t-if="not articles" class="wujia-content-card-empty">Chưa có bài viết.</div>
+                                <ul t-else="" class="wujia-content-card-body">
+                                    <t t-foreach="articles" t-as="art">
+                                        <t t-set="badge_cls" t-value="{'mandatory': 'wujia-badge-danger', 'important': 'wujia-badge-warning', 'new': 'wujia-badge-info'}.get(art.portal_badge, '')"/>
+                                        <t t-set="badge_lbl" t-value="{'mandatory': 'Bắt buộc', 'important': 'Quan trọng', 'new': 'Mới'}.get(art.portal_badge, '')"/>
+                                        <li class="wujia-content-card-row">
+                                            <span class="wujia-content-card-row-bullet"/>
+                                            <div class="wujia-content-card-row-content">
+                                                <a t-attf-href="/portal/knowledge/#{art.slug}">
+                                                    <t t-out="art.name"/>
+                                                </a>
+                                                <span t-if="art.category_id" class="wujia-badge wujia-badge-muted ms-1" t-out="art.category_id.name"/>
+                                                <span t-if="art.portal_badge" t-attf-class="wujia-badge #{badge_cls} ms-1" t-out="badge_lbl"/>
+                                            </div>
+                                            <span class="wujia-content-card-row-date">
+                                                <t t-out="art.publish_date and art.publish_date.strftime('%d/%m/%Y') or ''"/>
+                                                · <i class="fa fa-eye"/> <t t-out="art.view_count or 0"/>
+                                            </span>
+                                        </li>
+                                    </t>
+                                </ul>
                             </div>
 
                             <nav t-if="pager and pager.get('page_count', 0) &gt; 1" class="mt-2">
