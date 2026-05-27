@@ -123,9 +123,8 @@
                                             <a t-attf-href="/portal/notification/#{noti.id}" t-out="noti.name"/>
                                         </div>
                                         <span class="wujia-content-card-row-date" t-out="noti.date and noti.date.strftime('%H:%M %d/%m/%Y') or ''"/>
-                                        <span t-if="noti.type_id" class="badge"
-                                              t-attf-style="background-color: #{noti.type_id.bg_color or 'var(--wujia-text-muted)'}; color: #{noti.type_id.text_color or '#fff'};"
-                                              t-out="noti.type_id.name"/>
+                                        <t t-set="noti_badge_cls" t-value="{'URG': 'wujia-badge-danger', 'GEN': 'wujia-badge-info', 'PROMO': 'wujia-badge-warning', 'SYS': 'wujia-badge-muted', 'OTH': 'wujia-badge-success'}.get(noti.type_id.code, 'wujia-badge-muted')"/>
+                                        <span t-if="noti.type_id" t-attf-class="wujia-badge #{noti_badge_cls}" t-out="noti.type_id.name"/>
                                         <span t-else=""/>
                                     </li>
                                 </ul>
