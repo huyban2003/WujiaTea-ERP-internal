@@ -1,11 +1,12 @@
 """Seed demo data nhỏ cho Sprint 9.13 UI-12 Content Card pages.
 
-Mục đích: tạo ~20 record demo nhỏ để showcase 5 page sau khi deploy:
+Mục đích: tạo ~25 record demo nhỏ để showcase 6 page sau khi deploy:
     /portal                       (home: noti + order + return latest lists)
     /portal/notification          (full notification list)
     /portal/knowledge             (sidebar + article grid)
     /portal/purchase-history      (sale order list)
     /portal/return                (return request list)
+    /portal/support               (support ticket list)
 
 Idempotent: mọi record dùng marker `[UI12]` trong name / `ui12-` slug
 prefix, search-or-create. Chạy nhiều lần KHÔNG nhân đôi.
@@ -213,6 +214,51 @@ else:
             so._action_cancel() if hasattr(so, '_action_cancel') else so.action_cancel()
         print(f"  [CREATE] SO {client_ref}: {so.name} → state={so.state}")
 
+# ---------- 5. Support tickets (6 record, full 6 state) ----------
+print(f"\n[6] Support tickets (6 records {MARKER})")
+admin = env.ref('base.user_admin')
+sup_cats = {c.code: c for c in env['wujia.support.category'].search([])}
+if not sup_cats:
+    print("  WARNING: không có support category — bỏ qua tickets.")
+else:
+    ticket_samples = [
+        ('pos',       'new',              'urgent', 'POS treo ở bước thanh toán'),
+        ('delivery',  'in_progress',      'normal', 'Giao thiếu 2 hộp trà ô long'),
+        ('account',   'waiting_customer', 'normal', 'Reset mật khẩu user POS'),
+        ('product',   'resolved',         'normal', 'Sai mã SP TR-001 trên portal'),
+        ('operation', 'closed',           'normal', 'Yêu cầu banner marketing Tết'),
+        ('order',     'cancelled',        'normal', 'Đặt nhầm đơn 2 lần — huỷ'),
+    ]
+    for i, (cat_code, state, prio, title) in enumerate(ticket_samples):
+        if cat_code not in sup_cats:
+            print(f"  SKIP: category code '{cat_code}' không tồn tại.")
+            continue
+        marked_title = f'{MARKER} {title}'
+        vals = {
+            'title': marked_title,
+            'description': f'<p>{title}.</p><p>Demo UI-12 ticket #{i+1}, state={state}.</p>',
+            'franchise_id': franchises[i % len(franchises)].id,
+            'created_by_id': admin.id,
+            'category_id': sup_cats[cat_code].id,
+            'priority': prio,
+            'state': state,
+        }
+        if state in ('in_progress', 'waiting_customer', 'resolved'):
+            vals['assigned_user_id'] = admin.id
+            vals['in_progress_date'] = now - timedelta(days=i)
+        if state == 'resolved':
+            vals['resolved_date'] = now - timedelta(hours=12)
+        if state == 'closed':
+            vals['closed_date'] = now - timedelta(days=10)
+        if state == 'cancelled':
+            vals['cancel_reason'] = 'Cửa hàng chủ động huỷ — đặt trùng.'
+        upsert(
+            'wujia.support.ticket',
+            [('title', '=', marked_title)],
+            vals,
+            f'ticket #{i+1} {state}',
+        )
+
 # ---------- Commit ----------
 env.cr.commit()
 print(f"\n=== DONE — đã commit transaction ===")
@@ -222,3 +268,4 @@ print("  /portal/notification       → 5 noti record")
 print("  /portal/knowledge          → 2 category + 5 article")
 print("  /portal/purchase-history   → 5 sale order (2 draft, 2 confirmed, 1 cancel)")
 print("  /portal/return             → 5 return request (full 5 state)")
+print("  /portal/support            → 6 ticket (full 6 state)")
