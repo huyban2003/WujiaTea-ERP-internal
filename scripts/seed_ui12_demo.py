@@ -192,35 +192,34 @@ for i, st in enumerate(states):
 # ---------- 3b. Products — minimum 5 for sale order seeding ----------
 print(f"\n[5a] Products (ensure at least 5 storable goods)")
 Product = env['product.product']
-existing_products = Product.search([('type', '=', 'consu')], limit=5)
-if len(existing_products) >= 5:
-    print(f"  [SKIP] đã có {len(existing_products)} product, không tạo thêm.")
-    products = existing_products
-else:
-    product_samples = [
-        ('TS-HONG', 'Hồng Trà Sữa size M',     45000.0),
-        ('TS-DAO',  'Trà Đào Olong size L',    52000.0),
-        ('TS-MAT',  'Matcha Latte size M',     48000.0),
-        ('TP-PUDD', 'Pudding Trứng',            8000.0),
-        ('TP-CHEE', 'Topping Phô Mai Macchiato', 9000.0),
-    ]
-    products_list = []
-    for ref, name, price in product_samples:
-        rec = upsert(
-            'product.product',
-            [('default_code', '=', ref)],
-            {
-                'default_code': ref,
-                'name': name,
-                'type': 'consu',
-                'list_price': price,
-                'sale_ok': True,
-                'purchase_ok': True,
-            },
-            f'product {ref}',
-        )
-        products_list.append(rec.id)
-    products = Product.browse(products_list)
+product_samples = [
+    ('TS-HONG', 'Hồng Trà Sữa size M',     45000.0),
+    ('TS-DAO',  'Trà Đào Olong size L',    52000.0),
+    ('TS-MAT',  'Matcha Latte size M',     48000.0),
+    ('TP-PUDD', 'Pudding Trứng',            8000.0),
+    ('TP-CHEE', 'Topping Phô Mai Macchiato', 9000.0),
+]
+products_list = []
+for ref, name, price in product_samples:
+    rec = upsert(
+        'product.product',
+        [('default_code', '=', ref)],
+        {
+            'default_code': ref,
+            'name': name,
+            'type': 'consu',
+            'list_price': price,
+            'sale_ok': True,
+            'purchase_ok': True,
+            'is_public_website': True,  # Wujia portal catalog flag
+        },
+        f'product {ref}',
+    )
+    products_list.append(rec.id)
+# Force-flag any existing product (template-level field; cascade through products).
+existing_tmpls = env['product.template'].search([('default_code', 'in', [s[0] for s in product_samples])])
+existing_tmpls.write({'is_public_website': True})
+products = Product.browse(products_list)
 
 # ---------- 4. Sale orders (5 record, mix state) — idempotent on client_order_ref ----------
 print(f"\n[5b] Sale orders (5 records)")
