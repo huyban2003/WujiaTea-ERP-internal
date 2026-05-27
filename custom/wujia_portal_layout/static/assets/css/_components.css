@@ -479,3 +479,51 @@ h2, .wujia-h2 { font-size: var(--wujia-font-size-h2) !important; font-weight: 60
 .wujia-content-card--flush > .table-responsive > .table {
     margin-bottom: 0;
 }
+
+/* Table body variant — for full-listing pages (UI-12 ext to listing pages,
+   Sprint 9.13b 2026-05-27). Replaces the failed --flush experiment: uses
+   negative margin + width calc so the table renders edge-to-edge inside
+   the card without disrupting the flex container. Works for /portal/order,
+   /portal/purchase-history, /portal/notification per BA mockup MẪU 02
+   (sample.jpg). */
+.wujia-content-card-table {
+    margin: 16px calc(-1 * var(--wujia-content-card-padding)) 0;
+    width: calc(100% + 2 * var(--wujia-content-card-padding));
+    border-collapse: separate;
+    border-spacing: 0;
+}
+.wujia-content-card-table thead th {
+    background: var(--wujia-bg-page);
+    color: var(--wujia-primary);
+    font-weight: 600;
+    font-size: 14px;
+    padding: 12px var(--wujia-content-card-padding);
+    border-top: 1px solid var(--wujia-border);
+    border-bottom: 1px solid var(--wujia-border);
+    text-align: left;
+    white-space: nowrap;
+}
+.wujia-content-card-table tbody td {
+    padding: 14px var(--wujia-content-card-padding);
+    border-bottom: 1px solid var(--wujia-border);
+    vertical-align: middle;
+    color: var(--wujia-text-secondary);
+    font-size: 14px;
+}
+.wujia-content-card-table tbody tr:last-child td {
+    border-bottom: none;
+}
+.wujia-content-card-table tbody tr:hover {
+    background: rgba(34, 169, 222, 0.04);
+}
+.wujia-content-card-table td.text-end,
+.wujia-content-card-table th.text-end {
+    text-align: right;
+}
+.wujia-content-card-table td.text-center,
+.wujia-content-card-table th.text-center {
+    text-align: center;
+}
+.wujia-content-card-table .wujia-badge {
+    white-space: nowrap;
+}
