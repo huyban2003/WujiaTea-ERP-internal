@@ -408,14 +408,24 @@ h2, .wujia-h2 { font-size: var(--wujia-font-size-h2) !important; font-weight: 60
     padding: 0;
     display: flex;
     flex-direction: column;
-    gap: var(--wujia-content-card-row-gap);
     flex: 1 1 auto;
 }
+/* Sprint 9.13b 2026-05-27: each row carries its own bottom border so the body
+   reads like a table (per BA sample.jpg MẪU 01/04). Gap removed because the
+   border now serves as the row separator. */
 .wujia-content-card-row {
     display: grid;
     grid-template-columns: auto 1fr auto auto;
     align-items: center;
     gap: 12px;
+    padding: 12px 0;
+    border-bottom: 1px solid var(--wujia-border);
+}
+.wujia-content-card-row:last-child {
+    border-bottom: none;
+}
+.wujia-content-card-row:hover {
+    background: rgba(34, 169, 222, 0.04);
 }
 .wujia-content-card-row-bullet {
     flex-shrink: 0;

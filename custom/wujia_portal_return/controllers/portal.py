@@ -29,11 +29,11 @@ PAGE_SIZE = 20
 MIN_IMAGES_BEFORE_SEND = 3
 
 STATE_LABELS = {
-    'draft': ('Nháp', 'state-draft'),
-    'sent': ('Đã gửi', 'state-sent'),
-    'approved': ('Đã duyệt', 'state-approved'),
-    'rejected': ('Từ chối', 'state-rejected'),
-    'done': ('Hoàn thành', 'state-done'),
+    'draft': ('Nháp', 'wujia-badge-muted'),
+    'sent': ('Đã gửi', 'wujia-badge-info'),
+    'approved': ('Đã duyệt', 'wujia-badge-success'),
+    'rejected': ('Từ chối', 'wujia-badge-danger'),
+    'done': ('Hoàn thành', 'wujia-badge-success'),
 }
 
 

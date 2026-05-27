@@ -35,11 +35,11 @@ _logger = logging.getLogger(__name__)
 PAGE_SIZE = 20
 
 STATE_LABELS = {
-    'draft': ('Nháp', 'state-draft'),
-    'submitted': ('Đã gửi', 'state-sent'),
-    'reviewing': ('Đang xem', 'state-active'),
-    'approved': ('Đã duyệt', 'state-approved'),
-    'rejected': ('Từ chối', 'state-rejected'),
+    'draft': ('Nháp', 'wujia-badge-muted'),
+    'submitted': ('Đã gửi', 'wujia-badge-info'),
+    'reviewing': ('Đang xem', 'wujia-badge-warning'),
+    'approved': ('Đã duyệt', 'wujia-badge-success'),
+    'rejected': ('Từ chối', 'wujia-badge-danger'),
 }
 
 

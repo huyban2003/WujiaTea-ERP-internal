@@ -29,20 +29,20 @@ def _ics_dt(dt):
 PAGE_SIZE = 20
 
 BATCH_STATUS_LABELS = {
-    'draft': ('Nháp', 'state-draft'),
-    'assigned': ('Đã gán xe', 'state-sent'),
-    'loading': ('Đang chất hàng', 'state-in_progress'),
-    'delivering': ('Đang giao', 'state-partial'),
-    'done': ('Đã giao xong', 'state-done'),
-    'cancelled': ('Hủy chuyến', 'state-cancel'),
+    'draft': ('Nháp', 'wujia-badge-muted'),
+    'assigned': ('Đã gán xe', 'wujia-badge-info'),
+    'loading': ('Đang chất hàng', 'wujia-badge-warning'),
+    'delivering': ('Đang giao', 'wujia-badge-warning'),
+    'done': ('Đã giao xong', 'wujia-badge-success'),
+    'cancelled': ('Hủy chuyến', 'wujia-badge-danger'),
 }
 
 PICKING_STATUS_LABELS = {
-    'pending': ('Chờ xếp xe', 'state-draft'),
-    'assigned_to_batch': ('Đã gán batch', 'state-sent'),
-    'departed': ('Đang giao', 'state-in_progress'),
-    'delivered': ('Đã giao', 'state-done'),
-    'failed': ('Thất bại', 'state-cancel'),
+    'pending': ('Chờ xếp xe', 'wujia-badge-muted'),
+    'assigned_to_batch': ('Đã gán batch', 'wujia-badge-info'),
+    'departed': ('Đang giao', 'wujia-badge-warning'),
+    'delivered': ('Đã giao', 'wujia-badge-success'),
+    'failed': ('Thất bại', 'wujia-badge-danger'),
 }
 
 

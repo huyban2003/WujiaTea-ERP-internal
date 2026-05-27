@@ -144,37 +144,41 @@
                         </div>
                     </div>
 
-                    <!-- ============ Block 3: Top 10 sản phẩm ============ -->
-                    <div class="card">
-                        <div class="card-header py-2">
-                            <h5 class="card-title mb-0">Top 10 sản phẩm bán nhiều nhất</h5>
+                    <!-- ============ Block 3: Top 10 sản phẩm (Sprint 9.13b: MẪU 02 wujia-content-card-table) ============ -->
+                    <div class="wujia-content-card">
+                        <div class="wujia-content-card-header">
+                            <div class="wujia-content-card-header-icon">
+                                <i class="feather icon-award"/>
+                            </div>
+                            <h4 class="wujia-content-card-header-title">Top 10 sản phẩm bán nhiều nhất</h4>
+                            <span t-if="top_products" class="wujia-content-card-header-link">
+                                <t t-out="len(top_products)"/> sản phẩm
+                            </span>
                         </div>
-                        <div class="card-body p-0">
-                            <div t-if="not top_products" class="alert alert-info m-3 mb-0">
-                                Chưa có sản phẩm nào trong khoảng thời gian đã chọn.
-                            </div>
-                            <div t-else="" class="table-responsive">
-                                <table class="table table-hover mb-0">
-                                    <thead class="bg-light">
-                                        <tr>
-                                            <th>STT</th>
-                                            <th>Sản phẩm</th>
-                                            <th class="text-end">Số lượng</th>
-                                            <th>Đơn vị</th>
-                                            <th class="text-end">Doanh thu</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <tr t-foreach="top_products" t-as="p">
-                                            <td t-out="p_index + 1"/>
-                                            <td t-out="p['name']"/>
-                                            <td class="text-end" t-out="'{:,.0f}'.format(p['qty']).replace(',', '.')"/>
-                                            <td t-out="p['uom']"/>
-                                            <td class="text-end" t-out="'{:,.0f}'.format(p['total']).replace(',', '.') + ' ₫'"/>
-                                        </tr>
-                                    </tbody>
-                                </table>
-                            </div>
+                        <div t-if="not top_products" class="wujia-content-card-empty">
+                            Chưa có sản phẩm nào trong khoảng thời gian đã chọn.
+                        </div>
+                        <div t-else="" class="table-responsive">
+                            <table class="wujia-content-card-table">
+                                <thead>
+                                    <tr>
+                                        <th>STT</th>
+                                        <th>Sản phẩm</th>
+                                        <th class="text-end">Số lượng</th>
+                                        <th>Đơn vị</th>
+                                        <th class="text-end">Doanh thu</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr t-foreach="top_products" t-as="p">
+                                        <td t-out="p_index + 1"/>
+                                        <td t-out="p['name']"/>
+                                        <td class="text-end" t-out="'{:,.0f}'.format(p['qty']).replace(',', '.')"/>
+                                        <td t-out="p['uom']"/>
+                                        <td class="text-end" t-out="'{:,.0f}'.format(p['total']).replace(',', '.') + ' ₫'"/>
+                                    </tr>
+                                </tbody>
+                            </table>
                         </div>
                     </div>
                 </div>

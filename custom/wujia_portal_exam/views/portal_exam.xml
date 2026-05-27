@@ -24,8 +24,8 @@
                                     <div class="card-body">
                                         <div class="d-flex justify-content-between align-items-start mb-2">
                                             <h5 class="card-title mb-0" t-out="exam.name"/>
-                                            <t t-set="lbl" t-value="schedule_labels.get(exam.state, (exam.state, 'state-draft'))"/>
-                                            <span t-attf-class="badge state-badge #{lbl[1]}" t-out="lbl[0]"/>
+                                            <t t-set="lbl" t-value="schedule_labels.get(exam.state, (exam.state, 'wujia-badge-muted'))"/>
+                                            <span t-attf-class="wujia-badge #{lbl[1]}" t-out="lbl[0]"/>
                                         </div>
                                         <p class="text-muted small mb-2">
                                             <i class="fa fa-clock me-1"/>
@@ -78,11 +78,20 @@
                     <div t-if="not my_regs" class="alert alert-info">
                         Bạn chưa đăng ký kỳ thi nào. <a href="/portal/exam">Xem lịch thi sắp tới</a>.
                     </div>
-                    <div t-else="" class="card">
-                        <div class="card-body p-0">
-                            <table class="table mb-0">
-                                <thead class="bg-light"><tr>
-                                    <th>Mã</th><th>Kỳ thi</th><th>Ngày thi</th><th>Cửa hàng</th><th>Trạng thái</th>
+                    <div t-else="" class="wujia-content-card">
+                        <div class="wujia-content-card-header">
+                            <div class="wujia-content-card-header-icon">
+                                <i class="feather icon-user-check"/>
+                            </div>
+                            <h4 class="wujia-content-card-header-title">Đăng ký dự thi</h4>
+                            <span class="wujia-content-card-header-link">
+                                <t t-out="len(my_regs)"/> đăng ký
+                            </span>
+                        </div>
+                        <div class="table-responsive">
+                            <table class="wujia-content-card-table">
+                                <thead><tr>
+                                    <th>Mã</th><th>Kỳ thi</th><th>Ngày thi</th><th>Cửa hàng</th><th class="text-center">Trạng thái</th>
                                 </tr></thead>
                                 <tbody>
                                     <tr t-foreach="my_regs" t-as="r">
@@ -90,9 +99,9 @@
                                         <td t-out="r.schedule_id.name"/>
                                         <td t-out="r.schedule_id.exam_date and r.schedule_id.exam_date.strftime('%d/%m/%Y %H:%M') or ''"/>
                                         <td t-out="r.franchise_id.name or '—'"/>
-                                        <td>
-                                            <t t-set="lbl" t-value="reg_labels.get(r.state, (r.state, 'state-draft'))"/>
-                                            <span t-attf-class="badge state-badge #{lbl[1]}" t-out="lbl[0]"/>
+                                        <td class="text-center">
+                                            <t t-set="lbl" t-value="reg_labels.get(r.state, (r.state, 'wujia-badge-muted'))"/>
+                                            <span t-attf-class="wujia-badge #{lbl[1]}" t-out="lbl[0]"/>
                                         </td>
                                     </tr>
                                 </tbody>
@@ -121,8 +130,8 @@
                     <div class="card">
                         <div class="card-body">
                             <h3 t-out="schedule.name"/>
-                            <t t-set="lbl" t-value="schedule_labels.get(schedule.state, (schedule.state, 'state-draft'))"/>
-                            <span t-attf-class="badge state-badge #{lbl[1]} mb-2" t-out="lbl[0]"/>
+                            <t t-set="lbl" t-value="schedule_labels.get(schedule.state, (schedule.state, 'wujia-badge-muted'))"/>
+                            <span t-attf-class="wujia-badge #{lbl[1]} mb-2" t-out="lbl[0]"/>
                             <p class="text-muted">
                                 <i class="fa fa-clock me-1"/>
                                 <strong t-out="schedule.exam_date and schedule.exam_date.strftime('%d/%m/%Y %H:%M') or '—'"/><br/>
@@ -186,10 +195,10 @@
                                             <span class="exam-score" t-out="'{:.1f}'.format(res.score or 0)"/>
                                             <span class="exam-score-max">/10</span>
                                         </div>
-                                        <span t-if="res.passed" class="badge state-badge state-done">
+                                        <span t-if="res.passed" class="wujia-badge wujia-badge-success">
                                             <i class="fa fa-check-circle me-1"/>Đạt
                                         </span>
-                                        <span t-else="" class="badge state-badge state-cancel">
+                                        <span t-else="" class="wujia-badge wujia-badge-danger">
                                             <i class="fa fa-times-circle me-1"/>Chưa đạt
                                         </span>
                                         <p t-if="res.note" class="small text-muted mt-2 mb-0" t-out="res.note"/>

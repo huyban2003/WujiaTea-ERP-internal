@@ -26,16 +26,16 @@ _logger = logging.getLogger(__name__)
 PAGE_SIZE = 20
 
 SCHEDULE_LABELS = {
-    'open': ('Đang mở', 'state-active'),
-    'closed': ('Đã đóng', 'state-sent'),
-    'done': ('Đã thi xong', 'state-done'),
-    'cancelled': ('Đã hủy', 'state-cancel'),
+    'open': ('Đang mở', 'wujia-badge-info'),
+    'closed': ('Đã đóng', 'wujia-badge-muted'),
+    'done': ('Đã thi xong', 'wujia-badge-success'),
+    'cancelled': ('Đã hủy', 'wujia-badge-danger'),
 }
 
 REG_LABELS = {
-    'registered': ('Đã đăng ký', 'state-sent'),
-    'checked_in': ('Đã có mặt', 'state-active'),
-    'cancelled': ('Đã hủy', 'state-cancel'),
+    'registered': ('Đã đăng ký', 'wujia-badge-info'),
+    'checked_in': ('Đã có mặt', 'wujia-badge-success'),
+    'cancelled': ('Đã hủy', 'wujia-badge-danger'),
 }
 
 
