@@ -1,48 +1,40 @@
-# WujiaTea — Compact summary cho agentmemory
+# WujiaTea — Compact summary
 
-**Mục đích:** file này được agentmemory inject context cho mọi session làm WujiaTea. Mỗi section là 1 entry độc lập, search-able qua `/recall`. Khi cập nhật, chạy lại `scripts/import_wujia_compact_summary.py`. Chi tiết đầy đủ vẫn ở `wujia-tea-doc.tex` (2611 dòng, 14 chapter).
+**Mục đích:** context file inject vào mọi session WujiaTea. Mỗi §section search-able qua `/recall`. Detail history giữ trong `wujia-tea-doc.tex` + git log.
 
-Cập nhật lần cuối: 2026-05-27 (Sprint 9 in progress — UI-01..UI-12 DONE (9.1–9.13, UI-12 partial home-only per BA scope); §9 table đồng bộ xlsm mới BA renumber UI-07..UI-13; còn 9.14–9.19: UI-13 Header Right, Empty, Cleanup, Verify, Doc, Push).
+**Cập nhật:** 2026-05-27 (Sprint 9.13b DONE — MẪU 01/02 cho 3 listing page; còn 9.14–9.19: UI-13 + Empty + Cleanup + Verify + Doc + Push).
 
 ---
 
 ## §1 wujia-overview
 
-**Project type:** Odoo 19 ERP + custom Vuexy portal cho chuỗi nhượng quyền trà sữa, ~1500 portal user. Migrate từ v14 (folder `wujia_tea_odoo14/`) sang v19 (folder `WujiaTea/`).
+**Project:** Odoo 19 ERP + custom Vuexy portal cho chuỗi nhượng quyền trà sữa (~1500 portal user). Migrate v14 → v19.
 
-**Dir layout:**
-- `WujiaTea/odoo19/` — Odoo 19 Community source (read-only).
-- `WujiaTea/custom/` — 16 custom module active (xem §wujia-modules).
-- `WujiaTea/themes/` — 8 Vuexy theme (muk_web_*).
-- `WujiaTea/data/` — seed master (area, ward).
-- `WujiaTea/scripts/` — 14 seed/test/deploy script Python + PowerShell.
-- `WujiaTea/docs/` — `wujia-tea-doc.tex` master + `CHECKLIST.tex` + `DEPLOY_SPRINT5.md`.
+**Dir:**
+- `WujiaTea/odoo19/` Odoo 19 Community source (read-only).
+- `WujiaTea/custom/` 18 custom module active (§2).
+- `WujiaTea/themes/` 8 Vuexy theme.
+- `WujiaTea/data/` seed master (area/ward).
+- `WujiaTea/scripts/` seed + deploy script (Python + PowerShell).
+- `WujiaTea/docs/` `wujia-tea-doc.tex` master + chapters + `Wujia_Internal ERP Master Plan.xlsm` (BA spec).
+- v14 reference (legacy): `/home/huyban/odoo-dev/wujia_tea_odoo14` — template ref, không sửa.
 
-**Cách chạy local (Linux dev):**
-- `scripts/init-db.sh` — fresh DB + install full chain.
-- `scripts/start.sh` — start Odoo với hot-reload.
-- `scripts/upgrade.sh <module>` — upgrade giữ data.
-- `scripts/reseed_full.sh` — drop + init + seed + smoke test (1 lệnh).
-- DB: `wujia_tea_19`, user/pass `odoo19/1`, host `127.0.0.1:5432`.
+**Local dev:** `scripts/init-db.sh` fresh / `scripts/start.sh` hot-reload / `scripts/upgrade.sh <module>` giữ data / `scripts/reseed_full.sh` 1-shot. DB `wujia_tea_19`, user `odoo19/1`, host `127.0.0.1:5432`. Log: `WujiaTea/logs/odoo.log`. Config: `WujiaTea/config/odoo.conf`.
 
-**Auto-deploy:** push lên `main` → GitHub Actions self-hosted runner trên Windows server `D:\wujia-tea` → `git pull` + restart (chi tiết → reference_credentials).
-
-→ Chi tiết: `WujiaTea/docs/wujia-tea-doc.tex` chap 1.
+**Auto-deploy:** push `main` → GitHub Actions self-hosted runner trên Windows `D:\wujia-tea` → `git pull` + restart Odoo service.
 
 ---
 
-## §2 wujia-modules
-
-**18 module active trong `/custom/`** (cập nhật 2026-05-21, sau Sprint 8):
+## §2 wujia-modules (18 active)
 
 | Module | Vai trò |
 |---|---|
-| `wujia_core` | `res.area`, `res.ward` master data địa bàn |
+| `wujia_core` | `res.area`, `res.ward` master data |
 | `wujia_franchise` | `wujia.franchise.management` + `wujia.franchise.member` |
-| `wujia_sale` | `sale.order` ext + 6 field mới + tính khối lượng |
+| `wujia_sale` | `sale.order` ext + 6 field + tính khối lượng |
 | `wujia_fleet` | Nhà xe / loại xe / xe / bảng giá |
 | `wujia_delivery` | `stock.picking/batch` ext + cước vận chuyển |
-| `wujia_portal_layout` | Vuexy shell, CSS vars, Inter self-host + mobile hamburger bridge rule 768-1199px + root font-size fluid scaling 14→16px + 3 responsive utility class (v19.0.4.0.0, Sprint 9.6) |
+| `wujia_portal_layout` | Vuexy shell + CSS vars + Inter self-host + responsive (hamburger + fluid font 14→16px) + 3 utility class shared |
 | `wujia_portal_base` | `/portal` dashboard + `bus.bus` realtime + franchise switch |
 | `wujia_portal_sale` | `/portal/order` catalog + cart |
 | `wujia_portal_purchase_history` | `/portal/purchase-history` |
@@ -50,644 +42,304 @@ Cập nhật lần cuối: 2026-05-27 (Sprint 9 in progress — UI-01..UI-12 DON
 | `wujia_portal_return` | `/portal/return` + models |
 | `wujia_portal_notification` | `/portal/notification` + models |
 | `wujia_portal_exam` | `/portal/exam` + models |
-| `wujia_portal_knowledge` | `/portal/knowledge` + backend admin (v19.0.2.0.0, Sprint 5) |
+| `wujia_portal_knowledge` | `/portal/knowledge` + backend admin |
 | `wujia_portal_report` | `/portal/reports/orders` |
-| `wujia_portal_support` | `/portal/support` + backend admin + POST handler (v19.0.2.0.0, Sprint 5) + attachment download (Sprint 7) |
-| `wujia_portal_info_request` | `/portal/info-request` — yêu cầu cập nhật thông tin franchise + HQ duyệt chatter (v19.0.1.0.0, Sprint 7) |
-| `wujia_portal_order_window` | Khung giờ portal đặt hàng theo khu vực — model `wujia.order.window` per-area (BA Mục I R638-R646: name, area_id required M2o `res.area`, from/to Float [0,24), is_overnight compute store, sequence, multi-window per area: cho phép sáng+tối) + `res.config.settings` global fallback (3 field `ir.config_parameter` keys `wujia_portal.portal_order_time_*`, áp dụng khi area chưa cấu hình) + helper cascade `_is_within_order_window(area_id=None)` (priority: enabled? → per-area windows OR-merge → global) + `sale.order.create` defense-in-depth resolve `area_id` từ `franchise_id.area_id` + backend menu Sales → Configuration → Wujia Portal (v19.0.2.0.0, Sprint 8) |
+| `wujia_portal_support` | `/portal/support` + backend admin + POST + attachment |
+| `wujia_portal_info_request` | `/portal/info-request` — yêu cầu cập nhật info franchise + HQ duyệt |
+| `wujia_portal_order_window` | Khung giờ portal đặt hàng — `wujia.order.window` per-area + `res.config.settings` global fallback |
 
-→ Chi tiết: `wujia-tea-doc.tex` §1.3 (modules đã hoàn thành) + §1.5 (dependency tree).
-
----
-
-## §3 wujia-adr-summary
-
-**15 ADR + ADR-016 mới (Sprint 5).** Ngắn gọn 1 dòng/ADR:
-
-1. ADR-001 — Tách `odoo19` source ra khỏi project khác để upgrade độc lập.
-2. ADR-002 — Dùng venv conda `odoo` (Python 3.10) thay vì system Python.
-3. ADR-003 — Postgres role riêng `odoo19` để tránh đụng project khác.
-4. ADR-004 — Custom portal Vuexy thay vì `/my` chuẩn Odoo (BA spec).
-5. ADR-005 — Model mới `wujia.franchise.member` thay vì sửa `franchise.management` v14.
-6. ADR-006 — Real-time qua `bus.bus` + WebSocket Odoo native (không Socket.IO ngoài).
-7. ADR-007 — Tách 3 module cho Sprint Order + History để phân quyền và deploy độc lập.
-8. ADR-008 — URL kebab-case (`/portal/purchase-history`) + 301 redirect từ snake_case v14.
-9. ADR-009 — Block portal feature → defer sprint sau (chấp nhận skeleton trước).
-10. ADR-010 — 3 field địa chỉ giao trên `sale.order` (province/district/ward) thay vì 1 free text.
-11. ADR-011 — Active branch picker xảy ra TẠI LOGIN (1 user nhiều chi nhánh).
-12. ADR-012 — *bị overrule bởi ADR-015* — định tách `wujia_franchise_management` ra module riêng.
-13. ADR-013 — `res.area` / `res.ward` đặt trong `wujia_core` (master data dùng chung).
-14. ADR-014 — `wujia.franchise.member` có UI độc lập, không sửa form `res.users` gốc.
-15. ADR-015 — Gộp `wujia_franchise_management` → `wujia_franchise` chống circular dep.
-16. ADR-016 (Sprint 5) — Không tạo `wujia.support.ticket.message`; dùng `mail.message` chuẩn thông qua `message_post()` override.
-
-→ Chi tiết: `wujia-tea-doc.tex` chap 2 + chap 13 (ADR-016).
+→ Chi tiết: `wujia-tea-doc.tex` §1.3, §1.5.
 
 ---
 
-## §4 wujia-sprint-history
+## §3 wujia-adr-summary (16 ADR)
 
-**Sprint 1+2** — `wujia_core`, `wujia_franchise`, `wujia_sale`. Master data địa bàn + franchise + sale.order ext + tính khối lượng (Day 1) + perf optimizations (Day 2: ormcache lookup chi nhánh user, store + index `is_currently_valid` + cron daily recompute).
+ADR-001 odoo19 source độc lập / ADR-002 venv conda `odoo` (py3.10) / ADR-003 PG role `odoo19` / ADR-004 custom portal Vuexy thay `/my` / ADR-005 model mới `wujia.franchise.member` / ADR-006 realtime `bus.bus` Odoo native / ADR-007 tách module Order+History / ADR-008 URL kebab-case + 301 redirect / ADR-009 block portal feature → defer / ADR-010 3 field địa chỉ giao / ADR-011 active branch picker TẠI LOGIN / ADR-012 *overruled by ADR-015* / ADR-013 `res.area`/`res.ward` ở `wujia_core` / ADR-014 `wujia.franchise.member` UI độc lập / ADR-015 gộp `wujia_franchise_management` → `wujia_franchise` / ADR-016 (Sprint 5) dùng `mail.message` chuẩn via `message_post()`, không tạo `wujia.support.ticket.message`.
 
-**Sprint 3** (2026-05-02) — `wujia_fleet` + `wujia_delivery`. Nhà xe, loại xe, xe, bảng giá; `stock.picking/batch` ext + cước vận chuyển; refactor 2026-04-30 (BA spec mục A): `res.ward`, `res.area`, `wujia.franchise.management/member`, mass calc trên `sale.order.line`, `sale.order`, `stock.move`, `stock.picking[.batch]`.
-
-**Sprint 4.0–4.2** — 9 portal skeleton (`portal_layout` → `portal_support`) + Vuexy sidebar + sidebar overlay + card header convention.
-
-**Sprint 4.3** (2026-05-15) — BA color palette 19 màu qua CSS vars trong `_variables.css`; Inter font self-host; card-header flush 6px convention.
-
-**Sprint 4.4** (2026-05-15) — Backend admin view cho `wujia_portal_knowledge` (category/article CRUD) + `wujia_portal_support` (ticket form/list/kanban/search + action buttons); POST handler portal ticket create với file attachment; docs sync 7 chỗ.
-
-**Sprint 5** (2026-05-16, đã deploy) — `sale.order.batch_id` compute store; knowledge full BA (state Selection, portal_badge, tag M2m model mới, sequence KNW-, cron daily, `is_published_portal` compute store); support full BA (rename `subject→title`, `user_id→created_by_id`, `handler→assigned`, category M2o model mới, 6-state, analytics `message_post` override, `sale_order_id` + `picking_batch_id` link); ADR-016; i18n `.pot` + `vi_VN.po` skeleton. **Test 20/20 pass.** Wrapper `scripts/reseed_full.{sh,ps1}` cho drop+install+seed+test 1 lệnh.
-
-**Sprint 6** (2026-05-17) — Portal controller wiring + performance hardening cho 1500 user. 18 routes mới: forgot/reset password (rate-limit 10/h, anti email-enum), profile editable + avatar serve (ETag + Cache-Control private 300s) + change-password POST, franchise switch POST explicit, cart hybrid AJAX (`/cart/add|update|remove|count` jsonrpc + atomic SQL `UPDATE ... RETURNING` chống race 2 tab, rate-limit 60/min) + `/order/product/<id>` + `/order/cart` view + `/order/submit` PRG, return POST với multi-upload (shared `attach_files_to_record` helper validate MIME + size + `secure_filename`), exam register jsonrpc với `SELECT FOR UPDATE` race-safe + cancel. Shared utils `wujia_portal_base/controllers/utils.py` (rate-limit decorator + attach helper). RC=0, smoke 14 routes pass.
-
-**Sprint 7** (2026-05-17) — Module mới `wujia_portal_info_request` (model `wujia.info.update.request` với sequence INF-, request_type 7-option, state draft→submitted→reviewing→approved/rejected, chatter inherit, record rule franchise scope + self-edit only, 5 routes portal + backend HQ duyệt) + 8 extension routes: notification mark-read/unread-count jsonrpc, knowledge search-as-you-type jsonrpc, support/return attachment download stream (ACL franchise gate), purchase-history `.pdf` qua `sale.action_report_saleorder`, delivery `.ics` cho Google/Outlook, report orders `.xlsx` qua `xlsxwriter` in-memory. **Tổng 30 routes Sprint 6+7.** 12 portal modules verified `installed`. Fix inline khi install: search view v19 `<group name=>` không `string=`, button form không cho `name="write"+context=` → dùng method riêng `action_start_review`. Known issue pre-existing (Sprint 4): `layouts.xml` dùng `env.company.favicon` không tồn tại v19 → fix Sprint 8 follow-up.
-
-**Sprint 8** (2026-05-21) — Gói 4 mục tiêu trong 1 sprint sau khi BA Hùng bổ sung 3 task T-031/T-032/T-033 + sheet mới "5. Issue List": (1) **Fix-up** favicon 500 (`env.company.favicon` → `env.company.logo or ''`). (2) **BA Section A** — route mới `/portal/franchise-information` readonly menu top-level (cookie active franchise, 3 card: store details / contract / member tab, gate `portal_locked` + `status != 'active'` → locked page); inject sidenav link priority 20 sau `nav_item_home`. (3) **BA Section B + B.5 + Mục I** — audit mapping `sale.order` portal (9/9 BA field đã có sẵn từ Sprint 2-5; chỉ thêm `origin="Wujia Portal"`), module mới `wujia_portal_order_window` triển khai cả BA Mục I (model `wujia.order.window` per-area, multi-record/khu vực) lẫn Section B.5 (global fallback `res.config.settings`). Helper cascade `_is_within_order_window(area_id)` ưu tiên window theo area (OR-merge nhiều ca), fallback global; controller resolve area từ active franchise; `sale.order.create` extract `franchise_id.area_id` cho defense-in-depth. Backend menu Sales → Configuration → Wujia Portal → Khung giờ đặt hàng. **Lưu ý — initial impl chỉ global; user feedback yêu cầu refactor về per-area theo Mục I, đã sửa cùng Sprint 8.** (4) **Sheet "5. Issue List"** — refactor design token `_variables.css` (UI-04 `primary-soft #EAF7FD`, UI-09 `bg-page #F6F8FA`, UI-11 `card-radius 14px` + `border #E5E7EB`, UI-06 sidebar logo 200px, UI-03 menu-height 44 + icon 20, UI-08 header padding 28, UI-12 btn-height 42, UI-10 body 15px) + tạo `_components.css` shared (`.wujia-btn` chuẩn, `.wujia-badge[-success/warning/danger/info/muted]` soft pill, `.wujia-empty-state`, `.wujia-two-pane` responsive) + override active menu nền soft trong `_wujia_theme.css`. **Install + upgrade 4 module RC=0.** 18 module `/custom/` active.
-
-**Sprint 9** (2026-05-23, IN PROGRESS — 1 issue = 1 sprint con, BA order) — Refactor Portal UI theo sheet **"5. Issue List"** (13 issue UI-01..UI-15 + 1 unnumbered Empty state), BA Hùng cập nhật 2026-05-22 kèm 12 mockup ảnh `xl/media/image22-33.png`. Nguyên tắc tuyệt đối: **không bịa spec** — mỗi sprint con đọc lại 2 cột G ("Đề xuất điều chỉnh") + H ("Kết quả mong muốn") trực tiếp từ xlsm, không suy diễn, không tự thêm thuộc tính. Code thuần English (BA tự lo `.po`, không tạo `.po` Sprint 9). Workflow: paste BA spec exact → grep v19 hiện trạng → plan ngắn → user approve → edit → `scripts/upgrade.sh` RC=0 → restart Odoo → screenshot vs BA mockup col F/G → loop fix → next issue. **Trạng thái:** **UI-01 DONE** (2026-05-23) — `_wujia_theme.css` active menu item BG `--wujia-primary` #22A9DE + text/icon `#FFFFFF` (BA: "chuyển icon và text sang màu trắng" — chỉ apply khi active, không phải tất cả menu); 11 sidenav_inherit.xml + `layouts.xml` main "Home" replace `fa fa-*` solid → `feather icon-*` outline (truck/shopping-cart/edit/clock/bar-chart-2/bell/award/calendar/user-check/corner-up-left/life-buoy/book/home). Upgrade 11 portal module RC=0. **Còn lại 16 sprint con** (xem §9): UI-02, UI-03, UI-04, UI-05, UI-06, UI-07, UI-09, UI-11, UI-12, UI-14, UI-15, Empty + cleanup (301 redirect + xóa `wujia_account` stub) + final verify + doc + push.
-
-→ Chi tiết: `wujia-tea-doc.tex` chap 4-17 + `chapters/18-sprint9-issue-list-ui-refactor.tex` (sẽ tạo cuối Sprint 9).
+→ Chi tiết: `wujia-tea-doc.tex` chap 2 + chap 13.
 
 ---
 
-## §5 wujia-current-status-and-remaining
+## §4 wujia-sprint-history (compact)
 
-**Tình trạng (2026-05-27):** 18 module active. **Sprint 9 IN PROGRESS** — issue list portal UI refactor. **UI-01..UI-12 DONE** (push `main` 2026-05-27, UI-12 partial: home-only per BA scope). BA Hùng renumber issue list → §9 table đã đồng bộ (19 sprint con, UI-07..UI-13 mới). Còn 9.14–9.19: UI-13 Header Right + Empty + Cleanup + Verify + Doc + Push. Xem §9 wujia-sprint9-issue-list-state.
+| Sprint | Date | Outcome |
+|---|---|---|
+| 1–2 | 2026-04 | `wujia_core/franchise/sale` + perf (ormcache, store+index, cron) |
+| 3 | 2026-05-02 | `wujia_fleet` + `wujia_delivery` + BA section A refactor |
+| 4.0–4.4 | 2026-05-15 | 9 portal skeleton + Vuexy + BA palette 19 màu + backend admin Knowledge/Support + POST ticket |
+| 5 | 2026-05-16 (deployed) | Knowledge full BA + Support full BA + ADR-016 + i18n skel + test 20/20 pass + `reseed_full.{sh,ps1}` |
+| 6 | 2026-05-17 | 18 portal route mới: forgot/reset PW (rate-limit anti-enum), profile+avatar ETag, cart hybrid AJAX atomic SQL, exam SELECT FOR UPDATE, shared `rate_limit` + `attach_files_to_record` utils |
+| 7 | 2026-05-17 | `wujia_portal_info_request` (model + 5 route + chatter) + 8 ext route (noti mark-read jsonrpc, knowledge SAYT, attachment dl, PDF/ICS/XLSX export). 30 route Sprint 6+7 |
+| 8 | 2026-05-21 | favicon fix + BA §A `/portal/franchise-information` readonly + BA §B order portal mapping + module mới `wujia_portal_order_window` (per-area + global fallback) + design token `_variables.css` + `_components.css` shared (`wujia-btn`/`wujia-badge-*`/`wujia-empty-state`/`wujia-two-pane`) |
+| 9.1–9.13b | 2026-05-23..27 | Portal UI refactor theo BA sheet "5. Issue List" — xem §9 |
 
-**Còn lại Phase 1.0** (BA spec):
-- **Sprint 9 (in progress)** — UI-13 Header Right Actions + Empty state + cleanup (xem §9 bảng).
-- T-031 "Mockup quản lý vận hành nội bộ" (BA Hùng đã mockup) → defer Sprint 10.
-- Load test 100+ concurrent user qua locust (Task `scripts/locust_portal.py` chưa làm).
-- Affiliate/commission portal 12 route v14 — defer roadmap (`chapters/19-roadmap-v14-gaps.tex`).
-- Dashboard ApexChart, TOTP 2FA, Portal Signup, Calendar booking, Upload video, QR scan in/out — defer (xem bảng "Deferred v14 features" chap 16).
-- Phase 1.0 các trang khác sẽ liệt kê khi anh start sprint mới.
-
-**Phase 2.0 (future):**
-- Employee Management.
-- Debt Overview.
-- Payment History.
-- Training Reports.
-- User Invitations / Permissions.
-
-**Lưu ý kỹ thuật cần follow ở mọi sprint mới:**
-- ⚠️ **BẮT BUỘC ĐỌC SOURCE CODE TRƯỚC KHI SỬA — KHÔNG ĐOÁN TÊN MODEL/FIELD/METHOD.** Trước khi reference bất kỳ model nào (vd `wujia.franchise.management` vs `res.franchise`), method nào (vd `_get_accessible_franchise_ids` vs `get_franchise_ids`), helper nào (`get_active_franchise_id` ở `wujia_portal_base/controllers/portal.py` chứ KHÔNG ở `utils.py`) → `grep -rn "_name = '" custom/<module>/models/` + `grep -rn "def <method_name>" custom/`. Tên model thực: `wujia.franchise.management` (NOT `res.franchise`), `wujia.franchise.member`, `wujia.order.window`, `res.area`, `res.ward`. Lỗi 500 do đoán bừa tên model làm production xuống → user feedback nghiêm khắc 2026-05-21.
-- Portal CSS: bắt buộc dùng CSS var trong `_variables.css` + class share trong `_components.css` (`.wujia-btn`, `.wujia-badge-*`, `.wujia-empty-state`), không hex cứng → [[feedback_wujia_portal_conventions]].
-- Demo data: KHÔNG đưa vào manifest XML → dùng `scripts/seed_*.py` local-only → [[feedback_demo_data]].
-- View Odoo 19: không `attrs=`, không `decoration-secondary`, group search dùng `name="group_by"`, **bỏ `expand="0"` ở `<group>` search (RNG schema v19 không còn chấp nhận)**, **`_sql_constraints` → `models.Constraint`** → [[reference_odoo19_gotchas]].
-- Commit message: tiếng Anh, Conventional Commits → [[feedback_git_commit_english]].
-- Field rename: pre-migrate trước khi `-u` để tránh drop column → [[feedback_field_rename_data_loss]].
-- i18n: viết string tiếng Anh, BA dịch `vi_VN.po` → [[feedback_odoo_i18n_workflow]].
-
-→ Chi tiết: `wujia-tea-doc.tex` §1.4 (Còn lại Sprint 5+).
+→ Chi tiết: `chapters/04-17.tex` + `chapters/18-sprint9-issue-list-ui-refactor.tex` (cuối Sprint 9).
 
 ---
 
-## §6 wujia-deploy-sprint5
+## §5 wujia-current-status
 
-**Lý do Sprint 5 cần deploy đặc biệt:** field rename trên skeleton module (`wujia_portal_support`: subject→title, user_id→created_by_id, handler→assigned; `wujia_portal_knowledge` thêm state Selection). Odoo 19 `-u` sẽ drop column orphan ngay → mất data.
+**State (2026-05-27):** 18 module active. **Sprint 9 in progress** — UI-01..UI-12 + Sprint 9.13b DONE. Push `main` đã có 0ce1886 / 4d36452 / ba4245d / a85d9c3 (Sprint 9.13b). Còn 9.14–9.19.
 
-**Vì là skeleton chưa có data thật → chọn drop+init thay vì pre-migrate.**
+**Còn lại Phase 1.0:**
+- 9.14 UI-13 Header Right Actions (icon Language + Cart + Notification + Account với user name + avatar).
+- 9.15 Empty state chuẩn (icon nhỏ + text + spacing).
+- 9.16 Cleanup: 301 redirect `/portal/purchase_history` → kebab-case + xóa stub `custom/wujia_account/`.
+- 9.17 Verify: `reseed_full.sh` RC=0 + `test_sprint9.py` + screenshot.
+- 9.18 Doc: `chapters/18-sprint9-issue-list-ui-refactor.tex` + recompile PDF + update §2/§4/§5/§9.
+- 9.19 Push: commit EN + deploy Windows.
+- Defer: T-031 mockup ops, locust 100+ load test, affiliate v14 gap, Dashboard ApexChart, TOTP 2FA, Calendar booking, QR scan, MẪU 03-06 từ `docs/sample.jpg`.
 
-**1-lệnh trên Windows server:**
+**Phase 2.0 (future):** Employee Mgmt / Debt Overview / Payment History / Training Reports / User Invitations.
+
+**Non-negotiable rules cho mọi session:**
+- ⚠️ **ĐỌC SOURCE TRƯỚC KHI SỬA — KHÔNG ĐOÁN tên model/field/method.** `grep -rn "_name = '" custom/<mod>/models/` + `grep -rn "def <method>" custom/`. Tên thực: `wujia.franchise.management` (NOT `res.franchise`), `wujia.franchise.member`, `wujia.order.window`, `res.area`, `res.ward`. Helper portal: `get_active_franchise_id()` / `get_active_franchise_ids_filter()` ở `wujia_portal_base/controllers/portal.py` (KHÔNG `utils.py`).
+- ⚠️ **REGRESSION CHECK — XEM CÁC UI CŨ TRƯỚC KHI FIX UI MỚI.** Trước khi sửa CSS/token/template cho 1 issue mới, BẮT BUỘC:
+  - `grep -rn "<selector|token|class>" custom/` xem rule hiện có ai dùng → tránh sửa nhầm style chung làm UI cũ vỡ (vd token `--wujia-card-radius` ảnh hưởng MỌI `.card`, `--wujia-text-primary` ảnh hưởng MỌI text — phải hiểu blast radius).
+  - Đọc lại §9 "Files đã chạm" của các sprint con trước để biết file/selector nào đã touch và spec ràng buộc nào còn áp.
+  - Sau khi ship: visual smoke 3-5 page khác (không chỉ page đang sửa) để bắt regression. CSS scope càng global thì test càng rộng.
+  - Cụ thể với token typography/color/radius/spacing: bump = side-effect toàn portal, KHÔNG inline override.
+- CSS bắt buộc dùng `var(--wujia-*)` trong `_variables.css` + class share `_components.css` (`.wujia-btn`, `.wujia-badge-*`, `.wujia-empty-state`, `.wujia-content-card*`, `.wujia-kpi-card*`). Không hex cứng.
+- Demo data: KHÔNG vào manifest XML → `scripts/seed_*.py` local-only.
+- View Odoo 19: không `attrs=`, không `decoration-secondary`, group search `name="group_by"`, **bỏ `expand="0"` ở `<group>` search**, **`_sql_constraints` → `models.Constraint`**.
+- Commit: English Conventional Commits. Không `--no-verify`.
+- Field rename: pre-migrate trước `-u` để tránh drop column.
+- i18n: code English, BA dịch `vi_VN.po` (defer Sprint 10).
+
+→ Chi tiết: `wujia-tea-doc.tex` §1.4.
+
+---
+
+## §6 wujia-deploy
+
+**Sprint 5 đã deploy.** Sprint 9.x deploy qua `git pull` + restart (no schema change). Field rename → cần `reseed_full.ps1` drop+init khi skeleton.
+
+**Windows 1-lệnh:**
 ```powershell
 nssm stop Odoo
 powershell -File D:\wujia-tea\scripts\reseed_full.ps1
 nssm start Odoo
 ```
 
-**Các bước reseed_full.ps1 thực hiện:**
-1. `git pull` ở `D:\wujia-tea`.
-2. PostgreSQL: drop + create DB `wujia_tea_19` (user `odoo19/1`).
-3. Install full chain 16 module (đặt UTF-8 encoding env trước: `PYTHONUTF8=1`, `PYTHONIOENCODING=utf-8`, `chcp 65001`, `[Console]::OutputEncoding=UTF8`).
-4. Seed 5 script: `seed_admin_franchise`, `seed_fleet_demo`, `seed_portal_demo`, `seed_knowledge_demo`, `seed_support_demo`.
-5. Smoke test `test_sprint5.py` — expect 20 PASS / 0 FAIL.
+`reseed_full.ps1`: git pull → drop+create DB → install full chain → seed 5 script → `test_sprint5.py` 20 PASS. UTF-8 env vars BẮT BUỘC trước seed (`PYTHONUTF8=1`, `chcp 65001`, `[Console]::OutputEncoding=UTF8`).
 
-**Tham khảo:** `WujiaTea/docs/DEPLOY_SPRINT5.md` + `WujiaTea/docs/CHECKLIST.tex` (server setup ban đầu) + `scripts/setup-server.ps1` (Git/Docker/SSH 1 lần đầu).
-
-→ Chi tiết: `wujia-tea-doc.tex` chap 13 + `DEPLOY_SPRINT5.md`.
+→ `DEPLOY_SPRINT5.md` + `CHECKLIST.tex` + `setup-server.ps1`.
 
 ---
 
 ## §7 wujia-start-instruction
 
-**Operating rules — áp cho MỌI session WujiaTea.** Slash command `/wujia-start` đọc section này + apply.
+Slash `/wujia-start` apply operating rules cho session:
 
-> - Dự án **WujiaTea** v14 (legacy, công ty khác làm): `/home/huyban/odoo-dev/wujia_tea_odoo14` — **template tham khảo**, không sửa.
-> - Dự án v19 (đang làm): `/home/huyban/odoo-dev/WujiaTea` — migrate + optimize + thêm feature.
-> - BA spec + analytics: `/home/huyban/odoo-dev/WujiaTea/docs/Wujia_Internal ERP Master Plan.xlsm` (xlsm, đọc qua openpyxl). Sheet quan trọng: `1. Model Field` (backend), `2. FE - Portal` (frontend), `FEATURE CHECKLIST` (tổng quan).
-> - Sprint log + tiến độ: `/home/huyban/odoo-dev/WujiaTea/docs/wujia-tea-doc.pdf` (compile từ `chapters/*.tex` qua `scripts/build-doc.sh`). Đã split theo chapter từ 2026-05-16.
->
-> **Phạm vi feature hiện tại (cập nhật 2026-05-17):**
-> - ✅ Model/Field A (quản lý nhượng quyền) + B (quản lý đội xe) — xong, BA có 1 vài điều chỉnh nhỏ.
-> - 🟡 Portal FE (sheet "2 - FE portal") — sơ bộ; KHÔNG làm tiếp trong các session backend.
-> - ⏳ Model/Field C (quản lý kiến thức nhượng quyền), E (quản lý ticket) — chưa làm.
-> - ❌ Model/Field D — BA chưa phân tích, **skip**.
->
-> **Cách làm:**
-> 1. Mỗi feature có folder code v14 làm template tham khảo + sheet BA cho yêu cầu v19.
-> 2. Giai đoạn hiện tại **CHỈ làm giao diện**: button có nhưng chưa cần wire backend, miễn show layout đúng BA.
-> 3. Khi xong: update sprint log trong `chapters/` (file con riêng cho sprint mới) + master `\include` + recompile PDF.
-> 4. Tự test bằng script trong `WujiaTea/scripts/` + thao tác trực tiếp.
-> 5. Khi xong + anh OK: push GitHub (token `~/.git-credentials`).
->
-> **Hiệu năng — bắt buộc:** portal **1500 user** → code phải mượt, không "chạy được là được". Tối ưu từ đầu:
-> - `ormcache` cho method tính toán phổ biến.
-> - `store=True` + `index=True` cho computed field hay query.
-> - Cron daily thay vì compute on-the-fly khi không cần realtime.
-> - Tránh N+1: prefetch, `read_group` thay vì loop.
->
-> **Quy tắc (NON-NEGOTIABLE):**
-> - **TUYỆT ĐỐI KHÔNG ĐOÁN TÊN MODEL/FIELD/HELPER.** Mỗi khi cần reference model (`env['xxx']`) hoặc field/method → `grep -rn "_name = '" custom/<mod>/models/` + `grep -rn "def <name>" custom/` trước. Không có exception. Tên thực: `wujia.franchise.management` / `wujia.franchise.member` / `wujia.order.window` / `res.area` / `res.ward`. Helper portal: `get_active_franchise_id()` / `get_active_franchise_ids_filter()` định nghĩa trong `wujia_portal_base/controllers/portal.py` (KHÔNG phải utils.py).
-> - **Không chắc → HỎI**, đừng tự ý code.
-> - **Read-before-write**: xem code v19 hiện tại có gì rồi mới làm tiếp.
-> - **Không demo data trong manifest XML** (Odoo gốc tránh load demo khi production). Nếu cần demo: viết script Python riêng.
-> - **Commit message: English + Conventional Commits** (vd `feat(wujia_franchise): add batch_id m2o on sale.order`).
-> - **Không `git --no-verify`**, không bypass hook.
-> - **Cuối session**: end-of-sprint ritual qua `/wujia-end-sprint` (test → doc → PDF → commit → push → recap).
+- v14 ref `/home/huyban/odoo-dev/wujia_tea_odoo14` — không sửa.
+- v19 active `/home/huyban/odoo-dev/WujiaTea`.
+- BA spec xlsm `WujiaTea/docs/Wujia_Internal ERP Master Plan.xlsm` (sheet "1. Model Field" backend, "2. FE - Portal" frontend, "5. Issue List" UI sprint 9, "FEATURE CHECKLIST").
+- Sprint log `wujia-tea-doc.pdf` (compile từ `chapters/*.tex` qua `scripts/build-doc.sh`).
+- Scope hiện tại: ✅ Model/Field A+B done / 🟡 Portal FE skeleton / ⏳ C+E chưa / ❌ D skip.
+- **UI-only:** button có chưa cần wire backend, miễn layout đúng BA.
+- **Perf-first 1500 user:** ormcache, store+index, cron daily, prefetch.
+- **Ask-don't-assume + Read-before-write.**
+- End session: `/wujia-end-sprint` (test → doc → PDF → commit → push).
 
-**→ Slash command: `~/.claude/commands/wujia-start.md`.**
+Slash commands: `/wujia-start` `/wujia-load-feature <letters>` `/wujia-save-insight` `/wujia-end-sprint`.
 
 ---
 
-## §8 wujia-session-required-template
+## §8 wujia-session-template
 
-**Pattern cho session-specific block** — paste sau `/wujia-start` để giao task cụ thể cho session.
-
-Template (anh fill in các `<...>`):
+Pattern paste sau `/wujia-start` để giao task:
 
 ```
-Trong session này, em làm <tóm tắt 1 câu>.
+Session này em làm <1 câu tóm tắt>.
 
 Cụ thể:
-1. Reference: v14 ở <path nếu có>, sheet BA <Sheet!Section>, sprint log chapter <XX-...>.
+1. Ref: v14 <path>, BA <Sheet!Section>, chapter <XX>.
 2. Task A: <mô tả>.
-3. Task B (nếu có): <mô tả>.
-4. Out-of-scope: <việc không làm dù liên quan, để khỏi lan man>.
+3. Task B: <mô tả>.
+4. Out-of-scope: <không làm>.
 
-Discovery trước, code sau:
-- Xem code v19 hiện có chạm chưa.
-- Đối chiếu BA spec — chỗ nào không rõ HỎI.
-- Đề xuất plan (model/field/view) → đợi anh duyệt → mới code.
+Discovery → plan → user approve → code → upgrade RC=0 → screenshot → commit.
 
-Tối ưu performance: <điểm cần lưu ý cụ thể, vd "field này sẽ query trên 1500 user/ngày">.
+Perf: <điểm cần lưu ý, vd query trên 1500 user>.
 
-Xong xuôi: chạy /wujia-end-sprint để test → doc → push.
+Xong: /wujia-end-sprint.
 ```
-
-**Ví dụ thực tế** (session 2026-05-17 — bổ sung A/B + review C/E):
-
-```
-Trong session này, em hoàn thiện model/field A+B (bổ sung field BA mới) và review C+E.
-
-Cụ thể:
-1. Reference: v14 ở /home/huyban/odoo-dev/wujia_tea_odoo14, sheet BA "1. Model Field" mục A+B+C+E, sprint log chapters/04-sprint2-day1-wujia-sale.tex + chapters/07-sprint3-fleet-delivery.tex.
-2. Task A: thêm field Batch (batch_id, Many2one → stock.picking.batch) trên sale.order. Compute: lấy picking_ids → lấy batch_id của picking đầu tiên không bị cancel. Yêu cầu store=True + index=True (portal hay query).
-3. Task B: review C (quản lý kiến thức nhượng quyền) + E (quản lý ticket) trong sheet BA, đối chiếu code v19 hiện có — thiếu gì bổ sung.
-4. Out-of-scope: KHÔNG làm portal FE session này.
-
-Discovery trước, code sau (xem v19 + đối chiếu BA + đề xuất plan → đợi duyệt → mới code).
-
-Tối ưu performance: batch_id sẽ hiển thị ở portal danh sách đơn hàng — store=True bắt buộc.
-
-Xong xuôi chạy /wujia-end-sprint.
-```
-
-**Slash command helper:** `/wujia-load-feature <letter>` (vd `/wujia-load-feature C E`) → tự extract BA spec sheet rows cho feature đó vào context.
-
-**→ Slash commands list:**
-- `/wujia-start` — load operating rules (đầu session).
-- `/wujia-load-feature <letters>` — load BA spec cho feature cụ thể.
-- `/wujia-save-insight` — lưu insight mới (append markdown + agentmemory).
-- `/wujia-end-sprint` — end-of-session ritual (test → doc → PDF → commit → push → recap).
 
 ---
 
 ## §9 wujia-sprint9-issue-list-state
 
-**Sprint 9 = 19 sprint con, 1 issue = 1 sprint con, BA order.** Sheet "5. Issue List" trong `WujiaTea/docs/Wujia_Internal ERP Master Plan.xlsm` là **single source of truth**. Mỗi sprint con BẮT ĐẦU bằng việc đọc lại 2 cột G + H của issue đó từ xlsm — **TUYỆT ĐỐI KHÔNG bịa**, không suy diễn thêm thuộc tính ngoài cột G/H.
-
-### Bảng BA spec exact (cập nhật từ xlsm sheet "5. Issue List" 2026-05-26 — BA Hùng đã renumber + thêm issue mới)
-
-| # | ID | Khu vực | Đề xuất điều chỉnh (cột G) / Vấn đề | Kết quả mong muốn (cột H) | Trạng thái |
-|---|---|---|---|---|---|
-| 9.1 | UI-01 | Sidebar | Chuyển icon và text sang **màu trắng** (khi active) | icon **20–22px**, text **16px**, item height **44–48px**, gap **12px** | ✅ DONE 2026-05-23 |
-| 9.2 | UI-02 | Sidebar | **Bỏ phần thông tin user** tại sidebar | (none) | ✅ DONE 2026-05-24 |
-| 9.3 | UI-03 | Header PC | Xây dựng lại hiển thị thông tin cửa hàng trên header PC | block **Current Store [H000] tên** + **role badge** + **language** + **avatar** | ✅ DONE 2026-05-24 (3 attempts — xem §10 final spec) |
-| 9.4 | UI-04 | Header mobile | Như UI-03 nhưng mobile | block Current Store + role badge + language + avatar (responsive) | ✅ DONE 2026-05-24 (sub-strip below navbar, visual ngược UI-03 — bg white + label cyan + name đen, 3-row stacked) |
-| 9.5 | UI-05 | Button | Chuẩn hoá button toàn portal | Primary: **nền xanh, chữ trắng, h 40–44px**. Secondary: **nền trắng, viền xám, h 36–40px** (BA KHÔNG nói "text xám" — không bịa). Cùng loại phải giống nhau mọi page. | ✅ DONE 2026-05-24 (gom 4 alias secondary thành 1 style, fix icon line-height conflict với Vuexy, cache-bust `?v=953` cho browser, 4 legacy cleanup) |
-| **9.6** | **Mobile fix** | **Hamburger + responsive foundation** (chèn TRƯỚC UI-06 theo yêu cầu user 2026-05-25) | Hamburger toggle work ở range 768-1199px + responsive auto-scale foundation: `html { font-size }` step 14→15→16px theo viewport + 3 utility class `.wujia-container .wujia-grid-responsive .wujia-stack-mobile` | ✅ DONE 2026-05-25 |
-| 9.7 | UI-06 | Card | Background page chưa chuẩn, cần đậm thêm | Page **#F5F7FA hoặc #F6F8FA**; card **trắng #FFFFFF**. | ✅ DONE 2026-05-25 (page bg `#E8ECEF` — đậm hơn BA spec, anh chọn sau 2 iter) |
-| 9.8 | UI-07 | Top Header / Top Bar | Header đang hơi cao, phần trên màn hình nặng | Height **64–72px**, căn giữa item theo chiều dọc | ✅ DONE 2026-05-25 (72px, Sprint 9.9 cũ — logo area sidebar cũng fix cùng sprint) |
-| 9.9 | UI-08 | Page Title | Page Title hơi nhạt và nhỏ | Color **#111827** hoặc #0F172A, font-size **24px**, weight **700** | ✅ DONE 2026-05-25 (token `--wujia-page-title-*` + rule `_wujia_theme.css:274-280`) |
-| 9.10 | UI-09 | Page Subtitle / Description | Màu sắc hiện tại đang hơi nhạt | Text bình thường: **#6B7280**, font-size **14–15px**, weight **400** | ✅ DONE 2026-05-27 |
-| 9.11 | UI-10 | Font chữ | Đồng nhất một font chữ trên portal, dùng cho tất cả các trang | (H empty — Inter self-hosted, đồng nhất toàn portal) | ✅ DONE 2026-05-27 |
-| 9.12 | UI-11 | KPI Cards / Summary Cards | — | Card trắng, bo góc **16px**, shadow nhẹ, height **≈100px**, padding **20–24px**; icon area **72×72px** nền **#28A9DF**, icon trắng; line dọc **1px #D1D5DB** tách icon và nội dung | ✅ DONE 2026-05-27 (gom 2 class system .stat-card + .report-kpi thành 1 component `.wujia-kpi-card` chung trong `_components.css`, apply 8 card across 2 page; portal_home có chevron + clickable, portal_report no chevron) |
-| 9.13 | UI-12 | Content Card | — | Card trắng, bo góc **16px**, shadow nhẹ, padding **20–24px**; card header: icon tròn **#28A9DF**, title đậm, nút "Xem tất cả" **#28A9DF** phải; list row: bullet **#28A9DF**; Typography: title **#111827**, body **#374151**, phụ/date **#6B7280** | ✅ DONE 2026-05-27 (scope **portal_home only** — BA spec rõ ràng "Xem tất cả" là pattern home-summary card, 4 list page full-listing không cần. Lần đầu over-applied sang 4 list page (notification/knowledge/purchase-history/return) qua `--flush` variant → render trắng → revert. Token typography global bump #111827/#374151 (Tailwind gray) giữ lại) |
-| 9.14 | UI-13 | Header Right Actions | Thông tin tài khoản cần hiển thị thêm tên user | Icon Language + Cart + Notification + Account (**user name + avatar**) | ⬜ pending |
-| 9.15 | Empty | Empty state | Empty state "Chưa có dữ liệu" còn thô | **icon nhỏ + dòng text + khoảng trắng chuẩn** | ⬜ pending |
-| 9.16 | — | Cleanup | (Quick wins, không trong Issue List) | 301 redirect `/portal/purchase_history` → `/portal/purchase-history`, `/portal/return-request-list`, `/portal/exam-registration` + xóa `custom/wujia_account/` stub trống | ⬜ pending |
-| 9.17 | — | Verify | — | `scripts/reseed_full.sh` RC=0 + `scripts/test_sprint9.py` + screenshot | ⬜ pending |
-| 9.18 | — | Doc | — | `chapters/18-sprint9-issue-list-ui-refactor.tex` + `chapters/19-roadmap-v14-gaps.tex` + master `\include` + recompile PDF + update §2/§4/§5/§9 file này | ⬜ pending |
-| 9.19 | — | Push | — | Commit Conventional EN + push `main` + cho lệnh deploy Windows | ⬜ pending |
-
-### Files đã chạm (Sprint 9.1)
-
-- `custom/wujia_portal_layout/static/assets/css/_wujia_theme.css` — active state BG primary + color #FFF + icon color #FFF (cũ: primary-soft + active-text).
-- `custom/wujia_portal_layout/views/layouts.xml` — `fa fa-home` → `feather icon-home` + "Trang chủ" → "Home".
-- `custom/wujia_portal_{delivery,sale,info_request,purchase_history,report,notification,exam,return,support,knowledge}/views/sidenav_inherit.xml` — 11 file, replace toàn bộ `fa fa-*` solid → `feather icon-*` outline.
-
-### Files đã chạm (Sprint 9.2)
-
-- `custom/wujia_portal_layout/views/layouts.xml` — xoá block `<div class="sidebar-header mt-3">…</div>` (user-pic + user-info, 12 dòng).
-- `custom/wujia_portal_layout/static/assets/css/style.css` — xoá 33 dòng CSS orphan `.sidebar-header*`.
-- `custom/wujia_portal_layout/static/assets/css/_wujia_theme.css` — sửa comment "Logo + user-pic" → "Logo".
-
-### Files đã chạm (Sprint 9.5 — UI-05 Button, 2026-05-24)
-
-- `custom/wujia_portal_layout/static/assets/css/_variables.css` — thêm token `--wujia-btn-height-secondary: 38px` (mid range BA 36-40).
-- `custom/wujia_portal_layout/static/assets/css/_components.css` — refactor block button:
-  - `.btn / .wujia-btn` base: `min-height var(--wujia-btn-height)` (42), `padding 0 16px`, `display inline-flex` + `align-items center` + `justify-content center` + `gap 6px` + fallback `text-align center` + `vertical-align middle` + `line-height 1.4`.
-  - `.btn.btn-block / .wujia-btn.btn-block` ép `display flex` (vì Bootstrap `.btn-block` set `display:block` huỷ flex-center).
-  - **Icon vertical-align fix:** `.btn > i / .fa / .feather` set `line-height 1` + `display inline-flex` + `align-items center` + `vertical-align middle` — fix Vuexy `bootstrap.css:2552` `.btn { line-height: 1 }` làm icon Font Awesome lệch baseline so với text.
-  - Primary (`.btn-primary, .wujia-btn-primary`): bg `--wujia-primary` cyan + color `#FFFFFF`, hover `--wujia-primary-dark`.
-  - Secondary gom 4 alias (`.btn-secondary, .btn-outline-primary, .btn-outline-secondary, .wujia-btn-secondary`): bg `#FFFFFF` + border `1px solid --wujia-border` + color `--wujia-text-primary` + min-height 38, hover bg `--wujia-bg-page`. **Trade-off:** mất visual outline-primary cyan border cũ → đồng nhất theo BA cột I.
-  - Semantic (`.btn-success/.btn-danger/.btn-warning/.btn-info` + outline variants): chỉ force `min-height: 42` để đồng bộ chiều cao, giữ màu Bootstrap default.
-- `custom/wujia_portal_layout/static/assets/css/_wujia_theme.css` — xoá duplicate `.btn-primary { ... }` rule (đã có ở `_components.css`).
-- `custom/wujia_portal_layout/static/assets/css/style.css` — xoá `.bg-btn-primary` (zero usage) + `.btn-outline-primary-custom` (zero usage).
-- `custom/wujia_portal_layout/static/assets/css/dashboard.css` — xoá `.primary-btn` legacy v14 navy pill (bg #1e4080 border-radius 50px, chỉ dùng 1 lần ở `login_page.xml`).
-- `custom/wujia_portal_layout/views/login_page.xml` — migrate `.primary-btn` → `.btn .btn-primary` (line 67); xoá inline `style="color: var(--wujia-primary);"` thừa line 194 + line 197 (line 197 là BUG: cyan text trên cyan bg = invisible).
-- `custom/wujia_portal_layout/views/assets.xml` — thêm `?v=953` query string vào 5 CSS file (`_variables` + `style` + `dashboard` + `_wujia_theme` + `_components`) để bust browser cache (TTL 7 ngày).
-- `custom/wujia_portal_layout/__manifest__.py` — bump version `19.0.3.0.0` → `19.0.3.1.0`.
-
-**Verify:** Upgrade RC=0. wkhtmltoimage screenshot `/portal/info-request` + `/portal/order` xác nhận button cyan + white + icon-text canh giữa. CSS curl xác nhận `_components.css?v=953` serve nội dung mới (không còn `padding 0 16px` xung đột Vuexy).
-
-**Gotcha mới:**
-1. **Browser cache 7 ngày** — Odoo serve `/module/static/` với `Cache-Control: public, max-age=604800`. Mọi CSS change ở Sprint UI tiếp theo PHẢI bump `?v=` query trong `assets.xml` nếu không user sẽ thấy CSS cũ dù upgrade RC=0.
-2. **Vuexy `.btn { line-height: 1 }`** (`bootstrap.css:2552`) gây icon Font Awesome lệch baseline so với text trong button. Fix bằng rule `.btn > i { line-height: 1; display: inline-flex; align-items: center }` — KHÔNG đụng vào `.btn` base line-height (giữ 1.4 cho text wrap đa dòng).
-
-### Files đã chạm (Sprint 9.6 — Mobile fix + responsive foundation, 2026-05-25)
-
-**A — Hamburger fix (v3 dynamic body-class swap, V14 native pattern):**
-
-- `custom/wujia_portal_layout/static/assets/css/style.css:113-150` — Sprint 4.2 force-visible override đổi scope `@media (min-width: 992px)` → `@media (min-width: 1200px)`. Lý do: override cũ pin sidebar luôn show ở >=992px → toggle button ở range 992-1199px click vô hiệu. Ở <1200px shim JS swap body sang `vertical-overlay-menu` nên rule `.vertical-menu-modern` không fire — Vuexy native overlay CSS handle tất cả (sidebar/navbar/content/backdrop).
-- `custom/wujia_portal_layout/static/assets/js/wujia_responsive_menu.js` — **NEW FILE** dynamic shim: trên `DOMContentLoaded` + `window.resize` (debounce 100ms) + `orientationchange`, gọi `matchMedia('(min-width: 1200px)')` để swap `body.vertical-menu-modern` ↔ `body.vertical-overlay-menu`. Tái áp đặt logic Vuexy `app.js:44 Unison.on('change', $.app.menu.change)` mà bị miss khi DevTools resize / load race. Pure body class flip, KHÔNG có per-element `!important` override → không ảnh hưởng UI desktop trước đó.
-- `custom/wujia_portal_layout/static/assets/css/components.css:3632-3646` — chỉ còn comment block (v3 xóa toàn bộ `@media (max-width: 1199.98px)` heavy override v2 — không cần vì Vuexy native overlay CSS đã handle đủ một khi body class đúng).
-- `custom/wujia_portal_layout/views/layouts.xml:139` — thêm `<div class="sidenav-overlay"/>` sau closing `</div>` của `.main-menu` (Vuexy JS app-menu.js bind click handler + `open()/hide()` toggle `d-block/d-none` trên class này, chỉ cần DOM element tồn tại).
-- `custom/wujia_portal_layout/views/assets.xml` — thêm `<script src="wujia_responsive_menu.js?v=970"/>` cuối block `asset_style_js`.
-
-**Lý do v3 thay v2:** v2 dùng `body.vertical-menu-modern { ... !important }` đè width/margin/transform khắp navbar/content/footer để fix hardcode → fragile, ảnh hưởng các fix UI cũ, user feedback "đừng fix chết theo từng form". V3 trả về V14 pattern gốc: JS swap body class → Vuexy native CSS handle, zero hardcode CSS override.
-
-**B — Responsive auto-scale foundation:**
-
-- `custom/wujia_portal_layout/static/assets/css/_variables.css` — thêm 2 token + 1 block scaling:
-  - `--wujia-sidebar-transition: transform 0.25s ease-in-out`.
-  - 4 canonical breakpoint token `--wujia-bp-sm/md/lg/xl: 576/768/992/1200px` (chuẩn Bootstrap, document KHÔNG dùng 550/770/850 ad-hoc nữa).
-  - Block `html { font-size }` fluid scaling: 14px (<576), 14px (576+), 15px (768+), 16px (992+), 16px (1200+). Mọi giá trị rem trong codebase tự scale theo viewport — template KHÔNG phải tune từng @media per form.
-- `custom/wujia_portal_layout/static/assets/css/_components.css` — thêm 3 utility class shared (V14 KHÔNG có pattern này, build mới cho v19):
-  - `.wujia-container` — `width 100% + padding-inline clamp(12px,3vw,32px) + max-width 1400px`.
-  - `.wujia-grid-responsive` — `display grid + grid-template-columns repeat(auto-fit, minmax(min(280px,100%), 1fr)) + gap clamp(12px,2vw,24px)`. Replace verbose `col-12 col-md-6 col-lg-4`.
-  - `.wujia-stack-mobile [+ .wujia-row-md]` — column on mobile, optional row at >=768px.
-
-**Cache-bust + version:**
-
-- `custom/wujia_portal_layout/views/assets.xml` — bump tất cả `?v=953` → `?v=960` (5 file) + thêm `?v=960` vào `components.css` (trước Sprint 9.6 KHÔNG có cache-bust, vì components.css là Vuexy vendor không edit). **v3 (2026-05-25):** bump toàn bộ → `?v=970` cho JS shim mới.
-- `custom/wujia_portal_layout/__manifest__.py` — bump `19.0.3.1.0` → `19.0.4.0.0`.
-
-**Verify:** Upgrade RC=0 (`scripts/upgrade.sh wujia_portal_layout`). Curl xác nhận `components.css?v=960` serve Sprint 9.6 bridge rule, `_variables.css?v=960` serve root font-size block, `_components.css?v=960` serve `.wujia-grid-responsive`. Browser smoke test ở 3 viewport (375/800/1024/1280) — user verify thực tế.
-
-**Gotcha mới (Sprint 9.6):**
-
-1. **Mobile menu = vấn đề BODY CLASS, không phải CSS gap** — v1/v2 misdiagnosis: tưởng Vuexy CSS thiếu rule ở range 768-1199px, fix bằng `@media` override hardcode `!important`. V3 (đúng root cause): Vuexy native overlay-menu CSS đầy đủ, vấn đề là JS swap `body.vertical-menu-modern` → `body.vertical-overlay-menu` không fire (Unison.on('change') chain race trên DevTools resize / load). Fix dynamic: file `wujia_responsive_menu.js` re-assert swap qua `matchMedia` + resize listener. **Lesson L4 (2026-05-25):** trước khi viết CSS `!important` override, kiểm tra xem JS state machine có đang ở đúng class không — Vuexy theme đã có overlay-menu CSS hoàn chỉnh, không cần fight nó.
-2. **Sprint 4.2 force-show !important = silently break toggle** — Override `@media (min-width: 992px) { .main-menu { left:0; opacity:1 !important } }` pin sidebar khiến `$.app.menu.toggle()` flip body class nhưng sidebar đã pin → user thấy click không hiệu lực. Anti-pattern: dùng `!important` để fix init bug mà không bound đúng scope khiến break toggle range tablet. Solution: scope override về range thực sự cần (>=1200px = desktop xl) thay vì broad >=992px.
-3. **V14 KHÔNG có pattern auto-scale** — Grep co_*portal*/*.css confirm: no `html { font-size }` media query, no clamp(), 7 breakpoint ad-hoc (550/575.98/767.98/850/991.98/1199.98 + JS 768 trong `cart_mobile.js`). Mỗi template hand-tune `col-md-X col-lg-Y` riêng + `cart_mobile.js` JS show/hide DOM tay. **V14 không phải reference cho responsive — build pattern mới cho v19 dựa trên root font-size + utility class shared.**
-
-### Files đã chạm (Sprint 9.4 — UI-04 Header mobile, 2026-05-24)
-
-- `custom/wujia_portal_base/views/store_picker_navbar.xml` — thêm xpath thứ 2 inject SAU `<div class="header-navbar-shadow">` (KHÔNG sau `</nav>` vì Vuexy nav floating + có shadow wrapper riêng). Block: `<div t-if="_wujia_active_franchise" class="wujia-store-mobile-strip">` gồm label + name `t-out=display_name` + role badge mini. Reuse `_wujia_active_franchise` + `_wujia_active_role` từ `<t t-set>` cùng template (scope OK). KHÔNG dùng Bootstrap class `d-md-none` — gate qua `@media` trong CSS (Bootstrap utility set `display:none` không `!important` nên bị override bởi `.wujia-store-mobile-strip { display: flex }`).
-- `custom/wujia_portal_base/static/src/css/store_picker.css` — append block UI-04:
-  - Default `.wujia-store-mobile-strip { display: none }` (PC hide).
-  - `@media (max-width: 767.98px)` set `display: flex` + `flex-direction: column` + `align-items: flex-start` + `margin-top: 7.5rem` (=105px @ html 14px) để escape Vuexy floating-nav (top 18px + height 90px = bottom 108px).
-  - Adjacent sibling `.wujia-store-mobile-strip + .content-wrapper { margin-top: 0 !important }` để eliminate double-gap (Vuexy default content-wrapper `margin-top: 6rem`).
-  - Children: `.wujia-store-mobile-strip-label` (cyan uppercase 11px), `.wujia-store-mobile-strip-name` (dark bold 15px ellipsis), `.wujia-store-role-badge-mini` (padding 4×12 min-h 26px).
-  - `@media (max-width: 575.98px)` shrink xs font.
-- `custom/wujia_portal_layout/static/assets/css/_variables.css` — thêm 5 token `--wujia-mobile-strip-*` (bg #FFFFFF, label color = var(--wujia-primary), name color = var(--wujia-text-primary), padding 12×16, border-bottom 1px solid var(--wujia-border)).
-
-**Postmortem 2026-05-24:**
-
-1. **Mockup mapping fail (attempts 1-2):** Em sai 2 attempts đầu — attempt 1 plan sub-strip nhưng badge position right (`justify-content: space-between`); attempt 2 confuse image UI-03 PC pill với UI-04 mobile, plan refactor UI-03 instead. Root cause: cherry-pick image theo số file (image23 vs image33) thay vì map qua openpyxl anchor → không biết G6 = image23 (spec chính khoanh đỏ) vs F6 = image33 (variant). Đã update rule §9 #9 + §10 L1 step 2 yêu cầu MAP IMAGE TO CELL qua `openpyxl ws._images[i].anchor._from.row/col`.
-
-2. **Floating navbar collision fail (attempt 3-5):** Sau khi build xong, mobile screenshot → strip rendered nhưng HIDDEN behind navbar (top=0 phía sau `position:fixed` navbar top=18 bottom=108). Vuexy theme `navbar-floating` = `position:fixed` nên element inject sau `.header-navbar-shadow` vẫn ở top=0 vì shadow là sibling fixed. Fix: `margin-top: 7.5rem` (=105px) push strip xuống dưới navbar bottom (108px) + adjacent selector eliminate content-wrapper's default 6rem gap (84px). Final state @ mobile-500: strip top=84 height=91 → content-wrapper top=175 (sát strip).
-
-3. **V14 reference fail (attempt 4):** User reminder "sao bạn ko xem source v14, v14 có làm" → em **chưa check v14 dù §10 L2 đã có rule**. Grep thorough toàn bộ co_*wujia* modules confirm: v14 KHÔNG có Current Store strip (v14 single-franchise model — không cần picker UI). Commands đã chạy (lưu cho session sau): `grep -rln "Cửa hàng\|store\|hiện tại" /home/huyban/odoo-dev/wujia_tea_odoo14/modules/ --include="*.xml" --include="*.html" --include="*.css"` qua `co_portal_wujia`, `co_portal_base`, `co_portal_wujia_v2`, `co_franchise_store_wujia`, `co_filter_wujia`, `co_wujia_api` — đều 0 match. v14 `co_portal_wujia/views/portal/layout_nav_inherit.xml` REPLACE nav: chỉ language + cart + notification + user dropdown, KHÔNG có Current Store. v14 `co_portal_base/static/assets/css/components.css:67-70` set Vuexy default `.content-wrapper { margin-top: 6rem }` y hệt v19 → pattern offset của UI-04 không sẵn có ở v14, build từ đầu. **Bài học: §10 L2 đã có rule v14 check nhưng em vẫn skip — phải tự kiểm rule trước khi code, đừng đợi user nhắc.**
-
-Plan file: `/home/huyban/.claude/plans/sprint-9-4-magical-noodle.md`.
-
-### Files đã chạm (Sprint 9.7 — UI-06 page bg + UI-05 home button, 2026-05-25)
-
-**A — UI-06 page background (iter 1 → iter 2):**
-
-- `custom/wujia_portal_layout/static/assets/css/_variables.css:15` — `--wujia-bg-page`:
-  - **Iter 1** (anh chọn match v14): `#F5F7FA` → `#f9f9fb` (= V14 `co_portal_base/components.css:11` default).
-  - **Iter 2** (anh visual feedback "chưa đậm"): `#f9f9fb` → `#E8ECEF` (neutral gray L≈92, contrast rõ với card trắng #FFFFFF). Lệch BA cột H spec (BA đề xuất `#F5F7FA`/`#F6F8FA`) — anh override 2026-05-25, BA Hùng confirm Sprint 9.17 recap.
-- `custom/wujia_portal_layout/static/assets/css/_wujia_theme.css:7-17` — selector `html, body` → `html body` (no comma). **Root cause specificity bug:** Vuexy `components.css:11` có `html body { background-color: #f9f9fb }` specificity 0,0,2 thắng cascade vs `html, body` specificity 0,0,1 mỗi vế. Fix: dùng selector cùng specificity 0,0,2 + load sau win. Trước fix: token định nghĩa `#F5F7FA` nhưng render thực tế là Vuexy default `#f9f9fb`. Comment block trong rule giải thích chi tiết.
-- `custom/wujia_portal_layout/views/assets.xml:15` — bump `?v=1010` → `?v=1030` (2 iter) cho `_variables.css`.
-- `custom/wujia_portal_layout/views/assets.xml:83` — bump `?v=1010` → `?v=1020` cho `_wujia_theme.css`.
-- `custom/wujia_portal_layout/__manifest__.py:3` — bump `19.0.4.0.0` → `19.0.5.1.0` (iter 1 minor + iter 2 patch).
-
-**B — UI-05 follow-up: 3 button "Xem tất cả" home page:**
-
-- `custom/wujia_portal_base/views/portal_home.xml:94,120,153` — class `btn btn-sm btn-outline-primary` → `btn btn-primary btn-sm` (Latest notifications + Recent orders + Latest return requests). Áp UI-05 primary spec (xanh `--wujia-primary` + chữ trắng, h=42px, padding-x compact nhờ `btn-sm`). Text canh giữa tự động nhờ rule UI-05 Sprint 9.5 `.btn { display: inline-flex; justify-content: center; align-items: center }` ở `_components.css`. Pattern này giống button "Lọc" `portal_delivery.xml:38` — visual consistency cross-page.
-- `custom/wujia_portal_base/__manifest__.py:3` — bump `19.0.5.0.0` → `19.0.5.2.0`.
-
-**Verify:** Upgrade `wujia_portal_layout` + `wujia_portal_base` RC=0. Curl `_variables.css?v=1030` serve `#E8ECEF`. Curl `/portal/login` inject `?v=1030`. Source grep: 0 leftover `btn-outline-primary">Xem t`, 3 occurrence `btn-primary btn-sm">Xem t` mới. Browser visual verified ở port 8019.
-
-**Gotcha mới (Sprint 9.7):**
-
-1. **Token định nghĩa ≠ token render** — Sprint 8 đã add `--wujia-bg-page: #F5F7FA` token với selector `html, body` apply, tưởng DONE. Render thực tế hiện `#f9f9fb` (Vuexy default) trong 4+ tháng vì CSS specificity bug âm thầm. BA Hùng list lại UI-06 mới phát hiện. **Lesson:** mọi token apply qua selector multi-element (`html, body`, `body, html`) PHẢI check specificity vs Vuexy single-element selector (`html body`). Khi audit token, KHÔNG chỉ grep `var(--wujia-*)` mà còn phải computed-value check trong browser DevTools.
-2. **Render `#f9f9fb` quá nhạt cho card-on-white** — V14 dùng `#f9f9fb` nhưng v14 KHÔNG có card-heavy layout nhiều như v19 Sprint 5+. V14 layout đặc trưng table + list inline trên body, ít card border-radius độc lập. V19 sau Sprint 5 inject card khắp portal → BG quá nhạt mất contrast. **Decision:** lệch v14 + lệch BA spec là OK khi UX yêu cầu rõ. Document rationale trong commit + §9.
-3. **`btn-sm` không giảm chiều cao sau Sprint 9.5** — Bootstrap `.btn-sm` set `padding-y: 0.25rem + font-size: 0.875rem` nhưng KHÔNG set height. Sprint 9.5 `min-height: var(--wujia-btn-height)` (42) enforce → button vẫn h=42 dù có `btn-sm`. `btn-sm` chỉ giảm padding-x → chiều rộng gọn. Đây chính xác là điều anh muốn cho "Xem tất cả" (gọn ngang giữ cao chuẩn).
-
-### Files đã chạm (Sprint 9.8 — UI-07 Sidebar logo area height, 2026-05-25)
-
-- `custom/wujia_portal_layout/static/assets/css/_wujia_theme.css` — thêm 2 rule sau `.sidebar-header-spacer` block: `.main-menu .navbar-header { height: var(--wujia-sidebar-logo-h) !important; display: flex !important; align-items: center !important; justify-content: center !important; margin-bottom: 0 !important; }` + `.main-menu .navbar-header img { max-height: calc(var(--wujia-sidebar-logo-h) - 40px) !important; width: auto !important; object-fit: contain !important; }`. Override Bootstrap `mb-5` (3rem) vốn thay đổi theo fluid font-size (42-48px).
-- `custom/wujia_portal_layout/views/assets.xml:83` — bump `?v=1020` → `?v=1040` cho `_wujia_theme.css`.
-- `custom/wujia_portal_layout/__manifest__.py:3` — bump `19.0.5.1.0` → `19.0.5.2.0`.
-
-**Root cause:** Token `--wujia-sidebar-logo-h: 200px` tồn tại từ Sprint 8 nhưng chưa apply vào `.navbar-header`. Bootstrap `mb-5` = `3rem` margin-bottom thay đổi theo viewport (14px base → 42px; 16px base → 48px), làm menu start position lệch theo viewport chứ không phải theo page. Fix: enforce `height: 200px` + `margin-bottom: 0` → logo area = constant 200px mọi viewport, menu luôn bắt đầu tại 232px (200 + 32px spacer). Upgrade RC=0.
-
-### Files đã chạm (Sprint 9.9 — UI-09 Header height + vertical center, 2026-05-25)
-
-- `custom/wujia_portal_layout/static/assets/css/_wujia_theme.css` — thêm 2 rule sau `.wujia-navbar` block: `.header-navbar { height: var(--wujia-header-height) !important; min-height: var(--wujia-header-height) !important; }` + `.header-navbar .navbar-container { height: 100% !important; display: flex !important; align-items: center !important; }`. Token `--wujia-header-height: 72px` (đã có từ Sprint 8, lần này mới apply).
-- `custom/wujia_portal_layout/views/assets.xml:83` — bump `?v=1041` → `?v=1042`.
-
-**Note:** UI-07 và UI-09 ship cùng 1 commit. `_wujia_theme.css` cũng chứa fix logo overflow (UI-07 iter 2): thêm `overflow: hidden` + `max-width: 200px; height: auto` cho `.navbar-header img`.
-
-### Files đã chạm (Sprint 9.10 — UI-09 Page Subtitle color, 2026-05-27)
-
-- `custom/wujia_portal_layout/static/assets/css/_variables.css` — thêm 2 token: `--wujia-text-subtitle: #6B7280` (BA UI-09 spec) + `--wujia-font-size-subtitle: 14px`. Giữ `--wujia-text-muted: #8A9099` nguyên (dùng cho badge-muted, helper text).
-- `custom/wujia_portal_layout/static/assets/css/_wujia_theme.css` — thêm rule `.content-header-left > p, .wujia-page-subtitle { color: var(--wujia-text-subtitle) !important; font-size: var(--wujia-font-size-subtitle) !important; font-weight: 400 !important; }` ngay sau UI-08 block (line 299).
-- `custom/wujia_portal_layout/views/assets.xml` — bump `_variables.css?v=1050` → `?v=1060`, `_wujia_theme.css?v=1051` → `?v=1061`.
-- `custom/wujia_portal_layout/__manifest__.py` — bump `19.0.6.0.1` → `19.0.6.0.2`.
-
-**v14 reference:** v14 dùng `.text-muted { color: #B8C2CC }` (nhạt hơn nhiều) + không có pattern subtitle riêng. V19 dùng token riêng `--wujia-text-subtitle` để không ảnh hưởng badge-muted.
-
-### Files đã chạm (Sprint 9.11 — UI-10 Font consistency, 2026-05-27)
-
-- `custom/wujia_portal_layout/views/layouts.xml` — xóa 2 dòng Google Fonts Montserrat CDN link (lines 19 + 190, leftover từ v14/Vuexy template). Inter đã self-hosted qua `inter.css` từ Sprint 4.3 → không cần CDN nào.
-- `custom/wujia_portal_layout/static/assets/css/member_dashboard_style.css:372` — đổi `#chart-container { font-family: Arial }` → `font-family: var(--wujia-font-family)`. Outlier duy nhất trong codebase dùng hardcoded Arial thay vì token.
-- `custom/wujia_portal_layout/views/assets.xml` — thêm `?v=1060` vào `member_dashboard_style.css` (lần đầu có cache-bust).
-
-**v14 reference:** v14 dùng Montserrat (Google Fonts) với override `html body { font-family: sans-serif !important }` — messy. V19 dùng Inter self-hosted + `html body { font-family: var(--wujia-font-family) !important }` clean hơn. Montserrat CDN links là copy-paste từ v14 layout template còn sót.
-
-### Files đã chạm (Sprint 9.12 — UI-11 KPI Cards, 2026-05-27)
-
-**A — Layout module (token + component):**
-
-- `custom/wujia_portal_layout/static/assets/css/_variables.css` — bump `--wujia-card-radius` 14 → 16 (BA spec, global ảnh hưởng mọi `.card` portal); thêm 7 token KPI block: `--wujia-kpi-card-min-height: 100px`, `--wujia-kpi-card-padding: 22px` (mid BA 20-24), `--wujia-kpi-icon-size: 72px`, `--wujia-kpi-icon-radius: 16px`, `--wujia-kpi-icon-bg: var(--wujia-primary)` (BA #28A9DF coi là typo, dùng #22A9DE để consistency), `--wujia-kpi-separator-color: #D1D5DB` (BA exact, tách khỏi `--wujia-border #E5E7EB`), `--wujia-kpi-separator-height: 64px`.
-- `custom/wujia_portal_layout/static/assets/css/_components.css` — thêm block `.wujia-kpi-card*` ~70 dòng (cuối file): `.wujia-kpi-card-link` (display block + text-decoration none + color inherit cho `<a>` wrapper), `.wujia-kpi-card` (flex align-center gap 20, min-height 100, padding 22, bg white, radius 16, shadow nhẹ, transition lift hover -2px), `.wujia-kpi-icon` (72×72 radius 16 inline-flex center font 28px white) + 5 variant `.wujia-kpi-icon-{primary,success,warning,danger,info}`, `.wujia-kpi-separator` (1×64 #D1D5DB), `.wujia-kpi-content` (flex column gap 2), `.wujia-kpi-label` (14px secondary), `.wujia-kpi-value` (28px bold primary text), `.wujia-kpi-desc` (12px secondary), `.wujia-kpi-arrow` (font 20 secondary).
-- `custom/wujia_portal_layout/views/assets.xml` — bump `_variables.css?v=1060` → `?v=1070`, `_components.css?v=1010` → `?v=1020`.
-- `custom/wujia_portal_layout/__manifest__.py` — bump `19.0.6.0.2` → `19.0.7.0.0` (minor bump vì introduce class component mới).
-
-**B — Portal Base (home cards):**
-
-- `custom/wujia_portal_base/views/portal_home.xml:20-85` — refactor 4 stat card sang structure mới: `<a class="wujia-kpi-card-link" href="…">` wrap, `<div.wujia-kpi-card>` chứa `<div.wujia-kpi-icon.wujia-kpi-icon-{variant}>` (icon left) + `<div.wujia-kpi-separator/>` + `<div.wujia-kpi-content>` (label + `<div.wujia-kpi-value>` thay `<h2>` cũ + `<small.wujia-kpi-desc>` dynamic theo state) + `<i.feather.icon-chevron-right.wujia-kpi-arrow/>` (chevron). 4 card map: Thông báo (-primary, bell, /portal/notification), Đơn 30 ngày (-info, shopping-cart, /portal/purchase-history), Đơn chờ (-warning, clock-o, /portal/purchase-history), Đổi trả (-danger, undo, /portal/return). Desc dynamic format: "Bạn có X thông báo mới" / "Chưa có thông báo mới" v.v.
-- `custom/wujia_portal_base/static/src/css/portal_dashboard.css` — xoá 9 dòng `.stat-card*` (lines 4-12 cũ: `.stat-card`, `.stat-card-label`, `.stat-card-value`, `.stat-card-icon`, 4 variant primary/info/warning/danger). Comment block annotate migration sang `.wujia-kpi-card`.
-- `custom/wujia_portal_base/__manifest__.py` — bump `19.0.5.2.0` → `19.0.5.3.0`.
-
-**C — Portal Report (report KPI cards):**
-
-- `custom/wujia_portal_report/views/portal_report_orders.xml:47-87` — refactor 4 KPI card: cùng structure `.wujia-kpi-card` (icon-left + separator + content) NHƯNG **KHÔNG có chevron, KHÔNG wrap `<a>`** (page dashboard self-contained, click không có target hợp lý). 4 card: Tổng số đơn (-primary, file-text-o), Tổng doanh thu (-success, money), Đơn hoàn thành (-info, check-circle), Đơn bị hủy (-danger, times-circle). Desc giữ text gốc trong `<small.wujia-kpi-desc>` (was `<small.text-muted>`).
-- `custom/wujia_portal_report/static/src/css/portal_report.css` — xoá 7 dòng `.report-kpi*` (lines 2-8 cũ: `.report-kpi` + 4 variant border-left + `.report-kpi-label` + `.report-kpi-value`). Giữ `.report-chart-area`.
-- `custom/wujia_portal_report/__manifest__.py` — bump `19.0.1.1.0` → `19.0.1.2.0`.
-
-**Verify:**
-- `bash scripts/upgrade.sh "wujia_portal_layout,wujia_portal_base,wujia_portal_report"` → RC=0, 89 module loaded in 1.63s (Registry 3.234s), không error mới (chỉ warning pre-existing: `_sql_constraints` deprecation, `route(type='json')` deprecation).
-- Curl `_components.css?v=1020` xác nhận serve `.wujia-kpi-card`, `_variables.css?v=1070` serve 7 token + card-radius 16.
-- Grep `stat-card\|report-kpi` trong `custom/` → 0 active match (chỉ 3 occurrence trong comment legacy migration note).
-- Restart Odoo (kill pid 1179866 + start.sh bg pid 1329071, HTTP 303 ready trong < 30s).
-- User browser verify visual portal_home + portal_report_orders khớp BA mockup image1.
-
-**v14 reference:** Đã grep thorough `co_portal_*` + `co_franchise_*` modules v14 → **KHÔNG có pattern icon-left + vertical-separator + chevron** matching BA UI-11. v14 dùng 2 pattern khác: (a) `co_portal_wujia/dashboard.xml` icon-right + label-left (đã comment out không active), (b) `co_portal_base/overview_page.xml` row col-7/col-5 layout (admin page). V14 KHÔNG có vertical separator 1px gray + icon vuông 72×72 → build từ đầu cho v19, không có CSS reuse. §10 L2 lesson applied (check v14 trước khi build mới, không skip).
-
-**Gotcha mới (Sprint 9.12):**
-
-1. **`--wujia-card-radius` bump global 14→16** — Token đã từng bump 10→14 Sprint 8, nay bump tiếp 14→16 theo BA UI-11. Ảnh hưởng MỌI `.card` portal (Bootstrap default `.card` đã có `border-radius`, var override cascade hoạt động). Audit nhanh sau ship: portal_order, portal_knowledge, portal_support, portal_exam render OK với radius 16 — visual không bị broken. **Lesson:** token global UI design có thể bump nhiều lần (10→14→16) trong vòng đời sprint khi BA tinh chỉnh — luôn giữ context bump cũ trong comment để lần sau biết lý do.
-
-2. **BA hex typo `#28A9DF` vs `--wujia-primary #22A9DE`** — BA spec UI-11 ghi icon bg #28A9DF, token portal #22A9DE (lệch 2 ký tự: `28` vs `22`, `F` vs `E`). User chọn (2026-05-27 Q1) giữ `--wujia-primary` cho consistency cyan toàn portal (button, badge, sidebar active, store pill). **Lesson:** mọi hex BA ghi PHẢI cross-check với token đã tồn tại — chỉ 2 ký tự lệch dễ là typo, nhưng nếu thật sự khác tone (vd #28A9DF có tí xanh lá hơn) cần hỏi BA confirm. Quy ước session 9.12: nếu lệch <= 4 ký tự → coi là typo, dùng token có sẵn; nếu lệch nhiều → tạo token mới + hỏi BA.
-
-3. **`<h2>` semantic trong KPI card** — Code cũ dùng `<h2>` cho stat value (4 h2 trên 1 page = SEO outline lệch). Sprint 9.12 thay bằng `<div class="wujia-kpi-value">` — semantic chuẩn (heading không nên ở giữa list of stats), `<h2>` reserved cho page-level title. Áp 8 card cả 2 page. **Lesson:** sprint UI refactor là cơ hội fix luôn HTML semantic, không chỉ visual. Nếu sau này CSS rule cần target value text, dùng class `.wujia-kpi-value` thay `h2.stat-card-value` — semantic-agnostic.
-
-4. **`portal_dashboard.css` không có cache-bust** — File này thuộc `wujia_portal_base` dùng `web.assets_frontend` (Odoo auto-bundle), KHÔNG inject manual `<link ?v=>` như `wujia_portal_layout`. Sửa CSS → restart Odoo + Ctrl+F5 client là đủ, không cần bump version trong manifest. Cùng cho `portal_report.css`, `store_picker.css`, `franchise_realtime.js` v.v. **Quy ước:** chỉ file CSS load qua manual `<link>` trong `assets.xml` (toàn bộ trong `wujia_portal_layout`) mới cần `?v=` cache-bust query.
-
-### Files đã chạm (Sprint 9.13 — UI-12 Content Card, 2026-05-27)
-
-**A — Layout module (token + component):**
-
-- `custom/wujia_portal_layout/static/assets/css/_variables.css` — update 2 global typography token sang Tailwind gray scale: `--wujia-text-primary` `#1F2933` → `#111827`, `--wujia-text-secondary` `#5C6470` → `#374151`. Thêm 7 token Content Card block: `--wujia-content-card-padding: 22px` (mid BA 20-24), `--wujia-content-card-header-icon-size: 40px` (smaller than KPI 72px), `--wujia-content-card-header-icon-bg: var(--wujia-primary)` (#22A9DE — BA #28A9DF coi typo theo Sprint 9.12 convention), `--wujia-content-card-bullet-size: 8px`, `--wujia-content-card-bullet-color: var(--wujia-primary)`, `--wujia-content-card-link-color: var(--wujia-primary)`, `--wujia-content-card-row-gap: 14px`.
-- `custom/wujia_portal_layout/static/assets/css/_components.css` — thêm block `.wujia-content-card*` ~80 dòng (cuối file): `.wujia-content-card` (bg white, radius 16, shadow, padding 22, flex column h-100), `.wujia-content-card-header` (flex justify-between gap 12 mb 16), `.wujia-content-card-header-icon` (40×40 round bg primary white center), `.wujia-content-card-header-title` (font 17 bold text-primary), `.wujia-content-card-header-link` (color primary 14 no-underline + chevron), `.wujia-content-card-body` (ul flex column gap 14), `.wujia-content-card-row` (grid bullet/1fr/auto/auto), `.wujia-content-card-row-bullet` (8×8 round primary), `.wujia-content-card-row-content` (text-secondary 14 ellipsis), `.wujia-content-card-row-date` (text-subtitle 13), `.wujia-content-card-empty` (padding 24 center text-subtitle). Responsive < 576px ẩn date column. **Cũng thêm `.wujia-content-card--flush` variant** (padding 0 + display block + border-radius inherit cho list/table) — nhưng KHÔNG còn element nào reference, giữ rules cho lần sau nếu cần.
-- `custom/wujia_portal_layout/views/assets.xml` — bump `_variables.css?v=1070` → `?v=1081`, `_components.css?v=1020` → `?v=1033` (qua 2 iteration: 1031 ban đầu + 1033 cache-bust khi user thấy "Xem tất cả" mất do browser cache cũ).
-- `custom/wujia_portal_layout/__manifest__.py` — bump `19.0.7.0.0` → `19.0.8.0.0`.
-
-**B — Portal Base (home cards):**
-
-- `custom/wujia_portal_base/views/portal_home.xml:106-191` — refactor 3 card sang `.wujia-content-card` shell: **Card A — Thông báo mới nhất** (icon `feather icon-bell`, "Xem tất cả ›" → `/portal/notification`, row: bullet + `noti.name` + `dd/mm HH:MM` + badge `noti.type_id.name` inline color). **Card B — Đơn hàng gần đây** (icon `feather icon-shopping-cart`, "Xem tất cả ›" → `/portal/purchase-history`, row: bullet + "Đơn hàng {order.name}" + date + state badge mapping `draft/sent → muted "Nháp"`, `sale/done → success "Đã xác nhận"`, `cancel → danger "Đã huỷ"`). **Card C — Yêu cầu đổi trả gần đây** (icon `feather icon-corner-up-left`, "Xem tất cả ›" → `/portal/return`, row: bullet + "Đổi trả {rr.name}" + date + state badge tương tự). Empty state cho mỗi card: `<div class="wujia-content-card-empty">Chưa có …</div>` khi list rỗng. **Card D "Sản phẩm mua nhiều"** giữ nguyên (out-of-scope, BA không spec "Xem tất cả").
-- `custom/wujia_portal_base/__manifest__.py` — bump `19.0.5.3.0` → `19.0.5.4.0`.
-
-**Verify:**
-- `bash scripts/upgrade.sh "wujia_portal_layout,wujia_portal_base"` → RC=0, 89 module loaded.
-- Curl `/portal` → grep `wujia-content-card-header-link` 6 match + `Xem tất cả` 3 match (1 mỗi card).
-- Restart Odoo (kill + start.sh bg, HTTP 200 sau ~6s).
-- User browser Ctrl+F5 verify visual.
-
-**Reverted (do over-apply ngoài BA scope):**
-
-Sprint 9.13 ban đầu over-applied content card sang 4 page list (notification/knowledge/purchase-history/return) qua `--flush` variant (padding 0 cho table/list edge-to-edge). Page render trắng dù DOM có đủ 15+ records. Debug ~30 phút qua wkhtmltoimage screenshot không pinpoint root cause (có thể là wkhtmltoimage Qt-WebKit không hỗ trợ CSS vars hoặc grid layout trong flex collapse — modern Chromium chưa verify). User quyết định revert 4 page list (`git revert 9c8e6b5` → `9b66c89`), sau đó re-apply UI-12 cho home + layout/CSS only (`f6ecd8d`). **Scope realization:** BA "Xem tất cả" link là dấu hiệu rõ ràng Content Card pattern dành cho HOME SUMMARY card, không phải full-listing page (page list là đích của "Xem tất cả", không cần lặp lại pattern). Revert đúng theo BA scope.
-
-**Gotcha mới (Sprint 9.13):**
-
-1. **Token typography global bump (`#111827` / `#374151`)** — Token `--wujia-text-primary` `#1F2933` → `#111827` (Tailwind gray-900) và `--wujia-text-secondary` `#5C6470` → `#374151` (Tailwind gray-700). Ảnh hưởng MỌI page portal vì là token global. Spot-check sau bump: portal_home/portal_order/portal_notification text đậm hơn 1 stop, KHÔNG broken visual. **Lesson:** BA design dùng Tailwind gray scale chuẩn (#111827/#374151/#6B7280) thay vì palette Vuexy gốc (#1F2933/#5C6470) — convergence chậm theo sprint, KHÔNG bump 1 lần toàn bộ. Mỗi sprint UI nếu BA spec hex mới khác token cũ → bump token global (ảnh hưởng tất cả), không inline style từng chỗ.
-
-2. **`.list-group` + `<table>` blank render trong `--flush` variant** — Sau khi `.wujia-content-card--flush` override `padding: 0; display: block; height: auto`, page list (notification + 3 page khác) render `<ul class="list-group list-group-flush">` hoặc `<table>` trắng trong wkhtmltoimage screenshot dù DOM đầy đủ. Đoán root cause: (a) wkhtmltoimage Qt-WebKit cũ không hỗ trợ CSS vars hoặc inherit border-radius, (b) hoặc flex/block layout interaction giữa Bootstrap `.list-group { display: flex; flex-direction: column }` và parent block. **Chưa verify trên Chromium thật**. Quyết định revert thay vì debug tiếp vì BA scope không yêu cầu. **Lesson:** (i) wkhtmltoimage rendering KHÔNG đáng tin cho debug CSS modern — phải dùng browser thật (Firefox/Chromium với cookie auth) để verify trước khi push fix; (ii) khi BA spec mô tả 1 pattern (Content Card "Xem tất cả"), KHÔNG generalize sang use case khác (full-listing page) — đọc lại spec verbatim trước khi mở rộng scope.
-
-3. **Cache-bust 2 iteration** — Lần 1 bump `_components.css?v=1031` đủ cho upgrade nhưng user vẫn thấy "Xem tất cả" mất do browser cache CSS cũ (`?v=1020` từ Sprint 9.12). Bump tiếp `?v=1033` + Ctrl+F5 mới hiện. **Lesson:** mỗi commit UI sửa CSS → bump version cao hơn lần cuối user thấy, không chỉ cao hơn lần bump trước. Nếu user phàn nàn "không thấy" sau khi đã restart Odoo + upgrade RC=0 → first guess là browser cache, bump version + ép F5.
+**Sprint 9 = 19 sprint con, 1 issue = 1 sprint con, BA order.** Sheet "5. Issue List" trong xlsm = **single source of truth**. Mỗi sprint BẮT ĐẦU = đọc cột G + H của issue verbatim → user xác nhận → mới code.
+
+### Status table (BA spec exact, cập nhật 2026-05-27)
+
+| # | ID | Khu vực | Spec ngắn | Status |
+|---|---|---|---|---|
+| 9.1 | UI-01 | Sidebar | Active menu icon/text white, icon 20-22, text 16, height 44-48 | ✅ 2026-05-23 |
+| 9.2 | UI-02 | Sidebar | Bỏ user-pic block | ✅ 2026-05-24 |
+| 9.3 | UI-03 | Header PC | Current Store pill + role badge + language + avatar | ✅ 2026-05-24 (3 attempts, §10) |
+| 9.4 | UI-04 | Header mobile | Sub-strip below navbar 3-row stacked | ✅ 2026-05-24 |
+| 9.5 | UI-05 | Button | Primary cyan/white h42, Secondary white/border h38 | ✅ 2026-05-24 |
+| 9.6 | Mobile fix | Hamburger 768-1199 + fluid font 14→16 + utility class | ✅ 2026-05-25 |
+| 9.7 | UI-06 | Page bg #E8ECEF (đậm hơn BA #F5F7FA — user override) | ✅ 2026-05-25 |
+| 9.8 | UI-07 | Sidebar logo height 200px fix | ✅ 2026-05-25 |
+| 9.9 | UI-08 | Header height 72px + vertical center | ✅ 2026-05-25 |
+| 9.10 | UI-09 | Page Subtitle #6B7280 14-15px 400 | ✅ 2026-05-27 |
+| 9.11 | UI-10 | Font Inter consistency (xóa Montserrat CDN + Arial outlier) | ✅ 2026-05-27 |
+| 9.12 | UI-11 | KPI Card icon-left 72×72 + separator 1px #D1D5DB | ✅ 2026-05-27 (8 card / 2 page) |
+| 9.13 | UI-12 | Content Card (home only — "Xem tất cả" pattern) | ✅ 2026-05-27 |
+| 9.13b | UI-12 ext | MẪU 01/02 (sample.jpg) cho 3 listing + noti badge refactor | ✅ 2026-05-27 (4 commit: 0ce1886/4d36452/ba4245d/a85d9c3) |
+| 9.14 | UI-13 | Header Right Actions: Language + Cart + Noti + Account(name+avatar) | ⬜ pending |
+| 9.15 | Empty | Empty state: icon + text + spacing chuẩn | ⬜ pending |
+| 9.16 | — | Cleanup: 301 redirect kebab + xóa `wujia_account/` stub | ⬜ pending |
+| 9.17 | — | Verify: `reseed_full.sh` + `test_sprint9.py` + screenshot | ⬜ pending |
+| 9.18 | — | Doc: `chapters/18-*.tex` + PDF + update §2/§4/§5/§9 | ⬜ pending |
+| 9.19 | — | Push: commit EN + deploy Windows | ⬜ pending |
+
+### File chạm history (compact — chi tiết trong git log + chapter 18)
+
+| Sprint | Module touched |
+|---|---|
+| 9.1 | `wujia_portal_layout/_wujia_theme.css` + `layouts.xml` + 11×`sidenav_inherit.xml` |
+| 9.2 | `wujia_portal_layout/layouts.xml` + `style.css` (xoá user-pic block) |
+| 9.3-9.4 | `wujia_portal_base/store_picker_navbar.xml` + `store_picker.css` + `_variables.css` + `layouts.xml` |
+| 9.5 | `_components.css` button refactor + `_variables.css` btn-height token + cleanup 4 legacy CSS |
+| 9.6 | `wujia_responsive_menu.js` (NEW) + `_variables.css` fluid font + `_components.css` 3 utility class |
+| 9.7 | `_variables.css` bg-page `#E8ECEF` + `_wujia_theme.css` specificity fix + 3 home buttons primary |
+| 9.8-9.9 | `_wujia_theme.css` sidebar logo height 200 + header height 72 |
+| 9.10 | `_variables.css` `--wujia-text-subtitle: #6B7280` + `_wujia_theme.css` rule subtitle |
+| 9.11 | `layouts.xml` xoá Montserrat CDN + `member_dashboard_style.css` Arial → token |
+| 9.12 | `_variables.css` 7 KPI token + `_components.css` `.wujia-kpi-card*` + portal_home.xml + portal_report_orders.xml |
+| 9.13 | `_variables.css` typography Tailwind gray + `_components.css` `.wujia-content-card*` + portal_home 3 card |
+| 9.13b | (1) `wujia_portal_base/portal_home.xml` noti badge class map / (2) `_components.css` `.wujia-content-card-table` / (3) `wujia_portal_notification/portal_notification.xml` MẪU 01 / (4) `wujia_portal_purchase_history/{controllers/portal.py,views/portal_history.xml}` + `wujia_portal_sale/views/portal_order_catalog.xml` MẪU 02 |
 
 ### Policy update (2026-05-24)
 
-Anh đổi rule: **mỗi sprint con UI xong = commit + push luôn**, không gộp tới Sprint 9.17. Quy tắc §9 #4 "1 issue ≠ 1 commit lớn" vẫn giữ (1 issue có thể nhiều iteration), nhưng khi DONE issue đó → push ngay. Sprint 9.17 chỉ còn deploy + recap nghiệp vụ.
+**Mỗi sprint con UI xong = commit + push luôn.** Không gộp tới Sprint 9.17. Sprint 9.17 chỉ còn deploy + recap nghiệp vụ.
 
-### Nguyên tắc tuyệt đối cho mọi session Sprint 9 tiếp theo
+### Non-negotiable Sprint 9 rules
 
-1. **KHÔNG BỊA SPEC.** Trước khi code 1 issue, MỞ `WujiaTea/docs/Wujia_Internal ERP Master Plan.xlsm` → sheet "5. Issue List" → đọc đúng row của issue đó → paste lại cột G + H verbatim vào chat → user xác nhận → mới code. Cột E + F là Vấn đề + Hình minh hoạ tham khảo, KHÔNG phải spec; G/H mới là spec.
-2. **Code English-only.** Chuỗi tiếng Việt chỉ chấp nhận ở template UI text hiện hữu (chưa migrate). Không tạo `.po` Sprint 9 — BA tự lo Sprint 10.
-3. **Read-before-write.** `grep -rn` trong `custom/` xem rule CSS / template hiện có rồi mới sửa. Không đoán selector.
-4. **1 issue ≠ 1 commit lớn.** 1 issue = 1 sprint con = nhiều iteration nhỏ. User screenshot vs mockup → loop fix → 100% khớp → next issue.
-5. **CSS var bắt buộc.** Mọi giá trị (color, radius, height, font-size) PHẢI là `var(--wujia-*)` trong `_variables.css`. Không hex/px cứng trong template hay file CSS module-level.
-6. **Component reuse.** Class chung trong `_components.css` (`.wujia-btn`, `.wujia-badge-*`, `.wujia-empty-state`, `.wujia-two-pane`). Nếu thiếu class — bổ sung ở `_components.css`, không inline style/class riêng từng template.
-7. **Verify gate.** Mỗi sprint con: `bash scripts/upgrade.sh "<module1>,<module2>"` RC=0 → restart Odoo → screenshot trang liên quan → so vs mockup col F → nếu lệch, sửa tiếp → đạt 100% → user OK → mới đánh dấu DONE trong §9 bảng này.
-8. **Update §9 bảng này khi DONE 1 issue.** Đổi ⬜ → ✅ + thêm ngày + 1 dòng "Files đã chạm".
-9. **EXTRACT HẾT IMAGE TRONG XLSM + MAP IMAGE TO CELL** (RULE expanded sau Sprint 9.3 + 9.4 FAIL 2026-05-24). Sheet "5. Issue List" có nhiều image anchored per row (cell E/F/G). PHẢI `unzip -j xlsm "xl/media/imageNN.png"` cho **TẤT CẢ image trong range của issue** (vd UI-03 có image26-33 = 8 ảnh), KHÔNG cherry-pick 1-2 ảnh. Đọc cả 8 bằng Read tool. Quy ước annotation BA:
-   - **Khoanh đỏ** = TARGET CHÍNH (block phải làm chuẩn theo đó).
-   - **Gạch chéo đỏ** = XÓA element này.
-   - **Gạch chân đỏ** = highlight detail (chú ý thuộc tính cụ thể).
-   - Image KHÔNG có annotation = mockup hint/variant, vẫn cần đọc nhưng ưu tiên thấp hơn.
+1. **KHÔNG BỊA SPEC.** Mở xlsm → sheet "5. Issue List" → đọc cột G + H verbatim → user confirm → mới code.
+2. **English code.** Không tạo `.po` Sprint 9 (BA tự lo Sprint 10).
+3. **Read-before-write.** `grep -rn` trong `custom/` xem rule hiện có.
+4. **1 issue = nhiều iteration nhỏ** — screenshot vs mockup → loop fix → 100% khớp → next.
+5. **CSS var bắt buộc** trong `_variables.css`. Component reuse class `_components.css`.
+6. **Verify gate:** `bash scripts/upgrade.sh "<modules>"` RC=0 → restart → screenshot vs BA mockup col F → user OK → ✅ trong §9.
+7. **Update §9 table khi DONE.**
+8. **EXTRACT FULL IMAGES TỪ XLSM + MAP IMAGE TO CELL** qua openpyxl `ws._images[i].anchor._from.row/col` (xem §10 L1). Cherry-pick image theo số file KHÔNG đủ — phải map cell.
+9. **CHECK V14 TRƯỚC KHI BUILD MỚI** (§10 L2). Grep `co_*wujia*` modules. Nếu KHÔNG có → ghi rõ "v14 KHÔNG có pattern X" + build từ đầu.
+10. **VISUAL DESIGN: hỏi explicit 4 câu** (bg/text color/layout/icon) trước khi code visual (§10 L3).
+11. **REGRESSION CHECK** — trước khi edit CSS/token: `grep -rn "<selector|token>" custom/` xem ai đang dùng. Token global (`--wujia-card-radius`, `--wujia-text-*`, `--wujia-btn-height`...) bump = ảnh hưởng MỌI page → smoke test 3-5 page khác sau ship, không chỉ page đang sửa. Đọc §9 "Files đã chạm" sprint trước để biết constraint nào còn áp.
 
-   **MỚI (Sprint 9.4 FAIL 2026-05-24):** PHẢI dùng openpyxl `ws._images[i].anchor._from.row/col` để biết image anchor cell nào (xem §10 L1 step 3). Cherry-pick image theo số file (image23 vs image33) KHÔNG đủ — phải biết cell mapping. Sprint 9.4 sai 2 lần vì cherry-pick image33 (F6 variant không annotation) thay vì image23 (G6 spec chính BA khoanh đỏ), và confuse với mockup UI-03 PC pill. BA có thể đặt mockup chính ở col G chứ không phải col F.
-10. **ĐỌC SOURCE V14 TRƯỚC khi code feature mới** (RULE MỚI — sau Sprint 9.3 FAIL 2026-05-24). Path: `/home/huyban/odoo-dev/wujia_tea_odoo14/enterprise/modules/co_portal_wujia/` + `co_franchise_store_wujia/` + `co_portal_base/`. V14 có thể đã có pattern template/CSS/model chuẩn, copy + adapt v19 dễ hơn build từ đầu. Nếu confirm v14 KHÔNG có (như Current Store block UI-03) → ghi rõ "v14 KHÔNG có" + build từ đầu.
+### Gotcha tổng hợp (Sprint 8-9.13b)
 
-### Handoff prompt cho session sau (paste sau `/wujia-start`)
+1. **Browser cache 7 ngày** — Odoo serve static với `Cache-Control: public, max-age=604800`. Mọi CSS change PHẢI bump `?v=NNNN` trong `assets.xml` (chỉ áp file load qua manual `<link>` — files `web.assets_frontend` auto-bundle Odoo không cần). Bump version cao hơn lần cuối user thấy, không chỉ lần bump trước.
+2. **Vuexy `.btn { line-height: 1 }`** gây icon Font Awesome lệch baseline. Fix: `.btn > i { line-height: 1; display: inline-flex; align-items: center }` — KHÔNG đụng `.btn` base.
+3. **Sprint 4.2 `!important` force-show sidebar break toggle range 768-1199px.** Lesson: scope override `@media (min-width: 1200px)` thay vì `>=992px`. Mobile menu = vấn đề BODY CLASS swap, không phải CSS gap — Vuexy native overlay-menu CSS đủ một khi body class đúng.
+4. **`html, body` vs `html body` specificity** — Vuexy `html body` (0,0,2) thắng `html, body` (0,0,1 mỗi vế). Token bg-page 4+ tháng render sai vì specificity bug. Audit token bằng DevTools computed-value, không chỉ grep `var(--*)`.
+5. **`<h2>` semantic trong KPI card** — Sprint 9.12 chuyển sang `<div class="wujia-kpi-value">`. Sprint UI = cơ hội fix HTML semantic.
+6. **BA hex typo** (`#28A9DF` vs `--wujia-primary #22A9DE`): lệch ≤4 ký tự → coi typo, dùng token có sẵn; lệch nhiều → hỏi BA.
+7. **`--flush` blank render (Sprint 9.13)** — `padding: 0; display: block` huỷ flex container, page list render trắng trong wkhtmltoimage (Qt-WebKit). Sprint 9.13b mới = `.wujia-content-card-table` dùng negative margin + width calc thay vì display:block. wkhtmltoimage KHÔNG đáng tin cho debug CSS modern → verify browser thật.
+8. **Token typography global bump** (`#1F2933` → `#111827` Tailwind gray Sprint 9.13) ảnh hưởng MỌI page. BA design dùng Tailwind chuẩn — convergence chậm theo sprint.
+9. **Notification badge data-dep fragile (Sprint 9.13b commit 1)** — Inline `t-attf-style="background-color: #{bg_color}"` phụ thuộc `noupdate="1"` data XML → server stale = empty hex = no badge. Refactor sang class map `type_id.code → wujia-badge-*` xoá data dependency.
+10. **`bg_color`/`text_color` field**: giữ trong model `wujia.notification.type` (backward compat) — drop sau khi BA confirm không cần admin override.
+
+### Handoff prompt cho session sau
 
 ```
-Trong session này, em tiếp tục Sprint 9 (Issue List UI refactor). UI-01 đã DONE local.
-Em làm Sprint con kế tiếp = <UI-XX> (xem §9 bảng wujia-compact-summary.md).
+Session này em tiếp tục Sprint 9 (Issue List UI refactor).
+UI-01..UI-12 + Sprint 9.13b DONE. Em làm = <UI-XX next, xem §9 bảng>.
 
-Quy tắc Sprint 9 (BẮT BUỘC):
-1. Mở WujiaTea/docs/Wujia_Internal ERP Master Plan.xlsm → sheet "5. Issue List" → đọc row UI-XX → paste cột G + H verbatim vào chat → đợi anh xác nhận → mới plan + code. KHÔNG bịa spec ngoài G/H.
-2. Code English-only. Không tạo .po.
-3. CSS dùng var(--wujia-*) trong _variables.css; component reuse class trong _components.css. Không hex cứng, không inline.
-4. Workflow per issue: read xlsm exact → grep v19 hiện trạng → plan ngắn → anh approve → edit → bash scripts/upgrade.sh "<modules>" RC=0 → restart Odoo → screenshot vs BA mockup col F → loop fix → 100% khớp → anh OK → đánh dấu ✅ trong §9 bảng → next issue.
-5. KHÔNG bỏ qua issue, làm tuần tự BA order. 1 issue = 1 commit + push ngay khi anh OK screenshot (policy 2026-05-24).
+Rules:
+1. Mở xlsm → sheet "5. Issue List" → row UI-XX → paste cột G+H verbatim → đợi anh xác nhận → plan + code.
+2. Code English. Không .po.
+3. CSS var(--wujia-*) + class _components.css. Không hex cứng.
+4. Workflow: read xlsm → grep v19 → plan → approve → edit → upgrade RC=0 → restart → screenshot vs mockup col F → loop → ✅ §9 → push.
+5. KHÔNG bỏ qua issue, tuần tự BA order. 1 sprint con = commit+push (policy 2026-05-24).
 
-Out-of-scope session này: T-031 mockup operations, locust load test, affiliate v14 gap, .po dịch.
+Out-of-scope: T-031, locust, affiliate v14 gap, .po, MẪU 03-06 sample.jpg.
 
-Khi hết session: update §9 bảng wujia-compact-summary.md (đổi ⬜ → ✅ + ngày + Files đã chạm) trước khi đóng session.
+Cuối: update §9 bảng (⬜ → ✅ + ngày + Files đã chạm row).
 ```
 
-**→ Quan trọng cho future session:** đừng tin trí nhớ về spec — luôn mở lại xlsm cho mỗi issue. BA Hùng có thể edit sheet bất kỳ lúc nào.
+→ Quan trọng: đừng tin trí nhớ — mở lại xlsm mỗi issue. BA có thể edit bất kỳ lúc nào.
 
 ---
 
-## §10 wujia-sprint9-3-ui03-fail-postmortem-and-correct-spec
+## §10 wujia-lessons (3 lesson tuyệt đối)
 
-**Status:** Sprint 9.3 (UI-03 Header PC) **DONE 2026-05-24 sau 3 attempts** — final shipped design ở cuối §10. Postmortem dưới đây giữ nguyên cho lesson learned.
+Postmortem Sprint 9.3 UI-03 (3 attempts) + Sprint 9.4 UI-04 (5 attempts) chi tiết → `chapters/18-sprint9-*.tex`. Chỉ giữ 3 lesson cốt lõi áp cho mọi session sau:
 
-### Hiện trạng code lần 1 (ĐỪNG mark DONE)
+### L1 — EXTRACT FULL IMAGES TỪ XLSM + MAP IMAGE → CELL
 
-Files đã chạm (4 file) — có thể giữ tạm hoặc revert + rebuild theo spec chuẩn:
-- `custom/wujia_portal_layout/views/layouts.xml` — đã **XÓA** block language dropdown (lines 47-76 cũ) + **XÓA** span user-name text trong avatar dropdown.
-- `custom/wujia_portal_base/views/store_picker_navbar.xml` — xpath đổi: chèn pill vào left `bookmark-wrapper` (cũ: chèn vào right `float-right ul`). Text: `display_name` thay `name`. Icon: feather icon-home + icon-repeat (cũ: fa fa-building + fa fa-exchange). Label vẫn là "Đang tại:" (PHẢI đổi → "Cửa hàng hiện tại").
-- `custom/wujia_portal_layout/static/assets/css/_variables.css` — thêm 7 token `--wujia-navbar-pill-*` (bg `rgba(255,255,255,0.18)` translucent white — SAI vs mockup).
-- `custom/wujia_portal_base/static/src/css/store_picker.css` — refactor `.wujia-active-store-badge` dùng CSS var.
+Trước khi code 1 issue, làm đủ 3 step:
 
-### Root cause: 4 sai lầm
-
-1. **Chỉ extract 2/8 image trong xlsm** (image28, image29) — bỏ sót image26 (mockup CHÍNH của UI-03 với annotation khoanh đỏ + format pill light cyan + role badge xanh lá Manager).
-2. **Hỏi user "spec vs mockup"** khi xung đột → user chọn "build theo mockup" — nhưng mockup em show ra (image28) chỉ là 1 phần. Hệ quả: bỏ luôn role badge + language dropdown khỏi plan, trái spec cột H đầy đủ.
-3. **Đọc màu pill sai**: mockup image28 + image26 có pill **light cyan + text dark navy** → em làm white translucent rgba(255,255,255,0.18) + text trắng (vì assume pill trên dark navbar). Đúng: bg `#E0F7FF` (var(--wujia-primary-light)) + text `var(--wujia-text-primary)`.
-4. **KHÔNG check v14 trước khi code**: anh nhắc nhở rule này nhiều lần. Em đã check sau khi FAIL → confirm v14 KHÔNG có pattern Current Store + role badge → phải build từ đầu. Nếu check trước → biết là feature mới → đầu tư plan kỹ hơn.
-
-**Lưu ý position:** lần 1 em chèn pill vào left `bookmark-wrapper` navbar — POSITION ĐÚNG (anh confirm 2026-05-24 "build sát header trái"). Em từng đoán sai phải move sang top content area dựa trên image26 — bị anh corect. Image26 chỉ là crop format mock của widget, không phải position. Position thực: SÁT LEFT EDGE NAVBAR (như lần 1).
-
-### Spec CHUẨN cho UI-03 — session sau làm theo
-
-**Mockup nguồn:** `xl/media/image26.png` (BA crop block widget — anh khoanh đỏ để highlight format) + `xl/media/image28.png` (placement reference: pill + Administrator + avatar trong navbar) + spec cột H verbatim.
-
-**Position (anh confirm 2026-05-24):** widget hiển thị **SÁT BÊN TRÁI HEADER NAVBAR**, KHÔNG phải top content area. Inject vào `bookmark-wrapper` left side của `wujia_portal_layout.layout_top_navbar` (lần 1 em làm đúng position này). XPath: `//div[hasclass('bookmark-wrapper')]/ul[hasclass('navbar-nav')]` position="inside" — chèn sau menu toggle.
-
-**Cấu trúc widget (image26 cho format + image28 cho placement):**
-```
-┌────────────────────────────────────────────────────────────────────────┐
-│ NAVBAR (bg primary #22A9DE)                                            │
-│ ┌─────────────────────────────────────┐ ┌─────────┐         ┌────┐    │
-│ │ Cửa hàng hiện tại                   │ │ Manager │  ...     │ AV │    │
-│ │ [H000] Cửa hàng 125 Điện Biên Phủ   │ └─────────┘         └────┘    │
-│ └─────────────────────────────────────┘                                │
-│   ↑ pill light cyan + text dark navy    ↑ role badge        ↑ avatar  │
-│   sát LEFT edge navbar                   xanh lá             RIGHT     │
-└────────────────────────────────────────────────────────────────────────┘
+```bash
+# Step 1: list + extract binary
+unzip -l "WujiaTea/docs/Wujia_Internal ERP Master Plan.xlsm" | grep "xl/media/image"
+mkdir -p /tmp/wujia_<issue>_mockup && cd /tmp/wujia_<issue>_mockup
+unzip -o -j "WujiaTea/docs/Wujia_Internal ERP Master Plan.xlsm" "xl/media/image*.png"
 ```
 
-Label "Cửa hàng hiện tại" có thể là caption nhỏ phía trên pill (theo image26) HOẶC inline trước `[code]` trong pill — confirm với BA Sprint 10 nếu lệch.
+```python
+# Step 2: map image → cell qua openpyxl (NON-NEGOTIABLE)
+from openpyxl import load_workbook
+wb = load_workbook('WujiaTea/docs/Wujia_Internal ERP Master Plan.xlsm', data_only=True)
+ws = wb['5. Issue List']
+for i, img in enumerate(ws._images):
+    r = img.anchor._from.row + 1
+    c = chr(65 + img.anchor._from.col)
+    print(f"Image {i}: cell {c}{r}, path={img.path}")
+```
 
-**4 element theo spec cột H** (combo image26 + image28):
-1. **Current Store pill** — `[code] tên` (display_name). Bg `var(--wujia-primary-light)` #E0F7FF (NOT translucent white). Text `var(--wujia-text-primary)` #1F2933 (NOT white). Padding ~6-10px 14-16px. Border-radius ~10-12px. Icon trái optional (building/home outline) — image26 có icon building, image28 không rõ. Vị trí: cụm sát LEFT navbar, không phải float-right.
-2. **Role badge** — Manager/Owner/Staff label English. Bg `var(--wujia-success)` #24B269 (Manager = xanh lá). Cần variant theo role: Owner = vàng `var(--wujia-warning)`, Staff = xám `var(--wujia-muted-bg)` (suy đoán, BA chưa confirm — HỎI nếu không chắc). Nguồn data: `wujia.franchise.member.find_active_membership(user.id, franchise.id).role` (xem §5 + helper trong `wujia_franchise/models/wujia_franchise_member.py:124`). Đặt ngay cạnh PHẢI pill, cùng cụm LEFT navbar.
-3. **Language dropdown** — RESTORE vào navbar phải (đã xóa trong code lần 1). Spec cột H yêu cầu, image28 mock không show nhưng cột H spec ưu tiên.
-4. **Avatar dropdown** — giữ navbar phải. **KHÔNG show user-name text** (anh confirm 2026-05-24 — mockup image31 sidebar đã gạch chéo Administrator + image28 navbar không show user name text). Chỉ avatar tròn + dropdown menu Profile/Password/Logout.
+**Step 3:** Read TẤT CẢ image anchor vào row issue đó (col E/F/G/H), KHÔNG cherry-pick. BA có thể đặt mockup chính ở G chứ không phải F.
 
-**Label text:** dùng tiếng Việt "**Cửa hàng hiện tại**" (anh confirm 2026-05-24) thay vì "CURRENT STORE" / "Đang tại:". BA sẽ migrate `.po` Sprint 10.
+**Annotation BA:** khoanh đỏ = TARGET CHÍNH / gạch chéo = XÓA / gạch chân = highlight detail / không annotation = variant.
 
-**Icon role badge:** không cần icon, plain text badge đủ (theo image26).
+### L2 — CHECK V14 TRƯỚC KHI BUILD MỚI
 
-**V14 reference:** sau 7 bước exhaustive search (102 module v14, full keyword + color + path), **CONFIRMED v14 KHÔNG có pattern Current Store widget + role badge** này. Anh có giả thuyết image26 chụp từ v14 nhưng search không xác nhận — nhiều khả năng image26 là Figma/Photoshop mockup BA tự design, KHÔNG phải screenshot v14 running. Build từ đầu cho v19.
+```bash
+ls /home/huyban/odoo-dev/wujia_tea_odoo14/modules/wujia-erp/ | grep -E "^co_.*(wujia|portal|franchise)"
+grep -rln "<keyword1>\|<keyword2>" /home/huyban/odoo-dev/wujia_tea_odoo14/modules/ \
+     --include="*.xml" --include="*.html" --include="*.css" --include="*.scss" --include="*.py"
+```
 
-### Plan UI-03 fix lần 2 (session 2026-05-24 tiếp): refactor từ state lần 1
+Nếu có → copy + adapt. Nếu KHÔNG → ghi rõ "v14 KHÔNG có pattern X" trong plan + build từ đầu. **Self-discipline:** trước Edit file mới, đọc lại L2 + chạy grep — đừng đợi user nhắc.
 
-**Quyết định 2026-05-24:** UI-03 fix lần 2 làm NGAY trong session này (refactor 4 file đã edit theo §10 spec). UI-04 (mobile) làm SESSION SAU (riêng, sau khi UI-03 PC stable). KHÔNG bundle.
+### L3 — VISUAL DESIGN: HỎI EXPLICIT 4 CÂU
 
-**Approach:** keep 4 file lần 1 + refactor (nhanh hơn revert):
-1. `_variables.css` — đổi 7 token `--wujia-navbar-pill-*` từ white translucent → light cyan + dark text.
-2. `store_picker.css` — refactor `.wujia-active-store-badge` dùng token mới + add `.wujia-store-role-badge` (variant -manager/-owner/-staff).
-3. `store_picker_navbar.xml` — thay "Đang tại:" → "Cửa hàng hiện tại", add `<t t-set>` cho `_wujia_active_role` qua `find_active_membership()`, render role badge sát phải pill.
-4. `layouts.xml` — RESTORE block language dropdown (đã xóa lần 1, spec cột H yêu cầu).
+Trước khi code visual, hỏi:
+1. Bg color exact (hex / token / rgba)?
+2. Text color (white / dark / token)?
+3. Layout (1-row inline / 2-row stacked)?
+4. Icon có/không (nếu có: feather name)?
 
-### 2 lesson TUYỆT ĐỐI cho mọi session sau
+KHÔNG assume từ ảnh — eye nhìn hex sai dễ. Đặc biệt khi mockup pill chồng bg cùng tông (cyan-on-cyan), translucent vs solid khó phân biệt.
 
-- **L1 — EXTRACT FULL IMAGES + MAP IMAGE TO CELL TỪ XLSM** (expanded sau Sprint 9.4 FAIL 2026-05-24): trước khi code 1 issue, làm đủ 3 step:
+---
 
-  **Step 1 — list + extract image binary:**
-  ```bash
-  unzip -l "WujiaTea/docs/Wujia_Internal ERP Master Plan.xlsm" | grep "xl/media/image" | awk '{print $4}'
-  mkdir -p /tmp/wujia_<issue>_mockup && cd /tmp/wujia_<issue>_mockup
-  unzip -o -j "WujiaTea/docs/Wujia_Internal ERP Master Plan.xlsm" "xl/media/image*.png"
-  ```
+## §11 wujia-shared-utils-cheatsheet
 
-  **Step 2 — MAP image → cell qua openpyxl anchor (NON-NEGOTIABLE):**
-  ```python
-  from openpyxl import load_workbook
-  wb = load_workbook('WujiaTea/docs/Wujia_Internal ERP Master Plan.xlsm', data_only=True)
-  ws = wb['5. Issue List']
-  for i, img in enumerate(ws._images):
-      r = img.anchor._from.row + 1               # 1-indexed Excel row
-      c = chr(65 + img.anchor._from.col)         # A-Z letter
-      print(f"Image {i}: cell {c}{r}, path={img.path}")
-  ```
-  → biết chính xác image nào ở cell F6 vs G6 vs H6 của issue đó. Image NUMBER trong file name (image23.png vs image33.png) KHÔNG có quan hệ thứ tự với cell — phải map qua anchor.
+CSS class chung — dùng được mọi template:
 
-  **Step 3 — Read TẤT CẢ image anchor vào row của issue (cả col E/F/G/H), KHÔNG cherry-pick.** BA có thể đặt mockup chính ở G chứ không phải F (UI-04 case: image chính ở G6 = image23.png, F6 = image33.png là variant). Nhận annotation BA per §9 rule #9 (khoanh đỏ / gạch chéo / gạch chân).
+| Class | Mục đích |
+|---|---|
+| `.wujia-btn` / `.wujia-btn-primary` / `.wujia-btn-secondary` | Button chuẩn h42/h38 |
+| `.wujia-badge` + `.wujia-badge-{success,warning,danger,info,muted}` | Pill badge soft |
+| `.wujia-empty-state` | Empty state container |
+| `.wujia-two-pane` | Responsive 2-pane layout |
+| `.wujia-kpi-card` + `.wujia-kpi-icon-{primary,success,warning,danger,info}` + `.wujia-kpi-separator` | KPI summary card (Sprint 9.12) |
+| `.wujia-content-card` + `.wujia-content-card-header[-icon,-title,-link]` + `.wujia-content-card-body` + `.wujia-content-card-row[-bullet,-content,-date]` + `.wujia-content-card-empty` | Content card "Xem tất cả" (Sprint 9.13 home) |
+| `.wujia-content-card-table` | Table body variant cho listing (Sprint 9.13b — negative margin edge-to-edge, KHÔNG flex-collapse) |
+| `.wujia-container` / `.wujia-grid-responsive` / `.wujia-stack-mobile[.wujia-row-md]` | Responsive utility (Sprint 9.6) |
 
-- **L2 — CHECK V14 TRƯỚC KHI BUILD MỚI**: trước khi viết template/CSS/Python mới, grep `/home/huyban/odoo-dev/wujia_tea_odoo14/modules/wujia-erp/` qua TẤT CẢ co_*wujia* modules:
-  ```bash
-  # Scope chuẩn: liệt kê modules portal v14 trước khi grep
-  ls /home/huyban/odoo-dev/wujia_tea_odoo14/modules/wujia-erp/ | grep -E "^co_.*(wujia|portal|franchise)"
-  # → co_portal_wujia, co_portal_base, co_portal_wujia_v2, co_franchise_store_wujia,
-  #   co_filter_wujia, co_wujia_api, ...
-  # Grep keyword đa file extension:
-  grep -rln "<keyword1>\|<keyword2>" /home/huyban/odoo-dev/wujia_tea_odoo14/modules/ \
-       --include="*.xml" --include="*.html" --include="*.css" --include="*.scss" --include="*.py"
-  ```
-  Nếu có → copy + adapt v19. Nếu KHÔNG → ghi rõ "v14 KHÔNG có pattern X" trong plan + build từ đầu. KHÔNG bỏ qua bước check.
+Token: `--wujia-primary #22A9DE` / `--wujia-bg-page #E8ECEF` / `--wujia-text-primary #111827` / `--wujia-text-secondary #374151` / `--wujia-text-subtitle #6B7280` / `--wujia-border #E5E7EB` / `--wujia-card-radius 16px` / `--wujia-btn-height 42px` / `--wujia-content-card-padding 22px`.
 
-  **Sprint 9.4 reinforcement (2026-05-24):** Em đã có rule này từ Sprint 9.3 nhưng vẫn skip ở Sprint 9.4 — user phải nhắc "sao bạn ko xem source v14, v14 có làm" mới chạy grep. **Self-discipline: trước khi gõ Edit file mới, đọc lại §10 L2 + chạy grep trên scope co_*wujia* — đừng đợi user nhắc.** UI-04 case confirmed: v14 KHÔNG có Current Store strip (single-franchise model), build từ đầu OK. Output grep cho UI-04 lưu nguyên format ở §9 Files đã chạm Sprint 9.4 postmortem #3 — reuse pattern cho UI-05+.
+Python helper (portal):
+- `get_active_franchise_id()` / `get_active_franchise_ids_filter()` ở `wujia_portal_base/controllers/portal.py`.
+- `wujia.franchise.member.find_active_membership(user_id, franchise_id)` → role.
+- `wujia.order.window._is_within_order_window(area_id=None)` cascade.
+- Shared: `rate_limit` decorator + `attach_files_to_record` ở `wujia_portal_base/controllers/utils.py`.
 
-### Final shipped spec UI-03 (attempt 3 — 2026-05-24 DONE)
-
-Spec §10 phần trên là "spec attempt 2" — sau khi ship attempt 2 user feedback "màu xấu, khung xanh nhạt chữ trắng, 2 dòng, role badge to". Attempt 3 mới khớp BA mockup `image26`. Final design ship được:
-
-**Visual (image26 verbatim):**
-- Pill bg: **frosted white over cyan navbar** `rgba(255,255,255,0.18)` (KHÔNG phải `--wujia-primary-light` solid như attempt 2). Hover: `rgba(255,255,255,0.28)`.
-- Text: **white** `#FFFFFF` (KHÔNG phải dark navy như attempt 2).
-- Layout: **2 dòng stacked** (KHÔNG single-row):
-  - Dòng 1 (label): "Cửa hàng hiện tại" UPPERCASE + letter-spacing 0.6px + 11px + opacity 0.85
-  - Dòng 2 (name): `[code] tên + address` bold 15px white
-- **KHÔNG có icon** (attempt 2 có icon-home left + icon-repeat right — image26 không có icon nào).
-- Role badge: solid `var(--wujia-success)` green, **font 14px bold + padding 10×20 + min-height 46px** (attempt 2 quá nhỏ).
-
-**Files ship được (4 file giữ nguyên từ attempt 2, refactor visual):**
-- `custom/wujia_portal_layout/static/assets/css/_variables.css` — token `--wujia-navbar-pill-bg: rgba(255,255,255,0.18)` + `--wujia-navbar-pill-text: #FFFFFF` + font 15px.
-- `custom/wujia_portal_base/static/src/css/store_picker.css` — `.wujia-store-badge-text` flex column 2-row + `.wujia-store-badge-label` uppercase + `.wujia-store-badge-name` bold + `.wujia-store-role-badge` padding 10×20 font 14px min-height 46px + 3 variants `-manager/-owner/-staff`.
-- `custom/wujia_portal_base/views/store_picker_navbar.xml` — XML không icon, structure `<span.wujia-store-badge-text><span.label/><strong.name/></span>` + 2nd `<li>` cho role badge dùng `find_active_membership().role`.
-- `custom/wujia_portal_layout/views/layouts.xml` — restore language dropdown (đã xóa attempt 1).
-
-**DB seed cho test long-name:** `UPDATE wujia_franchise_management SET name = 'Cửa hàng <số> <địa chỉ>, <quận>, <TP>'` — Test với 48 ký tự `[HCM-01] Cửa hàng 125 Điện Biên Phủ, Q.3, TP.HCM` — pill 2 dòng vẫn render đẹp, không overflow.
-
-### 3rd lesson (after attempt 2 → 3 iteration)
-
-- **L3 — VISUAL DESIGN: ĐỪNG ĐOÁN, HỎI EXPLICITLY**. Attempt 2 em đoán "khung light cyan + dark text" từ image26 (đọc sai màu). Attempt 3 user phải nói rõ "khung xanh nhạt chữ trắng + 2 dòng + bỏ icon + role to" mới đúng. Future: trước khi code visual, hỏi 4 câu cụ thể:
-  1. Bg color exact (hex / token / rgba)?
-  2. Text color (white / dark / token)?
-  3. Layout (1-row inline / 2-row stacked)?
-  4. Icon có / không (nếu có: feather name)?
-
-  KHÔNG assume từ ảnh — eye nhìn màu hex sai dễ. Đặc biệt khi mockup pill chồng trên bg cùng tông màu (cyan-on-cyan), translucent vs solid khó phân biệt.
-
+Model names thực:
+- `wujia.franchise.management` / `wujia.franchise.member` / `wujia.order.window` / `wujia.notification` / `wujia.notification.type` / `wujia.knowledge.article` / `wujia.support.ticket` / `wujia.info.update.request` / `res.area` / `res.ward`.
