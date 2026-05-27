@@ -2,7 +2,7 @@
 
 **Mục đích:** file này được agentmemory inject context cho mọi session làm WujiaTea. Mỗi section là 1 entry độc lập, search-able qua `/recall`. Khi cập nhật, chạy lại `scripts/import_wujia_compact_summary.py`. Chi tiết đầy đủ vẫn ở `wujia-tea-doc.tex` (2611 dòng, 14 chapter).
 
-Cập nhật lần cuối: 2026-05-27 (Sprint 9 in progress — UI-01..UI-11 DONE (9.1–9.12); §9 table đồng bộ xlsm mới BA renumber UI-07..UI-13; còn 9.13–9.19: UI-12 Content Card, UI-13 Header Right, Empty, Cleanup, Verify, Doc, Push).
+Cập nhật lần cuối: 2026-05-27 (Sprint 9 in progress — UI-01..UI-12 DONE (9.1–9.13, UI-12 partial home-only per BA scope); §9 table đồng bộ xlsm mới BA renumber UI-07..UI-13; còn 9.14–9.19: UI-13 Header Right, Empty, Cleanup, Verify, Doc, Push).
 
 ---
 
@@ -113,10 +113,10 @@ Cập nhật lần cuối: 2026-05-27 (Sprint 9 in progress — UI-01..UI-11 DON
 
 ## §5 wujia-current-status-and-remaining
 
-**Tình trạng (2026-05-27):** 18 module active. **Sprint 9 IN PROGRESS** — issue list portal UI refactor. **UI-01..UI-11 DONE** (push `main` 2026-05-27). BA Hùng renumber issue list → §9 table đã đồng bộ (19 sprint con, UI-07..UI-13 mới). Còn 9.13–9.19: UI-12 Content Card, UI-13 Header Right + Empty + Cleanup + Verify + Doc + Push. Xem §9 wujia-sprint9-issue-list-state.
+**Tình trạng (2026-05-27):** 18 module active. **Sprint 9 IN PROGRESS** — issue list portal UI refactor. **UI-01..UI-12 DONE** (push `main` 2026-05-27, UI-12 partial: home-only per BA scope). BA Hùng renumber issue list → §9 table đã đồng bộ (19 sprint con, UI-07..UI-13 mới). Còn 9.14–9.19: UI-13 Header Right + Empty + Cleanup + Verify + Doc + Push. Xem §9 wujia-sprint9-issue-list-state.
 
 **Còn lại Phase 1.0** (BA spec):
-- **Sprint 9 (in progress)** — UI-12 Content Card, UI-13 Header Right Actions + Empty state + cleanup (xem §9 bảng).
+- **Sprint 9 (in progress)** — UI-13 Header Right Actions + Empty state + cleanup (xem §9 bảng).
 - T-031 "Mockup quản lý vận hành nội bộ" (BA Hùng đã mockup) → defer Sprint 10.
 - Load test 100+ concurrent user qua locust (Task `scripts/locust_portal.py` chưa làm).
 - Affiliate/commission portal 12 route v14 — defer roadmap (`chapters/19-roadmap-v14-gaps.tex`).
@@ -283,7 +283,7 @@ Xong xuôi chạy /wujia-end-sprint.
 | 9.10 | UI-09 | Page Subtitle / Description | Màu sắc hiện tại đang hơi nhạt | Text bình thường: **#6B7280**, font-size **14–15px**, weight **400** | ✅ DONE 2026-05-27 |
 | 9.11 | UI-10 | Font chữ | Đồng nhất một font chữ trên portal, dùng cho tất cả các trang | (H empty — Inter self-hosted, đồng nhất toàn portal) | ✅ DONE 2026-05-27 |
 | 9.12 | UI-11 | KPI Cards / Summary Cards | — | Card trắng, bo góc **16px**, shadow nhẹ, height **≈100px**, padding **20–24px**; icon area **72×72px** nền **#28A9DF**, icon trắng; line dọc **1px #D1D5DB** tách icon và nội dung | ✅ DONE 2026-05-27 (gom 2 class system .stat-card + .report-kpi thành 1 component `.wujia-kpi-card` chung trong `_components.css`, apply 8 card across 2 page; portal_home có chevron + clickable, portal_report no chevron) |
-| 9.13 | UI-12 | Content Card | — | Card trắng, bo góc **16px**, shadow nhẹ, padding **20–24px**; card header: icon tròn **#28A9DF**, title đậm, nút "Xem tất cả" **#28A9DF** phải; list row: bullet **#28A9DF**; Typography: title **#111827**, body **#374151**, phụ/date **#6B7280** | ⬜ pending |
+| 9.13 | UI-12 | Content Card | — | Card trắng, bo góc **16px**, shadow nhẹ, padding **20–24px**; card header: icon tròn **#28A9DF**, title đậm, nút "Xem tất cả" **#28A9DF** phải; list row: bullet **#28A9DF**; Typography: title **#111827**, body **#374151**, phụ/date **#6B7280** | ✅ DONE 2026-05-27 (scope **portal_home only** — BA spec rõ ràng "Xem tất cả" là pattern home-summary card, 4 list page full-listing không cần. Lần đầu over-applied sang 4 list page (notification/knowledge/purchase-history/return) qua `--flush` variant → render trắng → revert. Token typography global bump #111827/#374151 (Tailwind gray) giữ lại) |
 | 9.14 | UI-13 | Header Right Actions | Thông tin tài khoản cần hiển thị thêm tên user | Icon Language + Cart + Notification + Account (**user name + avatar**) | ⬜ pending |
 | 9.15 | Empty | Empty state | Empty state "Chưa có dữ liệu" còn thô | **icon nhỏ + dòng text + khoảng trắng chuẩn** | ⬜ pending |
 | 9.16 | — | Cleanup | (Quick wins, không trong Issue List) | 301 redirect `/portal/purchase_history` → `/portal/purchase-history`, `/portal/return-request-list`, `/portal/exam-registration` + xóa `custom/wujia_account/` stub trống | ⬜ pending |
@@ -479,6 +479,38 @@ Plan file: `/home/huyban/.claude/plans/sprint-9-4-magical-noodle.md`.
 3. **`<h2>` semantic trong KPI card** — Code cũ dùng `<h2>` cho stat value (4 h2 trên 1 page = SEO outline lệch). Sprint 9.12 thay bằng `<div class="wujia-kpi-value">` — semantic chuẩn (heading không nên ở giữa list of stats), `<h2>` reserved cho page-level title. Áp 8 card cả 2 page. **Lesson:** sprint UI refactor là cơ hội fix luôn HTML semantic, không chỉ visual. Nếu sau này CSS rule cần target value text, dùng class `.wujia-kpi-value` thay `h2.stat-card-value` — semantic-agnostic.
 
 4. **`portal_dashboard.css` không có cache-bust** — File này thuộc `wujia_portal_base` dùng `web.assets_frontend` (Odoo auto-bundle), KHÔNG inject manual `<link ?v=>` như `wujia_portal_layout`. Sửa CSS → restart Odoo + Ctrl+F5 client là đủ, không cần bump version trong manifest. Cùng cho `portal_report.css`, `store_picker.css`, `franchise_realtime.js` v.v. **Quy ước:** chỉ file CSS load qua manual `<link>` trong `assets.xml` (toàn bộ trong `wujia_portal_layout`) mới cần `?v=` cache-bust query.
+
+### Files đã chạm (Sprint 9.13 — UI-12 Content Card, 2026-05-27)
+
+**A — Layout module (token + component):**
+
+- `custom/wujia_portal_layout/static/assets/css/_variables.css` — update 2 global typography token sang Tailwind gray scale: `--wujia-text-primary` `#1F2933` → `#111827`, `--wujia-text-secondary` `#5C6470` → `#374151`. Thêm 7 token Content Card block: `--wujia-content-card-padding: 22px` (mid BA 20-24), `--wujia-content-card-header-icon-size: 40px` (smaller than KPI 72px), `--wujia-content-card-header-icon-bg: var(--wujia-primary)` (#22A9DE — BA #28A9DF coi typo theo Sprint 9.12 convention), `--wujia-content-card-bullet-size: 8px`, `--wujia-content-card-bullet-color: var(--wujia-primary)`, `--wujia-content-card-link-color: var(--wujia-primary)`, `--wujia-content-card-row-gap: 14px`.
+- `custom/wujia_portal_layout/static/assets/css/_components.css` — thêm block `.wujia-content-card*` ~80 dòng (cuối file): `.wujia-content-card` (bg white, radius 16, shadow, padding 22, flex column h-100), `.wujia-content-card-header` (flex justify-between gap 12 mb 16), `.wujia-content-card-header-icon` (40×40 round bg primary white center), `.wujia-content-card-header-title` (font 17 bold text-primary), `.wujia-content-card-header-link` (color primary 14 no-underline + chevron), `.wujia-content-card-body` (ul flex column gap 14), `.wujia-content-card-row` (grid bullet/1fr/auto/auto), `.wujia-content-card-row-bullet` (8×8 round primary), `.wujia-content-card-row-content` (text-secondary 14 ellipsis), `.wujia-content-card-row-date` (text-subtitle 13), `.wujia-content-card-empty` (padding 24 center text-subtitle). Responsive < 576px ẩn date column. **Cũng thêm `.wujia-content-card--flush` variant** (padding 0 + display block + border-radius inherit cho list/table) — nhưng KHÔNG còn element nào reference, giữ rules cho lần sau nếu cần.
+- `custom/wujia_portal_layout/views/assets.xml` — bump `_variables.css?v=1070` → `?v=1081`, `_components.css?v=1020` → `?v=1033` (qua 2 iteration: 1031 ban đầu + 1033 cache-bust khi user thấy "Xem tất cả" mất do browser cache cũ).
+- `custom/wujia_portal_layout/__manifest__.py` — bump `19.0.7.0.0` → `19.0.8.0.0`.
+
+**B — Portal Base (home cards):**
+
+- `custom/wujia_portal_base/views/portal_home.xml:106-191` — refactor 3 card sang `.wujia-content-card` shell: **Card A — Thông báo mới nhất** (icon `feather icon-bell`, "Xem tất cả ›" → `/portal/notification`, row: bullet + `noti.name` + `dd/mm HH:MM` + badge `noti.type_id.name` inline color). **Card B — Đơn hàng gần đây** (icon `feather icon-shopping-cart`, "Xem tất cả ›" → `/portal/purchase-history`, row: bullet + "Đơn hàng {order.name}" + date + state badge mapping `draft/sent → muted "Nháp"`, `sale/done → success "Đã xác nhận"`, `cancel → danger "Đã huỷ"`). **Card C — Yêu cầu đổi trả gần đây** (icon `feather icon-corner-up-left`, "Xem tất cả ›" → `/portal/return`, row: bullet + "Đổi trả {rr.name}" + date + state badge tương tự). Empty state cho mỗi card: `<div class="wujia-content-card-empty">Chưa có …</div>` khi list rỗng. **Card D "Sản phẩm mua nhiều"** giữ nguyên (out-of-scope, BA không spec "Xem tất cả").
+- `custom/wujia_portal_base/__manifest__.py` — bump `19.0.5.3.0` → `19.0.5.4.0`.
+
+**Verify:**
+- `bash scripts/upgrade.sh "wujia_portal_layout,wujia_portal_base"` → RC=0, 89 module loaded.
+- Curl `/portal` → grep `wujia-content-card-header-link` 6 match + `Xem tất cả` 3 match (1 mỗi card).
+- Restart Odoo (kill + start.sh bg, HTTP 200 sau ~6s).
+- User browser Ctrl+F5 verify visual.
+
+**Reverted (do over-apply ngoài BA scope):**
+
+Sprint 9.13 ban đầu over-applied content card sang 4 page list (notification/knowledge/purchase-history/return) qua `--flush` variant (padding 0 cho table/list edge-to-edge). Page render trắng dù DOM có đủ 15+ records. Debug ~30 phút qua wkhtmltoimage screenshot không pinpoint root cause (có thể là wkhtmltoimage Qt-WebKit không hỗ trợ CSS vars hoặc grid layout trong flex collapse — modern Chromium chưa verify). User quyết định revert 4 page list (`git revert 9c8e6b5` → `9b66c89`), sau đó re-apply UI-12 cho home + layout/CSS only (`f6ecd8d`). **Scope realization:** BA "Xem tất cả" link là dấu hiệu rõ ràng Content Card pattern dành cho HOME SUMMARY card, không phải full-listing page (page list là đích của "Xem tất cả", không cần lặp lại pattern). Revert đúng theo BA scope.
+
+**Gotcha mới (Sprint 9.13):**
+
+1. **Token typography global bump (`#111827` / `#374151`)** — Token `--wujia-text-primary` `#1F2933` → `#111827` (Tailwind gray-900) và `--wujia-text-secondary` `#5C6470` → `#374151` (Tailwind gray-700). Ảnh hưởng MỌI page portal vì là token global. Spot-check sau bump: portal_home/portal_order/portal_notification text đậm hơn 1 stop, KHÔNG broken visual. **Lesson:** BA design dùng Tailwind gray scale chuẩn (#111827/#374151/#6B7280) thay vì palette Vuexy gốc (#1F2933/#5C6470) — convergence chậm theo sprint, KHÔNG bump 1 lần toàn bộ. Mỗi sprint UI nếu BA spec hex mới khác token cũ → bump token global (ảnh hưởng tất cả), không inline style từng chỗ.
+
+2. **`.list-group` + `<table>` blank render trong `--flush` variant** — Sau khi `.wujia-content-card--flush` override `padding: 0; display: block; height: auto`, page list (notification + 3 page khác) render `<ul class="list-group list-group-flush">` hoặc `<table>` trắng trong wkhtmltoimage screenshot dù DOM đầy đủ. Đoán root cause: (a) wkhtmltoimage Qt-WebKit cũ không hỗ trợ CSS vars hoặc inherit border-radius, (b) hoặc flex/block layout interaction giữa Bootstrap `.list-group { display: flex; flex-direction: column }` và parent block. **Chưa verify trên Chromium thật**. Quyết định revert thay vì debug tiếp vì BA scope không yêu cầu. **Lesson:** (i) wkhtmltoimage rendering KHÔNG đáng tin cho debug CSS modern — phải dùng browser thật (Firefox/Chromium với cookie auth) để verify trước khi push fix; (ii) khi BA spec mô tả 1 pattern (Content Card "Xem tất cả"), KHÔNG generalize sang use case khác (full-listing page) — đọc lại spec verbatim trước khi mở rộng scope.
+
+3. **Cache-bust 2 iteration** — Lần 1 bump `_components.css?v=1031` đủ cho upgrade nhưng user vẫn thấy "Xem tất cả" mất do browser cache CSS cũ (`?v=1020` từ Sprint 9.12). Bump tiếp `?v=1033` + Ctrl+F5 mới hiện. **Lesson:** mỗi commit UI sửa CSS → bump version cao hơn lần cuối user thấy, không chỉ cao hơn lần bump trước. Nếu user phàn nàn "không thấy" sau khi đã restart Odoo + upgrade RC=0 → first guess là browser cache, bump version + ép F5.
 
 ### Policy update (2026-05-24)
 
