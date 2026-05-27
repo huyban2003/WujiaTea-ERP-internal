@@ -315,3 +315,167 @@ h2, .wujia-h2 { font-size: var(--wujia-font-size-h2) !important; font-weight: 60
     color: var(--wujia-text-secondary);
     font-size: 20px;
 }
+
+/* ============================================================================
+   Content Card (UI-12, Sprint 9.13, 2026-05-27)
+   ---------------------------------------------------------------------------
+   BA "5. Issue List" UI-12 cell H13:
+     Card: white, radius 16, light shadow, padding 20-24
+     Header: round cyan icon + bold title + "Xem tất cả" cyan link right
+     Row: cyan bullet + content + date + classification badge
+     Typography: title #111827, body #374151, date #6B7280
+   Layout pattern:
+     <div class="wujia-content-card">
+       <div class="wujia-content-card-header">
+         <div class="wujia-content-card-header-icon">
+           <i class="feather icon-bell"/>
+         </div>
+         <h4 class="wujia-content-card-header-title">Title</h4>
+         <a class="wujia-content-card-header-link" href="...">Xem tất cả
+           <i class="feather icon-chevron-right"/>
+         </a>
+       </div>
+       <ul class="wujia-content-card-body">
+         <li class="wujia-content-card-row">
+           <span class="wujia-content-card-row-bullet"/>
+           <div class="wujia-content-card-row-content">Main text</div>
+           <span class="wujia-content-card-row-date">10:30 20/05</span>
+           <span class="wujia-badge wujia-badge-success">Label</span>
+         </li>
+       </ul>
+     </div>
+   ============================================================================ */
+.wujia-content-card {
+    background: var(--wujia-bg-card);
+    border-radius: var(--wujia-card-radius);
+    box-shadow: var(--wujia-card-shadow);
+    padding: var(--wujia-content-card-padding);
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
+.wujia-content-card-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 16px;
+}
+.wujia-content-card-header-icon {
+    flex-shrink: 0;
+    width: var(--wujia-content-card-header-icon-size);
+    height: var(--wujia-content-card-header-icon-size);
+    border-radius: 50%;
+    background: var(--wujia-content-card-header-icon-bg);
+    color: #FFFFFF;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    line-height: 1;
+}
+.wujia-content-card-header-title {
+    flex: 1 1 auto;
+    margin: 0;
+    font-size: 17px;
+    font-weight: 700;
+    color: var(--wujia-text-primary);
+    line-height: 1.3;
+}
+.wujia-content-card-header-link {
+    flex-shrink: 0;
+    color: var(--wujia-content-card-link-color) !important;
+    font-size: 14px;
+    font-weight: 500;
+    text-decoration: none !important;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    white-space: nowrap;
+}
+.wujia-content-card-header-link:hover {
+    color: var(--wujia-primary-dark) !important;
+    text-decoration: none !important;
+}
+.wujia-content-card-header-link i {
+    font-size: 16px;
+    line-height: 1;
+}
+
+.wujia-content-card-body {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: var(--wujia-content-card-row-gap);
+    flex: 1 1 auto;
+}
+.wujia-content-card-row {
+    display: grid;
+    grid-template-columns: auto 1fr auto auto;
+    align-items: center;
+    gap: 12px;
+}
+.wujia-content-card-row-bullet {
+    flex-shrink: 0;
+    width: var(--wujia-content-card-bullet-size);
+    height: var(--wujia-content-card-bullet-size);
+    border-radius: 50%;
+    background: var(--wujia-content-card-bullet-color);
+    display: inline-block;
+}
+.wujia-content-card-row-content {
+    min-width: 0;
+    color: var(--wujia-text-secondary);
+    font-size: 14px;
+    line-height: 1.5;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+.wujia-content-card-row-content a {
+    color: inherit !important;
+    text-decoration: none !important;
+}
+.wujia-content-card-row-content a:hover {
+    color: var(--wujia-primary) !important;
+}
+.wujia-content-card-row-date {
+    flex-shrink: 0;
+    color: var(--wujia-text-subtitle);
+    font-size: 13px;
+    white-space: nowrap;
+}
+
+.wujia-content-card-empty {
+    padding: 24px 12px;
+    text-align: center;
+    color: var(--wujia-text-subtitle);
+    font-size: 14px;
+}
+
+/* Mobile: hide date column to give content + badge room. */
+@media (max-width: 575.98px) {
+    .wujia-content-card-row {
+        grid-template-columns: auto 1fr auto;
+    }
+    .wujia-content-card-row-date {
+        display: none;
+    }
+}
+
+/* Flush variant — drops padding so child tables/lists span edge-to-edge.
+   UI-12 Sprint 9.13 (2026-05-27): used by list pages where table rows
+   need full-bleed alignment (purchase-history, return, notification). */
+.wujia-content-card--flush {
+    padding: 0;
+}
+.wujia-content-card--flush > .wujia-content-card-header {
+    padding: var(--wujia-content-card-padding) var(--wujia-content-card-padding) 0;
+    margin-bottom: var(--wujia-content-card-padding);
+}
+.wujia-content-card--flush > .table,
+.wujia-content-card--flush > .table-responsive > .table {
+    margin-bottom: 0;
+}
