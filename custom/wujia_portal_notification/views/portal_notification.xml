@@ -96,16 +96,20 @@
                         </ul>
                     </div>
 
-                    <nav t-if="pager and pager.get('page_count', 0) &gt; 1" class="mt-2">
-                        <ul class="pagination justify-content-center mb-0">
-                            <li class="page-item">
+                    <nav t-if="pager and pager.get('page_count', 0) &gt; 1" class="mt-3">
+                        <ul class="pagination wujia-pagination justify-content-center mb-0">
+                            <li t-attf-class="page-item #{pager['page']['num'] == 1 and 'disabled' or ''}">
                                 <a class="page-link"
                                    t-attf-href="/portal/notification?page=#{pager['page_previous']['num']}&amp;#{pager.get('querystring','')}">«</a>
                             </li>
-                            <li class="page-item active">
-                                <span class="page-link">Trang <t t-out="pager['page']['num']"/> / <t t-out="pager['page_count']"/></span>
-                            </li>
-                            <li class="page-item">
+                            <t t-foreach="range(1, pager['page_count'] + 1)" t-as="pn">
+                                <li t-attf-class="page-item #{pn == pager['page']['num'] and 'active' or ''}">
+                                    <a class="page-link"
+                                       t-attf-href="/portal/notification?page=#{pn}&amp;#{pager.get('querystring','')}"
+                                       t-out="pn"/>
+                                </li>
+                            </t>
+                            <li t-attf-class="page-item #{pager['page']['num'] == pager['page_count'] and 'disabled' or ''}">
                                 <a class="page-link"
                                    t-attf-href="/portal/notification?page=#{pager['page_next']['num']}&amp;#{pager.get('querystring','')}">»</a>
                             </li>

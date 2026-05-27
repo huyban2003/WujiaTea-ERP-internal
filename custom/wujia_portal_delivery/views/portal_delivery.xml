@@ -98,13 +98,13 @@
                     </div>
 
                     <nav t-if="pager and pager.get('page_count', 0) &gt; 1" class="mt-2">
-                        <ul class="pagination justify-content-center mb-0">
+                        <ul class="pagination wujia-pagination justify-content-center mb-0">
                             <li class="page-item">
                                 <a class="page-link"
                                    t-attf-href="/portal/delivery?page=#{pager['page_previous']['num']}&amp;#{pager.get('querystring','')}">«</a>
                             </li>
                             <li class="page-item active">
-                                <span class="page-link">Trang <t t-out="pager['page']['num']"/> / <t t-out="pager['page_count']"/></span>
+                                <span class="page-link"><t t-out="pager['page']['num']"/> / <t t-out="pager['page_count']"/></span>
                             </li>
                             <li class="page-item">
                                 <a class="page-link"

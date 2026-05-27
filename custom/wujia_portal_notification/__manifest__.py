@@ -1,6 +1,6 @@
 {
     'name': 'Wujia Portal — Notification',
-    'version': '19.0.1.1.0',
+    'version': '19.0.1.2.0',
     'category': 'Wujia',
     'summary': 'Thông báo HQ → cửa hàng nhượng quyền (skeleton)',
     'author': 'WujiaTea',
