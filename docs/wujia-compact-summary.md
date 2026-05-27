@@ -2,7 +2,7 @@
 
 **Mục đích:** file này được agentmemory inject context cho mọi session làm WujiaTea. Mỗi section là 1 entry độc lập, search-able qua `/recall`. Khi cập nhật, chạy lại `scripts/import_wujia_compact_summary.py`. Chi tiết đầy đủ vẫn ở `wujia-tea-doc.tex` (2611 dòng, 14 chapter).
 
-Cập nhật lần cuối: 2026-05-27 (Sprint 9 in progress — UI-01..UI-10 DONE (9.1–9.11); §9 table đồng bộ xlsm mới BA renumber UI-07..UI-13; còn 9.12–9.19: UI-11 KPI Cards, UI-12 Content Card, UI-13 Header Right, Empty, Cleanup, Verify, Doc, Push).
+Cập nhật lần cuối: 2026-05-27 (Sprint 9 in progress — UI-01..UI-11 DONE (9.1–9.12); §9 table đồng bộ xlsm mới BA renumber UI-07..UI-13; còn 9.13–9.19: UI-12 Content Card, UI-13 Header Right, Empty, Cleanup, Verify, Doc, Push).
 
 ---
 
@@ -113,10 +113,10 @@ Cập nhật lần cuối: 2026-05-27 (Sprint 9 in progress — UI-01..UI-10 DON
 
 ## §5 wujia-current-status-and-remaining
 
-**Tình trạng (2026-05-27):** 18 module active. **Sprint 9 IN PROGRESS** — issue list portal UI refactor. **UI-01..UI-10 DONE** (push `main` 2026-05-27). BA Hùng renumber issue list → §9 table đã đồng bộ (19 sprint con, UI-07..UI-13 mới). Còn 9.12–9.19: UI-11 KPI Cards, UI-12 Content Card, UI-13 Header Right + Empty + Cleanup + Verify + Doc + Push. Xem §9 wujia-sprint9-issue-list-state.
+**Tình trạng (2026-05-27):** 18 module active. **Sprint 9 IN PROGRESS** — issue list portal UI refactor. **UI-01..UI-11 DONE** (push `main` 2026-05-27). BA Hùng renumber issue list → §9 table đã đồng bộ (19 sprint con, UI-07..UI-13 mới). Còn 9.13–9.19: UI-12 Content Card, UI-13 Header Right + Empty + Cleanup + Verify + Doc + Push. Xem §9 wujia-sprint9-issue-list-state.
 
 **Còn lại Phase 1.0** (BA spec):
-- **Sprint 9 (in progress)** — UI-11 KPI Cards, UI-12 Content Card, UI-13 Header Right Actions + Empty state + cleanup (xem §9 bảng).
+- **Sprint 9 (in progress)** — UI-12 Content Card, UI-13 Header Right Actions + Empty state + cleanup (xem §9 bảng).
 - T-031 "Mockup quản lý vận hành nội bộ" (BA Hùng đã mockup) → defer Sprint 10.
 - Load test 100+ concurrent user qua locust (Task `scripts/locust_portal.py` chưa làm).
 - Affiliate/commission portal 12 route v14 — defer roadmap (`chapters/19-roadmap-v14-gaps.tex`).
@@ -282,7 +282,7 @@ Xong xuôi chạy /wujia-end-sprint.
 | 9.9 | UI-08 | Page Title | Page Title hơi nhạt và nhỏ | Color **#111827** hoặc #0F172A, font-size **24px**, weight **700** | ✅ DONE 2026-05-25 (token `--wujia-page-title-*` + rule `_wujia_theme.css:274-280`) |
 | 9.10 | UI-09 | Page Subtitle / Description | Màu sắc hiện tại đang hơi nhạt | Text bình thường: **#6B7280**, font-size **14–15px**, weight **400** | ✅ DONE 2026-05-27 |
 | 9.11 | UI-10 | Font chữ | Đồng nhất một font chữ trên portal, dùng cho tất cả các trang | (H empty — Inter self-hosted, đồng nhất toàn portal) | ✅ DONE 2026-05-27 |
-| 9.12 | UI-11 | KPI Cards / Summary Cards | — | Card trắng, bo góc **16px**, shadow nhẹ, height **≈100px**, padding **20–24px**; icon area **72×72px** nền **#28A9DF**, icon trắng; line dọc **1px #D1D5DB** tách icon và nội dung | ⬜ pending |
+| 9.12 | UI-11 | KPI Cards / Summary Cards | — | Card trắng, bo góc **16px**, shadow nhẹ, height **≈100px**, padding **20–24px**; icon area **72×72px** nền **#28A9DF**, icon trắng; line dọc **1px #D1D5DB** tách icon và nội dung | ✅ DONE 2026-05-27 (gom 2 class system .stat-card + .report-kpi thành 1 component `.wujia-kpi-card` chung trong `_components.css`, apply 8 card across 2 page; portal_home có chevron + clickable, portal_report no chevron) |
 | 9.13 | UI-12 | Content Card | — | Card trắng, bo góc **16px**, shadow nhẹ, padding **20–24px**; card header: icon tròn **#28A9DF**, title đậm, nút "Xem tất cả" **#28A9DF** phải; list row: bullet **#28A9DF**; Typography: title **#111827**, body **#374151**, phụ/date **#6B7280** | ⬜ pending |
 | 9.14 | UI-13 | Header Right Actions | Thông tin tài khoản cần hiển thị thêm tên user | Icon Language + Cart + Notification + Account (**user name + avatar**) | ⬜ pending |
 | 9.15 | Empty | Empty state | Empty state "Chưa có dữ liệu" còn thô | **icon nhỏ + dòng text + khoảng trắng chuẩn** | ⬜ pending |
@@ -439,6 +439,46 @@ Plan file: `/home/huyban/.claude/plans/sprint-9-4-magical-noodle.md`.
 - `custom/wujia_portal_layout/views/assets.xml` — thêm `?v=1060` vào `member_dashboard_style.css` (lần đầu có cache-bust).
 
 **v14 reference:** v14 dùng Montserrat (Google Fonts) với override `html body { font-family: sans-serif !important }` — messy. V19 dùng Inter self-hosted + `html body { font-family: var(--wujia-font-family) !important }` clean hơn. Montserrat CDN links là copy-paste từ v14 layout template còn sót.
+
+### Files đã chạm (Sprint 9.12 — UI-11 KPI Cards, 2026-05-27)
+
+**A — Layout module (token + component):**
+
+- `custom/wujia_portal_layout/static/assets/css/_variables.css` — bump `--wujia-card-radius` 14 → 16 (BA spec, global ảnh hưởng mọi `.card` portal); thêm 7 token KPI block: `--wujia-kpi-card-min-height: 100px`, `--wujia-kpi-card-padding: 22px` (mid BA 20-24), `--wujia-kpi-icon-size: 72px`, `--wujia-kpi-icon-radius: 16px`, `--wujia-kpi-icon-bg: var(--wujia-primary)` (BA #28A9DF coi là typo, dùng #22A9DE để consistency), `--wujia-kpi-separator-color: #D1D5DB` (BA exact, tách khỏi `--wujia-border #E5E7EB`), `--wujia-kpi-separator-height: 64px`.
+- `custom/wujia_portal_layout/static/assets/css/_components.css` — thêm block `.wujia-kpi-card*` ~70 dòng (cuối file): `.wujia-kpi-card-link` (display block + text-decoration none + color inherit cho `<a>` wrapper), `.wujia-kpi-card` (flex align-center gap 20, min-height 100, padding 22, bg white, radius 16, shadow nhẹ, transition lift hover -2px), `.wujia-kpi-icon` (72×72 radius 16 inline-flex center font 28px white) + 5 variant `.wujia-kpi-icon-{primary,success,warning,danger,info}`, `.wujia-kpi-separator` (1×64 #D1D5DB), `.wujia-kpi-content` (flex column gap 2), `.wujia-kpi-label` (14px secondary), `.wujia-kpi-value` (28px bold primary text), `.wujia-kpi-desc` (12px secondary), `.wujia-kpi-arrow` (font 20 secondary).
+- `custom/wujia_portal_layout/views/assets.xml` — bump `_variables.css?v=1060` → `?v=1070`, `_components.css?v=1010` → `?v=1020`.
+- `custom/wujia_portal_layout/__manifest__.py` — bump `19.0.6.0.2` → `19.0.7.0.0` (minor bump vì introduce class component mới).
+
+**B — Portal Base (home cards):**
+
+- `custom/wujia_portal_base/views/portal_home.xml:20-85` — refactor 4 stat card sang structure mới: `<a class="wujia-kpi-card-link" href="…">` wrap, `<div.wujia-kpi-card>` chứa `<div.wujia-kpi-icon.wujia-kpi-icon-{variant}>` (icon left) + `<div.wujia-kpi-separator/>` + `<div.wujia-kpi-content>` (label + `<div.wujia-kpi-value>` thay `<h2>` cũ + `<small.wujia-kpi-desc>` dynamic theo state) + `<i.feather.icon-chevron-right.wujia-kpi-arrow/>` (chevron). 4 card map: Thông báo (-primary, bell, /portal/notification), Đơn 30 ngày (-info, shopping-cart, /portal/purchase-history), Đơn chờ (-warning, clock-o, /portal/purchase-history), Đổi trả (-danger, undo, /portal/return). Desc dynamic format: "Bạn có X thông báo mới" / "Chưa có thông báo mới" v.v.
+- `custom/wujia_portal_base/static/src/css/portal_dashboard.css` — xoá 9 dòng `.stat-card*` (lines 4-12 cũ: `.stat-card`, `.stat-card-label`, `.stat-card-value`, `.stat-card-icon`, 4 variant primary/info/warning/danger). Comment block annotate migration sang `.wujia-kpi-card`.
+- `custom/wujia_portal_base/__manifest__.py` — bump `19.0.5.2.0` → `19.0.5.3.0`.
+
+**C — Portal Report (report KPI cards):**
+
+- `custom/wujia_portal_report/views/portal_report_orders.xml:47-87` — refactor 4 KPI card: cùng structure `.wujia-kpi-card` (icon-left + separator + content) NHƯNG **KHÔNG có chevron, KHÔNG wrap `<a>`** (page dashboard self-contained, click không có target hợp lý). 4 card: Tổng số đơn (-primary, file-text-o), Tổng doanh thu (-success, money), Đơn hoàn thành (-info, check-circle), Đơn bị hủy (-danger, times-circle). Desc giữ text gốc trong `<small.wujia-kpi-desc>` (was `<small.text-muted>`).
+- `custom/wujia_portal_report/static/src/css/portal_report.css` — xoá 7 dòng `.report-kpi*` (lines 2-8 cũ: `.report-kpi` + 4 variant border-left + `.report-kpi-label` + `.report-kpi-value`). Giữ `.report-chart-area`.
+- `custom/wujia_portal_report/__manifest__.py` — bump `19.0.1.1.0` → `19.0.1.2.0`.
+
+**Verify:**
+- `bash scripts/upgrade.sh "wujia_portal_layout,wujia_portal_base,wujia_portal_report"` → RC=0, 89 module loaded in 1.63s (Registry 3.234s), không error mới (chỉ warning pre-existing: `_sql_constraints` deprecation, `route(type='json')` deprecation).
+- Curl `_components.css?v=1020` xác nhận serve `.wujia-kpi-card`, `_variables.css?v=1070` serve 7 token + card-radius 16.
+- Grep `stat-card\|report-kpi` trong `custom/` → 0 active match (chỉ 3 occurrence trong comment legacy migration note).
+- Restart Odoo (kill pid 1179866 + start.sh bg pid 1329071, HTTP 303 ready trong < 30s).
+- User browser verify visual portal_home + portal_report_orders khớp BA mockup image1.
+
+**v14 reference:** Đã grep thorough `co_portal_*` + `co_franchise_*` modules v14 → **KHÔNG có pattern icon-left + vertical-separator + chevron** matching BA UI-11. v14 dùng 2 pattern khác: (a) `co_portal_wujia/dashboard.xml` icon-right + label-left (đã comment out không active), (b) `co_portal_base/overview_page.xml` row col-7/col-5 layout (admin page). V14 KHÔNG có vertical separator 1px gray + icon vuông 72×72 → build từ đầu cho v19, không có CSS reuse. §10 L2 lesson applied (check v14 trước khi build mới, không skip).
+
+**Gotcha mới (Sprint 9.12):**
+
+1. **`--wujia-card-radius` bump global 14→16** — Token đã từng bump 10→14 Sprint 8, nay bump tiếp 14→16 theo BA UI-11. Ảnh hưởng MỌI `.card` portal (Bootstrap default `.card` đã có `border-radius`, var override cascade hoạt động). Audit nhanh sau ship: portal_order, portal_knowledge, portal_support, portal_exam render OK với radius 16 — visual không bị broken. **Lesson:** token global UI design có thể bump nhiều lần (10→14→16) trong vòng đời sprint khi BA tinh chỉnh — luôn giữ context bump cũ trong comment để lần sau biết lý do.
+
+2. **BA hex typo `#28A9DF` vs `--wujia-primary #22A9DE`** — BA spec UI-11 ghi icon bg #28A9DF, token portal #22A9DE (lệch 2 ký tự: `28` vs `22`, `F` vs `E`). User chọn (2026-05-27 Q1) giữ `--wujia-primary` cho consistency cyan toàn portal (button, badge, sidebar active, store pill). **Lesson:** mọi hex BA ghi PHẢI cross-check với token đã tồn tại — chỉ 2 ký tự lệch dễ là typo, nhưng nếu thật sự khác tone (vd #28A9DF có tí xanh lá hơn) cần hỏi BA confirm. Quy ước session 9.12: nếu lệch <= 4 ký tự → coi là typo, dùng token có sẵn; nếu lệch nhiều → tạo token mới + hỏi BA.
+
+3. **`<h2>` semantic trong KPI card** — Code cũ dùng `<h2>` cho stat value (4 h2 trên 1 page = SEO outline lệch). Sprint 9.12 thay bằng `<div class="wujia-kpi-value">` — semantic chuẩn (heading không nên ở giữa list of stats), `<h2>` reserved cho page-level title. Áp 8 card cả 2 page. **Lesson:** sprint UI refactor là cơ hội fix luôn HTML semantic, không chỉ visual. Nếu sau này CSS rule cần target value text, dùng class `.wujia-kpi-value` thay `h2.stat-card-value` — semantic-agnostic.
+
+4. **`portal_dashboard.css` không có cache-bust** — File này thuộc `wujia_portal_base` dùng `web.assets_frontend` (Odoo auto-bundle), KHÔNG inject manual `<link ?v=>` như `wujia_portal_layout`. Sửa CSS → restart Odoo + Ctrl+F5 client là đủ, không cần bump version trong manifest. Cùng cho `portal_report.css`, `store_picker.css`, `franchise_realtime.js` v.v. **Quy ước:** chỉ file CSS load qua manual `<link>` trong `assets.xml` (toàn bộ trong `wujia_portal_layout`) mới cần `?v=` cache-bust query.
 
 ### Policy update (2026-05-24)
 

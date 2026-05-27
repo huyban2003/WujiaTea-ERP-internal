@@ -44,10 +44,26 @@
        module legacy (UI-04 mobile strip dùng calc margin-top) không break. */
     --wujia-header-height:  72px;   /* Vuexy default floating-nav height */
     --wujia-header-padding: 22px;
-    --wujia-card-radius:    14px;   /* UI-11 bump 10 → 14 */
+    --wujia-card-radius:    16px;   /* UI-11 Sprint 9.12 bump 14 → 16 (BA spec) */
     --wujia-card-padding:   24px;
     --wujia-card-shadow:    0 2px 6px rgba(15, 23, 42, 0.04);
     --wujia-section-gap:    28px;
+
+    /* ---------- KPI Card (UI-11, Sprint 9.12, 2026-05-27) ----------
+       BA "5. Issue List" UI-11 cột H verbatim:
+         Card: white, radius 16px, light shadow, height ≈100px, padding 20-24px
+         Icon area: square block, radius 16px, 72×72px, bg #28A9DF, white icon
+         Vertical line: 1px #D1D5DB, height ≈64px between icon and content
+       Icon bg uses --wujia-primary (#22A9DE) for portal consistency — BA #28A9DF
+       coi là typo (lệch 2 ký tự). Separator color #D1D5DB is BA exact, distinct
+       from --wujia-border #E5E7EB. */
+    --wujia-kpi-card-min-height:  100px;
+    --wujia-kpi-card-padding:     22px;        /* mid của BA 20-24 */
+    --wujia-kpi-icon-size:        72px;
+    --wujia-kpi-icon-radius:      16px;
+    --wujia-kpi-icon-bg:          var(--wujia-primary);
+    --wujia-kpi-separator-color:  #D1D5DB;
+    --wujia-kpi-separator-height: 64px;
 
     /* ---------- Sidebar items (UI-03/04) ---------- */
     --wujia-menu-item-height: 44px;  /* UI-03 BA range 44–48, low end */

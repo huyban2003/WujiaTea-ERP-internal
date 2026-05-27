@@ -44,43 +44,59 @@
                         </div>
                     </div>
 
-                    <!-- ============ Block 1: 4 KPI cards ============ -->
+                    <!-- ============ Block 1: 4 KPI cards (UI-11, Sprint 9.12) ============ -->
                     <div class="row">
                         <div class="col-lg-3 col-md-6 col-6 mb-2">
-                            <div class="card report-kpi report-kpi-primary mb-0">
-                                <div class="card-body p-2">
-                                    <p class="report-kpi-label mb-1">Tổng số đơn</p>
-                                    <h2 class="report-kpi-value mb-0" t-out="'{:,}'.format(total_orders).replace(',', '.')"/>
-                                    <small class="text-muted">không tính đơn hủy</small>
+                            <div class="wujia-kpi-card">
+                                <div class="wujia-kpi-icon wujia-kpi-icon-primary">
+                                    <i class="fa fa-file-text-o"/>
+                                </div>
+                                <div class="wujia-kpi-separator"/>
+                                <div class="wujia-kpi-content">
+                                    <p class="wujia-kpi-label">Tổng số đơn</p>
+                                    <div class="wujia-kpi-value" t-out="'{:,}'.format(total_orders).replace(',', '.')"/>
+                                    <small class="wujia-kpi-desc">không tính đơn hủy</small>
                                 </div>
                             </div>
                         </div>
                         <div class="col-lg-3 col-md-6 col-6 mb-2">
-                            <div class="card report-kpi report-kpi-success mb-0">
-                                <div class="card-body p-2">
-                                    <p class="report-kpi-label mb-1">Tổng doanh thu</p>
-                                    <h2 class="report-kpi-value mb-0">
+                            <div class="wujia-kpi-card">
+                                <div class="wujia-kpi-icon wujia-kpi-icon-success">
+                                    <i class="fa fa-money"/>
+                                </div>
+                                <div class="wujia-kpi-separator"/>
+                                <div class="wujia-kpi-content">
+                                    <p class="wujia-kpi-label">Tổng doanh thu</p>
+                                    <div class="wujia-kpi-value">
                                         <t t-out="'{:,.0f}'.format(total_revenue).replace(',', '.')"/> ₫
-                                    </h2>
-                                    <small class="text-muted">trong khoảng đã chọn</small>
+                                    </div>
+                                    <small class="wujia-kpi-desc">trong khoảng đã chọn</small>
                                 </div>
                             </div>
                         </div>
                         <div class="col-lg-3 col-md-6 col-6 mb-2">
-                            <div class="card report-kpi report-kpi-info mb-0">
-                                <div class="card-body p-2">
-                                    <p class="report-kpi-label mb-1">Đơn hoàn thành</p>
-                                    <h2 class="report-kpi-value mb-0" t-out="'{:,}'.format(done_orders).replace(',', '.')"/>
-                                    <small class="text-muted">state = done</small>
+                            <div class="wujia-kpi-card">
+                                <div class="wujia-kpi-icon wujia-kpi-icon-info">
+                                    <i class="fa fa-check-circle"/>
+                                </div>
+                                <div class="wujia-kpi-separator"/>
+                                <div class="wujia-kpi-content">
+                                    <p class="wujia-kpi-label">Đơn hoàn thành</p>
+                                    <div class="wujia-kpi-value" t-out="'{:,}'.format(done_orders).replace(',', '.')"/>
+                                    <small class="wujia-kpi-desc">state = done</small>
                                 </div>
                             </div>
                         </div>
                         <div class="col-lg-3 col-md-6 col-6 mb-2">
-                            <div class="card report-kpi report-kpi-danger mb-0">
-                                <div class="card-body p-2">
-                                    <p class="report-kpi-label mb-1">Đơn bị hủy</p>
-                                    <h2 class="report-kpi-value mb-0" t-out="'{:,}'.format(cancel_orders).replace(',', '.')"/>
-                                    <small class="text-muted">cần phân tích nguyên nhân</small>
+                            <div class="wujia-kpi-card">
+                                <div class="wujia-kpi-icon wujia-kpi-icon-danger">
+                                    <i class="fa fa-times-circle"/>
+                                </div>
+                                <div class="wujia-kpi-separator"/>
+                                <div class="wujia-kpi-content">
+                                    <p class="wujia-kpi-label">Đơn bị hủy</p>
+                                    <div class="wujia-kpi-value" t-out="'{:,}'.format(cancel_orders).replace(',', '.')"/>
+                                    <small class="wujia-kpi-desc">cần phân tích nguyên nhân</small>
                                 </div>
                             </div>
                         </div>

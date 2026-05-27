@@ -18,66 +18,82 @@
                 </div>
 
                 <div t-if="franchise_ids" class="content-body">
-                    <!-- ============ 4 stat cards ============ -->
+                    <!-- ============ 4 KPI cards (UI-11, Sprint 9.12) ============ -->
                     <section id="dashboard-stats">
                         <div class="row">
                             <div class="col-lg-3 col-md-6 col-6 mb-2">
-                                <a href="/portal/notification" class="text-decoration-none">
-                                    <div class="card stat-card stat-card-primary mb-0">
-                                        <div class="card-body d-flex align-items-center justify-content-between p-2">
-                                            <div>
-                                                <p class="mb-0 stat-card-label">Thông báo chưa đọc</p>
-                                                <h2 class="text-bold-700 stat-card-value mb-0" t-out="unread_count or 0"/>
-                                            </div>
-                                            <div class="stat-card-icon">
-                                                <i class="fa fa-bell"></i>
-                                            </div>
+                                <a href="/portal/notification" class="wujia-kpi-card-link">
+                                    <div class="wujia-kpi-card">
+                                        <div class="wujia-kpi-icon wujia-kpi-icon-primary">
+                                            <i class="fa fa-bell"/>
                                         </div>
+                                        <div class="wujia-kpi-separator"/>
+                                        <div class="wujia-kpi-content">
+                                            <p class="wujia-kpi-label">Thông báo chưa đọc</p>
+                                            <div class="wujia-kpi-value" t-out="unread_count or 0"/>
+                                            <small class="wujia-kpi-desc">
+                                                <t t-if="unread_count">Bạn có <t t-out="unread_count"/> thông báo mới</t>
+                                                <t t-else="">Chưa có thông báo mới</t>
+                                            </small>
+                                        </div>
+                                        <i class="feather icon-chevron-right wujia-kpi-arrow"/>
                                     </div>
                                 </a>
                             </div>
                             <div class="col-lg-3 col-md-6 col-6 mb-2">
-                                <a href="/portal/purchase-history" class="text-decoration-none">
-                                    <div class="card stat-card stat-card-info mb-0">
-                                        <div class="card-body d-flex align-items-center justify-content-between p-2">
-                                            <div>
-                                                <p class="mb-0 stat-card-label">Đơn hàng (30 ngày)</p>
-                                                <h2 class="text-bold-700 stat-card-value mb-0" t-out="recent_orders_count or 0"/>
-                                            </div>
-                                            <div class="stat-card-icon">
-                                                <i class="fa fa-shopping-cart"></i>
-                                            </div>
+                                <a href="/portal/purchase-history" class="wujia-kpi-card-link">
+                                    <div class="wujia-kpi-card">
+                                        <div class="wujia-kpi-icon wujia-kpi-icon-info">
+                                            <i class="fa fa-shopping-cart"/>
                                         </div>
+                                        <div class="wujia-kpi-separator"/>
+                                        <div class="wujia-kpi-content">
+                                            <p class="wujia-kpi-label">Đơn hàng (30 ngày)</p>
+                                            <div class="wujia-kpi-value" t-out="recent_orders_count or 0"/>
+                                            <small class="wujia-kpi-desc">
+                                                <t t-if="recent_orders_count"><t t-out="recent_orders_count"/> đơn trong 30 ngày</t>
+                                                <t t-else="">Chưa có đơn hàng mới</t>
+                                            </small>
+                                        </div>
+                                        <i class="feather icon-chevron-right wujia-kpi-arrow"/>
                                     </div>
                                 </a>
                             </div>
                             <div class="col-lg-3 col-md-6 col-6 mb-2">
-                                <a href="/portal/purchase-history" class="text-decoration-none">
-                                    <div class="card stat-card stat-card-warning mb-0">
-                                        <div class="card-body d-flex align-items-center justify-content-between p-2">
-                                            <div>
-                                                <p class="mb-0 stat-card-label">Đơn chờ xử lý</p>
-                                                <h2 class="text-bold-700 stat-card-value mb-0" t-out="waiting_orders_count or 0"/>
-                                            </div>
-                                            <div class="stat-card-icon">
-                                                <i class="fa fa-clock-o"></i>
-                                            </div>
+                                <a href="/portal/purchase-history" class="wujia-kpi-card-link">
+                                    <div class="wujia-kpi-card">
+                                        <div class="wujia-kpi-icon wujia-kpi-icon-warning">
+                                            <i class="fa fa-clock-o"/>
                                         </div>
+                                        <div class="wujia-kpi-separator"/>
+                                        <div class="wujia-kpi-content">
+                                            <p class="wujia-kpi-label">Đơn chờ xử lý</p>
+                                            <div class="wujia-kpi-value" t-out="waiting_orders_count or 0"/>
+                                            <small class="wujia-kpi-desc">
+                                                <t t-if="waiting_orders_count">Có <t t-out="waiting_orders_count"/> đơn cần xử lý</t>
+                                                <t t-else="">Tất cả đã xử lý</t>
+                                            </small>
+                                        </div>
+                                        <i class="feather icon-chevron-right wujia-kpi-arrow"/>
                                     </div>
                                 </a>
                             </div>
                             <div class="col-lg-3 col-md-6 col-6 mb-2">
-                                <a href="/portal/return" class="text-decoration-none">
-                                    <div class="card stat-card stat-card-danger mb-0">
-                                        <div class="card-body d-flex align-items-center justify-content-between p-2">
-                                            <div>
-                                                <p class="mb-0 stat-card-label">Đổi trả đang mở</p>
-                                                <h2 class="text-bold-700 stat-card-value mb-0" t-out="return_requests_count or 0"/>
-                                            </div>
-                                            <div class="stat-card-icon">
-                                                <i class="fa fa-undo"></i>
-                                            </div>
+                                <a href="/portal/return" class="wujia-kpi-card-link">
+                                    <div class="wujia-kpi-card">
+                                        <div class="wujia-kpi-icon wujia-kpi-icon-danger">
+                                            <i class="fa fa-undo"/>
                                         </div>
+                                        <div class="wujia-kpi-separator"/>
+                                        <div class="wujia-kpi-content">
+                                            <p class="wujia-kpi-label">Đổi trả đang mở</p>
+                                            <div class="wujia-kpi-value" t-out="return_requests_count or 0"/>
+                                            <small class="wujia-kpi-desc">
+                                                <t t-if="return_requests_count"><t t-out="return_requests_count"/> yêu cầu đang mở</t>
+                                                <t t-else="">Chưa có yêu cầu</t>
+                                            </small>
+                                        </div>
+                                        <i class="feather icon-chevron-right wujia-kpi-arrow"/>
                                     </div>
                                 </a>
                             </div>
