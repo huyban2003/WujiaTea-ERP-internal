@@ -19,74 +19,78 @@
                 </div>
 
                 <div t-if="not no_franchise" class="content-body">
-                    <!-- Search/Filter bar (UI-12 Sprint 9.13: wujia-content-card shell) -->
-                    <div class="wujia-content-card mb-2" style="padding: 12px;">
-                        <form method="get" action="/portal/purchase-history" class="row g-2 align-items-center">
-                            <div class="col-md-3 col-6">
-                                <label class="small mb-1" style="color: var(--wujia-text-subtitle);">Từ ngày</label>
-                                <input type="date" name="date_from" class="form-control form-control-sm" t-att-value="date_from"/>
-                            </div>
-                            <div class="col-md-3 col-6">
-                                <label class="small mb-1" style="color: var(--wujia-text-subtitle);">Đến ngày</label>
-                                <input type="date" name="date_to" class="form-control form-control-sm" t-att-value="date_to"/>
-                            </div>
-                            <div class="col-md-3 col-12">
-                                <label class="small mb-1" style="color: var(--wujia-text-subtitle);">Trạng thái</label>
-                                <select name="state" class="form-select form-select-sm">
-                                    <option value="">— Tất cả —</option>
-                                    <t t-foreach="state_badges.items()" t-as="kv">
-                                        <option t-att-value="kv[0]"
-                                                t-att-selected="'selected' if state == kv[0] else None"
-                                                t-out="kv[1][0]"/>
-                                    </t>
-                                </select>
-                            </div>
-                            <div class="col-md-3 col-12 text-end">
-                                <label class="small mb-1 d-block" style="color: var(--wujia-text-subtitle);">&#160;</label>
-                                <button type="submit" class="btn btn-primary btn-sm me-1">
-                                    <i class="fa fa-search"/> Tìm kiếm
-                                </button>
-                                <a href="/portal/purchase-history?preset=this_month" class="btn btn-outline-success btn-sm me-1">Tháng này</a>
-                                <a href="/portal/purchase-history?preset=last_month" class="btn btn-outline-secondary btn-sm">Tháng trước</a>
-                            </div>
-                        </form>
+                    <!-- Search/Filter bar -->
+                    <div class="card mb-2">
+                        <div class="card-body p-2">
+                            <form method="get" action="/portal/purchase-history" class="row g-2 align-items-center">
+                                <div class="col-md-3 col-6">
+                                    <label class="small text-muted mb-1">Từ ngày</label>
+                                    <input type="date" name="date_from" class="form-control form-control-sm" t-att-value="date_from"/>
+                                </div>
+                                <div class="col-md-3 col-6">
+                                    <label class="small text-muted mb-1">Đến ngày</label>
+                                    <input type="date" name="date_to" class="form-control form-control-sm" t-att-value="date_to"/>
+                                </div>
+                                <div class="col-md-3 col-12">
+                                    <label class="small text-muted mb-1">Trạng thái</label>
+                                    <select name="state" class="form-select form-select-sm">
+                                        <option value="">— Tất cả —</option>
+                                        <t t-foreach="state_badges.items()" t-as="kv">
+                                            <option t-att-value="kv[0]"
+                                                    t-att-selected="'selected' if state == kv[0] else None"
+                                                    t-out="kv[1][0]"/>
+                                        </t>
+                                    </select>
+                                </div>
+                                <div class="col-md-3 col-12 text-end">
+                                    <label class="small text-muted mb-1 d-block">&#160;</label>
+                                    <button type="submit" class="btn btn-primary btn-sm me-1">
+                                        <i class="fa fa-search"/> Tìm kiếm
+                                    </button>
+                                    <a href="/portal/purchase-history?preset=this_month" class="btn btn-outline-success btn-sm me-1">Tháng này</a>
+                                    <a href="/portal/purchase-history?preset=last_month" class="btn btn-outline-secondary btn-sm">Tháng trước</a>
+                                </div>
+                            </form>
+                        </div>
                     </div>
 
-                    <!-- Table (UI-12 Sprint 9.13: flush content card) -->
-                    <div class="wujia-content-card wujia-content-card--flush">
-                        <div t-if="not orders" class="wujia-content-card-empty">Chưa có đơn hàng nào.</div>
-                        <div t-else="" class="table-responsive">
-                            <table class="table table-hover mb-0">
-                                <thead style="background: var(--wujia-bg-page);">
-                                    <tr>
-                                        <th>Ngày đặt</th>
-                                        <th>Mã đơn</th>
-                                        <th>Cửa hàng</th>
-                                        <th class="text-end">Tổng tiền</th>
-                                        <th class="text-end">KL (kg)</th>
-                                        <th class="text-center">Trạng thái</th>
-                                        <th></th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <tr t-foreach="orders" t-as="o">
-                                        <td t-out="o.date_order and o.date_order.strftime('%d/%m/%Y %H:%M') or ''"/>
-                                        <td><a t-attf-href="/portal/purchase-history/#{o.id}" t-out="o.name"/></td>
-                                        <td t-out="o.franchise_id.name or '—'"/>
-                                        <td class="text-end" t-out="'{:,.0f}'.format(o.amount_total or 0).replace(',', '.') + ' ₫'"/>
-                                        <td class="text-end" t-out="'{:,.2f}'.format(o.total_planned_weight or 0)"/>
-                                        <td class="text-center">
-                                            <t t-set="badge" t-value="state_badges.get(o.state, (o.state, 'state-draft'))"/>
-                                            <span t-attf-class="badge state-badge #{badge[1]}" t-out="badge[0]"/>
-                                        </td>
-                                        <td class="text-end">
-                                            <a t-attf-href="/portal/purchase-history/#{o.id}" class="btn btn-sm btn-outline-primary">
-                                                <i class="fa fa-eye"/>
-                                            </a>
-                                        </td>
-                                    </tr>
-                                </tbody>
-                            </table>
+                    <!-- Table -->
+                    <div class="card">
+                        <div class="card-body p-0">
+                            <div t-if="not orders" class="alert alert-info m-3 mb-0">Chưa có đơn hàng nào.</div>
+                            <div t-else="" class="table-responsive">
+                                <table class="table table-hover mb-0">
+                                    <thead class="bg-light">
+                                        <tr>
+                                            <th>Ngày đặt</th>
+                                            <th>Mã đơn</th>
+                                            <th>Cửa hàng</th>
+                                            <th class="text-end">Tổng tiền</th>
+                                            <th class="text-end">KL (kg)</th>
+                                            <th class="text-center">Trạng thái</th>
+                                            <th></th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr t-foreach="orders" t-as="o">
+                                            <td t-out="o.date_order and o.date_order.strftime('%d/%m/%Y %H:%M') or ''"/>
+                                            <td><a t-attf-href="/portal/purchase-history/#{o.id}" t-out="o.name"/></td>
+                                            <td t-out="o.franchise_id.name or '—'"/>
+                                            <td class="text-end" t-out="'{:,.0f}'.format(o.amount_total or 0).replace(',', '.') + ' ₫'"/>
+                                            <td class="text-end" t-out="'{:,.2f}'.format(o.total_planned_weight or 0)"/>
+                                            <td class="text-center">
+                                                <t t-set="badge" t-value="state_badges.get(o.state, (o.state, 'state-draft'))"/>
+                                                <span t-attf-class="badge state-badge #{badge[1]}" t-out="badge[0]"/>
+                                            </td>
+                                            <td class="text-end">
+                                                <a t-attf-href="/portal/purchase-history/#{o.id}" class="btn btn-sm btn-outline-primary">
+                                                    <i class="fa fa-eye"/>
+                                                </a>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
                         </div>
                     </div>
 

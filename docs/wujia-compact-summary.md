@@ -2,7 +2,7 @@
 
 **Mục đích:** file này được agentmemory inject context cho mọi session làm WujiaTea. Mỗi section là 1 entry độc lập, search-able qua `/recall`. Khi cập nhật, chạy lại `scripts/import_wujia_compact_summary.py`. Chi tiết đầy đủ vẫn ở `wujia-tea-doc.tex` (2611 dòng, 14 chapter).
 
-Cập nhật lần cuối: 2026-05-27 (Sprint 9 in progress — UI-01..UI-12 DONE (9.1–9.13); §9 table đồng bộ xlsm mới BA renumber UI-07..UI-13; còn 9.14–9.19: UI-13 Header Right, Empty, Cleanup, Verify, Doc, Push).
+Cập nhật lần cuối: 2026-05-27 (Sprint 9 in progress — UI-01..UI-11 DONE (9.1–9.12); §9 table đồng bộ xlsm mới BA renumber UI-07..UI-13; còn 9.13–9.19: UI-12 Content Card, UI-13 Header Right, Empty, Cleanup, Verify, Doc, Push).
 
 ---
 
@@ -113,10 +113,10 @@ Cập nhật lần cuối: 2026-05-27 (Sprint 9 in progress — UI-01..UI-12 DON
 
 ## §5 wujia-current-status-and-remaining
 
-**Tình trạng (2026-05-27):** 18 module active. **Sprint 9 IN PROGRESS** — issue list portal UI refactor. **UI-01..UI-12 DONE** (push `main` 2026-05-27). BA Hùng renumber issue list → §9 table đã đồng bộ (19 sprint con, UI-07..UI-13 mới). Còn 9.14–9.19: UI-13 Header Right + Empty + Cleanup + Verify + Doc + Push. Xem §9 wujia-sprint9-issue-list-state.
+**Tình trạng (2026-05-27):** 18 module active. **Sprint 9 IN PROGRESS** — issue list portal UI refactor. **UI-01..UI-11 DONE** (push `main` 2026-05-27). BA Hùng renumber issue list → §9 table đã đồng bộ (19 sprint con, UI-07..UI-13 mới). Còn 9.13–9.19: UI-12 Content Card, UI-13 Header Right + Empty + Cleanup + Verify + Doc + Push. Xem §9 wujia-sprint9-issue-list-state.
 
 **Còn lại Phase 1.0** (BA spec):
-- **Sprint 9 (in progress)** — UI-13 Header Right Actions + Empty state + cleanup (xem §9 bảng).
+- **Sprint 9 (in progress)** — UI-12 Content Card, UI-13 Header Right Actions + Empty state + cleanup (xem §9 bảng).
 - T-031 "Mockup quản lý vận hành nội bộ" (BA Hùng đã mockup) → defer Sprint 10.
 - Load test 100+ concurrent user qua locust (Task `scripts/locust_portal.py` chưa làm).
 - Affiliate/commission portal 12 route v14 — defer roadmap (`chapters/19-roadmap-v14-gaps.tex`).
@@ -283,7 +283,7 @@ Xong xuôi chạy /wujia-end-sprint.
 | 9.10 | UI-09 | Page Subtitle / Description | Màu sắc hiện tại đang hơi nhạt | Text bình thường: **#6B7280**, font-size **14–15px**, weight **400** | ✅ DONE 2026-05-27 |
 | 9.11 | UI-10 | Font chữ | Đồng nhất một font chữ trên portal, dùng cho tất cả các trang | (H empty — Inter self-hosted, đồng nhất toàn portal) | ✅ DONE 2026-05-27 |
 | 9.12 | UI-11 | KPI Cards / Summary Cards | — | Card trắng, bo góc **16px**, shadow nhẹ, height **≈100px**, padding **20–24px**; icon area **72×72px** nền **#28A9DF**, icon trắng; line dọc **1px #D1D5DB** tách icon và nội dung | ✅ DONE 2026-05-27 (gom 2 class system .stat-card + .report-kpi thành 1 component `.wujia-kpi-card` chung trong `_components.css`, apply 8 card across 2 page; portal_home có chevron + clickable, portal_report no chevron) |
-| 9.13 | UI-12 | Content Card | — | Card trắng, bo góc **16px**, shadow nhẹ, padding **20–24px**; card header: icon tròn **#28A9DF**, title đậm, nút "Xem tất cả" **#28A9DF** phải; list row: bullet **#28A9DF**; Typography: title **#111827**, body **#374151**, phụ/date **#6B7280** | ✅ DONE 2026-05-27 (component `.wujia-content-card` + variant `--flush` cho table page; apply 5 page: portal_home 3 card A/B/C + notification list + knowledge sidebar + purchase-history list + return list; global token `--wujia-text-primary` `#1F2933→#111827` + `--wujia-text-secondary` `#5C6470→#374151`) |
+| 9.13 | UI-12 | Content Card | — | Card trắng, bo góc **16px**, shadow nhẹ, padding **20–24px**; card header: icon tròn **#28A9DF**, title đậm, nút "Xem tất cả" **#28A9DF** phải; list row: bullet **#28A9DF**; Typography: title **#111827**, body **#374151**, phụ/date **#6B7280** | ⬜ pending |
 | 9.14 | UI-13 | Header Right Actions | Thông tin tài khoản cần hiển thị thêm tên user | Icon Language + Cart + Notification + Account (**user name + avatar**) | ⬜ pending |
 | 9.15 | Empty | Empty state | Empty state "Chưa có dữ liệu" còn thô | **icon nhỏ + dòng text + khoảng trắng chuẩn** | ⬜ pending |
 | 9.16 | — | Cleanup | (Quick wins, không trong Issue List) | 301 redirect `/portal/purchase_history` → `/portal/purchase-history`, `/portal/return-request-list`, `/portal/exam-registration` + xóa `custom/wujia_account/` stub trống | ⬜ pending |
@@ -479,44 +479,6 @@ Plan file: `/home/huyban/.claude/plans/sprint-9-4-magical-noodle.md`.
 3. **`<h2>` semantic trong KPI card** — Code cũ dùng `<h2>` cho stat value (4 h2 trên 1 page = SEO outline lệch). Sprint 9.12 thay bằng `<div class="wujia-kpi-value">` — semantic chuẩn (heading không nên ở giữa list of stats), `<h2>` reserved cho page-level title. Áp 8 card cả 2 page. **Lesson:** sprint UI refactor là cơ hội fix luôn HTML semantic, không chỉ visual. Nếu sau này CSS rule cần target value text, dùng class `.wujia-kpi-value` thay `h2.stat-card-value` — semantic-agnostic.
 
 4. **`portal_dashboard.css` không có cache-bust** — File này thuộc `wujia_portal_base` dùng `web.assets_frontend` (Odoo auto-bundle), KHÔNG inject manual `<link ?v=>` như `wujia_portal_layout`. Sửa CSS → restart Odoo + Ctrl+F5 client là đủ, không cần bump version trong manifest. Cùng cho `portal_report.css`, `store_picker.css`, `franchise_realtime.js` v.v. **Quy ước:** chỉ file CSS load qua manual `<link>` trong `assets.xml` (toàn bộ trong `wujia_portal_layout`) mới cần `?v=` cache-bust query.
-
-### Files đã chạm (Sprint 9.13 — UI-12 Content Card, 2026-05-27)
-
-**A — Layout module (token + component):**
-
-- `custom/wujia_portal_layout/static/assets/css/_variables.css` — bump 2 global text token sang Tailwind gray scale theo BA: `--wujia-text-primary` `#1F2933→#111827`, `--wujia-text-secondary` `#5C6470→#374151`; thêm 7 token Content Card block: `--wujia-content-card-padding: 22px` (mid BA 20-24), `--wujia-content-card-header-icon-size: 40px`, `--wujia-content-card-header-icon-bg: var(--wujia-primary)` (BA #28A9DF coi là typo per UI-11 convention), `--wujia-content-card-bullet-size: 8px`, `--wujia-content-card-bullet-color: var(--wujia-primary)`, `--wujia-content-card-link-color: var(--wujia-primary)`, `--wujia-content-card-row-gap: 14px`.
-- `custom/wujia_portal_layout/static/assets/css/_components.css` — thêm block `.wujia-content-card*` ~120 dòng (cuối file): `.wujia-content-card` shell (white, radius 16, shadow, padding 22, h-100 flex-column), `.wujia-content-card-header` (flex gap 12), `.wujia-content-card-header-icon` (40×40 round bg primary white center), `.wujia-content-card-header-title` (17px bold text-primary), `.wujia-content-card-header-link` (cyan "Xem tất cả ›" no-underline), `.wujia-content-card-body` (flex column gap 14), `.wujia-content-card-row` (grid `auto 1fr auto auto`), `.wujia-content-card-row-bullet` (8×8 round cyan), `.wujia-content-card-row-content` (text-secondary 14px ellipsis), `.wujia-content-card-row-date` (text-subtitle 13px), `.wujia-content-card-empty` (24×12 centered text-subtitle), responsive < 576px ẩn date column. **Variant `.wujia-content-card--flush`** (padding 0) cho list/table page edge-to-edge.
-- `custom/wujia_portal_layout/views/assets.xml` — bump `_variables.css?v=1070→1080`, `_components.css?v=1020→1031`.
-- `custom/wujia_portal_layout/__manifest__.py` — bump `19.0.7.0.0` → `19.0.8.0.0` (minor — component mới + token break).
-
-**B — Portal Base (home):**
-
-- `custom/wujia_portal_base/views/portal_home.xml:106-191` — refactor 3 card A/B/C (Thông báo / Đơn hàng / Đổi trả) từ bare Bootstrap `.card` + list-group/table → `.wujia-content-card` shell + round icon header (feather bell/shopping-cart/corner-up-left) + "Xem tất cả ›" link + bullet rows + state-mapped Vietnamese badge. Card A badge data-driven theo `noti.type_id.bg_color/text_color`; Card B map order state → `.wujia-badge-{muted/info/success/danger}` + label `Nháp/Đã gửi/Đã xác nhận/Hoàn thành/Đã huỷ`; Card C map return state → same family + label `Nháp/Đã gửi/Đã duyệt/Từ chối/Hoàn thành`. Card D "Sản phẩm mua nhiều nhất" giữ nguyên (out-of-scope, BA chưa spec).
-- `custom/wujia_portal_base/__manifest__.py` — bump `19.0.5.3.0` → `19.0.5.4.0`.
-
-**C — 4 feed-style page modules (scope expansion sau user feedback):**
-
-- `custom/wujia_portal_notification/views/portal_notification.xml:38-94` — refactor filter card + list card: filter dùng `.wujia-content-card` shell padding inline 12, list dùng `.wujia-content-card--flush` (giữ rich `.notification-icon` per type cho semantic color, swap badge Bootstrap → `.wujia-badge-{danger,warning,muted}`).
-- `custom/wujia_portal_notification/__manifest__.py` — bump `19.0.1.0.0` → `19.0.1.1.0`.
-- `custom/wujia_portal_knowledge/views/portal_knowledge.xml:22-58` — refactor search bar + sidebar nav: search dùng `.wujia-content-card` shell padding 12, sidebar dùng `.wujia-content-card--flush` + `.wujia-content-card-header` (icon `feather icon-list` + "Danh mục"), badge count → `.wujia-badge-muted`. Articles grid (lines 60-114) giữ nguyên `.knowledge-card` — KHÔNG fit Content Card pattern (grid với cover image, không phải feed).
-- `custom/wujia_portal_knowledge/__manifest__.py` — bump `19.0.3.0.1` → `19.0.3.1.0`.
-- `custom/wujia_portal_purchase_history/views/portal_history.xml:23-95` — refactor filter card + table card: filter shell padding 12, table dùng `--flush` (giữ table layout column-aligned, swap `bg-light` thead → `var(--wujia-bg-page)` inline). Label `text-muted` → inline `var(--wujia-text-subtitle)`.
-- `custom/wujia_portal_purchase_history/__manifest__.py` — bump `19.0.1.0.0` → `19.0.1.1.0`.
-- `custom/wujia_portal_return/views/portal_return_list.xml:25-97` — same pattern: filter shell + table `--flush`. Detail/Form template (`portal_return_detail.xml`, `portal_return_form.xml`) giữ nguyên (out-of-scope, không phải list pattern).
-- `custom/wujia_portal_return/__manifest__.py` — bump `19.0.1.0.0` → `19.0.1.1.0`.
-
-**Verify:**
-- `bash scripts/upgrade.sh "wujia_portal_layout,wujia_portal_notification,wujia_portal_knowledge,wujia_portal_purchase_history,wujia_portal_return"` → RC=0, 89 module loaded in 1.98s, không error mới (warning `_sql_constraints` + `route(type='json')` deprecation pre-existing).
-- Curl `_components.css?v=1031` → 4 occurrence `wujia-content-card--flush` rule served.
-- Restart Odoo (pid 1722922), HTTP 5 portal page = 303 redirect login: `/portal /portal/notification /portal/knowledge /portal/purchase-history /portal/return` — gate hoạt động bình thường.
-
-**Gotcha mới (Sprint 9.13):**
-
-1. **`--` trong XML comment = lỗi parse fatal.** Đã viết `<!-- ... wujia-content-card--flush ... -->` trong 4 file XML → `lxml.etree.XMLSyntaxError: Double hyphen within comment`. Odoo upgrade fail toàn bộ ở module đầu tiên (knowledge). XML spec cấm `--` trong comment kể cả khi có context — chỉ end-marker `-->` mới được. **Lesson:** với class name CSS chứa BEM modifier `--`, KHÔNG bao giờ paste raw vào XML comment. Viết là "flush content card" hoặc tách `-` đầu/sau. Áp cho mọi sprint future có CSS BEM trong XML.
-
-2. **Pragmatic adapt vs forced refactor.** BA mockup UI-12 là feed-style 3-5 row (notification/order/return home card). Apply nguyên pattern đó cho full list page (3 module) sẽ MẤT structured info (column align, table sort). Decision: tách `--flush` variant chỉ apply shell (white bg, radius 16, shadow), giữ table nguyên cho 3 page table-heavy; chỉ home card mới dùng full pattern (bullet + row grid). Knowledge articles grid KHÔNG dùng pattern này (grid card khác biệt). **Lesson:** 1 component visual không nhất thiết apply 1-1 cho mọi page — biết khi nào dùng shell only vs full pattern.
-
-3. **`portal_layout` cache-bust `?v=NNNN` riêng từng file, không globally synced.** `_variables.css?v=1080` + `_components.css?v=1031` (KHÔNG cùng số). Lý do: 2 file evolve độc lập, file nào sửa → bump file đó (giữ browser cache TTL 7d cho file không đổi). Sprint 9.13 chỉ thêm 1 block `.wujia-content-card--flush` modifier sau khi đã serve `?v=1030` ở home → bump `1030→1031` (patch); `_variables.css` đã bump cùng sprint cho token change.
 
 ### Policy update (2026-05-24)
 

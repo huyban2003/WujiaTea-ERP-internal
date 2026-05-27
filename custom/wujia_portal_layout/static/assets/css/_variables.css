@@ -19,13 +19,9 @@
     --wujia-border-soft:    #EEF1F5;
     --wujia-table-header-line: #9AA0A6;
 
-    /* ---------- Text ----------
-       UI-12 Sprint 9.13 (2026-05-27): bumped to Tailwind gray scale (BA spec).
-       --wujia-text-primary  was #1F2933 → #111827 (Tailwind gray-900, BA card title)
-       --wujia-text-secondary was #5C6470 → #374151 (Tailwind gray-700, BA body)
-       --wujia-text-muted    kept #8A9099 (badge-muted, no BA override) */
-    --wujia-text-primary:   #111827;
-    --wujia-text-secondary: #374151;
+    /* ---------- Text ---------- */
+    --wujia-text-primary:   #1F2933;
+    --wujia-text-secondary: #5C6470;
     --wujia-text-muted:     #8A9099;
 
     /* ---------- State / semantic ---------- */
@@ -123,22 +119,6 @@
        BA "5. Issue List" UI-09 cột H: "Dùng #6B7280, font size 14–15px, weight 400" */
     --wujia-text-subtitle:      #6B7280;
     --wujia-font-size-subtitle: 14px;
-
-    /* ---------- Content Card (UI-12, Sprint 9.13, 2026-05-27) ----------
-       BA "5. Issue List" UI-12 cell H13 verbatim:
-         Card: white, radius 16px, light shadow, padding 20-24px
-         Header: round icon #28A9DF, bold title, "Xem tất cả" #28A9DF right
-         Row: bullet #28A9DF, content, time, classification badge
-         Typography: title #111827, body #374151, date/secondary #6B7280
-       Icon bg + bullet + link reuse --wujia-primary (#22A9DE). BA #28A9DF
-       coi là typo per UI-11 convention (lệch 2 ký tự). */
-    --wujia-content-card-padding:           22px;        /* mid BA 20-24 */
-    --wujia-content-card-header-icon-size:  40px;        /* smaller than KPI 72 */
-    --wujia-content-card-header-icon-bg:    var(--wujia-primary);
-    --wujia-content-card-bullet-size:       8px;
-    --wujia-content-card-bullet-color:      var(--wujia-primary);
-    --wujia-content-card-link-color:        var(--wujia-primary);
-    --wujia-content-card-row-gap:           14px;
 
     /* ---------- Sprint 9.6: sidebar transition ---------- */
     --wujia-sidebar-transition: transform 0.25s ease-in-out;

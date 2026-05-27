@@ -1,6 +1,6 @@
 {
     'name': 'Wujia Portal — Return Request',
-    'version': '19.0.1.1.0',
+    'version': '19.0.1.0.0',
     'category': 'Wujia',
     'summary': 'Đổi trả hàng portal — list, create, detail (skeleton model + UI)',
     'author': 'WujiaTea',
