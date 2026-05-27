@@ -527,3 +527,43 @@ h2, .wujia-h2 { font-size: var(--wujia-font-size-h2) !important; font-weight: 60
 .wujia-content-card-table .wujia-badge {
     white-space: nowrap;
 }
+
+/* ---------- Sprint 9.13b (2026-05-27): pagination clean override ----------
+   Vuexy bootstrap-extended.css applies border-radius:5rem + prev-item/next-item
+   pseudo arrows to .pagination .page-item, which breaks plain Bootstrap pager
+   used in portal list pages (active page text gets crushed into a circle).
+   Restore Bootstrap-default rectangular look for portal pagination. */
+.pagination.wujia-pagination {
+    gap: 4px;
+}
+.pagination.wujia-pagination .page-item {
+    border-radius: 6px !important;
+}
+.pagination.wujia-pagination .page-link {
+    border-radius: 6px !important;
+    border: 1px solid var(--wujia-border);
+    color: var(--wujia-text-secondary);
+    padding: 6px 12px;
+    min-width: 36px;
+    text-align: center;
+    background: var(--wujia-bg-card);
+    line-height: 1.4;
+}
+.pagination.wujia-pagination .page-item.active .page-link {
+    background: var(--wujia-primary);
+    border-color: var(--wujia-primary);
+    color: #FFFFFF;
+    font-weight: 600;
+}
+.pagination.wujia-pagination .page-item.disabled .page-link {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+.pagination.wujia-pagination .page-link:hover {
+    background: var(--wujia-bg-page);
+    color: var(--wujia-primary);
+}
+.pagination.wujia-pagination .page-item.active .page-link:hover {
+    background: var(--wujia-primary);
+    color: #FFFFFF;
+}
