@@ -54,44 +54,49 @@
                         </div>
                     </div>
 
-                    <!-- Table -->
-                    <div class="card">
-                        <div class="card-body p-0">
-                            <div t-if="not orders" class="alert alert-info m-3 mb-0">Chưa có đơn hàng nào.</div>
-                            <div t-else="" class="table-responsive">
-                                <table class="table table-hover mb-0">
-                                    <thead class="bg-light">
-                                        <tr>
-                                            <th>Ngày đặt</th>
-                                            <th>Mã đơn</th>
-                                            <th>Cửa hàng</th>
-                                            <th class="text-end">Tổng tiền</th>
-                                            <th class="text-end">KL (kg)</th>
-                                            <th class="text-center">Trạng thái</th>
-                                            <th></th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <tr t-foreach="orders" t-as="o">
-                                            <td t-out="o.date_order and o.date_order.strftime('%d/%m/%Y %H:%M') or ''"/>
-                                            <td><a t-attf-href="/portal/purchase-history/#{o.id}" t-out="o.name"/></td>
-                                            <td t-out="o.franchise_id.name or '—'"/>
-                                            <td class="text-end" t-out="'{:,.0f}'.format(o.amount_total or 0).replace(',', '.') + ' ₫'"/>
-                                            <td class="text-end" t-out="'{:,.2f}'.format(o.total_planned_weight or 0)"/>
-                                            <td class="text-center">
-                                                <t t-set="badge" t-value="state_badges.get(o.state, (o.state, 'state-draft'))"/>
-                                                <span t-attf-class="badge state-badge #{badge[1]}" t-out="badge[0]"/>
-                                            </td>
-                                            <td class="text-end">
-                                                <a t-attf-href="/portal/purchase-history/#{o.id}" class="btn btn-sm btn-outline-primary">
-                                                    <i class="fa fa-eye"/>
-                                                </a>
-                                            </td>
-                                        </tr>
-                                    </tbody>
-                                </table>
+                    <!-- Table — MẪU 02 Card bảng (Sprint 9.13b 2026-05-27) -->
+                    <div class="wujia-content-card">
+                        <div class="wujia-content-card-header">
+                            <div class="wujia-content-card-header-icon">
+                                <i class="feather icon-shopping-cart"/>
                             </div>
+                            <h4 class="wujia-content-card-header-title">Đơn hàng gần đây</h4>
+                            <span t-if="orders" class="wujia-content-card-header-link">
+                                <t t-out="len(orders)"/> kết quả
+                            </span>
                         </div>
+                        <div t-if="not orders" class="wujia-content-card-empty">Chưa có đơn hàng nào.</div>
+                        <table t-else="" class="wujia-content-card-table">
+                            <thead>
+                                <tr>
+                                    <th>Ngày đặt</th>
+                                    <th>Mã đơn</th>
+                                    <th>Cửa hàng</th>
+                                    <th class="text-end">Tổng tiền</th>
+                                    <th class="text-end">KL (kg)</th>
+                                    <th class="text-center">Trạng thái</th>
+                                    <th class="text-end"></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr t-foreach="orders" t-as="o">
+                                    <td t-out="o.date_order and o.date_order.strftime('%d/%m/%Y %H:%M') or ''"/>
+                                    <td><a t-attf-href="/portal/purchase-history/#{o.id}" t-out="o.name"/></td>
+                                    <td t-out="o.franchise_id.name or '—'"/>
+                                    <td class="text-end" t-out="'{:,.0f}'.format(o.amount_total or 0).replace(',', '.') + ' ₫'"/>
+                                    <td class="text-end" t-out="'{:,.2f}'.format(o.total_planned_weight or 0)"/>
+                                    <td class="text-center">
+                                        <t t-set="badge" t-value="state_badges.get(o.state, (o.state, 'wujia-badge-muted'))"/>
+                                        <span t-attf-class="wujia-badge #{badge[1]}" t-out="badge[0]"/>
+                                    </td>
+                                    <td class="text-end">
+                                        <a t-attf-href="/portal/purchase-history/#{o.id}" class="btn btn-sm btn-primary">
+                                            <i class="fa fa-eye"/>
+                                        </a>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
                     </div>
 
                     <!-- Pager -->
@@ -143,17 +148,17 @@
                             <div class="row text-center">
                                 <t t-set="states_seq" t-value="['draft', 'sent', 'sale', 'done']"/>
                                 <t t-foreach="states_seq" t-as="s">
-                                    <t t-set="badge" t-value="state_badges.get(s, (s, 'state-draft'))"/>
+                                    <t t-set="badge" t-value="state_badges.get(s, (s, 'wujia-badge-muted'))"/>
                                     <t t-set="passed" t-value="states_seq.index(order.state) &gt;= s_index if order.state in states_seq else False"/>
                                     <div class="col-3">
                                         <div t-attf-class="state-step #{'state-step-active' if passed else 'state-step-pending'}">
-                                            <span t-attf-class="badge state-badge #{badge[1]}" t-out="badge[0]"/>
+                                            <span t-attf-class="wujia-badge state-badge #{badge[1]}" t-out="badge[0]"/>
                                         </div>
                                     </div>
                                 </t>
                             </div>
                             <div t-if="order.state == 'cancel'" class="text-center mt-2">
-                                <span class="badge state-badge state-cancel">Đơn đã bị hủy</span>
+                                <span class="wujia-badge wujia-badge-danger">Đơn đã bị hủy</span>
                             </div>
                         </div>
                     </div>

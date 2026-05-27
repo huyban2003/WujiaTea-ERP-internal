@@ -13,11 +13,11 @@ from odoo.addons.wujia_portal_base.controllers.portal import (
 PAGE_SIZE = 20
 
 STATE_BADGES = {
-    'draft': ('Mới', 'state-draft'),
-    'sent': ('Đã gửi', 'state-sent'),
-    'sale': ('Đã xác nhận', 'state-sale'),
-    'done': ('Hoàn thành', 'state-done'),
-    'cancel': ('Đã hủy', 'state-cancel'),
+    'draft': ('Mới', 'wujia-badge-muted'),
+    'sent': ('Đã gửi', 'wujia-badge-info'),
+    'sale': ('Đã xác nhận', 'wujia-badge-success'),
+    'done': ('Hoàn thành', 'wujia-badge-success'),
+    'cancel': ('Đã hủy', 'wujia-badge-danger'),
 }
 
 
