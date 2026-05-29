@@ -585,13 +585,20 @@ h2, .wujia-h2 { font-size: var(--wujia-font-size-h2) !important; font-weight: 60
     color: #FFFFFF;
     font-size: 11px;
     font-weight: 600;
-    line-height: var(--wujia-header-badge-size);
+    line-height: 1;
     text-align: center;
     border-radius: 999px;
+    box-sizing: border-box;
     display: none;
 }
+/* Center the digit with flexbox instead of line-height: relying on
+   line-height = badge height makes Inter's ascender/descender push the
+   number off-centre (looked vertically uneven). inline-flex centres
+   pixel-perfectly for both 1- and 2-digit counts. */
 .wujia-header-badge.is-active {
-    display: inline-block;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
 }
 /* Vuexy bootstrap-extended.css fights our badge with two higher/equal rules:
    `.badge` (0,0,1,0) sets background #7367F0 (tie with .wujia-header-badge →
