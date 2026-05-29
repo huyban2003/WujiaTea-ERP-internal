@@ -242,7 +242,7 @@ h2, .wujia-h2 { font-size: var(--wujia-font-size-h2) !important; font-weight: 60
 .wujia-kpi-card {
     display: flex;
     align-items: center;
-    gap: 20px;
+    gap: var(--wujia-kpi-card-gap);
     min-height: var(--wujia-kpi-card-min-height);
     padding: var(--wujia-kpi-card-padding);
     background: var(--wujia-bg-card);
@@ -266,7 +266,7 @@ h2, .wujia-h2 { font-size: var(--wujia-font-size-h2) !important; font-weight: 60
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    font-size: 28px;
+    font-size: var(--wujia-kpi-icon-font);
     line-height: 1;
 }
 .wujia-kpi-icon-primary { background: var(--wujia-primary); }
@@ -314,6 +314,19 @@ h2, .wujia-h2 { font-size: var(--wujia-font-size-h2) !important; font-weight: 60
     flex-shrink: 0;
     color: var(--wujia-text-secondary);
     font-size: 20px;
+}
+
+/* Sprint 9.15 (UI-15, 2026-05-29): mobile KPI vertical gap 12px BA exact.
+   Override Bootstrap .mb-2 (8px) chỉ ở <768px khi 4 card stack 1/row. */
+@media (max-width: 767.98px) {
+    .wujia-kpi-card-link,
+    [class*="col-"] > .wujia-kpi-card {
+        margin-bottom: 12px;
+    }
+    [class*="col-"]:last-child > .wujia-kpi-card-link,
+    [class*="col-"]:last-child > .wujia-kpi-card {
+        margin-bottom: 0;
+    }
 }
 
 /* ============================================================================
@@ -536,6 +549,48 @@ h2, .wujia-h2 { font-size: var(--wujia-font-size-h2) !important; font-weight: 60
 }
 .wujia-content-card-table .wujia-badge {
     white-space: nowrap;
+}
+
+/* ============================================================================
+   Header right action icons (UI-13, Sprint 9.14, 2026-05-28)
+   ---------------------------------------------------------------------------
+   BA "5. Issue List" UI-13 col H: header right phải có Lang + Cart + Bell +
+   Account. Cart và Bell có badge tròn đỏ ở góc trên-phải icon. Badge count
+   load qua AJAX sau page-ready (perf-first cho 1500 user) — render init
+   ẩn (.is-active class toggle).
+
+   Selectors scoped riêng dưới .wujia-header-icon-* → KHÔNG đụng .header-navbar,
+   .nav-link, .dropdown-language, .dropdown-user (regression safe).
+   ============================================================================ */
+.wujia-header-icon-btn {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: var(--wujia-header-icon-btn-padding);
+}
+.wujia-header-icon-btn .feather {
+    font-size: var(--wujia-header-icon-size);
+    line-height: 1;
+}
+.wujia-header-badge {
+    position: absolute;
+    top: 2px;
+    right: 0;
+    min-width: var(--wujia-header-badge-size);
+    height: var(--wujia-header-badge-size);
+    padding: 0 5px;
+    background-color: var(--wujia-danger);
+    color: #FFFFFF;
+    font-size: 11px;
+    font-weight: 600;
+    line-height: var(--wujia-header-badge-size);
+    text-align: center;
+    border-radius: 999px;
+    display: none;
+}
+.wujia-header-badge.is-active {
+    display: inline-block;
 }
 
 /* ---------- Sprint 9.13b (2026-05-27): pagination clean override ----------

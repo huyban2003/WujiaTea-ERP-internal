@@ -53,21 +53,25 @@
     --wujia-card-shadow:    0 2px 6px rgba(15, 23, 42, 0.04);
     --wujia-section-gap:    28px;
 
-    /* ---------- KPI Card (UI-11, Sprint 9.12, 2026-05-27) ----------
+    /* ---------- KPI Card (UI-11 Sprint 9.12 + UI-15 Sprint 9.15, 2026-05-29) ----------
+       Sprint 9.15 shrink desktop + mobile override per BA UI-15:
+         Desktop: icon 56×56 r12, padding 16, min-height 96, separator 48, flex gap 14
+         Mobile <768: icon 52×52, min-height 92 (override below), card-gap 12
        BA "5. Issue List" UI-11 cột H verbatim:
          Card: white, radius 16px, light shadow, height ≈100px, padding 20-24px
          Icon area: square block, radius 16px, 72×72px, bg #28A9DF, white icon
          Vertical line: 1px #D1D5DB, height ≈64px between icon and content
-       Icon bg uses --wujia-primary (#22A9DE) for portal consistency — BA #28A9DF
-       coi là typo (lệch 2 ký tự). Separator color #D1D5DB is BA exact, distinct
-       from --wujia-border #E5E7EB. */
-    --wujia-kpi-card-min-height:  100px;
-    --wujia-kpi-card-padding:     22px;        /* mid của BA 20-24 */
-    --wujia-kpi-icon-size:        72px;
-    --wujia-kpi-icon-radius:      16px;
+       BA UI-15 mobile: width 100%, h 88-96, padding 14-16, card gap 12, icon
+         52×52 r12, icon size 22-24. User override desktop "72 hơi to, gọn tí". */
+    --wujia-kpi-card-min-height:  96px;
+    --wujia-kpi-card-padding:     16px;
+    --wujia-kpi-card-gap:         14px;
+    --wujia-kpi-icon-size:        56px;
+    --wujia-kpi-icon-radius:      12px;
     --wujia-kpi-icon-bg:          var(--wujia-primary);
+    --wujia-kpi-icon-font:        23px;        /* mid BA 22-24 */
     --wujia-kpi-separator-color:  #D1D5DB;
-    --wujia-kpi-separator-height: 64px;
+    --wujia-kpi-separator-height: 48px;
 
     /* ---------- Sidebar items (UI-03/04) ---------- */
     --wujia-menu-item-height: 44px;  /* UI-03 BA range 44–48, low end */
@@ -91,6 +95,14 @@
     --wujia-navbar-pill-font:     15px;
     --wujia-navbar-pill-label-size: 11px;
     --wujia-navbar-pill-label-color: rgba(255, 255, 255, 0.85);
+
+    /* ---------- Header right action icons (UI-13, Sprint 9.14, 2026-05-28)
+       BA "5. Issue List" UI-13 col H: "Có icon Language, icon cart, notification,
+       account (user name + avatar)". Cart + Bell badge red — reuses existing
+       --wujia-danger #EC3845 (no new color token). ---------- */
+    --wujia-header-icon-size:        20px;
+    --wujia-header-icon-btn-padding: 8px;
+    --wujia-header-badge-size:       18px;
 
     /* ---------- Mobile sub-strip (UI-04 — Current Store below navbar on <768px)
        Mockup G6 image23: bg white, label cyan uppercase, name dark, role badge
@@ -164,3 +176,12 @@ html { font-size: 14px; }
 @media (min-width: 768px)  { html { font-size: 15px; } }
 @media (min-width: 992px)  { html { font-size: 16px; } }
 @media (min-width: 1200px) { html { font-size: 16px; } }
+
+/* Sprint 9.15 (UI-15, 2026-05-29): KPI mobile token override — BA spec
+   1 card / row full-width, height 88-96, icon 52×52. */
+@media (max-width: 767.98px) {
+    :root {
+        --wujia-kpi-icon-size:       52px;
+        --wujia-kpi-card-min-height: 92px;
+    }
+}
