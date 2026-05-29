@@ -593,6 +593,18 @@ h2, .wujia-h2 { font-size: var(--wujia-font-size-h2) !important; font-weight: 60
 .wujia-header-badge.is-active {
     display: inline-block;
 }
+/* Vuexy bootstrap-extended.css fights our badge with two higher/equal rules:
+   `.badge` (0,0,1,0) sets background #7367F0 (tie with .wujia-header-badge →
+   load-order-dependent, flaky across envs) and
+   `.header-navbar .navbar-container ul.nav li .badge` (0,0,4,2) sets padding
+   (distorts shape → oval). Re-assert the contested props at (0,0,5,2) so we
+   win deterministically regardless of bundle order. Scoped to the header nav
+   only → no blast radius on other .wujia-badge-* pills. */
+.header-navbar .navbar-container ul.nav li .wujia-header-badge {
+    padding: 0 5px;
+    background-color: var(--wujia-danger);
+    border-radius: 999px;
+}
 
 /* ---------- Sprint 9.13b (2026-05-27): pagination clean override ----------
    Vuexy bootstrap-extended.css applies border-radius:5rem + prev-item/next-item
