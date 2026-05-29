@@ -2,7 +2,7 @@
 
 **Mục đích:** context file inject vào mọi session WujiaTea. Mỗi §section search-able qua `/recall`. Detail history giữ trong `wujia-tea-doc.tex` + git log.
 
-**Cập nhật:** 2026-05-27 (Sprint 9.13b DONE — MẪU 01/02 cho 3 listing page; còn 9.14–9.19: UI-13 + Empty + Cleanup + Verify + Doc + Push).
+**Cập nhật:** 2026-05-29 (Sprint 9.14 UI-13 verified + **9.15 UI-14 KPI Card Height DONE**: gap 14→12, min-height 96→100, chevron neo mép phải `margin-left:auto` + font 18, icon giữ 56. Còn 9 sprint con: 9.16–9.24. **Next session: làm gộp 9.16 UI-15 (KPI mobile) + 9.17 UI-16 (Main Content Spacing) trong 1 session**).
 
 ---
 
@@ -79,15 +79,20 @@ ADR-001 odoo19 source độc lập / ADR-002 venv conda `odoo` (py3.10) / ADR-00
 
 ## §5 wujia-current-status
 
-**State (2026-05-27):** 18 module active. **Sprint 9 in progress** — UI-01..UI-12 + Sprint 9.13b DONE. Push `main` đã có 0ce1886 / 4d36452 / ba4245d / a85d9c3 (Sprint 9.13b). Còn 9.14–9.19.
+**State (2026-05-29):** 18 module active. **Sprint 9 in progress** — UI-01..UI-12 + 9.13b + **9.14 UI-13 verified + 9.15 UI-14 DONE**. Push `main` đã có 0ce1886 / 4d36452 / ba4245d / a85d9c3 (Sprint 9.13b). ⚠️ **9.14 UI-13 (header_bell/header_cart inherit + js + manifests) verified nhưng CHƯA commit/push** — cần đẩy chung lần sau. Còn 9 sprint con 9.16–9.24.
 
-**Còn lại Phase 1.0:**
-- 9.14 UI-13 Header Right Actions (icon Language + Cart + Notification + Account với user name + avatar).
-- 9.15 Empty state chuẩn (icon nhỏ + text + spacing).
-- 9.16 Cleanup: 301 redirect `/portal/purchase_history` → kebab-case + xóa stub `custom/wujia_account/`.
-- 9.17 Verify: `reseed_full.sh` RC=0 + `test_sprint9.py` + screenshot.
-- 9.18 Doc: `chapters/18-sprint9-issue-list-ui-refactor.tex` + recompile PDF + update §2/§4/§5/§9.
-- 9.19 Push: commit EN + deploy Windows.
+**Còn lại Phase 1.0 (BA order):**
+- 9.14 UI-13 Header Right Actions ✅ verified 2026-05-29 — Lang dropdown + cart icon (`header_cart_inherit` prio20) + bell icon (`header_bell_inherit` prio30) + user.name+avatar dropdown. JS badge poll động cho cart + noti unread count.
+- 9.15 UI-14 KPI Card Height ✅ DONE 2026-05-29 — gap 14→12, min-height 96→100 (height thực ~104, trong dải BA 100–108), `.wujia-kpi-content flex:1 1 auto` + `.wujia-kpi-arrow margin-left:auto` (chevron neo mép phải, không void) + arrow font 20→18. Icon giữ 56 (đã giảm 72→56 trước đó). Files: `_variables.css` + `_components.css` + `assets.xml` bump v=1092/v=1053. **Iterate 2 vòng: flex:0 1 auto bị void phải → user chọn chevron neo mép phải.**
+- 9.16 UI-15 KPI Card Mobile — mobile 1 card/1 dòng full width, height 88–96px, padding 14–16px, gap 12px, icon box 52×52 radius 12px icon 22–24px.
+- 9.17 UI-16 Main Content Spacing — header→title 24px, title→KPI 12–16px, KPI→content 20–24px.
+- 9.18 UI-17 Product Best Seller Card — "Sản phẩm mua nhiều nhất" đang lệch style giống table thô → chuẩn theo content card listing (đặt hàng / lịch sử đặt hàng).
+- 9.19 UI-18 Main menu — row height 44–48px, margin item 4–6px, icon set đồng nhất stroke + size 20–22px (hiện icon mảnh/dày/lệch không đều).
+- 9.20 Empty state chuẩn (icon nhỏ + text + spacing).
+- 9.21 Cleanup: 301 redirect `/portal/purchase_history` → kebab-case + xóa stub `custom/wujia_account/`.
+- 9.22 Verify: `reseed_full.sh` RC=0 + `test_sprint9.py` + screenshot.
+- 9.23 Doc: `chapters/18-sprint9-issue-list-ui-refactor.tex` + recompile PDF + update §2/§4/§5/§9.
+- 9.24 Push: commit EN + deploy Windows.
 - Defer: T-031 mockup ops, locust 100+ load test, affiliate v14 gap, Dashboard ApexChart, TOTP 2FA, Calendar booking, QR scan, MẪU 03-06 từ `docs/sample.jpg`.
 
 **Phase 2.0 (future):** Employee Mgmt / Debt Overview / Payment History / Training Reports / User Invitations.
@@ -169,9 +174,9 @@ Xong: /wujia-end-sprint.
 
 ## §9 wujia-sprint9-issue-list-state
 
-**Sprint 9 = 19 sprint con, 1 issue = 1 sprint con, BA order.** Sheet "5. Issue List" trong xlsm = **single source of truth**. Mỗi sprint BẮT ĐẦU = đọc cột G + H của issue verbatim → user xác nhận → mới code.
+**Sprint 9 = 24 sprint con (sau BA rescale 2026-05-29 thêm UI-15..UI-18), 1 issue = 1 sprint con, BA order.** Sheet "5. Issue List" trong xlsm = **single source of truth**. Mỗi sprint BẮT ĐẦU = đọc cột G + H của issue verbatim → user xác nhận → mới code.
 
-### Status table (BA spec exact, cập nhật 2026-05-27)
+### Status table (BA spec exact, cập nhật 2026-05-29)
 
 | # | ID | Khu vực | Spec ngắn | Status |
 |---|---|---|---|---|
@@ -189,12 +194,17 @@ Xong: /wujia-end-sprint.
 | 9.12 | UI-11 | KPI Card icon-left 72×72 + separator 1px #D1D5DB | ✅ 2026-05-27 (8 card / 2 page) |
 | 9.13 | UI-12 | Content Card (home only — "Xem tất cả" pattern) | ✅ 2026-05-27 |
 | 9.13b | UI-12 ext | MẪU 01/02 (sample.jpg) cho 3 listing + noti badge refactor | ✅ 2026-05-27 (4 commit: 0ce1886/4d36452/ba4245d/a85d9c3) |
-| 9.14 | UI-13 | Header Right Actions: Language + Cart + Noti + Account(name+avatar) | ⬜ pending |
-| 9.15 | Empty | Empty state: icon + text + spacing chuẩn | ⬜ pending |
-| 9.16 | — | Cleanup: 301 redirect kebab + xóa `wujia_account/` stub | ⬜ pending |
-| 9.17 | — | Verify: `reseed_full.sh` + `test_sprint9.py` + screenshot | ⬜ pending |
-| 9.18 | — | Doc: `chapters/18-*.tex` + PDF + update §2/§4/§5/§9 | ⬜ pending |
-| 9.19 | — | Push: commit EN + deploy Windows | ⬜ pending |
+| 9.14 | UI-13 | Header Right Actions: Language + Cart + Noti + Account(name+avatar) | ✅ verified 2026-05-29 (Lang dropdown layouts.xml:45 + cart inherit prio20 + bell inherit prio30 + user.name+avatar layouts.xml:68; JS badge poll động cart+noti) |
+| 9.15 | UI-14 | KPI Card Height: gap 12, min-height 100, chevron neo mép phải, icon giữ 56 | ✅ 2026-05-29 |
+| 9.16 | UI-15 | KPI Card Mobile: 1 card/dòng full width, h88–96, icon 52×52 r12 | ⬜ pending (BA 2026-05-29) |
+| 9.17 | UI-16 | Main Content Spacing: header→title 24, title→KPI 12–16, KPI→content 20–24 | ⬜ pending (BA 2026-05-29) |
+| 9.18 | UI-17 | Product Best Seller Card: chuẩn theo content card listing, bỏ table thô | ⬜ pending (BA 2026-05-29) |
+| 9.19 | UI-18 | Main menu: row h44–48, margin 4–6, icon set đồng nhất 20–22 stroke | ⬜ pending (BA 2026-05-29) |
+| 9.20 | Empty | Empty state: icon + text + spacing chuẩn | ⬜ pending |
+| 9.21 | — | Cleanup: 301 redirect kebab + xóa `wujia_account/` stub | ⬜ pending |
+| 9.22 | — | Verify: `reseed_full.sh` + `test_sprint9.py` + screenshot | ⬜ pending |
+| 9.23 | — | Doc: `chapters/18-*.tex` + PDF + update §2/§4/§5/§9 | ⬜ pending |
+| 9.24 | — | Push: commit EN + deploy Windows | ⬜ pending |
 
 ### File chạm history (compact — chi tiết trong git log + chapter 18)
 
@@ -212,6 +222,7 @@ Xong: /wujia-end-sprint.
 | 9.12 | `_variables.css` 7 KPI token + `_components.css` `.wujia-kpi-card*` + portal_home.xml + portal_report_orders.xml |
 | 9.13 | `_variables.css` typography Tailwind gray + `_components.css` `.wujia-content-card*` + portal_home 3 card |
 | 9.13b | (1) `wujia_portal_base/portal_home.xml` noti badge class map / (2) `_components.css` `.wujia-content-card-table` / (3) `wujia_portal_notification/portal_notification.xml` MẪU 01 / (4) `wujia_portal_purchase_history/{controllers/portal.py,views/portal_history.xml}` + `wujia_portal_sale/views/portal_order_catalog.xml` MẪU 02 |
+| 9.15 | `_variables.css` KPI token (gap 14→12, min-height 96→100) + `_components.css` (`.wujia-kpi-content flex:1 1 auto`, `.wujia-kpi-arrow margin-left:auto + font 18`) + `assets.xml` bump v=1092/v=1053 |
 
 ### Policy update (2026-05-24)
 
@@ -248,14 +259,21 @@ Xong: /wujia-end-sprint.
 
 ```
 Session này em tiếp tục Sprint 9 (Issue List UI refactor).
-UI-01..UI-12 + Sprint 9.13b DONE. Em làm = <UI-XX next, xem §9 bảng>.
+UI-01..UI-14 (sprint 9.15) DONE. Session này làm GỘP 2 issue:
+  • 9.16 = UI-15 KPI Card Mobile (mobile <768: 1 card/dòng full-width, h88–96,
+    padding 14–16, gap 12, icon 52×52 r12, icon 22–24). LƯU Ý: token mobile override
+    ĐÃ CÓ sẵn trong _variables.css cuối file (@media max-width:767.98px: icon 52,
+    min-height 92) + _components.css media block margin-bottom 12 — chỉ cần VERIFY +
+    tinh chỉnh đúng spec, có thể nhanh.
+  • 9.17 = UI-16 Main Content Spacing (header→title 24, title→KPI 12–16, KPI→content 20–24).
 
 Rules:
-1. Mở xlsm → sheet "5. Issue List" → row UI-XX → paste cột G+H verbatim → đợi anh xác nhận → plan + code.
+1. Mở xlsm → sheet "5. Issue List" → row UI-15 + UI-16 → paste cột G+H verbatim → đợi anh xác nhận → plan + code.
 2. Code English. Không .po.
 3. CSS var(--wujia-*) + class _components.css. Không hex cứng.
-4. Workflow: read xlsm → grep v19 → plan → approve → edit → upgrade RC=0 → restart → screenshot vs mockup col F → loop → ✅ §9 → push.
+4. Workflow: read xlsm → grep v19 → plan → approve → edit → upgrade RC=0 → restart → user xem browser thật (KHÔNG screenshot wkhtmltoimage — gotcha #7 sai flexbox) → loop → ✅ §9 → push.
 5. KHÔNG bỏ qua issue, tuần tự BA order. 1 sprint con = commit+push (policy 2026-05-24).
+6. ⚠️ 9.14 UI-13 (header_bell/header_cart inherit + js + manifests) verified nhưng CHƯA commit — `git status` sẽ thấy dirty, commit riêng 1 commit UI-13 trước rồi mới làm UI-15/16.
 
 Out-of-scope: T-031, locust, affiliate v14 gap, .po, MẪU 03-06 sample.jpg.
 

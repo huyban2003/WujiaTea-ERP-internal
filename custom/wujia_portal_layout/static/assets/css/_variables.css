@@ -53,19 +53,23 @@
     --wujia-card-shadow:    0 2px 6px rgba(15, 23, 42, 0.04);
     --wujia-section-gap:    28px;
 
-    /* ---------- KPI Card (UI-11 Sprint 9.12 + UI-15 Sprint 9.15, 2026-05-29) ----------
-       Sprint 9.15 shrink desktop + mobile override per BA UI-15:
-         Desktop: icon 56×56 r12, padding 16, min-height 96, separator 48, flex gap 14
-         Mobile <768: icon 52×52, min-height 92 (override below), card-gap 12
+    /* ---------- KPI Card (UI-11 Sprint 9.12 + UI-14 Sprint 9.15, 2026-05-29) ----------
+       Sprint 9.15 (UI-14 KPI Card Height) tighten desktop spacing per BA H15
+       "tăng vùng content, giảm icon box, chuẩn hóa height 100–108px":
+         - icon giữ 56×56 (đã giảm 72→56 lần trước theo BA "giảm icon box")
+         - card-gap 14→12: siết icon↔separator↔text + chevron
+         - min-height 96→100: floor đúng đáy dải BA 100–108
+         - content flex:0 1 auto (xem _components.css) → kéo chevron sát text,
+           bỏ khoảng trắng ngang thừa bên phải
+         Height thực ≈ content 72.6 + padding dọc 32 = ~104.6px → trong 100–108 ✓
+       Mobile <768 override (icon 52, min-height 92) ở cuối file = scope UI-15.
        BA "5. Issue List" UI-11 cột H verbatim:
          Card: white, radius 16px, light shadow, height ≈100px, padding 20-24px
          Icon area: square block, radius 16px, 72×72px, bg #28A9DF, white icon
-         Vertical line: 1px #D1D5DB, height ≈64px between icon and content
-       BA UI-15 mobile: width 100%, h 88-96, padding 14-16, card gap 12, icon
-         52×52 r12, icon size 22-24. User override desktop "72 hơi to, gọn tí". */
-    --wujia-kpi-card-min-height:  96px;
+         Vertical line: 1px #D1D5DB, height ≈64px between icon and content */
+    --wujia-kpi-card-min-height:  100px;
     --wujia-kpi-card-padding:     16px;
-    --wujia-kpi-card-gap:         14px;
+    --wujia-kpi-card-gap:         12px;
     --wujia-kpi-icon-size:        56px;
     --wujia-kpi-icon-radius:      12px;
     --wujia-kpi-icon-bg:          var(--wujia-primary);

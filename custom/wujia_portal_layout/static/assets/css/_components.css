@@ -283,7 +283,7 @@ h2, .wujia-h2 { font-size: var(--wujia-font-size-h2) !important; font-weight: 60
 }
 
 .wujia-kpi-content {
-    flex: 1 1 auto;
+    flex: 1 1 auto;          /* UI-14: giãn đầy → chevron neo mép phải (margin-left:auto) */
     min-width: 0;
     display: flex;
     flex-direction: column;
@@ -312,8 +312,9 @@ h2, .wujia-h2 { font-size: var(--wujia-font-size-h2) !important; font-weight: 60
 
 .wujia-kpi-arrow {
     flex-shrink: 0;
+    margin-left: auto;      /* UI-14: neo chevron về mép phải làm affordance "xem chi tiết" */
     color: var(--wujia-text-secondary);
-    font-size: 20px;
+    font-size: 18px;        /* UI-14: nhỏ lại cho cân */
 }
 
 /* Sprint 9.15 (UI-15, 2026-05-29): mobile KPI vertical gap 12px BA exact.
