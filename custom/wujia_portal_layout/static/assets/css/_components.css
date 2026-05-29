@@ -609,8 +609,13 @@ h2, .wujia-h2 { font-size: var(--wujia-font-size-h2) !important; font-weight: 60
    only → no blast radius on other .wujia-badge-* pills. */
 .header-navbar .navbar-container ul.nav li .wujia-header-badge {
     padding: 0 5px;
-    background-color: var(--wujia-danger);
-    border-radius: 999px;
+    /* !important: final hammer. Specificity (0,0,5,2) already beats every
+       Vuexy badge rule we found, yet the prod browser still rendered a
+       non-red badge — so something env-specific (proxy/cache/load order)
+       is in play. !important removes all doubt; scoped to the header badge
+       so there is zero blast radius on other pills. */
+    background-color: var(--wujia-danger) !important;
+    border-radius: 999px !important;
 }
 
 /* ---------- Sprint 9.13b (2026-05-27): pagination clean override ----------
