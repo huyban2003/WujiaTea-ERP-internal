@@ -79,7 +79,7 @@ ADR-001 odoo19 source độc lập / ADR-002 venv conda `odoo` (py3.10) / ADR-00
 
 ## §5 wujia-current-status
 
-**State (2026-05-29):** 18 module active. **Sprint 9 in progress** — UI-01..UI-12 + 9.13b + **9.14 UI-13 verified + 9.15 UI-14 DONE**. Push `main` đã có 0ce1886 / 4d36452 / ba4245d / a85d9c3 (Sprint 9.13b). ⚠️ **9.14 UI-13 (header_bell/header_cart inherit + js + manifests) verified nhưng CHƯA commit/push** — cần đẩy chung lần sau. Còn 9 sprint con 9.16–9.24.
+**State (2026-05-29):** 18 module active. **Sprint 9 in progress** — UI-01..UI-12 + 9.13b + **9.14 UI-13 + 9.15 UI-14 DONE + pushed**. Push `main`: …a85d9c3 (9.13b) → 0fb4a6e (UI-15 mobile + icon shrink) → 5f33a91 (UI-14 KPI height) → **3762e53 (UI-13 header cart+bell icons)**. UI-13 view active trong DB local (render trên 8019) — code-side OK, anh cần xem lại browser thật để confirm badge poll. Còn 9 sprint con 9.16–9.24.
 
 **Còn lại Phase 1.0 (BA order):**
 - 9.14 UI-13 Header Right Actions ✅ verified 2026-05-29 — Lang dropdown + cart icon (`header_cart_inherit` prio20) + bell icon (`header_bell_inherit` prio30) + user.name+avatar dropdown. JS badge poll động cho cart + noti unread count.
@@ -273,7 +273,7 @@ Rules:
 3. CSS var(--wujia-*) + class _components.css. Không hex cứng.
 4. Workflow: read xlsm → grep v19 → plan → approve → edit → upgrade RC=0 → restart → user xem browser thật (KHÔNG screenshot wkhtmltoimage — gotcha #7 sai flexbox) → loop → ✅ §9 → push.
 5. KHÔNG bỏ qua issue, tuần tự BA order. 1 sprint con = commit+push (policy 2026-05-24).
-6. ⚠️ 9.14 UI-13 (header_bell/header_cart inherit + js + manifests) verified nhưng CHƯA commit — `git status` sẽ thấy dirty, commit riêng 1 commit UI-13 trước rồi mới làm UI-15/16.
+6. 9.14 UI-13 (header cart+bell icons) ĐÃ commit 3762e53 + push (2026-05-29). View active trong DB. Nếu anh thấy header chưa đúng BA thì mở lại UI-13 — còn không thì bỏ qua, sang UI-15/16.
 
 Out-of-scope: T-031, locust, affiliate v14 gap, .po, MẪU 03-06 sample.jpg.
 
