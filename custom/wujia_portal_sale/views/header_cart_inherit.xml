@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <template id="layout_top_navbar_cart_icon"
+              inherit_id="wujia_portal_layout.layout_top_navbar"
+              priority="20"
+              name="Wujia Header — Cart icon (UI-13)">
+        <xpath expr="//li[hasclass('dropdown-language')]" position="after">
+            <li class="nav-item wujia-header-icon-item">
+                <a class="nav-link wujia-header-icon-btn" href="/portal/order/cart"
+                   aria-label="Cart">
+                    <i class="ficon feather icon-shopping-cart text-white"/>
+                    <span class="badge badge-pill wujia-header-badge wujia-header-cart-count">0</span>
+                </a>
+            </li>
+        </xpath>
+    </template>
+
+</odoo>
