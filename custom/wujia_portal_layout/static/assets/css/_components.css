@@ -616,6 +616,10 @@ h2, .wujia-h2 { font-size: var(--wujia-font-size-h2) !important; font-weight: 60
        so there is zero blast radius on other pills. */
     background-color: var(--wujia-danger) !important;
     border-radius: 999px !important;
+    /* White digit on the red badge. On the server the Vuexy navbar link
+       colour (#626262) wins over our base rule, leaving a dark number —
+       force white here for the same reason we force the background. */
+    color: #FFFFFF !important;
 }
 
 /* ---------- Sprint 9.13b (2026-05-27): pagination clean override ----------
