@@ -2,7 +2,7 @@
 
 **Mục đích:** context file inject vào mọi session WujiaTea. Mỗi §section search-able qua `/recall`. Detail history giữ trong `wujia-tea-doc.tex` + git log.
 
-**Cập nhật:** 2026-05-29 (Sprint 9.14 UI-13 verified + **9.15 UI-14 KPI Card Height DONE**: gap 14→12, min-height 96→100, chevron neo mép phải `margin-left:auto` + font 18, icon giữ 56. Còn 9 sprint con: 9.16–9.24. **Next session: làm gộp 9.16 UI-15 (KPI mobile) + 9.17 UI-16 (Main Content Spacing) trong 1 session**).
+**Cập nhật:** 2026-05-30 (**UI-13 header badge HOTFIX**: server render badge cart/bell không đỏ + số đen + shape oval do Vuexy navbar `.badge` cascade — fix scoped `(0,0,5,2)` + `!important` bg/color + flexbox centering + bump `?v=1098`. 2 gotcha mới §9: #11 Vuexy badge cascade, #12 CSS=disk-không-phải-DB. Commit chain cfd0dee→adce104. | Trước đó 2026-05-29: 9.14 UI-13 verified + 9.15 UI-14 KPI Card Height DONE. Còn 9 sprint con: 9.16–9.24. **Next: gộp 9.16 UI-15 (KPI mobile) + 9.17 UI-16 (Main Content Spacing)**).
 
 ---
 
@@ -79,7 +79,7 @@ ADR-001 odoo19 source độc lập / ADR-002 venv conda `odoo` (py3.10) / ADR-00
 
 ## §5 wujia-current-status
 
-**State (2026-05-29):** 18 module active. **Sprint 9 in progress** — UI-01..UI-12 + 9.13b + **9.14 UI-13 + 9.15 UI-14 DONE + pushed**. Push `main`: …a85d9c3 (9.13b) → 0fb4a6e (UI-15 mobile + icon shrink) → 5f33a91 (UI-14 KPI height) → **3762e53 (UI-13 header cart+bell icons)**. UI-13 view active trong DB local (render trên 8019) — code-side OK, anh cần xem lại browser thật để confirm badge poll. Còn 9 sprint con 9.16–9.24.
+**State (2026-05-30):** 18 module active. **Sprint 9 in progress** — UI-01..UI-12 + 9.13b + **9.14 UI-13 + 9.15 UI-14 DONE + pushed**. Push `main`: …3762e53 (UI-13 icons) → bd4df88 (doc) → **UI-13 badge HOTFIX 2026-05-30**: cfd0dee (cache bump) → a0a4cbd (specificity vs Vuexy) → df56153 (flexbox centering) → d6d9e72 (!important bg) → **adce104 (!important white digit, `?v=1098`)**. Badge cart/bell giờ đỏ + số trắng + pill, verified server. Còn 9 sprint con 9.16–9.24.
 
 **Còn lại Phase 1.0 (BA order):**
 - 9.14 UI-13 Header Right Actions ✅ verified 2026-05-29 — Lang dropdown + cart icon (`header_cart_inherit` prio20) + bell icon (`header_bell_inherit` prio30) + user.name+avatar dropdown. JS badge poll động cho cart + noti unread count.
@@ -254,6 +254,8 @@ Xong: /wujia-end-sprint.
 8. **Token typography global bump** (`#1F2933` → `#111827` Tailwind gray Sprint 9.13) ảnh hưởng MỌI page. BA design dùng Tailwind chuẩn — convergence chậm theo sprint.
 9. **Notification badge data-dep fragile (Sprint 9.13b commit 1)** — Inline `t-attf-style="background-color: #{bg_color}"` phụ thuộc `noupdate="1"` data XML → server stale = empty hex = no badge. Refactor sang class map `type_id.code → wujia-badge-*` xoá data dependency.
 10. **`bg_color`/`text_color` field**: giữ trong model `wujia.notification.type` (backward compat) — drop sau khi BA confirm không cần admin override.
+11. **Vuexy navbar `.badge` cascade fight (Sprint 9.14 UI-13 hotfix 2026-05-30)** — header cart/bell badge của ta đặt TRONG navbar Vuexy nên dính 3 rule chọi: (a) base `.badge { background-color:#7367F0; color:#FFFFFF }` (0,0,1,0) **cùng specificity** với `.wujia-header-badge` → ai thắng tùy LOAD ORDER nên **local đỏ mà server tím/không đỏ** (flaky env); (b) `.header-navbar .navbar-container ul.nav li .badge` (0,0,4,2) set padding → méo shape thành oval; (c) `.header-navbar … li > a.nav-link { color:#626262 }` → chữ số bị tối trên nền đỏ. Fix dứt điểm: rule scope `.header-navbar .navbar-container ul.nav li .wujia-header-badge` (0,0,5,2) + **`!important`** cho `background-color` VÀ `color` (white digit) + bump `?v=`. Đã thử specificity-only KHÔNG đủ vì env flaky → `!important` scoped (zero blast radius) mới chắc. Centering digit dùng `inline-flex` (align/justify center, line-height:1) thay line-height=height (Inter ascender/descender lệch). Commit chain: cfd0dee→a0a4cbd→df56153→d6d9e72→adce104, `?v=1098`.
+12. **CSS/màu = FILE TRÊN ĐĨA, KHÔNG nằm DB (2026-05-30, đắt giá)** — `_components.css` là static file Odoo serve từ đĩa; DB chỉ giữ markup view + số `?v=` trong template. ⇒ Mọi triệu chứng "**local khác server**" về CSS/màu = **CACHE LAYER** (browser 7-ngày / `?v=` template chưa `-u` / reverse-proxy IIS-nginx cache static), **KHÔNG BAO GIỜ là vấn đề data** → **đừng nghĩ tới drop/copy DB để sửa CSS** (vô ích + rủi ro mất data). Quy trình debug "server không khớp local": (1) `curl localhost:<port>/…/file.css` xem đĩa có rule chưa; (2) mở thẳng URL CSS trên browser server + Ctrl+F rule; (3) View-Source check `?v=` template; (4) `Get-Service W3SVC,nginx` xem có proxy cache không. Fix = bust cache (`?v=` mới + `-u wujia_portal_layout` để DB phát URL mới), KHÔNG đụng DB.
 
 ### Handoff prompt cho session sau
 
