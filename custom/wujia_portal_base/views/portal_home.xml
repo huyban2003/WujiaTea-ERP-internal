@@ -193,33 +193,35 @@
                             </div>
                         </div>
 
-                        <!-- Top products -->
+                        <!-- Top products (UI-17, Sprint 9.16 2026-06-02): chuẩn theo
+                             content-card listing như đặt hàng / lịch sử đặt hàng -->
                         <div class="col-lg-6 col-12 mb-2">
-                            <div class="card h-100">
-                                <div class="card-header">
-                                    <h4 class="card-title mb-0">Sản phẩm mua nhiều nhất</h4>
+                            <div class="wujia-content-card">
+                                <div class="wujia-content-card-header">
+                                    <div class="wujia-content-card-header-icon">
+                                        <i class="feather icon-trending-up"/>
+                                    </div>
+                                    <h4 class="wujia-content-card-header-title">Sản phẩm mua nhiều nhất</h4>
                                 </div>
-                                <div class="card-body p-0">
-                                    <div t-if="not top_products" class="p-3 text-muted">Chưa có dữ liệu.</div>
-                                    <table t-else="" class="table table-sm mb-0 dashboard-list">
-                                        <thead>
-                                            <tr>
-                                                <th>Sản phẩm</th>
-                                                <th class="text-end">SL</th>
-                                                <th>ĐVT</th>
-                                                <th class="text-end">Tổng</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            <tr t-foreach="top_products" t-as="p">
-                                                <td t-out="p['name']"/>
-                                                <td class="text-end" t-out="'{:,.0f}'.format(p['qty']).replace(',', '.')"/>
-                                                <td t-out="p['uom']"/>
-                                                <td class="text-end" t-out="'{:,.0f}'.format(p['total']).replace(',', '.') + ' ₫'"/>
-                                            </tr>
-                                        </tbody>
-                                    </table>
-                                </div>
+                                <div t-if="not top_products" class="wujia-content-card-empty">Chưa có dữ liệu.</div>
+                                <table t-else="" class="wujia-content-card-table">
+                                    <thead>
+                                        <tr>
+                                            <th>Sản phẩm</th>
+                                            <th class="text-end">SL</th>
+                                            <th>ĐVT</th>
+                                            <th class="text-end">Tổng</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr t-foreach="top_products" t-as="p">
+                                            <td t-out="p['name']"/>
+                                            <td class="text-end" t-out="'{:,.0f}'.format(p['qty']).replace(',', '.')"/>
+                                            <td t-out="p['uom']"/>
+                                            <td class="text-end" t-out="'{:,.0f}'.format(p['total']).replace(',', '.') + ' ₫'"/>
+                                        </tr>
+                                    </tbody>
+                                </table>
                             </div>
                         </div>
                     </div>
