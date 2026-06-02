@@ -156,6 +156,15 @@
     --wujia-content-card-link-color:        var(--wujia-primary);
     --wujia-content-card-row-gap:           14px;
 
+    /* ---------- Main content spacing (UI-16, Sprint 9.16, 2026-06-02) ----------
+       BA "5. Issue List" UI-16 cột H verbatim:
+         "header → title khoảng 24px, title → KPI khoảng 12–16px,
+          KPI → content card khoảng 20–24px"
+       Chuẩn hóa 3 khoảng cách dọc của vùng content (sau Vuexy floating-nav). */
+    --wujia-page-content-top: 24px;   /* header xanh (navbar) → page title */
+    --wujia-page-title-gap:   14px;   /* page title block → KPI row (mid 12-16) */
+    --wujia-kpi-content-gap:  22px;   /* KPI row → content card row (mid 20-24) */
+
     /* ---------- Sprint 9.6: sidebar transition ---------- */
     --wujia-sidebar-transition: transform 0.25s ease-in-out;
 

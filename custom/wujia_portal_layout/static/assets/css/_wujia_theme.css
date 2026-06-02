@@ -307,3 +307,27 @@ h1.article-title {
     font-size: var(--wujia-font-size-subtitle) !important;
     font-weight: 400 !important;
 }
+
+/* ---------- UI-16 Main Content Spacing (Sprint 9.16, 2026-06-02) ----------
+   BA "5. Issue List" UI-16 cột H: header→title ~24px, title→KPI 12–16px,
+   KPI→content 20–24px. Chuẩn hóa fixed-px (không rem) để đều mọi breakpoint
+   bất kể html font-size 14/15/16. Scope vào portal shell — _wujia_theme.css
+   chỉ load trong asset_theme frontend (không đụng backend webclient).
+
+   (a) header xanh (floating navbar) → title: override Vuexy
+       `html body .content .content-wrapper { padding: calc(2.2rem-0.4rem)... }`
+       (components.css, cùng specificity 0,2,2, ta load sau → thắng). */
+html body .content .content-wrapper {
+    padding-top: var(--wujia-page-content-top);
+}
+/* (b) title block → KPI row: margin-bottom trên .content-header (.row).
+       Markup bỏ mt-3/mb-1 (portal_home.xml) → khoảng cách do token quyết định. */
+.content-wrapper .content-header {
+    margin-top: 0;
+    margin-bottom: var(--wujia-page-title-gap);
+}
+/* (c) KPI row → content card row: section#dashboard-stats là sibling cuối
+       trước .row content card. UI-15 đã gỡ mb-2 trên KPI col nên gap do đây. */
+#dashboard-stats {
+    margin-bottom: var(--wujia-kpi-content-gap);
+}
