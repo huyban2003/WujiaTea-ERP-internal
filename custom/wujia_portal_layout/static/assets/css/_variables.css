@@ -181,11 +181,17 @@ html { font-size: 14px; }
 @media (min-width: 992px)  { html { font-size: 16px; } }
 @media (min-width: 1200px) { html { font-size: 16px; } }
 
-/* Sprint 9.15 (UI-15, 2026-05-29): KPI mobile token override — BA spec
-   1 card / row full-width, height 88-96, icon 52×52. */
-@media (max-width: 767.98px) {
+/* Sprint 9.16 (UI-15, 2026-06-02): KPI mobile token override — BA H16 spec
+   "Trên mobile chuyển KPI card sang 1 card / 1 dòng / full width".
+   User decision 2026-06-02: áp full-width cho CẢ tablet (<992px), không chỉ
+   phone — markup cols đổi col-lg-3 col-12 (drop col-md-6) nên < lg = 1/row.
+   Spec H16: height 88-96 (min-height 92 ✓), padding 14-16 (siết 14 cho compact),
+   icon box 52×52 (✓), icon radius 12 (desktop token = target), icon 22-24
+   (desktop 23 = mid ✓), gap 12 (xử lý ở _components.css margin-bottom). */
+@media (max-width: 991.98px) {
     :root {
         --wujia-kpi-icon-size:       52px;
         --wujia-kpi-card-min-height: 92px;
+        --wujia-kpi-card-padding:    14px;
     }
 }

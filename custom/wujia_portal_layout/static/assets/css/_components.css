@@ -317,15 +317,17 @@ h2, .wujia-h2 { font-size: var(--wujia-font-size-h2) !important; font-weight: 60
     font-size: 18px;        /* UI-14: nhỏ lại cho cân */
 }
 
-/* Sprint 9.15 (UI-15, 2026-05-29): mobile KPI vertical gap 12px BA exact.
-   Override Bootstrap .mb-2 (8px) chỉ ở <768px khi 4 card stack 1/row. */
-@media (max-width: 767.98px) {
-    .wujia-kpi-card-link,
-    [class*="col-"] > .wujia-kpi-card {
+/* Sprint 9.16 (UI-15, 2026-06-02): mobile/tablet KPI vertical gap 12px BA H16.
+   Markup thực: col > a.wujia-kpi-card-link > .wujia-kpi-card → selector cũ
+   `[class*="col-"] > .wujia-kpi-card` là grandchild KHÔNG match → gỡ.
+   Gap đặt trên chính link wrapper. Cols đã bỏ .mb-2 (markup) nên không còn
+   8px Bootstrap chọi. Áp <992px (cả tablet) theo user decision 2026-06-02. */
+@media (max-width: 991.98px) {
+    .wujia-kpi-card-link {
+        display: block;
         margin-bottom: 12px;
     }
-    [class*="col-"]:last-child > .wujia-kpi-card-link,
-    [class*="col-"]:last-child > .wujia-kpi-card {
+    .row > [class*="col-"]:last-child .wujia-kpi-card-link {
         margin-bottom: 0;
     }
 }
