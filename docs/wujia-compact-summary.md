@@ -196,9 +196,9 @@ Xong: /wujia-end-sprint.
 | 9.13b | UI-12 ext | MẪU 01/02 (sample.jpg) cho 3 listing + noti badge refactor | ✅ 2026-05-27 (4 commit: 0ce1886/4d36452/ba4245d/a85d9c3) |
 | 9.14 | UI-13 | Header Right Actions: Language + Cart + Noti + Account(name+avatar) | ✅ verified 2026-05-29 (Lang dropdown layouts.xml:45 + cart inherit prio20 + bell inherit prio30 + user.name+avatar layouts.xml:68; JS badge poll động cart+noti) |
 | 9.15 | UI-14 | KPI Card Height: gap 12, min-height 100, chevron neo mép phải, icon giữ 56 | ✅ 2026-05-29 |
-| 9.16 | UI-15 | KPI Card Mobile: 1 card/dòng full width, h88–96, icon 52×52 r12 | ⬜ pending (BA 2026-05-29) |
-| 9.17 | UI-16 | Main Content Spacing: header→title 24, title→KPI 12–16, KPI→content 20–24 | ⬜ pending (BA 2026-05-29) |
-| 9.18 | UI-17 | Product Best Seller Card: chuẩn theo content card listing, bỏ table thô | ⬜ pending (BA 2026-05-29) |
+| 9.16 | UI-15 | KPI Card Mobile: 1 card/dòng full width, h88–96, icon 52×52 r12 | ✅ 2026-06-02 (full-width <992px cả tablet — drop col-md-6; padding 14, gap 12 via link margin) |
+| 9.17 | UI-16 | Main Content Spacing: header→title 24, title→KPI 12–16, KPI→content 20–24 | ✅ 2026-06-02 (token page-content-top 24 / page-title-gap 14 / kpi-content-gap 22, scoped portal shell) |
+| 9.18 | UI-17 | Product Best Seller Card: chuẩn theo content card listing, bỏ table thô | ✅ 2026-06-02 (đổi sang `.wujia-content-card` + `.wujia-content-card-table`, icon-trending-up) |
 | 9.19 | UI-18 | Main menu: row h44–48, margin 4–6, icon set đồng nhất 20–22 stroke | ⬜ pending (BA 2026-05-29) |
 | 9.20 | Empty | Empty state: icon + text + spacing chuẩn | ⬜ pending |
 | 9.21 | — | Cleanup: 301 redirect kebab + xóa `wujia_account/` stub | ⬜ pending |
@@ -223,6 +223,9 @@ Xong: /wujia-end-sprint.
 | 9.13 | `_variables.css` typography Tailwind gray + `_components.css` `.wujia-content-card*` + portal_home 3 card |
 | 9.13b | (1) `wujia_portal_base/portal_home.xml` noti badge class map / (2) `_components.css` `.wujia-content-card-table` / (3) `wujia_portal_notification/portal_notification.xml` MẪU 01 / (4) `wujia_portal_purchase_history/{controllers/portal.py,views/portal_history.xml}` + `wujia_portal_sale/views/portal_order_catalog.xml` MẪU 02 |
 | 9.15 | `_variables.css` KPI token (gap 14→12, min-height 96→100) + `_components.css` (`.wujia-kpi-content flex:1 1 auto`, `.wujia-kpi-arrow margin-left:auto + font 18`) + `assets.xml` bump v=1092/v=1053 |
+| 9.16 (UI-15) | `portal_home.xml` 4 KPI col `col-lg-3 col-md-6 col-12 mb-2`→`col-lg-3 col-12` + `_variables.css` mobile override `@media max-width:991.98px` (icon 52, min-h 92, padding 14) + `_components.css` mobile KPI gap (`.wujia-kpi-card-link margin-bottom:12`, gỡ grandchild selector chết) + `assets.xml` bump `_components` v=1098→1100 |
+| 9.17 (UI-16) | `_variables.css` 3 token spacing (`--wujia-page-content-top:24` / `--wujia-page-title-gap:14` / `--wujia-kpi-content-gap:22`) + `_wujia_theme.css` rule scoped (`content-wrapper padding-top`, `.content-header margin`, `#dashboard-stats margin-bottom`) + `portal_home.xml` gỡ `mt-3`/`mb-1` + `assets.xml` bump `_variables` v→1101, `_wujia_theme` v=1061→1101 |
+| 9.18 (UI-17) | `portal_home.xml` best-seller card `.card/.table.dashboard-list` → `.wujia-content-card` + `.wujia-content-card-header[-icon/-title]` (feather icon-trending-up) + `.wujia-content-card-table` + `.wujia-content-card-empty` |
 
 ### Policy update (2026-05-24)
 
