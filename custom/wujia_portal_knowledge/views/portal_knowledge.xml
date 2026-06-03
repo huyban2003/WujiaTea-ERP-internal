@@ -72,7 +72,10 @@
                                         <t t-out="len(articles)"/> bài viết
                                     </span>
                                 </div>
-                                <div t-if="not articles" class="wujia-content-card-empty">Chưa có bài viết.</div>
+                                <div t-if="not articles" class="wujia-empty-state">
+                                    <i class="feather icon-book"/>
+                                    <p>Chưa có bài viết.</p>
+                                </div>
                                 <ul t-else="" class="wujia-content-card-body">
                                     <t t-foreach="articles" t-as="art">
                                         <t t-set="badge_cls" t-value="{'mandatory': 'wujia-badge-danger', 'important': 'wujia-badge-warning', 'new': 'wujia-badge-info'}.get(art.portal_badge, '')"/>

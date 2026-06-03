@@ -65,7 +65,10 @@
                                 <t t-out="len(orders)"/> kết quả
                             </span>
                         </div>
-                        <div t-if="not orders" class="wujia-content-card-empty">Chưa có đơn hàng nào.</div>
+                        <div t-if="not orders" class="wujia-empty-state">
+                            <i class="feather icon-inbox"/>
+                            <p>Chưa có đơn hàng nào.</p>
+                        </div>
                         <table t-else="" class="wujia-content-card-table">
                             <thead>
                                 <tr>

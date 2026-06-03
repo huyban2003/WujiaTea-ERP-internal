@@ -52,8 +52,9 @@
                                 <t t-out="len(tickets)"/> ticket
                             </span>
                         </div>
-                        <div t-if="not tickets" class="wujia-content-card-empty">
-                            Bạn chưa có ticket nào. <a href="/portal/support/new">Gửi yêu cầu hỗ trợ</a>.
+                        <div t-if="not tickets" class="wujia-empty-state">
+                            <i class="feather icon-life-buoy"/>
+                            <p>Bạn chưa có ticket nào. <a href="/portal/support/new">Gửi yêu cầu hỗ trợ</a>.</p>
                         </div>
                         <table t-else="" class="wujia-content-card-table">
                             <thead>
@@ -226,9 +227,9 @@
                                 <div class="card-header"><h6 class="mb-0">Trao đổi</h6></div>
                                 <div class="card-body">
                                     <t t-set="comments" t-value="ticket.message_ids.filtered(lambda m: m.message_type == 'comment').sorted('date')"/>
-                                    <div t-if="not comments" class="text-muted text-center py-4">
-                                        <i class="fa fa-comments fa-2x mb-2 opacity-25 d-block" title="Conversation"/>
-                                        Chưa có trao đổi.
+                                    <div t-if="not comments" class="wujia-empty-state">
+                                        <i class="feather icon-message-square"/>
+                                        <p>Chưa có trao đổi.</p>
                                     </div>
                                     <div t-else="">
                                         <div t-foreach="comments" t-as="msg" class="mb-2 pb-2 border-bottom">

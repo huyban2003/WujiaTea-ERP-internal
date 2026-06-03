@@ -66,8 +66,9 @@
                                 <t t-out="len(requests)"/> kết quả
                             </span>
                         </div>
-                        <div t-if="not requests" class="wujia-content-card-empty">
-                            Chưa có yêu cầu nào. <a href="/portal/info-request/new">Tạo yêu cầu đầu tiên</a>.
+                        <div t-if="not requests" class="wujia-empty-state">
+                            <i class="feather icon-edit"/>
+                            <p>Chưa có yêu cầu nào. <a href="/portal/info-request/new">Tạo yêu cầu đầu tiên</a>.</p>
                         </div>
                         <div t-else="" class="table-responsive">
                             <table class="wujia-content-card-table">

@@ -183,7 +183,10 @@
                     </div>
                 </div>
                 <div class="content-body">
-                    <div t-if="not results" class="alert alert-info">Bạn chưa có kết quả thi nào.</div>
+                    <div t-if="not results" class="wujia-empty-state">
+                        <i class="feather icon-award"/>
+                        <p>Bạn chưa có kết quả thi nào.</p>
+                    </div>
                     <div t-else="" class="row g-2">
                         <t t-foreach="results" t-as="res">
                             <div class="col-md-6 col-lg-4 col-12">

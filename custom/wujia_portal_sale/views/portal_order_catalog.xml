@@ -64,7 +64,10 @@
                                         <t t-out="len(products)"/> sản phẩm
                                     </span>
                                 </div>
-                                <div t-if="not products" class="wujia-content-card-empty">Không có sản phẩm phù hợp.</div>
+                                <div t-if="not products" class="wujia-empty-state">
+                                    <i class="feather icon-package"/>
+                                    <p>Không có sản phẩm phù hợp.</p>
+                                </div>
                                 <table t-else="" class="wujia-content-card-table">
                                     <thead>
                                         <tr>

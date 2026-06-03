@@ -155,8 +155,9 @@
                                 <t t-out="len(top_products)"/> sản phẩm
                             </span>
                         </div>
-                        <div t-if="not top_products" class="wujia-content-card-empty">
-                            Chưa có sản phẩm nào trong khoảng thời gian đã chọn.
+                        <div t-if="not top_products" class="wujia-empty-state">
+                            <i class="feather icon-bar-chart-2"/>
+                            <p>Chưa có sản phẩm nào trong khoảng thời gian đã chọn.</p>
                         </div>
                         <div t-else="" class="table-responsive">
                             <table class="wujia-content-card-table">
