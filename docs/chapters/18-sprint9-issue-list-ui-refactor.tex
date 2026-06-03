@@ -1,0 +1,220 @@
+\chapter{Sprint 9 --- Issue List UI Refactor (2026-05-23 .. 2026-06-03)}
+
+\section{Bối cảnh}
+
+BA (Hùng) chốt sheet \texttt{5. Issue List} làm \emph{single source of truth} cho
+một đợt refactor giao diện portal toàn diện. Sheet liệt kê 18 issue có mã
+\texttt{UI-01..UI-18} (sau lần BA rescale 2026-05-29 thêm UI-15..UI-18), mỗi
+issue mô tả ở 4 cột: \texttt{E} (vấn đề), \texttt{F} (hình minh hoạ), \texttt{G}
+(đề xuất điều chỉnh), \texttt{H} (kết quả mong muốn).
+
+Nguyên tắc vận hành Sprint 9 (non-negotiable):
+
+\begin{itemize}[leftmargin=*]
+    \item \textbf{1 issue = 1 sub-sprint}, làm tuần tự theo BA order, không nhảy cóc.
+    \item \textbf{Không bịa spec} --- mỗi sub-sprint bắt đầu bằng việc mở lại xlsm đọc
+          cột \texttt{G+H} verbatim, user xác nhận, rồi mới code.
+    \item \textbf{Mỗi sub-sprint xong = commit + push luôn} (policy 2026-05-24), không gộp.
+    \item \textbf{Verify bằng browser thật}, không tin \texttt{wkhtmltoimage} (gotcha bên dưới).
+    \item \textbf{CSS dùng token} \texttt{var(--wujia-*)} trong \texttt{\_variables.css} +
+          class share trong \texttt{\_components.css}; không hex cứng, không inline override.
+\end{itemize}
+
+\section{Tổng quan 18 issue}
+
+\begin{longtable}{@{}llp{6.8cm}l@{}}
+\toprule
+\textbf{ID} & \textbf{Khu vực} & \textbf{Spec ngắn} & \textbf{Xong} \\
+\midrule
+\endhead
+UI-01 & Sidebar & Active menu icon/text trắng, icon 20--22, text 16, height 44--48 & 05-23 \\
+UI-02 & Sidebar & Bỏ block thông tin user & 05-24 \\
+UI-03 & Header PC & Current Store pill + role badge + language + avatar & 05-24 \\
+UI-04 & Header mobile & Sub-strip 3-row stacked dưới navbar & 05-24 \\
+UI-05 & Button & Primary cyan h42, Secondary trắng/viền h38 & 05-24 \\
+UI-06 & Card/bg & Page bg \#E8ECEF, card trắng nổi nhẹ & 05-25 \\
+UI-07 & Sidebar & Logo area height 200px & 05-25 \\
+UI-08 & Header & Height 72px + căn giữa dọc & 05-25 \\
+UI-09 & Subtitle & \#6B7280, 14--15px, weight 400 & 05-27 \\
+UI-10 & Font & Đồng nhất Inter (xoá Montserrat CDN + Arial) & 05-27 \\
+UI-11 & KPI Card & Icon-left 72×72 + separator 1px \#D1D5DB & 05-27 \\
+UI-12 & Content Card & Card "Xem tất cả" + MẪU 01/02 listing & 05-27 \\
+UI-13 & Header Actions & Language + Cart + Notification + Account (name+avatar) & 05-29 \\
+UI-14 & KPI Height & gap 12, min-height 100, chevron neo mép phải, icon 56 & 05-29 \\
+UI-15 & KPI Mobile & 1 card/dòng full-width \(<\)992px, icon 52×52 r12 & 06-02 \\
+UI-16 & Spacing & header→title 24, title→KPI 14, KPI→content 22 & 06-02 \\
+UI-17 & Best Seller & Card "Sản phẩm mua nhiều nhất" theo content-card listing & 06-02 \\
+UI-18 & Main menu & Icon đồng nhất feather 20--22, row height 44--48, margin 4--6 & 06-03 \\
+\bottomrule
+\end{longtable}
+
+Chi tiết iteration của UI-01..UI-14 nằm trong git log (commit message English,
+Conventional Commits) + file \texttt{wujia-compact-summary.md} §9/§10. Chương này
+đào sâu phần mới của đợt cuối (UI-15..UI-18) cùng 3 task đóng sprint
+(empty state, cleanup, verify).
+
+\section{UI-01..UI-14 --- tóm tắt}
+
+Đây là phần thân của Sprint 9 (10 ngày, 2026-05-23..29). Điểm nhấn:
+
+\begin{itemize}[leftmargin=*]
+    \item \textbf{UI-03/UI-04} (Current Store header) tốn 3/5 attempt --- bài học
+          \emph{specificity Vuexy} (\texttt{html body} thắng \texttt{html, body}) +
+          phải hỏi explicit màu/layout trước khi code visual (L3).
+    \item \textbf{UI-11/UI-12} đặt nền cho hệ thống component: \texttt{.wujia-kpi-card*}
+          và \texttt{.wujia-content-card*} trong \texttt{\_components.css}, áp toàn portal
+          qua asset bundle.
+    \item \textbf{UI-13} (header cart/bell badge) có hotfix riêng 2026-05-30 vì badge
+          của ta nằm trong navbar Vuexy nên dính cascade \texttt{.badge} --- xem
+          mục Bài học.
+\end{itemize}
+
+\section{UI-15 --- KPI Card Mobile}
+
+BA: trên mobile chuyển KPI card sang layout 1 card / 1 dòng / full-width
+(width 100\%, height 88--96px, padding 14--16px, gap 12px, icon box 52×52 r12px,
+icon 22--24px). Thực hiện: 4 cột KPI ở \texttt{portal\_home.xml} đổi
+\texttt{col-lg-3 col-md-6} \(\rightarrow\) \texttt{col-lg-3 col-12} (drop \texttt{col-md-6}
+để full-width cả tablet \(<\)992px); thêm media override
+\texttt{@media (max-width: 991.98px)} trong \texttt{\_variables.css} (icon 52,
+min-height 92, padding 14); gap giữa card dùng \texttt{margin-bottom: 12px} trên
+\texttt{.wujia-kpi-card-link} (gỡ grandchild selector chết).
+
+\section{UI-16 --- Main Content Spacing}
+
+BA: chuẩn hoá khoảng cách header xanh → title \(\approx\)24px, title → KPI
+12--16px, KPI → content card 20--24px. Thực hiện: thêm 3 token spacing
+(\texttt{--wujia-page-content-top: 24px}, \texttt{--wujia-page-title-gap: 14px},
+\texttt{--wujia-kpi-content-gap: 22px}) + rule scope vào portal shell
+(\texttt{content-wrapper padding-top}, \texttt{.content-header margin},
+\texttt{\#dashboard-stats margin-bottom}); gỡ \texttt{mt-3}/\texttt{mb-1} ad-hoc ở
+\texttt{portal\_home.xml} để tránh chồng spacing.
+
+\section{UI-17 --- Best Seller Card}
+
+Card "Sản phẩm mua nhiều nhất" trên home trước đây render như table thô, lệch
+style các content card khác. Đổi sang dùng \texttt{.wujia-content-card} +
+\texttt{.wujia-content-card-header[-icon/-title]} (feather \texttt{icon-trending-up})
++ \texttt{.wujia-content-card-table}, đồng bộ với màn đặt hàng / lịch sử đặt hàng.
+
+\section{UI-18 --- Main Menu icon consistency}
+
+\textbf{Vấn đề (cột E):} row spacing menu hơi rộng; icon menu không đều style ---
+có icon nét mảnh, có icon dày, có icon lệch.
+
+\textbf{Kết quả mong muốn (cột H):} row height 44--48px, margin giữa item 4--6px,
+dùng cùng một icon set + cùng stroke width, size 20--22px.
+
+\textbf{Root cause:} 10/12 menu item đã dùng feather (outline, stroke đều) từ
+UI-01, nhưng 2 item còn lại dùng Font Awesome đặc nên lạc lõng:
+
+\begin{itemize}[leftmargin=*]
+    \item "Thông tin nhượng quyền": \texttt{fa fa-info-circle} (solid).
+    \item "Cửa hàng": \texttt{fa fa-building} (solid).
+\end{itemize}
+
+\textbf{Fix:} đổi sang feather đồng bộ --- \texttt{icon-info} cho thông tin nhượng
+quyền (1:1) và \texttt{icon-shopping-bag} cho cửa hàng (feather không có
+"building"; chọn shopping-bag hợp ngữ cảnh bán lẻ). Token row đã đạt BA từ UI-01
+(height 44, icon 20, text 16, gap 12), chỉ nâng khoảng cách dọc giữa item
+\texttt{margin: 2px 12px} \(\rightarrow\) \texttt{3px 12px} (gap 6px, đúng dải 4--6).
+
+\begin{lstlisting}[style=xml]
+<!-- portal_franchises_in_layout.xml -->
+<i class="feather icon-shopping-bag" aria-hidden="true"/>
+<!-- portal_franchise_information.xml -->
+<i class="feather icon-info" aria-hidden="true"/>
+\end{lstlisting}
+
+\textbf{Out-of-scope:} icon Font Awesome ở \emph{page body} (header trang, modal,
+backend admin) giữ nguyên --- UI-18 chỉ về sidebar menu.
+
+\section{Empty state --- chuẩn hoá (9.20)}
+
+BA muốn empty state thống nhất: \emph{icon nhỏ + dòng text + khoảng trắng chuẩn}.
+Audit cho thấy 7/9 trang listing đã dùng chung \texttt{.wujia-content-card-empty}
+(text-only) nhưng chưa có icon; 2 outlier lệch hẳn: exam dùng \texttt{alert-info},
+support comments dùng \texttt{text-muted text-center}. Gom tất cả 9 chỗ về class
+sẵn có \texttt{.wujia-empty-state} (icon feather contextual + text tiếng Việt giữ
+nguyên + spacing), đồng thời thu nhỏ icon 40px \(\rightarrow\) 36px theo ý "icon
+nhỏ". Giữ \texttt{.wujia-content-card-empty} cho preview nhỏ trên home + giỏ hàng.
+
+\begin{lstlisting}[style=xml]
+<div t-if="not orders" class="wujia-empty-state">
+    <i class="feather icon-inbox"/>
+    <p>Chưa có đơn hàng nào.</p>
+</div>
+\end{lstlisting}
+
+\section{Cleanup (9.21)}
+
+\textbf{301 redirect legacy slug.} v14 dùng slug underscore/dài dòng, v19 dùng
+kebab-case. Để không gãy bookmark/email của \(\sim\)1500 user, thêm controller
+\texttt{wujia\_portal\_layout/controllers/redirects.py} (auth=public, sitemap=False)
+chỉ cho slug đã xác nhận tồn tại trong v14:
+
+\begin{longtable}{@{}lll@{}}
+\toprule
+\textbf{Legacy v14} & \textbf{$\rightarrow$ v19} & \textbf{HTTP} \\
+\midrule
+\endhead
+\texttt{/portal/purchase\_history} & \texttt{/portal/purchase-history} & 301 \\
+\texttt{/portal/return-request-list} & \texttt{/portal/return} & 301 \\
+\texttt{/portal/exam-registration} & \texttt{/portal/exam} & 301 \\
+\bottomrule
+\end{longtable}
+
+\textbf{Xoá stub.} Module rỗng \texttt{custom/wujia\_account/} (orphan từ Sprint 4,
+không \texttt{\_\_manifest\_\_.py}, không file Python, không reference trong custom/
+scripts/config) được xoá để gọn cây thư mục.
+
+\section{Verify (9.22)}
+
+\begin{itemize}[leftmargin=*]
+    \item \texttt{scripts/upgrade.sh} 10 module \(\rightarrow\) RC=0, 89 module loaded,
+          0 ERROR/Traceback trong log.
+    \item \texttt{scripts/test\_sprint9.py} (mới, ORM shell) \(\rightarrow\) 7/7 PASS:
+          icon menu feather-only, \(\geq\)8 view dùng \texttt{.wujia-empty-state},
+          \texttt{wujia\_account} không còn là module.
+    \item \texttt{scripts/test\_sprint5.py} (regression) \(\rightarrow\) 20/20 PASS.
+    \item \texttt{curl} 3 legacy slug \(\rightarrow\) 301 đúng đích kebab-case.
+    \item Browser thật (\texttt{localhost:8019}): smoke sidebar + 3 trang listing rỗng
+          + home (không vỡ KPI/content card cũ).
+\end{itemize}
+
+\section{Bài học (gotcha) tích luỹ}
+
+\begin{enumerate}[leftmargin=*]
+    \item \textbf{Vuexy navbar \texttt{.badge} cascade} (UI-13 hotfix) --- badge cart/bell
+          của ta đặt trong navbar Vuexy nên chọi 3 rule cùng/cao specificity
+          (\texttt{.badge} base tím, padding navbar làm méo shape, \texttt{nav-link}
+          color làm tối chữ số). Local đỏ mà server tím vì cùng specificity \(\Rightarrow\)
+          phụ thuộc load order (flaky). Fix dứt điểm: rule scope sâu +
+          \texttt{!important} cho \texttt{background-color} và \texttt{color} (zero
+          blast radius) + bump \texttt{?v=}.
+    \item \textbf{CSS/màu = FILE TRÊN ĐĨA, không nằm DB} --- mọi triệu chứng "local
+          khác server" về CSS = cache layer (browser 7 ngày / \texttt{?v=} chưa
+          \texttt{-u} / proxy cache), không bao giờ là vấn đề data. Fix = bust cache,
+          tuyệt đối không drop/copy DB để sửa CSS.
+    \item \textbf{\texttt{wkhtmltoimage} không tin được} cho CSS flexbox modern
+          (Qt-WebKit cũ) --- verify bằng browser thật.
+    \item \textbf{Token global = side-effect toàn portal} --- bump token typography/
+          color/radius/spacing ảnh hưởng mọi page; bắt buộc smoke 3--5 page khác sau
+          ship, không chỉ page đang sửa.
+\end{enumerate}
+
+\section{Files đã chạm (đợt cuối UI-15..UI-18 + cleanup)}
+
+\begin{itemize}[leftmargin=*]
+    \item \texttt{\_variables.css} --- token KPI mobile + 3 token spacing UI-16.
+    \item \texttt{\_components.css} --- KPI mobile margin, \texttt{.wujia-empty-state i}
+          36px; \texttt{assets.xml} bump \texttt{?v=1102}.
+    \item \texttt{\_wujia\_theme.css} --- menu item \texttt{margin 3px}; bump \texttt{?v=1102}.
+    \item \texttt{portal\_home.xml} --- KPI col full-width, best-seller content-card,
+          gỡ spacing ad-hoc.
+    \item 2 view menu (\texttt{portal\_franchises\_in\_layout.xml},
+          \texttt{portal\_franchise\_information.xml}) --- icon feather.
+    \item 9 view listing --- empty state \texttt{.wujia-empty-state}.
+    \item \texttt{controllers/redirects.py} (mới) + \texttt{controllers/\_\_init\_\_.py}.
+    \item \texttt{scripts/test\_sprint9.py} (mới). Xoá \texttt{custom/wujia\_account/}.
+\end{itemize}

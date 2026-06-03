@@ -2,7 +2,7 @@
 
 **Mục đích:** context file inject vào mọi session WujiaTea. Mỗi §section search-able qua `/recall`. Detail history giữ trong `wujia-tea-doc.tex` + git log.
 
-**Cập nhật:** 2026-05-30 (**UI-13 header badge HOTFIX**: server render badge cart/bell không đỏ + số đen + shape oval do Vuexy navbar `.badge` cascade — fix scoped `(0,0,5,2)` + `!important` bg/color + flexbox centering + bump `?v=1098`. 2 gotcha mới §9: #11 Vuexy badge cascade, #12 CSS=disk-không-phải-DB. Commit chain cfd0dee→adce104. | Trước đó 2026-05-29: 9.14 UI-13 verified + 9.15 UI-14 KPI Card Height DONE. Còn 9 sprint con: 9.16–9.24. **Next: gộp 9.16 UI-15 (KPI mobile) + 9.17 UI-16 (Main Content Spacing)**).
+**Cập nhật:** 2026-06-03 (**Sprint 9 ĐÓNG**: UI-18 icon menu feather đồng nhất (info-circle→icon-info, building→icon-shopping-bag, margin 2→3px) + 9.20 gom 9 empty→`.wujia-empty-state` (icon feather + text VN, icon 40→36) + 9.21 `redirects.py` auth=public 3 slug v14→kebab 301 + xóa stub `wujia_account/` + 9.22 `test_sprint9.py` 7/7 + test_sprint5 20/20 + 3 curl 301 + 9.23 chapter 18 mới + PDF RC=0. Còn 9.24 push qua `/wujia-end-sprint`. Detail §9 + chapter 18.) | 2026-06-02 (**Figma MCP**: nối Figma↔code (Framelink), verified read-only. Detail → §1 "Figma" bullet + `docs/figma-mcp-setup.md` + `docs/wujia-design-system.md`. Policy: code=chuẩn > xlsm spec (lag); BA chưa xong Figma → khi xong FOLLOW Figma, không sửa Figma. Summary giữ `.md`.) | 2026-05-30 (**UI-13 header badge HOTFIX**: server render badge cart/bell không đỏ + số đen + shape oval do Vuexy navbar `.badge` cascade — fix scoped `(0,0,5,2)` + `!important` bg/color + flexbox centering + bump `?v=1098`. 2 gotcha mới §9: #11 Vuexy badge cascade, #12 CSS=disk-không-phải-DB. Commit chain cfd0dee→adce104. | Trước đó 2026-05-29: 9.14 UI-13 verified + 9.15 UI-14 KPI Card Height DONE. Còn 9 sprint con: 9.16–9.24. **Next: gộp 9.16 UI-15 (KPI mobile) + 9.17 UI-16 (Main Content Spacing)**).
 
 ---
 
@@ -16,8 +16,10 @@
 - `WujiaTea/themes/` 8 Vuexy theme.
 - `WujiaTea/data/` seed master (area/ward).
 - `WujiaTea/scripts/` seed + deploy script (Python + PowerShell).
-- `WujiaTea/docs/` `wujia-tea-doc.tex` master + chapters + `Wujia_Internal ERP Master Plan.xlsm` (BA spec).
+- `WujiaTea/docs/` `wujia-tea-doc.tex` master + chapters + `Wujia_Internal ERP Master Plan.xlsm` (BA spec) + `wujia-design-system.md` (chuẩn UI người-đọc) + `figma-mcp-setup.md` (Figma connect guide).
 - v14 reference (legacy): `/home/huyban/odoo-dev/wujia_tea_odoo14` — template ref, không sửa.
+
+**Figma (BA design — READ-ONLY, follow sau):** file "Wujia" key `vfVcqN5zPJvlcjZU4NYim0` nối qua Framelink MCP (`.mcp.json` + `FIGMA_API_KEY` ở `.env.local`). **BA CHƯA XONG FIGMA → khi BA hoàn thiện thì FOLLOW THEO FIGMA của BA** (đối chiếu → cập nhật `_variables.css`, KHÔNG sửa Figma). Dùng Figma MCP để xem screens + đọc structure (type/size/màu/radius/font). ⚠️ Figma hiện PHẲNG (card = siblings, không container) → gom bằng geometry. Chi tiết §8 + đề nghị BA: `docs/figma-mcp-setup.md`. Chuẩn UI hiện tại (code-based): `docs/wujia-design-system.md`. Hiện tại nguồn ưu tiên = **code chuẩn > xlsm spec (lag)**.
 
 **Local dev:** `scripts/init-db.sh` fresh / `scripts/start.sh` hot-reload / `scripts/upgrade.sh <module>` giữ data / `scripts/reseed_full.sh` 1-shot. DB `wujia_tea_19`, user `odoo19/1`, host `127.0.0.1:5432`. Log: `WujiaTea/logs/odoo.log`. Config: `WujiaTea/config/odoo.conf`.
 
@@ -72,6 +74,7 @@ ADR-001 odoo19 source độc lập / ADR-002 venv conda `odoo` (py3.10) / ADR-00
 | 7 | 2026-05-17 | `wujia_portal_info_request` (model + 5 route + chatter) + 8 ext route (noti mark-read jsonrpc, knowledge SAYT, attachment dl, PDF/ICS/XLSX export). 30 route Sprint 6+7 |
 | 8 | 2026-05-21 | favicon fix + BA §A `/portal/franchise-information` readonly + BA §B order portal mapping + module mới `wujia_portal_order_window` (per-area + global fallback) + design token `_variables.css` + `_components.css` shared (`wujia-btn`/`wujia-badge-*`/`wujia-empty-state`/`wujia-two-pane`) |
 | 9.1–9.13b | 2026-05-23..27 | Portal UI refactor theo BA sheet "5. Issue List" — xem §9 |
+| 9 (DONE) | 2026-06-03 | **Sprint 9 đóng**: UI-01..UI-18 (18 issue) + empty state chuẩn hoá + cleanup (301 redirect + xóa stub) + verify (test_sprint9 7/7) + doc chapter 18. Còn 9.24 push qua `/wujia-end-sprint`. → chapter 18 |
 
 → Chi tiết: `chapters/04-17.tex` + `chapters/18-sprint9-issue-list-ui-refactor.tex` (cuối Sprint 9).
 
@@ -79,21 +82,10 @@ ADR-001 odoo19 source độc lập / ADR-002 venv conda `odoo` (py3.10) / ADR-00
 
 ## §5 wujia-current-status
 
-**State (2026-05-30):** 18 module active. **Sprint 9 in progress** — UI-01..UI-12 + 9.13b + **9.14 UI-13 + 9.15 UI-14 DONE + pushed**. Push `main`: …3762e53 (UI-13 icons) → bd4df88 (doc) → **UI-13 badge HOTFIX 2026-05-30**: cfd0dee (cache bump) → a0a4cbd (specificity vs Vuexy) → df56153 (flexbox centering) → d6d9e72 (!important bg) → **adce104 (!important white digit, `?v=1098`)**. Badge cart/bell giờ đỏ + số trắng + pill, verified server. Còn 9 sprint con 9.16–9.24.
+**State (2026-06-03):** 18 module active. **Sprint 9 DONE** — toàn bộ UI-01..UI-18 (18 issue BA) + empty state chuẩn hoá + cleanup + verify + doc chapter 18 đã xong (2026-06-03). Chỉ còn **9.24 commit+push** qua `/wujia-end-sprint` (approval gate → auto-deploy Windows). Đợt cuối: UI-18 (icon menu feather đồng nhất), 9.20 (9 empty → `.wujia-empty-state`), 9.21 (redirects.py 3 slug 301 + xóa `wujia_account/`), 9.22 (test_sprint9 7/7 + test_sprint5 20/20 + 3 curl 301), 9.23 (chapter 18 + PDF). Commit chưa push (uncommitted working tree).
 
-**Còn lại Phase 1.0 (BA order):**
-- 9.14 UI-13 Header Right Actions ✅ verified 2026-05-29 — Lang dropdown + cart icon (`header_cart_inherit` prio20) + bell icon (`header_bell_inherit` prio30) + user.name+avatar dropdown. JS badge poll động cho cart + noti unread count.
-- 9.15 UI-14 KPI Card Height ✅ DONE 2026-05-29 — gap 14→12, min-height 96→100 (height thực ~104, trong dải BA 100–108), `.wujia-kpi-content flex:1 1 auto` + `.wujia-kpi-arrow margin-left:auto` (chevron neo mép phải, không void) + arrow font 20→18. Icon giữ 56 (đã giảm 72→56 trước đó). Files: `_variables.css` + `_components.css` + `assets.xml` bump v=1092/v=1053. **Iterate 2 vòng: flex:0 1 auto bị void phải → user chọn chevron neo mép phải.**
-- 9.16 UI-15 KPI Card Mobile — mobile 1 card/1 dòng full width, height 88–96px, padding 14–16px, gap 12px, icon box 52×52 radius 12px icon 22–24px.
-- 9.17 UI-16 Main Content Spacing — header→title 24px, title→KPI 12–16px, KPI→content 20–24px.
-- 9.18 UI-17 Product Best Seller Card — "Sản phẩm mua nhiều nhất" đang lệch style giống table thô → chuẩn theo content card listing (đặt hàng / lịch sử đặt hàng).
-- 9.19 UI-18 Main menu — row height 44–48px, margin item 4–6px, icon set đồng nhất stroke + size 20–22px (hiện icon mảnh/dày/lệch không đều).
-- 9.20 Empty state chuẩn (icon nhỏ + text + spacing).
-- 9.21 Cleanup: 301 redirect `/portal/purchase_history` → kebab-case + xóa stub `custom/wujia_account/`.
-- 9.22 Verify: `reseed_full.sh` RC=0 + `test_sprint9.py` + screenshot.
-- 9.23 Doc: `chapters/18-sprint9-issue-list-ui-refactor.tex` + recompile PDF + update §2/§4/§5/§9.
-- 9.24 Push: commit EN + deploy Windows.
-- Defer: T-031 mockup ops, locust 100+ load test, affiliate v14 gap, Dashboard ApexChart, TOTP 2FA, Calendar booking, QR scan, MẪU 03-06 từ `docs/sample.jpg`.
+**Phase 1.0 (BA order) — ✅ HOÀN TẤT 2026-06-03:** toàn bộ 9.1→9.23 done (UI-01..UI-18 + empty state + cleanup + verify + doc). Chỉ còn **9.24 commit+push** qua `/wujia-end-sprint`. Chi tiết status từng issue → §9 bảng.
+- Defer (chưa làm, ngoài Sprint 9): T-031 mockup ops, locust 100+ load test, affiliate v14 gap, Dashboard ApexChart, TOTP 2FA, Calendar booking, QR scan, MẪU 03-06 từ `docs/sample.jpg`, i18n `.po` (Sprint 10).
 
 **Phase 2.0 (future):** Employee Mgmt / Debt Overview / Payment History / Training Reports / User Invitations.
 
@@ -199,12 +191,12 @@ Xong: /wujia-end-sprint.
 | 9.16 | UI-15 | KPI Card Mobile: 1 card/dòng full width, h88–96, icon 52×52 r12 | ✅ 2026-06-02 (full-width <992px cả tablet — drop col-md-6; padding 14, gap 12 via link margin) |
 | 9.17 | UI-16 | Main Content Spacing: header→title 24, title→KPI 12–16, KPI→content 20–24 | ✅ 2026-06-02 (token page-content-top 24 / page-title-gap 14 / kpi-content-gap 22, scoped portal shell) |
 | 9.18 | UI-17 | Product Best Seller Card: chuẩn theo content card listing, bỏ table thô | ✅ 2026-06-02 (đổi sang `.wujia-content-card` + `.wujia-content-card-table`, icon-trending-up) |
-| 9.19 | UI-18 | Main menu: row h44–48, margin 4–6, icon set đồng nhất 20–22 stroke | ⬜ pending (BA 2026-05-29) |
-| 9.20 | Empty | Empty state: icon + text + spacing chuẩn | ⬜ pending |
-| 9.21 | — | Cleanup: 301 redirect kebab + xóa `wujia_account/` stub | ⬜ pending |
-| 9.22 | — | Verify: `reseed_full.sh` + `test_sprint9.py` + screenshot | ⬜ pending |
-| 9.23 | — | Doc: `chapters/18-*.tex` + PDF + update §2/§4/§5/§9 | ⬜ pending |
-| 9.24 | — | Push: commit EN + deploy Windows | ⬜ pending |
+| 9.19 | UI-18 | Main menu: row h44–48, margin 4–6, icon set đồng nhất 20–22 stroke | ✅ 2026-06-03 (2 icon FA→feather: info-circle→icon-info, building→icon-shopping-bag; margin 2→3px gap 6) |
+| 9.20 | Empty | Empty state: icon + text + spacing chuẩn | ✅ 2026-06-03 (9 listing empty → `.wujia-empty-state` icon feather contextual + text VN; icon 40→36px; 2 outlier exam/support gom về) |
+| 9.21 | — | Cleanup: 301 redirect kebab + xóa `wujia_account/` stub | ✅ 2026-06-03 (`redirects.py` auth=public 3 slug v14→kebab 301; xóa stub rỗng `wujia_account/`) |
+| 9.22 | — | Verify: upgrade RC=0 + `test_sprint9.py` + curl + browser | ✅ 2026-06-03 (upgrade RC=0; test_sprint9 7/7; test_sprint5 20/20 regression; 3 curl 301) |
+| 9.23 | — | Doc: `chapters/18-*.tex` + PDF + update §2/§4/§5/§9 | ✅ 2026-06-03 (chapter 18 mới + include + build-doc RC=0; summary updated) |
+| 9.24 | — | Push: commit EN + deploy Windows | ⬜ qua `/wujia-end-sprint` (approval gate) |
 
 ### File chạm history (compact — chi tiết trong git log + chapter 18)
 
@@ -226,6 +218,11 @@ Xong: /wujia-end-sprint.
 | 9.16 (UI-15) | `portal_home.xml` 4 KPI col `col-lg-3 col-md-6 col-12 mb-2`→`col-lg-3 col-12` + `_variables.css` mobile override `@media max-width:991.98px` (icon 52, min-h 92, padding 14) + `_components.css` mobile KPI gap (`.wujia-kpi-card-link margin-bottom:12`, gỡ grandchild selector chết) + `assets.xml` bump `_components` v=1098→1100 |
 | 9.17 (UI-16) | `_variables.css` 3 token spacing (`--wujia-page-content-top:24` / `--wujia-page-title-gap:14` / `--wujia-kpi-content-gap:22`) + `_wujia_theme.css` rule scoped (`content-wrapper padding-top`, `.content-header margin`, `#dashboard-stats margin-bottom`) + `portal_home.xml` gỡ `mt-3`/`mb-1` + `assets.xml` bump `_variables` v→1101, `_wujia_theme` v=1061→1101 |
 | 9.18 (UI-17) | `portal_home.xml` best-seller card `.card/.table.dashboard-list` → `.wujia-content-card` + `.wujia-content-card-header[-icon/-title]` (feather icon-trending-up) + `.wujia-content-card-table` + `.wujia-content-card-empty` |
+| 9.19 (UI-18) | `portal_franchises_in_layout.xml` (`fa fa-building`→`feather icon-shopping-bag`) + `portal_franchise_information.xml` menu (`fa fa-info-circle`→`feather icon-info`) + `_wujia_theme.css` `.main-menu .navigation>li>a` margin `2px`→`3px` + `assets.xml` bump `_wujia_theme`+`_components` v=1102. OUT-OF-SCOPE: fa-* page body giữ nguyên |
+| 9.20 (Empty) | 9 view listing empty → `.wujia-empty-state` (icon feather contextual + `<p>` text VN): history(inbox)/return(corner-up-left)/support(life-buoy)+comments(message-square)/info-request(edit)/knowledge(book)/report(bar-chart-2)/sale(package)/exam(award, bỏ alert-info) + `_components.css` `.wujia-empty-state i` 40→36px |
+| 9.21 (Cleanup) | `wujia_portal_layout/controllers/redirects.py` (NEW, auth=public) 3 slug v14→kebab 301 + `controllers/__init__.py` import. Xóa `custom/wujia_account/` stub rỗng |
+| 9.22 (Verify) | `scripts/test_sprint9.py` (NEW, ORM shell: icon menu feather-only + ≥8 view empty-state + wujia_account absent) 7/7. upgrade RC=0, test_sprint5 20/20, curl 3×301 |
+| 9.23 (Doc) | `docs/chapters/18-sprint9-issue-list-ui-refactor.tex` (NEW) + `wujia-tea-doc.tex` include + `build-doc.sh` RC=0 + summary §4/§5/§9 |
 
 ### Policy update (2026-05-24)
 
@@ -305,7 +302,7 @@ unzip -o -j "WujiaTea/docs/Wujia_Internal ERP Master Plan.xlsm" "xl/media/image*
 ```
 
 ```python
-# Step 2: map image → cell qua openpyxl (NON-NEGOTIABLE)
+# Step 2: map image →a cell qua openpyxl (NON-NEGOTIABLE)
 from openpyxl import load_workbook
 wb = load_workbook('WujiaTea/docs/Wujia_Internal ERP Master Plan.xlsm', data_only=True)
 ws = wb['5. Issue List']
