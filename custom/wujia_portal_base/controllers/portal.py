@@ -77,6 +77,22 @@ def get_max_role_in_franchises(franchise_ids=None):
     return False
 
 
+def _float_to_hhmm(value):
+    """Convert float giờ 10.5 → '10:30'. Tolerates None/invalid → '—'.
+
+    Bản local trong wujia_portal_base — KHÔNG import từ wujia_portal_sale
+    (base không phụ thuộc sale, tránh reverse dependency)."""
+    try:
+        v = float(value or 0.0) % 24.0
+    except (TypeError, ValueError):
+        return '—'
+    h = int(v)
+    m = int(round((v - h) * 60))
+    if m == 60:
+        h, m = (h + 1) % 24, 0
+    return f'{h:02d}:{m:02d}'
+
+
 class WujiaPortal(CustomerPortal):
 
     # ==================================================================
@@ -87,6 +103,18 @@ class WujiaPortal(CustomerPortal):
         franchise_ids = get_active_franchise_ids_filter()
         accessible_ids = request.env.user._get_accessible_franchise_ids()
         values = self._dashboard_values(franchise_ids)
+
+        # ---- Mobile home hero (Figma BA Sprint 10): cửa hàng + role + khung giờ ----
+        active_fid = get_active_franchise_id()
+        Franchise = request.env['wujia.franchise.management'].sudo()
+        active_franchise = Franchise.browse(active_fid).exists() if active_fid else Franchise.browse()
+        membership = (
+            request.env['wujia.franchise.member'].sudo()
+                .find_active_membership(request.env.user.id, active_fid)
+            if active_fid else False
+        )
+        active_role = membership.role if membership else False
+
         values.update({
             'title': _('Trang chủ - Portal'),
             'lang': request.env.lang or 'en',
@@ -98,9 +126,52 @@ class WujiaPortal(CustomerPortal):
             'all_accessible_franchises': request.env['wujia.franchise.management']
                 .sudo().browse(list(accessible_ids)) if accessible_ids
                 else request.env['wujia.franchise.management'].browse(),
-            'active_franchise_id': get_active_franchise_id(),
+            'active_franchise_id': active_fid,
+            # mobile home (d-lg-none) — desktop không dùng các key này
+            'active_franchise': active_franchise,
+            'active_role': active_role,
+            'order_window': self._order_window_view(
+                active_franchise.area_id.id if active_franchise else None
+            ),
         })
         return request.render('wujia_portal_base.portal_home_page', values)
+
+    def _order_window_view(self, area_id=None):
+        """Trạng thái khung giờ đặt hàng cho hero mobile home.
+
+        1 call `_is_within_order_window` (đọc config param / window set nhỏ) —
+        scalar, KHÔNG ORM trong loop → OK cho 1500 user.
+
+        Return dict `{state, from_hhmm, to_hhmm, remaining_hhmm, progress_pct}`:
+          - state='always' : khung giờ tắt global → "Đặt hàng 24/7".
+          - state='open'   : trong giờ → xanh "Đang mở" + còn HH:MM + progress.
+          - state='closed' : ngoài giờ → đỏ "Đã đóng" + mở lại lúc from_hhmm.
+        """
+        Settings = request.env['res.config.settings'].sudo()
+        allowed, window = Settings._is_within_order_window(area_id=area_id)
+        if not window.get('enabled', True):
+            return {'state': 'always'}
+
+        f = float(window.get('from') or 0.0) % 24.0
+        t = float(window.get('to') or 0.0) % 24.0
+        now = Settings._user_now_hours()
+        span = (t - f) % 24.0 or 24.0  # độ dài khung (xử lý qua nửa đêm)
+
+        if allowed:
+            elapsed = (now - f) % 24.0
+            remaining = max(0.0, span - elapsed)
+            progress = max(0, min(100, round(elapsed / span * 100))) if span else 0
+            return {
+                'state': 'open',
+                'to_hhmm': _float_to_hhmm(t),
+                'remaining_hhmm': _float_to_hhmm(remaining),
+                'progress_pct': progress,
+            }
+        return {
+            'state': 'closed',
+            'from_hhmm': _float_to_hhmm(f),
+            'to_hhmm': _float_to_hhmm(t),
+        }
 
     def _dashboard_values(self, franchise_ids):
         """Pre-compute dashboard. 1 batched query / metric — KHÔNG ORM trong template loop."""

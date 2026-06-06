@@ -17,6 +17,17 @@
 >
 > ℹ️ **Kết nối Figma↔code đã chạy** (xem §10). **BA chưa hoàn thiện Figma** → hiện **theo code**
 > (chuẩn) + xlsm spec; **khi BA xong Figma sẽ follow theo Figma của BA**. Doc này phản ánh code hiện tại.
+>
+> 📄 **BẢN GỬI BA (handoff):** `docs/wujia-figma-brief.tex` → build PDF qua `scripts/build-brief.sh`
+> = `docs/wujia-figma-brief.pdf` (10 trang, self-contained, có swatch màu + **Phụ lục A: bảng lệch
+> code vs BA spec sheet "2. FE - Portal"**). Đây là file đưa BA để nhờ AI khác dựng Figma. Doc `.md`
+> này là bản nội bộ chi tiết hơn; brief PDF là bản trình bày cho BA.
+>
+> **BA spec token (sheet "2. FE - Portal" R52-143) — giá trị BA đề xuất, để đối chiếu khi reconcile:**
+> bg-page `#F6F8FB` · text-primary `#272A30` · text-secondary `#69707A` · border `#E5EAF1` ·
+> card-shadow `0 8px 24px rgba(0,0,0,.08)` · table-divider `#E5EAF1` · zebra `#F8FAFC` ·
+> input-border `#D9DEE7` · success `#24B269` · warning `#F29A1F` · danger `#EC3845` · info `#22A9DE`.
+> Chi tiết drift + khuyến nghị → Phụ lục A của brief PDF.
 
 ---
 

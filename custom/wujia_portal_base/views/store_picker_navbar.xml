@@ -33,9 +33,11 @@
         <!-- UI-04 mobile sub-strip — full-width below navbar in app-content area.
              Hidden ≥768px via @media in store_picker.css (not Bootstrap utility,
              để escape Vuexy floating-nav wrapper). Inject inside app_layout
-             (not layout_top_navbar) để KHÔNG rơi vào navbar floating box. -->
+             (not layout_top_navbar) để KHÔNG rơi vào navbar floating box.
+             Sprint 10: ẩn trên Home (/portal) vì hero mobile đã show cửa hàng +
+             role rồi → tránh trùng. Trang khác vẫn giữ strip làm chỉ báo store. -->
         <xpath expr="//div[hasclass('header-navbar-shadow')]" position="after">
-            <div t-if="_wujia_active_franchise" class="wujia-store-mobile-strip">
+            <div t-if="_wujia_active_franchise and request.httprequest.path != '/portal'" class="wujia-store-mobile-strip">
                 <span class="wujia-store-mobile-strip-label">Cửa hàng hiện tại</span>
                 <strong class="wujia-store-mobile-strip-name"
                         t-out="_wujia_active_franchise.display_name"/>

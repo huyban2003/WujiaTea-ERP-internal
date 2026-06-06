@@ -174,6 +174,26 @@
     --wujia-bp-md: 768px;
     --wujia-bp-lg: 992px;
     --wujia-bp-xl: 1200px;
+
+    /* ---------- Mobile Home (Figma BA Sprint 10, 2026-06-06) ----------
+       Frame 2474:2 "ngo_gia_mobile_dashboard_header_blue_variant 1" (bản copy
+       team Pro aoeiDYlg6vlhJZg2w6Q7o5). Token MỚI, prefix riêng --wujia-mhome-*
+       → KHÔNG đụng token cũ ⇒ zero blast radius lên desktop / page khác.
+       Theo FIGMA: active ĐỎ (≠ cyan), cyan Figma #28A9DF. Role badge green
+       reuse --wujia-success (#24B269 ≈ Figma #16A34A). */
+    --wujia-mhome-hero-grad:       linear-gradient(135deg, #0B2430 0%, #1B5C75 100%);
+    --wujia-mhome-hero-label:      #C7E6EF; /* nhãn uppercase TỔNG QUAN / Vai trò */
+    --wujia-mhome-hero-area:       #D9F3FA; /* dòng khu vực */
+    --wujia-mhome-kpi-label:       #BEE7F1; /* nhãn KPI nhúng */
+    --wujia-mhome-kpi-tile-bg:     rgba(0, 0, 0, 0.13);
+    --wujia-mhome-kpi-tile-border: rgba(255, 255, 255, 0.13);
+    --wujia-mhome-action-grad:     linear-gradient(135deg, #1895C7 0%, #28A9DF 100%);
+    --wujia-mhome-action-border:   #C8EEF8;
+    --wujia-mhome-progress-track:  #E5E7EB;
+    --wujia-mhome-progress-fill:   #F59E0B; /* amber Figma */
+    --wujia-mhome-nav-active:      #EF4444; /* active = ĐỎ (theo Figma, ≠ cyan) */
+    --wujia-mhome-nav-inactive:    #8A939E;
+    --wujia-mhome-card-border:     #E9EEF2; /* viền card khung giờ / noti row */
 }
 
 /* ============================================================================

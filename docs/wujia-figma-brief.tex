@@ -1,0 +1,426 @@
+% ===========================================================================
+% Wujia Portal — Design Brief for Figma
+% Tài liệu HANDOFF cho BA gửi cho AI/designer khác để DỰNG FIGMA.
+% Standalone — KHÔNG include vào wujia-tea-doc.tex (BA không cần lịch sử sprint).
+% Compile:  bash scripts/build-brief.sh   (lualatex/xelatex, fontspec)
+% Nguồn số liệu: _variables.css + _components.css (code THẬT) + sheet "2. FE - Portal".
+% ===========================================================================
+\documentclass[11pt,a4paper]{article}
+
+% --- Unicode + Vietnamese (lualatex/xelatex + fontspec) ---
+\usepackage{fontspec}
+\setmainfont{Lato}
+\setsansfont{Lato}
+\setmonofont{DejaVu Sans Mono}[Scale=0.9]
+
+% --- Layout ---
+\usepackage[margin=2.2cm]{geometry}
+\usepackage{parskip}
+\setlength{\parindent}{0pt}
+
+% --- Tables / lists ---
+\usepackage{booktabs}
+\usepackage{longtable}
+\usepackage{array}
+\usepackage{tabularx}
+\usepackage{ltablex}
+\keepXColumns
+\usepackage{enumitem}
+\setlist{nosep,leftmargin=1.4em}
+
+% --- Color + swatch helper ---
+\usepackage{xcolor}
+\usepackage{graphicx}
+% \sw{22A9DE} -> ô màu nhỏ (hex KHÔNG có dấu #)
+\newcommand{\sw}[1]{\fcolorbox{black!25}{white}{\textcolor[HTML]{#1}{\rule{1.4em}{1.0ex}}}}
+% \hx{22A9DE} -> ô màu + mã #22A9DE
+\newcommand{\hx}[1]{\sw{#1}~\texttt{\##1}}
+
+% --- Code listings ---
+\usepackage{listings}
+\definecolor{codebg}{RGB}{245,245,250}
+\lstset{
+    basicstyle=\ttfamily\small,
+    backgroundcolor=\color{codebg},
+    breaklines=true,
+    columns=fullflexible,
+    frame=single,
+    framesep=4pt,
+    rulecolor=\color{black!15},
+    xleftmargin=4pt,
+    xrightmargin=4pt,
+}
+
+% --- Section styling ---
+\usepackage{titlesec}
+\definecolor{wjprimary}{HTML}{22A9DE}
+\titleformat{\section}{\Large\bfseries\color{wjprimary}}{\thesection.}{0.5em}{}
+\titleformat{\subsection}{\large\bfseries}{\thesubsection}{0.5em}{}
+
+\usepackage[hidelinks]{hyperref}
+
+\newcolumntype{Y}{>{\raggedright\arraybackslash}X}
+
+\begin{document}
+
+% ===================== TITLE =====================
+\begin{titlepage}
+\centering
+\vspace*{3cm}
+{\Huge\bfseries\color{wjprimary} Wujia Portal\par}
+\vspace{0.6cm}
+{\LARGE Design Brief for Figma\par}
+\vspace{0.4cm}
+{\large Tài liệu chuẩn giao diện — để dựng Figma cho khớp portal\par}
+\vspace{2cm}
+\begin{tabular}{rl}
+\textbf{Dự án:} & Wujia Internal ERP — Portal nhượng quyền (Odoo 19)\\[4pt]
+\textbf{Đối tượng:} & Designer / AI dựng Figma\\[4pt]
+\textbf{Nguồn số liệu:} & Code production (\texttt{\_variables.css}, \texttt{\_components.css})\\[4pt]
+& + BA spec sheet ``2. FE - Portal''\\[4pt]
+\textbf{Quy ước:} & Giá trị in đậm = \emph{code thật đang chạy}; cột ``BA spec'' = đề xuất BA.\\[4pt]
+\textbf{Ngày:} & 2026-06-04\\
+\end{tabular}
+\vfill
+{\small Mọi giá trị hex/px trong tài liệu này được trích trực tiếp từ code production.
+Khi code lệch BA spec, xem \textbf{Phụ lục A}.\par}
+\end{titlepage}
+
+\tableofcontents
+\newpage
+
+% ===================== 1. HOW TO USE =====================
+\section{Mục đích \& cách dùng}
+
+Tài liệu này mô tả \textbf{design system đang chạy thật} của Portal Wujia (đã code xong 18 issue UI).
+Mục tiêu: 1 designer / AI \textbf{không có quyền truy cập source} vẫn dựng được Figma khớp 100\% với portal.
+
+\textbf{Quy ước nguồn (quan trọng):}
+\begin{itemize}
+\item \textbf{Giá trị chính trong tài liệu = CODE THẬT} đang chạy production (hex/px chính xác).
+\item Cột \textbf{``BA spec''} = giá trị BA đề xuất trong sheet ``2. FE - Portal''. Khi lệch code, xem \textbf{Phụ lục A}.
+\item Khi dựng Figma, \textbf{ưu tiên giá trị code} (cột đậm). Chỗ nào BA muốn đổi sẽ chốt riêng ở Phụ lục A.
+\end{itemize}
+
+\textbf{Cách dựng Figma (đề nghị):}
+\begin{enumerate}
+\item Tạo \textbf{Figma Variables collection} tên \texttt{wujia}; mỗi màu/size = 1 variable, đặt tên bỏ tiền tố
+      \texttt{-{}-wujia-} và đổi \texttt{-} thành \texttt{/} (vd \texttt{-{}-wujia-primary} $\rightarrow$ \texttt{wujia/primary}).
+      Đặt trùng tên giúp sync Figma$\leftrightarrow$code 1-1 về sau.
+\item Tạo \textbf{Text styles} theo §4.
+\item Dựng mỗi \textbf{component} (§5) thành 1 Figma component đúng anatomy + đặt tên \texttt{wujia/<component>}.
+\item Dựng \textbf{từng màn} (§7) bằng cách lắp các component, theo block đã liệt kê.
+\item \textbf{Mobile}: theo §8 (bottom-nav) + §3 (1 cột, padding 20--24).
+\end{enumerate}
+
+\textbf{Font:} Inter (self-host). Nếu Figma chưa có Inter, cài từ Google Fonts.
+\textbf{Đơn vị:} px. \textbf{Grid:} layout dựa Bootstrap 12-col + 4 breakpoint chuẩn (§3).
+
+% ===================== 2. COLOR =====================
+\section{Bảng màu (Color)}
+
+Toàn bộ màu là CSS variable; template không hardcode hex. Cột ``Code thật'' là giá trị production hiện tại.
+
+\subsection{Brand / Primary}
+\begin{tabularx}{\textwidth}{@{}l l l Y@{}}
+\toprule
+\textbf{Token} & \textbf{Code thật} & \textbf{BA spec} & \textbf{Vai trò}\\
+\midrule
+\endhead
+\texttt{primary}        & \hx{22A9DE} & \texttt{\#22A9DE} & Màu thương hiệu (cyan): button primary, link, icon KPI, bullet, active\\
+\texttt{primary-dark}   & \hx{1598CF} & \texttt{\#1598CF} & Hover của primary\\
+\texttt{primary-light}  & \hx{E0F7FF} & \texttt{\#E0F7FF} & Nền nhạt\\
+\texttt{primary-soft}   & \hx{EAF7FD} & \texttt{\#EAF7FD} & Nền active menu, nền badge info\\
+\texttt{active-text}    & \hx{24A8E0} & \texttt{\#24A8E0} & Icon + text menu đang active\\
+\bottomrule
+\end{tabularx}
+
+\noindent\emph{Lưu ý:} BA spec (UI-11/UI-12) + Figma WIP từng ghi cyan \texttt{\#28A9DF}; code dùng \texttt{\#22A9DE}
+(lệch ~4 ký tự, coi là typo). \textbf{BA chốt 1 giá trị} — xem Phụ lục A.
+
+\subsection{Surface / Layout}
+\begin{tabularx}{\textwidth}{@{}l l l Y@{}}
+\toprule
+\textbf{Token} & \textbf{Code thật} & \textbf{BA spec} & \textbf{Vai trò}\\
+\midrule
+\endhead
+\texttt{bg-page}      & \hx{E8ECEF} & \texttt{\#F6F8FB} & Nền trang (content area). \textbf{Lệch} — xem Phụ lục A\\
+\texttt{bg-sidebar}   & \hx{FFFFFF} & \texttt{\#FFFFFF} & Nền sidebar (luôn trắng)\\
+\texttt{bg-card}      & \hx{FFFFFF} & \texttt{\#FFFFFF} & Nền card / block nội dung\\
+\texttt{border}       & \hx{E5E7EB} & \texttt{\#E5EAF1} & Viền card / divider\\
+\texttt{border-soft}  & \hx{EEF1F5} & \texttt{--} & Viền nhạt hơn\\
+\texttt{table-header-line} & \hx{9AA0A6} & \texttt{\#9AA0A6} & Vạch dưới header bảng\\
+\bottomrule
+\end{tabularx}
+
+\subsection{Text}
+\begin{tabularx}{\textwidth}{@{}l l l Y@{}}
+\toprule
+\textbf{Token} & \textbf{Code thật} & \textbf{BA spec} & \textbf{Vai trò}\\
+\midrule
+\endhead
+\texttt{text-primary}   & \hx{111827} & \texttt{\#272A30} & Tiêu đề, số liệu, text đậm. \textbf{Lệch} — Phụ lục A\\
+\texttt{text-secondary} & \hx{374151} & \texttt{\#69707A} & Body text. \textbf{Lệch} — Phụ lục A\\
+\texttt{text-subtitle}  & \hx{6B7280} & \texttt{\#6B7280} & Subtitle / mô tả / ngày tháng\\
+\texttt{text-muted}     & \hx{8A9099} & \texttt{\#8A9099} & Placeholder, help text, badge muted\\
+\bottomrule
+\end{tabularx}
+
+\subsection{State / Semantic}
+\begin{tabularx}{\textwidth}{@{}l l l Y@{}}
+\toprule
+\textbf{Token} & \textbf{Code thật} & \textbf{BA spec} & \textbf{Vai trò}\\
+\midrule
+\endhead
+\texttt{success}     & \hx{24B269} & \texttt{\#24B269} & Done / Active / Delivered (text+icon)\\
+\texttt{success-bg}  & \hx{E1F8EC} & \texttt{\#E1F8EC} & Nền badge success\\
+\texttt{warning}     & \hx{F29A1F} & \texttt{\#F29A1F} & Waiting / Pending / Draft\\
+\texttt{warning-bg}  & \hx{FFF3E0} & \texttt{\#FFF3E0} & Nền badge warning\\
+\texttt{danger}      & \hx{EC3845} & \texttt{\#EC3845} & Issue / Cancelled / Rejected; badge đỏ header\\
+\texttt{danger-bg}   & \hx{FFE8EB} & \texttt{\#FFE8EB} & Nền badge danger\\
+\texttt{info}        & \hx{1FC160} & \texttt{\#1FC160} & Thanh welcome/info (text)\\
+\texttt{info-bg}     & \hx{D6F4E0} & \texttt{\#D6F4E0} & Nền info\\
+\texttt{muted-bg}    & \hx{F1F3F6} & \texttt{\#F0F2F5} & Nền badge muted / closed\\
+\bottomrule
+\end{tabularx}
+
+% ===================== 3. LAYOUT =====================
+\section{Layout \& Spacing}
+
+\begin{tabularx}{\textwidth}{@{}l l l Y@{}}
+\toprule
+\textbf{Thành phần} & \textbf{Code thật} & \textbf{BA spec} & \textbf{Ghi chú}\\
+\midrule
+\endhead
+Sidebar width (desktop)   & \texttt{300px}  & \texttt{280--320px} & Sidebar trái cố định\\
+Sidebar logo height       & \texttt{200px}  & \texttt{--}         & Vùng logo trên cùng sidebar\\
+Header height (navbar)     & \texttt{72px}   & \texttt{72--78px}   & Navbar xanh (Vuexy floating-nav)\\
+Card radius               & \texttt{16px}   & \texttt{16--20px}   & Bo góc mọi card\\
+Card padding              & \texttt{24px}   & \texttt{22--28px}   & Padding trong card\\
+Card shadow               & \texttt{0 2px 6px rgba(15,23,42,.04)} & \texttt{0 8px 24px rgba(0,0,0,.08)} & Shadow nhẹ. \textbf{Lệch} — Phụ lục A\\
+Section gap               & \texttt{28px}   & \texttt{24--32px}   & Khoảng cách giữa các block\\
+Page content top          & \texttt{24px}   & \texttt{24px}       & navbar $\rightarrow$ page title (UI-16)\\
+Page title gap            & \texttt{14px}   & \texttt{12--16px}   & title $\rightarrow$ KPI row (UI-16)\\
+KPI $\rightarrow$ content gap & \texttt{22px} & \texttt{20--24px}  & KPI row $\rightarrow$ content card (UI-16)\\
+Mobile padding            & \texttt{(rem fluid)} & \texttt{20--24px} & Content mobile, không sát mép\\
+Mobile layout             & \texttt{1 cột}  & \texttt{1 column}   & Không dùng table nhiều cột trên mobile\\
+\bottomrule
+\end{tabularx}
+
+\textbf{Breakpoints chuẩn (Bootstrap-aligned):} \texttt{sm 576} · \texttt{md 768} · \texttt{lg 992} · \texttt{xl 1200} (px).
+
+\textbf{Fluid font scaling:} \texttt{html} font-size đổi theo viewport ($<$768: 14px; $\ge$768: 15px; $\ge$992: 16px)
+nên mọi giá trị \texttt{rem} tự co giãn. Trong Figma chỉ cần dựng 2 khung: \textbf{Desktop} ($\ge$992px) và
+\textbf{Mobile} ($<$768px).
+
+% ===================== 4. TYPOGRAPHY =====================
+\section{Typography}
+
+Font: \textbf{Inter}, fallback \texttt{'Roboto', Arial, sans-serif}.
+
+\begin{tabularx}{\textwidth}{@{}l l l Y@{}}
+\toprule
+\textbf{Style} & \textbf{Code thật} & \textbf{BA spec} & \textbf{Dùng cho}\\
+\midrule
+\endhead
+Page title (desktop) & \texttt{24px / 700}, \hx{111827} & \texttt{28--32px / 700} & Tên trang. \textbf{Lệch size} — Phụ lục A\\
+H1                   & \texttt{32px / 700} & \texttt{28--32px}      & Heading lớn\\
+H2                   & \texttt{24px / 600} & \texttt{--}           & Heading phụ\\
+Card title           & \texttt{20px / 600} & \texttt{18--22px / 700} & Tiêu đề block/card\\
+KPI number           & \texttt{28px / 700} & \texttt{28--34px / 700} & Số chính trên KPI card\\
+Body (desktop)       & \texttt{15px / 400}, \hx{374151} & \texttt{14--16px / 400} & Nội dung chính\\
+Subtitle / date      & \texttt{14px / 400}, \hx{6B7280} & \texttt{14--15px / 400} & Mô tả, ngày tháng\\
+Table header         & \texttt{14--15px / 700}, \sw{22A9DE}\,cyan & \texttt{14--15px / 700} & Header bảng (màu primary)\\
+Table cell           & \texttt{14--15px / 400} & \texttt{14--15px} & Dòng dữ liệu; số tiền weight 600\\
+Badge text           & \texttt{12px / 600} & \texttt{12--14px / 700} & Status badge\\
+Placeholder          & \texttt{14px / 400}, \hx{8A9099} & \texttt{14px} & Input / search\\
+\bottomrule
+\end{tabularx}
+
+% ===================== 5. COMPONENTS =====================
+\section{Components}
+
+Mỗi component = 1 class CSS tái dùng. Dựng Figma component đúng anatomy dưới đây.
+
+\subsection{Button — \texttt{.wujia-btn-primary} / \texttt{.wujia-btn-secondary}}
+\begin{itemize}
+\item \textbf{Primary:} nền \hx{22A9DE}, chữ trắng, cao \textbf{42px}, radius \textbf{8px}, hover $\rightarrow$ \hx{1598CF}.
+\item \textbf{Secondary:} nền trắng, viền \texttt{1px} \hx{E5E7EB}, chữ \hx{111827}, cao \textbf{38px}.
+\item \textbf{Danger (BA):} nền trắng, viền + chữ \hx{EC3845} (Reject / Cancel request).
+\item Icon trong button: flex-center, gap \texttt{6px}. Variant: \texttt{sm 32px} / \texttt{lg 48px}.
+\end{itemize}
+
+\subsection{Status badge — \texttt{.wujia-badge-*}}
+Pill radius \textbf{999px}, padding \texttt{4px 10px}, font \texttt{12px / 600}, nền soft + chữ đậm theo state (xem §6).
+
+\subsection{KPI card — \texttt{.wujia-kpi-card}}
+Layout ngang: \textbf{icon vuông trái $\rightarrow$ vạch ngăn dọc 1px $\rightarrow$ content $\rightarrow$ chevron phải (optional)}.
+\begin{itemize}
+\item Card: nền trắng, radius \texttt{16px}, shadow nhẹ, \textbf{min-height 100px}, padding \texttt{16px}, gap \texttt{12px}. Hover nhấc \texttt{-2px}.
+\item Icon box: \textbf{56$\times$56}, radius \texttt{12px}, nền \hx{22A9DE}, icon trắng \texttt{23px} (đổi màu qua \texttt{-icon-\{success,warning,danger,info\}}).
+\item Separator: \texttt{1px $\times$ 48px}, màu \hx{D1D5DB}.
+\item Content: label \texttt{14px} (secondary) + value \texttt{28px / 700} (primary) + desc \texttt{12px}.
+\item Chevron: neo mép phải, \texttt{18px}.
+\item \textbf{Mobile $<$992px:} icon \textbf{52$\times$52}, min-height \texttt{92px}, padding \texttt{14px}, \textbf{1 card/dòng full-width}.
+\end{itemize}
+
+\subsection{Content card ``Xem tất cả'' — \texttt{.wujia-content-card}}
+\begin{itemize}
+\item Card: nền trắng, radius \texttt{16px}, shadow, padding \texttt{22px}.
+\item Header: \textbf{icon tròn cyan 40px} + \textbf{title bold ~17px} + link \textbf{``Xem tất cả''} cyan neo phải.
+\item Row: lưới \texttt{bullet | content | date | badge} — bullet cyan \texttt{8px} + nội dung + date \hx{6B7280} + badge; mỗi row có border-bottom (đọc như bảng). Mobile $<$576px ẩn cột date.
+\item Variant \texttt{.wujia-content-card-table}: edge-to-edge cho trang listing đầy đủ.
+\end{itemize}
+
+\subsection{Table container}
+Card trắng radius \texttt{16px}, padding \texttt{20--24px}. Header: text \hx{22A9DE} bold + vạch dưới \hx{9AA0A6}.
+Row height \texttt{48--56px}, divider \texttt{1px} \hx{E5EAF1}. Zebra (option) \hx{F8FAFC}. Số tiền weight 600.
+
+\subsection{Empty state — \texttt{.wujia-empty-state}}
+Căn giữa, padding \texttt{48px 24px}, icon (feather) \texttt{~36--40px} mờ + text \hx{374151}. Dùng khi list rỗng — \textbf{không} để bảng chỉ có header.
+
+\subsection{Header right actions (top bar)}
+Thứ tự bên phải header xanh: \textbf{Language $\rightarrow$ Cart $\rightarrow$ Notification (bell) $\rightarrow$ Account (tên user + avatar)}.
+\begin{itemize}
+\item Icon button: \texttt{20px}, padding \texttt{8px}, màu trắng (trên nền cyan).
+\item Badge đếm (cart/bell): tròn đỏ \hx{EC3845}, chữ trắng, \texttt{18px}, góc trên-phải icon; chỉ hiện khi count $>$ 0.
+\end{itemize}
+
+\subsection{Current Store — pill (desktop) \& sub-strip (mobile)}
+\begin{itemize}
+\item \textbf{Desktop (UI-03):} pill 2 dòng sát trái navbar — nền frosted trắng \texttt{rgba(255,255,255,.18)}, chữ trắng, label uppercase \texttt{11px} mờ, radius \texttt{10px}, padding \texttt{6px 16px}. Nội dung: \texttt{[H000]} + tên cửa hàng + role badge.
+\item \textbf{Mobile (UI-04):} dải dưới navbar — nền trắng, label cyan uppercase, name đậm \hx{111827}, role badge xuống dòng, padding \texttt{12px 16px}, border-bottom \texttt{1px} \hx{E5E7EB}.
+\end{itemize}
+
+\subsection{Input / Search field}
+Cao \texttt{38--42px}, radius \texttt{6--8px}, viền \hx{D9DEE7} (BA), placeholder \hx{8A9099}.
+
+\subsection{Alert bar}
+Cao \texttt{44--52px}, radius \texttt{6--8px}. Thanh welcome / store-selected: nền info \hx{D6F4E0}, text \hx{1FC160}.
+
+% ===================== 6. BADGE MAPPING =====================
+\section{Status badge — bảng trạng thái chuẩn}
+
+\begin{tabularx}{\textwidth}{@{}l l l Y@{}}
+\toprule
+\textbf{Trạng thái} & \textbf{Màu chữ} & \textbf{Màu nền} & \textbf{Dùng cho}\\
+\midrule
+\endhead
+New / Upcoming / Info        & \hx{22A9DE} & \hx{E0F7FF} & Thông báo mới, dữ liệu mới\\
+Done / Delivered / Active     & \hx{24B269} & \hx{E1F8EC} & Hoàn tất, đang hoạt động\\
+Waiting / Pending / Draft     & \hx{F29A1F} & \hx{FFF3E0} & Chờ xác nhận, đang xử lý\\
+Issue / Cancelled / Rejected  & \hx{EC3845} & \hx{FFE8EB} & Lỗi, hủy, từ chối\\
+Closed / Read / Inactive      & \hx{69707A} & \hx{F0F2F5} & Đã đọc, đã đóng, không hoạt động\\
+\bottomrule
+\end{tabularx}
+
+% ===================== 7. SCREEN INVENTORY =====================
+\section{Danh sách màn hình (Screen inventory)}
+
+Portal gồm các nhóm menu dưới đây (theo BA sheet ``2. FE - Portal''). Cột Phase: 1.0 = làm trước.
+
+\begin{tabularx}{\textwidth}{@{}l l c Y@{}}
+\toprule
+\textbf{Nhóm} & \textbf{Màn hình} & \textbf{Phase} & \textbf{Block / nội dung chính}\\
+\midrule
+\endhead
+Tổng quan       & Home / Dashboard       & 1.0 & SP mua nhiều, 5 thông báo mới, đơn hàng gần đây, lịch giao sắp tới, lịch thi\\
+Sản phẩm \& đặt hàng & Danh sách sản phẩm  & 1.0 & Lưới sản phẩm + lọc theo nhóm (nguyên liệu/bao bì/POSM), giá, đóng gói\\
+                & Giỏ hàng / đặt hàng    & 1.0 & Cart, số lượng, tổng tiền, thông tin giao, submit\\
+                & Lịch sử đặt hàng       & 1.0 & Bảng đơn + trạng thái (Nháp/Đã gửi/Xác nhận/Đang giao/Hoàn tất/Hủy)\\
+Giao hàng       & Theo dõi giao hàng     & 1.0 & Chuyến giao, ngày dự kiến, trạng thái\\
+Đổi trả         & Tạo yêu cầu đổi trả    & 1.0 & Form: đơn gốc, lý do, SP, số lượng, ảnh đính kèm\\
+                & Lịch sử đổi trả        & 1.0 & Bảng request + trạng thái\\
+Đào tạo / thi   & Lịch thi / Đăng ký / Kết quả & 1.0 & Lịch kỳ thi, đăng ký nhân viên, kết quả/chứng nhận\\
+Kiến thức       & Thư viện kiến thức     & 1.0 & Blog/tài liệu + phân loại (Vận hành/Pha chế/SP/Marketing/Quy định)\\
+Thông báo       & Thông báo từ HQ + lịch sử & 1.0 & Danh sách + chi tiết + đánh dấu đã đọc + filter loại\\
+Hồ sơ cửa hàng  & Thông tin nhượng quyền & 1.0 & Địa chỉ, người đại diện, khu vực, trạng thái (readonly)\\
+                & Yêu cầu cập nhật thông tin & 2.0 & Tạo request đổi info $\rightarrow$ HQ duyệt\\
+Hỗ trợ          & Gửi / lịch sử ticket   & 1.0 & Ticket lỗi đặt hàng/giao hàng/POS + phản hồi HQ\\
+Báo cáo         & Báo cáo đặt hàng       & 1.0 & Tổng hợp theo tháng, SP mua nhiều, trạng thái đơn\\
+Cài đặt         & Hồ sơ cá nhân / đổi MK & 1.0 & Thông tin user, mật khẩu, avatar\\
+                & Chọn cửa hàng thao tác & 1.0 & Pop-up chọn branch khi 1 user nhiều cửa hàng\\
+Nhân sự         & DS nhân viên / mời user & 2.0--3.0 & Quản lý nhân viên cửa hàng (Phase sau)\\
+Công nợ         & Công nợ / lịch sử TT   & 2.0 & Tổng tiền, công nợ, thanh toán (Phase sau)\\
+\bottomrule
+\end{tabularx}
+
+% ===================== 8. MOBILE BOTTOM NAV =====================
+\section{Mobile — Bottom navigation}
+
+Trên mobile, thay menu hamburger bằng \textbf{thanh điều hướng cố định ở đáy màn hình} (bottom tab bar):
+người dùng \emph{ấn chọn} tab thay vì mở danh sách.
+
+\textbf{5 tab} (theo mockup BA + sheet FE-Portal):
+\begin{enumerate}
+\item \textbf{Trang chủ} (icon home) $\rightarrow$ Home/Dashboard
+\item \textbf{Đặt hàng} (icon cart) $\rightarrow$ Sản phẩm \& giỏ hàng
+\item \textbf{Giao hàng} (icon truck) $\rightarrow$ Theo dõi giao hàng — \emph{tab giữa, có thể nhấn mạnh}
+\item \textbf{Thông báo} (icon bell) $\rightarrow$ Thông báo (có badge số chưa đọc)
+\item \textbf{Thêm} (icon grid/menu) $\rightarrow$ mở drawer chứa: Đổi trả, Đào tạo/Thi, Kiến thức, Hỗ trợ, Hồ sơ cửa hàng, Cài đặt
+\end{enumerate}
+
+\textbf{Spec hình thức (đề xuất, BA tinh chỉnh trên Figma):}
+\begin{itemize}
+\item Thanh: nền trắng, cao \texttt{56--64px}, fixed bottom, shadow trên nhẹ, border-top \texttt{1px} \hx{E5E7EB}.
+\item Mỗi tab: icon (feather, \texttt{22--24px}) trên + label \texttt{11--12px} dưới, căn giữa.
+\item Tab \textbf{active}: icon + label màu \hx{22A9DE}; tab thường: \hx{8A9099}.
+\item Badge ``Thông báo'': tròn đỏ \hx{EC3845}, chữ trắng, góc trên-phải icon.
+\item Chỉ hiện ở \texttt{$<$992px}; \texttt{$\ge$992px} dùng sidebar trái như desktop.
+\end{itemize}
+
+\emph{Ghi chú: layout chính xác (số tab, tab nào nhấn mạnh, có nút tròn nổi giữa hay không) — theo Figma BA khi hoàn thiện.}
+
+% ===================== 9. SEARCH/FILTER =====================
+\section{Component tìm kiếm / lọc (Search \& Filter)}
+
+Chuẩn hóa 1 component lọc dùng chung cho mọi màn listing (đặt hàng, lịch sử, giao hàng, đổi trả, kiến thức, báo cáo...).
+
+\begin{itemize}
+\item \textbf{Container:} card trắng, radius \texttt{16px}, padding \texttt{20--24px}, đặt trên đầu vùng listing (không sát nền xám).
+\item \textbf{Bố cục:} 1 hàng ngang trên desktop (dropdown trường + ô nhập + nút Tìm/Reset); xuống dọc 1 cột trên mobile.
+\item \textbf{Trường lọc:} dropdown chọn field + ô nhập giá trị (tên SP, mã đơn, khoảng ngày...) tùy màn.
+\item \textbf{Input:} cao \texttt{38--42px}, radius \texttt{6--8px}, viền \hx{D9DEE7}, placeholder \hx{8A9099}.
+\item \textbf{Nút:} ``Tìm'' = primary (\hx{22A9DE}); ``Reset/Xóa lọc'' = secondary (trắng, viền xám).
+\item \textbf{Chip filter đang áp} (option): pill nhỏ + nút x để bỏ từng điều kiện.
+\end{itemize}
+
+% ===================== APPENDIX A: DRIFT =====================
+\section*{Phụ lục A — Chỗ code lệch BA spec (BA quyết)}
+\addcontentsline{toc}{section}{Phụ lục A — Drift code vs BA spec}
+
+Các giá trị dưới đây code production \textbf{đang khác} BA spec trong sheet ``2. FE - Portal''.
+\textbf{BA chọn giá trị cuối} cho từng dòng; nếu chọn ``BA spec'' thì code sẽ đổi token tương ứng (1 lần, có smoke test).
+
+\begin{tabularx}{\textwidth}{@{}l l l Y@{}}
+\toprule
+\textbf{Token} & \textbf{Code thật} & \textbf{BA spec} & \textbf{Ghi chú / khuyến nghị}\\
+\midrule
+\endhead
+Nền trang (bg-page)   & \hx{E8ECEF} & \hx{F6F8FB} & User chủ động chọn nền đậm hơn (2026-05-25) để card trắng nổi rõ. BA quyết giữ đậm hay theo spec sáng.\\
+Text primary          & \hx{111827} & \hx{272A30} & Code dùng Tailwind gray-900; BA spec \texttt{\#272A30}. Cả 2 đều ``đen mềm''. Đề nghị thống nhất 1.\\
+Text secondary        & \hx{374151} & \hx{69707A} & Body text — code đậm hơn BA. BA quyết.\\
+Text muted/subtitle   & \hx{8A9099} & \hx{8A9099} & Khớp; nhưng BA tách thêm \texttt{Text Muted \#8A9099} vs \texttt{Secondary \#69707A} — xem lại nếu đổi dòng trên.\\
+Border / divider      & \hx{E5E7EB} & \hx{E5EAF1} & Lệch rất nhẹ. Đề nghị theo BA \texttt{\#E5EAF1} cho khớp.\\
+Card shadow           & \texttt{0 2px 6px /.04} & \texttt{0 8px 24px /.08} & BA muốn shadow nổi hơn. BA quyết độ nổi.\\
+Cyan primary          & \hx{22A9DE} & \hx{28A9DF} & BA spec + Figma WIP ghi \texttt{\#28A9DF}; code \texttt{\#22A9DE}. Lệch ~4 ký tự. \textbf{BA chốt 1 giá trị}.\\
+Page title size       & \texttt{24px} & \texttt{28--32px} & UI-08 (cũ) chốt 24px; bảng token BA (mới) muốn 28--32. BA quyết.\\
+Muted bg              & \hx{F1F3F6} & \hx{F0F2F5} & Lệch rất nhẹ.\\
+KPI icon box          & \texttt{56$\times$56} & \texttt{72$\times$72} & Mâu thuẫn nội bộ BA: UI-11 ghi 72; UI-14 (mới hơn) ``giảm icon box'' $\rightarrow$ code 56. Theo UI-14.\\
+\bottomrule
+\end{tabularx}
+
+\textbf{Khuyến nghị cho BA khi dựng Figma:}
+\begin{enumerate}
+\item Tạo \textbf{Variables / Color styles + Text styles} trong Figma (đặt tên trùng token \texttt{wujia/*}) — hiện Figma WIP đang hardcode hex, nội bộ chưa nhất quán (2 sắc text-chính, 3 sắc đỏ, 2 cyan-soft).
+\item Chốt dứt điểm \textbf{cyan} (\texttt{\#22A9DE} hay \texttt{\#28A9DF}) và \textbf{1 sắc đỏ} — đây là 2 màu xuất hiện nhiều nhất.
+\item Với mỗi dòng Phụ lục A, ghi rõ giá trị cuối $\rightarrow$ dev cập nhật \texttt{\_variables.css} 1 lần.
+\end{enumerate}
+
+\vspace{1cm}
+\hrule
+\vspace{0.3cm}
+{\small \emph{Tài liệu sinh từ code production Wujia Portal (\texttt{\_variables.css} + \texttt{\_components.css})
+và BA spec ``2. FE - Portal''. Bản nội bộ chi tiết: \texttt{docs/wujia-design-system.md}.}}
+
+\end{document}

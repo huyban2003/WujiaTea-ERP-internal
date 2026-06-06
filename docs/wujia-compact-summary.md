@@ -2,7 +2,7 @@
 
 **Mục đích:** context file inject vào mọi session WujiaTea. Mỗi §section search-able qua `/recall`. Detail history giữ trong `wujia-tea-doc.tex` + git log.
 
-**Cập nhật:** 2026-06-04 (**Sprint 9 CHỐT SỔ — 9.24 DONE**: xác minh git — toàn bộ commit 9.1–9.23 đã push `origin/main` (sync 0/0 ahead-behind, chapter 18 `2206d55` trên origin) ⇒ 9.24 = ✅, Sprint 9 100% DONE + PUSHED. Code push lẻ từng sub-sprint qua nhiều session (policy 2026-05-24). End-sprint lần này = reconcile §5/§9 + commit closeout docs ngoài Sprint 9: Figma MCP setup + design-system + `docs/prompts/` + BA xlsm refresh. Detail §5+§9.) | 2026-06-03 (**Sprint 9 ĐÓNG**: UI-18 icon menu feather đồng nhất (info-circle→icon-info, building→icon-shopping-bag, margin 2→3px) + 9.20 gom 9 empty→`.wujia-empty-state` (icon feather + text VN, icon 40→36) + 9.21 `redirects.py` auth=public 3 slug v14→kebab 301 + xóa stub `wujia_account/` + 9.22 `test_sprint9.py` 7/7 + test_sprint5 20/20 + 3 curl 301 + 9.23 chapter 18 mới + PDF RC=0. Còn 9.24 push qua `/wujia-end-sprint`. Detail §9 + chapter 18.) | 2026-06-02 (**Figma MCP**: nối Figma↔code (Framelink), verified read-only. Detail → §1 "Figma" bullet + `docs/figma-mcp-setup.md` + `docs/wujia-design-system.md`. Policy: code=chuẩn > xlsm spec (lag); BA chưa xong Figma → khi xong FOLLOW Figma, không sửa Figma. Summary giữ `.md`.) | 2026-05-30 (**UI-13 header badge HOTFIX**: server render badge cart/bell không đỏ + số đen + shape oval do Vuexy navbar `.badge` cascade — fix scoped `(0,0,5,2)` + `!important` bg/color + flexbox centering + bump `?v=1098`. 2 gotcha mới §9: #11 Vuexy badge cascade, #12 CSS=disk-không-phải-DB. Commit chain cfd0dee→adce104. | Trước đó 2026-05-29: 9.14 UI-13 verified + 9.15 UI-14 KPI Card Height DONE. Còn 9 sprint con: 9.16–9.24. **Next: gộp 9.16 UI-15 (KPI mobile) + 9.17 UI-16 (Main Content Spacing)**).
+**Cập nhật:** 2026-06-06 (**Figma rate-limit GIẢI QUYẾT — dùng FILE COPY ở team Pro**. Rate limit API tính theo plan của TEAM SỞ HỮU file, KHÔNG theo seat người gọi → file gốc Wujia ở team người khác (Starter free) = header `x-figma-plan-tier: starter / low` → throttle; **charge Dev seat của mình KHÔNG cứu được file gốc**. FIX: user **duplicate file sang project Pro của mình** → key MỚI **`aoeiDYlg6vlhJZg2w6Q7o5`** ("Wujia (Copy)") → call API trả **HTTP 200, không throttle**. **⇒ TỪ GIỜ MCP đọc dùng `fileKey=aoeiDYlg6vlhJZg2w6Q7o5`, KHÔNG dùng `vfVcqN5zPJvlcjZU4NYim0` (gốc — throttle + tier starter).** Node ID GIỮ NGUYÊN khi duplicate → frame Home vẫn `2474:2`. **PLAN ĐỒNG BỘ (2026-06-06, chốt): host/BA EDIT TRỰC TIẾP vào bản copy `aoeiDYlg6vlhJZg2w6Q7o5` → copy = SINGLE SOURCE OF TRUTH, KHỎI re-duplicate, HẾT drift. Điều kiện: BA phải được mời quyền EDIT vào project copy của user + BA chỉ sửa COPY (đừng đụng gốc nữa).** Rate limit là PER-FILE (theo plan TEAM sở hữu file), KHÔNG per-token global → file gốc bị throttle KHÔNG ảnh hưởng copy; copy ở team Pro → tier cao, đọc frame thoải mái (vẫn giữ thói quen: targeted `nodeId`, không dump full-file). MCP setup persist, token cũ vẫn valid, không cần làm lại gì.) | 2026-06-05 (**Figma MCP CONNECT — FIXED + rate-limit gotcha**. ROOT CAUSE figma không load: `.mcp.json` nằm ở `WujiaTea/` nhưng VSCode workspace root = `/home/huyban/odoo-dev` (multi-project) → CC chỉ auto-load `.mcp.json` ở root → không thấy figma. serena/agentmemory chạy được vì là GLOBAL mcpServers trong `~/.claude.json`. **FIX (làm rồi):** (1) tạo `/home/huyban/odoo-dev/.mcp.json` (server figma, **absolute npx** `/home/huyban/.nvm/versions/node/v24.15.0/bin/npx` + **key nhúng thẳng** → miễn nhiễm PATH & env-var) + thêm `/home/huyban/odoo-dev/.gitignore` chặn `.mcp.json`+`.env.local`; (2) `fish_add_path -U /home/huyban/.nvm/versions/node/v24.15.0/bin` (node nvm trước đó KHÔNG trên PATH fish/bash, chỉ có miniconda). Reload VSCode → approve trust → **figma connected ✓** (tool `get_figma_data`/`download_figma_images`). Token+file key `vfVcqN5zPJvlcjZU4NYim0` (file "Wujia") đều valid. **⚠️ RATE LIMIT (đắt):** plan starter giới hạn cost-based — cú curl chẩn đoán `/v1/files?depth=2` (dump full file) + 1 MCP `get_figma_data` → **429 endpoint `/v1/files` throttle ~185142s (~51h, reset ~06-07/06)**. `/v1/me` (cheap) vẫn 200. **BÀI HỌC: KHÔNG dump full file `depth=2`; đọc frame qua MCP `get_figma_data` targeted `nodeId` + KHÔNG set `depth`.** Frame Home target: **`2474:2`** (`ngo_gia_mobile_dashboard_header_blue_variant 1`, page "Dashboard", BA sửa 2026-06-04 16:02). **Session sau:** chờ quota reset → đọc `2474:2` qua MCP → build Home mobile. 2 chốt user: THUẦN MOBILE (no Desktop Home) + CÔNG NỢ = button UI-only. Backend đã tra §9 handoff. CHƯA CODE gì cả.) | 2026-06-04 (**Sprint 10 KICKOFF**: BA Figma Brief DONE — `docs/wujia-figma-brief.{tex,pdf}` (10 trang, swatch + Phụ lục A drift code vs BA spec) + `scripts/build-brief.sh` + sync `wujia-design-system.md`. **CHƯA COMMIT**. **Session sau: làm lại trang HOME mobile** theo Figma frame `ngo_gia_mobile_dashboard_header_blue_variant 1` — handoff §9 (build block đã có, block chưa có tra controller). ⚠️ Figma MCP chưa active → restart. Plan: `~/.claude/plans/b-y-gi-nh-sau-snappy-bonbon.md`.) | 2026-06-04 (**Sprint 9 CHỐT SỔ — 9.24 DONE**: xác minh git — toàn bộ commit 9.1–9.23 đã push `origin/main` (sync 0/0 ahead-behind, chapter 18 `2206d55` trên origin) ⇒ 9.24 = ✅, Sprint 9 100% DONE + PUSHED. Code push lẻ từng sub-sprint qua nhiều session (policy 2026-05-24). End-sprint lần này = reconcile §5/§9 + commit closeout docs ngoài Sprint 9: Figma MCP setup + design-system + `docs/prompts/` + BA xlsm refresh. Detail §5+§9.) | 2026-06-03 (**Sprint 9 ĐÓNG**: UI-18 icon menu feather đồng nhất (info-circle→icon-info, building→icon-shopping-bag, margin 2→3px) + 9.20 gom 9 empty→`.wujia-empty-state` (icon feather + text VN, icon 40→36) + 9.21 `redirects.py` auth=public 3 slug v14→kebab 301 + xóa stub `wujia_account/` + 9.22 `test_sprint9.py` 7/7 + test_sprint5 20/20 + 3 curl 301 + 9.23 chapter 18 mới + PDF RC=0. Còn 9.24 push qua `/wujia-end-sprint`. Detail §9 + chapter 18.) | 2026-06-02 (**Figma MCP**: nối Figma↔code (Framelink), verified read-only. Detail → §1 "Figma" bullet + `docs/figma-mcp-setup.md` + `docs/wujia-design-system.md`. Policy: code=chuẩn > xlsm spec (lag); BA chưa xong Figma → khi xong FOLLOW Figma, không sửa Figma. Summary giữ `.md`.) | 2026-05-30 (**UI-13 header badge HOTFIX**: server render badge cart/bell không đỏ + số đen + shape oval do Vuexy navbar `.badge` cascade — fix scoped `(0,0,5,2)` + `!important` bg/color + flexbox centering + bump `?v=1098`. 2 gotcha mới §9: #11 Vuexy badge cascade, #12 CSS=disk-không-phải-DB. Commit chain cfd0dee→adce104. | Trước đó 2026-05-29: 9.14 UI-13 verified + 9.15 UI-14 KPI Card Height DONE. Còn 9 sprint con: 9.16–9.24. **Next: gộp 9.16 UI-15 (KPI mobile) + 9.17 UI-16 (Main Content Spacing)**).
 
 ---
 
@@ -19,7 +19,7 @@
 - `WujiaTea/docs/` `wujia-tea-doc.tex` master + chapters + `Wujia_Internal ERP Master Plan.xlsm` (BA spec) + `wujia-design-system.md` (chuẩn UI người-đọc) + `figma-mcp-setup.md` (Figma connect guide).
 - v14 reference (legacy): `/home/huyban/odoo-dev/wujia_tea_odoo14` — template ref, không sửa.
 
-**Figma (BA design — READ-ONLY, follow sau):** file "Wujia" key `vfVcqN5zPJvlcjZU4NYim0` nối qua Framelink MCP (`.mcp.json` + `FIGMA_API_KEY` ở `.env.local`). **BA CHƯA XONG FIGMA → khi BA hoàn thiện thì FOLLOW THEO FIGMA của BA** (đối chiếu → cập nhật `_variables.css`, KHÔNG sửa Figma). Dùng Figma MCP để xem screens + đọc structure (type/size/màu/radius/font). ⚠️ Figma hiện PHẲNG (card = siblings, không container) → gom bằng geometry. Chi tiết §8 + đề nghị BA: `docs/figma-mcp-setup.md`. Chuẩn UI hiện tại (code-based): `docs/wujia-design-system.md`. Hiện tại nguồn ưu tiên = **code chuẩn > xlsm spec (lag)**.
+**Figma (BA design — READ-ONLY, follow sau):** file gốc "Wujia" key `vfVcqN5zPJvlcjZU4NYim0` (team người khác, Starter → API throttle) — **MCP đọc dùng BẢN COPY ở team Pro của mình: `aoeiDYlg6vlhJZg2w6Q7o5` ("Wujia (Copy)", HTTP 200, không throttle). BA/host EDIT TRỰC TIẾP vào copy → copy = source of truth (BA cần quyền edit copy; đừng đụng gốc nữa).** Nối qua Framelink MCP (`/home/huyban/odoo-dev/.mcp.json` ở workspace root + key nhúng, gitignored). **BA CHƯA XONG FIGMA → khi BA hoàn thiện thì FOLLOW THEO FIGMA của BA** (đối chiếu → cập nhật `_variables.css`, KHÔNG sửa Figma). Dùng Figma MCP để xem screens + đọc structure (type/size/màu/radius/font). ⚠️ Figma hiện PHẲNG (card = siblings, không container) → gom bằng geometry. Chi tiết §8 + đề nghị BA: `docs/figma-mcp-setup.md`. Chuẩn UI hiện tại (code-based): `docs/wujia-design-system.md`. Hiện tại nguồn ưu tiên = **code chuẩn > xlsm spec (lag)**.
 
 **Local dev:** `scripts/init-db.sh` fresh / `scripts/start.sh` hot-reload / `scripts/upgrade.sh <module>` giữ data / `scripts/reseed_full.sh` 1-shot. DB `wujia_tea_19`, user `odoo19/1`, host `127.0.0.1:5432`. Log: `WujiaTea/logs/odoo.log`. Config: `WujiaTea/config/odoo.conf`.
 
@@ -75,12 +75,15 @@ ADR-001 odoo19 source độc lập / ADR-002 venv conda `odoo` (py3.10) / ADR-00
 | 8 | 2026-05-21 | favicon fix + BA §A `/portal/franchise-information` readonly + BA §B order portal mapping + module mới `wujia_portal_order_window` (per-area + global fallback) + design token `_variables.css` + `_components.css` shared (`wujia-btn`/`wujia-badge-*`/`wujia-empty-state`/`wujia-two-pane`) |
 | 9.1–9.13b | 2026-05-23..27 | Portal UI refactor theo BA sheet "5. Issue List" — xem §9 |
 | 9 (DONE) | 2026-06-03 | **Sprint 9 đóng**: UI-01..UI-18 (18 issue) + empty state chuẩn hoá + cleanup (301 redirect + xóa stub) + verify (test_sprint9 7/7) + doc chapter 18. Còn 9.24 push qua `/wujia-end-sprint`. → chapter 18 |
+| 10 | 2026-06-06 | **Mobile Home theo Figma** (frame 2474:2): hero nền tối 2 cột (cửa hàng \| Vai trò+badge) + 4 KPI nhúng (Công nợ UI-only "0đ") + card khung giờ 3 state (wire `_order_window_view`) + grid 6 quick-action + noti nổi bật + bottom-nav active đỏ. Desktop giữ nguyên (`d-lg-none`/`d-none d-lg-block`). + logo navbar mobile + ẩn mobile store-strip trên `/portal`. test 7/7+20/20, upgrade RC=0. → chapter 19 |
 
 → Chi tiết: `chapters/04-17.tex` + `chapters/18-sprint9-issue-list-ui-refactor.tex` (cuối Sprint 9).
 
 ---
 
 ## §5 wujia-current-status
+
+**State (2026-06-06) — SPRINT 10 DONE (mobile home Figma):** trang `/portal` mobile (<992px) dựng lại theo Figma frame 2474:2: hero nền tối 2 cột + 4 KPI nhúng (Công nợ UI-only "0đ", còn lại wire thật) + card khung giờ 3 state (`_order_window_view` trong `wujia_portal_base/controllers/portal.py`, toán qua-nửa-đêm OK) + 6 quick-action + noti nổi bật + bottom-nav active đỏ. Desktop GIỮ NGUYÊN (toggle `d-lg-none`/`d-none d-lg-block`). Thêm: logo Wujia navbar mobile (`layouts.xml`, `company.logo_web`, căn giữa dọc, nowrap+ẩn chữ ngôn ngữ <1200px cho khỏi rớt icon), ẩn mobile store-strip trên route `/portal` (`store_picker_navbar.xml`). 13 token `--wujia-mhome-*` + cụm class `.wujia-mhome-*` (`_variables`/`_components.css`, asset bump v=1113). Verify: upgrade RC=0, test_sprint9 7/7, test_sprint5 20/20, authenticated render 200. Còn lại (mắt user): visual <992px trên browser thật. **Pending kế tiếp:** bottom-nav promote ra toàn portal (item 10.1) + "Thêm" drawer + Công nợ wire khi có `account.move` (Phase 2). → chapter 19.
 
 **State (2026-06-04):** 18 module active. **Sprint 9 100% DONE + PUSHED.** Toàn bộ UI-01..UI-18 (18 issue BA) + empty state + cleanup + verify + doc chapter 18 xong. **9.24 DONE (2026-06-04):** git xác minh toàn bộ commit 9.x đã push `origin/main` (sync 0/0, chapter 18 `2206d55` trên origin) — code push lẻ từng sub-sprint qua nhiều session, không phải 1 batch. Working tree chỉ còn docs/tooling NGOÀI Sprint 9 (Figma MCP setup + `wujia-design-system.md` + `docs/prompts/` + BA xlsm refresh) — gom vào commit closeout. Đợt cuối code: UI-18 (icon menu feather đồng nhất), 9.20 (9 empty → `.wujia-empty-state`), 9.21 (redirects.py 3 slug 301 + xóa `wujia_account/`), 9.22 (test_sprint9 7/7 + test_sprint5 20/20 + 3 curl 301), 9.23 (chapter 18 + PDF). Tất cả đã commit + push origin/main.
 
@@ -260,29 +263,36 @@ Xong: /wujia-end-sprint.
 ### Handoff prompt cho session sau
 
 ```
-Session này em tiếp tục Sprint 9 (Issue List UI refactor).
-UI-01..UI-14 (sprint 9.15) DONE. Session này làm GỘP 2 issue:
-  • 9.16 = UI-15 KPI Card Mobile (mobile <768: 1 card/dòng full-width, h88–96,
-    padding 14–16, gap 12, icon 52×52 r12, icon 22–24). LƯU Ý: token mobile override
-    ĐÃ CÓ sẵn trong _variables.css cuối file (@media max-width:767.98px: icon 52,
-    min-height 92) + _components.css media block margin-bottom 12 — chỉ cần VERIFY +
-    tinh chỉnh đúng spec, có thể nhanh.
-  • 9.17 = UI-16 Main Content Spacing (header→title 24, title→KPI 12–16, KPI→content 20–24).
+Session sau: LÀM LẠI TRANG HOME mobile theo Figma BA.
+Frame: "ngo_gia_mobile_dashboard_header_blue_variant 1".
 
-Rules:
-1. Mở xlsm → sheet "5. Issue List" → row UI-15 + UI-16 → paste cột G+H verbatim → đợi anh xác nhận → plan + code.
-2. Code English. Không .po.
-3. CSS var(--wujia-*) + class _components.css. Không hex cứng.
-4. Workflow: read xlsm → grep v19 → plan → approve → edit → upgrade RC=0 → restart → user xem browser thật (KHÔNG screenshot wkhtmltoimage — gotcha #7 sai flexbox) → loop → ✅ §9 → push.
-5. KHÔNG bỏ qua issue, tuần tự BA order. 1 sprint con = commit+push (policy 2026-05-24).
-6. 9.14 UI-13 (header cart+bell icons) ĐÃ commit 3762e53 + push (2026-05-29). View active trong DB. Nếu anh thấy header chưa đúng BA thì mở lại UI-13 — còn không thì bỏ qua, sang UI-15/16.
+BƯỚC 0: Figma MCP phải active — chưa thấy tool figma → bảo user RESTART Claude Code
+(load .mcp.json), rồi ĐỌC FRAME trước khi code.
 
-Out-of-scope: T-031, locust, affiliate v14 gap, .po, MẪU 03-06 sample.jpg.
+QUY TẮC: block/button nào ĐÃ CÓ backend → build + móc nối. Block CHƯA CÓ → tra sheet
+"3. Controller" (CT-xxx) xem BE build+wire chưa; CHƯA → ghi lại + làm UI-only, build cái khả thi.
 
-Cuối: update §9 bảng (⬜ → ✅ + ngày + Files đã chạm row).
+Blocks Home (Figma) + backend (đã tra 2026-06-04):
+ 1. Header cart/bell/account — CÓ (UI-13), giữ.
+ 2. Hero card NỀN TỐI "Tổng quan cửa hàng": [H000]+tên+khu vực+role badge + 4 KPI nhúng:
+    Đơn hàng / Thông báo / Đổi trả = CÓ BE (sale.order, notification, return.request);
+    CÔNG NỢ = account.move CHƯA build (Phase 2, CT-014) → UI-only, hỏi BA nguồn.  [component mới]
+ 3. Card "KHUNG GIỜ ĐẶT HÀNG" + progress bar — CÓ BE (wujia.order.window._is_within_order_window).
+ 4. Grid "Hành động nhanh" 6 nút (Đặt hàng/Lịch sử/Giao hàng/Đổi trả/Kiến thức/Hỗ trợ) — link route CÓ.
+ 5. "Thông báo nổi bật" + badge màu — CÓ BE (notification). restyle theo Figma.
+ 6. BOTTOM-NAV (=10.1): Trang chủ/Đặt hàng/Giao hàng/Thông báo/Thêm. ACTIVE=ĐỎ (≠cyan).
+    "Thêm"=drawer. Hiện <992px, ẩn desktop.
+
+Figma KHÁC brief/code (active đỏ, page-bg #F6F8FB, cyan #28A9DF) → THEO FIGMA (không sửa Figma).
+Hỏi BA: có làm bản DESKTOP Home không?
+
+Code English, CSS var(--wujia-*)+_components.css. Workflow: Figma→grep portal_home.xml→plan→
+approve→upgrade RC=0→BROWSER THẬT mobile<992px (KHÔNG wkhtmltoimage)→commit+push. Cuối /wujia-end-sprint.
+
+CHƯA COMMIT: wujia-figma-brief.{tex,pdf}, build-brief.sh, design-system.md → /wujia-end-sprint gom luôn.
 ```
 
-→ Quan trọng: đừng tin trí nhớ — mở lại xlsm mỗi issue. BA có thể edit bất kỳ lúc nào.
+→ Quan trọng: đừng tin trí nhớ — mở lại Figma frame + xlsm mỗi lần. BA có thể edit bất kỳ lúc nào.
 
 ---
 

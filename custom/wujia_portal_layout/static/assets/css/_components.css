@@ -663,3 +663,354 @@ h2, .wujia-h2 { font-size: var(--wujia-font-size-h2) !important; font-weight: 60
     background: var(--wujia-primary);
     color: #FFFFFF;
 }
+
+/* ---------- Navbar logo (mobile, Sprint 10 — Figma) ----------
+   Logo Wujia trên header mobile (<1200px) vì sidebar + logo của nó off-canvas.
+   Nền trắng bo góc giống Figma để nổi trên navbar cyan. */
+.wujia-navbar-logo {
+    display: flex;
+    align-items: center;        /* canh giữa logo theo chiều dọc navbar (Figma) */
+}
+.wujia-navbar-logo .navbar-brand {
+    display: inline-flex;
+    align-items: center;
+    line-height: 1;
+}
+.wujia-navbar-logo-img {
+    height: 38px;
+    max-width: 104px;           /* ~Figma logo 100×40, trái x=24 */
+    object-fit: contain;
+    background: var(--wujia-bg-card);
+    border-radius: var(--wujia-btn-radius);
+    padding: 3px 8px;
+}
+/* Giữ logo + hamburger + cụm icon (cờ/giỏ/chuông/account) trên CÙNG 1 hàng.
+   Bootstrap .navbar mặc định flex-wrap:wrap → thêm logo làm cụm icon rớt xuống
+   dòng dưới. nowrap + ẩn chữ ngôn ngữ (chỉ còn lá cờ) để đủ chỗ. Scope <1200px. */
+@media (max-width: 1199.98px) {
+    .wujia-navbar .navbar-collapse { flex-wrap: nowrap; }
+    .wujia-navbar .navbar-nav.float-right {
+        flex-wrap: nowrap;
+        align-items: center;
+    }
+    .wujia-navbar .dropdown-language .selected-language { display: none; }
+}
+
+/* ============================================================================
+   Mobile Home — Figma BA Sprint 10 (2026-06-06)
+   ---------------------------------------------------------------------------
+   Frame 2474:2 "ngo_gia_mobile_dashboard_header_blue_variant 1". Toàn bộ block
+   chỉ render <992px (template bọc .d-lg-none) → desktop home cũ KHÔNG đổi.
+   Prefix riêng .wujia-mhome-* → không va class cũ. THEO FIGMA (active đỏ, cyan
+   #28A9DF). Badge noti tái dùng .wujia-badge-* sẵn có.
+   ============================================================================ */
+.wujia-mhome {
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+    padding: 16px;
+}
+
+/* ---------- Hero "TỔNG QUAN CỬA HÀNG" (nền tối gradient) ---------- */
+.wujia-mhome-hero {
+    background: var(--wujia-mhome-hero-grad);
+    border-radius: 16px;
+    padding: 18px 16px 14px;
+    color: #FFFFFF;
+}
+/* Header hero = 2 cột: trái (cửa hàng) | phải (Vai trò + badge), top-aligned */
+.wujia-mhome-hero-top {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 12px;
+}
+.wujia-mhome-hero-left {
+    flex: 1 1 auto;
+    min-width: 0;
+}
+.wujia-mhome-hero-right {
+    flex-shrink: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;   /* Figma: Vai trò + badge canh TRÁI với nhau (x≈281) */
+    gap: 8px;
+    text-align: left;
+}
+.wujia-mhome-hero-label {
+    margin: 0 0 8px;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    color: var(--wujia-mhome-hero-label);
+}
+.wujia-mhome-hero-right .wujia-mhome-hero-label { margin: 0; }
+.wujia-mhome-hero-store {
+    margin: 0;
+    font-size: 17px;
+    font-weight: 700;
+    line-height: 1.3;
+    color: #FFFFFF;
+}
+.wujia-mhome-hero-addr {
+    margin: 2px 0 0;
+    font-size: 14px;
+    font-weight: 400;
+    color: rgba(255, 255, 255, 0.9);
+}
+.wujia-mhome-hero-area {
+    margin: 2px 0 0;
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--wujia-mhome-hero-area);
+}
+.wujia-mhome-role-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 3px 12px;
+    border-radius: 999px;
+    background: var(--wujia-success);
+    color: #FFFFFF;
+    font-size: 12px;
+    font-weight: 700;
+    line-height: 1;
+}
+/* 4 KPI nhúng — 1 hàng, ngăn bằng vạch mảnh trắng mờ (đúng Figma) */
+.wujia-mhome-hero-kpis {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    margin-top: 16px;
+}
+.wujia-mhome-kpi {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    padding: 0 8px;
+    text-decoration: none;
+    min-width: 0;
+}
+.wujia-mhome-kpi + .wujia-mhome-kpi {
+    border-left: 1px solid var(--wujia-mhome-kpi-tile-border);
+}
+.wujia-mhome-kpi-label {
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: var(--wujia-mhome-kpi-label);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.wujia-mhome-kpi-value {
+    font-size: 22px;
+    font-weight: 700;
+    line-height: 1.1;
+    color: #FFFFFF;
+}
+a.wujia-mhome-kpi:active { opacity: 0.85; }
+
+/* ---------- Card "KHUNG GIỜ ĐẶT HÀNG" ---------- */
+.wujia-mhome-window {
+    background: var(--wujia-bg-card);
+    border: 1px solid var(--wujia-mhome-card-border);
+    border-radius: 14px;
+    padding: 14px 16px;
+}
+.wujia-mhome-window-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+}
+.wujia-mhome-window-title {
+    margin: 0;
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--wujia-text-primary);
+}
+.wujia-mhome-window-status {
+    font-size: 14px;
+    font-weight: 700;
+    white-space: nowrap;
+}
+.wujia-mhome-window-status.is-open    { color: var(--wujia-success); }
+.wujia-mhome-window-status.is-closed  { color: var(--wujia-danger); }
+.wujia-mhome-window-status.is-always  { color: var(--wujia-success); }
+.wujia-mhome-window-status small {
+    color: var(--wujia-text-subtitle);
+    font-weight: 400;
+}
+.wujia-mhome-window-progress {
+    height: 6px;
+    margin: 10px 0 8px;
+    border-radius: 999px;
+    background: var(--wujia-mhome-progress-track);
+    overflow: hidden;
+}
+.wujia-mhome-window-progress-bar {
+    height: 100%;
+    border-radius: 999px;
+    background: var(--wujia-mhome-progress-fill);
+}
+.wujia-mhome-window-caption {
+    margin: 0;
+    font-size: 12px;
+    font-weight: 400;
+    color: var(--wujia-text-subtitle);
+}
+
+/* ---------- Grid "Hành động nhanh" — 6 nút cyan gradient ---------- */
+.wujia-mhome-section-title {
+    margin: 0 0 12px;
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--wujia-text-primary);
+}
+.wujia-mhome-actions-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+}
+.wujia-mhome-action {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 16px 6px;
+    border-radius: 14px;
+    background: var(--wujia-mhome-action-grad);
+    border: 1px solid var(--wujia-mhome-action-border);
+    color: #FFFFFF;
+    text-decoration: none;
+    text-align: center;
+}
+.wujia-mhome-action:hover  { color: #FFFFFF; opacity: 0.95; }
+.wujia-mhome-action:active { opacity: 0.88; }
+.wujia-mhome-action i {
+    font-size: 24px;
+    line-height: 1;
+}
+.wujia-mhome-action-label {
+    font-size: 14px;
+    font-weight: 700;
+    line-height: 1.2;
+}
+
+/* ---------- "Thông báo nổi bật" ---------- */
+.wujia-mhome-noti-head {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 8px;
+    margin-bottom: 12px;
+}
+.wujia-mhome-noti-head .wujia-mhome-section-title { margin: 0; }
+.wujia-mhome-noti-link {
+    font-size: 12px;
+    font-weight: 700;
+    white-space: nowrap;
+    color: var(--wujia-primary);
+    text-decoration: none;
+}
+.wujia-mhome-noti-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+.wujia-mhome-noti-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px 14px;
+    background: var(--wujia-bg-card);
+    border: 1px solid var(--wujia-mhome-card-border);
+    border-left: 4px solid var(--wujia-text-muted);
+    border-radius: 12px;
+    text-decoration: none;
+}
+.wujia-mhome-noti-row.is-danger  { border-left-color: var(--wujia-danger); }
+.wujia-mhome-noti-row.is-info     { border-left-color: var(--wujia-primary); }
+.wujia-mhome-noti-row.is-warning  { border-left-color: var(--wujia-warning); }
+.wujia-mhome-noti-row.is-success  { border-left-color: var(--wujia-success); }
+.wujia-mhome-noti-row.is-muted    { border-left-color: var(--wujia-text-muted); }
+.wujia-mhome-noti-main { flex: 1 1 auto; min-width: 0; }
+.wujia-mhome-noti-title {
+    margin: 0;
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--wujia-text-primary);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+.wujia-mhome-noti-date {
+    margin: 2px 0 0;
+    font-size: 11px;
+    font-weight: 400;
+    color: var(--wujia-text-subtitle);
+}
+.wujia-mhome-noti-row .wujia-badge {
+    flex-shrink: 0;
+    font-size: 10px;
+}
+
+/* ---------- Bottom navigation (fixed, mobile only) ---------- */
+.wujia-mhome-navspacer { height: 72px; }
+.wujia-mhome-bottomnav {
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 1030;
+    display: flex;
+    background: var(--wujia-bg-card);
+    border-top: 1px solid #EEF2F5;
+    box-shadow: 0 -2px 8px rgba(15, 23, 42, 0.05);
+    padding: 6px 0 max(6px, env(safe-area-inset-bottom));
+}
+.wujia-mhome-nav-item {
+    position: relative;
+    flex: 1 1 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 3px;
+    padding: 4px 0;
+    text-decoration: none;
+    color: var(--wujia-mhome-nav-inactive);
+}
+.wujia-mhome-nav-item i {
+    font-size: 20px;
+    line-height: 1;
+}
+.wujia-mhome-nav-label {
+    font-size: 11px;
+    font-weight: 700;
+    line-height: 1;
+}
+.wujia-mhome-nav-item.is-active {
+    color: var(--wujia-mhome-nav-active);
+}
+.wujia-mhome-nav-item.is-active i,
+.wujia-mhome-nav-item.is-active .wujia-mhome-nav-label {
+    color: var(--wujia-mhome-nav-active);
+}
+.wujia-mhome-nav-badge {
+    position: absolute;
+    top: 0;
+    left: 50%;
+    margin-left: 4px;
+    min-width: 16px;
+    height: 16px;
+    padding: 0 4px;
+    border-radius: 999px;
+    background: var(--wujia-mhome-nav-active);
+    color: #FFFFFF;
+    font-size: 9px;
+    font-weight: 700;
+    line-height: 16px;
+    text-align: center;
+}

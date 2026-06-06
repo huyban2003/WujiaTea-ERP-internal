@@ -6,6 +6,8 @@
         <t t-call="wujia_portal_layout.app_layout">
             <t t-set="title">Trang chủ</t>
             <div class="content-wrapper">
+                <!-- ======== DESKTOP (≥992px) — home cũ giữ NGUYÊN 100% (regression-safe) ======== -->
+                <div class="d-none d-lg-block">
                 <div class="content-header row">
                     <div class="content-header-left col-12">
                         <h2 class="content-header-title float-left mb-0">Tổng quan cửa hàng</h2>
@@ -226,6 +228,161 @@
                         </div>
                     </div>
                 </div>
+                </div>
+                <!-- /desktop wrapper -->
+
+                <!-- ======== MOBILE (<992px) — Figma BA Sprint 10 (frame 2474:2) ======== -->
+                <div class="wujia-mhome d-lg-none">
+                    <div t-if="not franchise_ids" class="alert alert-warning" role="alert">
+                        Bạn chưa được gán vào cửa hàng nào. Vui lòng liên hệ quản trị viên.
+                    </div>
+                    <t t-else="">
+                        <!-- Hero: TỔNG QUAN CỬA HÀNG (nền tối) -->
+                        <section class="wujia-mhome-hero">
+                            <!-- 2 cột: trái = cửa hàng, phải = Vai trò + badge (Figma) -->
+                            <div class="wujia-mhome-hero-top">
+                                <div class="wujia-mhome-hero-left">
+                                    <p class="wujia-mhome-hero-label">TỔNG QUAN CỬA HÀNG</p>
+                                    <p class="wujia-mhome-hero-store" t-out="active_franchise.display_name or request.env.user.name"/>
+                                    <p t-if="active_franchise.address" class="wujia-mhome-hero-addr" t-out="active_franchise.address"/>
+                                    <p t-if="active_franchise.area_name" class="wujia-mhome-hero-area" t-out="active_franchise.area_name"/>
+                                </div>
+                                <div t-if="active_role" class="wujia-mhome-hero-right">
+                                    <p class="wujia-mhome-hero-label">Vai trò</p>
+                                    <span class="wujia-mhome-role-badge">
+                                        <t t-if="active_role == 'manager'">Manager</t>
+                                        <t t-elif="active_role == 'owner'">Owner</t>
+                                        <t t-elif="active_role == 'staff'">Staff</t>
+                                    </span>
+                                </div>
+                            </div>
+                            <!-- 4 KPI nhúng (Đơn hàng / Thông báo / Đổi trả / Công nợ) -->
+                            <div class="wujia-mhome-hero-kpis">
+                                <a href="/portal/purchase-history" class="wujia-mhome-kpi">
+                                    <span class="wujia-mhome-kpi-label">Đơn hàng</span>
+                                    <span class="wujia-mhome-kpi-value" t-out="recent_orders_count or 0"/>
+                                </a>
+                                <a href="/portal/notification" class="wujia-mhome-kpi">
+                                    <span class="wujia-mhome-kpi-label">Thông báo</span>
+                                    <span class="wujia-mhome-kpi-value" t-out="unread_count or 0"/>
+                                </a>
+                                <a href="/portal/return" class="wujia-mhome-kpi">
+                                    <span class="wujia-mhome-kpi-label">Đổi trả</span>
+                                    <span class="wujia-mhome-kpi-value" t-out="return_requests_count or 0"/>
+                                </a>
+                                <!-- CÔNG NỢ: UI-only (account.move = Phase 2) → '0 ₫', không wire -->
+                                <div class="wujia-mhome-kpi">
+                                    <span class="wujia-mhome-kpi-label">Công nợ</span>
+                                    <span class="wujia-mhome-kpi-value">0 ₫</span>
+                                </div>
+                            </div>
+                        </section>
+
+                        <!-- Card: KHUNG GIỜ ĐẶT HÀNG (3 trạng thái) -->
+                        <section class="wujia-mhome-window">
+                            <div class="wujia-mhome-window-head">
+                                <h3 class="wujia-mhome-window-title">Khung giờ đặt hàng</h3>
+                                <span t-if="order_window['state'] == 'open'" class="wujia-mhome-window-status is-open">
+                                    Đang mở <small>· còn <t t-out="order_window['remaining_hhmm']"/></small>
+                                </span>
+                                <span t-elif="order_window['state'] == 'closed'" class="wujia-mhome-window-status is-closed">Đã đóng</span>
+                                <span t-else="" class="wujia-mhome-window-status is-always">Đặt hàng 24/7</span>
+                            </div>
+                            <div t-if="order_window['state'] == 'open'" class="wujia-mhome-window-progress">
+                                <div class="wujia-mhome-window-progress-bar" t-attf-style="width: #{order_window['progress_pct']}%"/>
+                            </div>
+                            <p t-if="order_window['state'] == 'open'" class="wujia-mhome-window-caption">
+                                Có thể đặt hàng đến <t t-out="order_window['to_hhmm']"/> hôm nay
+                            </p>
+                            <p t-elif="order_window['state'] == 'closed'" class="wujia-mhome-window-caption">
+                                Mở lại lúc <t t-out="order_window['from_hhmm']"/>
+                            </p>
+                            <p t-else="" class="wujia-mhome-window-caption">Đặt hàng mọi lúc trong ngày</p>
+                        </section>
+
+                        <!-- Grid: Hành động nhanh (6 nút) -->
+                        <section class="wujia-mhome-actions">
+                            <h3 class="wujia-mhome-section-title">Hành động nhanh</h3>
+                            <div class="wujia-mhome-actions-grid">
+                                <a href="/portal/order" class="wujia-mhome-action">
+                                    <i class="feather icon-shopping-cart"/>
+                                    <span class="wujia-mhome-action-label">Đặt hàng</span>
+                                </a>
+                                <a href="/portal/purchase-history" class="wujia-mhome-action">
+                                    <i class="feather icon-clock"/>
+                                    <span class="wujia-mhome-action-label">Lịch sử đặt hàng</span>
+                                </a>
+                                <a href="/portal/delivery" class="wujia-mhome-action">
+                                    <i class="feather icon-truck"/>
+                                    <span class="wujia-mhome-action-label">Giao hàng</span>
+                                </a>
+                                <a href="/portal/return" class="wujia-mhome-action">
+                                    <i class="feather icon-corner-up-left"/>
+                                    <span class="wujia-mhome-action-label">Đổi trả</span>
+                                </a>
+                                <a href="/portal/knowledge" class="wujia-mhome-action">
+                                    <i class="feather icon-book"/>
+                                    <span class="wujia-mhome-action-label">Kiến thức</span>
+                                </a>
+                                <a href="/portal/support" class="wujia-mhome-action">
+                                    <i class="feather icon-life-buoy"/>
+                                    <span class="wujia-mhome-action-label">Hỗ trợ</span>
+                                </a>
+                            </div>
+                        </section>
+
+                        <!-- Thông báo nổi bật -->
+                        <section class="wujia-mhome-noti">
+                            <div class="wujia-mhome-noti-head">
+                                <h3 class="wujia-mhome-section-title">Thông báo nổi bật</h3>
+                                <a href="/portal/notification" class="wujia-mhome-noti-link">Xem tất cả ›</a>
+                            </div>
+                            <div t-if="not latest_notifications" class="wujia-empty-state">
+                                <i class="feather icon-bell"/>
+                                <p>Chưa có thông báo nào.</p>
+                            </div>
+                            <div t-else="" class="wujia-mhome-noti-list">
+                                <t t-foreach="latest_notifications" t-as="noti">
+                                    <t t-set="noti_badge_cls" t-value="{'URG': 'wujia-badge-danger', 'GEN': 'wujia-badge-info', 'PROMO': 'wujia-badge-warning', 'SYS': 'wujia-badge-muted', 'OTH': 'wujia-badge-success'}.get(noti.type_id.code, 'wujia-badge-muted')"/>
+                                    <t t-set="noti_accent_cls" t-value="{'URG': 'is-danger', 'GEN': 'is-info', 'PROMO': 'is-warning', 'SYS': 'is-muted', 'OTH': 'is-success'}.get(noti.type_id.code, 'is-muted')"/>
+                                    <a t-attf-href="/portal/notification/#{noti.id}" t-attf-class="wujia-mhome-noti-row #{noti_accent_cls}">
+                                        <div class="wujia-mhome-noti-main">
+                                            <p class="wujia-mhome-noti-title" t-out="noti.name"/>
+                                            <p class="wujia-mhome-noti-date" t-out="noti.date and noti.date.strftime('%H:%M %d/%m/%Y') or ''"/>
+                                        </div>
+                                        <span t-if="noti.type_id" t-attf-class="wujia-badge #{noti_badge_cls}" t-out="noti.type_id.name"/>
+                                    </a>
+                                </t>
+                            </div>
+                        </section>
+                    </t>
+                    <div class="wujia-mhome-navspacer"/>
+                </div>
+
+                <!-- Bottom navigation (mobile only) — active = Trang chủ (ĐỎ theo Figma) -->
+                <nav class="wujia-mhome-bottomnav d-lg-none">
+                    <a href="/portal" class="wujia-mhome-nav-item is-active">
+                        <i class="feather icon-home"/>
+                        <span class="wujia-mhome-nav-label">Trang chủ</span>
+                    </a>
+                    <a href="/portal/order" class="wujia-mhome-nav-item">
+                        <i class="feather icon-shopping-cart"/>
+                        <span class="wujia-mhome-nav-label">Đặt hàng</span>
+                    </a>
+                    <a href="/portal/delivery" class="wujia-mhome-nav-item">
+                        <i class="feather icon-truck"/>
+                        <span class="wujia-mhome-nav-label">Giao hàng</span>
+                    </a>
+                    <a href="/portal/notification" class="wujia-mhome-nav-item">
+                        <i class="feather icon-bell"/>
+                        <span t-if="unread_count" class="wujia-mhome-nav-badge" t-out="unread_count"/>
+                        <span class="wujia-mhome-nav-label">Thông báo</span>
+                    </a>
+                    <a href="/portal/profile" class="wujia-mhome-nav-item">
+                        <i class="feather icon-more-horizontal"/>
+                        <span class="wujia-mhome-nav-label">Thêm</span>
+                    </a>
+                </nav>
             </div>
         </t>
     </template>

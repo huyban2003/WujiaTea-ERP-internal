@@ -1,0 +1,116 @@
+\chapter{Sprint 10 --- Mobile Home theo Figma (2026-06-06)}
+
+\section{Bối cảnh}
+
+BA (Hùng) thiết kế lại \textbf{trang chủ portal bản mobile} trong Figma --- frame
+\texttt{2474:2} (\emph{ngo\_gia\_mobile\_dashboard\_header\_blue\_variant 1}, page
+Dashboard). Do file gốc nằm ở team Starter bị throttle API, host duplicate sang
+team Pro của mình --- key đọc MCP từ giờ là \texttt{aoeiDYlg6vlhJZg2w6Q7o5}
+(bản copy = single source of truth, node ID giữ nguyên).
+
+Mục tiêu: dựng đúng bản Figma cho viewport \(<\)992px, \textbf{giữ nguyên 100\%
+bản desktop} (out-of-scope). Ba chốt từ user: (1) desktop giữ home cũ, mobile =
+Figma mới (toggle \texttt{d-none d-lg-block} / \texttt{d-lg-none}); (2) KPI Công nợ
+= UI-only (\texttt{account.move} là Phase 2) hiển thị \texttt{"0 đ"}; (3) card Khung
+giờ có 3 trạng thái Mở / Đóng / Tắt-global.
+
+\section{Khối Home (Figma) + màu/kích thước}
+
+\begin{longtable}{@{}lp{8.6cm}@{}}
+\toprule
+\textbf{Khối} & \textbf{Spec Figma (màu / size)} \\
+\midrule
+\endhead
+Hero & Nền gradient tối \texttt{135deg \#0B2430 → \#1B5C75}. Label 12/700
+\#C7E6EF, tên cửa hàng 17/700 trắng, khu vực 13/700 \#D9F3FA. 2 cột: trái =
+cửa hàng, phải = "Vai trò" + badge (canh trái với nhau, x≈281). \\
+4 KPI nhúng & 1 hàng, ngăn bằng vạch trắng mờ \texttt{rgba(255,255,255,.13)}.
+Label 9/700 \#BEE7F1, value 22/700 trắng. Đơn hàng / Thông báo / Đổi trả wire
+thật, Công nợ = "0 đ". \\
+Khung giờ & Card trắng viền \#E9EEF2. Mở = xanh \#16A34A "Đang mở · còn HH:MM" +
+progress amber \#F59E0B; Đóng = đỏ; Tắt = "Đặt hàng 24/7". \\
+Hành động nhanh & 6 nút gradient cyan \texttt{135deg \#1895C7 → \#28A9DF}, icon +
+chữ trắng. \\
+Thông báo nổi bật & 3 noti + dải accent trái + badge theo loại (reuse
+\texttt{.wujia-badge-*}). \\
+Bottom-nav & Fixed, 5 mục; active "Trang chủ" = ĐỎ \#EF4444 (\(\neq\) cyan);
+inactive \#8A939E; "Thông báo" có badge số. Chỉ hiện \(<\)992px. \\
+Navbar logo & Logo Wujia (\texttt{company.logo\_web}) góc trái navbar mobile, nền
+trắng bo góc, 100×40, căn giữa dọc --- vì sidebar (kèm logo) off-canvas \(<\)1200px. \\
+\bottomrule
+\end{longtable}
+
+\section{Backend wiring}
+
+\begin{itemize}[leftmargin=*]
+    \item \texttt{wujia\_portal\_base/controllers/portal.py} ::
+          \texttt{portal\_home()} bổ sung \texttt{active\_franchise} (browse),
+          \texttt{active\_role} (qua \texttt{find\_active\_membership}) và
+          \texttt{order\_window} (dict). \texttt{\_dashboard\_values()} giữ nguyên ---
+          KPI tái dùng \texttt{recent\_orders\_count} / \texttt{unread\_count} /
+          \texttt{return\_requests\_count} / \texttt{latest\_notifications}.
+    \item Thêm helper local \texttt{\_float\_to\_hhmm} (không import chéo từ
+          \texttt{wujia\_portal\_sale} --- base không phụ thuộc sale).
+    \item \texttt{\_order\_window\_view()} gọi 1 lần
+          \texttt{res.config.settings.\_is\_within\_order\_window(area\_id)} ---
+          scalar, không ORM trong loop (OK cho 1500 user). Toán khung giờ qua
+          nửa đêm verify đúng (window 10:00→04:00 lúc 12:23 → "còn 15:37",
+          progress 13\%).
+\end{itemize}
+
+\begin{lstlisting}[language=Python,caption={Trạng thái khung giờ cho hero}]
+def _order_window_view(self, area_id=None):
+    Settings = request.env['res.config.settings'].sudo()
+    allowed, window = Settings._is_within_order_window(area_id=area_id)
+    if not window.get('enabled', True):
+        return {'state': 'always'}              # "Đặt hàng 24/7"
+    f = float(window.get('from') or 0.0) % 24.0
+    t = float(window.get('to')   or 0.0) % 24.0
+    now = Settings._user_now_hours()
+    span = (t - f) % 24.0 or 24.0               # xử lý qua nửa đêm
+    if allowed:
+        elapsed = (now - f) % 24.0
+        return {'state': 'open',
+                'to_hhmm': _float_to_hhmm(t),
+                'remaining_hhmm': _float_to_hhmm(max(0.0, span - elapsed)),
+                'progress_pct': max(0, min(100, round(elapsed / span * 100)))}
+    return {'state': 'closed',
+            'from_hhmm': _float_to_hhmm(f), 'to_hhmm': _float_to_hhmm(t)}
+\end{lstlisting}
+
+\section{CSS / template}
+
+\begin{itemize}[leftmargin=*]
+    \item \texttt{\_variables.css}: thêm 13 token prefix riêng
+          \texttt{--wujia-mhome-*} (gradient hero/action, màu progress, nav active
+          đỏ\dots) --- \textbf{không sửa token cũ} ⇒ zero blast radius lên desktop.
+    \item \texttt{\_components.css}: thêm cụm \texttt{.wujia-mhome-*} (hero 2 cột,
+          KPI tile, window, actions grid, noti, bottom-nav) + rule logo navbar +
+          \texttt{flex-wrap:nowrap} giữ logo/hamburger/icon cùng hàng + ẩn chữ
+          ngôn ngữ \(<\)1200px cho đủ chỗ.
+    \item \texttt{portal\_home.xml}: bọc home cũ trong \texttt{d-none d-lg-block};
+          thêm block \texttt{.wujia-mhome d-lg-none} + \texttt{nav.wujia-mhome-bottomnav}.
+    \item \texttt{store\_picker\_navbar.xml}: ẩn mobile store-strip trên route
+          \texttt{/portal} (\texttt{path != '/portal'}) vì hero đã show store ---
+          trang khác vẫn giữ.
+    \item \texttt{layouts.xml}: thêm \texttt{<img>} logo navbar mobile. Asset bump
+          \texttt{?v=1110→1113}.
+\end{itemize}
+
+\section{Gì đã làm (nghiệp vụ)}
+
+Khách portal mở trang chủ trên điện thoại giờ thấy một màn hình mobile-native:
+thẻ "Tổng quan cửa hàng" nền tối gom tên cửa hàng + vai trò + 4 chỉ số (đơn
+hàng, thông báo, đổi trả, công nợ), thẻ khung giờ đặt hàng có thanh tiến trình
+"còn bao lâu", lưới 6 nút hành động nhanh, danh sách thông báo nổi bật, và một
+thanh điều hướng dưới đáy (active màu đỏ). Bản desktop không đổi --- chỉ người
+dùng \(<\)992px thấy giao diện mới. Công nợ là nút giả (chưa có kế toán), còn
+lại đều nối dữ liệu thật.
+
+\section{Verify}
+
+Upgrade RC=0; \texttt{test\_sprint9} 7/7, \texttt{test\_sprint5} 20/20 (regression).
+Authenticated render \texttt{/portal} HTTP 200 --- KPI 5/15/4/"0 đ", khung giờ
+"Đang mở · còn 15:37", desktop vẫn 4 KPI card; CSS served \texttt{?v=1113} khớp
+HTML; smoke 7 trang portal đều 200. Visual \(<\)992px do user xác nhận trên
+browser thật (môi trường CLI không có Chromium).
