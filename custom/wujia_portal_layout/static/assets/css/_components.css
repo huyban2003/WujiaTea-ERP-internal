@@ -1014,3 +1014,421 @@ a.wujia-mhome-kpi:active { opacity: 0.85; }
     line-height: 16px;
     text-align: center;
 }
+
+/* ============================================================================
+   Sprint 11 — Mobile ĐẶT HÀNG (BA UI Component Registry v3 + Figma 2480:2)
+   All rules scoped under .wujia-morder / .wujia-mcart (wrappers are d-lg-none)
+   → mobile-only, zero blast radius on desktop.
+   ========================================================================== */
+
+/* Global: reserve space so fixed bottom-nav (promoted portal-wide) doesn't
+   cover page content on mobile (registry: chừa 88–96px). */
+@media (max-width: 991.98px) {
+    .app-content.content { padding-bottom: 88px; }
+}
+
+/* ---------- Catalog "Sản phẩm" (.wujia-morder) ---------- */
+.wujia-morder { padding-bottom: 76px; }      /* clear floating cart bar */
+.wujia-morder-title {
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--wujia-morder-text);
+    margin: 4px 0 12px;
+}
+
+/* Order warning bar (WJ_Mobile_OrderWarningBar) — shared by catalog + cart */
+.wujia-morder-warnbar {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: var(--wujia-morder-warn-bg);
+    color: var(--wujia-morder-warn-text);
+    border-radius: 12px;
+    padding: 11px 12px;
+    font-size: 13px;
+    font-weight: 700;
+    margin-bottom: 14px;
+}
+.wujia-morder-warnbar i { font-size: 16px; line-height: 1; flex: 0 0 auto; }
+
+/* Search + filter (WJ_Mobile_SearchFilter_Order) */
+.wujia-morder-search {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 16px;
+}
+.wujia-morder-search-input {
+    position: relative;
+    flex: 1 1 auto;
+    display: flex;
+    align-items: center;
+}
+.wujia-morder-search-input i {
+    position: absolute;
+    left: 12px;
+    color: var(--wujia-morder-text-muted);
+    font-size: 16px;
+    pointer-events: none;
+}
+.wujia-morder-search-input input {
+    width: 100%;
+    height: 44px;
+    border: 1px solid var(--wujia-morder-border);
+    border-radius: 12px;
+    background: var(--wujia-morder-card-bg);
+    padding: 0 12px 0 36px;
+    font-size: 14px;
+    color: var(--wujia-morder-text);
+}
+.wujia-morder-search-select {
+    flex: 0 0 110px;
+    height: 44px;
+    border: 1px solid var(--wujia-morder-border);
+    border-radius: 12px;
+    background: var(--wujia-morder-card-bg);
+    padding: 0 10px;
+    font-size: 14px;
+    color: var(--wujia-morder-text);
+}
+.wujia-morder-search-input input:focus,
+.wujia-morder-search-select:focus {
+    outline: none;
+    border-color: var(--wujia-morder-primary);
+}
+
+/* List header */
+.wujia-morder-listhead {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    margin-bottom: 8px;
+}
+.wujia-morder-listhead-title {
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--wujia-morder-text);
+}
+.wujia-morder-listhead-count {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--wujia-morder-text-sub);
+}
+
+/* Product list card + compact rows (WJ_Mobile_ProductRow_Compact) */
+.wujia-morder-list {
+    background: var(--wujia-morder-card-bg);
+    border: 1px solid var(--wujia-morder-border);
+    border-radius: var(--wujia-morder-radius);
+    overflow: hidden;
+}
+.wujia-morder-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 12px;
+    border-bottom: 1px solid var(--wujia-morder-divider);
+}
+.wujia-morder-row:last-child { border-bottom: 0; }
+.wujia-morder-row-thumb {
+    flex: 0 0 auto;
+    width: 44px;
+    height: 44px;
+    border-radius: 10px;
+    background: var(--wujia-morder-thumb-bg);
+    color: var(--wujia-morder-thumb-text);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+}
+.wujia-morder-row-info {
+    flex: 1 1 auto;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    text-decoration: none;
+}
+.wujia-morder-row-name {
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--wujia-morder-text);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.wujia-morder-row-spec {
+    font-size: 12px;
+    color: var(--wujia-morder-text-sub);
+}
+.wujia-morder-row-price {
+    flex: 0 0 auto;
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--wujia-morder-text);
+    text-align: right;
+    white-space: nowrap;
+}
+.wujia-morder-row-add {
+    position: relative;
+    flex: 0 0 auto;
+    width: 42px;
+    height: 42px;
+    border: 0;
+    border-radius: 12px;
+    background: var(--wujia-morder-primary);
+    color: #FFFFFF;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    cursor: pointer;
+}
+.wujia-morder-row-add:active { background: var(--wujia-morder-primary-dark); }
+.wujia-morder-row-add:disabled { opacity: 0.6; }
+.wujia-morder-row-qty {
+    position: absolute;
+    top: -6px;
+    right: -6px;
+    min-width: 18px;
+    height: 18px;
+    padding: 0 4px;
+    border-radius: 999px;
+    background: var(--wujia-morder-qty-badge);
+    color: #FFFFFF;
+    font-size: 10px;
+    font-weight: 700;
+    line-height: 18px;
+    text-align: center;
+}
+
+/* Floating cart bar (above bottom-nav) */
+.wujia-morder-floatbar {
+    position: fixed;
+    left: 12px;
+    right: 12px;
+    bottom: 76px;
+    z-index: 1029;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    background: var(--wujia-morder-floatbar-bg);
+    color: #FFFFFF;
+    border-radius: 14px;
+    padding: 10px 12px;
+    box-shadow: 0 4px 12px rgba(11, 36, 48, 0.18);
+    text-decoration: none;
+}
+.wujia-morder-floatbar-icon {
+    flex: 0 0 auto;
+    width: 38px;
+    height: 38px;
+    border-radius: 10px;
+    background: rgba(255, 255, 255, 0.16);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+}
+.wujia-morder-floatbar-info {
+    flex: 1 1 auto;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+.wujia-morder-floatbar-title { font-size: 13px; font-weight: 700; color: #FFFFFF; }
+.wujia-morder-floatbar-sub { font-size: 12px; color: var(--wujia-morder-floatbar-sub); }
+/* Figma: nút "Xem giỏ" = nền TRẮNG + chữ CYAN (≠ cyan bg) */
+.wujia-morder-floatbar-btn {
+    flex: 0 0 auto;
+    background: #FFFFFF;
+    color: var(--wujia-morder-primary);
+    border-radius: 10px;
+    padding: 8px 14px;
+    font-size: 13px;
+    font-weight: 700;
+}
+
+/* ---------- Cart "Giỏ hàng" (.wujia-mcart) ---------- */
+.wujia-mcart { padding-bottom: 150px; }   /* clear sticky summary + bottom-nav */
+.wujia-mcart-title {
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--wujia-morder-text);
+    margin: 4px 0 2px;
+}
+.wujia-mcart-subtitle {
+    font-size: 13px;
+    color: var(--wujia-morder-text-sub);
+    margin: 0 0 12px;
+}
+/* Back secondary button (WJ_Mobile_BackSecondaryButton) */
+.wujia-mcart-back {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    height: 44px;
+    padding: 0 16px;
+    border: 1px solid var(--wujia-morder-primary);
+    border-radius: 12px;
+    background: var(--wujia-morder-card-bg);
+    color: var(--wujia-morder-primary);
+    font-size: 14px;
+    font-weight: 700;
+    text-decoration: none;
+    margin-bottom: 14px;
+}
+.wujia-mcart-back i { font-size: 16px; }
+.wujia-mcart-listhead {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    margin-bottom: 8px;
+}
+.wujia-mcart-listhead span:first-child {
+    font-size: 15px; font-weight: 700; color: var(--wujia-morder-text);
+}
+.wujia-mcart-listhead span:last-child {
+    font-size: 13px; font-weight: 700; color: var(--wujia-morder-text-sub);
+}
+/* Scroll container (WJ_Mobile_CartScrollContainer) — render all, no see-more */
+.wujia-mcart-scroll {
+    background: var(--wujia-morder-card-bg);
+    border: 1px solid var(--wujia-morder-border);
+    border-radius: var(--wujia-morder-radius);
+    overflow: hidden;
+}
+/* Cart row fixed (WJ_Mobile_CartRow_Fixed) */
+.wujia-mcart-row {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 14px 12px;
+    border-bottom: 1px solid var(--wujia-morder-divider);
+}
+.wujia-mcart-row:last-child { border-bottom: 0; }
+.wujia-mcart-row-thumb {
+    flex: 0 0 auto;
+    width: 44px;
+    height: 44px;
+    border-radius: 10px;
+    background: var(--wujia-morder-thumb-bg);
+    color: var(--wujia-morder-thumb-text);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+}
+.wujia-mcart-row-main { flex: 1 1 auto; min-width: 0; }
+.wujia-mcart-row-name {
+    display: block;
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--wujia-morder-text);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.wujia-mcart-row-meta {
+    display: block;
+    font-size: 13px;
+    color: var(--wujia-morder-text-sub);
+    margin: 2px 0 8px;
+}
+.wujia-mcart-row-controls {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+}
+.wujia-mcart-stepper {
+    flex: 0 0 auto;
+    display: flex;
+    align-items: center;
+    border: 1px solid var(--wujia-morder-border);
+    border-radius: 10px;
+    overflow: hidden;
+}
+.wujia-mcart-step {
+    width: 34px;
+    height: 34px;
+    border: 0;
+    background: var(--wujia-morder-card-bg);
+    color: var(--wujia-morder-text);
+    font-size: 18px;
+    line-height: 1;
+    cursor: pointer;
+}
+.wujia-mcart-step:active { background: #F3F6F8; }
+.wujia-mcart-step-qty {
+    min-width: 38px;
+    text-align: center;
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--wujia-morder-text);
+}
+.wujia-mcart-row-amount { text-align: right; }
+.wujia-mcart-row-amount-label {
+    display: block;
+    font-size: 11px;
+    color: var(--wujia-morder-text-sub);
+}
+.wujia-mcart-row-amount-value {
+    display: block;
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--wujia-morder-text);
+    white-space: nowrap;
+}
+.wujia-mcart-del {
+    flex: 0 0 auto;
+    width: 40px;
+    height: 40px;
+    border: 0;
+    border-radius: 10px;
+    background: transparent;
+    color: var(--wujia-morder-text-muted);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    cursor: pointer;
+}
+.wujia-mcart-del:active { color: var(--wujia-morder-warn-text); }
+
+/* Sticky summary CTA (WJ_Mobile_CartSummaryCTA) — above bottom-nav */
+.wujia-mcart-summary {
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 64px;
+    z-index: 1029;
+    background: var(--wujia-morder-card-bg);
+    border-top: 1px solid var(--wujia-morder-divider);
+    box-shadow: 0 -3px 12px rgba(15, 23, 42, 0.08);
+    padding: 12px 16px;
+}
+.wujia-mcart-summary-rows { margin-bottom: 10px; }
+.wujia-mcart-summary-line {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    font-size: 14px;
+    color: var(--wujia-morder-text);
+}
+.wujia-mcart-summary-line.muted { font-size: 13px; color: var(--wujia-morder-text-sub); margin-top: 2px; }
+.wujia-mcart-grand { font-size: 18px; font-weight: 700; color: var(--wujia-morder-text); }
+.wujia-mcart-submit {
+    width: 100%;
+    height: 50px;
+    border: 0;
+    border-radius: 12px;
+    background: var(--wujia-morder-primary);
+    color: #FFFFFF;
+    font-size: 15px;
+    font-weight: 700;
+    cursor: pointer;
+}
+.wujia-mcart-submit:active { background: var(--wujia-morder-primary-dark); }
+.wujia-mcart-submit:disabled { opacity: 0.55; cursor: not-allowed; }

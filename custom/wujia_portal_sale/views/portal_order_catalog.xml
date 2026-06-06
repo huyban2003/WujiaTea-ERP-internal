@@ -5,6 +5,8 @@
         <t t-call="wujia_portal_layout.app_layout">
             <t t-set="title">Đặt hàng</t>
             <div class="content-wrapper">
+                <!-- ===== DESKTOP (≥992px) — GIỮ NGUYÊN ===== -->
+                <div class="d-none d-lg-block">
                 <div class="content-header row mt-3">
                     <div class="content-header-left col-12 mb-1">
                         <h2 class="content-header-title float-left mb-0">
@@ -175,6 +177,106 @@
                             </div>
                         </div>
                     </div>
+                </div>
+                </div>
+                <!-- /desktop wrapper -->
+
+                <!-- ===== MOBILE (<992px) — BA UI Registry v3 + Figma 2480:2 ===== -->
+                <div class="d-lg-none wujia-morder">
+                    <div t-if="no_franchise" class="alert alert-warning" role="alert">
+                        Bạn chưa được gán vào cửa hàng nào — không thể đặt hàng.
+                    </div>
+                    <t t-else="">
+                        <h2 class="wujia-morder-title">Sản phẩm</h2>
+
+                        <!-- Order warning bar (khung giờ) -->
+                        <div t-if="order_window_enabled" class="wujia-morder-warnbar">
+                            <i class="feather icon-alert-circle"/>
+                            <span>Khung giờ đặt hàng: <t t-out="order_time_from"/> - <t t-out="order_time_to"/></span>
+                        </div>
+
+                        <!-- Search + filter -->
+                        <form method="get" action="/portal/order" class="wujia-morder-search">
+                            <div class="wujia-morder-search-input">
+                                <i class="feather icon-search"/>
+                                <input type="text" name="keyword" placeholder="Tìm sản phẩm"
+                                       t-att-value="keyword"/>
+                            </div>
+                            <select name="category_id" class="wujia-morder-search-select"
+                                    onchange="this.form.submit()">
+                                <option value="">Tất cả</option>
+                                <t t-foreach="categories" t-as="cat">
+                                    <option t-att-value="cat.id"
+                                            t-att-selected="'selected' if category_id == cat.id else None"
+                                            t-out="cat.complete_name"/>
+                                </t>
+                            </select>
+                        </form>
+
+                        <!-- List header -->
+                        <div class="wujia-morder-listhead">
+                            <span class="wujia-morder-listhead-title">Danh sách sản phẩm</span>
+                            <span t-if="products" class="wujia-morder-listhead-count">
+                                <t t-out="len(products)"/> SP
+                            </span>
+                        </div>
+
+                        <!-- Empty -->
+                        <div t-if="not products" class="wujia-empty-state">
+                            <i class="feather icon-package"/>
+                            <p>Không có sản phẩm phù hợp.</p>
+                        </div>
+
+                        <!-- Product compact rows -->
+                        <t t-else="">
+                            <t t-set="cart_qty_map"
+                               t-value="{cl.product_id.product_tmpl_id.id: int(cl.product_uom_qty) for cl in cart_lines}"/>
+                            <div class="wujia-morder-list">
+                                <t t-foreach="products" t-as="product">
+                                    <t t-set="in_cart" t-value="cart_qty_map.get(product.id, 0)"/>
+                                    <div class="wujia-morder-row">
+                                        <span class="wujia-morder-row-thumb">
+                                            <i class="feather icon-package"/>
+                                        </span>
+                                        <a t-attf-href="/portal/order/product/#{product.id}"
+                                           class="wujia-morder-row-info">
+                                            <span class="wujia-morder-row-name" t-out="product.name"/>
+                                            <span class="wujia-morder-row-spec" t-out="product.uom_id.name or '—'"/>
+                                        </a>
+                                        <span class="wujia-morder-row-price"
+                                              t-out="'{:,.0f}'.format(product.list_price or 0).replace(',', '.') + ' đ'"/>
+                                        <button type="button" class="wujia-morder-row-add btn-add-cart"
+                                                t-att-data-product-id="product.id"
+                                                t-att-data-price="int(product.list_price or 0)">
+                                            <i class="feather icon-shopping-cart"/>
+                                            <span t-attf-class="wujia-morder-row-qty #{'' if in_cart else 'd-none'}"
+                                                  t-out="in_cart"/>
+                                        </button>
+                                    </div>
+                                </t>
+                            </div>
+                        </t>
+
+                        <!-- Floating cart bar -->
+                        <t t-if="cart_lines">
+                            <t t-set="cart_total" t-value="sum(cl.price_subtotal for cl in cart_lines)"/>
+                            <a href="/portal/order/cart" class="wujia-morder-floatbar"
+                               t-att-data-cart-total="int(cart_total)">
+                                <span class="wujia-morder-floatbar-icon">
+                                    <i class="feather icon-shopping-cart"/>
+                                </span>
+                                <span class="wujia-morder-floatbar-info">
+                                    <span class="wujia-morder-floatbar-title">Giỏ hàng</span>
+                                    <span class="wujia-morder-floatbar-sub">
+                                        <span class="wujia-morder-floatbar-count" t-out="len(cart_lines)"/> sản phẩm •
+                                        <span class="wujia-morder-floatbar-total"
+                                              t-out="'{:,.0f}'.format(cart_total).replace(',', '.')"/> đ
+                                    </span>
+                                </span>
+                                <span class="wujia-morder-floatbar-btn">Xem giỏ</span>
+                            </a>
+                        </t>
+                    </t>
                 </div>
             </div>
         </t>

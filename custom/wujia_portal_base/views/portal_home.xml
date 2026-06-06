@@ -356,33 +356,10 @@
                             </div>
                         </section>
                     </t>
-                    <div class="wujia-mhome-navspacer"/>
                 </div>
-
-                <!-- Bottom navigation (mobile only) — active = Trang chủ (ĐỎ theo Figma) -->
-                <nav class="wujia-mhome-bottomnav d-lg-none">
-                    <a href="/portal" class="wujia-mhome-nav-item is-active">
-                        <i class="feather icon-home"/>
-                        <span class="wujia-mhome-nav-label">Trang chủ</span>
-                    </a>
-                    <a href="/portal/order" class="wujia-mhome-nav-item">
-                        <i class="feather icon-shopping-cart"/>
-                        <span class="wujia-mhome-nav-label">Đặt hàng</span>
-                    </a>
-                    <a href="/portal/delivery" class="wujia-mhome-nav-item">
-                        <i class="feather icon-truck"/>
-                        <span class="wujia-mhome-nav-label">Giao hàng</span>
-                    </a>
-                    <a href="/portal/notification" class="wujia-mhome-nav-item">
-                        <i class="feather icon-bell"/>
-                        <span t-if="unread_count" class="wujia-mhome-nav-badge" t-out="unread_count"/>
-                        <span class="wujia-mhome-nav-label">Thông báo</span>
-                    </a>
-                    <a href="/portal/profile" class="wujia-mhome-nav-item">
-                        <i class="feather icon-more-horizontal"/>
-                        <span class="wujia-mhome-nav-label">Thêm</span>
-                    </a>
-                </nav>
+                <!-- Bottom-nav moved to shared wujia_portal_layout.mobile_bottomnav
+                     (Sprint 11, item 10.1 — promoted portal-wide via app_layout).
+                     Bottom spacing now handled globally in _components.css. -->
             </div>
         </t>
     </template>

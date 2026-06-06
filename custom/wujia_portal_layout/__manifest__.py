@@ -12,6 +12,7 @@
     'data': [
         'views/assets.xml',
         'views/layouts.xml',
+        'views/mobile_bottomnav.xml',
         'views/login_page.xml',
         'views/forgot_pass.xml',
         'views/change_password_page.xml',

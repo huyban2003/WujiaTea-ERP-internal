@@ -1,0 +1,225 @@
+{
+  "project": "Wujia / Ngô Gia Franchise Portal",
+  "purpose": "Source of truth for reusable mobile UI components",
+  "base": {
+    "mobile_width_px": 391,
+    "responsive_width_range_px": [
+      375,
+      414
+    ],
+    "primary_color": "#28A9DF",
+    "primary_dark": "#1895C7",
+    "page_bg": "#F3F6F8",
+    "card_bg": "#FFFFFF",
+    "border": "#E5E7EB",
+    "text_primary": "#111827",
+    "text_secondary": "#6B7280",
+    "text_muted": "#8A9099",
+    "danger_badge": "#EF4444",
+    "font": "Inter, Arial, system sans-serif",
+    "page_padding_px": 16,
+    "section_gap_px": [
+      16,
+      20
+    ]
+  },
+  "components": {
+    "WJ_Mobile_Header_Primary": {
+      "width_px": 391,
+      "height_px": 112,
+      "background": "#28A9DF",
+      "bottom_strip": "#1895C7",
+      "logo": "white pill left",
+      "logo_pill": {
+        "x": 16,
+        "y": 42,
+        "w": 118,
+        "h": 46,
+        "radius": 14
+      },
+      "right_icons": [
+        "cart",
+        "bell",
+        "avatar"
+      ],
+      "icon_style": "Font Awesome solid / white",
+      "badge": {
+        "background": "#EF4444",
+        "text": "#FFFFFF",
+        "visible_if_count_gt": 0
+      },
+      "reuse_rule": "Do not recreate or alter header per screen."
+    },
+    "WJ_Mobile_BottomNav": {
+      "position": "fixed bottom",
+      "height_px": [
+        72,
+        80
+      ],
+      "tabs": [
+        "Trang chủ",
+        "Đặt hàng",
+        "Giao hàng",
+        "Thông báo",
+        "Thêm"
+      ],
+      "inactive_color": "#8A9099",
+      "active_color": "TBD: red accent or #28A9DF"
+    },
+    "WJ_Mobile_SearchFilter_Order": {
+      "input_height_px": [
+        42,
+        44
+      ],
+      "radius_px": [
+        10,
+        12
+      ],
+      "border": "#E5E7EB",
+      "placeholder": "Tìm sản phẩm",
+      "remove_title_view_all": true,
+      "reuse_for_listing_screens": true
+    },
+    "WJ_Mobile_OrderWarningBar": {
+      "height_px": [
+        36,
+        44
+      ],
+      "radius_px": [
+        10,
+        12
+      ],
+      "text": "Khung giờ đặt hàng: 10:00 - 04:00",
+      "style": "red warning bar",
+      "used_in": [
+        "Product List",
+        "Cart"
+      ]
+    },
+    "WJ_Mobile_ProductRow_Compact": {
+      "height_px": [
+        68,
+        76
+      ],
+      "layout": "compact list row",
+      "product_name": "max 1-2 lines, ellipsis",
+      "add_button_touch_area_px": 40
+    },
+    "WJ_Mobile_CartRow_Fixed": {
+      "height_px": [
+        90,
+        96
+      ],
+      "padding": "14px 16px",
+      "product_name": "max 1 line, ellipsis",
+      "quantity_stepper_width_px": [
+        112,
+        120
+      ],
+      "total_amount_width_px": [
+        100,
+        110
+      ],
+      "delete_button_px": 40,
+      "no_selling_badge": true
+    },
+    "WJ_Mobile_CartScrollContainer": {
+      "render_all_items": true,
+      "overflow_y": "auto",
+      "no_view_more": true,
+      "no_pagination": true
+    },
+    "WJ_Mobile_FooterActionBar": {
+      "width_px": 391,
+      "height_px": 83,
+      "position": "fixed bottom",
+      "background": "#FFFFFF",
+      "border": "#EEF2F5",
+      "actions": [
+        "Trang chủ",
+        "Đặt hàng",
+        "Giao hàng",
+        "Thông báo",
+        "Thêm"
+      ],
+      "active_color": "#EF4444",
+      "inactive_color": "#8A939E",
+      "badge": {
+        "background": "#EF4444",
+        "text": "#FFFFFF",
+        "used_for": "Thông báo unread count"
+      },
+      "icon_style": "Font Awesome style / solid",
+      "source": "WJ_Mobile_FooterActionBar.svg",
+      "reuse_rule": "Do not recreate footer action per screen; only change active item and badge count."
+    },
+    "WJ_Mobile_CurrentStoreStrip": {
+      "version": "v1",
+      "width_px": 391,
+      "height_px": 48,
+      "position": "below WJ_Mobile_Header_Primary; above page title/filter",
+      "background": "#FFFFFF",
+      "border_bottom": "#EEF2F5",
+      "padding": "10px 16px",
+      "layout": "[store_code_badge] store_name [role_or_status_badge]",
+      "example": "[H000] Cửa hàng Nguyễn Trãi Owner",
+      "store_code_badge": {
+        "background": "#EAF7FD",
+        "text": "#28A9DF",
+        "font_size_px": 12,
+        "font_weight": 700
+      },
+      "store_name": {
+        "font_size_px": 15,
+        "font_weight": 700,
+        "color": "#111827",
+        "max_lines": 1,
+        "overflow": "ellipsis"
+      },
+      "role_status_badge": {
+        "position": "right",
+        "style": "pill",
+        "example": "Owner"
+      },
+      "do_not_show": [
+        "Đang thao tác cho cửa hàng này",
+        "long address",
+        "hotline",
+        "representative name"
+      ],
+      "used_in": [
+        "Product List",
+        "Cart",
+        "Order History",
+        "Delivery",
+        "Return Request",
+        "Ticket",
+        "Debt"
+      ],
+      "not_used_in": [
+        "Home / Dashboard"
+      ],
+      "source": "WJ_Mobile_CurrentStoreStrip_v1.svg",
+      "reuse_rule": "Reuse on all non-Home mobile function screens; do not recreate per screen."
+    }
+  },
+  "screen_versions": {
+    "Dashboard Mobile": "ngo_gia_mobile_dashboard_header_blue_refined_detailed_v5",
+    "Order Mobile": "ngo_gia_mobile_order_page_v11_registry_header_fixed"
+  },
+  "rules": [
+    "Reuse header, search/filter, warning bar, bottom nav across screens.",
+    "Do not create new header/filter styles for each screen.",
+    "If a shared component changes, version the component and update registry.",
+    "New screen design should only customize the screen content area.",
+    "Reuse WJ_Mobile_FooterActionBar for mobile footer action/bottom navigation; do not create new footer nav styles.",
+    "Reuse WJ_Mobile_CurrentStoreStrip below the blue header on non-Home mobile screens.",
+    "Do not show the sentence “Đang thao tác cho cửa hàng này” in CurrentStoreStrip."
+  ],
+  "open_decisions": [
+    "Confirm final primary cyan: #28A9DF vs code production #22A9DE.",
+    "Confirm active bottom nav color: red accent vs #28A9DF.",
+    "Confirm final official logo file for mobile header."
+  ],
+  "document_version": "v3"
+}

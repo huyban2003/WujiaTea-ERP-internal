@@ -37,12 +37,16 @@
              Sprint 10: ẩn trên Home (/portal) vì hero mobile đã show cửa hàng +
              role rồi → tránh trùng. Trang khác vẫn giữ strip làm chỉ báo store. -->
         <xpath expr="//div[hasclass('header-navbar-shadow')]" position="after">
-            <div t-if="_wujia_active_franchise and request.httprequest.path != '/portal'" class="wujia-store-mobile-strip">
-                <span class="wujia-store-mobile-strip-label">Cửa hàng hiện tại</span>
+            <!-- Sprint 11: restyle theo BA WJ_Mobile_CurrentStoreStrip_v1 →
+                 1 dòng "[code]  Tên cửa hàng  ...  Role". Bỏ label "Cửa hàng hiện tại".
+                 Ẩn trên Home (hero đã show) VÀ trên trang Đặt hàng (Figma 2480:2
+                 không có strip — user xác nhận 2026-06-06). -->
+            <div t-if="_wujia_active_franchise and request.httprequest.path != '/portal' and not request.httprequest.path.startswith('/portal/order')" class="wujia-store-mobile-strip">
+                <span t-if="_wujia_active_franchise.code" class="wujia-store-strip-code"
+                      t-out="_wujia_active_franchise.code"/>
                 <strong class="wujia-store-mobile-strip-name"
-                        t-out="_wujia_active_franchise.display_name"/>
-                <span t-if="_wujia_active_role"
-                      t-attf-class="wujia-store-role-badge wujia-store-role-badge-mini wujia-store-role-badge-#{_wujia_active_role}">
+                        t-out="_wujia_active_franchise.name or _wujia_active_franchise.display_name"/>
+                <span t-if="_wujia_active_role" class="wujia-store-strip-role">
                     <t t-if="_wujia_active_role == 'manager'">Manager</t>
                     <t t-elif="_wujia_active_role == 'owner'">Owner</t>
                     <t t-elif="_wujia_active_role == 'staff'">Staff</t>
@@ -66,7 +70,7 @@
               priority="20"
               name="Wujia Top Navbar — Active Store Badge">
         <xpath expr="//div[hasclass('bookmark-wrapper')]/ul[hasclass('navbar-nav')]" position="inside">
-            <li class="nav-item d-none d-md-flex align-items-center"
+            <li class="nav-item d-none d-lg-flex align-items-center"
                 t-if="_wujia_active_franchise">
                 <a href="#" data-action="open-store-picker"
                    class="wujia-active-store-badge"
@@ -77,7 +81,7 @@
                     </span>
                 </a>
             </li>
-            <li class="nav-item d-none d-md-flex align-items-center"
+            <li class="nav-item d-none d-lg-flex align-items-center"
                 t-if="_wujia_active_role">
                 <span t-attf-class="wujia-store-role-badge wujia-store-role-badge-#{_wujia_active_role}">
                     <t t-if="_wujia_active_role == 'manager'">Manager</t>

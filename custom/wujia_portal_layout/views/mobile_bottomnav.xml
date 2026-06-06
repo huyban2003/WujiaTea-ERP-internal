@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- WJ_Mobile_FooterActionBar (BA UI Component Registry v3 §2.10) — shared
+         bottom navigation, promoted portal-wide (Sprint 11, finishes item 10.1).
+         Mobile-only (d-lg-none); desktop unaffected. Active item derived from the
+         request path so every page lights the correct tab without per-controller
+         data. The "Thông báo" badge is populated by header_bell_badge.js from the
+         same unread-count poll the header bell uses (no extra query). -->
+    <template id="mobile_bottomnav" name="Wujia Mobile — Footer Action Bar">
+        <t t-set="_bnav_path" t-value="request.httprequest.path or ''"/>
+        <t t-set="_bnav_active"
+           t-value="'home' if _bnav_path == '/portal' else (
+                    'order' if (_bnav_path.startswith('/portal/order') or _bnav_path.startswith('/portal/purchase-history')) else (
+                    'delivery' if _bnav_path.startswith('/portal/delivery') else (
+                    'noti' if _bnav_path.startswith('/portal/notification') else 'more')))"/>
+        <nav class="wujia-mhome-bottomnav d-lg-none">
+            <a href="/portal" t-attf-class="wujia-mhome-nav-item #{'is-active' if _bnav_active == 'home' else ''}">
+                <i class="feather icon-home"/>
+                <span class="wujia-mhome-nav-label">Trang chủ</span>
+            </a>
+            <a href="/portal/order" t-attf-class="wujia-mhome-nav-item #{'is-active' if _bnav_active == 'order' else ''}">
+                <i class="feather icon-shopping-cart"/>
+                <span class="wujia-mhome-nav-label">Đặt hàng</span>
+            </a>
+            <a href="/portal/delivery" t-attf-class="wujia-mhome-nav-item #{'is-active' if _bnav_active == 'delivery' else ''}">
+                <i class="feather icon-truck"/>
+                <span class="wujia-mhome-nav-label">Giao hàng</span>
+            </a>
+            <a href="/portal/notification" t-attf-class="wujia-mhome-nav-item #{'is-active' if _bnav_active == 'noti' else ''}">
+                <i class="feather icon-bell"/>
+                <span class="wujia-mhome-nav-badge wujia-bnav-noti-badge" style="display:none;">0</span>
+                <span class="wujia-mhome-nav-label">Thông báo</span>
+            </a>
+            <a href="/portal/profile" t-attf-class="wujia-mhome-nav-item #{'is-active' if _bnav_active == 'more' else ''}">
+                <i class="feather icon-more-horizontal"/>
+                <span class="wujia-mhome-nav-label">Thêm</span>
+            </a>
+        </nav>
+    </template>
+
+</odoo>

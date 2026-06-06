@@ -75,22 +75,23 @@
 .wujia-store-role-badge-owner   { background-color: var(--wujia-warning); }
 .wujia-store-role-badge-staff   { background-color: var(--wujia-text-muted); }
 
-/* UI-04 — Mobile sub-strip Current Store (mockup G6 image23): 3-row stacked,
-   bg white, label cyan, name dark, role badge mini dòng riêng. Inject sau
-   .header-navbar-shadow trong app_layout; chiếm chỗ Vuexy gap mặc định
-   content-wrapper margin-top để nằm SÁT DƯỚI floating-nav (~108px). */
+/* Sprint 11 — Current Store Strip (BA WJ_Mobile_CurrentStoreStrip_v1): 1 dòng
+   "[code]  Tên cửa hàng  ...  Role". White bg, border-bottom #EEF2F5, ~48px.
+   Hiển thị <992px (đồng bộ d-lg-none của mobile order/home). Inject sau
+   .header-navbar-shadow; margin-top để nằm sát dưới Vuexy floating-nav. */
 .wujia-store-mobile-strip {
     display: none;
 }
-@media (max-width: 767.98px) {
+@media (max-width: 991.98px) {
     .wujia-store-mobile-strip {
         display: flex;
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 4px;
-        background: var(--wujia-mobile-strip-bg);
-        padding: var(--wujia-mobile-strip-padding);
-        border-bottom: var(--wujia-mobile-strip-border-bottom);
+        flex-direction: row;
+        align-items: center;
+        gap: 10px;
+        min-height: 48px;
+        background: #FFFFFF;
+        padding: 8px 16px;
+        border-bottom: 1px solid #EEF2F5;
         width: 100%;
         margin-top: 7.5rem;
     }
@@ -98,34 +99,43 @@
         margin-top: 0 !important;
     }
 }
-.wujia-store-mobile-strip-label {
-    color: var(--wujia-mobile-strip-label-color);
-    font-size: 11px;
-    font-weight: 600;
-    letter-spacing: 0.6px;
-    text-transform: uppercase;
+.wujia-store-strip-code {
+    flex: 0 0 auto;
+    display: inline-flex;
+    align-items: center;
+    background: #EAF7FD;
+    color: var(--wujia-morder-primary);
+    border-radius: 999px;
+    padding: 3px 10px;
+    font-size: 12px;
+    font-weight: 700;
     line-height: 1.2;
 }
 .wujia-store-mobile-strip-name {
-    color: var(--wujia-mobile-strip-name-color);
+    flex: 1 1 auto;
+    color: var(--wujia-text-primary);
     font-size: 15px;
-    font-weight: 600;
+    font-weight: 700;
     line-height: 1.3;
-    max-width: 100%;
+    min-width: 0;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
 }
-.wujia-store-role-badge-mini {
-    padding: 4px 12px;
-    min-height: 26px;
+.wujia-store-strip-role {
+    flex: 0 0 auto;
+    display: inline-flex;
+    align-items: center;
+    background: #FFFFFF;
+    color: var(--wujia-text-secondary);
+    border: 1px solid var(--wujia-border);
+    border-radius: 999px;
+    padding: 4px 14px;
     font-size: 12px;
+    font-weight: 700;
     line-height: 1.2;
-    margin-top: 2px;
-    margin-right: 0;
 }
 
 @media (max-width: 575.98px) {
     .wujia-store-mobile-strip-name { font-size: 14px; }
-    .wujia-store-mobile-strip-label { font-size: 10px; }
 }

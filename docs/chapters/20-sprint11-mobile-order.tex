@@ -1,0 +1,115 @@
+\chapter{Sprint 11 --- Mobile trang Đặt hàng + shared components (2026-06-07)}
+
+\section{Bối cảnh}
+
+BA chốt Figma \textbf{trang Đặt hàng bản mobile} --- frame \texttt{2480:2}
+(\emph{ngo\_gia\_mobile\_order\_page\_v9\_scroll\_all\_cart}, gồm 2 màn: danh sách
+\textbf{Sản phẩm} + \textbf{Giỏ hàng}). Đồng thời BA gửi pack
+\texttt{WujiaTea/UI/Wujia\_Source\_UI\_Final\_Pack\_v2.1} ---
+\textbf{Component Registry v3} là \emph{source of truth} cho các component mobile
+dùng chung (Header, Footer Action Bar = bottom-nav, Current Store Strip,
+Search/Filter, Order Warning Bar, Product Row Compact, Cart Row Fixed, Cart
+Summary CTA, Back Secondary Button).
+
+Sprint 10 chỉ gắn bottom-nav ở \texttt{/portal}. Sprint này: (1) \textbf{dứt điểm
+item 10.1} --- promote bottom-nav + Current Store Strip ra toàn portal mobile;
+(2) build mới màn Đặt hàng mobile khớp Figma \(\approx\)95\%. Backend đặt hàng đã
+wire đủ từ trước (\texttt{/portal/order}, \texttt{cart/add|update|remove|count},
+\texttt{submit}) nên sprint gần như thuần UI + wiring JS.
+
+\textbf{Chốt từ user:} (1) shared components áp \textbf{toàn portal mobile};
+(2) \textbf{header giữ nguyên} navbar Vuexy (BA còn chỉnh header --- chờ bản
+final); (3) cart \textbf{submit thẳng} theo BA --- chỉ Tạm tính + nút "Gửi đơn",
+KHÔNG field SĐT/địa chỉ/ghi chú (xử lý BE submit để sau); (4) trang Đặt hàng
+\textbf{KHÔNG} hiện Current Store Strip (Figma 2480:2 không có); (5) thanh giỏ hàng
+nổi bám đúng màu Figma (node 2480:141).
+
+\section{Khối Mobile (Figma 2480:2) + màu/kích thước}
+
+\begin{longtable}{@{}lp{8.6cm}@{}}
+\toprule
+\textbf{Khối} & \textbf{Spec Figma / Registry (màu / size)} \\
+\midrule
+\endhead
+Order Warning Bar & Nền đỏ nhạt \#FEE2E2, chữ đỏ \#DC2626, 13/700, radius 12,
+"Khung giờ đặt hàng: HH:MM - HH:MM". Dùng ở Sản phẩm (Cart defer BE context). \\
+Search/Filter & Input "Tìm sản phẩm" h44 r12 + select "Tất cả". Border \#E5E7EB,
+focus = cyan \#28A9DF. \\
+Product Row Compact & 68--76px, divider \#E5E7EB: thumb (nền cyan nhạt \#DDF6FF) +
+tên (ellipsis) + ĐVT + giá (bold) + nút thêm cyan \#28A9DF (42px) + \textbf{badge
+xanh \#16A34A} = SL đang trong giỏ. \\
+Floating Cart Bar & \texttt{position:fixed} trên bottom-nav. Nền \textbf{gradient
+90° \#0B2430 → \#1B5C75} (node 2480:141), title trắng, sub "N sản phẩm • tổng" =
+cyan nhạt \#DDF6FF, nút "Xem giỏ" = \textbf{nền trắng + chữ cyan} \#28A9DF. \\
+Cart Row Fixed & 90--96px: thumb + tên (ellipsis) + "ĐVT • Đơn giá X" + stepper
+(− N +) + "Thành tiền Y" (canh phải) + nút xoá 40×40. Render TẤT CẢ (no see-more). \\
+Cart Summary CTA & Sticky trên bottom-nav: "Tạm tính / tổng" + "Số lượng / N" +
+nút "Gửi đơn đặt hàng" cyan h50 → POST \texttt{/portal/order/submit}. \\
+Back Secondary & "← Tiếp tục chọn sản phẩm" → \texttt{/portal/order}, outline cyan h44. \\
+Current Store Strip & 1 dòng \texttt{[code]} (chip cyan nhạt \#EAF7FD/\#28A9DF) +
+tên cửa hàng (15/700 \#111827 ellipsis) + role pill phải. Trắng, 48px, border-bottom
+\#EEF2F5. Hiện mọi trang ngoài Home, \textbf{trừ} \texttt{/portal/order*}. \\
+Bottom-nav (Footer Action Bar) & Fixed 5 mục, active = ĐỎ \#EF4444, inactive
+\#8A939E, badge "Thông báo". Active tự động theo \texttt{request path}. Chỉ \(<\)992px. \\
+\bottomrule
+\end{longtable}
+
+\section{Gì đã làm}
+
+Dựng lại 2 màn của trang đặt hàng cho điện thoại theo đúng Figma BA: màn
+\textbf{Sản phẩm} (banner khung giờ, ô tìm + lọc, danh sách dạng dòng gọn, nút
+thêm giỏ kèm badge số lượng đã có, thanh giỏ hàng nổi ở đáy) và màn \textbf{Giỏ
+hàng} (nút quay lại, danh sách cuộn toàn bộ, mỗi dòng có nút tăng/giảm + thành
+tiền + xoá, thanh tổng kết dính đáy với nút gửi đơn). Thanh điều hướng dưới đáy
+(bottom-nav) và dải thông tin cửa hàng được tách thành \textbf{component dùng
+chung} và bật cho toàn bộ portal bản mobile, hoàn tất việc còn nợ từ Sprint 10
+(item 10.1). Bản desktop giữ nguyên 100\% (toggle \texttt{d-none d-lg-block} /
+\texttt{d-lg-none}).
+
+\section{Lý do / Trade-off}
+
+\begin{itemize}
+  \item \textbf{Bottom-nav đưa vào \texttt{app\_layout}} (không lặp ở từng trang):
+        một component, active suy ra từ \texttt{request.httprequest.path} ---
+        khỏi mỗi controller phải truyền biến active.
+  \item \textbf{Badge "Thông báo" của bottom-nav dùng lại poll sẵn có}
+        (\texttt{header\_bell\_badge.js} → \texttt{/portal/notification/unread-count})
+        thay vì query per-page --- \textbf{0 query thêm}, an toàn cho mục tiêu
+        1500 user đồng thời.
+  \item \textbf{Current Store Strip ẩn ở trang Đặt hàng}: Registry gợi ý dùng strip
+        ở Product List/Cart, nhưng frame Figma 2480:2 không có → ưu tiên Figma
+        (user xác nhận).
+  \item \textbf{Cart warning bar + chặn submit ngoài khung giờ} cần controller
+        \texttt{portal\_order\_cart\_view} truyền context khung giờ → \textbf{defer}
+        (BE submit xử lý sau theo chỉ đạo). Nút "Gửi đơn" vẫn POST vào endpoint
+        \texttt{/portal/order/submit} sẵn có (server-side đã gate khung giờ).
+  \item \textbf{Token mobile prefix riêng} \texttt{--wujia-morder-*} /
+        \texttt{--wujia-mcart-*} + class scope \texttt{.wujia-morder}/\texttt{.wujia-mcart}
+        (wrapper \texttt{d-lg-none}) → zero blast radius lên desktop.
+\end{itemize}
+
+\section{Files chạm}
+
+\begin{itemize}
+  \item \textbf{NEW} \texttt{wujia\_portal\_layout/views/mobile\_bottomnav.xml} ---
+        template bottom-nav share, include vào \texttt{app\_layout}.
+  \item \texttt{wujia\_portal\_layout/}: \texttt{layouts.xml} (include nav),
+        \texttt{assets.xml} (bump \texttt{?v=1115}), \texttt{\_variables.css}
+        (token \texttt{--wujia-morder-*}), \texttt{\_components.css} (class mobile
+        order/cart + restyle strip + global bottom-padding).
+  \item \texttt{wujia\_portal\_base/}: \texttt{portal\_home.xml} (gỡ nav cứng),
+        \texttt{store\_picker\_navbar.xml} (strip BA, ẩn order page),
+        \texttt{store\_picker.css} (style strip + breakpoint 768→992).
+  \item \texttt{wujia\_portal\_sale/}: \texttt{portal\_order\_catalog.xml} +
+        \texttt{portal\_order\_cart.xml} (block mobile), \texttt{portal\_order.js}
+        (stepper/delete/badge/floatbar).
+  \item \texttt{wujia\_portal\_notification/header\_bell\_badge.js} (feed badge
+        bottom-nav).
+\end{itemize}
+
+\section{Verify}
+
+\texttt{upgrade.sh} 4 module RC=0 (91 modules loaded); \texttt{test\_sprint9.py}
+7/7; \texttt{test\_sprint5.py} 20/20; QWeb dict/generator comprehension render OK;
+HTTP smoke (login 200, CSS \texttt{?v=1115} 200, route portal 303 không 500).
+Visual \(<\)992px (375/391/414) do user duyệt trên browser thật.
