@@ -216,6 +216,39 @@
     --wujia-morder-floatbar-bg:  linear-gradient(90deg, #0B2430 0%, #1B5C75 100%);  /* Figma 2480:141 */
     --wujia-morder-floatbar-sub: #DDF6FF;  /* sub text "N sản phẩm • tổng" (Figma) */
     --wujia-morder-radius:       14px;
+
+    /* ---------- Mobile Shell FINAL (BA Wujia_Source_UI_FINAL_v1, Sprint 12, 2026-06-07) ----------
+       Header(104) + Current Store Strip(48) + Footer(83) = shell chuẩn cho MỌI trang
+       mobile (<992px), render 1 lần trong app_layout. Map từ token --wj-* của BA pack
+       FINAL_v1 (thay mọi pack v1/v2/v3). Prefix --wujia-mshell-* / --wujia-mheader-* /
+       --wujia-mnav-* → mobile-only, zero blast radius lên desktop. Mobile primary =
+       #28A9DF (BA final, ≠ desktop --wujia-primary #22A9DE). ---------- */
+    --wujia-mshell-primary:            #28A9DF;
+    --wujia-mshell-bg:                 #F3F6F8;  /* app bg mobile (BA final; desktop giữ #E8ECEF) */
+    --wujia-mshell-surface:            #FFFFFF;
+    --wujia-mshell-border:             #EEF2F5;
+    --wujia-mshell-content-pad-x:      16px;
+    --wujia-mshell-content-pad-bottom: 96px;     /* footer fixed 83 + thở (BA ≥96) */
+
+    /* Header mobile (WJ_Mobile_Header_Primary_FINAL_v1) */
+    --wujia-mheader-height:          104px;
+    --wujia-mheader-bg:              #28A9DF;
+    --wujia-mheader-logo-w:          116px;
+    --wujia-mheader-logo-h:          44px;
+    --wujia-mheader-logo-radius:     14px;
+    --wujia-mheader-action-size:     38px;
+    --wujia-mheader-action-radius:   19px;
+    --wujia-mheader-action-bg:       rgba(255, 255, 255, 0.18);
+    --wujia-mheader-action-bg-hover: rgba(255, 255, 255, 0.30);
+    --wujia-mheader-action-gap:      12px;
+
+    /* Footer / bottom-nav (WJ_Mobile_FooterActionBar_FINAL_v1) — BA final override:
+       active = brand cyan, badge = đỏ. TÁCH token (trước đây --wujia-mhome-nav-active
+       đỏ dùng chung cho cả active VÀ badge → BA final tách: active cyan, badge đỏ). */
+    --wujia-mnav-height:             83px;
+    --wujia-mnav-active:             #28A9DF; /* BA final: brand cyan (override active đỏ Sprint 10/11) */
+    --wujia-mnav-inactive:           #8A939E;
+    --wujia-mnav-badge:              #EF4444; /* đỏ chỉ cho badge/cảnh báo, KHÔNG cho active nav */
 }
 
 /* ============================================================================

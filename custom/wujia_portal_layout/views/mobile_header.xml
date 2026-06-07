@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- WJ_Mobile_Header_Primary (BA Wujia_Source_UI_FINAL_v1) — header chuẩn cho
+         MỌI trang mobile (Sprint 12, 2026-06-07). Render 1 lần trong app_layout,
+         mobile-only (d-lg-none); navbar Vuexy desktop bị ẩn <992px qua _wujia_theme.css.
+         Desktop (≥992px) GIỮ NGUYÊN navbar/sidebar Vuexy.
+
+         BA final spec:
+           - Header 104px, nền cyan #28A9DF liền khối (KHÔNG dải xanh đậm đáy).
+           - Logo slot trắng bo trái (116×44, radius 14).
+           - Right actions = Language / Cart shortcut / Avatar (nút tròn translucent ~38px).
+           - BỎ notification bell (đã có tab Thông báo ở footer).
+           - Cart = shortcut tới giỏ hiện tại (≠ tab Đặt hàng ở footer).
+
+         Reuse: lang dropdown + avatar dropdown markup từ layout_top_navbar; cart badge
+         class .wujia-header-cart-count (header_cart_badge.js poll cập nhật — JS đã đổi
+         querySelectorAll để cập nhật cả badge desktop ẩn lẫn mobile). -->
+    <template id="mobile_header" name="Wujia Mobile — Header Primary (BA FINAL v1)">
+        <header class="wujia-mheader d-lg-none">
+            <!-- Logo slot (placeholder per BA; dùng company.logo_web tạm — BA sẽ cấp
+                 logo tối ưu mobile sau). -->
+            <a href="/portal" class="wujia-mheader-logo" aria-label="Trang chủ">
+                <img t-attf-src="data:image/png;base64,{{env.company.logo_web}}"
+                     alt="Wujia" class="wujia-mheader-logo-img"/>
+            </a>
+
+            <div class="wujia-mheader-actions">
+                <!-- Language -->
+                <div class="dropdown dropdown-language wujia-mheader-action-wrap">
+                    <a class="wujia-mheader-action dropdown-toggle" id="m-dropdown-flag" href="#"
+                       data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"
+                       aria-label="Language">
+                        <t t-if="lang == 'vi_VN'">
+                            <i class="flag-icon flag-icon-vn"/>
+                        </t>
+                        <t t-else="">
+                            <i class="flag-icon flag-icon-us"/>
+                        </t>
+                    </a>
+                    <div class="dropdown-menu dropdown-menu-right" aria-labelledby="m-dropdown-flag">
+                        <a class="dropdown-item" t-attf-href="/website/lang/en" data-url_code="en">
+                            <i class="flag-icon flag-icon-us"/>
+                            English
+                        </a>
+                        <a class="dropdown-item" t-attf-href="/website/lang/vi" data-url_code="vi">
+                            <i class="flag-icon flag-icon-vn"/>
+                            Việt Nam
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Cart shortcut → giỏ hiện tại. Badge dùng lại .wujia-header-cart-count. -->
+                <a class="wujia-mheader-action" href="/portal/order/cart" aria-label="Giỏ hàng">
+                    <i class="feather icon-shopping-cart"/>
+                    <span class="wujia-header-badge wujia-header-cart-count">0</span>
+                </a>
+
+                <!-- Avatar (dropdown profile / change-password / logout, như desktop). -->
+                <div class="dropdown dropdown-user wujia-mheader-action-wrap">
+                    <a class="wujia-mheader-action wujia-mheader-avatar dropdown-toggle" href="#"
+                       data-toggle="dropdown" aria-label="Tài khoản">
+                        <img class="round wujia-mheader-avatar-img"
+                             t-att-src="'/web/image/res.users/' + str(request.env.user.id) + '/avatar_128'"
+                             alt="avatar"/>
+                    </a>
+                    <div class="dropdown-menu dropdown-menu-right">
+                        <a class="dropdown-item" href="/portal/profile">
+                            <i class="feather icon-user"/>
+                            Personal Information
+                        </a>
+                        <a class="dropdown-item" href="/portal/change-password">
+                            <i class="feather icon-lock"/>
+                            Change Password
+                        </a>
+                        <div class="dropdown-divider"/>
+                        <a class="dropdown-item" href="/portal/logout">
+                            <i class="feather icon-power"/>
+                            Log out
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </header>
+    </template>
+
+</odoo>

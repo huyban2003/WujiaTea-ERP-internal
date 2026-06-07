@@ -1,0 +1,123 @@
+\chapter{Sprint 12 --- Mobile Shell FINAL (Header + Strip + Footer) (2026-06-07)}
+
+\section{Bối cảnh}
+
+BA phát hành bản \textbf{FINAL} của mobile shell tại
+\texttt{WujiaTea/UI/Wujia\_Source\_UI\_FINAL\_v1} ---
+\textbf{thay thế mọi pack v1/v2/v3} trước đó. Bản này định nghĩa 3 thành phần
+\emph{chuẩn cho MỌI trang mobile}: \textbf{Header} (104px), \textbf{Current Store
+Strip} (48px), \textbf{Footer Action Bar} (83px, fixed). Sprint 10/11 mới dựng
+mobile Home + Đặt hàng theo Figma cũ và \textbf{chưa xử lý Header} --- header vẫn
+là navbar Vuexy desktop dùng chung cho cả mobile.
+
+Mục tiêu sprint: biến Header/Strip/Footer thành \textbf{shared shell render 1 lần
+trong \texttt{app\_layout}} \(\rightarrow\) tự áp dụng cho mọi trang mobile
+(\(<992\)px). Desktop (\(\geq 992\)px) GIỮ NGUYÊN tuyệt đối.
+
+\textbf{Nguồn chuẩn:} \texttt{Wujia\_UI\_Component\_Registry\_FINAL\_v1.\{md,json\}},
+\texttt{Wujia\_UI\_CHANGELOG\_FINAL\_v1.md} (10 final decisions),
+\texttt{Wujia\_UI\_Design\_Tokens\_FINAL\_v1.css}, mockup \texttt{@3x}.
+
+\textbf{Chốt từ user (2026-06-07):}
+\begin{itemize}
+  \item \textbf{Menu access}: header bỏ hamburger \(\rightarrow\) footer tab
+        \emph{"Thêm"} wire vào off-canvas sidebar Vuexy hiện có (interim, giữ truy
+        cập các trang ngoài footer). \textbf{Có NOTE rõ trong code} để khi BA
+        design drawer riêng thì truy ra được.
+  \item \textbf{Footer active color}: đổi \textbf{đỏ \(\rightarrow\) cyan
+        \#28A9DF} theo BA final (override quyết định "active đỏ" của Sprint 10/11);
+        đỏ chỉ còn cho badge/cảnh báo.
+  \item \textbf{Current Store Strip}: hiện đồng đều trên \textbf{MỌI trang} (kể cả
+        Home + Đặt hàng) cho nhất quán --- user chốt sau khi thấy việc carve-out
+        2 trang để lại cảm giác lệch.
+\end{itemize}
+
+\section{Kiến trúc: Mobile Shell = shared component (apply-all)}
+
+Shell render 1 lần trong \texttt{wujia\_portal\_layout.app\_layout}, mobile-only
+(\texttt{d-lg-none}). Mọi trang gọi \texttt{app\_layout} tự có shell --- đây là cách
+đạt "apply-all" mà không cần module mới: \texttt{wujia\_portal\_layout} là base
+layout (đã sở hữu footer + layout), strip đã global qua \texttt{app\_layout}
+inherit ở \texttt{wujia\_portal\_base}. Range 992--1199px vẫn là "desktop"
+(navbar + hamburger Vuexy như cũ); shell mới CHỈ \(<992\)px.
+
+\section{Khối shell (BA FINAL v1) + màu/kích thước}
+
+\begin{longtable}{@{}lp{8.8cm}@{}}
+\toprule
+\textbf{Khối} & \textbf{Spec FINAL v1 (màu / size)} \\
+\midrule
+\endhead
+Header & 104px, nền cyan \#28A9DF liền khối (KHÔNG dải xanh đậm đáy). Logo slot
+trắng bo trái 116\(\times\)44 r14. Phải: nút tròn translucent
+\texttt{rgba(255,255,255,.18)} \(\sim\)38px r19 --- \textbf{Language / Cart
+shortcut / Avatar}. \textbf{BỎ chuông} (footer đã có tab Thông báo). Cart =
+shortcut tới giỏ hiện tại. \\
+Current Store Strip & 48px trắng, border-bottom \#EEF2F5. 1 dòng "[H000] (pill
+cyan \#EAF7FD) \(\;\) Tên cửa hàng (bold) \(\;\dots\;\) Role (pill viền)". Không
+subline/địa chỉ. \\
+Footer Action Bar & 83px trắng, border-top \#EEF2F5, fixed. Tabs: Trang chủ /
+Đặt hàng / Giao hàng / Thông báo / Thêm. \textbf{Active = cyan \#28A9DF},
+inactive \#8A939E, badge \#EF4444. Icon "Thêm" = \texttt{icon-grid}. \\
+Content & padding ngang 16px, padding-bottom \(\geq 96\)px (footer fixed không
+che). App bg mobile \#F3F6F8. \\
+\bottomrule
+\end{longtable}
+
+\section{Module \& file chạm}
+
+\begin{itemize}
+  \item \texttt{wujia\_portal\_layout}:
+    \begin{itemize}
+      \item \textbf{MỚI} \texttt{views/mobile\_header.xml} --- template
+            \texttt{mobile\_header} (d-lg-none) + đăng ký \texttt{\_\_manifest\_\_.py}
+            (version \(\rightarrow\) 19.0.12.0.0).
+      \item \texttt{views/layouts.xml}: gọi \texttt{mobile\_header} làm con đầu của
+            \texttt{.app-content}.
+      \item \texttt{views/mobile\_bottomnav.xml}: "Thêm" \(\rightarrow\)
+            \texttt{menu-toggle} (mở sidebar) + icon-grid + NOTE.
+      \item \texttt{\_variables.css}: cụm token \texttt{-{}-wujia-mshell-*} /
+            \texttt{-{}-wujia-mheader-*} + \textbf{tách} \texttt{-{}-wujia-mnav-active}
+            (cyan) / \texttt{-{}-wujia-mnav-badge} (đỏ).
+      \item \texttt{\_components.css}: style \texttt{.wujia-mheader-*}; footer
+            active cyan + badge đỏ + min-height 83; footer-clearance global
+            88\(\rightarrow\)96; floatbar bottom 76\(\rightarrow\)\texttt{calc(83+8)}.
+      \item \texttt{\_wujia\_theme.css}: ẩn navbar Vuexy \(<992\)px; zero offset
+            floating-nav; bg \#F3F6F8; \textbf{zero \texttt{content-wrapper
+            margin-top: 6rem}} (root-cause "trống 1 khúc").
+      \item \texttt{views/assets.xml}: bump \texttt{?v} 1115\(\rightarrow\)1118.
+    \end{itemize}
+  \item \texttt{wujia\_portal\_base}: \texttt{store\_picker\_navbar.xml} (strip hiện
+        mọi trang) + \texttt{store\_picker.css} (gỡ hack \texttt{margin-top: 7.5rem}).
+  \item \texttt{wujia\_portal\_sale}: \texttt{header\_cart\_badge.js}
+        \texttt{querySelector} \(\rightarrow\) \texttt{querySelectorAll} (cập nhật
+        cả badge desktop ẩn lẫn mobile header).
+\end{itemize}
+
+\section{Gì đã làm}
+
+Mọi trang portal trên điện thoại nay dùng \textbf{một bộ khung thống nhất}: thanh
+tiêu đề xanh có logo + đổi ngôn ngữ + giỏ hàng + tài khoản (đã bỏ chuông vì đáy
+màn đã có tab Thông báo); dải "cửa hàng hiện tại" gọn 1 dòng; và thanh điều hướng
+đáy 5 tab với mục đang chọn tô \textbf{xanh thương hiệu} (trước là đỏ). Người dùng
+chuyển trang nhanh qua thanh đáy; các trang không nằm trong 5 tab (Lịch sử, Đổi
+trả, Kiến thức, Hỗ trợ, Báo cáo, Thi, Thông tin nhượng quyền) mở qua tab "Thêm"
+\(\rightarrow\) menu trượt. Desktop không đổi gì.
+
+\section{Lý do / Trade-off}
+
+\begin{itemize}
+  \item \textbf{"Thêm" \(\rightarrow\) sidebar (interim)}: BA bỏ hamburger nhưng
+        chưa thiết kế drawer "Thêm"; tạm wire vào off-canvas sidebar Vuexy có sẵn
+        để không mất đường vào các trang ngoài footer. Đã ghi NOTE để dễ đổi sau.
+  \item \textbf{Root-cause "trống 1 khúc dưới header"}: Vuexy đặt
+        \texttt{content-wrapper \{ margin-top: 6rem \}} (\(\sim\)90px) để chừa chỗ
+        cho navbar floating. Sprint này ẩn navbar nhưng phần chừa còn \(\rightarrow\)
+        khoảng trống. Fix = zero \texttt{margin-top} trên mobile (rule UI-16 trước
+        đó chỉ override \texttt{padding-top}, sót \texttt{margin-top}).
+  \item \textbf{Strip mọi trang vs carve-out}: ban đầu ẩn strip ở Home/Order theo
+        Figma (store đã nằm trong hero/header), nhưng user chọn hiện đồng đều cho
+        nhất quán --- chấp nhận trùng nhẹ store info ở 2 trang đó (tạm thời).
+  \item \textbf{Bell ở header}: frame Home cũ (2474:2) có chuông, nhưng FINAL\_v1
+        (mới hơn) bỏ chuông \(\rightarrow\) theo FINAL\_v1.
+\end{itemize}

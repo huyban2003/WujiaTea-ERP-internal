@@ -75,10 +75,12 @@
 .wujia-store-role-badge-owner   { background-color: var(--wujia-warning); }
 .wujia-store-role-badge-staff   { background-color: var(--wujia-text-muted); }
 
-/* Sprint 11 — Current Store Strip (BA WJ_Mobile_CurrentStoreStrip_v1): 1 dòng
-   "[code]  Tên cửa hàng  ...  Role". White bg, border-bottom #EEF2F5, ~48px.
-   Hiển thị <992px (đồng bộ d-lg-none của mobile order/home). Inject sau
-   .header-navbar-shadow; margin-top để nằm sát dưới Vuexy floating-nav. */
+/* Current Store Strip (BA Wujia_Source_UI_FINAL_v1, WJ_Mobile_CurrentStoreStrip):
+   1 dòng "[code]  Tên cửa hàng  ...  Role". White bg, border-bottom #EEF2F5, 48px.
+   Hiển thị <992px trên MỌI trang (apply-all, Sprint 12). Inject sau
+   .header-navbar-shadow → nằm ngay dưới mobile header static 104px.
+   Sprint 12 (2026-06-07): GỠ hack `margin-top: 7.5rem` (vốn để né navbar Vuexy
+   floating — navbar đã ẩn <992px). Strip giờ sát ngay dưới header static. */
 .wujia-store-mobile-strip {
     display: none;
 }
@@ -93,7 +95,7 @@
         padding: 8px 16px;
         border-bottom: 1px solid #EEF2F5;
         width: 100%;
-        margin-top: 7.5rem;
+        margin-top: 0;
     }
     .wujia-store-mobile-strip + .content-wrapper {
         margin-top: 0 !important;

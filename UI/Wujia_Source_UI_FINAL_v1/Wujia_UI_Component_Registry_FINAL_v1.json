@@ -1,0 +1,111 @@
+{
+  "version": "FINAL_v1",
+  "updated_at": "2026-06-07T02:58:10Z",
+  "project": "Wujia / Ngô Gia Franchise Portal",
+  "status": "Final mobile shell standard",
+  "frame": {
+    "width": 391,
+    "height": 844,
+    "scale_export": "@3x"
+  },
+  "tokens": {
+    "colors": {
+      "primary": "#28A9DF",
+      "primary_dark": "#168FC2",
+      "background": "#F3F6F8",
+      "surface": "#FFFFFF",
+      "border": "#EEF2F5",
+      "text": "#111827",
+      "muted": "#6B7280",
+      "inactive": "#8A939E",
+      "danger_badge": "#EF4444",
+      "info_pill_bg": "#EAF7FD"
+    },
+    "spacing": {
+      "screen_padding_x": 16,
+      "block_gap": 12,
+      "section_gap": 16,
+      "content_padding_bottom_min": 96
+    },
+    "radius": {
+      "card": 14,
+      "pill": 12,
+      "header_logo_slot": 14,
+      "header_action_circle": 19
+    },
+    "typography": {
+      "font_family": "Inter, Arial, Helvetica, sans-serif",
+      "mobile_body_min": 15,
+      "mobile_label": 11.2,
+      "store_name": {
+        "size": 15,
+        "weight": 700
+      },
+      "badge": {
+        "size": 12,
+        "weight": 700
+      }
+    }
+  },
+  "layout": {
+    "header": {
+      "component": "WJ_Mobile_Header_Primary_FINAL_v1",
+      "x": 0,
+      "y": 0,
+      "width": 391,
+      "height": 104
+    },
+    "current_store_strip": {
+      "component": "WJ_Mobile_CurrentStoreStrip_FINAL_v1",
+      "x": 0,
+      "y": 104,
+      "width": 391,
+      "height": 48
+    },
+    "content_area": {
+      "x": 0,
+      "y": 152,
+      "width": 391,
+      "height_until_footer": 609,
+      "padding_x": 16,
+      "padding_bottom_min": 96
+    },
+    "footer": {
+      "component": "WJ_Mobile_FooterActionBar_FINAL_v1",
+      "x": 0,
+      "y": 761,
+      "width": 391,
+      "height": 83,
+      "fixed": true
+    }
+  },
+  "behavior_rules": [
+    "Mobile header shows Language, Cart shortcut, Avatar only.",
+    "Notification is accessed via the footer tab, not the mobile header.",
+    "Header cart is a shortcut to current cart; it is not the Order module tab.",
+    "Footer active color uses brand cyan; red is reserved for badges, alerts, and warning states.",
+    "Content must include bottom padding of at least 96px to avoid being hidden under the fixed footer."
+  ],
+  "components": [
+    {
+      "id": "WJ_Mobile_Header_Primary_FINAL_v1",
+      "file_svg": "WJ_Mobile_Header_Primary_FINAL_v1.svg",
+      "file_png": "WJ_Mobile_Header_Primary_FINAL_v1@3x.png"
+    },
+    {
+      "id": "WJ_Mobile_CurrentStoreStrip_FINAL_v1",
+      "file_svg": "WJ_Mobile_CurrentStoreStrip_FINAL_v1.svg",
+      "file_png": "WJ_Mobile_CurrentStoreStrip_FINAL_v1@3x.png"
+    },
+    {
+      "id": "WJ_Mobile_FooterActionBar_FINAL_v1",
+      "file_svg": "WJ_Mobile_FooterActionBar_FINAL_v1.svg",
+      "file_png": "WJ_Mobile_FooterActionBar_FINAL_v1@3x.png"
+    },
+    {
+      "id": "WJ_Mobile_BlankShell_FINAL_v1",
+      "file_svg": "WJ_Mobile_BlankShell_FINAL_v1.svg",
+      "file_png": "WJ_Mobile_BlankShell_FINAL_v1@3x.png"
+    }
+  ]
+}

@@ -331,3 +331,45 @@ html body .content .content-wrapper {
 #dashboard-stats {
     margin-bottom: var(--wujia-kpi-content-gap);
 }
+
+/* ============================================================================
+   Sprint 12 (2026-06-07): Mobile Shell FINAL (BA Wujia_Source_UI_FINAL_v1)
+   ---------------------------------------------------------------------------
+   Trên mobile (<992px) THAY navbar Vuexy floating bằng header static 104px
+   (template wujia_portal_layout.mobile_header). Ẩn navbar Vuexy + gỡ offset
+   floating-nav để header+strip+content xếp tự nhiên từ top; footer fixed 83px
+   nên content cần padding-bottom ≥96. Desktop (≥992px) KHÔNG đụng tới.
+   ============================================================================ */
+@media (max-width: 991.98px) {
+    /* Ẩn navbar Vuexy desktop + dải shadow floating-nav trên mobile. */
+    .wujia-navbar,
+    .header-navbar.wujia-navbar,
+    .header-navbar-shadow {
+        display: none !important;
+    }
+    /* Gỡ offset mà Vuexy navbar-floating chừa cho navbar (không còn navbar) →
+       mobile header static (104px, first child của .app-content) nằm sát top. */
+    body.vertical-layout .app-content,
+    body.navbar-floating .app-content {
+        padding-top: 0 !important;
+        margin-top: 0 !important;
+    }
+    /* ROOT CAUSE "trống 1 khúc dưới header" (Sprint 12 fix): Vuexy
+       `html body .content .content-wrapper { margin-top: 6rem }` (components.css:69)
+       chừa ~90px cho floating navbar. Navbar đã ẩn <992px → margin này thành
+       khoảng trống. Zero nó → content (hero Home / list) nằm sát ngay dưới
+       header/strip. padding-top 24 (UI-16) vẫn giữ làm gap nhẹ. Áp MỌI trang. */
+    html body .content .content-wrapper {
+        margin-top: 0 !important;
+    }
+    /* App background mobile theo BA final (#F3F6F8). Desktop giữ #E8ECEF
+       (token global --wujia-bg-page KHÔNG đụng).
+       LƯU Ý: KHÔNG override padding content-wrapper ở đây — padding ngang +
+       padding-top 24 (UI-16) + footer-clearance (.app-content.content 96px,
+       _components.css) đã có sẵn từ trước & làm Home/Order đúng. Đè thêm =
+       double-padding → vỡ 2 trang đó. Strip/title spacing để page tự lo. */
+    html body.vertical-layout,
+    html body .app-content {
+        background-color: var(--wujia-mshell-bg) !important;
+    }
+}

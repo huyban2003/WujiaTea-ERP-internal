@@ -166,6 +166,12 @@
                 <t t-call="wujia_portal_layout.layout_top_navbar"/>
                 <t t-call="wujia_portal_layout.layout_sidenav"/>
                 <div class="app-content content">
+                    <!-- Sprint 12: mobile shell header (BA FINAL v1) — first static block
+                         at top of content on mobile (<992px). Vuexy floating navbar is
+                         hidden <992px (_wujia_theme.css). Store strip is injected right
+                         after header-navbar-shadow by wujia_portal_base → stacks below
+                         this header. Desktop renders this hidden (d-lg-none). -->
+                    <t t-call="wujia_portal_layout.mobile_header"/>
                     <div class="content-overlay"/>
                     <div class="header-navbar-shadow"/>
                     <t t-out="0"/>

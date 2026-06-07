@@ -32,8 +32,19 @@
                 <span class="wujia-mhome-nav-badge wujia-bnav-noti-badge" style="display:none;">0</span>
                 <span class="wujia-mhome-nav-label">Thông báo</span>
             </a>
-            <a href="/portal/profile" t-attf-class="wujia-mhome-nav-item #{'is-active' if _bnav_active == 'more' else ''}">
-                <i class="feather icon-more-horizontal"/>
+            <!-- ====================================================================
+                 NOTE (Sprint 12, 2026-06-07) — "Thêm" = TOGGLE off-canvas sidebar
+                 (INTERIM). BA header final BỎ hamburger, nhưng các trang ngoài footer
+                 (Lịch sử / Đổi trả / Kiến thức / Hỗ trợ / Báo cáo / Thi / Thông tin
+                 franchise…) chỉ truy cập được qua sidebar → tab "Thêm" tạm wire vào
+                 Vuexy `.menu-toggle` (app-menu.js bind document-level toggle body
+                 `.menu-open`; `.sidenav-overlay` đã có trong app_layout) thay vì
+                 link /portal/profile.
+                 ⇒ Khi BA design drawer "Thêm" riêng: đổi href + class TẠI ĐÂY.
+                 (Quyết định user 2026-06-07; xem compact-summary §5 + agentmemory.)
+                 ==================================================================== -->
+            <a href="#" t-attf-class="wujia-mhome-nav-item menu-toggle #{'is-active' if _bnav_active == 'more' else ''}">
+                <i class="feather icon-grid"/>
                 <span class="wujia-mhome-nav-label">Thêm</span>
             </a>
         </nav>

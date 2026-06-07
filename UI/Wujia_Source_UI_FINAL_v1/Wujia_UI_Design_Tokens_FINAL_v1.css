@@ -1,0 +1,54 @@
+:root {
+  --wj-primary: #28A9DF;
+  --wj-primary-dark: #168FC2;
+  --wj-bg: #F3F6F8;
+  --wj-surface: #FFFFFF;
+  --wj-border: #EEF2F5;
+  --wj-text: #111827;
+  --wj-muted: #6B7280;
+  --wj-inactive: #8A939E;
+  --wj-danger: #EF4444;
+  --wj-info-pill-bg: #EAF7FD;
+
+  --wj-mobile-frame-width: 391px;
+  --wj-mobile-header-height: 104px;
+  --wj-current-store-height: 48px;
+  --wj-footer-height: 83px;
+  --wj-content-padding-x: 16px;
+  --wj-content-padding-bottom: 104px;
+  --wj-card-radius: 14px;
+  --wj-pill-radius: 12px;
+  --wj-font-family: Inter, Arial, Helvetica, sans-serif;
+}
+
+.wj-mobile-shell {
+  min-height: 100dvh;
+  background: var(--wj-bg);
+  font-family: var(--wj-font-family);
+  color: var(--wj-text);
+}
+
+.wj-mobile-header {
+  height: var(--wj-mobile-header-height);
+  background: var(--wj-primary);
+}
+
+.wj-current-store-strip {
+  height: var(--wj-current-store-height);
+  background: var(--wj-surface);
+  border-bottom: 1px solid var(--wj-border);
+}
+
+.wj-mobile-content {
+  padding: 16px var(--wj-content-padding-x) var(--wj-content-padding-bottom);
+}
+
+.wj-mobile-footer {
+  height: var(--wj-footer-height);
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: var(--wj-surface);
+  border-top: 1px solid var(--wj-border);
+}

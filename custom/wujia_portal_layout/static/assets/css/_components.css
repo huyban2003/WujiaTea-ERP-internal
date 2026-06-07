@@ -965,8 +965,10 @@ a.wujia-mhome-kpi:active { opacity: 0.85; }
     bottom: 0;
     z-index: 1030;
     display: flex;
-    background: var(--wujia-bg-card);
-    border-top: 1px solid #EEF2F5;
+    align-items: center;
+    min-height: var(--wujia-mnav-height);   /* BA final 83px */
+    background: var(--wujia-mshell-surface);
+    border-top: 1px solid var(--wujia-mshell-border);
     box-shadow: 0 -2px 8px rgba(15, 23, 42, 0.05);
     padding: 6px 0 max(6px, env(safe-area-inset-bottom));
 }
@@ -980,7 +982,7 @@ a.wujia-mhome-kpi:active { opacity: 0.85; }
     gap: 3px;
     padding: 4px 0;
     text-decoration: none;
-    color: var(--wujia-mhome-nav-inactive);
+    color: var(--wujia-mnav-inactive);
 }
 .wujia-mhome-nav-item i {
     font-size: 20px;
@@ -991,12 +993,14 @@ a.wujia-mhome-kpi:active { opacity: 0.85; }
     font-weight: 700;
     line-height: 1;
 }
+/* BA final (Sprint 12): active = brand cyan (override active đỏ Sprint 10/11).
+   Đỏ chỉ còn dùng cho badge (.wujia-mhome-nav-badge → --wujia-mnav-badge). */
 .wujia-mhome-nav-item.is-active {
-    color: var(--wujia-mhome-nav-active);
+    color: var(--wujia-mnav-active);
 }
 .wujia-mhome-nav-item.is-active i,
 .wujia-mhome-nav-item.is-active .wujia-mhome-nav-label {
-    color: var(--wujia-mhome-nav-active);
+    color: var(--wujia-mnav-active);
 }
 .wujia-mhome-nav-badge {
     position: absolute;
@@ -1007,12 +1011,97 @@ a.wujia-mhome-kpi:active { opacity: 0.85; }
     height: 16px;
     padding: 0 4px;
     border-radius: 999px;
-    background: var(--wujia-mhome-nav-active);
+    background: var(--wujia-mnav-badge);
     color: #FFFFFF;
     font-size: 9px;
     font-weight: 700;
     line-height: 16px;
     text-align: center;
+}
+
+/* ============================================================================
+   Sprint 12 — Mobile Header (BA Wujia_Source_UI_FINAL_v1, WJ_Mobile_Header_Primary)
+   ---------------------------------------------------------------------------
+   Header static 104px nền cyan liền khối thay navbar Vuexy floating trên <992px.
+   Template wujia_portal_layout.mobile_header (d-lg-none). Logo slot trắng bo trái
+   + 3 nút tròn translucent phải (Language / Cart / Avatar). KHÔNG bell.
+   Cart badge dùng lại .wujia-header-badge.wujia-header-cart-count (base style ở
+   trên, scope navbar KHÔNG áp vào đây — header này ngoài .header-navbar). */
+.wujia-mheader {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: var(--wujia-mheader-height);
+    padding: 0 16px;
+    background: var(--wujia-mheader-bg);
+}
+.wujia-mheader-logo {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: var(--wujia-mheader-logo-w);
+    height: var(--wujia-mheader-logo-h);
+    border-radius: var(--wujia-mheader-logo-radius);
+    background: #FFFFFF;
+    overflow: hidden;
+    flex: 0 0 auto;
+}
+.wujia-mheader-logo-img {
+    max-width: 88%;
+    max-height: 78%;
+    object-fit: contain;
+}
+.wujia-mheader-actions {
+    display: flex;
+    align-items: center;
+    gap: var(--wujia-mheader-action-gap);
+}
+.wujia-mheader-action-wrap {
+    position: relative;
+    display: inline-flex;
+}
+.wujia-mheader-action {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: var(--wujia-mheader-action-size);
+    height: var(--wujia-mheader-action-size);
+    border-radius: var(--wujia-mheader-action-radius);
+    background: var(--wujia-mheader-action-bg);
+    color: #FFFFFF;
+    text-decoration: none;
+    padding: 0;
+    flex: 0 0 auto;
+}
+.wujia-mheader-action:hover,
+.wujia-mheader-action:focus {
+    background: var(--wujia-mheader-action-bg-hover);
+    color: #FFFFFF;
+}
+.wujia-mheader-action .feather {
+    font-size: 18px;
+    line-height: 1;
+    color: #FFFFFF;
+}
+.wujia-mheader-action .flag-icon {
+    width: 22px;
+    height: 16px;
+    border-radius: 3px;
+}
+.wujia-mheader-action.dropdown-toggle::after { display: none; }  /* bỏ caret Bootstrap */
+.wujia-mheader-avatar { padding: 0; overflow: hidden; }
+.wujia-mheader-avatar-img {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    object-fit: cover;
+}
+/* Cart badge trong header mobile: base .wujia-header-badge (đỏ, ẩn tới .is-active)
+   neo theo .wujia-mheader-action (position:relative). Nudge sát góc trên-phải. */
+.wujia-mheader-action .wujia-header-badge {
+    top: -3px;
+    right: -3px;
 }
 
 /* ============================================================================
@@ -1022,9 +1111,12 @@ a.wujia-mhome-kpi:active { opacity: 0.85; }
    ========================================================================== */
 
 /* Global: reserve space so fixed bottom-nav (promoted portal-wide) doesn't
-   cover page content on mobile (registry: chừa 88–96px). */
+   cover page content on mobile (registry: chừa 88–96px).
+   Sprint 12: footer lên 83px (BA final) → bump 88→96 (giữ slack + đúng BA ≥96).
+   ĐÂY là footer-clearance DUY NHẤT (không thêm padding-bottom ở content-wrapper
+   nữa — tránh double-pad Home/Order vốn đã đúng). */
 @media (max-width: 991.98px) {
-    .app-content.content { padding-bottom: 88px; }
+    .app-content.content { padding-bottom: 96px; }
 }
 
 /* ---------- Catalog "Sản phẩm" (.wujia-morder) ---------- */
@@ -1207,7 +1299,9 @@ a.wujia-mhome-kpi:active { opacity: 0.85; }
     position: fixed;
     left: 12px;
     right: 12px;
-    bottom: 76px;
+    /* Sprint 12: footer bottom-nav lên 83px (BA final) → nâng floatbar để không
+       chồng footer (trước 76px khi footer còn ~62px). */
+    bottom: calc(var(--wujia-mnav-height) + 8px);
     z-index: 1029;
     display: flex;
     align-items: center;
