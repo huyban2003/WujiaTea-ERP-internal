@@ -20,6 +20,19 @@ STATE_BADGES = {
     'cancel': ('Đã hủy', 'wujia-badge-danger'),
 }
 
+# Sprint 13 — Mobile order-history badges (Figma 4445:4). UI-ONLY relabel: nhãn
+# theo wording Figma cho bản mobile (<992px), TÁCH khỏi STATE_BADGES desktop (giữ
+# nguyên). "Đang giao" (warning) để sẵn nhưng CHƯA có state nào của sale.order trỏ
+# tới — sẽ wire từ batch/delivery state ở sprint sau (D1: status = UI tạm).
+MOBILE_STATE_BADGES = {
+    'draft':    ('Mới', 'wujia-badge-muted'),
+    'sent':     ('Đã gửi', 'wujia-badge-info'),
+    'sale':     ('Đã xử lý', 'wujia-badge-success'),
+    'shipping': ('Đang giao', 'wujia-badge-warning'),  # placeholder — wire batch sau
+    'done':     ('Hoàn tất', 'wujia-badge-success'),
+    'cancel':   ('Đã hủy', 'wujia-badge-danger'),
+}
+
 
 def _parse_date(value):
     if not value:
@@ -33,13 +46,14 @@ def _parse_date(value):
 class WujiaPortalHistory(http.Controller):
 
     @http.route(['/portal/purchase-history'], type='http', auth='user', sitemap=False)
-    def portal_history_list(self, page=1, date_from='', date_to='', state='', preset='', **kw):
+    def portal_history_list(self, page=1, date_from='', date_to='', state='', preset='', q='', **kw):
         franchise_ids = get_active_franchise_ids_filter()
         if not franchise_ids:
             return request.render('wujia_portal_purchase_history.portal_history_list', {
                 'orders': [], 'pager': {}, 'no_franchise': True,
-                'state_badges': STATE_BADGES, 'date_from': '', 'date_to': '',
-                'state': '', 'preset': '',
+                'state_badges': STATE_BADGES, 'mobile_state_badges': MOBILE_STATE_BADGES,
+                'date_from': '', 'date_to': '',
+                'state': '', 'preset': '', 'q': '',
             })
 
         # Preset shortcut: this_month / last_month
@@ -63,6 +77,11 @@ class WujiaPortalHistory(http.Controller):
             domain.append(('date_order', '<=', datetime.combine(dt, datetime.max.time())))
         if state and state in STATE_BADGES:
             domain.append(('state', '=', state))
+        # Sprint 13: tìm theo Mã đơn (sale.order.name có trigram index → ilike nhanh
+        # cả trên bảng lớn, an toàn perf 1500 user).
+        q = (q or '').strip()
+        if q:
+            domain.append(('name', 'ilike', q))
 
         try:
             page = max(1, int(page))
@@ -78,15 +97,16 @@ class WujiaPortalHistory(http.Controller):
             'page_count': last_page, 'page_total': total,
             'page_previous': {'num': max(1, page - 1)},
             'page_next': {'num': min(last_page, page + 1)},
-            'querystring': self._qs(date_from=date_from, date_to=date_to, state=state),
+            'querystring': self._qs(date_from=date_from, date_to=date_to, state=state, q=q),
         }
 
         return request.render('wujia_portal_purchase_history.portal_history_list', {
             'no_franchise': False,
             'orders': orders, 'pager': pager,
             'date_from': date_from, 'date_to': date_to,
-            'state': state, 'preset': preset,
+            'state': state, 'preset': preset, 'q': q,
             'state_badges': STATE_BADGES,
+            'mobile_state_badges': MOBILE_STATE_BADGES,
         })
 
     @http.route(['/portal/purchase-history/<int:order_id>'],
@@ -103,6 +123,7 @@ class WujiaPortalHistory(http.Controller):
             return request.redirect('/portal/purchase-history')
         return request.render('wujia_portal_purchase_history.portal_history_detail', {
             'order': order, 'state_badges': STATE_BADGES,
+            'mobile_state_badges': MOBILE_STATE_BADGES,
         })
 
     @http.route(['/portal/purchase-history/<int:order_id>.pdf'],

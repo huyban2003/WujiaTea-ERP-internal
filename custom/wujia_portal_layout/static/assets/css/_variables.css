@@ -249,6 +249,17 @@
     --wujia-mnav-active:             #28A9DF; /* BA final: brand cyan (override active đỏ Sprint 10/11) */
     --wujia-mnav-inactive:           #8A939E;
     --wujia-mnav-badge:              #EF4444; /* đỏ chỉ cho badge/cảnh báo, KHÔNG cho active nav */
+
+    /* ---------- Mobile Lịch sử đặt hàng (Sprint 13) — Figma 4445:4 (List + Detail).
+       Reuse palette --wujia-morder-* (mobile primary #28A9DF). Chỉ token RIÊNG cho
+       filter chip; còn lại dùng thẳng --wujia-morder-* trong _components.css.
+       Prefix --wujia-mhist-* → mobile-only, zero blast radius desktop. ---------- */
+    --wujia-mhist-chip-bg:            #FFFFFF;
+    --wujia-mhist-chip-border:        var(--wujia-morder-border);
+    --wujia-mhist-chip-text:          var(--wujia-morder-text-sub);
+    --wujia-mhist-chip-active-bg:     var(--wujia-primary-soft);   /* #EAF7FD */
+    --wujia-mhist-chip-active-border: var(--wujia-morder-primary);
+    --wujia-mhist-chip-active-text:   var(--wujia-morder-primary);
 }
 
 /* ============================================================================

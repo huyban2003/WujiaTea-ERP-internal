@@ -1,0 +1,125 @@
+\chapter{Sprint 13 --- Mobile UI: Lịch sử đặt hàng (List + Detail) (2026-06-10)}
+
+\section{Bối cảnh}
+
+BA phát hành Figma FINAL cho trang \textbf{Lịch sử đặt hàng} mobile --- frame
+\texttt{4445:4} (\texttt{Wujia\_Mobile\_Order\_History\_List\_Detail\_v10\_FINAL}),
+file copy \texttt{aoeiDYlg6vlhJZg2w6Q7o5}. Frame là 2 ảnh phẳng đã export:
+màn \textbf{List} (\texttt{/portal/purchase-history}) + màn \textbf{Detail}
+(\texttt{/portal/purchase-history/<id>}).
+
+Trước sprint, route \texttt{/portal/purchase-history} \textbf{chưa có bản mobile} ---
+chỉ 1 layout desktop kiểu bảng 7 cột, tràn/khó đọc \(<992\)px. Mục tiêu: dựng bản
+mobile theo Figma, đồng bộ shell Sprint 12 (header cyan + store strip + bottom-nav),
+desktop GIỮ NGUYÊN 100%.
+
+\textbf{Chốt từ user (2026-06-10):}
+\begin{itemize}
+  \item \textbf{Status badge = UI tạm}: chỉ map nhãn ở mức UI cho mobile (nhãn giàu
+        hơn của Figma: "Đã xử lý / Đang giao / Hoàn tất"). KHÔNG build logic suy ra
+        "Đang giao" từ batch/delivery state --- để sprint sau.
+  \item \textbf{Mobile-only}: desktop list+detail giữ nguyên cả layout lẫn nhãn
+        \texttt{STATE\_BADGES} cũ.
+  \item \textbf{Ghi chú khi đặt hàng}: luôn hiện card (khớp layout Figma); rỗng thì
+        placeholder "Không có ghi chú." Dùng \texttt{portal\_note} (KHÔNG fallback
+        \texttt{order.note} vì đó là Terms\&Conditions của Odoo).
+\end{itemize}
+
+\section{Field mapping (KHÔNG cần field backend mới)}
+
+\begin{longtable}{@{}lp{8.6cm}@{}}
+\toprule
+\textbf{UI} & \textbf{Field / nguồn} \\
+\midrule
+\endhead
+Mã đơn & \texttt{order.name} (trigram index \(\rightarrow\) search \texttt{ilike} nhanh) \\
+Giờ \(\cdot\) ngày & \texttt{date\_order.strftime('\%H:\%M · \%d/\%m/\%Y')} \\
+Tổng tiền / Thành tiền & \texttt{amount\_total} / \texttt{line.price\_subtotal} \\
+Người đặt & \texttt{portal\_requester\_user\_id.name or user\_id.name} \\
+Cửa hàng & \texttt{franchise\_id.code} + " - " + \texttt{.name} \\
+Số dòng hàng & \texttt{'\%02d' \% len(order.order\_line)} \\
+Số phiếu batch & \texttt{batch\_id.name} (Many2one \texttt{stock.picking.batch}, store+index) \\
+Thời gian khởi hành & \texttt{batch\_id.planned\_departure} (Datetime, \texttt{wujia\_delivery}) \\
+Ghi chú & \texttt{portal\_note} (rỗng \(\rightarrow\) placeholder) \\
+Quy cách & \texttt{line.product\_id.uom\_id.name} (không có field packaging riêng) \\
+SL & \texttt{line.product\_uom\_qty} \\
+\bottomrule
+\end{longtable}
+
+\section{Module \& file chạm}
+
+\begin{itemize}
+  \item \texttt{wujia\_portal\_purchase\_history}:
+    \begin{itemize}
+      \item \texttt{controllers/portal.py}: thêm \texttt{MOBILE\_STATE\_BADGES}
+            (label map UI-only, tách khỏi \texttt{STATE\_BADGES} desktop) + param
+            \texttt{q} (search Mã đơn, \texttt{ilike} trên \texttt{name}) + truyền
+            \texttt{mobile\_state\_badges}/\texttt{q} vào context list + detail.
+      \item \texttt{views/portal\_history.xml}: bọc toàn bộ markup desktop trong
+            \texttt{d-none d-lg-block} (giữ nguyên) + thêm sibling
+            \texttt{d-lg-none} cho cả List (\texttt{.wujia-mhist}) và Detail
+            (\texttt{.wujia-mhist-detail}).
+    \end{itemize}
+  \item \texttt{wujia\_portal\_layout}:
+    \begin{itemize}
+      \item \texttt{\_variables.css}: cụm token \texttt{-{}-wujia-mhist-chip-*}
+            (chip lọc); phần còn lại reuse palette \texttt{-{}-wujia-morder-*}.
+      \item \texttt{\_components.css}: class \texttt{.wujia-mhist-*} (title /
+            search / chip / listhead / list-row / pager / summary / card / kv /
+            product-row / empty). Mobile-only, reuse \texttt{.wujia-badge-*}.
+      \item \texttt{views/assets.xml}: bump \texttt{?v} 1116/1117
+            \(\rightarrow\) \textbf{1120} rồi \textbf{1121} (sau fix kv align).
+    \end{itemize}
+\end{itemize}
+
+\section{Status mapping (UI tạm)}
+
+\begin{lstlisting}[language=Python]
+# Mobile-only, TÁCH khỏi STATE_BADGES desktop. "shipping" để sẵn nhưng CHƯA
+# có state sale.order nào trỏ tới -> wire batch state ở sprint sau.
+MOBILE_STATE_BADGES = {
+    'draft':    ('Mới',       'wujia-badge-muted'),
+    'sent':     ('Đã gửi',    'wujia-badge-info'),
+    'sale':     ('Đã xử lý',  'wujia-badge-success'),
+    'shipping': ('Đang giao', 'wujia-badge-warning'),
+    'done':     ('Hoàn tất',  'wujia-badge-success'),
+    'cancel':   ('Đã hủy',    'wujia-badge-danger'),
+}
+\end{lstlisting}
+
+\section{Gì đã làm}
+
+Cửa hàng nhượng quyền nay xem \textbf{lịch sử đặt hàng} trên điện thoại gọn gàng
+đúng thiết kế: màn danh sách có ô tìm theo mã đơn, lọc khoảng ngày + chip nhanh
+(Tháng này / Tháng trước / Đã xử lý / Xóa lọc), mỗi đơn 1 dòng (mã \(\cdot\) giờ
+ngày \(\cdot\) trạng thái \(\cdot\) tổng tiền). Bấm vào đơn mở màn chi tiết gồm 4
+thẻ: tóm tắt, thông tin đơn hàng, thông tin batch/giao hàng, ghi chú, và danh sách
+sản phẩm (quy cách + số lượng). Bản desktop không đổi.
+
+\section{Lý do / Trade-off}
+
+\begin{itemize}
+  \item \textbf{Status UI tạm}: Figma có nhãn "Đang giao" --- không có state native
+        nào của \texttt{sale.order} tương ứng (cần ghép thêm trạng thái
+        batch/picking). Theo chốt của user, sprint này chỉ map nhãn UI; logic suy
+        ra "Đang giao" để sau \(\rightarrow\) mobile dùng \texttt{MOBILE\_STATE\_BADGES}
+        riêng, desktop giữ \texttt{STATE\_BADGES} cũ.
+  \item \textbf{Search "Mã" wire luôn}: tuy là sprint UI, vẫn nối \texttt{q} (1 dòng
+        domain \texttt{ilike}) để ô tìm không "chết"; an toàn perf nhờ trigram index
+        sẵn có trên \texttt{sale.order.name}.
+  \item \textbf{Gutter}: \texttt{.wujia-mhist} không tự pad ngang --- dựa
+        \texttt{.content-wrapper} (Vuexy 2.2rem) như \texttt{.wujia-morder} để khớp
+        gutter trang Đặt hàng.
+  \item \textbf{kv value căn trái}: ban đầu căn phải sát lề; user feedback
+        \(\rightarrow\) đổi sang cột cố định (label \texttt{flex 0 0 110px}, value
+        \texttt{text-align:left}) đúng Figma.
+\end{itemize}
+
+\section{Verify}
+
+Upgrade RC=0; \texttt{test\_sprint9} 7/7 + \texttt{test\_sprint5} 20/20 (regression
+sạch); HTTP authenticated render List + Detail = 200, 0 traceback, đủ marker
+\texttt{wujia-mhist-*}; định dạng khớp Figma (\texttt{155.250 đ},
+\texttt{16:50 · 27/05/2026}, \texttt{01 sản phẩm}); desktop markup (bảng +
+state-step) còn nguyên; CSS served \texttt{?v=1121}. Visual \(<992\)px do user xác
+nhận trên browser thật.

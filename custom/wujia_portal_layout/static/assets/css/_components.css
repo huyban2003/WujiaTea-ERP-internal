@@ -1526,3 +1526,319 @@ a.wujia-mhome-kpi:active { opacity: 0.85; }
 }
 .wujia-mcart-submit:active { background: var(--wujia-morder-primary-dark); }
 .wujia-mcart-submit:disabled { opacity: 0.55; cursor: not-allowed; }
+
+/* ============================================================================
+   Sprint 13 — Mobile LỊCH SỬ ĐẶT HÀNG (Figma 4445:4) — List + Detail
+   Scoped under .wujia-mhist / .wujia-mhist-detail (wrappers d-lg-none) →
+   mobile-only, zero blast radius desktop. Palette reuse --wujia-morder-*.
+   Side gutter do .content-wrapper (Vuexy 2.2rem) lo — KHÔNG tự pad ngang
+   (giống .wujia-morder) để khớp gutter trang Đặt hàng.
+   ========================================================================== */
+
+/* Title chung (List + Detail) */
+.wujia-mhist-title {
+    font-size: 22px;
+    font-weight: 800;
+    color: var(--wujia-morder-text);
+    margin: 4px 0 14px;
+}
+
+/* ---------- Empty / cảnh báo (dùng cho cả List) ---------- */
+.wujia-mhist-empty {
+    background: var(--wujia-morder-card-bg);
+    border: 1px solid var(--wujia-morder-border);
+    border-radius: var(--wujia-morder-radius);
+    padding: 32px 16px;
+    text-align: center;
+    color: var(--wujia-morder-text-muted);
+}
+.wujia-mhist-empty i { font-size: 36px; display: block; margin-bottom: 8px; }
+.wujia-mhist-empty p { margin: 0; font-size: 14px; }
+
+/* ====================== LIST ====================== */
+/* Card tìm kiếm */
+.wujia-mhist-search {
+    background: var(--wujia-morder-card-bg);
+    border: 1px solid var(--wujia-morder-border);
+    border-radius: var(--wujia-morder-radius);
+    padding: 14px;
+    margin-bottom: 16px;
+}
+.wujia-mhist-search-head {
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--wujia-morder-text);
+    margin-bottom: 10px;
+}
+.wujia-mhist-search-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 10px;
+}
+.wujia-mhist-search-label {
+    flex: 0 0 auto;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--wujia-morder-text-sub);
+    margin: 0;
+}
+.wujia-mhist-search-input {
+    flex: 1 1 auto;
+    min-width: 0;
+    height: 42px;
+    border: 1px solid var(--wujia-morder-border);
+    border-radius: 10px;
+    background: var(--wujia-morder-card-bg);
+    padding: 0 12px;
+    font-size: 14px;
+    color: var(--wujia-morder-text);
+}
+.wujia-mhist-date {
+    flex: 1 1 0;
+    min-width: 0;
+    height: 42px;
+    border: 1px solid var(--wujia-morder-border);
+    border-radius: 10px;
+    background: var(--wujia-morder-card-bg);
+    padding: 0 10px;
+    font-size: 13px;
+    color: var(--wujia-morder-text);
+}
+.wujia-mhist-search-input:focus,
+.wujia-mhist-date:focus { outline: none; border-color: var(--wujia-morder-primary); }
+.wujia-mhist-search-btn {
+    flex: 0 0 auto;
+    height: 42px;
+    padding: 0 16px;
+    border: 0;
+    border-radius: 10px;
+    background: var(--wujia-morder-primary);
+    color: #FFFFFF;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+}
+.wujia-mhist-search-btn:active { background: var(--wujia-morder-primary-dark); }
+
+/* Chips lọc */
+.wujia-mhist-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+.wujia-mhist-chip {
+    display: inline-flex;
+    align-items: center;
+    height: 30px;
+    padding: 0 14px;
+    border: 1px solid var(--wujia-mhist-chip-border);
+    border-radius: 999px;
+    background: var(--wujia-mhist-chip-bg);
+    color: var(--wujia-mhist-chip-text);
+    font-size: 13px;
+    font-weight: 600;
+    text-decoration: none;
+}
+.wujia-mhist-chip.is-active {
+    background: var(--wujia-mhist-chip-active-bg);
+    border-color: var(--wujia-mhist-chip-active-border);
+    color: var(--wujia-mhist-chip-active-text);
+}
+.wujia-mhist-chip-clear { color: var(--wujia-morder-text-muted); }
+
+/* Header danh sách */
+.wujia-mhist-listhead {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    margin-bottom: 8px;
+}
+.wujia-mhist-listhead-title {
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--wujia-morder-text);
+}
+.wujia-mhist-listhead-count {
+    font-size: 13px;
+    color: var(--wujia-morder-text-sub);
+}
+
+/* Card danh sách + rows */
+.wujia-mhist-list {
+    background: var(--wujia-morder-card-bg);
+    border: 1px solid var(--wujia-morder-border);
+    border-radius: var(--wujia-morder-radius);
+    overflow: hidden;
+}
+.wujia-mhist-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 14px;
+    border-bottom: 1px solid var(--wujia-morder-divider);
+    text-decoration: none;
+}
+.wujia-mhist-row:last-child { border-bottom: 0; }
+.wujia-mhist-row-main {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    min-width: 0;
+}
+.wujia-mhist-row-code {
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--wujia-morder-text);
+}
+.wujia-mhist-row-date {
+    font-size: 12px;
+    color: var(--wujia-morder-text-sub);
+}
+.wujia-mhist-row-side {
+    flex: 0 0 auto;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 6px;
+}
+.wujia-mhist-row-amount {
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--wujia-morder-text);
+    white-space: nowrap;
+}
+
+/* Pager */
+.wujia-mhist-pager {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    margin-top: 14px;
+}
+.wujia-mhist-pager span {
+    font-size: 14px;
+    color: var(--wujia-morder-text-sub);
+}
+.wujia-mhist-pager a {
+    width: 38px;
+    height: 38px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid var(--wujia-morder-border);
+    border-radius: 10px;
+    background: var(--wujia-morder-card-bg);
+    color: var(--wujia-morder-primary);
+    font-weight: 700;
+    text-decoration: none;
+}
+
+/* ====================== DETAIL ====================== */
+/* Card tóm tắt */
+.wujia-mhist-summary {
+    background: var(--wujia-morder-card-bg);
+    border: 1px solid var(--wujia-morder-border);
+    border-radius: var(--wujia-morder-radius);
+    padding: 16px;
+    margin-bottom: 14px;
+}
+.wujia-mhist-summary-top,
+.wujia-mhist-summary-bottom {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+}
+.wujia-mhist-summary-bottom { margin-top: 8px; align-items: baseline; }
+.wujia-mhist-summary-code {
+    font-size: 18px;
+    font-weight: 800;
+    color: var(--wujia-morder-text);
+}
+.wujia-mhist-summary-date {
+    font-size: 13px;
+    color: var(--wujia-morder-text-sub);
+}
+.wujia-mhist-summary-amount {
+    font-size: 20px;
+    font-weight: 800;
+    color: var(--wujia-morder-text);
+    white-space: nowrap;
+}
+
+/* Card thông tin (kv) */
+.wujia-mhist-card {
+    background: var(--wujia-morder-card-bg);
+    border: 1px solid var(--wujia-morder-border);
+    border-radius: var(--wujia-morder-radius);
+    padding: 16px;
+    margin-bottom: 14px;
+}
+.wujia-mhist-card-head {
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--wujia-morder-text);
+    margin-bottom: 12px;
+}
+/* Figma: 2 cột — label cột trái cố định, value căn TRÁI cùng một mốc x
+   (KHÔNG căn phải sát lề). Label width đủ chứa "Số dòng hàng" 1 dòng. */
+.wujia-mhist-kv {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 6px 0;
+}
+.wujia-mhist-kv-label {
+    flex: 0 0 110px;
+    font-size: 14px;
+    color: var(--wujia-morder-text-sub);
+}
+.wujia-mhist-kv-value {
+    flex: 1 1 auto;
+    text-align: left;
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--wujia-morder-text);
+}
+.wujia-mhist-note {
+    margin: 0;
+    font-size: 14px;
+    line-height: 1.5;
+    color: var(--wujia-morder-text-sub);
+}
+
+/* Rows sản phẩm */
+.wujia-mhist-prod {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 10px 0;
+    border-top: 1px solid var(--wujia-morder-divider);
+}
+.wujia-mhist-prod:first-of-type { border-top: 0; padding-top: 0; }
+.wujia-mhist-prod-main {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    min-width: 0;
+}
+.wujia-mhist-prod-name {
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--wujia-morder-text);
+}
+.wujia-mhist-prod-spec {
+    font-size: 12px;
+    color: var(--wujia-morder-text-sub);
+}
+.wujia-mhist-prod-amount {
+    flex: 0 0 auto;
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--wujia-morder-text);
+    white-space: nowrap;
+}
