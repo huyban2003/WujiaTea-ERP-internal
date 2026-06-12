@@ -1,0 +1,148 @@
+\chapter{Sprint 14 --- Mobile: Bottom sheet "Thêm chức năng" + Blank Shell chuẩn (2026-06-11)}
+
+\section{Bối cảnh}
+
+BA phát hành 2 frame Figma mới (file copy \texttt{aoeiDYlg6vlhJZg2w6Q7o5}, page
+Dashboard, last-modified 2026-06-11):
+
+\begin{itemize}
+  \item \textbf{WJ\_MoreBottom} (\texttt{4477:242}) --- bottom sheet "Thêm chức năng"
+        mở từ tab "Thêm" của footer mobile. Đây là thiết kế thật cho pending item (a)
+        của Sprint 12: tab "Thêm" trước đó wire INTERIM vào off-canvas sidebar Vuexy
+        (có NOTE trong \texttt{mobile\_bottomnav.xml}) vì BA final bỏ hamburger nhưng
+        chưa design drawer.
+  \item \textbf{WJ\_Mobile\_BlankShell} (\texttt{4447:11}) --- spec content area chuẩn
+        cho MỌI trang mobile trong shell (header 104 / strip 48 / footer 83): padding
+        ngang 16px, khoảng cách card/list 12--16px, padding bottom khi scroll
+        \(\geq\)96px, nền \texttt{\#F3F6F8}. Token \texttt{--wujia-mshell-content-pad-x/-bottom}
+        đã khai báo từ Sprint 12 nhưng \textbf{chưa có class nào tiêu thụ}.
+\end{itemize}
+
+Sprint thuần UI+JS, \textbf{0 thay đổi backend} --- toàn bộ 7 route đích của sheet đã
+tồn tại từ các sprint trước. Desktop GIỮ NGUYÊN 100\% (markup \texttt{d-lg-none}, CSS
+trong \texttt{@media (max-width: 991.98px)}).
+
+\textbf{Chốt từ user (2026-06-11):}
+\begin{itemize}
+  \item \textbf{Thêm row "Báo cáo" ngoài Figma}: frame BA chỉ có 6 item, không có
+        Báo cáo --- nhưng khi bỏ toggle sidebar interim thì mobile mất đường vào
+        \texttt{/portal/reports/orders}. User chốt thêm 1 row "Báo cáo" cùng pattern
+        (chèn trước "Tài khoản / Cài đặt"), có NOTE trong XML ghi rõ lệch Figma.
+  \item \textbf{BlankShell = class mới, KHÔNG retrofit}: tạo \texttt{.wujia-mpage}
+        cho trang mobile SAU NÀY; 3 trang đã ship (Home / Order / History) giữ layout
+        riêng để tránh regression.
+\end{itemize}
+
+\section{Spec sheet theo Figma}
+
+\begin{itemize}
+  \item \textbf{Backdrop}: \texttt{rgba(17,24,39,0.28)} (\texttt{\#111827} 28\%) phủ
+        từ top đến mép trên footer; footer vẫn hiện và bấm được.
+  \item \textbf{Sheet}: trắng, \texttt{position: fixed; bottom: var(--wujia-mnav-height)}
+        (83px), bo góc trên 20px, handle \(67\times5\) \texttt{\#D8DEE6}, slide-up
+        0.25s. Z-index xếp tầng: backdrop 1028 < sheet 1029 < footer 1030.
+  \item \textbf{Head}: title "Thêm chức năng" Inter Bold 18 \texttt{\#111827} + sub
+        "Các tiện ích khác cho cửa hàng" 12.5 \texttt{\#6B7280} + nút close tròn
+        \(32\times32\) nền \texttt{--wujia-mshell-bg}.
+  \item \textbf{Row item} (min-height 62, separator \texttt{\#EEF2F5}): icon tile
+        \(40\times40\) tròn nền \texttt{\#EAF7FD} icon feather cyan
+        \texttt{--wujia-mshell-primary}, title Bold 15, sub 12 \texttt{\#8A9099},
+        chevron \texttt{\#B3BAC4}.
+  \item \textbf{Footer khi mở} (group \texttt{FooterActionBar\_MORE\_ACTIVE}): tab
+        "Thêm" active cyan qua class \texttt{is-active} sẵn có. Badge Figma
+        \texttt{\#EC3845} \(\approx\) token \texttt{--wujia-mnav-badge \#EF4444}
+        \(\rightarrow\) coi BA drift (gotcha hex typo), GIỮ token.
+\end{itemize}
+
+7 item của sheet (route đều verify HTTP 200):
+
+\begin{longtable}{@{}lp{5.2cm}l@{}}
+\toprule
+\textbf{Item} & \textbf{Route} & \textbf{Feather icon} \\
+\midrule
+\endhead
+Đổi trả / Bù hàng & \texttt{/portal/return} & \texttt{icon-corner-up-left} \\
+Đăng ký thi & \texttt{/portal/exam} & \texttt{icon-calendar} \\
+Kiến thức & \texttt{/portal/knowledge} & \texttt{icon-book-open} \\
+Hỗ trợ & \texttt{/portal/support} & \texttt{icon-life-buoy} \\
+Hồ sơ cửa hàng & \texttt{/portal/franchise-information} & \texttt{icon-home} \\
+Báo cáo (ngoài Figma) & \texttt{/portal/reports/orders} & \texttt{icon-bar-chart-2} \\
+Tài khoản / Cài đặt & \texttt{/portal/profile} & \texttt{icon-user} \\
+\bottomrule
+\end{longtable}
+
+\section{Module \& file chạm}
+
+\begin{itemize}
+  \item \texttt{wujia\_portal\_layout} (19.0.12.0.0 \(\rightarrow\) 19.0.14.0.0):
+    \begin{itemize}
+      \item \texttt{views/mobile\_bottomnav.xml}: tab "Thêm" gỡ class
+            \texttt{menu-toggle} (interim Sprint 12) \(\rightarrow\) hook
+            \texttt{data-wujia-more="toggle"}; thêm markup sheet + backdrop trong
+            cùng template (shared shell, render mọi trang, \texttt{d-lg-none},
+            hidden mặc định).
+      \item \texttt{static/assets/js/wujia\_mobile\_more\_sheet.js} (\textbf{NEW}):
+            vanilla JS toggle --- mở/đóng bằng tab, backdrop, nút close, phím ESC;
+            body class \texttt{wujia-msheet-open} = scroll-lock; tab "Thêm" thêm/gỡ
+            \texttt{is-active} (giữ nguyên nếu server đã render active cho route
+            hiện tại).
+      \item \texttt{static/assets/css/\_variables.css}: block token
+            \texttt{--wujia-msheet-*} (radius / backdrop / handle / subtitle /
+            item-sub / icon-bg / chevron / row-h) +
+            \texttt{--wujia-mshell-content-gap: 14px}.
+      \item \texttt{static/assets/css/\_components.css}: classes
+            \texttt{.wujia-msheet*} + \texttt{.wujia-mpage} trong
+            \texttt{@media (max-width: 991.98px)}.
+      \item \texttt{views/assets.xml}: include JS mới + bump \texttt{\_variables} /
+            \texttt{\_components} \(\rightarrow\) \texttt{?v=1122}.
+    \end{itemize}
+  \item \texttt{docs/wujia-design-system.md}: \S5.12 Mobile More Sheet + \S5.13
+        BlankShell content wrapper.
+\end{itemize}
+
+\section{Gì đã làm (nghiệp vụ)}
+
+Chủ cửa hàng nhượng quyền dùng điện thoại giờ bấm tab "Thêm" ở footer là thấy ngay
+menu trượt lên với 7 lối tắt --- Đổi trả, Đăng ký thi, Kiến thức, Hỗ trợ, Hồ sơ cửa
+hàng, Báo cáo, Tài khoản --- thay vì phải mò qua sidebar desktop thu nhỏ như trước.
+Mỗi mục có icon, tên và mô tả ngắn nên người mới dùng cũng hiểu chức năng từng trang.
+Đồng thời chuẩn "trang trắng" (blank shell) được chốt thành class dùng chung, các
+trang mobile sắp tới (Đổi trả, Kiến thức --- BA đã up frame) dựng nhanh và đồng nhất
+khoảng cách/padding với toàn portal.
+
+\section{Lý do / Trade-off}
+
+Sheet render trong shared shell (mọi trang, mọi request) thay vì load AJAX: thêm
+\(\sim\)3KB HTML mỗi trang nhưng mở sheet tức thì 0 query --- đúng hướng perf-first
+1500 user (menu tĩnh, không có lý do round-trip). Row "Báo cáo" lệch Figma là quyết
+định có chủ đích: thà lệch 1 row còn hơn mất hẳn đường vào trang trên mobile; NOTE
+trong XML để khi BA bổ sung frame thì đối chiếu lại. \texttt{.wujia-mpage} không
+retrofit 3 trang cũ --- giá trị của việc "sạch codebase" nhỏ hơn rủi ro regression
+visual trên 3 trang đã được user nghiệm thu.
+
+\section{Verify}
+
+\begin{itemize}
+  \item \texttt{upgrade.sh wujia\_portal\_layout} RC=0, registry load sạch.
+  \item \texttt{test\_sprint9.py} 7/7 + \texttt{test\_sprint5.py} 20/20 (regression).
+  \item HTTP authenticated (user demo \texttt{anh.owner}): \texttt{/portal} + 5 trang
+        smoke (order / purchase-history / delivery / notification / return) đều 200,
+        markup sheet đủ 7 item trên mọi trang, class \texttt{menu-toggle} cũ sạch.
+  \item 7 route đích sheet đều 200; CSS/JS serve từ đĩa đúng \texttt{?v=1122}
+        (gotcha \#12: CSS nằm trên đĩa, bust cache bằng \texttt{?v=}).
+  \item User check mắt browser thật \(<992\)px: mở/đóng sheet (tab + backdrop +
+        close + ESC), điều hướng 7 link, scroll-lock --- OK.
+\end{itemize}
+
+\section{Pending sau Sprint 14}
+
+\begin{itemize}
+  \item Đối chiếu lại row "Báo cáo" khi BA cập nhật frame WJ\_MoreBottom (hiện ngoài
+        Figma theo quyết định user).
+  \item Build trang mobile tiếp theo bằng \texttt{.wujia-mpage}: BA đã up frame
+        \texttt{wujia\_return\_mobile\_v5} (\texttt{4449:81}) và
+        \texttt{WJ\_Knowledge\_Mobile} (\texttt{4475:2}) trên cùng page Dashboard.
+  \item Các pending cũ giữ nguyên: status giao hàng thật từ batch state (Sprint 13),
+        khung giờ vào cart (Sprint 11), Công nợ \texttt{account.move} (Phase 2),
+        i18n \texttt{.po}.
+\end{itemize}

@@ -32,22 +32,89 @@
                 <span class="wujia-mhome-nav-badge wujia-bnav-noti-badge" style="display:none;">0</span>
                 <span class="wujia-mhome-nav-label">Thông báo</span>
             </a>
-            <!-- ====================================================================
-                 NOTE (Sprint 12, 2026-06-07) — "Thêm" = TOGGLE off-canvas sidebar
-                 (INTERIM). BA header final BỎ hamburger, nhưng các trang ngoài footer
-                 (Lịch sử / Đổi trả / Kiến thức / Hỗ trợ / Báo cáo / Thi / Thông tin
-                 franchise…) chỉ truy cập được qua sidebar → tab "Thêm" tạm wire vào
-                 Vuexy `.menu-toggle` (app-menu.js bind document-level toggle body
-                 `.menu-open`; `.sidenav-overlay` đã có trong app_layout) thay vì
-                 link /portal/profile.
-                 ⇒ Khi BA design drawer "Thêm" riêng: đổi href + class TẠI ĐÂY.
-                 (Quyết định user 2026-06-07; xem compact-summary §5 + agentmemory.)
-                 ==================================================================== -->
-            <a href="#" t-attf-class="wujia-mhome-nav-item menu-toggle #{'is-active' if _bnav_active == 'more' else ''}">
+            <!-- Sprint 14: "Thêm" opens the More bottom sheet (Figma WJ_MoreBottom
+                 4477:242), replacing the Sprint 12 interim sidebar toggle.
+                 wujia_mobile_more_sheet.js binds [data-wujia-more]. -->
+            <a href="#" data-wujia-more="toggle"
+               t-attf-class="wujia-mhome-nav-item #{'is-active' if _bnav_active == 'more' else ''}">
                 <i class="feather icon-grid"/>
                 <span class="wujia-mhome-nav-label">Thêm</span>
             </a>
         </nav>
+
+        <!-- WJ_Mobile_MoreBottomSheet_Simple_v1 (Figma WJ_MoreBottom 4477:242) —
+             sheet sits above the fixed footer (bottom = nav height), backdrop covers
+             the rest. Hidden until JS adds .is-open. Plain anchors: navigation
+             reloads the page so the sheet closes itself. The "Báo cáo" row is NOT
+             in the Figma frame — added per user decision 2026-06-11 because the
+             sheet replaces the only mobile entry point to /portal/reports/orders. -->
+        <div class="wujia-msheet-backdrop d-lg-none" data-wujia-more="close"/>
+        <div class="wujia-msheet d-lg-none" role="dialog" aria-label="Thêm chức năng">
+            <div class="wujia-msheet-handle"/>
+            <button type="button" class="wujia-msheet-close" data-wujia-more="close" aria-label="Đóng">
+                <i class="feather icon-x"/>
+            </button>
+            <div class="wujia-msheet-title">Thêm chức năng</div>
+            <div class="wujia-msheet-subtitle">Các tiện ích khác cho cửa hàng</div>
+            <div class="wujia-msheet-list">
+                <a href="/portal/return" class="wujia-msheet-item">
+                    <span class="wujia-msheet-item-icon"><i class="feather icon-corner-up-left"/></span>
+                    <span class="wujia-msheet-item-text">
+                        <span class="wujia-msheet-item-title">Đổi trả / Bù hàng</span>
+                        <span class="wujia-msheet-item-sub">Gửi và theo dõi yêu cầu xử lý sản phẩm</span>
+                    </span>
+                    <i class="feather icon-chevron-right wujia-msheet-item-chevron"/>
+                </a>
+                <a href="/portal/exam" class="wujia-msheet-item">
+                    <span class="wujia-msheet-item-icon"><i class="feather icon-calendar"/></span>
+                    <span class="wujia-msheet-item-text">
+                        <span class="wujia-msheet-item-title">Đăng ký thi</span>
+                        <span class="wujia-msheet-item-sub">Xem lịch thi, đăng ký và kết quả</span>
+                    </span>
+                    <i class="feather icon-chevron-right wujia-msheet-item-chevron"/>
+                </a>
+                <a href="/portal/knowledge" class="wujia-msheet-item">
+                    <span class="wujia-msheet-item-icon"><i class="feather icon-book-open"/></span>
+                    <span class="wujia-msheet-item-text">
+                        <span class="wujia-msheet-item-title">Kiến thức</span>
+                        <span class="wujia-msheet-item-sub">Tài liệu vận hành, quy định, hướng dẫn</span>
+                    </span>
+                    <i class="feather icon-chevron-right wujia-msheet-item-chevron"/>
+                </a>
+                <a href="/portal/support" class="wujia-msheet-item">
+                    <span class="wujia-msheet-item-icon"><i class="feather icon-life-buoy"/></span>
+                    <span class="wujia-msheet-item-text">
+                        <span class="wujia-msheet-item-title">Hỗ trợ</span>
+                        <span class="wujia-msheet-item-sub">Gửi ticket và xem phản hồi từ Ngô Gia</span>
+                    </span>
+                    <i class="feather icon-chevron-right wujia-msheet-item-chevron"/>
+                </a>
+                <a href="/portal/franchise-information" class="wujia-msheet-item">
+                    <span class="wujia-msheet-item-icon"><i class="feather icon-home"/></span>
+                    <span class="wujia-msheet-item-text">
+                        <span class="wujia-msheet-item-title">Hồ sơ cửa hàng</span>
+                        <span class="wujia-msheet-item-sub">Thông tin nhượng quyền và cửa hàng</span>
+                    </span>
+                    <i class="feather icon-chevron-right wujia-msheet-item-chevron"/>
+                </a>
+                <a href="/portal/reports/orders" class="wujia-msheet-item">
+                    <span class="wujia-msheet-item-icon"><i class="feather icon-bar-chart-2"/></span>
+                    <span class="wujia-msheet-item-text">
+                        <span class="wujia-msheet-item-title">Báo cáo</span>
+                        <span class="wujia-msheet-item-sub">Thống kê đơn hàng</span>
+                    </span>
+                    <i class="feather icon-chevron-right wujia-msheet-item-chevron"/>
+                </a>
+                <a href="/portal/profile" class="wujia-msheet-item">
+                    <span class="wujia-msheet-item-icon"><i class="feather icon-user"/></span>
+                    <span class="wujia-msheet-item-text">
+                        <span class="wujia-msheet-item-title">Tài khoản / Cài đặt</span>
+                        <span class="wujia-msheet-item-sub">Hồ sơ cá nhân, mật khẩu, ngôn ngữ</span>
+                    </span>
+                    <i class="feather icon-chevron-right wujia-msheet-item-chevron"/>
+                </a>
+            </div>
+        </div>
     </template>
 
 </odoo>

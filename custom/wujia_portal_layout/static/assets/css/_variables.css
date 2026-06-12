@@ -229,6 +229,7 @@
     --wujia-mshell-border:             #EEF2F5;
     --wujia-mshell-content-pad-x:      16px;
     --wujia-mshell-content-pad-bottom: 96px;     /* footer fixed 83 + thở (BA ≥96) */
+    --wujia-mshell-content-gap:        14px;     /* gap card/list (BA BlankShell 4447:11: 12–16) */
 
     /* Header mobile (WJ_Mobile_Header_Primary_FINAL_v1) */
     --wujia-mheader-height:          104px;
@@ -260,6 +261,19 @@
     --wujia-mhist-chip-active-bg:     var(--wujia-primary-soft);   /* #EAF7FD */
     --wujia-mhist-chip-active-border: var(--wujia-morder-primary);
     --wujia-mhist-chip-active-text:   var(--wujia-morder-primary);
+
+    /* ---------- More bottom sheet (Sprint 14) — Figma WJ_MoreBottom 4477:242.
+       Sheet "Thêm chức năng" mở từ tab footer "Thêm", nằm TRÊN footer (bottom =
+       --wujia-mnav-height), backdrop phủ phần còn lại. Icon/active reuse
+       --wujia-mshell-primary. Prefix --wujia-msheet-* → mobile-only. ---------- */
+    --wujia-msheet-radius:        20px;
+    --wujia-msheet-backdrop:      rgba(17, 24, 39, 0.28);  /* #111827 28% */
+    --wujia-msheet-handle:        #D8DEE6;
+    --wujia-msheet-subtitle:      #6B7280;
+    --wujia-msheet-item-sub:      #8A9099;
+    --wujia-msheet-icon-bg:       #EAF7FD;
+    --wujia-msheet-chevron:       #B3BAC4;
+    --wujia-msheet-row-h:         62px;
 }
 
 /* ============================================================================

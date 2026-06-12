@@ -1842,3 +1842,151 @@ a.wujia-mhome-kpi:active { opacity: 0.85; }
     color: var(--wujia-morder-text);
     white-space: nowrap;
 }
+
+/* ============================================================================
+   Sprint 14 — More bottom sheet (Figma WJ_MoreBottom 4477:242) + BlankShell
+   content wrapper (Figma WJ_Mobile_BlankShell 4447:11). Mobile-only (<992px);
+   markup d-lg-none trong wujia_portal_layout.mobile_bottomnav, toggle qua
+   wujia_mobile_more_sheet.js. Footer .wujia-mhome-bottomnav z-index 1030 →
+   backdrop 1028 / sheet 1029 (footer luôn bấm được khi sheet mở).
+   ============================================================================ */
+@media (max-width: 991.98px) {
+    body.wujia-msheet-open {
+        overflow: hidden;
+    }
+    .wujia-msheet-backdrop {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: var(--wujia-mnav-height);
+        z-index: 1028;
+        background: var(--wujia-msheet-backdrop);
+        opacity: 0;
+        visibility: hidden;
+        transition: opacity 0.2s ease, visibility 0.2s ease;
+    }
+    .wujia-msheet-backdrop.is-open {
+        opacity: 1;
+        visibility: visible;
+    }
+    .wujia-msheet {
+        position: fixed;
+        left: 0;
+        right: 0;
+        bottom: var(--wujia-mnav-height);
+        z-index: 1029;
+        max-height: calc(100dvh - var(--wujia-mnav-height) - 88px);
+        overflow-y: auto;
+        background: var(--wujia-mshell-surface);
+        border-radius: var(--wujia-msheet-radius) var(--wujia-msheet-radius) 0 0;
+        padding: 14px 20px 12px;
+        transform: translateY(105%);
+        visibility: hidden;
+        transition: transform 0.25s ease, visibility 0.25s ease;
+    }
+    .wujia-msheet.is-open {
+        transform: translateY(0);
+        visibility: visible;
+    }
+    .wujia-msheet-handle {
+        width: 67px;
+        height: 5px;
+        margin: 0 auto 14px;
+        border-radius: 999px;
+        background: var(--wujia-msheet-handle);
+    }
+    .wujia-msheet-close {
+        position: absolute;
+        top: 32px;
+        right: 12px;
+        width: 32px;
+        height: 32px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        border: 0;
+        border-radius: 50%;
+        background: var(--wujia-mshell-bg);
+        color: var(--wujia-text-primary);
+        padding: 0;
+    }
+    .wujia-msheet-close i {
+        font-size: 14px;
+        line-height: 1;
+    }
+    .wujia-msheet-title {
+        font-size: 18px;
+        font-weight: 700;
+        color: var(--wujia-text-primary);
+        padding-right: 48px;
+    }
+    .wujia-msheet-subtitle {
+        margin-top: 4px;
+        font-size: 12.5px;
+        font-weight: 400;
+        color: var(--wujia-msheet-subtitle);
+    }
+    .wujia-msheet-list {
+        margin-top: 16px;
+    }
+    .wujia-msheet-item {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        min-height: var(--wujia-msheet-row-h);
+        padding: 10px 0;
+        border-bottom: 1px solid var(--wujia-mshell-border);
+        text-decoration: none;
+    }
+    .wujia-msheet-item:last-child {
+        border-bottom: 0;
+    }
+    .wujia-msheet-item-icon {
+        flex: 0 0 auto;
+        width: 40px;
+        height: 40px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 50%;
+        background: var(--wujia-msheet-icon-bg);
+        color: var(--wujia-mshell-primary);
+    }
+    .wujia-msheet-item-icon i {
+        font-size: 18px;
+        line-height: 1;
+    }
+    .wujia-msheet-item-text {
+        flex: 1 1 auto;
+        display: flex;
+        flex-direction: column;
+        gap: 3px;
+        min-width: 0;
+    }
+    .wujia-msheet-item-title {
+        font-size: 15px;
+        font-weight: 700;
+        color: var(--wujia-text-primary);
+    }
+    .wujia-msheet-item-sub {
+        font-size: 12px;
+        font-weight: 400;
+        color: var(--wujia-msheet-item-sub);
+    }
+    .wujia-msheet-item-chevron {
+        flex: 0 0 auto;
+        font-size: 16px;
+        color: var(--wujia-msheet-chevron);
+    }
+
+    /* BlankShell content wrapper — chuẩn content area cho trang mobile MỚI
+       (BA 4447:11: pad-x 16, gap card 12–16, pad-bottom ≥96 vì footer fixed).
+       Trang đã ship (Home/Order/History) GIỮ layout riêng — không retrofit. */
+    .wujia-mpage {
+        display: flex;
+        flex-direction: column;
+        gap: var(--wujia-mshell-content-gap);
+        padding: 0 var(--wujia-mshell-content-pad-x) var(--wujia-mshell-content-pad-bottom);
+    }
+}

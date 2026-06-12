@@ -216,6 +216,28 @@ Bên phải header: **Language + Cart + Bell + Account (name + avatar)**.
 ### 5.11 Pagination — `.pagination.wujia-pagination`
 Trả về dáng chữ nhật Bootstrap (Vuexy bo tròn 5rem làm vỡ pager), page active nền cyan chữ trắng.
 
+### 5.12 Mobile More Sheet (Sprint 14) — `.wujia-msheet*` (Figma WJ_MoreBottom 4477:242)
+Bottom sheet "Thêm chức năng" mở từ tab footer "Thêm" (thay toggle sidebar interim Sprint 12).
+Markup trong `wujia_portal_layout.mobile_bottomnav` (shared shell, `d-lg-none`), toggle qua
+`wujia_mobile_more_sheet.js` (tab/backdrop/close/ESC; body `.wujia-msheet-open` = scroll lock).
+- Sheet trắng fixed `bottom: var(--wujia-mnav-height)` (83px — footer vẫn hiện + bấm được),
+  bo góc trên `20px`, handle `67×5` `#D8DEE6`, slide-up `0.25s`. z-index: backdrop 1028 / sheet
+  1029 / footer 1030.
+- Backdrop `rgba(17,24,39,.28)` phủ từ top đến mép trên footer.
+- Title Inter Bold `18px` + subtitle `12.5px #6B7280`, close tròn `32×32` nền `--wujia-mshell-bg`.
+- Row item `min-height 62px`, separator `#EEF2F5`: icon tile `40×40` tròn nền `#EAF7FD` icon cyan
+  `--wujia-mshell-primary`, title Bold `15px`, sub `12px #8A9099`, chevron `#B3BAC4`.
+- 7 item: Đổi trả / Đăng ký thi / Kiến thức / Hỗ trợ / Hồ sơ cửa hàng / **Báo cáo** (ngoài Figma —
+  user chốt 2026-06-11, giữ đường vào `/portal/reports/orders` trên mobile) / Tài khoản.
+- Khi mở: tab "Thêm" thêm `.is-active` (cyan — Figma `FooterActionBar_MORE_ACTIVE`).
+
+### 5.13 Mobile BlankShell content wrapper (Sprint 14) — `.wujia-mpage` (Figma WJ_Mobile_BlankShell 4447:11)
+Chuẩn content area cho **trang mobile MỚI** (trong shell header 104 / strip 48 / footer 83):
+flex column, `gap: var(--wujia-mshell-content-gap)` (14px, BA cho 12–16),
+`padding: 0 var(--wujia-mshell-content-pad-x) var(--wujia-mshell-content-pad-bottom)` (16px ngang,
+96px đáy vì footer fixed). Bg trang `--wujia-mshell-bg #F3F6F8` (đã có từ Sprint 12).
+Trang đã ship (Home/Order/History) giữ layout riêng — **không retrofit**.
+
 ---
 
 ## 6. Design rules theo issue (BA "5. Issue List" UI-01..UI-18)
