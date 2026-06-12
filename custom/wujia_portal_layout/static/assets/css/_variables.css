@@ -274,6 +274,20 @@
     --wujia-msheet-icon-bg:       #EAF7FD;
     --wujia-msheet-chevron:       #B3BAC4;
     --wujia-msheet-row-h:         62px;
+
+    /* ---------- Mobile Kiến thức (Sprint 15) — Figma WJ_Knowledge_Mobile 4475:2
+       (List + Detail, ảnh phẳng). Reuse palette --wujia-morder-* + tile icon
+       --wujia-msheet-icon-bg. Chip active = SOLID cyan chữ trắng (Figma, KHÁC
+       style soft của --wujia-mhist-chip-active-*). quote/note = card nội dung
+       trong body bài viết (blockquote / div.wujia-note admin soạn).
+       Prefix --wujia-mknow-* → mobile-only, zero blast radius desktop. ---------- */
+    --wujia-mknow-chip-active-bg:   var(--wujia-morder-primary);  /* solid #28A9DF */
+    --wujia-mknow-chip-active-text: #FFFFFF;
+    --wujia-mknow-accent:           var(--wujia-morder-primary);  /* thanh accent featured */
+    --wujia-mknow-tile-bg:          var(--wujia-msheet-icon-bg);  /* #EAF7FD */
+    --wujia-mknow-quote-bg:         #F8F9FB;                      /* card "Các điểm cần nắm" */
+    --wujia-mknow-note-bg:          #FFF7E8;                      /* card "Lưu ý" */
+    --wujia-mknow-note-head:        #F29A1F;                      /* heading "Lưu ý" (palette badge-warning) */
 }
 
 /* ============================================================================

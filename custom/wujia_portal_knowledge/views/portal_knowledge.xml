@@ -5,7 +5,8 @@
     <template id="portal_knowledge_list" name="Wujia Portal — Knowledge List">
         <t t-call="wujia_portal_layout.app_layout">
             <t t-set="title">Thư viện kiến thức</t>
-            <div class="content-wrapper">
+            <!-- ===== Desktop (≥992px) — GIỮ NGUYÊN (Sprint 9.13b) ===== -->
+            <div class="content-wrapper d-none d-lg-block">
                 <div class="content-header row mt-3">
                     <div class="content-header-left col-12 mb-1">
                         <h2 class="content-header-title float-left mb-0">
@@ -121,6 +122,124 @@
                     </div>
                 </div>
             </div>
+            <!-- /desktop -->
+
+            <!-- ===== Mobile (<992px) — Sprint 15, Figma WJ_Knowledge_Mobile 4475:2 =====
+                 Trang ĐẦU TIÊN dùng BlankShell .wujia-mpage (Sprint 14, BA 4447:11).
+                 Đặt NGOÀI .content-wrapper: .wujia-mpage tự lo gutter (pad-x 16) —
+                 lồng vào content-wrapper sẽ double padding ngang.
+                 UI-only (chốt user 2026-06-12, wire backend sau):
+                 - "N bài viết" = len(articles) trang hiện tại (TODO: search_count từ controller).
+                 - "Bài nổi bật" = lọc portal_badge important/mandatory từ recordset đã fetch
+                   (TODO: query controller riêng, không phụ thuộc trang/pagination).
+                 - Icon bài viết: 1 icon chung icon-file-text (Figma vẽ icon riêng từng bài
+                   — drift, chờ BA cấp field icon rồi đối chiếu). -->
+            <div class="d-lg-none wujia-mpage wujia-mknow">
+                <!-- Title row -->
+                <div class="wujia-mknow-titlerow">
+                    <h1 class="wujia-mknow-title">Kiến thức</h1>
+                    <span class="wujia-mknow-count"><t t-out="len(articles)"/> bài viết</span>
+                </div>
+
+                <!-- Search card (functional — GET keyword, parity desktop) -->
+                <form method="get" action="/portal/knowledge" class="wujia-mknow-card wujia-mknow-search">
+                    <div class="wujia-mknow-search-field">
+                        <i class="feather icon-search"/>
+                        <input type="text" name="keyword" class="wujia-mknow-search-input"
+                               placeholder="Tìm kiếm bài viết..." t-att-value="keyword"/>
+                    </div>
+                    <button type="submit" class="wujia-mknow-search-btn">Tìm</button>
+                </form>
+
+                <!-- Category chips (functional — GET category_id, parity desktop) -->
+                <div class="wujia-mknow-chips">
+                    <a href="/portal/knowledge"
+                       t-attf-class="wujia-mknow-chip#{'' if category_id else ' is-active'}">Tất cả</a>
+                    <t t-foreach="categories" t-as="cat">
+                        <a t-attf-href="/portal/knowledge?category_id=#{cat.id}"
+                           t-attf-class="wujia-mknow-chip#{' is-active' if category_id == cat.id else ''}"
+                           t-out="cat.name"/>
+                    </t>
+                </div>
+
+                <div t-if="not articles" class="wujia-mknow-card wujia-empty-state">
+                    <i class="feather icon-book"/>
+                    <p>Chưa có bài viết.</p>
+                </div>
+                <t t-else="">
+                    <t t-set="m_featured" t-value="articles.filtered(lambda a: a.portal_badge in ('important', 'mandatory'))[:1]"/>
+                    <t t-set="m_rest" t-value="articles - m_featured"/>
+                    <!-- Badge map MOBILE — tách desktop (precedent MOBILE_STATE_BADGES S13):
+                         important → danger (Figma đỏ hồng; desktop map warning — drift có
+                         chủ đích, đối chiếu BA). -->
+                    <t t-set="m_badge_cls" t-value="{'mandatory': 'wujia-badge-danger', 'important': 'wujia-badge-danger', 'new': 'wujia-badge-info'}"/>
+                    <t t-set="m_badge_lbl" t-value="{'mandatory': 'Bắt buộc', 'important': 'Quan trọng', 'new': 'Mới'}"/>
+
+                    <!-- Bài nổi bật -->
+                    <t t-if="m_featured">
+                        <div class="wujia-mknow-sechead">
+                            <span class="wujia-mknow-sechead-title">Bài nổi bật</span>
+                            <span class="wujia-mknow-sechead-sub">Ưu tiên đọc</span>
+                        </div>
+                        <t t-foreach="m_featured" t-as="art">
+                            <a t-attf-href="/portal/knowledge/#{art.slug}" class="wujia-mknow-feat">
+                                <span class="wujia-mknow-tile"><i class="feather icon-save"/></span>
+                                <span class="wujia-mknow-feat-main">
+                                    <span class="wujia-mknow-row-title" t-out="art.name"/>
+                                    <span class="wujia-mknow-badges">
+                                        <span t-if="m_badge_lbl.get(art.portal_badge)"
+                                              t-attf-class="wujia-badge #{m_badge_cls.get(art.portal_badge)}"
+                                              t-out="m_badge_lbl.get(art.portal_badge)"/>
+                                        <span t-if="art.category_id" class="wujia-badge wujia-badge-info"
+                                              t-out="art.category_id.name"/>
+                                    </span>
+                                    <span class="wujia-mknow-date">
+                                        Cập nhật <t t-out="art.publish_date and art.publish_date.strftime('%d/%m/%Y') or ''"/>
+                                    </span>
+                                </span>
+                            </a>
+                        </t>
+                    </t>
+
+                    <!-- Mới cập nhật -->
+                    <div class="wujia-mknow-sechead">
+                        <span class="wujia-mknow-sechead-title">Mới cập nhật</span>
+                        <span class="wujia-mknow-sechead-pill">Mới nhất</span>
+                    </div>
+                    <div class="wujia-mknow-list">
+                        <t t-foreach="m_rest" t-as="art">
+                            <a t-attf-href="/portal/knowledge/#{art.slug}" class="wujia-mknow-row">
+                                <span class="wujia-mknow-tile"><i class="feather icon-file-text"/></span>
+                                <span class="wujia-mknow-row-main">
+                                    <span class="wujia-mknow-row-title" t-out="art.name"/>
+                                    <span class="wujia-mknow-row-foot">
+                                        <span class="wujia-mknow-badges">
+                                            <span t-if="m_badge_lbl.get(art.portal_badge)"
+                                                  t-attf-class="wujia-badge #{m_badge_cls.get(art.portal_badge)}"
+                                                  t-out="m_badge_lbl.get(art.portal_badge)"/>
+                                            <span t-if="art.category_id" class="wujia-badge wujia-badge-info"
+                                                  t-out="art.category_id.name"/>
+                                        </span>
+                                        <span class="wujia-mknow-date">
+                                            Cập nhật <t t-out="art.publish_date and art.publish_date.strftime('%d/%m/%Y') or ''"/>
+                                        </span>
+                                    </span>
+                                </span>
+                            </a>
+                        </t>
+                    </div>
+
+                    <!-- Pager (alias style .wujia-mhist-pager — group selector) -->
+                    <nav t-if="pager and pager.get('page_count', 0) &gt; 1" class="wujia-mknow-pager">
+                        <a t-if="pager['page']['num'] &gt; 1"
+                           t-attf-href="/portal/knowledge?page=#{pager['page_previous']['num']}&amp;#{pager.get('querystring','')}">‹</a>
+                        <span>Trang <t t-out="pager['page']['num']"/> / <t t-out="pager['page_count']"/></span>
+                        <a t-if="pager['page']['num'] &lt; pager['page_count']"
+                           t-attf-href="/portal/knowledge?page=#{pager['page_next']['num']}&amp;#{pager.get('querystring','')}">›</a>
+                    </nav>
+                </t>
+            </div>
+            <!-- /mobile -->
         </t>
     </template>
 
@@ -128,7 +247,8 @@
     <template id="portal_knowledge_detail" name="Wujia Portal — Knowledge Detail">
         <t t-call="wujia_portal_layout.app_layout">
             <t t-set="title" t-value="article.name"/>
-            <div class="content-wrapper">
+            <!-- ===== Desktop (≥992px) — GIỮ NGUYÊN ===== -->
+            <div class="content-wrapper d-none d-lg-block">
                 <div class="content-header row mt-3">
                     <div class="content-header-left col-12 mb-1">
                         <nav><ol class="breadcrumb">
@@ -183,6 +303,70 @@
                     </div>
                 </div>
             </div>
+            <!-- /desktop -->
+
+            <!-- ===== Mobile (<992px) — Sprint 15, Figma WJ_Knowledge_Mobile 4475:2 =====
+                 Card xám "Các điểm cần nắm" / card cam "Lưu ý" trong mockup = NỘI DUNG
+                 HTML mẫu admin soạn trong field content, KHÔNG phải field riêng. CSS
+                 .wujia-mknow-body hỗ trợ sẵn: ul/li bullet cyan, blockquote → card xám,
+                 div.wujia-note → card cam (admin thêm class trong editor HTML).
+                 Related "Bài liên quan": Figma mobile KHÔNG có → chỉ desktop. -->
+            <div class="d-lg-none wujia-mpage wujia-mknow">
+                <div class="wujia-mknow-backrow">
+                    <a href="/portal/knowledge" class="wujia-mknow-back" aria-label="Về thư viện">
+                        <i class="feather icon-arrow-left"/>
+                    </a>
+                    <div class="wujia-mknow-backmeta">
+                        <span class="wujia-mknow-eyebrow">Kiến thức</span>
+                        <span class="wujia-mknow-crumb">
+                            <t t-if="article.category_id"><t t-out="article.category_id.name"/> / </t>Bài viết
+                        </span>
+                    </div>
+                </div>
+
+                <article class="wujia-mknow-card wujia-mknow-article">
+                    <h1 class="wujia-mknow-article-title" t-out="article.name"/>
+                    <!-- Badge map mobile: important → danger (Figma đỏ; desktop warning — drift, đối chiếu BA) -->
+                    <t t-set="m_badge_cls" t-value="{'mandatory': 'wujia-badge-danger', 'important': 'wujia-badge-danger', 'new': 'wujia-badge-info'}"/>
+                    <t t-set="m_badge_lbl" t-value="{'mandatory': 'Bắt buộc', 'important': 'Quan trọng', 'new': 'Mới'}"/>
+                    <div class="wujia-mknow-badges">
+                        <span t-if="m_badge_lbl.get(article.portal_badge)"
+                              t-attf-class="wujia-badge #{m_badge_cls.get(article.portal_badge)}"
+                              t-out="m_badge_lbl.get(article.portal_badge)"/>
+                        <span t-if="article.category_id" class="wujia-badge wujia-badge-info"
+                              t-out="article.category_id.name"/>
+                    </div>
+                    <div class="wujia-mknow-meta">
+                        <t t-if="article.author_id" t-out="article.author_id.name"/>
+                        <t t-if="article.author_id and article.publish_date"> • </t>
+                        <t t-if="article.publish_date">Cập nhật <t t-out="article.publish_date.strftime('%d/%m/%Y')"/></t>
+                    </div>
+
+                    <h2 class="wujia-mknow-h">Nội dung chính</h2>
+                    <p t-if="article.summary" class="wujia-mknow-lead" t-out="article.summary"/>
+                    <div class="wujia-mknow-body" t-out="article.content"/>
+
+                    <t t-if="article.attachment_ids">
+                        <h2 class="wujia-mknow-h">Tài liệu đính kèm</h2>
+                        <t t-foreach="article.attachment_ids" t-as="att">
+                            <t t-set="att_ext" t-value="att.name and '.' in att.name and att.name.rsplit('.', 1)[1].upper() or (att.mimetype or '').rsplit('/', 1)[-1].upper()"/>
+                            <t t-set="att_size" t-value="att.file_size and (att.file_size &gt;= 1048576 and '%.1f MB' % (att.file_size / 1048576.0) or '%d KB' % max(1, att.file_size // 1024)) or ''"/>
+                            <!-- Download THẬT (chốt user 2026-06-12) — route stream Sprint 15 -->
+                            <a t-attf-href="/portal/knowledge/#{article.slug}/attachment/#{att.id}"
+                               class="wujia-mknow-att">
+                                <span class="wujia-mknow-tile"><i class="feather icon-file-text"/></span>
+                                <span class="wujia-mknow-att-main">
+                                    <span class="wujia-mknow-att-name" t-out="att.name"/>
+                                    <span class="wujia-mknow-att-sub">
+                                        <t t-out="att_ext"/><t t-if="att_size"> • <t t-out="att_size"/></t>
+                                    </span>
+                                </span>
+                            </a>
+                        </t>
+                    </t>
+                </article>
+            </div>
+            <!-- /mobile -->
         </t>
     </template>
 

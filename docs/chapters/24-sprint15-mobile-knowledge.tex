@@ -1,0 +1,172 @@
+\chapter{Sprint 15 --- Mobile: Kiến thức List + Detail (2026-06-12)}
+
+\section{Bối cảnh}
+
+Pending item (a) của Sprint 14: BA đã up frame \textbf{WJ\_Knowledge\_Mobile}
+(\texttt{4475:2}, file copy \texttt{aoeiDYlg6vlhJZg2w6Q7o5}, tên node
+\texttt{WJ\_Knowledge\_Mobile\_Mockup\_Combined\_v6 (1) 1}). Giống Sprint 13, frame là
+\textbf{ảnh phẳng} (import PNG, không có structure để đọc qua MCP) --- spec lấy từ
+2 screenshot user cung cấp: màn \textbf{List} (tìm kiếm + chips danh mục + Bài nổi
+bật + Mới cập nhật) và màn \textbf{Detail} (bài viết + tài liệu đính kèm).
+
+Đây là trang \textbf{ĐẦU TIÊN tiêu thụ BlankShell \texttt{.wujia-mpage}} (Sprint 14
+dựng sẵn, trước giờ 0 consumer). Desktop GIỮ NGUYÊN 100\% (bọc
+\texttt{d-none d-lg-block}; mobile \texttt{d-lg-none}).
+
+\textbf{Chốt từ user (2026-06-12):}
+\begin{itemize}
+  \item \textbf{``Bài nổi bật'' + đếm ``N bài viết'' = UI-only}: làm template-side,
+        KHÔNG sửa controller --- BA chỉ cần UI trước, backend wire sau (NOTE trong XML).
+  \item \textbf{Icon bài viết = 1 icon chung} \texttt{icon-file-text} (Figma vẽ icon
+        riêng từng bài --- model chưa có field icon, drift có chủ đích, đối chiếu BA sau).
+  \item \textbf{Tài liệu đính kèm bấm phải DOWNLOAD THẬT} --- phần backend duy nhất
+        sprint này (1 route stream, copy pattern \texttt{wujia\_portal\_support}).
+\end{itemize}
+
+\section{Spec theo Figma}
+
+\textbf{Màn List} (\texttt{/portal/knowledge}, trong \texttt{.wujia-mpage .wujia-mknow}):
+\begin{itemize}
+  \item Title row: ``Kiến thức'' 22/800 + phải đếm ``N bài viết'' cyan 13/600
+        (UI-only = \texttt{len(articles)} trang hiện tại).
+  \item Search card trắng: input nền \texttt{\#F3F6F8} icon search + nút ``Tìm'' cyan
+        42px --- \textbf{functional} (GET \texttt{keyword}, param sẵn từ Sprint 4).
+  \item Chips danh mục scroll ngang: ``Tất cả'' + loop categories --- \textbf{functional}
+        (GET \texttt{category\_id}). Active = \textbf{SOLID cyan chữ trắng}
+        (\texttt{--wujia-mknow-chip-active-*}, KHÁC style soft của
+        \texttt{--wujia-mhist-chip-active-*}).
+  \item ``Bài nổi bật'' + sub ``Ưu tiên đọc'': card accent cyan 4px mép trái
+        (\texttt{::before}), icon tile \(40\times40\) bo 10 nền \texttt{\#EAF7FD}
+        (\texttt{icon-save}), title 15/700, badge + ``Cập nhật dd/mm/yyyy''.
+        UI-only: \texttt{articles.filtered(portal\_badge in (important, mandatory))[:1]}
+        --- recordset đã fetch, 0 query thêm; rỗng thì ẩn section.
+  \item ``Mới cập nhật'' + pill ``Mới nhất'': mỗi bài 1 card (icon tile + title +
+        badge danh mục cyan soft + ngày). Bài đã hiện ở featured bị loại khỏi list.
+  \item Pager: share style \texttt{.wujia-mhist-pager} qua group selector
+        (\texttt{.wujia-mknow-pager} --- không đổi visual mhist).
+\end{itemize}
+
+\textbf{Màn Detail} (\texttt{/portal/knowledge/<slug>}):
+\begin{itemize}
+  \item Back row: nút tròn trắng \(44\times44\) \texttt{icon-arrow-left} về list +
+        eyebrow ``KIẾN THỨC'' cyan caps + breadcrumb ``danh mục / Bài viết''.
+  \item Article card trắng: title 19/800, hàng badge (portal\_badge + danh mục),
+        meta ``tác giả \textbullet{} Cập nhật dd/mm/yyyy''.
+  \item ``Nội dung chính'': \texttt{summary} (lead) + \texttt{t-out content}. Card xám
+        ``Các điểm cần nắm'' / card cam ``Lưu ý'' trong mockup = \textbf{nội dung HTML
+        admin soạn}, KHÔNG phải field --- CSS \texttt{.wujia-mknow-body} hỗ trợ sẵn:
+        \texttt{ul/li} bullet cyan, \texttt{blockquote} \(\rightarrow\) card xám
+        \texttt{\#F8F9FB}, \texttt{div.wujia-note} \(\rightarrow\) card cam
+        \texttt{\#FFF7E8} heading \texttt{\#F29A1F}.
+  \item ``Tài liệu đính kèm'' (chỉ hiện khi có): card per file --- icon tile + tên
+        truncate + sub ``EXT \textbullet{} size'' (đuôi file + \texttt{file\_size}
+        format trong template) \(\rightarrow\) \textbf{download thật} qua route mới.
+  \item ``Bài liên quan'': Figma mobile KHÔNG có \(\rightarrow\) chỉ desktop.
+\end{itemize}
+
+\textbf{Badge map MOBILE} (tách desktop, precedent \texttt{MOBILE\_STATE\_BADGES}
+Sprint 13): \texttt{mandatory} \(\rightarrow\) danger ``Bắt buộc'',
+\texttt{important} \(\rightarrow\) \textbf{danger} ``Quan trọng'' (Figma đỏ hồng;
+desktop map warning --- drift có chủ đích), \texttt{new} \(\rightarrow\) info ``Mới''.
+Reuse class \texttt{.wujia-badge-*} sẵn có.
+
+\section{Module \& file chạm}
+
+\begin{itemize}
+  \item \texttt{wujia\_portal\_knowledge} (19.0.3.2.0 \(\rightarrow\) 19.0.3.3.0):
+    \begin{itemize}
+      \item \texttt{views/portal\_knowledge.xml}: bọc desktop list + detail trong
+            \texttt{d-none d-lg-block}; thêm 2 block mobile \texttt{d-lg-none
+            .wujia-mpage .wujia-mknow} đặt \textbf{NGOÀI} \texttt{.content-wrapper}
+            (xem Trade-off).
+      \item \texttt{controllers/portal.py}: route MỚI duy nhất
+            \texttt{GET /portal/knowledge/<slug>/attachment/<att\_id>}
+            (\texttt{auth='user'}) --- bài phải \texttt{is\_published\_portal},
+            attachment phải thuộc bài (m2m \texttt{attachment\_ids} hoặc
+            \texttt{res\_model/res\_id} trỏ về bài), stream qua
+            \texttt{ir.binary.\_get\_stream\_from().get\_response(as\_attachment=True)}.
+            KHÔNG dùng util \texttt{check\_attachment\_access} (ACL đó theo franchise
+            --- knowledge là global published).
+    \end{itemize}
+  \item \texttt{wujia\_portal\_layout} (19.0.14.0.0 \(\rightarrow\) 19.0.15.0.0):
+    \begin{itemize}
+      \item \texttt{\_variables.css}: block token \texttt{--wujia-mknow-*} (chip
+            active solid / accent / tile-bg / quote-bg / note-bg / note-head ---
+            reuse palette \texttt{--wujia-morder-*} + \texttt{--wujia-msheet-icon-bg}).
+      \item \texttt{\_components.css}: \(\sim\)70 rule \texttt{.wujia-mknow-*} trong
+            \texttt{@media (max-width: 991.98px)}; pager mhist mở group selector;
+            \textbf{SỬA \texttt{.wujia-mpage}} (fix double padding --- xem Trade-off).
+      \item \texttt{views/assets.xml}: bump \texttt{\_variables} / \texttt{\_components}
+            \(\rightarrow\) \texttt{?v=1123}.
+    \end{itemize}
+\end{itemize}
+
+\section{Gì đã làm (nghiệp vụ)}
+
+Chủ cửa hàng nhượng quyền mở Kiến thức trên điện thoại giờ thấy đúng giao diện BA
+thiết kế: ô tìm kiếm bài viết, dãy chip lọc theo danh mục, bài quan trọng được tách
+riêng lên mục ``Bài nổi bật'', còn lại xếp ``Mới cập nhật'' theo dạng card dễ bấm.
+Vào bài viết thì đọc được nội dung định dạng đẹp (điểm cần nắm, lưu ý) và \textbf{tải
+được tài liệu đính kèm} (quy trình, biểu mẫu PDF\ldots) về máy ngay từ điện thoại ---
+trước đây phần đính kèm thậm chí chưa render ở cả desktop. Tìm kiếm và lọc danh mục
+hoạt động thật, không phải mock.
+
+\section{Lý do / Trade-off}
+
+\textbf{Fix \texttt{.wujia-mpage} double padding}: BlankShell Sprint 14 tự pad-bottom
+96px, nhưng footer-clearance 96px đã có ở rule ``DUY NHẤT''
+\texttt{.app-content.content} (Sprint 12) --- consumer đầu tiên lộ ra lỗi cộng dồn
+192px trống đáy. Vì \texttt{.wujia-mpage} chưa có ai dùng (grep 0 consumer XML/JS),
+sửa thẳng definition: bỏ pad-bottom riêng + thêm pad-top = content-gap, blast radius
+0. Tương tự, block mobile đặt \textbf{ngoài} \texttt{.content-wrapper} vì
+\texttt{.wujia-mpage} tự lo gutter 16px --- lồng vào sẽ double padding ngang
+(2.2rem + 16px). Spec BA (clearance \(\geq\)96, gutter 16) vẫn được thỏa.
+
+\textbf{Route download riêng} thay vì \texttt{/web/content}: portal user không có
+quyền đọc \texttt{ir.attachment} tùy ý; route riêng + sudo có kiểm soát cho ACL rõ
+ràng (chỉ file thuộc bài đã publish), không lộ attachment ngoài phạm vi.
+
+\textbf{Featured UI-only} filter trên recordset đã fetch: 0 query thêm, đổi lấy
+giới hạn ``nổi bật chỉ xét trong trang hiện tại'' --- chấp nhận được vì user chốt
+UI trước; wire query riêng khi BA chốt nghiệp vụ.
+
+\section{Verify}
+
+\begin{itemize}
+  \item \texttt{upgrade.sh wujia\_portal\_layout,wujia\_portal\_knowledge} RC=0,
+        log sạch (91 modules loaded).
+  \item \texttt{test\_sprint9.py} 7/7 + \texttt{test\_sprint5.py} 20/20 (chạy 2 lần:
+        sau code + trước commit).
+  \item HTTP authenticated (\texttt{anh.owner} local): List + Detail 200, markup
+        mobile đủ block (titlerow / search / chips / featured / list / backrow /
+        article / đính kèm); filter \texttt{category\_id} + search \texttt{keyword} 200.
+  \item \textbf{Download thật}: route attachment trả 200 +
+        \texttt{Content-Disposition: attachment} + đúng bytes \texttt{\%PDF};
+        attachment KHÔNG thuộc bài \(\rightarrow\) \textbf{403} (ACL đúng).
+        Demo: seed 1 PDF local-only vào bài \texttt{ui12-01} qua odoo shell
+        (KHÔNG vào manifest --- đúng rule demo data).
+  \item Desktop intact (block \texttt{d-none d-lg-block} nguyên vẹn trong HTML) +
+        regression smoke 4 trang khác (\texttt{/portal}, order, purchase-history,
+        support) đều 200. Asset serve đúng \texttt{?v=1123}.
+  \item \textbf{Gotcha}: dev server \texttt{--dev=reload} KHÔNG bắt route controller
+        mới \(\rightarrow\) restart server mới 200 (trước đó 404). XML/CSS thì
+        hot-reload bình thường.
+  \item User check mắt browser thật \(<992\)px trước khi end-sprint.
+\end{itemize}
+
+\section{Pending sau Sprint 15}
+
+\begin{itemize}
+  \item Wire controller cho ``Bài nổi bật'' (query riêng \texttt{portal\_badge in
+        (important, mandatory)}, không phụ thuộc pagination) + đếm ``N bài viết'' =
+        \texttt{search\_count} (controller đã tính \texttt{total}, chỉ chưa pass ra
+        template) --- hiện UI-only theo chốt user 2026-06-12.
+  \item Icon riêng từng bài/danh mục khi BA cấp field (hiện 1 icon chung --- drift Figma).
+  \item Badge ``Quan trọng'' mobile = đỏ (Figma) vs desktop = warning --- đối chiếu BA
+        rồi đồng nhất.
+  \item Trang mobile \textbf{Đổi trả} (\texttt{wujia\_return\_mobile\_v5} \texttt{4449:81},
+        frame đã có) --- sprint sau, dựng bằng \texttt{.wujia-mpage}.
+  \item Pending cũ giữ nguyên: status giao hàng thật từ batch state (Sprint 13),
+        khung giờ vào cart (Sprint 11), Công nợ \texttt{account.move} (Phase 2),
+        i18n \texttt{.po}.
+\end{itemize}

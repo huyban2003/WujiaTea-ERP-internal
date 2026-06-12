@@ -231,12 +231,37 @@ Markup trong `wujia_portal_layout.mobile_bottomnav` (shared shell, `d-lg-none`),
   user chốt 2026-06-11, giữ đường vào `/portal/reports/orders` trên mobile) / Tài khoản.
 - Khi mở: tab "Thêm" thêm `.is-active` (cyan — Figma `FooterActionBar_MORE_ACTIVE`).
 
-### 5.13 Mobile BlankShell content wrapper (Sprint 14) — `.wujia-mpage` (Figma WJ_Mobile_BlankShell 4447:11)
+### 5.13 Mobile BlankShell content wrapper (Sprint 14, sửa Sprint 15) — `.wujia-mpage` (Figma WJ_Mobile_BlankShell 4447:11)
 Chuẩn content area cho **trang mobile MỚI** (trong shell header 104 / strip 48 / footer 83):
 flex column, `gap: var(--wujia-mshell-content-gap)` (14px, BA cho 12–16),
-`padding: 0 var(--wujia-mshell-content-pad-x) var(--wujia-mshell-content-pad-bottom)` (16px ngang,
-96px đáy vì footer fixed). Bg trang `--wujia-mshell-bg #F3F6F8` (đã có từ Sprint 12).
+`padding: var(--wujia-mshell-content-gap) var(--wujia-mshell-content-pad-x) 0` (pad-top 14,
+16px ngang, **KHÔNG pad-bottom** — Sprint 15 sửa khi có consumer đầu tiên: footer-clearance
+≥96px đã do rule "DUY NHẤT" `.app-content.content` lo từ Sprint 12, giữ cả hai = double
+192px trống đáy). Bg trang `--wujia-mshell-bg #F3F6F8` (đã có từ Sprint 12).
+**Cách dùng (Sprint 15 chốt): đặt block `d-lg-none .wujia-mpage` NGOÀI `.content-wrapper`**
+— mpage tự lo gutter, lồng vào content-wrapper = double pad ngang (2.2rem + 16px).
 Trang đã ship (Home/Order/History) giữ layout riêng — **không retrofit**.
+Consumer: Kiến thức mobile (Sprint 15).
+
+### 5.14 Mobile Kiến thức (Sprint 15) — `.wujia-mknow-*` (Figma WJ_Knowledge_Mobile 4475:2)
+List + Detail `/portal/knowledge[/<slug>]`, scoped `.wujia-mknow` trong `.wujia-mpage`.
+- **Chip danh mục** `.wujia-mknow-chip`: h32, pill, scroll ngang ẩn scrollbar; active =
+  **SOLID** `--wujia-mknow-chip-active-bg` (cyan #28A9DF) chữ trắng — KHÁC chip soft
+  của mhist (#EAF7FD). 2 style chip active đều hợp lệ, chọn theo Figma từng trang.
+- **Icon tile** `.wujia-mknow-tile`: 40×40 bo 10 (vuông bo, ≠ tile tròn msheet), nền
+  `--wujia-mknow-tile-bg` (= `--wujia-msheet-icon-bg` #EAF7FD), icon feather cyan 18.
+- **Featured card** `.wujia-mknow-feat`: card trắng + thanh accent cyan 4px mép trái
+  (`::before`, top/bottom 12, bo 0-4-4-0).
+- **Row bài viết** `.wujia-mknow-row`: mỗi bài 1 card riêng (gap 10) — KHÔNG list
+  liền-divider như mhist.
+- **Badge**: reuse `.wujia-badge-*`; map MOBILE: mandatory/important → danger (đỏ,
+  theo Figma — desktop important = warning, drift chủ đích), new → info, danh mục → info.
+- **Body bài viết** `.wujia-mknow-body` (HTML admin soạn): `ul/li` marker cyan,
+  `blockquote` → card xám `--wujia-mknow-quote-bg` #F8F9FB, `div.wujia-note` → card cam
+  `--wujia-mknow-note-bg` #FFF7E8 (heading `--wujia-mknow-note-head` #F29A1F).
+- **Attachment card** `.wujia-mknow-att`: tile + tên truncate + sub "EXT • size", link
+  route download `/portal/knowledge/<slug>/attachment/<id>` (stream thật, ACL theo bài).
+- **Pager** `.wujia-mknow-pager`: share style `.wujia-mhist-pager` qua group selector.
 
 ---
 

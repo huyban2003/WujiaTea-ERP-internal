@@ -1,3 +1,5 @@
+from werkzeug.exceptions import Forbidden, NotFound
+
 from odoo import http
 from odoo.http import request
 
@@ -81,6 +83,35 @@ class WujiaPortalKnowledge(http.Controller):
         return request.render('wujia_portal_knowledge.portal_knowledge_detail', {
             'article': article, 'related': related,
         })
+
+    @http.route(['/portal/knowledge/<string:slug>/attachment/<int:att_id>'],
+                type='http', auth='user', sitemap=False)
+    def portal_knowledge_attachment_download(self, slug, att_id, **kw):
+        """Stream attachment bài viết (Sprint 15 — mobile bấm tải thật).
+
+        ACL: bài phải đang publish portal + attachment phải thuộc bài (m2m
+        attachment_ids hoặc res_model/res_id trỏ về bài). KHÔNG dùng
+        check_attachment_access (util đó check theo franchise — knowledge
+        là global published cho mọi portal user).
+        """
+        article = request.env['wujia.knowledge.article'].sudo().search([
+            ('slug', '=', slug), ('is_published_portal', '=', True),
+        ], limit=1)
+        if not article:
+            raise NotFound()
+        Attachment = request.env['ir.attachment'].sudo()
+        att = Attachment.search([
+            ('id', '=', att_id),
+            '|',
+              '&', ('res_model', '=', 'wujia.knowledge.article'),
+                   ('res_id', '=', article.id),
+              ('id', 'in', article.attachment_ids.ids),
+        ], limit=1)
+        if not att:
+            raise Forbidden()
+        return request.env['ir.binary']._get_stream_from(att).get_response(
+            as_attachment=True,
+        )
 
     @http.route(['/portal/knowledge/search'], type='json',
                 auth='user', methods=['POST', 'GET'])
