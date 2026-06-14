@@ -1,0 +1,178 @@
+\chapter{Sprint 16 --- Mobile: Dashboard 3 màn (Đơn hàng / Công nợ / Hỗ trợ) (2026-06-14)}
+
+\section{Bối cảnh}
+
+BA up frame \textbf{mobile\_dashboard} (\texttt{2474:2}, page Dashboard, file copy
+\texttt{aoeiDYlg6vlhJZg2w6Q7o5}) gồm 4 màn cùng thế hệ với Home (Sprint 10).
+\texttt{Screen\_1\_Home} đã build, user yêu cầu dựng nốt 3 màn còn lại. Khác Sprint
+13/15, frame này đọc được structure qua MCP (text + layout + màu), không phải ảnh
+phẳng.
+
+\textbf{Mapping (user chốt):}
+\begin{itemize}
+  \item \texttt{Screen\_2\_Orders} (\texttt{2474:119}) \(\rightarrow\) bản mobile của
+        \texttt{/portal/delivery} (``giao hàng oke'').
+  \item \texttt{Screen\_3\_Debt\_Knowledge} (\texttt{2474:233}) \(\rightarrow\) trang
+        \textbf{MỚI} \texttt{/portal/debt} (module \texttt{wujia\_portal\_debt}).
+  \item \texttt{Screen\_4\_Support} (\texttt{2474:346}) \(\rightarrow\) bản mobile của
+        \texttt{/portal/support}.
+\end{itemize}
+
+\textbf{Quy tắc user giao:} model/controller chưa có \(\rightarrow\) làm UI trước, note
+lại, BA fill backend sau. Frame \texttt{2474} là thế hệ \textbf{CŨ} (header 112px,
+footer active ĐỎ) --- shell hiện tại đã FINAL (Sprint 12/14: header cyan 104, footer
+active CYAN, sheet ``Thêm''). \textbf{GIỮ SHELL FINAL, chỉ build content} --- footer
+đỏ Figma là drift có chủ đích, đối chiếu BA. ADR-007 (mỗi feature portal = 1 module)
+\(\rightarrow\) tạo \texttt{wujia\_portal\_debt} (module thứ 19; backend Phase 2 sẽ
+vào đây).
+
+\section{Spec theo Figma}
+
+Pattern chung mỗi section: \textbf{title row} (title Inter 18/700 \texttt{\#1F2933} +
+``Xem tất cả \(\rangle\)'' 12/700 cyan căn phải) + \textbf{card trắng} border
+\texttt{\#E9EEF2} bo \(\sim\)16. Tile icon \(40\times40\) bo 10 nền \texttt{\#E9F7FC}
+(\(\approx\) \texttt{--wujia-primary-soft}).
+
+\textbf{Screen 2 --- \texttt{/portal/delivery}:}
+\begin{itemize}
+  \item \emph{Đơn hàng gần đây}: 1 card gộp 3 row (separator), tile
+        \texttt{icon-file-text} + mã 16/700 + giờ ngày 12 + tiền 13/700 + badge soft +
+        chevron. Link \texttt{/portal/purchase-history/<id>}.
+  \item \emph{Giao hàng sắp tới}: card RỜI mỗi batch, tile \texttt{icon-truck} + tên +
+        ngày kiểu ``29/05/2026 (Thứ 5) \textbullet{} 08:00'' + ``Tổng đơn: N đơn'' +
+        ``Tổng tiền'' + badge (Đang giao = info / Chuẩn bị giao = muted).
+  \item \emph{Yêu cầu đổi trả gần đây}: card rời (không tile) mã + ngày + lý do +
+        tổng tiền + badge (Chờ xử lý = danger / Đang xử lý = warning).
+\end{itemize}
+
+\textbf{Screen 3 --- \texttt{/portal/debt} (MỚI):}
+\begin{itemize}
+  \item \emph{Công nợ tóm tắt}: 1 card 3 row kv (tile cyan / tile danger ``Quá hạn'') ---
+        Tổng công nợ / Quá hạn thanh toán / Kỳ công nợ hiện tại. \textbf{UI-only}:
+        \texttt{account.move} = Phase 2 \(\rightarrow\) ``0 đ'' (precedent KPI Công nợ
+        Home Sprint 10) + kỳ ``---'', ``Xem tất cả'' href \texttt{\#}.
+  \item \emph{Bài viết / Kiến thức mới}: 1 card 3 row (icon chung \texttt{icon-file-text})
+        --- data thật \texttt{wujia.knowledge.article} published, link
+        \texttt{/portal/knowledge/<slug>}.
+  \item \emph{Đơn hàng gần đây}: y hệt Screen 2 (dùng chung class + helper).
+\end{itemize}
+
+\textbf{Screen 4 --- \texttt{/portal/support}:}
+\begin{itemize}
+  \item \emph{Hỗ trợ nhanh}: 1 card 3 row --- Tạo yêu cầu (\texttt{/portal/support/new},
+        thật) / Gọi hotline (\texttt{tel:} từ \texttt{company.phone}) / Chat
+        (\textbf{UI-only} href \texttt{\#}, chờ BA channel).
+  \item \emph{Thông tin cửa hàng}: 1 card 3 row kv (icon trần 18, không tile) --- Địa chỉ
+        / Điện thoại / Người phụ trách (= \texttt{main\_owner\_member\_id.user\_id.name}),
+        data thật từ franchise active.
+  \item \emph{Giao hàng sắp tới}: y hệt Screen 2.
+\end{itemize}
+
+\section{Module \& file chạm}
+
+\begin{itemize}
+  \item \texttt{wujia\_portal\_base} (19.0.5.5.0 \(\rightarrow\) 19.0.5.6.0):
+    \begin{itemize}
+      \item \texttt{controllers/utils.py}: helper CHUNG cho section lặp 2--3 trang ---
+            \texttt{get\_recent\_orders(franchise\_ids, limit)},
+            \texttt{get\_upcoming\_batches(...)} (trả list dict đã tính sẵn order\_count
+            + total \textbf{chỉ của franchise user}), \texttt{format\_batch\_departure}
+            (``dd/mm/yyyy (Thứ X) \textbullet{} HH:MM'') + map UI-only
+            \texttt{MOBILE\_ORDER\_BADGES} / \texttt{MOBILE\_BATCH\_BADGES}. Guard theo
+            \texttt{\_fields} (\texttt{franchise\_id}, \texttt{planned\_departure} không
+            thuộc dependency của base) \(\rightarrow\) thiếu module thì trả rỗng, không
+            crash.
+      \item \texttt{views/portal\_home.xml}: KPI ``Công nợ'' mobile (trước là
+            \texttt{<div>} chết) \(\rightarrow\) \texttt{<a href="/portal/debt">}.
+    \end{itemize}
+  \item \texttt{wujia\_portal\_debt} (MỚI, 19.0.1.0.0): manifest depends
+        \texttt{wujia\_portal\_base, wujia\_portal\_knowledge}; controller
+        \texttt{/portal/debt} (\texttt{auth='user'}, fetch knowledge + recent\_orders,
+        công nợ KHÔNG query); \texttt{views/portal\_debt.xml} 3 section.
+  \item \texttt{wujia\_portal\_delivery} (19.0.1.2.0 \(\rightarrow\) 19.0.1.3.0): controller
+        \texttt{/portal/delivery} thêm context mobile (recent\_orders / upcoming\_batches
+        / recent\_returns + map \texttt{MOBILE\_RETURN\_BADGES}); view bọc desktop
+        \texttt{d-none d-lg-block} + block mobile \texttt{d-lg-none .wujia-mpage
+        .wujia-mdash} NGOÀI \texttt{.content-wrapper}.
+  \item \texttt{wujia\_portal\_support} (19.0.3.2.0 \(\rightarrow\) 19.0.3.3.0): controller
+        \texttt{/portal/support} thêm context (\texttt{m\_franchise},
+        \texttt{m\_upcoming\_batches}, \texttt{m\_hotline}); view bọc desktop + block
+        mobile hub.
+  \item \texttt{wujia\_portal\_layout} (19.0.15.0.0 \(\rightarrow\) 19.0.16.0.0):
+        \texttt{\_variables.css} 2 token \texttt{--wujia-mdash-tile-bg/-tile-danger-bg};
+        \texttt{\_components.css} cụm \texttt{.wujia-mdash-*} (titlerow / card / row gộp +
+        separator / card rời / tile / kv / chev) + rule \texttt{.wujia-debt-page} cho
+        \(\geq\)992px; \texttt{assets.xml} bump \texttt{\_variables} / \texttt{\_components}
+        \(\rightarrow\) \texttt{?v=1124}.
+\end{itemize}
+
+\section{Gì đã làm (nghiệp vụ)}
+
+Chủ cửa hàng nhượng quyền trên điện thoại giờ có thêm 3 màn theo đúng thiết kế BA:
+trang \textbf{Giao hàng} hiện tóm tắt 3 đơn mới nhất, các chuyến giao sắp tới (kèm số
+đơn và tổng tiền \textbf{của riêng cửa hàng mình} trong chuyến) và các yêu cầu đổi trả
+gần đây; trang \textbf{Công nợ} mới (bấm từ ô ``Công nợ'' ở Trang chủ) gom số dư công nợ,
+bài kiến thức mới và đơn gần đây; trang \textbf{Hỗ trợ} thành một hub có nút tạo yêu cầu,
+gọi hotline trực tiếp và xem thông tin liên hệ cửa hàng. Phần số công nợ và chat hiện
+là giao diện chờ (account.move thuộc giai đoạn 2), còn lại đều chạy dữ liệu thật.
+Bản desktop của cả \texttt{/portal/delivery} và \texttt{/portal/support} GIỮ NGUYÊN
+100\%.
+
+\section{Lý do / Trade-off}
+
+\textbf{Helper chung ở \texttt{wujia\_portal\_base}} thay vì t-call cross-module: section
+``Đơn hàng gần đây'' + ``Giao hàng sắp tới'' lặp trên 3 trang ở 3 module khác nhau.
+Đặt logic query ở base (cả 3 đều depends) + dùng chung \textbf{CSS class}, markup viết
+per-view \(\rightarrow\) tránh dependency chéo module (delivery không phải depend support
+và ngược lại) mà vẫn DRY phần nặng (query + format). Guard \texttt{\_fields} để base
+không hard-depend \texttt{wujia\_sale}/\texttt{wujia\_delivery}.
+
+\textbf{Module mới \texttt{wujia\_portal\_debt}} thay vì nhét route vào module sẵn có:
+theo ADR-007, mỗi feature portal = 1 module \(\rightarrow\) khi BA build backend
+\texttt{account.move} (Phase 2) thì model + view chi tiết công nợ vào đúng chỗ, không
+phình module khác. Trang render \texttt{.wujia-mpage} ở mọi cỡ màn (BA mới vẽ mobile),
+\(\geq\)992px cap \texttt{max-width: 720px} qua \texttt{.wujia-debt-page} --- tạm, thay
+bằng desktop design thật khi BA vẽ.
+
+\textbf{Badge map MOBILE tách desktop} (precedent \texttt{MOBILE\_STATE\_BADGES} Sprint
+13): nhãn theo Figma (``Đã xác nhận'', ``Chờ xử lý''\ldots) lấy từ state thật nhưng map
+riêng cho mobile, không đụng map desktop của từng module.
+
+\section{Verify}
+
+\begin{itemize}
+  \item \texttt{upgrade.sh} 4 module + install \texttt{wujia\_portal\_debt} RC=0, log
+        sạch (ERROR trong log là stale 06-05/06-07, không phải hôm nay).
+  \item \texttt{test\_sprint9.py} 7/7 + \texttt{test\_sprint5.py} 0 FAIL (21 PASS ---
+        thêm 1 assertion \texttt{S00004 batch\_id} chạy được nhờ batch demo local; không
+        phải regression code).
+  \item HTTP authenticated (\texttt{anh.owner} local :8019): \texttt{/portal/delivery},
+        \texttt{/portal/debt}, \texttt{/portal/support}, \texttt{/portal},
+        \texttt{/portal/knowledge}, \texttt{/portal/purchase-history} đều 200; markup
+        mobile đủ section mỗi trang; KPI Công nợ Home link \texttt{/portal/debt}.
+  \item Batch demo local-only (\texttt{BATCH/OUT/00001}, planned\_departure = mai
+        08:00, KHÔNG vào manifest): card render ``Tổng đơn: 1 đơn / Tổng tiền: 299.000 đ''
+        \(\rightarrow\) xác nhận lọc franchise đúng (chỉ đơn của user trong batch).
+  \item Desktop intact (\texttt{d-none d-lg-block} nguyên vẹn); CSS serve đúng
+        \texttt{?v=1124}.
+  \item \textbf{Gotcha \#13 lặp lại}: route mới \texttt{/portal/debt} cần restart server
+        (\texttt{--dev=reload} không bắt route controller mới).
+\end{itemize}
+
+\section{Pending sau Sprint 16}
+
+\begin{itemize}
+  \item Công nợ 3 số + ``Xem tất cả'' \(\rightarrow\) wire khi BA build
+        \texttt{account.move} (Phase 2).
+  \item \texttt{wujia.return.request} CHƯA có field tổng tiền \(\rightarrow\) row đổi trả
+        hiện ``---'', wire khi BA thêm field.
+  \item Chat channel + giờ chat (UI-only href \texttt{\#}); hotline khi
+        \texttt{company.phone} trống.
+  \item Mobile CHƯA có đường xem \textbf{list ticket} support (Figma không vẽ) ---
+        hỏi BA.
+  \item \texttt{/portal/debt} desktop dùng tạm layout mobile cap 720px --- chờ BA design
+        desktop.
+  \item Có thêm row ``Công nợ'' vào sheet ``Thêm'' không --- hỏi BA.
+  \item Pending cũ: trang mobile Đổi trả (\texttt{4449:81}), status giao hàng batch state
+        thật (Sprint 13), khung giờ vào cart (Sprint 11), i18n \texttt{.po}.
+\end{itemize}

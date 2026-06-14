@@ -5,7 +5,8 @@
     <template id="portal_support_list" name="Wujia Portal — Support List">
         <t t-call="wujia_portal_layout.app_layout">
             <t t-set="title">Yêu cầu hỗ trợ</t>
-            <div class="content-wrapper">
+            <!-- ===== Desktop (>=992px) — GIỮ NGUYÊN 100%, chỉ bọc d-none d-lg-block (Sprint 16) ===== -->
+            <div class="content-wrapper d-none d-lg-block">
                 <div class="content-header row mt-3">
                     <div class="content-header-left col-12 mb-1 d-flex justify-content-between align-items-center flex-wrap">
                         <h2 class="content-header-title float-left mb-0">
@@ -111,6 +112,110 @@
                     </nav>
                 </div>
             </div>
+            <!-- /desktop -->
+
+            <!-- ===== Mobile (<992px) — Sprint 16, Figma Screen_4_Support 2474:346
+                 (frame mobile_dashboard 2474:2, thế hệ CŨ — shell FINAL giữ nguyên).
+                 Hub Hỗ trợ thay list ticket trên mobile (Figma không vẽ list —
+                 NOTE BA: mobile chưa có đường xem list ticket, đối chiếu sau).
+                 BlankShell .wujia-mpage, đặt NGOÀI .content-wrapper (pattern S15).
+                 UI-only notes:
+                 - "Chat với chúng tôi" + giờ chat: chưa có channel → href "#".
+                 - Hotline = company.phone, trống → placeholder "—". -->
+            <div class="d-lg-none wujia-mpage wujia-mdash">
+                <!-- Hỗ trợ nhanh -->
+                <section class="wujia-mdash-sec">
+                    <div class="wujia-mdash-titlerow">
+                        <h2 class="wujia-mdash-title">Hỗ trợ nhanh</h2>
+                    </div>
+                    <div class="wujia-mdash-card wujia-mdash-list">
+                        <a href="/portal/support/new" class="wujia-mdash-row">
+                            <span class="wujia-mdash-tile"><i class="feather icon-headphones"/></span>
+                            <span class="wujia-mdash-row-main">
+                                <span class="wujia-mdash-row-title is-sm">Tạo yêu cầu hỗ trợ</span>
+                                <span class="wujia-mdash-row-sub">Gửi yêu cầu và theo dõi phản hồi</span>
+                            </span>
+                            <i class="feather icon-chevron-right wujia-mdash-chev"/>
+                        </a>
+                        <a t-attf-href="tel:#{m_hotline or ''}" class="wujia-mdash-row">
+                            <span class="wujia-mdash-tile"><i class="feather icon-phone-call"/></span>
+                            <span class="wujia-mdash-row-main">
+                                <span class="wujia-mdash-row-title is-sm">Gọi hotline</span>
+                                <span class="wujia-mdash-row-sub is-primary" t-out="m_hotline or '—'"/>
+                            </span>
+                            <i class="feather icon-chevron-right wujia-mdash-chev"/>
+                        </a>
+                        <a href="#" class="wujia-mdash-row">
+                            <span class="wujia-mdash-tile"><i class="feather icon-message-circle"/></span>
+                            <span class="wujia-mdash-row-main">
+                                <span class="wujia-mdash-row-title is-sm">Chat với chúng tôi</span>
+                                <span class="wujia-mdash-row-sub is-primary">Thời gian: 8:00 - 17:30</span>
+                            </span>
+                            <i class="feather icon-chevron-right wujia-mdash-chev"/>
+                        </a>
+                    </div>
+                </section>
+
+                <!-- Thông tin cửa hàng -->
+                <section class="wujia-mdash-sec">
+                    <div class="wujia-mdash-titlerow">
+                        <h2 class="wujia-mdash-title">Thông tin cửa hàng</h2>
+                    </div>
+                    <div class="wujia-mdash-card wujia-mdash-list">
+                        <div t-if="not m_franchise" class="wujia-mdash-empty">Bạn chưa được gán vào cửa hàng nào.</div>
+                        <t t-else="">
+                            <div class="wujia-mdash-row">
+                                <span class="wujia-mdash-ico"><i class="feather icon-map-pin"/></span>
+                                <span class="wujia-mdash-row-main">
+                                    <span class="wujia-mdash-row-sub">Địa chỉ</span>
+                                    <span class="wujia-mdash-row-sub is-strong" t-out="m_franchise.address or '—'"/>
+                                </span>
+                            </div>
+                            <div class="wujia-mdash-row">
+                                <span class="wujia-mdash-ico"><i class="feather icon-phone"/></span>
+                                <span class="wujia-mdash-row-main">
+                                    <span class="wujia-mdash-row-sub">Điện thoại</span>
+                                    <span class="wujia-mdash-row-sub is-strong" t-out="m_franchise.phone or '—'"/>
+                                </span>
+                            </div>
+                            <div class="wujia-mdash-row">
+                                <span class="wujia-mdash-ico"><i class="feather icon-user"/></span>
+                                <span class="wujia-mdash-row-main">
+                                    <span class="wujia-mdash-row-sub">Người phụ trách</span>
+                                    <span class="wujia-mdash-row-sub is-strong"
+                                          t-out="m_franchise.main_owner_member_id.user_id.name or '—'"/>
+                                </span>
+                            </div>
+                        </t>
+                    </div>
+                </section>
+
+                <!-- Giao hàng sắp tới -->
+                <section class="wujia-mdash-sec">
+                    <div class="wujia-mdash-titlerow">
+                        <h2 class="wujia-mdash-title">Giao hàng sắp tới</h2>
+                        <a href="/portal/delivery" class="wujia-mdash-link">Xem tất cả ›</a>
+                    </div>
+                    <div class="wujia-mdash-stack">
+                        <div t-if="not m_upcoming_batches" class="wujia-mdash-card wujia-mdash-empty">Chưa có chuyến giao sắp tới.</div>
+                        <t t-foreach="m_upcoming_batches" t-as="it">
+                            <a t-attf-href="/portal/delivery/#{it['batch'].id}" class="wujia-mdash-card wujia-mdash-item">
+                                <span class="wujia-mdash-tile"><i class="feather icon-truck"/></span>
+                                <span class="wujia-mdash-row-main">
+                                    <span class="wujia-mdash-row-title" t-out="it['batch'].name"/>
+                                    <span class="wujia-mdash-row-sub is-strong" t-out="it['when']"/>
+                                    <span class="wujia-mdash-row-sub">Tổng đơn: <t t-out="it['order_count']"/> đơn</span>
+                                    <span class="wujia-mdash-row-sub is-strong">
+                                        Tổng tiền: <t t-out="'{:,.0f}'.format(it['total']).replace(',', '.') + ' đ'"/>
+                                    </span>
+                                </span>
+                                <span t-attf-class="wujia-badge #{it['badge'][1]}" t-out="it['badge'][0]"/>
+                            </a>
+                        </t>
+                    </div>
+                </section>
+            </div>
+            <!-- /mobile -->
         </t>
     </template>
 

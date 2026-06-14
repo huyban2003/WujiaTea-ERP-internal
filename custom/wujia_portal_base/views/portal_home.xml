@@ -270,11 +270,12 @@
                                     <span class="wujia-mhome-kpi-label">Đổi trả</span>
                                     <span class="wujia-mhome-kpi-value" t-out="return_requests_count or 0"/>
                                 </a>
-                                <!-- CÔNG NỢ: UI-only (account.move = Phase 2) → '0 ₫', không wire -->
-                                <div class="wujia-mhome-kpi">
+                                <!-- CÔNG NỢ: số = UI-only (account.move = Phase 2) → '0 ₫';
+                                     Sprint 16: link trang Công nợ /portal/debt (wujia_portal_debt) -->
+                                <a href="/portal/debt" class="wujia-mhome-kpi">
                                     <span class="wujia-mhome-kpi-label">Công nợ</span>
                                     <span class="wujia-mhome-kpi-value">0 ₫</span>
-                                </div>
+                                </a>
                             </div>
                         </section>
 

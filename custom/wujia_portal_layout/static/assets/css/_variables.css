@@ -288,6 +288,17 @@
     --wujia-mknow-quote-bg:         #F8F9FB;                      /* card "Các điểm cần nắm" */
     --wujia-mknow-note-bg:          #FFF7E8;                      /* card "Lưu ý" */
     --wujia-mknow-note-head:        #F29A1F;                      /* heading "Lưu ý" (palette badge-warning) */
+
+    /* ---------- Mobile Dashboard sections (Sprint 16) — Figma mobile_dashboard
+       2474:2 (Screen_2_Orders 2474:119 / Screen_3_Debt_Knowledge 2474:233 /
+       Screen_4_Support 2474:346, frame thế hệ CŨ — shell FINAL giữ nguyên,
+       chỉ build content). Section dùng chung cho /portal/delivery + /portal/debt
+       + /portal/support bản mobile. Reuse palette --wujia-morder-*; card border
+       Figma #E9EEF2 ≈ --wujia-morder-border (typo-rule); tile #E9F7FC ≈
+       --wujia-primary-soft #EAF7FD (typo-rule).
+       Prefix --wujia-mdash-* → mobile-only, zero blast radius desktop. ---------- */
+    --wujia-mdash-tile-bg:        var(--wujia-primary-soft);   /* icon tile 40 soft cyan */
+    --wujia-mdash-tile-danger-bg: var(--wujia-danger-bg);      /* tile "Quá hạn" — Figma rgba(239,68,68,.09) ≈ token */
 }
 
 /* ============================================================================

@@ -4,7 +4,11 @@ from odoo import http
 from odoo.http import request
 
 from odoo.addons.wujia_portal_base.controllers.portal import (
+    get_active_franchise_id,
     get_active_franchise_ids_filter,
+)
+from odoo.addons.wujia_portal_base.controllers.utils import (
+    get_upcoming_batches,
 )
 
 
@@ -61,11 +65,24 @@ class WujiaPortalSupport(http.Controller):
             'page_next': {'num': min(last_page, page + 1)},
             'querystring': f'state={state}' if state else '',
         }
+        # Sprint 16 — context bản mobile (Figma Screen_4_Support 2474:346):
+        # hub Hỗ trợ nhanh + Thông tin cửa hàng + Giao hàng sắp tới.
+        # 2 query nhỏ (franchise browse + batch limit 2) — perf OK 1500 user.
+        franchise = None
+        active_fid = get_active_franchise_id()
+        if active_fid:
+            franchise = request.env['wujia.franchise.management'].sudo().browse(
+                active_fid
+            ).exists() or None
+        franchise_ids = get_active_franchise_ids_filter() or []
         return request.render('wujia_portal_support.portal_support_list', {
             'tickets': tickets, 'pager': pager,
             'state_labels': STATE_LABELS,
             'priority_labels': PRIORITY_LABELS,
             'state': state,
+            'm_franchise': franchise,
+            'm_upcoming_batches': get_upcoming_batches(franchise_ids, limit=2),
+            'm_hotline': request.env.company.sudo().phone or '',
         })
 
     @http.route(['/portal/support/new'], type='http', auth='user', sitemap=False,

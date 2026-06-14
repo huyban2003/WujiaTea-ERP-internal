@@ -2375,3 +2375,178 @@ a.wujia-mhome-kpi:active { opacity: 0.85; }
         color: var(--wujia-morder-text-muted);
     }
 }
+
+/* ============================================================================
+   Sprint 16 — Mobile Dashboard sections (Figma mobile_dashboard 2474:2)
+   3 màn: Screen_2_Orders → /portal/delivery / Screen_3_Debt_Knowledge →
+   /portal/debt / Screen_4_Support → /portal/support. Class .wujia-mdash-*
+   dùng chung markup per-view (KHÔNG t-call cross-module). Badge tái dùng
+   .wujia-badge-* soft sẵn có. KHÔNG bọc media query (khác mknow/mhist):
+   /portal/delivery + /portal/support gate bằng d-lg-none trong markup;
+   /portal/debt render mọi cỡ màn (chưa có desktop design — .wujia-debt-page
+   cuối cụm cap bề ngang). Prefix riêng → zero blast radius.
+   ============================================================================ */
+    /* ---------- Section: titlerow + content ---------- */
+    .wujia-mdash-sec {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+    }
+    .wujia-mdash-titlerow {
+        display: flex;
+        align-items: baseline;
+        justify-content: space-between;
+        gap: 8px;
+    }
+    .wujia-mdash-title {
+        font-size: 18px;
+        font-weight: 700;
+        color: var(--wujia-morder-text);
+        margin: 0;
+    }
+    .wujia-mdash-link {
+        flex: 0 0 auto;
+        font-size: 12px;
+        font-weight: 700;
+        color: var(--wujia-morder-primary);
+        text-decoration: none;
+        white-space: nowrap;
+    }
+
+    /* ---------- Card base ---------- */
+    .wujia-mdash-card {
+        display: block;
+        background: var(--wujia-morder-card-bg);
+        border: 1px solid var(--wujia-morder-border);
+        border-radius: var(--wujia-morder-radius);
+        padding: 14px;
+        text-decoration: none;
+        color: inherit;
+    }
+    a.wujia-mdash-card:hover { color: inherit; }
+    .wujia-mdash-stack {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    /* ---------- Row trong card gộp (orders / debt kv / knowledge / quick) -- */
+    .wujia-mdash-list { padding: 4px 14px; }
+    .wujia-mdash-row {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 12px 0;
+        text-decoration: none;
+        color: inherit;
+    }
+    .wujia-mdash-row + .wujia-mdash-row { border-top: 1px solid var(--wujia-morder-divider); }
+    a.wujia-mdash-row:hover { color: inherit; }
+
+    .wujia-mdash-tile {
+        flex: 0 0 auto;
+        width: 40px;
+        height: 40px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 10px;
+        background: var(--wujia-mdash-tile-bg);
+        color: var(--wujia-morder-primary);
+    }
+    .wujia-mdash-tile i { font-size: 18px; line-height: 1; }
+    .wujia-mdash-tile.is-danger {
+        background: var(--wujia-mdash-tile-danger-bg);
+        color: var(--wujia-danger);
+    }
+    /* icon trần (Thông tin cửa hàng — Figma 18px, KHÔNG tile) */
+    .wujia-mdash-ico {
+        flex: 0 0 auto;
+        width: 24px;
+        text-align: center;
+        font-size: 17px;
+        color: var(--wujia-morder-primary);
+    }
+
+    .wujia-mdash-row-main {
+        flex: 1 1 auto;
+        min-width: 0;
+        display: flex;
+        flex-direction: column;
+        gap: 3px;
+    }
+    .wujia-mdash-row-title {
+        font-size: 15px;
+        font-weight: 700;
+        color: var(--wujia-morder-text);
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+    .wujia-mdash-row-title.is-lg { font-size: 16px; }
+    .wujia-mdash-row-title.is-sm { font-size: 13px; white-space: normal; }
+    .wujia-mdash-row-sub {
+        font-size: 12px;
+        color: var(--wujia-morder-text-sub);
+    }
+    .wujia-mdash-row-sub.is-strong {
+        font-weight: 700;
+        color: var(--wujia-morder-text);
+    }
+    .wujia-mdash-row-sub.is-primary {
+        font-weight: 700;
+        color: var(--wujia-morder-primary);
+    }
+    .wujia-mdash-row-sub.is-xs { font-size: 11px; }
+
+    .wujia-mdash-amount {
+        flex: 0 0 auto;
+        margin-left: auto;
+        font-size: 13px;
+        font-weight: 700;
+        color: var(--wujia-morder-text);
+        white-space: nowrap;
+    }
+    .wujia-mdash-row .wujia-badge { flex: 0 0 auto; white-space: nowrap; }
+    .wujia-mdash-chev {
+        flex: 0 0 auto;
+        font-size: 18px;
+        color: var(--wujia-morder-text-muted);
+    }
+
+    /* ---------- Card rời (Giao hàng sắp tới / Yêu cầu đổi trả) ---------- */
+    .wujia-mdash-item {
+        display: flex;
+        align-items: flex-start;
+        gap: 12px;
+        padding: 16px;
+    }
+    .wujia-mdash-item .wujia-mdash-row-main { gap: 4px; }
+    .wujia-mdash-item .wujia-badge {
+        flex: 0 0 auto;
+        align-self: flex-start;
+        white-space: nowrap;
+    }
+
+    /* ---------- Empty trong card ---------- */
+    .wujia-mdash-empty {
+        padding: 14px 0;
+        font-size: 13px;
+        color: var(--wujia-morder-text-muted);
+        text-align: center;
+    }
+
+/* /portal/debt chưa có desktop design (BA mới vẽ mobile) → render cùng layout
+   mọi cỡ màn, ≥992px cap bề ngang + tự lo gutter (.wujia-mpage chỉ áp <992px).
+   NOTE: thay bằng layout desktop thật khi BA design — đối chiếu BA. */
+@media (min-width: 992px) {
+    .wujia-debt-page {
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+        width: 100%;
+        max-width: 720px;
+        margin: 0 auto;
+        padding: 24px 16px 48px;
+    }
+}

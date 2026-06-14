@@ -7,6 +7,7 @@ import base64
 import functools
 import logging
 import time
+from datetime import date, datetime
 
 from werkzeug.exceptions import Forbidden, TooManyRequests
 from werkzeug.utils import secure_filename
@@ -262,6 +263,99 @@ def check_attachment_access(att_id, allowed_models=None):
 # ---------------------------------------------------------------------------
 
 ROLE_RANK = {'staff': 1, 'manager': 2, 'owner': 3}
+
+
+# ---------------------------------------------------------------------------
+# Mobile dashboard sections — Sprint 16 (Figma mobile_dashboard 2474:2)
+# ---------------------------------------------------------------------------
+#
+# Section "Đơn hàng gần đây" / "Giao hàng sắp tới" lặp trên 2-3 trang mobile
+# (/portal/delivery, /portal/debt, /portal/support) → helper chung ở đây
+# (cả 3 module đều depends wujia_portal_base). Field franchise_id (wujia_sale)
+# và planned_departure (wujia_delivery) KHÔNG thuộc dependency của base →
+# guard theo _fields, thiếu module thì trả rỗng thay vì crash.
+#
+# Label map MOBILE — UI-only, TÁCH map desktop (precedent MOBILE_STATE_BADGES
+# Sprint 13). Nhãn theo Figma; nguồn state thật, chỉ nhãn là mobile-riêng.
+# ---------------------------------------------------------------------------
+
+MOBILE_ORDER_BADGES = {
+    'draft':  ('Nháp', 'wujia-badge-muted'),
+    'sent':   ('Đã gửi', 'wujia-badge-info'),
+    'sale':   ('Đã xác nhận', 'wujia-badge-success'),
+    'done':   ('Hoàn tất', 'wujia-badge-success'),
+    'cancel': ('Đã hủy', 'wujia-badge-danger'),
+}
+
+# Figma 2474:187/197: "Đang giao"=info cyan / "Chuẩn bị giao"=muted.
+MOBILE_BATCH_BADGES = {
+    'draft':      ('Chuẩn bị giao', 'wujia-badge-muted'),
+    'assigned':   ('Chuẩn bị giao', 'wujia-badge-muted'),
+    'loading':    ('Chuẩn bị giao', 'wujia-badge-muted'),
+    'delivering': ('Đang giao', 'wujia-badge-info'),
+    'done':       ('Đã giao xong', 'wujia-badge-success'),
+    'cancelled':  ('Hủy chuyến', 'wujia-badge-danger'),
+}
+
+VI_WEEKDAYS = {0: 'Thứ 2', 1: 'Thứ 3', 2: 'Thứ 4', 3: 'Thứ 5',
+               4: 'Thứ 6', 5: 'Thứ 7', 6: 'CN'}
+
+
+def format_batch_departure(dt):
+    """'29/05/2026 (Thứ 5) · 08:00' — format ngày giờ batch theo Figma 2474:183."""
+    if not dt:
+        return '—'
+    return '%s (%s) · %s' % (
+        dt.strftime('%d/%m/%Y'), VI_WEEKDAYS[dt.weekday()], dt.strftime('%H:%M'),
+    )
+
+
+def get_recent_orders(franchise_ids, limit=3):
+    """sale.order mới nhất của franchise — section "Đơn hàng gần đây"."""
+    Order = request.env['sale.order'].sudo()
+    if 'franchise_id' not in Order._fields or not franchise_ids:
+        return Order.browse()
+    return Order.search(
+        [('franchise_id', 'in', list(franchise_ids))],
+        order='date_order desc', limit=limit,
+    )
+
+
+def get_upcoming_batches(franchise_ids, limit=2):
+    """Batch sắp giao có hàng của franchise — section "Giao hàng sắp tới".
+
+    Returns: list dict {batch, when, order_count, total, badge} đã tính sẵn
+    (Tổng đơn = số sale.order của franchise trong batch; Tổng tiền = sum
+    amount_total các đơn đó — tính trên limit 2 batch, perf OK 1500 user).
+    """
+    Batch = request.env['stock.picking.batch'].sudo()
+    if 'planned_departure' not in Batch._fields or not franchise_ids:
+        return []
+    franchise_ids = list(franchise_ids)
+    start = datetime.combine(date.today(), datetime.min.time())
+    batches = Batch.search([
+        ('planned_departure', '>=', start),
+        '|', ('picking_ids.franchise_id', 'in', franchise_ids),
+             ('picking_ids.sale_id.franchise_id', 'in', franchise_ids),
+    ], order='planned_departure asc', limit=limit)
+    items = []
+    for batch in batches:
+        own = batch.picking_ids.filtered(
+            lambda p: (p.franchise_id and p.franchise_id.id in franchise_ids)
+            or (p.sale_id and p.sale_id.franchise_id
+                and p.sale_id.franchise_id.id in franchise_ids)
+        )
+        orders = own.mapped('sale_id')
+        items.append({
+            'batch': batch,
+            'when': format_batch_departure(batch.planned_departure),
+            'order_count': len(orders),
+            'total': sum(orders.mapped('amount_total')),
+            'badge': MOBILE_BATCH_BADGES.get(
+                batch.delivery_batch_status, ('Chuẩn bị giao', 'wujia-badge-muted'),
+            ),
+        })
+    return items
 
 
 def require_role(min_role, franchise_id=None):

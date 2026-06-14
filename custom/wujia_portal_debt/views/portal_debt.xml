@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- ============================================================
+         Công nợ /portal/debt — Sprint 16, Figma Screen_3_Debt_Knowledge
+         2474:233 (frame mobile_dashboard 2474:2). BA chỉ vẽ MOBILE →
+         render cùng layout mọi cỡ màn: <992px ăn .wujia-mpage (shell
+         mobile), >=992px .wujia-debt-page cap bề ngang (NOTE: thay
+         bằng desktop design thật khi BA vẽ — đối chiếu BA).
+         UI-ONLY (user chốt 2026-06-12, BA fill backend Phase 2 sau):
+         - 3 số card "Công nợ tóm tắt" (account.move chưa build)
+           → "0 đ" (precedent KPI Công nợ Home Sprint 10) + kỳ "—".
+         - "Xem tất cả" công nợ → href "#" (chưa có trang chi tiết).
+         ============================================================ -->
+    <template id="portal_debt_overview" name="Wujia Portal — Debt Overview">
+        <t t-call="wujia_portal_layout.app_layout">
+            <t t-set="title">Công nợ</t>
+            <div class="wujia-mpage wujia-debt-page wujia-mdash">
+                <div t-if="no_franchise" class="wujia-mdash-card wujia-empty-state">
+                    <i class="feather icon-home"/>
+                    <p>Bạn chưa được gán vào cửa hàng nào.</p>
+                </div>
+                <t t-else="">
+                    <!-- Công nợ tóm tắt (UI-only) -->
+                    <section class="wujia-mdash-sec">
+                        <div class="wujia-mdash-titlerow">
+                            <h2 class="wujia-mdash-title">Công nợ tóm tắt</h2>
+                            <a href="#" class="wujia-mdash-link">Xem tất cả ›</a>
+                        </div>
+                        <div class="wujia-mdash-card wujia-mdash-list">
+                            <div class="wujia-mdash-row">
+                                <span class="wujia-mdash-tile"><i class="feather icon-credit-card"/></span>
+                                <span class="wujia-mdash-row-main">
+                                    <span class="wujia-mdash-row-sub">Tổng công nợ</span>
+                                    <span class="wujia-mdash-row-title">0 đ</span>
+                                </span>
+                            </div>
+                            <div class="wujia-mdash-row">
+                                <span class="wujia-mdash-tile is-danger"><i class="feather icon-clock"/></span>
+                                <span class="wujia-mdash-row-main">
+                                    <span class="wujia-mdash-row-sub">Quá hạn thanh toán</span>
+                                    <span class="wujia-mdash-row-title">0 đ</span>
+                                </span>
+                            </div>
+                            <div class="wujia-mdash-row">
+                                <span class="wujia-mdash-tile"><i class="feather icon-calendar"/></span>
+                                <span class="wujia-mdash-row-main">
+                                    <span class="wujia-mdash-row-sub">Kỳ công nợ hiện tại</span>
+                                    <span class="wujia-mdash-row-title">—</span>
+                                </span>
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- Bài viết / Kiến thức mới -->
+                    <section class="wujia-mdash-sec">
+                        <div class="wujia-mdash-titlerow">
+                            <h2 class="wujia-mdash-title">Bài viết / Kiến thức mới</h2>
+                            <a href="/portal/knowledge" class="wujia-mdash-link">Xem tất cả ›</a>
+                        </div>
+                        <div class="wujia-mdash-card wujia-mdash-list">
+                            <div t-if="not articles" class="wujia-mdash-empty">Chưa có bài viết.</div>
+                            <!-- Icon chung file-text (Figma vẽ thumb màu riêng từng bài —
+                                 chờ BA cấp field, cùng pending S15 mknow) -->
+                            <t t-foreach="articles" t-as="art">
+                                <a t-attf-href="/portal/knowledge/#{art.slug}" class="wujia-mdash-row">
+                                    <span class="wujia-mdash-tile"><i class="feather icon-file-text"/></span>
+                                    <span class="wujia-mdash-row-main">
+                                        <span class="wujia-mdash-row-title is-sm" t-out="art.name"/>
+                                        <span class="wujia-mdash-row-sub is-xs"
+                                              t-out="art.publish_date and art.publish_date.strftime('%d/%m/%Y') or ''"/>
+                                    </span>
+                                    <i class="feather icon-chevron-right wujia-mdash-chev"/>
+                                </a>
+                            </t>
+                        </div>
+                    </section>
+
+                    <!-- Đơn hàng gần đây -->
+                    <section class="wujia-mdash-sec">
+                        <div class="wujia-mdash-titlerow">
+                            <h2 class="wujia-mdash-title">Đơn hàng gần đây</h2>
+                            <a href="/portal/purchase-history" class="wujia-mdash-link">Xem tất cả ›</a>
+                        </div>
+                        <div class="wujia-mdash-card wujia-mdash-list">
+                            <div t-if="not m_recent_orders" class="wujia-mdash-empty">Chưa có đơn hàng.</div>
+                            <t t-foreach="m_recent_orders" t-as="o">
+                                <a t-attf-href="/portal/purchase-history/#{o.id}" class="wujia-mdash-row">
+                                    <span class="wujia-mdash-tile"><i class="feather icon-file-text"/></span>
+                                    <span class="wujia-mdash-row-main">
+                                        <span class="wujia-mdash-row-title is-lg" t-out="o.name"/>
+                                        <span class="wujia-mdash-row-sub"
+                                              t-out="o.date_order and o.date_order.strftime('%H:%M %d/%m/%Y') or ''"/>
+                                    </span>
+                                    <span class="wujia-mdash-amount"
+                                          t-out="'{:,.0f}'.format(o.amount_total).replace(',', '.') + ' đ'"/>
+                                    <t t-set="lbl" t-value="m_order_badges.get(o.state, (o.state, 'wujia-badge-muted'))"/>
+                                    <span t-attf-class="wujia-badge #{lbl[1]}" t-out="lbl[0]"/>
+                                    <i class="feather icon-chevron-right wujia-mdash-chev"/>
+                                </a>
+                            </t>
+                        </div>
+                    </section>
+                </t>
+            </div>
+        </t>
+    </template>
+
+</odoo>
