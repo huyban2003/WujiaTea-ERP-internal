@@ -134,6 +134,8 @@ ADR-001 odoo19 source độc lập / ADR-002 venv conda `odoo` (py3.10) / ADR-00
 
 **Sprint 5 đã deploy.** Sprint 9.x deploy qua `git pull` + restart (no schema change). Field rename → cần `reseed_full.ps1` drop+init khi skeleton.
 
+**⚠️ GOTCHA DEPLOY — MODULE MỚI KHÔNG TỰ CÀI (note 2026-06-14, Sprint 16):** auto-deploy (push `main` → GitHub Actions self-hosted runner Windows `D:\wujia-tea` → `git pull` + restart Odoo service) **CHỈ** restart → load lại module ĐÃ CÀI + upgrade module có bump version. **Module HOÀN TOÀN MỚI (chưa từng cài trên prod) KHÔNG được restart cài tự động** — phải chạy install 1 lần thủ công: `python odoo-bin -c <conf> -d <db> -i <module> --stop-after-init` (hoặc UI Apps → Update Apps List → Install). **Sprint 16 ⇒ `wujia_portal_debt` PHẢI install thủ công 1 lần trên prod** thì `/portal/debt` mới lên (các trang delivery/support/layout chỉ cần restart vì đã cài + bump version). Áp cho MỌI sprint sau có module mới: nhớ kèm bước `-i` vào deploy note.
+
 **Windows 1-lệnh:**
 ```powershell
 nssm stop Odoo
