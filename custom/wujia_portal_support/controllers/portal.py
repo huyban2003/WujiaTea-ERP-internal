@@ -4,11 +4,10 @@ from odoo import http
 from odoo.http import request
 
 from odoo.addons.wujia_portal_base.controllers.portal import (
-    get_active_franchise_id,
     get_active_franchise_ids_filter,
 )
 from odoo.addons.wujia_portal_base.controllers.utils import (
-    get_upcoming_batches,
+    MOBILE_TICKET_BADGES,
 )
 
 
@@ -39,7 +38,7 @@ def _categories():
 class WujiaPortalSupport(http.Controller):
 
     @http.route(['/portal/support'], type='http', auth='user', sitemap=False)
-    def portal_support_list(self, page=1, state='', **kw):
+    def portal_support_list(self, page=1, state='', q='', **kw):
         Ticket = request.env['wujia.support.ticket'].sudo()
         # Portal user only sees own visible tickets, not cancelled.
         domain = [
@@ -49,6 +48,10 @@ class WujiaPortalSupport(http.Controller):
         ]
         if state and state in STATE_LABELS:
             domain.append(('state', '=', state))
+        # Sprint 17 — tìm theo Mã (name) HOẶC Tiêu đề (title). ilike trigram-friendly.
+        q = (q or '').strip()
+        if q:
+            domain += ['|', ('name', 'ilike', q), ('title', 'ilike', q)]
         try:
             page = max(1, int(page))
         except (TypeError, ValueError):
@@ -59,30 +62,24 @@ class WujiaPortalSupport(http.Controller):
             domain, limit=PAGE_SIZE, offset=offset, order='create_date desc',
         )
         last_page = max(1, (total + PAGE_SIZE - 1) // PAGE_SIZE)
+        qs_parts = []
+        if state:
+            qs_parts.append(f'state={state}')
+        if q:
+            qs_parts.append(f'q={q}')
         pager = {
             'page': {'num': page}, 'page_count': last_page,
             'page_previous': {'num': max(1, page - 1)},
             'page_next': {'num': min(last_page, page + 1)},
-            'querystring': f'state={state}' if state else '',
+            'querystring': '&'.join(qs_parts),
         }
-        # Sprint 16 — context bản mobile (Figma Screen_4_Support 2474:346):
-        # hub Hỗ trợ nhanh + Thông tin cửa hàng + Giao hàng sắp tới.
-        # 2 query nhỏ (franchise browse + batch limit 2) — perf OK 1500 user.
-        franchise = None
-        active_fid = get_active_franchise_id()
-        if active_fid:
-            franchise = request.env['wujia.franchise.management'].sudo().browse(
-                active_fid
-            ).exists() or None
-        franchise_ids = get_active_franchise_ids_filter() or []
         return request.render('wujia_portal_support.portal_support_list', {
             'tickets': tickets, 'pager': pager,
             'state_labels': STATE_LABELS,
             'priority_labels': PRIORITY_LABELS,
+            'm_ticket_badges': MOBILE_TICKET_BADGES,
             'state': state,
-            'm_franchise': franchise,
-            'm_upcoming_batches': get_upcoming_batches(franchise_ids, limit=2),
-            'm_hotline': request.env.company.sudo().phone or '',
+            'q': q,
         })
 
     @http.route(['/portal/support/new'], type='http', auth='user', sitemap=False,
@@ -156,6 +153,7 @@ class WujiaPortalSupport(http.Controller):
             'ticket': ticket,
             'state_labels': STATE_LABELS,
             'priority_labels': PRIORITY_LABELS,
+            'm_ticket_badges': MOBILE_TICKET_BADGES,
         })
 
     @http.route(['/portal/support/<int:ticket_id>/reply'],

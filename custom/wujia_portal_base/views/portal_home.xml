@@ -270,12 +270,13 @@
                                     <span class="wujia-mhome-kpi-label">Đổi trả</span>
                                     <span class="wujia-mhome-kpi-value" t-out="return_requests_count or 0"/>
                                 </a>
-                                <!-- CÔNG NỢ: số = UI-only (account.move = Phase 2) → '0 ₫';
-                                     Sprint 16: link trang Công nợ /portal/debt (wujia_portal_debt) -->
-                                <a href="/portal/debt" class="wujia-mhome-kpi">
+                                <!-- CÔNG NỢ: Sprint 17 — chưa build (account.move = Phase 2).
+                                     Tile inert UI-only "0 ₫" (KHÔNG link — module /portal/debt đã xoá).
+                                     Dựng section + wire khi cần. -->
+                                <div class="wujia-mhome-kpi">
                                     <span class="wujia-mhome-kpi-label">Công nợ</span>
                                     <span class="wujia-mhome-kpi-value">0 ₫</span>
-                                </a>
+                                </div>
                             </div>
                         </section>
 
@@ -354,6 +355,178 @@
                                         <span t-if="noti.type_id" t-attf-class="wujia-badge #{noti_badge_cls}" t-out="noti.type_id.name"/>
                                     </a>
                                 </t>
+                            </div>
+                        </section>
+
+                        <!-- ============================================================
+                             Sprint 16 dashboard merged to Home — BA reviewing, may change.
+                             3 màn dashboard (Figma mobile_dashboard 2474:2) gộp về Home
+                             (dedupe: "Đơn hàng gần đây"/"Giao hàng sắp tới" mỗi mục 1 lần).
+                             Reuse class .wujia-mdash-* (wujia_portal_layout). Công nợ BỎ
+                             đợt này (build sau). ============================================ -->
+
+                        <!-- Đơn hàng gần đây -->
+                        <section class="wujia-mdash-sec">
+                            <div class="wujia-mdash-titlerow">
+                                <h2 class="wujia-mdash-title">Đơn hàng gần đây</h2>
+                                <a href="/portal/purchase-history" class="wujia-mdash-link">Xem tất cả ›</a>
+                            </div>
+                            <div class="wujia-mdash-card wujia-mdash-list">
+                                <div t-if="not recent_orders" class="wujia-mdash-empty">Chưa có đơn hàng.</div>
+                                <t t-foreach="recent_orders" t-as="o">
+                                    <a t-attf-href="/portal/purchase-history/#{o.id}" class="wujia-mdash-row">
+                                        <span class="wujia-mdash-tile"><i class="feather icon-file-text"/></span>
+                                        <span class="wujia-mdash-row-main">
+                                            <span class="wujia-mdash-row-title is-lg" t-out="o.name"/>
+                                            <span class="wujia-mdash-row-sub"
+                                                  t-out="o.date_order and o.date_order.strftime('%H:%M %d/%m/%Y') or ''"/>
+                                        </span>
+                                        <span class="wujia-mdash-amount"
+                                              t-out="'{:,.0f}'.format(o.amount_total).replace(',', '.') + ' đ'"/>
+                                        <t t-set="lbl" t-value="m_order_badges.get(o.state, (o.state, 'wujia-badge-muted'))"/>
+                                        <span t-attf-class="wujia-badge #{lbl[1]}" t-out="lbl[0]"/>
+                                        <i class="feather icon-chevron-right wujia-mdash-chev"/>
+                                    </a>
+                                </t>
+                            </div>
+                        </section>
+
+                        <!-- Giao hàng sắp tới -->
+                        <section class="wujia-mdash-sec">
+                            <div class="wujia-mdash-titlerow">
+                                <h2 class="wujia-mdash-title">Giao hàng sắp tới</h2>
+                                <a href="/portal/delivery" class="wujia-mdash-link">Xem tất cả ›</a>
+                            </div>
+                            <div class="wujia-mdash-stack">
+                                <div t-if="not m_upcoming_batches" class="wujia-mdash-card wujia-mdash-empty">Chưa có chuyến giao sắp tới.</div>
+                                <t t-foreach="m_upcoming_batches" t-as="it">
+                                    <a t-attf-href="/portal/delivery/#{it['batch'].id}" class="wujia-mdash-card wujia-mdash-item">
+                                        <span class="wujia-mdash-tile"><i class="feather icon-truck"/></span>
+                                        <span class="wujia-mdash-row-main">
+                                            <span class="wujia-mdash-row-title" t-out="it['batch'].name"/>
+                                            <span class="wujia-mdash-row-sub is-strong" t-out="it['when']"/>
+                                            <span class="wujia-mdash-row-sub">Tổng đơn: <t t-out="it['order_count']"/> đơn</span>
+                                            <span class="wujia-mdash-row-sub is-strong">
+                                                Tổng tiền: <t t-out="'{:,.0f}'.format(it['total']).replace(',', '.') + ' đ'"/>
+                                            </span>
+                                        </span>
+                                        <span t-attf-class="wujia-badge #{it['badge'][1]}" t-out="it['badge'][0]"/>
+                                    </a>
+                                </t>
+                            </div>
+                        </section>
+
+                        <!-- Yêu cầu đổi trả gần đây -->
+                        <section class="wujia-mdash-sec">
+                            <div class="wujia-mdash-titlerow">
+                                <h2 class="wujia-mdash-title">Yêu cầu đổi trả gần đây</h2>
+                                <a href="/portal/return" class="wujia-mdash-link">Xem tất cả ›</a>
+                            </div>
+                            <div class="wujia-mdash-stack">
+                                <div t-if="not latest_returns" class="wujia-mdash-card wujia-mdash-empty">Chưa có yêu cầu đổi trả.</div>
+                                <t t-foreach="latest_returns" t-as="r">
+                                    <a t-attf-href="/portal/return/#{r.id}" class="wujia-mdash-card wujia-mdash-item">
+                                        <span class="wujia-mdash-row-main">
+                                            <span class="wujia-mdash-row-title" t-out="r.name"/>
+                                            <span class="wujia-mdash-row-sub">
+                                                Ngày yêu cầu: <t t-out="r.request_date and r.request_date.strftime('%d/%m/%Y') or '—'"/>
+                                            </span>
+                                            <span class="wujia-mdash-row-sub is-strong">
+                                                Lý do: <t t-out="r.error_id.name or '—'"/>
+                                            </span>
+                                            <!-- UI-only: model chưa có field tổng tiền (NOTE BA) -->
+                                            <span class="wujia-mdash-row-sub is-strong is-xs">Tổng tiền: —</span>
+                                        </span>
+                                        <t t-set="lbl" t-value="m_return_badges.get(r.state, (r.state, 'wujia-badge-muted'))"/>
+                                        <span t-attf-class="wujia-badge #{lbl[1]}" t-out="lbl[0]"/>
+                                    </a>
+                                </t>
+                            </div>
+                        </section>
+
+                        <!-- Bài viết / Kiến thức mới -->
+                        <section class="wujia-mdash-sec">
+                            <div class="wujia-mdash-titlerow">
+                                <h2 class="wujia-mdash-title">Bài viết / Kiến thức mới</h2>
+                                <a href="/portal/knowledge" class="wujia-mdash-link">Xem tất cả ›</a>
+                            </div>
+                            <div class="wujia-mdash-card wujia-mdash-list">
+                                <div t-if="not articles" class="wujia-mdash-empty">Chưa có bài viết.</div>
+                                <t t-foreach="articles" t-as="art">
+                                    <a t-attf-href="/portal/knowledge/#{art.slug}" class="wujia-mdash-row">
+                                        <span class="wujia-mdash-tile"><i class="feather icon-file-text"/></span>
+                                        <span class="wujia-mdash-row-main">
+                                            <span class="wujia-mdash-row-title is-sm" t-out="art.name"/>
+                                            <span class="wujia-mdash-row-sub is-xs"
+                                                  t-out="art.publish_date and art.publish_date.strftime('%d/%m/%Y') or ''"/>
+                                        </span>
+                                        <i class="feather icon-chevron-right wujia-mdash-chev"/>
+                                    </a>
+                                </t>
+                            </div>
+                        </section>
+
+                        <!-- Hỗ trợ nhanh (Chat UI-only href # — chưa có channel) -->
+                        <section class="wujia-mdash-sec">
+                            <div class="wujia-mdash-titlerow">
+                                <h2 class="wujia-mdash-title">Hỗ trợ nhanh</h2>
+                            </div>
+                            <div class="wujia-mdash-card wujia-mdash-list">
+                                <a href="/portal/support/new" class="wujia-mdash-row">
+                                    <span class="wujia-mdash-tile"><i class="feather icon-headphones"/></span>
+                                    <span class="wujia-mdash-row-main">
+                                        <span class="wujia-mdash-row-title is-sm">Tạo yêu cầu hỗ trợ</span>
+                                        <span class="wujia-mdash-row-sub">Gửi yêu cầu và theo dõi phản hồi</span>
+                                    </span>
+                                    <i class="feather icon-chevron-right wujia-mdash-chev"/>
+                                </a>
+                                <a t-attf-href="tel:#{m_hotline or ''}" class="wujia-mdash-row">
+                                    <span class="wujia-mdash-tile"><i class="feather icon-phone-call"/></span>
+                                    <span class="wujia-mdash-row-main">
+                                        <span class="wujia-mdash-row-title is-sm">Gọi hotline</span>
+                                        <span class="wujia-mdash-row-sub is-primary" t-out="m_hotline or '—'"/>
+                                    </span>
+                                    <i class="feather icon-chevron-right wujia-mdash-chev"/>
+                                </a>
+                                <a href="#" class="wujia-mdash-row">
+                                    <span class="wujia-mdash-tile"><i class="feather icon-message-circle"/></span>
+                                    <span class="wujia-mdash-row-main">
+                                        <span class="wujia-mdash-row-title is-sm">Chat với chúng tôi</span>
+                                        <span class="wujia-mdash-row-sub is-primary">Thời gian: 8:00 - 17:30</span>
+                                    </span>
+                                    <i class="feather icon-chevron-right wujia-mdash-chev"/>
+                                </a>
+                            </div>
+                        </section>
+
+                        <!-- Thông tin cửa hàng -->
+                        <section class="wujia-mdash-sec">
+                            <div class="wujia-mdash-titlerow">
+                                <h2 class="wujia-mdash-title">Thông tin cửa hàng</h2>
+                            </div>
+                            <div class="wujia-mdash-card wujia-mdash-list">
+                                <div class="wujia-mdash-row">
+                                    <span class="wujia-mdash-ico"><i class="feather icon-map-pin"/></span>
+                                    <span class="wujia-mdash-row-main">
+                                        <span class="wujia-mdash-row-sub">Địa chỉ</span>
+                                        <span class="wujia-mdash-row-sub is-strong" t-out="active_franchise.address or '—'"/>
+                                    </span>
+                                </div>
+                                <div class="wujia-mdash-row">
+                                    <span class="wujia-mdash-ico"><i class="feather icon-phone"/></span>
+                                    <span class="wujia-mdash-row-main">
+                                        <span class="wujia-mdash-row-sub">Điện thoại</span>
+                                        <span class="wujia-mdash-row-sub is-strong" t-out="active_franchise.phone or '—'"/>
+                                    </span>
+                                </div>
+                                <div class="wujia-mdash-row">
+                                    <span class="wujia-mdash-ico"><i class="feather icon-user"/></span>
+                                    <span class="wujia-mdash-row-main">
+                                        <span class="wujia-mdash-row-sub">Người phụ trách</span>
+                                        <span class="wujia-mdash-row-sub is-strong"
+                                              t-out="active_franchise.main_owner_member_id.user_id.name or '—'"/>
+                                    </span>
+                                </div>
                             </div>
                         </section>
                     </t>

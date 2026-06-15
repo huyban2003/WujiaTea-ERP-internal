@@ -8,11 +8,6 @@ from odoo.http import request
 from odoo.addons.wujia_portal_base.controllers.portal import (
     get_active_franchise_ids_filter,
 )
-from odoo.addons.wujia_portal_base.controllers.utils import (
-    MOBILE_ORDER_BADGES,
-    get_recent_orders,
-    get_upcoming_batches,
-)
 
 
 def _ics_escape(text):
@@ -50,18 +45,6 @@ PICKING_STATUS_LABELS = {
     'failed': ('Thất bại', 'wujia-badge-danger'),
 }
 
-# Sprint 16 — nhãn MOBILE cho "Yêu cầu đổi trả gần đây" (Figma 2474:206/213:
-# "Chờ xử lý"=danger / "Đang xử lý"=warning). UI-only, TÁCH STATE_LABELS
-# desktop của wujia_portal_return; nguồn state thật wujia.return.request.
-MOBILE_RETURN_BADGES = {
-    'draft':    ('Nháp', 'wujia-badge-muted'),
-    'sent':     ('Chờ xử lý', 'wujia-badge-danger'),
-    'approved': ('Đang xử lý', 'wujia-badge-warning'),
-    'rejected': ('Từ chối', 'wujia-badge-danger'),
-    'done':     ('Hoàn thành', 'wujia-badge-success'),
-}
-
-
 class WujiaPortalDelivery(http.Controller):
 
     @http.route(['/portal/delivery'], type='http', auth='user', sitemap=False)
@@ -98,23 +81,11 @@ class WujiaPortalDelivery(http.Controller):
             'querystring': f'status={status}' if status else '',
         }
 
-        # Sprint 16 — context bản mobile (Figma Screen_2_Orders 2474:119):
-        # 3 query nhỏ limit 2-3, field indexed → perf OK 1500 user.
-        m_recent_returns = []
-        if 'wujia.return.request' in request.env:
-            m_recent_returns = request.env['wujia.return.request'].sudo().search(
-                [('franchise_id', 'in', list(franchise_ids))],
-                order='request_date desc', limit=2,
-            )
-
+        # Sprint 17 — gỡ context dashboard mobile Sprint 16 (3 section đã gộp về
+        # Home /portal). Delivery list trở lại bảng desktop responsive trên mobile.
         return request.render('wujia_portal_delivery.portal_delivery_tracking', {
             'no_franchise': False, 'pickings': pickings, 'pager': pager,
             'picking_labels': PICKING_STATUS_LABELS, 'status': status,
-            'm_recent_orders': get_recent_orders(franchise_ids, limit=3),
-            'm_upcoming_batches': get_upcoming_batches(franchise_ids, limit=2),
-            'm_recent_returns': m_recent_returns,
-            'm_order_badges': MOBILE_ORDER_BADGES,
-            'm_return_badges': MOBILE_RETURN_BADGES,
         })
 
     @http.route(['/portal/delivery/<int:batch_id>'], type='http', auth='user', sitemap=False)

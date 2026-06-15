@@ -3,6 +3,11 @@ from datetime import timedelta
 from odoo import _, fields, http
 from odoo.http import request
 from odoo.addons.portal.controllers.portal import CustomerPortal
+from odoo.addons.wujia_portal_base.controllers.utils import (
+    MOBILE_ORDER_BADGES,
+    MOBILE_RETURN_BADGES,
+    get_upcoming_batches,
+)
 
 
 ROLE_LABELS = {
@@ -115,7 +120,31 @@ class WujiaPortal(CustomerPortal):
         )
         active_role = membership.role if membership else False
 
+        # ---- Sprint 17: 3 màn dashboard (Figma 2474:2) gộp về Home (dedupe).
+        #      BA còn review. recent_orders/latest_returns/active_franchise đã có
+        #      sẵn ở _dashboard_values — chỉ bổ sung batch + articles + hotline. ----
+        franchise_ids_list = list(franchise_ids) if franchise_ids else []
+        m_upcoming_batches = (
+            get_upcoming_batches(franchise_ids_list, limit=2)
+            if franchise_ids_list else []
+        )
+        # Knowledge — base KHÔNG depend wujia_portal_knowledge → guard registry
+        # (cùng pattern _safe_count/_safe_list; KHÔNG thêm depends, tránh coupling).
+        Article = request.env.get('wujia.knowledge.article')
+        articles = []
+        if Article is not None and 'is_published_portal' in Article._fields:
+            articles = Article.sudo().search(
+                [('is_published_portal', '=', True)],
+                order='publish_date desc, id desc', limit=3,
+            )
+
         values.update({
+            # Sprint 17 dashboard-merge keys (mobile home d-lg-none)
+            'm_upcoming_batches': m_upcoming_batches,
+            'm_order_badges': MOBILE_ORDER_BADGES,
+            'm_return_badges': MOBILE_RETURN_BADGES,
+            'articles': articles,
+            'm_hotline': request.env.company.sudo().phone or '',
             'title': _('Trang chủ - Portal'),
             'lang': request.env.lang or 'en',
             'role_labels': ROLE_LABELS,

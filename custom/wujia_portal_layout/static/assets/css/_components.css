@@ -2536,17 +2536,218 @@ a.wujia-mhome-kpi:active { opacity: 0.85; }
         text-align: center;
     }
 
-/* /portal/debt chưa có desktop design (BA mới vẽ mobile) → render cùng layout
-   mọi cỡ màn, ≥992px cap bề ngang + tự lo gutter (.wujia-mpage chỉ áp <992px).
-   NOTE: thay bằng layout desktop thật khi BA design — đối chiếu BA. */
-@media (min-width: 992px) {
-    .wujia-debt-page {
+/* ============================================================================
+   Sprint 17 — Mobile Ticket Hỗ trợ (Figma Mobile_Ticket) — List/Create/Detail/Empty
+   Scoped .wujia-mticket-* (wrapper d-lg-none + .wujia-mpage BlankShell). Reuse
+   .wujia-mknow-search* (search card) + .wujia-mdash-* (list rows). Token riêng
+   --wujia-mticket-* (_variables.css). Mobile-only → zero blast radius desktop.
+   ============================================================================ */
+@media (max-width: 991.98px) {
+    /* ---------- Top row List (H1 + nút Tạo) ---------- */
+    .wujia-mticket-toprow {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 8px;
+    }
+    .wujia-mticket-h1 {
+        font-size: 22px;
+        font-weight: 800;
+        color: var(--wujia-morder-text);
+        margin: 0;
+    }
+    .wujia-mticket-create-pill {
+        flex: 0 0 auto;
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        height: 34px;
+        padding: 0 16px;
+        border-radius: 999px;
+        background: var(--wujia-morder-primary);
+        color: #FFFFFF;
+        font-size: 14px;
+        font-weight: 700;
+        text-decoration: none;
+        white-space: nowrap;
+    }
+    .wujia-mticket-create-pill:hover,
+    .wujia-mticket-create-pill:focus { color: #FFFFFF; }
+
+    /* ---------- Back row (Create / Detail) ---------- */
+    .wujia-mticket-back {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 15px;
+        font-weight: 600;
+        color: var(--wujia-morder-text);
+        text-decoration: none;
+    }
+    .wujia-mticket-back i { font-size: 20px; line-height: 1; }
+
+    /* ---------- Chips lọc (scroll ngang; active SOLID cyan như mknow). Dùng
+       chung cho chip lọc List (<a>.is-active) + chip ưu tiên Create (<label>
+       bọc radio → :has(input:checked)). ---------- */
+    .wujia-mticket-chips {
+        display: flex;
+        gap: 8px;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        scrollbar-width: none;
+        padding-bottom: 2px;
+        flex-wrap: nowrap;
+    }
+    .wujia-mticket-chips::-webkit-scrollbar { display: none; }
+    .wujia-mticket-chip {
+        flex: 0 0 auto;
+        display: inline-flex;
+        align-items: center;
+        height: 32px;
+        padding: 0 14px;
+        border: 1px solid var(--wujia-morder-border);
+        border-radius: 999px;
+        background: var(--wujia-morder-card-bg);
+        color: var(--wujia-morder-text-sub);
+        font-size: 13px;
+        font-weight: 600;
+        text-decoration: none;
+        white-space: nowrap;
+        cursor: pointer;
+    }
+    .wujia-mticket-chip.is-active,
+    .wujia-mticket-chip:has(input:checked) {
+        background: var(--wujia-mknow-chip-active-bg);
+        border-color: var(--wujia-mknow-chip-active-bg);
+        color: var(--wujia-mknow-chip-active-text);
+    }
+
+    /* ---------- Form tạo ticket (label + hint) ---------- */
+    .wujia-mticket-label {
+        display: block;
+        font-size: 13px;
+        font-weight: 600;
+        color: var(--wujia-morder-text-sub);
+        margin-bottom: 6px;
+    }
+    .wujia-mticket-hint {
+        font-size: 11px;
+        color: var(--wujia-morder-text-muted);
+        margin: 0 0 6px;
+    }
+
+    /* ---------- List row ticket (reuse .wujia-mdash-row + side phải) ---------- */
+    .wujia-mticket-rowside {
+        flex: 0 0 auto;
+        margin-left: auto;
         display: flex;
         flex-direction: column;
-        gap: 16px;
+        align-items: flex-end;
+        gap: 6px;
+        text-align: right;
+    }
+    .wujia-mticket-tag {
+        align-self: flex-start;
+        display: inline-block;
+        padding: 2px 8px;
+        border-radius: 6px;
+        background: var(--wujia-mshell-bg);
+        color: var(--wujia-morder-text-sub);
+        font-size: 11px;
+        font-weight: 600;
+        margin-top: 2px;
+    }
+
+    /* ---------- Detail: thread hội thoại (khách trái xám / Wujia phải cyan) -- */
+    .wujia-mticket-thread {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+        padding: 14px;
+    }
+    .wujia-mticket-bubble {
+        max-width: 82%;
+        padding: 10px 14px;
+        border-radius: var(--wujia-mticket-bubble-radius);
+        font-size: 14px;
+        line-height: 1.5;
+        word-wrap: break-word;
+    }
+    .wujia-mticket-bubble p:last-child { margin-bottom: 0; }
+    .wujia-mticket-bubble.is-customer {
+        align-self: flex-start;
+        background: var(--wujia-mticket-bubble-customer-bg);
+        color: var(--wujia-mticket-bubble-customer-text);
+        border-bottom-left-radius: 4px;
+    }
+    .wujia-mticket-bubble.is-hq {
+        align-self: flex-end;
+        background: var(--wujia-mticket-bubble-hq-bg);
+        color: var(--wujia-mticket-bubble-hq-text);
+        border-bottom-right-radius: 4px;
+    }
+    .wujia-mticket-bubble.is-hq a { color: #FFFFFF; text-decoration: underline; }
+    .wujia-mticket-bubble-meta {
+        font-size: 11px;
+        color: var(--wujia-morder-text-muted);
+        margin: 0 2px 6px;
+    }
+    .wujia-mticket-bubble-meta.is-customer { align-self: flex-start; text-align: left; }
+    .wujia-mticket-bubble-meta.is-hq { align-self: flex-end; text-align: right; }
+
+    /* ---------- Detail: reply box ---------- */
+    .wujia-mticket-reply {
+        background: var(--wujia-mticket-reply-bg);
+        border: 1px solid var(--wujia-mticket-reply-border);
+        border-radius: var(--wujia-morder-radius);
+        padding: 12px 14px;
+    }
+    .wujia-mticket-reply-input {
         width: 100%;
-        max-width: 720px;
-        margin: 0 auto;
-        padding: 24px 16px 48px;
+        min-height: 72px;
+        resize: vertical;
+        border: 1px solid var(--wujia-morder-border);
+        border-radius: 10px;
+        background: var(--wujia-mshell-bg);
+        padding: 10px 12px;
+        font-size: 14px;
+        color: var(--wujia-morder-text);
+    }
+    .wujia-mticket-reply-input:focus {
+        outline: none;
+        border-color: var(--wujia-morder-primary);
+    }
+
+    /* ---------- Empty state (Figma màn 4 "State cần xử lý") ---------- */
+    .wujia-mticket-empty {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 6px;
+        text-align: center;
+        padding: 32px 18px;
+    }
+    .wujia-mticket-empty-icon {
+        width: 64px;
+        height: 64px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 50%;
+        background: var(--wujia-mdash-tile-bg);
+        color: var(--wujia-morder-primary);
+        margin-bottom: 6px;
+    }
+    .wujia-mticket-empty-icon i { font-size: 28px; line-height: 1; }
+    .wujia-mticket-empty-title {
+        font-size: 16px;
+        font-weight: 700;
+        color: var(--wujia-morder-text);
+        margin: 0;
+    }
+    .wujia-mticket-empty-sub {
+        font-size: 13px;
+        color: var(--wujia-morder-text-sub);
+        margin: 0 0 8px;
     }
 }

@@ -114,106 +114,91 @@
             </div>
             <!-- /desktop -->
 
-            <!-- ===== Mobile (<992px) — Sprint 16, Figma Screen_4_Support 2474:346
-                 (frame mobile_dashboard 2474:2, thế hệ CŨ — shell FINAL giữ nguyên).
-                 Hub Hỗ trợ thay list ticket trên mobile (Figma không vẽ list —
-                 NOTE BA: mobile chưa có đường xem list ticket, đối chiếu sau).
+            <!-- ===== Mobile (<992px) — Sprint 17, Figma Mobile_Ticket (List + Empty).
                  BlankShell .wujia-mpage, đặt NGOÀI .content-wrapper (pattern S15).
-                 UI-only notes:
-                 - "Chat với chúng tôi" + giờ chat: chưa có channel → href "#".
-                 - Hotline = company.phone, trống → placeholder "—". -->
-            <div class="d-lg-none wujia-mpage wujia-mdash">
-                <!-- Hỗ trợ nhanh -->
-                <section class="wujia-mdash-sec">
-                    <div class="wujia-mdash-titlerow">
-                        <h2 class="wujia-mdash-title">Hỗ trợ nhanh</h2>
-                    </div>
-                    <div class="wujia-mdash-card wujia-mdash-list">
-                        <a href="/portal/support/new" class="wujia-mdash-row">
-                            <span class="wujia-mdash-tile"><i class="feather icon-headphones"/></span>
-                            <span class="wujia-mdash-row-main">
-                                <span class="wujia-mdash-row-title is-sm">Tạo yêu cầu hỗ trợ</span>
-                                <span class="wujia-mdash-row-sub">Gửi yêu cầu và theo dõi phản hồi</span>
-                            </span>
-                            <i class="feather icon-chevron-right wujia-mdash-chev"/>
-                        </a>
-                        <a t-attf-href="tel:#{m_hotline or ''}" class="wujia-mdash-row">
-                            <span class="wujia-mdash-tile"><i class="feather icon-phone-call"/></span>
-                            <span class="wujia-mdash-row-main">
-                                <span class="wujia-mdash-row-title is-sm">Gọi hotline</span>
-                                <span class="wujia-mdash-row-sub is-primary" t-out="m_hotline or '—'"/>
-                            </span>
-                            <i class="feather icon-chevron-right wujia-mdash-chev"/>
-                        </a>
-                        <a href="#" class="wujia-mdash-row">
-                            <span class="wujia-mdash-tile"><i class="feather icon-message-circle"/></span>
-                            <span class="wujia-mdash-row-main">
-                                <span class="wujia-mdash-row-title is-sm">Chat với chúng tôi</span>
-                                <span class="wujia-mdash-row-sub is-primary">Thời gian: 8:00 - 17:30</span>
-                            </span>
-                            <i class="feather icon-chevron-right wujia-mdash-chev"/>
-                        </a>
-                    </div>
-                </section>
+                 Thay khối hub dashboard SAI của Sprint 16 (đã gộp về Home /portal). -->
+            <div class="d-lg-none wujia-mpage wujia-mticket">
+                <!-- Top row: tiêu đề + nút Tạo -->
+                <div class="wujia-mticket-toprow">
+                    <h1 class="wujia-mticket-h1">Hỗ trợ / Ticket</h1>
+                    <a href="/portal/support/new" class="wujia-mticket-create-pill">
+                        <i class="feather icon-plus"/> Tạo
+                    </a>
+                </div>
 
-                <!-- Thông tin cửa hàng -->
-                <section class="wujia-mdash-sec">
-                    <div class="wujia-mdash-titlerow">
-                        <h2 class="wujia-mdash-title">Thông tin cửa hàng</h2>
+                <!-- Empty state thật sự (chưa có ticket nào, không lọc/tìm) — Figma màn 4 -->
+                <t t-if="not tickets and not q and not state">
+                    <div class="wujia-mdash-card wujia-mticket-empty">
+                        <span class="wujia-mticket-empty-icon"><i class="feather icon-help-circle"/></span>
+                        <p class="wujia-mticket-empty-title">Chưa có yêu cầu hỗ trợ nào</p>
+                        <p class="wujia-mticket-empty-sub">Tạo ticket đầu tiên để Wujia tiếp nhận xử lý</p>
+                        <a href="/portal/support/new" class="wujia-mticket-create-pill">
+                            <i class="feather icon-plus"/> Tạo ticket
+                        </a>
                     </div>
-                    <div class="wujia-mdash-card wujia-mdash-list">
-                        <div t-if="not m_franchise" class="wujia-mdash-empty">Bạn chưa được gán vào cửa hàng nào.</div>
-                        <t t-else="">
-                            <div class="wujia-mdash-row">
-                                <span class="wujia-mdash-ico"><i class="feather icon-map-pin"/></span>
-                                <span class="wujia-mdash-row-main">
-                                    <span class="wujia-mdash-row-sub">Địa chỉ</span>
-                                    <span class="wujia-mdash-row-sub is-strong" t-out="m_franchise.address or '—'"/>
-                                </span>
-                            </div>
-                            <div class="wujia-mdash-row">
-                                <span class="wujia-mdash-ico"><i class="feather icon-phone"/></span>
-                                <span class="wujia-mdash-row-main">
-                                    <span class="wujia-mdash-row-sub">Điện thoại</span>
-                                    <span class="wujia-mdash-row-sub is-strong" t-out="m_franchise.phone or '—'"/>
-                                </span>
-                            </div>
-                            <div class="wujia-mdash-row">
-                                <span class="wujia-mdash-ico"><i class="feather icon-user"/></span>
-                                <span class="wujia-mdash-row-main">
-                                    <span class="wujia-mdash-row-sub">Người phụ trách</span>
-                                    <span class="wujia-mdash-row-sub is-strong"
-                                          t-out="m_franchise.main_owner_member_id.user_id.name or '—'"/>
-                                </span>
-                            </div>
-                        </t>
-                    </div>
-                </section>
+                </t>
+                <t t-else="">
+                    <!-- Search card (functional GET q; giữ state qua hidden) -->
+                    <form method="get" action="/portal/support" class="wujia-mknow-card wujia-mknow-search">
+                        <div class="wujia-mknow-search-field">
+                            <i class="feather icon-search"/>
+                            <input type="text" name="q" class="wujia-mknow-search-input"
+                                   placeholder="Tìm mã / tiêu đề ticket" t-att-value="q or ''"/>
+                        </div>
+                        <input type="hidden" name="state" t-att-value="state or ''"/>
+                        <button type="submit" class="wujia-mknow-search-btn">Tìm</button>
+                    </form>
 
-                <!-- Giao hàng sắp tới -->
-                <section class="wujia-mdash-sec">
-                    <div class="wujia-mdash-titlerow">
-                        <h2 class="wujia-mdash-title">Giao hàng sắp tới</h2>
-                        <a href="/portal/delivery" class="wujia-mdash-link">Xem tất cả ›</a>
+                    <!-- Chips lọc trạng thái (scroll-x, active solid cyan).
+                         NOTE BA: resolved/closed vẫn hiện trong list nhưng không có chip riêng. -->
+                    <div class="wujia-mticket-chips">
+                        <a href="/portal/support"
+                           t-attf-class="wujia-mticket-chip #{'is-active' if not state else ''}">Tất cả</a>
+                        <a href="/portal/support?state=new"
+                           t-attf-class="wujia-mticket-chip #{'is-active' if state == 'new' else ''}">Mới</a>
+                        <a href="/portal/support?state=in_progress"
+                           t-attf-class="wujia-mticket-chip #{'is-active' if state == 'in_progress' else ''}">Đang xử lý</a>
+                        <a href="/portal/support?state=waiting_customer"
+                           t-attf-class="wujia-mticket-chip #{'is-active' if state == 'waiting_customer' else ''}">Có phản hồi</a>
                     </div>
-                    <div class="wujia-mdash-stack">
-                        <div t-if="not m_upcoming_batches" class="wujia-mdash-card wujia-mdash-empty">Chưa có chuyến giao sắp tới.</div>
-                        <t t-foreach="m_upcoming_batches" t-as="it">
-                            <a t-attf-href="/portal/delivery/#{it['batch'].id}" class="wujia-mdash-card wujia-mdash-item">
-                                <span class="wujia-mdash-tile"><i class="feather icon-truck"/></span>
-                                <span class="wujia-mdash-row-main">
-                                    <span class="wujia-mdash-row-title" t-out="it['batch'].name"/>
-                                    <span class="wujia-mdash-row-sub is-strong" t-out="it['when']"/>
-                                    <span class="wujia-mdash-row-sub">Tổng đơn: <t t-out="it['order_count']"/> đơn</span>
-                                    <span class="wujia-mdash-row-sub is-strong">
-                                        Tổng tiền: <t t-out="'{:,.0f}'.format(it['total']).replace(',', '.') + ' đ'"/>
-                                    </span>
-                                </span>
-                                <span t-attf-class="wujia-badge #{it['badge'][1]}" t-out="it['badge'][0]"/>
-                            </a>
-                        </t>
+
+                    <!-- Danh sách ticket / không tìm thấy -->
+                    <div t-if="not tickets" class="wujia-mdash-card wujia-mdash-empty">
+                        Không tìm thấy ticket phù hợp.
                     </div>
-                </section>
+                    <div t-else="" class="wujia-mdash-card wujia-mdash-list">
+                        <a t-foreach="tickets" t-as="tk" t-attf-href="/portal/support/#{tk.id}"
+                           class="wujia-mdash-row">
+                            <span class="wujia-mdash-row-main">
+                                <span class="wujia-mdash-row-sub is-primary" t-out="tk.name"/>
+                                <span class="wujia-mdash-row-title is-sm" t-out="tk.title"/>
+                                <span t-if="tk.category_id" class="wujia-mticket-tag" t-out="tk.category_id.name"/>
+                            </span>
+                            <span class="wujia-mticket-rowside">
+                                <t t-set="lbl" t-value="m_ticket_badges.get(tk.state, (tk.state, 'wujia-badge-muted'))"/>
+                                <span t-attf-class="wujia-badge #{lbl[1]}" t-out="lbl[0]"/>
+                                <span class="wujia-mdash-row-sub"
+                                      t-out="tk.create_date and tk.create_date.strftime('%d/%m') or ''"/>
+                            </span>
+                        </a>
+                    </div>
+
+                    <nav t-if="pager and pager.get('page_count', 0) &gt; 1">
+                        <ul class="pagination wujia-pagination justify-content-center mb-0">
+                            <li class="page-item">
+                                <a class="page-link"
+                                   t-attf-href="/portal/support?page=#{pager['page_previous']['num']}&amp;#{pager.get('querystring','')}">«</a>
+                            </li>
+                            <li class="page-item active">
+                                <span class="page-link"><t t-out="pager['page']['num']"/> / <t t-out="pager['page_count']"/></span>
+                            </li>
+                            <li class="page-item">
+                                <a class="page-link"
+                                   t-attf-href="/portal/support?page=#{pager['page_next']['num']}&amp;#{pager.get('querystring','')}">»</a>
+                            </li>
+                        </ul>
+                    </nav>
+                </t>
             </div>
             <!-- /mobile -->
         </t>
@@ -223,7 +208,8 @@
     <template id="portal_support_form" name="Wujia Portal — Support Form">
         <t t-call="wujia_portal_layout.app_layout">
             <t t-set="title">Tạo yêu cầu hỗ trợ</t>
-            <div class="content-wrapper">
+            <!-- ===== Desktop (>=992px) — GIỮ NGUYÊN, bọc d-none d-lg-block (Sprint 17) ===== -->
+            <div class="content-wrapper d-none d-lg-block">
                 <div class="content-header row mt-3">
                     <div class="content-header-left col-12 mb-1">
                         <nav><ol class="breadcrumb">
@@ -286,6 +272,82 @@
                     </form>
                 </div>
             </div>
+            <!-- /desktop -->
+
+            <!-- ===== Mobile (<992px) — Sprint 17, Figma Mobile_Ticket màn "Tạo yêu cầu hỗ trợ".
+                 BlankShell .wujia-mpage, route POST /portal/support/new GIỮ NGUYÊN. -->
+            <div class="d-lg-none wujia-mpage wujia-mticket">
+                <a href="/portal/support" class="wujia-mticket-back">
+                    <i class="feather icon-arrow-left"/> Hỗ trợ
+                </a>
+                <h1 class="wujia-mticket-h1">Tạo yêu cầu hỗ trợ</h1>
+
+                <form method="post" action="/portal/support/new" enctype="multipart/form-data">
+                    <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
+                    <div class="wujia-mdash-card">
+                        <p class="wujia-mdash-title mb-3">Thông tin ticket</p>
+
+                        <label class="wujia-mticket-label">Loại yêu cầu</label>
+                        <select name="category_id" class="form-select mb-3" required="required">
+                            <option value="">Chọn loại yêu cầu</option>
+                            <t t-foreach="categories" t-as="c">
+                                <option t-att-value="c.id" t-out="c.name"/>
+                            </t>
+                        </select>
+
+                        <label class="wujia-mticket-label">Tiêu đề</label>
+                        <input type="text" name="title" class="form-control mb-3" required="required"
+                               placeholder="Nhập tiêu đề ngắn gọn"/>
+
+                        <label class="wujia-mticket-label">Nội dung chi tiết</label>
+                        <textarea name="description" rows="4" class="form-control mb-3"
+                                  placeholder="Mô tả vấn đề cần hỗ trợ, thời điểm phát sinh và mã chứng từ liên quan nếu có."/>
+
+                        <label class="wujia-mticket-label">Mức độ ưu tiên</label>
+                        <!-- BA: 'Gấp' và 'Khẩn cấp' đều map 'urgent' — model chưa có giá trị riêng cho 'Gấp' -->
+                        <div class="wujia-mticket-chips mb-3">
+                            <label class="wujia-mticket-chip">
+                                <input type="radio" name="priority" value="normal" checked="checked"
+                                       class="d-none"/> Bình thường
+                            </label>
+                            <label class="wujia-mticket-chip">
+                                <input type="radio" name="priority" value="urgent" class="d-none"/> Gấp
+                            </label>
+                            <label class="wujia-mticket-chip">
+                                <input type="radio" name="priority" value="urgent" class="d-none"/> Khẩn cấp
+                            </label>
+                        </div>
+
+                        <label class="wujia-mticket-label">Tệp đính kèm</label>
+                        <p class="wujia-mticket-hint">Thêm ảnh / file lỗi — PNG, JPG, PDF — tối đa 5 tệp</p>
+                        <input type="file" name="attachments" class="form-control mb-1"
+                               multiple="multiple" accept=".png,.jpg,.jpeg,.pdf"/>
+
+                        <!-- Cửa hàng: 1 franchise → hidden; nhiều → select -->
+                        <t t-if="franchises and len(franchises) == 1">
+                            <input type="hidden" name="franchise_id" t-att-value="franchises[0].id"/>
+                        </t>
+                        <t t-elif="franchises">
+                            <label class="wujia-mticket-label mt-3">Cửa hàng</label>
+                            <select name="franchise_id" class="form-select" required="required">
+                                <t t-foreach="franchises" t-as="f">
+                                    <option t-att-value="f.id" t-out="f.name"/>
+                                </t>
+                            </select>
+                        </t>
+                    </div>
+
+                    <p t-if="error == 'missing_fields'" class="text-danger small mt-2 mb-0">
+                        Vui lòng điền đầy đủ thông tin bắt buộc.
+                    </p>
+                    <p t-if="error == 'invalid_franchise'" class="text-danger small mt-2 mb-0">
+                        Cửa hàng không hợp lệ.
+                    </p>
+
+                    <button type="submit" class="btn btn-primary w-100 mt-3">Gửi yêu cầu hỗ trợ</button>
+                </form>
+            </div>
+            <!-- /mobile -->
         </t>
     </template>
 
@@ -293,7 +355,8 @@
     <template id="portal_support_detail" name="Wujia Portal — Support Detail">
         <t t-call="wujia_portal_layout.app_layout">
             <t t-set="title" t-value="ticket.name"/>
-            <div class="content-wrapper">
+            <!-- ===== Desktop (>=992px) — GIỮ NGUYÊN, bọc d-none d-lg-block (Sprint 17) ===== -->
+            <div class="content-wrapper d-none d-lg-block">
                 <div class="content-header row mt-3">
                     <div class="content-header-left col-12 mb-1">
                         <nav><ol class="breadcrumb">
@@ -388,6 +451,93 @@
                     </div>
                 </div>
             </div>
+            <!-- /desktop -->
+
+            <!-- ===== Mobile (<992px) — Sprint 17, Figma Mobile_Ticket màn "Chi tiết ticket".
+                 BlankShell .wujia-mpage. Bubble: khách = trái xám / Wujia Support = phải cyan.
+                 Reply POST /portal/support/<id>/reply GIỮ NGUYÊN. -->
+            <div class="d-lg-none wujia-mpage wujia-mticket">
+                <a href="/portal/support" class="wujia-mticket-back">
+                    <i class="feather icon-arrow-left"/> Chi tiết ticket
+                </a>
+
+                <!-- Header card: mã + badge + tiêu đề -->
+                <div class="wujia-mdash-card">
+                    <div class="d-flex align-items-center justify-content-between mb-2">
+                        <span class="wujia-mdash-row-sub is-primary" t-out="ticket.name"/>
+                        <t t-set="lbl" t-value="m_ticket_badges.get(ticket.state, (ticket.state, 'wujia-badge-muted'))"/>
+                        <span t-attf-class="wujia-badge #{lbl[1]}" t-out="lbl[0]"/>
+                    </div>
+                    <p class="wujia-mdash-row-title mb-0" style="white-space:normal;" t-out="ticket.title"/>
+                </div>
+
+                <!-- Meta grid -->
+                <div class="wujia-mdash-card wujia-mdash-list">
+                    <div class="wujia-mdash-row">
+                        <span class="wujia-mdash-ico"><i class="feather icon-tag"/></span>
+                        <span class="wujia-mdash-row-main">
+                            <span class="wujia-mdash-row-sub">Nhóm</span>
+                            <span class="wujia-mdash-row-sub is-strong" t-out="ticket.category_id.name or '—'"/>
+                        </span>
+                    </div>
+                    <div class="wujia-mdash-row">
+                        <span class="wujia-mdash-ico"><i class="feather icon-flag"/></span>
+                        <span class="wujia-mdash-row-main">
+                            <span class="wujia-mdash-row-sub">Ưu tiên</span>
+                            <t t-set="prio" t-value="priority_labels.get(ticket.priority, (ticket.priority, ''))"/>
+                            <span class="wujia-mdash-row-sub is-strong" t-out="prio[0]"/>
+                        </span>
+                    </div>
+                    <div class="wujia-mdash-row">
+                        <span class="wujia-mdash-ico"><i class="feather icon-user"/></span>
+                        <span class="wujia-mdash-row-main">
+                            <span class="wujia-mdash-row-sub">Người gửi</span>
+                            <span class="wujia-mdash-row-sub is-strong" t-out="ticket.created_by_id.name or '—'"/>
+                        </span>
+                    </div>
+                    <div class="wujia-mdash-row">
+                        <span class="wujia-mdash-ico"><i class="feather icon-calendar"/></span>
+                        <span class="wujia-mdash-row-main">
+                            <span class="wujia-mdash-row-sub">Ngày tạo</span>
+                            <span class="wujia-mdash-row-sub is-strong"
+                                  t-out="ticket.create_date and ticket.create_date.strftime('%d/%m/%Y') or '—'"/>
+                        </span>
+                    </div>
+                </div>
+
+                <!-- Lịch sử trao đổi -->
+                <t t-set="comments" t-value="ticket.message_ids.filtered(lambda m: m.message_type == 'comment').sorted('date')"/>
+                <div class="wujia-mdash-card" style="padding:0;">
+                    <div class="wujia-mdash-titlerow" style="padding:14px 14px 0;">
+                        <h2 class="wujia-mdash-title" style="font-size:16px;">Lịch sử trao đổi</h2>
+                        <span class="wujia-mdash-link" style="cursor:default;"><t t-out="len(comments)"/> phản hồi</span>
+                    </div>
+                    <div class="wujia-mticket-thread">
+                        <div t-if="not comments" class="wujia-mdash-empty">Chưa có trao đổi nào.</div>
+                        <t t-foreach="comments" t-as="msg">
+                            <t t-set="is_customer" t-value="msg.author_id.id == ticket.created_by_id.partner_id.id"/>
+                            <div t-attf-class="wujia-mticket-bubble #{'is-customer' if is_customer else 'is-hq'}"
+                                 t-out="msg.body"/>
+                            <div t-attf-class="wujia-mticket-bubble-meta #{'is-customer' if is_customer else 'is-hq'}">
+                                <t t-out="msg.author_id.name or 'Wujia Support'"/> ·
+                                <t t-out="msg.date and msg.date.strftime('%d/%m %H:%M') or ''"/>
+                            </div>
+                        </t>
+                    </div>
+                </div>
+
+                <!-- Reply box (ẩn khi đóng / huỷ) -->
+                <form t-if="ticket.state not in ('closed', 'cancelled')" method="post"
+                      t-attf-action="/portal/support/#{ticket.id}/reply" class="wujia-mticket-reply">
+                    <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
+                    <textarea name="body" class="wujia-mticket-reply-input mb-2"
+                              placeholder="Nhập phản hồi thêm..." required="required"/>
+                    <button type="submit" class="btn btn-primary w-100">
+                        <i class="feather icon-send me-1"/>Gửi
+                    </button>
+                </form>
+            </div>
+            <!-- /mobile -->
         </t>
     </template>
 

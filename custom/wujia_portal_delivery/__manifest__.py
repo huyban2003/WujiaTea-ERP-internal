@@ -1,6 +1,6 @@
 {
     'name': 'Wujia Portal — Delivery Tracking',
-    'version': '19.0.1.3.0',
+    'version': '19.0.1.4.0',
     'category': 'Wujia',
     'summary': 'Theo dõi chuyến giao hàng portal — list batch + detail (skeleton UI)',
     'author': 'WujiaTea',

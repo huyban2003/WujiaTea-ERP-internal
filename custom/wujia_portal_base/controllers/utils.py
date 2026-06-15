@@ -297,6 +297,31 @@ MOBILE_BATCH_BADGES = {
     'cancelled':  ('Hủy chuyến', 'wujia-badge-danger'),
 }
 
+# Sprint 17 — nhãn MOBILE cho "Yêu cầu đổi trả gần đây" (Figma 2474:206/213:
+# "Chờ xử lý"=danger / "Đang xử lý"=warning). Chuyển từ wujia_portal_delivery
+# về đây để Home (section gộp Sprint 16) + delivery dùng chung. UI-only, TÁCH
+# STATE_LABELS desktop của wujia_portal_return; nguồn state thật wujia.return.request.
+MOBILE_RETURN_BADGES = {
+    'draft':    ('Nháp', 'wujia-badge-muted'),
+    'sent':     ('Chờ xử lý', 'wujia-badge-danger'),
+    'approved': ('Đang xử lý', 'wujia-badge-warning'),
+    'rejected': ('Từ chối', 'wujia-badge-danger'),
+    'done':     ('Hoàn thành', 'wujia-badge-success'),
+}
+
+# Sprint 17 — nhãn MOBILE cho ticket hỗ trợ (Figma Mobile_Ticket). UI-only,
+# TÁCH STATE_LABELS desktop của wujia_portal_support (precedent S13). LƯU Ý nhãn
+# 'waiting_customer'="Có phản hồi" (mobile/Figma) ≠ desktop "Chờ phản hồi" —
+# drift chủ đích, đối chiếu BA. Nguồn state thật wujia.support.ticket.state.
+MOBILE_TICKET_BADGES = {
+    'new':              ('Mới', 'wujia-badge-info'),
+    'in_progress':      ('Đang xử lý', 'wujia-badge-warning'),
+    'waiting_customer': ('Có phản hồi', 'wujia-badge-info'),
+    'resolved':         ('Đã giải quyết', 'wujia-badge-success'),
+    'closed':           ('Đã đóng', 'wujia-badge-muted'),
+    'cancelled':        ('Đã huỷ', 'wujia-badge-danger'),
+}
+
 VI_WEEKDAYS = {0: 'Thứ 2', 1: 'Thứ 3', 2: 'Thứ 4', 3: 'Thứ 5',
                4: 'Thứ 6', 5: 'Thứ 7', 6: 'CN'}
 

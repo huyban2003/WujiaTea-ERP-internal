@@ -1,0 +1,178 @@
+\chapter{Sprint 17 --- Mobile: Ticket Hỗ trợ (4 màn) + gộp dashboard về Home (2026-06-15)}
+
+\section{Bối cảnh}
+
+Hai việc trong sprint:
+
+\textbf{(1) Ưu tiên --- Mobile Ticket.} BA up frame \textbf{Mobile\_Ticket} (4 màn:
+\texttt{List} / \texttt{Create} / \texttt{Detail} / \texttt{Empty}, ảnh phẳng --- spec
+từ screenshot user). Đây là màn hiện ra khi bấm tab ``Hỗ trợ''. Trước đó bản mobile
+\texttt{/portal/support} là khối hub dashboard SAI của Sprint 16; sprint này thay bằng
+giao diện ticket đúng.
+
+\textbf{(2) Sửa lỗi Sprint 16.} Frame \texttt{mobile\_dashboard} (\texttt{2474:2}) bị BA
+dựng nhầm: 3 màn (Đơn hàng/Giao hàng/Đổi trả \textbullet{} Công nợ/Kiến thức \textbullet{}
+Hỗ trợ nhanh/Thông tin cửa hàng) bị tách sang \texttt{/portal/delivery}, module
+\texttt{/portal/debt} và \texttt{/portal/support}. \textbf{Thực ra cả 3 thuộc Trang chủ
+(\texttt{/portal})}. User chốt: gộp hết về Home (\textbf{dedupe} --- mỗi mục 1 lần),
+strip khỏi 3 trang kia, \textbf{xóa hẳn} module \texttt{wujia\_portal\_debt}. Phần này
+\textbf{BA còn review} --- mọi section mới ở Home đánh comment \texttt{BA reviewing, may
+change}.
+
+\textbf{Quyết định user (đã chốt):}
+\begin{itemize}
+  \item Priority Create: 3 chip UI (Bình thường/Gấp/Khẩn cấp), wire Bình
+        thường\(\rightarrow\)\texttt{normal}, Gấp+Khẩn cấp\(\rightarrow\)\texttt{urgent}
+        (UI-only, model chưa có giá trị riêng cho ``Gấp'').
+  \item Home merge: dedupe, 6 section duy nhất.
+  \item \textbf{Công nợ}: BỎ hẳn đợt này (chưa build) --- KPI ``Công nợ'' ở hero thành
+        tile inert ``0 ₫'', dựng section + wire \texttt{account.move} khi cần.
+  \item Debt module: xóa hẳn (uninstall + xóa thư mục, \texttt{/portal/debt}
+        \(\rightarrow\) 404).
+\end{itemize}
+
+\section{Spec theo Figma (Mobile\_Ticket)}
+
+Pattern: block \texttt{d-lg-none .wujia-mpage .wujia-mticket} đặt NGOÀI
+\texttt{.content-wrapper} (BlankShell, pattern Sprint 15); desktop bọc \texttt{d-none
+d-lg-block} GIỮ NGUYÊN. Reuse được route + POST + reply + attachment có sẵn của
+\texttt{wujia\_portal\_support} (KHÔNG thêm route mới \(\rightarrow\) tránh Gotcha \#13).
+
+\begin{itemize}
+  \item \textbf{List} (\texttt{/portal/support}): title ``Hỗ trợ / Ticket'' + pill ``+
+        Tạo''; search card ``Tìm mã / tiêu đề ticket'' (param mới \texttt{q}, ilike
+        \texttt{name} HOẶC \texttt{title}); chip lọc cuộn ngang active SOLID cyan ---
+        Tất cả / Mới / Đang xử lý / Có phản hồi (dùng lại param \texttt{state}); list-row
+        = mã + badge + tiêu đề + tag loại + ngày \texttt{dd/mm}.
+  \item \textbf{Empty} (Figma màn 4): khi chưa có ticket (không lọc/tìm) --- card icon
+        \texttt{?} + ``Chưa có yêu cầu hỗ trợ nào'' + nút ``Tạo ticket''.
+  \item \textbf{Create} (\texttt{/portal/support/new}): card ``Thông tin ticket'' --- Loại
+        yêu cầu (\texttt{category\_id}) / Tiêu đề / Nội dung / \textbf{3 chip ưu tiên}
+        (radio ẩn, active qua CSS \texttt{:has(input:checked)}) / Tệp đính kèm
+        (PNG/JPG/PDF) / nút ``Gửi yêu cầu hỗ trợ''.
+  \item \textbf{Detail} (\texttt{/portal/support/<id>}): header mã+badge+tiêu đề; lưới
+        Nhóm (\texttt{category\_id}) / Ưu tiên / Người gửi (\texttt{created\_by\_id}) /
+        Ngày tạo; ``Lịch sử trao đổi'' + đếm ``N phản hồi'' --- \textbf{bong bóng chat}:
+        khách = xám bên TRÁI, Wujia Support/HQ = cyan bên PHẢI; ô nhập ``Nhập phản hồi
+        thêm...'' (ẩn khi state \texttt{closed}/\texttt{cancelled}).
+\end{itemize}
+
+\section{Module \& file chạm}
+
+\begin{itemize}
+  \item \texttt{wujia\_portal\_base} (19.0.5.6.0 \(\rightarrow\) 19.0.5.7.0):
+    \begin{itemize}
+      \item \texttt{controllers/utils.py}: thêm \texttt{MOBILE\_TICKET\_BADGES} (state
+            \(\rightarrow\) (nhãn, css), nhãn mobile theo Figma) + chuyển
+            \texttt{MOBILE\_RETURN\_BADGES} từ delivery về đây để dùng chung.
+      \item \texttt{controllers/portal.py} (\texttt{portal\_home}): thêm
+            \texttt{m\_upcoming\_batches} (\texttt{get\_upcoming\_batches}),
+            \texttt{articles} (guard registry \texttt{wujia.knowledge.article} ---
+            base KHÔNG depend knowledge), \texttt{m\_hotline}, \texttt{m\_order\_badges},
+            \texttt{m\_return\_badges}. \texttt{recent\_orders}/\texttt{latest\_returns}/
+            \texttt{active\_franchise} đã có sẵn.
+      \item \texttt{views/portal\_home.xml}: KPI ``Công nợ'' (trước
+            \texttt{<a href="/portal/debt">}) \(\rightarrow\) \texttt{<div>} inert ``0 ₫'';
+            thêm 6 section dashboard (dedupe) cuối block mobile, comment ``BA reviewing''.
+    \end{itemize}
+  \item \texttt{wujia\_portal\_support} (19.0.3.3.0 \(\rightarrow\) 19.0.3.4.0):
+    \begin{itemize}
+      \item \texttt{controllers/portal.py}: \texttt{portal\_support\_list} thêm param
+            \texttt{q} (ilike name|title) + pass \texttt{m\_ticket\_badges}; gỡ context
+            hub Sprint 16 (\texttt{m\_franchise}/\texttt{m\_upcoming\_batches}/
+            \texttt{m\_hotline}); \texttt{portal\_support\_detail} pass
+            \texttt{m\_ticket\_badges}.
+      \item \texttt{views/portal\_support.xml}: 3 block mobile mới (List/Create/Detail)
+            thay khối hub Sprint 16; desktop cả 3 template bọc \texttt{d-none d-lg-block}.
+    \end{itemize}
+  \item \texttt{wujia\_portal\_delivery} (19.0.1.3.0 \(\rightarrow\) 19.0.1.4.0): gỡ block
+        mobile \texttt{wujia-mdash} + context Sprint 16; desktop bỏ \texttt{d-none
+        d-lg-block} (delivery list hiện lại trên mobile, bảng responsive --- chờ BA design
+        mobile riêng).
+  \item \texttt{wujia\_portal\_layout} (19.0.16.0.0 \(\rightarrow\) 19.0.17.0.0):
+        \texttt{\_variables.css} token \texttt{--wujia-mticket-*} (bubble khách/HQ,
+        radius, reply); \texttt{\_components.css} cụm \texttt{.wujia-mticket-*} (toprow /
+        create-pill / back / chips active solid / list rowside / tag / thread / bubble
+        is-customer/is-hq / reply / empty) + \textbf{gỡ} \texttt{.wujia-debt-page} orphan;
+        \texttt{assets.xml} bump \texttt{?v=1125}.
+  \item \texttt{wujia\_portal\_debt}: \textbf{XÓA HẲN} module (uninstall DB + xóa thư mục).
+\end{itemize}
+
+\section{Gì đã làm (nghiệp vụ)}
+
+Chủ cửa hàng nhượng quyền trên điện thoại giờ bấm tab \textbf{Hỗ trợ} sẽ ra đúng màn
+quản lý ticket: xem danh sách yêu cầu hỗ trợ (tìm theo mã/tiêu đề, lọc theo trạng thái),
+\textbf{tạo yêu cầu mới} (chọn loại, mức ưu tiên, đính kèm ảnh/file lỗi), và mở
+\textbf{chi tiết} để trao đổi qua lại với đội Wujia dạng \textbf{khung chat} (tin của
+cửa hàng nằm trái, tin của Wujia Support nằm phải). Khi chưa có ticket nào thì hiện màn
+trống mời tạo ticket đầu tiên. Song song, 3 màn dashboard mà sprint trước đặt nhầm chỗ
+đã được \textbf{gom hết về Trang chủ} (Đơn hàng gần đây, Giao hàng sắp tới, Đổi trả gần
+đây, Kiến thức mới, Hỗ trợ nhanh, Thông tin cửa hàng) --- gọn, mỗi mục 1 lần. Phần
+\textbf{Công nợ} tạm bỏ (chưa tới giai đoạn build), ô ``Công nợ'' ở Trang chủ chỉ còn
+hiển thị ``0 ₫''. Bản desktop của Hỗ trợ và Giao hàng GIỮ NGUYÊN.
+
+\section{Lý do / Trade-off}
+
+\textbf{Reuse route có sẵn thay vì thêm route mobile mới}: 3 màn ticket map thẳng vào
+3 route desktop đã có (\texttt{/portal/support}, \texttt{/new}, \texttt{/<id>}) + POST
+reply. Chỉ thêm bản markup \texttt{d-lg-none} \(\rightarrow\) không phát sinh route mới
+\(\rightarrow\) hot-reload XML/CSS chạy ngay, không dính Gotcha \#13 (restart khi có route
+mới).
+
+\textbf{Badge ticket mobile tách desktop} (precedent \texttt{MOBILE\_STATE\_BADGES} Sprint
+13): nhãn \texttt{waiting\_customer} = ``Có phản hồi'' (mobile/Figma) khác desktop ``Chờ
+phản hồi'' --- drift có chủ đích, đối chiếu BA. Cùng state thật, chỉ nhãn riêng cho mobile.
+
+\textbf{3 chip ưu tiên nhưng model 2 giá trị}: theo quy tắc UI-only của dự án, build đủ
+3 chip đúng Figma, ``Gấp'' và ``Khẩn cấp'' cùng gửi \texttt{urgent} (controller đã coerce
+giá trị lạ về \texttt{normal}); khi BA muốn 3 mức thật thì thêm selection value sau ---
+note BA trong XML.
+
+\textbf{Gộp về Home dùng lại \texttt{.wujia-mdash-*}}: section dashboard đã có class chung
+ở \texttt{wujia\_portal\_layout}, nên gộp về Home chỉ là di chuyển markup + thêm data
+vào \texttt{portal\_home} (controller). Query knowledge guard bằng registry
+(\texttt{request.env.get} + \texttt{\_fields}) thay vì thêm \texttt{depends} \(\rightarrow\)
+base không hard-couple knowledge.
+
+\textbf{Xóa hẳn \texttt{wujia\_portal\_debt}}: nội dung Công nợ chuyển về Home + tạm bỏ
+\(\rightarrow\) module rỗng nghĩa. Uninstall sạch khỏi DB rồi xóa thư mục; route
+\texttt{/portal/debt} thành 404 (đúng kỳ vọng). Khi BA build công nợ desktop Phase 2 thì
+dựng lại module theo ADR-007.
+
+\section{Verify}
+
+\begin{itemize}
+  \item \texttt{upgrade.sh} 4 module RC=0, log sạch (không ERROR/Traceback; 3 template
+        \texttt{portal\_support}/\texttt{portal\_home}/\texttt{portal\_delivery} load OK).
+  \item \texttt{test\_sprint9.py} 7/7 + \texttt{test\_sprint5.py} 21/0.
+  \item HTTP authenticated (\texttt{anh.owner}/\texttt{1} local :8019):
+        \texttt{/portal}, \texttt{/portal/support}, \texttt{/portal/support/new},
+        \texttt{/portal/delivery} \(\rightarrow\) 200; \texttt{/portal/debt}
+        \(\rightarrow\) \textbf{404}.
+  \item Render: List có toprow/create-pill/search/chips/list-row/tag (+ empty state khi 0
+        ticket); Create đủ 3 chip ưu tiên + upload; Detail bubble \texttt{is-customer}
+        (trái) + \texttt{is-hq} (phải) đúng phía (logic \texttt{msg.author\_id.id ==
+        ticket.created\_by\_id.partner\_id.id}); Home 6 section + \textbf{0} link
+        \texttt{/portal/debt} (Công nợ inert).
+  \item Ticket demo local-only (\texttt{WJ-TK/26/00040}, state \texttt{waiting\_customer},
+        2 message): list-row + search \texttt{?q=POS} 200 + chip active + bubble 2 phía ---
+        xác nhận trọn vòng.
+\end{itemize}
+
+\section{Pending sau Sprint 17}
+
+\begin{itemize}
+  \item \textbf{Công nợ}: chưa build (KPI tile inert ``0 ₫'') --- dựng section Home +
+        wire \texttt{account.move} (Phase 2) khi cần; debt desktop design (route đã xóa,
+        dựng lại module khi BA chốt).
+  \item Chip ``Có phản hồi'' (mobile) vs state ``Chờ phản hồi'' (\texttt{waiting\_customer},
+        desktop) --- đối chiếu BA.
+  \item ``Gấp'' chưa có model value riêng (đang map \texttt{urgent}) --- hỏi BA có cần 3
+        mức ưu tiên thật.
+  \item Tên loại yêu cầu (\texttt{wujia.support.category}) đang seed tiếng Anh vs Figma
+        tiếng Việt --- i18n / đổi tên seed.
+  \item 6 section Home là bản BA còn review, có thể đổi.
+  \item Delivery mobile chưa có design riêng (đang dùng bảng desktop responsive).
+  \item Pending cũ: trang mobile Đổi trả (\texttt{4449:81}), status giao hàng batch state
+        thật (Sprint 13), khung giờ vào cart (Sprint 11), i18n \texttt{.po}.
+\end{itemize}

@@ -299,6 +299,18 @@
        Prefix --wujia-mdash-* → mobile-only, zero blast radius desktop. ---------- */
     --wujia-mdash-tile-bg:        var(--wujia-primary-soft);   /* icon tile 40 soft cyan */
     --wujia-mdash-tile-danger-bg: var(--wujia-danger-bg);      /* tile "Quá hạn" — Figma rgba(239,68,68,.09) ≈ token */
+
+    /* ---------- Mobile Ticket Hỗ trợ (Sprint 17) — Figma Mobile_Ticket
+       (List / Create / Detail / Empty). Reuse palette --wujia-morder-*; chip lọc
+       SOLID cyan như mknow; bubble hội thoại: khách = xám trái / Wujia Support =
+       cyan phải. Prefix --wujia-mticket-* → mobile-only, zero blast radius desktop. ---------- */
+    --wujia-mticket-bubble-customer-bg:   #F1F3F6;                     /* bong bóng khách (trái) */
+    --wujia-mticket-bubble-customer-text: var(--wujia-morder-text);
+    --wujia-mticket-bubble-hq-bg:         var(--wujia-morder-primary); /* #28A9DF — Wujia Support (phải) */
+    --wujia-mticket-bubble-hq-text:       #FFFFFF;
+    --wujia-mticket-bubble-radius:        14px;
+    --wujia-mticket-reply-bg:             #FFFFFF;
+    --wujia-mticket-reply-border:         var(--wujia-morder-border);
 }
 
 /* ============================================================================
