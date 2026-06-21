@@ -23,20 +23,62 @@ _PHONE_RE = re.compile(r'^[+]?[0-9\s().\-]{7,20}$')
 _AVATAR_MAX_BYTES = 2 * 1024 * 1024  # 2MB
 _AVATAR_MIME = ('image/png', 'image/jpeg', 'image/jpg', 'image/webp')
 
+# Role label map — bản local (wujia_portal_layout KHÔNG depend wujia_portal_base
+# nên KHÔNG import ROLE_LABELS từ đó; xem registry-guard ở _resolve_active_store).
+_ROLE_LABELS = {'owner': 'Chủ tiệm', 'manager': 'Quản lý', 'staff': 'Nhân viên'}
+# Cookie chứa franchise đang chọn — owned by wujia_portal_base. Đọc theo tên
+# (coupling bằng string, có guard) để hiển thị "Cửa hàng / Vai trò" ở màn profile.
+_ACTIVE_FRANCHISE_COOKIE = 'wujia_active_franchise_id'
+
 
 class WujiaPortalLayout(http.Controller):
     """Layout-only routes. Route `/portal` (dashboard) đã chuyển sang
     wujia_portal_base để aggregate counter từ các module khác (xem ADR-016)."""
 
     # ------------------------------------------------------------------ profile
+    def _resolve_active_store(self):
+        """Trả (franchise_name, franchise_code, role_label) cho cửa hàng đang
+        active — phục vụ màn mobile "Thông tin tài khoản" (Figma 01).
+
+        Registry-guard: layout KHÔNG depend wujia_portal_base/franchise; nếu
+        thiếu model / multi-franchise chưa chọn → trả 3× None (template hiện "—").
+        Lọc is_currently_valid bằng Python (field computed, tránh phụ thuộc
+        search method)."""
+        Member = request.env.get('wujia.franchise.member')
+        if Member is None:
+            return None, None, None
+        try:
+            members = Member.sudo().search(
+                [('user_id', '=', request.env.uid)]
+            ).filtered('is_currently_valid')
+            if not members:
+                return None, None, None
+            raw = request.httprequest.cookies.get(_ACTIVE_FRANCHISE_COOKIE)
+            active_fid = int(raw) if raw else False
+            member = members.filtered(
+                lambda m: m.franchise_id.id == active_fid
+            )[:1] if active_fid else members[:0]
+            if not member and len(members) == 1:
+                member = members
+            if not member:
+                return None, None, None  # multi-franchise chưa chọn store
+            fr = member.franchise_id
+            return fr.name, fr.code, _ROLE_LABELS.get(member.role, member.role)
+        except (ValueError, TypeError, AccessDenied):
+            return None, None, None
+
     @http.route('/portal/profile', type='http', auth='user', website=False,
                 sitemap=False)
     def portal_profile(self, **kw):
+        fr_name, fr_code, role_label = self._resolve_active_store()
         return request.render('wujia_portal_layout.profile_page', {
             'title': _('Hồ sơ'),
             'lang': request.env.lang or 'en',
             'profile': request.env.user.partner_id,
             'user': request.env.user,
+            'franchise_name': fr_name,
+            'franchise_code': fr_code,
+            'role_label': role_label,
             'message': kw.get('message'),
             'error': kw.get('error'),
         })

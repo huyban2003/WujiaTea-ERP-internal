@@ -64,19 +64,46 @@
                              t-att-src="'/web/image/res.users/' + str(request.env.user.id) + '/avatar_128'"
                              alt="avatar"/>
                     </a>
-                    <div class="dropdown-menu dropdown-menu-right">
+                    <!-- Figma Mobile_Account_Info màn 04 "Avatar menu pop-up": header
+                         (tên + email) + 4 item VN + Đăng xuất đỏ. Mobile-only (header
+                         d-lg-none); desktop dropdown (layout_top_navbar) GIỮ NGUYÊN. -->
+                    <div class="dropdown-menu dropdown-menu-right wujia-mheader-menu">
+                        <div class="wujia-mheader-menu-head">
+                            <span class="wujia-mheader-menu-name" t-out="request.env.user.name"/>
+                            <span class="wujia-mheader-menu-email"
+                                  t-out="request.env.user.partner_id.email or request.env.user.login"/>
+                        </div>
+                        <div class="dropdown-divider"/>
                         <a class="dropdown-item" href="/portal/profile">
                             <i class="feather icon-user"/>
-                            Personal Information
+                            Thông tin tài khoản
+                        </a>
+                        <a class="dropdown-item" href="/portal/franchise-information">
+                            <!-- toà nhà / cửa hàng — feather subset thiếu glyph 'building' → inline SVG (line-style khớp feather). -->
+                            <svg class="wujia-menu-svg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"
+                                 fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                 stroke-linejoin="round" aria-hidden="true">
+                                <rect x="4" y="2" width="16" height="20" rx="2" ry="2"/>
+                                <path d="M9 22v-4h6v4"/>
+                                <path d="M8 6h.01"/><path d="M12 6h.01"/><path d="M16 6h.01"/>
+                                <path d="M8 10h.01"/><path d="M12 10h.01"/><path d="M16 10h.01"/>
+                                <path d="M8 14h.01"/><path d="M12 14h.01"/><path d="M16 14h.01"/>
+                            </svg>
+                            Thông tin cửa hàng
                         </a>
                         <a class="dropdown-item" href="/portal/change-password">
-                            <i class="feather icon-lock"/>
-                            Change Password
+                            <!-- chìa khoá — feather subset thiếu glyph 'key' → inline SVG (feather key path). -->
+                            <svg class="wujia-menu-svg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"
+                                 fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                 stroke-linejoin="round" aria-hidden="true">
+                                <path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4"/>
+                            </svg>
+                            Đổi mật khẩu
                         </a>
                         <div class="dropdown-divider"/>
-                        <a class="dropdown-item" href="/portal/logout">
-                            <i class="feather icon-power"/>
-                            Log out
+                        <a class="dropdown-item wujia-mheader-menu-logout" href="/portal/logout">
+                            <i class="feather icon-log-out"/>
+                            Đăng xuất
                         </a>
                     </div>
                 </div>

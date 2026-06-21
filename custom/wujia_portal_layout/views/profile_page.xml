@@ -2,7 +2,8 @@
     <data>
         <template id="wujia_portal_layout.profile_page">
             <t t-call="wujia_portal_layout.app_layout">
-                <div class="content-wrapper">
+                <!-- ===== Desktop (>=992px) — GIỮ NGUYÊN 100%, bọc d-none d-lg-block (Sprint 18) ===== -->
+                <div class="content-wrapper d-none d-lg-block">
                     <div class="content-body">
                         <section id="page-account-settings">
                             <div class="row">
@@ -99,6 +100,57 @@
                                 </div>
                             </div>
                         </section>
+                    </div>
+                </div>
+
+                <!-- ===== Mobile (<992px) — Figma Mobile_Account_Info màn 01 (READONLY).
+                     BlankShell .wujia-mpage đặt NGOÀI .content-wrapper (pattern S15).
+                     User chốt: chỉ-đọc đúng Figma, sửa hồ sơ vẫn ở desktop. ===== -->
+                <div class="d-lg-none wujia-mpage wujia-maccount">
+                    <div t-if="error" class="wujia-maccount-alert is-error" role="alert" t-out="error"/>
+                    <div t-if="message" class="wujia-maccount-alert is-ok" role="status" t-out="message"/>
+
+                    <h1 class="wujia-maccount-pagetitle">
+                        <i class="feather icon-info"/> Thông tin tài khoản
+                    </h1>
+
+                    <div class="wujia-mdash-card">
+                        <h2 class="wujia-maccount-cardtitle">Hồ sơ cá nhân</h2>
+                        <div class="wujia-maccount-head">
+                            <img class="wujia-maccount-avatar"
+                                 t-attf-src="/portal/profile/avatar/{{ user.id }}" alt="Avatar"/>
+                            <div class="wujia-maccount-head-main">
+                                <span class="wujia-maccount-name" t-out="user.name"/>
+                                <span class="wujia-maccount-login" t-out="user.login"/>
+                            </div>
+                            <span class="wujia-badge wujia-badge-success">Active</span>
+                        </div>
+                        <div class="wujia-maccount-kvlist">
+                            <div class="wujia-maccount-kv">
+                                <span class="wujia-maccount-kv-key">Họ tên</span>
+                                <span class="wujia-maccount-kv-val" t-out="profile.name or '—'"/>
+                            </div>
+                            <div class="wujia-maccount-kv">
+                                <span class="wujia-maccount-kv-key">Login</span>
+                                <span class="wujia-maccount-kv-val" t-out="user.login or '—'"/>
+                            </div>
+                            <div class="wujia-maccount-kv">
+                                <span class="wujia-maccount-kv-key">Email</span>
+                                <span class="wujia-maccount-kv-val" t-out="profile.email or '—'"/>
+                            </div>
+                            <div class="wujia-maccount-kv">
+                                <span class="wujia-maccount-kv-key">SĐT</span>
+                                <span class="wujia-maccount-kv-val" t-out="profile.phone or '—'"/>
+                            </div>
+                            <div class="wujia-maccount-kv">
+                                <span class="wujia-maccount-kv-key">Cửa hàng</span>
+                                <span class="wujia-maccount-kv-val" t-out="franchise_name or '—'"/>
+                            </div>
+                            <div class="wujia-maccount-kv">
+                                <span class="wujia-maccount-kv-key">Vai trò</span>
+                                <span class="wujia-maccount-kv-val" t-out="role_label or '—'"/>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </t>

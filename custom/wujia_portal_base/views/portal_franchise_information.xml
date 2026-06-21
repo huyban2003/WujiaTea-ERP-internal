@@ -6,7 +6,8 @@
               name="Wujia Portal — Franchise Information">
         <t t-call="wujia_portal_layout.app_layout">
             <t t-set="title" t-value="franchise.name"/>
-            <div class="content-wrapper">
+            <!-- ===== Desktop (>=992px) — GIỮ NGUYÊN 100%, bọc d-none d-lg-block (Sprint 18) ===== -->
+            <div class="content-wrapper d-none d-lg-block">
                 <div class="content-header row mt-3">
                     <div class="content-header-left col-12 mb-1">
                         <h2 class="content-header-title float-left mb-0">
@@ -129,6 +130,90 @@
                                     </table>
                                 </div>
                             </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ===== Mobile (<992px) — Figma Mobile_Account_Info màn 02 "Thông tin cửa hàng".
+                 BlankShell .wujia-mpage NGOÀI .content-wrapper (pattern S15). Data reuse
+                 context desktop (franchise / members / role_labels). ===== -->
+            <div class="d-lg-none wujia-mpage wujia-maccount">
+                <h1 class="wujia-maccount-pagetitle">
+                    <i class="feather icon-home"/> Thông tin cửa hàng
+                </h1>
+
+                <!-- Card: Cửa hàng nhượng quyền -->
+                <div class="wujia-mdash-card">
+                    <h2 class="wujia-maccount-cardtitle">Cửa hàng nhượng quyền</h2>
+                    <div class="wujia-maccount-badgerow">
+                        <span class="wujia-badge wujia-badge-info" t-out="franchise.code or '—'"/>
+                        <span class="wujia-badge wujia-badge-success"
+                              t-out="dict(franchise._fields['status'].selection).get(franchise.status, franchise.status)"/>
+                    </div>
+                    <h3 class="wujia-maccount-store-name" t-out="franchise.name or '—'"/>
+                    <p class="wujia-maccount-store-sub"
+                       t-out="'Khu vực ' + (franchise.area_id.name or '—')"/>
+                    <div class="wujia-maccount-kvlist">
+                        <div class="wujia-maccount-kv">
+                            <span class="wujia-maccount-kv-key">Ngày khai trương</span>
+                            <span class="wujia-maccount-kv-val"
+                                  t-out="franchise.opening_date and franchise.opening_date.strftime('%d/%m/%Y') or '—'"/>
+                        </div>
+                        <div class="wujia-maccount-kv">
+                            <span class="wujia-maccount-kv-key">SĐT</span>
+                            <span class="wujia-maccount-kv-val" t-out="franchise.phone or '—'"/>
+                        </div>
+                        <div class="wujia-maccount-kv">
+                            <span class="wujia-maccount-kv-key">Email</span>
+                            <span class="wujia-maccount-kv-val" t-out="franchise.email or '—'"/>
+                        </div>
+                        <div class="wujia-maccount-kv">
+                            <span class="wujia-maccount-kv-key">Địa chỉ</span>
+                            <span class="wujia-maccount-kv-val" t-out="franchise.address or '—'"/>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Card: Hợp đồng nhượng quyền -->
+                <div class="wujia-mdash-card">
+                    <h2 class="wujia-maccount-cardtitle">Hợp đồng nhượng quyền</h2>
+                    <div class="wujia-maccount-kvlist">
+                        <div class="wujia-maccount-kv">
+                            <span class="wujia-maccount-kv-key">Ngày bắt đầu</span>
+                            <span class="wujia-maccount-kv-val"
+                                  t-out="franchise.franchise_start_date and franchise.franchise_start_date.strftime('%d/%m/%Y') or '—'"/>
+                        </div>
+                        <div class="wujia-maccount-kv">
+                            <span class="wujia-maccount-kv-key">Ngày kết thúc</span>
+                            <span class="wujia-maccount-kv-val"
+                                  t-out="franchise.franchise_end_date and franchise.franchise_end_date.strftime('%d/%m/%Y') or '—'"/>
+                        </div>
+                        <div class="wujia-maccount-kv">
+                            <span class="wujia-maccount-kv-key">Còn lại</span>
+                            <span class="wujia-maccount-kv-val">
+                                <span t-if="franchise.is_expired" class="wujia-badge wujia-badge-danger">Đã hết hạn</span>
+                                <t t-else=""><t t-out="franchise.remaining_days"/> ngày</t>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Card: Thành viên cửa hàng -->
+                <div class="wujia-mdash-card" style="padding:0;">
+                    <h2 class="wujia-maccount-cardtitle" style="padding:14px 14px 0;">Thành viên cửa hàng</h2>
+                    <div t-if="not members" class="wj-empty-state--compact">Chưa có thành viên active.</div>
+                    <div t-else="" class="wujia-mdash-list">
+                        <div t-foreach="members" t-as="m" class="wujia-mdash-row">
+                            <span class="wujia-badge wujia-badge-info"
+                                  t-out="role_labels.get(m.role, m.role)"/>
+                            <span class="wujia-mdash-row-main">
+                                <span class="wujia-mdash-row-title is-sm" t-out="m.user_id.name or '—'"/>
+                                <span class="wujia-mdash-row-sub"
+                                      t-out="(m.user_id.login or '—') + ' · ' + (m.user_id.partner_id.email or '—')"/>
+                            </span>
+                            <span t-if="m.active" class="wujia-badge wujia-badge-success">Active</span>
+                            <span t-else="" class="wujia-badge wujia-badge-muted">Inactive</span>
                         </div>
                     </div>
                 </div>
