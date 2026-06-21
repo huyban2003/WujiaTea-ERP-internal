@@ -1,6 +1,4 @@
-/* Wujia Portal — shared component primitives (Sprint 8 — Issue List UI-11..UI-15).
-   Loaded AFTER _wujia_theme.css. Goal: one class per pattern so every page
-   reuses the same look without duplicating CSS. */
+/* Wujia Portal — shared component primitives (Sprint 8 — Issue List UI-11..UI… */
 
 /* ---------- UI-10/11: Body type + card shadow ---------- */
 body { font-size: var(--wujia-font-size-body) !important; }
@@ -13,19 +11,8 @@ h2, .wujia-h2 { font-size: var(--wujia-font-size-h2) !important; font-weight: 60
 }
 .card { box-shadow: var(--wujia-card-shadow); }
 
-/* ---------- UI-05: Standardized buttons ----------
-   BA "5. Issue List" UI-05:
-     Primary   = nen xanh + chu trang + height 40-44 (we use 42).
-     Secondary = nen trang + vien xam + height 36-40 (we use 38).
-   Note (cot I): button cung loai phai giong nhau moi page. We collapse
-   .btn-secondary + .btn-outline-primary + .btn-outline-secondary +
-   .wujia-btn-secondary into ONE secondary style so portal stays consistent. */
-/* !important defensive across all properties: Vuexy bootstrap.css:2540 sets
-   .btn { padding: 0.9rem 2rem; line-height: 1 } which (a) inflates height
-   beyond our 42px min-height by adding 28.8px of vertical padding, and
-   (b) breaks vertical centering of icon + text. Equal specificity (1) means
-   load order should make ours win — but some legacy CSS files import out
-   of the documented order, so we lock the contract with !important. */
+/* ---------- UI-05: Standardized buttons ---------- */
+/* !important defensive across all properties: Vuexy bootstrap.css:2540 sets */
 .btn,
 .wujia-btn {
     min-height: var(--wujia-btn-height) !important;
@@ -40,19 +27,13 @@ h2, .wujia-h2 { font-size: var(--wujia-font-size-h2) !important; font-weight: 60
     vertical-align: middle !important;
     line-height: 1.4 !important;
 }
-/* Bootstrap .btn-block sets display:block + width:100% which breaks the
-   inline-flex centering above. Force flex back so block buttons stay
-   centered both axes. */
+/* Bootstrap .btn-block sets display:block + width:100% which breaks the */
 .btn.btn-block,
 .wujia-btn.btn-block {
     display: flex;
     width: 100%;
 }
-/* Normalize Font Awesome / Feather icon vertical alignment inside buttons.
-   Vuexy bootstrap.css sets .btn { line-height: 1 } — combined with an
-   <i class="fa ..."/> sibling whose intrinsic glyph baseline differs from
-   the text font baseline, the text ends up sitting above the icon's optical
-   center. Forcing line-height:1 + flex-center on icons aligns them. */
+/* Normalize Font Awesome / Feather icon vertical alignment inside buttons. */
 .btn > i,
 .btn > .fa,
 .btn > .feather,
@@ -67,10 +48,7 @@ h2, .wujia-h2 { font-size: var(--wujia-font-size-h2) !important; font-weight: 60
     /* Reset Bootstrap me-1 / mr-1 margins — gap on .btn already handles spacing */
     margin: 0 !important;
 }
-/* !important defensive: Vuexy bootstrap.css:3022 sets .btn-sm font-size 0.7rem
-   + padding 0.5rem 1.5rem + line-height 1 (box height ~27px). Even though our
-   .btn.btn-sm has specificity 20 > Vuexy's .btn-sm specificity 10, we add
-   !important so browser cache + future overrides can't degrade button height. */
+/* !important defensive: Vuexy bootstrap.css:3022 sets .btn-sm font-size 0.7rem */
 .btn.btn-sm {
     min-height: 32px !important;
     padding: 0 12px !important;
@@ -138,8 +116,7 @@ h2, .wujia-h2 { font-size: var(--wujia-font-size-h2) !important; font-weight: 60
 .wujia-badge-info    { background-color: var(--wujia-primary-soft); color: var(--wujia-primary-dark); }
 .wujia-badge-muted   { background-color: var(--wujia-muted-bg);   color: var(--wujia-text-muted); }
 
-/* Auto-upgrade legacy state-* badges so old templates pick up the new look
-   without code changes (UI-13). */
+/* Auto-upgrade legacy state-* badges so old templates pick up the new look */
 .state-badge {
     display: inline-block; padding: 4px 10px; border-radius: 999px;
     font-size: 12px; font-weight: 600;
@@ -171,13 +148,9 @@ h2, .wujia-h2 { font-size: var(--wujia-font-size-h2) !important; font-weight: 60
     color: var(--wujia-text-secondary);
 }
 
-/* ============================================================================
-   BA Source foundation components — canonical wj-* classes (registry mobile).
-   Consolidate per-screen duplicates into one source component. BA dims.
-   ============================================================================ */
+/* BA Source foundation components — canonical wj-* classes (registry mobile). */
 
-/* FilterChip (BA 32px; scroll-x if many; reset = muted). Solid-active default;
-   --soft = soft-active, --wrap = wrapping container, --clear = reset link. */
+/* FilterChip (BA 32px; scroll-x if many; reset = muted). Solid-active default; */
 .wj-filter-chips {
     display: flex;
     gap: 8px;
@@ -222,8 +195,7 @@ h2, .wujia-h2 { font-size: var(--wujia-font-size-h2) !important; font-weight: 60
 .wj-count-meta--bold { font-weight: 700; }
 .wj-count-meta--primary { flex: 0 0 auto; font-weight: 600; color: var(--wujia-morder-primary); }
 
-/* EmptyState. Base = centered icon-glyph + text (mirrors .wujia-empty-state).
-   --card = framed; --compact = small text only; --rich = icon-circle + title + sub. */
+/* EmptyState. Base = centered icon-glyph + text (mirrors .wujia-empty-state). */
 .wj-empty-state {
     text-align: center;
     padding: 48px 24px;
@@ -276,17 +248,9 @@ h2, .wujia-h2 { font-size: var(--wujia-font-size-h2) !important; font-weight: 60
     .wujia-two-pane > * { width: 100% !important; max-width: 100% !important; }
 }
 
-/* ============================================================================
-   Sprint 9.6 (2026-05-25): Responsive auto-scale utility classes
-   ---------------------------------------------------------------------------
-   3 utility chung để template KHÔNG phải tune `col-md-X col-lg-Y` riêng từng
-   form. V14 không có pattern này — build mới cho v19. Combined với root
-   font-size scaling trong _variables.css (14→15→16px theo viewport), template
-   dùng rem + utility class này → tự scale free.
-   ============================================================================ */
+/* Sprint 9.6 (2026-05-25): Responsive auto-scale utility classes */
 
-/* Container responsive: padding-inline scales fluidly between 12px and 32px
-   using clamp() — no media queries needed. max-width 1400px caps on desktop. */
+/* Container responsive: padding-inline scales fluidly between 12px and 32px */
 .wujia-container {
     width: 100%;
     padding-inline: clamp(12px, 3vw, 32px);
@@ -294,8 +258,7 @@ h2, .wujia-h2 { font-size: var(--wujia-font-size-h2) !important; font-weight: 60
     max-width: 1400px;
 }
 
-/* Grid responsive: auto-fit columns, min 280px, gap scales 12-24px.
-   Replaces verbose `col-12 col-md-6 col-lg-4` patterns. */
+/* Grid responsive: auto-fit columns, min 280px, gap scales 12-24px. */
 .wujia-grid-responsive {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(min(280px, 100%), 1fr));
@@ -312,27 +275,7 @@ h2, .wujia-h2 { font-size: var(--wujia-font-size-h2) !important; font-weight: 60
     .wujia-stack-mobile.wujia-row-md { flex-direction: row; }
 }
 
-/* ============================================================================
-   Sprint 9.12 (2026-05-27): UI-11 KPI Card component
-   ---------------------------------------------------------------------------
-   Replaces legacy .stat-card (wujia_portal_base) + .report-kpi (wujia_portal_report).
-   Layout: square icon LEFT (72×72, cyan, radius 16) → 1px vertical separator →
-   content (label + value + desc) → optional chevron RIGHT.
-
-   Usage:
-     <a href="..." class="wujia-kpi-card-link">           ← wrap for clickable cards
-       <div class="wujia-kpi-card">
-         <div class="wujia-kpi-icon wujia-kpi-icon-primary"><i class="fa fa-bell"/></div>
-         <div class="wujia-kpi-separator"/>
-         <div class="wujia-kpi-content">
-           <p class="wujia-kpi-label">…</p>
-           <div class="wujia-kpi-value">123</div>
-           <small class="wujia-kpi-desc">…</small>
-         </div>
-         <i class="feather icon-chevron-right wujia-kpi-arrow"/>   ← optional
-       </div>
-     </a>
-   ============================================================================ */
+/* Sprint 9.12 (2026-05-27): UI-11 KPI Card component */
 .wujia-kpi-card-link {
     display: block;
     text-decoration: none !important;
@@ -416,11 +359,7 @@ h2, .wujia-h2 { font-size: var(--wujia-font-size-h2) !important; font-weight: 60
     font-size: 18px;        /* UI-14: nhỏ lại cho cân */
 }
 
-/* Sprint 9.16 (UI-15, 2026-06-02): mobile/tablet KPI vertical gap 12px BA H16.
-   Markup thực: col > a.wujia-kpi-card-link > .wujia-kpi-card → selector cũ
-   `[class*="col-"] > .wujia-kpi-card` là grandchild KHÔNG match → gỡ.
-   Gap đặt trên chính link wrapper. Cols đã bỏ .mb-2 (markup) nên không còn
-   8px Bootstrap chọi. Áp <992px (cả tablet) theo user decision 2026-06-02. */
+/* Sprint 9.16 (UI-15, 2026-06-02): mobile/tablet KPI vertical gap 12px BA H16. */
 @media (max-width: 991.98px) {
     .wujia-kpi-card-link {
         display: block;
@@ -431,35 +370,7 @@ h2, .wujia-h2 { font-size: var(--wujia-font-size-h2) !important; font-weight: 60
     }
 }
 
-/* ============================================================================
-   Content Card (UI-12, Sprint 9.13, 2026-05-27)
-   ---------------------------------------------------------------------------
-   BA "5. Issue List" UI-12 cell H13:
-     Card: white, radius 16, light shadow, padding 20-24
-     Header: round cyan icon + bold title + "Xem tất cả" cyan link right
-     Row: cyan bullet + content + date + classification badge
-     Typography: title #111827, body #374151, date #6B7280
-   Layout pattern:
-     <div class="wujia-content-card">
-       <div class="wujia-content-card-header">
-         <div class="wujia-content-card-header-icon">
-           <i class="feather icon-bell"/>
-         </div>
-         <h4 class="wujia-content-card-header-title">Title</h4>
-         <a class="wujia-content-card-header-link" href="...">Xem tất cả
-           <i class="feather icon-chevron-right"/>
-         </a>
-       </div>
-       <ul class="wujia-content-card-body">
-         <li class="wujia-content-card-row">
-           <span class="wujia-content-card-row-bullet"/>
-           <div class="wujia-content-card-row-content">Main text</div>
-           <span class="wujia-content-card-row-date">10:30 20/05</span>
-           <span class="wujia-badge wujia-badge-success">Label</span>
-         </li>
-       </ul>
-     </div>
-   ============================================================================ */
+/* Content Card (UI-12, Sprint 9.13, 2026-05-27) */
 .wujia-content-card {
     background: var(--wujia-bg-card);
     border-radius: var(--wujia-card-radius);
@@ -525,9 +436,7 @@ h2, .wujia-h2 { font-size: var(--wujia-font-size-h2) !important; font-weight: 60
     flex-direction: column;
     flex: 1 1 auto;
 }
-/* Sprint 9.13b 2026-05-27: each row carries its own bottom border so the body
-   reads like a table (per BA sample.jpg MẪU 01/04). Gap removed because the
-   border now serves as the row separator. */
+/* Sprint 9.13b 2026-05-27: each row carries its own bottom border so the body */
 .wujia-content-card-row {
     display: grid;
     grid-template-columns: auto 1fr auto auto;
@@ -540,7 +449,7 @@ h2, .wujia-h2 { font-size: var(--wujia-font-size-h2) !important; font-weight: 60
     border-bottom: none;
 }
 .wujia-content-card-row:hover {
-    background: rgba(34, 169, 222, 0.04);
+    background: rgba(40, 169, 223, 0.04);
 }
 .wujia-content-card-row-bullet {
     flex-shrink: 0;
@@ -590,9 +499,7 @@ h2, .wujia-h2 { font-size: var(--wujia-font-size-h2) !important; font-weight: 60
     }
 }
 
-/* Flush variant — drops padding so child tables/lists span edge-to-edge.
-   UI-12 Sprint 9.13 (2026-05-27): used by list pages where table rows
-   need full-bleed alignment (purchase-history, return, notification). */
+/* Flush variant — drops padding so child tables/lists span edge-to-edge. */
 .wujia-content-card--flush {
     padding: 0;
 }
@@ -605,12 +512,7 @@ h2, .wujia-h2 { font-size: var(--wujia-font-size-h2) !important; font-weight: 60
     margin-bottom: 0;
 }
 
-/* Table body variant — for full-listing pages (UI-12 ext to listing pages,
-   Sprint 9.13b 2026-05-27). Replaces the failed --flush experiment: uses
-   negative margin + width calc so the table renders edge-to-edge inside
-   the card without disrupting the flex container. Works for /portal/order,
-   /portal/purchase-history, /portal/notification per BA mockup MẪU 02
-   (sample.jpg). */
+/* Table body variant — for full-listing pages (UI-12 ext to listing pages, */
 .wujia-content-card-table {
     margin: 16px calc(-1 * var(--wujia-content-card-padding)) 0;
     width: calc(100% + 2 * var(--wujia-content-card-padding));
@@ -639,7 +541,7 @@ h2, .wujia-h2 { font-size: var(--wujia-font-size-h2) !important; font-weight: 60
     border-bottom: none;
 }
 .wujia-content-card-table tbody tr:hover {
-    background: rgba(34, 169, 222, 0.04);
+    background: rgba(40, 169, 223, 0.04);
 }
 .wujia-content-card-table td.text-end,
 .wujia-content-card-table th.text-end {
@@ -653,17 +555,7 @@ h2, .wujia-h2 { font-size: var(--wujia-font-size-h2) !important; font-weight: 60
     white-space: nowrap;
 }
 
-/* ============================================================================
-   Header right action icons (UI-13, Sprint 9.14, 2026-05-28)
-   ---------------------------------------------------------------------------
-   BA "5. Issue List" UI-13 col H: header right phải có Lang + Cart + Bell +
-   Account. Cart và Bell có badge tròn đỏ ở góc trên-phải icon. Badge count
-   load qua AJAX sau page-ready (perf-first cho 1500 user) — render init
-   ẩn (.is-active class toggle).
-
-   Selectors scoped riêng dưới .wujia-header-icon-* → KHÔNG đụng .header-navbar,
-   .nav-link, .dropdown-language, .dropdown-user (regression safe).
-   ============================================================================ */
+/* Header right action icons (UI-13, Sprint 9.14, 2026-05-28) */
 .wujia-header-icon-btn {
     position: relative;
     display: inline-flex;
@@ -692,42 +584,23 @@ h2, .wujia-h2 { font-size: var(--wujia-font-size-h2) !important; font-weight: 60
     box-sizing: border-box;
     display: none;
 }
-/* Center the digit with flexbox instead of line-height: relying on
-   line-height = badge height makes Inter's ascender/descender push the
-   number off-centre (looked vertically uneven). inline-flex centres
-   pixel-perfectly for both 1- and 2-digit counts. */
+/* Center the digit with flexbox instead of line-height: relying on */
 .wujia-header-badge.is-active {
     display: inline-flex;
     align-items: center;
     justify-content: center;
 }
-/* Vuexy bootstrap-extended.css fights our badge with two higher/equal rules:
-   `.badge` (0,0,1,0) sets background #7367F0 (tie with .wujia-header-badge →
-   load-order-dependent, flaky across envs) and
-   `.header-navbar .navbar-container ul.nav li .badge` (0,0,4,2) sets padding
-   (distorts shape → oval). Re-assert the contested props at (0,0,5,2) so we
-   win deterministically regardless of bundle order. Scoped to the header nav
-   only → no blast radius on other .wujia-badge-* pills. */
+/* Vuexy bootstrap-extended.css fights our badge with two higher/equal rules: */
 .header-navbar .navbar-container ul.nav li .wujia-header-badge {
     padding: 0 5px;
-    /* !important: final hammer. Specificity (0,0,5,2) already beats every
-       Vuexy badge rule we found, yet the prod browser still rendered a
-       non-red badge — so something env-specific (proxy/cache/load order)
-       is in play. !important removes all doubt; scoped to the header badge
-       so there is zero blast radius on other pills. */
+    /* !important: final hammer. Specificity (0,0,5,2) already beats every */
     background-color: var(--wujia-danger) !important;
     border-radius: 999px !important;
-    /* White digit on the red badge. On the server the Vuexy navbar link
-       colour (#626262) wins over our base rule, leaving a dark number —
-       force white here for the same reason we force the background. */
+    /* White digit on the red badge. On the server the Vuexy navbar link */
     color: #FFFFFF !important;
 }
 
-/* ---------- Sprint 9.13b (2026-05-27): pagination clean override ----------
-   Vuexy bootstrap-extended.css applies border-radius:5rem + prev-item/next-item
-   pseudo arrows to .pagination .page-item, which breaks plain Bootstrap pager
-   used in portal list pages (active page text gets crushed into a circle).
-   Restore Bootstrap-default rectangular look for portal pagination. */
+/* ---------- Sprint 9.13b (2026-05-27): pagination clean override ---------- */
 .pagination.wujia-pagination {
     gap: 4px;
 }
@@ -763,9 +636,7 @@ h2, .wujia-h2 { font-size: var(--wujia-font-size-h2) !important; font-weight: 60
     color: #FFFFFF;
 }
 
-/* ---------- Navbar logo (mobile, Sprint 10 — Figma) ----------
-   Logo Wujia trên header mobile (<1200px) vì sidebar + logo của nó off-canvas.
-   Nền trắng bo góc giống Figma để nổi trên navbar cyan. */
+/* ---------- Navbar logo (mobile, Sprint 10 — Figma) ---------- */
 .wujia-navbar-logo {
     display: flex;
     align-items: center;        /* canh giữa logo theo chiều dọc navbar (Figma) */
@@ -783,9 +654,7 @@ h2, .wujia-h2 { font-size: var(--wujia-font-size-h2) !important; font-weight: 60
     border-radius: var(--wujia-btn-radius);
     padding: 3px 8px;
 }
-/* Giữ logo + hamburger + cụm icon (cờ/giỏ/chuông/account) trên CÙNG 1 hàng.
-   Bootstrap .navbar mặc định flex-wrap:wrap → thêm logo làm cụm icon rớt xuống
-   dòng dưới. nowrap + ẩn chữ ngôn ngữ (chỉ còn lá cờ) để đủ chỗ. Scope <1200px. */
+/* Giữ logo + hamburger + cụm icon (cờ/giỏ/chuông/account) trên CÙNG 1 hàng. */
 @media (max-width: 1199.98px) {
     .wujia-navbar .navbar-collapse { flex-wrap: nowrap; }
     .wujia-navbar .navbar-nav.float-right {
@@ -795,14 +664,7 @@ h2, .wujia-h2 { font-size: var(--wujia-font-size-h2) !important; font-weight: 60
     .wujia-navbar .dropdown-language .selected-language { display: none; }
 }
 
-/* ============================================================================
-   Mobile Home — Figma BA Sprint 10 (2026-06-06)
-   ---------------------------------------------------------------------------
-   Frame 2474:2 "ngo_gia_mobile_dashboard_header_blue_variant 1". Toàn bộ block
-   chỉ render <992px (template bọc .d-lg-none) → desktop home cũ KHÔNG đổi.
-   Prefix riêng .wujia-mhome-* → không va class cũ. THEO FIGMA (active đỏ, cyan
-   #28A9DF). Badge noti tái dùng .wujia-badge-* sẵn có.
-   ============================================================================ */
+/* Mobile Home — Figma BA Sprint 10 (2026-06-06) */
 .wujia-mhome {
     display: flex;
     flex-direction: column;
@@ -1092,8 +954,7 @@ a.wujia-mhome-kpi:active { opacity: 0.85; }
     font-weight: 700;
     line-height: 1;
 }
-/* BA final (Sprint 12): active = brand cyan (override active đỏ Sprint 10/11).
-   Đỏ chỉ còn dùng cho badge (.wujia-mhome-nav-badge → --wujia-mnav-badge). */
+/* BA final (Sprint 12): active = brand cyan (override active đỏ Sprint 10/11). */
 .wujia-mhome-nav-item.is-active {
     color: var(--wujia-mnav-active);
 }
@@ -1118,14 +979,7 @@ a.wujia-mhome-kpi:active { opacity: 0.85; }
     text-align: center;
 }
 
-/* ============================================================================
-   Sprint 12 — Mobile Header (BA Wujia_Source_UI_FINAL_v1, WJ_Mobile_Header_Primary)
-   ---------------------------------------------------------------------------
-   Header static 104px nền cyan liền khối thay navbar Vuexy floating trên <992px.
-   Template wujia_portal_layout.mobile_header (d-lg-none). Logo slot trắng bo trái
-   + 3 nút tròn translucent phải (Language / Cart / Avatar). KHÔNG bell.
-   Cart badge dùng lại .wujia-header-badge.wujia-header-cart-count (base style ở
-   trên, scope navbar KHÔNG áp vào đây — header này ngoài .header-navbar). */
+/* Sprint 12 — Mobile Header (BA Wujia_Source_UI_FINAL_v1, WJ_Mobile_Header_Pr… */
 .wujia-mheader {
     display: flex;
     align-items: center;
@@ -1196,24 +1050,15 @@ a.wujia-mhome-kpi:active { opacity: 0.85; }
     border-radius: 50%;
     object-fit: cover;
 }
-/* Cart badge trong header mobile: base .wujia-header-badge (đỏ, ẩn tới .is-active)
-   neo theo .wujia-mheader-action (position:relative). Nudge sát góc trên-phải. */
+/* Cart badge trong header mobile: base .wujia-header-badge (đỏ, ẩn tới .is-ac… */
 .wujia-mheader-action .wujia-header-badge {
     top: -3px;
     right: -3px;
 }
 
-/* ============================================================================
-   Sprint 11 — Mobile ĐẶT HÀNG (BA UI Component Registry v3 + Figma 2480:2)
-   All rules scoped under .wujia-morder / .wujia-mcart (wrappers are d-lg-none)
-   → mobile-only, zero blast radius on desktop.
-   ========================================================================== */
+/* Sprint 11 — Mobile ĐẶT HÀNG (BA UI Component Registry v3 + Figma 2480:2) */
 
-/* Global: reserve space so fixed bottom-nav (promoted portal-wide) doesn't
-   cover page content on mobile (registry: chừa 88–96px).
-   Sprint 12: footer lên 83px (BA final) → bump 88→96 (giữ slack + đúng BA ≥96).
-   ĐÂY là footer-clearance DUY NHẤT (không thêm padding-bottom ở content-wrapper
-   nữa — tránh double-pad Home/Order vốn đã đúng). */
+/* Global: reserve space so fixed bottom-nav (promoted portal-wide) doesn't */
 @media (max-width: 991.98px) {
     .app-content.content { padding-bottom: 96px; }
 }
@@ -1392,8 +1237,7 @@ a.wujia-mhome-kpi:active { opacity: 0.85; }
     position: fixed;
     left: 12px;
     right: 12px;
-    /* Sprint 12: footer bottom-nav lên 83px (BA final) → nâng floatbar để không
-       chồng footer (trước 76px khi footer còn ~62px). */
+    /* Sprint 12: footer bottom-nav lên 83px (BA final) → nâng floatbar để không */
     bottom: calc(var(--wujia-mnav-height) + 8px);
     z-index: 1029;
     display: flex;
@@ -1620,13 +1464,7 @@ a.wujia-mhome-kpi:active { opacity: 0.85; }
 .wujia-mcart-submit:active { background: var(--wujia-morder-primary-dark); }
 .wujia-mcart-submit:disabled { opacity: 0.55; cursor: not-allowed; }
 
-/* ============================================================================
-   Sprint 13 — Mobile LỊCH SỬ ĐẶT HÀNG (Figma 4445:4) — List + Detail
-   Scoped under .wujia-mhist / .wujia-mhist-detail (wrappers d-lg-none) →
-   mobile-only, zero blast radius desktop. Palette reuse --wujia-morder-*.
-   Side gutter do .content-wrapper (Vuexy 2.2rem) lo — KHÔNG tự pad ngang
-   (giống .wujia-morder) để khớp gutter trang Đặt hàng.
-   ========================================================================== */
+/* Sprint 13 — Mobile LỊCH SỬ ĐẶT HÀNG (Figma 4445:4) — List + Detail */
 
 /* Title chung (List + Detail) */
 .wujia-mhist-title {
@@ -1762,8 +1600,7 @@ a.wujia-mhome-kpi:active { opacity: 0.85; }
     white-space: nowrap;
 }
 
-/* Pager — share style với mobile Kiến thức (Sprint 15: group selector,
-   không đổi visual mhist) */
+/* Pager — share style với mobile Kiến thức (Sprint 15: group selector, */
 .wujia-mhist-pager,
 .wujia-mknow-pager {
     display: flex;
@@ -1839,8 +1676,7 @@ a.wujia-mhome-kpi:active { opacity: 0.85; }
     color: var(--wujia-morder-text);
     margin-bottom: 12px;
 }
-/* Figma: 2 cột — label cột trái cố định, value căn TRÁI cùng một mốc x
-   (KHÔNG căn phải sát lề). Label width đủ chứa "Số dòng hàng" 1 dòng. */
+/* Figma: 2 cột — label cột trái cố định, value căn TRÁI cùng một mốc x */
 .wujia-mhist-kv {
     display: flex;
     align-items: flex-start;
@@ -1899,13 +1735,7 @@ a.wujia-mhome-kpi:active { opacity: 0.85; }
     white-space: nowrap;
 }
 
-/* ============================================================================
-   Sprint 14 — More bottom sheet (Figma WJ_MoreBottom 4477:242) + BlankShell
-   content wrapper (Figma WJ_Mobile_BlankShell 4447:11). Mobile-only (<992px);
-   markup d-lg-none trong wujia_portal_layout.mobile_bottomnav, toggle qua
-   wujia_mobile_more_sheet.js. Footer .wujia-mhome-bottomnav z-index 1030 →
-   backdrop 1028 / sheet 1029 (footer luôn bấm được khi sheet mở).
-   ============================================================================ */
+/* Sprint 14 — More bottom sheet (Figma WJ_MoreBottom 4477:242) + BlankShell */
 @media (max-width: 991.98px) {
     body.wujia-msheet-open {
         overflow: hidden;
@@ -2036,14 +1866,7 @@ a.wujia-mhome-kpi:active { opacity: 0.85; }
         color: var(--wujia-msheet-chevron);
     }
 
-    /* BlankShell content wrapper — chuẩn content area cho trang mobile MỚI
-       (BA 4447:11: pad-x 16, gap card 12–16, pad-bottom ≥96 vì footer fixed).
-       Trang đã ship (Home/Order/History) GIỮ layout riêng — không retrofit.
-       Sprint 15 (consumer đầu tiên — mknow): đặt NGOÀI .content-wrapper (tự lo
-       gutter, lồng vào = double pad ngang); BỎ pad-bottom riêng — footer
-       clearance ≥96 đã do rule DUY NHẤT .app-content.content lo (xem Sprint 12,
-       _components.css ~1118), giữ cả hai = double 192px trống đáy; pad-top =
-       content-gap (strip → block đầu). */
+    /* BlankShell content wrapper — chuẩn content area cho trang mobile MỚI */
     .wujia-mpage {
         display: flex;
         flex-direction: column;
@@ -2052,12 +1875,7 @@ a.wujia-mhome-kpi:active { opacity: 0.85; }
     }
 }
 
-/* ============================================================================
-   Sprint 15 — Mobile KIẾN THỨC (Figma WJ_Knowledge_Mobile 4475:2) — List + Detail
-   Scoped .wujia-mknow (wrapper d-lg-none + .wujia-mpage = consumer BlankShell
-   đầu tiên) → mobile-only, zero blast radius desktop. Palette reuse
-   --wujia-morder-*; token riêng --wujia-mknow-* (_variables.css).
-   ============================================================================ */
+/* Sprint 15 — Mobile KIẾN THỨC (Figma WJ_Knowledge_Mobile 4475:2) — List + De… */
 @media (max-width: 991.98px) {
     /* ---------- Title row ---------- */
     .wujia-mknow-titlerow {
@@ -2316,9 +2134,7 @@ a.wujia-mhome-kpi:active { opacity: 0.85; }
         color: var(--wujia-morder-text-sub);
         margin: 0 0 8px;
     }
-    /* Body bài viết (HTML admin soạn): ul/li bullet cyan, blockquote → card xám
-       "Các điểm cần nắm", div.wujia-note → card cam "Lưu ý" (Figma — admin
-       thêm class trong editor; KHÔNG phải field riêng). */
+    /* Body bài viết (HTML admin soạn): ul/li bullet cyan, blockquote → card xám */
     .wujia-mknow-body {
         font-size: 14px;
         line-height: 1.6;
@@ -2391,16 +2207,7 @@ a.wujia-mhome-kpi:active { opacity: 0.85; }
     }
 }
 
-/* ============================================================================
-   Sprint 16 — Mobile Dashboard sections (Figma mobile_dashboard 2474:2)
-   3 màn: Screen_2_Orders → /portal/delivery / Screen_3_Debt_Knowledge →
-   /portal/debt / Screen_4_Support → /portal/support. Class .wujia-mdash-*
-   dùng chung markup per-view (KHÔNG t-call cross-module). Badge tái dùng
-   .wujia-badge-* soft sẵn có. KHÔNG bọc media query (khác mknow/mhist):
-   /portal/delivery + /portal/support gate bằng d-lg-none trong markup;
-   /portal/debt render mọi cỡ màn (chưa có desktop design — .wujia-debt-page
-   cuối cụm cap bề ngang). Prefix riêng → zero blast radius.
-   ============================================================================ */
+/* Sprint 16 — Mobile Dashboard sections (Figma mobile_dashboard 2474:2) */
     /* ---------- Section: titlerow + content ---------- */
     .wujia-mdash-sec {
         display: flex;
@@ -2543,12 +2350,7 @@ a.wujia-mhome-kpi:active { opacity: 0.85; }
         white-space: nowrap;
     }
 
-/* ============================================================================
-   Sprint 17 — Mobile Ticket Hỗ trợ (Figma Mobile_Ticket) — List/Create/Detail/Empty
-   Scoped .wujia-mticket-* (wrapper d-lg-none + .wujia-mpage BlankShell). Reuse
-   .wujia-mknow-search* (search card) + .wujia-mdash-* (list rows). Token riêng
-   --wujia-mticket-* (_variables.css). Mobile-only → zero blast radius desktop.
-   ============================================================================ */
+/* Sprint 17 — Mobile Ticket Hỗ trợ (Figma Mobile_Ticket) — List/Create/Detail… */
 @media (max-width: 991.98px) {
     /* ---------- Top row List (H1 + nút Tạo) ---------- */
     .wujia-mticket-toprow {
@@ -2691,12 +2493,7 @@ a.wujia-mhome-kpi:active { opacity: 0.85; }
 
 }
 
-/* ============================================================================
-   Sprint 18 — Mobile Account / Tài khoản (Figma Mobile_Account_Info)
-   Scoped .wujia-maccount-* (wrapper d-lg-none + .wujia-mpage BlankShell) +
-   .wujia-mheader-menu-* (avatar dropdown trong header d-lg-none). Reuse
-   .wujia-mdash-card/-list/-row + .wujia-badge-*. Mobile-only → zero blast radius.
-   ============================================================================ */
+/* Sprint 18 — Mobile Account / Tài khoản (Figma Mobile_Account_Info) */
 @media (max-width: 991.98px) {
     /* ---------- Page title (icon + chữ) ---------- */
     .wujia-maccount-pagetitle {

@@ -1,24 +1,13 @@
-/* Wujia portal — theme overrides on top of Vuexy + Bootstrap.
-   Loaded AFTER _variables.css and AFTER vendor (bootstrap/colors/components),
-   BEFORE per-page module CSS. Uses var(--wujia-*) so a single edit in
-   _variables.css recolors the whole portal. */
+/* Wujia portal — theme overrides on top of Vuexy + Bootstrap. */
 
-/* ---------- Body / typography ----------
-   UI-06 (Sprint 9.7, 2026-05-25): selector "html body" (no comma) has
-   specificity 0,0,2 — matches Vuexy components.css:11 "html body" which
-   was winning the cascade with #f9f9fb default. Same specificity + loaded
-   later = our token wins. Previous selector "html, body" was 0,0,1 each
-   and lost to Vuexy. font-family already had !important so it was fine,
-   but background-color silently fell back to #f9f9fb instead of our token. */
+/* ---------- Body / typography ---------- */
 html body {
     font-family: var(--wujia-font-family) !important;
     background-color: var(--wujia-bg-page);
     color: var(--wujia-text-primary);
 }
 
-/* ---------- Brand color overrides on Bootstrap utilities ----------
-   .btn-primary rules live in _components.css (UI-05). Keeping bg-/badge-/
-   text-/border- utilities here only. */
+/* ---------- Brand color overrides on Bootstrap utilities ---------- */
 .bg-primary,
 .badge.badge-primary {
     background-color: var(--wujia-primary) !important;
@@ -38,17 +27,12 @@ html body {
 
 .text-muted { color: var(--wujia-text-muted) !important; }
 
-/* ---------- Top navbar (UI-08) — Sprint 9.6 v4 (2026-05-25): match V14 exact.
-   V14 (co_portal_base/views/layouts.xml:32) uses ONLY inline
-   `style="background-color: #1f4180;"` + standard Vuexy classes. No custom
-   height/padding/flex override. Vuexy default `.header-navbar` controls all
-   sizing — items naturally centered. We just swap brand color. ---------- */
+/* ---------- Top navbar (UI-08) — Sprint 9.6 v4 (2026-05-25): match V14 exact. */
 .wujia-navbar {
     background-color: var(--wujia-primary) !important;
 }
 
-/* UI-09 (Sprint 9.9, 2026-05-25): Header height 64–72px + items vertically centered.
-   Scope to .header-navbar (Vuexy class on portal top nav) only. */
+/* UI-09 (Sprint 9.9, 2026-05-25): Header height 64–72px + items vertically ce… */
 .header-navbar {
     height: var(--wujia-header-height) !important;      /* 72px */
     min-height: var(--wujia-header-height) !important;
@@ -59,14 +43,7 @@ html body {
     align-items: center !important;
 }
 
-/* ---------- Sidebar (UI-03/04/06) ----------
-   Vuexy's PerfectScrollbar JS attaches to .main-menu-content but doesn't
-   re-init reliably on Odoo portal route changes. Instead of fighting PS with
-   flex+vh (which PS overrides via inline styles on next page), we make the
-   whole .main-menu scrollable directly. Logo scrolls along with the menu —
-   acceptable trade-off for rock-solid behavior across navigation.
-
-   !important on overflow neutralizes any inline `overflow: hidden` PS sets. */
+/* ---------- Sidebar (UI-03/04/06) ---------- */
 .main-menu {
     background-color: var(--wujia-bg-sidebar) !important;
 }
@@ -75,29 +52,20 @@ html body {
     overflow-y: auto !important;
     overflow-x: hidden !important;
 }
-/* Neutralize PerfectScrollbar inline height on the content wrapper so
-   the parent .main-menu owns scrolling. */
+/* Neutralize PerfectScrollbar inline height on the content wrapper so */
 .main-menu .main-menu-content {
     height: auto !important;
     overflow: visible !important;
 }
-/* Sprint 9.6 v4 (2026-05-25, match V14): V14 leaves Bootstrap `mb-5` (3rem)
-   untouched on navbar-header. V14 then injects a `.sidebar-header` block
-   BETWEEN logo and shadow-bottom — that block provides natural spacing
-   (padding:20px) so menu doesn't feel cramped. So we REVERT the override
-   and let mb-5 + sidebar-header give the breathing room V14 has. */
+/* Sprint 9.6 v4 (2026-05-25, match V14): V14 leaves Bootstrap `mb-5` (3rem) */
 /* (no .navbar-header.mb-5 override — Vuexy/Bootstrap default 3rem applies) */
 
-/* ---------- Sidebar spacer (Sprint 9.6 v5, 2026-05-25) ----------
-   BA UI-01/02 KHÔNG có user info trong sidebar trái. Chừa khoảng trống
-   giữa logo và menu navigation bằng spacer chiều cao cố định. */
+/* ---------- Sidebar spacer (Sprint 9.6 v5, 2026-05-25) ---------- */
 .main-menu .sidebar-header-spacer {
     height: 32px;
 }
 
-/* UI-07 (Sprint 9.8, 2026-05-25): Enforce constant logo-area height so every
-   page starts the menu at the same vertical position. Overrides Bootstrap mb-5
-   (3rem) which varies with fluid font-size scaling (Sprint 9.6: 14→16px). */
+/* UI-07 (Sprint 9.8, 2026-05-25): Enforce constant logo-area height so every */
 .main-menu .navbar-header {
     height: var(--wujia-sidebar-logo-h) !important;  /* 200px */
     display: flex !important;
@@ -151,9 +119,7 @@ html body {
 .main-menu .navigation > li > a:hover {
     background-color: var(--wujia-muted-bg) !important;
 }
-/* UI-01 (Sprint 9.1): Active menu item — solid brand BG + white icon/text.
-   BA "5. Issue List" UI-01: chuyển icon và text sang màu trắng khi item ở
-   trạng thái active. Inactive items giữ màu text-secondary mặc định. */
+/* UI-01 (Sprint 9.1): Active menu item — solid brand BG + white icon/text. */
 .main-menu.menu-light .navigation > li.active > a,
 .main-menu .navigation > li.active > a {
     background-color: var(--wujia-primary) !important;
@@ -170,15 +136,7 @@ html body {
     color: #FFFFFF !important;
 }
 
-/* ---------- Card + section header flush fix ----------
-   User feedback (Sprint 4.3 iter 3): the section-header title + its underline
-   must be FLUSH with the card's left edge — zero gap. We strip ALL left
-   padding/margin from card-header so:
-     • title text starts right at the card's inner-left edge (just inside the
-       card's 1px border)
-     • border-bottom (separator) spans the full card-header width, from card
-       inner-left to inner-right, no visible indent.
-   Body padding stays normal so list/table content keeps its breathing room. */
+/* ---------- Card + section header flush fix ---------- */
 .card {
     border-radius: var(--wujia-card-radius) !important;
     border: 1px solid var(--wujia-border);
@@ -213,8 +171,7 @@ html body {
     border-top: 1px solid var(--wujia-border);
 }
 
-/* Full-bleed section header inside .card-body (for templates that put
-   a heading directly in card-body with a separator). */
+/* Full-bleed section header inside .card-body (for templates that put */
 .card-body .wujia-section-header {
     margin: 0 calc(-1 * var(--wujia-card-padding));
     padding: 8px var(--wujia-card-padding);
@@ -236,7 +193,7 @@ html body {
 /* ---------- Forms ---------- */
 .form-control:focus {
     border-color: var(--wujia-primary) !important;
-    box-shadow: 0 0 0 0.15rem rgba(34, 169, 222, 0.20);
+    box-shadow: 0 0 0 0.15rem rgba(40, 169, 223, 0.20);
 }
 .form-control {
     border: 1px solid var(--wujia-border);
@@ -259,18 +216,7 @@ a:hover { color: var(--wujia-primary-dark); }
     background: var(--wujia-primary) !important;
 }
 
-/* ---------- UI-08 Page Title (Sprint 9.10, 2026-05-25) ----------
-   BA "5. Issue List" UI-08 cột H: page title đổi sang #111827, 24px, weight 700.
-   Override Vuexy `.content-header-title` (currently #636363 from
-   components.css:71 at specificity 0,1,4) qua !important — đơn cử selector
-   thay vì match Vuexy chain dài.
-   Apply 3 selector unified:
-     1. `.content-header-title` — pattern chuẩn 29 portal page (<h2 class=...>).
-     2. `.wujia-page-title` — escape hatch cho trang divergent (vd
-        change_password_page.xml h1 nằm trong card-body, không qua
-        content-header block).
-     3. `h1.article-title` — knowledge article detail (was cyan primary,
-        unify với portal theo quyết định 2026-05-25). */
+/* ---------- UI-08 Page Title (Sprint 9.10, 2026-05-25) ---------- */
 .content-header-title,
 .wujia-page-title,
 h1.article-title {
@@ -279,11 +225,7 @@ h1.article-title {
     font-weight: var(--wujia-page-title-weight) !important;
 }
 
-/* UI-08 follow-up (user feedback 2026-05-25): subtitle text canh giữa title.
-   Pattern hiện tại `<h2 class="...float-left">` + `<p>` sibling khiến subtitle
-   nằm baseline-align với title — title 24px / subtitle 15px → trông tụt xuống.
-   Fix: bật flex + align-items center trên parent .content-header-left, vô
-   hiệu float-left của title. flex-wrap giữ responsive (stack ở mobile). */
+/* UI-08 follow-up (user feedback 2026-05-25): subtitle text canh giữa title. */
 .content-header-left {
     display: flex;
     align-items: center;
@@ -298,9 +240,7 @@ h1.article-title {
     margin-bottom: 0 !important;
 }
 
-/* UI-09 (2026-05-26): Page subtitle/description — BA #6B7280, 14-15px, weight 400.
-   Targets both the <p> sibling of page title inside content-header-left
-   and any explicit .wujia-page-subtitle class used in templates. */
+/* UI-09 (2026-05-26): Page subtitle/description — BA #6B7280, 14-15px, weight… */
 .content-header-left > p,
 .wujia-page-subtitle {
     color: var(--wujia-text-subtitle) !important;
@@ -308,38 +248,21 @@ h1.article-title {
     font-weight: 400 !important;
 }
 
-/* ---------- UI-16 Main Content Spacing (Sprint 9.16, 2026-06-02) ----------
-   BA "5. Issue List" UI-16 cột H: header→title ~24px, title→KPI 12–16px,
-   KPI→content 20–24px. Chuẩn hóa fixed-px (không rem) để đều mọi breakpoint
-   bất kể html font-size 14/15/16. Scope vào portal shell — _wujia_theme.css
-   chỉ load trong asset_theme frontend (không đụng backend webclient).
-
-   (a) header xanh (floating navbar) → title: override Vuexy
-       `html body .content .content-wrapper { padding: calc(2.2rem-0.4rem)... }`
-       (components.css, cùng specificity 0,2,2, ta load sau → thắng). */
+/* ---------- UI-16 Main Content Spacing (Sprint 9.16, 2026-06-02) ---------- */
 html body .content .content-wrapper {
     padding-top: var(--wujia-page-content-top);
 }
-/* (b) title block → KPI row: margin-bottom trên .content-header (.row).
-       Markup bỏ mt-3/mb-1 (portal_home.xml) → khoảng cách do token quyết định. */
+/* (b) title block → KPI row: margin-bottom trên .content-header (.row). */
 .content-wrapper .content-header {
     margin-top: 0;
     margin-bottom: var(--wujia-page-title-gap);
 }
-/* (c) KPI row → content card row: section#dashboard-stats là sibling cuối
-       trước .row content card. UI-15 đã gỡ mb-2 trên KPI col nên gap do đây. */
+/* (c) KPI row → content card row: section#dashboard-stats là sibling cuối */
 #dashboard-stats {
     margin-bottom: var(--wujia-kpi-content-gap);
 }
 
-/* ============================================================================
-   Sprint 12 (2026-06-07): Mobile Shell FINAL (BA Wujia_Source_UI_FINAL_v1)
-   ---------------------------------------------------------------------------
-   Trên mobile (<992px) THAY navbar Vuexy floating bằng header static 104px
-   (template wujia_portal_layout.mobile_header). Ẩn navbar Vuexy + gỡ offset
-   floating-nav để header+strip+content xếp tự nhiên từ top; footer fixed 83px
-   nên content cần padding-bottom ≥96. Desktop (≥992px) KHÔNG đụng tới.
-   ============================================================================ */
+/* Sprint 12 (2026-06-07): Mobile Shell FINAL (BA Wujia_Source_UI_FINAL_v1) */
 @media (max-width: 991.98px) {
     /* Ẩn navbar Vuexy desktop + dải shadow floating-nav trên mobile. */
     .wujia-navbar,
@@ -347,24 +270,17 @@ html body .content .content-wrapper {
     .header-navbar-shadow {
         display: none !important;
     }
-    /* Gỡ offset mà Vuexy navbar-floating chừa cho navbar (không còn navbar) →
-       mobile header static (104px, first child của .app-content) nằm sát top. */
+    /* Gỡ offset mà Vuexy navbar-floating chừa cho navbar (không còn navbar) → */
     body.vertical-layout .app-content,
     body.navbar-floating .app-content {
         padding-top: 0 !important;
         margin-top: 0 !important;
     }
-    /* ROOT CAUSE "trống 1 khúc dưới header" (Sprint 12 fix): Vuexy
-       `html body .content .content-wrapper { margin-top: 6rem }` (components.css:69)
-       chừa ~90px cho floating navbar. Navbar đã ẩn <992px → margin này thành
-       khoảng trống. Zero nó → content (hero Home / list) nằm sát ngay dưới
-       header/strip. padding-top 24 (UI-16) vẫn giữ làm gap nhẹ. Áp MỌI trang. */
+    /* ROOT CAUSE "trống 1 khúc dưới header" (Sprint 12 fix): Vuexy */
     html body .content .content-wrapper {
         margin-top: 0 !important;
     }
-    /* Mobile app background. Do NOT override content-wrapper padding here —
-       horizontal padding + padding-top 24 + footer-clearance already exist;
-       adding more = double-padding breaks Home/Order. */
+    /* Mobile app background. Do NOT override content-wrapper padding here — */
     html body.vertical-layout,
     html body .app-content {
         background-color: var(--wujia-mshell-bg) !important;
