@@ -1,94 +1,97 @@
 /* Wujia Portal — single source of truth for color palette + dimensions.
-   Synced with BA master plan sheet "2 - FE portal" + sheet "5. Issue List"
-   (Sprint 8 — 2026-05-21). Loaded BEFORE any other portal CSS so downstream
-   rules can use var(...). */
+   Loaded BEFORE any other portal CSS so downstream rules can use var(...). */
 
 :root {
-    /* ---------- Brand / primary ---------- */
-    --wujia-primary:        #22A9DE;
-    --wujia-primary-dark:   #1598CF;
+    /* ---------- Brand / primary (BA source #28A9DF; #22A9DE forbidden) ---------- */
+    --wujia-primary:        #28A9DF;
+    --wujia-primary-dark:   #168FC2;
     --wujia-primary-light:  #E0F7FF;
-    --wujia-primary-soft:   #EAF7FD; /* UI-04 BA exact: active menu background */
-    --wujia-active-text:    #24A8E0; /* UI-04 BA exact: active menu icon + text */
+    --wujia-primary-soft:   #EAF7FD;
+    --wujia-active-text:    #28A9DF;
 
-    /* ---------- Surface / layout ---------- */
-    --wujia-bg-page:        #E8ECEF; /* UI-06 (Sprint 9.7 iter 2, 2026-05-25): bump from #f9f9fb (too light, card-on-white feel) to neutral gray L≈92 — card #FFFFFF nổi rõ. Lệch BA cột H spec (#F5F7FA/#F6F8FA), anh chọn 2026-05-25 sau visual feedback. */
+    /* ---------- Surface / layout (BA bg #F3F6F8) ---------- */
+    --wujia-bg-page:        #F3F6F8;
     --wujia-bg-sidebar:     #FFFFFF;
     --wujia-bg-card:        #FFFFFF;
-    --wujia-border:         #E5E7EB; /* UI-11 card border */
-    --wujia-border-soft:    #EEF1F5;
+    --wujia-border:         #E5E7EB;
+    --wujia-border-soft:    #EEF2F5;
     --wujia-table-header-line: #9AA0A6;
 
-    /* ---------- Text ----------
-       UI-12 Sprint 9.13 (2026-05-27): bumped to Tailwind gray scale (BA spec).
-       --wujia-text-primary  was #1F2933 → #111827 (Tailwind gray-900, BA card title)
-       --wujia-text-secondary was #5C6470 → #374151 (Tailwind gray-700, BA body)
-       --wujia-text-muted    kept #8A9099 (badge-muted, no BA override) */
+    /* ---------- Text ---------- */
     --wujia-text-primary:   #111827;
     --wujia-text-secondary: #374151;
-    --wujia-text-muted:     #8A9099;
+    --wujia-text-muted:     #8A939E;
 
-    /* ---------- State / semantic ---------- */
-    --wujia-success:        #24B269;
-    --wujia-success-bg:     #E1F8EC;
+    /* ---------- State / semantic (BA success/danger; warning/info kept) ---------- */
+    --wujia-success:        #16A34A;
+    --wujia-success-bg:     #EAF8EF;
     --wujia-warning:        #F29A1F;
     --wujia-warning-bg:     #FFF3E0;
-    --wujia-danger:         #EC3845;
-    --wujia-danger-bg:      #FFE8EB;
+    --wujia-danger:         #EF4444;
+    --wujia-danger-bg:      #FEECEC;
     --wujia-info:           #1FC160;
     --wujia-info-bg:        #D6F4E0;
     --wujia-info-text:      #1FC160;
     --wujia-muted-bg:       #F1F3F6;
 
-    /* ---------- Layout dimensions (UI-06/08/11/12) ---------- */
+    /* ---------- BA source-name aliases (--wj-* mobile / --wj-pc-* desktop)
+       → map BA token names onto reconciled --wujia-* so canonical wj-* component
+       classes can reference them. PC component reconcile deferred to a later pass. */
+    --wj-primary:        var(--wujia-primary);
+    --wj-primary-dark:   var(--wujia-primary-dark);
+    --wj-bg:             var(--wujia-bg-page);
+    --wj-surface:        var(--wujia-bg-card);
+    --wj-border:         var(--wujia-border);
+    --wj-border-light:   var(--wujia-border-soft);
+    --wj-text:           var(--wujia-text-primary);
+    --wj-muted:          var(--wujia-text-subtitle);
+    --wj-inactive:       var(--wujia-text-muted);
+    --wj-danger:         var(--wujia-danger);
+    --wj-danger-bg:      var(--wujia-danger-bg);
+    --wj-success:        var(--wujia-success);
+    --wj-success-bg:     var(--wujia-success-bg);
+    --wj-pc-primary:        var(--wujia-primary);
+    --wj-pc-primary-soft:   var(--wujia-primary-soft);
+    --wj-pc-bg:             var(--wujia-bg-page);
+    --wj-pc-card:           var(--wujia-bg-card);
+    --wj-pc-border:         var(--wujia-border);
+    --wj-pc-border-soft:    var(--wujia-border-soft);
+    --wj-pc-text:           var(--wujia-text-primary);
+    --wj-pc-muted:          var(--wujia-text-subtitle);
+    --wj-pc-danger:         var(--wujia-danger);
+
+    /* ---------- Layout dimensions ---------- */
     --wujia-sidebar-width:  300px;
     --wujia-sidebar-logo-h: 200px;
-    /* Sprint 9.6 v4 (2026-05-25): bỏ --wujia-header-height/padding override —
-       V14 dùng Vuexy default cho navbar, ta cũng vậy. Giữ token chỉ để các
-       module legacy (UI-04 mobile strip dùng calc margin-top) không break. */
     --wujia-header-height:  72px;   /* Vuexy default floating-nav height */
     --wujia-header-padding: 22px;
-    --wujia-card-radius:    16px;   /* UI-11 Sprint 9.12 bump 14 → 16 (BA spec) */
+    --wujia-card-radius:    16px;
     --wujia-card-padding:   24px;
     --wujia-card-shadow:    0 2px 6px rgba(15, 23, 42, 0.04);
     --wujia-section-gap:    28px;
 
-    /* ---------- KPI Card (UI-11 Sprint 9.12 + UI-14 Sprint 9.15, 2026-05-29) ----------
-       Sprint 9.15 (UI-14 KPI Card Height) tighten desktop spacing per BA H15
-       "tăng vùng content, giảm icon box, chuẩn hóa height 100–108px":
-         - icon giữ 56×56 (đã giảm 72→56 lần trước theo BA "giảm icon box")
-         - card-gap 14→12: siết icon↔separator↔text + chevron
-         - min-height 96→100: floor đúng đáy dải BA 100–108
-         - content flex:0 1 auto (xem _components.css) → kéo chevron sát text,
-           bỏ khoảng trắng ngang thừa bên phải
-         Height thực ≈ content 72.6 + padding dọc 32 = ~104.6px → trong 100–108 ✓
-       Mobile <768 override (icon 52, min-height 92) ở cuối file = scope UI-15.
-       BA "5. Issue List" UI-11 cột H verbatim:
-         Card: white, radius 16px, light shadow, height ≈100px, padding 20-24px
-         Icon area: square block, radius 16px, 72×72px, bg #28A9DF, white icon
-         Vertical line: 1px #D1D5DB, height ≈64px between icon and content */
+    /* ---------- KPI Card ---------- */
     --wujia-kpi-card-min-height:  100px;
     --wujia-kpi-card-padding:     16px;
     --wujia-kpi-card-gap:         12px;
     --wujia-kpi-icon-size:        56px;
     --wujia-kpi-icon-radius:      12px;
     --wujia-kpi-icon-bg:          var(--wujia-primary);
-    --wujia-kpi-icon-font:        23px;        /* mid BA 22-24 */
+    --wujia-kpi-icon-font:        23px;
     --wujia-kpi-separator-color:  #D1D5DB;
     --wujia-kpi-separator-height: 48px;
 
-    /* ---------- Sidebar items (UI-03/04) ---------- */
-    --wujia-menu-item-height: 44px;  /* UI-03 BA range 44–48, low end */
-    --wujia-menu-icon-size:   20px;  /* UI-03 BA range 20–22, low end */
-    --wujia-menu-text-size:   16px;  /* UI-03 BA exact 16 */
+    /* ---------- Sidebar items ---------- */
+    --wujia-menu-item-height: 44px;
+    --wujia-menu-icon-size:   20px;
+    --wujia-menu-text-size:   16px;
 
-    /* ---------- Buttons (UI-05/12) ---------- */
-    --wujia-btn-height:           42px;  /* primary + semantic, BA range 40-44 */
-    --wujia-btn-height-secondary: 38px;  /* UI-05 secondary, BA range 36-40 */
+    /* ---------- Buttons ---------- */
+    --wujia-btn-height:           42px;
+    --wujia-btn-height-secondary: 38px;
     --wujia-btn-radius:           8px;
 
-    /* ---------- Navbar pill (UI-03 — Current Store badge sát left navbar)
-       Mockup image26: 2-row pill — frosted white on cyan navbar, white text. ---------- */
+    /* ---------- Navbar pill (Current Store badge on cyan navbar) ---------- */
     --wujia-navbar-pill-bg:       rgba(255, 255, 255, 0.18);
     --wujia-navbar-pill-bg-hover: rgba(255, 255, 255, 0.28);
     --wujia-navbar-pill-text:     #FFFFFF;
@@ -100,105 +103,72 @@
     --wujia-navbar-pill-label-size: 11px;
     --wujia-navbar-pill-label-color: rgba(255, 255, 255, 0.85);
 
-    /* ---------- Header right action icons (UI-13, Sprint 9.14, 2026-05-28)
-       BA "5. Issue List" UI-13 col H: "Có icon Language, icon cart, notification,
-       account (user name + avatar)". Cart + Bell badge red — reuses existing
-       --wujia-danger #EC3845 (no new color token). ---------- */
+    /* ---------- Header right action icons ---------- */
     --wujia-header-icon-size:        20px;
     --wujia-header-icon-btn-padding: 8px;
     --wujia-header-badge-size:       18px;
 
-    /* ---------- Mobile sub-strip (UI-04 — Current Store below navbar on <768px)
-       Mockup G6 image23: bg white, label cyan uppercase, name dark, role badge
-       stacked below. Visual opposite of UI-03 pill. ---------- */
+    /* ---------- Mobile sub-strip (Current Store below navbar) ---------- */
     --wujia-mobile-strip-bg:            #FFFFFF;
     --wujia-mobile-strip-label-color:   var(--wujia-primary);
     --wujia-mobile-strip-name-color:    var(--wujia-text-primary);
     --wujia-mobile-strip-padding:       12px 16px;
     --wujia-mobile-strip-border-bottom: 1px solid var(--wujia-border);
 
-    /* ---------- Typography (UI-10) ---------- */
+    /* ---------- Typography ---------- */
     --wujia-font-family:    'Inter', 'Roboto', Arial, sans-serif;
-    --wujia-font-size-body: 15px;   /* UI-10 BA range 15–16, low end */
-    --wujia-font-size-h1:   32px;   /* UI-10 BA range 32–36, low end */
+    --wujia-font-size-body: 15px;
+    --wujia-font-size-h1:   32px;
     --wujia-font-size-h2:   24px;
-    --wujia-font-size-card-title: 20px;  /* UI-10 BA range 20–22, low end */
+    --wujia-font-size-card-title: 20px;
 
-    /* ---------- Page title (UI-08, Sprint 9.10, 2026-05-25) ----------
-       BA "5. Issue List" UI-08 cột H verbatim:
-         "Đề xuất đổi thành màu #111827 hoặc #0F172A
-          font size khoảng 24px, weight 700"
-       User chose #111827 (Slate-900). Tách token riêng (không reuse
-       --wujia-text-primary #1F2933) vì BA muốn title đậm hơn body
-       text để nổi rõ. */
+    /* ---------- Page title ---------- */
     --wujia-page-title-color:  #111827;
     --wujia-page-title-size:   24px;
     --wujia-page-title-weight: 700;
 
-    /* ---------- Page subtitle / description (UI-09, 2026-05-26) ----------
-       BA "5. Issue List" UI-09 cột H: "Dùng #6B7280, font size 14–15px, weight 400" */
+    /* ---------- Page subtitle / description ---------- */
     --wujia-text-subtitle:      #6B7280;
     --wujia-font-size-subtitle: 14px;
 
-    /* ---------- Content Card (UI-12, Sprint 9.13, 2026-05-27) ----------
-       BA "5. Issue List" UI-12 cell H13 verbatim:
-         Card: white, radius 16px, light shadow, padding 20-24px
-         Header: round icon #28A9DF, bold title, "Xem tất cả" #28A9DF right
-         Row: bullet #28A9DF, content, time, classification badge
-         Typography: title #111827, body #374151, date/secondary #6B7280
-       Icon bg + bullet + link reuse --wujia-primary (#22A9DE). BA #28A9DF
-       coi là typo per UI-11 convention (lệch 2 ký tự). */
-    --wujia-content-card-padding:           22px;        /* mid BA 20-24 */
-    --wujia-content-card-header-icon-size:  40px;        /* smaller than KPI 72 */
+    /* ---------- Content Card ---------- */
+    --wujia-content-card-padding:           22px;
+    --wujia-content-card-header-icon-size:  40px;
     --wujia-content-card-header-icon-bg:    var(--wujia-primary);
     --wujia-content-card-bullet-size:       8px;
     --wujia-content-card-bullet-color:      var(--wujia-primary);
     --wujia-content-card-link-color:        var(--wujia-primary);
     --wujia-content-card-row-gap:           14px;
 
-    /* ---------- Main content spacing (UI-16, Sprint 9.16, 2026-06-02) ----------
-       BA "5. Issue List" UI-16 cột H verbatim:
-         "header → title khoảng 24px, title → KPI khoảng 12–16px,
-          KPI → content card khoảng 20–24px"
-       Chuẩn hóa 3 khoảng cách dọc của vùng content (sau Vuexy floating-nav). */
-    --wujia-page-content-top: 24px;   /* header xanh (navbar) → page title */
-    --wujia-page-title-gap:   14px;   /* page title block → KPI row (mid 12-16) */
-    --wujia-kpi-content-gap:  22px;   /* KPI row → content card row (mid 20-24) */
+    /* ---------- Main content vertical spacing ---------- */
+    --wujia-page-content-top: 24px;
+    --wujia-page-title-gap:   14px;
+    --wujia-kpi-content-gap:  22px;
 
-    /* ---------- Sprint 9.6: sidebar transition ---------- */
     --wujia-sidebar-transition: transform 0.25s ease-in-out;
 
-    /* ---------- Sprint 9.6: canonical breakpoints (Bootstrap-aligned) ----------
-       4 breakpoint chuẩn — KHÔNG dùng 550/770/850 ad-hoc nữa. */
+    /* ---------- Canonical breakpoints (Bootstrap-aligned) ---------- */
     --wujia-bp-sm: 576px;
     --wujia-bp-md: 768px;
     --wujia-bp-lg: 992px;
     --wujia-bp-xl: 1200px;
 
-    /* ---------- Mobile Home (Figma BA Sprint 10, 2026-06-06) ----------
-       Frame 2474:2 "ngo_gia_mobile_dashboard_header_blue_variant 1" (bản copy
-       team Pro aoeiDYlg6vlhJZg2w6Q7o5). Token MỚI, prefix riêng --wujia-mhome-*
-       → KHÔNG đụng token cũ ⇒ zero blast radius lên desktop / page khác.
-       Theo FIGMA: active ĐỎ (≠ cyan), cyan Figma #28A9DF. Role badge green
-       reuse --wujia-success (#24B269 ≈ Figma #16A34A). */
+    /* ---------- Mobile Home (Figma 2474:2) — active red per Figma ---------- */
     --wujia-mhome-hero-grad:       linear-gradient(135deg, #0B2430 0%, #1B5C75 100%);
-    --wujia-mhome-hero-label:      #C7E6EF; /* nhãn uppercase TỔNG QUAN / Vai trò */
-    --wujia-mhome-hero-area:       #D9F3FA; /* dòng khu vực */
-    --wujia-mhome-kpi-label:       #BEE7F1; /* nhãn KPI nhúng */
+    --wujia-mhome-hero-label:      #C7E6EF;
+    --wujia-mhome-hero-area:       #D9F3FA;
+    --wujia-mhome-kpi-label:       #BEE7F1;
     --wujia-mhome-kpi-tile-bg:     rgba(0, 0, 0, 0.13);
     --wujia-mhome-kpi-tile-border: rgba(255, 255, 255, 0.13);
     --wujia-mhome-action-grad:     linear-gradient(135deg, #1895C7 0%, #28A9DF 100%);
     --wujia-mhome-action-border:   #C8EEF8;
     --wujia-mhome-progress-track:  #E5E7EB;
-    --wujia-mhome-progress-fill:   #F59E0B; /* amber Figma */
-    --wujia-mhome-nav-active:      #EF4444; /* active = ĐỎ (theo Figma, ≠ cyan) */
+    --wujia-mhome-progress-fill:   #F59E0B;
+    --wujia-mhome-nav-active:      #EF4444;
     --wujia-mhome-nav-inactive:    #8A939E;
-    --wujia-mhome-card-border:     #E9EEF2; /* viền card khung giờ / noti row */
+    --wujia-mhome-card-border:     #E9EEF2;
 
-    /* ---------- Mobile Order page (Sprint 11) — BA UI Component Registry v3
-       + Figma frame 2480:2 "ngo_gia_mobile_order_page". Prefix --wujia-morder-*
-       / --wujia-mcart-* → mobile-only, zero blast radius lên desktop. Mobile
-       primary = #28A9DF (registry chốt, ≠ desktop token #22A9DE). ---------- */
+    /* ---------- Mobile Order / Cart (Figma 2480:2) ---------- */
     --wujia-morder-primary:      #28A9DF;
     --wujia-morder-primary-dark: #1895C7;
     --wujia-morder-page-bg:      #F3F6F8;
@@ -208,30 +178,25 @@
     --wujia-morder-text:         #111827;
     --wujia-morder-text-sub:     #6B7280;
     --wujia-morder-text-muted:   #8A939E;
-    --wujia-morder-warn-bg:      #FEE2E2;  /* order warning bar (khung giờ) */
+    --wujia-morder-warn-bg:      #FEE2E2;
     --wujia-morder-warn-text:    #DC2626;
-    --wujia-morder-thumb-bg:     #DDF6FF;  /* product/cart thumbnail UoM chip */
+    --wujia-morder-thumb-bg:     #DDF6FF;
     --wujia-morder-thumb-text:   #28A9DF;
-    --wujia-morder-qty-badge:    #16A34A;  /* green badge = SL đang trong giỏ */
-    --wujia-morder-floatbar-bg:  linear-gradient(90deg, #0B2430 0%, #1B5C75 100%);  /* Figma 2480:141 */
-    --wujia-morder-floatbar-sub: #DDF6FF;  /* sub text "N sản phẩm • tổng" (Figma) */
+    --wujia-morder-qty-badge:    #16A34A;
+    --wujia-morder-floatbar-bg:  linear-gradient(90deg, #0B2430 0%, #1B5C75 100%);
+    --wujia-morder-floatbar-sub: #DDF6FF;
     --wujia-morder-radius:       14px;
 
-    /* ---------- Mobile Shell FINAL (BA Wujia_Source_UI_FINAL_v1, Sprint 12, 2026-06-07) ----------
-       Header(104) + Current Store Strip(48) + Footer(83) = shell chuẩn cho MỌI trang
-       mobile (<992px), render 1 lần trong app_layout. Map từ token --wj-* của BA pack
-       FINAL_v1 (thay mọi pack v1/v2/v3). Prefix --wujia-mshell-* / --wujia-mheader-* /
-       --wujia-mnav-* → mobile-only, zero blast radius lên desktop. Mobile primary =
-       #28A9DF (BA final, ≠ desktop --wujia-primary #22A9DE). ---------- */
+    /* ---------- Mobile Shell FINAL (header 104 / strip 48 / footer 83) ---------- */
     --wujia-mshell-primary:            #28A9DF;
-    --wujia-mshell-bg:                 #F3F6F8;  /* app bg mobile (BA final; desktop giữ #E8ECEF) */
+    --wujia-mshell-bg:                 #F3F6F8;
     --wujia-mshell-surface:            #FFFFFF;
     --wujia-mshell-border:             #EEF2F5;
     --wujia-mshell-content-pad-x:      16px;
-    --wujia-mshell-content-pad-bottom: 96px;     /* footer fixed 83 + thở (BA ≥96) */
-    --wujia-mshell-content-gap:        14px;     /* gap card/list (BA BlankShell 4447:11: 12–16) */
+    --wujia-mshell-content-pad-bottom: 96px;
+    --wujia-mshell-content-gap:        14px;
 
-    /* Header mobile (WJ_Mobile_Header_Primary_FINAL_v1) */
+    /* Header mobile */
     --wujia-mheader-height:          104px;
     --wujia-mheader-bg:              #28A9DF;
     --wujia-mheader-logo-w:          116px;
@@ -243,97 +208,59 @@
     --wujia-mheader-action-bg-hover: rgba(255, 255, 255, 0.30);
     --wujia-mheader-action-gap:      12px;
 
-    /* Footer / bottom-nav (WJ_Mobile_FooterActionBar_FINAL_v1) — BA final override:
-       active = brand cyan, badge = đỏ. TÁCH token (trước đây --wujia-mhome-nav-active
-       đỏ dùng chung cho cả active VÀ badge → BA final tách: active cyan, badge đỏ). */
+    /* Footer / bottom-nav: active = brand cyan, badge = red */
     --wujia-mnav-height:             83px;
-    --wujia-mnav-active:             #28A9DF; /* BA final: brand cyan (override active đỏ Sprint 10/11) */
+    --wujia-mnav-active:             #28A9DF;
     --wujia-mnav-inactive:           #8A939E;
-    --wujia-mnav-badge:              #EF4444; /* đỏ chỉ cho badge/cảnh báo, KHÔNG cho active nav */
+    --wujia-mnav-badge:              #EF4444;
 
-    /* ---------- Mobile Lịch sử đặt hàng (Sprint 13) — Figma 4445:4 (List + Detail).
-       Reuse palette --wujia-morder-* (mobile primary #28A9DF). Chỉ token RIÊNG cho
-       filter chip; còn lại dùng thẳng --wujia-morder-* trong _components.css.
-       Prefix --wujia-mhist-* → mobile-only, zero blast radius desktop. ---------- */
-    --wujia-mhist-chip-bg:            #FFFFFF;
-    --wujia-mhist-chip-border:        var(--wujia-morder-border);
-    --wujia-mhist-chip-text:          var(--wujia-morder-text-sub);
-    --wujia-mhist-chip-active-bg:     var(--wujia-primary-soft);   /* #EAF7FD */
-    --wujia-mhist-chip-active-border: var(--wujia-morder-primary);
-    --wujia-mhist-chip-active-text:   var(--wujia-morder-primary);
-
-    /* ---------- More bottom sheet (Sprint 14) — Figma WJ_MoreBottom 4477:242.
-       Sheet "Thêm chức năng" mở từ tab footer "Thêm", nằm TRÊN footer (bottom =
-       --wujia-mnav-height), backdrop phủ phần còn lại. Icon/active reuse
-       --wujia-mshell-primary. Prefix --wujia-msheet-* → mobile-only. ---------- */
+    /* ---------- More bottom sheet ---------- */
     --wujia-msheet-radius:        20px;
-    --wujia-msheet-backdrop:      rgba(17, 24, 39, 0.28);  /* #111827 28% */
+    --wujia-msheet-backdrop:      rgba(17, 24, 39, 0.28);
     --wujia-msheet-handle:        #D8DEE6;
     --wujia-msheet-subtitle:      #6B7280;
-    --wujia-msheet-item-sub:      #8A9099;
+    --wujia-msheet-item-sub:      #8A939E;
     --wujia-msheet-icon-bg:       #EAF7FD;
     --wujia-msheet-chevron:       #B3BAC4;
     --wujia-msheet-row-h:         62px;
 
-    /* ---------- Mobile Kiến thức (Sprint 15) — Figma WJ_Knowledge_Mobile 4475:2
-       (List + Detail, ảnh phẳng). Reuse palette --wujia-morder-* + tile icon
-       --wujia-msheet-icon-bg. Chip active = SOLID cyan chữ trắng (Figma, KHÁC
-       style soft của --wujia-mhist-chip-active-*). quote/note = card nội dung
-       trong body bài viết (blockquote / div.wujia-note admin soạn).
-       Prefix --wujia-mknow-* → mobile-only, zero blast radius desktop. ---------- */
-    --wujia-mknow-chip-active-bg:   var(--wujia-morder-primary);  /* solid #28A9DF */
-    --wujia-mknow-chip-active-text: #FFFFFF;
-    --wujia-mknow-accent:           var(--wujia-morder-primary);  /* thanh accent featured */
-    --wujia-mknow-tile-bg:          var(--wujia-msheet-icon-bg);  /* #EAF7FD */
-    --wujia-mknow-quote-bg:         #F8F9FB;                      /* card "Các điểm cần nắm" */
-    --wujia-mknow-note-bg:          #FFF7E8;                      /* card "Lưu ý" */
-    --wujia-mknow-note-head:        #F29A1F;                      /* heading "Lưu ý" (palette badge-warning) */
+    /* ---------- Mobile Kiến thức ---------- */
+    --wujia-mknow-accent:           var(--wujia-morder-primary);
+    --wujia-mknow-tile-bg:          var(--wujia-msheet-icon-bg);
+    --wujia-mknow-quote-bg:         #F8F9FB;
+    --wujia-mknow-note-bg:          #FFF7E8;
+    --wujia-mknow-note-head:        #F29A1F;
 
-    /* ---------- Mobile Dashboard sections (Sprint 16) — Figma mobile_dashboard
-       2474:2 (Screen_2_Orders 2474:119 / Screen_3_Debt_Knowledge 2474:233 /
-       Screen_4_Support 2474:346, frame thế hệ CŨ — shell FINAL giữ nguyên,
-       chỉ build content). Section dùng chung cho /portal/delivery + /portal/debt
-       + /portal/support bản mobile. Reuse palette --wujia-morder-*; card border
-       Figma #E9EEF2 ≈ --wujia-morder-border (typo-rule); tile #E9F7FC ≈
-       --wujia-primary-soft #EAF7FD (typo-rule).
-       Prefix --wujia-mdash-* → mobile-only, zero blast radius desktop. ---------- */
-    --wujia-mdash-tile-bg:        var(--wujia-primary-soft);   /* icon tile 40 soft cyan */
-    --wujia-mdash-tile-danger-bg: var(--wujia-danger-bg);      /* tile "Quá hạn" — Figma rgba(239,68,68,.09) ≈ token */
+    /* ---------- Mobile Dashboard sections ---------- */
+    --wujia-mdash-tile-bg:        var(--wujia-primary-soft);
+    --wujia-mdash-tile-danger-bg: var(--wujia-danger-bg);
 
-    /* ---------- Mobile Ticket Hỗ trợ (Sprint 17) — Figma Mobile_Ticket
-       (List / Create / Detail / Empty). Reuse palette --wujia-morder-*; chip lọc
-       SOLID cyan như mknow; bubble hội thoại: khách = xám trái / Wujia Support =
-       cyan phải. Prefix --wujia-mticket-* → mobile-only, zero blast radius desktop. ---------- */
-    --wujia-mticket-bubble-customer-bg:   #F1F3F6;                     /* bong bóng khách (trái) */
+    /* ---------- Mobile Ticket Hỗ trợ (bubble: khách trái xám / HQ phải cyan) ---------- */
+    --wujia-mticket-bubble-customer-bg:   #F1F3F6;
     --wujia-mticket-bubble-customer-text: var(--wujia-morder-text);
-    --wujia-mticket-bubble-hq-bg:         var(--wujia-morder-primary); /* #28A9DF — Wujia Support (phải) */
+    --wujia-mticket-bubble-hq-bg:         var(--wujia-morder-primary);
     --wujia-mticket-bubble-hq-text:       #FFFFFF;
     --wujia-mticket-bubble-radius:        14px;
     --wujia-mticket-reply-bg:             #FFFFFF;
     --wujia-mticket-reply-border:         var(--wujia-morder-border);
+
+    /* ---------- Mobile Account / Tài khoản ---------- */
+    --wujia-maccount-avatar-size:   56px;
+    --wujia-maccount-avatar-bg:     var(--wujia-primary-soft);
+    --wujia-maccount-kv-key:        var(--wujia-morder-text-sub);
+    --wujia-maccount-kv-val:        var(--wujia-morder-text);
+    --wujia-maccount-input-bg:      var(--wujia-mshell-bg);
+    --wujia-maccount-logout:        var(--wujia-danger);
 }
 
-/* ============================================================================
-   Sprint 9.6 (2026-05-25): Root font-size fluid scaling
-   ---------------------------------------------------------------------------
-   V14 không có pattern auto-scale → build mới cho v19. Bumping html font-size
-   per viewport step làm MỌI giá trị rem (font-size, padding, margin, gap) tự
-   scale theo. Template chỉ cần dùng rem — không phải tune từng @media per form.
-   Tránh chỉnh font-size global Vuexy (1rem = 14px Vuexy default), step nhỏ.
-   ============================================================================ */
+/* Root font-size fluid scaling: rem-based values scale per viewport step. */
 html { font-size: 14px; }
 @media (min-width: 576px)  { html { font-size: 14px; } }
 @media (min-width: 768px)  { html { font-size: 15px; } }
 @media (min-width: 992px)  { html { font-size: 16px; } }
 @media (min-width: 1200px) { html { font-size: 16px; } }
 
-/* Sprint 9.16 (UI-15, 2026-06-02): KPI mobile token override — BA H16 spec
-   "Trên mobile chuyển KPI card sang 1 card / 1 dòng / full width".
-   User decision 2026-06-02: áp full-width cho CẢ tablet (<992px), không chỉ
-   phone — markup cols đổi col-lg-3 col-12 (drop col-md-6) nên < lg = 1/row.
-   Spec H16: height 88-96 (min-height 92 ✓), padding 14-16 (siết 14 cho compact),
-   icon box 52×52 (✓), icon radius 12 (desktop token = target), icon 22-24
-   (desktop 23 = mid ✓), gap 12 (xử lý ở _components.css margin-bottom). */
+/* KPI mobile/tablet override (<992px): 1 card / row, compact. */
 @media (max-width: 991.98px) {
     :root {
         --wujia-kpi-icon-size:       52px;

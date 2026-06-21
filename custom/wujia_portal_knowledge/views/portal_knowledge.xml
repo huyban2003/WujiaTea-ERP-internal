@@ -138,7 +138,7 @@
                 <!-- Title row -->
                 <div class="wujia-mknow-titlerow">
                     <h1 class="wujia-mknow-title">Kiến thức</h1>
-                    <span class="wujia-mknow-count"><t t-out="len(articles)"/> bài viết</span>
+                    <span class="wj-count-meta wj-count-meta--primary"><t t-out="len(articles)"/> bài viết</span>
                 </div>
 
                 <!-- Search card (functional — GET keyword, parity desktop) -->
@@ -152,12 +152,12 @@
                 </form>
 
                 <!-- Category chips (functional — GET category_id, parity desktop) -->
-                <div class="wujia-mknow-chips">
+                <div class="wj-filter-chips">
                     <a href="/portal/knowledge"
-                       t-attf-class="wujia-mknow-chip#{'' if category_id else ' is-active'}">Tất cả</a>
+                       t-attf-class="wj-filter-chip#{'' if category_id else ' is-active'}">Tất cả</a>
                     <t t-foreach="categories" t-as="cat">
                         <a t-attf-href="/portal/knowledge?category_id=#{cat.id}"
-                           t-attf-class="wujia-mknow-chip#{' is-active' if category_id == cat.id else ''}"
+                           t-attf-class="wj-filter-chip#{' is-active' if category_id == cat.id else ''}"
                            t-out="cat.name"/>
                     </t>
                 </div>

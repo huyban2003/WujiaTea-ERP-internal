@@ -372,7 +372,7 @@
                                 <a href="/portal/purchase-history" class="wujia-mdash-link">Xem tất cả ›</a>
                             </div>
                             <div class="wujia-mdash-card wujia-mdash-list">
-                                <div t-if="not recent_orders" class="wujia-mdash-empty">Chưa có đơn hàng.</div>
+                                <div t-if="not recent_orders" class="wj-empty-state--compact">Chưa có đơn hàng.</div>
                                 <t t-foreach="recent_orders" t-as="o">
                                     <a t-attf-href="/portal/purchase-history/#{o.id}" class="wujia-mdash-row">
                                         <span class="wujia-mdash-tile"><i class="feather icon-file-text"/></span>
@@ -398,7 +398,7 @@
                                 <a href="/portal/delivery" class="wujia-mdash-link">Xem tất cả ›</a>
                             </div>
                             <div class="wujia-mdash-stack">
-                                <div t-if="not m_upcoming_batches" class="wujia-mdash-card wujia-mdash-empty">Chưa có chuyến giao sắp tới.</div>
+                                <div t-if="not m_upcoming_batches" class="wujia-mdash-card wj-empty-state--compact">Chưa có chuyến giao sắp tới.</div>
                                 <t t-foreach="m_upcoming_batches" t-as="it">
                                     <a t-attf-href="/portal/delivery/#{it['batch'].id}" class="wujia-mdash-card wujia-mdash-item">
                                         <span class="wujia-mdash-tile"><i class="feather icon-truck"/></span>
@@ -423,7 +423,7 @@
                                 <a href="/portal/return" class="wujia-mdash-link">Xem tất cả ›</a>
                             </div>
                             <div class="wujia-mdash-stack">
-                                <div t-if="not latest_returns" class="wujia-mdash-card wujia-mdash-empty">Chưa có yêu cầu đổi trả.</div>
+                                <div t-if="not latest_returns" class="wujia-mdash-card wj-empty-state--compact">Chưa có yêu cầu đổi trả.</div>
                                 <t t-foreach="latest_returns" t-as="r">
                                     <a t-attf-href="/portal/return/#{r.id}" class="wujia-mdash-card wujia-mdash-item">
                                         <span class="wujia-mdash-row-main">
@@ -451,7 +451,7 @@
                                 <a href="/portal/knowledge" class="wujia-mdash-link">Xem tất cả ›</a>
                             </div>
                             <div class="wujia-mdash-card wujia-mdash-list">
-                                <div t-if="not articles" class="wujia-mdash-empty">Chưa có bài viết.</div>
+                                <div t-if="not articles" class="wj-empty-state--compact">Chưa có bài viết.</div>
                                 <t t-foreach="articles" t-as="art">
                                     <a t-attf-href="/portal/knowledge/#{art.slug}" class="wujia-mdash-row">
                                         <span class="wujia-mdash-tile"><i class="feather icon-file-text"/></span>

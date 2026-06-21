@@ -362,12 +362,9 @@ html body .content .content-wrapper {
     html body .content .content-wrapper {
         margin-top: 0 !important;
     }
-    /* App background mobile theo BA final (#F3F6F8). Desktop giữ #E8ECEF
-       (token global --wujia-bg-page KHÔNG đụng).
-       LƯU Ý: KHÔNG override padding content-wrapper ở đây — padding ngang +
-       padding-top 24 (UI-16) + footer-clearance (.app-content.content 96px,
-       _components.css) đã có sẵn từ trước & làm Home/Order đúng. Đè thêm =
-       double-padding → vỡ 2 trang đó. Strip/title spacing để page tự lo. */
+    /* Mobile app background. Do NOT override content-wrapper padding here —
+       horizontal padding + padding-top 24 + footer-clearance already exist;
+       adding more = double-padding breaks Home/Order. */
     html body.vertical-layout,
     html body .app-content {
         background-color: var(--wujia-mshell-bg) !important;

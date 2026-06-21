@@ -128,10 +128,10 @@
 
                 <!-- Empty state thật sự (chưa có ticket nào, không lọc/tìm) — Figma màn 4 -->
                 <t t-if="not tickets and not q and not state">
-                    <div class="wujia-mdash-card wujia-mticket-empty">
-                        <span class="wujia-mticket-empty-icon"><i class="feather icon-help-circle"/></span>
-                        <p class="wujia-mticket-empty-title">Chưa có yêu cầu hỗ trợ nào</p>
-                        <p class="wujia-mticket-empty-sub">Tạo ticket đầu tiên để Wujia tiếp nhận xử lý</p>
+                    <div class="wujia-mdash-card wj-empty-state--rich">
+                        <span class="wj-empty-state-icon"><i class="feather icon-help-circle"/></span>
+                        <p class="wj-empty-state-title">Chưa có yêu cầu hỗ trợ nào</p>
+                        <p class="wj-empty-state-sub">Tạo ticket đầu tiên để Wujia tiếp nhận xử lý</p>
                         <a href="/portal/support/new" class="wujia-mticket-create-pill">
                             <i class="feather icon-plus"/> Tạo ticket
                         </a>
@@ -151,19 +151,19 @@
 
                     <!-- Chips lọc trạng thái (scroll-x, active solid cyan).
                          NOTE BA: resolved/closed vẫn hiện trong list nhưng không có chip riêng. -->
-                    <div class="wujia-mticket-chips">
+                    <div class="wj-filter-chips">
                         <a href="/portal/support"
-                           t-attf-class="wujia-mticket-chip #{'is-active' if not state else ''}">Tất cả</a>
+                           t-attf-class="wj-filter-chip #{'is-active' if not state else ''}">Tất cả</a>
                         <a href="/portal/support?state=new"
-                           t-attf-class="wujia-mticket-chip #{'is-active' if state == 'new' else ''}">Mới</a>
+                           t-attf-class="wj-filter-chip #{'is-active' if state == 'new' else ''}">Mới</a>
                         <a href="/portal/support?state=in_progress"
-                           t-attf-class="wujia-mticket-chip #{'is-active' if state == 'in_progress' else ''}">Đang xử lý</a>
+                           t-attf-class="wj-filter-chip #{'is-active' if state == 'in_progress' else ''}">Đang xử lý</a>
                         <a href="/portal/support?state=waiting_customer"
-                           t-attf-class="wujia-mticket-chip #{'is-active' if state == 'waiting_customer' else ''}">Có phản hồi</a>
+                           t-attf-class="wj-filter-chip #{'is-active' if state == 'waiting_customer' else ''}">Có phản hồi</a>
                     </div>
 
                     <!-- Danh sách ticket / không tìm thấy -->
-                    <div t-if="not tickets" class="wujia-mdash-card wujia-mdash-empty">
+                    <div t-if="not tickets" class="wujia-mdash-card wj-empty-state--compact">
                         Không tìm thấy ticket phù hợp.
                     </div>
                     <div t-else="" class="wujia-mdash-card wujia-mdash-list">
@@ -305,15 +305,15 @@
 
                         <label class="wujia-mticket-label">Mức độ ưu tiên</label>
                         <!-- BA: 'Gấp' và 'Khẩn cấp' đều map 'urgent' — model chưa có giá trị riêng cho 'Gấp' -->
-                        <div class="wujia-mticket-chips mb-3">
-                            <label class="wujia-mticket-chip">
+                        <div class="wj-filter-chips mb-3">
+                            <label class="wj-filter-chip">
                                 <input type="radio" name="priority" value="normal" checked="checked"
                                        class="d-none"/> Bình thường
                             </label>
-                            <label class="wujia-mticket-chip">
+                            <label class="wj-filter-chip">
                                 <input type="radio" name="priority" value="urgent" class="d-none"/> Gấp
                             </label>
-                            <label class="wujia-mticket-chip">
+                            <label class="wj-filter-chip">
                                 <input type="radio" name="priority" value="urgent" class="d-none"/> Khẩn cấp
                             </label>
                         </div>
@@ -513,7 +513,7 @@
                         <span class="wujia-mdash-link" style="cursor:default;"><t t-out="len(comments)"/> phản hồi</span>
                     </div>
                     <div class="wujia-mticket-thread">
-                        <div t-if="not comments" class="wujia-mdash-empty">Chưa có trao đổi nào.</div>
+                        <div t-if="not comments" class="wj-empty-state--compact">Chưa có trao đổi nào.</div>
                         <t t-foreach="comments" t-as="msg">
                             <t t-set="is_customer" t-value="msg.author_id.id == ticket.created_by_id.partner_id.id"/>
                             <div t-attf-class="wujia-mticket-bubble #{'is-customer' if is_customer else 'is-hq'}"

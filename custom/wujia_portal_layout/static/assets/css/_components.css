@@ -171,6 +171,105 @@ h2, .wujia-h2 { font-size: var(--wujia-font-size-h2) !important; font-weight: 60
     color: var(--wujia-text-secondary);
 }
 
+/* ============================================================================
+   BA Source foundation components — canonical wj-* classes (registry mobile).
+   Consolidate per-screen duplicates into one source component. BA dims.
+   ============================================================================ */
+
+/* FilterChip (BA 32px; scroll-x if many; reset = muted). Solid-active default;
+   --soft = soft-active, --wrap = wrapping container, --clear = reset link. */
+.wj-filter-chips {
+    display: flex;
+    gap: 8px;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    padding-bottom: 2px;
+}
+.wj-filter-chips::-webkit-scrollbar { display: none; }
+.wj-filter-chips--wrap { flex-wrap: wrap; overflow-x: visible; }
+.wj-filter-chip {
+    flex: 0 0 auto;
+    display: inline-flex;
+    align-items: center;
+    height: 32px;
+    padding: 0 14px;
+    border: 1px solid var(--wujia-morder-border);
+    border-radius: 999px;
+    background: var(--wujia-morder-card-bg);
+    color: var(--wujia-morder-text-sub);
+    font-size: 13px;
+    font-weight: 600;
+    text-decoration: none;
+    white-space: nowrap;
+    cursor: pointer;
+}
+.wj-filter-chip.is-active,
+.wj-filter-chip:has(input:checked) {
+    background: var(--wujia-morder-primary);
+    border-color: var(--wujia-morder-primary);
+    color: #FFFFFF;
+}
+.wj-filter-chip--soft.is-active {
+    background: var(--wujia-primary-soft);
+    border-color: var(--wujia-morder-primary);
+    color: var(--wujia-morder-primary);
+}
+.wj-filter-chip--clear { color: var(--wujia-morder-text-muted); }
+
+/* CountMeta (BA: muted "N items" text, not a badge). --bold / --primary variants. */
+.wj-count-meta { font-size: 13px; color: var(--wujia-morder-text-sub); }
+.wj-count-meta--bold { font-weight: 700; }
+.wj-count-meta--primary { flex: 0 0 auto; font-weight: 600; color: var(--wujia-morder-primary); }
+
+/* EmptyState. Base = centered icon-glyph + text (mirrors .wujia-empty-state).
+   --card = framed; --compact = small text only; --rich = icon-circle + title + sub. */
+.wj-empty-state {
+    text-align: center;
+    padding: 48px 24px;
+    color: var(--wujia-text-muted);
+}
+.wj-empty-state > i {
+    font-size: 36px;
+    color: var(--wujia-text-muted);
+    opacity: 0.6;
+    display: block;
+    margin-bottom: 12px;
+}
+.wj-empty-state p,
+.wj-empty-state h4 { margin: 0; color: var(--wujia-text-secondary); }
+.wj-empty-state--card {
+    background: var(--wujia-morder-card-bg);
+    border: 1px solid var(--wujia-morder-border);
+    border-radius: var(--wujia-morder-radius);
+    padding: 32px 16px;
+    color: var(--wujia-morder-text-muted);
+}
+.wj-empty-state--card > i { opacity: 1; margin-bottom: 8px; color: var(--wujia-morder-text-muted); }
+.wj-empty-state--card p { font-size: 14px; color: var(--wujia-morder-text-muted); }
+.wj-empty-state--compact { padding: 14px 0; font-size: 13px; color: var(--wujia-morder-text-muted); }
+.wj-empty-state--rich {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    padding: 32px 18px;
+}
+.wj-empty-state-icon {
+    width: 64px;
+    height: 64px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    background: var(--wujia-mdash-tile-bg);
+    color: var(--wujia-morder-primary);
+    margin-bottom: 6px;
+}
+.wj-empty-state-icon i { font-size: 28px; line-height: 1; }
+.wj-empty-state-title { font-size: 16px; font-weight: 700; color: var(--wujia-morder-text); margin: 0; }
+.wj-empty-state-sub { font-size: 13px; color: var(--wujia-morder-text-sub); margin: 0 0 8px; }
+
 /* ---------- UI-14: Responsive — let detail panel stack on tablet/mobile ---------- */
 @media (max-width: 991.98px) {
     .wujia-two-pane { flex-direction: column !important; }
@@ -1200,12 +1299,6 @@ a.wujia-mhome-kpi:active { opacity: 0.85; }
     font-weight: 700;
     color: var(--wujia-morder-text);
 }
-.wujia-morder-listhead-count {
-    font-size: 13px;
-    font-weight: 700;
-    color: var(--wujia-morder-text-sub);
-}
-
 /* Product list card + compact rows (WJ_Mobile_ProductRow_Compact) */
 .wujia-morder-list {
     background: var(--wujia-morder-card-bg);
@@ -1543,18 +1636,6 @@ a.wujia-mhome-kpi:active { opacity: 0.85; }
     margin: 4px 0 14px;
 }
 
-/* ---------- Empty / cảnh báo (dùng cho cả List) ---------- */
-.wujia-mhist-empty {
-    background: var(--wujia-morder-card-bg);
-    border: 1px solid var(--wujia-morder-border);
-    border-radius: var(--wujia-morder-radius);
-    padding: 32px 16px;
-    text-align: center;
-    color: var(--wujia-morder-text-muted);
-}
-.wujia-mhist-empty i { font-size: 36px; display: block; margin-bottom: 8px; }
-.wujia-mhist-empty p { margin: 0; font-size: 14px; }
-
 /* ====================== LIST ====================== */
 /* Card tìm kiếm */
 .wujia-mhist-search {
@@ -1622,31 +1703,6 @@ a.wujia-mhome-kpi:active { opacity: 0.85; }
 .wujia-mhist-search-btn:active { background: var(--wujia-morder-primary-dark); }
 
 /* Chips lọc */
-.wujia-mhist-chips {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 8px;
-}
-.wujia-mhist-chip {
-    display: inline-flex;
-    align-items: center;
-    height: 30px;
-    padding: 0 14px;
-    border: 1px solid var(--wujia-mhist-chip-border);
-    border-radius: 999px;
-    background: var(--wujia-mhist-chip-bg);
-    color: var(--wujia-mhist-chip-text);
-    font-size: 13px;
-    font-weight: 600;
-    text-decoration: none;
-}
-.wujia-mhist-chip.is-active {
-    background: var(--wujia-mhist-chip-active-bg);
-    border-color: var(--wujia-mhist-chip-active-border);
-    color: var(--wujia-mhist-chip-active-text);
-}
-.wujia-mhist-chip-clear { color: var(--wujia-morder-text-muted); }
-
 /* Header danh sách */
 .wujia-mhist-listhead {
     display: flex;
@@ -1658,10 +1714,6 @@ a.wujia-mhome-kpi:active { opacity: 0.85; }
     font-size: 16px;
     font-weight: 700;
     color: var(--wujia-morder-text);
-}
-.wujia-mhist-listhead-count {
-    font-size: 13px;
-    color: var(--wujia-morder-text-sub);
 }
 
 /* Card danh sách + rows */
@@ -2020,12 +2072,6 @@ a.wujia-mhome-kpi:active { opacity: 0.85; }
         color: var(--wujia-morder-text);
         margin: 0;
     }
-    .wujia-mknow-count {
-        flex: 0 0 auto;
-        font-size: 13px;
-        font-weight: 600;
-        color: var(--wujia-morder-primary);
-    }
 
     /* ---------- Card base (search / empty / article detail) ---------- */
     .wujia-mknow-card {
@@ -2083,37 +2129,6 @@ a.wujia-mhome-kpi:active { opacity: 0.85; }
         cursor: pointer;
     }
     .wujia-mknow-search-btn:active { background: var(--wujia-morder-primary-dark); }
-
-    /* ---------- Category chips (scroll ngang; active SOLID cyan ≠ mhist soft) -- */
-    .wujia-mknow-chips {
-        display: flex;
-        gap: 8px;
-        overflow-x: auto;
-        -webkit-overflow-scrolling: touch;
-        scrollbar-width: none;
-        padding-bottom: 2px;
-    }
-    .wujia-mknow-chips::-webkit-scrollbar { display: none; }
-    .wujia-mknow-chip {
-        flex: 0 0 auto;
-        display: inline-flex;
-        align-items: center;
-        height: 32px;
-        padding: 0 14px;
-        border: 1px solid var(--wujia-morder-border);
-        border-radius: 999px;
-        background: var(--wujia-morder-card-bg);
-        color: var(--wujia-morder-text-sub);
-        font-size: 13px;
-        font-weight: 600;
-        text-decoration: none;
-        white-space: nowrap;
-    }
-    .wujia-mknow-chip.is-active {
-        background: var(--wujia-mknow-chip-active-bg);
-        border-color: var(--wujia-mknow-chip-active-bg);
-        color: var(--wujia-mknow-chip-active-text);
-    }
 
     /* ---------- Section head ("Bài nổi bật" / "Mới cập nhật") ---------- */
     .wujia-mknow-sechead {
@@ -2528,14 +2543,6 @@ a.wujia-mhome-kpi:active { opacity: 0.85; }
         white-space: nowrap;
     }
 
-    /* ---------- Empty trong card ---------- */
-    .wujia-mdash-empty {
-        padding: 14px 0;
-        font-size: 13px;
-        color: var(--wujia-morder-text-muted);
-        text-align: center;
-    }
-
 /* ============================================================================
    Sprint 17 — Mobile Ticket Hỗ trợ (Figma Mobile_Ticket) — List/Create/Detail/Empty
    Scoped .wujia-mticket-* (wrapper d-lg-none + .wujia-mpage BlankShell). Reuse
@@ -2585,42 +2592,6 @@ a.wujia-mhome-kpi:active { opacity: 0.85; }
         text-decoration: none;
     }
     .wujia-mticket-back i { font-size: 20px; line-height: 1; }
-
-    /* ---------- Chips lọc (scroll ngang; active SOLID cyan như mknow). Dùng
-       chung cho chip lọc List (<a>.is-active) + chip ưu tiên Create (<label>
-       bọc radio → :has(input:checked)). ---------- */
-    .wujia-mticket-chips {
-        display: flex;
-        gap: 8px;
-        overflow-x: auto;
-        -webkit-overflow-scrolling: touch;
-        scrollbar-width: none;
-        padding-bottom: 2px;
-        flex-wrap: nowrap;
-    }
-    .wujia-mticket-chips::-webkit-scrollbar { display: none; }
-    .wujia-mticket-chip {
-        flex: 0 0 auto;
-        display: inline-flex;
-        align-items: center;
-        height: 32px;
-        padding: 0 14px;
-        border: 1px solid var(--wujia-morder-border);
-        border-radius: 999px;
-        background: var(--wujia-morder-card-bg);
-        color: var(--wujia-morder-text-sub);
-        font-size: 13px;
-        font-weight: 600;
-        text-decoration: none;
-        white-space: nowrap;
-        cursor: pointer;
-    }
-    .wujia-mticket-chip.is-active,
-    .wujia-mticket-chip:has(input:checked) {
-        background: var(--wujia-mknow-chip-active-bg);
-        border-color: var(--wujia-mknow-chip-active-bg);
-        color: var(--wujia-mknow-chip-active-text);
-    }
 
     /* ---------- Form tạo ticket (label + hint) ---------- */
     .wujia-mticket-label {
@@ -2718,36 +2689,214 @@ a.wujia-mhome-kpi:active { opacity: 0.85; }
         border-color: var(--wujia-morder-primary);
     }
 
-    /* ---------- Empty state (Figma màn 4 "State cần xử lý") ---------- */
-    .wujia-mticket-empty {
+}
+
+/* ============================================================================
+   Sprint 18 — Mobile Account / Tài khoản (Figma Mobile_Account_Info)
+   Scoped .wujia-maccount-* (wrapper d-lg-none + .wujia-mpage BlankShell) +
+   .wujia-mheader-menu-* (avatar dropdown trong header d-lg-none). Reuse
+   .wujia-mdash-card/-list/-row + .wujia-badge-*. Mobile-only → zero blast radius.
+   ============================================================================ */
+@media (max-width: 991.98px) {
+    /* ---------- Page title (icon + chữ) ---------- */
+    .wujia-maccount-pagetitle {
         display: flex;
-        flex-direction: column;
         align-items: center;
-        gap: 6px;
-        text-align: center;
-        padding: 32px 18px;
-    }
-    .wujia-mticket-empty-icon {
-        width: 64px;
-        height: 64px;
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        border-radius: 50%;
-        background: var(--wujia-mdash-tile-bg);
-        color: var(--wujia-morder-primary);
-        margin-bottom: 6px;
-    }
-    .wujia-mticket-empty-icon i { font-size: 28px; line-height: 1; }
-    .wujia-mticket-empty-title {
-        font-size: 16px;
-        font-weight: 700;
+        gap: 8px;
+        font-size: 20px;
+        font-weight: 800;
         color: var(--wujia-morder-text);
         margin: 0;
     }
-    .wujia-mticket-empty-sub {
+    .wujia-maccount-pagetitle > i {
+        font-size: 18px;
+        color: var(--wujia-morder-primary);
+    }
+
+    /* ---------- Card title ---------- */
+    .wujia-maccount-cardtitle {
+        font-size: 16px;
+        font-weight: 700;
+        color: var(--wujia-morder-text);
+        margin: 0 0 12px;
+    }
+
+    /* ---------- Hồ sơ head (avatar + tên + Active) — màn 01 ---------- */
+    .wujia-maccount-head {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding-bottom: 14px;
+        border-bottom: 1px solid var(--wujia-morder-divider);
+    }
+    .wujia-maccount-avatar {
+        flex: 0 0 auto;
+        width: var(--wujia-maccount-avatar-size);
+        height: var(--wujia-maccount-avatar-size);
+        border-radius: 50%;
+        object-fit: cover;
+        background: var(--wujia-maccount-avatar-bg);
+    }
+    .wujia-maccount-head-main {
+        flex: 1 1 auto;
+        min-width: 0;
+        display: flex;
+        flex-direction: column;
+        gap: 2px;
+    }
+    .wujia-maccount-name {
+        font-size: 16px;
+        font-weight: 700;
+        color: var(--wujia-morder-text);
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+    .wujia-maccount-login {
         font-size: 13px;
         color: var(--wujia-morder-text-sub);
-        margin: 0 0 8px;
     }
+    .wujia-maccount-head .wujia-badge { flex: 0 0 auto; align-self: flex-start; }
+
+    /* ---------- Key-value list (ngang: nhãn trái / giá trị phải) ---------- */
+    .wujia-maccount-kvlist { display: flex; flex-direction: column; }
+    .wujia-maccount-kv {
+        display: flex;
+        align-items: baseline;
+        justify-content: space-between;
+        gap: 16px;
+        padding: 11px 0;
+    }
+    .wujia-maccount-kv + .wujia-maccount-kv { border-top: 1px solid var(--wujia-morder-divider); }
+    .wujia-maccount-kv-key {
+        flex: 0 0 auto;
+        font-size: 13px;
+        color: var(--wujia-maccount-kv-key);
+    }
+    .wujia-maccount-kv-val {
+        flex: 1 1 auto;
+        min-width: 0;
+        font-size: 14px;
+        font-weight: 600;
+        color: var(--wujia-maccount-kv-val);
+        text-align: right;
+        word-break: break-word;
+    }
+    .wujia-maccount-kv-val .wujia-badge { vertical-align: middle; }
+
+    /* ---------- Store card (màn 02) ---------- */
+    .wujia-maccount-badgerow {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        margin-bottom: 10px;
+    }
+    .wujia-maccount-store-name {
+        font-size: 18px;
+        font-weight: 800;
+        color: var(--wujia-morder-text);
+        margin: 0;
+    }
+    .wujia-maccount-store-sub {
+        font-size: 13px;
+        color: var(--wujia-morder-text-sub);
+        margin: 2px 0 4px;
+    }
+
+    /* ---------- Đổi mật khẩu form (màn 03) ---------- */
+    .wujia-maccount-form { display: flex; flex-direction: column; gap: 14px; }
+    .wujia-maccount-field { display: flex; flex-direction: column; gap: 6px; }
+    .wujia-maccount-field > label {
+        font-size: 13px;
+        font-weight: 600;
+        color: var(--wujia-morder-text-sub);
+        margin: 0;
+    }
+    .wujia-maccount-pwd { position: relative; }
+    .wujia-maccount-input {
+        width: 100%;
+        height: 44px;
+        border: 1px solid var(--wujia-morder-border);
+        border-radius: 10px;
+        background: var(--wujia-maccount-input-bg);
+        padding: 0 44px 0 14px;
+        font-size: 14px;
+        color: var(--wujia-morder-text);
+    }
+    .wujia-maccount-input:focus {
+        outline: none;
+        border-color: var(--wujia-morder-primary);
+    }
+    .wujia-maccount-eye {
+        position: absolute;
+        right: 6px;
+        top: 50%;
+        transform: translateY(-50%);
+        width: 34px;
+        height: 34px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        border: none;
+        background: transparent;
+        color: var(--wujia-morder-text-muted);
+        cursor: pointer;
+    }
+    .wujia-maccount-eye.is-active { color: var(--wujia-morder-primary); }
+    .wujia-maccount-eye i { font-size: 17px; line-height: 1; }
+    .wujia-maccount-submit { height: 46px; font-weight: 700; margin-top: 2px; }
+
+    /* ---------- Flash alert ---------- */
+    .wujia-maccount-alert {
+        border-radius: 10px;
+        padding: 10px 14px;
+        font-size: 13px;
+        font-weight: 600;
+    }
+    .wujia-maccount-alert.is-error {
+        background: var(--wujia-danger-bg);
+        color: var(--wujia-danger);
+    }
+    .wujia-maccount-alert.is-ok {
+        background: var(--wujia-success-bg);
+        color: var(--wujia-success);
+    }
+
+    /* ---------- Avatar dropdown menu (màn 04) — header d-lg-none ---------- */
+    .wujia-mheader-menu { min-width: 232px; padding: 0; border-radius: 14px; overflow: hidden; }
+    .wujia-mheader-menu-head {
+        display: flex;
+        flex-direction: column;
+        gap: 2px;
+        padding: 12px 16px;
+    }
+    .wujia-mheader-menu-name {
+        font-size: 14px;
+        font-weight: 700;
+        color: var(--wujia-morder-text);
+    }
+    .wujia-mheader-menu-email {
+        font-size: 12px;
+        color: var(--wujia-morder-text-sub);
+        word-break: break-all;
+    }
+    .wujia-mheader-menu .dropdown-item {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 11px 16px;
+        font-size: 14px;
+        font-weight: 600;                      /* Figma: item đậm (≠ Bootstrap 400 nhạt) */
+        color: var(--wujia-morder-text);
+    }
+    .wujia-mheader-menu .dropdown-item > i { font-size: 17px; color: var(--wujia-morder-text); }
+    /* inline SVG (toà nhà / chìa khoá — feather subset thiếu glyph) khớp size icon feather 17px */
+    .wujia-mheader-menu .dropdown-item > .wujia-menu-svg {
+        flex: 0 0 auto;
+        width: 17px;
+        height: 17px;
+        color: var(--wujia-morder-text);
+    }
+    .wujia-mheader-menu-logout,
+    .wujia-mheader-menu-logout > i { color: var(--wujia-maccount-logout) !important; }
 }

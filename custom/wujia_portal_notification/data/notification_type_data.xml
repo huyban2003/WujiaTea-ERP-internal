@@ -1,13 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo noupdate="1">
 
-    <!-- Sprint 4.3: bg_color synced with BA palette tokens.
-         (var() can't be used in DB-stored hex, so we hard-code the BA hex.) -->
+    <!-- bg_color hard-codes the BA palette hex (var() not usable in DB-stored values). -->
 
     <record id="ntype_urgent" model="wujia.notification.type">
         <field name="code">URG</field>
         <field name="name">Khẩn cấp</field>
-        <field name="bg_color">#EC3845</field>
+        <field name="bg_color">#EF4444</field>
         <field name="text_color">#ffffff</field>
         <field name="icon">fa-exclamation-circle</field>
         <field name="sequence">10</field>
@@ -16,7 +15,7 @@
     <record id="ntype_general" model="wujia.notification.type">
         <field name="code">GEN</field>
         <field name="name">Thông báo chung</field>
-        <field name="bg_color">#22A9DE</field>
+        <field name="bg_color">#28A9DF</field>
         <field name="text_color">#ffffff</field>
         <field name="icon">fa-bell</field>
         <field name="sequence">20</field>
@@ -34,7 +33,7 @@
     <record id="ntype_system" model="wujia.notification.type">
         <field name="code">SYS</field>
         <field name="name">Hệ thống</field>
-        <field name="bg_color">#8A9099</field>
+        <field name="bg_color">#8A939E</field>
         <field name="text_color">#ffffff</field>
         <field name="icon">fa-cog</field>
         <field name="sequence">40</field>
@@ -43,7 +42,7 @@
     <record id="ntype_other" model="wujia.notification.type">
         <field name="code">OTH</field>
         <field name="name">Khác</field>
-        <field name="bg_color">#24B269</field>
+        <field name="bg_color">#16A34A</field>
         <field name="text_color">#ffffff</field>
         <field name="icon">fa-info-circle</field>
         <field name="sequence">99</field>

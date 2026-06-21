@@ -1,6 +1,6 @@
 {
     'name': 'Wujia Portal — Purchase History',
-    'version': '19.0.1.2.0',
+    'version': '19.0.1.3.0',
     'category': 'Wujia',
     'summary': 'Lịch sử đặt hàng portal — list + detail (skeleton UI)',
     'author': 'WujiaTea',

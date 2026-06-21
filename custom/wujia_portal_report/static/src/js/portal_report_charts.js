@@ -20,8 +20,8 @@
             return;
         }
 
-        const colorPrimary = wujiaColor("primary", "#22A9DE");
-        const colorSuccess = wujiaColor("success", "#24B269");
+        const colorPrimary = wujiaColor("primary", "#28A9DF");
+        const colorSuccess = wujiaColor("success", "#16A34A");
 
         // ---- Chart 1: Bar — đơn hàng theo tháng ----
         if (payload.months_label && payload.months_label.length) {
