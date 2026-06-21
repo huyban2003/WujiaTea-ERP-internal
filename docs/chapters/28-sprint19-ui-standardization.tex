@@ -1,0 +1,112 @@
+\chapter{Sprint 19 --- Chuẩn hóa UI theo BA Source Component (token + foundation) (2026-06-21)}
+
+\section{Bối cảnh}
+
+BA giao bộ \textbf{design-system source-of-truth} trong \texttt{WujiaTea/UI/}:
+\texttt{mobile\_source\_ui\_v2\_3} (tokens \texttt{--wj-*}, foundation component SVG + spec MD,
+component registry, decision log, QA checklist) và \texttt{pc\_source\_ui\_v1\_4} (tương tự
+cho desktop, \texttt{--wj-pc-*}). Mục tiêu: chuẩn hóa token + component cho toàn portal về
+đúng BA, \textbf{giao diện chính KHÔNG đổi}, làm nền sạch trước khi dựng UI mới.
+
+\textbf{Phát hiện trung tâm:} code desktop đang dùng brand \texttt{\#22A9DE} (code cũ coi
+\texttt{\#28A9DF} là ``typo'' rồi giữ \texttt{\#22A9DE}). Nhưng BA source \textbf{khóa
+\texttt{\#28A9DF} và CẤM \texttt{\#22A9DE}} (ghi rõ ở README + Decision Log + Registry + QA).
+Mobile (\texttt{--wujia-mshell-*} / \texttt{--wujia-morder-*}) đã dùng \texttt{\#28A9DF} \(\rightarrow\)
+desktop và mobile \textbf{không đồng nhất brand}. Đây là lệch lớn nhất cần gỡ.
+
+\textbf{Quyết định user (đã chốt):} (1) độ sâu = \textbf{token + component} (không rework
+từng màn); (2) \textbf{adopt BA toàn bộ} kể cả các giá trị trước đây cố ý override (page bg,
+danger, success); (3) \textbf{shared + mobile trước}, PC/desktop reconcile theo
+\texttt{pc\_source\_ui\_v1\_4} tách đợt sau; (4) ghi mọi phần tách-đợt-sau vào compact-summary.
+
+\section{(A) Token reconcile (\texttt{\_variables.css})}
+
+Đổi GIÁ TRỊ token về đúng BA. Token đi qua \texttt{var()} (\texttt{--wujia-primary} dùng 51
+chỗ) nên đổi 1 điểm là cập nhật toàn desktop + mobile \(\rightarrow\) brand giờ \textbf{ĐỒNG NHẤT}.
+
+\begin{itemize}
+  \item Brand \texttt{\#22A9DE} \(\rightarrow\) \texttt{\#28A9DF} (BA cấm \texttt{\#22A9DE});
+        primary-dark \(\rightarrow\) \texttt{\#168FC2}; active-text \(\rightarrow\) \texttt{\#28A9DF}.
+  \item Danger \texttt{\#EC3845} \(\rightarrow\) \texttt{\#EF4444}; danger-bg \(\rightarrow\)
+        \texttt{\#FEECEC}. Success \texttt{\#24B269} \(\rightarrow\) \texttt{\#16A34A};
+        success-bg \(\rightarrow\) \texttt{\#EAF8EF}.
+  \item Page bg \texttt{\#E8ECEF} \(\rightarrow\) \texttt{\#F3F6F8} (gỡ override 2026-05-25);
+        border-soft \(\rightarrow\) \texttt{\#EEF2F5}; text-muted \(\rightarrow\) \texttt{\#8A939E}.
+  \item Giữ nguyên: warning / info (BA token không định nghĩa), \texttt{--wujia-card-radius}
+        (đẩy sang PC pass).
+  \item Thêm lớp alias \texttt{--wj-*} / \texttt{--wj-pc-*} trỏ vào token \texttt{--wujia-*}
+        đã reconcile \(\rightarrow\) component class tham chiếu tên BA mà KHÔNG rename 51+ usage.
+  \item Sync straggler: seed \texttt{notification\_type\_data.xml} (5 \texttt{bg\_color}) ---
+        \(\textbf{noupdate=1}\) nên DB đang chạy KHÔNG tự đổi, chỉ install mới; JS fallback
+        \texttt{portal\_report\_charts.js}; 3 \texttt{rgba(34,169,222)} (\texttt{\#22A9DE})
+        \(\rightarrow\) \texttt{rgba(40,169,223)} (\texttt{\#28A9DF}).
+\end{itemize}
+
+\section{(B) Canonical foundation \texttt{wj-*}}
+
+Gom các \textbf{duplicate THẬT} thành một component dùng chung, modifier giữ visual 100\%:
+
+\begin{itemize}
+  \item \textbf{FilterChip}: 3 bản (\texttt{mhist} soft / \texttt{mknow} solid / \texttt{mticket}
+        solid) \(\rightarrow\) \texttt{wj-filter-chip} (BA 32px) + modifier \texttt{--soft}
+        (active soft, giữ visual Lịch sử) / \texttt{--wrap} (wrap thay scroll) / \texttt{--clear}
+        (nút Xóa lọc).
+  \item \textbf{CountMeta} (nhãn ``N kết quả''): 3 bản \(\rightarrow\) \texttt{wj-count-meta} +
+        \texttt{--bold} / \texttt{--primary}.
+  \item \textbf{EmptyState mobile}: 3 bản (\texttt{mhist} card / \texttt{mdash} compact /
+        \texttt{mticket} rich icon-circle) \(\rightarrow\) \texttt{wj-empty-state} +
+        \texttt{--card} / \texttt{--compact} / \texttt{--rich}.
+  \item Migrate template: knowledge / support / purchase-history / order-catalog / base
+        (home + franchise-info). Xóa CSS + token chết (\texttt{--wujia-mhist-chip-*},
+        \texttt{--wujia-mknow-chip-active-*}). Desktop \texttt{.wujia-empty-state} (13 view,
+        test pass) GIỮ NGUYÊN.
+\end{itemize}
+
+\section{(C) Phần CỐ Ý không gom}
+
+\texttt{search-bar} / \texttt{title-row} container / \texttt{form-field} / \texttt{menu-row}
+là \textbf{tuned riêng per-Figma}, KHÔNG phải duplicate: input height 44\(\neq\)42, radius
+12\(\neq\)10, bg/structure khác (morder có select, mknow có nút search, mhist có date-range;
+title 5 size 15/16/18/22px). Ép gộp = modifier sprawl + risk vỡ ``giao diện không đổi'' cho 0
+lợi visual \(\rightarrow\) giữ nguyên (đã ăn token chung). FilterChip là case duy nhất bị
+copy-paste 3 lần thật.
+
+\section{Dọn comment}
+
+Rút gọn mạnh comment mọi file đụng tới: \texttt{\_variables.css} viết lại sạch;
+\texttt{\_components.css} 2902\(\rightarrow\)2699 dòng và \texttt{\_wujia\_theme.css}
+372\(\rightarrow\)288 dòng (gom banner nhiều dòng thành 1 dòng, 0 rule đổi, brace cân bằng) ---
+\textbf{commit riêng} để khỏi rối diff chuẩn hóa.
+
+\section{Tách commit \& push}
+
+Working tree lúc đó còn \textbf{Sprint 18 chưa commit} lẫn với Sprint 19. Tách:
+\texttt{d28bd3b} (Sprint 18 account) / \texttt{83f98b6} (Sprint 19 chuẩn hóa, bump 6 manifest) /
+\texttt{7389b6d} (trim comment + fix rgba) / \texttt{94f6600} (backfill summary Sprint 18).
+File CSS lẫn (\texttt{\_variables}/\texttt{\_components}/\texttt{assets.xml}) không tách được
+theo file \(\rightarrow\) đi cùng commit Sprint 19. Tất cả push \texttt{origin/main}.
+
+\section{Verify}
+
+\begin{itemize}
+  \item \texttt{upgrade.sh} 6 module RC=0 (91 module loaded, log sạch, 0 ParseError).
+  \item \texttt{test\_sprint9.py} 7/7 + \texttt{test\_sprint5.py} 21/0.
+  \item HTTP authenticated (\texttt{anh.owner}/\texttt{1} :8019): \textbf{14/14 trang portal}
+        \(\rightarrow\) 200.
+  \item Render: 3 trang migrate dùng \texttt{wj-filter-chip} / \texttt{wj-count-meta},
+        \textbf{0 class cũ} trong output; CSS served \texttt{--wujia-primary: \#28A9DF},
+        \texttt{\#22A9DE} chỉ còn trong comment ``forbidden''; brace \texttt{\_components.css}
+        cân bằng.
+\end{itemize}
+
+\section{Pending / Deferred sau Sprint 19}
+
+\begin{itemize}
+  \item \textbf{PC/desktop reconcile} theo \texttt{pc\_source\_ui\_v1\_4} (DataTable,
+        MetricCard, Modal, Pagination, Sidebar, TopHeader; card radius 18; content padding 24).
+  \item Full per-screen rework theo screen-template BA + QA checklist.
+  \item Unify \texttt{--wujia-card-radius} (gắn PC pass).
+  \item Migrate \texttt{bg\_color} notification trên DB đang chạy nếu cần (hiện noupdate).
+  \item Trim comment file Python/XML (mới làm CSS).
+  \item Gom \texttt{search-bar}/\texttt{title-row}/\texttt{form-field} nếu sau muốn (hiện tuned).
+\end{itemize}

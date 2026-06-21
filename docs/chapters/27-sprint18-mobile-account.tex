@@ -1,0 +1,70 @@
+\chapter{Sprint 18 --- Mobile: Tài khoản / Account Info (4 màn) (2026-06)}
+
+\section{Bối cảnh}
+
+BA up frame \textbf{Mobile\_Account\_Info} (4 màn): \texttt{01 Thông tin tài khoản} /
+\texttt{02 Thông tin cửa hàng} / \texttt{03 Đổi mật khẩu} / \texttt{04 Avatar dropdown
+menu}. Sprint dựng bản mobile (\texttt{<992px}) cho khu tài khoản, theo pattern BlankShell
+\texttt{.wujia-mpage} như các sprint mobile trước; desktop GIỮ NGUYÊN.
+
+\textbf{Lưu ý lịch sử:} sprint này được build ở một session trước nhưng \textbf{để dở --- chưa
+commit, chưa ghi sprint log}. Code được commit (\texttt{d28bd3b}) và push trong session
+\textbf{Sprint 19} (tách commit riêng khỏi Sprint 19). Chương này \textbf{reconstruct từ diff
+commit} (không phải log gốc theo thời gian thực), nên thiếu phần rationale chi tiết --- đối
+chiếu Figma \texttt{Mobile\_Account\_Info} khi cần.
+
+\section{Spec theo Figma (4 màn)}
+
+\begin{itemize}
+  \item \textbf{01 Thông tin tài khoản} (\texttt{profile\_page.xml}): thông tin user +
+        avatar (\texttt{.wujia-maccount-*}).
+  \item \textbf{02 Thông tin cửa hàng} (\texttt{portal\_franchise\_information.xml}): bản
+        mobile của trang thông tin nhượng quyền (địa chỉ, liên hệ, chủ cửa hàng).
+  \item \textbf{03 Đổi mật khẩu} (\texttt{change\_password\_page.xml}): form đổi mật khẩu +
+        \textbf{JS mới} \texttt{wujia\_password\_toggle.js} (nút con mắt hiện/ẩn mật khẩu).
+  \item \textbf{04 Avatar dropdown} (\texttt{mobile\_header.xml}): menu thả xuống từ avatar
+        trên header mobile (đường vào Tài khoản / Đổi mật khẩu / Đăng xuất).
+\end{itemize}
+
+\section{Module \& file chạm}
+
+\begin{itemize}
+  \item \texttt{wujia\_portal\_layout}:
+    \begin{itemize}
+      \item \texttt{controllers/portal.py} (+42): helper \texttt{\_resolve\_active\_store}.
+      \item \texttt{views/profile\_page.xml} (+54), \texttt{views/change\_password\_page.xml}
+            (+66), \texttt{views/mobile\_header.xml} (+41).
+      \item \texttt{static/assets/js/wujia\_password\_toggle.js} (+30, file MỚI; asset
+            \texttt{?v=1126}).
+      \item Token \texttt{--wujia-maccount-*} + class \texttt{.wujia-maccount-*}
+            (\texttt{\_variables.css} / \texttt{\_components.css}).
+    \end{itemize}
+  \item \texttt{wujia\_portal\_base}: \texttt{views/portal\_franchise\_information.xml}
+        (+87, bản mobile khu thông tin cửa hàng).
+\end{itemize}
+
+Tổng: 6 file, +310 / -10.
+
+\section{Gì đã làm (nghiệp vụ)}
+
+Chủ cửa hàng trên điện thoại có khu \textbf{Tài khoản} đầy đủ: xem thông tin cá nhân, xem
+thông tin cửa hàng nhượng quyền, đổi mật khẩu (có nút hiện/ẩn để gõ cho đúng), và bấm avatar
+trên đầu trang để mở nhanh các mục tài khoản / đăng xuất. Tất cả theo đúng layout Figma cho
+màn hình nhỏ; bản desktop không đổi.
+
+\section{Verify}
+
+Verify chạy trong session Sprint 19 (cùng đợt commit):
+
+\begin{itemize}
+  \item \texttt{upgrade.sh} RC=0 (91 module, log sạch).
+  \item HTTP authenticated (\texttt{anh.owner}/\texttt{1} local :8019): \texttt{/portal/profile}
+        \(\rightarrow\) 200 (nằm trong smoke 14/14 trang của Sprint 19).
+\end{itemize}
+
+\section{Pending sau Sprint 18}
+
+\begin{itemize}
+  \item Chưa có chapter \texttt{.tex} viết theo thời gian thực --- chương này dựng lại từ diff.
+  \item Đối chiếu chi tiết Figma \texttt{Mobile\_Account\_Info} (spacing/màu/state) khi quay lại.
+\end{itemize}
