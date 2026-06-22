@@ -134,7 +134,12 @@
                      cyan + store strip + bottom-nav) do app_layout lo. Palette mobile.
                      ============================================================ -->
                 <div class="d-lg-none wujia-mhist">
-                    <h1 class="wujia-mhist-title">Lịch sử đặt hàng</h1>
+                    <div class="wujia-mhist-titlerow">
+                        <h1 class="wujia-mhist-title">Lịch sử đặt hàng</h1>
+                        <span t-if="orders" class="wj-count-meta wj-count-meta--bold">
+                            <t t-out="len(orders)"/> đơn
+                        </span>
+                    </div>
 
                     <div t-if="no_franchise" class="wj-empty-state wj-empty-state--card">
                         <i class="feather icon-alert-circle"/>
@@ -144,11 +149,13 @@
                     <t t-else="">
                         <!-- Card tìm kiếm -->
                         <form method="get" action="/portal/purchase-history" class="wujia-mhist-search">
-                            <div class="wujia-mhist-search-head">Tìm kiếm đơn hàng</div>
                             <div class="wujia-mhist-search-row">
-                                <label class="wujia-mhist-search-label">Mã</label>
-                                <input type="text" name="q" t-att-value="q" placeholder="Nhập mã đơn…"
-                                       class="wujia-mhist-search-input"/>
+                                <div class="wujia-mhist-search-box">
+                                    <i class="feather icon-search"/>
+                                    <input type="text" name="q" t-att-value="q"
+                                           placeholder="Mã đơn, ví dụ S003160"
+                                           class="wujia-mhist-search-input"/>
+                                </div>
                                 <button type="submit" class="wujia-mhist-search-btn">Tìm kiếm</button>
                             </div>
                             <div class="wujia-mhist-search-row">
@@ -348,7 +355,12 @@
                      MOBILE (<992px) — Figma 4445:4 "Chi tiết đơn" (Sprint 13)
                      ============================================================ -->
                 <div class="d-lg-none wujia-mhist-detail">
-                    <h1 class="wujia-mhist-title">Chi tiết đơn</h1>
+                    <div class="wujia-mhist-detail-head">
+                        <a href="/portal/purchase-history" class="wujia-mhist-back" aria-label="Quay lại">
+                            <i class="feather icon-chevron-left"/>
+                        </a>
+                        <h1 class="wujia-mhist-title">Chi tiết đơn</h1>
+                    </div>
 
                     <!-- Card tóm tắt -->
                     <div class="wujia-mhist-summary">

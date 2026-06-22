@@ -146,22 +146,28 @@
                     </div>
 
                     <t t-else="">
-                        <h2 class="wujia-mcart-title">Giỏ hàng</h2>
-                        <p class="wujia-mcart-subtitle"><t t-out="len(cart_lines)"/> sản phẩm đã chọn</p>
+                        <div class="wujia-mcart-titlerow">
+                            <h2 class="wujia-mcart-title">Giỏ hàng</h2>
+                            <span class="wj-count-meta wj-count-meta--bold">
+                                <t t-out="len(cart_lines)"/> sản phẩm
+                            </span>
+                        </div>
 
                         <!-- Back secondary button -->
                         <a href="/portal/order" class="wujia-mcart-back">
                             <i class="feather icon-arrow-left"/> Tiếp tục chọn sản phẩm
                         </a>
 
-                        <!-- TODO(BE): order warning bar khung giờ — chờ controller
-                             portal_order_cart_view truyền order_window_* (defer theo
-                             chỉ đạo: BE submit/context xử lý sau). -->
+                        <!-- Order warning bar (khung giờ) — reuse .wujia-morder-warnbar -->
+                        <div t-if="order_window_enabled" class="wujia-morder-warnbar">
+                            <i class="feather icon-alert-circle"/>
+                            <span>Khung giờ đặt hàng: <t t-out="order_time_from"/> - <t t-out="order_time_to"/></span>
+                        </div>
 
                         <!-- List header -->
                         <div class="wujia-mcart-listhead">
                             <span>Sản phẩm trong giỏ</span>
-                            <span><t t-out="len(cart_lines)"/> sản phẩm</span>
+                            <span class="wj-count-meta wj-count-meta--bold"><t t-out="len(cart_lines)"/> sản phẩm</span>
                         </div>
 
                         <!-- Cart scroll container — render TẤT CẢ (no see-more) -->
@@ -169,9 +175,8 @@
                             <t t-foreach="cart_lines" t-as="line">
                                 <div class="wujia-mcart-row" t-att-data-line-id="line.id"
                                      t-att-data-unit-price="int(line.price_unit or 0)">
-                                    <span class="wujia-mcart-row-thumb">
-                                        <i class="feather icon-package"/>
-                                    </span>
+                                    <span class="wujia-mcart-row-thumb"
+                                          t-out="line.product_id.uom_id.name or '—'"/>
                                     <div class="wujia-mcart-row-main">
                                         <span class="wujia-mcart-row-name" t-out="line.product_id.name"/>
                                         <span class="wujia-mcart-row-meta">

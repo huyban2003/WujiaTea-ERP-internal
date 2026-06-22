@@ -1,6 +1,6 @@
 {
     'name': 'Wujia Portal — Sale (Catalog + Cart)',
-    'version': '19.0.2.4.0',
+    'version': '19.0.2.5.0',
     'category': 'Wujia',
     'summary': 'Trang đặt hàng portal — catalog sản phẩm + giỏ hàng (skeleton UI)',
     'author': 'WujiaTea',

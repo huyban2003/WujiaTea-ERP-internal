@@ -138,11 +138,22 @@ class WujiaPortalSale(http.Controller):
         if not franchise_ids:
             return request.redirect('/portal/order')
         cart = self._get_active_cart()
+        # Khung giờ đặt hàng theo area của active franchise (warnbar mobile v2).
+        active_fid = get_active_franchise_id()
+        area_id = False
+        if active_fid:
+            franchise = request.env['wujia.franchise.management'].sudo().browse(active_fid).exists()
+            if franchise and franchise.area_id:
+                area_id = franchise.area_id.id
+        _allowed, window = request.env['res.config.settings'].sudo()._is_within_order_window(area_id=area_id)
         return request.render('wujia_portal_sale.portal_order_cart', {
             'cart': cart,
             'cart_lines': cart.order_line if cart else [],
             'message': kw.get('message'),
             'error': kw.get('error'),
+            'order_time_from': _float_to_hhmm(window['from']),
+            'order_time_to': _float_to_hhmm(window['to']),
+            'order_window_enabled': window['enabled'],
         })
 
     # ----------------------------------------------------------------- cart add

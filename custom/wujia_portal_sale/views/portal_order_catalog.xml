@@ -187,7 +187,12 @@
                         Bạn chưa được gán vào cửa hàng nào — không thể đặt hàng.
                     </div>
                     <t t-else="">
-                        <h2 class="wujia-morder-title">Sản phẩm</h2>
+                        <div class="wujia-morder-titlerow">
+                            <h2 class="wujia-morder-title">Sản phẩm</h2>
+                            <span t-if="products" class="wj-count-meta wj-count-meta--bold">
+                                <t t-out="len(products)"/> SP
+                            </span>
+                        </div>
 
                         <!-- Order warning bar (khung giờ) -->
                         <div t-if="order_window_enabled" class="wujia-morder-warnbar">
@@ -195,23 +200,27 @@
                             <span>Khung giờ đặt hàng: <t t-out="order_time_from"/> - <t t-out="order_time_to"/></span>
                         </div>
 
-                        <!-- Search + filter -->
+                        <!-- Search box -->
                         <form method="get" action="/portal/order" class="wujia-morder-search">
                             <div class="wujia-morder-search-input">
                                 <i class="feather icon-search"/>
-                                <input type="text" name="keyword" placeholder="Tìm sản phẩm"
+                                <input type="text" name="keyword" placeholder="Nhập tên sản phẩm cần tìm"
                                        t-att-value="keyword"/>
                             </div>
-                            <select name="category_id" class="wujia-morder-search-select"
-                                    onchange="this.form.submit()">
-                                <option value="">Tất cả</option>
-                                <t t-foreach="categories" t-as="cat">
-                                    <option t-att-value="cat.id"
-                                            t-att-selected="'selected' if category_id == cat.id else None"
-                                            t-out="cat.complete_name"/>
-                                </t>
-                            </select>
+                            <input t-if="category_id" type="hidden" name="category_id"
+                                   t-att-value="category_id"/>
                         </form>
+
+                        <!-- Category chips (wj-filter-chip — Sprint 19 canonical) -->
+                        <div t-if="categories" class="wj-filter-chips wujia-morder-chips">
+                            <a t-attf-href="/portal/order#{('?keyword=' + keyword) if keyword else ''}"
+                               t-attf-class="wj-filter-chip wj-filter-chip--soft #{'is-active' if not category_id else ''}">Tất cả</a>
+                            <t t-foreach="categories" t-as="cat">
+                                <a t-attf-href="/portal/order?category_id=#{cat.id}#{('&amp;keyword=' + keyword) if keyword else ''}"
+                                   t-attf-class="wj-filter-chip wj-filter-chip--soft #{'is-active' if category_id == cat.id else ''}"
+                                   t-out="cat.name"/>
+                            </t>
+                        </div>
 
                         <!-- List header -->
                         <div class="wujia-morder-listhead">
@@ -235,9 +244,8 @@
                                 <t t-foreach="products" t-as="product">
                                     <t t-set="in_cart" t-value="cart_qty_map.get(product.id, 0)"/>
                                     <div class="wujia-morder-row">
-                                        <span class="wujia-morder-row-thumb">
-                                            <i class="feather icon-package"/>
-                                        </span>
+                                        <span class="wujia-morder-row-thumb"
+                                              t-out="product.uom_id.name or '—'"/>
                                         <a t-attf-href="/portal/order/product/#{product.id}"
                                            class="wujia-morder-row-info">
                                             <span class="wujia-morder-row-name" t-out="product.name"/>

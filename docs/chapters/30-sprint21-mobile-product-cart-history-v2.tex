@@ -1,0 +1,91 @@
+\chapter{Sprint 21 --- Mobile Product/Cart v2 + Order History v2 (2026-06-22)}
+
+\section{Bối cảnh}
+
+BA chốt 2 bản thiết kế \textbf{v2} mới trong Figma (file copy \texttt{aoeiDYlg6vlhJZg2w6Q7o5}),
+thay cho bản v1 mà ta đã code ở Sprint 11 (Đặt hàng) và Sprint 13 (Lịch sử đặt hàng):
+\textbf{Mobile\_Product\_Cart\_v2 \texttt{4575:777}} và \textbf{Mobile\_Order\_History\_v2
+\texttt{4577:1112}}. v2 \textbf{không phải redesign} --- là bản tinh chỉnh lại
+\textbf{kích thước + cấu trúc component} cho đúng chuẩn, và đặc biệt \textbf{dùng lại các
+canonical component \texttt{wj-*}} đã làm ở Sprint 19 (\texttt{wj-filter-chip},
+\texttt{wj-count-meta}). Mỗi màn có sẵn bản v1 để đối chiếu. Mục tiêu: cập nhật 4 màn mobile
+(Sản phẩm / Giỏ hàng / Lịch sử List / Lịch sử Detail) cho khớp v2, giữ desktop nguyên, UI-only.
+
+\textbf{Quyết định user (đã chốt):} (1) bộ lọc danh mục \texttt{<select>} \(\rightarrow\)
+\textbf{chips scroll ngang} (tất cả danh mục, canonical \texttt{wj-filter-chip}); (2) summary giỏ
+hàng \textbf{giữ sticky} nhưng restyle theo v2 (CTA luôn hiện); (3) warnbar khung giờ \textbf{wire
+ngay} vào màn Giỏ hàng (BE read-only nhỏ); (4) icon ``cái nào đẹp hơn thì dùng'' (feather-only).
+
+\section{(A) Mobile Product/Cart v2 (\texttt{wujia\_portal\_sale})}
+
+Sửa block \texttt{d-lg-none} của \texttt{portal\_order\_catalog.xml} + \texttt{portal\_order\_cart.xml}
+(desktop \texttt{d-none d-lg-block} giữ nguyên 100\%):
+
+\begin{itemize}
+  \item \textbf{Sản phẩm}: title-row (tiêu đề 24px + \texttt{wj-count-meta} ``N SP'') / ô tìm kiếm
+        tách riêng full-width / \textbf{chips danh mục} thay dropdown (\texttt{wj-filter-chips} +
+        \texttt{wj-filter-chip--soft}, mỗi chip = link \texttt{?category\_id=X}, active theo
+        category, giữ \texttt{keyword} qua querystring + hidden input) / mỗi sản phẩm là
+        \textbf{1 card riêng} (gap 6, border \texttt{\#EEF2F5}, h58) / thumb hiện \textbf{text ĐVT}
+        thay icon / badge ``đã trong giỏ'' đổi \textbf{green \(\rightarrow\) cyan} / nút thêm 46×32.
+  \item \textbf{Giỏ hàng}: title-row + count / back-button gọn 38px / \textbf{warnbar khung giờ MỚI}
+        (reuse \texttt{.wujia-morder-warnbar}, gate \texttt{order\_window\_enabled}) / mỗi dòng giỏ
+        là 1 card (h76, gap 6) thumb 40 text ĐVT, meta ``ĐVT · Đơn giá X'' 1 dòng, stepper compact
+        106×28 nền \texttt{\#F8FAFC}, ``Thành tiền''+value phải, nút xoá ô viền 28×28 góc phải /
+        summary \textbf{giữ sticky} restyle (Tạm tính/Số lượng + submit full-width).
+  \item \textbf{BE}: \texttt{portal\_order\_cart\_view} thêm \texttt{order\_window\_enabled} +
+        \texttt{order\_time\_from/to} (copy pattern catalog, tái dùng \texttt{\_float\_to\_hhmm} +
+        \texttt{res.config.settings.\_is\_within\_order\_window(area\_id)}) --- gỡ TODO defer S11.
+        JS \texttt{portal\_order.js} \textbf{không đổi} (giữ class/data-attr: add-cart, stepper,
+        del, floatbar count). Chips = link server round-trip, không cần JS.
+\end{itemize}
+
+\section{(B) Mobile Order History v2 (\texttt{wujia\_portal\_purchase\_history})}
+
+Sửa block \texttt{d-lg-none} của \texttt{portal\_history.xml} (List + Detail), desktop giữ nguyên:
+
+\begin{itemize}
+  \item \textbf{List}: title-row (24px + \texttt{wj-count-meta} ``N đơn'') / ô tìm kiếm v2 (icon kính
+        lúp + placeholder ``Mã đơn, ví dụ S003160'', bỏ head/label) + Từ/Đến + chips lọc / mỗi đơn là
+        \textbf{1 card riêng} (gap 8, h54): mã + ngày (trái) · StatusBadge + tổng tiền (phải).
+        Badge \textbf{đổi màu theo trạng thái} qua \texttt{MOBILE\_STATE\_BADGES} có sẵn (Mới=muted /
+        Đã gửi=info / Đã xử lý·Hoàn tất=success / Đang giao=warning / Đã hủy=danger).
+  \item \textbf{Detail}: thêm \textbf{PageHeader back-button} (ô 42×42 viền, chevron cyan) cạnh
+        ``Chi tiết đơn'' / các card summary / thông tin đơn / batch-giao hàng / ghi chú / sản phẩm
+        tinh chỉnh cỡ chữ kv (label+value 12.5px) + card-head 16px.
+  \item \textbf{BE}: không đổi --- \texttt{MOBILE\_STATE\_BADGES} + \texttt{q}/\texttt{date\_from}/
+        \texttt{date\_to}/\texttt{preset} đã có sẵn từ Sprint 13.
+\end{itemize}
+
+\section{Verify}
+
+\begin{itemize}
+  \item \texttt{upgrade.sh wujia\_portal\_sale,wujia\_portal\_purchase\_history,wujia\_portal\_layout}
+        RC=0, log sạch (last traceback cũ, không ERROR/ParseError).
+  \item Browser thật (Playwright chromium, viewport 390px): \texttt{/portal/order},
+        \texttt{/portal/order/cart}, \texttt{/portal/purchase-history}, \texttt{.../<id>}
+        \(\rightarrow\) khớp 4 mockup v2 (chips render, card-per-row, stepper, warnbar giỏ hàng,
+        summary sticky, badge đổi màu, back-button detail).
+  \item Regression: desktop \(\ge\)992px catalog/cart/history nguyên vẹn (Vuexy table + select);
+        mobile Home/Knowledge không vỡ; \texttt{test\_sprint5} 21/0 + \texttt{test\_sprint9} 7/0.
+  \item Blast radius token \texttt{--wujia-morder-qty-badge} = 1 (chỉ badge add-cart); class
+        \texttt{.wujia-morder-*/.wujia-mcart-*/.wujia-mhist-*} chỉ dùng ở 3 màn order/history.
+\end{itemize}
+
+\section{Files \& version}
+
+\texttt{wujia\_portal\_sale} \texttt{19.0.2.4.0}\(\rightarrow\)\texttt{19.0.2.5.0} (controller +
+catalog + cart). \texttt{wujia\_portal\_purchase\_history}
+\texttt{19.0.1.3.0}\(\rightarrow\)\texttt{19.0.1.4.0} (portal\_history). \texttt{wujia\_portal\_layout}
+\texttt{19.0.20.0.0}\(\rightarrow\)\texttt{19.0.21.0.0} (\texttt{\_components.css} restyle morder/mcart/mhist
++ \texttt{\_variables.css} qty-badge cyan + \texttt{assets.xml} \texttt{?v=1133}).
+
+\section{Pending / Deferred sau Sprint 21}
+
+\begin{itemize}
+  \item Status giao hàng từ batch state thật (\texttt{shipping} ``Đang giao'' hiện placeholder, S13).
+  \item Khung giờ vào cart submit (S11) --- warnbar đã hiện, validation vẫn ở submit controller.
+  \item i18n \texttt{.po} (code English, BA dịch \texttt{vi\_VN.po}).
+  \item PC/desktop reconcile \texttt{pc\_source\_ui\_v1\_4} (S19 deferred); wire \texttt{uom\_id}
+        + field bù hàng Phase 2 (S20).
+\end{itemize}

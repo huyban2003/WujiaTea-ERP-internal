@@ -1065,11 +1065,17 @@ a.wujia-mhome-kpi:active { opacity: 0.85; }
 
 /* ---------- Catalog "Sản phẩm" (.wujia-morder) ---------- */
 .wujia-morder { padding-bottom: 76px; }      /* clear floating cart bar */
+.wujia-morder-titlerow {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    margin: 4px 0 12px;
+}
 .wujia-morder-title {
-    font-size: 20px;
+    font-size: 24px;
     font-weight: 700;
     color: var(--wujia-morder-text);
-    margin: 4px 0 12px;
+    margin: 0;
 }
 
 /* Order warning bar (WJ_Mobile_OrderWarningBar) — shared by catalog + cart */
@@ -1087,11 +1093,10 @@ a.wujia-mhome-kpi:active { opacity: 0.85; }
 }
 .wujia-morder-warnbar i { font-size: 16px; line-height: 1; flex: 0 0 auto; }
 
-/* Search + filter (WJ_Mobile_SearchFilter_Order) */
+/* Search box (v2: ô tìm kiếm riêng, danh mục = chips wj-filter-chip) */
 .wujia-morder-search {
     display: flex;
-    gap: 8px;
-    margin-bottom: 16px;
+    margin-bottom: 10px;
 }
 .wujia-morder-search-input {
     position: relative;
@@ -1116,21 +1121,11 @@ a.wujia-mhome-kpi:active { opacity: 0.85; }
     font-size: 14px;
     color: var(--wujia-morder-text);
 }
-.wujia-morder-search-select {
-    flex: 0 0 110px;
-    height: 44px;
-    border: 1px solid var(--wujia-morder-border);
-    border-radius: 12px;
-    background: var(--wujia-morder-card-bg);
-    padding: 0 10px;
-    font-size: 14px;
-    color: var(--wujia-morder-text);
-}
-.wujia-morder-search-input input:focus,
-.wujia-morder-search-select:focus {
+.wujia-morder-search-input input:focus {
     outline: none;
     border-color: var(--wujia-morder-primary);
 }
+.wujia-morder-chips { margin-bottom: 16px; }
 
 /* List header */
 .wujia-morder-listhead {
@@ -1144,32 +1139,38 @@ a.wujia-mhome-kpi:active { opacity: 0.85; }
     font-weight: 700;
     color: var(--wujia-morder-text);
 }
-/* Product list card + compact rows (WJ_Mobile_ProductRow_Compact) */
+/* Product rows (WJ_Mobile_ProductRow_Compact v2 — mỗi row 1 card, gap 6) */
 .wujia-morder-list {
-    background: var(--wujia-morder-card-bg);
-    border: 1px solid var(--wujia-morder-border);
-    border-radius: var(--wujia-morder-radius);
-    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
 }
 .wujia-morder-row {
     display: flex;
     align-items: center;
     gap: 12px;
-    padding: 10px 12px;
-    border-bottom: 1px solid var(--wujia-morder-divider);
+    min-height: 58px;
+    padding: 9px 12px;
+    background: var(--wujia-morder-card-bg);
+    border: 1px solid var(--wujia-morder-divider);
+    border-radius: 12px;
 }
-.wujia-morder-row:last-child { border-bottom: 0; }
 .wujia-morder-row-thumb {
     flex: 0 0 auto;
-    width: 44px;
-    height: 44px;
-    border-radius: 10px;
+    width: 42px;
+    height: 38px;
+    border-radius: 9px;
     background: var(--wujia-morder-thumb-bg);
     color: var(--wujia-morder-thumb-text);
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 18px;
+    padding: 0 4px;
+    font-size: 10.5px;
+    font-weight: 700;
+    line-height: 1.1;
+    text-align: center;
+    overflow: hidden;
 }
 .wujia-morder-row-info {
     flex: 1 1 auto;
@@ -1202,16 +1203,16 @@ a.wujia-mhome-kpi:active { opacity: 0.85; }
 .wujia-morder-row-add {
     position: relative;
     flex: 0 0 auto;
-    width: 42px;
-    height: 42px;
+    width: 46px;
+    height: 32px;
     border: 0;
-    border-radius: 12px;
+    border-radius: 9px;
     background: var(--wujia-morder-primary);
     color: #FFFFFF;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 18px;
+    font-size: 16px;
     cursor: pointer;
 }
 .wujia-morder-row-add:active { background: var(--wujia-morder-primary-dark); }
@@ -1283,34 +1284,35 @@ a.wujia-mhome-kpi:active { opacity: 0.85; }
 
 /* ---------- Cart "Giỏ hàng" (.wujia-mcart) ---------- */
 .wujia-mcart { padding-bottom: 150px; }   /* clear sticky summary + bottom-nav */
+.wujia-mcart-titlerow {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    margin: 4px 0 12px;
+}
 .wujia-mcart-title {
-    font-size: 20px;
+    font-size: 24px;
     font-weight: 700;
     color: var(--wujia-morder-text);
-    margin: 4px 0 2px;
+    margin: 0;
 }
-.wujia-mcart-subtitle {
-    font-size: 13px;
-    color: var(--wujia-morder-text-sub);
-    margin: 0 0 12px;
-}
-/* Back secondary button (WJ_Mobile_BackSecondaryButton) */
+/* Back secondary button (WJ_Mobile_BackSecondaryButton — v2: 38px inline) */
 .wujia-mcart-back {
     display: inline-flex;
     align-items: center;
     gap: 6px;
-    height: 44px;
-    padding: 0 16px;
+    height: 38px;
+    padding: 0 14px;
     border: 1px solid var(--wujia-morder-primary);
-    border-radius: 12px;
+    border-radius: 10px;
     background: var(--wujia-morder-card-bg);
     color: var(--wujia-morder-primary);
-    font-size: 14px;
+    font-size: 13px;
     font-weight: 700;
     text-decoration: none;
     margin-bottom: 14px;
 }
-.wujia-mcart-back i { font-size: 16px; }
+.wujia-mcart-back i { font-size: 15px; }
 .wujia-mcart-listhead {
     display: flex;
     align-items: baseline;
@@ -1323,38 +1325,43 @@ a.wujia-mhome-kpi:active { opacity: 0.85; }
 .wujia-mcart-listhead span:last-child {
     font-size: 13px; font-weight: 700; color: var(--wujia-morder-text-sub);
 }
-/* Scroll container (WJ_Mobile_CartScrollContainer) — render all, no see-more */
+/* Cart rows (WJ_Mobile_CartRow v2 — mỗi row 1 card, gap 6) */
 .wujia-mcart-scroll {
-    background: var(--wujia-morder-card-bg);
-    border: 1px solid var(--wujia-morder-border);
-    border-radius: var(--wujia-morder-radius);
-    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
 }
-/* Cart row fixed (WJ_Mobile_CartRow_Fixed) */
 .wujia-mcart-row {
     display: flex;
     align-items: flex-start;
-    gap: 12px;
-    padding: 14px 12px;
-    border-bottom: 1px solid var(--wujia-morder-divider);
+    gap: 10px;
+    min-height: 76px;
+    padding: 12px;
+    background: var(--wujia-morder-card-bg);
+    border: 1px solid var(--wujia-morder-divider);
+    border-radius: 12px;
 }
-.wujia-mcart-row:last-child { border-bottom: 0; }
 .wujia-mcart-row-thumb {
     flex: 0 0 auto;
-    width: 44px;
-    height: 44px;
-    border-radius: 10px;
+    width: 40px;
+    height: 40px;
+    border-radius: 9px;
     background: var(--wujia-morder-thumb-bg);
     color: var(--wujia-morder-thumb-text);
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 18px;
+    padding: 0 4px;
+    font-size: 10px;
+    font-weight: 700;
+    line-height: 1.1;
+    text-align: center;
+    overflow: hidden;
 }
 .wujia-mcart-row-main { flex: 1 1 auto; min-width: 0; }
 .wujia-mcart-row-name {
     display: block;
-    font-size: 14px;
+    font-size: 13.5px;
     font-weight: 700;
     color: var(--wujia-morder-text);
     white-space: nowrap;
@@ -1363,7 +1370,7 @@ a.wujia-mhome-kpi:active { opacity: 0.85; }
 }
 .wujia-mcart-row-meta {
     display: block;
-    font-size: 13px;
+    font-size: 11.5px;
     color: var(--wujia-morder-text-sub);
     margin: 2px 0 8px;
 }
@@ -1377,23 +1384,24 @@ a.wujia-mhome-kpi:active { opacity: 0.85; }
     flex: 0 0 auto;
     display: flex;
     align-items: center;
+    background: #F8FAFC;
     border: 1px solid var(--wujia-morder-border);
-    border-radius: 10px;
+    border-radius: 8px;
     overflow: hidden;
 }
 .wujia-mcart-step {
-    width: 34px;
-    height: 34px;
+    width: 30px;
+    height: 28px;
     border: 0;
     background: var(--wujia-morder-card-bg);
-    color: var(--wujia-morder-text);
-    font-size: 18px;
+    color: var(--wujia-morder-text-sub);
+    font-size: 16px;
     line-height: 1;
     cursor: pointer;
 }
 .wujia-mcart-step:active { background: #F3F6F8; }
 .wujia-mcart-step-qty {
-    min-width: 38px;
+    min-width: 30px;
     text-align: center;
     font-size: 14px;
     font-weight: 700;
@@ -1402,28 +1410,28 @@ a.wujia-mhome-kpi:active { opacity: 0.85; }
 .wujia-mcart-row-amount { text-align: right; }
 .wujia-mcart-row-amount-label {
     display: block;
-    font-size: 11px;
+    font-size: 10.5px;
     color: var(--wujia-morder-text-sub);
 }
 .wujia-mcart-row-amount-value {
     display: block;
-    font-size: 14px;
+    font-size: 13.5px;
     font-weight: 700;
     color: var(--wujia-morder-text);
     white-space: nowrap;
 }
 .wujia-mcart-del {
     flex: 0 0 auto;
-    width: 40px;
-    height: 40px;
-    border: 0;
-    border-radius: 10px;
-    background: transparent;
+    width: 28px;
+    height: 28px;
+    border: 1px solid var(--wujia-morder-border);
+    border-radius: 8px;
+    background: #F8FAFC;
     color: var(--wujia-morder-text-muted);
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 18px;
+    font-size: 15px;
     cursor: pointer;
 }
 .wujia-mcart-del:active { color: var(--wujia-morder-warn-text); }
@@ -1452,12 +1460,12 @@ a.wujia-mhome-kpi:active { opacity: 0.85; }
 .wujia-mcart-grand { font-size: 18px; font-weight: 700; color: var(--wujia-morder-text); }
 .wujia-mcart-submit {
     width: 100%;
-    height: 50px;
+    height: 46px;
     border: 0;
-    border-radius: 12px;
+    border-radius: 10px;
     background: var(--wujia-morder-primary);
     color: #FFFFFF;
-    font-size: 15px;
+    font-size: 14px;
     font-weight: 700;
     cursor: pointer;
 }
@@ -1466,12 +1474,38 @@ a.wujia-mhome-kpi:active { opacity: 0.85; }
 
 /* Sprint 13 — Mobile LỊCH SỬ ĐẶT HÀNG (Figma 4445:4) — List + Detail */
 
-/* Title chung (List + Detail) */
-.wujia-mhist-title {
-    font-size: 22px;
-    font-weight: 800;
-    color: var(--wujia-morder-text);
+/* Title chung (List + Detail) — v2: titlerow + count / detail back button */
+.wujia-mhist-titlerow {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
     margin: 4px 0 14px;
+}
+.wujia-mhist-title {
+    font-size: 24px;
+    font-weight: 700;
+    color: var(--wujia-morder-text);
+    margin: 0;
+}
+.wujia-mhist-detail-head {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin: 4px 0 14px;
+}
+.wujia-mhist-back {
+    flex: 0 0 auto;
+    width: 42px;
+    height: 42px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid var(--wujia-morder-border);
+    border-radius: 10px;
+    background: var(--wujia-morder-card-bg);
+    color: var(--wujia-morder-primary);
+    font-size: 20px;
+    text-decoration: none;
 }
 
 /* ====================== LIST ====================== */
@@ -1539,6 +1573,26 @@ a.wujia-mhome-kpi:active { opacity: 0.85; }
     cursor: pointer;
 }
 .wujia-mhist-search-btn:active { background: var(--wujia-morder-primary-dark); }
+/* v2: ô tìm kiếm có icon + nền nhạt */
+.wujia-mhist-search-box {
+    flex: 1 1 auto;
+    min-width: 0;
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+.wujia-mhist-search-box i {
+    position: absolute;
+    left: 12px;
+    font-size: 15px;
+    color: var(--wujia-morder-text-muted);
+    pointer-events: none;
+}
+.wujia-mhist-search-box .wujia-mhist-search-input {
+    width: 100%;
+    padding-left: 34px;
+    background: #F8FAFC;
+}
 
 /* Chips lọc */
 /* Header danh sách */
@@ -1554,23 +1608,24 @@ a.wujia-mhome-kpi:active { opacity: 0.85; }
     color: var(--wujia-morder-text);
 }
 
-/* Card danh sách + rows */
+/* Danh sách đơn (v2 — mỗi đơn 1 card, gap 8) */
 .wujia-mhist-list {
-    background: var(--wujia-morder-card-bg);
-    border: 1px solid var(--wujia-morder-border);
-    border-radius: var(--wujia-morder-radius);
-    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
 }
 .wujia-mhist-row {
     display: flex;
     align-items: center;
     justify-content: space-between;
     gap: 12px;
-    padding: 14px;
-    border-bottom: 1px solid var(--wujia-morder-divider);
+    min-height: 54px;
+    padding: 10px 14px;
+    background: var(--wujia-morder-card-bg);
+    border: 1px solid var(--wujia-morder-divider);
+    border-radius: 12px;
     text-decoration: none;
 }
-.wujia-mhist-row:last-child { border-bottom: 0; }
 .wujia-mhist-row-main {
     display: flex;
     flex-direction: column;
@@ -1578,12 +1633,12 @@ a.wujia-mhome-kpi:active { opacity: 0.85; }
     min-width: 0;
 }
 .wujia-mhist-row-code {
-    font-size: 15px;
+    font-size: 14px;
     font-weight: 700;
     color: var(--wujia-morder-text);
 }
 .wujia-mhist-row-date {
-    font-size: 12px;
+    font-size: 11.5px;
     color: var(--wujia-morder-text-sub);
 }
 .wujia-mhist-row-side {
@@ -1594,7 +1649,7 @@ a.wujia-mhome-kpi:active { opacity: 0.85; }
     gap: 6px;
 }
 .wujia-mhist-row-amount {
-    font-size: 15px;
+    font-size: 13px;
     font-weight: 700;
     color: var(--wujia-morder-text);
     white-space: nowrap;
@@ -1671,7 +1726,7 @@ a.wujia-mhome-kpi:active { opacity: 0.85; }
     margin-bottom: 14px;
 }
 .wujia-mhist-card-head {
-    font-size: 15px;
+    font-size: 16px;
     font-weight: 700;
     color: var(--wujia-morder-text);
     margin-bottom: 12px;
@@ -1685,13 +1740,13 @@ a.wujia-mhome-kpi:active { opacity: 0.85; }
 }
 .wujia-mhist-kv-label {
     flex: 0 0 110px;
-    font-size: 14px;
+    font-size: 12.5px;
     color: var(--wujia-morder-text-sub);
 }
 .wujia-mhist-kv-value {
     flex: 1 1 auto;
     text-align: left;
-    font-size: 14px;
+    font-size: 12.5px;
     font-weight: 700;
     color: var(--wujia-morder-text);
 }
