@@ -1,0 +1,100 @@
+\chapter{Sprint 20 --- Mobile Đổi trả / Bù hàng (4 màn) + fix drag-target toàn portal (2026-06-22)}
+
+\section{Bối cảnh}
+
+BA giao ``UI mobile Chức năng bù hàng (yêu cầu bù hàng + chi tiết bù hàng), xem trong
+Figma''. Đối chiếu Figma + BA spec xác định: \textbf{``bù hàng'' và ``đổi trả'' là CÙNG
+1 feature} = module \texttt{wujia\_portal\_return} / model \texttt{wujia.return.request}
+(FEATURE CHECKLIST D40 ``Tạo yêu cầu bù hàng''; Model Field B8 ``Quản lý yêu cầu bù
+hàng/đổi trả''; Controller B30 ``Đổi trả / Bù hàng''; K685 bù hàng = 1 phương án xử lý).
+Figma frame \textbf{Mobile\_Return \texttt{4449:81}} chứa đúng 4 sub-screen: List
+\texttt{4449:88} / Tạo YC \texttt{4449:203} / Chi tiết \texttt{4449:367} / Empty
+\texttt{4449:525}. Backend đã có đủ (model + 4 route + 3 template desktop) nhưng
+\textbf{chưa có bản mobile} \(\rightarrow\) đây là task ``Đổi trả mobile'' pending từ §5.
+
+\textbf{Quyết định user (đã chốt):} (1) làm \textbf{cả 4 màn}; (2) \textbf{UI-only} --- wire
+field backend đã có, field Figma chưa có backend để placeholder/ẩn, KHÔNG đổi schema/migration;
+(3) follow \textbf{BA Source Component} \texttt{UI/mobile\_source\_ui\_v2\_3} (Screen Index ghi
+\texttt{Return | List/Create/Detail | ListScreen | ReturnCard/FormField}).
+
+\section{(A) 4 màn mobile (\texttt{d-lg-none}, desktop giữ nguyên)}
+
+Mỗi view bọc desktop cũ trong \texttt{content-wrapper d-none d-lg-block}, thêm block mobile
+\texttt{d-lg-none .wujia-mpage .wujia-mreturn} (pattern S15/S17). Reuse component canonical
+(S19) + token \texttt{--wujia-morder-*} (brand \texttt{\#28A9DF}, bg \texttt{\#F3F6F8}, radius 14):
+
+\begin{itemize}
+  \item \textbf{List} (\texttt{portal\_return\_list.xml}): PageHeader \texttt{with\_action}
+        (tiêu đề + pill ``Tạo yêu cầu'' 44px) / FilterBar search ``Tìm mã YC / mã đơn'' /
+        SectionHeader + \texttt{wj-count-meta} ``N yêu cầu'' / \textbf{ReturnCard} mới
+        (\texttt{wujia-mreturn-row}: mã + StatusBadge + sản phẩm + divider + Đơn gốc·Ngày YC +
+        chevron) / 2 EmptyState (\texttt{wj-empty-state--rich} ``Không có yêu cầu'' và
+        ``Không tìm thấy kết quả'').
+  \item \textbf{Tạo YC} (\texttt{portal\_return\_form.xml}): back + banner ``1 sản phẩm/yêu
+        cầu'' + 4 card (Thông tin đơn hàng / Sản phẩm / Nội dung lỗi / Ảnh + Video) + CTA
+        ``Hủy'' + ``Gửi yêu cầu'' full-width 48px. Single-product, submit thẳng route POST cũ.
+  \item \textbf{Chi tiết} (\texttt{portal\_return\_detail.xml}): summary mã + badge + kv-card
+        (reuse \texttt{wujia-mhist-kv}) Thông tin đơn hàng / Sản phẩm / Nội dung lỗi + ảnh
+        đính kèm (route attachment cũ) + card ``Phản hồi của Ngô Gia''.
+\end{itemize}
+
+\section{(B) Wiring UI-only}
+
+Wire field backend có sẵn: \texttt{order\_id}, line \texttt{product\_name}/\texttt{qty},
+\texttt{error\_id}, \texttt{expected\_delivery\_date}, \texttt{note}, \texttt{image\_ids}
+(min 3). Reuse route \texttt{POST /portal/return/new} + \texttt{\_parse\_payload} KHÔNG đổi
+(mobile submit đúng field name cũ, \texttt{franchise\_id} hidden = active store). Field Figma
+chưa có backend (\textbf{Đã nhận, Ngày đóng-mở hàng, Ngày sản xuất, Video, Phản hồi HQ}) render
+UI-only (input không \texttt{name} \(\rightarrow\) không submit); ``Phản hồi của Ngô Gia'' dùng
+\texttt{refuse\_reason} nếu có, else placeholder. Controller chỉ thêm param \texttt{q} (ilike
+\texttt{name} | \texttt{order\_id.name}, mirror history/support) + \texttt{today} cho field
+``Ngày yêu cầu''.
+
+\section{(C) Fix back-icon kẹt + tiêu đề wrap (toàn portal)}
+
+User báo: trong detail, \textbf{bấm mũi tên back không ăn, bấm chữ mới ăn}. Truy ra
+\texttt{elementFromPoint} tại tâm icon = \texttt{div.drag-target} --- swipe-zone Vuexy
+(\texttt{position:fixed; left:-10px; width:40px; height:100\%; \textbf{z-index:1036}}) phủ
+mép trái \(\sim\)30px toàn màn, nuốt click icon back (x16--36); chữ ở x\textgreater40 nằm ngoài
+nên ăn. Bug có sẵn trên MỌI trang mobile dùng \texttt{wujia-mticket-back}.
+
+\textbf{Fix gốc} (shell \texttt{\_wujia\_theme.css}): tắt \texttt{.drag-target} ở
+\texttt{@media (max-width:767.98px)} --- phone dùng bottom-nav, không vuốt-mở-sidebar; tablet
+\(\ge\)768 vốn đã \texttt{z-index:0} nên vô hại, desktop không đổi. Một rule \(\rightarrow\)
+fix back-icon mọi trang mobile. Thêm \texttt{tap-target} 44px (chuẩn touch BA) cho back
+return. Tiêu đề ``Đổi trả hàng'' wrap do Chromium font-boosting (22\(\rightarrow\)32px) khít
+với pill \(\rightarrow\) thêm \texttt{white-space:nowrap} + \texttt{text-size-adjust} (scoped
+return) \(\rightarrow\) 1 dòng.
+
+\section{Verify}
+
+\begin{itemize}
+  \item \texttt{upgrade.sh wujia\_portal\_layout,wujia\_portal\_return} RC=0, log sạch.
+  \item Browser thật (Playwright chromium, viewport 390px): 3 route \texttt{/portal/return},
+        \texttt{/return/new}, \texttt{/return/<id>} \(\rightarrow\) \textbf{200}, khớp 4 mockup
+        Figma. Tap \textbf{icon} back \(\rightarrow\) navigate OK; \texttt{drag-target
+        display:none} trên phone; tiêu đề \texttt{clientW==scrollW} (1 dòng).
+  \item Regression: \texttt{test\_sprint5} 21/0 + \texttt{test\_sprint9} 7/0; desktop
+        \(\ge\)992px return list 200 + bảng nguyên vẹn; tablet 800px \texttt{drag-target
+        block/z0} (vô hại).
+  \item BA QA: store strip \texttt{[HN-02] tên · Owner} (no label), footer active cyan,
+        không \texttt{\#22A9DE}, không bell mobile.
+\end{itemize}
+
+\section{Files \& version}
+
+\texttt{wujia\_portal\_return} \texttt{19.0.1.2.0}\(\rightarrow\)\texttt{19.0.1.3.0} (controller +
+3 view + \texttt{portal\_return.css} +\texttt{wujia-mreturn-*}). \texttt{wujia\_portal\_layout}
+\texttt{19.0.19.0.0}\(\rightarrow\)\texttt{19.0.20.0.0} (\texttt{\_wujia\_theme.css} drag-target
++ \texttt{assets.xml} \texttt{?v=1131}). \texttt{portal\_return.css} trong
+\texttt{web.assets\_frontend} (auto-bundle, không cần \texttt{?v}).
+
+\section{Pending / Deferred sau Sprint 20}
+
+\begin{itemize}
+  \item Mở rộng backend field bù hàng thật (Đã nhận, ngày mở-sản xuất, video, response HQ /
+        chatter) khi BA build Phase 2.
+  \item Wire \texttt{uom\_id} vào \texttt{\_parse\_payload} (hiện ĐVT UI-only).
+  \item Pending mobile còn lại: status giao hàng từ batch state (S13), khung giờ vào cart (S11),
+        i18n \texttt{.po}; PC reconcile \texttt{pc\_source\_ui\_v1\_4} (S19 deferred).
+\end{itemize}

@@ -4,7 +4,9 @@
     <template id="portal_return_list" name="Wujia Portal — Return List">
         <t t-call="wujia_portal_layout.app_layout">
             <t t-set="title">Yêu cầu đổi trả</t>
-            <div class="content-wrapper">
+
+            <!-- Desktop ≥992px — giữ nguyên, bọc d-none d-lg-block (S20) -->
+            <div class="content-wrapper d-none d-lg-block">
                 <div class="content-header row mt-3">
                     <div class="content-header-left col-12 mb-1 d-flex align-items-center justify-content-between flex-wrap">
                         <h2 class="content-header-title float-left mb-0">
@@ -123,6 +125,95 @@
                     </nav>
                 </div>
             </div>
+
+            <!-- Mobile <992px — Figma 4449:88, BA ListScreen (S20) -->
+            <div class="d-lg-none wujia-mpage wujia-mreturn">
+                <div class="wujia-mticket-toprow">
+                    <h1 class="wujia-mticket-h1">Đổi trả hàng</h1>
+                    <a href="/portal/return/new" class="wujia-mticket-create-pill">
+                        <i class="feather icon-plus"/> Tạo yêu cầu
+                    </a>
+                </div>
+
+                <div t-if="no_franchise" class="wj-empty-state wj-empty-state--card">
+                    <i class="feather icon-alert-circle"/>
+                    <p>Bạn chưa được gán vào cửa hàng nào.</p>
+                </div>
+
+                <t t-else="">
+                    <form method="get" action="/portal/return" class="wujia-mknow-card wujia-mknow-search">
+                        <div class="wujia-mknow-search-field">
+                            <i class="feather icon-search"/>
+                            <input type="text" name="q" class="wujia-mknow-search-input"
+                                   placeholder="Tìm mã YC / mã đơn" t-att-value="q or ''"/>
+                        </div>
+                        <button type="submit" class="wujia-mknow-search-btn">Tìm</button>
+                    </form>
+
+                    <!-- Empty: chưa có YC nào -->
+                    <t t-if="not returns and not q and not state">
+                        <div class="wujia-mdash-card wj-empty-state--rich">
+                            <span class="wj-empty-state-icon"><i class="feather icon-corner-up-left"/></span>
+                            <p class="wj-empty-state-title">Không có yêu cầu</p>
+                            <p class="wj-empty-state-sub">Cửa hàng chưa gửi yêu cầu đổi trả nào.</p>
+                            <a href="/portal/return/new" class="wujia-mticket-create-pill">
+                                <i class="feather icon-plus"/> Tạo yêu cầu mới
+                            </a>
+                        </div>
+                    </t>
+                    <t t-else="">
+                        <div class="wujia-mhist-listhead">
+                            <span class="wujia-mhist-listhead-title">Lịch sử yêu cầu</span>
+                            <span class="wj-count-meta"><t t-out="len(returns)"/> yêu cầu</span>
+                        </div>
+
+                        <!-- Empty: tìm không ra -->
+                        <div t-if="not returns" class="wujia-mdash-card wj-empty-state--rich">
+                            <span class="wj-empty-state-icon"><i class="feather icon-search"/></span>
+                            <p class="wj-empty-state-title">Không tìm thấy kết quả</p>
+                            <p class="wj-empty-state-sub">Thử đổi từ khóa hoặc xóa điều kiện tìm kiếm.</p>
+                            <a href="/portal/return" class="wujia-mreturn-pill-ghost">Xóa tìm kiếm</a>
+                        </div>
+
+                        <!-- Danh sách yêu cầu (ReturnCard) -->
+                        <div t-else="" class="wujia-mreturn-list">
+                            <a t-foreach="returns" t-as="rr" t-attf-href="/portal/return/#{rr.id}"
+                               class="wujia-mreturn-row">
+                                <t t-set="first_line" t-value="rr.line_ids[:1]"/>
+                                <span class="wujia-mreturn-row-body">
+                                    <span class="wujia-mreturn-row-head">
+                                        <span class="wujia-mreturn-row-code" t-out="rr.name"/>
+                                        <t t-set="lbl" t-value="state_labels.get(rr.state, (rr.state, 'wujia-badge-muted'))"/>
+                                        <span t-attf-class="wujia-badge #{lbl[1]}" t-out="lbl[0]"/>
+                                    </span>
+                                    <span class="wujia-mreturn-row-product"
+                                          t-out="first_line.product_id.display_name or first_line.product_name or rr.error_id.name or '—'"/>
+                                    <span class="wujia-mreturn-row-divider"/>
+                                    <span class="wujia-mreturn-row-meta">
+                                        <span class="wujia-mreturn-row-metacell">
+                                            <span class="lbl">Đơn gốc</span>
+                                            <span class="val" t-out="rr.order_id.name or '—'"/>
+                                        </span>
+                                        <span class="wujia-mreturn-row-metacell">
+                                            <span class="lbl">Ngày YC</span>
+                                            <span class="val"
+                                                  t-out="rr.request_date and rr.request_date.strftime('%d/%m') or '—'"/>
+                                        </span>
+                                    </span>
+                                </span>
+                                <i class="feather icon-chevron-right wujia-mreturn-row-chevron"/>
+                            </a>
+                        </div>
+
+                        <nav t-if="pager and pager.get('page_count', 0) &gt; 1" class="wujia-mhist-pager">
+                            <a t-attf-href="/portal/return?page=#{pager['page_previous']['num']}&amp;#{pager.get('querystring','')}">«</a>
+                            <span>Trang <t t-out="pager['page']['num']"/> / <t t-out="pager['page_count']"/></span>
+                            <a t-attf-href="/portal/return?page=#{pager['page_next']['num']}&amp;#{pager.get('querystring','')}">»</a>
+                        </nav>
+                    </t>
+                </t>
+            </div>
+            <!-- /mobile -->
         </t>
     </template>
 

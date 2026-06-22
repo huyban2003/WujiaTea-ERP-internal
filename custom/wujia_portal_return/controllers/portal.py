@@ -40,17 +40,22 @@ STATE_LABELS = {
 class WujiaPortalReturn(http.Controller):
 
     @http.route(['/portal/return'], type='http', auth='user', sitemap=False)
-    def portal_return_list(self, page=1, state='', date_from='', date_to='', **kw):
+    def portal_return_list(self, page=1, state='', date_from='', date_to='', q='', **kw):
         franchise_ids = get_active_franchise_ids_filter()
         if not franchise_ids:
             return request.render('wujia_portal_return.portal_return_list', {
                 'returns': [], 'pager': {}, 'state_labels': STATE_LABELS,
                 'no_franchise': True, 'state': '', 'date_from': '', 'date_to': '',
+                'q': '',
             })
 
         domain = [('franchise_id', 'in', list(franchise_ids))]
         if state and state in STATE_LABELS:
             domain.append(('state', '=', state))
+        # S20: tìm Mã YC / Mã đơn (ilike)
+        q = (q or '').strip()
+        if q:
+            domain += ['|', ('name', 'ilike', q), ('order_id.name', 'ilike', q)]
         if date_from:
             try:
                 df = datetime.strptime(date_from, '%Y-%m-%d')
@@ -81,14 +86,15 @@ class WujiaPortalReturn(http.Controller):
             'page_next': {'num': min(last_page, page + 1)},
             'querystring': '&'.join(
                 f'{k}={v}' for k, v in
-                [('state', state), ('date_from', date_from), ('date_to', date_to)]
+                [('state', state), ('date_from', date_from), ('date_to', date_to),
+                 ('q', q)]
                 if v
             ),
         }
         return request.render('wujia_portal_return.portal_return_list', {
             'no_franchise': False, 'returns': returns, 'pager': pager,
             'state_labels': STATE_LABELS, 'state': state,
-            'date_from': date_from, 'date_to': date_to,
+            'date_from': date_from, 'date_to': date_to, 'q': q,
         })
 
     @http.route(['/portal/return/new'], type='http', auth='user',
@@ -193,6 +199,7 @@ class WujiaPortalReturn(http.Controller):
             'franchises': franchises, 'recent_orders': recent_orders,
             'error_types': error_types, 'state_labels': STATE_LABELS,
             'error': error, 'values': prefill or {},
+            'today': datetime.now(),
         })
 
     def _parse_payload(self, post, accessible_fids):

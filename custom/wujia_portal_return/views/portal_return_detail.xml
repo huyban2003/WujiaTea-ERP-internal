@@ -4,7 +4,9 @@
     <template id="portal_return_detail" name="Wujia Portal — Return Detail">
         <t t-call="wujia_portal_layout.app_layout">
             <t t-set="title" t-value="rr.name"/>
-            <div class="content-wrapper">
+
+            <!-- Desktop ≥992px — giữ nguyên, bọc d-none d-lg-block (S20) -->
+            <div class="content-wrapper d-none d-lg-block">
                 <div class="content-header row mt-3">
                     <div class="content-header-left col-12 mb-1">
                         <nav><ol class="breadcrumb">
@@ -106,6 +108,88 @@
                             <i class="fa fa-arrow-left me-1"/>Quay lại
                         </a>
                     </div>
+                </div>
+            </div>
+
+            <!-- Mobile <992px — Figma 4449:367, BA DetailScreen (S20) -->
+            <div class="d-lg-none wujia-mpage wujia-mreturn">
+                <a href="/portal/return" class="wujia-mticket-back">
+                    <i class="feather icon-arrow-left"/> Đổi trả
+                </a>
+                <h1 class="wujia-mticket-h1">Chi tiết yêu cầu</h1>
+
+                <div class="wujia-mdash-card">
+                    <div class="wujia-mreturn-row-head">
+                        <span class="wujia-mreturn-row-code" t-out="rr.name"/>
+                        <t t-set="lbl" t-value="state_labels.get(rr.state, (rr.state, 'wujia-badge-muted'))"/>
+                        <span t-attf-class="wujia-badge #{lbl[1]}" t-out="lbl[0]"/>
+                    </div>
+                    <div class="wujia-mreturn-summary-meta">
+                        <span t-out="rr.order_id.name or '—'"/>
+                        <span t-out="rr.request_date and rr.request_date.strftime('%d/%m/%Y') or '—'"/>
+                    </div>
+                </div>
+
+                <div class="wujia-mdash-card">
+                    <div class="wujia-mhist-card-head">Thông tin đơn hàng</div>
+                    <div class="wujia-mhist-kv">
+                        <span class="wujia-mhist-kv-label">Ngày yêu cầu</span>
+                        <span class="wujia-mhist-kv-value"
+                              t-out="rr.request_date and rr.request_date.strftime('%d/%m/%Y') or '—'"/>
+                    </div>
+                    <div class="wujia-mhist-kv">
+                        <span class="wujia-mhist-kv-label">Giao dự kiến</span>
+                        <span class="wujia-mhist-kv-value"
+                              t-out="rr.expected_delivery_date and rr.expected_delivery_date.strftime('%d/%m/%Y') or '—'"/>
+                    </div>
+                    <div class="wujia-mhist-kv">
+                        <span class="wujia-mhist-kv-label">Đơn gốc</span>
+                        <span class="wujia-mhist-kv-value" t-out="rr.order_id.name or '—'"/>
+                    </div>
+                </div>
+
+                <div class="wujia-mdash-card">
+                    <div class="wujia-mhist-card-head">Sản phẩm yêu cầu</div>
+                    <t t-if="rr.line_ids" t-foreach="rr.line_ids" t-as="line">
+                        <div class="wujia-mhist-kv">
+                            <span class="wujia-mhist-kv-label">Sản phẩm</span>
+                            <span class="wujia-mhist-kv-value"
+                                  t-out="line.product_id.display_name or line.product_name or '—'"/>
+                        </div>
+                        <div class="wujia-mhist-kv">
+                            <span class="wujia-mhist-kv-label">SL yêu cầu</span>
+                            <span class="wujia-mhist-kv-value">
+                                <t t-out="'{:,.0f}'.format(line.qty or 0)"/> <t t-out="line.uom_id.name or ''"/>
+                            </span>
+                        </div>
+                    </t>
+                    <p t-if="not rr.line_ids" class="wujia-mhist-note">Không có dòng sản phẩm.</p>
+                </div>
+
+                <div class="wujia-mdash-card">
+                    <div class="wujia-mhist-card-head">Nội dung lỗi</div>
+                    <div class="wujia-mhist-kv">
+                        <span class="wujia-mhist-kv-label">Loại lỗi</span>
+                        <span class="wujia-mhist-kv-value" t-out="rr.error_id.name or '—'"/>
+                    </div>
+                    <p class="wujia-mhist-note" t-out="rr.note or 'Không có ghi chú.'"/>
+                </div>
+
+                <div t-if="rr.image_ids" class="wujia-mdash-card">
+                    <div class="wujia-mhist-card-head"><t t-out="len(rr.image_ids)"/> ảnh đính kèm</div>
+                    <div class="wujia-mreturn-thumbs">
+                        <a t-foreach="rr.image_ids" t-as="img" target="_blank"
+                           t-attf-href="/portal/return/#{rr.id}/attachment/#{img.id}">
+                            <img loading="lazy" t-att-alt="img.name"
+                                 t-attf-src="/portal/return/#{rr.id}/attachment/#{img.id}"/>
+                        </a>
+                    </div>
+                </div>
+
+                <div class="wujia-mdash-card wujia-mreturn-response">
+                    <div class="wujia-mhist-card-head">Phản hồi của Ngô Gia</div>
+                    <p t-if="rr.refuse_reason" class="wujia-mreturn-resp-body" t-out="rr.refuse_reason"/>
+                    <p t-else="" class="wujia-mhist-note">Chưa có phản hồi từ Ngô Gia.</p>
                 </div>
             </div>
         </t>

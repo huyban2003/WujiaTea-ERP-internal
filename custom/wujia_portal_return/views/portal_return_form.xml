@@ -4,7 +4,9 @@
     <template id="portal_return_form" name="Wujia Portal — Return Form">
         <t t-call="wujia_portal_layout.app_layout">
             <t t-set="title">Tạo yêu cầu đổi trả</t>
-            <div class="content-wrapper">
+
+            <!-- Desktop ≥992px — giữ nguyên, bọc d-none d-lg-block (S20) -->
+            <div class="content-wrapper d-none d-lg-block">
                 <div class="content-header row mt-3">
                     <div class="content-header-left col-12 mb-1">
                         <nav><ol class="breadcrumb">
@@ -96,6 +98,122 @@
                         </div>
                     </form>
                 </div>
+            </div>
+
+            <!-- Mobile <992px — Figma 4449:203, BA FormScreen, single-product (S20) -->
+            <div class="d-lg-none wujia-mpage wujia-mreturn">
+                <a href="/portal/return" class="wujia-mticket-back">
+                    <i class="feather icon-arrow-left"/> Đổi trả
+                </a>
+                <h1 class="wujia-mticket-h1">Tạo yêu cầu đổi trả</h1>
+
+                <div class="wujia-mreturn-banner">
+                    <i class="feather icon-info"/>
+                    <span>Mỗi yêu cầu chỉ áp dụng cho 1 sản phẩm trong đơn đặt.</span>
+                </div>
+
+                <p t-if="error" class="text-danger small mb-2" t-out="error"/>
+
+                <form method="post" action="/portal/return/new" enctype="multipart/form-data">
+                    <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
+                    <t t-if="franchises and len(franchises) == 1">
+                        <input type="hidden" name="franchise_id" t-att-value="franchises[0].id"/>
+                    </t>
+
+                    <div class="wujia-mdash-card">
+                        <p class="wujia-mdash-title mb-3">Thông tin đơn hàng</p>
+                        <t t-if="franchises and len(franchises) &gt; 1">
+                            <label class="wujia-mticket-label">Cửa hàng</label>
+                            <select name="franchise_id" class="form-select mb-3" required="required">
+                                <t t-foreach="franchises" t-as="f"><option t-att-value="f.id" t-out="f.name"/></t>
+                            </select>
+                        </t>
+                        <label class="wujia-mticket-label">Đơn hàng gốc</label>
+                        <select name="order_id" class="form-select mb-3">
+                            <option value="">— Không gắn đơn —</option>
+                            <t t-foreach="recent_orders" t-as="o">
+                                <option t-att-value="o.id">
+                                    <t t-out="o.name"/> — <t t-out="o.date_order and o.date_order.strftime('%d/%m/%Y') or ''"/>
+                                </option>
+                            </t>
+                        </select>
+                        <div class="wujia-mreturn-grid2">
+                            <div>
+                                <label class="wujia-mticket-label">Ngày yêu cầu</label>
+                                <input type="text" class="form-control" disabled="disabled"
+                                       t-att-value="today and today.strftime('%d/%m/%Y') or ''"/>
+                            </div>
+                            <div>
+                                <label class="wujia-mticket-label">Giao dự kiến</label>
+                                <input type="date" name="expected_delivery_date" class="form-control"/>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="wujia-mdash-card">
+                        <p class="wujia-mdash-title mb-3">Sản phẩm yêu cầu</p>
+                        <label class="wujia-mticket-label">Sản phẩm</label>
+                        <input type="text" name="line_product_name[]" class="form-control mb-3"
+                               placeholder="Tên sản phẩm cần đổi / bù" required="required"/>
+                        <input type="hidden" name="line_reason[]" value=""/>
+                        <div class="wujia-mreturn-grid2">
+                            <div>
+                                <label class="wujia-mticket-label">SL yêu cầu</label>
+                                <input type="number" name="line_qty[]" class="form-control"
+                                       min="1" value="1" required="required"/>
+                            </div>
+                            <div>
+                                <!-- UI-only: ĐVT chưa wire -->
+                                <label class="wujia-mticket-label">Đơn vị</label>
+                                <input type="text" class="form-control" placeholder="VD: Bịch"/>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="wujia-mdash-card">
+                        <p class="wujia-mdash-title mb-3">Nội dung lỗi</p>
+                        <label class="wujia-mticket-label">Loại lỗi</label>
+                        <select name="error_id" class="form-select mb-3" required="required">
+                            <option value="">— Chọn loại lỗi —</option>
+                            <t t-foreach="error_types" t-as="et"><option t-att-value="et.id" t-out="et.name"/></t>
+                        </select>
+                        <!-- UI-only: 2 ngày dưới chưa wire -->
+                        <div class="wujia-mreturn-grid2">
+                            <div>
+                                <label class="wujia-mticket-label">Ngày đóng-mở hàng</label>
+                                <input type="date" class="form-control"/>
+                            </div>
+                            <div>
+                                <label class="wujia-mticket-label">Ngày sản xuất</label>
+                                <input type="date" class="form-control"/>
+                            </div>
+                        </div>
+                        <label class="wujia-mticket-label">Ghi chú</label>
+                        <textarea name="note" rows="3" class="form-control"
+                                  placeholder="Mô tả chi tiết tình trạng hàng…"/>
+                    </div>
+
+                    <div class="wujia-mdash-card">
+                        <p class="wujia-mdash-title mb-1">Hình ảnh đính kèm</p>
+                        <p class="wujia-mticket-hint">Tối thiểu 3 ảnh, chụp rõ bao bì &amp; lỗi sản phẩm.</p>
+                        <input type="file" name="images" class="form-control"
+                               accept="image/png,image/jpeg" multiple="multiple"/>
+                    </div>
+
+                    <div class="wujia-mdash-card">
+                        <!-- UI-only: video chưa wire -->
+                        <p class="wujia-mdash-title mb-1">Video đính kèm</p>
+                        <p class="wujia-mticket-hint">MP4/MOV, tối đa 1 video.</p>
+                        <input type="file" class="form-control" accept="video/mp4,video/quicktime"/>
+                    </div>
+
+                    <div class="wujia-mreturn-cta">
+                        <a href="/portal/return" class="wujia-mreturn-btn-cancel">Hủy</a>
+                        <button type="submit" name="action" value="send" class="wujia-mreturn-btn-submit">
+                            Gửi yêu cầu
+                        </button>
+                    </div>
+                </form>
             </div>
         </t>
     </template>

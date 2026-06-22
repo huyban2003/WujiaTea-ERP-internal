@@ -286,3 +286,10 @@ html body .content .content-wrapper {
         background-color: var(--wujia-mshell-bg) !important;
     }
 }
+
+/* Phone <768px: tắt Vuexy .drag-target (swipe-zone z1036 phủ mép trái → nuốt
+   click icon back mọi trang mobile). Phone dùng bottom-nav, không swipe-sidebar.
+   Tablet ≥768 vốn đã z-index:0 nên vô hại. */
+@media (max-width: 767.98px) {
+    .drag-target { display: none !important; }
+}
