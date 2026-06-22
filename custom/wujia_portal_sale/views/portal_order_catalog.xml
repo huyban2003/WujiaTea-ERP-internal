@@ -5,179 +5,123 @@
         <t t-call="wujia_portal_layout.app_layout">
             <t t-set="title">Đặt hàng</t>
             <div class="content-wrapper">
-                <!-- ===== DESKTOP (≥992px) — GIỮ NGUYÊN ===== -->
+                <!-- ===== DESKTOP (≥992px) — PC combined catalog + cart (Figma PC_Product_Cart 4600:2, Sprint PC-1) ===== -->
                 <div class="d-none d-lg-block">
-                <div class="content-header row mt-3">
-                    <div class="content-header-left col-12 mb-1">
-                        <h2 class="content-header-title float-left mb-0">
-                            <i class="fa fa-shopping-cart me-1"/>Sản phẩm
-                        </h2>
+                    <div t-if="no_franchise" class="alert alert-warning m-3">
+                        Bạn chưa được gán vào cửa hàng nào — không thể đặt hàng.
                     </div>
-                </div>
+                    <t t-else="">
+                        <div class="wj-pc-page-header">
+                            <h1 class="wj-pc-page-header__title">Đặt hàng</h1>
+                        </div>
 
-                <div t-if="no_franchise" class="alert alert-warning m-3">
-                    Bạn chưa được gán vào cửa hàng nào — không thể đặt hàng.
-                </div>
+                        <div t-if="error" class="alert alert-danger" role="alert"><t t-esc="error"/></div>
+                        <div t-if="message" class="alert alert-success" role="status"><t t-esc="message"/></div>
 
-                <div t-if="not no_franchise" class="content-body">
-                    <!-- ============ Search + filter row ============ -->
-                    <div class="card">
-                        <div class="card-body p-2">
-                            <form method="get" action="/portal/order" class="row g-2 align-items-center">
-                                <div class="col-md-4 col-12">
-                                    <div class="input-group">
-                                        <input type="text" name="keyword" class="form-control"
-                                               placeholder="Nhập tên sản phẩm cần tìm"
+                        <div class="wj-pc-order-grid">
+                            <!-- LEFT: catalog -->
+                            <div class="wj-pc-order-main">
+                                <!-- Filter row -->
+                                <form method="get" action="/portal/order" class="wj-pc-order-filter">
+                                    <div class="wj-pc-order-search">
+                                        <i class="feather icon-search"/>
+                                        <input type="text" name="keyword"
+                                               placeholder="Tìm theo tên sản phẩm, mã hàng..."
                                                t-att-value="keyword"/>
-                                        <button class="btn btn-primary" type="submit">
-                                            <i class="fa fa-search me-1"/>Tìm kiếm
-                                        </button>
                                     </div>
-                                </div>
-                                <div class="col-md-3 col-12">
-                                    <select name="category_id" class="form-select" onchange="this.form.submit()">
-                                        <option value="">— Tất cả nhóm —</option>
+                                    <select name="category_id" class="wj-pc-order-cat" onchange="this.form.submit()">
+                                        <option value="">Tất cả danh mục</option>
                                         <t t-foreach="categories" t-as="cat">
                                             <option t-att-value="cat.id"
                                                     t-att-selected="'selected' if category_id == cat.id else None"
                                                     t-out="cat.complete_name"/>
                                         </t>
                                     </select>
-                                </div>
-                                <div class="col-md-5 col-12 text-end">
-                                    <small class="text-muted">
-                                        Khung giờ đặt hàng: <strong t-out="order_time_from"/> — <strong t-out="order_time_to"/>
-                                    </small>
-                                </div>
-                            </form>
-                        </div>
-                    </div>
+                                    <button type="submit" class="wj-pc-btn wj-pc-btn--primary">
+                                        <i class="feather icon-search"/> Tìm
+                                    </button>
+                                </form>
 
-                    <div class="row mt-2">
-                        <!-- ============ Product list (left) — MẪU 02 Card bảng (Sprint 9.13b 2026-05-27) ============ -->
-                        <div class="col-12 col-lg-8">
-                            <div class="wujia-content-card">
-                                <div class="wujia-content-card-header">
-                                    <div class="wujia-content-card-header-icon">
-                                        <i class="feather icon-package"/>
-                                    </div>
-                                    <h4 class="wujia-content-card-header-title">Danh sách sản phẩm</h4>
-                                    <span t-if="products" class="wujia-content-card-header-link">
-                                        <t t-out="len(products)"/> sản phẩm
-                                    </span>
-                                </div>
-                                <div t-if="not products" class="wujia-empty-state">
-                                    <i class="feather icon-package"/>
-                                    <p>Không có sản phẩm phù hợp.</p>
-                                </div>
-                                <table t-else="" class="wujia-content-card-table">
-                                    <thead>
-                                        <tr>
-                                            <th>Sản phẩm</th>
-                                            <th>ĐVT</th>
-                                            <th class="text-end">Đơn giá</th>
-                                            <th class="text-end">Số lượng</th>
-                                            <th class="text-end"></th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <tr t-foreach="products" t-as="product">
-                                            <td>
-                                                <a t-attf-href="/portal/order/product/#{product.id}" class="text-decoration-none">
-                                                    <strong t-out="product.name"/>
-                                                </a>
-                                            </td>
-                                            <td t-out="product.uom_id.name or '—'"/>
-                                            <td class="text-end fw-bold" t-out="'{:,.0f}'.format(product.list_price or 0).replace(',', '.') + ' ₫'"/>
-                                            <td class="text-end">
-                                                <input type="number" class="form-control form-control-sm product-qty-input ms-auto"
-                                                       t-att-min="product.min_qty or 1"
-                                                       t-att-max="product.max_qty or None"
-                                                       t-att-value="product.min_qty or 1"
-                                                       style="width: 80px; display: inline-block;"/>
-                                            </td>
-                                            <td class="text-end">
-                                                <button type="button"
-                                                        class="btn btn-sm btn-primary btn-add-cart"
-                                                        t-att-data-product-id="product.id">
-                                                    <i class="fa fa-cart-plus"/>
-                                                </button>
-                                            </td>
-                                        </tr>
-                                    </tbody>
-                                </table>
-                            </div>
-
-                            <!-- Pager -->
-                            <nav t-if="pager and pager.get('page_count', 0) &gt; 1" aria-label="pagination" class="mt-2">
-                                <ul class="pagination wujia-pagination justify-content-center mb-0">
-                                    <li class="page-item">
-                                        <a class="page-link" t-att-href="pager['page_previous']['url']">«</a>
-                                    </li>
-                                    <li class="page-item active">
-                                        <span class="page-link">
-                                            Trang <t t-out="pager['page']['num']"/> / <t t-out="pager['page_count']"/>
+                                <!-- Product card -->
+                                <div class="wj-pc-card wj-pc-order-card">
+                                    <div class="wj-pc-order-cardhead">
+                                        <h3 class="wj-pc-order-cardtitle">Danh sách sản phẩm</h3>
+                                        <span class="wj-count-meta wj-count-meta--bold">
+                                            <t t-out="product_count"/> sản phẩm
                                         </span>
-                                    </li>
-                                    <li class="page-item">
-                                        <a class="page-link" t-att-href="pager['page_next']['url']">»</a>
-                                    </li>
-                                </ul>
-                            </nav>
-                        </div>
+                                    </div>
+                                    <div t-if="not products" class="wj-empty-state">
+                                        <i class="feather icon-package"/>
+                                        <p>Không có sản phẩm phù hợp.</p>
+                                    </div>
+                                    <t t-else="">
+                                        <t t-set="cart_qty_map"
+                                           t-value="{cl.product_id.product_tmpl_id.id: int(cl.product_uom_qty) for cl in cart_lines}"/>
+                                        <table class="wj-pc-order-table">
+                                            <thead>
+                                                <tr>
+                                                    <th>Sản phẩm</th>
+                                                    <th>Quy cách</th>
+                                                    <th>ĐVT</th>
+                                                    <th class="text-end">Đơn giá</th>
+                                                    <th class="text-center">Thao tác</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <tr t-foreach="products" t-as="product"
+                                                    t-attf-class="wj-pc-order-row #{'wj-pc-order-row--incart' if cart_qty_map.get(product.id, 0) else ''}">
+                                                    <t t-set="in_cart" t-value="cart_qty_map.get(product.id, 0)"/>
+                                                    <td>
+                                                        <a t-attf-href="/portal/order/product/#{product.id}"
+                                                           class="wj-pc-order-prod">
+                                                            <span class="wj-pc-order-prod-name" t-out="product.name"/>
+                                                        </a>
+                                                    </td>
+                                                    <td class="wj-pc-order-spec"
+                                                        t-out="('%g kg' % product.weight) if product.weight else '—'"/>
+                                                    <td class="wj-pc-order-uom" t-out="product.uom_id.name or '—'"/>
+                                                    <td class="text-end wj-pc-order-price"
+                                                        t-out="'{:,.0f}'.format(product.list_price or 0).replace(',', '.') + ' đ'"/>
+                                                    <td class="text-center">
+                                                        <button type="button"
+                                                                class="wj-pc-order-add btn-add-cart"
+                                                                t-att-data-product-id="product.id"
+                                                                aria-label="Thêm vào giỏ">
+                                                            <i class="feather icon-shopping-cart"/>
+                                                            <span t-attf-class="wj-pc-order-add-badge #{'' if in_cart else 'd-none'}"
+                                                                  t-out="in_cart"/>
+                                                        </button>
+                                                    </td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </t>
+                                </div>
 
-                        <!-- ============ Cart side panel (right) — MẪU 02 Card bảng ============ -->
-                        <div class="col-12 col-lg-4">
-                            <div class="wujia-content-card cart-panel sticky-top" style="top: 20px;">
-                                <div class="wujia-content-card-header">
-                                    <div class="wujia-content-card-header-icon">
-                                        <i class="feather icon-shopping-cart"/>
-                                    </div>
-                                    <h4 class="wujia-content-card-header-title">Giỏ hàng</h4>
-                                    <span class="wujia-content-card-header-link">
-                                        <t t-out="len(cart_lines)"/> dòng
+                                <!-- Pager (numbered — wj-pc) -->
+                                <nav t-if="pager and pager.get('page_count', 0) &gt; 1"
+                                     aria-label="pagination" class="wj-pc-pagination wj-pc-order-pager">
+                                    <span class="wj-pc-pagination__count">
+                                        Hiển thị
+                                        <t t-out="(pager['page']['num'] - 1) * page_size + 1"/>–<t t-out="(pager['page']['num'] - 1) * page_size + len(products)"/>
+                                        / <t t-out="product_count"/> sản phẩm
                                     </span>
-                                </div>
-                                <div t-if="not cart_lines" class="wujia-content-card-empty">
-                                    <i class="fa fa-shopping-basket fa-2x mb-2 opacity-25 d-block"/>
-                                    Giỏ hàng trống
-                                </div>
-                                <t t-else="">
-                                    <table class="wujia-content-card-table">
-                                        <thead>
-                                            <tr>
-                                                <th>Sản phẩm</th>
-                                                <th class="text-end">SL</th>
-                                                <th class="text-end">Đơn giá</th>
-                                                <th class="text-end"></th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            <tr t-foreach="cart_lines" t-as="line">
-                                                <td>
-                                                    <strong t-out="line.product_id.name" class="d-block"/>
-                                                </td>
-                                                <td class="text-end" t-out="'{:,.0f}'.format(line.product_uom_qty or 0)"/>
-                                                <td class="text-end" t-out="'{:,.0f}'.format(line.price_unit or 0).replace(',', '.') + ' ₫'"/>
-                                                <td class="text-end">
-                                                    <button class="btn btn-sm btn-outline-danger btn-remove-line"
-                                                            t-att-data-line-id="line.id">
-                                                        <i class="fa fa-times"/>
-                                                    </button>
-                                                </td>
-                                            </tr>
-                                        </tbody>
-                                    </table>
-                                    <div class="d-grid mt-2">
-                                        <button type="button" class="btn btn-success btn-submit-order">
-                                            <i class="fa fa-check me-1"/>Đặt hàng
-                                        </button>
-                                    </div>
-                                </t>
+                                    <a t-att-href="pager['page_previous']['url']" class="wj-pc-page-btn">‹</a>
+                                    <t t-foreach="pager.get('pages', [])" t-as="pg">
+                                        <a t-att-href="pg['url']"
+                                           t-attf-class="wj-pc-page-btn #{'is-active' if pg['num'] == pager['page']['num'] else ''}"
+                                           t-out="pg['num']"/>
+                                    </t>
+                                    <a t-att-href="pager['page_next']['url']" class="wj-pc-page-btn">›</a>
+                                </nav>
+                            </div>
+
+                            <!-- RIGHT: full cart panel (shared partial) -->
+                            <div class="wj-pc-order-side">
+                                <t t-call="wujia_portal_sale.pc_cart_panel"/>
                             </div>
                         </div>
-                    </div>
-                </div>
+                    </t>
                 </div>
                 <!-- /desktop wrapper -->
 

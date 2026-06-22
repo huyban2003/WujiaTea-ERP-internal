@@ -1,6 +1,6 @@
 {
     'name': 'Wujia Portal — Sale (Catalog + Cart)',
-    'version': '19.0.2.5.0',
+    'version': '19.0.2.6.0',
     'category': 'Wujia',
     'summary': 'Trang đặt hàng portal — catalog sản phẩm + giỏ hàng (skeleton UI)',
     'author': 'WujiaTea',
@@ -9,6 +9,7 @@
     'data': [
         'views/sidenav_inherit.xml',
         'views/header_cart_inherit.xml',
+        'views/pc_cart_panel.xml',
         'views/portal_order_catalog.xml',
         'views/portal_order_product_detail.xml',
         'views/portal_order_cart.xml',
@@ -17,6 +18,7 @@
         'web.assets_frontend': [
             'wujia_portal_sale/static/src/css/portal_order.css',
             'wujia_portal_sale/static/src/js/portal_order.js',
+            'wujia_portal_sale/static/src/js/portal_order_pc.js',
             'wujia_portal_sale/static/src/js/header_cart_badge.js',
         ],
     },

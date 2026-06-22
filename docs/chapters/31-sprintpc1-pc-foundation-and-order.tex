@@ -1,0 +1,111 @@
+\chapter{Sprint PC-1 --- PC Foundation/Shell + màn Đặt hàng PC (2026-06-22)}
+
+\section{Bối cảnh}
+
+Mobile UI đã xong (Sprint 10--21). Chuyển sang \textbf{desktop/PC}, vốn bị ``GIỮ NGUYÊN 100\%''
+suốt các sprint mobile (mọi block bọc \texttt{d-none d-lg-block}, không đổi từ Sprint 9). BA giao bộ
+source desktop \texttt{pc\_source\_ui\_v1\_4} (12 component SVG + screen template + token + QA
+checklist). Full PC reconcile = 12 component \(\times\) \(\sim\)9 trang \(\rightarrow\) quá lớn cho 1
+sprint; user chốt làm theo workflow BA: \textbf{Part A} dựng component library trước, \textbf{Part B}
+ráp screen đầu tiên (Đặt hàng), các trang còn lại ``từng trang sửa sau''.
+
+\textbf{Token strategy (chốt):} scoped \texttt{wj-pc-*} (zero blast radius) --- thêm token PC mới +
+class \texttt{wj-pc-*} mới, \textbf{KHÔNG} bump token global \texttt{--wujia-*} (tránh vỡ mobile vừa
+xong). Conflict BA chỉ áp \textbf{Sidebar active}; KHÔNG thêm cart/bell vào TopHeader; KHÔNG dựng lại
+nav ``Công nợ'' (giữ quyết định xoá S17).
+
+\section{(A) Foundation + Shell}
+
+\begin{itemize}
+  \item \textbf{Token} (\texttt{\_variables.css}): mở rộng block \texttt{--wj-pc-*} = giá trị verbatim
+        từ \texttt{WJ\_PC\_Tokens\_v1} (card-radius 18, component-radius 12, pill 999, table header/row
+        50/58, metric 96/icon 52, soft palette blue/yellow/green/red/gray). \textbf{0 deletion} ---
+        không đụng giá trị \texttt{--wujia-*} nào.
+  \item \textbf{Component layer MỚI} (\texttt{\_pc\_components.css}): 10 nhóm class \texttt{wj-pc-*}
+        khớp pixel/hex từng SVG --- Button (h42 rx12, primary/secondary/ghost/danger), StatusBadge
+        (pill h28 soft palette), MetricCard (h96 icon 52), Card+DataTable (radius 18, header
+        \texttt{\#F8FAFC} h50, row h58), Pagination (numbered 36×36 active cyan), FilterBar, PageHeader
+        (title 30/800 + breadcrumb), FormField (h42), EmptyState, Modal (panel 420 backdrop
+        \texttt{\#111827}/0.18). Load sau \texttt{\_components.css}, \texttt{?v=1134}.
+  \item \textbf{Sidebar active reconcile} (\texttt{\_wujia\_theme.css}): đổi nền cyan đặc + chữ trắng
+        \(\rightarrow\) BA: nền soft \texttt{\#EAF7FD} + chữ/icon cyan + \textbf{thanh accent trái 4px}
+        bo góc (\texttt{::before}, cần \texttt{position:relative} trên \texttt{<a>}), weight 700. Đây là
+        thay đổi visible duy nhất của Part A trên trang hiện hữu.
+  \item \textbf{TopHeader}: verify-only --- khớp BA (cyan 72px + store pill glass + role + lang +
+        avatar). Lang-pill no-arrow + cart/bell = defer (không sửa).
+  \item \textbf{Gallery dev-only}: route \texttt{/portal/\_pc-preview} (\texttt{pc\_preview.py}, internal
+        user) + \texttt{pc\_preview.xml} render toàn bộ component \texttt{wj-pc-*} --- gate QA + reference
+        sống cho các sprint screen sau.
+\end{itemize}
+
+\section{(B) Màn Đặt hàng PC --- combined (Figma \texttt{PC\_Product\_Cart 4600:2})}
+
+BA gộp \textbf{catalog (trái) + giỏ hàng ĐẦY ĐỦ (phải) trên 1 trang} \texttt{/portal/order} --- khác
+hiện tại (catalog có cart-sidebar nhỏ + trang \texttt{/cart} riêng). Quyết định user: (1) gộp +
+restyle cả \texttt{/portal/order/cart} desktop thành standalone (dùng chung partial); header cart icon
+\(\rightarrow\) \texttt{/portal/order}; (2) panel chỉ \textbf{Ghi chú} (bỏ SĐT/Địa chỉ theo Figma,
+submit fallback); (3) warning-bar khung giờ \textbf{wire}; min-qty toast \textbf{chỉ CSS, chưa wire}.
+
+\begin{itemize}
+  \item \textbf{Controller} (\texttt{portal.py}): \texttt{/portal/order} truyền thêm \texttt{cart} +
+        \texttt{product\_count} + \texttt{page\_size} + \texttt{message}/\texttt{error}.
+        \texttt{\_fallback\_pager} \(\rightarrow\) numbered \texttt{pages} + \textbf{giữ
+        keyword/category khi sang trang} (sửa luôn bug cũ mất filter). \texttt{cart\_qty\_map} tính
+        inline trong template (như mobile). KHÔNG thêm validation min/max (decision 3).
+  \item \textbf{Partial dùng chung} (\texttt{pc\_cart\_panel.xml}): cột giỏ phải (warning-bar + bảng
+        stepper + ghi chú + Số lượng/Tổng tiền + nút Gửi đơn) --- \texttt{t-call} từ CẢ
+        \texttt{/portal/order} (cột phải) VÀ \texttt{/portal/order/cart} desktop (standalone) \(\Rightarrow\) DRY.
+  \item \textbf{Template}: \texttt{portal\_order\_catalog.xml} desktop \(\rightarrow\) combined
+        (\texttt{wj-pc-page-header} + filter row + product table header \textbf{cyan} + cột Quy
+        cách/ĐVT/Đơn giá + nút add \textbf{badge qty} + pagination numbered + count label
+        ``Hiển thị X--Y / N''); \texttt{portal\_order\_cart.xml} desktop \(\rightarrow\) standalone
+        \texttt{t-call} partial. Mobile \texttt{d-lg-none} giữ nguyên cả 2 file.
+  \item \textbf{Row in-cart highlight}: dòng SP đang có trong giỏ (\texttt{cart\_qty\_map>0})
+        \(\rightarrow\) class \texttt{wj-pc-order-row--incart} nền soft-cyan \textbf{cố định} (giữ cả
+        khi hover) --- theo Figma.
+  \item \textbf{JS} (\texttt{portal\_order\_pc.js} mới): stepper \texttt{- N +} + remove của cart panel
+        gọi endpoint \texttt{/cart/update}, \texttt{/cart/remove} có sẵn; live-update qty + thành tiền +
+        tổng + count + badge header. \textbf{Sync 2 chiều} \texttt{syncCatalogBadge}: đổi giỏ
+        \(\rightarrow\) cập nhật badge + highlight bên catalog ngay (cùng tab, không reload). Catalog
+        add (\texttt{portal\_order.js} +1 nhánh) reload 1 lần để đồng bộ panel.
+  \item \textbf{CSS screen} (\texttt{portal\_order.css}): \texttt{wj-pc-order-*}/\texttt{wj-pc-cart-*} +
+        \textbf{hover đầy đủ} (add\(\rightarrow\)primary-dark, stepper, row, trash\(\rightarrow\)đỏ,
+        submit, pagination); warning-bar \texttt{\#FEE2E2}/\texttt{\#FECACA}/\texttt{\#DC2626}; toast
+        min-qty CSS sẵn (chưa wire).
+\end{itemize}
+
+\section{Verify}
+
+\begin{itemize}
+  \item \texttt{upgrade.sh wujia\_portal\_layout,wujia\_portal\_sale} RC=0, log sạch (91 modules).
+  \item \textbf{Render thật} (login member 1 cửa hàng \texttt{em.hcm}, requests session):
+        \texttt{/portal/order} HTTP 200 (\texttt{wj-pc-order-grid} + cart panel + table + count label),
+        \texttt{/portal/order/cart} 200; thêm SP \(\rightarrow\) nhánh giỏ-có-hàng render đủ
+        stepper/tổng/badge + dòng \texttt{--incart}; pager (test \texttt{PAGE\_SIZE=2}) ``Hiển thị 1--2 / 5'' +
+        numbered \([1][2][3]\); KHÔNG traceback. Endpoint add/update/remove chạy.
+  \item Regression: \texttt{test\_sprint5} 21/0 + \texttt{test\_sprint9} 7/0; mobile blocks không đụng;
+        zero-blast (\texttt{wj-pc-*} chỉ dùng ở gallery + screen order).
+\end{itemize}
+
+\section{Files \& version}
+
+\texttt{wujia\_portal\_layout} \texttt{19.0.21.0.0}\(\rightarrow\)\texttt{19.0.22.0.0} (\texttt{\_variables.css}
+token PC + \texttt{\_pc\_components.css} MỚI + \texttt{\_wujia\_theme.css} sidebar active +
+\texttt{assets.xml} \texttt{?v=1134} + \texttt{pc\_preview.\{py,xml\}} gallery).
+\texttt{wujia\_portal\_sale} \texttt{19.0.2.5.0}\(\rightarrow\)\texttt{19.0.2.6.0} (\texttt{portal.py} +
+\texttt{pc\_cart\_panel.xml} MỚI + catalog/cart combined + \texttt{portal\_order\_pc.js} MỚI +
+\texttt{portal\_order.css} screen + header cart href).
+
+\section{UI-only / Pending / Deferred}
+
+\begin{itemize}
+  \item \textbf{UI-only}: cột ``Quy cách'' (model chưa có field --- hiện \texttt{weight}/``---'', chờ BA);
+        tên CN phụ dưới tên VN (chưa có field tên-CN, hiện 1 dòng như mobile).
+  \item \textbf{DEFERRED --- REALTIME cart không-reload} (note kỹ ở \S5 summary): (a) bỏ reload-on-add
+        \(\rightarrow\) cập nhật DOM cart panel live; (b) \textbf{cross-session/cross-device} (doc BA:
+        realtime cho \(\sim\)1500 user) qua \texttt{bus.bus} (ADR-006) publish khi cart mutate. Backend
+        đã race-safe (atomic SQL) --- realtime layer chỉ broadcast. Là việc UI/JS + publish controller,
+        KHÔNG phải lỗi backend. Làm session sau.
+  \item \textbf{Còn lại}: các trang desktop khác (history/report/return/knowledge/support/home) ``từng
+        trang sửa sau''; TopHeader lang-pill no-arrow; min-qty validation + toast wire thật.
+\end{itemize}

@@ -1,0 +1,306 @@
+/* Wujia Portal — PC/desktop component layer (BA pc_source_ui_v1_4, Sprint PC-1).
+   Scoped wj-pc-* class set, consumed only inside desktop blocks. Loaded after
+   _components.css. No --wujia-* token is overridden → zero blast radius on mobile. */
+
+/* ---------- Buttons (h42, radius 12) — SVG Button_Set ---------- */
+.wj-pc-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    height: var(--wj-pc-btn-h);
+    padding: 0 18px;
+    border-radius: var(--wj-pc-component-radius);
+    border: 1px solid transparent;
+    font-family: var(--wujia-font-family);
+    font-size: 14px;
+    font-weight: 600;
+    line-height: 1;
+    cursor: pointer;
+    text-decoration: none;
+    transition: background-color .15s, border-color .15s, color .15s;
+}
+.wj-pc-btn--primary { background: var(--wj-pc-primary); color: #fff; }
+.wj-pc-btn--primary:hover { background: var(--wj-pc-primary-dark); color: #fff; }
+.wj-pc-btn--secondary {
+    background: var(--wj-pc-card);
+    border-color: var(--wj-pc-border);
+    color: var(--wj-pc-text);
+}
+.wj-pc-btn--secondary:hover { background: var(--wj-pc-bg); color: var(--wj-pc-text); }
+.wj-pc-btn--ghost { background: transparent; color: var(--wj-pc-primary); }
+.wj-pc-btn--ghost:hover { background: var(--wj-pc-primary-soft); }
+.wj-pc-btn--danger { background: var(--wj-pc-danger); color: #fff; }
+.wj-pc-btn--danger:hover { filter: brightness(.95); color: #fff; }
+
+/* ---------- Status badge (pill h28, radius 14) — SVG StatusBadge_Set ---------- */
+.wj-pc-badge {
+    display: inline-flex;
+    align-items: center;
+    height: 28px;
+    padding: 0 14px;
+    border-radius: var(--wj-pc-pill-radius);
+    font-size: 13px;
+    font-weight: 600;
+    line-height: 1;
+    white-space: nowrap;
+}
+.wj-pc-badge--sent    { background: var(--wj-pc-blue-bg);    color: var(--wj-pc-blue); }
+.wj-pc-badge--transit { background: var(--wj-pc-yellow-soft); color: var(--wj-pc-yellow); }
+.wj-pc-badge--done    { background: var(--wj-pc-green-soft);  color: var(--wj-pc-green); }
+.wj-pc-badge--pending { background: var(--wj-pc-gray-soft);   color: var(--wj-pc-muted); }
+.wj-pc-badge--cancel  { background: var(--wj-pc-red-soft);    color: var(--wj-pc-red); }
+
+/* ---------- Page header (title 30/800 + breadcrumb + actions) — SVG PageHeader ---------- */
+.wj-pc-page-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 16px;
+    margin-bottom: var(--wj-pc-content-padding);
+}
+.wj-pc-page-header__title {
+    font-size: 30px;
+    font-weight: 800;
+    color: var(--wj-pc-text);
+    margin: 0;
+    line-height: 1.2;
+}
+.wj-pc-page-header__crumb {
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--wj-pc-muted);
+    margin: 8px 0 0;
+}
+.wj-pc-page-header__actions {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-shrink: 0;
+}
+
+/* ---------- Filter bar (white card, inputs h38) — SVG FilterBar ---------- */
+.wj-pc-filterbar {
+    background: var(--wj-pc-card);
+    border: 1px solid var(--wj-pc-border-soft);
+    border-radius: 16px;
+    padding: 18px 20px;
+    margin-bottom: var(--wj-pc-content-padding);
+}
+.wj-pc-filterbar__title {
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--wj-pc-text);
+    margin: 0 0 12px;
+}
+.wj-pc-filterbar__row {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 12px;
+}
+.wj-pc-filterbar__grow { flex: 1 1 240px; }
+.wj-pc-filterbar__actions { margin-left: auto; display: flex; gap: 12px; }
+.wj-pc-filter-control {
+    height: var(--wj-pc-filter-input-h);
+    border: 1px solid var(--wj-pc-border);
+    border-radius: var(--wj-pc-input-radius);
+    background: var(--wj-pc-card);
+    padding: 0 14px;
+    font-size: 14px;
+    color: var(--wj-pc-text);
+    width: 100%;
+}
+.wj-pc-filter-control::placeholder { color: var(--wj-pc-subtle); }
+
+/* ---------- Metric card (h96, icon 52) — SVG MetricCard_Set ---------- */
+.wj-pc-metric-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+    margin-bottom: var(--wj-pc-content-padding);
+}
+.wj-pc-metric-card {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    min-height: var(--wj-pc-metric-h);
+    padding: 0 22px;
+    background: var(--wj-pc-card);
+    border: 1px solid var(--wj-pc-border-soft);
+    border-radius: 16px;
+}
+.wj-pc-metric-card__icon {
+    flex-shrink: 0;
+    width: var(--wj-pc-metric-icon);
+    height: var(--wj-pc-metric-icon);
+    border-radius: 16px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 22px;
+}
+.wj-pc-metric-card__icon--blue   { background: var(--wj-pc-blue-soft);   color: var(--wj-pc-primary); }
+.wj-pc-metric-card__icon--yellow { background: var(--wj-pc-yellow-soft); color: var(--wj-pc-yellow); }
+.wj-pc-metric-card__icon--green  { background: var(--wj-pc-green-soft);  color: var(--wj-pc-green); }
+.wj-pc-metric-card__icon--red    { background: var(--wj-pc-red-soft);    color: var(--wj-pc-red); }
+.wj-pc-metric-card__body { display: flex; flex-direction: column; gap: 2px; }
+.wj-pc-metric-card__label { font-size: 14px; font-weight: 600; color: var(--wj-pc-muted); }
+.wj-pc-metric-card__value { font-size: 30px; font-weight: 800; color: var(--wj-pc-text); line-height: 1.1; }
+
+/* ---------- Card wrapper + data table (header 50 / row 58) — SVG DataTable ---------- */
+.wj-pc-card {
+    background: var(--wj-pc-card);
+    border: 1px solid var(--wj-pc-border-soft);
+    border-radius: var(--wj-pc-card-radius);
+    padding: 24px;
+}
+.wj-pc-card__head {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 16px;
+    margin-bottom: 18px;
+}
+.wj-pc-card__title { font-size: 22px; font-weight: 800; color: var(--wj-pc-text); margin: 0; }
+.wj-pc-card__subtitle { font-size: 14px; font-weight: 500; color: var(--wj-pc-muted); margin: 6px 0 0; }
+.wj-pc-table { width: 100%; border-collapse: collapse; }
+.wj-pc-table thead th {
+    height: var(--wj-pc-table-header-h);
+    background: var(--wj-pc-table-header-bg);
+    color: var(--wj-pc-muted);
+    font-size: 14px;
+    font-weight: 700;
+    text-align: left;
+    padding: 0 22px;
+    white-space: nowrap;
+}
+.wj-pc-table thead th:first-child { border-radius: 12px 0 0 12px; }
+.wj-pc-table thead th:last-child  { border-radius: 0 12px 12px 0; }
+.wj-pc-table tbody td {
+    height: var(--wj-pc-table-row-h);
+    padding: 0 22px;
+    font-size: 14px;
+    color: var(--wj-pc-text);
+    border-bottom: 1px solid var(--wj-pc-border-soft);
+}
+.wj-pc-table tbody tr:last-child td { border-bottom: 0; }
+.wj-pc-table .wj-pc-td--code   { font-weight: 600; }
+.wj-pc-table .wj-pc-td--muted  { color: var(--wj-pc-muted); font-weight: 500; }
+.wj-pc-table .wj-pc-td--amount { font-weight: 700; }
+.wj-pc-link { color: var(--wj-pc-primary); font-weight: 700; text-decoration: none; }
+.wj-pc-link:hover { text-decoration: underline; }
+
+/* ---------- Pagination (numbered, 36×36) — SVG TablePagination ---------- */
+.wj-pc-pagination {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 16px;
+}
+.wj-pc-pagination__count {
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--wj-pc-muted);
+    margin-right: auto;
+}
+.wj-pc-pagination__size {
+    height: var(--wj-pc-pagebtn);
+    padding: 0 12px;
+    border: 1px solid var(--wj-pc-border);
+    border-radius: var(--wj-pc-input-radius);
+    background: var(--wj-pc-card);
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--wj-pc-text);
+}
+.wj-pc-page-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: var(--wj-pc-pagebtn);
+    height: var(--wj-pc-pagebtn);
+    padding: 0 8px;
+    border: 1px solid var(--wj-pc-border);
+    border-radius: var(--wj-pc-input-radius);
+    background: var(--wj-pc-card);
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--wj-pc-muted);
+    text-decoration: none;
+}
+.wj-pc-page-btn.is-active {
+    background: var(--wj-pc-primary);
+    border-color: var(--wj-pc-primary);
+    color: #fff;
+}
+
+/* ---------- Form field (label + input/select/textarea h42) — SVG FormField_Set ---------- */
+.wj-pc-field { display: flex; flex-direction: column; gap: 8px; }
+.wj-pc-field__label { font-size: 14px; font-weight: 600; color: var(--wj-pc-text); }
+.wj-pc-control {
+    height: var(--wj-pc-input-h);
+    border: 1px solid var(--wj-pc-border);
+    border-radius: var(--wj-pc-input-radius);
+    background: var(--wj-pc-card);
+    padding: 0 16px;
+    font-size: 14px;
+    color: var(--wj-pc-text);
+    width: 100%;
+}
+.wj-pc-control::placeholder { color: var(--wj-pc-subtle); font-weight: 400; }
+.wj-pc-control:focus { outline: none; border-color: var(--wj-pc-primary); }
+textarea.wj-pc-control { height: auto; min-height: 96px; padding: 12px 16px; }
+
+/* ---------- Empty state (card + icon circle + CTA) — SVG EmptyState ---------- */
+.wj-pc-empty {
+    background: var(--wj-pc-card);
+    border: 1px solid var(--wj-pc-border-soft);
+    border-radius: var(--wj-pc-card-radius);
+    padding: 40px 24px;
+    text-align: center;
+}
+.wj-pc-empty__icon {
+    width: 68px;
+    height: 68px;
+    border-radius: 999px;
+    background: var(--wj-pc-blue-soft);
+    color: var(--wj-pc-primary);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 28px;
+    margin-bottom: 16px;
+}
+.wj-pc-empty__title { font-size: 20px; font-weight: 800; color: var(--wj-pc-text); margin: 0 0 6px; }
+.wj-pc-empty__sub { font-size: 14px; font-weight: 500; color: var(--wj-pc-muted); margin: 0 0 18px; }
+
+/* ---------- Modal (backdrop #111827/0.18 + panel 420) — SVG Modal ---------- */
+.wj-pc-modal__backdrop {
+    position: fixed;
+    inset: 0;
+    background: rgba(17, 24, 39, 0.18);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1050;
+}
+.wj-pc-modal__panel {
+    width: 420px;
+    max-width: calc(100vw - 32px);
+    background: var(--wj-pc-card);
+    border-radius: 20px;
+    padding: 26px 32px;
+}
+.wj-pc-modal__title { font-size: 22px; font-weight: 800; color: var(--wj-pc-text); margin: 0 0 8px; }
+.wj-pc-modal__body { font-size: 14px; font-weight: 500; color: var(--wj-pc-muted); margin: 0; }
+.wj-pc-modal__divider { height: 1px; background: var(--wj-pc-border-soft); margin: 18px 0; border: 0; }
+.wj-pc-modal__note {
+    background: var(--wj-pc-table-header-bg);
+    border: 1px solid var(--wj-pc-border-soft);
+    border-radius: 12px;
+    padding: 14px 22px;
+    font-size: 14px;
+    color: var(--wj-pc-muted);
+}
+.wj-pc-modal__actions { display: flex; justify-content: flex-end; gap: 12px; margin-top: 22px; }

@@ -100,6 +100,7 @@ html body {
 .main-menu .navigation > li > a {
     display: flex;
     align-items: center;
+    position: relative;  /* anchor for active accent bar (::before) */
     min-height: var(--wujia-menu-item-height);
     padding: 0 18px;
     gap: 12px;
@@ -119,21 +120,33 @@ html body {
 .main-menu .navigation > li > a:hover {
     background-color: var(--wujia-muted-bg) !important;
 }
-/* UI-01 (Sprint 9.1): Active menu item — solid brand BG + white icon/text. */
+/* Sprint PC-1: Active menu item per BA pc_source_ui_v1_4 sidebar —
+   soft bg + cyan text/icon + 4px rounded left accent bar (::before). */
 .main-menu.menu-light .navigation > li.active > a,
 .main-menu .navigation > li.active > a {
-    background-color: var(--wujia-primary) !important;
-    color: #FFFFFF !important;
-    font-weight: 600;
+    background-color: var(--wujia-primary-soft) !important;
+    color: var(--wujia-primary) !important;
+    font-weight: 700;
+}
+.main-menu .navigation > li.active > a::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 4px;
+    height: 60%;
+    border-radius: 2px;
+    background-color: var(--wujia-primary);
 }
 .main-menu.menu-light .navigation > li.active > a > i,
 .main-menu .navigation > li.active > a > .fa,
 .main-menu.menu-light .navigation > li.active > a > .feather {
-    color: #FFFFFF !important;
+    color: var(--wujia-primary) !important;
 }
 .main-menu.menu-light .navigation > li ul .active {
-    background-color: var(--wujia-primary) !important;
-    color: #FFFFFF !important;
+    background-color: var(--wujia-primary-soft) !important;
+    color: var(--wujia-primary) !important;
 }
 
 /* ---------- Card + section header flush fix ---------- */

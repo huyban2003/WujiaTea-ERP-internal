@@ -1,0 +1,208 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- Sprint PC-1 — dev-only gallery of the wj-pc-* desktop component layer.
+         Reference for QA vs BA pc_source_ui_v1_4 SVGs + screen-rework copy source. -->
+    <template id="pc_preview_page" name="Wujia PC — Component Gallery (dev)">
+        <t t-call="wujia_portal_layout.app_layout">
+            <t t-set="title">PC Components (dev)</t>
+            <div class="content-wrapper">
+                <div class="wj-pc-preview" style="max-width:1320px;margin:0 auto;padding:8px 0 64px;">
+
+                    <!-- Page header -->
+                    <div class="wj-pc-page-header">
+                        <div>
+                            <h1 class="wj-pc-page-header__title">PC Component Gallery</h1>
+                            <p class="wj-pc-page-header__crumb">Sprint PC-1 · BA pc_source_ui_v1_4 · dev-only</p>
+                        </div>
+                        <div class="wj-pc-page-header__actions">
+                            <a href="#" class="wj-pc-btn wj-pc-btn--secondary"><i class="feather icon-download"/>Export</a>
+                            <a href="#" class="wj-pc-btn wj-pc-btn--primary"><i class="feather icon-plus"/>Tạo mới</a>
+                        </div>
+                    </div>
+
+                    <!-- Buttons -->
+                    <h5 style="margin:24px 0 12px;color:#6B7280;">Buttons (h42 · radius 12)</h5>
+                    <div style="display:flex;gap:12px;flex-wrap:wrap;">
+                        <a href="#" class="wj-pc-btn wj-pc-btn--primary"><i class="feather icon-plus"/>Tạo mới</a>
+                        <a href="#" class="wj-pc-btn wj-pc-btn--secondary"><i class="feather icon-download"/>Export</a>
+                        <a href="#" class="wj-pc-btn wj-pc-btn--primary"><i class="feather icon-search"/>Tìm</a>
+                        <a href="#" class="wj-pc-btn wj-pc-btn--secondary">Reset</a>
+                        <a href="#" class="wj-pc-btn wj-pc-btn--ghost">Xem</a>
+                        <a href="#" class="wj-pc-btn wj-pc-btn--danger">Xóa</a>
+                    </div>
+
+                    <!-- Status badges -->
+                    <h5 style="margin:24px 0 12px;color:#6B7280;">Status badges (pill h28)</h5>
+                    <div style="display:flex;gap:12px;flex-wrap:wrap;">
+                        <span class="wj-pc-badge wj-pc-badge--sent">Đã gửi</span>
+                        <span class="wj-pc-badge wj-pc-badge--transit">Đang giao</span>
+                        <span class="wj-pc-badge wj-pc-badge--done">Hoàn tất</span>
+                        <span class="wj-pc-badge wj-pc-badge--pending">Chờ xác nhận</span>
+                        <span class="wj-pc-badge wj-pc-badge--cancel">Đã hủy</span>
+                    </div>
+
+                    <!-- Metric cards -->
+                    <h5 style="margin:24px 0 12px;color:#6B7280;">Metric cards (h96 · icon 52)</h5>
+                    <div class="wj-pc-metric-grid">
+                        <div class="wj-pc-metric-card">
+                            <span class="wj-pc-metric-card__icon wj-pc-metric-card__icon--blue"><i class="feather icon-shopping-bag"/></span>
+                            <span class="wj-pc-metric-card__body">
+                                <span class="wj-pc-metric-card__label">Đơn hôm nay</span>
+                                <span class="wj-pc-metric-card__value">12</span>
+                            </span>
+                        </div>
+                        <div class="wj-pc-metric-card">
+                            <span class="wj-pc-metric-card__icon wj-pc-metric-card__icon--yellow"><i class="feather icon-clock"/></span>
+                            <span class="wj-pc-metric-card__body">
+                                <span class="wj-pc-metric-card__label">Đang xử lý</span>
+                                <span class="wj-pc-metric-card__value">08</span>
+                            </span>
+                        </div>
+                        <div class="wj-pc-metric-card">
+                            <span class="wj-pc-metric-card__icon wj-pc-metric-card__icon--green"><i class="feather icon-check-circle"/></span>
+                            <span class="wj-pc-metric-card__body">
+                                <span class="wj-pc-metric-card__label">Hoàn tất</span>
+                                <span class="wj-pc-metric-card__value">36</span>
+                            </span>
+                        </div>
+                        <div class="wj-pc-metric-card">
+                            <span class="wj-pc-metric-card__icon wj-pc-metric-card__icon--red"><i class="feather icon-alert-circle"/></span>
+                            <span class="wj-pc-metric-card__body">
+                                <span class="wj-pc-metric-card__label">Cần chú ý</span>
+                                <span class="wj-pc-metric-card__value">03</span>
+                            </span>
+                        </div>
+                    </div>
+
+                    <!-- Filter bar -->
+                    <h5 style="margin:24px 0 12px;color:#6B7280;">Filter bar (inputs h38)</h5>
+                    <div class="wj-pc-filterbar">
+                        <h3 class="wj-pc-filterbar__title">Bộ lọc nhanh</h3>
+                        <div class="wj-pc-filterbar__row">
+                            <select class="wj-pc-filter-control" style="max-width:210px;">
+                                <option>Trạng thái</option>
+                            </select>
+                            <span class="wj-pc-filterbar__grow">
+                                <input type="text" class="wj-pc-filter-control" placeholder="Tìm theo mã đơn, tên sản phẩm, nội dung..."/>
+                            </span>
+                            <input type="text" class="wj-pc-filter-control" placeholder="Từ ngày" style="max-width:190px;"/>
+                            <input type="text" class="wj-pc-filter-control" placeholder="Đến ngày" style="max-width:190px;"/>
+                            <span class="wj-pc-filterbar__actions">
+                                <a href="#" class="wj-pc-btn wj-pc-btn--secondary">Reset</a>
+                                <a href="#" class="wj-pc-btn wj-pc-btn--primary">Tìm</a>
+                            </span>
+                        </div>
+                    </div>
+
+                    <!-- Data table -->
+                    <h5 style="margin:24px 0 12px;color:#6B7280;">Data table (header 50 · row 58)</h5>
+                    <div class="wj-pc-card">
+                        <div class="wj-pc-card__head">
+                            <div>
+                                <h3 class="wj-pc-card__title">Danh sách đơn hàng</h3>
+                                <p class="wj-pc-card__subtitle">Theo dõi đơn đặt hàng của cửa hàng đang thao tác</p>
+                            </div>
+                            <a href="#" class="wj-pc-btn wj-pc-btn--primary"><i class="feather icon-plus"/>Tạo mới</a>
+                        </div>
+                        <table class="wj-pc-table">
+                            <thead>
+                                <tr>
+                                    <th>Mã</th><th>Nội dung</th><th>Ngày</th>
+                                    <th>Trạng thái</th><th>Số tiền</th><th>Thao tác</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td class="wj-pc-td--code">SO0241</td>
+                                    <td>Đơn đặt hàng nguyên liệu</td>
+                                    <td class="wj-pc-td--muted">10/06/2026</td>
+                                    <td><span class="wj-pc-badge wj-pc-badge--sent">Đã gửi</span></td>
+                                    <td class="wj-pc-td--amount">2.450.000đ</td>
+                                    <td><a href="#" class="wj-pc-link">Xem</a></td>
+                                </tr>
+                                <tr>
+                                    <td class="wj-pc-td--code">SO0240</td>
+                                    <td>Bổ sung bao bì</td>
+                                    <td class="wj-pc-td--muted">09/06/2026</td>
+                                    <td><span class="wj-pc-badge wj-pc-badge--transit">Đang giao</span></td>
+                                    <td class="wj-pc-td--amount">860.000đ</td>
+                                    <td><a href="#" class="wj-pc-link">Xem</a></td>
+                                </tr>
+                                <tr>
+                                    <td class="wj-pc-td--code">SO0239</td>
+                                    <td>Đơn định kỳ tuần 24</td>
+                                    <td class="wj-pc-td--muted">08/06/2026</td>
+                                    <td><span class="wj-pc-badge wj-pc-badge--done">Hoàn tất</span></td>
+                                    <td class="wj-pc-td--amount">4.120.000đ</td>
+                                    <td><a href="#" class="wj-pc-link">Xem</a></td>
+                                </tr>
+                                <tr>
+                                    <td class="wj-pc-td--code">SO0238</td>
+                                    <td>POSM tháng 06</td>
+                                    <td class="wj-pc-td--muted">05/06/2026</td>
+                                    <td><span class="wj-pc-badge wj-pc-badge--pending">Chờ xác nhận</span></td>
+                                    <td class="wj-pc-td--amount">1.340.000đ</td>
+                                    <td><a href="#" class="wj-pc-link">Xem</a></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <!-- Pagination -->
+                        <div class="wj-pc-pagination">
+                            <span class="wj-pc-pagination__count">Hiển thị 1–5 / 128 bản ghi</span>
+                            <select class="wj-pc-pagination__size"><option>10 / trang</option></select>
+                            <a href="#" class="wj-pc-page-btn">‹</a>
+                            <a href="#" class="wj-pc-page-btn is-active">1</a>
+                            <a href="#" class="wj-pc-page-btn">2</a>
+                            <a href="#" class="wj-pc-page-btn">3</a>
+                            <a href="#" class="wj-pc-page-btn">›</a>
+                        </div>
+                    </div>
+
+                    <!-- Form fields -->
+                    <h5 style="margin:24px 0 12px;color:#6B7280;">Form fields (h42)</h5>
+                    <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:20px;max-width:680px;">
+                        <div class="wj-pc-field">
+                            <label class="wj-pc-field__label">Tên cửa hàng</label>
+                            <input type="text" class="wj-pc-control" placeholder="Nhập tên cửa hàng"/>
+                        </div>
+                        <div class="wj-pc-field">
+                            <label class="wj-pc-field__label">Trạng thái</label>
+                            <select class="wj-pc-control"><option>Chọn trạng thái</option></select>
+                        </div>
+                        <div class="wj-pc-field" style="grid-column:1 / -1;">
+                            <label class="wj-pc-field__label">Ghi chú</label>
+                            <textarea class="wj-pc-control" placeholder="Textarea / ghi chú"/>
+                        </div>
+                    </div>
+
+                    <!-- Empty state -->
+                    <h5 style="margin:24px 0 12px;color:#6B7280;">Empty state</h5>
+                    <div class="wj-pc-empty" style="max-width:720px;">
+                        <span class="wj-pc-empty__icon"><i class="feather icon-file-text"/></span>
+                        <h3 class="wj-pc-empty__title">Chưa có dữ liệu</h3>
+                        <p class="wj-pc-empty__sub">Khi có dữ liệu, hệ thống sẽ hiển thị danh sách tại đây.</p>
+                        <a href="#" class="wj-pc-btn wj-pc-btn--primary"><i class="feather icon-plus"/>Tạo mới</a>
+                    </div>
+
+                    <!-- Modal (inline preview — backdrop tint shown as a relative box) -->
+                    <h5 style="margin:24px 0 12px;color:#6B7280;">Modal (panel 420 · backdrop #111827/0.18)</h5>
+                    <div style="position:relative;background:rgba(17,24,39,0.18);border-radius:16px;padding:40px;display:flex;justify-content:center;">
+                        <div class="wj-pc-modal__panel">
+                            <h3 class="wj-pc-modal__title">Xác nhận thao tác</h3>
+                            <p class="wj-pc-modal__body">Bạn có chắc chắn muốn thực hiện thao tác này không?</p>
+                            <hr class="wj-pc-modal__divider"/>
+                            <div class="wj-pc-modal__note">Thông tin tóm tắt hoặc cảnh báo hiển thị tại đây.</div>
+                            <div class="wj-pc-modal__actions">
+                                <a href="#" class="wj-pc-btn wj-pc-btn--secondary">Hủy</a>
+                                <a href="#" class="wj-pc-btn wj-pc-btn--primary">Xác nhận</a>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </t>
+    </template>
+
+</odoo>

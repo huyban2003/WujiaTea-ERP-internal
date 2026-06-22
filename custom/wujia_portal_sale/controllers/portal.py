@@ -15,6 +15,7 @@ Rate limit: cart/add 60/min/IP. ACL: franchise_id phải thuộc accessible
 franchise list của user (validated server-side).
 """
 import logging
+from urllib.parse import urlencode
 
 from odoo import http
 from odoo.exceptions import UserError, ValidationError
@@ -87,7 +88,7 @@ class WujiaPortalSale(http.Controller):
                 url_args={'keyword': keyword, 'category_id': cat_id or ''},
             )
             if hasattr(request, 'website') and request.website
-            else self._fallback_pager(total, page)
+            else self._fallback_pager(total, page, keyword, cat_id)
         )
 
         Settings = request.env['res.config.settings'].sudo()
@@ -99,18 +100,26 @@ class WujiaPortalSale(http.Controller):
             if franchise and franchise.area_id:
                 area_id = franchise.area_id.id
         allowed, window = Settings._is_within_order_window(area_id=area_id)
+        cart = self._get_active_cart()
         return request.render('wujia_portal_sale.portal_order_catalog', {
             'no_franchise': False,
             'products': products,
             'categories': categories,
-            'cart_lines': self._get_draft_cart_lines(franchise_ids),
+            # Sprint PC-1: PC gộp catalog + cart panel → cần cả `cart` (amount_total/note)
+            # và cart_lines (badge qty + panel). cart_qty_map tính inline trong template.
+            'cart': cart,
+            'cart_lines': cart.order_line if cart else self._get_draft_cart_lines(franchise_ids),
             'pager': pager,
+            'product_count': total,
+            'page_size': PAGE_SIZE,
             'keyword': keyword,
             'category_id': cat_id,
             'order_time_from': _float_to_hhmm(window['from']),
             'order_time_to': _float_to_hhmm(window['to']),
             'order_window_enabled': window['enabled'],
             'order_window_open': allowed,
+            'message': kw.get('message'),
+            'error': kw.get('error'),
         })
 
     # ----------------------------------------------------------- product detail
@@ -356,15 +365,24 @@ class WujiaPortalSale(http.Controller):
             return None
         return line
 
-    def _fallback_pager(self, total, page):
+    def _fallback_pager(self, total, page, keyword='', cat_id=None):
         last = max(1, (total + PAGE_SIZE - 1) // PAGE_SIZE)
+
+        def _u(n):
+            args = {'page': n}
+            if keyword:
+                args['keyword'] = keyword
+            if cat_id:
+                args['category_id'] = cat_id
+            return '/portal/order?' + urlencode(args)
+
         return {
-            'page': {'num': page, 'url': f'/portal/order?page={page}'},
+            'page': {'num': page, 'url': _u(page)},
             'page_count': last, 'page_total': total,
-            'page_first': {'num': 1, 'url': '/portal/order?page=1'},
-            'page_last': {'num': last, 'url': f'/portal/order?page={last}'},
-            'page_previous': {'num': max(1, page - 1),
-                              'url': f'/portal/order?page={max(1, page - 1)}'},
-            'page_next': {'num': min(last, page + 1),
-                          'url': f'/portal/order?page={min(last, page + 1)}'},
+            'page_first': {'num': 1, 'url': _u(1)},
+            'page_last': {'num': last, 'url': _u(last)},
+            'page_previous': {'num': max(1, page - 1), 'url': _u(max(1, page - 1))},
+            'page_next': {'num': min(last, page + 1), 'url': _u(min(last, page + 1))},
+            # Sprint PC-1: numbered pages for wj-pc pagination (product catalog → few pages).
+            'pages': [{'num': n, 'url': _u(n)} for n in range(1, last + 1)],
         }

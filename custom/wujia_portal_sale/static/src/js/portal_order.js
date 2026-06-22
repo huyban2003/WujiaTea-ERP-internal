@@ -101,6 +101,13 @@
                         toast("Đã thêm vào giỏ (" + res.qty + ")", true);
                         refreshCartBadge(res.cart_count);
 
+                        // Desktop combined page (Sprint PC-1): reload để cart panel phải
+                        // + qty badge trên nút phản ánh ngay (server re-render).
+                        if (btn.classList.contains("wj-pc-order-add")) {
+                            location.reload();
+                            return;
+                        }
+
                         // Mobile-only live updates (chỉ khi bấm nút mobile)
                         if (btn.classList.contains("wujia-morder-row-add")) {
                             const mq = btn.querySelector(".wujia-morder-row-qty");
