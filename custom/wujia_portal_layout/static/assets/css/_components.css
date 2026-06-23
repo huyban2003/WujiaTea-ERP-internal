@@ -671,6 +671,14 @@ h2, .wujia-h2 { font-size: var(--wujia-font-size-h2) !important; font-weight: 60
     gap: 18px;
     padding: 16px;
 }
+/* Home mobile: bỏ padding ngang content-wrapper (Vuexy ~16.8px) → tránh lề kép,
+   để .wujia-mhome (16px = BA) là inset DUY NHẤT. Scoped home + <992px. */
+@media (max-width: 991.98px) {
+    html body .content .content-wrapper.wujia-home-wrapper {
+        padding-left: 0;
+        padding-right: 0;
+    }
+}
 
 /* ---------- Hero "TỔNG QUAN CỬA HÀNG" (nền tối gradient) ---------- */
 .wujia-mhome-hero {
