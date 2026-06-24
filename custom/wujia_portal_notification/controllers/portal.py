@@ -20,7 +20,7 @@ class WujiaPortalNotification(http.Controller):
 
     @http.route(['/portal/notification'], type='http', auth='user', sitemap=False)
     def portal_notification_list(self, page=1, type_id=None, keyword='',
-                                 tab=TAB_RECENT, **kw):
+                                 tab=TAB_RECENT, unread=None, **kw):
         franchise_ids = get_active_franchise_ids_filter()
         Noti = request.env['wujia.notification'].sudo()
 
@@ -47,6 +47,12 @@ class WujiaPortalNotification(http.Controller):
             domain.append(('type_id', '=', tid))
         if keyword:
             domain.append(('name', 'ilike', keyword))
+        # Chip "Chưa đọc" (mobile) — loại bỏ noti user đã mở.
+        if unread:
+            read_noti_ids = request.env['wujia.notification.read'].sudo().search([
+                ('user_id', '=', request.env.user.id),
+            ]).mapped('notification_id').ids
+            domain.append(('id', 'not in', read_noti_ids))
 
         try:
             page = max(1, int(page))
@@ -56,19 +62,26 @@ class WujiaPortalNotification(http.Controller):
         total = Noti.search_count(domain)
         notifications = Noti.search(domain, limit=PAGE_SIZE, offset=offset, order='date desc')
 
-        # Đếm tổng mỗi tab (cho badge số trên tab) — 1 query / tab.
-        cnt_recent = Noti.search_count([
+        # Recent set (30 ngày) — dùng cho badge tab "Mới" + đếm chưa đọc (mobile).
+        recent_ids = Noti.search([
             ('published', '=', True),
             '|', ('franchise_ids', '=', False),
                  ('franchise_ids', 'in', list(franchise_ids) if franchise_ids else [-1]),
             ('date', '>=', cutoff),
-        ])
+        ]).ids
+        cnt_recent = len(recent_ids)
         cnt_history = Noti.search_count([
             ('published', '=', True),
             '|', ('franchise_ids', '=', False),
                  ('franchise_ids', 'in', list(franchise_ids) if franchise_ids else [-1]),
             ('date', '<', cutoff),
         ])
+        # Chưa đọc (= số bell badge): recent − đã đọc.
+        read_recent = request.env['wujia.notification.read'].sudo().search_count([
+            ('notification_id', 'in', recent_ids),
+            ('user_id', '=', request.env.user.id),
+        ]) if recent_ids else 0
+        cnt_unread = max(0, cnt_recent - read_recent)
 
         # Lookup read status — single batched query (chỉ trang hiện tại).
         Read = request.env['wujia.notification.read'].sudo()
@@ -87,7 +100,8 @@ class WujiaPortalNotification(http.Controller):
             'page_next': {'num': min(last_page, page + 1)},
             'querystring': '&'.join(
                 f'{k}={v}' for k, v in
-                [('tab', tab), ('type_id', tid or ''), ('keyword', keyword)] if v
+                [('tab', tab), ('type_id', tid or ''), ('keyword', keyword),
+                 ('unread', unread or '')] if v
             ),
         }
         return request.render('wujia_portal_notification.portal_notification_list', {
@@ -96,6 +110,7 @@ class WujiaPortalNotification(http.Controller):
             'type_id': tid, 'keyword': keyword,
             'tab': tab, 'cnt_recent': cnt_recent, 'cnt_history': cnt_history,
             'tab_recent': TAB_RECENT, 'tab_history': TAB_HISTORY,
+            'total': total, 'cnt_unread': cnt_unread, 'unread': unread,
         })
 
     @http.route(['/portal/notification/<int:notification_id>'],

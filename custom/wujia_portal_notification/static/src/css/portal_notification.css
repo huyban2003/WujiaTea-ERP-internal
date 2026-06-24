@@ -15,3 +15,231 @@
 .notification-tabs .nav-link { color: var(--wujia-text-secondary); padding: 8px 16px; }
 .notification-tabs .nav-link.active { color: var(--wujia-primary); font-weight: 600; border-bottom-color: var(--wujia-primary); }
 .notification-tabs .nav-link .badge { font-size: 0.7rem; }
+
+/* Sprint 22 — Mobile THÔNG BÁO (Figma WJ_Notification_Mockup_v9 4651:655) — List + Detail.
+   Reuse: .wujia-mpage, wj-filter-chip*, wj-count-meta*, wj-empty-state*, .wujia-mknow-search*, .wujia-badge-* */
+@media (max-width: 991.98px) {
+    /* ---------- List: title + count ---------- */
+    .wujia-mnoti-titlerow { display: flex; flex-direction: column; gap: 2px; }
+    /* Figma 4651:686 — title 22/700 #111827, count 12 #6B7280 */
+    .wujia-mnoti-title { font-size: 22px; font-weight: 700; color: var(--wujia-morder-text); margin: 0; }
+    .wujia-mnoti-count { font-size: 12px; margin: 0; }
+    .wujia-mnoti-chips { margin: 2px 0; }
+    /* Search = Compact filter bar Figma (input 30px, không phải 42px của mknow chuẩn) */
+    .wujia-mnoti .wujia-mknow-card { padding: 9px 12px; }
+    .wujia-mnoti .wujia-mknow-search-input { height: 30px; font-size: 13px; border-radius: 8px; padding: 0 12px 0 34px; }
+    .wujia-mnoti .wujia-mknow-search-field > i { font-size: 14px; }
+    .wujia-mnoti .wujia-mknow-search-btn { height: 30px; padding: 0 16px; font-size: 13px; border-radius: 8px; }
+
+    /* ---------- Notification list (card-per-row) ---------- */
+    .wujia-mnoti-list { display: flex; flex-direction: column; gap: 8px; }
+    .wujia-mnoti-row {
+        position: relative;
+        display: flex;
+        align-items: stretch;
+        gap: 12px;
+        min-height: 76px;
+        padding: 12px 14px 12px 16px;
+        background: var(--wujia-morder-card-bg);
+        border: 1px solid var(--wujia-morder-border);
+        border-radius: 12px;
+        text-decoration: none;
+        overflow: hidden;
+    }
+    .wujia-mnoti-row.is-unread::before {
+        content: "";
+        position: absolute;
+        left: 0; top: 0; bottom: 0;
+        width: 4px;
+        background: var(--wujia-morder-primary);
+    }
+    .wujia-mnoti-row-icon {
+        flex: 0 0 auto;
+        width: 32px; height: 32px;
+        display: inline-flex;
+        align-items: center; justify-content: center;
+        border-radius: 9px;
+        font-size: 15px;
+    }
+    /* Tone — icon nền mềm + chữ theo loại thông báo (dùng chung list + detail) */
+    .wujia-mnoti-tone-cyan   { background: var(--wujia-primary-soft); color: var(--wujia-primary); }
+    .wujia-mnoti-tone-green  { background: var(--wujia-success-bg);   color: var(--wujia-success); }
+    .wujia-mnoti-tone-amber  { background: var(--wujia-warning-bg);   color: var(--wujia-warning); }
+    .wujia-mnoti-tone-red    { background: var(--wujia-danger-bg);    color: var(--wujia-danger); }
+    .wujia-mnoti-tone-violet { background: #EEF0FF;                   color: #6366F1; }
+    .wujia-mnoti-tone-gray   { background: var(--wujia-mshell-bg);    color: var(--wujia-morder-text-muted); }
+    .wujia-mnoti-row-main {
+        flex: 1 1 auto;
+        min-width: 0;
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+    }
+    /* Figma — đã đọc #374151, chưa đọc #111827, cả hai bold 700 size 15.5 */
+    .wujia-mnoti-row-title {
+        font-size: 15.5px;
+        font-weight: 700;
+        color: var(--wujia-text-secondary);
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+    .wujia-mnoti-row.is-unread .wujia-mnoti-row-title { color: var(--wujia-morder-text); }
+    .wujia-mnoti-row-source {
+        font-size: 11.5px;
+        color: var(--wujia-morder-text-sub);
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+    .wujia-mnoti-row-tags { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 2px; }
+    .wujia-mnoti-row-tags .wujia-badge,
+    .wujia-mnoti-detail-badges .wujia-badge { display: inline-flex; align-items: center; gap: 4px; }
+    .wujia-mnoti-row-tags .wujia-badge { font-size: 11px; padding: 3px 8px; }   /* Figma badge 11px */
+    .wujia-mnoti-row-tags .wujia-badge i,
+    .wujia-mnoti-detail-badges .wujia-badge i { font-size: 11px; }
+    .wujia-mnoti-row-side {
+        flex: 0 0 auto;
+        display: flex;
+        flex-direction: column;
+        align-items: flex-end;
+        gap: 6px;
+    }
+    .wujia-mnoti-row-dot {
+        width: 8px; height: 8px;
+        border-radius: 50%;
+        background: var(--wujia-morder-primary);
+    }
+    .wujia-mnoti-row-date {
+        margin-top: auto;
+        font-size: 11px;
+        color: var(--wujia-morder-text-muted);
+        white-space: nowrap;
+    }
+
+    /* ---------- Pager ---------- */
+    .wujia-mnoti-pager {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 12px;
+        margin-top: 14px;
+    }
+    .wujia-mnoti-pager span { font-size: 14px; color: var(--wujia-morder-text-sub); }
+    .wujia-mnoti-pager-btn {
+        width: 36px; height: 36px;
+        display: inline-flex;
+        align-items: center; justify-content: center;
+        border: 1px solid var(--wujia-morder-border);
+        border-radius: 10px;
+        background: var(--wujia-morder-card-bg);
+        color: var(--wujia-morder-primary);
+        font-size: 18px;
+        text-decoration: none;
+    }
+
+    /* ---------- Detail ---------- */
+    .wujia-mnoti-detail-head { display: flex; align-items: center; gap: 12px; }
+    .wujia-mnoti-back {
+        flex: 0 0 auto;
+        width: 40px; height: 40px;
+        display: inline-flex;
+        align-items: center; justify-content: center;
+        border: 1px solid var(--wujia-morder-border);
+        border-radius: 10px;
+        background: var(--wujia-morder-card-bg);
+        color: var(--wujia-morder-primary);
+        font-size: 20px;
+        text-decoration: none;
+    }
+    .wujia-mnoti-detail-headmain { min-width: 0; }
+    .wujia-mnoti-detail-title { font-size: 22px; font-weight: 700; color: var(--wujia-morder-text); margin: 0; }
+    .wujia-mnoti-detail-sub { font-size: 12px; color: var(--wujia-morder-text-sub); margin: 2px 0 0; }
+    .wujia-mnoti-detail-card {
+        background: var(--wujia-morder-card-bg);
+        border: 1px solid var(--wujia-morder-border);
+        border-radius: var(--wujia-morder-radius);
+        padding: 16px;
+    }
+    .wujia-mnoti-detail-typerow { display: flex; align-items: center; gap: 12px; }
+    .wujia-mnoti-detail-typeicon {
+        flex: 0 0 auto;
+        width: 32px; height: 32px;
+        display: inline-flex;
+        align-items: center; justify-content: center;
+        border-radius: 8px;
+        font-size: 15px;
+    }
+    .wujia-mnoti-detail-typemeta { display: flex; flex-direction: column; gap: 1px; min-width: 0; }
+    .wujia-mnoti-detail-typename { font-size: 13px; font-weight: 700; color: var(--wujia-morder-text); }
+    .wujia-mnoti-detail-typedesc { font-size: 11.5px; color: var(--wujia-morder-text-sub); }
+    .wujia-mnoti-detail-divider { height: 1px; background: var(--wujia-morder-divider); margin: 14px 0; }
+    .wujia-mnoti-detail-name {
+        font-size: 22px; font-weight: 700; line-height: 1.3;   /* Figma detail name 23/700 */
+        color: var(--wujia-morder-text); margin: 0;
+    }
+    .wujia-mnoti-detail-badges { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
+    .wujia-mnoti-detail-body {
+        font-size: 14.5px; line-height: 1.7;
+        color: var(--wujia-morder-text-sub); margin-top: 14px;
+    }
+    .wujia-mnoti-detail-body img { max-width: 100%; height: auto; border-radius: 8px; }
+    /* Liên kết liên quan (UI tạm) */
+    .wujia-mnoti-detail-link {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        margin-top: 10px;
+        padding: 12px;
+        border-radius: 10px;
+        background: var(--wujia-primary-soft);
+        border: 1px solid #BDEAFB;
+        text-decoration: none;
+    }
+    .wujia-mnoti-detail-link-icon {
+        flex: 0 0 auto;
+        width: 32px; height: 32px;
+        display: inline-flex;
+        align-items: center; justify-content: center;
+        border-radius: 8px;
+        background: #FFFFFF;
+        color: var(--wujia-morder-primary);
+        font-size: 16px;
+    }
+    .wujia-mnoti-detail-link-main { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+    .wujia-mnoti-detail-link-title { font-size: 13px; font-weight: 700; color: var(--wujia-morder-text); }
+    .wujia-mnoti-detail-link-sub { font-size: 11.5px; color: var(--wujia-morder-text-sub); }
+    .wujia-mnoti-detail-sectitle {
+        font-size: 15px; font-weight: 700;
+        color: var(--wujia-morder-text); margin: 18px 0 10px;
+    }
+    .wujia-mnoti-detail-files { display: flex; flex-direction: column; gap: 8px; }
+    .wujia-mnoti-detail-file {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 10px 12px;
+        border: 1px solid var(--wujia-morder-border);
+        border-radius: 10px;
+        background: var(--wujia-mshell-bg);
+        text-decoration: none;
+    }
+    .wujia-mnoti-detail-file-icon {
+        flex: 0 0 auto;
+        width: 32px; height: 32px;
+        display: inline-flex;
+        align-items: center; justify-content: center;
+        border-radius: 8px;
+        background: var(--wujia-morder-card-bg);
+        border: 1px solid var(--wujia-morder-border);
+        color: var(--wujia-morder-primary);
+        font-size: 15px;
+    }
+    .wujia-mnoti-detail-file-main { flex: 1 1 auto; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+    .wujia-mnoti-detail-file-name {
+        font-size: 13px; font-weight: 700; color: var(--wujia-morder-text);
+        white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    }
+    .wujia-mnoti-detail-file-meta { font-size: 11.5px; color: var(--wujia-morder-text-sub); }
+    .wujia-mnoti-detail-file-dl { flex: 0 0 auto; color: var(--wujia-morder-text-muted); font-size: 16px; }
+}

@@ -5,7 +5,11 @@
     <template id="portal_notification_list" name="Wujia Portal — Notification List">
         <t t-call="wujia_portal_layout.app_layout">
             <t t-set="title">Thông báo</t>
-            <div class="content-wrapper">
+            <!-- UI tạm (mobile) — map loại→icon/tone-màu + ưu tiên→badge; controller/BA wire sau -->
+            <t t-set="WJ_TONE" t-value="{'URG': 'red', 'GEN': 'cyan', 'PROMO': 'amber', 'SYS': 'violet', 'OTH': 'green'}"/>
+            <t t-set="WJ_ICON" t-value="{'URG': 'icon-alert-triangle', 'GEN': 'icon-bell', 'PROMO': 'icon-gift', 'SYS': 'icon-settings', 'OTH': 'icon-info'}"/>
+            <t t-set="WJ_PTAG" t-value="{'urgent': ('Cần làm', 'wujia-badge-success', 'icon-check-circle'), 'high': ('Quan trọng', 'wujia-badge-warning', 'icon-alert-triangle'), 'normal': ('Lưu ý', 'wujia-badge-info', 'icon-info'), 'low': ('Lưu ý', 'wujia-badge-info', 'icon-info')}"/>
+            <div class="content-wrapper d-none d-lg-block">
                 <div class="content-header row mt-3">
                     <div class="content-header-left col-12 mb-1">
                         <h2 class="content-header-title float-left mb-0">
@@ -117,6 +121,90 @@
                     </nav>
                 </div>
             </div>
+
+            <!-- Mobile &lt;992px — Figma Screen_Notification_List_v9 (4651:686) -->
+            <div class="d-lg-none wujia-mpage wujia-mnoti">
+                <div class="wujia-mnoti-titlerow">
+                    <h1 class="wujia-mnoti-title">Thông báo</h1>
+                    <p class="wj-count-meta wujia-mnoti-count">
+                        <t t-out="total"/> thông báo • <t t-out="cnt_unread"/> chưa đọc
+                    </p>
+                </div>
+
+                <!-- Search (reuse shared mknow-search) -->
+                <form method="get" action="/portal/notification"
+                      class="wujia-mknow-card wujia-mknow-search">
+                    <input type="hidden" name="unread" t-att-value="unread or ''"/>
+                    <div class="wujia-mknow-search-field">
+                        <i class="feather icon-search"/>
+                        <input type="text" name="keyword" class="wujia-mknow-search-input"
+                               placeholder="Tìm mã / tiêu đề" t-att-value="keyword or ''"/>
+                    </div>
+                    <button type="submit" class="wujia-mknow-search-btn">Tìm</button>
+                </form>
+
+                <!-- Chips: Tất cả / Chưa đọc functional; Quan trọng / Cần làm UI-only (chờ BA field) -->
+                <div class="wj-filter-chips wujia-mnoti-chips">
+                    <a t-attf-href="/portal/notification#{('?keyword=' + keyword) if keyword else ''}"
+                       t-attf-class="wj-filter-chip #{'is-active' if not unread else ''}">Tất cả</a>
+                    <a t-attf-href="/portal/notification?unread=1#{('&amp;keyword=' + keyword) if keyword else ''}"
+                       t-attf-class="wj-filter-chip #{'is-active' if unread else ''}">Chưa đọc</a>
+                    <span class="wj-filter-chip">Quan trọng</span>
+                    <span class="wj-filter-chip">Cần làm</span>
+                </div>
+
+                <!-- List -->
+                <div t-if="not notifications" class="wj-empty-state wj-empty-state--rich">
+                    <span class="wj-empty-state-icon"><i class="feather icon-bell"/></span>
+                    <p class="wj-empty-state-title">Chưa có thông báo</p>
+                    <p class="wj-empty-state-sub">Thông báo từ HQ sẽ hiển thị ở đây</p>
+                </div>
+                <div t-else="" class="wujia-mnoti-list">
+                    <t t-foreach="notifications" t-as="n">
+                        <t t-set="is_read" t-value="n.id in read_ids"/>
+                        <!-- UI tạm: icon/màu theo loại + badge theo độ ưu tiên (derive field sẵn có; BA/controller tinh chỉnh sau) -->
+                        <t t-set="tone" t-value="WJ_TONE.get(n.type_id.code, 'cyan')"/>
+                        <t t-set="ticon" t-value="WJ_ICON.get(n.type_id.code, 'icon-bell')"/>
+                        <t t-set="ptag" t-value="WJ_PTAG.get(n.priority)"/>
+                        <a t-attf-href="/portal/notification/#{n.id}"
+                           t-attf-class="wujia-mnoti-row #{'' if is_read else 'is-unread'}">
+                            <span t-attf-class="wujia-mnoti-row-icon wujia-mnoti-tone-#{tone}">
+                                <i t-attf-class="feather #{ticon}"/>
+                            </span>
+                            <span class="wujia-mnoti-row-main">
+                                <span class="wujia-mnoti-row-title" t-out="n.name"/>
+                                <span class="wujia-mnoti-row-source">
+                                    <t t-out="n.type_id.name"/><t t-if="n.dispatch_number"> • <t t-out="n.dispatch_number"/></t>
+                                </span>
+                                <span class="wujia-mnoti-row-tags">
+                                    <span t-if="ptag" t-attf-class="wujia-badge #{ptag[1]}">
+                                        <i t-attf-class="feather #{ptag[2]}"/><t t-out="ptag[0]"/>
+                                    </span>
+                                    <span t-if="n.attachment_ids" class="wujia-badge wujia-badge-info">
+                                        <i class="feather icon-paperclip"/>Có file
+                                    </span>
+                                </span>
+                            </span>
+                            <span class="wujia-mnoti-row-side">
+                                <span t-if="not is_read" class="wujia-mnoti-row-dot"/>
+                                <span class="wujia-mnoti-row-date"
+                                      t-out="n.date and n.date.strftime('%d/%m/%Y · %H:%M') or ''"/>
+                            </span>
+                        </a>
+                    </t>
+                </div>
+
+                <!-- Pager gọn -->
+                <div t-if="pager and pager.get('page_count', 0) &gt; 1" class="wujia-mnoti-pager">
+                    <a t-if="pager['page']['num'] &gt; 1"
+                       t-attf-href="/portal/notification?page=#{pager['page_previous']['num']}&amp;#{pager.get('querystring','')}"
+                       class="wujia-mnoti-pager-btn">‹</a>
+                    <span>Trang <t t-out="pager['page']['num']"/>/<t t-out="pager['page_count']"/></span>
+                    <a t-if="pager['page']['num'] &lt; pager['page_count']"
+                       t-attf-href="/portal/notification?page=#{pager['page_next']['num']}&amp;#{pager.get('querystring','')}"
+                       class="wujia-mnoti-pager-btn">›</a>
+                </div>
+            </div>
         </t>
     </template>
 
@@ -124,7 +212,12 @@
     <template id="portal_notification_detail" name="Wujia Portal — Notification Detail">
         <t t-call="wujia_portal_layout.app_layout">
             <t t-set="title" t-value="noti.name"/>
-            <div class="content-wrapper">
+            <!-- UI tạm (mobile) — map loại→icon/tone/mô tả + ưu tiên→badge; controller/BA wire sau -->
+            <t t-set="WJ_TONE" t-value="{'URG': 'red', 'GEN': 'cyan', 'PROMO': 'amber', 'SYS': 'violet', 'OTH': 'green'}"/>
+            <t t-set="WJ_ICON" t-value="{'URG': 'icon-alert-triangle', 'GEN': 'icon-bell', 'PROMO': 'icon-gift', 'SYS': 'icon-settings', 'OTH': 'icon-info'}"/>
+            <t t-set="WJ_TDESC" t-value="{'URG': 'Thông báo khẩn — cần xử lý ngay', 'GEN': 'Thông báo dành cho cửa hàng nhượng quyền', 'PROMO': 'Chương trình khuyến mãi &amp; ưu đãi', 'SYS': 'Thông báo hệ thống &amp; vận hành', 'OTH': 'Thông báo khác'}"/>
+            <t t-set="WJ_PTAG" t-value="{'urgent': ('Cần làm', 'wujia-badge-success', 'icon-check-circle'), 'high': ('Quan trọng', 'wujia-badge-warning', 'icon-alert-triangle'), 'normal': ('Lưu ý', 'wujia-badge-info', 'icon-info'), 'low': ('Lưu ý', 'wujia-badge-info', 'icon-info')}"/>
+            <div class="content-wrapper d-none d-lg-block">
                 <div class="content-header row mt-3">
                     <div class="content-header-left col-12 mb-1">
                         <nav><ol class="breadcrumb">
@@ -165,6 +258,78 @@
                             <i class="fa fa-arrow-left me-1"/>Quay lại
                         </a>
                     </div>
+                </div>
+            </div>
+
+            <!-- Mobile &lt;992px — Figma Screen_Notification_Detail_v9 (4651:825) -->
+            <div class="d-lg-none wujia-mpage wujia-mnoti-detail">
+                <div class="wujia-mnoti-detail-head">
+                    <a href="/portal/notification" class="wujia-mnoti-back">
+                        <i class="feather icon-chevron-left"/>
+                    </a>
+                    <div class="wujia-mnoti-detail-headmain">
+                        <h1 class="wujia-mnoti-detail-title">Chi tiết thông báo</h1>
+                        <p class="wujia-mnoti-detail-sub">
+                            <t t-if="noti.dispatch_number"><t t-out="noti.dispatch_number"/> • </t>
+                            <t t-out="noti.date and noti.date.strftime('%d/%m/%Y %H:%M') or ''"/>
+                        </p>
+                    </div>
+                </div>
+
+                <div class="wujia-mnoti-detail-card">
+                    <div t-if="noti.type_id" class="wujia-mnoti-detail-typerow">
+                        <t t-set="dtone" t-value="WJ_TONE.get(noti.type_id.code, 'cyan')"/>
+                        <span t-attf-class="wujia-mnoti-detail-typeicon wujia-mnoti-tone-#{dtone}">
+                            <i t-attf-class="feather #{WJ_ICON.get(noti.type_id.code, 'icon-bell')}"/>
+                        </span>
+                        <span class="wujia-mnoti-detail-typemeta">
+                            <span class="wujia-mnoti-detail-typename" t-out="noti.type_id.name"/>
+                            <t t-set="tdesc" t-value="WJ_TDESC.get(noti.type_id.code)"/>
+                            <span t-if="tdesc" class="wujia-mnoti-detail-typedesc" t-out="tdesc"/>
+                        </span>
+                    </div>
+                    <div class="wujia-mnoti-detail-divider"/>
+
+                    <h2 class="wujia-mnoti-detail-name" t-out="noti.name"/>
+                    <t t-set="dptag" t-value="WJ_PTAG.get(noti.priority)"/>
+                    <div class="wujia-mnoti-detail-badges">
+                        <span t-if="dptag" t-attf-class="wujia-badge #{dptag[1]}">
+                            <i t-attf-class="feather #{dptag[2]}"/><t t-out="dptag[0]"/>
+                        </span>
+                        <span t-if="noti.attachment_ids" class="wujia-badge wujia-badge-info">
+                            <i class="feather icon-paperclip"/>Có file
+                        </span>
+                    </div>
+
+                    <div class="wujia-mnoti-detail-body" t-out="noti.content"/>
+
+                    <!-- Liên kết liên quan — UI tạm (controller/BA wire link thật sau) -->
+                    <h3 class="wujia-mnoti-detail-sectitle">Liên kết liên quan</h3>
+                    <a href="/portal/knowledge" class="wujia-mnoti-detail-link">
+                        <span class="wujia-mnoti-detail-link-icon"><i class="feather icon-arrow-right"/></span>
+                        <span class="wujia-mnoti-detail-link-main">
+                            <span class="wujia-mnoti-detail-link-title">Tài liệu &amp; hướng dẫn liên quan</span>
+                            <span class="wujia-mnoti-detail-link-sub">Mở tài liệu trong mục Kiến thức</span>
+                        </span>
+                    </a>
+
+                    <t t-if="noti.attachment_ids">
+                        <h3 class="wujia-mnoti-detail-sectitle">File đính kèm</h3>
+                        <div class="wujia-mnoti-detail-files">
+                            <a t-foreach="noti.attachment_ids" t-as="att"
+                               t-attf-href="/web/content/ir.attachment/#{att.id}/datas?download=true"
+                               class="wujia-mnoti-detail-file">
+                                <span class="wujia-mnoti-detail-file-icon"><i class="feather icon-file-text"/></span>
+                                <span class="wujia-mnoti-detail-file-main">
+                                    <span class="wujia-mnoti-detail-file-name" t-out="att.name"/>
+                                    <span class="wujia-mnoti-detail-file-meta">
+                                        <t t-out="(att.mimetype or '').split('/')[-1].upper() or 'FILE'"/> · <t t-out="'%.0f KB' % ((att.file_size or 0) / 1024.0)"/>
+                                    </span>
+                                </span>
+                                <span class="wujia-mnoti-detail-file-dl"><i class="feather icon-download"/></span>
+                            </a>
+                        </div>
+                    </t>
                 </div>
             </div>
         </t>

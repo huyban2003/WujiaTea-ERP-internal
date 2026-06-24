@@ -1,0 +1,98 @@
+\chapter{Sprint 22 --- Mobile Thông báo + chuẩn hoá typography heading (2026-06-24)}
+
+\section{Bối cảnh}
+
+\texttt{wujia\_portal\_notification} (\texttt{/portal/notification}) là một trong số ít module portal
+\textbf{chưa qua sprint mobile} --- template chỉ có 1 layout phẳng (desktop) dùng \texttt{.content-wrapper}
++ \texttt{nav-tabs} + Bootstrap \texttt{.card}, không split \texttt{d-lg-none}/\texttt{d-none d-lg-block}.
+BA đã thiết kế xong frame mobile Figma \texttt{WJ\_Notification\_Mockup\_v9\_mobile\_flow} (\texttt{4651:655})
+gồm 2 màn: \texttt{Screen\_Notification\_List\_v9} (\texttt{4651:686}) + \texttt{Screen\_Notification\_Detail\_v9}
+(\texttt{4651:825}). Mục tiêu: thêm bản mobile cho cả List + Detail, \textbf{giữ nguyên desktop}.
+
+Cuối sprint user phát hiện heading mobile bị \textbf{quá to/đậm/đen so với Figma trên MỌI trang} (không
+riêng noti). Root cause: \texttt{font-weight: 800} (ExtraBold) trên các class heading --- Figma dùng
+\textbf{700} (Bold). $\rightarrow$ phát sinh phần (C) chuẩn hoá typography heading theo Figma từng trang.
+
+\section{(A) Mobile Thông báo --- List + Detail}
+
+\begin{itemize}
+  \item \textbf{Controller} (\texttt{portal.py}): \texttt{portal\_notification\_list} nhận thêm param
+        \texttt{unread} (chip ``Chưa đọc'' $\rightarrow$ domain \texttt{('id','not in', read\_noti\_ids)}),
+        tính \texttt{cnt\_unread} (= số bell badge: recent 30 ngày $-$ đã đọc) + truyền \texttt{total};
+        pager \texttt{querystring} thêm \texttt{unread}. \texttt{recent\_ids} dùng chung cho cnt\_recent +
+        cnt\_unread (gộp query, perf 1500 user). Detail controller KHÔNG đổi.
+  \item \textbf{List mobile} (\texttt{d-lg-none .wujia-mpage .wujia-mnoti}): title-row + \texttt{wj-count-meta}
+        ``X thông báo $\bullet$ Y chưa đọc'' + search (reuse \texttt{.wujia-mknow-search}) + chips
+        (\texttt{wj-filter-chips}) + card-per-row (accent bar + dot + bold khi chưa đọc, source
+        \texttt{type $\bullet$ dispatch}, badge, date) + empty \texttt{wj-empty-state--rich} + pager gọn.
+  \item \textbf{Detail mobile} (\texttt{.wujia-mnoti-detail}): PageHeader back 40 + ``Chi tiết thông báo'' +
+        subtitle \texttt{dispatch $\bullet$ date}; card: type header (icon tone + tên + mô tả loại) $\to$
+        title $\to$ badges $\to$ body \texttt{noti.content} $\to$ ``Liên kết liên quan'' $\to$ ``File đính
+        kèm'' (\texttt{attachment\_ids}, download thật + size \texttt{file\_size}).
+  \item Desktop bọc \texttt{d-none d-lg-block}, giữ nguyên 100\%. Shell mobile + tab ``Thông báo'' active
+        tự render qua \texttt{app\_layout} --- không đụng.
+\end{itemize}
+
+\section{(B) UI-only --- đa dạng icon/màu/badge (derive field sẵn có)}
+
+User chốt: làm UI luôn cho các phần ``chờ BA field'', dùng \textbf{field tạm/derive}, controller wire sau.
+Map gom ở đầu mỗi template (\texttt{WJ\_TONE}/\texttt{WJ\_ICON}/\texttt{WJ\_TDESC}/\texttt{WJ\_PTAG}):
+
+\begin{itemize}
+  \item \textbf{Icon + tone-màu theo loại} (\texttt{type\_id.code}): URG$\to$đỏ/alert-triangle,
+        GEN$\to$cyan/bell, PROMO$\to$amber/gift, SYS$\to$tím/settings, OTH$\to$xanh/info. Class
+        \texttt{.wujia-mnoti-tone-\{cyan,green,amber,red,violet,gray\}}.
+  \item \textbf{Badge ưu tiên} (\texttt{priority}): urgent$\to$``Cần làm''(success), high$\to$``Quan
+        trọng''(warning), normal/low$\to$``Lưu ý''(info). + ``Có file'' (\texttt{attachment\_ids}, thật).
+  \item \textbf{Wire thật}: chip ``Chưa đọc'' (read state) + ``Có file'' (attachment) + accent/dot/bold
+        (read state). Chip ``Quan trọng''/``Cần làm'' = UI-only (chờ BA field lọc). Mô tả loại + ``Liên
+        kết liên quan'' = static (model chưa có field).
+\end{itemize}
+
+\section{(C) Typography heading theo Figma từng trang}
+
+Audit Figma từng frame (per-page, không giả định 1 thang chung --- title \textbf{khác nhau} giữa các trang):
+noti 22/700, knowledge \textbf{25}/700, history/order/cart \textbf{24}/700, search \textbf{38} (noti compact
+\textbf{30}). Drift = \texttt{font-weight 800} trên heading $\rightarrow$ sửa về \textbf{700}:
+
+\begin{itemize}
+  \item \texttt{\_components.css}: \texttt{mknow-title} 22/800$\to$\textbf{25/700}; \texttt{mknow-search-input}
+        + \texttt{-btn} 42$\to$\textbf{38}; \texttt{mknow-sechead-title}, \texttt{mknow-article-title},
+        \texttt{mticket-h1} (ticket/return/support), \texttt{maccount-pagetitle},
+        \texttt{maccount-store-name} 800$\to$\textbf{700}.
+  \item \texttt{portal\_notification.css}: title 22/800$\to$\textbf{700}, count $\to$12px, search override
+        \textbf{30px} (compact filter bar), card-title màu \texttt{\#6B7280}$\to$\texttt{\#374151} (đã đọc) /
+        \texttt{\#111827} (chưa đọc), icon 36$\to$32, badge $\to$11px, detail title/name 800$\to$700.
+  \item \textbf{GIỮ 800} ở số liệu nhấn mạnh (\texttt{mhist-summary-amount}/\texttt{-code}, PC grand-total)
+        --- data emphasis, không phải heading. History/order/cart title 24/700 đã khớp Figma sẵn.
+\end{itemize}
+
+\section{Verify}
+
+\begin{itemize}
+  \item \texttt{upgrade.sh wujia\_portal\_layout,wujia\_portal\_notification} RC=0, log sạch (0 ERROR).
+  \item \textbf{Render thật} (login admin, requests session): noti list + detail + \texttt{?unread=1} HTTP 200;
+        chip ``Chưa đọc'' lọc đúng (mở 1 tin $\to$ unread 5$\to$4); badge ``Có file'' + section file đính kèm
+        (PDF + download href) khi có attachment; icon/màu/badge đa dạng theo loại + ưu tiên. 7 trang
+        (noti/detail/knowledge/history/support/return/profile) HTTP 200. \texttt{?v=1138} live, 0 heading-800
+        còn sót.
+  \item Regression: \texttt{test\_sprint5} 21/0 + \texttt{test\_sprint9} 7/0. Desktop giữ nguyên (\texttt{d-none
+        d-lg-block} còn đủ tabs/content-card/breadcrumb).
+\end{itemize}
+
+\section{Files \& version}
+
+\texttt{wujia\_portal\_notification} \texttt{19.0.1.3.0}$\to$\texttt{19.0.1.4.0} (\texttt{portal.py} unread/counts
++ \texttt{portal\_notification.xml} 2 block mobile + \texttt{portal\_notification.css} \texttt{.wujia-mnoti-*}).
+\texttt{wujia\_portal\_layout} \texttt{19.0.24.0.0}$\to$\texttt{19.0.25.0.0} (\texttt{\_components.css} heading
+800$\to$700 + mknow 25/700 + search 38 + \texttt{assets.xml} \texttt{?v=1138}).
+
+\section{UI-only / Pending}
+
+\begin{itemize}
+  \item \textbf{UI-only} (controller/BA wire sau): chip ``Quan trọng''/``Cần làm''; badge ưu tiên derive từ
+        \texttt{priority} (mapping tạm); mô tả loại (model \texttt{type} chưa có field description); ``Liên kết
+        liên quan'' (chưa có field link --- hiện trỏ \texttt{/portal/knowledge}).
+  \item \textbf{Pending}: size title từng trang ticket/return/account chưa soi px riêng (mới sửa weight
+        800$\to$700, size 20--22 giữ); demo data priority/attachment chỉnh tạm local (reseed sẽ reset).
+\end{itemize}
