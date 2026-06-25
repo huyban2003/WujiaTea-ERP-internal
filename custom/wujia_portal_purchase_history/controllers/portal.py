@@ -33,6 +33,31 @@ MOBILE_STATE_BADGES = {
     'cancel':   ('Đã hủy', 'wujia-badge-danger'),
 }
 
+# Sprint PC-2 — PC/desktop badges (Figma 4643:258/4643:2). Map state → (label, wj-pc-badge--variant).
+PC_STATE_BADGES = {
+    'draft':  ('Chờ xác nhận', 'wj-pc-badge--pending'),
+    'sent':   ('Đã gửi', 'wj-pc-badge--sent'),
+    'sale':   ('Đã xác nhận', 'wj-pc-badge--confirmed'),
+    'done':   ('Hoàn tất', 'wj-pc-badge--done'),
+    'cancel': ('Đã hủy', 'wj-pc-badge--cancel'),
+}
+
+
+def _page_numbers(current, last, edge=1, around=1):
+    """Windowed page list cho numbered pager: [1, '…', 4, 5, 6, '…', 20]."""
+    if last < 1:
+        return []
+    keep = set(range(1, edge + 1)) | set(range(last - edge + 1, last + 1))
+    keep |= set(range(current - around, current + around + 1))
+    pages = sorted(p for p in keep if 1 <= p <= last)
+    result, prev = [], 0
+    for p in pages:
+        if prev and p - prev > 1:
+            result.append('…')
+        result.append(p)
+        prev = p
+    return result
+
 
 def _parse_date(value):
     if not value:
@@ -52,6 +77,7 @@ class WujiaPortalHistory(http.Controller):
             return request.render('wujia_portal_purchase_history.portal_history_list', {
                 'orders': [], 'pager': {}, 'no_franchise': True,
                 'state_badges': STATE_BADGES, 'mobile_state_badges': MOBILE_STATE_BADGES,
+                'pc_state_badges': PC_STATE_BADGES,
                 'date_from': '', 'date_to': '',
                 'state': '', 'preset': '', 'q': '',
             })
@@ -97,6 +123,8 @@ class WujiaPortalHistory(http.Controller):
             'page_count': last_page, 'page_total': total,
             'page_previous': {'num': max(1, page - 1)},
             'page_next': {'num': min(last_page, page + 1)},
+            'page_nums': _page_numbers(page, last_page),
+            'offset': offset, 'count': len(orders),
             'querystring': self._qs(date_from=date_from, date_to=date_to, state=state, q=q),
         }
 
@@ -107,6 +135,7 @@ class WujiaPortalHistory(http.Controller):
             'state': state, 'preset': preset, 'q': q,
             'state_badges': STATE_BADGES,
             'mobile_state_badges': MOBILE_STATE_BADGES,
+            'pc_state_badges': PC_STATE_BADGES,
         })
 
     @http.route(['/portal/purchase-history/<int:order_id>'],
@@ -124,6 +153,7 @@ class WujiaPortalHistory(http.Controller):
         return request.render('wujia_portal_purchase_history.portal_history_detail', {
             'order': order, 'state_badges': STATE_BADGES,
             'mobile_state_badges': MOBILE_STATE_BADGES,
+            'pc_state_badges': PC_STATE_BADGES,
         })
 
     @http.route(['/portal/purchase-history/<int:order_id>.pdf'],

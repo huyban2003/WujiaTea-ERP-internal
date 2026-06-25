@@ -57,11 +57,11 @@
     align-items: flex-start;
     justify-content: space-between;
     gap: 16px;
-    margin-bottom: var(--wj-pc-content-padding);
+    margin-bottom: 16px;
 }
 .wj-pc-page-header__title {
-    font-size: 30px;
-    font-weight: 800;
+    font-size: 26px;
+    font-weight: 700;
     color: var(--wj-pc-text);
     margin: 0;
     line-height: 1.2;
@@ -234,6 +234,8 @@
     border-color: var(--wj-pc-primary);
     color: #fff;
 }
+.wj-pc-page-btn.is-disabled { opacity: .45; pointer-events: none; }
+.wj-pc-page-btn:hover:not(.is-active):not(.is-disabled) { border-color: var(--wj-pc-primary); color: var(--wj-pc-primary); }
 
 /* ---------- Form field (label + input/select/textarea h42) — SVG FormField_Set ---------- */
 .wj-pc-field { display: flex; flex-direction: column; gap: 8px; }
@@ -304,3 +306,71 @@ textarea.wj-pc-control { height: auto; min-height: 96px; padding: 12px 16px; }
     color: var(--wj-pc-muted);
 }
 .wj-pc-modal__actions { display: flex; justify-content: flex-end; gap: 12px; margin-top: 22px; }
+
+/* ---------- Status badge: confirmed (cyan) — Figma "Đã xác nhận" #EAF7FD/#28A9DF ---------- */
+.wj-pc-badge--confirmed { background: var(--wj-pc-primary-soft); color: var(--wj-pc-primary); }
+
+/* ---------- Card sub-count (right of title) — "N sản phẩm" ---------- */
+.wj-pc-card__count { font-size: 14px; font-weight: 500; color: var(--wj-pc-muted); white-space: nowrap; }
+.wj-pc-card__title--sm { font-size: 18px; font-weight: 700; }
+
+/* ---------- Key-value info panel (label 13/700 muted, value 15/700) — History detail ---------- */
+.wj-pc-kv-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px 24px; }
+.wj-pc-kv-grid--single { grid-template-columns: 1fr; }
+.wj-pc-kv { display: flex; flex-direction: column; gap: 4px; }
+.wj-pc-kv__label { font-size: 13px; font-weight: 700; color: var(--wj-pc-muted); }
+.wj-pc-kv__value { font-size: 15px; font-weight: 700; color: var(--wj-pc-text); }
+.wj-pc-kv__value--primary { color: var(--wj-pc-primary); }
+.wj-pc-kv__value--warning { color: var(--wj-pc-yellow); }
+
+/* ---------- Order summary head (detail) — code 30/800 left, amount 28/800 right ---------- */
+.wj-pc-order-head {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 24px;
+    background: var(--wj-pc-card);
+    border: 1px solid var(--wj-pc-border-soft);
+    border-radius: var(--wj-pc-card-radius);
+    padding: 22px 24px;
+    margin-bottom: var(--wj-pc-content-padding);
+}
+.wj-pc-order-head__label { font-size: 13px; font-weight: 700; color: var(--wj-pc-muted); margin: 0 0 6px; }
+.wj-pc-order-head__code-row { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+.wj-pc-order-head__code { font-size: 30px; font-weight: 800; color: var(--wj-pc-text); margin: 0; line-height: 1.1; }
+.wj-pc-order-head__meta { font-size: 14px; font-weight: 500; color: var(--wj-pc-muted); margin: 12px 0 0; }
+.wj-pc-order-head__right { text-align: right; flex-shrink: 0; padding-right: 24px; }
+.wj-pc-order-head__amount { font-size: 28px; font-weight: 800; color: var(--wj-pc-text); margin: 4px 0 0; line-height: 1.1; }
+.wj-pc-order-head__note { font-size: 13px; font-weight: 400; color: var(--wj-pc-subtle); margin: 8px 0 0; }
+
+/* ---------- Data table footer (total row) — Figma "Tổng cộng" bg #F8FAFC h54 ---------- */
+.wj-pc-table tfoot td {
+    height: 54px;
+    padding: 0 22px;
+    background: var(--wj-pc-table-header-bg);
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--wj-pc-text);
+    border-top: 1px solid var(--wj-pc-border-soft);
+}
+.wj-pc-table tfoot td:first-child { border-radius: 0 0 0 12px; }
+.wj-pc-table tfoot td:last-child  { border-radius: 0 0 12px 0; }
+
+/* ---------- Two-column row for detail info panels (≤1200 → stack) ---------- */
+.wj-pc-two-col { display: grid; grid-template-columns: 760fr 788fr; gap: 24px; margin-bottom: var(--wj-pc-content-padding); }
+@media (max-width: 1199.98px) { .wj-pc-two-col { grid-template-columns: 1fr; } }
+
+/* ---------- Sidebar section label "MENU CHÍNH" (Figma sidebar) ---------- */
+.main-menu .navigation > li.wujia-nav-header { padding: 14px 22px 6px; }
+.main-menu .navigation > li.wujia-nav-header > span {
+    font-size: 12px; font-weight: 700; letter-spacing: .04em;
+    text-transform: uppercase; color: var(--wj-pc-subtle);
+}
+
+/* ---------- Filter search box with leading icon (Figma list filterbar) ---------- */
+.wj-pc-filter-search { position: relative; flex: 1 1 280px; }
+.wj-pc-filter-search > i {
+    position: absolute; left: 14px; top: 50%; transform: translateY(-50%);
+    color: var(--wj-pc-subtle); font-size: 16px; pointer-events: none;
+}
+.wj-pc-filter-search > .wj-pc-filter-control { padding-left: 38px; }

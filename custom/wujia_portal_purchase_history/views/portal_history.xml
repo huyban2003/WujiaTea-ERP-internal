@@ -8,124 +8,121 @@
             <div class="content-wrapper">
 
                 <!-- ============================================================
-                     DESKTOP (≥992px) — GIỮ NGUYÊN 100% (Sprint 13: chỉ bọc, không sửa)
+                     DESKTOP (≥992px) — Sprint PC-2: wj-pc-* theo Figma 4643:258
                      ============================================================ -->
                 <div class="d-none d-lg-block">
-                    <div class="content-header row mt-3">
-                        <div class="content-header-left col-12 mb-1">
-                            <h2 class="content-header-title float-left mb-0">
-                                <i class="fa fa-history me-1"/>Lịch sử đặt hàng
-                            </h2>
+                    <div class="wj-pc-page-header">
+                        <div>
+                            <h1 class="wj-pc-page-header__title">Lịch sử đặt hàng</h1>
+                            <p class="wj-pc-page-header__crumb">Portal / Lịch sử đặt hàng</p>
                         </div>
                     </div>
 
-                    <div t-if="no_franchise" class="alert alert-warning m-3">
-                        Bạn chưa được gán vào cửa hàng nào.
+                    <div t-if="no_franchise" class="wj-pc-empty">
+                        <span class="wj-pc-empty__icon"><i class="feather icon-alert-circle"/></span>
+                        <h3 class="wj-pc-empty__title">Chưa có cửa hàng</h3>
+                        <p class="wj-pc-empty__sub">Bạn chưa được gán vào cửa hàng nào.</p>
                     </div>
 
-                    <div t-if="not no_franchise" class="content-body">
-                        <!-- Search/Filter bar -->
-                        <div class="card mb-2">
-                            <div class="card-body p-2">
-                                <form method="get" action="/portal/purchase-history" class="row g-2 align-items-center">
-                                    <div class="col-md-3 col-6">
-                                        <label class="small text-muted mb-1">Từ ngày</label>
-                                        <input type="date" name="date_from" class="form-control form-control-sm" t-att-value="date_from"/>
-                                    </div>
-                                    <div class="col-md-3 col-6">
-                                        <label class="small text-muted mb-1">Đến ngày</label>
-                                        <input type="date" name="date_to" class="form-control form-control-sm" t-att-value="date_to"/>
-                                    </div>
-                                    <div class="col-md-3 col-12">
-                                        <label class="small text-muted mb-1">Trạng thái</label>
-                                        <select name="state" class="form-select form-select-sm">
-                                            <option value="">— Tất cả —</option>
-                                            <t t-foreach="state_badges.items()" t-as="kv">
-                                                <option t-att-value="kv[0]"
-                                                        t-att-selected="'selected' if state == kv[0] else None"
-                                                        t-out="kv[1][0]"/>
-                                            </t>
-                                        </select>
-                                    </div>
-                                    <div class="col-md-3 col-12 text-end">
-                                        <label class="small text-muted mb-1 d-block">&#160;</label>
-                                        <button type="submit" class="btn btn-primary btn-sm me-1">
-                                            <i class="fa fa-search"/> Tìm kiếm
-                                        </button>
-                                        <a href="/portal/purchase-history?preset=this_month" class="btn btn-outline-success btn-sm me-1">Tháng này</a>
-                                        <a href="/portal/purchase-history?preset=last_month" class="btn btn-outline-secondary btn-sm">Tháng trước</a>
-                                    </div>
-                                </form>
-                            </div>
-                        </div>
-
-                        <!-- Table — MẪU 02 Card bảng (Sprint 9.13b 2026-05-27) -->
-                        <div class="wujia-content-card">
-                            <div class="wujia-content-card-header">
-                                <div class="wujia-content-card-header-icon">
-                                    <i class="feather icon-shopping-cart"/>
-                                </div>
-                                <h4 class="wujia-content-card-header-title">Đơn hàng gần đây</h4>
-                                <span t-if="orders" class="wujia-content-card-header-link">
-                                    <t t-out="len(orders)"/> kết quả
+                    <t t-else="">
+                        <!-- Bộ lọc nhanh — Figma 4643:258: search + 2 date + trạng thái + Reset/Tìm -->
+                        <form method="get" action="/portal/purchase-history" class="wj-pc-filterbar">
+                            <h3 class="wj-pc-filterbar__title">Bộ lọc nhanh</h3>
+                            <div class="wj-pc-filterbar__row">
+                                <span class="wj-pc-filter-search">
+                                    <i class="feather icon-search"/>
+                                    <input type="text" name="q" t-att-value="q"
+                                           placeholder="Tìm theo mã đơn" class="wj-pc-filter-control"/>
+                                </span>
+                                <input type="date" name="date_from" t-att-value="date_from"
+                                       class="wj-pc-filter-control" style="max-width:180px;"/>
+                                <input type="date" name="date_to" t-att-value="date_to"
+                                       class="wj-pc-filter-control" style="max-width:180px;"/>
+                                <select name="state" class="wj-pc-filter-control" style="max-width:200px;">
+                                    <option value="">Tất cả trạng thái</option>
+                                    <t t-foreach="state_badges.items()" t-as="kv">
+                                        <option t-att-value="kv[0]"
+                                                t-att-selected="'selected' if state == kv[0] else None"
+                                                t-out="kv[1][0]"/>
+                                    </t>
+                                </select>
+                                <span class="wj-pc-filterbar__actions">
+                                    <a href="/portal/purchase-history" class="wj-pc-btn wj-pc-btn--secondary">Reset</a>
+                                    <button type="submit" class="wj-pc-btn wj-pc-btn--primary">Tìm</button>
                                 </span>
                             </div>
-                            <div t-if="not orders" class="wujia-empty-state">
-                                <i class="feather icon-inbox"/>
-                                <p>Chưa có đơn hàng nào.</p>
+                        </form>
+
+                        <!-- Bảng danh sách đơn -->
+                        <div class="wj-pc-card">
+                            <div class="wj-pc-card__head">
+                                <div>
+                                    <h3 class="wj-pc-card__title">Danh sách đơn hàng</h3>
+                                    <p class="wj-pc-card__subtitle">Theo dõi đơn đặt hàng của cửa hàng đang thao tác</p>
+                                </div>
+                                <span t-if="orders" class="wj-pc-card__count"><t t-out="pager.get('page_total', len(orders))"/> bản ghi</span>
                             </div>
-                            <table t-else="" class="wujia-content-card-table">
+
+                            <div t-if="not orders" class="wj-pc-empty">
+                                <span class="wj-pc-empty__icon"><i class="feather icon-inbox"/></span>
+                                <h3 class="wj-pc-empty__title">Chưa có đơn hàng</h3>
+                                <p class="wj-pc-empty__sub">Chưa có đơn hàng nào khớp bộ lọc.</p>
+                            </div>
+
+                            <table t-else="" class="wj-pc-table">
                                 <thead>
                                     <tr>
-                                        <th>Ngày đặt</th>
                                         <th>Mã đơn</th>
-                                        <th>Cửa hàng</th>
+                                        <th>Ngày đặt</th>
+                                        <th>Ngày xác nhận</th>
+                                        <th>Người đặt</th>
                                         <th class="text-end">Tổng tiền</th>
-                                        <th class="text-end">KL (kg)</th>
-                                        <th class="text-center">Trạng thái</th>
-                                        <th class="text-end"></th>
+                                        <th>Batch / giao hàng</th>
+                                        <th>Trạng thái</th>
+                                        <th class="text-end">Thao tác</th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     <tr t-foreach="orders" t-as="o">
-                                        <td t-out="o.date_order and o.date_order.strftime('%d/%m/%Y %H:%M') or ''"/>
-                                        <td><a t-attf-href="/portal/purchase-history/#{o.id}" t-out="o.name"/></td>
-                                        <td t-out="o.franchise_id.name or '—'"/>
-                                        <td class="text-end" t-out="'{:,.0f}'.format(o.amount_total or 0).replace(',', '.') + ' ₫'"/>
-                                        <td class="text-end" t-out="'{:,.2f}'.format(o.total_planned_weight or 0)"/>
-                                        <td class="text-center">
-                                            <t t-set="badge" t-value="state_badges.get(o.state, (o.state, 'wujia-badge-muted'))"/>
-                                            <span t-attf-class="wujia-badge #{badge[1]}" t-out="badge[0]"/>
+                                        <td class="wj-pc-td--code">
+                                            <a t-attf-href="/portal/purchase-history/#{o.id}" class="wj-pc-link" t-out="o.name"/>
+                                        </td>
+                                        <td class="wj-pc-td--muted" t-out="o.date_order and o.date_order.strftime('%d/%m/%Y') or '—'"/>
+                                        <!-- Ngày xác nhận: UI-only (sale.order không có field stored riêng) -->
+                                        <td class="wj-pc-td--muted">—</td>
+                                        <td t-out="o.portal_requester_user_id.name or o.user_id.name or '—'"/>
+                                        <td class="text-end wj-pc-td--amount" t-out="'{:,.0f}'.format(o.amount_total or 0).replace(',', '.') + ' đ'"/>
+                                        <td t-out="o.batch_id.name or 'Chưa giao'"/>
+                                        <td>
+                                            <t t-set="pcb" t-value="pc_state_badges.get(o.state, (o.state, 'wj-pc-badge--pending'))"/>
+                                            <span t-attf-class="wj-pc-badge #{pcb[1]}" t-out="pcb[0]"/>
                                         </td>
                                         <td class="text-end">
-                                            <a t-attf-href="/portal/purchase-history/#{o.id}" class="btn btn-sm btn-primary">
-                                                <i class="fa fa-eye"/>
-                                            </a>
+                                            <a t-attf-href="/portal/purchase-history/#{o.id}" class="wj-pc-link">Xem</a>
                                         </td>
                                     </tr>
                                 </tbody>
                             </table>
-                        </div>
 
-                        <!-- Pager -->
-                        <nav t-if="pager and pager.get('page_count', 0) &gt; 1" class="mt-2">
-                            <ul class="pagination wujia-pagination justify-content-center mb-0">
-                                <li class="page-item">
-                                    <a class="page-link"
-                                       t-attf-href="/portal/purchase-history?page=#{pager['page_previous']['num']}&amp;#{pager['querystring'] or ''}">«</a>
-                                </li>
-                                <li class="page-item active">
-                                    <span class="page-link">
-                                        Trang <t t-out="pager['page']['num']"/> / <t t-out="pager['page_count']"/>
-                                    </span>
-                                </li>
-                                <li class="page-item">
-                                    <a class="page-link"
-                                       t-attf-href="/portal/purchase-history?page=#{pager['page_next']['num']}&amp;#{pager['querystring'] or ''}">»</a>
-                                </li>
-                            </ul>
-                        </nav>
-                    </div>
+                            <!-- Pagination — Figma 4643:258: count trái, Trước [n] Sau phải -->
+                            <div t-if="orders" class="wj-pc-pagination">
+                                <span class="wj-pc-pagination__count">
+                                    Hiển thị <t t-out="pager['offset'] + 1"/>–<t t-out="pager['offset'] + pager['count']"/> / <t t-out="pager['page_total']"/> bản ghi
+                                </span>
+                                <a t-attf-href="/portal/purchase-history?page=#{pager['page_previous']['num']}&amp;#{pager['querystring'] or ''}"
+                                   t-attf-class="wj-pc-page-btn #{'is-disabled' if pager['page']['num'] &lt;= 1 else ''}">Trước</a>
+                                <t t-foreach="pager['page_nums']" t-as="pn">
+                                    <span t-if="pn == '…'" class="wj-pc-page-btn">…</span>
+                                    <a t-else=""
+                                       t-attf-href="/portal/purchase-history?page=#{pn}&amp;#{pager['querystring'] or ''}"
+                                       t-attf-class="wj-pc-page-btn #{'is-active' if pn == pager['page']['num'] else ''}"
+                                       t-out="pn"/>
+                                </t>
+                                <a t-attf-href="/portal/purchase-history?page=#{pager['page_next']['num']}&amp;#{pager['querystring'] or ''}"
+                                   t-attf-class="wj-pc-page-btn #{'is-disabled' if pager['page']['num'] &gt;= pager['page_count'] else ''}">Sau</a>
+                            </div>
+                        </div>
+                    </t>
                 </div>
                 <!-- /desktop -->
 
@@ -224,129 +221,124 @@
             <div class="content-wrapper">
 
                 <!-- ============================================================
-                     DESKTOP (≥992px) — GIỮ NGUYÊN 100% (Sprint 13: chỉ bọc, không sửa)
+                     DESKTOP (≥992px) — Sprint PC-2: wj-pc-* theo Figma 4643:2
                      ============================================================ -->
                 <div class="d-none d-lg-block">
-                    <div class="content-header row mt-3">
-                        <div class="content-header-left col-12 mb-1">
-                            <nav style="--bs-breadcrumb-divider: '>';">
-                                <ol class="breadcrumb">
-                                    <li class="breadcrumb-item"><a href="/portal/purchase-history">Lịch sử đặt hàng</a></li>
-                                    <li class="breadcrumb-item active" t-out="order.name"/>
-                                </ol>
-                            </nav>
-                            <h2 class="content-header-title float-left mb-0">
-                                <i class="fa fa-file-text-o me-1"/>Đơn hàng <t t-out="order.name"/>
-                            </h2>
+                    <div class="wj-pc-page-header">
+                        <div>
+                            <h1 class="wj-pc-page-header__title">Chi tiết đơn hàng</h1>
+                            <p class="wj-pc-page-header__crumb">Portal / Lịch sử đặt hàng / <t t-out="order.name"/></p>
+                        </div>
+                        <div class="wj-pc-page-header__actions">
+                            <a href="/portal/purchase-history" class="wj-pc-btn wj-pc-btn--secondary">
+                                <i class="feather icon-arrow-left"/>Quay lại danh sách
+                            </a>
                         </div>
                     </div>
 
-                    <div class="content-body">
-                        <!-- State progress badges (4 levels) -->
-                        <div class="card mb-2">
-                            <div class="card-body py-3">
-                                <div class="row text-center">
-                                    <t t-set="states_seq" t-value="['draft', 'sent', 'sale', 'done']"/>
-                                    <t t-foreach="states_seq" t-as="s">
-                                        <t t-set="badge" t-value="state_badges.get(s, (s, 'wujia-badge-muted'))"/>
-                                        <t t-set="passed" t-value="states_seq.index(order.state) &gt;= s_index if order.state in states_seq else False"/>
-                                        <div class="col-3">
-                                            <div t-attf-class="state-step #{'state-step-active' if passed else 'state-step-pending'}">
-                                                <span t-attf-class="wujia-badge state-badge #{badge[1]}" t-out="badge[0]"/>
-                                            </div>
-                                        </div>
-                                    </t>
+                    <t t-set="pcb" t-value="pc_state_badges.get(order.state, (order.state, 'wj-pc-badge--pending'))"/>
+
+                    <!-- Card tóm tắt đơn -->
+                    <div class="wj-pc-order-head">
+                        <div>
+                            <p class="wj-pc-order-head__label">Mã đơn</p>
+                            <div class="wj-pc-order-head__code-row">
+                                <h2 class="wj-pc-order-head__code" t-out="order.name"/>
+                                <span t-attf-class="wj-pc-badge #{pcb[1]}" t-out="pcb[0]"/>
+                            </div>
+                            <p class="wj-pc-order-head__meta">
+                                Ngày đặt <t t-out="order.date_order and order.date_order.strftime('%d/%m/%Y %H:%M') or '—'"/>
+                                · Người đặt <t t-out="order.portal_requester_user_id.name or order.user_id.name or '—'"/>
+                            </p>
+                        </div>
+                        <div class="wj-pc-order-head__right">
+                            <p class="wj-pc-order-head__label">Tổng tiền</p>
+                            <p class="wj-pc-order-head__amount" t-out="'{:,.0f}'.format(order.amount_total or 0).replace(',', '.') + ' đ'"/>
+                            <p class="wj-pc-order-head__note">Đã gồm các dòng sản phẩm trong đơn</p>
+                        </div>
+                    </div>
+
+                    <!-- 2 panel thông tin -->
+                    <div class="wj-pc-two-col">
+                        <div class="wj-pc-card">
+                            <div class="wj-pc-card__head"><h3 class="wj-pc-card__title wj-pc-card__title--sm">Thông tin đơn hàng</h3></div>
+                            <div class="wj-pc-kv-grid">
+                                <div class="wj-pc-kv">
+                                    <span class="wj-pc-kv__label">Ngày đặt</span>
+                                    <span class="wj-pc-kv__value" t-out="order.date_order and order.date_order.strftime('%d/%m/%Y %H:%M') or '—'"/>
                                 </div>
-                                <div t-if="order.state == 'cancel'" class="text-center mt-2">
-                                    <span class="wujia-badge wujia-badge-danger">Đơn đã bị hủy</span>
+                                <div class="wj-pc-kv">
+                                    <span class="wj-pc-kv__label">Ngày xác nhận</span>
+                                    <!-- UI-only: chưa có field stored -->
+                                    <span class="wj-pc-kv__value">—</span>
+                                </div>
+                                <div class="wj-pc-kv">
+                                    <span class="wj-pc-kv__label">Người đặt</span>
+                                    <span class="wj-pc-kv__value" t-out="order.portal_requester_user_id.name or order.user_id.name or '—'"/>
+                                </div>
+                                <div class="wj-pc-kv">
+                                    <span class="wj-pc-kv__label">Trạng thái</span>
+                                    <span class="wj-pc-kv__value wj-pc-kv__value--primary" t-out="pcb[0]"/>
                                 </div>
                             </div>
                         </div>
-
-                        <div class="row">
-                            <!-- Order info -->
-                            <div class="col-md-6 col-12 mb-2">
-                                <div class="card h-100">
-                                    <div class="card-header"><h5 class="mb-0">Thông tin đơn</h5></div>
-                                    <div class="card-body">
-                                        <dl class="row mb-0 profile-dl">
-                                            <dt class="col-sm-5">Mã đơn</dt>
-                                            <dd class="col-sm-7" t-out="order.name"/>
-                                            <dt class="col-sm-5">Ngày đặt</dt>
-                                            <dd class="col-sm-7" t-out="order.date_order and order.date_order.strftime('%d/%m/%Y %H:%M') or ''"/>
-                                            <dt class="col-sm-5">Cửa hàng</dt>
-                                            <dd class="col-sm-7" t-out="order.franchise_id.name or '—'"/>
-                                            <dt class="col-sm-5">Người đặt</dt>
-                                            <dd class="col-sm-7" t-out="order.portal_requester_user_id.name or order.user_id.name or '—'"/>
-                                            <dt class="col-sm-5">Tổng tiền</dt>
-                                            <dd class="col-sm-7" t-out="'{:,.0f}'.format(order.amount_total or 0).replace(',', '.') + ' ₫'"/>
-                                            <dt class="col-sm-5">Khối lượng</dt>
-                                            <dd class="col-sm-7" t-out="'{:,.2f}'.format(order.total_planned_weight or 0) + ' kg'"/>
-                                        </dl>
-                                    </div>
+                        <div class="wj-pc-card">
+                            <div class="wj-pc-card__head"><h3 class="wj-pc-card__title wj-pc-card__title--sm">Batch / giao hàng</h3></div>
+                            <div class="wj-pc-kv-grid">
+                                <div class="wj-pc-kv">
+                                    <span class="wj-pc-kv__label">Batch giao hàng</span>
+                                    <span class="wj-pc-kv__value" t-out="order.batch_id.name or 'Chưa giao'"/>
                                 </div>
-                            </div>
-
-                            <!-- Delivery info -->
-                            <div class="col-md-6 col-12 mb-2">
-                                <div class="card h-100">
-                                    <div class="card-header"><h5 class="mb-0">Thông tin giao hàng</h5></div>
-                                    <div class="card-body">
-                                        <dl class="row mb-0 profile-dl">
-                                            <dt class="col-sm-4">Địa chỉ</dt>
-                                            <dd class="col-sm-8" t-out="order.partner_shipping_id.contact_address or order.franchise_id.address or '—'"/>
-                                            <dt class="col-sm-4">SĐT</dt>
-                                            <dd class="col-sm-8" t-out="order.partner_shipping_id.phone or order.franchise_id.phone or '—'"/>
-                                            <dt class="col-sm-4">Ghi chú</dt>
-                                            <dd class="col-sm-8" t-out="order.note or '—'"/>
-                                        </dl>
-                                    </div>
+                                <div class="wj-pc-kv">
+                                    <span class="wj-pc-kv__label">Trạng thái giao hàng</span>
+                                    <!-- UI-only: chưa wire batch/delivery state -->
+                                    <span class="wj-pc-kv__value wj-pc-kv__value--warning">Đang chuẩn bị</span>
+                                </div>
+                                <div class="wj-pc-kv">
+                                    <span class="wj-pc-kv__label">Ghi chú giao hàng</span>
+                                    <!-- UI-only: chưa có field ghi chú giao hàng -->
+                                    <span class="wj-pc-kv__value">Không có ghi chú</span>
+                                </div>
+                                <div class="wj-pc-kv">
+                                    <span class="wj-pc-kv__label">Ngày giao</span>
+                                    <span class="wj-pc-kv__value" t-out="order.batch_id.planned_departure and order.batch_id.planned_departure.strftime('%d/%m/%Y · %H:%M') or '—'"/>
                                 </div>
                             </div>
                         </div>
+                    </div>
 
-                        <!-- Order lines -->
-                        <div class="card">
-                            <div class="card-header"><h5 class="mb-0">Chi tiết sản phẩm</h5></div>
-                            <div class="card-body p-0">
-                                <div class="table-responsive">
-                                    <table class="table table-striped mb-0">
-                                        <thead>
-                                            <tr>
-                                                <th>STT</th>
-                                                <th>Sản phẩm</th>
-                                                <th class="text-end">SL</th>
-                                                <th>ĐVT</th>
-                                                <th class="text-end">Đơn giá</th>
-                                                <th class="text-end">Thành tiền</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            <tr t-foreach="order.order_line" t-as="line">
-                                                <td t-out="line_index + 1"/>
-                                                <td t-out="line.product_id.display_name"/>
-                                                <td class="text-end" t-out="'{:,.0f}'.format(line.product_uom_qty or 0)"/>
-                                                <td t-out="line.product_id.uom_id.name or ''"/>
-                                                <td class="text-end" t-out="'{:,.0f}'.format(line.price_unit or 0).replace(',', '.') + ' ₫'"/>
-                                                <td class="text-end" t-out="'{:,.0f}'.format(line.price_subtotal or 0).replace(',', '.') + ' ₫'"/>
-                                            </tr>
-                                        </tbody>
-                                        <tfoot>
-                                            <tr class="fw-bold">
-                                                <td colspan="5" class="text-end">Tổng cộng</td>
-                                                <td class="text-end" t-out="'{:,.0f}'.format(order.amount_total or 0).replace(',', '.') + ' ₫'"/>
-                                            </tr>
-                                        </tfoot>
-                                    </table>
-                                </div>
-                            </div>
+                    <!-- Bảng sản phẩm đã đặt -->
+                    <div class="wj-pc-card">
+                        <div class="wj-pc-card__head">
+                            <h3 class="wj-pc-card__title">Sản phẩm đã đặt</h3>
+                            <span class="wj-pc-card__count"><t t-out="len(order.order_line)"/> sản phẩm</span>
                         </div>
-
-                        <div class="mt-2">
-                            <a href="/portal/purchase-history" class="btn btn-secondary">
-                                <i class="fa fa-arrow-left me-1"/>Quay lại
-                            </a>
-                        </div>
+                        <table class="wj-pc-table">
+                            <thead>
+                                <tr>
+                                    <th>Sản phẩm</th>
+                                    <th>Đơn vị tính</th>
+                                    <th class="text-end">Số lượng</th>
+                                    <th class="text-end">Đơn giá</th>
+                                    <th class="text-end">Thành tiền</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr t-foreach="order.order_line" t-as="line">
+                                    <td t-out="line.product_id.display_name"/>
+                                    <td class="wj-pc-td--muted" t-out="line.product_id.uom_id.name or '—'"/>
+                                    <td class="text-end wj-pc-td--amount" t-out="'{:,.0f}'.format(line.product_uom_qty or 0)"/>
+                                    <td class="text-end" t-out="'{:,.0f}'.format(line.price_unit or 0).replace(',', '.') + ' đ'"/>
+                                    <td class="text-end wj-pc-td--amount" t-out="'{:,.0f}'.format(line.price_subtotal or 0).replace(',', '.') + ' đ'"/>
+                                </tr>
+                            </tbody>
+                            <tfoot>
+                                <tr>
+                                    <td colspan="4" class="text-end">Tổng cộng</td>
+                                    <td class="text-end" t-out="'{:,.0f}'.format(order.amount_total or 0).replace(',', '.') + ' đ'"/>
+                                </tr>
+                            </tfoot>
+                        </table>
                     </div>
                 </div>
                 <!-- /desktop -->

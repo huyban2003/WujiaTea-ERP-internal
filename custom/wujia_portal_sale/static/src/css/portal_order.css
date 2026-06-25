@@ -81,7 +81,8 @@
 .wj-pc-order-add i { font-size: 16px; }
 .wj-pc-order-add-badge {
     position: absolute; top: -6px; right: -6px; min-width: 18px; height: 18px; padding: 0 4px;
-    border-radius: 999px; background: var(--wj-pc-text); color: #fff;
+    border-radius: 999px; background: var(--wj-pc-primary); color: #fff;
+    box-shadow: 0 0 0 2px var(--wj-pc-card); /* white ring — tách badge cyan khỏi nút cyan */
     font-size: 11px; font-weight: 700; line-height: 1;
     display: inline-flex; align-items: center; justify-content: center;
 }
@@ -134,16 +135,20 @@
 .wj-pc-cart-unit { color: var(--wj-pc-muted); white-space: nowrap; }
 .wj-pc-cart-subtotal { font-weight: 700; color: var(--wj-pc-text); white-space: nowrap; }
 
-/* stepper − N + */
-.wj-pc-stepper { display: inline-flex; align-items: center; gap: 6px; }
+/* stepper − N + (Figma 4600:2 — container 86×32 bordered, nút 24×24 soft) */
+.wj-pc-stepper {
+    display: inline-flex; align-items: center; gap: 4px; height: 32px; padding: 0 4px;
+    border: 1px solid var(--wj-pc-border); border-radius: var(--wj-pc-input-radius);
+    background: var(--wj-pc-card);
+}
 .wj-pc-cart-step {
-    width: 26px; height: 26px; border: 1px solid var(--wj-pc-border); border-radius: 8px;
-    background: var(--wj-pc-card); color: var(--wj-pc-text); font-size: 15px; line-height: 1;
+    width: 24px; height: 24px; border: 1px solid var(--wj-pc-border-soft); border-radius: 6px;
+    background: var(--wj-pc-table-header-bg); color: var(--wj-pc-text); font-size: 15px; line-height: 1;
     cursor: pointer; display: inline-flex; align-items: center; justify-content: center;
     transition: background-color .15s, border-color .15s, color .15s;
 }
 .wj-pc-cart-step:hover { background: var(--wj-pc-primary-soft); border-color: var(--wj-pc-primary); color: var(--wj-pc-primary); }
-.wj-pc-cart-qty { min-width: 26px; text-align: center; font-weight: 700; font-size: 14px; }
+.wj-pc-cart-qty { min-width: 24px; text-align: center; font-weight: 700; font-size: 13px; color: var(--wj-pc-primary); }
 
 /* remove */
 .wj-pc-cart-del {
