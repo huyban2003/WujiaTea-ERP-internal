@@ -1,0 +1,81 @@
+\chapter{Sprint 23 --- Chốt sổ UI mobile theo Figma: spacing + typography (batch 1) (2026-06-25)}
+
+\section{Bối cảnh}
+
+Sau $\sim$12 sprint dựng mobile từng trang rải rác, spacing/typography giữa các trang \textbf{trôi không
+đồng nhất}: top-pad 14/16/24/28px, title 20--25px, search 30/38/42/44px. User báo 2 điểm cụ thể:
+(1) \texttt{/portal/notification} --- title + search ``sát phía trên'', cảm giác chật; (2)
+\texttt{/portal/order} --- title ``Sản phẩm'' \textbf{xa header} + chữ \textbf{hơi nhỏ}. BA đã có số đo
+Figma cụ thể (file copy \texttt{aoeiDYlg6vlhJZg2w6Q7o5}) cho padding + size title từng trang $\rightarrow$
+mục tiêu đợt này: đưa code khớp Figma để \textbf{chốt sổ} mobile. Quyết định với user: (a) title
+\textbf{theo Figma từng trang} (chấp nhận 22/24/25/26 khác nhau --- đúng phân cấp BA); (b) khi số Figma
+mâu thuẫn cảm giác nhìn $\rightarrow$ \textbf{bám Figma trước, soi 390px cùng user}; (c) Delivery
+\textbf{tạm hoãn} (chưa có frame Figma).
+
+\section{Gốc rễ: hai cơ chế top-padding}
+
+Phát hiện qua đọc code: trang mobile chia 2 nhóm top-pad khác nhau ---
+\begin{itemize}
+  \item \textbf{BlankShell} (\texttt{.wujia-mpage}: Thông báo, Hỗ trợ, Đổi trả, Kiến thức, Tài khoản) render
+        NGOÀI \texttt{.content-wrapper}, top-pad $=$ \texttt{--wujia-mshell-content-gap} $= 14$px.
+  \item \textbf{Trang cũ trong \texttt{.content-wrapper}} (Đặt hàng, Giỏ, Lịch sử) dính
+        \texttt{html body .content .content-wrapper \{ padding-top: var(--wujia-page-content-top) /*24*/ \}};
+        override mobile chỉ tắt \texttt{margin-top}, KHÔNG tắt \texttt{padding-top} $\rightarrow$ $24 + 4$px
+        titlerow $= \sim 28$px. Đây là lý do ``Sản phẩm'' xa header.
+\end{itemize}
+
+Fix top-pad cho nhóm content-wrapper bằng \texttt{:has()} (đã dùng sẵn ở \texttt{\_components.css}), scope
+trong \texttt{@media (max-width: 991.98px)} nên \textbf{desktop giữ nguyên 24px}:
+\begin{lstlisting}
+@media (max-width: 991.98px) {
+  .content-wrapper:has(.wujia-morder) { padding-top: 8px !important; }  /* 8+4 = 12 (Figma) */
+  .content-wrapper:has(.wujia-mcart) { padding-top: 8px !important; }
+  .content-wrapper:has(.wujia-mhist) { padding-top: 1px !important; }   /* 1+4 = 5 (Figma) */
+}
+\end{lstlisting}
+
+\section{Reconcile theo Figma (6 trang --- batch 1)}
+
+\begin{itemize}
+  \item \textbf{Đặt hàng} (\texttt{.wujia-morder}): top-pad $\sim 28 \to 12$px (\texttt{:has}); title
+        \textbf{24 $\to$ 25}px (fix ``chữ nhỏ''); search cao \textbf{44 $\to$ 34}px + nền \texttt{\#F9FAFB};
+        chip $32 \to 30$px. (\texttt{\_components.css})
+  \item \textbf{Thông báo} (\texttt{.wujia-mnoti}): top-pad $14 \to 10$px (Figma); count
+        ``X thông báo $\bullet$ Y chưa đọc'' \textbf{weight 700}; chip chữ $13 \to 12$px.
+        (\texttt{portal\_notification.css})
+  \item \textbf{Giỏ hàng}: top-pad $\sim 28 \to 12$px (\texttt{:has}).
+  \item \textbf{Lịch sử}: top-pad $\sim 28 \to 5$px; search/date/btn $42 \to 38$px; chip $32/13 \to 28/12$.
+  \item \textbf{Đổi trả} (mượn \texttt{.wujia-mticket-h1} của Hỗ trợ): top-pad $14 \to 16$px; title
+        \textbf{22 $\to$ 26}px \textbf{scoped} \texttt{.wujia-mreturn .wujia-mticket-h1} (Hỗ trợ giữ 22);
+        search $38 \to 36$px. (\texttt{portal\_return.css})
+  \item \textbf{Kiến thức}: top-pad $14 \to 11$px; count \texttt{wj-count-meta--primary} weight $600 \to 700$.
+  \item \textbf{Search bg chung}: base \texttt{.wujia-mknow-search-input} \texttt{var(--wujia-mshell-bg)
+        \#F3F6F8} $\to$ \texttt{\#F8FAFC} --- 1 chỗ đúng Figma cho Kiến thức + Hỗ trợ + Đổi trả + Thông báo.
+\end{itemize}
+
+\section{Lý do / Trade-off}
+
+\begin{itemize}
+  \item \textbf{\texttt{:has()} thay vì sửa token \texttt{--wujia-page-content-top}}: token đó dùng chung
+        desktop + home $\rightarrow$ bump = side-effect toàn portal. \texttt{:has()} scope theo wrapper +
+        trong media mobile $\rightarrow$ blast radius $= 0$ trên desktop.
+  \item \textbf{Title Đổi trả scoped}: \texttt{.wujia-mticket-h1} dùng chung Hỗ trợ + Đổi trả; Figma muốn
+        26 (Đổi trả) vs 22 (Hỗ trợ) $\rightarrow$ override SCOPED \texttt{.wujia-mreturn}, KHÔNG đụng class gốc.
+  \item \textbf{Thông báo top-pad 10px}: Figma (10) NHỎ hơn code cũ (14) --- ngược cảm giác ``chật'' của user.
+        User chọn ``bám Figma + soi cùng anh'' $\rightarrow$ áp 10px, chốt thị giác ở bước review 390px;
+        nguyên nhân ``chật'' thật sự nằm ở dải store-strip phía trên (cần soi xác nhận).
+  \item \textbf{Top-pad override} \texttt{.wujia-mpage.wujia-mX} (specificity $0,0,2,0$) thắng \texttt{.wujia-mpage}
+        ($0,0,1,0$) bất kể load-order $\rightarrow$ override chắc chắn không phụ thuộc thứ tự file CSS.
+\end{itemize}
+
+\section{Verify}
+
+\texttt{upgrade.sh "wujia\_portal\_layout,wujia\_portal\_notification,wujia\_portal\_return"} RC$=0$ (91 modules,
+0 error); \texttt{test\_sprint9} 7/7, \texttt{test\_sprint5} 21/21 (regression OK); brace balance 4 file CSS
+khớp; curl static \texttt{\_components.css?v=1145} + \texttt{\_wujia\_theme.css?v=1145} xác nhận serve đúng;
+portal HTTP 200. Bump \texttt{?v=1138$\to$1145} (\texttt{\_components}), \texttt{1134$\to$1145}
+(\texttt{\_wujia\_theme}); manifest \texttt{notification 1.4.0$\to$1.5.0}, \texttt{return 1.3.0$\to$1.4.0},
+\texttt{layout $\to$28} (để deploy \texttt{-u} bundle).
+
+\textbf{Còn lại (batch 2):} soi 390px từng trang cùng user (sign-off thị giác); pull Figma reconcile
+\textbf{Hỗ trợ + Tài khoản}; soi nhẹ \textbf{Home}; Delivery chờ frame BA.

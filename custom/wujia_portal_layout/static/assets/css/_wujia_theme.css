@@ -298,6 +298,13 @@ html body .content .content-wrapper {
     html body .app-content {
         background-color: var(--wujia-mshell-bg) !important;
     }
+    /* Sprint 23 — top-pad mobile khớp Figma: trang dựng TRONG content-wrapper
+       (Đặt hàng/Giỏ/Lịch sử) thừa pad-top 24px desktop → giảm về số Figma. Scope
+       bằng :has(<wrapper>) + chỉ trong @media <992px → desktop giữ nguyên 24px.
+       Cộng margin-top 4px của *-titlerow: order/cart 8+4=12, hist 1+4=5. */
+    .content-wrapper:has(.wujia-morder) { padding-top: 8px !important; }
+    .content-wrapper:has(.wujia-mcart) { padding-top: 8px !important; }
+    .content-wrapper:has(.wujia-mhist) { padding-top: 1px !important; }
 }
 
 /* Phone <768px: tắt Vuexy .drag-target (swipe-zone z1036 phủ mép trái → nuốt

@@ -20,11 +20,13 @@
    Reuse: .wujia-mpage, wj-filter-chip*, wj-count-meta*, wj-empty-state*, .wujia-mknow-search*, .wujia-badge-* */
 @media (max-width: 991.98px) {
     /* ---------- List: title + count ---------- */
+    .wujia-mpage.wujia-mnoti { padding-top: 10px; }   /* Figma 4651:655 — top-pad 10 (mpage base 14) */
     .wujia-mnoti-titlerow { display: flex; flex-direction: column; gap: 2px; }
-    /* Figma 4651:686 — title 22/700 #111827, count 12 #6B7280 */
+    /* Figma 4651:686 — title 22/700 #111827, count 12/700 #6B7280 */
     .wujia-mnoti-title { font-size: 22px; font-weight: 700; color: var(--wujia-morder-text); margin: 0; }
-    .wujia-mnoti-count { font-size: 12px; margin: 0; }
+    .wujia-mnoti-count { font-size: 12px; font-weight: 700; margin: 0; }
     .wujia-mnoti-chips { margin: 2px 0; }
+    .wujia-mnoti .wj-filter-chip { font-size: 12px; }   /* Figma 4651:655 — chip label 12 (base 13) */
     /* Search = Compact filter bar Figma (input 30px, không phải 42px của mknow chuẩn) */
     .wujia-mnoti .wujia-mknow-card { padding: 9px 12px; }
     .wujia-mnoti .wujia-mknow-search-input { height: 30px; font-size: 13px; border-radius: 8px; padding: 0 12px 0 34px; }

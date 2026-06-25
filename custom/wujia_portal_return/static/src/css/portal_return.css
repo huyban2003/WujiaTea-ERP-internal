@@ -8,8 +8,12 @@
 @media (max-width: 991.98px) {
     /* Tắt font-boosting (Chromium phình h1 22→32px → tiêu đề wrap) */
     .wujia-mreturn { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
-    /* Tiêu đề 1 dòng full bề ngang */
-    .wujia-mreturn .wujia-mticket-h1 { white-space: nowrap; }
+    /* Top-pad + title size theo Figma 4449:81 (mượn .wujia-mticket-h1 của Hỗ trợ
+       nên override SCOPED .wujia-mreturn — KHÔNG đụng size Hỗ trợ). */
+    .wujia-mpage.wujia-mreturn { padding-top: 16px; }   /* Figma — top-pad 16 (mpage base 14) */
+    /* Tiêu đề 1 dòng full bề ngang, 26/700 (Figma; Hỗ trợ giữ 22) */
+    .wujia-mreturn .wujia-mticket-h1 { white-space: nowrap; font-size: 26px; }
+    .wujia-mreturn .wujia-mknow-search-input { height: 36px; }   /* Figma — search 36 (base 38) */
 
     /* Back: tap-target ≥44px (BA touch min) */
     .wujia-mreturn .wujia-mticket-back {
