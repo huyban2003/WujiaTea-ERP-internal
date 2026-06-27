@@ -6,12 +6,30 @@
               priority="30"
               name="Wujia Header — Notification bell (UI-13)">
         <xpath expr="//li[hasclass('dropdown-user')]" position="before">
-            <li class="nav-item wujia-header-icon-item">
+            <li class="nav-item wujia-header-icon-item" style="position: relative;">
+                <!-- Desktop: click → toggle popup (JS preventDefault); mobile: link điều hướng -->
                 <a class="nav-link wujia-header-icon-btn" href="/portal/notification"
-                   aria-label="Notifications">
+                   aria-label="Notifications" data-wj-noti-bell="1">
                     <i class="ficon feather icon-bell text-white"/>
                     <span class="badge badge-pill wujia-header-badge wujia-header-noti-count">0</span>
                 </a>
+                <!-- PC popup (desktop ≥992px) — lazy-load /portal/notification/recent (Sprint PC-3, Figma 4683:285) -->
+                <div class="wj-pc-noti-popup" id="wj-noti-popup" aria-hidden="true">
+                    <div class="wj-pc-noti-popup__header">
+                        <div>
+                            <h4 class="wj-pc-noti-popup__title">Thông báo</h4>
+                            <p class="wj-pc-noti-popup__sub" id="wj-noti-popup-sub">Đang tải…</p>
+                        </div>
+                        <span class="wj-pc-badge wj-pc-badge--cancel" id="wj-noti-popup-unread-badge"
+                              style="display:none;"/>
+                    </div>
+                    <div class="wj-pc-noti-popup__list" id="wj-noti-popup-list">
+                        <div class="wj-pc-noti-popup__loading">Đang tải thông báo…</div>
+                    </div>
+                    <a href="/portal/notification" class="wj-pc-btn wj-pc-btn--primary wj-pc-noti-popup__all">
+                        Xem tất cả thông báo
+                    </a>
+                </div>
             </li>
         </xpath>
     </template>

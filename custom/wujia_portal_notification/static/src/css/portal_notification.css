@@ -245,3 +245,196 @@
     .wujia-mnoti-detail-file-meta { font-size: 11.5px; color: var(--wujia-morder-text-sub); }
     .wujia-mnoti-detail-file-dl { flex: 0 0 auto; color: var(--wujia-morder-text-muted); font-size: 16px; }
 }
+
+/* ====================================================================
+   PC DESKTOP — Sprint PC-3 (List + Form + Popup; Figma 4683:101 / 2 / 285).
+   wj-pc-noti-* namespace, reuse --wj-pc-* / --wujia-* tokens. Desktop blocks
+   render qua d-none d-lg-block; popup luôn ở DOM → guard hiển thị ≥992px.
+   ==================================================================== */
+
+/* ---- List: type chip (neutral, Figma #F1F5F9 / #475569) ---- */
+.wj-pc-noti-type-chip {
+    display: inline-flex; align-items: center;
+    padding: 4px 12px;
+    background: var(--wj-pc-gray-soft);
+    border-radius: 999px;
+    font-size: 12px; font-weight: 700;
+    color: var(--wujia-text-secondary);
+    white-space: nowrap;
+}
+
+/* ---- List: row + unread accent + alternating bg ----
+   Thanh cyan dùng box-shadow inset trên ô đầu — KHÔNG dùng tr::before
+   (pseudo trên <tr> bị table layout coi như 1 cell phụ → đẩy lệch cả hàng, tràn viền). */
+.wj-pc-noti-table tbody tr:nth-child(even) { background: #FCFCFD; }
+.wj-pc-noti-row--unread td:first-child { box-shadow: inset 4px 0 0 var(--wj-pc-primary); }
+
+/* ---- List: title cell ---- */
+.wj-pc-noti-title-cell { display: flex; flex-direction: column; gap: 3px; }
+.wj-pc-noti-title {
+    display: inline-flex; align-items: center; gap: 7px;
+    font-size: 15px; font-weight: 700;
+    color: var(--wujia-text-secondary);
+}
+.wj-pc-noti-title--unread { color: var(--wj-pc-text); }
+.wj-pc-noti-dot {
+    flex: 0 0 auto; width: 8px; height: 8px;
+    border-radius: 50%; background: var(--wj-pc-primary);
+}
+.wj-pc-noti-summary {
+    max-width: 720px;
+    font-size: 13px; font-weight: 400;
+    color: var(--wujia-text-subtitle);
+    overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+
+/* ---- List: filter bar — Figma 4683:101 (5 field labeled, 1 hàng) ---- */
+.wj-pc-noti-filter-row {
+    display: grid;
+    grid-template-columns: minmax(240px, 1fr) 190px 170px 150px 150px max-content;
+    align-items: end;
+    gap: 12px;
+}
+.wj-pc-noti-field { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+.wj-pc-noti-field > label { font-size: 12px; font-weight: 700; color: var(--wj-pc-muted); white-space: nowrap; }
+.wj-pc-noti-field .wj-pc-filter-control { width: 100%; }
+/* reset base flex:1 1 280px → trong field (flex-column) 280px sẽ thành CHIỀU CAO */
+.wj-pc-noti-field .wj-pc-filter-search { display: block; width: 100%; flex: 0 0 auto; }
+.wj-pc-noti-filter-actions { display: flex; gap: 10px; align-items: center; }
+/* Desktop hẹp (≥992 nhưng <1400): xuống hàng gọn thay vì tràn ngang */
+@media (max-width: 1399.98px) {
+    .wj-pc-noti-filter-row { grid-template-columns: repeat(4, 1fr); }
+    .wj-pc-noti-field--grow { grid-column: 1 / -1; }
+    .wj-pc-noti-filter-actions { grid-column: 1 / -1; justify-content: flex-end; }
+}
+.wj-pc-noti-chips { margin: 12px 0; flex-wrap: wrap; }
+
+/* ---- Form: side panels / badge row / title / body ---- */
+.wj-pc-noti-side { display: flex; flex-direction: column; gap: 24px; }
+.wj-pc-noti-rule {
+    border: 0; border-top: 1px solid var(--wj-pc-border-soft);
+    margin: 0 0 18px;
+}
+.wj-pc-noti-detail-badgerow { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 14px; }
+.wj-pc-noti-detail-title {
+    font-size: 30px; font-weight: 700; line-height: 1.25;
+    color: var(--wj-pc-text); margin: 0 0 12px;
+}
+.wj-pc-noti-urgent-sub {
+    display: flex; align-items: center; gap: 6px;
+    font-size: 16px; font-weight: 700;
+    color: var(--wj-pc-danger); margin: 0 0 16px;
+}
+.wj-pc-noti-detail-body {
+    font-size: 15px; line-height: 1.75;
+    color: var(--wujia-text-secondary); margin-top: 6px;
+}
+.wj-pc-noti-detail-body img { max-width: 100%; height: auto; border-radius: 8px; }
+.wj-pc-noti-detail-body p { margin-bottom: 0.75em; }
+
+/* ---- Form: attachments ---- */
+.wj-pc-noti-attach-list { display: flex; flex-direction: column; gap: 12px; }
+.wj-pc-noti-attach-row {
+    display: flex; align-items: center; gap: 14px;
+    padding: 12px 16px;
+    border: 1px solid var(--wj-pc-border-soft);
+    border-radius: var(--wj-pc-component-radius);
+    background: var(--wj-pc-table-header-bg);
+}
+.wj-pc-noti-attach-icon {
+    flex: 0 0 auto; width: 40px; height: 40px;
+    display: inline-flex; align-items: center; justify-content: center;
+    border-radius: var(--wj-pc-component-radius);
+    background: var(--wujia-primary-soft); color: var(--wj-pc-primary);
+    font-size: 18px;
+}
+.wj-pc-noti-attach-main { flex: 1 1 auto; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+.wj-pc-noti-attach-name {
+    font-size: 14px; font-weight: 700; color: var(--wj-pc-text);
+    overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+.wj-pc-noti-attach-meta { font-size: 12px; color: var(--wj-pc-muted); }
+.wj-pc-noti-attach-dl { flex: 0 0 auto; height: 36px; padding: 0 14px; font-size: 13px; }
+
+/* ---- Type tone (popup icons; classes injected by JS) ---- */
+.wj-pc-noti-type--cyan { background: var(--wujia-primary-soft); color: var(--wujia-primary); }
+.wj-pc-noti-type--green { background: var(--wujia-success-bg); color: var(--wujia-success); }
+.wj-pc-noti-type--amber { background: var(--wujia-warning-bg); color: var(--wujia-warning); }
+.wj-pc-noti-type--red { background: var(--wujia-danger-bg); color: var(--wujia-danger); }
+.wj-pc-noti-type--violet { background: #EEF0FF; color: #6366F1; }
+
+/* ====================================================================
+   POPUP DROPDOWN — header bell (desktop ≥992px). z above floating navbar.
+   ==================================================================== */
+.wj-pc-noti-popup {
+    display: none;
+    position: absolute; top: calc(100% + 10px); right: 0;
+    width: min(460px, calc(100vw - 24px));
+    flex-direction: column;
+    background: var(--wj-pc-card);
+    border: 1px solid var(--wj-pc-border-soft);
+    border-radius: 16px;
+    box-shadow: 0 12px 36px rgba(17, 24, 39, 0.14);
+    padding: 18px 18px 16px;
+    z-index: 1100;
+}
+@media (min-width: 992px) {
+    .wj-pc-noti-popup.is-open { display: flex; }
+}
+.wj-pc-noti-popup__header {
+    display: flex; align-items: flex-start; justify-content: space-between;
+    gap: 12px; margin-bottom: 12px;
+}
+.wj-pc-noti-popup__title { font-size: 20px; font-weight: 700; color: var(--wj-pc-text); margin: 0 0 4px; }
+.wj-pc-noti-popup__sub { font-size: 13px; color: var(--wj-pc-muted); margin: 0; }
+.wj-pc-noti-popup__list {
+    display: flex; flex-direction: column; gap: 10px;
+    max-height: 420px; overflow-y: auto; margin-bottom: 12px;
+}
+.wj-pc-noti-popup__loading,
+.wj-pc-noti-popup__empty {
+    text-align: center; padding: 28px 12px;
+    font-size: 14px; color: var(--wj-pc-muted);
+}
+/* Item = card riêng (Figma 4683:285) */
+.wj-pc-noti-popup__item {
+    position: relative;
+    display: flex; align-items: flex-start; gap: 12px;
+    padding: 14px 14px 14px 16px;
+    border: 1px solid var(--wj-pc-border-soft);
+    border-radius: 12px;
+    background: var(--wj-pc-card);
+    text-decoration: none;
+    transition: box-shadow 0.12s, border-color 0.12s;
+    overflow: hidden;
+}
+.wj-pc-noti-popup__item:hover { box-shadow: 0 2px 10px rgba(17, 24, 39, 0.07); }
+.wj-pc-noti-popup__item--unread::before {
+    content: ""; position: absolute; left: 0; top: 0; bottom: 0;
+    width: 4px; background: var(--wj-pc-primary);
+}
+.wj-pc-noti-popup__item-icon {
+    flex: 0 0 auto; width: 44px; height: 44px;
+    display: inline-flex; align-items: center; justify-content: center;
+    border-radius: 12px; font-size: 18px;
+}
+.wj-pc-noti-popup__item-main { flex: 1 1 auto; min-width: 0; display: flex; flex-direction: column; gap: 4px; }
+.wj-pc-noti-popup__item-title {
+    font-size: 15px; font-weight: 700; color: var(--wj-pc-text);
+    overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+.wj-pc-noti-popup__item-meta { font-size: 12px; color: var(--wj-pc-muted); }
+.wj-pc-noti-popup__item-tags { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 3px; }
+/* Chip popup gọn (Figma ~20px) — base wj-pc-badge cao 28px làm badge đội xuống */
+.wj-pc-noti-popup__item-tags .wj-pc-badge { height: auto; padding: 3px 8px; font-size: 11px; font-weight: 600; line-height: 1.35; }
+.wj-pc-noti-popup__item-side {
+    flex: 0 0 auto; align-self: stretch;
+    display: flex; flex-direction: column; align-items: flex-end; gap: 8px;
+}
+.wj-pc-noti-popup__item-dot {
+    width: 8px; height: 8px; border-radius: 50%; background: var(--wj-pc-primary);
+}
+.wj-pc-noti-popup__item-date {
+    margin-top: auto; font-size: 11px; color: var(--wj-pc-subtle); white-space: nowrap;
+}
+.wj-pc-noti-popup__all { width: 100%; justify-content: center; }

@@ -1,4 +1,4 @@
-from datetime import timedelta
+from datetime import datetime, timedelta
 
 from odoo import fields, http
 from odoo.http import request
@@ -15,12 +15,39 @@ TAB_RECENT = 'recent'
 TAB_HISTORY = 'history'
 RECENT_DAYS = 30
 
+# PC desktop (Sprint PC-3) — type code → (tone css, feather icon); priority → (nhãn, badge css).
+# Đồng bộ mapping với mobile WJ_PTAG (urgent=Cần làm/xanh, high=Quan trọng/cam, low/normal=Lưu ý/cyan).
+PC_TYPE_TONE = {
+    'URG': ('wj-pc-noti-type--red', 'icon-alert-triangle'),
+    'GEN': ('wj-pc-noti-type--cyan', 'icon-bell'),
+    'PROMO': ('wj-pc-noti-type--amber', 'icon-gift'),
+    'SYS': ('wj-pc-noti-type--violet', 'icon-settings'),
+    'OTH': ('wj-pc-noti-type--green', 'icon-info'),
+}
+PC_PRIORITY_TAGS = {
+    'urgent': ('Cần làm', 'wj-pc-badge--done'),
+    'high': ('Quan trọng', 'wj-pc-badge--transit'),
+    'normal': ('Lưu ý', 'wj-pc-badge--confirmed'),
+    'low': ('Lưu ý', 'wj-pc-badge--confirmed'),
+}
+
+
+def _parse_date(value):
+    """'YYYY-MM-DD' (HTML date input) → date, hoặc None."""
+    if not value:
+        return None
+    try:
+        return datetime.strptime(value, '%Y-%m-%d').date()
+    except (TypeError, ValueError):
+        return None
+
 
 class WujiaPortalNotification(http.Controller):
 
     @http.route(['/portal/notification'], type='http', auth='user', sitemap=False)
     def portal_notification_list(self, page=1, type_id=None, keyword='',
-                                 tab=TAB_RECENT, unread=None, **kw):
+                                 tab=TAB_RECENT, unread=None,
+                                 date_from='', date_to='', priority='', **kw):
         franchise_ids = get_active_franchise_ids_filter()
         Noti = request.env['wujia.notification'].sudo()
 
@@ -31,9 +58,15 @@ class WujiaPortalNotification(http.Controller):
                  ('franchise_ids', 'in', list(franchise_ids) if franchise_ids else [-1]),
         ]
 
-        # Tab filter (BA spec): tách "Mới" (30 ngày) vs "Lịch sử" (cũ hơn).
+        # Date range (PC) thắng cutoff tab; rỗng → cutoff "Mới" (30 ngày) / "Lịch sử".
         cutoff = fields.Datetime.now() - timedelta(days=RECENT_DAYS)
-        if tab == TAB_HISTORY:
+        df, dt = _parse_date(date_from), _parse_date(date_to)
+        if df or dt:
+            if df:
+                domain.append(('date', '>=', datetime.combine(df, datetime.min.time())))
+            if dt:
+                domain.append(('date', '<=', datetime.combine(dt, datetime.max.time())))
+        elif tab == TAB_HISTORY:
             domain.append(('date', '<', cutoff))
         else:
             tab = TAB_RECENT
@@ -47,7 +80,10 @@ class WujiaPortalNotification(http.Controller):
             domain.append(('type_id', '=', tid))
         if keyword:
             domain.append(('name', 'ilike', keyword))
-        # Chip "Chưa đọc" (mobile) — loại bỏ noti user đã mở.
+        # Chip "Quan trọng"/"Cần làm" (PC) — lọc theo mức ưu tiên.
+        if priority in ('high', 'urgent'):
+            domain.append(('priority', '=', priority))
+        # Chip "Chưa đọc" — loại bỏ noti user đã mở.
         if unread:
             read_noti_ids = request.env['wujia.notification.read'].sudo().search([
                 ('user_id', '=', request.env.user.id),
@@ -101,7 +137,8 @@ class WujiaPortalNotification(http.Controller):
             'querystring': '&'.join(
                 f'{k}={v}' for k, v in
                 [('tab', tab), ('type_id', tid or ''), ('keyword', keyword),
-                 ('unread', unread or '')] if v
+                 ('unread', unread or ''), ('date_from', date_from or ''),
+                 ('date_to', date_to or ''), ('priority', priority or '')] if v
             ),
         }
         return request.render('wujia_portal_notification.portal_notification_list', {
@@ -111,6 +148,9 @@ class WujiaPortalNotification(http.Controller):
             'tab': tab, 'cnt_recent': cnt_recent, 'cnt_history': cnt_history,
             'tab_recent': TAB_RECENT, 'tab_history': TAB_HISTORY,
             'total': total, 'cnt_unread': cnt_unread, 'unread': unread,
+            'date_from': date_from, 'date_to': date_to, 'priority': priority,
+            'page_size': PAGE_SIZE,
+            'PC_TYPE_TONE': PC_TYPE_TONE, 'PC_PRIORITY_TAGS': PC_PRIORITY_TAGS,
         })
 
     @http.route(['/portal/notification/<int:notification_id>'],
@@ -137,7 +177,51 @@ class WujiaPortalNotification(http.Controller):
             })
         return request.render('wujia_portal_notification.portal_notification_detail', {
             'noti': noti,
+            'PC_TYPE_TONE': PC_TYPE_TONE, 'PC_PRIORITY_TAGS': PC_PRIORITY_TAGS,
         })
+
+    @http.route(['/portal/notification/recent'], type='json',
+                auth='user', methods=['POST', 'GET'])
+    def portal_notification_recent(self, **kw):
+        """Popup chuông header (PC) — lazy-load 5 thông báo gần nhất + đếm chưa đọc.
+        Perf: 1 search(limit=5) + 1 read-state lookup; chỉ chạy khi user mở popup."""
+        franchise_ids = get_active_franchise_ids_filter()
+        Noti = request.env['wujia.notification'].sudo()
+        base = [
+            ('published', '=', True),
+            '|', ('franchise_ids', '=', False),
+                 ('franchise_ids', 'in', list(franchise_ids) if franchise_ids else [-1]),
+        ]
+        recent = Noti.search(base, limit=5, order='date desc')
+        Read = request.env['wujia.notification.read'].sudo()
+        read_ids = set(Read.search([
+            ('user_id', '=', request.env.user.id),
+            ('notification_id', 'in', recent.ids),
+        ]).mapped('notification_id').ids) if recent else set()
+
+        # Đếm chưa đọc trong 30 ngày (= bell badge) — đồng bộ unread-count.
+        cutoff = fields.Datetime.now() - timedelta(days=RECENT_DAYS)
+        accessible_ids = Noti.search(base + [('date', '>=', cutoff)]).ids
+        read_count = Read.search_count([
+            ('notification_id', 'in', accessible_ids),
+            ('user_id', '=', request.env.user.id),
+        ]) if accessible_ids else 0
+        total_unread = max(0, len(accessible_ids) - read_count)
+
+        items = [{
+            'id': n.id,
+            'name': n.name,
+            'dispatch_number': n.dispatch_number or '',
+            'date': n.date.strftime('%d/%m/%Y %H:%M') if n.date else '',
+            'type_code': n.type_id.code or 'GEN',
+            'type_name': n.type_id.name or '',
+            'priority': n.priority or 'normal',
+            'has_file': bool(n.attachment_ids),
+            'is_read': n.id in read_ids,
+            'url': '/portal/notification/%s' % n.id,
+        } for n in recent]
+        return {'notifications': items, 'total_unread': total_unread,
+                'total': len(accessible_ids)}
 
     @http.route(['/portal/notification/mark-read'], type='json',
                 auth='user', methods=['POST'])

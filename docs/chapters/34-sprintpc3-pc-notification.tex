@@ -1,0 +1,110 @@
+\chapter{Sprint PC-3 --- PC Notification: List + Form + Popup theo Figma (2026-06-28)}
+
+\section{Bối cảnh}
+
+Desktop của \texttt{/portal/notification} là một trong số ít trang \textbf{chưa qua đợt PC} ---
+template desktop vẫn dùng markup cũ (\texttt{.content-wrapper} + \texttt{nav-tabs} + Bootstrap
+\texttt{.card} + \texttt{.wujia-content-card}), chưa theo hệ \texttt{wj-pc-*} của PC-1/PC-2. BA giao
+3 frame Figma (bản copy \texttt{aoeiDYlg6vlhJZg2w6Q7o5}): \texttt{PC\_Notification\_List} (\texttt{4683:101}),
+\texttt{PC\_Notification\_Form} (\texttt{4683:2}), \texttt{PC\_Notification\_Popup} (\texttt{4683:285}).
+Mục tiêu: thay \textbf{khối desktop} (\texttt{d-none d-lg-block}) bằng thiết kế \texttt{wj-pc-*} khớp
+Figma, \textbf{giữ nguyên 100\% khối mobile} (\texttt{d-lg-none}, Sprint 22).
+
+\section{(A) Controller --- filter mở rộng + endpoint popup}
+
+\begin{itemize}
+  \item \texttt{portal\_notification\_list} nhận thêm 3 param: \texttt{date\_from} / \texttt{date\_to}
+        (lọc theo \texttt{date}; khi có thì \textbf{bỏ qua cửa sổ 30 ngày} mặc định của tab) +
+        \texttt{priority} (chip ``Quan trọng''$\rightarrow$high, ``Cần làm''$\rightarrow$urgent).
+        Helper \texttt{\_parse\_date} (\texttt{strptime '\%Y-\%m-\%d'}). Pager \texttt{querystring} +
+        qcontext bổ sung tương ứng.
+  \item Endpoint MỚI \texttt{/portal/notification/recent} (\texttt{type='json'}): trả 5 thông báo gần
+        nhất + \texttt{total\_unread}/\texttt{total} cho popup. Mỗi item: \texttt{type\_code},
+        \texttt{type\_name}, \texttt{priority}, \texttt{has\_file}, \texttt{is\_read}, \texttt{url}\dots
+        \textbf{Perf:} 1 \texttt{search(limit=5)} + 1 read-state lookup, \textbf{chỉ chạy khi user mở
+        popup} (không poll mỗi page-load --- an toàn 1500 user).
+  \item Constant module-level \texttt{PC\_TYPE\_TONE} (code$\rightarrow$tone+icon) + \texttt{PC\_PRIORITY\_TAGS}
+        (priority$\rightarrow$nhãn+badge), đồng bộ mapping với mobile (urgent=Cần làm/xanh,
+        high=Quan trọng/cam, low|normal=Lưu ý/cyan).
+\end{itemize}
+
+\section{(B) List desktop (\texttt{4683:101})}
+
+Page header (title + ``Đánh dấu đã đọc'') + filter bar 5 field \textbf{có label} 1 hàng (search /
+loại / trạng thái / từ ngày / đến ngày + Tìm kiếm / Làm mới) + \textbf{quick chips} (Tất cả / Chưa đọc /
+Quan trọng / Cần làm) đặt \textbf{ngoài} card filter + bảng \texttt{wj-pc-table}: cột Loại (chip xám
+neutral), Thông báo (tiêu đề + \texttt{summary}), Ngày gửi, Trạng thái (badge Chưa đọc đỏ / Đã đọc xám),
+Thao tác. Dòng chưa đọc = thanh cyan trái + chấm cyan. Nút bulk dùng endpoint \texttt{mark-read} sẵn có
+(JS \texttt{portal\_notification\_pc.js}).
+
+\section{(C) Form desktop (\texttt{4683:2})}
+
+\texttt{wj-pc-two-col}: trái = nội dung (badge ưu tiên + loại, tiêu đề 30px, dòng khẩn đỏ khi
+\texttt{priority='urgent'}, body HTML); phải = ``Thông tin thông báo'' (\texttt{wj-pc-kv-grid}: Mã
+$\rightarrow$\texttt{dispatch\_number}, Loại, Ngày) + ``Tài liệu đính kèm'' (tải xuống thật). Bỏ
+``Liên kết liên quan'' (UI-only, model chưa có field link).
+
+\section{(D) Popup chuông (\texttt{4683:285})}
+
+Sửa \texttt{header\_bell\_inherit.xml}: giữ \texttt{<a>} chuông + \texttt{data-wj-noti-bell}, chèn
+sibling \texttt{.wj-pc-noti-popup} (ẩn, \texttt{.is-open} mới hiện). JS \texttt{header\_bell\_badge.js}
+(rewrite): desktop ($\geq$992px qua \texttt{matchMedia}) click $\rightarrow$ \texttt{preventDefault} +
+toggle + lazy fetch \texttt{/recent} $\rightarrow$ render card-per-item (icon tone, ``loại $\bullet$ mã'',
+chip ưu tiên + ``Có file'', dot góc phải, ngày đáy phải) + outside-click/ESC đóng; mobile giữ link.
+\textbf{ADR-006 (bus.bus) chưa dùng} --- lazy fetch khi mở đủ cho nhu cầu, realtime cross-session để
+sprint sau.
+
+\section{(E) Phase đối chiếu Figma (Playwright) + fix}
+
+Dựng harness \textbf{chụp ảnh thật} bằng Playwright/Chromium ($1920\times1080$, auto login + dismiss
+store-picker) so với ảnh Figma tải về (\texttt{docs/figma\_ref/}). Chạy \textbf{audit 3 sub-agent}
+(1 con/màn) đối chiếu Figma$\leftrightarrow$render$\leftrightarrow$code. Các sai lệch \textbf{tự bắt \&
+sửa}:
+
+\begin{itemize}
+  \item \textbf{Filter bar wrap} (search chiếm trọn 1 hàng): base \texttt{.wj-pc-filter-search} có
+        \texttt{flex: 1 1 280px} --- trong field \textbf{flex-column} thì 280px thành \textbf{chiều cao}
+        $\Rightarrow$ search cao 284px, đội cả hàng. Fix: row sang \texttt{display:grid} 6 cột +
+        reset \texttt{flex:0 0 auto} cho search.
+  \item \textbf{Bảng tràn viền} (dòng chưa đọc lệch nguyên 1 cột): thanh cyan vẽ bằng
+        \texttt{tr::before} --- table layout coi pseudo trên \texttt{<tr>} như \textbf{1 ô phụ}
+        $\Rightarrow$ chèn cột đầu, đẩy lệch + tràn. Fix: \texttt{box-shadow: inset 4px 0 0} trên
+        \texttt{td:first-child}.
+  \item Chips chuyển ra \textbf{ngoài} card filter (Figma để strip riêng dưới filter, trên bảng).
+  \item Popup: chip dùng base \texttt{.wj-pc-badge} cao 28px $\Rightarrow$ badge ``đội xuống'';
+        override \texttt{.wj-pc-noti-popup\_\_item-tags .wj-pc-badge} về \texttt{padding:3px 8px;
+        font-size:11px}; dot $11\rightarrow8$px; viền $\rightarrow$ \texttt{border-soft}.
+\end{itemize}
+
+\section{Gotcha (2 cái đắt)}
+
+\begin{enumerate}
+  \item \textbf{\texttt{tr::before} trong table = 1 cell phụ.} Pseudo-element có \texttt{content} trên
+        \texttt{<tr>} bị table layout bọc thành anonymous table-cell $\rightarrow$ đẩy lệch cả hàng.
+        Muốn accent bar cho row: dùng \texttt{box-shadow inset} trên cell, KHÔNG \texttt{tr::before}.
+  \item \textbf{\texttt{flex} basis đổi trục.} \texttt{flex: 1 1 280px} thiết kế cho row ngang; bỏ vào
+        cột dọc (\texttt{flex-direction:column}) thì 280px thành \textbf{height}. Khi tái dùng class
+        flex của hệ khác, phải reset \texttt{flex} theo trục mới.
+\end{enumerate}
+
+\section{Verify \& seed}
+
+\texttt{seed\_notification\_demo.py} (local-only, idempotent theo \texttt{dispatch\_number}): 9 thông báo
+ngày gần đây, 5 loại $\rightarrow$ đủ tone, đa dạng ưu tiên + đã/chưa đọc + 2 file đính kèm. Upgrade
+\texttt{wujia\_portal\_notification} RC=0; \texttt{test\_sprint5} 21/0 + \texttt{test\_sprint9} 7/0;
+4 route 200; Playwright 3 màn khớp Figma (filter 1 hàng, bảng thẳng cột, popup card gọn). Manifest
+\texttt{19.0.1.6.0}; CSS/JS bundle qua \texttt{web.assets\_frontend} (Odoo tự re-version).
+
+\section{Gì đã làm (nghiệp vụ)}
+
+Trang Thông báo bản máy tính được dựng lại đúng thiết kế: cửa hàng lọc thông báo theo từ khoá / loại /
+trạng thái / khoảng ngày, lọc nhanh bằng chip Quan trọng--Cần làm, đánh dấu đã đọc hàng loạt; mở chi
+tiết 2 cột kèm tải tài liệu đính kèm; và \textbf{chuông trên thanh tiêu đề bấm ra popup} liệt kê 5 thông
+báo mới nhất (tải dữ liệu thật khi mở, không tốn truy vấn mỗi lần đổi trang). Bản điện thoại giữ nguyên.
+
+\section{Lý do/Trade-off}
+
+Popup chọn \textbf{lazy-fetch khi click} thay vì render sẵn trong layout mỗi trang --- với 1500 user
+việc nhúng sẵn = $+1$ truy vấn/page-load cho mọi người, trong khi popup chỉ thỉnh thoảng mở. Realtime
+cross-session (bus.bus, ADR-006) để sprint sau. ``Mã thông báo'' tạm map sang \texttt{dispatch\_number}
+(field gần nhất); ``Liên kết liên quan'' bỏ vì chưa có field --- chờ BA.
