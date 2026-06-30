@@ -1,2 +1,192 @@
 /* Delivery — list table style */
 .delivery-track-table th { font-size: 0.85rem; }
+
+/* ===== Mobile Giao hàng — Figma 4731:2 (delivery_mobile_mockup_v4, S24) =====
+   Batch-centric: 1 thẻ = 1 chuyến xe. Token dùng chung --wujia-morder-* / --wujia-primary*.
+   Token riêng (badge soon/done + field + skeleton) khai báo dưới :root. */
+:root {
+    --wujia-mdelivery-soon-bg: #FEF3C7;   /* Sắp giao */
+    --wujia-mdelivery-soon-fg: #B45309;
+    --wujia-mdelivery-done-bg: #ECFDF5;   /* Đã giao */
+    --wujia-mdelivery-done-fg: #047857;
+    --wujia-mdelivery-field-bg: #F8FAFC;  /* date field bg (Figma) */
+    --wujia-mdelivery-skel: #E5E7EB;      /* skeleton placeholder */
+}
+
+@media (max-width: 991.98px) {
+    /* Chống font-boosting Chromium làm title wrap */
+    .wujia-mdelivery { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
+
+    /* ---------- Header (List) ---------- */
+    .wujia-mdelivery-head { display: flex; flex-direction: column; gap: 5px; }
+    .wujia-mdelivery-title {
+        margin: 0; font-size: 24px; font-weight: 700; color: var(--wujia-morder-text);
+    }
+    .wujia-mdelivery-sub { margin: 0; font-size: 12px; color: var(--wujia-morder-text-sub); }
+
+    /* ---------- Date filter (Từ ngày / Đến ngày / Tìm) ---------- */
+    .wujia-mdelivery-filter {
+        display: flex; align-items: flex-end; gap: 8px;
+        background: var(--wujia-morder-card-bg);
+        border: 1px solid var(--wujia-morder-divider);
+        border-radius: var(--wujia-morder-radius); padding: 10px 12px;
+    }
+    .wujia-mdelivery-datefield {
+        flex: 1 1 0; min-width: 0; margin: 0;
+        display: flex; flex-direction: column; gap: 2px;
+        background: var(--wujia-mdelivery-field-bg);
+        border: 1px solid var(--wujia-morder-border);
+        border-radius: 10px; padding: 5px 10px;
+    }
+    .wujia-mdelivery-datefield-lbl { font-size: 9px; font-weight: 700; color: var(--wujia-morder-text-sub); }
+    .wujia-mdelivery-datefield input {
+        width: 100%; border: 0; background: transparent; padding: 0;
+        font-size: 11px; font-weight: 700; color: var(--wujia-morder-text);
+        font-family: inherit; line-height: 1.2;
+    }
+    .wujia-mdelivery-datefield input:focus { outline: none; }
+    .wujia-mdelivery-search-btn {
+        flex: 0 0 auto; align-self: flex-end;
+        display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+        height: 38px; padding: 0 16px; border: 0; border-radius: 10px;
+        background: var(--wujia-morder-primary); color: #FFFFFF;
+        font-size: 12px; font-weight: 700; white-space: nowrap; text-decoration: none;
+    }
+    .wujia-mdelivery-search-btn i { font-size: 14px; line-height: 1; }
+    .wujia-mdelivery-search-btn:active { background: var(--wujia-morder-primary-dark); }
+
+    /* ---------- Chips (Figma 30px, base 32) ---------- */
+    .wujia-mdelivery .wj-filter-chip { height: 30px; }
+
+    /* ---------- Result head (count · sort) ---------- */
+    .wujia-mdelivery-resulthead {
+        display: flex; align-items: baseline; justify-content: space-between; gap: 8px;
+    }
+    .wujia-mdelivery-resulthead .cnt { font-size: 13.5px; font-weight: 700; color: var(--wujia-morder-text); }
+    .wujia-mdelivery-resulthead .sort { font-size: 11.5px; color: var(--wujia-morder-text-sub); }
+
+    /* ---------- Batch card (list) ---------- */
+    .wujia-mdelivery-list { display: flex; flex-direction: column; gap: 12px; }
+    .wujia-mdelivery-row {
+        display: flex; flex-direction: column; gap: 11px;
+        background: var(--wujia-morder-card-bg);
+        border: 1px solid var(--wujia-morder-border);
+        border-radius: var(--wujia-morder-radius);
+        padding: 12px 16px; text-decoration: none; color: inherit;
+    }
+    a.wujia-mdelivery-row:hover { color: inherit; }
+    .wujia-mdelivery-row-top {
+        display: flex; align-items: flex-start; justify-content: space-between; gap: 8px;
+    }
+    .wujia-mdelivery-row-headmain { display: flex; flex-direction: column; gap: 5px; min-width: 0; }
+    .wujia-mdelivery-row-label { font-size: 10.8px; font-weight: 700; color: var(--wujia-morder-text-sub); }
+    .wujia-mdelivery-row-id {
+        font-size: 14.5px; font-weight: 700; color: var(--wujia-morder-text);
+        overflow: hidden; text-overflow: ellipsis;
+    }
+    .wujia-mdelivery-row-divider { height: 1px; background: var(--wujia-morder-divider); }
+    .wujia-mdelivery-row-cols { display: flex; gap: 8px; }
+    .wujia-mdelivery-row-col { flex: 1 1 0; display: flex; align-items: flex-start; gap: 8px; min-width: 0; }
+    .wujia-mdelivery-row-colicon {
+        flex: 0 0 auto; font-size: 16px; line-height: 1;
+        color: var(--wujia-morder-primary); margin-top: 1px;
+    }
+    .wujia-mdelivery-row-colbody { display: flex; flex-direction: column; gap: 3px; min-width: 0; }
+    .wujia-mdelivery-row-collabel { font-size: 10.5px; font-weight: 700; color: var(--wujia-morder-text-sub); }
+    .wujia-mdelivery-row-colval {
+        font-size: 12.2px; font-weight: 700; color: var(--wujia-morder-text);
+        overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+    }
+
+    /* ---------- Status badge ---------- */
+    .wujia-mdelivery-badge {
+        flex: 0 0 auto; display: inline-flex; align-items: center; justify-content: center;
+        height: 24px; padding: 0 12px; border-radius: 8px;
+        font-size: 11px; font-weight: 700; line-height: 1; white-space: nowrap;
+    }
+    .wujia-mdelivery-badge--going { background: var(--wujia-primary-soft); color: var(--wujia-morder-primary); }
+    .wujia-mdelivery-badge--soon { background: var(--wujia-mdelivery-soon-bg); color: var(--wujia-mdelivery-soon-fg); }
+    .wujia-mdelivery-badge--done { background: var(--wujia-mdelivery-done-bg); color: var(--wujia-mdelivery-done-fg); }
+    .wujia-mdelivery-badge--muted { background: var(--wujia-morder-divider); color: var(--wujia-morder-text-muted); }
+
+    /* ---------- CTA (empty / error) ---------- */
+    .wujia-mdelivery-cta {
+        display: inline-flex; align-items: center; justify-content: center;
+        height: 40px; padding: 0 22px; border-radius: 10px;
+        background: var(--wujia-morder-primary); color: #FFFFFF;
+        font-size: 13px; font-weight: 700; text-decoration: none; margin-top: 6px;
+    }
+    .wujia-mdelivery-cta:hover, .wujia-mdelivery-cta:focus { color: #FFFFFF; }
+    .wujia-mdelivery-icon-danger { background: var(--wujia-danger-bg); color: var(--wujia-danger); }
+
+    /* ---------- Skeleton (loading — UI-only) ---------- */
+    .wujia-mdelivery-skel-bar {
+        display: inline-block; background: var(--wujia-mdelivery-skel); border-radius: 6px;
+    }
+    .wujia-mdelivery-skel .wujia-mdelivery-row-headmain { gap: 9px; }
+
+    /* ---------- Detail: header (back circle + titles) ---------- */
+    .wujia-mdelivery-detail-head { display: flex; align-items: flex-start; gap: 12px; }
+    .wujia-mdelivery-detail-titles { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+    .wujia-mdelivery-back {
+        flex: 0 0 auto; width: 36px; height: 36px;
+        display: inline-flex; align-items: center; justify-content: center;
+        border: 1px solid var(--wujia-morder-border); border-radius: 50%;
+        background: var(--wujia-morder-card-bg); color: var(--wujia-morder-text); text-decoration: none;
+    }
+    .wujia-mdelivery-back i { font-size: 20px; line-height: 1; }
+
+    /* ---------- Detail: batch info card ---------- */
+    .wujia-mdelivery-inf-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 8px; }
+    .wujia-mdelivery-inf-id {
+        margin-top: 6px; font-size: 18px; font-weight: 700; color: var(--wujia-morder-text);
+    }
+    .wujia-mdelivery-inf-id + .wujia-mdelivery-row-divider { margin-top: 12px; }
+    .wujia-mdelivery-inf-dep { display: flex; align-items: center; gap: 8px; margin-top: 12px; }
+    .wujia-mdelivery-inf-dep .wujia-mdelivery-row-colicon { margin-top: 0; }
+    .wujia-mdelivery-inf-depval { font-size: 13px; font-weight: 700; color: var(--wujia-morder-text); }
+    .wujia-mdelivery-inf-updated { margin-top: 10px; font-size: 10.5px; color: var(--wujia-morder-text-sub); }
+
+    /* ---------- Detail: section title (above card, Figma) ---------- */
+    .wujia-mdelivery-sectiontop {
+        margin: 0; font-size: 15px; font-weight: 700; color: var(--wujia-morder-text);
+    }
+
+    /* ---------- Detail: info rows (label trái / value phải) ---------- */
+    .wujia-mdelivery-inforow {
+        display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; padding: 6px 0;
+    }
+    .wujia-mdelivery-inforow + .wujia-mdelivery-inforow { border-top: 1px solid var(--wujia-morder-divider); }
+    .wujia-mdelivery-inforow .lbl { flex: 0 0 auto; font-size: 12px; color: var(--wujia-morder-text-sub); }
+    .wujia-mdelivery-inforow .val {
+        flex: 1 1 auto; text-align: right; font-size: 12px; font-weight: 700; color: var(--wujia-morder-text);
+    }
+
+    /* ---------- Detail: product table ---------- */
+    .wujia-mdelivery-prodcard {
+        background: var(--wujia-morder-card-bg);
+        border: 1px solid var(--wujia-morder-border);
+        border-radius: var(--wujia-morder-radius); overflow: hidden;
+    }
+    .wujia-mdelivery-prodrow { display: flex; align-items: flex-start; gap: 8px; padding: 10px 14px; }
+    .wujia-mdelivery-prodrow + .wujia-mdelivery-prodrow { border-top: 1px solid var(--wujia-morder-divider); }
+    .wujia-mdelivery-prodrow--head { background: var(--wujia-mdelivery-field-bg); padding: 9px 14px; }
+    .wujia-mdelivery-prodrow--head .nm,
+    .wujia-mdelivery-prodrow--head .qt,
+    .wujia-mdelivery-prodrow--head .um {
+        font-size: 11px; font-weight: 700; color: var(--wujia-text-secondary);
+    }
+    .wujia-mdelivery-prodrow .nm {
+        flex: 1 1 auto; min-width: 0; font-size: 11.5px; font-weight: 700;
+        color: var(--wujia-morder-text); line-height: 1.3;
+    }
+    .wujia-mdelivery-prodrow .qt {
+        flex: 0 0 44px; text-align: right; font-size: 12px; font-weight: 700; color: var(--wujia-morder-text);
+    }
+    .wujia-mdelivery-prodrow .um {
+        flex: 0 0 56px; text-align: right; font-size: 12px; color: var(--wujia-morder-text-sub);
+    }
+    .wujia-mdelivery-prodempty {
+        padding: 14px; font-size: 13px; color: var(--wujia-morder-text-muted); text-align: center;
+    }
+}

@@ -5,10 +5,8 @@
     <template id="portal_delivery_tracking" name="Wujia Portal — Delivery Tracking List">
         <t t-call="wujia_portal_layout.app_layout">
             <t t-set="title">Theo dõi giao hàng</t>
-            <!-- Sprint 17 — gỡ bọc d-none d-lg-block: dashboard mobile Sprint 16 đã
-                 gộp về Home, delivery list hiện lại trên mọi cỡ màn (bảng responsive,
-                 mobile delivery riêng chờ BA design). -->
-            <div class="content-wrapper">
+            <!-- Desktop ≥992px — bảng phiếu xuất, giữ nguyên, bọc d-none d-lg-block (S24) -->
+            <div class="content-wrapper d-none d-lg-block">
                 <div class="content-header row mt-3">
                     <div class="content-header-left col-12 mb-1">
                         <h2 class="content-header-title float-left mb-0">
@@ -125,6 +123,139 @@
                     </nav>
                 </div>
             </div>
+
+            <!-- Mobile <992px — Figma 4731:2 (delivery_mobile_mockup_v4), batch-centric (S24) -->
+            <div class="d-lg-none wujia-mpage wujia-mdelivery">
+                <div class="wujia-mdelivery-head">
+                    <h1 class="wujia-mdelivery-title">Giao hàng</h1>
+                    <p class="wujia-mdelivery-sub">Theo dõi chuyến giao của cửa hàng</p>
+                </div>
+
+                <div t-if="no_franchise" class="wj-empty-state wj-empty-state--card">
+                    <i class="feather icon-alert-circle"/>
+                    <p>Bạn chưa được gán vào cửa hàng nào.</p>
+                </div>
+
+                <t t-else="">
+                    <!-- Date filter (Từ ngày / Đến ngày / Tìm) -->
+                    <form method="get" action="/portal/delivery" class="wujia-mdelivery-filter">
+                        <input t-if="bs" type="hidden" name="bs" t-att-value="bs"/>
+                        <label class="wujia-mdelivery-datefield">
+                            <span class="wujia-mdelivery-datefield-lbl">Từ ngày</span>
+                            <input type="date" name="date_from" t-att-value="date_from or ''"/>
+                        </label>
+                        <label class="wujia-mdelivery-datefield">
+                            <span class="wujia-mdelivery-datefield-lbl">Đến ngày</span>
+                            <input type="date" name="date_to" t-att-value="date_to or ''"/>
+                        </label>
+                        <button type="submit" class="wujia-mdelivery-search-btn">
+                            <i class="feather icon-search"/> Tìm
+                        </button>
+                    </form>
+
+                    <!-- Status chips — bs nhóm (soon/going/done), giữ date filter -->
+                    <t t-set="_dq" t-value="(('&amp;date_from=%s' % date_from) if date_from else '') + (('&amp;date_to=%s' % date_to) if date_to else '')"/>
+                    <div class="wj-filter-chips">
+                        <a t-attf-href="/portal/delivery?bs=#{_dq}"
+                           t-attf-class="wj-filter-chip wj-filter-chip--soft #{'is-active' if not bs else ''}">Tất cả</a>
+                        <a t-attf-href="/portal/delivery?bs=soon#{_dq}"
+                           t-attf-class="wj-filter-chip wj-filter-chip--soft #{'is-active' if bs == 'soon' else ''}">Sắp giao</a>
+                        <a t-attf-href="/portal/delivery?bs=going#{_dq}"
+                           t-attf-class="wj-filter-chip wj-filter-chip--soft #{'is-active' if bs == 'going' else ''}">Đang giao</a>
+                        <a t-attf-href="/portal/delivery?bs=done#{_dq}"
+                           t-attf-class="wj-filter-chip wj-filter-chip--soft #{'is-active' if bs == 'done' else ''}">Đã giao</a>
+                    </div>
+
+                    <!-- STATE: list -->
+                    <t t-if="view_state == 'list'">
+                        <div class="wujia-mdelivery-resulthead">
+                            <span class="cnt"><t t-out="len(batches)"/> chuyến</span>
+                            <span class="sort">Mới nhất trước</span>
+                        </div>
+                        <div class="wujia-mdelivery-list">
+                            <a t-foreach="batches" t-as="b" t-attf-href="/portal/delivery/#{b['id']}"
+                               class="wujia-mdelivery-row">
+                                <span class="wujia-mdelivery-row-top">
+                                    <span class="wujia-mdelivery-row-headmain">
+                                        <span class="wujia-mdelivery-row-label">Chuyến xe</span>
+                                        <span class="wujia-mdelivery-row-id" t-out="b['name']"/>
+                                    </span>
+                                    <span t-attf-class="wujia-mdelivery-badge wujia-mdelivery-badge--#{b['modifier']}"
+                                          t-out="b['label']"/>
+                                </span>
+                                <span class="wujia-mdelivery-row-divider"/>
+                                <span class="wujia-mdelivery-row-cols">
+                                    <span class="wujia-mdelivery-row-col">
+                                        <i class="feather icon-calendar wujia-mdelivery-row-colicon"/>
+                                        <span class="wujia-mdelivery-row-colbody">
+                                            <span class="wujia-mdelivery-row-collabel">Xuất phát</span>
+                                            <span class="wujia-mdelivery-row-colval" t-out="b['departure']"/>
+                                        </span>
+                                    </span>
+                                    <span class="wujia-mdelivery-row-col">
+                                        <i class="feather icon-file-text wujia-mdelivery-row-colicon"/>
+                                        <span class="wujia-mdelivery-row-colbody">
+                                            <span class="wujia-mdelivery-row-collabel">Đơn liên quan</span>
+                                            <span class="wujia-mdelivery-row-colval" t-out="b['orders']"/>
+                                        </span>
+                                    </span>
+                                </span>
+                            </a>
+                        </div>
+                        <nav t-if="m_pager and m_pager.get('page_count', 0) &gt; 1" class="wujia-mhist-pager">
+                            <a t-attf-href="/portal/delivery?page=#{m_pager['page_previous']['num']}&amp;#{m_pager.get('querystring','')}">«</a>
+                            <span>Trang <t t-out="m_pager['page']['num']"/> / <t t-out="m_pager['page_count']"/></span>
+                            <a t-attf-href="/portal/delivery?page=#{m_pager['page_next']['num']}&amp;#{m_pager.get('querystring','')}">»</a>
+                        </nav>
+                    </t>
+
+                    <!-- STATE: empty -->
+                    <div t-if="view_state == 'empty'" class="wujia-mdash-card wj-empty-state--rich">
+                        <span class="wj-empty-state-icon"><i class="feather icon-truck"/></span>
+                        <p class="wj-empty-state-title">Không có chuyến giao</p>
+                        <p class="wj-empty-state-sub">Không tìm thấy chuyến giao trong khoảng ngày đã chọn.</p>
+                        <p class="wj-empty-state-sub">Hãy đổi bộ lọc hoặc kiểm tra lại sau.</p>
+                        <a href="/portal/delivery" class="wujia-mdelivery-cta">Đổi bộ lọc</a>
+                    </div>
+
+                    <!-- STATE: error -->
+                    <div t-if="view_state == 'error'" class="wujia-mdash-card wj-empty-state--rich">
+                        <span class="wj-empty-state-icon wujia-mdelivery-icon-danger"><i class="feather icon-alert-triangle"/></span>
+                        <p class="wj-empty-state-title">Không tải được dữ liệu</p>
+                        <p class="wj-empty-state-sub">Vui lòng kiểm tra kết nối hoặc thử tải lại.</p>
+                        <a href="/portal/delivery" class="wujia-mdelivery-cta">Tải lại</a>
+                    </div>
+
+                    <!-- STATE: loading (skeleton — UI-only, QA ?_preview=loading) -->
+                    <t t-if="view_state == 'loading'">
+                        <div class="wujia-mdelivery-resulthead">
+                            <span class="cnt">Đang tải dữ liệu…</span>
+                        </div>
+                        <div class="wujia-mdelivery-list">
+                            <t t-foreach="[1, 2, 3]" t-as="s">
+                                <div class="wujia-mdelivery-row wujia-mdelivery-skel">
+                                    <span class="wujia-mdelivery-row-top">
+                                        <span class="wujia-mdelivery-row-headmain">
+                                            <span class="wujia-mdelivery-skel-bar" style="width:70px;height:10px;"/>
+                                            <span class="wujia-mdelivery-skel-bar" style="width:170px;height:14px;"/>
+                                        </span>
+                                        <span class="wujia-mdelivery-skel-bar" style="width:88px;height:24px;border-radius:8px;"/>
+                                    </span>
+                                    <span class="wujia-mdelivery-row-divider"/>
+                                    <span class="wujia-mdelivery-row-cols">
+                                        <span class="wujia-mdelivery-row-col">
+                                            <span class="wujia-mdelivery-skel-bar" style="width:96px;height:12px;"/>
+                                        </span>
+                                        <span class="wujia-mdelivery-row-col">
+                                            <span class="wujia-mdelivery-skel-bar" style="width:112px;height:12px;"/>
+                                        </span>
+                                    </span>
+                                </div>
+                            </t>
+                        </div>
+                    </t>
+                </t>
+            </div>
             <!-- /list -->
         </t>
     </template>
@@ -133,7 +264,8 @@
     <template id="portal_delivery_detail" name="Wujia Portal — Delivery Batch Detail">
         <t t-call="wujia_portal_layout.app_layout">
             <t t-set="title" t-value="batch.name"/>
-            <div class="content-wrapper">
+            <!-- Desktop ≥992px — giữ nguyên, bọc d-none d-lg-block (S24) -->
+            <div class="content-wrapper d-none d-lg-block">
                 <div class="content-header row mt-3">
                     <div class="content-header-left col-12 mb-1">
                         <nav><ol class="breadcrumb">
@@ -225,6 +357,75 @@
                             <i class="fa fa-arrow-left me-1"/>Quay lại
                         </a>
                     </div>
+                </div>
+            </div>
+
+            <!-- Mobile <992px — Figma 4731:155 (delivery detail), batch-centric (S24) -->
+            <div class="d-lg-none wujia-mpage wujia-mdelivery">
+                <div class="wujia-mdelivery-detail-head">
+                    <a href="/portal/delivery" class="wujia-mdelivery-back" aria-label="Quay lại">
+                        <i class="feather icon-chevron-left"/>
+                    </a>
+                    <div class="wujia-mdelivery-detail-titles">
+                        <h1 class="wujia-mticket-h1">Chi tiết giao hàng</h1>
+                        <p class="wujia-mdelivery-sub">Thông tin chuyến giao</p>
+                    </div>
+                </div>
+
+                <!-- Batch info -->
+                <div class="wujia-mdash-card">
+                    <div class="wujia-mdelivery-inf-top">
+                        <span class="wujia-mdelivery-row-label">Chuyến xe</span>
+                        <span t-attf-class="wujia-mdelivery-badge wujia-mdelivery-badge--#{m_badge[1]}" t-out="m_badge[0]"/>
+                    </div>
+                    <div class="wujia-mdelivery-inf-id" t-out="batch.name"/>
+                    <div class="wujia-mdelivery-row-divider"/>
+                    <div class="wujia-mdelivery-inf-dep">
+                        <i class="feather icon-calendar wujia-mdelivery-row-colicon"/>
+                        <span class="wujia-mdelivery-row-colbody">
+                            <span class="wujia-mdelivery-row-collabel">Xuất phát</span>
+                            <span class="wujia-mdelivery-inf-depval" t-out="m_departure_full"/>
+                        </span>
+                    </div>
+                    <div class="wujia-mdelivery-inf-updated">Cập nhật: <t t-out="m_updated"/></div>
+                </div>
+
+                <!-- Thông tin chuyến -->
+                <div class="wujia-mdelivery-sectiontop">Thông tin chuyến</div>
+                <div class="wujia-mdash-card">
+                    <div class="wujia-mdelivery-inforow">
+                        <span class="lbl">Đơn liên quan</span>
+                        <span class="val" t-out="m_orders"/>
+                    </div>
+                    <div class="wujia-mdelivery-inforow">
+                        <span class="lbl">Xe / tài xế</span>
+                        <span class="val">
+                            <t t-if="batch.vehicle_id"><t t-out="batch.vehicle_id.name or '—'"/><t t-if="batch.vehicle_id.driver_name"> · <t t-out="batch.vehicle_id.driver_name"/></t></t>
+                            <t t-else="">—</t>
+                        </span>
+                    </div>
+                    <div class="wujia-mdelivery-inforow">
+                        <span class="lbl">Biển số</span>
+                        <span class="val" t-out="batch.vehicle_id.license_plate or '—'"/>
+                    </div>
+                </div>
+
+                <!-- Sản phẩm trong chuyến -->
+                <div class="wujia-mdelivery-sectiontop">Sản phẩm trong chuyến</div>
+                <div class="wujia-mdelivery-prodcard">
+                    <div class="wujia-mdelivery-prodrow wujia-mdelivery-prodrow--head">
+                        <span class="nm">Tên sản phẩm</span>
+                        <span class="qt">SL</span>
+                        <span class="um">ĐVT</span>
+                    </div>
+                    <t t-if="products" t-foreach="products" t-as="p">
+                        <div class="wujia-mdelivery-prodrow">
+                            <span class="nm" t-out="p['name']"/>
+                            <span class="qt" t-out="'%g' % p['qty']"/>
+                            <span class="um" t-out="p['uom']"/>
+                        </div>
+                    </t>
+                    <div t-if="not products" class="wujia-mdelivery-prodempty">Chưa có sản phẩm trong chuyến.</div>
                 </div>
             </div>
         </t>

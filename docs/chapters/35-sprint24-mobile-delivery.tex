@@ -1,0 +1,52 @@
+\chapter{Sprint 24 --- Mobile Giao hàng (5 màn) theo Figma 4731, batch-centric (2026-07-01)}
+
+\section{Bối cảnh}
+
+BA giao ``UI mobile trang Giao hàng, xem Figma''. Frame \textbf{\texttt{delivery\_mobile\_mockup\_v4\_combined} (\texttt{4731:2})} trong file copy \texttt{aoeiDYlg6vlhJZg2w6Q7o5} chứa \textbf{5 sub-screen}: List / Detail / Empty / Loading (skeleton) / Error. Module \texttt{wujia\_portal\_delivery} từ Sprint 17 chỉ còn \textbf{1 layout desktop} (bảng \texttt{wujia-content-card-table}) render trên mọi cỡ màn --- block mobile cũ đã gỡ, chờ BA design \(\rightarrow\) đây là task ``Delivery mobile'' pending từ §5.
+
+\textbf{Khác biệt cốt lõi:} Figma list là \textbf{batch-centric} (mỗi thẻ = 1 chuyến xe gồm nhiều đơn), trong khi controller hiện liệt kê theo \textbf{picking} (1 dòng = 1 phiếu xuất). \textbf{Quyết định user (đã chốt):} (1) \textbf{wire data batch thật} (thêm query batch nhẹ, tái dùng helper sẵn có); (2) build \textbf{cả 5 màn}.
+
+\section{(A) 5 màn mobile (\texttt{d-lg-none}, desktop giữ nguyên)}
+
+Mỗi template bọc desktop cũ trong \texttt{content-wrapper d-none d-lg-block}, thêm block \texttt{d-lg-none .wujia-mpage .wujia-mdelivery} (pattern S20). Reuse component canonical (\texttt{wujia-mpage}, \texttt{wujia-mdash-card}, \texttt{wujia-mhist-kv}, \texttt{wj-filter-chip--soft}, \texttt{wj-empty-state--rich}, \texttt{wujia-mticket-h1}) + token \texttt{--wujia-morder-*}; chỉ thêm class Figma-specific \texttt{wujia-mdelivery-*}.
+
+\begin{itemize}
+  \item \textbf{List} (\texttt{view\_state=list}): header tiêu đề ``Giao hàng'' 24/700 + subtitle / \textbf{DateFilter} (Từ ngày · Đến ngày · nút Tìm cyan) / chips \texttt{Tất cả·Sắp giao·Đang giao·Đã giao} (h30, active soft cyan) / result-head (``N chuyến'' · ``Mới nhất trước'') / \textbf{BatchCard} \texttt{wujia-mdelivery-row}: label ``Chuyến xe'' + mã batch + StatusBadge; divider; 2 cột (Xuất phát: lịch + giờ \(|\) Đơn liên quan: \texttt{SO…, SO… +N}).
+  \item \textbf{Detail} (\texttt{/portal/delivery/<id>}): back-circle + ``Chi tiết giao hàng'' 22/700 + subtitle / info-card (label + badge + mã 18/700 + divider + Xuất phát datetime + ``Cập nhật'') / section ``Thông tin chuyến'' (Đơn liên quan / Xe·tài xế / Biển số, label trái -- value phải) / section ``Sản phẩm trong chuyến'' (bảng header \texttt{\#F8FAFC}: Tên SP \(|\) SL \(|\) ĐVT).
+  \item \textbf{Empty / Error}: \texttt{wj-empty-state--rich} (icon tròn + tiêu đề + sub + CTA cyan ``Đổi bộ lọc'' / ``Tải lại''). \textbf{Loading}: 3 thẻ skeleton (bar xám \texttt{\#E5E7EB}) mô phỏng BatchCard.
+\end{itemize}
+
+StatusBadge (h24, 11/700) map từ \texttt{delivery\_batch\_status}: \texttt{delivering}\(\rightarrow\)``Đang giao'' (soft cyan), \texttt{draft/assigned/loading}\(\rightarrow\)``Sắp giao'' (\texttt{\#FEF3C7}/\texttt{\#B45309}), \texttt{done}\(\rightarrow\)``Đã giao'' (\texttt{\#ECFDF5}/\texttt{\#047857}), \texttt{cancelled}\(\rightarrow\)``Đã hủy'' (muted). Icon ``Xuất phát'' = lịch cyan (\texttt{feather icon-calendar}, color \texttt{--wujia-morder-primary}) --- fix theo BA QA (Figma dùng lịch cyan, không phải đồng hồ xám).
+
+\section{(B) Controller batch-centric + 5 view-state}
+
+\texttt{portal\_delivery\_list} giữ nguyên \texttt{pickings}/\texttt{pager}/\texttt{status} (desktop), thêm cho mobile: query \texttt{stock.picking.batch} franchise-scoped (domain qua \texttt{picking\_ids.franchise\_id} \(|\) \texttt{picking\_ids.sale\_id.franchise\_id}), filter \texttt{planned\_departure} theo \texttt{date\_from/date\_to} + nhóm \texttt{delivery\_batch\_status} theo chip \texttt{bs} (\texttt{soon/going/done}), order \texttt{planned\_departure desc}; map mỗi batch \(\rightarrow\) dict \{name, badge, departure ``dd/mm · HH:MM'', orders ``SO… +N''\}. \textbf{Block batch bọc try/except} \(\rightarrow\) lỗi set \texttt{view\_state='error'} (desktop vẫn có pickings); rỗng \(\rightarrow\) \texttt{'empty'}; có \(\rightarrow\) \texttt{'list'}. Param QA \texttt{?\_preview=loading|error|empty} override view-state để soi từng màn.
+
+\texttt{portal\_delivery\_detail} thêm: \texttt{products} (gom \texttt{own\_pickings.move\_ids} theo \texttt{product\_id} \(\rightarrow\) name/qty/uom), badge + departure-full + ``Cập nhật'' (\texttt{actual\_departure}|\texttt{write\_date}) + đơn liên quan. Tách 2 pager riêng (desktop \texttt{pager} / mobile \texttt{m\_pager}) để querystring không đụng nhau. Field xe/tài xế/biển số lấy từ \texttt{batch.vehicle\_id.\{name,driver\_name,license\_plate\}} (\(=\) ``---'' khi chưa gán xe).
+
+\section{Verify}
+
+\begin{itemize}
+  \item \texttt{upgrade.sh wujia\_portal\_delivery} RC=0, module load 0.25s, log sạch.
+  \item Browser thật (Playwright chromium, viewport 390px, login \texttt{anh.owner}): \textbf{5 màn} (list real batch \texttt{BATCH/OUT/00001} ``Sắp giao'' / detail 2 SP / empty / loading 3 skeleton / error) khớp Figma; chip \texttt{?bs=}, filter \texttt{?date\_from/to}, \texttt{?\_preview=} chạy đúng.
+  \item Regression desktop 1440px: bảng phiếu xuất nguyên vẹn, block mobile \texttt{display:none}; smoke \texttt{/portal/return} + \texttt{/portal/purchase-history} mobile không vỡ (CSS scope \texttt{.wujia-mdelivery}, blast radius \(\sim\)0).
+\end{itemize}
+
+\section{Files \& version}
+
+\texttt{wujia\_portal\_delivery} \texttt{19.0.1.4.0}\(\rightarrow\)\texttt{19.0.2.0.0}: \texttt{controllers/portal.py} (batch query + 5 view-state + gom sản phẩm), \texttt{views/portal\_delivery.xml} (2 template \(\times\) block mobile 5 màn), \texttt{static/src/css/portal\_delivery.css} (+\texttt{wujia-mdelivery-*} + token badge soon/done). CSS trong \texttt{web.assets\_frontend} (auto-bundle, không cần \texttt{?v}); không đụng \texttt{wujia\_portal\_layout}.
+
+\section{Trade-off / quyết định}
+
+\begin{itemize}
+  \item \textbf{Loading skeleton = UI-only}: trang render server-side không có fetch client \(\rightarrow\) skeleton không tự kích hoạt; build pixel-perfect + xem qua \texttt{?\_preview=loading}, chừa sẵn cho AJAX refresh tương lai. \textbf{Error} wire thật qua try/except.
+  \item \textbf{Date filter để trống mặc định} (Figma vẽ sẵn ngày) --- tránh tự lọc giấu chuyến lúc mới vào; user tự chọn để lọc.
+  \item \textbf{Thẻ giữ viền 1px} (Figma phẳng trắng) cho đồng bộ với mọi trang mobile khác (return/history/dashboard đều viền).
+\end{itemize}
+
+\section{Pending / Deferred sau Sprint 24}
+
+\begin{itemize}
+  \item Mở rộng demo: gán \texttt{vehicle\_id} cho batch để hiện Xe/Tài xế/Biển số thật (hiện ``---'').
+  \item Pending mobile còn lại: khung giờ vào cart (S11), i18n \texttt{.po}; PC reconcile \texttt{pc\_source\_ui\_v1\_4} (S19 deferred); realtime cart cross-session bus.bus (PC-1 deferred).
+\end{itemize}
