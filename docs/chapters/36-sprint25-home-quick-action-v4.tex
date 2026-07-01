@@ -1,0 +1,82 @@
+\chapter{Sprint 25 --- Home Mobile Quick Action UI v4 theo Figma \texttt{\#4712:2} (2026-07-01)}
+
+\section{Bối cảnh}
+
+BA làm lại thiết kế block ``Hành động nhanh'' trên trang Home mobile, cung cấp frame mới \textbf{\texttt{wujia\_quick\_action\_optionA\_source\_aligned\_v4}} (\texttt{\#4712:2}, 391$\times$220px) trong file Figma copy \texttt{aoeiDYlg6vlhJZg2w6Q7o5}. Thiết kế v4 thay đổi hoàn toàn visual so với code hiện tại (gradient cyan $\rightarrow$ card trắng phẳng, layout dọc $\rightarrow$ ngang, icon trắng $\rightarrow$ icon màu trong circle nền xanh nhạt).
+
+\section{Thay đổi}
+
+\subsection{Figma measurements (source of truth)}
+
+\begin{itemize}
+  \item Frame 391$\times$220px, bg \texttt{\#F3F6F8} (page bg, không phải section bg riêng).
+  \item Section title \texttt{\#4712:4}: Inter Bold 700 \textbf{20px}, màu \texttt{\#1F2933}, margin-bottom \textbf{8px} (gap title$\rightarrow$grid = 8px).
+  \item Grid: \textbf{3 cột}, gap \textbf{10px} (cột và hàng đều 10px); 2 hàng $\times$ 3 nút = 6 nút.
+  \item Card (\texttt{\#4712:5}): \textbf{113$\times$58px}, bg \texttt{\#FFFFFF}, border \texttt{1px solid \#EEF2F5}, border-radius visual $\approx$12px (Vector shape Figma).
+  \item Icon circle (\texttt{\#4712:6}): \textbf{32$\times$32px}, bg \texttt{\#E9F7FC}, offset 9px từ cạnh trái card.
+  \item Icon (\texttt{\#4712:7} Group): $\approx$16--17px, centered trong circle, màu \texttt{\#28A9DF} (--wujia-primary).
+  \item Label (\texttt{\#4712:11}): Inter Bold 700 fontSize=11.4px $\rightarrow$ dùng \textbf{12px}, màu \texttt{\#1F2933}; gap từ circle phải $\rightarrow$ text trái = \textbf{8px}. ``Lịch sử đặt hàng'' wrap 2 dòng tự nhiên (line-height 1.3).
+\end{itemize}
+
+\subsection{Files đã sửa (4 file)}
+
+\begin{itemize}
+  \item \textbf{\texttt{wujia\_portal\_layout/static/assets/css/\_variables.css}}: thay 2 token cũ
+    (\texttt{--wujia-mhome-action-grad} gradient / \texttt{--wujia-mhome-action-border \#C8EEF8})
+    bằng 3 token mới: \texttt{--wujia-mhome-action-bg: \#FFFFFF},
+    \texttt{--wujia-mhome-action-border: \#EEF2F5},
+    \texttt{--wujia-mhome-action-icon-bg: \#E9F7FC}. Blast radius: token cũ chỉ dùng trong 1 class $\rightarrow$ xóa an toàn.
+
+  \item \textbf{\texttt{wujia\_portal\_layout/static/assets/css/\_components.css}}: rework toàn bộ block
+    \texttt{/* Grid "Hành động nhanh" */} (cũ 37 dòng $\rightarrow$ mới 48 dòng):
+    \begin{itemize}
+      \item \texttt{.wujia-mhome-actions .wujia-mhome-section-title}: \textbf{font-size 20px, margin-bottom 8px}
+        (scoped để tránh blast radius lên ``Thông báo nổi bật'' 18px).
+      \item \texttt{.wujia-mhome-actions-grid}: \texttt{gap 12px $\rightarrow$ 10px}.
+      \item \texttt{.wujia-mhome-action}: \texttt{flex-direction column $\rightarrow$ row};
+        \texttt{padding 16px 6px $\rightarrow$ padding-left 9px}; \texttt{height 58px} fixed;
+        bg gradient $\rightarrow$ \texttt{var(--wujia-mhome-action-bg)};
+        border-radius \texttt{14px $\rightarrow$ 12px}; \texttt{color \#FFFFFF $\rightarrow$ var(--wujia-text-primary)}.
+      \item Thêm class \textbf{\texttt{.wujia-mhome-action-icon}}: \texttt{32$\times$32px}, border-radius 8px,
+        bg \texttt{var(--wujia-mhome-action-icon-bg)}, flex center, flex-shrink 0.
+      \item \texttt{.wujia-mhome-action-icon i}: font-size \texttt{16px}, color \texttt{var(--wujia-primary)}.
+      \item \texttt{.wujia-mhome-action-label}: \texttt{14px $\rightarrow$ 12px}, color \texttt{var(--wujia-text-primary)}.
+    \end{itemize}
+
+  \item \textbf{\texttt{wujia\_portal\_base/views/portal\_home.xml}}: thêm wrapper
+    \texttt{<span class="wujia-mhome-action-icon">} bọc thẻ \texttt{<i class="feather ..."/>}
+    trong cả 6 nút. Icon names Feather \textbf{giữ nguyên}
+    (\texttt{shopping-cart / clock / truck / corner-up-left / book / life-buoy}).
+
+  \item \textbf{\texttt{wujia\_portal\_layout/views/assets.xml}}: bump \texttt{?v=} lên \textbf{1146}
+    cho cả \texttt{\_variables.css} (cũ 1134) và \texttt{\_components.css} (cũ 1145).
+\end{itemize}
+
+\section{Gì đã làm}
+
+Block ``Hành động nhanh'' trên Home mobile được thiết kế lại hoàn toàn theo Figma v4 của BA: 6 nút giữ nguyên 3 cột nhưng chuyển từ layout dọc (icon trên--text dưới, nền gradient cyan) sang layout ngang (icon trái--text phải, card trắng phẳng với icon màu cyan trong circle xanh nhạt). Kết quả gọn hơn và nhất quán hơn với design system tổng thể (card trắng--icon vòng tròn đã dùng ở list row các trang khác). Desktop home không bị ảnh hưởng; toàn bộ block mobile bọc trong \texttt{d-lg-none}.
+
+\section{Trade-off / Quyết định}
+
+\begin{itemize}
+  \item \textbf{Icon Feather thay vì SVG custom Figma}: icon trong Figma là Group vector path không extract được qua MCP. Feather icons (\texttt{shopping-cart / clock / truck}...) đã cài sẵn và trông rất gần với Figma khi đặt trong circle nền \texttt{\#E9F7FC} màu cyan. Chấp nhận sai khác nhỏ về stroke weight để tránh đưa SVG inline (tăng payload, khó maintain).
+  \item \textbf{Section title 20px scoped}: Figma chỉ đo được cho quick action section; các section title khác (``Thông báo nổi bật'') vẫn ở 18px theo Figma home frame cũ \texttt{2474:2}. Dùng \texttt{.wujia-mhome-actions .wujia-mhome-section-title} thay vì global để tránh regression.
+  \item \textbf{Border-radius 12px}: Figma card là Vector shape (radius nằm trong SVG path), ước tính visual $\approx$12px thay vì đo trực tiếp.
+\end{itemize}
+
+\section{Verify}
+
+\begin{itemize}
+  \item \texttt{upgrade.sh wujia\_portal\_base wujia\_portal\_layout} RC=0, 91 modules loaded, 0 queries.
+  \item Route \texttt{/portal} server 8019 trả HTTP 303 (redirect đến login khi chưa đăng nhập, đúng).
+  \item Browser check: trang Home mobile 390px --- card trắng, icon trong circle xanh nhạt, text đen 12px, ``Lịch sử đặt hàng'' wrap 2 dòng.
+\end{itemize}
+
+\section{Pending sau Sprint 25}
+
+\begin{itemize}
+  \item S23 batch 2: sign-off 390px thị giác từng trang còn lại (noti top-pad, Figma reconcile Hỗ trợ + Tài khoản, soi nhẹ Home).
+  \item Realtime cart cross-session bus.bus (DEFERRED PC-1).
+  \item PC desktop trang còn lại: report / return / knowledge / support / home.
+  \item Pending S22: wire chip ``Quan trọng''/``Cần làm'' notification + Liên kết liên quan.
+\end{itemize}
