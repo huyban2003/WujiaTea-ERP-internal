@@ -7,3 +7,680 @@
 .exam-score-wrap { font-size: 0; }
 .exam-score { font-size: 3rem; font-weight: 700; color: var(--wujia-primary); line-height: 1; }
 .exam-score-max { font-size: 1.2rem; color: var(--wujia-text-secondary); vertical-align: super; }
+
+/* ==========================================================================
+   Sprint 26 — Mobile "Đăng ký thi" (Figma #4755:2, 7 màn s0→s6). UI-only.
+   Reuse token _variables.css + component wj-* / .wujia-mpage. Vài tint mới:
+   ========================================================================== */
+:root {
+    --wujia-mexam-slot-sel-bg: #F2FBFF;   /* slot đang chọn */
+    --wujia-mexam-note-bg: #F1F8FC;       /* info bar nhạt */
+    --wujia-mexam-field-bg: #FFFFFF;
+    --wujia-mexam-field-border: #E5E7EB;
+    --wujia-mexam-cal-muted: #9CA3AF;     /* ngày không lịch */
+    --wujia-mexam-cal-out: #CBD5E1;       /* ngày tháng khác */
+    --wujia-mexam-radio: #D8DEE6;         /* viền radio slot */
+}
+
+@media (max-width: 991.98px) {
+
+    /* ---------- Shared ---------- */
+    .wujia-mexam-card-badge,
+    .wujia-mexam-course-badge,
+    .wujia-mexam-rrow-badge {
+        font-size: 11.5px;
+        font-weight: 600;
+        padding: 3px 10px;
+        border-radius: 999px;
+        white-space: nowrap;
+        line-height: 1.5;
+    }
+    .wujia-mpage .wujia-mexam-sectitle {
+        margin: 4px 0 0;
+        font-size: 16px !important;   /* beat global h2 !important */
+        line-height: 1.3;
+        font-weight: 700;
+        color: var(--wujia-text-primary);
+    }
+    .wujia-mexam-btn {
+        height: 48px;
+        border: 0;
+        border-radius: 12px;
+        font-size: 15px;
+        font-weight: 700;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 6px;
+        cursor: pointer;
+        text-decoration: none;
+    }
+    .wujia-mexam-btn i { font-size: 17px; line-height: 1; }
+    .wujia-mexam-btn-primary {
+        background: var(--wujia-primary);
+        color: #FFFFFF;
+    }
+    .wujia-mexam-btn-primary:disabled { opacity: 0.45; }
+    .wujia-mexam-btn-outline {
+        background: #FFFFFF;
+        border: 1.5px solid var(--wujia-primary);
+        color: var(--wujia-primary);
+    }
+
+    /* ================= s0 — Danh sách đăng ký ================= */
+    .wujia-mexam-head-list { display: flex; flex-direction: column; gap: 4px; }
+    .wujia-mpage .wujia-mexam-title {
+        margin: 0;
+        font-size: 25px !important;   /* beat global h1 !important (_components.css) */
+        line-height: 1.3;
+        font-weight: 700;
+        color: var(--wujia-text-primary);
+    }
+    .wujia-mexam-subtitle {
+        margin: 0;
+        font-size: 13px;
+        color: var(--wujia-text-subtitle);
+    }
+    .wujia-mexam-searchcard {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        background: #FFFFFF;
+        border: 1px solid var(--wujia-border-soft);
+        border-radius: 14px;
+        padding: 10px;
+    }
+    .wujia-mexam-search-range {
+        flex: 1 1 auto;
+        min-width: 0;
+        height: 40px;
+        display: flex;
+        align-items: center;
+        border: 1px solid var(--wujia-border);
+        border-radius: 10px;
+        padding: 0 12px;
+    }
+    .wujia-mexam-search-input {
+        width: 100%;
+        border: 0;
+        outline: 0;
+        background: transparent;
+        font-size: 13px;
+        color: var(--wujia-text-primary);
+    }
+    .wujia-mexam-search-input::placeholder { color: var(--wujia-mexam-cal-muted); }
+    .wujia-mexam-search-filter {
+        flex: 0 0 auto;
+        height: 40px;
+        padding: 0 14px;
+        border: 1px solid var(--wujia-border);
+        border-radius: 10px;
+        background: #FFFFFF;
+        font-size: 13px;
+        color: var(--wujia-text-secondary);
+        white-space: nowrap;
+    }
+    .wujia-mexam-search-btn {
+        flex: 0 0 auto;
+        width: 44px;
+        height: 40px;
+        border: 0;
+        border-radius: 10px;
+        background: var(--wujia-primary);
+        color: #FFFFFF;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+    }
+    .wujia-mexam-search-btn i { font-size: 18px; }
+    .wujia-mexam-list { display: flex; flex-direction: column; gap: 12px; }
+    .wujia-mexam-card {
+        display: block;
+        background: #FFFFFF;
+        border: 1px solid var(--wujia-border-soft);
+        border-radius: 14px;
+        padding: 14px 16px;
+        text-decoration: none;
+    }
+    .wujia-mexam-card-top {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 10px;
+        margin-bottom: 10px;
+    }
+    .wujia-mexam-card-title {
+        margin: 0;
+        font-size: 16px;
+        font-weight: 700;
+        color: var(--wujia-text-primary);
+    }
+    .wujia-mexam-card-line {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin: 6px 0 0;
+        font-size: 13px;
+        color: var(--wujia-text-subtitle);
+    }
+    .wujia-mexam-card-line i {
+        font-size: 15px;
+        color: var(--wujia-primary);
+        flex: 0 0 auto;
+    }
+    .wujia-mexam-fab {
+        position: fixed;
+        right: 16px;
+        bottom: calc(var(--wujia-mnav-height) + 16px);
+        z-index: 1020;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 12px 20px;
+        border-radius: 999px;
+        background: var(--wujia-primary);
+        color: #FFFFFF;
+        font-size: 14px;
+        font-weight: 600;
+        text-decoration: none;
+        box-shadow: 0 6px 18px rgba(40, 169, 223, 0.4);
+    }
+    .wujia-mexam-fab i { font-size: 18px; }
+
+    /* ================= Wizard head (s1→s5) ================= */
+    /* fill viewport minus header/strip/nav-clearance so footer nghỉ trên nav */
+    .wujia-mexam-wizard { min-height: calc(100dvh - 270px); }
+    .wujia-mexam-panel {
+        display: flex;
+        flex-direction: column;
+        gap: 14px;
+        flex: 1 1 auto;
+    }
+    .wujia-mexam-head {
+        display: flex;
+        align-items: flex-start;
+        gap: 6px;
+    }
+    .wujia-mexam-back {
+        flex: 0 0 auto;
+        width: 28px;
+        height: 30px;
+        margin-left: -4px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        color: var(--wujia-text-primary);
+        text-decoration: none;
+    }
+    .wujia-mexam-back i { font-size: 22px; }
+    .wujia-mexam-head-main { flex: 1 1 auto; min-width: 0; }
+    .wujia-mpage .wujia-mexam-h1 {
+        margin: 0;
+        font-size: 22px !important;   /* beat global h1 !important */
+        line-height: 1.3;
+        font-weight: 700;
+        color: var(--wujia-text-primary);
+    }
+    .wujia-mexam-sub {
+        margin: 2px 0 0;
+        font-size: 13px;
+        color: var(--wujia-text-subtitle);
+    }
+    .wujia-mexam-stepbadge {
+        flex: 0 0 auto;
+        margin-top: 3px;
+        font-size: 13px;
+        font-weight: 600;
+        color: var(--wujia-primary);
+    }
+    .wujia-mexam-chips { margin: 0; }
+
+    /* ================= s1 — Chọn khóa thi ================= */
+    .wujia-mexam-courselist { display: flex; flex-direction: column; gap: 12px; }
+    .wujia-mexam-course {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        background: #FFFFFF;
+        border: 1px solid var(--wujia-border-soft);
+        border-radius: 14px;
+        padding: 16px;
+    }
+    .wujia-mexam-course.is-closed { opacity: 0.55; }
+    .wujia-mexam-course-main { flex: 1 1 auto; min-width: 0; }
+    .wujia-mexam-course-title {
+        margin: 0;
+        font-size: 16px;
+        font-weight: 700;
+        color: var(--wujia-text-primary);
+    }
+    .wujia-mexam-course-meta {
+        margin: 4px 0 10px;
+        font-size: 13px;
+        color: var(--wujia-text-subtitle);
+    }
+    .wujia-mexam-course-choose {
+        flex: 0 0 auto;
+        font-size: 14px;
+        font-weight: 600;
+        color: var(--wujia-primary);
+        text-decoration: none;
+    }
+
+    /* ================= Selected card (s2/s3) ================= */
+    .wujia-mexam-selcard {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        background: #F8FAFC;
+        border: 1px solid var(--wujia-border-soft);
+        border-radius: 14px;
+        padding: 14px 16px;
+    }
+    .wujia-mexam-selcard-main { flex: 1 1 auto; min-width: 0; }
+    .wujia-mexam-selcard-title {
+        margin: 0;
+        font-size: 15px;
+        font-weight: 700;
+        color: var(--wujia-text-primary);
+    }
+    .wujia-mexam-selcard-meta {
+        margin: 4px 0 0;
+        font-size: 13px;
+        color: var(--wujia-text-subtitle);
+    }
+    .wujia-mexam-selcard-badge {
+        flex: 0 0 auto;
+        padding: 5px 14px;
+        border: 1px solid var(--wujia-primary);
+        border-radius: 999px;
+        background: #FFFFFF;
+        color: var(--wujia-primary);
+        font-size: 12.5px;
+        font-weight: 600;
+        white-space: nowrap;
+    }
+
+    /* ================= s2 — Calendar ================= */
+    .wujia-mexam-cal {
+        background: #FFFFFF;
+        border: 1px solid var(--wujia-border-soft);
+        border-radius: 14px;
+        padding: 14px;
+    }
+    .wujia-mexam-cal-legend {
+        display: flex;
+        gap: 16px;
+        margin-bottom: 14px;
+    }
+    .wujia-mexam-leg {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        font-size: 12px;
+        color: var(--wujia-text-subtitle);
+    }
+    .wujia-mexam-leg-dot {
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+        background: var(--wujia-mexam-cal-out);
+    }
+    .wujia-mexam-leg.is-on .wujia-mexam-leg-dot { background: var(--wujia-primary); }
+    .wujia-mexam-cal-nav {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 10px;
+    }
+    .wujia-mexam-cal-navbtn {
+        width: 30px;
+        height: 30px;
+        border: 0;
+        background: transparent;
+        color: var(--wujia-text-secondary);
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+    }
+    .wujia-mexam-cal-navbtn i { font-size: 18px; }
+    .wujia-mexam-cal-month {
+        font-size: 16px;
+        font-weight: 700;
+        color: var(--wujia-text-primary);
+    }
+    .wujia-mexam-cal-grid {
+        display: grid;
+        grid-template-columns: repeat(7, 1fr);
+        row-gap: 6px;
+        text-align: center;
+    }
+    .wujia-mexam-cal-wd {
+        font-size: 12px;
+        font-weight: 500;
+        color: var(--wujia-mexam-cal-muted);
+        padding-bottom: 8px;
+    }
+    .wujia-mexam-cal-day {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        justify-self: center;
+        width: 38px;
+        height: 38px;
+        font-size: 14px;
+        color: var(--wujia-text-secondary);
+        background: transparent;
+        border: 0;
+        padding: 0;
+    }
+    .wujia-mexam-cal-day.is-out { color: var(--wujia-mexam-cal-out); }
+    .wujia-mexam-cal-day.is-none { color: var(--wujia-mexam-cal-muted); }
+    .wujia-mexam-cal-day.is-available {
+        position: relative;
+        border: 1.5px solid var(--wujia-primary);
+        border-radius: 50%;
+        color: var(--wujia-primary);
+        font-weight: 700;
+        cursor: pointer;
+    }
+    .wujia-mexam-cal-daydot {
+        position: absolute;
+        top: 4px;
+        right: 7px;
+        width: 5px;
+        height: 5px;
+        border-radius: 50%;
+        background: var(--wujia-primary);
+    }
+    .wujia-mexam-cal-day.is-available.is-selected {
+        background: var(--wujia-primary);
+        color: #FFFFFF;
+    }
+    .wujia-mexam-cal-day.is-available.is-selected .wujia-mexam-cal-daydot { background: #FFFFFF; }
+    .wujia-mexam-cal-note {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin-top: 12px;
+        padding: 10px 12px;
+        border-radius: 10px;
+        background: var(--wujia-mexam-note-bg);
+        font-size: 12.5px;
+        color: var(--wujia-text-subtitle);
+    }
+    .wujia-mexam-cal-note i { font-size: 16px; color: var(--wujia-primary); flex: 0 0 auto; }
+
+    /* ================= s3 — Slot bottom-sheet ================= */
+    .wujia-mexam-sheet-backdrop {
+        position: fixed;
+        inset: 0;
+        z-index: 1040;
+        background: rgba(17, 24, 39, 0.35);
+        opacity: 0;
+        visibility: hidden;
+        transition: opacity 0.2s ease, visibility 0.2s ease;
+    }
+    .wujia-mexam-sheet-backdrop.is-open { opacity: 1; visibility: visible; }
+    .wujia-mexam-sheet {
+        position: fixed;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        z-index: 1041;
+        background: #FFFFFF;
+        border-radius: 20px 20px 0 0;
+        padding: 8px 20px calc(20px + env(safe-area-inset-bottom));
+        box-shadow: 0 -8px 30px rgba(0, 0, 0, 0.14);
+        transform: translateY(105%);
+        visibility: hidden;
+        transition: transform 0.28s ease, visibility 0.28s ease;
+    }
+    .wujia-mexam-sheet.is-open { transform: translateY(0); visibility: visible; }
+    .wujia-mexam-sheet-handle {
+        width: 40px;
+        height: 5px;
+        margin: 0 auto 14px;
+        border-radius: 999px;
+        background: var(--wujia-border);
+    }
+    .wujia-mpage .wujia-mexam-sheet-title {
+        margin: 0;
+        font-size: 18px !important;   /* beat global h2 !important */
+        line-height: 1.3;
+        font-weight: 700;
+        color: var(--wujia-text-primary);
+    }
+    .wujia-mexam-sheet-sub {
+        margin: 4px 0 14px;
+        padding-bottom: 14px;
+        border-bottom: 1px solid var(--wujia-border-soft);
+        font-size: 13px;
+        color: var(--wujia-text-subtitle);
+    }
+    .wujia-mexam-slotlist { display: flex; flex-direction: column; gap: 10px; }
+    .wujia-mexam-slot {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        width: 100%;
+        padding: 13px 14px;
+        border: 1.5px solid var(--wujia-border-soft);
+        border-radius: 12px;
+        background: #FFFFFF;
+        text-align: left;
+        cursor: pointer;
+    }
+    .wujia-mexam-slot-ico { font-size: 18px; color: var(--wujia-mexam-cal-muted); flex: 0 0 auto; }
+    .wujia-mexam-slot-time {
+        font-size: 15px;
+        font-weight: 700;
+        color: var(--wujia-text-primary);
+    }
+    .wujia-mexam-slot-status {
+        margin-left: auto;
+        font-size: 13px;
+        color: var(--wujia-primary);
+    }
+    .wujia-mexam-slot-radio {
+        flex: 0 0 auto;
+        width: 22px;
+        height: 22px;
+        border: 2px solid var(--wujia-mexam-radio);
+        border-radius: 50%;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        color: #FFFFFF;
+    }
+    .wujia-mexam-slot-radio i { font-size: 13px; opacity: 0; }
+    .wujia-mexam-slot.is-selected {
+        border-color: var(--wujia-primary);
+        background: var(--wujia-mexam-slot-sel-bg);
+    }
+    .wujia-mexam-slot.is-selected .wujia-mexam-slot-radio {
+        background: var(--wujia-primary);
+        border-color: var(--wujia-primary);
+    }
+    .wujia-mexam-slot.is-selected .wujia-mexam-slot-radio i { opacity: 1; }
+    .wujia-mexam-slot.is-disabled { cursor: not-allowed; }
+    .wujia-mexam-slot.is-disabled .wujia-mexam-slot-time { color: var(--wujia-mexam-cal-muted); }
+    .wujia-mexam-slot.is-disabled .wujia-mexam-slot-status { color: var(--wujia-mexam-cal-muted); }
+    .wujia-mexam-slot.is-disabled .wujia-mexam-slot-radio { border-color: var(--wujia-border); background: #F1F5F9; }
+    .wujia-mexam-sheet-actions {
+        display: flex;
+        gap: 12px;
+        margin-top: 18px;
+    }
+    .wujia-mexam-sheet-actions .wujia-mexam-btn { flex: 1 1 0; }
+
+    /* ================= s4 — Nhập nhân sự ================= */
+    .wujia-mexam-personlist { display: flex; flex-direction: column; gap: 12px; }
+    .wujia-mexam-person {
+        background: #FFFFFF;
+        border: 1px solid var(--wujia-border-soft);
+        border-radius: 14px;
+        padding: 14px 16px;
+    }
+    .wujia-mexam-person-head {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 10px;
+    }
+    .wujia-mexam-person-name {
+        font-size: 15px;
+        font-weight: 700;
+        color: var(--wujia-text-primary);
+    }
+    .wujia-mexam-person-req {
+        font-size: 13px;
+        font-weight: 600;
+        color: var(--wujia-primary);
+    }
+    .wujia-mexam-person-tools { display: inline-flex; align-items: center; gap: 12px; }
+    .wujia-mexam-person-toggle {
+        font-size: 13px;
+        font-weight: 600;
+        color: var(--wujia-primary);
+        text-decoration: none;
+    }
+    .wujia-mexam-person-del {
+        border: 0;
+        background: transparent;
+        color: var(--wujia-mexam-cal-muted);
+        padding: 0;
+        display: inline-flex;
+    }
+    .wujia-mexam-person-del i { font-size: 18px; }
+    .wujia-mexam-person-body {
+        margin-top: 14px;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+    }
+    .wujia-mexam-field {
+        height: 44px;
+        border: 1px solid var(--wujia-mexam-field-border);
+        border-radius: 10px;
+        padding: 0 14px;
+        font-size: 14px;
+        color: var(--wujia-text-primary);
+        background: var(--wujia-mexam-field-bg);
+        outline: 0;
+    }
+    .wujia-mexam-field::placeholder { color: var(--wujia-mexam-cal-muted); }
+    .wujia-mexam-field:focus { border-color: var(--wujia-primary); }
+    .wujia-mexam-field-row { display: flex; gap: 10px; }
+    .wujia-mexam-field-row .wujia-mexam-field { flex: 1 1 0; min-width: 0; }
+    .wujia-mexam-person-hint {
+        margin: 2px 0 0;
+        font-size: 12.5px;
+        color: var(--wujia-mexam-cal-muted);
+    }
+    .wujia-mexam-wfooter {
+        display: flex;
+        gap: 12px;
+        margin-top: auto;
+        padding: 8px 0 4px;
+    }
+    .wujia-mexam-wfooter .wujia-mexam-btn { flex: 1 1 0; }
+
+    /* ================= s5 — Xác nhận ================= */
+    .wujia-mexam-cfcard {
+        background: #FFFFFF;
+        border: 1px solid var(--wujia-border-soft);
+        border-radius: 14px;
+        padding: 16px;
+        display: flex;
+        flex-direction: column;
+        gap: 14px;
+    }
+    .wujia-mpage .wujia-mexam-cftitle {
+        margin: 0;
+        font-size: 16px !important;   /* beat global h2 !important */
+        line-height: 1.3;
+        font-weight: 700;
+        color: var(--wujia-text-primary);
+    }
+    .wujia-mexam-kv { display: flex; flex-direction: column; gap: 3px; }
+    .wujia-mexam-kv-k { font-size: 12.5px; color: var(--wujia-mexam-cal-muted); }
+    .wujia-mexam-kv-v {
+        font-size: 15px;
+        font-weight: 700;
+        color: var(--wujia-text-primary);
+    }
+    .wujia-mexam-cfpeople { display: flex; flex-direction: column; gap: 14px; }
+    .wujia-mexam-cfperson {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 10px;
+    }
+    .wujia-mexam-cfperson-name {
+        font-size: 15px;
+        font-weight: 600;
+        color: var(--wujia-text-primary);
+    }
+    .wujia-mexam-cfperson-meta {
+        font-size: 13px;
+        color: var(--wujia-text-subtitle);
+        text-align: right;
+    }
+
+    /* ================= s6 — Kết quả ================= */
+    .wujia-mexam-rsum {
+        background: #FFFFFF;
+        border: 1px solid var(--wujia-border-soft);
+        border-radius: 14px;
+        padding: 14px 16px;
+    }
+    .wujia-mexam-rsum-title {
+        margin: 0;
+        font-size: 16px;
+        font-weight: 700;
+        color: var(--wujia-text-primary);
+    }
+    .wujia-mexam-rsum-loc {
+        margin: 8px 0 0;
+        font-size: 13px;
+        color: var(--wujia-text-subtitle);
+    }
+    .wujia-mexam-rlist { display: flex; flex-direction: column; gap: 10px; }
+    .wujia-mexam-rrow {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        background: #FFFFFF;
+        border: 1px solid var(--wujia-border-soft);
+        border-radius: 14px;
+        padding: 12px 14px;
+    }
+    .wujia-mexam-rrow-ico {
+        flex: 0 0 auto;
+        width: 26px;
+        height: 26px;
+        border-radius: 50%;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        color: #FFFFFF;
+    }
+    .wujia-mexam-rrow-ico i { font-size: 15px; }
+    .wujia-mexam-rrow-ico.is-pass { background: var(--wujia-success); }
+    .wujia-mexam-rrow-ico.is-fail { background: var(--wujia-danger); }
+    .wujia-mexam-rrow-main { flex: 1 1 auto; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+    .wujia-mexam-rrow-name {
+        font-size: 15px;
+        font-weight: 700;
+        color: var(--wujia-text-primary);
+    }
+    .wujia-mexam-rrow-meta {
+        font-size: 13px;
+        color: var(--wujia-text-subtitle);
+    }
+    .wujia-mexam-rnote { margin-top: 0; }
+    .wujia-mexam-rcta { width: 100%; margin-top: 4px; }
+}

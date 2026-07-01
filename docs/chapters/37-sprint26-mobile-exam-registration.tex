@@ -1,0 +1,57 @@
+\chapter{Sprint 26 --- Mobile Đăng ký thi (Exam Registration) 7 màn theo Figma \texttt{\#4755:2} (2026-07-01)}
+
+\section{Bối cảnh}
+
+BA hoàn thiện frame Figma cuối cùng cho mảng mobile: \textbf{\texttt{WJ\_Mobile\_ExamRegistration\_v6\_ALL\_7\_SCREENS}} (\texttt{\#4755:2}, board 2115$\times$844 gồm 7 màn con s0--s6) trong file copy \texttt{aoeiDYlg6vlhJZg2w6Q7o5}. Module \texttt{wujia\_portal\_exam} trước đó \textbf{chỉ có desktop} (4 template \texttt{content-wrapper}, không có \texttt{d-lg-none}), nên đây là lần đầu module có bản mobile. Chốt với user: \textbf{UI-only + demo} (không tạo model mới, submit = stub) và wizard \textbf{1 trang JS đổi step không reload}. Backend hiện thiếu 4 khái niệm mà thiết kế cần (khóa thi + vòng thi, khung giờ theo ngày có sức chứa, đăng ký nhiều nhân sự/1 đơn, kết quả theo từng người) $\rightarrow$ ghi lại làm Phase 2.
+
+\section{Bản đồ 7 màn $\rightarrow$ route}
+
+\begin{itemize}
+  \item \textbf{s0} Đăng ký thi (list) $\rightarrow$ \texttt{/portal/exam} (thêm block \texttt{d-lg-none}, desktop bọc \texttt{d-none d-lg-block}).
+  \item \textbf{s1} Chọn khóa thi (Bước 1/4) $\rightarrow$ section trong \texttt{/portal/exam/register}.
+  \item \textbf{s2} Chọn lịch thi --- calendar (Bước 2/4) $\rightarrow$ section.
+  \item \textbf{s3} Popup ``Chọn khung giờ'' $\rightarrow$ bottom-sheet trong wizard.
+  \item \textbf{s4} Nhập nhân sự (Bước 3/4) $\rightarrow$ section.
+  \item \textbf{s5} Xác nhận đăng ký (Bước 4/4) $\rightarrow$ section.
+  \item \textbf{s6} Kết quả đăng ký + Danh sách kết quả $\rightarrow$ \texttt{/portal/exam/registration/<id>} (route mới).
+\end{itemize}
+
+\section{Thay đổi (5 file)}
+
+\begin{itemize}
+  \item \textbf{\texttt{views/portal\_exam.xml}} (+409): bọc \texttt{portal\_exam\_schedule} desktop trong \texttt{d-none d-lg-block} + thêm block mobile s0 (\texttt{.wujia-mpage .wujia-mexam}: title/subtitle + search card + list card badge trạng thái + FAB ``+ Đăng ký mới''). 2 template mới: \texttt{portal\_exam\_register} (s1--s5: 4 section \texttt{[data-exam-step]} + step indicator ``Bước n/4'' + bottom-sheet khung giờ) và \texttt{portal\_exam\_registration\_detail} (s6, result rows Đạt/Không đạt).
+  \item \textbf{\texttt{controllers/portal.py}} (+125): demo constants (\texttt{DEMO\_COURSES / DEMO\_SLOTS / DEMO\_PEOPLE / DEMO\_RESULT}) + helper \texttt{\_build\_demo\_calendar()} (ma trận tuần T2$\rightarrow$CN qua module \texttt{calendar}). \texttt{/portal/exam} build \texttt{m\_exam\_items} từ \texttt{wujia.exam.registration} thật (franchise-scoped), rỗng $\rightarrow$ fallback demo. 2 route mới GET \texttt{/portal/exam/register} và \texttt{/portal/exam/registration/<int:reg\_id>}.
+  \item \textbf{\texttt{static/src/css/portal\_exam.css}} (+677): hệ class \texttt{wujia-mexam-*} trong \texttt{@media (max-width: 991.98px)} + 5 token tint mới (\texttt{--wujia-mexam-slot-sel-bg \#F2FBFF}...). Tái dùng token \texttt{--wujia-*} + component \texttt{wj-filter-chip} / \texttt{.wujia-mpage} sẵn có.
+  \item \textbf{\texttt{static/src/js/portal\_exam\_wizard.js}} (MỚI, vanilla IIFE): step nav, calendar click $\rightarrow$ mở sheet, chọn slot (highlight ``sáng lên''), Xác nhận khung giờ $\rightarrow$ đổ ngày/giờ vào s4+s5, thêm/xóa/đánh-số-lại nhân sự, chip lọc khóa thi, submit $\rightarrow$ toast + redirect.
+  \item \textbf{\texttt{\_\_manifest\_\_.py}}: thêm \texttt{portal\_exam\_wizard.js} vào \texttt{web.assets\_frontend}; bump version \texttt{19.0.1.1.0 $\rightarrow$ 19.0.2.0.0}.
+\end{itemize}
+
+\section{Gì đã làm}
+
+Chuỗi nhượng quyền giờ có luồng ``Đăng ký thi'' hoàn chỉnh trên mobile: chủ/quản lý cửa hàng mở \texttt{/portal/exam} thấy danh sách các đợt đã đăng ký (kèm trạng thái Đã đăng ký / Chờ duyệt / Có kết quả), bấm ``+ Đăng ký mới'' để đi qua 4 bước --- chọn khóa thi, chọn ngày trên lịch, chọn khung giờ (popup trượt lên), nhập danh sách nhân sự dự thi --- rồi xác nhận. Bấm vào một đợt đã có kết quả sẽ xem được bảng ``Danh sách kết quả'' từng người (Đạt/Không đạt + điểm). Toàn bộ tương tác (calendar, popup, thêm/xóa người, đổi bước) chạy mượt bằng JS không reload, khớp Figma 100\% về màu/pixel/padding. Desktop giữ nguyên.
+
+\section{Trade-off / Quyết định}
+
+\begin{itemize}
+  \item \textbf{UI-only + demo}: nội dung mẫu hardcode để khớp Figma; nút ``Xác nhận đăng ký'' chỉ toast + điều hướng (chưa lưu DB). Màn s0 đọc data thật nếu user có đăng ký, không thì fallback demo. Màn kết quả (s6) render nội dung demo cố định bất kể id (chưa có model kết-quả-theo-người) --- Phase 2 mới gắn dữ liệu thật + phân nhánh theo trạng thái.
+  \item \textbf{Wizard 1 trang JS}: 4 bước là section ẩn/hiện, popup khung giờ = bottom-sheet (mirror pattern \texttt{wujia\_mobile\_more\_sheet.js}) $\rightarrow$ animation mượt, đúng tinh thần UI-only (không cần state server).
+  \item \textbf{GOTCHA mới --- global heading \texttt{!important}}: \texttt{\_components.css} có rule \texttt{h1, .wujia-h1 \{ font-size: var(--wujia-font-size-h1) !important \}} (và bản h2) chuẩn-hóa mọi thẻ \texttt{<h1>/<h2>} về 32px/24px, \textbf{đè cả class đơn}. Heading mexam bị ép sai size (đo được 32px thay vì 22px). Fix: scope \texttt{.wujia-mpage .wujia-mexam-h1} + thêm \texttt{!important} (đúng convention gotcha specificity Sprint 9). Thẻ \texttt{<h3>} không bị ảnh hưởng.
+  \item \textbf{Footer non-sticky}: thử sticky action-bar nhưng nó che nội dung màn Xác nhận (chỉ thấy 1/3 nhân sự) $\rightarrow$ quay về footer thường (\texttt{margin-top:auto} + panel \texttt{min-height}), trung thành layout Figma và không che nội dung.
+\end{itemize}
+
+\section{Verify}
+
+\begin{itemize}
+  \item \texttt{-u wujia\_portal\_exam --stop-after-init} RC=0, 91 modules loaded.
+  \item Playwright 390px (login \texttt{anh.owner}) chụp 7 màn s0--s6 khớp Figma; tương tác chạy thật: thêm người 3$\rightarrow$4, xóa 4$\rightarrow$3, đánh số lại đúng, mở/thu form, đổi step, submit $\rightarrow$ toast ``Đã gửi yêu cầu đăng ký!''.
+  \item Fix bug ``bấm card không ăn'': card data-thật trước gán \texttt{link='\#'} $\rightarrow$ đổi thành \texttt{/portal/exam/registration/<r.id>}; verify card thật (reg 4) href đúng + click nhảy sang màn kết quả (\texttt{resultScreen=1}).
+  \item Regression smoke Home + Thông báo 390px --- không vỡ (heading \texttt{!important} scope chỉ trong \texttt{.wujia-mexam-*}).
+\end{itemize}
+
+\section{Pending sau Sprint 26 (Phase 2 backend)}
+
+\begin{itemize}
+  \item Model mới: \texttt{wujia.exam.course + round}, \texttt{wujia.exam.slot} (capacity/booked $\rightarrow$ Còn/Hết chỗ), \texttt{registration.person} (đa nhân sự), kết quả theo người.
+  \item Màn kết quả gắn dữ liệu thật theo \texttt{reg\_id} + phân nhánh: ``Đã đăng ký''/``Chờ duyệt'' $\rightarrow$ màn trạng thái; ``Có kết quả'' $\rightarrow$ bảng điểm.
+  \item Submit thật (đa nhân sự + khung giờ) --- race-safe theo pattern \texttt{/portal/exam/register} SELECT FOR UPDATE hiện có.
+\end{itemize}

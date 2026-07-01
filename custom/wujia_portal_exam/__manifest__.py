@@ -1,6 +1,6 @@
 {
     'name': 'Wujia Portal — Exam (Đào tạo / Thi)',
-    'version': '19.0.1.1.0',
+    'version': '19.0.2.0.0',
     'category': 'Wujia',
     'summary': 'Lịch thi + đăng ký + kết quả (skeleton model + UI)',
     'author': 'WujiaTea',
@@ -17,6 +17,7 @@
         'web.assets_frontend': [
             'wujia_portal_exam/static/src/css/portal_exam.css',
             'wujia_portal_exam/static/src/js/portal_exam.js',
+            'wujia_portal_exam/static/src/js/portal_exam_wizard.js',
         ],
     },
     'installable': True,
