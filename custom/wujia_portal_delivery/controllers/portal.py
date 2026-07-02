@@ -31,25 +31,8 @@ def _ics_dt(dt):
 
 PAGE_SIZE = 20
 
-BATCH_STATUS_LABELS = {
-    'draft': ('Nháp', 'wujia-badge-muted'),
-    'assigned': ('Đã gán xe', 'wujia-badge-info'),
-    'loading': ('Đang chất hàng', 'wujia-badge-warning'),
-    'delivering': ('Đang giao', 'wujia-badge-warning'),
-    'done': ('Đã giao xong', 'wujia-badge-success'),
-    'cancelled': ('Hủy chuyến', 'wujia-badge-danger'),
-}
-
-PICKING_STATUS_LABELS = {
-    'pending': ('Chờ xếp xe', 'wujia-badge-muted'),
-    'assigned_to_batch': ('Đã gán batch', 'wujia-badge-info'),
-    'departed': ('Đang giao', 'wujia-badge-warning'),
-    'delivered': ('Đã giao', 'wujia-badge-success'),
-    'failed': ('Thất bại', 'wujia-badge-danger'),
-}
-
-# Mobile batch card — Figma 4731:2 (list batch-centric: 1 thẻ = 1 chuyến xe).
-# (label, css-modifier) theo delivery_batch_status. Modifier khớp .wujia-mdelivery-badge--*.
+# Batch badge (label, css-modifier) theo delivery_batch_status.
+# Mobile → .wujia-mdelivery-badge--*  |  PC desktop → .wj-pc-badge--dlv-*
 MOBILE_BATCH_BADGE = {
     'draft': ('Sắp giao', 'soon'),
     'assigned': ('Sắp giao', 'soon'),
@@ -58,13 +41,44 @@ MOBILE_BATCH_BADGE = {
     'done': ('Đã giao', 'done'),
     'cancelled': ('Đã hủy', 'muted'),
 }
+PC_BATCH_BADGE = MOBILE_BATCH_BADGE  # cùng label/nhóm; PC dùng class wj-pc-badge--dlv-<modifier>
 
-# Chip lọc mobile (Tất cả/Sắp giao/Đang giao/Đã giao) → nhóm delivery_batch_status.
+# Chip lọc (Tất cả/Sắp giao/Đang giao/Đã giao) → nhóm delivery_batch_status.
 BATCH_STATUS_GROUP = {
     'soon': ['draft', 'assigned', 'loading'],
     'going': ['delivering'],
     'done': ['done'],
 }
+
+
+def _page_numbers(current, last, edge=1, around=1):
+    """Windowed page list cho numbered pager: [1, '…', 4, 5, 6, '…', 20]."""
+    if last < 1:
+        return []
+    keep = set(range(1, edge + 1)) | set(range(last - edge + 1, last + 1))
+    keep |= set(range(current - around, current + around + 1))
+    pages = sorted(p for p in keep if 1 <= p <= last)
+    result, prev = [], 0
+    for p in pages:
+        if prev and p - prev > 1:
+            result.append('…')
+        result.append(p)
+        prev = p
+    return result
+
+
+def _chip_counts(Batch, base_domain):
+    """Đếm chuyến theo nhóm cho chips card-head — 4 search_count (field có index)."""
+    return {
+        'all': Batch.search_count(base_domain),
+        'going': Batch.search_count(base_domain + [('delivery_batch_status', 'in', BATCH_STATUS_GROUP['going'])]),
+        'soon': Batch.search_count(base_domain + [('delivery_batch_status', 'in', BATCH_STATUS_GROUP['soon'])]),
+        'done': Batch.search_count(base_domain + [('delivery_batch_status', 'in', BATCH_STATUS_GROUP['done'])]),
+    }
+
+
+def _hhmm(dt):
+    return dt.strftime('%H:%M') if dt else '--'
 
 
 def _parse_date(value):
@@ -108,57 +122,45 @@ def _related_orders(pickings):
 class WujiaPortalDelivery(http.Controller):
 
     @http.route(['/portal/delivery'], type='http', auth='user', sitemap=False)
-    def portal_delivery_list(self, page=1, status='', date_from='', date_to='', bs='', **kw):
+    def portal_delivery_list(self, page=1, bs='', date_from='', date_to='', q='', **kw):
         franchise_ids = get_active_franchise_ids_filter()
         if not franchise_ids:
             return request.render('wujia_portal_delivery.portal_delivery_tracking', {
-                'no_franchise': True, 'pickings': [], 'pager': {},
-                'picking_labels': PICKING_STATUS_LABELS, 'status': '',
-                'batches': [], 'view_state': 'empty', 'm_pager': {},
-                'date_from': '', 'date_to': '', 'bs': '',
+                'no_franchise': True, 'batches': [], 'view_state': 'empty',
+                'm_pager': {}, 'chip_counts': {},
+                'date_from': '', 'date_to': '', 'bs': '', 'q': '',
             })
 
         try:
             page = max(1, int(page))
         except (TypeError, ValueError):
             page = 1
-
-        # ----- Desktop (≥992px): danh sách phiếu xuất (picking) — giữ nguyên -----
-        SP = request.env['stock.picking'].sudo()
-        domain = [
-            '|', ('franchise_id', 'in', list(franchise_ids)),
-                 ('sale_id.franchise_id', 'in', list(franchise_ids)),
-            ('picking_type_id.code', '=', 'outgoing'),
-        ]
-        if status and status in PICKING_STATUS_LABELS:
-            domain.append(('delivery_status', '=', status))
         offset = (page - 1) * PAGE_SIZE
-        total = SP.search_count(domain)
-        pickings = SP.search(domain, limit=PAGE_SIZE, offset=offset, order='scheduled_date desc')
-        last_page = max(1, (total + PAGE_SIZE - 1) // PAGE_SIZE)
-        pager = {
-            'page': {'num': page}, 'page_count': last_page,
-            'page_previous': {'num': max(1, page - 1)},
-            'page_next': {'num': min(last_page, page + 1)},
-            'querystring': f'status={status}' if status else '',
-        }
+        q = (q or '').strip()
 
-        # ----- Mobile (<992px): thẻ theo CHUYẾN XE (batch) — Figma 4731:2 -----
-        batches, m_pager, view_state = [], {}, 'list'
+        # Batch-centric (1 thẻ = 1 chuyến xe) — nuôi cả desktop (Figma 4766) + mobile (4731).
+        batches, m_pager, chip_counts, view_state = [], {}, {}, 'list'
         try:
             Batch = request.env['stock.picking.batch'].sudo()
-            bdomain = [
+            base_domain = [
                 '|', ('picking_ids.franchise_id', 'in', list(franchise_ids)),
                      ('picking_ids.sale_id.franchise_id', 'in', list(franchise_ids)),
             ]
-            if bs in BATCH_STATUS_GROUP:
-                bdomain.append(('delivery_batch_status', 'in', BATCH_STATUS_GROUP[bs]))
             d_from, d_to = _parse_date(date_from), _parse_date(date_to)
             if d_from:
-                bdomain.append(('planned_departure', '>=', datetime.combine(d_from, dt_time.min)))
+                base_domain.append(('planned_departure', '>=', datetime.combine(d_from, dt_time.min)))
             if d_to:
-                bdomain.append(('planned_departure', '<=', datetime.combine(d_to, dt_time.max)))
-            m_total = Batch.search_count(bdomain)
+                base_domain.append(('planned_departure', '<=', datetime.combine(d_to, dt_time.max)))
+            # Chips card-head: đếm theo scope franchise+date (không status, không keyword).
+            chip_counts = _chip_counts(Batch, base_domain)
+
+            bdomain = list(base_domain)
+            if bs in BATCH_STATUS_GROUP:
+                bdomain.append(('delivery_batch_status', 'in', BATCH_STATUS_GROUP[bs]))
+            if q:
+                bdomain += ['|', ('name', 'ilike', q),
+                                 ('picking_ids.sale_id.name', 'ilike', q)]
+            total = Batch.search_count(bdomain)
             recs = Batch.search(bdomain, limit=PAGE_SIZE, offset=offset,
                                 order='planned_departure desc, id desc')
             for b in recs:
@@ -168,39 +170,52 @@ class WujiaPortalDelivery(http.Controller):
                 )
                 label, modifier = MOBILE_BATCH_BADGE.get(
                     b.delivery_batch_status, (b.delivery_batch_status or '—', 'muted'))
+                v = b.vehicle_id
+                vehicle_str = ('%s · %s' % (v.name, v.driver_name)) if v and v.driver_name else (v.name if v else '—')
+                upd = b.actual_departure or b.write_date
                 batches.append({
+                    # Keys mobile (S24) — KHÔNG đổi:
                     'id': b.id, 'name': b.name or '—',
                     'label': label, 'modifier': modifier,
                     'departure': _short_departure(b.planned_departure),
                     'orders': _related_orders(own),
+                    # Keys PC desktop:
+                    'pc_label': label, 'pc_modifier': modifier,
+                    'departure_full': _full_departure(b.planned_departure),
+                    'vehicle': vehicle_str,
+                    'plate': (v.license_plate if v and v.license_plate else '—'),
+                    'updated': _hhmm(upd),
                 })
-            m_last = max(1, (m_total + PAGE_SIZE - 1) // PAGE_SIZE)
+            last_page = max(1, (total + PAGE_SIZE - 1) // PAGE_SIZE)
             m_pager = {
-                'page': {'num': page}, 'page_count': m_last,
+                'page': {'num': page}, 'page_count': last_page, 'page_total': total,
                 'page_previous': {'num': max(1, page - 1)},
-                'page_next': {'num': min(m_last, page + 1)},
+                'page_next': {'num': min(last_page, page + 1)},
+                'page_nums': _page_numbers(page, last_page),
+                'offset': offset, 'count': len(batches),
                 'querystring': '&'.join(p for p in (
                     f'bs={bs}' if bs else '',
                     f'date_from={date_from}' if date_from else '',
                     f'date_to={date_to}' if date_to else '',
+                    f'q={q}' if q else '',
                 ) if p),
             }
             if not batches:
                 view_state = 'empty'
         except Exception:
-            _logger.exception('Wujia portal delivery — mobile batch list failed')
+            _logger.exception('Wujia portal delivery — batch list failed')
             view_state = 'error'
 
-        # QA preview: ?_preview=loading|error|empty|list (chỉ ảnh hưởng block mobile).
+        # QA preview: ?_preview=loading|error|empty|list (drive cả desktop + mobile).
         preview = kw.get('_preview')
         if preview in ('loading', 'error', 'empty', 'list'):
             view_state = preview
 
         return request.render('wujia_portal_delivery.portal_delivery_tracking', {
-            'no_franchise': False, 'pickings': pickings, 'pager': pager,
-            'picking_labels': PICKING_STATUS_LABELS, 'status': status,
+            'no_franchise': False,
             'batches': batches, 'view_state': view_state, 'm_pager': m_pager,
-            'date_from': date_from, 'date_to': date_to, 'bs': bs,
+            'chip_counts': chip_counts,
+            'date_from': date_from, 'date_to': date_to, 'bs': bs, 'q': q,
         })
 
     @http.route(['/portal/delivery/<int:batch_id>'], type='http', auth='user', sitemap=False)
@@ -241,15 +256,48 @@ class WujiaPortalDelivery(http.Controller):
             batch.delivery_batch_status, (batch.delivery_batch_status or '—', 'muted'))
         updated = batch.actual_departure or batch.write_date
 
+        # PC desktop (Figma 4766:1091): timeline 3 bước + SO chips + kho xuất + tên CH.
+        status = batch.delivery_batch_status or ''
+        tl_steps = (
+            'done' if (batch.actual_departure or status in ('delivering', 'done')) else 'inactive',
+            'active' if status == 'delivering' else ('done' if status == 'done' else 'inactive'),
+            'done' if status == 'done' else 'inactive',
+        )
+        tl_times = (
+            _hhmm(batch.actual_departure or (batch.planned_departure if status in ('delivering', 'done') else None)),
+            _hhmm(batch.write_date if status in ('delivering', 'done') else None),
+            _hhmm(batch.write_date if status == 'done' else None),
+        )
+        so_names = []
+        for p in own_pickings:
+            if p.sale_id and p.sale_id.name and p.sale_id.name not in so_names:
+                so_names.append(p.sale_id.name)
+        src_location = '—'
+        if own_pickings and own_pickings[0].location_id:
+            loc = own_pickings[0].location_id
+            src_location = loc.complete_name or loc.name or '—'
+        fr = (own_pickings[:1].mapped('franchise_id')
+              or own_pickings[:1].mapped('sale_id.franchise_id'))[:1]
+        store_label = (('[%s] ' % fr.code) if fr and fr.code else '') + (fr.name if fr else '') or '—'
+
         return request.render('wujia_portal_delivery.portal_delivery_detail', {
             'batch': batch, 'own_pickings': own_pickings,
-            'batch_labels': BATCH_STATUS_LABELS,
-            'picking_labels': PICKING_STATUS_LABELS,
             'products': products,
+            # Mobile (S24):
             'm_badge': (label, modifier),
             'm_departure_full': _full_departure(batch.planned_departure),
             'm_updated': _full_departure(updated),
             'm_orders': _related_orders(own_pickings),
+            # PC desktop:
+            'pc_badge': (label, modifier),
+            'pc_departure': _full_departure(batch.planned_departure),
+            'pc_updated': _full_departure(updated),
+            'pc_orders': _related_orders(own_pickings),
+            'so_names': so_names,
+            'tl_steps': tl_steps,
+            'tl_times': tl_times,
+            'src_location': src_location,
+            'store_label': store_label,
         })
 
     @http.route(['/portal/delivery/<int:batch_id>.ics'], type='http',

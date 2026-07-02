@@ -5,123 +5,163 @@
     <template id="portal_delivery_tracking" name="Wujia Portal — Delivery Tracking List">
         <t t-call="wujia_portal_layout.app_layout">
             <t t-set="title">Theo dõi giao hàng</t>
-            <!-- Desktop ≥992px — bảng phiếu xuất, giữ nguyên, bọc d-none d-lg-block (S24) -->
-            <div class="content-wrapper d-none d-lg-block">
-                <div class="content-header row mt-3">
-                    <div class="content-header-left col-12 mb-1">
-                        <h2 class="content-header-title float-left mb-0">
-                            <i class="fa fa-truck me-1"/>Theo dõi giao hàng
-                        </h2>
+            <!-- Desktop ≥992px — PC Giao hàng, batch-centric (Figma 4766:860). -->
+            <div class="content-wrapper d-none d-lg-block wujia-dlv-pc">
+                <div class="wj-pc-page-header">
+                    <div>
+                        <p class="wj-pc-page-header__crumb">Portal / Giao hàng</p>
+                        <h1 class="wj-pc-page-header__title">Giao hàng</h1>
+                    </div>
+                    <div class="wj-pc-page-header__actions">
+                        <a href="#" class="wj-pc-btn wj-pc-btn--secondary"><i class="feather icon-download"/>Export</a>
+                        <a t-attf-href="/portal/delivery?#{m_pager.get('querystring','') if m_pager else ''}"
+                           class="wj-pc-btn wj-pc-btn--primary"><i class="feather icon-refresh-cw"/>Tải lại</a>
                     </div>
                 </div>
 
-                <div t-if="no_franchise" class="alert alert-warning m-3">
-                    Bạn chưa được gán vào cửa hàng nào.
+                <div t-if="no_franchise" class="wj-pc-empty">
+                    <span class="wj-pc-empty__icon"><i class="feather icon-alert-circle"/></span>
+                    <h3 class="wj-pc-empty__title">Chưa có cửa hàng</h3>
+                    <p class="wj-pc-empty__sub">Bạn chưa được gán vào cửa hàng nào.</p>
                 </div>
 
-                <div t-if="not no_franchise" class="content-body">
-                    <div class="card mb-2">
-                        <div class="card-body p-2">
-                            <form method="get" action="/portal/delivery" class="row g-2 align-items-center">
-                                <div class="col-md-4 col-12">
-                                    <label class="small text-muted mb-1">Trạng thái giao</label>
-                                    <select name="status" class="form-select form-select-sm">
-                                        <option value="">— Tất cả —</option>
-                                        <t t-foreach="picking_labels.items()" t-as="kv">
-                                            <option t-att-value="kv[0]"
-                                                    t-att-selected="'selected' if status == kv[0] else None"
-                                                    t-out="kv[1][0]"/>
-                                        </t>
-                                    </select>
-                                </div>
-                                <div class="col-md-3 col-12 text-end">
-                                    <label class="small text-muted mb-1 d-block">&#160;</label>
-                                    <button class="btn btn-primary btn-sm" type="submit"><i class="fa fa-search"/> Lọc</button>
-                                </div>
-                            </form>
-                        </div>
-                    </div>
-
-                    <!-- Sprint 9.13b 2026-05-27: MẪU 02 wujia-content-card-table -->
-                    <div class="wujia-content-card">
-                        <div class="wujia-content-card-header">
-                            <div class="wujia-content-card-header-icon">
-                                <i class="feather icon-truck"/>
-                            </div>
-                            <h4 class="wujia-content-card-header-title">Danh sách chuyến giao</h4>
-                            <span t-if="pickings" class="wujia-content-card-header-link">
-                                <t t-out="len(pickings)"/> kết quả
+                <t t-else="">
+                    <!-- Bộ lọc: search mã chuyến/SO + 2 date + trạng thái + Xóa lọc/Tìm -->
+                    <form method="get" action="/portal/delivery" class="wj-pc-filterbar">
+                        <div class="wj-pc-filterbar__row">
+                            <span class="wj-pc-filter-search wj-pc-filterbar__grow">
+                                <i class="feather icon-search"/>
+                                <input type="text" name="q" t-att-value="q"
+                                       placeholder="Tìm mã chuyến / mã SO" class="wj-pc-filter-control"/>
+                            </span>
+                            <input type="date" name="date_from" t-att-value="date_from"
+                                   class="wj-pc-filter-control" style="max-width:180px;"/>
+                            <input type="date" name="date_to" t-att-value="date_to"
+                                   class="wj-pc-filter-control" style="max-width:180px;"/>
+                            <select name="bs" class="wj-pc-filter-control" style="max-width:200px;">
+                                <option value="">Tất cả trạng thái</option>
+                                <option value="going" t-att-selected="'selected' if bs == 'going' else None">Đang giao</option>
+                                <option value="soon" t-att-selected="'selected' if bs == 'soon' else None">Sắp giao</option>
+                                <option value="done" t-att-selected="'selected' if bs == 'done' else None">Đã giao</option>
+                            </select>
+                            <span class="wj-pc-filterbar__actions">
+                                <a href="/portal/delivery" class="wj-pc-btn wj-pc-btn--secondary">Xóa lọc</a>
+                                <button type="submit" class="wj-pc-btn wj-pc-btn--primary"><i class="feather icon-search"/>Tìm</button>
                             </span>
                         </div>
-                        <div t-if="not pickings" class="wujia-content-card-empty">Chưa có chuyến giao nào.</div>
-                        <div t-else="" class="table-responsive">
-                            <table class="wujia-content-card-table">
+                    </form>
+
+                    <t t-set="_dq" t-value="(('&amp;date_from=%s' % date_from) if date_from else '') + (('&amp;date_to=%s' % date_to) if date_to else '') + (('&amp;q=%s' % q) if q else '')"/>
+                    <div class="wj-pc-card">
+                        <div class="wj-pc-card__head">
+                            <div>
+                                <h3 class="wj-pc-card__title">Danh sách chuyến giao</h3>
+                                <p t-if="view_state == 'loading'" class="wj-pc-card__subtitle">Đang tải dữ liệu...</p>
+                                <p t-elif="view_state == 'list'" class="wj-pc-card__subtitle">
+                                    <t t-out="len(batches)"/> chuyến · Mới nhất trước
+                                </p>
+                                <p t-elif="view_state == 'empty'" class="wj-pc-card__subtitle">0 chuyến</p>
+                            </div>
+                            <!-- Chips số đếm (clickable filter, luôn hiện màu status) -->
+                            <div t-if="view_state == 'list'" class="wj-pc-dlv-chips">
+                                <a t-attf-href="/portal/delivery?bs=#{_dq}"
+                                   t-attf-class="wj-pc-dlv-chip wj-pc-dlv-chip--going #{'is-active' if not bs else ''}">Tất cả <t t-out="chip_counts.get('all', 0)"/></a>
+                                <a t-attf-href="/portal/delivery?bs=going#{_dq}"
+                                   t-attf-class="wj-pc-dlv-chip wj-pc-dlv-chip--going #{'is-active' if bs == 'going' else ''}">Đang giao <t t-out="chip_counts.get('going', 0)"/></a>
+                                <a t-attf-href="/portal/delivery?bs=soon#{_dq}"
+                                   t-attf-class="wj-pc-dlv-chip wj-pc-dlv-chip--soon #{'is-active' if bs == 'soon' else ''}">Sắp giao <t t-out="chip_counts.get('soon', 0)"/></a>
+                                <a t-attf-href="/portal/delivery?bs=done#{_dq}"
+                                   t-attf-class="wj-pc-dlv-chip wj-pc-dlv-chip--done #{'is-active' if bs == 'done' else ''}">Đã giao <t t-out="chip_counts.get('done', 0)"/></a>
+                            </div>
+                        </div>
+
+                        <!-- STATE: list -->
+                        <t t-if="view_state == 'list'">
+                            <table class="wj-pc-table wj-pc-dlv-table">
                                 <thead>
                                     <tr>
-                                        <th>Phiếu xuất</th>
-                                        <th>Đơn hàng</th>
-                                        <th>Ngày dự kiến</th>
-                                        <th>Batch / Xe</th>
-                                        <th>Tài xế / SĐT</th>
-                                        <th class="text-center">Trạng thái</th>
-                                        <th></th>
+                                        <th>Mã chuyến</th>
+                                        <th>Giờ xuất phát</th>
+                                        <th>Đơn liên quan</th>
+                                        <th>Trạng thái</th>
+                                        <th>Xe · tài xế</th>
+                                        <th>Biển số</th>
+                                        <th>Cập nhật</th>
+                                        <th class="text-end">Thao tác</th>
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    <tr t-foreach="pickings" t-as="p">
-                                        <td t-out="p.name"/>
-                                        <td>
-                                            <a t-if="p.sale_id" t-attf-href="/portal/purchase-history/#{p.sale_id.id}" t-out="p.sale_id.name"/>
-                                            <span t-else="" class="text-muted">—</span>
+                                    <tr t-foreach="batches" t-as="b">
+                                        <td class="wj-pc-td--code">
+                                            <a t-attf-href="/portal/delivery/#{b['id']}" class="wj-pc-dlv-codelink" t-out="b['name']"/>
                                         </td>
-                                        <td t-out="p.scheduled_date and p.scheduled_date.strftime('%d/%m/%Y %H:%M') or ''"/>
-                                        <td>
-                                            <t t-if="p.batch_id">
-                                                <a t-attf-href="/portal/delivery/#{p.batch_id.id}" t-out="p.batch_id.name"/>
-                                                <small t-if="p.vehicle_id" class="text-muted d-block" t-out="p.vehicle_id.name"/>
-                                            </t>
-                                            <span t-else="" class="text-muted">Chưa xếp xe</span>
-                                        </td>
-                                        <td>
-                                            <t t-if="p.vehicle_id">
-                                                <span t-out="p.vehicle_id.driver_name or '—'"/>
-                                                <small t-if="p.vehicle_id.driver_phone" class="text-muted d-block" t-out="p.vehicle_id.driver_phone"/>
-                                            </t>
-                                            <span t-else="" class="text-muted">—</span>
-                                        </td>
-                                        <td class="text-center">
-                                            <t t-set="lbl" t-value="picking_labels.get(p.delivery_status, (p.delivery_status, 'wujia-badge-muted'))"/>
-                                            <span t-attf-class="wujia-badge #{lbl[1]}" t-out="lbl[0]"/>
-                                        </td>
+                                        <td t-out="b['departure_full']"/>
+                                        <td t-out="b['orders']"/>
+                                        <td><span t-attf-class="wj-pc-badge wj-pc-badge--dlv-#{b['pc_modifier']}" t-out="b['pc_label']"/></td>
+                                        <td t-out="b['vehicle']"/>
+                                        <td t-out="b['plate']"/>
+                                        <td class="wj-pc-td--muted" t-out="b['updated']"/>
                                         <td class="text-end">
-                                            <a t-if="p.batch_id"
-                                               t-attf-href="/portal/delivery/#{p.batch_id.id}"
-                                               class="btn btn-sm btn-outline-primary">
-                                                <i class="fa fa-eye"/>
-                                            </a>
+                                            <a t-attf-href="/portal/delivery/#{b['id']}"
+                                               class="wj-pc-btn wj-pc-btn--secondary wj-pc-dlv-btn-xem">Xem</a>
                                         </td>
                                     </tr>
                                 </tbody>
                             </table>
+
+                            <div t-if="m_pager and m_pager.get('page_total', 0)" class="wj-pc-pagination">
+                                <span class="wj-pc-pagination__count">
+                                    Hiển thị <t t-out="m_pager['offset'] + 1"/>–<t t-out="m_pager['offset'] + m_pager['count']"/>
+                                    / <t t-out="m_pager['page_total']"/> chuyến
+                                </span>
+                                <select class="wj-pc-pagination__size" disabled="disabled"><option>10 / trang</option></select>
+                                <a t-attf-href="/portal/delivery?page=#{m_pager['page_previous']['num']}&amp;#{m_pager['querystring'] or ''}"
+                                   t-attf-class="wj-pc-page-btn #{'is-disabled' if m_pager['page']['num'] &lt;= 1 else ''}">‹</a>
+                                <t t-foreach="m_pager['page_nums']" t-as="pn">
+                                    <span t-if="pn == '…'" class="wj-pc-page-btn">…</span>
+                                    <a t-else=""
+                                       t-attf-href="/portal/delivery?page=#{pn}&amp;#{m_pager['querystring'] or ''}"
+                                       t-attf-class="wj-pc-page-btn #{'is-active' if pn == m_pager['page']['num'] else ''}"
+                                       t-out="pn"/>
+                                </t>
+                                <a t-attf-href="/portal/delivery?page=#{m_pager['page_next']['num']}&amp;#{m_pager['querystring'] or ''}"
+                                   t-attf-class="wj-pc-page-btn #{'is-disabled' if m_pager['page']['num'] &gt;= m_pager['page_count'] else ''}">›</a>
+                            </div>
+                        </t>
+
+                        <!-- STATE: loading (skeleton) -->
+                        <div t-if="view_state == 'loading'" class="wj-pc-dlv-skel">
+                            <t t-foreach="[0,1,2,3,4,5,6]" t-as="s">
+                                <div t-attf-class="wj-pc-dlv-skel-row #{'wj-pc-dlv-skel-row--alt' if s_index % 2 else ''}">
+                                    <span class="wj-pc-dlv-skel-bar" style="width:150px;"/>
+                                    <span class="wj-pc-dlv-skel-bar" style="width:132px;"/>
+                                    <span class="wj-pc-dlv-skel-bar" style="width:150px;"/>
+                                    <span class="wj-pc-dlv-skel-bar" style="width:82px;"/>
+                                    <span class="wj-pc-dlv-skel-bar" style="width:168px;"/>
+                                    <span class="wj-pc-dlv-skel-bar" style="width:90px;"/>
+                                    <span class="wj-pc-dlv-skel-bar" style="width:64px;"/>
+                                </div>
+                            </t>
+                        </div>
+
+                        <!-- STATE: empty -->
+                        <div t-if="view_state == 'empty'" class="wj-pc-dlv-inner">
+                            <span class="wj-pc-dlv-inner__icon"><i class="feather icon-truck"/></span>
+                            <h3 class="wj-pc-dlv-inner__title">Không có chuyến giao</h3>
+                            <p class="wj-pc-dlv-inner__sub">Không tìm thấy chuyến giao trong khoảng ngày đã chọn.</p>
+                            <a href="/portal/delivery" class="wj-pc-btn wj-pc-btn--primary">Đổi bộ lọc</a>
+                        </div>
+
+                        <!-- STATE: error -->
+                        <div t-if="view_state == 'error'" class="wj-pc-dlv-inner">
+                            <span class="wj-pc-dlv-inner__icon wj-pc-dlv-inner__icon--error"><i class="feather icon-alert-circle"/></span>
+                            <h3 class="wj-pc-dlv-inner__title">Không tải được dữ liệu giao hàng</h3>
+                            <p class="wj-pc-dlv-inner__sub">Vui lòng thử tải lại hoặc kiểm tra kết nối.</p>
+                            <a t-attf-href="/portal/delivery?#{m_pager.get('querystring','') if m_pager else ''}"
+                               class="wj-pc-btn wj-pc-btn--primary"><i class="feather icon-refresh-cw"/>Tải lại</a>
                         </div>
                     </div>
-
-                    <nav t-if="pager and pager.get('page_count', 0) &gt; 1" class="mt-2">
-                        <ul class="pagination wujia-pagination justify-content-center mb-0">
-                            <li class="page-item">
-                                <a class="page-link"
-                                   t-attf-href="/portal/delivery?page=#{pager['page_previous']['num']}&amp;#{pager.get('querystring','')}">«</a>
-                            </li>
-                            <li class="page-item active">
-                                <span class="page-link"><t t-out="pager['page']['num']"/> / <t t-out="pager['page_count']"/></span>
-                            </li>
-                            <li class="page-item">
-                                <a class="page-link"
-                                   t-attf-href="/portal/delivery?page=#{pager['page_next']['num']}&amp;#{pager.get('querystring','')}">»</a>
-                            </li>
-                        </ul>
-                    </nav>
-                </div>
+                </t>
             </div>
 
             <!-- Mobile <992px — Figma 4731:2 (delivery_mobile_mockup_v4), batch-centric (S24) -->
@@ -264,99 +304,136 @@
     <template id="portal_delivery_detail" name="Wujia Portal — Delivery Batch Detail">
         <t t-call="wujia_portal_layout.app_layout">
             <t t-set="title" t-value="batch.name"/>
-            <!-- Desktop ≥992px — giữ nguyên, bọc d-none d-lg-block (S24) -->
-            <div class="content-wrapper d-none d-lg-block">
-                <div class="content-header row mt-3">
-                    <div class="content-header-left col-12 mb-1">
-                        <nav><ol class="breadcrumb">
-                            <li class="breadcrumb-item"><a href="/portal/delivery">Theo dõi giao hàng</a></li>
-                            <li class="breadcrumb-item active" t-out="batch.name"/>
-                        </ol></nav>
-                        <h2 class="content-header-title float-left mb-0 d-flex align-items-center">
-                            <span class="me-2">Chuyến <t t-out="batch.name"/></span>
-                            <t t-set="lbl" t-value="batch_labels.get(batch.delivery_batch_status, (batch.delivery_batch_status, 'wujia-badge-muted'))"/>
-                            <span t-attf-class="wujia-badge #{lbl[1]}" t-out="lbl[0]"/>
-                        </h2>
+            <!-- Desktop ≥992px — PC Chi tiết giao hàng (Figma 4766:1091). -->
+            <div class="content-wrapper d-none d-lg-block wujia-dlv-pc">
+                <div class="wj-pc-page-header">
+                    <div>
+                        <p class="wj-pc-page-header__crumb">Portal / Giao hàng / Chi tiết</p>
+                        <h1 class="wj-pc-page-header__title">Chi tiết giao hàng</h1>
+                    </div>
+                    <div class="wj-pc-page-header__actions">
+                        <a href="/portal/delivery" class="wj-pc-btn wj-pc-btn--secondary"><i class="feather icon-arrow-left"/>Quay lại danh sách</a>
                     </div>
                 </div>
 
-                <div class="content-body">
-                    <div class="row">
-                        <div class="col-md-6 col-12 mb-2">
-                            <div class="card h-100">
-                                <div class="card-header"><h5 class="mb-0">Thông tin chuyến</h5></div>
-                                <div class="card-body">
-                                    <dl class="row mb-0 profile-dl">
-                                        <dt class="col-sm-5">Xe</dt>
-                                        <dd class="col-sm-7" t-out="batch.vehicle_id.name or '—'"/>
-                                        <dt class="col-sm-5">Tài xế</dt>
-                                        <dd class="col-sm-7" t-out="batch.vehicle_id.driver_name or '—'"/>
-                                        <dt class="col-sm-5">SĐT tài xế</dt>
-                                        <dd class="col-sm-7" t-out="batch.vehicle_id.driver_phone or '—'"/>
-                                        <dt class="col-sm-5">Nhà xe</dt>
-                                        <dd class="col-sm-7" t-out="batch.provider_id.name or '—'"/>
-                                        <dt class="col-sm-5">Loại xe</dt>
-                                        <dd class="col-sm-7" t-out="batch.fleet_type_id.name or '—'"/>
-                                        <dt class="col-sm-5">Tải trọng</dt>
-                                        <dd class="col-sm-7" t-out="'{:,.0f}'.format(batch.vehicle_capacity_kg or 0).replace(',', '.') + ' kg' if batch.vehicle_capacity_kg else '—'"/>
-                                    </dl>
-                                </div>
+                <!-- Summary card -->
+                <div class="wj-pc-order-head wj-pc-dlv-head">
+                    <div>
+                        <div class="wj-pc-dlv-head-coderow">
+                            <h2 class="wj-pc-order-head__code" t-out="batch.name or '—'"/>
+                            <span t-attf-class="wj-pc-badge wj-pc-badge--dlv-#{pc_badge[1]}" t-out="pc_badge[0]"/>
+                        </div>
+                        <p class="wj-pc-dlv-head-meta">Chuyến giao cho <t t-out="store_label"/></p>
+                    </div>
+                    <div class="wj-pc-dlv-head-kv">
+                        <div class="wj-pc-kv">
+                            <span class="wj-pc-kv__label">Xuất phát</span>
+                            <span class="wj-pc-kv__value" t-out="pc_departure"/>
+                        </div>
+                        <div class="wj-pc-kv">
+                            <span class="wj-pc-kv__label">Đơn liên quan</span>
+                            <span class="wj-pc-kv__value" t-out="pc_orders"/>
+                        </div>
+                        <div class="wj-pc-kv">
+                            <span class="wj-pc-kv__label">Cập nhật</span>
+                            <span class="wj-pc-kv__value" t-out="pc_updated"/>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Two-column: vận chuyển | đơn liên quan + timeline -->
+                <div class="wj-pc-two-col">
+                    <div class="wj-pc-card">
+                        <div class="wj-pc-card__head">
+                            <h3 class="wj-pc-card__title wj-pc-card__title--sm">Thông tin vận chuyển</h3>
+                        </div>
+                        <div class="wj-pc-kv-grid">
+                            <div class="wj-pc-kv">
+                                <span class="wj-pc-kv__label">Xe / tài xế</span>
+                                <span class="wj-pc-kv__value">
+                                    <t t-if="batch.vehicle_id"><t t-out="batch.vehicle_id.name or '—'"/><t t-if="batch.vehicle_id.driver_name"> · <t t-out="batch.vehicle_id.driver_name"/></t></t>
+                                    <t t-else="">—</t>
+                                </span>
+                            </div>
+                            <div class="wj-pc-kv">
+                                <span class="wj-pc-kv__label">Biển số</span>
+                                <span class="wj-pc-kv__value" t-out="batch.vehicle_id.license_plate or '—'"/>
                             </div>
                         </div>
-
-                        <div class="col-md-6 col-12 mb-2">
-                            <div class="card h-100">
-                                <div class="card-header"><h5 class="mb-0">Thời gian</h5></div>
-                                <div class="card-body">
-                                    <dl class="row mb-0 profile-dl">
-                                        <dt class="col-sm-5">Dự kiến xuất phát</dt>
-                                        <dd class="col-sm-7" t-out="batch.planned_departure and batch.planned_departure.strftime('%d/%m/%Y %H:%M') or '—'"/>
-                                        <dt class="col-sm-5">Thực tế xuất phát</dt>
-                                        <dd class="col-sm-7" t-out="batch.actual_departure and batch.actual_departure.strftime('%d/%m/%Y %H:%M') or '—'"/>
-                                        <dt class="col-sm-5">Khối lượng</dt>
-                                        <dd class="col-sm-7" t-out="'{:,.2f}'.format(batch.planned_weight or 0) + ' kg'"/>
-                                        <dt class="col-sm-5">Số phiếu</dt>
-                                        <dd class="col-sm-7" t-out="len(batch.picking_ids)"/>
-                                    </dl>
-                                </div>
+                        <hr class="wj-pc-dlv-divider"/>
+                        <div class="wj-pc-kv-grid">
+                            <div class="wj-pc-kv">
+                                <span class="wj-pc-kv__label">Kho xuất</span>
+                                <span class="wj-pc-kv__value" t-out="src_location"/>
+                            </div>
+                            <div class="wj-pc-kv">
+                                <span class="wj-pc-kv__label">Trạng thái</span>
+                                <span class="wj-pc-kv__value wj-pc-kv__value--primary" t-out="pc_badge[0]"/>
                             </div>
                         </div>
                     </div>
 
-                    <div class="wujia-content-card">
-                        <div class="wujia-content-card-header">
-                            <div class="wujia-content-card-header-icon">
-                                <i class="feather icon-list"/>
+                    <div class="wj-pc-card">
+                        <div class="wj-pc-card__head">
+                            <h3 class="wj-pc-card__title wj-pc-card__title--sm">Đơn liên quan</h3>
+                        </div>
+                        <div class="wj-pc-dlv-so-chips">
+                            <span t-foreach="so_names" t-as="so" class="wj-pc-dlv-so-chip" t-out="so"/>
+                            <span t-if="not so_names" class="wj-pc-td--muted">—</span>
+                        </div>
+                        <!-- Timeline 3 bước: Xuất kho → Đang giao → Hoàn tất -->
+                        <div class="wj-pc-dlv-timeline">
+                            <div class="wj-pc-dlv-tl-step">
+                                <span class="wj-pc-dlv-tl-time" t-out="tl_times[0]"/>
+                                <span t-attf-class="wj-pc-dlv-tl-dot wj-pc-dlv-tl-dot--#{tl_steps[0]}"/>
+                                <span class="wj-pc-dlv-tl-label">Xuất kho</span>
                             </div>
-                            <h4 class="wujia-content-card-header-title">Phiếu giao của cửa hàng bạn</h4>
-                            <span t-if="own_pickings" class="wujia-content-card-header-link">
-                                <t t-out="len(own_pickings)"/> phiếu
-                            </span>
-                        </div>
-                        <div t-if="not own_pickings" class="wujia-content-card-empty">Không có phiếu giao thuộc cửa hàng của bạn trong chuyến này.</div>
-                        <div t-else="" class="table-responsive">
-                            <table class="wujia-content-card-table">
-                                <thead><tr><th>Phiếu</th><th>Đơn</th><th>Cửa hàng</th><th>Trạng thái</th></tr></thead>
-                                <tbody>
-                                    <tr t-foreach="own_pickings" t-as="p">
-                                        <td t-out="p.name"/>
-                                        <td><a t-if="p.sale_id" t-attf-href="/portal/purchase-history/#{p.sale_id.id}" t-out="p.sale_id.name"/></td>
-                                        <td t-out="p.franchise_id.name or '—'"/>
-                                        <td>
-                                            <t t-set="lbl" t-value="picking_labels.get(p.delivery_status, (p.delivery_status, 'wujia-badge-muted'))"/>
-                                            <span t-attf-class="wujia-badge #{lbl[1]}" t-out="lbl[0]"/>
-                                        </td>
-                                    </tr>
-                                </tbody>
-                            </table>
+                            <span class="wj-pc-dlv-tl-line"/>
+                            <div class="wj-pc-dlv-tl-step">
+                                <span class="wj-pc-dlv-tl-time" t-out="tl_times[1]"/>
+                                <span t-attf-class="wj-pc-dlv-tl-dot wj-pc-dlv-tl-dot--#{tl_steps[1]}"/>
+                                <span class="wj-pc-dlv-tl-label">Đang giao</span>
+                            </div>
+                            <span class="wj-pc-dlv-tl-line"/>
+                            <div class="wj-pc-dlv-tl-step">
+                                <span class="wj-pc-dlv-tl-time" t-out="tl_times[2]"/>
+                                <span t-attf-class="wj-pc-dlv-tl-dot wj-pc-dlv-tl-dot--#{tl_steps[2]}"/>
+                                <span class="wj-pc-dlv-tl-label">Hoàn tất</span>
+                            </div>
                         </div>
                     </div>
+                </div>
 
-                    <div class="mt-2">
-                        <a href="/portal/delivery" class="btn btn-secondary">
-                            <i class="fa fa-arrow-left me-1"/>Quay lại
-                        </a>
+                <!-- Products -->
+                <div class="wj-pc-card">
+                    <div class="wj-pc-card__head">
+                        <div>
+                            <h3 class="wj-pc-card__title">Sản phẩm trong chuyến</h3>
+                            <p class="wj-pc-card__subtitle">Dạng bảng để đối chiếu nhanh tên sản phẩm, số lượng và đơn vị tính.</p>
+                        </div>
+                        <a href="#" class="wj-pc-btn wj-pc-btn--secondary"><i class="feather icon-download"/>Tải danh sách</a>
                     </div>
+                    <table class="wj-pc-table wj-pc-dlv-table">
+                        <thead>
+                            <tr>
+                                <th style="width:56px;">STT</th>
+                                <th>Tên sản phẩm</th>
+                                <th class="text-end">Số lượng</th>
+                                <th class="text-end">ĐVT</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr t-if="products" t-foreach="products" t-as="p">
+                                <td class="wj-pc-td--muted" t-out="p_index + 1"/>
+                                <td t-out="p['name']"/>
+                                <td class="text-end wj-pc-td--amount" t-out="'%g' % p['qty']"/>
+                                <td class="text-end wj-pc-td--muted" t-out="p['uom']"/>
+                            </tr>
+                            <tr t-if="not products">
+                                <td colspan="4" class="text-center wj-pc-td--muted">Chưa có sản phẩm trong chuyến.</td>
+                            </tr>
+                        </tbody>
+                    </table>
                 </div>
             </div>
 

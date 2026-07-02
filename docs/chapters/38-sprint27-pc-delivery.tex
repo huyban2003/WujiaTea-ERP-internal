@@ -1,0 +1,56 @@
+\chapter{Sprint 27 --- PC Giao hàng (5 màn) theo Figma 4766, batch-centric (2026-07-03)}
+
+\section{Bối cảnh}
+
+BA giao ``UI PC trang Giao hàng, xem Figma''. Frame \textbf{\texttt{delivery\_pc\_mockup\_v3\_combined} (\texttt{4766:858})} trong file copy \texttt{aoeiDYlg6vlhJZg2w6Q7o5} chứa \textbf{5 sub-screen} 1920$\times$1080: List / Detail / Empty / Loading (skeleton) / Error. Desktop \texttt{wujia\_portal\_delivery} là \textbf{trang portal cuối cùng còn chạy pattern legacy} (bảng \texttt{wujia-content-card-table} + badge \texttt{wujia-badge-*} + filter \texttt{<select status>}, picking-centric từ Sprint 4). Đây là task ``ráp trang desktop còn lại theo \texttt{pc\_source\_ui\_v1\_4}'' pending từ §5.
+
+\textbf{Khác biệt cốt lõi:} Figma desktop chuyển sang \textbf{batch-centric} (mỗi dòng = 1 chuyến xe gồm nhiều đơn, giống mobile S24), trong khi desktop cũ liệt kê theo \textbf{picking}. \textbf{Quyết định user (đã chốt):} UI-only, làm y hệt Figma (màu / padding / font / size), tự chạy local + tự chụp Playwright so Figma đến khi khớp 100\%. \textbf{Mobile S24 (\texttt{d-lg-none}) giữ nguyên tuyệt đối.}
+
+\section{(A) Controller batch-centric, gộp một nguồn desktop + mobile}
+
+\texttt{portal\_delivery\_list} \textbf{bỏ hẳn} khối query picking-centric cũ; query batch (đã có từ S24) giờ nuôi \textbf{cả desktop lẫn mobile}. Mỗi dict batch thêm keys PC (\textbf{không đụng} keys mobile \texttt{id/name/label/modifier/departure/orders}): \texttt{pc\_label}/\texttt{pc\_modifier}, \texttt{departure\_full} (``dd/mm/yyyy · HH:MM''), \texttt{vehicle} (``name · driver''), \texttt{plate}, \texttt{updated} (``HH:MM'').
+
+Bổ sung: (1) param \texttt{q} tìm mã chuyến/mã SO (\texttt{name ilike} \(|\) \texttt{picking\_ids.sale\_id.name ilike}); (2) helper \texttt{\_chip\_counts} đếm 4 nhóm (Tất cả/Đang giao/Sắp giao/Đã giao) qua \texttt{search\_count} trên base domain franchise+date (\textbf{không} status, \textbf{không} keyword) --- field \texttt{delivery\_batch\_status} có index, 4 count rẻ, an toàn 1500 user; (3) helper \texttt{\_page\_numbers} (copy pattern history) cho pager numbered; (4) \texttt{view\_state} + \texttt{?\_preview=} giờ \textbf{drive luôn block desktop} (5 state). \texttt{m\_pager} thêm \texttt{page\_total}/\texttt{page\_nums}/\texttt{offset}/\texttt{count} (superset, mobile chỉ đọc subset cũ).
+
+\texttt{portal\_delivery\_detail} thêm: \texttt{pc\_badge}, \texttt{pc\_departure}/\texttt{pc\_updated}/\texttt{pc\_orders} (reuse helper), \texttt{so\_names} (list SO unique cho chip), \texttt{tl\_steps}/\texttt{tl\_times} (timeline 3 bước done/active/inactive suy từ \texttt{actual\_departure}+\texttt{delivery\_batch\_status}), \texttt{src\_location} (\texttt{own\_pickings[0].location\_id.complete\_name}), \texttt{store\_label}. Bỏ 2 map legacy \texttt{BATCH\_STATUS\_LABELS}/\texttt{PICKING\_STATUS\_LABELS} (\texttt{wujia-badge-*}).
+
+\section{(B) Template desktop trên hệ wj-pc-*}
+
+Thay \textbf{toàn bộ} 2 khối \texttt{content-wrapper d-none d-lg-block} (list + detail); khối mobile \texttt{d-lg-none} không đụng 1 dòng. Wrapper thêm class \texttt{wujia-dlv-pc} để scope override Figma.
+
+\begin{itemize}
+  \item \textbf{List}: \texttt{wj-pc-page-header} (crumb ``Portal / Giao hàng'' \textbf{trên} title ``Giao hàng'' 32/700 + actions Export[secondary]/Tải lại[primary]) $\rightarrow$ \texttt{wj-pc-filterbar} 1 hàng (search \texttt{q} + 2 date + select \texttt{bs} + Xóa lọc/Tìm) $\rightarrow$ \texttt{wj-pc-card}: \texttt{\_\_head} (title + subtitle động + \textbf{chips số đếm} phải, clickable \texttt{?bs=}, luôn màu status) $\rightarrow$ 4 state qua \texttt{t-if="view\_state"}: list = \texttt{wj-pc-table} 8 cột + pagination numbered; loading = skeleton \texttt{wj-pc-dlv-skel} (7 hàng × 7 bar xen kẽ); empty/error = panel \texttt{wj-pc-dlv-inner} căn giữa.
+  \item \textbf{Detail}: \texttt{wj-pc-page-header} (``Chi tiết giao hàng'' + Quay lại) $\rightarrow$ \texttt{wj-pc-order-head} (mã 30/800 + badge + ``Chuyến giao cho [Hxxx]…'' + KV row Xuất phát/Đơn liên quan/Cập nhật) $\rightarrow$ \texttt{wj-pc-two-col}: trái ``Thông tin vận chuyển'' (\texttt{wj-pc-kv-grid} Xe·tài xế/Biển số, \texttt{<hr>}, Kho xuất/Trạng thái); phải ``Đơn liên quan'' (SO chips + timeline 3 bước) $\rightarrow$ card ``Sản phẩm trong chuyến'' + Tải danh sách[UI-only] + \texttt{wj-pc-table} (STT/Tên SP/SL/ĐVT).
+\end{itemize}
+
+\section{(C) CSS page-scoped wj-pc-dlv-*}
+
+Thêm rules PC \textbf{ngoài} \texttt{@media (max-width:991.98px)} trong \texttt{portal\_delivery.css}, token \texttt{--wj-pc-dlv-*} khai ở \texttt{:root}. \textbf{Không đụng} \texttt{\_pc\_components.css}/\texttt{\_variables.css} (giữ \texttt{?v=1141/1146}, blast radius $=0$). Component: badge variant (Đang giao \texttt{\#EAF7FD}/\texttt{\#28A9DF}, Sắp giao \texttt{\#FEF3C7}/\texttt{\#D97706}, Đã giao \texttt{\#DCFCE7}/\texttt{\#059669} --- hex Figma khác \texttt{--transit}/\texttt{--done} sẵn có), chips-count, skeleton, panel empty/error (icon 84 tròn tint, title 28/700), timeline (dot 26 done/active/inactive + line \texttt{\#CBD5E1}), SO chips, \texttt{wj-pc-dlv-codelink} (mã chuyến tối màu bold, không cyan), nút Xem h34. Override scoped Figma: title 32px + crumb-trên-title (house dùng 26px + crumb-dưới).
+
+\section{Verify}
+
+\begin{itemize}
+  \item \texttt{upgrade.sh wujia\_portal\_delivery} RC=0.
+  \item Playwright chromium 1920$\times$1080 (login \texttt{em.hcm} single-franchise, seed 7 batch demo đủ 3 màu badge): \textbf{5 màn} (list / detail / \texttt{?\_preview=empty|loading|error}) so side-by-side 5 PNG Figma \(\rightarrow\) \textbf{khớp} layout / màu badge+chips / table 8 cột / timeline 3 dot / skeleton / empty+error. Vòng so đầu chỉnh: Mã chuyến + cột dữ liệu về dark (Figma), chỉ ``Cập nhật'' muted.
+  \item Regression sạch: mobile delivery 390px 5 màn intact (S24); history + notification desktop 1920px không vỡ; \texttt{/portal/delivery/<id>.ics} 200; 0 class \texttt{wujia-badge-*} legacy trong HTML desktop; \texttt{test\_sprint5} 21/0 + \texttt{test\_sprint9} 7/0.
+\end{itemize}
+
+\section{Files \& version}
+
+\texttt{wujia\_portal\_delivery} \texttt{19.0.2.0.0}$\rightarrow$\texttt{19.0.3.0.0}: \texttt{controllers/portal.py} (batch-centric gộp desktop+mobile, chip counts, page nums, PC badge/timeline/detail context), \texttt{views/portal\_delivery.xml} (2 khối desktop rewrite \texttt{wj-pc-*}, mobile giữ nguyên), \texttt{static/src/css/portal\_delivery.css} (+\texttt{wj-pc-dlv-*} + token). CSS trong \texttt{web.assets\_frontend} (auto-bundle, không cần \texttt{?v}); \textbf{không đụng} \texttt{wujia\_portal\_layout}.
+
+\section{Trade-off / quyết định}
+
+\begin{itemize}
+  \item \textbf{Loading skeleton = UI-only} (server-render, không fetch client) --- build pixel-perfect, xem qua \texttt{?\_preview=loading}, chừa cho AJAX. Error wire thật qua try/except.
+  \item \textbf{Date filter để trống + chips số đếm là filter thật} (không hardcode ``7 ngày tới'' như Figma) --- đồng bộ hành vi mobile S24, subtitle ghi ``N chuyến · Mới nhất trước'' đúng thực tế.
+  \item \textbf{Giữ native date input} (house pattern history/notification) thay vì widget dd/mm/yyyy custom trong Figma --- tránh over-engineer, browser vi-VN tự render đúng locale.
+  \item \textbf{Title 32px + crumb-trên-title scoped riêng} delivery (house PC dùng 26px + crumb-dưới) --- theo Figma nhưng không regress history/notification.
+\end{itemize}
+
+\section{Pending / Deferred sau Sprint 27}
+
+\begin{itemize}
+  \item Export (list) + Tải danh sách (detail) + ``10 / trang'' = UI-only (chưa wire); Tải lại = reload URL hiện tại.
+  \item Còn lại theo \texttt{pc\_source\_ui\_v1\_4}: report / return / knowledge / support / home desktop; realtime cart cross-session bus.bus (PC-1 deferred); i18n \texttt{.po}.
+\end{itemize}

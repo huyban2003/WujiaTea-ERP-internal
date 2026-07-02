@@ -190,3 +190,115 @@
         padding: 14px; font-size: 13px; color: var(--wujia-morder-text-muted); text-align: center;
     }
 }
+
+/* ============================================================
+   PC desktop — Giao hàng (Figma 4766). Chỉ render ở .wujia-dlv-pc
+   (d-none d-lg-block). Token page-scoped khai dưới :root.
+   ============================================================ */
+:root {
+    --wj-pc-dlv-going-bg: #EAF7FD;   /* Đang giao / Tất cả — cyan soft */
+    --wj-pc-dlv-going-fg: #28A9DF;
+    --wj-pc-dlv-soon-bg:  #FEF3C7;   /* Sắp giao — amber */
+    --wj-pc-dlv-soon-fg:  #D97706;
+    --wj-pc-dlv-done-bg:  #DCFCE7;   /* Đã giao — green */
+    --wj-pc-dlv-done-fg:  #059669;
+    --wj-pc-dlv-so-bg:    #F3F4F6;   /* SO chip */
+    --wj-pc-dlv-so-fg:    #8A939E;
+    --wj-pc-dlv-tl-line:  #CBD5E1;   /* timeline connector + dot inactive */
+    --wj-pc-dlv-skel-bar: #CBD5E1;
+    --wj-pc-dlv-skel-alt: #FCFDFF;   /* hàng skeleton xen kẽ */
+}
+
+/* Figma title 32px + breadcrumb trên title (scoped, house dùng 26px + crumb dưới) */
+.wujia-dlv-pc .wj-pc-page-header__title { font-size: 32px; margin: 0; }
+.wujia-dlv-pc .wj-pc-page-header__crumb { margin: 0 0 6px; }
+
+/* ---- Badge biến thể delivery (hex Figma khác --transit/--done) ---- */
+.wj-pc-badge--dlv-going { background: var(--wj-pc-dlv-going-bg); color: var(--wj-pc-dlv-going-fg); }
+.wj-pc-badge--dlv-soon  { background: var(--wj-pc-dlv-soon-bg);  color: var(--wj-pc-dlv-soon-fg); }
+.wj-pc-badge--dlv-done  { background: var(--wj-pc-dlv-done-bg);  color: var(--wj-pc-dlv-done-fg); }
+.wj-pc-badge--dlv-muted { background: var(--wj-pc-gray-soft);    color: var(--wj-pc-muted); }
+
+/* ---- Chips số đếm trong card head (clickable filter) ---- */
+.wj-pc-dlv-chips { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
+.wj-pc-dlv-chip {
+    display: inline-flex; align-items: center; height: 28px; padding: 0 12px;
+    border-radius: var(--wj-pc-pill-radius); font-size: 13px; font-weight: 600;
+    line-height: 1; white-space: nowrap; text-decoration: none;
+    border: 1.5px solid transparent;
+}
+.wj-pc-dlv-chip:hover { text-decoration: none; }
+.wj-pc-dlv-chip--going { background: var(--wj-pc-dlv-going-bg); color: var(--wj-pc-dlv-going-fg); }
+.wj-pc-dlv-chip--soon  { background: var(--wj-pc-dlv-soon-bg);  color: var(--wj-pc-dlv-soon-fg); }
+.wj-pc-dlv-chip--done  { background: var(--wj-pc-dlv-done-bg);  color: var(--wj-pc-dlv-done-fg); }
+.wj-pc-dlv-chip--going.is-active { border-color: var(--wj-pc-dlv-going-fg); }
+.wj-pc-dlv-chip--soon.is-active  { border-color: var(--wj-pc-dlv-soon-fg); }
+.wj-pc-dlv-chip--done.is-active  { border-color: var(--wj-pc-dlv-done-fg); }
+
+/* ---- Mã chuyến: link tối màu (Figma dark bold, không cyan) ---- */
+.wj-pc-dlv-codelink { color: var(--wj-pc-text); font-weight: 700; text-decoration: none; }
+.wj-pc-dlv-codelink:hover { color: var(--wj-pc-primary); }
+
+/* ---- Nút "Xem" trong hàng bảng (h34) ---- */
+.wj-pc-dlv-btn-xem { height: 34px; font-size: 13px; padding: 0 16px; }
+
+/* ---- Loading skeleton (7 hàng × 7 bar, xen kẽ nền) ---- */
+.wj-pc-dlv-skel-row {
+    display: flex; align-items: center; gap: 40px;
+    height: var(--wj-pc-table-row-h); padding: 0 22px;
+    border-bottom: 1px solid var(--wj-pc-border-soft);
+}
+.wj-pc-dlv-skel-row--alt { background: var(--wj-pc-dlv-skel-alt); }
+.wj-pc-dlv-skel-bar {
+    display: inline-block; height: 16px; border-radius: 8px;
+    background: var(--wj-pc-dlv-skel-bar); flex-shrink: 0;
+}
+
+/* ---- Panel empty / error trong card (căn giữa) ---- */
+.wj-pc-dlv-inner {
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    text-align: center; min-height: 420px; padding: 60px 24px;
+    border: 1px dashed var(--wj-pc-border); border-radius: 12px;
+}
+.wj-pc-dlv-inner__icon {
+    width: 84px; height: 84px; border-radius: 50%;
+    display: inline-flex; align-items: center; justify-content: center;
+    background: var(--wj-pc-primary-soft); color: var(--wj-pc-primary);
+    font-size: 34px; margin-bottom: 20px;
+}
+.wj-pc-dlv-inner__icon--error { background: var(--wj-pc-red-soft); color: var(--wj-pc-red); }
+.wj-pc-dlv-inner__title { font-size: 28px; font-weight: 700; color: var(--wj-pc-text); margin: 0 0 10px; }
+.wj-pc-dlv-inner__sub { font-size: 16px; font-weight: 400; color: var(--wj-pc-muted); margin: 0 0 20px; }
+
+/* ---- Detail: summary head KV row bên phải ---- */
+.wj-pc-dlv-head { align-items: center; }
+.wj-pc-dlv-head-coderow { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+.wj-pc-dlv-head-meta { font-size: 15px; font-weight: 500; color: var(--wj-pc-muted); margin: 10px 0 0; }
+.wj-pc-dlv-head-kv {
+    display: flex; align-items: flex-start; gap: 32px; flex-shrink: 0;
+    border-left: 1px solid var(--wj-pc-border-soft); padding-left: 32px;
+}
+
+/* ---- Detail: SO chips ---- */
+.wj-pc-dlv-so-chips { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 20px; }
+.wj-pc-dlv-so-chip {
+    display: inline-flex; align-items: center; justify-content: center;
+    height: 28px; min-width: 84px; padding: 0 12px;
+    border-radius: var(--wj-pc-pill-radius);
+    background: var(--wj-pc-dlv-so-bg); color: var(--wj-pc-dlv-so-fg);
+    font-size: 13px; font-weight: 600; white-space: nowrap;
+}
+
+/* ---- Detail: timeline 3 bước ngang ---- */
+.wj-pc-dlv-timeline { display: flex; align-items: center; padding: 4px 0; }
+.wj-pc-dlv-tl-step { display: flex; flex-direction: column; align-items: center; gap: 4px; flex-shrink: 0; }
+.wj-pc-dlv-tl-time { font-size: 13px; font-weight: 700; color: var(--wj-pc-muted); min-height: 18px; }
+.wj-pc-dlv-tl-dot { width: 26px; height: 26px; border-radius: 50%; display: block; }
+.wj-pc-dlv-tl-dot--done     { background: var(--wj-pc-dlv-done-fg); }
+.wj-pc-dlv-tl-dot--active   { background: var(--wj-pc-primary); }
+.wj-pc-dlv-tl-dot--inactive { background: var(--wj-pc-dlv-tl-line); }
+.wj-pc-dlv-tl-label { font-size: 13px; font-weight: 700; color: var(--wj-pc-text); }
+.wj-pc-dlv-tl-line { flex: 1 1 0; height: 2px; min-width: 40px; background: var(--wj-pc-dlv-tl-line); }
+
+/* ---- Detail: divider giữa 2 nhóm KV ---- */
+.wj-pc-dlv-divider { border: 0; height: 1px; background: var(--wj-pc-border-soft); margin: 16px 0; }
