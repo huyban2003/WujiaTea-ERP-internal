@@ -1,6 +1,6 @@
 {
     'name': 'Wujia Portal — Exam (Đào tạo / Thi)',
-    'version': '19.0.2.0.0',
+    'version': '19.0.2.1.0',
     'category': 'Wujia',
     'summary': 'Lịch thi + đăng ký + kết quả (skeleton model + UI)',
     'author': 'WujiaTea',

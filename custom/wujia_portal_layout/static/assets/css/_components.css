@@ -195,6 +195,116 @@ h2, .wujia-h2 { font-size: var(--wujia-font-size-h2) !important; font-weight: 60
 .wj-count-meta--bold { font-weight: 700; }
 .wj-count-meta--primary { flex: 0 0 auto; font-weight: 700; color: var(--wujia-morder-primary); }
 
+/* Filter card canonical (Figma 4785:498 — 5 biến thể: search / date-range / chip-slide / period) */
+.wj-filter-card {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    background: var(--wujia-morder-card-bg);
+    border: 1px solid var(--wujia-border-soft);
+    border-radius: var(--wujia-morder-radius);
+    padding: 12px;
+    margin-bottom: 16px;
+}
+.wj-filter-card > .wj-filter-chips { margin-top: -2px; }   /* dates→chips gap 8 (bù gap card 10) */
+/* Search row: field (flex) + cyan button 38×38 */
+.wj-filter-search { display: flex; gap: 10px; }
+.wj-filter-search-field { position: relative; flex: 1 1 auto; display: flex; align-items: center; }
+.wj-filter-search-field > i {
+    position: absolute;
+    left: 12px;
+    font-size: 14px;
+    color: var(--wujia-text-muted);
+    pointer-events: none;
+}
+.wj-filter-search-field input {
+    width: 100%;
+    height: 38px;
+    border: 1px solid var(--wujia-border);
+    border-radius: 10px;
+    background: var(--wujia-filter-field-bg);
+    padding: 0 12px 0 34px;
+    font-size: 13px;
+    color: var(--wujia-morder-text);
+}
+.wj-filter-search-field input::placeholder { color: var(--wujia-text-muted); font-size: 12px; font-weight: 700; }
+.wj-filter-search-field input:focus { outline: none; border-color: var(--wujia-primary); }
+.wj-filter-search-btn {
+    flex: 0 0 auto;
+    width: 38px;
+    height: 38px;
+    border: 0;
+    border-radius: 10px;
+    background: var(--wujia-primary);
+    color: #FFFFFF;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    cursor: pointer;
+}
+.wj-filter-search-btn:active { background: var(--wujia-primary-dark); }
+/* Date range: two pills + dash (145×38 mỗi pill ở 02/03; 132 + btn ở 04) */
+.wj-filter-dates { display: flex; align-items: center; gap: 8px; }
+.wj-filter-date {
+    flex: 1 1 0;
+    min-width: 0;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    height: 38px;
+    border: 1px solid var(--wujia-border);
+    border-radius: 10px;
+    background: var(--wujia-filter-field-bg);
+    padding: 0 10px;
+}
+.wj-filter-date > i { flex: 0 0 auto; font-size: 15px; color: var(--wujia-text-muted); }
+.wj-filter-date input {
+    flex: 1 1 auto;
+    min-width: 0;
+    width: 100%;
+    border: 0;
+    background: transparent;
+    padding: 0;
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--wujia-morder-text);
+}
+.wj-filter-date input:focus { outline: none; }
+.wj-filter-date-sep { flex: 0 0 auto; color: var(--wujia-text-subtitle); font-weight: 700; font-size: 15px; }
+/* Compact date row (variant 04 — 2 pill hẹp + search btn cùng hàng) */
+.wj-filter-dates--compact .wj-filter-date { flex: 1 1 0; }
+/* Period select pill (variant 05 — dropdown kỳ công nợ, reserve cho Phase 2) */
+.wj-filter-period {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex: 1 1 auto;
+    height: 38px;
+    border: 1px solid var(--wujia-border);
+    border-radius: 10px;
+    background: var(--wujia-filter-field-bg);
+    padding: 0 10px;
+}
+.wj-filter-period > i { flex: 0 0 auto; font-size: 15px; color: var(--wujia-text-muted); }
+.wj-filter-period select {
+    flex: 1 1 auto;
+    min-width: 0;
+    border: 0;
+    background: transparent;
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--wujia-morder-text);
+    -webkit-appearance: none;
+    appearance: none;
+    cursor: pointer;
+}
+/* Mobile chip reconcile về Figma (32h/11.3px/700). Desktop (≥992, PC noti) giữ base 13/600. */
+@media (max-width: 991.98px) {
+    .wj-filter-chip { font-size: 11.3px; font-weight: 700; color: var(--wujia-text-secondary); }
+}
+
 /* EmptyState. Base = centered icon-glyph + text (mirrors .wujia-empty-state). */
 .wj-empty-state {
     text-align: center;
@@ -220,14 +330,26 @@ h2, .wujia-h2 { font-size: var(--wujia-font-size-h2) !important; font-weight: 60
 .wj-empty-state--card > i { opacity: 1; margin-bottom: 8px; color: var(--wujia-morder-text-muted); }
 .wj-empty-state--card p { font-size: 14px; color: var(--wujia-morder-text-muted); }
 .wj-empty-state--compact { padding: 14px 0; font-size: 13px; color: var(--wujia-morder-text-muted); }
+/* --rich = no-data card chung (Figma 4788:974 — card 359×253, icon 76, nút Tải lại) */
 .wj-empty-state--rich {
     display: flex;
     flex-direction: column;
     align-items: center;
     gap: 6px;
-    padding: 32px 18px;
+    background: var(--wujia-morder-card-bg);
+    border: 1px solid var(--wujia-border-soft);
+    border-radius: var(--wujia-morder-radius);
+    padding: 24px 18px 17px;
 }
+/* Document icon 76×76 (Figma node 4788:1014 — asset đa màu, giữ nguyên) khi span rỗng. */
 .wj-empty-state-icon {
+    width: 76px;
+    height: 76px;
+    margin-bottom: 4px;
+    background: url("data:image/svg+xml,%3Csvg width='76' height='76' viewBox='0 0 76 76' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M38 76C58.9868 76 76 58.9868 76 38C76 17.0132 58.9868 0 38 0C17.0132 0 0 17.0132 0 38C0 58.9868 17.0132 76 38 76Z' fill='%23EAF7FD'/%3E%3Cpath d='M51 10H25C19.4772 10 15 14.4772 15 20V58C15 63.5228 19.4772 68 25 68H51C56.5228 68 61 63.5228 61 58V20C61 14.4772 56.5228 10 51 10Z' fill='white' stroke='%2328A9DF' stroke-width='2.4'/%3E%3Cpath d='M46 10V24H60' stroke='%2328A9DF' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'/%3E%3Cpath d='M27 33H49' stroke='%23CBD5E1' stroke-width='2.4' stroke-linecap='round'/%3E%3Cpath d='M27 45H45' stroke='%23CBD5E1' stroke-width='2.4' stroke-linecap='round'/%3E%3Cpath d='M27 57H40' stroke='%23CBD5E1' stroke-width='2.4' stroke-linecap='round'/%3E%3C/svg%3E") center/contain no-repeat;
+}
+/* Dual-mode: có glyph con (state semantic error/empty) → circle-tile 64 như cũ. */
+.wj-empty-state-icon:has(> i) {
     width: 64px;
     height: 64px;
     display: inline-flex;
@@ -236,11 +358,33 @@ h2, .wujia-h2 { font-size: var(--wujia-font-size-h2) !important; font-weight: 60
     border-radius: 50%;
     background: var(--wujia-mdash-tile-bg);
     color: var(--wujia-morder-primary);
-    margin-bottom: 6px;
 }
-.wj-empty-state-icon i { font-size: 28px; line-height: 1; }
-.wj-empty-state-title { font-size: 16px; font-weight: 700; color: var(--wujia-morder-text); margin: 0; }
-.wj-empty-state-sub { font-size: 13px; color: var(--wujia-morder-text-sub); margin: 0 0 8px; }
+.wj-empty-state-icon > i { font-size: 28px; line-height: 1; }
+/* Scope qua .wj-empty-state để thắng base `.wj-empty-state p` (0,1,1). */
+.wj-empty-state .wj-empty-state-title { font-size: 18px; font-weight: 700; color: var(--wujia-morder-text); margin: 0; text-align: center; }
+.wj-empty-state .wj-empty-state-sub { font-size: 14px; font-weight: 400; color: var(--wujia-text-subtitle); margin: 0; line-height: 1.35; text-align: center; }
+/* Nút Tải lại / Xóa lọc — 147×40 pill cyan (Figma) */
+.wj-empty-state-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    min-width: 147px;
+    height: 40px;
+    margin-top: 11px;
+    padding: 0 16px;
+    border: 0;
+    border-radius: 10px;
+    background: var(--wujia-primary);
+    color: #FFFFFF;
+    font-size: 14px;
+    font-weight: 700;
+    text-decoration: none;
+    cursor: pointer;
+}
+.wj-empty-state-btn > i { font-size: 15px; line-height: 1; }
+.wj-empty-state-btn:hover,
+.wj-empty-state-btn:focus { background: var(--wujia-primary-dark); color: #FFFFFF; }
 
 /* ---------- UI-14: Responsive — let detail panel stack on tablet/mobile ---------- */
 @media (max-width: 991.98px) {
@@ -1149,7 +1293,7 @@ a.wujia-mhome-kpi:active { opacity: 0.85; }
     border-color: var(--wujia-morder-primary);
 }
 .wujia-morder-chips { margin-bottom: 16px; }
-.wujia-morder-chips .wj-filter-chip { height: 30px; }   /* Figma 4575:777 — chip 30 (base 32) */
+/* chip = base 32h (reconcile canonical Figma 4785:498; bỏ override 30px cũ) */
 
 /* List header */
 .wujia-morder-listhead {
@@ -1505,7 +1649,7 @@ a.wujia-mhome-kpi:active { opacity: 0.85; }
     justify-content: space-between;
     margin: 4px 0 14px;
 }
-.wujia-mhist .wj-filter-chip { height: 28px; font-size: 12px; }   /* Figma 4577:1112 — chip 28/12 (base 32/13) */
+/* chip = base 32h (reconcile canonical Figma 4785:498; bỏ override 28/12 cũ) */
 .wujia-mhist-title {
     font-size: 24px;
     font-weight: 700;
@@ -1534,90 +1678,6 @@ a.wujia-mhome-kpi:active { opacity: 0.85; }
 }
 
 /* ====================== LIST ====================== */
-/* Card tìm kiếm */
-.wujia-mhist-search {
-    background: var(--wujia-morder-card-bg);
-    border: 1px solid var(--wujia-morder-border);
-    border-radius: var(--wujia-morder-radius);
-    padding: 14px;
-    margin-bottom: 16px;
-}
-.wujia-mhist-search-head {
-    font-size: 15px;
-    font-weight: 700;
-    color: var(--wujia-morder-text);
-    margin-bottom: 10px;
-}
-.wujia-mhist-search-row {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    margin-bottom: 10px;
-}
-.wujia-mhist-search-label {
-    flex: 0 0 auto;
-    font-size: 13px;
-    font-weight: 600;
-    color: var(--wujia-morder-text-sub);
-    margin: 0;
-}
-.wujia-mhist-search-input {
-    flex: 1 1 auto;
-    min-width: 0;
-    height: 38px;        /* Figma 4577:1112 — search/filter inputs 38 (was 42) */
-    border: 1px solid var(--wujia-morder-border);
-    border-radius: 10px;
-    background: var(--wujia-morder-card-bg);
-    padding: 0 12px;
-    font-size: 14px;
-    color: var(--wujia-morder-text);
-}
-.wujia-mhist-date {
-    flex: 1 1 0;
-    min-width: 0;
-    height: 38px;
-    border: 1px solid var(--wujia-morder-border);
-    border-radius: 10px;
-    background: var(--wujia-morder-card-bg);
-    padding: 0 10px;
-    font-size: 13px;
-    color: var(--wujia-morder-text);
-}
-.wujia-mhist-search-input:focus,
-.wujia-mhist-date:focus { outline: none; border-color: var(--wujia-morder-primary); }
-.wujia-mhist-search-btn {
-    flex: 0 0 auto;
-    height: 38px;        /* Figma 4577:1112 — match input height */
-    padding: 0 16px;
-    border: 0;
-    border-radius: 10px;
-    background: var(--wujia-morder-primary);
-    color: #FFFFFF;
-    font-size: 14px;
-    font-weight: 700;
-    cursor: pointer;
-}
-.wujia-mhist-search-btn:active { background: var(--wujia-morder-primary-dark); }
-/* v2: ô tìm kiếm có icon + nền nhạt */
-.wujia-mhist-search-box {
-    flex: 1 1 auto;
-    min-width: 0;
-    position: relative;
-    display: flex;
-    align-items: center;
-}
-.wujia-mhist-search-box i {
-    position: absolute;
-    left: 12px;
-    font-size: 15px;
-    color: var(--wujia-morder-text-muted);
-    pointer-events: none;
-}
-.wujia-mhist-search-box .wujia-mhist-search-input {
-    width: 100%;
-    padding-left: 34px;
-    background: #F8FAFC;
-}
 
 /* Chips lọc */
 /* Header danh sách */
@@ -1979,55 +2039,6 @@ a.wujia-mhome-kpi:active { opacity: 0.85; }
         border-radius: var(--wujia-morder-radius);
         padding: 14px;
     }
-
-    /* ---------- Search card ---------- */
-    .wujia-mknow-search {
-        display: flex;
-        align-items: center;
-        gap: 8px;
-        margin: 0;
-    }
-    .wujia-mknow-search-field {
-        position: relative;
-        flex: 1 1 auto;
-        min-width: 0;
-    }
-    .wujia-mknow-search-field > i {
-        position: absolute;
-        left: 12px;
-        top: 50%;
-        transform: translateY(-50%);
-        font-size: 16px;
-        color: var(--wujia-morder-text-muted);
-        pointer-events: none;
-    }
-    .wujia-mknow-search-input {
-        width: 100%;
-        height: 38px;        /* Figma 4475:2 — search 38 (was 42) */
-        border: 1px solid var(--wujia-morder-border);
-        border-radius: 10px;
-        background: #F8FAFC;  /* Figma search field bg (was mshell-bg #F3F6F8) — shared mknow/ticket/return/noti */
-        padding: 0 12px 0 36px;
-        font-size: 14px;
-        color: var(--wujia-morder-text);
-    }
-    .wujia-mknow-search-input:focus {
-        outline: none;
-        border-color: var(--wujia-morder-primary);
-    }
-    .wujia-mknow-search-btn {
-        flex: 0 0 auto;
-        height: 38px;        /* Figma 4475:2 — match input height */
-        padding: 0 18px;
-        border: 0;
-        border-radius: 10px;
-        background: var(--wujia-morder-primary);
-        color: #FFFFFF;
-        font-size: 14px;
-        font-weight: 700;
-        cursor: pointer;
-    }
-    .wujia-mknow-search-btn:active { background: var(--wujia-morder-primary-dark); }
 
     /* ---------- Section head ("Bài nổi bật" / "Mới cập nhật") ---------- */
     .wujia-mknow-sechead {

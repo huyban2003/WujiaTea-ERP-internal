@@ -141,22 +141,36 @@
                 </div>
 
                 <t t-else="">
-                    <form method="get" action="/portal/return" class="wujia-mknow-card wujia-mknow-search">
-                        <div class="wujia-mknow-search-field">
-                            <i class="feather icon-search"/>
-                            <input type="text" name="q" class="wujia-mknow-search-input"
-                                   placeholder="Tìm mã YC / mã đơn" t-att-value="q or ''"/>
+                    <!-- Filter canonical 02-KeywordDateRange (Figma 4785:660) — q + dates wired sẵn -->
+                    <form method="get" action="/portal/return" class="wj-filter-card">
+                        <div class="wj-filter-search">
+                            <div class="wj-filter-search-field">
+                                <i class="feather icon-search"/>
+                                <input type="text" name="q" placeholder="Tìm mã YC / mã đơn" t-att-value="q or ''"/>
+                            </div>
+                            <button type="submit" class="wj-filter-search-btn"><i class="feather icon-search"/></button>
                         </div>
-                        <button type="submit" class="wujia-mknow-search-btn">Tìm</button>
+                        <div class="wj-filter-dates">
+                            <label class="wj-filter-date">
+                                <i class="feather icon-calendar"/>
+                                <input type="date" name="date_from" t-att-value="date_from or ''"/>
+                            </label>
+                            <span class="wj-filter-date-sep">–</span>
+                            <label class="wj-filter-date">
+                                <i class="feather icon-calendar"/>
+                                <input type="date" name="date_to" t-att-value="date_to or ''"/>
+                            </label>
+                        </div>
                     </form>
 
-                    <!-- Empty: chưa có YC nào -->
-                    <t t-if="not returns and not q and not state">
-                        <div class="wujia-mdash-card wj-empty-state--rich">
-                            <span class="wj-empty-state-icon"><i class="feather icon-corner-up-left"/></span>
+                    <!-- Empty: chưa có YC nào (no-data thật) -->
+                    <t t-if="not returns and not q and not state and not date_from and not date_to">
+                        <div class="wj-empty-state wj-empty-state--rich">
+                            <span class="wj-empty-state-icon"/>
                             <p class="wj-empty-state-title">Không có yêu cầu</p>
                             <p class="wj-empty-state-sub">Cửa hàng chưa gửi yêu cầu đổi trả nào.</p>
-                            <a href="/portal/return/new" class="wujia-mticket-create-pill">
+                            <p class="wj-empty-state-sub">Yêu cầu mới sẽ xuất hiện tại đây khi được tạo.</p>
+                            <a href="/portal/return/new" class="wj-empty-state-btn">
                                 <i class="feather icon-plus"/> Tạo yêu cầu mới
                             </a>
                         </div>
@@ -167,12 +181,13 @@
                             <span class="wj-count-meta"><t t-out="len(returns)"/> yêu cầu</span>
                         </div>
 
-                        <!-- Empty: tìm không ra -->
-                        <div t-if="not returns" class="wujia-mdash-card wj-empty-state--rich">
-                            <span class="wj-empty-state-icon"><i class="feather icon-search"/></span>
+                        <!-- Empty: tìm không ra (lọc rỗng → Xóa lọc) -->
+                        <div t-if="not returns" class="wj-empty-state wj-empty-state--rich">
+                            <span class="wj-empty-state-icon"/>
                             <p class="wj-empty-state-title">Không tìm thấy kết quả</p>
+                            <p class="wj-empty-state-sub">Không có yêu cầu khớp bộ lọc hiện tại.</p>
                             <p class="wj-empty-state-sub">Thử đổi từ khóa hoặc xóa điều kiện tìm kiếm.</p>
-                            <a href="/portal/return" class="wujia-mreturn-pill-ghost">Xóa tìm kiếm</a>
+                            <a href="/portal/return" class="wj-empty-state-btn">Xóa lọc</a>
                         </div>
 
                         <!-- Danh sách yêu cầu (ReturnCard) -->

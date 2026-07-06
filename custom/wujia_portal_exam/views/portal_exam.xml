@@ -69,20 +69,33 @@
                     </p>
                 </div>
 
-                <div class="wujia-mexam-searchcard">
-                    <div class="wujia-mexam-search-range">
-                        <input type="text" placeholder="Từ ngày - đến ngày"
-                               class="wujia-mexam-search-input"/>
+                <!-- Filter canonical 04-DateRangeOnly (Figma 4785:862) — demo UI-only (Phase 2 wire) -->
+                <div class="wj-filter-card">
+                    <div class="wj-filter-dates wj-filter-dates--compact">
+                        <label class="wj-filter-date">
+                            <i class="feather icon-calendar"/>
+                            <input type="date"/>
+                        </label>
+                        <span class="wj-filter-date-sep">–</span>
+                        <label class="wj-filter-date">
+                            <i class="feather icon-calendar"/>
+                            <input type="date"/>
+                        </label>
+                        <button type="button" class="wj-filter-search-btn"><i class="feather icon-search"/></button>
                     </div>
-                    <button type="button" class="wujia-mexam-search-filter">
-                        <span>Tất cả</span>
-                    </button>
-                    <button type="button" class="wujia-mexam-search-btn">
-                        <i class="feather icon-search"/>
-                    </button>
                 </div>
 
-                <div class="wujia-mexam-list">
+                <!-- Empty: chưa có đăng ký (no-data chung Figma 4788:974) -->
+                <div t-if="not m_exam_items" class="wj-empty-state wj-empty-state--rich">
+                    <span class="wj-empty-state-icon"/>
+                    <p class="wj-empty-state-title">Chưa có đăng ký thi</p>
+                    <p class="wj-empty-state-sub">Hiện chưa có đăng ký nào để hiển thị.</p>
+                    <p class="wj-empty-state-sub">Tạo đăng ký mới để bắt đầu.</p>
+                    <a href="/portal/exam/register" class="wj-empty-state-btn">
+                        <i class="feather icon-plus"/> Đăng ký mới
+                    </a>
+                </div>
+                <div t-else="" class="wujia-mexam-list">
                     <a t-foreach="m_exam_items" t-as="item" t-att-href="item['link']"
                        class="wujia-mexam-card">
                         <div class="wujia-mexam-card-top">

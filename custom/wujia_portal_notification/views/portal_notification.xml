@@ -166,33 +166,35 @@
                     </p>
                 </div>
 
-                <!-- Search (reuse shared mknow-search) -->
-                <form method="get" action="/portal/notification"
-                      class="wujia-mknow-card wujia-mknow-search">
+                <!-- Filter canonical 01-ChipSlide (Figma 4785:562) — keyword + chips (hidden unread) -->
+                <form method="get" action="/portal/notification" class="wj-filter-card">
                     <input type="hidden" name="unread" t-att-value="unread or ''"/>
-                    <div class="wujia-mknow-search-field">
-                        <i class="feather icon-search"/>
-                        <input type="text" name="keyword" class="wujia-mknow-search-input"
-                               placeholder="Tìm mã / tiêu đề" t-att-value="keyword or ''"/>
+                    <div class="wj-filter-search">
+                        <div class="wj-filter-search-field">
+                            <i class="feather icon-search"/>
+                            <input type="text" name="keyword" placeholder="Tìm mã / tiêu đề" t-att-value="keyword or ''"/>
+                        </div>
+                        <button type="submit" class="wj-filter-search-btn"><i class="feather icon-search"/></button>
                     </div>
-                    <button type="submit" class="wujia-mknow-search-btn">Tìm</button>
+                    <!-- Tất cả / Chưa đọc functional; Quan trọng / Cần làm UI-only (chờ BA field) -->
+                    <div class="wj-filter-chips">
+                        <a t-attf-href="/portal/notification#{('?keyword=' + keyword) if keyword else ''}"
+                           t-attf-class="wj-filter-chip #{'is-active' if not unread else ''}">Tất cả</a>
+                        <a t-attf-href="/portal/notification?unread=1#{('&amp;keyword=' + keyword) if keyword else ''}"
+                           t-attf-class="wj-filter-chip #{'is-active' if unread else ''}">Chưa đọc</a>
+                        <span class="wj-filter-chip">Quan trọng</span>
+                        <span class="wj-filter-chip">Cần làm</span>
+                    </div>
                 </form>
-
-                <!-- Chips: Tất cả / Chưa đọc functional; Quan trọng / Cần làm UI-only (chờ BA field) -->
-                <div class="wj-filter-chips wujia-mnoti-chips">
-                    <a t-attf-href="/portal/notification#{('?keyword=' + keyword) if keyword else ''}"
-                       t-attf-class="wj-filter-chip #{'is-active' if not unread else ''}">Tất cả</a>
-                    <a t-attf-href="/portal/notification?unread=1#{('&amp;keyword=' + keyword) if keyword else ''}"
-                       t-attf-class="wj-filter-chip #{'is-active' if unread else ''}">Chưa đọc</a>
-                    <span class="wj-filter-chip">Quan trọng</span>
-                    <span class="wj-filter-chip">Cần làm</span>
-                </div>
 
                 <!-- List -->
                 <div t-if="not notifications" class="wj-empty-state wj-empty-state--rich">
-                    <span class="wj-empty-state-icon"><i class="feather icon-bell"/></span>
+                    <span class="wj-empty-state-icon"/>
                     <p class="wj-empty-state-title">Chưa có thông báo</p>
-                    <p class="wj-empty-state-sub">Thông báo từ HQ sẽ hiển thị ở đây</p>
+                    <p class="wj-empty-state-sub">Hiện chưa có thông báo nào để hiển thị.</p>
+                    <p class="wj-empty-state-sub">Thông báo từ HQ sẽ hiển thị tại đây khi có.</p>
+                    <a t-if="keyword or unread" href="/portal/notification" class="wj-empty-state-btn">Xóa lọc</a>
+                    <button t-else="" type="button" class="wj-empty-state-btn" onclick="window.location.reload()">Tải lại</button>
                 </div>
                 <div t-else="" class="wujia-mnoti-list">
                     <t t-foreach="notifications" t-as="n">

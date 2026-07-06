@@ -24,39 +24,6 @@
     }
     .wujia-mdelivery-sub { margin: 0; font-size: 12px; color: var(--wujia-morder-text-sub); }
 
-    /* ---------- Date filter (Từ ngày / Đến ngày / Tìm) ---------- */
-    .wujia-mdelivery-filter {
-        display: flex; align-items: flex-end; gap: 8px;
-        background: var(--wujia-morder-card-bg);
-        border: 1px solid var(--wujia-morder-divider);
-        border-radius: var(--wujia-morder-radius); padding: 10px 12px;
-    }
-    .wujia-mdelivery-datefield {
-        flex: 1 1 0; min-width: 0; margin: 0;
-        display: flex; flex-direction: column; gap: 2px;
-        background: var(--wujia-mdelivery-field-bg);
-        border: 1px solid var(--wujia-morder-border);
-        border-radius: 10px; padding: 5px 10px;
-    }
-    .wujia-mdelivery-datefield-lbl { font-size: 9px; font-weight: 700; color: var(--wujia-morder-text-sub); }
-    .wujia-mdelivery-datefield input {
-        width: 100%; border: 0; background: transparent; padding: 0;
-        font-size: 11px; font-weight: 700; color: var(--wujia-morder-text);
-        font-family: inherit; line-height: 1.2;
-    }
-    .wujia-mdelivery-datefield input:focus { outline: none; }
-    .wujia-mdelivery-search-btn {
-        flex: 0 0 auto; align-self: flex-end;
-        display: inline-flex; align-items: center; justify-content: center; gap: 6px;
-        height: 38px; padding: 0 16px; border: 0; border-radius: 10px;
-        background: var(--wujia-morder-primary); color: #FFFFFF;
-        font-size: 12px; font-weight: 700; white-space: nowrap; text-decoration: none;
-    }
-    .wujia-mdelivery-search-btn i { font-size: 14px; line-height: 1; }
-    .wujia-mdelivery-search-btn:active { background: var(--wujia-morder-primary-dark); }
-
-    /* ---------- Chips (Figma 30px, base 32) ---------- */
-    .wujia-mdelivery .wj-filter-chip { height: 30px; }
 
     /* ---------- Result head (count · sort) ---------- */
     .wujia-mdelivery-resulthead {
@@ -109,14 +76,6 @@
     .wujia-mdelivery-badge--done { background: var(--wujia-mdelivery-done-bg); color: var(--wujia-mdelivery-done-fg); }
     .wujia-mdelivery-badge--muted { background: var(--wujia-morder-divider); color: var(--wujia-morder-text-muted); }
 
-    /* ---------- CTA (empty / error) ---------- */
-    .wujia-mdelivery-cta {
-        display: inline-flex; align-items: center; justify-content: center;
-        height: 40px; padding: 0 22px; border-radius: 10px;
-        background: var(--wujia-morder-primary); color: #FFFFFF;
-        font-size: 13px; font-weight: 700; text-decoration: none; margin-top: 6px;
-    }
-    .wujia-mdelivery-cta:hover, .wujia-mdelivery-cta:focus { color: #FFFFFF; }
     .wujia-mdelivery-icon-danger { background: var(--wujia-danger-bg); color: var(--wujia-danger); }
 
     /* ---------- Skeleton (loading — UI-only) ---------- */

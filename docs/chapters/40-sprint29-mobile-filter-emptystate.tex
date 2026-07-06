@@ -1,0 +1,46 @@
+\chapter{Sprint 29 --- Mobile Empty State ``no-data'' chung + chuẩn hoá Filter canonical (2026-07-07)}
+
+\section{Bối cảnh}
+
+BA giao \textbf{2 Figma source mới} trong file copy \texttt{aoeiDYlg6vlhJZg2w6Q7o5} cho UI \textbf{mobile} (PC do session khác lo song song --- Sprint 28, chương 39; \textbf{không đụng} desktop \texttt{d-none d-lg-block}). \textbf{Task 1:} 1 empty-state ``no-data'' chung (\texttt{WJ\_Mobile\_EmptyState\_NoData\_Common} node \texttt{4788:974}) $\rightarrow$ nâng canonical \texttt{wj-empty-state} rồi rollout mọi trang list mobile. \textbf{Task 2:} gom search/filter khác nhau từng trang (\texttt{wujia-mknow-*} / \texttt{wujia-mhist-*} / \texttt{wujia-mdelivery-*} / \texttt{wujia-mexam-*}) về \textbf{1 bộ canonical \texttt{wj-filter-*}} theo board \texttt{WJ\_Mobile\_Filter\_Component\_Mockups\_v4} (node \texttt{4785:498}, 5 biến thể) + map từng trang vào đúng biến thể. UI-only: giữ nguyên \texttt{name=} field, controller \textbf{không đổi}.
+
+\textbf{Quyết định user (đã chốt):} (1) chip filter \textbf{reconcile toàn cục} về Figma (\texttt{32h/11.3px/700}), gỡ per-page override --- nhưng vì \texttt{.wj-filter-chip} còn dùng ở desktop PC notification, spec đồng nhất bọc trong \texttt{@media (max-width:991.98px)} để desktop ($\geq$992) giữ base cũ; (2) nút empty-state \textbf{context-aware}: no-data thật $\rightarrow$ ``Tải lại'' (reload), lọc/tìm rỗng $\rightarrow$ ``Xoá lọc'' (về URL gốc), trang có CTA riêng $\rightarrow$ giữ ``Tạo ticket/yêu cầu''.
+
+\section{Task 1 --- Empty state canonical (\texttt{4788:974})}
+
+Nâng \texttt{wj-empty-state--rich} thành \textbf{card no-data chuẩn} (\texttt{\_components.css}): card trắng radius 14 border-soft, pad 24/18/17, canh giữa dọc. \textbf{Icon 76$\times$76} tải SVG thật node \texttt{4788:1014} qua MCP \texttt{download\_figma\_images} rồi nhúng \textbf{data-uri} vào \texttt{background} (asset đa màu: document cyan trên circle \texttt{\#EAF7FD} + line \texttt{\#CBD5E1} --- giữ nguyên màu Figma, không phải glyph mono). Title \texttt{18/700 \#111827}, 2 dòng phụ \texttt{14/400 \#6B7280}, nút cyan \texttt{.wj-empty-state-btn} \textbf{147$\times$40} radius 10.
+
+\textbf{Dual-mode icon} (\texttt{:has(> i)}): span rỗng $\rightarrow$ document 76 (no-data); có glyph con $\rightarrow$ circle-tile 64 như cũ $\rightarrow$ \textbf{giữ icon semantic} cho state error (delivery ``Không tải được dữ liệu'' = alert-triangle) mà không bị document đè.
+
+Rollout \textbf{7 trang} list mobile (\texttt{d-lg-none}): purchase\_history, delivery, notification, support, return, knowledge, exam --- giữ copy no-data từng trang, chỉ đổi structure/style. Nút context-aware qua \texttt{t-if} có filter (\texttt{q}/\texttt{keyword}/\texttt{date\_*}/\texttt{state}/...) $\rightarrow$ Xoá lọc; else $\rightarrow$ \texttt{<button onclick="window.location.reload()">} Tải lại.
+
+\section{Task 2 --- Filter canonical \texttt{wj-filter-*} (\texttt{4785:498}, 5 biến thể)}
+
+Dựng trong \texttt{\_components.css}: \texttt{.wj-filter-card} (trắng, border-soft, radius 14, pad 12, gap 10) chứa \texttt{.wj-filter-search} (input 38h \texttt{\#F8FAFC} border \texttt{\#E5E7EB} radius 10 + icon search trái + placeholder 12/700 muted; nút cyan \texttt{.wj-filter-search-btn} 38$\times$38) / \texttt{.wj-filter-dates} (2 pill 38h + dash ``--'', \texttt{--compact} cho biến thể 04) / \texttt{.wj-filter-period} (dropdown reserve). Token mới \texttt{--wujia-filter-field-bg: \#F8FAFC} (\texttt{\_variables.css}).
+
+\textbf{Chip reconcile} (bọc \texttt{@media <992}): \texttt{.wj-filter-chip} $\rightarrow$ \texttt{font-size:11.3px; font-weight:700; color:\#374151}; active = solid cyan. Gỡ \textbf{4 override per-page} (\texttt{morder} 30, \texttt{mhist} 28 ở \texttt{\_components.css}; \texttt{delivery} 30 ở \texttt{portal\_delivery.css}) $\rightarrow$ đồng nhất 32.
+
+\begin{center}\begin{tabular}{@{}lll@{}}
+\textbf{Trang} & \textbf{Biến thể} & \textbf{Ghi chú} \\
+\hline
+purchase\_history & 03 Advanced & search + date + chips preset/state \\
+delivery & 03 Advanced & \textbf{thêm} keyword wire vào \texttt{q} sẵn có \\
+notification & 01 ChipSlide & keyword + chips unread \\
+support & 01 ChipSlide & q + chips state \\
+knowledge & 01 ChipSlide & keyword + chips category \\
+return & 02 KeywordDateRange & \textbf{đổi so plan} (01$\rightarrow$02): list controller không có \texttt{today} \\
+exam s0 & 04 DateRangeOnly & demo UI-only (Phase 2 wire) \\
+--- & 05 AR\_PeriodSelect & build CSS reserve, chưa consumer (công nợ Phase 2) \\
+\end{tabular}\end{center}
+
+\textbf{Ngoài scope:} \texttt{report/orders} + \texttt{info\_request} chưa có bản mobile $\rightarrow$ chỉ desktop, không đụng.
+
+\textbf{Dọn dead CSS} (grep 0 consumer trước khi xoá): \texttt{wujia-mhist-search*} + \texttt{wujia-mknow-search*} (\texttt{\_components.css}), \texttt{wujia-mdelivery-filter/datefield/search-btn/cta} (\texttt{portal\_delivery.css}), \texttt{wujia-mexam-search*} (\texttt{portal\_exam.css}), \texttt{wujia-mreturn-pill-ghost} (\texttt{portal\_return.css}). \textbf{Giữ} \texttt{wujia-mknow-card} + \texttt{wujia-mdelivery-icon-danger} (còn dùng).
+
+\section{Verify}
+
+Upgrade 8 module RC=0 (91 modules). \textbf{Playwright viewport 390px} login portal user (\texttt{anh.owner}) chụp 14 màn (7 list + 7 empty/preview) + đo \texttt{getComputedStyle}: card 12/14, input 38/\texttt{\#F8FAFC}/10, btn 38 cyan, chip 32/11.3/700/\texttt{\#374151} + active solid cyan, icon 76 + SVG, title 18/700, sub 14/\texttt{\#6B7280}, btn 40$\times$147/10 --- \textbf{khớp Figma}. 14/14 HTTP 200, filter card + empty-state + nút đủ mọi màn, \textbf{0 class cũ sót}. Regression: desktop chip \textbf{13/600/32 nguyên vẹn} (PC notification), order-catalog + exam wizard chip 30$\rightarrow$32 gọn không vỡ. \texttt{test\_sprint9} 7/0, \texttt{test\_sprint5} 21/0.
+
+\textbf{Gotcha:} (1) base \texttt{.wj-empty-state p} (specificity 0,1,1) \textbf{đè} \texttt{.wj-empty-state-title/sub} (0,1,0) $\rightarrow$ title/sub ra sai màu (\texttt{\#374151} thay vì \texttt{\#111827}/\texttt{\#6B7280}); fix scope \texttt{.wj-empty-state .wj-empty-state-title/sub} (0,2,0). Bắt được nhờ probe \texttt{getComputedStyle}, không phải mắt thường. (2) \texttt{.wj-filter-chip} dùng \textbf{cả desktop} (PC noti \texttt{wj-pc-noti-chips}) $\rightarrow$ reconcile chip \textbf{bắt buộc} bọc \texttt{@media <992}, không sửa base, nếu không desktop drift. (3) mouse synthetic Playwright giữ toạ độ sau click login $\rightarrow$ hover nhầm 1 chip làm nó cyan trong screenshot --- \textbf{không phải bug}, \texttt{mouse.move(0,0)} trước khi đo là hết. (4) session PC (Sprint 28) chạy song song đã \texttt{git add} quét luôn \texttt{assets.xml} (?v của mình) + \texttt{layout \_\_manifest\_\_} (version 30) vào commit \texttt{629b165} $\rightarrow$ commit sprint này chỉ còn \textbf{content mobile} (19 file), 2 shared file đã nằm ở commit trước.
+
+manifest: layout \texttt{19.0.30.0.0} (đã ở 629b165) + 7 module trang (history/delivery/support/return/knowledge/notification/exam); \texttt{\_components.css?v=1149}, \texttt{\_variables.css?v=1148}.

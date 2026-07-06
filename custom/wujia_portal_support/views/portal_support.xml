@@ -126,45 +126,48 @@
                     </a>
                 </div>
 
-                <!-- Empty state thật sự (chưa có ticket nào, không lọc/tìm) — Figma màn 4 -->
+                <!-- Empty state thật sự (chưa có ticket nào, không lọc/tìm) — no-data chung Figma 4788:974 -->
                 <t t-if="not tickets and not q and not state">
-                    <div class="wujia-mdash-card wj-empty-state--rich">
-                        <span class="wj-empty-state-icon"><i class="feather icon-help-circle"/></span>
-                        <p class="wj-empty-state-title">Chưa có yêu cầu hỗ trợ nào</p>
-                        <p class="wj-empty-state-sub">Tạo ticket đầu tiên để Wujia tiếp nhận xử lý</p>
-                        <a href="/portal/support/new" class="wujia-mticket-create-pill">
+                    <div class="wj-empty-state wj-empty-state--rich">
+                        <span class="wj-empty-state-icon"/>
+                        <p class="wj-empty-state-title">Chưa có yêu cầu hỗ trợ</p>
+                        <p class="wj-empty-state-sub">Hiện chưa có ticket nào để hiển thị.</p>
+                        <p class="wj-empty-state-sub">Tạo ticket đầu tiên để Wujia tiếp nhận xử lý.</p>
+                        <a href="/portal/support/new" class="wj-empty-state-btn">
                             <i class="feather icon-plus"/> Tạo ticket
                         </a>
                     </div>
                 </t>
                 <t t-else="">
-                    <!-- Search card (functional GET q; giữ state qua hidden) -->
-                    <form method="get" action="/portal/support" class="wujia-mknow-card wujia-mknow-search">
-                        <div class="wujia-mknow-search-field">
-                            <i class="feather icon-search"/>
-                            <input type="text" name="q" class="wujia-mknow-search-input"
-                                   placeholder="Tìm mã / tiêu đề ticket" t-att-value="q or ''"/>
-                        </div>
+                    <!-- Filter canonical 01-ChipSlide (Figma 4785:562) — search q + hidden state -->
+                    <form method="get" action="/portal/support" class="wj-filter-card">
                         <input type="hidden" name="state" t-att-value="state or ''"/>
-                        <button type="submit" class="wujia-mknow-search-btn">Tìm</button>
+                        <div class="wj-filter-search">
+                            <div class="wj-filter-search-field">
+                                <i class="feather icon-search"/>
+                                <input type="text" name="q" placeholder="Tìm mã / tiêu đề ticket" t-att-value="q or ''"/>
+                            </div>
+                            <button type="submit" class="wj-filter-search-btn"><i class="feather icon-search"/></button>
+                        </div>
+                        <div class="wj-filter-chips">
+                            <a href="/portal/support"
+                               t-attf-class="wj-filter-chip #{'is-active' if not state else ''}">Tất cả</a>
+                            <a href="/portal/support?state=new"
+                               t-attf-class="wj-filter-chip #{'is-active' if state == 'new' else ''}">Mới</a>
+                            <a href="/portal/support?state=in_progress"
+                               t-attf-class="wj-filter-chip #{'is-active' if state == 'in_progress' else ''}">Đang xử lý</a>
+                            <a href="/portal/support?state=waiting_customer"
+                               t-attf-class="wj-filter-chip #{'is-active' if state == 'waiting_customer' else ''}">Có phản hồi</a>
+                        </div>
                     </form>
 
-                    <!-- Chips lọc trạng thái (scroll-x, active solid cyan).
-                         NOTE BA: resolved/closed vẫn hiện trong list nhưng không có chip riêng. -->
-                    <div class="wj-filter-chips">
-                        <a href="/portal/support"
-                           t-attf-class="wj-filter-chip #{'is-active' if not state else ''}">Tất cả</a>
-                        <a href="/portal/support?state=new"
-                           t-attf-class="wj-filter-chip #{'is-active' if state == 'new' else ''}">Mới</a>
-                        <a href="/portal/support?state=in_progress"
-                           t-attf-class="wj-filter-chip #{'is-active' if state == 'in_progress' else ''}">Đang xử lý</a>
-                        <a href="/portal/support?state=waiting_customer"
-                           t-attf-class="wj-filter-chip #{'is-active' if state == 'waiting_customer' else ''}">Có phản hồi</a>
-                    </div>
-
-                    <!-- Danh sách ticket / không tìm thấy -->
-                    <div t-if="not tickets" class="wujia-mdash-card wj-empty-state--compact">
-                        Không tìm thấy ticket phù hợp.
+                    <!-- Không tìm thấy — no-data card (lọc rỗng → Xóa lọc) -->
+                    <div t-if="not tickets" class="wj-empty-state wj-empty-state--rich">
+                        <span class="wj-empty-state-icon"/>
+                        <p class="wj-empty-state-title">Không tìm thấy ticket</p>
+                        <p class="wj-empty-state-sub">Không có ticket khớp bộ lọc hiện tại.</p>
+                        <p class="wj-empty-state-sub">Thử đổi từ khóa hoặc bỏ bộ lọc.</p>
+                        <a href="/portal/support" class="wj-empty-state-btn">Xóa lọc</a>
                     </div>
                     <div t-else="" class="wujia-mdash-card wujia-mdash-list">
                         <a t-foreach="tickets" t-as="tk" t-attf-href="/portal/support/#{tk.id}"
