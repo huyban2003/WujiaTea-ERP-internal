@@ -165,9 +165,15 @@ class WujiaPortalLayout(http.Controller):
                 methods=['GET', 'POST'], website=False, sitemap=False,
                 csrf=True)
     def portal_change_password(self, **post):
+        # Store/role feed the shared PC account-nav card (Figma pc_05..08).
+        fr_name, fr_code, role_label = self._resolve_active_store()
         values = {
             'title': _('Đổi mật khẩu'),
             'lang': request.env.lang or 'en',
+            'user': request.env.user,
+            'franchise_name': fr_name,
+            'franchise_code': fr_code,
+            'role_label': role_label,
         }
         if request.httprequest.method != 'POST':
             return request.render('wujia_portal_layout.change_password_page', values)
@@ -179,7 +185,7 @@ class WujiaPortalLayout(http.Controller):
         if not old_pwd or not new_pwd:
             values['error'] = _('Vui lòng nhập đầy đủ.')
         elif new_pwd != confirm:
-            values['error'] = _('Mật khẩu mới và xác nhận không khớp.')
+            values['error'] = _('Mật khẩu xác nhận không khớp với mật khẩu mới.')
         elif len(new_pwd) < 8:
             values['error'] = _('Mật khẩu mới tối thiểu 8 ký tự.')
         elif new_pwd == old_pwd:
@@ -188,9 +194,9 @@ class WujiaPortalLayout(http.Controller):
             try:
                 # change_password(old, new) tự verify old qua _check_credentials.
                 request.env['res.users'].change_password(old_pwd, new_pwd)
-                values['message'] = _('Đổi mật khẩu thành công.')
+                values['message'] = _('Mật khẩu đã được cập nhật thành công.')
             except AccessDenied:
-                values['error'] = _('Mật khẩu cũ không đúng.')
+                values['error'] = _('Mật khẩu hiện tại không đúng. Vui lòng kiểm tra lại.')
             except UserError as e:
                 values['error'] = str(e)
             except Exception:

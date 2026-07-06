@@ -6,7 +6,8 @@
     "use strict";
 
     function toggle(btn) {
-        var wrap = btn.closest(".wujia-maccount-pwd");
+        // Mobile eye-icon wrapper (.wujia-maccount-pwd) + PC text toggle (.wj-pc-acct-pw-input).
+        var wrap = btn.closest(".wujia-maccount-pwd, .wj-pc-acct-pw-input");
         if (!wrap) return;
         var input = wrap.querySelector("input");
         if (!input) return;
@@ -16,6 +17,9 @@
         if (icon) {
             icon.classList.toggle("icon-eye", !show);
             icon.classList.toggle("icon-eye-off", show);
+        } else {
+            // PC text toggle "Hiện" ↔ "Ẩn".
+            btn.textContent = show ? "Ẩn" : "Hiện";
         }
         btn.classList.toggle("is-active", show);
     }

@@ -6,134 +6,165 @@
               name="Wujia Portal — Franchise Information">
         <t t-call="wujia_portal_layout.app_layout">
             <t t-set="title" t-value="franchise.name"/>
-            <!-- ===== Desktop (>=992px) — GIỮ NGUYÊN 100%, bọc d-none d-lg-block (Sprint 18) ===== -->
-            <div class="content-wrapper d-none d-lg-block">
-                <div class="content-header row mt-3">
-                    <div class="content-header-left col-12 mb-1">
-                        <h2 class="content-header-title float-left mb-0">
-                            <i class="fa fa-info-circle me-1"/>
-                            Thông tin nhượng quyền — <t t-out="franchise.name"/>
+
+            <!-- ===== Desktop (>=992px) — Figma wujia_pc_02/03/04_store_info_v3.
+                 3 trạng thái theo membership.role + số lượng members. ===== -->
+            <t t-set="is_owner_manager" t-value="membership and membership.role in ('owner', 'manager')"/>
+            <t t-set="owner_member" t-value="members.filtered(lambda m: m.role == 'owner')[:1]"/>
+            <t t-set="nguoi_phu_trach"
+               t-value="(owner_member.user_id.name if owner_member else False) or franchise.partner_id.name or '—'"/>
+            <t t-set="status_label"
+               t-value="dict(franchise._fields['status'].selection).get(franchise.status, franchise.status)"/>
+
+            <t t-set="acct_page" t-value="'store'"/>
+            <t t-set="acct_title">Thông tin cửa hàng</t>
+            <t t-set="acct_subtitle">Thông tin nhượng quyền theo cửa hàng đang thao tác</t>
+            <t t-set="acct_store_code" t-value="franchise.code"/>
+            <t t-set="acct_store_name" t-value="franchise.name"/>
+            <t t-set="acct_role_label" t-value="membership and role_labels.get(membership.role, membership.role)"/>
+
+            <t t-call="wujia_portal_layout.pc_account_layout">
+                <!-- Header card -->
+                <div class="wj-pc-acct-headcard">
+                    <span class="wj-pc-acct-headcard__icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
+                             stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                             stroke-linejoin="round" aria-hidden="true" style="width:26px;height:26px;">
+                            <rect x="4" y="2" width="16" height="20" rx="2" ry="2"/>
+                            <path d="M9 22v-4h6v4"/>
+                            <path d="M8 6h.01"/><path d="M12 6h.01"/><path d="M16 6h.01"/>
+                            <path d="M8 10h.01"/><path d="M12 10h.01"/><path d="M16 10h.01"/>
+                        </svg>
+                    </span>
+                    <div class="wj-pc-acct-headcard__main">
+                        <h2 class="wj-pc-acct-headcard__title">
+                            <t t-out="franchise.code or ''"/><t t-if="franchise.code and franchise.name"> · </t><t t-out="franchise.name or '—'"/>
                         </h2>
-                        <p class="text-muted mb-0">
-                            Trang chỉ đọc. Để yêu cầu cập nhật thông tin, dùng
-                            <a href="/portal/info-request">Yêu cầu cập nhật thông tin</a>.
-                        </p>
+                        <p class="wj-pc-acct-headcard__sub wj-pc-acct-headcard__sub--sm">Cửa hàng nhượng quyền đang thao tác trên portal</p>
+                        <div class="wj-pc-acct-headcard__chips">
+                            <span t-attf-class="wj-pc-badge #{franchise.status == 'active' and 'wj-pc-badge--done' or 'wj-pc-badge--warn'}" t-out="status_label"/>
+                            <span t-if="franchise.area_id" class="wj-pc-badge wj-pc-badge--area">Khu vực <t t-out="franchise.area_id.name"/></span>
+                        </div>
+                    </div>
+                    <div class="wj-pc-acct-headcard__box">
+                        <span class="wj-pc-acct-headcard__box-label">Quyền xem hiện tại</span>
+                        <span class="wj-pc-acct-headcard__box-value">
+                            <t t-if="is_owner_manager">Owner / Manager</t>
+                            <t t-else="">Nhân viên cửa hàng</t>
+                        </span>
                     </div>
                 </div>
 
-                <div class="content-body">
-                    <div class="row">
-                        <!-- Store details -->
-                        <div class="col-lg-6 col-12 mb-2">
-                            <div class="card h-100">
-                                <div class="card-header">
-                                    <h4 class="card-title mb-0">Cửa hàng</h4>
-                                </div>
-                                <div class="card-body">
-                                    <dl class="row mb-0">
-                                        <dt class="col-sm-5">Mã cửa hàng</dt>
-                                        <dd class="col-sm-7" t-out="franchise.code or '—'"/>
-                                        <dt class="col-sm-5">Tên cửa hàng</dt>
-                                        <dd class="col-sm-7" t-out="franchise.name or '—'"/>
-                                        <dt class="col-sm-5">Trạng thái</dt>
-                                        <dd class="col-sm-7">
-                                            <span class="wujia-badge wujia-badge-success"
-                                                  t-out="dict(franchise._fields['status'].selection).get(franchise.status, franchise.status)"/>
-                                        </dd>
-                                        <dt class="col-sm-5">Ngày khai trương</dt>
-                                        <dd class="col-sm-7" t-out="franchise.opening_date and franchise.opening_date.strftime('%d/%m/%Y') or '—'"/>
-                                        <dt class="col-sm-5">Khu vực</dt>
-                                        <dd class="col-sm-7" t-out="franchise.area_id.name or '—'"/>
-                                        <dt class="col-sm-5">Tỉnh / Thành</dt>
-                                        <dd class="col-sm-7" t-out="franchise.state_id.name or '—'"/>
-                                        <dt class="col-sm-5">Địa chỉ</dt>
-                                        <dd class="col-sm-7" t-out="franchise.address or '—'"/>
-                                        <dt class="col-sm-5">SĐT</dt>
-                                        <dd class="col-sm-7" t-out="franchise.phone or '—'"/>
-                                        <dt class="col-sm-5">Email</dt>
-                                        <dd class="col-sm-7" t-out="franchise.email or '—'"/>
-                                    </dl>
-                                </div>
-                            </div>
+                <!-- Panel: Thông tin nhượng quyền -->
+                <div class="wj-pc-card">
+                    <div class="wj-pc-card__head">
+                        <div>
+                            <h3 class="wj-pc-acct-panel-title">Thông tin nhượng quyền</h3>
+                            <p class="wj-pc-acct-panel-sub">Thông tin chính của cửa hàng hiện tại</p>
                         </div>
-
-                        <!-- Franchise contract -->
-                        <div class="col-lg-6 col-12 mb-2">
-                            <div class="card h-100">
-                                <div class="card-header">
-                                    <h4 class="card-title mb-0">Hợp đồng nhượng quyền</h4>
-                                </div>
-                                <div class="card-body">
-                                    <dl class="row mb-0">
-                                        <dt class="col-sm-5">Ngày bắt đầu</dt>
-                                        <dd class="col-sm-7" t-out="franchise.franchise_start_date and franchise.franchise_start_date.strftime('%d/%m/%Y') or '—'"/>
-                                        <dt class="col-sm-5">Ngày kết thúc</dt>
-                                        <dd class="col-sm-7" t-out="franchise.franchise_end_date and franchise.franchise_end_date.strftime('%d/%m/%Y') or '—'"/>
-                                        <dt class="col-sm-5">Số ngày còn lại</dt>
-                                        <dd class="col-sm-7">
-                                            <span t-if="franchise.is_expired" class="wujia-badge wujia-badge-danger">Đã hết hạn</span>
-                                            <t t-else=""><t t-out="franchise.remaining_days"/> ngày</t>
-                                        </dd>
-                                        <dt class="col-sm-5">Tình trạng hóa đơn</dt>
-                                        <dd class="col-sm-7">
-                                            <span t-if="franchise.invoiced" class="wujia-badge wujia-badge-success">Đã xuất</span>
-                                            <span t-else="" class="wujia-badge wujia-badge-warning">Chưa xuất</span>
-                                        </dd>
-                                        <dt class="col-sm-5">Trạng thái portal</dt>
-                                        <dd class="col-sm-7">
-                                            <span t-if="franchise.portal_locked" class="wujia-badge wujia-badge-danger">Đã khóa</span>
-                                            <span t-else="" class="wujia-badge wujia-badge-success">Mở</span>
-                                        </dd>
-                                    </dl>
-                                </div>
-                            </div>
+                    </div>
+                    <div class="wj-pc-acct-kv-grid wj-pc-acct-kv-grid--3">
+                        <div class="wj-pc-acct-field">
+                            <span class="wj-pc-acct-field__label">Mã cửa hàng</span>
+                            <span class="wj-pc-acct-field__value" t-out="franchise.code or '—'"/>
                         </div>
-
-                        <!-- User tab -->
-                        <div class="col-12 mb-2">
-                            <div class="card">
-                                <div class="card-header">
-                                    <h4 class="card-title mb-0">Thành viên cửa hàng</h4>
-                                </div>
-                                <div class="card-body p-0">
-                                    <div t-if="not members" class="wujia-empty-state">
-                                        <i class="fa fa-users"/>
-                                        <p>Chưa có thành viên active.</p>
-                                    </div>
-                                    <table t-else="" class="table mb-0">
-                                        <thead>
-                                            <tr>
-                                                <th>Vai trò</th>
-                                                <th>Login</th>
-                                                <th>Họ tên</th>
-                                                <th>SĐT</th>
-                                                <th>Email</th>
-                                                <th>Trạng thái</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            <tr t-foreach="members" t-as="m">
-                                                <td>
-                                                    <span class="wujia-badge wujia-badge-info"
-                                                          t-out="role_labels.get(m.role, m.role)"/>
-                                                </td>
-                                                <td t-out="m.user_id.login or '—'"/>
-                                                <td t-out="m.user_id.name or '—'"/>
-                                                <td t-out="m.user_id.partner_id.phone or '—'"/>
-                                                <td t-out="m.user_id.partner_id.email or '—'"/>
-                                                <td>
-                                                    <span t-if="m.active" class="wujia-badge wujia-badge-success">Active</span>
-                                                    <span t-else="" class="wujia-badge wujia-badge-muted">Inactive</span>
-                                                </td>
-                                            </tr>
-                                        </tbody>
-                                    </table>
-                                </div>
-                            </div>
+                        <div class="wj-pc-acct-field">
+                            <span class="wj-pc-acct-field__label">Tên cửa hàng</span>
+                            <span class="wj-pc-acct-field__value" t-out="franchise.name or '—'"/>
+                        </div>
+                        <div class="wj-pc-acct-field">
+                            <span class="wj-pc-acct-field__label">Địa chỉ</span>
+                            <span class="wj-pc-acct-field__value" t-out="franchise.address or '—'"/>
+                        </div>
+                        <div class="wj-pc-acct-field">
+                            <span class="wj-pc-acct-field__label">Khu vực</span>
+                            <span class="wj-pc-acct-field__value" t-out="franchise.area_id.name or '—'"/>
+                        </div>
+                        <div class="wj-pc-acct-field">
+                            <span class="wj-pc-acct-field__label">Trạng thái nhượng quyền</span>
+                            <span class="wj-pc-acct-field__value wj-pc-acct-field__value--chip">
+                                <span t-attf-class="wj-pc-badge #{franchise.status == 'active' and 'wj-pc-badge--done' or 'wj-pc-badge--warn'}" t-out="status_label"/>
+                            </span>
+                        </div>
+                        <div class="wj-pc-acct-field">
+                            <span class="wj-pc-acct-field__label">Người phụ trách</span>
+                            <span class="wj-pc-acct-field__value" t-out="nguoi_phu_trach"/>
                         </div>
                     </div>
                 </div>
-            </div>
+
+                <!-- Panel: Thành viên cửa hàng — 3 trạng thái -->
+                <div class="wj-pc-card">
+                    <t t-if="is_owner_manager">
+                        <div class="wj-pc-card__head">
+                            <div>
+                                <h3 class="wj-pc-acct-panel-title">Thành viên cửa hàng</h3>
+                                <p class="wj-pc-acct-panel-sub">Owner/Manager được xem danh sách tài khoản thuộc cửa hàng hiện tại</p>
+                            </div>
+                        </div>
+                        <t t-if="members">
+                            <table class="wj-pc-table wj-pc-acct-members">
+                                <thead>
+                                    <tr>
+                                        <th>Họ tên</th>
+                                        <th>Email / Số điện thoại</th>
+                                        <th>Vai trò</th>
+                                        <th>Trạng thái</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr t-foreach="members" t-as="m">
+                                        <td class="wj-pc-td--name" t-out="m.user_id.name or '—'"/>
+                                        <td t-out="m.user_id.partner_id.email or m.user_id.login or '—'"/>
+                                        <td>
+                                            <span t-attf-class="wj-pc-badge #{m.role in ('owner','manager') and 'wj-pc-badge--confirmed' or 'wj-pc-badge--staff'}"
+                                                  t-out="role_labels.get(m.role, m.role)"/>
+                                        </td>
+                                        <td>
+                                            <span t-if="m.active" class="wj-pc-badge wj-pc-badge--done">Đang hoạt động</span>
+                                            <span t-else="" class="wj-pc-badge wj-pc-badge--warn">Tạm khóa</span>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                            <div class="wj-pc-acct-members__foot">
+                                <span class="wj-pc-acct-members__count"><t t-out="len(members)"/> thành viên</span>
+                                <div class="wj-pc-pagination" style="margin-top:0;">
+                                    <select class="wj-pc-pagination__size"><option>10 / trang</option></select>
+                                    <span class="wj-pc-page-btn is-active">1</span>
+                                    <span class="wj-pc-page-btn is-disabled">›</span>
+                                </div>
+                            </div>
+                        </t>
+                        <t t-else="">
+                            <div class="wj-pc-empty" style="border:0;padding:32px 24px;">
+                                <span class="wj-pc-empty__icon"><i class="feather icon-users"/></span>
+                                <h3 class="wj-pc-empty__title">Chưa có thành viên nào được hiển thị</h3>
+                                <p class="wj-pc-empty__sub">Danh sách sẽ xuất hiện khi cửa hàng có tài khoản được gán quyền xem.</p>
+                            </div>
+                            <div class="wj-pc-acct-members__foot">
+                                <span class="wj-pc-acct-members__count">0 thành viên</span>
+                                <div class="wj-pc-pagination" style="margin-top:0;">
+                                    <select class="wj-pc-pagination__size"><option>10 / trang</option></select>
+                                    <span class="wj-pc-page-btn is-active">1</span>
+                                    <span class="wj-pc-page-btn is-disabled">›</span>
+                                </div>
+                            </div>
+                        </t>
+                    </t>
+                    <t t-else="">
+                        <div class="wj-pc-acct-staff">
+                            <span class="wj-pc-acct-staff__icon"><i class="feather icon-users"/></span>
+                            <div class="wj-pc-acct-staff__body">
+                                <h3 class="wj-pc-acct-staff__title">Thông tin thành viên</h3>
+                                <p class="wj-pc-acct-staff__line">Tài khoản của bạn chỉ được xem thông tin cửa hàng cơ bản.</p>
+                                <p class="wj-pc-acct-staff__line wj-pc-acct-staff__line--muted">Danh sách thành viên sẽ hiển thị cho Owner/Manager theo quyền được cấp.</p>
+                                <span class="wj-pc-acct-staff__tag">Chế độ xem cơ bản</span>
+                            </div>
+                        </div>
+                    </t>
+                </div>
+            </t>
 
             <!-- ===== Mobile (<992px) — Figma Mobile_Account_Info màn 02 "Thông tin cửa hàng".
                  BlankShell .wujia-mpage NGOÀI .content-wrapper (pattern S15). Data reuse

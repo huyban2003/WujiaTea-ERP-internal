@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <!-- PC "Tài khoản" shell (Figma wujia_pc_*_v3). Shared desktop chrome for
+             the 3 account pages: page header + left account-nav card + content slot.
+             Caller sets acct_page / acct_title / acct_subtitle / acct_store_code /
+             acct_store_name / acct_role_label via t-set, then t-call with the right
+             content as body (rendered at t-out="0"). Desktop-only (d-none d-lg-block);
+             each page keeps its own mobile block outside this call. -->
+        <template id="pc_account_layout" name="Wujia PC — Account shell">
+            <div class="content-wrapper d-none d-lg-block">
+                <div class="wj-pc-acct-head">
+                    <p class="wj-pc-acct-head__crumb">Wujia Portal / Tài khoản</p>
+                    <h1 class="wj-pc-acct-head__title" t-out="acct_title"/>
+                    <p class="wj-pc-acct-head__sub" t-out="acct_subtitle"/>
+                </div>
+
+                <div class="wj-pc-acct-grid">
+                    <!-- Left nav card -->
+                    <aside class="wj-pc-acct-nav">
+                        <div class="wj-pc-acct-nav__head">
+                            <img class="wj-pc-acct-nav__avatar" alt="avatar"
+                                 t-att-src="'/web/image/res.users/' + str(request.env.user.id) + '/avatar_128'"/>
+                            <div>
+                                <span class="wj-pc-acct-nav__name" t-out="request.env.user.name"/>
+                                <span class="wj-pc-acct-nav__role" t-out="acct_role_label or 'Người dùng portal'"/>
+                            </div>
+                        </div>
+                        <div t-if="acct_store_code or acct_store_name" class="wj-pc-acct-nav__store">
+                            <t t-out="acct_store_code or ''"/><t t-if="acct_store_code and acct_store_name"> · </t><t t-out="acct_store_name or ''"/>
+                        </div>
+
+                        <nav class="wj-pc-acct-nav__list">
+                            <a href="/portal/profile"
+                               t-attf-class="wj-pc-acct-nav__item #{acct_page == 'profile' and 'is-active' or ''}">
+                                <i class="feather icon-user"/>
+                                <span>Thông tin tài khoản</span>
+                            </a>
+                            <a href="/portal/franchise-information"
+                               t-attf-class="wj-pc-acct-nav__item #{acct_page == 'store' and 'is-active' or ''}">
+                                <svg class="wujia-menu-svg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"
+                                     fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                     stroke-linejoin="round" aria-hidden="true" style="width:18px;height:18px;">
+                                    <rect x="4" y="2" width="16" height="20" rx="2" ry="2"/>
+                                    <path d="M9 22v-4h6v4"/>
+                                    <path d="M8 6h.01"/><path d="M12 6h.01"/><path d="M16 6h.01"/>
+                                    <path d="M8 10h.01"/><path d="M12 10h.01"/><path d="M16 10h.01"/>
+                                    <path d="M8 14h.01"/><path d="M12 14h.01"/><path d="M16 14h.01"/>
+                                </svg>
+                                <span>Thông tin cửa hàng</span>
+                            </a>
+                            <a href="/portal/change-password"
+                               t-attf-class="wj-pc-acct-nav__item #{acct_page == 'password' and 'is-active' or ''}">
+                                <i class="feather icon-lock"/>
+                                <span>Đổi mật khẩu</span>
+                            </a>
+                        </nav>
+
+                        <div class="wj-pc-acct-nav__divider"/>
+                        <a href="/portal/logout" class="wj-pc-acct-nav__item wj-pc-acct-nav__logout">
+                            <i class="feather icon-log-out"/>
+                            <span>Đăng xuất</span>
+                        </a>
+                    </aside>
+
+                    <!-- Right content -->
+                    <div class="wj-pc-acct-main">
+                        <t t-out="0"/>
+                    </div>
+                </div>
+            </div>
+        </template>
+    </data>
+</odoo>

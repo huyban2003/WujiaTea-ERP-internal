@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <!-- Sidebar rework theo Figma wujia_pc_*_v3 (menu rút gọn + section TIỆN ÍCH).
+             priority=99 → chạy SAU mọi sidenav_inherit của các module (prio 20–65),
+             rồi position="replace" xoá toàn bộ <ul> đã bị chèn và thay bằng menu Figma.
+             → 1 nơi duy nhất, không phải sửa 10 module. Các route bị bỏ khỏi menu
+             (Đổi trả / Cập nhật thông tin / Báo cáo / Cửa hàng / Thông tin nhượng quyền)
+             vẫn sống qua URL + vào được qua TIỆN ÍCH ▸ Tài khoản (franchise-information).
+             Công nợ = UI-only (module debt đã xoá S17) → trỏ /portal như KPI hiện tại. -->
+        <template id="layout_sidenav_figma"
+                  inherit_id="wujia_portal_layout.layout_sidenav"
+                  priority="99"
+                  name="Wujia Sidenav — Figma rework">
+            <xpath expr="//ul[@id='main-menu-navigation']" position="replace">
+                <t t-set="_acct_active"
+                   t-value="request.httprequest.path in ('/portal/profile', '/portal/franchise-information', '/portal/change-password')"/>
+                <ul class="navigation navigation-main" id="main-menu-navigation"
+                    data-menu="menu-navigation">
+                    <li class="navigation-header wujia-nav-header"><span>MENU CHÍNH</span></li>
+                    <li class="nav-item" id="nav_item_home">
+                        <a href="/portal">
+                            <i class="feather icon-home" aria-hidden="true"/>
+                            <span class="menu-title">Trang chủ</span>
+                        </a>
+                    </li>
+                    <li class="nav-item" id="nav_item_order">
+                        <a href="/portal/order">
+                            <i class="feather icon-shopping-cart" aria-hidden="true"/>
+                            <span class="menu-title">Đặt hàng</span>
+                        </a>
+                    </li>
+                    <li class="nav-item" id="nav_item_history">
+                        <a href="/portal/purchase-history">
+                            <i class="feather icon-clock" aria-hidden="true"/>
+                            <span class="menu-title">Lịch sử đặt hàng</span>
+                        </a>
+                    </li>
+                    <li class="nav-item" id="nav_item_delivery">
+                        <a href="/portal/delivery">
+                            <i class="feather icon-truck" aria-hidden="true"/>
+                            <span class="menu-title">Giao hàng</span>
+                        </a>
+                    </li>
+                    <li class="nav-item" id="nav_item_debt">
+                        <!-- Công nợ: UI-only (debt build lại theo ADR-007) → Home. -->
+                        <a href="/portal">
+                            <i class="feather icon-credit-card" aria-hidden="true"/>
+                            <span class="menu-title">Công nợ</span>
+                        </a>
+                    </li>
+                    <li class="nav-item" id="nav_item_notification">
+                        <a href="/portal/notification">
+                            <i class="feather icon-bell" aria-hidden="true"/>
+                            <span class="menu-title">Thông báo</span>
+                        </a>
+                    </li>
+                    <li class="nav-item" id="nav_item_knowledge">
+                        <a href="/portal/knowledge">
+                            <i class="feather icon-book" aria-hidden="true"/>
+                            <span class="menu-title">Kiến thức</span>
+                        </a>
+                    </li>
+                    <li class="nav-item" id="nav_item_support">
+                        <a href="/portal/support">
+                            <i class="feather icon-life-buoy" aria-hidden="true"/>
+                            <span class="menu-title">Hỗ trợ</span>
+                        </a>
+                    </li>
+                    <li class="nav-item" id="nav_item_exam">
+                        <a href="/portal/exam">
+                            <i class="feather icon-edit" aria-hidden="true"/>
+                            <span class="menu-title">Đăng ký thi</span>
+                        </a>
+                    </li>
+
+                    <li class="navigation-header wujia-nav-header"><span>TIỆN ÍCH</span></li>
+                    <li t-attf-class="nav-item #{_acct_active and 'active' or ''}" id="nav_item_account">
+                        <a href="/portal/profile">
+                            <i class="feather icon-user" aria-hidden="true"/>
+                            <span class="menu-title">Tài khoản</span>
+                        </a>
+                    </li>
+                </ul>
+            </xpath>
+        </template>
+    </data>
+</odoo>

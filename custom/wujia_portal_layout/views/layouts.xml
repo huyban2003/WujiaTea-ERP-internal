@@ -74,36 +74,57 @@
                                         </a>
                                     </div>
                                 </li>
+                                <!-- Avatar dropdown — Figma wujia_pc_09_avatar_dropdown_v3.
+                                     Active item suy từ request.httprequest.path. -->
                                 <li class="dropdown dropdown-user nav-item">
+                                    <t t-set="cur_path" t-value="request.httprequest.path"/>
                                     <a class="dropdown-toggle nav-link dropdown-user-link" href="#"
                                        data-toggle="dropdown">
-                                        <div class="user-nav d-sm-flex d-none">
-                                            <span class="user-name text-bold-600 text-white"
-                                                  style="margin-bottom: 0px;"
-                                                  t-out="request.env.user.name"/>
+                                        <div class="wj-pc-user-nav d-sm-flex d-none">
+                                            <span class="wj-pc-user-nav__name" t-out="request.env.user.name"/>
                                         </div>
                                         <span>
                                             <img class="round" t-att-src="'/web/image/res.users/'+ str(request.env.user.id) +'/avatar_128'"
-                                                 alt="avatar" height="40" width="40" style="border: 3px solid transparent;
-                                                 border-color: #fff;"/>
+                                                 alt="avatar" height="40" width="40" style="border: 3px solid #fff;"/>
                                         </span>
                                     </a>
-                                    <div class="dropdown-menu dropdown-menu-right">
-                                        <a class="dropdown-item" href="/portal/profile">
-                                            <i class="feather icon-user"/>
-                                            Personal Information
-                                        </a>
-                                        <a class="dropdown-item" href="/portal/change-password">
-                                            <i class="feather icon-lock"/>
-                                            Change Password
-                                        </a>
-                                        <!--                                        <a class="dropdown-item" href="/portal/two-factor-setting">-->
-                                        <!--                                            <i class="feather icon-lock"/>Setup 2FA-->
-                                        <!--                                        </a>-->
+                                    <div class="dropdown-menu dropdown-menu-right wj-pc-acct-menu">
+                                        <div class="wj-pc-acct-menu__head">
+                                            <img class="wj-pc-acct-menu__avatar" alt="avatar"
+                                                 t-att-src="'/web/image/res.users/'+ str(request.env.user.id) +'/avatar_128'"/>
+                                            <div>
+                                                <span class="wj-pc-acct-menu__name" t-out="request.env.user.name"/>
+                                                <span class="wj-pc-acct-menu__sub"
+                                                      t-out="request.env.user.partner_id.email or request.env.user.login"/>
+                                            </div>
+                                        </div>
                                         <div class="dropdown-divider"/>
-                                        <a class="dropdown-item" href="/portal/logout">
-                                            <i class="feather icon-power"/>
-                                            Log out
+                                        <a t-attf-class="dropdown-item #{cur_path == '/portal/profile' and 'is-active' or ''}"
+                                           href="/portal/profile">
+                                            <i class="feather icon-user"/>
+                                            Thông tin tài khoản
+                                        </a>
+                                        <a t-attf-class="dropdown-item #{cur_path == '/portal/franchise-information' and 'is-active' or ''}"
+                                           href="/portal/franchise-information">
+                                            <svg class="wujia-menu-svg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"
+                                                 fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                                 stroke-linejoin="round" aria-hidden="true">
+                                                <rect x="4" y="2" width="16" height="20" rx="2" ry="2"/>
+                                                <path d="M9 22v-4h6v4"/>
+                                                <path d="M8 6h.01"/><path d="M12 6h.01"/><path d="M16 6h.01"/>
+                                                <path d="M8 10h.01"/><path d="M12 10h.01"/><path d="M16 10h.01"/>
+                                            </svg>
+                                            Thông tin cửa hàng
+                                        </a>
+                                        <a t-attf-class="dropdown-item #{cur_path == '/portal/change-password' and 'is-active' or ''}"
+                                           href="/portal/change-password">
+                                            <i class="feather icon-lock"/>
+                                            Đổi mật khẩu
+                                        </a>
+                                        <div class="dropdown-divider"/>
+                                        <a class="dropdown-item wj-pc-acct-menu__logout" href="/portal/logout">
+                                            <i class="feather icon-log-out"/>
+                                            Đăng xuất
                                         </a>
                                     </div>
                                 </li>

@@ -1,0 +1,39 @@
+\chapter{Sprint 28 --- PC Tài khoản (9 màn) theo Figma \texttt{wujia\_pc\_*\_v3} (2026-07-07)}
+
+\section{Bối cảnh}
+
+BA hoàn thiện khu vực \textbf{Tài khoản (desktop/PC)} trong file copy \texttt{aoeiDYlg6vlhJZg2w6Q7o5}, page node \texttt{4792}: \textbf{9 frame} \texttt{wujia\_pc\_01..09\_..\_v3} (đều 1920$\times$1080). Đây là nhóm màn account \textbf{cuối cùng còn chạy layout Vuexy cũ} ở desktop. 9 frame gom về \textbf{3 trang + 1 dropdown header + rework sidebar}: 01/09 = \texttt{/portal/profile}; 02/03/04 = \texttt{/portal/franchise-information} (owner có members / owner rỗng / staff hạn chế); 05/06/07/08 = \texttt{/portal/change-password} (mặc định / sai mật khẩu hiện tại / xác nhận không khớp / thành công); 09 = dropdown avatar header mở.
+
+\textbf{Quyết định user (đã chốt):} (1) profile \textbf{chỉ đọc} theo Figma (ghi chú ``được quản lý bởi Ngô Gia'', bỏ form sửa --- route \texttt{/portal/profile/update} vẫn sống nhưng không còn UI); (2) \textbf{rework toàn bộ sidebar} theo menu rút gọn Figma + section TIỆN ÍCH; (3) chỉnh chuỗi lỗi đổi mật khẩu trong controller cho \textbf{khớp chữ Figma}. UI-only, mobile (\texttt{d-lg-none}, Sprint 18) giữ nguyên tuyệt đối.
+
+\section{(A) Shell dùng chung cho 3 trang}
+
+File mới \texttt{pc\_account\_shell.xml} (template \texttt{pc\_account\_layout}, id global để \texttt{wujia\_portal\_base} cũng \texttt{t-call} được). Render 1 lần: \texttt{wj-pc-acct-head} (crumb ``Wujia Portal / Tài khoản'' + title + subtitle) $\rightarrow$ grid 2 cột \texttt{wj-pc-acct-grid}: trái = \textbf{account-nav card} (avatar \texttt{/web/image/res.users/ID/avatar\_128} + tên + role + store pill + 3 mục Thông tin tài khoản/Thông tin cửa hàng/Đổi mật khẩu, active = cyan + accent bar phải theo \texttt{acct\_page}; divider; Đăng xuất đỏ), phải = \texttt{<t t-out="0"/>}. Mỗi trang \texttt{t-set} \texttt{acct\_page}/\texttt{acct\_title}/\texttt{acct\_subtitle}/\texttt{acct\_store\_code}/\texttt{acct\_store\_name}/\texttt{acct\_role\_label} rồi \texttt{t-call}; khối mobile để NGOÀI \texttt{t-call}, giữ nguyên. Nav card đọc \texttt{request.env.user} trực tiếp (tránh phụ thuộc biến \texttt{user} truyền vào --- ổn định cả 3 trang).
+
+\section{(B) 3 trang (chỉ rework khối \texttt{d-none d-lg-block})}
+
+\begin{itemize}
+  \item \textbf{profile\_page.xml (01/09) --- chỉ đọc}: header card (avatar lớn + tên + email + chip role + chip ``Đang hoạt động'' + box ``Cửa hàng hiện tại'') $\rightarrow$ panel ``Thông tin cá nhân'' + \texttt{wj-pc-acct-kv-grid} 6 field \textbf{boxed} (\texttt{\#F8FAFC}, label 12/700 slate, value 16/700) + note-bar. Context sẵn đủ (\texttt{profile}/\texttt{franchise\_name}/\texttt{franchise\_code}/\texttt{role\_label}).
+  \item \textbf{portal\_franchise\_information.xml (02/03/04)}: header card (icon + \texttt{code · name} + badges trạng thái/khu vực + box ``Quyền xem hiện tại'' = Owner/Manager hoặc Nhân viên cửa hàng) $\rightarrow$ panel ``Thông tin nhượng quyền'' KV 3 cột $\rightarrow$ panel ``Thành viên cửa hàng'' \textbf{3 nhánh suy trong template từ \texttt{membership.role}} (không đổi controller): owner+members = \texttt{wj-pc-table} + pagination; owner+rỗng = \texttt{wj-pc-empty}; staff = panel hạn chế + chip ``Chế độ xem cơ bản''.
+  \item \textbf{change\_password\_page.xml (05/06/07/08)}: cột giữa form ``Thông tin mật khẩu'' (3 field + nút text ``Hiện'' reuse \texttt{wujia\_password\_toggle.js}) + cột phải 2 card (Lưu ý bảo mật / Cần hỗ trợ). 4 state qua \texttt{error}/\texttt{message}: banner trên + \textbf{viền đỏ field suy từ nội dung \texttt{error}} (chứa ``hiện tại không đúng'' $\rightarrow$ field cũ; ``xác nhận không khớp'' $\rightarrow$ field xác nhận). Nút Lưu ở state thành công $\rightarrow$ \texttt{wj-pc-btn--disabled} (\texttt{\#D9E7EF}).
+\end{itemize}
+
+\textbf{Controller} \texttt{wujia\_portal\_layout/controllers/portal.py}: (a) 3 chuỗi khớp Figma --- sai pw hiện tại $\rightarrow$ \texttt{``Mật khẩu hiện tại không đúng. Vui lòng kiểm tra lại.''}, mismatch $\rightarrow$ \texttt{``Mật khẩu xác nhận không khớp với mật khẩu mới.''}, success $\rightarrow$ \texttt{``Mật khẩu đã được cập nhật thành công.''}; (b) thêm \texttt{franchise\_name}/\texttt{franchise\_code}/\texttt{role\_label} vào context \texttt{change-password} (reuse \texttt{\_resolve\_active\_store}) để nav card có store/role. JS \texttt{wujia\_password\_toggle.js} nới selector \texttt{.wujia-maccount-pwd, .wj-pc-acct-pw-input} + toggle text ``Hiện''$\leftrightarrow$``Ẩn''.
+
+\section{(C) Dropdown avatar (09) + rework sidebar}
+
+\textbf{Dropdown avatar} (\texttt{layouts.xml} \texttt{dropdown-user}): restyle theo Figma --- head (avatar + tên + email) + 4 mục VN, active suy từ \texttt{request.httprequest.path} (\texttt{wj-pc-acct-menu}). Thêm mục ``Thông tin cửa hàng'' còn thiếu, đổi tiếng Anh $\rightarrow$ Việt.
+
+\textbf{Sidebar rework} (file mới \texttt{pc\_sidenav.xml}): kỹ thuật \textbf{1 view \texttt{priority="99"} + \texttt{position="replace"}} trên \texttt{layout\_sidenav} --- chạy \textbf{sau} mọi \texttt{sidenav\_inherit} của 10 module (prio 20--65) rồi xoá sạch \texttt{<ul>} đã bị chèn, thay bằng menu Figma inline. \textbf{$\Rightarrow$ 1 nơi duy nhất, KHÔNG phải sửa 10 module.} Menu: MENU CHÍNH = Trang chủ / Đặt hàng / Lịch sử đặt hàng / Giao hàng / Công nợ / Thông báo / Kiến thức / Hỗ trợ / Đăng ký thi; TIỆN ÍCH = Tài khoản (active cyan trên cả 3 trang account qua \texttt{\_acct\_active} = path $\in$ \{profile, franchise-information, change-password\}). Công nợ = UI-only (module debt đã xoá S17, ADR-007) $\rightarrow$ trỏ \texttt{/portal}.
+
+\textbf{Trade-off (đã báo user, user chốt full rework):} menu Figma \textbf{bỏ} 5 mục khỏi sidebar (Thông tin nhượng quyền / Cửa hàng / Đổi trả / Cập nhật thông tin / Báo cáo) --- \textbf{route vẫn sống}, chỉ mất lối vào menu (verify 15/15 route 200). Franchise-information vào được qua TIỆN ÍCH ▸ Tài khoản ▸ Thông tin cửa hàng.
+
+\section{(D) CSS + assets}
+
+File mới \texttt{\_pc\_account.css} (\texttt{wj-pc-acct-*}: nav card / header card / KV boxed / note-bar / staff-panel / security list / avatar-menu), page-scoped, \textbf{không đụng} \texttt{\_pc\_components.css}/\texttt{\_variables.css} (blast radius 0). Hex Figma-exact ngoài token: slate \texttt{\#334155}/\texttt{\#475569}/\texttt{\#374151}/\texttt{\#64748B}/\texttt{\#94A3B8}, avatar \texttt{\#CC5138}, amber \texttt{\#D97706}, disabled \texttt{\#D9E7EF}, box \texttt{\#F8FAFC}. Đăng ký cạnh \texttt{\_pc\_components.css} trong \texttt{assets.xml} (\texttt{?v=1147}).
+
+\section{Verify}
+
+Upgrade \texttt{wujia\_portal\_layout}+\texttt{wujia\_portal\_base} RC=0 (91 module). Playwright 1920$\times$1080 chụp \textbf{8/9 frame khớp Figma} (01/02/04/05/06/07/08/09 --- so màu/size/typography qua node fills Figma; 03 rỗng verify theo cấu trúc \texttt{wj-pc-empty}, thực tế không xảy ra vì người xem luôn là 1 thành viên). Regression: \texttt{test\_sprint9} 7/7, 15/15 route 200 (kể cả 4 mục bỏ khỏi menu), desktop delivery/notification/home render đúng sidebar mới, mobile account (profile/đổi mật khẩu/cửa hàng) intact.
+
+\textbf{Gotcha:} (1) kỹ thuật \texttt{position="replace"} priority cao là cách rework menu toàn cục rẻ nhất --- không cần vô hiệu hoá từng inject (các inject vẫn chạy, output bị thay); (2) active nav ``Tài khoản'' set thủ công class \texttt{active} (Vuexy JS chỉ auto-active khi URL khớp \texttt{href}, mà franchise-information/change-password không khớp \texttt{/portal/profile}); (3) thời điểm sprint này tree còn 1 mảng WIP song song ``Mobile Filter canonical'' (\texttt{wj-filter-*}, 7 module + \texttt{\_components.css}) chưa commit --- KHÔNG thuộc sprint 28, đã tách chỉ commit 12 file account.

@@ -2,106 +2,85 @@
     <data>
         <template id="wujia_portal_layout.profile_page">
             <t t-call="wujia_portal_layout.app_layout">
-                <!-- ===== Desktop (>=992px) — GIỮ NGUYÊN 100%, bọc d-none d-lg-block (Sprint 18) ===== -->
-                <div class="content-wrapper d-none d-lg-block">
-                    <div class="content-body">
-                        <section id="page-account-settings">
-                            <div class="row">
-                                <div class="col-md-12">
-                                    <div class="card">
-                                        <div class="card-content">
-                                            <div class="card-body">
-                                                <h4 class="mb-3">Thông tin cá nhân</h4>
+                <!-- ===== Desktop (>=992px) — Figma wujia_pc_01_account_info_v3 (read-only).
+                     Profile do HQ (Ngô Gia) quản lý → chỉ hiển thị, không form sửa. ===== -->
+                <t t-set="acct_page" t-value="'profile'"/>
+                <t t-set="acct_title">Thông tin tài khoản</t>
+                <t t-set="acct_subtitle">Quản lý thông tin người dùng portal đang đăng nhập</t>
+                <t t-set="acct_store_code" t-value="franchise_code"/>
+                <t t-set="acct_store_name" t-value="franchise_name"/>
+                <t t-set="acct_role_label" t-value="role_label"/>
+                <t t-call="wujia_portal_layout.pc_account_layout">
+                    <div t-if="error" class="wj-pc-acct-banner is-error" role="alert" t-out="error"/>
+                    <div t-if="message" class="wj-pc-acct-banner is-ok" role="status" t-out="message"/>
 
-                                                <!-- Flash messages -->
-                                                <div t-if="error" class="alert alert-danger" role="alert">
-                                                    <t t-esc="error"/>
-                                                </div>
-                                                <div t-if="message" class="alert alert-success" role="status">
-                                                    <t t-esc="message"/>
-                                                </div>
-
-                                                <form action="/portal/profile/update" method="POST"
-                                                      enctype="multipart/form-data" class="novalidate">
-                                                    <input type="hidden" name="csrf_token"
-                                                           t-att-value="request.csrf_token()"/>
-
-                                                    <div class="row">
-                                                        <!-- Avatar block -->
-                                                        <div class="col-12 mb-3">
-                                                            <img id="img-upload" class="img-upload-user-profile"
-                                                                 t-attf-src="/portal/profile/avatar/{{ user.id }}"
-                                                                 alt="Avatar"/>
-                                                            <div class="mt-2">
-                                                                <label for="file_avatar_user_profile" class="custom-file-upload">
-                                                                    Chọn hình (≤ 2MB, png/jpg/webp)
-                                                                </label>
-                                                                <input id="file_avatar_user_profile" type="file"
-                                                                       name="avatar"
-                                                                       accept="image/png,image/jpeg,image/webp"
-                                                                       onchange="readURL(this);"/>
-                                                            </div>
-                                                        </div>
-
-                                                        <div class="col-12">
-                                                            <div class="form-group">
-                                                                <label for="account-name">Họ tên *</label>
-                                                                <input type="text" class="form-control"
-                                                                       id="account-name" name="name"
-                                                                       placeholder="Họ tên"
-                                                                       t-att-value="profile.name"
-                                                                       required="required"/>
-                                                            </div>
-                                                        </div>
-                                                        <div class="col-12">
-                                                            <div class="form-group">
-                                                                <label for="account-email">Email liên hệ</label>
-                                                                <input type="email" class="form-control"
-                                                                       id="account-email" name="email"
-                                                                       placeholder="Email"
-                                                                       t-att-value="profile.email"/>
-                                                                <small class="text-muted">
-                                                                    Lưu ý: email này chỉ là email liên hệ. Để đổi email
-                                                                    đăng nhập, liên hệ quản trị viên.
-                                                                </small>
-                                                            </div>
-                                                        </div>
-                                                        <div class="col-12">
-                                                            <div class="form-group">
-                                                                <label for="account-phone">Số điện thoại</label>
-                                                                <input type="text" class="form-control"
-                                                                       id="account-phone" name="phone"
-                                                                       placeholder="Số điện thoại"
-                                                                       t-att-value="profile.phone"/>
-                                                            </div>
-                                                        </div>
-                                                        <div class="col-12">
-                                                            <div class="form-group">
-                                                                <label for="account-street">Địa chỉ</label>
-                                                                <textarea name="street" id="account-street"
-                                                                          class="form-control"
-                                                                          placeholder="Địa chỉ"><t t-esc="profile.street"/></textarea>
-                                                            </div>
-                                                        </div>
-
-                                                        <div class="col-12 mt-3 d-flex">
-                                                            <button type="submit" class="btn btn-primary mr-2">
-                                                                Lưu thay đổi
-                                                            </button>
-                                                            <a href="/portal" class="btn btn-outline-secondary">
-                                                                Huỷ
-                                                            </a>
-                                                        </div>
-                                                    </div>
-                                                </form>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
+                    <!-- Header card: avatar + name + email + chips + store box -->
+                    <div class="wj-pc-acct-headcard">
+                        <img class="wj-pc-acct-headcard__avatar" alt="avatar"
+                             t-att-src="'/web/image/res.users/' + str(user.id) + '/avatar_128'"/>
+                        <div class="wj-pc-acct-headcard__main">
+                            <h2 class="wj-pc-acct-headcard__name" t-out="user.name"/>
+                            <p class="wj-pc-acct-headcard__sub" t-out="profile.email or user.login"/>
+                            <div class="wj-pc-acct-headcard__chips">
+                                <span t-if="role_label" class="wj-pc-badge wj-pc-badge--confirmed" t-out="role_label"/>
+                                <span class="wj-pc-badge wj-pc-badge--done">Đang hoạt động</span>
                             </div>
-                        </section>
+                        </div>
+                        <div class="wj-pc-acct-headcard__box">
+                            <span class="wj-pc-acct-headcard__box-label">Cửa hàng hiện tại</span>
+                            <span class="wj-pc-acct-headcard__box-value">
+                                <t t-out="franchise_code or ''"/><t t-if="franchise_code and franchise_name"> · </t><t t-out="franchise_name or '—'"/>
+                            </span>
+                            <span class="wj-pc-acct-headcard__box-sub">Dữ liệu hiển thị theo cửa hàng đang thao tác</span>
+                        </div>
                     </div>
-                </div>
+
+                    <!-- Panel: Thông tin cá nhân -->
+                    <div class="wj-pc-card">
+                        <div class="wj-pc-card__head">
+                            <div>
+                                <h3 class="wj-pc-acct-panel-title">Thông tin cá nhân</h3>
+                                <p class="wj-pc-acct-panel-sub">Các thông tin cơ bản của tài khoản portal</p>
+                            </div>
+                        </div>
+                        <div class="wj-pc-acct-kv-grid">
+                            <div class="wj-pc-acct-field">
+                                <span class="wj-pc-acct-field__label">Họ tên</span>
+                                <span class="wj-pc-acct-field__value" t-out="profile.name or '—'"/>
+                            </div>
+                            <div class="wj-pc-acct-field">
+                                <span class="wj-pc-acct-field__label">Email</span>
+                                <span class="wj-pc-acct-field__value" t-out="profile.email or '—'"/>
+                            </div>
+                            <div class="wj-pc-acct-field">
+                                <span class="wj-pc-acct-field__label">Số điện thoại</span>
+                                <span class="wj-pc-acct-field__value" t-out="profile.phone or '—'"/>
+                            </div>
+                            <div class="wj-pc-acct-field">
+                                <span class="wj-pc-acct-field__label">Vai trò portal</span>
+                                <span class="wj-pc-acct-field__value wj-pc-acct-field__value--chip">
+                                    <span t-if="role_label" class="wj-pc-badge wj-pc-badge--confirmed" t-out="role_label"/>
+                                    <t t-else="">—</t>
+                                </span>
+                            </div>
+                            <div class="wj-pc-acct-field">
+                                <span class="wj-pc-acct-field__label">Cửa hàng hiện tại</span>
+                                <span class="wj-pc-acct-field__value">
+                                    <t t-out="franchise_code or ''"/><t t-if="franchise_code and franchise_name"> — </t><t t-out="franchise_name or '—'"/>
+                                </span>
+                            </div>
+                            <div class="wj-pc-acct-field">
+                                <span class="wj-pc-acct-field__label">Trạng thái tài khoản</span>
+                                <span class="wj-pc-acct-field__value wj-pc-acct-field__value--chip">
+                                    <span class="wj-pc-badge wj-pc-badge--done">Đang hoạt động</span>
+                                </span>
+                            </div>
+                        </div>
+                        <div class="wj-pc-acct-note">
+                            Thông tin tài khoản được quản lý bởi Ngô Gia. Vui lòng liên hệ quản trị nếu cần cập nhật.
+                        </div>
+                    </div>
+                </t>
 
                 <!-- ===== Mobile (<992px) — Figma Mobile_Account_Info màn 01 (READONLY).
                      BlankShell .wujia-mpage đặt NGOÀI .content-wrapper (pattern S15).
