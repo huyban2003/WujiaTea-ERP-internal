@@ -5,10 +5,10 @@
     <template id="portal_notification_list" name="Wujia Portal — Notification List">
         <t t-call="wujia_portal_layout.app_layout">
             <t t-set="title">Thông báo</t>
-            <!-- UI tạm (mobile) — map loại→icon/tone-màu + ưu tiên→badge; controller/BA wire sau -->
+            <!-- Mobile — loại→icon/tone-màu; ưu tiên→badge (keys BA: normal/important/urgent) -->
             <t t-set="WJ_TONE" t-value="{'URG': 'red', 'GEN': 'cyan', 'PROMO': 'amber', 'SYS': 'violet', 'OTH': 'green'}"/>
             <t t-set="WJ_ICON" t-value="{'URG': 'icon-alert-triangle', 'GEN': 'icon-bell', 'PROMO': 'icon-gift', 'SYS': 'icon-settings', 'OTH': 'icon-info'}"/>
-            <t t-set="WJ_PTAG" t-value="{'urgent': ('Cần làm', 'wujia-badge-success', 'icon-check-circle'), 'high': ('Quan trọng', 'wujia-badge-warning', 'icon-alert-triangle'), 'normal': ('Lưu ý', 'wujia-badge-info', 'icon-info'), 'low': ('Lưu ý', 'wujia-badge-info', 'icon-info')}"/>
+            <t t-set="WJ_PTAG" t-value="{'urgent': ('Cần làm', 'wujia-badge-success', 'icon-check-circle'), 'important': ('Quan trọng', 'wujia-badge-warning', 'icon-alert-triangle'), 'normal': ('Lưu ý', 'wujia-badge-info', 'icon-info')}"/>
             <!-- Desktop ≥992px — Figma PC_Notification_List (4683:101) -->
             <div class="content-wrapper d-none d-lg-block">
                 <div class="wj-pc-page-header">
@@ -75,8 +75,8 @@
                        t-attf-class="wj-filter-chip #{'is-active' if not unread and not priority else ''}">Tất cả</a>
                     <a t-attf-href="/portal/notification?unread=1#{('&amp;keyword=' + keyword) if keyword else ''}"
                        t-attf-class="wj-filter-chip #{'is-active' if unread else ''}">Chưa đọc</a>
-                    <a t-attf-href="/portal/notification?priority=high#{('&amp;keyword=' + keyword) if keyword else ''}"
-                       t-attf-class="wj-filter-chip #{'is-active' if priority == 'high' else ''}">Quan trọng</a>
+                    <a t-attf-href="/portal/notification?priority=important#{('&amp;keyword=' + keyword) if keyword else ''}"
+                       t-attf-class="wj-filter-chip #{'is-active' if priority == 'important' else ''}">Quan trọng</a>
                     <a t-attf-href="/portal/notification?priority=urgent#{('&amp;keyword=' + keyword) if keyword else ''}"
                        t-attf-class="wj-filter-chip #{'is-active' if priority == 'urgent' else ''}">Cần làm</a>
                 </div>
@@ -130,6 +130,7 @@
                                     <td>
                                         <span t-if="not is_read" class="wj-pc-badge wj-pc-badge--cancel">Chưa đọc</span>
                                         <span t-else="" class="wj-pc-badge wj-pc-badge--pending">Đã đọc</span>
+                                        <span t-if="n.is_expired" class="wj-pc-badge wj-pc-badge--confirmed">Đã hết hiệu lực</span>
                                     </td>
                                     <td class="text-end">
                                         <a t-attf-href="/portal/notification/#{n.id}" class="wj-pc-link">Xem</a>
@@ -176,14 +177,16 @@
                         </div>
                         <button type="submit" class="wj-filter-search-btn"><i class="feather icon-search"/></button>
                     </div>
-                    <!-- Tất cả / Chưa đọc functional; Quan trọng / Cần làm UI-only (chờ BA field) -->
+                    <!-- Tất cả / Chưa đọc / Quan trọng / Cần làm — đều functional (keys BA) -->
                     <div class="wj-filter-chips">
                         <a t-attf-href="/portal/notification#{('?keyword=' + keyword) if keyword else ''}"
-                           t-attf-class="wj-filter-chip #{'is-active' if not unread else ''}">Tất cả</a>
+                           t-attf-class="wj-filter-chip #{'is-active' if not unread and not priority else ''}">Tất cả</a>
                         <a t-attf-href="/portal/notification?unread=1#{('&amp;keyword=' + keyword) if keyword else ''}"
                            t-attf-class="wj-filter-chip #{'is-active' if unread else ''}">Chưa đọc</a>
-                        <span class="wj-filter-chip">Quan trọng</span>
-                        <span class="wj-filter-chip">Cần làm</span>
+                        <a t-attf-href="/portal/notification?priority=important#{('&amp;keyword=' + keyword) if keyword else ''}"
+                           t-attf-class="wj-filter-chip #{'is-active' if priority == 'important' else ''}">Quan trọng</a>
+                        <a t-attf-href="/portal/notification?priority=urgent#{('&amp;keyword=' + keyword) if keyword else ''}"
+                           t-attf-class="wj-filter-chip #{'is-active' if priority == 'urgent' else ''}">Cần làm</a>
                     </div>
                 </form>
 
@@ -216,6 +219,9 @@
                                 <span class="wujia-mnoti-row-tags">
                                     <span t-if="ptag" t-attf-class="wujia-badge #{ptag[1]}">
                                         <i t-attf-class="feather #{ptag[2]}"/><t t-out="ptag[0]"/>
+                                    </span>
+                                    <span t-if="n.is_expired" class="wujia-badge wujia-badge-muted">
+                                        <i class="feather icon-clock"/>Đã hết hiệu lực
                                     </span>
                                     <span t-if="n.attachment_ids" class="wujia-badge wujia-badge-info">
                                         <i class="feather icon-paperclip"/>Có file
@@ -253,7 +259,7 @@
             <t t-set="WJ_TONE" t-value="{'URG': 'red', 'GEN': 'cyan', 'PROMO': 'amber', 'SYS': 'violet', 'OTH': 'green'}"/>
             <t t-set="WJ_ICON" t-value="{'URG': 'icon-alert-triangle', 'GEN': 'icon-bell', 'PROMO': 'icon-gift', 'SYS': 'icon-settings', 'OTH': 'icon-info'}"/>
             <t t-set="WJ_TDESC" t-value="{'URG': 'Thông báo khẩn — cần xử lý ngay', 'GEN': 'Thông báo dành cho cửa hàng nhượng quyền', 'PROMO': 'Chương trình khuyến mãi &amp; ưu đãi', 'SYS': 'Thông báo hệ thống &amp; vận hành', 'OTH': 'Thông báo khác'}"/>
-            <t t-set="WJ_PTAG" t-value="{'urgent': ('Cần làm', 'wujia-badge-success', 'icon-check-circle'), 'high': ('Quan trọng', 'wujia-badge-warning', 'icon-alert-triangle'), 'normal': ('Lưu ý', 'wujia-badge-info', 'icon-info'), 'low': ('Lưu ý', 'wujia-badge-info', 'icon-info')}"/>
+            <t t-set="WJ_PTAG" t-value="{'urgent': ('Cần làm', 'wujia-badge-success', 'icon-check-circle'), 'important': ('Quan trọng', 'wujia-badge-warning', 'icon-alert-triangle'), 'normal': ('Lưu ý', 'wujia-badge-info', 'icon-info')}"/>
             <!-- Desktop ≥992px — Figma PC_Notification_Form (4683:2) -->
             <div class="content-wrapper d-none d-lg-block">
                 <t t-set="dptag" t-value="PC_PRIORITY_TAGS.get(noti.priority)"/>
@@ -277,6 +283,7 @@
                         <div class="wj-pc-noti-detail-badgerow">
                             <span t-if="dptag" t-attf-class="wj-pc-badge #{dptag[1]}" t-out="dptag[0]"/>
                             <span t-if="noti.type_id" class="wj-pc-badge wj-pc-badge--confirmed" t-out="noti.type_id.name"/>
+                            <span t-if="noti.is_expired" class="wj-pc-badge wj-pc-badge--pending">Đã hết hiệu lực</span>
                         </div>
                         <h2 class="wj-pc-noti-detail-title" t-out="noti.name"/>
                         <p t-if="noti.priority == 'urgent'" class="wj-pc-noti-urgent-sub">
@@ -323,7 +330,7 @@
                                                 <t t-out="(att.mimetype or '').split('/')[-1].upper() or 'FILE'"/> · <t t-out="'%.0f KB' % ((att.file_size or 0) / 1024.0)"/>
                                             </span>
                                         </div>
-                                        <a t-attf-href="/web/content/ir.attachment/#{att.id}/datas?download=true"
+                                        <a t-attf-href="/portal/notification/#{noti.id}/attachment/#{att.id}"
                                            class="wj-pc-btn wj-pc-btn--primary wj-pc-noti-attach-dl">
                                             <i class="feather icon-download"/>Tải xuống
                                         </a>
@@ -370,28 +377,23 @@
                         <span t-if="dptag" t-attf-class="wujia-badge #{dptag[1]}">
                             <i t-attf-class="feather #{dptag[2]}"/><t t-out="dptag[0]"/>
                         </span>
+                        <span t-if="noti.is_expired" class="wujia-badge wujia-badge-muted">
+                            <i class="feather icon-clock"/>Đã hết hiệu lực
+                        </span>
                         <span t-if="noti.attachment_ids" class="wujia-badge wujia-badge-info">
                             <i class="feather icon-paperclip"/>Có file
                         </span>
                     </div>
 
+                    <!-- BA FINAL: view form chỉ render field HTML content — không tách block
+                         "Liên kết liên quan" (link nằm trong content). -->
                     <div class="wujia-mnoti-detail-body" t-out="noti.content"/>
-
-                    <!-- Liên kết liên quan — UI tạm (controller/BA wire link thật sau) -->
-                    <h3 class="wujia-mnoti-detail-sectitle">Liên kết liên quan</h3>
-                    <a href="/portal/knowledge" class="wujia-mnoti-detail-link">
-                        <span class="wujia-mnoti-detail-link-icon"><i class="feather icon-arrow-right"/></span>
-                        <span class="wujia-mnoti-detail-link-main">
-                            <span class="wujia-mnoti-detail-link-title">Tài liệu &amp; hướng dẫn liên quan</span>
-                            <span class="wujia-mnoti-detail-link-sub">Mở tài liệu trong mục Kiến thức</span>
-                        </span>
-                    </a>
 
                     <t t-if="noti.attachment_ids">
                         <h3 class="wujia-mnoti-detail-sectitle">File đính kèm</h3>
                         <div class="wujia-mnoti-detail-files">
                             <a t-foreach="noti.attachment_ids" t-as="att"
-                               t-attf-href="/web/content/ir.attachment/#{att.id}/datas?download=true"
+                               t-attf-href="/portal/notification/#{noti.id}/attachment/#{att.id}"
                                class="wujia-mnoti-detail-file">
                                 <span class="wujia-mnoti-detail-file-icon"><i class="feather icon-file-text"/></span>
                                 <span class="wujia-mnoti-detail-file-main">

@@ -2,9 +2,10 @@ from odoo import fields, models
 
 
 class WujiaNotificationRead(models.Model):
-    """Bảng tracking user đã đọc thông báo nào — pattern v14.
+    """Tracking đã đọc — theo (thông báo + user + cửa hàng hiện tại) theo BA FINAL.
 
-    Đếm unread = published_count - read_count(user) — query nhanh, dùng index."""
+    Thông báo là global nhưng trạng thái đọc riêng từng tài khoản tại từng cửa hàng:
+    1 user ở 2 cửa hàng đọc độc lập. Đếm unread = effective_count − read_count(user, store)."""
 
     _name = 'wujia.notification.read'
     _description = 'Wujia Notification Read Tracking'
@@ -18,11 +19,16 @@ class WujiaNotificationRead(models.Model):
         'res.users', string='Người đọc',
         required=True, index=True, ondelete='cascade',
     )
-    read_date = fields.Datetime(
-        string='Đọc lúc', default=fields.Datetime.now, required=True,
+    franchise_id = fields.Many2one(
+        'wujia.franchise.management', string='Cửa hàng',
+        index=True, ondelete='cascade',
     )
+    read_date = fields.Datetime(
+        string='Đọc lần đầu', default=fields.Datetime.now, required=True,
+    )
+    last_open_date = fields.Datetime(string='Mở gần nhất')
 
-    _sql_constraints = [
-        ('uniq_noti_user', 'unique(notification_id, user_id)',
-         'Mỗi user chỉ ghi nhận đọc 1 lần / thông báo.'),
-    ]
+    _uniq_noti_user_store = models.Constraint(
+        'unique(notification_id, user_id, franchise_id)',
+        'Mỗi user chỉ ghi nhận đọc 1 lần / thông báo / cửa hàng.',
+    )

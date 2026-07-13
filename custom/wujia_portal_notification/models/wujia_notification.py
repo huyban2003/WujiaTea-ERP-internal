@@ -1,12 +1,14 @@
 from odoo import api, fields, models
 
 
+# BA FINAL (sheet "1. Model Field" wujia.announcement): 3 technical key, nhãn hiển thị
+# "Lưu ý / Quan trọng / Cần làm". FE không hardcode label — đọc priority_label backend trả.
 PRIORITY_SELECTION = [
-    ('low', 'Thấp'),
-    ('normal', 'Bình thường'),
-    ('high', 'Cao'),
-    ('urgent', 'Khẩn cấp'),
+    ('normal', 'Lưu ý'),
+    ('important', 'Quan trọng'),
+    ('urgent', 'Cần làm'),
 ]
+PRIORITY_LABELS = dict(PRIORITY_SELECTION)
 
 
 class WujiaNotification(models.Model):
@@ -16,6 +18,9 @@ class WujiaNotification(models.Model):
     Trạng thái đọc/chưa đọc lưu ở `wujia.notification.read` (table riêng để
     đếm unread nhanh — pattern v14)."""
 
+    # Mapping BA (wujia.announcement) → model thật: title←name, mã thông báo←dispatch_number,
+    # publish_date/published_date←date, category_id←type_id. "state=published + portal_visible"
+    # ⟺ published=True; "thu hồi" ⟺ published=False (ẩn hẳn); "hết hiệu lực" ⟺ published + expired.
     _name = 'wujia.notification'
     _description = 'Wujia Notification'
     _order = 'date desc, id desc'
@@ -50,7 +55,28 @@ class WujiaNotification(models.Model):
     )
     is_pinned = fields.Boolean(string='Ghim trên cùng', default=False)
     pin_expiry_date = fields.Datetime(string='Ghim đến')
+    expired_date = fields.Datetime(
+        string='Hết hiệu lực', index=True,
+        help='Trống = không hết hạn. Sau thời điểm này: ẩn khỏi popup/badge, còn ở lịch sử.',
+    )
+    is_expired = fields.Boolean(
+        string='Đã hết hiệu lực', compute='_compute_is_expired',
+    )
+    priority_label = fields.Char(
+        string='Nhãn ưu tiên', compute='_compute_priority_label',
+    )
     summary = fields.Char(string='Tóm tắt', size=200, compute='_compute_summary', store=True)
+
+    @api.depends('expired_date')
+    def _compute_is_expired(self):
+        now = fields.Datetime.now()
+        for rec in self:
+            rec.is_expired = bool(rec.expired_date and rec.expired_date < now)
+
+    @api.depends('priority')
+    def _compute_priority_label(self):
+        for rec in self:
+            rec.priority_label = PRIORITY_LABELS.get(rec.priority, '')
 
     @api.depends('content')
     def _compute_summary(self):

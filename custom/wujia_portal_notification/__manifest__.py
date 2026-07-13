@@ -1,8 +1,8 @@
 {
     'name': 'Wujia Portal — Notification',
-    'version': '19.0.1.7.0',
+    'version': '19.0.1.8.0',
     'category': 'Wujia',
-    'summary': 'Thông báo HQ → cửa hàng nhượng quyền (skeleton)',
+    'summary': 'Thông báo HQ → cửa hàng nhượng quyền (controller BA FINAL)',
     'author': 'WujiaTea',
     'license': 'LGPL-3',
     'depends': ['wujia_portal_base', 'mail'],

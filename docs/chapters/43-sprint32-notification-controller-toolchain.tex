@@ -1,0 +1,147 @@
+\chapter{Sprint 32 --- Controller Thông báo (BA FINAL) + Toolchain đọc spec BA (2026-07-13)}
+
+\section{Bối cảnh}
+
+BA giao controller màn \textbf{Thông báo} (popup chuông + view list + view form + đánh dấu đã
+đọc + tải file) qua một chat GPT share (``Controller Mapping --- Notification MVP Final'',
+bảng 7 dòng) đối chiếu 3 sheet xlsm (\texttt{1. Model Field}, \texttt{3. Controller} CT-041..044,
+\texttt{FEATURE CHECKLIST} POR-023..027). Đây là pattern mới từ Sprint 30: \emph{mọi} spec
+controller BA đều nằm trong 1 chat GPT $\rightarrow$ cần code parse tái dùng.
+
+Điểm mấu chốt: sheet BA đặt tên model \texttt{wujia.announcement*} với đủ field
+(\texttt{title}, \texttt{category\_id}, \texttt{priority} normal/important/urgent, \texttt{state}
+draft/published/archived, \texttt{portal\_visible}, \texttt{publish\_date}, read model có
+\texttt{franchise\_id} Required + \texttt{last\_open\_date}). Nhưng module thật đã ship
+(\texttt{wujia\_portal\_notification}, mobile S22 + PC PC-3/S28) lại là \texttt{wujia.notification*}
+--- schema cũ hơn: \texttt{name} (=tiêu đề), \texttt{published} bool, \texttt{priority}
+low/normal/high/urgent, read tracking chỉ theo user, \emph{không} có \texttt{expired\_date}, và
+tải file qua URL thô \texttt{/web/content/ir.attachment/:id} \textbf{không kiểm quyền (IDOR)}.
+
+Bốn ngã rẽ này BA (user) chốt trực tiếp trước khi code (nguyên tắc ask-don't-assume).
+
+\section{Part A --- Controller Thông báo (BA FINAL)}
+
+\subsection{Quyết định nghiệp vụ (nguồn: chat BA, FINAL)}
+
+\begin{itemize}
+\item \textbf{Giữ model \texttt{wujia.notification*}} (không rename) --- controller map tên field BA:
+      \texttt{title}$\leftarrow$\texttt{name}, mã$\leftarrow$\texttt{dispatch\_number},
+      \texttt{publish\_date}/\texttt{published\_date}$\leftarrow$\texttt{date},
+      \texttt{category\_id}$\leftarrow$\texttt{type\_id}. ``state=published + portal\_visible''
+      $\Leftrightarrow$ \texttt{published=True}; ``thu hồi'' $\Leftrightarrow$ \texttt{published=False}
+      (ẩn hẳn); ``hết hiệu lực'' $\Leftrightarrow$ \texttt{expired\_date < now} (ẩn popup/badge, còn
+      lịch sử). \emph{Không} thêm field \texttt{state}/\texttt{portal\_visible}.
+\item \textbf{Đọc theo (thông báo + user + cửa hàng hiện tại)}: read model thêm
+      \texttt{franchise\_id} + \texttt{last\_open\_date}, unique
+      \texttt{(notification\_id, user\_id, franchise\_id)}. Một tài khoản ở 2 cửa hàng đọc độc lập
+      --- đọc ở cửa hàng A không xoá ``chưa đọc'' của cửa hàng B.
+\item \textbf{Còn hiệu lực vs lịch sử}: thêm \texttt{expired\_date} (nullable). \emph{Còn hiệu lực}
+      = published + đúng đối tượng + \texttt{date} $\le$ now + (\texttt{expired\_date} trống hoặc
+      $\ge$ now) $\rightarrow$ dùng cho popup, badge, đếm chưa đọc. \emph{Lịch sử} = như trên bỏ mệnh
+      đề expired (gồm cả hết hạn) $\rightarrow$ dùng cho view list + detail (mở lại đơn cũ). Thay
+      heuristic 30 ngày ở bản skeleton.
+\item \textbf{Priority realign}: đổi selection \texttt{low/normal/high/urgent} $\rightarrow$
+      \textbf{normal/important/urgent} (keys BA), nhãn ``Lưu ý / Quan trọng / Cần làm''. Backend trả
+      \texttt{priority\_label} (computed) --- FE không hardcode. Migration pre remap
+      \texttt{low}$\rightarrow$\texttt{normal}, \texttt{high}$\rightarrow$\texttt{important}.
+\item \textbf{Giữ \texttt{franchise\_ids} targeting}: để trống = broadcast toàn hệ thống (thoả
+      ``global'' của BA), có thể target cửa hàng cụ thể --- giữ khả năng đã build, khớp FE sheet
+      \texttt{store\_ids}.
+\item \textbf{Đánh dấu tất cả đã đọc}: route mới, server tự gom \emph{toàn bộ} thông báo còn hiệu
+      lực chưa đọc của user tại cửa hàng hiện tại (không nhận ids/filter), badge về 0. \emph{Không}
+      set \texttt{last\_open\_date} (chưa thực sự mở nội dung).
+\item \textbf{Bỏ block ``Liên kết liên quan''}: view form chỉ render field HTML \texttt{content}
+      (link nằm trong content); gỡ block tĩnh ở mobile detail.
+\end{itemize}
+
+\subsection{Model / method thêm}
+
+\begin{itemize}
+\item \texttt{wujia.notification}: \texttt{expired\_date} (Datetime, index), \texttt{is\_expired}
+      (compute non-store từ \texttt{expired\_date < now}), \texttt{priority\_label} (compute từ
+      selection dict); \texttt{PRIORITY\_SELECTION} realign.
+\item \texttt{wujia.notification.read}: \texttt{franchise\_id} (M2o
+      \texttt{wujia.franchise.management}, index, cascade) + \texttt{last\_open\_date}; đổi
+      \texttt{\_sql\_constraints} $\rightarrow$ \texttt{models.Constraint} (Odoo 19) unique kèm
+      franchise.
+\item Migration \texttt{19.0.1.8.0/}: \texttt{pre} remap priority + drop unique cũ; \texttt{post}
+      backfill \texttt{franchise\_id} (best-effort user 1 cửa hàng) + \texttt{last\_open\_date =
+      read\_date}.
+\end{itemize}
+
+\subsection{Controller (server-rendered QWeb + endpoint JSON)}
+
+Helper dùng chung: \texttt{\_effective\_domain} / \texttt{\_history\_domain} /
+\texttt{\_read\_ids(noti\_ids, franchise\_id)} / \texttt{\_unread\_count}. Route:
+
+\begin{itemize}
+\item \texttt{GET /portal/notification} --- list (lịch sử + badge ``Đã hết hiệu lực''), filter
+      \texttt{read\_status} \{all,read,unread\} (back-compat \texttt{unread=1}), \texttt{priority},
+      \texttt{type\_id}, \texttt{keyword} (ilike name/dispatch/summary), \texttt{date\_from/to}
+      (validate $\rightarrow$ INVALID\_DATE\_RANGE), \texttt{limit} clamp \{10,20,50\} default 10.
+\item \texttt{GET /portal/notification/:id} --- detail (history domain, mở lại được đơn hết hạn);
+      ghi đọc theo store: tạo mới giữ \texttt{read\_date}, mở lại chỉ đổi \texttt{last\_open\_date}.
+\item \texttt{/recent} (popup 5, loại hết hạn) --- \texttt{/mark-all-read} (mới) ---
+      \texttt{/mark-read} (back-compat, set franchise) --- \texttt{/unread-count}.
+\item \texttt{/portal/notification/:id/attachment/:att} (mới) --- \textbf{guarded}: thông báo phải
+      accessible + attachment $\in$ \texttt{attachment\_ids} $\rightarrow$ stream; else 403/404.
+      Đóng IDOR, thay 2 link thô ở template PC + mobile.
+\end{itemize}
+
+\texttt{ERROR\_MESSAGES} tiếng Việt đủ bảng mã BA (SESSION\_EXPIRED, STORE\_NOT\_SELECTED,
+INVALID\_DATE\_RANGE, INVALID\_PAGE\_SIZE, ANNOUNCEMENT\_NOT\_AVAILABLE, MARK\_READ\_FAILED,
+ATTACHMENT\_NOT\_AVAILABLE, \ldots). Template: cập nhật dicts priority sang keys mới, wire chip
+Quan trọng/Cần làm (trước là span tĩnh), badge hết hiệu lực ở list + detail (PC + mobile). JS nút
+bulk $\rightarrow$ gọi \texttt{/mark-all-read} + toast ``Đã đánh dấu N thông báo là đã đọc''.
+
+\paragraph{Perf 1500 user.} Mọi lookup đọc/chưa đọc = 1 batched query dùng index kép
+\texttt{(notification\_id, user\_id, franchise\_id)}; domain lọc trên field index
+(\texttt{published}, \texttt{date}, \texttt{expired\_date}, \texttt{priority}, \texttt{type\_id});
+không query per-record.
+
+\section{Part B --- Toolchain đọc spec BA (dev-only)}
+
+Thư mục \texttt{scripts/ba\_spec/} (\textbf{gitignored, không lên server}):
+
+\begin{itemize}
+\item \texttt{fetch\_ba\_chat.py <share\_url>} --- trang share ChatGPT render JS (turbo-stream),
+      \texttt{backend-api/share} bị Cloudflare 403 $\rightarrow$ tải HTML với UA trình duyệt, bóc
+      chunk \texttt{streamController.enqueue(...)}, decode, lấy message string trong mảng phẳng
+      turbo-stream $\rightarrow$ Markdown.
+\item \texttt{read\_xlsm.py <sheet> <keyword>} --- openpyxl dump dòng khớp keyword từ master plan.
+\item \texttt{README.md} --- quy trình chuẩn khi làm controller (fetch chat $\rightarrow$ dump 4 sheet
+      $\rightarrow$ đối chiếu source model THẬT $\rightarrow$ hỏi ở fork $\rightarrow$ perf-first).
+\end{itemize}
+
+\section{Part C --- Skill + Summary}
+
+Skill \texttt{/wujia-start}: snapshot Step 3 điền động (bỏ số cứng ``Sprint 5 / 16 modules'') +
+mục ``Controller task workflow''. \texttt{wujia-compact-summary.md} cắt gọn đoạn ``Cập nhật'' phình
++ §5 verbose ($\sim$86K $\rightarrow$ 59K ký tự), giữ nguyên 11 section + mọi pointer.
+
+\section{Lý do / Trade-off}
+
+\textbf{Giữ model thay vì rename theo sheet BA}: rename \texttt{wujia.notification} $\rightarrow$
+\texttt{wujia.announcement} phải đụng model/table/M2m/view mobile+PC/seed/security/test + migration
+đổi tên --- churn lớn, outcome người dùng \emph{không} đổi. Map field-name trong controller rẻ hơn
+nhiều; đã ghi chú mapping trong model để BA đối chiếu sheet. \textbf{Read-per-store} là schema change
+(migration) nhưng đúng BA + sheet (\texttt{franchise\_id} Required) và đúng cho user nhiều cửa hàng
+--- badge vẫn 1 query nhờ index kép. \textbf{expired\_date} là field additive rẻ, thay heuristic 30
+ngày bằng vòng đời hiệu lực đúng nghĩa.
+
+\section{Kiểm chứng}
+
+\begin{itemize}
+\item Upgrade \texttt{-u wujia\_portal\_notification} RC=0, migration chạy (Odoo xoá selection
+      \texttt{priority\_\_low}/\texttt{high} $\rightarrow$ remap thành công).
+\item \texttt{test\_sprint32.py} (ORM) 15/0: priority realign, priority\_label, is\_expired,
+      effective vs history domain, read per-store + unique constraint chặn trùng / cho khác store.
+\item \texttt{test\_sprint32\_http.py} 15/0: list + badge hết hiệu lực, filter
+      read\_status/priority/date-range, popup loại hết hạn, detail mark-read store-scoped
+      (unread 29$\rightarrow$28), attachment guarded (đúng 200 / IDOR 403), mark-all $\rightarrow$ 0.
+\item Regression \texttt{test\_sprint9.py} 7/0.
+\end{itemize}
+
+\paragraph{Deploy.} CÓ schema + migration $\rightarrow$ prod phải chạy tay
+\texttt{-u wujia\_portal\_notification} (restart suông không đủ). Không module mới. Backend admin form
+tạo/publish thông báo (POR-023) chưa có UI --- ngoài scope controller, build sau.

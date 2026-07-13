@@ -15,8 +15,10 @@ Noti = env['wujia.notification'].sudo()
 Type = env['wujia.notification.type'].sudo()
 Read = env['wujia.notification.read'].sudo()
 Att = env['ir.attachment'].sudo()
+Fr = env['wujia.franchise.management'].sudo()
 
 now = fields.Datetime.now()
+demo_franchise = Fr.search([], limit=1)  # read tracking giờ theo (noti, user, cửa hàng)
 
 
 def ty(code):
@@ -30,7 +32,7 @@ ROWS = [
      '<p>Đơn hàng <b>SO02541</b> đã được ghi nhận và đang chờ xác nhận. '
      'Cửa hàng vui lòng kiểm tra sản phẩm, số lượng và thời gian giao dự kiến '
      '<b>trước 16:00 hôm nay</b>.</p>', False, False),
-    (1, 10, 'GEN', 'high', 'CV-2606-002',
+    (1, 10, 'GEN', 'important', 'CV-2606-002',
      'Lịch giao hàng hôm nay đã được cập nhật',
      '<p>Batch <b>GIAO-0624</b> có thay đổi giờ xuất kho. Vui lòng theo dõi mục '
      'Giao hàng để biết khung giờ mới.</p>', False, False),
@@ -46,7 +48,7 @@ ROWS = [
      'Ticket HT-0241 đã có phản hồi từ HQ',
      '<p>Ngô Gia đã phản hồi yêu cầu hỗ trợ của cửa hàng. Vui lòng kiểm tra '
      'mục Hỗ trợ.</p>', True, False),
-    (5, 9, 'PROMO', 'high', 'CV-2606-006',
+    (5, 9, 'PROMO', 'important', 'CV-2606-006',
      'Chương trình ưu đãi nguyên liệu tháng 06',
      '<p>Áp dụng cho nhóm sản phẩm <b>trà và topping</b> trong kỳ. '
      'Xem điều kiện áp dụng tại mục Khuyến mãi.</p>', True, False),
@@ -54,7 +56,7 @@ ROWS = [
      'Cập nhật quy định nhận hàng tại kho',
      '<p>Cửa hàng kiểm tra số lượng và ký nhận ngay khi nhận hàng để đối soát '
      'chính xác.</p>', True, False),
-    (8, 2, 'SYS', 'low', 'CV-2606-008',
+    (8, 2, 'SYS', 'normal', 'CV-2606-008',
      'Bảo trì hệ thống đặt hàng 02:00–03:00 ngày 20/06',
      '<p>Hệ thống tạm ngưng đặt hàng trong khung giờ bảo trì. '
      'Mong cửa hàng thông cảm.</p>', False, False),
@@ -94,7 +96,8 @@ for days, hour, code, prio, disp, title, body, read_admin, attach in ROWS:
         noti.attachment_ids = [(4, a.id)]
     if read_admin and not Read.search_count([
         ('notification_id', '=', noti.id), ('user_id', '=', admin.id)]):
-        Read.create({'notification_id': noti.id, 'user_id': admin.id})
+        Read.create({'notification_id': noti.id, 'user_id': admin.id,
+                     'franchise_id': demo_franchise.id or False})
     created += 1
     print('[CREATE] %s — %s (%s/%s)' % (disp, title, code, prio))
 
