@@ -211,15 +211,17 @@ for ref, name, price in product_samples:
             'list_price': price,
             'sale_ok': True,
             'purchase_ok': True,
-            'is_public_website': True,  # Wujia portal catalog flag
+            # Sprint 30: flag portal ở variant-level; public bắt buộc min_qty > 0.
+            'is_public_portal': True,
+            'min_qty': 1,
         },
         f'product {ref}',
     )
     products_list.append(rec.id)
-# Force-flag any existing product (template-level field; cascade through products).
-existing_tmpls = env['product.template'].search([('default_code', 'in', [s[0] for s in product_samples])])
-existing_tmpls.write({'is_public_website': True})
 products = Product.browse(products_list)
+products.filtered(lambda p: not p.is_public_portal or p.min_qty <= 0).write(
+    {'is_public_portal': True, 'min_qty': 1}
+)
 
 # ---------- 4. Sale orders (5 record, mix state) — idempotent on client_order_ref ----------
 print(f"\n[5b] Sale orders (5 records)")

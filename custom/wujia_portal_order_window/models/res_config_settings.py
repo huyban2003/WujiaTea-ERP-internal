@@ -57,6 +57,8 @@ class ResConfigSettings(models.TransientModel):
             'from': _to_float(CONFIG_KEY_FROM, DEFAULT_FROM),
             'to': _to_float(CONFIG_KEY_TO, DEFAULT_TO),
             'enabled': ICP.get_param(CONFIG_KEY_ENABLED, 'True') in ('True', 'true', '1', True),
+            # False = chưa có ai lưu config → controller hiện ORDER_TIME_NOT_CONFIGURED (BA row 2).
+            'configured': ICP.get_param(CONFIG_KEY_FROM) not in (False, None, ''),
         }
 
     @api.model
@@ -81,13 +83,14 @@ class ResConfigSettings(models.TransientModel):
             3. Fallback: dùng global from/to trong `ir.config_parameter`.
 
         Return:
-            (allowed: bool, window: dict) — window mang field 'from', 'to',
-            'enabled', và 'source' ∈ {'global', 'area:<id>'} để controller
-            biết đang lấy từ đâu mà render UI.
+            (allowed: bool, window: dict) — window LUÔN có các key:
+            'from', 'to', 'enabled', 'configured', 'source' ∈ {'global',
+            'area:<id>'}, 'windows' (list dict {name, from, to} — đủ khung giờ
+            áp dụng); nhánh area có thêm 'window_count', 'window_name'.
         """
         global_cfg = self._get_portal_order_window()
         if not global_cfg['enabled']:
-            return True, dict(global_cfg, source='global')
+            return True, dict(global_cfg, source='global', windows=[])
 
         now = self._user_now_hours()
 
@@ -106,9 +109,15 @@ class ResConfigSettings(models.TransientModel):
                     'from': first.order_time_from,
                     'to': first.order_time_to,
                     'enabled': True,
+                    'configured': True,
                     'source': 'area:%s' % area_id,
                     'window_count': len(windows),
                     'window_name': first.name,
+                    # Đủ danh sách khung giờ cho banner (BA row 2 — area có thể nhiều khung).
+                    'windows': [
+                        {'name': w.name, 'from': w.order_time_from, 'to': w.order_time_to}
+                        for w in windows
+                    ],
                 }
 
         # 3. Fallback global
@@ -117,4 +126,7 @@ class ResConfigSettings(models.TransientModel):
             allowed = (now >= f) and (now <= t)
         else:
             allowed = (now >= f) or (now <= t)
-        return allowed, dict(global_cfg, source='global')
+        return allowed, dict(
+            global_cfg, source='global',
+            windows=[{'name': '', 'from': f, 'to': t}],
+        )

@@ -1,6 +1,6 @@
 {
     'name': 'Wujia Sale',
-    'version': '19.0.3.0.0',
+    'version': '19.0.4.0.0',
     'category': 'Wujia',
     'summary': 'Sale order extension cho cửa hàng nhượng quyền + tính khối lượng',
     'author': 'WujiaTea',
@@ -21,7 +21,9 @@ Tính khối lượng (BA spec mục 3):
 - stock.picking.planned_weight/done_weight (aggregate).
 - stock.picking.batch.planned_weight/done_weight (aggregate).
 
-product.template thêm: is_public_website, min_qty, max_qty (cho portal catalog).
+product.product thêm: is_public_portal, min_qty, max_qty, description_ecommerce,
+name_chinese, public_categ_id (portal catalog — BA sheet mục H + L).
+wujia.product.category: danh mục portal (thay product.public.category, không kéo website_sale).
 """,
     'license': 'LGPL-3',
     'depends': [

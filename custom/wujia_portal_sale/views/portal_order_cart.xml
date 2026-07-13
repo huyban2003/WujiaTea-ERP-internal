@@ -1,9 +1,119 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
+
+    <!-- Mobile cart panel (shared) — tách partial để realtime reconcile swap được
+         (dùng chung QWeb với server-render). Self-contained: tự tính window_label. -->
+    <template id="mcart_panel" name="Wujia Mobile — Cart panel (shared)">
+        <t t-set="cs_lines" t-value="cart_state['lines'] if cart_state else []"/>
+        <t t-set="window_label"
+           t-value="', '.join('%s - %s' % (w['from'], w['to']) for w in (order_windows or [])) or ((order_time_from or '') + ' - ' + (order_time_to or ''))"/>
+
+        <!-- Empty -->
+        <div t-if="not cs_lines" class="wujia-empty-state">
+            <i class="feather icon-shopping-cart"/>
+            <p>Giỏ hàng trống.</p>
+            <a href="/portal/order" class="wujia-mcart-back mt-2">
+                <i class="feather icon-arrow-left"/> Tiếp tục chọn sản phẩm
+            </a>
+        </div>
+
+        <t t-else="">
+            <div class="wujia-mcart-titlerow">
+                <h2 class="wujia-mcart-title">Giỏ hàng</h2>
+                <span class="wj-count-meta wj-count-meta--bold">
+                    <t t-out="len(cs_lines)"/> sản phẩm
+                </span>
+            </div>
+
+            <!-- Back secondary button -->
+            <a href="/portal/order" class="wujia-mcart-back">
+                <i class="feather icon-arrow-left"/> Tiếp tục chọn sản phẩm
+            </a>
+
+            <!-- Order warning bar (khung giờ) — reuse .wujia-morder-warnbar -->
+            <div t-if="order_window_enabled" class="wujia-morder-warnbar">
+                <i class="feather icon-alert-circle"/>
+                <span>Khung giờ đặt hàng: <t t-out="window_label"/></span>
+            </div>
+
+            <!-- List header -->
+            <div class="wujia-mcart-listhead">
+                <span>Sản phẩm trong giỏ</span>
+                <span class="wj-count-meta wj-count-meta--bold"><t t-out="len(cs_lines)"/> sản phẩm</span>
+            </div>
+
+            <!-- Cart scroll container — render TẤT CẢ (no see-more) -->
+            <div class="wujia-mcart-scroll">
+                <t t-foreach="cs_lines" t-as="line">
+                    <div class="wujia-mcart-row" t-att-data-line-id="line['line_id']"
+                         t-att-data-unit-price="int(line['unit_price'] or 0)"
+                         t-att-data-min-qty="line['min_qty'] or 1"
+                         t-att-data-max-qty="str(line['max_qty'] or 0)"
+                         t-att-data-product-id="line['product_id']">
+                        <span class="wujia-mcart-row-thumb" t-out="line['uom']"/>
+                        <div class="wujia-mcart-row-main">
+                            <span class="wujia-mcart-row-name" t-out="line['name']"/>
+                            <span class="wujia-mcart-row-meta">
+                                <t t-out="line['uom']"/> • Đơn giá
+                                <t t-out="'{:,.0f}'.format(line['unit_price'] or 0).replace(',', '.')"/> đ
+                            </span>
+                            <span t-if="line['invalid_reason']"
+                                  class="wujia-mcart-row-warn text-danger"
+                                  t-out="line['invalid_message']"/>
+                            <div class="wujia-mcart-row-controls">
+                                <div class="wujia-mcart-stepper">
+                                    <button type="button"
+                                            class="wujia-mcart-step wujia-mcart-step-minus"
+                                            t-att-data-line-id="line['line_id']">−</button>
+                                    <span class="wujia-mcart-step-qty"
+                                          t-att-data-line-id="line['line_id']"
+                                          t-out="line['qty']"/>
+                                    <button type="button"
+                                            class="wujia-mcart-step wujia-mcart-step-plus"
+                                            t-att-data-line-id="line['line_id']">+</button>
+                                </div>
+                                <div class="wujia-mcart-row-amount">
+                                    <span class="wujia-mcart-row-amount-label">Thành tiền</span>
+                                    <span class="wujia-mcart-row-amount-value"
+                                          t-att-data-line-id="line['line_id']"
+                                          t-out="'{:,.0f}'.format(line['subtotal'] or 0).replace(',', '.') + ' đ'"/>
+                                </div>
+                            </div>
+                        </div>
+                        <button type="button" class="wujia-mcart-del"
+                                t-att-data-line-id="line['line_id']">
+                            <i class="feather icon-trash-2"/>
+                        </button>
+                    </div>
+                </t>
+            </div>
+
+            <!-- Sticky summary CTA — submit thẳng (BA, no delivery fields) -->
+            <form method="POST" action="/portal/order/submit" class="wujia-mcart-summary">
+                <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
+                <div class="wujia-mcart-summary-rows">
+                    <div class="wujia-mcart-summary-line">
+                        <span>Tạm tính</span>
+                        <strong class="wujia-mcart-grand"
+                                t-out="'{:,.0f}'.format(cart_state['total_amount'] or 0).replace(',', '.') + ' đ'"/>
+                    </div>
+                    <div class="wujia-mcart-summary-line muted">
+                        <span>Số lượng</span>
+                        <span><t t-out="cart_state['total_qty']"/> sản phẩm</span>
+                    </div>
+                </div>
+                <button type="submit" class="wujia-mcart-submit">Gửi đơn đặt hàng</button>
+            </form>
+        </t>
+    </template>
+
     <template id="portal_order_cart" name="Wujia Portal — Cart">
         <t t-call="wujia_portal_layout.app_layout">
             <t t-set="title">Giỏ hàng</t>
             <div class="content-wrapper">
+                <!-- Realtime cart sync root — bus channel wujia.franchise_<id> (Sprint 31). -->
+                <div id="wj-cart-sync" class="d-none" t-att-data-franchise-id="active_franchise_id"/>
+
                 <!-- ===== DESKTOP (≥992px) — standalone cart (wj-pc, shared panel; Sprint PC-1) ===== -->
                 <div class="d-none d-lg-block">
                     <div class="wj-pc-page-header">
@@ -37,99 +147,7 @@
                     <div t-if="message" class="alert alert-success" role="status">
                         <t t-esc="message"/>
                     </div>
-
-                    <!-- Empty -->
-                    <div t-if="not cart_lines" class="wujia-empty-state">
-                        <i class="feather icon-shopping-cart"/>
-                        <p>Giỏ hàng trống.</p>
-                        <a href="/portal/order" class="wujia-mcart-back mt-2">
-                            <i class="feather icon-arrow-left"/> Tiếp tục chọn sản phẩm
-                        </a>
-                    </div>
-
-                    <t t-else="">
-                        <div class="wujia-mcart-titlerow">
-                            <h2 class="wujia-mcart-title">Giỏ hàng</h2>
-                            <span class="wj-count-meta wj-count-meta--bold">
-                                <t t-out="len(cart_lines)"/> sản phẩm
-                            </span>
-                        </div>
-
-                        <!-- Back secondary button -->
-                        <a href="/portal/order" class="wujia-mcart-back">
-                            <i class="feather icon-arrow-left"/> Tiếp tục chọn sản phẩm
-                        </a>
-
-                        <!-- Order warning bar (khung giờ) — reuse .wujia-morder-warnbar -->
-                        <div t-if="order_window_enabled" class="wujia-morder-warnbar">
-                            <i class="feather icon-alert-circle"/>
-                            <span>Khung giờ đặt hàng: <t t-out="order_time_from"/> - <t t-out="order_time_to"/></span>
-                        </div>
-
-                        <!-- List header -->
-                        <div class="wujia-mcart-listhead">
-                            <span>Sản phẩm trong giỏ</span>
-                            <span class="wj-count-meta wj-count-meta--bold"><t t-out="len(cart_lines)"/> sản phẩm</span>
-                        </div>
-
-                        <!-- Cart scroll container — render TẤT CẢ (no see-more) -->
-                        <div class="wujia-mcart-scroll">
-                            <t t-foreach="cart_lines" t-as="line">
-                                <div class="wujia-mcart-row" t-att-data-line-id="line.id"
-                                     t-att-data-unit-price="int(line.price_unit or 0)">
-                                    <span class="wujia-mcart-row-thumb"
-                                          t-out="line.product_id.uom_id.name or '—'"/>
-                                    <div class="wujia-mcart-row-main">
-                                        <span class="wujia-mcart-row-name" t-out="line.product_id.name"/>
-                                        <span class="wujia-mcart-row-meta">
-                                            <t t-out="line.product_id.uom_id.name or '—'"/> • Đơn giá
-                                            <t t-out="'{:,.0f}'.format(line.price_unit or 0).replace(',', '.')"/> đ
-                                        </span>
-                                        <div class="wujia-mcart-row-controls">
-                                            <div class="wujia-mcart-stepper">
-                                                <button type="button"
-                                                        class="wujia-mcart-step wujia-mcart-step-minus"
-                                                        t-att-data-line-id="line.id">−</button>
-                                                <span class="wujia-mcart-step-qty"
-                                                      t-att-data-line-id="line.id"
-                                                      t-out="int(line.product_uom_qty)"/>
-                                                <button type="button"
-                                                        class="wujia-mcart-step wujia-mcart-step-plus"
-                                                        t-att-data-line-id="line.id">+</button>
-                                            </div>
-                                            <div class="wujia-mcart-row-amount">
-                                                <span class="wujia-mcart-row-amount-label">Thành tiền</span>
-                                                <span class="wujia-mcart-row-amount-value"
-                                                      t-att-data-line-id="line.id"
-                                                      t-out="'{:,.0f}'.format(line.price_subtotal or 0).replace(',', '.') + ' đ'"/>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <button type="button" class="wujia-mcart-del"
-                                            t-att-data-line-id="line.id">
-                                        <i class="feather icon-trash-2"/>
-                                    </button>
-                                </div>
-                            </t>
-                        </div>
-
-                        <!-- Sticky summary CTA — submit thẳng (BA, no delivery fields) -->
-                        <form method="POST" action="/portal/order/submit" class="wujia-mcart-summary">
-                            <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
-                            <div class="wujia-mcart-summary-rows">
-                                <div class="wujia-mcart-summary-line">
-                                    <span>Tạm tính</span>
-                                    <strong class="wujia-mcart-grand"
-                                            t-out="'{:,.0f}'.format(cart.amount_total or 0).replace(',', '.') + ' đ'"/>
-                                </div>
-                                <div class="wujia-mcart-summary-line muted">
-                                    <span>Số lượng</span>
-                                    <span><t t-out="len(cart_lines)"/> sản phẩm</span>
-                                </div>
-                            </div>
-                            <button type="submit" class="wujia-mcart-submit">Gửi đơn đặt hàng</button>
-                        </form>
-                    </t>
+                    <t t-call="wujia_portal_sale.mcart_panel"/>
                 </div>
             </div>
         </t>

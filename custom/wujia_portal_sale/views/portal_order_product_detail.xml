@@ -4,6 +4,8 @@
         <t t-call="wujia_portal_layout.app_layout">
             <t t-set="title">Chi tiết sản phẩm</t>
             <div class="content-wrapper">
+                <!-- Realtime cart sync root — header cart badge realtime (Sprint 31). -->
+                <div id="wj-cart-sync" class="d-none" t-att-data-franchise-id="active_franchise_id"/>
                 <div class="content-header row mt-3">
                     <div class="content-header-left col-12 mb-1">
                         <nav>
@@ -20,21 +22,31 @@
                             <div class="row g-3">
                                 <div class="col-md-5">
                                     <img class="img-fluid rounded"
-                                         t-attf-src="/web/image/product.template/#{product.id}/image_1024"
+                                         t-attf-src="/web/image/product.product/#{product.id}/image_1024"
                                          t-att-alt="product.name"/>
                                 </div>
                                 <div class="col-md-7">
                                     <h3 t-out="product.name"/>
+                                    <p t-if="product.name_chinese" class="text-muted mb-1"
+                                       t-out="product.name_chinese"/>
                                     <p class="text-muted">
-                                        <span t-if="product.categ_id">
-                                            Nhóm: <t t-out="product.categ_id.complete_name"/>
+                                        <span t-if="product.public_categ_id">
+                                            Nhóm: <t t-out="product.public_categ_id.name"/>
+                                        </span>
+                                        <span t-if="product.description_ecommerce">
+                                            • Quy cách: <t t-out="product.description_ecommerce"/>
                                         </span>
                                     </p>
                                     <p class="text-primary fs-4 fw-bold">
-                                        <t t-out="'{:,.0f}'.format(product.list_price or 0).replace(',', '.')"/> ₫
+                                        <t t-out="'{:,.0f}'.format(price_map.get(product.id) or 0).replace(',', '.')"/> ₫
                                         <small class="text-muted fs-6"> / <t t-out="product.uom_id.name or '—'"/></small>
                                     </p>
                                     <p t-if="product.description_sale" t-out="product.description_sale"/>
+                                    <p class="text-muted small">
+                                        Tối thiểu: <t t-out="product.min_qty or 1"/>
+                                        <span t-if="product.max_qty"> • Tối đa: <t t-out="product.max_qty"/></span>
+                                        • Bước đặt: <t t-out="product.min_qty or 1"/>
+                                    </p>
 
                                     <div class="d-flex align-items-center gap-2 mt-3">
                                         <label class="form-label mb-0">Số lượng</label>
@@ -43,10 +55,13 @@
                                                style="width: 100px;"
                                                t-att-min="product.min_qty or 1"
                                                t-att-max="product.max_qty or None"
+                                               t-att-step="product.min_qty or 1"
                                                t-att-value="product.min_qty or 1"/>
                                         <button type="button"
                                                 class="btn btn-primary btn-add-cart-detail"
-                                                t-att-data-product-id="product.id">
+                                                t-att-data-product-id="product.id"
+                                                t-att-data-min-qty="product.min_qty or 1"
+                                                t-att-data-max-qty="str(product.max_qty or 0)">
                                             <i class="fa fa-cart-plus me-1"/>Thêm vào giỏ
                                         </button>
                                         <a href="/portal/order/cart" class="btn btn-outline-secondary">
@@ -66,7 +81,7 @@
                                                class="text-decoration-none">
                                                 <div class="card h-100">
                                                     <img class="card-img-top"
-                                                         t-attf-src="/web/image/product.template/#{rel.id}/image_256"/>
+                                                         t-attf-src="/web/image/product.product/#{rel.id}/image_256"/>
                                                     <div class="card-body p-2">
                                                         <small t-out="rel.name"/>
                                                     </div>

@@ -1,6 +1,6 @@
 {
     'name': 'Wujia Portal Order Window',
-    'version': '19.0.2.0.0',
+    'version': '19.0.2.1.0',
     'category': 'Wujia',
     'summary': 'Khung giờ portal đặt hàng theo khu vực (BA Section B.5 + Model Field Mục I)',
     'description': """

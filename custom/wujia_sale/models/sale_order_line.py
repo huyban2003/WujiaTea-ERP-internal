@@ -42,19 +42,25 @@ class SaleOrderLine(models.Model):
 
     @api.constrains('product_id', 'product_uom_qty', 'order_id')
     def _check_min_max_qty_portal(self):
-        """Validate min_qty / max_qty từ product.template — chỉ áp với đơn portal."""
+        """Validate min/step/max từ product.product — chỉ áp với đơn portal.
+        Step = min_qty (BA); max_qty = 0 nghĩa là không giới hạn."""
         for line in self:
             if not line.order_id.is_portal_order:
                 continue
-            tmpl = line.product_id.product_tmpl_id
+            product = line.product_id
             qty = line.product_uom_qty
-            if tmpl.min_qty and qty < tmpl.min_qty:
+            if product.min_qty and qty < product.min_qty:
                 raise ValidationError(_(
                     "Sản phẩm '%s' yêu cầu số lượng tối thiểu %s, đang đặt %s.",
-                    tmpl.name, tmpl.min_qty, qty,
+                    product.name, product.min_qty, qty,
                 ))
-            if tmpl.max_qty and qty > tmpl.max_qty:
+            if product.min_qty and qty % product.min_qty:
+                raise ValidationError(_(
+                    "Số lượng của '%s' phải tăng theo bước %s, đang đặt %s.",
+                    product.name, product.min_qty, qty,
+                ))
+            if product.max_qty and qty > product.max_qty:
                 raise ValidationError(_(
                     "Sản phẩm '%s' chỉ cho phép tối đa %s/đơn, đang đặt %s.",
-                    tmpl.name, tmpl.max_qty, qty,
+                    product.name, product.max_qty, qty,
                 ))

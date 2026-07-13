@@ -34,11 +34,16 @@
             <field name="perm_unlink" eval="False"/>
         </record>
 
-        <record id="rule_product_template_portal_public" model="ir.rule">
-            <field name="name">Product Template: portal sees only public website products</field>
+        <!-- Sprint 30: publish flag = product.product.is_public_portal (BA sheet mục L).
+             DB đã cài: migration post-migrate cập nhật domain + gỡ rule template cũ
+             (noupdate=1 nên -u không tự apply; record MỚI dưới đây vẫn được tạo). -->
+        <!-- product.template có ACL portal read (delegation _inherits từ variant cần) →
+             PHẢI có row-rule chặn IDOR đọc template chưa public qua RPC. -->
+        <record id="rule_product_template_portal_public_v2" model="ir.rule">
+            <field name="name">Product Template: portal sees only templates with public variants</field>
             <field name="model_id" ref="product.model_product_template"/>
             <field name="groups" eval="[(4, ref('base.group_portal'))]"/>
-            <field name="domain_force">[('is_public_website', '=', True)]</field>
+            <field name="domain_force">[('product_variant_ids.is_public_portal', '=', True)]</field>
             <field name="perm_read" eval="True"/>
             <field name="perm_write" eval="False"/>
             <field name="perm_create" eval="False"/>
@@ -46,10 +51,10 @@
         </record>
 
         <record id="rule_product_product_portal_public" model="ir.rule">
-            <field name="name">Product: portal sees only public website products</field>
+            <field name="name">Product: portal sees only public portal products</field>
             <field name="model_id" ref="product.model_product_product"/>
             <field name="groups" eval="[(4, ref('base.group_portal'))]"/>
-            <field name="domain_force">[('product_tmpl_id.is_public_website', '=', True)]</field>
+            <field name="domain_force">[('is_public_portal', '=', True)]</field>
             <field name="perm_read" eval="True"/>
             <field name="perm_write" eval="False"/>
             <field name="perm_create" eval="False"/>

@@ -1,0 +1,178 @@
+\chapter{Sprint 30 --- Controller Đặt hàng: Danh sách sản phẩm + Giỏ hàng (2026-07-12)}
+
+\section{Bối cảnh}
+
+BA chốt controller mapping cho màn \textbf{Danh sách sản phẩm + Giỏ hàng} qua chat GPT
+``Controller Product + Cart'' (link share --- parse bằng decoder turbo-stream) + 2 sheet xlsm
+(\texttt{FEATURE CHECKLIST} POR-005..022, \texttt{1. Model Field} mục H/I/L). Code v19 trước
+sprint là skeleton UI-only: giỏ = draft \texttt{sale.order} \textbf{per user}, submit
+\texttt{action\_confirm()}, không pricelist, không min/step/max, category nội bộ
+\texttt{product.category}. Sprint này thay toàn bộ tầng controller/model theo BA FINAL.
+
+\section{Quyết định nghiệp vụ (nguồn: chat BA, FINAL)}
+
+\begin{itemize}
+\item \textbf{Giỏ chung theo cửa hàng}: 1 store = 1 giỏ active, mọi user membership hợp lệ
+      thao tác chung (last-write-wins); đổi store $\rightarrow$ giỏ khác; 1 SP = 1 dòng.
+\item \textbf{Sản phẩm public}: \texttt{product.product.is\_public\_portal} (default
+      \textbf{False} --- chat override sheet), public bắt buộc \texttt{min\_qty > 0}.
+\item \textbf{Min/step/max}: bước đặt = \texttt{min\_qty}; \texttt{max\_qty=0} = vô hạn;
+      max > 0 $\rightarrow$ max $\geq$ min và max chia hết min.
+\item \textbf{Giá}: pricelist hiệu lực của partner cửa hàng, fallback giá chuẩn; backend
+      tính lại khi load/sửa/submit --- không tin giá FE. Không hiển thị/chặn tồn kho.
+\item \textbf{Khung giờ}: chỉ chặn tại \emph{Gửi đơn}; ngoài giờ vẫn thao tác giỏ.
+\item \textbf{Submit}: SO luôn \textbf{draft}; huỷ mọi draft/sent portal cũ cùng store
+      (\texttt{is\_portal\_order=True} --- POR-022) cùng transaction; \textbf{khoá giỏ}
+      khi submit; ghi chú map \texttt{sale.order.note}; clear giỏ cuối cùng.
+\item \textbf{Error message} tiếng Việt theo bảng mã BA (\texttt{CART\_IS\_PROCESSING},
+      \texttt{QTY\_INVALID\_STEP}, \texttt{STORE\_CUSTOMER\_NOT\_CONFIGURED}\ldots).
+\end{itemize}
+
+\section{Backend --- \texttt{wujia\_sale} 19.0.4.0.0}
+
+\textbf{\texttt{product.product}} (file mới \texttt{models/product\_product.py}):
+\texttt{is\_public\_portal} (Bool, index) / \texttt{min\_qty} / \texttt{max\_qty} (Integer) /
+\texttt{description\_ecommerce} (Char --- quy cách ``10kg/bao'') / \texttt{name\_chinese}
+(Char --- tên tiếng Hoa nhập tay) / \texttt{public\_categ\_id} (M2o). Constrains đủ bộ
+min/step/max theo BA. Field template cũ (\texttt{is\_public\_website}, min/max) \textbf{gỡ hẳn}.
+
+\textbf{Model mới \texttt{wujia.product.category}} (name/sequence/active + backend view/menu
+trong Sales $\rightarrow$ Products): thay \texttt{product.public.category} vì model chuẩn nằm trong
+\texttt{website\_sale} --- cài vào kéo cả stack website/payment/delivery (ADR-004 portal
+custom không dùng website). \emph{User duyệt 2026-07-12; BA cập nhật sheet.}
+
+\textbf{Migration \texttt{19.0.4.0.0}}: \emph{pre} xoá 3 view template cũ (form
+\texttt{product.product} kế thừa form template $\rightarrow$ view cũ lọt combined arch làm fail
+validate --- orphan cleanup của Odoo chạy sau load, quá muộn); \emph{post} copy SQL
+template$\rightarrow$variant + fix \texttt{min\_qty=1} cho SP public min$\leq$0 + drop 3 cột cũ +
+update domain rule \texttt{noupdate=1} + xoá rule template.
+
+\textbf{SOL constraint} \texttt{\_check\_min\_max\_qty\_portal}: đọc variant, thêm rule step
+(\texttt{qty \% min == 0}) --- defense-in-depth cho mọi đường tạo SO portal.
+
+\section{Cart model + controller --- \texttt{wujia\_portal\_sale} 19.0.3.0.0}
+
+\textbf{Model mới} \texttt{wujia.portal.cart} (\texttt{franchise\_id} unique --- 1 store 1 giỏ,
+persistent, submit chỉ clear line+note) + \texttt{wujia.portal.cart.line}
+(unique \texttt{cart\_id,product\_id} --- điều kiện cho upsert; \textbf{không lưu giá}).
+ACL: internal only; portal đi qua controller sudo + gate franchise.
+
+\textbf{Controller rework} (giữ nguyên URL 8 route cũ + 1 route mới \texttt{POST
+/portal/order/cart/note}):
+\begin{itemize}
+\item \textbf{Catalog}: domain \texttt{product.product} public+active; keyword tìm
+      \texttt{name} OR \texttt{default\_code}; category qua \textbf{1 read\_group} (chỉ danh mục
+      có SP public); \textbf{giá 1 call batch} \texttt{pricelist.\_get\_products\_price} từ
+      \texttt{partner.property\_product\_pricelist}; \texttt{cart\_qty\_map} theo variant id
+      (badge qty trên catalog từ giỏ chung); banner khung giờ render \emph{danh sách} windows
+      khu vực + case \texttt{ORDER\_TIME\_NOT\_CONFIGURED}.
+\item \textbf{Add} (rate-limit 60/min): \textbf{SQL upsert atomic} \texttt{INSERT \ldots ON
+      CONFLICT (cart\_id, product\_id) DO UPDATE SET qty = LEAST(qty + inc, cap) RETURNING}
+      --- bước server-side = \texttt{min\_qty}, cap = \texttt{max\_qty}, audit columns
+      (\texttt{create\_uid\ldots}) set tay vì raw SQL không qua ORM; chạm trần $\rightarrow$
+      success + warning \texttt{QTY\_ABOVE\_MAX}.
+\item \textbf{Update/remove}: guard \emph{store-level} (bỏ hẳn check per-user
+      \texttt{\_get\_owned\_line} cũ); idempotent --- dòng bị user khác xoá $\rightarrow$ trả state
+      mới, không lỗi. \textbf{Mọi mutation trả full cart state} (\texttt{line\_count} +
+      \texttt{total\_qty} phân biệt --- BA row 10, \texttt{lines[]} kèm
+      \texttt{invalid\_reason} per-line --- BA row 11).
+\item \textbf{Submit}: khoá giỏ \texttt{SELECT \ldots FOR UPDATE NOWAIT} \textbf{bọc
+      \texttt{cr.savepoint()}} --- không bọc thì \texttt{LockNotAvailable} nằm trong danh sách
+      Odoo tự retry request (5 lần), \texttt{CART\_IS\_PROCESSING} không bao giờ tới user
+      (bug tinh vi nhất sprint, panel phản biện bắt trước khi code). Sau lock: snapshot lines,
+      re-validate (khung giờ/public/min-step-max), check locked-old-draft \emph{trước} khi tạo
+      SO (fail sớm khỏi rollback), tạo SO \textbf{draft} với \texttt{pricelist\_id} tường minh
+      + không set \texttt{price\_unit} (Odoo tự tính từ pricelist = 1 nguồn giá),
+      \texttt{note = plaintext2html(\ldots)} (note là Html field --- bare str bị sanitize phá,
+      \texttt{Markup} thô = XSS), \texttt{create\_uid} = user portal (sudo giữ uid --- POR-019).
+      Huỷ draft cũ bằng \texttt{write state=cancel} (tránh \texttt{action\_cancel} cascade huỷ
+      draft invoice + chatter storm), fail $\rightarrow$ \texttt{cr.rollback()} nguyên khối.
+      Clear giỏ + publish bus cùng transaction.
+\item \textbf{Race an toàn}: tạo giỏ đầu tiên đồng thời $\rightarrow$ \texttt{IntegrityError}
+      bọc savepoint, thua thì search lại giỏ của request thắng.
+\item \textbf{Realtime} (ADR-006): mọi mutation publish \texttt{wujia\_cart\_changed} lên
+      channel \texttt{wujia.franchise\_<id>} (authorize sẵn trong \texttt{ir\_websocket}).
+      \emph{JS subscribe reconcile DOM = sprint sau} (user chốt: note lại để chỉnh tiếp).
+\end{itemize}
+
+\section{Templates + JS (wiring, không redesign UI)}
+
+4 template đổi nguồn data: product.template $\rightarrow$ \texttt{product.product}, giá
+\texttt{price\_map}, line render từ \texttt{cart\_state} dict (giỏ mới không có price field),
+quy cách = \texttt{description\_ecommerce}, thêm dòng tên tiếng Hoa, \texttt{cat.name} (bỏ
+\texttt{complete\_name}), ảnh \texttt{/web/image/product.product/}, dòng invalid render
+cảnh báo đỏ per-line. \textbf{Gotcha QWeb}: \texttt{t-att-data-max-qty="expr or 0"} bị drop
+attribute khi giá trị \texttt{0} (falsy) $\rightarrow$ bọc \texttt{str()}.
+
+JS: stepper $\pm$ theo \texttt{data-min-qty} (trước hardcode $\pm1$ --- backend mới reject sai
+step); mọi qty/thành tiền/tổng áp \textbf{từ response server} (không nhân client --- giá
+pricelist theo bậc); PC note autosave debounce $\rightarrow$ \texttt{/cart/note} (note chung
+store); \texttt{syncCatalogBadge} theo variant id. \texttt{header\_cart\_badge.js} giữ nguyên
+(key \texttt{count} tương thích).
+
+\section{Verify}
+
+\begin{itemize}
+\item Upgrade \texttt{wujia\_sale,wujia\_portal\_sale,wujia\_portal\_order\_window} RC=0
+      (91 modules); migration copy 5 variant + drop cột cũ + rule update OK.
+\item \texttt{test\_sprint30.py} (ORM) \textbf{16/16}: migration state, constraints
+      min/step/max, unique cart/line, upsert semantics (5$\rightarrow$10, cap 20), audit columns,
+      SOL step reject, read\_group category.
+\item \texttt{test\_sprint30\_http.py} (server thật, 2 user cùng store HN-01) \textbf{17/17}:
+      routes 200; add lần đầu = min\_qty, lần 2 +step; \textbf{staff thấy chung giỏ owner};
+      update hợp lệ + last-write-wins; note chung; \textbf{race 6 add song song 2 user cộng
+      dồn đúng, không dòng trùng}; submit $\rightarrow$ redirect history, giỏ trống, staff xem
+      được đơn.
+\item Race khoá giỏ: giữ lock row cart bằng connection ngoài $\rightarrow$ user B submit nhận
+      \texttt{CART\_IS\_PROCESSING} fail-fast (không bị Odoo retry).
+\item Regression: \texttt{test\_sprint9} 7/7, \texttt{test\_sprint5} 21/21. Playwright PC 1920
+      (combined add $\rightarrow$ incart highlight + panel) + mobile 390 (catalog/cart/stepper)
+      --- layout S21/PC-1 giữ nguyên, 0 JS error, tổng tiền khớp từng bước.
+\end{itemize}
+
+\section{Vòng phản biện sau code (panel 3 lens) --- các fix đã áp}
+
+\begin{itemize}
+\item \textbf{Blocker}: note map \texttt{sale.order.note} theo BA nhưng trang Lịch sử portal
+      render \texttt{portal\_note} $\rightarrow$ note ``biến mất'' với user. Fix: ghi \textbf{cả
+      hai} field (\texttt{portal\_note} Text cho UI + \texttt{note} Html theo BA). Verify HTTP:
+      note hiện đúng trong history sau submit.
+\item \textbf{IDOR}: migration gỡ rule template cũ nhưng ACL portal read
+      \texttt{product.template} vẫn còn (delegation \texttt{\_inherits} cần) $\rightarrow$ portal
+      user đọc được template CHƯA public qua RPC. Fix: rule mới
+      \texttt{rule\_product\_template\_portal\_public\_v2} domain
+      \texttt{product\_variant\_ids.is\_public\_portal=True}. Verify: portal thấy 5/7 template.
+\item \texttt{/cart/note} thêm \texttt{@rate\_limit(30/60)} (chống flood DB write + bus).
+\item Bước huỷ-draft-cũ + clear giỏ bọc try/except $\rightarrow$ lỗi bất kỳ =
+      \texttt{cr.rollback()} nguyên khối (đóng cửa sổ SO mồ côi nếu write cancel raise).
+\item Snapshot lines move \emph{vào trong} savepoint block (rõ ý snapshot-at-lock,
+      future-proof); \texttt{\_resolve\_messages} không reflect mã lỗi lạ từ query string;
+      message trang chi tiết đổi ``Số lượng trong giỏ: N''; dọn i18n field cũ; bump
+      \texttt{wujia\_portal\_order\_window} 19.0.2.1.0 + docstring keys dict.
+\end{itemize}
+
+Sau fix: re-upgrade RC=0, ORM 16/16 + HTTP 17/17 + regression 7/7 + 21/21 lại toàn bộ.
+
+\section{Deviation cần BA cập nhật sheet}
+
+(1) \texttt{wujia.product.category} thay \texttt{product.public.category};
+(2) \texttt{name\_chinese} mới trên product.product;
+(3) \texttt{description\_ecommerce} = field custom trên product.product;
+(4) \texttt{is\_public\_portal} default False (sheet ghi True);
+(5) bổ sung 2 model giỏ \texttt{wujia.portal.cart(.line)} vào sheet Model Field;
+(6) khung giờ giữ model \texttt{wujia.order.window} ($\equiv$ \texttt{wujia.franchise.order.time});
+(7) giá catalog hiển thị tại qty=1, giá dòng giỏ theo qty thực (pricelist bậc lượng có thể lệch --- hiếm);
+(8) \textbf{realtime JS subscribe cross-device chưa làm} --- server đã publish
+\texttt{wujia\_cart\_changed}, JS reconcile nối vào item DEFERRED PC-1 sprint sau.
+
+\section{Deploy note}
+
+Không có module mới (khỏi \texttt{-i}); nhưng có \textbf{schema change + migration} nên restart
+suông không đủ --- trên Windows prod chạy 1 lần:
+\begin{verbatim}
+nssm stop Odoo
+python odoo-bin -c <conf> -d <db> -u wujia_sale,wujia_portal_sale --stop-after-init
+nssm start Odoo
+\end{verbatim}
+Sau upgrade: bật \texttt{is\_public\_portal} + set \texttt{min\_qty} cho SP muốn bán trên portal
+(default False --- chưa bật thì catalog trống), tạo \texttt{wujia.product.category} + gán SP.

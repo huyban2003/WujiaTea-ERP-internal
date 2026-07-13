@@ -1,16 +1,21 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
 
-    <record id="view_product_template_form_wujia" model="ir.ui.view">
-        <field name="name">product.template.form.wujia</field>
-        <field name="model">product.template</field>
-        <field name="inherit_id" ref="product.product_template_form_view"/>
+    <!-- Sprint 30: field portal chuyển sang product.product (BA sheet mục H + L).
+         Màn hình chính admin thao tác = product.product (Product Variants). -->
+    <record id="view_product_product_form_wujia" model="ir.ui.view">
+        <field name="name">product.product.form.wujia</field>
+        <field name="model">product.product</field>
+        <field name="inherit_id" ref="product.product_normal_form_view"/>
         <field name="arch" type="xml">
             <xpath expr="//notebook" position="inside">
                 <page string="Wujia Portal" name="wujia_portal_settings">
                     <group>
                         <group string="Hiển thị portal">
-                            <field name="is_public_website"/>
+                            <field name="is_public_portal"/>
+                            <field name="public_categ_id"/>
+                            <field name="name_chinese"/>
+                            <field name="description_ecommerce"/>
                         </group>
                         <group string="Giới hạn số lượng/đơn">
                             <field name="min_qty"/>
@@ -22,28 +27,54 @@
         </field>
     </record>
 
-    <record id="view_product_template_tree_wujia" model="ir.ui.view">
-        <field name="name">product.template.list.wujia</field>
-        <field name="model">product.template</field>
-        <field name="inherit_id" ref="product.product_template_tree_view"/>
+    <record id="view_product_product_tree_wujia" model="ir.ui.view">
+        <field name="name">product.product.list.wujia</field>
+        <field name="model">product.product</field>
+        <field name="inherit_id" ref="product.product_product_tree_view"/>
         <field name="arch" type="xml">
             <xpath expr="//field[@name='name']" position="after">
-                <field name="is_public_website" optional="hide"/>
+                <field name="is_public_portal" optional="hide"/>
+                <field name="public_categ_id" optional="hide"/>
             </xpath>
         </field>
     </record>
 
-    <record id="product_template_search_wujia" model="ir.ui.view">
-        <field name="name">product.template.search.wujia</field>
-        <field name="model">product.template</field>
-        <field name="inherit_id" ref="product.product_template_search_view"/>
+    <record id="product_product_search_wujia" model="ir.ui.view">
+        <field name="name">product.product.search.wujia</field>
+        <field name="model">product.product</field>
+        <field name="inherit_id" ref="product.product_search_form_view"/>
         <field name="arch" type="xml">
             <xpath expr="//search" position="inside">
                 <separator/>
-                <filter string="Đang hiện trên Portal" name="filter_public_website"
-                        domain="[('is_public_website', '=', True)]"/>
+                <filter string="Đang hiện trên Portal" name="filter_public_portal"
+                        domain="[('is_public_portal', '=', True)]"/>
             </xpath>
         </field>
     </record>
+
+    <!-- Danh mục portal -->
+    <record id="view_wujia_product_category_list" model="ir.ui.view">
+        <field name="name">wujia.product.category.list</field>
+        <field name="model">wujia.product.category</field>
+        <field name="arch" type="xml">
+            <list editable="bottom">
+                <field name="sequence" widget="handle"/>
+                <field name="name"/>
+                <field name="active" widget="boolean_toggle"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="action_wujia_product_category" model="ir.actions.act_window">
+        <field name="name">Danh mục portal</field>
+        <field name="res_model">wujia.product.category</field>
+        <field name="view_mode">list</field>
+    </record>
+
+    <menuitem id="menu_wujia_product_category"
+              name="Danh mục portal"
+              parent="sale.product_menu_catalog"
+              action="action_wujia_product_category"
+              sequence="50"/>
 
 </odoo>

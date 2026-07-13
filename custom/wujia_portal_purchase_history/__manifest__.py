@@ -1,11 +1,11 @@
 {
     'name': 'Wujia Portal — Purchase History',
-    'version': '19.0.1.7.0',
+    'version': '19.0.2.0.0',
     'category': 'Wujia',
-    'summary': 'Lịch sử đặt hàng portal — list + detail (skeleton UI)',
+    'summary': 'Lịch sử đặt hàng portal — list + detail (controller BA CT-024/025)',
     'author': 'WujiaTea',
     'license': 'LGPL-3',
-    'depends': ['wujia_sale', 'wujia_portal_base'],
+    'depends': ['wujia_sale', 'wujia_portal_base', 'wujia_delivery'],
     'data': [
         'views/sidenav_inherit.xml',
         'views/portal_history.xml',

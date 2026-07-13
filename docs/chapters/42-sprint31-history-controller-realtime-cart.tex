@@ -1,0 +1,113 @@
+\chapter{Sprint 31 --- Controller Lịch sử đơn hàng + Realtime giỏ hàng (2026-07-13)}
+
+\section{Bối cảnh}
+
+Hai việc song song trong một session. \textbf{(A)} BA chốt controller mapping màn
+\textbf{Lịch sử đơn hàng} (View List + View Form) qua chat GPT ``Controller Mapping Lịch sử
+Đơn Hàng'' (parse turbo-stream từ link share) + 3 sheet xlsm (\texttt{FEATURE CHECKLIST}
+POR-013, \texttt{3. Controller} CT-024/CT-025, \texttt{1. Model Field}). Template hiện tại
+(dựng ở Sprint 13 mobile + PC-2 desktop, \emph{trước} khi BA chốt rule) còn nhiều placeholder
+sai nghiệp vụ. \textbf{(B)} Nối tiếp item DEFERRED của Sprint PC-1: realtime giỏ hàng
+cross-session cho $\sim$1500 user --- server đã publish bus event từ Sprint 30, thiếu tầng
+client subscribe + reconcile.
+
+\section{Part A --- Controller Lịch sử đơn hàng (CT-024 + CT-025)}
+
+\subsection{Quyết định nghiệp vụ (nguồn: chat BA, FINAL)}
+
+\begin{itemize}
+\item \textbf{Phạm vi}: lấy \emph{tất cả} \texttt{sale.order} của cửa hàng hiện tại (cả đơn
+      portal lẫn đơn nhập tay backend --- NQ có cả đơn bù/trả). \textbf{Loại đơn huỷ}
+      (\texttt{state = cancel}) khỏi lịch sử.
+\item \textbf{Cửa hàng}: strict current store qua \texttt{get\_active\_franchise\_id()}; chưa
+      chọn $\rightarrow$ báo ``Không xác định được cửa hàng đang thao tác''. Không tin store id
+      từ FE. Detail search lại theo store $\rightarrow$ chống IDOR, không lộ tồn tại đơn cửa
+      hàng khác (cùng 1 message).
+\item \textbf{Ngày}: list hiển thị/lọc/sort theo \texttt{create\_date} (NQ quan tâm giờ tạo);
+      detail hiện cả \texttt{create\_date} (ngày tạo) và \texttt{date\_order} (ngày xác nhận).
+\item \textbf{Người đặt}: đơn portal $\rightarrow$ \texttt{portal\_requester\_user\_id.name};
+      đơn backend $\rightarrow$ nhãn \textbf{``Ngô Gia tạo đơn''} (không lộ \texttt{create\_uid}
+      nội bộ lên portal).
+\item \textbf{Giá đã gồm thuế}: thành tiền dòng = \texttt{price\_total}; đơn giá =
+      \texttt{price\_total / qty} (sau chiết khấu, đã thuế) --- \emph{không} dùng
+      \texttt{price\_subtotal}. Tổng chính thức = \texttt{amount\_total}.
+\item \textbf{Batch}: 1 SO $\leftrightarrow$ 1 batch qua \texttt{sale.order.batch\_id}; trạng thái
+      \texttt{delivery\_batch\_status}, ghi chú \texttt{delivery\_note}, giờ khởi hành
+      \texttt{actual\_departure} \texttt{or} \texttt{planned\_departure}.
+\item \textbf{Số sản phẩm} = số dòng \texttt{display\_type = False} (loại section/note).
+\end{itemize}
+
+Mọi field spec nhắc tới \textbf{đã có sẵn} trong code (đã verify) --- không thêm field model nào.
+
+\subsection{Thiết kế --- \texttt{wujia\_portal\_purchase\_history} 19.0.2.0.0}
+
+Giữ server-rendered (\texttt{type='http'} + QWeb) như toàn portal, nhưng chuyển từ ``đẩy
+recordset cho template tự tính'' $\rightarrow$ controller build \textbf{dataset lõi} (list-of-dict)
+dùng chung PC + mobile, gom toàn bộ business logic về Python (1 nguồn, không hardcode/lộ data
+trong template). Helper thuần dễ test: \texttt{\_history\_row\_vals}, \texttt{\_history\_detail\_vals},
+\texttt{\_history\_line\_vals}, \texttt{\_state\_meta}, \texttt{\_requester\_display}.
+
+\textbf{Gộp 3 map badge phân tán} (\texttt{STATE\_BADGES}/\texttt{MOBILE\_STATE\_BADGES}/
+\texttt{PC\_STATE\_BADGES}) về \textbf{1 nguồn}: controller trả \texttt{state\_label} +
+\texttt{status\_type} (semantic); mỗi template map \texttt{status\_type} sang badge CSS riêng
+(PC \texttt{wj-pc-badge--*} / mobile \texttt{wujia-badge-*}). Option lọc trạng thái build động từ
+selection \texttt{sale.order.state} trừ \texttt{cancel} $\rightarrow$ state custom thêm về sau tự
+nhận, không hardcode.
+
+\textbf{Perf 1500 user}: đếm số dòng SP bằng \textbf{1 \texttt{read\_group}} trên
+\texttt{sale.order.line} (\texttt{display\_type=False}) thay vì \texttt{len(order\_line)} từng đơn
+$\rightarrow$ không load toàn bộ line của cả trang. M2o (\texttt{batch\_id}, \texttt{currency\_id},
+\texttt{portal\_requester\_user\_id}) đọc qua recordset $\rightarrow$ ORM prefetch theo lô.
+
+\textbf{Gotcha QWeb}: \texttt{t-set} trong template được \texttt{t-call} \textbf{không} lan sang
+scope template gọi $\rightarrow$ map badge phải khai báo inline trong mỗi template (ban đầu tách ra
+1 template chung bị \texttt{KeyError: 'pc\_badge'} khi render row).
+
+\section{Part B --- Realtime giỏ hàng cross-session (bus.bus)}
+
+\subsection{Kiến trúc}
+
+Server đã publish \texttt{bus.bus} event \texttt{wujia\_cart\_changed} trên channel
+\texttt{wujia.franchise\_<id>} mọi mutation giỏ (Sprint 30). Sprint này thêm tầng client
+\textbf{Interaction} \texttt{portal\_cart\_sync.js} (selector \texttt{\#wj-cart-sync}, pattern y hệt
+\texttt{franchise\_realtime.js} --- ADR-006):
+
+\begin{itemize}
+\item \textbf{Subscribe} bus $\rightarrow$ event $\rightarrow$ fetch lại \textbf{partial giỏ}
+      server-render qua route mới \texttt{/portal/order/cart/fragment} (dùng chung QWeb, không dựng
+      row bằng JS) $\rightarrow$ \textbf{swap} DOM không reload.
+\item \textbf{Event delegation} trên \texttt{document} cho stepper/xoá/ghi chú $\rightarrow$ sống sót
+      qua fragment swap (không rebind). Số liệu qty/giá lấy từ server (pricelist có bậc).
+\item \textbf{Bỏ mọi \texttt{location.reload()}}: thêm/sửa/xoá giỏ cập nhật DOM live cùng-tab;
+      catalog badge + floatbar + header badge reconcile từ \texttt{qty\_map} trong state.
+\end{itemize}
+
+Tách partial \texttt{mcart\_panel} (mobile) + \texttt{pc\_cart\_panel} self-contained; floatbar
+mobile luôn render (ẩn \texttt{d-none} khi trống) để JS toggle. Gỡ \texttt{portal\_order\_pc.js}
+(handler chuyển hết sang delegation). \texttt{wujia\_portal\_sale} 19.0.4.0.0.
+
+\subsection{Gotcha môi trường --- WebSocket dev}
+
+Bus realtime chạy qua \textbf{WebSocket} phục vụ bởi gevent worker (\texttt{gevent\_port}), production
+proxy qua nginx \texttt{/websocket}. Server \textbf{dev local} (Werkzeug, \texttt{workers=0}, không
+gevent worker) \textbf{không phục vụ WebSocket} $\rightarrow$ mọi bus realtime của dự án (kể cả
+chuông thông báo ADR-006) không truyền tin ở local. \textbf{Đây là giới hạn môi trường, không phải
+lỗi code}. Verify client bằng cách gọi thẳng callback \texttt{onCartChanged} mà WebSocket sẽ kích
+hoạt $\rightarrow$ chuỗi reconcile (fetch fragment + apply DOM) đúng; chỉ ống transport bị chặn ở local.
+
+\section{Verify}
+
+\begin{itemize}
+\item Upgrade full-chain (\texttt{wujia\_sale, wujia\_portal\_sale, wujia\_portal\_purchase\_history})
+      RC=0, 91 modules, registry loaded.
+\item Test lịch sử: \texttt{test\_sprint31.py} ORM \textbf{26/0} + \texttt{test\_sprint31\_http.py}
+      HTTP \textbf{19/0} (giá đã thuế, ẩn cancel, IDOR không lộ, nhãn ``Ngô Gia tạo đơn'',
+      product\_line\_count loại section/note).
+\item Regression: sprint9 7/0, sprint30 ORM 16/0 + HTTP 17/0.
+\item Playwright PC 1920 + mobile 390: list/detail lịch sử khớp; realtime cart \textbf{16/0}
+      (same-tab thật không reload + cross-session reconcile qua bus callback + mobile floatbar),
+      0 lỗi JS.
+\end{itemize}
+
+\textbf{Deploy}: có schema/migration từ Sprint 30 $\rightarrow$ prod phải chạy tay 1 lần
+\texttt{-u wujia\_sale,wujia\_portal\_sale} (restart suông không đủ).
