@@ -1,13 +1,12 @@
-/* WujiaTea Portal — Realtime cart sync (Sprint 31).
+/* WujiaTea Portal — Cart sync (Sprint 31).
 
-   Giỏ chung theo store: mọi thao tác (add/update/remove/note) server publish bus
-   `wujia_cart_changed` trên channel `wujia.franchise_<id>` (đã có từ Sprint 30).
-   Module này SUBSCRIBE → fetch lại partial giỏ (server-render, 1 nguồn QWeb) → swap
-   không reload → user/thiết bị khác cùng store thấy realtime.
+   Giỏ chung theo store. Module gom tương tác giỏ (stepper/xoá/ghi chú) qua EVENT
+   DELEGATION trên document + reconcile CÙNG-TAB không reload: mỗi mutation → fetch lại
+   partial giỏ (server-render `/portal/order/cart/fragment`, 1 nguồn QWeb) → swap DOM +
+   cập nhật badge/floatbar/header. Số liệu qty/giá lấy TỪ server (pricelist có bậc).
 
-   Cũng gom luôn tương tác giỏ (stepper/xoá/ghi chú) qua EVENT DELEGATION trên
-   document → sống sót qua fragment swap (không cần rebind). Số liệu qty/giá lấy TỪ
-   server (giá pricelist có bậc) — client không tự tính. */
+   CROSS-SESSION realtime (subscribe bus `wujia_cart_changed`) TẠM TẮT — xem block
+   comment `willStart` dưới (gây banner "page out of date" khi WebSocket chưa sẵn). */
 import { Interaction } from "@web/public/interaction";
 import { registry } from "@web/core/registry";
 import { rpc } from "@web/core/network/rpc";
@@ -39,22 +38,24 @@ export class WujiaCartSync extends Interaction {
         document.addEventListener("input", this.onInput.bind(this));
     }
 
-    async willStart() {
-        if (!this.franchiseId) {
-            return;
-        }
-        const bus = this.services.bus_service;
-        bus.addChannel(`wujia.franchise_${this.franchiseId}`);
-        bus.subscribe("wujia_cart_changed", this.onCartChanged.bind(this));
-    }
-
-    // -------- bus: thiết bị/user khác cùng store đổi giỏ --------
-    onCartChanged(payload) {
-        if (!payload || payload.franchise_id !== this.franchiseId) {
-            return;
-        }
-        this.refresh();
-    }
+    // ------------------------------------------------------------------
+    // Cross-session realtime (bus.bus) TẠM TẮT — subscribe bus khởi động
+    // WebSocket worker; khi hạ tầng WebSocket chưa sẵn (Werkzeug dev / proxy
+    // prod chưa route /websocket) worker báo "outdated" → Odoo hiện banner
+    // "The page is out of date". Server vẫn publish `wujia_cart_changed` (S30)
+    // → bật lại chỉ cần bỏ comment block dưới khi WebSocket đã chạy chắc chắn.
+    // Phần cùng-tab (thêm/sửa/xoá giỏ không reload) KHÔNG cần bus, vẫn chạy.
+    // ------------------------------------------------------------------
+    // async willStart() {
+    //     if (!this.franchiseId) { return; }
+    //     const bus = this.services.bus_service;
+    //     bus.addChannel(`wujia.franchise_${this.franchiseId}`);
+    //     bus.subscribe("wujia_cart_changed", this.onCartChanged.bind(this));
+    // }
+    // onCartChanged(payload) {
+    //     if (!payload || payload.franchise_id !== this.franchiseId) { return; }
+    //     this.refresh();
+    // }
 
     // -------- tương tác giỏ (delegation) --------
     onClick(ev) {
