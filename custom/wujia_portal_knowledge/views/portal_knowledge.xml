@@ -7,17 +7,11 @@
             <t t-set="title">Thư viện kiến thức</t>
             <!-- ===== Desktop (≥992px) — GIỮ NGUYÊN (Sprint 9.13b) ===== -->
             <div class="content-wrapper d-none d-lg-block">
-                <div class="content-header row mt-3">
-                    <div class="content-header-left col-12 mb-1">
-                        <h2 class="content-header-title float-left mb-0">
-                            <i class="fa fa-book me-1"/>
-                            <t t-if="current_category">
-                                Kiến thức — <t t-out="current_category.name"/>
-                            </t>
-                            <t t-else="">Thư viện kiến thức</t>
-                        </h2>
-                    </div>
-                </div>
+                <t t-call="wujia_portal_layout.wj_page_header">
+                    <t t-set="ph_platform" t-value="'pc'"/>
+                    <t t-set="ph_variant" t-value="'title'"/>
+                    <t t-set="ph_title" t-value="('Kiến thức — ' + current_category.name) if current_category else 'Thư viện kiến thức'"/>
+                </t>
                 <div class="content-body">
                     <!-- Search bar -->
                     <div class="card mb-2">
@@ -135,11 +129,12 @@
                  - Icon bài viết: 1 icon chung icon-file-text (Figma vẽ icon riêng từng bài
                    — drift, chờ BA cấp field icon rồi đối chiếu). -->
             <div class="d-lg-none wujia-mpage wujia-mknow">
-                <!-- Title row -->
-                <div class="wujia-mknow-titlerow">
-                    <h1 class="wujia-mknow-title">Kiến thức</h1>
-                    <span class="wj-count-meta wj-count-meta--primary"><t t-out="len(articles)"/> bài viết</span>
-                </div>
+                <t t-call="wujia_portal_layout.wj_page_header">
+                    <t t-set="ph_platform" t-value="'m'"/>
+                    <t t-set="ph_variant" t-value="'title'"/>
+                    <t t-set="ph_title">Kiến thức</t>
+                </t>
+                <p class="wj-count-meta wj-count-meta--primary"><t t-out="len(articles)"/> bài viết</p>
 
                 <!-- Filter canonical 01-ChipSlide (Figma 4785:562) — keyword + category chips -->
                 <form method="get" action="/portal/knowledge" class="wj-filter-card">
@@ -252,17 +247,12 @@
             <t t-set="title" t-value="article.name"/>
             <!-- ===== Desktop (≥992px) — GIỮ NGUYÊN ===== -->
             <div class="content-wrapper d-none d-lg-block">
-                <div class="content-header row mt-3">
-                    <div class="content-header-left col-12 mb-1">
-                        <nav><ol class="breadcrumb">
-                            <li class="breadcrumb-item"><a href="/portal/knowledge">Kiến thức</a></li>
-                            <li t-if="article.category_id" class="breadcrumb-item">
-                                <a t-attf-href="/portal/knowledge?category_id=#{article.category_id.id}" t-out="article.category_id.name"/>
-                            </li>
-                            <li class="breadcrumb-item active" t-out="article.name"/>
-                        </ol></nav>
-                    </div>
-                </div>
+                <t t-call="wujia_portal_layout.wj_page_header">
+                    <t t-set="ph_platform" t-value="'pc'"/>
+                    <t t-set="ph_variant" t-value="'back'"/>
+                    <t t-set="ph_title">Kiến thức</t>
+                    <t t-set="ph_back_url" t-value="'/portal/knowledge'"/>
+                </t>
 
                 <div class="content-body">
                     <div class="row">
@@ -315,17 +305,12 @@
                  div.wujia-note → card cam (admin thêm class trong editor HTML).
                  Related "Bài liên quan": Figma mobile KHÔNG có → chỉ desktop. -->
             <div class="d-lg-none wujia-mpage wujia-mknow">
-                <div class="wujia-mknow-backrow">
-                    <a href="/portal/knowledge" class="wujia-mknow-back" aria-label="Về thư viện">
-                        <i class="feather icon-arrow-left"/>
-                    </a>
-                    <div class="wujia-mknow-backmeta">
-                        <span class="wujia-mknow-eyebrow">Kiến thức</span>
-                        <span class="wujia-mknow-crumb">
-                            <t t-if="article.category_id"><t t-out="article.category_id.name"/> / </t>Bài viết
-                        </span>
-                    </div>
-                </div>
+                <t t-call="wujia_portal_layout.wj_page_header">
+                    <t t-set="ph_platform" t-value="'m'"/>
+                    <t t-set="ph_variant" t-value="'back'"/>
+                    <t t-set="ph_title">Kiến thức</t>
+                    <t t-set="ph_back_url" t-value="'/portal/knowledge'"/>
+                </t>
 
                 <article class="wujia-mknow-card wujia-mknow-article">
                     <h1 class="wujia-mknow-article-title" t-out="article.name"/>

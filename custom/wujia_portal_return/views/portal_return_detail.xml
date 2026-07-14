@@ -7,19 +7,15 @@
 
             <!-- Desktop ≥992px — giữ nguyên, bọc d-none d-lg-block (S20) -->
             <div class="content-wrapper d-none d-lg-block">
-                <div class="content-header row mt-3">
-                    <div class="content-header-left col-12 mb-1">
-                        <nav><ol class="breadcrumb">
-                            <li class="breadcrumb-item"><a href="/portal/return">Đổi trả</a></li>
-                            <li class="breadcrumb-item active" t-out="rr.name"/>
-                        </ol></nav>
-                        <h2 class="content-header-title float-left mb-0 d-flex align-items-center">
-                            <span class="me-2"><t t-out="rr.name"/></span>
-                            <t t-set="lbl" t-value="state_labels.get(rr.state, (rr.state, 'state-draft'))"/>
-                            <span t-attf-class="badge state-badge #{lbl[1]}" t-out="lbl[0]"/>
-                        </h2>
-                    </div>
-                </div>
+                <t t-call="wujia_portal_layout.wj_page_header">
+                    <t t-set="ph_platform" t-value="'pc'"/>
+                    <t t-set="ph_variant" t-value="'back'"/>
+                    <t t-set="ph_title" t-value="rr.name"/>
+                    <t t-set="ph_back_url" t-value="'/portal/return'"/>
+                </t>
+                <!-- Status badge dời khỏi header (spec title-only) → block riêng dưới header -->
+                <t t-set="lbl" t-value="state_labels.get(rr.state, (rr.state, 'state-draft'))"/>
+                <div class="mb-2"><span t-attf-class="badge state-badge #{lbl[1]}" t-out="lbl[0]"/></div>
 
                 <div class="content-body">
                     <div class="row">
@@ -113,10 +109,12 @@
 
             <!-- Mobile <992px — Figma 4449:367, BA DetailScreen (S20) -->
             <div class="d-lg-none wujia-mpage wujia-mreturn">
-                <a href="/portal/return" class="wujia-mticket-back">
-                    <i class="feather icon-arrow-left"/> Đổi trả
-                </a>
-                <h1 class="wujia-mticket-h1">Chi tiết yêu cầu</h1>
+                <t t-call="wujia_portal_layout.wj_page_header">
+                    <t t-set="ph_platform" t-value="'m'"/>
+                    <t t-set="ph_variant" t-value="'back'"/>
+                    <t t-set="ph_title">Chi tiết yêu cầu</t>
+                    <t t-set="ph_back_url" t-value="'/portal/return'"/>
+                </t>
 
                 <div class="wujia-mdash-card">
                     <div class="wujia-mreturn-row-head">

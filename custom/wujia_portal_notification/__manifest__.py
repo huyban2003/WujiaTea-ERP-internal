@@ -1,6 +1,6 @@
 {
     'name': 'Wujia Portal — Notification',
-    'version': '19.0.1.8.0',
+    'version': '19.0.1.9.0',
     'category': 'Wujia',
     'summary': 'Thông báo HQ → cửa hàng nhượng quyền (controller BA FINAL)',
     'author': 'WujiaTea',

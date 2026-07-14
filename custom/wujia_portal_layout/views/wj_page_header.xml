@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- WJ_PageHeader — component chuẩn hoá header portal (spec WJ_PageHeader v1.0).
+         3 variant: title / back / create. Gọi trong từng block nền tảng bằng t-call,
+         truyền props qua t-set. ph_platform='m' (mobile) | 'pc'. Visibility (d-lg-none /
+         d-none d-lg-flex) bake sẵn — an toàn đặt trong block đã responsive. -->
+    <template id="wj_page_header" name="Wujia — Page Header component">
+        <t t-set="_ph_vis" t-value="'d-flex d-lg-none' if ph_platform == 'm' else 'd-none d-lg-flex'"/>
+        <header t-attf-class="wj-page-header wj-page-header--#{ph_platform} wj-page-header--#{ph_variant or 'title'} #{_ph_vis}">
+            <a t-if="ph_variant == 'back'" t-att-href="ph_back_url or '#'"
+               class="wj-page-header__back" aria-label="Quay lại">
+                <i class="feather icon-chevron-left"/>
+            </a>
+            <h1 class="wj-page-header__title" t-att-title="ph_title" t-out="ph_title"/>
+            <div t-if="ph_variant == 'create' and ph_can_create"
+                 class="wj-page-header__actions">
+                <a t-att-href="ph_create_url or '#'" class="wj-page-header__create">
+                    <i class="feather icon-plus"/>
+                    <span t-out="ph_create_label or 'Tạo mới'"/>
+                </a>
+            </div>
+        </header>
+    </template>
+</odoo>

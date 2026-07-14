@@ -5,16 +5,20 @@
         <t t-call="wujia_portal_layout.app_layout">
             <t t-set="title">Yêu cầu cập nhật thông tin</t>
             <div class="content-wrapper">
-                <div class="content-header row mt-3">
-                    <div class="content-header-left col-12 mb-1 d-flex align-items-center justify-content-between flex-wrap">
-                        <h2 class="content-header-title float-left mb-0">
-                            <i class="fa fa-edit me-1"/>Yêu cầu cập nhật thông tin
-                        </h2>
-                        <a href="/portal/info-request/new" class="btn btn-primary">
-                            <i class="fa fa-plus me-1"/>Tạo yêu cầu
-                        </a>
-                    </div>
-                </div>
+                <t t-call="wujia_portal_layout.wj_page_header">
+                    <t t-set="ph_platform" t-value="'pc'"/>
+                    <t t-set="ph_variant" t-value="'create'"/>
+                    <t t-set="ph_title">Yêu cầu cập nhật thông tin</t>
+                    <t t-set="ph_create_url" t-value="'/portal/info-request/new'"/>
+                    <t t-set="ph_can_create" t-value="True"/>
+                </t>
+                <t t-call="wujia_portal_layout.wj_page_header">
+                    <t t-set="ph_platform" t-value="'m'"/>
+                    <t t-set="ph_variant" t-value="'create'"/>
+                    <t t-set="ph_title">Cập nhật thông tin</t>
+                    <t t-set="ph_create_url" t-value="'/portal/info-request/new'"/>
+                    <t t-set="ph_can_create" t-value="True"/>
+                </t>
 
                 <div t-if="no_franchise" class="alert alert-warning m-3">
                     Bạn chưa được gán vào cửa hàng nào.

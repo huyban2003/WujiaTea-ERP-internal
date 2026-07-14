@@ -374,3 +374,14 @@ textarea.wj-pc-control { height: auto; min-height: 96px; padding: 12px 16px; }
     color: var(--wj-pc-subtle); font-size: 16px; pointer-events: none;
 }
 .wj-pc-filter-search > .wj-pc-filter-control { padding-left: 38px; }
+
+/* ---------- WJ_PageHeader — PC modifier (spec §5) ----------
+   Base .wj-page-header ở _components.css. PC: title 28/36/800, back 44,
+   gap-back-title 18, create 122×44, bottom 20. Top gap 24 do content-wrapper lo. */
+.wj-page-header--pc { margin: 0 0 20px; }
+/* !important để thắng global `h1 { font-size: … !important }` (_components.css gotcha #13) */
+.wj-page-header--pc .wj-page-header__title { font-size: 28px !important; line-height: 36px; }
+.wj-page-header--pc .wj-page-header__back { width: 44px; height: 44px; margin-right: 18px; }
+.wj-page-header--pc .wj-page-header__create { width: 122px; height: 44px; }
+/* Notification list — bulk-read action dời từ PageHeader xuống card head (spec: header title-only) */
+.wj-pc-noti-head-actions { display: flex; align-items: center; gap: 12px; }

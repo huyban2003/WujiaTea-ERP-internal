@@ -1,6 +1,6 @@
 {
     'name': 'Wujia Portal — Info Update Request',
-    'version': '19.0.1.2.0',
+    'version': '19.0.1.3.0',
     'category': 'Wujia',
     'summary': 'Cửa hàng nhượng quyền gửi yêu cầu cập nhật thông tin '
                '(địa chỉ, SĐT, người đại diện...) — HQ duyệt qua chatter.',

@@ -6,13 +6,11 @@
         <t t-call="wujia_portal_layout.app_layout">
             <t t-set="title">Lịch thi</t>
             <div class="content-wrapper d-none d-lg-block">
-                <div class="content-header row mt-3">
-                    <div class="content-header-left col-12 mb-1">
-                        <h2 class="content-header-title float-left mb-0">
-                            <i class="fa fa-calendar me-1"/>Lịch thi sắp tới
-                        </h2>
-                    </div>
-                </div>
+                <t t-call="wujia_portal_layout.wj_page_header">
+                    <t t-set="ph_platform" t-value="'pc'"/>
+                    <t t-set="ph_variant" t-value="'title'"/>
+                    <t t-set="ph_title">Lịch thi</t>
+                </t>
                 <div class="content-body">
                     <div t-if="not upcoming" class="alert alert-info">
                         Hiện không có kỳ thi nào sắp tới. Vui lòng quay lại sau.
@@ -62,12 +60,12 @@
 
             <!-- Mobile <992px — Figma s0 "Đăng ký thi" (S26, #4755:2) -->
             <div class="d-lg-none wujia-mpage wujia-mexam">
-                <div class="wujia-mexam-head-list">
-                    <h1 class="wujia-mexam-title">Đăng ký thi</h1>
-                    <p class="wujia-mexam-subtitle">
-                        <t t-out="len(m_exam_items)"/> đăng ký trong cửa hàng hiện tại
-                    </p>
-                </div>
+                <t t-call="wujia_portal_layout.wj_page_header">
+                    <t t-set="ph_platform" t-value="'m'"/>
+                    <t t-set="ph_variant" t-value="'title'"/>
+                    <t t-set="ph_title">Đăng ký thi</t>
+                </t>
+                <p class="wj-count-meta"><t t-out="len(m_exam_items)"/> đăng ký trong cửa hàng hiện tại</p>
 
                 <!-- Filter canonical 04-DateRangeOnly (Figma 4785:862) — demo UI-only (Phase 2 wire) -->
                 <div class="wj-filter-card">
@@ -127,13 +125,16 @@
         <t t-call="wujia_portal_layout.app_layout">
             <t t-set="title">Đăng ký của tôi</t>
             <div class="content-wrapper">
-                <div class="content-header row mt-3">
-                    <div class="content-header-left col-12 mb-1">
-                        <h2 class="content-header-title float-left mb-0">
-                            <i class="fa fa-user-check me-1"/>Đăng ký dự thi của tôi
-                        </h2>
-                    </div>
-                </div>
+                <t t-call="wujia_portal_layout.wj_page_header">
+                    <t t-set="ph_platform" t-value="'pc'"/>
+                    <t t-set="ph_variant" t-value="'title'"/>
+                    <t t-set="ph_title">Đăng ký của tôi</t>
+                </t>
+                <t t-call="wujia_portal_layout.wj_page_header">
+                    <t t-set="ph_platform" t-value="'m'"/>
+                    <t t-set="ph_variant" t-value="'title'"/>
+                    <t t-set="ph_title">Đăng ký của tôi</t>
+                </t>
                 <div class="content-body">
                     <div t-if="not my_regs" class="alert alert-info">
                         Bạn chưa đăng ký kỳ thi nào. <a href="/portal/exam">Xem lịch thi sắp tới</a>.
@@ -178,14 +179,18 @@
         <t t-call="wujia_portal_layout.app_layout">
             <t t-set="title">Chi tiết kỳ thi</t>
             <div class="content-wrapper">
-                <div class="content-header row mt-3">
-                    <div class="content-header-left col-12 mb-1">
-                        <nav><ol class="breadcrumb">
-                            <li class="breadcrumb-item"><a href="/portal/exam">Lịch thi</a></li>
-                            <li class="breadcrumb-item active" t-out="schedule.name"/>
-                        </ol></nav>
-                    </div>
-                </div>
+                <t t-call="wujia_portal_layout.wj_page_header">
+                    <t t-set="ph_platform" t-value="'pc'"/>
+                    <t t-set="ph_variant" t-value="'back'"/>
+                    <t t-set="ph_title">Chi tiết kỳ thi</t>
+                    <t t-set="ph_back_url" t-value="'/portal/exam'"/>
+                </t>
+                <t t-call="wujia_portal_layout.wj_page_header">
+                    <t t-set="ph_platform" t-value="'m'"/>
+                    <t t-set="ph_variant" t-value="'back'"/>
+                    <t t-set="ph_title">Chi tiết kỳ thi</t>
+                    <t t-set="ph_back_url" t-value="'/portal/exam'"/>
+                </t>
                 <div class="content-body">
                     <div class="card">
                         <div class="card-body">
@@ -235,13 +240,16 @@
         <t t-call="wujia_portal_layout.app_layout">
             <t t-set="title">Kết quả thi</t>
             <div class="content-wrapper">
-                <div class="content-header row mt-3">
-                    <div class="content-header-left col-12 mb-1">
-                        <h2 class="content-header-title float-left mb-0">
-                            <i class="fa fa-chart-bar me-1"/>Kết quả thi
-                        </h2>
-                    </div>
-                </div>
+                <t t-call="wujia_portal_layout.wj_page_header">
+                    <t t-set="ph_platform" t-value="'pc'"/>
+                    <t t-set="ph_variant" t-value="'title'"/>
+                    <t t-set="ph_title">Kết quả thi</t>
+                </t>
+                <t t-call="wujia_portal_layout.wj_page_header">
+                    <t t-set="ph_platform" t-value="'m'"/>
+                    <t t-set="ph_variant" t-value="'title'"/>
+                    <t t-set="ph_title">Kết quả thi</t>
+                </t>
                 <div class="content-body">
                     <div t-if="not results" class="wujia-empty-state">
                         <i class="feather icon-award"/>
@@ -287,11 +295,12 @@
 
             <!-- Desktop: tối ưu cho mobile -->
             <div class="content-wrapper d-none d-lg-block">
-                <div class="content-header row mt-3">
-                    <div class="content-header-left col-12 mb-1">
-                        <h2 class="content-header-title mb-0">Đăng ký thi</h2>
-                    </div>
-                </div>
+                <t t-call="wujia_portal_layout.wj_page_header">
+                    <t t-set="ph_platform" t-value="'pc'"/>
+                    <t t-set="ph_variant" t-value="'back'"/>
+                    <t t-set="ph_title">Đăng ký thi</t>
+                    <t t-set="ph_back_url" t-value="'/portal/exam'"/>
+                </t>
                 <div class="content-body">
                     <div class="alert alert-info">
                         Luồng đăng ký thi được tối ưu cho thiết bị di động.
@@ -579,6 +588,12 @@
             <t t-set="title">Kết quả đăng ký</t>
 
             <div class="content-wrapper d-none d-lg-block">
+                <t t-call="wujia_portal_layout.wj_page_header">
+                    <t t-set="ph_platform" t-value="'pc'"/>
+                    <t t-set="ph_variant" t-value="'back'"/>
+                    <t t-set="ph_title">Kết quả đăng ký</t>
+                    <t t-set="ph_back_url" t-value="'/portal/exam'"/>
+                </t>
                 <div class="content-body">
                     <div class="alert alert-info mt-3">
                         Kết quả đăng ký được tối ưu cho thiết bị di động.
@@ -589,15 +604,12 @@
 
             <!-- Mobile <992px — Figma s6 -->
             <div class="d-lg-none wujia-mpage wujia-mexam-result">
-                <div class="wujia-mexam-head">
-                    <a href="/portal/exam" class="wujia-mexam-back">
-                        <i class="feather icon-chevron-left"/>
-                    </a>
-                    <div class="wujia-mexam-head-main">
-                        <h1 class="wujia-mexam-h1">Kết quả đăng ký</h1>
-                        <p class="wujia-mexam-sub">Kết quả theo lịch thi đã đăng ký</p>
-                    </div>
-                </div>
+                <t t-call="wujia_portal_layout.wj_page_header">
+                    <t t-set="ph_platform" t-value="'m'"/>
+                    <t t-set="ph_variant" t-value="'back'"/>
+                    <t t-set="ph_title">Kết quả đăng ký</t>
+                    <t t-set="ph_back_url" t-value="'/portal/exam'"/>
+                </t>
 
                 <div class="wujia-mexam-rsum">
                     <div class="wujia-mexam-card-top">

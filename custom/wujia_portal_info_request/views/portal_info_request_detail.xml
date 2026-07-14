@@ -5,19 +5,21 @@
         <t t-call="wujia_portal_layout.app_layout">
             <t t-set="title">Chi tiết yêu cầu</t>
             <div class="content-wrapper">
-                <div class="content-header row mt-3">
-                    <div class="content-header-left col-12 mb-1">
-                        <nav><ol class="breadcrumb">
-                            <li class="breadcrumb-item"><a href="/portal/info-request">Cập nhật thông tin</a></li>
-                            <li class="breadcrumb-item active" t-out="rec.name"/>
-                        </ol></nav>
-                        <h2 class="content-header-title float-left mb-0">
-                            <t t-out="rec.name"/>
-                            <t t-set="lbl" t-value="state_labels.get(rec.state, (rec.state, 'state-draft'))"/>
-                            <span t-attf-class="badge state-badge #{lbl[1]} ms-2" t-out="lbl[0]"/>
-                        </h2>
-                    </div>
-                </div>
+                <t t-call="wujia_portal_layout.wj_page_header">
+                    <t t-set="ph_platform" t-value="'pc'"/>
+                    <t t-set="ph_variant" t-value="'back'"/>
+                    <t t-set="ph_title" t-value="rec.name"/>
+                    <t t-set="ph_back_url" t-value="'/portal/info-request'"/>
+                </t>
+                <t t-call="wujia_portal_layout.wj_page_header">
+                    <t t-set="ph_platform" t-value="'m'"/>
+                    <t t-set="ph_variant" t-value="'back'"/>
+                    <t t-set="ph_title">Chi tiết yêu cầu</t>
+                    <t t-set="ph_back_url" t-value="'/portal/info-request'"/>
+                </t>
+                <!-- Status badge dời khỏi header (spec title-only) → block riêng dưới header -->
+                <t t-set="lbl" t-value="state_labels.get(rec.state, (rec.state, 'state-draft'))"/>
+                <div class="mb-2"><span t-attf-class="badge state-badge #{lbl[1]}" t-out="lbl[0]"/></div>
 
                 <div t-if="message" class="alert alert-info m-3">
                     <t t-if="message == 'created'">Yêu cầu đã được tạo.</t>

@@ -6,16 +6,18 @@
             <div class="content-wrapper">
                 <!-- Realtime cart sync root — header cart badge realtime (Sprint 31). -->
                 <div id="wj-cart-sync" class="d-none" t-att-data-franchise-id="active_franchise_id"/>
-                <div class="content-header row mt-3">
-                    <div class="content-header-left col-12 mb-1">
-                        <nav>
-                            <ol class="breadcrumb">
-                                <li class="breadcrumb-item"><a href="/portal/order">Đặt hàng</a></li>
-                                <li class="breadcrumb-item active" t-out="product.name"/>
-                            </ol>
-                        </nav>
-                    </div>
-                </div>
+                <t t-call="wujia_portal_layout.wj_page_header">
+                    <t t-set="ph_platform" t-value="'pc'"/>
+                    <t t-set="ph_variant" t-value="'back'"/>
+                    <t t-set="ph_title" t-value="product.name"/>
+                    <t t-set="ph_back_url" t-value="'/portal/order'"/>
+                </t>
+                <t t-call="wujia_portal_layout.wj_page_header">
+                    <t t-set="ph_platform" t-value="'m'"/>
+                    <t t-set="ph_variant" t-value="'back'"/>
+                    <t t-set="ph_title" t-value="product.name"/>
+                    <t t-set="ph_back_url" t-value="'/portal/order'"/>
+                </t>
                 <div class="content-body">
                     <div class="card">
                         <div class="card-body">

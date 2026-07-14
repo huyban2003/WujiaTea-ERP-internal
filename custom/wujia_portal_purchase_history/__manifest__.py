@@ -1,6 +1,6 @@
 {
     'name': 'Wujia Portal — Purchase History',
-    'version': '19.0.2.0.0',
+    'version': '19.0.2.1.0',
     'category': 'Wujia',
     'summary': 'Lịch sử đặt hàng portal — list + detail (controller BA CT-024/025)',
     'author': 'WujiaTea',

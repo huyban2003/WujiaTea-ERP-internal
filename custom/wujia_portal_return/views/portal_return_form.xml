@@ -7,15 +7,12 @@
 
             <!-- Desktop ≥992px — giữ nguyên, bọc d-none d-lg-block (S20) -->
             <div class="content-wrapper d-none d-lg-block">
-                <div class="content-header row mt-3">
-                    <div class="content-header-left col-12 mb-1">
-                        <nav><ol class="breadcrumb">
-                            <li class="breadcrumb-item"><a href="/portal/return">Đổi trả</a></li>
-                            <li class="breadcrumb-item active">Tạo yêu cầu</li>
-                        </ol></nav>
-                        <h2 class="content-header-title float-left mb-0">Tạo yêu cầu đổi trả</h2>
-                    </div>
-                </div>
+                <t t-call="wujia_portal_layout.wj_page_header">
+                    <t t-set="ph_platform" t-value="'pc'"/>
+                    <t t-set="ph_variant" t-value="'back'"/>
+                    <t t-set="ph_title">Tạo yêu cầu đổi trả</t>
+                    <t t-set="ph_back_url" t-value="'/portal/return'"/>
+                </t>
 
                 <div class="content-body">
                     <form method="post" action="/portal/return/new" enctype="multipart/form-data" class="card">
@@ -102,10 +99,12 @@
 
             <!-- Mobile <992px — Figma 4449:203, BA FormScreen, single-product (S20) -->
             <div class="d-lg-none wujia-mpage wujia-mreturn">
-                <a href="/portal/return" class="wujia-mticket-back">
-                    <i class="feather icon-arrow-left"/> Đổi trả
-                </a>
-                <h1 class="wujia-mticket-h1">Tạo yêu cầu đổi trả</h1>
+                <t t-call="wujia_portal_layout.wj_page_header">
+                    <t t-set="ph_platform" t-value="'m'"/>
+                    <t t-set="ph_variant" t-value="'back'"/>
+                    <t t-set="ph_title">Tạo yêu cầu đổi trả</t>
+                    <t t-set="ph_back_url" t-value="'/portal/return'"/>
+                </t>
 
                 <div class="wujia-mreturn-banner">
                     <i class="feather icon-info"/>

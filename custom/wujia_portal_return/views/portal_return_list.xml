@@ -7,16 +7,13 @@
 
             <!-- Desktop ≥992px — giữ nguyên, bọc d-none d-lg-block (S20) -->
             <div class="content-wrapper d-none d-lg-block">
-                <div class="content-header row mt-3">
-                    <div class="content-header-left col-12 mb-1 d-flex align-items-center justify-content-between flex-wrap">
-                        <h2 class="content-header-title float-left mb-0">
-                            <i class="fa fa-undo me-1"/>Yêu cầu đổi trả
-                        </h2>
-                        <a href="/portal/return/new" class="btn btn-primary">
-                            <i class="fa fa-plus me-1"/>Tạo yêu cầu
-                        </a>
-                    </div>
-                </div>
+                <t t-call="wujia_portal_layout.wj_page_header">
+                    <t t-set="ph_platform" t-value="'pc'"/>
+                    <t t-set="ph_variant" t-value="'create'"/>
+                    <t t-set="ph_title">Yêu cầu đổi trả</t>
+                    <t t-set="ph_create_url" t-value="'/portal/return/new'"/>
+                    <t t-set="ph_can_create" t-value="True"/>
+                </t>
 
                 <div t-if="no_franchise" class="alert alert-warning m-3">
                     Bạn chưa được gán vào cửa hàng nào.
@@ -128,12 +125,13 @@
 
             <!-- Mobile <992px — Figma 4449:88, BA ListScreen (S20) -->
             <div class="d-lg-none wujia-mpage wujia-mreturn">
-                <div class="wujia-mticket-toprow">
-                    <h1 class="wujia-mticket-h1">Đổi trả hàng</h1>
-                    <a href="/portal/return/new" class="wujia-mticket-create-pill">
-                        <i class="feather icon-plus"/> Tạo yêu cầu
-                    </a>
-                </div>
+                <t t-call="wujia_portal_layout.wj_page_header">
+                    <t t-set="ph_platform" t-value="'m'"/>
+                    <t t-set="ph_variant" t-value="'create'"/>
+                    <t t-set="ph_title">Đổi trả hàng</t>
+                    <t t-set="ph_create_url" t-value="'/portal/return/new'"/>
+                    <t t-set="ph_can_create" t-value="True"/>
+                </t>
 
                 <div t-if="no_franchise" class="wj-empty-state wj-empty-state--card">
                     <i class="feather icon-alert-circle"/>

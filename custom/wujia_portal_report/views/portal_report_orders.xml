@@ -5,17 +5,21 @@
         <t t-call="wujia_portal_layout.app_layout">
             <t t-set="title">Báo cáo đặt hàng</t>
             <div class="content-wrapper">
-                <div class="content-header row mt-3">
-                    <div class="content-header-left col-12 mb-1">
-                        <h2 class="content-header-title float-left mb-0">
-                            <i class="fa fa-bar-chart me-1"/>Báo cáo đặt hàng
-                        </h2>
-                        <p class="text-muted small mt-1">
-                            Tổng hợp đơn hàng theo tháng, sản phẩm bán nhiều, phân bố trạng thái.
-                            Quyền xem: <strong t-out="max_role"/>.
-                        </p>
-                    </div>
-                </div>
+                <t t-call="wujia_portal_layout.wj_page_header">
+                    <t t-set="ph_platform" t-value="'pc'"/>
+                    <t t-set="ph_variant" t-value="'title'"/>
+                    <t t-set="ph_title">Báo cáo đặt hàng</t>
+                </t>
+                <t t-call="wujia_portal_layout.wj_page_header">
+                    <t t-set="ph_platform" t-value="'m'"/>
+                    <t t-set="ph_variant" t-value="'title'"/>
+                    <t t-set="ph_title">Báo cáo đặt hàng</t>
+                </t>
+                <!-- Mô tả nghiệp vụ dời khỏi header (spec: không subtitle) → block riêng dưới -->
+                <p class="text-muted small mb-3">
+                    Tổng hợp đơn hàng theo tháng, sản phẩm bán nhiều, phân bố trạng thái.
+                    Quyền xem: <strong t-out="max_role"/>.
+                </p>
 
                 <div class="content-body">
                     <!-- Filter bar -->

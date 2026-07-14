@@ -1,0 +1,109 @@
+\chapter{Sprint 33 --- WJ\_PageHeader: chuẩn hoá header mọi trang portal (2026-07-14)}
+
+\section{Bối cảnh}
+
+BA bàn giao spec \texttt{WJ\_PageHeader\_Component\_Spec\_PC\_Mobile\_v1.0} (folder
+\texttt{docs/WJ\_PageHeader/}: docx + PDF 12 trang + mockup PNG/SVG 3 variant cho Mobile và PC).
+Mục tiêu: \textbf{một PageHeader duy nhất} dùng xuyên suốt portal cho cả 2 nền tảng, giảm chiều cao
+chiếm dụng, đồng bộ title/back/create, \emph{giữ nguyên Global Shell} của từng nền tảng.
+
+Hiện trạng gây lệch: mỗi module tự chế header riêng. \textbf{Mobile} fragmented hoàn toàn
+(\texttt{wujia-mhist-title/-back}, \texttt{wujia-mnoti-*}, \texttt{wujia-mticket-*},
+\texttt{wujia-mexam-*}, \texttt{wujia-mknow-*}, \texttt{wujia-mdelivery-*}, \texttt{wujia-mcart-*}).
+\textbf{PC}: 4 trang (history/notification/delivery/order) đã có \texttt{wj-pc-page-header} nhưng
+title 26/700 + có \texttt{\_\_crumb} (breadcrumb); 6 trang còn lại (return/support/knowledge/exam/
+report/info-request) vẫn dùng Vuexy \texttt{content-header}/breadcrumb legacy.
+
+\section{Spec --- luật bắt buộc}
+
+PageHeader là 1 hàng layout độc lập trên nền content \texttt{\#F3F6F8}, \emph{không} card/shadow/subtitle;
+title căn trái (1 dòng, ellipsis, \texttt{min-width:0}), action căn phải, căn giữa dọc; chỉ 1 Back
+button/màn (đặt tại PageHeader, không lặp trong form card); Create chỉ hiện khi có quyền (ẩn, không
+disable). Mobile: title 22/28 w800, back 40$\times$40 (tap $\ge$44, icon 24 \texttt{\#28A9DF}), create
+112$\times$40, spacing 16/44/12, content x=16. PC: title 28/36 w800, back 44$\times$44, create
+122$\times$44, gap back-title 18, spacing 24/44/20.
+
+\textbf{Breakpoint}: spec dùng 767/768 nhưng project split Mobile/PC ở \textbf{991.98px}
+(\texttt{d-lg-none} / \texttt{d-none d-lg-block}) --- không dùng media-query của spec, dùng
+\textbf{modifier class} \texttt{--m}/\texttt{--pc} render trong đúng block từng nền tảng.
+
+\section{Quyết định scope (user chốt)}
+
+\begin{itemize}
+\item \textbf{Trang Tài khoản} (profile/change-password/franchise-information --- shell
+      \texttt{pc\_account\_layout} Sprint 28 có nav-card + crumb + subtitle) $\rightarrow$ \textbf{EXCLUDE},
+      không đụng (thiết kế Figma riêng).
+\item \textbf{6 trang PC legacy} $\rightarrow$ \textbf{chỉ thay riêng header row} sang chuẩn mới, thân
+      desktop giữ legacy.
+\item \textbf{Màn đặc thù} (Đặt hàng combined, Wizard exam step-back, Home dashboard) $\rightarrow$ áp
+      header chuẩn cho phần title/back thường, \emph{giữ} warning-bar khung giờ / FAB / wizard step-back /
+      dashboard Home (Home = dashboard, không có PageHeader).
+\end{itemize}
+
+\section{Kiến trúc (một component + props)}
+
+\textbf{Component QWeb} mới \texttt{wujia\_portal\_layout.wj\_page\_header} (file
+\texttt{views/wj\_page\_header.xml}), props qua \texttt{t-call}+\texttt{t-set}: \texttt{ph\_variant}
+(\texttt{title}/\texttt{back}/\texttt{create}), \texttt{ph\_title}, \texttt{ph\_back\_url},
+\texttt{ph\_create\_url}/\texttt{ph\_create\_label}(default ``Tạo mới'')/\texttt{ph\_can\_create},
+\texttt{ph\_platform} (\texttt{m}/\texttt{pc}). Visibility (\texttt{d-flex d-lg-none} /
+\texttt{d-none d-lg-flex}) bake trong template --- an toàn đặt trong block đã responsive. Gọi trong
+từng block nền tảng của mỗi trang; trang single-layout (info-request/report/product-detail) gọi cả 2
+header (\texttt{m}+\texttt{pc}), chỉ 1 hiện mỗi viewport.
+
+\textbf{CSS}: base + \texttt{--m} ở \texttt{\_components.css}, \texttt{--pc} ở
+\texttt{\_pc\_components.css} (cả 2 load global). Dùng token có sẵn \texttt{--wj-primary \#28A9DF} /
+\texttt{--wj-title} / \texttt{--wj-border \#E5E7EB} / \texttt{--wj-surface}. Không media-query --- modifier
+class + Bootstrap display utility lo visibility; override \texttt{.wujia-mpage > .wj-page-header--m
+\{ margin:0 \}} (mpage gap/pad tự lo spacing).
+
+\section{Page $\rightarrow$ variant}
+
+\begin{itemize}
+\item \textbf{title}: history-list, notification-list, delivery-list, knowledge-list, report,
+      exam-schedule/my/result, order-catalog (PC ``Đặt hàng'' / mobile ``Sản phẩm'').
+\item \textbf{create}: return-list, support-list, info-request-list (nút ``Tạo mới'' 112/122).
+\item \textbf{back}: history/notification/delivery/knowledge/support/info-request/return
+      detail\&form, order-cart, product-detail, exam schedule-detail/register-PC/registration-detail.
+\end{itemize}
+
+Reconcile PC 4 trang cũ: bỏ \texttt{\_\_crumb}, title 26/700 $\rightarrow$ 28/36/800, Back đổi từ
+text-button ``Quay lại danh sách'' (phải) sang icon 44$\times$44 (trái). Notification list: nút
+``Đánh dấu đã đọc'' (không phải create) \textbf{dời} khỏi header xuống card-head (giữ \texttt{id}/JS).
+Status badge ở return/support/info-request detail dời khỏi header $\rightarrow$ block riêng dưới header.
+Count-meta / subtitle mô tả tách khỏi header $\rightarrow$ line \texttt{wj-count-meta} bên dưới.
+
+\section{Gotcha \#13 tái phát --- global \texttt{h1 !important}}
+
+\texttt{\_components.css} có rule chuẩn-hoá \texttt{h1, .wujia-h1 \{ font-size:
+var(--wujia-font-size-h1) !important \}} $\rightarrow$ ép mọi \texttt{<h1>} (kể cả
+\texttt{.wj-page-header\_\_title}) về 32px, đè rule modifier (không \texttt{!important}). Triệu chứng:
+Playwright \texttt{getComputedStyle} đo title = 32px ở \emph{cả} mobile lẫn PC. Fix: thêm
+\texttt{!important} + scope 2 lớp cho font-size 22 (\texttt{--m}) / 28 (\texttt{--pc}) --- scoped
+important thắng element important (đúng gotcha \#11). \texttt{font-weight:800} không dính (global chỉ
+set 700, không \texttt{!important}, thua specificity class).
+
+\section{Kiểm chứng}
+
+\begin{itemize}
+\item Upgrade 11 module chạm RC=0, \texttt{wj\_page\_header.xml} load sạch, không QWeb/ParseError.
+\item Playwright login \texttt{anh.owner}: 3 variant $\times$ 2 nền tảng khớp mockup; computed
+      \texttt{font-size} title = \textbf{22px mobile / 28px PC} mọi trang (sau fix); back icon-trái
+      40/44, create cyan 112/122 phải, crumb đã bỏ.
+\item Legacy PC (support/return/\ldots): header row đổi chuẩn, thân desktop giữ legacy. Special
+      (order catalog warning-bar/floatbar, cart realtime fragment) giữ nguyên phần đặc thù; JS cart chỉ
+      phụ thuộc class stepper/row/del (không phụ thuộc class header) $\rightarrow$ an toàn.
+\item EXCLUDE (Home, Tài khoản): 0 \texttt{wj-page-header}, render nguyên vẹn.
+\item \texttt{test\_sprint9.py} 7/0 (regression). Report có 500 \emph{pre-existing} (\texttt{psycopg2:
+      time zone ``Asia/Saigon'' not recognized} --- tz data DB local, không liên quan header).
+\end{itemize}
+
+\paragraph{Deploy.} UI-only, \emph{không} schema change $\rightarrow$ không cần \texttt{-i}; chỉ bump
+manifest 11 module để runner \texttt{-u} (cập nhật view phát \texttt{?v=1151} mới). CSS
+\texttt{\_components}/\texttt{\_pc\_components} bump 1149/1141 $\rightarrow$ 1151.
+
+\paragraph{Deferred.} Gỡ CSS bespoke chết (title/titlerow/back các module hist/noti/ticket/knowledge/
+delivery/cart/order-list --- đã grep xác nhận 0-usage XML; \texttt{wujia-mexam-back/head/*} còn 4--8
+usage vì \emph{giữ} wizard, không xoá; \texttt{wj-pc-page-header} còn dùng ở \texttt{pc\_preview.xml}
+dev-only). Xoá thủ công $\sim$30 block trong \texttt{\_components.css} 2800 dòng rủi ro đụng nhầm class
+wizard $\rightarrow$ để cleanup riêng.
