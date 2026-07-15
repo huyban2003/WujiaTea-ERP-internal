@@ -39,11 +39,11 @@
                         </t>
                     </a>
                     <div class="dropdown-menu dropdown-menu-right" aria-labelledby="m-dropdown-flag">
-                        <a class="dropdown-item" t-attf-href="/website/lang/en" data-url_code="en">
+                        <a class="dropdown-item" href="/portal/set-lang/en_US" data-url_code="en">
                             <i class="flag-icon flag-icon-us"/>
                             English
                         </a>
-                        <a class="dropdown-item" t-attf-href="/website/lang/vi" data-url_code="vi">
+                        <a class="dropdown-item" href="/portal/set-lang/vi_VN" data-url_code="vi">
                             <i class="flag-icon flag-icon-vn"/>
                             Việt Nam
                         </a>
@@ -60,9 +60,13 @@
                 <div class="dropdown dropdown-user wujia-mheader-action-wrap">
                     <a class="wujia-mheader-action wujia-mheader-avatar dropdown-toggle" href="#"
                        data-toggle="dropdown" aria-label="Tài khoản">
-                        <img class="round wujia-mheader-avatar-img"
+                        <!-- UI-04 (Sprint 34): real photo when uploaded, else generic user
+                             icon (image_128 is False for portal users w/o avatar; avatar_128
+                             always returns Odoo's initials placeholder so can't gate on it). -->
+                        <img t-if="request.env.user.image_128" class="round wujia-mheader-avatar-img"
                              t-att-src="'/web/image/res.users/' + str(request.env.user.id) + '/avatar_128'"
                              alt="avatar"/>
+                        <i t-else="" class="feather icon-user"/>
                     </a>
                     <!-- Figma Mobile_Account_Info màn 04 "Avatar menu pop-up": header
                          (tên + email) + 4 item VN + Đăng xuất đỏ. Mobile-only (header

@@ -6,6 +6,15 @@ html body {
     background-color: var(--wujia-bg-page);
     color: var(--wujia-text-primary);
 }
+/* UI-06 (Sprint 34): Vuexy vendor hard-codes Montserrat on these — Montserrat isn't
+   loaded so they fell through to Helvetica/Arial, not Inter. Force Inter (explicit
+   font-family breaks body inheritance, so a targeted override is required). */
+.header-navbar,
+.navigation,
+.navigation-header,
+.breadcrumb {
+    font-family: var(--wujia-font-family) !important;
+}
 
 /* ---------- Brand color overrides on Bootstrap utilities ---------- */
 .bg-primary,
@@ -41,6 +50,31 @@ html body {
     height: 100% !important;
     display: flex !important;
     align-items: center !important;
+}
+
+/* UI-01 (Sprint 34): Top Bar bám đỉnh theo BA — bỏ float offset của Vuexy
+   navbar-floating (margin 1.3rem 2.2rem 0). ≥1200px (sidebar hiện): mép trái =
+   sidebar 300px, phải = 0 → x=300, y=0, w=viewport−300 (1920→1620, h=72).
+   992–1199px (sidebar off-canvas): full-width. <992px: navbar ẩn (dùng mobile header). */
+@media (min-width: 1200px) {
+    .header-navbar.floating-nav {
+        margin: 0 !important;
+        top: 0 !important;
+        left: var(--wujia-sidebar-width) !important;
+        right: 0 !important;
+        width: auto !important;
+        border-radius: 0 !important;
+    }
+}
+@media (min-width: 992px) and (max-width: 1199.98px) {
+    .header-navbar.floating-nav {
+        margin: 0 !important;
+        top: 0 !important;
+        left: 0 !important;
+        right: 0 !important;
+        width: auto !important;
+        border-radius: 0 !important;
+    }
 }
 
 /* ---------- Sidebar (UI-03/04/06) ---------- */

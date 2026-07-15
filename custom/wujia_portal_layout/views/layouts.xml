@@ -19,7 +19,7 @@
                     <t t-call-assets="web.assets_frontend" t-js="false" t-css="true"/>
                 </head>
                 <body class="vertical-layout  navbar-floating  vertical-menu-modern footer-static" data-open="click"
-                      data-menu="vertical-menu-modern" style="font-family: Arial;">
+                      data-menu="vertical-menu-modern">
                     <t t-out="0"/>
                     <t t-call="wujia_portal_layout.asset_frontend_js"/>
                     <t t-call-assets="web.assets_frontend" t-js="true" t-css="false"/>
@@ -64,11 +64,11 @@
                                         </t>
                                     </a>
                                     <div class="dropdown-menu dropdown-menu-right" aria-labelledby="dropdown-flag">
-                                        <a class="dropdown-item" t-attf-href="/website/lang/en" data-url_code="en">
+                                        <a class="dropdown-item" href="/portal/set-lang/en_US" data-url_code="en">
                                             <i class="flag-icon flag-icon-us"/>
                                             English
                                         </a>
-                                        <a class="dropdown-item" t-attf-href="/website/lang/vi" data-url_code="vi">
+                                        <a class="dropdown-item" href="/portal/set-lang/vi_VN" data-url_code="vi">
                                             <i class="flag-icon flag-icon-vn"/>
                                             Việt Nam
                                         </a>
@@ -82,11 +82,20 @@
                                        data-toggle="dropdown">
                                         <div class="wj-pc-user-nav d-sm-flex d-none">
                                             <span class="wj-pc-user-nav__name" t-out="request.env.user.name"/>
+                                            <!-- UI-03 (Sprint 34): role subtitle dưới tên. Role đã sẵn trong
+                                                 scope (_wujia_active_role set bởi store-picker inherit trước
+                                                 t-call navbar); CSS .wj-pc-user-nav__role có sẵn, chỉ thiếu HTML. -->
+                                            <span class="wj-pc-user-nav__role" t-if="_wujia_active_role">
+                                                <t t-if="_wujia_active_role == 'manager'">Manager</t>
+                                                <t t-elif="_wujia_active_role == 'owner'">Owner</t>
+                                                <t t-elif="_wujia_active_role == 'staff'">Staff</t>
+                                            </span>
                                         </div>
                                         <span>
                                             <img class="round" t-att-src="'/web/image/res.users/'+ str(request.env.user.id) +'/avatar_128'"
                                                  alt="avatar" height="40" width="40" style="border: 3px solid #fff;"/>
                                         </span>
+                                        <i class="feather icon-chevron-down wj-pc-user-nav__chev"/>
                                     </a>
                                     <div class="dropdown-menu dropdown-menu-right wj-pc-acct-menu">
                                         <div class="wj-pc-acct-menu__head">

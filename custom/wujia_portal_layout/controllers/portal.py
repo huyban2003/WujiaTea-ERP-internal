@@ -9,6 +9,7 @@ Routes:
 import base64
 import logging
 import re
+from urllib.parse import urlparse
 
 from werkzeug.exceptions import Forbidden, NotFound
 
@@ -205,3 +206,26 @@ class WujiaPortalLayout(http.Controller):
                 values['error'] = _('Có lỗi xảy ra. Vui lòng thử lại.')
 
         return request.render('wujia_portal_layout.change_password_page', values)
+
+    # -------------------------------------------------------------- switch language
+    @http.route('/portal/set-lang/<string:lang_code>', type='http', auth='user',
+                website=False, sitemap=False)
+    def portal_set_lang(self, lang_code, **kw):
+        """Đổi ngôn ngữ user portal. Thay route /website/lang/* của module website —
+        website KHÔNG cài trên portal Vuexy nên route đó 404 (bug đổi ngôn ngữ).
+        Set res.users.lang rồi redirect về trang trước; chỉ nhận URL nội bộ để
+        tránh open-redirect."""
+        lang = request.env['res.lang'].sudo().search(
+            [('code', '=', lang_code), ('active', '=', True)], limit=1)
+        if lang:
+            request.env.user.sudo().lang = lang.code
+            # Session cache context['lang'] từ lúc login → phải cập nhật để đổi
+            # ngôn ngữ có hiệu lực NGAY ở request kế (setter đánh dấu dirty → lưu).
+            request.session.context = dict(request.session.context or {}, lang=lang.code)
+        target = '/portal'
+        ref = request.httprequest.referrer
+        if ref:
+            parts = urlparse(ref)
+            if parts.netloc == urlparse(request.httprequest.url).netloc and parts.path.startswith('/'):
+                target = parts.path + (('?' + parts.query) if parts.query else '')
+        return request.redirect(target)

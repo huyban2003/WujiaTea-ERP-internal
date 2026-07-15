@@ -76,24 +76,26 @@
               priority="20"
               name="Wujia Top Navbar — Active Store Badge">
         <xpath expr="//div[hasclass('bookmark-wrapper')]/ul[hasclass('navbar-nav')]" position="inside">
+            <!-- UI-01 (Sprint 34): store pill + role trong 1 container 430px (BA Figma
+                 block x=324, w=430, h=48; role ~x=644). Trước là 2 <li> rời span ~329px. -->
             <li class="nav-item d-none d-lg-flex align-items-center"
                 t-if="_wujia_active_franchise">
-                <a href="#" data-action="open-store-picker"
-                   class="wujia-active-store-badge"
-                   t-att-title="_wujia_active_franchise.display_name">
-                    <span class="wujia-store-badge-text">
-                        <span class="wujia-store-badge-label">Cửa hàng hiện tại</span>
-                        <strong class="wujia-store-badge-name" t-out="_wujia_active_franchise.display_name"/>
+                <div class="wujia-store-current-block">
+                    <a href="#" data-action="open-store-picker"
+                       class="wujia-active-store-badge"
+                       t-att-title="_wujia_active_franchise.display_name">
+                        <span class="wujia-store-badge-text">
+                            <span class="wujia-store-badge-label">Cửa hàng hiện tại</span>
+                            <strong class="wujia-store-badge-name" t-out="_wujia_active_franchise.display_name"/>
+                        </span>
+                    </a>
+                    <span t-if="_wujia_active_role"
+                          t-attf-class="wujia-store-role-badge wujia-store-role-badge-#{_wujia_active_role}">
+                        <t t-if="_wujia_active_role == 'manager'">Manager</t>
+                        <t t-elif="_wujia_active_role == 'owner'">Owner</t>
+                        <t t-elif="_wujia_active_role == 'staff'">Staff</t>
                     </span>
-                </a>
-            </li>
-            <li class="nav-item d-none d-lg-flex align-items-center"
-                t-if="_wujia_active_role">
-                <span t-attf-class="wujia-store-role-badge wujia-store-role-badge-#{_wujia_active_role}">
-                    <t t-if="_wujia_active_role == 'manager'">Manager</t>
-                    <t t-elif="_wujia_active_role == 'owner'">Owner</t>
-                    <t t-elif="_wujia_active_role == 'staff'">Staff</t>
-                </span>
+                </div>
             </li>
         </xpath>
     </template>

@@ -75,6 +75,26 @@
 .wujia-store-role-badge-owner   { background-color: var(--wujia-warning); }
 .wujia-store-role-badge-staff   { background-color: var(--wujia-text-muted); }
 
+/* UI-01 (Sprint 34): PC Current Store — store pill + role trong 1 container 430px
+   (BA Figma block x=324,y=12,w=430,h=48; role ~x=644). Store pill co giãn lấp trái,
+   role neo phải. Thay 2 <li> rời (span ~329px) trước đây. */
+.wujia-store-current-block {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    width: 430px;
+    height: 48px;
+    margin-right: 12px;
+}
+.wujia-store-current-block .wujia-active-store-badge { flex: 1 1 auto; min-width: 0; margin-right: 0; overflow: hidden; }
+/* min-width:0 trên cột text để ellipsis kích hoạt — flex item mặc định min-width:auto
+   khiến tên dài không co lại, tràn đè role badge (bug tên cửa hàng dài). */
+.wujia-store-current-block .wujia-active-store-badge .wujia-store-badge-text { min-width: 0; overflow: hidden; }
+.wujia-store-current-block .wujia-active-store-badge .wujia-store-badge-name {
+    display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 100%;
+}
+.wujia-store-current-block .wujia-store-role-badge { flex: 0 0 auto; margin-right: 0; }
+
 /* Current Store Strip (BA Wujia_Source_UI_FINAL_v1, WJ_Mobile_CurrentStoreStrip):
    1 dòng "[code]  Tên cửa hàng  ...  Role". White bg, border-bottom #EEF2F5, 48px.
    Hiển thị <992px trên MỌI trang (apply-all, Sprint 12). Inject sau

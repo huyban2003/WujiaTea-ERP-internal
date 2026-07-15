@@ -191,6 +191,28 @@
 .wj-pc-acct-menu .dropdown-divider { margin: 0; border-color: var(--wj-pc-border-soft); }
 
 /* Avatar trigger: show name + role subtitle (Figma header) */
-.wujia-navbar .wj-pc-user-nav { display: flex; flex-direction: column; align-items: flex-end; line-height: 1.15; margin-right: 10px; }
-.wujia-navbar .wj-pc-user-nav__name { font-size: 13px; font-weight: 700; color: #fff; }
+.wujia-navbar .wj-pc-user-nav { display: flex; flex-direction: column; align-items: flex-end; line-height: 1.15; margin-right: 10px; max-width: 118px; overflow: hidden; }
+.wujia-navbar .wj-pc-user-nav__name { font-size: 13px; font-weight: 700; color: #fff; max-width: 100%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .wujia-navbar .wj-pc-user-nav__role { font-size: 10px; font-weight: 700; color: rgba(255,255,255,.85); }
+/* UI-03 (Sprint 34): account pill 202×52 (Figma x=1694,y=10). Fixed size + centered
+   avatar/name/chevron; suppress Bootstrap auto-caret in favour of our chevron. */
+.wujia-navbar .dropdown-user > .dropdown-user-link {
+    display: flex; align-items: center; gap: 6px;
+    width: 202px; height: 52px; padding: 0 12px;
+}
+.wujia-navbar .dropdown-user > .dropdown-user-link.dropdown-toggle::after { display: none; }
+.wujia-navbar .wj-pc-user-nav__chev { font-size: 16px; color: rgba(255,255,255,.85); flex: 0 0 auto; }
+
+/* UI-02 (Sprint 34): PC language control = pill 118×40 (BA Figma 4600:72-75).
+   Reuse navbar-pill tokens for visual consistency with the store pill. */
+.wujia-navbar .dropdown-language > .nav-link {
+    display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+    width: 118px; height: 40px; padding: 0 14px;
+    border-radius: 20px;
+    background: var(--wujia-navbar-pill-bg);
+}
+.wujia-navbar .dropdown-language > .nav-link:hover,
+.wujia-navbar .dropdown-language > .nav-link:focus {
+    background: var(--wujia-navbar-pill-bg-hover);
+}
+.wujia-navbar .dropdown-language > .nav-link .selected-language { font-size: 13px; font-weight: 500; }

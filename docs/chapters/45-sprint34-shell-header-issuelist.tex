@@ -1,0 +1,125 @@
+\chapter{Sprint 34 --- Global Shell header/footer/typography theo BA Issue List mới (2026-07-15)}
+
+\section{Bối cảnh}
+
+BA chuyển nguồn spec sang \textbf{Google Sheet online} ``Internal ERP Master Plan\_Update''
+(\texttt{1HRiRLAZ9FlErRTLvwMaGhsOlYNPJHdf5AEMPvdLkQNE}, link ``anyone with link''), thay file
+\texttt{.xlsm} local. Session đọc trực tiếp qua CSV công khai
+(\texttt{gviz/tq?tqx=out:csv\&gid=<gid>}); map 9 tab + gid ghi ở \S7 compact summary.
+
+Tab ``5. Issue List'' đã bị BA \textbf{reset}: bảng Sprint-9 cũ gỡ hẳn, thay bằng \textbf{6 issue mới
+UI-01..UI-06} (đo DOM/screenshot ngày 13/07/2026; Figma PC \texttt{4600:*}, mobile \texttt{4575:*}).
+
+Review đầu phiên phát hiện: BA giao \textbf{2 deliverable khác nhau} nhưng dễ nhầm là một.
+(1) \texttt{WJ\_PageHeader} spec $\to$ Sprint 33 làm \emph{header nội dung từng trang} (title/back/create).
+(2) Issue List UI-01..06 $\to$ về \textbf{Global Shell}: Top Bar, Current Store, Language control,
+Account pill, mobile Footer, Typography. Grep mọi file shell = 0 hit \texttt{wj\_page\_header}
+$\Rightarrow$ Sprint 33 \textbf{không chạm} shell, cả 6 issue còn nguyên (0/6). User chốt: làm cả 6.
+
+\section{Sáu issue --- hiện trạng và cách xử lý}
+
+\begin{itemize}
+  \item \textbf{UI-01 (Major) --- PC Top Bar \& Current Store.} Navbar Vuexy mang class
+    \texttt{floating-nav} (\texttt{margin: 1.3rem 2.2rem 0}) nên trôi khỏi đỉnh (y$\approx$21, x$\approx$260);
+    Current Store là \textbf{2 \texttt{<li>} rời} (\texttt{wujia-active-store-badge} + \texttt{wujia-store-role-badge})
+    span $\approx$329px. Fix: override \texttt{.header-navbar.floating-nav} (\S{}$\ge$1200: \texttt{margin:0;
+    left: var(--wujia-sidebar-width); right:0; width:auto}; 992--1199: left:0) $\to$ bám đỉnh x=300,y=0,w=1620,h=72.
+    Gộp 2 \texttt{<li>} thành \textbf{1 khối} \texttt{.wujia-store-current-block} width 430px (store pill
+    \texttt{flex:1}, role neo phải).
+  \item \textbf{UI-02 (Minor, BA-confirm) --- Language control.} Markup PC/mobile \emph{đã có} nhánh cờ VN
+    (\texttt{t-if lang=='vi\_VN'}) nhưng hiện ``English''/cờ Mỹ vì user portal lang = \texttt{en\_US}. User
+    chốt \textbf{default portal user $\to$ vi\_VN}. Fix: (a) pill CSS 118$\times$40; (b) migration activate
+    \texttt{vi\_VN} + set lang cho group\_portal (gồm cả template user $\to$ user mới cũng vi\_VN).
+  \item \textbf{UI-03 (Major) --- PC Account pill.} Chỉ hiện \texttt{user.name} + avatar, \textbf{thiếu role}
+    (CSS \texttt{.wj-pc-user-nav\_\_role} đã có sẵn nhưng thiếu element HTML). Fix: thêm role span (dùng
+    \texttt{\_wujia\_active\_role} đã sẵn trong scope --- set bởi store-picker inherit trước t-call navbar) +
+    chevron + pill 202$\times$52.
+  \item \textbf{UI-04 (Minor, BA-confirm) --- Mobile actions \& Avatar.} Token
+    \texttt{--wujia-mheader-action-size} 38px (cần 44); avatar chữ ``A'' = placeholder Odoo khi chưa upload
+    ảnh. User chốt \textbf{ảnh thật + fallback icon}. Fix: token 38$\to$44/radius 22; \texttt{t-if
+    request.env.user.image\_128} $\to$ \texttt{<img avatar>} else \texttt{<i feather icon-user>}.
+  \item \textbf{UI-05 (Minor) --- Mobile Footer.} Khung 83px + active \texttt{\#28A9DF} đã đúng; icon 20px
+    (cần 22--24), label bị dồn lên. Fix: icon 20$\to$22, \texttt{gap} 3$\to$5, \texttt{padding-top} 4$\to$8
+    đẩy label xuống.
+  \item \textbf{UI-06 (Minor, BA-confirm) --- Typography.} Base Inter nhưng: token còn \texttt{'Roboto'};
+    Vuexy vendor hard-code \textbf{Montserrat} cho \texttt{.header-navbar/.navigation/.breadcrumb} $\to$ rơi
+    về Arial/Helvetica (Montserrat không load); Inter self-host chỉ 400--700 mà code dùng
+    \texttt{font-weight:800} $\to$ browser synth $\to$ \textbf{nhòe}. User chốt \textbf{Inter thuần, hạ
+    800$\to$700}. Fix: token \texttt{'Inter', sans-serif}; override 4 selector vendor về Inter; đổi mọi
+    \texttt{font-weight:800}$\to$700 (9 chỗ ở \texttt{\_components.css} + \texttt{\_pc\_components.css}); bỏ inline
+    \texttt{style="font-family: Arial"} ở \texttt{layouts.xml}.
+\end{itemize}
+
+\section{UI-02 --- migration default lang}
+
+DB thật lúc bắt đầu: chỉ \texttt{en\_US} active, \texttt{vi\_VN} tồn tại nhưng inactive; 6 user
+group\_portal đều \texttt{en\_US}. Migration \texttt{wujia\_portal\_base/migrations/19.0.5.12.0/post-activate-vi-lang.py}:
+
+\begin{lstlisting}[language=Python]
+def migrate(cr, version):
+    env = api.Environment(cr, SUPERUSER_ID, {})
+    env["res.lang"]._activate_lang("vi_VN")
+    portal_group = env.ref("base.group_portal", raise_if_not_found=False)
+    if not portal_group:
+        return
+    # active_test=False -> gom cả template portal user (inactive) => user MOI cung vi_VN
+    users = env["res.users"].with_context(active_test=False).search(
+        [("group_ids", "in", portal_group.id), ("lang", "!=", "vi_VN")])
+    if users:
+        users.write({"lang": "vi_VN"})
+\end{lstlisting}
+
+Idempotent, scoped group\_portal $\to$ user backend không đụng. Chạy khi \texttt{-u wujia\_portal\_base}.
+Field groups Odoo 19 = \texttt{group\_ids} (không phải \texttt{groups\_id}).
+
+\section{Gì đã làm (nghiệp vụ)}
+
+Chuẩn hoá toàn bộ \emph{khung vỏ} portal PC + mobile khớp chuẩn header/footer/typography mới BA vừa
+bàn giao: thanh trên cùng bám đỉnh, khối cửa hàng hiện tại gọn trong 1 container, ô tài khoản hiện rõ
+vai trò, portal mặc định tiếng Việt (cờ VN thay vì ``English''), nút thao tác mobile to đúng chuẩn và
+avatar thân thiện hơn, footer cân đối, và chữ toàn portal về một phông Inter đồng nhất (hết nhòe).
+Toàn bộ UI-only trừ 1 migration đổi ngôn ngữ mặc định user portal.
+
+\section{Verify}
+
+\texttt{upgrade RC=0} (\texttt{wujia\_portal\_layout,wujia\_portal\_base}); migration chạy: \texttt{vi\_VN}
+active + 6 user portal $\to$ vi\_VN. Playwright (chromium) đo thực tế:
+\textbf{PC 1920} Top Bar \texttt{x=300,y=0,w=1620,h=72}; Current Store block \texttt{w=430,h=48};
+Account pill \texttt{w=202,h=52} + role ``Owner''; Language pill \texttt{w=118} + ``Việt Nam'';
+font body/navbar/nav = \texttt{Inter}; title weight 700.
+\textbf{Mobile 391} action \texttt{44$\times$44} + cờ VN + user-icon; footer icon \texttt{22px}, active
+\texttt{\#28A9DF}, khung \texttt{391$\times$83}.
+Regression \textbf{10/11 trang 200}, shell nguyên vẹn, 0 JS error; \texttt{test\_sprint9} 7/7.
+(\texttt{/portal/reports/orders} 500 = pre-existing tz \texttt{Asia/Saigon}, không liên quan.)
+
+\section{Fix phát sinh (user nghiệm thu tại chỗ)}
+
+Hai lỗi lộ ra khi user xem trực tiếp trên \texttt{:8019}, đã fix + verify trước khi chốt sổ:
+
+\begin{itemize}
+  \item \textbf{Tên cửa hàng dài đè lên role badge.} \texttt{text-overflow: ellipsis} không kích hoạt
+    vì cột \texttt{.wujia-store-badge-text} (flex item) thiếu \texttt{min-width: 0} (mặc định
+    \texttt{min-width:auto} $\Rightarrow$ không co, tên tràn đè role). Fix: thêm \texttt{min-width:0 +
+    overflow:hidden} cho cột text + \texttt{display:block} cho name. Verify (store ``[HCM-01] Cửa hàng
+    125 Điện Biên Phủ, Q.3, TP.HCM''): name truncate, right=633 $<$ role left=657 $\Rightarrow$ hết đè.
+  \item \textbf{Đổi ngôn ngữ ra 404.} Dropdown trỏ \texttt{/website/lang/<code>} --- route của module
+    \texttt{website} nhưng \textbf{website UNINSTALLED} trên portal Vuexy $\Rightarrow$ 404. Fix: controller
+    mới \texttt{/portal/set-lang/<lang\_code>} (auth=user) set \texttt{res.users.lang} + redirect
+    referrer nội bộ (chống open-redirect); đổi 4 href (PC+mobile) sang route mới. \textbf{Gotcha}:
+    session cache \texttt{context['lang']} từ lúc login $\Rightarrow$ đổi \texttt{user.lang} trong DB
+    không có hiệu lực ngay; phải cập nhật \texttt{request.session.context = dict(..., lang=code)}
+    (setter đánh dấu dirty $\to$ lưu). Verify: pill ``Việt Nam'' $\to$ English $\to$ ``English'' $\to$
+    Việt Nam $\to$ ``Việt Nam''; route trả 200 (hết 404).
+\end{itemize}
+
+\section{Deploy \& lưu ý}
+
+\begin{itemize}
+  \item Prod: \texttt{-u wujia\_portal\_layout,wujia\_portal\_base} --- base có \textbf{migration}
+    (không phải chỉ restart). UI bump \texttt{?v=1152}; \texttt{store\_picker.css} nằm bundle
+    \texttt{web.assets\_frontend} $\to$ \texttt{-u} regen (không cần \texttt{?v}).
+  \item UI-06 hạ mọi \texttt{font-weight:800$\to$700} \emph{gồm cả} \texttt{wj-page-header\_\_title}
+    (Sprint 33) $\to$ title giờ 700. Muốn giữ nét 800 phải thêm Inter-ExtraBold woff2 (user đã chọn hạ 700).
+  \item Lệch pixel nhỏ (không phải lỗi): lang pill h=46 vs 40; account pill x=1718 vs 1694;
+    current-store x=314 vs 324. Kích thước/cấu trúc chính đều khớp.
+\end{itemize}
