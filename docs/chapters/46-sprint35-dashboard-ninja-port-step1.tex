@@ -1,0 +1,107 @@
+\chapter{Sprint 35 --- Dashboard BOD Step 1/6: port Dashboard Ninja v18 $\to$ Odoo 19 (2026-07-16)}
+
+\section{Bối cảnh}
+
+BOD cần dashboard backend (không đụng portal 1500 user). User sở hữu Dashboard Ninja
+(Ksolves, OPL-1) bản \textbf{v16} tại \texttt{vietthuong/tools/} (core 16.0.1.7.4 +
+\texttt{ks\_dn\_advance} 16.0.2.0.5 + \texttt{ks\_dn\_formula} --- formula engine + pivot
+tự viết) và bản \textbf{v18 core} 18.0.1.0.1; bản v19 chính hãng (\$592) không mua.
+Hướng đi: tự migrate, ưu tiên \emph{tính năng chạy trước, giao diện sau}.
+
+Discovery (5 agent đọc song song + adversarial review) chốt: \textbf{v18 = base}
+--- đã OWL 2 full rewrite (v16 core là AbstractAction 4000+ dòng chết từ Odoo 17),
+toàn bộ chart thống nhất amCharts 5, SCSS design system mới; gap 18$\to$19 nhỏ hơn 16$\to$19
+rất nhiều. 12/13 method Python mà advance/formula hook vẫn còn nguyên trong v18 core
+$\Rightarrow$ Python của 2 module đó sẽ port gần nguyên vẹn (Step 2--3), chỉ JS phải viết
+lại theo kiến trúc component v18.
+
+Đây là \textbf{workstream đa session} (6 step); nguồn sự thật riêng:
+\texttt{docs/dashboard-migration-plan.md} (step table, discriminator rules, 22 gotchas),
+kickoff qua skill mới \texttt{/wujia-dashboard}. Sprint log vẫn ghi như thường.
+
+\section{Quyết định}
+
+\begin{itemize}
+  \item Rename cả 3 module $\to$ \texttt{wj\_ks\_dashboard\_ninja} / \texttt{wj\_ks\_dn\_advance}
+    / \texttt{wj\_ks\_dn\_formula} trong \texttt{custom/}; \textbf{model \_name giữ nguyên}
+    \texttt{ks\_dashboard\_ninja.*} (blast radius DB).
+  \item \textbf{Strip AI} (không có API key Ksolves): wizard arti\_int/ai\_dashboard/fetch\_key,
+    chat wizard (dead-code sẵn ở v18), TTS/gTTS, SQLAlchemy, widget \texttt{ks\_ai\_keyword}.
+  \item \textbf{Bỏ TV mode/carousel}; advance (Step 2) chỉ lấy Custom SQL Query + 4 list
+    layouts + redirect link + PDF print/mail.
+  \item Theme v18 giữ nguyên (pink \#E84A5F/Poppins); reskin Wujia = Step 6, optional.
+  \item License \textbf{giữ OPL-1}, repo private, bản v18 gốc gitignore --- chỉ commit \texttt{wj\_ks\_*}.
+\end{itemize}
+
+\section{Step 1 --- việc đã làm}
+
+\begin{itemize}
+  \item \textbf{Scaffold + rename an toàn:} copy v18 $\to$ \texttt{custom/wj\_ks\_dashboard\_ninja},
+    rename 2 pha: global sed $\to$ revert model-\_name theo danh sách suffix + revert
+    \texttt{model\_ks\_dashboard\_ninja\_*} xmlid. Bắt được sed ăn nhầm \textbf{field}
+    \texttt{ks\_dashboard\_ninja\_board\_id} (suffix underscore) $\to$ revert bằng protect-list
+    file-stems; 2 xmlid local-part trùng model suffix (\texttt{.item},
+    \texttt{.board\_defined\_filters}) sửa tay.
+  \item \textbf{Strip AI:} 4 model Python, 12 file JS, 3 view XML, 3 dòng ACL (gồm
+    \texttt{fetch\_key} reviewer bắt sót), 5 file SCSS/CSS, block template AI. Bẫy logic
+    ngược: \texttt{t-if="!ks\_ai\_explain\_dash"} bọc nội dung \emph{thường} --- giữ nguyên
+    (field còn, default False); prop \texttt{explain\_ai\_whole} hoá ra bọc normal-render
+    của graph/todo $\to$ truyền literal \texttt{true} tại caller.
+  \item \textbf{Fix Odoo 19 (Python):} \texttt{from odoo.fields import datetime} chết;
+    \texttt{fields.datetime/.date} alias (19 chỗ) $\to$ \texttt{dt.*}; \texttt{xlsxwriter}
+    re-export khỏi \texttt{tools.misc} chết (import thừa --- xoá); \texttt{name\_get()}
+    $\to$ \texttt{\_compute\_display\_name()}; \texttt{self.\_context/\_cr} $\to$
+    \texttt{env.context/env.cr}; \texttt{\_sql\_constraints} $\to$ \texttt{models.Constraint};
+    \texttt{user.groups\_id} $\to$ \texttt{all\_group\_ids} (ir.rule) /
+    \texttt{ir.ui.menu.groups\_id} $\to$ \texttt{group\_ids};
+    \texttt{res.groups.category\_id} $\to$ \texttt{privilege\_id} (+ record
+    \texttt{res.groups.privilege} trung gian); act\_window target \texttt{inline} $\to$
+    \texttt{current}; guard \texttt{allowed\_company\_ids} (crash shell/cron).
+  \item \textbf{Viết lại monkey-patch M2M:} \texttt{fields.Many2many.read = ks\_read}
+    (re-implement API 18 với \texttt{get\_domain\_list}) \emph{đầu độc mọi field M2M toàn
+    registry} ngay khi import $\to$ thay bằng wrapper: gọi \texttt{read} gốc, re-order
+    cache (\texttt{\_insert\_cache}) cho 4 field ordering của item.
+  \item \textbf{Fix Odoo 19 (JS):} company service bị bỏ $\to$ \texttt{user.context}
+    (\texttt{@web/core/user}, đã gồm \texttt{allowed\_company\_ids});
+    \texttt{useLoadFieldInfo} $\to$ \texttt{useService("field").loadFieldInfo};
+    \texttt{useGetTreeDescription} $\to$ service \texttt{tree\_processor};
+    \texttt{treeFromDomain/domainFromTree} đổi file; \texttt{new BlockUI()} +
+    \texttt{crash\_manager} + \texttt{unblockUI} undefined $\to$ \texttt{uiService.block/unblock}
+    + notification; inherit \texttt{web.UserMenu} (avatar initials, cosmetic) xpath fail
+    trên navbar 19 $\to$ gỡ. Audit script quét mọi \texttt{import @web/*} đối chiếu odoo19
+    source bắt unmet dependency 1 lượt.
+  \item \textbf{Manifest viết lại:} version 19.0.1.0.0, license OPL-1 giữ, dedupe entries,
+    gỡ asset AI, external deps còn \texttt{pandas/xlrd/openpyxl} (verified có trong conda
+    env \texttt{odoo}); amCharts giữ \emph{eager} trong \texttt{web.assets\_backend} +
+    xoá call \texttt{loadBundle} trỏ bundle không tồn tại (bug v18 sẵn) --- vì 4 widget
+    form-preview dùng \texttt{am5} ngoài dashboard action, tách lazy sẽ crash form;
+    bổ sung \texttt{modal.scss} + \texttt{ks\_dn\_gridstack.scss} (v18 quên khai).
+\end{itemize}
+
+\section{Verify (DoD Step 1)}
+
+Install \texttt{-i} log 0 ERROR (\emph{gotcha: RC=0 nói dối khi config có
+\texttt{logfile=} --- phải grep log}); seed idempotent
+\texttt{scripts/seed\_dashboard\_demo.py} (board ``WJ Demo Dashboard'' + tile/bar/list
+trên res.partner, assert \texttt{ks\_fetch\_dashboard\_data} + \texttt{ks\_fetch\_item});
+Playwright 1920px: 3 grid item render --- tile = 10, bar chart amCharts vẽ cột theo
+country, list 10 partner + pagination, \textbf{0 console error}; regression
+\texttt{test\_sprint9} 7/7. Lưu ý vận hành: server \texttt{--dev=reload} giữ bytecode cũ
+sau sed hàng loạt $\to$ restart thật trước khi verify browser.
+
+\section{Gì đã làm (nghiệp vụ)}
+
+BOD đã có công cụ dashboard kéo-thả trong backend Odoo 19: menu ``My Dashboard'', tạo
+dashboard với ô đếm số, biểu đồ amCharts (bar/line/pie/map...), bảng dữ liệu, lọc theo
+ngày, export XLSX/CSV/PDF/ảnh --- giao diện bản v18 (card bo tròn, header sticky).
+Phần AI và TV mode lược bỏ theo quyết định (không có key trả phí, không dùng slideshow).
+
+\section{Lý do / Trade-off}
+
+Chọn v18 làm base thay vì migrate thẳng v16 để khỏi viết lại 4000+ dòng AbstractAction
+đã chết ở Odoo 17+ --- công việc Ksolves đã làm ở v18; đổi lại mất các field styling
+Chart.js chi tiết của v16 (amCharts 5 style khác). amCharts để eager thay vì lazy bundle:
+backend chỉ vài chục user BOD, portal 1500 user không load
+\texttt{web.assets\_backend} nên không ảnh hưởng hiệu năng portal. Còn lại: Step 2
+(advance subset), Step 3 (formula+pivot --- tài sản chính), Step 4 (test suite),
+Step 5 (dọn \texttt{read\_group} deprecated --- vẫn chạy đúng ở 19), Step 6 (reskin).
