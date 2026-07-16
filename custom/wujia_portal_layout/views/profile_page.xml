@@ -89,9 +89,11 @@
                     <div t-if="error" class="wujia-maccount-alert is-error" role="alert" t-out="error"/>
                     <div t-if="message" class="wujia-maccount-alert is-ok" role="status" t-out="message"/>
 
-                    <h1 class="wujia-maccount-pagetitle">
-                        <i class="feather icon-info"/> Thông tin tài khoản
-                    </h1>
+                    <t t-call="wujia_portal_layout.wj_page_header">
+                        <t t-set="ph_platform" t-value="'m'"/>
+                        <t t-set="ph_variant" t-value="'title'"/>
+                        <t t-set="ph_title">Thông tin tài khoản</t>
+                    </t>
 
                     <div class="wujia-mdash-card">
                         <h2 class="wujia-maccount-cardtitle">Hồ sơ cá nhân</h2>

@@ -15,8 +15,8 @@
                     <t t-set="ph_variant" t-value="'title'"/>
                     <t t-set="ph_title">Báo cáo đặt hàng</t>
                 </t>
-                <!-- Mô tả nghiệp vụ dời khỏi header (spec: không subtitle) → block riêng dưới -->
-                <p class="text-muted small mb-3">
+                <!-- Mô tả nghiệp vụ dời khỏi header (spec: không subtitle) → meta line chuẩn -->
+                <p class="wj-count-meta mb-3">
                     Tổng hợp đơn hàng theo tháng, sản phẩm bán nhiều, phân bố trạng thái.
                     Quyền xem: <strong t-out="max_role"/>.
                 </p>

@@ -205,8 +205,12 @@
                                 <t t-foreach="products" t-as="product">
                                     <t t-set="in_cart" t-value="cart_qty_map.get(product.id, 0)"/>
                                     <div class="wujia-morder-row">
-                                        <span class="wujia-morder-row-thumb"
-                                              t-out="product.uom_id.name or '—'"/>
+                                        <!-- UI-MOB-ORDER-002: ảnh SP nếu có, else icon placeholder (bỏ ĐVT lặp) -->
+                                        <span class="wujia-morder-row-thumb">
+                                            <img t-if="product.image_128" class="wujia-morder-row-thumb-img"
+                                                 t-attf-src="/web/image/product.product/#{product.id}/image_128" alt=""/>
+                                            <i t-else="" class="feather icon-package wujia-morder-row-thumb-ph"/>
+                                        </span>
                                         <a t-attf-href="/portal/order/product/#{product.id}"
                                            class="wujia-morder-row-info">
                                             <span class="wujia-morder-row-name" t-out="product.name"/>

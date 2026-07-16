@@ -170,9 +170,11 @@
                  BlankShell .wujia-mpage NGOÀI .content-wrapper (pattern S15). Data reuse
                  context desktop (franchise / members / role_labels). ===== -->
             <div class="d-lg-none wujia-mpage wujia-maccount">
-                <h1 class="wujia-maccount-pagetitle">
-                    <i class="feather icon-home"/> Thông tin cửa hàng
-                </h1>
+                <t t-call="wujia_portal_layout.wj_page_header">
+                    <t t-set="ph_platform" t-value="'m'"/>
+                    <t t-set="ph_variant" t-value="'title'"/>
+                    <t t-set="ph_title">Thông tin cửa hàng</t>
+                </t>
 
                 <!-- Card: Cửa hàng nhượng quyền -->
                 <div class="wujia-mdash-card">

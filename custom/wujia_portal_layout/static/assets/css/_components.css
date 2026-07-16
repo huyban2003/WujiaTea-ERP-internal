@@ -981,8 +981,15 @@ a.wujia-mhome-kpi:active { opacity: 0.85; }
     color: var(--wujia-text-primary);
 }
 .wujia-mhome-actions .wujia-mhome-section-title {
-    font-size: 20px;
     margin-bottom: 8px;
+}
+/* UI-MOB-HOME-002: thống nhất cỡ title section cấp 1 ở Home = 18px. Scope
+   .wujia-mhome để KHÔNG đụng .wujia-mdash-title dùng chung Support/Return;
+   !important để thắng global h2 (24px) trên các section h2.wujia-mdash-title. */
+.wujia-mhome .wujia-mhome-section-title,
+.wujia-mhome .wujia-mdash-title {
+    font-size: 18px !important;
+    font-weight: 700;
 }
 .wujia-mhome-actions-grid {
     display: grid;
@@ -1069,9 +1076,11 @@ a.wujia-mhome-kpi:active { opacity: 0.85; }
     font-size: 13px;
     font-weight: 700;
     color: var(--wujia-text-primary);
+    /* RESP-MOB-HOME-003: cho tiêu đề tối đa 2 dòng thay vì cắt 1 dòng */
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
     overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
 }
 .wujia-mhome-noti-date {
     margin: 2px 0 0;
@@ -1231,7 +1240,7 @@ a.wujia-mhome-kpi:active { opacity: 0.85; }
 }
 
 /* ---------- Catalog "Sản phẩm" (.wujia-morder) ---------- */
-.wujia-morder { padding-bottom: 76px; }      /* clear floating cart bar */
+.wujia-morder { padding-bottom: 150px; }     /* RESP-MOB-ORDER-003: card cuối cuộn được lên trên floatbar */
 .wujia-morder-titlerow {
     display: flex;
     align-items: baseline;
@@ -1274,13 +1283,15 @@ a.wujia-mhome-kpi:active { opacity: 0.85; }
 .wujia-morder-search-input i {
     position: absolute;
     left: 12px;
+    top: 50%;                    /* UI-MOB-ORDER-004: căn giữa icon theo chiều dọc ở 44px */
+    transform: translateY(-50%);
     color: var(--wujia-morder-text-muted);
     font-size: 16px;
     pointer-events: none;
 }
 .wujia-morder-search-input input {
     width: 100%;
-    height: 34px;        /* Figma 4575:777 — search field 34 (was 44) */
+    height: 44px;        /* UI-MOB-ORDER-004: chuẩn hoá cao 44 (khớp mobile action token) */
     border: 1px solid var(--wujia-morder-border);
     border-radius: 12px;
     background: #F9FAFB;  /* Figma search field bg */
@@ -1333,12 +1344,19 @@ a.wujia-mhome-kpi:active { opacity: 0.85; }
     display: flex;
     align-items: center;
     justify-content: center;
-    padding: 0 4px;
-    font-size: 10.5px;
-    font-weight: 700;
-    line-height: 1.1;
-    text-align: center;
     overflow: hidden;
+}
+/* UI-MOB-ORDER-002: ảnh SP fill ô, else icon placeholder trung tính */
+.wujia-morder-row-thumb-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 9px;
+}
+.wujia-morder-row-thumb-ph {
+    font-size: 18px;
+    line-height: 1;
+    color: var(--wujia-morder-thumb-text);
 }
 .wujia-morder-row-info {
     flex: 1 1 auto;
@@ -1352,9 +1370,11 @@ a.wujia-mhome-kpi:active { opacity: 0.85; }
     font-size: 14px;
     font-weight: 700;
     color: var(--wujia-morder-text);
-    white-space: nowrap;
+    /* RESP-MOB-ORDER-001: tên SP tối đa 2 dòng thay vì cắt 1 dòng */
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
     overflow: hidden;
-    text-overflow: ellipsis;
 }
 .wujia-morder-row-spec {
     font-size: 12px;
@@ -1404,8 +1424,9 @@ a.wujia-mhome-kpi:active { opacity: 0.85; }
 /* Floating cart bar (above bottom-nav) */
 .wujia-morder-floatbar {
     position: fixed;
-    left: 12px;
-    right: 12px;
+    /* RESP-MOB-ORDER-003: bám lề content x=16 (trước 12px lệch grid) */
+    left: 16px;
+    right: 16px;
     /* Sprint 12: footer bottom-nav lên 83px (BA final) → nâng floatbar để không */
     bottom: calc(var(--wujia-mnav-height) + 8px);
     z-index: 1029;
@@ -2587,24 +2608,10 @@ a.wujia-mhome-kpi:active { opacity: 0.85; }
 
 /* Sprint 18 — Mobile Account / Tài khoản (Figma Mobile_Account_Info) */
 @media (max-width: 991.98px) {
-    /* ---------- Page title (icon + chữ) ---------- */
-    .wujia-maccount-pagetitle {
-        display: flex;
-        align-items: center;
-        gap: 8px;
-        font-size: 20px;
-        font-weight: 700;
-        color: var(--wujia-morder-text);
-        margin: 0;
-    }
-    .wujia-maccount-pagetitle > i {
-        font-size: 18px;
-        color: var(--wujia-morder-primary);
-    }
-
-    /* ---------- Card title ---------- */
+    /* Page title dùng wj_page_header (chuẩn hoá — bỏ .wujia-maccount-pagetitle) */
+    /* ---------- Card title (!important thắng global h2 24px — gotcha #13) ---------- */
     .wujia-maccount-cardtitle {
-        font-size: 16px;
+        font-size: 16px !important;
         font-weight: 700;
         color: var(--wujia-morder-text);
         margin: 0 0 12px;

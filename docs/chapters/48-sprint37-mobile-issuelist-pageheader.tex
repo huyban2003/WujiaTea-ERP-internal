@@ -1,0 +1,88 @@
+\chapter{Sprint 37 --- 7 issue mobile Home/Đặt hàng + chuẩn hoá page-header (2026-07-16)}
+
+\section{Bối cảnh}
+
+BA cập nhật tab ``5. Issue List'' trên Google Sheet (\texttt{gid 335593633}) thêm \textbf{7 issue mới}
+trạng thái \emph{New}, thuộc 2 màn mobile 391$\times$844: Home (\texttt{/portal}) và Đặt hàng
+(\texttt{/portal/order}). Toàn bộ là sai lệch UI black-box so với \texttt{mobile\_source\_ui\_v2\_3}
+(spacing/typography/truncation/thumbnail) --- \textbf{UI-only, không schema, không backend mới}.
+
+Cuối phiên user phát hiện thêm: \textbf{page-header nội dung từng trang} chưa đồng nhất giữa các trang
+mobile (các sprint trước làm lệch nhau). Trang Kiến thức là mẫu chuẩn (dùng \texttt{wj\_page\_header}
+Sprint 33); 3 trang cụm Tài khoản + trang Báo cáo thì chưa khớp. User chốt: chuẩn hoá theo BA
+(\texttt{wj\_page\_header}).
+
+\section{Phần A --- 7 issue mobile Home/Đặt hàng}
+
+\begin{itemize}
+  \item \textbf{UI-MOB-HOME-001 --- khoảng trống 40px sau Current Store Strip.} Root cause: cộng dồn
+    \texttt{content-wrapper padding-top 24px} (không có exception cho Home như Sprint 23 làm cho
+    order/cart/hist) + \texttt{.wujia-mhome padding 16px}. Fix: thêm
+    \texttt{.content-wrapper:has(.wujia-mhome)\{padding-top:0!important\}} trong \texttt{@media <992}
+    $\to$ chỉ còn 1 lớp spacing 16px. Đo: strip 104--152, hero xuống \textbf{168} (trước 192),
+    gap \textbf{16px} (trước 40px), content x=16.
+  \item \textbf{UI-MOB-HOME-002 --- cỡ title section lệch (18/20/24).} ``Hành động nhanh''=20px,
+    ``Thông báo nổi bật''=18px, 6 section dưới (\texttt{h2.wujia-mdash-title}) render \textbf{24px} do
+    global \texttt{h2\{...!important\}} thắng class 18px (không \texttt{!important}). Fix: rule scope
+    \texttt{.wujia-mhome} (KHÔNG đụng \texttt{.wujia-mdash-title} dùng chung Support/Return), 18px
+    \texttt{!important}. Đo: 8 section đều 18px/700.
+  \item \textbf{RESP-MOB-HOME-003 + RESP-MOB-ORDER-001 --- title cắt 1 dòng.} Tiêu đề thông báo
+    (\texttt{.wujia-mhome-noti-title}) và tên SP (\texttt{.wujia-morder-row-name}) dùng
+    \texttt{white-space:nowrap}. Fix: \texttt{-webkit-line-clamp:2} $\to$ tối đa 2 dòng. Đo:
+    clientHeight 42px (=2$\times$21) vs scrollHeight 84/126 $\to$ cắt đúng 2 dòng.
+  \item \textbf{UI-MOB-ORDER-002 --- ĐVT ``Units'' hiện 2 lần.} Ô thumbnail 42$\times$38 in
+    \texttt{uom\_id.name}, và dòng spec dưới tên fallback cũng ĐVT. Fix: thumbnail render
+    \texttt{product.image\_128} nếu có, else icon \texttt{feather icon-package} (placeholder trung tính);
+    ĐVT chỉ còn 1 chỗ dưới tên. User chốt phương án ảnh + icon fallback.
+  \item \textbf{RESP-MOB-ORDER-003 --- Floating Cart Bar che card cuối + lệch lề.} \texttt{left/right:12px}
+    (grid x$\approx$16.8) + \texttt{padding-bottom:76px} không đủ. Fix: \texttt{left/right:16px} (bám
+    content x=16) + \texttt{padding-bottom:150px}. Đo: floatbar left=16, right\_gap=16, width=359;
+    card cuối 598 < floatbar 694 (không che).
+  \item \textbf{UI-MOB-ORDER-004 --- ô tìm kiếm cao 34px bị nén.} Fix: \texttt{height:34$\to$44px}
+    (khớp \texttt{--wujia-mheader-action-size}) + icon căn giữa \texttt{top:50\%;translateY(-50\%)}.
+\end{itemize}
+
+\section{Phần B --- chuẩn hoá page-header 4 trang}
+
+Component chuẩn \texttt{wujia\_portal\_layout.wj\_page\_header} (Sprint 33): 3 variant title/back/create,
+mobile title 22px/700, không icon, không subtitle (BA spec). Meta/count là \texttt{<p class="wj-count-meta">}
+đặt ngay sau \texttt{t-call}. Trang Kiến thức = mẫu chuẩn.
+
+\begin{itemize}
+  \item \textbf{Thông tin cửa hàng / Thông tin tài khoản / Đổi mật khẩu} (cụm Tài khoản, Sprint 33 cố tình
+    EXCLUDE). Cả 3 dùng bespoke \texttt{<h1 class="wujia-maccount-pagetitle"><i icon/></h1>} render
+    \textbf{32px + icon} (global \texttt{h1!important} cướp mất \texttt{20px} thiết kế --- gotcha \#13).
+    User chốt chuẩn hoá cả 3. Fix: thay bằng \texttt{t-call wj\_page\_header} (title variant, bỏ icon)
+    $\to$ 22px. Xoá CSS chết \texttt{.wujia-maccount-pagetitle}.
+  \item \textbf{Báo cáo đặt hàng.} Title đã dùng \texttt{wj\_page\_header} (đúng), nhưng subtitle
+    \texttt{<p class="text-muted small">} là bespoke Bootstrap. Fix: đổi class $\to$ \texttt{wj-count-meta}
+    (meta line chuẩn).
+  \item \textbf{Card-title hierarchy (hệ quả).} Hạ page-title 32$\to$22px làm lộ \texttt{.wujia-maccount-cardtitle}
+    (\texttt{<h2>}, viết 16px nhưng render \textbf{24px} do global \texttt{h2!important}) TO hơn header.
+    Fix: \texttt{font-size:16px!important} $\to$ card title 16px $<$ header 22px (hierarchy đúng).
+\end{itemize}
+
+\section{Gì đã làm (nghiệp vụ)}
+
+Chuẩn hoá giao diện mobile portal cho khách nhượng quyền: Home hết khoảng trống thừa và tiêu đề các
+mục đồng cỡ; trang Đặt hàng có tên sản phẩm/thông báo đọc đủ 2 dòng, ô thumbnail hiện ảnh sản phẩm
+(hoặc icon khi chưa có ảnh) thay vì lặp chữ ``Units'', thanh giỏ nổi bám đúng lề và không che sản phẩm
+cuối, ô tìm kiếm cao thoáng hơn. Header nội dung của 3 trang Tài khoản và trang Báo cáo được đưa về cùng
+một chuẩn (22px, không icon) khớp với các trang còn lại --- toàn bộ portal mobile giờ nhất quán.
+
+\section{Lý do/Trade-off}
+
+Nhiều issue mang cờ BA ``Need Confirm'' vì mockup còn Draft; user uỷ quyền chọn default: section title
+18px, clamp 2 dòng, spacing 16px --- mỗi giá trị chỉ là 1 con số, dễ đổi nếu BA chốt khác. Việc chuẩn hoá
+3 trang Tài khoản \textbf{ghi đè} quyết định EXCLUDE của Sprint 33 (cụm Tài khoản có Figma riêng): chấp nhận
+vì mục tiêu là đồng nhất toàn portal, và cả 3 trang có header y hệt nên sửa 1 thể. Gotcha \#13 (global
+\texttt{h1/h2 !important}) tái xuất 2 lần trong sprint này --- mọi title bespoke phải kèm \texttt{!important}
+mới thắng.
+
+\section{Verify}
+
+\texttt{-u wujia\_portal\_layout,wujia\_portal\_sale,wujia\_portal\_base,wujia\_portal\_report}: RC=0,
+0 ERROR log. Playwright 391$\times$844: 7 issue + 4 header đo đạt yêu cầu; desktop 1920 regression sạch
+(mobile-scoped, desktop dùng \texttt{wj-pc-*} riêng). \texttt{test\_sprint9} 7/7. Asset \texttt{?v=1154},
+manifest bump: layout 31.3.0 / sale 4.3.0 / base 5.13.0 / report 1.5.0. UI-only, không schema $\to$
+auto-deploy đủ (không cần \texttt{-i}).
