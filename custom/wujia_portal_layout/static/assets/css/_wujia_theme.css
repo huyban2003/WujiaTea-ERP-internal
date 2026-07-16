@@ -341,6 +341,9 @@ html body .content .content-wrapper {
     .content-wrapper:has(.wujia-mhist) { padding-top: 1px !important; }
     /* UI-MOB-HOME-001: bỏ pad-top wrapper → 1 lớp spacing = .wujia-mhome pad 16px */
     .content-wrapper:has(.wujia-mhome) { padding-top: 0 !important; }
+    /* Báo cáo: single-layout non-mpage → khớp top-spacing ~14px như trang mpage */
+    .content-wrapper.wujia-mreport-wrap { padding-top: 14px !important; }
+    .wujia-mreport-wrap > .wj-page-header--m { margin-top: 0; }
 }
 
 /* Phone <768px: tắt Vuexy .drag-target (swipe-zone z1036 phủ mép trái → nuốt

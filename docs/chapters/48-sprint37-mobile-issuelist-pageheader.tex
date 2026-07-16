@@ -60,6 +60,11 @@ mobile title 22px/700, không icon, không subtitle (BA spec). Meta/count là \t
   \item \textbf{Card-title hierarchy (hệ quả).} Hạ page-title 32$\to$22px làm lộ \texttt{.wujia-maccount-cardtitle}
     (\texttt{<h2>}, viết 16px nhưng render \textbf{24px} do global \texttt{h2!important}) TO hơn header.
     Fix: \texttt{font-size:16px!important} $\to$ card title 16px $<$ header 22px (hierarchy đúng).
+  \item \textbf{Báo cáo top-spacing (follow-up).} Trang Báo cáo là single-layout \textbf{non-mpage} (header nằm
+    trong \texttt{content-wrapper}) nên dính \texttt{padding-top 24px} + header \texttt{margin-top 16px}
+    $\to$ title thụt xuống (đo top=200 vs trang mpage 166--174). User báo lệch. Fix: thêm marker
+    \texttt{.wujia-mreport-wrap} + override \texttt{padding-top:14px!important} và header \texttt{margin-top:0}
+    (trong \texttt{@media <992}) $\to$ title top=174 \textbf{khớp} franchise (174), knowledge (171).
 \end{itemize}
 
 \section{Gì đã làm (nghiệp vụ)}
@@ -83,6 +88,6 @@ mới thắng.
 
 \texttt{-u wujia\_portal\_layout,wujia\_portal\_sale,wujia\_portal\_base,wujia\_portal\_report}: RC=0,
 0 ERROR log. Playwright 391$\times$844: 7 issue + 4 header đo đạt yêu cầu; desktop 1920 regression sạch
-(mobile-scoped, desktop dùng \texttt{wj-pc-*} riêng). \texttt{test\_sprint9} 7/7. Asset \texttt{?v=1154},
-manifest bump: layout 31.3.0 / sale 4.3.0 / base 5.13.0 / report 1.5.0. UI-only, không schema $\to$
+(mobile-scoped, desktop dùng \texttt{wj-pc-*} riêng). \texttt{test\_sprint9} 7/7. Asset \texttt{?v=1155},
+manifest bump: layout 31.4.0 / sale 4.3.0 / base 5.13.0 / report 1.6.0. UI-only, không schema $\to$
 auto-deploy đủ (không cần \texttt{-i}).
