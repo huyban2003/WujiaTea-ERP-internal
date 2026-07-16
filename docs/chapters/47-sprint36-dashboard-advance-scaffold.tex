@@ -1,0 +1,82 @@
+\chapter{Sprint 36 --- Dashboard BOD Step 2a/6: scaffold \texttt{wj\_ks\_dn\_advance} (2026-07-16)}
+
+\section{Bối cảnh}
+
+Step 2 = port module \textbf{advance} (Custom SQL Query + 4 list layout + redirect link +
+PDF print/mail) từ v16 \texttt{ks\_dn\_advance} chồng lên base \texttt{wj\_ks\_dashboard\_ninja}
+(Step 1). Session này làm lát cắt \emph{scaffold + install} trước --- copy/rename/strip +
+port engine Python + cài sạch --- chưa đụng feature JS (render query, widget, PDF để Step 2b).
+
+\section{Phát hiện then chốt: v18 core đã merge sẵn ``query-awareness''}
+
+Soi base trước khi ghi đè (rule read-before-write) lộ ra điều plan không lường: bản
+\textbf{v18 core đã gộp một phần advance}. Base \emph{định nghĩa sẵn}
+\texttt{ks\_data\_calculation\_type} (switch custom/query) + onchange, \emph{tham chiếu}
+\texttt{ks\_custom\_query} / \texttt{ks\_xlabels} / \texttt{ks\_ylabels} /
+\texttt{ks\_list\_view\_layout} trong import/export, và form item đã rẽ nhánh theo mode.
+\textbf{Nhưng} base chưa có engine chạy SQL, chưa có field query/labels/redirect/mail,
+chưa hiện tab Query.
+
+Hệ quả: (a) Python advance vẫn cần (chỉ ADD phần thiếu, super-chain nguyên vẹn; redefine
+\texttt{ks\_data\_calculation\_type} trùng base = vô hại); (b) \textbf{item-view inherit v16
+KHÔNG port cơ học được} --- nó \texttt{position="replace"} group \texttt{chart\_settings} /
+\texttt{ks\_model\_id\_2} sẽ đè bản v18 giàu hơn (mất field funnel/scatter), và phần lớn
+\texttt{attrs} của nó base đã có sẵn $\Rightarrow$ hoãn cả file item view sang Step 2b
+(reconcile ADD-only), theo user chốt.
+
+\section{Step 2a --- việc đã làm}
+
+\begin{itemize}
+  \item \textbf{Copy + strip:} \texttt{vietthuong/tools/ks\_dn\_advance} $\to$
+    \texttt{custom/wj\_ks\_dn\_advance}; xoá TV (\texttt{ks\_tv\_dashboard.js/.css}, 2 tv
+    preview, \texttt{ks\_dashboard\_tv\_ninja.xml}), website (\texttt{ks\_website\_dashboard.js}),
+    carousel lib (\texttt{owl.carousel.*}), dead (\texttt{ks\_labels\_old.js}), marketing GIF.
+  \item \textbf{Manifest viết lại:} version 19.0.1.0.0, license OPL-1 giữ, depends
+    \texttt{wj\_ks\_dashboard\_ninja}; \textbf{bỏ} bundle chết \texttt{web.assets\_qweb} +
+    \texttt{web.assets\_frontend} (website); data-only (2 view), feature JS chưa đưa vào.
+  \item \textbf{Port Python engine + fix Odoo 19:} import \texttt{common\_lib} path $\to$
+    \texttt{wj\_ks\_dashboard\_ninja}; \texttt{self.pool.cursor()} $\to$
+    \texttt{self.env.registry.cursor()} (raw cursor read-only, giữ try/finally close);
+    \texttt{fields.datetime.strptime} $\to$ \texttt{datetime.strptime}; \texttt{eval(gridstack)}
+    $\to$ \texttt{json.loads}; bỏ import \texttt{sql\_db}; uninstall\_hook
+    \texttt{(cr, registry)} $\to$ \texttt{(env)}.
+  \item \textbf{View sạch (2 file):} board Mail Config page (\texttt{ks\_mail\_to\_partner}...)
+    + rename ref/id \texttt{ks\_dashboard\_ninja.} $\to$ \texttt{wj\_ks\_dashboard\_ninja.},
+    \texttt{ks\_dn\_advance.} $\to$ \texttt{wj\_ks\_dn\_advance.}; mail template rename model\_id ref.
+  \item \textbf{Strip \texttt{ks\_croessel\_speed}} (slide interval TV/carousel) khỏi model +
+    view + override \texttt{ks\_fetch\_dashboard\_data}.
+\end{itemize}
+
+\section{Verify (DoD scaffold)}
+
+\texttt{-i}/\texttt{-u} log \textbf{0 ERROR}, module state \texttt{installed}; ORM: đủ field
+advance + method engine \texttt{ks\_run\_query} present, croessel đã strip, mail template
+load-safe; board form assemble (có tab Mail Config), item form (chưa đụng) vẫn compile;
+demo board Step 1 nguyên (3 item); regression \texttt{test\_sprint9} 7/7.
+
+\section{Gotcha mới}
+
+\begin{itemize}
+  \item \textbf{Odoo 19 render \texttt{mail.template} inline NGAY lúc load:} field
+    \texttt{subject} chứa \texttt{\{\{ctx['ks\_report\_name']\}\}} $\to$ validate với context
+    rỗng $\to$ \texttt{KeyError} $\to$ ParseError, install fail. Subscript \texttt{ctx['x']}
+    chết; dùng \texttt{ctx.get('x')}.
+  \item \textbf{v18 đã merge query discriminator} (mục Phát hiện) --- áp cho Step 3 formula:
+    grep base trước khi port kẻo trùng/đè.
+\end{itemize}
+
+\section{Gì đã làm (nghiệp vụ)}
+
+Module ``Wujia Dashboard Ninja Advance'' đã cài được trên hệ thống: nền tảng cho tính năng
+\emph{tự viết câu SQL} để vẽ biểu đồ/bảng từ dữ liệu tuỳ ý, cùng cấu hình \emph{gửi email
+báo cáo dashboard} (tab Mail Configuration trong form dashboard). Ở lát cắt này mới dựng
+khung + engine chạy nền; phần giao diện nhập SQL và render biểu đồ sẽ lên ở session sau ---
+chưa có gì user-visible đổi trên dashboard đang chạy (không breaking).
+
+\section{Lý do / Trade-off}
+
+Chia Step 2 thành 2a (scaffold) + 2b (feature) để cài sạch trước, tránh trộn rủi ro. Hoãn
+item-view vì v18 base đã query-aware --- replay xpath v16 sẽ \emph{đè hỏng} form v18 (mất
+funnel/scatter): việc đúng là reconcile ADD-only, thuộc bước feature chứ không phải convert
+cơ học. Feature JS (render query, 4 layout, widget, PDF) gom vào 2b cùng lúc với việc gắn
+widget vào tab Query.

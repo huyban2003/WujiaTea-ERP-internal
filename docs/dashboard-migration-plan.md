@@ -2,7 +2,7 @@
 
 **Mục đích:** source of truth cho workstream migrate Dashboard Ninja → Odoo 19. Skill `/wujia-dashboard` đọc file này lúc kickoff; **update cuối mỗi step** (như compact-summary của workstream này). Full plan gốc: `/home/huyban/.claude/plans/tingly-juggling-boot.md` (session 2026-07-15).
 
-**Cập nhật:** 2026-07-16 — **Step 1 DONE (Sprint 35)**: `wj_ks_dashboard_ninja` 19.0.1.0.0 installed trên `wujia_tea_19`, dashboard render tile + bar chart amCharts + list view, 0 JS console error, test_sprint9 7/7. Demo: board "WJ Demo Dashboard" (`scripts/seed_dashboard_demo.py`, idempotent). Deferred trong step: avatar-initials navbar (UserMenu xpath fail trên 19 — cosmetic, gỡ), 1 rule CSS chết `.ks-generateAI-body` trong style.css.
+**Cập nhật:** 2026-07-16 — **Step 2 SCAFFOLD DONE (Sprint 36)**: `wj_ks_dn_advance` 19.0.1.0.0 **installed** trên `wujia_tea_19` (`-i` RC=0, 0 ERROR log, module state=installed). Ship: Python query-engine (models port + Odoo-19 fixes) + manifest (dep `wj_ks_dashboard_ninja`, strip TV/carousel/website/AI-bundle) + board **Mail Configuration** page + mail template. Verify: ORM (fields + `ks_run_query` engine present, croessel stripped), board/item form assemble, demo board intact, test_sprint9 7/7. **⚠️ item-view inherit CỐ Ý HOÃN** — v18 base đã merge sẵn query-awareness nên inherit v16 sẽ đè hỏng form v18 (xem gotcha #23). **Step 1 DONE (Sprint 35)**: `wj_ks_dashboard_ninja` 19.0.1.0.0 installed, render tile + bar chart amCharts + list, 0 JS console error. Demo: board "WJ Demo Dashboard" (`scripts/seed_dashboard_demo.py`, idempotent). Deferred Step 1: avatar-initials navbar (UserMenu xpath fail 19 — cosmetic), 1 rule CSS chết `.ks-generateAI-body`.
 
 ---
 
@@ -23,13 +23,22 @@
 | Step | Nội dung | Sprint | Status | DoD gate |
 |---|---|---|---|---|
 | 1 | Skill + state file + scaffold/rename/strip AI/port core 18→19 | 35 | **✅ DONE 2026-07-16** | install RC=0 + 0 ERROR log; browser render tile + amCharts bar + list (Playwright); 0 JS console error; test_sprint9 7/7 |
-| 2 | Port `wj_ks_dn_advance` subset (SQL query, 4 layouts, redirect, PDF) | TBD | TODO | query item render chart từ SQL; layout_2 ≠ layout_1; PDF download |
+| 2 | Port `wj_ks_dn_advance` subset (SQL query, 4 layouts, redirect, PDF) | 36 | **🟡 IN PROGRESS** — scaffold+install DONE (2026-07-16); feature UI/JS còn | query item render chart từ SQL; layout_2 ≠ layout_1; PDF download |
+| 2a | Scaffold: copy/rename/strip + Python engine port + manifest + board Mail Config + mail template + install | 36 | **✅ DONE 2026-07-16** | `-i` RC=0 + 0 ERROR log; ORM fields+engine present; board/item form assemble; test_sprint9 7/7 |
 | 3 | Port `wj_ks_dn_formula` (formula + pivot + calc columns + grand total) | TBD | TODO | formula ra số; pivot render + totals; XLSX export; grand total row |
 | 4 | Demo seed + test_sprint35 + Playwright suite | TBD | TODO | seed RC=0, test pass |
 | 5 | `read_group`→`formatted_read_group` cả 3 module (`__domain`→`__extra_domain`) | TBD | TODO | 0 deprecation warning trong log sau 5' dùng |
 | 6 | Reskin Wujia brand (`variable.scss`: primary→`#28A9DF`, Inter) — optional | TBD | TODO | screenshot so trước/sau |
 
-**Active step: 2** (port `wj_ks_dn_advance` subset — SQL query, 4 list layouts, redirect link, PDF print/mail).
+**Active step: 2 — sub-step 2a (scaffold) DONE, next = 2b feature UI/JS.** Module `wj_ks_dn_advance` installed & Python engine present, chưa có UI query + chưa có JS render.
+
+**NEXT SESSION (Step 2b — feature) theo thứ tự đề xuất:**
+1. **Item-view reconciliation (BẮT BUỘC trước mọi feature JS):** thiết kế lại `views/ks_dashboard_ninja_item_view_inherit.xml` cho KHỚP form v18 (đang để trên đĩa dạng v16 raw, KHÔNG trong manifest). v18 base ĐÃ query-aware (định nghĩa `ks_data_calculation_type` + form đã rẽ nhánh) → chỉ ADD phần base thiếu: tab **Query** (`ks_custom_query` + date-range + `ks_query_result` invisible) + field redirect + `ks_list_view_layout` (display page override cho list_view). **KHÔNG** `position="replace"` group `chart_settings`/`ks_model_id_2` (đè hỏng funnel/scatter v18). Convert attrs→inline. Widget để plain trước, gắn widget khi JS lên.
+2. **Custom SQL Query render (JS):** port `ks_dn_kpi_preview.js` (query-KPI) + patch `Ksdashboardkpiview` (gotcha #3) / `Ksdashboardgraph` `ks_list_view` branch (gotcha #2). Đưa `static/src/xml/ks_query_templates.xml` vào `web.assets_backend` (KHÔNG `web.assets_qweb`). Sửa JS legacy import (gotcha #6).
+3. **Label/redirect widgets (JS):** port `ks_labels.js`/`ks_ylabels.js`/`redirect_labels.js` off legacy `web.core`/`web.session` → re-add `widget=` vào tab Query.
+4. **4 list layouts:** `t-inherit` (gotcha #2, patch `Ksdashboardgraph` không patch class chết).
+5. **PDF print/mail:** patch `KsDashboardNinja` + `orm.call(...ks_dashboard_send_mail)`; đưa `pdf.min.js`/`print.min.js` — **base ĐÃ bundle 2 lib này**, KHÔNG re-add; sửa bug `res_model='ks_dashboard_ninja_board'`→`'ks_dashboard_ninja.board'` trong `ks_dashboard_send_mail`.
+6. Live Playwright render + console.error=0 (chưa có script committed — chạy tay/MCP).
 
 ## §3 Rename discriminator rules (áp cho mọi step)
 
@@ -66,6 +75,12 @@ Soát sót sau sed: `grep -rn "ks_dashboard_ninja" <module>/ | grep -v "ks_dashb
 20. **`--dev=reload` KHÔNG reload bytecode Python đang chạy** sau khi sed hàng loạt: server giữ code cũ trong RAM, traceback hiện source MỚI nhưng lỗi CŨ → restart server thật (`kill` + `scripts/start.sh`) trước khi verify browser.
 21. **Audit import JS trước khi chạy browser**: script scan `import ... from "@web/..."` đối chiếu file + export symbol trong odoo19 source bắt được toàn bộ unmet dependency 1 lượt (đỡ N vòng browser).
 22. `ks_fetch_dashboard_data` đọc `context['allowed_company_ids'][0]` không guard → crash shell/cron; đã fix fallback `env.company.id`. Pattern này có thể còn ở advance.
+
+### Gotchas phát hiện trong Step 2a scaffold (2026-07-16, áp cho Step 2b + Step 3)
+
+23. **v18 CORE ĐÃ MERGE query-awareness của advance (game-changer).** Base `wj_ks_dashboard_ninja` (v18) **định nghĩa sẵn** `ks_data_calculation_type` (`custom`/`query`, items.py:505) + onchange `_ks_onchange_ks_data_calculation_type`, **tham chiếu** `ks_custom_query`/`ks_xlabels`/`ks_ylabels`/`ks_list_view_layout` trong `del item[...]` (board.py:1077-1080), và form item ĐÃ rẽ nhánh theo `ks_data_calculation_type`. NHƯNG base **KHÔNG** implement: không engine (`ks_run_query`/`ks_get_list_query_result`/`ks_format_query_result`/`ks_get_kpi_result` — grep 0), không field `ks_custom_query`/labels/redirect/mail/`ks_query_result`, không expose tab Query. ⇒ (a) Python advance vẫn cần (ADD engine+fields, super-chain OK, redefine `ks_data_calculation_type` trùng base = **vô hại**); (b) **item-view inherit v16 KHÔNG port cơ học** — `position="replace"` group `chart_settings`/`ks_model_id_2` sẽ đè bản v18 giàu hơn (mất funnel/scatter). Form v16 target_settings invisible ĐÃ = v18 base (chỉ thiếu term query). Step 2b phải **reconcile ADD-only**, không replay xpath v16. Formula (Step 3) khả năng cũng bị v18 merge một phần → grep base trước khi port.
+24. **Odoo 19 render `mail.template` inline field NGAY LÚC LOAD.** `<field name="subject">... {{ctx['ks_report_name']}}</field>` → validate lúc install với context RỖNG → `KeyError('ks_report_name')` → `ParseError`, install fail. Subscript `ctx['x']` chết; dùng **`ctx.get('x')`** (đã fix subject + body t-out của `ks_mail_templates`). Áp cho mọi mail.template port sau (Step 3 pivot mail nếu có).
+25. `self.pool.cursor()` (raw read-only cursor, advance query engine) → Odoo 19 = **`self.env.registry.cursor()`** (giữ `try/finally new_env.close()`). `fields.datetime.strptime` chết → `from datetime import datetime; datetime.strptime`. `from odoo import sql_db` bỏ (chỉ dùng ở dòng comment). `eval(gridstack_config)`→`json.loads`. uninstall_hook `(cr, registry)`→**`(env)`** (Odoo 19).
 
 ## §5 Module paths
 
