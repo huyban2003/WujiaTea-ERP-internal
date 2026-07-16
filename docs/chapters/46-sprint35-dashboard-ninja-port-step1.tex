@@ -105,3 +105,32 @@ backend chỉ vài chục user BOD, portal 1500 user không load
 \texttt{web.assets\_backend} nên không ảnh hưởng hiệu năng portal. Còn lại: Step 2
 (advance subset), Step 3 (formula+pivot --- tài sản chính), Step 4 (test suite),
 Step 5 (dọn \texttt{read\_group} deprecated --- vẫn chạy đúng ở 19), Step 6 (reskin).
+
+\section{HOTFIX Step 1 (Sprint 38 --- 2026-07-16): prop \texttt{ks\_speak} sót sau strip AI}
+
+Sau khi Step 1 đóng, mở board có item ở chế độ \textbf{debug} (\texttt{?debug=1}) văng
+\texttt{OwlError: Invalid props for component `Ksdashboardtile': `ks\_speak' is missing}.
+Không phải thiếu module hay package --- là bug thuần front-end (OWL props) sót lại khi strip AI.
+
+\begin{itemize}
+  \item \textbf{Gốc rễ:} 3 component tile/kpi/graph còn khai prop
+    \texttt{ks\_speak:\{type:Function, Optional:true\}} kèm nút ``voice-button'' (text-to-speech
+    của AI đã strip). \texttt{Optional} viết HOA \emph{không} phải key OWL (OWL chỉ nhận
+    \texttt{optional} thường) $\to$ OWL coi prop là \textbf{bắt buộc}. Bản v18 gốc luôn truyền
+    \texttt{ks\_speak} từ template AI nên không lộ; bản wj strip AI $\to$ grid
+    \texttt{ks\_dashboard\_item\_template} không truyền $\to$ validate fail, sập cả board.
+  \item \textbf{Chỉ nổ ở debug mode:} OWL chỉ chạy \texttt{validateProps} khi
+    \texttt{env.debug || session.test\_mode} (\texttt{web/static/src/env.js:236}); chế độ user
+    thường bỏ qua validate nên board vẫn render $\Rightarrow$ verify Step 1 ``0 console error''
+    chạy ở chế độ thường đã lọt bug này (chỉ lộ khi bật Developer Mode).
+  \item \textbf{Fix:} xoá 3 khai prop \texttt{ks\_speak} + 12 block voice-button
+    (tile 7, kpi 3, graph 1, list 1; 148 dòng). \texttt{aiAudioRef} JS refs còn lại null-safe
+    (\texttt{?.}) nên vô hại; \texttt{.ks\_speaker} CSS + 1 dòng XML comment để lại (dead, harmless).
+  \item \textbf{Verify:} \texttt{-u wj\_ks\_dashboard\_ninja} RC=0 / 0 ERROR log, 4 XML well-formed,
+    server restart sạch trên :8019, \texttt{test\_sprint9} 7/7; bump manifest $\to$ 19.0.1.0.1
+    để auto-deploy regen asset bundle.
+\end{itemize}
+
+\textbf{Bài học:} verify gate browser phải bật \texttt{?debug=1} \emph{và} mở board-detail có
+item, không chỉ trang landing; sai hoa/thường \texttt{Optional} là latent bug toàn code
+Ksolves --- grep khi port advance/formula. Ghi gotcha \#26 trong \texttt{dashboard-migration-plan.md}.

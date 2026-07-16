@@ -473,7 +473,6 @@ Ksdashboardkpiview.props = {
     ksdatefilter :{type :String, Optional:true},
     pre_defined_filter:{type: Object, Optional:true},
     custom_filter :{type:Object, Optional:true},
-    ks_speak:{type:Function , Optional:true},
     hideButtons: { type: Number, optional: true },
     on_dialog: { type: Boolean, optional: true },
     generate_dialog: { type: Boolean, optional: true },
