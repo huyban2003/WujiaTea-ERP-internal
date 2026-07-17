@@ -59,6 +59,11 @@
                                         <h6 class="text-danger">Lý do từ chối</h6>
                                         <p t-out="rr.reject_reason"/>
                                     </t>
+                                    <t t-if="comp and comp.get('approval_note')">
+                                        <hr/>
+                                        <h6 class="text-muted">Phản hồi từ Ngô Gia</h6>
+                                        <p t-out="comp['approval_note']"/>
+                                    </t>
                                 </div>
                             </div>
                         </div>
@@ -77,6 +82,58 @@
                                     </tr>
                                 </tbody>
                             </table>
+                        </div>
+                    </div>
+
+                    <div class="card mb-2" t-if="comp">
+                        <div class="card-header"><h5 class="mb-0">Phương án xử lý &amp; Tiến độ bù</h5></div>
+                        <div class="card-body">
+                            <dl class="row mb-0 profile-dl">
+                                <dt class="col-sm-4">Phương án xử lý</dt>
+                                <dd class="col-sm-8">
+                                    <span class="wujia-badge wujia-badge-info" t-out="comp['resolution_label']"/>
+                                </dd>
+                            </dl>
+                            <t t-if="comp['is_compensation']">
+                                <hr/>
+                                <dl class="row mb-0 profile-dl">
+                                    <dt class="col-sm-4">Sản phẩm bù</dt>
+                                    <dd class="col-sm-8" t-out="comp['product_label']"/>
+                                    <dt class="col-sm-4">SL duyệt bù</dt>
+                                    <dd class="col-sm-8">
+                                        <t t-out="'{:,.2f}'.format(comp['approved_qty'])"/> <t t-out="comp['approved_uom']"/>
+                                    </dd>
+                                    <dt class="col-sm-4">Tình trạng bù</dt>
+                                    <dd class="col-sm-8">
+                                        <span t-attf-class="wujia-badge #{comp['status'][1]}" t-out="comp['status'][0]"/>
+                                    </dd>
+                                </dl>
+                                <div class="mt-3">
+                                    <div class="d-flex justify-content-between small text-muted mb-1">
+                                        <span>Đã bù <strong t-out="'{:,.2f}'.format(comp['compensated_qty'])"/> <t t-out="comp['approved_uom']"/></span>
+                                        <span>Còn thiếu <strong t-out="'{:,.2f}'.format(comp['remaining_qty'])"/> <t t-out="comp['approved_uom']"/></span>
+                                    </div>
+                                    <div class="progress wujia-return-progress">
+                                        <div class="progress-bar" role="progressbar"
+                                             t-attf-style="width: #{comp['progress_pct']}%;"
+                                             t-att-aria-valuenow="comp['progress_pct']"
+                                             aria-valuemin="0" aria-valuemax="100"/>
+                                    </div>
+                                </div>
+                                <t t-if="comp['orders']">
+                                    <hr/>
+                                    <h6 class="text-muted">Đơn bù hàng</h6>
+                                    <table class="table table-sm mb-0">
+                                        <tbody>
+                                            <tr t-foreach="comp['orders']" t-as="o">
+                                                <td t-out="o['name']"/>
+                                                <td t-out="o['state_label']"/>
+                                                <td class="text-end text-muted" t-out="o['delivery_label']"/>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </t>
+                            </t>
                         </div>
                     </div>
 
@@ -159,6 +216,49 @@
                     </div>
                 </div>
 
+                <div t-if="comp" class="wujia-mdash-card">
+                    <div class="wujia-mhist-card-head">Phương án xử lý &amp; Tiến độ bù</div>
+                    <div class="wujia-mhist-kv">
+                        <span class="wujia-mhist-kv-label">Phương án</span>
+                        <span class="wujia-mhist-kv-value">
+                            <span class="wujia-badge wujia-badge-info" t-out="comp['resolution_label']"/>
+                        </span>
+                    </div>
+                    <t t-if="comp['is_compensation']">
+                        <div class="wujia-mhist-kv">
+                            <span class="wujia-mhist-kv-label">Sản phẩm bù</span>
+                            <span class="wujia-mhist-kv-value" t-out="comp['product_label']"/>
+                        </div>
+                        <div class="wujia-mhist-kv">
+                            <span class="wujia-mhist-kv-label">SL duyệt bù</span>
+                            <span class="wujia-mhist-kv-value">
+                                <t t-out="'{:,.2f}'.format(comp['approved_qty'])"/> <t t-out="comp['approved_uom']"/>
+                            </span>
+                        </div>
+                        <div class="wujia-mhist-kv">
+                            <span class="wujia-mhist-kv-label">Tình trạng bù</span>
+                            <span class="wujia-mhist-kv-value">
+                                <span t-attf-class="wujia-badge #{comp['status'][1]}" t-out="comp['status'][0]"/>
+                            </span>
+                        </div>
+                        <div class="wujia-mreturn-progress-wrap">
+                            <div class="wujia-mreturn-progress-meta">
+                                <span>Đã bù <t t-out="'{:,.2f}'.format(comp['compensated_qty'])"/></span>
+                                <span>Còn thiếu <t t-out="'{:,.2f}'.format(comp['remaining_qty'])"/></span>
+                            </div>
+                            <div class="progress wujia-return-progress">
+                                <div class="progress-bar" t-attf-style="width: #{comp['progress_pct']}%;"/>
+                            </div>
+                        </div>
+                        <div t-if="comp['orders']" class="wujia-mreturn-so-list">
+                            <div t-foreach="comp['orders']" t-as="o" class="wujia-mreturn-so-row">
+                                <span class="wujia-mreturn-so-name" t-out="o['name']"/>
+                                <span class="wujia-mreturn-so-deliv" t-out="o['delivery_label']"/>
+                            </div>
+                        </div>
+                    </t>
+                </div>
+
                 <div class="wujia-mdash-card">
                     <div class="wujia-mhist-card-head">Nội dung lỗi</div>
                     <div class="wujia-mhist-kv">
@@ -182,6 +282,7 @@
                 <div class="wujia-mdash-card wujia-mreturn-response">
                     <div class="wujia-mhist-card-head">Phản hồi của Ngô Gia</div>
                     <p t-if="rr.reject_reason" class="wujia-mreturn-resp-body" t-out="rr.reject_reason"/>
+                    <p t-elif="comp and comp.get('approval_note')" class="wujia-mreturn-resp-body" t-out="comp['approval_note']"/>
                     <p t-else="" class="wujia-mhist-note">Chưa có phản hồi từ Ngô Gia.</p>
                 </div>
             </div>

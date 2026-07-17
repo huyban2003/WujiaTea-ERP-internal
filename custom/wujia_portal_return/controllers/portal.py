@@ -41,6 +41,22 @@ STATE_LABELS = {
     'cancelled': ('Đã huỷ', 'wujia-badge-muted'),
 }
 
+# Phương án xử lý HQ chốt khi duyệt.
+RESOLUTION_LABELS = {
+    'exchange': 'Đổi hàng',
+    'return': 'Trả hàng',
+    'compensation': 'Bù hàng',
+    'refuse': 'Từ chối',
+}
+
+# Tình trạng bù hàng (label + badge class) — hiển thị tiến độ bù cho cửa hàng.
+COMPENSATION_STATUS_LABELS = {
+    'none': ('Chưa xử lý', 'wujia-badge-muted'),
+    'allocated': ('Đã lên đơn bù', 'wujia-badge-info'),
+    'partial': ('Đang bù', 'wujia-badge-warning'),
+    'done': ('Đã bù đủ', 'wujia-badge-success'),
+}
+
 
 class WujiaPortalReturn(http.Controller):
 
@@ -97,7 +113,8 @@ class WujiaPortalReturn(http.Controller):
         }
         return request.render('wujia_portal_return.portal_return_list', {
             'no_franchise': False, 'returns': returns, 'pager': pager,
-            'state_labels': STATE_LABELS, 'state': state,
+            'state_labels': STATE_LABELS,
+            'comp_status_labels': COMPENSATION_STATUS_LABELS, 'state': state,
             'date_from': date_from, 'date_to': date_to, 'q': q,
         })
 
@@ -159,6 +176,8 @@ class WujiaPortalReturn(http.Controller):
             return request.redirect('/portal/return')
         return request.render('wujia_portal_return.portal_return_detail', {
             'rr': rr, 'state_labels': STATE_LABELS,
+            'resolution_labels': RESOLUTION_LABELS,
+            'comp': self._build_compensation_ctx(rr),
             'message': kw.get('message'),
         })
 
@@ -186,6 +205,63 @@ class WujiaPortalReturn(http.Controller):
         )
 
     # ============================================================== helpers
+    def _build_compensation_ctx(self, rr):
+        """Context hiển thị tiến độ bù cho cửa hàng (read-only).
+
+        Trả None khi HQ chưa chốt phương án → template ẩn card, không lộ số 0.
+        Chỉ đọc field compute đã có trên record → không đổi schema.
+        """
+        if not rr.resolution_type:
+            return None
+        ctx = {
+            'resolution_label': RESOLUTION_LABELS.get(
+                rr.resolution_type, rr.resolution_type),
+            'is_compensation': rr.resolution_type == 'compensation',
+        }
+        if not ctx['is_compensation']:
+            return ctx
+        approved = rr.approved_qty or 0.0
+        compensated = rr.compensated_qty or 0.0
+        remaining = rr.remaining_qty or 0.0
+        ctx.update({
+            'approved_qty': approved,
+            'approved_uom': rr.approved_uom_id.name or '',
+            'product_label': rr.compensation_product_id.display_name or '—',
+            'compensated_qty': compensated,
+            'remaining_qty': remaining,
+            'progress_pct': min(100, round(compensated / approved * 100))
+                            if approved > 0 else 0,
+            'status': COMPENSATION_STATUS_LABELS.get(
+                rr.compensation_status,
+                (rr.compensation_status or '—', 'wujia-badge-muted')),
+            'approval_note': rr.approval_note or '',
+            'orders': [
+                {
+                    'name': so.name,
+                    'state_label': dict(so._fields['state']._description_selection(
+                        request.env)).get(so.state, so.state),
+                    'delivery_label': self._so_delivery_label(so),
+                }
+                for so in rr.compensation_so_ids
+            ],
+        })
+        return ctx
+
+    def _so_delivery_label(self, so):
+        """Nhãn tiến độ giao của 1 đơn bù (đếm phiếu giao done/tổng)."""
+        if 'picking_ids' not in so._fields:
+            return ''
+        pickings = so.picking_ids
+        total = len(pickings)
+        if not total:
+            return 'Chưa tạo phiếu giao'
+        done = len(pickings.filtered(lambda p: p.state == 'done'))
+        if done == 0:
+            return 'Chưa giao'
+        if done >= total:
+            return 'Đã giao đủ'
+        return 'Đã giao %d/%d phiếu' % (done, total)
+
     def _render_form(self, error=None, prefill=None):
         franchise_ids = get_active_franchise_ids_filter()
         franchises = request.env['wujia.franchise.management'].sudo().browse(

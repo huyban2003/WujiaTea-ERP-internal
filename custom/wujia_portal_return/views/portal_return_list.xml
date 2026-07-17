@@ -91,6 +91,10 @@
                                         <td class="text-center">
                                             <t t-set="lbl" t-value="state_labels.get(rr.state, (rr.state, 'wujia-badge-muted'))"/>
                                             <span t-attf-class="wujia-badge #{lbl[1]}" t-out="lbl[0]"/>
+                                            <t t-if="rr.resolution_type == 'compensation'">
+                                                <t t-set="clbl" t-value="comp_status_labels.get(rr.compensation_status, ('', 'wujia-badge-muted'))"/>
+                                                <span t-if="clbl[0]" t-attf-class="wujia-badge #{clbl[1]} d-block mt-1" t-out="clbl[0]"/>
+                                            </t>
                                         </td>
                                         <td class="text-end">
                                             <a t-attf-href="/portal/return/#{rr.id}" class="btn btn-sm btn-outline-primary">
@@ -195,8 +199,14 @@
                                 <span class="wujia-mreturn-row-body">
                                     <span class="wujia-mreturn-row-head">
                                         <span class="wujia-mreturn-row-code" t-out="rr.name"/>
-                                        <t t-set="lbl" t-value="state_labels.get(rr.state, (rr.state, 'wujia-badge-muted'))"/>
-                                        <span t-attf-class="wujia-badge #{lbl[1]}" t-out="lbl[0]"/>
+                                        <span class="wujia-mreturn-row-badges">
+                                            <t t-if="rr.resolution_type == 'compensation'">
+                                                <t t-set="clbl" t-value="comp_status_labels.get(rr.compensation_status, ('', 'wujia-badge-muted'))"/>
+                                                <span t-if="clbl[0]" t-attf-class="wujia-badge #{clbl[1]}" t-out="clbl[0]"/>
+                                            </t>
+                                            <t t-set="lbl" t-value="state_labels.get(rr.state, (rr.state, 'wujia-badge-muted'))"/>
+                                            <span t-attf-class="wujia-badge #{lbl[1]}" t-out="lbl[0]"/>
+                                        </span>
                                     </span>
                                     <span class="wujia-mreturn-row-product"
                                           t-out="rr.product_id.display_name or rr.issue_type_id.name or '—'"/>

@@ -122,3 +122,34 @@ sau confirm). \texttt{test\_sprint9} 7/7. Portal + backend routes HTTP 200. Mani
 \texttt{wujia\_portal\_return 19.0.2.0.0} (K1+K2 cùng release) / \texttt{wujia\_sale 19.0.4.1.0} /
 \texttt{wujia\_portal\_base 19.0.5.14.0}. Deploy prod: \texttt{-u wujia\_portal\_return wujia\_sale}
 (module đã cài $\to$ auto-upgrade chạy migration; KHÔNG cần \texttt{-i}).
+
+\section{Portal wire --- Tiến độ bù cho cửa hàng (2026-07-17)}
+
+Phần bổ sung đóng nốt Sprint K: toàn bộ K1+K2 chạy ở backend HQ nên cửa hàng vào
+\texttt{/portal/return/<id>} chỉ thấy thông tin mình gửi + lý do từ chối, không thấy kết quả xử lý bù.
+Sprint này \textbf{kéo dữ liệu bù đã có sẵn} (compute từ allocation) ra hiển thị cho cửa hàng ---
+\textbf{read-only, không đổi schema}.
+
+\begin{itemize}
+  \item \textbf{Module}: \texttt{wujia\_portal\_return 19.0.2.0.0 $\to$ 19.0.2.1.0} (UI-only).
+  \item \textbf{Controller} (\texttt{controllers/portal.py}): thêm map \texttt{RESOLUTION\_LABELS} +
+    \texttt{COMPENSATION\_STATUS\_LABELS}; helper \texttt{\_build\_compensation\_ctx(rr)} (trả \texttt{None}
+    khi HQ chưa chốt phương án $\to$ ẩn card, không lộ số 0) + \texttt{\_so\_delivery\_label(so)} (đếm
+    phiếu giao done/tổng, guard \texttt{'picking\_ids' in so.\_fields}). Truyền \texttt{comp}/\texttt{resolution\_labels}
+    vào detail, \texttt{comp\_status\_labels} vào list.
+  \item \textbf{Template detail} (desktop + mobile): card ``Phương án xử lý \& Tiến độ bù'' ---
+    phương án, sản phẩm bù, SL duyệt bù, badge tình trạng, progress bar (\texttt{--wujia-primary}),
+    ``Đã bù X / Còn thiếu Y'', danh sách đơn bù + trạng thái giao; bổ sung \texttt{approval\_note}
+    (phản hồi duyệt HQ) cạnh \texttt{reject\_reason}.
+  \item \textbf{Template list} + CSS: badge \texttt{compensation\_status} cho dòng bù; progress-bar
+    style (\texttt{.wujia-return-progress}) + block mobile trong \texttt{portal\_return.css}.
+\end{itemize}
+
+\textbf{Quyết định:} không làm nút ``Đặt hàng bù'' cho cửa hàng --- kiến trúc bù hàng do HQ chạy wizard
+tạo SO 0đ, cửa hàng không tự đặt; cái cửa hàng cần là \emph{thấy tiến độ}. Nút ``xác nhận đã nhận bù''
+= add-on sprint sau nếu BA yêu cầu.
+
+\textbf{Verify:} \texttt{-u wujia\_portal\_return} RC=0, không ParseError. Render có xác thực
+\texttt{/portal/return/<id>} HTTP 200 hiển thị đúng progress 30\%, badge ``Đang bù'', danh sách đơn bù,
+phản hồi HQ; list + form 200; \texttt{test\_sprint9} 7/7; smoke 8 trang portal 200. Deploy: UI-only,
+auto-deploy (bump manifest), \textbf{KHÔNG} cần \texttt{-i}, không schema.

@@ -4,6 +4,10 @@
 #image-preview-grid img { aspect-ratio: 1/1; object-fit: cover; border-radius: 4px; }
 .return-line-row td { vertical-align: middle; }
 
+/* ===== Tiến độ bù (Sprint K portal wire) — progress bar brand token ===== */
+.wujia-return-progress { height: 8px; border-radius: 6px; background: var(--wujia-border); }
+.wujia-return-progress .progress-bar { background-color: var(--wujia-primary); border-radius: 6px; }
+
 /* ===== Mobile Đổi trả/Bù hàng — Figma 4449:81 (S20). Token --wujia-morder-* ===== */
 @media (max-width: 991.98px) {
     /* Tắt font-boosting (Chromium phình h1 22→32px → tiêu đề wrap) */
@@ -77,4 +81,17 @@
     }
     .wujia-mreturn-response { border-left: 3px solid var(--wujia-morder-primary); }
     .wujia-mreturn-resp-body { margin: 0; font-size: 14px; color: var(--wujia-morder-text); }
+
+    /* Tiến độ bù — mobile (Sprint K portal wire) */
+    .wujia-mreturn-row-head { flex-wrap: wrap; }
+    .wujia-mreturn-row-badges { display: flex; gap: 6px; flex-wrap: wrap; justify-content: flex-end; }
+    .wujia-mreturn-progress-wrap { margin-top: 8px; }
+    .wujia-mreturn-progress-meta {
+        display: flex; justify-content: space-between; gap: 8px;
+        font-size: 12.5px; color: var(--wujia-morder-text-sub); margin-bottom: 6px;
+    }
+    .wujia-mreturn-so-list { display: flex; flex-direction: column; gap: 6px; margin-top: 10px; }
+    .wujia-mreturn-so-row { display: flex; justify-content: space-between; gap: 8px; font-size: 13px; }
+    .wujia-mreturn-so-name { font-weight: 600; color: var(--wujia-morder-text); }
+    .wujia-mreturn-so-deliv { color: var(--wujia-morder-text-sub); }
 }
