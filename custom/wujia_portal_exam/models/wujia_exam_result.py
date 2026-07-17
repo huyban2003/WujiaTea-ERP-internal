@@ -2,7 +2,8 @@ from odoo import fields, models
 
 
 class WujiaExamResult(models.Model):
-    """Skeleton — kết quả kỳ thi của 1 đăng ký."""
+    """DEPRECATED (Sprint M) — kết quả thi cũ (skeleton). Kết quả giờ nhập
+    trực tiếp trên `wujia.exam.registration.line`. Giữ để portal demo bind."""
 
     _name = 'wujia.exam.result'
     _description = 'Wujia Exam Result'
@@ -13,10 +14,10 @@ class WujiaExamResult(models.Model):
         required=True, index=True, ondelete='cascade',
     )
     user_id = fields.Many2one(
-        related='registration_id.user_id', store=True, index=True,
+        related='registration_id.requester_user_id', store=True, index=True,
     )
-    schedule_id = fields.Many2one(
-        related='registration_id.schedule_id', store=True, index=True,
+    session_id = fields.Many2one(
+        related='registration_id.session_id', store=True, index=True,
     )
     franchise_id = fields.Many2one(
         related='registration_id.franchise_id', store=True, index=True,

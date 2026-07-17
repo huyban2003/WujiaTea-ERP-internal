@@ -1,0 +1,75 @@
+\chapter{Sprint M --- Backend Đăng ký thi nhượng quyền (MVP, backend-only) (2026-07-18)}
+
+\section{Bối cảnh}
+
+BA (Google Sheet ``Internal ERP Master Plan\_Update'', tab ``1. Model/Field'' + Controller
+CT-033..036) yêu cầu backend quản lý đào tạo/thi: khóa thi, kỳ thi có ca giờ + sức chứa, phiếu đăng ký
+nhiều nhân sự, và kết quả theo từng người. Module \texttt{wujia\_portal\_exam} trước đó chỉ là skeleton
+(\texttt{wujia.exam.registration} gắn \texttt{schedule\_id}/\texttt{user\_id}) + \texttt{schedule}/\texttt{result}
+dormant + controller demo (Sprint 26). User chốt: \textbf{full backend BA (7 model), backend-only} ---
+portal \texttt{/portal/exam} GIỮ demo (chỉ sửa để không 500 sau khi đổi schema); wire portal thật = sprint sau.
+
+\section{Đã làm}
+
+\begin{itemize}
+  \item Module \texttt{wujia\_portal\_exam} \texttt{19.0.2.2.0 $\to$ 19.0.3.0.0}, \texttt{+depends
+    wujia\_franchise, mail}.
+  \item \textbf{4 model MỚI}:
+    \begin{itemize}
+      \item \texttt{wujia.exam.time.slot} --- ca thi (\texttt{time\_from/to} float\_time, unique code).
+      \item \texttt{wujia.exam.course} --- khóa thi (seq \texttt{WJ-CRS/}, \texttt{time\_slot\_ids},
+        \texttt{max\_participants\_per\_registration}, lead/horizon days, \texttt{action\_publish} gate).
+      \item \texttt{wujia.exam.session} (\texttt{mail.thread}) --- kỳ thi (seq \texttt{WJ-EXS/}),
+        \texttt{start/end\_datetime} compute từ \texttt{exam\_date + slot} theo tz \texttt{Asia/Ho\_Chi\_Minh},
+        \texttt{reserved/available\_participant\_count} compute \textbf{store} qua \texttt{\_read\_group},
+        workflow \texttt{open/close/mark\_done/cancel} + \texttt{action\_publish\_results} (gate).
+      \item \texttt{wujia.exam.registration.line} --- 1 thí sinh free-text (\texttt{employee\_name},
+        \texttt{phone} regex VN, \texttt{birth\_year}, \texttt{image\_1920} = \texttt{fields.Image}
+        auto-resize $\le$1920, \texttt{result} pending/passed/failed + stamp người/ngày nhập).
+    \end{itemize}
+  \item \textbf{Rework} \texttt{wujia.exam.registration} (giữ \texttt{\_name}): bỏ \texttt{schedule\_id},
+    rename \texttt{user\_id $\to$ requester\_user\_id}, thêm \texttt{session\_id}/\texttt{course\_id}/
+    \texttt{member\_id}(optional)/\texttt{line\_ids}, workflow \texttt{confirm/reject/cancel},
+    khóa sức chứa \texttt{SELECT ... FOR UPDATE NOWAIT} + \texttt{\_check\_booking\_allowed}.
+  \item \textbf{Dormant} \texttt{schedule}/\texttt{result} giữ (đánh dấu DEPRECATED) --- sửa related vỡ
+    do rename (\texttt{result.user\_id $\to$ requester\_user\_id}, \texttt{result.schedule\_id $\to$
+    session\_id}); \texttt{schedule.\_compute\_registration\_count} trả 0.
+  \item Migration \texttt{19.0.3.0.0/pre-migrate.py}: drop uniq \texttt{(user,schedule)}, rename cột
+    \texttt{user\_id}, drop \texttt{schedule\_id}.
+  \item Security: \texttt{group\_exam\_user}/\texttt{group\_exam\_manager} (\texttt{res.groups.privilege},
+    category \texttt{wujia\_franchise.module\_category\_wujia}); ACL 5 model portal read-only + user/manager;
+    record rule portal own-franchise (read-only).
+  \item Backend house-style views (list/form/search + statusbar + web\_ribbon + \texttt{<chatter/>} +
+    nhập kết quả inline) + menu ``Đào tạo / Thi'' dưới \texttt{wujia\_franchise.menu\_wujia\_root}
+    (Vận hành: Kỳ thi/Phiếu đăng ký; Cấu hình: Khóa thi/Ca thi).
+  \item Portal controller demo-safe (không tham chiếu field đã bỏ; \texttt{register}/\texttt{cancel} JSON
+    = stub deferred).
+\end{itemize}
+
+\section{Gì đã làm (nghiệp vụ)}
+
+Văn phòng (HQ) giờ quản lý được toàn bộ vòng đời đào tạo/thi trong backend: tạo \textbf{khóa thi} với các
+\textbf{ca giờ}, mở từng \textbf{kỳ thi} có sức chứa và hạn đăng ký, nhận \textbf{phiếu đăng ký nhiều nhân sự}
+của cửa hàng, duyệt/từ chối, rồi \textbf{nhập và công bố kết quả} đạt/không đạt theo từng người. Hệ thống tự
+chặn đăng ký vượt sức chứa (khóa hàng đồng thời), kiểm tra số điện thoại/năm sinh, và chỉ cho công bố kết
+quả khi mọi thí sinh đã duyệt có kết quả.
+
+\section{Lý do/Trade-off}
+
+Backend-only theo yêu cầu user: portal đăng ký thi giữ demo (Sprint 26) để không phá màn hình Figma, chỉ
+sửa controller cho khỏi 500 sau khi đổi schema --- wire portal thật để sprint sau. Việc rework
+\texttt{registration} tại chỗ (không tạo model mới) kéo theo phải sửa 2 model dormant
+(\texttt{schedule}/\texttt{result}) vì chúng có field \texttt{related} trỏ vào \texttt{registration.user\_id}/
+\texttt{schedule\_id} --- nếu bỏ qua sẽ vỡ khi nâng cấp. Đếm giữ-chỗ dùng \texttt{\_read\_group} store +
+khóa \texttt{FOR UPDATE NOWAIT} thay vì loop từng phiếu, để chịu tải 1500 user.
+
+\section{Verify}
+
+\texttt{-u wujia\_portal\_exam}: RC=0, 0 ERROR/ParseError, migration rename cột chạy sạch (warning
+\texttt{session\_id} NOT-NULL chỉ do dòng demo cũ NULL --- chấp nhận). Test ORM: cấu hình (gate publish
+khóa thiếu ca), compute giờ, \textbf{chặn vượt sức chứa} qua lock, tối đa nhân sự/phiếu, validate
+phone/birth\_year, hủy giải phóng ghế, gate công bố kết quả chặn khi còn thí sinh chưa có kết quả, chặn hủy
+sau công bố --- tất cả pass. 12 view backend assemble (\texttt{get\_view}), 5 menu + 4 action + 2 group.
+Regression portal: \texttt{/portal/exam} + \texttt{my} + \texttt{result} + \texttt{register} +
+\texttt{registration/1} + \texttt{schedule/1} đều 200; \texttt{test\_sprint9} 7/7. Deploy prod:
+\texttt{-u wujia\_portal\_exam} (chạy migration \texttt{19.0.3.0.0}); module đã cài $\to$ \textbf{KHÔNG} cần \texttt{-i}.

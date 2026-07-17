@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="view_wujia_exam_time_slot_list" model="ir.ui.view">
+        <field name="name">wujia.exam.time.slot.list</field>
+        <field name="model">wujia.exam.time.slot</field>
+        <field name="arch" type="xml">
+            <list string="Ca thi" sample="1" editable="bottom">
+                <field name="sequence" widget="handle"/>
+                <field name="code"/>
+                <field name="name"/>
+                <field name="time_from" widget="float_time"/>
+                <field name="time_to" widget="float_time"/>
+                <field name="active" widget="boolean_toggle"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_wujia_exam_time_slot_form" model="ir.ui.view">
+        <field name="name">wujia.exam.time.slot.form</field>
+        <field name="model">wujia.exam.time.slot</field>
+        <field name="arch" type="xml">
+            <form string="Ca thi">
+                <sheet>
+                    <group>
+                        <group>
+                            <field name="name"/>
+                            <field name="code"/>
+                        </group>
+                        <group>
+                            <field name="time_from" widget="float_time"/>
+                            <field name="time_to" widget="float_time"/>
+                            <field name="sequence"/>
+                            <field name="active" widget="boolean_toggle"/>
+                        </group>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_wujia_exam_time_slot_search" model="ir.ui.view">
+        <field name="name">wujia.exam.time.slot.search</field>
+        <field name="model">wujia.exam.time.slot</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="name"/>
+                <field name="code"/>
+                <filter string="Lưu trữ" name="filter_inactive" domain="[('active', '=', False)]"/>
+            </search>
+        </field>
+    </record>
+
+    <record id="action_wujia_exam_time_slot" model="ir.actions.act_window">
+        <field name="name">Ca thi</field>
+        <field name="res_model">wujia.exam.time.slot</field>
+        <field name="view_mode">list,form</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">Tạo ca thi (khung giờ) đầu tiên.</p>
+        </field>
+    </record>
+
+</odoo>

@@ -1,0 +1,168 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="view_wujia_exam_session_form" model="ir.ui.view">
+        <field name="name">wujia.exam.session.form</field>
+        <field name="model">wujia.exam.session</field>
+        <field name="arch" type="xml">
+            <form string="Kỳ thi">
+                <header>
+                    <button name="action_open" type="object" string="Mở đăng ký"
+                            class="btn-primary" invisible="state != 'draft'"
+                            groups="wujia_portal_exam.group_exam_manager"/>
+                    <button name="action_close" type="object" string="Đóng đăng ký"
+                            invisible="state != 'open'"
+                            groups="wujia_portal_exam.group_exam_manager"/>
+                    <button name="action_mark_done" type="object" string="Hoàn tất"
+                            invisible="state not in ('open', 'closed')"
+                            groups="wujia_portal_exam.group_exam_manager"/>
+                    <button name="action_publish_results" type="object"
+                            string="Công bố kết quả" class="btn-success"
+                            invisible="state not in ('closed', 'done') or results_published"
+                            confirm="Xác nhận công bố kết quả kỳ thi này?"
+                            groups="wujia_portal_exam.group_exam_manager"/>
+                    <button name="action_cancel" type="object" string="Hủy"
+                            class="btn-secondary"
+                            invisible="state in ('done', 'cancelled')"
+                            confirm="Xác nhận hủy kỳ thi?"
+                            groups="wujia_portal_exam.group_exam_manager"/>
+                    <field name="state" widget="statusbar"
+                           statusbar_visible="draft,open,closed,done"/>
+                </header>
+                <sheet>
+                    <widget name="web_ribbon" title="Đã hủy" bg_color="text-bg-danger"
+                            invisible="state != 'cancelled'"/>
+                    <widget name="web_ribbon" title="Đã công bố KQ"
+                            invisible="not results_published"/>
+                    <div class="oe_title">
+                        <label for="name"/>
+                        <h1><field name="name" readonly="1"/></h1>
+                    </div>
+                    <group>
+                        <group string="Kỳ thi">
+                            <field name="course_id" options="{'no_create': True}"/>
+                            <field name="exam_date"/>
+                            <field name="time_slot_id" options="{'no_create': True}"/>
+                            <field name="location"/>
+                        </group>
+                        <group string="Sức chứa &amp; đăng ký">
+                            <field name="capacity"/>
+                            <field name="reserved_participant_count"/>
+                            <field name="available_participant_count"/>
+                            <field name="max_participants_per_registration"/>
+                            <field name="registration_deadline"/>
+                        </group>
+                    </group>
+                    <group>
+                        <group string="Thời gian (tự tính)">
+                            <field name="start_datetime" readonly="1"/>
+                            <field name="end_datetime" readonly="1"/>
+                        </group>
+                        <group string="Kết quả" invisible="not results_published">
+                            <field name="results_published" readonly="1"/>
+                            <field name="results_published_by_id" readonly="1"/>
+                            <field name="results_published_date" readonly="1"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="Phiếu đăng ký" name="registrations">
+                            <field name="registration_ids" readonly="1">
+                                <list decoration-info="state == 'submitted'"
+                                      decoration-success="state == 'confirmed'"
+                                      decoration-danger="state == 'rejected'"
+                                      decoration-muted="state == 'cancelled'">
+                                    <field name="name"/>
+                                    <field name="franchise_id"/>
+                                    <field name="participant_count"/>
+                                    <field name="request_date"/>
+                                    <field name="state" widget="badge"/>
+                                </list>
+                            </field>
+                        </page>
+                        <page string="Danh sách dự thi" name="participants">
+                            <field name="line_ids">
+                                <list editable="bottom" create="0" delete="0">
+                                    <field name="registration_id" readonly="1"/>
+                                    <field name="employee_name" readonly="1"/>
+                                    <field name="phone" readonly="1"/>
+                                    <field name="job_position" readonly="1"/>
+                                    <field name="result"/>
+                                    <field name="result_note"/>
+                                </list>
+                            </field>
+                        </page>
+                        <page string="Ghi chú" name="notes">
+                            <field name="note" nolabel="1" placeholder="Ghi chú kỳ thi..."/>
+                            <separator string="Lý do hủy" invisible="state != 'cancelled'"/>
+                            <field name="cancellation_reason" nolabel="1"
+                                   invisible="state != 'cancelled'"/>
+                        </page>
+                    </notebook>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_wujia_exam_session_list" model="ir.ui.view">
+        <field name="name">wujia.exam.session.list</field>
+        <field name="model">wujia.exam.session</field>
+        <field name="arch" type="xml">
+            <list string="Kỳ thi" sample="1"
+                  decoration-muted="state in ('draft', 'cancelled')"
+                  decoration-info="state == 'open'"
+                  decoration-success="state == 'done'">
+                <field name="name"/>
+                <field name="course_id"/>
+                <field name="exam_date"/>
+                <field name="time_slot_id"/>
+                <field name="capacity"/>
+                <field name="reserved_participant_count"/>
+                <field name="available_participant_count"/>
+                <field name="results_published" optional="hide"/>
+                <field name="state" widget="badge"
+                       decoration-info="state == 'open'"
+                       decoration-success="state == 'done'"
+                       decoration-muted="state in ('draft', 'cancelled')"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_wujia_exam_session_search" model="ir.ui.view">
+        <field name="name">wujia.exam.session.search</field>
+        <field name="model">wujia.exam.session</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="name"/>
+                <field name="course_id"/>
+                <field name="time_slot_id"/>
+                <separator/>
+                <filter string="Đang mở" name="filter_open" domain="[('state', '=', 'open')]"/>
+                <filter string="Đã đóng" name="filter_closed" domain="[('state', '=', 'closed')]"/>
+                <filter string="Đã thi xong" name="filter_done" domain="[('state', '=', 'done')]"/>
+                <filter string="Sắp tới" name="filter_upcoming"
+                        domain="[('exam_date', '&gt;=', context_today().strftime('%Y-%m-%d'))]"/>
+                <group name="group_by">
+                    <filter string="Khóa thi" name="group_course"
+                            context="{'group_by': 'course_id'}"/>
+                    <filter string="Trạng thái" name="group_state"
+                            context="{'group_by': 'state'}"/>
+                    <filter string="Ngày thi" name="group_date"
+                            context="{'group_by': 'exam_date'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <record id="action_wujia_exam_session" model="ir.actions.act_window">
+        <field name="name">Kỳ thi</field>
+        <field name="res_model">wujia.exam.session</field>
+        <field name="view_mode">list,form</field>
+        <field name="search_view_id" ref="view_wujia_exam_session_search"/>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">Tạo kỳ thi đầu tiên.</p>
+            <p>Kỳ thi = 1 lần tổ chức của khóa thi tại 1 ca giờ, có sức chứa.</p>
+        </field>
+    </record>
+
+</odoo>

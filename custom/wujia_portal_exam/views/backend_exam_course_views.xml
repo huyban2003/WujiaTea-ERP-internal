@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="view_wujia_exam_course_form" model="ir.ui.view">
+        <field name="name">wujia.exam.course.form</field>
+        <field name="model">wujia.exam.course</field>
+        <field name="arch" type="xml">
+            <form string="Khóa thi">
+                <header>
+                    <button name="action_publish" type="object" string="Phát hành"
+                            class="btn-primary" invisible="state != 'draft'"
+                            groups="wujia_portal_exam.group_exam_manager"/>
+                    <button name="action_reset_to_draft" type="object" string="Về nháp"
+                            invisible="state != 'published'"
+                            groups="wujia_portal_exam.group_exam_manager"/>
+                    <field name="state" widget="statusbar" statusbar_visible="draft,published"/>
+                </header>
+                <sheet>
+                    <widget name="web_ribbon" title="Lưu trữ" bg_color="text-bg-secondary"
+                            invisible="active"/>
+                    <div class="oe_title">
+                        <label for="name"/>
+                        <h1><field name="name" placeholder="vd Thi pha chế định kỳ"/></h1>
+                    </div>
+                    <group>
+                        <group string="Thông tin">
+                            <field name="code" readonly="1"/>
+                            <field name="session_count"/>
+                            <field name="active" invisible="1"/>
+                        </group>
+                        <group string="Cấu hình đăng ký">
+                            <field name="max_participants_per_registration"/>
+                            <field name="registration_lead_days"/>
+                            <field name="registration_horizon_days"/>
+                        </group>
+                    </group>
+                    <group string="Ca thi áp dụng">
+                        <field name="time_slot_ids" widget="many2many_tags" nolabel="1"
+                               options="{'no_create': True}"/>
+                    </group>
+                    <notebook>
+                        <page string="Mô tả" name="description">
+                            <field name="description"/>
+                        </page>
+                        <page string="Kỳ thi" name="sessions">
+                            <field name="session_ids" readonly="1">
+                                <list>
+                                    <field name="name"/>
+                                    <field name="exam_date"/>
+                                    <field name="time_slot_id"/>
+                                    <field name="capacity"/>
+                                    <field name="reserved_participant_count"/>
+                                    <field name="available_participant_count"/>
+                                    <field name="state" widget="badge"/>
+                                </list>
+                            </field>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_wujia_exam_course_list" model="ir.ui.view">
+        <field name="name">wujia.exam.course.list</field>
+        <field name="model">wujia.exam.course</field>
+        <field name="arch" type="xml">
+            <list string="Khóa thi" sample="1" decoration-muted="state == 'draft'">
+                <field name="code"/>
+                <field name="name"/>
+                <field name="session_count"/>
+                <field name="max_participants_per_registration"/>
+                <field name="state" widget="badge"
+                       decoration-success="state == 'published'"
+                       decoration-muted="state == 'draft'"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_wujia_exam_course_search" model="ir.ui.view">
+        <field name="name">wujia.exam.course.search</field>
+        <field name="model">wujia.exam.course</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="name"/>
+                <field name="code"/>
+                <filter string="Đã phát hành" name="filter_published"
+                        domain="[('state', '=', 'published')]"/>
+                <filter string="Nháp" name="filter_draft"
+                        domain="[('state', '=', 'draft')]"/>
+                <filter string="Lưu trữ" name="filter_inactive"
+                        domain="[('active', '=', False)]"/>
+                <group name="group_by">
+                    <filter string="Trạng thái" name="group_state"
+                            context="{'group_by': 'state'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <record id="action_wujia_exam_course" model="ir.actions.act_window">
+        <field name="name">Khóa thi</field>
+        <field name="res_model">wujia.exam.course</field>
+        <field name="view_mode">list,form</field>
+        <field name="search_view_id" ref="view_wujia_exam_course_search"/>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">Tạo khóa thi đầu tiên.</p>
+            <p>Khóa thi gom nhiều kỳ thi (session) theo ca giờ.</p>
+        </field>
+    </record>
+
+</odoo>

@@ -1,15 +1,18 @@
-"""Wujia portal — Exam Schedule controller.
+"""Wujia portal — Exam controller.
+
+Sprint M: backend đăng ký thi đã rework (course/session/registration đa-nhân-sự).
+Portal GIỮ DEMO — wire đăng ký thật = sprint sau. Controller chỉ đảm bảo các route
+render 200 (không tham chiếu field đã bỏ trên registration).
 
 Routes:
-- GET  /portal/exam                          schedule list
-- GET  /portal/exam/my                       my registrations
-- GET  /portal/exam/result                   results
-- GET  /portal/exam/schedule/<int>           schedule detail
-- POST /portal/exam/register        (json)   register (race-safe)
-- POST /portal/exam/cancel/<int>    (json)   cancel registration
-
-Race-safety: register dùng SELECT ... FOR UPDATE để lock schedule row
-trước khi count → tránh oversell khi 100 user click cùng lúc.
+- GET  /portal/exam                          schedule list (demo)
+- GET  /portal/exam/register                 register wizard (demo, mobile)
+- GET  /portal/exam/registration/<int>       registration result (demo)
+- GET  /portal/exam/my                        my registrations (demo-safe empty)
+- GET  /portal/exam/result                    results (demo-safe empty)
+- GET  /portal/exam/schedule/<int>           schedule detail (dormant model)
+- POST /portal/exam/register        (json)   deferred stub
+- POST /portal/exam/cancel/<int>    (json)   deferred stub
 """
 import calendar as _calendar
 import logging
@@ -18,7 +21,6 @@ from odoo import fields, http
 from odoo.http import request
 
 from odoo.addons.wujia_portal_base.controllers.portal import (
-    get_active_franchise_id,
     get_active_franchise_ids_filter,
 )
 
@@ -34,15 +36,16 @@ SCHEDULE_LABELS = {
 }
 
 REG_LABELS = {
-    'registered': ('Đã đăng ký', 'wujia-badge-info'),
-    'checked_in': ('Đã có mặt', 'wujia-badge-success'),
-    'cancelled': ('Đã hủy', 'wujia-badge-danger'),
+    'submitted': ('Đã gửi', 'wujia-badge-info'),
+    'confirmed': ('Đã duyệt', 'wujia-badge-success'),
+    'rejected': ('Từ chối', 'wujia-badge-danger'),
+    'cancelled': ('Đã hủy', 'wujia-badge-muted'),
 }
 
 # --------------------------------------------------------------------------- #
 # UI-only demo data (Sprint 26 — mobile "Đăng ký thi" theo Figma #4755:2).
-# Backend đa-nhân-sự / khung giờ / kết quả-theo-người là Phase 2 → hardcode để
-# khớp Figma 100%. s0 fallback về đây khi user chưa có đăng ký thật.
+# Backend đa-nhân-sự / khung giờ / kết quả-theo-người đã có (Sprint M) nhưng
+# portal chưa wire → giữ demo để render 100% khớp Figma.
 # --------------------------------------------------------------------------- #
 _WEEKDAYS_VN = ['Thứ 2', 'Thứ 3', 'Thứ 4', 'Thứ 5', 'Thứ 6', 'Thứ 7', 'Chủ nhật']
 
@@ -130,6 +133,7 @@ class WujiaPortalExam(http.Controller):
     @http.route(['/portal/exam'], type='http', auth='user', sitemap=False)
     def portal_exam_schedule(self, **kw):
         franchise_ids = get_active_franchise_ids_filter()
+        # Lịch thi cũ (dormant schedule) vẫn đọc được; đăng ký = demo.
         Schedule = request.env['wujia.exam.schedule'].sudo()
         upcoming = Schedule.search([
             ('exam_date', '>=', fields.Datetime.now()),
@@ -138,34 +142,10 @@ class WujiaPortalExam(http.Controller):
                  ('franchise_ids', 'in',
                   list(franchise_ids) if franchise_ids else [-1]),
         ], order='exam_date asc', limit=50)
-        Reg = request.env['wujia.exam.registration'].sudo()
-        my_reg_ids = Reg.search([
-            ('user_id', '=', request.env.user.id),
-            ('schedule_id', 'in', upcoming.ids),
-            ('state', '!=', 'cancelled'),
-        ]).mapped('schedule_id').ids
-        # Mobile (s0): list card theo đăng ký của cửa hàng — data thật nếu có,
-        # fallback demo khớp Figma (UI-only, backend đa-nhân-sự = Phase 2).
-        my_regs = Reg.search([
-            ('user_id', '=', request.env.user.id),
-            ('state', '!=', 'cancelled'),
-        ], order='register_date desc', limit=20)
-        m_exam_items = []
-        for r in my_regs:
-            lbl = REG_LABELS.get(r.state, (r.state, 'wujia-badge-muted'))
-            m_exam_items.append({
-                'title': r.schedule_id.name,
-                'date_label': r.schedule_id.exam_date and
-                    r.schedule_id.exam_date.strftime('%d/%m/%Y • %H:%M') or '',
-                'meta': '1 nhân sự', 'status': lbl[0], 'badge': lbl[1],
-                'link': '/portal/exam/registration/%d' % r.id,
-            })
-        if not m_exam_items:
-            m_exam_items = DEMO_EXAM_ITEMS
         return request.render('wujia_portal_exam.portal_exam_schedule', {
-            'upcoming': upcoming, 'my_reg_schedule_ids': my_reg_ids,
+            'upcoming': upcoming, 'my_reg_schedule_ids': [],
             'schedule_labels': SCHEDULE_LABELS,
-            'm_exam_items': m_exam_items,
+            'm_exam_items': DEMO_EXAM_ITEMS,
         })
 
     @http.route(['/portal/exam/register'], type='http', auth='user',
@@ -190,21 +170,20 @@ class WujiaPortalExam(http.Controller):
 
     @http.route(['/portal/exam/my'], type='http', auth='user', sitemap=False)
     def portal_exam_my(self, **kw):
-        Reg = request.env['wujia.exam.registration'].sudo()
-        my_regs = Reg.search([('user_id', '=', request.env.user.id)],
-                             order='register_date desc', limit=100)
+        # Demo-safe: portal chưa wire đăng ký thật (Sprint M backend-only).
+        empty = request.env['wujia.exam.registration'].browse()
         return request.render('wujia_portal_exam.portal_exam_my', {
-            'my_regs': my_regs, 'reg_labels': REG_LABELS,
+            'my_regs': empty, 'reg_labels': REG_LABELS,
             'schedule_labels': SCHEDULE_LABELS,
         })
 
     @http.route(['/portal/exam/result'], type='http', auth='user', sitemap=False)
     def portal_exam_result(self, **kw):
-        Result = request.env['wujia.exam.result'].sudo()
-        results = Result.search([('user_id', '=', request.env.user.id)],
-                                order='create_date desc', limit=100)
+        # Demo-safe: kết quả giờ nhập trên registration.line (Sprint M) — portal
+        # chưa wire → render rỗng.
+        empty = request.env['wujia.exam.result'].browse()
         return request.render('wujia_portal_exam.portal_exam_result', {
-            'results': results,
+            'results': empty,
         })
 
     @http.route(['/portal/exam/schedule/<int:schedule_id>'],
@@ -214,77 +193,21 @@ class WujiaPortalExam(http.Controller):
         schedule = Schedule.browse(int(schedule_id)).exists()
         if not schedule:
             return request.redirect('/portal/exam')
-        Reg = request.env['wujia.exam.registration'].sudo()
-        my_reg = Reg.search([
-            ('user_id', '=', request.env.uid),
-            ('schedule_id', '=', schedule.id),
-            ('state', '!=', 'cancelled'),
-        ], limit=1)
         return request.render('wujia_portal_exam.portal_exam_schedule_detail', {
-            'schedule': schedule, 'my_reg': my_reg,
+            'schedule': schedule, 'my_reg': False,
             'schedule_labels': SCHEDULE_LABELS,
         })
 
-    # ============================================================ AJAX
+    # ============================================================ AJAX (stub)
     @http.route(['/portal/exam/register'], type='json', auth='user',
                 methods=['POST'])
-    def portal_exam_register(self, schedule_id, **kw):
-        try:
-            schedule_id = int(schedule_id)
-        except (TypeError, ValueError):
-            return {'error': 'invalid_input'}
-        fid = get_active_franchise_id()
-        if not fid:
-            return {'error': 'no_active_franchise'}
-        Schedule = request.env['wujia.exam.schedule'].sudo()
-        schedule = Schedule.browse(schedule_id).exists()
-        if not schedule or schedule.state != 'open':
-            return {'error': 'schedule_closed'}
-
-        Reg = request.env['wujia.exam.registration'].sudo()
-        # Lock schedule row → count → insert. Race-safe.
-        request.env.cr.execute(
-            "SELECT id FROM wujia_exam_schedule WHERE id=%s FOR UPDATE",
-            (schedule.id,),
-        )
-        if schedule.max_participants:
-            current = Reg.search_count([
-                ('schedule_id', '=', schedule.id),
-                ('state', '!=', 'cancelled'),
-            ])
-            if current >= schedule.max_participants:
-                return {'error': 'full', 'message': 'Lịch thi đã đầy.'}
-        # Idempotent — uniq constraint sẽ raise nếu race vẫn lọt
-        existing = Reg.search([
-            ('user_id', '=', request.env.uid),
-            ('schedule_id', '=', schedule.id),
-        ], limit=1)
-        if existing:
-            if existing.state == 'cancelled':
-                existing.write({'state': 'registered'})
-                return {'success': True, 'reg_id': existing.id, 'restored': True}
-            return {'error': 'duplicate', 'reg_id': existing.id}
-        try:
-            reg = Reg.create({
-                'schedule_id': schedule.id,
-                'user_id': request.env.uid,
-                'franchise_id': fid,
-            })
-        except Exception:
-            _logger.exception('Exam register failed schedule=%s', schedule.id)
-            return {'error': 'internal_error'}
-        return {'success': True, 'reg_id': reg.id}
+    def portal_exam_register(self, **kw):
+        # Đăng ký qua portal deferred (Sprint M backend-only, wire sprint sau).
+        return {'error': 'deferred',
+                'message': 'Đăng ký thi qua portal sẽ sớm ra mắt.'}
 
     @http.route(['/portal/exam/cancel/<int:reg_id>'], type='json',
                 auth='user', methods=['POST'])
     def portal_exam_cancel(self, reg_id, **kw):
-        Reg = request.env['wujia.exam.registration'].sudo()
-        reg = Reg.browse(int(reg_id)).exists()
-        if not reg or reg.user_id.id != request.env.uid:
-            return {'error': 'not_found'}
-        if reg.state == 'cancelled':
-            return {'success': True, 'already_cancelled': True}
-        if reg.schedule_id.exam_date and reg.schedule_id.exam_date <= fields.Datetime.now():
-            return {'error': 'already_started'}
-        reg.write({'state': 'cancelled'})
-        return {'success': True}
+        return {'error': 'deferred',
+                'message': 'Chức năng sẽ sớm ra mắt.'}

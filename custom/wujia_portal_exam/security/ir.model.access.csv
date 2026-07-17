@@ -1,7 +1,19 @@
 id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_wujia_exam_time_slot_user,wujia.exam.time.slot user,model_wujia_exam_time_slot,wujia_portal_exam.group_exam_user,1,0,0,0
+access_wujia_exam_time_slot_manager,wujia.exam.time.slot manager,model_wujia_exam_time_slot,wujia_portal_exam.group_exam_manager,1,1,1,1
+access_wujia_exam_course_user,wujia.exam.course user,model_wujia_exam_course,wujia_portal_exam.group_exam_user,1,0,0,0
+access_wujia_exam_course_manager,wujia.exam.course manager,model_wujia_exam_course,wujia_portal_exam.group_exam_manager,1,1,1,1
+access_wujia_exam_session_user,wujia.exam.session user,model_wujia_exam_session,wujia_portal_exam.group_exam_user,1,0,0,0
+access_wujia_exam_session_manager,wujia.exam.session manager,model_wujia_exam_session,wujia_portal_exam.group_exam_manager,1,1,1,1
+access_wujia_exam_registration_portal,wujia.exam.registration portal read,model_wujia_exam_registration,base.group_portal,1,0,0,0
+access_wujia_exam_registration_user,wujia.exam.registration user,model_wujia_exam_registration,wujia_portal_exam.group_exam_user,1,0,0,0
+access_wujia_exam_registration_manager,wujia.exam.registration manager,model_wujia_exam_registration,wujia_portal_exam.group_exam_manager,1,1,1,1
+access_wujia_exam_registration_line_portal,wujia.exam.registration.line portal read,model_wujia_exam_registration_line,base.group_portal,1,0,0,0
+access_wujia_exam_registration_line_user,wujia.exam.registration.line user,model_wujia_exam_registration_line,wujia_portal_exam.group_exam_user,1,0,0,0
+access_wujia_exam_registration_line_manager,wujia.exam.registration.line manager,model_wujia_exam_registration_line,wujia_portal_exam.group_exam_manager,1,1,1,1
 access_wujia_exam_schedule_portal,wujia.exam.schedule portal read,model_wujia_exam_schedule,base.group_portal,1,0,0,0
-access_wujia_exam_schedule_user,wujia.exam.schedule internal,model_wujia_exam_schedule,base.group_user,1,1,1,1
-access_wujia_exam_registration_portal,wujia.exam.registration portal,model_wujia_exam_registration,base.group_portal,1,1,1,0
-access_wujia_exam_registration_user,wujia.exam.registration internal,model_wujia_exam_registration,base.group_user,1,1,1,1
+access_wujia_exam_schedule_user,wujia.exam.schedule user,model_wujia_exam_schedule,wujia_portal_exam.group_exam_user,1,0,0,0
+access_wujia_exam_schedule_manager,wujia.exam.schedule manager,model_wujia_exam_schedule,wujia_portal_exam.group_exam_manager,1,1,1,1
 access_wujia_exam_result_portal,wujia.exam.result portal read,model_wujia_exam_result,base.group_portal,1,0,0,0
-access_wujia_exam_result_user,wujia.exam.result internal,model_wujia_exam_result,base.group_user,1,1,1,1
+access_wujia_exam_result_user,wujia.exam.result user,model_wujia_exam_result,wujia_portal_exam.group_exam_user,1,0,0,0
+access_wujia_exam_result_manager,wujia.exam.result manager,model_wujia_exam_result,wujia_portal_exam.group_exam_manager,1,1,1,1

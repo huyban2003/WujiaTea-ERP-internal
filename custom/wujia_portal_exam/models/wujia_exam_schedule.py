@@ -10,7 +10,8 @@ SCHEDULE_STATE = [
 
 
 class WujiaExamSchedule(models.Model):
-    """Skeleton — lịch thi / kiểm tra kiến thức cho cửa hàng nhượng quyền."""
+    """DEPRECATED (Sprint M) — lịch thi cũ (skeleton). Thay bằng
+    course + session. Giữ dormant để portal demo bind, không dùng mới."""
 
     _name = 'wujia.exam.schedule'
     _description = 'Wujia Exam Schedule'
@@ -40,11 +41,6 @@ class WujiaExamSchedule(models.Model):
     active = fields.Boolean(default=True)
 
     def _compute_registration_count(self):
-        Reg = self.env['wujia.exam.registration'].sudo()
-        groups = Reg._read_group(
-            domain=[('schedule_id', 'in', self.ids)],
-            groupby=['schedule_id'], aggregates=['__count'],
-        )
-        mapping = {sched.id: count for sched, count in groups}
+        # DEPRECATED: registration không còn gắn schedule (Sprint M).
         for rec in self:
-            rec.registration_count = mapping.get(rec.id, 0)
+            rec.registration_count = 0

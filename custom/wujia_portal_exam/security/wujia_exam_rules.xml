@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
 
-    <!-- Schedule: portal user thấy lịch thi mở cho mọi cửa hàng (franchise_ids empty)
-         hoặc lịch thi gắn franchise mình. -->
+    <!-- Schedule (legacy dormant): portal thấy lịch mở cho mọi cửa hàng
+         hoặc gắn franchise mình. -->
     <record id="rule_wujia_exam_schedule_portal" model="ir.rule">
         <field name="name">Wujia Exam Schedule — Portal</field>
         <field name="model_id" ref="model_wujia_exam_schedule"/>
@@ -11,15 +11,26 @@
         <field name="perm_read" eval="True"/>
     </record>
 
-    <!-- Registration: portal user chỉ thấy đăng ký của mình. -->
+    <!-- Registration: portal chỉ thấy phiếu của cửa hàng mình (read-only;
+         tạo/hủy qua portal deferred — Sprint M backend-only). -->
     <record id="rule_wujia_exam_registration_portal" model="ir.rule">
-        <field name="name">Wujia Exam Registration — Portal own</field>
+        <field name="name">Wujia Exam Registration — Portal own franchise</field>
         <field name="model_id" ref="model_wujia_exam_registration"/>
-        <field name="domain_force">[('user_id', '=', user.id)]</field>
+        <field name="domain_force">[('franchise_id', 'in', user._get_accessible_franchise_ids())]</field>
         <field name="groups" eval="[(4, ref('base.group_portal'))]"/>
+        <field name="perm_read" eval="True"/>
     </record>
 
-    <!-- Result: portal user chỉ thấy kết quả của mình -->
+    <!-- Registration line: portal thấy dòng thuộc cửa hàng mình. -->
+    <record id="rule_wujia_exam_registration_line_portal" model="ir.rule">
+        <field name="name">Wujia Exam Registration Line — Portal own franchise</field>
+        <field name="model_id" ref="model_wujia_exam_registration_line"/>
+        <field name="domain_force">[('franchise_id', 'in', user._get_accessible_franchise_ids())]</field>
+        <field name="groups" eval="[(4, ref('base.group_portal'))]"/>
+        <field name="perm_read" eval="True"/>
+    </record>
+
+    <!-- Result (legacy dormant): portal chỉ thấy kết quả của mình. -->
     <record id="rule_wujia_exam_result_portal" model="ir.rule">
         <field name="name">Wujia Exam Result — Portal own</field>
         <field name="model_id" ref="model_wujia_exam_result"/>
