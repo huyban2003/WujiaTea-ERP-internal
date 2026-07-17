@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <menuitem id="menu_wujia_return_root"
+              name="Bù hàng / Đổi trả"
+              parent="wujia_franchise.menu_wujia_root"
+              sequence="35"
+              groups="wujia_portal_return.group_return_user"/>
+
+    <menuitem id="menu_wujia_return_operation"
+              name="Vận hành"
+              parent="menu_wujia_return_root"
+              sequence="10"/>
+
+    <menuitem id="menu_wujia_return_request"
+              name="Yêu cầu bù hàng"
+              parent="menu_wujia_return_operation"
+              action="action_wujia_return_request"
+              sequence="10"/>
+
+    <menuitem id="menu_wujia_return_order"
+              name="Đơn bù hàng"
+              parent="menu_wujia_return_operation"
+              action="action_wujia_return_order"
+              sequence="20"/>
+
+    <menuitem id="menu_wujia_return_config"
+              name="Cấu hình"
+              parent="menu_wujia_return_root"
+              sequence="90"
+              groups="wujia_portal_return.group_return_manager"/>
+
+    <menuitem id="menu_wujia_return_issue_type"
+              name="Loại lỗi"
+              parent="menu_wujia_return_config"
+              action="action_wujia_return_issue_type"
+              sequence="10"/>
+
+</odoo>

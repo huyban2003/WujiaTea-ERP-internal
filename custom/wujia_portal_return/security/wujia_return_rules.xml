@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
 
-    <!-- Record rule: portal user chỉ thấy request của franchise mình có quyền. -->
+    <!-- Portal user chỉ thấy/tạo request của franchise mình có quyền. -->
     <record id="rule_wujia_return_request_portal" model="ir.rule">
         <field name="name">Wujia Return Request — Portal user own franchise only</field>
         <field name="model_id" ref="model_wujia_return_request"/>
@@ -11,13 +11,6 @@
         <field name="perm_write" eval="True"/>
         <field name="perm_create" eval="True"/>
         <field name="perm_unlink" eval="False"/>
-    </record>
-
-    <record id="rule_wujia_return_request_line_portal" model="ir.rule">
-        <field name="name">Wujia Return Request Line — Portal user via parent</field>
-        <field name="model_id" ref="model_wujia_return_request_line"/>
-        <field name="domain_force">[('request_id.franchise_id', 'in', user._get_accessible_franchise_ids())]</field>
-        <field name="groups" eval="[(4, ref('base.group_portal'))]"/>
     </record>
 
 </odoo>

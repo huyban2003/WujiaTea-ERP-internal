@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="view_wujia_return_issue_type_list" model="ir.ui.view">
+        <field name="name">wujia.return.issue.type.list</field>
+        <field name="model">wujia.return.issue.type</field>
+        <field name="arch" type="xml">
+            <list string="Loại lỗi" editable="bottom">
+                <field name="sequence" widget="handle"/>
+                <field name="code"/>
+                <field name="name"/>
+                <field name="note" optional="show"/>
+                <field name="active" widget="boolean_toggle"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="action_wujia_return_issue_type" model="ir.actions.act_window">
+        <field name="name">Loại lỗi</field>
+        <field name="res_model">wujia.return.issue.type</field>
+        <field name="view_mode">list</field>
+        <field name="context">{'active_test': False}</field>
+    </record>
+
+</odoo>

@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="view_compensation_process_wizard_form" model="ir.ui.view">
+        <field name="name">wujia.compensation.process.wizard.form</field>
+        <field name="model">wujia.compensation.process.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Xử lý bù hàng">
+                <div class="alert alert-info" role="status"
+                     invisible="skipped_count == 0">
+                    <field name="skipped_count" class="oe_inline"/> yêu cầu bị bỏ qua
+                    (không đủ điều kiện: chưa duyệt / không phải bù hàng / đã phân bổ đủ).
+                </div>
+                <p>
+                    Mỗi cửa hàng sẽ tạo <b>1 đơn bù hàng (SO 0đ)</b>. Số lượng giao
+                    đề xuất theo FIFO — mở từng dòng để xem phân bổ và chỉnh nếu cần.
+                </p>
+                <field name="skipped_count" invisible="1"/>
+                <field name="group_ids" nolabel="1">
+                    <list create="false" delete="false">
+                        <field name="franchise_id"/>
+                        <field name="compensation_product_id"/>
+                        <field name="policy"/>
+                        <field name="total_claim_qty"/>
+                        <field name="claim_uom_id"/>
+                        <field name="suggested_delivery_qty"/>
+                        <field name="delivery_qty"/>
+                        <field name="delivery_uom_id"/>
+                    </list>
+                    <form string="Nhóm SO bù">
+                        <group>
+                            <group>
+                                <field name="franchise_id" readonly="1"/>
+                                <field name="compensation_product_id" readonly="1"/>
+                                <field name="delivery_uom_id" readonly="1"/>
+                                <field name="policy" readonly="1"/>
+                            </group>
+                            <group>
+                                <field name="claim_uom_id" readonly="1"/>
+                                <field name="unit_qty" readonly="1"
+                                       invisible="policy != 'accumulate'"/>
+                                <field name="total_claim_qty" readonly="1"/>
+                                <field name="suggested_delivery_qty" readonly="1"/>
+                                <field name="delivery_qty"/>
+                            </group>
+                        </group>
+                        <separator string="Phân bổ FIFO"/>
+                        <field name="line_ids" nolabel="1" readonly="1">
+                            <list>
+                                <field name="request_id"/>
+                                <field name="request_remaining_qty"/>
+                                <field name="allocate_qty"/>
+                                <field name="request_uom_id"/>
+                            </list>
+                        </field>
+                    </form>
+                </field>
+                <footer>
+                    <button name="action_confirm" type="object" string="Tạo SO bù"
+                            class="btn-primary"/>
+                    <button string="Huỷ" class="btn-secondary" special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <!-- Action "Xử lý bù hàng" trong menu Actions của list Yêu cầu bù hàng -->
+    <record id="action_open_compensation_wizard" model="ir.actions.act_window">
+        <field name="name">Xử lý bù hàng</field>
+        <field name="res_model">wujia.compensation.process.wizard</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+        <field name="binding_model_id" ref="model_wujia_return_request"/>
+        <field name="binding_view_types">list</field>
+        <field name="group_ids"
+               eval="[(4, ref('wujia_portal_return.group_return_manager'))]"/>
+    </record>
+
+</odoo>

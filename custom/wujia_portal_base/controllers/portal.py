@@ -274,10 +274,9 @@ class WujiaPortal(CustomerPortal):
             return max(0, published_total - read_count)
         if kind == 'open_count':
             # BA spec: state in ('submitted','processing','approved') — KHÔNG tính draft.
-            # Skeleton model dùng 'sent' thay 'submitted', không có 'processing'.
             return Model.search_count([
                 ('franchise_id', 'in', list(franchise_ids)),
-                ('state', 'in', ['sent', 'approved']),
+                ('state', 'in', ['submitted', 'processing', 'approved']),
             ])
         return 0
 
@@ -295,10 +294,10 @@ class WujiaPortal(CustomerPortal):
                      ('franchise_ids', 'in', list(franchise_ids)),
             ], order='date desc', limit=limit)
         if model_name == 'wujia.return.request':
-            # BA spec: state != cancel — skeleton có 'rejected' tương đương → loại.
+            # BA spec: loại phiếu đã huỷ / từ chối khỏi danh sách gần đây.
             return Model.search([
                 ('franchise_id', 'in', list(franchise_ids)),
-                ('state', 'not in', ['rejected']),
+                ('state', 'not in', ['rejected', 'cancelled']),
             ], order='request_date desc', limit=limit)
         return []
 

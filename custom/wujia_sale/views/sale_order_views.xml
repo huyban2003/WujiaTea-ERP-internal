@@ -8,6 +8,7 @@
         <field name="arch" type="xml">
             <xpath expr="//field[@name='partner_id']" position="after">
                 <field name="is_portal_order" readonly="1"/>
+                <field name="is_return_order" readonly="1" optional="show"/>
                 <field name="franchise_id"
                        options="{'no_create': True}"
                        required="is_portal_order"/>
@@ -56,6 +57,7 @@
         <field name="arch" type="xml">
             <xpath expr="//field[@name='partner_id']" position="after">
                 <field name="is_portal_order" optional="hide"/>
+                <field name="is_return_order" optional="hide"/>
                 <field name="franchise_id" optional="show"/>
                 <field name="area_id" optional="hide"/>
                 <field name="portal_requester_user_id" optional="hide"/>
@@ -79,6 +81,8 @@
                 <separator/>
                 <filter string="Đơn từ Portal" name="filter_portal_only"
                         domain="[('is_portal_order', '=', True)]"/>
+                <filter string="Đơn bù hàng" name="filter_return_order"
+                        domain="[('is_return_order', '=', True)]"/>
                 <filter string="Đã có batch" name="filter_has_batch"
                         domain="[('batch_id', '!=', False)]"/>
                 <separator/>

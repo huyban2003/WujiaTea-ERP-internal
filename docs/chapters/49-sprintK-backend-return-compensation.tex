@@ -1,0 +1,124 @@
+\chapter{Sprint K --- Backend Bù hàng/Return: redesign + wizard SO 0đ + hook giao thực tế (2026-07-17)}
+
+\section{Bối cảnh}
+
+BA giao chức năng backend \textbf{Bù hàng / Đổi trả} (Google Sheet ``Internal ERP Master Plan\_Update'',
+tab ``1. Model/Field''). Tham chiếu v14 \texttt{co\_franchise\_return} (allocation + FIFO + floor UoM +
+SO 0đ wizard). Sprint chia 2 phần, đóng sổ CHUNG 1 lượt (1 chapter, 1 commit) theo quyết định user:
+\begin{itemize}
+  \item \textbf{K1 --- Foundation}: redesign \texttt{wujia\_portal\_return} từ multi-line sang
+    single-product + khối phê duyệt + theo dõi phân bổ (compute) + workflow state + backend admin
+    + portal single-product + migration \texttt{19.0.2.0.0}.
+  \item \textbf{K2 --- Xử lý bù hàng}: wizard ``Xử lý bù hàng'' tạo SO 0đ + phân bổ FIFO, và hook
+    \texttt{stock.picking} cập nhật số đã-bù từ giao thực tế.
+\end{itemize}
+
+\textbf{8 điểm BA đã chốt (2026-07-17):} (1) state \texttt{draft$\to$submitted$\to$reviewing$\to$approved$\to$processing$\to$done}
++ \texttt{rejected}/\texttt{cancelled}; (2) giá SO bù \texttt{price\_unit=0}; (3) ĐVT giao quy đổi qua
+engine UoM Odoo (\texttt{\_compute\_quantity}) cùng nhóm --- accumulate dùng hệ số \texttt{unit\_qty} tay
+(bịch $\neq$ kg khác nhóm); (4a) ``đã bù'' \textbf{chỉ} tính từ giao thực tế (\texttt{stock.picking} done),
+cộng dồn từng đợt; (4b) kho giao thiếu không backorder $\to$ tự hoàn phần chênh, bù tiếp lần sau;
+(5) \textbf{1 SO / 1 cửa hàng / 1 lần xử lý}; (6) FIFO tự đề xuất SL, HQ chỉnh tay; (7) từ chối sau khi
+bù một phần $\to$ SO giữ nguyên; (8) \texttt{compensation\_unit\_qty} có default trên product.
+
+\section{K1 --- Foundation}
+
+\begin{itemize}
+  \item \textbf{\texttt{product.product}} (extend): \texttt{compensation\_enabled}, \texttt{compensation\_policy}
+    (exact/accumulate), \texttt{compensation\_claim\_uom\_id}, \texttt{compensation\_product\_id},
+    \texttt{compensation\_delivery\_uom\_id}, \texttt{compensation\_unit\_qty} (default gợi ý khi duyệt);
+    constraint conditional theo policy. Tab ``Bù hàng'' ở product form (\texttt{group\_return\_manager}).
+  \item \textbf{\texttt{wujia.return.issue.type}} (rename từ \texttt{error.type}): giữ ormcache.
+  \item \textbf{\texttt{wujia.return.request}} redesign + \texttt{mail.thread}: header single-product
+    (\texttt{sale\_order\_line\_id}$\to$\texttt{product\_id}/\texttt{request\_qty}, thay \texttt{line\_ids});
+    khối duyệt (\texttt{approved\_qty}/\texttt{approved\_uom\_id} + snapshot bù); theo dõi phân bổ
+    (\texttt{allocated\_qty}/\texttt{compensated\_qty}/\texttt{unallocated\_qty}/\texttt{remaining\_qty}
+    compute qua \texttt{\_read\_group} --- 1 query, perf 1500 user); workflow
+    \texttt{action\_submit/start\_review/approve/reject/cancel/mark\_done}.
+  \item \textbf{\texttt{wujia.compensation.allocation}}: bản ghi phân bổ (1 request $\times$ 1 dòng SO bù),
+    \texttt{allocated\_qty}/\texttt{delivered\_qty}/\texttt{released\_qty}/\texttt{open\_qty} theo
+    \texttt{allocation\_uom\_id} (= \texttt{approved\_uom\_id}); constraint SQL+Python
+    (\texttt{delivered+released $\le$ allocated}; $\sum$(allocated$-$released) $\le$ approved\_qty).
+  \item \textbf{\texttt{sale.order.is\_return\_order}} (thêm ở \texttt{wujia\_sale}).
+  \item \textbf{Portal single-product}: controller \texttt{\_parse\_payload} + rewrite form/detail/list
+    (desktop về single-product như mobile). \textbf{Migration \texttt{19.0.2.0.0}} pre/post: drop bảng
+    line cũ, rename cột, rename \texttt{ir.model} error$\to$issue, dọn ACL/rule.
+\end{itemize}
+
+\section{K2 --- Xử lý bù hàng (SO 0đ) + hook giao thực tế}
+
+\textbf{Wizard 3 TransientModel} \texttt{wujia.compensation.process.wizard(.group)(.line)} +
+\texttt{ir.actions.act\_window} bind vào list (menu Actions, \texttt{group\_ids} = manager). 8 bước:
+\begin{enumerate}
+  \item Validate: chỉ request \texttt{approved}/\texttt{processing} + \texttt{resolution\_type='compensation'}
+    + đủ snapshot + \texttt{unallocated\_qty > 0}.
+  \item Group by \texttt{(franchise, comp\_product, approved\_uom, delivery\_uom, policy, unit\_qty)} ---
+    nhiều group cùng franchise $\to$ CÙNG 1 SO (điểm 5).
+  \item FIFO \texttt{(approved\_date, request\_date, id)}.
+  \item \texttt{total\_claim} = $\sum$ \texttt{unallocated\_qty} quy về ĐVT quyền lợi.
+  \item Đề xuất SL giao: \texttt{exact} = convert (round DOWN, không bù vượt); \texttt{accumulate} =
+    \texttt{floor(total/unit\_qty)}, phần lẻ để lại.
+  \item HQ chỉnh \texttt{delivery\_qty} (điểm 6).
+  \item Confirm re-validate: \texttt{SELECT ... FOR UPDATE NOWAIT} + đọc lại \texttt{unallocated\_qty}
+    \textbf{và state} $\to$ lệch snapshot / bị huỷ $\to$ raise ``Dữ liệu đã thay đổi''.
+  \item Tạo 1 SO/franchise (\texttt{is\_return\_order=True}, \texttt{price\_unit=0}, draft) + từng dòng SO
+    (gắn allocation ngay, không phụ thuộc thứ tự) + set request \texttt{processing}.
+\end{enumerate}
+
+\textbf{Hook \texttt{stock.picking.\_action\_done}} (chỉ phiếu \texttt{outgoing}): với move thuộc SO
+\texttt{is\_return\_order}, cộng dồn SL thực giao vào \texttt{allocation.delivered\_qty} (điểm 4a ---
+backorder tự cộng dồn); giao xong không backorder mà còn open $\to$ \texttt{released\_qty} hoàn phần chênh
+(điểm 4b); request \texttt{processing}$\to$\texttt{done} khi bù đủ. \texttt{compensated\_qty} \textbf{chỉ}
+tăng ở đây, không từ lúc tạo/confirm SO.
+
+\section{Hardening (adversarial review 5-lens)}
+
+Review đối kháng (5 lens $\to$ skeptic verify từng finding, 19 confirmed $\to$ 8 root) tìm ra và đã sửa:
+\begin{itemize}
+  \item \textbf{(blocker) Group key thiếu \texttt{approved\_uom\_id}} $\to$ 2 request khác ĐVT quyền lợi
+    (kg/g) gộp 1 dòng SO, hook \texttt{\_fill\_allocations} trộn sai ĐVT. Fix: thêm
+    \texttt{approved\_uom\_id} vào key $\to$ mỗi group đồng nhất ĐVT.
+  \item \textbf{(blocker) Exact double-UP rounding} $\to$ \texttt{covered > total\_claim} raise ngay trên
+    SL wizard tự đề xuất. Fix: quy đổi round \textbf{DOWN} 2 chiều (\texttt{\_claim\_to\_delivery} +
+    \texttt{\_delivery\_to\_claim}), covered lấy từ back-conversion.
+  \item \textbf{(high) Portal ACL} \texttt{wujia.return.request} cho \texttt{group\_portal}
+    \texttt{write/create=1} $\to$ user portal có thể tự duyệt (set \texttt{state=approved},
+    \texttt{approved\_qty}) qua RPC. Fix: hạ ACL về \textbf{read-only} (controller portal đã dùng
+    \texttt{sudo()} cho mọi create/write $\to$ không ảnh hưởng luồng portal).
+  \item \textbf{(high) Re-validate không kiểm state} $\to$ request bị huỷ giữa chừng vẫn tạo allocation
+    (\texttt{unallocated\_qty} không đổi khi chỉ đổi state). Fix: kiểm \texttt{state} trong
+    \texttt{\_lock\_and\_revalidate}.
+  \item \textbf{(medium) Odoo 19 \texttt{\_compute\_quantity} bỏ kiểm nhóm} (\texttt{category\_id} $\to$ cây
+    \texttt{relative\_uom\_id}). Fix: tự guard bằng gốc cây \texttt{\_uom\_root}, khác nhóm $\to$ raise.
+  \item \textbf{(medium/perf) Index + hook outgoing-only}: thêm \texttt{index=True} cho
+    \texttt{allocation.sale\_order\_line\_id} (hot-path search); hook chỉ chạy phiếu \texttt{outgoing}
+    (early-exit phiếu nhập/nội bộ 1500 user + không đếm nhầm move phiếu trả hàng).
+\end{itemize}
+
+\section{Gì đã làm (nghiệp vụ)}
+
+Hoàn thiện toàn bộ quy trình \textbf{bù hàng} phía văn phòng (HQ): cửa hàng gửi yêu cầu bù (1 sản phẩm/phiếu,
+kèm ảnh minh chứng) qua portal; HQ tiếp nhận, phê duyệt số lượng và chọn sản phẩm/đơn vị bù. Khi HQ bấm
+``Xử lý bù hàng'' cho nhiều yêu cầu, hệ thống tự gom theo cửa hàng thành \textbf{một đơn bù 0đ}, đề xuất số
+lượng giao theo FIFO (ưu tiên yêu cầu cũ) --- HQ chỉnh tay được. Số ``đã bù'' chỉ được ghi nhận khi hàng
+\textbf{thực sự giao tới cửa hàng}; giao làm nhiều đợt thì cộng dồn, giao thiếu thì phần còn lại tự động
+chờ bù đợt sau. Yêu cầu tự chuyển ``Đã xử lý'' khi bù đủ.
+
+\section{Lý do/Trade-off}
+
+Tách ĐVT ở 2 phía là quyết định cốt lõi: \texttt{allocation} lưu theo \textbf{ĐVT quyền lợi} (để so trực
+tiếp với \texttt{approved\_qty}), còn dòng SO lưu \textbf{ĐVT giao} --- quy đổi qua engine UoM Odoo (exact)
+hoặc hệ số \texttt{unit\_qty} tay (accumulate, vì ``bịch $\to$ kg'' khác nhóm đơn vị nên Odoo không tự đổi).
+SO bù để ở \texttt{draft} cho HQ review rồi tự confirm (không auto-confirm). Rounding chọn \textbf{DOWN} để
+không bao giờ bù vượt quyền lợi. Bảo mật: thay vì viết \texttt{write()} override phức tạp, tận dụng việc
+controller portal đã \texttt{sudo()} toàn bộ $\to$ chỉ cần hạ ACL portal về read-only là đóng lỗ tự-duyệt.
+
+\section{Verify}
+
+\texttt{-u wujia\_portal\_return,wujia\_sale}: RC=0, 0 ERROR log, migration pre/post sạch. ORM test
+\textbf{46/46} (13 kịch bản: exact/accumulate, HQ chỉnh, giao đủ/backorder/thiếu, concurrency, over-approved,
+FIFO 2 request, 1 SO đa dòng, cross-UoM tách group, huỷ giữa chừng, exact lẻ không over-cover, price=0
+sau confirm). \texttt{test\_sprint9} 7/7. Portal + backend routes HTTP 200. Manifest:
+\texttt{wujia\_portal\_return 19.0.2.0.0} (K1+K2 cùng release) / \texttt{wujia\_sale 19.0.4.1.0} /
+\texttt{wujia\_portal\_base 19.0.5.14.0}. Deploy prod: \texttt{-u wujia\_portal\_return wujia\_sale}
+(module đã cài $\to$ auto-upgrade chạy migration; KHÔNG cần \texttt{-i}).

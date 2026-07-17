@@ -1,11 +1,12 @@
-"""Wujia portal — Return Request controller.
+"""Wujia portal — Return Request controller (single-product, BA spec K).
 
 Routes:
-- GET  /portal/return                              list (filter state/date)
-- GET, POST /portal/return/new                     create draft or send
+- GET  /portal/return                              list (filter state/date/q)
+- GET, POST /portal/return/new                     create draft or submit
 - GET  /portal/return/<int>                        detail
 - GET  /portal/return/<int>/attachment/<int>       download attachment
 """
+import json
 import logging
 from datetime import datetime
 
@@ -28,12 +29,16 @@ _logger = logging.getLogger(__name__)
 PAGE_SIZE = 20
 MIN_IMAGES_BEFORE_SEND = 3
 
+# Trạng thái portal thấy (label + badge class).
 STATE_LABELS = {
     'draft': ('Nháp', 'wujia-badge-muted'),
-    'sent': ('Đã gửi', 'wujia-badge-info'),
+    'submitted': ('Đã gửi', 'wujia-badge-info'),
+    'reviewing': ('Đang xét', 'wujia-badge-warning'),
     'approved': ('Đã duyệt', 'wujia-badge-success'),
+    'processing': ('Đang xử lý', 'wujia-badge-warning'),
+    'done': ('Đã xử lý', 'wujia-badge-success'),
     'rejected': ('Từ chối', 'wujia-badge-danger'),
-    'done': ('Hoàn thành', 'wujia-badge-success'),
+    'cancelled': ('Đã huỷ', 'wujia-badge-muted'),
 }
 
 
@@ -52,10 +57,9 @@ class WujiaPortalReturn(http.Controller):
         domain = [('franchise_id', 'in', list(franchise_ids))]
         if state and state in STATE_LABELS:
             domain.append(('state', '=', state))
-        # S20: tìm Mã YC / Mã đơn (ilike)
         q = (q or '').strip()
         if q:
-            domain += ['|', ('name', 'ilike', q), ('order_id.name', 'ilike', q)]
+            domain += ['|', ('name', 'ilike', q), ('sale_order_id.name', 'ilike', q)]
         if date_from:
             try:
                 df = datetime.strptime(date_from, '%Y-%m-%d')
@@ -107,17 +111,13 @@ class WujiaPortalReturn(http.Controller):
         if request.httprequest.method != 'POST':
             return self._render_form()
 
-        # ---------- POST ----------
         try:
-            vals, lines, action = self._parse_payload(post, franchise_ids)
+            vals, action = self._parse_payload(post, franchise_ids)
         except ValidationError as e:
             return self._render_form(error=str(e), prefill=post)
 
         try:
-            rr = request.env['wujia.return.request'].sudo().create({
-                **vals,
-                'line_ids': [(0, 0, l) for l in lines],
-            })
+            rr = request.env['wujia.return.request'].sudo().create(vals)
         except (ValidationError, Exception) as e:
             _logger.exception('Return request create failed')
             return self._render_form(error=str(e), prefill=post)
@@ -130,19 +130,19 @@ class WujiaPortalReturn(http.Controller):
                 allowed_mime=DEFAULT_DOC_MIME, max_size_mb=5, max_count=10,
             )
             if attachments:
-                rr.sudo().write({'image_ids': [(4, a.id) for a in attachments]})
+                rr.sudo().write(
+                    {'image_attachment_ids': [(4, a.id) for a in attachments]})
         except ValidationError as e:
-            # Cleanup nửa-vời: delete record nếu attachment fail (atomic feel).
             rr.sudo().unlink()
             return self._render_form(error=str(e), prefill=post)
 
         if action == 'send':
-            if len(rr.image_ids) < MIN_IMAGES_BEFORE_SEND:
+            if len(rr.image_attachment_ids) < MIN_IMAGES_BEFORE_SEND:
                 return self._render_form(
                     error=f'Cần ít nhất {MIN_IMAGES_BEFORE_SEND} ảnh trước khi gửi.',
                     prefill=post,
                 )
-            rr.sudo().write({'state': 'sent'})
+            rr.sudo().write({'state': 'submitted'})
         return request.redirect(f'/portal/return/{rr.id}?message=created')
 
     @http.route(['/portal/return/<int:request_id>'], type='http',
@@ -175,7 +175,8 @@ class WujiaPortalReturn(http.Controller):
         ], limit=1)
         if not rr:
             raise NotFound()
-        if att_id not in rr.image_ids.ids:
+        allowed = set(rr.image_attachment_ids.ids) | set(rr.video_attachment_ids.ids)
+        if att_id not in allowed:
             raise Forbidden()
         att = request.env['ir.attachment'].sudo().browse(att_id).exists()
         if not att:
@@ -187,17 +188,29 @@ class WujiaPortalReturn(http.Controller):
     # ============================================================== helpers
     def _render_form(self, error=None, prefill=None):
         franchise_ids = get_active_franchise_ids_filter()
-        franchises = request.env['wujia.franchise.management'].sudo().browse(franchise_ids)
-        recent_orders = request.env['sale.order'].sudo().search([
+        franchises = request.env['wujia.franchise.management'].sudo().browse(
+            franchise_ids)
+        orders = request.env['sale.order'].sudo().search([
             ('franchise_id', 'in', list(franchise_ids)),
             ('state', 'in', ['sale', 'done']),
-        ], order='date_order desc', limit=20)
-        error_types = request.env['wujia.return.error.type'].sudo().search(
-            [('active', '=', True)]
-        )
+        ], order='date_order desc', limit=30)
+        issue_types = request.env['wujia.return.issue.type'].sudo().search(
+            [('active', '=', True)])
+        # Map order_id -> [{id, label}] cho cascade select sản phẩm.
+        order_lines = {
+            o.id: [{
+                'id': line.id,
+                'label': '%s (%s %s)' % (
+                    line.product_id.display_name,
+                    ('{:,.0f}'.format(line.product_uom_qty or 0)),
+                    line.product_uom_id.name or ''),
+            } for line in o.order_line if line.product_id]
+            for o in orders
+        }
         return request.render('wujia_portal_return.portal_return_form', {
-            'franchises': franchises, 'recent_orders': recent_orders,
-            'error_types': error_types, 'state_labels': STATE_LABELS,
+            'franchises': franchises, 'orders': orders,
+            'order_lines_json': json.dumps(order_lines),
+            'issue_types': issue_types, 'state_labels': STATE_LABELS,
             'error': error, 'values': prefill or {},
             'today': datetime.now(),
         })
@@ -210,56 +223,61 @@ class WujiaPortalReturn(http.Controller):
         if franchise_id not in set(accessible_fids):
             raise ValidationError("Cửa hàng không truy cập được.")
 
-        error_id = post.get('error_id')
+        # Đơn gốc + dòng sản phẩm (bắt buộc — SP phải thuộc đơn).
         try:
-            error_id = int(error_id) if error_id else 0
+            sale_order_id = int(post.get('sale_order_id') or 0)
+            sale_order_line_id = int(post.get('sale_order_line_id') or 0)
         except (TypeError, ValueError):
-            error_id = 0
-        if not error_id:
+            raise ValidationError("Đơn hàng / sản phẩm không hợp lệ.")
+        if not sale_order_id or not sale_order_line_id:
+            raise ValidationError("Vui lòng chọn đơn hàng gốc và sản phẩm.")
+        line = request.env['sale.order.line'].sudo().browse(sale_order_line_id).exists()
+        if (not line or line.order_id.id != sale_order_id
+                or line.order_id.franchise_id.id != franchise_id):
+            raise ValidationError("Sản phẩm phải thuộc đơn hàng gốc của cửa hàng.")
+
+        issue_type_id = post.get('issue_type_id')
+        try:
+            issue_type_id = int(issue_type_id) if issue_type_id else 0
+        except (TypeError, ValueError):
+            issue_type_id = 0
+        if not issue_type_id:
             raise ValidationError("Vui lòng chọn loại lỗi.")
 
-        order_id = post.get('order_id')
         try:
-            order_id = int(order_id) if order_id else False
+            request_qty = float(post.get('request_qty') or 0)
         except (TypeError, ValueError):
-            order_id = False
+            request_qty = 0.0
+        if request_qty <= 0:
+            raise ValidationError("Số lượng yêu cầu phải lớn hơn 0.")
 
-        expected = post.get('expected_delivery_date') or False
-
-        vals = {
-            'franchise_id': franchise_id,
-            'error_id': error_id,
-            'order_id': order_id,
-            'expected_delivery_date': expected,
-            'note': (post.get('note') or '').strip()[:5000],
-            'state': 'draft',
-        }
-
-        # Lines — multipart with list[]
-        form = request.httprequest.form
-        names = form.getlist('line_product_name[]')
-        qtys = form.getlist('line_qty[]')
-        reasons = form.getlist('line_reason[]')
-        lines = []
-        for name, qty, reason in zip(names, qtys, reasons):
-            name = (name or '').strip()
-            if not name:
-                continue
+        opening = post.get('opening_datetime') or ''
+        opening_dt = False
+        for fmt in ('%Y-%m-%dT%H:%M', '%Y-%m-%d %H:%M:%S', '%Y-%m-%d %H:%M'):
             try:
-                q = float(qty or 0)
-            except (TypeError, ValueError):
-                q = 0.0
-            if q <= 0:
+                opening_dt = datetime.strptime(opening, fmt)
+                break
+            except ValueError:
                 continue
-            lines.append({
-                'product_name': name,
-                'qty': q,
-                'reason': (reason or '').strip()[:500],
-            })
-        if not lines:
-            raise ValidationError("Vui lòng thêm ít nhất 1 dòng sản phẩm với số lượng > 0.")
+        if not opening_dt:
+            raise ValidationError("Vui lòng nhập thời gian mở hàng hợp lệ.")
+
+        production_date = post.get('production_date') or False
 
         action = (post.get('action') or 'draft').strip()
         if action not in ('draft', 'send'):
             action = 'draft'
-        return vals, lines, action
+
+        vals = {
+            'franchise_id': franchise_id,
+            'sale_order_id': sale_order_id,
+            'sale_order_line_id': sale_order_line_id,
+            'request_uom_id': line.product_uom_id.id,
+            'request_qty': request_qty,
+            'opening_datetime': opening_dt,
+            'production_date': production_date,
+            'issue_type_id': issue_type_id,
+            'note': (post.get('note') or '').strip()[:5000],
+            'state': 'draft',
+        }
+        return vals, action

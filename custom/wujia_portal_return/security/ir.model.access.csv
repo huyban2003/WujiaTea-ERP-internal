@@ -1,7 +1,12 @@
 id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
-access_wujia_return_request_portal,wujia.return.request portal,model_wujia_return_request,base.group_portal,1,1,1,0
-access_wujia_return_request_user,wujia.return.request internal,model_wujia_return_request,base.group_user,1,1,1,1
-access_wujia_return_request_line_portal,wujia.return.request.line portal,model_wujia_return_request_line,base.group_portal,1,1,1,1
-access_wujia_return_request_line_user,wujia.return.request.line internal,model_wujia_return_request_line,base.group_user,1,1,1,1
-access_wujia_return_error_type_portal,wujia.return.error.type portal read,model_wujia_return_error_type,base.group_portal,1,0,0,0
-access_wujia_return_error_type_user,wujia.return.error.type internal,model_wujia_return_error_type,base.group_user,1,1,1,1
+access_wujia_return_request_portal,wujia.return.request portal,model_wujia_return_request,base.group_portal,1,0,0,0
+access_wujia_return_request_user,wujia.return.request user,model_wujia_return_request,wujia_portal_return.group_return_user,1,0,0,0
+access_wujia_return_request_manager,wujia.return.request manager,model_wujia_return_request,wujia_portal_return.group_return_manager,1,1,1,1
+access_wujia_return_issue_type_portal,wujia.return.issue.type portal read,model_wujia_return_issue_type,base.group_portal,1,0,0,0
+access_wujia_return_issue_type_user,wujia.return.issue.type user,model_wujia_return_issue_type,wujia_portal_return.group_return_user,1,0,0,0
+access_wujia_return_issue_type_manager,wujia.return.issue.type manager,model_wujia_return_issue_type,wujia_portal_return.group_return_manager,1,1,1,1
+access_wujia_compensation_allocation_user,wujia.compensation.allocation user,model_wujia_compensation_allocation,wujia_portal_return.group_return_user,1,0,0,0
+access_wujia_compensation_allocation_manager,wujia.compensation.allocation manager,model_wujia_compensation_allocation,wujia_portal_return.group_return_manager,1,1,1,1
+access_wujia_comp_process_wizard_manager,wujia.compensation.process.wizard manager,model_wujia_compensation_process_wizard,wujia_portal_return.group_return_manager,1,1,1,1
+access_wujia_comp_process_wizard_group_manager,wujia.compensation.process.wizard.group manager,model_wujia_compensation_process_wizard_group,wujia_portal_return.group_return_manager,1,1,1,1
+access_wujia_comp_process_wizard_line_manager,wujia.compensation.process.wizard.line manager,model_wujia_compensation_process_wizard_line,wujia_portal_return.group_return_manager,1,1,1,1

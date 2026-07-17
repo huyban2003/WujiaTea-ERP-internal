@@ -187,8 +187,8 @@
                                             </a>
                                         </div>
                                         <span class="wujia-content-card-row-date" t-out="rr.request_date and rr.request_date.strftime('%H:%M %d/%m/%Y') or ''"/>
-                                        <t t-set="rr_badge_cls" t-value="{'draft': 'wujia-badge-muted', 'sent': 'wujia-badge-info', 'approved': 'wujia-badge-success', 'rejected': 'wujia-badge-danger', 'done': 'wujia-badge-success'}.get(rr.state, 'wujia-badge-muted')"/>
-                                        <t t-set="rr_state_label" t-value="{'draft': 'Nháp', 'sent': 'Đã gửi', 'approved': 'Đã duyệt', 'rejected': 'Từ chối', 'done': 'Hoàn thành'}.get(rr.state, rr.state)"/>
+                                        <t t-set="rr_badge_cls" t-value="{'draft': 'wujia-badge-muted', 'submitted': 'wujia-badge-info', 'reviewing': 'wujia-badge-warning', 'approved': 'wujia-badge-success', 'processing': 'wujia-badge-warning', 'rejected': 'wujia-badge-danger', 'done': 'wujia-badge-success', 'cancelled': 'wujia-badge-muted'}.get(rr.state, 'wujia-badge-muted')"/>
+                                        <t t-set="rr_state_label" t-value="{'draft': 'Nháp', 'submitted': 'Đã gửi', 'reviewing': 'Đang xét', 'approved': 'Đã duyệt', 'processing': 'Đang xử lý', 'rejected': 'Từ chối', 'done': 'Hoàn thành', 'cancelled': 'Đã huỷ'}.get(rr.state, rr.state)"/>
                                         <span t-attf-class="wujia-badge #{rr_badge_cls}" t-out="rr_state_label"/>
                                     </li>
                                 </ul>
@@ -432,7 +432,7 @@
                                                 Ngày yêu cầu: <t t-out="r.request_date and r.request_date.strftime('%d/%m/%Y') or '—'"/>
                                             </span>
                                             <span class="wujia-mdash-row-sub is-strong">
-                                                Lý do: <t t-out="r.error_id.name or '—'"/>
+                                                Lý do: <t t-out="r.issue_type_id.name or '—'"/>
                                             </span>
                                             <!-- UI-only: model chưa có field tổng tiền (NOTE BA) -->
                                             <span class="wujia-mdash-row-sub is-strong is-xs">Tổng tiền: —</span>

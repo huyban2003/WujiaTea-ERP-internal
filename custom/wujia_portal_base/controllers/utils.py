@@ -302,11 +302,14 @@ MOBILE_BATCH_BADGES = {
 # về đây để Home (section gộp Sprint 16) + delivery dùng chung. UI-only, TÁCH
 # STATE_LABELS desktop của wujia_portal_return; nguồn state thật wujia.return.request.
 MOBILE_RETURN_BADGES = {
-    'draft':    ('Nháp', 'wujia-badge-muted'),
-    'sent':     ('Chờ xử lý', 'wujia-badge-danger'),
-    'approved': ('Đang xử lý', 'wujia-badge-warning'),
-    'rejected': ('Từ chối', 'wujia-badge-danger'),
-    'done':     ('Hoàn thành', 'wujia-badge-success'),
+    'draft':      ('Nháp', 'wujia-badge-muted'),
+    'submitted':  ('Chờ xử lý', 'wujia-badge-info'),
+    'reviewing':  ('Đang xét', 'wujia-badge-warning'),
+    'approved':   ('Đã duyệt', 'wujia-badge-success'),
+    'processing': ('Đang xử lý', 'wujia-badge-warning'),
+    'done':       ('Hoàn thành', 'wujia-badge-success'),
+    'rejected':   ('Từ chối', 'wujia-badge-danger'),
+    'cancelled':  ('Đã huỷ', 'wujia-badge-muted'),
 }
 
 # Sprint 17 — nhãn MOBILE cho ticket hỗ trợ (Figma Mobile_Ticket). UI-only,

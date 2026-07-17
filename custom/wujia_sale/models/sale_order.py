@@ -52,6 +52,14 @@ class SaleOrder(models.Model):
     portal_delivery_phone = fields.Char(string='SĐT giao (portal)')
     portal_note = fields.Text(string='Ghi chú đơn (portal)')
 
+    is_return_order = fields.Boolean(
+        string='Đơn bù hàng',
+        default=False,
+        index=True,
+        tracking=True,
+        help='Đánh dấu SO tạo tự động từ quản lý bù/đổi trả (Function K).',
+    )
+
     # Weight aggregate
     total_planned_weight = fields.Float(
         string='Khối lượng dự kiến',

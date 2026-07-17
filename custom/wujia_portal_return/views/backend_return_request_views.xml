@@ -1,0 +1,247 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- ============================================================
+         Return Request — form
+    ============================================================ -->
+    <record id="view_wujia_return_request_form" model="ir.ui.view">
+        <field name="name">wujia.return.request.form</field>
+        <field name="model">wujia.return.request</field>
+        <field name="arch" type="xml">
+            <form string="Yêu cầu bù hàng">
+                <header>
+                    <button name="action_start_review" type="object" string="Tiếp nhận"
+                            invisible="state != 'submitted'"
+                            groups="wujia_portal_return.group_return_manager"/>
+                    <button name="action_approve" type="object" string="Phê duyệt"
+                            class="btn-success"
+                            invisible="state not in ('submitted', 'reviewing')"
+                            groups="wujia_portal_return.group_return_manager"/>
+                    <button name="action_reject" type="object" string="Từ chối"
+                            class="btn-danger"
+                            invisible="state in ('done', 'cancelled', 'rejected')"
+                            confirm="Xác nhận từ chối yêu cầu này?"
+                            groups="wujia_portal_return.group_return_manager"/>
+                    <button name="action_mark_done" type="object" string="Hoàn tất"
+                            invisible="state != 'approved' or resolution_type == 'compensation'"
+                            groups="wujia_portal_return.group_return_manager"/>
+                    <button name="action_cancel" type="object" string="Huỷ"
+                            invisible="state in ('done', 'cancelled')"
+                            confirm="Xác nhận huỷ yêu cầu?"
+                            groups="wujia_portal_return.group_return_manager"/>
+                    <field name="state" widget="statusbar"
+                           statusbar_visible="submitted,reviewing,approved,processing,done"/>
+                </header>
+                <sheet>
+                    <widget name="web_ribbon" title="Từ chối"
+                            invisible="state != 'rejected'" bg_color="text-bg-danger"/>
+                    <widget name="web_ribbon" title="Đã huỷ"
+                            invisible="state != 'cancelled'" bg_color="text-bg-secondary"/>
+                    <div class="oe_button_box" name="button_box">
+                        <button name="action_view_compensation_sos" type="object"
+                                class="oe_stat_button" icon="fa-file-text-o"
+                                invisible="compensation_so_count == 0">
+                            <field name="compensation_so_count" widget="statinfo"
+                                   string="SO bù"/>
+                        </button>
+                    </div>
+                    <div class="oe_title">
+                        <label for="name"/>
+                        <h1><field name="name" readonly="1"/></h1>
+                    </div>
+                    <group>
+                        <group string="Thông tin yêu cầu">
+                            <field name="franchise_id" options="{'no_create': True}"/>
+                            <field name="requester_user_id" readonly="1"/>
+                            <field name="request_date" readonly="1"/>
+                            <field name="issue_type_id" options="{'no_create': True}"/>
+                        </group>
+                        <group string="Đơn hàng gốc">
+                            <field name="sale_order_id" options="{'no_create': True}"/>
+                            <field name="sale_order_line_id" options="{'no_create': True}"/>
+                            <field name="product_id" readonly="1"/>
+                            <field name="batch_id" readonly="1"/>
+                        </group>
+                    </group>
+                    <group>
+                        <group string="Số lượng &amp; lô">
+                            <label for="request_qty"/>
+                            <div class="o_row">
+                                <field name="request_qty"/>
+                                <field name="request_uom_id" options="{'no_create': True}"/>
+                            </div>
+                            <field name="opening_datetime"/>
+                            <field name="production_date"/>
+                        </group>
+                        <group string="Tình trạng bù"
+                               invisible="resolution_type != 'compensation'">
+                            <field name="compensation_status"/>
+                            <field name="approved_qty"/>
+                            <field name="allocated_qty"/>
+                            <field name="compensated_qty"/>
+                            <field name="remaining_qty"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="Minh chứng" name="evidence">
+                            <separator string="Ảnh"/>
+                            <field name="image_attachment_ids" widget="many2many_binary"
+                                   nolabel="1"/>
+                            <separator string="Video"/>
+                            <field name="video_attachment_ids" widget="many2many_binary"
+                                   nolabel="1"/>
+                        </page>
+                        <page string="Phê duyệt" name="approval">
+                            <group>
+                                <group string="Kết quả duyệt">
+                                    <field name="resolution_type"/>
+                                    <field name="approved_qty"/>
+                                    <field name="approved_uom_id" options="{'no_create': True}"/>
+                                    <field name="approved_by_id" readonly="1"/>
+                                    <field name="approved_date" readonly="1"/>
+                                    <field name="resolved_date" readonly="1"
+                                           invisible="not resolved_date"/>
+                                </group>
+                                <group string="Cấu hình bù (snapshot khi duyệt)"
+                                       invisible="resolution_type != 'compensation'">
+                                    <field name="compensation_product_id"
+                                           options="{'no_create': True}"/>
+                                    <field name="compensation_delivery_uom_id"
+                                           options="{'no_create': True}"/>
+                                    <field name="compensation_unit_qty"/>
+                                    <field name="compensation_policy"/>
+                                </group>
+                            </group>
+                            <field name="approval_note" placeholder="Phản hồi kết quả duyệt..."/>
+                            <separator string="Lý do từ chối"/>
+                            <field name="reject_reason" nolabel="1"
+                                   placeholder="Bắt buộc khi từ chối..."/>
+                        </page>
+                        <page string="Phân bổ bù hàng" name="allocations"
+                              invisible="resolution_type != 'compensation'">
+                            <field name="allocation_ids" readonly="1">
+                                <list>
+                                    <field name="name"/>
+                                    <field name="sale_order_id"/>
+                                    <field name="allocated_qty"/>
+                                    <field name="delivered_qty"/>
+                                    <field name="released_qty"/>
+                                    <field name="open_qty"/>
+                                    <field name="allocation_uom_id"/>
+                                    <field name="state" widget="badge"/>
+                                </list>
+                            </field>
+                        </page>
+                        <page string="Ghi chú" name="notes">
+                            <separator string="Ghi chú từ cửa hàng"/>
+                            <field name="note" nolabel="1" readonly="1"/>
+                            <separator string="Ghi chú nội bộ"/>
+                            <field name="backend_note" nolabel="1"
+                                   placeholder="Ghi chú xử lý nội bộ..."/>
+                        </page>
+                    </notebook>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <!-- ============================================================
+         Return Request — list
+    ============================================================ -->
+    <record id="view_wujia_return_request_list" model="ir.ui.view">
+        <field name="name">wujia.return.request.list</field>
+        <field name="model">wujia.return.request</field>
+        <field name="arch" type="xml">
+            <list string="Yêu cầu bù hàng" sample="1"
+                  decoration-info="state == 'submitted'"
+                  decoration-warning="state in ('reviewing', 'processing')"
+                  decoration-success="state == 'done'"
+                  decoration-danger="state == 'rejected'"
+                  decoration-muted="state in ('draft', 'cancelled')">
+                <field name="name"/>
+                <field name="request_date"/>
+                <field name="franchise_id"/>
+                <field name="product_id"/>
+                <field name="request_qty" sum="Tổng SL"/>
+                <field name="request_uom_id"/>
+                <field name="issue_type_id"/>
+                <field name="resolution_type" optional="show"/>
+                <field name="compensation_status" optional="hide"/>
+                <field name="remaining_qty" optional="hide"/>
+                <field name="state" widget="badge"
+                       decoration-info="state == 'submitted'"
+                       decoration-warning="state in ('reviewing', 'processing')"
+                       decoration-success="state in ('approved', 'done')"
+                       decoration-danger="state == 'rejected'"
+                       decoration-muted="state in ('draft', 'cancelled')"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- ============================================================
+         Return Request — search
+    ============================================================ -->
+    <record id="view_wujia_return_request_search" model="ir.ui.view">
+        <field name="name">wujia.return.request.search</field>
+        <field name="model">wujia.return.request</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="name"/>
+                <field name="franchise_id"/>
+                <field name="sale_order_id"/>
+                <field name="product_id"/>
+                <field name="issue_type_id"/>
+                <separator/>
+                <filter string="Mới gửi" name="filter_submitted"
+                        domain="[('state', '=', 'submitted')]"/>
+                <filter string="Đang xử lý" name="filter_processing"
+                        domain="[('state', 'in', ('reviewing', 'processing'))]"/>
+                <filter string="Đã phê duyệt" name="filter_approved"
+                        domain="[('state', '=', 'approved')]"/>
+                <filter string="Chờ bù hàng" name="filter_waiting_compensation"
+                        domain="[('state', 'in', ('approved', 'processing')), ('resolution_type', '=', 'compensation'), ('unallocated_qty', '&gt;', 0)]"/>
+                <filter string="Từ chối" name="filter_rejected"
+                        domain="[('state', '=', 'rejected')]"/>
+                <filter string="Đã xử lý" name="filter_done"
+                        domain="[('state', '=', 'done')]"/>
+                <group name="group_by">
+                    <filter string="Cửa hàng" name="group_franchise"
+                            context="{'group_by': 'franchise_id'}"/>
+                    <filter string="Trạng thái" name="group_state"
+                            context="{'group_by': 'state'}"/>
+                    <filter string="Loại lỗi" name="group_issue_type"
+                            context="{'group_by': 'issue_type_id'}"/>
+                    <filter string="Ngày yêu cầu" name="group_date"
+                            context="{'group_by': 'request_date:month'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <record id="action_wujia_return_request" model="ir.actions.act_window">
+        <field name="name">Yêu cầu bù hàng</field>
+        <field name="res_model">wujia.return.request</field>
+        <field name="view_mode">list,form</field>
+        <field name="search_view_id" ref="view_wujia_return_request_search"/>
+        <field name="context">{'search_default_filter_submitted': 1}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">Chưa có yêu cầu bù hàng nào.</p>
+            <p>Yêu cầu sẽ xuất hiện khi cửa hàng gửi qua portal.</p>
+        </field>
+    </record>
+
+    <!-- Return Order — SO tạo từ bù hàng (is_return_order=True) -->
+    <record id="action_wujia_return_order" model="ir.actions.act_window">
+        <field name="name">Đơn bù hàng</field>
+        <field name="res_model">sale.order</field>
+        <field name="view_mode">list,form</field>
+        <field name="domain">[('is_return_order', '=', True)]</field>
+        <field name="context">{'search_default_filter_return_order': 1}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">Chưa có đơn bù hàng nào.</p>
+            <p>SO bù hàng 0đ sẽ xuất hiện khi HQ chạy "Xử lý bù hàng".</p>
+        </field>
+    </record>
+
+</odoo>

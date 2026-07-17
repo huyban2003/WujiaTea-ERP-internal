@@ -86,8 +86,8 @@
                                         <td><a t-attf-href="/portal/return/#{rr.id}" t-out="rr.name"/></td>
                                         <td t-out="rr.request_date and rr.request_date.strftime('%d/%m/%Y %H:%M') or ''"/>
                                         <td t-out="rr.franchise_id.name or '—'"/>
-                                        <td t-out="rr.error_id.name or '—'"/>
-                                        <td t-out="rr.order_id.name or '—'"/>
+                                        <td t-out="rr.issue_type_id.name or '—'"/>
+                                        <td t-out="rr.sale_order_id.name or '—'"/>
                                         <td class="text-center">
                                             <t t-set="lbl" t-value="state_labels.get(rr.state, (rr.state, 'wujia-badge-muted'))"/>
                                             <span t-attf-class="wujia-badge #{lbl[1]}" t-out="lbl[0]"/>
@@ -192,7 +192,6 @@
                         <div t-else="" class="wujia-mreturn-list">
                             <a t-foreach="returns" t-as="rr" t-attf-href="/portal/return/#{rr.id}"
                                class="wujia-mreturn-row">
-                                <t t-set="first_line" t-value="rr.line_ids[:1]"/>
                                 <span class="wujia-mreturn-row-body">
                                     <span class="wujia-mreturn-row-head">
                                         <span class="wujia-mreturn-row-code" t-out="rr.name"/>
@@ -200,12 +199,12 @@
                                         <span t-attf-class="wujia-badge #{lbl[1]}" t-out="lbl[0]"/>
                                     </span>
                                     <span class="wujia-mreturn-row-product"
-                                          t-out="first_line.product_id.display_name or first_line.product_name or rr.error_id.name or '—'"/>
+                                          t-out="rr.product_id.display_name or rr.issue_type_id.name or '—'"/>
                                     <span class="wujia-mreturn-row-divider"/>
                                     <span class="wujia-mreturn-row-meta">
                                         <span class="wujia-mreturn-row-metacell">
                                             <span class="lbl">Đơn gốc</span>
-                                            <span class="val" t-out="rr.order_id.name or '—'"/>
+                                            <span class="val" t-out="rr.sale_order_id.name or '—'"/>
                                         </span>
                                         <span class="wujia-mreturn-row-metacell">
                                             <span class="lbl">Ngày YC</span>

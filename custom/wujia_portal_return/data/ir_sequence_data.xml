@@ -4,7 +4,15 @@
     <record id="seq_wujia_return_request" model="ir.sequence">
         <field name="name">Wujia Return Request</field>
         <field name="code">wujia.return.request</field>
-        <field name="prefix">WJ-RR/%(y)s/</field>
+        <field name="prefix">RTN/%(y)s/</field>
+        <field name="padding">5</field>
+        <field name="company_id" eval="False"/>
+    </record>
+
+    <record id="seq_wujia_compensation_allocation" model="ir.sequence">
+        <field name="name">Wujia Compensation Allocation</field>
+        <field name="code">wujia.compensation.allocation</field>
+        <field name="prefix">CA/%(y)s/</field>
         <field name="padding">5</field>
         <field name="company_id" eval="False"/>
     </record>

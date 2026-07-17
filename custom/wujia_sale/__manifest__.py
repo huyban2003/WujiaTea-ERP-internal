@@ -1,6 +1,6 @@
 {
     'name': 'Wujia Sale',
-    'version': '19.0.4.0.0',
+    'version': '19.0.4.1.0',
     'category': 'Wujia',
     'summary': 'Sale order extension cho cửa hàng nhượng quyền + tính khối lượng',
     'author': 'WujiaTea',

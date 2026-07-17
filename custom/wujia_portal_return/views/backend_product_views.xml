@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- Cấu hình bù hàng trên product.product (Product Variants form). -->
+    <record id="view_product_product_form_return" model="ir.ui.view">
+        <field name="name">product.product.form.return</field>
+        <field name="model">product.product</field>
+        <field name="inherit_id" ref="product.product_normal_form_view"/>
+        <field name="arch" type="xml">
+            <xpath expr="//notebook" position="inside">
+                <page string="Bù hàng" name="wujia_compensation"
+                      groups="wujia_portal_return.group_return_manager">
+                    <group>
+                        <group string="Chính sách">
+                            <field name="compensation_enabled"/>
+                            <field name="compensation_policy"
+                                   invisible="not compensation_enabled"/>
+                        </group>
+                        <group string="Đơn vị &amp; sản phẩm bù"
+                               invisible="not compensation_enabled">
+                            <field name="compensation_claim_uom_id"
+                                   options="{'no_create': True}"/>
+                            <field name="compensation_delivery_uom_id"
+                                   options="{'no_create': True}"/>
+                            <field name="compensation_unit_qty"
+                                   invisible="compensation_policy != 'accumulate'"/>
+                            <field name="compensation_product_id"
+                                   options="{'no_create': True}"/>
+                        </group>
+                    </group>
+                </page>
+            </xpath>
+        </field>
+    </record>
+
+</odoo>

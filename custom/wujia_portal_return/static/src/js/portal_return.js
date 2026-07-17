@@ -1,4 +1,4 @@
-/* Return form — image preview + add/remove dynamic lines.
+/* Return form — image preview + order→product cascade (single-product, Sprint K1).
    Form submit là multipart standard, không cần JS intercept. */
 (function () {
     "use strict";
@@ -20,32 +20,34 @@
             });
         }
 
-        // Add line
-        const btnAdd = document.getElementById("btn-add-line");
-        const tbody = document.querySelector("#return-line-table tbody");
-        if (btnAdd && tbody) {
-            btnAdd.addEventListener("click", function () {
-                const tpl = tbody.querySelector(".return-line-row");
-                if (!tpl) return;
-                const clone = tpl.cloneNode(true);
-                clone.querySelectorAll("input").forEach(function (i) { i.value = ""; });
-                clone.querySelector('input[name="line_qty[]"]').value = 1;
-                tbody.appendChild(clone);
-            });
-        }
+        // Cascade: đơn hàng gốc → sản phẩm (dòng đơn). data-lines = JSON {orderId: [{id,label}]}.
+        document.querySelectorAll("select.wj-return-order").forEach(function (orderSel) {
+            let lineMap = {};
+            try {
+                lineMap = JSON.parse(orderSel.dataset.lines || "{}");
+            } catch (e) {
+                lineMap = {};
+            }
+            const form = orderSel.closest("form");
+            const lineSel = form && form.querySelector("select.wj-return-line");
+            if (!lineSel) return;
 
-        // Remove line (delegated)
-        if (tbody) {
-            tbody.addEventListener("click", function (ev) {
-                const btn = ev.target.closest(".btn-remove-line");
-                if (!btn) return;
-                const rows = tbody.querySelectorAll(".return-line-row");
-                if (rows.length > 1) {
-                    btn.closest(".return-line-row").remove();
-                } else {
-                    btn.closest(".return-line-row").querySelectorAll("input").forEach(function (i) { i.value = ""; });
-                }
-            });
-        }
+            function refill() {
+                const lines = lineMap[orderSel.value] || [];
+                lineSel.innerHTML = "";
+                const ph = document.createElement("option");
+                ph.value = "";
+                ph.textContent = lines.length ? "— Chọn sản phẩm —" : "— Đơn không có sản phẩm —";
+                lineSel.appendChild(ph);
+                lines.forEach(function (l) {
+                    const opt = document.createElement("option");
+                    opt.value = l.id;
+                    opt.textContent = l.label;
+                    lineSel.appendChild(opt);
+                });
+            }
+            orderSel.addEventListener("change", refill);
+            if (orderSel.value) refill();
+        });
     });
 })();
