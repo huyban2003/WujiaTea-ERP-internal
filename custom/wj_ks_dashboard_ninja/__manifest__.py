@@ -18,7 +18,7 @@ Wujia internal port of Dashboard Ninja (Ksolves) v18 -> Odoo 19.
     'website': 'https://store.ksolves.com/',
     'license': 'OPL-1',
     'category': 'Services',
-    'version': '19.0.1.0.1',
+    'version': '19.0.1.0.2',
 
     'images': ['static/description/icon.png'],
 

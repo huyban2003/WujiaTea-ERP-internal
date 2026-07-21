@@ -14,7 +14,7 @@ patch(FormController.prototype,{
             let cpSaveButton = this.rootRef.el?.querySelector('.o_form_button_save')
             let cpDiscardButton = this.rootRef.el?.querySelector('.o_form_button_cancel')
 
-            if(this.rootRef.el && this.props.resModel.startsWith('wj_ks_dashboard_ninja.')){
+            if(this.rootRef.el && this.props.resModel?.startsWith('wj_ks_dashboard_ninja.')){
                 if(cpSaveButton)    cpSaveButton.innerHTML = "Save"
                 if(cpDiscardButton) cpDiscardButton.innerHTML = "Discard"
 
@@ -37,8 +37,8 @@ patch(FormLabel.prototype,{
         this.ksRootRef = useRef("ksRootRef");
         onMounted(()=>{
             let tooltip = this.ksRootRef.el?.querySelector('.text-info')
-            if(tooltip && (this.env.model?.config?.resModel.startsWith('wj_ks_dashboard_ninja.' ||
-                                    this.env.services.action?.currentController?.action?.tag === 'wj_ks_dashboard_ninja')))
+            if(tooltip && (this.env.model?.config?.resModel?.startsWith('wj_ks_dashboard_ninja.') ||
+                                    this.env.services.action?.currentController?.action?.tag === 'wj_ks_dashboard_ninja'))
                     tooltip.innerHTML = '<i class="fa fa-exclamation-circle" aria-hidden="true"></i>'
         });
     }
