@@ -7,19 +7,22 @@
          Context vars: cart_state, order_window_enabled, order_time_from/to, window_label. -->
     <template id="pc_cart_panel" name="Wujia PC — Cart panel (shared)">
         <t t-set="cs_lines" t-value="cart_state['lines'] if cart_state else []"/>
-        <t t-set="window_label" t-value="', '.join('%s - %s' % (w['from'], w['to']) for w in (order_windows or [])) or ((order_time_from or '') + ' - ' + (order_time_to or ''))"/>
         <div class="wj-pc-cart">
             <div class="wj-pc-cart-head">
                 <h3 class="wj-pc-cart-title">Giỏ hàng</h3>
+                <!-- WJ-ORD-022: header = số MẶT HÀNG (SKU), phân biệt tổng số lượng dưới -->
                 <span class="wj-pc-cart-count wj-count-meta wj-count-meta--bold">
-                    <t t-out="len(cs_lines)"/> sản phẩm
+                    <t t-out="len(cs_lines)"/> mặt hàng
                 </span>
             </div>
 
-            <!-- Warning bar khung giờ (data sẵn từ controller) -->
-            <div t-if="order_window_enabled" class="wj-pc-cart-warnbar">
-                <i class="feather icon-alert-circle"/>
-                <span>Đặt hàng trong khung giờ: <t t-out="window_label or (order_time_from + ' - ' + order_time_to)"/></span>
+            <!-- Warning bar khung giờ — WJ-ORD-006: màu + nội dung theo order_window_open
+                 (server tính theo store tz); WJ-ORD-015: label khung qua đêm + UTC+7. -->
+            <div t-if="order_window_enabled"
+                 t-attf-class="wj-pc-cart-warnbar #{'wj-pc-cart-warnbar--open' if order_window_open else 'wj-pc-cart-warnbar--closed'}">
+                <i t-attf-class="feather #{'icon-check-circle' if order_window_open else 'icon-alert-circle'}"/>
+                <span t-if="order_window_open">Đang trong khung giờ đặt hàng: <t t-out="order_window_label"/></span>
+                <span t-else="">Ngoài khung giờ — mở lại lúc <t t-out="order_window_reopen"/>. Khung: <t t-out="order_window_label"/></span>
             </div>
 
             <!-- Empty -->
@@ -83,15 +86,17 @@
                 <!-- Note + totals + submit (only note submitted; address dropped per Figma) -->
                 <form method="POST" action="/portal/order/submit" class="wj-pc-cart-foot">
                     <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
-                    <label class="wj-pc-cart-note-label">Ghi chú đơn hàng</label>
-                    <!-- Note chung của giỏ (mọi user cùng store) — autosave qua /cart/note. -->
-                    <textarea name="portal_note" class="wj-pc-cart-note" rows="2"
+                    <label class="wj-pc-cart-note-label" for="wj-pc-cart-note">Ghi chú đơn hàng</label>
+                    <!-- Note chung của giỏ (mọi user cùng store) — autosave qua /cart/note.
+                         wj-cart-note = hook chung PC/mobile: autosave + guard swap khi đang gõ. -->
+                    <textarea id="wj-pc-cart-note" name="portal_note" class="wj-pc-cart-note wj-cart-note" rows="2"
                               placeholder="Nhập ghi chú cho Ngô Gia nếu cần"
                               t-out="cart_state['note'] if cart_state else ''"/>
                     <div class="wj-pc-cart-totals">
                         <div class="wj-pc-cart-total-line">
-                            <span class="wj-pc-cart-total-label">Số lượng</span>
-                            <span class="wj-pc-cart-total-qty"><t t-out="cart_state['total_qty'] if cart_state else 0"/> sản phẩm</span>
+                            <!-- WJ-ORD-022: total_qty = TỔNG SỐ LƯỢNG (đơn vị), nhãn tường minh -->
+                            <span class="wj-pc-cart-total-label">Tổng số lượng</span>
+                            <span class="wj-pc-cart-total-qty"><t t-out="cart_state['total_qty'] if cart_state else 0"/></span>
                         </div>
                         <div class="wj-pc-cart-total-line">
                             <span class="wj-pc-cart-total-label wj-pc-cart-total-label--grand">Tổng tiền</span>
@@ -99,9 +104,15 @@
                                   t-out="'{:,.0f}'.format((cart_state['total_amount'] if cart_state else 0) or 0).replace(',', '.') + ' đ'"/>
                         </div>
                     </div>
-                    <button type="submit" class="wj-pc-cart-submit">
+                    <!-- WJ-ORD-006: ngoài giờ → disable submit + nêu rõ (server vẫn chặn
+                         ORDER_TIME_CLOSED; disable = phản hồi sớm, giỏ vẫn sửa được). -->
+                    <button type="submit" class="wj-pc-cart-submit"
+                            t-att-disabled="'disabled' if (order_window_enabled and not order_window_open) else None">
                         <i class="feather icon-shopping-cart"/> Gửi đơn đặt hàng
                     </button>
+                    <p t-if="order_window_enabled and not order_window_open" class="wj-pc-cart-submit-hint">
+                        Ngoài khung giờ — vẫn sửa được giỏ, gửi lại lúc <t t-out="order_window_reopen"/>.
+                    </p>
                 </form>
             </t>
         </div>

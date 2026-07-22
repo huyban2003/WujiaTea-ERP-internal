@@ -5,8 +5,6 @@
          (dùng chung QWeb với server-render). Self-contained: tự tính window_label. -->
     <template id="mcart_panel" name="Wujia Mobile — Cart panel (shared)">
         <t t-set="cs_lines" t-value="cart_state['lines'] if cart_state else []"/>
-        <t t-set="window_label"
-           t-value="', '.join('%s - %s' % (w['from'], w['to']) for w in (order_windows or [])) or ((order_time_from or '') + ' - ' + (order_time_to or ''))"/>
 
         <t t-call="wujia_portal_layout.wj_page_header">
             <t t-set="ph_platform" t-value="'m'"/>
@@ -25,16 +23,19 @@
         </div>
 
         <t t-else="">
-            <!-- Order warning bar (khung giờ) — reuse .wujia-morder-warnbar -->
-            <div t-if="order_window_enabled" class="wujia-morder-warnbar">
-                <i class="feather icon-alert-circle"/>
-                <span>Khung giờ đặt hàng: <t t-out="window_label"/></span>
+            <!-- Order warning bar — WJ-ORD-006: trạng thái thực + WJ-ORD-015 label qua đêm -->
+            <div t-if="order_window_enabled"
+                 t-attf-class="wujia-morder-warnbar #{'wujia-morder-warnbar--open' if order_window_open else 'wujia-morder-warnbar--closed'}">
+                <i t-attf-class="feather #{'icon-check-circle' if order_window_open else 'icon-alert-circle'}"/>
+                <span t-if="order_window_open">Đang trong khung giờ đặt hàng: <t t-out="order_window_label"/></span>
+                <span t-else="">Ngoài khung giờ — mở lại lúc <t t-out="order_window_reopen"/>. Khung: <t t-out="order_window_label"/></span>
             </div>
 
             <!-- List header -->
             <div class="wujia-mcart-listhead">
                 <span>Sản phẩm trong giỏ</span>
-                <span class="wj-count-meta wj-count-meta--bold"><t t-out="len(cs_lines)"/> sản phẩm</span>
+                <!-- WJ-ORD-022: số mặt hàng (SKU) -->
+                <span class="wj-count-meta wj-count-meta--bold"><t t-out="len(cs_lines)"/> mặt hàng</span>
             </div>
 
             <!-- Cart scroll container — render TẤT CẢ (no see-more) -->
@@ -83,21 +84,38 @@
                 </t>
             </div>
 
-            <!-- Sticky summary CTA — submit thẳng (BA, no delivery fields) -->
-            <form method="POST" action="/portal/order/submit" class="wujia-mcart-summary">
+            <!-- FUNC-MOB-ORDER-005: form bao CẢ ghi chú (cuộn trong flow) LẪN thanh
+                 tổng cố định → portal_note gửi ĐỒNG BỘ khi submit (đúng như PC),
+                 KHÔNG phình thanh cố định (WJ-ORD-013). Autosave qua hook wj-cart-note. -->
+            <form method="POST" action="/portal/order/submit">
                 <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
-                <div class="wujia-mcart-summary-rows">
-                    <div class="wujia-mcart-summary-line">
-                        <span>Tạm tính</span>
-                        <strong class="wujia-mcart-grand"
-                                t-out="'{:,.0f}'.format(cart_state['total_amount'] or 0).replace(',', '.') + ' đ'"/>
-                    </div>
-                    <div class="wujia-mcart-summary-line muted">
-                        <span>Số lượng</span>
-                        <span><t t-out="cart_state['total_qty']"/> sản phẩm</span>
-                    </div>
+                <div class="wujia-mcart-noteblock">
+                    <label class="wujia-mcart-note-label" for="wj-mcart-note">Ghi chú đơn hàng</label>
+                    <textarea id="wj-mcart-note" name="portal_note" class="wujia-mcart-note wj-cart-note" rows="2"
+                              placeholder="Nhập ghi chú cho Ngô Gia nếu cần"
+                              t-out="cart_state['note'] if cart_state else ''"/>
                 </div>
-                <button type="submit" class="wujia-mcart-submit">Gửi đơn đặt hàng</button>
+                <!-- Sticky summary CTA — submit thẳng (BA, no delivery fields) -->
+                <div class="wujia-mcart-summary">
+                    <div class="wujia-mcart-summary-rows">
+                        <div class="wujia-mcart-summary-line">
+                            <span>Tạm tính</span>
+                            <strong class="wujia-mcart-grand"
+                                    t-out="'{:,.0f}'.format(cart_state['total_amount'] or 0).replace(',', '.') + ' đ'"/>
+                        </div>
+                        <div class="wujia-mcart-summary-line muted">
+                            <!-- WJ-ORD-022: tổng số lượng (đơn vị), khác số mặt hàng -->
+                            <span>Tổng số lượng</span>
+                            <span><t t-out="cart_state['total_qty']"/></span>
+                        </div>
+                    </div>
+                    <!-- WJ-ORD-006: ngoài giờ → disable + hint (server chặn ORDER_TIME_CLOSED) -->
+                    <button type="submit" class="wujia-mcart-submit"
+                            t-att-disabled="'disabled' if (order_window_enabled and not order_window_open) else None">Gửi đơn đặt hàng</button>
+                    <p t-if="order_window_enabled and not order_window_open" class="wujia-mcart-submit-hint">
+                        Ngoài khung giờ — gửi lại lúc <t t-out="order_window_reopen"/>.
+                    </p>
+                </div>
             </form>
         </t>
     </template>

@@ -99,6 +99,27 @@ def _float_to_hhmm(value):
     return f'{h:02d}:{m:02d}'
 
 
+# Cửa hàng Ngô Gia đặt theo giờ Việt Nam (không DST) — nhãn timezone tường minh
+# cho banner khung giờ (WJ-ORD-015: người dùng cần biết 04:00 là ngày nào + TZ).
+ORDER_TZ_LABEL = 'UTC+7'
+
+
+def _window_phrase(from_f, to_f):
+    """1 khung giờ (float 0–24) → chuỗi người đọc, kèm timezone.
+
+    WJ-ORD-015: khung QUA ĐÊM (from >= to, ví dụ HN-01 10:00→04:00) phải ghi rõ
+    '10:00 hôm nay – 04:00 ngày mai (UTC+7)' để không hiểu nhầm 04:00 cùng ngày.
+    Khung trong ngày: '10:00 – 15:00 (UTC+7)'."""
+    f, t = _float_to_hhmm(from_f), _float_to_hhmm(to_f)
+    try:
+        overnight = float(from_f or 0.0) >= float(to_f or 0.0)
+    except (TypeError, ValueError):
+        overnight = False
+    if overnight:
+        return f'{f} hôm nay – {t} ngày mai ({ORDER_TZ_LABEL})'
+    return f'{f} – {t} ({ORDER_TZ_LABEL})'
+
+
 class WujiaPortalSale(http.Controller):
     """Trang đặt hàng — catalog + giỏ hàng chung theo store + submit tạo SO draft."""
 
@@ -295,6 +316,15 @@ class WujiaPortalSale(http.Controller):
         """Context khung giờ cho catalog + cart view (BA row 2: list windows + nguồn)."""
         area_id = franchise.area_id.id if franchise and franchise.area_id else False
         allowed, window = request.env['res.config.settings'].sudo()._is_within_order_window(area_id=area_id)
+        raw_windows = window.get('windows', []) or []
+        # WJ-ORD-015: label giàu thông tin (qua đêm + timezone). Fallback về
+        # from/to tổng khi helper chưa trả list windows chi tiết.
+        if raw_windows:
+            phrases = [_window_phrase(w['from'], w['to']) for w in raw_windows]
+            reopen = _float_to_hhmm(raw_windows[0]['from'])
+        else:
+            phrases = [_window_phrase(window['from'], window['to'])]
+            reopen = _float_to_hhmm(window['from'])
         return {
             'order_time_from': _float_to_hhmm(window['from']),
             'order_time_to': _float_to_hhmm(window['to']),
@@ -303,8 +333,13 @@ class WujiaPortalSale(http.Controller):
             'order_window_source': window.get('source', 'global'),
             'order_windows': [
                 {'name': w.get('name') or '', 'from': _float_to_hhmm(w['from']), 'to': _float_to_hhmm(w['to'])}
-                for w in window.get('windows', [])
+                for w in raw_windows
             ],
+            # WJ-ORD-006/015: chuỗi hiển thị chuẩn (dùng chung catalog/cart, PC+mobile)
+            # + giờ mở lại cho banner ngoài giờ. order_window_open đã có sẵn (server
+            # tính theo store tz) → template đổi màu/CTA theo trạng thái thực.
+            'order_window_label': ', '.join(phrases),
+            'order_window_reopen': reopen,
             'order_window_not_configured': window['enabled'] and not window.get('configured', True),
         }
 
@@ -564,20 +599,19 @@ class WujiaPortalSale(http.Controller):
     # ---------------------------------------------------------------- cart step
     @http.route(['/portal/order/cart/step'], type='json', auth='user',
                 methods=['POST'])
-    def portal_cart_step(self, line_id, direction=None, **kw):
+    def portal_cart_step(self, line_id=None, product_id=None, direction=None, **kw):
         """Tăng/giảm ĐÚNG 1 bước NGUYÊN TỬ (WJ-ORD-002 — tránh lost update).
 
         Client chỉ gửi hướng ('inc'/'dec'); server tự lấy step=min_qty rồi cộng
         delta THẲNG trong SQL (UPDATE khoá dòng → 2 request gần đồng thời áp tuần
         tự, KHÔNG ghi đè tuyệt đối như set qty). qty rơi < min → xoá dòng.
-        Không nhận qty/delta tuỳ ý từ client để cấm nhảy bậc."""
+        Không nhận qty/delta tuỳ ý từ client để cấm nhảy bậc.
+
+        WJ-ORD-021: giỏ hàng gửi line_id; DANH SÁCH mobile gửi product_id (row
+        không giữ line_id ở DOM, resolve line trong giỏ của store hiện tại)."""
         fid, gate_error = self._store_gate()
         if gate_error:
             return self._err(gate_error)
-        try:
-            line_id = int(line_id)
-        except (TypeError, ValueError):
-            return self._err('invalid_input')
         if direction == 'inc':
             sign = 1
         elif direction == 'dec':
@@ -585,7 +619,22 @@ class WujiaPortalSale(http.Controller):
         else:
             return self._err('invalid_input')
         franchise = self._get_franchise(fid)
-        line = self._get_store_line(line_id, fid)
+        line = None
+        if line_id not in (None, '', 0, '0'):
+            try:
+                line = self._get_store_line(int(line_id), fid)
+            except (TypeError, ValueError):
+                return self._err('invalid_input')
+        elif product_id not in (None, '', 0, '0'):
+            try:
+                pid = int(product_id)
+            except (TypeError, ValueError):
+                return self._err('invalid_input')
+            store_cart = self._get_store_cart(fid)
+            line = (store_cart.line_ids.filtered(lambda l: l.product_id.id == pid)[:1]
+                    if store_cart else None) or None
+        else:
+            return self._err('invalid_input')
         cart = line.cart_id if line else self._get_store_cart(fid)
         if not line:
             # Idempotent: dòng đã bị user khác xoá → trả state mới, không lỗi.

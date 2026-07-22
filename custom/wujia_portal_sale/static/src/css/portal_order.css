@@ -135,24 +135,25 @@
 .wj-pc-cart-unit { color: var(--wj-pc-muted); white-space: nowrap; }
 .wj-pc-cart-subtotal { font-weight: 700; color: var(--wj-pc-text); white-space: nowrap; }
 
-/* stepper − N + (Figma 4600:2 — container 86×32 bordered, nút 24×24 soft) */
+/* stepper − N + (Figma 4600:2). WJ-ORD-011: vùng bấm rộng hơn — container 36px,
+   nút 30×30 (trước 24, quá nhỏ để bấm thoải mái ở PC). */
 .wj-pc-stepper {
-    display: inline-flex; align-items: center; gap: 4px; height: 32px; padding: 0 4px;
+    display: inline-flex; align-items: center; gap: 4px; height: 36px; padding: 0 4px;
     border: 1px solid var(--wj-pc-border); border-radius: var(--wj-pc-input-radius);
     background: var(--wj-pc-card);
 }
 .wj-pc-cart-step {
-    width: 24px; height: 24px; border: 1px solid var(--wj-pc-border-soft); border-radius: 6px;
-    background: var(--wj-pc-table-header-bg); color: var(--wj-pc-text); font-size: 15px; line-height: 1;
+    width: 30px; height: 30px; border: 1px solid var(--wj-pc-border-soft); border-radius: 6px;
+    background: var(--wj-pc-table-header-bg); color: var(--wj-pc-text); font-size: 16px; line-height: 1;
     cursor: pointer; display: inline-flex; align-items: center; justify-content: center;
     transition: background-color .15s, border-color .15s, color .15s;
 }
 .wj-pc-cart-step:hover { background: var(--wj-pc-primary-soft); border-color: var(--wj-pc-primary); color: var(--wj-pc-primary); }
-.wj-pc-cart-qty { min-width: 24px; text-align: center; font-weight: 700; font-size: 13px; color: var(--wj-pc-primary); }
+.wj-pc-cart-qty { min-width: 26px; text-align: center; font-weight: 700; font-size: 13px; color: var(--wj-pc-primary); }
 
-/* remove */
+/* remove — WJ-ORD-011: 34×34 (trước 28) để chạm dễ hơn */
 .wj-pc-cart-del {
-    width: 28px; height: 28px; border: 0; background: transparent; color: var(--wj-pc-muted);
+    width: 34px; height: 34px; border: 0; background: transparent; color: var(--wj-pc-muted);
     border-radius: 8px; cursor: pointer; display: inline-flex; align-items: center; justify-content: center;
     transition: background-color .15s, color .15s;
 }
@@ -174,13 +175,72 @@
 .wj-pc-cart-total-qty { font-size: 14px; color: var(--wj-pc-text); font-weight: 600; }
 .wj-pc-cart-total-label--grand { font-size: 16px; font-weight: 700; color: var(--wj-pc-text); }
 .wj-pc-cart-grand { font-size: 18px; font-weight: 800; color: var(--wj-pc-primary); }
+/* WJ-ORD-012: nút chữ-trắng-trên-nền dùng token CTA đậm (--wujia-cta #0F7CA8 =
+   4.71:1 với trắng, đạt AA); brand #28A9DF chỉ 2.69:1 nên KHÔNG dùng cho nút
+   có chữ trắng. Accent/icon vẫn brand. */
 .wj-pc-cart-submit {
     width: 100%; height: 46px; border: 0; border-radius: 12px; cursor: pointer;
-    background: var(--wj-pc-primary); color: #fff; font-size: 15px; font-weight: 700;
+    background: var(--wujia-cta); color: #fff; font-size: 15px; font-weight: 700;
     display: inline-flex; align-items: center; justify-content: center; gap: 8px;
     transition: background-color .15s;
 }
-.wj-pc-cart-submit:hover { background: var(--wj-pc-primary-dark); }
+.wj-pc-cart-submit:hover { background: var(--wujia-cta-dark); }
+.wj-pc-cart-submit:disabled { background: var(--wj-pc-subtle, #9AA0A6); cursor: not-allowed; opacity: .85; }
+.wj-pc-cart-submit-hint { margin: 8px 0 0; font-size: 12px; color: var(--wj-pc-danger, #DC2626); text-align: center; }
+
+/* WJ-ORD-012: nút "Thêm vào giỏ" ở trang chi tiết (bootstrap btn-primary) cũng
+   là chữ-trắng-trên-nền → ép token CTA đậm cho đủ tương phản. */
+.btn-add-cart-detail.btn-primary,
+.btn-add-cart-detail.btn-primary:focus {
+    background-color: var(--wujia-cta); border-color: var(--wujia-cta);
+}
+.btn-add-cart-detail.btn-primary:hover,
+.btn-add-cart-detail.btn-primary:active {
+    background-color: var(--wujia-cta-dark); border-color: var(--wujia-cta-dark);
+}
+
+/* ============================================================================
+   Batch B (Sprint 2026-07-22-B) — a11y + responsive fixes.
+   ========================================================================== */
+
+/* WJ-ORD-018: cột giỏ ở PC hẹp (grid clamp 420–560) → bảng 5 cột có thể tràn ở
+   1440×900; cho phép cuộn NGANG TRONG panel thay vì đẩy body cuộn ngang. */
+.wj-pc-cart-table-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+
+/* WJ-ORD-006: warnbar theo trạng thái — mở (xanh lá) / đóng (đỏ). Rule gốc
+   .wj-pc-cart-warnbar giữ nền đỏ làm mặc định; --open override sang xanh. */
+.wj-pc-cart-warnbar--open {
+    background: var(--wujia-success-bg, #EAF8EF);
+    border-color: #BBE7CC; color: var(--wujia-success, #16A34A);
+}
+.wj-pc-cart-warnbar--closed {
+    background: #FEE2E2; border-color: #FECACA; color: #DC2626;
+}
+
+/* WJ-ORD-019: focus-visible ring ≥2px cho mọi control tương tác của trang đặt
+   hàng PC (bàn phím Tab thấy rõ ô đang focus). */
+.wj-pc-order-add:focus-visible,
+.wj-pc-cart-step:focus-visible,
+.wj-pc-cart-del:focus-visible,
+.wj-pc-cart-submit:focus-visible,
+.wj-pc-order-search input:focus-visible,
+.wj-pc-order-cat:focus-visible,
+.wj-pc-cart-note:focus-visible {
+    outline: 2px solid var(--wj-pc-primary, #28A9DF);
+    outline-offset: 2px;
+}
+
+/* WJ-ORD-014: trang chi tiết SP — ở mobile ảnh chiếm cả màn đẩy giá/quy tắc/CTA
+   xuống dưới first viewport. Giới hạn cao ảnh ~240px + căn giữa để nội dung mua
+   hàng lên trên. PC (≥992px) giữ layout 2 cột, không giới hạn. */
+@media (max-width: 991.98px) {
+    .wj-order-detail-media {
+        display: flex; align-items: center; justify-content: center;
+    }
+    .wj-order-detail-img {
+        max-height: 240px; width: auto; max-width: 100%; object-fit: contain;
+    }
+}
 
 /* min-qty error toast — CSS ready, not wired this sprint (decision 3) */
 .wj-pc-toast--error {

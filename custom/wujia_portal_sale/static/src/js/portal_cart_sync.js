@@ -63,6 +63,20 @@ export class WujiaCartSync extends Interaction {
 
     // -------- tương tác giỏ (delegation) --------
     onClick(ev) {
+        // WJ-ORD-021: DANH SÁCH catalog mobile — nút "Thêm" (qty=0) + stepper
+        // "− N +" (qty>0). Delegation: row render 1 lần, không rebind sau mutation.
+        const addBtn = ev.target.closest(".wujia-morder-add-btn");
+        if (addBtn) {
+            ev.preventDefault();
+            this.handleCatalogAdd(addBtn);
+            return;
+        }
+        const mstep = ev.target.closest(".wujia-morder-mstep");
+        if (mstep) {
+            ev.preventDefault();
+            this.handleCatalogStep(mstep);
+            return;
+        }
         const step = ev.target.closest(".wj-pc-cart-step, .wujia-mcart-step");
         if (step) {
             ev.preventDefault();
@@ -77,10 +91,34 @@ export class WujiaCartSync extends Interaction {
     }
 
     onInput(ev) {
-        const ta = ev.target.closest(".wj-pc-cart-note");
+        // wj-cart-note = hook chung PC (wj-pc-cart-note) + mobile (wujia-mcart-note).
+        const ta = ev.target.closest(".wj-cart-note");
         if (ta) {
             this.saveNote(ta.value || "");
         }
+    }
+
+    // WJ-ORD-021: thêm/tăng/giảm ngay trên product row của danh sách mobile.
+    handleCatalogAdd(btn) {
+        const ctl = btn.closest(".wujia-morder-cartctl");
+        if (!ctl) {
+            return;
+        }
+        const pid = parseInt(ctl.dataset.productId, 10);
+        // /cart/add tạo dòng + tăng theo bước min_qty (BA row 6).
+        this.mutate("/portal/order/cart/add", { product_id: pid });
+    }
+
+    handleCatalogStep(btn) {
+        const ctl = btn.closest(".wujia-morder-cartctl");
+        if (!ctl) {
+            return;
+        }
+        const pid = parseInt(ctl.dataset.productId, 10);
+        const isInc = btn.classList.contains("wujia-morder-mstep-plus");
+        // Gửi product_id (row không giữ line_id); server cộng ±min_qty NGUYÊN TỬ,
+        // giảm ở min = xoá dòng. Queue tuần tự (mutate) chống lost update.
+        this.mutate("/portal/order/cart/step", { product_id: pid, direction: isInc ? "inc" : "dec" });
     }
 
     handleStep(btn) {
@@ -124,7 +162,10 @@ export class WujiaCartSync extends Interaction {
                 this.toast((res && res.message) || "Có lỗi xảy ra, vui lòng thử lại", false);
                 return;
             }
-            if (res.warning && res.message) {
+            if (res.removed) {
+                // WJ-ORD-021: giảm ở min/xoá → phản hồi rõ.
+                this.toast("Đã bỏ khỏi giỏ", true);
+            } else if (res.warning && res.message) {
                 this.toast(res.message, false);
             }
             await this.refresh();
@@ -164,7 +205,9 @@ export class WujiaCartSync extends Interaction {
             pc.outerHTML = res.pc_html;
         }
         const mc = document.querySelector(".wujia-mcart");
-        if (mc && res.mobile_html) {
+        if (mc && res.mobile_html && !noteFocused) {
+            // FUNC-MOB-ORDER-005: đang gõ ghi chú mobile → hoãn swap (không mất
+            // focus/nội dung); applyState vẫn cập nhật badge/floatbar.
             mc.innerHTML = res.mobile_html;
         }
         this.applyState(res);
@@ -192,6 +235,18 @@ export class WujiaCartSync extends Interaction {
                 pcRow.classList.toggle("wj-pc-order-row--incart", qty > 0);
             }
         });
+        // WJ-ORD-021: morph nút "Thêm" ↔ stepper "− N +" trên danh sách mobile.
+        // Row catalog KHÔNG bị fragment swap → cập nhật tại chỗ từ qty_map. CSS
+        // [data-qty="0"] ẩn stepper/hiện add, [data-qty>0] ngược lại.
+        document.querySelectorAll(".wujia-morder-cartctl[data-product-id]").forEach((ctl) => {
+            const pid = parseInt(ctl.dataset.productId, 10);
+            const qty = qmap[pid] || 0;
+            ctl.dataset.qty = qty;
+            const q = ctl.querySelector(".wujia-morder-mstep-qty");
+            if (q) {
+                q.textContent = qty;
+            }
+        });
         // Floating cart bar mobile
         const fb = document.querySelector(".wujia-morder-floatbar");
         if (fb) {
@@ -209,8 +264,9 @@ export class WujiaCartSync extends Interaction {
     }
 
     isNoteFocused() {
+        // wj-cart-note = hook chung PC + mobile → guard swap cả 2 panel khi đang gõ.
         const a = document.activeElement;
-        return !!(a && a.classList && a.classList.contains("wj-pc-cart-note"));
+        return !!(a && a.classList && a.classList.contains("wj-cart-note"));
     }
 
     toast(msg, ok) {

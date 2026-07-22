@@ -9,6 +9,13 @@
     --wujia-primary-soft:   #EAF7FD;
     --wujia-active-text:    #28A9DF;
 
+    /* ---------- CTA (WJ-ORD-012): chữ-trắng-trên-nền cần AA 4.5:1. Brand
+       #28A9DF + trắng chỉ 2.69:1 (fail) → token CTA đậm riêng CHỈ cho nút
+       chữ-trên-nền (Gửi đơn, Thêm vào giỏ detail). #0F7CA8 + trắng = 4.71:1.
+       Accent/icon/viền vẫn dùng --wujia-primary (không đổi nhận diện). ---------- */
+    --wujia-cta:            #0F7CA8;
+    --wujia-cta-dark:       #0C6688;
+
     /* ---------- Surface / layout (BA bg #F3F6F8) ---------- */
     --wujia-bg-page:        #F3F6F8;
     --wujia-bg-sidebar:     #FFFFFF;

@@ -22,8 +22,10 @@
                     <div class="card">
                         <div class="card-body">
                             <div class="row g-3">
-                                <div class="col-md-5">
-                                    <img class="img-fluid rounded"
+                                <!-- WJ-ORD-014: mobile giới hạn cao vùng ảnh ~240px để
+                                     giá/quy tắc/CTA lên first viewport (CSS media query). -->
+                                <div class="col-md-5 wj-order-detail-media">
+                                    <img class="img-fluid rounded wj-order-detail-img"
                                          t-attf-src="/web/image/product.product/#{product.id}/image_1024"
                                          t-att-alt="product.name"/>
                                 </div>
