@@ -85,6 +85,10 @@
     width: 430px;
     height: 48px;
     margin-right: 12px;
+    /* UI-01 retest 22/07/2026: BA đo x=314, expected x=324 → shift phải 10px.
+       Vuexy bookmark-wrapper offset không đổi được sạch (share với các nav-item khác),
+       nên bù cục bộ bằng margin-left. Đo lại trên 1920×1080 sau deploy. */
+    margin-left: 10px;
 }
 .wujia-store-current-block .wujia-active-store-badge { flex: 1 1 auto; min-width: 0; margin-right: 0; overflow: hidden; }
 /* min-width:0 trên cột text để ellipsis kích hoạt — flex item mặc định min-width:auto

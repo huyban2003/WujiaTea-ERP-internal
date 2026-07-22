@@ -5,6 +5,14 @@ html body {
     font-family: var(--wujia-font-family) !important;
     background-color: var(--wujia-bg-page);
     color: var(--wujia-text-primary);
+    /* UI-06 (Sprint 35): "nhòe/răng cưa" ở mô tả/sidebar/list là do font
+       KHÔNG được antialias (Vuexy để mặc định auto → sub-pixel lệch). Bật
+       grayscale-antialiasing để Inter nét đều mọi khu vực ở 1920/zoom100%.
+       Retest cũ chỉ đổi font-family (đã đúng Inter) nhưng vẫn nhòe vì thiếu
+       smoothing này → bổ sung. */
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
 }
 /* UI-06 (Sprint 34): Vuexy vendor hard-codes Montserrat on these — Montserrat isn't
    loaded so they fell through to Helvetica/Arial, not Inter. Force Inter (explicit
@@ -12,8 +20,23 @@ html body {
 .header-navbar,
 .navigation,
 .navigation-header,
-.breadcrumb {
+.navigation li a,
+.breadcrumb,
+.content-header-title,
+.card-title,
+.media-body,
+.wujia-navbar,
+.main-menu {
     font-family: var(--wujia-font-family) !important;
+}
+/* UI-06 (Sprint 35): BA yêu cầu font-weight TỐI ĐA 700 — Vuexy đặt heading 800.
+   Ép heading + tiêu đề card về 700 (hierarchy vẫn phân biệt bằng SIZE). Body
+   text (400/500/600) giữ nguyên → không làm phẳng phân cấp. */
+.content-wrapper h1, .content-wrapper h2, .content-wrapper h3,
+.content-wrapper h4, .content-wrapper h5, .content-wrapper h6,
+.card-title,
+.content-header-title {
+    font-weight: 700 !important;
 }
 
 /* ---------- Brand color overrides on Bootstrap utilities ---------- */
@@ -52,12 +75,20 @@ html body {
     align-items: center !important;
 }
 
-/* UI-01 (Sprint 34): Top Bar bám đỉnh theo BA — bỏ float offset của Vuexy
+/* UI-01 (Sprint 34→35): Top Bar bám đỉnh theo BA — bỏ float offset của Vuexy
    navbar-floating (margin 1.3rem 2.2rem 0). ≥1200px (sidebar hiện): mép trái =
    sidebar 300px, phải = 0 → x=300, y=0, w=viewport−300 (1920→1620, h=72).
-   992–1199px (sidebar off-canvas): full-width. <992px: navbar ẩn (dùng mobile header). */
+   992–1199px (sidebar off-canvas): full-width. <992px: navbar ẩn (dùng mobile header).
+
+   Sprint 35 (retest fail x≈291/y≈18): override cũ `.header-navbar.floating-nav`
+   (spec 0,2,0) THUA cascade Vuexy `body.navbar-floating .header-navbar.floating-nav`
+   (spec 0,3,0) lúc runtime dù có !important. Nâng specificity bằng body-scope +
+   class riêng `.wujia-navbar` (→ 0,4,1) để thắng chắc, và set position:fixed tường
+   minh (float margin của Vuexy chỉ triệt tiêu khi phần tử fixed neo top/left).
+   CẦN đo lại trên server 1920×1080 sau deploy để xác nhận x=300/y=0/w=1620. */
 @media (min-width: 1200px) {
-    .header-navbar.floating-nav {
+    body.navbar-floating .header-navbar.floating-nav.wujia-navbar {
+        position: fixed !important;
         margin: 0 !important;
         top: 0 !important;
         left: var(--wujia-sidebar-width) !important;
@@ -67,7 +98,8 @@ html body {
     }
 }
 @media (min-width: 992px) and (max-width: 1199.98px) {
-    .header-navbar.floating-nav {
+    body.navbar-floating .header-navbar.floating-nav.wujia-navbar {
+        position: fixed !important;
         margin: 0 !important;
         top: 0 !important;
         left: 0 !important;
@@ -80,6 +112,21 @@ html body {
 /* ---------- Sidebar (UI-03/04/06) ---------- */
 .main-menu {
     background-color: var(--wujia-bg-sidebar) !important;
+}
+/* UI-PC-SHELL-001 (Sprint 35): Vuexy sidebar mặc định 260px + .content
+   margin-left 260px, nhưng navbar/token neo x=300 → hở 40px dải nền content
+   (x=260–300) giữa sidebar và Top Bar. Ép .main-menu = token 300px và .content
+   margin-left = 300px → sidebar liền mạch 0–300, không còn dải trống. Chỉ ≥1200px
+   (sidebar hiện cố định); 992–1199px sidebar off-canvas (không chiếm layout) nên
+   giữ nguyên. CẦN đo lại trên server 1920×1080 sau deploy. */
+@media (min-width: 1200px) {
+    .main-menu,
+    .main-menu.menu-fixed {
+        width: var(--wujia-sidebar-width) !important;   /* 300px */
+    }
+    html body .content {
+        margin-left: var(--wujia-sidebar-width) !important;   /* 300px, khớp sidebar */
+    }
 }
 .main-menu.menu-fixed {
     height: 100vh !important;

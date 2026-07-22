@@ -983,13 +983,18 @@ a.wujia-mhome-kpi:active { opacity: 0.85; }
 .wujia-mhome-actions .wujia-mhome-section-title {
     margin-bottom: 8px;
 }
-/* UI-MOB-HOME-002: thống nhất cỡ title section cấp 1 ở Home = 18px. Scope
-   .wujia-mhome để KHÔNG đụng .wujia-mdash-title dùng chung Support/Return;
-   !important để thắng global h2 (24px) trên các section h2.wujia-mdash-title. */
+/* UI-MOB-HOME-002: token thống nhất cho MỌI tiêu đề section cấp 1 ở Home =
+   18px / line-height 24px / weight 700. Scope .wujia-mhome để KHÔNG đụng
+   .wujia-mdash-title dùng chung Support/Return; !important để thắng global h2
+   (24px) trên các section h2.wujia-mdash-title. Retest cũ fail vì thiếu
+   line-height (BA yêu cầu 24px rõ ràng) → bổ sung. Ngoại lệ: title trong card
+   "Khung giờ đặt hàng" (.wujia-mhome-window-title, 14px) GIỮ hierarchy riêng,
+   KHÔNG dùng token này (đúng "Mong muốn" của issue). */
 .wujia-mhome .wujia-mhome-section-title,
 .wujia-mhome .wujia-mdash-title {
     font-size: 18px !important;
-    font-weight: 700;
+    line-height: 24px !important;
+    font-weight: 700 !important;
 }
 .wujia-mhome-actions-grid {
     display: grid;
