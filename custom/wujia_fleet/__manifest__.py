@@ -1,6 +1,6 @@
 {
     'name': 'Wujia Fleet',
-    'version': '19.0.1.0.0',
+    'version': '19.0.1.0.1',
     'category': 'Wujia',
     'summary': 'Quản lý đội xe / nhà xe / loại xe / xe / bảng giá vận chuyển',
     'author': 'WujiaTea',
