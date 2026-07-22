@@ -11,8 +11,9 @@
                      giỏ chung theo store (cart_state dict từ controller). -->
                 <t t-set="cart_qty_map"
                    t-value="{l['product_id']: l['qty'] for l in cart_state['lines']} if cart_state else {}"/>
-                <t t-set="window_label"
-                   t-value="', '.join('%s - %s' % (w['from'], w['to']) for w in (order_windows or [])) or (order_time_from + ' - ' + order_time_to)"/>
+                <!-- WJ-ORD-009: chỉ hiện cột Quy cách khi ÍT NHẤT 1 SP có dữ liệu thực
+                     (tránh cột lặp toàn dấu '—'). order_window_label do controller dựng. -->
+                <t t-set="has_spec" t-value="any(p.description_ecommerce for p in products)"/>
 
                 <!-- ===== DESKTOP (≥992px) — PC combined catalog + cart (Figma PC_Product_Cart 4600:2, Sprint PC-1) ===== -->
                 <div class="d-none d-lg-block">
@@ -73,7 +74,7 @@
                                             <thead>
                                                 <tr>
                                                     <th>Sản phẩm</th>
-                                                    <th>Quy cách</th>
+                                                    <th t-if="has_spec">Quy cách</th>
                                                     <th>ĐVT</th>
                                                     <th class="text-end">Đơn giá</th>
                                                     <th class="text-center">Thao tác</th>
@@ -91,7 +92,7 @@
                                                                   class="wj-pc-order-prod-cn" t-out="product.name_chinese"/>
                                                         </a>
                                                     </td>
-                                                    <td class="wj-pc-order-spec"
+                                                    <td t-if="has_spec" class="wj-pc-order-spec"
                                                         t-out="product.description_ecommerce or '—'"/>
                                                     <td class="wj-pc-order-uom" t-out="product.uom_id.name or '—'"/>
                                                     <td class="text-end wj-pc-order-price"
@@ -150,20 +151,28 @@
                         <div t-if="error" class="alert alert-danger" role="alert"><t t-esc="error"/></div>
                         <div t-if="message" class="alert alert-success" role="status"><t t-esc="message"/></div>
 
-                        <t t-call="wujia_portal_layout.wj_page_header">
-                            <t t-set="ph_platform" t-value="'m'"/>
-                            <t t-set="ph_variant" t-value="'title'"/>
-                            <t t-set="ph_title">Sản phẩm</t>
-                        </t>
-                        <span t-if="products" class="wj-count-meta wj-count-meta--bold"><t t-out="len(products)"/> SP</span>
-
-                        <!-- Order warning bar (khung giờ — list đủ khung của khu vực, BA row 2) -->
-                        <div t-if="order_window_enabled" class="wujia-morder-warnbar">
-                            <i class="feather icon-alert-circle"/>
-                            <span>Khung giờ đặt hàng: <t t-out="window_label"/></span>
+                        <!-- WJ-ORD-005: H1 = task chính "Đặt hàng" (khớp PC + bottom-nav
+                             active), bộ đếm danh sách CÙNG hàng bên phải (không dòng riêng),
+                             cập nhật theo số SP đang hiển thị sau tìm/lọc. -->
+                        <div class="wujia-morder-titlerow">
+                            <h1 class="wujia-morder-title">Đặt hàng</h1>
+                            <span t-if="products" class="wj-count-meta wj-count-meta--bold wujia-morder-count">
+                                <t t-out="len(products)"/> SP
+                            </span>
                         </div>
 
-                        <!-- Search box -->
+                        <!-- Order warning bar — WJ-ORD-006: màu + nội dung theo trạng thái
+                             thực (order_window_open server-side theo store tz); WJ-ORD-015:
+                             label ghi rõ khung qua đêm + UTC+7. -->
+                        <div t-if="order_window_enabled"
+                             t-attf-class="wujia-morder-warnbar #{'wujia-morder-warnbar--open' if order_window_open else 'wujia-morder-warnbar--closed'}">
+                            <i t-attf-class="feather #{'icon-check-circle' if order_window_open else 'icon-alert-circle'}"/>
+                            <span t-if="order_window_open">Đang trong khung giờ đặt hàng: <t t-out="order_window_label"/></span>
+                            <span t-else="">Ngoài khung giờ đặt hàng — mở lại lúc <t t-out="order_window_reopen"/>. Khung: <t t-out="order_window_label"/></span>
+                        </div>
+
+                        <!-- Search box — FUNC-MOB-ORDER-006: nút "Tìm" hiện rõ (không
+                             chỉ dựa Enter bàn phím ảo; nhiều bàn phím không có nút Go). -->
                         <form method="get" action="/portal/order" class="wujia-morder-search">
                             <div class="wujia-morder-search-input">
                                 <i class="feather icon-search"/>
@@ -172,6 +181,9 @@
                             </div>
                             <input t-if="category_id" type="hidden" name="category_id"
                                    t-att-value="category_id"/>
+                            <button type="submit" class="wujia-morder-search-btn" aria-label="Tìm sản phẩm">
+                                <i class="feather icon-search"/>
+                            </button>
                         </form>
 
                         <!-- Category chips (wj-filter-chip — Sprint 19 canonical) -->
@@ -219,15 +231,31 @@
                                         </a>
                                         <span class="wujia-morder-row-price"
                                               t-out="'{:,.0f}'.format(price_map.get(product.id) or 0).replace(',', '.') + ' đ'"/>
-                                        <button type="button" class="wujia-morder-row-add btn-add-cart"
-                                                t-att-data-product-id="product.id"
-                                                t-att-data-min-qty="product.min_qty or 1"
-                                                t-att-data-max-qty="str(product.max_qty or 0)"
-                                                t-att-data-price="int(price_map.get(product.id) or 0)">
-                                            <i class="feather icon-shopping-cart"/>
-                                            <span t-attf-class="wujia-morder-row-qty #{'' if in_cart else 'd-none'}"
-                                                  t-out="in_cart"/>
-                                        </button>
+                                        <!-- WJ-ORD-021: qty=0 → nút "Thêm"; qty>0 → stepper "− N +"
+                                             (giảm ở min = xoá dòng qua /cart/step product_id). data-qty
+                                             điều khiển hiển thị; JS applyState morph theo qty_map.
+                                             WJ-ORD-010: aria-label = action + tên SP. KHÔNG dùng
+                                             .btn-add-cart (delegation ở portal_cart_sync, tránh
+                                             double-bind với portal_order.js DOMContentLoaded). -->
+                                        <div class="wujia-morder-cartctl"
+                                             t-att-data-product-id="product.id"
+                                             t-att-data-min-qty="product.min_qty or 1"
+                                             t-att-data-max-qty="str(product.max_qty or 0)"
+                                             t-attf-data-qty="#{in_cart}">
+                                            <button type="button" class="wujia-morder-row-add wujia-morder-add-btn"
+                                                    t-att-aria-label="'Thêm ' + product.name + ' vào giỏ'">
+                                                <i class="feather icon-shopping-cart"/>
+                                            </button>
+                                            <div class="wujia-morder-mstepper" role="group"
+                                                 t-att-aria-label="'Điều chỉnh số lượng ' + product.name">
+                                                <button type="button" class="wujia-morder-mstep wujia-morder-mstep-minus"
+                                                        t-att-aria-label="'Giảm ' + product.name">−</button>
+                                                <span class="wujia-morder-mstep-qty" aria-live="polite"
+                                                      t-att-aria-label="'Số lượng ' + product.name" t-out="in_cart"/>
+                                                <button type="button" class="wujia-morder-mstep wujia-morder-mstep-plus"
+                                                        t-att-aria-label="'Tăng ' + product.name">+</button>
+                                            </div>
+                                        </div>
                                     </div>
                                 </t>
                             </div>
@@ -243,7 +271,8 @@
                             <span class="wujia-morder-floatbar-info">
                                 <span class="wujia-morder-floatbar-title">Giỏ hàng</span>
                                 <span class="wujia-morder-floatbar-sub">
-                                    <span class="wujia-morder-floatbar-count" t-out="cart_state['line_count'] if cart_state else 0"/> sản phẩm •
+                                    <!-- WJ-ORD-022: line_count = số mặt hàng (SKU), KHÁC total_qty -->
+                                    <span class="wujia-morder-floatbar-count" t-out="cart_state['line_count'] if cart_state else 0"/> mặt hàng •
                                     <span class="wujia-morder-floatbar-total"
                                           t-out="'{:,.0f}'.format((cart_state['total_amount'] if cart_state else 0) or 0).replace(',', '.')"/> đ
                                 </span>

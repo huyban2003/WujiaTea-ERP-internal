@@ -1240,12 +1240,15 @@ a.wujia-mhome-kpi:active { opacity: 0.85; }
 }
 
 /* ---------- Catalog "Sản phẩm" (.wujia-morder) ---------- */
-.wujia-morder { padding-bottom: 150px; }     /* RESP-MOB-ORDER-003: card cuối cuộn được lên trên floatbar */
+/* RESP-MOB-ORDER-003: chừa chỗ cho floatbar + safe-area (WJ-ORD-013) */
+.wujia-morder { padding-bottom: calc(150px + env(safe-area-inset-bottom, 0px)); }
 .wujia-morder-titlerow {
     display: flex;
     align-items: baseline;
     justify-content: space-between;
-    margin: 4px 0 12px;
+    gap: 10px;
+    /* WJ-ORD-005: 16px trên (thoáng khỏi status-strip) → 12px xuống warnbar */
+    margin: 16px 0 12px;
 }
 .wujia-morder-title {
     font-size: 25px;        /* Figma 4575:777 — title 25/700 (was 24) */
@@ -1253,6 +1256,8 @@ a.wujia-mhome-kpi:active { opacity: 0.85; }
     color: var(--wujia-morder-text);
     margin: 0;
 }
+/* WJ-ORD-005: bộ đếm "N SP" cùng hàng title, không xuống dòng, không co */
+.wujia-morder-count { flex: 0 0 auto; white-space: nowrap; }
 
 /* Order warning bar (WJ_Mobile_OrderWarningBar) — shared by catalog + cart */
 .wujia-morder-warnbar {
@@ -1268,12 +1273,39 @@ a.wujia-mhome-kpi:active { opacity: 0.85; }
     margin-bottom: 14px;
 }
 .wujia-morder-warnbar i { font-size: 16px; line-height: 1; flex: 0 0 auto; }
+/* WJ-ORD-006: màu theo trạng thái khung giờ — mở (xanh lá) / đóng (đỏ).
+   Base giữ token warn làm fallback; 2 modifier override tường minh. */
+.wujia-morder-warnbar--open {
+    background: var(--wujia-success-bg, #EAF8EF);
+    color: var(--wujia-success, #16A34A);
+}
+.wujia-morder-warnbar--closed {
+    background: #FEE2E2;
+    color: #DC2626;
+}
 
 /* Search box (v2: ô tìm kiếm riêng, danh mục = chips wj-filter-chip) */
 .wujia-morder-search {
     display: flex;
+    gap: 8px;                /* FUNC-MOB-ORDER-006: chừa chỗ nút Tìm bên phải */
     margin-bottom: 10px;
 }
+/* FUNC-MOB-ORDER-006: nút submit tìm kiếm — 44×44 (chuẩn tap), nền brand */
+.wujia-morder-search-btn {
+    flex: 0 0 auto;
+    width: 44px;
+    height: 44px;
+    border: 0;
+    border-radius: 12px;
+    background: var(--wujia-morder-primary);
+    color: #FFFFFF;
+    font-size: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+}
+.wujia-morder-search-btn:active { background: var(--wujia-morder-primary-dark); }
 .wujia-morder-search-input {
     position: relative;
     flex: 1 1 auto;
@@ -1391,10 +1423,11 @@ a.wujia-mhome-kpi:active { opacity: 0.85; }
 .wujia-morder-row-add {
     position: relative;
     flex: 0 0 auto;
-    width: 46px;
-    height: 32px;
+    /* WJ-ORD-011: vùng chạm 44×40 (trước 46×32, thấp khó bấm) */
+    width: 44px;
+    height: 40px;
     border: 0;
-    border-radius: 9px;
+    border-radius: 10px;
     background: var(--wujia-morder-primary);
     color: #FFFFFF;
     display: flex;
@@ -1419,6 +1452,43 @@ a.wujia-mhome-kpi:active { opacity: 0.85; }
     font-weight: 700;
     line-height: 18px;
     text-align: center;
+}
+
+/* WJ-ORD-021: điều khiển giỏ trên DANH SÁCH mobile — qty=0 hiện nút "Thêm",
+   qty>0 hiện stepper "− N +". data-qty (server-render + JS morph) bật/tắt.
+   WJ-ORD-011: nút stepper 38×40 (vùng chạm rộng). Giảm ở min = xoá dòng
+   (server /cart/step product_id, JS toast "Đã bỏ khỏi giỏ"). */
+.wujia-morder-cartctl { flex: 0 0 auto; position: relative; }
+.wujia-morder-cartctl .wujia-morder-mstepper { display: none; }
+.wujia-morder-cartctl:not([data-qty="0"]) .wujia-morder-add-btn { display: none; }
+.wujia-morder-cartctl:not([data-qty="0"]) .wujia-morder-mstepper { display: flex; }
+.wujia-morder-mstepper {
+    align-items: center;
+    background: #F8FAFC;
+    border: 1px solid var(--wujia-morder-border);
+    border-radius: 10px;
+    overflow: hidden;
+}
+.wujia-morder-mstep {
+    width: 38px;
+    height: 40px;
+    border: 0;
+    background: var(--wujia-morder-card-bg);
+    color: var(--wujia-morder-text-sub);
+    font-size: 18px;
+    line-height: 1;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.wujia-morder-mstep:active { background: #F3F6F8; }
+.wujia-morder-mstep-qty {
+    min-width: 34px;
+    text-align: center;
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--wujia-morder-primary);
 }
 
 /* Floating cart bar (above bottom-nav) */
@@ -1472,7 +1542,8 @@ a.wujia-mhome-kpi:active { opacity: 0.85; }
 }
 
 /* ---------- Cart "Giỏ hàng" (.wujia-mcart) ---------- */
-.wujia-mcart { padding-bottom: 150px; }   /* clear sticky summary + bottom-nav */
+/* clear sticky summary + bottom-nav + home-indicator (WJ-ORD-013) */
+.wujia-mcart { padding-bottom: calc(180px + env(safe-area-inset-bottom, 0px)); }
 .wujia-mcart-titlerow {
     display: flex;
     align-items: baseline;
@@ -1578,19 +1649,23 @@ a.wujia-mhome-kpi:active { opacity: 0.85; }
     border-radius: 8px;
     overflow: hidden;
 }
+/* WJ-ORD-011: vùng chạm stepper giỏ 36×36 (trước 30×28) */
 .wujia-mcart-step {
-    width: 30px;
-    height: 28px;
+    width: 36px;
+    height: 36px;
     border: 0;
     background: var(--wujia-morder-card-bg);
     color: var(--wujia-morder-text-sub);
-    font-size: 16px;
+    font-size: 17px;
     line-height: 1;
     cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 .wujia-mcart-step:active { background: #F3F6F8; }
 .wujia-mcart-step-qty {
-    min-width: 30px;
+    min-width: 34px;
     text-align: center;
     font-size: 14px;
     font-weight: 700;
@@ -1611,8 +1686,9 @@ a.wujia-mhome-kpi:active { opacity: 0.85; }
 }
 .wujia-mcart-del {
     flex: 0 0 auto;
-    width: 28px;
-    height: 28px;
+    /* WJ-ORD-011: vùng chạm xoá 36×36 (trước 28×28) */
+    width: 36px;
+    height: 36px;
     border: 1px solid var(--wujia-morder-border);
     border-radius: 8px;
     background: #F8FAFC;
@@ -1620,10 +1696,34 @@ a.wujia-mhome-kpi:active { opacity: 0.85; }
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 15px;
+    font-size: 16px;
     cursor: pointer;
 }
 .wujia-mcart-del:active { color: var(--wujia-morder-warn-text); }
+
+/* FUNC-MOB-ORDER-005: khối ghi chú cuộn trong flow (KHÔNG nằm trong thanh cố
+   định → không phình bar, WJ-ORD-013). Autosave qua hook wj-cart-note. */
+.wujia-mcart-noteblock { margin: 10px 0 4px; }
+.wujia-mcart-note-label {
+    display: block;
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--wujia-morder-text);
+    margin-bottom: 6px;
+}
+.wujia-mcart-note {
+    width: 100%;
+    min-height: 52px;
+    resize: vertical;
+    padding: 10px 12px;
+    border: 1px solid var(--wujia-morder-border);
+    border-radius: 10px;
+    font-size: 14px;
+    font-family: inherit;
+    color: var(--wujia-morder-text);
+    background: #F9FAFB;
+}
+.wujia-mcart-note:focus { outline: none; border-color: var(--wujia-morder-primary); }
 
 /* Sticky summary CTA (WJ_Mobile_CartSummaryCTA) — above bottom-nav */
 .wujia-mcart-summary {
@@ -1635,7 +1735,14 @@ a.wujia-mhome-kpi:active { opacity: 0.85; }
     background: var(--wujia-morder-card-bg);
     border-top: 1px solid var(--wujia-morder-divider);
     box-shadow: 0 -3px 12px rgba(15, 23, 42, 0.08);
-    padding: 12px 16px;
+    /* WJ-ORD-013: chừa home-indicator (iPhone) để nút Gửi không bị che */
+    padding: 12px 16px calc(12px + env(safe-area-inset-bottom, 0px));
+}
+.wujia-mcart-submit-hint {
+    margin: 8px 0 0;
+    font-size: 12px;
+    color: #DC2626;
+    text-align: center;
 }
 .wujia-mcart-summary-rows { margin-bottom: 10px; }
 .wujia-mcart-summary-line {

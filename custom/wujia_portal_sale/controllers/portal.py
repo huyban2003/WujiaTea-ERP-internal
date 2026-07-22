@@ -99,6 +99,27 @@ def _float_to_hhmm(value):
     return f'{h:02d}:{m:02d}'
 
 
+# Cửa hàng Ngô Gia đặt theo giờ Việt Nam (không DST) — nhãn timezone tường minh
+# cho banner khung giờ (WJ-ORD-015: người dùng cần biết 04:00 là ngày nào + TZ).
+ORDER_TZ_LABEL = 'UTC+7'
+
+
+def _window_phrase(from_f, to_f):
+    """1 khung giờ (float 0–24) → chuỗi người đọc, kèm timezone.
+
+    WJ-ORD-015: khung QUA ĐÊM (from >= to, ví dụ HN-01 10:00→04:00) phải ghi rõ
+    '10:00 hôm nay – 04:00 ngày mai (UTC+7)' để không hiểu nhầm 04:00 cùng ngày.
+    Khung trong ngày: '10:00 – 15:00 (UTC+7)'."""
+    f, t = _float_to_hhmm(from_f), _float_to_hhmm(to_f)
+    try:
+        overnight = float(from_f or 0.0) >= float(to_f or 0.0)
+    except (TypeError, ValueError):
+        overnight = False
+    if overnight:
+        return f'{f} hôm nay – {t} ngày mai ({ORDER_TZ_LABEL})'
+    return f'{f} – {t} ({ORDER_TZ_LABEL})'
+
+
 class WujiaPortalSale(http.Controller):
     """Trang đặt hàng — catalog + giỏ hàng chung theo store + submit tạo SO draft."""
 
@@ -295,6 +316,15 @@ class WujiaPortalSale(http.Controller):
         """Context khung giờ cho catalog + cart view (BA row 2: list windows + nguồn)."""
         area_id = franchise.area_id.id if franchise and franchise.area_id else False
         allowed, window = request.env['res.config.settings'].sudo()._is_within_order_window(area_id=area_id)
+        raw_windows = window.get('windows', []) or []
+        # WJ-ORD-015: label giàu thông tin (qua đêm + timezone). Fallback về
+        # from/to tổng khi helper chưa trả list windows chi tiết.
+        if raw_windows:
+            phrases = [_window_phrase(w['from'], w['to']) for w in raw_windows]
+            reopen = _float_to_hhmm(raw_windows[0]['from'])
+        else:
+            phrases = [_window_phrase(window['from'], window['to'])]
+            reopen = _float_to_hhmm(window['from'])
         return {
             'order_time_from': _float_to_hhmm(window['from']),
             'order_time_to': _float_to_hhmm(window['to']),
@@ -303,8 +333,13 @@ class WujiaPortalSale(http.Controller):
             'order_window_source': window.get('source', 'global'),
             'order_windows': [
                 {'name': w.get('name') or '', 'from': _float_to_hhmm(w['from']), 'to': _float_to_hhmm(w['to'])}
-                for w in window.get('windows', [])
+                for w in raw_windows
             ],
+            # WJ-ORD-006/015: chuỗi hiển thị chuẩn (dùng chung catalog/cart, PC+mobile)
+            # + giờ mở lại cho banner ngoài giờ. order_window_open đã có sẵn (server
+            # tính theo store tz) → template đổi màu/CTA theo trạng thái thực.
+            'order_window_label': ', '.join(phrases),
+            'order_window_reopen': reopen,
             'order_window_not_configured': window['enabled'] and not window.get('configured', True),
         }
 
@@ -390,7 +425,9 @@ class WujiaPortalSale(http.Controller):
     def portal_order_product_detail(self, product_id, **kw):
         product = request.env['product.product'].sudo().browse(int(product_id)).exists()
         if not product or not product.is_public_portal or not product.active:
-            return request.redirect('/portal/order')
+            # WJ-ORD-017: không im lặng — redirect an toàn về catalog kèm thông
+            # báo (không lộ lý do tồn tại/quyền; mã đã whitelist trong catalog).
+            return request.redirect('/portal/order?error=PRODUCT_NOT_AVAILABLE')
         related = request.env['product.product'].sudo().search([
             ('is_public_portal', '=', True), ('active', '=', True),
             ('public_categ_id', '=', product.public_categ_id.id),
@@ -447,15 +484,28 @@ class WujiaPortalSale(http.Controller):
             return self._err('MIN_QTY_NOT_CONFIGURED')
 
         # Bước tăng mặc định = min_qty (BA row 6). FE gửi qty tường minh
-        # (trang chi tiết) → phải là bội số của bước.
-        try:
-            increment = int(qty) if qty else step
-        except (TypeError, ValueError):
-            return self._err('invalid_input')
-        if increment < step:
+        # (trang chi tiết) → phải HỢP LỆ TUYỆT ĐỐI, KHÔNG ép về bước khi sai
+        # (WJ-ORD-001): số nguyên dương, >= bước, bội số bước, <= max.
+        if qty is None or qty == '':
             increment = step
-        if increment % step:
-            return self._err('QTY_INVALID_STEP')
+        else:
+            try:
+                fval = float(qty)  # "abc" → ValueError
+            except (TypeError, ValueError):
+                return self._err('invalid_input')
+            if fval != int(fval):  # "1.5" — không làm tròn, coi là sai
+                return self._err('QTY_INVALID_STEP',
+                                 message=f"Số lượng của {product.name} phải là số nguyên.")
+            increment = int(fval)
+            if increment < step:
+                return self._err('QTY_BELOW_MIN',
+                                 message=f"Số lượng tối thiểu của {product.name} là {step}.")
+            if increment % step:
+                return self._err('QTY_INVALID_STEP',
+                                 message=f"Số lượng của {product.name} phải tăng theo bước {step}.")
+            if product.max_qty and increment > product.max_qty:
+                return self._err('QTY_ABOVE_MAX',
+                                 message=f"Số lượng tối đa của {product.name} là {product.max_qty}.")
 
         franchise = self._get_franchise(fid)
         cart = self._get_store_cart(fid, create=True)
@@ -545,6 +595,94 @@ class WujiaPortalSale(http.Controller):
         return {'success': True, 'qty': qty,
                 'cart_count': state['line_count'],
                 'line': line_state, 'cart': state}
+
+    # ---------------------------------------------------------------- cart step
+    @http.route(['/portal/order/cart/step'], type='json', auth='user',
+                methods=['POST'])
+    def portal_cart_step(self, line_id=None, product_id=None, direction=None, **kw):
+        """Tăng/giảm ĐÚNG 1 bước NGUYÊN TỬ (WJ-ORD-002 — tránh lost update).
+
+        Client chỉ gửi hướng ('inc'/'dec'); server tự lấy step=min_qty rồi cộng
+        delta THẲNG trong SQL (UPDATE khoá dòng → 2 request gần đồng thời áp tuần
+        tự, KHÔNG ghi đè tuyệt đối như set qty). qty rơi < min → xoá dòng.
+        Không nhận qty/delta tuỳ ý từ client để cấm nhảy bậc.
+
+        WJ-ORD-021: giỏ hàng gửi line_id; DANH SÁCH mobile gửi product_id (row
+        không giữ line_id ở DOM, resolve line trong giỏ của store hiện tại)."""
+        fid, gate_error = self._store_gate()
+        if gate_error:
+            return self._err(gate_error)
+        if direction == 'inc':
+            sign = 1
+        elif direction == 'dec':
+            sign = -1
+        else:
+            return self._err('invalid_input')
+        franchise = self._get_franchise(fid)
+        line = None
+        if line_id not in (None, '', 0, '0'):
+            try:
+                line = self._get_store_line(int(line_id), fid)
+            except (TypeError, ValueError):
+                return self._err('invalid_input')
+        elif product_id not in (None, '', 0, '0'):
+            try:
+                pid = int(product_id)
+            except (TypeError, ValueError):
+                return self._err('invalid_input')
+            store_cart = self._get_store_cart(fid)
+            line = (store_cart.line_ids.filtered(lambda l: l.product_id.id == pid)[:1]
+                    if store_cart else None) or None
+        else:
+            return self._err('invalid_input')
+        cart = line.cart_id if line else self._get_store_cart(fid)
+        if not line:
+            # Idempotent: dòng đã bị user khác xoá → trả state mới, không lỗi.
+            state = self._cart_state(cart, franchise)
+            return {'success': True, 'removed': True,
+                    'cart_count': state['line_count'], 'cart': state}
+        product = line.product_id
+        step = product.min_qty
+        if step <= 0:
+            return self._err('MIN_QTY_NOT_CONFIGURED')
+        change = sign * step
+        cap = product.max_qty if product.max_qty > 0 else 2147483647
+        # Cộng delta nguyên tử; LEAST chặn trần max ngay trong SQL. Dòng bị khoá
+        # tới hết transaction nên unlink phía dưới an toàn với request song song.
+        request.env.cr.execute(
+            """
+            UPDATE wujia_portal_cart_line
+               SET qty = LEAST(qty + %(delta)s, %(cap)s),
+                   write_uid = %(uid)s,
+                   write_date = now() AT TIME ZONE 'UTC'
+             WHERE id = %(line)s
+            RETURNING qty
+            """,
+            {'delta': change, 'cap': cap, 'line': line.id, 'uid': request.env.uid},
+        )
+        row = request.env.cr.fetchone()
+        request.env['wujia.portal.cart.line'].sudo().invalidate_model()
+        cart.invalidate_recordset()
+        new_qty = row[0] if row else 0
+        removed = False
+        warning = None
+        if new_qty < step:
+            # Giảm xuống dưới tối thiểu → xoá dòng (đồng nhất với update qty=0).
+            line.unlink()
+            removed = True
+            cart.invalidate_recordset()
+        elif sign > 0 and product.max_qty and new_qty >= product.max_qty:
+            warning = 'QTY_ABOVE_MAX'
+        state = self._cart_state(cart, franchise)
+        self._publish_cart_event(fid, state, 'remove' if removed else 'update')
+        res = {'success': True, 'removed': removed, 'qty': new_qty,
+               'cart_count': state['line_count'], 'cart': state}
+        if not removed:
+            res['line'] = next((l for l in state['lines'] if l['line_id'] == line.id), None)
+        if warning:
+            res['warning'] = warning
+            res['message'] = f"Số lượng tối đa của {product.name} là {product.max_qty}."
+        return res
 
     # -------------------------------------------------------------- cart remove
     @http.route(['/portal/order/cart/remove'], type='json', auth='user',
