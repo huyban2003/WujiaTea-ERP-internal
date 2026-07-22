@@ -59,8 +59,10 @@ python odoo-bin -c config/odoo.conf -d wujia_tea_19 \
 
 > A plain reload (`--dev=reload`) does **not** rebuild compiled CSS asset bundles — the `-u` on these 3 modules is required for the new CSS/tokens to take effect.
 
-## Logo not showing (fleet/franchise)
+## Module (Phân hệ) app icon not showing — fleet/franchise — FIXED
 
-Portal logos do **not** come from static files. All portal logos render from **`res.company.logo_web`** (navbar/sidebar/mobile) and the favicon from **`res.company.logo`** — base64 DB fields on `res.company`.
+**Root cause:** the backend app-drawer/menu icon comes from **`web_icon` on the app-root `<menuitem>`**, NOT from `static/description/icon.png` (that file only feeds the Settings→Apps card). Both `wujia_fleet` (`menu_wujia_fleet_root`) and `wujia_franchise` (`menu_wujia_root`) had `icon.png` on disk but no `web_icon` → blank app icon. Uploading the static file did nothing for the menu.
 
-**Fix on server:** backend → **Settings → Companies → [the company] → Logo** field → upload the image. Do this per company (fleet + each franchise company). Uploading files into `static/` folders has no effect on the portal logo.
+**Fix (commit `59c8086`, on main):** added `web_icon="<module>,static/description/icon.png"` to both root menuitems, pointing at the existing 128×128 PNG. Takes effect on the `-u all` deploy (Odoo re-reads the file and populates `web_icon_data`).
+
+> Note (separate topic): if you ever need the **portal** logo (navbar/sidebar/mobile), that one comes from `res.company.logo_web` (favicon = `res.company.logo`) — set via Settings → Companies → Logo. That's unrelated to the backend module icon fixed here.
