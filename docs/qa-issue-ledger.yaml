@@ -1,0 +1,177 @@
+# WujiaTea — QA Issue Ledger
+# ---------------------------------------------------------------------------
+# Nguồn sự thật "issue nào Dev đã LÀM XONG + DEPLOY" để tool qa_sync.py điền
+# đúng Dev-handoff (QA Operating Standard §6) khi set issue -> "Ready for Retest".
+#
+# Chỉ thêm entry khi code của mình THỰC SỰ khớp "Kết quả mong muốn" HIỆN TẠI của
+# issue trên sheet. Nếu BA đã đổi expected mà code chưa theo -> ĐỪNG thêm (issue
+# còn mở). qa_sync vẫn tự SKIP issue có Need BA Confirm = Yes / Need Clarification.
+#
+# Format mỗi entry (key = Issue ID trong tab "5. Issue List"):
+#   sprint:        số/nhãn sprint đã fix
+#   commit:        short SHA đã deploy (điền cột P Build/Deploy)
+#   deployed_date: YYYY-MM-DD (ngày build có mặt trên UAT)
+#   url:           route đại diện để retest
+#   odoo_fit:      Odoo Standard | Configuration | Custom | Need Dev Confirm | N/A  (cột R)
+#   fix:           1 câu — đã thay đổi gì            (ghép vào cột K: FIX)
+#   impact:        màn hình/luồng liên quan          (cột K: IMPACT)
+#   retest:        điểm cần kiểm khi retest          (cột K: RETEST)
+#   limit:         giới hạn còn lại hoặc "Không có"  (cột K: LIMIT)
+#
+# Cột K cuối cùng qa_sync ghi = "FIX: <fix> | IMPACT: <impact> | RETEST: <retest> | LIMIT: <limit>"
+# ---------------------------------------------------------------------------
+
+UI-01:
+  sprint: "34"
+  commit: "9dbf5f7"
+  deployed_date: "2026-07-16"
+  url: "/portal/order"
+  odoo_fit: "Custom"
+  fix: "Top Bar bám đỉnh (override Vuexy floating-nav x=300/y=0/w=1620/h=72) + gộp Current Store 1 container 430px, ellipsis tên cửa hàng dài"
+  impact: "Global shell header — mọi trang portal PC + mobile"
+  retest: "Top Bar x=300,y=0,w=1620,h=72; Current Store block 430px; role nằm trong block; tên dài không đè role"
+  limit: "Lệch pixel nhỏ: current-store x=314 vs 324"
+
+UI-02:
+  sprint: "34"
+  commit: "9dbf5f7"
+  deployed_date: "2026-07-16"
+  url: "/portal/order"
+  odoo_fit: "Custom"
+  fix: "Default portal user -> vi_VN (migration activate vi_VN + set group_portal); PC lang pill 118×40; route mới /portal/set-lang/<code> + cập nhật session context"
+  impact: "Global shell language control + default lang mọi user portal"
+  retest: "Portal tiếng Việt: control hiện cờ VN + nhãn 'Việt Nam'; PC pill 118×40; đổi ngôn ngữ không còn 404"
+  limit: "Lệch pixel nhỏ: lang pill h=46 vs 40"
+
+UI-03:
+  sprint: "34"
+  commit: "9dbf5f7"
+  deployed_date: "2026-07-16"
+  url: "/portal/order"
+  odoo_fit: "Custom"
+  fix: "Account pill 202×52 + role hiện dưới tên (_wujia_active_role) + chevron căn giữa dọc"
+  impact: "Global shell header account block, PC"
+  retest: "PC account pill x≈1694, w=202, h=52; hiện tên + role dưới tên + chevron"
+  limit: "Lệch pixel nhỏ: account x=1718 vs 1694"
+
+UI-05:
+  sprint: "34"
+  commit: "9dbf5f7"
+  deployed_date: "2026-07-16"
+  url: "/portal/order"
+  odoo_fit: "Custom"
+  fix: "Footer mobile icon 20->22 + gap/padding đẩy label; active #28A9DF giữ nguyên"
+  impact: "Mobile footer action bar — mọi trang mobile"
+  retest: "Footer 391×83, 5 item căn đều, icon 22px, label không dồn lên, active #28A9DF"
+  limit: "Không có"
+
+RESP-MOB-ORDER-003:
+  sprint: "37"
+  commit: "f8a64ba"
+  deployed_date: "2026-07-16"
+  url: "/portal/order"
+  odoo_fit: "Custom"
+  fix: "Floating cart bar bám lề content left/right:16 + padding-bottom:150 để card sản phẩm cuối không bị thanh cố định che"
+  impact: "Trang Đặt hàng mobile /portal/order"
+  retest: "391×844: floatbar lề x=16; card cuối hiển thị trọn vẹn, không nằm dưới thanh cố định"
+  limit: "Không có"
+
+# --- Need BA Confirm=Yes: code xong (S37/S34) nhưng BA chưa chốt spec chi tiết.
+#     User (PO) chốt: mark Ready for Retest, GIỮ Need Confirm=Yes. qa_sync --force để ghi. ---
+UI-06:
+  sprint: "34"
+  commit: "9dbf5f7"
+  deployed_date: "2026-07-16"
+  url: "/portal"
+  odoo_fit: "Custom"
+  fix: "Inter thuần (bỏ Montserrat/Arial), font-weight 800→700 (hết nhòe)"
+  impact: "Typography toàn portal PC"
+  retest: "Dashboard PC 1920: font đồng nhất, rõ nét"
+  limit: "Need BA Confirm=Yes — BA chưa chốt font family/weight cuối; code xong, chờ BA chốt spec để retest"
+
+UI-MOB-HOME-001:
+  sprint: "37"
+  commit: "f8a64ba"
+  deployed_date: "2026-07-16"
+  url: "/portal"
+  odoo_fit: "Custom"
+  fix: "Gap sau Current Store Strip 40→16px (content-wrapper pad-top 0, 1 lớp spacing)"
+  impact: "Home mobile"
+  retest: "391×844: card đầu Home cách strip ~16px, không còn vùng trống dư"
+  limit: "Need BA Confirm=Yes — BA chưa chốt spacing token cuối; code default 16px, chờ BA chốt"
+
+UI-MOB-HOME-002:
+  sprint: "37"
+  commit: "f8a64ba"
+  deployed_date: "2026-07-16"
+  url: "/portal"
+  odoo_fit: "Custom"
+  fix: "Unify title section Home 18px (scope .wujia-mhome)"
+  impact: "Home mobile — section titles"
+  retest: "391×844: các section title đồng nhất 18px"
+  limit: "Need BA Confirm=Yes — chờ BA chốt font-size/line-height cuối"
+
+RESP-MOB-HOME-003:
+  sprint: "37"
+  commit: "f8a64ba"
+  deployed_date: "2026-07-16"
+  url: "/portal"
+  odoo_fit: "Custom"
+  fix: "Title thông báo nổi bật clamp 2 dòng"
+  impact: "Home mobile — Thông báo nổi bật"
+  retest: "391×844: title noti hiện 2 dòng, badge gọn không vỡ card"
+  limit: "Need BA Confirm=Yes — BA chưa chốt số dòng clamp"
+
+RESP-MOB-ORDER-001:
+  sprint: "37"
+  commit: "f8a64ba"
+  deployed_date: "2026-07-16"
+  url: "/portal/order"
+  odoo_fit: "Custom"
+  fix: "Tên sản phẩm clamp 2 dòng"
+  impact: "Đặt hàng mobile — card sản phẩm"
+  retest: "391×844: tên SP hiện 2 dòng, giá/nút giỏ căn thẳng"
+  limit: "Need BA Confirm=Yes — BA chưa chốt số dòng clamp"
+
+UI-MOB-ORDER-002:
+  sprint: "37"
+  commit: "f8a64ba"
+  deployed_date: "2026-07-16"
+  url: "/portal/order"
+  odoo_fit: "Custom"
+  fix: "Thumbnail dùng image_128/icon-package placeholder; bỏ nhãn 'Units' đôi (ĐVT còn dưới tên)"
+  impact: "Đặt hàng mobile — card sản phẩm"
+  retest: "391×844: 1 vị trí UOM, thumbnail ảnh/placeholder, không còn 2 nhãn Units"
+  limit: "Need BA Confirm=Yes — chờ BA chốt placeholder thumbnail"
+
+UI-MOB-ORDER-004:
+  sprint: "37"
+  commit: "f8a64ba"
+  deployed_date: "2026-07-16"
+  url: "/portal/order"
+  odoo_fit: "Custom"
+  fix: "Search box 34→44px + icon căn giữa"
+  impact: "Đặt hàng mobile — ô tìm kiếm"
+  retest: "391×844: search cao 44px, icon/placeholder căn giữa"
+  limit: "Need BA Confirm=Yes (Suggestion)"
+
+# --- Nightly 2026-07-22 (chapter TBD) ---
+UI-MOB-SHELL-002:
+  sprint: "nightly-2026-07-22"
+  commit: "75132b9"
+  deployed_date: "2026-07-22"
+  url: "/portal"
+  odoo_fit: "Custom"
+  fix: "Code chip min-height 24px + role chip box-sizing border-box + height 24px (cùng cao 24px, cùng trục giữa strip 48px, width tự co)"
+  impact: "Current Store Strip mobile — mọi trang /portal <992px"
+  retest: "Mobile 391×844: code chip và role chip cùng cao 24px, cùng trục ngang; text không nén; width vẫn co theo mã dài (vd HCM-01, HN-01)"
+  limit: "Chỉ code + role chip; logo artwork (UI-MOB-SHELL-001) và page-header y (RESP-MOB-SHELL-003) chưa xử lý phiên này"
+
+# --- CỐ Ý KHÔNG backfill (issue còn mở / chờ BA) ---
+# UI-04  : expected đã đổi 44px -> 38px (Blank Shell); code hiện 44px -> CHƯA khớp, còn mở.
+# UI-06  : Need Clarification / Need BA Confirm = Yes (font family/weight) -> chờ BA.
+# UI-MOB-* / RESP-MOB-* : phần lớn Need BA Confirm = Yes (BA đang re-spec) -> qa_sync tự skip.
+# UI-MOB-SHELL-001 : cần logo mobile ratio đúng 100:34; code CSS đã có container 116×44
+#                     nhưng object-fit contain giữ tỷ lệ ảnh gốc -> defer chờ BA cấp logo.
+# RESP-MOB-SHELL-003: chuẩn hoá page-header y=168 across ~10 trang, regression rộng,
+#                     nightly agent không có browser verify -> defer.
