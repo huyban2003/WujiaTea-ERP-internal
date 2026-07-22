@@ -167,6 +167,68 @@ UI-MOB-SHELL-002:
   retest: "Mobile 391×844: code chip và role chip cùng cao 24px, cùng trục ngang; text không nén; width vẫn co theo mã dài (vd HCM-01, HN-01)"
   limit: "Chỉ code + role chip; logo artwork (UI-MOB-SHELL-001) và page-header y (RESP-MOB-SHELL-003) chưa xử lý phiên này"
 
+# --- Sprint 2026-07-22 interactive — Batch A (order logic) ---
+WJ-ORD-001:
+  sprint: "2026-07-22-A"
+  commit: "bd55ef9"
+  deployed_date: "2026-07-22"
+  url: "/portal/order/product/<id>"
+  odoo_fit: "Custom"
+  fix: "Reject số lượng invalid 3 tầng: input type=number min/max/step; portal_order.js validate int/>=min/bội-số-bước/<=max, KHÔNG gửi request khi sai + lỗi tiếng Việt cạnh input; controller cart/add bỏ ép '<step→step', qty tường minh sai → QTY_BELOW_MIN/QTY_INVALID_STEP/QTY_ABOVE_MAX, giỏ không đổi"
+  impact: "Đặt hàng — thêm vào giỏ từ trang chi tiết (qty tay)"
+  retest: "Nhập -1/0/1.5/abc/vượt max: không gọi API, hiện lỗi cạnh input; gửi thẳng API qty sai cũng bị reject, cart không đổi; qty hợp lệ (bội số min) thêm bình thường"
+  limit: ""
+WJ-ORD-002:
+  sprint: "2026-07-22-A"
+  commit: "bd55ef9"
+  deployed_date: "2026-07-22"
+  url: "/portal/order/cart"
+  odoo_fit: "Custom"
+  fix: "Route mới /portal/order/cart/step: client gửi hướng inc/dec, server cộng delta=±min_qty NGUYÊN TỬ trong SQL (UPDATE khoá dòng) thay vì set qty tuyệt đối; LEAST cap max, rơi < min → xoá dòng. JS stepper gọi /cart/step + queue mutation (không drop)"
+  impact: "Giỏ chung theo store — nút +/- (PC + mobile), nhiều thiết bị"
+  retest: "2 thiết bị/tab cùng store giảm từ x4 gần đồng thời → kết thúc x2 (không phải x3); list/cart/header/tổng tiền đồng bộ. Đã verify shell: atomic 4→3→2"
+  limit: ""
+WJ-ORD-003:
+  sprint: "2026-07-22-A"
+  commit: "bd55ef9"
+  deployed_date: "2026-07-22"
+  url: "/portal/order, /portal/order/cart"
+  odoo_fit: "Custom"
+  fix: "pageshow(event.persisted) → WujiaCartSync.refresh() fetch lại state server khi trang khôi phục từ BFCache"
+  impact: "Đặt hàng/giỏ — điều hướng back/forward"
+  retest: "Thêm giỏ → sang trang khác → Back: badge/floatbar/panel khớp server (không hiện số cũ)"
+  limit: ""
+WJ-ORD-004:
+  sprint: "2026-07-22-A"
+  commit: "bd55ef9"
+  deployed_date: "2026-07-22"
+  url: "/portal/order?keyword="
+  odoo_fit: "Odoo-fit"
+  fix: "Migration bật extension unaccent (superuser); Odoo tự bọc unaccent() quanh ilike → search tên/mã bỏ dấu + không phân biệt hoa thường. Verify: 'pho mai'/'PHO MAI'/'phô mai' đều khớp 'Topping Phô Mai Macchiato'"
+  impact: "Đặt hàng — ô tìm kiếm sản phẩm"
+  retest: "Gõ không dấu ('tra sua', 'pho mai') + hoa/thường ra đúng sản phẩm có dấu"
+  limit: "Index unaccent CỐ Ý bỏ: unaccent() không IMMUTABLE + name là field dịch (jsonb) nên không tạo functional index trực tiếp (Odoo core cũng không); catalog giới hạn nên seq-scan không đáng kể"
+WJ-ORD-017:
+  sprint: "2026-07-22-A"
+  commit: "bd55ef9"
+  deployed_date: "2026-07-22"
+  url: "/portal/order/product/<id>"
+  odoo_fit: "Custom"
+  fix: "Product detail URL không hợp lệ/ngoài scope → redirect /portal/order?error=PRODUCT_NOT_AVAILABLE (flash message an toàn, mã đã whitelist trong catalog) thay vì redirect im lặng"
+  impact: "Đặt hàng — mở link sản phẩm không tồn tại/không public"
+  retest: "Mở /portal/order/product/<id sai>: về catalog kèm banner 'Sản phẩm này hiện không còn được phép đặt hàng'; không lộ chi tiết tồn tại/quyền"
+  limit: ""
+WJ-ORD-020:
+  sprint: "2026-07-22-A"
+  commit: "bd55ef9"
+  deployed_date: "2026-07-22"
+  url: "/portal/* (header)"
+  odoo_fit: "Custom"
+  fix: "VERIFY code đã khớp — badge cart (.wujia-header-cart-count) và badge thông báo (.wujia-header-noti-count) mặc định display:none, chỉ hiện .is-active khi count>0; badge bottom-nav display:none khi n<=0. Không render '0' trước khi có số thật → không flash 0"
+  impact: "Header portal — badge giỏ/thông báo lúc tải trang"
+  retest: "Reload trang portal: badge KHÔNG chớp '0' trước khi cập nhật; số 0 = ẩn hẳn, chỉ hiện khi >0"
+  limit: "Không đổi code (đã đúng từ trước); nếu BA vẫn thấy flash → gửi kèm điều kiện mạng/thiết bị cụ thể để tái hiện"
+
 # --- CỐ Ý KHÔNG backfill (issue còn mở / chờ BA) ---
 # UI-04  : expected đã đổi 44px -> 38px (Blank Shell); code hiện 44px -> CHƯA khớp, còn mở.
 # UI-06  : Need Clarification / Need BA Confirm = Yes (font family/weight) -> chờ BA.
