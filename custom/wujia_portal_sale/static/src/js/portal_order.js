@@ -66,11 +66,34 @@
             btn.addEventListener("click", function (ev) {
                 ev.preventDefault();
                 const productId = parseInt(btn.dataset.productId, 10);
+                const step = parseInt(btn.dataset.minQty, 10) || 1;
+                const max = parseInt(btn.dataset.maxQty, 10) || 0; // 0 = không giới hạn
                 const qtyEl = document.getElementById("product-detail-qty");
-                const qty = qtyEl ? parseInt(qtyEl.value, 10) || 0 : 0;
                 const msgEl = document.getElementById("product-detail-msg");
+                const raw = qtyEl ? String(qtyEl.value).trim() : "";
+                const qty = Number(raw);
+                // WJ-ORD-001: validate ngay tại client — KHÔNG gửi request khi
+                // quantity invalid; lỗi tiếng Việt cạnh input.
+                let err = null;
+                if (raw === "" || !Number.isFinite(qty)) {
+                    err = "Vui lòng nhập số lượng hợp lệ.";
+                } else if (!Number.isInteger(qty)) {
+                    err = "Số lượng phải là số nguyên.";
+                } else if (qty < step) {
+                    err = "Số lượng tối thiểu là " + step + ".";
+                } else if (qty % step !== 0) {
+                    err = "Số lượng phải tăng theo bước " + step + ".";
+                } else if (max && qty > max) {
+                    err = "Số lượng tối đa là " + max + ".";
+                }
+                if (err) {
+                    if (msgEl) msgEl.innerHTML = '<div class="alert alert-danger">' + err + "</div>";
+                    if (qtyEl) { qtyEl.classList.add("is-invalid"); qtyEl.focus(); }
+                    return;
+                }
+                if (qtyEl) qtyEl.classList.remove("is-invalid");
                 btn.disabled = true;
-                jsonRpc("/portal/order/cart/add", qty ? { product_id: productId, qty: qty } : { product_id: productId })
+                jsonRpc("/portal/order/cart/add", { product_id: productId, qty: qty })
                     .then(function (res) {
                         btn.disabled = false;
                         if (res.error) {

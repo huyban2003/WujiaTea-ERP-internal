@@ -390,7 +390,9 @@ class WujiaPortalSale(http.Controller):
     def portal_order_product_detail(self, product_id, **kw):
         product = request.env['product.product'].sudo().browse(int(product_id)).exists()
         if not product or not product.is_public_portal or not product.active:
-            return request.redirect('/portal/order')
+            # WJ-ORD-017: không im lặng — redirect an toàn về catalog kèm thông
+            # báo (không lộ lý do tồn tại/quyền; mã đã whitelist trong catalog).
+            return request.redirect('/portal/order?error=PRODUCT_NOT_AVAILABLE')
         related = request.env['product.product'].sudo().search([
             ('is_public_portal', '=', True), ('active', '=', True),
             ('public_categ_id', '=', product.public_categ_id.id),
@@ -447,15 +449,28 @@ class WujiaPortalSale(http.Controller):
             return self._err('MIN_QTY_NOT_CONFIGURED')
 
         # Bước tăng mặc định = min_qty (BA row 6). FE gửi qty tường minh
-        # (trang chi tiết) → phải là bội số của bước.
-        try:
-            increment = int(qty) if qty else step
-        except (TypeError, ValueError):
-            return self._err('invalid_input')
-        if increment < step:
+        # (trang chi tiết) → phải HỢP LỆ TUYỆT ĐỐI, KHÔNG ép về bước khi sai
+        # (WJ-ORD-001): số nguyên dương, >= bước, bội số bước, <= max.
+        if qty is None or qty == '':
             increment = step
-        if increment % step:
-            return self._err('QTY_INVALID_STEP')
+        else:
+            try:
+                fval = float(qty)  # "abc" → ValueError
+            except (TypeError, ValueError):
+                return self._err('invalid_input')
+            if fval != int(fval):  # "1.5" — không làm tròn, coi là sai
+                return self._err('QTY_INVALID_STEP',
+                                 message=f"Số lượng của {product.name} phải là số nguyên.")
+            increment = int(fval)
+            if increment < step:
+                return self._err('QTY_BELOW_MIN',
+                                 message=f"Số lượng tối thiểu của {product.name} là {step}.")
+            if increment % step:
+                return self._err('QTY_INVALID_STEP',
+                                 message=f"Số lượng của {product.name} phải tăng theo bước {step}.")
+            if product.max_qty and increment > product.max_qty:
+                return self._err('QTY_ABOVE_MAX',
+                                 message=f"Số lượng tối đa của {product.name} là {product.max_qty}.")
 
         franchise = self._get_franchise(fid)
         cart = self._get_store_cart(fid, create=True)
@@ -545,6 +560,80 @@ class WujiaPortalSale(http.Controller):
         return {'success': True, 'qty': qty,
                 'cart_count': state['line_count'],
                 'line': line_state, 'cart': state}
+
+    # ---------------------------------------------------------------- cart step
+    @http.route(['/portal/order/cart/step'], type='json', auth='user',
+                methods=['POST'])
+    def portal_cart_step(self, line_id, direction=None, **kw):
+        """Tăng/giảm ĐÚNG 1 bước NGUYÊN TỬ (WJ-ORD-002 — tránh lost update).
+
+        Client chỉ gửi hướng ('inc'/'dec'); server tự lấy step=min_qty rồi cộng
+        delta THẲNG trong SQL (UPDATE khoá dòng → 2 request gần đồng thời áp tuần
+        tự, KHÔNG ghi đè tuyệt đối như set qty). qty rơi < min → xoá dòng.
+        Không nhận qty/delta tuỳ ý từ client để cấm nhảy bậc."""
+        fid, gate_error = self._store_gate()
+        if gate_error:
+            return self._err(gate_error)
+        try:
+            line_id = int(line_id)
+        except (TypeError, ValueError):
+            return self._err('invalid_input')
+        if direction == 'inc':
+            sign = 1
+        elif direction == 'dec':
+            sign = -1
+        else:
+            return self._err('invalid_input')
+        franchise = self._get_franchise(fid)
+        line = self._get_store_line(line_id, fid)
+        cart = line.cart_id if line else self._get_store_cart(fid)
+        if not line:
+            # Idempotent: dòng đã bị user khác xoá → trả state mới, không lỗi.
+            state = self._cart_state(cart, franchise)
+            return {'success': True, 'removed': True,
+                    'cart_count': state['line_count'], 'cart': state}
+        product = line.product_id
+        step = product.min_qty
+        if step <= 0:
+            return self._err('MIN_QTY_NOT_CONFIGURED')
+        change = sign * step
+        cap = product.max_qty if product.max_qty > 0 else 2147483647
+        # Cộng delta nguyên tử; LEAST chặn trần max ngay trong SQL. Dòng bị khoá
+        # tới hết transaction nên unlink phía dưới an toàn với request song song.
+        request.env.cr.execute(
+            """
+            UPDATE wujia_portal_cart_line
+               SET qty = LEAST(qty + %(delta)s, %(cap)s),
+                   write_uid = %(uid)s,
+                   write_date = now() AT TIME ZONE 'UTC'
+             WHERE id = %(line)s
+            RETURNING qty
+            """,
+            {'delta': change, 'cap': cap, 'line': line.id, 'uid': request.env.uid},
+        )
+        row = request.env.cr.fetchone()
+        request.env['wujia.portal.cart.line'].sudo().invalidate_model()
+        cart.invalidate_recordset()
+        new_qty = row[0] if row else 0
+        removed = False
+        warning = None
+        if new_qty < step:
+            # Giảm xuống dưới tối thiểu → xoá dòng (đồng nhất với update qty=0).
+            line.unlink()
+            removed = True
+            cart.invalidate_recordset()
+        elif sign > 0 and product.max_qty and new_qty >= product.max_qty:
+            warning = 'QTY_ABOVE_MAX'
+        state = self._cart_state(cart, franchise)
+        self._publish_cart_event(fid, state, 'remove' if removed else 'update')
+        res = {'success': True, 'removed': removed, 'qty': new_qty,
+               'cart_count': state['line_count'], 'cart': state}
+        if not removed:
+            res['line'] = next((l for l in state['lines'] if l['line_id'] == line.id), None)
+        if warning:
+            res['warning'] = warning
+            res['message'] = f"Số lượng tối đa của {product.name} là {product.max_qty}."
+        return res
 
     # -------------------------------------------------------------- cart remove
     @http.route(['/portal/order/cart/remove'], type='json', auth='user',

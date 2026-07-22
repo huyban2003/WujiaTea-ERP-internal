@@ -30,12 +30,16 @@ export class WujiaCartSync extends Interaction {
         this.franchiseId = parseInt(this.el.dataset.franchiseId, 10) || null;
         this._refreshing = false;
         this._queued = false;
-        this._mutating = false;
+        this._chain = Promise.resolve();
         this.saveNote = debounce((val) => rpc("/portal/order/cart/note", { note: val }), 600);
         // Catalog add-to-cart (portal_order.js) gọi refresh() sau khi thêm.
         window.WujiaCartSync = this;
         document.addEventListener("click", this.onClick.bind(this));
         document.addEventListener("input", this.onInput.bind(this));
+        // WJ-ORD-003: quay lại bằng back/forward (BFCache) → trang khôi phục từ
+        // cache có thể hiển thị giỏ cũ → fetch lại state từ server để đồng bộ.
+        this._onPageShow = (ev) => { if (ev.persisted) { this.refresh(); } };
+        window.addEventListener("pageshow", this._onPageShow);
     }
 
     // ------------------------------------------------------------------
@@ -85,23 +89,12 @@ export class WujiaCartSync extends Interaction {
             return;
         }
         const lineId = parseInt(row.dataset.lineId, 10);
-        const step = parseInt(row.dataset.minQty || "1", 10) || 1;
-        const max = parseInt(row.dataset.maxQty || "0", 10) || 0;
-        const qtyEl = row.querySelector(".wj-pc-cart-qty, .wujia-mcart-step-qty");
-        const cur = qtyEl ? parseInt(qtyEl.textContent, 10) || 0 : 0;
         const isInc = btn.dataset.action === "inc" || btn.classList.contains("wujia-mcart-step-plus");
-        let next = isInc ? cur + step : cur - step;
-        if (isInc && max && next > max) {
-            this.toast("Số lượng tối đa là " + max, false);
-            return;
-        }
-        if (!isInc && next < step) {
-            next = 0; // dưới mức tối thiểu = xoá dòng
-        }
-        if (next === cur) {
-            return;
-        }
-        this.mutate("/portal/order/cart/update", { line_id: lineId, qty: next });
+        // WJ-ORD-002: gửi HƯỚNG, server cộng delta = ±min_qty NGUYÊN TỬ (không
+        // set qty tuyệt đối) → 2 lần giảm gần đồng thời áp tuần tự, không lost
+        // update. Bound min/max do server enforce (dưới min → xoá dòng, chạm
+        // max → cap + cảnh báo). Giảm ở min = xoá dòng (đồng nhất hành vi cũ).
+        this.mutate("/portal/order/cart/step", { line_id: lineId, direction: isInc ? "inc" : "dec" });
     }
 
     handleRemove(btn) {
@@ -116,11 +109,15 @@ export class WujiaCartSync extends Interaction {
         this.mutate("/portal/order/cart/remove", { line_id: lineId });
     }
 
-    async mutate(url, params) {
-        if (this._mutating) {
-            return;
-        }
-        this._mutating = true;
+    mutate(url, params) {
+        // WJ-ORD-002: KHÔNG drop khi đang chạy — NỐI ĐUÔI (queue) để mỗi lần
+        // bấm là 1 delta được áp tuần tự (server cộng nguyên tử). _doMutate tự
+        // nuốt lỗi nên chain không bao giờ reject/đứt.
+        this._chain = this._chain.then(() => this._doMutate(url, params));
+        return this._chain;
+    }
+
+    async _doMutate(url, params) {
         try {
             const res = await rpc(url, params);
             if (!res || res.error) {
@@ -133,8 +130,6 @@ export class WujiaCartSync extends Interaction {
             await this.refresh();
         } catch (e) {
             this.toast("Lỗi kết nối", false);
-        } finally {
-            this._mutating = false;
         }
     }
 
