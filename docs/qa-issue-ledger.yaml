@@ -168,10 +168,88 @@ UI-MOB-SHELL-002:
   limit: "Chỉ code + role chip; logo artwork (UI-MOB-SHELL-001) và page-header y (RESP-MOB-SHELL-003) chưa xử lý phiên này"
 
 # --- CỐ Ý KHÔNG backfill (issue còn mở / chờ BA) ---
-# UI-04  : expected đã đổi 44px -> 38px (Blank Shell); code hiện 44px -> CHƯA khớp, còn mở.
-# UI-06  : Need Clarification / Need BA Confirm = Yes (font family/weight) -> chờ BA.
+# UI-04  : [ĐÃ XỬ LÝ Batch C 2026-07-23] 44px -> 38px, xem entry UI-04 bên dưới.
+# UI-06  : [ĐÃ XỬ LÝ Batch C 2026-07-23] Inter + font-smoothing, xem entry UI-06 bên dưới.
 # UI-MOB-* / RESP-MOB-* : phần lớn Need BA Confirm = Yes (BA đang re-spec) -> qa_sync tự skip.
 # UI-MOB-SHELL-001 : cần logo mobile ratio đúng 100:34; code CSS đã có container 116×44
 #                     nhưng object-fit contain giữ tỷ lệ ảnh gốc -> defer chờ BA cấp logo.
 # RESP-MOB-SHELL-003: chuẩn hoá page-header y=168 across ~10 trang, regression rộng,
 #                     nightly agent không có browser verify -> defer.
+
+# --- Batch C 2026-07-23 (shell/layout PC + mobile header + Home typography) ---
+UI-01:
+  sprint: "2026-07-23-C"
+  commit: "2e2e70d"
+  deployed_date: "2026-07-23"
+  url: "/portal"
+  odoo_fit: "Custom (Vuexy shell)"
+  fix: "Siết override navbar float-offset: đổi selector `.header-navbar.floating-nav` (spec 0,2,0, THUA cascade Vuexy `body.navbar-floating .header-navbar.floating-nav` 0,3,0 lúc runtime) sang `body.navbar-floating .header-navbar.floating-nav.wujia-navbar` (0,4,1) + position:fixed tường minh → neo top:0/left:300/right:0/width:auto → x=300/y=0/w=1620/h=72. Store block +margin-left 10px (x→324)."
+  impact: "Top Bar + Current Store block — mọi trang /portal PC ≥1200px"
+  retest: "CẦN đo lại trên server 1920×1080: Top Bar x=300,y=0,w=1620,h=72; store block x=324,w=430."
+  limit: "Retest cũ x≈291/y≈18 do CSS custom thua cascade Vuexy runtime — không xác minh được headless (không có browser đo computed-style). Đã nâng specificity + position:fixed là fix đúng hướng; nếu server vẫn lệch, cần bạn gửi computed-style của .header-navbar để chốt. Lưu ý: margin-left:10px của store block calibrate theo navbar CŨ (lệch); khi navbar về đúng x=300, số 10px này có thể cần chỉnh lại — đo trên server."
+
+UI-02:
+  sprint: "2026-07-23-C"
+  commit: "2e2e70d"
+  deployed_date: "2026-07-23"
+  url: "/portal"
+  odoo_fit: "Custom"
+  fix: "PC language pill 118×40 ép !important + line-height:1 + box-sizing border-box (thắng padding-y 0.5rem của Bootstrap .nav-link đẩy h=46). Mobile action circle đã hiện cờ VN khi lang=vi (UI-04 chỉnh size 38px). Template ĐÃ đúng: lang==vi_VN → cờ VN + nhãn 'Việt Nam'."
+  impact: "Language control PC (pill navbar) + mobile (action circle)"
+  retest: "1920×1080: pill PC 118×40, nhãn 'Việt Nam' + cờ VN hiện khi account đang vi_VN. Mobile: cờ VN trong circle 38px."
+  limit: "Control hiển thị 'English' là ĐÚNG khi tài khoản test (Administrator) đang lang=en_US ở DB — template bám request.env.lang, không phải bug markup. Muốn control ghi 'Việt Nam': set ngôn ngữ tài khoản = Tiếng Việt (backend Settings → Users → Preferences → Language, hoặc bấm cờ VN trên portal /portal/set-lang/vi_VN). Tài khoản franchise cấp mới nên default vi_VN."
+
+UI-03:
+  sprint: "2026-07-23-C"
+  commit: "2e2e70d"
+  deployed_date: "2026-07-23"
+  url: "/portal"
+  odoo_fit: "Custom"
+  fix: "Account pill 202×52; margin-right:24px + box-sizing → đẩy pill về x=1694 (1920-24-202). Role subtitle (Manager/Owner/Staff) dưới tên đã có trong template (t-if _wujia_active_role)."
+  impact: "Account control PC (navbar phải)"
+  retest: "1920×1080: pill 202×52 tại x=1694,y=10; hiện tên + role + avatar + chevron."
+  limit: "Retest cũ đo x=1718 → bù margin-right 24px. Cần đo lại trên server sau khi UI-01 neo navbar đúng x=300 (vì pill nằm trong navbar; navbar về đúng vị trí có thể đổi x tuyệt đối của pill vài px)."
+
+UI-04:
+  sprint: "2026-07-23-C"
+  commit: "2e2e70d"
+  deployed_date: "2026-07-23"
+  url: "/portal"
+  odoo_fit: "Custom"
+  fix: "Mobile header action circle 44→38px, radius 22→19 (tròn ở 38), gap 12→16px (token _variables.css). Avatar fallback = icon-user generic (image_128 rỗng) đã có."
+  impact: "Header mobile — 3 action Language/Cart/Account, mọi trang <992px"
+  retest: "391×844: 3 circle 38×38, cách nhau 16px, tâm ~ (247/301/355, 58); icon user generic khi chưa có avatar."
+  limit: "Trước đây issue đóng ở 44px; Blank Shell chốt 38px → đã đổi. Tâm (247/301/355) là hệ quả của size 38 + gap 16 + mép phải; đo lại trên server nếu cần chính xác pixel."
+
+UI-06:
+  sprint: "2026-07-23-C"
+  commit: "2e2e70d"
+  deployed_date: "2026-07-23"
+  url: "/portal"
+  odoo_fit: "Custom (Vuexy vendor override)"
+  fix: "Thêm -webkit-font-smoothing:antialiased + -moz-osx-font-smoothing:grayscale + text-rendering:optimizeLegibility trên html body → hết 'nhòe/răng cưa' (retest cũ chỉ đổi font-family, chưa bật smoothing). Mở rộng override Inter sang .navigation li a/.content-header-title/.card-title/.media-body/.main-menu. Cap font-weight heading ≤700 (Vuexy đặt 800)."
+  impact: "Typography toàn Portal PC (heading/sidebar/mô tả/list)"
+  retest: "1920×1080 zoom100%: chữ nét đều mọi khu vực, cùng dáng Inter, hierarchy phân biệt bằng size; không còn Montserrat→serif; không weight >700."
+  limit: "'Nhòe/răng cưa' là cảm nhận rendering — cần bạn xác nhận bằng mắt trên server. 4 selector Montserrat của Vuexy (.header-navbar/.navigation/.navigation-header/.breadcrumb) đã override từ Sprint 34; Sprint 35 thêm smoothing + broaden. Nếu vẫn thấy 1 khu vực khác font, gửi ảnh + tên khu vực để thêm selector."
+
+UI-MOB-HOME-002:
+  sprint: "2026-07-23-C"
+  commit: "2e2e70d"
+  deployed_date: "2026-07-23"
+  url: "/portal"
+  odoo_fit: "Custom"
+  fix: "Token tiêu đề section cấp 1 Home mobile: .wujia-mhome .wujia-mhome-section-title + .wujia-mdash-title = 18px / line-height 24px / weight 700 (đủ 3 thuộc tính). Retest cũ fail vì thiếu line-height (chỉ set font-size 18)."
+  impact: "Home mobile — tiêu đề mọi section cấp 1 (Hành động nhanh / Thông báo nổi bật / Đơn hàng gần đây / Giao hàng / Đổi trả / Kiến thức / Hỗ trợ / Thông tin cửa hàng)"
+  retest: "391×844: toàn bộ tiêu đề section cấp 1 = 18px/24lh/700 đồng nhất; 'Khung giờ đặt hàng' (title trong card) giữ hierarchy riêng (14px), không dùng token này."
+  limit: "Đúng 'Mong muốn' issue: card title Khung giờ CỐ Ý tách token. Nếu BA muốn card title cũng đổi, cần chốt lại size riêng."
+
+UI-PC-SHELL-001:
+  sprint: "2026-07-23-C"
+  commit: "2e2e70d"
+  deployed_date: "2026-07-23"
+  url: "/portal"
+  odoo_fit: "Custom (Vuexy shell)"
+  fix: "Ép .main-menu (+ .menu-fixed) width = --wujia-sidebar-width (300px) và .content margin-left = 300px ở ≥1200px → sidebar liền mạch 0–300, đóng dải nền content hở 40px (x=260–300). Vuexy mặc định 260px."
+  impact: "Sidebar + content offset — mọi trang /portal PC ≥1200px"
+  retest: "CẦN đo lại server 1920×1080: nền sidebar liền x=0–300, không còn dải trống; content bắt đầu sau x=300."
+  limit: "Không xác minh pixel headless. Đây là fix đúng token (300px đã khai báo nhưng chưa áp vào .main-menu width + .content margin). Nếu server còn hở, kiểm tra Vuexy có set width .main-menu qua !important khác — gửi computed-style .main-menu để chốt."
