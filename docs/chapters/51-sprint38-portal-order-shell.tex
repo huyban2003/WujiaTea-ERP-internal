@@ -1,0 +1,137 @@
+\chapter{Sprint 38 --- Portal Order (logic + UI a11y) + Shell/layout re-fix + module app icon (2026-07-23)}
+
+\section{Bối cảnh}
+
+Phiên interactive: user chốt ``làm HẾT Dev-actionable trong tab 5. Issue List, kể cả issue đã
+\emph{Ready for Retest} và \emph{Retest Failed}''. Chiến lược git = \textbf{batch theo nhóm}
+(ledger/qa\_sync vẫn per-issue). Tổng \textbf{28 issue} chia 3 batch, cộng 1 fix phát sinh cuối phiên
+(icon app phân hệ backend). Dev tối đa set \texttt{Ready for Retest} (QA Standard §6, không tự
+\texttt{Done}).
+
+\begin{itemize}
+  \item \textbf{Batch A} --- order logic (6 issue \texttt{WJ-ORD-001/002/003/004/017/020}), nhánh
+    \texttt{dev/2026-07-22-orderA-logic}, fix \texttt{bd55ef9}.
+  \item \textbf{Batch B} --- order UI a11y + khung giờ + stepper (15 issue
+    \texttt{WJ-ORD-005/006/009/010/011/012/013/014/015/018/019/021/022} +
+    \texttt{FUNC-MOB-ORDER-005/006}), nhánh \texttt{dev/2026-07-22-orderB-ui}, fix \texttt{cd1025d}.
+  \item \textbf{Batch C} --- shell/layout/typography (7 issue \texttt{UI-01/02/03/04/06},
+    \texttt{UI-MOB-HOME-002}, \texttt{UI-PC-SHELL-001}), nhánh \texttt{dev/2026-07-23-shellC}, fix
+    \texttt{2e2e70d}. Phần lớn là \textbf{re-fix} các issue Sprint 34/37 đã thử nhưng
+    \emph{Retest Failed}.
+\end{itemize}
+
+\section{Phần A --- Order logic (Batch A)}
+
+\begin{itemize}
+  \item \textbf{WJ-ORD-001 (Critical) --- qty âm/0/không nguyên.} Validate kiểu số nguyên
+    $\geq$ min\_qty ở controller; nhập $-1$/$0$/phân số $\to$ reject, không gửi request rác.
+  \item \textbf{WJ-ORD-002/003 --- step \& xoá nguyên tử.} Tăng/giảm $\pm$\texttt{min\_qty} nguyên tử;
+    giảm tới min = xoá dòng, không để lại line qty=0 mồ côi.
+  \item \textbf{WJ-ORD-004 --- BFCache.} Trang giỏ khi back/forward không phục hồi state cũ lệch với
+    server (thêm chống bfcache stale).
+  \item \textbf{WJ-ORD-017/020 --- tìm kiếm unaccent.} Gõ không dấu vẫn khớp SP có dấu (unaccent).
+\end{itemize}
+
+\section{Phần B --- Order UI / a11y / khung giờ (Batch B)}
+
+\begin{itemize}
+  \item \textbf{WJ-ORD-005 --- H1 mobile.} Đổi ``Sản phẩm'' $\to$ ``Đặt hàng'' (khớp bottom-nav +
+    heading PC); bộ đếm ``N SP'' cùng hàng title, cập nhật theo số SP sau tìm/lọc.
+  \item \textbf{WJ-ORD-006 --- banner khung giờ thực.} Warnbar + nút Gửi theo \texttt{order\_window\_open}
+    server tính theo tz store: trong giờ = xanh + enable; ngoài giờ = đỏ + nêu giờ mở lại + disable
+    (server vẫn chặn \texttt{ORDER\_TIME\_CLOSED}).
+  \item \textbf{WJ-ORD-009 --- cột Quy cách có điều kiện.} Chỉ render khi $\geq 1$ SP có
+    \texttt{description\_ecommerce}; hết cột toàn dấu ``---''.
+  \item \textbf{WJ-ORD-010 --- aria-label giỏ.} Nút Thêm/stepper/ô số lượng có accessible name kèm tên SP;
+    nhóm stepper \texttt{role=group}, ô số lượng \texttt{aria-live=polite}.
+  \item \textbf{WJ-ORD-011 --- vùng chạm.} PC step 24$\to$30, del 28$\to$34; mobile add 46$\times$32
+    $\to$44$\times$40, cart step/del $\to$36$\times$36. (Giới hạn: row compact BA chốt min-height 58
+    nên tối đa $\sim$40, chưa đủ 44$\times$44 mọi nút --- cần BA nới row nếu muốn.)
+  \item \textbf{WJ-ORD-012 --- token CTA đậm.} Thêm \texttt{-{}-wujia-cta \#0F7CA8} (contrast trắng
+    4.71:1, đạt AA) cho nút chữ-trắng-trên-nền; brand \texttt{\#28A9DF} (2.69:1) GIỮ cho
+    accent/icon/badge --- không đổi nhận diện.
+  \item \textbf{WJ-ORD-013 --- safe-area.} Thanh tổng + trang giỏ mobile thêm
+    \texttt{padding-bottom env(safe-area-inset-bottom)}; khối ghi chú cuộn trong flow, không phình thanh.
+  \item \textbf{WJ-ORD-014 --- first viewport detail.} Ảnh chi tiết SP mobile \texttt{max-height 240px}
+    căn giữa $\to$ giá/CTA lên first viewport.
+  \item \textbf{WJ-ORD-015 --- nhãn khung qua đêm.} \texttt{from$\geq$to} hiển thị
+    ``10:00 hôm nay -- 04:00 ngày mai (UTC+7)''; trong ngày ``10:00 -- 15:00 (UTC+7)''.
+  \item \textbf{WJ-ORD-018 --- cuộn ngang panel giỏ PC.} \texttt{overflow-x:auto} bảng 5 cột trong cột
+    phải hẹp $\to$ không đẩy body cuộn ngang (1440$\times$900).
+  \item \textbf{WJ-ORD-019 --- focus ring.} \texttt{outline 2px + offset 2px} cho search/select/nút;
+    (Enter submit đã hoạt động native --- form GET + nút submit).
+  \item \textbf{WJ-ORD-021 --- stepper trên list mobile.} qty=0 hiện ``Thêm''; qty$>$0 morph
+    ``$-$ N $+$''; route \texttt{/cart/step} nhận \texttt{product\_id}; giảm ở min = xoá + toast.
+  \item \textbf{WJ-ORD-022 --- phân biệt nhãn đếm.} Số DÒNG = ``N mặt hàng''; tổng QUANTITY =
+    ``Tổng số lượng / N'' --- hết lẫn 2 con số cùng nhãn.
+  \item \textbf{FUNC-MOB-ORDER-005 --- ghi chú đơn mobile.} Thêm textarea \texttt{portal\_note} như PC,
+    autosave hook \texttt{/cart/note}, không bị realtime swap xoá khi đang gõ.
+  \item \textbf{FUNC-MOB-ORDER-006 --- nút Tìm mobile.} Nút submit 44$\times$44 (icon search) $\to$ submit
+    chắc chắn, không phụ thuộc Enter bàn phím ảo. (Giới hạn: chọn submit tường minh thay vì live-filter
+    debounce --- nhẹ request; tách issue riêng nếu BA muốn live.)
+\end{itemize}
+
+\section{Phần C --- Shell/layout/typography (Batch C, re-fix)}
+
+\begin{itemize}
+  \item \textbf{UI-01 (High) --- Top Bar float-offset.} Selector cũ \texttt{.header-navbar.floating-nav}
+    (spec 0,2,0) THUA cascade Vuexy \texttt{body.navbar-floating .header-navbar.floating-nav} (0,3,0) lúc
+    runtime. Fix: nâng lên \texttt{body.navbar-floating .header-navbar.floating-nav.wujia-navbar} (0,4,1)
+    + \texttt{position:fixed} tường minh $\to$ neo x=300/y=0/w=1620/h=72.
+  \item \textbf{UI-02 (Low) --- language pill.} PC pill 118$\times$40 ép \texttt{!important} +
+    \texttt{line-height:1} + \texttt{box-sizing} (thắng padding-y Bootstrap đẩy h=46). Template ĐÃ đúng
+    (\texttt{lang==vi\_VN} $\to$ cờ VN + ``Việt Nam''). Control ghi ``English'' là ĐÚNG khi account
+    test \texttt{lang=en\_US} --- data, không phải bug markup.
+  \item \textbf{UI-03 (High) --- account pill.} 202$\times$52 + \texttt{margin-right:24px} $\to$ x=1694
+    ($1920-24-202$). Role subtitle (Manager/Owner/Staff) đã có trong template.
+  \item \textbf{UI-04 (Low) --- mobile action circle.} 44$\to$38px, radius 22$\to$19, gap 12$\to$16px
+    (token \texttt{\_variables.css}). Blank Shell chốt 38px (trước đóng ở 44px).
+  \item \textbf{UI-06 --- typography nhòe.} Thêm \texttt{-webkit-font-smoothing:antialiased} +
+    \texttt{-moz-osx-font-smoothing:grayscale} + \texttt{text-rendering:optimizeLegibility} trên
+    \texttt{html body} $\to$ hết ``nhòe/răng cưa'' (retest cũ Sprint 34/35 chỉ đổi font-family, chưa bật
+    smoothing). Mở rộng override Inter + cap heading weight $\leq$700 (Vuexy đặt 800).
+  \item \textbf{UI-MOB-HOME-002 --- title Home.} Token section cấp 1 = 18px / \texttt{line-height 24px} /
+    weight 700 (đủ 3 thuộc tính). Retest cũ fail vì \textbf{thiếu line-height} (chỉ set font-size).
+  \item \textbf{UI-PC-SHELL-001 --- sidebar 300px.} Ép \texttt{.main-menu} width =
+    \texttt{-{}-wujia-sidebar-width} (300px) + \texttt{.content margin-left} = 300px ở $\geq$1200px $\to$
+    đóng dải nền hở 40px (x=260--300). Token 300px đã khai báo nhưng chưa áp vào width/margin.
+\end{itemize}
+
+\section{Phần D --- Icon app phân hệ backend (fleet/franchise)}
+
+User hỏi: đã bỏ ảnh vào \texttt{static/description/icon.png} mà app phân hệ trong menu backend vẫn không
+có icon. \textbf{Root cause:} icon app-drawer backend lấy từ \texttt{web\_icon} trên \textbf{menuitem gốc},
+KHÔNG từ \texttt{static/description/icon.png} (file đó chỉ nuôi thẻ Settings$\to$Apps). Cả
+\texttt{menu\_wujia\_fleet\_root} và \texttt{menu\_wujia\_root} có \texttt{icon.png} 128$\times$128 trên đĩa
+nhưng thiếu \texttt{web\_icon} $\to$ icon trống. Fix (\texttt{59c8086}): thêm
+\texttt{web\_icon="<module>,static/description/icon.png"} vào 2 menuitem gốc; có hiệu lực khi deploy
+\texttt{-u} (Odoo đọc file, đổ \texttt{web\_icon\_data}).
+
+\section{Gì đã làm (nghiệp vụ)}
+
+Trang Đặt hàng của khách nhượng quyền được siết chặt cả logic lẫn giao diện: không còn gửi được số lượng
+âm/0/lẻ, tăng-giảm-xoá sản phẩm chính xác, tìm kiếm không dấu vẫn ra kết quả; banner khung giờ hiện đúng
+trạng thái mở/đóng theo giờ từng cửa hàng và khoá nút Gửi khi ngoài giờ. Nút bấm to hơn, có nhãn cho trình
+đọc màn hình, nút Gửi đủ tương phản chữ trắng (đạt chuẩn tiếp cận AA) mà vẫn giữ nguyên màu thương hiệu
+\texttt{\#28A9DF}. Phần khung (header/sidebar/typography) PC được đưa về đúng lưới thiết kế: thanh trên và
+sidebar hết lệch, chữ hết nhòe, tiêu đề đồng cỡ. Cuối cùng, icon của 2 phân hệ Fleet \& Franchise trong menu
+backend đã hiện đúng.
+
+\section{Lý do/Trade-off}
+
+Phần lớn Batch C là \textbf{re-fix} issue \emph{Retest Failed} của Sprint 34/37: nguyên nhân gốc không phải
+``chưa làm'' mà là làm thiếu 1 mảnh (UI-06 thiếu font-smoothing, UI-MOB-HOME-002 thiếu line-height, UI-01
+thua cascade Vuexy vì specificity thấp). Bài học: override Vuexy phải \textbf{đo specificity runtime}, không
+tin \texttt{!important} là đủ --- selector \texttt{body.navbar-floating ...} của vendor là 0,3,0 nên custom
+phải $\geq$0,4,x. Các issue UI-01/03/PC-SHELL-001 phụ thuộc computed-style runtime nên \textbf{không xác minh
+được headless} --- ledger ghi rõ cần user đo lại trên server 1920$\times$1080. Token CTA tách riêng
+(\texttt{\#0F7CA8}) thay vì đổi brand toàn cục để không phá nhận diện \texttt{\#28A9DF} BA-lock.
+
+\section{Verify}
+
+Build \texttt{-u wujia\_portal\_sale,wujia\_portal\_layout,wujia\_portal\_base --stop-after-init --no-http}:
+94 module loaded, registry loaded, \textbf{0 ERROR/CRITICAL/Traceback}. Build lại
+\texttt{-u wujia\_fleet,wujia\_franchise} sau fix icon: RC=0, Odoo validate \texttt{web\_icon} path OK.
+Brace-balance 5 file CSS: cân. 28 issue $\to$ \texttt{Ready for Retest} qua \texttt{qa\_sync --apply}
+(verify 28/28). Tất cả merge vào \texttt{main} (\texttt{1d80ef0}) + push \texttt{origin/main}. Các issue
+phụ thuộc computed-style (UI-01/03/PC-SHELL-001) chờ user đo trực quan trên server sau deploy \texttt{-u all}.

@@ -68,6 +68,7 @@ ADR-001 odoo19 source độc lập / 002 venv conda `odoo` py3.10 / 003 PG role 
 
 | Sprint | Date | Outcome (1 dòng) |
 |---|---|---|
+| 38 | 07-23 | Portal Order logic+UI a11y (Batch A/B: qty validate, atomic step, CTA AA #0F7CA8, aria, order-window banner) + Shell/layout re-fix (Batch C: navbar specificity 0,4,1, sidebar 300px, font-smoothing) — 28 issue → Ready for Retest; +web_icon fleet/franchise. → ch.51 |
 | M | 07-18 | Backend Đăng ký thi: 7 model (time.slot/course/session/registration.line), capacity FOR-UPDATE, publish gate, migration `exam 19.0.3.0.0`. → ch.50 |
 | K | 07-17 | Backend Bù hàng/Return: redesign single-product + duyệt + `compensation.allocation` + wizard SO 0đ FIFO + hook picking + portal wire tiến độ. → ch.49 |
 | 37 | 07-16 | 7 issue mobile Home/Đặt hàng + chuẩn hoá page-header 4 trang → `wj_page_header`. → ch.48 |
@@ -85,7 +86,7 @@ ADR-001 odoo19 source độc lập / 002 venv conda `odoo` py3.10 / 003 PG role 
 
 ## §5 wujia-current-status
 
-**State (2026-07-22):** 18 module active. Sprint M (backend Đăng ký thi, ch.50) + K (backend Bù hàng, ch.49) DONE. Hôm nay: icon franchise/fleet commit+push main.
+**State (2026-07-23):** 18 module active. Sprint 38 (portal order + shell/layout, ch.51) DONE — **28 issue Issue List → Ready for Retest**, merged + push `origin/main` (`59c8086`), build 94 module 0 ERROR. +web_icon fleet/franchise app-drawer. Sprint M (backend Đăng ký thi, ch.50) + K (backend Bù hàng, ch.49) DONE.
 
 **Pending sống (hàng đợi):**
 - **M — portal Đăng ký thi**: wire thật (chọn kỳ mở → nhập nhân sự → gửi phiếu + lịch sử + kết quả; hiện demo-safe stub); deprecate `schedule`/`result`; deploy `-u wujia_portal_exam` (có migration). Plan: `floating-nibbling-widget.md`.
@@ -93,7 +94,7 @@ ADR-001 odoo19 source độc lập / 002 venv conda `odoo` py3.10 / 003 PG role 
 - **Dashboard (workstream riêng)**: Step 2b (tab Query render + JS widget + 4 layouts + PDF cho `wj_ks_dn_advance`) + Step 3 `wj_ks_dn_formula` chưa port. Deploy prod cần `-i` module mới + pip pandas/xlrd/openpyxl. Nguồn: `docs/dashboard-migration-plan.md` (skill `/wujia-dashboard`).
 - **Controller S30/31 deploy**: prod bật `is_public_portal`+`min_qty`+tạo danh mục portal (else catalog trống); WebSocket realtime chỉ chạy prod (gevent+nginx); deploy `-u wujia_sale,wujia_portal_sale`.
 - **Pre-existing**: `/portal/reports/orders` 500 do user tz `Asia/Saigon` (fix → `Asia/Ho_Chi_Minh`, ngoài scope).
-- **QA Issue List (42 issue, BA cập nhật liên tục)** → **nightly interactive agent** (§12) xử lý HẾT Dev-actionable. Hàng đợi nổi bật: UI-04 44→38px, WJ-ORD-001 (Critical) + WJ-ORD-002..022, shell/order mobile (UI-MOB-SHELL-001/002, RESP-MOB-SHELL/ORDER), FUNC-MOB-ORDER-005/006. 7 issue `Need BA Confirm=Yes` chờ BA. Review 17 issue đầu: `docs/qa-review-first17-2026-07-22.md`.
+- **QA Issue List (42 issue, BA cập nhật liên tục)** → **nightly interactive agent** (§12) xử lý HẾT Dev-actionable. **[07-23 Sprint 38] 28 issue ĐÃ xong → Ready for Retest**: WJ-ORD-001..022 (order logic+UI), FUNC-MOB-ORDER-005/006, UI-01/02/03/04/06, UI-MOB-HOME-002, UI-PC-SHELL-001. ⚠️ **Chờ user đo trực quan server 1920×1080** (UI-01/03/PC-SHELL-001 phụ thuộc computed-style Vuexy runtime — không verify headless). **Deferred**: UI-MOB-SHELL-001 (cần BA cấp logo mobile 100:34), RESP-MOB-SHELL-003 (page-header y regression ~10 trang). 7 issue `Need BA Confirm=Yes` chờ BA. Ledger: `docs/qa-issue-ledger.yaml`; summary: `docs/sprint-summary-2026-07-23-portal.md`.
 - **NEXT**: trang desktop còn legacy theo `pc_source_ui_v1_4` (history/report/return/knowledge/support/home); controller BA giao mới (toolchain `scripts/ba_spec/`). Mobile cũ: batch status thật (S13), khung giờ cart submit (S11), i18n `.po`, field bù hàng Phase 2 (S20), exam Phase 2 (S26).
 
 **Phase 2 (future):** account.move Công nợ (CT-014) / Employee Mgmt / Payment History / Training Reports / User Invitations.
