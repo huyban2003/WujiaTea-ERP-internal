@@ -38,6 +38,16 @@ html body {
 .content-header-title {
     font-weight: 700 !important;
 }
+/* UI-06 (Sprint 39, retest): heading vẫn render "Inter Tight" — Odoo 19 web
+   assets đặt heading font-family = Inter Tight, thắng inherit từ html body.
+   Ép Inter cho MỌI heading + page-header title (đo computed-style server: trước
+   fix = "Inter Tight"; sau fix phải = "Inter"). */
+.content-wrapper h1, .content-wrapper h2, .content-wrapper h3,
+.content-wrapper h4, .content-wrapper h5, .content-wrapper h6,
+.wj-page-header__title,
+.wj-page-header__title h1, .wj-page-header__title h2 {
+    font-family: var(--wujia-font-family) !important;
+}
 
 /* ---------- Brand color overrides on Bootstrap utilities ---------- */
 .bg-primary,

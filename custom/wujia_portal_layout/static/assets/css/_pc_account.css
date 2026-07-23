@@ -203,6 +203,9 @@
     display: flex; align-items: center; gap: 6px;
     width: 202px; height: 52px; padding: 0 12px;
     margin-right: 24px;
+    /* UI-03 retest (Sprint 39): pill đo y=5 trong <li> cao 62 (không phải 72) →
+       align-self vô hiệu. Đẩy xuống 5px cho pill 52 nằm giữa navbar 72 → y=10. */
+    margin-top: 5px;
     box-sizing: border-box;
 }
 .wujia-navbar .dropdown-user > .dropdown-user-link.dropdown-toggle::after { display: none; }
