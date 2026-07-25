@@ -1,16 +1,18 @@
-# Deploy Sprint 5 — WujiaTea Odoo 19
+# Reseed toàn bộ DB — runbook server Windows
 
-Sprint 5 thực hiện **rename + đổi kiểu field** trên hai module skeleton (`wujia_portal_knowledge`, `wujia_portal_support`). Odoo 19 khi `-u` sẽ **drop cột cũ** (subject, user_id, handler_user_id, category, published) → nếu chỉ làm `git pull + nssm restart` thì hệ thống crash khi đọc ticket / article cũ.
+> **Tên file là lịch sử** (viết lần đầu cho Sprint 5, `chapters/13-*.tex` đang trỏ tới) nhưng nội
+> dung là **quy trình reseed dùng chung**: khi cần drop + init lại DB rồi seed demo, bất kể sprint.
+>
+> **Khi nào cần:** commit có **rename / đổi kiểu field** trên model đã có data → Odoo `-u` sẽ
+> **drop cột cũ** → hệ thống crash khi đọc record cũ. Nếu data là skeleton (không quan trọng) thì
+> drop+init nhanh hơn viết migration.
+>
+> **Khi nào KHÔNG dùng:** deploy thường (chỉ thêm/sửa code, không đổi schema) → xem
+> compact-summary §6: `git pull` + restart service; module MỚI phải `-i` một lần.
 
-Phương án chốt với user (16/05/2026): cả dev và prod đều là **skeleton, không có data quan trọng** → drop+init DB rồi seed lại.
+---
 
-## Trên server Windows (sau khi auto-deploy push xong)
-
-`auto-deploy.yml` chỉ làm `git pull + nssm restart Odoo`. Cần chạy thêm các bước dưới qua RDP/PowerShell.
-
-### TL;DR — 1 lệnh duy nhất
-
-Sau khi `git pull` xong, stop service rồi:
+## TL;DR — 1 lệnh
 
 ```powershell
 nssm stop Odoo
@@ -18,48 +20,52 @@ powershell -ExecutionPolicy Bypass -File D:\wujia-tea\scripts\reseed_full.ps1
 nssm start Odoo
 ```
 
-Script `reseed_full.ps1` đã encapsulate hết: set encoding env, drop+create DB, install modules, seed 5 file, smoke test. Nếu muốn từng bước thủ công thì xem dưới.
+`reseed_full.ps1` encapsulate hết: set encoding env → drop+create DB → install chain → seed →
+smoke test. Bản Linux tương đương: `scripts/reseed_full.sh`
+(`DB_NAME=… PG_USER=… PG_PASS=… bash scripts/reseed_full.sh`).
 
-### Bước 0 — Verify code mới nhất (belt-and-suspenders)
+> Biến `$MODULES` trong 2 script đã đủ **18** module (fix 2026-07-25: trước đó thiếu
+> `wujia_portal_info_request` + `wujia_portal_order_window`). Module dashboard `wj_ks_*` nằm
+> **ngoài** chain — luôn phải `-i` riêng, kèm pip `pandas/xlrd/openpyxl`.
 
-Auto-deploy đã `git pull` rồi nhưng vẫn nên xác nhận:
+---
+
+## Các bước thủ công (khi không dùng script)
+
+### Bước 0 — Verify code
 
 ```powershell
 cd D:\wujia-tea
 git pull origin main
-git log -1 --oneline   # phải là `docs(sprint-log): record sprint 5 chapter` hoặc mới hơn
+git log -1 --oneline
 ```
 
-### Bước 1 — Stop Odoo service (đang crash với code mới + schema cũ)
+### Bước 1 — Stop service + backup (tuỳ chọn)
 
 ```powershell
 nssm stop Odoo
-```
-
-(Tuỳ chọn) backup DB phòng cần rollback:
-
-```powershell
 $env:PGPASSWORD = "1"
 $env:Path = "C:\Program Files\PostgreSQL\16\bin;" + $env:Path
-pg_dump -h 127.0.0.1 -U odoo19 wujia_tea_19 | Out-File -Encoding utf8 D:\backup\wujia_tea_19_pre_sprint5_$(Get-Date -Format yyyyMMdd_HHmm).sql
+pg_dump -h 127.0.0.1 -U odoo19 wujia_tea_19 | Out-File -Encoding utf8 D:\backup\wujia_tea_19_$(Get-Date -Format yyyyMMdd_HHmm).sql
 ```
+
+Backup **bắt buộc** nếu DB có bất kỳ data nào nghi ngờ cần giữ.
 
 ### Bước 2 — Drop + create DB
 
-Đăng nhập psql với master pass `wujia_admin`:
-
 ```powershell
-$env:PGPASSWORD = "1"
-$env:Path = "C:\Program Files\PostgreSQL\16\bin;" + $env:Path
 dropdb -h 127.0.0.1 -U odoo19 wujia_tea_19
 createdb -h 127.0.0.1 -U odoo19 -O odoo19 wujia_tea_19
 ```
 
-Tên DB, user, password lấy từ `D:\wujia-tea\config\odoo-server.conf`. PostgreSQL bin tại `C:\Program Files\PostgreSQL\16\bin\` — không trong PATH mặc định.
+DB name / user / password lấy từ `D:\wujia-tea\config\odoo-server.conf`.
+PostgreSQL bin ở `C:\Program Files\PostgreSQL\16\bin\` — **không** có trong PATH mặc định.
 
-### Bước 3 — Install full module chain
+### Bước 3 — Install module chain
 
-PowerShell mặc định cp1252 → Python sẽ crash khi log ký tự Đ/â/ô trong tên module ('Wujia Portal — Đào tạo'). **Set encoding trước** (cả 4 env, vì Odoo còn ghi logfile qua `open()` mà chỉ `PYTHONIOENCODING` không cover):
+⚠️ **Set encoding TRƯỚC** — PowerShell mặc định cp1252, Python crash khi log ký tự Đ/â/ô trong tên
+module ('Wujia Portal — Đào tạo'). Cần cả 4 (Odoo còn ghi logfile qua `open()`, một mình
+`PYTHONIOENCODING` không đủ):
 
 ```powershell
 $env:PYTHONUTF8 = "1"
@@ -71,75 +77,62 @@ chcp 65001 > $null
 ```powershell
 cd D:\wujia-tea\odoo19
 python odoo-bin -c ..\config\odoo-server.conf -d wujia_tea_19 `
-  -i wujia_core,wujia_franchise,wujia_sale,wujia_fleet,wujia_delivery,wujia_portal_base,wujia_portal_layout,wujia_portal_sale,wujia_portal_purchase_history,wujia_portal_delivery,wujia_portal_return,wujia_portal_notification,wujia_portal_exam,wujia_portal_knowledge,wujia_portal_report,wujia_portal_support `
+  -i wujia_core,wujia_franchise,wujia_sale,wujia_fleet,wujia_delivery,wujia_portal_base,wujia_portal_layout,wujia_portal_sale,wujia_portal_purchase_history,wujia_portal_delivery,wujia_portal_return,wujia_portal_notification,wujia_portal_exam,wujia_portal_knowledge,wujia_portal_report,wujia_portal_support,wujia_portal_info_request,wujia_portal_order_window `
   --without-demo=True --stop-after-init
 ```
 
-Sequence categories cho support (7 record) tự load từ `data/wujia_support_category_data.xml` qua install.
+(18 module — danh sách chuẩn ở compact-summary §2. Dashboard `wj_ks_dashboard_ninja` +
+`wj_ks_dn_advance` cài riêng, cần pip `pandas/xlrd/openpyxl`.)
 
-### Bước 4 — Seed sample data y chang dev
-
-Lấy 5 script từ repo:
+### Bước 4 — Seed demo data
 
 ```powershell
 cmd /c "python odoo-bin shell -c ..\config\odoo-server.conf -d wujia_tea_19 --no-http < D:\wujia-tea\scripts\seed_admin_franchise.py"
-cmd /c "python odoo-bin shell -c ..\config\odoo-server.conf -d wujia_tea_19 --no-http < D:\wujia-tea\scripts\seed_fleet_demo.py"
-cmd /c "python odoo-bin shell -c ..\config\odoo-server.conf -d wujia_tea_19 --no-http < D:\wujia-tea\scripts\seed_portal_demo.py"
-cmd /c "python odoo-bin shell -c ..\config\odoo-server.conf -d wujia_tea_19 --no-http < D:\wujia-tea\scripts\seed_knowledge_demo.py"
-cmd /c "python odoo-bin shell -c ..\config\odoo-server.conf -d wujia_tea_19 --no-http < D:\wujia-tea\scripts\seed_support_demo.py"
+cmd /c "… < D:\wujia-tea\scripts\seed_fleet_demo.py"
+cmd /c "… < D:\wujia-tea\scripts\seed_portal_demo.py"
+cmd /c "… < D:\wujia-tea\scripts\seed_knowledge_demo.py"
+cmd /c "… < D:\wujia-tea\scripts\seed_support_demo.py"
 ```
+
+Seed script khác có sẵn trong `scripts/` khi cần: `seed_notification_demo.py`,
+`seed_dashboard_demo.py`, `seed_ui12_demo.py`.
+(Demo data **không** vào manifest XML — quy tắc compact-summary §5.)
 
 ### Bước 5 — Smoke test
 
 ```powershell
-cmd /c "python odoo-bin shell -c ..\config\odoo-server.conf -d wujia_tea_19 --no-http < D:\wujia-tea\scripts\test_sprint5.py"
+cmd /c "… < D:\wujia-tea\scripts\test_sprint5.py"
 ```
 
-Output mong đợi: `=== RESULT: 20 PASS / 0 FAIL ===` (có 1 SKIP cho `batch_id` test nếu seed chưa tạo picking — không phải lỗi).
+Mong đợi `=== RESULT: 20 PASS / 0 FAIL ===` (1 SKIP cho `batch_id` nếu seed chưa tạo picking —
+không phải lỗi). Test sprint sau: `test_sprint9.py`, `test_sprint30/31/32[_http].py`.
 
-### Bước 6 — Start Odoo
+### Bước 6 — Start + kiểm portal
 
 ```powershell
 nssm start Odoo
 ```
 
-Kiểm tra portal: `http://<server-ip>:8019/portal` → đăng nhập admin, xem trang Knowledge + Support có data demo.
+Vào `http://<server-ip>:8019/portal` → login admin → xem Knowledge + Support có data demo.
 
-## Trên server Linux (nếu có)
+---
 
-Script một-phát `scripts/reseed_full.sh` đã có sẵn (chạy được trên Linux). Cần điều chỉnh biến môi trường nếu DB name / credentials khác dev:
+## Phòng ngừa
 
-```bash
-DB_NAME=wujia_tea PG_USER=odoo PG_PASS=wujia_admin \
-  bash /path/to/wujia-tea/scripts/reseed_full.sh
-```
+Commit có **rename / đổi kiểu field** trên model **có data thật** → KHÔNG `git pull` rồi `-u`
+thẳng trên prod. Thay vào đó:
 
-Sau đó chạy `test_sprint5.py` để verify, restart Odoo service.
+1. Viết `<module>/migrations/<new_version>/pre-migrate.py` copy data sang cột mới **trước** khi
+   Odoo drop cột cũ (đây là cách đúng, xem `wujia_portal_exam 19.0.3.0.0`).
+2. Chỉ drop+init theo doc này khi chấp nhận mất data (skeleton).
 
-## Phòng ngừa lần sau
-
-Khi commit code có **rename hoặc đổi kiểu field** trên model có data thật, KHÔNG chạy `git pull` rồi `-u` trên prod. Thay vào đó:
-
-1. Viết `<module>/migrations/<new_version>/pre-migrate.py` copy data sang cột mới trước khi Odoo drop.
-2. Hoặc nếu chấp nhận mất data (skeleton): drop+init theo doc này.
-
-Đã ghi rule này vào memory `feedback_field_rename_data_loss` để tránh lặp lại.
-
-## Rollback nếu cần
-
-Sprint 5 không có migration ngược — nếu cần rollback:
+## Rollback
 
 ```bash
-# revert commits trên main rồi force-push
-git revert <commit-A>..<commit-E>
+git revert <commit-A>..<commit-B>
 git push origin main
 # trên server: lặp lại drop+init+seed với code cũ
 ```
 
-Backup DB trước khi drop nếu prod có bất kỳ data nào nghi ngờ cần giữ:
-
-```powershell
-$env:PGPASSWORD = "1"
-$env:Path = "C:\Program Files\PostgreSQL\16\bin;" + $env:Path
-pg_dump -h 127.0.0.1 -U odoo19 wujia_tea_19 | Out-File -Encoding utf8 D:\backup\wujia_tea_19_pre_sprint5_$(Get-Date -Format yyyyMMdd_HHmm).sql
-```
+Restore từ backup Bước 1 nếu cần giữ data:
+`psql -h 127.0.0.1 -U odoo19 -d wujia_tea_19 -f D:\backup\<file>.sql`

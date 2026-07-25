@@ -2,7 +2,7 @@
 
 **Mục đích:** context inject vào mọi session. Mỗi §section search-able qua `/recall`. History chi tiết → `chapters/*.tex` + git log.
 
-**Cập nhật:** 2026-07-22 — Nightly agent chuyển **headless → INTERACTIVE trong tmux** (opus/xhigh, hỏi ở fork; §12 + `scripts/ba_spec/qa_nightly/USAGE.md`). State hiện tại → §5.
+**Cập nhật:** 2026-07-25 — Sprint 39 (UI Figma Auth + Đăng ký thi PC) DONE; bộ doc con (`wujia-design-system.md`, `figma-mcp-setup.md`, `DEPLOY_SPRINT5.md`) đã reconcile lại với source. State hiện tại → §5.
 
 ---
 
@@ -16,7 +16,7 @@
 
 **BA spec = Google Sheet "Internal ERP Master Plan_Update"** online (§7 tab/gid). Xlsm local = legacy fallback.
 
-**Figma (BA design, READ-ONLY):** dùng **BẢN COPY** team Pro `aoeiDYlg6vlhJZg2w6Q7o5` ("Wujia (Copy)") = source of truth (gốc `vfVcqN5zPJvlcjZU4NYim0` bị throttle). BA edit trực tiếp vào copy. Kết nối: Framelink MCP (`.mcp.json` root, gitignored). BA CHƯA xong Figma → khi xong follow Figma (đối chiếu → cập nhật `_variables.css`, KHÔNG sửa). Figma hiện PHẲNG → gom bằng geometry. Ưu tiên: **code chuẩn > xlsm (lag)**. Chi tiết: `docs/figma-mcp-setup.md` + `docs/wujia-design-system.md`.
+**Figma (BA design, READ-ONLY):** file key = **BẢN COPY** `aoeiDYlg6vlhJZg2w6Q7o5` ("Wujia (Copy)"); gốc `vfVcqN5zPJvlcjZU4NYim0` bị throttle, không dùng. BA CHƯA xong Figma → **ưu tiên code chuẩn > Figma > xlsm (lag)**. Cách kết nối MCP + xử lý Figma phẳng: `docs/figma-mcp-setup.md`. Token/component: `docs/wujia-design-system.md`.
 
 **Local dev:**
 - Scripts: `init-db.sh` fresh · `start.sh` hot-reload · `upgrade.sh <mod>` giữ data · `reseed_full.sh` 1-shot.
@@ -73,7 +73,7 @@ ADR-001 odoo19 source độc lập / 002 venv conda `odoo` py3.10 / 003 PG role 
 | M | 07-18 | Backend Đăng ký thi: 7 model (time.slot/course/session/registration.line), capacity FOR-UPDATE, publish gate, migration `exam 19.0.3.0.0`. → ch.50 |
 | K | 07-17 | Backend Bù hàng/Return: redesign single-product + duyệt + `compensation.allocation` + wizard SO 0đ FIFO + hook picking + portal wire tiến độ. → ch.49 |
 | 37 | 07-16 | 7 issue mobile Home/Đặt hàng + chuẩn hoá page-header 4 trang → `wj_page_header`. → ch.48 |
-| 35–36,38 | 07-16 | Dashboard workstream: port Ninja v18→v19 (`wj_ks_dashboard_ninja` S35) + scaffold advance (`wj_ks_dn_advance` S36) + hotfix ks_speak (S38). → ch.46 + `dashboard-migration-plan.md` |
+| 35–36 + 38-dash | 07-16 | Dashboard workstream (đánh số riêng, KHÁC Sprint 38 portal ở trên): port Ninja v18→v19 (`wj_ks_dashboard_ninja` S35) + scaffold advance (`wj_ks_dn_advance` S36) + hotfix ks_speak (S38). → ch.46 + `dashboard-migration-plan.md` |
 | 34 | 07-16 | Global Shell header/footer/typography theo BA Issue List UI-01..06 (Top Bar, Current Store 430px, vi_VN default, account pill, footer, Inter). → ch.45 |
 | 33 | 07-14 | `wj_page_header` — chuẩn hoá header mọi trang (mobile+PC), rollout ~40 site/11 module. → ch.44 |
 | 28,PC-1..3 | 06-22..07-13 | PC desktop rework: Foundation/shell + Đặt hàng (PC-1), Notification (PC-3), Tài khoản 9 màn (28), Giao hàng (27). → ch.31/38/39 |
@@ -128,7 +128,7 @@ ADR-001 odoo19 source độc lập / 002 venv conda `odoo` py3.10 / 003 PG role 
 - v19 active `/home/huyban/odoo-dev/WujiaTea`; v14 ref → §1.
 - **BA spec = Google Sheet** `1HRiRLAZ9FlErRTLvwMaGhsOlYNPJHdf5AEMPvdLkQNE` (owner `huyhunggnguyen@gmail.com`, anyone-view, BA edit trực tiếp). Đọc tab qua CSV public: `curl -sL "https://docs.google.com/spreadsheets/d/1HRiRLAZ9FlErRTLvwMaGhsOlYNPJHdf5AEMPvdLkQNE/gviz/tq?tqx=out:csv&gid=<gid>"`.
 - **Tab + gid:** `Tasks` (by name) · `MILESTONE` `1864615110` · `FEATURE CHECKLIST` `729461563` · `1.Model/Field` `2041118658` · `2.FE-Portal` `1002946158` · `3.Controller` `643561224` · `4.BE-Workflow` `1703696097` · **`5.Issue List`** `335593633` · `WORK LOG` `1388773997`. (Lấy gid: `curl .../htmlview | grep gid`.)
-- ⚠️ **Issue List đã bị BA RESET** (07-14): Sprint-9 cũ gỡ, thay UI-01…06 GLOBAL SHELL (khác WJ_PageHeader). BA active cập nhật sheet mỗi ngày.
+- Issue List: BA cập nhật mỗi ngày (đánh số hiện hành UI-01…06 = GLOBAL SHELL, khác `WJ_PageHeader` Sprint 9). Trạng thái → §5 + §12.
 - **Controller task (S32+):** BA gửi spec qua chat GPT share → `scripts/ba_spec/fetch_ba_chat.py <url>` + `read_xlsm.py <sheet> <kw>`, đối chiếu source model THẬT (BA hay đặt tên lý tưởng hoá ≠ thật), hỏi ở fork. Toolchain gitignored, KHÔNG lên server (`scripts/ba_spec/README.md`).
 - **QA/Task workflow (2026-07-21):** xem §12.
 - Sprint log `wujia-tea-doc.pdf` (compile `chapters/*.tex` qua `scripts/build-doc.sh`).

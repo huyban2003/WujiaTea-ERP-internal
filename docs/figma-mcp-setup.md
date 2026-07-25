@@ -5,21 +5,21 @@
 > chạy với mọi tài khoản Figma). Không dùng official Dev Mode MCP (cần Dev seat trả phí +
 > Figma desktop mở sẵn).
 >
-> **File Figma Wujia:** `https://www.figma.com/design/vfVcqN5zPJvlcjZU4NYim0/Wujia`
-> → **file key = `vfVcqN5zPJvlcjZU4NYim0`**
+> **File Figma Wujia = BẢN COPY** team Pro: **file key `aoeiDYlg6vlhJZg2w6Q7o5`** ("Wujia (Copy)").
+> BA edit trực tiếp vào bản copy này.
+>
+> ⚠️ Bản **gốc** `vfVcqN5zPJvlcjZU4NYim0` **bị throttle → KHÔNG dùng nữa.** Gặp key này trong
+> chapter tex cũ là vì viết trước khi chuyển.
 
 ---
 
 ## 1. Tại sao Framelink (community) thay vì official
 
-| | Framelink `figma-developer-mcp` | Official Dev Mode MCP |
-|---|---|---|
-| Chi phí | **Free**, mọi tài khoản | Cần **Dev/Full seat trả phí** |
-| Cần gì | 1 Personal Access Token (PAT) | Figma **desktop** mở + plan Professional+ |
-| Hướng | Đọc design → code (đúng nhu cầu) | Thêm code-to-canvas, Code Connect |
-| Transport | stdio / HTTP | localhost:3845 (desktop) |
+Framelink `figma-developer-mcp`: **free**, mọi tài khoản, chỉ cần 1 PAT, transport stdio/HTTP.
+Official Dev Mode MCP: cần **Dev/Full seat trả phí** + Figma **desktop** mở sẵn (localhost:3845),
+đổi lại có code-to-canvas + Code Connect.
 
-→ Nhu cầu của ta là **đọc Figma → đối chiếu/sinh CSS token** ⇒ Framelink đủ và rẻ.
+→ Nhu cầu của ta chỉ là **đọc Figma → đối chiếu/sinh CSS token** ⇒ Framelink đủ và rẻ.
 
 ---
 
@@ -91,11 +91,11 @@ Lần đầu Claude Code sẽ hỏi **approve** project MCP server `figma` → c
 
 1. Mở 1 frame trong Figma → copy URL, lấy **node-id** ở query (`?node-id=123-456`).
 2. Trong chat, yêu cầu Claude đọc node đó. Claude gọi tool figma MCP với:
-   - **file key**: `vfVcqN5zPJvlcjZU4NYim0`
+   - **file key**: `aoeiDYlg6vlhJZg2w6Q7o5`
    - **node-id**: lấy ở bước 1
 3. Framelink trả về layout + style đã rút gọn (LLM-friendly) + tải được image/SVG.
 4. Đối chiếu với [`wujia-design-system.md`](wujia-design-system.md) → chỉnh `_variables.css`
-   nếu token lệch (nhớ regression check + bump `?v=` theo gotcha §9).
+   nếu token lệch (nhớ regression check + bump `?v=` — compact-summary §9 gotcha #1).
 
 > Workflow điển hình: "đọc frame `<node-id>` của file Wujia, so token màu/spacing với
 > `_variables.css`, liệt kê chỗ lệch" → rồi mới quyết sửa.
@@ -108,7 +108,7 @@ Khi cần chạy ngoài session Claude (vd CI, export token tự động), dùng
 với header `X-Figma-Token: $FIGMA_API_KEY`:
 
 ```bash
-KEY=vfVcqN5zPJvlcjZU4NYim0
+KEY=aoeiDYlg6vlhJZg2w6Q7o5
 # Toàn bộ document tree
 curl -s -H "X-Figma-Token: $FIGMA_API_KEY" \
   "https://api.figma.com/v1/files/$KEY"
@@ -129,21 +129,11 @@ curl -s -H "X-Figma-Token: $FIGMA_API_KEY" \
 
 ---
 
-## 7. Ghi chú: vì sao summary giữ `.md`, không convert `.html`
+## 7. Ghi chú: doc nguồn giữ `.md`
 
-(Quyết định 2026-06-02, kèm task Figma.)
-
-- **Claude Code đọc Markdown hiệu quả hơn HTML**: ít token, ít noise tag (`<div>/<p>/<table>`),
-  cấu trúc sạch → giữ `wujia-compact-summary.md` và `wujia-design-system.md` ở **markdown**.
-- File summary được `/wujia-start` đọc trực tiếp qua Read tool → markdown là format tối ưu,
-  deterministic.
-- HTML chỉ hơn khi cần **người** xem trên browser có style — việc đó `wujia-tea-doc.pdf`
-  đã lo. Nếu thật sự cần bản browser, build **HTML/PDF dẫn xuất** từ md (một chiều), giữ md
-  làm nguồn:
-  ```bash
-  pandoc docs/wujia-design-system.md -o docs/wujia-design-system.pdf   # hoặc .html
-  ```
-- ⇒ **Không** đổi nguồn sang html. md là source, html/pdf chỉ là artifact dẫn xuất khi cần.
+Quyết định 2026-06-02: `wujia-compact-summary.md` + `wujia-design-system.md` giữ **markdown** làm
+nguồn (ít token, `/wujia-start` đọc trực tiếp, deterministic). Cần bản cho người xem thì sinh dẫn
+xuất một chiều — `pandoc docs/<file>.md -o docs/<file>.pdf` — **không** đổi nguồn sang HTML.
 
 ---
 
