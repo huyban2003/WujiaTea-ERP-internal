@@ -19,7 +19,8 @@ PG_HOST="${PG_HOST:-127.0.0.1}"
 PG_USER="${PG_USER:-odoo19}"
 PG_PASS="${PG_PASS:-1}"
 
-MODULES="wujia_core,wujia_franchise,wujia_sale,wujia_fleet,wujia_delivery,wujia_portal_base,wujia_portal_layout,wujia_portal_sale,wujia_portal_purchase_history,wujia_portal_delivery,wujia_portal_return,wujia_portal_notification,wujia_portal_exam,wujia_portal_knowledge,wujia_portal_report,wujia_portal_support"
+# 18 module — danh sách chuẩn ở docs/wujia-compact-summary.md §2 (dashboard wj_ks_* cài riêng).
+MODULES="wujia_core,wujia_franchise,wujia_sale,wujia_fleet,wujia_delivery,wujia_portal_base,wujia_portal_layout,wujia_portal_sale,wujia_portal_purchase_history,wujia_portal_delivery,wujia_portal_return,wujia_portal_notification,wujia_portal_exam,wujia_portal_knowledge,wujia_portal_report,wujia_portal_support,wujia_portal_info_request,wujia_portal_order_window"
 
 echo "==> Drop DB ${DB_NAME}"
 PGPASSWORD="${PG_PASS}" dropdb -h "${PG_HOST}" -U "${PG_USER}" --if-exists "${DB_NAME}"

@@ -25,7 +25,8 @@ $CONF     = "$ROOT\config\odoo-server.conf"
 $SCRIPTS  = "$ROOT\scripts"
 $PG_BIN   = "C:\Program Files\PostgreSQL\16\bin"
 
-$MODULES = "wujia_core,wujia_franchise,wujia_sale,wujia_fleet,wujia_delivery,wujia_portal_base,wujia_portal_layout,wujia_portal_sale,wujia_portal_purchase_history,wujia_portal_delivery,wujia_portal_return,wujia_portal_notification,wujia_portal_exam,wujia_portal_knowledge,wujia_portal_report,wujia_portal_support"
+# 18 module — danh sách chuẩn ở docs/wujia-compact-summary.md §2 (dashboard wj_ks_* cài riêng).
+$MODULES = "wujia_core,wujia_franchise,wujia_sale,wujia_fleet,wujia_delivery,wujia_portal_base,wujia_portal_layout,wujia_portal_sale,wujia_portal_purchase_history,wujia_portal_delivery,wujia_portal_return,wujia_portal_notification,wujia_portal_exam,wujia_portal_knowledge,wujia_portal_report,wujia_portal_support,wujia_portal_info_request,wujia_portal_order_window"
 
 # ---- Env ----
 $env:Path              = "$PG_BIN;" + $env:Path
