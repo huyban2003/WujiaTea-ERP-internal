@@ -1,252 +1,263 @@
 <odoo>
     <data>
+        <!-- ==================================================================
+             Wujia Auth — Figma WJ_Auth_*_v3
+             Login_PC 4886:831 · Login_Mobile 4886:789
+             ForgotPassword_PC 4886:742 · ForgotPassword_Mobile 4886:705
+             CSS: static/assets/css/_auth.css (chỉ nạp qua asset_css_authentication).
+             Contract controller không đổi: error / message / login / name / token.
+             ================================================================== -->
+
         <template id="wujia_portal_layout.login_form">
-            <div class="card rounded-0 mb-0 px-2">
-                <div class="card-header pb-1">
-                
-                    <div class="card-title d-flex flex-column align-items-center w-100 text-center">
-                        <img t-attf-src="data:image/png;base64,{{env.company.logo_web}}" alt="" width="200" height="100" style="object-fit: contain"/>
+            <div class="wj-auth-card">
+                <h1 class="wj-auth-card__title">Đăng nhập tài khoản</h1>
+                <p class="wj-auth-card__sub">Sử dụng tài khoản Ngô Gia đã cấp để truy cập hệ thống.</p>
+
+                <p class="wj-auth-alert wj-auth-alert--error" t-if="error" role="alert">
+                    <t t-esc="error"/>
+                </p>
+                <p class="wj-auth-alert wj-auth-alert--success" t-if="message" role="status">
+                    <t t-esc="message"/>
+                </p>
+
+                <form class="wj-auth-form" action="login" method="POST">
+                    <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
+                    <input type="hidden" name="redirect" t-if="request.params.get('redirect')"
+                           t-att-value="request.params.get('redirect')"/>
+
+                    <div class="wj-auth-field">
+                        <label class="wj-auth-field__label" for="wj-auth-login">Email / Tên đăng nhập</label>
+                        <span class="wj-auth-input">
+                            <i class="wj-auth-input__icon feather icon-mail"/>
+                            <input class="wj-auth-control" type="text" id="wj-auth-login" name="login"
+                                   placeholder="Nhập email hoặc tên đăng nhập" required="required"
+                                   autofocus="autofocus" autocapitalize="off" autocomplete="username"
+                                   t-att-value="login"/>
+                        </span>
                     </div>
-                </div>
-                <p class="px-2">Welcome back, please login to your account.</p>
-                <div class="card-content">
-                    <div class="card-body pt-1">
-                        <form action="login" method="POST">
-                            <input type="hidden" name="csrf_token"
-                                   t-att-value="request.csrf_token()"/>
-                            <fieldset
-                                    class="form-label-group form-group position-relative has-icon-left">
-                                <input type="text" class="form-control"
-                                       id="user-name" name="login"
-                                       placeholder="Username" required="required"/>
-                                <div class="form-control-position">
-                                    <i class="feather icon-user"/>
-                                </div>
-                                <label for="user-name">Username</label>
-                            </fieldset>
 
-                            <fieldset
-                                    class="form-label-group position-relative has-icon-left">
-                                <input type="password" class="form-control"
-                                       id="user-password" name="password"
-                                       placeholder="Password" required="required"/>
-                                <div class="form-control-position">
-                                    <i class="feather icon-lock"/>
-                                </div>
-                                <label for="user-password">Password</label>
-                            </fieldset>
-                            <p class="alert alert-danger" t-if="error" role="alert">
-                                <t t-esc="error"/>
-                            </p>
-
-                            <p class="alert alert-success" t-if="message"
-                               role="status">
-                                <t t-esc="message"/>
-                            </p>
-                            <div class="form-group d-flex justify-content-between align-items-center">
-                                <div class="text-left">
-                                    <fieldset class="checkbox">
-                                        <div class="vs-checkbox-con vs-checkbox-primary">
-                                            <input type="checkbox"/>
-                                            <span class="vs-checkbox">
-                                                <span class="vs-checkbox--check">
-                                                    <i class="vs-icon feather icon-check"/>
-                                                </span>
-                                            </span>
-                                            <span class="">Remember me</span>
-                                        </div>
-                                    </fieldset>
-                                </div>
-                                <div class="text-right">
-                                    <a href="/portal/forgot-pass"
-                                       class="card-link">Forgot Password?
-                                    </a>
-                                </div>
-                            </div>
-                            <button type="submit"
-                                    class="btn btn-primary float-right btn-inline">
-                                Login
+                    <div class="wj-auth-field">
+                        <label class="wj-auth-field__label" for="wj-auth-password">Mật khẩu</label>
+                        <span class="wj-auth-input wj-auth-pwd">
+                            <i class="wj-auth-input__icon feather icon-lock"/>
+                            <input class="wj-auth-control" type="password" id="wj-auth-password"
+                                   name="password" placeholder="Nhập mật khẩu" required="required"
+                                   autocomplete="current-password"/>
+                            <button class="wj-auth-eye" type="button" data-wujia-pwd-toggle=""
+                                    aria-label="Hiện mật khẩu">
+                                <i class="feather icon-eye"/>
                             </button>
-                        </form>
+                        </span>
+                    </div>
+
+                    <div class="wj-auth-helper">
+                        <a class="wj-auth-link" href="/portal/forgot-pass">Quên mật khẩu?</a>
+                    </div>
+
+                    <button class="wj-auth-submit" type="submit">Đăng nhập</button>
+                </form>
+
+                <div class="wj-auth-note">
+                    <i class="wj-auth-note__icon feather icon-shield"/>
+                    <div>
+                        <p class="wj-auth-note__title">Bảo mật tài khoản</p>
+                        <p class="wj-auth-note__text">Không chia sẻ thông tin đăng nhập cho người khác.</p>
                     </div>
                 </div>
-                <div class="login-footer">
 
-                </div>
+                <div class="wj-auth-foot">Cần hỗ trợ? Liên hệ quản trị hệ thống</div>
             </div>
         </template>
+
         <template id="wujia_portal_layout.login_2fa_form">
-            <div class="card rounded-0 mb-0 px-2">
-                <div class="card-header pb-1">
-                    <div class="card-title d-flex flex-column align-items-center w-100 text-center">
-                        <img t-attf-src="data:image/png;base64,{{env.company.logo_web}}" alt="" width="200" height="100" style="object-fit: contain"/>
+            <div class="wj-auth-card wj-auth-card--forgot">
+                <h1 class="wj-auth-card__title">Xác thực hai lớp</h1>
+                <p class="wj-auth-card__sub">Mở ứng dụng xác thực trên thiết bị của bạn để lấy mã và xác minh danh tính.</p>
+
+                <p class="wj-auth-alert wj-auth-alert--error" t-if="error" role="alert">
+                    <t t-esc="error"/>
+                </p>
+                <p class="wj-auth-alert wj-auth-alert--success" t-if="message" role="status">
+                    <t t-esc="message"/>
+                </p>
+
+                <form class="wj-auth-form" method="POST">
+                    <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
+
+                    <div class="wj-auth-field">
+                        <label class="wj-auth-field__label" for="wj-auth-totp">Mã xác thực (6 chữ số)</label>
+                        <span class="wj-auth-input">
+                            <i class="wj-auth-input__icon feather icon-shield"/>
+                            <input class="wj-auth-control" type="text" id="wj-auth-totp" name="totp_token"
+                                   placeholder="Nhập 6 chữ số" required="required"
+                                   inputmode="numeric" autocomplete="one-time-code" autofocus="autofocus"/>
+                        </span>
+                    </div>
+
+                    <button class="wj-auth-submit" type="submit">Xác nhận</button>
+                </form>
+
+                <a class="wj-auth-back" href="/portal/login">← Quay lại đăng nhập</a>
+
+                <div class="wj-auth-note">
+                    <i class="wj-auth-note__icon wj-auth-note__icon--chip">i</i>
+                    <div>
+                        <p class="wj-auth-note__title">Bảo vệ thông tin tài khoản</p>
+                        <p class="wj-auth-note__text">Mã xác thực chỉ có hiệu lực trong thời gian ngắn.<br/>Không chia sẻ mã cho người khác.</p>
                     </div>
                 </div>
-                <p class="px-2">Two-factor Authentication.</p>
-                <div class="card-content">
-                    <div class="card-body pt-1">
-                        <form method="POST">
-                            <input type="hidden" name="csrf_token"
-                                   t-att-value="request.csrf_token()"/>
-                            <fieldset
-                                    class="form-label-group form-group position-relative has-icon-left">
-                                <input type="text" class="form-control"
-                                       id="user-name" name="totp_token"
-                                       placeholder="6 digits" required="required"/>
-                                <div class="form-control-position">
-                                    <i class="feather icon-user"/>
-                                </div>
-                                <label for="user-name">Authentication Code (6 digits)</label>
-                            </fieldset>
 
-                            <p class="alert alert-danger" t-if="error" role="alert">
-                                <t t-esc="error"/>
-                            </p>
-
-                            <p class="alert alert-success" t-if="message"
-                               role="status">
-                                <t t-esc="message"/>
-                            </p>
-                            <p class="alert alert-success"
-                               role="status">
-                                Open the two-factor authentication app on your device to obtain a code and verify your identity
-                            </p>
-                            <button type="submit"
-                                    class="btn btn-primary float-right btn-inline">
-                                Verify
-                            </button>
-
-                        </form>
-                    </div>
-                </div>
-                <div class="login-footer">
-
-                </div>
+                <div class="wj-auth-foot">Cần hỗ trợ? Liên hệ quản trị hệ thống</div>
             </div>
         </template>
+
+        <template id="wujia_portal_layout.forgot_pass_form">
+            <div class="wj-auth-card wj-auth-card--forgot">
+                <h1 class="wj-auth-card__title">Quên mật khẩu</h1>
+                <p class="wj-auth-card__sub">Nhập email đăng nhập. Nếu thông tin phù hợp, hệ thống sẽ gửi hướng dẫn đặt lại mật khẩu đến email của bạn.</p>
+
+                <p class="wj-auth-alert wj-auth-alert--error" t-if="error" role="alert">
+                    <t t-esc="error"/>
+                </p>
+                <p class="wj-auth-alert wj-auth-alert--success" t-if="message" role="status">
+                    <t t-esc="message"/>
+                </p>
+
+                <form class="wj-auth-form" method="POST">
+                    <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
+
+                    <div class="wj-auth-field">
+                        <label class="wj-auth-field__label" for="wj-auth-email">Email đăng nhập</label>
+                        <span class="wj-auth-input">
+                            <i class="wj-auth-input__icon feather icon-mail"/>
+                            <input class="wj-auth-control" type="email" id="wj-auth-email" name="login"
+                                   placeholder="Nhập email đã được cấp" required="required"
+                                   autofocus="autofocus" autocapitalize="off" autocomplete="email"
+                                   t-att-value="login"/>
+                        </span>
+                    </div>
+
+                    <button class="wj-auth-submit" type="submit">Gửi hướng dẫn</button>
+                </form>
+
+                <a class="wj-auth-back" href="/portal/login">← Quay lại đăng nhập</a>
+
+                <div class="wj-auth-note">
+                    <i class="wj-auth-note__icon wj-auth-note__icon--chip">i</i>
+                    <div>
+                        <p class="wj-auth-note__title">Bảo vệ thông tin tài khoản</p>
+                        <p class="wj-auth-note__text">Hệ thống không xác nhận email có tồn tại hay không.<br/>Vui lòng kiểm tra hộp thư và thư rác sau khi gửi.</p>
+                    </div>
+                </div>
+
+                <div class="wj-auth-foot">Cần hỗ trợ? Liên hệ quản trị hệ thống</div>
+            </div>
+        </template>
+
+        <template id="wujia_portal_layout.reset_pass_form">
+            <div class="wj-auth-card wj-auth-card--forgot">
+                <h1 class="wj-auth-card__title">Đặt lại mật khẩu</h1>
+                <p class="wj-auth-card__sub">Tạo mật khẩu mới cho tài khoản <t t-esc="login"/>.</p>
+
+                <p class="wj-auth-alert wj-auth-alert--error" t-if="error" role="alert">
+                    <t t-esc="error"/>
+                </p>
+
+                <form class="wj-auth-form" method="POST">
+                    <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
+                    <input type="hidden" name="token" t-att-value="token"/>
+                    <input type="hidden" name="login" t-att-value="login"/>
+                    <input type="hidden" name="name" t-att-value="name"/>
+
+                    <div class="wj-auth-field">
+                        <label class="wj-auth-field__label" for="wj-auth-newpass">Mật khẩu mới</label>
+                        <span class="wj-auth-input wj-auth-pwd">
+                            <i class="wj-auth-input__icon feather icon-lock"/>
+                            <input class="wj-auth-control" type="password" id="wj-auth-newpass"
+                                   name="password" placeholder="Tối thiểu 8 ký tự" required="required"
+                                   minlength="8" autocomplete="new-password" autofocus="autofocus"/>
+                            <button class="wj-auth-eye" type="button" data-wujia-pwd-toggle=""
+                                    aria-label="Hiện mật khẩu">
+                                <i class="feather icon-eye"/>
+                            </button>
+                        </span>
+                    </div>
+
+                    <div class="wj-auth-field">
+                        <label class="wj-auth-field__label" for="wj-auth-confirmpass">Xác nhận mật khẩu</label>
+                        <span class="wj-auth-input wj-auth-pwd">
+                            <i class="wj-auth-input__icon feather icon-lock"/>
+                            <input class="wj-auth-control" type="password" id="wj-auth-confirmpass"
+                                   name="confirm_password" placeholder="Nhập lại mật khẩu mới"
+                                   required="required" minlength="8" autocomplete="new-password"/>
+                            <button class="wj-auth-eye" type="button" data-wujia-pwd-toggle=""
+                                    aria-label="Hiện mật khẩu">
+                                <i class="feather icon-eye"/>
+                            </button>
+                        </span>
+                    </div>
+
+                    <button class="wj-auth-submit" type="submit">Đặt lại mật khẩu</button>
+                </form>
+
+                <a class="wj-auth-back" href="/portal/login">← Quay lại đăng nhập</a>
+
+                <div class="wj-auth-note">
+                    <i class="wj-auth-note__icon feather icon-shield"/>
+                    <div>
+                        <p class="wj-auth-note__title">Bảo mật tài khoản</p>
+                        <p class="wj-auth-note__text">Mật khẩu tối thiểu 8 ký tự.<br/>Không chia sẻ thông tin đăng nhập cho người khác.</p>
+                    </div>
+                </div>
+
+                <div class="wj-auth-foot">Cần hỗ trợ? Liên hệ quản trị hệ thống</div>
+            </div>
+        </template>
+
         <template id="wujia_portal_layout.login_container">
             <t t-call="wujia_portal_layout.login_layout">
-                <!-- BEGIN: Content-->
-                <div class="app-content content">
-                    <div class="content-overlay"/>
-                    <div class="header-navbar-shadow"/>
-                    <div class="content-wrapper">
-                        <div class="content-header row">
-                        </div>
-                        <div class="content-body">
-                            <section class="row flexbox-container" style="background-image:url('wujia_portal_layout/static/assets/images/wujia_banner.jpg');">
-                                <div class="col-xl-8 col-11 d-flex justify-content-center">
-                                    <div class="card bg-authentication rounded-0 mb-0">
-                                        <div class="row m-0"  style="background: rgb(128,128,128); background: linear-gradient(to right,rgba(128,128,128,0), rgba(128,128,128,0) 100%);
-                                                                    border-top-left-radius: 20px; border-bottom-left-radius: 20px; border-top-right-radius: 20px;
-                                                                    border-bottom-right-radius: 20px;">
-                                            <div class="col-lg-6 d-lg-block d-none text-center align-self-center px-0 py-0">
-                                            
-                                                <img src="/wujia_portal_layout/static/assets/images/wujia_login_1.png" style="object-fit:contain; padding:16px; width: 100%; height: 337px; border-top-left-radius: 20px; border-bottom-left-radius: 20px;"
-                                                     alt="branding logo"/>
-                                            </div>
-                                            <div class="col-lg-6 col-12 p-0">
-                                                
-                                                <t t-out="0"/>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </section>
+                <div class="wj-auth">
+                    <!-- Pill ngôn ngữ — UI-only (§7): render đúng Figma, chưa wire đổi lang. -->
+                    <div class="wj-auth__lang">
+                        <span class="wj-auth__flag"/>
+                        <span class="wj-auth__lang-text">Tiếng Việt</span>
+                        <i class="feather icon-chevron-down"/>
+                    </div>
 
+                    <div class="wj-auth__brand">
+                        <span class="wj-auth__decor wj-auth__decor--1"/>
+                        <span class="wj-auth__decor wj-auth__decor--2"/>
+
+                        <div class="wj-auth__logo">
+                            <img t-attf-src="data:image/png;base64,{{env.company.logo_web}}"
+                                 alt="Ngô Gia"/>
+                        </div>
+
+                        <div class="wj-auth__pitch">
+                            <div class="wj-auth__eyebrow">CỔNG THÔNG TIN NHƯỢNG QUYỀN</div>
+                            <h1 class="wj-auth__headline">Vận hành cửa hàng<br/>trên một nền tảng</h1>
+                            <p class="wj-auth__lead">Theo dõi nghiệp vụ dành cho hệ thống cửa hàng nhượng quyền Ngô Gia trong cùng một cổng thông tin.</p>
+                            <hr class="wj-auth__rule"/>
+                            <div class="wj-auth__features">
+                                <span>Đơn hàng</span>
+                                <i/>
+                                <span>Giao nhận</span>
+                                <i/>
+                                <span>Công nợ</span>
+                                <i/>
+                                <span>Thông báo</span>
+                            </div>
                         </div>
                     </div>
+
+                    <div class="wj-auth__main">
+                        <t t-out="0"/>
+                    </div>
                 </div>
-                <!-- END: Content-->
             </t>
         </template>
-        <template id="wujia_portal_layout.forgot_pass_form">
-            <div class="card rounded-0 mb-0 px-2 py-1">
-                <div class="card-header pb-1">
-                    <div class="card-title d-flex flex-column align-items-center w-100 text-center">
-                        <img t-attf-src="data:image/png;base64,{{env.company.logo_web}}" alt="" width="200" height="100" style="object-fit: contain"/>
-                         <h4 class="mb-0">Recover your password</h4>
-                    </div>
 
-                </div>
-                <t t-if="message">
-                    <p class="alert alert-success" t-if="message" role="alert">
-                        <t t-esc="message"/>
-                    </p>
-                    <div class="float-md-left d-block mb-1">
-                        <a href="login" class="btn btn-outline-primary btn-block px-75">Back to Login</a>
-                    </div>
-                </t>
-                <t t-else="">
-                    <p class="px-2 mb-0">Please enter your email address and we'll send you instructions on how to reset your password.</p>
-                    <div class="card-content">
-                        <div class="card-body">
-                            <form method="POST">
-                                <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
-                                <div class="form-label-group">
-                                    <input type="email" name="login" id="inputEmail" class="form-control" placeholder="Email"/>
-                                    <label for="inputEmail">Email</label>
-                                </div>
-                                <p class="alert alert-danger" t-if="error" role="alert">
-                                    <t t-esc="error"/>
-                                </p>
-                                <div class="float-md-left d-block mb-1">
-                                    <a href="login" class="btn btn-outline-primary btn-block px-75">Back to Login</a>
-                                </div>
-                                <div class="float-md-right d-block mb-1">
-                                    <button type="submit" class="btn btn-primary btn-block px-75">Recover Password</button>
-                                </div>
-                            </form>
-                        </div>
-                    </div>
-                </t>
-            </div>
-        </template>
-        <template id="wujia_portal_layout.reset_pass_form">
-            <div class="card rounded-0 mb-0 px-2 py-1">
-                <div class="card-header pb-1">
-                    <div class="card-title d-flex flex-column align-items-center w-100 text-center">
-                        <img t-attf-src="data:image/png;base64,{{env.company.logo_web}}" alt="" width="200" height="100" style="object-fit: contain"/>
-                        <h4 class="mb-0">Reset your password</h4>
-                    </div>
-
-                </div>
-                <p class="px-2 mb-0">Please enter your email address and we'll send you instructions on how to reset your password.</p>
-                <div class="card-content">
-                    <div class="card-body">
-                        <form method="POST">
-                            <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
-                            <input type="hidden" name="token" t-att-value="token"/>
-                            <div class="form-label-group">
-                                <input type="email" name="login" id="inputEmail" class="form-control" placeholder="Email" readonly="readonly" t-att-value="login"/>
-                                <label for="inputEmail">Your Email</label>
-                            </div>
-                            <div class="form-label-group">
-                                <input type="text" name="name" id="name" class="form-control" placeholder="Name" readonly="readonly"  t-att-value="name"/>
-                                <label for="inputEmail">Your Name</label>
-                            </div>
-                            <div class="form-label-group">
-                                <input type="password" name="password" id="password" class="form-control" placeholder="Password"/>
-                                <label for="inputEmail">Password</label>
-                            </div>
-                            <div class="form-label-group">
-                                <input type="password" name="confirm_password" id="confirm_password" class="form-control" placeholder="Confirm password"/>
-                                <label for="inputEmail">Confirm Password</label>
-                            </div>
-                            <p class="alert alert-danger" t-if="error" role="alert">
-                                <t t-esc="error"/>
-                            </p>
-                            <div class="float-md-left d-block mb-1">
-                                <a href="login" class="btn btn-outline-primary btn-block px-75">Back to Login</a>
-                            </div>
-                            <div class="float-md-right d-block mb-1">
-                                <button type="submit" class="btn btn-primary btn-block px-75">Confirm</button>
-                            </div>
-                        </form>
-                    </div>
-                </div>
-            </div>
-        </template>
+        <!-- Signup giữ nguyên Vuexy (route portal không dùng; Figma chưa có màn này). -->
         <template id="wujia_portal_layout.signup_form">
             <div class="card rounded-0 mb-0 px-2 py-1">
                 <div class="card-header pb-1">

@@ -1,0 +1,521 @@
+/* ==========================================================================
+   Wujia Auth — Figma WJ_Auth_{Login,ForgotPassword}_{PC,Mobile}_v3
+   (node 4886:831 / 4886:789 / 4886:742 / 4886:705, file aoeiDYlg6vlhJZg2w6Q7o5)
+
+   File này CHỈ được nạp qua template `asset_css_authentication` (login_layout)
+   → blast radius = 5 màn auth, không đụng portal chính.
+   Markup dùng prefix .wj-auth-* và KHÔNG dùng .content-wrapper / .card để
+   tránh cascade heading !important của _wujia_theme.css (§9 gotcha).
+
+   Toạ độ gốc: PC 1920×1080, Mobile 391×844.
+   ========================================================================== */
+
+:root {
+    /* Nền input + note box (Figma #F8FAFC) — trùng --wujia-filter-field-bg,
+       khai riêng để đọc CSS này độc lập. */
+    --wujia-auth-field-bg:      #F8FAFC;
+    --wujia-auth-brand-fade-1:  rgba(255, 255, 255, 0.05);  /* vòng ngoài */
+    --wujia-auth-brand-fade-2:  rgba(255, 255, 255, 0.11);  /* vòng trong */
+    --wujia-auth-brand-line:    rgba(0, 0, 0, 0.22);        /* divider panel trái */
+    --wujia-auth-card-radius:   12px;
+    --wujia-auth-field-radius:  6px;
+    --wujia-auth-flag-star:     #FDE047;
+    --wujia-auth-pill-bg-m:     rgba(255, 255, 255, 0.20);
+}
+
+/* ------------------------------------------------------------------ shell */
+/* `html body` để thắng `html body.bg-full-login` (banner cũ) trong components.css. */
+html body.wj-auth-body {
+    margin: 0;
+    padding: 0;
+    background: var(--wujia-bg-page);
+    background-image: none;
+    font-family: var(--wujia-font-family);
+    color: var(--wujia-text-primary);
+}
+
+.wj-auth {
+    position: relative;
+    display: flex;
+    align-items: stretch;
+    min-height: 100vh;
+    background: var(--wujia-bg-page);
+    line-height: 1.2;
+}
+
+/* ------------------------------------------------------- panel trái (PC) */
+.wj-auth__brand {
+    position: relative;
+    flex: 0 0 40.625%;              /* 780 / 1920 */
+    min-width: 520px;
+    overflow: hidden;
+    padding: 84px 48px 0 96px;
+    background: var(--wujia-primary);
+}
+
+.wj-auth__decor {
+    position: absolute;
+    border-radius: 50%;
+    background: var(--wujia-auth-brand-fade-1);
+    pointer-events: none;
+}
+.wj-auth__decor::after {
+    content: "";
+    position: absolute;
+    border-radius: 50%;
+    background: var(--wujia-auth-brand-fade-2);
+}
+.wj-auth__decor--1 { width: 456px; height: 456px; left: 510px; top: -154px; }
+.wj-auth__decor--1::after { width: 284px; height: 284px; left: 48px; top: 133px; }
+.wj-auth__decor--2 { width: 440px; height: 440px; left: -192px; top: 816px; }
+.wj-auth__decor--2::after { width: 398px; height: 398px; left: 122px; top: 12px; }
+
+.wj-auth__logo {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 300px;
+    height: 160px;
+    border-radius: var(--wujia-card-radius);
+    background: var(--wujia-bg-card);
+}
+.wj-auth__logo img {
+    width: 252px;
+    height: 126px;
+    object-fit: contain;
+}
+
+.wj-auth__pitch {
+    position: relative;
+    z-index: 1;
+}
+.wj-auth__eyebrow {
+    margin: 85px 0 0;               /* 329 − (84+160) */
+    font-size: 15px;
+    font-weight: 700;
+    line-height: 18px;
+    letter-spacing: 0.02em;
+    color: var(--wujia-text-primary);
+}
+.wj-auth__headline {
+    margin: 20px 0 0;               /* 367 − 347 */
+    /* !important: _components.css đặt `h1 { font-size: 32px !important }` cho
+       toàn site, thắng mọi class. Xem gotcha #13 trong wujia-compact-summary. */
+    font-size: 47px !important;
+    font-weight: 700;
+    line-height: 58px;              /* 425 − 367 */
+    color: #fff;
+}
+.wj-auth__lead {
+    margin: 36px 0 0;               /* 518 − 482 */
+    max-width: 470px;
+    font-size: 17px;
+    font-weight: 400;
+    line-height: 27px;              /* 545 − 518 */
+    color: var(--wujia-text-primary);
+}
+.wj-auth__rule {
+    width: 502px;
+    max-width: 100%;
+    height: 1px;
+    margin: 58px 0 0;               /* 625 − 566(=545+21) */
+    border: 0;
+    background: var(--wujia-auth-brand-line);
+}
+.wj-auth__features {
+    display: flex;
+    align-items: center;
+    gap: 18px;
+    margin: 30px 0 0;               /* 656 − 626 */
+    font-size: 14px;
+    font-weight: 700;
+    line-height: 17px;
+    color: var(--wujia-text-primary);
+}
+.wj-auth__features i {
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    background: currentColor;
+}
+
+/* -------------------------------------------------------- cột phải (PC) */
+.wj-auth__main {
+    position: relative;
+    flex: 1 1 auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 96px 24px;
+}
+
+/* ------------------------------------------------------ pill ngôn ngữ */
+/* UI-only (§7): render đúng Figma, không wire đổi ngôn ngữ. */
+.wj-auth__lang {
+    position: absolute;
+    top: 36px;
+    right: 48px;
+    z-index: 3;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    height: 44px;
+    padding: 0 16px;
+    border-radius: var(--wujia-btn-radius);
+    background: var(--wujia-bg-card);
+    font-size: 13.5px;
+    font-weight: 700;
+    color: var(--wujia-text-secondary);
+    user-select: none;
+}
+.wj-auth__flag {
+    position: relative;
+    width: 22px;
+    height: 16px;
+    border-radius: 2px;
+    background: var(--wujia-danger);
+}
+.wj-auth__flag::after {
+    content: "★";
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 11px;
+    line-height: 1;
+    color: var(--wujia-auth-flag-star);
+}
+.wj-auth__lang .feather {
+    margin-left: auto;
+    font-size: 14px;
+    color: var(--wujia-text-subtitle);
+}
+
+/* ------------------------------------------------------------ card form */
+.wj-auth-card {
+    width: 560px;
+    max-width: 100%;
+    padding: 69px 48px 44px;        /* title box y252 − card y183 = 69 */
+    border-radius: var(--wujia-auth-card-radius);
+    background: var(--wujia-bg-card);
+    box-shadow: 0 10px 30px rgba(17, 24, 39, 0.06);
+}
+.wj-auth-card--forgot { padding-bottom: 36px; }
+
+.wj-auth-card__title {
+    margin: 0;
+    font-size: 30px !important;   /* thắng h1 !important của _components.css */
+    font-weight: 700;
+    line-height: 36px;
+    color: var(--wujia-text-primary);
+}
+.wj-auth-card__sub {
+    margin: 14.5px 0 0;             /* 302.5 − 288 */
+    font-size: 14.5px;
+    font-weight: 400;
+    line-height: 23px;
+    color: var(--wujia-text-subtitle);
+}
+.wj-auth-card--forgot .wj-auth-card__sub {
+    margin-top: 17px;               /* 340 − 323 */
+    font-size: 14px;
+}
+
+/* ------------------------------------------------------------- form bits */
+.wj-auth-form { margin: 0; }
+
+.wj-auth-field { margin-top: 43px; }            /* label1 y363 − sub bottom 320.5 */
+.wj-auth-field + .wj-auth-field { margin-top: 29px; }   /* label2 y471 − input1 442 */
+.wj-auth-field__label {
+    display: block;
+    padding-left: 0;                /* huỷ `label { padding-left: .2rem }` của bootstrap-extended */
+    margin: 0 0 12px;               /* 392 − 380(=363+17) */
+    font-size: 14px;
+    font-weight: 700;
+    line-height: 17px;
+    color: var(--wujia-text-secondary);
+}
+
+.wj-auth-input {
+    position: relative;
+    display: block;
+}
+.wj-auth-input > .wj-auth-input__icon {
+    position: absolute;
+    top: 50%;
+    left: 17px;
+    transform: translateY(-50%);
+    font-size: 19px;
+    line-height: 1;
+    color: var(--wujia-text-subtitle);
+    pointer-events: none;
+}
+.wj-auth-control {
+    display: block;
+    width: 100%;
+    height: 50px;
+    padding: 0 18px 0 56px;         /* text bắt đầu x1174 = 1118 + 56 */
+    border: 1px solid transparent;
+    border-radius: var(--wujia-auth-field-radius);
+    background: var(--wujia-auth-field-bg);
+    font-family: inherit;
+    font-size: 14px;
+    font-weight: 400;
+    line-height: 48px;
+    color: var(--wujia-text-primary);
+    outline: none;
+    transition: border-color .15s ease, box-shadow .15s ease;
+}
+.wj-auth-control::placeholder { color: var(--wujia-text-subtitle); opacity: 1; }
+.wj-auth-control:focus {
+    border-color: var(--wujia-primary);
+    box-shadow: 0 0 0 3px var(--wujia-primary-soft);
+}
+.wj-auth-control[readonly] { color: var(--wujia-text-subtitle); }
+.wj-auth-control.is-invalid { border-color: var(--wujia-danger); }
+
+/* nút con mắt — dùng lại wujia_password_toggle.js ([data-wujia-pwd-toggle]) */
+.wj-auth-pwd .wj-auth-eye {
+    position: absolute;
+    top: 50%;
+    right: 24px;
+    transform: translateY(-50%);
+    padding: 0;
+    border: 0;
+    background: none;
+    font-size: 19px;
+    line-height: 1;
+    color: var(--wujia-text-subtitle);
+    cursor: pointer;
+}
+.wj-auth-pwd .wj-auth-eye:hover { color: var(--wujia-text-secondary); }
+.wj-auth-pwd .wj-auth-control { padding-right: 56px; }
+
+.wj-auth-helper {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 26px;               /* 576 − 550 */
+}
+.wj-auth-link {
+    font-size: 14px;
+    font-weight: 700;
+    line-height: 17px;
+    color: var(--wujia-primary);
+    text-decoration: none;
+}
+.wj-auth-link:hover { color: var(--wujia-primary-dark); text-decoration: none; }
+
+.wj-auth-submit {
+    display: block;
+    width: 100%;
+    height: 50px;
+    margin-top: 21px;               /* 614 − 593(=576+17) */
+    border: 0;
+    border-radius: var(--wujia-btn-radius);
+    background: var(--wujia-primary);
+    font-family: inherit;
+    font-size: 14.5px;
+    font-weight: 700;
+    color: #fff;
+    cursor: pointer;
+    transition: background .15s ease;
+}
+.wj-auth-submit:hover { background: var(--wujia-primary-dark); }
+.wj-auth-submit:disabled { opacity: .6; cursor: default; }
+/* Forgot: nút nằm ngay sau field (không có hàng "Quên mật khẩu?") → 537 − 503. */
+.wj-auth-field + .wj-auth-submit { margin-top: 34px; }
+
+.wj-auth-back {
+    display: block;
+    margin-top: 27px;               /* 614 − 587 */
+    font-size: 14px;
+    font-weight: 700;
+    line-height: 17px;
+    color: var(--wujia-primary);
+    text-align: center;
+    text-decoration: none;
+}
+.wj-auth-back:hover { color: var(--wujia-primary-dark); text-decoration: none; }
+
+/* ------------------------------------------------------------- note box */
+.wj-auth-note {
+    display: flex;
+    gap: 20px;
+    margin-top: 42px;               /* login: 706 − 664 */
+    padding: 14px 18px 16px;
+    border-radius: var(--wujia-btn-radius);
+    background: var(--wujia-auth-field-bg);
+}
+/* Forgot: giữa nút và note có link "← Quay lại đăng nhập" → 669 − 631. */
+.wj-auth-back + .wj-auth-note { margin-top: 38px; padding: 10px 18px 11px; }
+
+.wj-auth-note__icon {
+    flex: 0 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 22px;
+    height: 22px;
+    font-size: 20px;
+    line-height: 1;
+    color: var(--wujia-text-subtitle);
+}
+/* Biến thể "chip" tròn trắng + chữ i (màn Quên mật khẩu). */
+.wj-auth-note__icon--chip {
+    border-radius: 50%;
+    background: var(--wujia-bg-card);
+    font-size: 13px;
+    font-weight: 700;
+    font-style: normal;
+    color: var(--wujia-primary);
+}
+.wj-auth-note__title {
+    margin: 0;
+    font-size: 13px;
+    font-weight: 700;
+    line-height: 16px;
+    color: var(--wujia-text-secondary);
+}
+.wj-auth-note__text {
+    margin: 5px 0 0;
+    font-size: 12.5px;
+    font-weight: 400;
+    line-height: 19px;
+    color: var(--wujia-text-subtitle);
+}
+
+/* ------------------------------------------------------------- foot card */
+.wj-auth-foot {
+    margin-top: 39px;               /* divider y811 − note bottom 772 */
+    padding-top: 26px;
+    border-top: 1px solid var(--wujia-border);
+    font-size: 13.5px;
+    font-weight: 400;
+    line-height: 16px;
+    color: var(--wujia-text-subtitle);
+    text-align: center;
+}
+.wj-auth-card--forgot .wj-auth-foot { margin-top: 35px; padding-top: 27px; }
+
+/* --------------------------------------------------------------- alert */
+.wj-auth-alert {
+    margin: 20px 0 0;
+    padding: 11px 14px;
+    border-radius: var(--wujia-btn-radius);
+    font-size: 13px;
+    font-weight: 700;
+    line-height: 18px;
+}
+.wj-auth-alert--error {
+    background: var(--wujia-danger-bg);
+    color: var(--wujia-danger);
+}
+.wj-auth-alert--success {
+    background: var(--wujia-success-bg);
+    color: var(--wujia-success);
+}
+
+/* ==========================================================================
+   Mobile ≤991.98px — Figma 391×844: band cyan 214px + card trắng đè lên.
+   ========================================================================== */
+@media (max-width: 991.98px) {
+    .wj-auth {
+        display: block;
+        min-height: 100vh;
+    }
+
+    .wj-auth__brand {
+        display: flex;
+        align-items: flex-start;
+        justify-content: center;
+        flex: none;
+        width: auto;
+        min-width: 0;
+        height: 214px;
+        padding: 38px 16px 0;
+    }
+    .wj-auth__decor--1 { width: 196px; height: 196px; left: auto; right: -89px; top: -72px; }
+    .wj-auth__decor--1::after { width: 108px; height: 108px; left: 10px; top: 92px; }
+    .wj-auth__decor--2 { width: 128px; height: 128px; left: -58px; top: 138px; }
+    .wj-auth__decor--2::after { display: none; }
+
+    .wj-auth__logo {
+        width: 146px;
+        height: 78px;
+        border-radius: var(--wujia-auth-card-radius);
+    }
+    .wj-auth__logo img { width: 124px; height: 68px; }
+
+    /* Panel trái chỉ còn là band thương hiệu — phần pitch là nội dung PC. */
+    .wj-auth__pitch { display: none; }
+
+    .wj-auth__lang {
+        top: 16px;
+        right: 16px;
+        gap: 9px;
+        width: 72px;
+        height: 44px;
+        padding: 0 10px;
+        background: var(--wujia-auth-pill-bg-m);
+        font-size: 13px;
+        color: var(--wujia-text-primary);
+    }
+    .wj-auth__flag { width: 20px; height: 14px; }
+    .wj-auth__flag::after { font-size: 10px; }
+    .wj-auth__lang .feather { margin-left: 0; font-size: 12px; color: var(--wujia-text-primary); }
+
+    .wj-auth__main {
+        display: block;
+        margin-top: -66px;          /* card y148 vs band 214 */
+        padding: 0 16px 32px;
+    }
+
+    .wj-auth-card {
+        width: auto;
+        padding: 57px 20px 26px;    /* title y205 − card y148 = 57 */
+        box-shadow: 0 6px 18px rgba(17, 24, 39, 0.06);
+    }
+    .wj-auth-card--forgot { padding-bottom: 24px; }
+
+    .wj-auth-card__title { font-size: 22px !important; line-height: 27px; }
+    .wj-auth-card__sub {
+        margin-top: 9px;            /* 241 − 232 */
+        font-size: 13px;
+        line-height: 20px;
+    }
+    .wj-auth-card--forgot .wj-auth-card__sub { margin-top: 10px; font-size: 13px; }
+
+    .wj-auth-field { margin-top: 26.5px; }          /* label y303.5 − sub bottom 277 */
+    .wj-auth-field + .wj-auth-field { margin-top: 23.5px; }
+    .wj-auth-field__label { margin-bottom: 9.5px; font-size: 13.5px; line-height: 16px; }
+
+    .wj-auth-control {
+        height: 48px;
+        padding: 0 16px 0 46px;     /* text bắt đầu x82 = 36 + 46 */
+        font-size: 13.5px;
+        line-height: 46px;
+    }
+    .wj-auth-input > .wj-auth-input__icon { left: 13px; font-size: 17px; }
+    .wj-auth-pwd .wj-auth-eye { right: 12px; font-size: 17px; }
+    .wj-auth-pwd .wj-auth-control { padding-right: 46px; }
+
+    .wj-auth-helper { margin-top: 18.5px; }
+    .wj-auth-link { font-size: 13.5px; line-height: 16px; }
+
+    .wj-auth-submit { height: 48px; margin-top: 20.5px; }
+    .wj-auth-field + .wj-auth-submit { margin-top: 30px; }
+    .wj-auth-back { margin-top: 26.5px; font-size: 13.5px; }
+
+    .wj-auth-note { gap: 12px; margin-top: 24px; padding: 10.5px 14px 12px; }
+    .wj-auth-back + .wj-auth-note { margin-top: 29.5px; padding: 7px 13px 9px; }
+    .wj-auth-note__icon { width: 20px; height: 20px; font-size: 18px; }
+    .wj-auth-note__icon--chip { font-size: 12px; }
+    .wj-auth-note__title { font-size: 12.5px; line-height: 15px; }
+    .wj-auth-note__text { margin-top: 4px; font-size: 12px; line-height: 17px; }
+    .wj-auth-card--forgot .wj-auth-note__text { font-size: 11.5px; line-height: 17px; }
+
+    .wj-auth-foot { margin-top: 24px; padding-top: 18px; font-size: 12.5px; }
+}

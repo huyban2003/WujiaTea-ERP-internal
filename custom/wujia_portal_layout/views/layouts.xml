@@ -217,7 +217,7 @@
 
 
         <template id="login_layout" name="Login layout">
-            <html lass="no-js" lang="vi">
+            <html class="no-js" lang="vi">
                 <head>
                     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
                     <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
@@ -235,7 +235,7 @@
                           t-attf-src="data:image/png;base64,{{env.company.logo_web}}"/>                    <t t-call="wujia_portal_layout.asset_frontend"/>
                     <t t-call="wujia_portal_layout.asset_css_authentication"/>
                 </head>
-                <body class="vertical-layout vertical-menu-modern 1-column  navbar-floating footer-static bg-full-login  blank-page blank-page"
+                <body class="vertical-layout vertical-menu-modern 1-column  navbar-floating footer-static bg-full-login  blank-page blank-page wj-auth-body"
                       data-open="click" data-menu="vertical-menu-modern" data-col="1-column">
                     <t t-out="0"/>
                     <t t-call="wujia_portal_layout.asset_frontend_js"/>

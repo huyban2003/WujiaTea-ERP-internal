@@ -6,8 +6,9 @@
     "use strict";
 
     function toggle(btn) {
-        // Mobile eye-icon wrapper (.wujia-maccount-pwd) + PC text toggle (.wj-pc-acct-pw-input).
-        var wrap = btn.closest(".wujia-maccount-pwd, .wj-pc-acct-pw-input");
+        // Mobile eye-icon wrapper (.wujia-maccount-pwd) + PC text toggle (.wj-pc-acct-pw-input)
+        // + màn auth Figma v3 (.wj-auth-pwd, Sprint 39).
+        var wrap = btn.closest(".wujia-maccount-pwd, .wj-pc-acct-pw-input, .wj-auth-pwd");
         if (!wrap) return;
         var input = wrap.querySelector("input");
         if (!input) return;
