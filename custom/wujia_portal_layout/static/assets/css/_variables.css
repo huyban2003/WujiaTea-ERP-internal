@@ -225,6 +225,20 @@
     --wujia-morder-floatbar-sub: #DDF6FF;
     --wujia-morder-radius:       14px;
 
+    /* ---------- Mobile Order Result / Submitting (Figma 4963:2) ----------
+       Màn kết quả gửi đơn (thành công / ngoài khung giờ) + overlay "Đang tạo đơn".
+       Append-only: KHÔNG sửa token cũ (blast radius = 0). */
+    --wujia-mres-info-bg:        #F8FAFC;   /* box 4 dòng thông tin đơn */
+    --wujia-mres-warn-bg:        #FFF7E6;   /* badge trạng thái "Chờ xác nhận" */
+    --wujia-mres-warn-text:      #D97706;
+    --wujia-mres-danger-border:  #FCA5A5;   /* box khung giờ tiếp theo */
+    --wujia-mres-danger-label:   #991B1B;
+    --wujia-mres-danger-value:   #DC2626;
+    --wujia-mres-info-label:     #075985;   /* box "giỏ vẫn giữ nguyên" */
+    --wujia-mres-info-text:      #0369A1;
+    --wujia-msubmit-backdrop:    rgba(17, 24, 39, 0.34);
+    --wujia-msubmit-ring:        #BAE6FD;
+
     /* ---------- Mobile Filter canonical (Figma 4785:498 — wj-filter-*) ---------- */
     --wujia-filter-field-bg:     #F8FAFC;   /* search / date pill fill */
 

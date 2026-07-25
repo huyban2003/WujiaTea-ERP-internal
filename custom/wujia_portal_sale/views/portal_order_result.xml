@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- Kết quả gửi đơn đặt hàng — Mobile Portal (Figma 4963:2 màn 03 + 04).
+         2 trang standalone sau POST /portal/order/submit (PRG): thành công và
+         "ngoài khung giờ". Chỉ luồng mobile (form gửi flow=m) đi vào đây — PC giữ
+         nguyên redirect cũ về trang lịch sử / banner tại giỏ (Sprint PC-1).
+         MỌI số liệu render từ dữ liệu thật (SO vừa tạo + config khung giờ), giá trị
+         trong Figma chỉ là minh hoạ. -->
+
+    <!-- Card khung chung (icon + tiêu đề + 2 CTA) — 2 màn chỉ khác nội dung giữa. -->
+    <template id="mres_shell" name="Wujia Mobile — Result card shell">
+        <div class="wujia-mres">
+            <t t-call="wujia_portal_layout.wj_page_header">
+                <t t-set="ph_platform" t-value="'m'"/>
+                <t t-set="ph_variant" t-value="'title'"/>
+                <t t-set="ph_title" t-value="res_page_title"/>
+            </t>
+            <div class="wujia-mres-card" role="status" aria-live="polite">
+                <div t-attf-class="wujia-mres-icon wujia-mres-icon--#{res_tone}" aria-hidden="true">
+                    <span class="wujia-mres-icon-inner">
+                        <i t-attf-class="feather #{'icon-check' if res_tone == 'ok' else 'icon-alert-circle'}"/>
+                    </span>
+                </div>
+                <h2 class="wujia-mres-title" t-out="res_title"/>
+                <p class="wujia-mres-sub">
+                    <t t-out="res_sub"/>
+                    <span t-if="res_sub2" class="wujia-mres-sub-line" t-out="res_sub2"/>
+                </p>
+                <t t-out="0"/>
+            </div>
+        </div>
+    </template>
+
+    <!-- ===================== 03 · Đặt hàng thành công ===================== -->
+    <template id="portal_order_submitted" name="Wujia Portal — Order submitted (mobile)">
+        <t t-call="wujia_portal_layout.app_layout">
+            <t t-set="title">Đặt hàng thành công</t>
+            <div class="content-wrapper">
+                <t t-call="wujia_portal_sale.mres_shell">
+                    <t t-set="res_page_title" t-value="'Đặt hàng'"/>
+                    <t t-set="res_tone" t-value="'ok'"/>
+                    <t t-set="res_title" t-value="'Đặt hàng thành công'"/>
+                    <t t-set="res_sub" t-value="'Đơn hàng đã được tạo và đang chờ Ngô Gia xác nhận.'"/>
+
+                    <!-- 4 dòng thông tin đơn — lấy từ sale.order vừa tạo. -->
+                    <dl class="wujia-mres-info">
+                        <div class="wujia-mres-info-row">
+                            <dt class="wujia-mres-info-label">Mã đơn hàng</dt>
+                            <dd class="wujia-mres-info-value" t-out="order_name"/>
+                        </div>
+                        <div class="wujia-mres-info-row">
+                            <dt class="wujia-mres-info-label">Thời gian đặt</dt>
+                            <dd class="wujia-mres-info-value" t-out="order_date_label"/>
+                        </div>
+                        <div class="wujia-mres-info-row">
+                            <dt class="wujia-mres-info-label">Tổng tiền</dt>
+                            <dd class="wujia-mres-info-value wujia-mres-info-value--lg"
+                                t-out="order_amount_label"/>
+                        </div>
+                        <div class="wujia-mres-info-row">
+                            <dt class="wujia-mres-info-label">Trạng thái</dt>
+                            <dd class="wujia-mres-info-value">
+                                <!-- status_type dùng chung với trang Lịch sử (draft = Chờ xác nhận). -->
+                                <span t-attf-class="wujia-mres-badge wujia-mres-badge--#{order_status_type}"
+                                      t-out="order_state_label"/>
+                            </dd>
+                        </div>
+                    </dl>
+
+                    <a class="wujia-mres-cta" t-attf-href="/portal/purchase-history/#{order.id}">
+                        Xem chi tiết đơn hàng
+                    </a>
+                    <a class="wujia-mres-cta wujia-mres-cta--ghost" href="/portal/order">
+                        Tiếp tục chọn sản phẩm
+                    </a>
+                </t>
+            </div>
+        </t>
+    </template>
+
+    <!-- ===================== 04 · Ngoài khung giờ ===================== -->
+    <template id="portal_order_rejected" name="Wujia Portal — Order rejected, outside window (mobile)">
+        <t t-call="wujia_portal_layout.app_layout">
+            <t t-set="title">Không thể gửi đơn</t>
+            <div class="content-wrapper">
+                <t t-call="wujia_portal_sale.mres_shell">
+                    <t t-set="res_page_title" t-value="'Không thể gửi đơn'"/>
+                    <t t-set="res_tone" t-value="'danger'"/>
+                    <t t-set="res_title" t-value="'Ngoài khung giờ đặt hàng'"/>
+                    <t t-set="res_sub" t-value="'Đơn hàng chưa được tạo.'"/>
+                    <t t-set="res_sub2" t-value="'Giỏ hàng của bạn vẫn được giữ nguyên.'"/>
+
+                    <!-- Khung giờ tiếp theo — _next_order_window() theo khu vực của cửa hàng. -->
+                    <div class="wujia-mres-note wujia-mres-note--danger">
+                        <span class="wujia-mres-note-dot" aria-hidden="true">!</span>
+                        <div class="wujia-mres-note-body">
+                            <span class="wujia-mres-note-label">Khung giờ đặt hàng tiếp theo</span>
+                            <strong class="wujia-mres-note-value" t-out="next_window_label"/>
+                            <span t-if="next_window_date_label" class="wujia-mres-note-label"
+                                  t-out="next_window_date_label"/>
+                            <span t-if="next_window_name" class="wujia-mres-note-label"
+                                  t-out="next_window_name"/>
+                        </div>
+                    </div>
+
+                    <div class="wujia-mres-note wujia-mres-note--info">
+                        <i class="feather icon-shopping-cart wujia-mres-note-icon" aria-hidden="true"/>
+                        <div class="wujia-mres-note-body">
+                            <span class="wujia-mres-note-label">Bạn vẫn có thể chỉnh sửa sản phẩm</span>
+                            <span class="wujia-mres-note-text">trong giỏ hàng.</span>
+                        </div>
+                    </div>
+
+                    <a class="wujia-mres-cta" href="/portal/order/cart">Quay lại giỏ hàng</a>
+                    <a class="wujia-mres-cta wujia-mres-cta--ghost" href="/portal/order">
+                        Tiếp tục chọn sản phẩm
+                    </a>
+                </t>
+            </div>
+        </t>
+    </template>
+
+</odoo>

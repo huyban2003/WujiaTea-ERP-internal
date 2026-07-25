@@ -1773,6 +1773,248 @@ a.wujia-mhome-kpi:active { opacity: 0.85; }
 .wujia-mcart-submit:active { background: var(--wujia-morder-primary-dark); }
 .wujia-mcart-submit:disabled { opacity: 0.55; cursor: not-allowed; }
 
+/* ---------- Sprint 40 — Kết quả gửi đơn + overlay đang tạo đơn (Figma 4963:2) ----------
+   Màn 02 = overlay `.wujia-msubmit` trên trang giỏ; màn 03/04 = trang riêng
+   `.wujia-mres`. Mọi rule scope trong 2 prefix này → không lan ra portal. */
+
+/* --- Overlay "Đang tạo đơn" (Figma 4963:164-171) --- */
+.wujia-msubmit {
+    display: none;
+    position: fixed;
+    inset: 0;
+    z-index: 1050;               /* trên bottom-nav (1029) + strip cửa hàng */
+    align-items: center;
+    justify-content: center;
+    padding: 0 16px;
+    background: var(--wujia-msubmit-backdrop);
+}
+.wujia-msubmit--show { display: flex; }
+.wujia-msubmit-card {
+    width: 100%;
+    max-width: 313px;
+    min-height: 178px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 24px 20px;
+    background: var(--wujia-morder-card-bg);
+    border-radius: 16px;
+    text-align: center;
+    box-shadow: 0 12px 32px rgba(17, 24, 39, .18);
+}
+.wujia-msubmit-spinner {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    background: var(--wujia-primary-soft);
+    position: relative;
+}
+.wujia-msubmit-spinner::after {
+    content: "";
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 26px;
+    height: 26px;
+    margin: -13px 0 0 -13px;
+    border: 4px solid var(--wujia-msubmit-ring);
+    border-top-color: var(--wujia-morder-primary);
+    border-radius: 50%;
+    animation: wujia-msubmit-spin .8s linear infinite;
+}
+@keyframes wujia-msubmit-spin { to { transform: rotate(360deg); } }
+/* WJ-A11Y: người dùng bật giảm chuyển động → giữ ring tĩnh, không quay. */
+@media (prefers-reduced-motion: reduce) {
+    .wujia-msubmit-spinner::after { animation: none; }
+}
+.wujia-msubmit-title {
+    margin: 14px 0 8px;
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--wujia-morder-text);
+}
+.wujia-msubmit-sub {
+    margin: 0;
+    font-size: 14px;
+    font-weight: 400;
+    line-height: 20px;
+    color: var(--wujia-morder-text-sub);
+}
+
+/* --- Trang kết quả (màn 03 thành công / 04 ngoài khung giờ) --- */
+.wujia-mres { padding-bottom: calc(24px + env(safe-area-inset-bottom, 0px)); }
+.wujia-mres-card {
+    /* Figma card 359 trên frame 391 = full width trừ padding shell 16.
+       max-width để mở trên desktop (không phải bản PC) vẫn gọn, không giãn full. */
+    max-width: 420px;
+    padding: 20px 16px;
+    background: var(--wujia-morder-card-bg);
+    border: 1px solid var(--wujia-morder-divider);
+    border-radius: var(--wujia-morder-radius);
+    text-align: center;
+}
+.wujia-mres-icon {
+    width: 80px;
+    height: 80px;
+    margin: 0 auto;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.wujia-mres-icon--ok { background: var(--wujia-success-bg); }
+.wujia-mres-icon--danger { background: var(--wujia-danger-bg); }
+.wujia-mres-icon-inner {
+    width: 58px;
+    height: 58px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 28px;
+    color: #FFFFFF;
+}
+.wujia-mres-icon--ok .wujia-mres-icon-inner { background: var(--wujia-success); }
+.wujia-mres-icon--danger .wujia-mres-icon-inner { background: var(--wujia-danger); }
+/* h2 tag-level `font-size: … !important` của shell nuốt class → override trong
+   scope component (lesson L4, gotcha #13) — KHÔNG sửa rule shared. */
+.wujia-mres .wujia-mres-title {
+    margin: 12px 0 10px;
+    font-size: 21px !important;
+    line-height: 26px;
+    font-weight: 700;
+    color: var(--wujia-morder-text);
+}
+.wujia-mres-sub {
+    margin: 0;
+    font-size: 15px;
+    font-weight: 400;
+    line-height: 22px;
+    color: var(--wujia-morder-text-sub);
+}
+.wujia-mres-sub-line { display: block; }
+
+/* Box 4 dòng thông tin đơn — dl/dt/dd (tránh tag `label` có !important của shell) */
+.wujia-mres-info {
+    margin: 18px 0 0;
+    padding: 4px 16px;
+    background: var(--wujia-mres-info-bg);
+    border: 1px solid var(--wujia-morder-divider);
+    border-radius: 12px;
+    text-align: left;
+}
+.wujia-mres-info-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    min-height: 40px;
+    padding: 6px 0;
+    border-top: 1px solid var(--wujia-border);
+}
+.wujia-mres-info-row:first-child { border-top: 0; }
+.wujia-mres-info-label {
+    margin: 0;
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--wujia-morder-text-sub);
+}
+.wujia-mres-info-value {
+    margin: 0;
+    font-size: 14px;
+    font-weight: 700;
+    text-align: right;
+    color: var(--wujia-morder-text);
+}
+.wujia-mres-info-value--lg { font-size: 16px; }
+.wujia-mres-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 118px;
+    height: 30px;
+    padding: 0 12px;
+    border-radius: 15px;
+    font-size: 13px;
+    font-weight: 700;
+}
+/* status_type dùng chung trang Lịch sử: pending = "Chờ xác nhận" (amber Figma). */
+.wujia-mres-badge--pending { background: var(--wujia-mres-warn-bg); color: var(--wujia-mres-warn-text); }
+.wujia-mres-badge--sent { background: var(--wujia-primary-soft); color: var(--wujia-mres-info-text); }
+.wujia-mres-badge--confirmed { background: var(--wujia-success-bg); color: var(--wujia-success); }
+
+/* Box khung giờ tiếp theo (đỏ) + box "giỏ vẫn giữ nguyên" (xanh nhạt) */
+.wujia-mres-note {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    margin: 18px 0 0;
+    padding: 16px;
+    border-radius: 12px;
+    text-align: left;
+}
+.wujia-mres-note--danger {
+    background: var(--wujia-danger-bg);
+    border: 1px solid var(--wujia-mres-danger-border);
+}
+.wujia-mres-note--info { background: var(--wujia-primary-soft); }
+.wujia-mres-note-dot {
+    flex: 0 0 auto;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--wujia-danger);
+    color: #FFFFFF;
+    font-size: 14px;
+    font-weight: 700;
+    line-height: 1;
+}
+.wujia-mres-note-icon { flex: 0 0 auto; font-size: 18px; color: var(--wujia-morder-primary); }
+.wujia-mres-note-body { display: flex; flex-direction: column; gap: 4px; }
+.wujia-mres-note-label { font-size: 13px; font-weight: 700; color: var(--wujia-mres-info-label); }
+.wujia-mres-note-text { font-size: 13px; font-weight: 400; color: var(--wujia-mres-info-text); }
+.wujia-mres-note--danger .wujia-mres-note-label { color: var(--wujia-mres-danger-label); }
+.wujia-mres-note-value { font-size: 19px; font-weight: 700; color: var(--wujia-mres-danger-value); }
+
+/* CTA — primary 48 / outline 44 (Figma) */
+.wujia-mres-cta {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 48px;
+    margin: 18px 0 0;
+    border-radius: 12px;
+    background: var(--wujia-morder-primary);
+    color: #FFFFFF;
+    font-size: 16px;
+    font-weight: 700;
+}
+.wujia-mres-cta:hover, .wujia-mres-cta:focus { color: #FFFFFF; text-decoration: none; }
+.wujia-mres-cta:active { background: var(--wujia-morder-primary-dark); }
+.wujia-mres-cta--ghost {
+    height: 44px;
+    margin-top: 14px;
+    background: var(--wujia-morder-card-bg);
+    border: 1.5px solid var(--wujia-morder-primary);
+    color: var(--wujia-morder-primary);
+    font-size: 15px;
+}
+.wujia-mres-cta--ghost:hover, .wujia-mres-cta--ghost:focus,
+.wujia-mres-cta--ghost:active {
+    background: var(--wujia-primary-soft);
+    color: var(--wujia-morder-primary);
+    text-decoration: none;
+}
+.wujia-mres-cta:focus-visible {
+    outline: 2px solid var(--wujia-morder-primary);
+    outline-offset: 2px;
+}
+
 /* Sprint 13 — Mobile LỊCH SỬ ĐẶT HÀNG (Figma 4445:4) — List + Detail */
 
 /* Title chung (List + Detail) — v2: titlerow + count / detail back button */

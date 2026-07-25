@@ -1,6 +1,6 @@
 {
     'name': 'Wujia Portal Order Window',
-    'version': '19.0.2.1.0',
+    'version': '19.0.2.2.0',
     'category': 'Wujia',
     'summary': 'Khung giờ portal đặt hàng theo khu vực (BA Section B.5 + Model Field Mục I)',
     'description': """
@@ -19,6 +19,9 @@ Helper:
 - res.config.settings._is_within_order_window(area_id=None):
   ưu tiên wujia.order.window theo khu vực, fallback global,
   handle khung qua nửa đêm, check timezone user.
+- res.config.settings._next_order_window(area_id=None):
+  read-only — khung giờ sắp tới (from/to + ngày theo tz user) cho
+  màn "ngoài khung giờ" của portal mobile.
 
 Defense in depth:
 - sale.order.create override chặn portal order ngoài khung giờ

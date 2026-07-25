@@ -20,6 +20,8 @@ Routes:
 - GET  /portal/order/cart/count   (json)    badge count
 - POST /portal/order/cart/note    (json)    save shared note
 - POST /portal/order/submit       (http)    draft SO + cancel old + clear cart
+- GET  /portal/order/submitted/<int>        màn kết quả "đặt hàng thành công" (mobile)
+- GET  /portal/order/rejected               màn kết quả "ngoài khung giờ" (mobile)
 """
 import logging
 from collections import defaultdict
@@ -38,6 +40,9 @@ from odoo.addons.wujia_portal_base.controllers.portal import (
     get_active_franchise_id,
 )
 from odoo.addons.wujia_portal_base.controllers.utils import rate_limit
+# Nhãn trạng thái SO dùng CHUNG với trang Lịch sử đặt hàng — không nhân bản dict
+# (draft → 'Chờ xác nhận'); màn kết quả và trang lịch sử phải luôn nói giống nhau.
+from odoo.addons.wujia_portal_purchase_history.controllers.portal import _state_meta
 
 _logger = logging.getLogger(__name__)
 
@@ -342,6 +347,14 @@ class WujiaPortalSale(http.Controller):
             'order_window_reopen': reopen,
             'order_window_not_configured': window['enabled'] and not window.get('configured', True),
         }
+
+    @staticmethod
+    def _is_mobile_flow(post):
+        """Form mobile gửi hidden `flow=m` → đi vào màn kết quả riêng (Figma 4963:2).
+
+        PC (pc_cart_panel.xml) KHÔNG gửi field này → giữ nguyên luồng redirect cũ
+        đã retest ở Sprint PC-1 (về trang lịch sử / banner tại giỏ)."""
+        return (post.get('flow') or '') == 'm'
 
     def _resolve_messages(self, kw):
         # Chỉ resolve mã đã biết — không reflect chuỗi lạ từ query string ra UI.
@@ -780,7 +793,7 @@ class WujiaPortalSale(http.Controller):
         area_id = franchise.area_id.id if franchise.area_id else False
         allowed, _w = request.env['res.config.settings'].sudo()._is_within_order_window(area_id=area_id)
         if not allowed:
-            return request.redirect('/portal/order/cart?error=ORDER_TIME_CLOSED')
+            return self._submit_time_closed(post)
 
         invalid_reasons = {self._line_invalid_reason(l) for l in lines} - {None}
         if invalid_reasons:
@@ -840,8 +853,9 @@ class WujiaPortalSale(http.Controller):
         except ValidationError as e:
             msg = str(e)
             _logger.warning('Portal order create rejected (store %s): %s', fid, msg)
-            code = 'ORDER_TIME_CLOSED' if 'khung giờ' in msg else 'ORDER_CREATE_FAILED'
-            return request.redirect(f'/portal/order/cart?error={code}')
+            if 'khung giờ' in msg:
+                return self._submit_time_closed(post)
+            return request.redirect('/portal/order/cart?error=ORDER_CREATE_FAILED')
         except (UserError, Exception):
             _logger.exception('Portal order create failed (store %s)', fid)
             return request.redirect('/portal/order/cart?error=ORDER_CREATE_FAILED')
@@ -863,9 +877,81 @@ class WujiaPortalSale(http.Controller):
             return request.redirect('/portal/order/cart?error=OLD_PORTAL_QUOTATION_CANCEL_FAILED')
         state = self._cart_state(cart, franchise)
         self._publish_cart_event(fid, state, 'submit')
+        # Mobile → màn "Đặt hàng thành công" (Figma 4963:2 màn 03); PC giữ nguyên
+        # redirect sang trang chi tiết đơn như Sprint PC-1.
+        if self._is_mobile_flow(post):
+            return request.redirect(f'/portal/order/submitted/{order.id}')
         return request.redirect(
             f'/portal/purchase-history/{order.id}?message=order_submitted'
         )
+
+    def _submit_time_closed(self, post):
+        """Submit bị chặn vì ngoài khung giờ — mobile có màn riêng, PC giữ banner tại giỏ."""
+        if self._is_mobile_flow(post):
+            return request.redirect('/portal/order/rejected?reason=ORDER_TIME_CLOSED')
+        return request.redirect('/portal/order/cart?error=ORDER_TIME_CLOSED')
+
+    # ------------------------------------------------- kết quả gửi đơn (mobile)
+    @http.route(['/portal/order/submitted/<int:order_id>'], type='http', auth='user',
+                sitemap=False)
+    def portal_order_submitted(self, order_id, **kw):
+        """Màn "Đặt hàng thành công" — dữ liệu THẬT từ SO vừa tạo (không phải số Figma).
+
+        Guard scope: chỉ đơn portal của store đang chọn; sai/không có quyền → về catalog
+        (không tiết lộ đơn tồn tại hay không)."""
+        fid, gate_error = self._store_gate()
+        if gate_error:
+            return request.redirect(f'/portal/order?error={gate_error}')
+        order = request.env['sale.order'].sudo().browse(order_id).exists()
+        if not order or not order.is_portal_order or order.franchise_id.id != fid:
+            return request.redirect('/portal/order')
+        # Đơn đã huỷ không phải "kết quả gửi đơn" — SALE_STATE_META không map 'cancel'
+        # nên sẽ rơi về nhãn an toàn "Đang xử lý", gây hiểu sai. Chặn ngay ở guard.
+        if order.state == 'cancel':
+            return request.redirect('/portal/order')
+
+        label, status_type = _state_meta(order.state)
+        # date_order lưu UTC — quy về tz user để "09:32" đúng giờ cửa hàng.
+        local_dt = fields.Datetime.context_timestamp(order, order.date_order) if order.date_order else None
+        franchise = self._get_franchise(fid)
+        return request.render('wujia_portal_sale.portal_order_submitted', {
+            'active_franchise_id': fid,
+            'order': order,
+            'order_name': order.name,
+            'order_date_label': local_dt.strftime('%d/%m/%Y • %H:%M') if local_dt else '—',
+            'order_amount_label': '{:,.0f}'.format(order.amount_total or 0).replace(',', '.') + ' đ',
+            'order_state_label': label,
+            'order_status_type': status_type,
+            **self._order_window_context(franchise),
+        })
+
+    @http.route(['/portal/order/rejected'], type='http', auth='user', sitemap=False)
+    def portal_order_rejected(self, reason=None, **kw):
+        """Màn "Không thể gửi đơn" — hiện chỉ dùng cho ORDER_TIME_CLOSED.
+
+        Mã lỗi khác vẫn về giỏ + banner (user sửa được ngay tại giỏ) — whitelist ở
+        đây để không reflect chuỗi lạ từ query string, đúng như `_resolve_messages`."""
+        if reason != 'ORDER_TIME_CLOSED':
+            code = reason if reason in ERROR_MESSAGES else 'internal_error'
+            return request.redirect(f'/portal/order/cart?error={code}')
+        fid, gate_error = self._store_gate()
+        if gate_error:
+            return request.redirect(f'/portal/order?error={gate_error}')
+        franchise = self._get_franchise(fid)
+        area_id = franchise.area_id.id if franchise and franchise.area_id else False
+        nxt = request.env['res.config.settings'].sudo()._next_order_window(area_id=area_id)
+        return request.render('wujia_portal_sale.portal_order_rejected', {
+            'active_franchise_id': fid,
+            'next_window_label': (
+                f"{_float_to_hhmm(nxt['from'])} – {_float_to_hhmm(nxt['to'])}" if nxt else '—'
+            ),
+            'next_window_date_label': (
+                ('Hôm nay, ' if nxt['is_today'] else '') + 'Ngày ' + nxt['date'].strftime('%d/%m/%Y')
+                if nxt else ''
+            ),
+            'next_window_name': (nxt or {}).get('name') or '',
+            **self._order_window_context(franchise),
+        })
 
     # ============================================================== pager
     def _fallback_pager(self, total, page, keyword='', cat_id=None):

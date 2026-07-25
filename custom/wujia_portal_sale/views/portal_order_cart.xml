@@ -87,8 +87,11 @@
             <!-- FUNC-MOB-ORDER-005: form bao CẢ ghi chú (cuộn trong flow) LẪN thanh
                  tổng cố định → portal_note gửi ĐỒNG BỘ khi submit (đúng như PC),
                  KHÔNG phình thanh cố định (WJ-ORD-013). Autosave qua hook wj-cart-note. -->
-            <form method="POST" action="/portal/order/submit">
+            <form method="POST" action="/portal/order/submit" class="wj-mcart-form">
                 <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
+                <!-- Figma 4963:2: chỉ luồng mobile đi vào màn kết quả riêng (submitted /
+                     rejected). PC không gửi field này → giữ redirect cũ đã retest. -->
+                <input type="hidden" name="flow" value="m"/>
                 <div class="wujia-mcart-noteblock">
                     <label class="wujia-mcart-note-label" for="wj-mcart-note">Ghi chú đơn hàng</label>
                     <textarea id="wj-mcart-note" name="portal_note" class="wujia-mcart-note wj-cart-note" rows="2"
@@ -154,6 +157,19 @@
                         <t t-esc="message"/>
                     </div>
                     <t t-call="wujia_portal_sale.mcart_panel"/>
+                </div>
+
+                <!-- Figma 4963:2 màn 02 — overlay "Đang tạo đơn" khoá thao tác trong lúc
+                     server xử lý submit. ĐẶT NGOÀI .wujia-mcart: cart sync swap innerHTML
+                     của panel đó mỗi lần reconcile, overlay nằm trong sẽ bị xoá mất. -->
+                <div id="wj-order-submitting" class="wujia-msubmit d-lg-none"
+                     role="status" aria-live="polite" aria-hidden="true">
+                    <div class="wujia-msubmit-card">
+                        <span class="wujia-msubmit-spinner" aria-hidden="true"/>
+                        <p class="wujia-msubmit-title">Đang tạo đơn...</p>
+                        <p class="wujia-msubmit-sub">Vui lòng không đóng màn hình.</p>
+                        <p class="wujia-msubmit-sub">Hệ thống đang xử lý yêu cầu.</p>
+                    </div>
                 </div>
             </div>
         </t>

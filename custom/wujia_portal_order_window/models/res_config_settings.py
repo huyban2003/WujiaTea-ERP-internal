@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timedelta
 
 import pytz
 
@@ -130,3 +130,50 @@ class ResConfigSettings(models.TransientModel):
             global_cfg, source='global',
             windows=[{'name': '', 'from': f, 'to': t}],
         )
+
+    @api.model
+    def _user_now_dt(self):
+        """Current datetime in user's timezone (naive, tz-local wall clock)."""
+        tz = self.env.user.tz or 'UTC'
+        try:
+            tz_obj = pytz.timezone(tz)
+        except pytz.UnknownTimeZoneError:
+            tz_obj = pytz.UTC
+        return datetime.now(tz_obj).replace(tzinfo=None)
+
+    @api.model
+    def _next_order_window(self, area_id=None):
+        """Khung giờ đặt hàng SẮP TỚI (read-only, không đổi rule hiện có).
+
+        Dùng cho màn "ngoài khung giờ" trên portal: cần nói rõ mở lại lúc nào
+        và NGÀY nào. Lấy danh sách khung áp dụng từ `_is_within_order_window`
+        (đã xử lý ưu tiên area → global fallback) rồi chọn lần mở gần nhất:
+        `now < from` → mở hôm nay, ngược lại → mở ngày mai.
+
+        Return:
+            dict {'from': float, 'to': float, 'name': str, 'date': date,
+            'is_today': bool} — hoặc None khi tắt giới hạn khung giờ / không
+            có khung nào áp dụng.
+        """
+        _allowed, window = self._is_within_order_window(area_id=area_id)
+        if not window.get('enabled'):
+            return None
+        windows = window.get('windows') or []
+        if not windows:
+            return None
+
+        now = self._user_now_hours()
+        today = self._user_now_dt().date()
+        # (day_offset, from) nhỏ nhất = lần mở gần nhất kể từ bây giờ.
+        best = min(
+            windows,
+            key=lambda w: (0 if now < (w['from'] or 0.0) else 1, w['from'] or 0.0),
+        )
+        day_offset = 0 if now < (best['from'] or 0.0) else 1
+        return {
+            'from': best['from'] or 0.0,
+            'to': best['to'] or 0.0,
+            'name': best.get('name') or '',
+            'date': today + timedelta(days=day_offset),
+            'is_today': day_offset == 0,
+        }

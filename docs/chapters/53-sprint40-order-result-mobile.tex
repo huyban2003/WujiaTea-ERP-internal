@@ -1,0 +1,198 @@
+\chapter{Sprint 40 --- Đặt hàng Mobile: trạng thái xử lý + kết quả gửi đơn (2026-07-26)}
+
+\section{Bối cảnh}
+
+Task BA nằm ở Google Sheet tab \texttt{Tasks} \textbf{row 5} (STT 4, \emph{Loại task} = UI-Issue,
+\emph{Sẵn sàng cho AI} = Yes, ưu tiên Cao, phạm vi \texttt{wujia\_portal\_sale} / Mobile Portal ---
+Order \& Cart): ``\emph{Bổ sung trạng thái xử lý và kết quả gửi đơn đặt hàng trên Mobile Portal}'',
+kèm Figma node \texttt{4963:2}.
+
+\textbf{Vấn đề của luồng cũ.} \texttt{POST /portal/order/submit} chạy đồng bộ rồi redirect thẳng
+\texttt{/portal/purchase-history/<id>?message=order\_submitted}. Trong lúc server tạo đơn, người
+dùng \textbf{không thấy phản hồi nào} --- hoặc bấm lại nút, hoặc tưởng máy treo. Khi bị chặn vì
+ngoài khung giờ thì chỉ về giỏ với một banner đỏ nhỏ, \textbf{không nói khung giờ mở lại lúc nào,
+ngày nào}.
+
+\textbf{Đọc Figma qua MCP} xác nhận \texttt{4963:2} là frame duy nhất của luồng này và
+\textbf{chỉ có bản mobile}, không có bản PC:
+
+\begin{center}
+\begin{tabular}{ll}
+\hline
+\textbf{Màn Figma} & \textbf{Nội dung} \\
+\hline
+02 · Đang tạo đơn & Overlay khoá thao tác trên màn giỏ: spinner + ``Đang tạo đơn\ldots'' \\
+03 · Tạo đơn thành công & Trang riêng: icon check xanh, 4 dòng thông tin đơn, 2 CTA \\
+04 · Backend từ chối & Trang riêng: icon đỏ, khung giờ tiếp theo + ngày, 2 CTA \\
+\hline
+\end{tabular}
+\end{center}
+
+Mọi số trong Figma (\texttt{SO/2026/00718}, \texttt{21/07/2026 • 09:32}, \texttt{1.352.000 đ},
+\texttt{10:00 -- 16:00}, \texttt{22/07/2026}) là \textbf{minh hoạ} --- bản dựng lấy hết từ đơn thật
+và config khung giờ thật.
+
+\textbf{3 fork đã hỏi \& chốt với chủ dự án:}
+\begin{itemize}
+  \item \textbf{PC giữ nguyên 100\%.} Form mobile gửi thêm hidden \texttt{flow=m}; chỉ nhánh mobile
+    đi vào màn kết quả mới. PC đã có màn cảnh báo riêng từ Sprint PC-1 và đã retest --- không đụng.
+  \item \textbf{Màn 04 chỉ dùng cho \texttt{ORDER\_TIME\_CLOSED}.} Các lỗi submit khác
+    (\texttt{CART\_EMPTY}, \texttt{CART\_QUANTITY\_INVALID}, \texttt{CART\_HAS\_INVALID\_PRODUCT},
+    \texttt{CART\_IS\_PROCESSING}, \texttt{ORDER\_CREATE\_FAILED}, \texttt{STORE\_*}) giữ nguyên
+    hành vi cũ: về giỏ + banner đỏ, để người dùng sửa ngay tại chỗ.
+  \item \textbf{Nhãn trạng thái tái dùng, không nhân bản} --- import \texttt{\_state\_meta} của
+    trang Lịch sử.
+\end{itemize}
+
+\section{Phần A --- Helper ``khung giờ tiếp theo''}
+
+\texttt{wujia\_portal\_order\_window/models/res\_config\_settings.py} --- thêm \textbf{2 method
+read-only mới}, \textbf{không sửa} rule \texttt{\_is\_within\_order\_window} hiện có:
+
+\begin{itemize}
+  \item \texttt{\_user\_now\_dt()} --- ``hôm nay'' theo timezone người dùng (cùng cách
+    \texttt{\_user\_now\_hours} đang tính giờ, để ngày và giờ không lệch nguồn).
+  \item \texttt{\_next\_order\_window(area\_id=None)} --- gọi lại chính
+    \texttt{\_is\_within\_order\_window()} để lấy \texttt{window['windows']} (đã xử lý ưu tiên
+    khu vực $\to$ fallback global), rồi chọn khung có \texttt{(day\_offset, from)} nhỏ nhất:
+    \texttt{now < from} $\Rightarrow$ mở \emph{hôm nay}, ngược lại $\Rightarrow$ \emph{ngày mai}.
+    Trả \texttt{\{from, to, name, date, is\_today\}} hoặc \texttt{None} khi tắt giới hạn khung giờ.
+\end{itemize}
+
+Model chỉ trả \textbf{dữ liệu thô}; việc format chuỗi để ở controller (tái dùng
+\texttt{\_float\_to\_hhmm} đã có) --- giữ đúng ranh giới model/view.
+
+\section{Phần B --- Controller}
+
+\texttt{wujia\_portal\_sale/controllers/portal.py}:
+
+\begin{itemize}
+  \item \texttt{\_is\_mobile\_flow(post)} --- 1 dòng, dùng ở 3 điểm rẽ nhánh.
+  \item \texttt{portal\_order\_submit} \textbf{chỉ đổi đích redirect}: toàn bộ logic khoá giỏ
+    \texttt{FOR UPDATE NOWAIT}, validate, huỷ báo giá cũ, clear giỏ, \texttt{\_publish\_cart\_event}
+    giữ nguyên từng dòng. Thành công: mobile $\to$ \texttt{/portal/order/submitted/<id>};
+    PC $\to$ URL cũ. \texttt{ORDER\_TIME\_CLOSED} gom về \texttt{\_submit\_time\_closed(post)}
+    dùng chung cho \textbf{cả 2 nhánh} (check trước khi create \textbf{và}
+    \texttt{ValidationError} chứa ``khung giờ'' từ tầng \texttt{sale.order.create}).
+  \item \textbf{\texttt{GET /portal/order/submitted/<int:order\_id>}} --- guard scope: đơn phải tồn
+    tại, \texttt{is\_portal\_order}, \texttt{franchise\_id} khớp cửa hàng đang chọn; sai $\to$ đẩy về
+    \texttt{/portal/order} (không tiết lộ đơn có tồn tại hay không). Chặn thêm
+    \texttt{state == 'cancel'}: \texttt{SALE\_STATE\_META} không map \texttt{cancel} nên sẽ rơi về
+    nhãn an toàn ``Đang xử lý'' --- hiển thị đơn đã huỷ như một ``kết quả gửi đơn'' là sai nghiệp vụ.
+    \texttt{date\_order} lưu UTC $\to$ quy về tz người dùng bằng
+    \texttt{fields.Datetime.context\_timestamp} để ``09:32'' đúng giờ cửa hàng.
+  \item \textbf{\texttt{GET /portal/order/rejected}} --- whitelist \texttt{reason} chỉ nhận
+    \texttt{ORDER\_TIME\_CLOSED}; mã khác đẩy về giỏ kèm banner, mã lạ về
+    \texttt{internal\_error} --- không reflect chuỗi tuỳ ý từ query string ra UI, đúng nguyên tắc
+    của \texttt{\_resolve\_messages}.
+  \item \textbf{Dependency mới:} \texttt{wujia\_portal\_purchase\_history} vào \texttt{depends} của
+    \texttt{wujia\_portal\_sale} để import \texttt{\_state\_meta}
+    (\texttt{draft} $\to$ \emph{Chờ xác nhận}/\texttt{pending}). Không có vòng phụ thuộc ---
+    \texttt{purchase\_history} chỉ depend \texttt{wujia\_sale}, \texttt{wujia\_portal\_base},
+    \texttt{wujia\_delivery} --- và CTA ``Xem chi tiết đơn hàng'' trỏ thẳng sang trang đó nên phụ
+    thuộc này đúng ngữ nghĩa. Màn kết quả và trang lịch sử vì thế \textbf{luôn nói giống nhau}.
+\end{itemize}
+
+\section{Phần C --- Template, CSS, JS}
+
+\textbf{\texttt{views/portal\_order\_result.xml} (mới, 124 dòng).} Một khung dùng chung
+\texttt{mres\_shell} (icon + tiêu đề + phần thân + CTA) cho cả 2 màn, đặt trong
+\texttt{wujia\_portal\_layout.app\_layout} + \texttt{wj\_page\_header}
+(\texttt{ph\_platform='m'}, \texttt{ph\_variant='title'}) $\to$ header, Current Store Strip và
+bottom nav lấy từ shell sẵn có, không dựng lại. Box thông tin dùng \texttt{dl/dt/dd} thay vì
+\texttt{label} --- tránh rule \texttt{label \{padding-left:.2rem\}} của \texttt{bootstrap-extended}
+(§L4).
+
+\textbf{\texttt{views/portal\_order\_cart.xml}.} Thêm hidden \texttt{flow=m} vào form mobile và
+overlay \texttt{\#wj-order-submitting}. Overlay đặt \textbf{ngoài} \texttt{.wujia-mcart}: cart-sync
+swap \texttt{innerHTML} của panel đó mỗi lần reconcile, để bên trong sẽ bị xoá mất giữa chừng.
+
+\textbf{CSS (+242 dòng \texttt{\_components.css}, +10 token \texttt{\_variables.css}).} Hai prefix
+\texttt{.wujia-msubmit-*} và \texttt{.wujia-mres-*}, mọi rule scope trong 2 prefix đó. Token
+append-only, không sửa token cũ $\to$ blast radius = 0. Theo §L4, tiêu đề màn kết quả là
+\texttt{<h2>} nên bị rule tag-level \texttt{h1, h2 \{font-size: … !important\}} của shell nuốt:
+trung hoà bằng \texttt{.wujia-mres .wujia-mres-title} + \texttt{!important}
+\textbf{trong phạm vi component}, không đụng file shared. Spinner tôn trọng
+\texttt{prefers-reduced-motion}. CSS nằm ở \texttt{wujia\_portal\_layout} (nạp qua \texttt{<link>}
+thủ công) nên \textbf{phải bump} \texttt{?v=1155 $\to$ 1157} --- §9 gotcha \#1.
+
+\textbf{JS (+48 dòng \texttt{portal\_order.js}).} Bắt \texttt{submit} trên form mobile (nhận diện
+bằng \texttt{input[name=flow][value=m]}, delegation trên \texttt{document} vì panel giỏ bị swap):
+lần 1 set cờ + \texttt{disabled} nút + bật overlay, lần 2 \texttt{preventDefault()}. Nút submit
+không có \texttt{name} nên disable không làm mất payload; \texttt{portal\_note} vẫn gửi vì nằm cùng
+form (FUNC-MOB-ORDER-005). \texttt{pageshow} + \texttt{ev.persisted} $\to$ tắt overlay, xoá cờ, mở
+lại \textbf{đúng nút mà chính JS đã khoá} --- nút bị server khoá vì ngoài khung giờ (WJ-ORD-006)
+phải giữ nguyên trạng thái khoá.
+
+Lớp chống trùng \textbf{thật} vẫn ở server (\texttt{FOR UPDATE NOWAIT} $\to$
+\texttt{CART\_IS\_PROCESSING}; lần 2 sau khi giỏ đã clear $\to$ \texttt{CART\_EMPTY}); JS chỉ là
+lớp UI.
+
+\section{Gì đã làm (nghiệp vụ)}
+
+Cửa hàng bấm ``Gửi đơn đặt hàng'' trên điện thoại giờ \textbf{thấy hệ thống đang làm việc}: màn hình
+mờ lại kèm vòng quay và dòng ``Đang tạo đơn\ldots{} Vui lòng không đóng màn hình'', nút gửi khoá lại
+nên không thể bấm nhầm hai lần thành hai đơn.
+
+Gửi thành công, họ vào thẳng một trang xác nhận thay vì bị đẩy sang danh sách lịch sử: dấu tích xanh,
+\textbf{mã đơn, thời gian đặt theo giờ cửa hàng, tổng tiền và trạng thái} --- trạng thái dùng đúng
+nhãn của trang Lịch sử nên hai chỗ không bao giờ nói khác nhau --- kèm 2 lối đi tiếp: xem chi tiết
+đơn vừa tạo, hoặc quay lại chọn thêm sản phẩm.
+
+Gửi lúc ngoài khung giờ, thay vì một dòng banner đỏ mơ hồ, họ nhận một trang nói rõ ba điều: đơn
+\textbf{chưa} được tạo, \textbf{giỏ hàng vẫn còn nguyên}, và \textbf{khung giờ đặt hàng tiếp theo mở
+lúc mấy giờ, ngày nào} --- lấy theo khung giờ của chính khu vực cửa hàng đó, có ghi rõ ``Hôm nay''
+khi khung mở lại trong ngày. Nhờ vậy cửa hàng biết chờ tới lúc nào thay vì bấm thử lại nhiều lần.
+
+\section{Lý do/Trade-off}
+
+\begin{itemize}
+  \item \textbf{Tách nhánh bằng \texttt{flow=m} thay vì detect user-agent.} Một trường hidden trong
+    form là thứ duy nhất khác nhau giữa 2 luồng; PC không gửi $\to$ hành vi PC bất biến theo đúng
+    nghĩa đen, không phụ thuộc heuristic thiết bị.
+  \item \textbf{Màn 04 chỉ cho ngoài khung giờ.} Các lỗi còn lại người dùng \emph{sửa được ngay tại
+    giỏ} (số lượng sai, sản phẩm ngừng bán\ldots) --- đẩy sang trang riêng rồi bắt bấm quay lại là
+    thêm một bước vô ích.
+  \item \textbf{Không tạo màn PC.} Figma \texttt{4963:2} không có bản PC; dựng thêm sẽ là suy diễn
+    thiết kế, trái §7 ``ask-don't-assume''.
+  \item \textbf{Card kết quả có \texttt{max-width} 420px.} Figma chỉ vẽ 359px trên khung 391;
+    giới hạn để khi mở 2 URL này trên màn rộng (chúng dùng chung route, không chặn theo viewport)
+    card không giãn hết bề ngang trông vỡ bố cục.
+  \item \textbf{Không migration.} Không thêm field nào $\to$ chỉ bump version 3 module.
+\end{itemize}
+
+\section{Verify}
+
+\texttt{-u wujia\_portal\_sale,wujia\_portal\_order\_window,wujia\_portal\_layout --stop-after-init}:
+\textbf{RC=0}, \texttt{Modules loaded} + \texttt{Registry loaded}, \textbf{0 ERROR/CRITICAL/Traceback}
+trong \texttt{logs/odoo.log}.
+
+Đo computed-style bằng Playwright/chromium ở \textbf{391$\times$844} (không nhìn ảnh, theo §L4):
+
+\begin{center}
+\begin{tabular}{lll}
+\hline
+\textbf{Thành phần} & \textbf{Đo được} & \textbf{Ghi chú} \\
+\hline
+Tiêu đề kết quả & 21px / 700 / \texttt{\#111827} & thắng được rule \texttt{h2 !important} \\
+Card kết quả & 357.4px & Figma 359 trên khung 391 \\
+Vòng icon ngoài / trong & 80 / 58px & \\
+CTA chính / phụ & cao 48 / 44px & \\
+Box 4 dòng thông tin & 323.4$\times$173, hàng 40px & \\
+Box khung giờ (đỏ) & 323.4$\times$109.5 & \\
+Giá trị khung giờ & 19px / 700 / \texttt{\#DC2626} & \\
+Badge trạng thái & 13px, nền \texttt{\#EAF8EF} chữ \texttt{\#16A34A} & đơn \texttt{sale} = Đã xác nhận \\
+Card overlay & 313$\times$178, tiêu đề 20px/700 & \\
+\hline
+\end{tabular}
+\end{center}
+
+Guard scope kiểm bằng URL trực tiếp: chưa chọn cửa hàng $\to$
+\texttt{/portal/order?error=STORE\_NOT\_SELECTED}; chọn đúng cửa hàng $\to$ render đủ dữ liệu thật
+của đơn trong DB. \texttt{/portal/order/rejected?reason=ORDER\_TIME\_CLOSED} render đúng box khung
+giờ tiếp theo.
+
+\textbf{Chưa deploy UAT.} Lệnh cần chạy trên server:
+\texttt{git pull} $\to$
+\texttt{python odoo-bin -c <conf> -d wujia\_tea\_19 -u wujia\_portal\_sale,wujia\_portal\_order\_window,wujia\_portal\_layout --stop-after-init}
+$\to$ restart service. Không có module mới nên \textbf{không cần} \texttt{-i} (§6 gotcha).

@@ -109,5 +109,53 @@
                     });
             });
         });
+
+        /* Figma 4963:2 màn 02 — overlay "Đang tạo đơn" + chống bấm 2 lần.
+           Lớp UI thuần: chặn thật nằm ở server (khoá giỏ FOR UPDATE NOWAIT →
+           CART_IS_PROCESSING; lần 2 sau khi giỏ đã clear → CART_EMPTY).
+           Delegation trên document vì panel giỏ bị cart-sync swap innerHTML. */
+        const overlay = document.getElementById("wj-order-submitting");
+
+        function setOverlay(show) {
+            if (!overlay) return;
+            overlay.classList.toggle("wujia-msubmit--show", show);
+            overlay.setAttribute("aria-hidden", show ? "false" : "true");
+        }
+
+        function mobileSubmitForm(target) {
+            const form = target && target.closest ? target.closest("form[action='/portal/order/submit']") : null;
+            // Chỉ luồng mobile (hidden flow=m) — form PC dùng chung route, không đụng.
+            return form && form.querySelector("input[name='flow'][value='m']") ? form : null;
+        }
+
+        document.addEventListener("submit", function (ev) {
+            const form = mobileSubmitForm(ev.target);
+            if (!form) return;
+            if (form.dataset.wjSubmitting === "1") {
+                ev.preventDefault();
+                return;
+            }
+            form.dataset.wjSubmitting = "1";
+            // Nút submit không có attribute name → disable không làm mất payload;
+            // portal_note vẫn gửi vì nằm cùng form (FUNC-MOB-ORDER-005).
+            const btn = form.querySelector(".wujia-mcart-submit");
+            if (btn) btn.disabled = true;
+            setOverlay(true);
+        });
+
+        // WJ-ORD-003: back/forward khôi phục trang từ BFCache → overlay/nút bị
+        // đóng băng ở trạng thái "đang gửi". Reset lại để giỏ dùng được ngay.
+        window.addEventListener("pageshow", function (ev) {
+            if (!ev.persisted) return;
+            setOverlay(false);
+            document.querySelectorAll("form[action='/portal/order/submit']").forEach(function (f) {
+                if (f.dataset.wjSubmitting !== "1") return;
+                delete f.dataset.wjSubmitting;
+                // Chỉ mở lại nút mà CHÍNH ta đã khoá — nút bị server disable vì
+                // ngoài khung giờ (WJ-ORD-006) phải giữ nguyên trạng thái khoá.
+                const b = f.querySelector(".wujia-mcart-submit");
+                if (b) b.disabled = false;
+            });
+        });
     });
 })();

@@ -2,7 +2,7 @@
 
 **Mục đích:** context inject vào mọi session. Mỗi §section search-able qua `/recall`. History chi tiết → `chapters/*.tex` + git log.
 
-**Cập nhật:** 2026-07-25 — Sprint 39 (UI Figma Auth + Đăng ký thi PC) DONE; bộ doc con (`wujia-design-system.md`, `figma-mcp-setup.md`, `DEPLOY_SPRINT5.md`) đã reconcile lại với source. State hiện tại → §5.
+**Cập nhật:** 2026-07-26 — Sprint 40 (Đặt hàng Mobile: overlay đang tạo đơn + 2 màn kết quả gửi đơn) DONE, task BA sheet tab `Tasks` row 5. State hiện tại → §5.
 
 ---
 
@@ -68,6 +68,7 @@ ADR-001 odoo19 source độc lập / 002 venv conda `odoo` py3.10 / 003 PG role 
 
 | Sprint | Date | Outcome (1 dòng) |
 |---|---|---|
+| 40 | 07-26 | Đặt hàng Mobile — trạng thái xử lý + kết quả gửi đơn (Figma 4963:2, BA `Tasks` row 5): helper `_next_order_window()` + 2 route GET `/portal/order/submitted/<id>` `/portal/order/rejected` + overlay "Đang tạo đơn" chống double-submit + BFCache reset. **PC bất biến** qua hidden `flow=m`. → ch.53 |
 | 39 | 07-25 | UI Figma 2 cụm cuối: Auth 4 màn (Login/Forgot × PC+Mobile, thay boilerplate Vuexy EN) + Đăng ký thi PC 7 màn (list/create/detail + 2 modal + 4 state chi tiết + 8 UI state), UI-only. Phát hiện **4 rule tag-level `!important` của shell nuốt mọi class PC** → trung hoà trong scope. → ch.52 |
 | 38 | 07-23 | Portal Order logic+UI a11y (Batch A/B: qty validate, atomic step, CTA AA #0F7CA8, aria, order-window banner) + Shell/layout re-fix (Batch C: navbar specificity 0,4,1, sidebar 300px, font-smoothing) — 28 issue → Ready for Retest; +web_icon fleet/franchise. → ch.51 |
 | M | 07-18 | Backend Đăng ký thi: 7 model (time.slot/course/session/registration.line), capacity FOR-UPDATE, publish gate, migration `exam 19.0.3.0.0`. → ch.50 |
@@ -87,9 +88,10 @@ ADR-001 odoo19 source độc lập / 002 venv conda `odoo` py3.10 / 003 PG role 
 
 ## §5 wujia-current-status
 
-**State (2026-07-25):** 18 module active. Sprint 39 (UI Figma Auth + Đăng ký thi PC, ch.52) DONE — 2 commit local `6757f17` + `842873c` trên `master`, build 0 ERROR, **chưa deploy UAT** (cần `-u wujia_portal_layout,wujia_portal_exam`). Hết Figma tồn: 2 cụm cuối đã dựng. Sprint 38 (portal order + shell/layout, ch.51) DONE — **28 issue Issue List → Ready for Retest**, merged + push `origin/main` (`59c8086`), build 94 module 0 ERROR. +web_icon fleet/franchise app-drawer. Sprint M (backend Đăng ký thi, ch.50) + K (backend Bù hàng, ch.49) DONE.
+**State (2026-07-26):** 18 module active. Sprint 40 (Đặt hàng Mobile — overlay + 2 màn kết quả, ch.53) DONE — build `-u wujia_portal_sale,wujia_portal_order_window,wujia_portal_layout` RC=0 / 0 ERROR, đo computed-style Playwright 391×844 khớp Figma (title 21/700, CTA 48/44, overlay card 313×178), **chưa deploy UAT** (không cần `-i`, không migration). Sprint 39 (UI Figma Auth + Đăng ký thi PC, ch.52) DONE — 2 commit local `6757f17` + `842873c` trên `master`, build 0 ERROR, **chưa deploy UAT** (cần `-u wujia_portal_layout,wujia_portal_exam`). Hết Figma tồn: 2 cụm cuối đã dựng. Sprint 38 (portal order + shell/layout, ch.51) DONE — **28 issue Issue List → Ready for Retest**, merged + push `origin/main` (`59c8086`), build 94 module 0 ERROR. +web_icon fleet/franchise app-drawer. Sprint M (backend Đăng ký thi, ch.50) + K (backend Bù hàng, ch.49) DONE.
 
 **Pending sống (hàng đợi):**
+- **Deploy UAT tồn 2 sprint**: S39 `-u wujia_portal_layout,wujia_portal_exam` + S40 `-u wujia_portal_sale,wujia_portal_order_window,wujia_portal_layout`. Gộp 1 lần được (không module mới, không migration). CSS đã bump `?v=1157`.
 - **M — portal Đăng ký thi**: **UI PC + mobile đã dựng xong theo Figma (S39/S26)**, còn **wire thật** (chọn kỳ mở → nhập nhân sự → gửi phiếu + lịch sử + kết quả; hiện demo dict trong controller, key đã map 1-1 field Sprint M nên chỉ đổi nguồn dữ liệu); deprecate `schedule`/`result`; deploy `-u wujia_portal_exam` (có migration). Plan: `floating-nibbling-widget.md`.
 - **K — Bù hàng**: (b) guard size video minh chứng (1500 user); (d) SO bù để `draft`, HQ tự confirm sinh phiếu. Deploy `-u wujia_portal_return wujia_sale`. Plan: `functional-brewing-quill.md`.
 - **Dashboard (workstream riêng)**: Step 2b (tab Query render + JS widget + 4 layouts + PDF cho `wj_ks_dn_advance`) + Step 3 `wj_ks_dn_formula` chưa port. Deploy prod cần `-i` module mới + pip pandas/xlrd/openpyxl. Nguồn: `docs/dashboard-migration-plan.md` (skill `/wujia-dashboard`).
