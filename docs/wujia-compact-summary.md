@@ -68,6 +68,7 @@ ADR-001 odoo19 source độc lập / 002 venv conda `odoo` py3.10 / 003 PG role 
 
 | Sprint | Date | Outcome (1 dòng) |
 |---|---|---|
+| 39 | 07-25 | UI Figma 2 cụm cuối: Auth 4 màn (Login/Forgot × PC+Mobile, thay boilerplate Vuexy EN) + Đăng ký thi PC 7 màn (list/create/detail + 2 modal + 4 state chi tiết + 8 UI state), UI-only. Phát hiện **4 rule tag-level `!important` của shell nuốt mọi class PC** → trung hoà trong scope. → ch.52 |
 | 38 | 07-23 | Portal Order logic+UI a11y (Batch A/B: qty validate, atomic step, CTA AA #0F7CA8, aria, order-window banner) + Shell/layout re-fix (Batch C: navbar specificity 0,4,1, sidebar 300px, font-smoothing) — 28 issue → Ready for Retest; +web_icon fleet/franchise. → ch.51 |
 | M | 07-18 | Backend Đăng ký thi: 7 model (time.slot/course/session/registration.line), capacity FOR-UPDATE, publish gate, migration `exam 19.0.3.0.0`. → ch.50 |
 | K | 07-17 | Backend Bù hàng/Return: redesign single-product + duyệt + `compensation.allocation` + wizard SO 0đ FIFO + hook picking + portal wire tiến độ. → ch.49 |
@@ -86,10 +87,10 @@ ADR-001 odoo19 source độc lập / 002 venv conda `odoo` py3.10 / 003 PG role 
 
 ## §5 wujia-current-status
 
-**State (2026-07-23):** 18 module active. Sprint 38 (portal order + shell/layout, ch.51) DONE — **28 issue Issue List → Ready for Retest**, merged + push `origin/main` (`59c8086`), build 94 module 0 ERROR. +web_icon fleet/franchise app-drawer. Sprint M (backend Đăng ký thi, ch.50) + K (backend Bù hàng, ch.49) DONE.
+**State (2026-07-25):** 18 module active. Sprint 39 (UI Figma Auth + Đăng ký thi PC, ch.52) DONE — 2 commit local `6757f17` + `842873c` trên `master`, build 0 ERROR, **chưa deploy UAT** (cần `-u wujia_portal_layout,wujia_portal_exam`). Hết Figma tồn: 2 cụm cuối đã dựng. Sprint 38 (portal order + shell/layout, ch.51) DONE — **28 issue Issue List → Ready for Retest**, merged + push `origin/main` (`59c8086`), build 94 module 0 ERROR. +web_icon fleet/franchise app-drawer. Sprint M (backend Đăng ký thi, ch.50) + K (backend Bù hàng, ch.49) DONE.
 
 **Pending sống (hàng đợi):**
-- **M — portal Đăng ký thi**: wire thật (chọn kỳ mở → nhập nhân sự → gửi phiếu + lịch sử + kết quả; hiện demo-safe stub); deprecate `schedule`/`result`; deploy `-u wujia_portal_exam` (có migration). Plan: `floating-nibbling-widget.md`.
+- **M — portal Đăng ký thi**: **UI PC + mobile đã dựng xong theo Figma (S39/S26)**, còn **wire thật** (chọn kỳ mở → nhập nhân sự → gửi phiếu + lịch sử + kết quả; hiện demo dict trong controller, key đã map 1-1 field Sprint M nên chỉ đổi nguồn dữ liệu); deprecate `schedule`/`result`; deploy `-u wujia_portal_exam` (có migration). Plan: `floating-nibbling-widget.md`.
 - **K — Bù hàng**: (b) guard size video minh chứng (1500 user); (d) SO bù để `draft`, HQ tự confirm sinh phiếu. Deploy `-u wujia_portal_return wujia_sale`. Plan: `functional-brewing-quill.md`.
 - **Dashboard (workstream riêng)**: Step 2b (tab Query render + JS widget + 4 layouts + PDF cho `wj_ks_dn_advance`) + Step 3 `wj_ks_dn_formula` chưa port. Deploy prod cần `-i` module mới + pip pandas/xlrd/openpyxl. Nguồn: `docs/dashboard-migration-plan.md` (skill `/wujia-dashboard`).
 - **Controller S30/31 deploy**: prod bật `is_public_portal`+`min_qty`+tạo danh mục portal (else catalog trống); WebSocket realtime chỉ chạy prod (gevent+nginx); deploy `-u wujia_sale,wujia_portal_sale`.
@@ -170,6 +171,7 @@ Postmortem chi tiết → `chapters/18-*.tex`.
 - **L1 — Extract full images từ xlsm + MAP image→cell** qua openpyxl `img.anchor._from.row/col` (KHÔNG cherry-pick theo số file). Annotation BA: khoanh đỏ=target / gạch chéo=xóa / gạch chân=highlight.
 - **L2 — Check v14 trước khi build mới**: `grep -rln <kw> /home/huyban/odoo-dev/wujia_tea_odoo14/modules/`. Có → adapt; không → ghi rõ "v14 KHÔNG có X" + build từ đầu.
 - **L3 — Visual design hỏi explicit 4 câu** trước khi code: bg color? text color? layout (inline/stacked)? icon (feather name)? KHÔNG assume hex từ ảnh.
+- **L4 (S39) — Dựng Figma xong PHẢI đo computed-style, đừng nhìn ảnh.** Shell Vuexy có 4 rule **tag-level + `!important`** thắng mọi class: `_components.css` `h1/h2 {font-size !important}` · `style.css` `table th {font-size:16px !important}` · `dashboard.css` `select {width:100%;padding:5px !important}` · `bootstrap-extended` `label {padding-left:.2rem}`. Cách phát hiện: Playwright duyệt `document.styleSheets`, `el.matches(rule.selectorText)`, in ra mọi declaration + cờ `!important`. Trung hoà trong **scope component**, KHÔNG sửa 4 file shared (blast radius = toàn portal). Đồng cấp specificity thì **thứ tự source quyết định** — modifier `--sm` phải đặt sau base, và `.x .y` (0,2,0) sẽ đè `.z` (0,1,0) dù `.z` mang ý nghĩa cụ thể hơn.
 
 ---
 

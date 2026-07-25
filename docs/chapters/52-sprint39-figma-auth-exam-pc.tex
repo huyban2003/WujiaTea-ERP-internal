@@ -1,0 +1,174 @@
+\chapter{Sprint 39 --- UI Figma: Auth 4 màn + Đăng ký thi PC 7 màn (2026-07-25)}
+
+\section{Bối cảnh}
+
+User chốt: ``còn 2 cụm Figma theo MCP chưa làm --- một là 4 màn Forgot password + Login (PC \& Mobile),
+hai là WJ Exam PC gồm 7 hình''. Yêu cầu: \textbf{review source trước} xem còn màn nào chưa dựng, làm theo
+BA, \textbf{sát 99\%}, làm xong \textbf{tự so sánh}. Kèm 1 câu hỏi: ``chỗ task 2 có 2 phiên bản, xem thử
+có khác gì nhau không''.
+
+\textbf{Kết quả review source:}
+\begin{itemize}
+  \item \texttt{wujia\_portal\_layout/views/login\_page.xml} vẫn là \textbf{boilerplate Vuexy tiếng Anh}
+    (``Welcome back, please login to your account.'', ``Username'', ``Remember me'', banner
+    \texttt{wujia\_login\_1.png}) --- không có gì khớp Figma v3.
+  \item \texttt{wujia\_portal\_exam/views/portal\_exam.xml}: nhánh \textbf{mobile}
+    (\texttt{.wujia-mexam}, Sprint 26) đã dựng theo Figma, nhưng nhánh \textbf{PC}
+    (\texttt{content-wrapper d-none d-lg-block}) vẫn là lưới \texttt{card.exam-card} Bootstrap generic.
+\end{itemize}
+
+\textbf{Trả lời câu hỏi ``2 phiên bản'':} \textbf{cùng một thiết kế}. Với cả 7 màn, số node, số text-node
+và md5 của chuỗi text nối lại \emph{giống hệt từng byte}. Khác biệt duy nhất: bản thứ hai là bản
+\textbf{kéo giãn dọc} --- \texttt{x}/\texttt{width} giữ nguyên, \texttt{y}/\texttt{height} nhân $\sim$1.0194
+(frame 1080 $\to$ 1101). Bản 1080 có toạ độ nguyên = bản gốc. $\Rightarrow$ dựng theo frame 1920$\times$1080,
+bỏ qua bản dẫn xuất.
+
+\textbf{4 fork đã hỏi \& chốt với user:} mức wire Exam PC = \emph{UI-only demo} (§7 UI-only rule) ·
+route màn 01\_List = \texttt{/portal/exam} (chung route với mobile) · scope Auth = Login + Forgot + áp
+cùng khung cho \texttt{reset\_pass} \& \texttt{login\_totp}, \textbf{không} đụng \texttt{signup} ·
+pill ngôn ngữ = \textbf{tĩnh}, không wire.
+
+\section{Phần A --- Auth UI (commit \texttt{6757f17})}
+
+Figma \texttt{WJ\_Auth\_v3}: Login\_PC \texttt{4886:831}, Login\_Mobile \texttt{4886:789},
+ForgotPassword\_PC \texttt{4886:742}, ForgotPassword\_Mobile \texttt{4886:705}.
+
+\begin{itemize}
+  \item \textbf{\texttt{\_auth.css} (mới)} --- shell 2 cột: panel brand cyan 780$\times$1080 (2 vòng tròn
+    trang trí \texttt{opacity .05/.10}) + card form trắng 560px, padding trong 48px $\to$ content 464px.
+    Mobile: band cyan 391$\times$214 + card 359px @ x16, padding 20px $\to$ content 319px. Toàn bộ dùng
+    token \texttt{-{}-wujia-*}, không hex cứng.
+  \item \textbf{\texttt{login\_page.xml}} --- viết lại thân \texttt{login\_form}, \texttt{forgot\_pass\_form},
+    \texttt{reset\_pass\_form}, \texttt{login\_2fa\_form}. \textbf{Giữ nguyên} mọi template id và mọi
+    \texttt{name=} của form POST (\texttt{login}/\texttt{password}/\texttt{redirect}/\texttt{confirm\_password}/\texttt{csrf\_token})
+    $\to$ \texttt{controllers/auth.py} và \texttt{request.render()} không phải sửa 1 dòng.
+  \item \textbf{\texttt{layouts.xml}} --- sửa typo \texttt{<html lass="no-js">} $\to$ \texttt{class}, thêm
+    scope \texttt{.wj-auth-body}.
+  \item \textbf{\texttt{wujia\_password\_toggle.js}} --- thêm \texttt{.wj-auth-pwd} vào selector
+    \texttt{closest()} (sửa 1 dòng, additive) $\to$ tái dùng eye-toggle có sẵn, không viết JS mới.
+  \item \textbf{\texttt{assets.xml}} --- nạp \texttt{\_auth.css?v=1161} trong template
+    \texttt{asset\_css\_authentication}. Template này CHỈ được gọi trong \texttt{login\_layout}
+    $\to$ blast radius = riêng màn đăng nhập.
+\end{itemize}
+
+\section{Phần B --- Đăng ký thi PC (commit \texttt{842873c})}
+
+7 frame = \textbf{3 trang thật + 2 modal + 2 bảng spec}:
+01\_List \texttt{4891:1714} $\to$ \texttt{/portal/exam} ·
+02\_Create \texttt{4891:2042} $\to$ \texttt{/portal/exam/register} ·
+03\_ParticipantModal \texttt{4891:2317} + 04\_SubmitModal \texttt{4891:2797} $\to$ modal trên trang 02 ·
+05\_ResultDetail \texttt{4891:1565} $\to$ \texttt{/portal/exam/registration/<id>} ·
+06\_DetailVariants \texttt{4891:2635} = \textbf{spec} 4 state của trang 05 ·
+07\_UIStates \texttt{4891:1887} = \textbf{spec} 8 state của trang 02.
+
+\begin{itemize}
+  \item \textbf{4 state của trang chi tiết (frame 06).} Trạng thái đăng ký và trạng thái công bố kết quả
+    luôn là \textbf{hai badge riêng}. \emph{Chờ xác nhận} / \emph{Đã đăng ký} có bảng kết quả;
+    \emph{Từ chối} / \emph{Đã hủy} \textbf{ẩn bảng kết quả} và chỉ hiện banner lý do. Portal MVP
+    \textbf{không có nút hủy}.
+  \item \textbf{8 state của trang tạo phiếu (frame 07).} Skeleton đang tải lịch · tháng không có lịch ·
+    không có khung giờ khả dụng · chip lý do từng ca (\emph{Còn 3 chỗ}/\emph{Hết chỗ}/\emph{Đã đóng}/\emph{Quá hạn}) ·
+    validation tại field · đang gửi (khoá nút chống double-submit) · xung đột chỗ · thành công.
+  \item \textbf{\texttt{portal\_exam\_pc.js} (mới, 286 dòng).} Vanilla IIFE, no-dep, chỉ chạy khi thấy
+    \texttt{[data-wj-exam-pc]}: đổi tháng, chọn ngày $\to$ render slot, chọn slot $\to$ sync card tóm tắt,
+    mở/đóng 2 modal (backdrop + Escape), thêm/xoá người tham gia client-side, preview ảnh bằng
+    \texttt{FileReader}.
+  \item \textbf{Controller demo.} Key của \texttt{pc\_regs}/\texttt{pc\_summary}/\texttt{pc\_detail} đặt
+    \textbf{map 1-1 với field thật của Sprint M} (\texttt{name}, \texttt{course\_id.name},
+    \texttt{session\_id.start\_datetime}, \texttt{line\_ids.employee\_name/phone/birth\_year/job\_position/result})
+    $\to$ sprint wire sau chỉ đổi nguồn dữ liệu, không đụng template.
+  \item \textbf{Không sửa \texttt{\_pc\_components.css}.} Mọi biến thể Figma nằm sau modifier
+    \texttt{.wj-exam-pc-*} riêng $\to$ không blast radius sang các trang PC khác.
+\end{itemize}
+
+\section{Phần C --- Tự so sánh: 4 rule global của shell âm thầm nuốt class PC}
+
+Bỏ pixel-diff (chậm, mơ hồ: 2 lần scan cùng 1 hàng ra số run khác nhau vì cắt trúng feature khác nhau).
+Chuyển sang \textbf{đo computed-style bằng Playwright} (\texttt{getBoundingClientRect()} +
+\texttt{getComputedStyle()}), cộng một probe duyệt \texttt{document.styleSheets} để biết
+\textbf{rule nào thắng} và có \texttt{!important} hay không. Probe này lôi ra 4 thủ phạm:
+
+\begin{center}
+\begin{tabular}{lll}
+\hline
+\textbf{File} & \textbf{Rule} & \textbf{Hậu quả} \\
+\hline
+\texttt{\_components.css} & \texttt{h1, h2 \{ font-size: … !important \}} & mọi heading sai cỡ (32/24px) \\
+\texttt{style.css} & \texttt{table th \{ font-size:16px !important \}} & mọi \texttt{<th>} = 16px \\
+\texttt{dashboard.css} & \texttt{select \{ width:100\%; padding:5px !important \}} & select full-width \\
+\texttt{bootstrap-extended} & \texttt{label \{ padding-left:.2rem \}} & mọi label lệch phải 2.8px \\
+\hline
+\end{tabular}
+\end{center}
+
+Cả 4 đều là rule \textbf{tag-level có \texttt{!important}} $\to$ thắng mọi class, và ảnh hưởng
+\textbf{toàn platform} (\texttt{/portal/order}, \texttt{/portal/delivery}, thông báo, lịch sử mua…).
+Theo nguyên tắc no-blast-radius: \textbf{không sửa 4 file shared}, chỉ trung hoà trong phạm vi
+\texttt{.wj-exam-pc} / \texttt{.wj-auth-*}.
+
+\textbf{Các lệch khác tìm \& sửa trong vòng self-compare:}
+\begin{itemize}
+  \item \textbf{Tự gây regression.} \texttt{.wj-exam-pc .wj-exam-pc-sectitle} (0,2,0) \texttt{!important}
+    đè \texttt{--sm} (0,1,0) $\to$ sectitle nhỏ nhảy 18$\to$20px. Fix: thêm rule \texttt{--sm} ngay sau.
+  \item \textbf{Badge tràn ô sinh dấu ``\ldots''.} Badge \emph{Chờ xác nhận} rộng 141px $>$ lòng ô 136px,
+    mà \texttt{td} có \texttt{text-overflow:ellipsis} $\to$ trình duyệt vẽ thêm ``\ldots'' \emph{bên ngoài}
+    viên badge. Fix: padding badge 26$\to$16px (121px, vừa khít).
+  \item \textbf{Badge header chi tiết co lại.} \texttt{.wj-exam-pc .wj-pc-badge} (0,2,0) nằm sau trong file
+    đè \texttt{.wj-exam-pc-hbadge} (0,1,0) $\to$ 176px co còn 118px. Fix: scope lại thành
+    \texttt{.wj-exam-pc .wj-exam-pc-hbadge}.
+  \item Chip ``Chưa có ảnh'' xuống 2 dòng (thiếu \texttt{nowrap}); box (i) cột phải tách 1 câu thành 2
+    \texttt{<p>} nên đọc thành 2 ý rời (gộp lại 1 \texttt{<p>}, đổi weight bằng \texttt{<span>}).
+\end{itemize}
+
+\section{Gì đã làm (nghiệp vụ)}
+
+Màn đăng nhập và quên mật khẩu của cổng nhượng quyền không còn là mẫu tiếng Anh mặc định: nay là giao diện
+Ngô Gia đúng thiết kế --- panel thương hiệu cyan bên trái với thông điệp ``Vận hành cửa hàng trên một nền
+tảng'' và 4 nhóm nghiệp vụ (Đơn hàng · Giao nhận · Công nợ · Thông báo), form đăng nhập bên phải có ô hiện/ẩn
+mật khẩu, khối nhắc bảo mật tài khoản, và bản mobile riêng. Màn quên mật khẩu nói rõ hệ thống \emph{không}
+xác nhận email có tồn tại hay không --- đúng chuẩn không rò rỉ thông tin tài khoản.
+
+Nghiệp vụ Đăng ký thi trên máy tính có đủ 3 trang: danh sách phiếu (lọc theo trạng thái/kết quả/khoảng ngày,
+badge trạng thái, cột kết quả tóm tắt kiểu ``2 Đạt · 1 Không đạt'', phân trang), trang tạo phiếu (chọn khóa
+thi $\to$ chọn ngày trên lịch tháng $\to$ chọn khung giờ còn chỗ, nhập tối đa 4 người kèm ảnh, cột phải tóm
+tắt trực tiếp những gì sắp gửi cùng 2 chỉ số \emph{Phiếu: 2/4} và \emph{Ca còn: 3 chỗ}), và trang chi tiết
+kết quả (thông tin phiếu + bảng kết quả từng người kèm ghi chú). Cửa hàng thấy rõ \textbf{trạng thái phiếu}
+và \textbf{trạng thái công bố kết quả} là hai thứ tách bạch; phiếu bị từ chối hoặc đã hủy không hiển thị kết
+quả và chỉ nêu lý do.
+
+\section{Lý do/Trade-off}
+
+\begin{itemize}
+  \item \textbf{Khung shell hẹp hơn Figma $\sim$16px ($\sim$1\%).} Figma content 1572px, render 1556px;
+    sidebar thật hẹp hơn mốc 300px của Figma nên cả cột content dịch phải 8--9px. Đây là hình học shell
+    \emph{có sẵn}, đúng như nhau ở MỌI trang PC; grid dùng \texttt{fr} nên tỉ lệ vẫn chuẩn. Sửa =
+    đụng layout toàn portal $\to$ để nguyên, ghi nhận.
+  \item \textbf{Modal 03 dùng placeholder} chỗ Figma điền sẵn \emph{Nguyễn Văn An} / \emph{0901 234 567} ---
+    điền sẵn dữ liệu giả vào form ``thêm người'' là bug nghiệp vụ, không phải fidelity.
+  \item Select ``10 / trang'' rộng 114px thay vì 88px: \texttt{<select>} native luôn chừa chỗ mũi tên.
+  \item Badge trong Figma rộng không nhất quán (88\ldots176) $\to$ dùng \texttt{min-width} theo ngữ cảnh.
+  \item Bộ lọc ngày dùng \texttt{type="text"} + placeholder vì Figma vẽ placeholder chứ không phải date
+    picker native.
+  \item Mức wire = UI-only theo §7: nút có nhưng chưa nối backend Sprint M. Wire thật nằm ở pending ``M ---
+    portal Đăng ký thi''.
+\end{itemize}
+
+\section{Verify}
+
+\texttt{-u wujia\_portal\_layout,wujia\_portal\_exam --stop-after-init}: RC=0, \textbf{0 ERROR}.
+Đo computed-style bằng Playwright ở 1920$\times$1080 và 391$\times$844 --- sau khi vá:
+headline auth 47px, card title 30px (PC) / 22px một dòng (mobile), label padding-left 0;
+filterbar title 18px, card title 22px, sectitle 20/18px, modal title 26px, \texttt{th} 14/13/12px theo
+từng bảng, pagination cao 36px và select 114px. Hình học khớp Figma: pitch hàng bảng 68px, ô ngày
+56$\times$32 cách nhau 24px, hàng slot 340$\times$58, panel modal 820/880px, thumb 112$\times$112,
+card auth 560px padding 48px.
+
+Regression: \texttt{/portal}, \texttt{/portal/order}, \texttt{/portal/delivery}, \texttt{/portal/exam},
+\texttt{/portal/exam/register}, \texttt{/portal/exam/registration/<id>} $\to$ 200, không traceback,
+\textbf{không lỗi JS}, không tràn ngang; 4 route mobile $\to$ 200 và nhánh \texttt{.wj-exam-pc} không hiện
+(nhánh Sprint 26 nguyên vẹn). Rule check: hex chỉ nằm trong block \texttt{:root}; không \texttt{attrs=} /
+\texttt{decoration-secondary}; \texttt{?v=} đã bump; demo data nằm trong controller, không vào \texttt{data}
+của manifest.
+
+\textbf{Chưa deploy UAT} --- 2 commit đang ở \texttt{master} local, cần \texttt{-u wujia\_portal\_layout,wujia\_portal\_exam}
+khi lên server.
