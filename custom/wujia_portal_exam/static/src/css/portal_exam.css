@@ -632,3 +632,1035 @@
     .wujia-mexam-rnote { margin-top: 0; }
     .wujia-mexam-rcta { width: 100%; margin-top: 4px; }
 }
+
+/* ==========================================================================
+   Sprint 39 — PC "Đăng ký thi" (Figma WJ_Exam_PC v1.2, 7 frame 1920×1080).
+   UI-only. KHÔNG sửa _pc_components.css: chỉ thêm modifier .wj-exam-pc-*
+   chồng lên base .wj-pc-* → blast radius = riêng module exam.
+   Frame gốc: 01_List 4891:1714 · 02_Create 4891:2042 · 03_Modal 4891:2317 ·
+   04_Modal 4891:2797 · 05_Detail 4891:1565 · 06_Variants 4891:2635 ·
+   07_States 4891:1887.
+   ========================================================================== */
+:root {
+    --wj-exam-pc-tint:      #F2FBFF;   /* info box / ngày còn chỗ / slot đang chọn */
+    --wj-exam-pc-day-block: #94A3B8;   /* ngày không thể đăng ký */
+    --wj-exam-pc-day-out:   #B9C0C8;   /* ngày tháng khác */
+    --wj-exam-pc-thumb-bg:  #EAF7FD;   /* ô ảnh nhân viên */
+    --wj-exam-pc-kv-border: #F3F6F8;   /* viền ô key-value */
+    --wj-exam-pc-bd-info:   #D5F1FB;   /* viền banner theo state */
+    --wj-exam-pc-bd-warn:   #FEEDC6;
+    --wj-exam-pc-bd-danger: #FEDEDE;
+    --wj-exam-pc-bd-muted:  #EEF0F3;
+    --wj-exam-pc-bd-green:  #CBEFDD;  /* viền alert "gửi thành công" */
+    --wj-exam-pc-day-bd-bk: #CBD5E1;  /* viền ngày không thể đăng ký + dot legend */
+}
+
+@media (min-width: 992px) {
+
+    /* ---------- Chung ---------- */
+    .wj-exam-pc .wj-pc-page-header { margin-bottom: 25px; }
+    .wj-exam-pc .wj-pc-page-header__title {
+        font-size: 30px !important;   /* thắng h1 !important của _components.css */
+    }
+    .wj-exam-pc .wj-pc-page-header__crumb { font-weight: 400; }
+    .wj-exam-pc .wj-pc-btn { font-weight: 700; }
+
+    /* ---------- Trung hoà 4 rule global của shell Vuexy ----------
+       Các rule dưới đây được ghi đè bằng !important vì shell đặt !important ở
+       selector tag-level, thắng mọi class của _pc_components.css:
+         _components.css      h2, .wujia-h2  font-size: 24px !important
+         style.css            table th       font-size: 16px !important
+         dashboard.css        select         width: 100% + padding: 5px !important
+         bootstrap-extended   label          padding-left: .2rem
+       Không sửa 4 file đó vì blast radius là toàn bộ portal; chỉ vô hiệu hoá
+       trong phạm vi .wj-exam-pc. Số liệu lấy từ Figma WJ_Exam_PC v1.2. */
+    .wj-exam-pc .wj-pc-filterbar__title { font-size: 18px !important; }
+    .wj-exam-pc .wj-pc-card__title      { font-size: 22px !important; }
+    .wj-exam-pc .wj-exam-pc-sectitle    { font-size: 20px !important; }
+    .wj-exam-pc .wj-exam-pc-sectitle--sm { font-size: 18px !important; }
+    .wj-exam-pc .wj-exam-pc-modal__title { font-size: 26px !important; }
+
+    .wj-exam-pc .wj-pc-table thead th        { font-size: 14px !important; }
+    .wj-exam-pc .wj-exam-pc-res-table thead th  { font-size: 13px !important; }
+    .wj-exam-pc .wj-exam-pc-part-table thead th,
+    .wj-exam-pc .wj-exam-pc-sum-table thead th  { font-size: 12px !important; }
+
+    .wj-exam-pc label  { padding-left: 0; }
+    .wj-exam-pc select { padding: 0 18px !important; }
+    .wj-exam-pc .wj-pc-pagination__size {
+        flex: 0 0 auto;
+        width: auto;
+        min-width: 88px;
+        padding: 0 12px !important;
+        text-align: center;
+    }
+    .wj-exam-pc .wj-pc-pagination__count { white-space: nowrap; }
+
+    /* ---------- Bộ lọc nhanh (Figma y178 h88) ---------- */
+    .wj-exam-pc-filterbar { padding: 11px 24px 4px; }
+    .wj-exam-pc-filterbar .wj-pc-filterbar__title { margin: 0 0 9px; }
+    .wj-exam-pc-filterbar .wj-pc-filterbar__row {
+        align-items: flex-start;   /* input h38 / nút h42 canh mép trên như Figma */
+        gap: 14px;
+    }
+    /* Figma KHÔNG đẩy nút sang phải: nút chạy tiếp sau ô "Đến ngày". */
+    .wj-exam-pc-filterbar .wj-pc-filterbar__actions { margin-left: 0; gap: 14px; }
+    .wj-exam-pc-filterbar .wj-pc-btn { min-width: 96px; padding: 0 16px; }
+    .wj-exam-pc-filterbar .wj-pc-filter-control { padding: 0 18px; }
+    .wj-exam-pc-fc--sel    { flex: 0 0 174px; width: 174px; }
+    .wj-exam-pc-fc--date   { flex: 0 0 164px; width: 164px; }
+    .wj-exam-pc-fc--search { flex: 0 0 392px; width: 392px; }
+    .wj-exam-pc-fc--search > i { left: 18px; }
+    .wj-exam-pc-fc--search > .wj-pc-filter-control { padding-left: 50px; }
+
+    /* ---------- Card danh sách (Figma y290) ---------- */
+    .wj-exam-pc-card { padding: 22px 24px 24px; }
+    .wj-exam-pc-card__head { margin-bottom: 25px; }
+    .wj-exam-pc-card .wj-pc-card__subtitle { margin-top: 5px; }
+
+    /* ---------- Bảng lịch sử đăng ký (row 68, 8 cột) ---------- */
+    .wj-exam-pc-list-table { table-layout: fixed; }
+    .wj-exam-pc-list-table tbody td { height: 68px; }
+    .wj-exam-pc-list-table th:nth-child(1) { width: 8.268%; }
+    .wj-exam-pc-list-table th:nth-child(2) { width: 16.667%; }
+    .wj-exam-pc-list-table th:nth-child(3) { width: 12.861%; }
+    .wj-exam-pc-list-table th:nth-child(4) { width: 14.436%; }
+    .wj-exam-pc-list-table th:nth-child(5) { width: 6.824%; }
+    .wj-exam-pc-list-table th:nth-child(6) { width: 11.942%; }
+    .wj-exam-pc-list-table th:nth-child(7) { width: 18.766%; }
+    .wj-exam-pc-list-table th:nth-child(8) { width: 10.236%; }
+    .wj-exam-pc-list-table .wj-pc-td--code { font-weight: 700; }
+    .wj-exam-pc-list-table .wj-pc-td--muted { font-weight: 400; }
+    .wj-exam-pc-list-table td { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .wj-exam-pc-th--center,
+    .wj-exam-pc-td--center { text-align: center; }
+
+    /* Badge trạng thái đăng ký — Figma 12/700, ô rộng tối thiểu 118.
+       padding 16 chứ không phải 26: cột "Trạng thái đăng ký" rộng 180 (Figma 182),
+       trừ padding ô 2×22 còn 136px. Với padding 26 thì nhãn dài nhất
+       ("Chờ xác nhận") ra 141px → tràn, và `td` có text-overflow:ellipsis
+       nên vẽ thêm dấu "…" bên ngoài viên badge. */
+    .wj-exam-pc .wj-pc-badge {
+        min-width: 118px;
+        max-width: 100%;
+        padding: 0 16px;
+        justify-content: center;
+        font-size: 12px;
+        font-weight: 700;
+    }
+
+    /* Cột kết quả: có kết quả = 13/700 đậm · chưa có = 13/400 nhạt */
+    .wj-exam-pc-result { font-size: 13px; }
+    .wj-exam-pc-result--pass,
+    .wj-exam-pc-result--mixed { font-weight: 700; color: var(--wj-pc-text); }
+    .wj-exam-pc-result--muted { font-weight: 400; color: var(--wj-pc-subtle); }
+
+    /* ---------- Pagination (Figma y878) ---------- */
+    .wj-exam-pc-pagination { margin-top: 30px; padding: 0 14px 0 24px; }
+    .wj-exam-pc-pagination .wj-pc-pagination__size { font-weight: 700; }
+}
+
+@media (min-width: 992px) {
+
+    /* ======================================================================
+       05_ResultDetail (4891:1565) + 06_DetailVariants (4891:2635)
+       ====================================================================== */
+    .wj-exam-pc-detail .wj-pc-page-header { margin-bottom: 7px; }
+    /* Scope `.wj-exam-pc` bắt buộc: `.wj-exam-pc .wj-pc-badge` (0,2,0) đặt min-width 118
+       nằm sau trong file, nên (0,1,0) ở đây sẽ thua và badge header co lại còn 118. */
+    .wj-exam-pc .wj-exam-pc-hbadge { min-width: 176px; margin-top: 8px; }
+    .wj-exam-pc .wj-exam-pc-pbadge { min-width: 128px; }
+
+    .wj-exam-pc-back { min-width: 122px; margin-bottom: 18px; }
+
+    .wj-exam-pc-dcard { padding: 20px 24px 24px; }
+    .wj-exam-pc-dhead { margin-bottom: 23px; }
+    .wj-exam-pc-sectitle { font-size: 20px; }
+    .wj-exam-pc-sectitle--2 { margin-top: 28px; }
+    .wj-exam-pc-secsub { margin-top: 7px; font-size: 13px; font-weight: 400; }
+
+    /* KV grid 4 cột × 2 hàng, ô h72 (Figma y310 / y398) */
+    .wj-exam-pc-kvgrid {
+        display: grid;
+        grid-template-columns: 356fr 356fr 356fr 408fr;
+        gap: 16px;
+    }
+    .wj-exam-pc-kv {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        min-height: 72px;
+        padding: 11px 16px;
+        border: 1px solid var(--wj-exam-pc-kv-border);
+        border-radius: var(--wj-pc-input-radius);
+        background: var(--wj-pc-table-header-bg);
+    }
+    .wj-exam-pc-kv__label {
+        font-size: 12px;
+        font-weight: 700;
+        color: var(--wj-pc-subtle);
+    }
+    .wj-exam-pc-kv__value {
+        font-size: 14px;
+        font-weight: 700;
+        color: var(--wj-pc-text);
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    /* Bảng kết quả thi — header h46/13px, row h62, cell padding 20 */
+    .wj-exam-pc-res-table { table-layout: fixed; margin-top: 13px; }
+    .wj-exam-pc-res-table thead th {
+        height: 46px;
+        padding: 0 20px;
+        font-size: 13px;
+    }
+    .wj-exam-pc-res-table tbody td { height: 62px; padding: 0 20px; }
+    .wj-exam-pc-res-table th:nth-child(1) { width: 8.530%; }
+    .wj-exam-pc-res-table th:nth-child(2) { width: 16.404%; }
+    .wj-exam-pc-res-table th:nth-child(3) { width: 12.730%; }
+    .wj-exam-pc-res-table th:nth-child(4) { width: 8.136%; }
+    .wj-exam-pc-res-table th:nth-child(5) { width: 12.861%; }
+    .wj-exam-pc-res-table th:nth-child(6) { width: 11.417%; }
+    .wj-exam-pc-res-table th:nth-child(7) { width: 29.922%; }
+    .wj-exam-pc-td--name { font-weight: 700; }
+    .wj-exam-pc-res-table .wj-pc-td--muted { font-weight: 400; }
+    .wj-exam-pc-rbadge { min-width: 88px; }
+    .wj-exam-pc-note { font-size: 13px; color: var(--wj-pc-text); }
+    .wj-exam-pc-note--empty { color: var(--wj-pc-subtle); }
+
+    /* Ô ảnh nhân viên (placeholder 36×36, Figma y618) */
+    .wj-exam-pc-avatar {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 36px;
+        height: 36px;
+        border-radius: var(--wj-pc-input-radius);
+        background: var(--wj-exam-pc-thumb-bg);
+        color: var(--wj-pc-primary);
+    }
+    .wj-exam-pc-avatar i { font-size: 18px; }
+
+    /* Banner state (Figma y816 h92) — 4 biến thể theo frame 06 */
+    .wj-exam-pc-banner {
+        display: flex;
+        align-items: flex-start;
+        gap: 14px;
+        min-height: 92px;
+        margin-top: 26px;
+        padding: 14px;
+        border: 1px solid var(--wj-exam-pc-bd-info);
+        border-radius: var(--wj-pc-input-radius);
+        background: var(--wj-exam-pc-tint);
+    }
+    .wj-exam-pc-banner__chip {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        flex: 0 0 28px;
+        width: 28px;
+        height: 28px;
+        border-radius: 50%;
+        font-size: 13px;
+        font-weight: 700;
+        font-style: normal;
+        color: var(--wj-pc-primary);
+    }
+    .wj-exam-pc-banner__body { min-width: 0; }
+    .wj-exam-pc-banner__title {
+        margin: 0;
+        font-size: 13px;
+        font-weight: 700;
+        color: var(--wj-pc-text);
+    }
+    .wj-exam-pc-banner__text {
+        margin: 10px 0 0;
+        font-size: 13px;
+        font-weight: 400;
+        color: var(--wj-pc-muted);
+    }
+    .wj-exam-pc-banner--info .wj-exam-pc-banner__chip {
+        background: var(--wj-exam-pc-thumb-bg);
+    }
+    .wj-exam-pc-banner--warning {
+        border-color: var(--wj-exam-pc-bd-warn);
+        background: var(--wj-pc-yellow-soft);
+    }
+    .wj-exam-pc-banner--warning .wj-exam-pc-banner__chip { color: var(--wj-pc-yellow); }
+    .wj-exam-pc-banner--danger {
+        border-color: var(--wj-exam-pc-bd-danger);
+        background: var(--wj-pc-red-soft);
+    }
+    .wj-exam-pc-banner--danger .wj-exam-pc-banner__chip { color: var(--wj-pc-red); }
+    .wj-exam-pc-banner--muted {
+        border-color: var(--wj-exam-pc-bd-muted);
+        background: var(--wj-pc-table-header-bg);
+    }
+    .wj-exam-pc-banner--muted .wj-exam-pc-banner__chip { color: var(--wj-pc-muted); }
+}
+
+@media (min-width: 992px) {
+
+    /* ======================================================================
+       02_Create (4891:2042) + 03_ParticipantModal (4891:2317)
+       + 04_SubmitModal (4891:2797) + 07_UIStates (4891:1887)
+       ====================================================================== */
+
+    /* [hidden] phải thắng display của panel/grid/backdrop bên dưới (0,2,0). */
+    .wj-exam-pc [hidden] { display: none; }
+
+    /* ---------- Khung trang ---------- */
+    .wj-exam-pc-create .wj-pc-page-header { margin-bottom: 7px; }
+    .wj-exam-pc-create .wj-exam-pc-secsub { margin-bottom: 0; }
+    .wj-exam-pc-fcard { padding: 18px 24px 10px; }
+    .wj-exam-pc-sumcard {
+        align-self: start;
+        position: sticky;
+        top: var(--wj-pc-content-padding);
+        padding: 18px 24px 24px;
+    }
+
+    /* ---------- Field dùng chung ---------- */
+    .wj-exam-pc-flabel {
+        font-size: 13px;
+        font-weight: 700;
+        color: var(--wj-pc-text);
+    }
+    .wj-exam-pc-control {
+        height: var(--wj-pc-filter-input-h);
+        padding: 0 18px;
+        font-size: 13px;
+    }
+    .wj-exam-pc-fcard .wj-exam-pc-field { margin-top: 18px; }
+    .wj-exam-pc-help {
+        margin: 12px 0 0;
+        font-size: 12px;
+        font-weight: 400;
+        color: var(--wj-pc-muted);
+    }
+    .wj-exam-pc-sectitle--sm {
+        margin: 16px 0 0;
+        font-size: 18px;
+        line-height: 22px;
+    }
+
+    /* ---------- 2. Chọn lịch thi (Figma y466 h310) ---------- */
+    .wj-exam-pc-schedule {
+        display: grid;
+        grid-template-columns: 646fr 390fr;
+        gap: 16px;
+        margin-top: 9px;
+    }
+    .wj-exam-pc-cal,
+    .wj-exam-pc-slots {
+        min-height: 310px;
+        border: 1px solid var(--wj-pc-border-soft);
+        border-radius: var(--wj-pc-component-radius);
+        background: var(--wj-pc-card);
+    }
+
+    /* Lịch tháng */
+    .wj-exam-pc-cal { padding: 16px 12px 18px 22px; }
+    .wj-exam-pc-cal__head {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+    }
+    .wj-exam-pc-cal__label {
+        font-size: 18px;
+        font-weight: 700;
+        color: var(--wj-pc-text);
+    }
+    .wj-exam-pc-cal__nav { display: inline-flex; gap: 10px; }
+    .wj-exam-pc-navbtn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 32px;
+        height: 28px;
+        padding: 0;
+        border: 1px solid var(--wj-pc-border);
+        border-radius: 8px;
+        background: var(--wj-pc-card);
+        font-size: 18px;
+        font-weight: 700;
+        line-height: 1;
+        color: var(--wj-pc-muted);
+        cursor: pointer;
+    }
+    .wj-exam-pc-navbtn:hover {
+        border-color: var(--wj-pc-primary);
+        color: var(--wj-pc-primary);
+    }
+
+    .wj-exam-pc-legend {
+        display: flex;
+        align-items: center;
+        gap: 33px;
+        margin-top: 18px;
+        font-size: 11px;
+        font-weight: 400;
+        color: var(--wj-pc-muted);
+    }
+    .wj-exam-pc-legend__item { display: inline-flex; align-items: center; gap: 6px; }
+    .wj-exam-pc-legend__dot {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background: var(--wj-pc-primary);
+    }
+    .wj-exam-pc-legend__dot--block { background: var(--wj-exam-pc-day-bd-bk); }
+    .wj-exam-pc-legend__dot--none {
+        border: 1px solid var(--wj-pc-border);
+        background: var(--wj-pc-card);
+    }
+
+    .wj-exam-pc-cal__grid,
+    .wj-exam-pc-cal__skel {
+        display: grid;
+        grid-template-columns: repeat(7, 56px);
+        column-gap: 24px;
+        row-gap: 6px;
+    }
+    .wj-exam-pc-cal__grid--wd { margin: 18px 0 6px; }
+    .wj-exam-pc-wd {
+        text-align: center;
+        font-size: 11px;
+        font-weight: 700;
+        color: var(--wj-pc-subtle);
+    }
+    .wj-exam-pc-day {
+        position: relative;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        height: 32px;
+        padding: 0;
+        border: 1px solid transparent;
+        border-radius: 6px;
+        background: transparent;
+        font-size: 12px;
+        font-weight: 400;
+        color: var(--wj-pc-text);
+        cursor: pointer;
+    }
+    .wj-exam-pc-day--out {
+        background: var(--wj-pc-table-header-bg);
+        color: var(--wj-exam-pc-day-out);
+        cursor: default;
+    }
+    .wj-exam-pc-day--none {
+        border-color: var(--wj-pc-border-soft);
+        background: var(--wj-pc-card);
+        color: var(--wj-pc-subtle);
+        cursor: default;
+    }
+    .wj-exam-pc-day--blocked {
+        border-color: var(--wj-exam-pc-day-bd-bk);
+        background: var(--wj-pc-gray-soft);
+        color: var(--wj-exam-pc-day-block);
+        cursor: not-allowed;
+    }
+    .wj-exam-pc-day--available {
+        border-color: var(--wj-pc-primary);
+        background: var(--wj-exam-pc-tint);
+        font-weight: 700;
+        color: var(--wj-pc-primary);
+    }
+    .wj-exam-pc-day.is-selected {
+        border-color: var(--wj-pc-primary);
+        background: var(--wj-pc-primary);
+        font-weight: 700;
+        color: var(--wj-pc-card);
+    }
+    .wj-exam-pc-day__dot {
+        position: absolute;
+        top: 6px;
+        right: 6px;
+        width: 5px;
+        height: 5px;
+        border-radius: 50%;
+        background: var(--wj-pc-primary);
+    }
+
+    /* 07_UIStates · 1. Đang tải lịch */
+    .wj-exam-pc-cal__skel { margin-top: 44px; }
+    .wj-exam-pc-skelcell {
+        height: 32px;
+        border-radius: 6px;
+        background: var(--wj-pc-border-soft);
+        animation: wj-exam-pc-pulse 1.4s ease-in-out infinite;
+    }
+
+    /* 07_UIStates · 2 + 3. Panel rỗng */
+    .wj-exam-pc-panel-empty {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+        min-height: 180px;
+        padding: 0 22px;
+        text-align: center;
+    }
+    .wj-exam-pc-panel-empty__title {
+        margin: 0;
+        font-size: 14px;
+        font-weight: 700;
+        color: var(--wj-pc-text);
+    }
+    .wj-exam-pc-panel-empty__sub {
+        margin: 0;
+        font-size: 12px;
+        font-weight: 400;
+        color: var(--wj-pc-muted);
+    }
+    .wj-exam-pc-panel-empty__btn { min-width: 148px; }
+
+    /* Khung giờ */
+    .wj-exam-pc-slots {
+        display: flex;
+        flex-direction: column;
+        padding: 16px 22px 14px;
+    }
+    .wj-exam-pc-slots__title {
+        margin: 0;
+        font-size: 16px;
+        font-weight: 700;
+        color: var(--wj-pc-text);
+    }
+    .wj-exam-pc-slots__sub {
+        margin: 6px 0 0;
+        font-size: 12px;
+        font-weight: 400;
+        color: var(--wj-pc-muted);
+    }
+    .wj-exam-pc-slots__list {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        margin-top: 12px;
+    }
+    .wj-exam-pc-slot {
+        display: flex;
+        align-items: center;
+        height: 58px;
+        padding: 0 7px 0 12px;
+        border: 2px solid var(--wj-exam-pc-bd-muted);
+        border-radius: var(--wj-pc-component-radius);
+        background: var(--wj-pc-table-header-bg);
+        text-align: left;
+        cursor: pointer;
+    }
+    .wj-exam-pc-slot__icon {
+        margin-right: 12px;
+        font-size: 18px;
+        color: var(--wj-pc-subtle);
+    }
+    .wj-exam-pc-slot__time {
+        font-size: 15px;
+        font-weight: 700;
+        color: var(--wj-pc-subtle);
+    }
+    .wj-exam-pc-slot--open .wj-exam-pc-slot__icon { color: var(--wj-pc-primary); }
+    .wj-exam-pc-slot--open .wj-exam-pc-slot__time { color: var(--wj-pc-text); }
+    .wj-exam-pc-slot__chip {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-width: 88px;
+        height: 28px;
+        margin-left: auto;
+        padding: 0 12px;
+        border-radius: var(--wj-pc-pill-radius);
+        background: var(--wj-pc-gray-soft);
+        font-size: 12px;
+        font-weight: 700;
+        color: var(--wj-pc-muted);
+    }
+    .wj-exam-pc-slot__chip--open {
+        min-width: 104px;
+        background: var(--wj-exam-pc-tint);
+        color: var(--wj-pc-primary);
+    }
+    /* 07_UIStates · 4. ca quá hạn đăng ký */
+    .wj-exam-pc-slot__chip--overdue {
+        background: var(--wj-pc-yellow-soft);
+        color: var(--wj-pc-yellow);
+    }
+    .wj-exam-pc-slot__check {
+        visibility: hidden;
+        font-size: 20px;
+        color: var(--wj-pc-primary);
+    }
+    .wj-exam-pc-slot.is-selected {
+        border-color: var(--wj-pc-primary);
+        background: var(--wj-exam-pc-tint);
+    }
+    .wj-exam-pc-slot.is-selected .wj-exam-pc-slot__check { visibility: visible; }
+    .wj-exam-pc-slot[disabled] { cursor: not-allowed; }
+    .wj-exam-pc-slots__foot {
+        margin: 20px 0 0;
+        font-size: 12px;
+        font-weight: 700;
+        color: var(--wj-pc-muted);
+    }
+    .wj-exam-pc-slots .wj-exam-pc-panel-empty + .wj-exam-pc-slots__foot,
+    .wj-exam-pc-slots__list + .wj-exam-pc-slots__foot { margin-top: auto; padding-top: 20px; }
+
+    /* ---------- 07_UIStates · 7 + 8. Alert dưới khối lịch ---------- */
+    .wj-exam-pc-alert {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        margin-top: 16px;
+        padding: 14px;
+        border: 1px solid var(--wj-exam-pc-bd-danger);
+        border-radius: var(--wj-pc-input-radius);
+        background: var(--wj-pc-red-soft);
+    }
+    .wj-exam-pc-alert__chip {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        flex: 0 0 28px;
+        width: 28px;
+        height: 28px;
+        border-radius: 50%;
+        font-size: 15px;
+    }
+    .wj-exam-pc-alert__title {
+        margin: 0;
+        font-size: 13px;
+        font-weight: 700;
+    }
+    .wj-exam-pc-alert__text {
+        margin: 4px 0 0;
+        font-size: 12px;
+        font-weight: 400;
+        color: var(--wj-pc-muted);
+    }
+    .wj-exam-pc-alert__btn { margin-left: auto; }
+    .wj-exam-pc-alert--danger .wj-exam-pc-alert__chip,
+    .wj-exam-pc-alert--danger .wj-exam-pc-alert__title { color: var(--wj-pc-red); }
+    .wj-exam-pc-alert--success {
+        border-color: var(--wj-exam-pc-bd-green);
+        background: var(--wj-pc-green-soft);
+    }
+    .wj-exam-pc-alert--success .wj-exam-pc-alert__chip,
+    .wj-exam-pc-alert--success .wj-exam-pc-alert__title { color: var(--wj-pc-green); }
+
+    /* ---------- 3. Người tham gia ---------- */
+    .wj-exam-pc-parthead {
+        display: flex;
+        align-items: flex-end;
+        justify-content: space-between;
+        gap: 24px;
+        margin-top: 14px;
+    }
+    .wj-exam-pc-parthead .wj-exam-pc-sectitle--sm { margin-top: 0; }
+    .wj-exam-pc-parthead__side { display: flex; align-items: flex-end; gap: 38px; }
+    .wj-exam-pc-notefield {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        width: 430px;
+    }
+    .wj-exam-pc-notelabel {
+        font-size: 12px;
+        font-weight: 700;
+        color: var(--wj-pc-subtle);
+    }
+    .wj-exam-pc-control--note { font-weight: 400; }
+    .wj-exam-pc-addbtn { min-width: 172px; }
+
+    .wj-exam-pc-tablebox {
+        margin-top: 8px;
+        border: 1px solid var(--wj-pc-border-soft);
+        border-radius: var(--wj-pc-component-radius);
+        overflow: hidden;
+    }
+    .wj-exam-pc-tablebox .wj-pc-table thead th:first-child,
+    .wj-exam-pc-tablebox .wj-pc-table thead th:last-child { border-radius: 0; }
+    .wj-exam-pc-tablebox .wj-pc-table tbody tr:last-child td { border-bottom: 0; }
+
+    .wj-exam-pc-part-table { table-layout: fixed; }
+    .wj-exam-pc-part-table thead th {
+        height: 38px;
+        padding: 0 18px;
+        font-size: 12px;
+        color: var(--wj-pc-muted);
+    }
+    .wj-exam-pc-part-table tbody td {
+        height: 48px;
+        padding: 0 18px;
+        font-size: 13px;
+    }
+    .wj-exam-pc-part-table th:nth-child(1) { width: 14.068%; }
+    .wj-exam-pc-part-table th:nth-child(2) { width: 23.574%; }
+    .wj-exam-pc-part-table th:nth-child(3) { width: 17.490%; }
+    .wj-exam-pc-part-table th:nth-child(4) { width: 11.027%; }
+    .wj-exam-pc-part-table th:nth-child(5) { width: 25.095%; }
+    .wj-exam-pc-part-table th:nth-child(6) { width: 8.745%; }
+    .wj-exam-pc-part-table .wj-pc-td--muted { font-weight: 400; }
+    .wj-exam-pc-part-table .wj-exam-pc-avatar { width: 38px; height: 38px; }
+
+    .wj-exam-pc-photo { display: inline-flex; align-items: center; gap: 8px; }
+    .wj-exam-pc-avatar--empty {
+        background: var(--wj-pc-gray-soft);
+        color: var(--wj-pc-subtle);
+    }
+    .wj-exam-pc-photo__tag {
+        font-size: 12px;
+        font-weight: 700;
+        color: var(--wj-pc-primary);
+        /* Figma để nhãn trên một dòng; không có nowrap thì "Chưa có ảnh"
+           bị ngắt hai dòng và đẩy chiều cao hàng lệch khỏi 68px. */
+        white-space: nowrap;
+    }
+    .wj-exam-pc-photo__tag--empty { color: var(--wj-pc-subtle); }
+
+    .wj-exam-pc-rowacts { display: inline-flex; align-items: center; gap: 26px; }
+    .wj-exam-pc-iconbtn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        padding: 0;
+        border: 0;
+        background: transparent;
+        font-size: 16px;
+        color: var(--wj-pc-primary);
+        cursor: pointer;
+    }
+    .wj-exam-pc-iconbtn--muted { color: var(--wj-pc-subtle); }
+
+    .wj-exam-pc-submitrow {
+        display: flex;
+        align-items: center;
+        justify-content: flex-end;
+        gap: 16px;
+        margin-top: 16px;
+    }
+    /* 07_UIStates · 6. Đang gửi yêu cầu */
+    .wj-exam-pc-sendhint {
+        margin: 0;
+        font-size: 12px;
+        font-weight: 400;
+        color: var(--wj-pc-muted);
+    }
+    .wj-exam-pc-checkbtn { min-width: 198px; }
+
+    /* ---------- Cột phải — Tóm tắt đăng ký ---------- */
+    .wj-exam-pc-sumlist {
+        display: flex;
+        flex-direction: column;
+        gap: 23px;
+        margin-top: 36px;
+    }
+    .wj-exam-pc-sumkv { display: flex; flex-direction: column; gap: 5px; }
+    .wj-exam-pc-sumkv__label {
+        font-size: 12px;
+        font-weight: 700;
+        line-height: 16px;
+        color: var(--wj-pc-subtle);
+    }
+    .wj-exam-pc-sumkv__value {
+        font-size: 14px;
+        font-weight: 700;
+        line-height: 20px;
+        color: var(--wj-pc-text);
+    }
+    .wj-exam-pc-sumkv:first-child .wj-exam-pc-sumkv__value { font-size: 15px; }
+
+    .wj-exam-pc-quota { display: flex; gap: 50px; margin-top: 22px; }
+    .wj-exam-pc-quota__col {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
+    }
+    .wj-exam-pc-quota__label {
+        font-size: 12px;
+        font-weight: 700;
+        color: var(--wj-pc-subtle);
+    }
+    .wj-exam-pc-chip {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        height: 28px;
+        padding: 0 16px;
+        border-radius: var(--wj-pc-pill-radius);
+        font-size: 12px;
+        font-weight: 700;
+        white-space: nowrap;
+    }
+    .wj-exam-pc-chip--primary {
+        background: var(--wj-exam-pc-tint);
+        color: var(--wj-pc-primary);
+    }
+    .wj-exam-pc-chip--green {
+        background: var(--wj-pc-green-soft);
+        color: var(--wj-pc-green);
+    }
+
+    .wj-exam-pc-sumnote {
+        min-height: 82px;
+        margin-top: 28px;
+        padding: 12px;
+        gap: 12px;
+    }
+    .wj-exam-pc-sumnote .wj-exam-pc-banner__chip {
+        flex: 0 0 24px;
+        width: 24px;
+        height: 24px;
+        font-size: 12px;
+    }
+    .wj-exam-pc-sumnote .wj-exam-pc-banner__title { font-size: 12px; line-height: 22px; }
+    /* Nửa sau của câu trong box (i): Figma đổi sang weight thường sau chỗ ngắt dòng. */
+    .wj-exam-pc-banner__cont { font-weight: 400; }
+    .wj-exam-pc-sumnote .wj-exam-pc-banner__text {
+        margin: 0;
+        font-size: 12px;
+        line-height: 21px;
+    }
+
+    /* ======================================================================
+       Modal 03 + 04
+       ====================================================================== */
+    .wj-exam-pc-modal__panel {
+        position: relative;
+        max-height: calc(100vh - 48px);
+        overflow-y: auto;
+    }
+    .wj-exam-pc-modal__panel--part   { width: 820px; padding: 22px 36px 20px; }
+    .wj-exam-pc-modal__panel--submit { width: 880px; padding: 20px 36px 6px; }
+    .wj-exam-pc-modal__close {
+        position: absolute;
+        top: 22px;
+        right: 30px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        padding: 0;
+        border: 0;
+        background: transparent;
+        font-size: 24px;
+        line-height: 1;
+        color: var(--wj-pc-subtle);
+        cursor: pointer;
+    }
+    .wj-exam-pc-modal__title {
+        margin: 0;
+        font-size: 26px;
+        font-weight: 700;
+        line-height: 34px;
+    }
+    .wj-exam-pc-modal__sub {
+        margin: 6px 0 0;
+        font-size: 14px;
+        font-weight: 400;
+        color: var(--wj-pc-muted);
+    }
+    .wj-exam-pc-modal__divider { margin: 34px 0 0; }
+    .wj-exam-pc-modal__actions { margin-top: 20px; gap: 14px; }
+    .wj-exam-pc-mbtn { min-width: 108px; }
+    .wj-exam-pc-mbtn--add { min-width: 130px; }
+
+    /* --- 03. Thêm người đăng ký --- */
+    .wj-exam-pc-formgrid {
+        display: grid;
+        grid-template-columns: 358fr 362fr;
+        column-gap: 28px;
+        row-gap: 27px;
+        margin-top: 43px;
+    }
+    /* 07_UIStates · 5. Lỗi dữ liệu người thi */
+    .wj-exam-pc-fielderr {
+        margin: 6px 0 0;
+        font-size: 12px;
+        font-weight: 700;
+        color: var(--wj-pc-red);
+    }
+    .wj-exam-pc-fieldhelp {
+        margin: 8px 0 0;
+        font-size: 12px;
+        font-weight: 400;
+        color: var(--wj-pc-muted);
+    }
+    .wj-pc-field.is-invalid .wj-exam-pc-control { border-color: var(--wj-pc-red); }
+
+    .wj-exam-pc-photolabel { display: block; margin: 29px 0 0; }
+    .wj-exam-pc-photobox {
+        display: flex;
+        gap: 30px;
+        min-height: 188px;
+        margin-top: 12px;
+        padding: 22px 28px 26px;
+        border: 1px solid var(--wj-pc-border-soft);
+        border-radius: var(--wj-pc-component-radius);
+        background: var(--wj-pc-table-header-bg);
+    }
+    .wj-exam-pc-photobox__preview {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 8px;
+        margin-top: 4px;
+    }
+    .wj-exam-pc-thumb {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 112px;
+        height: 112px;
+        border-radius: var(--wj-pc-component-radius);
+        background: var(--wj-exam-pc-thumb-bg);
+        color: var(--wj-pc-primary);
+    }
+    .wj-exam-pc-thumb i { font-size: 44px; }
+    .wj-exam-pc-thumb__cap {
+        font-size: 12px;
+        font-weight: 700;
+        color: var(--wj-pc-muted);
+    }
+    .wj-exam-pc-photobox__main { min-width: 0; }
+    .wj-exam-pc-photobox__title {
+        margin: 0;
+        font-size: 15px;
+        font-weight: 700;
+        color: var(--wj-pc-text);
+    }
+    .wj-exam-pc-photobox__file {
+        margin: 9px 0 0;
+        font-size: 12px;
+        font-weight: 400;
+        color: var(--wj-pc-muted);
+    }
+    .wj-exam-pc-photobox__row {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        margin-top: 22px;
+    }
+    .wj-exam-pc-photobtn { min-width: 126px; }
+    .wj-exam-pc-photobtn--del { min-width: 112px; }
+    .wj-exam-pc-photobox__drop {
+        display: flex;
+        flex-direction: column;
+        gap: 7px;
+        margin-left: 12px;
+    }
+    .wj-exam-pc-photobox__droptitle {
+        font-size: 12px;
+        font-weight: 700;
+        color: var(--wj-pc-primary);
+    }
+    .wj-exam-pc-photobox__hint {
+        font-size: 11px;
+        font-weight: 400;
+        color: var(--wj-pc-muted);
+    }
+    .wj-exam-pc-help--photo { margin-top: 18px; }
+
+    .wj-exam-pc-modalnote {
+        min-height: 72px;
+        margin-top: 26px;
+        padding: 13px 14px 18px;
+    }
+    .wj-exam-pc-modalnote .wj-exam-pc-banner__chip {
+        flex: 0 0 24px;
+        width: 24px;
+        height: 24px;
+        font-size: 12px;
+    }
+    .wj-exam-pc-modalnote .wj-exam-pc-banner__text { margin-top: 7px; }
+
+    /* --- 04. Gửi yêu cầu đăng ký --- */
+    .wj-exam-pc-modal__sectitle {
+        margin: 32px 0 0;
+        font-size: 18px;
+        font-weight: 700;
+        line-height: 24px;
+        color: var(--wj-pc-text);
+    }
+    .wj-exam-pc-mkvgrid {
+        display: grid;
+        grid-template-columns: 392fr 400fr;
+        column-gap: 16px;
+        row-gap: 12px;
+        margin-top: 10px;
+    }
+    .wj-exam-pc-mkvgrid .wj-exam-pc-kv {
+        min-height: 64px;
+        gap: 8px;
+        padding: 11px 16px;
+    }
+    .wj-exam-pc-modal__secrow {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-top: 18px;
+    }
+    .wj-exam-pc-modal__secrow .wj-exam-pc-modal__sectitle { margin: 0; }
+    .wj-exam-pc-modal__chips { display: inline-flex; gap: 10px; }
+    .wj-exam-pc-modal__chips .wj-exam-pc-chip { min-width: 116px; }
+
+    .wj-exam-pc-tablebox--modal { margin-top: 10px; }
+    .wj-exam-pc-sum-table { table-layout: fixed; }
+    .wj-exam-pc-sum-table thead th {
+        height: 42px;
+        padding: 0 20px;
+        font-size: 12px;
+        color: var(--wj-pc-muted);
+    }
+    .wj-exam-pc-sum-table tbody td {
+        height: 56px;
+        padding: 0 20px;
+        font-size: 13px;
+    }
+    .wj-exam-pc-sum-table th:nth-child(1) { width: 7.426%; }
+    .wj-exam-pc-sum-table th:nth-child(2) { width: 29.703%; }
+    .wj-exam-pc-sum-table th:nth-child(3) { width: 26.238%; }
+    .wj-exam-pc-sum-table th:nth-child(4) { width: 36.634%; }
+    .wj-exam-pc-sum-table .wj-pc-td--muted { font-weight: 400; }
+    .wj-exam-pc-avatar--sm { width: 28px; height: 28px; border-radius: 8px; }
+    .wj-exam-pc-avatar--sm i { font-size: 14px; }
+
+    .wj-exam-pc-notelabel--modal { display: block; margin: 22px 0 0; }
+    .wj-exam-pc-notebox {
+        min-height: 54px;
+        margin-top: 10px;
+        padding: 17px 18px;
+        border: 1px solid var(--wj-pc-border-soft);
+        border-radius: var(--wj-pc-input-radius);
+        background: var(--wj-pc-table-header-bg);
+        font-size: 13px;
+        font-weight: 400;
+        color: var(--wj-pc-text);
+    }
+    .wj-exam-pc-modalnote--sm {
+        min-height: 58px;
+        margin-top: 16px;
+        padding: 10px 14px;
+    }
+    .wj-exam-pc-modalnote--sm .wj-exam-pc-banner__title { font-size: 12px; }
+    .wj-exam-pc-modalnote--sm .wj-exam-pc-banner__text { margin-top: 6px; }
+
+    .wj-exam-pc-modal__panel--submit .wj-exam-pc-modal__divider { margin-top: 8px; }
+    .wj-exam-pc-modal__panel--submit .wj-exam-pc-modal__actions { margin-top: 16px; }
+    .wj-exam-pc-mbtn--back,
+    .wj-exam-pc-mbtn--send { min-width: 174px; }
+}
+
+/* Cột trái 1100 / cột phải 448 — chỉ áp khi .wj-pc-two-col chưa bị xếp chồng. */
+@media (min-width: 1200px) {
+    .wj-exam-pc-two-col { grid-template-columns: 1100fr 448fr; }
+}
+
+@keyframes wj-exam-pc-pulse {
+    0%, 100% { opacity: 1; }
+    50%      { opacity: .45; }
+}

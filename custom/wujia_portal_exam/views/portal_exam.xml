@@ -5,55 +5,118 @@
     <template id="portal_exam_schedule" name="Wujia Portal — Exam Schedule">
         <t t-call="wujia_portal_layout.app_layout">
             <t t-set="title">Lịch thi</t>
-            <div class="content-wrapper d-none d-lg-block">
-                <t t-call="wujia_portal_layout.wj_page_header">
-                    <t t-set="ph_platform" t-value="'pc'"/>
-                    <t t-set="ph_variant" t-value="'title'"/>
-                    <t t-set="ph_title">Lịch thi</t>
-                </t>
-                <div class="content-body">
-                    <div t-if="not upcoming" class="alert alert-info">
-                        Hiện không có kỳ thi nào sắp tới. Vui lòng quay lại sau.
+            <!-- ===== PC ≥992px — Figma WJ_Exam_PC v1.2 · 01_List (4891:1714) =====
+                 UI-only demo (parity với nhánh mobile): dữ liệu từ PC_REGS trong
+                 controller, key trùng field thật để sprint wire sau chỉ đổi nguồn. -->
+            <div class="content-wrapper d-none d-lg-block wj-exam-pc">
+                <div class="wj-pc-page-header">
+                    <div>
+                        <h1 class="wj-pc-page-header__title">Đăng ký thi</h1>
+                        <p class="wj-pc-page-header__crumb">Portal / Đào tạo / Đăng ký thi</p>
                     </div>
-                    <div t-else="" class="row g-2">
-                        <t t-foreach="upcoming" t-as="exam">
-                            <div class="col-md-6 col-lg-4 col-12">
-                                <div class="card exam-card h-100">
-                                    <div class="card-body">
-                                        <div class="d-flex justify-content-between align-items-start mb-2">
-                                            <h5 class="card-title mb-0" t-out="exam.name"/>
-                                            <t t-set="lbl" t-value="schedule_labels.get(exam.state, (exam.state, 'wujia-badge-muted'))"/>
-                                            <span t-attf-class="wujia-badge #{lbl[1]}" t-out="lbl[0]"/>
-                                        </div>
-                                        <p class="text-muted small mb-2">
-                                            <i class="fa fa-clock me-1"/>
-                                            <strong t-out="exam.exam_date.strftime('%d/%m/%Y %H:%M')"/>
-                                            <br/>
-                                            <i class="fa fa-map-marker-alt me-1"/>
-                                            <span t-out="exam.location or 'Online'"/>
-                                        </p>
-                                        <p t-if="exam.description" t-out="exam.description" class="exam-card-desc"/>
-                                        <p class="small text-muted mb-2">
-                                            <span t-out="exam.registration_count"/>
-                                            <t t-if="exam.max_participants">/<t t-out="exam.max_participants"/></t>
-                                            người đã đăng ký
-                                        </p>
-                                        <t t-if="exam.id in my_reg_schedule_ids">
-                                            <button type="button" class="btn btn-success btn-sm w-100" disabled="disabled">
-                                                <i class="fa fa-check me-1"/>Đã đăng ký
-                                            </button>
-                                        </t>
-                                        <t t-else="">
-                                            <button type="button"
-                                                    class="btn btn-primary btn-sm w-100 btn-register-exam"
-                                                    t-att-data-schedule-id="exam.id">
-                                                <i class="fa fa-user-plus me-1"/>Đăng ký
-                                            </button>
-                                        </t>
-                                    </div>
-                                </div>
+                    <div class="wj-pc-page-header__actions">
+                        <a href="/portal/exam/register" class="wj-pc-btn wj-pc-btn--primary">
+                            <i class="feather icon-plus"/>Đăng ký mới
+                        </a>
+                    </div>
+                </div>
+                <div class="content-body">
+                    <!-- Bộ lọc nhanh — UI-only, chưa wire query (Figma y178 h88) -->
+                    <form method="get" action="/portal/exam" class="wj-pc-filterbar wj-exam-pc-filterbar">
+                        <h2 class="wj-pc-filterbar__title">Bộ lọc nhanh</h2>
+                        <div class="wj-pc-filterbar__row">
+                            <select name="state" class="wj-pc-filter-control wj-exam-pc-fc--sel">
+                                <option value="">Trạng thái</option>
+                                <t t-foreach="pc_reg_states.items()" t-as="st">
+                                    <option t-att-value="st[0]"><t t-out="st[1][0]"/></option>
+                                </t>
+                            </select>
+                            <select name="result" class="wj-pc-filter-control wj-exam-pc-fc--sel">
+                                <option value="">Kết quả</option>
+                                <option value="published">Đã công bố</option>
+                                <option value="unpublished">Chưa công bố</option>
+                            </select>
+                            <span class="wj-pc-filter-search wj-exam-pc-fc--search">
+                                <i class="feather icon-search"/>
+                                <input type="text" name="q" placeholder="Tìm mã phiếu, khóa thi..."
+                                       class="wj-pc-filter-control"/>
+                            </span>
+                            <input type="text" name="date_from" placeholder="Từ ngày"
+                                   class="wj-pc-filter-control wj-exam-pc-fc--date"/>
+                            <input type="text" name="date_to" placeholder="Đến ngày"
+                                   class="wj-pc-filter-control wj-exam-pc-fc--date"/>
+                            <span class="wj-pc-filterbar__actions">
+                                <a href="/portal/exam" class="wj-pc-btn wj-pc-btn--secondary">Đặt lại</a>
+                                <button type="submit" class="wj-pc-btn wj-pc-btn--primary">Tìm kiếm</button>
+                            </span>
+                        </div>
+                    </form>
+
+                    <div class="wj-pc-card wj-exam-pc-card">
+                        <div class="wj-pc-card__head wj-exam-pc-card__head">
+                            <div>
+                                <h2 class="wj-pc-card__title">Lịch sử đăng ký</h2>
+                                <p class="wj-pc-card__subtitle">Theo dõi phiếu đăng ký và kết quả thi của cửa hàng đang thao tác</p>
                             </div>
-                        </t>
+                        </div>
+
+                        <div t-if="not pc_regs" class="wj-pc-empty">
+                            <div class="wj-pc-empty__icon"><i class="feather icon-file-text"/></div>
+                            <p class="wj-pc-empty__title">Chưa có phiếu đăng ký thi</p>
+                            <p class="wj-pc-empty__sub">Bấm "Đăng ký mới" để tạo phiếu đầu tiên.</p>
+                        </div>
+                        <table t-else="" class="wj-pc-table wj-exam-pc-list-table">
+                            <thead>
+                                <tr>
+                                    <th>Mã phiếu</th>
+                                    <th>Khóa thi</th>
+                                    <th>Ngày &amp; giờ thi</th>
+                                    <th>Địa điểm</th>
+                                    <th class="wj-exam-pc-th--center">Số người</th>
+                                    <th>Trạng thái đăng ký</th>
+                                    <th>Kết quả</th>
+                                    <th>Thao tác</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr t-foreach="pc_regs" t-as="reg">
+                                    <t t-set="st" t-value="pc_reg_states.get(reg['state'], (reg['state'], 'wj-pc-badge--pending'))"/>
+                                    <td class="wj-pc-td--code"><t t-out="reg['name']"/></td>
+                                    <td><t t-out="reg['course_name']"/></td>
+                                    <td class="wj-pc-td--muted"><t t-out="reg['exam_datetime']"/></td>
+                                    <td class="wj-pc-td--muted"><t t-out="reg['location']"/></td>
+                                    <td class="wj-exam-pc-td--center wj-pc-td--amount"><t t-out="reg['participant_count']"/></td>
+                                    <td>
+                                        <span t-attf-class="wj-pc-badge #{st[1]}"><t t-out="st[0]"/></span>
+                                    </td>
+                                    <td>
+                                        <span t-attf-class="wj-exam-pc-result wj-exam-pc-result--#{reg['result_kind']}"
+                                              t-out="reg['result_label']"/>
+                                    </td>
+                                    <td>
+                                        <a t-attf-href="/portal/exam/registration/#{reg['id']}" class="wj-pc-link">Xem chi tiết</a>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+
+                        <div t-if="pc_regs" class="wj-pc-pagination wj-exam-pc-pagination">
+                            <span class="wj-pc-pagination__count">
+                                Hiển thị <t t-out="pc_pager['from']"/>–<t t-out="pc_pager['to']"/> /
+                                <t t-out="pc_pager['total']"/> bản ghi
+                            </span>
+                            <select class="wj-pc-pagination__size" name="limit">
+                                <option value="10"><t t-out="pc_pager['size']"/> / trang</option>
+                                <option value="20">20 / trang</option>
+                                <option value="50">50 / trang</option>
+                            </select>
+                            <span class="wj-pc-page-btn is-disabled">‹</span>
+                            <t t-foreach="range(1, pc_pager['pages'] + 1)" t-as="p">
+                                <span t-attf-class="wj-pc-page-btn #{'is-active' if p == pc_pager['page'] else ''}"
+                                      t-out="p"/>
+                            </t>
+                            <span class="wj-pc-page-btn">›</span>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -294,17 +357,429 @@
             <t t-set="title">Đăng ký thi</t>
 
             <!-- Desktop: tối ưu cho mobile -->
-            <div class="content-wrapper d-none d-lg-block">
-                <t t-call="wujia_portal_layout.wj_page_header">
-                    <t t-set="ph_platform" t-value="'pc'"/>
-                    <t t-set="ph_variant" t-value="'back'"/>
-                    <t t-set="ph_title">Đăng ký thi</t>
-                    <t t-set="ph_back_url" t-value="'/portal/exam'"/>
-                </t>
+            <!-- ===== PC ≥992px — Figma WJ_Exam_PC v1.2 · 02_Create (4891:2042)
+                 + 03_ParticipantModal (4891:2317) + 04_SubmitModal (4891:2797)
+                 + 07_UIStates (4891:1887). UI-only demo: chưa wire backend,
+                 dữ liệu lấy từ PC_* trong controller. ===== -->
+            <div class="content-wrapper d-none d-lg-block wj-exam-pc wj-exam-pc-create"
+                 data-wj-exam-pc="register">
+                <div class="wj-pc-page-header">
+                    <div>
+                        <h1 class="wj-pc-page-header__title">Đăng ký thi</h1>
+                        <p class="wj-pc-page-header__crumb">Portal / Đào tạo / Đăng ký thi / Đăng ký mới</p>
+                    </div>
+                </div>
                 <div class="content-body">
-                    <div class="alert alert-info">
-                        Luồng đăng ký thi được tối ưu cho thiết bị di động.
-                        <a href="/portal/exam">← Quay lại danh sách</a>
+                    <a href="/portal/exam" class="wj-pc-btn wj-pc-btn--secondary wj-exam-pc-back">
+                        <i class="feather icon-chevron-left"/>Quay lại
+                    </a>
+
+                    <div class="wj-pc-two-col wj-exam-pc-two-col">
+                        <!-- ============ CỘT TRÁI — biểu mẫu ============ -->
+                        <div class="wj-pc-card wj-exam-pc-fcard">
+
+                            <!-- 1. Thông tin đăng ký -->
+                            <h2 class="wj-pc-card__title wj-exam-pc-sectitle">Thông tin đăng ký</h2>
+                            <p class="wj-pc-card__subtitle wj-exam-pc-secsub">Chọn khóa thi, lịch thi và nhập người tham gia.</p>
+
+                            <div class="wj-pc-field wj-exam-pc-field">
+                                <label class="wj-pc-field__label wj-exam-pc-flabel" for="wj_exam_course">Khóa thi *</label>
+                                <select id="wj_exam_course" name="course_id"
+                                        class="wj-pc-control wj-exam-pc-control wj-exam-pc-control--sel"
+                                        data-wj-exam-course="1">
+                                    <option value="" t-out="pc_summary['course_name']"/>
+                                    <option value="1">Thi pha chế định kỳ</option>
+                                    <option value="2">Đào tạo quản lý</option>
+                                </select>
+                            </div>
+                            <p class="wj-exam-pc-help">Mỗi phiếu được đăng ký tối đa 4 người.</p>
+
+                            <!-- 2. Chọn lịch thi -->
+                            <h3 class="wj-exam-pc-sectitle wj-exam-pc-sectitle--sm">Chọn lịch thi</h3>
+                            <p class="wj-exam-pc-secsub">Chọn một ngày có lịch, sau đó chọn khung giờ còn chỗ.</p>
+
+                            <div class="wj-exam-pc-schedule">
+                                <!-- Lịch tháng -->
+                                <div class="wj-exam-pc-cal" data-wj-exam-cal="1">
+                                    <div class="wj-exam-pc-cal__head">
+                                        <span class="wj-exam-pc-cal__label" t-out="pc_calendar['label']"/>
+                                        <span class="wj-exam-pc-cal__nav">
+                                            <button type="button" class="wj-exam-pc-navbtn" data-wj-exam-month="prev">‹</button>
+                                            <button type="button" class="wj-exam-pc-navbtn" data-wj-exam-month="next">›</button>
+                                        </span>
+                                    </div>
+                                    <div class="wj-exam-pc-legend">
+                                        <span class="wj-exam-pc-legend__item">
+                                            <i class="wj-exam-pc-legend__dot wj-exam-pc-legend__dot--open"/>Còn chỗ
+                                        </span>
+                                        <span class="wj-exam-pc-legend__item">
+                                            <i class="wj-exam-pc-legend__dot wj-exam-pc-legend__dot--block"/>Không thể đăng ký
+                                        </span>
+                                        <span class="wj-exam-pc-legend__item">
+                                            <i class="wj-exam-pc-legend__dot wj-exam-pc-legend__dot--none"/>Không có lịch
+                                        </span>
+                                    </div>
+                                    <div class="wj-exam-pc-cal__body" data-wj-exam-cal-body="1">
+                                        <div class="wj-exam-pc-cal__grid wj-exam-pc-cal__grid--wd">
+                                            <span t-foreach="pc_calendar['weekdays']" t-as="wd"
+                                                  class="wj-exam-pc-wd" t-out="wd"/>
+                                        </div>
+                                        <div class="wj-exam-pc-cal__grid">
+                                            <t t-foreach="pc_calendar['weeks']" t-as="week">
+                                                <t t-foreach="week" t-as="d">
+                                                    <button type="button"
+                                                            t-attf-class="wj-exam-pc-day wj-exam-pc-day--#{d['state']} #{d['selected'] and 'is-selected' or ''}"
+                                                            t-att-data-wj-exam-day="d['day']"
+                                                            t-att-disabled="d['state'] in ('out', 'blocked', 'none') and 'disabled' or None">
+                                                        <t t-out="d['day']"/>
+                                                        <i t-if="d['state'] == 'available' and not d['selected']"
+                                                           class="wj-exam-pc-day__dot"/>
+                                                    </button>
+                                                </t>
+                                            </t>
+                                        </div>
+                                    </div>
+                                    <!-- 07_UIStates · 1. Đang tải lịch -->
+                                    <div class="wj-exam-pc-cal__skel" data-wj-exam-cal-skel="1" hidden="hidden">
+                                        <span t-foreach="range(35)" t-as="s" class="wj-exam-pc-skelcell"/>
+                                    </div>
+                                    <!-- 07_UIStates · 2. Tháng chưa có lịch -->
+                                    <div class="wj-exam-pc-panel-empty" data-wj-exam-cal-empty="1" hidden="hidden">
+                                        <p class="wj-exam-pc-panel-empty__title">Tháng này chưa có lịch thi</p>
+                                        <p class="wj-exam-pc-panel-empty__sub">Hãy chuyển sang tháng khác.</p>
+                                    </div>
+                                </div>
+
+                                <!-- Khung giờ -->
+                                <div class="wj-exam-pc-slots" data-wj-exam-slots="1">
+                                    <p class="wj-exam-pc-slots__title">Khung giờ ngày <t t-out="pc_summary['exam_date']"/></p>
+                                    <p class="wj-exam-pc-slots__sub"><t t-out="pc_summary['course_name']"/> · giờ địa phương</p>
+                                    <div class="wj-exam-pc-slots__list" data-wj-exam-slot-list="1">
+                                        <t t-foreach="pc_slots" t-as="slot">
+                                            <button type="button"
+                                                    t-attf-class="wj-exam-pc-slot wj-exam-pc-slot--#{slot['kind']} #{slot['selected'] and 'is-selected' or ''}"
+                                                    t-att-data-wj-exam-slot="slot['time_slot']"
+                                                    t-att-disabled="slot['kind'] != 'open' and 'disabled' or None">
+                                                <i class="feather icon-clock wj-exam-pc-slot__icon"/>
+                                                <span class="wj-exam-pc-slot__time" t-out="slot['time_slot']"/>
+                                                <span t-attf-class="wj-exam-pc-slot__chip wj-exam-pc-slot__chip--#{slot['kind']}"
+                                                      t-out="slot['reason']"/>
+                                                <i class="feather icon-check-circle wj-exam-pc-slot__check"/>
+                                            </button>
+                                        </t>
+                                    </div>
+                                    <!-- 07_UIStates · 3. Ngày không có ca -->
+                                    <div class="wj-exam-pc-panel-empty" data-wj-exam-slot-empty="1" hidden="hidden">
+                                        <p class="wj-exam-pc-panel-empty__title">Không có khung giờ khả dụng</p>
+                                        <button type="button" class="wj-pc-btn wj-pc-btn--secondary wj-exam-pc-panel-empty__btn"
+                                                data-wj-exam-pick-other-day="1">Chọn ngày khác</button>
+                                    </div>
+                                    <p class="wj-exam-pc-slots__foot">Hạn đăng ký: <t t-out="pc_summary['registration_deadline']"/></p>
+                                </div>
+                            </div>
+
+                            <!-- 07_UIStates · 7. Chỗ trống vừa thay đổi -->
+                            <div class="wj-exam-pc-alert wj-exam-pc-alert--danger" data-wj-exam-conflict="1" hidden="hidden">
+                                <span class="wj-exam-pc-alert__chip"><i class="feather icon-alert-circle"/></span>
+                                <div>
+                                    <p class="wj-exam-pc-alert__title">Ca thi không còn đủ 2 chỗ.</p>
+                                    <p class="wj-exam-pc-alert__text">Danh sách người và ảnh vẫn được giữ lại.</p>
+                                </div>
+                                <button type="button" class="wj-pc-btn wj-pc-btn--secondary wj-exam-pc-alert__btn"
+                                        data-wj-exam-pick-other-slot="1">Chọn khung giờ khác</button>
+                            </div>
+                            <!-- 07_UIStates · 8. Gửi thành công -->
+                            <div class="wj-exam-pc-alert wj-exam-pc-alert--success" data-wj-exam-success="1" hidden="hidden">
+                                <span class="wj-exam-pc-alert__chip"><i class="feather icon-check-circle"/></span>
+                                <div>
+                                    <p class="wj-exam-pc-alert__title">Đã gửi yêu cầu đăng ký</p>
+                                    <p class="wj-exam-pc-alert__text">Vui lòng chờ Ngô Gia xác nhận.</p>
+                                </div>
+                                <a href="/portal/exam" class="wj-pc-btn wj-pc-btn--secondary wj-exam-pc-alert__btn">Xem chi tiết</a>
+                            </div>
+
+                            <!-- 3. Người tham gia -->
+                            <div class="wj-exam-pc-parthead">
+                                <div>
+                                    <h3 class="wj-exam-pc-sectitle wj-exam-pc-sectitle--sm">Người tham gia</h3>
+                                    <p class="wj-exam-pc-secsub">Nhập trực tiếp thông tin của từng người dự thi.</p>
+                                </div>
+                                <div class="wj-exam-pc-parthead__side">
+                                    <div class="wj-exam-pc-notefield">
+                                        <label class="wj-exam-pc-notelabel" for="wj_exam_note">Ghi chú (không bắt buộc)</label>
+                                        <input id="wj_exam_note" type="text" name="note"
+                                               class="wj-pc-control wj-exam-pc-control wj-exam-pc-control--note"
+                                               t-att-value="pc_summary['note']"/>
+                                    </div>
+                                    <button type="button" class="wj-pc-btn wj-pc-btn--secondary wj-exam-pc-addbtn"
+                                            data-wj-exam-open="participant">
+                                        <i class="feather icon-plus"/>Thêm người
+                                    </button>
+                                </div>
+                            </div>
+
+                            <div class="wj-exam-pc-tablebox">
+                                <table class="wj-pc-table wj-exam-pc-part-table">
+                                    <thead>
+                                        <tr>
+                                            <th>Ảnh nhân viên</th>
+                                            <th>Họ và tên</th>
+                                            <th>Số điện thoại</th>
+                                            <th>Năm sinh</th>
+                                            <th>Chức vụ</th>
+                                            <th>Thao tác</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody data-wj-exam-part-body="1">
+                                        <tr t-foreach="pc_lines" t-as="line">
+                                            <td>
+                                                <span class="wj-exam-pc-photo">
+                                                    <span t-attf-class="wj-exam-pc-avatar #{'' if line['has_photo'] else 'wj-exam-pc-avatar--empty'}">
+                                                        <i class="feather icon-user"/>
+                                                    </span>
+                                                    <span t-if="line['has_photo']" class="wj-exam-pc-photo__tag">Đã tải</span>
+                                                    <span t-else="" class="wj-exam-pc-photo__tag wj-exam-pc-photo__tag--empty">Chưa có ảnh</span>
+                                                </span>
+                                            </td>
+                                            <td class="wj-exam-pc-td--name" t-out="line['employee_name']"/>
+                                            <td t-out="line['phone']"/>
+                                            <td class="wj-pc-td--muted" t-out="line['birth_year']"/>
+                                            <td class="wj-pc-td--muted" t-out="line['job_position']"/>
+                                            <td>
+                                                <span class="wj-exam-pc-rowacts">
+                                                    <button type="button" class="wj-exam-pc-iconbtn"
+                                                            data-wj-exam-open="participant" title="Sửa">
+                                                        <i class="feather icon-edit-2"/>
+                                                    </button>
+                                                    <button type="button" class="wj-exam-pc-iconbtn wj-exam-pc-iconbtn--muted"
+                                                            data-wj-exam-line-remove="1" title="Xóa">
+                                                        <i class="feather icon-trash-2"/>
+                                                    </button>
+                                                </span>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+
+                            <div class="wj-exam-pc-submitrow">
+                                <!-- 07_UIStates · 6. Đang gửi yêu cầu -->
+                                <p class="wj-exam-pc-sendhint" data-wj-exam-send-hint="1" hidden="hidden">Không đóng hoặc gửi lại biểu mẫu.</p>
+                                <button type="button" class="wj-pc-btn wj-pc-btn--primary wj-exam-pc-checkbtn"
+                                        data-wj-exam-open="submit">Kiểm tra thông tin</button>
+                            </div>
+                        </div>
+
+                        <!-- ============ CỘT PHẢI — tóm tắt ============ -->
+                        <aside class="wj-pc-card wj-exam-pc-sumcard">
+                            <h2 class="wj-pc-card__title wj-exam-pc-sectitle">Tóm tắt đăng ký</h2>
+                            <p class="wj-pc-card__subtitle wj-exam-pc-secsub">Thông tin sẽ được gửi để Ngô Gia xác nhận.</p>
+
+                            <div class="wj-exam-pc-sumlist">
+                                <div class="wj-exam-pc-sumkv">
+                                    <span class="wj-exam-pc-sumkv__label">Khóa thi</span>
+                                    <span class="wj-exam-pc-sumkv__value" t-out="pc_summary['course_name']"/>
+                                </div>
+                                <div class="wj-exam-pc-sumkv">
+                                    <span class="wj-exam-pc-sumkv__label">Ngày &amp; giờ thi</span>
+                                    <span class="wj-exam-pc-sumkv__value" t-out="pc_summary['exam_datetime']"/>
+                                </div>
+                                <div class="wj-exam-pc-sumkv">
+                                    <span class="wj-exam-pc-sumkv__label">Địa điểm</span>
+                                    <span class="wj-exam-pc-sumkv__value" t-out="pc_summary['location']"/>
+                                </div>
+                                <div class="wj-exam-pc-sumkv">
+                                    <span class="wj-exam-pc-sumkv__label">Hạn đăng ký</span>
+                                    <span class="wj-exam-pc-sumkv__value" t-out="pc_summary['registration_deadline']"/>
+                                </div>
+                                <div class="wj-exam-pc-sumkv">
+                                    <span class="wj-exam-pc-sumkv__label">Cửa hàng</span>
+                                    <span class="wj-exam-pc-sumkv__value" t-out="pc_summary['franchise_name']"/>
+                                </div>
+                            </div>
+
+                            <div class="wj-exam-pc-quota">
+                                <div class="wj-exam-pc-quota__col">
+                                    <span class="wj-exam-pc-quota__label">Giới hạn mỗi phiếu</span>
+                                    <span class="wj-exam-pc-chip wj-exam-pc-chip--primary" t-out="pc_summary['quota_label']"/>
+                                </div>
+                                <div class="wj-exam-pc-quota__col">
+                                    <span class="wj-exam-pc-quota__label">Chỗ còn lại của ca</span>
+                                    <span class="wj-exam-pc-chip wj-exam-pc-chip--green" t-out="pc_summary['seat_label']"/>
+                                </div>
+                            </div>
+
+                            <div class="wj-exam-pc-banner wj-exam-pc-banner--info wj-exam-pc-sumnote">
+                                <span class="wj-exam-pc-banner__chip">i</span>
+                                <div class="wj-exam-pc-banner__body">
+                                    <!-- Figma ngắt dòng giữa câu và đổi weight ở chỗ ngắt. Giữ 1 câu
+                                         trong cùng <p> để không đọc thành hai ý rời; weight vẫn đổi
+                                         qua <span>, và câu tự xuống dòng theo bề rộng cột. -->
+                                    <p class="wj-exam-pc-banner__title">Số chỗ và trạng thái lịch sẽ được
+                                        <span class="wj-exam-pc-banner__cont">kiểm tra lại khi gửi yêu cầu.</span></p>
+                                    <p class="wj-exam-pc-banner__text">Dữ liệu đã nhập được giữ lại nếu có lỗi.</p>
+                                </div>
+                            </div>
+                        </aside>
+                    </div>
+                </div>
+
+                <!-- ===== Modal 03 — Thêm người đăng ký (4891:2317) ===== -->
+                <div class="wj-pc-modal__backdrop wj-exam-pc-modal" data-wj-exam-modal="participant" hidden="hidden">
+                    <div class="wj-pc-modal__panel wj-exam-pc-modal__panel wj-exam-pc-modal__panel--part"
+                         role="dialog" aria-modal="true" aria-label="Thêm người đăng ký">
+                        <button type="button" class="wj-exam-pc-modal__close" data-wj-exam-close="1" aria-label="Đóng">
+                            <i class="feather icon-x"/>
+                        </button>
+                        <h2 class="wj-pc-modal__title wj-exam-pc-modal__title">Thêm người đăng ký</h2>
+                        <p class="wj-exam-pc-modal__sub">Nhập đúng thông tin người sẽ tham gia kỳ thi.</p>
+
+                        <div class="wj-exam-pc-formgrid">
+                            <div class="wj-pc-field wj-exam-pc-field">
+                                <label class="wj-pc-field__label wj-exam-pc-flabel" for="wj_exam_p_name">Họ và tên *</label>
+                                <input id="wj_exam_p_name" type="text" name="employee_name" required="required"
+                                       class="wj-pc-control wj-exam-pc-control" placeholder="Nguyễn Văn An"/>
+                            </div>
+                            <div class="wj-pc-field wj-exam-pc-field">
+                                <label class="wj-pc-field__label wj-exam-pc-flabel" for="wj_exam_p_phone">Số điện thoại *</label>
+                                <input id="wj_exam_p_phone" type="text" name="phone" required="required"
+                                       class="wj-pc-control wj-exam-pc-control" placeholder="0901 234 567"/>
+                                <!-- 07_UIStates · 5. Lỗi dữ liệu người thi -->
+                                <p class="wj-exam-pc-fielderr" data-wj-exam-phone-err="1" hidden="hidden">Số điện thoại không hợp lệ.</p>
+                            </div>
+                            <div class="wj-pc-field wj-exam-pc-field">
+                                <label class="wj-pc-field__label wj-exam-pc-flabel" for="wj_exam_p_birth">Năm sinh</label>
+                                <input id="wj_exam_p_birth" type="text" name="birth_year"
+                                       class="wj-pc-control wj-exam-pc-control" placeholder="1998"/>
+                            </div>
+                            <div class="wj-pc-field wj-exam-pc-field">
+                                <label class="wj-pc-field__label wj-exam-pc-flabel" for="wj_exam_p_job">Chức vụ</label>
+                                <input id="wj_exam_p_job" type="text" name="job_position"
+                                       class="wj-pc-control wj-exam-pc-control" placeholder="Pha chế"/>
+                            </div>
+                        </div>
+                        <p class="wj-exam-pc-fieldhelp" data-wj-exam-field-help="1" hidden="hidden">Tên và số điện thoại là bắt buộc.</p>
+
+                        <p class="wj-exam-pc-flabel wj-exam-pc-photolabel">Ảnh nhân viên</p>
+                        <div class="wj-exam-pc-photobox">
+                            <div class="wj-exam-pc-photobox__preview">
+                                <span class="wj-exam-pc-thumb"><i class="feather icon-user"/></span>
+                                <span class="wj-exam-pc-thumb__cap">Ảnh xem trước</span>
+                            </div>
+                            <div class="wj-exam-pc-photobox__main">
+                                <p class="wj-exam-pc-photobox__title">Ảnh đã được chọn</p>
+                                <p class="wj-exam-pc-photobox__file">anh-nguyen-van-an.jpg · JPG</p>
+                                <div class="wj-exam-pc-photobox__row">
+                                    <button type="button" class="wj-pc-btn wj-pc-btn--secondary wj-exam-pc-photobtn">Thay ảnh</button>
+                                    <button type="button" class="wj-pc-btn wj-pc-btn--secondary wj-exam-pc-photobtn wj-exam-pc-photobtn--del">Xóa ảnh</button>
+                                    <span class="wj-exam-pc-photobox__drop">
+                                        <span class="wj-exam-pc-photobox__droptitle">Hoặc kéo thả ảnh mới</span>
+                                        <span class="wj-exam-pc-photobox__hint">JPG, PNG · giới hạn theo hệ thống</span>
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                        <p class="wj-exam-pc-help wj-exam-pc-help--photo">Ảnh không bắt buộc. Có thể thay hoặc xóa trước khi gửi yêu cầu.</p>
+
+                        <div class="wj-exam-pc-banner wj-exam-pc-banner--info wj-exam-pc-modalnote">
+                            <span class="wj-exam-pc-banner__chip">i</span>
+                            <div class="wj-exam-pc-banner__body">
+                                <p class="wj-exam-pc-banner__title">Thông tin được lưu cho lần đăng ký này.</p>
+                                <p class="wj-exam-pc-banner__text">Hãy kiểm tra họ tên và số điện thoại trước khi thêm.</p>
+                            </div>
+                        </div>
+
+                        <div class="wj-pc-modal__divider wj-exam-pc-modal__divider"/>
+                        <div class="wj-pc-modal__actions wj-exam-pc-modal__actions">
+                            <button type="button" class="wj-pc-btn wj-pc-btn--secondary wj-exam-pc-mbtn"
+                                    data-wj-exam-close="1">Hủy</button>
+                            <button type="button" class="wj-pc-btn wj-pc-btn--primary wj-exam-pc-mbtn wj-exam-pc-mbtn--add"
+                                    data-wj-exam-close="1">Thêm người</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ===== Modal 04 — Gửi yêu cầu đăng ký (4891:2797) ===== -->
+                <div class="wj-pc-modal__backdrop wj-exam-pc-modal" data-wj-exam-modal="submit" hidden="hidden">
+                    <div class="wj-pc-modal__panel wj-exam-pc-modal__panel wj-exam-pc-modal__panel--submit"
+                         role="dialog" aria-modal="true" aria-label="Gửi yêu cầu đăng ký">
+                        <button type="button" class="wj-exam-pc-modal__close" data-wj-exam-close="1" aria-label="Đóng">
+                            <i class="feather icon-x"/>
+                        </button>
+                        <h2 class="wj-pc-modal__title wj-exam-pc-modal__title">Gửi yêu cầu đăng ký</h2>
+                        <p class="wj-exam-pc-modal__sub">Kiểm tra lần cuối trước khi gửi yêu cầu đến Ngô Gia xác nhận.</p>
+
+                        <h3 class="wj-exam-pc-modal__sectitle">Thông tin lịch thi</h3>
+                        <div class="wj-exam-pc-mkvgrid">
+                            <div class="wj-exam-pc-kv">
+                                <span class="wj-exam-pc-kv__label">Khóa thi</span>
+                                <span class="wj-exam-pc-kv__value" t-out="pc_summary['course_name']"/>
+                            </div>
+                            <div class="wj-exam-pc-kv">
+                                <span class="wj-exam-pc-kv__label">Ngày &amp; giờ</span>
+                                <span class="wj-exam-pc-kv__value" t-out="pc_summary['exam_datetime']"/>
+                            </div>
+                            <div class="wj-exam-pc-kv">
+                                <span class="wj-exam-pc-kv__label">Địa điểm</span>
+                                <span class="wj-exam-pc-kv__value" t-out="pc_summary['location']"/>
+                            </div>
+                            <div class="wj-exam-pc-kv">
+                                <span class="wj-exam-pc-kv__label">Hạn đăng ký</span>
+                                <span class="wj-exam-pc-kv__value" t-out="pc_summary['registration_deadline']"/>
+                            </div>
+                        </div>
+
+                        <div class="wj-exam-pc-modal__secrow">
+                            <h3 class="wj-exam-pc-modal__sectitle">Người tham gia</h3>
+                            <span class="wj-exam-pc-modal__chips">
+                                <span class="wj-exam-pc-chip wj-exam-pc-chip--primary" t-out="pc_summary['quota_label']"/>
+                                <span class="wj-exam-pc-chip wj-exam-pc-chip--green" t-out="pc_summary['seat_label']"/>
+                            </span>
+                        </div>
+
+                        <div class="wj-exam-pc-tablebox wj-exam-pc-tablebox--modal">
+                            <table class="wj-pc-table wj-exam-pc-sum-table">
+                                <thead>
+                                    <tr>
+                                        <th>Ảnh</th>
+                                        <th>Họ và tên</th>
+                                        <th>Số điện thoại</th>
+                                        <th>Chức vụ</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr t-foreach="pc_lines" t-as="line">
+                                        <td>
+                                            <span t-attf-class="wj-exam-pc-avatar wj-exam-pc-avatar--sm #{'' if line['has_photo'] else 'wj-exam-pc-avatar--empty'}">
+                                                <i class="feather icon-user"/>
+                                            </span>
+                                        </td>
+                                        <td class="wj-exam-pc-td--name" t-out="line['employee_name']"/>
+                                        <td t-out="line['phone']"/>
+                                        <td class="wj-pc-td--muted" t-out="line['job_position']"/>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <p class="wj-exam-pc-notelabel wj-exam-pc-notelabel--modal">Ghi chú</p>
+                        <div class="wj-exam-pc-notebox" t-out="pc_summary['note_full']"/>
+
+                        <div class="wj-exam-pc-banner wj-exam-pc-banner--info wj-exam-pc-modalnote wj-exam-pc-modalnote--sm">
+                            <span class="wj-exam-pc-banner__chip">i</span>
+                            <div class="wj-exam-pc-banner__body">
+                                <p class="wj-exam-pc-banner__title">Số chỗ và trạng thái lịch sẽ được kiểm tra lại khi gửi.</p>
+                                <p class="wj-exam-pc-banner__text">Sau khi gửi, phiếu ở trạng thái Chờ xác nhận.</p>
+                            </div>
+                        </div>
+
+                        <div class="wj-pc-modal__divider wj-exam-pc-modal__divider"/>
+                        <div class="wj-pc-modal__actions wj-exam-pc-modal__actions">
+                            <button type="button" class="wj-pc-btn wj-pc-btn--secondary wj-exam-pc-mbtn wj-exam-pc-mbtn--back"
+                                    data-wj-exam-close="1">Quay lại chỉnh sửa</button>
+                            <button type="button" class="wj-pc-btn wj-pc-btn--primary wj-exam-pc-mbtn wj-exam-pc-mbtn--send"
+                                    data-wj-exam-send="1" data-wj-exam-busy-label="Đang gửi yêu cầu...">Gửi yêu cầu</button>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -587,17 +1062,123 @@
         <t t-call="wujia_portal_layout.app_layout">
             <t t-set="title">Kết quả đăng ký</t>
 
-            <div class="content-wrapper d-none d-lg-block">
-                <t t-call="wujia_portal_layout.wj_page_header">
-                    <t t-set="ph_platform" t-value="'pc'"/>
-                    <t t-set="ph_variant" t-value="'back'"/>
-                    <t t-set="ph_title">Kết quả đăng ký</t>
-                    <t t-set="ph_back_url" t-value="'/portal/exam'"/>
-                </t>
+            <!-- ===== PC ≥992px — Figma 05_ResultDetail (4891:1565) + state matrix
+                 06_DetailVariants (4891:2635). Phiếu rejected/cancelled KHÔNG hiện
+                 bảng kết quả; portal MVP không có nút hủy. ===== -->
+            <div class="content-wrapper d-none d-lg-block wj-exam-pc wj-exam-pc-detail">
+                <t t-set="st" t-value="pc_reg_states.get(pc_detail['state'], (pc_detail['state'], 'wj-pc-badge--pending'))"/>
+                <t t-set="pb" t-value="pc_publish_states.get(pc_detail['publish_state'], ('Chưa có', 'wj-pc-badge--pending'))"/>
+                <div class="wj-pc-page-header">
+                    <div>
+                        <h1 class="wj-pc-page-header__title">Chi tiết đăng ký thi</h1>
+                        <p class="wj-pc-page-header__crumb">
+                            Portal / Đào tạo / Đăng ký thi / <t t-out="pc_detail['name']"/>
+                        </p>
+                    </div>
+                    <div class="wj-pc-page-header__actions">
+                        <span t-attf-class="wj-pc-badge wj-exam-pc-hbadge #{st[1]}"><t t-out="st[0]"/></span>
+                    </div>
+                </div>
                 <div class="content-body">
-                    <div class="alert alert-info mt-3">
-                        Kết quả đăng ký được tối ưu cho thiết bị di động.
-                        <a href="/portal/exam">← Quay lại danh sách</a>
+                    <a href="/portal/exam" class="wj-pc-btn wj-pc-btn--secondary wj-exam-pc-back">
+                        <i class="feather icon-chevron-left"/>Quay lại
+                    </a>
+
+                    <div class="wj-pc-card wj-exam-pc-dcard">
+                        <div class="wj-pc-card__head wj-exam-pc-dhead">
+                            <div>
+                                <h2 class="wj-pc-card__title wj-exam-pc-sectitle">Thông tin đăng ký</h2>
+                                <p class="wj-pc-card__subtitle wj-exam-pc-secsub" t-out="pc_detail['card_sub']"/>
+                            </div>
+                            <span t-attf-class="wj-pc-badge wj-exam-pc-pbadge #{pb[1]}"><t t-out="pb[0]"/></span>
+                        </div>
+
+                        <div class="wj-exam-pc-kvgrid">
+                            <div class="wj-exam-pc-kv">
+                                <span class="wj-exam-pc-kv__label">Mã phiếu</span>
+                                <span class="wj-exam-pc-kv__value" t-out="pc_detail['name']"/>
+                            </div>
+                            <div class="wj-exam-pc-kv">
+                                <span class="wj-exam-pc-kv__label">Khóa thi</span>
+                                <span class="wj-exam-pc-kv__value" t-out="pc_detail['course_name']"/>
+                            </div>
+                            <div class="wj-exam-pc-kv">
+                                <span class="wj-exam-pc-kv__label">Ngày &amp; giờ thi</span>
+                                <span class="wj-exam-pc-kv__value" t-out="pc_detail['exam_datetime']"/>
+                            </div>
+                            <div class="wj-exam-pc-kv">
+                                <span class="wj-exam-pc-kv__label">Địa điểm</span>
+                                <span class="wj-exam-pc-kv__value" t-out="pc_detail['location']"/>
+                            </div>
+                            <div class="wj-exam-pc-kv">
+                                <span class="wj-exam-pc-kv__label">Cửa hàng</span>
+                                <span class="wj-exam-pc-kv__value" t-out="pc_detail['franchise_name']"/>
+                            </div>
+                            <div class="wj-exam-pc-kv">
+                                <span class="wj-exam-pc-kv__label">Người đăng ký</span>
+                                <span class="wj-exam-pc-kv__value" t-out="pc_detail['requester']"/>
+                            </div>
+                            <div class="wj-exam-pc-kv">
+                                <span class="wj-exam-pc-kv__label">Ngày nộp phiếu</span>
+                                <span class="wj-exam-pc-kv__value" t-out="pc_detail['request_date']"/>
+                            </div>
+                            <div class="wj-exam-pc-kv">
+                                <span class="wj-exam-pc-kv__label">Người tham gia</span>
+                                <span class="wj-exam-pc-kv__value" t-out="pc_detail['participant_label']"/>
+                            </div>
+                        </div>
+
+                        <t t-if="pc_detail.get('show_results')">
+                            <h2 class="wj-pc-card__title wj-exam-pc-sectitle wj-exam-pc-sectitle--2">Kết quả thi</h2>
+                            <p class="wj-pc-card__subtitle wj-exam-pc-secsub">Kết quả được công bố theo từng người đã đăng ký.</p>
+                            <table class="wj-pc-table wj-exam-pc-res-table">
+                                <thead>
+                                    <tr>
+                                        <th>Ảnh nhân viên</th>
+                                        <th>Họ và tên</th>
+                                        <th>Số điện thoại</th>
+                                        <th>Năm sinh</th>
+                                        <th>Chức vụ</th>
+                                        <th>Kết quả</th>
+                                        <th>Ghi chú kết quả</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr t-foreach="pc_detail['lines']" t-as="line">
+                                        <td>
+                                            <span class="wj-exam-pc-avatar"><i class="feather icon-user"/></span>
+                                        </td>
+                                        <td class="wj-exam-pc-td--name" t-out="line['employee_name']"/>
+                                        <td t-out="line['phone']"/>
+                                        <td class="wj-pc-td--muted" t-out="line['birth_year']"/>
+                                        <td class="wj-pc-td--muted" t-out="line['job_position']"/>
+                                        <td>
+                                            <t t-if="line['result'] == 'passed'">
+                                                <span class="wj-pc-badge wj-exam-pc-rbadge wj-pc-badge--done">Đạt</span>
+                                            </t>
+                                            <t t-elif="line['result'] == 'failed'">
+                                                <span class="wj-pc-badge wj-exam-pc-rbadge wj-pc-badge--cancel">Không đạt</span>
+                                            </t>
+                                            <t t-else="">
+                                                <span class="wj-pc-badge wj-exam-pc-rbadge wj-pc-badge--pending">Chưa có kết quả</span>
+                                            </t>
+                                        </td>
+                                        <td>
+                                            <span t-if="line['result_note']" class="wj-exam-pc-note" t-out="line['result_note']"/>
+                                            <span t-else="" class="wj-exam-pc-note wj-exam-pc-note--empty">—</span>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </t>
+
+                        <div t-attf-class="wj-exam-pc-banner wj-exam-pc-banner--#{pc_detail['banner_kind']}">
+                            <span class="wj-exam-pc-banner__chip">i</span>
+                            <div class="wj-exam-pc-banner__body">
+                                <p class="wj-exam-pc-banner__title" t-out="pc_detail['banner_title']"/>
+                                <p class="wj-exam-pc-banner__text" t-out="pc_detail['banner_text']"/>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
