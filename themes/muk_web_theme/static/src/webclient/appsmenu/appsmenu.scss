@@ -10,7 +10,10 @@
     right: 0 !important;
     left: 0 !important;
     bottom: 0 !important;
-    max-height: 100vh;
+    // Cover the navbar too, like the Enterprise home menu. The popover hook
+    // writes top/max-height inline, hence the !important.
+    top: 0 !important;
+    max-height: 100vh !important;
     overflow-x: hidden;
     overflow-y: auto;
     border: none;
@@ -63,5 +66,29 @@
     			transform: translateY(-2px);
 			}
 	    }
+	}
+}
+
+// While the apps drawer is open the navbar drops its background and app
+// chrome, leaving only the systray floating over the wallpaper — same look as
+// the Enterprise home menu. Class is toggled in appsmenu.js.
+body.mk_apps_menu_open {
+	header.o_navbar {
+		// Above the overlay container ($zindex-modal = 1055) so the systray
+		// stays clickable on top of the drawer.
+		position: relative;
+		z-index: 1056;
+	}
+	.o_main_navbar {
+		background: transparent !important;
+		border-bottom: none !important;
+		box-shadow: none !important;
+	}
+	// Leaving the current app behind: no brand, no section menu, no breadcrumb.
+	.o_menu_brand,
+	.o_menu_sections,
+	.o_menu_sections_more,
+	.o_navbar_breadcrumbs {
+		display: none !important;
 	}
 }

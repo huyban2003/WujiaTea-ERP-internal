@@ -384,3 +384,29 @@
 }
 }
 }
+// Apps drawer open on top of a dashboard page: neutralise the white dashboard
+// header so it matches the rest of the backend (muk_web_theme appsmenu.scss).
+// Higher specificity than the .ks_body_class rules above — do NOT edit those,
+// they style every dashboard page.
+body.mk_apps_menu_open.ks_body_class {
+    header {
+        position: relative;
+        z-index: 1056;
+    }
+
+    .o_main_navbar {
+        background: transparent !important;
+        border-bottom: none !important;
+        box-shadow: none !important;
+        min-height: 0;
+        padding: 0 14px;
+    }
+
+    // common.scss animates every .o-dropdown--menu with fadeInSlideDown, whose
+    // last keyframe holds transform: translateY(86px) — that pushes the
+    // full-screen apps drawer 86px down the viewport.
+    .mk_app_menu.dropdown-menu {
+        animation: none !important;
+        transform: none !important;
+    }
+}

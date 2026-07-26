@@ -1,9 +1,13 @@
-import { useEffect } from "@odoo/owl";
+import { onWillUnmount, useEffect } from "@odoo/owl";
 import { user } from "@web/core/user";
 import { url } from "@web/core/utils/urls";
 import { useBus, useService } from "@web/core/utils/hooks";
 
 import { Dropdown } from "@web/core/dropdown/dropdown";
+
+// Set on <body> while the drawer is open, so the navbar can drop its
+// background and app chrome (see appsmenu.scss) like the Enterprise home menu.
+const BODY_CLASS = 'mk_apps_menu_open';
 
 export class AppsMenu extends Dropdown {
     setup() {
@@ -50,11 +54,17 @@ export class AppsMenu extends Dropdown {
 				this.state.close();
 			}
 		});
+		onWillUnmount(() => document.body.classList.remove(BODY_CLASS));
     }
     onOpened() {
 		super.onOpened();
+		document.body.classList.add(BODY_CLASS);
 		if (this.menuRef && this.menuRef.el) {
 			this.menuRef.el.style.backgroundImage = `url('${this.imageUrl}')`;
 		}
+    }
+    onClosed() {
+		super.onClosed();
+		document.body.classList.remove(BODY_CLASS);
     }
 }
