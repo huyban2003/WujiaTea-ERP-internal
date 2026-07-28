@@ -1,0 +1,106 @@
+# -*- coding: utf-8 -*-
+from odoo import api, fields, models, _
+
+
+class WujiaFranchiseInspectionQuestion(models.Model):
+    _name = 'wujia.franchise.inspection.question'
+    _description = 'Thư viện câu hỏi kiểm tra khảo sát'
+    _order = 'id desc'
+    _rec_name = 'question_text'
+
+    code = fields.Char(string='Mã câu hỏi')
+    question_text = fields.Text(
+        string='Nội dung câu hỏi',
+        required=True,
+        help='Nội dung câu hỏi. Dùng ký tự ____ đại diện cho vị trí chỗ trống cần điền.'
+    )
+    score = fields.Float(string='Điểm số', default=1.0, help='Điểm số đạt được khi trả lời đúng câu hỏi này')
+    
+    # Mảng JSON lưu trữ mảng đáp án đúng tương ứng với các ô trống (Dùng default=False để tránh Odoo gọi list(self))
+    correct_answers = fields.Json(
+        string='Mảng đáp án đúng (JSON)',
+        default=False,
+        help='Mảng JSON chứa đáp án cho từng vị trí trống ____. Ví dụ: [["500", "500ml"], ["10", "10 phút"]]'
+    )
+    
+    # Giao diện nhập liệu thân thiện cho người dùng
+    correct_answers_text = fields.Text(
+        string='Đáp án đúng (Mỗi vị trí trống 1 dòng)',
+        compute='_compute_correct_answers_text',
+        inverse='_inverse_correct_answers_text',
+        store=True,
+        help='Nhập đáp án đúng cho từng chỗ trống ____.\n'
+             '- Chỗ trống 1: Nhập ở Dòng 1.\n'
+             '- Chỗ trống 2: Nhập ở Dòng 2.\n'
+             '- Nếu 1 chỗ trống có nhiều đáp án chấp nhận được, phân cách nhau bằng dấu phẩy (,).'
+    )
+    
+    active = fields.Boolean(string='Kích hoạt', default=True)
+
+    @api.depends('code', 'question_text')
+    def _compute_display_name(self):
+        for rec in self:
+            if rec.code and rec.question_text:
+                short_text = rec.question_text[:40] + ('...' if len(rec.question_text) > 40 else '')
+                rec.display_name = f"[{rec.code}] {short_text}"
+            elif rec.question_text:
+                rec.display_name = rec.question_text[:50]
+            elif rec.code:
+                rec.display_name = rec.code
+            else:
+                rec.display_name = "Câu hỏi mới"
+
+    @api.depends('correct_answers')
+    def _compute_correct_answers_text(self):
+        for rec in self:
+            val = rec.correct_answers
+            if isinstance(val, list):
+                formatted_lines = []
+                for item in val:
+                    if isinstance(item, models.BaseModel):
+                        continue
+                    if isinstance(item, list):
+                        clean_items = [
+                            str(x) for x in item
+                            if x is not None and not isinstance(x, models.BaseModel) and isinstance(x, (str, int, float))
+                        ]
+                        if clean_items:
+                            formatted_lines.append(', '.join(clean_items))
+                    elif isinstance(item, (str, int, float)) and item:
+                        formatted_lines.append(str(item))
+                rec.correct_answers_text = '\n'.join(formatted_lines)
+            else:
+                rec.correct_answers_text = False
+
+    def _inverse_correct_answers_text(self):
+        for rec in self:
+            if rec.correct_answers_text:
+                result_list = []
+                for line in rec.correct_answers_text.splitlines():
+                    line_clean = line.strip()
+                    if not line_clean:
+                        continue
+                    if ',' in line_clean:
+                        parts = [p.strip() for p in line_clean.split(',') if p.strip()]
+                        result_list.append(parts)
+                    else:
+                        result_list.append(line_clean)
+                rec.correct_answers = result_list
+            else:
+                rec.correct_answers = False
+
+    def is_correct_blank(self, blank_index, user_answer):
+        """Hàm helper kiểm tra xem câu trả lời ở chỗ trống thứ blank_index có đúng hay không"""
+        self.ensure_one()
+        if not user_answer or not isinstance(self.correct_answers, list) or blank_index >= len(self.correct_answers):
+            return False
+        expected = self.correct_answers[blank_index]
+        user_clean = str(user_answer).strip().lower()
+        if isinstance(expected, list):
+            return user_clean in [str(x).strip().lower() for x in expected]
+        return user_clean == str(expected).strip().lower()
+
+    def action_save(self):
+        """Lưu bản ghi câu hỏi"""
+        self.ensure_one()
+        return True
