@@ -30,6 +30,47 @@ class WujiaSupervisionSchedule(models.Model):
 
     note = fields.Text(string='Ghi chú')
 
+    inspection_id = fields.Many2one(
+        'wujia.franchise.inspection',
+        string='Phiếu khảo sát',
+        compute='_compute_inspection_info',
+    )
+    inspection_count = fields.Integer(
+        string='Số phiếu khảo sát',
+        compute='_compute_inspection_info',
+    )
+
+    def _compute_inspection_info(self):
+        for record in self:
+            inspection = self.env['wujia.franchise.inspection'].search([('schedule_id', '=', record.id)], limit=1)
+            record.inspection_id = inspection
+            record.inspection_count = 1 if inspection else 0
+
+    def action_view_inspections(self):
+        self.ensure_one()
+        inspection = self.env['wujia.franchise.inspection'].search([('schedule_id', '=', self.id)], limit=1)
+        if inspection:
+            return {
+                'name': 'Phiếu khảo sát',
+                'type': 'ir.actions.act_window',
+                'res_model': 'wujia.franchise.inspection',
+                'view_mode': 'form',
+                'res_id': inspection.id,
+                'target': 'current',
+            }
+        return {
+            'name': 'Tạo phiếu khảo sát',
+            'type': 'ir.actions.act_window',
+            'res_model': 'wujia.franchise.inspection',
+            'view_mode': 'form',
+            'context': {
+                'default_schedule_id': self.id,
+                'default_name': f"Khảo sát: {self.name}",
+            },
+            'target': 'current',
+        }
+
+
     # =========================================================================
     # HÀM ONCHANGE: TỰ ĐỘNG RESET VÀ LỌC LẠI DANH SÁCH CỬA HÀNG KHI ĐỔI USER
     # =========================================================================
