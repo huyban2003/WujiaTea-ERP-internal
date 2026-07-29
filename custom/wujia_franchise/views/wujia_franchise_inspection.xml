@@ -86,7 +86,7 @@
                                     <field name="sequence" widget="handle"/>
                                     <field name="template_line_id" column_invisible="True" force_save="1"/>
                                     <field name="category_id" column_invisible="True" force_save="1"/>
-                                    <field name="previous_line_id" column_invisible="True" force_save="1"/>
+                                    <field name="previous_line_id" column_invisible="True"/>
                                     <field name="content_snapshot" readonly="1" force_save="1" string="Nội dung kiểm tra tiêu chí"/>
                                     <field name="criterion_type_snapshot" readonly="1" force_save="1" string="Loại tiêu chí" widget="badge"
                                            invisible="display_type"
@@ -94,7 +94,7 @@
                                            decoration-info="criterion_type_snapshot == 'normal'"/>
                                     <field name="deduction_score_snapshot" readonly="1" force_save="1" string="Điểm trừ vi phạm" invisible="display_type"/>
                                     <field name="is_pass" widget="boolean_toggle" string="Đánh giá Đạt" invisible="display_type"/>
-                                    <field name="previous_result" readonly="1" force_save="1" string="Đợt trước" widget="badge"
+                                    <field name="previous_result" readonly="1" string="Đợt trước" widget="badge"
                                            invisible="display_type"
                                            decoration-success="previous_result == 'pass'"
                                            decoration-danger="previous_result == 'fail'"/>

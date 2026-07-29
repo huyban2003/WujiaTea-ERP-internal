@@ -53,7 +53,7 @@ class WujiaFranchiseInspection(models.Model):
                 total_deduction = sum(
                     line.deduction_score_snapshot
                     for line in criteria_lines
-                    if not line.is_pass or line.result == 'fail'
+                    if not line.is_pass
                 )
                 rec.checklist_score = max(0.0, 95.0 - total_deduction)
 
@@ -103,11 +103,6 @@ class WujiaFranchiseInspection(models.Model):
                     'sequence': seq,
                     'display_type': 'line_section',
                     'content_snapshot': section_title,
-                    'is_pass': True,
-                    'result': 'pass',
-                    'previous_line_id': False,
-                    'previous_result': False,
-                    'previous_deduction_score': 0.0,
                 }))
                 seq += 10
 
@@ -125,7 +120,7 @@ class WujiaFranchiseInspection(models.Model):
                         ]
                         if match_l:
                             prev_l_id = match_l[0].id
-                            prev_res = match_l[0].result or ('pass' if match_l[0].is_pass else 'fail')
+                            prev_res = 'pass' if match_l[0].is_pass else 'fail'
                             prev_ded = match_l[0].deduction_score_snapshot
 
                     lines.append((0, 0, {
@@ -167,7 +162,7 @@ class WujiaFranchiseInspection(models.Model):
                     ]
                     if match_l:
                         line.previous_line_id = match_l[0].id
-                        line.previous_result = match_l[0].result or ('pass' if match_l[0].is_pass else 'fail')
+                        line.previous_result = 'pass' if match_l[0].is_pass else 'fail'
                         line.previous_deduction_score = match_l[0].deduction_score_snapshot
                     else:
                         line.previous_line_id = False
@@ -291,7 +286,6 @@ class WujiaFranchiseInspection(models.Model):
             if self.schedule_id.user_id:
                 self.inspector_user_id = self.schedule_id.user_id
     
-    
     @api.depends('checklist_score', 'exam_score')
     def _compute_total_score(self):
         """
@@ -351,7 +345,6 @@ class WujiaFranchiseInspectionLine(models.Model):
         string='Kết quả',
         default='pass',
         required=True,
-        ondelete='restrict',
     )
 
     @api.onchange('is_pass')
@@ -458,7 +451,6 @@ class WujiaFranchiseInspectionLine(models.Model):
         loại tiêu chí và danh mục vào các trường snapshot tương ứng.
         """
         if self.template_line_id:
-            self.template_line_id = self.template_line_id.id 
             self.category_id = self.template_line_id.category_id
             self.content_snapshot = self.template_line_id.content
             self.deduction_score_snapshot = self.template_line_id.deduction_score
@@ -506,7 +498,7 @@ class WujiaFranchiseInspectionLine(models.Model):
                         vals['category_id'] = t_line.category_id.id
                     if not vals.get('content_snapshot'):
                         vals['content_snapshot'] = t_line.content
-                    if vals.get('deduction_score_snapshot') is None or vals.get('deduction_score_snapshot') == 0.0 or 'deduction_score_snapshot' not in vals:
+                    if 'deduction_score_snapshot' not in vals:
                         vals['deduction_score_snapshot'] = t_line.deduction_score
                     if not vals.get('criterion_type_snapshot'):
                         vals['criterion_type_snapshot'] = t_line.criterion_type
@@ -522,7 +514,7 @@ class WujiaFranchiseInspectionLine(models.Model):
                     ]
                     if match_l:
                         vals['previous_line_id'] = match_l[0].id
-                        vals['previous_result'] = match_l[0].result or ('pass' if match_l[0].is_pass else 'fail')
+                        vals['previous_result'] = 'pass' if match_l[0].is_pass else 'fail'
                         vals['previous_deduction_score'] = match_l[0].deduction_score_snapshot
 
         return super().create(vals_list)
