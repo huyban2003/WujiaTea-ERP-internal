@@ -144,6 +144,7 @@ class WujiaFranchiseManagement(models.Model):
         'res.users',
         string='Người phụ trách giám sát',
         compute='_compute_effective_supervision_user',
+        store=True,
         help='Nhân viên giám sát của cửa hàng. Nếu chưa được gán riêng, sẽ lấy từ Người phụ trách khu vực.',
     )
 

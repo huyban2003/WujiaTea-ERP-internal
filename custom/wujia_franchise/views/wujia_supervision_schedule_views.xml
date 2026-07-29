@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- 1. LIST / TREE VIEW -->
+    <record id="view_wujia_supervision_schedule_tree" model="ir.ui.view">
+        <field name="name">wujia.supervision.schedule.tree</field>
+        <field name="model">wujia.supervision.schedule</field>
+        <field name="arch" type="xml">
+            <list string="Lịch giám sát cửa hàng">
+                <field name="name"/>
+                <field name="store_id"/>
+                <field name="user_id"/>
+                <!-- Thay date_start thành date -->
+                <field name="date" options="{'format': 'DD/MM/YYYY'}"/>
+                <field name="state" widget="badge"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- 2. CALENDAR VIEW -->
+    <record id="view_wujia_supervision_schedule_calendar" model="ir.ui.view">
+        <field name="name">wujia.supervision.schedule.calendar</field>
+        <field name="model">wujia.supervision.schedule</field>
+        <field name="arch" type="xml">
+            <!-- Dùng date_start="date" (chỉ định trường date làm mốc lịch) -->
+            <calendar string="Lịch giám sát cửa hàng"
+                      date_start="date"
+                      mode="month"
+                      color="user_id"
+                      event_limit="5">
+                <field name="name"/>
+                <field name="store_id"/>
+                <field name="user_id" avatar_field="avatar_128"/>
+                <field name="state"/>
+            </calendar>
+        </field>
+    </record>
+
+    <!-- 3. FORM VIEW -->
+    <record id="view_wujia_supervision_schedule_form" model="ir.ui.view">
+        <field name="name">wujia.supervision.schedule.form</field>
+        <field name="model">wujia.supervision.schedule</field>
+        <field name="arch" type="xml">
+            <form string="Lịch giám sát">
+                <header>
+                    <field name="state" widget="statusbar" statusbar_visible="draft,in_progress,done"/>
+                </header>
+                <sheet>
+                    <div class="oe_title">
+                        <label for="name" string="Tiêu đề công việc"/>
+                        <h1>
+                            <field name="name" placeholder="Ví dụ: Giám sát định kỳ tháng 7"/>
+                        </h1>
+                    </div>
+                    <group>
+                        <group string="THÔNG TIN CỬA HÀNG">
+                            <field name="user_id" options="{'no_create': True, 'no_open': True}"/>
+                            <field name="store_id" 
+                                   domain="[('effective_supervision_user_id', '=', user_id)]"
+                                   options="{'no_create': True, 'no_open': True}"/>
+                        </group>
+                        <group string="THỜI GIAN">
+                            <field name="date" 
+                                   string="Thời gian giám sát" 
+                                   options="{'format': 'DD/MM/YYYY'}"/>
+                        </group>
+                    </group>
+                    <field name="note" placeholder="Thêm ghi chú chi tiết..."/>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- 4. SEARCH VIEW -->
+    <record id="view_wujia_supervision_schedule_search" model="ir.ui.view">
+        <field name="name">wujia.supervision.schedule.search</field>
+        <field name="model">wujia.supervision.schedule</field>
+        <field name="arch" type="xml">
+            <search string="Tìm kiếm Lịch giám sát">
+                <field name="name"/>
+                <field name="store_id"/>
+                <field name="user_id"/>
+                <filter string="Lịch của tôi" name="my_schedule" domain="[('user_id', '=', uid)]"/>
+            </search>
+        </field>
+    </record>
+
+    <!-- 5. ACTION -->
+    <record id="action_wujia_supervision_schedule" model="ir.actions.act_window">
+        <field name="name">Lịch giám sát cửa hàng</field>
+        <field name="res_model">wujia.supervision.schedule</field>
+        <field name="view_mode">calendar,list,form</field>
+        <field name="search_view_id" ref="view_wujia_supervision_schedule_search"/>
+        <field name="context">{'search_default_my_schedule': 1}</field>
+    </record>
+
+</odoo>
