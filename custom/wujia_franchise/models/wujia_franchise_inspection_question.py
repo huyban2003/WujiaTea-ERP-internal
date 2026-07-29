@@ -28,7 +28,7 @@ class WujiaFranchiseInspectionQuestion(models.Model):
         string='Đáp án đúng (Mỗi vị trí trống 1 dòng)',
         compute='_compute_correct_answers_text',
         inverse='_inverse_correct_answers_text',
-        store=True,
+        store=False,
         help='Nhập đáp án đúng cho từng chỗ trống ____.\n'
              '- Chỗ trống 1: Nhập ở Dòng 1.\n'
              '- Chỗ trống 2: Nhập ở Dòng 2.\n'
@@ -39,6 +39,7 @@ class WujiaFranchiseInspectionQuestion(models.Model):
 
     @api.depends('code', 'question_text')
     def _compute_display_name(self):
+        """Hàm tính toán tên hiển thị ngắn gọn cho bản ghi"""
         for rec in self:
             if rec.code and rec.question_text:
                 short_text = rec.question_text[:40] + ('...' if len(rec.question_text) > 40 else '')
@@ -52,6 +53,10 @@ class WujiaFranchiseInspectionQuestion(models.Model):
 
     @api.depends('correct_answers')
     def _compute_correct_answers_text(self):
+        """
+        Hàm tự động chuyển dữ liệu JSON từ correct_answers
+        thành chuỗi văn bản nhiều dòng để hiển thị ra giao diện.
+        """
         for rec in self:
             val = rec.correct_answers
             if isinstance(val, list):
@@ -73,6 +78,10 @@ class WujiaFranchiseInspectionQuestion(models.Model):
                 rec.correct_answers_text = False
 
     def _inverse_correct_answers_text(self):
+        """
+        Hàm xử lý khi người dùng nhập văn bản vào correct_answers_text trên giao diện:
+        Phân tách từng dòng văn bản và lưu ngược lại vào trường correct_answers (JSON) trong CSDL.
+        """
         for rec in self:
             if rec.correct_answers_text:
                 result_list = []
