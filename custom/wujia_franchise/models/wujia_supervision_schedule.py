@@ -66,6 +66,9 @@ class WujiaSupervisionSchedule(models.Model):
             'context': {
                 'default_schedule_id': self.id,
                 'default_name': f"Khảo sát: {self.name}",
+                'default_planned_date': self.date,
+                'default_franchise_id': self.store_id.id if self.store_id else False,
+                'default_inspector_user_id': self.user_id.id if self.user_id else False,
             },
             'target': 'current',
         }
