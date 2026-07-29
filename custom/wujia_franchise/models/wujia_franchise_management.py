@@ -127,6 +127,26 @@ class WujiaFranchiseManagement(models.Model):
         help='Thành viên có role=owner đang active của cửa hàng (BA spec).',
     )
 
+    supervision_user_id = fields.Many2one(
+        'res.users',
+        string='Nhân viên giám sát',
+        tracking=True,
+    )
+
+    area_manager_user_id = fields.Many2one(
+        related='area_id.manager_user_id',
+        string='Người phụ trách khu vực',
+        readonly=True,
+        store=False
+    )
+
+    effective_supervision_user_id = fields.Many2one(
+        'res.users',
+        string='Người phụ trách giám sát',
+        compute='_compute_effective_supervision_user',
+        help='Nhân viên giám sát của cửa hàng. Nếu chưa được gán riêng, sẽ lấy từ Người phụ trách khu vực.',
+    )
+
     active = fields.Boolean(default=True)
 
     _code_uniq = models.Constraint(
@@ -171,6 +191,13 @@ class WujiaFranchiseManagement(models.Model):
                 lambda m: m.role == 'owner' and m.is_currently_valid
             )[:1]
             rec.main_owner_member_id = owner
+
+    @api.depends('supervision_user_id', 'area_id.manager_user_id')
+    def _compute_effective_supervision_user(self):
+        for rec in self:
+            rec.effective_supervision_user_id = (
+                rec.supervision_user_id or rec.area_id.manager_user_id
+            )
 
     # ===========================================================
     # Constraints

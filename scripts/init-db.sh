@@ -3,10 +3,10 @@
 # Run once when bootstrapping a fresh environment.
 set -euo pipefail
 
-PROJECT_DIR="/home/huyban/odoo-dev/WujiaTea"
+PROJECT_DIR="/home/dev/WujiaTea-ERP-internal"
 ODOO_DIR="${PROJECT_DIR}/odoo19"
 CONFIG="${PROJECT_DIR}/config/odoo.conf"
-PYTHON="/home/huyban/miniconda3/envs/odoo/bin/python"
+PYTHON="/home/dev/miniconda3/envs/odoo19/bin/python"
 DB_NAME="wujia_tea_19"
 MODULES="wujia_core,wujia_franchise"
 

@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- List View -->
+    <record id="view_wujia_franchise_inspection_list" model="ir.ui.view">
+        <field name="name">wujia.franchise.inspection.list</field>
+        <field name="model">wujia.franchise.inspection</field>
+        <field name="arch" type="xml">
+            <list string="Phiếu giám sát">
+                <field name="sequence" widget="handle"/>
+                <field name="code"/>
+                <field name="name"/>
+                <field name="active" widget="boolean_toggle"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- Form View -->
+    <record id="view_wujia_franchise_inspection_form" model="ir.ui.view">
+        <field name="name">wujia.franchise.inspection.form</field>
+        <field name="model">wujia.franchise.inspection</field>
+        <field name="arch" type="xml">
+            <form string="Phiếu giám sát">
+                <sheet>
+                    <group>
+                        <group>
+                            <field name="name"/>
+                            <field name="code"/>
+                        </group>
+                        <group>
+                            <field name="sequence"/>
+                            <field name="active" widget="boolean_toggle"/>
+                        </group>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- Action -->
+    <record id="action_wujia_franchise_inspection" model="ir.actions.act_window">
+        <field name="name">Phiếu giám sát</field>
+        <field name="res_model">wujia.franchise.inspection</field>
+        <field name="view_mode">list,form</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Tạo phiếu giám sát mới!
+            </p>
+        </field>
+    </record>
+
+</odoo>
