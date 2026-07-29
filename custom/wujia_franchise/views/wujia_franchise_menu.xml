@@ -3,8 +3,8 @@
 
     <!--
         Menu structure theo BA spec:
-        Franchise Management
-          ├─ Operation
+                Quản lý nhượng quyền
+                    ├─ Vận hành
           │   ├─ Franchise Management   (wujia.franchise.management)
           │   └─ Franchise Member       (wujia.franchise.member)
           └─ Configuration
@@ -14,53 +14,144 @@
     -->
 
     <menuitem id="menu_wujia_root"
-              name="Franchise Management"
+              name="Quản lý nhượng quyền"
               web_icon="wujia_franchise,static/description/icon.png"
-              sequence="20"
-              groups="group_franchise_user"/>
+              sequence="20"/>
 
     <menuitem id="menu_wujia_operation_root"
-              name="Operation"
+              name="Vận hành"
               parent="menu_wujia_root"
               sequence="10"/>
 
     <menuitem id="menu_wujia_franchise_management"
-              name="Franchise Management"
+              name="Quản lý cửa hàng"
               parent="menu_wujia_operation_root"
               action="action_franchise_management"
               sequence="10"/>
 
     <menuitem id="menu_wujia_franchise_member"
-              name="Franchise Member"
+              name="Thành viên nhượng quyền"
               parent="menu_wujia_operation_root"
               action="action_wujia_franchise_member"
               sequence="20"/>
 
+    <!-- Giám sát cửa hàng -->
+    <menuitem id="menu_giam_sat"
+              name="Giám sát cửa hàng"
+              parent="menu_wujia_root"
+              sequence="20"
+              groups="group_franchise_user"/>
+
+    <menuitem id="menu_giam_sat_phieu"
+              name="Phiếu giám sát"
+              parent="menu_giam_sat"
+              action="action_checklist"
+              sequence="10"/>
+
+    <menuitem id="menu_giam_sat_lich"
+              name="Lịch giám sát"
+              parent="menu_giam_sat"
+              action="action_inspection_schedule"
+              sequence="20"/>
+
+    <menuitem id="menu_giam_sat_cua_hang_can_giam_sat"
+              name="Cửa hàng cần giám sát"
+              parent="menu_giam_sat"
+              action="action_inspection_need_supervision"
+              sequence="30"/>
+
+    <menuitem id="menu_giam_sat_cho_xu_ly_khac_phuc"
+              name="Chờ xử lý khắc phục"
+              parent="menu_giam_sat"
+              action="action_inspection_line_pending_correction"
+              sequence="40"/>
+
+    <menuitem id="menu_giam_sat_lich_su"
+              name="Lịch sử giám sát"
+              parent="menu_giam_sat"
+              action="action_inspection_history"
+              sequence="50"/>
+
+    <menuitem id="menu_giam_sat_bao_cao"
+              name="Báo cáo"
+              parent="menu_wujia_root"
+              sequence="30"
+              groups="group_franchise_manager"/>
+
+    <menuitem id="menu_giam_sat_bao_cao_ket_qua"
+              name="Phân tích kết quả giám sát"
+              parent="menu_giam_sat_bao_cao"
+              action="action_inspection_result_analysis"
+              sequence="10"/>
+
+    <menuitem id="menu_giam_sat_bao_cao_tieu_chi_vi_pham"
+              name="Phân tích tiêu chí vi phạm"
+              parent="menu_giam_sat_bao_cao"
+              action="action_inspection_line_analysis"
+              sequence="20"/>
+
+    <menuitem id="menu_giam_sat_cau_hinh_root"
+              name="Cấu hình giám sát"
+              parent="menu_wujia_config_root"
+              sequence="10"/>
+
+    <menuitem id="menu_giam_sat_mau_phieu"
+              name="Mẫu phiếu giám sát"
+              parent="menu_giam_sat_cau_hinh_root"
+              action="action_inspection_template"
+              sequence="10"/>
+
+    <menuitem id="menu_giam_sat_thu_vien_tieu_chi"
+              name="Thư viện tiêu chí kiểm tra"
+              parent="menu_giam_sat_cau_hinh_root"
+              action="action_inspection_template_line"
+              sequence="15"/>
+
+    <menuitem id="menu_giam_sat_thu_vien_cau_hoi"
+              name="Thư viện câu hỏi kiểm tra"
+              parent="menu_giam_sat_cau_hinh_root"
+              action="action_inspection_question"
+              sequence="20"/>
+
+    <!-- <menuitem id="menu_giam_sat_danh_muc_tieu_chi"
+              name="Danh mục tiêu chí"
+              parent="menu_giam_sat_cau_hinh_root"
+              action="action_inspection_category"
+              sequence="20"/> -->
+
+    <menuitem id="menu_giam_sat_xep_hang"
+              name="Xếp hạng giám sát"
+              parent="menu_giam_sat_cau_hinh_root"
+              action="action_inspection_ranking"
+              sequence="30"/>
+
+    
+
     <menuitem id="menu_wujia_config_root"
-              name="Configuration"
+              name="Cấu hình"
               parent="menu_wujia_root"
               sequence="90"
               groups="group_franchise_manager"/>
 
     <menuitem id="menu_wujia_config_area_root"
-              name="Area Management"
+              name="Quản lý khu vực"
               parent="menu_wujia_config_root"
               sequence="10"/>
 
     <menuitem id="menu_wujia_config_area"
-              name="Area"
+              name="Khu vực"
               parent="menu_wujia_config_area_root"
               action="wujia_core.action_res_area"
               sequence="10"/>
 
     <menuitem id="menu_wujia_config_state"
-              name="Province / City"
+              name="Tỉnh / Thành phố"
               parent="menu_wujia_config_area_root"
               action="base.action_country_state"
               sequence="20"/>
 
     <menuitem id="menu_wujia_config_ward"
-              name="Ward"
+              name="Phường / Xã"
               parent="menu_wujia_config_area_root"
               action="wujia_core.action_res_ward"
               sequence="30"/>

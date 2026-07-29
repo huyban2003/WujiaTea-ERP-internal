@@ -1,0 +1,199 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="view_wujia_franchise_inspection_line_tree" model="ir.ui.view">
+        <field name="name">Dòng giám sát - Danh sách</field>
+        <field name="model">wujia.franchise.inspection.line</field>
+        <field name="arch" type="xml">
+            <list>
+                <field name="inspection_id"/>
+                <field name="criterion_code_snapshot"/>
+                <field name="category_snapshot"/>
+                <field name="result"/>
+                <field name="deduction_score_actual"/>
+                <field name="correction_state"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_wujia_franchise_inspection_line_form" model="ir.ui.view">
+        <field name="name">Dòng giám sát - Form</field>
+        <field name="model">wujia.franchise.inspection.line</field>
+        <field name="arch" type="xml">
+            <form>
+                <sheet>
+                    <group>
+                        <group>
+                            <field name="inspection_id"/>
+                            <field name="template_line_id"/>
+                            <field name="result"/>
+                            <field name="deduction_score_actual"/>
+                            <field name="correction_state"/>
+                        </group>
+                        <group>
+                            <field name="criterion_code_snapshot"/>
+                            <field name="category_snapshot"/>
+                            <field name="criterion_type_snapshot"/>
+                            <field name="deduction_score_snapshot"/>
+                            <field name="previous_line_id"/>
+                            <field name="previous_result" readonly="1"/>
+                            <field name="previous_deduction_score" readonly="1"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="Nội dung">
+                            <field name="content_snapshot"/>
+                            <field name="note"/>
+                            <field name="correction_feedback"/>
+                            <field name="correction_review_note"/>
+                        </page>
+                        <page string="Bằng chứng">
+                            <field name="evidence_attachment_ids" widget="many2many_binary"/>
+                            <field name="correction_attachment_ids" widget="many2many_binary"/>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_inspection_line_pending_correction" model="ir.actions.act_window">
+        <field name="name">Chờ xử lý khắc phục</field>
+        <field name="res_model">wujia.franchise.inspection.line</field>
+        <field name="view_mode">list,form</field>
+        <field name="domain">[('correction_state', '!=', 'done')]</field>
+    </record>
+
+    <record id="action_inspection_line_analysis" model="ir.actions.act_window">
+        <field name="name">Phân tích tiêu chí vi phạm</field>
+        <field name="res_model">wujia.franchise.inspection.line</field>
+        <field name="view_mode">list,graph,pivot</field>
+    </record>
+
+    <record id="view_wujia_franchise_inspection_line_graph" model="ir.ui.view">
+        <field name="name">Dòng giám sát - Biểu đồ</field>
+        <field name="model">wujia.franchise.inspection.line</field>
+        <field name="arch" type="xml">
+            <graph string="Tiêu chí vi phạm" type="bar">
+                <field name="result" type="row"/>
+                <field name="deduction_score_actual" type="measure"/>
+            </graph>
+        </field>
+    </record>
+
+    <record id="view_wujia_franchise_inspection_line_pivot" model="ir.ui.view">
+        <field name="name">Dòng giám sát - Pivot</field>
+        <field name="model">wujia.franchise.inspection.line</field>
+        <field name="arch" type="xml">
+            <pivot string="Tiêu chí vi phạm">
+                <field name="correction_state" type="row"/>
+                <field name="category_snapshot" type="col"/>
+                <field name="deduction_score_actual" type="measure"/>
+            </pivot>
+        </field>
+    </record>
+
+    <record id="view_wujia_franchise_inspection_calendar" model="ir.ui.view">
+        <field name="name">Phiếu giám sát - Lịch</field>
+        <field name="model">wujia.franchise.inspection</field>
+        <field name="arch" type="xml">
+            <calendar date_start="planned_date" color="state" mode="month">
+                <field name="name"/>
+                <field name="franchise_id"/>
+                <field name="inspector_user_id"/>
+                <field name="state"/>
+            </calendar>
+        </field>
+    </record>
+
+    <record id="view_wujia_franchise_inspection_graph" model="ir.ui.view">
+        <field name="name">Phiếu giám sát - Biểu đồ</field>
+        <field name="model">wujia.franchise.inspection</field>
+        <field name="arch" type="xml">
+            <graph string="Kết quả giám sát" type="bar">
+                <field name="state" type="row"/>
+                <field name="total_score" type="measure"/>
+            </graph>
+        </field>
+    </record>
+
+    <record id="view_wujia_franchise_inspection_pivot" model="ir.ui.view">
+        <field name="name">Phiếu giám sát - Pivot</field>
+        <field name="model">wujia.franchise.inspection</field>
+        <field name="arch" type="xml">
+            <pivot string="Kết quả giám sát">
+                <field name="state" type="row"/>
+                <field name="franchise_id" type="col"/>
+                <field name="total_score" type="measure"/>
+            </pivot>
+        </field>
+    </record>
+
+    <record id="action_inspection_schedule" model="ir.actions.act_window">
+        <field name="name">Lịch giám sát</field>
+        <field name="res_model">wujia.franchise.inspection</field>
+        <field name="view_mode">calendar,list,form</field>
+        <field name="domain">[('state', 'in', ['draft', 'in_progress', 'submitted'])]</field>
+    </record>
+
+    <record id="action_inspection_need_supervision" model="ir.actions.act_window">
+        <field name="name">Cửa hàng cần giám sát</field>
+        <field name="res_model">wujia.franchise.inspection</field>
+        <field name="view_mode">list,form</field>
+        <field name="domain">[('state', '=', 'draft')]</field>
+    </record>
+
+    <record id="action_inspection_history" model="ir.actions.act_window">
+        <field name="name">Lịch sử giám sát</field>
+        <field name="res_model">wujia.franchise.inspection</field>
+        <field name="view_mode">list,form</field>
+        <field name="domain">[('state', 'in', ['submitted', 'approved', 'cancelled'])]</field>
+    </record>
+
+    <record id="action_inspection_result_analysis" model="ir.actions.act_window">
+        <field name="name">Phân tích kết quả giám sát</field>
+        <field name="res_model">wujia.franchise.inspection</field>
+        <field name="view_mode">graph,pivot,list</field>
+        <field name="context">{'search_default_group_state': 1}</field>
+    </record>
+
+    <record id="view_wujia_franchise_inspection_ranking_tree" model="ir.ui.view">
+        <field name="name">Xếp hạng giám sát - Danh sách</field>
+        <field name="model">wujia.franchise.inspection.ranking</field>
+        <field name="arch" type="xml">
+            <list>
+                <field name="code"/>
+                <field name="name"/>
+                <field name="min_score"/>
+                <field name="max_score"/>
+                <field name="active"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_wujia_franchise_inspection_ranking_form" model="ir.ui.view">
+        <field name="name">Xếp hạng giám sát - Form</field>
+        <field name="model">wujia.franchise.inspection.ranking</field>
+        <field name="arch" type="xml">
+            <form>
+                <sheet>
+                    <group>
+                        <field name="code"/>
+                        <field name="name"/>
+                        <field name="min_score"/>
+                        <field name="max_score"/>
+                        <field name="active"/>
+                    </group>
+                    <field name="description"/>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_inspection_ranking" model="ir.actions.act_window">
+        <field name="name">Xếp hạng giám sát</field>
+        <field name="res_model">wujia.franchise.inspection.ranking</field>
+        <field name="view_mode">list,form</field>
+    </record>
+
+</odoo>

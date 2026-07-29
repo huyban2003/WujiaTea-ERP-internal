@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- Early actions to ensure menu references resolve during module load -->
+    <record id="action_inspection_template" model="ir.actions.act_window">
+        <field name="name">Mẫu phiếu giám sát</field>
+        <field name="res_model">wujia.franchise.inspection.template</field>
+        <field name="view_mode">list,form</field>
+    </record>
+
+</odoo>
