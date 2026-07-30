@@ -12,7 +12,11 @@
                 <field name="user_id"/>
                 <!-- Thay date_start thành date -->
                 <field name="date" options="{'format': 'DD/MM/YYYY'}"/>
-                <field name="state" widget="badge"/>
+                <field name="state" widget="badge"
+                       decoration-info="state == 'draft'"
+                       decoration-warning="state == 'in_progress'"
+                       decoration-success="state == 'done'"
+                       decoration-danger="state == 'cancel'"/>
             </list>
         </field>
     </record>
@@ -26,12 +30,14 @@
             <calendar string="Lịch giám sát cửa hàng"
                       date_start="date"
                       mode="month"
-                      color="user_id"
+                      color="state"
+                      create="true"
+                      quick_create="false"
                       event_limit="5">
                 <field name="name"/>
                 <field name="store_id"/>
                 <field name="user_id" avatar_field="avatar_128"/>
-                <field name="state"/>
+                <field name="state" filters="1"/>
             </calendar>
         </field>
     </record>

@@ -20,7 +20,7 @@ class WujiaFranchiseInspection(models.Model):
     )
 
     state = fields.Selection([
-        ('draft', 'Đang chờ'),
+        ('draft', 'Nháp'),
         ('in_progress', 'Đang thực hiện'),
         ('done', 'Hoàn thành'),
         ('cancel', 'Đã hủy')
@@ -318,6 +318,38 @@ class WujiaFranchiseInspection(models.Model):
             rec._compute_grade()
             
         return True
+
+    def action_start(self):
+        """Chuyển phiếu khảo sát sang trạng thái Đang thực hiện và đồng bộ Lịch giám sát"""
+        for rec in self:
+            rec.write({'state': 'in_progress'})
+        return True
+
+    def action_done(self):
+        """Hoàn thành phiếu khảo sát và tự động chuyển Lịch giám sát sang Hoàn thành"""
+        for rec in self:
+            rec.write({'state': 'done'})
+        return True
+
+    def action_cancel(self):
+        """Hủy phiếu khảo sát và tự động chuyển Lịch giám sát sang Đã hủy"""
+        for rec in self:
+            rec.write({'state': 'cancel'})
+        return True
+
+    def action_draft(self):
+        """Đặt lại phiếu khảo sát về trạng thái Nháp và đồng bộ Lịch giám sát"""
+        for rec in self:
+            rec.write({'state': 'draft'})
+        return True
+
+    def write(self, vals):
+        res = super().write(vals)
+        if 'state' in vals:
+            for rec in self:
+                if rec.schedule_id and rec.schedule_id.state != vals['state']:
+                    rec.schedule_id.state = vals['state']
+        return res
 
     def _generate_random_exam_lines(self):
         """Tự động lấy ngẫu nhiên tối đa 5 câu hỏi từ wujia.franchise.inspection.question"""

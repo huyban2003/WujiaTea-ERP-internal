@@ -22,7 +22,7 @@ class WujiaSupervisionSchedule(models.Model):
     
     # Trạng thái lịch
     state = fields.Selection([
-        ('draft', 'Đang chờ'),
+        ('draft', 'Nháp'),
         ('in_progress', 'Đang thực hiện'),
         ('done', 'Hoàn thành'),
         ('cancel', 'Đã hủy')

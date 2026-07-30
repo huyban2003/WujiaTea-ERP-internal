@@ -31,6 +31,10 @@
         <field name="arch" type="xml">
             <form string="Phiếu khảo sát đánh giá cửa hàng nhượng quyền">
                 <header>
+                    <button name="action_start" string="Bắt đầu thực hiện" type="object" class="btn-primary" invisible="state != 'draft'" />
+                    <button name="action_done" string="Hoàn thành" type="object" class="btn-success" invisible="state in ('done', 'cancel')" />
+                    <button name="action_cancel" string="Hủy" type="object" invisible="state in ('done', 'cancel')" />
+                    <button name="action_draft" string="Đặt về Nháp" type="object" invisible="state in ('draft', 'done')" />
                     <field name="state" widget="statusbar"
                         statusbar_visible="draft,in_progress,done,cancel" />
                 </header>
