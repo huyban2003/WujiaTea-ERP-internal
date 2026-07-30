@@ -205,6 +205,8 @@
                 <field name="inspector_user_id" />
                 <field name="schedule_id" />
                 <separator />
+                <filter string="Phiếu của tôi" name="my_inspection" domain="[('inspector_user_id', '=', uid)]" />
+                <separator />
                 <filter string="Đang chờ (Draft)" name="draft" domain="[('state', '=', 'draft')]" />
                 <filter string="Đang thực hiện" name="in_progress"
                     domain="[('state', '=', 'in_progress')]" />
@@ -226,7 +228,7 @@
         </field>
     </record>
 
-    <!-- Action -->
+    <!-- Action Phiếu giám sát -->
     <record id="action_wujia_franchise_inspection" model="ir.actions.act_window">
         <field name="name">Phiếu giám sát</field>
         <field name="res_model">wujia.franchise.inspection</field>
