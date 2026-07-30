@@ -180,6 +180,8 @@ class WujiaFranchiseInspection(models.Model):
         """Tự động tính tổng điểm bài kiểm tra từ điểm của từng câu hỏi."""
         for rec in self:
             rec.exam_score = sum(line.point for line in rec.exam_line_ids)
+            if rec.template_id:
+                rec.exam_score = min(rec.template_id.exam_max_score, rec.exam_score)
 
     exam_score = fields.Float(
         string='Điểm kiểm tra',

@@ -42,6 +42,7 @@ class WujiaFranchiseInspectionTemplate(models.Model):
         'wujia.franchise.inspection.template.line',
         'template_id',
         string='Chi tiết tiêu chí',
+        copy=True,
     )
 
     @api.depends('checklist_max_score', 'exam_max_score')
@@ -107,6 +108,27 @@ class WujiaFranchiseInspectionTemplate(models.Model):
             'state': 'draft',
             'effective_date': fields.Date.context_today(self),
         })
+
+        # Đảm bảo sao chép toàn bộ các dòng tiêu chí cũ sang phiên bản mới
+        if not new_template.line_ids and self.line_ids:
+            new_lines = []
+            for line in self.line_ids:
+                new_lines.append({
+                    'template_id': new_template.id,
+                    'sequence': line.sequence,
+                    'criterion_code': line.criterion_code,
+                    'category_id': line.category_id.id if line.category_id else False,
+                    'display_type': line.display_type,
+                    'content': line.content,
+                    'criterion_type': line.criterion_type,
+                    'deduction_score': line.deduction_score,
+                    'require_note_if_fail': line.require_note_if_fail,
+                    'require_evidence_if_fail': line.require_evidence_if_fail,
+                    'active': line.active,
+                })
+            if new_lines:
+                self.env['wujia.franchise.inspection.template.line'].create(new_lines)
+
         return {
             'name': _('Mẫu khảo sát (Phiên bản mới)'),
             'type': 'ir.actions.act_window',
@@ -140,7 +162,7 @@ class WujiaFranchiseInspectionTemplateLine(models.Model):
         ('normal', 'Bình thường'),
         ('critical', 'Quan trọng / Điểm liệt'),
     ], string='Loại tiêu chí', default='normal', required=True)
-    deduction_score = fields.Float(string='Điểm trừ', default=0.0)
+    deduction_score = fields.Float(string='Điểm trừ', default=1.0)
     require_note_if_fail = fields.Boolean(string='Yêu cầu ghi chú khi không đạt', default=False)
     require_evidence_if_fail = fields.Boolean(string='Yêu cầu bằng chứng khi không đạt', default=False)
     active = fields.Boolean(string='Kích hoạt', default=True)
