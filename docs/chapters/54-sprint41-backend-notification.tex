@@ -1,0 +1,225 @@
+\chapter{Sprint 41 --- Backend quản lý thông báo nhượng quyền (2026-07-30)}
+
+\section{Bối cảnh}
+
+Task BA ở Google Sheet tab \texttt{Tasks} \textbf{row 3} (STT 2, \emph{Loại task} = Model-Field,
+\emph{Sẵn sàng cho AI} = Yes, ưu tiên Cao, \emph{Cho phép tự deploy} = \textbf{No}):
+``\emph{Xây dựng quản lý thông báo nhượng quyền trên Backend}'', đặc tả nằm ở tab
+\texttt{1. Model/Field} \textbf{phần F} (dòng 731--896).
+
+\textbf{Lỗ hổng thật của source.} Module \texttt{wujia\_portal\_notification} đã có \textbf{3 model
++ controller portal đầy đủ} (danh sách, chi tiết, popup chuông, mark-read, mark-all, tải file
+đính kèm) --- nhưng \textbf{không có một view backend nào}. HQ có model trần trong DB mà
+\textbf{không có màn hình nào trong Odoo để soạn hay phát hành thông báo}; 30 bản ghi đang chạy
+trên portal đều được tạo bằng script/shell. Đó chính là chỗ task này lấp.
+
+Đồng thời spec F siết vòng đời (\texttt{draft $\to$ published $\to$ archived}, cờ hiển thị portal,
+người gửi, ngày gửi, thống kê đọc) mà source mới chỉ có \textbf{một cờ Boolean \texttt{published}}.
+
+\textbf{Out-of-scope BA ghi rõ:} không đụng Controller/API và UI Portal; không thêm
+\texttt{target\_store\_ids} / \texttt{target\_role} / \texttt{target\_user\_ids}.
+
+\section{Bốn fork đã hỏi \& chốt với chủ dự án}
+
+\begin{center}
+\begin{tabular}{p{3.2cm}p{10.5cm}}
+\hline
+\textbf{Fork} & \textbf{Chốt} \\
+\hline
+Tên model & \textbf{Giữ tên source} \texttt{wujia.notification[.type][.read]}, KHÔNG rename sang
+\texttt{wujia.announcement*} như spec F. Thay vào đó \textbf{ghi bảng mapping ngược lên sheet} để
+BA sửa lại spec cho khớp thực tế. \\
+Ngày gửi & Rename \texttt{date} $\to$ \texttt{published\_date} bằng pre-migrate (giữ nguyên dữ liệu). \\
+Vòng đời & Thêm \texttt{state} / \texttt{portal\_visible} / \texttt{is\_published\_portal},
+migrate \texttt{published=TRUE} $\to$ \texttt{state='published'}, rồi \textbf{bỏ hẳn}
+field \texttt{published}. \\
+Mã thông báo & Thêm \textbf{field mới} \texttt{code} = \texttt{ir.sequence}
+\texttt{ANN/2026/0001}, readonly + unique. \texttt{dispatch\_number} giữ nguyên = số công văn HQ
+nhập tay; \texttt{name} giữ nguyên = tiêu đề. \\
+\hline
+\end{tabular}
+\end{center}
+
+\section{Schema mới}
+
+\subsection{\texttt{wujia.notification}}
+
+\begin{center}
+\begin{tabular}{p{3.6cm}p{3.2cm}p{6.9cm}}
+\hline
+\textbf{Field} & \textbf{Kiểu} & \textbf{Vai trò} \\
+\hline
+\texttt{code} & Char readonly & \texttt{ir.sequence} \texttt{ANN/<năm>/<số>}, unique \\
+\texttt{state} & Selection & \texttt{draft} / \texttt{published} / \texttt{archived}, tracking \\
+\texttt{portal\_visible} & Boolean & HQ tắt/bật hiển thị mà không cần lưu trữ \\
+\texttt{is\_published\_portal} & Boolean compute & \textbf{store + index}: \texttt{active AND
+state='published' AND portal\_visible} \\
+\texttt{published\_by\_id} & M2o res.users & set lúc bấm Gửi thông báo \\
+\texttt{published\_date} & Datetime & rename từ \texttt{date} \\
+\texttt{internal\_note} & Text & ghi chú HQ, không ra portal \\
+\texttt{read\_ids} & O2m & danh sách ai đã đọc \\
+\texttt{read/recipient/} \texttt{unread\_count} & Integer compute & thống kê đọc (spec F §15) \\
+\hline
+\end{tabular}
+\end{center}
+
+\texttt{summary} chuyển từ Char(200) compute-store sang \textbf{Text nhập tay} (fallback excerpt
+khi trống) --- vẫn store nên domain \texttt{keyword} của controller portal không đổi.
+Model thêm \texttt{mail.thread} + \texttt{mail.activity.mixin} để truy vết ai sửa gì.
+
+\subsection{Nghiệp vụ}
+
+\begin{itemize}
+  \item \texttt{action\_publish()} --- validate theo spec F §8/§9: đủ tiêu đề, nội dung, loại
+    (và loại đó còn \texttt{active}), mức độ; \texttt{expired\_date} không nhỏ hơn
+    \texttt{published\_date}. Sai $\to$ \texttt{UserError} \textbf{đúng message BA yêu cầu}.
+    Đúng $\to$ set \texttt{state}, \texttt{published\_date}, \texttt{published\_by\_id}.
+  \item \texttt{write()} chặn state machine: \texttt{archived} là điểm chết,
+    \texttt{published} không quay lại \texttt{draft}.
+  \item \texttt{unlink()} chặn xoá vật lý bản đã phát hành (spec F §17.2) --- hướng dẫn dùng
+    Lưu trữ.
+  \item Constraint tầng DB bằng \texttt{models.Constraint} (Odoo 19, \textbf{không}
+    \texttt{\_sql\_constraints}): \texttt{unique(code)}; \texttt{published\_date} bắt buộc khi
+    đã gửi; \texttt{expired\_date >= published\_date}.
+\end{itemize}
+
+\subsection{\texttt{wujia.notification.type} và \texttt{.read}}
+
+Type (đóng vai \texttt{announcement.category} của spec) thêm \texttt{description} và
+\texttt{notification\_count}. Read thêm \texttt{member\_id} (snapshot membership lúc ghi nhận đọc).
+
+\textbf{Lỗ trùng dòng đã phát hiện và bịt.} Ràng buộc cũ
+\texttt{unique(notification\_id, user\_id, franchise\_id)} \emph{không} chặn được gì khi
+\texttt{franchise\_id IS NULL} --- PostgreSQL coi mọi NULL là khác nhau --- trong khi controller
+portal truyền \texttt{active\_fid or False}, tức phiên chưa chọn cửa hàng ghi được vô hạn dòng đọc
+trùng. Bổ sung:
+
+\begin{verbatim}
+_uniq_noti_user_no_store = models.UniqueIndex(
+    '(notification_id, user_id) WHERE franchise_id IS NULL', ...)
+\end{verbatim}
+
+Đã kiểm SQL trước khi tạo index: 0 cặp trùng sẵn có $\to$ index tạo được, không vỡ migrate.
+
+\section{Thống kê đọc --- thiết kế theo ngân sách 1500 user}
+
+Ba field thống kê là \textbf{compute non-store}, nhưng tính \textbf{batched cho cả recordset}:
+một \texttt{\_read\_group} đếm dòng đọc theo thông báo, một \texttt{\_read\_group} đếm cặp
+(user, cửa hàng) đang hiệu lực --- \textbf{2 query cho cả danh sách}, không phải mỗi bản ghi một
+query. Ngoài ra 3 cột này để \texttt{optional="hide"} trên list view: HQ mở danh sách 30--300
+thông báo sẽ không kéo theo đếm đọc trừ khi chủ động bật cột.
+
+\texttt{unread\_count} = 0 khi thông báo đã hết hiệu lực (không còn ai \emph{phải} đọc), nhưng
+\texttt{is\_published\_portal} vẫn \texttt{True} --- lịch sử portal phải mở lại được.
+
+\section{Phân quyền và view}
+
+Privilege \textbf{Wujia Notification} + 2 group: \emph{User} (chỉ đọc) và \emph{Manager} (CRUD,
+gán \texttt{base.user\_admin}). \texttt{ir.model.access} tách theo 2 group; \texttt{wujia.notification.read}
+backend chỉ đọc. \texttt{ir.rule} portal đổi từ \texttt{('published','=',True)} sang
+\texttt{('is\_published\_portal','=',True)} --- một field stored + index thay cho một Boolean thường.
+
+Menu mới \textbf{Wujia $\to$ Thông báo} (sequence 45) + \emph{Cấu hình $\to$ Loại thông báo}
+(chỉ Manager). Form có statusbar, nút \emph{Gửi thông báo} / \emph{Lưu trữ}, notebook 5 tab
+(Nội dung · File đính kèm · Cửa hàng nhận · Ghi chú nội bộ · Trạng thái đọc) và chatter.
+
+\section{Migration 19.0.2.0.0}
+
+\texttt{pre-migrate.py} chạy \textbf{trước khi ORM tạo constraint} --- đó là điều kiện sống còn:
+rename \texttt{date}, thêm và fill \texttt{state} / \texttt{portal\_visible} / \texttt{active} /
+\texttt{published\_by\_id}, và fill \texttt{code} bằng
+\texttt{'ANN/' || năm || lpad(row\_number(),4,'0')}. Nếu để \texttt{code} có
+\texttt{default='/'} thì Odoo backfill mọi dòng bằng \texttt{'/'} rồi \texttt{unique(code)}
+vỡ ngay --- nên field \textbf{không có default}, \texttt{create()} lấy từ sequence, dòng cũ do
+pre-migrate lấp.
+
+\texttt{post-migrate.py} đẩy \texttt{ir.sequence.number\_next} vượt số lớn nhất đã migrate rồi mới
+\texttt{DROP COLUMN published}.
+
+\section{Đồng bộ code đang dùng field cũ}
+
+Bỏ \texttt{published} + rename \texttt{date} kéo theo 4 file phải sửa:
+controller \texttt{wujia\_portal\_notification} (6 chỗ), controller \texttt{wujia\_portal\_base}
+(\texttt{\_safe\_count} / \texttt{\_safe\_list} của dashboard), template
+\texttt{portal\_notification.xml} (6 chỗ) và \texttt{portal\_home.xml} (2 chỗ).
+
+\textbf{JSON key \texttt{'date'} của endpoint \texttt{/portal/notification/recent} giữ nguyên} $\to$
+\texttt{header\_bell\_badge.js} không phải đụng một dòng nào.
+
+\section{Verify}
+
+\begin{itemize}
+  \item \texttt{-u wujia\_portal\_notification,wujia\_portal\_base}: \textbf{RC=0}, 94 module,
+    \textbf{0 ERROR/CRITICAL/Traceback} trong \texttt{logs/odoo.log}.
+  \item \textbf{19 unit test} (\texttt{tests/test\_backend\_notification.py}, thư mục tests mới):
+    \texttt{0 failed, 0 error(s) of 19 tests}.
+  \item \textbf{Dữ liệu sau migrate}: 30/30 bản ghi có \texttt{published\_date}, 30 mã
+    \texttt{code} duy nhất \texttt{ANN/2026/0001..0030}, tất cả \texttt{state='published'} và
+    \texttt{is\_published\_portal=true}; hai cột cũ \texttt{date}/\texttt{published} đã biến mất.
+\end{itemize}
+
+Smoke bằng Playwright/chromium trên \textbf{local} (chưa deploy):
+
+\begin{center}
+\begin{tabular}{ll}
+\hline
+\textbf{Kiểm} & \textbf{Kết quả} \\
+\hline
+\texttt{/portal/notification} & 200, 10 mục hiển thị \\
+\texttt{/portal/notification/36} & 200, có nội dung \\
+\texttt{/notification/recent} & 5 mục, key JSON còn nguyên \texttt{date} \\
+\texttt{/notification/unread-count} & \texttt{\{count: 18\}} \\
+\texttt{/notification/mark-read} $\times$2 & \texttt{created: 0} cả hai lần --- idempotent \\
+Backend list & 30 dòng, breadcrumb ``Thông báo'' \\
+Backend form & statusbar Nháp/Đã gửi/Lưu trữ, 5 tab, chatter \\
+Form bản nháp mới & hiện nút \emph{Gửi thông báo}; bấm khi thiếu nội dung $\to$ đúng message BA \\
+JS pageerror & không có \\
+\hline
+\end{tabular}
+\end{center}
+
+\textbf{Chưa deploy UAT} --- BA set \emph{Cho phép tự deploy} = No. Lệnh cần chạy trên server:
+\texttt{git pull} $\to$
+\texttt{python odoo-bin -c <conf> -d wujia\_tea\_19 -u wujia\_portal\_notification,wujia\_portal\_base --stop-after-init}
+$\to$ restart service.
+
+\section{Ghi ngược sheet cho BA}
+
+Row 3 tab \texttt{Tasks} đã set \texttt{Ready for Retest} (\textbf{không} tự đóng \texttt{Done},
+theo QA Operating Standard §6) kèm bảng đối chiếu để BA sửa lại spec phần F:
+
+\begin{center}
+\begin{tabular}{ll}
+\hline
+\textbf{Spec F ghi} & \textbf{Source thật} \\
+\hline
+\texttt{wujia.announcement} & \texttt{wujia.notification} \\
+\texttt{wujia.announcement.category} & \texttt{wujia.notification.type} \\
+\texttt{wujia.announcement.read} & \texttt{wujia.notification.read} \\
+\texttt{title} & \texttt{name} \\
+\texttt{name} (ANN/2026/0001) & \texttt{code} (field mới sprint này) \\
+\texttt{category\_id} & \texttt{type\_id} \\
+\texttt{published\_date} & \texttt{published\_date} (đã rename từ \texttt{date}) \\
+\hline
+\end{tabular}
+\end{center}
+
+Kèm 4 LIMIT và \textbf{một câu hỏi mở} cho BA: spec F §5 ghi mức độ \texttt{normal} =
+``Thông thường'', nhưng portal đang chạy nhãn ``Lưu ý'' (BA FINAL Sprint 32 đã duyệt) và
+\texttt{PC\_PRIORITY\_TAGS} trong controller portal hardcode ``Lưu ý'' riêng. Task này BA cấm đụng
+UI Portal $\to$ \textbf{giữ ``Lưu ý''} để backend và portal không lệch nhau; chờ BA xác nhận đổi cả
+hai hay giữ nguyên.
+
+\section{Bài học}
+
+\begin{itemize}
+  \item \textbf{Ràng buộc unique trên cột nullable là ràng buộc rỗng ở nhánh NULL.} Lỗi này chỉ lộ
+    ra vì có test viết đúng kịch bản portal thật (phiên chưa chọn cửa hàng), không phải vì đọc code.
+  \item \textbf{Field mới có \texttt{default} + \texttt{unique} = mìn khi bảng đã có dữ liệu.}
+    Đường an toàn: không default, để pre-migrate lấp giá trị phân biệt trước khi ORM tạo constraint.
+  \item \textbf{Giữ hợp đồng JSON khi đổi schema.} Rename field trong Python nhưng giữ nguyên key
+    trả về cho client $\to$ toàn bộ JS phía portal không phải đụng, và không có gì để hồi quy.
+  \item \textbf{Thống kê phải thiết kế theo số query, không theo số dòng code.} Ba field đếm nếu
+    viết ngây thơ là N query mỗi lần HQ mở danh sách; batched \texttt{\_read\_group} + ẩn cột mặc
+    định đưa về 2 query và 0 query.
+\end{itemize}
