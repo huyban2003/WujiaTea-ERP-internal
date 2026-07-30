@@ -71,9 +71,9 @@ def _franchise_clause(franchise_ids):
 def _history_domain(franchise_ids):
     """Lịch sử: mọi thông báo đã phát hành đúng đối tượng (gồm cả đã hết hiệu lực)."""
     return (
-        [('published', '=', True)]
+        [('is_published_portal', '=', True)]
         + _franchise_clause(franchise_ids)
-        + [('date', '<=', fields.Datetime.now())]
+        + [('published_date', '<=', fields.Datetime.now())]
     )
 
 
@@ -140,9 +140,9 @@ class WujiaPortalNotification(http.Controller):
             date_error = ERROR_MESSAGES['INVALID_DATE_RANGE']
             df = dt = None
         if df:
-            domain.append(('date', '>=', datetime.combine(df, datetime.min.time())))
+            domain.append(('published_date', '>=', datetime.combine(df, datetime.min.time())))
         if dt:
-            domain.append(('date', '<=', datetime.combine(dt, datetime.max.time())))
+            domain.append(('published_date', '<=', datetime.combine(dt, datetime.max.time())))
 
         tid = _parse_int(type_id)
         if tid:
@@ -178,7 +178,7 @@ class WujiaPortalNotification(http.Controller):
 
         total = Noti.search_count(domain)
         notifications = Noti.search(domain, limit=lim, offset=offset,
-                                    order='is_pinned desc, date desc')
+                                    order='is_pinned desc, published_date desc')
 
         read_ids = self._read_ids(notifications.ids, active_fid)
         cnt_unread = self._unread_count(franchise_ids, active_fid)
@@ -254,7 +254,7 @@ class WujiaPortalNotification(http.Controller):
         active_fid = get_active_franchise_id()
         Noti = request.env['wujia.notification'].sudo()
         eff = _effective_domain(franchise_ids)
-        recent = Noti.search(eff, limit=POPUP_LIMIT, order='is_pinned desc, date desc')
+        recent = Noti.search(eff, limit=POPUP_LIMIT, order='is_pinned desc, published_date desc')
         read_ids = self._read_ids(recent.ids, active_fid)
         total_unread = self._unread_count(franchise_ids, active_fid)
         total_eff = Noti.search_count(eff)
@@ -263,7 +263,7 @@ class WujiaPortalNotification(http.Controller):
             'id': n.id,
             'name': n.name,
             'dispatch_number': n.dispatch_number or '',
-            'date': n.date.strftime('%d/%m/%Y %H:%M') if n.date else '',
+            'date': n.published_date.strftime('%d/%m/%Y %H:%M') if n.published_date else '',
             'type_code': n.type_id.code or 'GEN',
             'type_name': n.type_id.name or '',
             'priority': n.priority or 'normal',

@@ -260,7 +260,7 @@ class WujiaPortal(CustomerPortal):
         if kind == 'unread_count':
             user_id = request.env.user.id
             published_total = Model.search_count([
-                ('published', '=', True),
+                ('is_published_portal', '=', True),
                 '|', ('franchise_ids', '=', False),
                      ('franchise_ids', 'in', list(franchise_ids)),
             ])
@@ -269,7 +269,7 @@ class WujiaPortal(CustomerPortal):
                 return published_total
             read_count = Read.sudo().search_count([
                 ('user_id', '=', user_id),
-                ('notification_id.published', '=', True),
+                ('notification_id.is_published_portal', '=', True),
             ])
             return max(0, published_total - read_count)
         if kind == 'open_count':
@@ -289,10 +289,10 @@ class WujiaPortal(CustomerPortal):
         Model = Model.sudo()
         if model_name == 'wujia.notification':
             return Model.search([
-                ('published', '=', True),
+                ('is_published_portal', '=', True),
                 '|', ('franchise_ids', '=', False),
                      ('franchise_ids', 'in', list(franchise_ids)),
-            ], order='date desc', limit=limit)
+            ], order='published_date desc', limit=limit)
         if model_name == 'wujia.return.request':
             # BA spec: loại phiếu đã huỷ / từ chối khỏi danh sách gần đây.
             return Model.search([

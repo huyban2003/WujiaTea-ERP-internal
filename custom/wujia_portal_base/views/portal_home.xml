@@ -124,7 +124,7 @@
                                         <div class="wujia-content-card-row-content">
                                             <a t-attf-href="/portal/notification/#{noti.id}" t-out="noti.name"/>
                                         </div>
-                                        <span class="wujia-content-card-row-date" t-out="noti.date and noti.date.strftime('%H:%M %d/%m/%Y') or ''"/>
+                                        <span class="wujia-content-card-row-date" t-out="noti.published_date and noti.published_date.strftime('%H:%M %d/%m/%Y') or ''"/>
                                         <t t-set="noti_badge_cls" t-value="{'URG': 'wujia-badge-danger', 'GEN': 'wujia-badge-info', 'PROMO': 'wujia-badge-warning', 'SYS': 'wujia-badge-muted', 'OTH': 'wujia-badge-success'}.get(noti.type_id.code, 'wujia-badge-muted')"/>
                                         <span t-if="noti.type_id" t-attf-class="wujia-badge #{noti_badge_cls}" t-out="noti.type_id.name"/>
                                         <span t-else=""/>
@@ -350,7 +350,7 @@
                                     <a t-attf-href="/portal/notification/#{noti.id}" t-attf-class="wujia-mhome-noti-row #{noti_accent_cls}">
                                         <div class="wujia-mhome-noti-main">
                                             <p class="wujia-mhome-noti-title" t-out="noti.name"/>
-                                            <p class="wujia-mhome-noti-date" t-out="noti.date and noti.date.strftime('%H:%M %d/%m/%Y') or ''"/>
+                                            <p class="wujia-mhome-noti-date" t-out="noti.published_date and noti.published_date.strftime('%H:%M %d/%m/%Y') or ''"/>
                                         </div>
                                         <span t-if="noti.type_id" t-attf-class="wujia-badge #{noti_badge_cls}" t-out="noti.type_id.name"/>
                                     </a>

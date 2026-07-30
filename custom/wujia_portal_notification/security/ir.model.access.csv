@@ -1,7 +1,10 @@
 id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
 access_wujia_notification_type_portal,wujia.notification.type portal read,model_wujia_notification_type,base.group_portal,1,0,0,0
-access_wujia_notification_type_user,wujia.notification.type internal,model_wujia_notification_type,base.group_user,1,1,1,1
+access_wujia_notification_type_user,wujia.notification.type internal read,model_wujia_notification_type,wujia_portal_notification.group_notification_user,1,0,0,0
+access_wujia_notification_type_manager,wujia.notification.type manager,model_wujia_notification_type,wujia_portal_notification.group_notification_manager,1,1,1,1
 access_wujia_notification_portal,wujia.notification portal read,model_wujia_notification,base.group_portal,1,0,0,0
-access_wujia_notification_user,wujia.notification internal,model_wujia_notification,base.group_user,1,1,1,1
+access_wujia_notification_user,wujia.notification internal read,model_wujia_notification,wujia_portal_notification.group_notification_user,1,0,0,0
+access_wujia_notification_manager,wujia.notification manager,model_wujia_notification,wujia_portal_notification.group_notification_manager,1,1,1,1
 access_wujia_notification_read_portal,wujia.notification.read portal own,model_wujia_notification_read,base.group_portal,1,1,1,0
-access_wujia_notification_read_user,wujia.notification.read internal,model_wujia_notification_read,base.group_user,1,1,1,1
+access_wujia_notification_read_user,wujia.notification.read internal read,model_wujia_notification_read,wujia_portal_notification.group_notification_user,1,0,0,0
+access_wujia_notification_read_manager,wujia.notification.read manager read,model_wujia_notification_read,wujia_portal_notification.group_notification_manager,1,0,0,0

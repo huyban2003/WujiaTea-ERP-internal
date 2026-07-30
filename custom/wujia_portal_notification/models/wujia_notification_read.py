@@ -23,6 +23,11 @@ class WujiaNotificationRead(models.Model):
         'wujia.franchise.management', string='Cửa hàng',
         index=True, ondelete='cascade',
     )
+    member_id = fields.Many2one(
+        'wujia.franchise.member', string='Membership',
+        index=True, ondelete='set null',
+        help='Snapshot membership tại cửa hàng lúc ghi nhận đọc (spec F §7).',
+    )
     read_date = fields.Datetime(
         string='Đọc lần đầu', default=fields.Datetime.now, required=True,
     )
@@ -31,4 +36,10 @@ class WujiaNotificationRead(models.Model):
     _uniq_noti_user_store = models.Constraint(
         'unique(notification_id, user_id, franchise_id)',
         'Mỗi user chỉ ghi nhận đọc 1 lần / thông báo / cửa hàng.',
+    )
+    # unique() coi mọi NULL là khác nhau → session chưa chọn cửa hàng vẫn tạo được row trùng.
+    # Partial index bịt nốt nhánh đó (spec F §8.9 — mark-read phải idempotent).
+    _uniq_noti_user_no_store = models.UniqueIndex(
+        '(notification_id, user_id) WHERE franchise_id IS NULL',
+        'Mỗi user chỉ ghi nhận đọc 1 lần / thông báo khi chưa chọn cửa hàng.',
     )

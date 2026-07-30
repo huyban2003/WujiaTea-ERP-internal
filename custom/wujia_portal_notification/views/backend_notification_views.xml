@@ -1,0 +1,277 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- ============================================================
+         Loại thông báo (BA spec F §6 — wujia.announcement.category)
+    ============================================================ -->
+
+    <record id="view_notification_type_list" model="ir.ui.view">
+        <field name="name">wujia.notification.type.list</field>
+        <field name="model">wujia.notification.type</field>
+        <field name="arch" type="xml">
+            <list string="Loại thông báo">
+                <field name="sequence" widget="handle"/>
+                <field name="name"/>
+                <field name="code"/>
+                <field name="notification_count" string="Số thông báo"/>
+                <field name="active" column_invisible="True"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_notification_type_form" model="ir.ui.view">
+        <field name="name">wujia.notification.type.form</field>
+        <field name="model">wujia.notification.type</field>
+        <field name="arch" type="xml">
+            <form>
+                <sheet>
+                    <widget name="web_ribbon" title="Đã lưu trữ"
+                            bg_color="text-bg-secondary" invisible="active"/>
+                    <div class="oe_button_box" name="button_box">
+                        <button name="action_view_notifications" type="object"
+                                class="oe_stat_button" icon="fa-bell">
+                            <field name="notification_count" widget="statinfo"
+                                   string="Thông báo"/>
+                        </button>
+                    </div>
+                    <div class="oe_title">
+                        <label for="name"/>
+                        <h1><field name="name" placeholder="Ví dụ: Khuyến mãi"/></h1>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="code" placeholder="PROMO"/>
+                            <field name="sequence"/>
+                            <field name="active"/>
+                        </group>
+                        <group string="Hiển thị trên portal">
+                            <field name="bg_color" widget="color"/>
+                            <field name="text_color" widget="color"/>
+                            <field name="icon"/>
+                        </group>
+                    </group>
+                    <group string="Mô tả">
+                        <field name="description" nolabel="1"
+                               placeholder="Nhóm thông báo này dùng cho..."/>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_notification_type" model="ir.actions.act_window">
+        <field name="name">Loại thông báo</field>
+        <field name="res_model">wujia.notification.type</field>
+        <field name="view_mode">list,form</field>
+        <field name="context">{'active_test': False}</field>
+    </record>
+
+    <!-- ============================================================
+         Thông báo (BA spec F §2 — wujia.announcement)
+    ============================================================ -->
+
+    <record id="view_notification_form" model="ir.ui.view">
+        <field name="name">wujia.notification.form</field>
+        <field name="model">wujia.notification</field>
+        <field name="arch" type="xml">
+            <form>
+                <header>
+                    <button name="action_publish" type="object"
+                            string="Gửi thông báo" class="btn-primary"
+                            invisible="state != 'draft'"/>
+                    <button name="action_archive_notification" type="object"
+                            string="Lưu trữ"
+                            invisible="state == 'archived'"/>
+                    <field name="state" widget="statusbar"
+                           statusbar_visible="draft,published,archived"/>
+                </header>
+                <sheet>
+                    <widget name="web_ribbon" title="Đã lưu trữ"
+                            bg_color="text-bg-secondary" invisible="active"/>
+                    <widget name="web_ribbon" title="Hết hiệu lực"
+                            bg_color="text-bg-danger"
+                            invisible="not is_expired or not active"/>
+                    <div class="oe_button_box" name="button_box">
+                        <button name="action_view_read_lines" type="object"
+                                class="oe_stat_button" icon="fa-eye"
+                                invisible="state == 'draft'">
+                            <field name="read_count" widget="statinfo" string="Đã đọc"/>
+                        </button>
+                    </div>
+                    <div class="oe_title">
+                        <label for="name"/>
+                        <h1><field name="name" placeholder="Tiêu đề thông báo..."/></h1>
+                        <field name="code" readonly="1"/>
+                    </div>
+                    <group>
+                        <group string="Phân loại">
+                            <field name="type_id"
+                                   options="{'no_quick_create': True}"
+                                   domain="[('active', '=', True)]"/>
+                            <field name="dispatch_number" placeholder="145/TB-WJ"/>
+                            <field name="priority" widget="radio" options="{'horizontal': True}"/>
+                            <field name="is_pinned"/>
+                            <field name="pin_expiry_date" invisible="not is_pinned"/>
+                        </group>
+                        <group string="Phát hành">
+                            <field name="portal_visible"/>
+                            <field name="published_date"/>
+                            <field name="published_by_id" invisible="state == 'draft'"/>
+                            <field name="expired_date"/>
+                            <field name="is_published_portal" readonly="1"/>
+                            <field name="is_expired" readonly="1"/>
+                            <field name="active"/>
+                        </group>
+                    </group>
+                    <group string="Tóm tắt">
+                        <field name="summary" nolabel="1"
+                               placeholder="Mô tả ngắn hiện ở danh sách/popup. Để trống → portal tự cắt từ nội dung."/>
+                    </group>
+                    <notebook>
+                        <page string="Nội dung" name="content">
+                            <field name="content" widget="html" nolabel="1"
+                                   options="{'codeview': True}"/>
+                        </page>
+                        <page string="File đính kèm" name="attachments">
+                            <field name="attachment_ids" widget="many2many_binary" nolabel="1"/>
+                        </page>
+                        <page string="Cửa hàng nhận" name="franchises">
+                            <div class="text-muted mb-2">
+                                Để trống = gửi cho toàn bộ cửa hàng.
+                            </div>
+                            <field name="franchise_ids" widget="many2many_tags" nolabel="1"/>
+                        </page>
+                        <page string="Ghi chú nội bộ" name="internal">
+                            <field name="internal_note" nolabel="1"
+                                   placeholder="Chỉ HQ thấy — không hiển thị trên portal."/>
+                        </page>
+                        <page string="Trạng thái đọc" name="read_lines"
+                              invisible="state == 'draft'">
+                            <group>
+                                <group>
+                                    <field name="recipient_count"/>
+                                    <field name="unread_count"/>
+                                </group>
+                            </group>
+                            <field name="read_ids" nolabel="1" readonly="1">
+                                <list string="Trạng thái đọc" create="false">
+                                    <field name="user_id"/>
+                                    <field name="franchise_id"/>
+                                    <field name="member_id" optional="hide"/>
+                                    <field name="read_date"/>
+                                    <field name="last_open_date"/>
+                                </list>
+                            </field>
+                        </page>
+                    </notebook>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_notification_list" model="ir.ui.view">
+        <field name="name">wujia.notification.list</field>
+        <field name="model">wujia.notification</field>
+        <field name="arch" type="xml">
+            <list string="Thông báo"
+                  decoration-muted="state == 'archived'"
+                  decoration-bf="is_pinned">
+                <field name="code"/>
+                <field name="name" string="Tiêu đề"/>
+                <field name="type_id"/>
+                <field name="priority" widget="badge"
+                       decoration-danger="priority == 'urgent'"
+                       decoration-warning="priority == 'important'"/>
+                <field name="state" widget="badge"
+                       decoration-success="state == 'published'"
+                       decoration-muted="state == 'archived'"/>
+                <field name="published_date"/>
+                <field name="expired_date" optional="hide"/>
+                <field name="dispatch_number" optional="hide"/>
+                <field name="is_pinned" optional="hide"/>
+                <field name="is_published_portal" optional="hide"/>
+                <!-- read/recipient/unread KHÔNG để mặc định: compute non-store,
+                     mở danh sách 1500 user sẽ tốn query thừa. -->
+                <field name="read_count" optional="hide"/>
+                <field name="active" column_invisible="True"/>
+                <field name="is_expired" column_invisible="True"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_notification_search" model="ir.ui.view">
+        <field name="name">wujia.notification.search</field>
+        <field name="model">wujia.notification</field>
+        <field name="arch" type="xml">
+            <search string="Thông báo">
+                <field name="name" string="Tiêu đề"/>
+                <field name="code"/>
+                <field name="dispatch_number"/>
+                <field name="type_id"/>
+                <field name="published_by_id"/>
+                <filter string="Nháp" name="filter_draft"
+                        domain="[('state', '=', 'draft')]"/>
+                <filter string="Đã gửi" name="filter_published"
+                        domain="[('state', '=', 'published')]"/>
+                <filter string="Lưu trữ" name="filter_archived"
+                        domain="[('state', '=', 'archived')]"/>
+                <separator/>
+                <filter string="Đang hiện trên portal" name="filter_on_portal"
+                        domain="[('is_published_portal', '=', True)]"/>
+                <filter string="Đã hết hiệu lực" name="filter_expired"
+                        domain="[('expired_date', '!=', False),
+                                 ('expired_date', '&lt;', context_today().strftime('%Y-%m-%d %H:%M:%S'))]"/>
+                <filter string="Đang ghim" name="filter_pinned"
+                        domain="[('is_pinned', '=', True)]"/>
+                <separator/>
+                <filter string="Cần làm" name="filter_urgent"
+                        domain="[('priority', '=', 'urgent')]"/>
+                <filter string="Quan trọng" name="filter_important"
+                        domain="[('priority', '=', 'important')]"/>
+                <separator/>
+                <filter string="Đã lưu trữ (active)" name="filter_inactive"
+                        domain="[('active', '=', False)]"/>
+                <group name="group_by">
+                    <filter string="Loại" name="group_type"
+                            context="{'group_by': 'type_id'}"/>
+                    <filter string="Trạng thái" name="group_state"
+                            context="{'group_by': 'state'}"/>
+                    <filter string="Mức độ" name="group_priority"
+                            context="{'group_by': 'priority'}"/>
+                    <filter string="Ngày gửi" name="group_published_date"
+                            context="{'group_by': 'published_date'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <record id="action_notification" model="ir.actions.act_window">
+        <field name="name">Thông báo</field>
+        <field name="res_model">wujia.notification</field>
+        <field name="view_mode">list,form</field>
+        <field name="search_view_id" ref="view_notification_search"/>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">Soạn thông báo đầu tiên gửi cửa hàng</p>
+            <p>Thông báo ở trạng thái Nháp chưa hiển thị trên portal. Bấm
+               <b>Gửi thông báo</b> để phát hành.</p>
+        </field>
+    </record>
+
+    <!-- Trạng thái đọc — chỉ đọc, phục vụ thống kê. -->
+    <record id="view_notification_read_list" model="ir.ui.view">
+        <field name="name">wujia.notification.read.list</field>
+        <field name="model">wujia.notification.read</field>
+        <field name="arch" type="xml">
+            <list string="Trạng thái đọc" create="false" edit="false">
+                <field name="notification_id"/>
+                <field name="user_id"/>
+                <field name="franchise_id"/>
+                <field name="member_id" optional="hide"/>
+                <field name="read_date"/>
+                <field name="last_open_date"/>
+            </list>
+        </field>
+    </record>
+
+</odoo>
