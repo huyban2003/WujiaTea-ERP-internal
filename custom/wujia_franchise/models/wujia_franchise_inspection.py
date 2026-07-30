@@ -22,6 +22,7 @@ class WujiaFranchiseInspection(models.Model):
     state = fields.Selection([
         ('draft', 'Nháp'),
         ('in_progress', 'Đang thực hiện'),
+        ('need_remediation', 'Cần khắc phục'),
         ('done', 'Hoàn thành'),
         ('cancel', 'Đã hủy')
     ], string='Trạng thái', default='draft')
@@ -325,6 +326,12 @@ class WujiaFranchiseInspection(models.Model):
             rec.write({'state': 'in_progress'})
         return True
 
+    def action_need_remediation(self):
+        """Chuyển phiếu khảo sát sang trạng thái Cần khắc phục"""
+        for rec in self:
+            rec.write({'state': 'need_remediation'})
+        return True
+
     def action_done(self):
         """Hoàn thành phiếu khảo sát và tự động chuyển Lịch giám sát sang Hoàn thành"""
         for rec in self:
@@ -347,8 +354,10 @@ class WujiaFranchiseInspection(models.Model):
         res = super().write(vals)
         if 'state' in vals:
             for rec in self:
-                if rec.schedule_id and rec.schedule_id.state != vals['state']:
-                    rec.schedule_id.state = vals['state']
+                if rec.schedule_id:
+                    schedule_state_keys = dict(rec.schedule_id._fields['state'].selection)
+                    if vals['state'] in schedule_state_keys and rec.schedule_id.state != vals['state']:
+                        rec.schedule_id.state = vals['state']
         return res
 
     def _generate_random_exam_lines(self):

@@ -24,6 +24,7 @@ class WujiaSupervisionSchedule(models.Model):
     state = fields.Selection([
         ('draft', 'Nháp'),
         ('in_progress', 'Đang thực hiện'),
+        ('need_remediation', 'Cần khắc phục'),
         ('done', 'Hoàn thành'),
         ('cancel', 'Đã hủy')
     ], string='Trạng thái', default='draft')

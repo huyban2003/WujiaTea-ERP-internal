@@ -18,8 +18,9 @@
                 <field name="state" widget="badge"
                     decoration-info="state == 'draft'"
                     decoration-warning="state == 'in_progress'"
+                    decoration-danger="state == 'need_remediation'"
                     decoration-success="state == 'done'"
-                    decoration-danger="state == 'cancel'" />
+                    decoration-muted="state == 'cancel'" />
             </list>
         </field>
     </record>
@@ -32,11 +33,12 @@
             <form string="Phiếu khảo sát đánh giá cửa hàng nhượng quyền">
                 <header>
                     <button name="action_start" string="Bắt đầu thực hiện" type="object" class="btn-primary" invisible="state != 'draft'" />
+                    <button name="action_need_remediation" string="Cần khắc phục" type="object" class="btn-warning" invisible="state in ('done', 'cancel', 'need_remediation')" />
                     <button name="action_done" string="Hoàn thành" type="object" class="btn-success" invisible="state in ('done', 'cancel')" />
                     <button name="action_cancel" string="Hủy" type="object" invisible="state in ('done', 'cancel')" />
                     <button name="action_draft" string="Đặt về Nháp" type="object" invisible="state in ('draft', 'done')" />
                     <field name="state" widget="statusbar"
-                        statusbar_visible="draft,in_progress,done,cancel" />
+                        statusbar_visible="draft,in_progress,need_remediation,done,cancel" />
                 </header>
                 <sheet>
                     <div class="oe_title">
@@ -210,6 +212,8 @@
                 <filter string="Đang chờ (Draft)" name="draft" domain="[('state', '=', 'draft')]" />
                 <filter string="Đang thực hiện" name="in_progress"
                     domain="[('state', '=', 'in_progress')]" />
+                <filter string="Cần khắc phục" name="need_remediation"
+                    domain="[('state', '=', 'need_remediation')]" />
                 <filter string="Hoàn thành" name="done" domain="[('state', '=', 'done')]" />
                 <filter string="Đã hủy" name="cancel" domain="[('state', '=', 'cancel')]" />
                 <separator />
