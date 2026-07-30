@@ -57,7 +57,7 @@
                         </group>
                         <group string="THỜI GIAN &amp; LỊCH SỬ">
                             <field name="planned_date" />
-                            <field name="submit_date" readonly="1" />
+                            <field name="submit_date" invisible="1" />
                             <field name="confirm_date" readonly="1" />
                             <field name="previous_inspection_id" readonly="1" />
                         </group>
@@ -70,7 +70,17 @@
                             <field name="tenure" placeholder="Số tháng / năm làm việc..." />
                         </group>
                         <group string="KẾ HOẠCH TIẾP THEO">
-                            <field name="next_due_date" />
+                            <label for="next_due_date" string="Lần kiểm tra kế tiếp" />
+                            <div class="o_row">
+                                <field name="next_due_date" class="oe_inline" />
+                                <button name="action_create_next_schedule"
+                                    type="object"
+                                    title="Tạo / Mở Lịch giám sát tiếp theo"
+                                    icon="fa-arrow-right"
+                                    class="btn-link text-primary ps-1 pe-1"
+                                    invisible="not next_due_date" />
+                            </div>
+                            <field name="next_schedule_id" readonly="1" invisible="not next_schedule_id" />
                         </group>
                     </group>
 

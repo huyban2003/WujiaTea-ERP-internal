@@ -216,6 +216,12 @@ class WujiaFranchiseInspection(models.Model):
         string='Lần kiểm tra kế tiếp',   
     )
 
+    next_schedule_id = fields.Many2one(
+        'wujia.supervision.schedule',
+        string='Lịch giám sát tiếp theo',
+        ondelete='set null',
+    )
+
     test_employee_name = fields.Char(
         string='Nhân viên được kiểm tra',
         _description='nhận viện tại cửa hàng không có trong user'
@@ -333,9 +339,13 @@ class WujiaFranchiseInspection(models.Model):
         return True
 
     def action_done(self):
-        """Hoàn thành phiếu khảo sát và tự động chuyển Lịch giám sát sang Hoàn thành"""
+        """Hoàn thành phiếu khảo sát, tự động lưu Ngày xác nhận và chuyển Lịch giám sát sang Hoàn thành"""
+        today = fields.Date.context_today(self)
         for rec in self:
-            rec.write({'state': 'done'})
+            rec.write({
+                'state': 'done',
+                'confirm_date': rec.confirm_date or today,
+            })
         return True
 
     def action_cancel(self):
@@ -350,7 +360,38 @@ class WujiaFranchiseInspection(models.Model):
             rec.write({'state': 'draft'})
         return True
 
+    def action_create_next_schedule(self):
+        """
+        Tạo hoặc mở Lịch giám sát tiếp theo dựa trên ngày chọn trong 'Lần kiểm tra kế tiếp' (next_due_date).
+        """
+        self.ensure_one()
+        if not self.next_due_date:
+            raise ValidationError(_('Vui lòng chọn ngày trong "Lần kiểm tra kế tiếp" trước khi tạo lịch!'))
+
+        if not self.next_schedule_id:
+            store_name = self.franchise_id.name or ''
+            new_schedule = self.env['wujia.supervision.schedule'].create({
+                'name': f"Lịch giám sát kế tiếp - {store_name}",
+                'store_id': self.franchise_id.id,
+                'user_id': self.inspector_user_id.id or self.env.user.id,
+                'date': self.next_due_date,
+                'state': 'draft',
+                'note': f"Lịch được tạo tự động từ Phiếu khảo sát: {self.name}",
+            })
+            self.next_schedule_id = new_schedule.id
+
+        return {
+            'name': _('Lịch giám sát tiếp theo'),
+            'type': 'ir.actions.act_window',
+            'res_model': 'wujia.supervision.schedule',
+            'res_id': self.next_schedule_id.id,
+            'view_mode': 'form',
+            'target': 'current',
+        }
+
     def write(self, vals):
+        if vals.get('state') == 'done' and 'confirm_date' not in vals:
+            vals['confirm_date'] = fields.Date.context_today(self)
         res = super().write(vals)
         if 'state' in vals:
             for rec in self:
