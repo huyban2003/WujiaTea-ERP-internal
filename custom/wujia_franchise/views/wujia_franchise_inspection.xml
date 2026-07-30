@@ -136,6 +136,42 @@
                                 </list>
                             </field>
                         </page>
+                        <page string="Bài kiểm tra nhân viên" name="exam">
+                            <field name="is_exam_submitted" column_invisible="True" />
+                            <div
+                                class="alert alert-info d-flex justify-content-between align-items-center mb-3"
+                                invisible="is_exam_submitted">
+                                <span><strong>Hướng dẫn:</strong> Nhân viên nhập câu trả lời vào ô
+                                    "Đáp án trả lời" bên dưới mỗi câu hỏi. Sau khi hoàn thành, bấm <strong>"Nộp
+                                    bài kiểm tra"</strong> để chấm điểm.</span>
+                                <button name="action_submit_exam" string="Nộp bài kiểm tra"
+                                    type="object" class="btn btn-primary fw-bold px-4"
+                                    invisible="is_exam_submitted or state in ('done', 'cancel')" />
+                            </div>
+                            <div
+                                class="alert alert-success d-flex justify-content-between align-items-center mb-3"
+                                invisible="not is_exam_submitted">
+                                <span><strong>Đã nộp bài kiểm tra!</strong> Bài làm đã được khóa.
+                                    Kết quả chấm điểm: <b class="fs-5 text-success"><field
+                                            name="exam_score" readonly="1" /> điểm</b>.</span>
+                            </div>
+                            <field name="exam_line_ids"
+                                readonly="is_exam_submitted or state in ('done', 'cancel')">
+                                <list editable="bottom" create="false" delete="false">
+                                    <field name="sequence" widget="handle" />
+                                    <field name="quest_id" column_invisible="True" />
+                                    <field name="quest_code_snapshot" readonly="1" force_save="1"
+                                        string="Mã câu hỏi" />
+                                    <field name="quest_content_snapshot" readonly="1" force_save="1"
+                                        string="Nội dung câu hỏi" />
+                                    <field name="answer"
+                                        placeholder="👉 Nhập câu trả lời của nhân viên tại đây..."
+                                        readonly="parent.is_exam_submitted or parent.state in ('done', 'cancel')" />
+                                    <field name="_point_return" string="Điểm" readonly="1"
+                                        invisible="not parent.is_exam_submitted" />
+                                </list>
+                            </field>
+                        </page>
                         <page string="Xác nhận phiếu" name="confirmation">
                             <group>
                                 <group string="Người xác nhận hệ thống">

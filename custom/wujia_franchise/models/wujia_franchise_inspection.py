@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+import random
 from odoo import api, fields, models, _
 # pyrefly: ignore [missing-import]
 from odoo.exceptions import ValidationError
@@ -55,7 +56,7 @@ class WujiaFranchiseInspection(models.Model):
                     for line in criteria_lines
                     if not line.is_pass
                 )
-                rec.checklist_score = max(0.0, 95.0 - total_deduction)
+                rec.checklist_score = 95.0 - total_deduction
 
     @api.onchange('template_id', 'franchise_id')
     def _onchange_template_id(self):
@@ -141,6 +142,11 @@ class WujiaFranchiseInspection(models.Model):
 
             self.line_ids = [(5, 0, 0)] + lines
 
+            if not self.exam_line_ids:
+                exam_lines = self._generate_random_exam_lines()
+                if exam_lines:
+                    self.exam_line_ids = exam_lines
+
     @api.onchange('previous_inspection_id')
     def _onchange_previous_inspection_id(self):
         """
@@ -169,20 +175,39 @@ class WujiaFranchiseInspection(models.Model):
                         line.previous_result = False
                         line.previous_deduction_score = 0.0
 
+    @api.depends('exam_line_ids.point', 'exam_line_ids.is_correct')
+    def _compute_exam_score(self):
+        """Tự động tính tổng điểm bài kiểm tra từ điểm của từng câu hỏi."""
+        for rec in self:
+            rec.exam_score = sum(line.point for line in rec.exam_line_ids)
+
     exam_score = fields.Float(
         string='Điểm kiểm tra',
-        _description='là điểm được lấy từ cấu hỏi phần điền vào ô trống ' 
+        compute='_compute_exam_score',
+        store=True,
+        _description='là điểm được lấy từ câu hỏi phần điền vào ô trống',
     )
 
     total_score = fields.Float(
         string='Tổng điểm',
+        compute='_compute_total_score',
+        store=True,
         _description='điểm = điểm checklist + điểm kiểm tra'
     )
 
     grade = fields.Char(
         string='Xếp loại',
+        compute='_compute_grade',
+        store=True,
         _description='Xếp loại dựa trên điểm số'
     )
+
+    @api.onchange('checklist_score', 'exam_score')
+    def _onchange_scores_update_total(self):
+        """Khi điểm checklist hoặc điểm kiểm tra thay đổi, tự động tính lại tổng điểm và xếp loại lập tức."""
+        for rec in self:
+            rec.total_score = (rec.checklist_score or 0.0) + (rec.exam_score or 0.0)
+            rec._compute_grade()
     
     next_due_date = fields.Date(
         string='Lần kiểm tra kế tiếp',   
@@ -244,6 +269,91 @@ class WujiaFranchiseInspection(models.Model):
         auto_join=True,
     )
 
+    exam_line_ids = fields.One2many(
+        'wujia.franchise.inspection.exam.line',
+        'inspection_id',
+        string='Điểm kiểm tra',
+        copy=False,
+        auto_join=True,
+    )
+
+    is_exam_submitted = fields.Boolean(
+        string='Đã nộp bài kiểm tra',
+        default=False,
+        copy=False,
+    )
+
+    exam_submit_date = fields.Datetime(
+        string='Thời gian nộp bài kiểm tra',
+        copy=False,
+    )
+
+    def action_submit_exam(self):
+        """
+        Nộp bài kiểm tra nhân viên:
+        - So sánh đáp án trả lời của nhân viên với đáp án đúng snapshot.
+        - Cập nhật điểm từng dòng: Đúng -> 1.0 (hoặc score), Sai/Bỏ trống -> 0.0.
+        - Khóa bài làm và tính tổng điểm phiếu khảo sát.
+        """
+        for rec in self:
+            for line in rec.exam_line_ids:
+                line._evaluate_answer()
+                score_val = (line.quest_id.score or 1.0) if line.is_correct else 0.0
+                line.write({
+                    'is_correct': line.is_correct,
+                    'point': score_val,
+                    'is_locked': True,
+                })
+            
+            rec.write({
+                'is_exam_submitted': True,
+                'exam_submit_date': fields.Datetime.now(),
+            })
+            
+            rec._compute_exam_score()
+            rec._compute_checklist_score()
+            rec._compute_total_score()
+            rec._compute_grade()
+            
+        return True
+
+    def _generate_random_exam_lines(self):
+        """Tự động lấy ngẫu nhiên tối đa 5 câu hỏi từ wujia.franchise.inspection.question"""
+        questions = self.env['wujia.franchise.inspection.question'].search([('active', '=', True)])
+        if not questions:
+            return []
+        
+        sample_size = min(5, len(questions))
+        selected_questions = random.sample(list(questions), sample_size)
+        
+        exam_lines = []
+        seq = 10
+        for q in selected_questions:
+            # Đảm bảo nạp và lưu chính xác chuỗi đáp án đúng snapshot (nhiều ô trống = nhiều dòng)
+            correct_snap = q.correct_answers_text
+            if not correct_snap and q.correct_answers:
+                if isinstance(q.correct_answers, list):
+                    lines = []
+                    for item in q.correct_answers:
+                        if isinstance(item, list):
+                            lines.append(', '.join(str(x) for x in item))
+                        elif item:
+                            lines.append(str(item))
+                    correct_snap = '\n'.join(lines)
+
+            exam_lines.append((0, 0, {
+                'sequence': seq,
+                'quest_id': q.id,
+                'quest_code_snapshot': q.code or f"QUEST-{q.id}",
+                'quest_content_snapshot': q.question_text or '',
+                'correct_answer_snapshot': correct_snap or '',
+                'answer': '',
+                'is_correct': False,
+                'point': q.score or 1.0,
+            }))
+            seq += 10
+        return exam_lines
+
     @api.depends('franchise_id', 'template_id')
     def _compute_previous_inspection_id(self):
         """
@@ -285,30 +395,70 @@ class WujiaFranchiseInspection(models.Model):
                 self.franchise_id = self.schedule_id.store_id
             if self.schedule_id.user_id:
                 self.inspector_user_id = self.schedule_id.user_id
+
+    @api.onchange('line_ids', 'exam_line_ids')
+    def _onchange_lines_update_scores(self):
+        """
+        Cập nhật REAL-TIME lập tức khi người dùng bật/tắt Đánh giá Đạt hoặc trả lời bài kiểm tra
+        ngay trên giao diện form mà chưa cần bấm nút Lưu (Save).
+        """
+        for rec in self:
+            rec._compute_checklist_score()
+            rec._compute_exam_score()
+            rec.total_score = (rec.checklist_score or 0.0) + (rec.exam_score or 0.0)
+            rec._compute_grade()
     
-    @api.depends('checklist_score', 'exam_score')
+    @api.depends(
+        'checklist_score',
+        'exam_score',
+        'line_ids.is_pass',
+        'line_ids.deduction_score_snapshot',
+        'line_ids.display_type',
+        'exam_line_ids.is_correct',
+        'exam_line_ids.point',
+        'is_exam_submitted'
+    )
     def _compute_total_score(self):
         """
-        Tự động chạy khi 'checklist_score' hoặc 'exam_score' thay đổi.
-        Cộng 2 điểm thành phần để tạo thành total_score.
+        Tự động chạy khi 'checklist_score', 'exam_score' hoặc các dòng tiêu chí thay đổi.
+        Cộng 2 điểm thành phần (checklist_score + exam_score) để tạo thành total_score.
         """
         for rec in self:
             rec.total_score = (rec.checklist_score or 0.0) + (rec.exam_score or 0.0)
 
-    @api.depends('total_score')
+    @api.depends(
+        'total_score',
+        'checklist_score',
+        'exam_score',
+        'line_ids.is_pass',
+        'line_ids.deduction_score_snapshot',
+        'exam_line_ids.is_correct'
+    )
     def _compute_grade(self):
         """
         Tự động chạy khi 'total_score' thay đổi.
         Tính 'grade' dựa trên 'total_score'.
         """
-        if self.total_score >= 96:
-            self.grade = 'A'
-        elif self.total_score >= 83:
-            self.grade = 'B'
-        elif self.total_score >= 70:
-            self.grade = 'C'
-        else:
-            self.grade = 'D'
+        for rec in self:
+            score = rec.total_score or 0.0
+            if score >= 96:
+                rec.grade = 'A'
+            elif score >= 83:
+                rec.grade = 'B'
+            elif score >= 70:
+                rec.grade = 'C'
+            else:
+                rec.grade = 'D'
+
+    @api.model_create_multi
+    def create(self, vals_list):
+        """Tự động tạo 5 câu hỏi ngẫu nhiên cho bài kiểm tra nếu chưa có khi tạo phiếu khảo sát mới."""
+        for vals in vals_list:
+            if 'exam_line_ids' not in vals or not vals['exam_line_ids']:
+                exam_lines = self._generate_random_exam_lines()
+                if exam_lines:
+                    vals['exam_line_ids'] = exam_lines
+        return super().create(vals_list)
 
 class WujiaFranchiseInspectionLine(models.Model):
     _name = 'wujia.franchise.inspection.line'
@@ -571,3 +721,143 @@ class WujiaFranchiseInspectionLine(models.Model):
                 rec.display_name = f"[{code}] {rec.content_snapshot or ''}" if code else (rec.content_snapshot or '')
             else:
                 rec.display_name = rec.content_snapshot or _("Tiêu chí không xác định")
+
+
+class WujiaFranchiseInspectionExamLine(models.Model):
+    _name = 'wujia.franchise.inspection.exam.line'
+    _description = 'Điểm kiểm tra phiếu khảo sát đánh giá cửa hàng nhượng quyền'
+    _order = 'sequence, id'
+
+    sequence = fields.Integer(
+        string='Thứ tự',
+        default=10,
+    )
+
+    quest_code_snapshot = fields.Char(
+        string='Mã câu hỏi',
+        required=True,
+    )
+
+    quest_content_snapshot = fields.Text(
+        string='Nội dung câu hỏi',
+        required=True,
+    )
+
+    correct_answer_snapshot = fields.Text(
+        string='Đáp án đúng',
+    )
+    answer = fields.Text(
+        string='Đáp án trả lời',
+    )
+
+    is_correct = fields.Boolean(
+        string='Đúng',
+        default=False,
+    )
+    point = fields.Float(
+        string='Điểm',
+        default=1.0,
+    )
+
+    is_locked = fields.Boolean(
+        string='Khóa',
+        default=False,
+    )
+
+    # RELATION
+    inspection_id = fields.Many2one(
+        'wujia.franchise.inspection',
+        string='Phiếu khảo sát',
+        required=True,
+        ondelete='cascade',
+    )
+    quest_id = fields.Many2one(
+        'wujia.franchise.inspection.question',
+        string='Câu hỏi',
+        required=True,
+        ondelete='cascade',
+    )
+
+    # DISPLAY
+    _point_return = fields.Float(
+        string='Điểm',
+        compute='_compute_point',
+    )
+
+    @api.depends('is_correct', 'quest_id')
+    def _compute_point(self):
+        for rec in self:
+            if rec.is_correct:
+                if rec.quest_id and rec.quest_id.score:
+                    rec._point_return = rec.quest_id.score
+                else:
+                    rec._point_return = 1.0
+            else:
+                rec._point_return = 0.0
+
+    @api.onchange('answer')
+    def _onchange_answer(self):
+        """Tự động kiểm tra đáp án trả lời với đáp án đúng trong thư viện câu hỏi"""
+        self._evaluate_answer()
+
+    def _evaluate_answer(self):
+        """So sánh đáp án trả lời của nhân viên với đáp án đúng snapshot"""
+        import re
+        for rec in self:
+            max_score = rec.quest_id.score if (rec.quest_id and rec.quest_id.score) else 1.0
+            if not rec.answer:
+                rec.is_correct = False
+                rec.point = 0.0
+                continue
+            
+            ans_raw = str(rec.answer).strip()
+            if not ans_raw:
+                rec.is_correct = False
+                rec.point = 0.0
+                continue
+
+            if '\n' in ans_raw:
+                user_lines = [l.strip().lower() for l in ans_raw.splitlines() if l.strip()]
+            else:
+                user_lines = [l.strip().lower() for l in re.split(r'[\n,;]+', ans_raw) if l.strip()]
+
+            is_right = False
+
+            # 1. Ưu tiên kiểm tra dữ liệu JSON correct_answers từ quest_id
+            if rec.quest_id and rec.quest_id.correct_answers:
+                val = rec.quest_id.correct_answers
+                if isinstance(val, list) and val:
+                    if len(val) > 1:
+                        if len(user_lines) >= len(val):
+                            all_matched = True
+                            for idx, target in enumerate(val):
+                                target_list = [str(x).strip().lower() for x in (target if isinstance(target, list) else [target])]
+                                if idx < len(user_lines):
+                                    if user_lines[idx] not in target_list:
+                                        all_matched = False
+                                        break
+                                else:
+                                    all_matched = False
+                                    break
+                            is_right = all_matched
+                    else:
+                        target_list = [str(x).strip().lower() for x in (val[0] if isinstance(val[0], list) else val)]
+                        is_right = (ans_raw.strip().lower() in target_list) or any(u in target_list for u in user_lines)
+
+            # 2. Fallback so sánh với correct_answer_snapshot
+            if not is_right and rec.correct_answer_snapshot:
+                snap_raw = str(rec.correct_answer_snapshot).strip()
+                if '\n' in snap_raw:
+                    snap_lines = [l.strip().lower() for l in snap_raw.splitlines() if l.strip()]
+                else:
+                    snap_lines = [l.strip().lower() for l in re.split(r'[\n,;]+', snap_raw) if l.strip()]
+
+                if len(snap_lines) > 1:
+                    is_right = (user_lines == snap_lines)
+                else:
+                    is_right = (ans_raw.strip().lower() == snap_lines[0]) or any(u == snap_lines[0] for u in user_lines)
+
+            rec.is_correct = is_right
+            rec.point = max_score if is_right else 0.0
+
+    
