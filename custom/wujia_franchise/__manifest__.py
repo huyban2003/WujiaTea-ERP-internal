@@ -49,6 +49,11 @@ Hợp nhất 2 model trong cùng 1 module để tránh circular dep
         'views/wujia_franchise_menu.xml',
         'data/ir_cron_data.xml',
     ],
+    'assets': {
+        'web.assets_backend': [
+            'wujia_franchise/static/src/css/wujia_inspection.css',
+        ],
+    },
     'installable': True,
     'application': True,
     'auto_install': False,

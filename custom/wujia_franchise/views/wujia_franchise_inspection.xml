@@ -7,19 +7,19 @@
         <field name="model">wujia.franchise.inspection</field>
         <field name="arch" type="xml">
             <list string="Phiếu khảo sát" default_order="id desc">
-                <field name="name"/>
-                <field name="franchise_id"/>
-                <field name="template_id"/>
-                <field name="inspector_user_id"/>
-                <field name="test_employee_name"/>
-                <field name="planned_date" options="{'format': 'DD/MM/YYYY'}"/>
-                <field name="total_score" string="Tổng điểm"/>
-                <field name="grade" widget="badge"/>
-                <field name="state" widget="badge" 
-                       decoration-info="state == 'draft'" 
-                       decoration-warning="state == 'in_progress'" 
-                       decoration-success="state == 'done'" 
-                       decoration-danger="state == 'cancel'"/>
+                <field name="name" />
+                <field name="franchise_id" />
+                <field name="template_id" />
+                <field name="inspector_user_id" />
+                <field name="test_employee_name" />
+                <field name="planned_date" options="{'format': 'DD/MM/YYYY'}" />
+                <field name="total_score" string="Tổng điểm" />
+                <field name="grade" widget="badge" />
+                <field name="state" widget="badge"
+                    decoration-info="state == 'draft'"
+                    decoration-warning="state == 'in_progress'"
+                    decoration-success="state == 'done'"
+                    decoration-danger="state == 'cancel'" />
             </list>
         </field>
     </record>
@@ -31,48 +31,52 @@
         <field name="arch" type="xml">
             <form string="Phiếu khảo sát đánh giá cửa hàng nhượng quyền">
                 <header>
-                    <field name="state" widget="statusbar" statusbar_visible="draft,in_progress,done,cancel"/>
+                    <field name="state" widget="statusbar"
+                        statusbar_visible="draft,in_progress,done,cancel" />
                 </header>
                 <sheet>
                     <div class="oe_title">
-                        <label for="name" string="Tên phiếu khảo sát"/>
+                        <label for="name" string="Tên phiếu khảo sát" />
                         <h1>
-                            <field name="name" placeholder="Ví dụ: Phiếu khảo sát cửa hàng Q1 - Đợt 1..."/>
+                            <field name="name"
+                                placeholder="Ví dụ: Phiếu khảo sát cửa hàng Q1 - Đợt 1..." />
                         </h1>
                     </div>
                     <group>
                         <group string="THÔNG TIN KHẢO SÁT &amp; CỬA HÀNG">
-                            <field name="franchise_id" options="{'no_create': True}"/>
-                            <field name="template_id" options="{'no_create': True}"/>
-                            <field name="schedule_id" options="{'no_create': True}"/>
-                            <field name="inspector_user_id" options="{'no_create': True}"/>
+                            <field name="franchise_id" options="{'no_create': True}" />
+                            <field name="template_id" options="{'no_create': True}" />
+                            <field name="schedule_id" options="{'no_create': True}" />
+                            <field name="inspector_user_id" options="{'no_create': True}" />
                         </group>
                         <group string="THỜI GIAN &amp; LỊCH SỬ">
-                            <field name="planned_date"/>
-                            <field name="submit_date" readonly="1"/>
-                            <field name="confirm_date" readonly="1"/>
-                            <field name="previous_inspection_id" readonly="1"/>
+                            <field name="planned_date" />
+                            <field name="submit_date" readonly="1" />
+                            <field name="confirm_date" readonly="1" />
+                            <field name="previous_inspection_id" readonly="1" />
                         </group>
                     </group>
 
                     <group>
                         <group string="KHẢO SÁT NHÂN VIÊN">
-                            <field name="test_employee_name" placeholder="Tên nhân viên tại cửa hàng..."/>
-                            <field name="tenure" placeholder="Số tháng / năm làm việc..."/>
+                            <field name="test_employee_name"
+                                placeholder="Tên nhân viên tại cửa hàng..." />
+                            <field name="tenure" placeholder="Số tháng / năm làm việc..." />
                         </group>
                         <group string="KẾ HOẠCH TIẾP THEO">
-                            <field name="next_due_date"/>
+                            <field name="next_due_date" />
                         </group>
                     </group>
 
                     <group>
                         <group string="ĐIỂM THÀNH PHẦN">
-                            <field name="checklist_score" readonly="1"/>
-                            <field name="exam_score" readonly="1"/>
+                            <field name="checklist_score" readonly="1" />
+                            <field name="exam_score" readonly="1" />
                         </group>
                         <group string="KẾT QUẢ &amp; XẾP LOẠI">
-                            <field name="total_score" class="fw-bold fs-4 text-primary" readonly="1"/>
-                            <field name="grade" class="fw-bold fs-4 text-success" widget="badge" readonly="1"/>
+                            <field name="total_score" class="fw-bold fs-4 text-primary" readonly="1" />
+                            <field name="grade" class="fw-bold fs-4 text-success" widget="badge"
+                                readonly="1" />
                         </group>
                     </group>
 
@@ -80,37 +84,67 @@
                         <page string="Danh sách Tiêu chí Checklist" name="checklist">
                             <field name="line_ids" readonly="state in ('done', 'cancel')">
                                 <list editable="bottom" create="false" delete="false"
-                                      decoration-danger="criterion_type_snapshot == 'critical' and not is_pass and not display_type"
-                                      decoration-warning="criterion_type_snapshot == 'critical' and not display_type">
-                                    <field name="display_type" column_invisible="True"/>
-                                    <field name="sequence" widget="handle"/>
-                                    <field name="template_line_id" column_invisible="True" force_save="1"/>
-                                    <field name="category_id" column_invisible="True" force_save="1"/>
-                                    <field name="previous_line_id" column_invisible="True"/>
-                                    <field name="content_snapshot" readonly="1" force_save="1" string="Nội dung kiểm tra tiêu chí"/>
-                                    <field name="criterion_type_snapshot" readonly="1" force_save="1" string="Loại tiêu chí" widget="badge"
-                                           invisible="display_type"
-                                           decoration-danger="criterion_type_snapshot == 'critical'"
-                                           decoration-info="criterion_type_snapshot == 'normal'"/>
-                                    <field name="deduction_score_snapshot" readonly="1" force_save="1" string="Điểm trừ vi phạm" invisible="display_type"/>
-                                    <field name="is_pass" widget="boolean_toggle" string="Đánh giá Đạt" invisible="display_type"/>
-                                    <field name="previous_result" readonly="1" string="Đợt trước" widget="badge"
-                                           invisible="display_type"
-                                           decoration-success="previous_result == 'pass'"
-                                           decoration-danger="previous_result == 'fail'"/>
-                                    <field name="note" placeholder="Ghi chú vi phạm..." invisible="display_type"/>
+                                    decoration-danger="criterion_type_snapshot == 'critical' and not is_pass and display_type == 'line'"
+                                    decoration-warning="criterion_type_snapshot == 'critical' and display_type == 'line'"
+                                    decoration-bf="display_type == 'line'"
+                                    decoration-info="display_type == 'section'">
+
+                                    <field name="display_type" column_invisible="True" />
+                                    <field name="sequence" widget="handle" />
+                                    <field name="template_line_id" column_invisible="True"
+                                        force_save="1" />
+                                    <field name="category_id" column_invisible="True" force_save="1" />
+                                    <field name="previous_line_id" column_invisible="True" />
+
+                                    <field name="content_snapshot"
+                                        readonly="1"
+                                        force_save="1"
+                                        string="Nội dung kiểm tra checklist"
+                                    />
+
+                                    <field name="criterion_type_snapshot"
+                                        readonly="1"
+                                        force_save="1"
+                                        string="Loại tiêu chí"
+                                        widget="badge"
+                                        invisible="display_type == 'section'"
+                                        decoration-danger="criterion_type_snapshot == 'critical'"
+                                        decoration-info="criterion_type_snapshot == 'normal'" />
+
+                                    <field name="deduction_score_snapshot"
+                                        readonly="1"
+                                        force_save="1"
+                                        string="Điểm trừ vi phạm"
+                                        invisible="display_type == 'section'" />
+
+                                    <field name="is_pass"
+                                        widget="boolean_toggle"
+                                        string="Đánh giá Đạt"
+                                        invisible="display_type == 'section'" />
+
+                                    <field name="previous_result"
+                                        readonly="1"
+                                        string="Đợt trước"
+                                        widget="badge"
+                                        invisible="display_type == 'section'"
+                                        decoration-success="previous_result == 'pass'"
+                                        decoration-danger="previous_result == 'fail'" />
+
+                                    <field name="note"
+                                        placeholder="Ghi chú vi phạm..."
+                                        invisible="display_type == 'section'" />
                                 </list>
                             </field>
                         </page>
                         <page string="Xác nhận phiếu" name="confirmation">
                             <group>
                                 <group string="Người xác nhận hệ thống">
-                                    <field name="confirmed_user_id" options="{'no_create': True}"/>
+                                    <field name="confirmed_user_id" options="{'no_create': True}" />
                                 </group>
                                 <group string="Quản lý cửa hàng xác nhận">
-                                    <field name="confirmed_member_id" 
-                                           domain="[('franchise_id', '=', franchise_id)]"
-                                           options="{'no_create': True}"/>
+                                    <field name="confirmed_member_id"
+                                        domain="[('franchise_id', '=', franchise_id)]"
+                                        options="{'no_create': True}" />
                                 </group>
                             </group>
                         </page>
@@ -126,25 +160,28 @@
         <field name="model">wujia.franchise.inspection</field>
         <field name="arch" type="xml">
             <search string="Tìm kiếm Phiếu khảo sát">
-                <field name="name"/>
-                <field name="franchise_id"/>
-                <field name="inspector_user_id"/>
-                <field name="schedule_id"/>
-                <separator/>
-                <filter string="Đang chờ (Draft)" name="draft" domain="[('state', '=', 'draft')]"/>
-                <filter string="Đang thực hiện" name="in_progress" domain="[('state', '=', 'in_progress')]"/>
-                <filter string="Hoàn thành" name="done" domain="[('state', '=', 'done')]"/>
-                <filter string="Đã hủy" name="cancel" domain="[('state', '=', 'cancel')]"/>
-                <separator/>
-                <filter string="Xếp loại A" name="grade_a" domain="[('grade', '=', 'A')]"/>
-                <filter string="Xếp loại B" name="grade_b" domain="[('grade', '=', 'B')]"/>
-                <filter string="Xếp loại C" name="grade_c" domain="[('grade', '=', 'C')]"/>
-                <filter string="Xếp loại D" name="grade_d" domain="[('grade', '=', 'D')]"/>
-                <separator/>
-                <filter string="Cửa hàng" name="group_franchise" context="{'group_by': 'franchise_id'}"/>
-                <filter string="Người kiểm tra" name="group_inspector" context="{'group_by': 'inspector_user_id'}"/>
-                <filter string="Trạng thái" name="group_state" context="{'group_by': 'state'}"/>
-                <filter string="Xếp loại" name="group_grade" context="{'group_by': 'grade'}"/>
+                <field name="name" />
+                <field name="franchise_id" />
+                <field name="inspector_user_id" />
+                <field name="schedule_id" />
+                <separator />
+                <filter string="Đang chờ (Draft)" name="draft" domain="[('state', '=', 'draft')]" />
+                <filter string="Đang thực hiện" name="in_progress"
+                    domain="[('state', '=', 'in_progress')]" />
+                <filter string="Hoàn thành" name="done" domain="[('state', '=', 'done')]" />
+                <filter string="Đã hủy" name="cancel" domain="[('state', '=', 'cancel')]" />
+                <separator />
+                <filter string="Xếp loại A" name="grade_a" domain="[('grade', '=', 'A')]" />
+                <filter string="Xếp loại B" name="grade_b" domain="[('grade', '=', 'B')]" />
+                <filter string="Xếp loại C" name="grade_c" domain="[('grade', '=', 'C')]" />
+                <filter string="Xếp loại D" name="grade_d" domain="[('grade', '=', 'D')]" />
+                <separator />
+                <filter string="Cửa hàng" name="group_franchise"
+                    context="{'group_by': 'franchise_id'}" />
+                <filter string="Người kiểm tra" name="group_inspector"
+                    context="{'group_by': 'inspector_user_id'}" />
+                <filter string="Trạng thái" name="group_state" context="{'group_by': 'state'}" />
+                <filter string="Xếp loại" name="group_grade" context="{'group_by': 'grade'}" />
             </search>
         </field>
     </record>
@@ -154,7 +191,7 @@
         <field name="name">Phiếu giám sát</field>
         <field name="res_model">wujia.franchise.inspection</field>
         <field name="view_mode">list,form</field>
-        <field name="search_view_id" ref="view_wujia_franchise_inspection_search"/>
+        <field name="search_view_id" ref="view_wujia_franchise_inspection_search" />
         <field name="help" type="html">
             <p class="o_view_nocontent_smiling_face">
                 Tạo phiếu giám sát mới!

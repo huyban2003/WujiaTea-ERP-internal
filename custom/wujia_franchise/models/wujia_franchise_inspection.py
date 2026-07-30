@@ -43,10 +43,10 @@ class WujiaFranchiseInspection(models.Model):
         Mặc định điểm checklist là 95 điểm.
         Cứ mỗi tiêu chí Không đạt (is_pass == False hoặc result == 'fail'),
         sẽ bị trừ số điểm tương ứng (deduction_score_snapshot).
-        Bỏ qua các dòng Section Header (display_type == 'line_section').
+        Bỏ qua các dòng Section Header (display_type == 'section').
         """
         for rec in self:
-            criteria_lines = rec.line_ids.filtered(lambda l: not l.display_type)
+            criteria_lines = rec.line_ids.filtered(lambda l: l.display_type == 'line')
             if not criteria_lines:
                 rec.checklist_score = 95.0
             else:
@@ -101,7 +101,7 @@ class WujiaFranchiseInspection(models.Model):
                 # 1. Thêm dòng tiêu đề Danh mục (Section Header)
                 lines.append((0, 0, {
                     'sequence': seq,
-                    'display_type': 'line_section',
+                    'display_type': 'section',
                     'content_snapshot': section_title,
                 }))
                 seq += 10
@@ -116,7 +116,7 @@ class WujiaFranchiseInspection(models.Model):
                         target_tid = t_line.id
                         match_l = [
                             l for l in prev_insp.line_ids
-                            if not l.display_type and l.template_line_id and l.template_line_id.id == target_tid
+                            if l.display_type == 'line' and l.template_line_id and l.template_line_id.id == target_tid
                         ]
                         if match_l:
                             prev_l_id = match_l[0].id
@@ -125,7 +125,7 @@ class WujiaFranchiseInspection(models.Model):
 
                     lines.append((0, 0, {
                         'sequence': seq,
-                        'display_type': False,
+                        'display_type': 'line',
                         'template_line_id': t_line.id,
                         'category_id': t_line.category_id.id if t_line.category_id else False,
                         'content_snapshot': t_line.content,
@@ -149,7 +149,7 @@ class WujiaFranchiseInspection(models.Model):
         """
         if self.previous_inspection_id and self.line_ids:
             for line in self.line_ids:
-                if line.display_type == 'line_section':
+                if line.display_type == 'section':
                     line.previous_line_id = False
                     line.previous_result = False
                     line.previous_deduction_score = 0.0
@@ -158,7 +158,7 @@ class WujiaFranchiseInspection(models.Model):
                     target_tid = line.template_line_id.id
                     match_l = [
                         l for l in self.previous_inspection_id.line_ids
-                        if not l.display_type and l.template_line_id and l.template_line_id.id == target_tid
+                        if l.display_type == 'line' and l.template_line_id and l.template_line_id.id == target_tid
                     ]
                     if match_l:
                         line.previous_line_id = match_l[0].id
@@ -317,9 +317,9 @@ class WujiaFranchiseInspectionLine(models.Model):
 
     sequence = fields.Integer(string='Thứ tự', default=10)
     display_type = fields.Selection([
-        ('line_section', 'Section'),
-        ('line_note', 'Note'),
-    ], default=False, help="Trường kỹ thuật phân nhóm danh mục section header")
+        ('section', 'Section'),
+        ('line', 'Line'),
+    ], default='line', help="Trường kỹ thuật phân nhóm danh mục section header")
 
     content_snapshot = fields.Text(
         string='Nội dung kiểm tra checklist',
@@ -409,6 +409,20 @@ class WujiaFranchiseInspectionLine(models.Model):
         readonly=True,
         default=0.0,
     )
+    content_class = fields.Char(
+        string="CSS Class cho nội dung", 
+        compute="_compute_content_class",
+    )
+
+    # 2. Phương thức tính toán class
+    @api.depends('display_type')
+    def _compute_content_class(self):
+        for line in self:
+            # Kiểm tra nếu là dòng Section
+            if line.display_type == 'section':
+                line.content_class = 'text-center fw-bold d-block w-100 py-1'
+            else:
+                line.content_class = ''
 
     @api.depends('inspection_id.previous_inspection_id', 'template_line_id')
     def _compute_previous_line_info(self):
@@ -417,7 +431,7 @@ class WujiaFranchiseInspectionLine(models.Model):
         đồng thời lưu trữ luôn Kết quả đợt trước (previous_result) và Điểm trừ đợt trước (previous_deduction_score).
         """
         for rec in self:
-            if rec.display_type == 'line_section':
+            if rec.display_type == 'section':
                 rec.previous_line_id = False
                 rec.previous_result = False
                 rec.previous_deduction_score = 0.0
@@ -428,7 +442,7 @@ class WujiaFranchiseInspectionLine(models.Model):
                 target_tid = rec.template_line_id.id
                 match_lines = [
                     l for l in prev_insp.line_ids
-                    if not l.display_type and l.template_line_id and l.template_line_id.id == target_tid
+                    if l.display_type == 'line' and l.template_line_id and l.template_line_id.id == target_tid
                 ]
                 if match_lines:
                     prev_l = match_lines[0]
@@ -463,7 +477,7 @@ class WujiaFranchiseInspectionLine(models.Model):
         và template_line_id luôn được lưu chính xác và vĩnh viễn vào CSDL khi bấm Lưu (Save).
         """
         for vals in vals_list:
-            if vals.get('display_type') == 'line_section':
+            if vals.get('display_type') == 'section':
                 continue
 
             # Đồng bộ result chuẩn xác theo is_pass
@@ -510,7 +524,7 @@ class WujiaFranchiseInspectionLine(models.Model):
                     target_tid = vals['template_line_id']
                     match_l = [
                         l for l in insp.previous_inspection_id.line_ids
-                        if not l.display_type and l.template_line_id and l.template_line_id.id == target_tid
+                        if l.display_type == 'line' and l.template_line_id and l.template_line_id.id == target_tid
                     ]
                     if match_l:
                         vals['previous_line_id'] = match_l[0].id
@@ -550,7 +564,7 @@ class WujiaFranchiseInspectionLine(models.Model):
         Lấy từ template_line_id và content_snapshot.
         """
         for rec in self:
-            if rec.display_type == 'line_section':
+            if rec.display_type == 'section':
                 rec.display_name = rec.content_snapshot or _("Danh mục tiêu chí")
             elif rec.template_line_id:
                 code = rec.template_line_id.criterion_code or ''
