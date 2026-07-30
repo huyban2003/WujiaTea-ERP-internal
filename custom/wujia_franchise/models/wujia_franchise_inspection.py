@@ -573,6 +573,58 @@ class WujiaFranchiseInspectionLine(models.Model):
         ondelete='restrict',
     )
 
+    template_id = fields.Many2one(
+        'wujia.franchise.inspection.template',
+        related='inspection_id.template_id',
+        string='Mẫu khảo sát',
+        store=True,
+        readonly=True,
+    )
+
+    franchise_id = fields.Many2one(
+        'wujia.franchise.management',
+        related='inspection_id.franchise_id',
+        string='Cửa hàng',
+        store=True,
+        readonly=True,
+    )
+
+    planned_date = fields.Date(
+        related='inspection_id.planned_date',
+        string='Ngày kiểm tra',
+        store=True,
+        readonly=True,
+    )
+
+    pass_count = fields.Integer(
+        string='Số lần Đạt',
+        compute='_compute_pass_fail_count',
+        store=True,
+    )
+
+    fail_count = fields.Integer(
+        string='Số lần Vi phạm (Không đạt)',
+        compute='_compute_pass_fail_count',
+        store=True,
+    )
+
+    line_count = fields.Integer(
+        string='Số lượt kiểm tra',
+        default=1,
+    )
+
+    @api.depends('is_pass', 'result', 'display_type')
+    def _compute_pass_fail_count(self):
+        for rec in self:
+            if rec.display_type == 'line':
+                rec.pass_count = 1 if (rec.is_pass or rec.result == 'pass') else 0
+                rec.fail_count = 0 if (rec.is_pass or rec.result == 'pass') else 1
+                rec.line_count = 1
+            else:
+                rec.pass_count = 0
+                rec.fail_count = 0
+                rec.line_count = 0
+
     category_id = fields.Many2one(
         'wujia.franchise.inspection.category',
         string='Danh mục tiêu chí',

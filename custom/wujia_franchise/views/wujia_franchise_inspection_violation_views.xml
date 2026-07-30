@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- Search View cho Phân tích tiêu chí vi phạm -->
+    <record id="view_wujia_franchise_inspection_line_search" model="ir.ui.view">
+        <field name="name">wujia.franchise.inspection.line.search</field>
+        <field name="model">wujia.franchise.inspection.line</field>
+        <field name="arch" type="xml">
+            <search string="Tìm kiếm Tiêu chí khảo sát">
+                <field name="template_id" string="Mẫu khảo sát" />
+                <field name="template_line_id" string="Tiêu chí mẫu" />
+                <field name="content_snapshot" string="Nội dung tiêu chí" />
+                <field name="franchise_id" string="Cửa hàng" />
+                <field name="category_id" string="Danh mục tiêu chí" />
+                <field name="planned_date" string="Ngày kiểm tra" />
+                <separator />
+                <filter string="Tiêu chí Đạt (Pass)" name="pass_only" domain="[('is_pass', '=', True)]" />
+                <filter string="Tiêu chí Vi phạm (Fail)" name="fail_only" domain="[('is_pass', '=', False)]" />
+                <separator />
+                <filter string="Thời gian kiểm tra" name="filter_planned_date" date="planned_date" />
+                <separator />
+                <filter string="Mẫu khảo sát" name="group_template" context="{'group_by': 'template_id'}" />
+                <filter string="Tiêu chí mẫu (Template Line)" name="group_template_line" context="{'group_by': 'template_line_id'}" />
+                <filter string="Nội dung tiêu chí" name="group_content" context="{'group_by': 'content_snapshot'}" />
+                <filter string="Kết quả (Đạt / Không đạt)" name="group_result" context="{'group_by': 'result'}" />
+                <filter string="Danh mục tiêu chí" name="group_category" context="{'group_by': 'category_id'}" />
+                <filter string="Cửa hàng" name="group_franchise" context="{'group_by': 'franchise_id'}" />
+            </search>
+        </field>
+    </record>
+
+    <!-- Graph View: Biểu đồ cột song song (Cột đôi) - Mỗi cột là 1 Tiêu chí mẫu gốc, hiển thị số lần Đạt và Không đạt cạnh nhau -->
+    <record id="view_wujia_franchise_inspection_line_violation_graph" model="ir.ui.view">
+        <field name="name">wujia.franchise.inspection.line.violation.graph</field>
+        <field name="model">wujia.franchise.inspection.line</field>
+        <field name="arch" type="xml">
+            <graph string="Phân tích tiêu chí vi phạm" type="bar" stacked="0" sample="1">
+                <field name="template_line_id" type="row"/>
+                <field name="result" type="col"/>
+            </graph>
+        </field>
+    </record>
+
+    <!-- Pivot View: Bảng tổng hợp Pivot phân tích theo Mẫu khảo sát và Tiêu chí mẫu -->
+    <record id="view_wujia_franchise_inspection_line_violation_pivot" model="ir.ui.view">
+        <field name="name">wujia.franchise.inspection.line.violation.pivot</field>
+        <field name="model">wujia.franchise.inspection.line</field>
+        <field name="arch" type="xml">
+            <pivot string="Phân tích tiêu chí vi phạm" sample="1">
+                <field name="template_id" type="row"/>
+                <field name="template_line_id" type="row"/>
+                <field name="result" type="col"/>
+            </pivot>
+        </field>
+    </record>
+
+    <!-- List View: Danh sách chi tiết các line tiêu chí từ phiếu hoàn thành -->
+    <record id="view_wujia_franchise_inspection_line_violation_tree" model="ir.ui.view">
+        <field name="name">wujia.franchise.inspection.line.violation.list</field>
+        <field name="model">wujia.franchise.inspection.line</field>
+        <field name="arch" type="xml">
+            <list string="Phân tích tiêu chí vi phạm" create="false" edit="false" delete="false">
+                <field name="template_id"/>
+                <field name="template_line_id"/>
+                <field name="inspection_id"/>
+                <field name="franchise_id"/>
+                <field name="category_id"/>
+                <field name="content_snapshot"/>
+                <field name="result" widget="badge" decoration-success="result == 'pass'" decoration-danger="result == 'fail'"/>
+                <field name="pass_count"/>
+                <field name="fail_count"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- Action Phân tích tiêu chí vi phạm (Chỉ tổng hợp dữ liệu từ các Phiếu khảo sát ở trạng thái 'Hoàn thành') -->
+    <record id="action_wujia_franchise_inspection_report_violation" model="ir.actions.act_window">
+        <field name="name">Phân tích tiêu chí vi phạm</field>
+        <field name="res_model">wujia.franchise.inspection.line</field>
+        <field name="domain">[('display_type', '=', 'line'), ('inspection_id.state', '=', 'done')]</field>
+        <field name="view_mode">graph,pivot,list</field>
+        <field name="search_view_id" ref="view_wujia_franchise_inspection_line_search" />
+        <field name="context">{}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Báo cáo phân tích tổng số câu Đạt / Vi phạm của từng tiêu chí mẫu trên các phiếu đã hoàn thành!
+            </p>
+        </field>
+    </record>
+
+</odoo>

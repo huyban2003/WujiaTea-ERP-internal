@@ -167,6 +167,16 @@ class WujiaFranchiseInspectionTemplateLine(models.Model):
     require_evidence_if_fail = fields.Boolean(string='Yêu cầu bằng chứng khi không đạt', default=False)
     active = fields.Boolean(string='Kích hoạt', default=True)
 
+    @api.depends('criterion_code', 'content')
+    def _compute_display_name(self):
+        for rec in self:
+            code = rec.criterion_code or ''
+            content = rec.content or ''
+            if code:
+                rec.display_name = f"[{code}] {content}"
+            else:
+                rec.display_name = content or _("Tiêu chí không tên")
+
     @api.ondelete(at_uninstall=False)
     def _unlink_except_draft_template(self):
         for line in self:
