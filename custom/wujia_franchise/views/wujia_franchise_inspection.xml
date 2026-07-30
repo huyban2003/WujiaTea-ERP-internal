@@ -206,8 +206,11 @@
                 <field name="franchise_id" />
                 <field name="inspector_user_id" />
                 <field name="schedule_id" />
+                <field name="planned_date" />
                 <separator />
                 <filter string="Phiếu của tôi" name="my_inspection" domain="[('inspector_user_id', '=', uid)]" />
+                <separator />
+                <filter string="Thời gian kiểm tra" name="filter_planned_date" date="planned_date" />
                 <separator />
                 <filter string="Đang chờ (Draft)" name="draft" domain="[('state', '=', 'draft')]" />
                 <filter string="Đang thực hiện" name="in_progress"
@@ -228,6 +231,8 @@
                     context="{'group_by': 'inspector_user_id'}" />
                 <filter string="Trạng thái" name="group_state" context="{'group_by': 'state'}" />
                 <filter string="Xếp loại" name="group_grade" context="{'group_by': 'grade'}" />
+                <filter string="Thời gian (Theo Tháng)" name="group_planned_date" context="{'group_by': 'planned_date:month'}" />
+                <filter string="Thời gian (Theo Ngày)" name="group_planned_date_day" context="{'group_by': 'planned_date:day'}" />
             </search>
         </field>
     </record>
