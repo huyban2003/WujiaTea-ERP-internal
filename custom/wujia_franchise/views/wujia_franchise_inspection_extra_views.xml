@@ -93,6 +93,8 @@
         </field>
     </record>
 
+
+
     <record id="view_wujia_franchise_inspection_calendar" model="ir.ui.view">
         <field name="name">Phiếu giám sát - Lịch</field>
         <field name="model">wujia.franchise.inspection</field>
@@ -129,12 +131,12 @@
         </field>
     </record>
 
-    <record id="action_inspection_schedule" model="ir.actions.act_window">
+    <!-- <record id="action_inspection_schedule" model="ir.actions.act_window">
         <field name="name">Lịch giám sát</field>
         <field name="res_model">wujia.franchise.inspection</field>
         <field name="view_mode">calendar,list,form</field>
         <field name="domain">[('state', 'in', ['draft', 'in_progress', 'submitted'])]</field>
-    </record>
+    </record> -->
 
     <record id="action_inspection_need_supervision" model="ir.actions.act_window">
         <field name="name">Cửa hàng cần giám sát</field>

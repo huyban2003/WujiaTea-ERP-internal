@@ -11,6 +11,7 @@
         'contacts',
         'portal',
         'mail',
+        'calendar',
     ],
     'data': [
         'security/wujia_franchise_groups.xml',
@@ -22,13 +23,23 @@
         'views/wujia_franchise_inspection_extra_views.xml',
         'views/wujia_franchise_inspection_template_view.xml',
         'views/wujia_franchise_inspection_template_line_view.xml',
+        'views/wujia_franchise_inspection_category_view.xml',
+        'views/wujia_franchise_inspection_schedule_views.xml',
         'views/wujia_franchise_early_actions.xml',
         
         'views/res_partner_views.xml',
         'views/res_users_views.xml',
         'views/wujia_franchise_menu.xml',
+        'data/ir_sequence_data.xml',
         'data/ir_cron_data.xml',
     ],
+    'assets': {
+        'web.assets_backend': [
+            'wujia_franchise/static/src/scss/inspection_schedule.scss',
+            'wujia_franchise/static/src/js/inspection_schedule.js',
+            'wujia_franchise/static/src/xml/inspection_schedule.xml',
+        ],
+    },
     'installable': True,
     'application': True,
     'auto_install': False,

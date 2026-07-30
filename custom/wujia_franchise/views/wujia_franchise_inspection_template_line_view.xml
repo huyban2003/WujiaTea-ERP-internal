@@ -10,9 +10,10 @@
                 <field name="sequence" widget="handle"/>
                 <field name="template_id" string="Mẫu phiếu"/>
                 <field name="criterion_code" string="Mã tiêu chí"/>
-                <field name="category" string="Danh mục"/>
+                <field name="category_code" string="Mã danh mục"/>
+                <field name="category_id" string="Danh mục"/>
                 <field name="content" string="Nội dung tiêu chí"/>
-                <field name="criterion_type" string="Loại tiêu chí" widget="badge"
+                <field name="criterion_type" string="Loại tiêu chí"
                        decoration-danger="criterion_type == 'critical'"
                        decoration-info="criterion_type == 'normal'"/>
                 <field name="deduction_score" string="Điểm trừ"/>
@@ -34,7 +35,8 @@
                         <group>
                             <field name="template_id" options="{'no_create': True}" string="Mẫu phiếu giám sát"/>
                             <field name="criterion_code" placeholder="Ví dụ: TC01"/>
-                            <field name="category" placeholder="Ví dụ: Vệ sinh quầy kệ"/>
+                            <field name="category_code" placeholder="Mã danh mục (ví dụ: CAT-0001)"/>
+                            <field name="category_id" options="{'no_create': True}" placeholder="Ví dụ: Vệ sinh quầy kệ"/>
                         </group>
                         <group>
                             <field name="criterion_type" string="Loại tiêu chí"/>
@@ -62,7 +64,8 @@
         <field name="arch" type="xml">
             <search>
                 <field name="criterion_code" string="Mã tiêu chí"/>
-                <field name="category" string="Danh mục"/>
+                <field name="category_code" string="Mã danh mục"/>
+                <field name="category_id" string="Danh mục" />
                 <field name="content" string="Nội dung"/>
                 <field name="template_id" string="Mẫu phiếu"/>
                 <separator/>
@@ -71,7 +74,7 @@
                 <filter string="Không hoạt động" name="inactive" domain="[('active', '=', False)]"/>
                 <separator/>
                 <filter string="Mẫu phiếu" name="group_by_template" context="{'group_by': 'template_id'}"/>
-                <filter string="Danh mục" name="group_by_category" context="{'group_by': 'category'}"/>
+                <filter string="Danh mục" name="group_by_category" context="{'group_by': 'category_id'}"/>
                 <filter string="Loại tiêu chí" name="group_by_type" context="{'group_by': 'criterion_type'}"/>
             </search>
         </field>

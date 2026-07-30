@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- View Lịch (Calendar) -->
+    <record id="view_wujia_franchise_inspection_calendar" model="ir.ui.view">
+        <field name="name">Phiếu giám sát - Lịch</field>
+        <field name="model">wujia.franchise.inspection</field>
+        <field name="arch" type="xml">
+            <calendar date_start="planned_date" color="state" mode="month">
+                <field name="name"/>
+                <field name="franchise_id"/>
+                <field name="inspector_user_id"/>
+                <field name="state"/>
+            </calendar>
+        </field>
+    </record>
+
+    <!-- View Biểu đồ (Graph) -->
+    <record id="view_wujia_franchise_inspection_graph" model="ir.ui.view">
+        <field name="name">Phiếu giám sát - Biểu đồ</field>
+        <field name="model">wujia.franchise.inspection</field>
+        <field name="arch" type="xml">
+            <graph string="Kết quả giám sát" type="bar">
+                <field name="state" type="row"/>
+                <field name="total_score" type="measure"/>
+            </graph>
+        </field>
+    </record>
+
+    <!-- View Pivot -->
+    <record id="view_wujia_franchise_inspection_pivot" model="ir.ui.view">
+        <field name="name">Phiếu giám sát - Pivot</field>
+        <field name="model">wujia.franchise.inspection</field>
+        <field name="arch" type="xml">
+            <pivot string="Kết quả giám sát">
+                <field name="state" type="row"/>
+                <field name="franchise_id" type="col"/>
+                <field name="total_score" type="measure"/>
+            </pivot>
+        </field>
+    </record>
+
+    <!-- Action Lịch giám sát mặc định (Window Action) -->
+    <record id="action_inspection_schedule" model="ir.actions.act_window">
+        <field name="name">Lịch giám sát (Cũ)</field>
+        <field name="res_model">wujia.franchise.inspection</field>
+        <field name="view_mode">calendar,list,form</field>
+        <field name="domain">[('state', 'in', ['draft', 'in_progress', 'submitted'])]</field>
+    </record>
+
+    <!-- Action Lịch giám sát tùy chỉnh (Client Action) -->
+    <record id="action_inspection_schedule_custom" model="ir.actions.client">
+        <field name="name">Lịch giám sát</field>
+        <field name="tag">wujia_franchise.inspection_schedule_custom</field>
+    </record>
+</odoo>

@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+    <t t-name="wujia_franchise.InspectionScheduleCustom">
+        <div class="o_inspection_schedule_dashboard d-flex flex-row h-100 w-100">
+            <!-- Left Side: Calendar -->
+            <div class="calendar-panel flex-grow-1 p-3 border-end bg-white">
+                <div id="calendar_container" class="h-100"></div>
+            </div>
+
+            <!-- Right Side: Control Sidebar -->
+            <div class="sidebar-panel d-flex flex-column p-3 bg-light border-start" style="width: 400px; min-width: 400px;">
+                <h4 class="mb-3 text-primary border-bottom pb-2">Danh Sách Cửa Hàng Giám Sát</h4>
+                
+                <!-- Date Header -->
+                <div class="mb-3">
+                    <label class="form-label fw-bold">Chọn Cửa Hàng (Cho ngày: <span t-esc="state.selectedDate"/>)</label>
+                </div>
+
+                <!-- Inspector Dropdown -->
+                <div class="mb-3">
+                    <label class="form-label">Người giám sát</label>
+                    <select class="form-select" t-model="state.selectedInspectorId">
+                        <option value="0">-- Chọn người giám sát --</option>
+                        <t t-foreach="state.inspectors" t-as="inspector" t-key="inspector.id">
+                            <option t-att-value="inspector.id" t-esc="inspector.name"/>
+                        </t>
+                    </select>
+                </div>
+
+                <!-- Search and Filters -->
+                <div class="mb-3">
+                    <input type="text" class="form-control mb-2" placeholder="Lọc cửa hàng..." t-model="state.searchQuery"/>
+                    <div class="d-flex gap-2">
+                        <select class="form-select form-select-sm" t-model="state.statusFilter">
+                            <option value="all">Tất cả trạng thái</option>
+                            <option value="checked">Đã chọn</option>
+                            <option value="unchecked">Chưa chọn</option>
+                            <t t-foreach="state.statuses" t-as="status_key" t-key="status_key">
+                                <option t-att-value="status_key" t-esc="state.statuses[status_key]"/>
+                            </t>
+                        </select>
+                        <select class="form-select form-select-sm" t-model="state.areaFilter">
+                            <option value="all">Tất cả khu vực</option>
+                            <t t-foreach="state.areas" t-as="area" t-key="area.id">
+                                <option t-att-value="area.id" t-esc="area.name"/>
+                            </t>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Store Checklist -->
+                <div class="flex-grow-1 overflow-auto border rounded bg-white p-2 mb-3" style="max-height: 300px;">
+                    <t t-foreach="filteredFranchises" t-as="franchise" t-key="franchise.id">
+                        <div class="form-check py-1 border-bottom">
+                            <input class="form-check-input" type="checkbox" 
+                                   t-att-id="'franchise_' + franchise.id"
+                                   t-att-checked="state.checkedFranchises[franchise.id]"
+                                   t-on-change="(ev) => this.onCheckFranchise(ev, franchise.id)"/>
+                            <label class="form-check-label" t-att-for="'franchise_' + franchise.id" t-esc="franchise.code ? '[' + franchise.code + '] ' + franchise.name : franchise.name"/>
+                        </div>
+                    </t>
+                </div>
+
+                <!-- Save Button -->
+                <div class="mb-4">
+                    <button class="btn btn-primary w-100" t-on-click="onSave">
+                        <i class="fa fa-floppy-o me-2"></i>Lưu lịch giám sát
+                    </button>
+                </div>
+
+                <!-- Upcoming Schedules -->
+                <div class="border-top pt-3 flex-shrink-0">
+                    <h5 class="fw-bold mb-2">Lập Lịch Sắp Tới</h5>
+                    <div class="overflow-auto" style="max-height: 150px;">
+                        <t t-foreach="state.upcomingInspections" t-as="ins" t-key="ins.id">
+                            <div class="d-flex align-items-center mb-1 text-muted small">
+                                <i class="fa fa-check text-success me-2"></i>
+                                <span class="fw-bold me-1" t-esc="ins.planned_date.substring(0, 10)"/>: 
+                                <span class="ms-1" t-esc="ins.franchise_code ? '[' + ins.franchise_code + '] ' + ins.franchise_name : ins.franchise_name"/>
+                            </div>
+                        </t>
+                        <t t-if="state.upcomingInspections.length === 0">
+                            <div class="text-muted small italic">Chưa có lịch sắp tới</div>
+                        </t>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </t>
+</templates>
