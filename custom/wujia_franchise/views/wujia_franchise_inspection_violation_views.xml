@@ -67,9 +67,51 @@
                 <field name="category_id"/>
                 <field name="content_snapshot"/>
                 <field name="result" widget="badge" decoration-success="result == 'pass'" decoration-danger="result == 'fail'"/>
+                <field name="note" optional="show"/>
+                <field name="evidence_image" widget="image" options="{'size': [40, 40]}" optional="show"/>
+                <field name="remediation_image" widget="image" options="{'size': [40, 40]}" optional="show"/>
                 <field name="pass_count"/>
                 <field name="fail_count"/>
             </list>
+        </field>
+    </record>
+
+    <!-- Form View Popup xem chi tiết 1 dòng tiêu chí đợt trước (Readonly) -->
+    <record id="view_wujia_franchise_inspection_line_form" model="ir.ui.view">
+        <field name="name">wujia.franchise.inspection.line.form</field>
+        <field name="model">wujia.franchise.inspection.line</field>
+        <field name="arch" type="xml">
+            <form string="Chi tiết tiêu chí đợt trước" create="false" edit="false" delete="false">
+                <sheet>
+                    <group>
+                        <group string="THÔNG TIN TIÊU CHÍ">
+                            <field name="inspection_id" readonly="1" options="{'no_open': True}"/>
+                            <field name="franchise_id" readonly="1" options="{'no_open': True}"/>
+                            <field name="planned_date" readonly="1"/>
+                            <field name="category_id" readonly="1" options="{'no_open': True}"/>
+                            <field name="content_snapshot" readonly="1"/>
+                        </group>
+                        <group string="KẾT QUẢ &amp; BẰNG CHỨNG">
+                            <field name="criterion_type_snapshot" readonly="1" widget="badge"
+                                   decoration-danger="criterion_type_snapshot == 'critical'"
+                                   decoration-info="criterion_type_snapshot == 'normal'"/>
+                            <field name="deduction_score_snapshot" readonly="1"/>
+                            <field name="result" readonly="1" widget="badge"
+                                   decoration-success="result == 'pass'"
+                                   decoration-danger="result == 'fail'"/>
+                            <field name="note" readonly="1"/>
+                        </group>
+                    </group>
+                    <group string="BẰNG CHỨNG &amp; KHẮC PHỤC">
+                        <group string="Bằng chứng vi phạm khi khảo sát">
+                            <field name="evidence_image" widget="image" options="{'size': [200, 200]}" readonly="1" nolabel="1"/>
+                        </group>
+                        <group string="Ảnh sau khi đã khắc phục">
+                            <field name="remediation_image" widget="image" options="{'size': [200, 200]}" readonly="1" nolabel="1"/>
+                        </group>
+                    </group>
+                </sheet>
+            </form>
         </field>
     </record>
 

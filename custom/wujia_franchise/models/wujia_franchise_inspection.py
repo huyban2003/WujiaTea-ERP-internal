@@ -133,6 +133,8 @@ class WujiaFranchiseInspection(models.Model):
                         'content_snapshot': t_line.content,
                         'deduction_score_snapshot': t_line.deduction_score or 0.0,
                         'criterion_type_snapshot': t_line.criterion_type or 'normal',
+                        'require_note_if_fail_snapshot': t_line.require_note_if_fail,
+                        'require_evidence_if_fail_snapshot': t_line.require_evidence_if_fail,
                         'is_pass': True,
                         'result': 'pass',
                         'previous_line_id': prev_l_id,
@@ -332,9 +334,34 @@ class WujiaFranchiseInspection(models.Model):
             rec.write({'state': 'in_progress'})
         return True
 
+    def _validate_failed_lines(self):
+        """
+        Kiểm tra tính hợp lệ của các dòng tiêu chí không đạt (Fail):
+        1. require_note_if_fail: nếu True thì phải có note.
+        2. require_evidence_if_fail: nếu True thì phải có evidence_image (hình ảnh bằng chứng khi khảo sát).
+        """
+        for rec in self:
+            for line in rec.line_ids:
+                if line.display_type == 'line' and not line.is_pass:
+                    criterion_name = line.content_snapshot or (line.template_line_id.content if line.template_line_id else _('Tiêu chí'))
+                    
+                    req_note = line.require_note_if_fail or line.require_note_if_fail_snapshot
+                    req_evidence = line.require_evidence_if_fail or line.require_evidence_if_fail_snapshot
+
+                    if req_note and not line.note:
+                        raise ValidationError(_(
+                            'Tiêu chí "%s" được đánh giá KHÔNG ĐẠT và yêu cầu phải có GHI CHÚ vi phạm!\nVui lòng nhập ghi chú trước khi tiếp tục.'
+                        ) % criterion_name)
+                    
+                    if req_evidence and not line.evidence_image:
+                        raise ValidationError(_(
+                            'Tiêu chí "%s" được đánh giá KHÔNG ĐẠT và yêu cầu phải có HÌNH ẢNH BẰNG CHỨNG!\nVui lòng tải ảnh bằng chứng lên trước khi tiếp tục.'
+                        ) % criterion_name)
+
     def action_need_remediation(self):
         """Chuyển phiếu khảo sát sang trạng thái Cần khắc phục"""
         for rec in self:
+            rec._validate_failed_lines()
             rec.write({'state': 'need_remediation'})
         return True
 
@@ -342,6 +369,7 @@ class WujiaFranchiseInspection(models.Model):
         """Hoàn thành phiếu khảo sát, tự động lưu Ngày xác nhận và chuyển Lịch giám sát sang Hoàn thành"""
         today = fields.Date.context_today(self)
         for rec in self:
+            rec._validate_failed_lines()
             rec.write({
                 'state': 'done',
                 'confirm_date': rec.confirm_date or today,
@@ -598,6 +626,42 @@ class WujiaFranchiseInspectionLine(models.Model):
     note = fields.Text(
         string='Ghi chú',
     )
+
+    evidence_image = fields.Binary(
+        string='Hình ảnh bằng chứng (Khi khảo sát)',
+        attachment=True,
+        help='Hình ảnh bằng chứng chụp vi phạm khi thực hiện khảo sát.'
+    )
+
+    remediation_image = fields.Binary(
+        string='Hình ảnh sau khắc phục',
+        attachment=True,
+        help='Hình ảnh chụp lại kết quả sau khi cửa hàng đã thực hiện khắc phục vi phạm.'
+    )
+
+    require_note_if_fail = fields.Boolean(
+        string='Yêu cầu ghi chú khi không đạt',
+        related='template_line_id.require_note_if_fail',
+        readonly=True,
+        store=True,
+    )
+
+    require_evidence_if_fail = fields.Boolean(
+        string='Yêu cầu bằng chứng khi không đạt',
+        related='template_line_id.require_evidence_if_fail',
+        readonly=True,
+        store=True,
+    )
+
+    require_note_if_fail_snapshot = fields.Boolean(
+        string='Snapshot yêu cầu ghi chú',
+        default=False,
+    )
+
+    require_evidence_if_fail_snapshot = fields.Boolean(
+        string='Snapshot yêu cầu bằng chứng',
+        default=False,
+    )
     
     # RELATION 
     inspection_id = fields.Many2one(
@@ -688,13 +752,27 @@ class WujiaFranchiseInspectionLine(models.Model):
         readonly=True,
     )
 
-    previous_deduction_score = fields.Float(
-        string='Điểm trừ trước đó',
-        compute='_compute_previous_line_info',
-        store=True,
+    previous_inspection_id = fields.Many2one(
+        'wujia.franchise.inspection',
+        related='inspection_id.previous_inspection_id',
+        string='Phiếu khảo sát đợt trước',
         readonly=True,
-        default=0.0,
     )
+
+    def action_view_previous_inspection(self):
+        """Mở popup Form View xem duy nhất 1 dòng tiêu chí đợt trước (Readonly)"""
+        self.ensure_one()
+        if not self.previous_line_id:
+            raise ValidationError(_('Không có dữ liệu tiêu chí này ở đợt khảo sát trước!'))
+        return {
+            'name': _('Tiêu chí đợt trước: %s') % (self.content_snapshot or ''),
+            'type': 'ir.actions.act_window',
+            'res_model': 'wujia.franchise.inspection.line',
+            'res_id': self.previous_line_id.id,
+            'view_mode': 'form',
+            'target': 'new',
+            'context': {'create': False, 'edit': False},
+        }
     content_class = fields.Char(
         string="CSS Class cho nội dung", 
         compute="_compute_content_class",
@@ -755,6 +833,8 @@ class WujiaFranchiseInspectionLine(models.Model):
             self.content_snapshot = self.template_line_id.content
             self.deduction_score_snapshot = self.template_line_id.deduction_score
             self.criterion_type_snapshot = self.template_line_id.criterion_type
+            self.require_note_if_fail_snapshot = self.template_line_id.require_note_if_fail
+            self.require_evidence_if_fail_snapshot = self.template_line_id.require_evidence_if_fail
 
     @api.model_create_multi
     def create(self, vals_list):
@@ -802,6 +882,10 @@ class WujiaFranchiseInspectionLine(models.Model):
                         vals['deduction_score_snapshot'] = t_line.deduction_score
                     if not vals.get('criterion_type_snapshot'):
                         vals['criterion_type_snapshot'] = t_line.criterion_type
+                    if 'require_note_if_fail_snapshot' not in vals:
+                        vals['require_note_if_fail_snapshot'] = t_line.require_note_if_fail
+                    if 'require_evidence_if_fail_snapshot' not in vals:
+                        vals['require_evidence_if_fail_snapshot'] = t_line.require_evidence_if_fail
 
             # 3. Tự động phục hồi dòng đợt trước (previous_line_id)
             if vals.get('inspection_id') and vals.get('template_line_id') and not vals.get('previous_result'):

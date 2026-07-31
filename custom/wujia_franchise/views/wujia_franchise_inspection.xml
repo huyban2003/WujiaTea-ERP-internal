@@ -32,11 +32,17 @@
         <field name="arch" type="xml">
             <form string="Phiếu khảo sát đánh giá cửa hàng nhượng quyền">
                 <header>
-                    <button name="action_start" string="Bắt đầu thực hiện" type="object" class="btn-primary" invisible="state != 'draft'" />
-                    <button name="action_need_remediation" string="Cần khắc phục" type="object" class="btn-warning" invisible="state in ('done', 'cancel', 'need_remediation')" />
-                    <button name="action_done" string="Hoàn thành" type="object" class="btn-success" invisible="state in ('done', 'cancel')" />
-                    <button name="action_cancel" string="Hủy" type="object" invisible="state in ('done', 'cancel')" />
-                    <button name="action_draft" string="Đặt về Nháp" type="object" invisible="state in ('draft', 'done')" />
+                    <button name="action_start" string="Bắt đầu thực hiện" type="object"
+                        class="btn-primary" invisible="state != 'draft'" />
+                    <button name="action_need_remediation" string="Cần khắc phục" type="object"
+                        class="btn-warning"
+                        invisible="state in ('done', 'cancel', 'need_remediation')" />
+                    <button name="action_done" string="Hoàn thành" type="object" class="btn-success"
+                        invisible="state in ('done', 'cancel')" />
+                    <button name="action_cancel" string="Hủy" type="object"
+                        invisible="state in ('done', 'cancel')" />
+                    <button name="action_draft" string="Đặt về Nháp" type="object"
+                        invisible="state in ('draft', 'done')" />
                     <field name="state" widget="statusbar"
                         statusbar_visible="draft,in_progress,need_remediation,done,cancel" />
                 </header>
@@ -80,7 +86,8 @@
                                     class="btn-link text-primary ps-1 pe-1"
                                     invisible="not next_due_date" />
                             </div>
-                            <field name="next_schedule_id" readonly="1" invisible="not next_schedule_id" />
+                            <field name="next_schedule_id" readonly="1"
+                                invisible="not next_schedule_id" />
                         </group>
                     </group>
 
@@ -138,6 +145,13 @@
                                         string="Đánh giá Đạt"
                                         invisible="display_type == 'section'" />
 
+                                    <button name="action_view_previous_inspection"
+                                        type="object"
+                                        icon="fa-external-link"
+                                        title="Xem chi tiết phiếu khảo sát đợt trước"
+                                        class="btn-link text-primary p-0 me-1"
+                                        invisible="display_type == 'section' or not previous_result" />
+
                                     <field name="previous_result"
                                         readonly="1"
                                         string="Đợt trước"
@@ -146,9 +160,27 @@
                                         decoration-success="previous_result == 'pass'"
                                         decoration-danger="previous_result == 'fail'" />
 
+                                    <field name="require_note_if_fail" column_invisible="True" />
+                                    <field name="require_evidence_if_fail" column_invisible="True" />
+
                                     <field name="note"
-                                        placeholder="Ghi chú vi phạm..."
-                                        invisible="display_type == 'section'" />
+                                        placeholder="Ghi chú vi pham..."
+                                        invisible="display_type == 'section'"
+                                        required="not is_pass and require_note_if_fail and display_type == 'line'" />
+
+                                    <field name="evidence_image"
+                                        widget="image"
+                                        options="{'size': [50, 50]}"
+                                        string="Bằng chứng vi phạm"
+                                        invisible="display_type == 'section'"
+                                        required="not is_pass and require_evidence_if_fail and display_type == 'line'" />
+
+                                    <field name="remediation_image"
+                                        widget="image"
+                                        options="{'size': [50, 50]}"
+                                        string="Ảnh sau khắc phục"
+                                        invisible="display_type == 'section'"
+                                        readonly="parent.state not in ('need_remediation', 'in_progress', 'draft')" />
                                 </list>
                             </field>
                         </page>
@@ -218,7 +250,8 @@
                 <field name="schedule_id" />
                 <field name="planned_date" />
                 <separator />
-                <filter string="Phiếu của tôi" name="my_inspection" domain="[('inspector_user_id', '=', uid)]" />
+                <filter string="Phiếu của tôi" name="my_inspection"
+                    domain="[('inspector_user_id', '=', uid)]" />
                 <separator />
                 <filter string="Thời gian kiểm tra" name="filter_planned_date" date="planned_date" />
                 <separator />
@@ -241,8 +274,10 @@
                     context="{'group_by': 'inspector_user_id'}" />
                 <filter string="Trạng thái" name="group_state" context="{'group_by': 'state'}" />
                 <filter string="Xếp loại" name="group_grade" context="{'group_by': 'grade'}" />
-                <filter string="Thời gian (Theo Tháng)" name="group_planned_date" context="{'group_by': 'planned_date:month'}" />
-                <filter string="Thời gian (Theo Ngày)" name="group_planned_date_day" context="{'group_by': 'planned_date:day'}" />
+                <filter string="Thời gian (Theo Tháng)" name="group_planned_date"
+                    context="{'group_by': 'planned_date:month'}" />
+                <filter string="Thời gian (Theo Ngày)" name="group_planned_date_day"
+                    context="{'group_by': 'planned_date:day'}" />
             </search>
         </field>
     </record>
