@@ -1,0 +1,191 @@
+\chapter{Sprint 43 --- Công nợ \& thanh toán portal mobile, 7 màn Figma (2026-07-31)}
+
+\section{Bối cảnh}
+
+Cụm Figma \texttt{WJ\_Debt\_*\_MVP\_v31} (page \emph{Dashboard}, node \texttt{5013:*}) gồm 7 frame
+391$\times$844 là cụm thiết kế \textbf{tồn cuối cùng chưa có code}. Đồng thời portal đang mang hai
+\textbf{điểm vào chết}: tile KPI \emph{Công nợ} ở Home mobile là ô \texttt{0 đ} trơ với comment
+\emph{``module /portal/debt đã xoá''}, và mục \emph{Công nợ} ở sidenav PC trỏ ngược về
+\texttt{/portal}. Sprint này dựng lại trang để hai điểm vào đó có đích thật.
+
+\section{Vì sao UI-only}
+
+Quyết định này không phải để làm nhanh; bốn dữ kiện độc lập đều chỉ về một hướng:
+
+\begin{itemize}
+  \item Tab \texttt{1. Model/ Field} mục \textbf{``D. Quản lý công nợ nhượng quyền'' (dòng 529) là
+    tiêu đề rỗng} --- BA chưa đặc tả \emph{một} model/field nào. Tab \texttt{3. Controller} có
+    CT-050\ldots CT-055 nhưng cột ghi chú còn để ngỏ (\emph{``cần chốt QR tĩnh hay QR động''}), và
+    tab \texttt{Tasks} không có dòng nào cho công nợ.
+  \item Database: \texttt{account} / \texttt{account\_payment} đã cài nhưng có đúng \textbf{1
+    \texttt{account.move}} (bút toán mở sổ), \textbf{0 \texttt{account.payment}}, và \textbf{không
+    field nào nối \texttt{account.move} với cửa hàng nhượng quyền}. Không có gì để đọc.
+  \item Chính Figma tự ghi \emph{``QR minh họa $\bullet$ không dùng để thanh toán''} và
+    \emph{``Vietcombank (minh họa)''}.
+  \item Tiền lệ: module \texttt{wujia\_portal\_debt} bản cũ (dựng Sprint 16, xoá Sprint 17) có
+    docstring ghi rõ \emph{``card Công nợ = UI-ONLY, backend account.move thuộc Phase 2''}.
+\end{itemize}
+
+Nói cách khác, wire backend bây giờ là \textbf{tự bịa schema tài chính} rồi bắt BA sống với nó.
+
+\section{Kiến trúc --- một seam dữ liệu, không sửa file module cũ}
+
+Module mới \texttt{wujia\_portal\_debt} (tên tái dùng được: bản ghi
+\texttt{ir\_module\_module} đang \texttt{uninstalled}), 13 file / 1529 dòng, \texttt{depends:
+['wujia\_portal\_base']}.
+
+\subsection{Nguồn dữ liệu duy nhất}
+
+\texttt{models/wujia\_portal\_debt.py} khai báo \texttt{models.AbstractModel} tên
+\texttt{wujia.portal.debt} --- \textbf{không bảng, không migration, không có gì để gỡ}. Bốn method
+\texttt{get\_summary} / \texttt{get\_payments} / \texttt{get\_bank\_info} / \texttt{get\_shell\_badge}
+trả dict thuần Python (0 query). Controller, template và cả hai view inherit đều \emph{chỉ} gọi qua
+đây. Khi BA chốt spec backend, việc phải làm là đổi nguồn bên trong bốn hàm đó; template không đụng
+một dòng.
+
+Test \texttt{test\_shell\_badge\_shape} chốt cứng \textbf{shape} của dict badge --- đổi shape là vỡ
+Home và sheet \emph{Thêm}, và test nói ra điều đó ngay thay vì để lộ trên UAT.
+
+\subsection{Sửa shell bằng inheritance, không sửa module shell}
+
+Hai thay đổi lên vỏ portal đều làm \textbf{từ module mới}:
+
+\begin{center}
+\begin{tabular}{p{4.9cm}p{8.9cm}}
+\hline
+\textbf{View} & \textbf{Việc} \\
+\hline
+\texttt{bottomnav\_inherit.xml} & \texttt{inherit\_id="wujia\_portal\_layout.mobile\_bottomnav"},
+xpath chèn dòng \emph{Công nợ \& thanh toán} + badge lên đầu \texttt{.wujia-msheet-list}. \\
+\texttt{home\_kpi\_inherit.xml} & \texttt{inherit\_id="wujia\_portal\_base.portal\_home\_page"},
+thay tile KPI trơ bằng \texttt{<a href="/portal/debt">} + số còn phải trả thật. \\
+\hline
+\end{tabular}
+\end{center}
+
+Hệ quả: \texttt{wujia\_portal\_layout} và \texttt{wujia\_portal\_base} \textbf{không sửa một dòng
+nào}, nên blast radius đúng bằng việc cài/gỡ \texttt{wujia\_portal\_debt}.
+
+\begin{quote}
+\textbf{Ràng buộc ghi lại cho lúc wire thật.} Sheet \emph{Thêm} nằm trong shell $\Rightarrow$
+\textbf{mọi trang mobile} đều gọi \texttt{get\_shell\_badge()}. Hiện là dict thuần nên 0 query;
+lúc nối dữ liệu thật, số ``quá hạn'' \textbf{bắt buộc} là field store+index hoặc
+ormcache/cron daily --- \emph{không} \texttt{search\_count} mỗi request (1500 portal user, §7).
+\end{quote}
+
+\subsection{Route}
+
+\texttt{GET /portal/debt} (4 biến thể theo \texttt{state}, query \texttt{week} + \texttt{all=1}) $\bullet$
+\texttt{GET /portal/debt/payment-history} $\bullet$ \texttt{GET /portal/debt/pay}. Cả ba dùng
+\texttt{get\_active\_franchise\_id()}; chưa chọn cửa hàng thì \textbf{render empty state, không 500}.
+
+\section{Dựng 7 màn --- và giữ nguyên chỗ Figma tự mâu thuẫn}
+
+Khung chung: content rộng \texttt{359}, padding ngang \texttt{16}, card trắng radius 16, nền
+\texttt{--wujia-bg-page}.
+
+Điểm đáng ghi: card tổng ở frame 02 xếp stats thành \textbf{2 cột}, còn frame 03/04 xếp \textbf{2
+dòng} --- vì frame 02 có thêm dòng ``hạn gần nhất'' mà cả ba card đều cao đúng 142. Đây là chỗ dễ
+``tự chuẩn hoá cho đẹp''. \textbf{Không chuẩn hoá}: dựng đúng như Figma bằng modifier class theo
+state, và ghi lại lý do ở đây để lần sau không ai tưởng là bug.
+
+Frame 05 (empty) cũng vậy: card rỗng \emph{vẫn} giữ row \emph{Lịch sử thanh toán} bên dưới --- không
+có công nợ tuần này không có nghĩa là không có lịch sử để xem.
+
+\subsection{Màu --- một sai lệch có chủ đích}
+
+Mọi hex trong Figma đều đã có token trong \texttt{\_variables.css}, nên CSS module chỉ khai báo alias
+cục bộ \texttt{--wj-debt-*: var(--wujia-*)}. Còn \textbf{đúng một} hex cứng:
+\texttt{--wj-debt-warn-strong: \#B45309} cho chữ tiêu đề trên nền cảnh báo \texttt{\#FFF7E6}
+(token \texttt{--wujia-mres-warn-text} \texttt{\#D97706} không đạt AA trên nền đó) --- đề xuất BA
+nâng lên token global.
+
+Sai lệch cần BA xác nhận: Figma vẽ CTA \emph{Thanh toán} nền \texttt{\#28A9DF} chữ trắng. Trắng trên
+\texttt{\#28A9DF} \textbf{trượt WCAG AA}, và Sprint 38 đã đổi CTA portal sang \texttt{--wujia-cta}
+\texttt{\#0F7CA8} đúng theo issue a11y do chính BA mở. Dùng \texttt{--wujia-cta}.
+
+\section{Đối chiếu Figma bằng số đo, không bằng mắt}
+
+Theo lesson L4, việc đối chiếu được viết thành \textbf{harness đo được} thay vì nhìn ảnh: script
+Playwright duyệt 7 màn ở 391$\times$844, so \texttt{bounding-box} / \texttt{computed-style} với số
+lấy thẳng từ node JSON Figma, cộng hai kiểm tra tự động cho mỗi trang --- \emph{nội dung có tràn card
+height cứng không} và \emph{khoảng cách giữa các khối có đúng không}.
+
+Harness bắt được năm lỗi mà mắt thường bỏ qua, và cả năm đều là \textbf{shell Vuexy đè component}:
+
+\begin{center}
+\begin{tabular}{p{4.4cm}p{9.4cm}}
+\hline
+\textbf{Triệu chứng đo được} & \textbf{Nguyên nhân thật} \\
+\hline
+Title \texttt{client=278 scroll=283} (ellipsis) & \texttt{body \{letter-spacing: 0.14px\}} toàn cục
+$\Rightarrow$ tiêu đề 26px tràn. \\
+Card tổng: nội dung 150 trong hộp 142, đè lên CTA & \texttt{line-height: 1.8} toàn cục $\Rightarrow$
+phải khai báo lại leading Figma 15/15/18. \\
+Gap filter\,--\,card = 27 thay vì 12 & Filter là thẻ \texttt{<form>}, Vuexy có
+\texttt{form \{margin-bottom: 15px\}}. \\
+Dòng sheet \emph{Thêm} cao 83 giữa 6 dòng 65 & Shell chạy type-scale 15/12 còn Figma vẽ 14/11 nên
+badge ở cấp hàng đẩy phụ đề xuống 2 dòng. Chuyển badge vào \emph{trong} dòng title $\to$ 68px, phụ đề
+1 dòng, chữ Figma giữ nguyên. \\
+Sửa CSS xong không thấy đổi gì & Asset trong \texttt{web.assets\_frontend} được cache ở
+\texttt{ir.attachment} $\Rightarrow$ phải \texttt{-u} hoặc chạy \texttt{-{}-dev=xml,assets}. \\
+\hline
+\end{tabular}
+\end{center}
+
+Harness cũng \textbf{tự tố cáo hai báo động giả} của chính nó, và đó là phần có giá trị nhất: nút
+back đo 40 trong khi Figma ghi 42 (chênh do \texttt{border-box}), và gap đầu tiên ở hai trang có nút
+back là 8 chứ không phải 12. Mở lại node JSON thì header kết thúc ở \texttt{y=202} còn khối kế bắt
+đầu ở \texttt{210} --- \textbf{code đã đúng, kỳ vọng trong script mới sai}. Sửa kỳ vọng, không sửa
+code. Badge tràn khỏi vùng \texttt{\_\_head} cao 15 cũng là \emph{cố ý} theo Figma nên được khai báo
+miễn trừ tường minh trong harness thay vì nới lỏng ngưỡng cho cả trang.
+
+\section{Kết quả kiểm thử}
+
+\begin{itemize}
+  \item \texttt{-u wujia\_portal\_debt -{}-test-enable -{}-test-tags wujia\_debt}: \textbf{RC=0,
+    0 failed / 0 error trên 14 test}; \texttt{grep} ERROR/CRITICAL/Traceback trong log $=$ \textbf{0}.
+  \item Harness đối chiếu Figma: \textbf{ALL OK} trên cả 7 màn --- content 359, card tổng 142,
+    CTA 44, row lịch sử 54, card hoá đơn 62, card thanh toán 96, card QR 220 (khung 160 / mã 144),
+    card bank 150, card số tiền 76, badge 26, title 26/22px, gap 12 (8 ở trang có nút back);
+    không màn nào có nội dung tràn card.
+  \item Smoke shell: \texttt{/portal}, \texttt{/portal/order}, \texttt{/portal/notification} ở cả
+    391$\times$844 lẫn 1920$\times$1080 đều HTTP 200, \textbf{overflow ngang $=$ 0}; KPI Home nay là
+    link thật đọc \emph{12,7tr} thay vì ô trơ \texttt{0 đ}. Console chỉ còn 404 sẵn có của Vuexy
+    (\texttt{app-assets/data/locales/en.json}).
+  \item Chụp 7 ảnh local đặt cạnh 7 PNG Figma: khớp; khác biệt còn lại thuần dữ liệu (tên/mã cửa
+    hàng, ngày tuần demo, hoạ tiết QR placeholder).
+\end{itemize}
+
+\section{Chưa làm --- và vì sao}
+
+Sidenav PC \textbf{không đụng}. Figma chưa có frame PC cho công nợ; trỏ mục PC sang
+\texttt{/portal/debt} sẽ hiện layout mobile trong khung 1920 --- đúng loại lỗi
+\texttt{UI-01}/\texttt{UI-PC-SHELL-001} mà chính BA đang bắt. Trang vẫn render an toàn ở desktop
+(cột 391 căn giữa) để ai gõ thẳng URL không gặp trang vỡ, nhưng \textbf{chờ BA cấp Figma PC} rồi mới
+mở điểm vào.
+
+Sáu dòng cũ của sheet \emph{Thêm} giữ nguyên icon feather: Figma vẽ icon là chữ viết tắt
+(\emph{CN/ĐT/ĐK}\ldots) nhưng đổi cả sáu dòng nằm ngoài phạm vi sprint.
+
+Chưa deploy UAT --- module mới nên \textbf{bắt buộc \texttt{-i}} một lần, gộp vào đợt deploy tồn
+S39/S40/S42.
+
+\section{Bài học}
+
+\begin{itemize}
+  \item \textbf{Tiêu đề rỗng trong spec là một câu trả lời, không phải chỗ trống để điền.} Mục D có
+    tiêu đề mà không có field nào bên dưới nghĩa là BA chưa quyết --- dựng UI trước, chừa seam, để BA
+    quyết sau.
+  \item \textbf{Harness sai thì sửa harness, đừng sửa code.} Hai trong bảy phát hiện là báo động giả;
+    nếu tin script vô điều kiện thì đã sửa hỏng phần vốn đã khớp Figma. Nguồn chân lý là node JSON,
+    không phải kỳ vọng do mình gõ ra.
+  \item \textbf{Giữ nguyên chỗ Figma không nhất quán, và ghi lý do.} Stats 2 cột ở frame 02 / 2 dòng
+    ở 03--04 trông như lỗi thiết kế nhưng là hệ quả của việc cả ba card đều cao 142.
+  \item \textbf{Số đo lệch hầu như luôn là shell đè, không phải CSS của mình sai.} Cả năm lỗi thật
+    lần này đều là rule tag-level toàn cục (\texttt{letter-spacing}, \texttt{line-height},
+    \texttt{form margin}) --- trung hoà trong scope component, không sửa file shared.
+  \item \textbf{Sửa CSS mà không thấy gì đổi thì nghi cache asset trước khi nghi selector.} Bundle
+    \texttt{web.assets\_frontend} nằm trong \texttt{ir.attachment}; \texttt{-{}-dev=xml,assets} lúc
+    lặp, \texttt{-u} sạch một lần lúc chốt.
+\end{itemize}
