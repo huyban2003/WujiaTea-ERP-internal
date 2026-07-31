@@ -1,0 +1,456 @@
+/* ============================================================================
+   Wujia Portal — Công nợ & thanh toán
+   Figma: page Dashboard, node 5013:* (WJ_Debt_*_MVP_v31), frame mobile 391×844.
+   Khung chung: content 359 rộng (391 − 2×16 pad), card trắng radius 16, gap 12.
+
+   Màu: KHÔNG hex cứng — alias cục bộ về token có sẵn trong
+   wujia_portal_layout/static/assets/css/_variables.css.
+   Ngoại lệ duy nhất: --wj-debt-warn-strong (#B45309) — Figma dùng cho tiêu đề
+   card nhắc trên màn 07; _variables.css mới có --wujia-mres-warn-text #D97706,
+   mà #D97706 trên nền #FFF7E6 chỉ đạt ~3.4:1 (trượt WCAG AA cho chữ 11.5px)
+   còn #B45309 đạt ~5.6:1. Đề nghị promote thành token global khi đụng
+   wujia_portal_layout lần tới.
+   ============================================================================ */
+
+.wj-debt {
+    --wj-debt-card-bg:      var(--wujia-morder-card-bg);
+    --wj-debt-radius:       var(--wujia-card-radius);
+    --wj-debt-text:         var(--wujia-text-primary);
+    --wj-debt-muted:        var(--wujia-text-subtitle);
+    --wj-debt-danger:       var(--wujia-mres-danger-value);
+    --wj-debt-danger-bg:    var(--wujia-danger-bg);
+    --wj-debt-warn:         var(--wujia-mres-warn-text);
+    --wj-debt-warn-bg:      var(--wujia-mres-warn-bg);
+    --wj-debt-warn-strong:  #B45309;
+    --wj-debt-success:      var(--wujia-success);
+    --wj-debt-success-bg:   var(--wujia-success-bg);
+    --wj-debt-info:         var(--wj-pc-blue);
+    --wj-debt-info-bg:      var(--wj-pc-blue-bg);
+    --wj-debt-soft:         var(--wujia-primary-soft);
+    --wj-debt-divider:      var(--wujia-mshell-border);
+
+    display: flex;
+    flex-direction: column;
+    gap: 12px;                       /* Figma: mọi khối cách nhau 12 */
+    padding: 15px 16px 0;            /* shell header hết ở y=152, content top y=167 */
+}
+
+/* Figma chưa có frame PC. Không dựng màn PC, nhưng cũng không để trắng trang
+   khi mở trên desktop: ghim cột mobile 391 canh giữa. Gỡ khi BA cấp Figma PC. */
+@media (min-width: 992px) {
+    .wj-debt { max-width: 391px; margin: 0 auto 32px; }
+}
+
+/* ---------- Header ---------- */
+.wj-debt-header { margin: 0; }
+/* !important để thắng global `h1 { font-size: … !important }` (gotcha #13 _components.css).
+   letter-spacing: 0 — body Vuexy set 0.14px, làm "Công nợ & thanh toán" (20 ký tự) tràn
+   5px và bị ellipsis ngay ở 391; Figma vẽ title không giãn chữ. */
+.wj-debt--overview .wj-page-header__title {
+    font-size: 26px !important;
+    line-height: 32px;
+    letter-spacing: 0;
+}
+.wj-debt-header__count {
+    flex: 0 0 auto;
+    margin-left: 8px;
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--wj-debt-muted);
+}
+/* Figma back-header: nút 42×42, cách title 14, mép trên y=160 (không phải 167). */
+.wj-debt--back { padding-top: 8px; }
+.wj-debt--back .wj-debt-header { margin-bottom: -4px; }
+.wj-debt--back .wj-page-header__back { width: 42px; height: 42px; margin-right: 14px; }
+
+/* ---------- Filter bar (359×54) ---------- */
+.wj-debt-filter {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 3px;
+    /* Là <form> ⇒ dính `form { margin-bottom: 15px }` của Vuexy, đội gap 12 lên 27. */
+    margin: 0;
+    height: 54px;
+    padding: 0 16px 0 12px;
+    background: var(--wj-debt-card-bg);
+    border-radius: var(--wj-debt-radius);
+}
+.wj-debt-filter__label { font-size: 11px; font-weight: 700; color: var(--wj-debt-muted); }
+.wj-debt-filter__value { font-size: 14px; font-weight: 700; color: var(--wj-debt-text); }
+.wj-debt-filter__chevron {
+    position: absolute;
+    top: 50%;
+    right: 16px;
+    transform: translateY(-50%);
+    font-size: 16px;
+    color: var(--wj-debt-muted);
+}
+/* Select native phủ kín card: giữ đúng pixel Figma nhưng vẫn dùng picker của OS. */
+.wj-debt-filter__select {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    opacity: 0;
+    border: 0;
+    background: transparent;
+    appearance: none;
+    cursor: pointer;
+}
+.wj-debt-filter__go { position: absolute; right: 40px; top: 12px; }
+
+/* ---------- Badge (26 cao, 4 tone) ---------- */
+.wj-debt-badge {
+    display: inline-flex;
+    align-items: center;
+    height: 26px;
+    padding: 0 10px;
+    border-radius: 13px;
+    font-size: 12px;
+    font-weight: 700;
+    white-space: nowrap;
+}
+.wj-debt-badge--danger  { background: var(--wj-debt-danger-bg);  color: var(--wj-debt-danger); }
+.wj-debt-badge--warn    { background: var(--wj-debt-warn-bg);    color: var(--wj-debt-warn); }
+.wj-debt-badge--info    { background: var(--wj-debt-info-bg);    color: var(--wj-debt-info); }
+.wj-debt-badge--success { background: var(--wj-debt-success-bg); color: var(--wj-debt-success); }
+
+/* ---------- Card tổng (359×142) ---------- */
+.wj-debt-summary {
+    display: flex;
+    flex-direction: column;
+    height: 142px;
+    /* pad-bottom 7: Figma đo được 418 − 411 (đáy card − đáy dòng stats cuối). */
+    padding: 13px 14px 7px;
+    background: var(--wj-debt-card-bg);
+    border-radius: var(--wj-debt-radius);
+}
+/* Figma xếp chồng chứ không phải hàng cao 26: dòng label chỉ chiếm 1 dòng chữ 11px
+   (289→302), badge 26 cao tràn xuống vùng số tiền (291→317). Nếu để badge chiếm
+   nguyên hàng flex thì phần trên card dày thêm ~13px và tràn khung 142. */
+.wj-debt-summary__head {
+    position: relative;
+    display: flex;
+    align-items: flex-start;
+    height: 15px;
+}
+.wj-debt-summary__head .wj-debt-badge { position: absolute; top: 2px; right: 0; }
+.wj-debt-summary__label {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+    color: var(--wj-debt-muted);
+}
+.wj-debt-summary__amount {
+    margin: 0;                       /* Figma: số tiền mở ngay dưới dòng label (y=303) */
+    font-size: 25px;
+    font-weight: 700;
+    line-height: 32px;
+    color: var(--wj-debt-text);
+}
+.wj-debt-summary--paid .wj-debt-summary__amount { font-size: 27px; }
+/* line-height ghim tay ở meta + stats: body Vuexy dùng line-height 1.8, nội dung
+   card cao 150 > khung 142 của Figma và đè lên nút CTA. Số dưới đây là leading
+   Figma vẽ (15 / 15 / 18) ⇒ nội dung vừa đúng 142, không cần nới khung. */
+.wj-debt-summary__meta {
+    margin: 4px 0 0;
+    font-size: 11.5px;
+    line-height: 15px;
+    font-weight: 400;
+    color: var(--wj-debt-muted);
+}
+.wj-debt-summary__stats {
+    margin-top: auto;
+    padding-top: 12px;
+    border-top: 1px solid var(--wj-debt-divider);
+}
+.wj-debt-stat__label { font-size: 11px; line-height: 15px; font-weight: 400; color: var(--wj-debt-muted); }
+.wj-debt-stat__value { font-size: 13px; line-height: 18px; font-weight: 700; color: var(--wj-debt-text); }
+.wj-debt-stat--paid .wj-debt-stat__value { color: var(--wj-debt-success); }
+
+/* Frame 02 (outstanding) xếp 2 CỘT — vì card còn phải chứa dòng "Hạn gần nhất". */
+.wj-debt-summary--outstanding .wj-debt-summary__stats {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 4px 8px;
+}
+.wj-debt-summary--outstanding .wj-debt-stat { display: flex; flex-direction: column; gap: 3px; }
+.wj-debt-summary--outstanding .wj-debt-stat--paid { text-align: right; }
+
+/* Frame 03/04 xếp 2 DÒNG (label trái – giá trị phải). Đúng Figma, không tự chuẩn hoá. */
+.wj-debt-summary--partial .wj-debt-summary__stats,
+.wj-debt-summary--paid .wj-debt-summary__stats {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;                        /* Figma 04: dòng 1 kết 394, dòng 2 mở 396 */
+}
+.wj-debt-summary--partial .wj-debt-stat,
+.wj-debt-summary--paid .wj-debt-stat {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+}
+
+/* ---------- CTA (359×44) ----------
+   Figma vẽ nền #28A9DF + chữ trắng → 2.8:1, TRƯỢT WCAG AA. Sprint 38 đã chuyển
+   CTA portal sang --wujia-cta (#0F7CA8, 4.6:1) đúng theo issue a11y của BA nên
+   giữ nguyên chuẩn đó ở đây. SAI LỆCH CÓ CHỦ ĐÍCH — chờ BA confirm. */
+.wj-debt-cta {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 44px;
+    border-radius: 12px;
+    background: var(--wujia-cta);
+    color: #FFFFFF;
+    font-size: 14px;
+    font-weight: 700;
+    text-decoration: none;
+}
+.wj-debt-cta:hover,
+.wj-debt-cta:focus { background: var(--wujia-cta-dark); color: #FFFFFF; }
+
+/* ---------- Row "Lịch sử thanh toán" (359×54) ---------- */
+.wj-debt-actionrow {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    height: 54px;
+    padding: 0 16px 0 9px;
+    background: var(--wj-debt-card-bg);
+    border-radius: var(--wj-debt-radius);
+    text-decoration: none;
+}
+.wj-debt-actionrow__icon {
+    flex: 0 0 auto;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    background: var(--wj-debt-soft);
+    color: var(--wujia-primary);
+}
+.wj-debt-actionrow__icon i { font-size: 17px; line-height: 1; }
+.wj-debt-actionrow__text { flex: 1 1 auto; display: flex; flex-direction: column; gap: 3px; min-width: 0; }
+.wj-debt-actionrow__title { font-size: 14px; font-weight: 700; color: var(--wj-debt-text); }
+.wj-debt-actionrow__sub { font-size: 11px; font-weight: 400; color: var(--wj-debt-muted); }
+.wj-debt-actionrow__chevron { flex: 0 0 auto; font-size: 16px; color: var(--wj-debt-muted); }
+
+/* ---------- Section header (h23) ---------- */
+.wj-debt-section { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; }
+.wj-debt-section__title { margin: 0; font-size: 19px !important; font-weight: 700; color: var(--wj-debt-text); }
+.wj-debt-section__more,
+.wj-debt-section__count { flex: 0 0 auto; font-size: 13px; font-weight: 700; color: var(--wj-debt-muted); }
+.wj-debt-section__more { text-decoration: none; }
+
+/* ---------- Card hoá đơn (359×62, gap 6) ---------- */
+.wj-debt-invoices { display: flex; flex-direction: column; gap: 6px; }
+.wj-debt-inv {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    align-items: center;
+    row-gap: 4px;
+    column-gap: 8px;
+    height: 62px;
+    padding: 0 16px 0 14px;
+    background: var(--wj-debt-card-bg);
+    border-radius: var(--wj-debt-radius);
+}
+.wj-debt-inv__name { font-size: 13.5px; font-weight: 700; color: var(--wj-debt-text); }
+.wj-debt-inv__badge { justify-self: end; }
+.wj-debt-inv__meta { font-size: 10.5px; font-weight: 400; color: var(--wj-debt-muted); }
+.wj-debt-inv__amount { justify-self: end; font-size: 13px; font-weight: 700; color: var(--wj-debt-text); }
+.wj-debt-inv--overdue .wj-debt-inv__amount { color: var(--wj-debt-danger); }
+.wj-debt-inv--paid .wj-debt-inv__amount { color: var(--wj-debt-success); }
+
+.wj-debt-note { margin: 0; text-align: center; font-size: 11px; font-weight: 400; color: var(--wj-debt-muted); }
+.wj-debt-note a { color: var(--wj-debt-muted); }
+
+/* ---------- Empty state (359×224) ---------- */
+.wj-debt-empty { min-height: 224px; justify-content: center; padding: 22px 18px; }
+.wj-debt-empty .wj-empty-state-icon { width: 68px; height: 68px; margin-bottom: 9px; background: var(--wj-debt-soft); }
+.wj-debt-empty .wj-empty-state-icon > i { font-size: 27px; }
+.wj-debt-empty .wj-empty-state-title { font-size: 19px; }
+.wj-debt-empty .wj-empty-state-sub { font-size: 12.5px; }
+
+/* ---------- 06 — Banner + card thanh toán ---------- */
+.wj-debt-banner {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    min-height: 54px;
+    padding: 8px 14px 8px 13px;
+    background: var(--wj-debt-soft);
+    border-radius: var(--wj-debt-radius);
+}
+.wj-debt-banner__icon {
+    flex: 0 0 auto;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 26px;
+    height: 26px;
+    border-radius: 50%;
+    background: var(--wujia-primary);
+    color: #FFFFFF;
+    font-size: 15px;
+    font-weight: 700;
+    line-height: 1;
+}
+.wj-debt-banner__text { font-size: 11.5px; font-weight: 400; line-height: 18px; color: var(--wj-debt-text); }
+
+.wj-debt-payments { display: flex; flex-direction: column; gap: 12px; }
+.wj-debt-pay {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    align-content: center;
+    row-gap: 5px;
+    column-gap: 8px;
+    height: 96px;
+    padding: 0 16px 0 14px;
+    background: var(--wj-debt-card-bg);
+    border-radius: var(--wj-debt-radius);
+}
+.wj-debt-pay__ref { font-size: 14px; font-weight: 700; color: var(--wj-debt-text); }
+.wj-debt-pay__badge { justify-self: end; }
+.wj-debt-pay__meta { grid-column: 1 / -1; font-size: 12px; font-weight: 400; color: var(--wj-debt-muted); }
+.wj-debt-pay__trace { font-size: 12px; font-weight: 400; color: var(--wj-debt-muted); }
+.wj-debt-pay__amount { justify-self: end; font-size: 16px; font-weight: 700; color: var(--wj-debt-text); }
+.wj-debt-total { margin: 0; text-align: right; font-size: 12px; font-weight: 400; color: var(--wj-debt-muted); }
+
+/* ---------- 07 — Số tiền / QR / ngân hàng / nhắc ---------- */
+.wj-debt-amount {
+    position: relative;
+    display: grid;
+    grid-template-columns: 1fr auto;
+    align-content: center;
+    row-gap: 5px;
+    height: 76px;
+    padding: 0 14px;
+    background: var(--wj-debt-card-bg);
+    border-radius: var(--wj-debt-radius);
+}
+.wj-debt-amount__label { font-size: 11px; font-weight: 700; letter-spacing: 0.02em; color: var(--wj-debt-muted); }
+/* Figma 5013:620: nhãn tuần KHÔNG nằm cùng dòng baseline với "SỐ TIỀN CẦN CHUYỂN"
+   mà tụt xuống giữa nhãn và số tiền (y=234.5 so với card y=210 ⇒ top 24). */
+.wj-debt-amount__week {
+    position: absolute;
+    top: 24px;
+    right: 14px;
+    font-size: 11.5px;
+    font-weight: 400;
+    color: var(--wj-debt-muted);
+}
+.wj-debt-amount__value { grid-column: 1 / -1; font-size: 24px; font-weight: 700; color: var(--wj-debt-text); }
+
+.wj-debt-qr {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    height: 220px;
+    padding: 9px 14px 13px;
+    background: var(--wj-debt-card-bg);
+    border-radius: var(--wj-debt-radius);
+}
+.wj-debt-qr__title { align-self: flex-start; margin: 0; font-size: 17px !important; font-weight: 700; color: var(--wj-debt-text); }
+.wj-debt-qr__frame {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 160px;
+    height: 160px;
+    margin-top: 9px;
+    background: var(--wj-debt-card-bg);
+}
+/* Placeholder tĩnh — BA chưa chốt QR tĩnh/động, Figma ghi rõ "QR minh họa". */
+.wj-debt-qr__code {
+    width: 144px;
+    height: 144px;
+    background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 21 21' shape-rendering='crispEdges'%3E%3Cpath fill='%23111827' d='M0 0h7v1h-7zM10 0h2v1h-2zM14 0h7v1h-7zM0 1h1v1h-1zM6 1h1v1h-1zM10 1h1v1h-1zM14 1h1v1h-1zM20 1h1v1h-1zM0 2h1v1h-1zM2 2h3v1h-3zM6 2h1v1h-1zM9 2h1v1h-1zM11 2h1v1h-1zM14 2h1v1h-1zM16 2h3v1h-3zM20 2h1v1h-1zM0 3h1v1h-1zM2 3h3v1h-3zM6 3h1v1h-1zM9 3h1v1h-1zM14 3h1v1h-1zM16 3h3v1h-3zM20 3h1v1h-1zM0 4h1v1h-1zM2 4h3v1h-3zM6 4h1v1h-1zM9 4h3v1h-3zM14 4h1v1h-1zM16 4h3v1h-3zM20 4h1v1h-1zM0 5h1v1h-1zM6 5h1v1h-1zM9 5h1v1h-1zM12 5h1v1h-1zM14 5h1v1h-1zM20 5h1v1h-1zM0 6h7v1h-7zM8 6h1v1h-1zM10 6h1v1h-1zM12 6h1v1h-1zM14 6h7v1h-7zM10 7h3v1h-3zM6 8h1v1h-1zM11 8h1v1h-1zM0 9h1v1h-1zM4 9h2v1h-2zM8 9h1v1h-1zM10 9h1v1h-1zM14 9h1v1h-1zM17 9h2v1h-2zM20 9h1v1h-1zM3 10h6v1h-6zM10 10h1v1h-1zM12 10h2v1h-2zM0 11h1v1h-1zM3 11h2v1h-2zM7 11h2v1h-2zM16 11h4v1h-4zM1 12h1v1h-1zM6 12h3v1h-3zM11 12h1v1h-1zM13 12h2v1h-2zM18 12h3v1h-3zM12 13h1v1h-1zM14 13h3v1h-3zM18 13h1v1h-1zM0 14h7v1h-7zM10 14h2v1h-2zM14 14h2v1h-2zM17 14h1v1h-1zM20 14h1v1h-1zM0 15h1v1h-1zM6 15h1v1h-1zM9 15h1v1h-1zM13 15h8v1h-8zM0 16h1v1h-1zM2 16h3v1h-3zM6 16h1v1h-1zM9 16h2v1h-2zM12 16h1v1h-1zM14 16h2v1h-2zM18 16h1v1h-1zM20 16h1v1h-1zM0 17h1v1h-1zM2 17h3v1h-3zM6 17h1v1h-1zM9 17h2v1h-2zM17 17h1v1h-1zM0 18h1v1h-1zM2 18h3v1h-3zM6 18h1v1h-1zM9 18h6v1h-6zM16 18h1v1h-1zM18 18h3v1h-3zM0 19h1v1h-1zM6 19h1v1h-1zM9 19h1v1h-1zM12 19h1v1h-1zM16 19h1v1h-1zM19 19h2v1h-2zM0 20h7v1h-7zM12 20h7v1h-7z'/%3E%3C/svg%3E") center/contain no-repeat;
+}
+.wj-debt-qr__caption { margin: 6px 0 0; font-size: 10.5px; font-weight: 400; color: var(--wj-debt-muted); }
+
+.wj-debt-bank {
+    display: flex;
+    flex-direction: column;
+    height: 150px;
+    padding: 13px 14px;
+    background: var(--wj-debt-card-bg);
+    border-radius: var(--wj-debt-radius);
+}
+.wj-debt-bank__title {
+    margin: 0 0 8px;
+    font-size: 11px !important;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+    color: var(--wj-debt-muted);
+}
+.wj-debt-bank__row { display: flex; align-items: center; gap: 8px; min-height: 26px; }
+.wj-debt-bank__label { flex: 0 0 auto; font-size: 12px; font-weight: 400; color: var(--wj-debt-muted); }
+.wj-debt-bank__value {
+    flex: 1 1 auto;
+    min-width: 0;
+    text-align: right;
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--wj-debt-text);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+.wj-debt-bank__value--holder { font-size: 11.5px; }
+.wj-debt-copy {
+    flex: 0 0 auto;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 22px;
+    height: 22px;
+    padding: 0;
+    border: 0;
+    border-radius: 6px;
+    background: transparent;
+    color: var(--wujia-primary);
+    cursor: pointer;
+}
+.wj-debt-copy i { font-size: 14px; line-height: 1; }
+.wj-debt-copy.is-copied { color: var(--wj-debt-success); }
+
+.wj-debt-hint {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 3px;
+    min-height: 52px;
+    padding: 8px 14px;
+    background: var(--wj-debt-warn-bg);
+    border-radius: var(--wj-debt-radius);
+}
+.wj-debt-hint__title { font-size: 11.5px; font-weight: 700; color: var(--wj-debt-warn-strong); }
+.wj-debt-hint__sub { font-size: 11px; font-weight: 400; color: var(--wj-debt-muted); }
+
+/* ---------- Dòng Công nợ trong sheet "Thêm" (Figma 01) ----------
+   Chỉ scope trong .wujia-msheet-item--debt: 6 dòng cũ giữ nguyên style. */
+.wujia-msheet-item--debt .wujia-msheet-item-title {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+.wujia-msheet-item-badge {
+    flex: 0 0 auto;
+    display: inline-flex;
+    align-items: center;
+    height: 26px;
+    padding: 0 10px;
+    margin-left: auto;             /* dồn badge về mép phải cột chữ, như Figma */
+    border-radius: 13px;
+    background: var(--wujia-danger-bg);
+    color: var(--wujia-mres-danger-value);
+    font-size: 11px;
+    font-weight: 700;
+    white-space: nowrap;
+}

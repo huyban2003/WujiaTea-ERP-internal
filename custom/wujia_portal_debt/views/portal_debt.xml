@@ -1,0 +1,306 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- ================================================================
+         Công nợ & thanh toán — Figma page Dashboard, node 5013:*
+         (WJ_Debt_*_MVP_v31, frame mobile 391×844, content 359 / pad-x 16)
+
+         Figma CHƯA có frame PC ⇒ không dựng màn PC. Nhưng cũng KHÔNG bọc
+         d-lg-none: trang phải hiển thị được ở mọi bề rộng (mở trên desktop
+         mà trắng trang là lỗi nặng hơn). CSS ghim .wj-debt max-width 391
+         và canh giữa từ ≥992px — coi như cột mobile trên nền desktop, chờ
+         BA cấp Figma PC (ghi vào pending).
+         ================================================================ -->
+
+    <!-- WJ_FilterBar_Mobile_Compact_v31 (359×54) — label nhỏ trên, giá trị dưới,
+         chevron phải. <select> native phủ kín card (opacity 0) để giữ đúng pixel
+         Figma mà vẫn accessible/native picker; portal_debt.js auto-submit khi đổi
+         (noscript vẫn có nút submit). -->
+    <template id="wj_debt_filter" name="Wujia Debt — Filter bar (component)">
+        <form method="get" t-att-action="f_action" class="wj-debt-filter">
+            <span class="wj-debt-filter__label" t-out="f_label"/>
+            <span class="wj-debt-filter__value" t-out="f_value"/>
+            <i class="feather icon-chevron-down wj-debt-filter__chevron"/>
+            <select t-att-name="f_name" t-att-aria-label="f_label"
+                    class="wj-debt-filter__select" data-wj-debt="filter">
+                <t t-foreach="f_options" t-as="opt">
+                    <option t-att-value="opt['key']"
+                            t-att-selected="'selected' if opt['key'] == f_selected else None"
+                            t-out="opt['label']"/>
+                </t>
+            </select>
+            <noscript>
+                <button type="submit" class="wj-debt-filter__go">Xem</button>
+            </noscript>
+        </form>
+    </template>
+
+    <!-- WJ_Debt_PaymentHistoryAction_MVP_v31 (359×54) — dùng ở cả 4 biến thể 02-05. -->
+    <template id="wj_debt_history_row" name="Wujia Debt — Payment history row (component)">
+        <a href="/portal/debt/payment-history" class="wj-debt-actionrow">
+            <span class="wj-debt-actionrow__icon"><i class="feather icon-clock"/></span>
+            <span class="wj-debt-actionrow__text">
+                <span class="wj-debt-actionrow__title">Lịch sử thanh toán</span>
+                <span class="wj-debt-actionrow__sub">Xem các giao dịch đã xác nhận</span>
+            </span>
+            <i class="feather icon-chevron-right wj-debt-actionrow__chevron"/>
+        </a>
+    </template>
+
+    <!-- ================== 02/03/04/05 — Overview (4 biến thể theo state) ================== -->
+    <template id="portal_debt_overview" name="Wujia Portal — Công nợ tổng quan">
+        <t t-call="wujia_portal_layout.app_layout">
+            <t t-set="title">Công nợ &amp; thanh toán</t>
+            <div class="wj-debt wj-debt--overview">
+
+                <!-- Header: title 26/700 + đếm hoá đơn 13 phải (cùng hàng — Figma 5013:111).
+                     Hand-roll thay vì t-call wj_page_header vì component không có slot phải
+                     và bake sẵn d-lg-none; class dùng lại nguyên của component. -->
+                <header class="wj-page-header wj-page-header--m wj-page-header--title wj-debt-header">
+                    <h1 class="wj-page-header__title">Công nợ &amp; thanh toán</h1>
+                    <span class="wj-count-meta wj-debt-header__count">
+                        <t t-out="summary['invoice_count']"/> hóa đơn
+                    </span>
+                </header>
+
+                <t t-call="wujia_portal_debt.wj_debt_filter">
+                    <t t-set="f_action" t-value="'/portal/debt'"/>
+                    <t t-set="f_name" t-value="'week'"/>
+                    <t t-set="f_label" t-value="'Tuần hóa đơn'"/>
+                    <t t-set="f_value" t-value="summary['week_label']"/>
+                    <t t-set="f_options" t-value="summary['weeks']"/>
+                    <t t-set="f_selected" t-value="summary['week_key']"/>
+                </t>
+
+                <!-- 05 Empty — chưa chọn cửa hàng cũng rơi vào đây (guard controller). -->
+                <t t-if="summary['state'] == 'empty'">
+                    <div class="wj-empty-state wj-empty-state--rich wj-debt-empty">
+                        <span class="wj-empty-state-icon"><i class="feather icon-file-text"/></span>
+                        <t t-if="no_store">
+                            <p class="wj-empty-state-title">Chưa chọn cửa hàng</p>
+                            <p class="wj-empty-state-sub">Chọn cửa hàng ở thanh phía trên để xem công nợ.</p>
+                        </t>
+                        <t t-else="">
+                            <p class="wj-empty-state-title">Không có công nợ trong tuần</p>
+                            <p class="wj-empty-state-sub">Tuần được chọn chưa phát sinh hóa đơn.</p>
+                            <p class="wj-empty-state-sub">Chạm bộ lọc phía trên để chọn tuần khác.</p>
+                        </t>
+                    </div>
+                    <!-- Frame 05 vẫn giữ row "Lịch sử thanh toán" dưới card rỗng. -->
+                    <t t-call="wujia_portal_debt.wj_debt_history_row"/>
+                </t>
+
+                <t t-else="">
+                    <!-- Card tổng 359×142. LƯU Ý (đúng Figma, không tự chuẩn hoá): frame 02
+                         xếp stats 2 CỘT, frame 03/04 xếp 2 DÒNG (label trái – giá trị phải),
+                         vì 02 có thêm dòng "Hạn gần nhất" mà cả 3 card đều cao 142. -->
+                    <t t-set="sbadge" t-value="STATE_BADGE[summary['state']]"/>
+                    <section t-attf-class="wj-debt-summary wj-debt-summary--#{summary['state']}">
+                        <div class="wj-debt-summary__head">
+                            <span class="wj-debt-summary__label">CÒN PHẢI TRẢ</span>
+                            <span t-attf-class="wj-debt-badge wj-debt-badge--#{sbadge[1]}"
+                                  t-out="sbadge[0]"/>
+                        </div>
+                        <p class="wj-debt-summary__amount" t-out="vnd(summary['remaining'])"/>
+                        <p t-if="summary['state'] == 'outstanding'" class="wj-debt-summary__meta">
+                            <t t-out="summary['invoice_count']"/> hóa đơn • Hạn gần nhất
+                            <t t-out="summary['nearest_due'].strftime('%d/%m/%Y')"/>
+                        </p>
+                        <p t-if="summary['state'] == 'paid'" class="wj-debt-summary__meta">
+                            Ngô Gia xác nhận ngày <t t-out="summary['confirmed_date'].strftime('%d/%m/%Y')"/>
+                        </p>
+                        <div class="wj-debt-summary__stats">
+                            <div class="wj-debt-stat">
+                                <span class="wj-debt-stat__label">Tổng giá trị hóa đơn</span>
+                                <span class="wj-debt-stat__value" t-out="vnd(summary['total'])"/>
+                            </div>
+                            <div class="wj-debt-stat wj-debt-stat--paid">
+                                <span class="wj-debt-stat__label">Đã thanh toán</span>
+                                <span class="wj-debt-stat__value" t-out="vnd(summary['paid'])"/>
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- CTA chỉ có khi còn nợ. Frame 04 (đã trả hết) KHÔNG có nút này. -->
+                    <a t-if="summary['remaining'] &gt; 0"
+                       t-attf-href="/portal/debt/pay?week=#{summary['week_key']}"
+                       class="wj-debt-cta">Thanh toán</a>
+
+                    <t t-call="wujia_portal_debt.wj_debt_history_row"/>
+
+                    <div class="wj-debt-section">
+                        <h2 class="wj-debt-section__title"
+                            t-out="'Hóa đơn còn số dư' if summary['state'] == 'partial' else 'Hóa đơn trong tuần'"/>
+                        <a t-if="hidden_count"
+                           t-attf-href="/portal/debt?week=#{summary['week_key']}&amp;all=1"
+                           class="wj-debt-section__more">Xem thêm <t t-out="hidden_count"/> hóa đơn ›</a>
+                        <span t-else="" class="wj-debt-section__count">
+                            <t t-out="summary['invoice_count']"/> hóa đơn
+                        </span>
+                    </div>
+
+                    <div class="wj-debt-invoices">
+                        <t t-foreach="invoices" t-as="inv">
+                            <t t-set="ibadge" t-value="INVOICE_BADGE[inv['status']]"/>
+                            <div t-attf-class="wj-debt-inv wj-debt-inv--#{inv['status']}">
+                                <span class="wj-debt-inv__name" t-out="inv['name']"/>
+                                <span t-attf-class="wj-debt-badge wj-debt-badge--#{ibadge[1]} wj-debt-inv__badge"
+                                      t-out="ibadge[0]"/>
+                                <span class="wj-debt-inv__meta">
+                                    <t t-if="inv['status'] == 'paid'">Đã xác nhận •
+                                        <t t-out="summary['confirmed_date'].strftime('%d/%m/%Y')"/>
+                                    </t>
+                                    <t t-else="">HĐ <t t-out="inv['date'].strftime('%d/%m')"/> •
+                                        Hạn <t t-out="inv['due'].strftime('%d/%m')"/>
+                                    </t>
+                                </span>
+                                <span class="wj-debt-inv__amount">
+                                    <t t-if="inv['status'] == 'paid'">Đã trả </t><t t-else="">Còn </t>
+                                    <t t-out="vnd(inv['amount'])"/>
+                                </span>
+                            </div>
+                        </t>
+                    </div>
+
+                    <p t-if="hidden_count" class="wj-debt-note">
+                        Hiển thị <t t-out="len(invoices)"/>/<t t-out="summary['invoice_count']"/> hóa đơn
+                    </p>
+                    <p t-elif="show_all and summary['invoice_count'] &gt; 2" class="wj-debt-note">
+                        <a t-attf-href="/portal/debt?week=#{summary['week_key']}">Thu gọn</a>
+                    </p>
+                </t>
+            </div>
+        </t>
+    </template>
+
+    <!-- ================== 06 — Payment history ================== -->
+    <template id="portal_debt_payment_history" name="Wujia Portal — Lịch sử thanh toán">
+        <t t-call="wujia_portal_layout.app_layout">
+            <t t-set="title">Lịch sử thanh toán</t>
+            <div class="wj-debt wj-debt--back">
+                <header class="wj-page-header wj-page-header--m wj-page-header--back wj-debt-header">
+                    <a href="/portal/debt" class="wj-page-header__back" aria-label="Quay lại">
+                        <i class="feather icon-chevron-left"/>
+                    </a>
+                    <h1 class="wj-page-header__title">Lịch sử thanh toán</h1>
+                </header>
+
+                <t t-call="wujia_portal_debt.wj_debt_filter">
+                    <t t-set="f_action" t-value="'/portal/debt/payment-history'"/>
+                    <t t-set="f_name" t-value="'month'"/>
+                    <t t-set="f_label" t-value="'Thời gian thanh toán'"/>
+                    <t t-set="f_value" t-value="history['range_label']"/>
+                    <t t-set="f_options" t-value="history['months']"/>
+                    <t t-set="f_selected" t-value="history['month_key']"/>
+                </t>
+
+                <div class="wj-debt-banner">
+                    <span class="wj-debt-banner__icon">i</span>
+                    <span class="wj-debt-banner__text">Các khoản thanh toán đã được Ngô Gia
+                        xác nhận trong thời gian đã chọn.</span>
+                </div>
+
+                <div class="wj-debt-section">
+                    <h2 class="wj-debt-section__title">Các khoản thanh toán</h2>
+                    <span class="wj-debt-section__count">
+                        <t t-out="len(history['payments'])"/> giao dịch
+                    </span>
+                </div>
+
+                <div t-if="not history['payments']"
+                     class="wj-empty-state wj-empty-state--rich wj-debt-empty">
+                    <span class="wj-empty-state-icon"><i class="feather icon-file-text"/></span>
+                    <p class="wj-empty-state-title">Chưa có giao dịch</p>
+                    <p class="wj-empty-state-sub"
+                       t-out="'Chọn cửa hàng ở thanh phía trên để xem lịch sử thanh toán.' if no_store else 'Kỳ được chọn chưa có khoản thanh toán nào được xác nhận.'"/>
+                </div>
+
+                <t t-else="">
+                    <div class="wj-debt-payments">
+                        <t t-foreach="history['payments']" t-as="pay">
+                            <div class="wj-debt-pay">
+                                <span class="wj-debt-pay__ref" t-out="pay['ref']"/>
+                                <span class="wj-debt-badge wj-debt-badge--success wj-debt-pay__badge">Đã xác nhận</span>
+                                <span class="wj-debt-pay__meta">
+                                    <t t-out="pay['date'].strftime('%d/%m/%Y')"/>
+                                    <t t-out="pay['time']"/> • <t t-out="pay['method']"/>
+                                </span>
+                                <span class="wj-debt-pay__trace">Tham chiếu: <t t-out="pay['trace']"/></span>
+                                <span class="wj-debt-pay__amount" t-out="vnd(pay['amount'])"/>
+                            </div>
+                        </t>
+                    </div>
+                    <p class="wj-debt-total">Tổng đã xác nhận: <t t-out="vnd(history['total'])"/></p>
+                </t>
+            </div>
+        </t>
+    </template>
+
+    <!-- ================== 07 — QR / chuyển khoản ================== -->
+    <template id="portal_debt_pay" name="Wujia Portal — Thanh toán công nợ">
+        <t t-call="wujia_portal_layout.app_layout">
+            <t t-set="title">Thanh toán công nợ</t>
+            <div class="wj-debt wj-debt--back">
+                <header class="wj-page-header wj-page-header--m wj-page-header--back wj-debt-header">
+                    <a t-attf-href="/portal/debt?week=#{summary['week_key']}"
+                       class="wj-page-header__back" aria-label="Quay lại">
+                        <i class="feather icon-chevron-left"/>
+                    </a>
+                    <h1 class="wj-page-header__title">Thanh toán công nợ</h1>
+                </header>
+
+                <section class="wj-debt-amount">
+                    <span class="wj-debt-amount__label">SỐ TIỀN CẦN CHUYỂN</span>
+                    <span class="wj-debt-amount__week">Tuần <t t-out="summary['week_short']"/></span>
+                    <span class="wj-debt-amount__value" t-out="vnd(summary['remaining'])"/>
+                </section>
+
+                <!-- QR = placeholder tĩnh. BA chưa chốt "QR tĩnh hay QR động" (tab
+                     `3. Controller`) và Figma tự ghi "QR minh họa" ⇒ KHÔNG sinh mã thật. -->
+                <section class="wj-debt-qr">
+                    <h2 class="wj-debt-qr__title">Quét QR để chuyển khoản</h2>
+                    <div class="wj-debt-qr__frame">
+                        <div class="wj-debt-qr__code" role="img" aria-label="Mã QR minh họa"/>
+                    </div>
+                    <p class="wj-debt-qr__caption">QR minh họa • không dùng để thanh toán</p>
+                </section>
+
+                <section class="wj-debt-bank">
+                    <h2 class="wj-debt-bank__title">THÔNG TIN CHUYỂN KHOẢN</h2>
+                    <div class="wj-debt-bank__row">
+                        <span class="wj-debt-bank__label">Ngân hàng</span>
+                        <span class="wj-debt-bank__value" t-out="bank['name']"/>
+                    </div>
+                    <div class="wj-debt-bank__row">
+                        <span class="wj-debt-bank__label">Chủ tài khoản</span>
+                        <span class="wj-debt-bank__value wj-debt-bank__value--holder" t-out="bank['holder']"/>
+                    </div>
+                    <div class="wj-debt-bank__row">
+                        <span class="wj-debt-bank__label">Số tài khoản</span>
+                        <span class="wj-debt-bank__value" t-out="bank['account']"/>
+                        <button type="button" class="wj-debt-copy" data-wj-debt="copy"
+                                t-att-data-wj-debt-value="bank['account']"
+                                aria-label="Sao chép số tài khoản">
+                            <i class="feather icon-copy"/>
+                        </button>
+                    </div>
+                    <div class="wj-debt-bank__row">
+                        <span class="wj-debt-bank__label">Nội dung</span>
+                        <span class="wj-debt-bank__value" t-out="bank['memo']"/>
+                        <button type="button" class="wj-debt-copy" data-wj-debt="copy"
+                                t-att-data-wj-debt-value="bank['memo']"
+                                aria-label="Sao chép nội dung chuyển khoản">
+                            <i class="feather icon-copy"/>
+                        </button>
+                    </div>
+                </section>
+
+                <section class="wj-debt-hint">
+                    <span class="wj-debt-hint__title">Sau khi chuyển khoản</span>
+                    <span class="wj-debt-hint__sub">Công nợ cập nhật sau khi Ngô Gia xác nhận.</span>
+                </section>
+            </div>
+        </t>
+    </template>
+
+</odoo>

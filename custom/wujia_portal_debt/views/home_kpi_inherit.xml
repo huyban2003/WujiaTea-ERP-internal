@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- Home mobile: tile KPI "Công nợ" đang là <div> inert "0 ₫" với comment
+         "module /portal/debt đã xoá" (wujia_portal_base/views/portal_home.xml).
+         Module này dựng lại trang ⇒ biến tile thành link thật + số còn phải trả.
+
+         Inheritance TỪ module này để wujia_portal_base không phải sửa: gỡ
+         wujia_portal_debt là tile tự về trạng thái inert cũ. -->
+    <template id="portal_home_debt_kpi" name="Wujia Home — KPI Công nợ trỏ /portal/debt"
+              inherit_id="wujia_portal_base.portal_home_page">
+        <xpath expr="//div[hasclass('wujia-mhome-hero-kpis')]/div[hasclass('wujia-mhome-kpi')]"
+               position="replace">
+            <t t-set="_debt_kpi" t-value="request.env['wujia.portal.debt'].get_shell_badge()"/>
+            <a href="/portal/debt" class="wujia-mhome-kpi">
+                <span class="wujia-mhome-kpi-label">Công nợ</span>
+                <span class="wujia-mhome-kpi-value" t-out="_debt_kpi['remaining_label']"/>
+            </a>
+        </xpath>
+    </template>
+
+</odoo>

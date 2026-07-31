@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- Figma 01_WJ_Debt_MenuAccess_MVP_v31 (5013:2) — "Công nợ & thanh toán" là
+         dòng ĐẦU của sheet "Thêm chức năng", có badge "1 quá hạn".
+
+         Làm bằng inheritance TỪ module này (không sửa wujia_portal_layout) ⇒ blast
+         radius đúng bằng việc cài/gỡ wujia_portal_debt. 6 dòng cũ giữ nguyên icon
+         feather + style hiện có (chốt với chủ dự án 2026-07-31): Figma vẽ icon là
+         chữ viết tắt "CN/ĐT/ĐK…" nhưng đổi cả 6 dòng nằm ngoài phạm vi sprint.
+
+         ⚠️ PERF: sheet nằm trong shell ⇒ badge này render trên MỌI trang mobile.
+         Hiện `get_summary` là dict thuần (0 query). Khi wire backend thật, số quá
+         hạn BẮT BUỘC là field store+index / ormcache / cron daily — không
+         search_count mỗi request (1500 portal user, §7 perf-first). -->
+    <template id="mobile_bottomnav_debt" name="Wujia Mobile — Sheet Thêm: dòng Công nợ"
+              inherit_id="wujia_portal_layout.mobile_bottomnav">
+        <xpath expr="//div[hasclass('wujia-msheet-list')]/a[1]" position="before">
+            <t t-set="_debt_badge"
+               t-value="request.env['wujia.portal.debt'].get_shell_badge()"/>
+            <!-- Badge nằm TRONG dòng title (không phải con trực tiếp của <a>): shell chạy
+                 type-scale 15/12 trong khi Figma vẽ 14/11, nên nếu badge chiếm chỗ ở cấp
+                 hàng thì "Hóa đơn, công nợ và thanh toán" xuống 2 dòng và dòng này cao
+                 83px giữa 6 dòng 65px. Đặt trong title ⇒ giữ nguyên chữ Figma, hàng đều. -->
+            <a href="/portal/debt" class="wujia-msheet-item wujia-msheet-item--debt">
+                <span class="wujia-msheet-item-icon"><i class="feather icon-credit-card"/></span>
+                <span class="wujia-msheet-item-text">
+                    <span class="wujia-msheet-item-title">
+                        <span>Công nợ &amp; thanh toán</span>
+                        <span t-if="_debt_badge['overdue_count']" class="wujia-msheet-item-badge">
+                            <t t-out="_debt_badge['overdue_count']"/> quá hạn
+                        </span>
+                    </span>
+                    <span class="wujia-msheet-item-sub">Hóa đơn, công nợ và thanh toán</span>
+                </span>
+                <i class="feather icon-chevron-right wujia-msheet-item-chevron"/>
+            </a>
+        </xpath>
+    </template>
+
+</odoo>
