@@ -136,10 +136,41 @@
                             <field name="attachment_ids" widget="many2many_binary" nolabel="1"/>
                         </page>
                         <page string="Cửa hàng nhận" name="franchises">
-                            <div class="text-muted mb-2">
-                                Để trống = gửi cho toàn bộ cửa hàng.
+                            <group>
+                                <group string="Gửi cho">
+                                    <field name="target_mode" widget="radio"/>
+                                    <field name="target_status"
+                                           invisible="target_mode != 'filter'"/>
+                                    <field name="target_preview_count"/>
+                                </group>
+                            </group>
+                            <div class="mb-3">
+                                <button name="action_preview_recipients" type="object"
+                                        class="btn btn-secondary btn-sm" icon="fa-search"
+                                        string="Xem trước danh sách nhận"/>
+                                <button name="action_refresh_recipients" type="object"
+                                        class="btn btn-secondary btn-sm ms-1" icon="fa-refresh"
+                                        string="Cập nhật danh sách nhận"
+                                        invisible="target_mode != 'filter' or state != 'published'"
+                                        confirm="Chốt lại danh sách cửa hàng nhận theo tiêu chí hiện tại?"/>
                             </div>
-                            <field name="franchise_ids" widget="many2many_tags" nolabel="1"/>
+                            <div class="text-muted mb-2" invisible="target_mode != 'all'">
+                                Gửi cho toàn bộ cửa hàng — không cần chọn gì thêm.
+                            </div>
+                            <group invisible="target_mode != 'filter'">
+                                <field name="target_area_ids" widget="many2many_tags"/>
+                                <field name="target_state_ids" widget="many2many_tags"/>
+                                <field name="target_exclude_franchise_ids"
+                                       widget="many2many_tags"/>
+                            </group>
+                            <div class="text-muted mb-2" invisible="target_mode != 'filter'">
+                                Danh sách nhận được chốt khi bấm Gửi thông báo. Cửa hàng mở sau đó
+                                không nhận thông báo này — dùng "Cập nhật danh sách nhận" nếu muốn
+                                bổ sung.
+                            </div>
+                            <field name="franchise_ids" widget="many2many_tags"
+                                   invisible="target_mode == 'all'"
+                                   readonly="target_mode == 'filter'"/>
                         </page>
                         <page string="Ghi chú nội bộ" name="internal">
                             <field name="internal_note" nolabel="1"

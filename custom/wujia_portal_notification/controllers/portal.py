@@ -19,7 +19,7 @@ POPUP_LIMIT = 5
 # Bảng mã lỗi tiếng Việt (BA controller mapping — dễ hiểu cho user portal, không lộ lỗi kỹ thuật).
 ERROR_MESSAGES = {
     'SESSION_EXPIRED': 'Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.',
-    'STORE_NOT_SELECTED': 'Vui lòng chọn cửa hàng trước khi xem thông báo.',
+    'STORE_NOT_SELECTED': 'Vui lòng chọn cửa hàng trước khi thao tác.',
     'STORE_ACCESS_DENIED': 'Bạn không có quyền thao tác với cửa hàng này.',
     'INVALID_DATE_RANGE': 'Từ ngày không được lớn hơn đến ngày.',
     'INVALID_FILTER': 'Bộ lọc không hợp lệ. Vui lòng kiểm tra lại.',
@@ -40,9 +40,16 @@ PC_TYPE_TONE = {
 PC_PRIORITY_TAGS = {
     'urgent': ('Cần làm', 'wj-pc-badge--done'),
     'important': ('Quan trọng', 'wj-pc-badge--transit'),
-    'normal': ('Lưu ý', 'wj-pc-badge--confirmed'),
+    'normal': ('Thông thường', 'wj-pc-badge--confirmed'),
 }
 VALID_PRIORITIES = ('normal', 'important', 'urgent')
+
+
+def _err(code, **extra):
+    """Payload lỗi JSON — cùng shape với wujia_portal_sale để FE portal xử lý đồng nhất."""
+    res = {'success': False, 'error': code, 'message': ERROR_MESSAGES.get(code, code)}
+    res.update(extra)
+    return res
 
 
 def _parse_date(value):
@@ -224,22 +231,25 @@ class WujiaPortalNotification(http.Controller):
             return request.redirect('/portal/notification')
 
         # Ghi nhận đã đọc theo user + cửa hàng: tạo mới giữ read_date, mở lại chỉ đổi last_open_date.
-        Read = request.env['wujia.notification.read'].sudo()
-        rdom = [('notification_id', '=', noti.id),
-                ('user_id', '=', request.env.user.id)]
+        # Spec F §8.11 — chỉ ghi read status khi có cửa hàng hiện tại; chưa chọn thì vẫn cho ĐỌC
+        # nội dung, chỉ không ghi row (tránh row franchise_id NULL).
         if active_fid:
-            rdom.append(('franchise_id', '=', active_fid))
-        existing = Read.search(rdom, limit=1)
-        now = fields.Datetime.now()
-        if existing:
-            existing.last_open_date = now
-        else:
-            Read.create({
-                'notification_id': noti.id,
-                'user_id': request.env.user.id,
-                'franchise_id': active_fid or False,
-                'read_date': now, 'last_open_date': now,
-            })
+            Read = request.env['wujia.notification.read'].sudo()
+            existing = Read.search([
+                ('notification_id', '=', noti.id),
+                ('user_id', '=', request.env.user.id),
+                ('franchise_id', '=', active_fid),
+            ], limit=1)
+            now = fields.Datetime.now()
+            if existing:
+                existing.last_open_date = now
+            else:
+                Read.create({
+                    'notification_id': noti.id,
+                    'user_id': request.env.user.id,
+                    'franchise_id': active_fid,
+                    'read_date': now, 'last_open_date': now,
+                })
         return request.render('wujia_portal_notification.portal_notification_detail', {
             'noti': noti,
             'PC_TYPE_TONE': PC_TYPE_TONE, 'PC_PRIORITY_TAGS': PC_PRIORITY_TAGS,
@@ -281,20 +291,23 @@ class WujiaPortalNotification(http.Controller):
         hiện tại. Không nhận ids/filter. Không set last_open_date (chưa thực sự mở nội dung)."""
         franchise_ids = get_active_franchise_ids_filter()
         active_fid = get_active_franchise_id()
+        if not active_fid:
+            # Spec F §8.11 + §18 — chưa chọn cửa hàng thì không ghi read status.
+            return _err('STORE_NOT_SELECTED')
         Noti = request.env['wujia.notification'].sudo()
         Read = request.env['wujia.notification.read'].sudo()
         eff_ids = Noti.search(_effective_domain(franchise_ids)).ids
         if not eff_ids:
             return {'success': True, 'updated_count': 0, 'unread_count': 0}
-        rdom = [('user_id', '=', request.env.user.id),
-                ('notification_id', 'in', eff_ids)]
-        if active_fid:
-            rdom.append(('franchise_id', '=', active_fid))
-        existing = set(Read.search(rdom).mapped('notification_id').ids)
+        existing = set(Read.search([
+            ('user_id', '=', request.env.user.id),
+            ('notification_id', 'in', eff_ids),
+            ('franchise_id', '=', active_fid),
+        ]).mapped('notification_id').ids)
         now = fields.Datetime.now()
         to_create = [
             {'notification_id': nid, 'user_id': request.env.user.id,
-             'franchise_id': active_fid or False, 'read_date': now}
+             'franchise_id': active_fid, 'read_date': now}
             for nid in eff_ids if nid not in existing
         ]
         if to_create:
@@ -313,19 +326,22 @@ class WujiaPortalNotification(http.Controller):
             return {'error': 'invalid_ids'}
         franchise_ids = get_active_franchise_ids_filter()
         active_fid = get_active_franchise_id()
+        if not active_fid:
+            # Spec F §8.11 + §18 — chưa chọn cửa hàng thì không ghi read status.
+            return _err('STORE_NOT_SELECTED')
         Noti = request.env['wujia.notification'].sudo()
         accessible = Noti.search(
             [('id', 'in', ids)] + _history_domain(franchise_ids)).ids
         Read = request.env['wujia.notification.read'].sudo()
-        rdom = [('user_id', '=', request.env.user.id),
-                ('notification_id', 'in', accessible)]
-        if active_fid:
-            rdom.append(('franchise_id', '=', active_fid))
-        existing = set(Read.search(rdom).mapped('notification_id').ids)
+        existing = set(Read.search([
+            ('user_id', '=', request.env.user.id),
+            ('notification_id', 'in', accessible),
+            ('franchise_id', '=', active_fid),
+        ]).mapped('notification_id').ids)
         now = fields.Datetime.now()
         to_create = [
             {'notification_id': nid, 'user_id': request.env.user.id,
-             'franchise_id': active_fid or False, 'read_date': now, 'last_open_date': now}
+             'franchise_id': active_fid, 'read_date': now, 'last_open_date': now}
             for nid in accessible if nid not in existing
         ]
         if to_create:

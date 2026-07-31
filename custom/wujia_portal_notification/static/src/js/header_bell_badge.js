@@ -7,7 +7,7 @@
 (function () {
     "use strict";
 
-    // Mirror controller PC_TYPE_TONE / PC_PRIORITY_TAGS (keep in sync).
+    // Mirror controller PC_TYPE_TONE (keep in sync).
     var TYPE_TONE = {
         URG: ["wj-pc-noti-type--red", "icon-alert-triangle"],
         GEN: ["wj-pc-noti-type--cyan", "icon-bell"],
@@ -15,11 +15,11 @@
         SYS: ["wj-pc-noti-type--violet", "icon-settings"],
         OTH: ["wj-pc-noti-type--green", "icon-info"],
     };
-    var PRIORITY_LABEL = {
-        urgent: ["Cần làm", "wj-pc-badge--done"],
-        high: ["Quan trọng", "wj-pc-badge--transit"],
-        normal: ["Lưu ý", "wj-pc-badge--confirmed"],
-        low: ["Lưu ý", "wj-pc-badge--confirmed"],
+    // Nhãn lấy từ priority_label backend trả (BA: FE không tự suy diễn label); đây chỉ là màu badge.
+    var PRIORITY_CLASS = {
+        urgent: "wj-pc-badge--done",
+        important: "wj-pc-badge--transit",
+        normal: "wj-pc-badge--confirmed",
     };
 
     function jsonRpc(url, params) {
@@ -71,7 +71,10 @@
         }
         list.innerHTML = items.map(function (n) {
             var tone = TYPE_TONE[n.type_code] || TYPE_TONE.GEN;
-            var ptag = PRIORITY_LABEL[n.priority] || PRIORITY_LABEL.normal;
+            var ptagCls = PRIORITY_CLASS[n.priority] || PRIORITY_CLASS.normal;
+            var ptag = n.priority_label
+                ? '<span class="wj-pc-badge ' + ptagCls + '">' + escHtml(n.priority_label) + "</span>"
+                : "";
             var meta = escHtml(n.type_name) + (n.dispatch_number ? " • " + escHtml(n.dispatch_number) : "");
             var fileChip = n.has_file
                 ? '<span class="wj-pc-badge wj-pc-badge--confirmed">Có file</span>' : "";
@@ -83,8 +86,7 @@
                 '<span class="wj-pc-noti-popup__item-main">' +
                 '<span class="wj-pc-noti-popup__item-title">' + escHtml(n.name) + '</span>' +
                 '<span class="wj-pc-noti-popup__item-meta">' + meta + '</span>' +
-                '<span class="wj-pc-noti-popup__item-tags">' +
-                '<span class="wj-pc-badge ' + ptag[1] + '">' + ptag[0] + '</span>' + fileChip +
+                '<span class="wj-pc-noti-popup__item-tags">' + ptag + fileChip +
                 '</span>' +
                 '</span>' +
                 '<span class="wj-pc-noti-popup__item-side">' + dot +

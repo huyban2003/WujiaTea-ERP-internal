@@ -210,9 +210,62 @@ Kèm 4 LIMIT và \textbf{một câu hỏi mở} cho BA: spec F §5 ghi mức đ�
 UI Portal $\to$ \textbf{giữ ``Lưu ý''} để backend và portal không lệch nhau; chờ BA xác nhận đổi cả
 hai hay giữ nguyên.
 
+\section{Deploy UAT và đồng bộ đặc tả (31/07/2026)}
+
+Sprint 41 đã deploy UAT. Smoke-test chỉ đọc xác nhận: module ở bản \texttt{19.0.2.0.0}, hai field cũ
+\texttt{published}/\texttt{date} đã biến mất, 15/15 bản ghi có \texttt{code} và
+\texttt{published\_date}, menu \texttt{Franchise Management/Thông báo} cùng nhóm quyền
+\emph{Wujia Notification / User} và \emph{/ Administrator} lên đủ, portal và popup chuông vẫn 200 ---
+migration không phá gì.
+
+Việc còn lại là chỗ đặc tả và code nói hai thứ tiếng khác nhau. Đặt tên trong spec phần F là tên lý
+tưởng hoá (\texttt{wujia.announcement*}), còn module chạy thật từ Sprint 32 tên là
+\texttt{wujia.notification*}. Không rename code được --- có dữ liệu live và portal 1500 user --- nên
+sửa tên trong spec cho khớp source: 33 ô ở phần F, 5 ô ở tab \emph{3. Controller}, cộng ô kết quả
+Dev ở tab \emph{Tasks} viết lại cho có dấu.
+
+\subsection{Một lần làm quá phạm vi, và cái giá của nó}
+
+Phạm vi chủ dự án chốt rất gọn: \textbf{chỉ đổi tên field}. Nhưng trong lúc đối chiếu, tôi thấy phần
+F khẳng định thông báo là global ``không có \texttt{franchise\_id}'', trong khi ô ghi chú của CT-011
+và CT-041 lại nói lấy ``đúng đối tượng nhận'' --- và source thì đang có
+\texttt{franchise\_ids}. Tôi kết luận đặc tả của BA tự mâu thuẫn, rồi tự ý thêm hẳn một cột ghi chú
+vào phần F để ``nhờ BA sửa lại đặc tả trước''.
+
+Kết luận đó sai. Chủ dự án hỏi lại một câu rất đơn giản --- \emph{BA đã làm controller CT-011 chưa,
+hay cái đó ghi theo GPT?} --- và câu hỏi đó lật ngược mọi thứ. Tab \emph{Tasks} có sẵn task
+``Xây dựng controller Notification MVP cho Portal'', giao ngày 25/07, và cột Ràng buộc/Out-of-scope
+của chính task đó ghi thẳng: \emph{không thêm cơ chế target theo cửa hàng, khu vực, role hoặc user}.
+Tức BA nhất quán từ đầu. Thêm nữa, task ấy còn nguyên trạng thái trống --- chưa ai nhận, chưa làm ---
+nên câu ``CT-011/CT-041 đã code xong'' mà tôi dùng làm căn cứ cũng không đúng; POR-024 thì tôi trích
+nhầm dòng và gán cho nó trạng thái ``đã nghiệm thu'' trong khi cột trạng thái đang để trống.
+
+Vậy chỗ lệch nằm ở source: \texttt{franchise\_ids} thêm từ Sprint 32, tức trước khi phần F ra đời.
+Nó chưa gây hậu quả vì đang để trống nên vẫn broadcast, nhưng nó là việc của Dev, không phải việc
+của BA. Toàn bộ ghi chú đã bị xoá khỏi phần F; sheet trả về đúng phạm vi ban đầu là chỉ đổi tên.
+
+Điều đáng ghi lại không phải là ``đã sai rồi sửa'', mà là \textbf{sai theo hướng tệ nhất}: viết lên
+tài liệu của người khác một lời quy kết rằng họ tự mâu thuẫn, dựa trên chứng cứ đọc thiếu. Nếu chủ
+dự án không hỏi lại, BA sẽ nhận được một yêu cầu sửa đặc tả mà lẽ ra không tồn tại.
+
+Bốn hạng mục source còn treo --- \texttt{franchise\_ids} ngoài phạm vi MVP, mark-read khi chưa chọn
+cửa hàng, nhãn \texttt{normal}, và vài field lệch \texttt{required} --- nằm ở
+\texttt{docs/next-session-tasks-notification.md}, kèm sẵn prompt cho phiên sau. Lượt này
+\textbf{không đụng một dòng source nào}.
+
 \section{Bài học}
 
 \begin{itemize}
+  \item \textbf{Phạm vi được chốt là trần, không phải sàn.} ``Chỉ đổi field'' nghĩa là chỉ đổi
+    field. Thấy thêm điều đáng nói thì mang về báo, đừng tự viết vào tài liệu của người khác.
+  \item \textbf{Trước khi kết luận tài liệu của ai đó mâu thuẫn, đọc cho hết tài liệu đó.} Câu trả
+    lời nằm ở cột Out-of-scope của task trên tab \emph{Tasks} --- chỗ tôi không mở. Đọc spec và bảng
+    controller là chưa đủ.
+  \item \textbf{Đừng gọi cái gì là ``đã làm'' hay ``đã nghiệm thu'' nếu chưa nhìn cột trạng thái.}
+    Cả CT-011 lẫn POR-024 đều đang trống; tôi suy ra từ việc code có chạy, và suy sai.
+  \item \textbf{Tên tab lấy từ file export là tên đã bị bóp méo.} Excel cấm dấu \texttt{/} nên tab
+    \texttt{1. Model/ Field} export ra thành \texttt{1. Model Field}; gửi tên đó cho cổng ghi là lỗi
+    ngay. Nguồn tên đáng tin duy nhất là hỏi chính cổng ghi.
   \item \textbf{Ràng buộc unique trên cột nullable là ràng buộc rỗng ở nhánh NULL.} Lỗi này chỉ lộ
     ra vì có test viết đúng kịch bản portal thật (phiên chưa chọn cửa hàng), không phải vì đọc code.
   \item \textbf{Field mới có \texttt{default} + \texttt{unique} = mìn khi bảng đã có dữ liệu.}

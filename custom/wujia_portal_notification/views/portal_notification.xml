@@ -8,7 +8,7 @@
             <!-- Mobile — loại→icon/tone-màu; ưu tiên→badge (keys BA: normal/important/urgent) -->
             <t t-set="WJ_TONE" t-value="{'URG': 'red', 'GEN': 'cyan', 'PROMO': 'amber', 'SYS': 'violet', 'OTH': 'green'}"/>
             <t t-set="WJ_ICON" t-value="{'URG': 'icon-alert-triangle', 'GEN': 'icon-bell', 'PROMO': 'icon-gift', 'SYS': 'icon-settings', 'OTH': 'icon-info'}"/>
-            <t t-set="WJ_PTAG" t-value="{'urgent': ('Cần làm', 'wujia-badge-success', 'icon-check-circle'), 'important': ('Quan trọng', 'wujia-badge-warning', 'icon-alert-triangle'), 'normal': ('Lưu ý', 'wujia-badge-info', 'icon-info')}"/>
+            <t t-set="WJ_PTAG" t-value="{'urgent': ('Cần làm', 'wujia-badge-success', 'icon-check-circle'), 'important': ('Quan trọng', 'wujia-badge-warning', 'icon-alert-triangle'), 'normal': ('Thông thường', 'wujia-badge-info', 'icon-info')}"/>
             <!-- Desktop ≥992px — Figma PC_Notification_List (4683:101) -->
             <div class="content-wrapper d-none d-lg-block">
                 <t t-call="wujia_portal_layout.wj_page_header">
@@ -260,7 +260,7 @@
             <t t-set="WJ_TONE" t-value="{'URG': 'red', 'GEN': 'cyan', 'PROMO': 'amber', 'SYS': 'violet', 'OTH': 'green'}"/>
             <t t-set="WJ_ICON" t-value="{'URG': 'icon-alert-triangle', 'GEN': 'icon-bell', 'PROMO': 'icon-gift', 'SYS': 'icon-settings', 'OTH': 'icon-info'}"/>
             <t t-set="WJ_TDESC" t-value="{'URG': 'Thông báo khẩn — cần xử lý ngay', 'GEN': 'Thông báo dành cho cửa hàng nhượng quyền', 'PROMO': 'Chương trình khuyến mãi &amp; ưu đãi', 'SYS': 'Thông báo hệ thống &amp; vận hành', 'OTH': 'Thông báo khác'}"/>
-            <t t-set="WJ_PTAG" t-value="{'urgent': ('Cần làm', 'wujia-badge-success', 'icon-check-circle'), 'important': ('Quan trọng', 'wujia-badge-warning', 'icon-alert-triangle'), 'normal': ('Lưu ý', 'wujia-badge-info', 'icon-info')}"/>
+            <t t-set="WJ_PTAG" t-value="{'urgent': ('Cần làm', 'wujia-badge-success', 'icon-check-circle'), 'important': ('Quan trọng', 'wujia-badge-warning', 'icon-alert-triangle'), 'normal': ('Thông thường', 'wujia-badge-info', 'icon-info')}"/>
             <!-- Desktop ≥992px — Figma PC_Notification_Form (4683:2) -->
             <div class="content-wrapper d-none d-lg-block">
                 <t t-set="dptag" t-value="PC_PRIORITY_TAGS.get(noti.priority)"/>

@@ -27,8 +27,14 @@
             })
                 .then(function (r) { return r.json(); })
                 .then(function (res) {
-                    var n = (res && res.result && res.result.updated_count) || 0;
-                    toast("Đã đánh dấu " + n + " thông báo là đã đọc.");
+                    var out = (res && res.result) || {};
+                    if (out.error) {
+                        // Ví dụ chưa chọn cửa hàng — hiện message nghiệp vụ, không reload.
+                        toast(out.message || "Chưa thể đánh dấu đã đọc. Vui lòng thử lại.");
+                        btn.disabled = false;
+                        return;
+                    }
+                    toast("Đã đánh dấu " + (out.updated_count || 0) + " thông báo là đã đọc.");
                     setTimeout(function () { window.location.reload(); }, 600);
                 })
                 .catch(function () { btn.disabled = false; });
