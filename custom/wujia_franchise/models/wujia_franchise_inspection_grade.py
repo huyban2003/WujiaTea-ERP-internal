@@ -52,14 +52,18 @@ class WujiaFranchiseInspectionGrade(models.Model):
     def _check_score_overlap(self):
         """Kiểm tra các khoảng điểm không được chồng lấn nhau."""
         for record in self:
+            rec_id = record._origin.id if record._origin else (record.id if isinstance(record.id, int) else False)
             domain = [
-                ('id', '!=', record.id),
                 ('active', '=', True),
                 ('min_score', '<=', record.max_score),
                 ('max_score', '>=', record.min_score),
             ]
+            if record.name:
+                domain.append(('name', '!=', record.name))
+            if rec_id:
+                domain.append(('id', '!=', rec_id))
             overlapping = self.search(domain, limit=1)
-            if overlapping:
+            if overlapping and overlapping.id != rec_id:
                 raise ValidationError(
                     _('Khoảng điểm [%(min)s - %(max)s] của hạng "%(name)s" bị chồng lấn '
                       'với hạng "%(other)s" [%(other_min)s - %(other_max)s]!',

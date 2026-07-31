@@ -552,7 +552,7 @@ class WujiaFranchiseInspection(models.Model):
         Tự động chạy khi 'total_score' thay đổi.
         Tính 'grade_id' dựa trên 'total_score' bằng cách tra cứu model cấu hình.
         """
-        GradeModel = self.env['wujia.franchise.inspection.grade']
+        GradeModel = self.env['wujia.franchise.inspection.grade'].sudo()
         all_grades = GradeModel.search([], order='min_score desc')
         for rec in self:
             score = rec.total_score or 0.0
