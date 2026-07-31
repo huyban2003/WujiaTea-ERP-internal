@@ -359,10 +359,23 @@ class WujiaFranchiseInspection(models.Model):
                             'Tiêu chí "%s" được đánh giá KHÔNG ĐẠT và yêu cầu phải có HÌNH ẢNH BẰNG CHỨNG!\nVui lòng tải ảnh bằng chứng lên trước khi tiếp tục.'
                         ) % criterion_name)
 
+    def _validate_exam_lines(self):
+        """
+        Kiểm tra tính hợp lệ của bài kiểm tra kiến thức (exam_line_ids):
+        Yêu cầu bài kiểm tra phải được bấm "Nộp bài kiểm tra" (is_exam_submitted = True) trước khi hoàn thành.
+        """
+        for rec in self:
+            if rec.exam_line_ids and not rec.is_exam_submitted:
+                raise ValidationError(_(
+                    'Bài kiểm tra nhân viên chưa được nộp!\n'
+                    'Vui lòng chuyển sang tab "Bài kiểm tra nhân viên" và bấm nút "Nộp bài kiểm tra" trước khi thực hiện Hoàn thành.'
+                ))
+
     def action_need_remediation(self):
         """Chuyển phiếu khảo sát sang trạng thái Cần khắc phục"""
         for rec in self:
             rec._validate_failed_lines()
+            rec._validate_exam_lines()
             rec.write({'state': 'need_remediation'})
         return True
 
@@ -371,6 +384,7 @@ class WujiaFranchiseInspection(models.Model):
         today = fields.Date.context_today(self)
         for rec in self:
             rec._validate_failed_lines()
+            rec._validate_exam_lines()
             rec.write({
                 'state': 'done',
                 'confirm_date': rec.confirm_date or today,
