@@ -14,7 +14,7 @@
                 <field name="test_employee_name" />
                 <field name="planned_date" options="{'format': 'DD/MM/YYYY'}" />
                 <field name="total_score" string="Tổng điểm" />
-                <field name="grade" widget="badge" />
+                <field name="grade_id" widget="badge" />
                 <field name="state" widget="badge"
                     decoration-info="state == 'draft'"
                     decoration-warning="state == 'in_progress'"
@@ -98,7 +98,7 @@
                         </group>
                         <group string="KẾT QUẢ &amp; XẾP LOẠI">
                             <field name="total_score" class="fw-bold fs-4 text-primary" readonly="1" />
-                            <field name="grade" class="fw-bold fs-4 text-success" widget="badge"
+                            <field name="grade_id" class="fw-bold fs-4 text-success"
                                 readonly="1" />
                         </group>
                     </group>
@@ -263,17 +263,17 @@
                 <filter string="Hoàn thành" name="done" domain="[('state', '=', 'done')]" />
                 <filter string="Đã hủy" name="cancel" domain="[('state', '=', 'cancel')]" />
                 <separator />
-                <filter string="Xếp loại A" name="grade_a" domain="[('grade', '=', 'A')]" />
-                <filter string="Xếp loại B" name="grade_b" domain="[('grade', '=', 'B')]" />
-                <filter string="Xếp loại C" name="grade_c" domain="[('grade', '=', 'C')]" />
-                <filter string="Xếp loại D" name="grade_d" domain="[('grade', '=', 'D')]" />
+                <filter string="Xếp loại A" name="grade_a" domain="[('grade_id.name', '=', 'A')]" />
+                <filter string="Xếp loại B" name="grade_b" domain="[('grade_id.name', '=', 'B')]" />
+                <filter string="Xếp loại C" name="grade_c" domain="[('grade_id.name', '=', 'C')]" />
+                <filter string="Xếp loại D" name="grade_d" domain="[('grade_id.name', '=', 'D')]" />
                 <separator />
                 <filter string="Cửa hàng" name="group_franchise"
                     context="{'group_by': 'franchise_id'}" />
                 <filter string="Người kiểm tra" name="group_inspector"
                     context="{'group_by': 'inspector_user_id'}" />
                 <filter string="Trạng thái" name="group_state" context="{'group_by': 'state'}" />
-                <filter string="Xếp loại" name="group_grade" context="{'group_by': 'grade'}" />
+                <filter string="Xếp loại" name="group_grade" context="{'group_by': 'grade_id'}" />
                 <filter string="Thời gian (Theo Tháng)" name="group_planned_date"
                     context="{'group_by': 'planned_date:month'}" />
                 <filter string="Thời gian (Theo Ngày)" name="group_planned_date_day"

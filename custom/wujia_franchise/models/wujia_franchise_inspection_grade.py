@@ -1,0 +1,73 @@
+# -*- coding: utf-8 -*-
+
+from odoo import models, fields, api, _
+from odoo.exceptions import ValidationError
+
+
+class WujiaFranchiseInspectionGrade(models.Model):
+    _name = 'wujia.franchise.inspection.grade'
+    _description = 'Cấu hình xếp hạng giám sát'
+    _order = 'min_score desc'
+
+    name = fields.Char(
+        string='Xếp hạng',
+        required=True,
+        help='Tên xếp hạng, ví dụ: A, B, C, D',
+    )
+    min_score = fields.Float(
+        string='Điểm tối thiểu',
+        required=True,
+        help='Điểm tối thiểu để đạt hạng này (bao gồm)',
+    )
+    max_score = fields.Float(
+        string='Điểm tối đa',
+        required=True,
+        default=100.0,
+        help='Điểm tối đa của hạng này (bao gồm)',
+    )
+    description = fields.Text(
+        string='Mô tả',
+        help='Mô tả ngắn cho hạng xếp loại này',
+    )
+    sequence = fields.Integer(
+        string='Thứ tự',
+        default=10,
+    )
+    active = fields.Boolean(
+        string='Active',
+        default=True,
+    )
+    color = fields.Integer(
+        string='Color',
+        help='Màu hiển thị trên badge',
+    )
+
+    _sql_constraints = [
+        ('name_unique', 'UNIQUE(name)', 'Tên xếp hạng phải là duy nhất!'),
+        ('score_check', 'CHECK(min_score <= max_score)',
+         'Điểm tối thiểu phải nhỏ hơn hoặc bằng điểm tối đa!'),
+    ]
+
+    @api.constrains('min_score', 'max_score')
+    def _check_score_overlap(self):
+        """Kiểm tra các khoảng điểm không được chồng lấn nhau."""
+        for record in self:
+            domain = [
+                ('id', '!=', record.id),
+                ('active', '=', True),
+                ('min_score', '<=', record.max_score),
+                ('max_score', '>=', record.min_score),
+            ]
+            overlapping = self.search(domain, limit=1)
+            if overlapping:
+                raise ValidationError(
+                    _('Khoảng điểm [%(min)s - %(max)s] của hạng "%(name)s" bị chồng lấn '
+                      'với hạng "%(other)s" [%(other_min)s - %(other_max)s]!',
+                      min=record.min_score,
+                      max=record.max_score,
+                      name=record.name,
+                      other=overlapping.name,
+                      other_min=overlapping.min_score,
+                      other_max=overlapping.max_score,
+                      )
+                )

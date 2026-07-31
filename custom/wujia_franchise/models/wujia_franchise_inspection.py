@@ -200,11 +200,12 @@ class WujiaFranchiseInspection(models.Model):
         _description='điểm = điểm checklist + điểm kiểm tra'
     )
 
-    grade = fields.Char(
+    grade_id = fields.Many2one(
+        'wujia.franchise.inspection.grade',
         string='Xếp loại',
         compute='_compute_grade',
         store=True,
-        _description='Xếp loại dựa trên điểm số'
+        readonly=True,
     )
 
     @api.onchange('checklist_score', 'exam_score')
@@ -549,18 +550,18 @@ class WujiaFranchiseInspection(models.Model):
     def _compute_grade(self):
         """
         Tự động chạy khi 'total_score' thay đổi.
-        Tính 'grade' dựa trên 'total_score'.
+        Tính 'grade_id' dựa trên 'total_score' bằng cách tra cứu model cấu hình.
         """
+        GradeModel = self.env['wujia.franchise.inspection.grade']
+        all_grades = GradeModel.search([], order='min_score desc')
         for rec in self:
             score = rec.total_score or 0.0
-            if score >= 96:
-                rec.grade = 'A'
-            elif score >= 83:
-                rec.grade = 'B'
-            elif score >= 70:
-                rec.grade = 'C'
-            else:
-                rec.grade = 'D'
+            matched_grade = GradeModel
+            for grade in all_grades:
+                if grade.min_score <= score <= grade.max_score:
+                    matched_grade = grade
+                    break
+            rec.grade_id = matched_grade
 
     @api.model_create_multi
     def create(self, vals_list):
@@ -747,6 +748,13 @@ class WujiaFranchiseInspectionLine(models.Model):
     previous_result = fields.Selection(
         selection=[('pass', 'Đạt'), ('fail', 'Không đạt')],
         string='Kết quả trước đó',
+        compute='_compute_previous_line_info',
+        store=True,
+        readonly=True,
+    )
+
+    previous_deduction_score = fields.Float(
+        string='Điểm trừ đợt trước',
         compute='_compute_previous_line_info',
         store=True,
         readonly=True,
