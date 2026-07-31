@@ -156,6 +156,21 @@ class WujiaFranchiseManagement(models.Model):
         help='Ngày lịch khảo sát gần nhất với ngày hiện tại (>= hôm nay), không tính lịch trong quá khứ và lịch đã hủy.',
     )
 
+    latest_inspection_id = fields.Many2one(
+        'wujia.franchise.inspection',
+        string='Phiếu khảo sát mới nhất',
+        compute='_compute_latest_inspection_info',
+    )
+    latest_total_score = fields.Float(
+        string='Điểm đánh giá mới nhất',
+        compute='_compute_latest_inspection_info',
+    )
+    latest_grade_id = fields.Many2one(
+        'wujia.franchise.inspection.grade',
+        string='Loại đánh giá mới nhất',
+        compute='_compute_latest_inspection_info',
+    )
+
     active = fields.Boolean(default=True)
 
     _code_uniq = models.Constraint(
@@ -228,6 +243,18 @@ class WujiaFranchiseManagement(models.Model):
             ('state', '!=', 'cancel'),
         ])
         return [('id', 'in', schedules.mapped('store_id').ids)]
+
+    @api.depends()
+    def _compute_latest_inspection_info(self):
+        Inspection = self.env['wujia.franchise.inspection']
+        for rec in self:
+            latest = Inspection.search([
+                ('franchise_id', '=', rec.id),
+                ('state', '!=', 'cancel'),
+            ], order='planned_date desc, create_date desc, id desc', limit=1)
+            rec.latest_inspection_id = latest
+            rec.latest_total_score = latest.total_score if latest else 0.0
+            rec.latest_grade_id = latest.grade_id if latest else False
 
     # ===========================================================
     # Constraints

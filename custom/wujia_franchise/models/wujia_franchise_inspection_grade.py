@@ -51,6 +51,8 @@ class WujiaFranchiseInspectionGrade(models.Model):
     @api.constrains('min_score', 'max_score')
     def _check_score_overlap(self):
         """Kiểm tra các khoảng điểm không được chồng lấn nhau."""
+        if self.env.context.get('install_mode') or self.env.context.get('import_file'):
+            return
         for record in self:
             rec_id = record._origin.id if record._origin else (record.id if isinstance(record.id, int) else False)
             domain = [

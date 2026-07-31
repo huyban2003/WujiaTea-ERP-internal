@@ -41,11 +41,43 @@ class WujiaSupervisionSchedule(models.Model):
         compute='_compute_inspection_info',
     )
 
+    latest_inspection_id = fields.Many2one(
+        'wujia.franchise.inspection',
+        string='Phiếu khảo sát mới nhất',
+        compute='_compute_latest_inspection_info',
+    )
+    latest_total_score = fields.Float(
+        string='Điểm mới nhất',
+        compute='_compute_latest_inspection_info',
+    )
+    latest_grade_id = fields.Many2one(
+        'wujia.franchise.inspection.grade',
+        string='Loại đánh giá mới nhất',
+        compute='_compute_latest_inspection_info',
+    )
+
     def _compute_inspection_info(self):
         for record in self:
             inspection = self.env['wujia.franchise.inspection'].search([('schedule_id', '=', record.id)], limit=1)
             record.inspection_id = inspection
             record.inspection_count = 1 if inspection else 0
+
+    @api.depends('store_id')
+    def _compute_latest_inspection_info(self):
+        Inspection = self.env['wujia.franchise.inspection']
+        for record in self:
+            if record.store_id:
+                latest = Inspection.search([
+                    ('franchise_id', '=', record.store_id.id),
+                    ('state', '!=', 'cancel'),
+                ], order='planned_date desc, create_date desc, id desc', limit=1)
+                record.latest_inspection_id = latest
+                record.latest_total_score = latest.total_score if latest else 0.0
+                record.latest_grade_id = latest.grade_id if latest else False
+            else:
+                record.latest_inspection_id = False
+                record.latest_total_score = 0.0
+                record.latest_grade_id = False
 
     def action_view_inspections(self):
         self.ensure_one()

@@ -75,10 +75,17 @@
                                    domain="[('effective_supervision_user_id', '=', user_id)]"
                                    options="{'no_create': True, 'no_open': True}"/>
                         </group>
-                        <group string="THỜI GIAN">
+                        <group string="THỜI GIAN &amp; KẾT QUẢ ĐÁNH GIÁ GẦN NHẤT">
                             <field name="date" 
                                    string="Thời gian giám sát" 
                                    options="{'format': 'DD/MM/YYYY'}"/>
+                            <field name="latest_total_score" 
+                                   string="Điểm mới nhất" 
+                                   readonly="1"/>
+                            <field name="latest_grade_id" 
+                                   string="Loại đánh giá mới nhất" 
+                                   widget="badge" 
+                                   readonly="1"/>
                         </group>
                     </group>
                     <field name="note" placeholder="Thêm ghi chú chi tiết..."/>
