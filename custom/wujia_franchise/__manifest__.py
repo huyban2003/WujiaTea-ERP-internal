@@ -20,6 +20,8 @@
         'views/wujia_franchise_management_views.xml',
         'views/wujia_franchise_member_views.xml',
         'views/wujia_franchise_inspection_views.xml',
+        'views/wujia_franchise_inspection_detail_views.xml',
+        'views/wujia_franchise_inspection_question_views.xml',
         'views/wujia_franchise_inspection_extra_views.xml',
         'views/wujia_franchise_inspection_template_view.xml',
         'views/wujia_franchise_inspection_template_line_view.xml',
