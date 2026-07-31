@@ -48,6 +48,19 @@ class WujiaFranchiseInspectionGrade(models.Model):
          'Điểm tối thiểu phải nhỏ hơn hoặc bằng điểm tối đa!'),
     ]
 
+    @api.constrains('name')
+    def _check_name_unique(self):
+        """Đảm bảo tên xếp hạng là duy nhất."""
+        if self.env.context.get('install_mode') or self.env.context.get('import_file'):
+            return
+        for record in self:
+            rec_id = record._origin.id if record._origin else (record.id if isinstance(record.id, int) else False)
+            domain = [('name', '=', record.name)]
+            if rec_id:
+                domain.append(('id', '!=', rec_id))
+            if self.search_count(domain) > 0:
+                raise ValidationError(_('Tên xếp hạng "%s" đã tồn tại!', record.name))
+
     @api.constrains('min_score', 'max_score')
     def _check_score_overlap(self):
         """Kiểm tra các khoảng điểm không được chồng lấn nhau."""
@@ -60,8 +73,6 @@ class WujiaFranchiseInspectionGrade(models.Model):
                 ('min_score', '<=', record.max_score),
                 ('max_score', '>=', record.min_score),
             ]
-            if record.name:
-                domain.append(('name', '!=', record.name))
             if rec_id:
                 domain.append(('id', '!=', rec_id))
             overlapping = self.search(domain, limit=1)
