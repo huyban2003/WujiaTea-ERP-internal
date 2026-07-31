@@ -13,7 +13,7 @@ class WujiaFranchiseManagement(models.Model):
     _description = 'Wujia Franchise Management'
     _inherit = ['mail.thread', 'mail.activity.mixin']
     _rec_name = 'display_name'
-    _order = 'code, name'
+    _order = 'next_supervision_date asc, code, name'
 
     code = fields.Char(
         string='Mã cửa hàng',
@@ -148,6 +148,14 @@ class WujiaFranchiseManagement(models.Model):
         help='Nhân viên giám sát của cửa hàng. Nếu chưa được gán riêng, sẽ lấy từ Người phụ trách khu vực.',
     )
 
+    next_supervision_date = fields.Date(
+        string='Ngày khảo sát kế tiếp',
+        compute='_compute_next_supervision_date',
+        store=True,
+        search='_search_next_supervision_date',
+        help='Ngày lịch khảo sát gần nhất với ngày hiện tại (>= hôm nay), không tính lịch trong quá khứ và lịch đã hủy.',
+    )
+
     active = fields.Boolean(default=True)
 
     _code_uniq = models.Constraint(
@@ -199,6 +207,27 @@ class WujiaFranchiseManagement(models.Model):
             rec.effective_supervision_user_id = (
                 rec.supervision_user_id or rec.area_id.manager_user_id
             )
+
+    @api.depends()
+    def _compute_next_supervision_date(self):
+        today = fields.Date.context_today(self)
+        Schedule = self.env['wujia.supervision.schedule']
+        for rec in self:
+            next_schedule = Schedule.search([
+                ('store_id', '=', rec.id),
+                ('date', '>=', today),
+                ('state', '!=', 'cancel'),
+            ], order='date asc', limit=1)
+            rec.next_supervision_date = next_schedule.date if next_schedule else False
+
+    def _search_next_supervision_date(self, operator, value):
+        today = fields.Date.context_today(self)
+        schedules = self.env['wujia.supervision.schedule'].search([
+            ('date', '>=', today),
+            ('date', operator, value),
+            ('state', '!=', 'cancel'),
+        ])
+        return [('id', 'in', schedules.mapped('store_id').ids)]
 
     # ===========================================================
     # Constraints

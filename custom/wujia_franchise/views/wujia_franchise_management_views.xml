@@ -6,6 +6,7 @@
         <field name="model">wujia.franchise.management</field>
         <field name="arch" type="xml">
             <list string="Cửa hàng nhượng quyền" sample="1"
+                  default_order="next_supervision_date asc"
                   decoration-danger="is_expired"
                   decoration-warning="status == 'locked'"
                   decoration-muted="status == 'closed'">
@@ -18,6 +19,7 @@
                 <field name="remaining_days"/>
                 <field name="member_count"/>
                 <field name="effective_supervision_user_id" optional="show" string="Người giám sát"/>
+                <field name="next_supervision_date" optional="show"/>
                 <field name="status" widget="badge"
                        decoration-success="status == 'active'"
                        decoration-warning="status == 'locked'"
@@ -188,7 +190,11 @@
                 <field name="name"/>
                 <field name="partner_id"/>
                 <field name="area_id"/>
+                <field name="effective_supervision_user_id"/>
                 <field name="main_owner_member_id"/>
+                <separator/>
+                <filter string="Cửa hàng tôi phụ trách" name="filter_my_inspection"
+                        domain="[('effective_supervision_user_id', '=', uid)]"/>
                 <separator/>
                 <filter string="Đang hoạt động" name="filter_active"
                         domain="[('status', '=', 'active')]"/>
