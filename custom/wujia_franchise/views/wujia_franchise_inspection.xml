@@ -106,7 +106,7 @@
                     <notebook>
                         <page string="Danh sách Tiêu chí Checklist" name="checklist">
                             <field name="line_ids" readonly="state in ('done', 'cancel')">
-                                <list editable="bottom" create="false" delete="false"
+                                <list editable="bottom" create="false" delete="false" limit="100"
                                     decoration-danger="criterion_type_snapshot == 'critical' and not is_pass and display_type == 'line'"
                                     decoration-warning="criterion_type_snapshot == 'critical' and display_type == 'line'"
                                     decoration-bf="display_type == 'line'"

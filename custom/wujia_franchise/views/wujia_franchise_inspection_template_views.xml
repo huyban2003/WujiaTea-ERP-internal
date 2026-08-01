@@ -109,7 +109,7 @@
                     <notebook>
                         <page string="Danh sách tiêu chí" name="lines">
                             <field name="line_ids" readonly="state in ('active', 'archived')">
-                                <list editable="bottom">
+                                <list editable="bottom" limit="100">
                                     <field name="sequence" widget="handle" />
                                     <field name="criterion_code" />
                                     <field name="category_id" />
