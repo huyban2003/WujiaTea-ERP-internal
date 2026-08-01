@@ -6,10 +6,10 @@ class WujiaFleetManagement(models.Model):
 
     current_batch_id = fields.Many2one(
         'stock.picking.batch',
-        string='Batch hiện tại',
+        string='Current batch',
         compute='_compute_current_batch',
         store=False,
-        help='Batch đang gắn xe (state chưa done/cancel). Tính realtime, không store.',
+        help='Batch currently assigned to this vehicle (state not done/cancel). Computed live, not stored.',
     )
     current_batch_name = fields.Char(
         related='current_batch_id.name',

@@ -86,7 +86,7 @@ def _week_label(monday):
 
 class WujiaPortalDebt(models.AbstractModel):
     _name = 'wujia.portal.debt'
-    _description = 'Wujia Portal — nguồn dữ liệu Công nợ & thanh toán'
+    _description = 'Wujia Portal — debt & payment data source'
 
     # ------------------------------------------------------------------
     # Tuần

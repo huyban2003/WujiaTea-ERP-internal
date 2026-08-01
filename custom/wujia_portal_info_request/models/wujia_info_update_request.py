@@ -3,13 +3,13 @@ from odoo.exceptions import ValidationError
 
 
 REQUEST_TYPE = [
-    ('address', 'Địa chỉ'),
-    ('phone', 'Số điện thoại'),
+    ('address', 'Address'),
+    ('phone', 'Phone number'),
     ('email', 'Email'),
-    ('owner_name', 'Tên chủ cửa hàng'),
-    ('bank_info', 'Thông tin ngân hàng'),
-    ('representative', 'Người đại diện'),
-    ('other', 'Khác'),
+    ('owner_name', 'Store owner name'),
+    ('bank_info', 'Bank details'),
+    ('representative', 'Representative'),
+    ('other', 'Other'),
 ]
 
 REQUEST_TYPE_FIELD_MAP = {
@@ -20,16 +20,16 @@ REQUEST_TYPE_FIELD_MAP = {
 }
 
 STATE = [
-    ('draft', 'Nháp'),
-    ('submitted', 'Đã gửi'),
-    ('reviewing', 'Đang xem'),
-    ('approved', 'Đã duyệt'),
-    ('rejected', 'Từ chối'),
+    ('draft', 'Draft'),
+    ('submitted', 'Submitted'),
+    ('reviewing', 'Being reviewed'),
+    ('approved', 'Approved'),
+    ('rejected', 'Rejected'),
 ]
 
 PRIORITY = [
-    ('normal', 'Bình thường'),
-    ('urgent', 'Khẩn'),
+    ('normal', 'Normal'),
+    ('urgent', 'Urgent'),
 ]
 
 
@@ -43,57 +43,57 @@ class WujiaInfoUpdateRequest(models.Model):
     _order = 'request_date desc, id desc'
 
     name = fields.Char(
-        string='Mã yêu cầu', readonly=True, copy=False, default='/',
+        string='Request code', readonly=True, copy=False, default='/',
     )
     franchise_id = fields.Many2one(
-        'wujia.franchise.management', string='Cửa hàng',
+        'wujia.franchise.management', string='Store',
         required=True, index=True, ondelete='restrict', tracking=True,
     )
     request_type = fields.Selection(
-        REQUEST_TYPE, string='Loại thông tin',
+        REQUEST_TYPE, string='Information type',
         required=True, tracking=True,
     )
     field_target = fields.Char(
-        string='Field định đổi (tự do)',
-        help='Tên field kỹ thuật — dùng khi request_type=other.',
+        string='Target field (free text)',
+        help='Technical field name — used when request_type=other.',
     )
     old_value = fields.Text(
-        string='Giá trị cũ',
+        string='Old value',
         compute='_compute_old_value', store=False,
-        help='Lấy snapshot từ franchise tại thời điểm xem form.',
+        help='Snapshot taken from the franchise when the form is opened.',
     )
     new_value = fields.Text(
-        string='Giá trị mới', required=True, tracking=True,
+        string='New value', required=True, tracking=True,
     )
-    note = fields.Text(string='Ghi chú')
+    note = fields.Text(string='Notes')
     state = fields.Selection(
-        STATE, string='Trạng thái',
+        STATE, string='Status',
         default='draft', required=True, index=True, tracking=True,
     )
     priority = fields.Selection(
-        PRIORITY, string='Mức độ', default='normal', tracking=True,
+        PRIORITY, string='Severity', default='normal', tracking=True,
     )
     attachment_ids = fields.Many2many(
         'ir.attachment', 'wujia_info_request_att_rel',
-        'request_id', 'attachment_id', string='Minh chứng',
+        'request_id', 'attachment_id', string='Supporting documents',
     )
     request_date = fields.Datetime(
-        string='Ngày tạo', default=fields.Datetime.now,
+        string='Creation date', default=fields.Datetime.now,
         index=True, readonly=True,
     )
     submitted_date = fields.Datetime(
-        string='Ngày gửi', readonly=True,
+        string='Submission date', readonly=True,
     )
     created_by_user_id = fields.Many2one(
-        'res.users', string='Người tạo',
+        'res.users', string='Created by',
         default=lambda self: self.env.user, readonly=True, index=True,
     )
     reviewer_id = fields.Many2one(
         'res.users', string='HQ Reviewer',
         domain="[('share', '=', False)]", tracking=True,
     )
-    reviewed_date = fields.Datetime(string='Ngày duyệt', readonly=True)
-    refuse_reason = fields.Text(string='Lý do từ chối', tracking=True)
+    reviewed_date = fields.Datetime(string='Approval date', readonly=True)
+    refuse_reason = fields.Text(string='Rejection reason', tracking=True)
 
     _sql_constraints = [
         ('check_submitted_has_date',

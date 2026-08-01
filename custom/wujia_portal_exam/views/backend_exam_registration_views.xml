@@ -5,19 +5,19 @@
         <field name="name">wujia.exam.registration.form</field>
         <field name="model">wujia.exam.registration</field>
         <field name="arch" type="xml">
-            <form string="Phiếu đăng ký thi">
+            <form string="Exam registrations">
                 <header>
-                    <button name="action_confirm" type="object" string="Duyệt"
+                    <button name="action_confirm" type="object" string="Approve"
                             class="btn-success" invisible="state != 'submitted'"
                             groups="wujia_portal_exam.group_exam_manager"/>
-                    <button name="action_reject" type="object" string="Từ chối"
+                    <button name="action_reject" type="object" string="Reject"
                             class="btn-danger"
                             invisible="state not in ('submitted', 'confirmed')"
-                            confirm="Xác nhận từ chối phiếu này?"
+                            confirm="Reject this registration?"
                             groups="wujia_portal_exam.group_exam_manager"/>
-                    <button name="action_cancel" type="object" string="Hủy"
+                    <button name="action_cancel" type="object" string="Cancel"
                             invisible="state in ('rejected', 'cancelled')"
-                            confirm="Xác nhận hủy phiếu?"
+                            confirm="Cancel this registration?"
                             groups="wujia_portal_exam.group_exam_manager"/>
                     <field name="state" widget="statusbar"
                            statusbar_visible="submitted,confirmed"/>
@@ -32,20 +32,20 @@
                         <h1><field name="name" readonly="1"/></h1>
                     </div>
                     <group>
-                        <group string="Kỳ thi">
+                        <group string="Exam session">
                             <field name="session_id" options="{'no_create': True}"/>
                             <field name="course_id" readonly="1"/>
                             <field name="request_date" readonly="1"/>
                             <field name="participant_count"/>
                         </group>
-                        <group string="Cửa hàng">
+                        <group string="Store">
                             <field name="franchise_id" options="{'no_create': True}"/>
                             <field name="requester_user_id" readonly="1"/>
                             <field name="member_id" options="{'no_create': True}"/>
                         </group>
                     </group>
                     <notebook>
-                        <page string="Danh sách dự thi" name="participants">
+                        <page string="Candidate list" name="participants">
                             <field name="line_ids">
                                 <list editable="bottom">
                                     <field name="sequence" widget="handle"/>
@@ -60,16 +60,16 @@
                                 </list>
                             </field>
                         </page>
-                        <page string="Ghi chú &amp; xử lý" name="notes">
-                            <field name="note" placeholder="Ghi chú phiếu đăng ký..."/>
-                            <separator string="Lý do từ chối" invisible="state != 'rejected'"/>
+                        <page string="Notes &amp; processing" name="notes">
+                            <field name="note" placeholder="Registration note..."/>
+                            <separator string="Rejection reason" invisible="state != 'rejected'"/>
                             <field name="reject_reason" nolabel="1"
                                    invisible="state != 'rejected'"
-                                   placeholder="Bắt buộc khi từ chối..."/>
-                            <separator string="Lý do hủy" invisible="state != 'cancelled'"/>
+                                   placeholder="Required when rejecting..."/>
+                            <separator string="Cancellation reason" invisible="state != 'cancelled'"/>
                             <field name="cancellation_reason" nolabel="1"
                                    invisible="state != 'cancelled'"
-                                   placeholder="Bắt buộc khi hủy..."/>
+                                   placeholder="Required when cancelling..."/>
                         </page>
                     </notebook>
                 </sheet>
@@ -82,7 +82,7 @@
         <field name="name">wujia.exam.registration.list</field>
         <field name="model">wujia.exam.registration</field>
         <field name="arch" type="xml">
-            <list string="Phiếu đăng ký" sample="1"
+            <list string="Registration" sample="1"
                   decoration-info="state == 'submitted'"
                   decoration-success="state == 'confirmed'"
                   decoration-danger="state == 'rejected'"
@@ -112,18 +112,18 @@
                 <field name="course_id"/>
                 <field name="franchise_id"/>
                 <separator/>
-                <filter string="Chờ duyệt" name="filter_submitted"
+                <filter string="Pending approval" name="filter_submitted"
                         domain="[('state', '=', 'submitted')]"/>
-                <filter string="Đã duyệt" name="filter_confirmed"
+                <filter string="Approved" name="filter_confirmed"
                         domain="[('state', '=', 'confirmed')]"/>
-                <filter string="Từ chối" name="filter_rejected"
+                <filter string="Rejected" name="filter_rejected"
                         domain="[('state', '=', 'rejected')]"/>
                 <group name="group_by">
-                    <filter string="Kỳ thi" name="group_session"
+                    <filter string="Exam session" name="group_session"
                             context="{'group_by': 'session_id'}"/>
-                    <filter string="Cửa hàng" name="group_franchise"
+                    <filter string="Store" name="group_franchise"
                             context="{'group_by': 'franchise_id'}"/>
-                    <filter string="Trạng thái" name="group_state"
+                    <filter string="Status" name="group_state"
                             context="{'group_by': 'state'}"/>
                 </group>
             </search>
@@ -131,14 +131,14 @@
     </record>
 
     <record id="action_wujia_exam_registration" model="ir.actions.act_window">
-        <field name="name">Phiếu đăng ký</field>
+        <field name="name">Registration</field>
         <field name="res_model">wujia.exam.registration</field>
         <field name="view_mode">list,form</field>
         <field name="search_view_id" ref="view_wujia_exam_registration_search"/>
         <field name="context">{'search_default_filter_submitted': 1}</field>
         <field name="help" type="html">
-            <p class="o_view_nocontent_smiling_face">Chưa có phiếu đăng ký nào.</p>
-            <p>Phiếu đăng ký gồm nhiều nhân sự dự thi của 1 cửa hàng.</p>
+            <p class="o_view_nocontent_smiling_face">No registration yet.</p>
+            <p>A registration covers several candidates from one store.</p>
         </field>
     </record>
 

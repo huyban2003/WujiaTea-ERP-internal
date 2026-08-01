@@ -12,26 +12,26 @@ class WujiaNotificationRead(models.Model):
     _order = 'read_date desc'
 
     notification_id = fields.Many2one(
-        'wujia.notification', string='Thông báo',
+        'wujia.notification', string='Notification',
         required=True, ondelete='cascade', index=True,
     )
     user_id = fields.Many2one(
-        'res.users', string='Người đọc',
+        'res.users', string='Reader',
         required=True, index=True, ondelete='cascade',
     )
     franchise_id = fields.Many2one(
-        'wujia.franchise.management', string='Cửa hàng',
+        'wujia.franchise.management', string='Store',
         index=True, ondelete='cascade',
     )
     member_id = fields.Many2one(
         'wujia.franchise.member', string='Membership',
         index=True, ondelete='set null',
-        help='Snapshot membership tại cửa hàng lúc ghi nhận đọc (spec F §7).',
+        help='Membership snapshot at the store when the read was recorded (spec F §7).',
     )
     read_date = fields.Datetime(
-        string='Đọc lần đầu', default=fields.Datetime.now, required=True,
+        string='First read', default=fields.Datetime.now, required=True,
     )
-    last_open_date = fields.Datetime(string='Mở gần nhất')
+    last_open_date = fields.Datetime(string='Last opened')
 
     _uniq_noti_user_store = models.Constraint(
         'unique(notification_id, user_id, franchise_id)',

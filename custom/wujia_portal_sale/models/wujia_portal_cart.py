@@ -16,7 +16,7 @@ class WujiaPortalCart(models.Model):
         ondelete='cascade',
         index=True,
     )
-    note = fields.Text(string='Ghi chú đơn hàng')
+    note = fields.Text(string='Order note')
     line_ids = fields.One2many('wujia.portal.cart.line', 'cart_id')
 
     _franchise_uniq = models.Constraint(

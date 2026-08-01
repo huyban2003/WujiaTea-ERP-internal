@@ -2,42 +2,42 @@
 <odoo>
 
     <menuitem id="menu_wujia_exam_root"
-              name="Đào tạo / Thi"
+              name="Training / Exams"
               parent="wujia_franchise.menu_wujia_root"
               sequence="40"
               groups="wujia_portal_exam.group_exam_user"/>
 
     <menuitem id="menu_wujia_exam_operation"
-              name="Vận hành"
+              name="Operation"
               parent="menu_wujia_exam_root"
               sequence="10"/>
 
     <menuitem id="menu_wujia_exam_session"
-              name="Kỳ thi"
+              name="Exam session"
               parent="menu_wujia_exam_operation"
               action="action_wujia_exam_session"
               sequence="10"/>
 
     <menuitem id="menu_wujia_exam_registration"
-              name="Phiếu đăng ký"
+              name="Registration"
               parent="menu_wujia_exam_operation"
               action="action_wujia_exam_registration"
               sequence="20"/>
 
     <menuitem id="menu_wujia_exam_config"
-              name="Cấu hình"
+              name="Configuration"
               parent="menu_wujia_exam_root"
               sequence="90"
               groups="wujia_portal_exam.group_exam_manager"/>
 
     <menuitem id="menu_wujia_exam_course"
-              name="Khóa thi"
+              name="Exam course"
               parent="menu_wujia_exam_config"
               action="action_wujia_exam_course"
               sequence="10"/>
 
     <menuitem id="menu_wujia_exam_time_slot"
-              name="Ca thi"
+              name="Time slot"
               parent="menu_wujia_exam_config"
               action="action_wujia_exam_time_slot"
               sequence="20"/>

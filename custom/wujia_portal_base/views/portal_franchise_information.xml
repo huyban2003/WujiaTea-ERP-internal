@@ -14,7 +14,7 @@
             <t t-set="nguoi_phu_trach"
                t-value="(owner_member.user_id.name if owner_member else False) or franchise.partner_id.name or '—'"/>
             <t t-set="status_label"
-               t-value="dict(franchise._fields['status'].selection).get(franchise.status, franchise.status)"/>
+               t-value="status_labels.get(franchise.status, franchise.status)"/>
 
             <t t-set="acct_page" t-value="'store'"/>
             <t t-set="acct_title">Thông tin cửa hàng</t>
@@ -182,7 +182,7 @@
                     <div class="wujia-maccount-badgerow">
                         <span class="wujia-badge wujia-badge-info" t-out="franchise.code or '—'"/>
                         <span class="wujia-badge wujia-badge-success"
-                              t-out="dict(franchise._fields['status'].selection).get(franchise.status, franchise.status)"/>
+                              t-out="status_labels.get(franchise.status, franchise.status)"/>
                     </div>
                     <h3 class="wujia-maccount-store-name" t-out="franchise.name or '—'"/>
                     <p class="wujia-maccount-store-sub"

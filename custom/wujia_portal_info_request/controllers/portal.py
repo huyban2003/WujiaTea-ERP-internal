@@ -34,6 +34,20 @@ _logger = logging.getLogger(__name__)
 
 PAGE_SIZE = 20
 
+# Nhãn VN của wujia.info.update.request.request_type. Pin cứng tại đây vì source đã chuyển
+# sang tiếng Anh (sprint 44) — portal phải giữ tiếng Việt.
+# Key phải khớp REQUEST_TYPE trong models/wujia_info_update_request.py (giữ đúng thứ tự).
+REQUEST_TYPE_LABELS = {
+    'address': 'Địa chỉ',
+    'phone': 'Số điện thoại',
+    'email': 'Email',
+    'owner_name': 'Tên chủ cửa hàng',
+    'bank_info': 'Thông tin ngân hàng',
+    'representative': 'Người đại diện',
+    'other': 'Khác',
+}
+REQUEST_TYPE_OPTIONS = [(code, REQUEST_TYPE_LABELS[code]) for code, _label in REQUEST_TYPE]
+
 STATE_LABELS = {
     'draft': ('Nháp', 'wujia-badge-muted'),
     'submitted': ('Đã gửi', 'wujia-badge-info'),
@@ -53,7 +67,7 @@ class WujiaPortalInfoRequest(http.Controller):
                 'wujia_portal_info_request.portal_info_request_list',
                 {'requests': [], 'pager': {}, 'state_labels': STATE_LABELS,
                  'no_franchise': True, 'state': '', 'request_type': '',
-                 'request_type_options': REQUEST_TYPE},
+                 'request_type_options': REQUEST_TYPE_OPTIONS},
             )
         Model = request.env['wujia.info.update.request'].sudo()
         domain = [('franchise_id', 'in', list(franchise_ids))]
@@ -82,7 +96,7 @@ class WujiaPortalInfoRequest(http.Controller):
                 'state_labels': STATE_LABELS,
                 'no_franchise': False,
                 'state': state, 'request_type': request_type,
-                'request_type_options': REQUEST_TYPE,
+                'request_type_options': REQUEST_TYPE_OPTIONS,
             },
         )
 
@@ -146,6 +160,7 @@ class WujiaPortalInfoRequest(http.Controller):
         return request.render(
             'wujia_portal_info_request.portal_info_request_detail',
             {'rec': rec, 'state_labels': STATE_LABELS,
+             'request_type_labels': REQUEST_TYPE_LABELS,
              'message': kw.get('message')},
         )
 
@@ -196,7 +211,7 @@ class WujiaPortalInfoRequest(http.Controller):
             'wujia_portal_info_request.portal_info_request_form',
             {
                 'franchises': franchises,
-                'request_type_options': REQUEST_TYPE,
+                'request_type_options': REQUEST_TYPE_OPTIONS,
                 'error': error,
                 'values': prefill or {},
             },

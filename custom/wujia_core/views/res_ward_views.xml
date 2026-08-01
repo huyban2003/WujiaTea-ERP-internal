@@ -5,7 +5,7 @@
         <field name="name">res.ward.list</field>
         <field name="model">res.ward</field>
         <field name="arch" type="xml">
-            <list string="Phường/Xã" sample="1">
+            <list string="Wards" sample="1">
                 <field name="code"/>
                 <field name="name"/>
                 <field name="state_id"/>
@@ -19,7 +19,7 @@
         <field name="name">res.ward.form</field>
         <field name="model">res.ward</field>
         <field name="arch" type="xml">
-            <form string="Phường/Xã">
+            <form string="Wards">
                 <sheet>
                     <widget name="web_ribbon" title="Archived" bg_color="text-bg-danger"
                             invisible="active"/>
@@ -52,19 +52,19 @@
                 <filter string="Archived" name="filter_inactive"
                         domain="[('active', '=', False)]"/>
                 <separator/>
-                <filter string="Tỉnh/Thành" name="group_state"
+                <filter string="Province" name="group_state"
                         context="{'group_by': 'state_id'}"/>
             </search>
         </field>
     </record>
 
     <record id="action_res_ward" model="ir.actions.act_window">
-        <field name="name">Phường/Xã</field>
+        <field name="name">Wards</field>
         <field name="res_model">res.ward</field>
         <field name="view_mode">list,form</field>
         <field name="help" type="html">
-            <p class="o_view_nocontent_smiling_face">Tạo phường/xã đầu tiên</p>
-            <p>Phường/Xã thuộc tỉnh/thành, có thể gán vào khu vực kinh doanh để tổng hợp dữ liệu giao hàng.</p>
+            <p class="o_view_nocontent_smiling_face">Create the first ward</p>
+            <p>A ward belongs to a province and can be assigned to a business area to aggregate delivery data.</p>
         </field>
     </record>
 

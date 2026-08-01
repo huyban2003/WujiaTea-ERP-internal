@@ -1,0 +1,229 @@
+\chapter{Sprint 44 --- Chuẩn hoá nhãn backend sang tiếng Anh, portal giữ tiếng Việt (2026-08-02)}
+
+\section{Bối cảnh}
+
+Backend Wujia đang là \textbf{hỗn hợp hai ngôn ngữ}: nhãn do Odoo core sinh ra thì tiếng Anh, nhãn do
+19 module Wujia tự khai thì tiếng Việt. Người dùng backend là đội Ngô Gia (một nhóm nhỏ, có nghiệp vụ
+ERP); người dùng portal là \textbf{$\sim$1500 chủ tiệm nhượng quyền} --- hai tập người dùng khác hẳn
+nhau nhưng đang ăn chung một kho chuỗi.
+
+Mục tiêu sprint: \textbf{màn quản trị đọc bằng tiếng Anh, portal Y NGUYÊN tiếng Việt}, và có file
+\texttt{vi\_VN.po} đầy đủ để đổi ngôn ngữ được \emph{hai chiều} --- ai muốn xem backend tiếng Việt
+vẫn bật lại được, thấy đúng chữ như trước sprint.
+
+\section{Cách làm --- dịch tại chỗ, không sed toàn cục}
+
+\texttt{scripts/ba\_spec/i18n\_sprint44/i18n\_tool.py} (dev-only, gitignored) quét \emph{đúng những
+vị trí được coi là nhãn backend} rồi thay tại chỗ:
+
+\begin{center}
+\begin{tabular}{p{3.2cm}p{10.6cm}}
+\hline
+\textbf{Loại file} & \textbf{Vị trí được nhận là nhãn backend} \\
+\hline
+XML attr & \texttt{string=} \texttt{help=} \texttt{confirm=} \texttt{placeholder=},
+  \texttt{<menuitem name=>} \\
+XML node & \texttt{<field name="name">} của act\_window / menuitem / res.groups / ir.rule; text
+  trong \texttt{<t t-name="card">}; text trong help html \\
+PY & \texttt{string=} \texttt{help=} \texttt{\_description=} và nhãn trong \texttt{Selection([...])} \\
+\hline
+\end{tabular}
+\end{center}
+
+\textbf{Loại trừ tuyệt đối}: mọi template portal (\texttt{portal\_*.xml}, \texttt{mobile\_*.xml},
+\texttt{pc\_*.xml}, \texttt{*sidenav*}, \texttt{layouts}, \texttt{templates}\ldots), thư mục
+\texttt{data/} (dữ liệu nghiệp vụ hiện trên portal), mọi text \texttt{ValidationError} /
+\texttt{UserError}, comment và docstring, thư mục \texttt{tests/}.
+
+Kết quả đợt đầu: \textbf{636 chuỗi trên 81 file}, kèm \textbf{14 file \texttt{i18n/vi\_VN.po}} sinh
+từ \texttt{trans\_export} thật (không gõ tay) để chiều ngược lại luôn khớp.
+
+\section{Ba việc phát sinh --- và vì sao chúng là việc thật}
+
+\subsection{Va chạm động từ / trạng thái (13 sửa)}
+
+Script dịch hàng loạt ánh xạ \emph{một} chuỗi Việt sang \emph{một} chuỗi Anh. Nhưng tiếng Việt dùng
+chung một từ cho hai vai: \emph{``Từ chối''} vừa là \textbf{nút bấm} vừa là \textbf{trạng thái}. Sau
+khi dịch, form phiếu đổi trả hiện \texttt{Reject} (nút) cạnh \texttt{Reject} (bậc statusbar) ---
+người dùng không phân biệt được cái nào bấm được.
+
+Nguyên tắc chốt: \textbf{nút $=$ động từ, state/filter $=$ tính từ}.
+
+\begin{center}
+\begin{tabular}{p{5.6cm}p{3.4cm}p{4.4cm}}
+\hline
+\textbf{Chỗ} & \textbf{Trước} & \textbf{Sau} \\
+\hline
+STATE của return / info-request / exam & \texttt{Reject} & \texttt{Rejected} \\
+state \texttt{archived} của notification / fleet pricelist & \texttt{Archive} & \texttt{Archived} \\
+filter tương ứng (4 chỗ) & \texttt{Reject} / \texttt{Archive} & \texttt{Rejected} / \texttt{Archived} \\
+notebook page lý do & \texttt{Reject} & \texttt{Rejection reason} \\
+nút \texttt{action\_lock\_portal} & \texttt{Portal locked} & \texttt{Lock portal} \\
+nút \texttt{action\_delivery\_assign} & \texttt{Vehicle assigned} & \texttt{Assign vehicle} \\
+\hline
+\end{tabular}
+\end{center}
+
+Sáu nút \texttt{Reject}/\texttt{Archive} thật (hành động) \textbf{giữ nguyên} --- chúng vốn đã đúng.
+
+Điểm quan trọng: \texttt{.po} chỉ cấm \emph{hai msgid trùng nhau}, không cấm hai msgid trả cùng một
+msgstr. Nên \texttt{Reject} và \texttt{Rejected} cùng ra \emph{``Từ chối''}, \texttt{Archive} và
+\texttt{Archived} cùng ra \emph{``Lưu trữ''}: người xem \texttt{vi\_VN} thấy chữ \textbf{y hệt trước
+sprint}, còn người xem \texttt{en\_US} có hai từ phân biệt.
+
+\subsection{Ba chỗ portal đọc thẳng nhãn của model}
+
+Đây là loại lỗi nguy hiểm nhất của sprint: template portal \emph{không chứa} chữ tiếng Anh nào,
+nhưng nó đọc \texttt{record.\_fields['x'].selection} --- mà selection vừa bị dịch. Portal đổi ngôn
+ngữ theo backend một cách gián tiếp.
+
+\begin{center}
+\begin{tabular}{p{3.4cm}p{4.6cm}p{5.4cm}}
+\hline
+\textbf{Seam} & \textbf{Chỗ hở} & \textbf{Bịt bằng} \\
+\hline
+W2a trạng thái cửa hàng & 3 site QWeb đọc
+  \texttt{franchise.\_fields['status']} & \texttt{FRANCHISE\_STATUS\_LABELS} trong
+  \texttt{wujia\_portal\_base/controllers} \\
+W2b mức độ ở popup chuông & \texttt{/portal/notification/recent} trả
+  \texttt{priority\_label} compute từ model & \texttt{PORTAL\_PRIORITY\_LABELS}; \texttt{PC\_PRIORITY\_TAGS}
+  đọc lại từ hằng này để còn 1 nguồn \\
+W2c loại thông tin & controller đưa thẳng \texttt{REQUEST\_TYPE} ra dropdown &
+  \texttt{REQUEST\_TYPE\_LABELS} + \texttt{REQUEST\_TYPE\_OPTIONS} \\
+\hline
+\end{tabular}
+\end{center}
+
+Pattern đã có sẵn trong repo (\texttt{BATCH\_STATUS\_LABELS} của
+\texttt{wujia\_portal\_purchase\_history}, dựng ở Sprint 43): hằng nhãn Việt pin cứng trong
+controller portal, kèm comment \emph{``key phải khớp \texttt{<CONST>} ở models/''}. Giữ đúng tinh
+thần Sprint 42: \textbf{FE vẫn đọc nhãn do backend gửi}, không tự chế bảng nhãn --- chỉ đổi
+\emph{nguồn} nhãn từ model sang hằng portal. \texttt{header\_bell\_badge.js} không sửa một dòng.
+
+\subsection{Ba nhãn Việt \emph{không dấu} lọt lưới}
+
+\texttt{i18n\_tool.py} lọc chuỗi Việt bằng \textbf{bảng ký tự có dấu}. Nên
+\texttt{extract} trả về \emph{0 chuỗi còn lại} trong khi backend vẫn còn \texttt{Ca thi} (4 site),
+\texttt{SL giao} và \texttt{\_description = 'Wujia Fleet Vehicle --- Xe'} --- tất cả đều ASCII thuần.
+Phát hiện ra nhờ đi hết 31 menu backend ở \texttt{en\_US} và \emph{nhìn}: menu \emph{Ca thi} nằm giữa
+một dàn menu tiếng Anh.
+
+\begin{center}
+\begin{tabular}{p{5.0cm}p{4.0cm}p{4.4cm}}
+\hline
+\textbf{Chỗ} & \textbf{en\_US} & \textbf{vi\_VN (giữ nguyên)} \\
+\hline
+menu + list + form + act\_window ca thi & \texttt{Time slot} & \emph{Ca thi} \\
+\texttt{delivery\_qty} của wizard bù hàng & \texttt{Delivery qty} & \emph{SL giao} \\
+\texttt{\_description} của \texttt{wujia.fleet.management} & \texttt{Wujia Fleet Vehicle} &
+  \emph{Wujia Fleet Vehicle --- Xe} \\
+\hline
+\end{tabular}
+\end{center}
+
+\section{Bẫy lớn nhất của sprint --- \texttt{.pot} cũ nuốt cả file \texttt{.po}}
+
+Sau khi nạp \texttt{.po} bằng \texttt{-{}-i18n-overwrite}, SQL đối chiếu vẫn báo \textbf{38 dòng có
+\texttt{en\_US} nhưng \texttt{vi\_VN} rỗng} --- đúng 38 dòng đó lại \emph{có} msgstr đúng trong file
+\texttt{.po}. File đúng, nạp xong, mà DB không đổi.
+
+Nguyên nhân nằm ở \texttt{odoo/tools/translate.py} (\texttt{PoFileReader.\_\_init\_\_}): khi nạp
+\texttt{<module>/i18n/vi\_VN.po}, Odoo \textbf{tự suy ra} \texttt{<module>.pot} cùng thư mục rồi
+\texttt{merge} vào:
+
+\begin{lstlisting}[style=python]
+filename = path.parent.parent.name + '.pot'
+pot_path = path.with_name(filename)
+...
+if pot_path:
+    self.pofile.merge(polib.pofile(pot_path))
+\end{lstlisting}
+
+Ba module (\texttt{wujia\_sale}, \texttt{wujia\_portal\_knowledge},
+\texttt{wujia\_portal\_support}) --- đúng ba module có sẵn \texttt{.pot} từ sprint trước --- vẫn giữ
+\texttt{.pot} với msgid \textbf{tiếng Việt cũ}. \texttt{polib.merge} lấy \texttt{.pot} làm chuẩn, nên
+mọi msgid tiếng Anh mới bị đánh dấu \texttt{obsolete}, và \texttt{\_\_iter\_\_} thì
+\texttt{if entry.obsolete: continue}. File \texttt{.po} nạp vào nhưng \textbf{rỗng về mặt hiệu lực}.
+
+Bằng chứng: \texttt{translation\_file\_reader} trên \texttt{wujia\_sale/i18n/vi\_VN.po} trả 85 dòng
+với đúng \textbf{7 dòng không rỗng}, và \texttt{src} của chúng là các chuỗi Việt \emph{không còn tồn
+tại trong file} (\emph{``Đơn từ Portal''}, \emph{``Cửa hàng nhượng quyền''}).
+
+Cách sửa: \texttt{gen\_po.py} sinh lại \texttt{.pot} \emph{cùng lúc} với \texttt{.po} cho mọi module
+có \texttt{.pot}. Sau đó số dòng thiếu tụt \textbf{38 $\rightarrow$ 0}.
+
+\section{Kiểm chứng}
+
+\begin{itemize}
+  \item \textbf{Build}: 15 module, \texttt{-u \$MODS -{}-i18n-overwrite -{}-test-enable
+    -{}-stop-after-init} $\Rightarrow$ \textbf{RC$=$0}, \textbf{49 post-test, 0 failed / 0 error},
+    \texttt{Traceback} $=$ \textbf{0}. (49 test này thuộc \texttt{wujia\_portal\_debt} 14 $+$
+    \texttt{wujia\_portal\_notification} 35; 13 module còn lại không có thư mục \texttt{tests/} ---
+    nói \emph{``đã chạy 49 test''}, không nói \emph{``đã test 15 module''}.)
+  \item \textbf{SQL hai ngôn ngữ} (\texttt{verify\_i18n.py}): soát \texttt{ir\_model\_fields},
+    \texttt{ir\_model\_fields\_selection}, \texttt{ir\_ui\_menu}, \textbf{chỉ những dòng do 15 module
+    Wujia sở hữu} (join \texttt{ir\_model\_data}) $\Rightarrow$ \textbf{0 dòng thiếu}, và 5 nhãn tách
+    mới đều ra đúng chữ Việt đã chốt.
+  \item \textbf{Đổi ngôn ngữ hai chiều} (\texttt{toggle\_lang\_check.py}): so \emph{token chính xác}
+    trong header form. \texttt{en\_US} cho \texttt{Reject}(nút, phiếu \texttt{submitted}) và
+    \texttt{Rejected}(state, phiếu \texttt{rejected}) tách bạch; \texttt{vi\_VN} cho \emph{``Từ
+    chối''} cả hai. Notification và bảng giá xe hiện \emph{đồng thời} \texttt{Archive} $+$
+    \texttt{Archived} --- đúng chỗ trước W1 hiện hai chữ y hệt.
+  \item \textbf{Portal 391$\times$844} (\texttt{portal\_vi\_smoke.py}): 9 trang, chạy \emph{hai lượt}
+    --- admin ở \texttt{vi\_VN} và ở \texttt{en\_US}. Lượt \texttt{en\_US} mới là lượt quan trọng vì
+    đó là trạng thái sau sprint. Kết quả: 200 hết, \textbf{overflow ngang $=$ 0}, không rò token
+    tiếng Anh. Ba seam soi bằng dữ liệu thật: popup chuông trả \emph{Cần làm / Quan trọng / Thông
+    thường}; dropdown loại thông tin ra 7 nhãn Việt; badge trạng thái cửa hàng ra tiếng Việt.
+  \item \textbf{Menu backend} (\texttt{menu\_walk.py}): \textbf{31/31} menu có action mở được ở
+    \texttt{en\_US}, không 500 / OwlError / error dialog. \texttt{check\_kanban.py}: cả hai kanban
+    (Hỗ Trợ, Kiến thức) vẫn render sau fix \texttt{kanban-box} $\rightarrow$ \texttt{card} của Odoo 19.
+\end{itemize}
+
+\section{Chưa làm --- và vì sao}
+
+\begin{itemize}
+  \item \textbf{11 finding ``dịch chưa sát nghĩa''} (Province/City, Severity, nhãn nút wizard\ldots)
+    --- defer chờ BA chốt từ vựng. Nguồn: \texttt{review\_findings\_raw.txt}.
+  \item \textbf{Nhãn \texttt{wujia.franchise.member.role}} (\emph{Chủ tiệm / Quản lý / Nhân viên})
+    vẫn tiếng Việt: nó nằm trong \texttt{display\_name} đã store, đổi cần migration.
+  \item \textbf{Menu vốn đã tiếng Anh từ trước} (\emph{Franchise Management}, \emph{Fleet
+    Management}\ldots) \textbf{chưa có bản dịch \texttt{vi\_VN}} --- ai xem backend bằng
+    \texttt{vi\_VN} sẽ thấy các menu đó bằng tiếng Anh. Đây là tồn có sẵn, không phải hồi quy.
+  \item \textbf{Hai chỗ portal vốn đã tiếng Anh từ trước sprint}, đã đối chiếu \texttt{git show
+    HEAD}: \texttt{portal\_support.xml:430} (\emph{Normal/Urgent}) và
+    \texttt{portal\_franchise\_information.xml:248--249} (badge thành viên \emph{Active/Inactive},
+    trong khi bản PC dòng 124 lại ghi \emph{``Đang hoạt động''} --- lệch sẵn). Không phải hồi quy
+    sprint 44; ghi vào tồn để BA chốt.
+  \item \textbf{UAT}: đã đổi \texttt{lang} của admin sang \texttt{en\_US} trên LOCAL; UAT chỉ đổi
+    \textbf{sau khi deploy} code sprint 44 --- đổi trước thì màn quản trị lẫn lộn tiếng Anh của core
+    với tiếng Việt của source cũ, còn rối hơn.
+\end{itemize}
+
+\section{Bài học}
+
+\begin{itemize}
+  \item \textbf{Một từ tiếng Việt có thể là hai từ tiếng Anh.} Dịch 1--1 làm hỏng chỗ mà tiếng Việt
+    dùng chung từ cho nút và cho trạng thái. Quy tắc để lại: \emph{nút $=$ động từ, state/filter $=$
+    tính từ}; và hai msgid trả cùng một msgstr là hợp lệ, nên chiều \texttt{vi\_VN} không mất gì.
+  \item \textbf{Template không chứa chữ tiếng Anh vẫn có thể rò tiếng Anh.} Chỗ hở là
+    \texttt{\_fields[...].selection}, không phải chữ trong file. Muốn portal độc lập ngôn ngữ thì
+    phải \emph{pin nhãn ở controller portal}, không đọc nhờ nhãn của model.
+  \item \textbf{Odoo tự merge \texttt{<module>.pot} khi nạp \texttt{.po}.} Một \texttt{.pot} cũ đủ
+    làm cả file \texttt{.po} mất tác dụng \emph{trong im lặng} --- không lỗi, không cảnh báo, chỉ là
+    DB không đổi. Sinh \texttt{.po} thì phải sinh \texttt{.pot} cùng lúc.
+  \item \textbf{Bộ lọc theo dấu tiếng Việt bỏ sót tiếng Việt không dấu.} \emph{Ca thi}, \emph{SL
+    giao}, \emph{Xe} đều là ASCII. \texttt{extract} báo 0 không có nghĩa là xong --- phải đi hết menu
+    và \emph{nhìn}.
+  \item \textbf{Assert bằng \texttt{in} là assert rỗng khi một chuỗi là con của chuỗi kia.}
+    \texttt{"Reject" in "Rejected"} luôn True, nên bài test đầu tiên pass mà không chứng minh gì.
+    Phải so token chính xác.
+  \item \textbf{Overlay che trang làm mọi assert nội dung pass rỗng.} Admin là owner 3 cửa hàng và
+    chưa chọn cửa hàng nào $\Rightarrow$ \texttt{\#wujiaStoreOverlay} phủ toàn trang;
+    \texttt{innerText} chỉ trả text của overlay. Phải set sẵn cookie
+    \texttt{wujia\_active\_franchise\_id} trước khi smoke portal.
+  \item \textbf{\texttt{pkill -f 'odoo[-]bin'} chỉ an toàn khi dòng lệnh không chứa
+    \texttt{odoo-bin} ở chỗ khác.} Gộp \texttt{pkill} chung một dòng với lệnh chạy
+    \texttt{odoo-bin} thì shell tự giết chính nó (exit 144). Tách thành hai lệnh riêng.
+  \item \textbf{\texttt{odoo.conf} có \texttt{logfile=} nên redirect stdout bắt được gần như không
+    gì.} Luôn thêm \texttt{-{}-logfile=} khi cần đọc log build.
+\end{itemize}

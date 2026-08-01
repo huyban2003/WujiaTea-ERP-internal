@@ -10,16 +10,16 @@ class WujiaNotificationType(models.Model):
     _description = 'Wujia Notification Type'
     _order = 'sequence, code'
 
-    name = fields.Char(string='Tên loại', required=True, translate=True)
-    code = fields.Char(string='Mã loại', required=True)
-    description = fields.Text(string='Mô tả')
-    bg_color = fields.Char(string='Màu nền', default='#1f4180')
-    text_color = fields.Char(string='Màu chữ', default='#ffffff')
+    name = fields.Char(string='Type name', required=True, translate=True)
+    code = fields.Char(string='Type code', required=True)
+    description = fields.Text(string='Description')
+    bg_color = fields.Char(string='Background colour', default='#1f4180')
+    text_color = fields.Char(string='Text colour', default='#ffffff')
     icon = fields.Char(string='Icon (FontAwesome)', default='fa-bell')
     sequence = fields.Integer(default=10)
     active = fields.Boolean(default=True)
     notification_count = fields.Integer(
-        string='Số thông báo', compute='_compute_notification_count',
+        string='Notification count', compute='_compute_notification_count',
     )
 
     _uniq_code = models.Constraint(

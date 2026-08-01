@@ -3,36 +3,36 @@ from odoo import fields, models, tools
 
 class WujiaFranchiseShippingReport(models.Model):
     _name = 'wujia.franchise.shipping.report'
-    _description = 'Báo cáo chi phí giao hàng theo cửa hàng (per picking)'
+    _description = 'Delivery cost report by store (per picking)'
     _auto = False
     _order = 'report_date desc, franchise_id'
 
-    report_date = fields.Date(string='Ngày báo cáo', readonly=True)
-    franchise_id = fields.Many2one('wujia.franchise.management', string='Cửa hàng', readonly=True)
-    franchise_partner_id = fields.Many2one('res.partner', string='Partner cửa hàng', readonly=True)
-    area_id = fields.Many2one('res.area', string='Khu vực', readonly=True)
-    picking_id = fields.Many2one('stock.picking', string='Phiếu xuất', readonly=True)
+    report_date = fields.Date(string='Report date', readonly=True)
+    franchise_id = fields.Many2one('wujia.franchise.management', string='Store', readonly=True)
+    franchise_partner_id = fields.Many2one('res.partner', string='Store partner', readonly=True)
+    area_id = fields.Many2one('res.area', string='Area', readonly=True)
+    picking_id = fields.Many2one('stock.picking', string='Delivery order', readonly=True)
     batch_id = fields.Many2one('stock.picking.batch', string='Batch', readonly=True)
-    vehicle_id = fields.Many2one('wujia.fleet.management', string='Xe', readonly=True)
-    provider_id = fields.Many2one('wujia.fleet.provider', string='Đội xe', readonly=True)
-    planned_weight = fields.Float(string='KL dự kiến', readonly=True, digits='Stock Weight')
-    done_weight = fields.Float(string='KL thực xuất', readonly=True, digits='Stock Weight')
+    vehicle_id = fields.Many2one('wujia.fleet.management', string='Vehicle', readonly=True)
+    provider_id = fields.Many2one('wujia.fleet.provider', string='Carrier', readonly=True)
+    planned_weight = fields.Float(string='Planned weight (report)', readonly=True, digits='Stock Weight')
+    done_weight = fields.Float(string='Actual shipped weight', readonly=True, digits='Stock Weight')
     shipping_cost_allocated = fields.Monetary(
-        string='Cước phân bổ',
+        string='Allocated rate',
         currency_field='currency_id',
         readonly=True,
     )
     drop_fee_allocated = fields.Monetary(
-        string='Phí drop phân bổ',
+        string='Allocated drop fee',
         currency_field='currency_id',
         readonly=True,
     )
     total_cost_allocated = fields.Monetary(
-        string='Tổng chi phí phân bổ',
+        string='Total allocated cost',
         currency_field='currency_id',
         readonly=True,
     )
-    currency_id = fields.Many2one('res.currency', string='Tiền tệ', readonly=True)
+    currency_id = fields.Many2one('res.currency', string='Currency', readonly=True)
 
     def init(self):
         tools.drop_view_if_exists(self.env.cr, self._table)

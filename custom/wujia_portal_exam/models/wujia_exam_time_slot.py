@@ -9,10 +9,10 @@ class WujiaExamTimeSlot(models.Model):
     _description = 'Wujia Exam Time Slot'
     _order = 'time_from, id'
 
-    name = fields.Char(string='Tên ca thi', required=True)
-    code = fields.Char(string='Mã ca', required=True)
-    time_from = fields.Float(string='Giờ bắt đầu', required=True)
-    time_to = fields.Float(string='Giờ kết thúc', required=True)
+    name = fields.Char(string='Time slot name', required=True)
+    code = fields.Char(string='Slot code', required=True)
+    time_from = fields.Float(string='Start time', required=True)
+    time_to = fields.Float(string='End time', required=True)
     sequence = fields.Integer(default=10)
     active = fields.Boolean(default=True)
 

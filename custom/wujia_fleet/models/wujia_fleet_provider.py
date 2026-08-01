@@ -9,53 +9,52 @@ EMAIL_RE = re.compile(r'^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$')
 
 class WujiaFleetProvider(models.Model):
     _name = 'wujia.fleet.provider'
-    _description = 'Wujia Fleet Provider — Nhà xe / Đội xe'
+    _description = 'Wujia Fleet Provider'
     _inherit = ['mail.thread', 'mail.activity.mixin']
     _order = 'name'
 
     name = fields.Char(
-        string='Tên đội xe',
+        string='Carrier name',
         required=True,
         tracking=True,
-        help='Tên đội xe / nhà xe, ví dụ "CTY TNHH Vận Tải Nguyễn Dũng".',
+        help='Carrier name, e.g. "Nguyen Dung Transport Co., Ltd".',
     )
     code = fields.Char(
-        string='Mã đội xe',
+        string='Carrier code',
         tracking=True,
         index=True,
-        help='Mã ngắn dùng cho lookup, ví dụ NDUNG, AHOO.',
+        help='Short code used for lookup, e.g. NDUNG, AHOO.',
     )
     partner_id = fields.Many2one(
         'res.partner',
         string='Partner',
         ondelete='restrict',
         tracking=True,
-        help='Link tới contact / vendor của Odoo nếu đội xe là nhà cung cấp '
-             'và cần xuất PO.',
+        help="Link to the Odoo contact / vendor when the carrier is a supplier and a PO has to be issued.",
     )
     provider_type = fields.Selection(
         [
-            ('company', 'Xe công ty'),
-            ('outsource', 'Thuê ngoài'),
+            ('company', 'Company-owned'),
+            ('outsource', 'Outsourced'),
         ],
-        string='Loại đội xe',
+        string='Carrier type',
         required=True,
         default='outsource',
         tracking=True,
         index=True,
     )
-    description = fields.Text(string='Mô tả')
-    contact_name = fields.Char(string='Người liên hệ')
-    phone = fields.Char(string='SĐT')
+    description = fields.Text(string='Description')
+    contact_name = fields.Char(string='Contact person')
+    phone = fields.Char(string='Phone')
     email = fields.Char(string='Email')
 
     vehicle_ids = fields.One2many(
         'wujia.fleet.management',
         'provider_id',
-        string='Danh sách xe',
+        string='Vehicles',
     )
     vehicle_count = fields.Integer(
-        string='Số xe',
+        string='Vehicle count',
         compute='_compute_vehicle_count',
         store=True,
         compute_sudo=True,

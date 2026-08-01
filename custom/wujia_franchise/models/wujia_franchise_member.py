@@ -24,7 +24,7 @@ class WujiaFranchiseMember(models.Model):
     )
     franchise_id = fields.Many2one(
         'wujia.franchise.management',
-        string='Cửa hàng nhượng quyền',
+        string='Franchise store',
         required=True,
         ondelete='cascade',
         index=True,
@@ -40,15 +40,15 @@ class WujiaFranchiseMember(models.Model):
         default=ROLE_STAFF,
     )
     is_primary_owner = fields.Boolean(
-        string='Chủ chính',
+        string='Primary owner',
         default=False,
-        help='Đánh dấu chủ chính của cửa hàng. Mỗi cửa hàng chỉ có 1 chủ chính.',
+        help='Marks the primary owner of the store. Each store has exactly one primary owner.',
     )
     date_from = fields.Date(
-        string='Hiệu lực từ',
+        string='Valid from',
         default=fields.Date.context_today,
     )
-    date_to = fields.Date(string='Hiệu lực đến')
+    date_to = fields.Date(string='Valid until')
     active = fields.Boolean(default=True)
 
     display_name = fields.Char(compute='_compute_display_name', store=True)

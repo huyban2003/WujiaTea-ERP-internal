@@ -6,9 +6,9 @@ from odoo.exceptions import ValidationError
 PHONE_RE = re.compile(r'^(0|\+84)[0-9]{8,10}$')
 
 RESULT_STATE = [
-    ('pending', 'Chưa có kết quả'),
-    ('passed', 'Đạt'),
-    ('failed', 'Không đạt'),
+    ('pending', 'No result yet'),
+    ('passed', 'Passed'),
+    ('failed', 'Failed'),
 ]
 
 
@@ -20,7 +20,7 @@ class WujiaExamRegistrationLine(models.Model):
     _order = 'registration_id, sequence, id'
 
     registration_id = fields.Many2one(
-        'wujia.exam.registration', string='Phiếu đăng ký',
+        'wujia.exam.registration', string='Registration',
         required=True, ondelete='cascade', index=True,
     )
     sequence = fields.Integer(default=10)
@@ -30,22 +30,22 @@ class WujiaExamRegistrationLine(models.Model):
     franchise_id = fields.Many2one(
         related='registration_id.franchise_id', store=True, index=True,
     )
-    employee_name = fields.Char(string='Họ tên nhân sự', required=True)
-    phone = fields.Char(string='Số điện thoại', required=True)
-    birth_year = fields.Integer(string='Năm sinh')
-    job_position = fields.Char(string='Vị trí công việc')
+    employee_name = fields.Char(string='Candidate full name', required=True)
+    phone = fields.Char(string='Phone number', required=True)
+    birth_year = fields.Integer(string='Year of birth')
+    job_position = fields.Char(string='Job position')
     image_1920 = fields.Image(
-        string='Ảnh dự thi', max_width=1920, max_height=1920,
+        string='Candidate photo', max_width=1920, max_height=1920,
     )
     result = fields.Selection(
-        RESULT_STATE, string='Kết quả', default='pending', required=True,
+        RESULT_STATE, string='Result', default='pending', required=True,
         index=True, tracking=True,
     )
-    result_note = fields.Text(string='Ghi chú kết quả')
+    result_note = fields.Text(string='Result note')
     result_entered_by_id = fields.Many2one(
-        'res.users', string='Người nhập KQ', readonly=True,
+        'res.users', string='Result entered by', readonly=True,
     )
-    result_entered_date = fields.Datetime(string='Ngày nhập KQ', readonly=True)
+    result_entered_date = fields.Datetime(string='Result entry date', readonly=True)
 
     @api.constrains('phone')
     def _check_phone(self):

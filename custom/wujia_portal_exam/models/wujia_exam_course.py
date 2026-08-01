@@ -9,36 +9,36 @@ class WujiaExamCourse(models.Model):
     _description = 'Wujia Exam Course'
     _order = 'name, id'
 
-    name = fields.Char(string='Tên khóa thi', required=True)
+    name = fields.Char(string='Exam course name', required=True)
     code = fields.Char(
-        string='Mã khóa', required=True, copy=False,
+        string='Course code', required=True, copy=False,
         readonly=True, default=lambda self: _('New'),
     )
-    description = fields.Html(string='Mô tả')
+    description = fields.Html(string='Description')
     time_slot_ids = fields.Many2many(
         'wujia.exam.time.slot', 'wujia_exam_course_slot_rel',
-        'course_id', 'slot_id', string='Ca thi áp dụng',
+        'course_id', 'slot_id', string='Applicable time slots',
     )
     max_participants_per_registration = fields.Integer(
-        string='Số nhân sự tối đa / phiếu', default=4,
+        string='Maximum candidates per registration', default=4,
     )
     registration_lead_days = fields.Integer(
-        string='Hạn đăng ký trước (ngày)', default=0,
-        help='Số ngày trước kỳ thi mà hệ thống đóng đăng ký.',
+        string='Registration cut-off (days)', default=0,
+        help='Number of days before the exam when registration closes.',
     )
     registration_horizon_days = fields.Integer(
-        string='Mở đăng ký trong (ngày)', default=60,
-        help='Chỉ cho phép đăng ký các kỳ thi trong khoảng ngày này kể từ hôm nay.',
+        string='Registration window (days)', default=60,
+        help='Only exam sessions within this many days from today can be registered.',
     )
     session_ids = fields.One2many(
-        'wujia.exam.session', 'course_id', string='Kỳ thi',
+        'wujia.exam.session', 'course_id', string='Exam session',
     )
     session_count = fields.Integer(
-        string='Số kỳ thi', compute='_compute_session_count',
+        string='Session count', compute='_compute_session_count',
     )
     state = fields.Selection(
-        [('draft', 'Nháp'), ('published', 'Đã phát hành')],
-        string='Trạng thái', default='draft', required=True, index=True,
+        [('draft', 'Draft'), ('published', 'Published')],
+        string='Status', default='draft', required=True, index=True,
     )
     active = fields.Boolean(default=True)
 

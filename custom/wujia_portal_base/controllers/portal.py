@@ -17,6 +17,17 @@ ROLE_LABELS = {
 }
 ROLE_RANK = {'staff': 1, 'manager': 2, 'owner': 3}
 
+# Nhãn VN của wujia.franchise.management.status. Pin cứng tại đây vì source đã chuyển
+# sang tiếng Anh (sprint 44) — portal phải giữ tiếng Việt.
+# Key phải khớp Selection `status` trong wujia_franchise/models/wujia_franchise_management.py.
+FRANCHISE_STATUS_LABELS = {
+    'draft': 'Nháp',
+    'active': 'Đang hoạt động',
+    'locked': 'Khóa',
+    'closed': 'Đã đóng',
+    'expired': 'Hết hạn',
+}
+
 ACTIVE_FRANCHISE_COOKIE = 'wujia_active_franchise_id'
 ACTIVE_FRANCHISE_COOKIE_MAX_AGE = 30 * 24 * 3600  # 30 ngày
 
@@ -387,6 +398,7 @@ class WujiaPortal(CustomerPortal):
                 'franchise': membership_sudo.franchise_id,
                 'membership': membership_sudo,
                 'role_labels': ROLE_LABELS,
+                'status_labels': FRANCHISE_STATUS_LABELS,
             },
         )
 
@@ -507,6 +519,7 @@ class WujiaPortal(CustomerPortal):
             'membership': membership_sudo,
             'members': members,
             'role_labels': ROLE_LABELS,
+            'status_labels': FRANCHISE_STATUS_LABELS,
         })
 
     # ==================================================================

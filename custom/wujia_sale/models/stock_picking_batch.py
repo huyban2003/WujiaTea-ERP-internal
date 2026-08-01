@@ -5,15 +5,14 @@ class StockPickingBatch(models.Model):
     _inherit = 'stock.picking.batch'
 
     planned_weight = fields.Float(
-        string='Khối lượng dự kiến',
+        string='Planned weight',
         compute='_compute_planned_weight',
         store=True,
         digits='Stock Weight',
-        help='Tổng khối lượng dự kiến của batch = sum(picking_ids.planned_weight). '
-             'Dùng để chọn xe phù hợp.',
+        help="Total planned weight of the batch = sum(picking_ids.planned_weight). Used to pick a suitable vehicle.",
     )
     done_weight = fields.Float(
-        string='Khối lượng đã xuất',
+        string='Delivered weight',
         compute='_compute_done_weight',
         store=True,
         digits='Stock Weight',

@@ -3,21 +3,21 @@ from odoo.exceptions import ValidationError
 
 
 STATE_SELECTION = [
-    ('draft', 'Nháp'),
-    ('submitted', 'Đã gửi'),
-    ('reviewing', 'Đang xét'),
-    ('approved', 'Đã phê duyệt'),
-    ('processing', 'Đang xử lý'),
-    ('done', 'Đã xử lý'),
-    ('rejected', 'Từ chối'),
-    ('cancelled', 'Đã huỷ'),
+    ('draft', 'Draft'),
+    ('submitted', 'Submitted'),
+    ('reviewing', 'Under review'),
+    ('approved', 'Request approved'),
+    ('processing', 'In progress'),
+    ('done', 'Processed'),
+    ('rejected', 'Rejected'),
+    ('cancelled', 'Voided'),
 ]
 
 RESOLUTION_SELECTION = [
-    ('exchange', 'Đổi hàng'),
-    ('return', 'Trả hàng'),
-    ('compensation', 'Bù hàng'),
-    ('refuse', 'Từ chối'),
+    ('exchange', 'Exchange'),
+    ('return', 'Return'),
+    ('compensation', 'Compensation'),
+    ('refuse', 'Reject'),
 ]
 
 MIN_IMAGES_BEFORE_SEND = 3
@@ -36,147 +36,147 @@ class WujiaReturnRequest(models.Model):
     _order = 'request_date desc, id desc'
 
     name = fields.Char(
-        string='Mã yêu cầu', required=True, copy=False,
+        string='Request code', required=True, copy=False,
         readonly=True, default=lambda self: '/', tracking=True,
     )
     request_date = fields.Datetime(
-        string='Ngày yêu cầu', default=fields.Datetime.now,
+        string='Request date', default=fields.Datetime.now,
         index=True, required=True, readonly=True, tracking=True,
     )
     requester_user_id = fields.Many2one(
-        'res.users', string='Người tạo',
+        'res.users', string='Created by',
         default=lambda self: self.env.user, readonly=True, index=True,
         tracking=True,
     )
     franchise_id = fields.Many2one(
-        'wujia.franchise.management', string='Cửa hàng nhượng quyền',
+        'wujia.franchise.management', string='Franchise store',
         required=True, index=True, ondelete='restrict', tracking=True,
     )
     partner_id = fields.Many2one(
-        'res.partner', string='Partner cửa hàng',
+        'res.partner', string='Store partner',
         related='franchise_id.partner_id', store=True, index=True,
     )
 
     # --- Đơn hàng gốc (1 sản phẩm/phiếu) ---
     sale_order_id = fields.Many2one(
-        'sale.order', string='Đơn hàng gốc',
+        'sale.order', string='Original order',
         domain="[('franchise_id', '=', franchise_id)]",
         ondelete='restrict', tracking=True,
     )
     sale_order_line_id = fields.Many2one(
-        'sale.order.line', string='Dòng đơn hàng',
+        'sale.order.line', string='Order line',
         domain="[('order_id', '=', sale_order_id)]",
         ondelete='restrict', tracking=True,
     )
     product_id = fields.Many2one(
-        'product.product', string='Sản phẩm',
+        'product.product', string='Product',
         related='sale_order_line_id.product_id', store=True,
         readonly=True, index=True,
     )
     product_uom_id = fields.Many2one(
-        'uom.uom', string='ĐVT đơn gốc',
+        'uom.uom', string='Original order UoM',
         related='sale_order_line_id.product_uom_id', store=True, readonly=True,
     )
     batch_id = fields.Many2one(
-        'stock.picking.batch', string='Chuyến giao',
+        'stock.picking.batch', string='Delivery trip',
         related='sale_order_id.batch_id', store=True, readonly=True, index=True,
     )
     picking_id = fields.Many2one(
-        'stock.picking', string='Phiếu giao', ondelete='set null',
+        'stock.picking', string='Delivery slip', ondelete='set null',
     )
 
     # --- Nội dung yêu cầu ---
     request_qty = fields.Float(
-        string='Số lượng yêu cầu', default=1.0,
+        string='Requested quantity', default=1.0,
         digits='Product Unit of Measure',
     )
     request_uom_id = fields.Many2one(
-        'uom.uom', string='ĐVT yêu cầu', required=True,
-        help='Đơn vị nhượng quyền ghi nhận quyền lợi (quy đổi được với ĐVT quyền lợi bù).',
+        'uom.uom', string='Requested UoM', required=True,
+        help='Unit the franchise records the entitlement in (convertible with the compensation entitlement UoM).',
     )
-    opening_datetime = fields.Datetime(string='Thời gian mở hàng', required=True)
-    production_date = fields.Date(string='Ngày sản xuất')
+    opening_datetime = fields.Datetime(string='Unboxing time', required=True)
+    production_date = fields.Date(string='Production date')
     issue_type_id = fields.Many2one(
-        'wujia.return.issue.type', string='Loại lỗi',
+        'wujia.return.issue.type', string='Issue type',
         required=True, ondelete='restrict', tracking=True,
     )
-    note = fields.Text(string='Ghi chú từ cửa hàng')
+    note = fields.Text(string='Note from the store')
     image_attachment_ids = fields.Many2many(
         'ir.attachment', 'wujia_return_image_rel',
-        'request_id', 'attachment_id', string='Ảnh minh chứng',
-        help='Tối thiểu 3 ảnh khi gửi yêu cầu (BA POR-036).',
+        'request_id', 'attachment_id', string='Evidence photos',
+        help='At least 3 photos are required when submitting (BA POR-036).',
     )
     video_attachment_ids = fields.Many2many(
         'ir.attachment', 'wujia_return_video_rel',
-        'request_id', 'attachment_id', string='Video minh chứng',
+        'request_id', 'attachment_id', string='Evidence video',
     )
 
     # --- Workflow / xử lý ---
     state = fields.Selection(
-        STATE_SELECTION, string='Trạng thái',
+        STATE_SELECTION, string='Status',
         default='submitted', required=True, index=True, tracking=True,
     )
-    backend_note = fields.Text(string='Ghi chú nội bộ')
-    reject_reason = fields.Text(string='Lý do từ chối', tracking=True)
+    backend_note = fields.Text(string='Internal note')
+    reject_reason = fields.Text(string='Rejection reason', tracking=True)
     resolution_type = fields.Selection(
-        RESOLUTION_SELECTION, string='Phương án xử lý', tracking=True,
+        RESOLUTION_SELECTION, string='Resolution type', tracking=True,
     )
-    resolved_date = fields.Datetime(string='Ngày hoàn tất', readonly=True, tracking=True)
+    resolved_date = fields.Datetime(string='Completion date', readonly=True, tracking=True)
 
     # --- Duyệt ---
     approved_qty = fields.Float(
-        string='SL duyệt bù', digits='Product Unit of Measure', tracking=True,
+        string='Approved qty', digits='Product Unit of Measure', tracking=True,
     )
-    approved_uom_id = fields.Many2one('uom.uom', string='ĐVT duyệt')
-    approved_by_id = fields.Many2one('res.users', string='Người duyệt', readonly=True)
-    approved_date = fields.Datetime(string='Ngày duyệt', readonly=True)
-    approval_note = fields.Text(string='Ghi chú duyệt')
+    approved_uom_id = fields.Many2one('uom.uom', string='Approved UoM')
+    approved_by_id = fields.Many2one('res.users', string='Approved by', readonly=True)
+    approved_date = fields.Datetime(string='Approval date', readonly=True)
+    approval_note = fields.Text(string='Approval note')
     compensation_product_id = fields.Many2one(
-        'product.product', string='Sản phẩm bù (snapshot)',
+        'product.product', string='Compensation product (snapshot)',
     )
     compensation_delivery_uom_id = fields.Many2one(
-        'uom.uom', string='ĐVT giao bù (snapshot)',
+        'uom.uom', string='Compensation delivery UoM (snapshot)',
     )
     compensation_unit_qty = fields.Float(
-        string='SL quyền lợi / đơn vị giao', digits='Product Unit of Measure',
-        help='Số lượng quyền lợi tương ứng một đơn vị giao bù (vd 1 bịch = 10 kg).',
+        string='Entitlement qty per delivery unit', digits='Product Unit of Measure',
+        help='Entitlement quantity matching one compensation delivery unit (e.g. 1 bag = 10 kg).',
     )
     compensation_policy = fields.Selection(
-        [('exact', 'Bù đúng số lượng'), ('accumulate', 'Cộng dồn nguyên kiện')],
-        string='Chính sách bù (snapshot)',
+        [('exact', 'Exact quantity'), ('accumulate', 'Whole-pack accumulation')],
+        string='Compensation policy (snapshot)',
     )
 
     # --- Theo dõi phân bổ bù (K2 populate qua allocation) ---
     allocation_ids = fields.One2many(
-        'wujia.compensation.allocation', 'request_id', string='Phân bổ bù',
+        'wujia.compensation.allocation', 'request_id', string='Compensation allocations',
     )
     allocated_qty = fields.Float(
-        string='Đã phân bổ', compute='_compute_allocation_totals', store=True,
+        string='Allocated', compute='_compute_allocation_totals', store=True,
         digits='Product Unit of Measure',
     )
     compensated_qty = fields.Float(
-        string='Đã bù thực tế', compute='_compute_allocation_totals', store=True,
+        string='Actually compensated', compute='_compute_allocation_totals', store=True,
         digits='Product Unit of Measure',
     )
     unallocated_qty = fields.Float(
-        string='Chưa phân bổ', compute='_compute_allocation_totals', store=True,
+        string='Not allocated', compute='_compute_allocation_totals', store=True,
         digits='Product Unit of Measure',
     )
     remaining_qty = fields.Float(
-        string='Còn thiếu', compute='_compute_allocation_totals', store=True,
+        string='Still short', compute='_compute_allocation_totals', store=True,
         digits='Product Unit of Measure',
     )
     compensation_status = fields.Selection(
-        [('none', 'Chưa phân bổ'), ('allocated', 'Đã phân bổ'),
-         ('partial', 'Bù một phần'), ('done', 'Đã bù đủ')],
-        string='Tình trạng bù', compute='_compute_allocation_totals', store=True,
+        [('none', 'Not allocated'), ('allocated', 'Allocated'),
+         ('partial', 'Partially compensated'), ('done', 'Fully compensated')],
+        string='Compensation state', compute='_compute_allocation_totals', store=True,
     )
     compensation_so_ids = fields.Many2many(
-        'sale.order', string='SO bù hàng',
+        'sale.order', string='Compensation sales order',
         compute='_compute_compensation_so_ids',
     )
     compensation_so_count = fields.Integer(
-        string='Số SO bù', compute='_compute_compensation_so_ids',
+        string='Compensation SO count', compute='_compute_compensation_so_ids',
     )
 
     @api.depends('allocation_ids.allocated_qty', 'allocation_ids.released_qty',

@@ -22,20 +22,19 @@ class ResConfigSettings(models.TransientModel):
         string='Portal Order Time From (fallback)',
         config_parameter=CONFIG_KEY_FROM,
         default=DEFAULT_FROM,
-        help='Giờ bắt đầu mặc định (float 0.0–24.0) khi khu vực chưa có khung giờ riêng.',
+        help='Default start hour (float 0.0–24.0) used when the area has no window of its own.',
     )
     portal_order_time_to = fields.Float(
         string='Portal Order Time To (fallback)',
         config_parameter=CONFIG_KEY_TO,
         default=DEFAULT_TO,
-        help='Giờ kết thúc mặc định (float 0.0–24.0). Nếu To < From thì khung giờ chạy qua nửa đêm.',
+        help='Default end hour (float 0.0–24.0). If To < From the window runs past midnight.',
     )
     portal_order_time_limit_enabled = fields.Boolean(
         string='Enable Portal Order Time Limit',
         config_parameter=CONFIG_KEY_ENABLED,
         default=DEFAULT_ENABLED,
-        help='Bật/tắt giới hạn khung giờ đặt hàng cho portal. '
-             'Nếu tắt thì cho phép đặt mọi lúc, bất kể `wujia.order.window`.',
+        help="Enable/disable the portal ordering time window. When off, ordering is allowed at any time regardless of `wujia.order.window`.",
     )
 
     # -------------------- helpers (class methods on env) --------------------

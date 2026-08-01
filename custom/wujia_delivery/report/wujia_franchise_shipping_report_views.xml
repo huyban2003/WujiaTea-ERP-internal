@@ -5,7 +5,7 @@
         <field name="name">wujia.franchise.shipping.report.list</field>
         <field name="model">wujia.franchise.shipping.report</field>
         <field name="arch" type="xml">
-            <list string="Chi phí giao hàng theo cửa hàng" create="false" edit="false">
+            <list string="Delivery cost by store" create="false" edit="false">
                 <field name="report_date"/>
                 <field name="franchise_id"/>
                 <field name="area_id"/>
@@ -27,7 +27,7 @@
         <field name="name">wujia.franchise.shipping.report.pivot</field>
         <field name="model">wujia.franchise.shipping.report</field>
         <field name="arch" type="xml">
-            <pivot string="Chi phí giao hàng theo cửa hàng">
+            <pivot string="Delivery cost by store">
                 <field name="franchise_id" type="row"/>
                 <field name="report_date" type="col" interval="month"/>
                 <field name="planned_weight" type="measure"/>
@@ -40,7 +40,7 @@
         <field name="name">wujia.franchise.shipping.report.graph</field>
         <field name="model">wujia.franchise.shipping.report</field>
         <field name="arch" type="xml">
-            <graph string="Chi phí giao hàng theo cửa hàng" type="bar" stacked="0">
+            <graph string="Delivery cost by store" type="bar" stacked="0">
                 <field name="franchise_id"/>
                 <field name="total_cost_allocated" type="measure"/>
             </graph>
@@ -58,16 +58,16 @@
                 <field name="vehicle_id"/>
                 <field name="provider_id"/>
                 <separator/>
-                <filter string="Tháng này" name="filter_this_month"
+                <filter string="This month" name="filter_this_month"
                         domain="[('report_date', '&gt;=', context_today().strftime('%Y-%m-01'))]"/>
                 <separator/>
-                <filter string="Cửa hàng" name="group_franchise"
+                <filter string="Store" name="group_franchise"
                         context="{'group_by': 'franchise_id'}"/>
-                <filter string="Khu vực" name="group_area"
+                <filter string="Area" name="group_area"
                         context="{'group_by': 'area_id'}"/>
-                <filter string="Đội xe" name="group_provider"
+                <filter string="Carrier" name="group_provider"
                         context="{'group_by': 'provider_id'}"/>
-                <filter string="Tháng" name="group_month"
+                <filter string="Month" name="group_month"
                         context="{'group_by': 'report_date:month'}"/>
             </search>
         </field>

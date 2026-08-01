@@ -5,24 +5,23 @@ class StockMove(models.Model):
     _inherit = 'stock.move'
 
     weight_per_unit = fields.Float(
-        string='Khối lượng/đơn vị',
+        string='Weight per unit',
         digits='Stock Weight',
         readonly=True,
-        help='Snapshot weight_per_unit từ sale.order.line nếu move sinh từ SO; '
-             'fallback product_id.weight cho move không gắn SO line.',
+        help="Snapshot of weight_per_unit from sale.order.line when the move comes from an SO; falls back to product_id.weight for moves without an SO line.",
     )
     planned_weight = fields.Float(
-        string='Khối lượng dự kiến',
+        string='Planned weight',
         compute='_compute_planned_weight',
         store=True,
         digits='Stock Weight',
     )
     done_weight = fields.Float(
-        string='Khối lượng đã xuất',
+        string='Delivered weight',
         compute='_compute_done_weight',
         store=True,
         digits='Stock Weight',
-        help='= quantity (đã xuất) × weight_per_unit. Odoo 19 dùng field `quantity`.',
+        help='= quantity (delivered) × weight_per_unit. Odoo 19 uses the `quantity` field.',
     )
 
     @api.depends('product_uom_qty', 'weight_per_unit')

@@ -8,7 +8,7 @@ class WujiaProductCategory(models.Model):
     _description = 'Wujia Portal Product Category'
     _order = 'sequence, name'
 
-    name = fields.Char(string='Tên danh mục', required=True)
+    name = fields.Char(string='Category name', required=True)
     sequence = fields.Integer(default=10)
     active = fields.Boolean(default=True)
-    product_ids = fields.One2many('product.product', 'public_categ_id', string='Sản phẩm')
+    product_ids = fields.One2many('product.product', 'public_categ_id', string='Product')

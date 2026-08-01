@@ -32,7 +32,7 @@
                                         <dt class="col-sm-4">Trạng thái</dt>
                                         <dd class="col-sm-8">
                                             <span t-attf-class="badge state-badge state-#{franchise.status}"
-                                                  t-out="dict(franchise._fields['status'].selection).get(franchise.status, franchise.status)"/>
+                                                  t-out="status_labels.get(franchise.status, franchise.status)"/>
                                             <span t-if="franchise.portal_locked" class="badge bg-danger ms-1">
                                                 <i class="fa fa-lock me-1"/>Đã khóa portal
                                             </span>

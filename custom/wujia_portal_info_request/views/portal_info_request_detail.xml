@@ -38,7 +38,7 @@
                                 <div class="col-md-6 col-12">
                                     <label class="small text-muted">Loại thông tin</label>
                                     <div class="fw-bold">
-                                        <t t-set="rt_opt" t-value="dict(rec._fields['request_type'].selection).get(rec.request_type, '—')"/>
+                                        <t t-set="rt_opt" t-value="request_type_labels.get(rec.request_type, '—')"/>
                                         <t t-out="rt_opt"/>
                                         <span t-if="rec.field_target" class="text-muted ms-1">
                                             (<t t-out="rec.field_target"/>)

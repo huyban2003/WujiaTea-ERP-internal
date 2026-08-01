@@ -37,10 +37,18 @@ PC_TYPE_TONE = {
     'SYS': ('wj-pc-noti-type--violet', 'icon-settings'),
     'OTH': ('wj-pc-noti-type--green', 'icon-info'),
 }
+# Nhãn VN của wujia.notification.priority. Pin cứng tại đây vì source đã chuyển sang
+# tiếng Anh (sprint 44) — portal phải giữ tiếng Việt.
+# Key phải khớp PRIORITY_SELECTION trong wujia_portal_notification/models/wujia_notification.py.
+PORTAL_PRIORITY_LABELS = {
+    'normal': 'Thông thường',
+    'important': 'Quan trọng',
+    'urgent': 'Cần làm',
+}
 PC_PRIORITY_TAGS = {
-    'urgent': ('Cần làm', 'wj-pc-badge--done'),
-    'important': ('Quan trọng', 'wj-pc-badge--transit'),
-    'normal': ('Thông thường', 'wj-pc-badge--confirmed'),
+    'urgent': (PORTAL_PRIORITY_LABELS['urgent'], 'wj-pc-badge--done'),
+    'important': (PORTAL_PRIORITY_LABELS['important'], 'wj-pc-badge--transit'),
+    'normal': (PORTAL_PRIORITY_LABELS['normal'], 'wj-pc-badge--confirmed'),
 }
 VALID_PRIORITIES = ('normal', 'important', 'urgent')
 
@@ -277,7 +285,7 @@ class WujiaPortalNotification(http.Controller):
             'type_code': n.type_id.code or 'GEN',
             'type_name': n.type_id.name or '',
             'priority': n.priority or 'normal',
-            'priority_label': n.priority_label or '',
+            'priority_label': PORTAL_PRIORITY_LABELS.get(n.priority or 'normal', ''),
             'has_file': bool(n.attachment_ids),
             'is_read': n.id in read_ids,
             'url': '/portal/notification/%s' % n.id,

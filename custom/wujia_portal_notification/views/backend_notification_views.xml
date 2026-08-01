@@ -9,11 +9,11 @@
         <field name="name">wujia.notification.type.list</field>
         <field name="model">wujia.notification.type</field>
         <field name="arch" type="xml">
-            <list string="Loại thông báo">
+            <list string="Notification types">
                 <field name="sequence" widget="handle"/>
                 <field name="name"/>
                 <field name="code"/>
-                <field name="notification_count" string="Số thông báo"/>
+                <field name="notification_count" string="Notification count"/>
                 <field name="active" column_invisible="True"/>
             </list>
         </field>
@@ -31,12 +31,12 @@
                         <button name="action_view_notifications" type="object"
                                 class="oe_stat_button" icon="fa-bell">
                             <field name="notification_count" widget="statinfo"
-                                   string="Thông báo"/>
+                                   string="Notification"/>
                         </button>
                     </div>
                     <div class="oe_title">
                         <label for="name"/>
-                        <h1><field name="name" placeholder="Ví dụ: Khuyến mãi"/></h1>
+                        <h1><field name="name" placeholder="e.g. Promotion"/></h1>
                     </div>
                     <group>
                         <group>
@@ -44,15 +44,15 @@
                             <field name="sequence"/>
                             <field name="active"/>
                         </group>
-                        <group string="Hiển thị trên portal">
+                        <group string="Portal visibility">
                             <field name="bg_color" widget="color"/>
                             <field name="text_color" widget="color"/>
                             <field name="icon"/>
                         </group>
                     </group>
-                    <group string="Mô tả">
+                    <group string="Description">
                         <field name="description" nolabel="1"
-                               placeholder="Nhóm thông báo này dùng cho..."/>
+                               placeholder="What this notification group is used for..."/>
                     </group>
                 </sheet>
             </form>
@@ -60,7 +60,7 @@
     </record>
 
     <record id="action_notification_type" model="ir.actions.act_window">
-        <field name="name">Loại thông báo</field>
+        <field name="name">Notification types</field>
         <field name="res_model">wujia.notification.type</field>
         <field name="view_mode">list,form</field>
         <field name="context">{'active_test': False}</field>
@@ -77,10 +77,10 @@
             <form>
                 <header>
                     <button name="action_publish" type="object"
-                            string="Gửi thông báo" class="btn-primary"
+                            string="Send notification" class="btn-primary"
                             invisible="state != 'draft'"/>
                     <button name="action_archive_notification" type="object"
-                            string="Lưu trữ"
+                            string="Archive"
                             invisible="state == 'archived'"/>
                     <field name="state" widget="statusbar"
                            statusbar_visible="draft,published,archived"/>
@@ -95,16 +95,16 @@
                         <button name="action_view_read_lines" type="object"
                                 class="oe_stat_button" icon="fa-eye"
                                 invisible="state == 'draft'">
-                            <field name="read_count" widget="statinfo" string="Đã đọc"/>
+                            <field name="read_count" widget="statinfo" string="Read"/>
                         </button>
                     </div>
                     <div class="oe_title">
                         <label for="name"/>
-                        <h1><field name="name" placeholder="Tiêu đề thông báo..."/></h1>
+                        <h1><field name="name" placeholder="Notification title..."/></h1>
                         <field name="code" readonly="1"/>
                     </div>
                     <group>
-                        <group string="Phân loại">
+                        <group string="Classification">
                             <field name="type_id"
                                    options="{'no_quick_create': True}"
                                    domain="[('active', '=', True)]"/>
@@ -113,7 +113,7 @@
                             <field name="is_pinned"/>
                             <field name="pin_expiry_date" invisible="not is_pinned"/>
                         </group>
-                        <group string="Phát hành">
+                        <group string="Publish">
                             <field name="portal_visible"/>
                             <field name="published_date"/>
                             <field name="published_by_id" invisible="state == 'draft'"/>
@@ -123,21 +123,21 @@
                             <field name="active"/>
                         </group>
                     </group>
-                    <group string="Tóm tắt">
+                    <group string="Summary">
                         <field name="summary" nolabel="1"
-                               placeholder="Mô tả ngắn hiện ở danh sách/popup. Để trống → portal tự cắt từ nội dung."/>
+                               placeholder="Short description displayed in the list/popup. Left empty, the portal excerpts the content."/>
                     </group>
                     <notebook>
-                        <page string="Nội dung" name="content">
+                        <page string="Content" name="content">
                             <field name="content" widget="html" nolabel="1"
                                    options="{'codeview': True}"/>
                         </page>
-                        <page string="File đính kèm" name="attachments">
+                        <page string="Attachments" name="attachments">
                             <field name="attachment_ids" widget="many2many_binary" nolabel="1"/>
                         </page>
-                        <page string="Cửa hàng nhận" name="franchises">
+                        <page string="Recipient stores" name="franchises">
                             <group>
-                                <group string="Gửi cho">
+                                <group string="Send to">
                                     <field name="target_mode" widget="radio"/>
                                     <field name="target_status"
                                            invisible="target_mode != 'filter'"/>
@@ -147,15 +147,15 @@
                             <div class="mb-3">
                                 <button name="action_preview_recipients" type="object"
                                         class="btn btn-secondary btn-sm" icon="fa-search"
-                                        string="Xem trước danh sách nhận"/>
+                                        string="Preview recipient list"/>
                                 <button name="action_refresh_recipients" type="object"
                                         class="btn btn-secondary btn-sm ms-1" icon="fa-refresh"
-                                        string="Cập nhật danh sách nhận"
+                                        string="Refresh recipient list"
                                         invisible="target_mode != 'filter' or state != 'published'"
-                                        confirm="Chốt lại danh sách cửa hàng nhận theo tiêu chí hiện tại?"/>
+                                        confirm="Re-resolve the recipient store list from the current criteria?"/>
                             </div>
                             <div class="text-muted mb-2" invisible="target_mode != 'all'">
-                                Gửi cho toàn bộ cửa hàng — không cần chọn gì thêm.
+                                Sends to every store — nothing else to select.
                             </div>
                             <group invisible="target_mode != 'filter'">
                                 <field name="target_area_ids" widget="many2many_tags"/>
@@ -164,19 +164,17 @@
                                        widget="many2many_tags"/>
                             </group>
                             <div class="text-muted mb-2" invisible="target_mode != 'filter'">
-                                Danh sách nhận được chốt khi bấm Gửi thông báo. Cửa hàng mở sau đó
-                                không nhận thông báo này — dùng "Cập nhật danh sách nhận" nếu muốn
-                                bổ sung.
+                                The recipient list is frozen when you press Send notification. Stores opened afterwards do not receive this one — use "Refresh recipient list" to add them.
                             </div>
                             <field name="franchise_ids" widget="many2many_tags"
                                    invisible="target_mode == 'all'"
                                    readonly="target_mode == 'filter'"/>
                         </page>
-                        <page string="Ghi chú nội bộ" name="internal">
+                        <page string="Internal note" name="internal">
                             <field name="internal_note" nolabel="1"
-                                   placeholder="Chỉ HQ thấy — không hiển thị trên portal."/>
+                                   placeholder="HQ only — not displayed on the portal."/>
                         </page>
-                        <page string="Trạng thái đọc" name="read_lines"
+                        <page string="Read status" name="read_lines"
                               invisible="state == 'draft'">
                             <group>
                                 <group>
@@ -185,7 +183,7 @@
                                 </group>
                             </group>
                             <field name="read_ids" nolabel="1" readonly="1">
-                                <list string="Trạng thái đọc" create="false">
+                                <list string="Read status" create="false">
                                     <field name="user_id"/>
                                     <field name="franchise_id"/>
                                     <field name="member_id" optional="hide"/>
@@ -205,11 +203,11 @@
         <field name="name">wujia.notification.list</field>
         <field name="model">wujia.notification</field>
         <field name="arch" type="xml">
-            <list string="Thông báo"
+            <list string="Notification"
                   decoration-muted="state == 'archived'"
                   decoration-bf="is_pinned">
                 <field name="code"/>
-                <field name="name" string="Tiêu đề"/>
+                <field name="name" string="Title"/>
                 <field name="type_id"/>
                 <field name="priority" widget="badge"
                        decoration-danger="priority == 'urgent'"
@@ -235,42 +233,42 @@
         <field name="name">wujia.notification.search</field>
         <field name="model">wujia.notification</field>
         <field name="arch" type="xml">
-            <search string="Thông báo">
-                <field name="name" string="Tiêu đề"/>
+            <search string="Notification">
+                <field name="name" string="Title"/>
                 <field name="code"/>
                 <field name="dispatch_number"/>
                 <field name="type_id"/>
                 <field name="published_by_id"/>
-                <filter string="Nháp" name="filter_draft"
+                <filter string="Draft" name="filter_draft"
                         domain="[('state', '=', 'draft')]"/>
-                <filter string="Đã gửi" name="filter_published"
+                <filter string="Submitted" name="filter_published"
                         domain="[('state', '=', 'published')]"/>
-                <filter string="Lưu trữ" name="filter_archived"
+                <filter string="Archived" name="filter_archived"
                         domain="[('state', '=', 'archived')]"/>
                 <separator/>
-                <filter string="Đang hiện trên portal" name="filter_on_portal"
+                <filter string="Live on portal" name="filter_on_portal"
                         domain="[('is_published_portal', '=', True)]"/>
-                <filter string="Đã hết hiệu lực" name="filter_expired"
+                <filter string="No longer valid" name="filter_expired"
                         domain="[('expired_date', '!=', False),
                                  ('expired_date', '&lt;', context_today().strftime('%Y-%m-%d %H:%M:%S'))]"/>
-                <filter string="Đang ghim" name="filter_pinned"
+                <filter string="Pinned" name="filter_pinned"
                         domain="[('is_pinned', '=', True)]"/>
                 <separator/>
-                <filter string="Cần làm" name="filter_urgent"
+                <filter string="Action required" name="filter_urgent"
                         domain="[('priority', '=', 'urgent')]"/>
-                <filter string="Quan trọng" name="filter_important"
+                <filter string="Important" name="filter_important"
                         domain="[('priority', '=', 'important')]"/>
                 <separator/>
-                <filter string="Đã lưu trữ (active)" name="filter_inactive"
+                <filter string="Archived (active)" name="filter_inactive"
                         domain="[('active', '=', False)]"/>
                 <group name="group_by">
-                    <filter string="Loại" name="group_type"
+                    <filter string="Type" name="group_type"
                             context="{'group_by': 'type_id'}"/>
-                    <filter string="Trạng thái" name="group_state"
+                    <filter string="Status" name="group_state"
                             context="{'group_by': 'state'}"/>
-                    <filter string="Mức độ" name="group_priority"
+                    <filter string="Severity" name="group_priority"
                             context="{'group_by': 'priority'}"/>
-                    <filter string="Ngày gửi" name="group_published_date"
+                    <filter string="Submission date" name="group_published_date"
                             context="{'group_by': 'published_date'}"/>
                 </group>
             </search>
@@ -278,14 +276,14 @@
     </record>
 
     <record id="action_notification" model="ir.actions.act_window">
-        <field name="name">Thông báo</field>
+        <field name="name">Notification</field>
         <field name="res_model">wujia.notification</field>
         <field name="view_mode">list,form</field>
         <field name="search_view_id" ref="view_notification_search"/>
         <field name="help" type="html">
-            <p class="o_view_nocontent_smiling_face">Soạn thông báo đầu tiên gửi cửa hàng</p>
-            <p>Thông báo ở trạng thái Nháp chưa hiển thị trên portal. Bấm
-               <b>Gửi thông báo</b> để phát hành.</p>
+            <p class="o_view_nocontent_smiling_face">Compose the first notification for the stores</p>
+            <p>A draft notification is not visible on the portal yet. Press
+               <b>Send notification</b> to publish it.</p>
         </field>
     </record>
 
@@ -294,7 +292,7 @@
         <field name="name">wujia.notification.read.list</field>
         <field name="model">wujia.notification.read</field>
         <field name="arch" type="xml">
-            <list string="Trạng thái đọc" create="false" edit="false">
+            <list string="Read status" create="false" edit="false">
                 <field name="notification_id"/>
                 <field name="user_id"/>
                 <field name="franchise_id"/>

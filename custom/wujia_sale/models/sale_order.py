@@ -6,68 +6,67 @@ class SaleOrder(models.Model):
     _inherit = 'sale.order'
 
     is_portal_order = fields.Boolean(
-        string='Đơn từ Portal',
+        string='Portal order',
         default=False,
         index=True,
         tracking=True,
-        help='Đánh dấu đơn được tạo từ portal (phân biệt với đơn admin tạo manual).',
+        help='Marks an order created from the portal (as opposed to one created manually by admin).',
     )
     franchise_partner_id = fields.Many2one(
         'res.partner',
-        string='Partner cửa hàng',
+        string='Store partner',
         domain="[('is_franchise', '=', True)]",
         index=True,
         tracking=True,
-        help='Partner đại diện cửa hàng nhượng quyền sở hữu đơn — bắt buộc khi is_portal_order=True.',
+        help='Partner representing the franchise store owning the order — required when is_portal_order=True.',
     )
     franchise_id = fields.Many2one(
         'wujia.franchise.management',
-        string='Cửa hàng nhượng quyền',
+        string='Franchise store',
         index=True,
         tracking=True,
-        help='Cửa hàng sở hữu đơn — bắt buộc khi is_portal_order=True.',
+        help='Store owning the order — required when is_portal_order=True.',
     )
     portal_requester_user_id = fields.Many2one(
         'res.users',
-        string='Người tạo (portal)',
+        string='Created by (portal)',
         readonly=True,
         index=True,
-        help='User portal trực tiếp bấm tạo đơn. Set tại thời điểm tạo, không đổi sau đó (audit trail).',
+        help='The portal user who pressed create. Set at creation time and never changed afterwards (audit trail).',
     )
     portal_member_id = fields.Many2one(
         'wujia.franchise.member',
-        string='Member tạo đơn',
+        string='Ordering member',
         readonly=True,
         ondelete='restrict',
-        help='Snapshot membership user × cửa hàng tại thời điểm tạo đơn.',
+        help='Snapshot of the user × store membership at order creation time.',
     )
     area_id = fields.Many2one(
         'res.area',
-        string='Khu vực',
+        string='Area',
         related='franchise_id.area_id',
         store=True,
         readonly=True,
     )
-    portal_delivery_street = fields.Char(string='Địa chỉ giao (portal)')
-    portal_delivery_phone = fields.Char(string='SĐT giao (portal)')
-    portal_note = fields.Text(string='Ghi chú đơn (portal)')
+    portal_delivery_street = fields.Char(string='Delivery address (portal)')
+    portal_delivery_phone = fields.Char(string='Delivery phone (portal)')
+    portal_note = fields.Text(string='Order note (portal)')
 
     is_return_order = fields.Boolean(
-        string='Đơn bù hàng',
+        string='Compensation orders',
         default=False,
         index=True,
         tracking=True,
-        help='Đánh dấu SO tạo tự động từ quản lý bù/đổi trả (Function K).',
+        help='Marks an SO generated automatically by compensation/return management (Function K).',
     )
 
     # Weight aggregate
     total_planned_weight = fields.Float(
-        string='Khối lượng dự kiến',
+        string='Planned weight',
         compute='_compute_total_planned_weight',
         store=True,
         digits='Stock Weight',
-        help='Tổng khối lượng dự kiến của SO = sum(line.planned_weight). '
-             'Tham khảo sớm, không phải nguồn chính sắp xe.',
+        help="Total planned weight of the SO = sum(line.planned_weight). Early reference only, not the authoritative source for vehicle planning.",
     )
 
     batch_id = fields.Many2one(

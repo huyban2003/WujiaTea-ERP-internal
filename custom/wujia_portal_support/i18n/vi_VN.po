@@ -6,15 +6,14 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 19.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-05-16 04:08+0000\n"
-"PO-Revision-Date: 2026-05-16 04:08+0000\n"
+"POT-Creation-Date: 2026-08-01 19:33+0000\n"
+"PO-Revision-Date: 2026-08-01 19:33+0000\n"
 "Last-Translator: \n"
-"Language-Team: Vietnamese (https://www.transifex.com/odoo/)\n"
-"Language: vi_VN\n"
+"Language-Team: \n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: \n"
-"Plural-Forms: nplurals=1; plural=0;\n"
+"Plural-Forms: \n"
 
 #. module: wujia_portal_support
 #: model_terms:ir.ui.view,arch_db:wujia_portal_support.portal_support_detail
@@ -27,27 +26,8 @@ msgid "<i class=\"fa fa-building-o\" title=\"Franchise\"/>"
 msgstr ""
 
 #. module: wujia_portal_support
-#: model_terms:ir.ui.view,arch_db:wujia_portal_support.portal_support_detail
-msgid ""
-"<i class=\"fa fa-comments fa-2x mb-2 opacity-25 d-block\" title=\"Conversation\"/>\n"
-"                                        Chưa có trao đổi."
-msgstr ""
-
-#. module: wujia_portal_support
 #: model_terms:ir.ui.view,arch_db:wujia_portal_support.portal_support_list
 msgid "<i class=\"fa fa-eye\" title=\"View\"/>"
-msgstr ""
-
-#. module: wujia_portal_support
-#: model_terms:ir.ui.view,arch_db:wujia_portal_support.portal_support_list
-msgid "<i class=\"fa fa-life-ring me-1\" title=\"Support\"/>Yêu cầu hỗ trợ"
-msgstr ""
-
-#. module: wujia_portal_support
-#: model_terms:ir.ui.view,arch_db:wujia_portal_support.layout_sidenav_support
-msgid ""
-"<i class=\"fa fa-life-ring\" aria-hidden=\"true\"/>\n"
-"                    <span class=\"menu-title\">Hỗ trợ</span>"
 msgstr ""
 
 #. module: wujia_portal_support
@@ -67,12 +47,29 @@ msgstr ""
 
 #. module: wujia_portal_support
 #: model_terms:ir.ui.view,arch_db:wujia_portal_support.portal_support_list
-msgid "<i class=\"fa fa-plus me-1\" title=\"New\"/>Tạo yêu cầu mới"
+msgid "<i class=\"fa fa-search\" title=\"Search\"/> Lọc"
+msgstr ""
+
+#. module: wujia_portal_support
+#: model_terms:ir.ui.view,arch_db:wujia_portal_support.layout_sidenav_support
+msgid ""
+"<i class=\"feather icon-life-buoy\" aria-hidden=\"true\"/>\n"
+"                    <span class=\"menu-title\">Hỗ trợ</span>"
 msgstr ""
 
 #. module: wujia_portal_support
 #: model_terms:ir.ui.view,arch_db:wujia_portal_support.portal_support_list
-msgid "<i class=\"fa fa-search\" title=\"Search\"/> Lọc"
+msgid "<i class=\"feather icon-plus\"/> Tạo ticket"
+msgstr ""
+
+#. module: wujia_portal_support
+#: model_terms:ir.ui.view,arch_db:wujia_portal_support.portal_support_detail
+msgid "<i class=\"feather icon-send me-1\"/>Gửi"
+msgstr ""
+
+#. module: wujia_portal_support
+#: model_terms:ir.ui.view,arch_db:wujia_portal_support.portal_support_form
+msgid "<option value=\"\">Chọn loại yêu cầu</option>"
 msgstr ""
 
 #. module: wujia_portal_support
@@ -90,6 +87,26 @@ msgid ""
 msgstr ""
 
 #. module: wujia_portal_support
+#: model_terms:ir.ui.view,arch_db:wujia_portal_support.portal_support_detail
+msgid "<span class=\"wujia-mdash-row-sub\">Ngày tạo</span>"
+msgstr ""
+
+#. module: wujia_portal_support
+#: model_terms:ir.ui.view,arch_db:wujia_portal_support.portal_support_detail
+msgid "<span class=\"wujia-mdash-row-sub\">Người gửi</span>"
+msgstr ""
+
+#. module: wujia_portal_support
+#: model_terms:ir.ui.view,arch_db:wujia_portal_support.portal_support_detail
+msgid "<span class=\"wujia-mdash-row-sub\">Nhóm</span>"
+msgstr ""
+
+#. module: wujia_portal_support
+#: model_terms:ir.ui.view,arch_db:wujia_portal_support.portal_support_detail
+msgid "<span class=\"wujia-mdash-row-sub\">Ưu tiên</span>"
+msgstr ""
+
+#. module: wujia_portal_support
 #: model:wujia.support.category,name:wujia_portal_support.category_account
 msgid "Account / Password"
 msgstr ""
@@ -103,7 +120,7 @@ msgstr ""
 #: model:ir.model.fields,field_description:wujia_portal_support.field_wujia_support_category__active
 #: model:ir.model.fields,field_description:wujia_portal_support.field_wujia_support_ticket__active
 msgid "Active"
-msgstr ""
+msgstr "Đang hoạt động"
 
 #. module: wujia_portal_support
 #: model:ir.model.fields,field_description:wujia_portal_support.field_wujia_support_ticket__activity_ids
@@ -127,8 +144,9 @@ msgstr ""
 
 #. module: wujia_portal_support
 #: model:ir.actions.act_window,name:wujia_portal_support.action_support_ticket_all
+#: model:ir.ui.menu,name:wujia_portal_support.menu_wujia_support_tickets_all
 msgid "All tickets"
-msgstr ""
+msgstr "Tất cả ticket"
 
 #. module: wujia_portal_support
 #: model_terms:ir.ui.view,arch_db:wujia_portal_support.view_support_ticket_form
@@ -138,7 +156,7 @@ msgstr ""
 #. module: wujia_portal_support
 #: model_terms:ir.ui.view,arch_db:wujia_portal_support.view_support_ticket_form
 msgid "Archived"
-msgstr ""
+msgstr "Lưu trữ"
 
 #. module: wujia_portal_support
 #: model:ir.model.fields,field_description:wujia_portal_support.field_wujia_support_ticket__assigned_team_id
@@ -171,11 +189,16 @@ msgstr ""
 #: model:ir.model.fields,field_description:wujia_portal_support.field_wujia_support_ticket__attachment_count
 #: model_terms:ir.ui.view,arch_db:wujia_portal_support.view_support_ticket_form
 msgid "Attachments"
-msgstr ""
+msgstr "File đính kèm"
 
 #. module: wujia_portal_support
 #: model:ir.model.fields,field_description:wujia_portal_support.field_wujia_support_ticket__attachment_ids
 msgid "Attachments (legacy)"
+msgstr ""
+
+#. module: wujia_portal_support
+#: model_terms:ir.ui.view,arch_db:wujia_portal_support.portal_support_form
+msgid "Bình thường"
 msgstr ""
 
 #. module: wujia_portal_support
@@ -186,7 +209,7 @@ msgstr ""
 #. module: wujia_portal_support
 #: model_terms:ir.ui.view,arch_db:wujia_portal_support.view_support_ticket_form
 msgid "Cancel"
-msgstr ""
+msgstr "Hủy"
 
 #. module: wujia_portal_support
 #: model:ir.model.fields,field_description:wujia_portal_support.field_wujia_support_ticket__cancel_reason
@@ -208,7 +231,7 @@ msgstr ""
 #: model_terms:ir.ui.view,arch_db:wujia_portal_support.view_support_ticket_form
 #: model_terms:ir.ui.view,arch_db:wujia_portal_support.view_support_ticket_search
 msgid "Cancelled"
-msgstr ""
+msgstr "Đã hủy"
 
 #. module: wujia_portal_support
 #: model:ir.model.fields,field_description:wujia_portal_support.field_wujia_support_ticket__category_id
@@ -217,9 +240,29 @@ msgid "Category"
 msgstr ""
 
 #. module: wujia_portal_support
+#: model_terms:ir.ui.view,arch_db:wujia_portal_support.portal_support_detail
+msgid "Chi tiết ticket"
+msgstr ""
+
+#. module: wujia_portal_support
+#: model_terms:ir.ui.view,arch_db:wujia_portal_support.portal_support_detail
+msgid "Chưa có trao đổi nào."
+msgstr ""
+
+#. module: wujia_portal_support
+#: model_terms:ir.ui.view,arch_db:wujia_portal_support.portal_support_detail
+msgid "Chưa có trao đổi."
+msgstr ""
+
+#. module: wujia_portal_support
+#: model_terms:ir.ui.view,arch_db:wujia_portal_support.portal_support_list
+msgid "Chưa có yêu cầu hỗ trợ"
+msgstr ""
+
+#. module: wujia_portal_support
 #: model_terms:ir.ui.view,arch_db:wujia_portal_support.view_support_ticket_form
 msgid "Classification"
-msgstr ""
+msgstr "Phân loại"
 
 #. module: wujia_portal_support
 #: model_terms:ir.ui.view,arch_db:wujia_portal_support.view_support_ticket_form
@@ -230,7 +273,7 @@ msgstr ""
 #: model:ir.model.fields.selection,name:wujia_portal_support.selection__wujia_support_ticket__state__closed
 #: model_terms:ir.ui.view,arch_db:wujia_portal_support.view_support_ticket_search
 msgid "Closed"
-msgstr ""
+msgstr "Đã đóng"
 
 #. module: wujia_portal_support
 #: model:ir.model.fields,field_description:wujia_portal_support.field_wujia_support_ticket__closed_date
@@ -242,14 +285,14 @@ msgstr ""
 #: model_terms:ir.ui.view,arch_db:wujia_portal_support.view_support_ticket_list
 #: model_terms:ir.ui.view,arch_db:wujia_portal_support.view_support_ticket_search
 msgid "Code"
-msgstr ""
+msgstr "Mã"
 
 #. module: wujia_portal_support
 #: model:ir.model.fields,field_description:wujia_portal_support.field_wujia_support_category__create_uid
 #: model:ir.model.fields,field_description:wujia_portal_support.field_wujia_support_ticket__create_uid
 #: model:ir.model.fields,field_description:wujia_portal_support.field_wujia_support_ticket__created_by_id
 msgid "Created by"
-msgstr ""
+msgstr "Người tạo"
 
 #. module: wujia_portal_support
 #: model:ir.model.fields,field_description:wujia_portal_support.field_wujia_support_ticket__created_by_role
@@ -268,6 +311,11 @@ msgid "Customer"
 msgstr ""
 
 #. module: wujia_portal_support
+#: model_terms:ir.ui.view,arch_db:wujia_portal_support.portal_support_list
+msgid "Có phản hồi"
+msgstr ""
+
+#. module: wujia_portal_support
 #: model_terms:ir.ui.view,arch_db:wujia_portal_support.portal_support_detail
 #: model_terms:ir.ui.view,arch_db:wujia_portal_support.portal_support_form
 #: model_terms:ir.ui.view,arch_db:wujia_portal_support.portal_support_list
@@ -275,8 +323,8 @@ msgid "Cửa hàng"
 msgstr ""
 
 #. module: wujia_portal_support
-#: model:ir.ui.menu,name:wujia_portal_support.menu_wujia_support_categories
-msgid "Danh mục ticket"
+#: model_terms:ir.ui.view,arch_db:wujia_portal_support.portal_support_form
+msgid "Cửa hàng không hợp lệ."
 msgstr ""
 
 #. module: wujia_portal_support
@@ -299,7 +347,7 @@ msgstr ""
 #: model:ir.model.fields,field_description:wujia_portal_support.field_wujia_support_ticket__description
 #: model_terms:ir.ui.view,arch_db:wujia_portal_support.view_support_ticket_form
 msgid "Description"
-msgstr ""
+msgstr "Mô tả"
 
 #. module: wujia_portal_support
 #: model:ir.model.fields,field_description:wujia_portal_support.field_wujia_support_category__display_name
@@ -339,6 +387,12 @@ msgid "Franchise"
 msgstr ""
 
 #. module: wujia_portal_support
+#: model_terms:ir.ui.view,arch_db:wujia_portal_support.portal_support_form
+msgid "Gấp"
+msgstr ""
+
+#. module: wujia_portal_support
+#: model_terms:ir.ui.view,arch_db:wujia_portal_support.portal_support_form
 #: model_terms:ir.ui.view,arch_db:wujia_portal_support.portal_support_list
 msgid "Gửi yêu cầu hỗ trợ"
 msgstr ""
@@ -369,13 +423,12 @@ msgid "Hide ticket from portal user even if they own it."
 msgstr ""
 
 #. module: wujia_portal_support
-#: model:ir.ui.menu,name:wujia_portal_support.menu_wujia_support_root
-msgid "Hỗ Trợ"
+#: model_terms:ir.ui.view,arch_db:wujia_portal_support.portal_support_list
+msgid "Hiện chưa có ticket nào để hiển thị."
 msgstr ""
 
 #. module: wujia_portal_support
-#: model_terms:ir.ui.view,arch_db:wujia_portal_support.portal_support_detail
-#: model_terms:ir.ui.view,arch_db:wujia_portal_support.portal_support_form
+#: model_terms:ir.ui.view,arch_db:wujia_portal_support.portal_support_list
 msgid "Hỗ trợ"
 msgstr ""
 
@@ -415,7 +468,7 @@ msgstr ""
 #: model:ir.model.fields.selection,name:wujia_portal_support.selection__wujia_support_ticket__state__in_progress
 #: model_terms:ir.ui.view,arch_db:wujia_portal_support.view_support_ticket_search
 msgid "In progress"
-msgstr ""
+msgstr "Đang xử lý"
 
 #. module: wujia_portal_support
 #: model:ir.model.fields,field_description:wujia_portal_support.field_wujia_support_ticket__in_progress_date
@@ -426,11 +479,26 @@ msgstr ""
 #: model:ir.model.fields,field_description:wujia_portal_support.field_wujia_support_ticket__internal_note
 #: model_terms:ir.ui.view,arch_db:wujia_portal_support.view_support_ticket_form
 msgid "Internal note"
-msgstr ""
+msgstr "Ghi chú nội bộ"
 
 #. module: wujia_portal_support
 #: model:ir.model.fields,field_description:wujia_portal_support.field_wujia_support_ticket__message_is_follower
 msgid "Is Follower"
+msgstr ""
+
+#. module: wujia_portal_support
+#: model_terms:ir.ui.view,arch_db:wujia_portal_support.portal_support_list
+msgid "Không có ticket khớp bộ lọc hiện tại."
+msgstr ""
+
+#. module: wujia_portal_support
+#: model_terms:ir.ui.view,arch_db:wujia_portal_support.portal_support_list
+msgid "Không tìm thấy ticket"
+msgstr ""
+
+#. module: wujia_portal_support
+#: model_terms:ir.ui.view,arch_db:wujia_portal_support.portal_support_form
+msgid "Khẩn cấp"
 msgstr ""
 
 #. module: wujia_portal_support
@@ -461,9 +529,19 @@ msgid "Linked records"
 msgstr ""
 
 #. module: wujia_portal_support
+#: model_terms:ir.ui.view,arch_db:wujia_portal_support.portal_support_form
+msgid "Loại yêu cầu"
+msgstr ""
+
+#. module: wujia_portal_support
+#: model_terms:ir.ui.view,arch_db:wujia_portal_support.portal_support_detail
+msgid "Lịch sử trao đổi"
+msgstr ""
+
+#. module: wujia_portal_support
 #: model:ir.model.fields.selection,name:wujia_portal_support.selection__wujia_support_ticket__created_by_role__manager
 msgid "Manager"
-msgstr ""
+msgstr "Quản lý"
 
 #. module: wujia_portal_support
 #: model:ir.model.fields,field_description:wujia_portal_support.field_wujia_support_ticket__message_has_error
@@ -483,7 +561,7 @@ msgstr ""
 
 #. module: wujia_portal_support
 #: model_terms:ir.ui.view,arch_db:wujia_portal_support.portal_support_list
-msgid "Mã"
+msgid "Mã yêu cầu"
 msgstr ""
 
 #. module: wujia_portal_support
@@ -497,9 +575,26 @@ msgid "Mô tả chi tiết tình huống, các bước đã thử, screenshot...
 msgstr ""
 
 #. module: wujia_portal_support
+#: model_terms:ir.ui.view,arch_db:wujia_portal_support.portal_support_form
+msgid ""
+"Mô tả vấn đề cần hỗ trợ, thời điểm phát sinh và mã chứng từ liên quan nếu "
+"có."
+msgstr ""
+
+#. module: wujia_portal_support
+#: model_terms:ir.ui.view,arch_db:wujia_portal_support.portal_support_list
+msgid "Mới"
+msgstr ""
+
+#. module: wujia_portal_support
 #: model_terms:ir.ui.view,arch_db:wujia_portal_support.portal_support_detail
 #: model_terms:ir.ui.view,arch_db:wujia_portal_support.portal_support_form
 msgid "Mức độ"
+msgstr ""
+
+#. module: wujia_portal_support
+#: model_terms:ir.ui.view,arch_db:wujia_portal_support.portal_support_form
+msgid "Mức độ ưu tiên"
 msgstr ""
 
 #. module: wujia_portal_support
@@ -541,13 +636,27 @@ msgstr ""
 
 #. module: wujia_portal_support
 #: model_terms:ir.ui.view,arch_db:wujia_portal_support.portal_support_detail
-#: model_terms:ir.ui.view,arch_db:wujia_portal_support.portal_support_list
 msgid "Ngày gửi"
+msgstr ""
+
+#. module: wujia_portal_support
+#: model_terms:ir.ui.view,arch_db:wujia_portal_support.portal_support_list
+msgid "Ngày tạo"
 msgstr ""
 
 #. module: wujia_portal_support
 #: model_terms:ir.ui.view,arch_db:wujia_portal_support.portal_support_detail
 msgid "Người xử lý"
+msgstr ""
+
+#. module: wujia_portal_support
+#: model_terms:ir.ui.view,arch_db:wujia_portal_support.portal_support_detail
+msgid "Nhập phản hồi thêm..."
+msgstr ""
+
+#. module: wujia_portal_support
+#: model_terms:ir.ui.view,arch_db:wujia_portal_support.portal_support_form
+msgid "Nhập tiêu đề ngắn gọn"
 msgstr ""
 
 #. module: wujia_portal_support
@@ -558,7 +667,7 @@ msgstr ""
 #. module: wujia_portal_support
 #: model:ir.model.fields.selection,name:wujia_portal_support.selection__wujia_support_ticket__priority__normal
 msgid "Normal"
-msgstr ""
+msgstr "Bình thường"
 
 #. module: wujia_portal_support
 #: model:ir.model.fields,field_description:wujia_portal_support.field_wujia_support_ticket__message_needaction_counter
@@ -581,6 +690,11 @@ msgid "Number of messages with delivery error"
 msgstr ""
 
 #. module: wujia_portal_support
+#: model_terms:ir.ui.view,arch_db:wujia_portal_support.portal_support_form
+msgid "Nội dung chi tiết"
+msgstr ""
+
+#. module: wujia_portal_support
 #: model_terms:ir.ui.view,arch_db:wujia_portal_support.portal_support_detail
 msgid "Nội dung yêu cầu"
 msgstr ""
@@ -598,7 +712,7 @@ msgstr ""
 #. module: wujia_portal_support
 #: model:wujia.support.category,name:wujia_portal_support.category_operation
 msgid "Operation"
-msgstr ""
+msgstr "Vận hành"
 
 #. module: wujia_portal_support
 #: model:wujia.support.category,name:wujia_portal_support.category_order
@@ -613,7 +727,7 @@ msgstr ""
 #. module: wujia_portal_support
 #: model:wujia.support.category,name:wujia_portal_support.category_other
 msgid "Other"
-msgstr ""
+msgstr "Khác"
 
 #. module: wujia_portal_support
 #: model:ir.model.fields.selection,name:wujia_portal_support.selection__wujia_support_ticket__created_by_role__owner
@@ -635,12 +749,12 @@ msgstr ""
 #. module: wujia_portal_support
 #: model:ir.model.fields,field_description:wujia_portal_support.field_wujia_support_ticket__priority
 msgid "Priority"
-msgstr ""
+msgstr "Độ ưu tiên"
 
 #. module: wujia_portal_support
 #: model:wujia.support.category,name:wujia_portal_support.category_product
 msgid "Product"
-msgstr ""
+msgstr "Sản phẩm"
 
 #. module: wujia_portal_support
 #. odoo-python
@@ -707,7 +821,7 @@ msgstr ""
 #. module: wujia_portal_support
 #: model:ir.model.fields.selection,name:wujia_portal_support.selection__wujia_support_ticket__created_by_role__staff
 msgid "Staff"
-msgstr ""
+msgstr "Nhân viên"
 
 #. module: wujia_portal_support
 #: model:ir.model.fields,field_description:wujia_portal_support.field_wujia_support_ticket__state
@@ -727,7 +841,12 @@ msgstr ""
 #. module: wujia_portal_support
 #: model:ir.model.fields,field_description:wujia_portal_support.field_wujia_support_ticket__store_partner_id
 msgid "Store partner"
-msgstr ""
+msgstr "Partner cửa hàng"
+
+#. module: wujia_portal_support
+#: model:ir.ui.menu,name:wujia_portal_support.menu_wujia_support_root
+msgid "Support"
+msgstr "Hỗ Trợ"
 
 #. module: wujia_portal_support
 #: model:ir.actions.act_window,name:wujia_portal_support.action_support_category
@@ -742,9 +861,10 @@ msgstr ""
 
 #. module: wujia_portal_support
 #: model:ir.actions.act_window,name:wujia_portal_support.action_support_ticket
+#: model:ir.ui.menu,name:wujia_portal_support.menu_wujia_support_tickets
 #: model_terms:ir.ui.view,arch_db:wujia_portal_support.view_support_ticket_list
 msgid "Support tickets"
-msgstr ""
+msgstr "Ticket hỗ trợ"
 
 #. module: wujia_portal_support
 #: model:ir.model.fields.selection,name:wujia_portal_support.selection__wujia_support_ticket__last_response_by__system
@@ -762,8 +882,23 @@ msgid "Team"
 msgstr ""
 
 #. module: wujia_portal_support
+#: model_terms:ir.ui.view,arch_db:wujia_portal_support.portal_support_form
+msgid "Thêm ảnh / file lỗi — PNG, JPG, PDF — tối đa 5 tệp"
+msgstr ""
+
+#. module: wujia_portal_support
 #: model_terms:ir.ui.view,arch_db:wujia_portal_support.portal_support_detail
 msgid "Thông tin"
+msgstr ""
+
+#. module: wujia_portal_support
+#: model_terms:ir.ui.view,arch_db:wujia_portal_support.portal_support_form
+msgid "Thông tin ticket"
+msgstr ""
+
+#. module: wujia_portal_support
+#: model_terms:ir.ui.view,arch_db:wujia_portal_support.portal_support_list
+msgid "Thử đổi từ khóa hoặc bỏ bộ lọc."
 msgstr ""
 
 #. module: wujia_portal_support
@@ -773,14 +908,14 @@ msgid "Ticket %s requires a cancel reason when state is 'cancelled'."
 msgstr ""
 
 #. module: wujia_portal_support
+#: model:ir.ui.menu,name:wujia_portal_support.menu_wujia_support_categories
+msgid "Ticket categories"
+msgstr "Danh mục ticket"
+
+#. module: wujia_portal_support
 #: model:ir.model.fields,field_description:wujia_portal_support.field_wujia_support_ticket__name
 #: model_terms:ir.ui.view,arch_db:wujia_portal_support.view_support_ticket_form
 msgid "Ticket code"
-msgstr ""
-
-#. module: wujia_portal_support
-#: model:ir.ui.menu,name:wujia_portal_support.menu_wujia_support_tickets
-msgid "Ticket hỗ trợ"
 msgstr ""
 
 #. module: wujia_portal_support
@@ -796,17 +931,12 @@ msgstr ""
 #. module: wujia_portal_support
 #: model:ir.model.fields,field_description:wujia_portal_support.field_wujia_support_ticket__title
 msgid "Title"
-msgstr ""
+msgstr "Tiêu đề"
 
 #. module: wujia_portal_support
 #: model_terms:ir.ui.view,arch_db:wujia_portal_support.portal_support_form
 #: model_terms:ir.ui.view,arch_db:wujia_portal_support.portal_support_list
 msgid "Tiêu đề"
-msgstr ""
-
-#. module: wujia_portal_support
-#: model_terms:ir.ui.view,arch_db:wujia_portal_support.portal_support_list
-msgid "Trang"
 msgstr ""
 
 #. module: wujia_portal_support
@@ -835,8 +965,13 @@ msgid "Type of the exception activity on record."
 msgstr ""
 
 #. module: wujia_portal_support
-#: model_terms:ir.ui.view,arch_db:wujia_portal_support.portal_support_form
-msgid "Tạo mới"
+#: model_terms:ir.ui.view,arch_db:wujia_portal_support.portal_support_list
+msgid "Tìm mã / tiêu đề ticket"
+msgstr ""
+
+#. module: wujia_portal_support
+#: model_terms:ir.ui.view,arch_db:wujia_portal_support.portal_support_list
+msgid "Tạo ticket đầu tiên để Wujia tiếp nhận xử lý."
 msgstr ""
 
 #. module: wujia_portal_support
@@ -845,8 +980,13 @@ msgid "Tạo yêu cầu hỗ trợ"
 msgstr ""
 
 #. module: wujia_portal_support
-#: model:ir.ui.menu,name:wujia_portal_support.menu_wujia_support_tickets_all
-msgid "Tất cả ticket"
+#: model_terms:ir.ui.view,arch_db:wujia_portal_support.portal_support_list
+msgid "Tất cả"
+msgstr ""
+
+#. module: wujia_portal_support
+#: model_terms:ir.ui.view,arch_db:wujia_portal_support.portal_support_form
+msgid "Tệp đính kèm"
 msgstr ""
 
 #. module: wujia_portal_support
@@ -858,7 +998,7 @@ msgstr ""
 #: model:ir.model.fields.selection,name:wujia_portal_support.selection__wujia_support_ticket__priority__urgent
 #: model_terms:ir.ui.view,arch_db:wujia_portal_support.view_support_ticket_search
 msgid "Urgent"
-msgstr ""
+msgstr "Khẩn"
 
 #. module: wujia_portal_support
 #: model:ir.model.fields,help:wujia_portal_support.field_wujia_support_ticket__store_partner_id
@@ -873,6 +1013,11 @@ msgstr ""
 #. module: wujia_portal_support
 #: model:ir.model.fields,field_description:wujia_portal_support.field_wujia_support_ticket__portal_visible
 msgid "Visible on portal"
+msgstr ""
+
+#. module: wujia_portal_support
+#: model_terms:ir.ui.view,arch_db:wujia_portal_support.portal_support_form
+msgid "Vui lòng điền đầy đủ thông tin bắt buộc."
 msgstr ""
 
 #. module: wujia_portal_support
@@ -913,5 +1058,35 @@ msgstr ""
 
 #. module: wujia_portal_support
 #: model_terms:ir.ui.view,arch_db:wujia_portal_support.portal_support_list
+msgid "Xóa lọc"
+msgstr ""
+
+#. module: wujia_portal_support
+#: model_terms:ir.ui.view,arch_db:wujia_portal_support.portal_support_list
 msgid "Yêu cầu hỗ trợ"
+msgstr ""
+
+#. module: wujia_portal_support
+#: model_terms:ir.ui.view,arch_db:wujia_portal_support.portal_support_list
+msgid "Yêu cầu hỗ trợ đang mở"
+msgstr ""
+
+#. module: wujia_portal_support
+#: model_terms:ir.ui.view,arch_db:wujia_portal_support.portal_support_detail
+msgid "phản hồi"
+msgstr ""
+
+#. module: wujia_portal_support
+#: model_terms:ir.ui.view,arch_db:wujia_portal_support.portal_support_list
+msgid "ticket"
+msgstr ""
+
+#. module: wujia_portal_support
+#: model_terms:ir.ui.view,arch_db:wujia_portal_support.portal_support_list
+msgid "Đang xử lý"
+msgstr ""
+
+#. module: wujia_portal_support
+#: model_terms:ir.ui.view,arch_db:wujia_portal_support.portal_support_list
+msgid "Ưu tiên"
 msgstr ""

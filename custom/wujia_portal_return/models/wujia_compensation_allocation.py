@@ -15,54 +15,54 @@ class WujiaCompensationAllocation(models.Model):
     _order = 'allocation_date desc, id desc'
 
     name = fields.Char(
-        string='Mã phân bổ', required=True, copy=False,
+        string='Allocation code', required=True, copy=False,
         readonly=True, default=lambda self: '/',
     )
     request_id = fields.Many2one(
-        'wujia.return.request', string='Yêu cầu bù',
+        'wujia.return.request', string='Compensation request',
         required=True, ondelete='cascade', index=True,
     )
     franchise_id = fields.Many2one(
-        'wujia.franchise.management', string='Cửa hàng',
+        'wujia.franchise.management', string='Store',
         related='request_id.franchise_id', store=True, readonly=True, index=True,
     )
     company_id = fields.Many2one(
-        'res.company', string='Công ty',
+        'res.company', string='Company',
         default=lambda self: self.env.company, readonly=True, index=True,
     )
     sale_order_id = fields.Many2one(
-        'sale.order', string='SO bù', readonly=True, ondelete='restrict', index=True,
+        'sale.order', string='Compensation SO', readonly=True, ondelete='restrict', index=True,
     )
     sale_order_line_id = fields.Many2one(
-        'sale.order.line', string='Dòng SO bù', readonly=True, ondelete='restrict',
+        'sale.order.line', string='Compensation SO line', readonly=True, ondelete='restrict',
         index=True,
     )
     allocated_qty = fields.Float(
-        string='SL phân bổ', required=True, digits='Product Unit of Measure',
+        string='Allocated qty', required=True, digits='Product Unit of Measure',
     )
     allocation_uom_id = fields.Many2one(
-        'uom.uom', string='ĐVT phân bổ', required=True,
+        'uom.uom', string='Allocation UoM', required=True,
     )
     delivered_qty = fields.Float(
-        string='SL đã giao', default=0.0, digits='Product Unit of Measure',
+        string='Delivered qty', default=0.0, digits='Product Unit of Measure',
     )
     released_qty = fields.Float(
-        string='SL hoàn lại', default=0.0, digits='Product Unit of Measure',
+        string='Returned qty', default=0.0, digits='Product Unit of Measure',
     )
     open_qty = fields.Float(
-        string='SL còn mở', compute='_compute_open_qty', store=True,
+        string='Open qty', compute='_compute_open_qty', store=True,
         digits='Product Unit of Measure',
     )
     state = fields.Selection(
-        [('allocated', 'Đã phân bổ'), ('partial', 'Giao một phần'),
-         ('done', 'Đã giao'), ('cancel', 'Đã huỷ')],
-        string='Trạng thái', default='allocated', required=True,
+        [('allocated', 'Allocated'), ('partial', 'Partially delivered'),
+         ('done', 'Delivered'), ('cancel', 'Voided')],
+        string='Status', default='allocated', required=True,
     )
     allocation_date = fields.Datetime(
-        string='Ngày phân bổ', default=fields.Datetime.now, readonly=True,
+        string='Allocation date', default=fields.Datetime.now, readonly=True,
     )
-    delivered_date = fields.Datetime(string='Ngày giao', readonly=True)
-    release_reason = fields.Text(string='Lý do hoàn lại')
+    delivered_date = fields.Datetime(string='Delivery date', readonly=True)
+    release_reason = fields.Text(string='Return reason')
 
     _check_allocated_positive = models.Constraint(
         'CHECK(allocated_qty > 0)',

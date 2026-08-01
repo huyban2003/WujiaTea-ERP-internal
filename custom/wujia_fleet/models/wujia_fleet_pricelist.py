@@ -3,30 +3,30 @@ from odoo.exceptions import ValidationError
 
 
 PRICELIST_STATE = [
-    ('draft', 'Nháp'),
-    ('active', 'Đang áp dụng'),
-    ('expired', 'Hết hạn'),
-    ('archived', 'Lưu trữ'),
+    ('draft', 'Draft'),
+    ('active', 'In effect'),
+    ('expired', 'Expired'),
+    ('archived', 'Archived'),
 ]
 
 
 class WujiaFleetPricelist(models.Model):
     _name = 'wujia.fleet.pricelist'
-    _description = 'Wujia Fleet Pricelist — Bảng giá vận chuyển'
+    _description = 'Wujia Fleet Pricelist'
     _inherit = ['mail.thread', 'mail.activity.mixin']
     _order = 'sequence, date_from desc, id desc'
 
-    name = fields.Char(string='Tên bảng giá', required=True, tracking=True)
-    code = fields.Char(string='Mã bảng giá', index=True)
+    name = fields.Char(string='Pricelist name', required=True, tracking=True)
+    code = fields.Char(string='Pricelist code', index=True)
     sequence = fields.Integer(
-        string='Độ ưu tiên',
+        string='Priority',
         default=10,
-        help='Số nhỏ = ưu tiên cao khi nhiều bảng giá cùng match.',
+        help='A lower number means higher priority when several pricelists match.',
     )
 
     fleet_type_id = fields.Many2one(
         'wujia.fleet.type',
-        string='Loại xe',
+        string='Vehicle type',
         required=True,
         ondelete='restrict',
         tracking=True,
@@ -34,61 +34,61 @@ class WujiaFleetPricelist(models.Model):
     )
     provider_id = fields.Many2one(
         'wujia.fleet.provider',
-        string='Đội xe',
+        string='Carrier',
         ondelete='restrict',
         tracking=True,
         index=True,
-        help='Để trống nếu áp dụng chung cho mọi đội xe của loại xe này.',
+        help='Leave empty to apply to every carrier of this vehicle type.',
     )
     trip_scope = fields.Selection(
         [
-            ('city', 'Nội thành'),
-            ('interprovince', 'Đi tỉnh'),
-            ('other', 'Khác'),
+            ('city', 'Inner city'),
+            ('interprovince', 'Intercity'),
+            ('other', 'Other'),
         ],
-        string='Phạm vi',
+        string='Coverage',
         default='interprovince',
     )
 
     default_drop_fee = fields.Monetary(
-        string='Phí drop mặc định',
+        string='Default drop fee',
         currency_field='currency_id',
         default=0.0,
-        help='Phí drop nếu dòng giá không khai báo riêng.',
+        help='Drop fee applied when the price line does not define its own.',
     )
     currency_id = fields.Many2one(
         'res.currency',
-        string='Tiền tệ',
+        string='Currency',
         required=True,
         default=lambda self: self.env.company.currency_id,
     )
 
     date_from = fields.Date(
-        string='Hiệu lực từ',
+        string='Valid from',
         required=True,
         default=fields.Date.context_today,
         tracking=True,
         index=True,
     )
-    date_to = fields.Date(string='Hiệu lực đến', tracking=True, index=True)
+    date_to = fields.Date(string='Valid until', tracking=True, index=True)
 
     line_ids = fields.One2many(
         'wujia.fleet.pricelist.line',
         'pricelist_id',
-        string='Dòng giá',
+        string='Price lines',
         copy=True,
     )
 
     state = fields.Selection(
         PRICELIST_STATE,
-        string='Trạng thái',
+        string='Status',
         required=True,
         default='draft',
         tracking=True,
         index=True,
     )
     active = fields.Boolean(default=True)
-    note = fields.Text(string='Ghi chú')
+    note = fields.Text(string='Notes')
 
     _code_uniq = models.Constraint(
         'UNIQUE (code)',

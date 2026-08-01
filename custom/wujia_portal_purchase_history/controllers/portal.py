@@ -20,6 +20,18 @@ SALE_STATE_META = {
     'sale': ('Đã xác nhận', 'confirmed'),
 }
 DEFAULT_STATE_META = ('Đang xử lý', 'pending')
+
+# Nhãn VN của stock.picking.batch.delivery_batch_status. Pin cứng tại đây vì source
+# wujia_delivery đã chuyển sang tiếng Anh (sprint 44) — portal phải giữ tiếng Việt.
+# Key phải khớp DELIVERY_BATCH_STATUS trong wujia_delivery/models/stock_picking_batch.py.
+BATCH_STATUS_LABELS = {
+    'draft': 'Nháp',
+    'assigned': 'Đã gán xe',
+    'loading': 'Đang chất hàng',
+    'delivering': 'Đang giao',
+    'done': 'Đã giao xong',
+    'cancelled': 'Hủy chuyến',
+}
 BACKEND_REQUESTER_LABEL = 'Ngô Gia tạo đơn'
 
 ERR_NO_STORE = 'Không xác định được cửa hàng đang thao tác. Vui lòng chọn lại cửa hàng.'
@@ -134,8 +146,10 @@ def _history_detail_vals(order, batch_status_labels):
 class WujiaPortalHistory(http.Controller):
 
     def _batch_status_labels(self):
-        # Label lấy động từ selection của field → không hardcode, tự theo wujia_delivery.
-        return dict(request.env['stock.picking.batch']._fields['delivery_batch_status'].selection)
+        # Nhãn VN cố định cho portal — KHÔNG đọc selection của field nữa: từ sprint 44 nhãn
+        # backend là tiếng Anh (source English + vi_VN.po), còn portal luôn tiếng Việt bất kể
+        # ngôn ngữ user. Cùng pattern SALE_STATE_META/STATE_LABELS ở các controller khác.
+        return BATCH_STATUS_LABELS
 
     def _state_options(self, sale_order):
         # Option lọc trạng thái = selection sale.order.state trừ 'cancel' (đơn huỷ ẩn khỏi lịch sử).

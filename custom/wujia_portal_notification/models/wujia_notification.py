@@ -8,17 +8,17 @@ from odoo.exceptions import UserError, ValidationError
 # Spec F §5 (sheet "1. Model/ Field"): 3 technical key, nhãn hiển thị
 # "Thông thường / Quan trọng / Cần làm". FE không hardcode label — đọc priority_label backend trả.
 PRIORITY_SELECTION = [
-    ('normal', 'Thông thường'),
-    ('important', 'Quan trọng'),
-    ('urgent', 'Cần làm'),
+    ('normal', 'Regular'),
+    ('important', 'Important'),
+    ('urgent', 'Action required'),
 ]
 PRIORITY_LABELS = dict(PRIORITY_SELECTION)
 
 # Spec F §3 — vòng đời do HQ điều khiển (expired_date KHÔNG tự đổi state).
 STATE_SELECTION = [
-    ('draft', 'Nháp'),
-    ('published', 'Đã gửi'),
-    ('archived', 'Lưu trữ'),
+    ('draft', 'Draft'),
+    ('published', 'Submitted'),
+    ('archived', 'Archived'),
 ]
 
 # Spec F §4 — ma trận chuyển trạng thái. archived = ngõ cụt trong MVP.
@@ -33,9 +33,9 @@ STATE_TRANSITIONS = {
 # Tiêu chí chỉ là CÁCH CHỌN; kết quả luôn được chốt vào `franchise_ids` để portal/ir.rule
 # đọc như cũ (không đổi tầng phân quyền, giữ index cho 1500 user).
 TARGET_MODE_SELECTION = [
-    ('all', 'Tất cả cửa hàng'),
-    ('filter', 'Theo tiêu chí'),
-    ('manual', 'Chọn tay'),
+    ('all', 'All stores'),
+    ('filter', 'By criteria'),
+    ('manual', 'Manual selection'),
 ]
 
 # Spec F §18 — message nghiệp vụ, không lộ lỗi kỹ thuật.
@@ -70,118 +70,115 @@ class WujiaNotification(models.Model):
     _order = 'published_date desc, id desc'
 
     code = fields.Char(
-        string='Mã thông báo', copy=False, readonly=True, index=True,
-        help='Mã hệ thống tự sinh, ví dụ ANN/2026/0001.',
+        string='Notification code', copy=False, readonly=True, index=True,
+        help='System-generated code, e.g. ANN/2026/0001.',
     )
-    name = fields.Char(string='Tiêu đề', required=True, index=True, tracking=True)
+    name = fields.Char(string='Title', required=True, index=True, tracking=True)
     type_id = fields.Many2one(
-        'wujia.notification.type', string='Loại',
+        'wujia.notification.type', string='Type',
         index=True, ondelete='restrict', tracking=True,
     )
-    dispatch_number = fields.Char(string='Số công văn', copy=False)
+    dispatch_number = fields.Char(string='Document number', copy=False)
     published_date = fields.Datetime(
-        string='Ngày gửi', default=fields.Datetime.now,
+        string='Submission date', default=fields.Datetime.now,
         index=True, required=True, tracking=True,
     )
-    content = fields.Html(string='Nội dung', sanitize=True, translate=True)
+    content = fields.Html(string='Content', sanitize=True, translate=True)
     attachment_ids = fields.Many2many(
         'ir.attachment', 'wujia_notification_attachment_rel',
         'notification_id', 'attachment_id',
-        string='File đính kèm',
+        string='Attachments',
     )
     franchise_ids = fields.Many2many(
         'wujia.franchise.management',
         'wujia_notification_franchise_rel',
         'notification_id', 'franchise_id',
-        string='Cửa hàng nhận',
-        help='Để trống = broadcast cho mọi cửa hàng. Chế độ "Theo tiêu chí" tự điền field này '
-             'khi gửi.',
+        string='Recipient stores',
+        help='Leave empty to broadcast to every store. The "By criteria" mode fills this field in when sending.',
     )
     target_mode = fields.Selection(
-        TARGET_MODE_SELECTION, string='Gửi cho', default='all',
+        TARGET_MODE_SELECTION, string='Send to', default='all',
         required=True, tracking=True,
-        help='Tất cả = mọi cửa hàng, không cần chọn gì. Theo tiêu chí = lọc theo khu vực/'
-             'tỉnh thành/trạng thái. Chọn tay = tự tick từng cửa hàng.',
+        help="All = every store, nothing to select. By criteria = filter by area/province/status. Manual selection = tick each store yourself.",
     )
     target_area_ids = fields.Many2many(
         'res.area', 'wujia_notification_target_area_rel',
-        'notification_id', 'area_id', string='Khu vực',
+        'notification_id', 'area_id', string='Area',
     )
     target_state_ids = fields.Many2many(
         'res.country.state', 'wujia_notification_target_state_rel',
-        'notification_id', 'state_id', string='Tỉnh/Thành',
+        'notification_id', 'state_id', string='Province',
     )
     target_status = fields.Selection(
-        [('active', 'Đang hoạt động'), ('any', 'Mọi trạng thái')],
-        string='Trạng thái cửa hàng', default='active', required=True,
-        help='Mặc định chỉ gửi cho cửa hàng đang hoạt động, bỏ qua nháp/khoá/đóng/hết hạn.',
+        [('active', 'Active'), ('any', 'Any status')],
+        string='Store status', default='active', required=True,
+        help='By default only active stores are targeted; draft/locked/closed/expired ones are skipped.',
     )
     target_exclude_franchise_ids = fields.Many2many(
         'wujia.franchise.management', 'wujia_notification_target_exclude_rel',
-        'notification_id', 'franchise_id', string='Trừ cửa hàng',
-        help='Loại vài cửa hàng cá biệt ra khỏi kết quả lọc.',
+        'notification_id', 'franchise_id', string='Excluded stores',
+        help='Exclude a few specific stores from the filter result.',
     )
     target_preview_count = fields.Integer(
-        string='Số cửa hàng khớp', compute='_compute_target_preview_count',
-        help='Số cửa hàng sẽ nhận nếu gửi ngay bây giờ.',
+        string='Matching stores', compute='_compute_target_preview_count',
+        help='Number of stores that would receive it if sent right now.',
     )
     state = fields.Selection(
-        STATE_SELECTION, string='Trạng thái',
+        STATE_SELECTION, string='Status',
         default='draft', required=True, index=True, copy=False, tracking=True,
     )
     portal_visible = fields.Boolean(
-        string='Hiện trên portal', default=True,
-        help='Tắt để ẩn khỏi portal mà không cần đổi trạng thái.',
+        string='Show on portal', default=True,
+        help='Turn it off to hide it from the portal without changing the state.',
     )
     is_published_portal = fields.Boolean(
-        string='Đang hiện trên portal',
+        string='Live on portal',
         compute='_compute_is_published_portal', store=True, index=True,
-        help='active + state = Đã gửi + hiện trên portal. KHÔNG loại thông báo hết hiệu lực '
-             'vì lịch sử portal vẫn phải mở được.',
+        help="active + state = Sent + shown on portal. It does NOT exclude expired notifications, because the portal history must stay accessible.",
     )
     published_by_id = fields.Many2one(
-        'res.users', string='Người gửi', readonly=True, copy=False,
-        help='Internal user bấm Gửi thông báo.',
+        'res.users', string='Sent by', readonly=True, copy=False,
+        help='The internal user who pressed Send notification.',
     )
     internal_note = fields.Text(
-        string='Ghi chú nội bộ',
-        help='Chỉ HQ thấy — không trả ra portal.',
+        string='Internal note',
+        help='HQ only — not returned to the portal.',
     )
     priority = fields.Selection(
-        PRIORITY_SELECTION, string='Mức độ',
+        PRIORITY_SELECTION, string='Severity',
         default='normal', required=True, index=True, tracking=True,
     )
-    is_pinned = fields.Boolean(string='Ghim trên cùng', default=False)
-    pin_expiry_date = fields.Datetime(string='Ghim đến')
+    is_pinned = fields.Boolean(string='Pin to top', default=False)
+    pin_expiry_date = fields.Datetime(string='Pinned until')
     expired_date = fields.Datetime(
-        string='Hết hiệu lực', index=True,
-        help='Trống = không hết hạn. Sau thời điểm này: ẩn khỏi popup/badge, còn ở lịch sử.',
+        string='Expires on', index=True,
+        help='Empty = never expires. After this moment it is hidden from the popup/badge but stays in history.',
     )
     is_expired = fields.Boolean(
-        string='Đã hết hiệu lực', compute='_compute_is_expired',
+        string='No longer valid', compute='_compute_is_expired',
     )
     priority_label = fields.Char(
-        string='Nhãn ưu tiên', compute='_compute_priority_label',
+        string='Priority label', compute='_compute_priority_label',
     )
     summary = fields.Text(
-        string='Tóm tắt',
-        help='Mô tả ngắn hiển thị ở danh sách/popup. Để trống → portal tự cắt từ nội dung.',
+        string='Summary',
+        help='Short description shown in the list/popup. Leave it empty and the portal excerpts the content.',
     )
     read_ids = fields.One2many(
         'wujia.notification.read', 'notification_id',
-        string='Trạng thái đọc', readonly=True,
+        string='Read status', readonly=True,
     )
     read_count = fields.Integer(
-        string='Đã đọc', compute='_compute_read_stats',
-        help='Số cặp người dùng/cửa hàng đã đọc thông báo này.',
+        string='Read', compute='_compute_read_stats',
+        help='Number of user/store pairs that have read this notification.',
     )
     recipient_count = fields.Integer(
-        string='Người nhận', compute='_compute_read_stats',
-        help='Tổng số cặp người dùng/cửa hàng có membership còn hiệu lực.',
+        string='Recipients', compute='_compute_read_stats',
+        help='Total number of user/store pairs holding a valid membership.',
     )
     unread_count = fields.Integer(
-        string='Chưa đọc', compute='_compute_read_stats',
-        help='Bằng 0 khi thông báo đã hết hiệu lực.',
+        string='Unread', compute='_compute_read_stats',
+        help='Zero once the notification has expired.',
     )
     active = fields.Boolean(string='Active', default=True)
 

@@ -5,7 +5,7 @@
         <field name="name">wujia.info.update.request.list</field>
         <field name="model">wujia.info.update.request</field>
         <field name="arch" type="xml">
-            <list string="Yêu cầu cập nhật thông tin"
+            <list string="Information update requests"
                   decoration-info="state == 'submitted'"
                   decoration-warning="state == 'reviewing'"
                   decoration-success="state == 'approved'"
@@ -33,13 +33,13 @@
         <field name="name">wujia.info.update.request.form</field>
         <field name="model">wujia.info.update.request</field>
         <field name="arch" type="xml">
-            <form string="Yêu cầu cập nhật thông tin">
+            <form string="Information update requests">
                 <header>
-                    <button name="action_start_review" type="object" string="Bắt đầu xem"
+                    <button name="action_start_review" type="object" string="Start review"
                             invisible="state != 'submitted'"/>
-                    <button name="action_approve" type="object" string="Duyệt"
+                    <button name="action_approve" type="object" string="Approve"
                             class="btn-primary" invisible="state not in ('submitted', 'reviewing')"/>
-                    <button name="action_reject" type="object" string="Từ chối"
+                    <button name="action_reject" type="object" string="Reject"
                             class="btn-danger" invisible="state not in ('submitted', 'reviewing')"/>
                     <field name="state" widget="statusbar"
                            statusbar_visible="draft,submitted,reviewing,approved"/>
@@ -67,17 +67,17 @@
                         </group>
                     </group>
                     <notebook>
-                        <page string="Nội dung">
+                        <page string="Content">
                             <group>
                                 <field name="old_value" readonly="1"/>
                                 <field name="new_value"/>
                                 <field name="note"/>
                             </group>
                         </page>
-                        <page string="Minh chứng">
+                        <page string="Supporting documents">
                             <field name="attachment_ids" widget="many2many_binary"/>
                         </page>
-                        <page string="Từ chối"
+                        <page string="Rejection reason"
                               invisible="state != 'rejected'">
                             <field name="refuse_reason"/>
                         </page>
@@ -97,25 +97,25 @@
                 <field name="franchise_id"/>
                 <field name="created_by_user_id"/>
                 <field name="new_value"/>
-                <filter name="filter_draft" string="Nháp"
+                <filter name="filter_draft" string="Draft"
                         domain="[('state', '=', 'draft')]"/>
-                <filter name="filter_submitted" string="Đã gửi"
+                <filter name="filter_submitted" string="Submitted"
                         domain="[('state', '=', 'submitted')]"/>
-                <filter name="filter_reviewing" string="Đang xem"
+                <filter name="filter_reviewing" string="Being reviewed"
                         domain="[('state', '=', 'reviewing')]"/>
-                <filter name="filter_approved" string="Đã duyệt"
+                <filter name="filter_approved" string="Approved"
                         domain="[('state', '=', 'approved')]"/>
-                <filter name="filter_urgent" string="Khẩn"
+                <filter name="filter_urgent" string="Urgent"
                         domain="[('priority', '=', 'urgent')]"/>
                 <separator/>
-                <filter name="filter_pending" string="Chờ duyệt"
+                <filter name="filter_pending" string="Pending approval"
                         domain="[('state', 'in', ['submitted', 'reviewing'])]"/>
                 <group name="group_by">
-                    <filter name="group_state" string="Trạng thái"
+                    <filter name="group_state" string="Status"
                             context="{'group_by': 'state'}"/>
-                    <filter name="group_franchise" string="Cửa hàng"
+                    <filter name="group_franchise" string="Store"
                             context="{'group_by': 'franchise_id'}"/>
-                    <filter name="group_type" string="Loại"
+                    <filter name="group_type" string="Type"
                             context="{'group_by': 'request_type'}"/>
                 </group>
             </search>
@@ -123,7 +123,7 @@
     </record>
 
     <record id="action_wujia_info_update_request" model="ir.actions.act_window">
-        <field name="name">Yêu cầu cập nhật thông tin</field>
+        <field name="name">Information update requests</field>
         <field name="res_model">wujia.info.update.request</field>
         <field name="view_mode">list,form</field>
         <field name="search_view_id" ref="view_wujia_info_update_request_search"/>
