@@ -34,6 +34,8 @@
                 <header>
                     <button name="action_start" string="Bắt đầu thực hiện" type="object"
                         class="btn-primary" invisible="state != 'draft'" />
+                    <button name="action_randomize_criteria" string="🎲 Bốc lại bộ câu hỏi" type="object"
+                        class="btn-secondary" invisible="state != 'draft' or not template_id" />
                     <button name="action_need_remediation" string="Cần khắc phục" type="object"
                         class="btn-warning"
                         invisible="state in ('done', 'cancel', 'need_remediation')" />

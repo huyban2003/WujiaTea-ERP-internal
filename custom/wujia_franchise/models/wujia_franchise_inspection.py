@@ -62,6 +62,72 @@ class WujiaFranchiseInspection(models.Model):
                 )
                 rec.checklist_score = rec.template_id.checklist_max_score - total_deduction
 
+    def _select_random_template_lines(self, template):
+        """
+        Chọn ngẫu nhiên tập hợp các tiêu chí từ template.line_ids sao cho:
+        1. Giữ lại tất cả các tiêu chí 'critical' (Quan trọng/Điểm liệt).
+        2. Bốc ngẫu nhiên các tiêu chí 'normal' để tổng điểm bằng checklist_max_score của Template.
+        """
+        all_lines = list(template.line_ids)
+        target_score = template.checklist_max_score or 95.0
+
+        # Nếu tổng điểm của toàn bộ câu trong template <= checklist_max_score thì trả về toàn bộ
+        total_template_score = sum(l.deduction_score or 0.0 for l in all_lines)
+        if total_template_score <= target_score:
+            return all_lines
+
+        critical_lines = [l for l in all_lines if l.criterion_type == 'critical']
+        normal_lines = [l for l in all_lines if l.criterion_type != 'critical']
+
+        critical_score = sum(l.deduction_score or 0.0 for l in critical_lines)
+        if critical_score >= target_score:
+            return critical_lines
+
+        remaining_target = target_score - critical_score
+
+        random.shuffle(normal_lines)
+
+        selected_normal = []
+        
+        def backtrack(idx, current_sum, path):
+            if abs(current_sum - remaining_target) < 0.001:
+                return path
+            if idx >= len(normal_lines) or current_sum > remaining_target + 0.001:
+                return None
+            
+            res = backtrack(idx + 1, current_sum + (normal_lines[idx].deduction_score or 0.0), path + [normal_lines[idx]])
+            if res is not None:
+                return res
+                
+            res = backtrack(idx + 1, current_sum, path)
+            if res is not None:
+                return res
+                
+            return None
+
+        found_path = backtrack(0, 0.0, [])
+        if found_path is not None:
+            selected_normal = found_path
+        else:
+            current_sum = 0.0
+            for l in normal_lines:
+                score = l.deduction_score or 0.0
+                if current_sum + score <= remaining_target + 0.001:
+                    selected_normal.append(l)
+                    current_sum += score
+
+        return critical_lines + selected_normal
+
+    def action_randomize_criteria(self):
+        """Bốc lại bộ câu hỏi ngẫu nhiên khi ở trạng thái Draft"""
+        for rec in self:
+            if rec.state != 'draft':
+                raise ValidationError(_('Chỉ có thể bốc lại câu hỏi khi phiếu ở trạng thái Nháp!'))
+            if not rec.template_id:
+                raise ValidationError(_('Vui lòng chọn Mẫu khảo sát trước!'))
+            rec.exam_line_ids = [(5, 0, 0)] + rec._generate_random_exam_lines()
+            rec._onchange_template_id()
+
     @api.onchange('template_id', 'franchise_id')
     def _onchange_template_id(self):
         """
@@ -72,7 +138,8 @@ class WujiaFranchiseInspection(models.Model):
             lines = []
             seq = 10
             grouped_lines = {}
-            for t_line in self.template_id.line_ids:
+            target_lines = self._select_random_template_lines(self.template_id)
+            for t_line in target_lines:
                 cat = t_line.category_id
                 cat_key = cat.id if cat else (t_line.category or 'general')
                 if cat_key not in grouped_lines:
@@ -448,18 +515,52 @@ class WujiaFranchiseInspection(models.Model):
         return res
 
     def _generate_random_exam_lines(self):
-        """Tự động lấy ngẫu nhiên tối đa 5 câu hỏi từ wujia.franchise.inspection.question"""
+        """Tự động lấy ngẫu nhiên danh sách câu hỏi từ wujia.franchise.inspection.question sao cho tổng điểm bằng exam_max_score"""
         questions = self.env['wujia.franchise.inspection.question'].search([('active', '=', True)])
         if not questions:
             return []
         
-        sample_size = min(5, len(questions))
-        selected_questions = random.sample(list(questions), sample_size)
+        target_exam_score = self.template_id.exam_max_score if (self.template_id and self.template_id.exam_max_score) else 5.0
         
+        all_q = list(questions)
+        total_available_score = sum(q.score or 1.0 for q in all_q)
+        
+        if total_available_score <= target_exam_score:
+            selected_questions = all_q
+        else:
+            random.shuffle(all_q)
+            selected_questions = []
+            
+            def backtrack(idx, current_sum, path):
+                if abs(current_sum - target_exam_score) < 0.001:
+                    return path
+                if idx >= len(all_q) or current_sum > target_exam_score + 0.001:
+                    return None
+                
+                res = backtrack(idx + 1, current_sum + (all_q[idx].score or 1.0), path + [all_q[idx]])
+                if res is not None:
+                    return res
+                
+                res = backtrack(idx + 1, current_sum, path)
+                if res is not None:
+                    return res
+                
+                return None
+            
+            found = backtrack(0, 0.0, [])
+            if found is not None:
+                selected_questions = found
+            else:
+                current_sum = 0.0
+                for q in all_q:
+                    score = q.score or 1.0
+                    if current_sum + score <= target_exam_score + 0.001:
+                        selected_questions.append(q)
+                        current_sum += score
+
         exam_lines = []
         seq = 10
         for q in selected_questions:
-            # Đảm bảo nạp và lưu chính xác chuỗi đáp án đúng snapshot (nhiều ô trống = nhiều dòng)
             correct_snap = q.correct_answers_text
             if not correct_snap and q.correct_answers:
                 if isinstance(q.correct_answers, list):
