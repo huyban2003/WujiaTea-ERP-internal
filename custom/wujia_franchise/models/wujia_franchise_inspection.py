@@ -50,14 +50,17 @@ class WujiaFranchiseInspection(models.Model):
         for rec in self:
             criteria_lines = rec.line_ids.filtered(lambda l: l.display_type == 'line')
             if not criteria_lines:
-                rec.checklist_score = 95.0
+                if rec.template_id:
+                    rec.checklist_score = rec.template_id.checklist_max_score
+                else:
+                    rec.checklist_score = 95.0
             else:
                 total_deduction = sum(
                     line.deduction_score_snapshot
                     for line in criteria_lines
                     if not line.is_pass
                 )
-                rec.checklist_score = 95.0 - total_deduction
+                rec.checklist_score = rec.template_id.checklist_max_score - total_deduction
 
     @api.onchange('template_id', 'franchise_id')
     def _onchange_template_id(self):
