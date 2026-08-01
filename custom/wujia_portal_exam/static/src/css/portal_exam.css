@@ -629,8 +629,54 @@
         font-size: 13px;
         color: var(--wujia-text-subtitle);
     }
+    .wujia-mexam-rrow-ico.is-idle { background: var(--wujia-mexam-cal-muted); }
+    .wujia-mexam-rrow-note {
+        font-size: 12.5px;
+        color: var(--wujia-text-subtitle);
+        margin-top: 2px;
+    }
     .wujia-mexam-rnote { margin-top: 0; }
+    .wujia-mexam-rnote--warn {
+        color: var(--wujia-danger);
+        background: #FEF2F2;
+        border-color: #FEDEDE;
+    }
     .wujia-mexam-rcta { width: 100%; margin-top: 4px; }
+
+    /* ---- Sprint 45 wire: khung giờ động + ảnh + lỗi inline ---- */
+    .wujia-mexam-slot-empty {
+        margin: 8px 0;
+        font-size: 13.5px;
+        color: var(--wujia-mexam-cal-muted);
+        text-align: center;
+    }
+    .wujia-mexam-photo {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        height: 40px;
+        padding: 0 12px;
+        border: 1px dashed var(--wujia-mexam-field-border);
+        border-radius: 10px;
+        color: var(--wujia-primary);
+        font-size: 13.5px;
+        cursor: pointer;
+        align-self: flex-start;
+        max-width: 100%;
+    }
+    .wujia-mexam-photo i { font-size: 16px; flex: 0 0 auto; }
+    .wujia-mexam-photo-text { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .wujia-mexam-person-err {
+        margin: 2px 0 0;
+        font-size: 12.5px;
+        color: var(--wujia-danger);
+    }
+    .wujia-mexam-submit-err {
+        color: var(--wujia-danger);
+        background: #FEF2F2;
+        border-color: #FEDEDE;
+        margin-top: 0;
+    }
 }
 
 /* ==========================================================================
@@ -842,6 +888,14 @@
         color: var(--wj-pc-primary);
     }
     .wj-exam-pc-avatar i { font-size: 18px; }
+    /* Ảnh thí sinh thật (Action 10) — cùng khung 36×36 với placeholder */
+    .wj-exam-pc-avatar-img {
+        width: 36px;
+        height: 36px;
+        border-radius: var(--wj-pc-input-radius);
+        object-fit: cover;
+        display: inline-block;
+    }
 
     /* Banner state (Figma y816 h92) — 4 biến thể theo frame 06 */
     .wj-exam-pc-banner {

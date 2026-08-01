@@ -1,8 +1,12 @@
 /* WujiaTea Portal Exam — desktop "Đăng ký thi" (Figma WJ_Exam_PC v1.2).
    UI-only: không gọi backend. Chỉ điều khiển các state của frame 07_UIStates
    (loading lịch / tháng rỗng / ngày rỗng / validation / đang gửi / xung đột /
-   thành công) và 2 modal 03 + 04. Khi sprint sau wire thật, chỉ cần thay các
-   hàm mock ở cuối file bằng lời gọi JSON-RPC. */
+   thành công) và 2 modal 03 + 04.
+
+   >>> PC submit deferred — Sprint 45 wire MOBILE-first (list/chi tiết/kết quả PC
+   đã đọc dữ liệu thật do server render, không cần JS). Sprint sau: thay 3 hàm
+   mock cuối file (renderMonth / bindSlots / send handler) bằng lời gọi JSON-RPC
+   /portal/exam/calendar, /portal/exam/slots, /portal/exam/register (đã tồn tại). */
 (function () {
     "use strict";
 
