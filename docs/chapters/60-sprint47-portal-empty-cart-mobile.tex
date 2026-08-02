@@ -1,0 +1,81 @@
+\chapter{Sprint 47 --- Giỏ hàng trống trên Portal mobile (Figma 5028:710) (2026-08-02)}
+
+\section{Bối cảnh}
+
+Task BA \texttt{Tasks!STT8} (\emph{``Portal / Đặt hàng --- Triển khai giao diện giỏ hàng
+trống trên Portal mobile''}, ưu tiên Cao, loại UI-Issue): khi giỏ hàng của cửa hàng không
+có sản phẩm nào (số lượng $=0$), màn \texttt{/portal/order/cart} trên mobile
+($391\times844$) phải hiển thị empty-state bám mockup \textbf{Figma node 5028:710}.
+
+Empty-state cũ (\texttt{mcart\_panel}, nhánh \texttt{t-if="not cs\_lines"}) là bản generic:
+1 icon feather $+$ chữ ``Giỏ hàng trống.'' $+$ 1 link back --- \textbf{không khớp thiết kế}.
+Trạng thái (AI) trên sheet còn rỗng $\Rightarrow$ chưa ai làm. Phạm vi \textbf{UI-only}: không
+đụng model / field / controller / logic đặt hàng / giá / quyền / dữ liệu.
+
+\section{Phạm vi đã chốt với chủ dự án}
+
+\begin{itemize}
+  \item \textbf{Fork Figma vs Acceptance}: node 5028:710 \emph{không vẽ} 2 element ``bộ đếm 0
+    sản phẩm'' và hàng ``Tiếp tục chọn sản phẩm'', nhưng Acceptance \#4 + Mô tả BA lại yêu
+    cầu. Chủ dự án chốt: dựng \textbf{đủ theo Acceptance \#4} (superset) để BA nghiệm thu pass.
+  \item \textbf{Không đụng} shared component \texttt{wj-empty-state--rich} (dùng chung 8
+    module) --- chỉ override scoped trong \texttt{portal\_order.css}.
+\end{itemize}
+
+\section{Đã làm}
+
+3 file, module \texttt{wujia\_portal\_sale}:
+
+\begin{itemize}
+  \item \texttt{views/portal\_order\_cart.xml} --- thay nhánh empty bằng superset: tiêu đề
+    ``Giỏ hàng'' (giữ \texttt{wj\_page\_header} variant back), bộ đếm ``0 sản phẩm'', hàng
+    ``Tiếp tục chọn sản phẩm'' ($\rightarrow$ \texttt{/portal/order}), và card empty
+    \textbf{tái dùng} \texttt{wj-empty-state} rich (icon giỏ, ``Giỏ hàng đang trống'', 2 dòng
+    phụ, CTA ``Chọn sản phẩm'' $\rightarrow$ \texttt{/portal/order}). Text bám node
+    5028:755/756/757/759.
+  \item \texttt{static/src/css/portal\_order.css} --- CSS scoped module-local (nạp \emph{sau}
+    \texttt{\_components.css} trong bundle $\Rightarrow$ thắng override đồng-specificity):
+    bộ đếm, continue-row (màu \texttt{--wujia-primary}), icon giỏ $72\times72$ bằng data-URI
+    SVG (vòng tròn \texttt{\#EAF7FD} $+$ cart stroke \texttt{\#28A9DF}; \texttt{var()} không
+    dùng được trong data-URI nên hex nằm trong SVG --- đúng precedent
+    \texttt{\_components.css:349}), $+$ delta px khớp Figma (title 20px, CTA $147\times42$ /
+    15px). Không hex cứng ngoài SVG.
+  \item \texttt{\_\_manifest\_\_.py} --- bump \texttt{19.0.4.5.0} $\rightarrow$
+    \texttt{19.0.4.6.0} (deploy \texttt{-u}, không migration, không \texttt{-i}).
+\end{itemize}
+
+Các phần acceptance \textbf{đã có sẵn, chỉ verify không regress}: badge giỏ ở shortcut header
+ẩn khi $=0$ (\texttt{header\_cart\_badge.js} toggle \texttt{is-active} khi $n>0$); footer
+83px $+$ tab ``Đặt hàng'' active (\texttt{mobile\_bottomnav.xml}, path bắt đầu
+\texttt{/portal/order}); ẩn dòng SP / tạm tính / tổng / nút gửi khi trống (template
+\texttt{t-if}/\texttt{t-else}).
+
+\section{Verify}
+
+Build/test trên \textbf{DB copy cô lập} (\texttt{wujia\_tea\_s47}, pg\_dump snapshot, server
+port 8031) --- \emph{không đụng session Sprint 46 đang chạy trên \texttt{wujia\_tea\_19} port
+8019}.
+
+\begin{itemize}
+  \item \texttt{-u wujia\_portal\_sale --stop-after-init}: \textbf{RC=0, 0
+    ERROR/CRITICAL/Traceback}, module lên \texttt{19.0.4.6.0}, view load sạch.
+  \item Playwright headless $391\times844$ (login \texttt{em.hcm} owner, cookie
+    \texttt{wujia\_active\_franchise\_id}) --- đo bbox/computed-style so node JSON 5028:710,
+    \textbf{khớp toàn bộ}: card $357.4\times254.8$ ($\approx359\times253$), icon $72\times72$
+    $+$ cart SVG, title 20px/700 \texttt{\#111827}, 2 sub 14px \texttt{\#6B7280}, CTA
+    $149.8\times42$ min-w147 nền \texttt{\#28A9DF} chữ trắng 15px $\rightarrow$
+    \texttt{/portal/order}, bộ đếm ``0 sản phẩm'', continue-row ``Tiếp tục chọn sản phẩm'',
+    footer $391\times83$ tab ``Đặt hàng'' \texttt{\#28A9DF} / tab khác \texttt{\#8A939E},
+    badge giỏ header \texttt{visible=false} khi $=0$, overflow ngang $=0$.
+  \item Regression \textbf{giỏ có hàng} (thêm 1 SP qua \texttt{/cart/add}): list $+$ summary
+    $+$ nút gửi vẫn render, không rơi vào nhánh empty.
+  \item Smoke shell \texttt{/portal}, \texttt{/portal/order}, \texttt{/portal/notification}
+    $391\times844$: overflow ngang $=0$; shared \texttt{wj-empty-state--rich} ở 8 module khác
+    không đổi (không sửa shared CSS).
+\end{itemize}
+
+\section{Trạng thái}
+
+DONE local, verified. \textbf{CHƯA deploy UAT} (task \texttt{Cho phép tự deploy?}=No ---
+chủ dự án/BA tự deploy \texttt{-u wujia\_portal\_sale}). Task \texttt{Tasks!STT8} $\rightarrow$
+\textbf{Ready for Retest} (không tự Done, theo QA Operating Standard).
