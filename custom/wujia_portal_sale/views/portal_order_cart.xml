@@ -13,13 +13,25 @@
             <t t-set="ph_back_url" t-value="'/portal/order'"/>
         </t>
 
-        <!-- Empty -->
-        <div t-if="not cs_lines" class="wujia-empty-state">
-            <i class="feather icon-shopping-cart"/>
-            <p>Giỏ hàng trống.</p>
-            <a href="/portal/order" class="wujia-mcart-back mt-2">
-                <i class="feather icon-arrow-left"/> Tiếp tục chọn sản phẩm
+        <!-- Empty — Figma 5028:710 (Sprint 47). Superset theo Acceptance STT8 #4:
+             bộ đếm "0 sản phẩm" + hàng "Tiếp tục chọn sản phẩm" + card empty (reuse
+             component wj-empty-state rich variant, cấm sửa shared) + CTA "Chọn sản
+             phẩm". UI-only. -->
+        <div t-if="not cs_lines" class="wujia-mcart-empty">
+            <div class="wujia-mcart-empty-count">
+                <span class="wj-count-meta wj-count-meta--bold">0 sản phẩm</span>
+            </div>
+            <a href="/portal/order" class="wujia-mcart-continue">
+                <i class="feather icon-arrow-left"/>
+                <span>Tiếp tục chọn sản phẩm</span>
             </a>
+            <div class="wj-empty-state wj-empty-state--rich wujia-mcart-empty-card">
+                <div class="wj-empty-state-icon wujia-mcart-empty-icon"/>
+                <p class="wj-empty-state-title">Giỏ hàng đang trống</p>
+                <p class="wj-empty-state-sub">Bạn chưa chọn sản phẩm nào.</p>
+                <p class="wj-empty-state-sub">Hãy thêm sản phẩm để tạo đơn đặt hàng.</p>
+                <a href="/portal/order" class="wj-empty-state-btn wujia-mcart-empty-cta">Chọn sản phẩm</a>
+            </div>
         </div>
 
         <t t-else="">
