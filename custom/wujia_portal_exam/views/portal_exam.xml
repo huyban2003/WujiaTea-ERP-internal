@@ -219,9 +219,12 @@
                                 <select id="wj_exam_course" name="course_id"
                                         class="wj-pc-control wj-exam-pc-control wj-exam-pc-control--sel"
                                         data-wj-exam-course="1">
-                                    <option value="" t-out="pc_summary['course_name']"/>
-                                    <option value="1">Thi pha chế định kỳ</option>
-                                    <option value="2">Đào tạo quản lý</option>
+                                    <option t-if="not pc_courses" value=""
+                                            t-out="pc_summary['course_name']"/>
+                                    <option t-foreach="pc_courses" t-as="c"
+                                            t-att-value="c['course_id']"
+                                            t-att-selected="c_index == 0 and 'selected' or None"
+                                            t-out="c['title']"/>
                                 </select>
                             </div>
                             <p class="wj-exam-pc-help">Mỗi phiếu được đăng ký tối đa 4 người.</p>
@@ -231,10 +234,13 @@
                             <p class="wj-exam-pc-secsub">Chọn một ngày có lịch, sau đó chọn khung giờ còn chỗ.</p>
 
                             <div class="wj-exam-pc-schedule">
-                                <!-- Lịch tháng -->
-                                <div class="wj-exam-pc-cal" data-wj-exam-cal="1">
+                                <!-- Lịch tháng — dữ liệu THẬT (biến `calendar`); JS đổi
+                                     tháng/khóa qua /portal/exam/calendar. -->
+                                <div class="wj-exam-pc-cal" data-wj-exam-cal="1"
+                                     t-att-data-exam-year="calendar['year']"
+                                     t-att-data-exam-month="calendar['month']">
                                     <div class="wj-exam-pc-cal__head">
-                                        <span class="wj-exam-pc-cal__label" t-out="pc_calendar['label']"/>
+                                        <span class="wj-exam-pc-cal__label" t-out="calendar['label']"/>
                                         <span class="wj-exam-pc-cal__nav">
                                             <button type="button" class="wj-exam-pc-navbtn" data-wj-exam-month="prev">‹</button>
                                             <button type="button" class="wj-exam-pc-navbtn" data-wj-exam-month="next">›</button>
@@ -253,18 +259,25 @@
                                     </div>
                                     <div class="wj-exam-pc-cal__body" data-wj-exam-cal-body="1">
                                         <div class="wj-exam-pc-cal__grid wj-exam-pc-cal__grid--wd">
-                                            <span t-foreach="pc_calendar['weekdays']" t-as="wd"
-                                                  class="wj-exam-pc-wd" t-out="wd"/>
+                                            <span class="wj-exam-pc-wd">T2</span>
+                                            <span class="wj-exam-pc-wd">T3</span>
+                                            <span class="wj-exam-pc-wd">T4</span>
+                                            <span class="wj-exam-pc-wd">T5</span>
+                                            <span class="wj-exam-pc-wd">T6</span>
+                                            <span class="wj-exam-pc-wd">T7</span>
+                                            <span class="wj-exam-pc-wd">CN</span>
                                         </div>
                                         <div class="wj-exam-pc-cal__grid">
-                                            <t t-foreach="pc_calendar['weeks']" t-as="week">
+                                            <t t-foreach="calendar['weeks']" t-as="week">
                                                 <t t-foreach="week" t-as="d">
+                                                    <t t-set="daycls" t-value="{'available': 'available', 'full': 'blocked', 'none': 'none', 'out': 'out'}.get(d['state'], 'none')"/>
                                                     <button type="button"
-                                                            t-attf-class="wj-exam-pc-day wj-exam-pc-day--#{d['state']} #{d['selected'] and 'is-selected' or ''}"
+                                                            t-attf-class="wj-exam-pc-day wj-exam-pc-day--#{daycls}"
                                                             t-att-data-wj-exam-day="d['day']"
-                                                            t-att-disabled="d['state'] in ('out', 'blocked', 'none') and 'disabled' or None">
+                                                            t-att-data-exam-iso="d['date']"
+                                                            t-att-disabled="d['state'] != 'available' and 'disabled' or None">
                                                         <t t-out="d['day']"/>
-                                                        <i t-if="d['state'] == 'available' and not d['selected']"
+                                                        <i t-if="d['state'] == 'available'"
                                                            class="wj-exam-pc-day__dot"/>
                                                     </button>
                                                 </t>
@@ -286,25 +299,14 @@
                                 <div class="wj-exam-pc-slots" data-wj-exam-slots="1">
                                     <p class="wj-exam-pc-slots__title">Khung giờ ngày <t t-out="pc_summary['exam_date']"/></p>
                                     <p class="wj-exam-pc-slots__sub"><t t-out="pc_summary['course_name']"/> · giờ địa phương</p>
-                                    <div class="wj-exam-pc-slots__list" data-wj-exam-slot-list="1">
-                                        <t t-foreach="pc_slots" t-as="slot">
-                                            <button type="button"
-                                                    t-attf-class="wj-exam-pc-slot wj-exam-pc-slot--#{slot['kind']} #{slot['selected'] and 'is-selected' or ''}"
-                                                    t-att-data-wj-exam-slot="slot['time_slot']"
-                                                    t-att-disabled="slot['kind'] != 'open' and 'disabled' or None">
-                                                <i class="feather icon-clock wj-exam-pc-slot__icon"/>
-                                                <span class="wj-exam-pc-slot__time" t-out="slot['time_slot']"/>
-                                                <span t-attf-class="wj-exam-pc-slot__chip wj-exam-pc-slot__chip--#{slot['kind']}"
-                                                      t-out="slot['reason']"/>
-                                                <i class="feather icon-check-circle wj-exam-pc-slot__check"/>
-                                            </button>
-                                        </t>
-                                    </div>
-                                    <!-- 07_UIStates · 3. Ngày không có ca -->
-                                    <div class="wj-exam-pc-panel-empty" data-wj-exam-slot-empty="1" hidden="hidden">
-                                        <p class="wj-exam-pc-panel-empty__title">Không có khung giờ khả dụng</p>
+                                    <!-- Khung giờ nạp thật qua /portal/exam/slots (mỗi nút
+                                         mang data-wj-exam-slot-session). JS dựng danh sách. -->
+                                    <div class="wj-exam-pc-slots__list" data-wj-exam-slot-list="1"/>
+                                    <!-- 07_UIStates · 3. Ngày không có ca / chưa chọn ngày -->
+                                    <div class="wj-exam-pc-panel-empty" data-wj-exam-slot-empty="1">
+                                        <p class="wj-exam-pc-panel-empty__title" data-wj-exam-slot-empty-title="1">Chọn một ngày có lịch để xem khung giờ.</p>
                                         <button type="button" class="wj-pc-btn wj-pc-btn--secondary wj-exam-pc-panel-empty__btn"
-                                                data-wj-exam-pick-other-day="1">Chọn ngày khác</button>
+                                                data-wj-exam-pick-other-day="1" hidden="hidden">Chọn ngày khác</button>
                                     </div>
                                     <p class="wj-exam-pc-slots__foot">Hạn đăng ký: <t t-out="pc_summary['registration_deadline']"/></p>
                                 </div>
@@ -362,32 +364,12 @@
                                             <th>Thao tác</th>
                                         </tr>
                                     </thead>
+                                    <!-- Người tham gia nhập tay qua modal "Thêm người";
+                                         JS append/replace <tr> (mang data thật + ảnh base64). -->
                                     <tbody data-wj-exam-part-body="1">
-                                        <tr t-foreach="pc_lines" t-as="line">
-                                            <td>
-                                                <span class="wj-exam-pc-photo">
-                                                    <span t-attf-class="wj-exam-pc-avatar #{'' if line['has_photo'] else 'wj-exam-pc-avatar--empty'}">
-                                                        <i class="feather icon-user"/>
-                                                    </span>
-                                                    <span t-if="line['has_photo']" class="wj-exam-pc-photo__tag">Đã tải</span>
-                                                    <span t-else="" class="wj-exam-pc-photo__tag wj-exam-pc-photo__tag--empty">Chưa có ảnh</span>
-                                                </span>
-                                            </td>
-                                            <td class="wj-exam-pc-td--name" t-out="line['employee_name']"/>
-                                            <td t-out="line['phone']"/>
-                                            <td class="wj-pc-td--muted" t-out="line['birth_year']"/>
-                                            <td class="wj-pc-td--muted" t-out="line['job_position']"/>
-                                            <td>
-                                                <span class="wj-exam-pc-rowacts">
-                                                    <button type="button" class="wj-exam-pc-iconbtn"
-                                                            data-wj-exam-open="participant" title="Sửa">
-                                                        <i class="feather icon-edit-2"/>
-                                                    </button>
-                                                    <button type="button" class="wj-exam-pc-iconbtn wj-exam-pc-iconbtn--muted"
-                                                            data-wj-exam-line-remove="1" title="Xóa">
-                                                        <i class="feather icon-trash-2"/>
-                                                    </button>
-                                                </span>
+                                        <tr data-wj-exam-part-empty="1">
+                                            <td colspan="6" class="wj-pc-td--muted wj-exam-pc-part-empty">
+                                                Chưa có người tham gia. Bấm "Thêm người" để nhập.
                                             </td>
                                         </tr>
                                     </tbody>
@@ -398,7 +380,7 @@
                                 <!-- 07_UIStates · 6. Đang gửi yêu cầu -->
                                 <p class="wj-exam-pc-sendhint" data-wj-exam-send-hint="1" hidden="hidden">Không đóng hoặc gửi lại biểu mẫu.</p>
                                 <button type="button" class="wj-pc-btn wj-pc-btn--primary wj-exam-pc-checkbtn"
-                                        data-wj-exam-open="submit">Kiểm tra thông tin</button>
+                                        data-wj-exam-check="1">Kiểm tra thông tin</button>
                             </div>
                         </div>
 
@@ -526,7 +508,7 @@
                             <button type="button" class="wj-pc-btn wj-pc-btn--secondary wj-exam-pc-mbtn"
                                     data-wj-exam-close="1">Hủy</button>
                             <button type="button" class="wj-pc-btn wj-pc-btn--primary wj-exam-pc-mbtn wj-exam-pc-mbtn--add"
-                                    data-wj-exam-close="1">Thêm người</button>
+                                    data-wj-exam-part-save="1">Thêm người</button>
                         </div>
                     </div>
                 </div>
@@ -579,18 +561,8 @@
                                         <th>Chức vụ</th>
                                     </tr>
                                 </thead>
-                                <tbody>
-                                    <tr t-foreach="pc_lines" t-as="line">
-                                        <td>
-                                            <span t-attf-class="wj-exam-pc-avatar wj-exam-pc-avatar--sm #{'' if line['has_photo'] else 'wj-exam-pc-avatar--empty'}">
-                                                <i class="feather icon-user"/>
-                                            </span>
-                                        </td>
-                                        <td class="wj-exam-pc-td--name" t-out="line['employee_name']"/>
-                                        <td t-out="line['phone']"/>
-                                        <td class="wj-pc-td--muted" t-out="line['job_position']"/>
-                                    </tr>
-                                </tbody>
+                                <!-- JS dựng lại từ dòng đã nhập khi mở modal. -->
+                                <tbody data-wj-exam-sum-body="1"/>
                             </table>
                         </div>
 

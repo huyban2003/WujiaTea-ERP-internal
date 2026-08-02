@@ -1,14 +1,14 @@
-"""Wujia portal — Exam controller (Sprint 45: wire thật vào backend Sprint M).
+"""Wujia portal — Exam controller (Sprint 45: wire thật; Sprint 46: PC submit).
 
 Phần XEM (list / chi tiết / kết quả / khóa / lịch / khung giờ) wire dữ liệu thật
-cho cả mobile lẫn PC. Phần TẠO PHIẾU (submit) wire thật trên MOBILE; PC create
-deferred (PC vẫn xem/duyệt real, dùng demo pc_calendar/pc_slots/pc_summary cho
-màn đăng ký). Mọi dữ liệu giới hạn theo current store + membership; backend
-server-resolve franchise/member/requester, không tin ID frontend.
+cho cả mobile lẫn PC. Phần TẠO PHIẾU (submit) wire thật cho CẢ mobile lẫn PC
+(Sprint 46 — PC dùng chung 3 endpoint calendar/slots/register). Mọi dữ liệu giới
+hạn theo current store + membership; backend server-resolve franchise/member/
+requester, không tin ID frontend.
 
 Routes:
 - GET  /portal/exam                          Action 1 — danh sách phiếu (list)
-- GET  /portal/exam/register                 màn đăng ký (mobile wire / PC demo)
+- GET  /portal/exam/register                 màn đăng ký (mobile + PC wire thật)
 - POST /portal/exam/calendar        (json)   Action 4 — lịch tháng theo khóa
 - POST /portal/exam/slots           (json)   Action 5 — khung giờ theo ngày
 - POST /portal/exam/register        (json)   Action 7+8 — submit tạo phiếu
@@ -65,39 +65,6 @@ PC_PUBLISH_STATES = {
     'none': ('Chưa có', 'wj-pc-badge--pending'),
     'na': ('Không áp dụng', 'wj-pc-badge--pending'),
 }
-
-# --------------------------------------------------------------------------- #
-# PC "Đăng ký mới" — demo UI-only (PC submit deferred, Sprint sau). Bản đọc PC
-# (list/detail) dùng dữ liệu THẬT; chỉ màn tạo phiếu PC còn demo.
-# --------------------------------------------------------------------------- #
-PC_SLOTS = [
-    {'time_slot': '08:20–10:00', 'reason': 'Còn 3 chỗ', 'kind': 'open',
-     'selected': True},
-    {'time_slot': '13:00–14:40', 'reason': 'Hết chỗ', 'kind': 'full',
-     'selected': False},
-    {'time_slot': '16:00–17:40', 'reason': 'Đã đóng', 'kind': 'closed',
-     'selected': False},
-]
-PC_LINES = [
-    {'employee_name': 'Nguyễn Văn An', 'phone': '0901 234 567',
-     'birth_year': '1998', 'job_position': 'Pha chế', 'has_photo': True},
-    {'employee_name': 'Trần Thị Bình', 'phone': '0902 345 678',
-     'birth_year': '1995', 'job_position': 'Quản lý ca', 'has_photo': False},
-]
-PC_SUMMARY = {
-    'course_name': 'Đăng ký thi lại', 'exam_date': '02/07/2026',
-    'exam_datetime': '02/07/2026 · 08:20–10:00',
-    'location': 'Trung tâm đào tạo Ngô Gia',
-    'registration_deadline': '30/06/2026 · 08:20',
-    'franchise_name': '[H000] Cửa hàng Nguyễn Trãi',
-    'quota_label': 'Phiếu: 2 / 4', 'seat_label': 'Ca còn: 3 chỗ',
-    'note': 'Sắp xếp nhân sự tham gia đúng giờ',
-    'note_full': 'Sắp xếp nhân sự tham gia đúng giờ theo lịch đã chọn.',
-}
-PC_AVAILABLE_DAYS = {6, 8, 9, 11, 12, 14, 16, 19, 20, 21, 23, 24, 25, 28, 29, 31}
-PC_BLOCKED_DAYS = {5, 10, 15, 26}
-PC_SELECTED_DAY = 2
-
 
 # --------------------------------------------------------------------------- #
 # Helpers
@@ -248,6 +215,11 @@ def _exam_slots(course, d):
             'available': ok, 'seats': s.available_participant_count,
             'max_per_reg': s.max_participants_per_registration,
             'location': s.location or '—',
+            # Additive (Sprint 46) — nhãn hạn đăng ký cho tóm tắt PC. Mobile
+            # renderSlots không đọc key này ⇒ 0 regression.
+            'deadline': (_to_local(s.registration_deadline)
+                         .strftime('%d/%m/%Y · %H:%M')
+                         if s.registration_deadline else '—'),
         })
     return slots
 
@@ -274,27 +246,6 @@ def _course_meta(course):
 def _published_courses():
     return request.env['wujia.exam.course'].sudo().search(
         [('state', '=', 'published'), ('active', '=', True)], order='name, id')
-
-
-def _build_pc_calendar(year=2026, month=7):
-    """Calendar PC 'Đăng ký mới' — demo UI-only (PC submit deferred)."""
-    weeks = []
-    for week in _calendar.Calendar(firstweekday=0).monthdatescalendar(year, month):
-        row = []
-        for d in week:
-            if d.month != month:
-                state = 'out'
-            elif d.day in PC_AVAILABLE_DAYS:
-                state = 'available'
-            elif d.day in PC_BLOCKED_DAYS:
-                state = 'blocked'
-            else:
-                state = 'none'
-            row.append({'day': d.day, 'state': state,
-                        'selected': d.month == month and d.day == PC_SELECTED_DAY})
-        weeks.append(row)
-    return {'label': 'Tháng %d %d' % (month, year), 'weeks': weeks,
-            'weekdays': ['T2', 'T3', 'T4', 'T5', 'T6', 'T7', 'CN']}
 
 
 class WujiaPortalExam(http.Controller):
@@ -375,6 +326,21 @@ class WujiaPortalExam(http.Controller):
         calendar = (_exam_calendar(selected, y, mo) if selected
                     else {'label': '', 'weeks': [], 'year': y, 'month': mo})
         sel_meta = _course_meta(selected) if selected else {'meta': ''}
+        # PC "Đăng ký mới" — dữ liệu THẬT (Sprint 46, thay demo PC_*). Grid dùng
+        # chung biến `calendar` real; khóa/khung giờ/người do JS nạp qua endpoint.
+        max_per_reg = (selected.max_participants_per_registration
+                       if selected else 4) or 4
+        store_name = request.env['wujia.franchise.management'].sudo().browse(
+            fid).name or '—'
+        pc_summary = {
+            'course_name': selected.name if selected else 'Chưa có khóa thi',
+            'franchise_name': store_name,
+            'quota_label': '0 / %d' % max_per_reg, 'max_per_reg': max_per_reg,
+            # JS lấp khi chọn khung giờ.
+            'exam_date': '—', 'exam_datetime': '—', 'location': '—',
+            'registration_deadline': '—', 'seat_label': '—',
+            'note': '', 'note_full': '',
+        }
         return request.render('wujia_portal_exam.portal_exam_register', {
             'courses': m_courses,
             'selected_course': {
@@ -384,9 +350,9 @@ class WujiaPortalExam(http.Controller):
             },
             'calendar': calendar,
             'slots': [],   # nạp qua AJAX khi chọn ngày
-            # PC "Đăng ký mới" — demo (PC submit deferred).
-            'pc_calendar': _build_pc_calendar(), 'pc_slots': PC_SLOTS,
-            'pc_lines': PC_LINES, 'pc_summary': PC_SUMMARY,
+            # PC "Đăng ký mới" — context thật (grid = `calendar`, người tự nhập).
+            'pc_courses': [{'course_id': c.id, 'title': c.name} for c in courses],
+            'pc_lines': [], 'pc_summary': pc_summary,
         })
 
     # --------------------------------------------------------------- calendar
