@@ -3,7 +3,7 @@
 Mỗi cụm = **một phiên riêng**. Mở phiên mới → `/wujia-start` → khi hỏi "Sprint/task nào hôm nay?"
 thì dán nguyên khối prompt tương ứng bên dưới.
 
-**Thứ tự đề xuất:** I → A → E → G → B → D → C → F → H1 → H2
+**Thứ tự đề xuất:** ~~I~~ (xong 03/08) → **A** → E → G → B → D → C → F → H1 → H2
 
 ---
 
@@ -79,8 +79,10 @@ Không sửa nội dung cột A–H của BA.
 | (1) 7 câu hỏi BA | Đã soạn xong trong `I_blocked_and_questions.md` §5 — **chờ chủ dự án duyệt rồi mới gửi** |
 | (2) FUNC-MOB-ORDER-006 | Đo lại UAT 391×844: “Tra” + Enter → `?keyword=Tra`, danh sách 5 → 2 sản phẩm. **Đã đẩy `Ready for Retest`** (row 11) |
 | (2) RESP-MOB-ORDER-003 | Đo lại UAT: floatbar `position:fixed`, `left/right = 16px`, box `x=16 w=359` (lề phải 16). **Đã đẩy `Ready for Retest`** (row 6) |
-| (3) UI-PC-BASE-012 (phần sáng đôi) | **Đã sửa, verify 6/6 route đúng 1 mục active** — nhưng **chưa deploy** nên chưa ghi sheet |
-| (4) WJ-PH-003 | **Đã chuyển `Need Clarification`**, owner BA/Tester, câu hỏi ghi ở cột K (row 55) |
+| (3) UI-PC-BASE-012 (phần sáng đôi) | Đã sửa + deploy UAT (`8888dc5`), đo lại 6/6 route đúng 1 mục. **`Ready for Retest`** (row 44) |
+| (4) WJ-PH-003 | **`Need Clarification`**, owner BA/Tester (row 35) — nhưng chủ dự án chốt 03/08 **tự làm phương án (a)**, xem prompt cụm E |
+| Thêm: WJ-PH-006 | Đo UAT đủ 2 nhánh requester → **`Ready for Retest`** (row 33), kèm lời nhắc BA cập nhật CT-025 |
+| Thêm: UI-MOB-SHELL-001 | **`Need Clarification`** (row 8) — chờ BA gửi file logo mobile ~100×34, không sửa được bằng code |
 
 **Chi tiết fix (3)** — thủ phạm thật **không phải** `app-menu.js` như prompt đoán:
 - `static/assets/js/app.js:112-118` gắn `.active` cho **mọi** `<a>` có `href === location.pathname`
@@ -88,9 +90,20 @@ Không sửa nội dung cột A–H của BA.
 - Đã sửa: `pc_sidenav.xml` tính active **tại server** cho từng mục (`_p` = `request.httprequest.path`);
   `app.js` bỏ qua hoàn toàn khi phát hiện sidebar portal (`#main-menu-navigation .wujia-nav-header`),
   giữ nguyên hành vi cũ cho menu bcore legacy. Bump `app.js?v=1158` (file này trước giờ **không có** cache-buster).
-- Chưa đổi `href="/portal"` của mục Công nợ — chờ BA trả lời câu hỏi 3.
+- Chưa đổi `href="/portal"` của mục Công nợ → **đã chuyển sang cụm A** (chủ dự án chốt nối thẳng `/portal/debt`).
 
-⚠️ **Việc còn nợ:** deploy UAT rồi mới `qa_sync` được UI-PC-BASE-012.
+**Chốt của chủ dự án 03/08 — 5 câu trước định hỏi BA nay tự quyết, đã nhúng vào prompt từng cụm:**
+
+| Quyết định | Nằm ở cụm |
+|---|---|
+| Nối menu Công nợ PC về `/portal/debt` | A |
+| Ghép trạng thái chuyến giao vào cột trạng thái đơn (phương án a) | E |
+| Giữ CTA `#0F7CA8`, không theo `#28A9DF` của Figma | G |
+| Đặt mặc định tiếng Việt cho tài khoản cửa hàng | B |
+| Clamp tên sản phẩm 2 dòng (BA đã chốt 22/07) | C |
+
+**Chỉ còn 2 việc thật sự phải nhờ người khác:** file logo mobile (UI-MOB-SHELL-001) và
+BA cập nhật CT-025 (WJ-PH-006) — cả hai đã ghi rõ trong cột Ghi chú trên sheet.
 
 ---
 
@@ -113,6 +126,14 @@ Root cause đã xác minh trên UAT 02/08 (đừng đi tìm lại từ đầu):
 
 Đừng đổi giá trị token --wujia-sidebar-width (300px đã đúng) — chỉ đổi selector.
 Bump ?v= cho _wujia_theme.css.
+
+LÀM LUÔN, KHÔNG HỎI BA (chủ dự án chốt 03/08) — phần còn lại của UI-PC-BASE-012:
+nối mục "Công nợ" trong pc_sidenav.xml về href="/portal/debt". Trang có thật (S43/S48) nhưng mới
+chỉ có bản mobile nên ở 1920 sẽ ra cột hẹp căn giữa — vẫn hơn bấm vào quay về Trang chủ như hiện tại.
+Điều kiện active của mục này đã khoá sẵn theo /portal/debt nên CHỈ đổi href, không đụng logic.
+Xoá comment cũ "Công nợ: UI-only (debt build lại theo ADR-007) → Home" — đã lỗi thời.
+Verify: bấm Công nợ ở /portal → mở /portal/debt (200), mục Công nợ sáng, Trang chủ tắt.
+Ghi cột K: PC chưa có Figma riêng, tạm dùng layout mobile.
 
 Verify 1920×1080: sidebar 0,0,300×1080 · navbar 300,0,1620×72 · navbar-container x=300 ·
 store block x=324,y=12,430×48, role x≈650,82×26 · content-wrapper y=72 padding 24px đều, content-body x=324 ·
@@ -145,9 +166,16 @@ WJ-PH-007: _parse_date() chỉ parse, không so sánh. Chặn date_from > date_t
 WJ-PH-004: bỏ cột "Thao tác" ở bảng PC trong views/portal_history.xml, mã đơn là link duy nhất.
   Không đụng bản mobile.
 
-WJ-PH-006: KHÔNG sửa — _requester_display() ở portal.py:70-73 đã đúng rule 2 nhánh BA chốt 30/07.
-  Chỉ chụp evidence 1 đơn portal + 1 đơn backend, ghi cột K, đẩy Ready for Retest,
-  và nhắc BA cập nhật CT-025 trên Master Sheet.
+WJ-PH-006: XONG RỒI 03/08 (Ready for Retest, đo trên UAT đủ 2 nhánh) — bỏ khỏi cụm này, đừng làm lại.
+
+WJ-PH-003: LÀM LUÔN, KHÔNG CHỜ BA (chủ dự án chốt 03/08) — chọn phương án (a): ghép trạng thái
+  chuyến giao vào MỘT cột trạng thái đơn. sale.order.state chỉ có draft/sent/sale; "Đang giao" và
+  "Hoàn tất" suy từ batch_id.delivery_batch_status. Thứ tự ưu tiên: trạng thái giao hàng đè trạng
+  thái đơn khi đơn đã xác nhận (sale + đang giao → "Đang giao"; sale + đã giao xong → "Hoàn tất";
+  còn lại giữ nhãn theo SALE_STATE_META). Bộ lọc trạng thái phải lọc được cả 5 nhãn.
+  Trên sheet issue này đang Need Clarification — sửa xong thì đẩy thẳng Ready for Retest,
+  ghi rõ ở cột K là Dev đã chọn phương án (a) và vì sao (đây là cái người dùng cửa hàng cần thấy).
+  Phần "đơn hủy do bị thay thế": CHƯA làm, cần thêm trường lý do hủy — ghi vào cột K là scope sau.
 
 Regression: phân trang, sort, preset tháng này/tháng trước, lọc trạng thái, tìm theo mã đơn, bản mobile.
 ```
@@ -175,6 +203,11 @@ WJ-ORD-019: đo lại 02/08 — Enter submit ĐÚNG ở cả PC lẫn mobile, fo
   Chạy tab-walk thật (in document.activeElement theo thứ tự) để chốt phần "tab chạm input ẩn trùng lặp",
   đừng suy luận từ class d-none.
 
+CHỐT SẴN, KHÔNG HỎI BA (chủ dự án 03/08): giữ #0F7CA8 cho CTA, KHÔNG dùng #28A9DF của Figma.
+  Lý do ghi vào cột K: #28A9DF chữ trắng = 2.68:1, chính là lỗi a11y BA tự mở ở Sprint 38 —
+  không thể vừa giữ đúng màu Figma vừa hết lỗi. Nếu BA muốn giữ màu Figma thì phải đổi màu chữ,
+  và đó là quyết định của BA, không chặn Dev làm phần còn lại.
+
 Ghi evidence phần đã đạt vào cột K để BA không fail lại vì lý do cũ.
 ```
 
@@ -201,7 +234,12 @@ Giữ nguyên hành vi click/dropdown/badge — .wujia-header-icon-item được
 wujia_portal_sale/header_cart_inherit.xml và wujia_portal_notification/header_bell_inherit.xml dùng.
 
 Verify: 4 toạ độ trên + mở 2 dropdown + badge còn đúng số. Mobile 391×844 bất biến.
-Phần cờ/nhãn ngôn ngữ KHÔNG thuộc cụm này (đang chờ BA — xem cụm I).
+Phần cờ/nhãn ngôn ngữ (UI-02): code ĐÚNG — đo 6 route ngày 02/08 đều ra cờ VN + "Việt Nam".
+BA thấy cờ Mỹ là do tài khoản test để lang=en_US. LÀM LUÔN, KHÔNG HỎI (chủ dự án 03/08):
+đặt mặc định tiếng Việt cho mọi tài khoản cửa hàng — kiểm migration đã có ở Sprint 34
+(activate vi_VN + set lang cho group_portal) xem còn chạy đúng với user tạo MỚI sau S34 không;
+thiếu thì bổ sung (default lang khi tạo user portal + data migration cho user hiện hữu).
+Ghi cột K: Odoo Fit = Configuration cho phần này, kèm số user đã đổi.
 ```
 
 ---
@@ -248,7 +286,9 @@ Bằng chứng: cùng 1 đơn, 4 màn Cart / PC panel / Submitted / History ph�
 
 ```
 Làm cụm C trong docs/issue-clusters/C_mobile_shell.md — fix UI-04 + RESP-MOB-SHELL-003
-(+ RESP-MOB-ORDER-001 nếu BA đã xác nhận clamp 2 dòng).
++ RESP-MOB-ORDER-001 (LÀM LUÔN, KHÔNG HỎI — BA đã chốt 22/07 phương án B: tên sản phẩm tối đa
+2 dòng line-clamp, card cao ~92px, dài hơn thì cắt bằng "…". Ghi chú "Need BA Confirm=Yes"
+còn sót ở cột K là ghi chú CŨ chưa xoá, cột N thực tế = No).
 
 UI-04 (đo 02/08, 391×844): 3 action circle 38×38 đang y=33..71 (cần 39..77), tâm x 248/302/356
 (cần 247/301/355); glyph avatar i.feather.icon-user có margin-right:7px thừa → tâm 352.5 vs circle 356;

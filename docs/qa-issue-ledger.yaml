@@ -478,3 +478,14 @@ UI-PC-BASE-012:
   impact: "Sidebar PC — mọi trang /portal ≥1200px"
   retest: "1920×1080 đo trên UAT 03/08: mỗi route đúng 1 mục sáng — /portal→Trang chủ, /portal/order→Đặt hàng, /portal/purchase-history→Lịch sử đặt hàng, /portal/delivery→Giao hàng, /portal/notification→Thông báo, /portal/profile→Tài khoản; không còn phần tử nào ngoài sidebar bị gắn active"
   limit: "Mục 'Công nợ' vẫn trỏ /portal (chưa nối /portal/debt) nên bấm vào sẽ về Trang chủ — đang chờ BA chốt có bật menu Công nợ trên PC không, vì trang Công nợ mới chỉ có bản mobile. Riêng lỗi sáng 2 mục đã hết"
+
+WJ-PH-006:
+  sprint: "2026-08-03-I"
+  commit: "8888dc5"
+  deployed_date: "2026-08-03"
+  url: "/portal/purchase-history"
+  odoo_fit: "Custom"
+  fix: "Cột 'Người đặt' đã chạy đúng rule 2 nhánh BA chốt 30/07: đơn đặt từ Portal hiện tên người đặt (portal_requester_user_id.name), đơn tạo từ backend hiện cố định 'Ngô Gia tạo đơn'; không lộ tên nhân viên nội bộ (create_uid). Logic ở wujia_portal_purchase_history/controllers/portal.py:70-73 — phiên này chỉ xác minh, không sửa code"
+  impact: "Lịch sử đặt hàng — cột Người đặt (PC + mobile)"
+  retest: "Đo trên UAT 03/08 tại /portal/purchase-history: đơn backend S00024/S00023/S00020/S00018/S00015/S00014/S00010/S00008/S00007 đều hiện 'Ngô Gia tạo đơn'; đơn portal S00004 hiện 'Hoàng Văn Em (Chủ HCM-01)', S00031/S00032 hiện 'Administrator' (đúng — do admin tự đặt trên portal). Đủ cả 2 nhánh"
+  limit: "Nhờ BA cập nhật CT-025 trên Master Sheet cho khớp — hiện CT-025 mới mô tả nhánh đơn Portal, thiếu nhánh đơn backend. Đây là việc tài liệu bên BA, code không đổi"
