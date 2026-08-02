@@ -1,0 +1,135 @@
+\chapter{Sprint 48 --- Nối Portal Công nợ \& Thanh toán vào backend thật (CT-050…CT-055) (2026-08-02)}
+
+\section{Bối cảnh}
+
+Task BA \texttt{Tasks!STT9} (\emph{``Portal / Công nợ \& Thanh toán''}, ưu tiên Cao, giao
+01/08/2026, tự deploy $=$ No). Yêu cầu: xây controller/API nối Portal $\leftrightarrow$ Backend
+Odoo cho màn công nợ \& thanh toán --- tổng quan theo tuần, danh sách hoá đơn/credit note,
+lịch sử thanh toán, thông tin QR/chuyển khoản. Mọi dữ liệu scope theo cửa hàng hiện tại; chỉ
+Owner/Manager được xem.
+
+Sprint 43 (ch.56) đã dựng \texttt{wujia\_portal\_debt} \textbf{UI-only}: 7 màn Figma
+\texttt{5013:*}, mọi số đi qua 1 \texttt{AbstractModel} \texttt{wujia.portal.debt}
+(\texttt{get\_summary}/\texttt{get\_payments}/\texttt{get\_bank\_info}/\texttt{get\_shell\_badge})
+--- \textbf{0 query, không bảng}. Docstring module ghi rõ: khi BA chốt spec backend thì
+``chỉ đổi phần dựng dict trong file này, template/controller không đụng''. Sprint 48 $=$
+\textbf{thay ruột demo bằng query thật}, giữ nguyên hợp đồng UI.
+
+\textbf{Đã verify trước khi code (read-before-write):} \texttt{account} đã installed,
+\texttt{l10n\_vn} chưa; DB gần như \textbf{không có data kế toán} (1 hoá đơn, 0 payment); và
+\textbf{3 field custom ``đã chốt'' CHƯA tồn tại trong source} --- ``đã chốt'' nghĩa là BA chốt
+\emph{spec}, chưa ai implement. Vậy Sprint 48 phải thêm cả field, không chỉ controller.
+\texttt{res.partner.bank.sequence} có sẵn trong core (không tạo mới).
+
+\section{Quyết định đã chốt với chủ dự án}
+
+\begin{itemize}
+  \item \textbf{Module field} $=$ tạo module backend mới \texttt{wujia\_account} (BA không chỉ
+    định module $\Rightarrow$ Dev tự chốt), \texttt{depends $=$ [account, wujia\_franchise,
+    wujia\_sale]}.
+  \item \texttt{account.payment.franchise\_id} $=$ \textbf{stored compute} từ
+    \texttt{reconciled\_invoice\_ids.franchise\_id} (đúng 1 franchise $\to$ gán; nhiều/không
+    $\to$ để trống), \texttt{readonly=False} để kế toán sửa tay.
+  \item \textbf{Badge ``n quá hạn''} $=$ field \textbf{store $+$ index} trên
+    \texttt{wujia.franchise.management} $+$ \textbf{cron daily} $+$ hook recompute khi hoá đơn /
+    đối soát đổi. Badge $=$ tổng quá hạn \emph{mọi tuần} (đổi nghĩa từ ``tuần hiện tại'' ---
+    chủ dự án đồng ý).
+  \item \textbf{Màn QR} $=$ trả STK thật (min-\texttt{sequence}, \texttt{portal\_payment\_enabled}
+    $=$ True) $+$ backend tự tính số tiền (remaining) $+$ nội dung CK; \textbf{defer ảnh QR}
+    (chờ BA chốt QR tĩnh/động, CT-055).
+\end{itemize}
+
+\section{Đã làm}
+
+\textbf{Module MỚI \texttt{wujia\_account}} (\texttt{19.0.1.0.0}, \texttt{application=False}):
+
+\begin{itemize}
+  \item \texttt{account.move.franchise\_id} --- Many2one \texttt{wujia.franchise.management}
+    (\texttt{store, index, copy=False, tracking}); override \texttt{create}/\texttt{write} chỉ
+    recompute badge \textbf{khi vals chạm} tập trigger
+    \texttt{\{state, payment\_state, amount\_residual, invoice\_date\_due, franchise\_id\}}
+    (không đụng hot-path còn lại).
+  \item \texttt{account.payment.franchise\_id} --- stored compute (xem quyết định trên).
+  \item \texttt{res.partner.bank.portal\_payment\_enabled} --- Boolean, default False, store:
+    bật tài khoản nhận tiền lên portal.
+  \item \texttt{sale.order.\_prepare\_invoice()} --- copy \texttt{franchise\_id} sang hoá đơn
+    (nguồn chính, low-risk, không đổi hạch toán chuẩn).
+  \item \texttt{wujia.franchise.management} $+$ 2 aggregate store
+    \texttt{portal\_overdue\_invoice\_count} (Integer) $+$ \texttt{portal\_debt\_remaining}
+    (Float), method \texttt{\_recompute\_portal\_debt\_batch()} dùng \textbf{2 \texttt{\_read\_group}}
+    group-by \texttt{franchise\_id} (remaining $=$ \texttt{amount\_residual\_signed:sum} trên
+    posted out\_invoice/out\_refund chưa trả; overdue $=$ \texttt{\_\_count} hoá đơn quá hạn còn
+    dư) $\Rightarrow$ O(1) query bất kể số cửa hàng; cron daily $+$ \texttt{post\_init\_hook}
+    tính 1 lần lúc cài.
+  \item 3 view inherit backend (không phải UI portal): \texttt{franchise\_id} vào form/filter
+    \texttt{account.move}, form \texttt{account.payment}; \texttt{portal\_payment\_enabled} vào
+    form \texttt{res.partner.bank}.
+  \item KHÔNG model mới $\Rightarrow$ KHÔNG cần \texttt{ir.model.access.csv}; portal user KHÔNG
+    được cấp ACL/ir.rule account (controller đọc bằng \texttt{sudo()}).
+\end{itemize}
+
+\textbf{Module \texttt{wujia\_portal\_debt}} (\texttt{19.0.1.0.0} $\to$ \texttt{19.0.2.0.0},
+$+$\texttt{depends: wujia\_account}; AbstractModel $\Rightarrow$ không migration):
+
+\begin{itemize}
+  \item Thay ruột \texttt{\_demo\_*} bằng \texttt{sudo().search} thật, \textbf{giữ 100\% key/kiểu
+    dict} template đang đọc (state/total/paid/remaining/invoices[\ldots]/nearest\_due là
+    \emph{date}\ldots). \texttt{get\_summary} lọc \texttt{account.move} theo
+    franchise/tuần/posted, credit note (\texttt{out\_refund}) giảm nợ; \texttt{get\_payments}
+    lọc \texttt{account.payment} \texttt{state in (in\_process, paid)}, loại draft/canceled;
+    \texttt{get\_bank\_info} chọn TK min-sequence enabled $+$ tự dựng nội dung CK; không có TK
+    $\to$ trả thông báo ``chưa được cấu hình''; \texttt{get\_shell\_badge} đọc thẳng 2 field
+    store (0 query).
+  \item \texttt{controllers/portal.py} --- guard \textbf{Owner/Manager} đầu mỗi route qua
+    \texttt{get\_max\_role\_in\_franchises([fid])}; Staff $\to$ render trang thông báo ``Không
+    có quyền xem'' (\textbf{không 500}, không lộ data); chưa chọn cửa hàng $\to$ empty-state như
+    cũ. Không tin store frontend truyền (dùng \texttt{get\_active\_franchise\_id()}).
+  \item $+$ template \texttt{portal\_debt\_no\_permission} (tái dùng \texttt{app\_layout} $+$
+    \texttt{wj-empty-state--rich}).
+\end{itemize}
+
+\section{Perf / Trade-off}
+
+Badge công nợ hiển thị trên \textbf{mọi} trang portal (1500 user) $\Rightarrow$ tuyệt đối không
+query on-the-fly. Chọn field store $+$ cron daily $+$ hook đổi-mới-recompute: \texttt{get\_shell\_badge}
+$=$ 2 lần đọc field store, 0 query. \texttt{\_recompute\_portal\_debt\_batch} gom toàn bộ
+franchise vào 2 \texttt{\_read\_group} (không loop per-record). Query màn debt (chỉ chạy ở
+\texttt{/portal/debt}, không phải mọi trang) nhanh nhờ index \texttt{franchise\_id} trên
+\texttt{account.move} \& \texttt{account.payment}.
+
+\section{Kiểm thử}
+
+Verify trên \textbf{DB copy cô lập \texttt{wujia\_tea\_s48}} (pg\_dump snapshot $+$ filestore,
+port 8048 --- KHÔNG đụng session \texttt{wujia\_tea\_19}/8019 đang chạy):
+
+\begin{itemize}
+  \item \texttt{-i wujia\_account --stop-after-init} RC$=$0; SQL xác nhận 5 cột mới $+$ cron $+$
+    2 index \texttt{franchise\_id}.
+  \item \texttt{-u wujia\_portal\_debt --test-enable --test-tags wujia\_debt} $\Rightarrow$
+    \textbf{14 test 0 failed / 0 error} (11 \texttt{TestPortalDebtWired} seam: scope isolation,
+    credit note giảm nợ, overdue, payment history loại draft, bank min-sequence, badge store $+$
+    3 \texttt{TestPortalDebtAccess} HttpCase: Owner 200, Staff bị chặn, admin-no-store empty).
+  \item \texttt{scripts/seed\_debt\_demo.py} chạy sạch (idempotent ref \texttt{SEED-DEBT}) $+$
+    kiểm seam end-to-end: summary \texttt{outstanding} total 7.5tr (3.4 $+$ 5.25 $-$ 1.15 credit
+    note), overdue phát hiện đúng, bank memo \texttt{HCM-01 K31 7500000}.
+\end{itemize}
+
+\textbf{2 gotcha môi trường:} (a) \texttt{freezegun} cũ trong env vỡ khi import
+\texttt{account.tests.common} $\Rightarrow$ test dựng fixture kế toán bằng ORM thuần trên chart
+\texttt{generic\_coa} (không import account.tests). (b) HttpCase 404 khi tên DB test khác
+\texttt{db\_name} trong config $\Rightarrow$ pin \texttt{--db-filter='\^{}wujia\_tea\_s48\$'} để
+request phân giải đúng DB copy.
+
+\section{Giới hạn / Bàn giao}
+
+\begin{itemize}
+  \item \textbf{Ảnh QR defer} --- cần BA chốt tĩnh/động (CT-055); màn Pay hiện trả STK $+$ số
+    tiền $+$ nội dung CK thật.
+  \item \textbf{UAT gần như chưa có data kế toán} --- để retest đủ, BA/kế toán cần gán
+    \texttt{franchise\_id} lên hoá đơn $+$ bật \texttt{portal\_payment\_enabled} cho 1 company
+    bank account $+$ ghi vài payment. Chạy \texttt{seed\_debt\_demo.py} để có data mẫu nhanh.
+  \item \textbf{Tải PDF hoá đơn} (CT-053) ngoài scope task này.
+  \item \textbf{Deploy thủ công} (task ghi tự-deploy $=$ No): \texttt{-i wujia\_account} (module
+    mới, 1 lần) rồi \texttt{-u wujia\_portal\_debt}. KHÔNG migration, không bump \texttt{?v=}.
+  \item Dev \textbf{không tự Done}: \texttt{Tasks!STT9} $\to$ Ready for Retest.
+\end{itemize}
