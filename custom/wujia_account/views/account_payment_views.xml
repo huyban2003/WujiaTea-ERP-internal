@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- Payment: hiện cửa hàng (suy từ hoá đơn đối soát; kế toán sửa được nếu cần). -->
+    <record id="view_account_payment_form_wujia_franchise" model="ir.ui.view">
+        <field name="name">account.payment.form.wujia.franchise</field>
+        <field name="model">account.payment</field>
+        <field name="inherit_id" ref="account.view_account_payment_form"/>
+        <field name="arch" type="xml">
+            <field name="date" position="after">
+                <field name="franchise_id"
+                       invisible="payment_type != 'inbound'"
+                       options="{'no_create': True}"/>
+            </field>
+        </field>
+    </record>
+
+</odoo>

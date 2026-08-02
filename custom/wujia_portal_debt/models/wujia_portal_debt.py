@@ -2,23 +2,27 @@
 
 `AbstractModel` — không bảng, không migration. Toàn bộ controller + 2 template
 inherit (badge sheet "Thêm", KPI Home) đều lấy số qua `get_summary()` /
-`get_payments()`, nên khi BA chốt spec backend (`account.move` ↔ franchise) thì
-chỉ đổi phần dựng dict trong file này, template không đụng một dòng.
+`get_payments()` / `get_bank_info()` / `get_shell_badge()`, nên khi wire backend thật
+chỉ đổi phần dựng dict trong file này, template KHÔNG đụng một dòng.
 
-⚠️ UI-ONLY (chốt 2026-07-31) — hiện trả dict thuần Python, **0 query**:
-  * Tab `1. Model/ Field` mục "D. Quản lý công nợ nhượng quyền" mới là tiêu đề rỗng.
-  * DB chưa có field nối `account.move`/`account.payment` ↔ franchise.
-  * Figma tự ghi "QR minh họa", "Vietcombank (minh họa)".
+**Wire backend thật — Sprint 48 (BA task Tasks!STT9, Controller CT-050..CT-055):**
+Đọc `account.move` (out_invoice/out_refund) + `account.payment` scope theo
+`franchise_id` (3 field custom ở module `wujia_account`). Mọi query bằng `sudo()` +
+domain franchise tường minh — portal user KHÔNG có ACL account, và KHÔNG tin store do
+client truyền (controller resolve franchise từ session).
 
-⚠️ RÀNG BUỘC PERF cho lúc wire thật (§7 perf-first, 1500 portal user): badge
-"n quá hạn" nằm trong sheet "Thêm" của shell ⇒ **mọi trang mobile** gọi
-`get_summary()`. Lúc đó số quá hạn phải là field store + index / ormcache /
-cron daily — TUYỆT ĐỐI không `search_count` on-the-fly mỗi request.
+⚠️ PERF 1500 user: `get_shell_badge()` chạy trên MỌI trang mobile ⇒ đọc thẳng 2 field
+store `portal_overdue_invoice_count` / `portal_debt_remaining` trên franchise (0 query;
+cập nhật bằng cron daily + hook ở `wujia_account`). TUYỆT ĐỐI không search on-the-fly ở đây.
+
+Kiểu dữ liệu template phụ thuộc (giữ nguyên): `date`/`due`/`nearest_due`/`confirmed_date`
+là `datetime.date` (template gọi `.strftime`); `status` ∈ overdue/unpaid/partial/paid;
+`state` ∈ outstanding/partial/paid/empty.
 """
 
 from datetime import date, timedelta
 
-from odoo import api, models
+from odoo import api, fields, models
 
 # Số tuần / kỳ đổ vào dropdown bộ lọc (kỳ hiện tại + 5 kỳ trước).
 WEEK_CHOICES = 6
@@ -26,10 +30,6 @@ MONTH_CHOICES = 6
 
 # Mặc định hiển thị 2 hoá đơn, phần còn lại bung bằng `?all=1` (Figma: "Hiển thị 2/4 hóa đơn").
 INVOICE_PREVIEW = 2
-
-# UI-only demo: tuần thứ n (0 = tuần hiện tại) rơi vào biến thể nào của Figma.
-# Đủ 4 state để QA/BA click qua lại được cả 4 màn 02-05 mà không cần seed data.
-DEMO_STATE_BY_OFFSET = ('outstanding', 'partial', 'paid', 'paid', 'empty', 'empty')
 
 # Nhãn + tone badge cho state tổng (Figma 02/03/04).
 STATE_BADGE = {
@@ -45,6 +45,13 @@ INVOICE_BADGE = {
     'partial': ('Một phần', 'info'),
     'paid': ('Đã thanh toán', 'success'),
 }
+
+# Chứng từ công nợ khách hàng của cửa hàng: hoá đơn + credit note đã ghi sổ.
+_DEBT_MOVE_TYPES = ('out_invoice', 'out_refund')
+# Payment đã xác nhận (Odoo 19): loại draft/canceled/rejected.
+_CONFIRMED_PAYMENT_STATES = ('in_process', 'paid')
+# payment_state coi như đã tất toán (không còn nợ).
+_SETTLED_PAYMENT_STATES = ('paid', 'in_payment', 'reversed')
 
 
 def _monday(day):
@@ -119,16 +126,15 @@ class WujiaPortalDebt(models.AbstractModel):
         return options[0], options
 
     # ------------------------------------------------------------------
-    # Summary — điểm nối duy nhất giữa UI và (sau này) backend kế toán
+    # Summary — điểm nối duy nhất giữa UI và backend kế toán (CT-050/051/052)
     # ------------------------------------------------------------------
     @api.model
     def get_summary(self, franchise_id, week=None, today=None):
-        """Số liệu công nợ của 1 cửa hàng trong 1 tuần.
+        """Số liệu công nợ của 1 cửa hàng trong 1 tuần (Mon→Sun theo `invoice_date`).
 
         :param franchise_id: id `wujia.franchise.management` (0/False = chưa chọn cửa hàng)
         :param week: khoá tuần 'YYYY-Www'; sai hoặc None → tuần hiện tại
-        :return: dict — xem docstring module. Luôn đủ key kể cả state 'empty',
-                 để template không phải `.get()` phòng thủ.
+        :return: dict — luôn đủ key kể cả state 'empty', để template không phải `.get()`.
         """
         opt, options = self._resolve_week(week, today=today)
         monday = opt['monday']
@@ -146,17 +152,15 @@ class WujiaPortalDebt(models.AbstractModel):
             # Chưa chọn cửa hàng → empty state, KHÔNG 500 (guard controller).
             base.update(self._empty_payload())
             return base
-        base.update(self._demo_payload(DEMO_STATE_BY_OFFSET[opt['offset']], monday))
+        base.update(self._week_payload(franchise_id, monday, today=today))
         return base
 
     @api.model
     def get_shell_badge(self):
         """Số liệu cho 2 điểm vào ở shell: badge sheet "Thêm" + tile KPI Home.
 
-        Tự resolve cửa hàng đang chọn (template không có sẵn franchise_id).
-
-        ⚠️ Gọi trên MỌI trang mobile — xem cảnh báo perf ở đầu file trước khi
-        thay bằng query thật."""
+        ⚠️ Gọi trên MỌI trang mobile ⇒ đọc thẳng 2 field STORE trên franchise (0 query).
+        Nguồn cập nhật: cron daily + hook account.move/account.payment (module wujia_account)."""
         try:
             from odoo.addons.wujia_portal_base.controllers.portal import (
                 get_active_franchise_id,
@@ -164,15 +168,18 @@ class WujiaPortalDebt(models.AbstractModel):
             franchise_id = get_active_franchise_id()
         except Exception:  # noqa: BLE001 — render backend/cron: không có request
             franchise_id = False
-        summary = self.get_summary(franchise_id)
+        if not franchise_id:
+            return {'overdue_count': 0, 'remaining': 0, 'remaining_label': _short_vnd(0)}
+        franchise = self.env['wujia.franchise.management'].sudo().browse(franchise_id).exists()
+        remaining = franchise.portal_debt_remaining or 0
         return {
-            'overdue_count': summary['overdue_count'],
-            'remaining': summary['remaining'],
-            'remaining_label': _short_vnd(summary['remaining']),
+            'overdue_count': franchise.portal_overdue_invoice_count or 0,
+            'remaining': remaining,
+            'remaining_label': _short_vnd(remaining),
         }
 
     # ------------------------------------------------------------------
-    # Kỳ thanh toán (màn 06)
+    # Kỳ thanh toán (màn 06) — CT-054
     # ------------------------------------------------------------------
     @api.model
     def _month_options(self, today=None):
@@ -205,7 +212,7 @@ class WujiaPortalDebt(models.AbstractModel):
 
     @api.model
     def get_payments(self, franchise_id, month=None, date_from=None, date_to=None, today=None):
-        """Lịch sử thanh toán đã xác nhận trong 1 kỳ (Figma màn 06).
+        """Lịch sử thanh toán đã xác nhận trong 1 kỳ (Figma màn 06, CT-054).
 
         Ưu tiên `month` (dropdown). `date_from`/`date_to` vẫn nhận được để BA/FE
         gọi khoảng tuỳ ý sau này. Mặc định = tháng hiện tại."""
@@ -214,8 +221,7 @@ class WujiaPortalDebt(models.AbstractModel):
         date_to = date_to or opt['date_to']
         if date_from > date_to:
             date_from, date_to = date_to, date_from
-        payments = self._demo_payments(franchise_id, date_to) if franchise_id else []
-        payments = [p for p in payments if date_from <= p['date'] <= date_to]
+        payments = self._query_payments(franchise_id, date_from, date_to) if franchise_id else []
         return {
             'month_key': opt['key'],
             'months': [{'key': m['key'], 'label': m['label']} for m in options],
@@ -229,26 +235,39 @@ class WujiaPortalDebt(models.AbstractModel):
 
     @api.model
     def get_bank_info(self, franchise_id, amount, week_number):
-        """Thông tin chuyển khoản (Figma màn 07).
+        """Thông tin chuyển khoản (Figma màn 07, CT-055).
 
-        UI-only: BA chưa chốt "QR tĩnh hay QR động" (tab `3. Controller`, CT-05x),
-        nên hardcode đúng chuỗi Figma và giữ chữ "(minh họa)"."""
+        Lấy tài khoản nhận tiền của company hiện hành có `portal_payment_enabled=True`,
+        sequence nhỏ nhất. Backend tự tính nội dung CK từ mã cửa hàng + tuần + số tiền
+        (KHÔNG tin giá trị portal gửi lên). Mở QR chỉ trả hướng dẫn — không tạo payment.
+
+        ⚠️ Ảnh QR (tĩnh/động) BA CHƯA chốt (CT-055 cột ghi chú còn để ngỏ) ⇒ chỉ trả
+        STK + nội dung, defer ảnh QR (Need BA Confirm)."""
+        bank = self._portal_bank_account()
+        if not bank:
+            return {
+                'name': 'Cửa hàng chưa được cấu hình tài khoản nhận thanh toán. '
+                        'Vui lòng liên hệ bộ phận hỗ trợ.',
+                'holder': '',
+                'account': '',
+                'memo': '',
+            }
         return {
-            'name': 'Vietcombank (minh họa)',
-            'holder': 'CÔNG TY TNHH NGÔ GIA',
-            'account': '0123 456 789',
+            'name': bank.bank_id.name or bank.bank_name or 'Ngân hàng',
+            'holder': bank.acc_holder_name or bank.partner_id.name or '',
+            'account': bank.acc_number or '',
             'memo': '%s K%s %s' % (
-                self._franchise_code(franchise_id), week_number, int(amount)),
+                self._franchise_code(franchise_id), week_number, int(amount or 0)),
         }
 
     # ------------------------------------------------------------------
-    # Nội bộ — phần sẽ bị thay khi wire backend thật
+    # Query backend thật (sudo + scope franchise)
     # ------------------------------------------------------------------
     @api.model
     def _franchise_code(self, franchise_id):
         if not franchise_id:
             return 'H000'
-        franchise = self.env['wujia.franchise.management'].browse(franchise_id)
+        franchise = self.env['wujia.franchise.management'].sudo().browse(franchise_id)
         return franchise.exists().code or 'H000'
 
     @api.model
@@ -267,86 +286,125 @@ class WujiaPortalDebt(models.AbstractModel):
         }
 
     @api.model
-    def _demo_payload(self, state, monday):
-        """Số liệu minh hoạ đúng bằng con số trên Figma, ngày suy từ đầu tuần đang xem."""
-        if state == 'empty':
-            return self._empty_payload()
-
-        def day(offset):
-            return monday + timedelta(days=offset)
-
-        def ref(offset, seq):
-            return 'INV/%s/%s/%s' % (monday.strftime('%Y'), day(offset).strftime('%d%m'), seq)
-
-        if state == 'outstanding':
-            invoices = [
-                (ref(2, '018'), day(2), day(4), 'overdue', 3400000),
-                (ref(3, '026'), day(3), day(10), 'unpaid', 5250000),
-                (ref(4, '033'), day(4), day(11), 'unpaid', 2400000),
-                (ref(5, '041'), day(5), day(12), 'unpaid', 1600000),
-            ]
-            payload = {
-                'state': 'outstanding',
-                'total': 14850000,
-                'paid': 2200000,
-                'has_overdue': True,
-                'overdue_count': 1,
-                'nearest_due': day(8),
-                'confirmed_date': False,
-            }
-        elif state == 'partial':
-            invoices = [
-                (ref(3, '026'), day(3), day(10), 'partial', 5250000),
-                (ref(4, '033'), day(4), day(11), 'partial', 2400000),
-            ]
-            payload = {
-                'state': 'partial',
-                'total': 12650000,
-                'paid': 5000000,
-                'has_overdue': False,
-                'overdue_count': 0,
-                'nearest_due': False,
-                'confirmed_date': False,
-            }
-        else:  # paid
-            invoices = [
-                (ref(2, '018'), day(2), day(4), 'paid', 3400000),
-                (ref(3, '026'), day(3), day(10), 'paid', 5250000),
-                (ref(4, '033'), day(4), day(11), 'paid', 4000000),
-            ]
-            payload = {
-                'state': 'paid',
-                'total': 12650000,
-                'paid': 12650000,
-                'has_overdue': False,
-                'overdue_count': 0,
-                'nearest_due': False,
-                'confirmed_date': day(7),
-            }
-        payload['invoices'] = [
-            {'name': name, 'date': inv_date, 'due': due, 'status': status, 'amount': amount}
-            for name, inv_date, due, status, amount in invoices
-        ]
-        payload['invoice_count'] = len(payload['invoices'])
-        payload['remaining'] = payload['total'] - payload['paid']
-        return payload
+    def _invoice_status(self, move, today):
+        """Trạng thái Portal của 1 chứng từ, suy từ payment_state + số dư + hạn (CT-051).
+        Không tạo trạng thái kế toán mới."""
+        if move.amount_residual <= 0 or move.payment_state in _SETTLED_PAYMENT_STATES:
+            return 'paid'
+        if (move.move_type == 'out_invoice' and move.invoice_date_due
+                and move.invoice_date_due < today and move.amount_residual > 0):
+            return 'overdue'
+        if move.payment_state == 'partial':
+            return 'partial'
+        return 'unpaid'
 
     @api.model
-    def _demo_payments(self, franchise_id, date_to):
-        """3 giao dịch đã xác nhận (Figma 06). Ngày lùi từ cuối kỳ để luôn nằm trong khoảng."""
-        code = self._franchise_code(franchise_id)
-        rows = [(17, '16:40', '03', 5000000), (19, '14:25', '01', 4150000),
-                (22, '09:10', '02', 3500000)]
-        payments = []
-        for back, hhmm, seq, amount in rows:
-            when = date_to - timedelta(days=back)
-            payments.append({
-                'ref': 'TT-%s-%s' % (when.strftime('%d%m%Y'), seq),
-                'date': when,
-                'time': hhmm,
-                'method': 'Chuyển khoản',
-                'trace': '%s-K%s-%s' % (code, when.isocalendar()[1], seq),
-                'amount': amount,
+    def _week_payload(self, franchise_id, monday, today=None):
+        """Số liệu 1 tuần từ account.move thật. Credit note (out_refund) giảm công nợ:
+        total/paid/remaining là số RÒNG (hoá đơn − credit note)."""
+        today = today or date.today()
+        sunday = monday + timedelta(days=6)
+        moves = self.env['account.move'].sudo().search([
+            ('franchise_id', '=', franchise_id),
+            ('move_type', 'in', _DEBT_MOVE_TYPES),
+            ('state', '=', 'posted'),
+            ('invoice_date', '>=', monday),
+            ('invoice_date', '<=', sunday),
+        ], order='invoice_date, id')
+        if not moves:
+            return self._empty_payload()
+
+        total = paid = remaining = 0.0
+        overdue_count = 0
+        due_dates = []
+        invoices = []
+        for move in moves:
+            sign = -1.0 if move.move_type == 'out_refund' else 1.0
+            total += sign * move.amount_total
+            remaining += sign * move.amount_residual
+            status = self._invoice_status(move, today)
+            if status == 'overdue':
+                overdue_count += 1
+                if move.invoice_date_due:
+                    due_dates.append(move.invoice_date_due)
+            # Số dòng: còn dư → hiển thị số dư; đã tất toán → tổng. Credit note âm.
+            line_amount = move.amount_residual if move.amount_residual > 0 else move.amount_total
+            invoices.append({
+                'name': move.name or move.ref or '—',
+                'date': move.invoice_date,
+                'due': move.invoice_date_due or move.invoice_date,
+                'status': status,
+                'amount': sign * line_amount,
+            })
+        paid = total - remaining
+
+        if remaining <= 0:
+            state = 'paid'
+        elif overdue_count > 0:
+            state = 'outstanding'
+        else:
+            state = 'partial'
+
+        return {
+            'state': state,
+            'total': total,
+            'paid': paid,
+            'remaining': remaining,
+            'invoice_count': len(invoices),
+            'has_overdue': overdue_count > 0,
+            'overdue_count': overdue_count,
+            'nearest_due': min(due_dates) if due_dates else False,
+            'confirmed_date': self._confirmed_date(moves) if state == 'paid' else False,
+            'invoices': invoices,
+        }
+
+    @api.model
+    def _confirmed_date(self, moves):
+        """Ngày Ngô Gia xác nhận (state 'paid'): ngày payment đối soát mới nhất của các
+        chứng từ trong tuần; fallback ngày hoá đơn mới nhất."""
+        payments = moves.reconciled_payment_ids.filtered('date')
+        if payments:
+            return max(payments.mapped('date'))
+        inv_dates = [m.invoice_date for m in moves if m.invoice_date]
+        return max(inv_dates) if inv_dates else False
+
+    @api.model
+    def _payment_time(self, payment):
+        """account.payment.date là Date (không giờ) → lấy giờ từ create_date theo tz user."""
+        if not payment.create_date:
+            return ''
+        local_dt = fields.Datetime.context_timestamp(payment, payment.create_date)
+        return local_dt.strftime('%H:%M')
+
+    @api.model
+    def _query_payments(self, franchise_id, date_from, date_to):
+        """Payment đã xác nhận của cửa hàng trong kỳ (CT-054). Chi ngược (outbound) hiển
+        thị số âm để không cộng nhầm vào "đã trả" (BA §6)."""
+        payments = self.env['account.payment'].sudo().search([
+            ('franchise_id', '=', franchise_id),
+            ('state', 'in', _CONFIRMED_PAYMENT_STATES),
+            ('date', '>=', date_from),
+            ('date', '<=', date_to),
+        ], order='date desc, id desc')
+        result = []
+        for payment in payments:
+            sign = -1.0 if payment.payment_type == 'outbound' else 1.0
+            result.append({
+                'ref': payment.name or '—',
+                'date': payment.date,
+                'time': self._payment_time(payment),
+                'method': payment.journal_id.name or 'Chuyển khoản',
+                'trace': payment.memo or payment.name or '',
+                'amount': sign * payment.amount,
                 'state': 'confirmed',
             })
-        return payments
+        return result
+
+    @api.model
+    def _portal_bank_account(self):
+        """TK nhận tiền của company hiện hành, bật portal, sequence nhỏ nhất (CT-055)."""
+        company = self.env.company
+        return self.env['res.partner.bank'].sudo().search([
+            ('id', 'in', company.bank_ids.ids),
+            ('portal_payment_enabled', '=', True),
+        ], order='sequence, id', limit=1)

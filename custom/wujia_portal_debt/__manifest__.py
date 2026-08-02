@@ -1,6 +1,6 @@
 {
     'name': 'Wujia Portal — Công nợ & thanh toán',
-    'version': '19.0.1.0.0',
+    'version': '19.0.2.0.0',
     'category': 'Wujia',
     'summary': 'Công nợ theo tuần, lịch sử thanh toán và màn chuyển khoản (portal mobile)',
     'description': """
@@ -8,15 +8,15 @@ Wujia Portal — Công nợ & thanh toán
 ===================================
 Dựng 7 màn Figma ``WJ_Debt_..._MVP_v31`` (page Dashboard, node 5013).
 
-**UI-ONLY** (chốt với chủ dự án 2026-07-31): BA chưa đặc tả model/field cho mục
-"D. Quản lý công nợ nhượng quyền" (tab `1. Model/ Field` mới chỉ có tiêu đề), DB chưa
-có field nối `account.move` ↔ franchise, và chính Figma ghi QR/ngân hàng là "minh họa".
-Mọi số liệu đi qua **một** hàm duy nhất `wujia.portal.debt.get_summary()` — khi BA chốt
-spec backend thì đổi nguồn trong hàm đó, template/controller không phải sửa.
+**Sprint 43** — UI-only (seam ``wujia.portal.debt`` trả dict thuần, 0 query).
+**Sprint 48** — wire backend thật (BA task Tasks!STT9, Controller CT-050..CT-055):
+seam đọc ``account.move``/``account.payment`` scope theo ``franchise_id`` (3 field custom
+ở module ``wujia_account``), badge công nợ dùng field store perf, controller chặn Staff.
+Template/CSS/JS KHÔNG đổi — chỉ ruột seam + controller guard.
 """,
     'author': 'WujiaTea',
     'license': 'LGPL-3',
-    'depends': ['wujia_portal_base'],
+    'depends': ['wujia_portal_base', 'wujia_account'],
     'data': [
         'views/portal_debt.xml',
         'views/bottomnav_inherit.xml',

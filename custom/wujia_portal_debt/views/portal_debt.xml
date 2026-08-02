@@ -303,4 +303,22 @@
         </t>
     </template>
 
+    <!-- Chặn Staff (BA §8): chỉ Owner/Manager xem công nợ. Dùng lại shell + empty-state
+         chung — KHÔNG thêm UI mới, chỉ 1 thông báo dễ hiểu thay vì 403 thô. -->
+    <template id="portal_debt_no_permission" name="Wujia Portal — Công nợ không có quyền">
+        <t t-call="wujia_portal_layout.app_layout">
+            <div class="wj-debt wj-mpage">
+                <header class="wj-debt-head">
+                    <h1 class="wj-debt-head__title">Công nợ &amp; thanh toán</h1>
+                </header>
+                <div class="wj-empty-state wj-empty-state--rich wj-debt-empty">
+                    <span class="wj-empty-state-icon"><i class="feather icon-lock"/></span>
+                    <p class="wj-empty-state-title">Không có quyền xem</p>
+                    <p class="wj-empty-state-sub">Bạn không có quyền xem công nợ và thanh toán của cửa hàng.</p>
+                    <p class="wj-empty-state-sub">Vui lòng liên hệ chủ tiệm hoặc quản lý.</p>
+                </div>
+            </div>
+        </t>
+    </template>
+
 </odoo>

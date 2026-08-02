@@ -12,9 +12,23 @@ from datetime import datetime
 from odoo import http
 from odoo.http import request
 
-from odoo.addons.wujia_portal_base.controllers.portal import get_active_franchise_id
+from odoo.addons.wujia_portal_base.controllers.portal import (
+    get_active_franchise_id,
+    get_max_role_in_franchises,
+)
 
 from ..models.wujia_portal_debt import INVOICE_BADGE, INVOICE_PREVIEW, STATE_BADGE
+
+# BA §3/§8: chỉ Owner/Manager của cửa hàng hiện tại được xem công nợ. Staff bị chặn.
+_DEBT_ROLES = ('owner', 'manager')
+
+
+def _debt_access(franchise_id):
+    """(allowed, denied_response). Có cửa hàng nhưng role không đủ → trả trang thông báo
+    (không 500, không lộ data). Chưa chọn cửa hàng → để route render empty-state như cũ."""
+    if franchise_id and get_max_role_in_franchises([franchise_id]) not in _DEBT_ROLES:
+        return False, request.render('wujia_portal_debt.portal_debt_no_permission', {})
+    return True, None
 
 
 def _vnd(amount):
@@ -38,6 +52,9 @@ class WujiaPortalDebt(http.Controller):
     def portal_debt(self, week=None, all=None, **kw):
         """Màn 02-05 — 4 biến thể (outstanding / partial / paid / empty) theo `state`."""
         franchise_id = get_active_franchise_id()
+        allowed, denied = _debt_access(franchise_id)
+        if not allowed:
+            return denied
         summary = request.env['wujia.portal.debt'].get_summary(franchise_id, week=week)
         # Figma: mặc định 2 hoá đơn + note "Hiển thị 2/4 hóa đơn"; `?all=1` bung hết.
         show_all = str(all or '') in ('1', 'true', 'True')
@@ -57,6 +74,9 @@ class WujiaPortalDebt(http.Controller):
     def portal_debt_payment_history(self, month=None, date_from=None, date_to=None, **kw):
         """Màn 06 — các khoản Ngô Gia đã xác nhận trong kỳ."""
         franchise_id = get_active_franchise_id()
+        allowed, denied = _debt_access(franchise_id)
+        if not allowed:
+            return denied
         history = request.env['wujia.portal.debt'].get_payments(
             franchise_id, month=month,
             date_from=_parse_date(date_from), date_to=_parse_date(date_to))
@@ -68,8 +88,11 @@ class WujiaPortalDebt(http.Controller):
 
     @http.route(['/portal/debt/pay'], type='http', auth='user', sitemap=False)
     def portal_debt_pay(self, week=None, **kw):
-        """Màn 07 — QR + thông tin chuyển khoản. QR/ngân hàng là "minh họa" (Figma)."""
+        """Màn 07 — QR + thông tin chuyển khoản (STK thật; ảnh QR defer, chờ BA chốt)."""
         franchise_id = get_active_franchise_id()
+        allowed, denied = _debt_access(franchise_id)
+        if not allowed:
+            return denied
         debt = request.env['wujia.portal.debt']
         summary = debt.get_summary(franchise_id, week=week)
         bank = debt.get_bank_info(
