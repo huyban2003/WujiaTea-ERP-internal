@@ -466,3 +466,15 @@ UI-PC-SHELL-001:
   impact: "Sidebar + content offset — mọi trang /portal PC ≥1200px"
   retest: "CẦN đo lại server 1920×1080: nền sidebar liền x=0–300, không còn dải trống; content bắt đầu sau x=300."
   limit: "Không xác minh pixel headless. Đây là fix đúng token (300px đã khai báo nhưng chưa áp vào .main-menu width + .content margin). Nếu server còn hở, kiểm tra Vuexy có set width .main-menu qua !important khác — gửi computed-style .main-menu để chốt."
+
+# --- 2026-08-03: cụm I (issue-clusters) ---
+UI-PC-BASE-012:
+  sprint: "2026-08-03-I"
+  commit: "8888dc5"
+  deployed_date: "2026-08-03"
+  url: "/portal"
+  odoo_fit: "Custom"
+  fix: "Sidebar tính mục đang chọn TẠI SERVER cho từng mục (pc_sidenav.xml, theo request.httprequest.path) thay vì để app.js:112 dò 'mọi thẻ a có href trùng URL' — cách cũ làm /portal sáng cùng lúc 'Trang chủ' + 'Công nợ' (href placeholder /portal) và cả logo trong sidebar. app.js nay bỏ qua hoàn toàn sidebar portal, giữ nguyên hành vi cho menu bcore legacy; bump app.js?v=1158 (file này trước đó không có cache-buster)"
+  impact: "Sidebar PC — mọi trang /portal ≥1200px"
+  retest: "1920×1080 đo trên UAT 03/08: mỗi route đúng 1 mục sáng — /portal→Trang chủ, /portal/order→Đặt hàng, /portal/purchase-history→Lịch sử đặt hàng, /portal/delivery→Giao hàng, /portal/notification→Thông báo, /portal/profile→Tài khoản; không còn phần tử nào ngoài sidebar bị gắn active"
+  limit: "Mục 'Công nợ' vẫn trỏ /portal (chưa nối /portal/debt) nên bấm vào sẽ về Trang chủ — đang chờ BA chốt có bật menu Công nợ trên PC không, vì trang Công nợ mới chỉ có bản mobile. Riêng lỗi sáng 2 mục đã hết"
