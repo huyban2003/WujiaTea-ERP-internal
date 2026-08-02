@@ -13,61 +13,68 @@
                   priority="99"
                   name="Wujia Sidenav — Figma rework">
             <xpath expr="//ul[@id='main-menu-navigation']" position="replace">
+                <!-- UI-PC-BASE-012: active state tính TẠI SERVER cho từng mục.
+                     Trước đây phó mặc app.js:112 `a[href="<path>"]` → ở /portal cả "Trang chủ"
+                     lẫn "Công nợ" (href placeholder /portal) cùng sáng, và cả logo navbar cũng
+                     bị gắn .active. Ở đây mỗi mục có điều kiện riêng ⇒ đúng 1 mục / route.
+                     Mục Công nợ khoá theo /portal/debt (chưa nối href — chờ BA), nên không
+                     bao giờ sáng ở /portal; bật link sau chỉ cần đổi href, không đụng logic. -->
+                <t t-set="_p" t-value="request.httprequest.path or ''"/>
                 <t t-set="_acct_active"
-                   t-value="request.httprequest.path in ('/portal/profile', '/portal/franchise-information', '/portal/change-password')"/>
+                   t-value="_p in ('/portal/profile', '/portal/franchise-information', '/portal/change-password')"/>
                 <ul class="navigation navigation-main" id="main-menu-navigation"
                     data-menu="menu-navigation">
                     <li class="navigation-header wujia-nav-header"><span>MENU CHÍNH</span></li>
-                    <li class="nav-item" id="nav_item_home">
+                    <li t-attf-class="nav-item #{(_p == '/portal') and 'active' or ''}" id="nav_item_home">
                         <a href="/portal">
                             <i class="feather icon-home" aria-hidden="true"/>
                             <span class="menu-title">Trang chủ</span>
                         </a>
                     </li>
-                    <li class="nav-item" id="nav_item_order">
+                    <li t-attf-class="nav-item #{(_p.startswith('/portal/order')) and 'active' or ''}" id="nav_item_order">
                         <a href="/portal/order">
                             <i class="feather icon-shopping-cart" aria-hidden="true"/>
                             <span class="menu-title">Đặt hàng</span>
                         </a>
                     </li>
-                    <li class="nav-item" id="nav_item_history">
+                    <li t-attf-class="nav-item #{(_p.startswith('/portal/purchase-history')) and 'active' or ''}" id="nav_item_history">
                         <a href="/portal/purchase-history">
                             <i class="feather icon-clock" aria-hidden="true"/>
                             <span class="menu-title">Lịch sử đặt hàng</span>
                         </a>
                     </li>
-                    <li class="nav-item" id="nav_item_delivery">
+                    <li t-attf-class="nav-item #{(_p.startswith('/portal/delivery')) and 'active' or ''}" id="nav_item_delivery">
                         <a href="/portal/delivery">
                             <i class="feather icon-truck" aria-hidden="true"/>
                             <span class="menu-title">Giao hàng</span>
                         </a>
                     </li>
-                    <li class="nav-item" id="nav_item_debt">
+                    <li t-attf-class="nav-item #{(_p.startswith('/portal/debt')) and 'active' or ''}" id="nav_item_debt">
                         <!-- Công nợ: UI-only (debt build lại theo ADR-007) → Home. -->
                         <a href="/portal">
                             <i class="feather icon-credit-card" aria-hidden="true"/>
                             <span class="menu-title">Công nợ</span>
                         </a>
                     </li>
-                    <li class="nav-item" id="nav_item_notification">
+                    <li t-attf-class="nav-item #{(_p.startswith('/portal/notification')) and 'active' or ''}" id="nav_item_notification">
                         <a href="/portal/notification">
                             <i class="feather icon-bell" aria-hidden="true"/>
                             <span class="menu-title">Thông báo</span>
                         </a>
                     </li>
-                    <li class="nav-item" id="nav_item_knowledge">
+                    <li t-attf-class="nav-item #{(_p.startswith('/portal/knowledge')) and 'active' or ''}" id="nav_item_knowledge">
                         <a href="/portal/knowledge">
                             <i class="feather icon-book" aria-hidden="true"/>
                             <span class="menu-title">Kiến thức</span>
                         </a>
                     </li>
-                    <li class="nav-item" id="nav_item_support">
+                    <li t-attf-class="nav-item #{(_p.startswith('/portal/support')) and 'active' or ''}" id="nav_item_support">
                         <a href="/portal/support">
                             <i class="feather icon-life-buoy" aria-hidden="true"/>
                             <span class="menu-title">Hỗ trợ</span>
                         </a>
                     </li>
-                    <li class="nav-item" id="nav_item_exam">
+                    <li t-attf-class="nav-item #{(_p.startswith('/portal/exam')) and 'active' or ''}" id="nav_item_exam">
                         <a href="/portal/exam">
                             <i class="feather icon-edit" aria-hidden="true"/>
                             <span class="menu-title">Đăng ký thi</span>

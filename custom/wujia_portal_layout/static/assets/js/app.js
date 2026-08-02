@@ -109,14 +109,24 @@ $(document).ready(function () {
     //     $('#network_data_array').html(render_search);
     // });
     //
+    // UI-PC-BASE-012: bộ dò active theo href này gắn .active cho MỌI thẻ <a> có href
+    // trùng location.pathname → ở /portal nó sáng cả "Trang chủ" lẫn "Công nợ"
+    // (href placeholder /portal) và gắn cả cho logo navbar. Sidebar portal giờ tính
+    // active tại server trong pc_sidenav.xml, nên ở đây loại trừ #main-menu-navigation
+    // và mọi thứ ngoài .main-menu. Giữ lại cho các menu bcore legacy.
     var path = location.pathname;
-    console.log(path)
     const reg = /\/[^\/]+\/vi\/bcore/
     var path1 = path.replace(reg,'/bcore');
-    document.querySelectorAll('a[href="' + path1 + '"]').forEach((el) => {
-        $(el).parent('li').parents('li').addClass('open');
-        $(el).parent('li').addClass('active');
-    });
+    // Sidebar portal (nhận diện bằng .wujia-nav-header) tự tính active tại server
+    // ⇒ bỏ qua hoàn toàn, kể cả logo trong .navbar-header (href="/portal" nên ở
+    // trang chủ nó cũng bị gắn .active). Menu bcore legacy vẫn dùng dò href như cũ.
+    var isWujiaSidenav = !!document.querySelector('#main-menu-navigation .wujia-nav-header');
+    if (!isWujiaSidenav) {
+        document.querySelectorAll('a[href="' + path1 + '"]').forEach((el) => {
+            $(el).parent('li').parents('li').addClass('open');
+            $(el).parent('li').addClass('active');
+        });
+    }
     
     // $('#amount').keyup(function () {
     //     document.getElementById('fee').value = Math.floor(parseFloat($(this).val() * 1.5/100) * 100) / 100;

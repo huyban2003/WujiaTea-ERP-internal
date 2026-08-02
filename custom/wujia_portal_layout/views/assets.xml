@@ -109,7 +109,9 @@
 
              
              <script src="/wujia_portal_layout/static/assets/js/orgchart/jquery.orgchart.js"/>
-             <script src="/wujia_portal_layout/static/assets/js/app.js"/>
+             <!-- UI-PC-BASE-012 (2026-08-03): bộ dò active theo href được thu hẹp phạm vi
+                  → bump ?v= vì file này trước giờ không có cache-buster. -->
+             <script src="/wujia_portal_layout/static/assets/js/app.js?v=1158"/>
              <script src="/wujia_portal_layout/static/assets/js/lang.js"/>
              <script src="/wujia_portal_layout/static/assets/js/my_js.js"/>
              <!-- Sprint 9.6 (2026-05-25): dynamic body-class swap for responsive menu. -->

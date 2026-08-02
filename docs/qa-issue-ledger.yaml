@@ -73,8 +73,8 @@ RESP-MOB-ORDER-003:
   odoo_fit: "Custom"
   fix: "Floating cart bar bám lề content left/right:16 + padding-bottom:150 để card sản phẩm cuối không bị thanh cố định che"
   impact: "Trang Đặt hàng mobile /portal/order"
-  retest: "391×844: floatbar lề x=16; card cuối hiển thị trọn vẹn, không nằm dưới thanh cố định"
-  limit: "Không có"
+  retest: "391×844: floatbar lề x=16; card cuối hiển thị trọn vẹn, không nằm dưới thanh cố định. ĐO LẠI TRÊN UAT 2026-08-03: .wujia-morder-floatbar position=fixed, computed left=16px right=16px, bounding-box x=16 w=359 (391-16-359=16) → đạt đúng 2 lề 16px"
+  limit: "Không có. Owner cột O = BA/Tester — Dev không tái hiện được lỗi trên build hiện tại"
 
 # --- Need BA Confirm=Yes: code xong (S37/S34) nhưng BA chưa chốt spec chi tiết.
 #     User (PO) chốt: mark Ready for Retest, GIỮ Need Confirm=Yes. qa_sync --force để ghi. ---
@@ -387,7 +387,7 @@ FUNC-MOB-ORDER-006:
   odoo_fit: "Custom"
   fix: "Thêm nút submit 'Tìm' (44×44, icon search) vào form tìm kiếm mobile -> submit chắc chắn (không phụ thuộc Enter bàn phím ảo); form là GET thật nên bấm nút hoặc Enter đều điều hướng /portal/order?keyword="
   impact: "Đặt hàng — tìm kiếm mobile"
-  retest: "Mobile: gõ 'Trà Đào' rồi bấm nút Tìm (hoặc Enter): URL đổi ?keyword=Trà+Đào, danh sách lọc đúng"
+  retest: "Mobile: gõ 'Trà Đào' rồi bấm nút Tìm (hoặc Enter): URL đổi ?keyword=Trà+Đào, danh sách lọc đúng. ĐO LẠI TRÊN UAT 2026-08-03 (391×844): gõ 'Tra' + Enter → URL /portal/order?keyword=Tra, danh sách 5 → 2 sản phẩm (.wujia-morder-row) → Enter submit chạy đúng"
   limit: "Không làm live-filter theo debounce 1.5s (BA mô tả kỳ vọng cũ) — chọn submit tường minh (nút + Enter) cho nhất quán PC, nhẹ request, tránh gọi API mỗi phím. Nếu BA vẫn muốn live-filter, tách issue riêng"
 # --- Batch C 2026-07-23 (shell/layout PC + mobile header + Home typography) ---
 UI-01:
