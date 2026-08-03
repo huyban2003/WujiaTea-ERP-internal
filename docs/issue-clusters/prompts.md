@@ -141,6 +141,42 @@ không còn dải trống x=260–300. Đo đủ 5 route PC.
 Regression: 391×844 phải BẤT BIẾN (mọi rule trong @media min-width:1200px). Overflow ngang = 0.
 ```
 
+**Kết quả thực tế 03/08/2026 — commit `117e634` (đã push `main`), CHƯA DEPLOY UAT:**
+
+| Điểm đo (1920×1080, 5 route PC) | Trước | Sau |
+|---|---|---|
+| `.main-menu` | 260×1080 | **0,0,300×1080** + divider 1px `#EEF2F5` @x=299 |
+| `.navbar-container` | x=600 | **x=300** |
+| logo card | không có (header cao 200) | **20,16,260×132** radius 18 |
+| logo img | 44.5,61.8,180×96 | **58,26,184×86** |
+| MENU CHÍNH | y=260 | **x=28, y=188** |
+| item menu | 229 @ x=35 | **260 @ x=20** |
+| store block / role | 430×48 / 103×46 | **324,12,430×48** / **650,23,82×26** |
+| `.content-wrapper` | y=84, pad 24/30.8 | **y=72, pad 24px đều**, content-body **x=324** |
+
+Đo trên **DB copy cô lập `wujia_tea_a01`** (port 8101) → **0 FAIL / 5 route**, overflow ngang 0.
+Regression 391×844 snapshot before/after 5 route → **0 diff**. Tablet 1199 + 992: 7 route đều 200,
+sidebar giữ 260px, 0 lỗi JS. UI-PC-BASE-012: bấm Công nợ → `/portal/debt` (200), đúng 1 mục active/route.
+
+**2 chỗ doc cụm A đoán sai, đã sửa khác:**
+1. `:not(.navbar-container)` **không đủ** — bỏ `.navbar-container` khỏi rule sẽ để
+   `style.css:147 html body .content{margin-left:260px}` (0,2,1) rơi vào → x=560. Phải zero
+   tường minh `html body .navbar-container.content{margin-left:0!important}` (0,2,2).
+2. Item 260px **không chỉ do `margin`** — thủ phạm là `components.css:411`
+   `.main-menu.menu-light .navigation > li{padding:0 15px}` (0,4,0), phải khớp specificity.
+
+Thêm 1 báo động giả của harness (L7): kỳ vọng `.content-wrapper.x=324` là **sai** — padding 24px
+nằm *trong* wrapper nên bbox wrapper = 300, con đầu mới = 324. Sửa harness, không sửa code.
+
+**Ghi sheet 03/08:** 4 issue → `Ready for Retest` (rows 2/22/45/62), cột P ghi rõ
+**"CHƯA DEPLOY UAT"** để BA không retest nhầm build cũ; UI-PC-BASE-012 (row 64) giữ trạng thái,
+chỉ cập nhật K/P cho phần nối link. Đã verify lại bằng `export?format=csv`.
+
+**LIMIT đã ghi:** giữ nguyên item height 44px / font menu 16px / radius 8px / accent bar
+(source v1.5 ghi 48/15/14 nhưng ngoài "Kết quả mong muốn" của issue) · 2 dòng chữ trong logo card
+của bản vẽ chưa dựng · trang Công nợ chưa có Figma PC nên ở 1920 ra cột hẹp căn giữa ·
+cụm nút phải header để cụm B.
+
 ---
 
 ## E — Lịch sử đặt hàng (controller)

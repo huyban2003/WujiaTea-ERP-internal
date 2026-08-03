@@ -489,3 +489,68 @@ WJ-PH-006:
   impact: "Lịch sử đặt hàng — cột Người đặt (PC + mobile)"
   retest: "Đo trên UAT 03/08 tại /portal/purchase-history: đơn backend S00024/S00023/S00020/S00018/S00015/S00014/S00010/S00008/S00007 đều hiện 'Ngô Gia tạo đơn'; đơn portal S00004 hiện 'Hoàng Văn Em (Chủ HCM-01)', S00031/S00032 hiện 'Administrator' (đúng — do admin tự đặt trên portal). Đủ cả 2 nhánh"
   limit: "Nhờ BA cập nhật CT-025 trên Master Sheet cho khớp — hiện CT-025 mới mô tả nhánh đơn Portal, thiếu nhánh đơn backend. Đây là việc tài liệu bên BA, code không đổi"
+
+# --- 2026-08-03: cụm A (issue-clusters/A_shell_pc.md) — commit 117e634, CHƯA DEPLOY UAT ---
+# 4 issue dưới đây cùng MỘT gốc cascade; đo trên DB copy cô lập wujia_tea_a01 (port 8101),
+# 1920×1080 / 5 route PC → khớp 100% source WJ_PC_CoreShell_FINAL_v1.
+# Duplicate key với entry cũ ở trên là CỐ Ý — YAML lấy bản cuối (bản mới này).
+
+UI-PC-SHELL-001:
+  sprint: "2026-08-03-A"
+  commit: "117e634"
+  deployed_date: ""
+  build_override: "CHƯA DEPLOY UAT — code đã push main, commit: 117e634 (cụm A, 2026-08-03) | URL: /portal | Đo trên DB copy cô lập wujia_tea_a01 1920×1080"
+  url: "/portal"
+  odoo_fit: "Custom"
+  fix: "Fix Sprint 35 đúng ý nhưng THUA CASCADE: style.css:124 `body.vertical-layout.vertical-menu-modern .main-menu{width:260px!important}` (spec 0,3,0) đè rule cũ `.main-menu` (0,1,0). Nâng selector trong _wujia_theme.css lên 0,4,0 (giữ nguyên style.css vì là file legacy dùng chung), thêm divider 1px #EEF2F5 nằm TRONG hộp 300px (box-sizing:border-box) đúng source rect x=299. Ghi chú cũ 'sidebar bị JS điều khiển, CSS bất lực' là kết luận SAI — .main-menu không có inline style width nào"
+  impact: "Sidebar + content offset — mọi trang /portal PC ≥1200px"
+  retest: "1920×1080: .main-menu = 0,0,300×1080; dải trống x=260–300 không còn; content bắt đầu tại x=300. Đo trên 5 route /portal, /portal/order, /portal/delivery, /portal/notification, /portal/profile"
+  limit: "Chỉ áp ≥1200px. Tablet 992–1199px sidebar vẫn 260px (off-canvas, không chiếm layout) — đã smoke 7 route ở 1199 và 992: đều 200, overflow ngang 0, 0 lỗi JS"
+
+UI-01:
+  sprint: "2026-08-03-A"
+  commit: "117e634"
+  deployed_date: ""
+  build_override: "CHƯA DEPLOY UAT — code đã push main, commit: 117e634 (cụm A, 2026-08-03) | URL: /portal | Đo trên DB copy cô lập wujia_tea_a01 1920×1080"
+  url: "/portal"
+  odoo_fit: "Custom"
+  fix: "Vuexy gắn class `content` CẢ trên header (layouts.xml:33 `div.navbar-container.content`) nên rule đẩy content sang phải 300px ăn nhầm luôn header → navbar-container x=600, store block x=624. Thêm rule zero tường minh `html body .navbar-container.content{margin-left:0!important}` (spec 0,2,2) — thắng cả rule 300px lẫn style.css:147 (260px, 0,2,1). Đồng thời chuẩn kích thước role chip về 82×26 (trước 103×46) và neo store pill 318px để role rơi đúng x=650"
+  impact: "Top Bar + Current Store block — mọi trang /portal PC ≥1200px"
+  retest: "1920×1080, 5 route: .header-navbar = 300,0,1620×72; .navbar-container x=300 (hết 600); .wujia-store-current-block = 324,12,430×48; role chip = 650,23,82×26. Kiểm thêm tên cửa hàng dài vẫn ellipsis, không đè role"
+  limit: "Cụm nút bên PHẢI header (cờ ngôn ngữ, giỏ, chuông, pill tài khoản) chưa đụng — nằm ở cụm B (UI-03/UI-PC-BASE-011/UI-02), sẽ làm phiên sau. Hack margin-left:10px của store block giữ nguyên và nay khớp đúng (300+14+10=324)"
+
+UI-PC-BASE-001:
+  sprint: "2026-08-03-A"
+  commit: "117e634"
+  deployed_date: ""
+  build_override: "CHƯA DEPLOY UAT — code đã push main, commit: 117e634 (cụm A, 2026-08-03) | URL: /portal/* | Đo trên DB copy cô lập wujia_tea_a01 1920×1080"
+  url: "/portal"
+  odoo_fit: "Custom"
+  fix: "Vuexy components.css:67 để `.content-wrapper{padding: calc(2.2rem - .4rem) 2.2rem 0; margin-top: 6rem}` — với html{font-size:14px} ra đúng 30,8px ngang và 84px trên như BA đo. Ép padding ngang 24px + margin-top = --wujia-header-height (72px) trong @media ≥1200px"
+  impact: "Content shell — mọi trang /portal PC ≥1200px"
+  retest: "1920×1080, 5 route: .content-wrapper = 300,72,1620 với padding 24px 24px 0; con đầu (content-body) x=324. Không còn dải trống 12px dưới Top Bar. Lưu ý cách đo: padding 24px nằm TRONG wrapper nên bbox wrapper vẫn x=300, phần tử nội dung mới ở x=324"
+  limit: "Không có"
+
+UI-PC-BASE-010:
+  sprint: "2026-08-03-A"
+  commit: "117e634"
+  deployed_date: ""
+  build_override: "CHƯA DEPLOY UAT — code đã push main, commit: 117e634 (cụm A, 2026-08-03) | URL: /portal/* | Đo trên DB copy cô lập wujia_tea_a01 1920×1080"
+  url: "/portal"
+  odoo_fit: "Custom"
+  fix: "Dựng grid sidebar theo source WJ_PC_CoreShell_FINAL_v1: sidebar 300×1080 + divider 1px #EEF2F5 tại x=299; logo card 20,16,260×132 bo góc 18 viền #EEF2F5 (trước cao 200, không có card); ảnh logo 58,26,184×86 (zero padding lệch 22,96/14 của Vuexy rồi căn giữa); 'MENU CHÍNH' về y=188 x=28 (trước y=260) bằng spacer 12px + margin-left 28; item menu rộng 260px lề x=20 (trước 230 @ x=35 — thủ phạm là components.css:411 `.main-menu.menu-light .navigation > li{padding:0 15px}` spec 0,4,0, phải khớp specificity rồi thắng bằng thứ tự source)"
+  impact: "Sidebar PC — mọi trang /portal ≥1200px"
+  retest: "1920×1080, 5 route: sidebar 0,0,300×1080; logo card 20,16,260×132 radius 18; ảnh 58,26,184×86; li 'MENU CHÍNH' x=28,y=188; item 'Trang chủ' x=20,w=260; khe 40px giữa sidebar và vùng chính không còn"
+  limit: "CỐ Ý giữ nguyên chiều cao item 44px, cỡ chữ menu 16px, bo góc item 8px và thanh accent — source v1.5 ghi 48/15/14 nhưng những mốc này KHÔNG nằm trong cột 'Kết quả mong muốn' của issue; đổi sẽ dịch toàn bộ item dọc, nên tách ra chờ BA chốt riêng. Ngoài ra 2 dòng chữ nằm trong logo card của bản vẽ (tên + dòng đỏ nhỏ) chưa dựng vì markup hiện chỉ có ảnh logo. Token --wujia-sidebar-width giữ nguyên 300px, chỉ đổi selector"
+
+UI-PC-BASE-012:
+  sprint: "2026-08-03-A"
+  commit: "117e634"
+  deployed_date: ""
+  build_override: "Phần sáng-đôi: UAT | 2026-08-03 | commit: 8888dc5 (cụm I). Phần nối link: CHƯA DEPLOY UAT — commit: 117e634 (cụm A) | URL: /portal"
+  url: "/portal"
+  odoo_fit: "Custom"
+  fix: "(1) Cụm I (đã lên UAT 8888dc5): sidebar tính mục đang chọn TẠI SERVER theo request.httprequest.path thay vì để app.js dò href trùng URL — hết cảnh /portal sáng cùng lúc 'Trang chủ' + 'Công nợ'. (2) Cụm A (commit 117e634, chưa deploy): nối mục 'Công nợ' về /portal/debt thay cho href tạm /portal — trang Công nợ đã có thật từ Sprint 43/48"
+  impact: "Sidebar PC — mọi trang /portal ≥1200px"
+  retest: "1920×1080: bấm 'Công nợ' ở /portal mở đúng /portal/debt (HTTP 200), mục 'Công nợ' sáng và 'Trang chủ' tắt. Kiểm lại 6 route mỗi route đúng 1 mục sáng: /portal, /portal/order, /portal/delivery, /portal/notification, /portal/profile, /portal/debt"
+  limit: "Trang Công nợ mới chỉ có bản thiết kế mobile — mở ở 1920 sẽ ra một cột hẹp căn giữa màn hình. Chủ dự án chốt 03/08 vẫn bật link vì như vậy còn hơn bấm vào lại quay về Trang chủ. Bản PC chờ BA cấp Figma riêng"
