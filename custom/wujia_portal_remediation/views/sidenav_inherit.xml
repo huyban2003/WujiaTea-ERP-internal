@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <!-- Thêm menu Khắc phục đánh giá vào Desktop Sidenav Sidebar (priority=100 chạy sau layout_sidenav_figma) -->
+        <template id="pc_sidenav_remediation"
+                  inherit_id="wujia_portal_layout.layout_sidenav"
+                  priority="100"
+                  name="Wujia PC Sidenav — Khắc phục đánh giá">
+            <xpath expr="//li[@id='nav_item_exam']" position="after">
+                <li t-attf-class="nav-item #{_remediation_active and 'active' or ''}" id="nav_item_remediation">
+                    <a href="/portal/remediation">
+                        <i class="feather icon-check-square" aria-hidden="true"/>
+                        <span class="menu-title">Khắc phục đánh giá</span>
+                    </a>
+                </li>
+            </xpath>
+        </template>
+
+        <!-- Thêm menu Khắc phục đánh giá vào Mobile Bottom Sheet / Drawer Menu -->
+        <template id="mobile_bottomnav_remediation"
+                  inherit_id="wujia_portal_layout.mobile_bottomnav"
+                  priority="45"
+                  name="Wujia Mobile BottomSheet — Khắc phục đánh giá">
+            <xpath expr="//div[hasclass('wujia-msheet-list')]" position="inside">
+                <a href="/portal/remediation" class="wujia-msheet-item">
+                    <span class="wujia-msheet-item-icon"><i class="feather icon-check-square"/></span>
+                    <span class="wujia-msheet-item-text">
+                        <span class="wujia-msheet-item-title">Khắc phục đánh giá</span>
+                        <span class="wujia-msheet-item-sub">Gửi báo cáo và theo dõi tiến độ khắc phục</span>
+                    </span>
+                    <i class="feather icon-chevron-right wujia-msheet-item-chevron"/>
+                </a>
+            </xpath>
+        </template>
+    </data>
+</odoo>
