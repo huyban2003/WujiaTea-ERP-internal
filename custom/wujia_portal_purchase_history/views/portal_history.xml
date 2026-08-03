@@ -7,8 +7,8 @@
             <t t-set="title">Lịch sử đặt hàng</t>
             <!-- status_type → badge CSS. Controller trả status_type ngữ nghĩa, template map sang
                  hệ badge riêng (PC / mobile) — logic/label đã tập trung ở controller. -->
-            <t t-set="pc_badge" t-value="{'pending': 'wj-pc-badge--pending', 'sent': 'wj-pc-badge--sent', 'confirmed': 'wj-pc-badge--confirmed', 'done': 'wj-pc-badge--done'}"/>
-            <t t-set="mobile_badge" t-value="{'pending': 'wujia-badge-muted', 'sent': 'wujia-badge-info', 'confirmed': 'wujia-badge-success', 'done': 'wujia-badge-warning'}"/>
+            <t t-set="pc_badge" t-value="{'pending': 'wj-pc-badge--pending', 'sent': 'wj-pc-badge--sent', 'confirmed': 'wj-pc-badge--confirmed', 'transit': 'wj-pc-badge--transit', 'done': 'wj-pc-badge--done'}"/>
+            <t t-set="mobile_badge" t-value="{'pending': 'wujia-badge-muted', 'sent': 'wujia-badge-info', 'confirmed': 'wujia-badge-success', 'transit': 'wujia-badge-warning', 'done': 'wujia-badge-success'}"/>
             <div class="content-wrapper">
 
                 <!-- ============================================================
@@ -38,8 +38,10 @@
                                            placeholder="Tìm theo mã đơn" class="wj-pc-filter-control"/>
                                 </span>
                                 <input type="date" name="date_from" t-att-value="date_from"
+                                       t-att-max="date_to or None"
                                        class="wj-pc-filter-control" style="max-width:180px;"/>
                                 <input type="date" name="date_to" t-att-value="date_to"
+                                       t-att-min="date_from or None"
                                        class="wj-pc-filter-control" style="max-width:180px;"/>
                                 <select name="state" class="wj-pc-filter-control" style="max-width:200px;">
                                     <option value="">Tất cả trạng thái</option>
@@ -54,6 +56,8 @@
                                     <button type="submit" class="wj-pc-btn wj-pc-btn--primary">Tìm</button>
                                 </span>
                             </div>
+                            <!-- Lỗi khoảng ngày báo tại đây, KHÔNG dùng empty state (WJ-PH-007) -->
+                            <p t-if="filter_error" class="wj-filter-error" role="alert" t-out="filter_error"/>
                         </form>
 
                         <!-- Bảng danh sách đơn -->
@@ -66,13 +70,14 @@
                                 <span t-if="rows" class="wj-pc-card__count"><t t-out="pager.get('page_total', len(rows))"/> bản ghi</span>
                             </div>
 
-                            <div t-if="not rows" class="wj-pc-empty">
+                            <!-- filter_error đã báo ở FilterBar → không hiện thêm empty state (2 thông điệp mâu thuẫn) -->
+                            <div t-if="not rows and not filter_error" class="wj-pc-empty">
                                 <span class="wj-pc-empty__icon"><i class="feather icon-inbox"/></span>
                                 <h3 class="wj-pc-empty__title">Chưa có đơn hàng</h3>
                                 <p class="wj-pc-empty__sub">Chưa có đơn hàng nào khớp bộ lọc.</p>
                             </div>
 
-                            <table t-else="" class="wj-pc-table">
+                            <table t-if="rows" class="wj-pc-table">
                                 <thead>
                                     <tr>
                                         <th>Mã đơn</th>
@@ -82,7 +87,6 @@
                                         <th class="text-end">Tổng tiền</th>
                                         <th>Batch / giao hàng</th>
                                         <th>Trạng thái</th>
-                                        <th class="text-end">Thao tác</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -97,9 +101,6 @@
                                         <td t-out="r['batch_name'] or 'Chưa giao'"/>
                                         <td>
                                             <span t-attf-class="wj-pc-badge #{pc_badge.get(r['status_type'], 'wj-pc-badge--pending')}" t-out="r['state_label']"/>
-                                        </td>
-                                        <td class="text-end">
-                                            <a t-attf-href="/portal/purchase-history/#{r['id']}" class="wj-pc-link">Xem</a>
                                         </td>
                                     </tr>
                                 </tbody>
@@ -155,14 +156,18 @@
                             <div class="wj-filter-dates">
                                 <label class="wj-filter-date">
                                     <i class="feather icon-calendar"/>
-                                    <input type="date" name="date_from" t-att-value="date_from"/>
+                                    <input type="date" name="date_from" t-att-value="date_from"
+                                           t-att-max="date_to or None"/>
                                 </label>
                                 <span class="wj-filter-date-sep">–</span>
                                 <label class="wj-filter-date">
                                     <i class="feather icon-calendar"/>
-                                    <input type="date" name="date_to" t-att-value="date_to"/>
+                                    <input type="date" name="date_to" t-att-value="date_to"
+                                           t-att-min="date_from or None"/>
                                 </label>
                             </div>
+                            <!-- Lỗi khoảng ngày báo tại đây, KHÔNG dùng empty state (WJ-PH-007) -->
+                            <p t-if="filter_error" class="wj-filter-error" role="alert" t-out="filter_error"/>
                             <div class="wj-filter-chips">
                                 <a href="/portal/purchase-history?preset=this_month"
                                    t-attf-class="wj-filter-chip #{'is-active' if preset == 'this_month' else ''}">Tháng này</a>
@@ -182,7 +187,7 @@
 
                         <!-- Danh sách đơn -->
                         <t t-set="mhist_filtered" t-value="q or date_from or date_to or preset or state"/>
-                        <div t-if="not rows" class="wj-empty-state wj-empty-state--rich">
+                        <div t-if="not rows and not filter_error" class="wj-empty-state wj-empty-state--rich">
                             <span class="wj-empty-state-icon"/>
                             <p class="wj-empty-state-title">Chưa có đơn hàng</p>
                             <p class="wj-empty-state-sub">Hiện chưa có đơn hàng nào để hiển thị.</p>
@@ -190,7 +195,7 @@
                             <a t-if="mhist_filtered" href="/portal/purchase-history" class="wj-empty-state-btn">Xóa lọc</a>
                             <button t-else="" type="button" class="wj-empty-state-btn" onclick="window.location.reload()">Tải lại</button>
                         </div>
-                        <div t-else="" class="wujia-mhist-list">
+                        <div t-if="rows" class="wujia-mhist-list">
                             <a t-foreach="rows" t-as="r" t-attf-href="/portal/purchase-history/#{r['id']}"
                                class="wujia-mhist-row">
                                 <span class="wujia-mhist-row-main">
@@ -224,8 +229,8 @@
     <template id="portal_history_detail" name="Wujia Portal — Purchase History Detail">
         <t t-call="wujia_portal_layout.app_layout">
             <t t-set="title" t-value="detail and detail['header']['name'] or 'Chi tiết đơn hàng'"/>
-            <t t-set="pc_badge" t-value="{'pending': 'wj-pc-badge--pending', 'sent': 'wj-pc-badge--sent', 'confirmed': 'wj-pc-badge--confirmed', 'done': 'wj-pc-badge--done'}"/>
-            <t t-set="mobile_badge" t-value="{'pending': 'wujia-badge-muted', 'sent': 'wujia-badge-info', 'confirmed': 'wujia-badge-success', 'done': 'wujia-badge-warning'}"/>
+            <t t-set="pc_badge" t-value="{'pending': 'wj-pc-badge--pending', 'sent': 'wj-pc-badge--sent', 'confirmed': 'wj-pc-badge--confirmed', 'transit': 'wj-pc-badge--transit', 'done': 'wj-pc-badge--done'}"/>
+            <t t-set="mobile_badge" t-value="{'pending': 'wujia-badge-muted', 'sent': 'wujia-badge-info', 'confirmed': 'wujia-badge-success', 'transit': 'wujia-badge-warning', 'done': 'wujia-badge-success'}"/>
             <div class="content-wrapper">
 
                 <!-- Không tìm thấy / không có quyền — cùng 1 message (không lộ tồn tại) -->

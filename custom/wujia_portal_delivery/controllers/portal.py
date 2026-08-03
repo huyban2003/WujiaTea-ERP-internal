@@ -1,5 +1,5 @@
 import logging
-from datetime import datetime, timedelta, time as dt_time
+from datetime import datetime, timedelta
 
 from werkzeug.exceptions import NotFound
 
@@ -8,6 +8,9 @@ from odoo.http import request
 
 from odoo.addons.wujia_portal_base.controllers.portal import (
     get_active_franchise_ids_filter,
+)
+from odoo.addons.wujia_portal_base.controllers.utils import (
+    local_day_range_utc, portal_tz, to_local_dt,
 )
 
 _logger = logging.getLogger(__name__)
@@ -77,7 +80,8 @@ def _chip_counts(Batch, base_domain):
     }
 
 
-def _hhmm(dt):
+def _hhmm(dt, tz):
+    dt = to_local_dt(dt, tz)
     return dt.strftime('%H:%M') if dt else '--'
 
 
@@ -91,15 +95,17 @@ def _parse_date(value):
         return None
 
 
-def _short_departure(dt):
+def _short_departure(dt, tz):
     """'29/06 · 07:30' — Figma 4731 list card."""
+    dt = to_local_dt(dt, tz)
     if not dt:
         return '—'
     return '%s · %s' % (dt.strftime('%d/%m'), dt.strftime('%H:%M'))
 
 
-def _full_departure(dt):
+def _full_departure(dt, tz):
     """'29/06/2026 · 07:30' — Figma 4731 detail."""
+    dt = to_local_dt(dt, tz)
     if not dt:
         return '—'
     return dt.strftime('%d/%m/%Y · %H:%M')
@@ -137,6 +143,7 @@ class WujiaPortalDelivery(http.Controller):
             page = 1
         offset = (page - 1) * PAGE_SIZE
         q = (q or '').strip()
+        tz = portal_tz()
 
         # Batch-centric (1 thẻ = 1 chuyến xe) — nuôi cả desktop (Figma 4766) + mobile (4731).
         batches, m_pager, chip_counts, view_state = [], {}, {}, 'list'
@@ -146,11 +153,14 @@ class WujiaPortalDelivery(http.Controller):
                 '|', ('picking_ids.franchise_id', 'in', list(franchise_ids)),
                      ('picking_ids.sale_id.franchise_id', 'in', list(franchise_ids)),
             ]
-            d_from, d_to = _parse_date(date_from), _parse_date(date_to)
-            if d_from:
-                base_domain.append(('planned_departure', '>=', datetime.combine(d_from, dt_time.min)))
-            if d_to:
-                base_domain.append(('planned_departure', '<=', datetime.combine(d_to, dt_time.max)))
+            # Ngày người dùng chọn là giờ địa phương, planned_departure lưu UTC → phải quy đổi,
+            # không thì lọc lệch nửa ngày ở 2 biên (cùng lỗi WJ-PH-002 bên Lịch sử đặt hàng).
+            utc_from, utc_to = local_day_range_utc(
+                _parse_date(date_from), _parse_date(date_to), tz)
+            if utc_from:
+                base_domain.append(('planned_departure', '>=', utc_from))
+            if utc_to:
+                base_domain.append(('planned_departure', '<=', utc_to))
             # Chips card-head: đếm theo scope franchise+date (không status, không keyword).
             chip_counts = _chip_counts(Batch, base_domain)
 
@@ -177,14 +187,14 @@ class WujiaPortalDelivery(http.Controller):
                     # Keys mobile (S24) — KHÔNG đổi:
                     'id': b.id, 'name': b.name or '—',
                     'label': label, 'modifier': modifier,
-                    'departure': _short_departure(b.planned_departure),
+                    'departure': _short_departure(b.planned_departure, tz),
                     'orders': _related_orders(own),
                     # Keys PC desktop:
                     'pc_label': label, 'pc_modifier': modifier,
-                    'departure_full': _full_departure(b.planned_departure),
+                    'departure_full': _full_departure(b.planned_departure, tz),
                     'vehicle': vehicle_str,
                     'plate': (v.license_plate if v and v.license_plate else '—'),
-                    'updated': _hhmm(upd),
+                    'updated': _hhmm(upd, tz),
                 })
             last_page = max(1, (total + PAGE_SIZE - 1) // PAGE_SIZE)
             m_pager = {
@@ -255,6 +265,7 @@ class WujiaPortalDelivery(http.Controller):
         label, modifier = MOBILE_BATCH_BADGE.get(
             batch.delivery_batch_status, (batch.delivery_batch_status or '—', 'muted'))
         updated = batch.actual_departure or batch.write_date
+        tz = portal_tz()
 
         # PC desktop (Figma 4766:1091): timeline 3 bước + SO chips + kho xuất + tên CH.
         status = batch.delivery_batch_status or ''
@@ -264,9 +275,9 @@ class WujiaPortalDelivery(http.Controller):
             'done' if status == 'done' else 'inactive',
         )
         tl_times = (
-            _hhmm(batch.actual_departure or (batch.planned_departure if status in ('delivering', 'done') else None)),
-            _hhmm(batch.write_date if status in ('delivering', 'done') else None),
-            _hhmm(batch.write_date if status == 'done' else None),
+            _hhmm(batch.actual_departure or (batch.planned_departure if status in ('delivering', 'done') else None), tz),
+            _hhmm(batch.write_date if status in ('delivering', 'done') else None, tz),
+            _hhmm(batch.write_date if status == 'done' else None, tz),
         )
         so_names = []
         for p in own_pickings:
@@ -285,13 +296,13 @@ class WujiaPortalDelivery(http.Controller):
             'products': products,
             # Mobile (S24):
             'm_badge': (label, modifier),
-            'm_departure_full': _full_departure(batch.planned_departure),
-            'm_updated': _full_departure(updated),
+            'm_departure_full': _full_departure(batch.planned_departure, tz),
+            'm_updated': _full_departure(updated, tz),
             'm_orders': _related_orders(own_pickings),
             # PC desktop:
             'pc_badge': (label, modifier),
-            'pc_departure': _full_departure(batch.planned_departure),
-            'pc_updated': _full_departure(updated),
+            'pc_departure': _full_departure(batch.planned_departure, tz),
+            'pc_updated': _full_departure(updated, tz),
             'pc_orders': _related_orders(own_pickings),
             'so_names': so_names,
             'tl_steps': tl_steps,

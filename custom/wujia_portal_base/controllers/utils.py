@@ -7,8 +7,9 @@ import base64
 import functools
 import logging
 import time
-from datetime import date, datetime
+from datetime import date, datetime, time as dt_time
 
+import pytz
 from werkzeug.exceptions import Forbidden, TooManyRequests
 from werkzeug.utils import secure_filename
 
@@ -18,6 +19,61 @@ from odoo.http import request
 from odoo.tools import ormcache
 
 _logger = logging.getLogger(__name__)
+
+
+# ---------------------------------------------------------------------------
+# Timezone portal
+# ---------------------------------------------------------------------------
+#
+# Odoo lưu Datetime dạng naive UTC. Controller portal trả thẳng ra template =
+# người dùng thấy sớm 7 giờ (WJ-PH-002), và lọc theo ngày người dùng chọn (giờ
+# địa phương) so với cột UTC = sai biên nửa ngày.
+#
+# 3 hàm dưới là chỗ duy nhất mọi module portal_* nên dùng để đổi qua lại.
+# ---------------------------------------------------------------------------
+
+DEFAULT_PORTAL_TZ = 'Asia/Ho_Chi_Minh'
+
+
+def portal_tz(env=None):
+    """Timezone của user hiện tại. tz rỗng/rác → DEFAULT_PORTAL_TZ, KHÔNG raise.
+
+    Đã có user để tz = 'Asia/Saigon' làm /portal/reports/orders 500 — trang portal
+    không được chết vì một ô cấu hình.
+    """
+    try:
+        name = (env or request.env).user.tz
+    except Exception:                                   # noqa: BLE001 — env hỏng cũng không nổ trang
+        name = None
+    try:
+        return pytz.timezone(name or DEFAULT_PORTAL_TZ)
+    except Exception:                                   # noqa: BLE001 — UnknownTimeZoneError + tz không phải str
+        return pytz.timezone(DEFAULT_PORTAL_TZ)
+
+
+def to_local_dt(dt, tz):
+    """Datetime naive UTC (Odoo) → datetime naive giờ địa phương.
+
+    Trả naive để template giữ nguyên `.strftime(...)` — không phải sửa QWeb.
+    """
+    if not dt:
+        return None
+    if not isinstance(dt, datetime):                    # Date field → không có giờ để đổi
+        return dt
+    return pytz.utc.localize(dt).astimezone(tz).replace(tzinfo=None)
+
+
+def local_day_range_utc(date_from, date_to, tz):
+    """(date, date) giờ địa phương → (datetime, datetime) naive UTC để đưa vào domain.
+
+    Đảo chiều đúng fields.Datetime.context_timestamp. Mỗi vế None nếu không nhập.
+    """
+    def _bound(d, t):
+        if not d:
+            return None
+        return tz.localize(datetime.combine(d, t)).astimezone(pytz.utc).replace(tzinfo=None)
+
+    return _bound(date_from, dt_time.min), _bound(date_to, dt_time.max)
 
 
 # ---------------------------------------------------------------------------
@@ -329,8 +385,9 @@ VI_WEEKDAYS = {0: 'Thứ 2', 1: 'Thứ 3', 2: 'Thứ 4', 3: 'Thứ 5',
                4: 'Thứ 6', 5: 'Thứ 7', 6: 'CN'}
 
 
-def format_batch_departure(dt):
+def format_batch_departure(dt, tz=None):
     """'29/05/2026 (Thứ 5) · 08:00' — format ngày giờ batch theo Figma 2474:183."""
+    dt = to_local_dt(dt, tz or portal_tz())
     if not dt:
         return '—'
     return '%s (%s) · %s' % (
@@ -360,7 +417,9 @@ def get_upcoming_batches(franchise_ids, limit=2):
     if 'planned_departure' not in Batch._fields or not franchise_ids:
         return []
     franchise_ids = list(franchise_ids)
-    start = datetime.combine(date.today(), datetime.min.time())
+    tz = portal_tz()
+    # "Từ đầu hôm nay" là mốc giờ địa phương, planned_departure lưu UTC → phải quy đổi.
+    start, _unused = local_day_range_utc(date.today(), None, tz)
     batches = Batch.search([
         ('planned_departure', '>=', start),
         '|', ('picking_ids.franchise_id', 'in', franchise_ids),
@@ -376,7 +435,7 @@ def get_upcoming_batches(franchise_ids, limit=2):
         orders = own.mapped('sale_id')
         items.append({
             'batch': batch,
-            'when': format_batch_departure(batch.planned_departure),
+            'when': format_batch_departure(batch.planned_departure, tz),
             'order_count': len(orders),
             'total': sum(orders.mapped('amount_total')),
             'badge': MOBILE_BATCH_BADGES.get(
