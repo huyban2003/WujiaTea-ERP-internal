@@ -1,4 +1,6 @@
 # -*- coding: utf-8 -*-
+import os
+import json
 from odoo import api, fields, models, _
 # pyrefly: ignore [missing-import]
 from odoo.exceptions import ValidationError
@@ -13,6 +15,28 @@ class WujiaFranchiseInspectionCategory(models.Model):
     code = fields.Char(string='Mã danh mục')
     sequence = fields.Integer(string='Thứ tự', default=10)
     active = fields.Boolean(string='Kích hoạt', default=True)
+
+    _sql_constraints = [
+        ('name_unique', 'UNIQUE(name)', 'Tên danh mục phải là duy nhất!'),
+    ]
+
+    @api.model
+    def _init_default_categories(self):
+        """Khởi tạo các Danh mục tiêu chí mặc định nếu chưa tồn tại trong DB."""
+        default_categories = [
+            {'name': 'Gìn giữ hình ảnh ngoại quan cửa hàng / 店鋪外觀形象保持', 'sequence': 10},
+            {'name': 'Yêu cầu giữ gìn các thiết bị / 各設備維護要求', 'sequence': 20},
+            {'name': 'Yêu cầu tiêu chuẩn cơ bản / 基本規範要求', 'sequence': 30},
+            {'name': 'Những hạng mục vi phạm nghiêm trọng (vi phạm 1 hạng mục bất kỳ sẽ bị trừ trực tiếp 6 điểm) / 任何一項嚴重違規,就直接扣六分', 'sequence': 40},
+        ]
+        for cat_data in default_categories:
+            existing = self.search([('name', '=', cat_data['name'])], limit=1)
+            if not existing:
+                self.create(cat_data)
+
+    def init(self):
+        super().init()
+        self._init_default_categories()
 
 
 class WujiaFranchiseInspectionTemplate(models.Model):
@@ -137,6 +161,67 @@ class WujiaFranchiseInspectionTemplate(models.Model):
             'view_mode': 'form',
             'target': 'current',
         }
+
+    @api.model
+    def _init_demo_template(self):
+        """Khởi tạo dữ liệu mẫu khảo sát MM01 (Khảo sát cửa hàng nhượng quyền) nếu chưa tồn tại trong DB."""
+        existing = self.search([('code', '=', 'MM01')], limit=1)
+        if existing:
+            return
+
+        Category = self.env['wujia.franchise.inspection.category']
+
+        template = self.create({
+            'name': 'Khảo sát cửa hàng nhượng quyền',
+            'code': 'MM01',
+            'state': 'draft',
+            'version': 'v1.0',
+            'checklist_max_score': 95.0,
+            'exam_max_score': 5.0,
+            'total_max_score': 100.0,
+            'effective_date': fields.Date.today(),
+        })
+
+        json_path = os.path.join(os.path.dirname(__file__), '..', 'data', 'template_mm01_lines.json')
+        if os.path.exists(json_path):
+            with open(json_path, 'r', encoding='utf-8') as f:
+                lines_data = json.load(f)
+
+            category_cache = {}
+            lines_to_create = []
+
+            for item in lines_data:
+                cat_name = item.get('category_name')
+                cat_id = False
+                if cat_name:
+                    if cat_name not in category_cache:
+                        cat_rec = Category.search([('name', '=', cat_name)], limit=1)
+                        if not cat_rec:
+                            cat_rec = Category.create({'name': cat_name, 'sequence': 10})
+                        category_cache[cat_name] = cat_rec.id
+                    cat_id = category_cache[cat_name]
+
+                lines_to_create.append({
+                    'template_id': template.id,
+                    'sequence': item.get('sequence', 10),
+                    'display_type': item.get('display_type') or 'line',
+                    'criterion_code': item.get('criterion_code'),
+                    'category_id': cat_id,
+                    'content': item.get('content'),
+                    'criterion_type': item.get('criterion_type') or 'normal',
+                    'deduction_score': item.get('deduction_score', 1.0),
+                    'require_note_if_fail': item.get('require_note_if_fail', False),
+                    'require_evidence_if_fail': item.get('require_evidence_if_fail', False),
+                })
+
+            if lines_to_create:
+                self.env['wujia.franchise.inspection.template.line'].create(lines_to_create)
+
+        template.write({'state': 'active'})
+
+    def init(self):
+        super().init()
+        self._init_demo_template()
 
 
 class WujiaFranchiseInspectionTemplateLine(models.Model):
