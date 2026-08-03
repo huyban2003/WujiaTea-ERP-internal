@@ -33,8 +33,8 @@ class WujiaPortalRemediationController(http.Controller):
         """
         franchise_ids = get_active_franchise_ids_filter()
 
-        # CHỈ lấy các phiếu khảo sát ở trạng thái 'need_remediation' hoặc 'done'
-        inspection_domain = [('state', 'in', ['need_remediation', 'done'])]
+        # CHỈ lấy các phiếu khảo sát ở trạng thái 'need_remediation'
+        inspection_domain = [('state', '=', 'need_remediation')]
         if franchise_ids:
             inspection_domain.append(('franchise_id', 'in', list(franchise_ids)))
 
@@ -90,8 +90,8 @@ class WujiaPortalRemediationController(http.Controller):
             for line in failed_lines:
                 # Mã tiêu chí
                 code_str = ''
-                if line.template_line_id and line.template_line_id.code:
-                    code_str = line.template_line_id.code
+                if line.template_line_id and getattr(line.template_line_id, 'criterion_code', False):
+                    code_str = line.template_line_id.criterion_code
                 elif line.sequence:
                     code_str = f"TC-{line.sequence}"
 
@@ -105,7 +105,7 @@ class WujiaPortalRemediationController(http.Controller):
                     cat_str = 'Tiêu chí vi phạm'
 
                 # Nội dung
-                content_str = line.content_snapshot or (line.template_line_id.name if (line.template_line_id and line.template_line_id.name) else '')
+                content_str = line.content_snapshot or (line.template_line_id.content if (line.template_line_id and line.template_line_id.content) else '')
 
                 # Điểm trừ
                 deduction_score = line.deduction_score_snapshot or (line.template_line_id.deduction_score if (line.template_line_id and line.template_line_id.deduction_score) else 0.0)
@@ -119,6 +119,7 @@ class WujiaPortalRemediationController(http.Controller):
                     'deduction': deduction_score,
                     'require_evidence': line.require_evidence_if_fail_snapshot or line.require_evidence_if_fail,
                     'note': line.note or '',
+                    'remediation_note': line.remediation_note or '',
                     'has_remediation_image': bool(line.remediation_image),
                     'remediation_image_url': f"/web/image/wujia.franchise.inspection.line/{line.id}/remediation_image" if line.remediation_image else False,
                     # Thông tin từ phiếu khảo sát cha
@@ -155,20 +156,22 @@ class WujiaPortalRemediationController(http.Controller):
         return request.render('wujia_portal_remediation.portal_remediation_main', values)
 
     @http.route(['/portal/remediation/submit_line'], type='http', auth='user', methods=['POST'], website=True)
-    def portal_remediation_submit_line(self, line_id=None, note=None, remediation_image=None, **kwargs):
+    def portal_remediation_submit_line(self, line_id=None, note=None, remediation_note=None, remediation_image=None, redirect_tab=None, **kwargs):
         """
-        Nộp ảnh minh chứng & ghi chú khắc phục cho 1 dòng inspection_line.
+        Nộp/Cập nhật ảnh minh chứng & ghi chú khắc phục cho 1 dòng inspection_line.
         """
         if line_id:
             line = request.env['wujia.franchise.inspection.line'].sudo().browse(int(line_id))
             if line.exists():
                 vals = {}
-                if note:
-                    vals['note'] = note
+                store_note = remediation_note or note
+                if store_note:
+                    vals['remediation_note'] = store_note
                 if remediation_image and hasattr(remediation_image, 'read'):
                     file_content = remediation_image.read()
                     if file_content:
                         vals['remediation_image'] = base64.b64encode(file_content)
                 if vals:
                     line.write(vals)
-        return request.redirect('/portal/remediation?tab=pending')
+        tab_to_redirect = redirect_tab if redirect_tab in ('pending', 'completed') else 'pending'
+        return request.redirect(f'/portal/remediation?tab={tab_to_redirect}')

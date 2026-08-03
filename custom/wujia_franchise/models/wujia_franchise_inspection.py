@@ -703,7 +703,12 @@ class WujiaFranchiseInspectionLine(models.Model):
             self.is_pass = False
     
     note = fields.Text(
-        string='Ghi chú',
+        string='Ghi chú vi phạm (Admin)',
+    )
+
+    remediation_note = fields.Text(
+        string='Ghi chú khắc phục (Cửa hàng)',
+        help='Ghi chú phản hồi/khắc phục do cửa hàng nhập từ Portal.'
     )
 
     evidence_image = fields.Binary(

@@ -67,7 +67,8 @@
                 <field name="category_id"/>
                 <field name="content_snapshot"/>
                 <field name="result" widget="badge" decoration-success="result == 'pass'" decoration-danger="result == 'fail'"/>
-                <field name="note" optional="show"/>
+                <field name="note" string="Ghi chú vi phạm (Admin)" optional="show"/>
+                <field name="remediation_note" string="Ghi chú khắc phục (Cửa hàng)" optional="show"/>
                 <field name="evidence_image" widget="image" options="{'size': [40, 40]}" optional="show"/>
                 <field name="remediation_image" widget="image" options="{'size': [40, 40]}" optional="show"/>
                 <field name="pass_count"/>
