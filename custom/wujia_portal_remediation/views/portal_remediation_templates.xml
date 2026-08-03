@@ -1,17 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
 
-    <template id="portal_remediation_main" name="Wujia Portal — Khắc phục đánh giá">
+    <template id="portal_remediation_main" name="Wujia Portal — Khắc phục">
         <t t-call="wujia_portal_layout.app_layout">
-            <t t-set="title">Khắc phục đánh giá</t>
+            <t t-set="title">Khắc phục</t>
 
-            <!-- ================= PC ≥992px — Standard Wujia Portal PC Layout (parity với wujia_portal_exam) ================= -->
+            <!-- ================= PC ≥992px ================= -->
             <div class="content-wrapper d-none d-lg-block wj-exam-pc wj-remediation-pc">
                 <!-- Page Header -->
                 <div class="wj-pc-page-header">
                     <div>
-                        <h1 class="wj-pc-page-header__title">Khắc phục đánh giá</h1>
-                        <p class="wj-pc-page-header__crumb">Portal / Giám sát &amp; Đánh giá / Khắc phục đánh giá</p>
+                        <h1 class="wj-pc-page-header__title">Khắc phục</h1>
+                        <p class="wj-pc-page-header__crumb">Portal / Giám sát &amp; Đánh giá / Khắc phục</p>
                     </div>
                 </div>
 
@@ -20,15 +20,20 @@
                     <form method="get" action="/portal/remediation" class="wj-pc-filterbar">
                         <h2 class="wj-pc-filterbar__title">Bộ lọc nhanh</h2>
                         <div class="wj-pc-filterbar__row">
-                            <input type="hidden" name="tab" t-att-value="active_tab"/>
+                            <input type="hidden" name="tab" t-att-value="active_tab" />
                             <span class="wj-pc-filter-search">
-                                <i class="feather icon-search"/>
-                                <input type="text" name="search" t-att-value="search_q" placeholder="Tìm mã phiếu, cửa hàng..." class="wj-pc-filter-control"/>
+                                <i class="feather icon-search" />
+                                <input type="text" name="search" t-att-value="search_q"
+                                    placeholder="Tìm mã phiếu, cửa hàng..."
+                                    class="wj-pc-filter-control" />
                             </span>
-                            <input type="date" name="date_from" t-att-value="date_from" class="wj-pc-filter-control wj-pc-fc--date"/>
-                            <input type="date" name="date_to" t-att-value="date_to" class="wj-pc-filter-control wj-pc-fc--date"/>
+                            <input type="date" lang="vi-VN" name="date_from" t-att-value="date_from"
+                                class="wj-pc-filter-control wj-pc-fc--date" />
+                            <input type="date" lang="vi-VN" name="date_to" t-att-value="date_to"
+                                class="wj-pc-filter-control wj-pc-fc--date" />
                             <span class="wj-pc-filterbar__actions">
-                                <a t-attf-href="/portal/remediation?tab=#{active_tab}" class="wj-pc-btn wj-pc-btn--secondary">Đặt lại</a>
+                                <a t-attf-href="/portal/remediation?tab=#{active_tab}"
+                                    class="wj-pc-btn wj-pc-btn--secondary">Đặt lại</a>
                                 <button type="submit" class="wj-pc-btn wj-pc-btn--primary">Tìm kiếm</button>
                             </span>
                         </div>
@@ -38,137 +43,114 @@
                     <div class="wj-pc-card">
                         <div class="wj-pc-card__head d-flex justify-content-between align-items-center">
                             <div>
-                                <h2 class="wj-pc-card__title">Danh sách phiếu cần xử lý</h2>
-                                <p class="wj-pc-card__subtitle">Theo dõi và cập nhật báo cáo khắc phục tiêu chí khảo sát</p>
+                                <h2 class="wj-pc-card__title">Danh sách tiêu chí vi phạm</h2>
+                                <p class="wj-pc-card__subtitle">Theo dõi và cập nhật báo cáo khắc phục từng tiêu chí khảo sát</p>
                             </div>
                             <!-- PC Tabs -->
                             <div class="d-flex gap-2">
                                 <a t-attf-href="/portal/remediation?tab=pending&amp;date_from=#{date_from}&amp;date_to=#{date_to}&amp;search=#{search_q}"
-                                   t-attf-class="wj-pc-btn #{'wj-pc-btn--primary' if active_tab == 'pending' else 'wj-pc-btn--secondary'}">
-                                    <i class="feather icon-alert-circle me-1"/>Cần khắc phục (<t t-out="pending_count"/>)
+                                    t-attf-class="wj-pc-btn #{'wj-pc-btn--primary' if active_tab == 'pending' else 'wj-pc-btn--secondary'}">
+                                    <i class="feather icon-alert-circle me-1" />Chờ phản hồi (<t t-out="pending_count" />)
                                 </a>
                                 <a t-attf-href="/portal/remediation?tab=completed&amp;date_from=#{date_from}&amp;date_to=#{date_to}&amp;search=#{search_q}"
-                                   t-attf-class="wj-pc-btn #{'wj-pc-btn--primary' if active_tab == 'completed' else 'wj-pc-btn--secondary'}">
-                                    <i class="feather icon-check-circle me-1"/>Đã khắc phục (<t t-out="completed_count"/>)
+                                    t-attf-class="wj-pc-btn #{'wj-pc-btn--primary' if active_tab == 'completed' else 'wj-pc-btn--secondary'}">
+                                    <i class="feather icon-check-circle me-1" />Đã phản hồi (<t t-out="completed_count" />)
                                 </a>
                             </div>
                         </div>
 
-                        <!-- Tab 1: Cần khắc phục (PC Table) -->
+                        <!-- Tab 1: Chờ phản hồi -->
                         <t t-if="active_tab == 'pending'">
                             <div t-if="not pending_items" class="wj-pc-empty">
-                                <div class="wj-pc-empty__icon"><i class="feather icon-check-circle text-success"/></div>
-                                <p class="wj-pc-empty__title">Không có hạng mục nào cần khắc phục</p>
+                                <div class="wj-pc-empty__icon">
+                                    <i class="feather icon-check-circle text-success" />
+                                </div>
+                                <p class="wj-pc-empty__title">Không có tiêu chí nào cần khắc phục</p>
                                 <p class="wj-pc-empty__sub">Tất cả tiêu chuẩn đánh giá cửa hàng đều đạt yêu cầu.</p>
                             </div>
 
                             <div t-else="" class="p-3">
                                 <t t-foreach="pending_items" t-as="item">
                                     <div class="border rounded-3 p-3 mb-3 bg-white shadow-2xs">
-                                        <div class="d-flex justify-content-between align-items-center mb-3 pb-2 border-bottom">
-                                            <div class="d-flex align-items-center gap-3">
-                                                <span class="wj-pc-td--code fw-bold fs-6"><t t-out="item['inspection_code']"/></span>
-                                                <h3 class="wj-pc-card__title mb-0 fs-6"><t t-out="item['inspection_name']"/></h3>
-                                                <span class="wj-pc-td--muted small">|<i class="feather icon-map-pin ms-2 me-1"/><t t-out="item['franchise_name']"/></span>
+                                        <div class="d-flex justify-content-between align-items-center mb-2 pb-2 border-bottom">
+                                            <div class="d-flex align-items-center gap-2">
+                                                <span t-if="item.get('code')" class="wj-pc-badge wj-pc-badge--pending fw-bold">[<t t-out="item.get('code')" />]</span>
+                                                <span class="fw-bold text-dark fs-6"><t t-out="item.get('category')" /></span>
+                                                <span class="wj-pc-td--muted small">|<i class="feather icon-file-text ms-2 me-1" /><t t-out="item.get('inspection_code')" /></span>
+                                                <span class="wj-pc-td--muted small">|<i class="feather icon-map-pin ms-2 me-1" /><t t-out="item.get('franchise_name')" /></span>
                                             </div>
                                             <div class="d-flex align-items-center gap-3">
-                                                <span class="wj-pc-badge wj-pc-badge--pending"><t t-out="item['grade']"/> (<t t-out="item['score']"/>đ)</span>
-                                                <span class="text-danger small fw-bold"><i class="feather icon-clock me-1"/>Hạn: <t t-out="item['due_date']"/></span>
+                                                <span t-if="item.get('deduction')" class="text-danger fw-bold fs-6">-<t t-out="item.get('deduction')" />đ</span>
+                                                <span t-if="item.get('require_evidence')" class="wj-pc-badge wj-pc-badge--danger small">Bắt buộc ảnh</span>
+                                                <span t-else="" class="wj-pc-badge wj-pc-badge--muted small">Không bắt buộc</span>
+                                                <span class="text-danger small fw-bold"><i class="feather icon-clock me-1" />Hạn: <t t-out="item.get('due_date')" /></span>
                                             </div>
                                         </div>
 
-                                        <table class="wj-pc-table mb-3">
-                                            <thead>
-                                                <tr>
-                                                    <th style="width: 80px;">Mã</th>
-                                                    <th style="width: 220px;">Danh mục</th>
-                                                    <th>Nội dung vi phạm</th>
-                                                    <th class="text-center" style="width: 90px;">Trừ điểm</th>
-                                                    <th class="text-center" style="width: 120px;">Minh chứng</th>
-                                                    <th style="width: 260px;">Báo cáo khắc phục</th>
-                                                </tr>
-                                            </thead>
-                                            <tbody>
-                                                <t t-foreach="item['failed_items']" t-as="line">
-                                                    <tr>
-                                                        <td class="wj-pc-td--code">[<t t-out="line['code']"/>]</td>
-                                                        <td class="wj-pc-td--muted"><t t-out="line['category']"/></td>
-                                                        <td><t t-out="line['content']"/></td>
-                                                        <td class="text-center text-danger fw-bold">-<t t-out="line['deduction']"/></td>
-                                                        <td class="text-center">
-                                                            <span t-if="line['require_evidence']" class="wj-pc-badge wj-pc-badge--danger small">Bắt buộc ảnh</span>
-                                                            <span t-else="" class="wj-pc-badge wj-pc-badge--muted small">Không bắt buộc</span>
-                                                        </td>
-                                                        <td>
-                                                            <input type="text" class="wj-pc-filter-control mb-1" placeholder="Ghi chú khắc phục..."/>
-                                                            <button type="button" class="wj-pc-btn wj-pc-btn--secondary w-100 py-1" style="font-size: 0.75rem;">
-                                                                <i class="feather icon-upload me-1"/>Tải ảnh
-                                                            </button>
-                                                        </td>
-                                                    </tr>
-                                                </t>
-                                            </tbody>
-                                        </table>
-
-                                        <div class="d-flex justify-content-between align-items-center pt-2 border-top">
-                                            <span class="wj-pc-td--muted small">Trạng thái: <span class="wj-pc-badge wj-pc-badge--pending"><t t-out="item['remediation_status_label']"/></span></span>
-                                            <button type="button" class="wj-pc-btn wj-pc-btn--primary">
-                                                <i class="feather icon-send me-1"/>Gửi báo cáo khắc phục
-                                            </button>
+                                        <div class="mb-3 text-secondary" style="font-size: 0.92rem;">
+                                            <strong class="text-dark">Nội dung vi phạm:</strong> <t t-out="item.get('content') or 'Chưa có nội dung mô tả'" />
                                         </div>
+
+                                        <form action="/portal/remediation/submit_line" method="post" enctype="multipart/form-data" class="bg-light p-3 rounded-2 border">
+                                            <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
+                                            <input type="hidden" name="line_id" t-att-value="item.get('id') or item.get('line_id')"/>
+                                            
+                                            <div class="row g-2 align-items-center">
+                                                <div class="col-md-5">
+                                                    <input type="text" name="note" class="form-control form-control-sm" placeholder="Nhập ghi chú khắc phục..." t-att-value="item.get('note')"/>
+                                                </div>
+                                                <div class="col-md-4">
+                                                    <input type="file" name="remediation_image" accept="image/*" class="form-control form-control-sm"/>
+                                                </div>
+                                                <div class="col-md-3 text-end">
+                                                    <button type="submit" class="wj-pc-btn wj-pc-btn--primary w-100">
+                                                        <i class="feather icon-send me-1"/>Gửi báo cáo
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </form>
                                     </div>
                                 </t>
                             </div>
                         </t>
 
-                        <!-- Tab 2: Đã khắc phục (PC Table) -->
+                        <!-- Tab 2: Đã phản hồi -->
                         <t t-if="active_tab == 'completed'">
                             <div t-if="not completed_items" class="wj-pc-empty">
-                                <div class="wj-pc-empty__icon"><i class="feather icon-inbox"/></div>
-                                <p class="wj-pc-empty__title">Chưa có bản ghi đã khắc phục</p>
+                                <div class="wj-pc-empty__icon">
+                                    <i class="feather icon-inbox" />
+                                </div>
+                                <p class="wj-pc-empty__title">Chưa có bản ghi đã phản hồi</p>
                             </div>
 
                             <div t-else="" class="p-3">
                                 <t t-foreach="completed_items" t-as="item">
                                     <div class="border rounded-3 p-3 mb-3 bg-white shadow-2xs">
-                                        <div class="d-flex justify-content-between align-items-center mb-3 pb-2 border-bottom">
-                                            <div class="d-flex align-items-center gap-3">
-                                                <span class="wj-pc-td--code fw-bold fs-6 text-success"><t t-out="item['inspection_code']"/></span>
-                                                <h3 class="wj-pc-card__title mb-0 fs-6"><t t-out="item['inspection_name']"/></h3>
-                                                <span class="wj-pc-td--muted small">|<i class="feather icon-map-pin ms-2 me-1"/><t t-out="item['franchise_name']"/></span>
+                                        <div class="d-flex justify-content-between align-items-center mb-2 pb-2 border-bottom">
+                                            <div class="d-flex align-items-center gap-2">
+                                                <span t-if="item.get('code')" class="wj-pc-badge wj-pc-badge--success fw-bold">[<t t-out="item.get('code')" />]</span>
+                                                <span class="fw-bold text-dark fs-6"><t t-out="item.get('category')" /></span>
+                                                <span class="wj-pc-td--muted small">|<i class="feather icon-file-text ms-2 me-1" /><t t-out="item.get('inspection_code')" /></span>
+                                                <span class="wj-pc-td--muted small">|<i class="feather icon-map-pin ms-2 me-1" /><t t-out="item.get('franchise_name')" /></span>
                                             </div>
                                             <div class="d-flex align-items-center gap-3">
-                                                <span class="wj-pc-badge wj-pc-badge--success"><t t-out="item['grade']"/> (<t t-out="item['score_after']"/>đ)</span>
-                                                <span class="text-success small fw-bold"><i class="feather icon-check-circle me-1"/>Đã nghiệm thu</span>
+                                                <span class="text-success small fw-bold"><i class="feather icon-check-circle me-1" />Đã phản hồi</span>
                                             </div>
                                         </div>
 
-                                        <table class="wj-pc-table mb-2">
-                                            <thead>
-                                                <tr>
-                                                    <th style="width: 80px;">Mã</th>
-                                                    <th style="width: 220px;">Danh mục</th>
-                                                    <th>Nội dung ban đầu</th>
-                                                    <th>Nội dung đã khắc phục</th>
-                                                    <th class="text-center" style="width: 120px;">Minh chứng</th>
-                                                </tr>
-                                            </thead>
-                                            <tbody>
-                                                <t t-foreach="item['fixed_items']" t-as="line">
-                                                    <tr>
-                                                        <td class="wj-pc-td--code text-success">[<t t-out="line['code']"/>]</td>
-                                                        <td class="wj-pc-td--muted"><t t-out="line['category']"/></td>
-                                                        <td class="wj-pc-td--muted"><t t-out="line['content']"/></td>
-                                                        <td class="fw-medium text-dark"><i class="feather icon-check text-success me-1"/><t t-out="line['remediation_note']"/></td>
-                                                        <td class="text-center">
-                                                            <button type="button" class="wj-pc-btn wj-pc-btn--secondary py-1 px-2" style="font-size: 0.75rem;">
-                                                                <i class="feather icon-image me-1"/>Xem ảnh
-                                                            </button>
-                                                        </td>
-                                                    </tr>
-                                                </t>
-                                            </tbody>
-                                        </table>
+                                        <div class="row align-items-center">
+                                            <div class="col-md-7">
+                                                <div class="text-muted small mb-1">Nội dung ban đầu: <t t-out="item.get('content') or 'N/A'" /></div>
+                                                <div class="fw-medium text-dark"><i class="feather icon-check text-success me-1" /><t t-out="item.get('note') or 'Đã gửi báo cáo khắc phục'" /></div>
+                                            </div>
+                                            <div class="col-md-5 text-end">
+                                                <a t-if="item.get('remediation_image_url')" t-att-href="item.get('remediation_image_url')" target="_blank"
+                                                    class="wj-pc-btn wj-pc-btn--secondary py-1 px-3">
+                                                    <i class="feather icon-image me-1" />Xem ảnh minh chứng
+                                                </a>
+                                                <span t-else="" class="text-muted small">Không có ảnh</span>
+                                            </div>
+                                        </div>
                                     </div>
                                 </t>
                             </div>
@@ -177,47 +159,49 @@
                 </div>
             </div>
 
-            <!-- ================= Mobile <992px — Standard Wujia Portal Mobile Layout (parity với wujia_portal_exam) ================= -->
+            <!-- ================= Mobile <992px ================= -->
             <div class="d-lg-none wujia-mpage wujia-mexam wujia-mremediation">
                 <t t-call="wujia_portal_layout.wj_page_header">
-                    <t t-set="ph_platform" t-value="'m'"/>
-                    <t t-set="ph_variant" t-value="'title'"/>
-                    <t t-set="ph_title">Khắc phục đánh giá</t>
+                    <t t-set="ph_platform" t-value="'m'" />
+                    <t t-set="ph_variant" t-value="'title'" />
+                    <t t-set="ph_title">Khắc phục</t>
                 </t>
 
                 <!-- Filter dates compact -->
                 <div class="wj-filter-card">
                     <form method="get" action="/portal/remediation" class="wj-filter-dates wj-filter-dates--compact">
-                        <input type="hidden" name="tab" t-att-value="active_tab"/>
+                        <input type="hidden" name="tab" t-att-value="active_tab" />
                         <label class="wj-filter-date">
-                            <i class="feather icon-calendar"/>
-                            <input type="date" name="date_from" t-att-value="date_from"/>
+                            <i class="feather icon-calendar" />
+                            <input type="date" lang="vi-VN" name="date_from" t-att-value="date_from" />
                         </label>
                         <span class="wj-filter-date-sep">–</span>
                         <label class="wj-filter-date">
-                            <i class="feather icon-calendar"/>
-                            <input type="date" name="date_to" t-att-value="date_to"/>
+                            <i class="feather icon-calendar" />
+                            <input type="date" lang="vi-VN" name="date_to" t-att-value="date_to" />
                         </label>
-                        <button type="submit" class="wj-filter-search-btn"><i class="feather icon-search"/></button>
+                        <button type="submit" class="wj-filter-search-btn">
+                            <i class="feather icon-search" />
+                        </button>
                     </form>
                 </div>
 
                 <!-- Mobile Tabs -->
                 <div class="d-flex gap-2 mb-3">
                     <a t-attf-href="/portal/remediation?tab=pending&amp;date_from=#{date_from}&amp;date_to=#{date_to}&amp;search=#{search_q}"
-                       t-attf-class="btn btn-sm flex-fill fw-bold #{'btn-primary' if active_tab == 'pending' else 'btn-light border'}">
-                        Cần khắc phục (<t t-out="pending_count"/>)
+                        t-attf-class="btn btn-sm flex-fill fw-bold #{'btn-primary' if active_tab == 'pending' else 'btn-light border'}">
+                        Chờ phản hồi (<t t-out="pending_count" />)
                     </a>
                     <a t-attf-href="/portal/remediation?tab=completed&amp;date_from=#{date_from}&amp;date_to=#{date_to}&amp;search=#{search_q}"
-                       t-attf-class="btn btn-sm flex-fill fw-bold #{'btn-primary' if active_tab == 'completed' else 'btn-light border'}">
-                        Đã khắc phục (<t t-out="completed_count"/>)
+                        t-attf-class="btn btn-sm flex-fill fw-bold #{'btn-primary' if active_tab == 'completed' else 'btn-light border'}">
+                        Đã phản hồi (<t t-out="completed_count" />)
                     </a>
                 </div>
 
-                <!-- Mobile Tab 1: Cần khắc phục -->
+                <!-- Mobile Tab 1: Chờ phản hồi -->
                 <t t-if="active_tab == 'pending'">
                     <div t-if="not pending_items" class="wj-empty-state wj-empty-state--rich">
-                        <span class="wj-empty-state-icon"/>
+                        <span class="wj-empty-state-icon" />
                         <p class="wj-empty-state-title">Tuyệt vời! Không có hạng mục cần khắc phục</p>
                     </div>
 
@@ -225,67 +209,69 @@
                         <t t-foreach="pending_items" t-as="item">
                             <div class="wujia-mexam-card mb-3">
                                 <div class="wujia-mexam-card-top">
-                                    <h3 class="wujia-mexam-card-title"><t t-out="item['inspection_name']"/></h3>
-                                    <span class="wujia-badge wujia-badge--pending"><t t-out="item['grade']"/></span>
+                                    <h3 class="wujia-mexam-card-title">
+                                        <span t-if="item.get('code')">[<t t-out="item.get('code')" />] </span><t t-out="item.get('category')" />
+                                    </h3>
+                                    <span t-if="item.get('deduction')" class="text-danger fw-bold">-<t t-out="item.get('deduction')" />đ</span>
                                 </div>
                                 <p class="wujia-mexam-card-line">
-                                    <i class="feather icon-file-text"/>
-                                    <span>Mã: <t t-out="item['inspection_code']"/> | <t t-out="item['franchise_name']"/></span>
+                                    <i class="feather icon-file-text" />
+                                    <span>Phiếu: <t t-out="item.get('inspection_code')" /> | <t t-out="item.get('franchise_name')" /></span>
+                                </p>
+                                <p class="wujia-mexam-card-line text-secondary">
+                                    <strong class="text-dark">Vi phạm:</strong> <t t-out="item.get('content') or 'Chưa có nội dung mô tả'" />
                                 </p>
                                 <p class="wujia-mexam-card-line text-danger fw-bold">
-                                    <i class="feather icon-clock"/>
-                                    <span>Hạn khắc phục: <t t-out="item['due_date']"/></span>
+                                    <i class="feather icon-clock" />
+                                    <span>Hạn khắc phục: <t t-out="item.get('due_date')" /></span>
                                 </p>
 
-                                <div class="mt-2 pt-2 border-top">
-                                    <t t-foreach="item['failed_items']" t-as="line">
-                                        <div class="bg-light p-2 rounded-2 mb-2">
-                                            <div class="d-flex justify-content-between align-items-center mb-1">
-                                                <span class="fw-bold text-primary small">[<t t-out="line['code']"/>] <t t-out="line['category']"/></span>
-                                                <span class="text-danger fw-bold small">-<t t-out="line['deduction']"/>đ</span>
-                                            </div>
-                                            <p class="small text-dark mb-2"><t t-out="line['content']"/></p>
-                                            <input type="text" class="form-control form-control-sm mb-1" placeholder="Ghi chú khắc phục..."/>
-                                            <button type="button" class="btn btn-sm btn-outline-primary w-100 py-1" style="font-size: 0.75rem;">
-                                                <i class="feather icon-camera me-1"/>Tải ảnh minh chứng
-                                            </button>
-                                        </div>
-                                    </t>
-                                    <button type="button" class="wujia-mexam-btn wujia-mexam-btn-primary w-100 mt-2">
-                                        Gửi báo cáo khắc phục
+                                <form action="/portal/remediation/submit_line" method="post" enctype="multipart/form-data" class="mt-2 pt-2 border-top">
+                                    <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
+                                    <input type="hidden" name="line_id" t-att-value="item.get('id') or item.get('line_id')"/>
+                                    <input type="text" name="note" class="form-control form-control-sm mb-2" placeholder="Ghi chú khắc phục..." t-att-value="item.get('note')"/>
+                                    <input type="file" name="remediation_image" accept="image/*" class="form-control form-control-sm mb-2"/>
+                                    <button type="submit" class="wujia-mexam-btn wujia-mexam-btn-primary w-100">
+                                        <i class="feather icon-send me-1"/>Gửi báo cáo khắc phục
                                     </button>
-                                </div>
+                                </form>
                             </div>
                         </t>
                     </div>
                 </t>
 
-                <!-- Mobile Tab 2: Đã khắc phục -->
+                <!-- Mobile Tab 2: Đã phản hồi -->
                 <t t-if="active_tab == 'completed'">
                     <div t-if="not completed_items" class="wj-empty-state wj-empty-state--rich">
-                        <span class="wj-empty-state-icon"/>
-                        <p class="wj-empty-state-title">Chưa có bản ghi đã khắc phục</p>
+                        <span class="wj-empty-state-icon" />
+                        <p class="wj-empty-state-title">Chưa có bản ghi đã phản hồi</p>
                     </div>
 
                     <div t-else="" class="wujia-mexam-list">
                         <t t-foreach="completed_items" t-as="item">
                             <div class="wujia-mexam-card mb-3">
                                 <div class="wujia-mexam-card-top">
-                                    <h3 class="wujia-mexam-card-title"><t t-out="item['inspection_name']"/></h3>
-                                    <span class="wujia-badge wujia-badge--success"><t t-out="item['grade']"/></span>
+                                    <h3 class="wujia-mexam-card-title">
+                                        <span t-if="item.get('code')">[<t t-out="item.get('code')" />] </span><t t-out="item.get('category')" />
+                                    </h3>
+                                    <span class="wujia-badge wujia-badge--success">Đã phản hồi</span>
                                 </div>
                                 <p class="wujia-mexam-card-line">
-                                    <i class="feather icon-check-circle text-success"/>
-                                    <span>Hoàn thành: <t t-out="item['completed_date']"/></span>
+                                    <i class="feather icon-file-text" />
+                                    <span>Phiếu: <t t-out="item.get('inspection_code')" /> | <t t-out="item.get('franchise_name')" /></span>
+                                </p>
+                                <p class="wujia-mexam-card-line text-muted">
+                                    <span>Ban đầu: <t t-out="item.get('content') or 'N/A'" /></span>
                                 </p>
                                 <div class="mt-2 pt-2 border-top">
-                                    <t t-foreach="item['fixed_items']" t-as="line">
-                                        <div class="bg-light p-2 rounded-2 mb-2">
-                                            <span class="fw-bold text-success small">[<t t-out="line['code']"/>] <t t-out="line['category']"/></span>
-                                            <p class="small text-muted mb-1"><t t-out="line['content']"/></p>
-                                            <p class="small text-dark fw-medium mb-1"><i class="feather icon-check me-1 text-success"/><t t-out="line['remediation_note']"/></p>
-                                        </div>
-                                    </t>
+                                    <p class="small text-dark fw-medium mb-2">
+                                        <i class="feather icon-check me-1 text-success" />
+                                        <t t-out="item.get('note') or 'Đã gửi báo cáo khắc phục'" />
+                                    </p>
+                                    <a t-if="item.get('remediation_image_url')" t-att-href="item.get('remediation_image_url')" target="_blank"
+                                        class="btn btn-sm btn-outline-secondary w-100 py-1" style="font-size: 0.75rem;">
+                                        <i class="feather icon-image me-1" />Xem ảnh minh chứng
+                                    </a>
                                 </div>
                             </div>
                         </t>

@@ -1,6 +1,24 @@
 # -*- coding: utf-8 -*-
+import base64
 from odoo import http, fields, _
 from odoo.http import request
+
+try:
+    from odoo.addons.wujia_portal_base.controllers.portal import get_active_franchise_ids_filter
+except ImportError:
+    def get_active_franchise_ids_filter():
+        return []
+
+
+def _parse_date(date_str):
+    if not date_str:
+        return ''
+    date_str = str(date_str).strip()
+    if '/' in date_str:
+        parts = date_str.split('/')
+        if len(parts) == 3:
+            return f"{parts[2]}-{parts[1].zfill(2)}-{parts[0].zfill(2)}"
+    return date_str
 
 
 class WujiaPortalRemediationController(http.Controller):
@@ -8,131 +26,120 @@ class WujiaPortalRemediationController(http.Controller):
     @http.route(['/portal/remediation'], type='http', auth='user', website=True)
     def portal_remediation_list(self, tab='pending', date_from=None, date_to=None, search=None, **kwargs):
         """
-        Giao diện Khắc phục đánh giá cửa hàng nhượng quyền.
-        Bao gồm 2 Tab chính:
-        1. Cần khắc phục (pending)
-        2. Đã khắc phục (completed)
-        Kèm Bộ lọc theo ngày & từ khóa tìm kiếm.
+        Giao diện Khắc phục cửa hàng nhượng quyền.
+        Chỉ lấy các phiếu khảo sát (wujia.franchise.inspection) đang trong trạng thái
+        Cần khắc phục ('need_remediation') hoặc Hoàn thành ('done').
+        Bỏ qua các phiếu Nháp ('draft'), Đang thực hiện ('in_progress'), Đã hủy ('cancel').
         """
-        # Demo data cho Tab "Cần khắc phục"
-        pending_items = [
-            {
-                'id': 101,
-                'inspection_code': 'KS-2026-08-001',
-                'inspection_name': 'Khảo sát cửa hàng Lấp Vò - Đợt 1',
-                'franchise_name': 'H005 Lấp Vò',
-                'planned_date': '2026-08-03',
-                'due_date': '2026-08-10',
-                'inspector': 'Mitchell Admin',
-                'score': 78.5,
-                'grade': 'Hạng C',
-                'grade_badge': 'bg-warning text-dark',
-                'remediation_status': 'need_action',
-                'remediation_status_label': 'Chưa khắc phục',
-                'failed_count': 3,
-                'failed_items': [
-                    {
-                        'code': '1.02',
-                        'category': 'Gìn giữ hình ảnh ngoại quan cửa hàng',
-                        'content': 'Biển hiệu cửa hàng bị bám bẩn, đèn LED logo chưa bật đúng giờ',
-                        'deduction': 3.0,
-                        'require_evidence': True,
-                    },
-                    {
-                        'code': '2.05',
-                        'category': 'Yêu cầu giữ gìn các thiết bị',
-                        'content': 'Máy dập nắp ly chưa được vệ sinh sạch sau ca tối',
-                        'deduction': 4.0,
-                        'require_evidence': True,
-                    },
-                    {
-                        'code': '3.01',
-                        'category': 'Yêu cầu tiêu chuẩn cơ bản',
-                        'content': 'Nhân viên pha chế chưa đeo bảng tên theo quy định',
-                        'deduction': 2.0,
-                        'require_evidence': False,
-                    }
-                ]
-            },
-            {
-                'id': 102,
-                'inspection_code': 'KS-2026-07-018',
-                'inspection_name': 'Khảo sát định kỳ cửa hàng Đống Đa',
-                'franchise_name': 'HN-02 Đống Đa',
-                'planned_date': '2026-07-28',
-                'due_date': '2026-08-05',
-                'inspector': 'Nguyễn Văn Kiểm',
-                'score': 68.0,
-                'grade': 'Hạng D',
-                'grade_badge': 'bg-danger text-white',
-                'remediation_status': 'in_review',
-                'remediation_status_label': 'Đang chờ duyệt',
-                'failed_count': 2,
-                'failed_items': [
-                    {
-                        'code': '4.01',
-                        'category': 'Những hạng mục vi phạm nghiêm trọng',
-                        'content': 'Bảo quản nguyên liệu sai nhiệt độ tiêu chuẩn tủ đông',
-                        'deduction': 6.0,
-                        'require_evidence': True,
-                    },
-                    {
-                        'code': '2.11',
-                        'category': 'Yêu cầu giữ gìn các thiết bị',
-                        'content': 'Tủ bánh ngọt bám hơi nước, thiếu tem hạn sử dụng',
-                        'deduction': 3.0,
-                        'require_evidence': True,
-                    }
-                ]
-            }
-        ]
+        franchise_ids = get_active_franchise_ids_filter()
 
-        # Demo data cho Tab "Đã khắc phục"
-        completed_items = [
-            {
-                'id': 201,
-                'inspection_code': 'KS-2026-07-005',
-                'inspection_name': 'Khảo sát cửa hàng Cầu Giấy',
-                'franchise_name': 'HN-01 Cầu Giấy',
-                'planned_date': '2026-07-15',
-                'completed_date': '2026-07-20',
-                'inspector': 'Mitchell Admin',
-                'score_before': 81.0,
-                'score_after': 95.0,
-                'grade': 'Hạng A',
-                'grade_badge': 'bg-success text-white',
-                'reviewer': 'Trần Văn Duyệt',
-                'fixed_count': 2,
-                'fixed_items': [
-                    {
-                        'code': '1.05',
-                        'category': 'Gìn giữ hình ảnh ngoại quan cửa hàng',
-                        'content': 'Khu vực để xe khách hàng chưa sắp xếp gọn gàng',
-                        'remediation_note': 'Đã bố trí lại vạch kẻ xe và phân công bảo vệ túc trực 100%',
-                        'evidence_file': 'anh_khac_phuc_xe.jpg',
-                    },
-                    {
-                        'code': '3.08',
-                        'category': 'Yêu cầu tiêu chuẩn cơ bản',
-                        'content': 'Sàn nhà khu pha chế có vết nước đọng',
-                        'remediation_note': 'Đã trang bị thảm chống trượt và máy hút nước tự động',
-                        'evidence_file': 'anh_khac_phuc_san.jpg',
-                    }
-                ]
-            }
-        ]
+        # CHỈ lấy các phiếu khảo sát ở trạng thái 'need_remediation' hoặc 'done'
+        inspection_domain = [('state', 'in', ['need_remediation', 'done'])]
+        if franchise_ids:
+            inspection_domain.append(('franchise_id', 'in', list(franchise_ids)))
 
-        # Áp dụng bộ lọc tìm kiếm theo từ khóa nếu có
+        parsed_date_from = _parse_date(date_from)
+        parsed_date_to = _parse_date(date_to)
+
+        # Lọc theo khoảng ngày nếu có
+        if parsed_date_from:
+            inspection_domain.append(('planned_date', '>=', parsed_date_from))
+        if parsed_date_to:
+            inspection_domain.append(('planned_date', '<=', parsed_date_to))
+
+        # Lọc theo từ khóa tìm kiếm nếu có
         if search:
-            q = search.strip().lower()
-            pending_items = [
-                i for i in pending_items
-                if q in i['inspection_code'].lower() or q in i['inspection_name'].lower() or q in i['franchise_name'].lower()
-            ]
-            completed_items = [
-                i for i in completed_items
-                if q in i['inspection_code'].lower() or q in i['inspection_name'].lower() or q in i['franchise_name'].lower()
-            ]
+            q = search.strip()
+            inspection_domain.extend([
+                '|', '|',
+                ('name', 'ilike', q),
+                ('franchise_id.name', 'ilike', q),
+                ('franchise_id.code', 'ilike', q),
+            ])
+
+        inspections = request.env['wujia.franchise.inspection'].sudo().search(
+            inspection_domain, order='planned_date desc, id desc'
+        )
+
+        pending_items = []
+        completed_items = []
+
+        for insp in inspections:
+            # Lọc các dòng tiêu chí vi phạm (is_pass == False hoặc result == 'fail')
+            failed_lines = insp.line_ids.filtered(
+                lambda l: (
+                    l.display_type == 'line'
+                    and (not l.is_pass or l.result == 'fail')
+                )
+            )
+            if not failed_lines:
+                continue
+
+            grade_name = insp.grade_id.name if insp.grade_id else 'N/A'
+            grade_badge = 'bg-warning text-dark'
+            if insp.grade_id:
+                if 'A' in grade_name:
+                    grade_badge = 'bg-success text-white'
+                elif 'B' in grade_name:
+                    grade_badge = 'bg-info text-white'
+                elif 'C' in grade_name:
+                    grade_badge = 'bg-warning text-dark'
+                elif 'D' in grade_name or 'F' in grade_name:
+                    grade_badge = 'bg-danger text-white'
+
+            for line in failed_lines:
+                # Mã tiêu chí
+                code_str = ''
+                if line.template_line_id and line.template_line_id.code:
+                    code_str = line.template_line_id.code
+                elif line.sequence:
+                    code_str = f"TC-{line.sequence}"
+
+                # Danh mục
+                cat_str = ''
+                if line.category_id and line.category_id.name:
+                    cat_str = line.category_id.name
+                elif line.template_line_id and line.template_line_id.category_id and line.template_line_id.category_id.name:
+                    cat_str = line.template_line_id.category_id.name
+                else:
+                    cat_str = 'Tiêu chí vi phạm'
+
+                # Nội dung
+                content_str = line.content_snapshot or (line.template_line_id.name if (line.template_line_id and line.template_line_id.name) else '')
+
+                # Điểm trừ
+                deduction_score = line.deduction_score_snapshot or (line.template_line_id.deduction_score if (line.template_line_id and line.template_line_id.deduction_score) else 0.0)
+
+                line_data = {
+                    'id': line.id,
+                    'line_id': line.id,
+                    'code': code_str,
+                    'category': cat_str,
+                    'content': content_str,
+                    'deduction': deduction_score,
+                    'require_evidence': line.require_evidence_if_fail_snapshot or line.require_evidence_if_fail,
+                    'note': line.note or '',
+                    'has_remediation_image': bool(line.remediation_image),
+                    'remediation_image_url': f"/web/image/wujia.franchise.inspection.line/{line.id}/remediation_image" if line.remediation_image else False,
+                    # Thông tin từ phiếu khảo sát cha
+                    'inspection_id': insp.id,
+                    'inspection_code': insp.name,
+                    'inspection_name': insp.name,
+                    'franchise_name': insp.franchise_id.display_name if insp.franchise_id else 'Cửa hàng',
+                    'planned_date': str(insp.planned_date) if insp.planned_date else '',
+                    'due_date': str(insp.submit_date or insp.planned_date) if (insp.submit_date or insp.planned_date) else '',
+                    'inspector': insp.inspector_user_id.name if insp.inspector_user_id else 'N/A',
+                    'score': insp.total_score,
+                    'grade': grade_name,
+                    'grade_badge': grade_badge,
+                }
+
+                # 1.1 nếu 1 dòng có is_pass = false và remediation_image = '' or null -> Chờ phản hồi
+                if not line.remediation_image:
+                    pending_items.append(line_data)
+                # 1.2 nếu 1 dòng có is_pass = false và remediation_image != '' -> Đã phản hồi
+                else:
+                    completed_items.append(line_data)
 
         values = {
             '_remediation_active': True,
@@ -146,3 +153,22 @@ class WujiaPortalRemediationController(http.Controller):
             'completed_count': len(completed_items),
         }
         return request.render('wujia_portal_remediation.portal_remediation_main', values)
+
+    @http.route(['/portal/remediation/submit_line'], type='http', auth='user', methods=['POST'], website=True)
+    def portal_remediation_submit_line(self, line_id=None, note=None, remediation_image=None, **kwargs):
+        """
+        Nộp ảnh minh chứng & ghi chú khắc phục cho 1 dòng inspection_line.
+        """
+        if line_id:
+            line = request.env['wujia.franchise.inspection.line'].sudo().browse(int(line_id))
+            if line.exists():
+                vals = {}
+                if note:
+                    vals['note'] = note
+                if remediation_image and hasattr(remediation_image, 'read'):
+                    file_content = remediation_image.read()
+                    if file_content:
+                        vals['remediation_image'] = base64.b64encode(file_content)
+                if vals:
+                    line.write(vals)
+        return request.redirect('/portal/remediation?tab=pending')
