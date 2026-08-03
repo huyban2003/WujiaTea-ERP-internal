@@ -38,7 +38,6 @@ Hợp nhất 2 model trong cùng 1 module để tránh circular dep
         'security/wujia_franchise_groups.xml',
         'security/ir.model.access.csv',
         'security/wujia_franchise_rules.xml',
-        'data/inspection_grade_data.xml',
         'views/wujia_franchise_management_views.xml',
         'views/wujia_franchise_member_views.xml',
         'views/wujia_franchise_inspection_template_views.xml',
@@ -54,6 +53,7 @@ Hợp nhất 2 model trong cùng 1 module để tránh circular dep
         'views/res_partner_views.xml',
         'views/res_users_views.xml',
         'views/wujia_franchise_menu.xml',
+        'data/inspection_grade_data.xml',
         'data/ir_cron_data.xml',
     ],
     'assets': {

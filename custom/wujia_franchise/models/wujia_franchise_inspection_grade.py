@@ -48,6 +48,26 @@ class WujiaFranchiseInspectionGrade(models.Model):
          'Điểm tối thiểu phải nhỏ hơn hoặc bằng điểm tối đa!'),
     ]
 
+    def init(self):
+        """Tự động khởi tạo các khoản điểm xếp hạng mặc định khi module được cài đặt/cập nhật."""
+        super().init()
+        self._init_default_grades()
+
+    @api.model
+    def _init_default_grades(self):
+        """Tạo các xếp hạng mặc định (A, B, C, D) nếu chưa tồn tại trong database."""
+        default_grades = [
+            {'name': 'A', 'min_score': 96.0, 'max_score': 100.0, 'sequence': 1, 'color': 10, 'description': 'Xuất sắc'},
+            {'name': 'B', 'min_score': 83.0, 'max_score': 95.99, 'sequence': 2, 'color': 2, 'description': 'Tốt'},
+            {'name': 'C', 'min_score': 70.0, 'max_score': 82.99, 'sequence': 3, 'color': 3, 'description': 'Trung bình'},
+            {'name': 'D', 'min_score': 0.0, 'max_score': 69.99, 'sequence': 4, 'color': 1, 'description': 'Yếu'},
+        ]
+        for grade_data in default_grades:
+            existing = self.with_context(active_test=False).search([('name', '=', grade_data['name'])], limit=1)
+            if not existing:
+                self.create(grade_data)
+
+
     @api.constrains('name')
     def _check_name_unique(self):
         """Đảm bảo tên xếp hạng là duy nhất."""
