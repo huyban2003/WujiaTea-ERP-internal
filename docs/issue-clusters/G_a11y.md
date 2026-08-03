@@ -95,3 +95,38 @@ grep -rn "focus-visible" custom/ --include=*.css
 - K (WJ-ORD-011): `FIX: nới vùng chạm bằng padding/pseudo-element — mobile ≥44×44, PC 32–36px, giữ nguyên kích thước thị giác | IMPACT: catalog + giỏ, PC và mobile | RETEST: 391×844 và 1920 đo mọi nút +/−/xoá/thêm, layout card không vỡ | LIMIT: cần giỏ có hàng mới đo được`
 - K (WJ-ORD-019): `FIX: thêm focus ring ≥2px cho ô tìm kiếm mobile | IMPACT: /portal/order mobile | RETEST: tab tới ô search thấy viền rõ; Enter submit ở cả PC lẫn mobile (đã đo lại 02/08 — cả hai đang chạy đúng, evidence kèm) | LIMIT: Không có`
 - R: `Custom`
+
+---
+
+## Kết quả (2026-08-04, commit `9e335f3`) — 0 FAIL
+
+Đo trên **DB copy cô lập `wujia_tea_g`** (cổng 8033, không đụng `wujia_tea_19`/8019), giỏ seed 2 sản
+phẩm (stepper chỉ render khi SP đã trong giỏ — đúng lý do phiên review trước đo ra `0×0`).
+Harness: `scripts/ba_spec/g_a11y_verify.py` · log đầy đủ: `scripts/ba_spec/g_a11y_result.txt` (gitignored).
+
+**WJ-ORD-012** — nguyên nhân thật KHÔNG phải "CSS bất lực": override đã có ở `portal_order.css:192`
+nhưng thiếu `!important` nên thua khối `.btn-primary` của `_components.css:61`. Giải bằng class mới
+`.wj-cta-btn` (`_components.css`, `?v=1163`), `.btn-primary` giữ nguyên. Grep ra **3 nút nữa cùng lỗi**
+BA chưa mở phiếu (store picker + 2 nút "Vào cửa hàng") → chủ dự án chốt sửa cả 4.
+Đo: 4,7:1 default · 6,42:1 hover · 4,7:1 focus · **4,83:1 disabled** (Bootstrap hạ `opacity .65` kéo
+disabled về ~2,5:1 → ép `opacity:1`, phân biệt bằng màu).
+
+**WJ-ORD-011** — hit-area 44×44 bằng `::after` trong suốt, kích thước thị giác giữ nguyên.
+Bẫy đã dính: 2 stepper có `overflow:hidden` **cắt mất `::after`** → phải `overflow:visible` + bo góc
+dời sang `:first-child`/`:last-child`. Đo: catalog thêm 44×40→hit 44×44 · catalog step 38×40→44×44 ·
+giỏ step/xoá 36×36→44×44 · PC step 30→32. `elementFromPoint` ở dx −14/0/+14: mỗi nút nhận đúng cú chạm
+của mình. Layout so **trước/sau** (tắt đúng 2 rule mới rồi đo lại): row `357.4×82` và card giỏ
+`357.4×111.5` **giống hệt** ⇒ không đụng mật độ.
+
+**WJ-ORD-019** — chỉ ô search mobile là lỗi thật (`outline-style:none`), đã thêm ring 2px + phủ mọi
+control mobile của trang. Ring đổi `#28A9DF`→`--wujia-cta` ở **cả PC lẫn mobile** (brand chỉ 2,6:1 với
+nền trắng, dưới ngưỡng non-text 3:1 của WCAG 2.2; nay 4,7:1). Enter submit **đúng ở cả 2 viewport**
+(đo lại). **Tab-walk thật 22 bước**: 0 control ẩn nhận focus (bản không dùng nằm trong cây
+`display:none`) — chốt được nghi vấn của BA bằng dữ liệu, không suy luận từ class `d-none`.
+
+Regression: 5 route × 2 viewport đều 200, overflow ngang 0, 0 JS pageerror.
+
+**Còn tồn:** liên kết ở header/sidenav (khung dùng chung) chưa có focus ring — ngoài phạm vi cụm G.
+
+**Deploy:** `-u wujia_portal_layout,wujia_portal_base,wujia_portal_sale` (không module mới, không
+migration). `?v=` của `_components.css` đã bump 1157→1163.
