@@ -90,14 +90,30 @@
        nên bù cục bộ bằng margin-left. Đo lại trên 1920×1080 sau deploy. */
     margin-left: 10px;
 }
-.wujia-store-current-block .wujia-active-store-badge { flex: 1 1 auto; min-width: 0; margin-right: 0; overflow: hidden; }
+/* UI-01 retest (cụm A, 03/08): source WJ_PC_CoreShell_FINAL_v1 neo role tại x=650 trong
+   block x=324 w=430 → pill chiếm 318px rồi gap 8 (324+318+8=650), block chừa 22px cuối.
+   `flex: 0 1` (không grow) giữ mốc đó; vẫn shrink được nên tên cửa hàng dài vẫn ellipsis. */
+.wujia-store-current-block .wujia-active-store-badge { flex: 0 1 318px; min-width: 0; margin-right: 0; overflow: hidden; }
 /* min-width:0 trên cột text để ellipsis kích hoạt — flex item mặc định min-width:auto
    khiến tên dài không co lại, tràn đè role badge (bug tên cửa hàng dài). */
 .wujia-store-current-block .wujia-active-store-badge .wujia-store-badge-text { min-width: 0; overflow: hidden; }
 .wujia-store-current-block .wujia-active-store-badge .wujia-store-badge-name {
     display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 100%;
 }
-.wujia-store-current-block .wujia-store-role-badge { flex: 0 0 auto; margin-right: 0; }
+/* UI-01: source role chip 82×26 tại x=650,y=24 (trước là 103×46 do padding 10/20 + min-height 46).
+   Chỉ scope trong .wujia-store-current-block — .wujia-store-role-badge trần dùng chỗ khác,
+   strip mobile có class riêng .wujia-store-strip-role. */
+.wujia-store-current-block .wujia-store-role-badge {
+    flex: 0 0 auto;
+    margin-right: 0;
+    height: 26px;
+    min-height: 26px;
+    min-width: 82px;          /* source rect 82×26; "Owner"/"Staff" ngắn hơn nên cần min-width */
+    justify-content: center;
+    padding: 0 10px;
+    font-size: 12px;
+    box-sizing: border-box;
+}
 
 /* Current Store Strip (BA Wujia_Source_UI_FINAL_v1, WJ_Mobile_CurrentStoreStrip):
    1 dòng "[code]  Tên cửa hàng  ...  Role". White bg, border-bottom #EEF2F5, 48px.

@@ -7,7 +7,7 @@
              → 1 nơi duy nhất, không phải sửa 10 module. Các route bị bỏ khỏi menu
              (Đổi trả / Cập nhật thông tin / Báo cáo / Cửa hàng / Thông tin nhượng quyền)
              vẫn sống qua URL + vào được qua TIỆN ÍCH ▸ Tài khoản (franchise-information).
-             Công nợ = UI-only (module debt đã xoá S17) → trỏ /portal như KPI hiện tại. -->
+             UI-PC-BASE-012 (03/08): Công nợ trỏ thẳng /portal/debt (trang có thật từ S43/S48). -->
         <template id="layout_sidenav_figma"
                   inherit_id="wujia_portal_layout.layout_sidenav"
                   priority="99"
@@ -17,8 +17,7 @@
                      Trước đây phó mặc app.js:112 `a[href="<path>"]` → ở /portal cả "Trang chủ"
                      lẫn "Công nợ" (href placeholder /portal) cùng sáng, và cả logo navbar cũng
                      bị gắn .active. Ở đây mỗi mục có điều kiện riêng ⇒ đúng 1 mục / route.
-                     Mục Công nợ khoá theo /portal/debt (chưa nối href — chờ BA), nên không
-                     bao giờ sáng ở /portal; bật link sau chỉ cần đổi href, không đụng logic. -->
+                     Mục Công nợ khoá theo /portal/debt nên không bao giờ sáng ở /portal. -->
                 <t t-set="_p" t-value="request.httprequest.path or ''"/>
                 <t t-set="_acct_active"
                    t-value="_p in ('/portal/profile', '/portal/franchise-information', '/portal/change-password')"/>
@@ -50,8 +49,7 @@
                         </a>
                     </li>
                     <li t-attf-class="nav-item #{(_p.startswith('/portal/debt')) and 'active' or ''}" id="nav_item_debt">
-                        <!-- Công nợ: UI-only (debt build lại theo ADR-007) → Home. -->
-                        <a href="/portal">
+                        <a href="/portal/debt">
                             <i class="feather icon-credit-card" aria-hidden="true"/>
                             <span class="menu-title">Công nợ</span>
                         </a>

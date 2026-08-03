@@ -129,13 +129,32 @@ html body {
    margin-left = 300px → sidebar liền mạch 0–300, không còn dải trống. Chỉ ≥1200px
    (sidebar hiện cố định); 992–1199px sidebar off-canvas (không chiếm layout) nên
    giữ nguyên. CẦN đo lại trên server 1920×1080 sau deploy. */
+/* UI-PC-SHELL-001 retest (cụm A, 03/08): fix S35 đúng ý nhưng THUA CASCADE —
+   style.css:124 `body.vertical-layout.vertical-menu-modern .main-menu{width:260px!important}`
+   spec 0,3,0 đè rule cũ `.main-menu` spec 0,1,0. Nâng lên 0,4,0 tại đây;
+   KHÔNG sửa style.css (legacy dùng chung, blast radius lớn). */
 @media (min-width: 1200px) {
-    .main-menu,
-    .main-menu.menu-fixed {
+    body.vertical-layout.vertical-menu-modern .main-menu,
+    body.vertical-layout.vertical-menu-modern .main-menu.menu-fixed {
         width: var(--wujia-sidebar-width) !important;   /* 300px */
+        box-sizing: border-box;                          /* divider nằm TRONG 300px */
+        border-right: 1px solid var(--wujia-border-soft);  /* source: rect x=299 w=1 */
     }
     html body .content {
         margin-left: var(--wujia-sidebar-width) !important;   /* 300px, khớp sidebar */
+    }
+    /* UI-01: Vuexy gắn class `content` CẢ trên header (layouts.xml:33
+       `div.navbar-container.content`) → nhận thêm 300px, đẩy store block x=624.
+       Zero tường minh (0,2,2 + !important) để thắng cả rule trên lẫn
+       style.css:147 `html body .content{margin-left:260px}` (0,2,1). */
+    html body .navbar-container.content {
+        margin-left: 0 !important;
+    }
+    /* Overlay phủ vùng content khi mở sidebar — style.css:99 neo 260px, đồng bộ 300px. */
+    html body .content.app-content.show-overlay .content-overlay,
+    html body .content.app-content .content-overlay {
+        left: var(--wujia-sidebar-width);
+        width: calc(100% - var(--wujia-sidebar-width));
     }
 }
 .main-menu.menu-fixed {
@@ -238,6 +257,58 @@ html body {
 .main-menu.menu-light .navigation > li ul .active {
     background-color: var(--wujia-primary-soft) !important;
     color: var(--wujia-primary) !important;
+}
+
+/* ---------- UI-PC-BASE-010: grid sidebar theo WJ_PC_CoreShell_FINAL_v1 (cụm A, 03/08) ----------
+   Source (SVG): logo card rect 20,16,260×132 rx18 stroke #EEF2F5 · logo image 58,26,184×86 ·
+   "MENU CHÍNH" text x=28 y=188 · item rect 20,*,260×48.
+   Đặt SAU mọi rule sidebar ở trên (đồng cấp specificity → thứ tự source quyết định, L4) và
+   bọc trong @media ≥1200px để mobile/tablet bất biến. */
+@media (min-width: 1200px) {
+    .main-menu .navbar-header {
+        height: var(--wujia-sidebar-logo-h-pc) !important;   /* 132px */
+        margin: 16px 20px 0 !important;                   /* → x=20, y=16, w=260 */
+        /* Vuexy để padding lệch 22,96px trái / 14px phải → ảnh không căn giữa được.
+           Zero ngang rồi để justify-content:center lo; 9px trên + 1px border = ảnh y=26. */
+        padding: 9px 0 0 !important;
+        align-items: flex-start !important;
+        border: 1px solid var(--wujia-border-soft) !important;
+        border-radius: 18px !important;
+        box-sizing: border-box !important;
+    }
+    /* Bootstrap nav bên trong navbar-header có margin/padding riêng, đẩy ảnh lệch xuống. */
+    .main-menu .navbar-header .navbar-nav,
+    .main-menu .navbar-header .nav-item,
+    .main-menu .navbar-header .navbar-brand {
+        margin: 0 !important;
+        padding: 0 !important;
+    }
+    .main-menu .navbar-header img {
+        width: 184px !important;
+        height: 86px !important;
+        max-width: 184px !important;
+        max-height: 86px !important;
+    }
+    /* Card kết thúc y=148; spacer + margin-top 28px của .wujia-nav-header → "MENU CHÍNH" y=188. */
+    .main-menu .sidebar-header-spacer {
+        height: var(--wujia-sidebar-header-gap);
+    }
+    .main-menu.menu-light .navigation > li.wujia-nav-header,
+    .main-menu .navigation > li.wujia-nav-header {
+        margin-left: 28px;                                /* source text x=28 (Vuexy để 2,2rem) */
+    }
+    /* Item rộng 260px trong lề x=20 (trước: 230 @ x=35 do components.css:411
+       `.main-menu.menu-light .navigation > li{padding:0 15px}` — 0,4,0, phải khớp specificity
+       rồi thắng bằng thứ tự source, L4). Lề phải 19px vì 1px cuối sidebar là divider
+       → vùng trắng chỉ 299px. */
+    .main-menu.menu-light .navigation > li,
+    .main-menu .navigation > li {
+        padding-left: 0;
+        padding-right: 0;
+    }
+    .main-menu .navigation > li > a {
+        margin: 3px 19px 3px 20px;
+    }
 }
 
 /* ---------- Card + section header flush fix ---------- */
@@ -355,6 +426,17 @@ h1.article-title {
 /* ---------- UI-16 Main Content Spacing (Sprint 9.16, 2026-06-02) ---------- */
 html body .content .content-wrapper {
     padding-top: var(--wujia-page-content-top);
+}
+/* UI-PC-BASE-001 (cụm A, 03/08): Vuexy components.css:67 để
+   `padding: calc(2.2rem - .4rem) 2.2rem 0; margin-top: 6rem` — với html{font-size:14px}
+   ra 30,8px ngang và 84px trên (BA đo đúng số này). Source: content shell y=72 (sát
+   Top Bar), padding ngang 24px → content-body x=324. */
+@media (min-width: 1200px) {
+    html body .content .content-wrapper {
+        padding-left: 24px !important;
+        padding-right: 24px !important;
+        margin-top: var(--wujia-header-height) !important;   /* 72px */
+    }
 }
 /* (b) title block → KPI row: margin-bottom trên .content-header (.row). */
 .content-wrapper .content-header {
