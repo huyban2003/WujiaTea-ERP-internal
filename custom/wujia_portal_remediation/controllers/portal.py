@@ -1,9 +1,11 @@
 # -*- coding: utf-8 -*-
 import base64
 from odoo import http, fields, _
+# pyrefly: ignore [missing-import]
 from odoo.http import request
 
 try:
+    # pyrefly: ignore [missing-import]
     from odoo.addons.wujia_portal_base.controllers.portal import get_active_franchise_ids_filter
 except ImportError:
     def get_active_franchise_ids_filter():
