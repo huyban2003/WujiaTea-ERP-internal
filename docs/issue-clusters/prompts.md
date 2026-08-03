@@ -3,7 +3,7 @@
 Mỗi cụm = **một phiên riêng**. Mở phiên mới → `/wujia-start` → khi hỏi "Sprint/task nào hôm nay?"
 thì dán nguyên khối prompt tương ứng bên dưới.
 
-**Thứ tự đề xuất:** ~~I~~ (xong 03/08) → **A** → E → G → B → D → C → F → H1 → H2
+**Thứ tự đề xuất:** ~~I~~ ~~A~~ ~~E~~ (xong 03/08) → **G** → B → D → C → F → H1 → H2
 
 ---
 
@@ -195,7 +195,29 @@ cụm nút phải header để cụm B.
 
 ---
 
-## E — Lịch sử đặt hàng (controller)
+## E — Lịch sử đặt hàng (controller) — ✅ ĐÃ XONG 03/08/2026
+
+> **Kết quả:** `wujia_portal_base` 19.0.5.15.0 · `wujia_portal_purchase_history` 19.0.3.0.0 ·
+> `wujia_portal_delivery` 19.0.3.3.0. Không migration, CSS nằm trong `web.assets_frontend`
+> (bundle) nên **không** phải bump `?v=`. Deploy: `-u wujia_portal_base,wujia_portal_purchase_history,wujia_portal_delivery`.
+> Verify trên DB copy `wujia_tea_s49` (cổng 8049): build RC=0, **14 unit test `wujia_history` 0 failed/0 error**,
+> smoke Playwright **48/48 OK** (PC + mobile + regression 3 trang × 2 viewport).
+>
+> 4 điều đáng nhớ:
+> 1. **Helper tz nay dùng chung** ở `wujia_portal_base/controllers/utils.py`:
+>    `portal_tz()` / `to_local_dt()` / `local_day_range_utc()`. Module portal khác đừng viết lại.
+>    `to_local_dt` trả **naive local** → template giữ nguyên `.strftime`, không phải sửa QWeb.
+> 2. **Lỗi tz lan sang cả `wujia_portal_delivery` và widget Home "Giao hàng sắp tới"** (BA chưa bắt) —
+>    đã sửa luôn trong cụm này. Bên Giao hàng chỉ cần đụng 3 hàm format (`_hhmm`,
+>    `_short_departure`, `_full_departure`) là bịt hết ~10 điểm hiển thị. **KHÔNG đụng `_ics_dt`**:
+>    file ICS dùng hậu tố `Z` = UTC, đang đúng chuẩn.
+> 3. **Lọc trạng thái gộp (WJ-PH-003, phương án a)** — nhánh "Đã xác nhận" phải viết bằng
+>    **danh sách dương** (`'|' batch_id = False` / `delivery_batch_status in [draft, assigned,
+>    loading, cancelled, False]`). Dùng `not in` trên đường dẫn m2o là **mất sạch đơn chưa có chuyến**.
+> 4. Bẫy harness (đã dính): password `admin` trên DB copy khác UAT → login thất bại nhưng script
+>    vẫn chạy tiếp và **mọi assert pass rỗng**. Phải `sys.exit` ngay khi còn ở `/web/login`.
+>    Và 2 assert đầu tiên "fail" hoá ra do chọn nhầm đơn của cửa hàng khác (S00025 thuộc HCM-01) —
+>    **sửa harness, không sửa code** (L7).
 
 ```
 Làm cụm E trong docs/issue-clusters/E_purchase_history.md — fix WJ-PH-002 + WJ-PH-007 + WJ-PH-004, verify WJ-PH-006.
