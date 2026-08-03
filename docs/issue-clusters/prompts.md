@@ -141,7 +141,7 @@ không còn dải trống x=260–300. Đo đủ 5 route PC.
 Regression: 391×844 phải BẤT BIẾN (mọi rule trong @media min-width:1200px). Overflow ngang = 0.
 ```
 
-**Kết quả thực tế 03/08/2026 — commit `117e634` (đã push `main`), CHƯA DEPLOY UAT:**
+**Kết quả thực tế 03/08/2026 — commit `117e634`, ĐÃ DEPLOY UAT + đo lại trên server:**
 
 | Điểm đo (1920×1080, 5 route PC) | Trước | Sau |
 |---|---|---|
@@ -158,6 +158,12 @@ Regression: 391×844 phải BẤT BIẾN (mọi rule trong @media min-width:1200
 Regression 391×844 snapshot before/after 5 route → **0 diff**. Tablet 1199 + 992: 7 route đều 200,
 sidebar giữ 260px, 0 lỗi JS. UI-PC-BASE-012: bấm Công nợ → `/portal/debt` (200), đúng 1 mục active/route.
 
+**Đo lại trên UAT thật sau khi deploy (03/08, `113.161.187.126:8019`, 1920×1080): 0 FAIL / 5 route** —
+toàn bộ số trong bảng trên khớp y hệt bản local, overflow ngang 0, divider `1px rgb(238,242,245)`,
+card radius 18px, wrapper `padding 24px 24px 0` + `margin-top 72px`. Bấm Công nợ → `/portal/debt` (200),
+6 route mỗi route đúng 1 mục sáng. Mobile 391×844 5 route: overflow 0, hình học y hệt (chỉ khác chiều
+cao do dữ liệu và bề rộng chip role do nhãn "Manager" vs "Owner").
+
 **2 chỗ doc cụm A đoán sai, đã sửa khác:**
 1. `:not(.navbar-container)` **không đủ** — bỏ `.navbar-container` khỏi rule sẽ để
    `style.css:147 html body .content{margin-left:260px}` (0,2,1) rơi vào → x=560. Phải zero
@@ -168,9 +174,19 @@ sidebar giữ 260px, 0 lỗi JS. UI-PC-BASE-012: bấm Công nợ → `/portal/d
 Thêm 1 báo động giả của harness (L7): kỳ vọng `.content-wrapper.x=324` là **sai** — padding 24px
 nằm *trong* wrapper nên bbox wrapper = 300, con đầu mới = 324. Sửa harness, không sửa code.
 
-**Ghi sheet 03/08:** 4 issue → `Ready for Retest` (rows 2/22/45/62), cột P ghi rõ
-**"CHƯA DEPLOY UAT"** để BA không retest nhầm build cũ; UI-PC-BASE-012 (row 64) giữ trạng thái,
-chỉ cập nhật K/P cho phần nối link. Đã verify lại bằng `export?format=csv`.
+**Ghi sheet 03/08:** 4 issue → `Ready for Retest` (rows 2/22/45/62); UI-PC-BASE-012 (row 64) giữ
+trạng thái, chỉ cập nhật K/P cho phần nối link. Lúc mới push cột P ghi **"CHƯA DEPLOY UAT"** để BA
+không retest nhầm build cũ; sau khi deploy đã đổi về `UAT | 2026-08-03 | commit: 117e634` cho cả 5
+dòng + 5 dòng `7. ISSUE HISTORY` ghi kết quả đo lại. Verify bằng `export?format=csv`.
+
+⚠️ **2 bẫy công cụ ghi sheet, gặp trong phiên này:**
+1. **Bridge Apps Script trả `HTTP 404` NHƯNG ĐÃ GHI XONG** — lỗi nằm ở bước đọc response sau
+   redirect, không phải ở lệnh ghi. **Luôn verify bằng `export?format=csv` trước khi chạy lại**,
+   nếu không sẽ ghi trùng (phiên này lỡ đẻ 1 dòng History thừa cho UI-01).
+   Lô lớn (15 ô) dễ dính hơn lô nhỏ → chia nhỏ theo từng issue như `qa_sync --only`.
+2. **`sio.read_values("ISSUE HISTORY")` trả về tab MILESTONE** (gviz sai tên thì im lặng trả tab
+   đầu tiên — §12). Muốn đọc tab này phải dùng gid: **`7. ISSUE HISTORY` = `1363122631`**
+   (`export?format=csv&gid=1363122631`). Tên thật lấy bằng `sio._post({'action':'ping','sheet':...})`.
 
 **LIMIT đã ghi:** giữ nguyên item height 44px / font menu 16px / radius 8px / accent bar
 (source v1.5 ghi 48/15/14 nhưng ngoài "Kết quả mong muốn" của issue) · 2 dòng chữ trong logo card
