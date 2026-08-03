@@ -243,9 +243,11 @@ class WujiaFranchiseInspection(models.Model):
     # RELATION 
 
     schedule_id = fields.Many2one(
-        'wujia.supervision.schedule', 
-        string='Lịch giám sát', 
-        required=True)
+        'wujia.supervision.schedule',
+        string='Lịch giám sát',
+        required=True,
+        ondelete='cascade',
+    )
     
     template_id = fields.Many2one(
         'wujia.franchise.inspection.template',
