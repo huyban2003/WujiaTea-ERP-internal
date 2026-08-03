@@ -239,15 +239,21 @@ class WujiaFranchiseManagement(models.Model):
 
     @api.depends()
     def _compute_next_supervision_date(self):
+        if not self:
+            return
         today = fields.Date.context_today(self)
-        Schedule = self.env['wujia.supervision.schedule']
-        for rec in self:
-            next_schedule = Schedule.search([
-                ('store_id', '=', rec.id),
+        groups = self.env['wujia.supervision.schedule']._read_group(
+            domain=[
+                ('store_id', 'in', self.ids),
                 ('date', '>=', today),
                 ('state', '!=', 'cancel'),
-            ], order='date asc', limit=1)
-            rec.next_supervision_date = next_schedule.date if next_schedule else False
+            ],
+            groupby=['store_id'],
+            aggregates=['date:min'],
+        )
+        min_date_by_store = {store.id: min_date for store, min_date in groups if store and min_date}
+        for rec in self:
+            rec.next_supervision_date = min_date_by_store.get(rec.id, False)
 
     def _search_next_supervision_date(self, operator, value):
         today = fields.Date.context_today(self)

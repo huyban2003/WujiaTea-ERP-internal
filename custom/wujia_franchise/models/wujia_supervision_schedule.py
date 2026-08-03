@@ -57,27 +57,47 @@ class WujiaSupervisionSchedule(models.Model):
     )
 
     def _compute_inspection_info(self):
+        if not self:
+            return
+        groups = self.env['wujia.franchise.inspection']._read_group(
+            domain=[('schedule_id', 'in', self.ids)],
+            groupby=['schedule_id'],
+            aggregates=['id:max'],
+        )
+        latest_ids = [max_id for schedule, max_id in groups if max_id]
+        inspections = self.env['wujia.franchise.inspection'].browse(latest_ids)
+        insp_by_schedule = {insp.schedule_id.id: insp for insp in inspections}
+
         for record in self:
-            inspection = self.env['wujia.franchise.inspection'].search([('schedule_id', '=', record.id)], limit=1)
-            record.inspection_id = inspection
-            record.inspection_count = 1 if inspection else 0
+            insp = insp_by_schedule.get(record.id)
+            record.inspection_id = insp
+            record.inspection_count = 1 if insp else 0
 
     @api.depends('store_id')
     def _compute_latest_inspection_info(self):
-        Inspection = self.env['wujia.franchise.inspection']
-        for record in self:
-            if record.store_id:
-                latest = Inspection.search([
-                    ('franchise_id', '=', record.store_id.id),
+        if not self:
+            return
+        store_ids = [s.id for s in self.mapped('store_id') if s]
+        if store_ids:
+            groups = self.env['wujia.franchise.inspection']._read_group(
+                domain=[
+                    ('franchise_id', 'in', store_ids),
                     ('state', '!=', 'cancel'),
-                ], order='planned_date desc, create_date desc, id desc', limit=1)
-                record.latest_inspection_id = latest
-                record.latest_total_score = latest.total_score if latest else 0.0
-                record.latest_grade_id = latest.grade_id if latest else False
-            else:
-                record.latest_inspection_id = False
-                record.latest_total_score = 0.0
-                record.latest_grade_id = False
+                ],
+                groupby=['franchise_id'],
+                aggregates=['id:max'],
+            )
+            latest_ids = [max_id for store, max_id in groups if max_id]
+            inspections = self.env['wujia.franchise.inspection'].browse(latest_ids)
+            latest_by_store = {insp.franchise_id.id: insp for insp in inspections}
+        else:
+            latest_by_store = {}
+
+        for record in self:
+            latest = latest_by_store.get(record.store_id.id) if record.store_id else False
+            record.latest_inspection_id = latest
+            record.latest_total_score = latest.total_score if latest else 0.0
+            record.latest_grade_id = latest.grade_id if latest else False
 
     def action_view_inspections(self):
         self.ensure_one()

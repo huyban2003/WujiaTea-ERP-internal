@@ -530,18 +530,37 @@ class WujiaFranchiseInspection(models.Model):
         Tự động lấy phiếu khảo sát gần nhất có cùng Cửa hàng (franchise_id)
         và cùng Mẫu khảo sát (template_id).
         """
+        valid_recs = self.filtered(lambda r: r.franchise_id and r.template_id)
+        if not valid_recs:
+            for rec in self:
+                rec.previous_inspection_id = False
+            return
+
+        franchise_ids = list(set(valid_recs.mapped('franchise_id').ids))
+        template_ids = list(set(valid_recs.mapped('template_id').ids))
+        current_ids = [r._origin.id if r._origin else r.id for r in valid_recs if (r._origin.id or isinstance(r.id, int))]
+
+        domain = [
+            ('franchise_id', 'in', franchise_ids),
+            ('template_id', 'in', template_ids),
+            ('state', '!=', 'cancel'),
+        ]
+        if current_ids:
+            domain.append(('id', 'not in', current_ids))
+
+        groups = self.env['wujia.franchise.inspection']._read_group(
+            domain=domain,
+            groupby=['franchise_id', 'template_id'],
+            aggregates=['id:max'],
+        )
+        prev_map = {
+            (f.id, t.id): max_id
+            for f, t, max_id in groups if f and t and max_id
+        }
+
         for rec in self:
             if rec.franchise_id and rec.template_id:
-                domain = [
-                    ('franchise_id', '=', rec.franchise_id.id),
-                    ('template_id', '=', rec.template_id.id),
-                ]
-                current_id = rec._origin.id if rec._origin else rec.id
-                if current_id:
-                    domain.append(('id', '!=', current_id))
-
-                prev = self.search(domain, order='planned_date desc, id desc', limit=1)
-                rec.previous_inspection_id = prev.id if prev else False
+                rec.previous_inspection_id = prev_map.get((rec.franchise_id.id, rec.template_id.id), False)
             else:
                 rec.previous_inspection_id = False
     
