@@ -71,6 +71,37 @@ h2, .wujia-h2 { font-size: var(--wujia-font-size-h2) !important; font-weight: 60
     color: #FFFFFF !important;
 }
 
+/* WJ-ORD-012 — CTA chữ-trắng-trên-nền. Brand #28A9DF với chữ trắng chỉ 2.68:1
+   (trượt WCAG AA), nên MỌI nút có chữ trắng dùng token --wujia-cta #0F7CA8
+   (4.71:1). Class riêng, KHÔNG đụng .btn-primary (Bootstrap dùng chung portal). */
+.wj-cta-btn {
+    background-color: var(--wujia-cta) !important;
+    border-color: var(--wujia-cta) !important;
+    color: #FFFFFF !important;
+}
+.wj-cta-btn:hover,
+.wj-cta-btn:active {
+    background-color: var(--wujia-cta-dark) !important;
+    border-color: var(--wujia-cta-dark) !important;
+    color: #FFFFFF !important;
+}
+.wj-cta-btn:focus-visible {
+    background-color: var(--wujia-cta) !important;
+    color: #FFFFFF !important;
+    outline: 2px solid var(--wujia-cta) !important;
+    outline-offset: 2px;
+}
+.wj-cta-btn:disabled,
+.wj-cta-btn[disabled] {
+    /* #6B7280 nền + chữ trắng = 4.83:1. Bootstrap .btn:disabled hạ opacity .65
+       làm nền nhạt còn ~2.5:1 → ép opacity 1, phân biệt disabled bằng MÀU. */
+    background-color: var(--wujia-text-subtitle) !important;
+    border-color: var(--wujia-text-subtitle) !important;
+    color: #FFFFFF !important;
+    opacity: 1 !important;
+    cursor: not-allowed;
+}
+
 /* Secondary: white bg + gray border + h=38 (gom 3 alias cho consistency) */
 .btn-secondary,
 .btn-outline-primary,
