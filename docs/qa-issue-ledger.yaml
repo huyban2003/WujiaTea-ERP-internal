@@ -553,7 +553,7 @@ UI-PC-BASE-012:
 WJ-PH-002:
   sprint: "2026-08-03-E"
   commit: "2f0e466"
-  deployed_date: "CHƯA DEPLOY UAT"
+  deployed_date: "2026-08-04"
   url: "/portal/purchase-history"
   odoo_fit: "Custom"
   fix: "Quy đổi ngày giờ sang múi giờ người dùng ở CẢ 2 chỗ: (1) khi hiển thị — Ngày tạo, Ngày xác nhận (list + chi tiết) và Thời gian khởi hành của chuyến; (2) khi lọc — mốc 'từ ngày/đến ngày' người dùng chọn là giờ Việt Nam, trước đây đem so thẳng với cột lưu theo giờ UTC nên lọc lệch nửa ngày. Cùng lỗi này còn nằm ở trang Giao hàng và ô 'Giao hàng sắp tới' ngoài Trang chủ (BA chưa mở issue) — sửa luôn trong lần này. Người dùng có múi giờ để trống hoặc sai được tự động hiểu là giờ Việt Nam, trang không lỗi"
@@ -564,7 +564,7 @@ WJ-PH-002:
 WJ-PH-003:
   sprint: "2026-08-03-E"
   commit: "2f0e466"
-  deployed_date: "CHƯA DEPLOY UAT"
+  deployed_date: "2026-08-04"
   url: "/portal/purchase-history"
   odoo_fit: "Custom"
   fix: "Dev chọn phương án (a) theo quyết định của chủ dự án 03/08: gộp trạng thái chuyến giao vào ĐÚNG MỘT cột trạng thái đơn, vì đây là thứ người ở cửa hàng cần thấy — họ hỏi 'đơn của tôi tới đâu rồi', không quan tâm hệ thống lưu ở hai chỗ. Đơn hàng trong Odoo chỉ có Chờ xác nhận / Đã gửi / Đã xác nhận; 'Đang giao' và 'Hoàn tất' được suy từ chuyến giao và ĐÈ lên trạng thái đơn khi đơn đã xác nhận. Chuyến còn nháp/đã gán xe/đang chất hàng/hủy chuyến thì đơn vẫn là 'Đã xác nhận'. Bộ lọc trạng thái lọc được đủ 5 nhãn, mỗi đơn chỉ thuộc đúng một nhóm"
@@ -575,7 +575,7 @@ WJ-PH-003:
 WJ-PH-004:
   sprint: "2026-08-03-E"
   commit: "2f0e466"
-  deployed_date: "CHƯA DEPLOY UAT"
+  deployed_date: "2026-08-04"
   url: "/portal/purchase-history"
   odoo_fit: "Custom"
   fix: "Bỏ cột 'Thao tác' ở bảng bản máy tính — nút 'Xem' trong cột đó mở đúng cùng một trang với mã đơn. Mã đơn giờ là đường dẫn duy nhất vào chi tiết, bảng còn 7 cột đúng như bản thiết kế. Bản mobile không đụng tới"
@@ -586,7 +586,7 @@ WJ-PH-004:
 WJ-PH-007:
   sprint: "2026-08-03-E"
   commit: "2f0e466"
-  deployed_date: "CHƯA DEPLOY UAT"
+  deployed_date: "2026-08-04"
   url: "/portal/purchase-history?date_from=2026-07-30&date_to=2026-07-29"
   odoo_fit: "Custom"
   fix: "Chặn trường hợp 'Từ ngày' lớn hơn 'Đến ngày': hệ thống không chạy tìm kiếm nữa mà hiện thông báo 'Từ ngày không được lớn hơn Đến ngày' ngay tại khung bộ lọc, giữ nguyên hai giá trị người dùng vừa nhập để sửa lại. Không còn hiện màn hình trống 'Chưa có đơn hàng' làm người dùng tưởng cửa hàng không có đơn. Ô chọn ngày cũng được giới hạn sẵn để hạn chế chọn sai từ đầu, nhưng máy chủ vẫn kiểm tra lại"
