@@ -109,16 +109,21 @@
                     <notebook>
                         <page string="Danh sách tiêu chí" name="lines">
                             <field name="line_ids" readonly="state in ('active', 'archived')">
-                                <list editable="bottom" limit="100">
+                                <list editable="bottom" limit="100" decoration-bf="display_type == 'section'" decoration-info="display_type == 'section'">
+                                    <control>
+                                        <create name="add_line_control" string="Thêm dòng tiêu chí" context="{'default_display_type': 'line'}"/>
+                                        <create name="add_section_control" string="Thêm Section" context="{'default_display_type': 'section'}"/>
+                                    </control>
                                     <field name="sequence" widget="handle" />
+                                    <field name="display_type" column_invisible="True" />
                                     <field name="criterion_code" />
                                     <field name="category_id" />
-                                    <field name="content" />
-                                    <field name="criterion_type" />
-                                    <field name="deduction_score" />
-                                    <field name="require_note_if_fail" />
-                                    <field name="require_evidence_if_fail" />
-                                    <field name="active" widget="boolean_toggle" />
+                                    <field name="content" invisible="display_type == 'section'" required="display_type == 'line'" />
+                                    <field name="criterion_type" invisible="display_type == 'section'" />
+                                    <field name="deduction_score" invisible="display_type == 'section'" />
+                                    <field name="require_note_if_fail" invisible="display_type == 'section'" />
+                                    <field name="require_evidence_if_fail" invisible="display_type == 'section'" />
+                                    <field name="active" widget="boolean_toggle" invisible="display_type == 'section'" />
                                 </list>
                             </field>
                         </page>

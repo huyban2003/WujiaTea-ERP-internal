@@ -65,23 +65,12 @@ class WujiaFranchiseInspection(models.Model):
     @api.onchange('template_id', 'franchise_id')
     def _onchange_template_id(self):
         """
-        Tự động sinh tất cả các dòng tiêu chí khảo sát phân nhóm theo Danh mục (Section Header)
-        dựa trên Mẫu khảo sát được chọn. Tự động tra cứu kết quả đợt khảo sát trước (nếu có).
+        Tự động sao chép các dòng tiêu chí (bao gồm dòng Section) từ Mẫu khảo sát được chọn
+        sang phiếu khảo sát theo đúng thứ tự đã cấu hình trong Template.
+        Tự động tra cứu kết quả đợt khảo sát trước (nếu có).
         """
         if self.template_id:
             lines = []
-            seq = 10
-            grouped_lines = {}
-            for t_line in self.template_id.line_ids:
-                cat = t_line.category_id
-                cat_key = cat.id if cat else (t_line.category or 'general')
-                if cat_key not in grouped_lines:
-                    cat_name = cat.name if cat else (t_line.category or _("Tiêu chí chung"))
-                    grouped_lines[cat_key] = {
-                        'name': cat_name,
-                        'lines': []
-                    }
-                grouped_lines[cat_key]['lines'].append(t_line)
 
             # Tra cứu phiếu khảo sát trước (cùng cửa hàng và cùng mẫu)
             prev_insp = self.previous_inspection_id
@@ -97,22 +86,25 @@ class WujiaFranchiseInspection(models.Model):
                 if prev_insp:
                     self.previous_inspection_id = prev_insp.id
 
-            for cat_key, cat_info in grouped_lines.items():
-                cat_name = cat_info['name']
-                t_lines = cat_info['lines']
-                total_cat_deduction = sum(l.deduction_score or 0.0 for l in t_lines)
-                section_title = f"{cat_name} ({total_cat_deduction:.0f} điểm)"
+            for t_line in self.template_id.line_ids:
+                code_raw = (t_line.criterion_code or '').strip()
+                sub_code = code_raw.split('.', 1)[1].strip() if '.' in code_raw else ''
 
-                # 1. Thêm dòng tiêu đề Danh mục (Section Header)
-                lines.append((0, 0, {
-                    'sequence': seq,
-                    'display_type': 'section',
-                    'content_snapshot': section_title,
-                }))
-                seq += 10
+                if t_line.display_type == 'section':
+                    cat_name = t_line.category_id.name if t_line.category_id else (t_line.content or _("Section"))
+                    if sub_code:
+                        section_content = f"[{sub_code}] {cat_name}"
+                    else:
+                        section_content = cat_name
 
-                # 2. Thêm các tiêu chí chi tiết thuộc danh mục đó
-                for t_line in t_lines:
+                    lines.append((0, 0, {
+                        'sequence': t_line.sequence,
+                        'display_type': 'section',
+                        'template_line_id': t_line.id,
+                        'category_id': t_line.category_id.id if t_line.category_id else False,
+                        'content_snapshot': section_content,
+                    }))
+                else:
                     prev_l_id = False
                     prev_res = False
                     prev_ded = 0.0
@@ -128,12 +120,23 @@ class WujiaFranchiseInspection(models.Model):
                             prev_res = 'pass' if match_l[0].is_pass else 'fail'
                             prev_ded = match_l[0].deduction_score_snapshot
 
+                    cnt = (t_line.content or '').strip()
+                    if code_raw and cnt.startswith(code_raw):
+                        cnt = cnt[len(code_raw):].lstrip('. :-')
+                    elif '.' in cnt[:10] and cnt[:10].split('.', 1)[0].replace('.', '').isdigit():
+                        cnt = cnt.split('.', 1)[1].strip()
+
+                    if sub_code:
+                        content_str = f"[{sub_code}] {cnt}" if cnt else f"[{sub_code}]"
+                    else:
+                        content_str = cnt
+
                     lines.append((0, 0, {
-                        'sequence': seq,
+                        'sequence': t_line.sequence,
                         'display_type': 'line',
                         'template_line_id': t_line.id,
                         'category_id': t_line.category_id.id if t_line.category_id else False,
-                        'content_snapshot': t_line.content,
+                        'content_snapshot': content_str,
                         'deduction_score_snapshot': t_line.deduction_score or 0.0,
                         'criterion_type_snapshot': t_line.criterion_type or 'normal',
                         'require_note_if_fail_snapshot': t_line.require_note_if_fail,
@@ -144,7 +147,6 @@ class WujiaFranchiseInspection(models.Model):
                         'previous_result': prev_res,
                         'previous_deduction_score': prev_ded,
                     }))
-                    seq += 10
 
             self.line_ids = [(5, 0, 0)] + lines
 

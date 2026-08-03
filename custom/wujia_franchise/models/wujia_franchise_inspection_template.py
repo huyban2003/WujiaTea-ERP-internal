@@ -151,13 +151,17 @@ class WujiaFranchiseInspectionTemplateLine(models.Model):
         ondelete='cascade',
     )
     sequence = fields.Integer(string='Thứ tự', default=10)
+    display_type = fields.Selection([
+        ('line', 'Dòng tiêu chí'),
+        ('section', 'Section (Đầu mục)'),
+    ], string='Loại hiển thị', default='line', required=True)
     criterion_code = fields.Char(string='Mã tiêu chí')
     category_id = fields.Many2one(
         'wujia.franchise.inspection.category',
         string='Danh mục tiêu chí',
     )
     category = fields.Char(string='Danh mục (Text cũ)', related='category_id.name', readonly=True, store=True)
-    content = fields.Text(string='Nội dung tiêu chí', required=True)
+    content = fields.Text(string='Nội dung tiêu chí')
     criterion_type = fields.Selection([
         ('normal', 'Bình thường'),
         ('critical', 'Quan trọng / Điểm liệt'),
@@ -167,15 +171,29 @@ class WujiaFranchiseInspectionTemplateLine(models.Model):
     require_evidence_if_fail = fields.Boolean(string='Yêu cầu bằng chứng khi không đạt', default=False)
     active = fields.Boolean(string='Kích hoạt', default=True)
 
-    @api.depends('criterion_code', 'content')
+    @api.onchange('category_id', 'display_type')
+    def _onchange_category_id_section(self):
+        """Khi chọn loại là Section và chọn Danh mục, tự điền Nội dung = Tên danh mục."""
+        if self.display_type == 'section' and self.category_id:
+            self.content = self.category_id.name
+
+    @api.depends('criterion_code', 'content', 'display_type', 'category_id')
     def _compute_display_name(self):
         for rec in self:
-            code = rec.criterion_code or ''
-            content = rec.content or ''
-            if code:
-                rec.display_name = f"[{code}] {content}"
+            code_raw = (rec.criterion_code or '').strip()
+            sub_code = code_raw.split('.', 1)[1].strip() if '.' in code_raw else ''
+            if rec.display_type == 'section':
+                cat_name = rec.category_id.name if rec.category_id else rec.content
+                if sub_code:
+                    rec.display_name = f"[{sub_code}] {cat_name or _('Chưa chọn danh mục')}"
+                else:
+                    rec.display_name = cat_name or _('Chưa chọn danh mục')
             else:
-                rec.display_name = content or _("Tiêu chí không tên")
+                content = (rec.content or '').strip()
+                if sub_code:
+                    rec.display_name = f"[{sub_code}] {content}"
+                else:
+                    rec.display_name = content or _("Tiêu chí không tên")
 
     @api.ondelete(at_uninstall=False)
     def _unlink_except_draft_template(self):

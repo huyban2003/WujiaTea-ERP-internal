@@ -1,4 +1,2 @@
-cd /home/dev/WujiaTea-ERP-internal
-conda activate odoo19
 cd /home/dev/WujiaTea-ERP-internal/odoo19
-python odoo-bin -c ../config/odoo.conf -d wujia_tea_19 -u wujia_franchise --stop-after-init
+/home/dev/miniconda3/envs/odoo19/bin/python odoo-bin -c ../config/odoo.conf -d wujia_tea_19 -u wujia_franchise --stop-after-init
