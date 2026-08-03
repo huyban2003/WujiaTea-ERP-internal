@@ -187,14 +187,19 @@
                         <page string="Bài kiểm tra nhân viên" name="exam">
                             <field name="is_exam_submitted" column_invisible="True" />
                             <div
+                                class="alert alert-warning d-flex justify-content-between align-items-center mb-3"
+                                invisible="is_exam_submitted or state != 'draft'">
+                                <span><strong>Lưu ý:</strong> Vui lòng bấm <strong>"Bắt đầu thực hiện"</strong> ở trên header để bắt đầu khảo sát và làm bài kiểm tra!</span>
+                            </div>
+                            <div
                                 class="alert alert-info d-flex justify-content-between align-items-center mb-3"
-                                invisible="is_exam_submitted">
+                                invisible="is_exam_submitted or state != 'in_progress'">
                                 <span><strong>Hướng dẫn:</strong> Nhân viên nhập câu trả lời vào ô
                                     "Đáp án trả lời" bên dưới mỗi câu hỏi. Sau khi hoàn thành, bấm <strong>"Nộp
                                     bài kiểm tra"</strong> để chấm điểm.</span>
                                 <button name="action_submit_exam" string="Nộp bài kiểm tra"
                                     type="object" class="btn btn-primary fw-bold px-4"
-                                    invisible="is_exam_submitted or state in ('done', 'cancel')" />
+                                    invisible="is_exam_submitted or state != 'in_progress'" />
                             </div>
                             <div
                                 class="alert alert-success d-flex justify-content-between align-items-center mb-3"

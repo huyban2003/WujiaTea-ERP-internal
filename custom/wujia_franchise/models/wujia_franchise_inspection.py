@@ -2,7 +2,7 @@
 import random
 from odoo import api, fields, models, _
 # pyrefly: ignore [missing-import]
-from odoo.exceptions import ValidationError
+from odoo.exceptions import ValidationError, UserError
 
 
 class WujiaFranchiseInspection(models.Model):
@@ -308,11 +308,15 @@ class WujiaFranchiseInspection(models.Model):
     def action_submit_exam(self):
         """
         Nộp bài kiểm tra nhân viên:
+        - Yêu cầu phiếu khảo sát phải ở trạng thái 'Đang thực hiện' (in_progress).
         - So sánh đáp án trả lời của nhân viên với đáp án đúng snapshot.
         - Cập nhật điểm từng dòng: Đúng -> 1.0 (hoặc score), Sai/Bỏ trống -> 0.0.
         - Khóa bài làm và tính tổng điểm phiếu khảo sát.
         """
         for rec in self:
+            if rec.state != 'in_progress':
+                raise UserError(_("Phiếu khảo sát phải ở trạng thái 'Đang thực hiện' mới được phép nộp bài kiểm tra!"))
+
             for line in rec.exam_line_ids:
                 line._evaluate_answer()
                 score_val = (line.quest_id.score or 1.0) if line.is_correct else 0.0

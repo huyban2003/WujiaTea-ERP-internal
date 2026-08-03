@@ -6,7 +6,7 @@
         <field name="model">wujia.franchise.management</field>
         <field name="arch" type="xml">
             <list string="Cửa hàng nhượng quyền" sample="1"
-                  default_order="next_supervision_date asc"
+                  default_order="latest_inspection_date desc"
                   decoration-danger="is_expired"
                   decoration-warning="status == 'locked'"
                   decoration-muted="status == 'closed'">
@@ -19,7 +19,7 @@
                 <field name="remaining_days"/>
                 <field name="member_count"/>
                 <field name="effective_supervision_user_id" optional="show" string="Người giám sát"/>
-                <field name="next_supervision_date" optional="show"/>
+                <field name="latest_inspection_date" optional="show" string="Ngày khảo sát gần nhất"/>
                 <field name="latest_total_score" optional="show" string="Điểm mới nhất"/>
                 <field name="latest_grade_id" optional="show" widget="badge" string="Xếp loại mới nhất"/>
                 <field name="status" widget="badge"
@@ -95,9 +95,9 @@
                                    placeholder="Để trống sẽ dùng người phụ trách khu vực"/>
                             <field name="area_manager_user_id" readonly="1"
                                    string="Người phụ trách khu vực"/>
-                            <field name="next_supervision_date" readonly="1"/>
                         </group>
                         <group string="Khảo sát đợt gần nhất">
+                            <field name="latest_inspection_date" readonly="1" string="Ngày khảo sát gần nhất"/>
                             <field name="latest_total_score" readonly="1" string="Điểm đánh giá mới nhất"/>
                             <field name="latest_grade_id" widget="badge" readonly="1" string="Loại đánh giá mới nhất"/>
                         </group>

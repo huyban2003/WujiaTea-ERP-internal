@@ -13,7 +13,7 @@ class WujiaFranchiseManagement(models.Model):
     _description = 'Wujia Franchise Management'
     _inherit = ['mail.thread', 'mail.activity.mixin']
     _rec_name = 'display_name'
-    _order = 'next_supervision_date asc, code, name'
+    _order = 'latest_inspection_date desc, code, name'
 
     code = fields.Char(
         string='Mã cửa hàng',
@@ -156,19 +156,33 @@ class WujiaFranchiseManagement(models.Model):
         help='Ngày lịch khảo sát gần nhất với ngày hiện tại (>= hôm nay), không tính lịch trong quá khứ và lịch đã hủy.',
     )
 
+    inspection_ids = fields.One2many(
+        'wujia.franchise.inspection',
+        'franchise_id',
+        string='Danh sách phiếu khảo sát',
+    )
+
     latest_inspection_id = fields.Many2one(
         'wujia.franchise.inspection',
         string='Phiếu khảo sát mới nhất',
         compute='_compute_latest_inspection_info',
+        store=True,
     )
     latest_total_score = fields.Float(
         string='Điểm đánh giá mới nhất',
         compute='_compute_latest_inspection_info',
+        store=True,
     )
     latest_grade_id = fields.Many2one(
         'wujia.franchise.inspection.grade',
         string='Loại đánh giá mới nhất',
         compute='_compute_latest_inspection_info',
+        store=True,
+    )
+    latest_inspection_date = fields.Date(
+        string='Ngày khảo sát gần nhất',
+        compute='_compute_latest_inspection_info',
+        store=True,
     )
 
     active = fields.Boolean(default=True)
@@ -244,17 +258,31 @@ class WujiaFranchiseManagement(models.Model):
         ])
         return [('id', 'in', schedules.mapped('store_id').ids)]
 
-    @api.depends()
+    @api.depends('inspection_ids.total_score', 'inspection_ids.grade_id', 'inspection_ids.planned_date', 'inspection_ids.state')
     def _compute_latest_inspection_info(self):
-        Inspection = self.env['wujia.franchise.inspection']
-        for rec in self:
-            latest = Inspection.search([
-                ('franchise_id', '=', rec.id),
+        if not self:
+            return
+
+        # Dùng ORM QueryBuilder (_read_group) để Group By franchise_id và lấy MAX(id) tại Database
+        groups = self.env['wujia.franchise.inspection']._read_group(
+            domain=[
+                ('franchise_id', 'in', self.ids),
                 ('state', '!=', 'cancel'),
-            ], order='planned_date desc, create_date desc, id desc', limit=1)
+            ],
+            groupby=['franchise_id'],
+            aggregates=['id:max'],
+        )
+
+        latest_ids = [max_id for franchise, max_id in groups if max_id]
+        latest_inspections = self.env['wujia.franchise.inspection'].browse(latest_ids)
+        latest_by_franchise = {insp.franchise_id.id: insp for insp in latest_inspections}
+
+        for rec in self:
+            latest = latest_by_franchise.get(rec.id)
             rec.latest_inspection_id = latest
             rec.latest_total_score = latest.total_score if latest else 0.0
             rec.latest_grade_id = latest.grade_id if latest else False
+            rec.latest_inspection_date = latest.planned_date if latest else False
 
     # ===========================================================
     # Constraints
