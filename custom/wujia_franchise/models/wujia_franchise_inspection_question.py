@@ -98,17 +98,6 @@ class WujiaFranchiseInspectionQuestion(models.Model):
             else:
                 rec.correct_answers = False
 
-    def is_correct_blank(self, blank_index, user_answer):
-        """Hàm helper kiểm tra xem câu trả lời ở chỗ trống thứ blank_index có đúng hay không"""
-        self.ensure_one()
-        if not user_answer or not isinstance(self.correct_answers, list) or blank_index >= len(self.correct_answers):
-            return False
-        expected = self.correct_answers[blank_index]
-        user_clean = str(user_answer).strip().lower()
-        if isinstance(expected, list):
-            return user_clean in [str(x).strip().lower() for x in expected]
-        return user_clean == str(expected).strip().lower()
-
     def action_save(self):
         """Lưu bản ghi câu hỏi"""
         self.ensure_one()
