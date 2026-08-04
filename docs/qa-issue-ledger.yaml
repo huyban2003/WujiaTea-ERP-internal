@@ -641,8 +641,8 @@ UI-02:
 WJ-ORD-024:
   sprint: "2026-08-04-D"
   commit: "6c92428"
-  deployed_date: ""
-  build_override: "Chờ deploy UAT | commit: 6c92428 (Sprint 2026-08-04-D) | Deploy: -u wujia_portal_base,wujia_portal_purchase_history,wujia_portal_sale,wujia_portal_debt (không có bước cập nhật dữ liệu) | URL: /portal/order/cart"
+  deployed_date: "2026-08-04"
+  build_override: "UAT | 04/08/2026 | commit: 6c92428 (Sprint 2026-08-04-D) | Deploy: -u wujia_portal_base,wujia_portal_purchase_history,wujia_portal_sale,wujia_portal_debt (không có bước cập nhật dữ liệu) | URL: /portal/order/cart | Bổ sung: commit f71ad96 sửa ký hiệu tiền ở Trang chủ, CHỜ deploy -u wujia_portal_base"
   url: "/portal/order/cart"
   odoo_fit: "Custom"
   fix: "Giỏ hàng nay hỏi thẳng bộ tính thuế của hệ thống thay vì tự nhân đơn giá với số lượng, nên số tiền trong giỏ đúng bằng số tiền của đơn sau khi gửi — không còn cảnh giỏ ghi 48.000 mà đơn ra 55.200. Trước khi bấm gửi, giỏ hiện đủ ba dòng: Tạm tính, Thuế và Tổng thanh toán, trong đó Tổng thanh toán là con số to nhất vì đó mới là số tiền cửa hàng thực trả. Màn hình 'gửi đơn thành công' cũng hiện đủ ba dòng đó, lấy thẳng từ đơn hàng"
@@ -653,8 +653,8 @@ WJ-ORD-024:
 WJ-ORD-025:
   sprint: "2026-08-04-D"
   commit: "6c92428"
-  deployed_date: ""
-  build_override: "Chờ deploy UAT | commit: 6c92428 (Sprint 2026-08-04-D) | Deploy: -u wujia_portal_base,wujia_portal_purchase_history,wujia_portal_sale,wujia_portal_debt (không có bước cập nhật dữ liệu) | URL: /portal/order/cart"
+  deployed_date: "2026-08-04"
+  build_override: "UAT | 04/08/2026 | commit: 6c92428 (Sprint 2026-08-04-D) | Deploy: -u wujia_portal_base,wujia_portal_purchase_history,wujia_portal_sale,wujia_portal_debt (không có bước cập nhật dữ liệu) | URL: /portal/order/cart | Bổ sung: commit f71ad96 sửa ký hiệu tiền ở Trang chủ, CHỜ deploy -u wujia_portal_base"
   url: "/portal/order/cart"
   odoo_fit: "Custom"
   fix: "Ký hiệu tiền không còn được viết chết là 'đ' ở 8 chỗ trong giao diện nữa mà đọc theo đơn vị tiền tệ của chính đơn hàng, nên cùng một đơn thì giỏ hàng, màn gửi đơn và lịch sử đặt hàng ra cùng một ký hiệu — không còn cảnh giỏ ghi 'đ' còn lịch sử ghi '$'. Sửa luôn cùng cách cho trang chủ và trang công nợ. Kèm theo đó, phần số lẻ cũng theo đơn vị tiền tệ: đơn 10,99 trước đây bị làm tròn hiển thị thành '11' nay hiện đúng '10,99'. Tiền Việt vẫn hiện y hệt như cũ (không số lẻ, dấu chấm ngăn nghìn)"
@@ -665,8 +665,8 @@ WJ-ORD-025:
 WJ-PH-005:
   sprint: "2026-08-04-D"
   commit: "6c92428"
-  deployed_date: ""
-  build_override: "Chờ deploy UAT | commit: 6c92428 (Sprint 2026-08-04-D) | Deploy: -u wujia_portal_base,wujia_portal_purchase_history,wujia_portal_sale,wujia_portal_debt (không có bước cập nhật dữ liệu) | URL: /portal/purchase-history"
+  deployed_date: "2026-08-04"
+  build_override: "UAT | 04/08/2026 | commit: 6c92428 (Sprint 2026-08-04-D) | Deploy: -u wujia_portal_base,wujia_portal_purchase_history,wujia_portal_sale,wujia_portal_debt (không có bước cập nhật dữ liệu) | URL: /portal/purchase-history | Bổ sung: commit f71ad96 sửa ký hiệu tiền ở Trang chủ, CHỜ deploy -u wujia_portal_base"
   url: "/portal/purchase-history"
   odoo_fit: "Custom"
   fix: "Đơn giá trong lịch sử đặt hàng trước đây lấy thành tiền chia cho số lượng — cách tính xấp xỉ, sai khi đơn có chiết khấu, có nhiều loại thuế hoặc khi phần lẻ bị làm tròn. Nay đơn giá được tính lại bằng đúng bộ tính thuế của hệ thống cho một đơn vị hàng, còn thành tiền của dòng và tổng tiền của đơn thì lấy thẳng số của đơn hàng chứ không tính lại. Không thêm trường lưu trữ mới nào"
