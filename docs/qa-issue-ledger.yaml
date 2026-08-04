@@ -123,15 +123,15 @@ RESP-MOB-HOME-003:
   limit: "Need BA Confirm=Yes — BA chưa chốt số dòng clamp"
 
 RESP-MOB-ORDER-001:
-  sprint: "37"
-  commit: "f8a64ba"
-  deployed_date: "2026-07-16"
+  sprint: "2026-08-04-C"
+  commit: "5173068"
+  deployed_date: "2026-08-04"
   url: "/portal/order"
   odoo_fit: "Custom"
-  fix: "Tên sản phẩm clamp 2 dòng"
-  impact: "Đặt hàng mobile — card sản phẩm"
-  retest: "391×844: tên SP hiện 2 dòng, giá/nút giỏ căn thẳng"
-  limit: "Need BA Confirm=Yes — BA chưa chốt số dòng clamp"
+  fix: "Đúng phương án B mà BA đã chốt ngày 22/07: tên sản phẩm hiển thị tối đa 2 dòng, dài hơn thì cắt bằng dấu '…'. Phần này thực ra đã được làm từ Sprint 37 và vẫn đang chạy đúng — lần này đo lại để xác nhận, không phải sửa thêm. Ghi chú 'chờ BA chốt số dòng' còn sót ở cột K là ghi chú cũ, nay bỏ"
+  impact: "Đặt hàng bản điện thoại — danh sách sản phẩm"
+  retest: "391×844 tại /portal/order: tên sản phẩm dài hiện tối đa 2 dòng và kết thúc bằng '…', giá và nút giỏ vẫn thẳng hàng, thẻ sản phẩm không vỡ"
+  limit: "Chiều cao thẻ đo được là 82px với tên 2 dòng và 61px với tên 1 dòng (thẻ cao theo nội dung). BA ước lượng 'khoảng 92px' — chênh 10px so với thực tế. Nếu BA muốn đúng 92px cố định cho mọi thẻ thì cần chốt lại, vì làm vậy sẽ kéo cao cả những thẻ tên ngắn"
 
 UI-MOB-ORDER-002:
   sprint: "37"
@@ -424,15 +424,26 @@ UI-03:
   limit: "Retest cũ đo x=1718 → bù margin-right 24px. Cần đo lại trên server sau khi UI-01 neo navbar đúng x=300 (vì pill nằm trong navbar; navbar về đúng vị trí có thể đổi x tuyệt đối của pill vài px)."
 
 UI-04:
-  sprint: "2026-07-23-C"
-  commit: "2e2e70d"
-  deployed_date: "2026-07-23"
+  sprint: "2026-08-04-C"
+  commit: "5173068"
+  deployed_date: "2026-08-04"
   url: "/portal"
   odoo_fit: "Custom"
-  fix: "Mobile header action circle 44→38px, radius 22→19 (tròn ở 38), gap 12→16px (token _variables.css). Avatar fallback = icon-user generic (image_128 rỗng) đã có."
-  impact: "Header mobile — 3 action Language/Cart/Account, mọi trang <992px"
-  retest: "391×844: 3 circle 38×38, cách nhau 16px, tâm ~ (247/301/355, 58); icon user generic khi chưa có avatar."
-  limit: "Trước đây issue đóng ở 44px; Blank Shell chốt 38px → đã đổi. Tâm (247/301/355) là hệ quả của size 38 + gap 16 + mép phải; đo lại trên server nếu cần chính xác pixel."
+  fix: "Ba nút tròn bên phải thanh đầu trang điện thoại (ngôn ngữ / giỏ hàng / tài khoản) trước đây được căn giữa theo chiều cao thanh nên nằm cao hơn bản thiết kế 6px và lệch phải 1px. Nay cả cụm được neo đúng vị trí bản vẽ. Hình người trong nút tài khoản còn bị một khoảng thừa 7px đẩy lệch sang trái so với tâm nút — đã bỏ, hình nay nằm đúng giữa nút. Hai hình giỏ hàng và người cũng được vẽ lại bằng hình vector nét dày 2.4 thay cho bộ icon cũ nét mảnh hơn bản thiết kế"
+  impact: "Thanh đầu trang bản điện thoại — mọi trang /portal dưới 992px"
+  retest: "391×844: ba nút vẫn 38×38, tâm lần lượt tại (247,58) (301,58) (355,58), mép trên nút ở 39; hình người trong nút tài khoản có tâm trùng tâm nút; con số đỏ trên giỏ khi có hàng vẫn nằm đúng góc trên-phải nút"
+  limit: "Logo bản điện thoại vẫn đang theo dõi riêng ở UI-MOB-SHELL-001 (chờ BA cấp file logo 100×34), không nằm trong lần sửa này"
+
+RESP-MOB-SHELL-003:
+  sprint: "2026-08-04-C"
+  commit: "5173068"
+  deployed_date: "2026-08-04"
+  url: "/portal/notification"
+  odoo_fit: "Custom"
+  fix: "Dải chọn cửa hàng kết thúc ở cùng một vị trí trên mọi trang, nhưng nội dung bên dưới lại bắt đầu ở sáu mức cao thấp khác nhau tuỳ trang (chênh nhau tới 14px), nên chuyển trang là thấy tiêu đề nhảy. Nguyên nhân là nhiều đợt sửa lẻ trước đây đặt khoảng cách riêng cho từng trang, lại theo hai cách khác nhau tuỳ trang dựng theo kiểu nào. Nay gom về MỘT giá trị dùng chung cho toàn bộ trang điện thoại, mọi trang bắt đầu nội dung ở cùng một mốc"
+  impact: "TOÀN BỘ trang bản điện thoại của portal — đã đo 14 trang (Trang chủ, Đặt hàng, Giỏ hàng, Lịch sử, Giao hàng, Thông báo, Kiến thức, Hỗ trợ, Tài khoản, Bù hàng, Đăng ký thi, Thông tin cửa hàng, Đổi mật khẩu, Báo cáo)"
+  retest: "391×844, chuyển lần lượt qua các trang trên: tiêu đề của mọi trang đều bắt đầu ở cùng một vị trí (y=168, cách mép trái 16), không còn cảnh tiêu đề nhảy lên nhảy xuống khi đổi trang. Bản máy tính 1920 giữ nguyên như cũ"
+  limit: "Trang Báo cáo đơn hàng đã đo đúng mốc mới, nhưng trên máy chủ kiểm thử trang này đang lỗi 500 vì múi giờ tài khoản ghi 'Asia/Saigon' — lỗi có sẵn từ trước, nằm ngoài phạm vi lần sửa này"
 
 UI-06:
   sprint: "2026-07-23-C"
@@ -626,3 +637,39 @@ UI-02:
   impact: "Thanh trên cùng bản máy tính — mọi trang /portal; ngôn ngữ mặc định của toàn bộ tài khoản cửa hàng"
   retest: "Đăng nhập bằng một tài khoản cửa hàng bất kỳ: thanh trên cùng phải hiện cờ Việt Nam kèm chữ 'Việt Nam'. Ô chọn ngôn ngữ nằm tại 1450,16 kích thước 118×40. Nếu vẫn thấy cờ Mỹ thì kiểm tra lại ngôn ngữ của chính tài khoản đó trong màn hình quản trị — người dùng vẫn được phép tự đổi sang Tiếng Anh nếu muốn"
   limit: "Việc đặt mặc định chỉ áp dụng cho tài khoản cửa hàng, không đụng tới tài khoản quản trị nội bộ. Người dùng nào cố ý chọn Tiếng Anh trong lần cập nhật này sẽ bị chuyển về tiếng Việt — đây là điều chủ dự án đã chốt"
+
+WJ-ORD-024:
+  sprint: "2026-08-04-D"
+  commit: "6c92428"
+  deployed_date: ""
+  build_override: "Chờ deploy UAT | commit: 6c92428 (Sprint 2026-08-04-D) | Deploy: -u wujia_portal_base,wujia_portal_purchase_history,wujia_portal_sale,wujia_portal_debt (không có bước cập nhật dữ liệu) | URL: /portal/order/cart"
+  url: "/portal/order/cart"
+  odoo_fit: "Custom"
+  fix: "Giỏ hàng nay hỏi thẳng bộ tính thuế của hệ thống thay vì tự nhân đơn giá với số lượng, nên số tiền trong giỏ đúng bằng số tiền của đơn sau khi gửi — không còn cảnh giỏ ghi 48.000 mà đơn ra 55.200. Trước khi bấm gửi, giỏ hiện đủ ba dòng: Tạm tính, Thuế và Tổng thanh toán, trong đó Tổng thanh toán là con số to nhất vì đó mới là số tiền cửa hàng thực trả. Màn hình 'gửi đơn thành công' cũng hiện đủ ba dòng đó, lấy thẳng từ đơn hàng"
+  impact: "Giỏ hàng bản mobile, khung giỏ hàng bản máy tính, màn hình gửi đơn thành công, và giá hiển thị ở danh sách sản phẩm + trang chi tiết sản phẩm (nay là giá đã gồm thuế)"
+  retest: "Đặt vài sản phẩm có thuế vào giỏ, ghi lại con số 'Tổng thanh toán', bấm gửi đơn rồi so với tổng tiền của đơn vừa tạo trong phần quản trị: hai số phải khớp từng đồng. Làm lại với sản phẩm có chiết khấu, sản phẩm gắn hai loại thuế, và sản phẩm không có thuế (trường hợp không thuế phải giữ nguyên như trước)"
+  limit: "Giá ở danh sách sản phẩm và trang chi tiết sản phẩm nay là giá ĐÃ GỒM THUẾ (theo quyết định của chủ dự án). Khi đối chiếu với bảng giá trong phần quản trị xin lưu ý bảng giá ghi giá chưa thuế, nên hai con số sẽ khác nhau đúng bằng phần thuế"
+
+WJ-ORD-025:
+  sprint: "2026-08-04-D"
+  commit: "6c92428"
+  deployed_date: ""
+  build_override: "Chờ deploy UAT | commit: 6c92428 (Sprint 2026-08-04-D) | Deploy: -u wujia_portal_base,wujia_portal_purchase_history,wujia_portal_sale,wujia_portal_debt (không có bước cập nhật dữ liệu) | URL: /portal/order/cart"
+  url: "/portal/order/cart"
+  odoo_fit: "Custom"
+  fix: "Ký hiệu tiền không còn được viết chết là 'đ' ở 8 chỗ trong giao diện nữa mà đọc theo đơn vị tiền tệ của chính đơn hàng, nên cùng một đơn thì giỏ hàng, màn gửi đơn và lịch sử đặt hàng ra cùng một ký hiệu — không còn cảnh giỏ ghi 'đ' còn lịch sử ghi '$'. Sửa luôn cùng cách cho trang chủ và trang công nợ. Kèm theo đó, phần số lẻ cũng theo đơn vị tiền tệ: đơn 10,99 trước đây bị làm tròn hiển thị thành '11' nay hiện đúng '10,99'. Tiền Việt vẫn hiện y hệt như cũ (không số lẻ, dấu chấm ngăn nghìn)"
+  impact: "Giỏ hàng mobile, khung giỏ bản máy tính, thanh tổng tiền nổi ở danh sách sản phẩm, màn gửi đơn thành công, lịch sử đặt hàng (danh sách + chi tiết), trang chủ, trang công nợ"
+  retest: "Mở một đơn có đơn vị tiền tệ khác VND rồi đi qua đủ bốn màn: giỏ hàng, khung giỏ bản máy tính, màn gửi đơn thành công, lịch sử đặt hàng — cả bốn phải ra cùng con số và cùng ký hiệu, và số lẻ không bị cắt. Với đơn tiền Việt thì cách hiện phải giống hệt trước đây. Thử tăng giảm số lượng trong giỏ: con số ở thanh tổng tiền cập nhật xong vẫn còn ký hiệu tiền"
+  limit: "Không có"
+
+WJ-PH-005:
+  sprint: "2026-08-04-D"
+  commit: "6c92428"
+  deployed_date: ""
+  build_override: "Chờ deploy UAT | commit: 6c92428 (Sprint 2026-08-04-D) | Deploy: -u wujia_portal_base,wujia_portal_purchase_history,wujia_portal_sale,wujia_portal_debt (không có bước cập nhật dữ liệu) | URL: /portal/purchase-history"
+  url: "/portal/purchase-history"
+  odoo_fit: "Custom"
+  fix: "Đơn giá trong lịch sử đặt hàng trước đây lấy thành tiền chia cho số lượng — cách tính xấp xỉ, sai khi đơn có chiết khấu, có nhiều loại thuế hoặc khi phần lẻ bị làm tròn. Nay đơn giá được tính lại bằng đúng bộ tính thuế của hệ thống cho một đơn vị hàng, còn thành tiền của dòng và tổng tiền của đơn thì lấy thẳng số của đơn hàng chứ không tính lại. Không thêm trường lưu trữ mới nào"
+  impact: "Lịch sử đặt hàng — bảng danh sách và trang chi tiết đơn"
+  retest: "Mở một đơn có chiết khấu và có thuế trong lịch sử đặt hàng, so từng dòng với đơn tương ứng trong phần quản trị: đơn giá, thành tiền dòng và tổng tiền đơn phải khớp. Thử thêm đơn có hai loại thuế trên cùng một dòng"
+  limit: "Không có"
