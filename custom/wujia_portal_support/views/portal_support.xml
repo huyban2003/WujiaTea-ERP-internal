@@ -217,53 +217,65 @@
                     <t t-set="ph_back_url" t-value="'/portal/support'"/>
                 </t>
                 <div class="content-body">
-                    <form method="post" action="/portal/support/new" enctype="multipart/form-data" class="card">
+                    <!-- Component PC v1.5: card + field h42 + action bar có separator
+                         (UI-PC-BASE-008/009). Route POST, name field, required GIỮ NGUYÊN. -->
+                    <form method="post" action="/portal/support/new" enctype="multipart/form-data" class="wj-pc-card">
                         <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
-                        <div class="card-body">
-                            <div class="row g-2">
-                                <div class="col-md-6 col-12">
-                                    <label class="form-label">Cửa hàng</label>
-                                    <select name="franchise_id" class="form-select" required="required">
+                        <div class="row g-3">
+                            <div class="col-md-6 col-12">
+                                <div class="wj-pc-field">
+                                    <label class="wj-pc-field__label">Cửa hàng</label>
+                                    <select name="franchise_id" class="wj-pc-control" required="required">
                                         <t t-foreach="franchises" t-as="f">
                                             <option t-att-value="f.id" t-out="f.name"/>
                                         </t>
                                     </select>
                                 </div>
-                                <div class="col-md-3 col-12">
-                                    <label class="form-label">Phân loại</label>
-                                    <select name="category_id" class="form-select" required="required">
+                            </div>
+                            <div class="col-md-3 col-12">
+                                <div class="wj-pc-field">
+                                    <label class="wj-pc-field__label">Phân loại</label>
+                                    <select name="category_id" class="wj-pc-control" required="required">
                                         <t t-foreach="categories" t-as="c">
                                             <option t-att-value="c.id" t-out="c.name"/>
                                         </t>
                                     </select>
                                 </div>
-                                <div class="col-md-3 col-12">
-                                    <label class="form-label">Mức độ</label>
-                                    <select name="priority" class="form-select">
+                            </div>
+                            <div class="col-md-3 col-12">
+                                <div class="wj-pc-field">
+                                    <label class="wj-pc-field__label">Mức độ</label>
+                                    <select name="priority" class="wj-pc-control">
                                         <option value="normal" selected="selected">Bình thường</option>
                                         <option value="urgent">Khẩn</option>
                                     </select>
                                 </div>
-                                <div class="col-12">
-                                    <label class="form-label">Tiêu đề</label>
-                                    <input type="text" name="title" class="form-control" required="required"
+                            </div>
+                            <div class="col-12">
+                                <div class="wj-pc-field">
+                                    <label class="wj-pc-field__label">Tiêu đề</label>
+                                    <input type="text" name="title" class="wj-pc-control" required="required"
                                            placeholder="VD: Không đặt được đơn hàng số ..."/>
                                 </div>
-                                <div class="col-12">
-                                    <label class="form-label">Mô tả chi tiết</label>
-                                    <textarea name="description" rows="6" class="form-control"
+                            </div>
+                            <div class="col-12">
+                                <div class="wj-pc-field">
+                                    <label class="wj-pc-field__label">Mô tả chi tiết</label>
+                                    <textarea name="description" rows="6" class="wj-pc-control"
                                               placeholder="Mô tả chi tiết tình huống, các bước đã thử, screenshot..."/>
                                 </div>
-                                <div class="col-12">
-                                    <label class="form-label">File đính kèm (tùy chọn)</label>
-                                    <input type="file" name="attachments" class="form-control" multiple="multiple"/>
+                            </div>
+                            <div class="col-12">
+                                <div class="wj-pc-field">
+                                    <label class="wj-pc-field__label">File đính kèm (tùy chọn)</label>
+                                    <input type="file" name="attachments" class="wj-pc-control" multiple="multiple"/>
                                 </div>
                             </div>
                         </div>
-                        <div class="card-footer text-end">
-                            <a href="/portal/support" class="btn btn-secondary me-2">Hủy</a>
-                            <button type="submit" class="btn btn-primary">
-                                <i class="fa fa-paper-plane me-1" title="Send"/>Gửi yêu cầu
+                        <div class="wj-pc-form-actions">
+                            <a href="/portal/support" class="wj-pc-btn wj-pc-btn--secondary">Hủy</a>
+                            <button type="submit" class="wj-pc-btn wj-pc-btn--primary">
+                                <i class="fa fa-paper-plane" title="Send"/>Gửi yêu cầu
                             </button>
                         </div>
                     </form>

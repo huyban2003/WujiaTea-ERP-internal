@@ -288,15 +288,15 @@
     overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
 }
 
-/* ---- List: filter bar — Figma 4683:101 (5 field labeled, 1 hàng) ---- */
+/* ---- List: filter bar — 5 control 1 hàng, card 88px (UI-PC-BASE-003).
+   Nhãn từng field đã bỏ (đi vào aria-label/option đầu) để card đúng 88px. ---- */
 .wj-pc-noti-filter-row {
     display: grid;
     grid-template-columns: minmax(240px, 1fr) 190px 170px 150px 150px max-content;
-    align-items: end;
+    align-items: center;
     gap: 12px;
 }
-.wj-pc-noti-field { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
-.wj-pc-noti-field > label { font-size: 12px; font-weight: 700; color: var(--wj-pc-muted); white-space: nowrap; }
+.wj-pc-noti-field { display: flex; flex-direction: column; min-width: 0; }
 .wj-pc-noti-field .wj-pc-filter-control { width: 100%; }
 /* reset base flex:1 1 280px → trong field (flex-column) 280px sẽ thành CHIỀU CAO */
 .wj-pc-noti-field .wj-pc-filter-search { display: block; width: 100%; flex: 0 0 auto; }

@@ -706,7 +706,10 @@
     /* ---------- Chung ---------- */
     .wj-exam-pc .wj-pc-page-header { margin-bottom: 25px; }
     .wj-exam-pc .wj-pc-page-header__title {
-        font-size: 30px !important;   /* thắng h1 !important của _components.css */
+        /* !important để thắng `h1 {font-size … !important}` (_components.css) và
+           `.content-wrapper h1 {font-weight:700 !important}` (_wujia_theme.css) */
+        font-size: 30px !important;
+        font-weight: 800 !important;   /* UI-PC-BASE-002 */
     }
     .wj-exam-pc .wj-pc-page-header__crumb { font-weight: 400; }
     .wj-exam-pc .wj-pc-btn { font-weight: 700; }
@@ -720,7 +723,6 @@
          bootstrap-extended   label          padding-left: .2rem
        Không sửa 4 file đó vì blast radius là toàn bộ portal; chỉ vô hiệu hoá
        trong phạm vi .wj-exam-pc. Số liệu lấy từ Figma WJ_Exam_PC v1.2. */
-    .wj-exam-pc .wj-pc-filterbar__title { font-size: 18px !important; }
     .wj-exam-pc .wj-pc-card__title      { font-size: 22px !important; }
     .wj-exam-pc .wj-exam-pc-sectitle    { font-size: 20px !important; }
     .wj-exam-pc .wj-exam-pc-sectitle--sm { font-size: 18px !important; }
@@ -742,11 +744,12 @@
     }
     .wj-exam-pc .wj-pc-pagination__count { white-space: nowrap; }
 
-    /* ---------- Bộ lọc nhanh (Figma y178 h88) ---------- */
-    .wj-exam-pc-filterbar { padding: 11px 24px 4px; }
-    .wj-exam-pc-filterbar .wj-pc-filterbar__title { margin: 0 0 9px; }
+    /* ---------- Bộ lọc nhanh (Figma y178 h88) ----------
+       Từ UI-PC-BASE-003: card 88px do .wj-pc-filterbar lo (23/42/23), bỏ dòng
+       tiêu đề; ở đây chỉ giữ padding ngang 24 + gap 14 riêng của exam. */
+    .wj-exam-pc-filterbar { padding-left: 24px; padding-right: 24px; }
     .wj-exam-pc-filterbar .wj-pc-filterbar__row {
-        align-items: flex-start;   /* input h38 / nút h42 canh mép trên như Figma */
+        align-items: center;   /* control và nút cùng h42 → canh giữa */
         gap: 14px;
     }
     /* Figma KHÔNG đẩy nút sang phải: nút chạy tiếp sau ô "Đến ngày". */

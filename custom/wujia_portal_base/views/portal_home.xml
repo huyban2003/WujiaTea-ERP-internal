@@ -10,7 +10,12 @@
                 <div class="d-none d-lg-block">
                 <div class="content-header row">
                     <div class="content-header-left col-12">
-                        <h2 class="content-header-title float-left mb-0">Tổng quan cửa hàng</h2>
+                        <!-- Title dùng chung wj_page_header (UI-PC-BASE-002) thay h2 Vuexy 24/700 -->
+                        <t t-call="wujia_portal_layout.wj_page_header">
+                            <t t-set="ph_platform" t-value="'pc'"/>
+                            <t t-set="ph_variant" t-value="'title'"/>
+                            <t t-set="ph_title">Tổng quan cửa hàng</t>
+                        </t>
                         <p class="text-muted">Chào mừng <strong t-out="request.env.user.name"/>! Đây là tóm tắt hoạt động cửa hàng nhượng quyền của bạn.</p>
                     </div>
                 </div>
