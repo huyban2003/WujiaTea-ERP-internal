@@ -273,7 +273,7 @@ class WujiaFranchiseManagement(models.Model):
         groups = self.env['wujia.franchise.inspection']._read_group(
             domain=[
                 ('franchise_id', 'in', self.ids),
-                ('state', '!=', 'cancel'),
+                ('state', '=', 'done'),
             ],
             groupby=['franchise_id'],
             aggregates=['id:max'],
