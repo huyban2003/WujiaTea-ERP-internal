@@ -3,7 +3,8 @@
 Mỗi cụm = **một phiên riêng**. Mở phiên mới → `/wujia-start` → khi hỏi "Sprint/task nào hôm nay?"
 thì dán nguyên khối prompt tương ứng bên dưới.
 
-**Thứ tự đề xuất:** ~~I~~ ~~A~~ ~~E~~ ~~G~~ ~~B~~ ~~D~~ (xong 03–04/08) → C → F → H1 → H2
+**Thứ tự đề xuất:** ~~I~~ ~~A~~ ~~E~~ ~~G~~ ~~B~~ ~~D~~ ~~C~~ (xong 03–04/08) → F → H1 → H2
+(WJ-ORD-023 của H2 đã tách ra làm xong 04/08 — xem mục H2.)
 
 ---
 
@@ -552,25 +553,44 @@ Verify 1920 trên ≥6 trang PC + regression 391×844 bất biến đủ 9 route
 
 ## H2 — Component PC: đổi cấu trúc template
 
+> **WJ-ORD-023 ✅ ĐÃ XONG 04/08/2026** (tách ra chạy trước vì H1/F đang chạy song song ở phiên khác —
+> đây là issue duy nhất của H2 không đụng file của H1). Commit `63dc4bc`, đã deploy UAT + đo lại xanh:
+> 3 control cùng `y=245.5`, cao 42, gap 12/12, card trắng radius 16, `category_id=2` → đúng 2 sản phẩm,
+> mobile ảnh trùng byte, smoke 4 trang × 2 viewport 200/overflow 0.
+> Nguyên nhân thật: `<select>` không khai `width` nên ăn `select{width:100%}` + `padding:5px!important`
+> tag-level của `dashboard.css` (bẫy L4) → wrap 3 hàng. Cách chữa: bỏ class riêng của trang, dùng khung
+> chung `.wj-pc-filterbar` + `.wj-pc-filter-*` để chuẩn hoá của UI-PC-BASE-003 tự lan tới.
+> **Còn lại**: card đang 80px, lên 88px khi H1 (padding filterbar 18→22) deploy — ghi ở LIMIT.
+
 ```
-Làm cụm H2 trong docs/issue-clusters/H_pc_components.md — UI-PC-BASE-005, 006, 007 + WJ-ORD-023.
-CHẠY SAU H1.
+Làm nốt cụm H2 trong docs/issue-clusters/H_pc_components.md — UI-PC-BASE-005, 006, 007.
+(WJ-ORD-023 đã xong 04/08, đừng làm lại.) CHẠY SAU H1 — 3 issue này sửa đúng file H1 đang giữ:
+portal_history.xml, portal_notification.xml, wj_page_header.xml, _components.css.
+Việc đầu tiên: `git log --oneline -5` xem H1 đã merge chưa; chưa merge thì DỪNG, báo tôi.
 
-005 Pagination: thêm page-size selector ("10 / trang") cho /portal/purchase-history và
-   /portal/notification. /portal/exam ĐÃ làm đúng (10/20/50) → copy pattern đó, đừng thiết kế lại.
-   BA cho phép ẩn toàn bộ pagination khi tổng bản ghi ≤ page size.
-006 BackButton: /portal/order/product/<id> và /portal/support/new đang dùng nút icon-only 44×44.
-   Source v1.5 ghi RÕ không dùng icon-only → thay bằng "← Quay lại" 122×40 (hoặc 122×36 trong
-   PageHeader). Chỉ MỘT nút, không lặp ở cuối form. Rà thêm các màn detail khác.
+005 Pagination: thêm page-size selector cho /portal/purchase-history và /portal/notification.
+   ⚠️ ĐỪNG copy /portal/exam như BA gợi ý — đã kiểm source: selector của exam nằm NGOÀI form và
+   nút trang là <span>, tức UI tĩnh không bấm được. Hai trang này ngược lại đã có pager link CHẠY THẬT
+   và controller đã nhận tham số (`page_size` ở purchase_history/controllers/portal.py:227,
+   `limit` ở notification/controllers/portal.py:139) → làm selector 10/20/50 SUBMIT THẬT, giữ nguyên
+   pager link hiện có. BA cho phép ẩn cả khối pagination khi tổng bản ghi ≤ page size.
+   Ghi vào ledger phần "phát hiện thêm": pagination /portal/exam là UI tĩnh, cần issue riêng.
+006 BackButton: sửa Ở COMPONENT `wj_page_header` nhánh --pc (chủ dự án đã chốt), không sửa lẻ 2 màn.
+   variant 'back' PC hiện là icon-only 44×44 dùng chung ~14 màn detail (support, delivery, knowledge,
+   notification, return, exam, history, order product…) → đổi thành nút chữ "← Quay lại" 122×40.
+   ⚠️ nhánh --m (mobile) GIỮ NGUYÊN icon 40×40 + vùng chạm 44 (chống hồi quy RESP-MOB-SHELL-003).
+   Chỉ MỘT nút back, không lặp ở cuối form → gỡ nút "Quay lại" thừa ở portal_support.xml:444,
+   portal_return_detail.xml:160, portal_info_request_detail.xml:116, portal_franchise_profile.xml:134.
 007 Breadcrumb: thêm cho màn create/detail theo hierarchy thật (Hỗ trợ / Tạo yêu cầu;
-   Đặt hàng / Chi tiết sản phẩm). Dùng .wj-pc-page-header__crumb có sẵn.
+   Đặt hàng / Chi tiết sản phẩm). Dùng .wj-pc-page-header__crumb có sẵn — nhưng CHÚ Ý component
+   đang dùng là `wj_page_header` (class .wj-page-header__*), không phải .wj-pc-page-header:
+   đọc wj_page_header.xml trước, quyết định thêm prop ph_crumb hay đổi sang component kia, rồi HỎI.
    Breadcrumb KHÔNG thay thế BackButton — giữ cả hai (Navigation Rules v1.5).
-WJ-ORD-023: filter /portal/order PC đang xếp dọc 3 hàng y≈172/226/280, input & select cùng rộng ~1024px.
-   Đưa search + danh mục + nút Tìm về MỘT hàng trong card trắng, control 40–42px, gap 12–16px.
-   GIỮ NGUYÊN <form method="get"> và controller — chỉ đổi layout. Mockup Figma node 4600:2.
-   Verify chức năng: chọn Topping → Tìm → URL giữ category_id=2, dropdown vẫn selected, ra đúng 2 sản phẩm.
 
-Verify: đo ≥6 trang PC 1920 + regression mobile 9 route.
+Verify: DB copy cô lập (công thức ở đầu file này, KHÔNG đụng 8019) + đo ≥6 trang PC 1920
++ regression mobile 391×844 đủ 9 route (wj_page_header dùng chung toàn portal!).
+Mẹo đo đã dùng ở WJ-ORD-023: chụp full-page mobile trước/sau rồi so md5 — trùng byte là bằng chứng
+"mobile bất biến" mạnh nhất, rẻ hơn liệt kê bbox.
 ```
 
 ---
