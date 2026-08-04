@@ -3,7 +3,7 @@
 Mỗi cụm = **một phiên riêng**. Mở phiên mới → `/wujia-start` → khi hỏi "Sprint/task nào hôm nay?"
 thì dán nguyên khối prompt tương ứng bên dưới.
 
-**Thứ tự đề xuất:** ~~I~~ ~~A~~ ~~E~~ ~~G~~ ~~B~~ (xong 03–04/08) → D → C → F → H1 → H2
+**Thứ tự đề xuất:** ~~I~~ ~~A~~ ~~E~~ ~~G~~ ~~B~~ ~~D~~ (xong 03–04/08) → C → F → H1 → H2
 
 ---
 
@@ -368,7 +368,63 @@ Ghi cột K: Odoo Fit = Configuration cho phần này, kèm số user đã đổ
 
 ---
 
-## D — Giá & tiền tệ *(rủi ro cao nhất, test kỹ nhất)*
+## D — Giá & tiền tệ — ✅ ĐÃ XONG 04/08/2026 *(rủi ro cao nhất, test kỹ nhất)*
+
+> **Kết quả:** WJ-ORD-024 · WJ-ORD-025 · WJ-PH-005 fix bằng MỘT helper dùng chung.
+> `wujia_portal_base` `19.0.5.19.0` · `wujia_portal_sale` `19.0.4.8.0` ·
+> `wujia_portal_purchase_history` `19.0.3.1.0` · `wujia_portal_debt` `19.0.2.1.0`.
+> Deploy: `-u wujia_portal_base,wujia_portal_purchase_history,wujia_portal_sale,wujia_portal_debt`
+> — **không migration, không bump `?v=`** (asset trong bundle `web.assets_frontend`).
+> **CHƯA DEPLOY UAT.** Không tạo đơn nào trên UAT — toàn bộ chạy trên DB copy `wujia_tea_sd` (8110).
+>
+> **Helper đặt ở `wujia_portal_base/controllers/utils.py`, KHÔNG phải `wujia_portal_sale`** như doc
+> cụm đề xuất: `wujia_portal_sale` **depends** `wujia_portal_purchase_history` (chiều ngược với doc),
+> nên helper ở portal_sale thì history không import được. Chủ dự án chốt đặt ở base — cả 2 đều depends.
+> API: `portal_tax_mapper` (factory, cache fiscal position) · `portal_product_taxes` ·
+> `portal_unit_price_tax_included` · `portal_line_price_vals` · `portal_money`.
+>
+> **Bẫy lớn nhất — `compute_all` KHÔNG tái hiện được số của SO.** Công ty đặt
+> `tax_calculation_rounding_method = round_globally`; `compute_all` làm tròn **theo dòng**, còn
+> `sale.order.line` đi qua `_prepare_base_line_for_taxes_computation` + `_add_tax_details_in_base_line`
+> + `_round_base_lines_tax_details`. Hai đường lệch **1 xu** (giá 3,33 · giảm 33% · qty 3 · thuế 7,5%
+> → 7,20 vs 7,19) — mà lệch 1 xu giữa giỏ và đơn thì đúng bằng WJ-ORD-024 đang phải sửa. Helper vì
+> vậy đi ĐÚNG pipeline của Odoo, không dùng `compute_all` ⇒ khớp ở **cả hai** chế độ làm tròn.
+> Công thức BA (`compute_all` cho 1 đơn vị rồi mới nhân) vẫn giữ nguyên về **ngữ nghĩa**: đơn giá
+> hiển thị tính cho 1 đơn vị, thành tiền dòng tính cho `qty` đơn vị — **không** nhân đơn giá đã làm tròn.
+>
+> **Rounding cũng là lỗi, không chỉ ký hiệu.** Format cũ `'{:,.0f}'` cắt phần thập phân: SO
+> `amount_total = 10.99` in ra **"11 $"**. BA chốt "ký hiệu **+ rounding** theo currency của đơn" →
+> `portal_money(amount, symbol, decimals)` đọc `currency.decimal_places`, thập phân dấu phẩy kiểu VN.
+> VND (0 số lẻ) ra byte-for-byte y hệt bản cũ. `formatMoney` trong JS dùng cùng quy tắc.
+>
+> **`_cart_state` chỉ THÊM key** (JS + fragment + badge đang dùng `subtotal`/`total_amount`):
+> per-line `unit_price_tax_included` · `line_total_tax_included` · `tax_amount`; state
+> `total_untaxed` · `total_tax_amount` · `total_tax_included` · `currency_decimals`.
+>
+> **Đã kiểm trước khi code (BA yêu cầu):** currency giỏ ≡ currency SO — cả hai đều lấy
+> `franchise.partner_id.property_product_pricelist`, nhánh không pricelist cùng rơi về company
+> currency ⇒ không có bẫy lệch currency.
+>
+> **Verify** (DB copy `wujia_tea_sd`, port 8110 — không đụng 8019/8033/8102/8103):
+> build `-u` 4 module RC=0 · 0 ERROR; unit test mới `wujia_portal_sale/tests/test_pricing.py`
+> (tag `wujia_pricing`) phủ đủ ma trận BA: thuế included 15% · excluded 10% · discount trước thuế ·
+> 2 thuế 1 dòng · thuế cố định · currency ≠ VND · **sản phẩm không thuế (regression)** · rounding ·
+> perf mapper; regression toàn bộ 4 module **77 test, 0 failed / 0 error**.
+> E2E `e2e_cluster_d.py` **FAILS=0**: cùng đơn `S00284` (untaxed 9,99 · thuế 1,00 · tổng 10,99) →
+> **Cart · panel PC · Submitted · History list · History detail đều ra `10,99 $`**, không màn nào
+> còn ký hiệu `đ` cứng; smoke `/portal` `/portal/notification` `/portal/debt` 200.
+>
+> **Ghi nhớ về harness (L7):** regex bắt ký hiệu tiền `\s*đ` báo động giả vì khớp "4 **đơn** gần
+> nhất" — sửa **harness** (`đ(?![^\W\d_])`), không sửa code. Và test giả định "thuế cố định làm
+> `price_total/qty` sai" là **sai**: thuế `fixed` của Odoo tính **theo đơn vị** nên phép chia vẫn
+> khớp — chỗ phép chia thật sự sai là **rounding**, đã pin bằng ca đo được thay vì ca tự nghĩ ra.
+>
+> **LIMIT:** giá ở catalog + chi tiết SP nay là **giá đã gồm thuế** (chủ dự án chốt) — BA cần biết
+> khi đối chiếu với bảng giá backend (vốn là giá chưa thuế).
+
+---
+
+## D — Giá & tiền tệ *(prompt gốc)*
 
 ```
 Làm cụm D trong docs/issue-clusters/D_pricing_currency.md — fix WJ-ORD-024 + WJ-ORD-025 + WJ-PH-005
