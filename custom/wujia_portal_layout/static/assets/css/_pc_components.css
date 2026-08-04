@@ -213,6 +213,9 @@
     color: var(--wj-pc-muted);
     margin-right: auto;
 }
+/* Bọc select trong form riêng để submit thật; trung hoà `form { margin-bottom: 15px }`
+   của shell (tag-level, L4) — không thì hàng pagination bị đội cao. */
+.wj-pc-pagination__size-form { display: flex; margin: 0; }
 .wj-pc-pagination__size {
     height: var(--wj-pc-pagebtn);
     padding: 0 12px;
@@ -410,7 +413,20 @@ input[type="file"].wj-pc-control { height: auto; min-height: var(--wj-pc-input-h
 /* font-weight cũng cần !important: _wujia_theme.css có
    `.content-wrapper h1 { font-weight: 700 !important }` (tag-level, thắng class). */
 .wj-page-header--pc .wj-page-header__title { font-size: 30px !important; line-height: 38px; font-weight: 800 !important; }
-.wj-page-header--pc .wj-page-header__back { width: 44px; height: 44px; margin-right: 18px; }
+/* Back PC = nút CÓ CHỮ 122×40, không icon-only (UI-PC-BASE-006, source v1.5).
+   Mobile vẫn icon 40×40 — nhãn ẩn ở nhánh --m trong _components.css. */
+.wj-page-header--pc .wj-page-header__back {
+    width: 122px; height: 40px; margin-right: 18px;
+    gap: 4px; font-size: 14px; font-weight: 700; white-space: nowrap;
+}
+.wj-page-header--pc .wj-page-header__back > i { font-size: 20px; }
+/* Breadcrumb PC (UI-PC-BASE-007) — cùng token với .wj-pc-page-header__crumb */
+.wj-page-header__crumb {
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--wj-pc-muted);
+    margin: 0 0 8px;
+}
 .wj-page-header--pc .wj-page-header__create { width: 122px; height: 44px; }
 /* Notification list — bulk-read action dời từ PageHeader xuống card head (spec: header title-only) */
 .wj-pc-noti-head-actions { display: flex; align-items: center; gap: 12px; }

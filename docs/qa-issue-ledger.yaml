@@ -766,3 +766,33 @@ WJ-ORD-020:
   impact: "Biểu tượng giỏ và chuông trên thanh đầu trang, cả bản điện thoại lẫn máy tính. Ô số ở thanh điều hướng dưới cùng vốn đã ẩn sẵn nên không đụng tới"
   retest: "Tải lại trang portal nhiều lần (đã chạy tự động 20 lần cho mỗi trang): không lần nào thấy số 0 loé lên. Khi giỏ có hàng thì ô số vẫn hiện đúng số"
   limit: "Đã đo được lỗi này 40/40 lần ở máy phát triển và 10/10 lần trên UAT trước khi sửa, sau khi sửa còn 0/40 — không cần thêm thông tin máy của bên kiểm thử nữa"
+
+UI-PC-BASE-005:
+  sprint: "2026-08-04-H2"
+  build_override: "CHƯA lên UAT | Sprint 2026-08-04-H2 | Deploy: -u wujia_portal_layout,wujia_portal_base,wujia_portal_purchase_history,wujia_portal_notification,wujia_portal_support,wujia_portal_return,wujia_portal_info_request,wujia_portal_sale,wujia_portal_knowledge,wujia_portal_delivery (không có bước cập nhật dữ liệu) | URL: /portal/purchase-history, /portal/notification"
+  url: "/portal/purchase-history, /portal/notification"
+  odoo_fit: "Custom"
+  fix: "Hai màn danh sách này trước đây cố định số dòng mỗi trang, người dùng không đổi được. Nay cuối bảng có ô chọn 10 / 20 / 50 dòng mỗi trang; chọn xong trang tự tải lại ngay, giữ nguyên mọi điều kiện lọc đang đặt và quay về trang đầu. Dãy nút chuyển trang cũ giữ nguyên và vẫn nhớ số dòng vừa chọn. Khi cả danh sách chỉ còn từ 10 bản ghi trở xuống thì ẩn hẳn khối phân trang cho gọn"
+  impact: "Màn Lịch sử đặt hàng và màn Thông báo, bản máy tính. Bản điện thoại của hai màn này không đụng tới"
+  retest: "Ở 1920×1080 mở Lịch sử đặt hàng: cuối bảng có ô '20 / trang'. Chọn 50 — trang tải lại, hiện nhiều dòng hơn, ô vẫn giữ 50. Gõ một từ khoá vào ô tìm rồi bấm Tìm, sau đó đổi số dòng: từ khoá phải còn nguyên. Chọn 10 rồi bấm Sau: sang trang 2 và vẫn 10 dòng mỗi trang. Làm y vậy ở màn Thông báo. Lọc cho ra dưới 10 bản ghi: khối phân trang biến mất"
+  limit: "Ô chọn số dòng ở màn Đăng ký thi vẫn là ô trang trí — bấm không có tác dụng vì nó nằm ngoài biểu mẫu và các nút số trang ở đó không phải liên kết. Đây là lỗi riêng của màn Đăng ký thi, đề nghị BA mở một issue riêng; H2 không gộp vào vì cách sửa khác hẳn (phải viết lại phần phân trang của màn đó)"
+
+UI-PC-BASE-006:
+  sprint: "2026-08-04-H2"
+  build_override: "CHƯA lên UAT | Sprint 2026-08-04-H2 | Deploy: -u wujia_portal_layout,wujia_portal_base,wujia_portal_purchase_history,wujia_portal_notification,wujia_portal_support,wujia_portal_return,wujia_portal_info_request,wujia_portal_sale,wujia_portal_knowledge,wujia_portal_delivery (không có bước cập nhật dữ liệu) | URL: 13 màn chi tiết/tạo mới bản máy tính"
+  url: "/portal/support/new, /portal/support/<id>, /portal/order/product/<id>, /portal/order/cart, /portal/purchase-history/<id>, /portal/notification/<id>, /portal/knowledge/<slug>, /portal/delivery/<id>, /portal/return/new, /portal/return/<id>, /portal/info-request/new, /portal/info-request/<id>, /portal/franchises/<id>/profile"
+  odoo_fit: "Custom"
+  fix: "Nút quay lại bản máy tính trước đây chỉ là một ô vuông 44×44 với mũi tên, không có chữ. Nay là nút có chữ '← Quay lại' rộng 122 cao 40, sửa ở khối đầu trang dùng chung nên cả 13 màn chi tiết/tạo mới đổi cùng lúc, không phải sửa lẻ từng màn. Bốn màn trước đây có thêm một nút 'Quay lại' nữa ở cuối biểu mẫu nay đã bỏ nút thừa đó — mỗi màn chỉ còn đúng một đường quay lại, nằm ở đầu trang. Riêng màn Hồ sơ cửa hàng vốn chưa dùng khối đầu trang chung nên đã chuyển sang dùng, nhờ vậy có luôn tiêu đề đúng cỡ và nút quay lại như các màn khác"
+  impact: "13 màn chi tiết/tạo mới bản máy tính. Bản điện thoại giữ nguyên nút mũi tên 40×40 và vùng bấm 44 như cũ — đã chụp lại toàn bộ 14 màn điện thoại trước và sau khi sửa, ảnh trùng khớp từng điểm ảnh (trừ một màn ghi chú ở phần giới hạn)"
+  retest: "Ở 1920×1080 mở lần lượt Tạo yêu cầu hỗ trợ, Chi tiết sản phẩm, Chi tiết đơn hàng, Chi tiết thông báo, Chi tiết bài viết, Chi tiết chuyến giao, Tạo/Chi tiết yêu cầu đổi trả, Giỏ hàng, Tạo/Chi tiết yêu cầu cập nhật thông tin, Hồ sơ cửa hàng: mỗi màn có đúng một nút '← Quay lại' có chữ ở đầu trang, bấm vào phải về đúng danh sách cha, và không còn nút Quay lại nào ở cuối trang. Ở 391×844 mở các màn chi tiết: nút quay lại vẫn là mũi tên tròn nhỏ như trước, không hiện chữ"
+  limit: "Màn Chi tiết yêu cầu cập nhật thông tin dùng chung một khối cho cả máy tính lẫn điện thoại, nên khi bỏ nút Quay lại thừa thì bản điện thoại của riêng màn này cũng bớt một nút — đúng ý issue (trước đó màn này có hai nút quay lại trên điện thoại), nhưng cần lưu ý khi đối chiếu ảnh trước/sau"
+
+UI-PC-BASE-007:
+  sprint: "2026-08-04-H2"
+  build_override: "CHƯA lên UAT | Sprint 2026-08-04-H2 | Deploy: -u wujia_portal_layout,wujia_portal_base,wujia_portal_purchase_history,wujia_portal_notification,wujia_portal_support,wujia_portal_return,wujia_portal_info_request,wujia_portal_sale,wujia_portal_knowledge,wujia_portal_delivery (không có bước cập nhật dữ liệu) | URL: 13 màn chi tiết/tạo mới bản máy tính"
+  url: "13 màn chi tiết/tạo mới bản máy tính (như UI-PC-BASE-006)"
+  odoo_fit: "Custom"
+  fix: "Các màn chi tiết và tạo mới bản máy tính nay có thêm một dòng chữ nhỏ màu xám ngay trên tiêu đề, cho biết đang đứng ở đâu — ví dụ 'Hỗ trợ / Tạo yêu cầu' hay 'Đặt hàng / Chi tiết sản phẩm'. Dòng này chỉ hiện ở bản máy tính, đặt ngoài hàng tiêu đề nên không xê dịch tiêu đề hay nút quay lại. Chủ dự án duyệt đặt cho cả 13 màn theo đúng tên mục ở thanh menu bên trái, không chỉ hai màn BA nêu"
+  impact: "13 màn chi tiết/tạo mới bản máy tính. Bản điện thoại không nhận dòng này nên không đổi gì"
+  retest: "Ở 1920×1080 mở 13 màn chi tiết/tạo mới: mỗi màn có một dòng nhỏ phía trên tiêu đề đúng đường dẫn nghiệp vụ (Hỗ trợ / Tạo yêu cầu; Đặt hàng / Chi tiết sản phẩm; Lịch sử đặt hàng / Chi tiết đơn hàng; Thông báo / Chi tiết thông báo; Hỗ trợ / Chi tiết yêu cầu; Kiến thức / Chi tiết bài viết; Giao hàng / Chi tiết chuyến giao; Yêu cầu đổi trả / Tạo yêu cầu; Yêu cầu đổi trả / Chi tiết yêu cầu; Đặt hàng / Giỏ hàng; Yêu cầu cập nhật thông tin / Tạo yêu cầu; Yêu cầu cập nhật thông tin / Chi tiết yêu cầu; Thông tin cửa hàng / Hồ sơ cửa hàng). Nút Quay lại vẫn còn nguyên — dòng dẫn đường không thay thế nút quay lại"
+  limit: "Dòng dẫn đường hiện là chữ thường, chưa bấm được vào từng cấp. Nếu BA muốn bấm vào 'Hỗ trợ' để về danh sách thì cần thêm một vòng nữa"

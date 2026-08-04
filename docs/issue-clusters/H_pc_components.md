@@ -45,13 +45,13 @@ biến thể `--m` (mobile) **không** đổi theo. Xem lại issue cũ RESP-MOB
 
 ---
 
-## H2 — Đổi cấu trúc template (làm sau)
+## H2 — Đổi cấu trúc template — ✅ XONG 04/08/2026
 
 | Issue | Việc | Ghi chú |
 |---|---|---|
-| **005** Pagination | Thêm page-size selector ("10 / trang") cho `/portal/purchase-history` và `/portal/notification` | `/portal/exam` **đã làm đúng** (10/20/50) → copy pattern đó, đừng thiết kế lại. BA cho phép ẩn toàn bộ pagination khi tổng ≤ page size |
-| **006** BackButton | Thay nút icon-only 44×44 bằng "← Quay lại" **122×40** (hoặc 122×36 trong PageHeader) | Source ghi rõ **không dùng icon-only**. Áp `/portal/order/product/<id>` + `/portal/support/new`, và rà các màn detail khác. Chỉ **một** nút, không lặp ở cuối form |
-| **007** Breadcrumb | Thêm breadcrumb cho màn create/detail: `Hỗ trợ / Tạo yêu cầu`, `Đặt hàng / Chi tiết sản phẩm` | Breadcrumb **không thay thế** BackButton — giữ cả hai (Navigation Rules v1.5). Dùng `.wj-pc-page-header__crumb` có sẵn |
+| ~~**005** Pagination~~ | ✅ page-size selector 10/20/50 **submit thật** cho `/portal/purchase-history` + `/portal/notification` | ⚠️ **KHÔNG** copy `/portal/exam` như gợi ý ban đầu — selector ở đó nằm **ngoài** form và nút trang là `<span>` ⇒ UI tĩnh. Ẩn cả khối khi tổng ≤ **10** (option nhỏ nhất, không phải page size đang chọn) |
+| ~~**006** BackButton~~ | ✅ "← Quay lại" **122×40** sửa **ở component** `wj_page_header` nhánh `--pc` → 13 màn đổi cùng lúc; gỡ 4 nút thừa | Mobile giữ icon 40×40 + vùng chạm 44 |
+| ~~**007** Breadcrumb~~ | ✅ prop mới `ph_crumb` (nav riêng, chỉ PC) — gắn **cả 13 màn**, không chỉ 2 màn BA nêu | Giữ CẢ nút back (Navigation Rules v1.5) |
 | ~~**WJ-ORD-023** FilterBar Đặt hàng~~ | ✅ **XONG 04/08/2026** — commit `63dc4bc`, đã deploy UAT | Nguyên nhân: `<select>` không khai `width` → ăn `select{width:100%}` + `padding:5px!important` của `dashboard.css` (tag-level, bẫy L4) nên wrap 3 hàng. Chữa bằng cách bỏ `.wj-pc-order-search/.wj-pc-order-cat` riêng, dùng khung chung `.wj-pc-filterbar` + `.wj-pc-filter-*`. Đo UAT: 3 control cùng `y`, cao 42, gap 12/12, card radius 16 (**cao 80 → 88 khi H1-003 deploy**), `category_id=2` ra đúng 2 SP, mobile trùng byte |
 | **WJ-PH-004** | *(bỏ cột "Thao tác")* — **làm ở cụm E** cho gọn | |
 
@@ -138,3 +138,65 @@ chỉ ăn theo component chung).
 
 **Còn tồn (đưa sang H2):** 3 form PC khác vẫn Bootstrap thuần — `portal_return_form`,
 `portal_info_request_form`, `portal_info_request_detail`.
+
+---
+
+## Kết quả H2 (2026-08-04) — 0 FAIL
+
+DB copy cô lập **`wujia_tea_h2`** (cổng 8034 — 8033 đã bị phiên khác chiếm; KHÔNG đụng `wujia_tea_19`).
+Build `-u` 10 module: **RC=0, 0 ERROR/Traceback**. Harness `h2_check.py` (đo PC) + `h2_shots.py`
+(md5 mobile) — scratchpad, gitignored.
+
+**3 quyết định chủ dự án chốt đầu phiên:** `portal_franchise_profile` chuyển sang `wj_page_header`
+(trang này chưa từng dùng component chung, nút "Quay lại" cuối trang là đường back DUY NHẤT — gỡ
+suông là mất lối về) · breadcrumb gắn **cả 13 màn** · ngưỡng ẩn pagination = **≤10**, không phải
+≤ page size đang chọn (chọn 50 mà còn 20 bản ghi thì khối biến mất, kẹt không bấm về 10 được).
+
+**005** — BA gợi ý copy `/portal/exam`, nhưng đọc source thì `portal_exam.xml:103-119` có
+`<select name="limit">` nằm **ngoài mọi `<form>`** và nút trang là `<span>` ⇒ **UI tĩnh, bấm không
+ra gì**. Hai trang đích thì ngược lại: controller đã nhận sẵn tham số (`page_size`
+`purchase_history/controllers/portal.py:227,286`; `limit` `notification/controllers/portal.py:139,188`)
+và pager link chạy thật. Làm bằng `<form method="get">` nhỏ bọc select + hidden mang bộ lọc,
+`onchange="this.form.submit()"` — đúng pattern đã có ở `portal_order_catalog.xml:53`, không thêm file JS.
+⚠️ Phải trung hoà `form { margin-bottom: 15px }` của shell (L4) bằng
+`.wj-pc-pagination__size-form { display:flex; margin:0 }`, không thì hàng pagination đội cao.
+Controller history phải **thêm `page_size` vào context** (trước giờ nhận tham số nhưng không trả ra view).
+Đo: option 10/20/50 · đổi → URL mang `page_size=50`/`limit=50`, bảng 15/30 dòng, select giữ giá trị,
+không mang `page=` · lọc `q=S000` rồi đổi số dòng → từ khoá còn nguyên · 0 bản ghi → khối ẩn ·
+bấm "Sau" ở 10/trang → `page=2&page_size=10`, trang 2 đúng 5 dòng.
+
+**006** — variant `back` dùng ở **13 màn PC + 14 màn mobile**, nên sửa ở component là bắt buộc.
+Nhãn chữ nằm trong `<span>` chung, ẩn ở nhánh `--m` bằng `display:none` ⇒ mobile không đổi 1 pixel.
+Bốn nút thừa đã gỡ: `portal_support.xml` (PC-only), `portal_return_detail.xml` (PC-only),
+`portal_info_request_detail.xml` (**block dùng chung** → mobile màn này cũng bớt 1 nút, đúng ý issue,
+đã khai miễn trừ), `portal_franchise_profile.xml` (đổi header Vuexy `h2.content-header-title` sang
+`wj_page_header`, y như H1 làm với Dashboard).
+Đo 11 màn: back **122×40**, có chữ, `href` đúng danh sách cha, **đúng 1 nút back / màn**, overflow 0.
+
+**007** — component đang dùng là `wj_page_header` (class `.wj-page-header__*`), KHÔNG phải
+`.wj-pc-page-header` — chuyển 2 màn sang component kia sẽ đẻ lại hệ tiêu đề thứ hai mà H1-002 vừa gom.
+Giải: prop `ph_crumb` render thành `<nav>` **riêng, đặt trước `<header>`**, chỉ khi `ph_platform='pc'`
+⇒ flex-row bên trong header nguyên vẹn, mobile không nhận prop nên DOM không đổi.
+Đo: 13/13 màn đúng chuỗi, 14px/500, `y` nhỏ hơn header (nằm trên tiêu đề).
+
+**Regression mobile 391×844** — chụp full-page 14 route trước/sau trên **cùng DB copy**:
+**13/14 trùng md5 tuyệt đối**. Route lệch duy nhất là `/portal`, vùng khác đúng **139×32 px** ở đồng hồ
+đếm ngược khung giờ đặt hàng ("còn 06:59" → "còn 06:22") — đã crop ảnh đối chiếu, **không phải hồi quy**.
+Back mobile 5 màn detail: 40×40, nhãn `display:none`, `::after` 44×44. Overflow ngang = 0 mọi route.
+
+**Chức năng thật:** submit `/portal/support/new` → tạo ticket `#68` thật, redirect đúng trang chi tiết,
+trang đó có đúng 1 nút back 122×40, bấm về `/portal/support`.
+
+**Phát hiện thêm (KHÔNG sửa ở H2 — ngoài scope, đề nghị BA mở issue riêng):**
+1. Phân trang `/portal/exam` là **UI tĩnh** (select ngoài form, nút trang là `<span>`) — bấm không có
+   tác dụng. Cách sửa khác hẳn 005 nên không gộp.
+2. `portal_info_request_form.xml:150` — script inline trong CDATA viết `&amp;&amp;` thay vì `&&`;
+   XML **không** giải mã entity bên trong CDATA nên trình duyệt nhận literal `&amp;&amp;` và **cả khối
+   script chết** (`Unexpected token ';'`). Hệ quả: ô "Giá trị hiện tại" ở màn Tạo yêu cầu cập nhật
+   thông tin **chưa bao giờ tự điền**. Lỗi có từ commit `ca15c76` (15/07), **không phải do H2** —
+   đã đối chiếu `git diff` (H2 chỉ thêm 1 dòng `ph_crumb` vào file này).
+
+**Deploy:** `-u wujia_portal_layout,wujia_portal_base,wujia_portal_purchase_history,`
+`wujia_portal_notification,wujia_portal_support,wujia_portal_return,wujia_portal_info_request,`
+`wujia_portal_sale,wujia_portal_knowledge,wujia_portal_delivery` — không module mới, **không migration**.
+`_components.css?v=` 1165→**1167**, `_pc_components.css?v=` 1166→**1167**.

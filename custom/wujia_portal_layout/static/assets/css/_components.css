@@ -3260,6 +3260,8 @@ a.wujia-mhome-kpi:active { opacity: 0.85; }
 /* !important để thắng global `h1 { font-size: … !important }` (_components.css gotcha #13) */
 .wj-page-header--m .wj-page-header__title { font-size: 22px !important; line-height: 28px; }
 .wj-page-header--m .wj-page-header__back { width: 40px; height: 40px; margin-right: 12px; position: relative; }
+/* Mobile giữ nút icon-only: nhãn chữ chỉ dành cho PC (UI-PC-BASE-006) */
+.wj-page-header--m .wj-page-header__back-label { display: none; }
 .wj-page-header--m .wj-page-header__create { width: 112px; height: 40px; }
 /* Tap target ≥44 dù visual back 40 (spec) */
 .wj-page-header--m .wj-page-header__back::after {

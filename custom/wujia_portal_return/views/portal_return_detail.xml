@@ -10,6 +10,7 @@
                 <t t-call="wujia_portal_layout.wj_page_header">
                     <t t-set="ph_platform" t-value="'pc'"/>
                     <t t-set="ph_variant" t-value="'back'"/>
+                    <t t-set="ph_crumb">Yêu cầu đổi trả / Chi tiết yêu cầu</t>
                     <t t-set="ph_title" t-value="rr.name"/>
                     <t t-set="ph_back_url" t-value="'/portal/return'"/>
                 </t>
@@ -155,11 +156,8 @@
                         </div>
                     </div>
 
-                    <div class="mt-2">
-                        <a href="/portal/return" class="btn btn-secondary">
-                            <i class="fa fa-arrow-left me-1"/>Quay lại
-                        </a>
-                    </div>
+                    <!-- Nút "Quay lại" cuối trang đã gỡ: chỉ MỘT nút back / màn, nằm ở
+                         page header (UI-PC-BASE-006). -->
                 </div>
             </div>
 

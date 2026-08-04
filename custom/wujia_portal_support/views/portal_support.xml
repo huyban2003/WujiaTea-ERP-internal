@@ -213,6 +213,7 @@
                 <t t-call="wujia_portal_layout.wj_page_header">
                     <t t-set="ph_platform" t-value="'pc'"/>
                     <t t-set="ph_variant" t-value="'back'"/>
+                    <t t-set="ph_crumb">Hỗ trợ / Tạo yêu cầu</t>
                     <t t-set="ph_title">Tạo yêu cầu hỗ trợ</t>
                     <t t-set="ph_back_url" t-value="'/portal/support'"/>
                 </t>
@@ -371,6 +372,7 @@
                 <t t-call="wujia_portal_layout.wj_page_header">
                     <t t-set="ph_platform" t-value="'pc'"/>
                     <t t-set="ph_variant" t-value="'back'"/>
+                    <t t-set="ph_crumb">Hỗ trợ / Chi tiết yêu cầu</t>
                     <t t-set="ph_title" t-value="ticket.name + ' — ' + (ticket.title or '')"/>
                     <t t-set="ph_back_url" t-value="'/portal/support'"/>
                 </t>
@@ -451,11 +453,8 @@
                             </div>
                         </div>
                     </div>
-                    <div class="mt-2">
-                        <a href="/portal/support" class="btn btn-secondary">
-                            <i class="fa fa-arrow-left me-1" title="Back"/>Quay lại
-                        </a>
-                    </div>
+                    <!-- Nút "Quay lại" cuối trang đã gỡ: chỉ MỘT nút back / màn, nằm ở
+                         page header (UI-PC-BASE-006). -->
                 </div>
             </div>
             <!-- /desktop -->

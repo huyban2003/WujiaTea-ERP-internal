@@ -138,11 +138,33 @@
                         </tbody>
                     </table>
 
-                    <!-- Pagination — pager keys của notification: page/page_count/page_previous/page_next -->
-                    <div t-if="notifications and pager and pager.get('page_count', 0) &gt; 1" class="wj-pc-pagination">
+                    <!-- Pagination — pager keys của notification: page/page_count/page_previous/page_next.
+                         Ẩn cả khối khi ≤10 thông báo (BA cho phép); ngưỡng là option nhỏ nhất,
+                         không phải page_size đang chọn (UI-PC-BASE-005). -->
+                    <div t-if="notifications and pager and total &gt; 10" class="wj-pc-pagination">
                         <span class="wj-pc-pagination__count">
                             Hiển thị <t t-out="(pager['page']['num'] - 1) * page_size + 1"/>–<t t-out="min(pager['page']['num'] * page_size, total)"/> / <t t-out="total"/> thông báo
                         </span>
+                        <!-- Đổi số dòng/trang = submit thật, giữ bộ lọc, quay về trang 1 -->
+                        <form method="get" action="/portal/notification" class="wj-pc-pagination__size-form">
+                            <input type="hidden" name="keyword" t-att-value="keyword or ''"/>
+                            <input type="hidden" name="type_id" t-att-value="type_id or ''"/>
+                            <input type="hidden" name="read_status" t-att-value="read_status or ''"/>
+                            <input type="hidden" name="unread" t-att-value="unread or ''"/>
+                            <input type="hidden" name="date_from" t-att-value="date_from or ''"/>
+                            <input type="hidden" name="date_to" t-att-value="date_to or ''"/>
+                            <input type="hidden" name="priority" t-att-value="priority or ''"/>
+                            <input type="hidden" name="tab" t-att-value="tab or ''"/>
+                            <select name="limit" class="wj-pc-pagination__size"
+                                    aria-label="Số dòng mỗi trang" onchange="this.form.submit()">
+                                <t t-foreach="[10, 20, 50]" t-as="ps">
+                                    <option t-att-value="ps"
+                                            t-att-selected="'selected' if page_size == ps else None">
+                                        <t t-out="ps"/> / trang
+                                    </option>
+                                </t>
+                            </select>
+                        </form>
                         <a t-attf-href="/portal/notification?page=#{pager['page_previous']['num']}&amp;#{pager.get('querystring','')}"
                            t-attf-class="wj-pc-page-btn #{'is-disabled' if pager['page']['num'] &lt;= 1 else ''}">Trước</a>
                         <t t-foreach="range(1, pager['page_count'] + 1)" t-as="pn">
@@ -266,6 +288,7 @@
                 <t t-call="wujia_portal_layout.wj_page_header">
                     <t t-set="ph_platform" t-value="'pc'"/>
                     <t t-set="ph_variant" t-value="'back'"/>
+                    <t t-set="ph_crumb">Thông báo / Chi tiết thông báo</t>
                     <t t-set="ph_title">Chi tiết thông báo</t>
                     <t t-set="ph_back_url" t-value="'/portal/notification'"/>
                 </t>

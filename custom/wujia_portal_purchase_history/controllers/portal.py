@@ -230,6 +230,7 @@ class WujiaPortalHistory(http.Controller):
         base_ctx = {
             'date_from': '', 'date_to': '', 'state': '', 'preset': '', 'q': '',
             'state_options': self._state_options(SO), 'filter_error': '',
+            'page_size': PAGE_SIZE,
             # Format tiền dùng chung mọi module portal — ký hiệu theo currency của đơn.
             'money': portal_money,
         }
@@ -318,7 +319,8 @@ class WujiaPortalHistory(http.Controller):
 
         return request.render('wujia_portal_purchase_history.portal_history_list', dict(
             base_ctx, no_store=False, error='', rows=rows, pager=pager,
-            date_from=date_from, date_to=date_to, state=state, preset=preset, q=q))
+            date_from=date_from, date_to=date_to, state=state, preset=preset, q=q,
+            page_size=page_size))
 
     @http.route(['/portal/purchase-history/<int:order_id>'],
                 type='http', auth='user', sitemap=False)
