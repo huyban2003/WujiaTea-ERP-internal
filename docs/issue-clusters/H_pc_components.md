@@ -86,3 +86,55 @@ Mẫu cột K (ví dụ 002):
 `FIX: chuẩn hoá PageHeader PC về Inter 30/800 dùng chung wj_page_header | IMPACT: mọi trang PC dùng page header chung (~40 site) + kiểm biến thể mobile không đổi | RETEST: 1920×1080 đo title 6 trang đại diện đều 30/800; 391×844 mobile không đổi | LIMIT: Không có`
 
 R: `Custom` cho toàn bộ.
+
+---
+
+## Kết quả H1 (2026-08-04, commit `c25a06b`) — 0 FAIL
+
+Đo trên **DB copy cô lập `wujia_tea_h1`** (cổng 8032, KHÔNG đụng `wujia_tea_19`/8019 và không đụng
+các DB copy của phiên khác đang chạy). Build `-u` 6 module: **RC=0, 0 ERROR/Traceback**.
+Harness: `h1_check.py` (đo) + `h1_func.py` (submit thật) — scratchpad, gitignored.
+
+**3 quyết định chủ dự án chốt đầu phiên:** Dashboard đổi sang component chung · ép FilterBar 88px
+cả 4 trang (bỏ tiêu đề + nhãn field) · 008/009 chỉ làm `/portal/support/new`.
+
+**002** — có **ba** hệ tiêu đề PC chứ không phải một: `wj-page-header--pc` (~9 trang, 28/700),
+`wj-pc-page-header__title` (exam, 30/700) và `h2.content-header-title` của Vuexy (Dashboard, 24/700).
+Gom về 30/800 ở hai rule component + đổi Dashboard sang `t-call wj_page_header`.
+⚠️ Bẫy đã dính: đặt `font-weight: 800` KHÔNG có `!important` thì computed vẫn ra **700** —
+`_wujia_theme.css` có `.content-wrapper h1 { font-weight: 700 !important }` ở tag-level (đúng kiểu L4).
+Phải soi cascade bằng `document.styleSheets` mới thấy; nhìn ảnh không phân biệt được 700 với 800.
+Đo lại: 8/8 trang PC ra **30px/800**; mobile `--m` vẫn **22px/700** ở đủ 9 route.
+
+**003** — cả 4 trang vốn đã dùng `.wj-pc-filterbar`, chênh lệch chiều cao đến từ **nội dung thêm**:
+dòng "Bộ lọc nhanh" (history, exam) và nhãn trên từng field (notification, Figma 4683:101).
+Bỏ hai thứ đó, control lên 42px, padding 22 ⇒ **88px**. ⚠️ `box-sizing: border-box` vẫn **cộng
+border**: 23+42+23 ra 90 chứ không phải 88 — phải trừ 1px viền mỗi cạnh.
+Nhãn notification chuyển thành `aria-label` + option đầu mang tên field, không mất nghĩa cho screen reader.
+Đo: 4/4 trang **h=88**, control cùng `y`, cùng `height=42`.
+
+**004** — sửa thẳng rule `.wj-pc-badge` (radius 14, min-width 84), **không** đụng token
+`--wj-pc-pill-radius` vì chip tròn của delivery/exam đang dùng chung token đó.
+Miễn trừ tường minh (L7): exam giữ `min-width:118 / 12px-700` vì cột "Trạng thái đăng ký" chỉ rộng
+180px, nhãn "Chờ xác nhận" ở 84px sẽ tràn — đây là chỗ Figma cố ý khác, không "chuẩn hoá cho đẹp".
+Đo: history 107.5 · delivery 86.1 · notification 84 · exam 118, tất cả h28 radius14.
+
+**008/009** — form PC đổi sang `wj-pc-card` + `wj-pc-field/__label/.wj-pc-control` +
+`.wj-pc-form-actions` (component mới **duy nhất** của H1). Route POST, `name=`, `required`,
+`enctype`, csrf **giữ nguyên**; block mobile không đụng.
+Trung hoà 2 rule shell trong phạm vi component: `select { padding: 5px !important }` (dashboard.css)
+và `label { padding-left: .2rem }` (bootstrap-extended).
+Đo: 4 input/select **42px**, radius 10, border `#E5E7EB`, label 14/600; action bar có separator,
+2 nút h40/radius12/700, primary bên phải.
+
+**Regression thật (không chỉ đo style):** submit `/portal/support/new` → tạo ticket thật, redirect
+đúng trang chi tiết; filter submit thật ở history/delivery/notification/exam → query string và giá trị
+đã chọn giữ nguyên sau submit; mobile 9 route overflow ngang = 0, 0 JS pageerror.
+
+**Deploy:** `-u wujia_portal_layout,wujia_portal_base,wujia_portal_purchase_history,`
+`wujia_portal_notification,wujia_portal_exam,wujia_portal_support` — không module mới, **không migration**.
+`_pc_components.css?v=` đã bump 1155→**1166**. `wujia_portal_delivery` **không cần `-u`** (không sửa file,
+chỉ ăn theo component chung).
+
+**Còn tồn (đưa sang H2):** 3 form PC khác vẫn Bootstrap thuần — `portal_return_form`,
+`portal_info_request_form`, `portal_info_request_detail`.

@@ -673,3 +673,58 @@ WJ-PH-005:
   impact: "Lịch sử đặt hàng — bảng danh sách và trang chi tiết đơn"
   retest: "Mở một đơn có chiết khấu và có thuế trong lịch sử đặt hàng, so từng dòng với đơn tương ứng trong phần quản trị: đơn giá, thành tiền dòng và tổng tiền đơn phải khớp. Thử thêm đơn có hai loại thuế trên cùng một dòng"
   limit: "Không có"
+
+UI-PC-BASE-002:
+  sprint: "2026-08-04-H1"
+  commit: "c25a06b"
+  build_override: "CHƯA lên UAT | commit: c25a06b (Sprint 2026-08-04-H1) | Deploy: -u wujia_portal_layout,wujia_portal_base,wujia_portal_purchase_history,wujia_portal_notification,wujia_portal_exam,wujia_portal_support (không có bước cập nhật dữ liệu) | URL: mọi trang /portal bản máy tính"
+  url: "/portal"
+  odoo_fit: "Custom"
+  fix: "Trước đây mỗi trang tự đặt cỡ tiêu đề một kiểu: Trang chủ 24, các trang danh sách 28, Đăng ký thi 30 — vì thực ra có tới ba kiểu tiêu đề khác nhau đang cùng chạy. Nay cả ba đều đưa về đúng một cỡ theo bản thiết kế: 30px, đậm 800. Riêng Trang chủ được chuyển sang dùng chung khối tiêu đề của toàn hệ thống thay vì khối tiêu đề mặc định của giao diện nền, nên từ nay sửa một chỗ là mọi trang đổi theo. Chữ trong tiêu đề không đổi"
+  impact: "Tiêu đề của mọi trang /portal bản máy tính (khoảng 40 vị trí, 11 phân hệ). Bản điện thoại giữ nguyên 22px như cũ"
+  retest: "Mở lần lượt Trang chủ, Đặt hàng, Lịch sử đặt hàng, Thông báo, Giao hàng, Đăng ký thi, Kiến thức, Tạo yêu cầu hỗ trợ ở màn 1920×1080: tiêu đề 8 trang phải to bằng nhau và cùng độ đậm, cùng thẳng hàng bên trái. Mở lại 9 trang trên điện thoại 391×844: tiêu đề vẫn nhỏ như trước, không trang nào bị tràn ngang"
+  limit: "Không có"
+
+UI-PC-BASE-003:
+  sprint: "2026-08-04-H1"
+  commit: "c25a06b"
+  build_override: "CHƯA lên UAT | commit: c25a06b (Sprint 2026-08-04-H1) | Deploy: -u wujia_portal_layout,wujia_portal_base,wujia_portal_purchase_history,wujia_portal_notification,wujia_portal_exam,wujia_portal_support (không có bước cập nhật dữ liệu) | URL: /portal/purchase-history, /portal/notification, /portal/delivery, /portal/exam"
+  url: "/portal/purchase-history"
+  odoo_fit: "Custom"
+  fix: "Khung bộ lọc của bốn trang danh sách cao thấp khác nhau (113,6 / 100 / 80 / 89,6) là do có trang gắn thêm dòng chữ 'Bộ lọc nhanh', có trang gắn nhãn nhỏ phía trên từng ô. Nay bỏ hai thứ đó, mọi ô nhập/chọn cùng cao 42 và nằm trên một hàng, khung bộ lọc cả bốn trang đúng 88 như bản thiết kế. Ở trang Thông báo, chữ nhãn cũ được chuyển vào trong chính ô đó (ví dụ ô chọn hiện sẵn chữ 'Loại thông báo') nên vẫn biết ô nào là ô nào"
+  impact: "Khung bộ lọc ở Lịch sử đặt hàng, Thông báo, Giao hàng, Đăng ký thi — bản máy tính"
+  retest: "Ở màn 1920×1080 đo chiều cao khung bộ lọc của cả bốn trang: đều 88. Các ô nhập và nút phải nằm cùng một hàng. Bấm Tìm ở từng trang với một từ khoá bất kỳ: kết quả lọc đúng như trước và ô tìm vẫn giữ nguyên chữ vừa gõ; riêng Thông báo chọn một Loại thông báo rồi bấm Tìm, sau khi trang tải lại ô đó vẫn giữ đúng lựa chọn"
+  limit: "Ở trang Thông báo, nhãn chữ nhỏ phía trên từng ô (theo bản Figma 4683:101 cũ) đã bị bỏ để khung về đúng 88 — đây là điều chủ dự án chốt khi hai tài liệu vênh nhau. Nội dung lọc và cách lọc không đổi"
+
+UI-PC-BASE-004:
+  sprint: "2026-08-04-H1"
+  commit: "c25a06b"
+  build_override: "CHƯA lên UAT | commit: c25a06b (Sprint 2026-08-04-H1) | Deploy: -u wujia_portal_layout,wujia_portal_base,wujia_portal_purchase_history,wujia_portal_notification,wujia_portal_exam,wujia_portal_support (không có bước cập nhật dữ liệu) | URL: /portal/purchase-history, /portal/delivery, /portal/notification, /portal/exam"
+  url: "/portal/purchase-history"
+  odoo_fit: "Custom"
+  fix: "Viên trạng thái trước đây bo tròn hoàn toàn và rộng hẹp tuỳ độ dài chữ (53,6 đến 78,1) nên nhìn không đều. Nay bo góc 14, rộng tối thiểu 84 và chữ luôn nằm giữa, cao 28 như bản thiết kế. Các viên chip tròn khác (chip đếm ở Giao hàng, chip ở Đăng ký thi) cố ý giữ nguyên kiểu tròn nên không bị đổi theo"
+  impact: "Viên trạng thái ở Lịch sử đặt hàng, Giao hàng, Thông báo, Đăng ký thi — bản máy tính. Viên trạng thái bản điện thoại là hệ riêng, không đụng tới"
+  retest: "Ở màn 1920×1080 nhìn cột trạng thái của bốn trang: các viên đều cao bằng nhau, bo góc vuông vắn hơn trước, viên ngắn nhất cũng không hẹp hơn 84 nên cả cột thẳng hàng. Kiểm cột trạng thái không bị tràn hay bị cắt chữ"
+  limit: "Riêng trang Đăng ký thi giữ viên rộng 118 và chữ nhỏ hơn một chút, vì cột 'Trạng thái đăng ký' ở trang đó chỉ rộng 180 nên nhãn dài như 'Chờ xác nhận' sẽ bị tràn nếu ép về 84. Đây là chỗ bản thiết kế cố ý khác, đã giữ nguyên có chủ đích"
+
+UI-PC-BASE-008:
+  sprint: "2026-08-04-H1"
+  commit: "c25a06b"
+  build_override: "CHƯA lên UAT | commit: c25a06b (Sprint 2026-08-04-H1) | Deploy: -u wujia_portal_layout,wujia_portal_base,wujia_portal_purchase_history,wujia_portal_notification,wujia_portal_exam,wujia_portal_support (không có bước cập nhật dữ liệu) | URL: /portal/support/new"
+  url: "/portal/support/new"
+  odoo_fit: "Custom"
+  fix: "Màn Tạo yêu cầu hỗ trợ trước đây còn dùng ô nhập mặc định của thư viện giao diện: ô chọn cao 33, ô nhập cao 38,1, bo góc 5,6 — không khớp bộ giao diện chung. Nay mọi ô nhập/ô chọn/ô mô tả đều cao 42, bo góc 10, viền xám nhạt đúng bảng màu, chữ nhãn 14 đậm vừa. Tên trường, trường bắt buộc và cách gửi biểu mẫu giữ nguyên hoàn toàn"
+  impact: "Màn Tạo yêu cầu hỗ trợ bản máy tính. Bản điện thoại của cùng màn này không đụng tới"
+  retest: "Mở Tạo yêu cầu hỗ trợ ở 1920×1080: ba ô chọn và ô Tiêu đề cùng cao 42, bo góc giống nhau, nhãn nằm ngay trên ô. Điền thử và gửi một yêu cầu: yêu cầu phải được tạo và chuyển sang màn chi tiết như trước. Thử bỏ trống Tiêu đề rồi gửi: hệ thống vẫn chặn như cũ"
+  limit: "Ba biểu mẫu máy tính khác (Tạo yêu cầu đổi trả, Yêu cầu cập nhật thông tin — màn tạo và màn chi tiết) vẫn còn dùng ô nhập kiểu cũ; đề nghị làm ở nhóm H2"
+
+UI-PC-BASE-009:
+  sprint: "2026-08-04-H1"
+  commit: "c25a06b"
+  build_override: "CHƯA lên UAT | commit: c25a06b (Sprint 2026-08-04-H1) | Deploy: -u wujia_portal_layout,wujia_portal_base,wujia_portal_purchase_history,wujia_portal_notification,wujia_portal_exam,wujia_portal_support (không có bước cập nhật dữ liệu) | URL: /portal/support/new"
+  url: "/portal/support/new"
+  odoo_fit: "Custom"
+  fix: "Hai nút cuối biểu mẫu trước đây nằm rời, bo góc 8 và chữ mảnh, lại không có đường kẻ ngăn với phần nội dung. Nay hai nút được gom vào một dải hành động ở cuối thẻ, có đường kẻ ngăn phía trên, nút chính (Gửi yêu cầu) nằm ngoài cùng bên phải, nút Huỷ đứng trước; cả hai cao 40, bo góc 12, chữ đậm"
+  impact: "Cuối biểu mẫu Tạo yêu cầu hỗ trợ bản máy tính. Dải hành động này là khối dùng chung mới, các biểu mẫu máy tính khác sẽ dùng lại khi được chuyển đổi"
+  retest: "Ở 1920×1080 nhìn cuối biểu mẫu Tạo yêu cầu hỗ trợ: có đường kẻ ngang ngăn cách, hai nút nằm sát mép phải, nút Gửi yêu cầu ở ngoài cùng. Bấm Huỷ phải quay về danh sách hỗ trợ; bấm Gửi yêu cầu phải tạo được yêu cầu"
+  limit: "Không có"

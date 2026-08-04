@@ -40,11 +40,11 @@ bounding-box, computed-style, duyệt `document.styleSheets` tìm rule thắng c
 | **G** A11y lẻ | WJ-ORD-012 | Medium | Retest Failed | 1 chỗ duy nhất dùng `.btn-primary` (2.68:1) | ✅ 95% |
 | **G** | WJ-ORD-011 | Medium | Retest Failed | vùng chạm < 44×44 mobile | ⚠️ 80% (cần giỏ có hàng) |
 | **G** | WJ-ORD-019 *(còn lại)* | Medium | Retest Failed | ô search **mobile** `outline-style:none` | ✅ 90% |
-| **H1** Component PC | UI-PC-BASE-002 | Low | Ready for Dev | title 24/28/30 lẫn lộn, source 30/800 | ✅ 90% |
-| **H1** | UI-PC-BASE-003 | Low | Ready for Dev | FilterBar cao 80–113.6px, source 88px | ✅ 90% |
-| **H1** | UI-PC-BASE-004 | Low | Ready for Dev | badge radius 999px, thiếu min-width 84 | ✅ 90% |
-| **H1** | UI-PC-BASE-008 | Low | Ready for Dev | form còn control Bootstrap 33/38.1px | ✅ 90% |
-| **H1** | UI-PC-BASE-009 | Low | Ready for Dev | thiếu FormActionBar + separator | ✅ 90% |
+| **H1** ✅ Component PC | UI-PC-BASE-002 | Low | Ready for Dev | title 24/28/30 lẫn lộn, source 30/800 | ✅ 90% |
+| **H1** ✅ | UI-PC-BASE-003 | Low | Ready for Dev | FilterBar cao 80–113.6px, source 88px | ✅ 90% |
+| **H1** ✅ | UI-PC-BASE-004 | Low | Ready for Dev | badge radius 999px, thiếu min-width 84 | ✅ 90% |
+| **H1** ✅ | UI-PC-BASE-008 | Low | Ready for Dev | form còn control Bootstrap 33/38.1px | ✅ 90% |
+| **H1** ✅ | UI-PC-BASE-009 | Low | Ready for Dev | thiếu FormActionBar + separator | ✅ 90% |
 | **H2** | UI-PC-BASE-005 | Low | Ready for Dev | thiếu page-size selector (exam đã có, copy sang) | ✅ 90% |
 | **H2** | UI-PC-BASE-006 | Low | Ready for Dev | BackButton icon-only 44×44, source 122×40 có chữ | ✅ 95% |
 | **H2** | UI-PC-BASE-007 | Low | Ready for Dev | màn create/detail không có breadcrumb | ✅ 95% |
@@ -70,7 +70,7 @@ bounding-box, computed-style, duyệt `document.styleSheets` tìm rule thắng c
 6. **D** — giá & tiền tệ. Cần test kỹ nhất.
 7. **C** — mobile shell.
 8. **F** — đồng bộ giỏ (bật `bus.bus`).
-9. **H1** → **H2** — rollout component PC.
+9. ~~**H1**~~ (xong 04/08, commit `c25a06b`) → **H2** — rollout component PC.
 
 ## Ràng buộc chung cho mọi cụm
 
