@@ -16,6 +16,7 @@ from odoo.addons.wujia_portal_base.controllers.portal import (
     get_active_franchise_id,
     get_max_role_in_franchises,
 )
+from odoo.addons.wujia_portal_base.controllers.utils import portal_money
 
 from ..models.wujia_portal_debt import INVOICE_BADGE, INVOICE_PREVIEW, STATE_BADGE
 
@@ -31,9 +32,12 @@ def _debt_access(franchise_id):
     return True, None
 
 
-def _vnd(amount):
-    """'12.650.000 đ' — idiom tiền tệ chung của portal (xem wujia_portal_sale/purchase_history)."""
-    return '{:,.0f}'.format(amount or 0).replace(',', '.') + ' đ'
+def _money_fn(symbol, decimals=0):
+    """Trả hàm format 1 tham số cho template (`vnd(amount)` — giữ nguyên cách gọi cũ).
+
+    Ký hiệu bind theo currency của dữ liệu công nợ thay vì hardcode 'đ' (cụm D).
+    Format số giữ y hệt: '12.650.000 đ'."""
+    return lambda amount: portal_money(amount, symbol, decimals)
 
 
 def _parse_date(value):
@@ -67,7 +71,7 @@ class WujiaPortalDebt(http.Controller):
             'no_store': not franchise_id,
             'STATE_BADGE': STATE_BADGE,
             'INVOICE_BADGE': INVOICE_BADGE,
-            'vnd': _vnd,
+            'vnd': _money_fn(summary['currency_symbol'], summary['currency_decimals']),
         })
 
     @http.route(['/portal/debt/payment-history'], type='http', auth='user', sitemap=False)
@@ -83,7 +87,7 @@ class WujiaPortalDebt(http.Controller):
         return request.render('wujia_portal_debt.portal_debt_payment_history', {
             'history': history,
             'no_store': not franchise_id,
-            'vnd': _vnd,
+            'vnd': _money_fn(history['currency_symbol'], history['currency_decimals']),
         })
 
     @http.route(['/portal/debt/pay'], type='http', auth='user', sitemap=False)
@@ -101,5 +105,5 @@ class WujiaPortalDebt(http.Controller):
             'summary': summary,
             'bank': bank,
             'no_store': not franchise_id,
-            'vnd': _vnd,
+            'vnd': _money_fn(summary['currency_symbol'], summary['currency_decimals']),
         })

@@ -7,6 +7,7 @@ from odoo.addons.wujia_portal_base.controllers.utils import (
     MOBILE_ORDER_BADGES,
     MOBILE_RETURN_BADGES,
     get_upcoming_batches,
+    portal_money,
 )
 
 
@@ -173,6 +174,10 @@ class WujiaPortal(CustomerPortal):
             'order_window': self._order_window_view(
                 active_franchise.area_id.id if active_franchise else None
             ),
+            # Format tiền dùng chung — ký hiệu theo currency của đơn, không hardcode.
+            'money': portal_money,
+            'company_currency_symbol': request.env.company.currency_id.symbol or '',
+            'company_currency_decimals': request.env.company.currency_id.decimal_places or 0,
         })
         return request.render('wujia_portal_base.portal_home_page', values)
 
@@ -329,6 +334,8 @@ class WujiaPortal(CustomerPortal):
             limit=limit,
             order='product_uom_qty:sum desc',
         )
+        # price_total gộp nhiều đơn → quy về currency công ty (đơn đa tiền tệ hiếm
+        # ở đây; gộp thẳng số của nhiều currency mới là cái sai). Ký hiệu lấy ở template.
         return [{
             'name': product.display_name,
             'qty': qty or 0,

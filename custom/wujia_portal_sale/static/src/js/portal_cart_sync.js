@@ -11,8 +11,16 @@ import { Interaction } from "@web/public/interaction";
 import { registry } from "@web/core/registry";
 import { rpc } from "@web/core/network/rpc";
 
-function formatVnd(n) {
-    return String(Math.round(n || 0)).replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+/* Ký hiệu tiền đọc từ `currency_symbol` của server, KHÔNG hardcode 'đ' (WJ-ORD-025) —
+   cùng một đơn thì floatbar, giỏ và lịch sử phải ra cùng ký hiệu. */
+function formatMoney(n, symbol, decimals) {
+    /* Cùng quy tắc với `portal_money` phía server: nghìn '.', thập phân ',' —
+       số chữ số thập phân theo currency của đơn (VND 0, USD 2). */
+    const d = Number(decimals) || 0;
+    const parts = Number(n || 0).toFixed(d).split(".");
+    parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+    const text = parts.join(",");
+    return symbol ? `${text} ${symbol}` : text;
 }
 
 function debounce(fn, wait) {
@@ -258,7 +266,13 @@ export class WujiaCartSync extends Interaction {
             }
             const t = fb.querySelector(".wujia-morder-floatbar-total");
             if (t) {
-                t.textContent = formatVnd(res.total_amount);
+                // Tổng thanh toán (đã thuế) = số user thật sự trả. Fallback total_amount
+                // để bản JS này không vỡ nếu chạy với payload server cũ.
+                const grand =
+                    res.total_tax_included !== undefined
+                        ? res.total_tax_included
+                        : res.total_amount;
+                t.textContent = formatMoney(grand, res.currency_symbol, res.currency_decimals);
             }
         }
     }

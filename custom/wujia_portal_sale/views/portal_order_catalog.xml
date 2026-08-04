@@ -96,7 +96,7 @@
                                                         t-out="product.description_ecommerce or '—'"/>
                                                     <td class="wj-pc-order-uom" t-out="product.uom_id.name or '—'"/>
                                                     <td class="text-end wj-pc-order-price"
-                                                        t-out="'{:,.0f}'.format(price_map.get(product.id) or 0).replace(',', '.') + ' đ'"/>
+                                                        t-out="money(price_map.get(product.id), cart_state['currency_symbol'] if cart_state else '', cart_state['currency_decimals'] if cart_state else 0)"/>
                                                     <td class="text-center">
                                                         <button type="button"
                                                                 class="wj-pc-order-add btn-add-cart"
@@ -230,7 +230,7 @@
                                                   t-out="product.description_ecommerce or product.uom_id.name or '—'"/>
                                         </a>
                                         <span class="wujia-morder-row-price"
-                                              t-out="'{:,.0f}'.format(price_map.get(product.id) or 0).replace(',', '.') + ' đ'"/>
+                                              t-out="money(price_map.get(product.id), cart_state['currency_symbol'] if cart_state else '', cart_state['currency_decimals'] if cart_state else 0)"/>
                                         <!-- WJ-ORD-021: qty=0 → nút "Thêm"; qty>0 → stepper "− N +"
                                              (giảm ở min = xoá dòng qua /cart/step product_id). data-qty
                                              điều khiển hiển thị; JS applyState morph theo qty_map.
@@ -273,8 +273,11 @@
                                 <span class="wujia-morder-floatbar-sub">
                                     <!-- WJ-ORD-022: line_count = số mặt hàng (SKU), KHÁC total_qty -->
                                     <span class="wujia-morder-floatbar-count" t-out="cart_state['line_count'] if cart_state else 0"/> mặt hàng •
+                                    <!-- Ký hiệu nằm TRONG span (trước đây ở ngoài) để JS ghi đè
+                                         cả số lẫn ký hiệu bằng cùng một nguồn currency (WJ-ORD-025).
+                                         Số = Tổng thanh toán đã thuế, khớp giỏ. -->
                                     <span class="wujia-morder-floatbar-total"
-                                          t-out="'{:,.0f}'.format((cart_state['total_amount'] if cart_state else 0) or 0).replace(',', '.')"/> đ
+                                          t-out="money(cart_state['total_tax_included'] if cart_state else 0, cart_state['currency_symbol'] if cart_state else '', cart_state['currency_decimals'] if cart_state else 0)"/>
                                 </span>
                             </span>
                             <span class="wujia-morder-floatbar-btn">Xem giỏ</span>

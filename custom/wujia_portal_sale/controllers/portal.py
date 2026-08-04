@@ -39,7 +39,12 @@ from odoo.addons.wujia_portal_base.controllers.portal import (
     ACTIVE_FRANCHISE_COOKIE,
     get_active_franchise_id,
 )
-from odoo.addons.wujia_portal_base.controllers.utils import rate_limit
+from odoo.addons.wujia_portal_base.controllers.utils import (
+    portal_line_price_vals,
+    portal_money,
+    portal_tax_mapper,
+    rate_limit,
+)
 # Nhãn trạng thái SO dùng CHUNG với trang Lịch sử đặt hàng — không nhân bản dict
 # (draft → 'Chờ xác nhận'); màn kết quả và trang lịch sử phải luôn nói giống nhau.
 from odoo.addons.wujia_portal_purchase_history.controllers.portal import _state_meta
@@ -192,10 +197,38 @@ class WujiaPortalSale(http.Controller):
         return None
 
     def _price_products(self, pricelist, products, qty=1):
-        """{product_id: đơn giá} — 1 call batch; fallback giá chuẩn khi chưa có pricelist."""
+        """{product_id: đơn giá THÔ} — 1 call batch; fallback giá chuẩn khi chưa có pricelist.
+
+        Giá thô = chưa qua tax engine. Muốn số để HIỂN THỊ thì đi qua
+        `_taxed_price_map()` — catalog/chi tiết SP phải cùng con số với giỏ (WJ-ORD-024)."""
         if pricelist and products:
             return pricelist._get_products_price(products, qty)
         return {p.id: p.lst_price for p in products}
+
+    def _taxed_price_map(self, pricelist, products, franchise, qty=1):
+        """{product_id: đơn giá ĐÃ GỒM THUẾ} — nguồn giá hiển thị của catalog + chi tiết SP.
+
+        Cùng helper với giỏ và với lịch sử ⇒ 5 màn một con số (cụm D)."""
+        raw = self._price_products(pricelist, products, qty)
+        currency = self._cart_currency(pricelist)
+        company = request.env.company
+        partner = franchise.partner_id if franchise else None
+        taxes_of = portal_tax_mapper(partner, company)
+        return {
+            product.id: portal_line_price_vals(
+                product, raw.get(product.id, 0.0), 1, currency,
+                partner=partner, company=company, taxes=taxes_of(product),
+            )['unit_price_tax_included']
+            for product in products
+        }
+
+    def _cart_currency(self, pricelist):
+        """Currency của giỏ = currency sẽ tạo SO.
+
+        Submit truyền `pricelist_id = partner.property_product_pricelist` (cùng partner
+        cửa hàng) → SO.currency_id compute ra đúng pricelist này; không pricelist thì
+        cả hai phía cùng rơi về company currency. Đã đối chiếu, không có chỗ lệch."""
+        return pricelist.currency_id if pricelist else request.env.company.currency_id
 
     def _price_lines(self, pricelist, lines):
         """{line_id: đơn giá theo qty dòng} — batch theo qty (pricelist có thể theo bậc)."""
@@ -230,15 +263,25 @@ class WujiaPortalSale(http.Controller):
         lines = cart.line_ids if cart else Line.browse()
         pricelist = self._get_pricelist(franchise)
         unit_prices = self._price_lines(pricelist, lines)
-        currency = (pricelist.currency_id if pricelist
-                    else request.env.company.currency_id)
+        currency = self._cart_currency(pricelist)
+        # Đúng partner sẽ tạo SO → cùng fiscal position → cùng bộ thuế (WJ-ORD-024).
+        partner = franchise.partner_id if franchise else None
+        company = request.env.company
+        taxes_of = portal_tax_mapper(partner, company)
         lines_data = []
         total_qty = 0
         total_amount = 0.0
+        total_untaxed = 0.0
+        total_tax_included = 0.0
+        total_tax_amount = 0.0
         for line in lines:
             product = line.product_id
             unit = unit_prices.get(line.id, 0.0)
             invalid = self._line_invalid_reason(line)
+            taxed = portal_line_price_vals(
+                product, unit, line.qty, currency,
+                partner=partner, company=company, taxes=taxes_of(product),
+            )
             lines_data.append({
                 'line_id': line.id,
                 'product_id': product.id,
@@ -250,21 +293,37 @@ class WujiaPortalSale(http.Controller):
                 'qty': line.qty,
                 'min_qty': product.min_qty,
                 'max_qty': product.max_qty,
+                # unit_price/subtotal = giá THÔ, giữ nguyên nghĩa cũ vì JS đang dùng
+                # (`_cart_state` là nguồn dữ liệu duy nhất của giỏ mobile + panel PC +
+                # badge header + route JSON). Số để HIỂN THỊ là 3 key tax-included dưới.
                 'unit_price': unit,
                 'subtotal': unit * line.qty,
+                'unit_price_tax_included': taxed['unit_price_tax_included'],
+                'line_total_tax_included': taxed['line_total_tax_included'],
+                'tax_amount': taxed['tax_amount'],
                 'invalid_reason': invalid,
                 'invalid_message': LINE_INVALID_MESSAGES.get(invalid, ''),
             })
             total_qty += line.qty
             total_amount += unit * line.qty
+            total_untaxed += taxed['line_total']
+            total_tax_included += taxed['line_total_tax_included']
+            total_tax_amount += taxed['tax_amount']
         return {
             'cart_id': cart.id if cart else False,
             'note': (cart.note or '') if cart else '',
             'line_count': len(lines_data),
             'total_qty': total_qty,
             'total_amount': total_amount,
+            # Tạm tính · Thuế · Tổng thanh toán — 3 key THÊM (không đụng nghĩa key cũ).
+            # total_untaxed là base thật sau tax engine, KHÁC total_amount khi thuế
+            # price_include: Tạm tính + Thuế = Tổng mới luôn đúng.
+            'total_untaxed': currency.round(total_untaxed),
+            'total_tax_amount': currency.round(total_tax_amount),
+            'total_tax_included': currency.round(total_tax_included),
             'currency': currency.name or 'VND',
             'currency_symbol': currency.symbol or 'đ',
+            'currency_decimals': currency.decimal_places or 0,
             'lines': lines_data,
             'has_invalid_line': any(l['invalid_reason'] for l in lines_data),
             'updated_at': fields.Datetime.to_string(fields.Datetime.now()),
@@ -296,7 +355,8 @@ class WujiaPortalSale(http.Controller):
         cart_state = self._cart_state(cart, franchise)
         # request cần cho request.csrf_token() trong template submit form.
         values = dict(self._order_window_context(franchise),
-                      cart_state=cart_state, request=request)
+                      cart_state=cart_state, request=request,
+                      money=portal_money)
         Qweb = request.env['ir.qweb']
         return {
             'pc_html': str(Qweb._render('wujia_portal_sale.pc_cart_panel', values)),
@@ -368,6 +428,7 @@ class WujiaPortalSale(http.Controller):
     def portal_order_catalog(self, page=1, category_id=None, keyword='', **kw):
         if not request.env.user._get_accessible_franchise_ids():
             return request.render('wujia_portal_sale.portal_order_catalog', {
+            'money': portal_money,
                 'no_franchise': True, 'products': [], 'categories': [],
                 'cart': False, 'cart_state': None, 'price_map': {},
                 'pager': {}, 'keyword': '', 'category_id': None,
@@ -406,7 +467,7 @@ class WujiaPortalSale(http.Controller):
         ])
 
         pricelist = self._get_pricelist(franchise)
-        price_map = self._price_products(pricelist, products)
+        price_map = self._taxed_price_map(pricelist, products, franchise)
 
         cart = self._get_store_cart(fid) if fid else False
         cart_state = self._cart_state(cart, franchise)
@@ -415,6 +476,7 @@ class WujiaPortalSale(http.Controller):
 
         msgs = self._resolve_messages(kw)
         return request.render('wujia_portal_sale.portal_order_catalog', {
+            'money': portal_money,
             'no_franchise': False,
             'active_franchise_id': fid,
             'products': products,
@@ -450,12 +512,15 @@ class WujiaPortalSale(http.Controller):
         fid, _gate_error = self._store_gate()
         franchise = self._get_franchise(fid) if fid else None
         pricelist = self._get_pricelist(franchise)
-        price_map = self._price_products(pricelist, product | related)
+        price_map = self._taxed_price_map(pricelist, product | related, franchise)
         return request.render('wujia_portal_sale.portal_order_product_detail', {
+            'money': portal_money,
             'active_franchise_id': fid,
             'product': product,
             'related': related,
             'price_map': price_map,
+            'currency_symbol': self._cart_currency(pricelist).symbol or '',
+            'currency_decimals': self._cart_currency(pricelist).decimal_places or 0,
         })
 
     # ----------------------------------------------------------------- cart view
@@ -469,6 +534,7 @@ class WujiaPortalSale(http.Controller):
         cart_state = self._cart_state(cart, franchise)
         msgs = self._resolve_messages(kw)
         return request.render('wujia_portal_sale.portal_order_cart', {
+            'money': portal_money,
             'active_franchise_id': fid,
             'cart': cart,
             'cart_state': cart_state,
@@ -915,11 +981,20 @@ class WujiaPortalSale(http.Controller):
         local_dt = fields.Datetime.context_timestamp(order, order.date_order) if order.date_order else None
         franchise = self._get_franchise(fid)
         return request.render('wujia_portal_sale.portal_order_submitted', {
+            'money': portal_money,
             'active_franchise_id': fid,
             'order': order,
             'order_name': order.name,
             'order_date_label': local_dt.strftime('%d/%m/%Y • %H:%M') if local_dt else '—',
-            'order_amount_label': '{:,.0f}'.format(order.amount_total or 0).replace(',', '.') + ' đ',
+            # Ký hiệu theo currency của ĐƠN, không hardcode (WJ-ORD-025). Breakdown
+            # Tạm tính/Thuế/Tổng để user đối chiếu đúng cái vừa thấy ở giỏ (WJ-ORD-024).
+            'order_amount_label': portal_money(order.amount_total, order.currency_id.symbol,
+                                               order.currency_id.decimal_places),
+            'order_untaxed_label': portal_money(order.amount_untaxed, order.currency_id.symbol,
+                                                order.currency_id.decimal_places),
+            'order_tax_label': portal_money(order.amount_tax, order.currency_id.symbol,
+                                            order.currency_id.decimal_places),
+            'order_has_tax': bool(order.currency_id.compare_amounts(order.amount_tax, 0.0)),
             'order_state_label': label,
             'order_status_type': status_type,
             **self._order_window_context(franchise),

@@ -63,7 +63,7 @@
                             <span class="wujia-mcart-row-name" t-out="line['name']"/>
                             <span class="wujia-mcart-row-meta">
                                 <t t-out="line['uom']"/> • Đơn giá
-                                <t t-out="'{:,.0f}'.format(line['unit_price'] or 0).replace(',', '.')"/> đ
+                                <t t-out="money(line['unit_price_tax_included'], cart_state['currency_symbol'], cart_state['currency_decimals'])"/>
                             </span>
                             <span t-if="line['invalid_reason']"
                                   class="wujia-mcart-row-warn text-danger"
@@ -84,7 +84,7 @@
                                     <span class="wujia-mcart-row-amount-label">Thành tiền</span>
                                     <span class="wujia-mcart-row-amount-value"
                                           t-att-data-line-id="line['line_id']"
-                                          t-out="'{:,.0f}'.format(line['subtotal'] or 0).replace(',', '.') + ' đ'"/>
+                                          t-out="money(line['line_total_tax_included'], cart_state['currency_symbol'], cart_state['currency_decimals'])"/>
                                 </div>
                             </div>
                         </div>
@@ -113,10 +113,21 @@
                 <!-- Sticky summary CTA — submit thẳng (BA, no delivery fields) -->
                 <div class="wujia-mcart-summary">
                     <div class="wujia-mcart-summary-rows">
-                        <div class="wujia-mcart-summary-line">
+                        <!-- WJ-ORD-024: Tạm tính · Thuế · Tổng thanh toán — user phải biết
+                             số mình trả TRƯỚC khi bấm gửi, không phải sau. Dòng Thuế ẩn khi
+                             đơn không có thuế (giữ nguyên giao diện cũ cho case đó). -->
+                        <div class="wujia-mcart-summary-line muted">
                             <span>Tạm tính</span>
+                            <span t-out="money(cart_state['total_untaxed'], cart_state['currency_symbol'], cart_state['currency_decimals'])"/>
+                        </div>
+                        <div t-if="cart_state['total_tax_amount']" class="wujia-mcart-summary-line muted">
+                            <span>Thuế</span>
+                            <span t-out="money(cart_state['total_tax_amount'], cart_state['currency_symbol'], cart_state['currency_decimals'])"/>
+                        </div>
+                        <div class="wujia-mcart-summary-line">
+                            <span>Tổng thanh toán</span>
                             <strong class="wujia-mcart-grand"
-                                    t-out="'{:,.0f}'.format(cart_state['total_amount'] or 0).replace(',', '.') + ' đ'"/>
+                                    t-out="money(cart_state['total_tax_included'], cart_state['currency_symbol'], cart_state['currency_decimals'])"/>
                         </div>
                         <div class="wujia-mcart-summary-line muted">
                             <!-- WJ-ORD-022: tổng số lượng (đơn vị), khác số mặt hàng -->

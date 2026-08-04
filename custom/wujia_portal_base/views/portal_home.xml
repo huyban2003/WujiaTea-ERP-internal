@@ -220,7 +220,7 @@
                                             <td t-out="p['name']"/>
                                             <td class="text-end" t-out="'{:,.0f}'.format(p['qty']).replace(',', '.')"/>
                                             <td t-out="p['uom']"/>
-                                            <td class="text-end" t-out="'{:,.0f}'.format(p['total']).replace(',', '.') + ' ₫'"/>
+                                            <td class="text-end" t-out="money(p['total'], company_currency_symbol, company_currency_decimals)"/>
                                         </tr>
                                     </tbody>
                                 </table>
@@ -382,7 +382,7 @@
                                                   t-out="o.date_order and o.date_order.strftime('%H:%M %d/%m/%Y') or ''"/>
                                         </span>
                                         <span class="wujia-mdash-amount"
-                                              t-out="'{:,.0f}'.format(o.amount_total).replace(',', '.') + ' đ'"/>
+                                              t-out="money(o.amount_total, o.currency_id.symbol, o.currency_id.decimal_places)"/>
                                         <t t-set="lbl" t-value="m_order_badges.get(o.state, (o.state, 'wujia-badge-muted'))"/>
                                         <span t-attf-class="wujia-badge #{lbl[1]}" t-out="lbl[0]"/>
                                         <i class="feather icon-chevron-right wujia-mdash-chev"/>
@@ -407,7 +407,7 @@
                                             <span class="wujia-mdash-row-sub is-strong" t-out="it['when']"/>
                                             <span class="wujia-mdash-row-sub">Tổng đơn: <t t-out="it['order_count']"/> đơn</span>
                                             <span class="wujia-mdash-row-sub is-strong">
-                                                Tổng tiền: <t t-out="'{:,.0f}'.format(it['total']).replace(',', '.') + ' đ'"/>
+                                                Tổng tiền: <t t-out="money(it['total'], company_currency_symbol, company_currency_decimals)"/>
                                             </span>
                                         </span>
                                         <span t-attf-class="wujia-badge #{it['badge'][1]}" t-out="it['badge'][0]"/>

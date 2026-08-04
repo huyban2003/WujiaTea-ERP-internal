@@ -42,7 +42,7 @@
                                         </span>
                                     </p>
                                     <p class="text-primary fs-4 fw-bold">
-                                        <t t-out="'{:,.0f}'.format(price_map.get(product.id) or 0).replace(',', '.')"/> ₫
+                                        <t t-out="money(price_map.get(product.id), currency_symbol, currency_decimals)"/>
                                         <small class="text-muted fs-6"> / <t t-out="product.uom_id.name or '—'"/></small>
                                     </p>
                                     <p t-if="product.description_sale" t-out="product.description_sale"/>

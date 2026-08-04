@@ -7,7 +7,8 @@ from odoo.http import request
 
 from odoo.addons.wujia_portal_base.controllers.portal import get_active_franchise_id
 from odoo.addons.wujia_portal_base.controllers.utils import (
-    local_day_range_utc, portal_tz, to_local_dt,
+    local_day_range_utc, portal_line_price_vals, portal_money, portal_tax_mapper,
+    portal_tz, to_local_dt,
 )
 
 
@@ -128,6 +129,7 @@ def _history_row_vals(order, line_count_map, batch_status_labels, tz):
         'status_type': status_type,
         'amount_total': order.amount_total,
         'currency_symbol': order.currency_id.symbol or '',
+        'currency_decimals': order.currency_id.decimal_places or 0,
         'product_line_count': line_count_map.get(order.id, 0),
         'batch_name': batch.name or '',
         'batch_status_label': batch_status_labels.get(batch.delivery_batch_status, '') if batch else '',
@@ -135,18 +137,30 @@ def _history_row_vals(order, line_count_map, batch_status_labels, tz):
     }
 
 
-def _history_line_vals(line):
-    """1 dòng sản phẩm — giá đã gồm thuế (BA)."""
+def _history_line_vals(line, taxes_of=None):
+    """1 dòng sản phẩm — giá đã gồm thuế (BA).
+
+    WJ-PH-005: đơn giá đi qua tax engine chứ KHÔNG lấy price_total/qty. Phép chia
+    đó chỉ đúng khi thuế là % thuần — sai với thuế cố định (fixed amount), sai khi
+    một dòng gánh nhiều thuế, và sai rounding ở currency lẻ.
+    Thành tiền vẫn đọc thẳng `price_total` — đó là nguồn chân lý của Odoo."""
     qty = line.product_uom_qty or 0.0
     total = line.price_total or 0.0
+    product = line.product_id
+    order = line.order_id
+    vals = portal_line_price_vals(
+        product, line.price_unit, 1, order.currency_id,
+        partner=order.partner_id, discount=line.discount,
+        company=order.company_id,
+        taxes=taxes_of(product) if taxes_of else None,
+    )
     return {
-        'product_name': line.product_id.display_name or line.name,
-        'spec': line.product_id.description_ecommerce or '',
+        'product_name': product.display_name or line.name,
+        'spec': product.description_ecommerce or '',
         'uom_name': line.product_uom_id.name or '',
         'quantity': qty,
         'discount': line.discount or 0.0,
-        # Đơn giá sau chiết khấu, đã gồm thuế = thành tiền đã thuế / số lượng.
-        'unit_price_tax_included': (total / qty) if qty else total,
+        'unit_price_tax_included': vals['unit_price_tax_included'],
         'line_total_tax_included': total,
     }
 
@@ -155,6 +169,7 @@ def _history_detail_vals(order, batch_status_labels, tz):
     label, status_type = _order_status(order)
     lines = order.order_line.filtered(lambda ln: not ln.display_type)
     batch = order.batch_id
+    taxes_of = portal_tax_mapper(order.partner_id, order.company_id)
     header = {
         'id': order.id,
         'name': order.name,
@@ -164,6 +179,7 @@ def _history_detail_vals(order, batch_status_labels, tz):
         'status_type': status_type,
         'amount_total': order.amount_total,
         'currency_symbol': order.currency_id.symbol or '',
+        'currency_decimals': order.currency_id.decimal_places or 0,
         'franchise_code': order.franchise_id.code or '',
         'franchise_name': order.franchise_id.name or '',
         'requester_display': _requester_display(order),
@@ -180,7 +196,9 @@ def _history_detail_vals(order, batch_status_labels, tz):
     return {
         'header': header,
         'batch': batch_vals,
-        'lines': [_history_line_vals(ln) for ln in lines],
+        # 1 mapper cho cả đơn: fiscal position resolve 1 lần, map_tax cache theo
+        # bộ thuế gốc — đơn 40 dòng vẫn không đẻ 40 query.
+        'lines': [_history_line_vals(ln, taxes_of) for ln in lines],
         'note': order.portal_note or '',
     }
 
@@ -212,6 +230,8 @@ class WujiaPortalHistory(http.Controller):
         base_ctx = {
             'date_from': '', 'date_to': '', 'state': '', 'preset': '', 'q': '',
             'state_options': self._state_options(SO), 'filter_error': '',
+            # Format tiền dùng chung mọi module portal — ký hiệu theo currency của đơn.
+            'money': portal_money,
         }
 
         fid = get_active_franchise_id()
@@ -307,10 +327,12 @@ class WujiaPortalHistory(http.Controller):
         if not order:
             # Cùng 1 message cho "không tồn tại" và "khác cửa hàng" — không lộ tồn tại (BA).
             return request.render('wujia_portal_purchase_history.portal_history_detail',
-                                  {'error': ERR_NOT_FOUND, 'detail': None})
+                                  {'error': ERR_NOT_FOUND, 'detail': None,
+                                   'money': portal_money})
         detail = _history_detail_vals(order, self._batch_status_labels(), portal_tz())
         return request.render('wujia_portal_purchase_history.portal_history_detail',
-                              {'error': '', 'detail': detail})
+                              {'error': '', 'detail': detail,
+                               'money': portal_money})
 
     @http.route(['/portal/purchase-history/<int:order_id>.pdf'],
                 type='http', auth='user', sitemap=False)

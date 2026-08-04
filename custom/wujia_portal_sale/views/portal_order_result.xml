@@ -53,8 +53,24 @@
                             <dt class="wujia-mres-info-label">Thời gian đặt</dt>
                             <dd class="wujia-mres-info-value" t-out="order_date_label"/>
                         </div>
+                        <!-- WJ-ORD-024: breakdown y hệt giỏ vừa rồi → user đối chiếu được
+                             ngay, không còn cảnh "gửi xong tổng mới nhảy". Dòng Tạm tính +
+                             Thuế chỉ hiện khi đơn CÓ thuế, giữ nguyên màn cũ cho case không thuế. -->
+                        <t t-if="order_has_tax">
+                            <div class="wujia-mres-info-row">
+                                <dt class="wujia-mres-info-label">Tạm tính</dt>
+                                <dd class="wujia-mres-info-value" t-out="order_untaxed_label"/>
+                            </div>
+                            <div class="wujia-mres-info-row">
+                                <dt class="wujia-mres-info-label">Thuế</dt>
+                                <dd class="wujia-mres-info-value" t-out="order_tax_label"/>
+                            </div>
+                        </t>
                         <div class="wujia-mres-info-row">
-                            <dt class="wujia-mres-info-label">Tổng tiền</dt>
+                            <dt class="wujia-mres-info-label">
+                                <t t-if="order_has_tax">Tổng thanh toán</t>
+                                <t t-else="">Tổng tiền</t>
+                            </dt>
                             <dd class="wujia-mres-info-value wujia-mres-info-value--lg"
                                 t-out="order_amount_label"/>
                         </div>

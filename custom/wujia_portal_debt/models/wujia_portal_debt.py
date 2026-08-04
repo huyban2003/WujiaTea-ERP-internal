@@ -75,14 +75,17 @@ def _end_of_month(day):
     return first_next_month - timedelta(days=1)
 
 
-def _short_vnd(amount):
-    """Tiền rút gọn cho tile KPI Home (ô hẹp, 4 tile/hàng): 12.650.000 → '12,7tr'."""
+def _short_amount(amount, symbol=''):
+    """Tiền rút gọn cho tile KPI Home (ô hẹp, 4 tile/hàng): 12.650.000 → '12,7tr'.
+
+    Ký hiệu truyền từ ngoài (currency của công ty), không hardcode '₫' — cùng luật
+    với cụm D: portal không được tự quyết đơn vị tiền."""
     amount = amount or 0
     if amount >= 1000000:
         return ('%.1f' % (amount / 1000000.0)).replace('.', ',').replace(',0', '') + 'tr'
     if amount >= 1000:
         return '%dk' % (amount // 1000)
-    return '%d ₫' % amount
+    return ('%d %s' % (amount, symbol)).strip()
 
 
 def _week_label(monday):
@@ -124,6 +127,28 @@ class WujiaPortalDebt(models.AbstractModel):
                 if opt['key'] == week:
                     return opt, options
         return options[0], options
+
+    @api.model
+    def _currency_decimals(self, moves=None):
+        """Số chữ số thập phân của currency công nợ — đi cặp với `_currency_symbol`."""
+        if moves:
+            currencies = moves.mapped('currency_id')
+            if len(currencies) == 1:
+                return currencies.decimal_places or 0
+        return self.env.company.currency_id.decimal_places or 0
+
+    @api.model
+    def _currency_symbol(self, moves=None):
+        """Ký hiệu tiền của dữ liệu công nợ.
+
+        Hoá đơn cùng một currency → lấy currency đó; rỗng hoặc pha trộn nhiều
+        currency → currency công ty (gộp số của nhiều currency vốn đã là chuyện
+        khác, không giải ở cụm D)."""
+        if moves:
+            currencies = moves.mapped('currency_id')
+            if len(currencies) == 1:
+                return currencies.symbol or ''
+        return self.env.company.currency_id.symbol or ''
 
     # ------------------------------------------------------------------
     # Summary — điểm nối duy nhất giữa UI và backend kế toán (CT-050/051/052)
@@ -168,14 +193,20 @@ class WujiaPortalDebt(models.AbstractModel):
             franchise_id = get_active_franchise_id()
         except Exception:  # noqa: BLE001 — render backend/cron: không có request
             franchise_id = False
+        symbol = self.env.company.currency_id.symbol or ''
         if not franchise_id:
-            return {'overdue_count': 0, 'remaining': 0, 'remaining_label': _short_vnd(0)}
+            return {'overdue_count': 0, 'remaining': 0,
+                    'remaining_label': _short_amount(0, symbol),
+                    'currency_symbol': symbol,
+                    'currency_decimals': self.env.company.currency_id.decimal_places or 0}
         franchise = self.env['wujia.franchise.management'].sudo().browse(franchise_id).exists()
         remaining = franchise.portal_debt_remaining or 0
         return {
             'overdue_count': franchise.portal_overdue_invoice_count or 0,
             'remaining': remaining,
-            'remaining_label': _short_vnd(remaining),
+            'remaining_label': _short_amount(remaining, symbol),
+            'currency_symbol': symbol,
+            'currency_decimals': self.env.company.currency_id.decimal_places or 0,
         }
 
     # ------------------------------------------------------------------
@@ -231,6 +262,8 @@ class WujiaPortalDebt(models.AbstractModel):
                 date_from.strftime('%d/%m'), date_to.strftime('%d/%m/%Y')),
             'payments': payments,
             'total': sum(p['amount'] for p in payments),
+            'currency_symbol': self._currency_symbol(),
+            'currency_decimals': self._currency_decimals(),
         }
 
     @api.model
@@ -283,6 +316,8 @@ class WujiaPortalDebt(models.AbstractModel):
             'nearest_due': False,
             'confirmed_date': False,
             'invoices': [],
+            'currency_symbol': self._currency_symbol(),
+            'currency_decimals': self._currency_decimals(),
         }
 
     @api.model
@@ -356,6 +391,8 @@ class WujiaPortalDebt(models.AbstractModel):
             'nearest_due': min(due_dates) if due_dates else False,
             'confirmed_date': self._confirmed_date(moves) if state == 'paid' else False,
             'invoices': invoices,
+            'currency_symbol': self._currency_symbol(moves),
+            'currency_decimals': self._currency_decimals(moves),
         }
 
     @api.model
