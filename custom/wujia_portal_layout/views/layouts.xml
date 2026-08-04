@@ -50,7 +50,9 @@
                                     </li>
                                 </ul>
                             </div>
-                            <ul class="nav navbar-nav float-right">
+                            <!-- wj-pc-navactions: neo cho khối CSS cụm B (_pc_account.css). Cart/bell
+                                 do wujia_portal_sale + wujia_portal_notification chèn vào ul này. -->
+                            <ul class="nav navbar-nav float-right wj-pc-navactions">
                                 <li class="dropdown dropdown-language nav-item">
                                     <a class="dropdown-toggle nav-link text-white" id="dropdown-flag" href="#"
                                        data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
@@ -80,6 +82,13 @@
                                     <t t-set="cur_path" t-value="request.httprequest.path"/>
                                     <a class="dropdown-toggle nav-link dropdown-user-link" href="#"
                                        data-toggle="dropdown">
+                                        <!-- UI-03 (cụm B): avatar đứng TRƯỚC tên theo source v1.5.
+                                             Đảo DOM chứ không dùng `order` để thứ tự đọc màn hình
+                                             khớp thứ tự nhìn thấy. -->
+                                        <span>
+                                            <img class="round" t-att-src="'/web/image/res.users/'+ str(request.env.user.id) +'/avatar_128'"
+                                                 alt="avatar" height="36" width="36"/>
+                                        </span>
                                         <div class="wj-pc-user-nav d-sm-flex d-none">
                                             <span class="wj-pc-user-nav__name" t-out="request.env.user.name"/>
                                             <!-- UI-03 (Sprint 34): role subtitle dưới tên. Role đã sẵn trong
@@ -91,10 +100,6 @@
                                                 <t t-elif="_wujia_active_role == 'staff'">Staff</t>
                                             </span>
                                         </div>
-                                        <span>
-                                            <img class="round" t-att-src="'/web/image/res.users/'+ str(request.env.user.id) +'/avatar_128'"
-                                                 alt="avatar" height="40" width="40" style="border: 3px solid #fff;"/>
-                                        </span>
                                         <i class="feather icon-chevron-down wj-pc-user-nav__chev"/>
                                     </a>
                                     <div class="dropdown-menu dropdown-menu-right wj-pc-acct-menu">
