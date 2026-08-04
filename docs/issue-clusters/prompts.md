@@ -3,7 +3,7 @@
 Mỗi cụm = **một phiên riêng**. Mở phiên mới → `/wujia-start` → khi hỏi "Sprint/task nào hôm nay?"
 thì dán nguyên khối prompt tương ứng bên dưới.
 
-**Thứ tự đề xuất:** ~~I~~ ~~A~~ ~~E~~ (xong 03/08) → **G** → B → D → C → F → H1 → H2
+**Thứ tự đề xuất:** ~~I~~ ~~A~~ ~~E~~ ~~G~~ ~~B~~ (xong 03–04/08) → D → C → F → H1 → H2
 
 ---
 
@@ -287,7 +287,57 @@ Ghi evidence phần đã đạt vào cột K để BA không fail lại vì lý 
 
 ---
 
-## B — Header PC: cụm hành động bên phải
+## B — Header PC: cụm hành động bên phải — ✅ ĐÃ XONG 04/08/2026
+
+> **Kết quả:** commit `157814a` · `wujia_portal_layout` `19.0.31.8.0` · `wujia_portal_base` `19.0.5.17.0`
+> (+ migration `19.0.5.17.0` backfill lang). CSS bump `_pc_account.css?v=1164`.
+> Deploy: `-u wujia_portal_layout,wujia_portal_base`. **CHƯA DEPLOY UAT.**
+>
+> Đo trên DB copy cô lập `wujia_tea_b01` (port 8102) — **0 FAIL**:
+>
+> | Điểm đo (1920×1080, 5 route PC) | Trước | Sau (= source v1.5) |
+> |---|---|---|
+> | language pill `<a>` | 1491.7,4.9 118×40 | **1450,16 118×40** |
+> | cart | 1609.7,4.9 42.1×62.3, không nền | **1590,16 40×40** r20 glass |
+> | bell | 1651.9,4.9 42.1×62.3, không nền | **1642,16 40×40** r20 glass |
+> | account pill | 1694,9.9 202×52, nền trong suốt | **1696,10 204×52** r18 glass |
+> | avatar | 1812.9 40×40 **bên phải**, viền trắng 3px | **tâm (1724,36) 36×36 bên TRÁI** |
+> | mép phải cụm | 1920 (dính biên) | **1900** |
+>
+> Dropdown ngôn ngữ + tài khoản mở bình thường; badge cart/bell vẫn trong circle, số đúng.
+> Mobile 391×844 bất biến 5 route (header 391×104, overflow 0); tablet 1100 sạch; 0 lỗi JS.
+>
+> **3 chỗ prompt/doc đoán sai — đừng lặp lại:**
+> 1. Số "Actual" trong `B_header_pc.md` là bbox của `<li>` (nav-item cao hết 62.3), **không phải pill**.
+>    Account pill 202×52 và language pill 118×40 **vốn đã đúng từ S34/S39** — thiếu là nền glass +
+>    thứ tự avatar. Đo `<a>`, đừng đo `<li>` (L7).
+> 2. **KHÔNG viết CSS vào `_wujia_theme.css`** — rule của đúng các selector này đã nằm ở
+>    `_pc_account.css`, nạp SAU (assets.xml L81 vs L86) nên bản ở theme sẽ thua. Sửa tại chỗ.
+> 3. `.wujia-header-icon-btn` và `.dropdown-user-link` bị Vuexy `bootstrap-extended.css:1800/1819`
+>    đè `padding` ở **(0,4,1)** → phải viết ở **(0,5,2)** (`.wujia-navbar .navbar-container ul.nav
+>    li.<x> > a.<y>`), thay vì sửa `_components.css` dùng chung.
+>
+> **Bẫy mới ghi nhận:** selector `li + li` **không ăn** ở ngữ cảnh này — cùng một khối CSS mà cart
+> nhận `margin-left` còn bell computed ra `0px`, không có rule nào cạnh tranh (đã quét đệ quy toàn bộ
+> `document.styleSheets`). Đặt `margin-left` inline lên cùng element thì lại ăn. → dùng `gap` trên
+> flex container + 2 margin cộng thêm (10 cho cart, 2 cho account) để ra 22/12/14 của source.
+>
+> **B4 ngôn ngữ (Odoo Fit = Configuration):** header render cờ theo `lang` — code ĐÚNG, BA thấy cờ Mỹ
+> vì tài khoản test để `en_US`. Migration S34 (`19.0.5.12.0`) chỉ chạy 1 lần và có seed
+> `base.template_portal_user_id`, nhưng user portal tạo THẲNG bằng `res.users.create` lấy lang theo
+> người tạo — mà backend chạy `en_US` từ S44. Đã bịt: `res_users.create` mặc định `vi_VN` cho user
+> `group_portal` khi vals không truyền `lang` tường minh, + migration `19.0.5.17.0` quét lại
+> (**local đổi 1 user: `anh.owner`** — số trên UAT lấy từ log lúc deploy để ghi cột K).
+> Test 4/4: portal không lang→`vi_VN` · portal `lang=en_US`→giữ EN · user backend→không đụng ·
+> `Command(4)`→`vi_VN`.
+>
+> **Còn tồn:** deploy UAT + đo lại trên server, rồi ghi ledger/sheet (`Ready for Retest`, R=`Custom`;
+> UI-02 ghi thêm Odoo Fit=Configuration + số user đã đổi). Test suite `1 failed/74` là
+> `wujia_portal_sale/tests/test_pricing.py` của **cụm D đang dở trong cây thư mục**, không thuộc cụm B.
+> Badge giỏ hiện chữ "0" (`display:block`) — đo trên server cụm G trước cụm B cũng y hệt ⇒
+> **có sẵn, đúng WJ-ORD-020 của cụm F**, không phải hồi quy của B.
+>
+> Harness: `scripts/ba_spec/b_header_measure.py` (đo trần) + `b_header_verify.py` (assert đầy đủ).
 
 ```
 Làm cụm B trong docs/issue-clusters/B_header_pc.md — fix UI-03 + UI-PC-BASE-011 + phần hình học UI-02.
