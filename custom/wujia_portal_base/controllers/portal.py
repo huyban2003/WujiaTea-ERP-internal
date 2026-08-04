@@ -131,6 +131,12 @@ class WujiaPortal(CustomerPortal):
             if active_fid else False
         )
         active_role = membership.role if membership else False
+        # Currency mà cửa hàng thực sự đặt hàng bằng — CÙNG nguồn với giỏ và SO
+        # (bảng giá của partner cửa hàng), không có bảng giá thì rơi về công ty.
+        store_currency = (
+            active_franchise.partner_id.property_product_pricelist.currency_id
+            if active_franchise and active_franchise.partner_id else False
+        ) or request.env.company.currency_id
 
         # ---- Sprint 17: 3 màn dashboard (Figma 2474:2) gộp về Home (dedupe).
         #      BA còn review. recent_orders/latest_returns/active_franchise đã có
@@ -178,6 +184,12 @@ class WujiaPortal(CustomerPortal):
             'money': portal_money,
             'company_currency_symbol': request.env.company.currency_id.symbol or '',
             'company_currency_decimals': request.env.company.currency_id.decimal_places or 0,
+            # Các con số GỘP TỪ ĐƠN (top sản phẩm, tổng tiền chuyến giao) mang currency
+            # của ĐƠN chứ không phải của công ty. Lấy đúng nguồn mà giỏ và SO dùng —
+            # bảng giá của cửa hàng — nếu không thì UAT (đơn USD, công ty VND) hiện số
+            # USD mà dán ký hiệu ₫, đúng kiểu lỗi WJ-ORD-025 vừa sửa.
+            'store_currency_symbol': store_currency.symbol or '',
+            'store_currency_decimals': store_currency.decimal_places or 0,
         })
         return request.render('wujia_portal_base.portal_home_page', values)
 

@@ -220,7 +220,7 @@
                                             <td t-out="p['name']"/>
                                             <td class="text-end" t-out="'{:,.0f}'.format(p['qty']).replace(',', '.')"/>
                                             <td t-out="p['uom']"/>
-                                            <td class="text-end" t-out="money(p['total'], company_currency_symbol, company_currency_decimals)"/>
+                                            <td class="text-end" t-out="money(p['total'], store_currency_symbol, store_currency_decimals)"/>
                                         </tr>
                                     </tbody>
                                 </table>
@@ -271,11 +271,14 @@
                                     <span class="wujia-mhome-kpi-value" t-out="return_requests_count or 0"/>
                                 </a>
                                 <!-- CÔNG NỢ: Sprint 17 — chưa build (account.move = Phase 2).
-                                     Tile inert UI-only "0 ₫" (KHÔNG link — module /portal/debt đã xoá).
-                                     Dựng section + wire khi cần. -->
+                                     Tile inert UI-only (KHÔNG link — module /portal/debt đã xoá).
+                                     Dựng section + wire khi cần.
+                                     Số 0 vẫn phải mang ký hiệu tiền của công ty, không hardcode ₫ —
+                                     nếu không, màn hình Trang chủ có 2 ký hiệu tiền khác nhau (cụm D). -->
                                 <div class="wujia-mhome-kpi">
                                     <span class="wujia-mhome-kpi-label">Công nợ</span>
-                                    <span class="wujia-mhome-kpi-value">0 ₫</span>
+                                    <span class="wujia-mhome-kpi-value"
+                                          t-out="money(0, company_currency_symbol, company_currency_decimals)"/>
                                 </div>
                             </div>
                         </section>
@@ -407,7 +410,7 @@
                                             <span class="wujia-mdash-row-sub is-strong" t-out="it['when']"/>
                                             <span class="wujia-mdash-row-sub">Tổng đơn: <t t-out="it['order_count']"/> đơn</span>
                                             <span class="wujia-mdash-row-sub is-strong">
-                                                Tổng tiền: <t t-out="money(it['total'], company_currency_symbol, company_currency_decimals)"/>
+                                                Tổng tiền: <t t-out="money(it['total'], store_currency_symbol, store_currency_decimals)"/>
                                             </span>
                                         </span>
                                         <span t-attf-class="wujia-badge #{it['badge'][1]}" t-out="it['badge'][0]"/>
