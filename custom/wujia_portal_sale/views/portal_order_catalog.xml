@@ -36,25 +36,34 @@
                         <div class="wj-pc-order-grid">
                             <!-- LEFT: catalog -->
                             <div class="wj-pc-order-main">
-                                <!-- Filter row -->
-                                <form method="get" action="/portal/order" class="wj-pc-order-filter">
-                                    <div class="wj-pc-order-search">
-                                        <i class="feather icon-search"/>
-                                        <input type="text" name="keyword"
-                                               placeholder="Tìm theo tên sản phẩm, mã hàng..."
-                                               t-att-value="keyword"/>
+                                <!-- WJ-ORD-023: filter dùng khung chung wj-pc-filterbar (card trắng,
+                                     3 control một hàng) thay layout rời — select cũ không khai width
+                                     nên ăn `select{width:100%}` của shell dashboard.css → wrap 3 hàng. -->
+                                <form method="get" action="/portal/order"
+                                      class="wj-pc-filterbar wj-pc-order-filter">
+                                    <div class="wj-pc-filterbar__row">
+                                        <span class="wj-pc-filter-search wj-pc-filterbar__grow">
+                                            <i class="feather icon-search"/>
+                                            <input type="text" name="keyword"
+                                                   placeholder="Tìm theo tên sản phẩm, mã hàng..."
+                                                   class="wj-pc-filter-control"
+                                                   t-att-value="keyword"/>
+                                        </span>
+                                        <select name="category_id" class="wj-pc-filter-control"
+                                                style="max-width:220px;" onchange="this.form.submit()">
+                                            <option value="">Tất cả danh mục</option>
+                                            <t t-foreach="categories" t-as="cat">
+                                                <option t-att-value="cat.id"
+                                                        t-att-selected="'selected' if category_id == cat.id else None"
+                                                        t-out="cat.name"/>
+                                            </t>
+                                        </select>
+                                        <span class="wj-pc-filterbar__actions">
+                                            <button type="submit" class="wj-pc-btn wj-pc-btn--primary">
+                                                <i class="feather icon-search"/> Tìm
+                                            </button>
+                                        </span>
                                     </div>
-                                    <select name="category_id" class="wj-pc-order-cat" onchange="this.form.submit()">
-                                        <option value="">Tất cả danh mục</option>
-                                        <t t-foreach="categories" t-as="cat">
-                                            <option t-att-value="cat.id"
-                                                    t-att-selected="'selected' if category_id == cat.id else None"
-                                                    t-out="cat.name"/>
-                                        </t>
-                                    </select>
-                                    <button type="submit" class="wj-pc-btn wj-pc-btn--primary">
-                                        <i class="feather icon-search"/> Tìm
-                                    </button>
                                 </form>
 
                                 <!-- Product card -->

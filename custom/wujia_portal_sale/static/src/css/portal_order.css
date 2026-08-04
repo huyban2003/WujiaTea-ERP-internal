@@ -25,25 +25,18 @@
 }
 .wj-pc-order-side { position: sticky; top: 16px; }
 
-/* ---- Filter row ---- */
-.wj-pc-order-filter { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; margin-bottom: 16px; }
-.wj-pc-order-search { position: relative; flex: 1 1 280px; }
-.wj-pc-order-search i {
-    position: absolute; left: 14px; top: 50%; transform: translateY(-50%);
-    color: var(--wj-pc-subtle); font-size: 16px;
+/* ---- Filter row (WJ-ORD-023) ----
+   Khung + control dùng .wj-pc-filterbar / .wj-pc-filter-* chung ở _pc_components.css;
+   dưới đây chỉ là delta của trang Đặt hàng. Control 42px là số của Figma 4600:2 —
+   bỏ được khi H1/UI-PC-BASE-003 chuẩn hoá --wj-pc-filter-input-h. */
+.wj-pc-order-filter { margin-bottom: 16px; }
+.wj-pc-order-filter .wj-pc-filter-control { height: 42px; }
+/* Shell dashboard.css có `select, textarea { padding: 5px !important }` (tag-level) →
+   trung hoà TRONG scope, không sửa file shared. Cùng giá trị với neutralizer chung
+   của UI-PC-BASE-003 để hai rule không đá nhau. */
+.wj-pc-order-filter select.wj-pc-filter-control {
+    padding: 0 16px !important; cursor: pointer;
 }
-.wj-pc-order-search input {
-    width: 100%; height: 42px; padding: 0 14px 0 38px;
-    border: 1px solid var(--wj-pc-border); border-radius: var(--wj-pc-input-radius);
-    background: var(--wj-pc-card); font-size: 14px; color: var(--wj-pc-text);
-}
-.wj-pc-order-search input::placeholder { color: var(--wj-pc-subtle); }
-.wj-pc-order-cat {
-    height: 42px; padding: 0 14px; min-width: 200px;
-    border: 1px solid var(--wj-pc-border); border-radius: var(--wj-pc-input-radius);
-    background: var(--wj-pc-card); font-size: 14px; color: var(--wj-pc-text); cursor: pointer;
-}
-.wj-pc-order-search input:focus, .wj-pc-order-cat:focus { outline: none; border-color: var(--wj-pc-primary); }
 
 /* ---- Product card + table (cyan headers per Figma) ---- */
 .wj-pc-order-card { padding: 20px 24px; }
@@ -220,8 +213,7 @@
 .wj-pc-cart-step:focus-visible,
 .wj-pc-cart-del:focus-visible,
 .wj-pc-cart-submit:focus-visible,
-.wj-pc-order-search input:focus-visible,
-.wj-pc-order-cat:focus-visible,
+.wj-pc-order-filter .wj-pc-filter-control:focus-visible,
 .wj-pc-cart-note:focus-visible {
     outline: 2px solid var(--wujia-cta);
     outline-offset: 2px;
