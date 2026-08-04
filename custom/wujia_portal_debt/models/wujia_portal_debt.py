@@ -201,12 +201,19 @@ class WujiaPortalDebt(models.AbstractModel):
                     'currency_decimals': self.env.company.currency_id.decimal_places or 0}
         franchise = self.env['wujia.franchise.management'].sudo().browse(franchise_id).exists()
         remaining = franchise.portal_debt_remaining or 0
+        # Nợ sinh ra từ hoá đơn của chính các đơn cửa hàng đặt ⇒ currency của nó là
+        # currency bảng giá cửa hàng, không phải của công ty. Cửa hàng bán bằng USD
+        # trong công ty VND thì tile này từng in số USD kèm ký hiệu ₫ (cụm D).
+        # Đọc pricelist qua record đã browse sẵn — không thêm query cho mỗi trang mobile.
+        store_currency = (franchise.partner_id.property_product_pricelist.currency_id
+                          if franchise.partner_id else False) or self.env.company.currency_id
+        symbol = store_currency.symbol or ''
         return {
             'overdue_count': franchise.portal_overdue_invoice_count or 0,
             'remaining': remaining,
             'remaining_label': _short_amount(remaining, symbol),
             'currency_symbol': symbol,
-            'currency_decimals': self.env.company.currency_id.decimal_places or 0,
+            'currency_decimals': store_currency.decimal_places or 0,
         }
 
     # ------------------------------------------------------------------

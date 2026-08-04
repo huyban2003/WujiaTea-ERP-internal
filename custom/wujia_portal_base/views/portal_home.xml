@@ -220,7 +220,7 @@
                                             <td t-out="p['name']"/>
                                             <td class="text-end" t-out="'{:,.0f}'.format(p['qty']).replace(',', '.')"/>
                                             <td t-out="p['uom']"/>
-                                            <td class="text-end" t-out="money(p['total'], store_currency_symbol, store_currency_decimals)"/>
+                                            <td class="text-end" t-out="money(p['total'], top_currency_symbol, top_currency_decimals)"/>
                                         </tr>
                                     </tbody>
                                 </table>
