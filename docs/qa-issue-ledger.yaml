@@ -443,7 +443,7 @@ RESP-MOB-SHELL-003:
   fix: "Dải chọn cửa hàng kết thúc ở cùng một vị trí trên mọi trang, nhưng nội dung bên dưới lại bắt đầu ở sáu mức cao thấp khác nhau tuỳ trang (chênh nhau tới 14px), nên chuyển trang là thấy tiêu đề nhảy. Nguyên nhân là nhiều đợt sửa lẻ trước đây đặt khoảng cách riêng cho từng trang, lại theo hai cách khác nhau tuỳ trang dựng theo kiểu nào. Nay gom về MỘT giá trị dùng chung cho toàn bộ trang điện thoại, mọi trang bắt đầu nội dung ở cùng một mốc"
   impact: "TOÀN BỘ trang bản điện thoại của portal — đã đo 14 trang (Trang chủ, Đặt hàng, Giỏ hàng, Lịch sử, Giao hàng, Thông báo, Kiến thức, Hỗ trợ, Tài khoản, Bù hàng, Đăng ký thi, Thông tin cửa hàng, Đổi mật khẩu, Báo cáo)"
   retest: "391×844, chuyển lần lượt qua các trang trên: tiêu đề của mọi trang đều bắt đầu ở cùng một vị trí (y=168, cách mép trái 16), không còn cảnh tiêu đề nhảy lên nhảy xuống khi đổi trang. Bản máy tính 1920 giữ nguyên như cũ"
-  limit: "Trang Báo cáo đơn hàng đã đo đúng mốc mới, nhưng trên máy chủ kiểm thử trang này đang lỗi 500 vì múi giờ tài khoản ghi 'Asia/Saigon' — lỗi có sẵn từ trước, nằm ngoài phạm vi lần sửa này"
+  limit: "Không có. Đã đo lại trực tiếp trên máy chủ kiểm thử sau khi cập nhật (04/08): cả 14 trang đều ra đúng mốc, kể cả trang Báo cáo đơn hàng"
 
 UI-06:
   sprint: "2026-07-23-C"
