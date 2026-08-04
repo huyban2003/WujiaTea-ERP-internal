@@ -471,18 +471,21 @@ html body .content .content-wrapper {
     html body .app-content {
         background-color: var(--wujia-mshell-bg) !important;
     }
-    /* Sprint 23 — top-pad mobile khớp Figma: trang dựng TRONG content-wrapper
-       (Đặt hàng/Giỏ/Lịch sử) thừa pad-top 24px desktop → giảm về số Figma. Scope
-       bằng :has(<wrapper>) + chỉ trong @media <992px → desktop giữ nguyên 24px.
-       Cộng margin-top 4px của *-titlerow: order/cart 8+4=12, hist 1+4=5. */
-    .content-wrapper:has(.wujia-morder) { padding-top: 8px !important; }
-    .content-wrapper:has(.wujia-mcart) { padding-top: 8px !important; }
-    .content-wrapper:has(.wujia-mhist) { padding-top: 1px !important; }
-    /* UI-MOB-HOME-001: bỏ pad-top wrapper → 1 lớp spacing = .wujia-mhome pad 16px */
-    .content-wrapper:has(.wujia-mhome) { padding-top: 0 !important; }
-    /* Báo cáo: single-layout non-mpage → khớp top-spacing ~14px như trang mpage */
-    .content-wrapper.wujia-mreport-wrap { padding-top: 14px !important; }
-    .wujia-mreport-wrap > .wj-page-header--m { margin-top: 0; }
+    /* RESP-MOB-SHELL-003 — MỘT mốc đầu nội dung cho mọi trang mobile dựng TRONG
+       content-wrapper (Đặt hàng/Giỏ/Lịch sử/Home/Báo cáo). Trước đây mỗi trang một
+       giá trị :has() riêng (8/8/1/0/14) cộng margin nội bộ → ra 6 mốc khác nhau
+       (162..176). Nay: wrapper giữ toàn bộ khoảng cách, phần tử đầu của trang không
+       tự cộng thêm. Trang họ .wujia-mpage nằm NGOÀI wrapper này — xem _components.css. */
+    html body .content .content-wrapper { padding-top: var(--wujia-mcontent-top) !important; }
+    /* margin-top của phần tử đầu trang collapse xuyên wrapper trang (.wujia-morder,
+       .wujia-mcart, .wujia-mhist… không có pad/border trên) → phải triệt tận nơi.
+       KHÔNG dùng :first-child: các trang này có block PC ẩn (d-none d-lg-block) đứng
+       trước nên :first-child trỏ nhầm vào nó. !important vì _components.css nạp SAU
+       file này, đồng specificity sẽ thắng. */
+    .content-wrapper .wj-page-header--m,
+    .content-wrapper .wujia-morder-titlerow { margin-top: 0 !important; }
+    /* UI-MOB-HOME-001: home tự có pad 16 — bỏ pad-top của nó để không cộng dồn với wrapper. */
+    .content-wrapper > .wujia-mhome { padding-top: 0 !important; }
 }
 
 /* Phone <768px: tắt Vuexy .drag-target (swipe-zone z1036 phủ mép trái → nuốt

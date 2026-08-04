@@ -1220,6 +1220,11 @@ a.wujia-mhome-kpi:active { opacity: 0.85; }
     display: flex;
     align-items: center;
     gap: var(--wujia-mheader-action-gap);
+    /* UI-04: Blank Shell neo cụm nút ở y=39..77, không canh giữa header 104
+       (canh giữa ra y=33). Logo VẪN canh giữa — chỉ cụm này thoát ra. */
+    align-self: flex-start;
+    margin-top: 39px;
+    margin-right: 1px;   /* tâm x 248/302/356 → 247/301/355 */
 }
 .wujia-mheader-action-wrap {
     position: relative;
@@ -1248,6 +1253,17 @@ a.wujia-mhome-kpi:active { opacity: 0.85; }
     font-size: 18px;
     line-height: 1;
     color: #FFFFFF;
+}
+/* UI-04: glyph giỏ + avatar dùng SVG stroke 2.4 round (nét font Feather mảnh hơn
+   source rõ rệt). margin: 0 để trung hoà margin-right .5rem (=7px) của shell Vuexy
+   — làm glyph avatar lệch trái 3.5px so với tâm nút. Trung hoà TRONG scope
+   component, không đụng file shared (L4). */
+.wujia-mheader-action > i,
+.wujia-mheader-action > .wujia-mheader-action-svg { margin: 0; }
+.wujia-mheader-action-svg {
+    width: 18px;
+    height: 18px;
+    flex: 0 0 auto;
 }
 .wujia-mheader-action .flag-icon {
     width: 22px;
@@ -2412,12 +2428,13 @@ a.wujia-mhome-kpi:active { opacity: 0.85; }
         color: var(--wujia-msheet-chevron);
     }
 
-    /* BlankShell content wrapper — chuẩn content area cho trang mobile MỚI */
+    /* BlankShell content wrapper — chuẩn content area cho trang mobile MỚI.
+       RESP-MOB-SHELL-003: top-pad = token chung (không còn giá trị riêng từng trang). */
     .wujia-mpage {
         display: flex;
         flex-direction: column;
         gap: var(--wujia-mshell-content-gap);
-        padding: var(--wujia-mshell-content-gap) var(--wujia-mshell-content-pad-x) 0;
+        padding: var(--wujia-mcontent-top) var(--wujia-mshell-content-pad-x) 0;
     }
 }
 
@@ -2430,7 +2447,8 @@ a.wujia-mhome-kpi:active { opacity: 0.85; }
         justify-content: space-between;
         gap: 8px;
     }
-    .wujia-mpage.wujia-mknow { padding-top: 11px; }   /* Figma 4475:2 — top-pad 11 (mpage base 14) */
+    /* RESP-MOB-SHELL-003: bỏ top-pad riêng 11px — mốc đầu nội dung dùng chung
+       --wujia-mcontent-top ở .wujia-mpage. */
     .wujia-mknow-title {
         font-size: 25px;        /* Figma 4475:2 — title 25/700 (was 22/800) */
         font-weight: 700;
