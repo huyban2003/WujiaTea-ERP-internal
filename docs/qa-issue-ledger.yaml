@@ -593,3 +593,36 @@ WJ-PH-007:
   impact: "Lịch sử đặt hàng — bộ lọc theo khoảng ngày (PC + mobile)"
   retest: "Mở /portal/purchase-history?date_from=2026-07-30&date_to=2026-07-29: thấy thông báo tiếng Việt ngay dưới hàng bộ lọc, KHÔNG thấy màn hình trống 'Chưa có đơn hàng', và hai ô ngày vẫn giữ nguyên 30/07 và 29/07"
   limit: "Không có"
+
+UI-03:
+  sprint: "2026-08-04-B"
+  commit: "157814a"
+  deployed_date: "2026-08-04"
+  url: "/portal"
+  odoo_fit: "Custom"
+  fix: "Dựng lại khối tài khoản ở góc phải thanh trên cùng theo bản thiết kế v1.5: ảnh đại diện chuyển sang BÊN TRÁI tên (trước đây nằm bên phải), thu về đúng 36px và bỏ viền trắng 3px làm nó trông to thành 46px; cả khối nằm trong một thẻ nền mờ bo góc 18 kích thước 204×52 thay vì trôi nổi không nền. Thứ tự đọc của trình đọc màn hình cũng được đổi theo đúng thứ tự nhìn thấy, không dùng mẹo đảo bằng CSS"
+  impact: "Thanh trên cùng bản máy tính — mọi trang /portal từ 1200px trở lên"
+  retest: "1920×1080: khối tài khoản nằm tại 1696,10 kích thước 204×52, có nền mờ bo góc 18; ảnh đại diện 36×36 tâm tại (1724,36) và đứng TRƯỚC tên; bấm vào vẫn mở đủ menu Thông tin tài khoản / Thông tin cửa hàng / Đổi mật khẩu / Đăng xuất"
+  limit: "Không có"
+
+UI-PC-BASE-011:
+  sprint: "2026-08-04-B"
+  commit: "157814a"
+  deployed_date: "2026-08-04"
+  url: "/portal"
+  odoo_fit: "Custom"
+  fix: "Nút giỏ hàng và nút chuông thông báo trở thành hai hình tròn 40×40 nền mờ đúng bản thiết kế — trước đây chúng cao 62px bằng cả thanh, không có nền, nhìn như chữ trôi. Cả cụm bốn nút bên phải cũng được chừa 20px cách mép màn hình thay vì dính sát biên, và khoảng cách giữa các nút về đúng số của bản vẽ"
+  impact: "Thanh trên cùng bản máy tính — mọi trang /portal từ 1200px trở lên"
+  retest: "1920×1080, kiểm trên vài trang (Trang chủ, Đặt hàng, Lịch sử, Thông báo, Kiến thức): nút giỏ tại 1590,16 và nút chuông tại 1642,16, cùng 40×40 bo tròn có nền mờ; mép phải của cả cụm dừng ở 1900 chứ không chạm 1920; con số đỏ trên giỏ và chuông vẫn đúng và không tràn ra ngoài hình tròn"
+  limit: "Con số '0' trên nút giỏ khi giỏ rỗng vẫn hiện — đây là lỗi có sẵn từ trước, đã đo đối chứng trên bản trước khi sửa cho kết quả y hệt. Việc này đang được theo dõi riêng ở WJ-ORD-020"
+
+UI-02:
+  sprint: "2026-08-04-B"
+  commit: "157814a"
+  deployed_date: "2026-08-04"
+  url: "/portal"
+  odoo_fit: "Configuration"
+  fix: "Phần cờ: mã nguồn vốn ĐÚNG — thanh trên cùng luôn hiển thị cờ và tên ngôn ngữ theo ngôn ngữ của chính tài khoản đang đăng nhập. Đo lại 6 trang ngày 02/08 và 5 trang ngày 04/08 đều ra cờ Việt Nam. BA nhìn thấy cờ Mỹ là vì tài khoản dùng để kiểm thử đang để ngôn ngữ Tiếng Anh. Theo quyết định của chủ dự án 03/08, hệ thống nay MẶC ĐỊNH đặt tiếng Việt cho mọi tài khoản cửa hàng: tài khoản tạo mới tự nhận tiếng Việt, và các tài khoản đã tạo trước đó được chuyển sang tiếng Việt khi cập nhật. Sau khi cập nhật lên máy chủ kiểm thử, đếm được 6 tài khoản cửa hàng và 0 tài khoản còn để ngôn ngữ khác. Phần hình học của ô chọn ngôn ngữ cũng được đưa về đúng bản thiết kế (phần này là tuỳ biến giao diện)"
+  impact: "Thanh trên cùng bản máy tính — mọi trang /portal; ngôn ngữ mặc định của toàn bộ tài khoản cửa hàng"
+  retest: "Đăng nhập bằng một tài khoản cửa hàng bất kỳ: thanh trên cùng phải hiện cờ Việt Nam kèm chữ 'Việt Nam'. Ô chọn ngôn ngữ nằm tại 1450,16 kích thước 118×40. Nếu vẫn thấy cờ Mỹ thì kiểm tra lại ngôn ngữ của chính tài khoản đó trong màn hình quản trị — người dùng vẫn được phép tự đổi sang Tiếng Anh nếu muốn"
+  limit: "Việc đặt mặc định chỉ áp dụng cho tài khoản cửa hàng, không đụng tới tài khoản quản trị nội bộ. Người dùng nào cố ý chọn Tiếng Anh trong lần cập nhật này sẽ bị chuyển về tiếng Việt — đây là điều chủ dự án đã chốt"
