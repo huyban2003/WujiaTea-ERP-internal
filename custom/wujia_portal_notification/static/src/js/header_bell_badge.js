@@ -42,6 +42,9 @@
     function updateBadges(n) {
         document.querySelectorAll(".wujia-header-noti-count").forEach(function (b) {
             b.textContent = n;
+            // WJ-ORD-020: template render badge với `hidden` (không còn số 0 chờ
+            // CSS ẩn) → gỡ `hidden` khi có thông báo chưa đọc.
+            b.hidden = !(n > 0);
             b.classList.toggle("is-active", n > 0);
         });
         // Sprint 11: same count feeds the portal-wide bottom-nav badge.

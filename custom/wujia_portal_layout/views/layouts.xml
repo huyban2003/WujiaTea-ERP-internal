@@ -21,6 +21,15 @@
                 <body class="vertical-layout  navbar-floating  vertical-menu-modern footer-static" data-open="click"
                       data-menu="vertical-menu-modern">
                     <t t-out="0"/>
+                    <!-- WJ-ORD-002: shell này tự dựng <head> nên thiếu khối session info
+                         chuẩn của Odoo. Không có nó `session.websocket_worker_version` =
+                         undefined ⇒ bus worker nối /websocket?version=undefined và bị
+                         server đóng ngay ("OUTDATED_VERSION", websocket.py:1119) ⇒ realtime
+                         chết câm trên MỌI trang portal. Phải đặt TRƯỚC bundle JS. -->
+                    <script type="text/javascript">
+                        var odoo = odoo || {};
+                        odoo.__session_info__ = <t t-out="json.dumps(request.env['ir.http'].get_frontend_session_info())"/>;
+                    </script>
                     <t t-call="wujia_portal_layout.asset_frontend_js"/>
                     <t t-call-assets="web.assets_frontend" t-js="true" t-css="false"/>
                 </body>

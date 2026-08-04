@@ -5,8 +5,8 @@
    partial giỏ (server-render `/portal/order/cart/fragment`, 1 nguồn QWeb) → swap DOM +
    cập nhật badge/floatbar/header. Số liệu qty/giá lấy TỪ server (pricelist có bậc).
 
-   CROSS-SESSION realtime (subscribe bus `wujia_cart_changed`) TẠM TẮT — xem block
-   comment `willStart` dưới (gây banner "page out of date" khi WebSocket chưa sẵn). */
+   CROSS-SESSION realtime (WJ-ORD-002): subscribe bus `wujia_cart_changed` trên channel
+   `wujia.franchise_<id>` → tab/thiết bị khác cùng cửa hàng tự cập nhật, không reload. */
 import { Interaction } from "@web/public/interaction";
 import { registry } from "@web/core/registry";
 import { rpc } from "@web/core/network/rpc";
@@ -39,35 +39,49 @@ export class WujiaCartSync extends Interaction {
         this._refreshing = false;
         this._queued = false;
         this._chain = Promise.resolve();
+        this._lastRefreshAt = 0;
+        // WJ-ORD-002: định danh tab, gửi kèm mọi mutation → server echo lại trong
+        // payload bus (`origin`) để tab tự phát bỏ qua event của chính mình.
+        this._clientId = `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 10)}`;
         this.saveNote = debounce((val) => rpc("/portal/order/cart/note", { note: val }), 600);
         // Catalog add-to-cart (portal_order.js) gọi refresh() sau khi thêm.
         window.WujiaCartSync = this;
         document.addEventListener("click", this.onClick.bind(this));
         document.addEventListener("input", this.onInput.bind(this));
-        // WJ-ORD-003: quay lại bằng back/forward (BFCache) → trang khôi phục từ
-        // cache có thể hiển thị giỏ cũ → fetch lại state từ server để đồng bộ.
-        this._onPageShow = (ev) => { if (ev.persisted) { this.refresh(); } };
+        // WJ-ORD-003: back/forward KHÔNG chỉ đến từ BFCache. Khi trang được dựng
+        // lại từ HTTP cache thường, `pageshow` đã bắn XONG trước lúc interaction
+        // kịp đăng ký listener → chỉ nghe pageshow là bắt hụt. Navigation Timing
+        // cho biết chắc chắn đây là lần vào bằng back/forward.
+        const nav = performance.getEntriesByType("navigation")[0];
+        if (nav && nav.type === "back_forward") {
+            this.refresh();
+        }
+        // Vẫn giữ pageshow cho nhánh BFCache (trang sống lại, setup không chạy lại).
+        this._onPageShow = () => this.refreshIfStale();
         window.addEventListener("pageshow", this._onPageShow);
+        this._onVisibility = () => {
+            if (document.visibilityState === "visible") { this.refreshIfStale(); }
+        };
+        document.addEventListener("visibilitychange", this._onVisibility);
     }
 
-    // ------------------------------------------------------------------
-    // Cross-session realtime (bus.bus) TẠM TẮT — subscribe bus khởi động
-    // WebSocket worker; khi hạ tầng WebSocket chưa sẵn (Werkzeug dev / proxy
-    // prod chưa route /websocket) worker báo "outdated" → Odoo hiện banner
-    // "The page is out of date". Server vẫn publish `wujia_cart_changed` (S30)
-    // → bật lại chỉ cần bỏ comment block dưới khi WebSocket đã chạy chắc chắn.
-    // Phần cùng-tab (thêm/sửa/xoá giỏ không reload) KHÔNG cần bus, vẫn chạy.
-    // ------------------------------------------------------------------
-    // async willStart() {
-    //     if (!this.franchiseId) { return; }
-    //     const bus = this.services.bus_service;
-    //     bus.addChannel(`wujia.franchise_${this.franchiseId}`);
-    //     bus.subscribe("wujia_cart_changed", this.onCartChanged.bind(this));
-    // }
-    // onCartChanged(payload) {
-    //     if (!payload || payload.franchise_id !== this.franchiseId) { return; }
-    //     this.refresh();
-    // }
+    // WJ-ORD-002: cross-session realtime. Server publish sẵn từ S30
+    // (`_publish_cart_event`); channel `wujia.franchise_<id>` authorize theo
+    // membership ở wujia_portal_base/models/ir_websocket.py. Không nối được
+    // WebSocket thì bus im lặng retry — trang chạy bình thường, chỉ mất realtime.
+    async willStart() {
+        if (!this.franchiseId) { return; }
+        const bus = this.services.bus_service;
+        bus.addChannel(`wujia.franchise_${this.franchiseId}`);
+        bus.subscribe("wujia_cart_changed", this.onCartChanged.bind(this));
+    }
+
+    onCartChanged(payload) {
+        if (!payload || payload.franchise_id !== this.franchiseId) { return; }
+        // Event do CHÍNH tab này gây ra: _doMutate đã refresh rồi → bỏ qua.
+        if (payload.origin && payload.origin === this._clientId) { return; }
+        this.refresh();
+    }
 
     // -------- tương tác giỏ (delegation) --------
     onClick(ev) {
@@ -159,7 +173,9 @@ export class WujiaCartSync extends Interaction {
         // WJ-ORD-002: KHÔNG drop khi đang chạy — NỐI ĐUÔI (queue) để mỗi lần
         // bấm là 1 delta được áp tuần tự (server cộng nguyên tử). _doMutate tự
         // nuốt lỗi nên chain không bao giờ reject/đứt.
-        this._chain = this._chain.then(() => this._doMutate(url, params));
+        this._chain = this._chain.then(() =>
+            this._doMutate(url, { ...params, client_id: this._clientId })
+        );
         return this._chain;
     }
 
@@ -182,6 +198,14 @@ export class WujiaCartSync extends Interaction {
         }
     }
 
+    // pageshow + visibilitychange hay bắn liền nhau khi quay lại tab → gộp về 1
+    // lần fetch. Ngưỡng nhỏ, không che được thay đổi thật (mutation gọi refresh()
+    // thẳng, không qua đây).
+    refreshIfStale(minGapMs = 1500) {
+        if (Date.now() - this._lastRefreshAt < minGapMs) { return; }
+        this.refresh();
+    }
+
     // -------- fetch state + swap partial (coalesce overlapping) --------
     async refresh() {
         if (this._refreshing) {
@@ -189,6 +213,7 @@ export class WujiaCartSync extends Interaction {
             return;
         }
         this._refreshing = true;
+        this._lastRefreshAt = Date.now();
         try {
             const res = await rpc("/portal/order/cart/fragment", {});
             if (res && !res.error) {
@@ -226,6 +251,9 @@ export class WujiaCartSync extends Interaction {
         // Header cart badge (mọi trang portal có header)
         document.querySelectorAll(".wujia-header-cart-count").forEach((b) => {
             b.textContent = count;
+            // WJ-ORD-020: `hidden` là lớp ẩn không phụ thuộc CSS ngoài, phải gỡ
+            // cùng lúc với .is-active thì badge mới hiện.
+            b.hidden = count <= 0;
             b.classList.toggle("is-active", count > 0);
         });
         // Badge nút thêm trên catalog (PC + mobile) + highlight dòng in-cart

@@ -11,7 +11,9 @@
                 <a class="nav-link wujia-header-icon-btn" href="/portal/notification"
                    aria-label="Notifications" data-wj-noti-bell="1">
                     <i class="ficon feather icon-bell text-white"/>
-                    <span class="badge badge-pill wujia-header-badge wujia-header-noti-count">0</span>
+                    <!-- WJ-ORD-020: `hidden` thay cho việc render sẵn "0" rồi trông chờ CSS ẩn. -->
+                    <span class="badge badge-pill wujia-header-badge wujia-header-noti-count"
+                          hidden="hidden"/>
                 </a>
                 <!-- PC popup (desktop ≥992px) — lazy-load /portal/notification/recent (Sprint PC-3, Figma 4683:285) -->
                 <div class="wj-pc-noti-popup" id="wj-noti-popup" aria-hidden="true">

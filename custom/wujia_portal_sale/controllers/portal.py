@@ -333,14 +333,16 @@ class WujiaPortalSale(http.Controller):
         """Realtime ADR-006: publish để thiết bị/user khác cùng store nhận biết.
 
         Channel `wujia.franchise_<id>` đã được authorize theo membership trong
-        wujia_portal_base/models/ir_websocket.py. JS subscribe = sprint sau
-        (deferred — hiện client thấy thay đổi khi reload).
+        wujia_portal_base/models/ir_websocket.py. Client subscribe từ WJ-ORD-002
+        (portal_cart_sync.js) — `origin` echo lại `client_id` của tab gây ra thay
+        đổi để chính tab đó bỏ qua event (nó đã tự refresh sau mutation).
         """
         request.env['bus.bus'].sudo()._sendone(
             f'wujia.franchise_{fid}', 'wujia_cart_changed',
             {
                 'franchise_id': fid,
                 'action': action,
+                'origin': request.params.get('client_id') or None,
                 'line_count': state['line_count'],
                 'total_qty': state['total_qty'],
                 'total_amount': state['total_amount'],
