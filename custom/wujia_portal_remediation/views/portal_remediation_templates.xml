@@ -71,30 +71,30 @@
 
                             <div t-else="" class="p-3">
                                 <t t-foreach="pending_items" t-as="item">
-                                    <div class="border rounded-3 p-3.5 mb-4 bg-white shadow-sm">
+                                    <div class="border rounded p-3 mb-3 bg-white shadow-sm">
                                         <!-- Header row -->
-                                        <div class="d-flex justify-content-between align-items-center mb-3 pb-2.5 border-bottom">
+                                        <div class="d-flex justify-content-between align-items-center mb-3 pb-2 border-bottom">
                                             <div class="d-flex align-items-center gap-2 flex-wrap">
-                                                <span t-if="item.get('code')" class="badge bg-primary-subtle text-primary border border-primary-subtle fw-bold px-2 py-1 fs-7">[<t t-out="item.get('code')" />]</span>
-                                                <span class="fw-bold text-dark fs-6"><t t-out="item.get('category')" /></span>
-                                                <span class="badge bg-light text-secondary border fw-normal"><i class="feather icon-file-text me-1 text-muted"/><t t-out="item.get('inspection_code')" /></span>
-                                                <span class="badge bg-light text-secondary border fw-normal"><i class="feather icon-map-pin me-1 text-muted"/><t t-out="item.get('franchise_name')" /></span>
+                                                <span t-if="item.get('code')" class="wj-pc-badge wj-pc-badge--sent">[<t t-out="item.get('code')" />]</span>
+                                                <span class="font-weight-bold text-dark"><t t-out="item.get('category')" /></span>
+                                                <span class="wj-pc-badge wj-pc-badge--pending"><i class="feather icon-file-text me-1"/><t t-out="item.get('inspection_code')" /></span>
+                                                <span class="wj-pc-badge wj-pc-badge--pending"><i class="feather icon-map-pin me-1"/><t t-out="item.get('franchise_name')" /></span>
                                             </div>
                                             <div class="d-flex align-items-center gap-2 flex-wrap">
-                                                <span t-if="item.get('deduction')" class="badge bg-danger-subtle text-danger border border-danger-subtle fw-bold px-2.5 py-1.5 fs-6">-<t t-out="item.get('deduction')" />đ</span>
-                                                <span t-if="item.get('require_evidence')" class="badge bg-danger-subtle text-danger border border-danger-subtle">Bắt buộc ảnh</span>
-                                                <span t-else="" class="badge bg-secondary-subtle text-secondary border border-secondary-subtle">Không bắt buộc ảnh</span>
-                                                <span class="badge bg-warning-subtle text-warning-emphasis border border-warning-subtle fw-bold"><i class="feather icon-clock me-1" />Hạn: <t t-out="item.get('due_date')" /></span>
+                                                <span t-if="item.get('deduction')" class="wj-pc-badge wj-pc-badge--cancel">-<t t-out="item.get('deduction')" />đ</span>
+                                                <span t-if="item.get('require_evidence')" class="wj-pc-badge wj-pc-badge--cancel">Bắt buộc ảnh</span>
+                                                <span t-else="" class="wj-pc-badge wj-pc-badge--pending">Không bắt buộc ảnh</span>
+                                                <span class="wj-pc-badge wj-pc-badge--transit"><i class="feather icon-clock me-1" />Hạn: <t t-out="item.get('due_date')" /></span>
                                             </div>
                                         </div>
 
                                         <!-- Nội dung vi phạm Callout Box -->
-                                        <div class="p-3 rounded-3 mb-3" style="background-color: #f8fafc; border: 1px solid #e2e8f0; border-left: 4px solid #f59e0b;">
+                                        <div class="p-3 rounded mb-3" style="background-color: var(--wj-pc-bg); border: 1px solid var(--wj-pc-border-soft); border-left: 4px solid var(--wj-pc-yellow);">
                                             <div class="d-flex align-items-start gap-2">
-                                                <i class="feather icon-alert-triangle mt-1 fs-5" style="color: #d97706;"/>
+                                                <i class="feather icon-alert-triangle mt-1" style="color: var(--wj-pc-yellow); font-size: 1.1rem;"/>
                                                 <div class="w-100">
-                                                    <span class="fw-bold text-uppercase d-block mb-1" style="font-size: 0.75rem; color: #475569; letter-spacing: 0.5px;">Nội dung vi phạm</span>
-                                                    <p class="mb-0 fw-medium" style="font-size: 0.93rem; line-height: 1.5; color: #1e293b;">
+                                                    <span class="font-weight-bold text-uppercase d-block mb-1" style="font-size: 12px; color: var(--wj-pc-muted); letter-spacing: 0.5px;">Nội dung vi phạm</span>
+                                                    <p class="mb-0 font-weight-medium" style="font-size: 14px; line-height: 1.5; color: var(--wj-pc-text);">
                                                         <t t-out="item.get('content') or 'Chưa có nội dung mô tả'" />
                                                     </p>
                                                 </div>
@@ -102,51 +102,87 @@
                                         </div>
 
                                         <!-- Ghi chú từ Admin (nếu có) -->
-                                        <div t-if="item.get('note')" class="p-3 rounded-3 mb-3" style="background-color: #fff1f2; border: 1px solid #fecdd3; border-left: 4px solid #f43f5e;">
+                                        <div t-if="item.get('note')" class="p-3 rounded mb-3" style="background-color: var(--wj-pc-red-soft); border: 1px solid var(--wj-pc-border-soft); border-left: 4px solid var(--wj-pc-red);">
                                             <div class="d-flex align-items-start gap-2">
-                                                <i class="feather icon-message-square mt-1 fs-5 text-danger"/>
+                                                <i class="feather icon-message-square mt-1 text-danger" style="font-size: 1.1rem;"/>
                                                 <div>
-                                                    <span class="fw-bold text-uppercase text-danger d-block mb-1" style="font-size: 0.75rem; letter-spacing: 0.5px;">Ghi chú từ Giám sát viên (Admin)</span>
-                                                    <p class="mb-0 text-dark fw-medium" style="font-size: 0.9rem;">
+                                                    <span class="font-weight-bold text-uppercase text-danger d-block mb-1" style="font-size: 12px; letter-spacing: 0.5px;">Ghi chú từ Giám sát viên (Admin)</span>
+                                                    <p class="mb-0 text-dark font-weight-medium" style="font-size: 14px;">
                                                         <t t-out="item.get('note')"/>
                                                     </p>
                                                 </div>
                                             </div>
                                         </div>
 
-                                        <!-- Form nhập liệu đẹp -->
+                                        <!-- Form nhập liệu hiện đại -->
                                         <form action="/portal/remediation/submit_line" method="post" enctype="multipart/form-data" 
-                                              class="p-3 rounded-3 border" 
-                                              style="background: linear-gradient(180deg, #f8fafc 0%, #ffffff 100%); border-color: #cbd5e1 !important;">
+                                              class="p-3 rounded border bg-white" 
+                                              style="border-color: var(--wj-pc-border-soft) !important;">
                                             <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
                                             <input type="hidden" name="line_id" t-att-value="item.get('id') or item.get('line_id')"/>
                                             
-                                            <div class="d-flex align-items-center gap-2 mb-2 pb-2 border-bottom" style="border-color: #f1f5f9 !important;">
+                                            <div class="d-flex align-items-center gap-2 mb-3 pb-2 border-bottom" style="border-color: var(--wj-pc-border-soft) !important;">
                                                 <i class="feather icon-edit-3 text-primary"/>
-                                                <span class="fw-bold text-dark fs-7 text-uppercase tracking-wider">Cập nhật báo cáo khắc phục</span>
+                                                <span class="font-weight-bold text-dark text-uppercase" style="font-size: 13px; letter-spacing: 0.5px;">Cập nhật báo cáo khắc phục</span>
                                             </div>
 
-                                            <div class="row g-2 align-items-center">
+                                            <div class="row g-3">
+                                                <div class="col-md-7">
+                                                    <label class="font-weight-bold text-dark mb-1 d-block" style="font-size: 13px;">Ghi chú của cửa hàng</label>
+                                                    <textarea name="remediation_note" class="wj-pc-control" style="height: 82px; resize: vertical;" placeholder="Nhập ghi chú khắc phục của cửa hàng..."><t t-out="item.get('remediation_note')"/></textarea>
+                                                </div>
+
                                                 <div class="col-md-5">
-                                                    <div class="input-group input-group-sm">
-                                                        <span class="input-group-text bg-white border-end-0 text-muted"><i class="feather icon-edit-2"/></span>
-                                                        <input type="text" name="remediation_note" class="form-control form-control-sm border-start-0 ps-0" placeholder="Nhập ghi chú khắc phục của cửa hàng..." t-att-value="item.get('remediation_note')"/>
+                                                    <label class="font-weight-bold text-dark mb-1 d-block" style="font-size: 13px;">Ảnh minh chứng</label>
+                                                    <div class="custom-file-dropzone p-2 rounded text-center position-relative d-flex align-items-center justify-content-center"
+                                                         style="background: #f8fafc; border: 2px dashed #cbd5e1; height: 82px; transition: all 0.2s ease; cursor: pointer;"
+                                                         t-attf-onclick="document.getElementById('file-input-pending-#{item.get('id')}').click()"
+                                                         onmouseover="this.style.borderColor='var(--wj-pc-primary)'; this.style.background='#f0f9ff';"
+                                                         onmouseout="this.style.borderColor='#cbd5e1'; this.style.background='#f8fafc';">
+                                                        
+                                                        <div class="d-flex align-items-center gap-2 text-start">
+                                                            <div t-attf-id="file-preview-wrap-pending-#{item.get('id')}" class="d-none me-1">
+                                                                <img t-attf-id="file-preview-img-pending-#{item.get('id')}" src="#" alt="Preview" 
+                                                                     style="width: 50px; height: 50px; object-fit: cover; border-radius: 6px; border: 1px solid #cbd5e1;"/>
+                                                            </div>
+                                                            
+                                                            <div class="rounded-circle bg-primary-subtle p-2 d-inline-flex align-items-center justify-content-center" style="width: 38px; height: 38px; flex-shrink: 0;">
+                                                                <i class="feather icon-camera text-primary" style="font-size: 1.1rem;"/>
+                                                            </div>
+                                                            <div>
+                                                                <span t-attf-id="file-label-pending-#{item.get('id')}" class="d-block font-weight-bold text-dark text-truncate" style="font-size: 12px; max-width: 180px;">
+                                                                    Tải ảnh minh chứng...
+                                                                </span>
+                                                                <span class="d-block text-muted" style="font-size: 11px;">Bấm để chọn file ảnh</span>
+                                                            </div>
+                                                        </div>
+
+                                                        <input type="file" t-attf-id="file-input-pending-#{item.get('id')}" name="remediation_image" accept="image/*" class="d-none"
+                                                               t-attf-onchange="
+                                                                   var file = this.files[0];
+                                                                   if (file) {
+                                                                       var label = document.getElementById('file-label-pending-#{item.get('id')}');
+                                                                       var wrap = document.getElementById('file-preview-wrap-pending-#{item.get('id')}');
+                                                                       var img = document.getElementById('file-preview-img-pending-#{item.get('id')}');
+                                                                       label.innerText = file.name;
+                                                                       label.classList.add('text-primary');
+                                                                       var reader = new FileReader();
+                                                                       reader.onload = function(e) {
+                                                                           img.src = e.target.result;
+                                                                           wrap.classList.remove('d-none');
+                                                                       };
+                                                                       reader.readAsDataURL(file);
+                                                                   }
+                                                               "/>
                                                     </div>
                                                 </div>
-                                                <div class="col-md-4">
-                                                    <div class="custom-file-upload">
-                                                        <label t-attf-for="file-input-pending-#{item.get('id')}" class="btn btn-sm btn-outline-secondary d-flex align-items-center justify-content-center gap-2 w-100 bg-white border text-truncate" style="height: 31px; border-style: dashed !important; border-width: 1.5px !important;">
-                                                            <i class="feather icon-upload-cloud text-primary"/>
-                                                            <span t-attf-id="file-label-pending-#{item.get('id')}" class="text-secondary small font-medium text-truncate">Chọn ảnh minh chứng...</span>
-                                                        </label>
-                                                        <input type="file" t-attf-id="file-input-pending-#{item.get('id')}" name="remediation_image" accept="image/*" class="d-none" t-attf-onchange="document.getElementById('file-label-pending-#{item.get('id')}').innerText = this.files[0] ? this.files[0].name : 'Chọn ảnh minh chứng...'"/>
-                                                    </div>
-                                                </div>
-                                                <div class="col-md-3 text-end">
-                                                    <button type="submit" class="wj-pc-btn wj-pc-btn--primary w-100 py-1.5 fw-bold shadow-2xs d-flex align-items-center justify-content-center gap-1.5" style="border-radius: 6px;">
-                                                        <i class="feather icon-send"/>Gửi báo cáo
-                                                    </button>
-                                                </div>
+                                            </div>
+
+                                            <!-- Nút gửi báo cáo nằm bên phải -->
+                                            <div class="d-flex justify-content-end align-items-center mt-3 pt-2 border-top" style="border-color: var(--wj-pc-border-soft) !important;">
+                                                <button type="submit" class="wj-pc-btn wj-pc-btn--primary px-4">
+                                                    <i class="feather icon-send me-1"/>Gửi báo cáo khắc phục
+                                                </button>
                                             </div>
                                         </form>
                                     </div>
@@ -165,27 +201,27 @@
 
                             <div t-else="" class="p-3">
                                 <t t-foreach="completed_items" t-as="item">
-                                    <div class="border rounded-3 p-3.5 mb-4 bg-white shadow-sm">
+                                    <div class="border rounded p-3 mb-3 bg-white shadow-sm">
                                         <!-- Header row -->
-                                        <div class="d-flex justify-content-between align-items-center mb-3 pb-2.5 border-bottom">
+                                        <div class="d-flex justify-content-between align-items-center mb-3 pb-2 border-bottom">
                                             <div class="d-flex align-items-center gap-2 flex-wrap">
-                                                <span t-if="item.get('code')" class="badge bg-success-subtle text-success border border-success-subtle fw-bold px-2 py-1 fs-7">[<t t-out="item.get('code')" />]</span>
-                                                <span class="fw-bold text-dark fs-6"><t t-out="item.get('category')" /></span>
-                                                <span class="badge bg-light text-secondary border fw-normal"><i class="feather icon-file-text me-1 text-muted"/><t t-out="item.get('inspection_code')" /></span>
-                                                <span class="badge bg-light text-secondary border fw-normal"><i class="feather icon-map-pin me-1 text-muted"/><t t-out="item.get('franchise_name')" /></span>
+                                                <span t-if="item.get('code')" class="wj-pc-badge wj-pc-badge--done">[<t t-out="item.get('code')" />]</span>
+                                                <span class="font-weight-bold text-dark"><t t-out="item.get('category')" /></span>
+                                                <span class="wj-pc-badge wj-pc-badge--pending"><i class="feather icon-file-text me-1"/><t t-out="item.get('inspection_code')" /></span>
+                                                <span class="wj-pc-badge wj-pc-badge--pending"><i class="feather icon-map-pin me-1"/><t t-out="item.get('franchise_name')" /></span>
                                             </div>
                                             <div class="d-flex align-items-center gap-2 flex-wrap">
-                                                <span class="badge bg-success-subtle text-success border border-success-subtle fw-bold px-2.5 py-1.5 fs-6"><i class="feather icon-check-circle me-1" />Đã phản hồi</span>
+                                                <span class="wj-pc-badge wj-pc-badge--done"><i class="feather icon-check-circle me-1" />Đã phản hồi</span>
                                             </div>
                                         </div>
 
                                         <!-- Nội dung vi phạm Callout Box -->
-                                        <div class="p-3 rounded-3 mb-3" style="background-color: #f8fafc; border: 1px solid #e2e8f0; border-left: 4px solid #64748b;">
+                                        <div class="p-3 rounded mb-3" style="background-color: var(--wj-pc-bg); border: 1px solid var(--wj-pc-border-soft); border-left: 4px solid var(--wj-pc-muted);">
                                             <div class="d-flex align-items-start gap-2">
-                                                <i class="feather icon-file-text mt-1 fs-5 text-secondary"/>
+                                                <i class="feather icon-file-text mt-1 text-secondary" style="font-size: 1.1rem;"/>
                                                 <div class="w-100">
-                                                    <span class="fw-bold text-uppercase d-block mb-1" style="font-size: 0.75rem; color: #475569; letter-spacing: 0.5px;">Nội dung vi phạm ban đầu</span>
-                                                    <p class="mb-0 fw-medium" style="font-size: 0.93rem; line-height: 1.5; color: #1e293b;">
+                                                    <span class="font-weight-bold text-uppercase d-block mb-1" style="font-size: 12px; color: var(--wj-pc-muted); letter-spacing: 0.5px;">Nội dung vi phạm ban đầu</span>
+                                                    <p class="mb-0 font-weight-medium" style="font-size: 14px; line-height: 1.5; color: var(--wj-pc-text);">
                                                         <t t-out="item.get('content') or 'Chưa có nội dung mô tả'" />
                                                     </p>
                                                 </div>
@@ -193,12 +229,12 @@
                                         </div>
 
                                         <!-- Ghi chú Admin (nếu có) -->
-                                        <div t-if="item.get('note')" class="p-3 rounded-3 mb-3" style="background-color: #fff1f2; border: 1px solid #fecdd3; border-left: 4px solid #f43f5e;">
+                                        <div t-if="item.get('note')" class="p-3 rounded mb-3" style="background-color: var(--wj-pc-red-soft); border: 1px solid var(--wj-pc-border-soft); border-left: 4px solid var(--wj-pc-red);">
                                             <div class="d-flex align-items-start gap-2">
-                                                <i class="feather icon-message-square mt-1 fs-5 text-danger"/>
+                                                <i class="feather icon-message-square mt-1 text-danger" style="font-size: 1.1rem;"/>
                                                 <div>
-                                                    <span class="fw-bold text-uppercase text-danger d-block mb-1" style="font-size: 0.75rem; letter-spacing: 0.5px;">Ghi chú từ Giám sát viên (Admin)</span>
-                                                    <p class="mb-0 text-dark fw-medium" style="font-size: 0.9rem;">
+                                                    <span class="font-weight-bold text-uppercase text-danger d-block mb-1" style="font-size: 12px; letter-spacing: 0.5px;">Ghi chú từ Giám sát viên (Admin)</span>
+                                                    <p class="mb-0 text-dark font-weight-medium" style="font-size: 14px;">
                                                         <t t-out="item.get('note')"/>
                                                     </p>
                                                 </div>
@@ -207,44 +243,80 @@
 
                                         <!-- Form Cập nhật đẹp -->
                                         <form action="/portal/remediation/submit_line" method="post" enctype="multipart/form-data" 
-                                              class="p-3 rounded-3 border" 
-                                              style="background: linear-gradient(180deg, #f8fafc 0%, #ffffff 100%); border-color: #cbd5e1 !important;">
+                                              class="p-3 rounded border bg-white" 
+                                              style="border-color: var(--wj-pc-border-soft) !important;">
                                             <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
                                             <input type="hidden" name="line_id" t-att-value="item.get('id') or item.get('line_id')"/>
                                             <input type="hidden" name="redirect_tab" value="completed"/>
                                             
-                                            <div class="d-flex justify-content-between align-items-center mb-2 pb-2 border-bottom" style="border-color: #f1f5f9 !important;">
+                                            <div class="d-flex justify-content-between align-items-center mb-3 pb-2 border-bottom" style="border-color: var(--wj-pc-border-soft) !important;">
                                                 <div class="d-flex align-items-center gap-2">
                                                     <i class="feather icon-refresh-cw text-primary"/>
-                                                    <span class="fw-bold text-dark fs-7 text-uppercase tracking-wider">Cập nhật phản hồi đã gửi</span>
+                                                    <span class="font-weight-bold text-dark text-uppercase" style="font-size: 13px; letter-spacing: 0.5px;">Cập nhật phản hồi đã gửi</span>
                                                 </div>
                                                 <a t-if="item.get('remediation_image_url')" t-att-href="item.get('remediation_image_url')" target="_blank"
-                                                    class="btn btn-xs btn-outline-primary py-0.5 px-2 font-medium" style="font-size: 0.78rem;">
+                                                    class="wj-pc-btn wj-pc-btn--ghost py-0 px-2 font-weight-medium" style="height: 28px; font-size: 13px;">
                                                     <i class="feather icon-image me-1" />Xem ảnh đã nộp
                                                 </a>
                                             </div>
 
-                                            <div class="row g-2 align-items-center">
+                                            <div class="row g-3">
+                                                <div class="col-md-7">
+                                                    <label class="font-weight-bold text-dark mb-1 d-block" style="font-size: 13px;">Cập nhật ghi chú</label>
+                                                    <textarea name="remediation_note" class="wj-pc-control" style="height: 82px; resize: vertical;" placeholder="Cập nhật ghi chú khắc phục..."><t t-out="item.get('remediation_note')"/></textarea>
+                                                </div>
+
                                                 <div class="col-md-5">
-                                                    <div class="input-group input-group-sm">
-                                                        <span class="input-group-text bg-white border-end-0 text-muted"><i class="feather icon-edit-2"/></span>
-                                                        <input type="text" name="remediation_note" class="form-control form-control-sm border-start-0 ps-0" placeholder="Cập nhật ghi chú khắc phục..." t-att-value="item.get('remediation_note')"/>
+                                                    <label class="font-weight-bold text-dark mb-1 d-block" style="font-size: 13px;">Thay đổi ảnh minh chứng</label>
+                                                    <div class="custom-file-dropzone p-2 rounded text-center position-relative d-flex align-items-center justify-content-center"
+                                                         style="background: #f8fafc; border: 2px dashed #cbd5e1; height: 82px; transition: all 0.2s ease; cursor: pointer;"
+                                                         t-attf-onclick="document.getElementById('file-input-comp-#{item.get('id')}').click()"
+                                                         onmouseover="this.style.borderColor='var(--wj-pc-primary)'; this.style.background='#f0f9ff';"
+                                                         onmouseout="this.style.borderColor='#cbd5e1'; this.style.background='#f8fafc';">
+                                                        
+                                                        <div class="d-flex align-items-center gap-2 text-start">
+                                                            <div t-attf-id="file-preview-wrap-comp-#{item.get('id')}" t-attf-class="#{'d-none' if not item.get('remediation_image_url') else ''} me-1">
+                                                                <img t-attf-id="file-preview-img-comp-#{item.get('id')}" t-att-src="item.get('remediation_image_url') or '#'" alt="Preview" 
+                                                                     style="width: 50px; height: 50px; object-fit: cover; border-radius: 6px; border: 1px solid #cbd5e1;"/>
+                                                            </div>
+                                                            
+                                                            <div class="rounded-circle bg-primary-subtle p-2 d-inline-flex align-items-center justify-content-center" style="width: 38px; height: 38px; flex-shrink: 0;">
+                                                                <i class="feather icon-camera text-primary" style="font-size: 1.1rem;"/>
+                                                            </div>
+                                                            <div>
+                                                                <span t-attf-id="file-label-comp-#{item.get('id')}" class="d-block font-weight-bold text-dark text-truncate" style="font-size: 12px; max-width: 180px;">
+                                                                    <t t-out="'Thay đổi ảnh minh chứng...' if not item.get('remediation_image_url') else 'Bấm để đổi ảnh khác...'"/>
+                                                                </span>
+                                                                <span class="d-block text-muted" style="font-size: 11px;">Bấm để chọn file ảnh</span>
+                                                            </div>
+                                                        </div>
+
+                                                        <input type="file" t-attf-id="file-input-comp-#{item.get('id')}" name="remediation_image" accept="image/*" class="d-none"
+                                                               t-attf-onchange="
+                                                                   var file = this.files[0];
+                                                                   if (file) {
+                                                                       var label = document.getElementById('file-label-comp-#{item.get('id')}');
+                                                                       var wrap = document.getElementById('file-preview-wrap-comp-#{item.get('id')}');
+                                                                       var img = document.getElementById('file-preview-img-comp-#{item.get('id')}');
+                                                                       label.innerText = file.name;
+                                                                       label.classList.add('text-primary');
+                                                                       var reader = new FileReader();
+                                                                       reader.onload = function(e) {
+                                                                           img.src = e.target.result;
+                                                                           wrap.classList.remove('d-none');
+                                                                       };
+                                                                       reader.readAsDataURL(file);
+                                                                   }
+                                                               "/>
                                                     </div>
                                                 </div>
-                                                <div class="col-md-4">
-                                                    <div class="custom-file-upload">
-                                                        <label t-attf-for="file-input-comp-#{item.get('id')}" class="btn btn-sm btn-outline-secondary d-flex align-items-center justify-content-center gap-2 w-100 bg-white border text-truncate" style="height: 31px; border-style: dashed !important; border-width: 1.5px !important;">
-                                                            <i class="feather icon-upload-cloud text-primary"/>
-                                                            <span t-attf-id="file-label-comp-#{item.get('id')}" class="text-secondary small font-medium text-truncate">Thay đổi ảnh minh chứng...</span>
-                                                        </label>
-                                                        <input type="file" t-attf-id="file-input-comp-#{item.get('id')}" name="remediation_image" accept="image/*" class="d-none" t-attf-onchange="document.getElementById('file-label-comp-#{item.get('id')}').innerText = this.files[0] ? this.files[0].name : 'Thay đổi ảnh minh chứng...'"/>
-                                                    </div>
-                                                </div>
-                                                <div class="col-md-3 text-end">
-                                                    <button type="submit" class="wj-pc-btn wj-pc-btn--primary w-100 py-1.5 fw-bold shadow-2xs d-flex align-items-center justify-content-center gap-1.5" style="border-radius: 6px;">
-                                                        <i class="feather icon-refresh-cw"/>Cập nhật
-                                                    </button>
-                                                </div>
+                                            </div>
+
+                                            <!-- Nút cập nhật phản hồi nằm bên phải -->
+                                            <div class="d-flex justify-content-end align-items-center mt-3 pt-2 border-top" style="border-color: var(--wj-pc-border-soft) !important;">
+                                                <button type="submit" class="wj-pc-btn wj-pc-btn--primary px-4">
+                                                    <i class="feather icon-refresh-cw me-1"/>Cập nhật phản hồi
+                                                </button>
                                             </div>
                                         </form>
                                     </div>
@@ -285,11 +357,11 @@
                 <!-- Mobile Tabs -->
                 <div class="d-flex gap-2 mb-3">
                     <a t-attf-href="/portal/remediation?tab=pending&amp;date_from=#{date_from}&amp;date_to=#{date_to}&amp;search=#{search_q}"
-                        t-attf-class="btn btn-sm flex-fill fw-bold #{'btn-primary' if active_tab == 'pending' else 'btn-light border'}">
+                        t-attf-class="btn btn-sm flex-fill font-weight-bold #{'btn-primary' if active_tab == 'pending' else 'btn-light border'}">
                         Chờ phản hồi (<t t-out="pending_count" />)
                     </a>
                     <a t-attf-href="/portal/remediation?tab=completed&amp;date_from=#{date_from}&amp;date_to=#{date_to}&amp;search=#{search_q}"
-                        t-attf-class="btn btn-sm flex-fill fw-bold #{'btn-primary' if active_tab == 'completed' else 'btn-light border'}">
+                        t-attf-class="btn btn-sm flex-fill font-weight-bold #{'btn-primary' if active_tab == 'completed' else 'btn-light border'}">
                         Đã phản hồi (<t t-out="completed_count" />)
                     </a>
                 </div>
@@ -303,12 +375,12 @@
 
                     <div t-else="" class="wujia-mexam-list">
                         <t t-foreach="pending_items" t-as="item">
-                            <div class="wujia-mexam-card mb-3 p-3 bg-white rounded-3 border shadow-2xs">
+                            <div class="wujia-mexam-card mb-3 p-3 bg-white rounded border shadow-sm">
                                 <div class="wujia-mexam-card-top d-flex justify-content-between align-items-start mb-2">
-                                    <h3 class="wujia-mexam-card-title fs-6 fw-bold mb-0">
+                                    <h3 class="wujia-mexam-card-title font-weight-bold mb-0" style="font-size: 15px;">
                                         <span t-if="item.get('code')" class="text-primary me-1">[<t t-out="item.get('code')" />] </span><t t-out="item.get('category')" />
                                     </h3>
-                                    <span t-if="item.get('deduction')" class="badge bg-danger-subtle text-danger fw-bold">-<t t-out="item.get('deduction')" />đ</span>
+                                    <span t-if="item.get('deduction')" class="wujia-badge wujia-badge-danger">-<t t-out="item.get('deduction')" />đ</span>
                                 </div>
                                 <p class="wujia-mexam-card-line small text-muted mb-2">
                                     <i class="feather icon-file-text me-1" />
@@ -316,16 +388,16 @@
                                 </p>
 
                                 <!-- Vi phạm box -->
-                                <div class="p-2.5 rounded-2 mb-2 small" style="background-color: #f8fafc; border: 1px solid #e2e8f0; border-left: 3px solid #f59e0b;">
-                                    <strong class="text-dark d-block mb-0.5">Vi phạm:</strong>
+                                <div class="p-2 rounded mb-2 small" style="background-color: var(--wujia-bg-page); border: 1px solid var(--wujia-border); border-left: 3px solid var(--wujia-warning);">
+                                    <strong class="text-dark d-block mb-1">Vi phạm:</strong>
                                     <span class="text-secondary"><t t-out="item.get('content') or 'Chưa có nội dung mô tả'" /></span>
                                 </div>
 
-                                <p t-if="item.get('note')" class="p-2 rounded-2 text-danger small mb-2" style="background-color: #fff1f2; border: 1px solid #fecdd3;">
+                                <p t-if="item.get('note')" class="p-2 rounded text-danger small mb-2" style="background-color: var(--wujia-danger-bg); border: 1px solid var(--wujia-border);">
                                     <i class="feather icon-alert-circle me-1" />
                                     <span><strong>Ghi chú Admin:</strong> <t t-out="item.get('note')" /></span>
                                 </p>
-                                <p class="text-danger small fw-bold mb-2">
+                                <p class="text-danger small font-weight-bold mb-2">
                                     <i class="feather icon-clock me-1" />
                                     <span>Hạn khắc phục: <t t-out="item.get('due_date')" /></span>
                                 </p>
@@ -335,15 +407,43 @@
                                     <input type="hidden" name="line_id" t-att-value="item.get('id') or item.get('line_id')"/>
                                     <input type="text" name="remediation_note" class="form-control form-control-sm mb-2" placeholder="Ghi chú khắc phục của cửa hàng..." t-att-value="item.get('remediation_note')"/>
                                     
-                                    <div class="mb-2">
-                                        <label t-attf-for="file-input-m-pending-#{item.get('id')}" class="btn btn-sm btn-outline-secondary d-flex align-items-center justify-content-center gap-1.5 w-100 bg-white border text-truncate" style="border-style: dashed !important;">
-                                            <i class="feather icon-upload-cloud text-primary"/>
-                                            <span t-attf-id="file-label-m-pending-#{item.get('id')}" class="text-secondary small text-truncate">Chọn ảnh minh chứng...</span>
-                                        </label>
-                                        <input type="file" t-attf-id="file-input-m-pending-#{item.get('id')}" name="remediation_image" accept="image/*" class="d-none" t-attf-onchange="document.getElementById('file-label-m-pending-#{item.get('id')}').innerText = this.files[0] ? this.files[0].name : 'Chọn ảnh minh chứng...'"/>
+                                    <!-- Mobile Dropzone Upload -->
+                                    <div class="custom-file-dropzone p-2 rounded text-center position-relative mb-2 d-flex align-items-center justify-content-center"
+                                         style="background: #f8fafc; border: 2px dashed #cbd5e1; min-height: 64px; cursor: pointer;"
+                                         t-attf-onclick="document.getElementById('file-input-m-pending-#{item.get('id')}').click()">
+                                        <div class="d-flex align-items-center gap-2 text-start">
+                                            <div t-attf-id="file-preview-wrap-m-pending-#{item.get('id')}" class="d-none me-1">
+                                                <img t-attf-id="file-preview-img-m-pending-#{item.get('id')}" src="#" alt="Preview" 
+                                                     style="width: 44px; height: 44px; object-fit: cover; border-radius: 6px; border: 1px solid #cbd5e1;"/>
+                                            </div>
+                                            <i class="feather icon-camera text-primary" style="font-size: 1.2rem;"/>
+                                            <div>
+                                                <span t-attf-id="file-label-m-pending-#{item.get('id')}" class="d-block font-weight-bold text-dark text-truncate" style="font-size: 12px; max-width: 200px;">
+                                                    Chọn ảnh minh chứng...
+                                                </span>
+                                                <span class="d-block text-muted" style="font-size: 10px;">Chạm để chọn ảnh</span>
+                                            </div>
+                                        </div>
+                                        <input type="file" t-attf-id="file-input-m-pending-#{item.get('id')}" name="remediation_image" accept="image/*" class="d-none"
+                                               t-attf-onchange="
+                                                   var file = this.files[0];
+                                                   if (file) {
+                                                       var label = document.getElementById('file-label-m-pending-#{item.get('id')}');
+                                                       var wrap = document.getElementById('file-preview-wrap-m-pending-#{item.get('id')}');
+                                                       var img = document.getElementById('file-preview-img-m-pending-#{item.get('id')}');
+                                                       label.innerText = file.name;
+                                                       label.classList.add('text-primary');
+                                                       var reader = new FileReader();
+                                                       reader.onload = function(e) {
+                                                           img.src = e.target.result;
+                                                           wrap.classList.remove('d-none');
+                                                       };
+                                                       reader.readAsDataURL(file);
+                                                   }
+                                               "/>
                                     </div>
 
-                                    <button type="submit" class="wujia-mexam-btn wujia-mexam-btn-primary w-100 fw-bold">
+                                    <button type="submit" class="btn btn-primary btn-block font-weight-bold">
                                         <i class="feather icon-send me-1"/>Gửi báo cáo khắc phục
                                     </button>
                                 </form>
@@ -361,48 +461,39 @@
 
                     <div t-else="" class="wujia-mexam-list">
                         <t t-foreach="completed_items" t-as="item">
-                            <div class="wujia-mexam-card mb-3 p-3 bg-white rounded-3 border shadow-2xs">
+                            <div class="wujia-mexam-card mb-3 p-3 bg-white rounded border shadow-sm">
                                 <div class="wujia-mexam-card-top d-flex justify-content-between align-items-start mb-2">
-                                    <h3 class="wujia-mexam-card-title fs-6 fw-bold mb-0">
+                                    <h3 class="wujia-mexam-card-title font-weight-bold mb-0" style="font-size: 15px;">
                                         <span t-if="item.get('code')" class="text-success me-1">[<t t-out="item.get('code')" />] </span><t t-out="item.get('category')" />
                                     </h3>
-                                    <span class="badge bg-success-subtle text-success border border-success-subtle">Đã phản hồi</span>
+                                    <span class="wujia-badge wujia-badge-success d-inline-flex align-items-center gap-1">
+                                        <i class="feather icon-check-circle"/> Đã hoàn thành
+                                    </span>
                                 </div>
                                 <p class="wujia-mexam-card-line small text-muted mb-2">
                                     <i class="feather icon-file-text me-1" />
                                     <span>Phiếu: <t t-out="item.get('inspection_code')" /> | <t t-out="item.get('franchise_name')" /></span>
                                 </p>
-                                <div class="p-2.5 rounded-2 mb-2 small" style="background-color: #f8fafc; border: 1px solid #e2e8f0; border-left: 3px solid #64748b;">
+                                <div class="p-2 rounded mb-2 small" style="background-color: var(--wujia-bg-page); border: 1px solid var(--wujia-border); border-left: 3px solid var(--wujia-text-muted);">
                                     <span class="text-secondary"><strong class="text-dark">Vi phạm:</strong> <t t-out="item.get('content') or 'N/A'" /></span>
                                 </div>
-                                <p t-if="item.get('note')" class="p-2 rounded-2 text-danger small mb-2" style="background-color: #fff1f2; border: 1px solid #fecdd3;">
+                                <p t-if="item.get('note')" class="p-2 rounded text-danger small mb-2" style="background-color: var(--wujia-danger-bg); border: 1px solid var(--wujia-border);">
                                     <i class="feather icon-alert-circle me-1" />
                                     <span>Ghi chú Admin: <t t-out="item.get('note')" /></span>
                                 </p>
-                                <form action="/portal/remediation/submit_line" method="post" enctype="multipart/form-data" class="mt-2 pt-2 border-top">
-                                    <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
-                                    <input type="hidden" name="line_id" t-att-value="item.get('id') or item.get('line_id')"/>
-                                    <input type="hidden" name="redirect_tab" value="completed"/>
-                                    <input type="text" name="remediation_note" class="form-control form-control-sm mb-2" placeholder="Cập nhật ghi chú khắc phục..." t-att-value="item.get('remediation_note')"/>
-                                    
-                                    <div class="mb-2">
-                                        <label t-attf-for="file-input-m-comp-#{item.get('id')}" class="btn btn-sm btn-outline-secondary d-flex align-items-center justify-content-center gap-1.5 w-100 bg-white border text-truncate" style="border-style: dashed !important;">
-                                            <i class="feather icon-upload-cloud text-primary"/>
-                                            <span t-attf-id="file-label-m-comp-#{item.get('id')}" class="text-secondary small text-truncate">Thay đổi ảnh minh chứng...</span>
-                                        </label>
-                                        <input type="file" t-attf-id="file-input-m-comp-#{item.get('id')}" name="remediation_image" accept="image/*" class="d-none" t-attf-onchange="document.getElementById('file-label-m-comp-#{item.get('id')}').innerText = this.files[0] ? this.files[0].name : 'Thay đổi ảnh minh chứng...'"/>
-                                    </div>
-
-                                    <div class="d-flex gap-2">
+                                
+                                <!-- Mobile Status Finished Block -->
+                                <div class="pt-2 border-top">
+                                    <div class="d-flex align-items-center justify-content-between p-2 rounded" style="background-color: #f0fdf4; border: 1px solid #bbf7d0;">
+                                        <span class="text-success font-weight-bold small d-flex align-items-center gap-1">
+                                            <i class="feather icon-check-circle" style="font-size: 1.1rem;"/> Đã hoàn thành khắc phục
+                                        </span>
                                         <a t-if="item.get('remediation_image_url')" t-att-href="item.get('remediation_image_url')" target="_blank"
-                                            class="btn btn-sm btn-outline-primary flex-fill py-1 fw-medium" style="font-size: 0.75rem;">
-                                            <i class="feather icon-image me-1" />Xem ảnh đã nộp
+                                            class="btn btn-xs btn-outline-success font-weight-bold" style="font-size: 11px; padding: 2px 8px;">
+                                            <i class="feather icon-image me-1" />Xem ảnh
                                         </a>
-                                        <button type="submit" class="wujia-mexam-btn wujia-mexam-btn-primary flex-fill fw-bold">
-                                            <i class="feather icon-refresh-cw me-1"/>Cập nhật
-                                        </button>
                                     </div>
-                                </form>
+                                </div>
                             </div>
                         </t>
                     </div>
