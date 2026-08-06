@@ -1,5 +1,6 @@
 import logging
 from datetime import datetime, timedelta
+from urllib.parse import urlencode
 
 from werkzeug.exceptions import NotFound
 
@@ -70,14 +71,25 @@ def _page_numbers(current, last, edge=1, around=1):
     return result
 
 
+# Trạng thái → nhóm chip (đảo BATCH_STATUS_GROUP), dựng 1 lần lúc import.
+STATUS_TO_GROUP = {s: g for g, ss in BATCH_STATUS_GROUP.items() for s in ss}
+
+
 def _chip_counts(Batch, base_domain):
-    """Đếm chuyến theo nhóm cho chips card-head — 4 search_count (field có index)."""
-    return {
-        'all': Batch.search_count(base_domain),
-        'going': Batch.search_count(base_domain + [('delivery_batch_status', 'in', BATCH_STATUS_GROUP['going'])]),
-        'soon': Batch.search_count(base_domain + [('delivery_batch_status', 'in', BATCH_STATUS_GROUP['soon'])]),
-        'done': Batch.search_count(base_domain + [('delivery_batch_status', 'in', BATCH_STATUS_GROUP['done'])]),
-    }
+    """Đếm chuyến theo nhóm cho chips card-head.
+
+    1 `_read_group` thay vì 4 `search_count`: base_domain join qua picking_ids
+    (+ sale_id) nên mỗi lần đếm là một lần join lại — với 1500 user thì 4 lần
+    lặp là phần đắt nhất của trang. Group-by trên field đã index, gộp Python.
+    """
+    counts = {'all': 0, 'soon': 0, 'going': 0, 'done': 0}
+    for status, count in Batch._read_group(
+            base_domain, groupby=['delivery_batch_status'], aggregates=['__count']):
+        counts['all'] += count
+        group = STATUS_TO_GROUP.get(status)
+        if group:
+            counts[group] += count
+    return counts
 
 
 def _hhmm(dt, tz):
@@ -127,15 +139,16 @@ def _related_orders(pickings):
 
 class WujiaPortalDelivery(http.Controller):
 
-    @http.route(['/portal/delivery'], type='http', auth='user', sitemap=False)
-    def portal_delivery_list(self, page=1, bs='', date_from='', date_to='', q='', **kw):
+    def _delivery_list_values(self, page=1, bs='', date_from='', date_to='', q='', **kw):
+        """Context danh sách chuyến — dùng chung cho trang đầy đủ và fragment AJAX."""
         franchise_ids = get_active_franchise_ids_filter()
         if not franchise_ids:
-            return request.render('wujia_portal_delivery.portal_delivery_tracking', {
+            return {
                 'no_franchise': True, 'batches': [], 'view_state': 'empty',
                 'm_pager': {}, 'chip_counts': {},
                 'date_from': '', 'date_to': '', 'bs': '', 'q': '',
-            })
+                'chip_qs': '',
+            }
 
         try:
             page = max(1, int(page))
@@ -221,12 +234,32 @@ class WujiaPortalDelivery(http.Controller):
         if preview in ('loading', 'error', 'empty', 'list'):
             view_state = preview
 
-        return request.render('wujia_portal_delivery.portal_delivery_tracking', {
+        # Đuôi querystring cho link chip (giữ q + ngày). Encode ở đây thay vì nối
+        # chuỗi trong QWeb — từ khoá có '&' hay dấu cách sẽ làm vỡ link.
+        extra = {k: v for k, v in (
+            ('q', q), ('date_from', date_from), ('date_to', date_to)) if v}
+        return {
             'no_franchise': False,
             'batches': batches, 'view_state': view_state, 'm_pager': m_pager,
             'chip_counts': chip_counts,
             'date_from': date_from, 'date_to': date_to, 'bs': bs, 'q': q,
-        })
+            'chip_qs': ('&' + urlencode(extra)) if extra else '',
+        }
+
+    @http.route(['/portal/delivery'], type='http', auth='user', sitemap=False)
+    def portal_delivery_list(self, **kw):
+        return request.render('wujia_portal_delivery.portal_delivery_tracking',
+                              self._delivery_list_values(**kw))
+
+    @http.route(['/portal/delivery/results'], type='http', auth='user', sitemap=False)
+    def portal_delivery_results(self, **kw):
+        """Fragment 3 khối kết quả (chips + list + pager) cho lọc AJAX.
+
+        Cùng một context với trang đầy đủ — chỉ bỏ shell portal (navbar/sidebar/
+        chuông) vốn không đổi khi lọc, nên bấm chip không phải dựng lại cả trang.
+        """
+        return request.render('wujia_portal_delivery.portal_delivery_results',
+                              self._delivery_list_values(**kw))
 
     @http.route(['/portal/delivery/<int:batch_id>'], type='http', auth='user', sitemap=False)
     def portal_delivery_detail(self, batch_id, **kw):
