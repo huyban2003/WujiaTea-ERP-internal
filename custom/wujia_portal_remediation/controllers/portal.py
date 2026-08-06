@@ -63,6 +63,15 @@ class WujiaPortalRemediationController(http.Controller):
             inspection_domain, order='planned_date desc, id desc'
         )
 
+        # Batch pre-fetch relational fields để triệt tiêu N+1 queries khi lặp qua nhiều record
+        inspections.mapped('franchise_id')
+        inspections.mapped('grade_id')
+        inspections.mapped('inspector_user_id')
+        all_lines = inspections.mapped('line_ids')
+        all_lines.mapped('template_line_id')
+        all_lines.mapped('template_line_id.category_id')
+        all_lines.mapped('category_id')
+
         pending_items = []
         completed_items = []
 

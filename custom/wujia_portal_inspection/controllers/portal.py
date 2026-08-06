@@ -66,11 +66,15 @@ class WujiaPortalInspectionController(http.Controller):
             inspection_domain, order='planned_date desc, id desc'
         )
 
-        inspection_items = []
-        need_remediation_count = 0
-        done_count = 0
+        # Batch pre-fetch relational fields để triệt tiêu N+1 queries trên DB
+        inspections.mapped('franchise_id')
+        inspections.mapped('grade_id')
+        inspections.mapped('inspector_user_id')
+        inspections.mapped('template_id')
+        all_lines = inspections.mapped('line_ids')
+        all_lines.mapped('template_line_id')
 
-        # Đếm tổng quan độc lập với tab active
+        # Đếm tổng quan độc lập với tab active trực tiếp bằng SQL COUNT(*) để tối ưu hiệu năng
         base_count_domain = [('state', 'in', ('need_remediation', 'done'))]
         if franchise_ids:
             base_count_domain.append(('franchise_id', 'in', list(franchise_ids)))
@@ -87,13 +91,11 @@ class WujiaPortalInspectionController(http.Controller):
                 ('franchise_id.code', 'ilike', q),
             ])
 
-        all_base_inspections = request.env['wujia.franchise.inspection'].sudo().search(base_count_domain)
-        for b_insp in all_base_inspections:
-            if b_insp.state == 'need_remediation':
-                need_remediation_count += 1
-            elif b_insp.state == 'done':
-                done_count += 1
+        InspectionModel = request.env['wujia.franchise.inspection'].sudo()
+        need_remediation_count = InspectionModel.search_count(base_count_domain + [('state', '=', 'need_remediation')])
+        done_count = InspectionModel.search_count(base_count_domain + [('state', '=', 'done')])
 
+        inspection_items = []
         for insp in inspections:
             criteria_lines = insp.line_ids.filtered(lambda l: l.display_type == 'line')
             failed_lines = criteria_lines.filtered(lambda l: not l.is_pass or l.result == 'fail')
