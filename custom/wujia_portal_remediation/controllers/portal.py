@@ -137,12 +137,11 @@ class WujiaPortalRemediationController(http.Controller):
                     'grade_badge': grade_badge,
                 }
 
-                # 1.1 nếu 1 dòng có is_pass = false và remediation_image = '' or null -> Chờ phản hồi
-                if not line.remediation_image:
-                    pending_items.append(line_data)
-                # 1.2 nếu 1 dòng có is_pass = false và remediation_image != '' -> Đã phản hồi
-                else:
+                # Dòng được tính là Đã phản hồi nếu đã nhập ghi chú khắc phục HOẶC đã nộp ảnh minh chứng
+                if line.remediation_image or line.remediation_note:
                     completed_items.append(line_data)
+                else:
+                    pending_items.append(line_data)
 
         values = {
             '_remediation_active': True,
@@ -150,6 +149,7 @@ class WujiaPortalRemediationController(http.Controller):
             'date_from': date_from or '',
             'date_to': date_to or '',
             'search_q': search or '',
+            'submitted_success': bool(kwargs.get('submitted')),
             'pending_items': pending_items,
             'completed_items': completed_items,
             'pending_count': len(pending_items),
@@ -175,5 +175,7 @@ class WujiaPortalRemediationController(http.Controller):
                         vals['remediation_image'] = base64.b64encode(file_content)
                 if vals:
                     line.write(vals)
-        tab_to_redirect = redirect_tab if redirect_tab in ('pending', 'completed') else 'pending'
-        return request.redirect(f'/portal/remediation?tab={tab_to_redirect}')
+        
+        # Mặc định chuyển sang tab 'completed' (Đã phản hồi) để người dùng thấy kết quả đã gửi
+        tab_to_redirect = redirect_tab if redirect_tab in ('pending', 'completed') else 'completed'
+        return request.redirect(f'/portal/remediation?tab={tab_to_redirect}&submitted=1')

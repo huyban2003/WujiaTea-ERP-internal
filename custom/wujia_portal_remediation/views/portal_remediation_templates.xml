@@ -16,6 +16,12 @@
                 </div>
 
                 <div class="content-body">
+                    <div t-if="submitted_success" class="alert alert-success d-flex align-items-center gap-2 p-3 mb-3 rounded shadow-sm" style="background-color: #f0fdf4; border: 1px solid #bbf7d0; color: #15803d;">
+                        <i class="feather icon-check-circle text-success" style="font-size: 1.2rem;"/>
+                        <div>
+                            <strong>Thành công!</strong> Báo cáo khắc phục của cửa hàng đã được ghi nhận thành công.
+                        </div>
+                    </div>
                     <!-- Bộ lọc nhanh -->
                     <form method="get" action="/portal/remediation" class="wj-pc-filterbar">
                         <h2 class="wj-pc-filterbar__title">Bộ lọc nhanh</h2>
@@ -354,6 +360,12 @@
                     </form>
                 </div>
 
+                <!-- Alert thành công -->
+                <div t-if="submitted_success" class="alert alert-success d-flex align-items-center gap-2 p-2 mx-3 mb-2 rounded small" style="background-color: #f0fdf4; border: 1px solid #bbf7d0; color: #15803d;">
+                    <i class="feather icon-check-circle text-success" style="font-size: 1.1rem;"/>
+                    <div><strong>Thành công!</strong> Đã gửi báo cáo khắc phục.</div>
+                </div>
+
                 <!-- Mobile Tabs -->
                 <div class="d-flex gap-2 mb-3">
                     <a t-attf-href="/portal/remediation?tab=pending&amp;date_from=#{date_from}&amp;date_to=#{date_to}&amp;search=#{search_q}"
@@ -466,8 +478,10 @@
                                     <h3 class="wujia-mexam-card-title font-weight-bold mb-0" style="font-size: 15px;">
                                         <span t-if="item.get('code')" class="text-success me-1">[<t t-out="item.get('code')" />] </span><t t-out="item.get('category')" />
                                     </h3>
-                                    <span class="wujia-badge wujia-badge-success d-inline-flex align-items-center gap-1">
-                                        <i class="feather icon-check-circle"/> Đã hoàn thành
+                                    <span class="d-inline-flex align-items-center justify-content-center rounded-circle" 
+                                          title="Đã hoàn thành" 
+                                          style="width: 28px; height: 28px; background-color: #f0fdf4; border: 1px solid #bbf7d0; color: #16a34a; flex-shrink: 0;">
+                                        <i class="feather icon-check-circle" style="font-size: 1.1rem;"/>
                                     </span>
                                 </div>
                                 <p class="wujia-mexam-card-line small text-muted mb-2">
@@ -482,18 +496,61 @@
                                     <span>Ghi chú Admin: <t t-out="item.get('note')" /></span>
                                 </p>
                                 
-                                <!-- Mobile Status Finished Block -->
-                                <div class="pt-2 border-top">
-                                    <div class="d-flex align-items-center justify-content-between p-2 rounded" style="background-color: #f0fdf4; border: 1px solid #bbf7d0;">
-                                        <span class="text-success font-weight-bold small d-flex align-items-center gap-1">
-                                            <i class="feather icon-check-circle" style="font-size: 1.1rem;"/> Đã hoàn thành khắc phục
-                                        </span>
-                                        <a t-if="item.get('remediation_image_url')" t-att-href="item.get('remediation_image_url')" target="_blank"
-                                            class="btn btn-xs btn-outline-success font-weight-bold" style="font-size: 11px; padding: 2px 8px;">
-                                            <i class="feather icon-image me-1" />Xem ảnh
-                                        </a>
+                                <!-- Form Cập nhật trên Mobile (Khớp nghiệp vụ Desktop) -->
+                                <form action="/portal/remediation/submit_line" method="post" enctype="multipart/form-data" class="mt-2 pt-2 border-top">
+                                    <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
+                                    <input type="hidden" name="line_id" t-att-value="item.get('id') or item.get('line_id')"/>
+                                    <input type="hidden" name="redirect_tab" value="completed"/>
+                                    
+                                    <label class="font-weight-bold text-dark small mb-1">Cập nhật ghi chú:</label>
+                                    <input type="text" name="remediation_note" class="form-control form-control-sm mb-2" placeholder="Cập nhật ghi chú khắc phục..." t-att-value="item.get('remediation_note')"/>
+                                    
+                                    <label class="font-weight-bold text-dark small mb-1">Thay đổi ảnh minh chứng:</label>
+                                    <div class="custom-file-dropzone p-2 rounded text-center position-relative mb-2 d-flex align-items-center justify-content-center"
+                                         style="background: #f8fafc; border: 2px dashed #cbd5e1; min-height: 56px; cursor: pointer;"
+                                         t-attf-onclick="document.getElementById('file-input-m-comp-#{item.get('id')}').click()">
+                                        <div class="d-flex align-items-center gap-2 text-start">
+                                            <div t-attf-id="file-preview-wrap-m-comp-#{item.get('id')}" t-attf-class="#{'d-none' if not item.get('remediation_image_url') else ''} me-1">
+                                                <img t-attf-id="file-preview-img-m-comp-#{item.get('id')}" t-att-src="item.get('remediation_image_url') or '#'" alt="Preview" 
+                                                     style="width: 44px; height: 44px; object-fit: cover; border-radius: 6px; border: 1px solid #cbd5e1;"/>
+                                            </div>
+                                            <i class="feather icon-camera text-primary" style="font-size: 1.2rem;"/>
+                                            <div>
+                                                <span t-attf-id="file-label-m-comp-#{item.get('id')}" class="d-block font-weight-bold text-dark text-truncate" style="font-size: 12px; max-width: 180px;">
+                                                    <t t-out="'Thay đổi ảnh minh chứng...' if not item.get('remediation_image_url') else 'Bấm để đổi ảnh khác...'"/>
+                                                </span>
+                                                <span class="d-block text-muted" style="font-size: 10px;">Chạm để chọn ảnh</span>
+                                            </div>
+                                        </div>
+                                        <input type="file" t-attf-id="file-input-m-comp-#{item.get('id')}" name="remediation_image" accept="image/*" class="d-none"
+                                               t-attf-onchange="
+                                                   var file = this.files[0];
+                                                   if (file) {
+                                                       var label = document.getElementById('file-label-m-comp-#{item.get('id')}');
+                                                       var wrap = document.getElementById('file-preview-wrap-m-comp-#{item.get('id')}');
+                                                       var img = document.getElementById('file-preview-img-m-comp-#{item.get('id')}');
+                                                       label.innerText = file.name;
+                                                       label.classList.add('text-primary');
+                                                       var reader = new FileReader();
+                                                       reader.onload = function(e) {
+                                                           img.src = e.target.result;
+                                                           wrap.classList.remove('d-none');
+                                                       };
+                                                       reader.readAsDataURL(file);
+                                                   }
+                                               "/>
                                     </div>
-                                </div>
+
+                                    <div class="d-flex gap-2">
+                                        <a t-if="item.get('remediation_image_url')" t-att-href="item.get('remediation_image_url')" target="_blank"
+                                            class="btn btn-sm btn-outline-success flex-fill font-weight-bold" style="font-size: 12px;">
+                                            <i class="feather icon-image me-1" />Xem ảnh đã nộp
+                                        </a>
+                                        <button type="submit" class="btn btn-sm btn-primary flex-fill font-weight-bold">
+                                            <i class="feather icon-refresh-cw me-1"/>Cập nhật
+                                        </button>
+                                    </div>
+                                </form>
                             </div>
                         </t>
                     </div>
