@@ -1,3 +1,11 @@
+from enum import Enum
+
+
+class RemediationState(str, Enum):
+    NEED_REMEDIATION = 'need_remediation'
+    REMEDIATED = 'remediated'
+    DONE = 'done'
+
 # -*- coding: utf-8 -*-
 import random
 from odoo import api, fields, models, _
@@ -6,6 +14,15 @@ from odoo.exceptions import ValidationError, UserError
 
 
 class WujiaFranchiseInspection(models.Model):
+
+    def _check_and_update_done_state(self):
+        for rec in self:
+            if rec.state == 'need_remediation':
+                criteria_lines = rec.line_ids.filtered(lambda l: l.display_type == 'line' and not l.is_pass)
+                # Phiếu chỉ hoàn thành nếu TẤT CẢ các dòng không đạt đều ở trạng thái DONE
+                if not criteria_lines or all(l.remediation_state == RemediationState.DONE.value for l in criteria_lines):
+                    rec.write({'state': 'done'})
+
     _name = 'wujia.franchise.inspection'
     _description = 'Phiếu khảo sát đánh giá cửa hàng nhượng quyền'
     _order = 'id desc'
@@ -383,10 +400,15 @@ class WujiaFranchiseInspection(models.Model):
                 ))
 
     def action_need_remediation(self):
-        """Chuyển phiếu khảo sát sang trạng thái Cần khắc phục"""
+        """Chuyển phiếu khảo sát sang trạng thái Cần khắc phục & cập nhật trạng thái khắc phục cho tất cả tiêu chí"""
         for rec in self:
             rec._validate_failed_lines()
             rec._validate_exam_lines()
+            for line in rec.line_ids.filtered(lambda l: l.display_type == 'line'):
+                if not line.is_pass or line.result == 'fail':
+                    line.write({'remediation_state': RemediationState.NEED_REMEDIATION.value})
+                else:
+                    line.write({'remediation_state': RemediationState.DONE.value})
             rec.write({'state': 'need_remediation'})
         return True
 
@@ -396,6 +418,10 @@ class WujiaFranchiseInspection(models.Model):
         for rec in self:
             rec._validate_failed_lines()
             rec._validate_exam_lines()
+            failed_lines = rec.line_ids.filtered(lambda l: l.display_type == 'line' and not l.is_pass)
+            uncompleted_lines = failed_lines.filtered(lambda l: l.remediation_state != RemediationState.DONE.value)
+            if uncompleted_lines:
+                raise UserError(_("Không thể hoàn thành phiếu khảo sát! Vẫn còn %s tiêu chí vi phạm chưa được xử lý Hoàn thành (Done).") % len(uncompleted_lines))
             rec.write({
                 'state': 'done',
                 'confirm_date': rec.confirm_date or today,
@@ -444,6 +470,22 @@ class WujiaFranchiseInspection(models.Model):
         }
 
     def write(self, vals):
+        if vals.get('state') == 'need_remediation':
+            for rec in self:
+                for line in rec.line_ids.filtered(lambda l: l.display_type == 'line'):
+                    if not line.is_pass or line.result == 'fail':
+                        if line.remediation_state != RemediationState.REMEDIATED.value and line.remediation_state != RemediationState.DONE.value:
+                            line.remediation_state = RemediationState.NEED_REMEDIATION.value
+                    else:
+                        line.remediation_state = RemediationState.DONE.value
+
+        if vals.get('state') == 'done':
+            for rec in self:
+                failed_lines = rec.line_ids.filtered(lambda l: l.display_type == 'line' and not l.is_pass)
+                uncompleted_lines = failed_lines.filtered(lambda l: l.remediation_state != RemediationState.DONE.value)
+                if uncompleted_lines:
+                    raise UserError(_("Không thể chuyển phiếu khảo sát sang Hoàn thành! Vẫn còn %s tiêu chí vi phạm chưa ở trạng thái Hoàn thành (Done).") % len(uncompleted_lines))
+
         if vals.get('state') == 'done' and 'confirm_date' not in vals:
             vals['confirm_date'] = fields.Date.context_today(self)
         res = super().write(vals)
@@ -652,6 +694,15 @@ class WujiaFranchiseInspection(models.Model):
         return super().create(vals_list)
 
 class WujiaFranchiseInspectionLine(models.Model):
+
+    def action_toggle_remediation_state(self):
+        for line in self:
+            if line.remediation_state == RemediationState.DONE.value:
+                line.write({'remediation_state': RemediationState.NEED_REMEDIATION.value})
+            else:
+                line.write({'remediation_state': RemediationState.DONE.value})
+        return True
+
     _name = 'wujia.franchise.inspection.line'
     _description = 'Từng dòng tiêu chí trong phiếu khảo sát đánh giá cửa hàng nhượng quyền'
     _order = 'sequence, id'
@@ -706,6 +757,20 @@ class WujiaFranchiseInspectionLine(models.Model):
         string='Ghi chú vi phạm (Admin)',
     )
 
+    remediation_state = fields.Selection([
+        (RemediationState.NEED_REMEDIATION.value, 'Cần phản hồi'),
+        (RemediationState.REMEDIATED.value, 'Đã phản hồi'),
+        (RemediationState.DONE.value, 'Đã duyệt (Hoàn thành)'),
+    ], string='Trạng thái khắc phục', tracking=True)
+
+    @api.onchange('is_pass', 'result')
+    def _onchange_is_pass_remediation_state(self):
+        if self.is_pass or self.result == 'pass':
+            self.remediation_state = RemediationState.DONE.value
+        else:
+            if not self.remediation_state or self.remediation_state == RemediationState.DONE.value:
+                self.remediation_state = RemediationState.NEED_REMEDIATION.value
+    
     remediation_note = fields.Text(
         string='Ghi chú khắc phục (Cửa hàng)',
         help='Ghi chú phản hồi/khắc phục do cửa hàng nhập từ Portal.'
@@ -995,6 +1060,22 @@ class WujiaFranchiseInspectionLine(models.Model):
         return super().create(vals_list)
 
     def write(self, vals):
+        if vals.get('state') == 'need_remediation':
+            for rec in self:
+                for line in rec.line_ids.filtered(lambda l: l.display_type == 'line'):
+                    if not line.is_pass or line.result == 'fail':
+                        if line.remediation_state != RemediationState.REMEDIATED.value and line.remediation_state != RemediationState.DONE.value:
+                            line.remediation_state = RemediationState.NEED_REMEDIATION.value
+                    else:
+                        line.remediation_state = RemediationState.DONE.value
+
+        if vals.get('state') == 'done':
+            for rec in self:
+                failed_lines = rec.line_ids.filtered(lambda l: l.display_type == 'line' and not l.is_pass)
+                uncompleted_lines = failed_lines.filtered(lambda l: l.remediation_state != RemediationState.DONE.value)
+                if uncompleted_lines:
+                    raise UserError(_("Không thể chuyển phiếu khảo sát sang Hoàn thành! Vẫn còn %s tiêu chí vi phạm chưa ở trạng thái Hoàn thành (Done).") % len(uncompleted_lines))
+
         if 'is_pass' in vals:
             vals['result'] = 'pass' if vals['is_pass'] else 'fail'
 

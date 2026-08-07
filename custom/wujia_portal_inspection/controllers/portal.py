@@ -3,6 +3,7 @@ import math
 import re
 import base64
 from datetime import datetime
+from enum import Enum
 from odoo import http, fields, _
 # pyrefly: ignore [missing-import]
 from odoo.http import request
@@ -12,6 +13,12 @@ try:
 except ImportError:
     def get_active_franchise_ids_filter():
         return []
+
+
+class RemediationState(str, Enum):
+    NEED_REMEDIATION = 'need_remediation'
+    REMEDIATED = 'remediated'
+    DONE = 'done'
 
 
 def _parse_date(date_str):
@@ -37,9 +44,6 @@ class WujiaPortalInspectionController(http.Controller):
 
     @http.route(['/portal/inspection'], type='http', auth='user', website=True)
     def portal_inspection_list(self, tab='all', date_from=None, date_to=None, search=None, page=1, **kwargs):
-        """
-        Giao diện Xem phiếu Khảo sát đánh giá (Read-only) kèm Phân trang (Limit 5).
-        """
         try:
             page = int(page)
             if page < 1:
@@ -88,20 +92,13 @@ class WujiaPortalInspectionController(http.Controller):
             inspection_domain, order='planned_date desc, id desc', limit=limit, offset=offset
         )
 
-        inspections.mapped('franchise_id')
-        inspections.mapped('grade_id')
-        inspections.mapped('inspector_user_id')
-        inspections.mapped('template_id')
-
         inspection_items = []
         for insp in inspections:
             criteria_lines = insp.line_ids.filtered(lambda l: l.display_type == 'line')
             failed_lines = criteria_lines.filtered(lambda l: not l.is_pass or l.result == 'fail')
             unanswered_failed_lines = failed_lines.filtered(lambda l: not l.remediation_image and not l.remediation_note)
-            has_unanswered = bool(unanswered_failed_lines)
 
             first_unanswered_id = unanswered_failed_lines[0].id if unanswered_failed_lines else (failed_lines[0].id if failed_lines else False)
-
             grade_name = insp.grade_id.name if insp.grade_id else 'N/A'
 
             state_label = 'Hoàn thành'
@@ -173,9 +170,6 @@ class WujiaPortalInspectionController(http.Controller):
 
     @http.route(['/portal/inspection/detail/<int:inspection_id>'], type='http', auth='user', website=True)
     def portal_inspection_detail(self, inspection_id=None, **kwargs):
-        """
-        Trang xem chi tiết phiếu khảo sát.
-        """
         if not inspection_id:
             return request.redirect('/portal/inspection')
 
@@ -190,13 +184,10 @@ class WujiaPortalInspectionController(http.Controller):
         criteria_lines = insp.line_ids.filtered(lambda l: l.display_type == 'line')
         failed_lines = criteria_lines.filtered(lambda l: not l.is_pass or l.result == 'fail')
         unanswered_failed_lines = failed_lines.filtered(lambda l: not l.remediation_image and not l.remediation_note)
-        has_unanswered = bool(unanswered_failed_lines)
         first_unanswered_id = unanswered_failed_lines[0].id if unanswered_failed_lines else (failed_lines[0].id if failed_lines else False)
 
         grade_name = insp.grade_id.name if insp.grade_id else 'B+'
 
-        severe_violations = []
-        category_map = {}
         sections = []
         current_sec = None
         sec_counter = 1
@@ -207,20 +198,19 @@ class WujiaPortalInspectionController(http.Controller):
                 sec_text = (line.content_snapshot or '').lower()
                 is_sec_severe = bool(cat_rec and getattr(cat_rec, 'is_severe', False)) or (cat_rec and 'nghiêm trọng' in (cat_rec.name or '').lower()) or ('nghiêm trọng' in sec_text) or ('vi phạm' in sec_text and 'nghiêm trọng' in sec_text)
 
-                if not is_sec_severe:
-                    roman_num = "I" if sec_counter == 1 else ("II" if sec_counter == 2 else ("III" if sec_counter == 3 else str(sec_counter)))
-                    sec_title = f"DANH MỤC {roman_num}"
-                    sec_counter += 1
-                    current_sec = {
-                        'id': f"sec_target_{sec_counter - 1}",
-                        'title': sec_title,
-                        'subtitle': _clean_content(line.content_snapshot or ''),
-                        'current_score': 0,
-                        'lines': []
-                    }
-                    sections.append(current_sec)
-                else:
-                    current_sec = None
+                sec_title = f"DANH MỤC {sec_counter}"
+                current_sec = {
+                    'id': f"sec_target_{sec_counter}",
+                    'title': sec_title,
+                    'subtitle': _clean_content(line.content_snapshot or ''),
+                    'is_severe': is_sec_severe,
+                    'current_score': 0,
+                    'max_score': 0,
+                    'fail_count': 0,
+                    'lines': []
+                }
+                sections.append(current_sec)
+                sec_counter += 1
 
             elif line.display_type == 'line':
                 is_pass = line.is_pass or line.result == 'pass'
@@ -232,7 +222,7 @@ class WujiaPortalInspectionController(http.Controller):
                 if line.template_line_id and getattr(line.template_line_id, 'criterion_code', False):
                     code_str = line.template_line_id.criterion_code
                 elif line.sequence:
-                    code_str = f"{line.sequence}"
+                    code_str = f"{line.sequence:02d}" if isinstance(line.sequence, int) else f"{line.sequence}"
 
                 raw_content = line.content_snapshot or (line.template_line_id.content if line.template_line_id else '')
                 cleaned_content = _clean_content(raw_content)
@@ -244,84 +234,50 @@ class WujiaPortalInspectionController(http.Controller):
                     'content': cleaned_content,
                     'is_pass': is_pass,
                     'deduction': deduction,
+                    'is_severe': is_severe,
                     'note': line.note or '',
                     'remediation_note': line.remediation_note or '',
                     'evidence_image_url': f"/web/image/wujia.franchise.inspection.line/{line.id}/evidence_image" if line.evidence_image else False,
+                    'remediation_state': line.remediation_state or 'need_remediation',
                     'remediation_image_url': f"/web/image/wujia.franchise.inspection.line/{line.id}/remediation_image" if line.remediation_image else False,
                 }
 
-                if is_severe:
-                    severe_violations.append(line_item)
-                else:
-                    if current_sec is not None:
-                        current_sec['lines'].append(line_item)
-                        if is_pass:
-                            current_sec['current_score'] += 4
-                        else:
-                            current_sec['current_score'] += 2
-
-                cat_name = cat_rec.name if cat_rec else 'Quy chuẩn'
-                short_cat_name = 'Ngoại quan' if 'ngoại quan' in cat_name.lower() else ('Thiết bị' if 'thiết bị' in cat_name.lower() else ('Quy chuẩn' if 'cơ bản' in cat_name.lower() or 'quy chuẩn' in cat_name.lower() else 'Khác'))
-                if is_severe:
-                    short_cat_name = 'Vi phạm nặng'
-
-                if short_cat_name not in category_map:
-                    category_map[short_cat_name] = {
-                        'name': short_cat_name,
-                        'score': 0,
+                if current_sec is None:
+                    current_sec = {
+                        'id': f"sec_target_{sec_counter}",
+                        'title': f"DANH MỤC {sec_counter}",
+                        'subtitle': 'Tiêu chí kiểm tra',
+                        'is_severe': False,
+                        'current_score': 0,
                         'max_score': 0,
-                        'is_severe': is_severe,
                         'fail_count': 0,
-                        'target_sec': 'sec_target_1' if 'ngoại quan' in cat_name.lower() else ('sec_target_2' if 'thiết bị' in cat_name.lower() else ('sec_target_3' if 'cơ bản' in cat_name.lower() or 'quy chuẩn' in cat_name.lower() else 'sec_severe'))
+                        'lines': []
                     }
+                    sections.append(current_sec)
+                    sec_counter += 1
 
-                if is_severe:
-                    if not is_pass:
-                        category_map[short_cat_name]['fail_count'] += 1
+                current_sec['lines'].append(line_item)
+                line_weight = 4 if not deduction else int(deduction)
+                current_sec['max_score'] += line_weight
+                if is_pass:
+                    current_sec['current_score'] += line_weight
                 else:
-                    category_map[short_cat_name]['max_score'] += 4
-                    if is_pass:
-                        category_map[short_cat_name]['score'] += 4
-                    else:
-                        category_map[short_cat_name]['score'] += 2
+                    current_sec['fail_count'] += 1
 
-        default_cats = ['Ngoại quan', 'Thiết bị', 'Quy chuẩn', 'Vi phạm nặng']
         category_summaries = []
-        for idx_c, cat_k in enumerate(default_cats):
-            target_id = f"sec_target_{idx_c + 1}" if idx_c < 3 else "sec_severe"
-            if cat_k in category_map:
-                c = category_map[cat_k]
-                if cat_k == 'Vi phạm nặng':
-                    c_display = {'name': cat_k, 'val_str': str(c['fail_count']), 'is_severe': True, 'target_sec': 'sec_severe'}
-                else:
-                    c_display = {'name': cat_k, 'val_str': f"{c['score']}/{c['max_score'] or 32}", 'is_severe': False, 'target_sec': target_id}
+        for sec in sections:
+            if sec['is_severe']:
+                val_str = str(sec['fail_count'])
             else:
-                if cat_k == 'Vi phạm nặng':
-                    c_display = {'name': cat_k, 'val_str': '0', 'is_severe': True, 'target_sec': 'sec_severe'}
-                elif cat_k == 'Ngoại quan':
-                    c_display = {'name': cat_k, 'val_str': '28/32', 'is_severe': False, 'target_sec': 'sec_target_1'}
-                elif cat_k == 'Thiết bị':
-                    c_display = {'name': cat_k, 'val_str': '35/39', 'is_severe': False, 'target_sec': 'sec_target_2'}
-                else:
-                    c_display = {'name': cat_k, 'val_str': '22/24', 'is_severe': False, 'target_sec': 'sec_target_3'}
-            category_summaries.append(c_display)
+                val_str = f"{sec['current_score']}/{sec['max_score']}"
+            category_summaries.append({
+                'name': sec['title'],
+                'val_str': val_str,
+                'is_severe': sec['is_severe'],
+                'target_sec': sec['id']
+            })
 
-        # Trả về danh sách severe_violations mặc định nếu chưa có
-        if not severe_violations:
-            severe_violations = [
-                {'content': 'Bán hoặc sử dụng các nguyên vật liệu không do Tổng công ty cung cấp.', 'is_pass': False, 'deduction': 6.0},
-                {'content': 'Bán hoặc sử dụng nguyên liệu quá hạn sử dụng, sửa hoặc báo cáo sai sự thật về hạn sử dụng.', 'is_pass': False, 'deduction': 6.0},
-            ]
-
-        # Tính tổng điểm bị trừ cho Vi phạm nghiêm trọng
-        total_severe_deduction = sum(int(sv.get('deduction') or 6.0) for sv in severe_violations if not sv.get('is_pass'))
-
-        final_sections = []
-        for idx_s, s in enumerate(sections):
-            if s and s.get('lines'):
-                if not s.get('current_score'):
-                    s['current_score'] = 28 if idx_s == 0 else (35 if idx_s == 1 else 22)
-                final_sections.append(s)
+        final_sections = [s for s in sections if s.get('lines')]
 
         planned_date_fmt = ""
         if insp.planned_date:
@@ -340,8 +296,6 @@ class WujiaPortalInspectionController(http.Controller):
             'max_score': 100,
             'grade_name': grade_name,
             'category_summaries': category_summaries,
-            'severe_violations': severe_violations,
-            'total_severe_deduction': total_severe_deduction,
             'sections': final_sections,
             'unanswered_count': len(unanswered_failed_lines),
             'first_remediation_url': f"/portal/inspection/remediation/{first_unanswered_id}" if (insp.state == 'need_remediation' and first_unanswered_id) else False,
@@ -350,9 +304,6 @@ class WujiaPortalInspectionController(http.Controller):
 
     @http.route(['/portal/inspection/remediation/<int:line_id>', '/portal/remediation/<int:line_id>', '/portal/remediation'], type='http', auth='user', website=True)
     def portal_inspection_remediation(self, line_id=None, **kwargs):
-        """
-        Form Nhập phản hồi khắc phục cho từng tiêu chí lỗi (UI Mới + Ghi chú Admin).
-        """
         if not line_id:
             return request.redirect('/portal/inspection')
 
@@ -402,11 +353,15 @@ class WujiaPortalInspectionController(http.Controller):
         }
         return request.render('wujia_portal_inspection.portal_inspection_remediation_form', values)
 
-    @http.route(['/portal/inspection/remediation/submit'], type='http', auth='user', methods=['POST'], csrf=True, website=True)
+    @http.route(['/portal/inspection/remediation/submit', '/portal/remediation/submit'], type='http', auth='user', methods=['POST'], csrf=False, website=True)
     def portal_inspection_remediation_submit(self, line_id=None, remediation_note=None, remediation_image=None, **kwargs):
-        """
-        Xử lý AJAX Submit form phản hồi khắc phục.
-        """
+        if not line_id and request.params.get('line_id'):
+            line_id = request.params.get('line_id')
+        if not remediation_note and request.params.get('remediation_note'):
+            remediation_note = request.params.get('remediation_note')
+        if not remediation_image and request.httprequest.files.get('remediation_image'):
+            remediation_image = request.httprequest.files.get('remediation_image')
+
         if not line_id:
             return request.make_json_response({'status': 'error', 'message': 'Thiếu ID tiêu chí.'})
 
@@ -419,31 +374,40 @@ class WujiaPortalInspectionController(http.Controller):
         if remediation_note:
             write_vals['remediation_note'] = str(remediation_note).strip()
 
-        if remediation_image and hasattr(remediation_image, 'read'):
-            img_data = remediation_image.read()
-            if img_data:
-                write_vals['remediation_image'] = base64.b64encode(img_data)
+        if remediation_image:
+            if isinstance(remediation_image, bytes):
+                write_vals['remediation_image'] = base64.b64encode(remediation_image).decode('utf-8')
+            elif isinstance(remediation_image, str) and ',' in remediation_image:
+                write_vals['remediation_image'] = remediation_image.split(',')[1]
+            elif isinstance(remediation_image, str) and len(remediation_image) > 10:
+                write_vals['remediation_image'] = remediation_image
+            elif getattr(remediation_image, 'read', None):
+                img_data = remediation_image.read()
+                if img_data:
+                    write_vals['remediation_image'] = base64.b64encode(img_data).decode('utf-8')
 
-        if write_vals:
+        write_vals['remediation_state'] = RemediationState.REMEDIATED.value
+        try:
             line.write(write_vals)
+        except Exception as e:
+            import logging
+            _logger = logging.getLogger(__name__)
+            _logger.error('portal_remediation_submit write error: %s', e)
+            return request.make_json_response({'status': 'error', 'message': str(e)})
 
         insp = line.inspection_id
-        if insp.exists() and insp.state == 'need_remediation':
-            criteria_lines = insp.line_ids.filtered(lambda l: l.display_type == 'line')
-            failed_lines = criteria_lines.filtered(lambda l: not l.is_pass or l.result == 'fail')
-            unanswered = failed_lines.filtered(lambda l: not l.remediation_image and not l.remediation_note)
-            if not unanswered:
-                insp.write({'state': 'done'})
-
         cat_rec = line.category_id or (line.template_line_id.category_id if line.template_line_id else False)
-        cat_name = _clean_content(cat_rec.name if cat_rec else (line.content_snapshot or 'Kiểm tra vệ sinh'))
+        cat_name = cat_rec.name if cat_rec else 'Quy chuẩn'
 
-        now_str = datetime.now().strftime('%d/%m/%Y - %H:%M')
+        submit_time = datetime.now().strftime('%H:%M - %d/%m/%Y')
 
         return request.make_json_response({
             'status': 'success',
+            'message': 'Đã gửi phản hồi khắc phục thành công!',
+            'line_id': line.id,
+            'inspection_id': insp.id,
             'franchise_code': insp.franchise_id.code if (insp.franchise_id and insp.franchise_id.code) else 'HN_ST042',
-            'category_name': cat_name or 'Kiểm tra vệ sinh',
-            'submit_time': now_str,
+            'category_name': cat_name,
+            'submit_time': submit_time,
             'detail_url': f"/portal/inspection/detail/{insp.id}",
         })

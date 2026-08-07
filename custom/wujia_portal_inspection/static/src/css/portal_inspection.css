@@ -244,3 +244,90 @@
 .fixed-bottom-bar.d-none-bar {
     display: none !important;
 }
+
+
+/* Additional Portal Inspection CSS rules for dynamic mobile detail UI */
+.wj-detail-max-chip {
+    border: 1px solid #e2e8f0;
+    background-color: #ffffff;
+    color: #475569;
+    border-radius: 16px;
+    padding: 3px 12px;
+    font-size: 0.8rem;
+    font-weight: 600;
+}
+
+.wj-severe-icon-badge {
+    width: 28px;
+    height: 28px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 6px;
+}
+
+.wj-severe-icon-fail {
+    background-color: #fee2e2;
+    border: 1px solid #fca5a5;
+    color: #dc2626;
+}
+
+.wj-severe-icon-pass {
+    background-color: #dcfce7;
+    border: 1px solid #86efac;
+    color: #16a34a;
+}
+
+.wj-category-header-title {
+    font-size: 0.95rem;
+    line-height: 1.35;
+    color: #0284c7;
+    font-weight: 700;
+}
+
+.wj-category-header-subtitle {
+    font-size: 0.82rem;
+    line-height: 1.35;
+    color: #64748b;
+}
+
+.wj-criterion-title {
+    font-size: 0.9rem;
+    font-weight: 700;
+    color: #0f172a;
+    margin-bottom: 2px;
+}
+
+.wj-criterion-content {
+    font-size: 0.88rem;
+    line-height: 1.4;
+    color: #334155;
+}
+
+
+/* Add padding-left to wj-page_header back button for clean left alignment */
+.wj-page-header__back {
+    padding-left: 16px !important;
+}
+
+
+/* Add 16px horizontal padding to whole wj-page-header component */
+.wj-page-header {
+    padding-left: 16px !important;
+    padding-right: 16px !important;
+}
+
+
+/* Center icon perfectly inside wj-page-header__back button */
+.wj-page-header__back {
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    padding-left: 0 !important;
+}
+
+.wj-page-header__back i, 
+.wj-page-header__back svg {
+    margin: 0 auto !important;
+    display: block !important;
+}
