@@ -15,6 +15,7 @@ class WujiaFranchiseInspectionCategory(models.Model):
     code = fields.Char(string='Mã danh mục')
     sequence = fields.Integer(string='Thứ tự', default=10)
     active = fields.Boolean(string='Kích hoạt', default=True)
+    is_severe = fields.Boolean(string='Vi phạm nghiêm trọng', default=False)
 
     _sql_constraints = [
         ('name_unique', 'UNIQUE(name)', 'Tên danh mục phải là duy nhất!'),
@@ -27,7 +28,7 @@ class WujiaFranchiseInspectionCategory(models.Model):
             {'name': 'Gìn giữ hình ảnh ngoại quan cửa hàng / 店鋪外觀形象保持', 'sequence': 10},
             {'name': 'Yêu cầu giữ gìn các thiết bị / 各設備維護要求', 'sequence': 20},
             {'name': 'Yêu cầu tiêu chuẩn cơ bản / 基本規範要求', 'sequence': 30},
-            {'name': 'Những hạng mục vi phạm nghiêm trọng (vi phạm 1 hạng mục bất kỳ sẽ bị trừ trực tiếp 6 điểm) / 任何一項嚴重違規,就直接扣六分', 'sequence': 40},
+            {'name': 'Những hạng mục vi phạm nghiêm trọng (vi phạm 1 hạng mục bất kỳ sẽ bị trừ trực tiếp 6 điểm) / 任何一項嚴重違規,就直接扣六分', 'sequence': 40, 'is_severe': True},
         ]
         for cat_data in default_categories:
             existing = self.search([('name', '=', cat_data['name'])], limit=1)
@@ -255,6 +256,7 @@ class WujiaFranchiseInspectionTemplateLine(models.Model):
     require_note_if_fail = fields.Boolean(string='Yêu cầu ghi chú khi không đạt', default=False)
     require_evidence_if_fail = fields.Boolean(string='Yêu cầu bằng chứng khi không đạt', default=False)
     active = fields.Boolean(string='Kích hoạt', default=True)
+    is_severe = fields.Boolean(string='Vi phạm nghiêm trọng', default=False)
 
     @api.onchange('category_id', 'display_type')
     def _onchange_category_id_section(self):

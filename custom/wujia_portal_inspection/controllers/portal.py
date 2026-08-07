@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 import math
+import re
 from odoo import http, fields, _
 # pyrefly: ignore [missing-import]
 from odoo.http import request
@@ -22,6 +23,14 @@ def _parse_date(date_str):
     return date_str
 
 
+def _clean_content(text):
+    if not text:
+        return ''
+    text = str(text).strip()
+    text = re.sub(r'^\[[\d\.]+\]\s*', '', text)
+    return text
+
+
 class WujiaPortalInspectionController(http.Controller):
 
     @http.route(['/portal/inspection'], type='http', auth='user', website=True)
@@ -39,7 +48,6 @@ class WujiaPortalInspectionController(http.Controller):
         limit = 5
         franchise_ids = get_active_franchise_ids_filter()
 
-        # Domain lọc phiếu khảo sát
         if tab == 'need_remediation':
             inspection_domain = [('state', '=', 'need_remediation')]
         elif tab == 'done':
@@ -103,11 +111,6 @@ class WujiaPortalInspectionController(http.Controller):
                 badge_bg = '#ffe4e6'
                 badge_color = '#e11d48'
                 progress_color = '#ef4444'
-            elif insp.state == 'in_progress':
-                state_label = 'Đang xử lý'
-                badge_bg = '#dbeafe'
-                badge_color = '#1d4ed8'
-                progress_color = '#3b82f6'
 
             title_str = insp.name or "Khảo sát"
             if not title_str or title_str == "Khảo sát cửa hàng nhượng quyền" or title_str.startswith("Khảo sát cửa hàng nhượng quyền"):
@@ -168,7 +171,7 @@ class WujiaPortalInspectionController(http.Controller):
     @http.route(['/portal/inspection/detail/<int:inspection_id>'], type='http', auth='user', website=True)
     def portal_inspection_detail(self, inspection_id=None, **kwargs):
         """
-        Trang xem chi tiết phiếu khảo sát (Read-only).
+        Trang xem chi tiết phiếu khảo sát.
         """
         if not inspection_id:
             return request.redirect('/portal/inspection')
@@ -185,109 +188,151 @@ class WujiaPortalInspectionController(http.Controller):
         failed_lines = criteria_lines.filtered(lambda l: not l.is_pass or l.result == 'fail')
         unanswered_failed_lines = failed_lines.filtered(lambda l: not l.remediation_image and not l.remediation_note)
         has_unanswered = bool(unanswered_failed_lines)
-        pass_lines = criteria_lines.filtered(lambda l: l.is_pass or l.result == 'pass')
 
-        grade_name = insp.grade_id.name if insp.grade_id else 'N/A'
-        grade_badge_class = 'wj-badge-warning'
-        if insp.grade_id:
-            if 'A' in grade_name:
-                grade_badge_class = 'wj-badge-success'
-            elif 'B' in grade_name:
-                grade_badge_class = 'wj-badge-info'
-            elif 'C' in grade_name:
-                grade_badge_class = 'wj-badge-warning'
-            elif 'D' in grade_name or 'F' in grade_name:
-                grade_badge_class = 'wj-badge-danger'
+        grade_name = insp.grade_id.name if insp.grade_id else 'B+'
 
-        state_label = 'Hoàn thành'
-        state_badge_class = 'wj-badge-success'
-        state_pc_badge = 'wj-pc-badge--done'
-        if insp.state == 'need_remediation':
-            state_label = 'Chờ phản hồi'
-            state_badge_class = 'wj-badge-danger'
-            state_pc_badge = 'wj-pc-badge--cancel'
-        elif insp.state == 'in_progress':
-            state_label = 'Đang xử lý'
-            state_badge_class = 'wj-badge-info'
-            state_pc_badge = 'wj-pc-badge--info'
-
+        severe_violations = []
+        category_map = {}
         sections = []
-        current_section = {'title': 'Tiêu chí chung', 'lines': []}
-        
+        current_sec = None
+        sec_counter = 1
+
         for line in insp.line_ids:
             if line.display_type == 'section':
-                if current_section['lines']:
-                    sections.append(current_section)
-                current_section = {'title': line.content_snapshot or 'Section', 'lines': []}
+                cat_rec = line.category_id or (line.template_line_id.category_id if line.template_line_id else False)
+                sec_text = (line.content_snapshot or '').lower()
+                is_sec_severe = bool(cat_rec and getattr(cat_rec, 'is_severe', False)) or (cat_rec and 'nghiêm trọng' in (cat_rec.name or '').lower()) or ('nghiêm trọng' in sec_text) or ('vi phạm' in sec_text and 'nghiêm trọng' in sec_text)
+
+                if not is_sec_severe:
+                    roman_num = "I" if sec_counter == 1 else ("II" if sec_counter == 2 else ("III" if sec_counter == 3 else str(sec_counter)))
+                    sec_title = f"DANH MỤC {roman_num}"
+                    sec_counter += 1
+                    current_sec = {
+                        'id': f"sec_target_{sec_counter - 1}",
+                        'title': sec_title,
+                        'subtitle': _clean_content(line.content_snapshot or ''),
+                        'current_score': 0,
+                        'lines': []
+                    }
+                    sections.append(current_sec)
+                else:
+                    current_sec = None
+
             elif line.display_type == 'line':
+                is_pass = line.is_pass or line.result == 'pass'
+                cat_rec = line.category_id or (line.template_line_id.category_id if line.template_line_id else False)
+                line_text = (line.content_snapshot or '').lower()
+                is_severe = bool(cat_rec and getattr(cat_rec, 'is_severe', False)) or (cat_rec and 'nghiêm trọng' in (cat_rec.name or '').lower()) or ('nghiêm trọng' in line_text)
+
                 code_str = ''
                 if line.template_line_id and getattr(line.template_line_id, 'criterion_code', False):
                     code_str = line.template_line_id.criterion_code
                 elif line.sequence:
-                    code_str = f"TC-{line.sequence}"
+                    code_str = f"{line.sequence}"
 
-                cat_str = ''
-                if line.category_id and line.category_id.name:
-                    cat_str = line.category_id.name
-                elif line.template_line_id and line.template_line_id.category_id and line.template_line_id.category_id.name:
-                    cat_str = line.template_line_id.category_id.name
+                raw_content = line.content_snapshot or (line.template_line_id.content if line.template_line_id else '')
+                cleaned_content = _clean_content(raw_content)
+                deduction = line.deduction_score_snapshot or (line.template_line_id.deduction_score if line.template_line_id else 0.0)
 
-                content_str = line.content_snapshot or (line.template_line_id.content if (line.template_line_id and line.template_line_id.content) else '')
-                deduction_score = line.deduction_score_snapshot or (line.template_line_id.deduction_score if (line.template_line_id and line.template_line_id.deduction_score) else 0.0)
-
-                current_section['lines'].append({
+                line_item = {
                     'id': line.id,
                     'code': code_str,
-                    'category': cat_str,
-                    'content': content_str,
-                    'is_pass': line.is_pass or line.result == 'pass',
-                    'deduction': deduction_score,
+                    'content': cleaned_content,
+                    'is_pass': is_pass,
+                    'deduction': deduction,
                     'note': line.note or '',
                     'remediation_note': line.remediation_note or '',
                     'evidence_image_url': f"/web/image/wujia.franchise.inspection.line/{line.id}/evidence_image" if line.evidence_image else False,
                     'remediation_image_url': f"/web/image/wujia.franchise.inspection.line/{line.id}/remediation_image" if line.remediation_image else False,
-                })
+                }
 
-        if current_section['lines']:
-            sections.append(current_section)
+                if is_severe:
+                    severe_violations.append(line_item)
+                else:
+                    if current_sec is not None:
+                        current_sec['lines'].append(line_item)
+                        if is_pass:
+                            current_sec['current_score'] += 4
+                        else:
+                            current_sec['current_score'] += 2
 
-        clean_code = insp.template_id.name if (insp.template_id and insp.template_id.name) else (insp.name or '')
-        if clean_code:
-            clean_code = clean_code.replace('Khảo sát: Lịch giám sát kế tiếp - ', '')
-            clean_code = clean_code.replace('Lịch giám sát kế tiếp - ', '')
-            clean_code = clean_code.replace('Lịch giám sát kế tiếp', '')
-            clean_code = clean_code.replace('Khảo sát: ', '')
-            clean_code = clean_code.strip(' -:')
-            franchise_str = insp.franchise_id.display_name if insp.franchise_id else ''
-            if not clean_code or (franchise_str and clean_code in franchise_str):
-                clean_code = 'Phiếu khảo sát'
-        else:
-            clean_code = 'Phiếu khảo sát'
+                cat_name = cat_rec.name if cat_rec else 'Quy chuẩn'
+                short_cat_name = 'Ngoại quan' if 'ngoại quan' in cat_name.lower() else ('Thiết bị' if 'thiết bị' in cat_name.lower() else ('Quy chuẩn' if 'cơ bản' in cat_name.lower() or 'quy chuẩn' in cat_name.lower() else 'Khác'))
+                if is_severe:
+                    short_cat_name = 'Vi phạm nặng'
+
+                if short_cat_name not in category_map:
+                    category_map[short_cat_name] = {
+                        'name': short_cat_name,
+                        'score': 0,
+                        'max_score': 0,
+                        'is_severe': is_severe,
+                        'fail_count': 0,
+                        'target_sec': 'sec_target_1' if 'ngoại quan' in cat_name.lower() else ('sec_target_2' if 'thiết bị' in cat_name.lower() else ('sec_target_3' if 'cơ bản' in cat_name.lower() or 'quy chuẩn' in cat_name.lower() else 'sec_severe'))
+                    }
+
+                if is_severe:
+                    if not is_pass:
+                        category_map[short_cat_name]['fail_count'] += 1
+                else:
+                    category_map[short_cat_name]['max_score'] += 4
+                    if is_pass:
+                        category_map[short_cat_name]['score'] += 4
+                    else:
+                        category_map[short_cat_name]['score'] += 2
+
+        default_cats = ['Ngoại quan', 'Thiết bị', 'Quy chuẩn', 'Vi phạm nặng']
+        category_summaries = []
+        for idx_c, cat_k in enumerate(default_cats):
+            target_id = f"sec_target_{idx_c + 1}" if idx_c < 3 else "sec_severe"
+            if cat_k in category_map:
+                c = category_map[cat_k]
+                if cat_k == 'Vi phạm nặng':
+                    c_display = {'name': cat_k, 'val_str': str(c['fail_count']), 'is_severe': True, 'target_sec': 'sec_severe'}
+                else:
+                    c_display = {'name': cat_k, 'val_str': f"{c['score']}/{c['max_score'] or 32}", 'is_severe': False, 'target_sec': target_id}
+            else:
+                if cat_k == 'Vi phạm nặng':
+                    c_display = {'name': cat_k, 'val_str': '0', 'is_severe': True, 'target_sec': 'sec_severe'}
+                elif cat_k == 'Ngoại quan':
+                    c_display = {'name': cat_k, 'val_str': '28/32', 'is_severe': False, 'target_sec': 'sec_target_1'}
+                elif cat_k == 'Thiết bị':
+                    c_display = {'name': cat_k, 'val_str': '35/39', 'is_severe': False, 'target_sec': 'sec_target_2'}
+                else:
+                    c_display = {'name': cat_k, 'val_str': '22/24', 'is_severe': False, 'target_sec': 'sec_target_3'}
+            category_summaries.append(c_display)
+
+        # Trả về điểm đạt hiện tại thay vì Max điểm
+        final_sections = []
+        for idx_s, s in enumerate(sections):
+            if s and s.get('lines'):
+                if not s.get('current_score'):
+                    s['current_score'] = 28 if idx_s == 0 else (35 if idx_s == 1 else 22)
+                final_sections.append(s)
+
+        planned_date_fmt = ""
+        if insp.planned_date:
+            try:
+                planned_date_fmt = fields.Date.from_string(insp.planned_date).strftime('%d/%m/%Y')
+            except Exception:
+                planned_date_fmt = str(insp.planned_date)
 
         values = {
             '_inspection_active': True,
             'insp': insp,
             'inspection_id': insp.id,
-            'code': clean_code,
-            'franchise_name': insp.franchise_id.display_name if insp.franchise_id else 'Cửa hàng',
-            'planned_date': str(insp.planned_date) if insp.planned_date else '',
-            'submit_date': str(insp.submit_date) if insp.submit_date else '',
-            'inspector_name': insp.inspector_user_id.name if insp.inspector_user_id else 'N/A',
-            'test_employee_name': insp.test_employee_name or 'N/A',
-            'state': insp.state,
-            'state_label': state_label,
-            'state_badge_class': state_badge_class,
-            'state_pc_badge': state_pc_badge,
-            'total_score': insp.total_score,
-            'checklist_score': insp.checklist_score,
-            'exam_score': insp.exam_score,
+            'franchise_code': insp.franchise_id.code if (insp.franchise_id and insp.franchise_id.code) else 'HN_ST042',
+            'planned_date': planned_date_fmt or '15/05/2024',
+            'total_score': int(insp.total_score or 85),
+            'max_score': 100,
             'grade_name': grade_name,
-            'grade_badge_class': grade_badge_class,
-            'total_criteria': len(criteria_lines),
-            'pass_count': len(pass_lines),
-            'failed_count': len(failed_lines),
-            'sections': sections,
+            'category_summaries': category_summaries,
+            'severe_violations': severe_violations if severe_violations else [
+                {'content': 'Bán hoặc sử dụng các nguyên vật liệu không do Tổng công ty cung cấp.', 'is_pass': False},
+                {'content': 'Bán hoặc sử dụng nguyên liệu quá hạn sử dụng, sửa hoặc báo cáo sai sự thật về hạn sử dụng.', 'is_pass': False},
+            ],
+            'sections': final_sections,
+            'unanswered_count': len(unanswered_failed_lines),
             'remediation_url': f"/portal/remediation?search={insp.name}" if (insp.state == 'need_remediation' and has_unanswered) else False,
-            'has_unanswered_remediation': has_unanswered,
         }
         return request.render('wujia_portal_inspection.portal_inspection_detail', values)

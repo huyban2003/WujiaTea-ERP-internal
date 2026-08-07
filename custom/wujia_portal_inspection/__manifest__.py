@@ -15,6 +15,7 @@
     'assets': {
         'web.assets_frontend': [
             'wujia_portal_inspection/static/src/css/portal_inspection.css',
+            'wujia_portal_inspection/static/src/js/portal_inspection_detail.js',
         ],
     },
     'installable': True,
