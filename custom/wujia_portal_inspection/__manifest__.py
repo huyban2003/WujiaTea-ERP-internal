@@ -10,7 +10,10 @@
     'data': [
         'security/ir.model.access.csv',
         'views/sidenav_inherit.xml',
-        'views/portal_inspection_templates.xml',
+        'views/portal_inspection_list_templates.xml',
+        'views/portal_inspection_detail_templates.xml',
+        'views/portal_inspection_remediation_templates.xml',
+        'views/portal_inspection_success_templates.xml',
     ],
     'assets': {
         'web.assets_frontend': [

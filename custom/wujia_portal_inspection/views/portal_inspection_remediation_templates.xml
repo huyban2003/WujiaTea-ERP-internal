@@ -1,0 +1,254 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- Template Form Phản hồi khắc phục tiêu chí (Đồng bộ UI với trang Chi tiết + Nhận Ghi chú Admin + AJAX Pop-up Success) -->
+    <template id="portal_inspection_remediation_form" name="Wujia Portal — Phản hồi khắc phục">
+        <t t-call="wujia_portal_layout.app_layout">
+            <t t-set="title">Phản hồi khắc phục</t>
+
+            <!-- Custom Styles -->
+            <style>
+                .detail-header-bar {
+                    background-color: #ffffff;
+                    color: #0f172a;
+                    padding: 14px 16px;
+                    border-bottom: 1px solid #e2e8f0;
+                }
+                .form-card-box {
+                    background: #ffffff;
+                    border-radius: 16px;
+                    border: 1px solid #f1f5f9;
+                    box-shadow: 0 2px 8px rgba(0,0,0,0.03);
+                }
+                .badge-fail-tag {
+                    background: #fef2f2;
+                    color: #dc2626;
+                    border: 1px solid #fecaca;
+                    font-size: 0.78rem;
+                    font-weight: 700;
+                    padding: 3px 10px;
+                    border-radius: 20px;
+                }
+                .upload-dropzone {
+                    border: 2px dashed #38bdf8;
+                    border-radius: 16px;
+                    background-color: #f0f9ff;
+                    padding: 24px 16px;
+                    text-align: center;
+                    cursor: pointer;
+                    transition: all 0.2s ease;
+                }
+                .upload-dropzone:hover {
+                    background-color: #e0f2fe;
+                    border-color: #0284c7;
+                }
+                .upload-icon-circle {
+                    width: 52px;
+                    height: 52px;
+                    border-radius: 14px;
+                    background-color: #38bdf8;
+                    color: #ffffff;
+                    display: inline-flex;
+                    align-items: center;
+                    justify-content: center;
+                    font-size: 1.5rem;
+                }
+                .preview-img-box {
+                    max-height: 220px;
+                    object-fit: cover;
+                    border-radius: 12px;
+                }
+                .btn-submit-remediation {
+                    background-color: #38bdf8;
+                    border-color: #38bdf8;
+                    color: #ffffff;
+                    font-weight: 700;
+                    font-size: 1.05rem;
+                    border-radius: 14px;
+                    height: 50px;
+                    transition: all 0.2s;
+                }
+                .btn-submit-remediation:hover {
+                    background-color: #0284c7;
+                    border-color: #0284c7;
+                    color: #ffffff;
+                }
+            </style>
+
+            <div class="wj-inspection-container p-0 bg-light pb-5" style="max-width: 500px; margin: 0 auto; min-height: 100vh;">
+                
+                <!-- Header Top Bar (Nền trắng, chữ đen, nút back tròn) -->
+                <div class="detail-header-bar d-flex align-items-center gap-3">
+                    <a t-att-href="back_url or '/portal/inspection'" class="btn btn-sm btn-light border rounded-circle d-inline-flex align-items-center justify-content-center p-0" style="width: 34px; height: 34px; color: #334155;">
+                        <i class="feather icon-arrow-left" style="font-size: 1.1rem;"/>
+                    </a>
+                    <h1 class="h6 font-weight-bold mb-0 text-dark" style="font-size: 1.15rem;">Phản hồi khắc phục</h1>
+                </div>
+
+                <form id="remediation_form_submit" action="/portal/inspection/remediation/submit" method="post" enctype="multipart/form-data" class="p-3 d-flex flex-column gap-3">
+                    <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
+                    <input type="hidden" name="line_id" t-att-value="line.id"/>
+
+                    <!-- Thẻ 1: Tiêu chí lỗi & Ghi chú Admin/Thanh tra -->
+                    <div class="form-card-box p-3">
+                        <div class="d-flex justify-content-between align-items-start mb-2 gap-2">
+                            <span class="text-uppercase font-weight-bold text-muted small" style="font-size: 0.78rem; letter-spacing: 0.5px;">
+                                <t t-out="category_name or 'DANH MỤC TIÊU CHÍ'"/>
+                            </span>
+                            <span class="badge-fail-tag flex-shrink-0">
+                                <i class="feather icon-x-circle me-1"/>Không đạt
+                            </span>
+                        </div>
+
+                        <h2 class="h6 font-weight-bold text-dark mb-2" style="font-size: 1.05rem;">
+                            <t t-out="line_code"/> <t t-out="criterion_name"/>
+                        </h2>
+
+                        <!-- Nội dung mô tả ghi chú của Admin / Thanh tra -->
+                        <div t-if="admin_note" class="bg-light p-2.5 rounded-3 border mt-2">
+                            <div class="text-muted font-weight-bold mb-1" style="font-size: 0.78rem;">
+                                <i class="feather icon-user me-1 text-primary"/>Ghi chú từ Thanh tra / Admin:
+                            </div>
+                            <div class="small text-dark font-weight-bold" style="font-size: 0.88rem; line-height: 1.4;">
+                                "<t t-out="admin_note"/>"
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Thẻ 2: Ảnh Trước (Thanh tra) -->
+                    <div t-if="evidence_image_url" class="form-card-box p-3">
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <span class="font-weight-bold text-dark small" style="font-size: 0.9rem;">
+                                Trước (Thanh tra)
+                            </span>
+                            <span class="text-muted fst-italic small" style="font-size: 0.8rem;">
+                                <t t-out="planned_date"/>
+                            </span>
+                        </div>
+                        <img t-att-src="evidence_image_url" class="w-100 rounded-3 preview-img-box border"/>
+                    </div>
+
+                    <!-- Thẻ 3: Upload Ảnh Sau (Khắc phục) -->
+                    <div class="form-card-box p-3">
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <span class="font-weight-bold text-primary small" style="font-size: 0.9rem;">
+                                Sau (Khắc phục)
+                            </span>
+                            <i class="feather icon-camera text-primary" style="font-size: 1.1rem;"/>
+                        </div>
+
+                        <div class="upload-dropzone" onclick="document.getElementById('image_upload_input').click();">
+                            <input type="file" id="image_upload_input" name="remediation_image" accept="image/*" class="d-none" onchange="previewRemediationImage(this);"/>
+                            
+                            <div id="upload_placeholder">
+                                <div class="upload-icon-circle mb-2">
+                                    <i class="feather icon-upload-cloud"/>
+                                </div>
+                                <div class="font-weight-bold text-dark mb-1" style="font-size: 0.92rem;">Tải lên ảnh khắc phục</div>
+                                <div class="text-muted small" style="font-size: 0.8rem;">Nhấn hoặc kéo thả ảnh vào đây</div>
+                            </div>
+
+                            <img id="upload_preview_img" class="w-100 rounded-3 preview-img-box d-none"/>
+                        </div>
+                    </div>
+
+                    <!-- Thẻ 4: Form Mô tả hành động khắc phục -->
+                    <div class="form-card-box p-3">
+                        <label class="font-weight-bold text-dark small mb-2" style="font-size: 0.9rem;">
+                            Mô tả hành động khắc phục
+                        </label>
+                        <textarea id="remediation_note_input" name="remediation_note" rows="3" class="form-control border shadow-none small" style="border-radius: 12px; font-size: 0.88rem;" placeholder="VD: Đã vệ sinh sạch sẽ khu vực cửa kính vào lúc 10:30..." maxlength="500" onkeyup="countChars(this);"></textarea>
+                        <div class="text-end text-muted small mt-1" style="font-size: 0.75rem;">
+                            <span id="char_count">0</span>/500
+                        </div>
+                    </div>
+
+                    <!-- Thẻ 5: Banner Thông tin quan trọng (QC) -->
+                    <div class="bg-light p-3 rounded-3 border d-flex gap-2.5 align-items-start">
+                        <i class="feather icon-info text-info me-1 mt-0.5" style="font-size: 1.2rem;"/>
+                        <div>
+                            <div class="font-weight-bold text-primary small mb-1" style="font-size: 0.85rem; letter-spacing: 0.5px;">
+                                THÔNG TIN QUAN TRỌNG
+                            </div>
+                            <div class="text-muted small" style="font-size: 0.8rem; line-height: 1.4;">
+                                Phản hồi của bạn sẽ được gửi đến bộ phận kiểm soát chất lượng (QC) để thẩm định lại. Vui lòng đảm bảo hình ảnh rõ nét và mô tả chi tiết để được duyệt nhanh nhất.
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Nút bấm Gửi phản hồi chính ở đáy -->
+                    <button type="submit" class="btn btn-submit-remediation w-100 mt-2 shadow-sm d-flex align-items-center justify-content-center gap-2">
+                        <span>Gửi phản hồi</span>
+                        <i class="feather icon-send"/>
+                    </button>
+
+                </form>
+
+                <!-- Gọi Modal Success Popup từ file XML riêng -->
+                <t t-call="wujia_portal_inspection.portal_inspection_success_popup"/>
+
+            </div>
+
+            <!-- JS Script xử lý Preview Image & Submit AJAX bật Modal Pop-up -->
+            <script type="text/javascript">
+                function previewRemediationImage(input) {
+                    if (input.files &amp;&amp; input.files[0]) {
+                        var reader = new FileReader();
+                        reader.onload = function (e) {
+                            document.getElementById('upload_placeholder').classList.add('d-none');
+                            var preview = document.getElementById('upload_preview_img');
+                            preview.src = e.target.result;
+                            preview.classList.remove('d-none');
+                        }
+                        reader.readAsDataURL(input.files[0]);
+                    }
+                }
+
+                function countChars(textarea) {
+                    document.getElementById('char_count').innerText = textarea.value.length;
+                }
+
+                document.addEventListener('DOMContentLoaded', function () {
+                    const form = document.getElementById('remediation_form_submit');
+                    if (form) {
+                        form.addEventListener('submit', function (e) {
+                            e.preventDefault();
+                            var formData = new FormData(form);
+
+                            fetch('/portal/inspection/remediation/submit', {
+                                method: 'POST',
+                                body: formData
+                            }).then(response => response.json())
+                            .then(data => {
+                                if (data.status === 'success') {
+                                    if (data.franchise_code) {
+                                        document.getElementById('modal_franchise_code').innerText = data.franchise_code;
+                                    }
+                                    if (data.category_name) {
+                                        document.getElementById('modal_category_name').innerText = data.category_name;
+                                    }
+                                    if (data.submit_time) {
+                                        document.getElementById('modal_submit_time').innerText = data.submit_time;
+                                    }
+                                    if (data.detail_url) {
+                                        document.getElementById('modal_detail_url').setAttribute('href', data.detail_url);
+                                    }
+                                    const modal = document.getElementById('remediation_success_modal');
+                                    if (modal) {
+                                        modal.classList.add('show-modal');
+                                    }
+                                } else {
+                                    alert(data.message || 'Gửi phản hồi thất bại, vui lòng thử lại.');
+                                }
+                            }).catch(err => {
+                                alert('Có lỗi xảy ra, vui lòng kiểm tra kết nối mạng.');
+                            });
+                        });
+                    }
+                });
+            </script>
+
+        </t>
+    </template>
+
+</odoo>

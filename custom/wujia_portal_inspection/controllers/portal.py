@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 import math
 import re
+import base64
+from datetime import datetime
 from odoo import http, fields, _
 # pyrefly: ignore [missing-import]
 from odoo.http import request
@@ -97,7 +99,8 @@ class WujiaPortalInspectionController(http.Controller):
             failed_lines = criteria_lines.filtered(lambda l: not l.is_pass or l.result == 'fail')
             unanswered_failed_lines = failed_lines.filtered(lambda l: not l.remediation_image and not l.remediation_note)
             has_unanswered = bool(unanswered_failed_lines)
-            pass_lines = criteria_lines.filtered(lambda l: l.is_pass or l.result == 'pass')
+
+            first_unanswered_id = unanswered_failed_lines[0].id if unanswered_failed_lines else (failed_lines[0].id if failed_lines else False)
 
             grade_name = insp.grade_id.name if insp.grade_id else 'N/A'
 
@@ -147,9 +150,9 @@ class WujiaPortalInspectionController(http.Controller):
                 'total_score': int(insp.total_score or 0),
                 'grade_name': grade_name,
                 'total_criteria': len(criteria_lines),
-                'pass_count': len(pass_lines),
+                'pass_count': len(criteria_lines) - len(failed_lines),
                 'failed_count': len(failed_lines),
-                'remediation_url': f"/portal/remediation?search={insp.name}" if (insp.state == 'need_remediation' and has_unanswered) else False,
+                'remediation_url': f"/portal/inspection/remediation/{first_unanswered_id}" if (insp.state == 'need_remediation' and first_unanswered_id) else False,
                 'detail_url': f"/portal/inspection/detail/{insp.id}",
             }
             inspection_items.append(item_data)
@@ -188,6 +191,7 @@ class WujiaPortalInspectionController(http.Controller):
         failed_lines = criteria_lines.filtered(lambda l: not l.is_pass or l.result == 'fail')
         unanswered_failed_lines = failed_lines.filtered(lambda l: not l.remediation_image and not l.remediation_note)
         has_unanswered = bool(unanswered_failed_lines)
+        first_unanswered_id = unanswered_failed_lines[0].id if unanswered_failed_lines else (failed_lines[0].id if failed_lines else False)
 
         grade_name = insp.grade_id.name if insp.grade_id else 'B+'
 
@@ -302,7 +306,16 @@ class WujiaPortalInspectionController(http.Controller):
                     c_display = {'name': cat_k, 'val_str': '22/24', 'is_severe': False, 'target_sec': 'sec_target_3'}
             category_summaries.append(c_display)
 
-        # Trả về điểm đạt hiện tại thay vì Max điểm
+        # Trả về danh sách severe_violations mặc định nếu chưa có
+        if not severe_violations:
+            severe_violations = [
+                {'content': 'Bán hoặc sử dụng các nguyên vật liệu không do Tổng công ty cung cấp.', 'is_pass': False, 'deduction': 6.0},
+                {'content': 'Bán hoặc sử dụng nguyên liệu quá hạn sử dụng, sửa hoặc báo cáo sai sự thật về hạn sử dụng.', 'is_pass': False, 'deduction': 6.0},
+            ]
+
+        # Tính tổng điểm bị trừ cho Vi phạm nghiêm trọng
+        total_severe_deduction = sum(int(sv.get('deduction') or 6.0) for sv in severe_violations if not sv.get('is_pass'))
+
         final_sections = []
         for idx_s, s in enumerate(sections):
             if s and s.get('lines'):
@@ -327,12 +340,110 @@ class WujiaPortalInspectionController(http.Controller):
             'max_score': 100,
             'grade_name': grade_name,
             'category_summaries': category_summaries,
-            'severe_violations': severe_violations if severe_violations else [
-                {'content': 'Bán hoặc sử dụng các nguyên vật liệu không do Tổng công ty cung cấp.', 'is_pass': False},
-                {'content': 'Bán hoặc sử dụng nguyên liệu quá hạn sử dụng, sửa hoặc báo cáo sai sự thật về hạn sử dụng.', 'is_pass': False},
-            ],
+            'severe_violations': severe_violations,
+            'total_severe_deduction': total_severe_deduction,
             'sections': final_sections,
             'unanswered_count': len(unanswered_failed_lines),
-            'remediation_url': f"/portal/remediation?search={insp.name}" if (insp.state == 'need_remediation' and has_unanswered) else False,
+            'first_remediation_url': f"/portal/inspection/remediation/{first_unanswered_id}" if (insp.state == 'need_remediation' and first_unanswered_id) else False,
         }
         return request.render('wujia_portal_inspection.portal_inspection_detail', values)
+
+    @http.route(['/portal/inspection/remediation/<int:line_id>', '/portal/remediation/<int:line_id>', '/portal/remediation'], type='http', auth='user', website=True)
+    def portal_inspection_remediation(self, line_id=None, **kwargs):
+        """
+        Form Nhập phản hồi khắc phục cho từng tiêu chí lỗi (UI Mới + Ghi chú Admin).
+        """
+        if not line_id:
+            return request.redirect('/portal/inspection')
+
+        LineModel = request.env['wujia.franchise.inspection.line'].sudo()
+        line = LineModel.browse(int(line_id))
+        if not line.exists():
+            return request.redirect('/portal/inspection')
+
+        insp = line.inspection_id
+        if not insp.exists():
+            return request.redirect('/portal/inspection')
+
+        franchise_ids = get_active_franchise_ids_filter()
+        if franchise_ids and insp.franchise_id.id not in franchise_ids:
+            return request.redirect('/portal/inspection')
+
+        cat_rec = line.category_id or (line.template_line_id.category_id if line.template_line_id else False)
+        cat_name = cat_rec.name if cat_rec else 'DANH MỤC TIÊU CHÍ'
+        cat_name = _clean_content(cat_name)
+
+        code_str = ''
+        if line.template_line_id and getattr(line.template_line_id, 'criterion_code', False):
+            code_str = line.template_line_id.criterion_code
+        elif line.sequence:
+            code_str = f"{line.sequence}."
+
+        criterion_name = _clean_content(line.content_snapshot or (line.template_line_id.content if line.template_line_id else ''))
+
+        planned_date_fmt = ""
+        if insp.planned_date:
+            try:
+                planned_date_fmt = fields.Date.from_string(insp.planned_date).strftime('%H:%M - %d/%m/%Y')
+            except Exception:
+                planned_date_fmt = str(insp.planned_date)
+
+        values = {
+            '_inspection_active': True,
+            'line': line,
+            'insp': insp,
+            'category_name': cat_name,
+            'line_code': code_str,
+            'criterion_name': criterion_name,
+            'admin_note': line.note or '',
+            'planned_date': planned_date_fmt or '10:15 - 15/05/2024',
+            'evidence_image_url': f"/web/image/wujia.franchise.inspection.line/{line.id}/evidence_image" if line.evidence_image else False,
+            'back_url': f"/portal/inspection/detail/{insp.id}",
+        }
+        return request.render('wujia_portal_inspection.portal_inspection_remediation_form', values)
+
+    @http.route(['/portal/inspection/remediation/submit'], type='http', auth='user', methods=['POST'], csrf=True, website=True)
+    def portal_inspection_remediation_submit(self, line_id=None, remediation_note=None, remediation_image=None, **kwargs):
+        """
+        Xử lý AJAX Submit form phản hồi khắc phục.
+        """
+        if not line_id:
+            return request.make_json_response({'status': 'error', 'message': 'Thiếu ID tiêu chí.'})
+
+        LineModel = request.env['wujia.franchise.inspection.line'].sudo()
+        line = LineModel.browse(int(line_id))
+        if not line.exists():
+            return request.make_json_response({'status': 'error', 'message': 'Tiêu chí không tồn tại.'})
+
+        write_vals = {}
+        if remediation_note:
+            write_vals['remediation_note'] = str(remediation_note).strip()
+
+        if remediation_image and hasattr(remediation_image, 'read'):
+            img_data = remediation_image.read()
+            if img_data:
+                write_vals['remediation_image'] = base64.b64encode(img_data)
+
+        if write_vals:
+            line.write(write_vals)
+
+        insp = line.inspection_id
+        if insp.exists() and insp.state == 'need_remediation':
+            criteria_lines = insp.line_ids.filtered(lambda l: l.display_type == 'line')
+            failed_lines = criteria_lines.filtered(lambda l: not l.is_pass or l.result == 'fail')
+            unanswered = failed_lines.filtered(lambda l: not l.remediation_image and not l.remediation_note)
+            if not unanswered:
+                insp.write({'state': 'done'})
+
+        cat_rec = line.category_id or (line.template_line_id.category_id if line.template_line_id else False)
+        cat_name = _clean_content(cat_rec.name if cat_rec else (line.content_snapshot or 'Kiểm tra vệ sinh'))
+
+        now_str = datetime.now().strftime('%d/%m/%Y - %H:%M')
+
+        return request.make_json_response({
+            'status': 'success',
+            'franchise_code': insp.franchise_id.code if (insp.franchise_id and insp.franchise_id.code) else 'HN_ST042',
+            'category_name': cat_name or 'Kiểm tra vệ sinh',
+            'submit_time': now_str,
+            'detail_url': f"/portal/inspection/detail/{insp.id}",
+        })
