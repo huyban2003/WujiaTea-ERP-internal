@@ -433,6 +433,343 @@
 .wj-debt-hint__title { font-size: 11.5px; font-weight: 700; color: var(--wj-debt-warn-strong); }
 .wj-debt-hint__sub { font-size: 11px; font-weight: 400; color: var(--wj-debt-muted); }
 
+/* ============================================================================
+   PC / desktop (≥992px) — Figma WJ_Debt_PC_MVP_v1_1 (node 5077:*), 1920×1080.
+   Scope `.wj-debt-pc`; bám wj-pc-* của _pc_components.css, chỉ thêm phần Figma
+   công nợ chưa có trong lớp shared (tabs, summary 3 cột, badge tone, empty box,
+   modal QR 2 cột). Dùng var(--wj-pc-*)/var(--wujia-*), KHÔNG sửa file shared.
+   ============================================================================ */
+.wj-debt-pc {
+    /* Cùng ngoại lệ WCAG như --wj-debt-warn-strong ở khối mobile: token global
+       --wujia-mres-warn-text (#D97706) trên nền vàng nhạt chỉ ~3.4:1; #B45309
+       đạt ~5.6:1 cho chữ nhỏ. Promote thành token global khi đụng layout lần tới. */
+    --wj-debt-pc-warn-text: #B45309;
+}
+
+/* ---------- Tab strip "Công nợ" | "Lịch sử thanh toán" ---------- */
+.wj-debt-pc-tabs {
+    display: flex;
+    gap: 28px;
+    margin-bottom: 20px;
+    border-bottom: 1px solid var(--wj-pc-border-soft);
+}
+.wj-debt-pc-tab {
+    padding: 0 2px 12px;
+    margin-bottom: -1px;                /* đè viền dưới để gạch active liền mạch */
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--wj-pc-muted);
+    text-decoration: none;
+    border-bottom: 2px solid transparent;
+}
+.wj-debt-pc-tab:hover { color: var(--wj-pc-text); }
+.wj-debt-pc-tab.is-active { color: var(--wj-pc-primary); border-bottom-color: var(--wj-pc-primary); }
+
+/* ---------- Filter row (card trắng) ---------- */
+.wj-debt-pc-filter {
+    display: flex;
+    align-items: flex-end;
+    gap: 20px;
+    /* <form> dính `form { margin-bottom: 15px }` shell (L4) → set lại 20 cho khớp nhịp. */
+    margin: 0 0 20px;
+    padding: 18px 20px;
+    background: var(--wj-pc-card);
+    border: 1px solid var(--wj-pc-border-soft);
+    border-radius: 16px;
+}
+.wj-debt-pc-filter__field { display: flex; flex-direction: column; gap: 8px; }
+.wj-debt-pc-filter__field--store { margin-left: auto; }
+.wj-debt-pc-filter__label { font-size: 13px; font-weight: 600; color: var(--wj-pc-muted); }
+.wj-debt-pc-select { position: relative; display: inline-flex; min-width: 280px; }
+/* shell có `select { width:100%; padding:5px !important }` (dashboard.css, tag-level) —
+   trung hoà padding trong phạm vi component, chừa chỗ cho chevron bên phải. */
+.wj-debt-pc-select select {
+    width: 100%;
+    height: 42px;
+    padding: 0 40px 0 14px !important;
+    border: 1px solid var(--wj-pc-border);
+    border-radius: 10px;
+    background: var(--wj-pc-card);
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--wj-pc-text);
+    appearance: none;
+    cursor: pointer;
+}
+.wj-debt-pc-select > i {
+    position: absolute; right: 14px; top: 50%; transform: translateY(-50%);
+    font-size: 18px; color: var(--wj-pc-muted); pointer-events: none;
+}
+.wj-debt-pc-storepill {
+    display: inline-flex;
+    align-items: center;
+    height: 42px;
+    padding: 0 16px;
+    border: 1px solid var(--wj-pc-border-soft);
+    border-radius: 10px;
+    background: var(--wj-pc-gray-soft);
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--wj-pc-text);
+    white-space: nowrap;
+}
+/* Filter tab Lịch sử: thêm ô tìm kiếm co giãn + nút "Tìm kiếm". */
+.wj-debt-pc-search { position: relative; flex: 1 1 320px; display: flex; align-items: center; }
+.wj-debt-pc-search > i {
+    position: absolute; left: 14px; font-size: 16px; color: var(--wj-pc-subtle); pointer-events: none;
+}
+.wj-debt-pc-search input {
+    width: 100%;
+    height: 42px;
+    padding: 0 14px 0 38px;
+    border: 1px solid var(--wj-pc-border);
+    border-radius: 10px;
+    background: var(--wj-pc-card);
+    font-size: 14px;
+    color: var(--wj-pc-text);
+}
+.wj-debt-pc-search input::placeholder { color: var(--wj-pc-subtle); }
+.wj-debt-pc-filter--history .wj-pc-btn { flex: 0 0 auto; }
+
+/* ---------- Summary card (3 cột số + cột badge/meta/CTA) ---------- */
+.wj-debt-pc-summary {
+    display: flex;
+    align-items: center;
+    gap: 24px;
+    margin-bottom: 20px;
+    padding: 24px 28px;
+    background: var(--wj-pc-card);
+    border: 1px solid var(--wj-pc-border-soft);
+    border-radius: 18px;
+}
+.wj-debt-pc-summary__cols {
+    flex: 1 1 auto;
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+.wj-debt-pc-summary__col {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding: 0 28px;
+    border-right: 1px solid var(--wj-pc-border-soft);
+}
+.wj-debt-pc-summary__col:first-child { padding-left: 0; }
+.wj-debt-pc-summary__col:last-child { border-right: 0; }
+.wj-debt-pc-summary__label { font-size: 14px; font-weight: 500; color: var(--wj-pc-muted); }
+.wj-debt-pc-summary__value { font-size: 26px; font-weight: 700; line-height: 1.1; color: var(--wj-pc-text); }
+.wj-debt-pc-summary__value--paid { color: var(--wj-pc-green); }
+.wj-debt-pc-summary__side {
+    flex: 0 0 auto;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 10px;
+    min-width: 230px;
+    padding-left: 24px;
+    border-left: 1px solid var(--wj-pc-border-soft);
+    text-align: right;
+}
+.wj-debt-pc-summary__meta { font-size: 13px; font-weight: 500; color: var(--wj-pc-muted); }
+.wj-debt-pc-cta { margin-top: 4px; }
+
+/* ---------- Badge tone (pill 28, 5 tone) ---------- */
+.wj-debt-pc-badge {
+    display: inline-flex;
+    align-items: center;
+    height: 28px;
+    padding: 0 14px;
+    border-radius: 14px;
+    font-size: 13px;
+    font-weight: 600;
+    line-height: 1;
+    white-space: nowrap;
+}
+.wj-debt-pc-badge--danger  { background: var(--wj-pc-red-soft);    color: var(--wj-pc-red); }
+.wj-debt-pc-badge--warn    { background: var(--wj-pc-yellow-soft); color: var(--wj-debt-pc-warn-text); }
+.wj-debt-pc-badge--info    { background: var(--wj-pc-blue-bg);     color: var(--wj-pc-blue); }
+.wj-debt-pc-badge--success { background: var(--wj-pc-green-soft);  color: var(--wj-pc-green); }
+.wj-debt-pc-badge--muted   { background: var(--wj-pc-gray-soft);   color: var(--wj-pc-muted); }
+
+/* ---------- Bảng hoá đơn / thanh toán ---------- */
+.wj-debt-pc-card { padding: 22px 24px; }
+.wj-debt-pc-tablewrap { overflow-x: auto; }   /* ≤1366: bảng cuộn ngang, không tràn trang */
+.wj-debt-pc-table { min-width: 900px; }
+.wj-debt-pc-table th.text-end,
+.wj-debt-pc-table td.text-end { text-align: right; }
+.wj-debt-pc-td--paid { font-weight: 700; color: var(--wj-pc-green); }
+.wj-debt-pc-pdf {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    height: 32px;
+    padding: 0 12px;
+    border: 1px solid var(--wj-pc-border);
+    border-radius: 8px;
+    background: var(--wj-pc-card);
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--wj-pc-muted);
+    cursor: pointer;
+}
+.wj-debt-pc-pdf:hover { border-color: var(--wj-pc-primary); color: var(--wj-pc-primary); }
+.wj-debt-pc-pdf i { font-size: 15px; }
+
+/* ---------- Pagination footer ---------- */
+.wj-debt-pc-pagination {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 16px;
+    margin-top: 18px;
+}
+.wj-debt-pc-pagination__count { font-size: 14px; font-weight: 500; color: var(--wj-pc-muted); }
+.wj-debt-pc-pagination__right { display: flex; flex-direction: column; align-items: flex-end; gap: 8px; }
+.wj-debt-pc-pagination__total { font-size: 14px; font-weight: 600; color: var(--wj-pc-text); }
+.wj-debt-pc-pagination__nav { display: flex; align-items: center; gap: 8px; }
+.wj-debt-pc-pagesize {
+    display: inline-flex; align-items: center;
+    height: 36px; padding: 0 12px;
+    border: 1px solid var(--wj-pc-border); border-radius: 10px;
+    font-size: 13px; font-weight: 600; color: var(--wj-pc-text);
+}
+.wj-debt-pc-pagebtn {
+    display: inline-flex; align-items: center; justify-content: center;
+    min-width: 36px; height: 36px; padding: 0 8px;
+    border: 1px solid var(--wj-pc-border); border-radius: 10px;
+    background: var(--wj-pc-card);
+    font-size: 14px; font-weight: 700; color: var(--wj-pc-muted);
+    text-decoration: none;
+}
+.wj-debt-pc-pagebtn.is-active { background: var(--wj-pc-primary); border-color: var(--wj-pc-primary); color: #fff; }
+.wj-debt-pc-pagebtn:hover:not(.is-active) { border-color: var(--wj-pc-primary); color: var(--wj-pc-primary); }
+
+/* ---------- Empty box trong card (empty_week xanh dương / no_debt xanh lá) ---------- */
+.wj-debt-pc-emptybox {
+    display: flex; flex-direction: column; align-items: center;
+    text-align: center; padding: 40px 24px;
+}
+.wj-debt-pc-emptybox__icon {
+    display: inline-flex; align-items: center; justify-content: center;
+    width: 72px; height: 72px; margin-bottom: 16px;
+    border-radius: 999px; font-size: 30px;
+}
+.wj-debt-pc-emptybox--empty_week .wj-debt-pc-emptybox__icon { background: var(--wj-pc-blue-soft); color: var(--wj-pc-primary); }
+.wj-debt-pc-emptybox--no_debt .wj-debt-pc-emptybox__icon { background: var(--wj-pc-green-soft); color: var(--wj-pc-green); }
+.wj-debt-pc-emptybox__title { margin: 0 0 6px; font-size: 18px; font-weight: 700; color: var(--wj-pc-text); }
+.wj-debt-pc-emptybox__sub { margin: 0; max-width: 460px; font-size: 14px; font-weight: 500; color: var(--wj-pc-muted); }
+
+/* ---------- Banner (tab Lịch sử) ---------- */
+.wj-debt-pc-banner {
+    display: flex; align-items: center; gap: 12px;
+    margin-bottom: 20px; padding: 14px 20px;
+    background: var(--wj-pc-blue-soft); border-radius: 12px;
+}
+.wj-debt-pc-banner__icon {
+    flex: 0 0 auto; display: inline-flex; align-items: center; justify-content: center;
+    width: 24px; height: 24px; border-radius: 50%;
+    background: var(--wj-pc-primary); color: #fff; font-size: 14px; font-weight: 700; line-height: 1;
+}
+.wj-debt-pc-banner__text { font-size: 14px; font-weight: 500; color: var(--wj-pc-text); }
+.wj-debt-pc-banner__aside { margin-left: auto; font-size: 13px; font-weight: 500; color: var(--wj-pc-muted); }
+
+/* ---------- Modal QR (2 cột: QR minh hoạ • thông tin chuyển khoản) ---------- */
+.wj-debt-pc-modal[hidden] { display: none; }
+/* Panel dùng chung .wj-pc-modal__panel (420) — nới rộng cho layout 2 cột; selector
+   2 class thắng .wj-pc-modal__panel (1 class) bất kể thứ tự nạp bundle. */
+.wj-debt-pc-modal .wj-pc-modal__panel {
+    position: relative;
+    width: 720px;
+    max-width: calc(100vw - 48px);
+    padding: 28px 32px;
+}
+.wj-debt-pc-modal__close {
+    position: absolute; top: 20px; right: 20px;
+    display: inline-flex; align-items: center; justify-content: center;
+    width: 34px; height: 34px; padding: 0;
+    border: 0; border-radius: 8px; background: transparent;
+    color: var(--wj-pc-muted); cursor: pointer;
+}
+.wj-debt-pc-modal__close:hover { background: var(--wj-pc-gray-soft); }
+.wj-debt-pc-modal__close i { font-size: 20px; }
+.wj-debt-pc-modal__sub { margin: 0 0 16px; font-size: 14px; font-weight: 500; color: var(--wj-pc-muted); }
+.wj-debt-pc-modal__amount {
+    display: flex; align-items: center; justify-content: space-between; gap: 16px;
+    margin-bottom: 20px; padding: 16px 20px;
+    background: var(--wj-pc-table-header-bg); border-radius: 12px;
+}
+.wj-debt-pc-modal__amount-label { display: block; margin-bottom: 4px; font-size: 13px; font-weight: 500; color: var(--wj-pc-muted); }
+.wj-debt-pc-modal__amount-value { font-size: 24px; font-weight: 700; color: var(--wj-pc-text); }
+.wj-debt-pc-modal__body { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+
+.wj-debt-pc-qr {
+    display: flex; flex-direction: column; align-items: center;
+    padding: 20px;
+    background: var(--wj-pc-table-header-bg);
+    border: 1px solid var(--wj-pc-border-soft); border-radius: 12px;
+}
+.wj-debt-pc-qr__title { margin: 0 0 14px; font-size: 15px; font-weight: 700; color: var(--wj-pc-text); }
+.wj-debt-pc-qr__frame {
+    display: flex; align-items: center; justify-content: center;
+    width: 180px; height: 180px;
+    background: var(--wj-pc-card);
+    border: 1px solid var(--wj-pc-border-soft); border-radius: 12px;
+}
+/* QR = placeholder tĩnh (BA chưa chốt tĩnh/động; Figma ghi "QR minh họa"). Cùng ảnh mobile. */
+.wj-debt-pc-qr__code {
+    width: 160px; height: 160px;
+    background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 21 21' shape-rendering='crispEdges'%3E%3Cpath fill='%23111827' d='M0 0h7v1h-7zM10 0h2v1h-2zM14 0h7v1h-7zM0 1h1v1h-1zM6 1h1v1h-1zM10 1h1v1h-1zM14 1h1v1h-1zM20 1h1v1h-1zM0 2h1v1h-1zM2 2h3v1h-3zM6 2h1v1h-1zM9 2h1v1h-1zM11 2h1v1h-1zM14 2h1v1h-1zM16 2h3v1h-3zM20 2h1v1h-1zM0 3h1v1h-1zM2 3h3v1h-3zM6 3h1v1h-1zM9 3h1v1h-1zM14 3h1v1h-1zM16 3h3v1h-3zM20 3h1v1h-1zM0 4h1v1h-1zM2 4h3v1h-3zM6 4h1v1h-1zM9 4h3v1h-3zM14 4h1v1h-1zM16 4h3v1h-3zM20 4h1v1h-1zM0 5h1v1h-1zM6 5h1v1h-1zM9 5h1v1h-1zM12 5h1v1h-1zM14 5h1v1h-1zM20 5h1v1h-1zM0 6h7v1h-7zM8 6h1v1h-1zM10 6h1v1h-1zM12 6h1v1h-1zM14 6h7v1h-7zM10 7h3v1h-3zM6 8h1v1h-1zM11 8h1v1h-1zM0 9h1v1h-1zM4 9h2v1h-2zM8 9h1v1h-1zM10 9h1v1h-1zM14 9h1v1h-1zM17 9h2v1h-2zM20 9h1v1h-1zM3 10h6v1h-6zM10 10h1v1h-1zM12 10h2v1h-2zM0 11h1v1h-1zM3 11h2v1h-2zM7 11h2v1h-2zM16 11h4v1h-4zM1 12h1v1h-1zM6 12h3v1h-3zM11 12h1v1h-1zM13 12h2v1h-2zM18 12h3v1h-3zM12 13h1v1h-1zM14 13h3v1h-3zM18 13h1v1h-1zM0 14h7v1h-7zM10 14h2v1h-2zM14 14h2v1h-2zM17 14h1v1h-1zM20 14h1v1h-1zM0 15h1v1h-1zM6 15h1v1h-1zM9 15h1v1h-1zM13 15h8v1h-8zM0 16h1v1h-1zM2 16h3v1h-3zM6 16h1v1h-1zM9 16h2v1h-2zM12 16h1v1h-1zM14 16h2v1h-2zM18 16h1v1h-1zM20 16h1v1h-1zM0 17h1v1h-1zM2 17h3v1h-3zM6 17h1v1h-1zM9 17h2v1h-2zM17 17h1v1h-1zM0 18h1v1h-1zM2 18h3v1h-3zM6 18h1v1h-1zM9 18h6v1h-6zM16 18h1v1h-1zM18 18h3v1h-3zM0 19h1v1h-1zM6 19h1v1h-1zM9 19h1v1h-1zM12 19h1v1h-1zM16 19h1v1h-1zM19 19h2v1h-2zM0 20h7v1h-7zM12 20h7v1h-7z'/%3E%3C/svg%3E") center/contain no-repeat;
+}
+.wj-debt-pc-qr__caption { margin: 12px 0 0; font-size: 12px; font-weight: 500; color: var(--wj-pc-muted); }
+
+.wj-debt-pc-bank { display: flex; flex-direction: column; }
+.wj-debt-pc-bank__title { margin: 0 0 12px; font-size: 15px; font-weight: 700; color: var(--wj-pc-text); }
+.wj-debt-pc-bank__row {
+    display: flex; align-items: center; gap: 10px;
+    padding: 10px 0; border-bottom: 1px solid var(--wj-pc-border-soft);
+}
+.wj-debt-pc-bank__label { flex: 0 0 130px; font-size: 13px; font-weight: 500; color: var(--wj-pc-muted); }
+.wj-debt-pc-bank__value {
+    flex: 1 1 auto; min-width: 0;
+    font-size: 14px; font-weight: 700; color: var(--wj-pc-text);
+    overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+.wj-debt-pc-copy {
+    flex: 0 0 auto; display: inline-flex; align-items: center; justify-content: center;
+    width: 30px; height: 30px; padding: 0;
+    border: 1px solid var(--wj-pc-border); border-radius: 8px;
+    background: var(--wj-pc-card); color: var(--wj-pc-primary); cursor: pointer;
+}
+.wj-debt-pc-copy:hover { background: var(--wj-pc-primary-soft); }
+.wj-debt-pc-copy.is-copied { color: var(--wj-pc-green); border-color: var(--wj-pc-green); }
+.wj-debt-pc-copy i { font-size: 15px; }
+
+.wj-debt-pc-modal__note {
+    display: flex; flex-direction: column; gap: 4px;
+    margin-top: 16px; padding: 14px 16px;
+    background: var(--wj-pc-yellow-soft); border-radius: 12px;
+}
+.wj-debt-pc-modal__note-title { font-size: 13px; font-weight: 700; color: var(--wj-debt-pc-warn-text); }
+.wj-debt-pc-modal__note-sub { font-size: 13px; font-weight: 500; color: var(--wj-pc-muted); }
+.wj-debt-pc-modal__actions { display: flex; justify-content: flex-end; gap: 12px; margin-top: 24px; }
+
+/* ---------- Responsive: content shell co lại ≤1366 (acceptance #11) ---------- */
+@media (max-width: 1366px) {
+    .wj-debt-pc-summary { flex-wrap: wrap; }
+    .wj-debt-pc-summary__side {
+        min-width: 100%;
+        margin-top: 16px; padding-top: 16px; padding-left: 0;
+        border-top: 1px solid var(--wj-pc-border-soft); border-left: 0;
+        align-items: flex-start; text-align: left;
+    }
+}
+@media (max-width: 1200px) {
+    .wj-debt-pc-filter { flex-wrap: wrap; }
+    .wj-debt-pc-filter__field--store { margin-left: 0; }
+    .wj-debt-pc-modal__body { grid-template-columns: 1fr; }
+}
+
 /* ---------- Dòng Công nợ trong sheet "Thêm" (Figma 01) ----------
    Chỉ scope trong .wujia-msheet-item--debt: 6 dòng cũ giữ nguyên style. */
 .wujia-msheet-item--debt .wujia-msheet-item-title {

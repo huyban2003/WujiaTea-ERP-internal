@@ -1,8 +1,11 @@
 /* Wujia Portal — Công nợ & thanh toán.
  *
- * 2 hành vi duy nhất (Figma không có tương tác nào khác):
+ * Hành vi (Figma không có tương tác nào khác):
  *   1. Bộ lọc tuần/kỳ: <select> phủ kín card → đổi là submit luôn, khỏi nút "Xem".
- *   2. Nút copy số tài khoản / nội dung chuyển khoản (màn 07).
+ *   2. Nút copy số tài khoản / nội dung chuyển khoản (màn 07 + modal PC).
+ *   3. PC (STT10): mở/đóng modal QR "Thanh toán số còn lại" (open-pay / close-pay /
+ *      click backdrop / phím Esc). Nút "PDF" và "Tải mã QR" là <button type="button">
+ *      không handler ⇒ no-op MVP (chưa có endpoint/file — đúng ghi chú BA).
  *
  * Vanilla + delegation trên document: trang render server-side, không có OWL
  * component nào ở đây, và cùng pattern với các script portal khác của Wujia.
@@ -16,13 +19,54 @@
             return;
         }
         var form = select.form;
-        if (form) {
+        if (!form) {
+            return;
+        }
+        // requestSubmit (KHÔNG phải submit): submit() bỏ qua listener 'submit' nên
+        // wj_ajax_list.js không bắt được, đổi kỳ lại reload cả trang như cũ.
+        if (form.requestSubmit) {
+            form.requestSubmit();
+        } else {
             form.submit();
         }
     });
 
+    /* ---- Modal QR (PC): mở/đóng thuần bằng thuộc tính [hidden] ---- */
+    function payModal() {
+        return document.querySelector('[data-wj-debt-modal="pay"]');
+    }
+    function openModal() {
+        var modal = payModal();
+        if (modal) {
+            modal.removeAttribute('hidden');
+        }
+    }
+    function closeModal() {
+        var modal = payModal();
+        if (modal) {
+            modal.setAttribute('hidden', 'hidden');
+        }
+    }
+
     document.addEventListener('click', function (ev) {
-        var btn = ev.target.closest ? ev.target.closest('[data-wj-debt="copy"]') : null;
+        if (!ev.target.closest) {
+            return;
+        }
+
+        if (ev.target.closest('[data-wj-debt="open-pay"]')) {
+            ev.preventDefault();
+            openModal();
+            return;
+        }
+        // Nút X / "Đóng", hoặc click ra nền tối (chính backdrop, không phải panel con).
+        if (ev.target.closest('[data-wj-debt="close-pay"]') ||
+            ev.target.matches('[data-wj-debt-modal="pay"]')) {
+            ev.preventDefault();
+            closeModal();
+            return;
+        }
+
+        var btn = ev.target.closest('[data-wj-debt="copy"]');
         if (!btn) {
             return;
         }
@@ -37,6 +81,15 @@
                 btn.classList.remove('is-copied');
             }, 1500);
         });
+    });
+
+    document.addEventListener('keydown', function (ev) {
+        if (ev.key === 'Escape') {
+            var modal = payModal();
+            if (modal && !modal.hasAttribute('hidden')) {
+                closeModal();
+            }
+        }
     });
 
     /* navigator.clipboard chỉ có trên secure context; UAT hiện chạy http →
