@@ -197,7 +197,7 @@
                 <field name="category_id"/>
                 <field name="publish_date"/>
                 <templates>
-                    <t t-name="kanban-box">
+                    <t t-name="card">
                         <div class="oe_kanban_card">
                             <img t-if="record.cover_image.raw_value"
                                  t-attf-src="/web/image/wujia.knowledge.article/#{record.id.raw_value}/cover_image"
@@ -277,18 +277,18 @@
     ============================================================ -->
 
     <menuitem id="menu_wujia_knowledge_root"
-              name="Kiến Thức"
+              name="Knowledge"
               parent="wujia_franchise.menu_wujia_root"
               sequence="40"/>
 
     <menuitem id="menu_wujia_knowledge_articles"
-              name="Bài viết"
+              name="Articles"
               parent="menu_wujia_knowledge_root"
               action="action_knowledge_article"
               sequence="10"/>
 
     <menuitem id="menu_wujia_knowledge_categories"
-              name="Danh mục"
+              name="Categories"
               parent="menu_wujia_knowledge_root"
               action="action_knowledge_category"
               sequence="20"/>

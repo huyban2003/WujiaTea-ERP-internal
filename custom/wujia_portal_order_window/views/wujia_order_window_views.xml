@@ -6,7 +6,7 @@
         <field name="name">wujia.order.window.list</field>
         <field name="model">wujia.order.window</field>
         <field name="arch" type="xml">
-            <list string="Khung giờ đặt hàng" multi_edit="1">
+            <list string="Ordering time windows" multi_edit="1">
                 <field name="sequence" widget="handle"/>
                 <field name="area_id"/>
                 <field name="name"/>
@@ -24,7 +24,7 @@
         <field name="name">wujia.order.window.form</field>
         <field name="model">wujia.order.window</field>
         <field name="arch" type="xml">
-            <form string="Khung giờ đặt hàng">
+            <form string="Ordering time windows">
                 <sheet>
                     <widget name="web_ribbon" title="Qua nửa đêm"
                             bg_color="text-bg-warning"
@@ -43,7 +43,7 @@
                             <field name="company_id" groups="base.group_multi_company"/>
                         </group>
                     </group>
-                    <group string="Mô tả">
+                    <group string="Description">
                         <field name="description" nolabel="1"/>
                     </group>
                 </sheet>
@@ -56,13 +56,13 @@
         <field name="name">wujia.order.window.search</field>
         <field name="model">wujia.order.window</field>
         <field name="arch" type="xml">
-            <search string="Khung giờ đặt hàng">
+            <search string="Ordering time windows">
                 <field name="name"/>
                 <field name="area_id"/>
-                <filter name="active" string="Đang dùng" domain="[('active','=',True)]"/>
-                <filter name="overnight" string="Qua nửa đêm" domain="[('is_overnight','=',True)]"/>
+                <filter name="active" string="In use" domain="[('active','=',True)]"/>
+                <filter name="overnight" string="Overnight" domain="[('is_overnight','=',True)]"/>
                 <group>
-                    <filter name="group_area" string="Khu vực" context="{'group_by': 'area_id'}"/>
+                    <filter name="group_area" string="Area" context="{'group_by': 'area_id'}"/>
                 </group>
             </search>
         </field>
@@ -70,17 +70,15 @@
 
     <!-- Action -->
     <record id="action_wujia_order_window" model="ir.actions.act_window">
-        <field name="name">Khung giờ đặt hàng</field>
+        <field name="name">Ordering time windows</field>
         <field name="res_model">wujia.order.window</field>
         <field name="view_mode">list,form</field>
         <field name="search_view_id" ref="view_wujia_order_window_search"/>
         <field name="context">{'search_default_active': 1, 'search_default_group_area': 1}</field>
         <field name="help" type="html">
-            <p class="o_view_nocontent_smiling_face">Tạo khung giờ đặt hàng cho khu vực</p>
+            <p class="o_view_nocontent_smiling_face">Create an ordering time window for an area</p>
             <p>
-                Mỗi khu vực có thể có nhiều khung giờ (ví dụ Khung sáng + Khung tối).
-                Portal sẽ cho phép đặt hàng khi ít nhất một khung giờ của khu vực đang mở.
-                Khu vực không có khung giờ nào → dùng cấu hình mặc định ở Settings.
+                An area can define several windows (e.g. Morning + Evening). The portal allows ordering while at least one window of the area is open. An area without any window falls back to the default configuration in Settings.
             </p>
         </field>
     </record>
@@ -92,7 +90,7 @@
               sequence="50"/>
 
     <menuitem id="menu_wujia_order_window"
-              name="Khung giờ đặt hàng"
+              name="Ordering time windows"
               parent="menu_wujia_portal_config_root"
               action="action_wujia_order_window"
               sequence="10"/>

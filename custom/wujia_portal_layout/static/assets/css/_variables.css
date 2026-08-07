@@ -99,7 +99,11 @@
 
     /* ---------- Layout dimensions ---------- */
     --wujia-sidebar-width:  300px;
-    --wujia-sidebar-logo-h: 200px;
+    --wujia-sidebar-logo-h: 200px;   /* <1200px (sidebar off-canvas tablet) — giữ nguyên */
+    /* UI-PC-BASE-010: logo card PC theo WJ_PC_CoreShell_FINAL_v1 (rect 20,16,260×132).
+       Tách riêng khỏi --wujia-sidebar-logo-h để tablet 992–1199px bất biến. */
+    --wujia-sidebar-logo-h-pc:   132px;
+    --wujia-sidebar-header-gap:  12px;   /* 148 (đáy card) + 12 + 28 (margin li) = "MENU CHÍNH" y=188 */
     --wujia-header-height:  72px;   /* Vuexy default floating-nav height */
     --wujia-header-padding: 22px;
     --wujia-card-radius:    16px;
@@ -179,6 +183,9 @@
 
     /* ---------- Main content vertical spacing ---------- */
     --wujia-page-content-top: 24px;
+    /* RESP-MOB-SHELL-003: mốc đầu nội dung mobile — dải cửa hàng kết y=152 → content y=168.
+       MỘT giá trị cho MỌI trang mobile; đừng đặt padding-top riêng cho từng trang nữa. */
+    --wujia-mcontent-top:     16px;
     --wujia-page-title-gap:   14px;
     --wujia-kpi-content-gap:  22px;
 

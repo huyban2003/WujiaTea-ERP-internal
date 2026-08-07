@@ -7,6 +7,7 @@ from odoo.addons.wujia_portal_base.controllers.utils import (
     MOBILE_ORDER_BADGES,
     MOBILE_RETURN_BADGES,
     get_upcoming_batches,
+    portal_money,
 )
 
 
@@ -16,6 +17,17 @@ ROLE_LABELS = {
     'staff': 'Nhân viên',
 }
 ROLE_RANK = {'staff': 1, 'manager': 2, 'owner': 3}
+
+# Nhãn VN của wujia.franchise.management.status. Pin cứng tại đây vì source đã chuyển
+# sang tiếng Anh (sprint 44) — portal phải giữ tiếng Việt.
+# Key phải khớp Selection `status` trong wujia_franchise/models/wujia_franchise_management.py.
+FRANCHISE_STATUS_LABELS = {
+    'draft': 'Nháp',
+    'active': 'Đang hoạt động',
+    'locked': 'Khóa',
+    'closed': 'Đã đóng',
+    'expired': 'Hết hạn',
+}
 
 ACTIVE_FRANCHISE_COOKIE = 'wujia_active_franchise_id'
 ACTIVE_FRANCHISE_COOKIE_MAX_AGE = 30 * 24 * 3600  # 30 ngày
@@ -119,6 +131,12 @@ class WujiaPortal(CustomerPortal):
             if active_fid else False
         )
         active_role = membership.role if membership else False
+        # Currency mà cửa hàng thực sự đặt hàng bằng — CÙNG nguồn với giỏ và SO
+        # (bảng giá của partner cửa hàng), không có bảng giá thì rơi về công ty.
+        store_currency = (
+            active_franchise.partner_id.property_product_pricelist.currency_id
+            if active_franchise and active_franchise.partner_id else False
+        ) or request.env.company.currency_id
 
         # ---- Sprint 17: 3 màn dashboard (Figma 2474:2) gộp về Home (dedupe).
         #      BA còn review. recent_orders/latest_returns/active_franchise đã có
@@ -162,6 +180,16 @@ class WujiaPortal(CustomerPortal):
             'order_window': self._order_window_view(
                 active_franchise.area_id.id if active_franchise else None
             ),
+            # Format tiền dùng chung — ký hiệu theo currency của đơn, không hardcode.
+            'money': portal_money,
+            'company_currency_symbol': request.env.company.currency_id.symbol or '',
+            'company_currency_decimals': request.env.company.currency_id.decimal_places or 0,
+            # Các con số GỘP TỪ ĐƠN (top sản phẩm, tổng tiền chuyến giao) mang currency
+            # của ĐƠN chứ không phải của công ty. Lấy đúng nguồn mà giỏ và SO dùng —
+            # bảng giá của cửa hàng — nếu không thì UAT (đơn USD, công ty VND) hiện số
+            # USD mà dán ký hiệu ₫, đúng kiểu lỗi WJ-ORD-025 vừa sửa.
+            'store_currency_symbol': store_currency.symbol or '',
+            'store_currency_decimals': store_currency.decimal_places or 0,
         })
         return request.render('wujia_portal_base.portal_home_page', values)
 
@@ -236,7 +264,7 @@ class WujiaPortal(CustomerPortal):
         latest_returns = self._safe_list(
             'wujia.return.request', franchise_ids, limit=3,
         )
-        top_products = self._top_products(franchise_ids, limit=5)
+        top_products, top_currency = self._top_products(franchise_ids, limit=5)
 
         return {
             'unread_count': unread_count,
@@ -247,6 +275,10 @@ class WujiaPortal(CustomerPortal):
             'recent_orders': recent_orders,
             'latest_returns': latest_returns,
             'top_products': top_products,
+            # Ký hiệu/số lẻ cho bảng top sản phẩm — theo currency của chính các đơn
+            # được gộp, không phải của công ty (cụm D).
+            'top_currency_symbol': top_currency.symbol or '',
+            'top_currency_decimals': top_currency.decimal_places or 0,
             'franchise_ids': franchise_ids,
         }
 
@@ -260,7 +292,7 @@ class WujiaPortal(CustomerPortal):
         if kind == 'unread_count':
             user_id = request.env.user.id
             published_total = Model.search_count([
-                ('published', '=', True),
+                ('is_published_portal', '=', True),
                 '|', ('franchise_ids', '=', False),
                      ('franchise_ids', 'in', list(franchise_ids)),
             ])
@@ -269,7 +301,7 @@ class WujiaPortal(CustomerPortal):
                 return published_total
             read_count = Read.sudo().search_count([
                 ('user_id', '=', user_id),
-                ('notification_id.published', '=', True),
+                ('notification_id.is_published_portal', '=', True),
             ])
             return max(0, published_total - read_count)
         if kind == 'open_count':
@@ -289,10 +321,10 @@ class WujiaPortal(CustomerPortal):
         Model = Model.sudo()
         if model_name == 'wujia.notification':
             return Model.search([
-                ('published', '=', True),
+                ('is_published_portal', '=', True),
                 '|', ('franchise_ids', '=', False),
                      ('franchise_ids', 'in', list(franchise_ids)),
-            ], order='date desc', limit=limit)
+            ], order='published_date desc', limit=limit)
         if model_name == 'wujia.return.request':
             # BA spec: loại phiếu đã huỷ / từ chối khỏi danh sách gần đây.
             return Model.search([
@@ -304,7 +336,7 @@ class WujiaPortal(CustomerPortal):
     def _top_products(self, franchise_ids, limit=5):
         """Top product 90 ngày (BA spec). 1 _read_group, không loop search."""
         if not franchise_ids:
-            return []
+            return [], request.env.company.currency_id
         last_90d = fields.Datetime.now() - timedelta(days=90)
         SOL = request.env['sale.order.line'].sudo()
         groups = SOL._read_group(
@@ -318,12 +350,27 @@ class WujiaPortal(CustomerPortal):
             limit=limit,
             order='product_uom_qty:sum desc',
         )
-        return [{
+        # `price_total:sum` cộng thẳng số của các đơn, KHÔNG quy đổi — nên ký hiệu
+        # phải là currency của chính các đơn đó. Cùng bộ lọc, group theo currency:
+        # đúng một currency → lấy currency ấy; trộn nhiều currency thì con số gộp
+        # vốn đã vô nghĩa, rơi về currency công ty. 1 query gộp, không loop.
+        currencies = request.env['sale.order'].sudo()._read_group(
+            domain=[
+                ('franchise_id', 'in', list(franchise_ids)),
+                ('state', 'in', ['sale', 'done']),
+                ('date_order', '>=', last_90d),
+            ],
+            groupby=['currency_id'],
+            aggregates=[],
+        )
+        currency = currencies[0][0] if len(currencies) == 1 else request.env.company.currency_id
+        rows = [{
             'name': product.display_name,
             'qty': qty or 0,
             'uom': product.uom_id.name or '',
             'total': total or 0,
         } for product, qty, total in groups]
+        return rows, currency
 
     # ==================================================================
     # Active-franchise (store picker) — cookie-based, no DB hit
@@ -387,6 +434,7 @@ class WujiaPortal(CustomerPortal):
                 'franchise': membership_sudo.franchise_id,
                 'membership': membership_sudo,
                 'role_labels': ROLE_LABELS,
+                'status_labels': FRANCHISE_STATUS_LABELS,
             },
         )
 
@@ -507,6 +555,7 @@ class WujiaPortal(CustomerPortal):
             'membership': membership_sudo,
             'members': members,
             'role_labels': ROLE_LABELS,
+            'status_labels': FRANCHISE_STATUS_LABELS,
         })
 
     # ==================================================================

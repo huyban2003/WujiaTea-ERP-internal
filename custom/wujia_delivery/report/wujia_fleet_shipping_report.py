@@ -3,24 +3,24 @@ from odoo import fields, models, tools
 
 class WujiaFleetShippingReport(models.Model):
     _name = 'wujia.fleet.shipping.report'
-    _description = 'Báo cáo chi phí theo đội xe (per batch)'
+    _description = 'Cost report by carrier (per batch)'
     _auto = False
     _order = 'report_date desc, batch_id'
 
-    report_date = fields.Date(string='Ngày báo cáo', readonly=True)
+    report_date = fields.Date(string='Report date', readonly=True)
     batch_id = fields.Many2one('stock.picking.batch', string='Batch', readonly=True)
-    vehicle_id = fields.Many2one('wujia.fleet.management', string='Xe', readonly=True)
-    provider_id = fields.Many2one('wujia.fleet.provider', string='Đội xe', readonly=True)
-    fleet_type_id = fields.Many2one('wujia.fleet.type', string='Loại xe', readonly=True)
-    picking_count = fields.Integer(string='Số phiếu xuất', readonly=True)
-    franchise_count = fields.Integer(string='Số cửa hàng', readonly=True)
-    planned_weight = fields.Float(string='KL dự kiến', readonly=True, digits='Stock Weight')
-    done_weight = fields.Float(string='KL thực xuất', readonly=True, digits='Stock Weight')
-    capacity_usage_percent = fields.Float(string='% sử dụng tải', readonly=True, digits=(8, 2))
-    shipping_cost = fields.Monetary(string='Cước cơ bản', currency_field='currency_id', readonly=True)
-    drop_fee_total = fields.Monetary(string='Tổng phí drop', currency_field='currency_id', readonly=True)
-    total_shipping_cost = fields.Monetary(string='Tổng chi phí', currency_field='currency_id', readonly=True)
-    currency_id = fields.Many2one('res.currency', string='Tiền tệ', readonly=True)
+    vehicle_id = fields.Many2one('wujia.fleet.management', string='Vehicle', readonly=True)
+    provider_id = fields.Many2one('wujia.fleet.provider', string='Carrier', readonly=True)
+    fleet_type_id = fields.Many2one('wujia.fleet.type', string='Vehicle type', readonly=True)
+    picking_count = fields.Integer(string='Delivery order count', readonly=True)
+    franchise_count = fields.Integer(string='Store count', readonly=True)
+    planned_weight = fields.Float(string='Planned weight (report)', readonly=True, digits='Stock Weight')
+    done_weight = fields.Float(string='Actual shipped weight', readonly=True, digits='Stock Weight')
+    capacity_usage_percent = fields.Float(string='Payload usage %', readonly=True, digits=(8, 2))
+    shipping_cost = fields.Monetary(string='Base rate', currency_field='currency_id', readonly=True)
+    drop_fee_total = fields.Monetary(string='Total drop fee', currency_field='currency_id', readonly=True)
+    total_shipping_cost = fields.Monetary(string='Total cost', currency_field='currency_id', readonly=True)
+    currency_id = fields.Many2one('res.currency', string='Currency', readonly=True)
 
     def init(self):
         tools.drop_view_if_exists(self.env.cr, self._table)

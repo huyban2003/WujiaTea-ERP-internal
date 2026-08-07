@@ -1,6 +1,6 @@
 {
     'name': 'Wujia Portal — Exam (Đào tạo / Thi)',
-    'version': '19.0.4.0.0',
+    'version': '19.0.5.1.0',
     'category': 'Wujia',
     'summary': 'Đăng ký thi nhượng quyền — backend khóa/kỳ thi + phiếu đa nhân sự + kết quả',
     'author': 'WujiaTea',
@@ -22,7 +22,6 @@
     'assets': {
         'web.assets_frontend': [
             'wujia_portal_exam/static/src/css/portal_exam.css',
-            'wujia_portal_exam/static/src/js/portal_exam.js',
             'wujia_portal_exam/static/src/js/portal_exam_wizard.js',
             'wujia_portal_exam/static/src/js/portal_exam_pc.js',
         ],

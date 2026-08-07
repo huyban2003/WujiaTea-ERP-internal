@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- Bank account: bật lên portal (QR/chuyển khoản). Chỉ TK company hiện hành được dùng. -->
+    <record id="view_partner_bank_form_wujia_portal" model="ir.ui.view">
+        <field name="name">res.partner.bank.form.wujia.portal</field>
+        <field name="model">res.partner.bank</field>
+        <field name="inherit_id" ref="base.view_partner_bank_form"/>
+        <field name="arch" type="xml">
+            <field name="allow_out_payment" position="after">
+                <field name="portal_payment_enabled" widget="boolean_toggle"/>
+            </field>
+        </field>
+    </record>
+
+</odoo>

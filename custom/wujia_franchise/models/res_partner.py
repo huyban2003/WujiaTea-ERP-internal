@@ -7,17 +7,17 @@ class ResPartner(models.Model):
     franchise_ids = fields.One2many(
         'wujia.franchise.management',
         'partner_id',
-        string='Cửa hàng nhượng quyền',
+        string='Franchise store',
     )
     is_franchise = fields.Boolean(
-        string='Là cửa hàng nhượng quyền',
+        string='Is a franchise store',
         compute='_compute_is_franchise',
         store=True,
         index=True,
-        help='TRUE nếu partner đang được dùng làm contact của ít nhất 1 wujia.franchise.management.',
+        help='TRUE when the partner is used as the contact of at least one wujia.franchise.management.',
     )
     franchise_count = fields.Integer(
-        string='Số cửa hàng',
+        string='Store count',
         compute='_compute_franchise_count',
     )
 

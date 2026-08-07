@@ -2,12 +2,12 @@ from odoo import _, api, fields, models
 
 
 DELIVERY_STATUS = [
-    ('pending', 'Chờ điều phối'),
-    ('assigned', 'Đã sắp chuyến'),
-    ('loaded', 'Đã chất hàng'),
-    ('delivering', 'Đang giao'),
-    ('done', 'Đã giao'),
-    ('cancelled', 'Hủy giao'),
+    ('pending', 'Waiting for dispatch'),
+    ('assigned', 'Trip planned'),
+    ('loaded', 'Loaded'),
+    ('delivering', 'In transit'),
+    ('done', 'Delivered'),
+    ('cancelled', 'Delivery cancelled'),
 ]
 
 
@@ -16,28 +16,28 @@ class StockPicking(models.Model):
 
     franchise_id = fields.Many2one(
         'wujia.franchise.management',
-        string='Cửa hàng nhượng quyền',
+        string='Franchise store',
         index=True,
         tracking=True,
-        help='Cửa hàng nhượng quyền nhận hàng. Tự copy từ SO khi confirm; có thể '
-             'set thủ công cho picking nội bộ.',
+        help="Franchise store receiving the goods. Copied from the SO on confirm; "
+             "can be set manually for internal pickings.",
     )
     area_id = fields.Many2one(
         'res.area',
-        string='Khu vực',
+        string='Area',
         related='franchise_id.area_id',
         store=True,
         readonly=True,
         index=True,
     )
     delivery_sequence = fields.Integer(
-        string='Thứ tự giao',
+        string='Delivery sequence',
         default=10,
-        help='Thứ tự giao trong batch.',
+        help='Delivery sequence within the batch.',
     )
     vehicle_id = fields.Many2one(
         'wujia.fleet.management',
-        string='Xe giao',
+        string='Delivery vehicle',
         related='batch_id.vehicle_id',
         store=True,
         readonly=True,
@@ -45,7 +45,7 @@ class StockPicking(models.Model):
     )
     provider_id = fields.Many2one(
         'wujia.fleet.provider',
-        string='Đội xe',
+        string='Carrier',
         related='vehicle_id.provider_id',
         store=True,
         readonly=True,
@@ -53,34 +53,34 @@ class StockPicking(models.Model):
     )
     delivery_status = fields.Selection(
         DELIVERY_STATUS,
-        string='Trạng thái giao',
+        string='Delivery status',
         default='pending',
         tracking=True,
         index=True,
-        help='Trạng thái điều phối — KHÔNG thay state chuẩn của picking.',
+        help='Dispatch status — it does NOT replace the standard picking state.',
     )
     currency_id = fields.Many2one(
         'res.currency',
-        string='Tiền tệ',
+        string='Currency',
         related='company_id.currency_id',
         store=True,
         readonly=True,
     )
     shipping_cost = fields.Monetary(
-        string='Chi phí vận chuyển (phân bổ)',
+        string='Shipping cost (allocated)',
         currency_field='currency_id',
         compute='_compute_shipping_allocation',
         store=True,
-        help='Chi phí vận chuyển phân bổ theo tỉ lệ planned_weight của picking '
-             'trong tổng planned_weight của batch.',
+        help="Shipping cost allocated in proportion to the picking planned_weight "
+             "within the total planned_weight of the batch.",
     )
     drop_fee = fields.Monetary(
-        string='Phí drop',
+        string='Drop fee',
         currency_field='currency_id',
         compute='_compute_shipping_allocation',
         store=True,
     )
-    delivery_note = fields.Text(string='Ghi chú giao hàng')
+    delivery_note = fields.Text(string='Delivery note')
 
     @api.depends(
         'batch_id',

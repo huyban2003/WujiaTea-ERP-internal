@@ -17,64 +17,64 @@ class WujiaExamSession(models.Model):
     _order = 'exam_date desc, id desc'
 
     name = fields.Char(
-        string='Mã kỳ thi', required=True, copy=False,
+        string='Session code', required=True, copy=False,
         readonly=True, default=lambda self: _('New'), tracking=True,
     )
     course_id = fields.Many2one(
-        'wujia.exam.course', string='Khóa thi', required=True,
+        'wujia.exam.course', string='Exam course', required=True,
         domain="[('state', '=', 'published')]",
         ondelete='restrict', index=True, tracking=True,
     )
-    exam_date = fields.Date(string='Ngày thi', required=True, index=True, tracking=True)
+    exam_date = fields.Date(string='Exam date', required=True, index=True, tracking=True)
     time_slot_id = fields.Many2one(
-        'wujia.exam.time.slot', string='Ca thi', required=True,
+        'wujia.exam.time.slot', string='Time slot', required=True,
         ondelete='restrict', tracking=True,
     )
     start_datetime = fields.Datetime(
-        string='Bắt đầu', compute='_compute_datetimes', store=True,
+        string='Start', compute='_compute_datetimes', store=True,
     )
     end_datetime = fields.Datetime(
-        string='Kết thúc', compute='_compute_datetimes', store=True,
+        string='End', compute='_compute_datetimes', store=True,
     )
-    location = fields.Char(string='Địa điểm')
-    capacity = fields.Integer(string='Sức chứa (người)', default=20, tracking=True)
+    location = fields.Char(string='Location')
+    capacity = fields.Integer(string='Capacity (people)', default=20, tracking=True)
     max_participants_per_registration = fields.Integer(
-        string='Số nhân sự tối đa / phiếu', default=4,
+        string='Maximum candidates per registration', default=4,
     )
-    registration_deadline = fields.Datetime(string='Hạn đăng ký', tracking=True)
+    registration_deadline = fields.Datetime(string='Registration deadline', tracking=True)
     registration_ids = fields.One2many(
-        'wujia.exam.registration', 'session_id', string='Phiếu đăng ký',
+        'wujia.exam.registration', 'session_id', string='Registration',
     )
     line_ids = fields.One2many(
-        'wujia.exam.registration.line', 'session_id', string='Thí sinh',
-        help='Toàn bộ thí sinh của kỳ thi — nhập kết quả trực tiếp tại đây.',
+        'wujia.exam.registration.line', 'session_id', string='Candidates',
+        help='Every candidate of this session — enter the results directly here.',
     )
     registration_count = fields.Integer(
-        string='Số phiếu', compute='_compute_participant_counts',
+        string='Registration count', compute='_compute_participant_counts',
     )
     reserved_participant_count = fields.Integer(
-        string='Đã giữ chỗ', compute='_compute_participant_counts', store=True,
+        string='Seats booked', compute='_compute_participant_counts', store=True,
     )
     available_participant_count = fields.Integer(
-        string='Còn trống', compute='_compute_participant_counts', store=True,
+        string='Seats left', compute='_compute_participant_counts', store=True,
     )
     state = fields.Selection(
-        [('draft', 'Nháp'), ('open', 'Mở đăng ký'), ('closed', 'Đóng đăng ký'),
-         ('done', 'Đã thi xong'), ('cancelled', 'Đã hủy')],
-        string='Trạng thái', default='draft', required=True, index=True,
+        [('draft', 'Draft'), ('open', 'Open registration'), ('closed', 'Close registration'),
+         ('done', 'Exam finished'), ('cancelled', 'Cancelled')],
+        string='Status', default='draft', required=True, index=True,
         tracking=True,
     )
     results_published = fields.Boolean(
-        string='Đã công bố kết quả', readonly=True, copy=False, tracking=True,
+        string='Results published', readonly=True, copy=False, tracking=True,
     )
     results_published_by_id = fields.Many2one(
-        'res.users', string='Người công bố KQ', readonly=True, copy=False,
+        'res.users', string='Results published by', readonly=True, copy=False,
     )
     results_published_date = fields.Datetime(
-        string='Ngày công bố KQ', readonly=True, copy=False,
+        string='Result publication date', readonly=True, copy=False,
     )
-    cancellation_reason = fields.Text(string='Lý do hủy')
-    note = fields.Text(string='Ghi chú')
+    cancellation_reason = fields.Text(string='Cancellation reason')
+    note = fields.Text(string='Notes')
 
     _check_capacity_positive = models.Constraint(
         'CHECK(capacity >= 1)', 'Sức chứa phải ≥ 1.',

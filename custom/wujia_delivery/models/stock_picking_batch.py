@@ -2,12 +2,12 @@ from odoo import _, api, fields, models
 
 
 DELIVERY_BATCH_STATUS = [
-    ('draft', 'Nháp'),
-    ('assigned', 'Đã gán xe'),
-    ('loading', 'Đang chất hàng'),
-    ('delivering', 'Đang giao'),
-    ('done', 'Đã giao xong'),
-    ('cancelled', 'Hủy chuyến'),
+    ('draft', 'Draft'),
+    ('assigned', 'Vehicle assigned'),
+    ('loading', 'Loading'),
+    ('delivering', 'In transit'),
+    ('done', 'Delivery completed'),
+    ('cancelled', 'Trip cancelled'),
 ]
 
 
@@ -16,15 +16,15 @@ class StockPickingBatch(models.Model):
 
     vehicle_id = fields.Many2one(
         'wujia.fleet.management',
-        string='Xe',
+        string='Vehicle',
         domain=[('active', '=', True)],
         tracking=True,
         index=True,
-        help='Xe được chọn cho chuyến.',
+        help='Vehicle assigned to this trip.',
     )
     provider_id = fields.Many2one(
         'wujia.fleet.provider',
-        string='Đội xe',
+        string='Carrier',
         related='vehicle_id.provider_id',
         store=True,
         readonly=True,
@@ -32,21 +32,21 @@ class StockPickingBatch(models.Model):
     )
     fleet_type_id = fields.Many2one(
         'wujia.fleet.type',
-        string='Loại xe',
+        string='Vehicle type',
         related='vehicle_id.fleet_type_id',
         store=True,
         readonly=True,
         index=True,
     )
     vehicle_capacity_ton = fields.Float(
-        string='Tải trọng (tấn)',
+        string='Payload (tons)',
         related='vehicle_id.payload_capacity_ton',
         store=True,
         readonly=True,
         digits=(10, 2),
     )
     vehicle_capacity_kg = fields.Float(
-        string='Tải trọng (kg)',
+        string='Payload (kg)',
         related='vehicle_id.max_payload_kg',
         store=True,
         readonly=True,
@@ -54,25 +54,25 @@ class StockPickingBatch(models.Model):
     )
 
     capacity_usage_percent = fields.Float(
-        string='% sử dụng tải trọng',
+        string='Payload utilisation %',
         compute='_compute_capacity_usage',
         store=True,
         digits=(8, 2),
     )
     is_over_capacity = fields.Boolean(
-        string='Vượt tải',
+        string='Overloaded',
         compute='_compute_capacity_usage',
         store=True,
     )
     over_capacity_weight = fields.Float(
-        string='Khối lượng vượt tải (kg)',
+        string='Overload weight (kg)',
         compute='_compute_capacity_usage',
         store=True,
         digits='Stock Weight',
     )
 
     franchise_count = fields.Integer(
-        string='Số cửa hàng',
+        string='Store count',
         compute='_compute_franchise_area',
         store=True,
     )
@@ -81,64 +81,63 @@ class StockPickingBatch(models.Model):
         'wujia_batch_area_rel',
         'batch_id',
         'area_id',
-        string='Khu vực',
+        string='Area',
         compute='_compute_franchise_area',
         store=True,
     )
 
     pricelist_id = fields.Many2one(
         'wujia.fleet.pricelist',
-        string='Bảng giá',
+        string='Pricelist',
         compute='_compute_pricelist_id',
         store=True,
         readonly=False,
         tracking=True,
         index=True,
-        help='Bảng giá vận chuyển. Auto-suggest theo loại xe + đội xe + ngày; '
-             'có thể override thủ công.',
+        help="Shipping pricelist. Auto-suggested from vehicle type + carrier + date; can be overridden manually.",
     )
 
     currency_id = fields.Many2one(
         'res.currency',
-        string='Tiền tệ',
+        string='Currency',
         related='company_id.currency_id',
         store=True,
         readonly=True,
     )
     shipping_cost = fields.Monetary(
-        string='Chi phí vận chuyển',
+        string='Shipping cost',
         currency_field='currency_id',
         compute='_compute_shipping_cost',
         store=True,
         readonly=False,
-        help='Auto-tính từ pricelist khi đủ vehicle + area; có thể override.',
+        help='Auto-computed from the pricelist once vehicle + area are known; can be overridden.',
     )
     drop_fee_total = fields.Monetary(
-        string='Tổng phí drop',
+        string='Total drop fee',
         currency_field='currency_id',
         compute='_compute_shipping_cost',
         store=True,
         readonly=False,
     )
     total_shipping_cost = fields.Monetary(
-        string='Tổng chi phí giao hàng',
+        string='Total delivery cost',
         currency_field='currency_id',
         compute='_compute_total_shipping_cost',
         store=True,
     )
 
-    planned_departure = fields.Datetime(string='Dự kiến xuất phát')
-    actual_departure = fields.Datetime(string='Thực tế xuất phát')
+    planned_departure = fields.Datetime(string='Planned departure')
+    actual_departure = fields.Datetime(string='Actual departure')
 
     delivery_batch_status = fields.Selection(
         DELIVERY_BATCH_STATUS,
-        string='Trạng thái điều phối',
+        string='Dispatch status',
         default='draft',
         index=True,
         tracking=True,
-        help='Song song với state chuẩn — không thay state Odoo.',
+        help='Runs alongside the standard state — it does not replace the Odoo state.',
     )
-    delivery_note = fields.Text(string='Ghi chú điều phối')
+    delivery_note = fields.Text(string='Dispatch note')
 
     # ===========================================================
     # Compute

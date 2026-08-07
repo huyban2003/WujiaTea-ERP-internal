@@ -19,7 +19,7 @@ POPUP_LIMIT = 5
 # Bảng mã lỗi tiếng Việt (BA controller mapping — dễ hiểu cho user portal, không lộ lỗi kỹ thuật).
 ERROR_MESSAGES = {
     'SESSION_EXPIRED': 'Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.',
-    'STORE_NOT_SELECTED': 'Vui lòng chọn cửa hàng trước khi xem thông báo.',
+    'STORE_NOT_SELECTED': 'Vui lòng chọn cửa hàng trước khi thao tác.',
     'STORE_ACCESS_DENIED': 'Bạn không có quyền thao tác với cửa hàng này.',
     'INVALID_DATE_RANGE': 'Từ ngày không được lớn hơn đến ngày.',
     'INVALID_FILTER': 'Bộ lọc không hợp lệ. Vui lòng kiểm tra lại.',
@@ -37,12 +37,27 @@ PC_TYPE_TONE = {
     'SYS': ('wj-pc-noti-type--violet', 'icon-settings'),
     'OTH': ('wj-pc-noti-type--green', 'icon-info'),
 }
+# Nhãn VN của wujia.notification.priority. Pin cứng tại đây vì source đã chuyển sang
+# tiếng Anh (sprint 44) — portal phải giữ tiếng Việt.
+# Key phải khớp PRIORITY_SELECTION trong wujia_portal_notification/models/wujia_notification.py.
+PORTAL_PRIORITY_LABELS = {
+    'normal': 'Thông thường',
+    'important': 'Quan trọng',
+    'urgent': 'Cần làm',
+}
 PC_PRIORITY_TAGS = {
-    'urgent': ('Cần làm', 'wj-pc-badge--done'),
-    'important': ('Quan trọng', 'wj-pc-badge--transit'),
-    'normal': ('Lưu ý', 'wj-pc-badge--confirmed'),
+    'urgent': (PORTAL_PRIORITY_LABELS['urgent'], 'wj-pc-badge--done'),
+    'important': (PORTAL_PRIORITY_LABELS['important'], 'wj-pc-badge--transit'),
+    'normal': (PORTAL_PRIORITY_LABELS['normal'], 'wj-pc-badge--confirmed'),
 }
 VALID_PRIORITIES = ('normal', 'important', 'urgent')
+
+
+def _err(code, **extra):
+    """Payload lỗi JSON — cùng shape với wujia_portal_sale để FE portal xử lý đồng nhất."""
+    res = {'success': False, 'error': code, 'message': ERROR_MESSAGES.get(code, code)}
+    res.update(extra)
+    return res
 
 
 def _parse_date(value):
@@ -71,9 +86,9 @@ def _franchise_clause(franchise_ids):
 def _history_domain(franchise_ids):
     """Lịch sử: mọi thông báo đã phát hành đúng đối tượng (gồm cả đã hết hiệu lực)."""
     return (
-        [('published', '=', True)]
+        [('is_published_portal', '=', True)]
         + _franchise_clause(franchise_ids)
-        + [('date', '<=', fields.Datetime.now())]
+        + [('published_date', '<=', fields.Datetime.now())]
     )
 
 
@@ -140,9 +155,9 @@ class WujiaPortalNotification(http.Controller):
             date_error = ERROR_MESSAGES['INVALID_DATE_RANGE']
             df = dt = None
         if df:
-            domain.append(('date', '>=', datetime.combine(df, datetime.min.time())))
+            domain.append(('published_date', '>=', datetime.combine(df, datetime.min.time())))
         if dt:
-            domain.append(('date', '<=', datetime.combine(dt, datetime.max.time())))
+            domain.append(('published_date', '<=', datetime.combine(dt, datetime.max.time())))
 
         tid = _parse_int(type_id)
         if tid:
@@ -178,7 +193,7 @@ class WujiaPortalNotification(http.Controller):
 
         total = Noti.search_count(domain)
         notifications = Noti.search(domain, limit=lim, offset=offset,
-                                    order='is_pinned desc, date desc')
+                                    order='is_pinned desc, published_date desc')
 
         read_ids = self._read_ids(notifications.ids, active_fid)
         cnt_unread = self._unread_count(franchise_ids, active_fid)
@@ -224,22 +239,25 @@ class WujiaPortalNotification(http.Controller):
             return request.redirect('/portal/notification')
 
         # Ghi nhận đã đọc theo user + cửa hàng: tạo mới giữ read_date, mở lại chỉ đổi last_open_date.
-        Read = request.env['wujia.notification.read'].sudo()
-        rdom = [('notification_id', '=', noti.id),
-                ('user_id', '=', request.env.user.id)]
+        # Spec F §8.11 — chỉ ghi read status khi có cửa hàng hiện tại; chưa chọn thì vẫn cho ĐỌC
+        # nội dung, chỉ không ghi row (tránh row franchise_id NULL).
         if active_fid:
-            rdom.append(('franchise_id', '=', active_fid))
-        existing = Read.search(rdom, limit=1)
-        now = fields.Datetime.now()
-        if existing:
-            existing.last_open_date = now
-        else:
-            Read.create({
-                'notification_id': noti.id,
-                'user_id': request.env.user.id,
-                'franchise_id': active_fid or False,
-                'read_date': now, 'last_open_date': now,
-            })
+            Read = request.env['wujia.notification.read'].sudo()
+            existing = Read.search([
+                ('notification_id', '=', noti.id),
+                ('user_id', '=', request.env.user.id),
+                ('franchise_id', '=', active_fid),
+            ], limit=1)
+            now = fields.Datetime.now()
+            if existing:
+                existing.last_open_date = now
+            else:
+                Read.create({
+                    'notification_id': noti.id,
+                    'user_id': request.env.user.id,
+                    'franchise_id': active_fid,
+                    'read_date': now, 'last_open_date': now,
+                })
         return request.render('wujia_portal_notification.portal_notification_detail', {
             'noti': noti,
             'PC_TYPE_TONE': PC_TYPE_TONE, 'PC_PRIORITY_TAGS': PC_PRIORITY_TAGS,
@@ -254,7 +272,7 @@ class WujiaPortalNotification(http.Controller):
         active_fid = get_active_franchise_id()
         Noti = request.env['wujia.notification'].sudo()
         eff = _effective_domain(franchise_ids)
-        recent = Noti.search(eff, limit=POPUP_LIMIT, order='is_pinned desc, date desc')
+        recent = Noti.search(eff, limit=POPUP_LIMIT, order='is_pinned desc, published_date desc')
         read_ids = self._read_ids(recent.ids, active_fid)
         total_unread = self._unread_count(franchise_ids, active_fid)
         total_eff = Noti.search_count(eff)
@@ -263,11 +281,11 @@ class WujiaPortalNotification(http.Controller):
             'id': n.id,
             'name': n.name,
             'dispatch_number': n.dispatch_number or '',
-            'date': n.date.strftime('%d/%m/%Y %H:%M') if n.date else '',
+            'date': n.published_date.strftime('%d/%m/%Y %H:%M') if n.published_date else '',
             'type_code': n.type_id.code or 'GEN',
             'type_name': n.type_id.name or '',
             'priority': n.priority or 'normal',
-            'priority_label': n.priority_label or '',
+            'priority_label': PORTAL_PRIORITY_LABELS.get(n.priority or 'normal', ''),
             'has_file': bool(n.attachment_ids),
             'is_read': n.id in read_ids,
             'url': '/portal/notification/%s' % n.id,
@@ -281,20 +299,23 @@ class WujiaPortalNotification(http.Controller):
         hiện tại. Không nhận ids/filter. Không set last_open_date (chưa thực sự mở nội dung)."""
         franchise_ids = get_active_franchise_ids_filter()
         active_fid = get_active_franchise_id()
+        if not active_fid:
+            # Spec F §8.11 + §18 — chưa chọn cửa hàng thì không ghi read status.
+            return _err('STORE_NOT_SELECTED')
         Noti = request.env['wujia.notification'].sudo()
         Read = request.env['wujia.notification.read'].sudo()
         eff_ids = Noti.search(_effective_domain(franchise_ids)).ids
         if not eff_ids:
             return {'success': True, 'updated_count': 0, 'unread_count': 0}
-        rdom = [('user_id', '=', request.env.user.id),
-                ('notification_id', 'in', eff_ids)]
-        if active_fid:
-            rdom.append(('franchise_id', '=', active_fid))
-        existing = set(Read.search(rdom).mapped('notification_id').ids)
+        existing = set(Read.search([
+            ('user_id', '=', request.env.user.id),
+            ('notification_id', 'in', eff_ids),
+            ('franchise_id', '=', active_fid),
+        ]).mapped('notification_id').ids)
         now = fields.Datetime.now()
         to_create = [
             {'notification_id': nid, 'user_id': request.env.user.id,
-             'franchise_id': active_fid or False, 'read_date': now}
+             'franchise_id': active_fid, 'read_date': now}
             for nid in eff_ids if nid not in existing
         ]
         if to_create:
@@ -313,19 +334,22 @@ class WujiaPortalNotification(http.Controller):
             return {'error': 'invalid_ids'}
         franchise_ids = get_active_franchise_ids_filter()
         active_fid = get_active_franchise_id()
+        if not active_fid:
+            # Spec F §8.11 + §18 — chưa chọn cửa hàng thì không ghi read status.
+            return _err('STORE_NOT_SELECTED')
         Noti = request.env['wujia.notification'].sudo()
         accessible = Noti.search(
             [('id', 'in', ids)] + _history_domain(franchise_ids)).ids
         Read = request.env['wujia.notification.read'].sudo()
-        rdom = [('user_id', '=', request.env.user.id),
-                ('notification_id', 'in', accessible)]
-        if active_fid:
-            rdom.append(('franchise_id', '=', active_fid))
-        existing = set(Read.search(rdom).mapped('notification_id').ids)
+        existing = set(Read.search([
+            ('user_id', '=', request.env.user.id),
+            ('notification_id', 'in', accessible),
+            ('franchise_id', '=', active_fid),
+        ]).mapped('notification_id').ids)
         now = fields.Datetime.now()
         to_create = [
             {'notification_id': nid, 'user_id': request.env.user.id,
-             'franchise_id': active_fid or False, 'read_date': now, 'last_open_date': now}
+             'franchise_id': active_fid, 'read_date': now, 'last_open_date': now}
             for nid in accessible if nid not in existing
         ]
         if to_create:

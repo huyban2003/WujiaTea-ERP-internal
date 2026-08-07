@@ -8,10 +8,10 @@ except Exception:  # pragma: no cover
     LockNotAvailable = Exception
 
 REG_STATE = [
-    ('submitted', 'Đã gửi'),
-    ('confirmed', 'Đã duyệt'),
-    ('rejected', 'Từ chối'),
-    ('cancelled', 'Đã hủy'),
+    ('submitted', 'Submitted'),
+    ('confirmed', 'Approved'),
+    ('rejected', 'Rejected'),
+    ('cancelled', 'Cancelled'),
 ]
 
 
@@ -28,55 +28,55 @@ class WujiaExamRegistration(models.Model):
     _order = 'request_date desc, id desc'
 
     name = fields.Char(
-        string='Mã phiếu', required=True, copy=False,
+        string='Registration code', required=True, copy=False,
         readonly=True, default=lambda self: _('New'), tracking=True,
     )
     session_id = fields.Many2one(
-        'wujia.exam.session', string='Kỳ thi', required=True,
+        'wujia.exam.session', string='Exam session', required=True,
         ondelete='restrict', index=True, tracking=True,
     )
     course_id = fields.Many2one(
-        'wujia.exam.course', string='Khóa thi',
+        'wujia.exam.course', string='Exam course',
         related='session_id.course_id', store=True, index=True,
     )
     franchise_id = fields.Many2one(
-        'wujia.franchise.management', string='Cửa hàng', required=True,
+        'wujia.franchise.management', string='Store', required=True,
         default=lambda self: self._default_franchise(),
         ondelete='restrict', index=True, tracking=True,
     )
     requester_user_id = fields.Many2one(
-        'res.users', string='Người đăng ký',
+        'res.users', string='Registered by',
         default=lambda self: self.env.user, readonly=True, index=True,
     )
     member_id = fields.Many2one(
-        'wujia.franchise.member', string='Nhân sự phụ trách',
+        'wujia.franchise.member', string='Responsible member',
         domain="[('franchise_id', '=', franchise_id)]",
         ondelete='set null',
-        help='Tùy chọn — thành viên cửa hàng đứng tên phiếu.',
+        help='Optional — the store member the registration is filed under.',
     )
     request_date = fields.Datetime(
-        string='Ngày đăng ký', default=fields.Datetime.now, readonly=True,
+        string='Registration date', default=fields.Datetime.now, readonly=True,
     )
     line_ids = fields.One2many(
         'wujia.exam.registration.line', 'registration_id',
-        string='Danh sách dự thi',
+        string='Candidate list',
     )
     participant_count = fields.Integer(
-        string='Số nhân sự', compute='_compute_participant_count', store=True,
+        string='Candidate count', compute='_compute_participant_count', store=True,
     )
     state = fields.Selection(
-        REG_STATE, string='Trạng thái', default='submitted',
+        REG_STATE, string='Status', default='submitted',
         required=True, index=True, tracking=True,
     )
-    confirmed_by_id = fields.Many2one('res.users', string='Người duyệt', readonly=True)
-    confirmed_date = fields.Datetime(string='Ngày duyệt', readonly=True)
-    rejected_by_id = fields.Many2one('res.users', string='Người từ chối', readonly=True)
-    rejected_date = fields.Datetime(string='Ngày từ chối', readonly=True)
-    cancelled_by_id = fields.Many2one('res.users', string='Người hủy', readonly=True)
-    cancelled_date = fields.Datetime(string='Ngày hủy', readonly=True)
-    reject_reason = fields.Text(string='Lý do từ chối', tracking=True)
-    cancellation_reason = fields.Text(string='Lý do hủy', tracking=True)
-    note = fields.Text(string='Ghi chú')
+    confirmed_by_id = fields.Many2one('res.users', string='Approved by', readonly=True)
+    confirmed_date = fields.Datetime(string='Approval date', readonly=True)
+    rejected_by_id = fields.Many2one('res.users', string='Rejected by', readonly=True)
+    rejected_date = fields.Datetime(string='Rejection date', readonly=True)
+    cancelled_by_id = fields.Many2one('res.users', string='Cancelled by', readonly=True)
+    cancelled_date = fields.Datetime(string='Cancellation date', readonly=True)
+    reject_reason = fields.Text(string='Rejection reason', tracking=True)
+    cancellation_reason = fields.Text(string='Cancellation reason', tracking=True)
+    note = fields.Text(string='Notes')
 
     @api.model
     def _default_franchise(self):

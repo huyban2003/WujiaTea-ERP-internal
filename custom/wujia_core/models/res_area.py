@@ -3,35 +3,35 @@ from odoo import _, api, fields, models
 
 class ResArea(models.Model):
     _name = 'res.area'
-    _description = 'Sales / Operation Area — Khu vực'
+    _description = 'Sales / Operation Area'
     _order = 'sequence, code, name'
     _rec_name = 'name'
 
-    code = fields.Char(string='Mã khu vực', required=True, help='Ví dụ KV-HCM-01.')
-    name = fields.Char(string='Tên khu vực', required=True, translate=True)
+    code = fields.Char(string='Area code', required=True, help='e.g. KV-HCM-01.')
+    name = fields.Char(string='Area name', required=True, translate=True)
     sequence = fields.Integer(default=10)
     manager_user_id = fields.Many2one(
         'res.users',
-        string='Người phụ trách',
-        help='Người chịu trách nhiệm vận hành khu vực.',
+        string='Person in charge',
+        help='Person responsible for running this area.',
     )
     ward_ids = fields.Many2many(
         'res.ward',
         'res_area_ward_rel',
         'area_id',
         'ward_id',
-        string='Phường/Xã',
-        help='Danh sách phường/xã thuộc khu vực — chọn từ danh mục res.ward.',
+        string='Wards',
+        help='Wards belonging to this area — picked from the res.ward catalog.',
     )
     state_ids = fields.Many2many(
         'res.country.state',
-        string='Tỉnh/Thành',
+        string='Province',
         compute='_compute_state_ids',
         store=True,
-        help='Danh sách tỉnh/thành tổng hợp từ phường/xã thuộc khu vực — cập nhật tự động.',
+        help='Provinces aggregated from the wards of this area — updated automatically.',
     )
-    description = fields.Text(string='Mô tả phạm vi khu vực')
-    note = fields.Text(string='Ghi chú nội bộ')
+    description = fields.Text(string='Area scope description')
+    note = fields.Text(string='Internal note')
     active = fields.Boolean(default=True)
 
     _code_uniq = models.Constraint(

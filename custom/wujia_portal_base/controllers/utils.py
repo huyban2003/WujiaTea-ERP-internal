@@ -7,8 +7,9 @@ import base64
 import functools
 import logging
 import time
-from datetime import date, datetime
+from datetime import date, datetime, time as dt_time
 
+import pytz
 from werkzeug.exceptions import Forbidden, TooManyRequests
 from werkzeug.utils import secure_filename
 
@@ -18,6 +19,61 @@ from odoo.http import request
 from odoo.tools import ormcache
 
 _logger = logging.getLogger(__name__)
+
+
+# ---------------------------------------------------------------------------
+# Timezone portal
+# ---------------------------------------------------------------------------
+#
+# Odoo lưu Datetime dạng naive UTC. Controller portal trả thẳng ra template =
+# người dùng thấy sớm 7 giờ (WJ-PH-002), và lọc theo ngày người dùng chọn (giờ
+# địa phương) so với cột UTC = sai biên nửa ngày.
+#
+# 3 hàm dưới là chỗ duy nhất mọi module portal_* nên dùng để đổi qua lại.
+# ---------------------------------------------------------------------------
+
+DEFAULT_PORTAL_TZ = 'Asia/Ho_Chi_Minh'
+
+
+def portal_tz(env=None):
+    """Timezone của user hiện tại. tz rỗng/rác → DEFAULT_PORTAL_TZ, KHÔNG raise.
+
+    Đã có user để tz = 'Asia/Saigon' làm /portal/reports/orders 500 — trang portal
+    không được chết vì một ô cấu hình.
+    """
+    try:
+        name = (env or request.env).user.tz
+    except Exception:                                   # noqa: BLE001 — env hỏng cũng không nổ trang
+        name = None
+    try:
+        return pytz.timezone(name or DEFAULT_PORTAL_TZ)
+    except Exception:                                   # noqa: BLE001 — UnknownTimeZoneError + tz không phải str
+        return pytz.timezone(DEFAULT_PORTAL_TZ)
+
+
+def to_local_dt(dt, tz):
+    """Datetime naive UTC (Odoo) → datetime naive giờ địa phương.
+
+    Trả naive để template giữ nguyên `.strftime(...)` — không phải sửa QWeb.
+    """
+    if not dt:
+        return None
+    if not isinstance(dt, datetime):                    # Date field → không có giờ để đổi
+        return dt
+    return pytz.utc.localize(dt).astimezone(tz).replace(tzinfo=None)
+
+
+def local_day_range_utc(date_from, date_to, tz):
+    """(date, date) giờ địa phương → (datetime, datetime) naive UTC để đưa vào domain.
+
+    Đảo chiều đúng fields.Datetime.context_timestamp. Mỗi vế None nếu không nhập.
+    """
+    def _bound(d, t):
+        if not d:
+            return None
+        return tz.localize(datetime.combine(d, t)).astimezone(pytz.utc).replace(tzinfo=None)
+
+    return _bound(date_from, dt_time.min), _bound(date_to, dt_time.max)
 
 
 # ---------------------------------------------------------------------------
@@ -329,8 +385,9 @@ VI_WEEKDAYS = {0: 'Thứ 2', 1: 'Thứ 3', 2: 'Thứ 4', 3: 'Thứ 5',
                4: 'Thứ 6', 5: 'Thứ 7', 6: 'CN'}
 
 
-def format_batch_departure(dt):
+def format_batch_departure(dt, tz=None):
     """'29/05/2026 (Thứ 5) · 08:00' — format ngày giờ batch theo Figma 2474:183."""
+    dt = to_local_dt(dt, tz or portal_tz())
     if not dt:
         return '—'
     return '%s (%s) · %s' % (
@@ -360,7 +417,9 @@ def get_upcoming_batches(franchise_ids, limit=2):
     if 'planned_departure' not in Batch._fields or not franchise_ids:
         return []
     franchise_ids = list(franchise_ids)
-    start = datetime.combine(date.today(), datetime.min.time())
+    tz = portal_tz()
+    # "Từ đầu hôm nay" là mốc giờ địa phương, planned_departure lưu UTC → phải quy đổi.
+    start, _unused = local_day_range_utc(date.today(), None, tz)
     batches = Batch.search([
         ('planned_departure', '>=', start),
         '|', ('picking_ids.franchise_id', 'in', franchise_ids),
@@ -376,7 +435,7 @@ def get_upcoming_batches(franchise_ids, limit=2):
         orders = own.mapped('sale_id')
         items.append({
             'batch': batch,
-            'when': format_batch_departure(batch.planned_departure),
+            'when': format_batch_departure(batch.planned_departure, tz),
             'order_count': len(orders),
             'total': sum(orders.mapped('amount_total')),
             'badge': MOBILE_BATCH_BADGES.get(
@@ -403,3 +462,179 @@ def require_role(min_role, franchise_id=None):
         raise Forbidden(
             description=_('Yêu cầu role tối thiểu: %s') % min_role
         )
+
+
+# ---------------------------------------------------------------------------
+# Tiền tệ & thuế portal — cụm D (WJ-ORD-024 / WJ-ORD-025 / WJ-PH-005)
+# ---------------------------------------------------------------------------
+#
+# Trước sprint này portal tự nhân tay `unit × qty` để ra tiền, còn ký hiệu tiền
+# thì nối chuỗi ' đ' cứng trong template → giỏ hiện 48.000 đ, gửi xong SO ra
+# 55.200 (thuế 15%), History lại ra 55.200 $. Ba chỗ, ba con số, một gốc.
+#
+# 3 hàm dưới là chỗ DUY NHẤT mọi module portal_* nên dùng để ra tiền hiển thị.
+# Công thức BA chốt 30/07:
+#     discounted_unit = price_unit × (1 − discount/100)
+#     compute_all(discounted_unit, currency, quantity=1, product, partner)
+#     line_total = price_total ; order_total = amount_total
+# KHÔNG tạo field lưu mới — đây là số controller tính tại chỗ.
+#
+# Perf 1500 user: compute_all tính trong RAM, không query. Recordset product /
+# partner do caller browse sẵn (batch) → helper không thêm round-trip DB nào.
+# ---------------------------------------------------------------------------
+
+
+def _money_env(*records):
+    """env dùng cho tính tiền. Ưu tiên env của record đang xử lý; không có thì
+    `request.env`. Nhờ vậy helper chạy được cả ngoài HTTP (test, cron, backend)."""
+    for rec in records:
+        if rec is not None and getattr(rec, 'env', None) is not None:
+            return rec.env
+    return request.env
+
+
+class portal_tax_mapper:  # noqa: N801 — dùng như factory hàm, không phải class API
+    """Giải bộ thuế của sản phẩm ĐÚNG như sale.order.line sẽ làm — mirror `_compute_tax_id`.
+
+    Lọc theo company (đi ngược cây company) rồi map qua fiscal position của partner.
+    Sai một trong hai bước là giỏ lại lệch với SO — đúng cái bug đang sửa.
+
+    Dựng MỘT lần cho cả giỏ/cả trang rồi gọi cho từng dòng: fiscal position resolve
+    1 lần, `map_tax` cache theo bộ thuế gốc (y như dict `cached_taxes` của Odoo).
+    Giỏ 30 dòng vì thế vẫn là 1 query, không phải 30 — quan trọng ở mức 1500 user.
+    """
+
+    def __init__(self, partner=None, company=None):
+        self._env = _money_env(partner, company)
+        self._company = company or self._env.company
+        self._partner = partner or None
+        self._fpos = None
+        self._cache = {}
+
+    def _fiscal_position(self):
+        if self._fpos is None:
+            self._fpos = self._env['account.fiscal.position'].sudo().with_company(
+                self._company
+            )._get_fiscal_position(self._partner) if self._partner else False
+        return self._fpos
+
+    def __call__(self, product):
+        if not product:
+            return self._env['account.tax'].browse()
+        key = tuple(product.taxes_id.ids)
+        if key not in self._cache:
+            taxes = product.taxes_id._filter_taxes_by_company(self._company)
+            fpos = self._fiscal_position()
+            self._cache[key] = fpos.map_tax(taxes) if (taxes and fpos) else taxes
+        return self._cache[key]
+
+
+def portal_product_taxes(product, partner=None, company=None):
+    """Bộ thuế của 1 sản phẩm — dùng cho chỗ chỉ có đúng một dòng.
+
+    Nhiều dòng thì dựng `portal_tax_mapper` một lần rồi gọi lại, đừng gọi hàm này
+    trong vòng lặp (mỗi lần gọi là một lần resolve fiscal position)."""
+    return portal_tax_mapper(partner, company)(product)
+
+
+def _compute_at(taxes, price_unit, discount, currency, qty, product, partner, company):
+    """Tiền của `qty` đơn vị — đi ĐÚNG pipeline mà `sale.order.line._compute_amount` đi.
+
+    KHÔNG dùng `compute_all`: nó làm tròn theo dòng, trong khi công ty đặt
+    `tax_calculation_rounding_method = round_globally` thì Odoo tính bằng
+    `_add_tax_details_in_base_line` + `_round_base_lines_tax_details`. Hai đường lệch
+    nhau 1 xu (giá 3,33 · giảm 33% · qty 3 · 7,5% → 7,20 vs 7,19) — mà lệch 1 xu
+    giữa giỏ và đơn thì đúng bằng lỗi WJ-ORD-024 đang phải sửa.
+    Đi chung pipeline ⇒ khớp ở CẢ hai chế độ làm tròn, không phải chỉnh tay.
+    """
+    if not qty:
+        return {'price_excluded': 0.0, 'price_included': 0.0, 'tax_amount': 0.0}
+    env = _money_env(product, partner, taxes) or company.env
+    AccountTax = env['account.tax']
+    base_line = AccountTax._prepare_base_line_for_taxes_computation(
+        None,
+        product_id=product or env['product.product'],
+        tax_ids=taxes or AccountTax.browse(),
+        price_unit=price_unit or 0.0,
+        quantity=qty,
+        discount=discount or 0.0,
+        partner_id=partner or env['res.partner'],
+        currency_id=currency,
+    )
+    AccountTax._add_tax_details_in_base_line(base_line, company)
+    AccountTax._round_base_lines_tax_details([base_line], company)
+    details = base_line['tax_details']
+    excluded = details['total_excluded_currency']
+    included = details['total_included_currency']
+    return {
+        'price_excluded': excluded,
+        'price_included': included,
+        'tax_amount': included - excluded,
+    }
+
+
+def portal_unit_price_tax_included(product, price_unit, currency, partner=None,
+                                   discount=0.0, company=None, taxes=None):
+    """Đơn giá 1 ĐƠN VỊ sau chiết khấu, đã gồm thuế.
+
+    compute_all cho quantity=1 — KHÔNG lấy tổng dòng rồi chia cho qty: phép chia
+    sai rounding và sai hẳn khi một dòng gánh nhiều thuế (WJ-PH-005).
+
+    Returns: dict(price_excluded, price_included, tax_amount). Không thuế →
+    price_excluded == price_included (regression-safe cho sản phẩm không thuế).
+    """
+    company = company or _money_env(product, partner).company
+    currency = currency or company.currency_id
+    if taxes is None:
+        taxes = portal_product_taxes(product, partner, company)
+    return _compute_at(taxes, price_unit, discount, currency, 1.0,
+                       product, partner, company)
+
+
+def portal_line_price_vals(product, price_unit, qty, currency, partner=None,
+                           discount=0.0, company=None, taxes=None):
+    """5 con số của 1 dòng hàng — dùng chung giỏ (cart.line) lẫn lịch sử (SO line).
+
+    HAI phép tính TÁCH BIỆT, đúng như BA chốt 30/07 — và đây là chỗ dễ sai nhất:
+
+    - đơn giá HIỂN THỊ  = compute_all(1 đơn vị)   → con số in ra cho người đọc
+    - thành tiền DÒNG   = compute_all(qty đơn vị) → đúng bằng `price_total` của Odoo
+
+    KHÔNG được lấy đơn giá đã làm tròn rồi nhân qty: ở giá 3,33 · giảm 33% · qty 3 ·
+    thuế 7,5%, nhân ra 7,20 trong khi đơn thật 7,19 — lệch 1 xu, và lệch 1 xu ở màn
+    tiền là đúng cái lỗi WJ-ORD-024 đang sửa. Cũng KHÔNG được chia ngược lại.
+    """
+    company = company or _money_env(product, partner).company
+    currency = currency or company.currency_id
+    qty = qty or 0.0
+    if taxes is None:
+        taxes = portal_product_taxes(product, partner, company)
+    unit = _compute_at(taxes, price_unit, discount, currency, 1.0,
+                       product, partner, company)
+    line = _compute_at(taxes, price_unit, discount, currency, qty,
+                       product, partner, company)
+    return {
+        'unit_price': currency.round(unit['price_excluded']),
+        'unit_price_tax_included': currency.round(unit['price_included']),
+        'line_total': currency.round(line['price_excluded']),
+        'line_total_tax_included': currency.round(line['price_included']),
+        'tax_amount': currency.round(line['tax_amount']),
+    }
+
+
+def portal_money(amount, symbol=None, decimals=0):
+    """'48.000 đ' — một chỗ duy nhất format tiền cho mọi module portal.
+
+    VND (decimals=0) giữ NGUYÊN format cũ, không đổi một pixel: nhóm nghìn bằng
+    dấu chấm. Currency có phần lẻ thì `decimals` = `currency.decimal_places` —
+    BA chốt "ký hiệu VÀ rounding theo currency của đơn", nên USD 10,99 phải ra
+    '10,99 $' chứ không phải '11 $'.
+    """
+    decimals = int(decimals or 0)
+    text = '{:,.{d}f}'.format(amount or 0, d=decimals)
+    if decimals:
+        # en_US '10,990.99' → vi '10.990,99': đổi tạm dấu để không giẫm lên nhau.
+        text = text.replace(',', '\x00').replace('.', ',').replace('\x00', '.')
+    else:
+        text = text.replace(',', '.')
+    return f'{text} {symbol}' if symbol else text

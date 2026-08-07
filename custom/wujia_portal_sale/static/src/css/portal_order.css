@@ -25,25 +25,18 @@
 }
 .wj-pc-order-side { position: sticky; top: 16px; }
 
-/* ---- Filter row ---- */
-.wj-pc-order-filter { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; margin-bottom: 16px; }
-.wj-pc-order-search { position: relative; flex: 1 1 280px; }
-.wj-pc-order-search i {
-    position: absolute; left: 14px; top: 50%; transform: translateY(-50%);
-    color: var(--wj-pc-subtle); font-size: 16px;
+/* ---- Filter row (WJ-ORD-023) ----
+   Khung + control dùng .wj-pc-filterbar / .wj-pc-filter-* chung ở _pc_components.css;
+   dưới đây chỉ là delta của trang Đặt hàng. Control 42px là số của Figma 4600:2 —
+   bỏ được khi H1/UI-PC-BASE-003 chuẩn hoá --wj-pc-filter-input-h. */
+.wj-pc-order-filter { margin-bottom: 16px; }
+.wj-pc-order-filter .wj-pc-filter-control { height: 42px; }
+/* Shell dashboard.css có `select, textarea { padding: 5px !important }` (tag-level) →
+   trung hoà TRONG scope, không sửa file shared. Cùng giá trị với neutralizer chung
+   của UI-PC-BASE-003 để hai rule không đá nhau. */
+.wj-pc-order-filter select.wj-pc-filter-control {
+    padding: 0 16px !important; cursor: pointer;
 }
-.wj-pc-order-search input {
-    width: 100%; height: 42px; padding: 0 14px 0 38px;
-    border: 1px solid var(--wj-pc-border); border-radius: var(--wj-pc-input-radius);
-    background: var(--wj-pc-card); font-size: 14px; color: var(--wj-pc-text);
-}
-.wj-pc-order-search input::placeholder { color: var(--wj-pc-subtle); }
-.wj-pc-order-cat {
-    height: 42px; padding: 0 14px; min-width: 200px;
-    border: 1px solid var(--wj-pc-border); border-radius: var(--wj-pc-input-radius);
-    background: var(--wj-pc-card); font-size: 14px; color: var(--wj-pc-text); cursor: pointer;
-}
-.wj-pc-order-search input:focus, .wj-pc-order-cat:focus { outline: none; border-color: var(--wj-pc-primary); }
 
 /* ---- Product card + table (cyan headers per Figma) ---- */
 .wj-pc-order-card { padding: 20px 24px; }
@@ -143,7 +136,8 @@
     background: var(--wj-pc-card);
 }
 .wj-pc-cart-step {
-    width: 30px; height: 30px; border: 1px solid var(--wj-pc-border-soft); border-radius: 6px;
+    /* WJ-ORD-011 (BA 25/07): PC tối thiểu 32px → 30 lên 32, stepper cao 36 vẫn chứa đủ */
+    width: 32px; height: 32px; border: 1px solid var(--wj-pc-border-soft); border-radius: 6px;
     background: var(--wj-pc-table-header-bg); color: var(--wj-pc-text); font-size: 16px; line-height: 1;
     cursor: pointer; display: inline-flex; align-items: center; justify-content: center;
     transition: background-color .15s, border-color .15s, color .15s;
@@ -188,16 +182,10 @@
 .wj-pc-cart-submit:disabled { background: var(--wj-pc-subtle, #9AA0A6); cursor: not-allowed; opacity: .85; }
 .wj-pc-cart-submit-hint { margin: 8px 0 0; font-size: 12px; color: var(--wj-pc-danger, #DC2626); text-align: center; }
 
-/* WJ-ORD-012: nút "Thêm vào giỏ" ở trang chi tiết (bootstrap btn-primary) cũng
-   là chữ-trắng-trên-nền → ép token CTA đậm cho đủ tương phản. */
-.btn-add-cart-detail.btn-primary,
-.btn-add-cart-detail.btn-primary:focus {
-    background-color: var(--wujia-cta); border-color: var(--wujia-cta);
-}
-.btn-add-cart-detail.btn-primary:hover,
-.btn-add-cart-detail.btn-primary:active {
-    background-color: var(--wujia-cta-dark); border-color: var(--wujia-cta-dark);
-}
+/* WJ-ORD-012: nút "Thêm vào giỏ" ở trang chi tiết nay dùng class chung
+   .wj-cta-btn (_components.css) — khối override .btn-add-cart-detail.btn-primary
+   cũ đã gỡ: nó không có !important nên luôn thua .btn-primary của _components.css,
+   đó mới là lý do nút vẫn ra #28A9DF chứ không phải "CSS bất lực". */
 
 /* ============================================================================
    Batch B (Sprint 2026-07-22-B) — a11y + responsive fixes.
@@ -218,15 +206,16 @@
 }
 
 /* WJ-ORD-019: focus-visible ring ≥2px cho mọi control tương tác của trang đặt
-   hàng PC (bàn phím Tab thấy rõ ô đang focus). */
+   hàng PC (bàn phím Tab thấy rõ ô đang focus). Màu ring đổi brand #28A9DF →
+   --wujia-cta #0F7CA8: WCAG 2.2 đòi non-text/focus indicator ≥3:1 với nền, brand
+   trên nền trắng chỉ ~2.6:1. */
 .wj-pc-order-add:focus-visible,
 .wj-pc-cart-step:focus-visible,
 .wj-pc-cart-del:focus-visible,
 .wj-pc-cart-submit:focus-visible,
-.wj-pc-order-search input:focus-visible,
-.wj-pc-order-cat:focus-visible,
+.wj-pc-order-filter .wj-pc-filter-control:focus-visible,
 .wj-pc-cart-note:focus-visible {
-    outline: 2px solid var(--wj-pc-primary, #28A9DF);
+    outline: 2px solid var(--wujia-cta);
     outline-offset: 2px;
 }
 
@@ -249,4 +238,105 @@
     background: #FEE2E2; border: 1px solid #FECACA; color: #DC2626;
     border-radius: 12px; padding: 12px 16px; font-size: 13px; font-weight: 600;
     box-shadow: 0 8px 24px rgba(17, 24, 39, .12);
+}
+
+/* ============================================================
+   Empty Cart mobile — Figma 5028:710 (Sprint 47, task STT8).
+   Scoped module-local: portal_order.css nạp SAU _components.css trong bundle
+   nên override đồng-specificity thắng. KHÔNG sửa shared wj-empty-state--rich
+   (dùng chung 8 module); chỉ thêm delta cho khớp px Figma.
+   ============================================================ */
+.wujia-mcart-empty { display: flex; flex-direction: column; }
+/* Bộ đếm "0 sản phẩm" (Acceptance #4) */
+.wujia-mcart-empty-count {
+    display: flex;
+    justify-content: flex-end;
+    margin-bottom: 8px;
+}
+/* Hàng điều hướng "Tiếp tục chọn sản phẩm" (Acceptance #4/#5 → /portal/order) */
+.wujia-mcart-continue {
+    display: inline-flex;
+    align-items: center;
+    align-self: flex-start;
+    gap: 8px;
+    min-height: 40px;
+    margin-bottom: 12px;
+    color: var(--wujia-primary);
+    font-size: 14px;
+    font-weight: 700;
+    text-decoration: none;
+}
+.wujia-mcart-continue i { font-size: 16px; line-height: 1; }
+/* Card empty (Figma card 359×253) — reuse wj-empty-state--rich, chỉ căn spacing */
+.wujia-mcart-empty-card { padding: 24px 18px 16px; gap: 6px; }
+/* Icon giỏ hàng 72×72 (Figma 5028:747-752) — override background shared
+   .wj-empty-state-icon (0,2,0 thắng base 0,1,0). var() không dùng được trong
+   data-URI → hex nằm trong SVG (đúng precedent _components.css:349). */
+.wj-empty-state-icon.wujia-mcart-empty-icon {
+    width: 72px;
+    height: 72px;
+    margin-bottom: 6px;
+    background: url("data:image/svg+xml,%3Csvg width='72' height='72' viewBox='0 0 72 72' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Ccircle cx='36' cy='36' r='36' fill='%23EAF7FD'/%3E%3Cpath d='M19 25h4l3 18h20l3-13H27' stroke='%2328A9DF' stroke-width='2.6' stroke-linecap='round' stroke-linejoin='round'/%3E%3Cpath d='M30 34h19' stroke='%23B8DDEA' stroke-width='2' stroke-linecap='round'/%3E%3Ccircle cx='30' cy='50' r='3.2' fill='%2328A9DF'/%3E%3Ccircle cx='46' cy='50' r='3.2' fill='%2328A9DF'/%3E%3C/svg%3E") center/contain no-repeat;
+}
+/* Title 20px (Figma 5028:755) — scope 3 lớp thắng .wj-empty-state .wj-empty-state-title (0,2,0) */
+.wj-empty-state.wujia-mcart-empty-card .wj-empty-state-title { font-size: 20px; }
+/* CTA "Chọn sản phẩm" cao 42px, chữ 15px (Figma 5028:758/759) vs shared 40/14 */
+.wujia-mcart-empty-cta { height: 42px; font-size: 15px; margin-top: 10px; }
+
+/* ============================================================================
+   Cụm G (2026-08-04) — a11y: vùng chạm + focus ring mobile.
+   Các class .wujia-morder-* / .wujia-mcart-* định nghĩa ở _components.css nhưng
+   CHỈ wujia_portal_sale dùng; override đặt ở đây (nạp sau) để blast radius = 0.
+   ========================================================================== */
+
+/* WJ-ORD-011 — hit-area 44×44 (BA chốt 25/07) mà GIỮ NGUYÊN kích thước thị giác:
+   dùng ::after trong suốt phủ ra ngoài nút, không đổi width/height nên
+   .wujia-morder-row vẫn 58px và .wujia-mcart-row vẫn 76px. */
+.wujia-morder-row-add::after,
+.wujia-morder-mstep::after,
+.wujia-mcart-step::after,
+.wujia-mcart-del::after {
+    content: "";
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    width: 100%;
+    height: 44px;
+    min-width: 44px;
+}
+.wujia-morder-mstep,
+.wujia-mcart-step,
+.wujia-mcart-del { position: relative; }
+
+/* Bẫy: 2 stepper có overflow:hidden để bo góc → sẽ CẮT MẤT ::after (hit-area
+   không nở). Mở overflow và bo góc bằng chính nút đầu/cuối. */
+.wujia-morder-mstepper,
+.wujia-mcart-stepper { overflow: visible; }
+.wujia-morder-mstepper > :first-child { border-radius: 9px 0 0 9px; }
+.wujia-morder-mstepper > :last-child { border-radius: 0 9px 9px 0; }
+.wujia-mcart-stepper > :first-child { border-radius: 7px 0 0 7px; }
+.wujia-mcart-stepper > :last-child { border-radius: 0 7px 7px 0; }
+
+/* − và + cạnh nhau: hit-area rộng hơn nút nên phần nở NGANG bị nút kia nuốt.
+   Chỉ nở ngang ra phía ngoài stepper (nút trái nở sang trái, nút phải sang phải),
+   phần giữa giữ đúng biên nút để mỗi nút vẫn nhận đúng cú chạm của mình. */
+.wujia-morder-mstep-minus::after,
+.wujia-mcart-step-minus::after { left: 0; transform: translate(-6px, -50%); }
+.wujia-morder-mstep-plus::after,
+.wujia-mcart-step-plus::after { left: auto; right: 0; transform: translate(6px, -50%); }
+
+/* WJ-ORD-019 — focus ring ≥2px cho control MOBILE. _components.css:1339 đặt
+   outline:none cho ô search; cùng specificity (0,2,1) nhưng file này nạp sau
+   nên thắng. Màu = --wujia-cta (≥3:1 với nền trắng, khớp bản PC). */
+.wujia-morder-search-input input:focus-visible,
+.wujia-morder-search-btn:focus-visible,
+.wujia-morder-row-add:focus-visible,
+.wujia-morder-mstep:focus-visible,
+.wujia-mcart-step:focus-visible,
+.wujia-mcart-del:focus-visible,
+.wujia-mcart-continue:focus-visible,
+.wujia-morder-row-info:focus-visible {
+    outline: 2px solid var(--wujia-cta);
+    outline-offset: 2px;
 }

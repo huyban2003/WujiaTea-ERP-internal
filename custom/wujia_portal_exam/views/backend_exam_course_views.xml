@@ -5,12 +5,12 @@
         <field name="name">wujia.exam.course.form</field>
         <field name="model">wujia.exam.course</field>
         <field name="arch" type="xml">
-            <form string="Khóa thi">
+            <form string="Exam course">
                 <header>
-                    <button name="action_publish" type="object" string="Phát hành"
+                    <button name="action_publish" type="object" string="Publish"
                             class="btn-primary" invisible="state != 'draft'"
                             groups="wujia_portal_exam.group_exam_manager"/>
-                    <button name="action_reset_to_draft" type="object" string="Về nháp"
+                    <button name="action_reset_to_draft" type="object" string="Reset to draft"
                             invisible="state != 'published'"
                             groups="wujia_portal_exam.group_exam_manager"/>
                     <field name="state" widget="statusbar" statusbar_visible="draft,published"/>
@@ -20,29 +20,29 @@
                             invisible="active"/>
                     <div class="oe_title">
                         <label for="name"/>
-                        <h1><field name="name" placeholder="vd Thi pha chế định kỳ"/></h1>
+                        <h1><field name="name" placeholder="e.g. Periodic barista exam"/></h1>
                     </div>
                     <group>
-                        <group string="Thông tin">
+                        <group string="Information">
                             <field name="code" readonly="1"/>
                             <field name="session_count"/>
                             <field name="active" invisible="1"/>
                         </group>
-                        <group string="Cấu hình đăng ký">
+                        <group string="Registration settings">
                             <field name="max_participants_per_registration"/>
                             <field name="registration_lead_days"/>
                             <field name="registration_horizon_days"/>
                         </group>
                     </group>
-                    <group string="Ca thi áp dụng">
+                    <group string="Applicable time slots">
                         <field name="time_slot_ids" widget="many2many_tags" nolabel="1"
                                options="{'no_create': True}"/>
                     </group>
                     <notebook>
-                        <page string="Mô tả" name="description">
+                        <page string="Description" name="description">
                             <field name="description"/>
                         </page>
-                        <page string="Kỳ thi" name="sessions">
+                        <page string="Exam session" name="sessions">
                             <field name="session_ids" readonly="1">
                                 <list>
                                     <field name="name"/>
@@ -65,7 +65,7 @@
         <field name="name">wujia.exam.course.list</field>
         <field name="model">wujia.exam.course</field>
         <field name="arch" type="xml">
-            <list string="Khóa thi" sample="1" decoration-muted="state == 'draft'">
+            <list string="Exam course" sample="1" decoration-muted="state == 'draft'">
                 <field name="code"/>
                 <field name="name"/>
                 <field name="session_count"/>
@@ -84,14 +84,14 @@
             <search>
                 <field name="name"/>
                 <field name="code"/>
-                <filter string="Đã phát hành" name="filter_published"
+                <filter string="Published" name="filter_published"
                         domain="[('state', '=', 'published')]"/>
-                <filter string="Nháp" name="filter_draft"
+                <filter string="Draft" name="filter_draft"
                         domain="[('state', '=', 'draft')]"/>
-                <filter string="Lưu trữ" name="filter_inactive"
+                <filter string="Archived" name="filter_inactive"
                         domain="[('active', '=', False)]"/>
                 <group name="group_by">
-                    <filter string="Trạng thái" name="group_state"
+                    <filter string="Status" name="group_state"
                             context="{'group_by': 'state'}"/>
                 </group>
             </search>
@@ -99,13 +99,13 @@
     </record>
 
     <record id="action_wujia_exam_course" model="ir.actions.act_window">
-        <field name="name">Khóa thi</field>
+        <field name="name">Exam course</field>
         <field name="res_model">wujia.exam.course</field>
         <field name="view_mode">list,form</field>
         <field name="search_view_id" ref="view_wujia_exam_course_search"/>
         <field name="help" type="html">
-            <p class="o_view_nocontent_smiling_face">Tạo khóa thi đầu tiên.</p>
-            <p>Khóa thi gom nhiều kỳ thi (session) theo ca giờ.</p>
+            <p class="o_view_nocontent_smiling_face">Create the first exam course.</p>
+            <p>An exam course groups several sessions by time slot.</p>
         </field>
     </record>
 

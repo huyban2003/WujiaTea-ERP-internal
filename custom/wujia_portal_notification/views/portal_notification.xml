@@ -8,7 +8,7 @@
             <!-- Mobile — loại→icon/tone-màu; ưu tiên→badge (keys BA: normal/important/urgent) -->
             <t t-set="WJ_TONE" t-value="{'URG': 'red', 'GEN': 'cyan', 'PROMO': 'amber', 'SYS': 'violet', 'OTH': 'green'}"/>
             <t t-set="WJ_ICON" t-value="{'URG': 'icon-alert-triangle', 'GEN': 'icon-bell', 'PROMO': 'icon-gift', 'SYS': 'icon-settings', 'OTH': 'icon-info'}"/>
-            <t t-set="WJ_PTAG" t-value="{'urgent': ('Cần làm', 'wujia-badge-success', 'icon-check-circle'), 'important': ('Quan trọng', 'wujia-badge-warning', 'icon-alert-triangle'), 'normal': ('Lưu ý', 'wujia-badge-info', 'icon-info')}"/>
+            <t t-set="WJ_PTAG" t-value="{'urgent': ('Cần làm', 'wujia-badge-success', 'icon-check-circle'), 'important': ('Quan trọng', 'wujia-badge-warning', 'icon-alert-triangle'), 'normal': ('Thông thường', 'wujia-badge-info', 'icon-info')}"/>
             <!-- Desktop ≥992px — Figma PC_Notification_List (4683:101) -->
             <div class="content-wrapper d-none d-lg-block">
                 <t t-call="wujia_portal_layout.wj_page_header">
@@ -17,21 +17,21 @@
                     <t t-set="ph_title">Thông báo</t>
                 </t>
 
-                <!-- Bộ lọc — Figma 4683:101: 5 field 1 hàng, label nhỏ trên mỗi field -->
+                <!-- Bộ lọc — card 88px, 5 control cùng 1 hàng, nhãn đi vào aria-label/
+                     placeholder thay vì dòng label riêng (UI-PC-BASE-003) -->
                 <form method="get" action="/portal/notification" class="wj-pc-filterbar wj-pc-noti-filterbar">
                     <div class="wj-pc-noti-filter-row">
                         <div class="wj-pc-noti-field wj-pc-noti-field--grow">
-                            <label>Tìm kiếm</label>
                             <span class="wj-pc-filter-search">
                                 <i class="feather icon-search"/>
                                 <input type="text" name="keyword" t-att-value="keyword or ''"
+                                       aria-label="Tìm kiếm"
                                        placeholder="Nhập tiêu đề, mã thông báo..." class="wj-pc-filter-control"/>
                             </span>
                         </div>
                         <div class="wj-pc-noti-field wj-pc-noti-field--type">
-                            <label>Loại thông báo</label>
-                            <select name="type_id" class="wj-pc-filter-control">
-                                <option value="">Tất cả</option>
+                            <select name="type_id" class="wj-pc-filter-control" aria-label="Loại thông báo">
+                                <option value="">Loại thông báo</option>
                                 <t t-foreach="types" t-as="tp">
                                     <option t-att-value="tp.id"
                                             t-att-selected="'selected' if type_id == tp.id else None"
@@ -40,19 +40,18 @@
                             </select>
                         </div>
                         <div class="wj-pc-noti-field wj-pc-noti-field--status">
-                            <label>Trạng thái</label>
-                            <select name="unread" class="wj-pc-filter-control">
-                                <option value="">Tất cả</option>
+                            <select name="unread" class="wj-pc-filter-control" aria-label="Trạng thái">
+                                <option value="">Trạng thái</option>
                                 <option value="1" t-att-selected="'selected' if unread else None">Chưa đọc</option>
                             </select>
                         </div>
                         <div class="wj-pc-noti-field wj-pc-noti-field--date">
-                            <label>Từ ngày</label>
-                            <input type="date" name="date_from" t-att-value="date_from or ''" class="wj-pc-filter-control"/>
+                            <input type="date" name="date_from" t-att-value="date_from or ''"
+                                   aria-label="Từ ngày" class="wj-pc-filter-control"/>
                         </div>
                         <div class="wj-pc-noti-field wj-pc-noti-field--date">
-                            <label>Đến ngày</label>
-                            <input type="date" name="date_to" t-att-value="date_to or ''" class="wj-pc-filter-control"/>
+                            <input type="date" name="date_to" t-att-value="date_to or ''"
+                                   aria-label="Đến ngày" class="wj-pc-filter-control"/>
                         </div>
                         <input type="hidden" name="tab" t-att-value="tab"/>
                         <div class="wj-pc-noti-filter-actions">
@@ -125,7 +124,7 @@
                                             <span t-if="n.summary" class="wj-pc-noti-summary" t-out="n.summary"/>
                                         </div>
                                     </td>
-                                    <td class="wj-pc-td--muted" t-out="n.date and n.date.strftime('%d/%m/%Y') or '—'"/>
+                                    <td class="wj-pc-td--muted" t-out="n.published_date and n.published_date.strftime('%d/%m/%Y') or '—'"/>
                                     <td>
                                         <span t-if="not is_read" class="wj-pc-badge wj-pc-badge--cancel">Chưa đọc</span>
                                         <span t-else="" class="wj-pc-badge wj-pc-badge--pending">Đã đọc</span>
@@ -139,11 +138,33 @@
                         </tbody>
                     </table>
 
-                    <!-- Pagination — pager keys của notification: page/page_count/page_previous/page_next -->
-                    <div t-if="notifications and pager and pager.get('page_count', 0) &gt; 1" class="wj-pc-pagination">
+                    <!-- Pagination — pager keys của notification: page/page_count/page_previous/page_next.
+                         Ẩn cả khối khi ≤10 thông báo (BA cho phép); ngưỡng là option nhỏ nhất,
+                         không phải page_size đang chọn (UI-PC-BASE-005). -->
+                    <div t-if="notifications and pager and total &gt; 10" class="wj-pc-pagination">
                         <span class="wj-pc-pagination__count">
                             Hiển thị <t t-out="(pager['page']['num'] - 1) * page_size + 1"/>–<t t-out="min(pager['page']['num'] * page_size, total)"/> / <t t-out="total"/> thông báo
                         </span>
+                        <!-- Đổi số dòng/trang = submit thật, giữ bộ lọc, quay về trang 1 -->
+                        <form method="get" action="/portal/notification" class="wj-pc-pagination__size-form">
+                            <input type="hidden" name="keyword" t-att-value="keyword or ''"/>
+                            <input type="hidden" name="type_id" t-att-value="type_id or ''"/>
+                            <input type="hidden" name="read_status" t-att-value="read_status or ''"/>
+                            <input type="hidden" name="unread" t-att-value="unread or ''"/>
+                            <input type="hidden" name="date_from" t-att-value="date_from or ''"/>
+                            <input type="hidden" name="date_to" t-att-value="date_to or ''"/>
+                            <input type="hidden" name="priority" t-att-value="priority or ''"/>
+                            <input type="hidden" name="tab" t-att-value="tab or ''"/>
+                            <select name="limit" class="wj-pc-pagination__size"
+                                    aria-label="Số dòng mỗi trang" onchange="this.form.submit()">
+                                <t t-foreach="[10, 20, 50]" t-as="ps">
+                                    <option t-att-value="ps"
+                                            t-att-selected="'selected' if page_size == ps else None">
+                                        <t t-out="ps"/> / trang
+                                    </option>
+                                </t>
+                            </select>
+                        </form>
                         <a t-attf-href="/portal/notification?page=#{pager['page_previous']['num']}&amp;#{pager.get('querystring','')}"
                            t-attf-class="wj-pc-page-btn #{'is-disabled' if pager['page']['num'] &lt;= 1 else ''}">Trước</a>
                         <t t-foreach="range(1, pager['page_count'] + 1)" t-as="pn">
@@ -232,7 +253,7 @@
                             <span class="wujia-mnoti-row-side">
                                 <span t-if="not is_read" class="wujia-mnoti-row-dot"/>
                                 <span class="wujia-mnoti-row-date"
-                                      t-out="n.date and n.date.strftime('%d/%m/%Y · %H:%M') or ''"/>
+                                      t-out="n.published_date and n.published_date.strftime('%d/%m/%Y · %H:%M') or ''"/>
                             </span>
                         </a>
                     </t>
@@ -260,13 +281,14 @@
             <t t-set="WJ_TONE" t-value="{'URG': 'red', 'GEN': 'cyan', 'PROMO': 'amber', 'SYS': 'violet', 'OTH': 'green'}"/>
             <t t-set="WJ_ICON" t-value="{'URG': 'icon-alert-triangle', 'GEN': 'icon-bell', 'PROMO': 'icon-gift', 'SYS': 'icon-settings', 'OTH': 'icon-info'}"/>
             <t t-set="WJ_TDESC" t-value="{'URG': 'Thông báo khẩn — cần xử lý ngay', 'GEN': 'Thông báo dành cho cửa hàng nhượng quyền', 'PROMO': 'Chương trình khuyến mãi &amp; ưu đãi', 'SYS': 'Thông báo hệ thống &amp; vận hành', 'OTH': 'Thông báo khác'}"/>
-            <t t-set="WJ_PTAG" t-value="{'urgent': ('Cần làm', 'wujia-badge-success', 'icon-check-circle'), 'important': ('Quan trọng', 'wujia-badge-warning', 'icon-alert-triangle'), 'normal': ('Lưu ý', 'wujia-badge-info', 'icon-info')}"/>
+            <t t-set="WJ_PTAG" t-value="{'urgent': ('Cần làm', 'wujia-badge-success', 'icon-check-circle'), 'important': ('Quan trọng', 'wujia-badge-warning', 'icon-alert-triangle'), 'normal': ('Thông thường', 'wujia-badge-info', 'icon-info')}"/>
             <!-- Desktop ≥992px — Figma PC_Notification_Form (4683:2) -->
             <div class="content-wrapper d-none d-lg-block">
                 <t t-set="dptag" t-value="PC_PRIORITY_TAGS.get(noti.priority)"/>
                 <t t-call="wujia_portal_layout.wj_page_header">
                     <t t-set="ph_platform" t-value="'pc'"/>
                     <t t-set="ph_variant" t-value="'back'"/>
+                    <t t-set="ph_crumb">Thông báo / Chi tiết thông báo</t>
                     <t t-set="ph_title">Chi tiết thông báo</t>
                     <t t-set="ph_back_url" t-value="'/portal/notification'"/>
                 </t>
@@ -307,7 +329,7 @@
                                 </div>
                                 <div class="wj-pc-kv">
                                     <span class="wj-pc-kv__label">Ngày gửi</span>
-                                    <span class="wj-pc-kv__value" t-out="noti.date and noti.date.strftime('%d/%m/%Y · %H:%M') or '—'"/>
+                                    <span class="wj-pc-kv__value" t-out="noti.published_date and noti.published_date.strftime('%d/%m/%Y · %H:%M') or '—'"/>
                                 </div>
                             </div>
                         </div>
@@ -348,7 +370,7 @@
                 </t>
                 <p class="wj-count-meta">
                     <t t-if="noti.dispatch_number"><t t-out="noti.dispatch_number"/> • </t>
-                    <t t-out="noti.date and noti.date.strftime('%d/%m/%Y %H:%M') or ''"/>
+                    <t t-out="noti.published_date and noti.published_date.strftime('%d/%m/%Y %H:%M') or ''"/>
                 </p>
 
                 <div class="wujia-mnoti-detail-card">

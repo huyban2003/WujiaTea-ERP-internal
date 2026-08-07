@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <menuitem id="menu_wujia_notification_root"
+              name="Notification"
+              parent="wujia_franchise.menu_wujia_root"
+              sequence="45"
+              groups="wujia_portal_notification.group_notification_user"/>
+
+    <menuitem id="menu_wujia_notification"
+              name="Notification"
+              parent="menu_wujia_notification_root"
+              action="action_notification"
+              sequence="10"/>
+
+    <menuitem id="menu_wujia_notification_config"
+              name="Configuration"
+              parent="menu_wujia_notification_root"
+              sequence="90"
+              groups="wujia_portal_notification.group_notification_manager"/>
+
+    <menuitem id="menu_wujia_notification_type"
+              name="Notification types"
+              parent="menu_wujia_notification_config"
+              action="action_notification_type"
+              sequence="10"/>
+
+</odoo>

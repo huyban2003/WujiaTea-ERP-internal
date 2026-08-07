@@ -14,31 +14,31 @@ except ImportError:
 
 
 VEHICLE_STATUS = [
-    ('available', 'Sẵn sàng'),
-    ('in_yard', 'Vào bãi'),
-    ('assigned', 'Đã sắp chuyến'),
-    ('delivering', 'Đang giao'),
-    ('maintenance', 'Bảo trì'),
-    ('inactive', 'Ngưng dùng'),
+    ('available', 'Available'),
+    ('in_yard', 'At the yard'),
+    ('assigned', 'Trip planned'),
+    ('delivering', 'In transit'),
+    ('maintenance', 'Under maintenance'),
+    ('inactive', 'Retired'),
 ]
 
 
 class WujiaFleetManagement(models.Model):
     _name = 'wujia.fleet.management'
-    _description = 'Wujia Fleet Vehicle — Xe'
+    _description = 'Wujia Fleet Vehicle'
     _inherit = ['mail.thread', 'mail.activity.mixin']
     _order = 'provider_id, name'
 
     name = fields.Char(
-        string='Tên xe',
+        string='Vehicle name',
         required=True,
         tracking=True,
-        help='Tên hiển thị, ví dụ "51C-12345 — Tải 3.5T".',
+        help='Display name, e.g. "51C-12345 — 3.5T payload".',
     )
-    code = fields.Char(string='Mã xe', index=True)
+    code = fields.Char(string='Vehicle code', index=True)
     provider_id = fields.Many2one(
         'wujia.fleet.provider',
-        string='Đội xe',
+        string='Carrier',
         required=True,
         ondelete='restrict',
         tracking=True,
@@ -47,7 +47,7 @@ class WujiaFleetManagement(models.Model):
     )
     fleet_type_id = fields.Many2one(
         'wujia.fleet.type',
-        string='Loại xe',
+        string='Vehicle type',
         required=True,
         ondelete='restrict',
         tracking=True,
@@ -71,17 +71,17 @@ class WujiaFleetManagement(models.Model):
         digits='Stock Weight',
     )
 
-    license_plate = fields.Char(string='Biển số', tracking=True, index=True)
-    driver_name = fields.Char(string='Tài xế')
-    driver_phone = fields.Char(string='SĐT tài xế')
+    license_plate = fields.Char(string='License plate', tracking=True, index=True)
+    driver_name = fields.Char(string='Driver')
+    driver_phone = fields.Char(string='Driver phone')
     contact = fields.Char(
-        string='Thông tin liên hệ',
-        help='Thông tin liên hệ nhanh (số xe / tài xế).',
+        string='Contact details',
+        help='Quick contact details (vehicle number / driver).',
     )
 
     vehicle_status = fields.Selection(
         VEHICLE_STATUS,
-        string='Trạng thái xe',
+        string='Vehicle status',
         required=True,
         default='available',
         tracking=True,
@@ -93,23 +93,23 @@ class WujiaFleetManagement(models.Model):
         'wujia_fleet_franchise_rel',
         'fleet_id',
         'franchise_id',
-        string='Cửa hàng thường giao',
-        help='Danh sách cửa hàng thường được giao bởi xe này — gợi ý điều phối.',
+        string='Frequently served stores',
+        help='Stores usually served by this vehicle — used as a dispatch hint.',
     )
 
     qr_code = fields.Binary(
         string='QR Code',
         compute='_compute_qr_code',
-        help='QR code chứa code xe — dùng cho check-in tại bãi.',
+        help='QR code carrying the vehicle code — used for check-in at the yard.',
     )
 
-    description = fields.Text(string='Mô tả')
+    description = fields.Text(string='Description')
     last_update_datetime = fields.Datetime(
-        string='Cập nhật trạng thái lần cuối',
+        string='Last status update',
         readonly=True,
     )
     active = fields.Boolean(default=True)
-    note = fields.Text(string='Ghi chú nội bộ')
+    note = fields.Text(string='Internal note')
 
     _code_uniq = models.Constraint(
         'UNIQUE (code)',

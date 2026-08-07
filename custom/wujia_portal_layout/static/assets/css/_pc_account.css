@@ -190,23 +190,30 @@
 .wj-pc-acct-menu__logout:hover { background: #FEF2F2 !important; color: #EF4444 !important; }
 .wj-pc-acct-menu .dropdown-divider { margin: 0; border-color: var(--wj-pc-border-soft); }
 
-/* Avatar trigger: show name + role subtitle (Figma header) */
-.wujia-navbar .wj-pc-user-nav { display: flex; flex-direction: column; align-items: flex-end; line-height: 1.15; margin-right: 10px; max-width: 118px; overflow: hidden; }
+/* Avatar trigger: show name + role subtitle (Figma header).
+   Cụm B: avatar nay đứng TRƯỚC nên khối chữ căn TRÁI; max-width 112 =
+   204 pill − padding 10/12 − avatar 36 − 2 gap 10 − chevron 16. */
+.wujia-navbar .wj-pc-user-nav { display: flex; flex-direction: column; align-items: flex-start; line-height: 1.15; max-width: 112px; overflow: hidden; }
 .wujia-navbar .wj-pc-user-nav__name { font-size: 13px; font-weight: 700; color: #fff; max-width: 100%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .wujia-navbar .wj-pc-user-nav__role { font-size: 10px; font-weight: 700; color: rgba(255,255,255,.85); }
-/* UI-03 (Sprint 34): account pill 202×52 (Figma x=1694,y=10). Fixed size + centered
-   avatar/name/chevron; suppress Bootstrap auto-caret in favour of our chevron.
-   UI-03 retest 22/07/2026: BA đo x=1718, expected x=1694 → shift trái 24px.
-   Account pill là item RIGHT-MOST; thêm margin-right 24px đẩy pill vào 24px cách
-   mép phải (1920 - 24 - 202 = 1694). */
+/* UI-03 (Sprint 34 → cụm B): account glass pill 204×52 (source v1.5 x=1696,y=10).
+   Cụm B bỏ 2 hack toạ độ cũ — margin-right:24 và margin-top:5 — vì vị trí nay do
+   `.wj-pc-navactions` quyết định (padding-right 20 trên .navbar-container + margin
+   giữa các item + align-items:center). Giữ 2 hack đó sẽ cộng dồn thành lệch 24px. */
 .wujia-navbar .dropdown-user > .dropdown-user-link {
-    display: flex; align-items: center; gap: 6px;
-    width: 202px; height: 52px; padding: 0 12px;
-    margin-right: 24px;
-    /* UI-03 retest (Sprint 39): pill đo y=5 trong <li> cao 62 (không phải 72) →
-       align-self vô hiệu. Đẩy xuống 5px cho pill 52 nằm giữa navbar 72 → y=10. */
-    margin-top: 5px;
+    display: flex; align-items: center; gap: 10px;
+    width: 204px; height: 52px; padding: 0 12px 0 10px;
+    border-radius: 18px;
+    background: var(--wujia-navbar-pill-bg);
     box-sizing: border-box;
+}
+.wujia-navbar .dropdown-user > .dropdown-user-link:hover,
+.wujia-navbar .dropdown-user > .dropdown-user-link:focus {
+    background: var(--wujia-navbar-pill-bg-hover);
+}
+/* border 3px trắng cũ làm đường kính thị giác 46 ≠ 36 của source → bỏ hẳn. */
+.wujia-navbar .dropdown-user > .dropdown-user-link img.round {
+    width: 36px; height: 36px; border: 0; flex: 0 0 auto;
 }
 .wujia-navbar .dropdown-user > .dropdown-user-link.dropdown-toggle::after { display: none; }
 .wujia-navbar .wj-pc-user-nav__chev { font-size: 16px; color: rgba(255,255,255,.85); flex: 0 0 auto; }
@@ -231,3 +238,47 @@
     background: var(--wujia-navbar-pill-bg-hover);
 }
 .wujia-navbar .dropdown-language > .nav-link .selected-language { font-size: 13px; font-weight: 500; }
+
+/* ---------- Cụm B (UI-03 · UI-PC-BASE-011 · UI-02 hình học) ----------
+   Cụm hành động bên phải header PC theo source v1.5. Khối này phải nằm CUỐI
+   `_pc_account.css` và file này nạp SAU `_components.css` trong assets.xml —
+   cùng số class thì thứ tự source quyết định (L4), nên đừng chuyển sang
+   `_wujia_theme.css` (nạp trước, sẽ thua).
+
+   Toạ độ source v1.5 @1920: lang 1450 · cart 1590 · bell 1642 · account 1696,
+   mép phải 1900. Suy ngược từ phải sang: padding-right 20 → account x=1696;
+   khoảng cách account↔bell 14, bell↔cart 12, cart↔lang 22. Chiều dọc để
+   `align-items:center` lo — <li> cao 62.3 nên pill 52 tự ra y=10, pill 40 ra y=16.
+   Tất cả trong @media ≥1200px: <992px dùng `mobile_header.xml`, không đụng tới. */
+@media (min-width: 1200px) {
+    .wujia-navbar .navbar-container { padding-right: 20px; }
+    /* Khoảng cách bằng `gap`, KHÔNG bằng `li + li`: selector adjacent-sibling ở đây
+       không ăn (đã đo — cùng rule mà cart nhận, bell thì computed ra 0), còn `gap`
+       thì ăn chắc. 2 rule dưới chỉ CỘNG THÊM vào gap 12 để ra 22 / 14 của source. */
+    .wujia-navbar .wj-pc-navactions { display: flex; align-items: center; gap: 12px; }
+    .wujia-navbar .wj-pc-navactions > li.dropdown-language + li { margin-left: 10px; }
+    .wujia-navbar .wj-pc-navactions > li.dropdown-user { margin-left: 2px; }
+
+    /* Cart + bell: circle glass 40×40. Phải khớp specificity của Vuexy
+       `.header-navbar .navbar-container ul.nav li > a.nav-link` (0,4,1 — bootstrap-extended.css:1800)
+       vì nó set padding 1.6rem .5rem 1.35rem 1rem, đủ để đội chiều cao lên 41.3.
+       Selector dưới = (0,5,2). Override tại đây thay vì sửa `.wujia-header-icon-btn`
+       ở _components.css (8 module dùng chung). `position:relative` của rule shared
+       giữ nguyên → badge vẫn neo đúng góc. */
+    .wujia-navbar .navbar-container ul.nav li.wujia-header-icon-item > a.wujia-header-icon-btn {
+        width: 40px; height: 40px; padding: 0;
+        border-radius: 20px;
+        background: var(--wujia-navbar-pill-bg);
+        box-sizing: border-box;
+    }
+    .wujia-navbar .navbar-container ul.nav li.wujia-header-icon-item > a.wujia-header-icon-btn:hover,
+    .wujia-navbar .navbar-container ul.nav li.wujia-header-icon-item > a.wujia-header-icon-btn:focus {
+        background: var(--wujia-navbar-pill-bg-hover);
+    }
+
+    /* Cùng lý do: `... li a.dropdown-user-link {padding:.7rem 1rem}` (0,4,1) đè padding
+       của pill → avatar lệch sang phải 4px. Ép lại ở (0,5,2). */
+    .wujia-navbar .navbar-container ul.nav li.dropdown-user > a.dropdown-user-link {
+        padding: 0 12px 0 10px;
+    }
+}

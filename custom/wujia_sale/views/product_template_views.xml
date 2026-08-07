@@ -11,13 +11,13 @@
             <xpath expr="//notebook" position="inside">
                 <page string="Wujia Portal" name="wujia_portal_settings">
                     <group>
-                        <group string="Hiển thị portal">
+                        <group string="Portal display">
                             <field name="is_public_portal"/>
                             <field name="public_categ_id"/>
                             <field name="name_chinese"/>
                             <field name="description_ecommerce"/>
                         </group>
-                        <group string="Giới hạn số lượng/đơn">
+                        <group string="Quantity limits per order">
                             <field name="min_qty"/>
                             <field name="max_qty"/>
                         </group>
@@ -46,7 +46,7 @@
         <field name="arch" type="xml">
             <xpath expr="//search" position="inside">
                 <separator/>
-                <filter string="Đang hiện trên Portal" name="filter_public_portal"
+                <filter string="Published on portal" name="filter_public_portal"
                         domain="[('is_public_portal', '=', True)]"/>
             </xpath>
         </field>
@@ -66,13 +66,13 @@
     </record>
 
     <record id="action_wujia_product_category" model="ir.actions.act_window">
-        <field name="name">Danh mục portal</field>
+        <field name="name">Portal category</field>
         <field name="res_model">wujia.product.category</field>
         <field name="view_mode">list</field>
     </record>
 
     <menuitem id="menu_wujia_product_category"
-              name="Danh mục portal"
+              name="Portal category"
               parent="sale.product_menu_catalog"
               action="action_wujia_product_category"
               sequence="50"/>

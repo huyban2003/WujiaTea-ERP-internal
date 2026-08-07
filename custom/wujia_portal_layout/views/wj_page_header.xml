@@ -3,13 +3,20 @@
     <!-- WJ_PageHeader — component chuẩn hoá header portal (spec WJ_PageHeader v1.0).
          3 variant: title / back / create. Gọi trong từng block nền tảng bằng t-call,
          truyền props qua t-set. ph_platform='m' (mobile) | 'pc'. Visibility (d-lg-none /
-         d-none d-lg-flex) bake sẵn — an toàn đặt trong block đã responsive. -->
+         d-none d-lg-flex) bake sẵn — an toàn đặt trong block đã responsive.
+         ph_crumb (tuỳ chọn, CHỈ pc): breadcrumb "Cha / Con" trên tiêu đề — nav riêng ngoài
+         <header> để giữ nguyên flex-row bên trong (UI-PC-BASE-007). -->
     <template id="wj_page_header" name="Wujia — Page Header component">
         <t t-set="_ph_vis" t-value="'d-flex d-lg-none' if ph_platform == 'm' else 'd-none d-lg-flex'"/>
+        <nav t-if="ph_crumb and ph_platform == 'pc'" class="wj-page-header__crumb d-none d-lg-block"
+             aria-label="Breadcrumb" t-out="ph_crumb"/>
         <header t-attf-class="wj-page-header wj-page-header--#{ph_platform} wj-page-header--#{ph_variant or 'title'} #{_ph_vis}">
             <a t-if="ph_variant == 'back'" t-att-href="ph_back_url or '#'"
                class="wj-page-header__back" aria-label="Quay lại">
                 <i class="feather icon-chevron-left"/>
+                <!-- Nhãn chỉ hiện ở PC (nút chữ 122×40, UI-PC-BASE-006); mobile ẩn bằng CSS
+                     để giữ nguyên nút icon 40×40 + vùng chạm 44 (RESP-MOB-SHELL-003). -->
+                <span class="wj-page-header__back-label">Quay lại</span>
             </a>
             <h1 class="wj-page-header__title" t-att-title="ph_title" t-out="ph_title"/>
             <div t-if="ph_variant == 'create' and ph_can_create"

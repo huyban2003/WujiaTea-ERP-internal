@@ -8,21 +8,21 @@
         <field name="arch" type="xml">
             <xpath expr="//header" position="inside">
                 <button name="action_delivery_assign" type="object"
-                        string="Đã gán xe" class="btn-primary"
+                        string="Assign vehicle" class="btn-primary"
                         invisible="delivery_batch_status != 'draft' or not vehicle_id"/>
                 <button name="action_delivery_loading" type="object"
-                        string="Bắt đầu chất hàng"
+                        string="Start loading"
                         invisible="delivery_batch_status not in ('assigned',)"/>
                 <button name="action_delivery_start" type="object"
-                        string="Xuất phát" class="btn-warning"
+                        string="Departure" class="btn-warning"
                         invisible="delivery_batch_status not in ('loading',)"/>
                 <button name="action_delivery_done" type="object"
-                        string="Hoàn tất giao" class="btn-success"
+                        string="Mark as delivered" class="btn-success"
                         invisible="delivery_batch_status not in ('delivering',)"/>
                 <button name="action_delivery_cancel" type="object"
-                        string="Hủy chuyến"
+                        string="Cancel trip"
                         invisible="delivery_batch_status in ('done', 'cancelled')"
-                        confirm="Hủy chuyến giao hàng này?"/>
+                        confirm="Cancel this delivery trip?"/>
                 <field name="delivery_batch_status" widget="statusbar"
                        statusbar_visible="draft,assigned,loading,delivering,done"/>
             </xpath>
@@ -31,16 +31,16 @@
                         invisible="not is_over_capacity"/>
             </xpath>
             <xpath expr="//notebook" position="inside">
-                <page string="Điều phối Wujia" name="wujia_delivery">
+                <page string="Wujia dispatch" name="wujia_delivery">
                     <group>
-                        <group string="Xe &amp; Đội xe">
+                        <group string="Vehicle &amp; carrier">
                             <field name="vehicle_id" options="{'no_create_edit': True}"/>
                             <field name="provider_id" readonly="1"/>
                             <field name="fleet_type_id" readonly="1"/>
                             <field name="vehicle_capacity_ton" readonly="1"/>
                             <field name="vehicle_capacity_kg" readonly="1"/>
                         </group>
-                        <group string="Tải trọng">
+                        <group string="Payload">
                             <field name="planned_weight" readonly="1"/>
                             <field name="done_weight" readonly="1"/>
                             <field name="capacity_usage_percent" widget="percentage" readonly="1"/>
@@ -50,17 +50,17 @@
                         </group>
                     </group>
                     <group>
-                        <group string="Khu vực &amp; Cửa hàng">
+                        <group string="Area &amp; store">
                             <field name="franchise_count" readonly="1"/>
                             <field name="area_ids" widget="many2many_tags" readonly="1"/>
                         </group>
-                        <group string="Lịch trình">
+                        <group string="Schedule">
                             <field name="planned_departure"/>
                             <field name="actual_departure" readonly="1"/>
                         </group>
                     </group>
                     <group>
-                        <group string="Bảng giá &amp; Chi phí">
+                        <group string="Pricelist &amp; cost">
                             <field name="pricelist_id"
                                    options="{'no_create_edit': True}"
                                    domain="[('state', '=', 'active'), ('fleet_type_id', '=', fleet_type_id)]"/>
@@ -70,7 +70,7 @@
                             <field name="currency_id" invisible="1"/>
                         </group>
                     </group>
-                    <field name="delivery_note" placeholder="Ghi chú điều phối cho chuyến..."/>
+                    <field name="delivery_note" placeholder="Dispatch note for this trip..."/>
                 </page>
             </xpath>
         </field>
@@ -111,19 +111,19 @@
             </xpath>
             <xpath expr="//filter[@name='draft']" position="after">
                 <separator/>
-                <filter string="Có xe" name="filter_has_vehicle"
+                <filter string="Has a vehicle" name="filter_has_vehicle"
                         domain="[('vehicle_id', '!=', False)]"/>
-                <filter string="Vượt tải" name="filter_over_capacity"
+                <filter string="Overloaded" name="filter_over_capacity"
                         domain="[('is_over_capacity', '=', True)]"/>
-                <filter string="Đang giao" name="filter_delivering"
+                <filter string="In transit" name="filter_delivering"
                         domain="[('delivery_batch_status', '=', 'delivering')]"/>
             </xpath>
             <xpath expr="//group" position="inside">
-                <filter string="Xe" name="group_vehicle"
+                <filter string="Vehicle" name="group_vehicle"
                         context="{'group_by': 'vehicle_id'}"/>
-                <filter string="Đội xe" name="group_provider"
+                <filter string="Carrier" name="group_provider"
                         context="{'group_by': 'provider_id'}"/>
-                <filter string="Trạng thái điều phối" name="group_delivery_status"
+                <filter string="Dispatch status" name="group_delivery_status"
                         context="{'group_by': 'delivery_batch_status'}"/>
             </xpath>
         </field>

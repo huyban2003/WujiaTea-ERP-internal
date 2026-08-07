@@ -3,12 +3,12 @@ from odoo import fields, models
 
 class WujiaFleetPricelistLine(models.Model):
     _name = 'wujia.fleet.pricelist.line'
-    _description = 'Wujia Fleet Pricelist Line — Dòng giá theo khu vực'
+    _description = 'Wujia Fleet Pricelist Line'
     _order = 'pricelist_id, sequence, id'
 
     pricelist_id = fields.Many2one(
         'wujia.fleet.pricelist',
-        string='Bảng giá',
+        string='Pricelist',
         required=True,
         ondelete='cascade',
         index=True,
@@ -20,19 +20,18 @@ class WujiaFleetPricelistLine(models.Model):
         'wujia_fleet_pricelist_line_area_rel',
         'line_id',
         'area_id',
-        string='Khu vực áp dụng',
+        string='Applicable areas',
         required=True,
-        help='Một dòng giá có thể áp dụng cho nhiều khu vực — match khi area '
-             'của picking nằm trong danh sách này.',
+        help="A price line can cover several areas — it matches when the area of the picking is in this list.",
     )
     price = fields.Monetary(
-        string='Giá vận chuyển',
+        string='Shipping price',
         required=True,
         currency_field='currency_id',
         default=0.0,
     )
     drop_fee = fields.Monetary(
-        string='Phí drop',
+        string='Drop fee',
         currency_field='currency_id',
         default=0.0,
     )
@@ -42,4 +41,4 @@ class WujiaFleetPricelistLine(models.Model):
         readonly=True,
     )
     active = fields.Boolean(default=True)
-    note = fields.Char(string='Ghi chú')
+    note = fields.Char(string='Notes')

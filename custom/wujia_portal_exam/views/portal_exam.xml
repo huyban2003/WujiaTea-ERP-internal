@@ -23,7 +23,7 @@
                 <div class="content-body">
                     <!-- Bộ lọc nhanh — UI-only, chưa wire query (Figma y178 h88) -->
                     <form method="get" action="/portal/exam" class="wj-pc-filterbar wj-exam-pc-filterbar">
-                        <h2 class="wj-pc-filterbar__title">Bộ lọc nhanh</h2>
+                        <!-- Card 88px: control 1 hàng, không dòng tiêu đề (UI-PC-BASE-003) -->
                         <div class="wj-pc-filterbar__row">
                             <select name="state" class="wj-pc-filter-control wj-exam-pc-fc--sel">
                                 <option value="">Trạng thái</option>
@@ -128,7 +128,7 @@
                     <t t-set="ph_variant" t-value="'title'"/>
                     <t t-set="ph_title">Đăng ký thi</t>
                 </t>
-                <p class="wj-count-meta"><t t-out="len(m_exam_items)"/> đăng ký trong cửa hàng hiện tại</p>
+                <p class="wj-count-meta"><t t-out="pc_pager['total']"/> đăng ký trong cửa hàng hiện tại</p>
 
                 <!-- Filter canonical 04-DateRangeOnly (Figma 4785:862) — demo UI-only (Phase 2 wire) -->
                 <div class="wj-filter-card">
@@ -183,174 +183,6 @@
         </t>
     </template>
 
-    <!-- ============== Đăng ký của tôi ============== -->
-    <template id="portal_exam_my" name="Wujia Portal — My Exam Registrations">
-        <t t-call="wujia_portal_layout.app_layout">
-            <t t-set="title">Đăng ký của tôi</t>
-            <div class="content-wrapper">
-                <t t-call="wujia_portal_layout.wj_page_header">
-                    <t t-set="ph_platform" t-value="'pc'"/>
-                    <t t-set="ph_variant" t-value="'title'"/>
-                    <t t-set="ph_title">Đăng ký của tôi</t>
-                </t>
-                <t t-call="wujia_portal_layout.wj_page_header">
-                    <t t-set="ph_platform" t-value="'m'"/>
-                    <t t-set="ph_variant" t-value="'title'"/>
-                    <t t-set="ph_title">Đăng ký của tôi</t>
-                </t>
-                <div class="content-body">
-                    <div t-if="not my_regs" class="alert alert-info">
-                        Bạn chưa đăng ký kỳ thi nào. <a href="/portal/exam">Xem lịch thi sắp tới</a>.
-                    </div>
-                    <div t-else="" class="wujia-content-card">
-                        <div class="wujia-content-card-header">
-                            <div class="wujia-content-card-header-icon">
-                                <i class="feather icon-user-check"/>
-                            </div>
-                            <h4 class="wujia-content-card-header-title">Đăng ký dự thi</h4>
-                            <span class="wujia-content-card-header-link">
-                                <t t-out="len(my_regs)"/> đăng ký
-                            </span>
-                        </div>
-                        <div class="table-responsive">
-                            <table class="wujia-content-card-table">
-                                <thead><tr>
-                                    <th>Mã</th><th>Kỳ thi</th><th>Ngày thi</th><th>Cửa hàng</th><th class="text-center">Trạng thái</th>
-                                </tr></thead>
-                                <tbody>
-                                    <tr t-foreach="my_regs" t-as="r">
-                                        <td t-out="r.name"/>
-                                        <td t-out="r.schedule_id.name"/>
-                                        <td t-out="r.schedule_id.exam_date and r.schedule_id.exam_date.strftime('%d/%m/%Y %H:%M') or ''"/>
-                                        <td t-out="r.franchise_id.name or '—'"/>
-                                        <td class="text-center">
-                                            <t t-set="lbl" t-value="reg_labels.get(r.state, (r.state, 'wujia-badge-muted'))"/>
-                                            <span t-attf-class="wujia-badge #{lbl[1]}" t-out="lbl[0]"/>
-                                        </td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </t>
-    </template>
-
-    <!-- ============== Chi tiết kỳ thi ============== -->
-    <template id="portal_exam_schedule_detail" name="Wujia Portal — Exam Schedule Detail">
-        <t t-call="wujia_portal_layout.app_layout">
-            <t t-set="title">Chi tiết kỳ thi</t>
-            <div class="content-wrapper">
-                <t t-call="wujia_portal_layout.wj_page_header">
-                    <t t-set="ph_platform" t-value="'pc'"/>
-                    <t t-set="ph_variant" t-value="'back'"/>
-                    <t t-set="ph_title">Chi tiết kỳ thi</t>
-                    <t t-set="ph_back_url" t-value="'/portal/exam'"/>
-                </t>
-                <t t-call="wujia_portal_layout.wj_page_header">
-                    <t t-set="ph_platform" t-value="'m'"/>
-                    <t t-set="ph_variant" t-value="'back'"/>
-                    <t t-set="ph_title">Chi tiết kỳ thi</t>
-                    <t t-set="ph_back_url" t-value="'/portal/exam'"/>
-                </t>
-                <div class="content-body">
-                    <div class="card">
-                        <div class="card-body">
-                            <h3 t-out="schedule.name"/>
-                            <t t-set="lbl" t-value="schedule_labels.get(schedule.state, (schedule.state, 'wujia-badge-muted'))"/>
-                            <span t-attf-class="wujia-badge #{lbl[1]} mb-2" t-out="lbl[0]"/>
-                            <p class="text-muted">
-                                <i class="fa fa-clock me-1"/>
-                                <strong t-out="schedule.exam_date and schedule.exam_date.strftime('%d/%m/%Y %H:%M') or '—'"/><br/>
-                                <i class="fa fa-map-marker-alt me-1"/>
-                                <span t-out="schedule.location or 'Online'"/>
-                            </p>
-                            <p t-if="schedule.description" t-out="schedule.description"/>
-                            <p>
-                                Đã đăng ký: <strong t-out="schedule.registration_count"/>
-                                <t t-if="schedule.max_participants">/ <t t-out="schedule.max_participants"/></t>
-                            </p>
-
-                            <div class="mt-3">
-                                <t t-if="my_reg">
-                                    <button type="button"
-                                            class="btn btn-outline-danger btn-exam-cancel"
-                                            t-att-data-reg-id="my_reg.id">
-                                        <i class="fa fa-times me-1"/>Huỷ đăng ký
-                                    </button>
-                                </t>
-                                <t t-elif="schedule.state == 'open'">
-                                    <button type="button"
-                                            class="btn btn-primary btn-register-exam"
-                                            t-att-data-schedule-id="schedule.id">
-                                        <i class="fa fa-user-plus me-1"/>Đăng ký
-                                    </button>
-                                </t>
-                                <t t-else="">
-                                    <p class="text-muted">Lịch thi không còn nhận đăng ký.</p>
-                                </t>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </t>
-    </template>
-
-    <!-- ============== Kết quả ============== -->
-    <template id="portal_exam_result" name="Wujia Portal — Exam Results">
-        <t t-call="wujia_portal_layout.app_layout">
-            <t t-set="title">Kết quả thi</t>
-            <div class="content-wrapper">
-                <t t-call="wujia_portal_layout.wj_page_header">
-                    <t t-set="ph_platform" t-value="'pc'"/>
-                    <t t-set="ph_variant" t-value="'title'"/>
-                    <t t-set="ph_title">Kết quả thi</t>
-                </t>
-                <t t-call="wujia_portal_layout.wj_page_header">
-                    <t t-set="ph_platform" t-value="'m'"/>
-                    <t t-set="ph_variant" t-value="'title'"/>
-                    <t t-set="ph_title">Kết quả thi</t>
-                </t>
-                <div class="content-body">
-                    <div t-if="not results" class="wujia-empty-state">
-                        <i class="feather icon-award"/>
-                        <p>Bạn chưa có kết quả thi nào.</p>
-                    </div>
-                    <div t-else="" class="row g-2">
-                        <t t-foreach="results" t-as="res">
-                            <div class="col-md-6 col-lg-4 col-12">
-                                <div class="card exam-result-card h-100">
-                                    <div class="card-body text-center">
-                                        <h5 class="card-title" t-out="res.schedule_id.name"/>
-                                        <p class="text-muted small" t-out="res.schedule_id.exam_date and res.schedule_id.exam_date.strftime('%d/%m/%Y') or ''"/>
-                                        <div class="exam-score-wrap mb-2">
-                                            <span class="exam-score" t-out="'{:.1f}'.format(res.score or 0)"/>
-                                            <span class="exam-score-max">/10</span>
-                                        </div>
-                                        <span t-if="res.passed" class="wujia-badge wujia-badge-success">
-                                            <i class="fa fa-check-circle me-1"/>Đạt
-                                        </span>
-                                        <span t-else="" class="wujia-badge wujia-badge-danger">
-                                            <i class="fa fa-times-circle me-1"/>Chưa đạt
-                                        </span>
-                                        <p t-if="res.note" class="small text-muted mt-2 mb-0" t-out="res.note"/>
-                                        <a t-if="res.certificate_url"
-                                           t-att-href="res.certificate_url" target="_blank"
-                                           class="btn btn-sm btn-outline-primary mt-2">
-                                            <i class="fa fa-certificate me-1"/>Tải chứng nhận
-                                        </a>
-                                    </div>
-                                </div>
-                            </div>
-                        </t>
-                    </div>
-                </div>
-            </div>
-        </t>
-    </template>
-
     <!-- ============== Đăng ký mới — wizard s1→s5 (mobile, UI-only) ============== -->
     <template id="portal_exam_register" name="Wujia Portal — Exam Register (mobile wizard)">
         <t t-call="wujia_portal_layout.app_layout">
@@ -387,9 +219,12 @@
                                 <select id="wj_exam_course" name="course_id"
                                         class="wj-pc-control wj-exam-pc-control wj-exam-pc-control--sel"
                                         data-wj-exam-course="1">
-                                    <option value="" t-out="pc_summary['course_name']"/>
-                                    <option value="1">Thi pha chế định kỳ</option>
-                                    <option value="2">Đào tạo quản lý</option>
+                                    <option t-if="not pc_courses" value=""
+                                            t-out="pc_summary['course_name']"/>
+                                    <option t-foreach="pc_courses" t-as="c"
+                                            t-att-value="c['course_id']"
+                                            t-att-selected="c_index == 0 and 'selected' or None"
+                                            t-out="c['title']"/>
                                 </select>
                             </div>
                             <p class="wj-exam-pc-help">Mỗi phiếu được đăng ký tối đa 4 người.</p>
@@ -399,10 +234,13 @@
                             <p class="wj-exam-pc-secsub">Chọn một ngày có lịch, sau đó chọn khung giờ còn chỗ.</p>
 
                             <div class="wj-exam-pc-schedule">
-                                <!-- Lịch tháng -->
-                                <div class="wj-exam-pc-cal" data-wj-exam-cal="1">
+                                <!-- Lịch tháng — dữ liệu THẬT (biến `calendar`); JS đổi
+                                     tháng/khóa qua /portal/exam/calendar. -->
+                                <div class="wj-exam-pc-cal" data-wj-exam-cal="1"
+                                     t-att-data-exam-year="calendar['year']"
+                                     t-att-data-exam-month="calendar['month']">
                                     <div class="wj-exam-pc-cal__head">
-                                        <span class="wj-exam-pc-cal__label" t-out="pc_calendar['label']"/>
+                                        <span class="wj-exam-pc-cal__label" t-out="calendar['label']"/>
                                         <span class="wj-exam-pc-cal__nav">
                                             <button type="button" class="wj-exam-pc-navbtn" data-wj-exam-month="prev">‹</button>
                                             <button type="button" class="wj-exam-pc-navbtn" data-wj-exam-month="next">›</button>
@@ -421,18 +259,25 @@
                                     </div>
                                     <div class="wj-exam-pc-cal__body" data-wj-exam-cal-body="1">
                                         <div class="wj-exam-pc-cal__grid wj-exam-pc-cal__grid--wd">
-                                            <span t-foreach="pc_calendar['weekdays']" t-as="wd"
-                                                  class="wj-exam-pc-wd" t-out="wd"/>
+                                            <span class="wj-exam-pc-wd">T2</span>
+                                            <span class="wj-exam-pc-wd">T3</span>
+                                            <span class="wj-exam-pc-wd">T4</span>
+                                            <span class="wj-exam-pc-wd">T5</span>
+                                            <span class="wj-exam-pc-wd">T6</span>
+                                            <span class="wj-exam-pc-wd">T7</span>
+                                            <span class="wj-exam-pc-wd">CN</span>
                                         </div>
                                         <div class="wj-exam-pc-cal__grid">
-                                            <t t-foreach="pc_calendar['weeks']" t-as="week">
+                                            <t t-foreach="calendar['weeks']" t-as="week">
                                                 <t t-foreach="week" t-as="d">
+                                                    <t t-set="daycls" t-value="{'available': 'available', 'full': 'blocked', 'none': 'none', 'out': 'out'}.get(d['state'], 'none')"/>
                                                     <button type="button"
-                                                            t-attf-class="wj-exam-pc-day wj-exam-pc-day--#{d['state']} #{d['selected'] and 'is-selected' or ''}"
+                                                            t-attf-class="wj-exam-pc-day wj-exam-pc-day--#{daycls}"
                                                             t-att-data-wj-exam-day="d['day']"
-                                                            t-att-disabled="d['state'] in ('out', 'blocked', 'none') and 'disabled' or None">
+                                                            t-att-data-exam-iso="d['date']"
+                                                            t-att-disabled="d['state'] != 'available' and 'disabled' or None">
                                                         <t t-out="d['day']"/>
-                                                        <i t-if="d['state'] == 'available' and not d['selected']"
+                                                        <i t-if="d['state'] == 'available'"
                                                            class="wj-exam-pc-day__dot"/>
                                                     </button>
                                                 </t>
@@ -454,25 +299,14 @@
                                 <div class="wj-exam-pc-slots" data-wj-exam-slots="1">
                                     <p class="wj-exam-pc-slots__title">Khung giờ ngày <t t-out="pc_summary['exam_date']"/></p>
                                     <p class="wj-exam-pc-slots__sub"><t t-out="pc_summary['course_name']"/> · giờ địa phương</p>
-                                    <div class="wj-exam-pc-slots__list" data-wj-exam-slot-list="1">
-                                        <t t-foreach="pc_slots" t-as="slot">
-                                            <button type="button"
-                                                    t-attf-class="wj-exam-pc-slot wj-exam-pc-slot--#{slot['kind']} #{slot['selected'] and 'is-selected' or ''}"
-                                                    t-att-data-wj-exam-slot="slot['time_slot']"
-                                                    t-att-disabled="slot['kind'] != 'open' and 'disabled' or None">
-                                                <i class="feather icon-clock wj-exam-pc-slot__icon"/>
-                                                <span class="wj-exam-pc-slot__time" t-out="slot['time_slot']"/>
-                                                <span t-attf-class="wj-exam-pc-slot__chip wj-exam-pc-slot__chip--#{slot['kind']}"
-                                                      t-out="slot['reason']"/>
-                                                <i class="feather icon-check-circle wj-exam-pc-slot__check"/>
-                                            </button>
-                                        </t>
-                                    </div>
-                                    <!-- 07_UIStates · 3. Ngày không có ca -->
-                                    <div class="wj-exam-pc-panel-empty" data-wj-exam-slot-empty="1" hidden="hidden">
-                                        <p class="wj-exam-pc-panel-empty__title">Không có khung giờ khả dụng</p>
+                                    <!-- Khung giờ nạp thật qua /portal/exam/slots (mỗi nút
+                                         mang data-wj-exam-slot-session). JS dựng danh sách. -->
+                                    <div class="wj-exam-pc-slots__list" data-wj-exam-slot-list="1"/>
+                                    <!-- 07_UIStates · 3. Ngày không có ca / chưa chọn ngày -->
+                                    <div class="wj-exam-pc-panel-empty" data-wj-exam-slot-empty="1">
+                                        <p class="wj-exam-pc-panel-empty__title" data-wj-exam-slot-empty-title="1">Chọn một ngày có lịch để xem khung giờ.</p>
                                         <button type="button" class="wj-pc-btn wj-pc-btn--secondary wj-exam-pc-panel-empty__btn"
-                                                data-wj-exam-pick-other-day="1">Chọn ngày khác</button>
+                                                data-wj-exam-pick-other-day="1" hidden="hidden">Chọn ngày khác</button>
                                     </div>
                                     <p class="wj-exam-pc-slots__foot">Hạn đăng ký: <t t-out="pc_summary['registration_deadline']"/></p>
                                 </div>
@@ -530,32 +364,12 @@
                                             <th>Thao tác</th>
                                         </tr>
                                     </thead>
+                                    <!-- Người tham gia nhập tay qua modal "Thêm người";
+                                         JS append/replace <tr> (mang data thật + ảnh base64). -->
                                     <tbody data-wj-exam-part-body="1">
-                                        <tr t-foreach="pc_lines" t-as="line">
-                                            <td>
-                                                <span class="wj-exam-pc-photo">
-                                                    <span t-attf-class="wj-exam-pc-avatar #{'' if line['has_photo'] else 'wj-exam-pc-avatar--empty'}">
-                                                        <i class="feather icon-user"/>
-                                                    </span>
-                                                    <span t-if="line['has_photo']" class="wj-exam-pc-photo__tag">Đã tải</span>
-                                                    <span t-else="" class="wj-exam-pc-photo__tag wj-exam-pc-photo__tag--empty">Chưa có ảnh</span>
-                                                </span>
-                                            </td>
-                                            <td class="wj-exam-pc-td--name" t-out="line['employee_name']"/>
-                                            <td t-out="line['phone']"/>
-                                            <td class="wj-pc-td--muted" t-out="line['birth_year']"/>
-                                            <td class="wj-pc-td--muted" t-out="line['job_position']"/>
-                                            <td>
-                                                <span class="wj-exam-pc-rowacts">
-                                                    <button type="button" class="wj-exam-pc-iconbtn"
-                                                            data-wj-exam-open="participant" title="Sửa">
-                                                        <i class="feather icon-edit-2"/>
-                                                    </button>
-                                                    <button type="button" class="wj-exam-pc-iconbtn wj-exam-pc-iconbtn--muted"
-                                                            data-wj-exam-line-remove="1" title="Xóa">
-                                                        <i class="feather icon-trash-2"/>
-                                                    </button>
-                                                </span>
+                                        <tr data-wj-exam-part-empty="1">
+                                            <td colspan="6" class="wj-pc-td--muted wj-exam-pc-part-empty">
+                                                Chưa có người tham gia. Bấm "Thêm người" để nhập.
                                             </td>
                                         </tr>
                                     </tbody>
@@ -566,7 +380,7 @@
                                 <!-- 07_UIStates · 6. Đang gửi yêu cầu -->
                                 <p class="wj-exam-pc-sendhint" data-wj-exam-send-hint="1" hidden="hidden">Không đóng hoặc gửi lại biểu mẫu.</p>
                                 <button type="button" class="wj-pc-btn wj-pc-btn--primary wj-exam-pc-checkbtn"
-                                        data-wj-exam-open="submit">Kiểm tra thông tin</button>
+                                        data-wj-exam-check="1">Kiểm tra thông tin</button>
                             </div>
                         </div>
 
@@ -694,7 +508,7 @@
                             <button type="button" class="wj-pc-btn wj-pc-btn--secondary wj-exam-pc-mbtn"
                                     data-wj-exam-close="1">Hủy</button>
                             <button type="button" class="wj-pc-btn wj-pc-btn--primary wj-exam-pc-mbtn wj-exam-pc-mbtn--add"
-                                    data-wj-exam-close="1">Thêm người</button>
+                                    data-wj-exam-part-save="1">Thêm người</button>
                         </div>
                     </div>
                 </div>
@@ -747,18 +561,8 @@
                                         <th>Chức vụ</th>
                                     </tr>
                                 </thead>
-                                <tbody>
-                                    <tr t-foreach="pc_lines" t-as="line">
-                                        <td>
-                                            <span t-attf-class="wj-exam-pc-avatar wj-exam-pc-avatar--sm #{'' if line['has_photo'] else 'wj-exam-pc-avatar--empty'}">
-                                                <i class="feather icon-user"/>
-                                            </span>
-                                        </td>
-                                        <td class="wj-exam-pc-td--name" t-out="line['employee_name']"/>
-                                        <td t-out="line['phone']"/>
-                                        <td class="wj-pc-td--muted" t-out="line['job_position']"/>
-                                    </tr>
-                                </tbody>
+                                <!-- JS dựng lại từ dòng đã nhập khi mở modal. -->
+                                <tbody data-wj-exam-sum-body="1"/>
                             </table>
                         </div>
 
@@ -810,7 +614,8 @@
                     <div class="wujia-mexam-courselist">
                         <t t-foreach="courses" t-as="c">
                             <div t-attf-class="wujia-mexam-course #{c['closed'] and 'is-closed' or ''}"
-                                 t-att-data-exam-closed="c['closed'] and '1' or '0'">
+                                 t-att-data-exam-closed="c['closed'] and '1' or '0'"
+                                 t-att-data-exam-course-id="c['course_id']">
                                 <div class="wujia-mexam-course-main">
                                     <h3 class="wujia-mexam-course-title" t-out="c['title']"/>
                                     <p class="wujia-mexam-course-meta" t-out="c['meta']"/>
@@ -852,15 +657,16 @@
                             <span class="wujia-mexam-leg is-off"><i class="wujia-mexam-leg-dot"/>Không lịch</span>
                         </div>
                         <div class="wujia-mexam-cal-nav">
-                            <button type="button" class="wujia-mexam-cal-navbtn">
+                            <button type="button" class="wujia-mexam-cal-navbtn" data-exam-cal-month="prev">
                                 <i class="feather icon-chevron-left"/>
                             </button>
-                            <span class="wujia-mexam-cal-month" t-out="calendar['label']"/>
-                            <button type="button" class="wujia-mexam-cal-navbtn">
+                            <span class="wujia-mexam-cal-month" data-exam-cal-label="1" t-out="calendar['label']"/>
+                            <button type="button" class="wujia-mexam-cal-navbtn" data-exam-cal-month="next">
                                 <i class="feather icon-chevron-right"/>
                             </button>
                         </div>
-                        <div class="wujia-mexam-cal-grid">
+                        <div class="wujia-mexam-cal-grid" data-exam-cal-grid="1"
+                             t-att-data-exam-year="calendar['year']" t-att-data-exam-month="calendar['month']">
                             <span class="wujia-mexam-cal-wd">T2</span>
                             <span class="wujia-mexam-cal-wd">T3</span>
                             <span class="wujia-mexam-cal-wd">T4</span>
@@ -875,6 +681,7 @@
                                     <button t-elif="d['state'] == 'available'" type="button"
                                             class="wujia-mexam-cal-day is-available"
                                             t-att-data-exam-date="d['date_label']"
+                                            t-att-data-exam-iso="d['date']"
                                             data-exam-open-slots="1">
                                         <span class="wujia-mexam-cal-daynum" t-out="d['day']"/>
                                         <span class="wujia-mexam-cal-daydot"/>
@@ -912,59 +719,31 @@
                     </div>
 
                     <h2 class="wujia-mexam-sectitle">Danh sách nhân sự</h2>
+                    <!-- Khối nhân sự chuẩn (JS clone khi "Thêm người", tối đa theo
+                         session.max_participants_per_registration). Input có name để
+                         JS gom; ảnh optional đọc qua FileReader → base64. -->
                     <div class="wujia-mexam-personlist" data-exam-personlist="1">
                         <div class="wujia-mexam-person is-open" data-exam-person="1">
                             <div class="wujia-mexam-person-head">
                                 <span class="wujia-mexam-person-name">Nhân sự 1</span>
-                                <span class="wujia-mexam-person-req">Bắt buộc</span>
+                                <span class="wujia-mexam-person-req" data-exam-person-req="1">Bắt buộc</span>
+                                <button type="button" class="wujia-mexam-person-del" data-exam-person-del="1" hidden="hidden">
+                                    <i class="feather icon-trash-2"/>
+                                </button>
                             </div>
                             <div class="wujia-mexam-person-body">
-                                <input class="wujia-mexam-field" placeholder="Họ và tên"/>
-                                <input class="wujia-mexam-field" placeholder="Số điện thoại"/>
+                                <input class="wujia-mexam-field" name="employee_name" placeholder="Họ và tên"/>
+                                <input class="wujia-mexam-field" name="phone" placeholder="Số điện thoại" inputmode="tel"/>
                                 <div class="wujia-mexam-field-row">
-                                    <input class="wujia-mexam-field" placeholder="Năm sinh"/>
-                                    <input class="wujia-mexam-field" placeholder="Chức vụ"/>
+                                    <input class="wujia-mexam-field" name="birth_year" placeholder="Năm sinh" inputmode="numeric"/>
+                                    <input class="wujia-mexam-field" name="job_position" placeholder="Chức vụ"/>
                                 </div>
-                                <p class="wujia-mexam-person-hint">Thông tin dùng để ghi nhận kết quả thi.</p>
-                            </div>
-                        </div>
-                        <div class="wujia-mexam-person" data-exam-person="2">
-                            <div class="wujia-mexam-person-head">
-                                <span class="wujia-mexam-person-name">Nhân sự 2</span>
-                                <span class="wujia-mexam-person-tools">
-                                    <a href="#" class="wujia-mexam-person-toggle" data-exam-person-toggle="1">Nhập thông tin</a>
-                                    <button type="button" class="wujia-mexam-person-del" data-exam-person-del="1">
-                                        <i class="feather icon-trash-2"/>
-                                    </button>
-                                </span>
-                            </div>
-                            <div class="wujia-mexam-person-body" hidden="hidden">
-                                <input class="wujia-mexam-field" placeholder="Họ và tên"/>
-                                <input class="wujia-mexam-field" placeholder="Số điện thoại"/>
-                                <div class="wujia-mexam-field-row">
-                                    <input class="wujia-mexam-field" placeholder="Năm sinh"/>
-                                    <input class="wujia-mexam-field" placeholder="Chức vụ"/>
-                                </div>
-                                <p class="wujia-mexam-person-hint">Thông tin dùng để ghi nhận kết quả thi.</p>
-                            </div>
-                        </div>
-                        <div class="wujia-mexam-person" data-exam-person="3">
-                            <div class="wujia-mexam-person-head">
-                                <span class="wujia-mexam-person-name">Nhân sự 3</span>
-                                <span class="wujia-mexam-person-tools">
-                                    <a href="#" class="wujia-mexam-person-toggle" data-exam-person-toggle="1">Nhập thông tin</a>
-                                    <button type="button" class="wujia-mexam-person-del" data-exam-person-del="1">
-                                        <i class="feather icon-trash-2"/>
-                                    </button>
-                                </span>
-                            </div>
-                            <div class="wujia-mexam-person-body" hidden="hidden">
-                                <input class="wujia-mexam-field" placeholder="Họ và tên"/>
-                                <input class="wujia-mexam-field" placeholder="Số điện thoại"/>
-                                <div class="wujia-mexam-field-row">
-                                    <input class="wujia-mexam-field" placeholder="Năm sinh"/>
-                                    <input class="wujia-mexam-field" placeholder="Chức vụ"/>
-                                </div>
+                                <label class="wujia-mexam-photo" data-exam-photo-label="1">
+                                    <i class="feather icon-camera"/>
+                                    <span class="wujia-mexam-photo-text">Thêm ảnh (tùy chọn)</span>
+                                    <input type="file" accept="image/png,image/jpeg" hidden="hidden" data-exam-photo="1"/>
+                                </label>
+                                <p class="wujia-mexam-person-err" data-exam-person-err="1" hidden="hidden"/>
                                 <p class="wujia-mexam-person-hint">Thông tin dùng để ghi nhận kết quả thi.</p>
                             </div>
                         </div>
@@ -1007,20 +786,21 @@
                         </div>
                         <div class="wujia-mexam-kv">
                             <span class="wujia-mexam-kv-k">Địa điểm</span>
-                            <span class="wujia-mexam-kv-v">Trung tâm đào tạo Ngô Gia</span>
+                            <span class="wujia-mexam-kv-v" data-exam-cf-loc="1">Trung tâm đào tạo Ngô Gia</span>
                         </div>
                     </div>
 
                     <div class="wujia-mexam-cfcard">
                         <h2 class="wujia-mexam-cftitle">Nhân sự tham gia</h2>
-                        <div class="wujia-mexam-cfpeople">
-                            <t t-foreach="people" t-as="p">
-                                <div class="wujia-mexam-cfperson">
-                                    <span class="wujia-mexam-cfperson-name" t-out="p['name']"/>
-                                    <span class="wujia-mexam-cfperson-meta"><t t-out="p['role']"/> • <t t-out="p['phone']"/></span>
-                                </div>
-                            </t>
-                        </div>
+                        <!-- JS đổ từ dữ liệu đã nhập ở bước 3 -->
+                        <div class="wujia-mexam-cfpeople" data-exam-cf-people="1"/>
+                    </div>
+
+                    <!-- Lỗi nghiệp vụ từ backend (hết chỗ / quá hạn / validate) -->
+                    <div class="wujia-mexam-cal-note wujia-mexam-rnote wujia-mexam-submit-err"
+                         data-exam-submit-err="1" hidden="hidden">
+                        <i class="feather icon-alert-circle"/>
+                        <span data-exam-submit-err-text="1"/>
                     </div>
 
                     <div class="wujia-mexam-wfooter">
@@ -1035,18 +815,10 @@
                     <div class="wujia-mexam-sheet-handle"/>
                     <h2 class="wujia-mexam-sheet-title">Chọn khung giờ</h2>
                     <p class="wujia-mexam-sheet-sub" data-exam-slot-sub="1">Thứ 5, 02/07/2026 • Đăng ký thi lại</p>
-                    <div class="wujia-mexam-slotlist">
-                        <t t-foreach="slots" t-as="s">
-                            <button type="button"
-                                    t-attf-class="wujia-mexam-slot #{not s['available'] and 'is-disabled' or ''}"
-                                    t-att-disabled="(not s['available']) and 'disabled' or None"
-                                    t-att-data-exam-slot="s['available'] and s['time'] or None">
-                                <i class="feather icon-clock wujia-mexam-slot-ico"/>
-                                <span class="wujia-mexam-slot-time" t-out="s['time']"/>
-                                <span class="wujia-mexam-slot-status" t-out="s['status']"/>
-                                <span class="wujia-mexam-slot-radio"><i class="feather icon-check"/></span>
-                            </button>
-                        </t>
+                    <!-- JS đổ session thật qua /portal/exam/slots (mỗi nút mang
+                         data-exam-session-id). Trạng thái loading/empty do JS. -->
+                    <div class="wujia-mexam-slotlist" data-exam-slotlist="1">
+                        <p class="wujia-mexam-slot-empty" data-exam-slot-loading="1">Đang tải khung giờ…</p>
                     </div>
                     <div class="wujia-mexam-sheet-actions">
                         <button type="button" class="wujia-mexam-btn wujia-mexam-btn-outline" data-exam-slot-close="1">Đóng</button>
@@ -1146,7 +918,9 @@
                                 <tbody>
                                     <tr t-foreach="pc_detail['lines']" t-as="line">
                                         <td>
-                                            <span class="wj-exam-pc-avatar"><i class="feather icon-user"/></span>
+                                            <img t-if="line['has_photo']" class="wj-exam-pc-avatar-img"
+                                                 t-attf-src="/portal/exam/line/#{line['line_id']}/photo" alt=""/>
+                                            <span t-else="" class="wj-exam-pc-avatar"><i class="feather icon-user"/></span>
                                         </td>
                                         <td class="wj-exam-pc-td--name" t-out="line['employee_name']"/>
                                         <td t-out="line['phone']"/>
@@ -1183,52 +957,75 @@
                 </div>
             </div>
 
-            <!-- Mobile <992px — Figma s6 -->
+            <!-- Mobile <992px — Figma s6 · state-aware (submitted/confirmed/
+                 rejected/cancelled). Kết quả từng người CHỈ hiện khi đã công bố;
+                 model không có điểm số → chỉ Đạt/Không đạt + ghi chú. -->
             <div class="d-lg-none wujia-mpage wujia-mexam-result">
                 <t t-call="wujia_portal_layout.wj_page_header">
                     <t t-set="ph_platform" t-value="'m'"/>
                     <t t-set="ph_variant" t-value="'back'"/>
-                    <t t-set="ph_title">Kết quả đăng ký</t>
+                    <t t-set="ph_title">Chi tiết đăng ký</t>
                     <t t-set="ph_back_url" t-value="'/portal/exam'"/>
                 </t>
 
                 <div class="wujia-mexam-rsum">
                     <div class="wujia-mexam-card-top">
-                        <h3 class="wujia-mexam-rsum-title" t-out="result['title']"/>
-                        <span class="wujia-badge wujia-badge-success wujia-mexam-card-badge">Có kết quả</span>
+                        <h3 class="wujia-mexam-rsum-title" t-out="reg_view['title']"/>
+                        <span t-attf-class="wujia-badge #{reg_view['badge']} wujia-mexam-card-badge"
+                              t-out="reg_view['status']"/>
                     </div>
                     <p class="wujia-mexam-card-line">
-                        <i class="feather icon-calendar"/><span t-out="result['date_label']"/>
+                        <i class="feather icon-hash"/><span t-out="reg_view['name']"/>
                     </p>
                     <p class="wujia-mexam-card-line">
-                        <i class="feather icon-user"/><span t-out="result['summary']"/>
+                        <i class="feather icon-calendar"/><span t-out="reg_view['date_label']"/>
                     </p>
-                    <p class="wujia-mexam-rsum-loc" t-out="result['location']"/>
+                    <p class="wujia-mexam-card-line">
+                        <i class="feather icon-user"/><span t-out="reg_view['summary']"/>
+                    </p>
+                    <p class="wujia-mexam-rsum-loc" t-out="reg_view['location']"/>
                 </div>
 
-                <h2 class="wujia-mexam-sectitle">Danh sách kết quả</h2>
+                <!-- Lý do từ chối / hủy -->
+                <div t-if="reg_view['reason']" class="wujia-mexam-cal-note wujia-mexam-rnote wujia-mexam-rnote--warn">
+                    <i class="feather icon-alert-circle"/>
+                    <span>
+                        <t t-out="reg_view['state'] == 'rejected' and 'Lý do từ chối: ' or 'Lý do hủy: '"/>
+                        <t t-out="reg_view['reason']"/>
+                    </span>
+                </div>
+
+                <h2 class="wujia-mexam-sectitle">Danh sách nhân sự</h2>
                 <div class="wujia-mexam-rlist">
-                    <t t-foreach="result['people']" t-as="p">
+                    <t t-foreach="reg_view['people']" t-as="p">
                         <div class="wujia-mexam-rrow">
-                            <span t-attf-class="wujia-mexam-rrow-ico #{p['passed'] and 'is-pass' or 'is-fail'}">
-                                <i t-attf-class="feather #{p['passed'] and 'icon-check' or 'icon-x'}"/>
+                            <span t-attf-class="wujia-mexam-rrow-ico #{p['result'] == 'passed' and 'is-pass' or (p['result'] == 'failed' and 'is-fail' or 'is-idle')}">
+                                <i t-attf-class="feather #{p['result'] == 'passed' and 'icon-check' or (p['result'] == 'failed' and 'icon-x' or 'icon-user')}"/>
                             </span>
                             <div class="wujia-mexam-rrow-main">
-                                <span class="wujia-mexam-rrow-name" t-out="p['name']"/>
-                                <span class="wujia-mexam-rrow-meta"><t t-out="p['role']"/> • <t t-out="p['score']"/></span>
+                                <span class="wujia-mexam-rrow-name" t-out="p['employee_name']"/>
+                                <span class="wujia-mexam-rrow-meta">
+                                    <t t-out="p['job_position'] or '—'"/> • <t t-out="p['phone']"/>
+                                </span>
+                                <span t-if="p['result_note']" class="wujia-mexam-rrow-note" t-out="p['result_note']"/>
                             </div>
-                            <span t-attf-class="wujia-badge #{p['passed'] and 'wujia-badge-success' or 'wujia-badge-danger'} wujia-mexam-rrow-badge"
-                                  t-out="p['passed'] and 'Đạt' or 'Không đạt'"/>
+                            <t t-if="reg_view['is_published']">
+                                <span t-attf-class="wujia-badge #{p['result'] == 'passed' and 'wujia-badge-success' or 'wujia-badge-danger'} wujia-mexam-rrow-badge"
+                                      t-out="p['result'] == 'passed' and 'Đạt' or 'Không đạt'"/>
+                            </t>
+                            <span t-else="" class="wujia-badge wujia-badge-muted wujia-mexam-rrow-badge">Chờ kết quả</span>
                         </div>
                     </t>
                 </div>
 
-                <div class="wujia-mexam-cal-note wujia-mexam-rnote">
+                <div t-if="reg_view['is_published']" class="wujia-mexam-cal-note wujia-mexam-rnote">
                     <i class="feather icon-info"/>
                     <span>Người không đạt có thể đăng ký thi lại khi có lịch mở.</span>
                 </div>
 
-                <a href="/portal/exam/register" class="wujia-mexam-btn wujia-mexam-btn-primary wujia-mexam-rcta">Đăng ký thi lại</a>
+                <a t-if="reg_view['is_published'] or reg_view['state'] in ('rejected', 'cancelled')"
+                   href="/portal/exam/register"
+                   class="wujia-mexam-btn wujia-mexam-btn-primary wujia-mexam-rcta">Đăng ký thi mới</a>
             </div>
         </t>
     </template>

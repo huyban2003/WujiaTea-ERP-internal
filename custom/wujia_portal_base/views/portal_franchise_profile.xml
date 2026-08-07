@@ -6,14 +6,21 @@
         <t t-call="wujia_portal_layout.app_layout">
             <t t-set="title" t-value="franchise.name"/>
             <div class="content-wrapper">
-                <div class="content-header row mt-3">
-                    <div class="content-header-left col-12 mb-1">
-                        <h2 class="content-header-title float-left mb-0">
-                            <i class="fa fa-building me-1"/>
-                            Hồ sơ cửa hàng — <t t-out="franchise.name"/>
-                        </h2>
-                    </div>
-                </div>
+                <!-- Header chung wj_page_header thay h2 Vuexy: tiêu đề 30/800 + MỘT nút back
+                     (UI-PC-BASE-002/006/007), thay nút "Quay lại" cũ ở cuối trang. -->
+                <t t-call="wujia_portal_layout.wj_page_header">
+                    <t t-set="ph_platform" t-value="'pc'"/>
+                    <t t-set="ph_variant" t-value="'back'"/>
+                    <t t-set="ph_crumb">Thông tin cửa hàng / Hồ sơ cửa hàng</t>
+                    <t t-set="ph_title" t-value="'Hồ sơ cửa hàng — ' + franchise.name"/>
+                    <t t-set="ph_back_url" t-value="'/portal/franchises/%s' % franchise.id"/>
+                </t>
+                <t t-call="wujia_portal_layout.wj_page_header">
+                    <t t-set="ph_platform" t-value="'m'"/>
+                    <t t-set="ph_variant" t-value="'back'"/>
+                    <t t-set="ph_title">Hồ sơ cửa hàng</t>
+                    <t t-set="ph_back_url" t-value="'/portal/franchises/%s' % franchise.id"/>
+                </t>
 
                 <div class="content-body">
                     <div class="row">
@@ -32,7 +39,7 @@
                                         <dt class="col-sm-4">Trạng thái</dt>
                                         <dd class="col-sm-8">
                                             <span t-attf-class="badge state-badge state-#{franchise.status}"
-                                                  t-out="dict(franchise._fields['status'].selection).get(franchise.status, franchise.status)"/>
+                                                  t-out="status_labels.get(franchise.status, franchise.status)"/>
                                             <span t-if="franchise.portal_locked" class="badge bg-danger ms-1">
                                                 <i class="fa fa-lock me-1"/>Đã khóa portal
                                             </span>
@@ -128,13 +135,7 @@
                         </div>
                     </div>
 
-                    <div class="row">
-                        <div class="col-12">
-                            <a t-attf-href="/portal/franchises/#{franchise.id}" class="btn btn-secondary">
-                                <i class="fa fa-arrow-left me-1"/>Quay lại
-                            </a>
-                        </div>
-                    </div>
+                    <!-- Nút "Quay lại" cuối trang đã gỡ: back nay ở page header (UI-PC-BASE-006). -->
                 </div>
             </div>
         </t>

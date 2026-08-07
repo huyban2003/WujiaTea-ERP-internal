@@ -8,6 +8,7 @@
                 <t t-call="wujia_portal_layout.wj_page_header">
                     <t t-set="ph_platform" t-value="'pc'"/>
                     <t t-set="ph_variant" t-value="'back'"/>
+                    <t t-set="ph_crumb">Yêu cầu cập nhật thông tin / Chi tiết yêu cầu</t>
                     <t t-set="ph_title" t-value="rec.name"/>
                     <t t-set="ph_back_url" t-value="'/portal/info-request'"/>
                 </t>
@@ -38,7 +39,7 @@
                                 <div class="col-md-6 col-12">
                                     <label class="small text-muted">Loại thông tin</label>
                                     <div class="fw-bold">
-                                        <t t-set="rt_opt" t-value="dict(rec._fields['request_type'].selection).get(rec.request_type, '—')"/>
+                                        <t t-set="rt_opt" t-value="request_type_labels.get(rec.request_type, '—')"/>
                                         <t t-out="rt_opt"/>
                                         <span t-if="rec.field_target" class="text-muted ms-1">
                                             (<t t-out="rec.field_target"/>)
@@ -111,10 +112,10 @@
                                 </div>
                             </div>
                         </div>
+                        <!-- Nút "Quay lại" ở footer đã gỡ: chỉ MỘT nút back / màn, nằm ở
+                             page header (UI-PC-BASE-006). Block này dùng chung PC+mobile
+                             nên bản điện thoại cũng bớt 1 nút back trùng. -->
                         <div class="card-footer text-end">
-                            <a href="/portal/info-request" class="btn btn-secondary me-2">
-                                <i class="fa fa-arrow-left me-1"/>Quay lại
-                            </a>
                             <form t-if="rec.state in ('draft', 'submitted') and rec.created_by_user_id.id == request.env.uid"
                                   method="post"
                                   t-attf-action="/portal/info-request/#{rec.id}/cancel"

@@ -19,14 +19,14 @@ class CompensationProcessWizard(models.TransientModel):
     """
 
     _name = 'wujia.compensation.process.wizard'
-    _description = 'Xử lý bù hàng'
+    _description = 'Process compensation'
 
-    request_ids = fields.Many2many('wujia.return.request', string='Yêu cầu bù')
+    request_ids = fields.Many2many('wujia.return.request', string='Compensation request')
     group_ids = fields.One2many(
         'wujia.compensation.process.wizard.group', 'wizard_id',
-        string='Nhóm SO bù',
+        string='Compensation SO group',
     )
-    skipped_count = fields.Integer(string='Số yêu cầu bị bỏ qua', readonly=True)
+    skipped_count = fields.Integer(string='Skipped requests', readonly=True)
 
     # ------------------------------------------------------------------ helpers
     @staticmethod
@@ -303,44 +303,44 @@ class CompensationProcessWizardGroup(models.TransientModel):
     """1 dòng SO bù = (cửa hàng, SP bù, ĐVT giao, chính sách, unit_qty)."""
 
     _name = 'wujia.compensation.process.wizard.group'
-    _description = 'Nhóm SO bù (wizard)'
+    _description = 'Compensation SO group (wizard)'
     _order = 'id'
 
     wizard_id = fields.Many2one(
         'wujia.compensation.process.wizard', required=True, ondelete='cascade')
     franchise_id = fields.Many2one(
-        'wujia.franchise.management', string='Cửa hàng', readonly=True)
+        'wujia.franchise.management', string='Store', readonly=True)
     compensation_product_id = fields.Many2one(
-        'product.product', string='Sản phẩm bù', readonly=True)
-    delivery_uom_id = fields.Many2one('uom.uom', string='ĐVT giao', readonly=True)
-    claim_uom_id = fields.Many2one('uom.uom', string='ĐVT quyền lợi', readonly=True)
+        'product.product', string='Compensation product', readonly=True)
+    delivery_uom_id = fields.Many2one('uom.uom', string='Delivery UoM', readonly=True)
+    claim_uom_id = fields.Many2one('uom.uom', string='Entitlement UoM', readonly=True)
     policy = fields.Selection(
-        [('exact', 'Bù đúng số lượng'), ('accumulate', 'Cộng dồn nguyên kiện')],
-        string='Chính sách', readonly=True)
+        [('exact', 'Exact quantity'), ('accumulate', 'Whole-pack accumulation')],
+        string='Policy', readonly=True)
     unit_qty = fields.Float(
-        string='Quyền lợi / đơn vị giao', digits=UOM_DIGITS, readonly=True)
+        string='Entitlement per delivery unit', digits=UOM_DIGITS, readonly=True)
     total_claim_qty = fields.Float(
-        string='Tổng quyền lợi', digits=UOM_DIGITS, readonly=True)
+        string='Total entitlement', digits=UOM_DIGITS, readonly=True)
     suggested_delivery_qty = fields.Float(
-        string='SL giao đề xuất', digits=UOM_DIGITS, readonly=True)
-    delivery_qty = fields.Float(string='SL giao', digits=UOM_DIGITS)
+        string='Proposed delivery qty', digits=UOM_DIGITS, readonly=True)
+    delivery_qty = fields.Float(string='Delivery qty', digits=UOM_DIGITS)
     line_ids = fields.One2many(
-        'wujia.compensation.process.wizard.line', 'group_id', string='Yêu cầu')
+        'wujia.compensation.process.wizard.line', 'group_id', string='Request')
 
 
 class CompensationProcessWizardLine(models.TransientModel):
     """1 yêu cầu trong nhóm — SL phân bổ FIFO (gợi ý)."""
 
     _name = 'wujia.compensation.process.wizard.line'
-    _description = 'Dòng yêu cầu bù (wizard)'
+    _description = 'Compensation request line (wizard)'
     _order = 'id'
 
     group_id = fields.Many2one(
         'wujia.compensation.process.wizard.group', required=True, ondelete='cascade')
     request_id = fields.Many2one(
-        'wujia.return.request', string='Yêu cầu', readonly=True)
-    request_uom_id = fields.Many2one('uom.uom', string='ĐVT quyền lợi', readonly=True)
+        'wujia.return.request', string='Request', readonly=True)
+    request_uom_id = fields.Many2one('uom.uom', string='Entitlement UoM', readonly=True)
     request_remaining_qty = fields.Float(
-        string='SL cần bù', digits=UOM_DIGITS, readonly=True)
+        string='Qty to compensate', digits=UOM_DIGITS, readonly=True)
     allocate_qty = fields.Float(
-        string='SL phân bổ (FIFO)', digits=UOM_DIGITS, readonly=True)
+        string='Allocated qty (FIFO)', digits=UOM_DIGITS, readonly=True)

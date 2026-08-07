@@ -10,7 +10,11 @@
                 <a class="nav-link wujia-header-icon-btn" href="/portal/order"
                    aria-label="Cart">
                     <i class="ficon feather icon-shopping-cart text-white"/>
-                    <span class="badge badge-pill wujia-header-badge wujia-header-cart-count">0</span>
+                    <!-- WJ-ORD-020: KHÔNG render sẵn số 0 + `hidden` để UA stylesheet
+                         ẩn ngay cả khi 28 file CSS <link> chưa apply (cửa sổ FOUC).
+                         JS bỏ `hidden` khi count > 0. -->
+                    <span class="badge badge-pill wujia-header-badge wujia-header-cart-count"
+                          hidden="hidden"/>
                 </a>
             </li>
         </xpath>

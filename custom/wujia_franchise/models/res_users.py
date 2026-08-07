@@ -11,7 +11,7 @@ class ResUsers(models.Model):
         string='Franchise Memberships',
     )
     member_count = fields.Integer(
-        string='Số membership',
+        string='Membership count',
         compute='_compute_member_count',
     )
 

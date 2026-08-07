@@ -9,6 +9,7 @@
                 <t t-call="wujia_portal_layout.wj_page_header">
                     <t t-set="ph_platform" t-value="'pc'"/>
                     <t t-set="ph_variant" t-value="'back'"/>
+                    <t t-set="ph_crumb">Đặt hàng / Chi tiết sản phẩm</t>
                     <t t-set="ph_title" t-value="product.name"/>
                     <t t-set="ph_back_url" t-value="'/portal/order'"/>
                 </t>
@@ -42,7 +43,7 @@
                                         </span>
                                     </p>
                                     <p class="text-primary fs-4 fw-bold">
-                                        <t t-out="'{:,.0f}'.format(price_map.get(product.id) or 0).replace(',', '.')"/> ₫
+                                        <t t-out="money(price_map.get(product.id), currency_symbol, currency_decimals)"/>
                                         <small class="text-muted fs-6"> / <t t-out="product.uom_id.name or '—'"/></small>
                                     </p>
                                     <p t-if="product.description_sale" t-out="product.description_sale"/>
@@ -62,7 +63,7 @@
                                                t-att-step="product.min_qty or 1"
                                                t-att-value="product.min_qty or 1"/>
                                         <button type="button"
-                                                class="btn btn-primary btn-add-cart-detail"
+                                                class="btn wj-cta-btn btn-add-cart-detail"
                                                 t-att-data-product-id="product.id"
                                                 t-att-data-min-qty="product.min_qty or 1"
                                                 t-att-data-max-qty="str(product.max_qty or 0)">

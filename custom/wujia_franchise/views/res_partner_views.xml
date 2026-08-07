@@ -10,7 +10,7 @@
                 <button name="action_view_franchises" type="object"
                         class="oe_stat_button" icon="fa-building"
                         invisible="not is_franchise">
-                    <field name="franchise_count" widget="statinfo" string="Cửa hàng"/>
+                    <field name="franchise_count" widget="statinfo" string="Store"/>
                 </button>
             </xpath>
 
@@ -27,7 +27,7 @@
         <field name="arch" type="xml">
             <xpath expr="//search" position="inside">
                 <separator/>
-                <filter string="Là cửa hàng nhượng quyền" name="filter_is_franchise"
+                <filter string="Is a franchise store" name="filter_is_franchise"
                         domain="[('is_franchise', '=', True)]"/>
             </xpath>
         </field>

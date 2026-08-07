@@ -6,8 +6,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 19.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-05-16 04:08+0000\n"
-"PO-Revision-Date: 2026-05-16 04:08+0000\n"
+"POT-Creation-Date: 2026-08-01 19:33+0000\n"
+"PO-Revision-Date: 2026-08-01 19:33+0000\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "MIME-Version: 1.0\n"
@@ -21,15 +21,29 @@ msgid "<i class=\"fa fa-arrow-left me-1\"/>Về thư viện"
 msgstr ""
 
 #. module: wujia_portal_knowledge
+#: model_terms:ir.ui.view,arch_db:wujia_portal_knowledge.portal_knowledge_list
+msgid "<i class=\"fa fa-list me-1\"/>Tất cả"
+msgstr ""
+
+#. module: wujia_portal_knowledge
 #: model_terms:ir.ui.view,arch_db:wujia_portal_knowledge.layout_sidenav_knowledge
 msgid ""
-"<i class=\"fa fa-book\" aria-hidden=\"true\"/>\n"
+"<i class=\"feather icon-book\" aria-hidden=\"true\"/>\n"
 "                    <span class=\"menu-title\">Kiến thức</span>"
 msgstr ""
 
 #. module: wujia_portal_knowledge
 #: model_terms:ir.ui.view,arch_db:wujia_portal_knowledge.portal_knowledge_list
-msgid "<i class=\"fa fa-list me-1\"/>Tất cả"
+msgid ""
+"<span class=\"wujia-mknow-sechead-title\">Bài nổi bật</span>\n"
+"                            <span class=\"wujia-mknow-sechead-sub\">Ưu tiên đọc</span>"
+msgstr ""
+
+#. module: wujia_portal_knowledge
+#: model_terms:ir.ui.view,arch_db:wujia_portal_knowledge.portal_knowledge_list
+msgid ""
+"<span class=\"wujia-mknow-sechead-title\">Mới cập nhật</span>\n"
+"                        <span class=\"wujia-mknow-sechead-pill\">Mới nhất</span>"
 msgstr ""
 
 #. module: wujia_portal_knowledge
@@ -95,6 +109,7 @@ msgstr ""
 #. module: wujia_portal_knowledge
 #: model:ir.model.fields,field_description:wujia_portal_knowledge.field_wujia_knowledge_category__article_count
 #: model:ir.model.fields,field_description:wujia_portal_knowledge.field_wujia_knowledge_tag__article_count
+#: model:ir.ui.menu,name:wujia_portal_knowledge.menu_wujia_knowledge_articles
 #: model_terms:ir.ui.view,arch_db:wujia_portal_knowledge.view_knowledge_category_list
 msgid "Articles"
 msgstr ""
@@ -137,14 +152,19 @@ msgid "Bài liên quan"
 msgstr ""
 
 #. module: wujia_portal_knowledge
-#: model:ir.ui.menu,name:wujia_portal_knowledge.menu_wujia_knowledge_articles
-msgid "Bài viết"
+#: model:ir.ui.menu,name:wujia_portal_knowledge.menu_wujia_knowledge_categories
+msgid "Categories"
 msgstr ""
 
 #. module: wujia_portal_knowledge
 #: model:ir.model.fields,field_description:wujia_portal_knowledge.field_wujia_knowledge_article__category_id
 #: model_terms:ir.ui.view,arch_db:wujia_portal_knowledge.view_knowledge_article_search
 msgid "Category"
+msgstr ""
+
+#. module: wujia_portal_knowledge
+#: model_terms:ir.ui.view,arch_db:wujia_portal_knowledge.portal_knowledge_list
+msgid "Chưa có bài viết"
 msgstr ""
 
 #. module: wujia_portal_knowledge
@@ -199,7 +219,12 @@ msgid "Created on"
 msgstr ""
 
 #. module: wujia_portal_knowledge
-#: model:ir.ui.menu,name:wujia_portal_knowledge.menu_wujia_knowledge_categories
+#: model_terms:ir.ui.view,arch_db:wujia_portal_knowledge.portal_knowledge_detail
+#: model_terms:ir.ui.view,arch_db:wujia_portal_knowledge.portal_knowledge_list
+msgid "Cập nhật"
+msgstr ""
+
+#. module: wujia_portal_knowledge
 #: model_terms:ir.ui.view,arch_db:wujia_portal_knowledge.portal_knowledge_list
 msgid "Danh mục"
 msgstr ""
@@ -254,6 +279,11 @@ msgid "Has Message"
 msgstr ""
 
 #. module: wujia_portal_knowledge
+#: model_terms:ir.ui.view,arch_db:wujia_portal_knowledge.portal_knowledge_list
+msgid "Hiện chưa có bài viết nào để hiển thị."
+msgstr ""
+
+#. module: wujia_portal_knowledge
 #: model:ir.model.fields,field_description:wujia_portal_knowledge.field_wujia_knowledge_article__id
 #: model:ir.model.fields,field_description:wujia_portal_knowledge.field_wujia_knowledge_category__id
 #: model:ir.model.fields,field_description:wujia_portal_knowledge.field_wujia_knowledge_tag__id
@@ -283,7 +313,6 @@ msgstr ""
 
 #. module: wujia_portal_knowledge
 #: model:ir.model.fields.selection,name:wujia_portal_knowledge.selection__wujia_knowledge_article__portal_badge__important
-#: model_terms:ir.ui.view,arch_db:wujia_portal_knowledge.portal_knowledge_list
 #: model_terms:ir.ui.view,arch_db:wujia_portal_knowledge.view_knowledge_article_kanban
 msgid "Important"
 msgstr ""
@@ -294,18 +323,14 @@ msgid "Is Follower"
 msgstr ""
 
 #. module: wujia_portal_knowledge
-#: model:ir.ui.menu,name:wujia_portal_knowledge.menu_wujia_knowledge_root
-msgid "Kiến Thức"
-msgstr ""
-
-#. module: wujia_portal_knowledge
 #: model_terms:ir.ui.view,arch_db:wujia_portal_knowledge.portal_knowledge_detail
+#: model_terms:ir.ui.view,arch_db:wujia_portal_knowledge.portal_knowledge_list
 msgid "Kiến thức"
 msgstr ""
 
 #. module: wujia_portal_knowledge
-#: model_terms:ir.ui.view,arch_db:wujia_portal_knowledge.portal_knowledge_list
-msgid "Kiến thức —"
+#: model:ir.ui.menu,name:wujia_portal_knowledge.menu_wujia_knowledge_root
+msgid "Knowledge"
 msgstr ""
 
 #. module: wujia_portal_knowledge
@@ -342,7 +367,6 @@ msgstr ""
 
 #. module: wujia_portal_knowledge
 #: model:ir.model.fields.selection,name:wujia_portal_knowledge.selection__wujia_knowledge_article__portal_badge__mandatory
-#: model_terms:ir.ui.view,arch_db:wujia_portal_knowledge.portal_knowledge_list
 #: model_terms:ir.ui.view,arch_db:wujia_portal_knowledge.view_knowledge_article_kanban
 #: model_terms:ir.ui.view,arch_db:wujia_portal_knowledge.view_knowledge_article_search
 msgid "Mandatory"
@@ -375,7 +399,6 @@ msgstr ""
 
 #. module: wujia_portal_knowledge
 #: model:ir.model.fields.selection,name:wujia_portal_knowledge.selection__wujia_knowledge_article__portal_badge__new
-#: model_terms:ir.ui.view,arch_db:wujia_portal_knowledge.portal_knowledge_list
 #: model_terms:ir.ui.view,arch_db:wujia_portal_knowledge.view_knowledge_article_kanban
 msgid "New"
 msgstr ""
@@ -418,6 +441,16 @@ msgstr ""
 #. module: wujia_portal_knowledge
 #: model:ir.model.fields,help:wujia_portal_knowledge.field_wujia_knowledge_article__message_has_error_counter
 msgid "Number of messages with delivery error"
+msgstr ""
+
+#. module: wujia_portal_knowledge
+#: model_terms:ir.ui.view,arch_db:wujia_portal_knowledge.portal_knowledge_detail
+msgid "Nội dung chính"
+msgstr ""
+
+#. module: wujia_portal_knowledge
+#: model_terms:ir.ui.view,arch_db:wujia_portal_knowledge.portal_knowledge_list
+msgid "Nội dung mới sẽ xuất hiện tại đây khi được cập nhật."
 msgstr ""
 
 #. module: wujia_portal_knowledge
@@ -560,7 +593,32 @@ msgstr ""
 
 #. module: wujia_portal_knowledge
 #: model_terms:ir.ui.view,arch_db:wujia_portal_knowledge.portal_knowledge_list
+msgid "Tài liệu mới cập nhật"
+msgstr ""
+
+#. module: wujia_portal_knowledge
+#: model_terms:ir.ui.view,arch_db:wujia_portal_knowledge.portal_knowledge_detail
+msgid "Tài liệu đính kèm"
+msgstr ""
+
+#. module: wujia_portal_knowledge
+#: model_terms:ir.ui.view,arch_db:wujia_portal_knowledge.portal_knowledge_list
 msgid "Tìm bài viết..."
+msgstr ""
+
+#. module: wujia_portal_knowledge
+#: model_terms:ir.ui.view,arch_db:wujia_portal_knowledge.portal_knowledge_list
+msgid "Tìm kiếm bài viết..."
+msgstr ""
+
+#. module: wujia_portal_knowledge
+#: model_terms:ir.ui.view,arch_db:wujia_portal_knowledge.portal_knowledge_list
+msgid "Tải lại"
+msgstr ""
+
+#. module: wujia_portal_knowledge
+#: model_terms:ir.ui.view,arch_db:wujia_portal_knowledge.portal_knowledge_list
+msgid "Tất cả"
 msgstr ""
 
 #. module: wujia_portal_knowledge
@@ -607,6 +665,16 @@ msgid "Wujia Knowledge: recompute portal visibility"
 msgstr ""
 
 #. module: wujia_portal_knowledge
+#: model_terms:ir.ui.view,arch_db:wujia_portal_knowledge.portal_knowledge_list
+msgid "Xóa lọc"
+msgstr ""
+
+#. module: wujia_portal_knowledge
+#: model_terms:ir.ui.view,arch_db:wujia_portal_knowledge.portal_knowledge_list
+msgid "bài viết"
+msgstr ""
+
+#. module: wujia_portal_knowledge
 #: model_terms:ir.ui.view,arch_db:wujia_portal_knowledge.view_knowledge_article_kanban
 msgid "cover"
 msgstr ""
@@ -614,4 +682,9 @@ msgstr ""
 #. module: wujia_portal_knowledge
 #: model_terms:ir.ui.view,arch_db:wujia_portal_knowledge.portal_knowledge_detail
 msgid "lượt xem"
+msgstr ""
+
+#. module: wujia_portal_knowledge
+#: model_terms:ir.ui.view,arch_db:wujia_portal_knowledge.portal_knowledge_list
+msgid "· <i class=\"fa fa-eye\"/>"
 msgstr ""

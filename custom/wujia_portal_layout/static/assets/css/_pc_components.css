@@ -34,12 +34,16 @@
 .wj-pc-btn--danger:hover { filter: brightness(.95); color: #fff; }
 
 /* ---------- Status badge (pill h28, radius 14) — SVG StatusBadge_Set ---------- */
+/* radius 14 + min-width 84 theo source v1.5 (UI-PC-BASE-004) — KHÔNG đổi token
+   --wj-pc-pill-radius vì chip tròn của delivery/exam vẫn dùng token đó. */
 .wj-pc-badge {
     display: inline-flex;
     align-items: center;
+    justify-content: center;
     height: 28px;
+    min-width: 84px;
     padding: 0 14px;
-    border-radius: var(--wj-pc-pill-radius);
+    border-radius: 14px;
     font-size: 13px;
     font-weight: 600;
     line-height: 1;
@@ -60,8 +64,10 @@
     margin-bottom: 16px;
 }
 .wj-pc-page-header__title {
-    font-size: 26px;
-    font-weight: 700;
+    /* !important: shell có `h1 {font-size … !important}` + `.content-wrapper h1
+       {font-weight:700 !important}` ở tag-level (L4) */
+    font-size: 30px !important;
+    font-weight: 800 !important;
     color: var(--wj-pc-text);
     margin: 0;
     line-height: 1.2;
@@ -79,12 +85,13 @@
     flex-shrink: 0;
 }
 
-/* ---------- Filter bar (white card, inputs h38) — SVG FilterBar ---------- */
+/* ---------- Filter bar (white card h88, inputs h42) — SVG FilterBar ---------- */
 .wj-pc-filterbar {
     background: var(--wj-pc-card);
     border: 1px solid var(--wj-pc-border-soft);
     border-radius: 16px;
-    padding: 18px 20px;
+    /* border-box: 1 + 22 + control 42 + 22 + 1 = 88px đúng source v1.5 (UI-PC-BASE-003) */
+    padding: 22px 20px;
     margin-bottom: var(--wj-pc-content-padding);
 }
 .wj-pc-filterbar__title {
@@ -102,7 +109,9 @@
 .wj-pc-filterbar__grow { flex: 1 1 240px; }
 .wj-pc-filterbar__actions { margin-left: auto; display: flex; gap: 12px; }
 .wj-pc-filter-control {
-    height: var(--wj-pc-filter-input-h);
+    /* 42px — cùng chiều cao control với form (UI-PC-BASE-003).
+       --wj-pc-filter-input-h (38) giữ lại cho control compact riêng của exam. */
+    height: var(--wj-pc-input-h);
     border: 1px solid var(--wj-pc-border);
     border-radius: var(--wj-pc-input-radius);
     background: var(--wj-pc-card);
@@ -204,6 +213,9 @@
     color: var(--wj-pc-muted);
     margin-right: auto;
 }
+/* Bọc select trong form riêng để submit thật; trung hoà `form { margin-bottom: 15px }`
+   của shell (tag-level, L4) — không thì hàng pagination bị đội cao. */
+.wj-pc-pagination__size-form { display: flex; margin: 0; }
 .wj-pc-pagination__size {
     height: var(--wj-pc-pagebtn);
     padding: 0 12px;
@@ -239,7 +251,12 @@
 
 /* ---------- Form field (label + input/select/textarea h42) — SVG FormField_Set ---------- */
 .wj-pc-field { display: flex; flex-direction: column; gap: 8px; }
-.wj-pc-field__label { font-size: 14px; font-weight: 600; color: var(--wj-pc-text); }
+/* padding-left:0 để thắng bootstrap-extended `label { padding-left: .2rem }` (L4) */
+.wj-pc-field__label { font-size: 14px; font-weight: 600; color: var(--wj-pc-text); padding-left: 0; }
+/* dashboard.css có `select { width:100%; padding:5px !important }` tag-level → trung hoà
+   trong phạm vi component, không sửa file shell (L4). */
+select.wj-pc-control,
+select.wj-pc-filter-control { padding: 0 16px !important; }
 .wj-pc-control {
     height: var(--wj-pc-input-h);
     border: 1px solid var(--wj-pc-border);
@@ -253,6 +270,19 @@
 .wj-pc-control::placeholder { color: var(--wj-pc-subtle); font-weight: 400; }
 .wj-pc-control:focus { outline: none; border-color: var(--wj-pc-primary); }
 textarea.wj-pc-control { height: auto; min-height: 96px; padding: 12px 16px; }
+input[type="file"].wj-pc-control { height: auto; min-height: var(--wj-pc-input-h); padding: 9px 16px; }
+
+/* ---------- Form action bar (separator + primary bên phải) — UI-PC-BASE-009 ---------- */
+.wj-pc-form-actions {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 12px;
+    margin-top: 24px;
+    padding-top: 20px;
+    border-top: 1px solid var(--wj-pc-border-soft);
+}
+.wj-pc-form-actions .wj-pc-btn { height: 40px; font-weight: 700; }
 
 /* ---------- Empty state (card + icon circle + CTA) — SVG EmptyState ---------- */
 .wj-pc-empty {
@@ -376,12 +406,27 @@ textarea.wj-pc-control { height: auto; min-height: 96px; padding: 12px 16px; }
 .wj-pc-filter-search > .wj-pc-filter-control { padding-left: 38px; }
 
 /* ---------- WJ_PageHeader — PC modifier (spec §5) ----------
-   Base .wj-page-header ở _components.css. PC: title 28/36/800, back 44,
+   Base .wj-page-header ở _components.css. PC: title 30/38/800, back 44,
    gap-back-title 18, create 122×44, bottom 20. Top gap 24 do content-wrapper lo. */
 .wj-page-header--pc { margin: 0 0 20px; }
 /* !important để thắng global `h1 { font-size: … !important }` (_components.css gotcha #13) */
-.wj-page-header--pc .wj-page-header__title { font-size: 28px !important; line-height: 36px; }
-.wj-page-header--pc .wj-page-header__back { width: 44px; height: 44px; margin-right: 18px; }
+/* font-weight cũng cần !important: _wujia_theme.css có
+   `.content-wrapper h1 { font-weight: 700 !important }` (tag-level, thắng class). */
+.wj-page-header--pc .wj-page-header__title { font-size: 30px !important; line-height: 38px; font-weight: 800 !important; }
+/* Back PC = nút CÓ CHỮ 122×40, không icon-only (UI-PC-BASE-006, source v1.5).
+   Mobile vẫn icon 40×40 — nhãn ẩn ở nhánh --m trong _components.css. */
+.wj-page-header--pc .wj-page-header__back {
+    width: 122px; height: 40px; margin-right: 18px;
+    gap: 4px; font-size: 14px; font-weight: 700; white-space: nowrap;
+}
+.wj-page-header--pc .wj-page-header__back > i { font-size: 20px; }
+/* Breadcrumb PC (UI-PC-BASE-007) — cùng token với .wj-pc-page-header__crumb */
+.wj-page-header__crumb {
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--wj-pc-muted);
+    margin: 0 0 8px;
+}
 .wj-page-header--pc .wj-page-header__create { width: 122px; height: 44px; }
 /* Notification list — bulk-read action dời từ PageHeader xuống card head (spec: header title-only) */
 .wj-pc-noti-head-actions { display: flex; align-items: center; gap: 12px; }

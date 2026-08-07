@@ -7,8 +7,8 @@
             <t t-set="title">Lịch sử đặt hàng</t>
             <!-- status_type → badge CSS. Controller trả status_type ngữ nghĩa, template map sang
                  hệ badge riêng (PC / mobile) — logic/label đã tập trung ở controller. -->
-            <t t-set="pc_badge" t-value="{'pending': 'wj-pc-badge--pending', 'sent': 'wj-pc-badge--sent', 'confirmed': 'wj-pc-badge--confirmed', 'done': 'wj-pc-badge--done'}"/>
-            <t t-set="mobile_badge" t-value="{'pending': 'wujia-badge-muted', 'sent': 'wujia-badge-info', 'confirmed': 'wujia-badge-success', 'done': 'wujia-badge-warning'}"/>
+            <t t-set="pc_badge" t-value="{'pending': 'wj-pc-badge--pending', 'sent': 'wj-pc-badge--sent', 'confirmed': 'wj-pc-badge--confirmed', 'transit': 'wj-pc-badge--transit', 'done': 'wj-pc-badge--done'}"/>
+            <t t-set="mobile_badge" t-value="{'pending': 'wujia-badge-muted', 'sent': 'wujia-badge-info', 'confirmed': 'wujia-badge-success', 'transit': 'wujia-badge-warning', 'done': 'wujia-badge-success'}"/>
             <div class="content-wrapper">
 
                 <!-- ============================================================
@@ -30,7 +30,7 @@
                     <t t-else="">
                         <!-- Bộ lọc nhanh: search + 2 date (create_date) + trạng thái + Reset/Tìm -->
                         <form method="get" action="/portal/purchase-history" class="wj-pc-filterbar">
-                            <h3 class="wj-pc-filterbar__title">Bộ lọc nhanh</h3>
+                            <!-- Card 88px: control 1 hàng, không dòng tiêu đề (UI-PC-BASE-003) -->
                             <div class="wj-pc-filterbar__row">
                                 <span class="wj-pc-filter-search">
                                     <i class="feather icon-search"/>
@@ -38,8 +38,10 @@
                                            placeholder="Tìm theo mã đơn" class="wj-pc-filter-control"/>
                                 </span>
                                 <input type="date" name="date_from" t-att-value="date_from"
+                                       t-att-max="date_to or None"
                                        class="wj-pc-filter-control" style="max-width:180px;"/>
                                 <input type="date" name="date_to" t-att-value="date_to"
+                                       t-att-min="date_from or None"
                                        class="wj-pc-filter-control" style="max-width:180px;"/>
                                 <select name="state" class="wj-pc-filter-control" style="max-width:200px;">
                                     <option value="">Tất cả trạng thái</option>
@@ -54,6 +56,8 @@
                                     <button type="submit" class="wj-pc-btn wj-pc-btn--primary">Tìm</button>
                                 </span>
                             </div>
+                            <!-- Lỗi khoảng ngày báo tại đây, KHÔNG dùng empty state (WJ-PH-007) -->
+                            <p t-if="filter_error" class="wj-filter-error" role="alert" t-out="filter_error"/>
                         </form>
 
                         <!-- Bảng danh sách đơn -->
@@ -66,13 +70,14 @@
                                 <span t-if="rows" class="wj-pc-card__count"><t t-out="pager.get('page_total', len(rows))"/> bản ghi</span>
                             </div>
 
-                            <div t-if="not rows" class="wj-pc-empty">
+                            <!-- filter_error đã báo ở FilterBar → không hiện thêm empty state (2 thông điệp mâu thuẫn) -->
+                            <div t-if="not rows and not filter_error" class="wj-pc-empty">
                                 <span class="wj-pc-empty__icon"><i class="feather icon-inbox"/></span>
                                 <h3 class="wj-pc-empty__title">Chưa có đơn hàng</h3>
                                 <p class="wj-pc-empty__sub">Chưa có đơn hàng nào khớp bộ lọc.</p>
                             </div>
 
-                            <table t-else="" class="wj-pc-table">
+                            <table t-if="rows" class="wj-pc-table">
                                 <thead>
                                     <tr>
                                         <th>Mã đơn</th>
@@ -82,7 +87,6 @@
                                         <th class="text-end">Tổng tiền</th>
                                         <th>Batch / giao hàng</th>
                                         <th>Trạng thái</th>
-                                        <th class="text-end">Thao tác</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -93,23 +97,39 @@
                                         <td class="wj-pc-td--muted" t-out="r['create_date'] and r['create_date'].strftime('%d/%m/%Y %H:%M') or '—'"/>
                                         <td class="wj-pc-td--muted" t-out="r['date_order'] and r['date_order'].strftime('%d/%m/%Y') or '—'"/>
                                         <td t-out="r['requester_display']"/>
-                                        <td class="text-end wj-pc-td--amount" t-out="'{:,.0f}'.format(r['amount_total'] or 0).replace(',', '.') + ' ' + (r['currency_symbol'] or 'đ')"/>
+                                        <td class="text-end wj-pc-td--amount" t-out="money(r['amount_total'], r['currency_symbol'], r['currency_decimals'])"/>
                                         <td t-out="r['batch_name'] or 'Chưa giao'"/>
                                         <td>
                                             <span t-attf-class="wj-pc-badge #{pc_badge.get(r['status_type'], 'wj-pc-badge--pending')}" t-out="r['state_label']"/>
-                                        </td>
-                                        <td class="text-end">
-                                            <a t-attf-href="/portal/purchase-history/#{r['id']}" class="wj-pc-link">Xem</a>
                                         </td>
                                     </tr>
                                 </tbody>
                             </table>
 
-                            <!-- Pagination: count trái, Trước [n] Sau phải -->
-                            <div t-if="rows" class="wj-pc-pagination">
+                            <!-- Pagination: count trái, page-size + Trước [n] Sau phải.
+                                 Ẩn cả khối khi ≤10 bản ghi (BA cho phép); ngưỡng là option nhỏ
+                                 nhất, không phải page_size đang chọn — chọn 50 mà còn 20 bản ghi
+                                 thì vẫn phải bấm về 10 được (UI-PC-BASE-005). -->
+                            <div t-if="rows and pager['page_total'] &gt; 10" class="wj-pc-pagination">
                                 <span class="wj-pc-pagination__count">
                                     Hiển thị <t t-out="pager['offset'] + 1"/>–<t t-out="pager['offset'] + pager['count']"/> / <t t-out="pager['page_total']"/> bản ghi
                                 </span>
+                                <!-- Đổi số dòng/trang = submit thật, giữ bộ lọc, quay về trang 1 -->
+                                <form method="get" action="/portal/purchase-history" class="wj-pc-pagination__size-form">
+                                    <input type="hidden" name="q" t-att-value="q"/>
+                                    <input type="hidden" name="date_from" t-att-value="date_from"/>
+                                    <input type="hidden" name="date_to" t-att-value="date_to"/>
+                                    <input type="hidden" name="state" t-att-value="state"/>
+                                    <select name="page_size" class="wj-pc-pagination__size"
+                                            aria-label="Số dòng mỗi trang" onchange="this.form.submit()">
+                                        <t t-foreach="[10, 20, 50]" t-as="ps">
+                                            <option t-att-value="ps"
+                                                    t-att-selected="'selected' if page_size == ps else None">
+                                                <t t-out="ps"/> / trang
+                                            </option>
+                                        </t>
+                                    </select>
+                                </form>
                                 <a t-attf-href="/portal/purchase-history?page=#{pager['page_previous']['num']}&amp;#{pager['querystring'] or ''}"
                                    t-attf-class="wj-pc-page-btn #{'is-disabled' if pager['page']['num'] &lt;= 1 else ''}">Trước</a>
                                 <t t-foreach="pager['page_nums']" t-as="pn">
@@ -155,14 +175,18 @@
                             <div class="wj-filter-dates">
                                 <label class="wj-filter-date">
                                     <i class="feather icon-calendar"/>
-                                    <input type="date" name="date_from" t-att-value="date_from"/>
+                                    <input type="date" name="date_from" t-att-value="date_from"
+                                           t-att-max="date_to or None"/>
                                 </label>
                                 <span class="wj-filter-date-sep">–</span>
                                 <label class="wj-filter-date">
                                     <i class="feather icon-calendar"/>
-                                    <input type="date" name="date_to" t-att-value="date_to"/>
+                                    <input type="date" name="date_to" t-att-value="date_to"
+                                           t-att-min="date_from or None"/>
                                 </label>
                             </div>
+                            <!-- Lỗi khoảng ngày báo tại đây, KHÔNG dùng empty state (WJ-PH-007) -->
+                            <p t-if="filter_error" class="wj-filter-error" role="alert" t-out="filter_error"/>
                             <div class="wj-filter-chips">
                                 <a href="/portal/purchase-history?preset=this_month"
                                    t-attf-class="wj-filter-chip #{'is-active' if preset == 'this_month' else ''}">Tháng này</a>
@@ -182,7 +206,7 @@
 
                         <!-- Danh sách đơn -->
                         <t t-set="mhist_filtered" t-value="q or date_from or date_to or preset or state"/>
-                        <div t-if="not rows" class="wj-empty-state wj-empty-state--rich">
+                        <div t-if="not rows and not filter_error" class="wj-empty-state wj-empty-state--rich">
                             <span class="wj-empty-state-icon"/>
                             <p class="wj-empty-state-title">Chưa có đơn hàng</p>
                             <p class="wj-empty-state-sub">Hiện chưa có đơn hàng nào để hiển thị.</p>
@@ -190,7 +214,7 @@
                             <a t-if="mhist_filtered" href="/portal/purchase-history" class="wj-empty-state-btn">Xóa lọc</a>
                             <button t-else="" type="button" class="wj-empty-state-btn" onclick="window.location.reload()">Tải lại</button>
                         </div>
-                        <div t-else="" class="wujia-mhist-list">
+                        <div t-if="rows" class="wujia-mhist-list">
                             <a t-foreach="rows" t-as="r" t-attf-href="/portal/purchase-history/#{r['id']}"
                                class="wujia-mhist-row">
                                 <span class="wujia-mhist-row-main">
@@ -201,7 +225,7 @@
                                 <span class="wujia-mhist-row-side">
                                     <span t-attf-class="wujia-badge #{mobile_badge.get(r['status_type'], 'wujia-badge-muted')}" t-out="r['state_label']"/>
                                     <span class="wujia-mhist-row-amount"
-                                          t-out="'{:,.0f}'.format(r['amount_total'] or 0).replace(',', '.') + ' ' + (r['currency_symbol'] or 'đ')"/>
+                                          t-out="money(r['amount_total'], r['currency_symbol'], r['currency_decimals'])"/>
                                 </span>
                             </a>
                         </div>
@@ -224,8 +248,8 @@
     <template id="portal_history_detail" name="Wujia Portal — Purchase History Detail">
         <t t-call="wujia_portal_layout.app_layout">
             <t t-set="title" t-value="detail and detail['header']['name'] or 'Chi tiết đơn hàng'"/>
-            <t t-set="pc_badge" t-value="{'pending': 'wj-pc-badge--pending', 'sent': 'wj-pc-badge--sent', 'confirmed': 'wj-pc-badge--confirmed', 'done': 'wj-pc-badge--done'}"/>
-            <t t-set="mobile_badge" t-value="{'pending': 'wujia-badge-muted', 'sent': 'wujia-badge-info', 'confirmed': 'wujia-badge-success', 'done': 'wujia-badge-warning'}"/>
+            <t t-set="pc_badge" t-value="{'pending': 'wj-pc-badge--pending', 'sent': 'wj-pc-badge--sent', 'confirmed': 'wj-pc-badge--confirmed', 'transit': 'wj-pc-badge--transit', 'done': 'wj-pc-badge--done'}"/>
+            <t t-set="mobile_badge" t-value="{'pending': 'wujia-badge-muted', 'sent': 'wujia-badge-info', 'confirmed': 'wujia-badge-success', 'transit': 'wujia-badge-warning', 'done': 'wujia-badge-success'}"/>
             <div class="content-wrapper">
 
                 <!-- Không tìm thấy / không có quyền — cùng 1 message (không lộ tồn tại) -->
@@ -234,6 +258,7 @@
                         <t t-call="wujia_portal_layout.wj_page_header">
                             <t t-set="ph_platform" t-value="'pc'"/>
                             <t t-set="ph_variant" t-value="'back'"/>
+                            <t t-set="ph_crumb">Lịch sử đặt hàng / Chi tiết đơn hàng</t>
                             <t t-set="ph_title">Chi tiết đơn hàng</t>
                             <t t-set="ph_back_url" t-value="'/portal/purchase-history'"/>
                         </t>
@@ -268,6 +293,7 @@
                         <t t-call="wujia_portal_layout.wj_page_header">
                             <t t-set="ph_platform" t-value="'pc'"/>
                             <t t-set="ph_variant" t-value="'back'"/>
+                            <t t-set="ph_crumb">Lịch sử đặt hàng / Chi tiết đơn hàng</t>
                             <t t-set="ph_title" t-value="'Chi tiết đơn hàng ' + h['name']"/>
                             <t t-set="ph_back_url" t-value="'/portal/purchase-history'"/>
                         </t>
@@ -287,7 +313,7 @@
                             </div>
                             <div class="wj-pc-order-head__right">
                                 <p class="wj-pc-order-head__label">Tổng tiền</p>
-                                <p class="wj-pc-order-head__amount" t-out="'{:,.0f}'.format(h['amount_total'] or 0).replace(',', '.') + ' ' + (h['currency_symbol'] or 'đ')"/>
+                                <p class="wj-pc-order-head__amount" t-out="money(h['amount_total'], h['currency_symbol'], h['currency_decimals'])"/>
                                 <p class="wj-pc-order-head__note">Đã gồm thuế các dòng sản phẩm trong đơn</p>
                             </div>
                         </div>
@@ -359,14 +385,14 @@
                                         <td t-out="line['product_name']"/>
                                         <td class="wj-pc-td--muted" t-out="line['uom_name'] or '—'"/>
                                         <td class="text-end wj-pc-td--amount" t-out="'{:,.0f}'.format(line['quantity'] or 0)"/>
-                                        <td class="text-end" t-out="'{:,.0f}'.format(line['unit_price_tax_included'] or 0).replace(',', '.') + ' ' + (h['currency_symbol'] or 'đ')"/>
-                                        <td class="text-end wj-pc-td--amount" t-out="'{:,.0f}'.format(line['line_total_tax_included'] or 0).replace(',', '.') + ' ' + (h['currency_symbol'] or 'đ')"/>
+                                        <td class="text-end" t-out="money(line['unit_price_tax_included'], h['currency_symbol'], h['currency_decimals'])"/>
+                                        <td class="text-end wj-pc-td--amount" t-out="money(line['line_total_tax_included'], h['currency_symbol'], h['currency_decimals'])"/>
                                     </tr>
                                 </tbody>
                                 <tfoot>
                                     <tr>
                                         <td colspan="4" class="text-end">Tổng cộng</td>
-                                        <td class="text-end" t-out="'{:,.0f}'.format(h['amount_total'] or 0).replace(',', '.') + ' ' + (h['currency_symbol'] or 'đ')"/>
+                                        <td class="text-end" t-out="money(h['amount_total'], h['currency_symbol'], h['currency_decimals'])"/>
                                     </tr>
                                 </tfoot>
                             </table>
@@ -395,7 +421,7 @@
                                 <span class="wujia-mhist-summary-date"
                                       t-out="h['create_date'] and h['create_date'].strftime('%H:%M · %d/%m/%Y') or ''"/>
                                 <span class="wujia-mhist-summary-amount"
-                                      t-out="'{:,.0f}'.format(h['amount_total'] or 0).replace(',', '.') + ' ' + (h['currency_symbol'] or 'đ')"/>
+                                      t-out="money(h['amount_total'], h['currency_symbol'], h['currency_decimals'])"/>
                             </div>
                         </div>
 
@@ -414,7 +440,7 @@
                             <div class="wujia-mhist-kv">
                                 <span class="wujia-mhist-kv-label">Tổng tiền</span>
                                 <span class="wujia-mhist-kv-value"
-                                      t-out="'{:,.0f}'.format(h['amount_total'] or 0).replace(',', '.') + ' ' + (h['currency_symbol'] or 'đ')"/>
+                                      t-out="money(h['amount_total'], h['currency_symbol'], h['currency_decimals'])"/>
                             </div>
                             <div class="wujia-mhist-kv">
                                 <span class="wujia-mhist-kv-label">Số dòng hàng</span>
@@ -459,7 +485,7 @@
                                     <span class="wujia-mhist-prod-spec">Quy cách: <t t-out="line['spec'] or '—'"/> · SL: x<t t-out="'{:,.0f}'.format(line['quantity'] or 0)"/></span>
                                 </span>
                                 <span class="wujia-mhist-prod-amount"
-                                      t-out="'{:,.0f}'.format(line['line_total_tax_included'] or 0).replace(',', '.') + ' ' + (h['currency_symbol'] or 'đ')"/>
+                                      t-out="money(line['line_total_tax_included'], h['currency_symbol'], h['currency_decimals'])"/>
                             </div>
                         </div>
                     </div>

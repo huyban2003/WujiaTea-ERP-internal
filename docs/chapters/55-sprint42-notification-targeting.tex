@@ -1,0 +1,181 @@
+\chapter{Sprint 42 --- Nhãn ưu tiên, read-status theo cửa hàng, và chọn đối tượng nhận (2026-07-31)}
+
+\section{Bối cảnh}
+
+Sprint 41 dựng xong backend quản lý thông báo nhưng \textbf{không đụng một dòng source nào} --- bốn
+hạng mục lệch giữa source và đặc tả được gói lại ở \texttt{docs/next-session-tasks-notification.md}.
+Sprint này xử lý ba trong bốn hạng mục đó, theo đúng thứ tự chủ dự án chốt: việc làm được ngay
+trước, việc phụ thuộc câu trả lời nghiệp vụ sau.
+
+Ràng buộc mở phiên: \textbf{không ghi gì lên Google Sheet khi chưa được đồng ý}; phạm vi được chốt
+là \textbf{trần, không phải sàn}; và trước khi kết luận bất cứ điều gì là ``đã làm / đã nghiệm thu /
+mâu thuẫn'' thì phải mở \emph{cột trạng thái} và \emph{cột Out-of-scope} của đúng task đó trên tab
+\texttt{Tasks}. Cả ba ràng buộc đều là hệ quả trực tiếp của các lỗi ghi trong chương trước.
+
+\section{NOTI-03 --- nhãn \texttt{normal} \emph{Lưu ý} $\to$ \emph{Thông thường}}
+
+Đặc tả phần F dòng 782 chốt nhãn mức thấp nhất là \emph{Thông thường}; source đang hiện \emph{Lưu ý}
+--- di sản của bản BA FINAL Sprint 32. Vì \texttt{normal} là \textbf{giá trị lưu DB} còn chữ chỉ là
+nhãn hiển thị nên \textbf{không cần migration}: sửa 5 chỗ hardcode là xong.
+
+\textbf{Bug lộ ra nhân tiện.} File \texttt{header\_bell\_badge.js} có bảng nhãn tự chế với hai key
+rác (\texttt{high}, \texttt{low}) và \textbf{thiếu hẳn key \texttt{important}} --- nên mọi thông báo
+\emph{Quan trọng} rơi vào nhánh mặc định và hiện nhầm thành \emph{Lưu ý} trên popup chuông. Cách sửa
+không phải là bổ sung key còn thiếu mà là \textbf{bỏ luôn bảng nhãn ở FE}: JS chỉ giữ map class màu,
+nhãn đọc từ \texttt{priority\_label} mà backend đã trả sẵn. Từ nay đổi nhãn chỉ sửa một chỗ duy nhất
+trong model.
+
+Cũng xác nhận \textbf{không cần bump \texttt{?v=}}: ba asset của module nằm trong bundle
+\texttt{web.assets\_frontend}, không có \texttt{<link>} thủ công nào trỏ tới --- gotcha đó chỉ áp cho
+file nạp bằng thẻ \texttt{link} viết tay.
+
+\section{NOTI-02 bước 1 --- không ghi read-status khi chưa chọn cửa hàng}
+
+Đặc tả dòng 796 ghi \texttt{franchise\_id} là \emph{Required}, dòng 884 thậm chí đã soạn sẵn câu báo
+lỗi \emph{``Vui lòng chọn cửa hàng trước khi thao tác.''} --- nhưng controller chưa bao giờ dùng tới.
+User thuộc nhiều cửa hàng mà chưa chọn cửa hàng hiện tại thì \texttt{get\_active\_franchise\_id()}
+trả \texttt{False}, và code vẫn cho bấm ``Đánh dấu đã đọc'', ghi ra row
+\texttt{franchise\_id = NULL}. Trên UAT là \textbf{6/9 row NULL}: bản ghi treo không thuộc cửa hàng
+nào, làm hỏng thống kê ``cửa hàng nào đã đọc thông báo này''.
+
+Bước 1 chặn ở controller và trả đúng message dòng 884, dùng lại helper \texttt{\_err()} mirror từ
+\texttt{wujia\_portal\_sale} để FE portal xử lý lỗi đồng nhất. \textbf{Route chi tiết vẫn cho đọc
+nội dung} --- chỉ không ghi row; chưa chọn cửa hàng không phải là mất quyền xem. Phía JS, nút bulk
+giờ hiện message nghiệp vụ thay vì toast ``Đã đánh dấu 0 thông báo'' rồi reload, tức là thôi nói sai
+với người dùng.
+
+Bước 2 (dọn row NULL cũ $\to$ \texttt{required=True} $\to$ gỡ index tạm
+\texttt{\_uniq\_noti\_user\_no\_store}) \textbf{để lại}, vì cách xử lý dữ liệu cũ là quyết định của
+chủ dự án chứ không phải của dev.
+
+\section{NOTI-01 --- \texttt{franchise\_ids}: từ ``gỡ hay đóng băng'' thành ``làm cho dùng được''}
+
+Hạng mục này mở ra với giả định trong ghi chú: \emph{``hiện đang để trống nên vẫn broadcast, hành vi
+thực tế chưa sai''}. Soi DB thì \textbf{không đúng} --- bảng \texttt{wujia\_notification\_franchise\_rel}
+có 21 dòng trên 8 thông báo đang \texttt{published}. Đây là điểm đáng nhớ: ghi chú của chính mình ở
+phiên trước cũng là \emph{giả thiết}, không phải dữ kiện.
+
+Rủi ro thật của field này không nằm ở chỗ nó thừa, mà ở chỗ nó \textbf{nằm trong ir.rule}
+--- tức tầng phân quyền. Một admin tick nhầm một cửa hàng thì thông báo \textbf{im lặng biến mất}
+khỏi portal của toàn bộ cửa hàng còn lại: người dùng không ``thấy nhưng bị chặn'', bản ghi đơn giản
+không tồn tại với họ, và không có log nào.
+
+\textbf{Chủ dự án chốt hướng thứ ba:} không gỡ, không đóng băng --- giữ và làm cho dùng được, với
+hai yêu cầu: mặc định không chọn gì là gửi hết, và \textbf{chọn theo tiêu chí chứ không tick 500
+tiệm}.
+
+\subsection{Nguyên tắc: tiêu chí là cách CHỌN, \texttt{franchise\_ids} là kết quả LƯU}
+
+HQ đặt tiêu chí $\to$ hệ thống dịch ra danh sách cửa hàng $\to$ ghi vào chính
+\texttt{franchise\_ids} đang có. Portal, ir.rule, controller và JS \textbf{không đổi một dòng nào}.
+
+Phương án ngược lại --- lưu domain dạng text rồi để portal tự đánh giá lúc đọc --- bị loại vì hai lý
+do, và cả hai đều đáng ghi lại:
+
+\begin{itemize}
+  \item \textbf{Phân quyền.} ir.rule là một domain ORM. Không có cách nào viết ``thông báo nào có
+    domain khớp cửa hàng của tôi'' bằng domain ORM, nên buộc phải lọc bằng Python sau khi nạp hết
+    $\to$ mất index, mỗi lần 1500 user mở portal là quét toàn bảng.
+  \item \textbf{Truy vết.} Ba tháng sau hỏi ``công văn này đã gửi cho ai'' mà chỉ lưu tiêu chí thì
+    phải chạy lại tiêu chí trên \textbf{dữ liệu đã đổi} $\to$ ra kết quả khác lúc gửi.
+\end{itemize}
+
+\subsection{Thiết kế}
+
+\begin{center}
+\begin{tabular}{p{4.6cm}p{9.2cm}}
+\hline
+\textbf{Field} & \textbf{Vai trò} \\
+\hline
+\texttt{target\_mode} & \texttt{all} (mặc định) / \texttt{filter} / \texttt{manual}. Không chọn gì =
+gửi toàn hệ thống, giữ nguyên hành vi MVP. \\
+\texttt{target\_area\_ids} & Khu vực (\texttt{res.area}). \\
+\texttt{target\_state\_ids} & Tỉnh/Thành (\texttt{res.country.state}). \\
+\texttt{target\_status} & \emph{Đang hoạt động} (mặc định) hoặc \emph{Mọi trạng thái} --- không gửi
+nhầm cho tiệm nháp/đóng/hết hạn. \\
+\texttt{target\_exclude\_franchise\_ids} & Trừ vài tiệm cá biệt ra khỏi kết quả lọc. \\
+\texttt{target\_preview\_count} & Compute: ``sẽ gửi cho bao nhiêu cửa hàng nếu bấm gửi bây giờ''. \\
+\hline
+\end{tabular}
+\end{center}
+
+Ghép theo chuẩn Odoo: OR trong cùng nhóm, AND giữa các nhóm, rồi trừ danh sách loại trừ.
+
+\begin{lstlisting}[language=Python]
+def _target_domain(self):
+    """Tieu chi -> domain tren wujia.franchise.management."""
+    self.ensure_one()
+    domain = []
+    if self.target_status == 'active':
+        domain.append(('status', '=', 'active'))
+    if self.target_area_ids:
+        domain.append(('area_id', 'in', self.target_area_ids.ids))
+    if self.target_state_ids:
+        domain.append(('state_id', 'in', self.target_state_ids.ids))
+    if self.target_exclude_franchise_ids:
+        domain.append(('id', 'not in', self.target_exclude_franchise_ids.ids))
+    return domain
+\end{lstlisting}
+
+Kèm nút \textbf{Xem trước danh sách nhận} mở thẳng danh sách cửa hàng khớp tiêu chí --- đây mới là
+chỗ giải quyết đúng nỗi đau ``500 tiệm bỏ chọn từng cái''.
+
+\subsection{Trade-off: chốt danh sách tại thời điểm gửi}
+
+Câu hỏi nghiệp vụ duy nhất phải hỏi: gửi cho miền Bắc hôm nay, tháng sau mở thêm một tiệm ở miền
+Bắc --- tiệm đó có nhận thông báo cũ không? \textbf{Chủ dự án chốt: không.} Danh sách được resolve và
+đóng băng vào \texttt{franchise\_ids} ngay khi bấm Gửi, đúng tinh thần công văn: ai nhận là cố định,
+đối chiếu ``đã đọc / chưa đọc'' mới có nghĩa. Bù lại có nút \textbf{Cập nhật danh sách nhận} để HQ
+chủ động bổ sung khi muốn.
+
+Nếu chọn hướng ``live'' thì \texttt{recipient\_count} nhảy số theo thời gian và không bao giờ chốt
+được tỉ lệ đọc của một công văn --- lý do chính để loại.
+
+Ba trường hợp sai bị chặn ngay: chế độ \texttt{filter} mà bỏ trống tiêu chí (khớp toàn bộ, trùng
+nghĩa với \texttt{all}); tiêu chí lọc ra 0 cửa hàng; chế độ \texttt{manual} mà không tick tiệm nào.
+Đổi sang \texttt{all} thì danh sách cửa hàng tự xoá sạch, tránh gửi nhầm phạm vi hẹp.
+
+\texttt{recipient\_count} / \texttt{unread\_count} nay đếm theo đúng danh sách nhận thay vì luôn tính
+toàn hệ thống --- vẫn giữ \textbf{1 query cho cả recordset} bằng \texttt{\_read\_group} gom theo cửa
+hàng, không phát sinh query theo từng bản ghi.
+
+\section{Kết quả kiểm thử}
+
+\begin{itemize}
+  \item \texttt{-u wujia\_portal\_notification --test-enable --test-tags wujia\_notification}:
+    \textbf{RC=0, 0 failed / 0 error trên 35 test} (23 cũ + 12 mới), không ERROR/Traceback.
+  \item Migration \texttt{19.0.2.2.0}: 22 thông báo $\to$ \texttt{all}, \textbf{8 thông báo đang có
+    tick sẵn} $\to$ \texttt{manual} (giữ nguyên phạm vi cũ). Kiểm chéo: \textbf{0} bản ghi có tick mà
+    lại ở chế độ khác \texttt{manual}.
+  \item Smoke portal local: nhãn \emph{Thông thường} đúng ở list/detail/popup, popup trả đủ ba nhãn
+    (\texttt{important} = \emph{Quan trọng} --- trước đây sai); mark-read/mark-all khi chưa chọn cửa
+    hàng trả \texttt{STORE\_NOT\_SELECTED} và \textbf{không phát sinh row NULL mới}; có cookie cửa
+    hàng thì ghi bình thường và idempotent ở lần gọi thứ hai.
+\end{itemize}
+
+\section{Ghi lên sheet BA}
+
+Chủ dự án cho phép ghi, với ràng buộc rõ: \textbf{chỉ bổ sung ở cột L, không sửa chữ của BA, không
+chèn dòng}. Kết quả: \textbf{10 ô cột L} trong phần F --- mô tả luồng ba chế độ, tiêu chí lọc, thời
+điểm chốt danh sách, ràng buộc, và ghi chú \texttt{recipient\_count} đếm theo danh sách nhận. Backup
+toàn bộ workbook trước khi ghi (cổng ghi \textbf{không có undo}). Kiểm tra sau khi ghi: cột L trong
+phần F chỉ có đúng 10 ô đó, và cột A--K của 10 dòng liên quan \textbf{không đổi một ký tự}.
+
+Năm câu của BA sẽ thành lệch sau quyết định này (dòng 742, 816, 872, 762, 863, và cột Out-of-scope
+của \texttt{Tasks} row 6) --- \textbf{không tự sửa}, chỉ liệt kê và đặt ghi chú bổ sung bên cạnh.
+
+\section{Bài học}
+
+\begin{itemize}
+  \item \textbf{Ghi chú của phiên trước là giả thiết, không phải dữ kiện.} ``Field đang để trống nên
+    chưa sai'' --- soi DB thì 8 bản ghi đang có tick. Một câu \texttt{SELECT count(*)} rẻ hơn nhiều
+    so với một quyết định thiết kế dựa trên trí nhớ.
+  \item \textbf{Field nằm trong ir.rule không phải field thường.} Tick nhầm một ô trên form backend
+    làm bản ghi biến mất khỏi portal của toàn bộ cửa hàng còn lại, im lặng, không log.
+  \item \textbf{Tiêu chí động thì lưu kết quả, đừng lưu tiêu chí.} Materialize ra M2M giữ được cả
+    index lẫn khả năng truy vết; lưu domain rồi eval lúc đọc thì mất cả hai.
+  \item \textbf{Bảng nhãn ở FE là nợ.} Bug \texttt{important} tồn tại được vì nhãn bị chép ra hai
+    nơi. Backend đã trả \texttt{priority\_label} thì FE không có lý do gì tự suy diễn.
+  \item \textbf{Khi người dùng nói ``khó hiểu quá'' thì lỗi ở người giải thích.} Bảng blast radius và
+    tên field không trả lời được câu hỏi nghiệp vụ ``bỏ cái này đi có sao không''.
+\end{itemize}

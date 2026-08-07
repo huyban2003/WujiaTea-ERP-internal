@@ -8,15 +8,15 @@
         <field name="inherit_id" ref="product.product_normal_form_view"/>
         <field name="arch" type="xml">
             <xpath expr="//notebook" position="inside">
-                <page string="Bù hàng" name="wujia_compensation"
+                <page string="Compensation" name="wujia_compensation"
                       groups="wujia_portal_return.group_return_manager">
                     <group>
-                        <group string="Chính sách">
+                        <group string="Policy">
                             <field name="compensation_enabled"/>
                             <field name="compensation_policy"
                                    invisible="not compensation_enabled"/>
                         </group>
-                        <group string="Đơn vị &amp; sản phẩm bù"
+                        <group string="Compensation unit &amp; product"
                                invisible="not compensation_enabled">
                             <field name="compensation_claim_uom_id"
                                    options="{'no_create': True}"/>

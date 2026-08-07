@@ -2,3 +2,14 @@
 .state-step { padding: 8px 4px; border-radius: 6px; position: relative; }
 .state-step-pending .state-badge { opacity: 0.4; }
 .state-step-active .state-badge { opacity: 1; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+
+/* Lỗi bộ lọc — nằm TRONG FilterBar (PC + mobile), không dùng empty state (WJ-PH-007) */
+.wj-filter-error {
+    margin: 8px 0 0;
+    padding: 8px 12px;
+    border-radius: 8px;
+    background: var(--wujia-danger-bg);
+    color: var(--wujia-danger);
+    font-size: 13px;
+    font-weight: 500;
+}

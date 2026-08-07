@@ -1,72 +1,204 @@
-from odoo import api, fields, models
+import re
+from html import unescape
+
+from odoo import _, api, fields, models
+from odoo.exceptions import UserError, ValidationError
 
 
-# BA FINAL (sheet "1. Model Field" wujia.announcement): 3 technical key, nhãn hiển thị
-# "Lưu ý / Quan trọng / Cần làm". FE không hardcode label — đọc priority_label backend trả.
+# Spec F §5 (sheet "1. Model/ Field"): 3 technical key, nhãn hiển thị
+# "Thông thường / Quan trọng / Cần làm". FE không hardcode label — đọc priority_label backend trả.
 PRIORITY_SELECTION = [
-    ('normal', 'Lưu ý'),
-    ('important', 'Quan trọng'),
-    ('urgent', 'Cần làm'),
+    ('normal', 'Regular'),
+    ('important', 'Important'),
+    ('urgent', 'Action required'),
 ]
 PRIORITY_LABELS = dict(PRIORITY_SELECTION)
 
+# Spec F §3 — vòng đời do HQ điều khiển (expired_date KHÔNG tự đổi state).
+STATE_SELECTION = [
+    ('draft', 'Draft'),
+    ('published', 'Submitted'),
+    ('archived', 'Archived'),
+]
+
+# Spec F §4 — ma trận chuyển trạng thái. archived = ngõ cụt trong MVP.
+STATE_TRANSITIONS = {
+    'draft': ('published', 'archived'),
+    'published': ('archived',),
+    'archived': (),
+}
+
+# Chủ dự án chốt 31/07/2026 — ghi chú bổ sung cột L phần F, dòng 741-746:
+# thông báo được chọn đối tượng nhận, mặc định `all` = gửi toàn hệ thống (giữ hành vi MVP).
+# Tiêu chí chỉ là CÁCH CHỌN; kết quả luôn được chốt vào `franchise_ids` để portal/ir.rule
+# đọc như cũ (không đổi tầng phân quyền, giữ index cho 1500 user).
+TARGET_MODE_SELECTION = [
+    ('all', 'All stores'),
+    ('filter', 'By criteria'),
+    ('manual', 'Manual selection'),
+]
+
+# Spec F §18 — message nghiệp vụ, không lộ lỗi kỹ thuật.
+MSG_PUBLISH_VALIDATION = (
+    'Vui lòng nhập đầy đủ tiêu đề, nội dung, loại và mức độ thông báo; '
+    'ngày hết hiệu lực không được nhỏ hơn ngày gửi.'
+)
+MSG_TARGET_NO_CRITERIA = (
+    'Chọn "Theo tiêu chí" thì phải có ít nhất một tiêu chí: khu vực, tỉnh/thành '
+    'hoặc cửa hàng loại trừ.'
+)
+MSG_TARGET_EMPTY = 'Tiêu chí hiện không khớp cửa hàng nào. Vui lòng chỉnh lại trước khi gửi.'
+MSG_TARGET_MANUAL_EMPTY = 'Vui lòng chọn ít nhất một cửa hàng nhận.'
+MSG_TARGET_ALL_HAS_STORES = 'Gửi cho "Tất cả cửa hàng" thì không được chọn cửa hàng nhận.'
+
 
 class WujiaNotification(models.Model):
-    """Skeleton — thông báo HQ → cửa hàng nhượng quyền.
+    """Thông báo HQ → cửa hàng nhượng quyền. Backend HQ soạn/publish/archive, portal chỉ đọc.
 
-    franchise_ids empty = broadcast cho tất cả cửa hàng đang hoạt động.
+    franchise_ids empty = broadcast cho tất cả cửa hàng đang hoạt động; `target_mode`
+    quyết định field này được điền thế nào (tất cả / theo tiêu chí / chọn tay).
     Trạng thái đọc/chưa đọc lưu ở `wujia.notification.read` (table riêng để
     đếm unread nhanh — pattern v14)."""
 
-    # Mapping BA (wujia.announcement) → model thật: title←name, mã thông báo←dispatch_number,
-    # publish_date/published_date←date, category_id←type_id. "state=published + portal_visible"
-    # ⟺ published=True; "thu hồi" ⟺ published=False (ẩn hẳn); "hết hiệu lực" ⟺ published + expired.
+    # Mapping BA spec phần F (wujia.announcement) → model THẬT (giữ tên source, Sprint 41):
+    #   title→name · name (ANN/2026/0001)→code · category_id→type_id · published_date→published_date
+    #   (đã rename từ `date`) · wujia.announcement.category→wujia.notification.type.
+    # `dispatch_number` = số công văn HQ nhập tay, KHÁC `code` (mã hệ thống auto).
     _name = 'wujia.notification'
     _description = 'Wujia Notification'
-    _order = 'date desc, id desc'
+    _inherit = ['mail.thread', 'mail.activity.mixin']
+    _order = 'published_date desc, id desc'
 
-    name = fields.Char(string='Tiêu đề', required=True, index=True)
+    code = fields.Char(
+        string='Notification code', copy=False, readonly=True, index=True,
+        help='System-generated code, e.g. ANN/2026/0001.',
+    )
+    name = fields.Char(string='Title', required=True, index=True, tracking=True)
     type_id = fields.Many2one(
-        'wujia.notification.type', string='Loại',
-        index=True, ondelete='restrict',
+        'wujia.notification.type', string='Type',
+        index=True, ondelete='restrict', tracking=True,
     )
-    dispatch_number = fields.Char(string='Số công văn', copy=False)
-    date = fields.Datetime(
-        string='Ngày phát hành', default=fields.Datetime.now,
-        index=True, required=True,
+    dispatch_number = fields.Char(string='Document number', copy=False)
+    published_date = fields.Datetime(
+        string='Submission date', default=fields.Datetime.now,
+        index=True, required=True, tracking=True,
     )
-    content = fields.Html(string='Nội dung', sanitize=True, translate=True)
+    content = fields.Html(string='Content', sanitize=True, translate=True)
     attachment_ids = fields.Many2many(
         'ir.attachment', 'wujia_notification_attachment_rel',
         'notification_id', 'attachment_id',
-        string='File đính kèm',
+        string='Attachments',
     )
     franchise_ids = fields.Many2many(
         'wujia.franchise.management',
         'wujia_notification_franchise_rel',
         'notification_id', 'franchise_id',
-        string='Cửa hàng nhận',
-        help='Để trống = broadcast cho mọi cửa hàng.',
+        string='Recipient stores',
+        help='Leave empty to broadcast to every store. The "By criteria" mode fills this field in when sending.',
     )
-    published = fields.Boolean(string='Đã phát hành', default=False, index=True)
+    target_mode = fields.Selection(
+        TARGET_MODE_SELECTION, string='Send to', default='all',
+        required=True, tracking=True,
+        help="All = every store, nothing to select. By criteria = filter by area/province/status. Manual selection = tick each store yourself.",
+    )
+    target_area_ids = fields.Many2many(
+        'res.area', 'wujia_notification_target_area_rel',
+        'notification_id', 'area_id', string='Area',
+    )
+    target_state_ids = fields.Many2many(
+        'res.country.state', 'wujia_notification_target_state_rel',
+        'notification_id', 'state_id', string='Province',
+    )
+    target_status = fields.Selection(
+        [('active', 'Active'), ('any', 'Any status')],
+        string='Store status', default='active', required=True,
+        help='By default only active stores are targeted; draft/locked/closed/expired ones are skipped.',
+    )
+    target_exclude_franchise_ids = fields.Many2many(
+        'wujia.franchise.management', 'wujia_notification_target_exclude_rel',
+        'notification_id', 'franchise_id', string='Excluded stores',
+        help='Exclude a few specific stores from the filter result.',
+    )
+    target_preview_count = fields.Integer(
+        string='Matching stores', compute='_compute_target_preview_count',
+        help='Number of stores that would receive it if sent right now.',
+    )
+    state = fields.Selection(
+        STATE_SELECTION, string='Status',
+        default='draft', required=True, index=True, copy=False, tracking=True,
+    )
+    portal_visible = fields.Boolean(
+        string='Show on portal', default=True,
+        help='Turn it off to hide it from the portal without changing the state.',
+    )
+    is_published_portal = fields.Boolean(
+        string='Live on portal',
+        compute='_compute_is_published_portal', store=True, index=True,
+        help="active + state = Sent + shown on portal. It does NOT exclude expired notifications, because the portal history must stay accessible.",
+    )
+    published_by_id = fields.Many2one(
+        'res.users', string='Sent by', readonly=True, copy=False,
+        help='The internal user who pressed Send notification.',
+    )
+    internal_note = fields.Text(
+        string='Internal note',
+        help='HQ only — not returned to the portal.',
+    )
     priority = fields.Selection(
-        PRIORITY_SELECTION, string='Mức độ',
-        default='normal', required=True, index=True,
+        PRIORITY_SELECTION, string='Severity',
+        default='normal', required=True, index=True, tracking=True,
     )
-    is_pinned = fields.Boolean(string='Ghim trên cùng', default=False)
-    pin_expiry_date = fields.Datetime(string='Ghim đến')
+    is_pinned = fields.Boolean(string='Pin to top', default=False)
+    pin_expiry_date = fields.Datetime(string='Pinned until')
     expired_date = fields.Datetime(
-        string='Hết hiệu lực', index=True,
-        help='Trống = không hết hạn. Sau thời điểm này: ẩn khỏi popup/badge, còn ở lịch sử.',
+        string='Expires on', index=True,
+        help='Empty = never expires. After this moment it is hidden from the popup/badge but stays in history.',
     )
     is_expired = fields.Boolean(
-        string='Đã hết hiệu lực', compute='_compute_is_expired',
+        string='No longer valid', compute='_compute_is_expired',
     )
     priority_label = fields.Char(
-        string='Nhãn ưu tiên', compute='_compute_priority_label',
+        string='Priority label', compute='_compute_priority_label',
     )
-    summary = fields.Char(string='Tóm tắt', size=200, compute='_compute_summary', store=True)
+    summary = fields.Text(
+        string='Summary',
+        help='Short description shown in the list/popup. Leave it empty and the portal excerpts the content.',
+    )
+    read_ids = fields.One2many(
+        'wujia.notification.read', 'notification_id',
+        string='Read status', readonly=True,
+    )
+    read_count = fields.Integer(
+        string='Read', compute='_compute_read_stats',
+        help='Number of user/store pairs that have read this notification.',
+    )
+    recipient_count = fields.Integer(
+        string='Recipients', compute='_compute_read_stats',
+        help='Total number of user/store pairs holding a valid membership.',
+    )
+    unread_count = fields.Integer(
+        string='Unread', compute='_compute_read_stats',
+        help='Zero once the notification has expired.',
+    )
+    active = fields.Boolean(string='Active', default=True)
 
+    _uniq_code = models.Constraint(
+        'unique(code)',
+        'Mã thông báo phải duy nhất.',
+    )
+    _published_date_required = models.Constraint(
+        "CHECK (state != 'published' OR published_date IS NOT NULL)",
+        'Thông báo đã gửi phải có ngày gửi.',
+    )
+    _expired_after_published = models.Constraint(
+        'CHECK (expired_date IS NULL OR published_date IS NULL'
+        ' OR expired_date >= published_date)',
+        'Ngày hết hiệu lực không được nhỏ hơn ngày gửi.',
+    )
+
+    # -----------------------------------------------------------------
+    # Compute
+    # -----------------------------------------------------------------
     @api.depends('expired_date')
     def _compute_is_expired(self):
         now = fields.Datetime.now()
@@ -78,17 +210,252 @@ class WujiaNotification(models.Model):
         for rec in self:
             rec.priority_label = PRIORITY_LABELS.get(rec.priority, '')
 
-    @api.depends('content')
-    def _compute_summary(self):
+    @api.depends('active', 'state', 'portal_visible')
+    def _compute_is_published_portal(self):
         for rec in self:
-            text = (rec.content or '')
-            # Strip HTML tags simple
-            from html import unescape
-            import re
-            text = re.sub(r'<[^>]+>', ' ', text)
-            text = unescape(text)
-            text = re.sub(r'\s+', ' ', text).strip()
-            rec.summary = text[:200] + ('...' if len(text) > 200 else '')
+            rec.is_published_portal = bool(
+                rec.active and rec.state == 'published' and rec.portal_visible
+            )
+
+    @api.depends('target_mode', 'target_status', 'target_area_ids', 'target_state_ids',
+                 'target_exclude_franchise_ids', 'franchise_ids')
+    def _compute_target_preview_count(self):
+        Franchise = self.env['wujia.franchise.management'].sudo()
+        total = None
+        for rec in self:
+            if rec.target_mode == 'manual':
+                rec.target_preview_count = len(rec.franchise_ids)
+            elif rec.target_mode == 'filter':
+                rec.target_preview_count = Franchise.search_count(rec._target_domain())
+            else:
+                # Broadcast: mọi cửa hàng đều thấy, kể cả không active — đếm 1 lần cho recordset.
+                if total is None:
+                    total = Franchise.search_count([])
+                rec.target_preview_count = total
+
+    def _compute_read_stats(self):
+        """Spec F §15 + ghi chú cột L dòng 762/863. Perf 1500 user: 2 query cho CẢ recordset."""
+        read_by_noti = {}
+        if self.ids:
+            read_by_noti = {
+                noti.id: count
+                for noti, count in self.env['wujia.notification.read'].sudo()._read_group(
+                    [('notification_id', 'in', self.ids)],
+                    groupby=['notification_id'], aggregates=['__count'],
+                )
+            }
+        # 1 query cho mọi record: cặp (user, cửa hàng) còn hiệu lực, gom theo cửa hàng để
+        # thông báo có target đếm được đúng phạm vi của nó.
+        pairs = self.env['wujia.franchise.member'].sudo()._read_group(
+            [('is_currently_valid', '=', True)], groupby=['franchise_id', 'user_id'],
+        )
+        per_franchise = {}
+        for franchise, _user in pairs:
+            per_franchise[franchise.id] = per_franchise.get(franchise.id, 0) + 1
+        total = len(pairs)
+        for rec in self:
+            rec.read_count = read_by_noti.get(rec._origin.id or rec.id, 0)
+            # franchise_ids rỗng = broadcast toàn hệ thống; có giá trị = chỉ đếm cửa hàng nhận.
+            fids = rec.franchise_ids.ids
+            rec.recipient_count = (
+                sum(per_franchise.get(fid, 0) for fid in fids) if fids else total
+            )
+            rec.unread_count = 0 if rec.is_expired else max(
+                rec.recipient_count - rec.read_count, 0
+            )
+
+    # -----------------------------------------------------------------
+    # Create / write / unlink
+    # -----------------------------------------------------------------
+    @api.onchange('target_mode')
+    def _onchange_target_mode(self):
+        # Đổi sang "Tất cả" thì bỏ hết cửa hàng đã chọn — tránh gửi nhầm phạm vi hẹp.
+        if self.target_mode == 'all':
+            self.franchise_ids = [fields.Command.clear()]
+
+    @api.model_create_multi
+    def create(self, vals_list):
+        for vals in vals_list:
+            if vals.get('target_mode') == 'all':
+                vals['franchise_ids'] = [fields.Command.clear()]
+            if not vals.get('code'):
+                vals['code'] = self.env['ir.sequence'].next_by_code(
+                    'wujia.notification'
+                )
+            if vals.get('state') == 'published':
+                vals.setdefault('published_date', fields.Datetime.now())
+                vals.setdefault('published_by_id', self.env.user.id)
+        return super().create(vals_list)
+
+    def write(self, vals):
+        if vals.get('target_mode') == 'all':
+            vals.setdefault('franchise_ids', [fields.Command.clear()])
+        new_state = vals.get('state')
+        if new_state:
+            for rec in self:
+                if rec.state != new_state and new_state not in STATE_TRANSITIONS[rec.state]:
+                    raise UserError(_(
+                        'Không thể chuyển thông báo "%(name)s" từ "%(old)s" sang "%(new)s".',
+                        name=rec.name,
+                        old=dict(STATE_SELECTION)[rec.state],
+                        new=dict(STATE_SELECTION)[new_state],
+                    ))
+            if new_state == 'published':
+                vals.setdefault('published_date', fields.Datetime.now())
+                vals.setdefault('published_by_id', self.env.user.id)
+        return super().write(vals)
+
+    def unlink(self):
+        # Spec F §17.2 — không xoá vật lý bản đã gửi, dùng Lưu trữ / bỏ active.
+        blocked = self.filtered(lambda r: r.state != 'draft')
+        if blocked:
+            raise UserError(_(
+                'Không thể xoá thông báo đã gửi: %s. Hãy dùng Lưu trữ.',
+                ', '.join(blocked.mapped('name')),
+            ))
+        return super().unlink()
+
+    @api.constrains('state', 'type_id')
+    def _check_published_requirements(self):
+        for rec in self:
+            if rec.state == 'published' and not rec.type_id:
+                raise ValidationError(_(MSG_PUBLISH_VALIDATION))
+
+    @api.constrains('target_mode', 'target_area_ids', 'target_state_ids',
+                    'target_exclude_franchise_ids', 'franchise_ids')
+    def _check_target(self):
+        for rec in self:
+            if rec.target_mode == 'filter' and not (
+                rec.target_area_ids or rec.target_state_ids
+                or rec.target_exclude_franchise_ids
+            ):
+                # Tiêu chí rỗng khớp toàn bộ cửa hàng — trùng ý nghĩa "Tất cả", chặn cho rõ ràng.
+                raise ValidationError(_(MSG_TARGET_NO_CRITERIA))
+            if rec.target_mode == 'all' and rec.franchise_ids:
+                raise ValidationError(_(MSG_TARGET_ALL_HAS_STORES))
+
+    # -----------------------------------------------------------------
+    # Actions (backend HQ)
+    # -----------------------------------------------------------------
+    def action_publish(self):
+        """Spec F §9 — validate rồi mới gửi. Fail → message nghiệp vụ §18."""
+        for rec in self:
+            if rec.state != 'draft':
+                raise UserError(_('Chỉ thông báo ở trạng thái Nháp mới gửi được.'))
+            if not (rec.name and rec._has_content() and rec.priority):
+                raise UserError(_(MSG_PUBLISH_VALIDATION))
+            if not rec.type_id or not rec.type_id.active:
+                raise UserError(_(MSG_PUBLISH_VALIDATION))
+            now = fields.Datetime.now()
+            if rec.expired_date and rec.expired_date < now:
+                raise UserError(_(MSG_PUBLISH_VALIDATION))
+            vals = {
+                'state': 'published',
+                'published_date': now,
+                'published_by_id': self.env.user.id,
+            }
+            # Chốt danh sách nhận tại thời điểm gửi (ghi chú cột L dòng 745): cửa hàng mở
+            # sau ngày gửi KHÔNG nhận thông báo cũ; HQ dùng action_refresh_recipients nếu muốn.
+            if rec.target_mode == 'filter':
+                franchises = rec._resolve_target_franchises()
+                if not franchises:
+                    raise UserError(_(MSG_TARGET_EMPTY))
+                vals['franchise_ids'] = [fields.Command.set(franchises.ids)]
+            elif rec.target_mode == 'manual' and not rec.franchise_ids:
+                raise UserError(_(MSG_TARGET_MANUAL_EMPTY))
+            rec.write(vals)
+        return True
+
+    def action_preview_recipients(self):
+        """Xem trước cửa hàng sẽ nhận — HQ kiểm tra trước khi gửi, không phải tick từng tiệm."""
+        self.ensure_one()
+        if self.target_mode == 'all':
+            domain = []
+        elif self.target_mode == 'filter':
+            domain = self._target_domain()
+        else:
+            domain = [('id', 'in', self.franchise_ids.ids)]
+        return {
+            'type': 'ir.actions.act_window',
+            'name': _('Cửa hàng nhận'),
+            'res_model': 'wujia.franchise.management',
+            'view_mode': 'list,form',
+            'domain': domain,
+            'context': {'create': False},
+        }
+
+    def action_refresh_recipients(self):
+        """Chốt lại danh sách nhận theo tiêu chí hiện tại — dùng khi có cửa hàng mới mở."""
+        for rec in self:
+            if rec.target_mode != 'filter':
+                raise UserError(_(
+                    'Chỉ thông báo gửi "Theo tiêu chí" mới cập nhật lại được danh sách nhận.'
+                ))
+            franchises = rec._resolve_target_franchises()
+            if not franchises:
+                raise UserError(_(MSG_TARGET_EMPTY))
+            rec.franchise_ids = [fields.Command.set(franchises.ids)]
+        return True
+
+    def action_archive_notification(self):
+        """Lưu trữ — ẩn khỏi portal, giữ lịch sử. Không xoá dữ liệu đọc."""
+        for rec in self:
+            if rec.state == 'archived':
+                continue
+            rec.state = 'archived'
+        return True
+
+    def action_view_read_lines(self):
+        self.ensure_one()
+        return {
+            'type': 'ir.actions.act_window',
+            'name': _('Trạng thái đọc'),
+            'res_model': 'wujia.notification.read',
+            'view_mode': 'list,form',
+            'domain': [('notification_id', '=', self.id)],
+            'context': {'create': False},
+        }
+
+    # -----------------------------------------------------------------
+    # Helpers
+    # -----------------------------------------------------------------
+    def _target_domain(self):
+        """Tiêu chí → domain trên wujia.franchise.management. OR trong nhóm, AND giữa nhóm."""
+        self.ensure_one()
+        domain = []
+        if self.target_status == 'active':
+            domain.append(('status', '=', 'active'))
+        if self.target_area_ids:
+            domain.append(('area_id', 'in', self.target_area_ids.ids))
+        if self.target_state_ids:
+            domain.append(('state_id', 'in', self.target_state_ids.ids))
+        if self.target_exclude_franchise_ids:
+            domain.append(('id', 'not in', self.target_exclude_franchise_ids.ids))
+        return domain
+
+    def _resolve_target_franchises(self):
+        """Dịch tiêu chí thành danh sách cửa hàng thật. Mode khác `filter` giữ nguyên lựa chọn."""
+        self.ensure_one()
+        if self.target_mode != 'filter':
+            return self.franchise_ids
+        return self.env['wujia.franchise.management'].sudo().search(self._target_domain())
+
+    def _has_content(self):
+        self.ensure_one()
+        return bool(self._html_to_text(self.content))
+
+    @staticmethod
+    def _html_to_text(html):
+        text = re.sub(r'<[^>]+>', ' ', html or '')
+        return re.sub(r'\s+', ' ', unescape(text)).strip()
+
+    def get_display_summary(self, length=200):
+        """Portal dùng: summary HQ nhập, trống thì cắt an toàn từ content (spec F §2)."""
+        self.ensure_one()
+        if self.summary:
+            return self.summary
+        text = self._html_to_text(self.content)
+        return text[:length] + ('...' if len(text) > length else '')
 
     def is_read_by(self, user_id):
         self.ensure_one()

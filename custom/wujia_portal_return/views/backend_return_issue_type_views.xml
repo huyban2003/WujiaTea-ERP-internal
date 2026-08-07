@@ -5,7 +5,7 @@
         <field name="name">wujia.return.issue.type.list</field>
         <field name="model">wujia.return.issue.type</field>
         <field name="arch" type="xml">
-            <list string="Loại lỗi" editable="bottom">
+            <list string="Issue type" editable="bottom">
                 <field name="sequence" widget="handle"/>
                 <field name="code"/>
                 <field name="name"/>
@@ -16,7 +16,7 @@
     </record>
 
     <record id="action_wujia_return_issue_type" model="ir.actions.act_window">
-        <field name="name">Loại lỗi</field>
+        <field name="name">Issue type</field>
         <field name="res_model">wujia.return.issue.type</field>
         <field name="view_mode">list</field>
         <field name="context">{'active_test': False}</field>

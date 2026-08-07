@@ -11,7 +11,7 @@
         <field name="name">User</field>
         <field name="sequence">10</field>
         <field name="privilege_id" ref="res_groups_privilege_fleet"/>
-        <field name="comment">Xem master data đội xe, xe và bảng giá vận chuyển.</field>
+        <field name="comment">View carrier, vehicle and shipping pricelist master data.</field>
     </record>
 
     <record id="group_fleet_manager" model="res.groups">
@@ -20,7 +20,7 @@
         <field name="privilege_id" ref="res_groups_privilege_fleet"/>
         <field name="implied_ids" eval="[(4, ref('group_fleet_user'))]"/>
         <field name="user_ids" eval="[(4, ref('base.user_admin'))]"/>
-        <field name="comment">Tạo/sửa/xóa đội xe, xe, bảng giá vận chuyển.</field>
+        <field name="comment">Create/edit/delete carriers, vehicles and shipping pricelists.</field>
     </record>
 
 </odoo>

@@ -629,8 +629,54 @@
         font-size: 13px;
         color: var(--wujia-text-subtitle);
     }
+    .wujia-mexam-rrow-ico.is-idle { background: var(--wujia-mexam-cal-muted); }
+    .wujia-mexam-rrow-note {
+        font-size: 12.5px;
+        color: var(--wujia-text-subtitle);
+        margin-top: 2px;
+    }
     .wujia-mexam-rnote { margin-top: 0; }
+    .wujia-mexam-rnote--warn {
+        color: var(--wujia-danger);
+        background: #FEF2F2;
+        border-color: #FEDEDE;
+    }
     .wujia-mexam-rcta { width: 100%; margin-top: 4px; }
+
+    /* ---- Sprint 45 wire: khung giờ động + ảnh + lỗi inline ---- */
+    .wujia-mexam-slot-empty {
+        margin: 8px 0;
+        font-size: 13.5px;
+        color: var(--wujia-mexam-cal-muted);
+        text-align: center;
+    }
+    .wujia-mexam-photo {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        height: 40px;
+        padding: 0 12px;
+        border: 1px dashed var(--wujia-mexam-field-border);
+        border-radius: 10px;
+        color: var(--wujia-primary);
+        font-size: 13.5px;
+        cursor: pointer;
+        align-self: flex-start;
+        max-width: 100%;
+    }
+    .wujia-mexam-photo i { font-size: 16px; flex: 0 0 auto; }
+    .wujia-mexam-photo-text { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .wujia-mexam-person-err {
+        margin: 2px 0 0;
+        font-size: 12.5px;
+        color: var(--wujia-danger);
+    }
+    .wujia-mexam-submit-err {
+        color: var(--wujia-danger);
+        background: #FEF2F2;
+        border-color: #FEDEDE;
+        margin-top: 0;
+    }
 }
 
 /* ==========================================================================
@@ -660,7 +706,10 @@
     /* ---------- Chung ---------- */
     .wj-exam-pc .wj-pc-page-header { margin-bottom: 25px; }
     .wj-exam-pc .wj-pc-page-header__title {
-        font-size: 30px !important;   /* thắng h1 !important của _components.css */
+        /* !important để thắng `h1 {font-size … !important}` (_components.css) và
+           `.content-wrapper h1 {font-weight:700 !important}` (_wujia_theme.css) */
+        font-size: 30px !important;
+        font-weight: 800 !important;   /* UI-PC-BASE-002 */
     }
     .wj-exam-pc .wj-pc-page-header__crumb { font-weight: 400; }
     .wj-exam-pc .wj-pc-btn { font-weight: 700; }
@@ -674,7 +723,6 @@
          bootstrap-extended   label          padding-left: .2rem
        Không sửa 4 file đó vì blast radius là toàn bộ portal; chỉ vô hiệu hoá
        trong phạm vi .wj-exam-pc. Số liệu lấy từ Figma WJ_Exam_PC v1.2. */
-    .wj-exam-pc .wj-pc-filterbar__title { font-size: 18px !important; }
     .wj-exam-pc .wj-pc-card__title      { font-size: 22px !important; }
     .wj-exam-pc .wj-exam-pc-sectitle    { font-size: 20px !important; }
     .wj-exam-pc .wj-exam-pc-sectitle--sm { font-size: 18px !important; }
@@ -696,11 +744,12 @@
     }
     .wj-exam-pc .wj-pc-pagination__count { white-space: nowrap; }
 
-    /* ---------- Bộ lọc nhanh (Figma y178 h88) ---------- */
-    .wj-exam-pc-filterbar { padding: 11px 24px 4px; }
-    .wj-exam-pc-filterbar .wj-pc-filterbar__title { margin: 0 0 9px; }
+    /* ---------- Bộ lọc nhanh (Figma y178 h88) ----------
+       Từ UI-PC-BASE-003: card 88px do .wj-pc-filterbar lo (23/42/23), bỏ dòng
+       tiêu đề; ở đây chỉ giữ padding ngang 24 + gap 14 riêng của exam. */
+    .wj-exam-pc-filterbar { padding-left: 24px; padding-right: 24px; }
     .wj-exam-pc-filterbar .wj-pc-filterbar__row {
-        align-items: flex-start;   /* input h38 / nút h42 canh mép trên như Figma */
+        align-items: center;   /* control và nút cùng h42 → canh giữa */
         gap: 14px;
     }
     /* Figma KHÔNG đẩy nút sang phải: nút chạy tiếp sau ô "Đến ngày". */
@@ -842,6 +891,14 @@
         color: var(--wj-pc-primary);
     }
     .wj-exam-pc-avatar i { font-size: 18px; }
+    /* Ảnh thí sinh thật (Action 10) — cùng khung 36×36 với placeholder */
+    .wj-exam-pc-avatar-img {
+        width: 36px;
+        height: 36px;
+        border-radius: var(--wj-pc-input-radius);
+        object-fit: cover;
+        display: inline-block;
+    }
 
     /* Banner state (Figma y816 h92) — 4 biến thể theo frame 06 */
     .wj-exam-pc-banner {

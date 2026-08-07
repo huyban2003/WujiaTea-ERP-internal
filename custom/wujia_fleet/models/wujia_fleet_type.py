@@ -4,43 +4,42 @@ from odoo.exceptions import ValidationError
 
 class WujiaFleetType(models.Model):
     _name = 'wujia.fleet.type'
-    _description = 'Wujia Fleet Type — Loại xe'
+    _description = 'Wujia Fleet Type'
     _order = 'sequence, payload_capacity_ton, name'
 
     name = fields.Char(
-        string='Tên loại xe',
+        string='Vehicle type name',
         required=True,
         translate=True,
-        help='Ví dụ "Xe tải 1.9T", "Xe đông lạnh 17T".',
+        help='e.g. "1.9T truck", "17T refrigerated truck".',
     )
-    code = fields.Char(string='Mã loại xe', index=True)
+    code = fields.Char(string='Vehicle type code', index=True)
     sequence = fields.Integer(default=10)
     vehicle_category = fields.Selection(
         [
-            ('truck', 'Xe tải'),
-            ('pickup', 'Bán tải'),
+            ('truck', 'Truck'),
+            ('pickup', 'Pickup'),
             ('van', 'Van'),
-            ('other', 'Khác'),
+            ('other', 'Other'),
         ],
-        string='Nhóm xe',
+        string='Vehicle group',
         required=True,
         default='truck',
     )
     payload_capacity_ton = fields.Float(
-        string='Tải trọng (tấn)',
+        string='Payload (tons)',
         required=True,
         default=0.0,
         digits=(10, 2),
     )
     max_payload_kg = fields.Float(
-        string='Tải trọng tối đa (kg)',
+        string='Maximum payload (kg)',
         compute='_compute_max_payload_kg',
         store=True,
         digits='Stock Weight',
-        help='= payload_capacity_ton × 1000. Dùng để compare với planned_weight '
-             'cho cảnh báo vượt tải batch.',
+        help="= payload_capacity_ton × 1000. Used to compare against planned_weight for the batch overload warning.",
     )
-    description = fields.Text(string='Mô tả')
+    description = fields.Text(string='Description')
 
     _code_uniq = models.Constraint(
         'UNIQUE (code)',

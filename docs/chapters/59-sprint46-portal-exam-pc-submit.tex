@@ -1,0 +1,143 @@
+\chapter{Sprint 46 --- Wire PC ``Gửi đăng ký'' (Đăng ký thi) vào backend thật (2026-08-02)}
+
+\section{Bối cảnh}
+
+Sprint 45 (ch.58) đã nối \textbf{toàn bộ luồng mobile} (chọn khóa $\rightarrow$ ngày
+$\rightarrow$ khung giờ $\rightarrow$ nhập nhân sự $\rightarrow$ submit thật) và
+\textbf{phần đọc PC} (danh sách / chi tiết / kết quả) vào backend Sprint M. Riêng màn
+\textbf{PC ``Đăng ký mới''} vẫn chạy demo: lịch, khung giờ, người tham gia đọc từ dict
+\texttt{PC\_*} trong controller; nút ``Gửi yêu cầu'' là \texttt{setTimeout} giả --- cửa
+hàng \textbf{chưa tạo được phiếu từ PC}. Đây là mảnh cuối để đóng task
+\texttt{Tasks!STT6} (\emph{``Xây dựng controller đăng ký thi nhượng quyền MVP cho
+Portal''}).
+
+Ba endpoint nghiệp vụ đã tồn tại từ S45 --- \textbf{tái dùng, không đẻ endpoint mới}:
+\texttt{POST /portal/exam/calendar} (ma trận tuần trạng thái ngày theo khóa),
+\texttt{POST /portal/exam/slots} (danh sách session theo ngày, mỗi slot có
+\texttt{session\_id}), \texttt{POST /portal/exam/register} (submit: server-resolve
+\texttt{franchise/member/requester}, backend tự \texttt{FOR UPDATE NOWAIT} $+$ đếm lại
+giữ-chỗ). Module \texttt{wujia\_portal\_exam} giữ \texttt{19.0.5.0.0} --- không đổi schema,
+chỉ đổi nguồn dữ liệu view $+$ nối JS $\rightarrow$ bundle \texttt{web.assets\_frontend}
+regen khi \texttt{-u}, không migration.
+
+\section{Phạm vi đã chốt với chủ dự án}
+
+\begin{itemize}
+  \item \textbf{Làm}: nối PC create (calendar / slots / submit) vào 3 endpoint sẵn có; màn
+    PC register nhận dữ liệu thật thay demo; bảng người tham gia thêm/sửa/xóa thật, gom
+    ảnh base64.
+  \item \textbf{Hai quyết định chủ dự án chốt}: (a) hàng người tham gia trên PC
+    \textbf{sửa được} (bấm bút chì $\rightarrow$ prefill modal $\rightarrow$ thay dòng, không
+    append); (b) mở rộng helper \texttt{\_exam\_slots} thêm \textbf{1 key \texttt{deadline}}
+    (nhãn hiển thị hạn đăng ký) --- additive, mobile bỏ qua key thừa nên 0 regression.
+  \item \textbf{Không đụng}: logic mobile (\texttt{portal\_exam\_wizard.js}), phần đọc PC
+    (list/detail template $+$ mapper \texttt{\_pc\_*}), backend models/security/migration,
+    chữ ký 3 endpoint (giữ nguyên hành vi capacity-lock).
+\end{itemize}
+
+\section{Thay đổi (\texttt{controllers/portal.py})}
+
+\begin{itemize}
+  \item \texttt{\_exam\_slots(course, d)} --- thêm key \texttt{deadline}: nhãn
+    \texttt{dd/mm/YYYY · HH:MM} theo giờ địa phương (dùng lại \texttt{\_to\_local} $+$
+    strftime), \texttt{'—'} nếu ca không đặt hạn. Mobile \texttt{renderSlots} không đọc key
+    này $\Rightarrow$ an toàn.
+  \item \texttt{portal\_exam\_register\_flow} (GET) --- thay context demo PC bằng dữ liệu
+    thật: PC template dùng thẳng biến \texttt{calendar} real (từ \texttt{\_exam\_calendar});
+    \texttt{pc\_courses} $=$ danh sách \texttt{\{course\_id, title\}}; \texttt{pc\_lines}
+    $=$ \texttt{[]} (bảng khởi tạo rỗng); \texttt{pc\_summary} $=$ dict thật tối thiểu
+    (\texttt{franchise\_name} tra từ \texttt{wujia.franchise.management},
+    \texttt{course\_name}, \texttt{quota\_label}/\texttt{max\_per\_reg} theo
+    \texttt{max\_participants\_per\_registration}; ô lịch/địa điểm/hạn/chỗ để \texttt{'—'},
+    JS lấp khi chọn slot).
+  \item Dọn hằng/hàm demo không còn dùng: \texttt{PC\_SLOTS}, \texttt{PC\_LINES},
+    \texttt{PC\_SUMMARY}, \texttt{PC\_AVAILABLE\_DAYS}, \texttt{PC\_BLOCKED\_DAYS},
+    \texttt{PC\_SELECTED\_DAY}, \texttt{\_build\_pc\_calendar()}. Mapper đọc list/detail
+    (\texttt{PC\_REG\_STATES}/\texttt{PC\_PUBLISH\_STATES}/\texttt{\_pc\_*}) giữ nguyên.
+\end{itemize}
+
+\section{Thay đổi (\texttt{views/portal\_exam.xml}) --- chỉ nhánh PC register}
+
+Giữ nguyên class/layout Figma WJ\_Exam\_PC v1.2, chỉ đổi nguồn dữ liệu $+$ hook data-*:
+
+\begin{itemize}
+  \item Course \texttt{<select>}: 3 option cứng $\rightarrow$ \texttt{t-foreach="pc\_courses"}
+    với \texttt{data-wj-exam-course}.
+  \item Calendar: \texttt{t-foreach} sang \texttt{calendar['weeks']}, map state real
+    $\rightarrow$ class (\texttt{available}$\to$\texttt{--available}, \texttt{full}$\to$
+    \texttt{--blocked}, \texttt{none}$\to$\texttt{--none}, \texttt{out}$\to$\texttt{--out}),
+    nút available mang \texttt{data-exam-iso} (ISO thật); \texttt{data-exam-year/month} lên
+    \texttt{[data-wj-exam-cal]} cho JS đổi tháng.
+  \item Slot list $+$ participant tbody $+$ bảng submit-modal: bỏ \texttt{t-foreach} demo,
+    để rỗng cho JS dựng; các input người tham gia đã sẵn \texttt{name}
+    (\texttt{employee\_name/phone/birth\_year/job\_position}) --- không sửa.
+\end{itemize}
+
+\section{Thay đổi (\texttt{static/src/js/portal\_exam\_pc.js}) --- nối backend}
+
+Viết lại phần nối backend theo đúng pattern mobile (\texttt{portal\_exam\_wizard.js}):
+helper \texttt{jsonRpc}; state closure \texttt{chosen} (session đã chọn), \texttt{editingRow}
+(null $=$ thêm), \texttt{modalPhoto} (base64 hiện tại), \texttt{maxPer}.
+
+\begin{itemize}
+  \item \textbf{Lịch}: đổi \texttt{<select>} khóa / prev-next tháng $\rightarrow$ POST
+    \texttt{/calendar} $\rightarrow$ dựng lại grid $+$ bind ngày.
+  \item \textbf{Chọn ngày} $\rightarrow$ POST \texttt{/slots} $\rightarrow$ render slot
+    (mỗi slot mang \texttt{data-wj-exam-slot-session/max/loc/seats/deadline/time}); slot
+    không available hiện \texttt{disabled} $+$ trạng thái.
+  \item \textbf{Chọn slot} $\rightarrow$ đọc data-* vào \texttt{chosen}, đồng bộ cột phải
+    (ngày·giờ, địa điểm, hạn đăng ký, ``Ca còn: N chỗ'', quota).
+  \item \textbf{Người tham gia}: modal thêm/sửa dùng \texttt{buildRow}/\texttt{renderRowCells}
+    lưu \texttt{tr.\_wjPart} $+$ \texttt{tr.\_wjPhoto}; bút chì $\rightarrow$ prefill $\rightarrow$
+    thay dòng; ảnh qua FileReader base64 (guard $\leq$5MB $+$ MIME client, backend re-validate).
+  \item \textbf{``Kiểm tra thông tin''}: guard chưa chọn slot hoặc 0 người $\rightarrow$
+    message trong \texttt{[data-wj-exam-conflict]}, không mở modal; hợp lệ $\rightarrow$ dựng
+    bảng xác nhận từ các \texttt{tr.\_wjPart}.
+  \item \textbf{``Gửi yêu cầu''} $\rightarrow$ POST \texttt{/register}
+    \texttt{\{session\_id, note, participants\}}; \texttt{success} $\rightarrow$ redirect
+    chi tiết phiếu; \texttt{error} $\rightarrow$ hiện message backend trong
+    \texttt{[data-wj-exam-conflict]}, re-enable nút, không phiếu ma.
+\end{itemize}
+
+\section{Gì đã làm (nghiệp vụ)}
+
+Từ nay cửa hàng \textbf{đăng ký thi được trên cả PC lẫn điện thoại}. Trên PC 1920$\times$1080,
+người quản lý chọn khóa thi $\rightarrow$ lịch thật hiện ngày nào còn chỗ $\rightarrow$ chọn
+khung giờ (biết ngay địa điểm, hạn đăng ký, còn mấy chỗ) $\rightarrow$ nhập danh sách nhân
+viên dự thi (sửa/xóa tùy ý, kèm ảnh) $\rightarrow$ ``Gửi'' là tạo phiếu thật, nhảy sang màn
+chi tiết ``Chờ xác nhận''. Vượt sức chứa hay ca vừa đầy thì báo lỗi rõ, không tạo phiếu
+sai. Đây là mảnh cuối đóng task controller đăng ký thi MVP --- toàn bộ hành vi nghiệp vụ
+(mobile $+$ PC, đọc $+$ tạo) đã chạy trên dữ liệu thật.
+
+\section{Kiểm chứng (end-to-end, server test port 8020)}
+
+\begin{itemize}
+  \item \texttt{-u wujia\_portal\_exam --stop-after-init} $\rightarrow$ RC$=$0, log 0
+    ERROR/Traceback/CRITICAL, ``Modules loaded.''.
+  \item \textbf{E2E PC 1920$\times$1080 (Playwright, 16/16 pass)}: select khóa có option
+    thật; lịch có ngày available thật; chọn ngày 08-05 $\rightarrow$ slot mang
+    \texttt{session\_id} thật; thêm 2 người $+$ \textbf{sửa 1 dòng} (prefill $\rightarrow$
+    thay, không append); ``Kiểm tra'' dựng đúng bảng xác nhận; ``Gửi'' $\rightarrow$ tạo
+    phiếu THẬT (\texttt{id=24}) $+$ redirect chi tiết ``Chờ''. \textbf{Vượt sức chứa}
+    (ca 1 chỗ, thêm 2 người) $\rightarrow$ backend chặn, alert conflict hiện, ở lại màn
+    register, \textbf{không 500, không phiếu ma}.
+  \item \textbf{Regression (13/13 pass)}: mobile 391$\times$844 submit vẫn tạo phiếu thật
+    (endpoint \texttt{/slots} thêm key \texttt{deadline} không phá mobile); PC read
+    \texttt{/portal/exam} list nguyên vẹn; smoke \texttt{/portal}, \texttt{/portal/order},
+    \texttt{/portal/notification} hai viewport $\rightarrow$ 200, overflow ngang $=$ 0, 0
+    JS pageerror.
+\end{itemize}
+
+\section{Bài học}
+
+\begin{itemize}
+  \item \textbf{``Thay 3 hàm mock'' có thể là viết lại cả tầng.} PC create khác mobile về
+    cấu trúc (bảng $+$ modal vs card inline) $+$ nút ``Thêm người'' cũ chưa từng append
+    dòng --- nên phải viết lại JS theo pattern delegation của mobile, không chỉ đổi 3 hàm.
+  \item \textbf{Mở rộng dict trả về nên additive.} Thêm \texttt{deadline} vào
+    \texttt{\_exam\_slots} không phá mobile vì client cũ bỏ qua key lạ --- an toàn hơn hẳn
+    đổi shape hay đổi tên key sẵn có.
+  \item \textbf{Tên state backend $\neq$ tên class CSS.} Real \texttt{full} vs CSS
+    \texttt{--blocked} phải map tường minh ở cả \texttt{t-set} (XML) lẫn JS
+    \texttt{dayStateClass}, nếu không lịch render sai trạng thái.
+\end{itemize}

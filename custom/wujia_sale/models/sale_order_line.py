@@ -6,15 +6,14 @@ class SaleOrderLine(models.Model):
     _inherit = 'sale.order.line'
 
     weight_per_unit = fields.Float(
-        string='Khối lượng/đơn vị',
+        string='Weight per unit',
         digits='Stock Weight',
         readonly=True,
         copy=True,
-        help='Snapshot khối lượng 1 đơn vị product tại lúc chọn sản phẩm. '
-             'Không cho user nhập tay; lưu để dữ liệu cũ giữ nguyên kể cả khi product.weight đổi.',
+        help="Snapshot of the weight of one product unit taken when the product is selected. Not user-editable; stored so historical data stays unchanged even if product.weight changes.",
     )
     planned_weight = fields.Float(
-        string='Khối lượng dự kiến',
+        string='Planned weight',
         compute='_compute_planned_weight',
         store=True,
         digits='Stock Weight',

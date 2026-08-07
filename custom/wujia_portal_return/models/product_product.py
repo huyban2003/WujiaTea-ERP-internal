@@ -12,38 +12,36 @@ class ProductProduct(models.Model):
     _inherit = 'product.product'
 
     compensation_enabled = fields.Boolean(
-        string='Bật bù hàng',
+        string='Compensation enabled',
         default=False,
-        help='Cho phép sản phẩm này được xử lý bù hàng (tạo SO 0đ).',
+        help='Allow this product to be compensated (creates a zero-value SO).',
     )
     compensation_policy = fields.Selection(
-        [('exact', 'Bù đúng số lượng'),
-         ('accumulate', 'Cộng dồn nguyên kiện')],
-        string='Chính sách bù',
+        [('exact', 'Exact quantity'),
+         ('accumulate', 'Whole-pack accumulation')],
+        string='Compensation policy',
         default='exact',
-        help='exact: bù đúng số lượng còn thiếu; '
-             'accumulate: cộng dồn đủ một đơn vị giao mới bù (phần lẻ chuyển kỳ sau).',
+        help="exact: compensate exactly the missing quantity; accumulate: build up until a full delivery unit is reached (the remainder carries over to the next period).",
     )
     compensation_claim_uom_id = fields.Many2one(
         'uom.uom',
-        string='ĐVT quyền lợi',
-        help='Đơn vị ghi nhận quyền lợi bù (vd: kg, cây).',
+        string='Entitlement UoM',
+        help='Unit in which the compensation entitlement is recorded (e.g. kg, stick).',
     )
     compensation_product_id = fields.Many2one(
         'product.product',
-        string='Sản phẩm bù',
-        help='Sản phẩm thực tế đưa vào SO bù. Để trống = dùng chính sản phẩm này.',
+        string='Compensation product',
+        help='Product actually put on the compensation SO. Leave empty to use this product.',
     )
     compensation_delivery_uom_id = fields.Many2one(
         'uom.uom',
-        string='ĐVT giao bù',
-        help='Đơn vị thực tế đặt trên SO bù (vd: bịch, thùng, cây).',
+        string='Compensation delivery UoM',
+        help='Unit actually used on the compensation SO (e.g. bag, carton, stick).',
     )
     compensation_unit_qty = fields.Float(
-        string='SL quyền lợi / đơn vị giao',
+        string='Entitlement qty per delivery unit',
         digits='Product Unit of Measure',
-        help='SL quyền lợi tương ứng một đơn vị giao bù (vd 1 bịch = 10 kg). '
-             'Gợi ý mặc định khi HQ duyệt yêu cầu.',
+        help="Entitlement quantity for one compensation delivery unit (e.g. 1 bag = 10 kg). Used as the default suggestion when HQ approves a request.",
     )
 
     @api.constrains('compensation_enabled', 'compensation_policy',

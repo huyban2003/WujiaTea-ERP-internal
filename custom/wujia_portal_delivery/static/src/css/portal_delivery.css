@@ -13,9 +13,20 @@
     --wujia-mdelivery-skel: #E5E7EB;      /* skeleton placeholder */
 }
 
+/* Vùng đang nạp lại bằng AJAX (lọc/phân trang) — mờ nhẹ, chặn click trùng. */
+.wj-dlv-busy { opacity: .55; pointer-events: none; transition: opacity .12s linear; }
+
 @media (max-width: 991.98px) {
     /* Chống font-boosting Chromium làm title wrap */
     .wujia-mdelivery { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
+
+    /* Bọc kết quả mobile thành 1 vùng swap AJAX — lặp lại flex+gap của
+       .wujia-mpage để thêm wrapper mà spacing giữa các khối không đổi. */
+    .wujia-mdelivery-body {
+        display: flex;
+        flex-direction: column;
+        gap: var(--wujia-mshell-content-gap);
+    }
 
     /* ---------- Header (List) ---------- */
     .wujia-mdelivery-head { display: flex; flex-direction: column; gap: 5px; }

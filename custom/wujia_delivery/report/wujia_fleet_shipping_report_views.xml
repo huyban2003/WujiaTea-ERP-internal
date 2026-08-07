@@ -5,7 +5,7 @@
         <field name="name">wujia.fleet.shipping.report.list</field>
         <field name="model">wujia.fleet.shipping.report</field>
         <field name="arch" type="xml">
-            <list string="Chi phí đội xe" create="false" edit="false">
+            <list string="Carrier cost" create="false" edit="false">
                 <field name="report_date"/>
                 <field name="batch_id"/>
                 <field name="vehicle_id"/>
@@ -28,7 +28,7 @@
         <field name="name">wujia.fleet.shipping.report.pivot</field>
         <field name="model">wujia.fleet.shipping.report</field>
         <field name="arch" type="xml">
-            <pivot string="Chi phí đội xe">
+            <pivot string="Carrier cost">
                 <field name="provider_id" type="row"/>
                 <field name="fleet_type_id" type="row"/>
                 <field name="report_date" type="col" interval="month"/>
@@ -42,7 +42,7 @@
         <field name="name">wujia.fleet.shipping.report.graph</field>
         <field name="model">wujia.fleet.shipping.report</field>
         <field name="arch" type="xml">
-            <graph string="Chi phí đội xe" type="bar" stacked="0">
+            <graph string="Carrier cost" type="bar" stacked="0">
                 <field name="provider_id"/>
                 <field name="total_shipping_cost" type="measure"/>
             </graph>
@@ -59,16 +59,16 @@
                 <field name="provider_id"/>
                 <field name="fleet_type_id"/>
                 <separator/>
-                <filter string="Tháng này" name="filter_this_month"
+                <filter string="This month" name="filter_this_month"
                         domain="[('report_date', '&gt;=', context_today().strftime('%Y-%m-01'))]"/>
-                <filter string="Vượt tải" name="filter_over_capacity"
+                <filter string="Overloaded" name="filter_over_capacity"
                         domain="[('capacity_usage_percent', '&gt;', 100)]"/>
                 <separator/>
-                <filter string="Đội xe" name="group_provider"
+                <filter string="Carrier" name="group_provider"
                         context="{'group_by': 'provider_id'}"/>
-                <filter string="Loại xe" name="group_fleet_type"
+                <filter string="Vehicle type" name="group_fleet_type"
                         context="{'group_by': 'fleet_type_id'}"/>
-                <filter string="Tháng" name="group_month"
+                <filter string="Month" name="group_month"
                         context="{'group_by': 'report_date:month'}"/>
             </search>
         </field>

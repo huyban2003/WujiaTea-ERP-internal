@@ -14,7 +14,7 @@
                     <block title="Khung giờ đặt hàng Portal (fallback)"
                            name="wujia_portal_order_window_block">
                         <setting id="wujia_portal_order_time_limit_enabled"
-                                 help="Bật/tắt giới hạn khung giờ đặt hàng cho portal. Tắt = cho phép đặt mọi lúc.">
+                                 help="Enable/disable the portal ordering time window. Off = ordering allowed at any time.">
                             <field name="portal_order_time_limit_enabled"/>
                             <div class="content-group">
                                 <div class="row mt8">
@@ -32,11 +32,7 @@
                                            widget="float_time"/>
                                 </div>
                                 <div class="text-muted mt8">
-                                    Khung giờ mặc định <em>chỉ áp dụng cho khu vực
-                                    chưa có cấu hình riêng</em>. Cấu hình theo khu vực
-                                    tại menu <strong>Sales → Configuration →
-                                    Wujia Portal → Khung giờ đặt hàng</strong>.
-                                    Nếu To &lt; From, khung giờ chạy qua nửa đêm.
+                                    Default time window <em>applies only to areas without their own configuration</em>. Configure it per area under <strong>Sales → Configuration → Wujia Portal → Ordering time windows</strong>. If To &lt; From, the window runs past midnight.
                                 </div>
                             </div>
                         </setting>

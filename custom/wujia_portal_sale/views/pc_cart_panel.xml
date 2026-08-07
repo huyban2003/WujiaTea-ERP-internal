@@ -60,7 +60,7 @@
                                           t-out="line['invalid_message']"/>
                                 </td>
                                 <td class="text-end wj-pc-cart-unit"
-                                    t-out="'{:,.0f}'.format(line['unit_price'] or 0).replace(',', '.') + ' đ'"/>
+                                    t-out="money(line['unit_price_tax_included'], cart_state['currency_symbol'], cart_state['currency_decimals'])"/>
                                 <td class="text-center">
                                     <div class="wj-pc-stepper">
                                         <button type="button" class="wj-pc-cart-step" data-action="dec"
@@ -71,7 +71,7 @@
                                     </div>
                                 </td>
                                 <td class="text-end wj-pc-cart-subtotal"
-                                    t-out="'{:,.0f}'.format(line['subtotal'] or 0).replace(',', '.') + ' đ'"/>
+                                    t-out="money(line['line_total_tax_included'], cart_state['currency_symbol'], cart_state['currency_decimals'])"/>
                                 <td class="text-center">
                                     <button type="button" class="wj-pc-cart-del"
                                             t-att-data-line-id="line['line_id']" aria-label="Xoá">
@@ -98,10 +98,20 @@
                             <span class="wj-pc-cart-total-label">Tổng số lượng</span>
                             <span class="wj-pc-cart-total-qty"><t t-out="cart_state['total_qty'] if cart_state else 0"/></span>
                         </div>
+                        <!-- WJ-ORD-024: cùng breakdown với giỏ mobile — Tạm tính · Thuế ·
+                             Tổng thanh toán, cùng nguồn `cart_state` nên không thể lệch nhau. -->
                         <div class="wj-pc-cart-total-line">
-                            <span class="wj-pc-cart-total-label wj-pc-cart-total-label--grand">Tổng tiền</span>
+                            <span class="wj-pc-cart-total-label">Tạm tính</span>
+                            <span t-out="money(cart_state['total_untaxed'] if cart_state else 0, cart_state['currency_symbol'] if cart_state else '', cart_state['currency_decimals'] if cart_state else 0)"/>
+                        </div>
+                        <div t-if="cart_state and cart_state['total_tax_amount']" class="wj-pc-cart-total-line">
+                            <span class="wj-pc-cart-total-label">Thuế</span>
+                            <span t-out="money(cart_state['total_tax_amount'], cart_state['currency_symbol'], cart_state['currency_decimals'])"/>
+                        </div>
+                        <div class="wj-pc-cart-total-line">
+                            <span class="wj-pc-cart-total-label wj-pc-cart-total-label--grand">Tổng thanh toán</span>
                             <span class="wj-pc-cart-grand"
-                                  t-out="'{:,.0f}'.format((cart_state['total_amount'] if cart_state else 0) or 0).replace(',', '.') + ' đ'"/>
+                                  t-out="money(cart_state['total_tax_included'] if cart_state else 0, cart_state['currency_symbol'] if cart_state else '', cart_state['currency_decimals'] if cart_state else 0)"/>
                         </div>
                     </div>
                     <!-- WJ-ORD-006: ngoài giờ → disable submit + nêu rõ (server vẫn chặn

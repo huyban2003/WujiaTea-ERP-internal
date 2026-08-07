@@ -16,17 +16,17 @@ class WujiaFranchiseManagement(models.Model):
     _order = 'latest_inspection_date desc, code, name'
 
     code = fields.Char(
-        string='Mã cửa hàng',
+        string='Store code',
         required=True,
         index=True,
         tracking=True,
-        help='Mã cửa hàng nhượng quyền, ví dụ H010 hoặc HN-01.',
+        help='Franchise store code, e.g. H010 or HN-01.',
     )
     name = fields.Char(
-        string='Tên cửa hàng',
+        string='Store name',
         required=True,
         tracking=True,
-        help='Tên hiển thị, ví dụ "[H010] Cửa hàng 219 Vĩnh Viễn".',
+        help='Display name, e.g. "[H010] 219 Vinh Vien store".',
     )
     display_name = fields.Char(compute='_compute_display_name', store=True)
 
@@ -35,77 +35,77 @@ class WujiaFranchiseManagement(models.Model):
         string='Partner',
         ondelete='restrict',
         tracking=True,
-        help='Link tới res.partner đại diện cửa hàng — entity transactional cho '
+        help='Link to the res.partner representing the store — the transactional entity for '
              'sale.order, account.move, membership.',
     )
 
-    opening_date = fields.Date(string='Ngày khai trương', tracking=True)
-    address = fields.Text(string='Địa chỉ', tracking=True)
+    opening_date = fields.Date(string='Opening date', tracking=True)
+    address = fields.Text(string='Address', tracking=True)
     state_id = fields.Many2one(
         'res.country.state',
-        string='Tỉnh/Thành',
+        string='Province',
         tracking=True,
     )
-    phone = fields.Char(string='SĐT')
+    phone = fields.Char(string='Phone')
     email = fields.Char(string='Email')
 
     franchise_start_date = fields.Date(
-        string='Ngày bắt đầu nhượng quyền',
+        string='Franchise start date',
         required=True,
         default=fields.Date.context_today,
         tracking=True,
     )
     franchise_end_date = fields.Date(
-        string='Ngày kết thúc nhượng quyền',
+        string='Franchise end date',
         required=True,
         tracking=True,
     )
     remaining_days = fields.Integer(
-        string='Số ngày còn lại',
+        string='Days remaining',
         compute='_compute_remaining_days',
         store=True,
     )
     is_expired = fields.Boolean(
-        string='Đã hết hạn',
+        string='Contract expired',
         compute='_compute_remaining_days',
         store=True,
     )
 
     area_id = fields.Many2one(
         'res.area',
-        string='Khu vực',
+        string='Area',
         tracking=True,
         ondelete='restrict',
     )
     area_name = fields.Char(related='area_id.name', store=True, readonly=True)
 
     description = fields.Text(
-        string='Mô tả vận hành',
-        help='Lưu ý vận hành, giao hàng, cấm tải, cấm đỗ...',
+        string='Operating description',
+        help='Operating notes: delivery, loading bans, parking bans...',
     )
-    note = fields.Text(string='Ghi chú nội bộ')
+    note = fields.Text(string='Internal note')
 
     portal_locked = fields.Boolean(
-        string='Khóa portal',
+        string='Portal locked',
         default=False,
         tracking=True,
-        help='Khóa toàn bộ truy cập portal của cửa hàng (vd vi phạm hợp đồng).',
+        help='Block every portal access of this store (e.g. contract breach).',
     )
     invoiced = fields.Boolean(
-        string='Đã xuất hóa đơn',
+        string='Invoiced',
         default=False,
-        help='Cờ theo dõi đã xuất hóa đơn liên quan.',
+        help='Flag tracking whether the related invoices have been issued.',
     )
 
     status = fields.Selection(
         [
-            ('draft', 'Nháp'),
-            ('active', 'Đang hoạt động'),
-            ('locked', 'Khóa'),
-            ('closed', 'Đã đóng'),
-            ('expired', 'Hết hạn'),
+            ('draft', 'Draft'),
+            ('active', 'Active'),
+            ('locked', 'Locked'),
+            ('closed', 'Closed'),
+            ('expired', 'Expired'),
         ],
-        string='Trạng thái',
+        string='Status',
         required=True,
         default='active',
         tracking=True,
@@ -114,17 +114,17 @@ class WujiaFranchiseManagement(models.Model):
     member_ids = fields.One2many(
         'wujia.franchise.member',
         'franchise_id',
-        string='Thành viên',
+        string='Members',
     )
     member_count = fields.Integer(
-        string='Số thành viên',
+        string='Member count',
         compute='_compute_member_count',
     )
     main_owner_member_id = fields.Many2one(
         'wujia.franchise.member',
-        string='Chủ chính',
+        string='Primary owner',
         compute='_compute_main_owner_member',
-        help='Thành viên có role=owner đang active của cửa hàng (BA spec).',
+        help='The active member with role=owner for this store (BA spec).',
     )
 
     supervision_user_id = fields.Many2one(

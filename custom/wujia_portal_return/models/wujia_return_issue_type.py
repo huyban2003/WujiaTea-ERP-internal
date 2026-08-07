@@ -13,11 +13,11 @@ class WujiaReturnIssueType(models.Model):
     _description = 'Wujia Return Issue Type'
     _order = 'sequence, code, id'
 
-    name = fields.Char(string='Tên loại lỗi', required=True, translate=True)
-    code = fields.Char(string='Mã')
+    name = fields.Char(string='Issue type name', required=True, translate=True)
+    code = fields.Char(string='Code')
     active = fields.Boolean(default=True)
     sequence = fields.Integer(default=10)
-    note = fields.Text(string='Ghi chú nội bộ', translate=True)
+    note = fields.Text(string='Internal note', translate=True)
 
     @api.constrains('code')
     def _check_code_unique(self):

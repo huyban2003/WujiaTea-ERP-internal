@@ -5,7 +5,7 @@
         <field name="name">wujia.fleet.pricelist.list</field>
         <field name="model">wujia.fleet.pricelist</field>
         <field name="arch" type="xml">
-            <list string="Bảng giá vận chuyển" sample="1"
+            <list string="Shipping pricelists" sample="1"
                   decoration-success="state == 'active'"
                   decoration-muted="state in ('expired', 'archived')">
                 <field name="sequence" widget="handle"/>
@@ -30,16 +30,16 @@
         <field name="name">wujia.fleet.pricelist.form</field>
         <field name="model">wujia.fleet.pricelist</field>
         <field name="arch" type="xml">
-            <form string="Bảng giá vận chuyển">
+            <form string="Shipping pricelists">
                 <header>
                     <button name="action_activate" type="object"
-                            string="Kích hoạt" class="btn-primary"
+                            string="Activate" class="btn-primary"
                             invisible="state != 'draft'"/>
                     <button name="action_set_draft" type="object"
-                            string="Về nháp"
+                            string="Reset to draft"
                             invisible="state not in ('expired', 'archived')"/>
                     <button name="action_archive_pricelist" type="object"
-                            string="Lưu trữ"
+                            string="Archive"
                             invisible="state == 'archived'"/>
                     <field name="state" widget="statusbar"
                            statusbar_visible="draft,active,expired,archived"/>
@@ -49,7 +49,7 @@
                             invisible="active"/>
                     <div class="oe_title">
                         <label for="name" class="oe_edit_only"/>
-                        <h1><field name="name" placeholder="Cước phí xe tải đông lạnh 1T9 đi tỉnh"/></h1>
+                        <h1><field name="name" placeholder="e.g. Refrigerated 1.9T truck — intercity rate"/></h1>
                     </div>
                     <group>
                         <group>
@@ -68,7 +68,7 @@
                         </group>
                     </group>
                     <notebook>
-                        <page string="Dòng giá theo khu vực" name="lines">
+                        <page string="Price lines by area" name="lines">
                             <field name="line_ids">
                                 <list editable="bottom">
                                     <field name="sequence" widget="handle"/>
@@ -82,7 +82,7 @@
                                 </list>
                             </field>
                         </page>
-                        <page string="Ghi chú" name="note">
+                        <page string="Notes" name="note">
                             <field name="note"/>
                         </page>
                     </notebook>
@@ -102,18 +102,18 @@
                 <field name="fleet_type_id"/>
                 <field name="provider_id"/>
                 <separator/>
-                <filter string="Đang áp dụng" name="filter_active_state"
+                <filter string="In effect" name="filter_active_state"
                         domain="[('state', '=', 'active')]"/>
-                <filter string="Hết hạn" name="filter_expired"
+                <filter string="Expired" name="filter_expired"
                         domain="[('state', '=', 'expired')]"/>
                 <separator/>
                 <filter string="Archived" name="filter_inactive"
                         domain="[('active', '=', False)]"/>
-                <filter string="Loại xe" name="group_fleet_type"
+                <filter string="Vehicle type" name="group_fleet_type"
                         context="{'group_by': 'fleet_type_id'}"/>
-                <filter string="Đội xe" name="group_provider"
+                <filter string="Carrier" name="group_provider"
                         context="{'group_by': 'provider_id'}"/>
-                <filter string="Trạng thái" name="group_state"
+                <filter string="Status" name="group_state"
                         context="{'group_by': 'state'}"/>
             </search>
         </field>

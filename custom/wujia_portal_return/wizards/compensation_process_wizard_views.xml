@@ -5,15 +5,13 @@
         <field name="name">wujia.compensation.process.wizard.form</field>
         <field name="model">wujia.compensation.process.wizard</field>
         <field name="arch" type="xml">
-            <form string="Xử lý bù hàng">
+            <form string="Process compensation">
                 <div class="alert alert-info" role="status"
                      invisible="skipped_count == 0">
-                    <field name="skipped_count" class="oe_inline"/> yêu cầu bị bỏ qua
-                    (không đủ điều kiện: chưa duyệt / không phải bù hàng / đã phân bổ đủ).
+                    <field name="skipped_count" class="oe_inline"/> requests skipped (not eligible: not approved / not a compensation / already fully allocated).
                 </div>
                 <p>
-                    Mỗi cửa hàng sẽ tạo <b>1 đơn bù hàng (SO 0đ)</b>. Số lượng giao
-                    đề xuất theo FIFO — mở từng dòng để xem phân bổ và chỉnh nếu cần.
+                    Each store will get <b>1 compensation order (zero-value SO)</b>. Delivered quantities are proposed FIFO — open each line to review the allocation and adjust it if needed.
                 </p>
                 <field name="skipped_count" invisible="1"/>
                 <field name="group_ids" nolabel="1">
@@ -27,7 +25,7 @@
                         <field name="delivery_qty"/>
                         <field name="delivery_uom_id"/>
                     </list>
-                    <form string="Nhóm SO bù">
+                    <form string="Compensation SO group">
                         <group>
                             <group>
                                 <field name="franchise_id" readonly="1"/>
@@ -44,7 +42,7 @@
                                 <field name="delivery_qty"/>
                             </group>
                         </group>
-                        <separator string="Phân bổ FIFO"/>
+                        <separator string="FIFO allocation"/>
                         <field name="line_ids" nolabel="1" readonly="1">
                             <list>
                                 <field name="request_id"/>
@@ -56,9 +54,9 @@
                     </form>
                 </field>
                 <footer>
-                    <button name="action_confirm" type="object" string="Tạo SO bù"
+                    <button name="action_confirm" type="object" string="Create compensation SO"
                             class="btn-primary"/>
-                    <button string="Huỷ" class="btn-secondary" special="cancel"/>
+                    <button string="Cancel request" class="btn-secondary" special="cancel"/>
                 </footer>
             </form>
         </field>
@@ -66,7 +64,7 @@
 
     <!-- Action "Xử lý bù hàng" trong menu Actions của list Yêu cầu bù hàng -->
     <record id="action_open_compensation_wizard" model="ir.actions.act_window">
-        <field name="name">Xử lý bù hàng</field>
+        <field name="name">Process compensation</field>
         <field name="res_model">wujia.compensation.process.wizard</field>
         <field name="view_mode">form</field>
         <field name="target">new</field>

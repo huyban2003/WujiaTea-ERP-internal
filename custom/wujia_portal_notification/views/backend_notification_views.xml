@@ -1,0 +1,306 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- ============================================================
+         Loại thông báo (BA spec F §6 — wujia.announcement.category)
+    ============================================================ -->
+
+    <record id="view_notification_type_list" model="ir.ui.view">
+        <field name="name">wujia.notification.type.list</field>
+        <field name="model">wujia.notification.type</field>
+        <field name="arch" type="xml">
+            <list string="Notification types">
+                <field name="sequence" widget="handle"/>
+                <field name="name"/>
+                <field name="code"/>
+                <field name="notification_count" string="Notification count"/>
+                <field name="active" column_invisible="True"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_notification_type_form" model="ir.ui.view">
+        <field name="name">wujia.notification.type.form</field>
+        <field name="model">wujia.notification.type</field>
+        <field name="arch" type="xml">
+            <form>
+                <sheet>
+                    <widget name="web_ribbon" title="Đã lưu trữ"
+                            bg_color="text-bg-secondary" invisible="active"/>
+                    <div class="oe_button_box" name="button_box">
+                        <button name="action_view_notifications" type="object"
+                                class="oe_stat_button" icon="fa-bell">
+                            <field name="notification_count" widget="statinfo"
+                                   string="Notification"/>
+                        </button>
+                    </div>
+                    <div class="oe_title">
+                        <label for="name"/>
+                        <h1><field name="name" placeholder="e.g. Promotion"/></h1>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="code" placeholder="PROMO"/>
+                            <field name="sequence"/>
+                            <field name="active"/>
+                        </group>
+                        <group string="Portal visibility">
+                            <field name="bg_color" widget="color"/>
+                            <field name="text_color" widget="color"/>
+                            <field name="icon"/>
+                        </group>
+                    </group>
+                    <group string="Description">
+                        <field name="description" nolabel="1"
+                               placeholder="What this notification group is used for..."/>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_notification_type" model="ir.actions.act_window">
+        <field name="name">Notification types</field>
+        <field name="res_model">wujia.notification.type</field>
+        <field name="view_mode">list,form</field>
+        <field name="context">{'active_test': False}</field>
+    </record>
+
+    <!-- ============================================================
+         Thông báo (BA spec F §2 — wujia.announcement)
+    ============================================================ -->
+
+    <record id="view_notification_form" model="ir.ui.view">
+        <field name="name">wujia.notification.form</field>
+        <field name="model">wujia.notification</field>
+        <field name="arch" type="xml">
+            <form>
+                <header>
+                    <button name="action_publish" type="object"
+                            string="Send notification" class="btn-primary"
+                            invisible="state != 'draft'"/>
+                    <button name="action_archive_notification" type="object"
+                            string="Archive"
+                            invisible="state == 'archived'"/>
+                    <field name="state" widget="statusbar"
+                           statusbar_visible="draft,published,archived"/>
+                </header>
+                <sheet>
+                    <widget name="web_ribbon" title="Đã lưu trữ"
+                            bg_color="text-bg-secondary" invisible="active"/>
+                    <widget name="web_ribbon" title="Hết hiệu lực"
+                            bg_color="text-bg-danger"
+                            invisible="not is_expired or not active"/>
+                    <div class="oe_button_box" name="button_box">
+                        <button name="action_view_read_lines" type="object"
+                                class="oe_stat_button" icon="fa-eye"
+                                invisible="state == 'draft'">
+                            <field name="read_count" widget="statinfo" string="Read"/>
+                        </button>
+                    </div>
+                    <div class="oe_title">
+                        <label for="name"/>
+                        <h1><field name="name" placeholder="Notification title..."/></h1>
+                        <field name="code" readonly="1"/>
+                    </div>
+                    <group>
+                        <group string="Classification">
+                            <field name="type_id"
+                                   options="{'no_quick_create': True}"
+                                   domain="[('active', '=', True)]"/>
+                            <field name="dispatch_number" placeholder="145/TB-WJ"/>
+                            <field name="priority" widget="radio" options="{'horizontal': True}"/>
+                            <field name="is_pinned"/>
+                            <field name="pin_expiry_date" invisible="not is_pinned"/>
+                        </group>
+                        <group string="Publish">
+                            <field name="portal_visible"/>
+                            <field name="published_date"/>
+                            <field name="published_by_id" invisible="state == 'draft'"/>
+                            <field name="expired_date"/>
+                            <field name="is_published_portal" readonly="1"/>
+                            <field name="is_expired" readonly="1"/>
+                            <field name="active"/>
+                        </group>
+                    </group>
+                    <group string="Summary">
+                        <field name="summary" nolabel="1"
+                               placeholder="Short description displayed in the list/popup. Left empty, the portal excerpts the content."/>
+                    </group>
+                    <notebook>
+                        <page string="Content" name="content">
+                            <field name="content" widget="html" nolabel="1"
+                                   options="{'codeview': True}"/>
+                        </page>
+                        <page string="Attachments" name="attachments">
+                            <field name="attachment_ids" widget="many2many_binary" nolabel="1"/>
+                        </page>
+                        <page string="Recipient stores" name="franchises">
+                            <group>
+                                <group string="Send to">
+                                    <field name="target_mode" widget="radio"/>
+                                    <field name="target_status"
+                                           invisible="target_mode != 'filter'"/>
+                                    <field name="target_preview_count"/>
+                                </group>
+                            </group>
+                            <div class="mb-3">
+                                <button name="action_preview_recipients" type="object"
+                                        class="btn btn-secondary btn-sm" icon="fa-search"
+                                        string="Preview recipient list"/>
+                                <button name="action_refresh_recipients" type="object"
+                                        class="btn btn-secondary btn-sm ms-1" icon="fa-refresh"
+                                        string="Refresh recipient list"
+                                        invisible="target_mode != 'filter' or state != 'published'"
+                                        confirm="Re-resolve the recipient store list from the current criteria?"/>
+                            </div>
+                            <div class="text-muted mb-2" invisible="target_mode != 'all'">
+                                Sends to every store — nothing else to select.
+                            </div>
+                            <group invisible="target_mode != 'filter'">
+                                <field name="target_area_ids" widget="many2many_tags"/>
+                                <field name="target_state_ids" widget="many2many_tags"/>
+                                <field name="target_exclude_franchise_ids"
+                                       widget="many2many_tags"/>
+                            </group>
+                            <div class="text-muted mb-2" invisible="target_mode != 'filter'">
+                                The recipient list is frozen when you press Send notification. Stores opened afterwards do not receive this one — use "Refresh recipient list" to add them.
+                            </div>
+                            <field name="franchise_ids" widget="many2many_tags"
+                                   invisible="target_mode == 'all'"
+                                   readonly="target_mode == 'filter'"/>
+                        </page>
+                        <page string="Internal note" name="internal">
+                            <field name="internal_note" nolabel="1"
+                                   placeholder="HQ only — not displayed on the portal."/>
+                        </page>
+                        <page string="Read status" name="read_lines"
+                              invisible="state == 'draft'">
+                            <group>
+                                <group>
+                                    <field name="recipient_count"/>
+                                    <field name="unread_count"/>
+                                </group>
+                            </group>
+                            <field name="read_ids" nolabel="1" readonly="1">
+                                <list string="Read status" create="false">
+                                    <field name="user_id"/>
+                                    <field name="franchise_id"/>
+                                    <field name="member_id" optional="hide"/>
+                                    <field name="read_date"/>
+                                    <field name="last_open_date"/>
+                                </list>
+                            </field>
+                        </page>
+                    </notebook>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_notification_list" model="ir.ui.view">
+        <field name="name">wujia.notification.list</field>
+        <field name="model">wujia.notification</field>
+        <field name="arch" type="xml">
+            <list string="Notification"
+                  decoration-muted="state == 'archived'"
+                  decoration-bf="is_pinned">
+                <field name="code"/>
+                <field name="name" string="Title"/>
+                <field name="type_id"/>
+                <field name="priority" widget="badge"
+                       decoration-danger="priority == 'urgent'"
+                       decoration-warning="priority == 'important'"/>
+                <field name="state" widget="badge"
+                       decoration-success="state == 'published'"
+                       decoration-muted="state == 'archived'"/>
+                <field name="published_date"/>
+                <field name="expired_date" optional="hide"/>
+                <field name="dispatch_number" optional="hide"/>
+                <field name="is_pinned" optional="hide"/>
+                <field name="is_published_portal" optional="hide"/>
+                <!-- read/recipient/unread KHÔNG để mặc định: compute non-store,
+                     mở danh sách 1500 user sẽ tốn query thừa. -->
+                <field name="read_count" optional="hide"/>
+                <field name="active" column_invisible="True"/>
+                <field name="is_expired" column_invisible="True"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_notification_search" model="ir.ui.view">
+        <field name="name">wujia.notification.search</field>
+        <field name="model">wujia.notification</field>
+        <field name="arch" type="xml">
+            <search string="Notification">
+                <field name="name" string="Title"/>
+                <field name="code"/>
+                <field name="dispatch_number"/>
+                <field name="type_id"/>
+                <field name="published_by_id"/>
+                <filter string="Draft" name="filter_draft"
+                        domain="[('state', '=', 'draft')]"/>
+                <filter string="Submitted" name="filter_published"
+                        domain="[('state', '=', 'published')]"/>
+                <filter string="Archived" name="filter_archived"
+                        domain="[('state', '=', 'archived')]"/>
+                <separator/>
+                <filter string="Live on portal" name="filter_on_portal"
+                        domain="[('is_published_portal', '=', True)]"/>
+                <filter string="No longer valid" name="filter_expired"
+                        domain="[('expired_date', '!=', False),
+                                 ('expired_date', '&lt;', context_today().strftime('%Y-%m-%d %H:%M:%S'))]"/>
+                <filter string="Pinned" name="filter_pinned"
+                        domain="[('is_pinned', '=', True)]"/>
+                <separator/>
+                <filter string="Action required" name="filter_urgent"
+                        domain="[('priority', '=', 'urgent')]"/>
+                <filter string="Important" name="filter_important"
+                        domain="[('priority', '=', 'important')]"/>
+                <separator/>
+                <filter string="Archived (active)" name="filter_inactive"
+                        domain="[('active', '=', False)]"/>
+                <group name="group_by">
+                    <filter string="Type" name="group_type"
+                            context="{'group_by': 'type_id'}"/>
+                    <filter string="Status" name="group_state"
+                            context="{'group_by': 'state'}"/>
+                    <filter string="Severity" name="group_priority"
+                            context="{'group_by': 'priority'}"/>
+                    <filter string="Submission date" name="group_published_date"
+                            context="{'group_by': 'published_date'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <record id="action_notification" model="ir.actions.act_window">
+        <field name="name">Notification</field>
+        <field name="res_model">wujia.notification</field>
+        <field name="view_mode">list,form</field>
+        <field name="search_view_id" ref="view_notification_search"/>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">Compose the first notification for the stores</p>
+            <p>A draft notification is not visible on the portal yet. Press
+               <b>Send notification</b> to publish it.</p>
+        </field>
+    </record>
+
+    <!-- Trạng thái đọc — chỉ đọc, phục vụ thống kê. -->
+    <record id="view_notification_read_list" model="ir.ui.view">
+        <field name="name">wujia.notification.read.list</field>
+        <field name="model">wujia.notification.read</field>
+        <field name="arch" type="xml">
+            <list string="Read status" create="false" edit="false">
+                <field name="notification_id"/>
+                <field name="user_id"/>
+                <field name="franchise_id"/>
+                <field name="member_id" optional="hide"/>
+                <field name="read_date"/>
+                <field name="last_open_date"/>
+            </list>
+        </field>
+    </record>
+
+</odoo>

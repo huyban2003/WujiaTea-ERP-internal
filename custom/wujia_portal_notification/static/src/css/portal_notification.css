@@ -20,7 +20,7 @@
    Reuse: .wujia-mpage, wj-filter-chip*, wj-count-meta*, wj-empty-state*, .wujia-mknow-search*, .wujia-badge-* */
 @media (max-width: 991.98px) {
     /* ---------- List: title + count ---------- */
-    .wujia-mpage.wujia-mnoti { padding-top: 10px; }   /* Figma 4651:655 — top-pad 10 (mpage base 14) */
+    /* RESP-MOB-SHELL-003: bỏ top-pad riêng 10px — dùng --wujia-mcontent-top ở .wujia-mpage. */
     .wujia-mnoti-titlerow { display: flex; flex-direction: column; gap: 2px; }
     /* Figma 4651:686 — title 22/700 #111827, count 12/700 #6B7280 */
     .wujia-mnoti-title { font-size: 22px; font-weight: 700; color: var(--wujia-morder-text); margin: 0; }
@@ -288,15 +288,15 @@
     overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
 }
 
-/* ---- List: filter bar — Figma 4683:101 (5 field labeled, 1 hàng) ---- */
+/* ---- List: filter bar — 5 control 1 hàng, card 88px (UI-PC-BASE-003).
+   Nhãn từng field đã bỏ (đi vào aria-label/option đầu) để card đúng 88px. ---- */
 .wj-pc-noti-filter-row {
     display: grid;
     grid-template-columns: minmax(240px, 1fr) 190px 170px 150px 150px max-content;
-    align-items: end;
+    align-items: center;
     gap: 12px;
 }
-.wj-pc-noti-field { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
-.wj-pc-noti-field > label { font-size: 12px; font-weight: 700; color: var(--wj-pc-muted); white-space: nowrap; }
+.wj-pc-noti-field { display: flex; flex-direction: column; min-width: 0; }
 .wj-pc-noti-field .wj-pc-filter-control { width: 100%; }
 /* reset base flex:1 1 280px → trong field (flex-column) 280px sẽ thành CHIỀU CAO */
 .wj-pc-noti-field .wj-pc-filter-search { display: block; width: 100%; flex: 0 0 auto; }

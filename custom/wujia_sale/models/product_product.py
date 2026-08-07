@@ -6,33 +6,32 @@ class ProductProduct(models.Model):
     _inherit = 'product.product'
 
     is_public_portal = fields.Boolean(
-        string='Hiện trên portal',
+        string='Show on portal',
         default=False,
         index=True,
-        help='Bật để public sản phẩm lên portal đặt hàng (/portal/order). '
-             'Sản phẩm public bắt buộc có số lượng tối thiểu > 0.',
+        help="Turn on to publish the product on the ordering portal (/portal/order). A published product must have a minimum quantity > 0.",
     )
     min_qty = fields.Integer(
-        string='Số lượng tối thiểu',
+        string='Minimum quantity',
         default=0,
-        help='Số lượng đặt tối thiểu. Bước tăng/giảm trên portal = giá trị này.',
+        help='Minimum order quantity. The portal steps up/down by this value.',
     )
     max_qty = fields.Integer(
-        string='Số lượng tối đa',
+        string='Maximum quantity',
         default=0,
-        help='0 = không giới hạn. Nếu > 0 phải >= min và chia hết cho min.',
+        help='0 = unlimited. If > 0 it must be >= min and a multiple of min.',
     )
     description_ecommerce = fields.Char(
-        string='Quy cách',
-        help='Quy cách hiển thị trên portal, ví dụ: 10kg/bao, 120 cái/thùng.',
+        string='Packaging',
+        help='Packaging shown on the portal, e.g. 10kg/bag, 120 pcs/carton.',
     )
     name_chinese = fields.Char(
-        string='Tên tiếng Hoa',
-        help='Hiển thị dưới tên sản phẩm trên portal. User nhập tay, không dịch tự động.',
+        string='Chinese name',
+        help='Displayed under the product name on the portal. Entered manually, never auto-translated.',
     )
     public_categ_id = fields.Many2one(
         'wujia.product.category',
-        string='Danh mục portal',
+        string='Portal category',
         index=True,
         ondelete='set null',
     )

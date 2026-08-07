@@ -4,43 +4,41 @@ from odoo.exceptions import ValidationError
 
 class WujiaOrderWindow(models.Model):
     _name = 'wujia.order.window'
-    _description = 'Khung giờ portal đặt hàng (theo khu vực)'
+    _description = 'Portal ordering time window (per area)'
     _order = 'area_id, sequence, id'
 
     name = fields.Char(
-        string='Tên khung giờ',
+        string='Window name',
         required=True,
         translate=True,
-        help='Vd "Khung sáng HN" — hiển thị trong UI portal khi báo ngoài khung giờ.',
+        help='e.g. "Morning window HN" — shown in the portal UI when reporting that ordering is outside the window.',
     )
     active = fields.Boolean(default=True)
     area_id = fields.Many2one(
         'res.area',
-        string='Khu vực',
+        string='Area',
         required=True,
         ondelete='cascade',
         index=True,
-        help='Khung giờ chỉ áp cho franchise thuộc khu vực này. '
-             'Một khu vực có thể có nhiều khung giờ (vd sáng + tối) — '
-             'controller check tất cả, miễn 1 khung đang mở là cho phép.',
+        help="The window applies only to franchises located in this area. An area can have several windows (e.g. morning + evening) — the controller checks them all and allows ordering while at least one is open.",
     )
     order_time_from = fields.Float(
-        string='Giờ bắt đầu',
+        string='Start time',
         required=True,
         default=10.0,
         help='Float hours 0.0–24.0. Vd 10.5 = 10:30.',
     )
     order_time_to = fields.Float(
-        string='Giờ kết thúc',
+        string='End time',
         required=True,
         default=4.0,
-        help='Nếu < From → khung chạy qua nửa đêm (is_overnight=True).',
+        help='If < From the window runs past midnight (is_overnight=True).',
     )
     is_overnight = fields.Boolean(
-        string='Qua nửa đêm',
+        string='Overnight',
         compute='_compute_is_overnight',
         store=True,
-        help='True khi To < From — khung giờ bắc qua nửa đêm.',
+        help='True when To < From — the window spans midnight.',
     )
     sequence = fields.Integer(default=10)
     company_id = fields.Many2one(

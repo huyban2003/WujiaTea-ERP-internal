@@ -21,6 +21,9 @@
                 var n = (j && j.result && j.result.count) || 0;
                 badges.forEach(function (badge) {
                     badge.textContent = n;
+                    // WJ-ORD-020: template render badge với `hidden` (không còn số 0
+                    // chờ CSS ẩn) → gỡ `hidden` khi có hàng.
+                    badge.hidden = !(n > 0);
                     badge.classList.toggle("is-active", n > 0);
                 });
             })

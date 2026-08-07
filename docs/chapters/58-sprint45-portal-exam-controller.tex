@@ -1,0 +1,171 @@
+\chapter{Sprint 45 --- Wire Portal Đăng ký thi vào backend thật (Controller MVP, mobile-first submit) (2026-08-02)}
+
+\section{Bối cảnh}
+
+Backend đăng ký thi nhượng quyền (Sprint M) đã dựng đủ và đúng spec: khóa thi
+(\texttt{wujia.exam.course}), kỳ thi (\texttt{wujia.exam.session}) có khóa sức chứa
+\texttt{FOR UPDATE NOWAIT} + đếm lại giữ-chỗ, phiếu đăng ký
+(\texttt{wujia.exam.registration}) và dòng người tham gia
+(\texttt{wujia.exam.registration.line}) có ảnh, workflow duyệt/từ chối/hủy, công bố kết
+quả Đạt/Không đạt. Nhưng \textbf{portal vẫn chạy demo dict} --- template Figma (mobile
+S26, PC S39) đã dựng nhưng đọc dữ liệu giả, cửa hàng chưa đăng ký hay xem thật được.
+
+Task BA giao (\texttt{Tasks!STT6}, \emph{``Xây dựng controller đăng ký thi nhượng quyền
+MVP cho Portal''}, Type Controller). Mục tiêu: cửa hàng đăng ký thi trên điện thoại
+$\rightarrow$ HQ duyệt ở backend $\rightarrow$ cửa hàng xem tiến độ/kết quả trên cả điện
+thoại lẫn PC, mọi dữ liệu giới hạn theo \textbf{current store $+$ membership}.
+
+Module \texttt{wujia\_portal\_exam} \texttt{19.0.4.0.0} $\rightarrow$ \texttt{19.0.5.0.0}
+(có migration drop bảng legacy).
+
+\section{Phạm vi đã chốt với chủ dự án}
+
+\begin{itemize}
+  \item \textbf{Phần XEM} (danh sách phiếu · chi tiết · kết quả · khóa thi · lịch · khung
+    giờ): wire dữ liệu thật cho \textbf{cả mobile lẫn PC} --- template đã dựng, chỉ đổi
+    nguồn dữ liệu (key map 1--1 field Sprint M nên không đụng markup layout).
+  \item \textbf{Phần TẠO PHIẾU (submit)}: wire thật \textbf{chỉ trên mobile}.
+    PC giữ nút đăng ký mock $\rightarrow$ \textbf{defer sang Sprint 46} (PC vẫn xem/duyệt
+    dữ liệu thật). Đây là \emph{sequencing của dev}, không phải cắt scope: acceptance BA
+    viết theo hành vi nghiệp vụ, không phân biệt nền --- cửa hàng vẫn đăng ký được ngay
+    trên điện thoại.
+  \item \textbf{Gỡ hẳn legacy}: xóa 2 model dormant \texttt{wujia.exam.schedule} /
+    \texttt{wujia.exam.result} $+$ 3 template/route legacy (\texttt{/portal/exam/my},
+    \texttt{/portal/exam/result}, \texttt{/portal/exam/schedule/<id>}) $+$ ACL/rule liên
+    quan. Kết quả thi giờ nhập trên \texttt{registration.line}; lịch thi thay bằng course
+    $+$ session --- 2 bảng cũ chỉ còn để portal demo bind.
+\end{itemize}
+
+\section{Controllers --- viết lại, bỏ demo (\texttt{controllers/portal.py})}
+
+Mọi action: lấy \texttt{fid = get\_active\_franchise\_id()}; nếu \texttt{False} $\rightarrow$
+báo \emph{``Vui lòng chọn cửa hàng trước khi thao tác.''}. Query \texttt{sudo()} và
+\textbf{luôn kèm} \texttt{('franchise\_id','=',fid)} --- không tin ID frontend gửi lên.
+
+\begin{center}
+\begin{tabular}{p{4.8cm}p{2.0cm}p{6.6cm}}
+\hline
+\textbf{Route} & \textbf{Kiểu} & \textbf{Việc} \\
+\hline
+\texttt{/portal/exam} & GET & Danh sách phiếu theo store $+$ keyword/state/khoảng ngày, phân trang. Map cả mobile $+$ PC. \\
+\texttt{/portal/exam/register} & GET & Dữ liệu tạo phiếu: khóa published, lịch tháng, khung giờ ngày mặc định. \\
+\texttt{/portal/exam/calendar} & JSON & \emph{(course, year, month)} $\rightarrow$ ma trận tuần trạng thái ngày (đổi tháng/khóa trong wizard). \\
+\texttt{/portal/exam/slots} & JSON & \emph{(course, date)} $\rightarrow$ list session ngày đó: giờ, chỗ trống, \texttt{selectable}. \\
+\texttt{/portal/exam/register} & JSON POST & \textbf{SUBMIT thật}: server-resolve franchise/member/requester; backend tự capacity-lock. \\
+\texttt{/portal/exam/registration/<id>} & GET & Chi tiết $+$ kết quả (ẩn kết quả từng người trước khi công bố). \\
+\texttt{/portal/exam/line/<id>/photo} & GET & Stream \texttt{image\_1920} của dòng thuộc phiếu store mình; sai $\rightarrow$ \texttt{Forbidden/NotFound}. \\
+\hline
+\end{tabular}
+\end{center}
+
+Submit đi một lần \texttt{sudo().create()} với \texttt{line\_ids} --- backend tự chạy
+\texttt{\_check\_booking\_allowed()} $+$ \texttt{\_lock\_and\_check\_capacity()}. ACL portal
+là read-only (create$=$0) nên submit đi \texttt{sudo()} theo pattern chuẩn dự án (như
+\texttt{wujia\_portal\_support}).
+
+\section{Ba cái bẫy phải sửa --- và vì sao chúng là lỗi thật}
+
+\subsection{Constraint sức chứa chỉ nổ lúc flush cuối request (500)}
+
+\texttt{session.\_check\_capacity\_ge\_reserved} là \texttt{@api.constrains} --- nó chỉ chạy
+\textbf{khi flush}, mà \texttt{registration.\_lock\_and\_check\_capacity} đếm lại giữ-chỗ
+bằng \texttt{\_read\_group} \emph{trước khi} line mới được flush xuống DB, nên đếm thiếu.
+Kết quả: phiếu vượt sức chứa lọt qua kiểm tra trong \texttt{create()}, rồi constraint mới
+nổ ở cuối request --- \texttt{ValidationError} không ai bắt $\rightarrow$ \textbf{500}, và
+tệ hơn là có nguy cơ commit phiếu quá chỗ.
+
+Sửa: bọc \texttt{create()} trong \texttt{savepoint} $+$ \texttt{flush\_all()} để ép
+constraint nổ \emph{ngay trong} \texttt{try/except}:
+
+\begin{lstlisting}[style=python]
+try:
+    with request.env.cr.savepoint():
+        reg = request.env['wujia.exam.registration'].sudo().create({...})
+        request.env.flush_all()          # ép @api.constrains chạy tại đây
+except (ValidationError, UserError) as e:
+    return {'error': 'business', 'message': _exc_msg(e)}
+return {'success': True, 'redirect': '/portal/exam/registration/%d' % reg.id}
+\end{lstlisting}
+
+Verify: submit vượt chỗ trả \emph{``Sức chứa (4) không được nhỏ hơn số đã giữ chỗ (5).''},
+không phiếu ma nào bị lưu.
+
+\subsection{Ảnh hỏng làm \texttt{fields.Image} ném \texttt{OSError} (500)}
+
+Upload PNG cắt cụt: PIL bên trong \texttt{fields.Image} ném \texttt{OSError: Truncated File
+Read} --- \emph{không phải} \texttt{ValidationError} --- nên guard MIME/size ở controller
+không đỡ được, vẫn 500. Thử \texttt{PIL.Image.load()} độc lập \textbf{không} tái hiện được
+lỗi. Cách bịt: gọi \emph{đúng} pipeline mà \texttt{fields.Image} dùng, ngay trong
+\texttt{\_clean\_photo}, để lỗi nổ sớm và biến thành \texttt{ValidationError}:
+
+\begin{lstlisting}[style=python]
+try:
+    image_process(decoded, size=(1920, 1920))   # odoo.tools.image
+except Exception:
+    raise ValidationError(_("Ảnh nhân viên không hợp lệ hoặc bị hỏng. "
+                            "Vui lòng chọn ảnh khác."))
+\end{lstlisting}
+
+\subsection{Phiếu mồ côi chặn not-null \texttt{session\_id} khi migrate}
+
+Migration drop 2 bảng legacy chạy sạch, nhưng DB còn 3 phiếu cũ từ thời schedule
+(\texttt{session\_id} NULL) --- không dùng được và chặn ràng buộc not-null. \texttt{pre-migrate}
+xóa cả line con rồi tới phiếu:
+
+\begin{lstlisting}[style=python]
+DROP TABLE IF EXISTS wujia_exam_result CASCADE;
+DROP TABLE IF EXISTS wujia_exam_schedule_franchise_rel CASCADE;
+DROP TABLE IF EXISTS wujia_exam_schedule CASCADE;
+DELETE FROM wujia_exam_registration_line WHERE registration_id IN
+    (SELECT id FROM wujia_exam_registration WHERE session_id IS NULL);
+DELETE FROM wujia_exam_registration WHERE session_id IS NULL;
+\end{lstlisting}
+
+\section{Kiểm chứng (end-to-end, server mới port 8020, code hiện tại)}
+
+\begin{itemize}
+  \item \textbf{Upgrade}: \texttt{-u wujia\_portal\_exam -{}-stop-after-init} $\Rightarrow$
+    RC$=$0, 95 modules loaded, 0 ERROR/Traceback; migration drop 2 bảng legacy sạch.
+  \item \textbf{Smoke HTTP} đăng nhập \emph{anh.owner}: list/register 200; calendar trả
+    đúng ngày khả dụng; slots trả \texttt{session\_id}/chỗ trống/địa điểm; submit
+    $\rightarrow$ phiếu thật $\rightarrow$ redirect chi tiết hiện tên người $+$ \emph{``Chờ
+    kết quả''}; vượt max người bị chặn; thiếu điện thoại bị chặn; \textbf{vượt sức chứa
+    báo lỗi rõ, không 500}; slot đầy hiện \emph{``Hết chỗ''}; đổi ID phiếu store khác /
+    không tồn tại $\rightarrow$ 303 về \texttt{/portal/exam}.
+  \item \textbf{Kết quả}: trước \texttt{action\_publish\_results} $\rightarrow$ \emph{``Chờ
+    kết quả''}; sau publish $\rightarrow$ Đạt/Không đạt $+$ ghi chú (cả mobile lẫn PC).
+    Bỏ cột \emph{``điểm số''} --- model chỉ có Đạt/Không đạt, không có numeric score.
+  \item \textbf{Ảnh}: upload lưu qua \texttt{fields.Image}, stream lại 200 image/png,
+    thumbnail PC render; ảnh hỏng $\rightarrow$ báo lỗi validate, không 500.
+  \item \textbf{Từ chối}: nhập lý do $\rightarrow$ banner đỏ hiện đúng ở cả mobile lẫn PC.
+  \item Smoke 5 trang portal khác 200, overflow ngang $=$ 0.
+\end{itemize}
+
+\section{Chưa làm --- và vì sao (defer)}
+
+\begin{itemize}
+  \item \textbf{PC tạo phiếu (submit)} --- Sprint 46. PC đã \emph{xem/duyệt} dữ liệu thật;
+    chỉ còn nối 3 hàm mock trong \texttt{portal\_exam\_pc.js} vào 3 endpoint đã tồn tại
+    (\texttt{/calendar}, \texttt{/slots}, \texttt{/register}). Prompt đầy đủ đã sẵn trong
+    plan file. \textbf{Task \texttt{Tasks!STT6} chỉ set Done sau khi session PC-submit
+    hoàn tất} (theo yêu cầu chủ dự án).
+  \item Email/push khi duyệt/công bố (BA loại khỏi MVP).
+  \item Cửa hàng tự hủy phiếu trên portal --- MVP chỉ admin backend hủy.
+\end{itemize}
+
+\section{Bài học}
+
+\begin{itemize}
+  \item \textbf{\texttt{@api.constrains} chỉ nổ lúc flush.} Muốn bắt nó gọn trong
+    controller thì phải chủ động \texttt{savepoint} $+$ \texttt{flush\_all()}, đừng đợi
+    flush cuối request --- lúc đó \texttt{ValidationError} thành 500 và có thể đã commit
+    dữ liệu sai.
+  \item \textbf{Ảnh hỏng phải test bằng đúng pipeline của Odoo.} \texttt{PIL.load()} độc
+    lập không tái hiện \texttt{OSError} của \texttt{fields.Image}; gọi thẳng
+    \texttt{odoo.tools.image.image\_process} trong controller mới bịt được 500.
+  \item \textbf{Mobile-first submit là sequencing hợp lệ.} Acceptance viết theo hành vi,
+    không theo nền; cửa hàng đăng ký được ngay trên điện thoại, PC submit là tiện ích bổ
+    sung --- defer không cắt giá trị nghiệp vụ.
+  \item \textbf{Migration drop bảng phải dọn cả bản ghi mồ côi} tham chiếu schema cũ, nếu
+    không ràng buộc not-null của schema mới sẽ chặn ngay lần update kế.
+\end{itemize}
