@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
+import math
 from odoo import http, fields, _
+# pyrefly: ignore [missing-import]
 from odoo.http import request
 
 try:
@@ -23,16 +25,21 @@ def _parse_date(date_str):
 class WujiaPortalInspectionController(http.Controller):
 
     @http.route(['/portal/inspection'], type='http', auth='user', website=True)
-    def portal_inspection_list(self, tab='all', date_from=None, date_to=None, search=None, **kwargs):
+    def portal_inspection_list(self, tab='all', date_from=None, date_to=None, search=None, page=1, **kwargs):
         """
-        Giao diện Xem phiếu Khảo sát đánh giá (Read-only).
-        Chỉ lấy các phiếu khảo sát (wujia.franchise.inspection) ở trạng thái
-        Cần khắc phục ('need_remediation') hoặc Hoàn thành ('done').
-        Bỏ qua phiếu Nháp ('draft'), Đang thực hiện ('in_progress'), Đã hủy ('cancel').
+        Giao diện Xem phiếu Khảo sát đánh giá (Read-only) kèm Phân trang (Limit 5).
         """
+        try:
+            page = int(page)
+            if page < 1:
+                page = 1
+        except (ValueError, TypeError):
+            page = 1
+
+        limit = 5
         franchise_ids = get_active_franchise_ids_filter()
 
-        # Domain lọc phiếu khảo sát: Chỉ 'need_remediation' và 'done'
+        # Domain lọc phiếu khảo sát
         if tab == 'need_remediation':
             inspection_domain = [('state', '=', 'need_remediation')]
         elif tab == 'done':
@@ -46,13 +53,11 @@ class WujiaPortalInspectionController(http.Controller):
         parsed_date_from = _parse_date(date_from)
         parsed_date_to = _parse_date(date_to)
 
-        # Lọc theo khoảng ngày nếu có
         if parsed_date_from:
             inspection_domain.append(('planned_date', '>=', parsed_date_from))
         if parsed_date_to:
             inspection_domain.append(('planned_date', '<=', parsed_date_to))
 
-        # Lọc theo từ khóa tìm kiếm
         if search:
             q = search.strip()
             inspection_domain.extend([
@@ -62,38 +67,21 @@ class WujiaPortalInspectionController(http.Controller):
                 ('franchise_id.code', 'ilike', q),
             ])
 
-        inspections = request.env['wujia.franchise.inspection'].sudo().search(
-            inspection_domain, order='planned_date desc, id desc'
+        InspectionModel = request.env['wujia.franchise.inspection'].sudo()
+        total_count = InspectionModel.search_count(inspection_domain)
+        total_pages = math.ceil(total_count / limit) if total_count > 0 else 1
+        if page > total_pages:
+            page = total_pages
+
+        offset = (page - 1) * limit
+        inspections = InspectionModel.search(
+            inspection_domain, order='planned_date desc, id desc', limit=limit, offset=offset
         )
 
-        # Batch pre-fetch relational fields để triệt tiêu N+1 queries trên DB
         inspections.mapped('franchise_id')
         inspections.mapped('grade_id')
         inspections.mapped('inspector_user_id')
         inspections.mapped('template_id')
-        all_lines = inspections.mapped('line_ids')
-        all_lines.mapped('template_line_id')
-
-        # Đếm tổng quan độc lập với tab active trực tiếp bằng SQL COUNT(*) để tối ưu hiệu năng
-        base_count_domain = [('state', 'in', ('need_remediation', 'done'))]
-        if franchise_ids:
-            base_count_domain.append(('franchise_id', 'in', list(franchise_ids)))
-        if parsed_date_from:
-            base_count_domain.append(('planned_date', '>=', parsed_date_from))
-        if parsed_date_to:
-            base_count_domain.append(('planned_date', '<=', parsed_date_to))
-        if search:
-            q = search.strip()
-            base_count_domain.extend([
-                '|', '|',
-                ('name', 'ilike', q),
-                ('franchise_id.name', 'ilike', q),
-                ('franchise_id.code', 'ilike', q),
-            ])
-
-        InspectionModel = request.env['wujia.franchise.inspection'].sudo()
-        need_remediation_count = InspectionModel.search_count(base_count_domain + [('state', '=', 'need_remediation')])
-        done_count = InspectionModel.search_count(base_count_domain + [('state', '=', 'done')])
 
         inspection_items = []
         for insp in inspections:
@@ -104,57 +92,57 @@ class WujiaPortalInspectionController(http.Controller):
             pass_lines = criteria_lines.filtered(lambda l: l.is_pass or l.result == 'pass')
 
             grade_name = insp.grade_id.name if insp.grade_id else 'N/A'
-            grade_badge_class = 'wj-badge-warning'
-            if insp.grade_id:
-                if 'A' in grade_name:
-                    grade_badge_class = 'wj-badge-success'
-                elif 'B' in grade_name:
-                    grade_badge_class = 'wj-badge-info'
-                elif 'C' in grade_name:
-                    grade_badge_class = 'wj-badge-warning'
-                elif 'D' in grade_name or 'F' in grade_name:
-                    grade_badge_class = 'wj-badge-danger'
 
             state_label = 'Hoàn thành'
-            state_badge_class = 'wj-badge-success'
-            state_pc_badge = 'wj-pc-badge--done'
-            if insp.state == 'need_remediation':
-                state_label = 'Chờ khắc phục'
-                state_badge_class = 'wj-badge-danger'
-                state_pc_badge = 'wj-pc-badge--cancel'
+            badge_bg = '#dcfce7'
+            badge_color = '#15803d'
+            progress_color = '#22c55e'
 
-            # Làm sạch tên mã hiển thị trên Badge, bỏ chữ "Lịch giám sát kế tiếp..." thừa
-            clean_code = insp.template_id.name if (insp.template_id and insp.template_id.name) else (insp.name or '')
-            if clean_code:
-                clean_code = clean_code.replace('Khảo sát: Lịch giám sát kế tiếp - ', '')
-                clean_code = clean_code.replace('Lịch giám sát kế tiếp - ', '')
-                clean_code = clean_code.replace('Lịch giám sát kế tiếp', '')
-                clean_code = clean_code.replace('Khảo sát: ', '')
-                clean_code = clean_code.strip(' -:')
-                franchise_str = insp.franchise_id.display_name if insp.franchise_id else ''
-                if not clean_code or (franchise_str and clean_code in franchise_str):
-                    clean_code = 'Phiếu khảo sát'
-            else:
-                clean_code = 'Phiếu khảo sát'
+            if insp.state == 'need_remediation':
+                state_label = 'Chờ phản hồi'
+                badge_bg = '#ffe4e6'
+                badge_color = '#e11d48'
+                progress_color = '#ef4444'
+            elif insp.state == 'in_progress':
+                state_label = 'Đang xử lý'
+                badge_bg = '#dbeafe'
+                badge_color = '#1d4ed8'
+                progress_color = '#3b82f6'
+
+            title_str = insp.name or "Khảo sát"
+            if not title_str or title_str == "Khảo sát cửa hàng nhượng quyền" or title_str.startswith("Khảo sát cửa hàng nhượng quyền"):
+                if insp.planned_date:
+                    try:
+                        d_str = fields.Date.from_string(insp.planned_date).strftime('%d/%m/%Y')
+                        title_str = f"Lần {d_str}"
+                    except Exception:
+                        title_str = f"Lần {insp.planned_date}"
+                else:
+                    title_str = "Khảo sát cửa hàng"
+
+            planned_date_formatted = ""
+            if insp.planned_date:
+                try:
+                    planned_date_formatted = fields.Date.from_string(insp.planned_date).strftime('%d/%m/%Y')
+                except Exception:
+                    planned_date_formatted = str(insp.planned_date)
 
             item_data = {
                 'id': insp.id,
-                'code': clean_code,
-                'name': insp.name,
+                'name': insp.name or f"#AUD-{insp.id}",
+                'code_badge': f"#{insp.name}" if insp.name else f"#AUD-{insp.id}",
+                'title': title_str,
+                'display_name': insp.name or title_str,
                 'franchise_name': insp.franchise_id.display_name if insp.franchise_id else 'Cửa hàng',
-                'planned_date': str(insp.planned_date) if insp.planned_date else '',
-                'submit_date': str(insp.submit_date) if insp.submit_date else '',
+                'planned_date': planned_date_formatted or 'N/A',
                 'inspector_name': insp.inspector_user_id.name if insp.inspector_user_id else 'N/A',
-                'test_employee_name': insp.test_employee_name or 'N/A',
                 'state': insp.state,
                 'state_label': state_label,
-                'state_badge_class': state_badge_class,
-                'state_pc_badge': state_pc_badge,
-                'total_score': insp.total_score,
-                'checklist_score': insp.checklist_score,
-                'exam_score': insp.exam_score,
+                'badge_bg': badge_bg,
+                'badge_color': badge_color,
+                'progress_color': progress_color,
+                'total_score': int(insp.total_score or 0),
                 'grade_name': grade_name,
-                'grade_badge_class': grade_badge_class,
                 'total_criteria': len(criteria_lines),
                 'pass_count': len(pass_lines),
                 'failed_count': len(failed_lines),
@@ -170,9 +158,10 @@ class WujiaPortalInspectionController(http.Controller):
             'date_to': date_to or '',
             'search_q': search or '',
             'inspection_items': inspection_items,
-            'all_count': need_remediation_count + done_count,
-            'need_remediation_count': need_remediation_count,
-            'done_count': done_count,
+            'page': page,
+            'total_pages': total_pages,
+            'total_count': total_count,
+            'page_range': list(range(1, total_pages + 1)),
         }
         return request.render('wujia_portal_inspection.portal_inspection_main', values)
 
@@ -188,7 +177,6 @@ class WujiaPortalInspectionController(http.Controller):
         if not insp.exists() or insp.state not in ('need_remediation', 'done'):
             return request.redirect('/portal/inspection')
 
-        # Đảm bảo cửa hàng nằm trong danh sách được cấp quyền
         franchise_ids = get_active_franchise_ids_filter()
         if franchise_ids and insp.franchise_id.id not in franchise_ids:
             return request.redirect('/portal/inspection')
@@ -215,9 +203,13 @@ class WujiaPortalInspectionController(http.Controller):
         state_badge_class = 'wj-badge-success'
         state_pc_badge = 'wj-pc-badge--done'
         if insp.state == 'need_remediation':
-            state_label = 'Chờ khắc phục'
+            state_label = 'Chờ phản hồi'
             state_badge_class = 'wj-badge-danger'
             state_pc_badge = 'wj-pc-badge--cancel'
+        elif insp.state == 'in_progress':
+            state_label = 'Đang xử lý'
+            state_badge_class = 'wj-badge-info'
+            state_pc_badge = 'wj-pc-badge--info'
 
         sections = []
         current_section = {'title': 'Tiêu chí chung', 'lines': []}

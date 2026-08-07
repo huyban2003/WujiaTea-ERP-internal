@@ -12,6 +12,11 @@
         'views/sidenav_inherit.xml',
         'views/portal_inspection_templates.xml',
     ],
+    'assets': {
+        'web.assets_frontend': [
+            'wujia_portal_inspection/static/src/css/portal_inspection.css',
+        ],
+    },
     'installable': True,
     'application': False,
     'auto_install': False,
