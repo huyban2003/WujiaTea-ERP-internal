@@ -775,7 +775,7 @@ UI-PC-BASE-005:
   fix: "Hai màn danh sách này trước đây cố định số dòng mỗi trang, người dùng không đổi được. Nay cuối bảng có ô chọn 10 / 20 / 50 dòng mỗi trang; chọn xong trang tự tải lại ngay, giữ nguyên mọi điều kiện lọc đang đặt và quay về trang đầu. Dãy nút chuyển trang cũ giữ nguyên và vẫn nhớ số dòng vừa chọn. Khi cả danh sách chỉ còn từ 10 bản ghi trở xuống thì ẩn hẳn khối phân trang cho gọn"
   impact: "Màn Lịch sử đặt hàng và màn Thông báo, bản máy tính. Bản điện thoại của hai màn này không đụng tới"
   retest: "Ở 1920×1080 mở Lịch sử đặt hàng: cuối bảng có ô '20 / trang'. Chọn 50 — trang tải lại, hiện nhiều dòng hơn, ô vẫn giữ 50. Gõ một từ khoá vào ô tìm rồi bấm Tìm, sau đó đổi số dòng: từ khoá phải còn nguyên. Chọn 10 rồi bấm Sau: sang trang 2 và vẫn 10 dòng mỗi trang. Làm y vậy ở màn Thông báo. Lọc cho ra dưới 10 bản ghi: khối phân trang biến mất"
-  limit: "Ô chọn số dòng ở màn Đăng ký thi vẫn là ô trang trí — bấm không có tác dụng vì nó nằm ngoài biểu mẫu và các nút số trang ở đó không phải liên kết. Đây là lỗi riêng của màn Đăng ký thi, đề nghị BA mở một issue riêng; H2 không gộp vào vì cách sửa khác hẳn (phải viết lại phần phân trang của màn đó)"
+  limit: "Không còn. (Ghi nhận lúc H2: ô chọn số dòng ở màn Đăng ký thi là ô trang trí, các nút số trang không phải liên kết. Sprint 2026-08-07 đã viết lại phần phân trang màn đó: nút số trang thành liên kết thật, ô 10/20/50 nằm trong biểu mẫu và có tác dụng, bộ lọc được giữ khi chuyển trang. Việc này chưa có Issue ID trên sheet — đề nghị BA mở một issue để retest, hoặc gộp vào phần retest của UI-PC-BASE-005)"
 
 UI-PC-BASE-006:
   sprint: "2026-08-04-H2"

@@ -4,6 +4,10 @@
     <template id="portal_report_orders" name="Wujia Portal — Báo cáo đặt hàng">
         <t t-call="wujia_portal_layout.app_layout">
             <t t-set="title">Báo cáo đặt hàng</t>
+            <t t-call="wujia_portal_base.wj_ajax_list_config">
+                <t t-set="wjl_path" t-value="'/portal/reports/orders'"/>
+                <t t-set="wjl_slots" t-value="'wj-rep-body'"/>
+            </t>
             <div class="content-wrapper wujia-mreport-wrap">
                 <t t-call="wujia_portal_layout.wj_page_header">
                     <t t-set="ph_platform" t-value="'pc'"/>
@@ -48,6 +52,9 @@
                         </div>
                     </div>
 
+                    <!-- Vùng swap AJAX: KPI + 2 chart + top sản phẩm (bộ lọc ngày nằm
+                         ngoài). Chart vẽ lại qua sự kiện wj:list:swapped. -->
+                    <div id="wj-rep-body">
                     <!-- ============ Block 1: 4 KPI cards (UI-11, Sprint 9.12) ============ -->
                     <div class="row">
                         <div class="col-lg-3 col-md-6 col-12 mb-2">
@@ -185,6 +192,7 @@
                                 </tbody>
                             </table>
                         </div>
+                    </div>
                     </div>
                 </div>
             </div>

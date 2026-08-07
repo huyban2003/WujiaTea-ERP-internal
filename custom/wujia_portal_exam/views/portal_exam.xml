@@ -5,6 +5,10 @@
     <template id="portal_exam_schedule" name="Wujia Portal — Exam Schedule">
         <t t-call="wujia_portal_layout.app_layout">
             <t t-set="title">Lịch thi</t>
+            <t t-call="wujia_portal_base.wj_ajax_list_config">
+                <t t-set="wjl_path" t-value="'/portal/exam'"/>
+                <t t-set="wjl_slots" t-value="'wj-exam-pc-body,wj-exam-mcount,wj-exam-mbody'"/>
+            </t>
             <!-- ===== PC ≥992px — Figma WJ_Exam_PC v1.2 · 01_List (4891:1714) =====
                  UI-only demo (parity với nhánh mobile): dữ liệu từ PC_REGS trong
                  controller, key trùng field thật để sprint wire sau chỉ đổi nguồn. -->
@@ -25,34 +29,44 @@
                     <form method="get" action="/portal/exam" class="wj-pc-filterbar wj-exam-pc-filterbar">
                         <!-- Card 88px: control 1 hàng, không dòng tiêu đề (UI-PC-BASE-003) -->
                         <div class="wj-pc-filterbar__row">
+                            <!-- t-att-selected/value: giữ bộ lọc khi F5 hoặc chuyển trang
+                                 (trước đây control luôn về mặc định dù URL có tham số). -->
                             <select name="state" class="wj-pc-filter-control wj-exam-pc-fc--sel">
                                 <option value="">Trạng thái</option>
                                 <t t-foreach="pc_reg_states.items()" t-as="st">
-                                    <option t-att-value="st[0]"><t t-out="st[1][0]"/></option>
+                                    <option t-att-value="st[0]"
+                                            t-att-selected="'selected' if st[0] == f_state else None">
+                                        <t t-out="st[1][0]"/>
+                                    </option>
                                 </t>
                             </select>
                             <select name="result" class="wj-pc-filter-control wj-exam-pc-fc--sel">
                                 <option value="">Kết quả</option>
-                                <option value="published">Đã công bố</option>
-                                <option value="unpublished">Chưa công bố</option>
+                                <option value="published"
+                                        t-att-selected="'selected' if f_result == 'published' else None">Đã công bố</option>
+                                <option value="unpublished"
+                                        t-att-selected="'selected' if f_result == 'unpublished' else None">Chưa công bố</option>
                             </select>
                             <span class="wj-pc-filter-search wj-exam-pc-fc--search">
                                 <i class="feather icon-search"/>
                                 <input type="text" name="q" placeholder="Tìm mã phiếu, khóa thi..."
-                                       class="wj-pc-filter-control"/>
+                                       class="wj-pc-filter-control" t-att-value="f_q or ''"/>
                             </span>
                             <input type="text" name="date_from" placeholder="Từ ngày"
                                    class="wj-pc-filter-control wj-exam-pc-fc--date"/>
                             <input type="text" name="date_to" placeholder="Đến ngày"
                                    class="wj-pc-filter-control wj-exam-pc-fc--date"/>
                             <span class="wj-pc-filterbar__actions">
-                                <a href="/portal/exam" class="wj-pc-btn wj-pc-btn--secondary">Đặt lại</a>
+                                <!-- data-wj-nav: nút nằm NGOÀI vùng swap nên phải khai để
+                                     wj_ajax_list.js nhận, nếu không "Đặt lại" reload cả trang. -->
+                                <a href="/portal/exam" data-wj-nav="1"
+                                   class="wj-pc-btn wj-pc-btn--secondary">Đặt lại</a>
                                 <button type="submit" class="wj-pc-btn wj-pc-btn--primary">Tìm kiếm</button>
                             </span>
                         </div>
                     </form>
 
-                    <div class="wj-pc-card wj-exam-pc-card">
+                    <div class="wj-pc-card wj-exam-pc-card" id="wj-exam-pc-body">
                         <div class="wj-pc-card__head wj-exam-pc-card__head">
                             <div>
                                 <h2 class="wj-pc-card__title">Lịch sử đăng ký</h2>
@@ -100,22 +114,39 @@
                             </tbody>
                         </table>
 
+                        <!-- Pager là link thật (trước đây là <span> nên phân trang không chạy).
+                             Nằm trong #wj-exam-pc-body ⇒ wj_ajax_list.js tự bắt, không reload. -->
                         <div t-if="pc_regs" class="wj-pc-pagination wj-exam-pc-pagination">
                             <span class="wj-pc-pagination__count">
                                 Hiển thị <t t-out="pc_pager['from']"/>–<t t-out="pc_pager['to']"/> /
                                 <t t-out="pc_pager['total']"/> bản ghi
                             </span>
-                            <select class="wj-pc-pagination__size" name="limit">
-                                <option value="10"><t t-out="pc_pager['size']"/> / trang</option>
-                                <option value="20">20 / trang</option>
-                                <option value="50">50 / trang</option>
-                            </select>
-                            <span class="wj-pc-page-btn is-disabled">‹</span>
-                            <t t-foreach="range(1, pc_pager['pages'] + 1)" t-as="p">
-                                <span t-attf-class="wj-pc-page-btn #{'is-active' if p == pc_pager['page'] else ''}"
-                                      t-out="p"/>
+                            <form method="get" action="/portal/exam" class="d-inline">
+                                <input type="hidden" name="state" t-att-value="f_state or ''"/>
+                                <input type="hidden" name="result" t-att-value="f_result or ''"/>
+                                <input type="hidden" name="q" t-att-value="f_q or ''"/>
+                                <!-- requestSubmit (KHÔNG submit()): submit() bỏ qua listener
+                                     'submit' nên wj_ajax_list.js không bắt, trang lại reload. -->
+                                <select class="wj-pc-pagination__size" name="limit"
+                                        onchange="this.form.requestSubmit()">
+                                    <t t-foreach="[10, 20, 50]" t-as="sz">
+                                        <option t-att-value="sz"
+                                                t-att-selected="'selected' if sz == pc_pager['size'] else None">
+                                            <t t-out="sz"/> / trang
+                                        </option>
+                                    </t>
+                                </select>
+                            </form>
+                            <a t-attf-href="/portal/exam?page=#{max(1, pc_pager['page'] - 1)}#{'&amp;' + querystring if querystring else ''}"
+                               t-attf-class="wj-pc-page-btn #{'is-disabled' if pc_pager['page'] &lt;= 1 else ''}">‹</a>
+                            <t t-foreach="pc_pager['numbers']" t-as="p">
+                                <span t-if="p == '…'" class="wj-pc-page-btn">…</span>
+                                <a t-else="" t-attf-href="/portal/exam?page=#{p}#{'&amp;' + querystring if querystring else ''}"
+                                   t-attf-class="wj-pc-page-btn #{'is-active' if p == pc_pager['page'] else ''}"
+                                   t-out="p"/>
                             </t>
-                            <span class="wj-pc-page-btn">›</span>
+                            <a t-attf-href="/portal/exam?page=#{min(pc_pager['pages'], pc_pager['page'] + 1)}#{'&amp;' + querystring if querystring else ''}"
+                               t-attf-class="wj-pc-page-btn #{'is-disabled' if pc_pager['page'] &gt;= pc_pager['pages'] else ''}">›</a>
                         </div>
                     </div>
                 </div>
@@ -128,7 +159,7 @@
                     <t t-set="ph_variant" t-value="'title'"/>
                     <t t-set="ph_title">Đăng ký thi</t>
                 </t>
-                <p class="wj-count-meta"><t t-out="pc_pager['total']"/> đăng ký trong cửa hàng hiện tại</p>
+                <p class="wj-count-meta" id="wj-exam-mcount"><t t-out="pc_pager['total']"/> đăng ký trong cửa hàng hiện tại</p>
 
                 <!-- Filter canonical 04-DateRangeOnly (Figma 4785:862) — demo UI-only (Phase 2 wire) -->
                 <div class="wj-filter-card">
@@ -146,6 +177,7 @@
                     </div>
                 </div>
 
+                <div id="wj-exam-mbody" class="wj-ajax-slot">
                 <!-- Empty: chưa có đăng ký (no-data chung Figma 4788:974) -->
                 <div t-if="not m_exam_items" class="wj-empty-state wj-empty-state--rich">
                     <span class="wj-empty-state-icon"/>
@@ -173,6 +205,7 @@
                             <span t-out="item['meta']"/>
                         </p>
                     </a>
+                </div>
                 </div>
 
                 <a href="/portal/exam/register" class="wujia-mexam-fab">

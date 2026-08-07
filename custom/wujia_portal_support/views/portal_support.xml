@@ -5,6 +5,10 @@
     <template id="portal_support_list" name="Wujia Portal — Support List">
         <t t-call="wujia_portal_layout.app_layout">
             <t t-set="title">Yêu cầu hỗ trợ</t>
+            <t t-call="wujia_portal_base.wj_ajax_list_config">
+                <t t-set="wjl_path" t-value="'/portal/support'"/>
+                <t t-set="wjl_slots" t-value="'wj-sup-pc,wj-sup-mchips,wj-sup-mbody'"/>
+            </t>
             <!-- ===== Desktop (>=992px) — GIỮ NGUYÊN 100%, chỉ bọc d-none d-lg-block (Sprint 16) ===== -->
             <div class="content-wrapper d-none d-lg-block">
                 <t t-call="wujia_portal_layout.wj_page_header">
@@ -39,6 +43,8 @@
                         </div>
                     </div>
 
+                    <!-- Vùng swap AJAX: card + pager (bộ lọc nằm ngoài, JS đồng bộ theo URL). -->
+                    <div id="wj-sup-pc">
                     <!-- Tickets — MẪU 06 Card ticket (Sprint 9.13b 2026-05-27) -->
                     <div class="wujia-content-card">
                         <div class="wujia-content-card-header">
@@ -107,6 +113,7 @@
                             </li>
                         </ul>
                     </nav>
+                    </div>
                 </div>
             </div>
             <!-- /desktop -->
@@ -146,7 +153,7 @@
                             </div>
                             <button type="submit" class="wj-filter-search-btn"><i class="feather icon-search"/></button>
                         </div>
-                        <div class="wj-filter-chips">
+                        <div class="wj-filter-chips" id="wj-sup-mchips">
                             <a href="/portal/support"
                                t-attf-class="wj-filter-chip #{'is-active' if not state else ''}">Tất cả</a>
                             <a href="/portal/support?state=new"
@@ -158,6 +165,7 @@
                         </div>
                     </form>
 
+                    <div id="wj-sup-mbody" class="wj-ajax-slot">
                     <!-- Không tìm thấy — no-data card (lọc rỗng → Xóa lọc) -->
                     <div t-if="not tickets" class="wj-empty-state wj-empty-state--rich">
                         <span class="wj-empty-state-icon"/>
@@ -198,6 +206,7 @@
                             </li>
                         </ul>
                     </nav>
+                    </div>
                 </t>
             </div>
             <!-- /mobile -->

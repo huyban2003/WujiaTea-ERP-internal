@@ -1,12 +1,13 @@
 {
     'name': 'Wujia Portal Base',
-    'version': '19.0.5.22.0',
+    'version': '19.0.6.0.0',
     'category': 'Wujia',
     'summary': 'Portal layer cho cửa hàng nhượng quyền — dashboard, franchise profile, store picker, real-time updates',
     'author': 'WujiaTea',
     'license': 'LGPL-3',
     'depends': ['wujia_sale', 'wujia_portal_layout', 'portal', 'bus'],
     'data': [
+        'views/wj_ajax_list.xml',
         'views/portal_templates.xml',
         'views/portal_franchises_in_layout.xml',
         'views/portal_home.xml',
@@ -20,7 +21,9 @@
         'web.assets_frontend': [
             'wujia_portal_base/static/src/js/franchise_realtime.js',
             'wujia_portal_base/static/src/js/store_picker.js',
+            'wujia_portal_base/static/src/js/wj_ajax_list.js',
             'wujia_portal_base/static/src/css/portal_dashboard.css',
+            'wujia_portal_base/static/src/css/wj_ajax_list.css',
             'wujia_portal_base/static/src/css/store_picker.css',
         ],
     },

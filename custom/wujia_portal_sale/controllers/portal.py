@@ -426,15 +426,15 @@ class WujiaPortalSale(http.Controller):
         }
 
     # ------------------------------------------------------------------ catalog
-    @http.route(['/portal/order'], type='http', auth='user', sitemap=False)
-    def portal_order_catalog(self, page=1, category_id=None, keyword='', **kw):
+    def _catalog_values(self, page=1, category_id=None, keyword='', **kw):
+        """Context catalog — dùng chung cho trang đầy đủ và fragment AJAX."""
         if not request.env.user._get_accessible_franchise_ids():
-            return request.render('wujia_portal_sale.portal_order_catalog', {
-            'money': portal_money,
+            return {
+                'money': portal_money,
                 'no_franchise': True, 'products': [], 'categories': [],
                 'cart': False, 'cart_state': None, 'price_map': {},
                 'pager': {}, 'keyword': '', 'category_id': None,
-            })
+            }
         fid, gate_error = self._store_gate()
         franchise = self._get_franchise(fid) if fid else None
 
@@ -477,7 +477,7 @@ class WujiaPortalSale(http.Controller):
         pager = self._fallback_pager(total, page, keyword, cat_id)
 
         msgs = self._resolve_messages(kw)
-        return request.render('wujia_portal_sale.portal_order_catalog', {
+        return {
             'money': portal_money,
             'no_franchise': False,
             'active_franchise_id': fid,
@@ -494,7 +494,18 @@ class WujiaPortalSale(http.Controller):
             'message': msgs['message'],
             'error': msgs['error'] or (ERROR_MESSAGES.get(gate_error, '') if gate_error else ''),
             **self._order_window_context(franchise),
-        })
+        }
+
+    @http.route(['/portal/order'], type='http', auth='user', sitemap=False)
+    def portal_order_catalog(self, **kw):
+        return request.render('wujia_portal_sale.portal_order_catalog',
+                              self._catalog_values(**kw))
+
+    @http.route(['/portal/order/results'], type='http', auth='user', sitemap=False)
+    def portal_order_catalog_results(self, **kw):
+        """Fragment các khối kết quả cho lọc AJAX — cùng context, bỏ shell portal."""
+        return request.render('wujia_portal_sale.portal_order_catalog_results',
+                              self._catalog_values(**kw))
 
     # ----------------------------------------------------------- product detail
     @http.route(['/portal/order/product/<int:product_id>'],

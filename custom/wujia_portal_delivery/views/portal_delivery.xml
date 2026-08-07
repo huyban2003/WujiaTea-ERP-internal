@@ -21,13 +21,13 @@
                 </div>
                 <!-- Chips số đếm (clickable filter, luôn hiện màu status) -->
                 <div t-if="view_state == 'list'" class="wj-pc-dlv-chips">
-                    <a t-attf-href="/portal/delivery?bs=#{_dq}" data-wj-dlv-nav="1"
+                    <a t-attf-href="/portal/delivery?bs=#{_dq}"
                        t-attf-class="wj-pc-dlv-chip wj-pc-dlv-chip--going #{'is-active' if not bs else ''}">Tất cả <t t-out="chip_counts.get('all', 0)"/></a>
-                    <a t-attf-href="/portal/delivery?bs=going#{_dq}" data-wj-dlv-nav="1"
+                    <a t-attf-href="/portal/delivery?bs=going#{_dq}"
                        t-attf-class="wj-pc-dlv-chip wj-pc-dlv-chip--going #{'is-active' if bs == 'going' else ''}">Đang giao <t t-out="chip_counts.get('going', 0)"/></a>
-                    <a t-attf-href="/portal/delivery?bs=soon#{_dq}" data-wj-dlv-nav="1"
+                    <a t-attf-href="/portal/delivery?bs=soon#{_dq}"
                        t-attf-class="wj-pc-dlv-chip wj-pc-dlv-chip--soon #{'is-active' if bs == 'soon' else ''}">Sắp giao <t t-out="chip_counts.get('soon', 0)"/></a>
-                    <a t-attf-href="/portal/delivery?bs=done#{_dq}" data-wj-dlv-nav="1"
+                    <a t-attf-href="/portal/delivery?bs=done#{_dq}"
                        t-attf-class="wj-pc-dlv-chip wj-pc-dlv-chip--done #{'is-active' if bs == 'done' else ''}">Đã giao <t t-out="chip_counts.get('done', 0)"/></a>
                 </div>
             </div>
@@ -73,18 +73,15 @@
                     </span>
                     <select class="wj-pc-pagination__size" disabled="disabled"><option>10 / trang</option></select>
                     <a t-attf-href="/portal/delivery?page=#{m_pager['page_previous']['num']}&amp;#{m_pager['querystring'] or ''}"
-                       data-wj-dlv-nav="1"
                        t-attf-class="wj-pc-page-btn #{'is-disabled' if m_pager['page']['num'] &lt;= 1 else ''}">‹</a>
                     <t t-foreach="m_pager['page_nums']" t-as="pn">
                         <span t-if="pn == '…'" class="wj-pc-page-btn">…</span>
                         <a t-else=""
                            t-attf-href="/portal/delivery?page=#{pn}&amp;#{m_pager['querystring'] or ''}"
-                           data-wj-dlv-nav="1"
                            t-attf-class="wj-pc-page-btn #{'is-active' if pn == m_pager['page']['num'] else ''}"
                            t-out="pn"/>
                     </t>
                     <a t-attf-href="/portal/delivery?page=#{m_pager['page_next']['num']}&amp;#{m_pager['querystring'] or ''}"
-                       data-wj-dlv-nav="1"
                        t-attf-class="wj-pc-page-btn #{'is-disabled' if m_pager['page']['num'] &gt;= m_pager['page_count'] else ''}">›</a>
                 </div>
             </t>
@@ -124,13 +121,13 @@
 
         <!-- ===== Mobile: chips trạng thái (nằm trong form lọc) ===== -->
         <div t-if="part == 'mchips'" id="wj-dlv-mchips" class="wj-filter-chips">
-            <a t-attf-href="/portal/delivery?bs=#{_dq}" data-wj-dlv-nav="1"
+            <a t-attf-href="/portal/delivery?bs=#{_dq}"
                t-attf-class="wj-filter-chip #{'is-active' if not bs else ''}">Tất cả</a>
-            <a t-attf-href="/portal/delivery?bs=soon#{_dq}" data-wj-dlv-nav="1"
+            <a t-attf-href="/portal/delivery?bs=soon#{_dq}"
                t-attf-class="wj-filter-chip #{'is-active' if bs == 'soon' else ''}">Sắp giao</a>
-            <a t-attf-href="/portal/delivery?bs=going#{_dq}" data-wj-dlv-nav="1"
+            <a t-attf-href="/portal/delivery?bs=going#{_dq}"
                t-attf-class="wj-filter-chip #{'is-active' if bs == 'going' else ''}">Đang giao</a>
-            <a t-attf-href="/portal/delivery?bs=done#{_dq}" data-wj-dlv-nav="1"
+            <a t-attf-href="/portal/delivery?bs=done#{_dq}"
                t-attf-class="wj-filter-chip #{'is-active' if bs == 'done' else ''}">Đã giao</a>
         </div>
 
@@ -175,11 +172,9 @@
                     </a>
                 </div>
                 <nav t-if="m_pager and m_pager.get('page_count', 0) &gt; 1" class="wujia-mhist-pager">
-                    <a t-attf-href="/portal/delivery?page=#{m_pager['page_previous']['num']}&amp;#{m_pager.get('querystring','')}"
-                       data-wj-dlv-nav="1">«</a>
+                    <a t-attf-href="/portal/delivery?page=#{m_pager['page_previous']['num']}&amp;#{m_pager.get('querystring','')}">«</a>
                     <span>Trang <t t-out="m_pager['page']['num']"/> / <t t-out="m_pager['page_count']"/></span>
-                    <a t-attf-href="/portal/delivery?page=#{m_pager['page_next']['num']}&amp;#{m_pager.get('querystring','')}"
-                       data-wj-dlv-nav="1">»</a>
+                    <a t-attf-href="/portal/delivery?page=#{m_pager['page_next']['num']}&amp;#{m_pager.get('querystring','')}">»</a>
                 </nav>
             </t>
 
@@ -250,6 +245,11 @@
     <template id="portal_delivery_tracking" name="Wujia Portal — Delivery Tracking List">
         <t t-call="wujia_portal_layout.app_layout">
             <t t-set="title">Theo dõi giao hàng</t>
+            <t t-call="wujia_portal_base.wj_ajax_list_config">
+                <t t-set="wjl_path" t-value="'/portal/delivery'"/>
+                <t t-set="wjl_slots" t-value="'wj-dlv-pc-card,wj-dlv-mchips,wj-dlv-mbody'"/>
+                <t t-set="wjl_fragment" t-value="'/portal/delivery/results'"/>
+            </t>
             <!-- Desktop ≥992px — PC Giao hàng, batch-centric (Figma 4766:860). -->
             <div class="content-wrapper d-none d-lg-block wujia-dlv-pc">
                 <t t-call="wujia_portal_layout.wj_page_header">
@@ -284,7 +284,8 @@
                                 <option value="done" t-att-selected="'selected' if bs == 'done' else None">Đã giao</option>
                             </select>
                             <span class="wj-pc-filterbar__actions">
-                                <a href="/portal/delivery" class="wj-pc-btn wj-pc-btn--secondary">Xóa lọc</a>
+                                <a href="/portal/delivery" data-wj-nav="1"
+                                   class="wj-pc-btn wj-pc-btn--secondary">Xóa lọc</a>
                                 <button type="submit" class="wj-pc-btn wj-pc-btn--primary"><i class="feather icon-search"/>Tìm</button>
                             </span>
                         </div>

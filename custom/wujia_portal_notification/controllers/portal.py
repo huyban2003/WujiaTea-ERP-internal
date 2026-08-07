@@ -118,25 +118,30 @@ class WujiaPortalNotification(http.Controller):
                    .search(dom).mapped('notification_id').ids)
 
     def _unread_count(self, franchise_ids, franchise_id):
-        """Badge = số thông báo còn hiệu lực CHƯA đọc của user tại cửa hàng hiện tại."""
-        Noti = request.env['wujia.notification'].sudo()
-        eff_ids = Noti.search(_effective_domain(franchise_ids)).ids
-        if not eff_ids:
+        """Badge = số thông báo còn hiệu lực CHƯA đọc của user tại cửa hàng hiện tại.
+
+        2 câu đếm, KHÔNG nạp id ra Python: badge chạy trên mọi trang portal, với 1500
+        cửa hàng thì `search(...).ids` là kéo cả bảng về mỗi request. `any` đẩy điều
+        kiện "còn hiệu lực" xuống subquery của notification_id.
+        """
+        eff_domain = _effective_domain(franchise_ids)
+        total_eff = request.env['wujia.notification'].sudo().search_count(eff_domain)
+        if not total_eff:
             return 0
         dom = [
             ('user_id', '=', request.env.user.id),
-            ('notification_id', 'in', eff_ids),
+            ('notification_id', 'any', eff_domain),
         ]
         if franchise_id:
             dom.append(('franchise_id', '=', franchise_id))
         read = request.env['wujia.notification.read'].sudo().search_count(dom)
-        return max(0, len(eff_ids) - read)
+        return max(0, total_eff - read)
 
-    @http.route(['/portal/notification'], type='http', auth='user', sitemap=False)
-    def portal_notification_list(self, page=1, type_id=None, keyword='',
-                                 tab='recent', unread=None, read_status=None,
-                                 date_from='', date_to='', priority='',
-                                 limit=None, **kw):
+    def _notification_list_values(self, page=1, type_id=None, keyword='',
+                                  tab='recent', unread=None, read_status=None,
+                                  date_from='', date_to='', priority='',
+                                  limit=None, **kw):
+        """Context danh sách thông báo — dùng chung cho trang đầy đủ và fragment AJAX."""
         franchise_ids = get_active_franchise_ids_filter()
         active_fid = get_active_franchise_id()
         Noti = request.env['wujia.notification'].sudo()
@@ -214,7 +219,7 @@ class WujiaPortalNotification(http.Controller):
             'page_next': {'num': min(last_page, page + 1)},
             'querystring': querystring,
         }
-        return request.render('wujia_portal_notification.portal_notification_list', {
+        return {
             'notifications': notifications,
             'read_ids': read_ids, 'types': types, 'pager': pager,
             'type_id': tid, 'keyword': keyword, 'tab': tab,
@@ -224,7 +229,18 @@ class WujiaPortalNotification(http.Controller):
             'date_from': date_from, 'date_to': date_to, 'priority': priority,
             'page_size': lim,
             'PC_TYPE_TONE': PC_TYPE_TONE, 'PC_PRIORITY_TAGS': PC_PRIORITY_TAGS,
-        })
+        }
+
+    @http.route(['/portal/notification'], type='http', auth='user', sitemap=False)
+    def portal_notification_list(self, **kw):
+        return request.render('wujia_portal_notification.portal_notification_list',
+                              self._notification_list_values(**kw))
+
+    @http.route(['/portal/notification/results'], type='http', auth='user', sitemap=False)
+    def portal_notification_results(self, **kw):
+        """Fragment các khối kết quả cho lọc AJAX — cùng context, bỏ shell portal."""
+        return request.render('wujia_portal_notification.portal_notification_results',
+                              self._notification_list_values(**kw))
 
     @http.route(['/portal/notification/<int:notification_id>'],
                 type='http', auth='user', sitemap=False)

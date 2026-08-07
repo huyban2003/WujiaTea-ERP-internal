@@ -14,30 +14,30 @@
         document.body.appendChild(el);
         setTimeout(function () { el.remove(); }, 1600);
     }
-    document.addEventListener("DOMContentLoaded", function () {
-        var btn = document.getElementById("wj-noti-bulk-read");
-        if (!btn) return;
-        btn.addEventListener("click", function () {
-            btn.disabled = true;
-            fetch("/portal/notification/mark-all-read", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                credentials: "include",
-                body: JSON.stringify({ jsonrpc: "2.0", method: "call", params: {} }),
+    // Delegation: nút nằm trong vùng swap của wj_ajax_list — bind trực tiếp sẽ mất
+    // listener sau lần lọc đầu tiên (node cũ đã bị thay).
+    document.addEventListener("click", function (ev) {
+        var btn = ev.target.closest ? ev.target.closest("#wj-noti-bulk-read") : null;
+        if (!btn || btn.disabled) return;
+        btn.disabled = true;
+        fetch("/portal/notification/mark-all-read", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            credentials: "include",
+            body: JSON.stringify({ jsonrpc: "2.0", method: "call", params: {} }),
+        })
+            .then(function (r) { return r.json(); })
+            .then(function (res) {
+                var out = (res && res.result) || {};
+                if (out.error) {
+                    // Ví dụ chưa chọn cửa hàng — hiện message nghiệp vụ, không reload.
+                    toast(out.message || "Chưa thể đánh dấu đã đọc. Vui lòng thử lại.");
+                    btn.disabled = false;
+                    return;
+                }
+                toast("Đã đánh dấu " + (out.updated_count || 0) + " thông báo là đã đọc.");
+                setTimeout(function () { window.location.reload(); }, 600);
             })
-                .then(function (r) { return r.json(); })
-                .then(function (res) {
-                    var out = (res && res.result) || {};
-                    if (out.error) {
-                        // Ví dụ chưa chọn cửa hàng — hiện message nghiệp vụ, không reload.
-                        toast(out.message || "Chưa thể đánh dấu đã đọc. Vui lòng thử lại.");
-                        btn.disabled = false;
-                        return;
-                    }
-                    toast("Đã đánh dấu " + (out.updated_count || 0) + " thông báo là đã đọc.");
-                    setTimeout(function () { window.location.reload(); }, 600);
-                })
-                .catch(function () { btn.disabled = false; });
-        });
+            .catch(function () { btn.disabled = false; });
     });
 })();

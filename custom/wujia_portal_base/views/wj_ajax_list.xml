@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- WJ_AjaxList — khai báo cho `wj_ajax_list.js`: lọc/phân trang không reload trang.
+         Đặt MỘT lần trong template danh sách (ngoài mọi vùng swap), props qua t-set:
+
+           wjl_path     bắt buộc — đường dẫn trang danh sách, vd '/portal/support'
+           wjl_slots    bắt buộc — id các khối được thay, ngăn cách dấu phẩy
+           wjl_fragment tuỳ chọn — route chỉ trả các khối kết quả (chế độ nhanh nhất);
+                        bỏ trống thì JS tải chính wjl_path rồi bóc khối theo id
+           wjl_scroll   tuỳ chọn — 'false' để không cuộn lên đầu sau khi thay
+
+         Slot id phải GIỐNG NHAU giữa trang đầy đủ và fragment — JS ghép theo id. -->
+    <template id="wj_ajax_list_config" name="Wujia — Ajax list config">
+        <span class="d-none" data-wj-list-config="1"
+              t-att-data-wj-list="wjl_path"
+              t-att-data-wj-slots="wjl_slots"
+              t-att-data-wj-fragment="wjl_fragment or None"
+              t-att-data-wj-scroll="wjl_scroll or None"/>
+    </template>
+</odoo>

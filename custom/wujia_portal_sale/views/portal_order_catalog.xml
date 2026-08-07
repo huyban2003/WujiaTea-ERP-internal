@@ -1,19 +1,208 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
 
+    <!-- ============== Khối kết quả (swap được bằng AJAX khi lọc/phân trang) ==============
+         4 mảnh dùng chung trang đầy đủ và /portal/order/results: card sản phẩm + pager PC,
+         bộ đếm mobile, chip danh mục mobile, thân danh sách mobile. Giỏ hàng KHÔNG nằm
+         trong đây — portal_cart_sync.js vẫn lo như cũ. -->
+    <template id="portal_order_catalog_results_part" name="Wujia Portal — Catalog Results Part">
+        <!-- t-set phải nằm TRONG đây, không phải ở trang: /portal/order/results chỉ gọi
+             part nên t-set đặt ngoài sẽ không tồn tại ⇒ KeyError cart_qty_map. -->
+        <t t-set="cart_qty_map"
+           t-value="{l['product_id']: l['qty'] for l in cart_state['lines']} if cart_state else {}"/>
+        <t t-set="has_spec" t-value="any(p.description_ecommerce for p in products)"/>
+        <div t-if="part == 'pc'" id="wj-ord-pc">
+            <!-- Product card -->
+            <div class="wj-pc-card wj-pc-order-card">
+                <div class="wj-pc-order-cardhead">
+                    <h3 class="wj-pc-order-cardtitle">Danh sách sản phẩm</h3>
+                    <span class="wj-count-meta wj-count-meta--bold">
+                        <t t-out="product_count"/> sản phẩm
+                    </span>
+                </div>
+                <div t-if="not products" class="wj-empty-state">
+                    <i class="feather icon-package"/>
+                    <p>Không có sản phẩm phù hợp.</p>
+                </div>
+                <t t-else="">
+                    <table class="wj-pc-order-table">
+                        <thead>
+                            <tr>
+                                <th>Sản phẩm</th>
+                                <th t-if="has_spec">Quy cách</th>
+                                <th>ĐVT</th>
+                                <th class="text-end">Đơn giá</th>
+                                <th class="text-center">Thao tác</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr t-foreach="products" t-as="product"
+                                t-attf-class="wj-pc-order-row #{'wj-pc-order-row--incart' if cart_qty_map.get(product.id, 0) else ''}">
+                                <t t-set="in_cart" t-value="cart_qty_map.get(product.id, 0)"/>
+                                <td>
+                                    <a t-attf-href="/portal/order/product/#{product.id}"
+                                       class="wj-pc-order-prod">
+                                        <span class="wj-pc-order-prod-name" t-out="product.name"/>
+                                        <span t-if="product.name_chinese"
+                                              class="wj-pc-order-prod-cn" t-out="product.name_chinese"/>
+                                    </a>
+                                </td>
+                                <td t-if="has_spec" class="wj-pc-order-spec"
+                                    t-out="product.description_ecommerce or '—'"/>
+                                <td class="wj-pc-order-uom" t-out="product.uom_id.name or '—'"/>
+                                <td class="text-end wj-pc-order-price"
+                                    t-out="money(price_map.get(product.id), cart_state['currency_symbol'] if cart_state else '', cart_state['currency_decimals'] if cart_state else 0)"/>
+                                <td class="text-center">
+                                    <button type="button"
+                                            class="wj-pc-order-add btn-add-cart"
+                                            t-att-data-product-id="product.id"
+                                            t-att-data-min-qty="product.min_qty or 1"
+                                            t-att-data-max-qty="str(product.max_qty or 0)"
+                                            aria-label="Thêm vào giỏ">
+                                        <i class="feather icon-shopping-cart"/>
+                                        <span t-attf-class="wj-pc-order-add-badge #{'' if in_cart else 'd-none'}"
+                                              t-out="in_cart"/>
+                                    </button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </t>
+            </div>
+
+            <!-- Pager (numbered — wj-pc) -->
+            <nav t-if="pager and pager.get('page_count', 0) &gt; 1"
+                 aria-label="pagination" class="wj-pc-pagination wj-pc-order-pager">
+                <span class="wj-pc-pagination__count">
+                    Hiển thị
+                    <t t-out="(pager['page']['num'] - 1) * page_size + 1"/>–<t t-out="(pager['page']['num'] - 1) * page_size + len(products)"/>
+                    / <t t-out="product_count"/> sản phẩm
+                </span>
+                <a t-att-href="pager['page_previous']['url']" class="wj-pc-page-btn">‹</a>
+                <t t-foreach="pager.get('pages', [])" t-as="pg">
+                    <a t-att-href="pg['url']"
+                       t-attf-class="wj-pc-page-btn #{'is-active' if pg['num'] == pager['page']['num'] else ''}"
+                       t-out="pg['num']"/>
+                </t>
+                <a t-att-href="pager['page_next']['url']" class="wj-pc-page-btn">›</a>
+            </nav>
+        </div>
+
+        <div t-if="part == 'mcount'" id="wj-ord-mcount" class="wujia-morder-titlerow">
+            <h1 class="wujia-morder-title">Đặt hàng</h1>
+            <span t-if="products" class="wj-count-meta wj-count-meta--bold wujia-morder-count">
+                <t t-out="len(products)"/> SP
+            </span>
+        </div>
+
+        <!-- Luôn render (ẩn khi chưa có danh mục) — AJAX cần chỗ để thay. -->
+        <div t-if="part == 'mchips'" id="wj-ord-mchips" class="wj-filter-chips wujia-morder-chips"
+             t-att-hidden="None if categories else 'hidden'">
+            <a t-attf-href="/portal/order#{('?keyword=' + keyword) if keyword else ''}"
+               t-attf-class="wj-filter-chip wj-filter-chip--soft #{'is-active' if not category_id else ''}">Tất cả</a>
+            <t t-foreach="categories" t-as="cat">
+                <a t-attf-href="/portal/order?category_id=#{cat.id}#{('&amp;keyword=' + keyword) if keyword else ''}"
+                   t-attf-class="wj-filter-chip wj-filter-chip--soft #{'is-active' if category_id == cat.id else ''}"
+                   t-out="cat.name"/>
+            </t>
+        </div>
+
+        <div t-if="part == 'mbody'" id="wj-ord-mbody" class="wj-ajax-slot">
+            <!-- List header -->
+            <div class="wujia-morder-listhead">
+                <span class="wujia-morder-listhead-title">Danh sách sản phẩm</span>
+                <span t-if="products" class="wj-count-meta wj-count-meta--bold">
+                    <t t-out="len(products)"/> SP
+                </span>
+            </div>
+
+            <!-- Empty -->
+            <div t-if="not products" class="wujia-empty-state">
+                <i class="feather icon-package"/>
+                <p>Không có sản phẩm phù hợp.</p>
+            </div>
+
+            <!-- Product compact rows -->
+            <t t-else="">
+                <div class="wujia-morder-list">
+                    <t t-foreach="products" t-as="product">
+                        <t t-set="in_cart" t-value="cart_qty_map.get(product.id, 0)"/>
+                        <div class="wujia-morder-row">
+                            <!-- UI-MOB-ORDER-002: ảnh SP nếu có, else icon placeholder (bỏ ĐVT lặp) -->
+                            <span class="wujia-morder-row-thumb">
+                                <img t-if="product.image_128" class="wujia-morder-row-thumb-img"
+                                     t-attf-src="/web/image/product.product/#{product.id}/image_128" alt=""/>
+                                <i t-else="" class="feather icon-package wujia-morder-row-thumb-ph"/>
+                            </span>
+                            <a t-attf-href="/portal/order/product/#{product.id}"
+                               class="wujia-morder-row-info">
+                                <span class="wujia-morder-row-name" t-out="product.name"/>
+                                <span class="wujia-morder-row-spec"
+                                      t-out="product.description_ecommerce or product.uom_id.name or '—'"/>
+                            </a>
+                            <span class="wujia-morder-row-price"
+                                  t-out="money(price_map.get(product.id), cart_state['currency_symbol'] if cart_state else '', cart_state['currency_decimals'] if cart_state else 0)"/>
+                            <!-- WJ-ORD-021: qty=0 → nút "Thêm"; qty>0 → stepper "− N +"
+                                 (giảm ở min = xoá dòng qua /cart/step product_id). data-qty
+                                 điều khiển hiển thị; JS applyState morph theo qty_map.
+                                 WJ-ORD-010: aria-label = action + tên SP. KHÔNG dùng
+                                 .btn-add-cart (delegation ở portal_cart_sync, tránh
+                                 double-bind với portal_order.js DOMContentLoaded). -->
+                            <div class="wujia-morder-cartctl"
+                                 t-att-data-product-id="product.id"
+                                 t-att-data-min-qty="product.min_qty or 1"
+                                 t-att-data-max-qty="str(product.max_qty or 0)"
+                                 t-attf-data-qty="#{in_cart}">
+                                <button type="button" class="wujia-morder-row-add wujia-morder-add-btn"
+                                        t-att-aria-label="'Thêm ' + product.name + ' vào giỏ'">
+                                    <i class="feather icon-shopping-cart"/>
+                                </button>
+                                <div class="wujia-morder-mstepper" role="group"
+                                     t-att-aria-label="'Điều chỉnh số lượng ' + product.name">
+                                    <button type="button" class="wujia-morder-mstep wujia-morder-mstep-minus"
+                                            t-att-aria-label="'Giảm ' + product.name">−</button>
+                                    <span class="wujia-morder-mstep-qty" aria-live="polite"
+                                          t-att-aria-label="'Số lượng ' + product.name" t-out="in_cart"/>
+                                    <button type="button" class="wujia-morder-mstep wujia-morder-mstep-plus"
+                                            t-att-aria-label="'Tăng ' + product.name">+</button>
+                                </div>
+                            </div>
+                        </div>
+                    </t>
+                </div>
+            </t>
+
+        </div>
+
+    </template>
+
+    <!-- Fragment AJAX: cả 4 mảnh, JS thay từng khối theo id. -->
+    <template id="portal_order_catalog_results" name="Wujia Portal — Catalog Results Fragment">
+        <div t-if="not no_franchise">
+            <t t-foreach="['pc', 'mcount', 'mchips', 'mbody']" t-as="pt">
+                <t t-call="wujia_portal_sale.portal_order_catalog_results_part">
+                    <t t-set="part" t-value="pt"/>
+                </t>
+            </t>
+        </div>
+    </template>
+
     <template id="portal_order_catalog" name="Wujia Portal — Order Catalog">
         <t t-call="wujia_portal_layout.app_layout">
             <t t-set="title">Đặt hàng</t>
+            <t t-call="wujia_portal_base.wj_ajax_list_config">
+                <t t-set="wjl_path" t-value="'/portal/order'"/>
+                <t t-set="wjl_slots" t-value="'wj-ord-pc,wj-ord-mcount,wj-ord-mchips,wj-ord-mbody'"/>
+                <t t-set="wjl_fragment" t-value="'/portal/order/results'"/>
+            </t>
             <div class="content-wrapper">
                 <!-- Realtime cart sync root — bus channel wujia.franchise_<id> (Sprint 31). -->
                 <div id="wj-cart-sync" class="d-none" t-att-data-franchise-id="active_franchise_id"/>
                 <!-- Sprint 30: products = product.product, giá từ price_map (pricelist),
-                     giỏ chung theo store (cart_state dict từ controller). -->
-                <t t-set="cart_qty_map"
-                   t-value="{l['product_id']: l['qty'] for l in cart_state['lines']} if cart_state else {}"/>
-                <!-- WJ-ORD-009: chỉ hiện cột Quy cách khi ÍT NHẤT 1 SP có dữ liệu thực
-                     (tránh cột lặp toàn dấu '—'). order_window_label do controller dựng. -->
-                <t t-set="has_spec" t-value="any(p.description_ecommerce for p in products)"/>
+                     giỏ chung theo store (cart_state dict từ controller).
+                     WJ-ORD-009: cột Quy cách chỉ hiện khi ÍT NHẤT 1 SP có dữ liệu thực.
+                     Cả cart_qty_map lẫn has_spec nay t-set trong portal_order_catalog_results_part
+                     (chỉ dùng ở đó, và fragment /results cần chúng). -->
 
                 <!-- ===== DESKTOP (≥992px) — PC combined catalog + cart (Figma PC_Product_Cart 4600:2, Sprint PC-1) ===== -->
                 <div class="d-none d-lg-block">
@@ -50,7 +239,7 @@
                                                    t-att-value="keyword"/>
                                         </span>
                                         <select name="category_id" class="wj-pc-filter-control"
-                                                style="max-width:220px;" onchange="this.form.submit()">
+                                                style="max-width:220px;" onchange="this.form.requestSubmit()">
                                             <option value="">Tất cả danh mục</option>
                                             <t t-foreach="categories" t-as="cat">
                                                 <option t-att-value="cat.id"
@@ -66,80 +255,9 @@
                                     </div>
                                 </form>
 
-                                <!-- Product card -->
-                                <div class="wj-pc-card wj-pc-order-card">
-                                    <div class="wj-pc-order-cardhead">
-                                        <h3 class="wj-pc-order-cardtitle">Danh sách sản phẩm</h3>
-                                        <span class="wj-count-meta wj-count-meta--bold">
-                                            <t t-out="product_count"/> sản phẩm
-                                        </span>
-                                    </div>
-                                    <div t-if="not products" class="wj-empty-state">
-                                        <i class="feather icon-package"/>
-                                        <p>Không có sản phẩm phù hợp.</p>
-                                    </div>
-                                    <t t-else="">
-                                        <table class="wj-pc-order-table">
-                                            <thead>
-                                                <tr>
-                                                    <th>Sản phẩm</th>
-                                                    <th t-if="has_spec">Quy cách</th>
-                                                    <th>ĐVT</th>
-                                                    <th class="text-end">Đơn giá</th>
-                                                    <th class="text-center">Thao tác</th>
-                                                </tr>
-                                            </thead>
-                                            <tbody>
-                                                <tr t-foreach="products" t-as="product"
-                                                    t-attf-class="wj-pc-order-row #{'wj-pc-order-row--incart' if cart_qty_map.get(product.id, 0) else ''}">
-                                                    <t t-set="in_cart" t-value="cart_qty_map.get(product.id, 0)"/>
-                                                    <td>
-                                                        <a t-attf-href="/portal/order/product/#{product.id}"
-                                                           class="wj-pc-order-prod">
-                                                            <span class="wj-pc-order-prod-name" t-out="product.name"/>
-                                                            <span t-if="product.name_chinese"
-                                                                  class="wj-pc-order-prod-cn" t-out="product.name_chinese"/>
-                                                        </a>
-                                                    </td>
-                                                    <td t-if="has_spec" class="wj-pc-order-spec"
-                                                        t-out="product.description_ecommerce or '—'"/>
-                                                    <td class="wj-pc-order-uom" t-out="product.uom_id.name or '—'"/>
-                                                    <td class="text-end wj-pc-order-price"
-                                                        t-out="money(price_map.get(product.id), cart_state['currency_symbol'] if cart_state else '', cart_state['currency_decimals'] if cart_state else 0)"/>
-                                                    <td class="text-center">
-                                                        <button type="button"
-                                                                class="wj-pc-order-add btn-add-cart"
-                                                                t-att-data-product-id="product.id"
-                                                                t-att-data-min-qty="product.min_qty or 1"
-                                                                t-att-data-max-qty="str(product.max_qty or 0)"
-                                                                aria-label="Thêm vào giỏ">
-                                                            <i class="feather icon-shopping-cart"/>
-                                                            <span t-attf-class="wj-pc-order-add-badge #{'' if in_cart else 'd-none'}"
-                                                                  t-out="in_cart"/>
-                                                        </button>
-                                                    </td>
-                                                </tr>
-                                            </tbody>
-                                        </table>
-                                    </t>
-                                </div>
-
-                                <!-- Pager (numbered — wj-pc) -->
-                                <nav t-if="pager and pager.get('page_count', 0) &gt; 1"
-                                     aria-label="pagination" class="wj-pc-pagination wj-pc-order-pager">
-                                    <span class="wj-pc-pagination__count">
-                                        Hiển thị
-                                        <t t-out="(pager['page']['num'] - 1) * page_size + 1"/>–<t t-out="(pager['page']['num'] - 1) * page_size + len(products)"/>
-                                        / <t t-out="product_count"/> sản phẩm
-                                    </span>
-                                    <a t-att-href="pager['page_previous']['url']" class="wj-pc-page-btn">‹</a>
-                                    <t t-foreach="pager.get('pages', [])" t-as="pg">
-                                        <a t-att-href="pg['url']"
-                                           t-attf-class="wj-pc-page-btn #{'is-active' if pg['num'] == pager['page']['num'] else ''}"
-                                           t-out="pg['num']"/>
-                                    </t>
-                                    <a t-att-href="pager['page_next']['url']" class="wj-pc-page-btn">›</a>
-                                </nav>
+                                <t t-call="wujia_portal_sale.portal_order_catalog_results_part">
+                                    <t t-set="part" t-value="'pc'"/>
+                                </t>
                             </div>
 
                             <!-- RIGHT: full cart panel (shared partial) -->
@@ -163,12 +281,9 @@
                         <!-- WJ-ORD-005: H1 = task chính "Đặt hàng" (khớp PC + bottom-nav
                              active), bộ đếm danh sách CÙNG hàng bên phải (không dòng riêng),
                              cập nhật theo số SP đang hiển thị sau tìm/lọc. -->
-                        <div class="wujia-morder-titlerow">
-                            <h1 class="wujia-morder-title">Đặt hàng</h1>
-                            <span t-if="products" class="wj-count-meta wj-count-meta--bold wujia-morder-count">
-                                <t t-out="len(products)"/> SP
-                            </span>
-                        </div>
+                        <t t-call="wujia_portal_sale.portal_order_catalog_results_part">
+                            <t t-set="part" t-value="'mcount'"/>
+                        </t>
 
                         <!-- Order warning bar — WJ-ORD-006: màu + nội dung theo trạng thái
                              thực (order_window_open server-side theo store tz); WJ-ORD-015:
@@ -196,80 +311,13 @@
                         </form>
 
                         <!-- Category chips (wj-filter-chip — Sprint 19 canonical) -->
-                        <div t-if="categories" class="wj-filter-chips wujia-morder-chips">
-                            <a t-attf-href="/portal/order#{('?keyword=' + keyword) if keyword else ''}"
-                               t-attf-class="wj-filter-chip wj-filter-chip--soft #{'is-active' if not category_id else ''}">Tất cả</a>
-                            <t t-foreach="categories" t-as="cat">
-                                <a t-attf-href="/portal/order?category_id=#{cat.id}#{('&amp;keyword=' + keyword) if keyword else ''}"
-                                   t-attf-class="wj-filter-chip wj-filter-chip--soft #{'is-active' if category_id == cat.id else ''}"
-                                   t-out="cat.name"/>
-                            </t>
-                        </div>
-
-                        <!-- List header -->
-                        <div class="wujia-morder-listhead">
-                            <span class="wujia-morder-listhead-title">Danh sách sản phẩm</span>
-                            <span t-if="products" class="wj-count-meta wj-count-meta--bold">
-                                <t t-out="len(products)"/> SP
-                            </span>
-                        </div>
-
-                        <!-- Empty -->
-                        <div t-if="not products" class="wujia-empty-state">
-                            <i class="feather icon-package"/>
-                            <p>Không có sản phẩm phù hợp.</p>
-                        </div>
-
-                        <!-- Product compact rows -->
-                        <t t-else="">
-                            <div class="wujia-morder-list">
-                                <t t-foreach="products" t-as="product">
-                                    <t t-set="in_cart" t-value="cart_qty_map.get(product.id, 0)"/>
-                                    <div class="wujia-morder-row">
-                                        <!-- UI-MOB-ORDER-002: ảnh SP nếu có, else icon placeholder (bỏ ĐVT lặp) -->
-                                        <span class="wujia-morder-row-thumb">
-                                            <img t-if="product.image_128" class="wujia-morder-row-thumb-img"
-                                                 t-attf-src="/web/image/product.product/#{product.id}/image_128" alt=""/>
-                                            <i t-else="" class="feather icon-package wujia-morder-row-thumb-ph"/>
-                                        </span>
-                                        <a t-attf-href="/portal/order/product/#{product.id}"
-                                           class="wujia-morder-row-info">
-                                            <span class="wujia-morder-row-name" t-out="product.name"/>
-                                            <span class="wujia-morder-row-spec"
-                                                  t-out="product.description_ecommerce or product.uom_id.name or '—'"/>
-                                        </a>
-                                        <span class="wujia-morder-row-price"
-                                              t-out="money(price_map.get(product.id), cart_state['currency_symbol'] if cart_state else '', cart_state['currency_decimals'] if cart_state else 0)"/>
-                                        <!-- WJ-ORD-021: qty=0 → nút "Thêm"; qty>0 → stepper "− N +"
-                                             (giảm ở min = xoá dòng qua /cart/step product_id). data-qty
-                                             điều khiển hiển thị; JS applyState morph theo qty_map.
-                                             WJ-ORD-010: aria-label = action + tên SP. KHÔNG dùng
-                                             .btn-add-cart (delegation ở portal_cart_sync, tránh
-                                             double-bind với portal_order.js DOMContentLoaded). -->
-                                        <div class="wujia-morder-cartctl"
-                                             t-att-data-product-id="product.id"
-                                             t-att-data-min-qty="product.min_qty or 1"
-                                             t-att-data-max-qty="str(product.max_qty or 0)"
-                                             t-attf-data-qty="#{in_cart}">
-                                            <button type="button" class="wujia-morder-row-add wujia-morder-add-btn"
-                                                    t-att-aria-label="'Thêm ' + product.name + ' vào giỏ'">
-                                                <i class="feather icon-shopping-cart"/>
-                                            </button>
-                                            <div class="wujia-morder-mstepper" role="group"
-                                                 t-att-aria-label="'Điều chỉnh số lượng ' + product.name">
-                                                <button type="button" class="wujia-morder-mstep wujia-morder-mstep-minus"
-                                                        t-att-aria-label="'Giảm ' + product.name">−</button>
-                                                <span class="wujia-morder-mstep-qty" aria-live="polite"
-                                                      t-att-aria-label="'Số lượng ' + product.name" t-out="in_cart"/>
-                                                <button type="button" class="wujia-morder-mstep wujia-morder-mstep-plus"
-                                                        t-att-aria-label="'Tăng ' + product.name">+</button>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </t>
-                            </div>
+                        <t t-call="wujia_portal_sale.portal_order_catalog_results_part">
+                            <t t-set="part" t-value="'mchips'"/>
                         </t>
 
+                        <t t-call="wujia_portal_sale.portal_order_catalog_results_part">
+                            <t t-set="part" t-value="'mbody'"/>
+                        </t>
                         <!-- Floating cart bar — luôn render, ẩn khi giỏ trống (JS toggle realtime) -->
                         <a href="/portal/order/cart"
                            t-attf-class="wujia-morder-floatbar #{'' if (cart_state and cart_state['line_count']) else 'd-none'}"
