@@ -176,11 +176,13 @@
                                         required="not is_pass and require_evidence_if_fail and display_type == 'line'" />
 
                                     <field name="remediation_state"
+                                        widget="selection_badge"
                                         decoration-danger="remediation_state == 'need_remediation'"
                                         decoration-warning="remediation_state == 'remediated'"
                                         decoration-success="remediation_state == 'done'"
                                         column_invisible="parent.state not in ['need_remediation', 'done']"
                                         invisible="display_type == 'section'" />
+
                                     <field name="remediation_note"
                                         placeholder="Ghi chú khắc phục của cửa hàng..."
                                         column_invisible="parent.state not in ['need_remediation', 'done']"
