@@ -116,12 +116,18 @@
                 }
             </style>
 
+            <!-- Sử dụng component chuẩn wj_page_header từ wujia_portal_layout -->
+            <t t-set="ph_platform" t-value="'pc'"/>
+            <t t-set="ph_variant" t-value="'title'"/>
+            <t t-set="ph_title" t-value="'Danh sách phiếu giám sát'"/>
+            <t t-call="wujia_portal_layout.wj_page_header"/>
+
+            <t t-set="ph_platform" t-value="'m'"/>
+            <t t-set="ph_variant" t-value="'title'"/>
+            <t t-set="ph_title" t-value="'Khảo sát'"/>
+            <t t-call="wujia_portal_layout.wj_page_header"/>
+
             <div class="wj-inspection-container p-3 bg-white">
-                <!-- Header Title -->
-                <div class="mb-3">
-                    <h1 class="font-weight-bold mb-1 wj-inspection-title">Danh sách phiếu giám sát</h1>
-                    <p class="mb-0 wj-inspection-subtitle">Quản lý và theo dõi tiến độ đánh giá cửa hàng.</p>
-                </div>
 
                 <!-- Search Input -->
                 <form method="get" action="/portal/inspection" class="mb-3">

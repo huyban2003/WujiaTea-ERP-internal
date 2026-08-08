@@ -248,13 +248,17 @@
 
 /* Additional Portal Inspection CSS rules for dynamic mobile detail UI */
 .wj-detail-max-chip {
-    border: 1px solid #e2e8f0;
+    border: 1px solid #cbd5e1;
     background-color: #ffffff;
     color: #475569;
-    border-radius: 16px;
-    padding: 3px 12px;
-    font-size: 0.8rem;
+    border-radius: 20px;
+    padding: 3px 10px;
+    font-size: 0.78rem;
     font-weight: 600;
+    display: inline-block;
+    white-space: nowrap;
+    line-height: 1.2;
+    text-align: center;
 }
 
 .wj-severe-icon-badge {
@@ -330,4 +334,50 @@
 .wj-page-header__back svg {
     margin: 0 auto !important;
     display: block !important;
+}
+
+/* Lightbox Modal */
+.wj-lightbox-modal {
+    display: none;
+    position: fixed;
+    z-index: 9999;
+    padding-top: 100px;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background-color: rgba(241, 245, 249, 0.96);
+}
+
+.wj-lightbox-content {
+    margin: auto;
+    display: block;
+    max-width: 92%;
+    max-height: 75%;
+    border-radius: 8px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+    animation-name: wjzoom;
+    animation-duration: 0.2s;
+    object-fit: contain;
+}
+
+@keyframes wjzoom {
+    from {transform: scale(0.85); opacity: 0;}
+    to {transform: scale(1); opacity: 1;}
+}
+
+.wj-lightbox-close {
+    position: absolute;
+    top: 20px;
+    right: 30px;
+    color: #475569;
+    font-size: 45px;
+    font-weight: bold;
+    transition: 0.2s;
+    cursor: pointer;
+}
+
+.wj-lightbox-close:hover {
+    color: #0f172a;
 }

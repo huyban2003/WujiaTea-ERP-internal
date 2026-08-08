@@ -6,6 +6,12 @@
         <t t-call="wujia_portal_layout.app_layout">
 
             <!-- Sử dụng component chuẩn wj_page_header từ wujia_portal_layout cho phần Header -->
+            <t t-set="ph_platform" t-value="'pc'"/>
+            <t t-set="ph_variant" t-value="'back'"/>
+            <t t-set="ph_title" t-value="'Phản hồi khắc phục'"/>
+            <t t-set="ph_back_url" t-value="back_url or '/portal/inspection'"/>
+            <t t-call="wujia_portal_layout.wj_page_header"/>
+
             <t t-set="ph_platform" t-value="'m'"/>
             <t t-set="ph_variant" t-value="'back'"/>
             <t t-set="ph_title" t-value="'Phản hồi khắc phục'"/>
@@ -54,7 +60,7 @@
                                 <t t-out="planned_date"/>
                             </span>
                         </div>
-                        <img t-att-src="evidence_image_url" class="w-100 rounded-3 border" style="max-height: 200px; object-fit: cover;"/>
+                        <img t-att-src="evidence_image_url" class="w-100 rounded-3 border wj-img-zoom" style="max-height: 200px; object-fit: cover;"/>
                     </div>
 
                     <!-- Thẻ 3: Upload Ảnh Sau (Khắc phục) -->
@@ -66,8 +72,8 @@
                             <i class="feather icon-camera text-primary" style="font-size: 1.1rem; color: #0284c7 !important;"/>
                         </div>
 
-                        <div class="upload-dropzone p-4 text-center border rounded-3" style="border: 2px dashed #cbd5e1 !important; background: #f8fafc; cursor: pointer;" onclick="document.getElementById('image_upload_input').click();">
-                            <input type="file" id="image_upload_input" name="remediation_image" accept="image/*" class="d-none" onchange="previewRemediationImage(this);"/>
+                        <div class="upload-dropzone p-4 text-center border rounded-3" style="border: 2px dashed #cbd5e1 !important; background: #f8fafc; cursor: pointer;">
+                            <input type="file" id="image_upload_input" name="remediation_image" accept="image/*" class="d-none"/>
                             
                             <div id="upload_placeholder">
                                 <div class="upload-icon-circle mb-2 d-inline-flex align-items-center justify-content-center rounded-circle bg-white shadow-sm" style="width: 44px; height: 44px; color: #0284c7;">
@@ -77,7 +83,7 @@
                                 <div class="text-muted small" style="font-size: 0.8rem;">Nhấn hoặc kéo thả ảnh vào đây</div>
                             </div>
 
-                            <img id="upload_preview_img" class="w-100 rounded-3 d-none" style="max-height: 200px; object-fit: cover;"/>
+                            <img id="upload_preview_img" class="w-100 rounded-3 d-none wj-img-zoom" style="max-height: 200px; object-fit: cover;"/>
                         </div>
                     </div>
 
@@ -86,7 +92,7 @@
                         <label class="font-weight-bold text-dark small mb-2" style="font-size: 0.9rem;">
                             Mô tả hành động khắc phục
                         </label>
-                        <textarea id="remediation_note_input" name="remediation_note" rows="3" class="form-control border shadow-none small" style="border-radius: 12px; font-size: 0.88rem;" placeholder="VD: Đã vệ sinh sạch sẽ khu vực cửa kính vào lúc 10:30..." maxlength="500" onkeyup="countChars(this);"></textarea>
+                        <textarea id="remediation_note_input" name="remediation_note" rows="3" class="form-control border shadow-none small" style="border-radius: 12px; font-size: 0.88rem;" placeholder="VD: Đã vệ sinh sạch sẽ khu vực cửa kính vào lúc 10:30..." maxlength="500"></textarea>
                         <div class="text-end text-muted small mt-1" style="font-size: 0.75rem;">
                             <span id="char_count">0</span>/500
                         </div>
@@ -116,84 +122,15 @@
                 <!-- Gọi Modal Success Popup từ file XML riêng -->
                 <t t-call="wujia_portal_inspection.portal_inspection_success_popup"/>
 
+                <!-- Lightbox Modal for Image Preview -->
+                <div id="wj_lightbox" class="wj-lightbox-modal" onclick="this.style.display='none'">
+                    <span class="wj-lightbox-close">&amp;times;</span>
+                    <img class="wj-lightbox-content" id="wj_lightbox_img"/>
+                </div>
+
             </div>
 
-            <!-- JS Script xử lý Preview Image & Submit AJAX bật Modal Pop-up -->
-            <script type="text/javascript">
-                function previewRemediationImage(input) {
-                    if (input.files &amp;&amp; input.files[0]) {
-                        var reader = new FileReader();
-                        reader.onload = function (e) {
-                            document.getElementById('upload_placeholder').classList.add('d-none');
-                            var preview = document.getElementById('upload_preview_img');
-                            preview.src = e.target.result;
-                            preview.classList.remove('d-none');
-                        }
-                        reader.readAsDataURL(input.files[0]);
-                    }
-                }
 
-                function countChars(textarea) {
-                    document.getElementById('char_count').innerText = textarea.value.length;
-                }
-
-                document.addEventListener('DOMContentLoaded', function () {
-                    const form = document.getElementById('remediation_form_submit');
-                    if (form) {
-                        form.addEventListener('submit', function (e) {
-                            e.preventDefault();
-
-                            // Build FormData and append Odoo CSRF token so auth='user' route accepts POST
-                            var formData = new FormData(form);
-                            var csrfToken = (window.odoo &amp;&amp; window.odoo.csrf_token) ? window.odoo.csrf_token : '';
-                            if (csrfToken) {
-                                formData.set('csrf_token', csrfToken);
-                            }
-
-                            fetch('/portal/inspection/remediation/submit', {
-                                method: 'POST',
-                                body: formData
-                            }).then(response => {
-                                var contentType = response.headers.get('content-type') || '';
-                                if (contentType.indexOf('application/json') !== -1) {
-                                    return response.json();
-                                }
-                                // If response is HTML (login redirect), fallback
-                                return { status: 'redirect', message: 'Phiên đăng nhập hết hạn, vui lòng đăng nhập lại.' };
-                            })
-                            .then(data => {
-                                if (data.status === 'redirect') {
-                                    window.location.href = '/web/login';
-                                    return;
-                                }
-                                if (data.status === 'success') {
-                                    if (data.franchise_code) {
-                                        document.getElementById('modal_franchise_code').innerText = data.franchise_code;
-                                    }
-                                    if (data.category_name) {
-                                        document.getElementById('modal_category_name').innerText = data.category_name;
-                                    }
-                                    if (data.submit_time) {
-                                        document.getElementById('modal_submit_time').innerText = data.submit_time;
-                                    }
-                                    if (data.detail_url) {
-                                        document.getElementById('modal_detail_url').setAttribute('href', data.detail_url);
-                                    }
-                                    const modal = document.getElementById('remediation_success_modal');
-                                    if (modal) {
-                                        modal.classList.add('show-modal');
-                                    }
-                                } else {
-                                    alert(data.message || 'Gửi phản hồi thất bại, vui lòng thử lại.');
-                                }
-                            }).catch(err => {
-                                console.error('Submit error:', err);
-                                alert('Có lỗi xảy ra khi gửi phản hồi, vui lòng thử lại.');
-                            });
-                        });
-                    }
-                });
-            </script>
 
         </t>
     </template>

@@ -5,6 +5,12 @@
         <t t-call="wujia_portal_layout.app_layout">
 
             <!-- Sử dụng component chuẩn wj_page_header từ wujia_portal_layout -->
+            <t t-set="ph_platform" t-value="'pc'"/>
+            <t t-set="ph_variant" t-value="'back'"/>
+            <t t-set="ph_title" t-value="'Chi tiết giám sát'"/>
+            <t t-set="ph_back_url" t-value="'/portal/inspection'"/>
+            <t t-call="wujia_portal_layout.wj_page_header"/>
+
             <t t-set="ph_platform" t-value="'m'"/>
             <t t-set="ph_variant" t-value="'back'"/>
             <t t-set="ph_title" t-value="'Chi tiết giám sát'"/>
@@ -14,126 +20,251 @@
             <div class="wj-inspection-container p-0 bg-light pb-5">
                 <div class="p-3">
 
-                    <!-- Card Tổng điểm kiểm tra -->
+                    <!-- Hộp chứa duy nhất (Single Unified Card) -->
                     <div class="detail-card-box p-3 mb-4">
-                        <div class="d-flex align-items-center justify-content-between mb-2">
-                            <h2 class="h6 font-weight-bold text-dark mb-0">Tổng điểm kiểm tra</h2>
-                            <span t-attf-class="badge px-2 py-1 fw-bold" t-attf-style="background: #f0fdf4; color: #166534; border: 1px solid #bbf7d0; border-radius: 6px;">
-                                <t t-out="grade_name or 'B+'"/>
-                            </span>
-                        </div>
-                        <div class="d-flex align-items-end gap-1 mb-1">
-                            <span class="fw-bold text-dark" style="font-size: 2.2rem; line-height: 1;">
-                                <t t-out="total_score or 0"/>
-                            </span>
-                            <span class="text-muted mb-1" style="font-size: 1rem;">/ <t t-out="max_score or 100"/></span>
-                        </div>
-                        <div class="progress mb-2" style="height: 8px; border-radius: 8px; background: #f1f5f9;">
-                            <div t-attf-style="width: #{total_score or 0}%; background: #22c55e; height: 100%; border-radius: 8px; transition: width 0.4s;" role="progressbar"/>
-                        </div>
-                        <div class="d-flex justify-content-between small text-muted">
-                            <span><i class="feather icon-calendar me-1"/>Ngày: <t t-out="planned_date or ''"/></span>
-                            <span><i class="feather icon-map-pin me-1"/><t t-out="franchise_code or ''"/></span>
-                        </div>
-                    </div>
-
-                    <!-- Lưới 2x2 Tổng quan Phân bổ kết quả -->
-                    <div class="detail-card-box p-3 mb-4">
-                        <h2 class="h6 font-weight-bold text-dark mb-3">Phân bổ kết quả</h2>
-                        <div class="row g-3">
-                            <t t-foreach="category_summaries" t-as="c_sum">
-                                <div class="col-6">
-                                    <a t-attf-href="##{c_sum.get('target_sec')}" class="summary-2x2-card text-center d-block text-decoration-none">
-                                        <div t-attf-class="summary-val-text #{'severe-val' if c_sum.get('is_severe') else ''}">
-                                            <t t-out="c_sum.get('val_str')"/>
-                                        </div>
-                                        <div class="small text-muted mt-1">
-                                            <t t-out="c_sum.get('name')"/>
-                                        </div>
-                                    </a>
+                        
+                        <!-- 1. Phần Tổng điểm kiểm tra -->
+                        <div class="text-center pb-3 border-bottom mb-3">
+                            <div class="text-uppercase font-weight-bold text-muted mb-3" style="letter-spacing: 1px; font-size: 0.85rem; color: #64748b !important;">TỔNG ĐIỂM KIỂM TRA</div>
+                            
+                            <div class="position-relative d-flex align-items-center justify-content-center mx-auto" style="width: 240px; height: 120px;">
+                                <!-- SVG Progress border -->
+                                <svg class="position-absolute top-0 start-0" width="240" height="120" viewBox="0 0 240 120">
+                                    <!-- Gray Background -->
+                                    <path d="M 215 5 L 15 5 A 10 10 0 0 0 5 15 L 5 95 A 10 10 0 0 0 15 105 L 215 105 A 10 10 0 0 0 225 95 L 225 15 A 10 10 0 0 0 215 5 Z"
+                                          fill="none" stroke="#e2e8f0" stroke-width="8" stroke-linecap="round" />
+                                    <!-- Blue Progress -->
+                                    <path d="M 215 5 L 15 5 A 10 10 0 0 0 5 15 L 5 95 A 10 10 0 0 0 15 105 L 215 105 A 10 10 0 0 0 225 95 L 225 15 A 10 10 0 0 0 215 5 Z"
+                                          fill="none" stroke="#2b9cd8" stroke-width="8" stroke-linecap="round"
+                                          t-attf-stroke-dasharray="623"
+                                          t-attf-stroke-dashoffset="#{623 * (1 - (total_score or 0) / (max_score or 100))}"
+                                          style="transition: stroke-dashoffset 0.6s ease-in-out;" />
+                                </svg>
+                                <!-- Center Text: Score -->
+                                <div class="text-center" style="z-index: 1;">
+                                    <span class="fw-bold" style="font-size: 3rem; color: #104f7c; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">
+                                        <t t-out="total_score or 0"/>
+                                    </span>
+                                    <span style="font-size: 1.5rem; color: #104f7c; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">/100</span>
                                 </div>
-                            </t>
-                        </div>
-                    </div>
+                            </div>
 
-                    <!-- Danh sách các Danh mục kiểm tra (DANH MỤC 1, DANH MỤC 2, DANH MỤC 3, DANH MỤC 4...) -->
-                    <t t-foreach="sections" t-as="sec">
-                        <div t-att-id="sec.get('id')" class="detail-card-box p-3 mb-4">
-                            <!-- Category Header -->
-                            <div class="d-flex justify-content-between align-items-start mb-3 border-bottom pb-2">
-                                <div>
-                                    <h3 class="wj-category-header-title mb-1">
-                                        <t t-out="sec.get('title')"/>
-                                    </h3>
-                                    <p class="wj-category-header-subtitle mb-0">
-                                        <t t-out="sec.get('subtitle')"/>
-                                    </p>
-                                </div>
-                                <span class="wj-detail-max-chip">
-                                    Max: <t t-out="sec.get('max_score')"/>đ
+                            <!-- Badge Xếp hạng -->
+                            <div class="mt-3 mb-3">
+                                <span class="d-inline-flex align-items-center px-3 py-1 fw-bold" style="background: #e6f9ed; color: #1f9254; border-radius: 20px; font-size: 0.85rem; border: 1px solid #c2f0d5;">
+                                    <svg class="me-1" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: middle; margin-top: -1px;">
+                                        <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                                        <polyline points="22 4 12 14.01 9 11.01"></polyline>
+                                    </svg>
+                                    XẾP HẠNG <t t-out="grade_name or 'B+'"/>
                                 </span>
                             </div>
 
-                            <!-- List of criteria lines in this category -->
-                            <div class="d-flex flex-column gap-3">
-                                <t t-foreach="sec.get('lines')" t-as="l">
-                                    <div class="border-bottom pb-3">
-                                        <!-- Header line with Code & Badges -->
-                                        <div class="d-flex justify-content-between align-items-center mb-1">
-                                            <h4 class="wj-criterion-title small mb-0">
-                                                <t t-if="l.get('code')">
-                                                    <t t-out="l.get('code')"/>. 
-                                                </t>
-                                            </h4>
+                            <!-- Mã tiệm & Ngày -->
+                            <div class="text-center text-muted small" style="font-size: 0.95rem; line-height: 1.6; color: #64748b !important;">
+                                <div>Mã tiệm: <strong class="text-dark"><t t-out="franchise_code or ''"/></strong></div>
+                                <div>Ngày: <strong class="text-dark"><t t-out="planned_date or ''"/></strong></div>
+                            </div>
+                        </div>
 
-                                            <div class="d-flex gap-1 align-items-center flex-shrink-0">
-                                                <span t-if="l.get('is_pass')" class="badge bg-success text-white px-2 py-1">ĐẠT</span>
-                                                <t t-else="">
-                                                    <span t-if="l.get('remediation_state') == 'done'" class="badge bg-success text-white px-2 py-1">HOÀN THÀNH</span>
-                                                    <span t-elif="l.get('remediation_state') == 'remediated' or l.get('remediation_note') or l.get('remediation_image_url')" class="badge bg-info text-white px-2 py-1">ĐÃ PHẢN HỒI</span>
-                                                    <span t-else="" class="badge-fail-tag">CẦN PHẢN HỒI</span>
-                                                </t>
-                                                
-                                                <t t-if="sec.get('is_severe')">
-                                                    <span class="small font-weight-bold text-muted ms-1">
-                                                        <t t-if="l.get('is_pass')">
-                                                            <t t-out="l.get('deduction') or 10"/>/<t t-out="l.get('deduction') or 10"/>
-                                                        </t>
-                                                        <t t-else="">
-                                                            0/<t t-out="l.get('deduction') or 10"/>
-                                                        </t>
-                                                    </span>
-                                                </t>
-                                            </div>
-                                        </div>
+                        <!-- 2. Tabs Navigation (Segmented Control style) -->
+                        <div class="d-flex p-1 bg-light rounded-pill mb-3 border" style="background-color: #f1f5f9 !important;">
+                            <button type="button" id="tab_btn_checklist" class="btn w-50 py-2 fw-bold rounded-pill text-center border-0 shadow-sm" style="font-size: 0.9rem; transition: all 0.3s; background: #ffffff; color: #104f7c;">
+                                Kết quả đánh giá
+                            </button>
+                            <button type="button" id="tab_btn_exam" class="btn w-50 py-2 fw-bold rounded-pill text-center border-0 shadow-none" style="font-size: 0.9rem; transition: all 0.3s; background: transparent; color: #64748b;">
+                                Bài kiểm tra
+                            </button>
+                        </div>
 
-                                        <!-- Content snippet -->
-                                        <p class="wj-criterion-content mb-2">
-                                            <t t-out="l.get('content')"/>
-                                        </p>
-
-                                        <!-- Evidence image / note section if failed AND NOT DONE (Hidden when remediation_state == 'done') -->
-                                        <t t-if="not l.get('is_pass') and l.get('remediation_state') != 'done'">
-                                            <div class="evidence-box p-2 mb-2 d-flex gap-2 align-items-start">
-                                                <img t-if="l.get('evidence_image_url')" t-att-src="l.get('evidence_image_url')" class="rounded border" width="60" height="60" style="object-fit: cover;"/>
-                                                <div class="flex-fill">
-                                                    <div class="small font-weight-bold text-danger mb-1">Minh chứng lỗi:</div>
-                                                    <div class="small text-muted mb-2">
-                                                        <t t-out="l.get('note') or 'Có lỗi vi phạm cần đăng hình ảnh/ghi chú khắc phục.'"/>
-                                                    </div>
-                                                    <a t-attf-href="/portal/inspection/remediation/#{l.get('id')}" class="btn btn-xs btn-outline-primary font-weight-bold">
-                                                        <i class="feather icon-message-square me-1"/>Gửi phản hồi cho lỗi này
-                                                    </a>
+                        <!-- 3. Tab content 1: Checklist -->
+                        <div id="tab_content_checklist">
+                            <!-- Lưới 2x2 Tổng quan Phân bổ kết quả -->
+                            <div class="pb-3 mb-3">
+                                <h2 class="h6 font-weight-bold text-dark mb-3">Phân bổ kết quả</h2>
+                                <div class="row g-3">
+                                    <t t-foreach="category_summaries" t-as="c_sum">
+                                        <div class="col-6">
+                                            <a t-attf-href="##{c_sum.get('target_sec')}" t-attf-class="summary-2x2-card text-center d-block text-decoration-none #{'severe-card' if c_sum.get('is_severe') else ''}">
+                                                <div t-attf-class="summary-val-text #{'severe-val' if c_sum.get('is_severe') else ''}">
+                                                    <t t-out="c_sum.get('val_str')"/>
                                                 </div>
+                                                <div class="small text-muted mt-1">
+                                                    <t t-out="c_sum.get('name')"/>
+                                                </div>
+                                            </a>
+                                        </div>
+                                    </t>
+                                </div>
+                            </div>
+
+                            <!-- Danh sách các Danh mục kiểm tra (DANH MỤC 1, DANH MỤC 2, DANH MỤC 3, DANH MỤC 4...) -->
+                            <t t-foreach="sections" t-as="sec">
+                                <div t-att-id="sec.get('id')" class="border-top pt-3 pb-2 mb-3">
+                                    <!-- Category Header -->
+                                    <div class="d-flex justify-content-between align-items-center mb-3 border-bottom pb-2 p-3 rounded-3" style="background-color: #f1f5f9 !important;">
+                                        <div>
+                                            <h3 class="wj-category-header-title mb-1">
+                                                <t t-out="sec.get('title')"/>
+                                            </h3>
+                                            <p class="wj-category-header-subtitle mb-0">
+                                                <t t-out="sec.get('subtitle')"/>
+                                            </p>
+                                        </div>
+                                        <span class="wj-detail-max-chip">
+                                            Max: <t t-out="sec.get('max_score')"/>đ
+                                        </span>
+                                    </div>
+
+                                    <!-- List of criteria lines in this category -->
+                                    <div class="d-flex flex-column gap-3">
+                                        <t t-foreach="sec.get('lines')" t-as="l">
+                                            <div class="border-bottom pb-3">
+                                                <!-- Header line with Code & Badges -->
+                                                <div class="d-flex justify-content-between align-items-center mb-1">
+                                                    <h4 class="wj-criterion-title small mb-0">
+                                                        <t t-if="l.get('code')">
+                                                            <t t-out="l.get('code')"/>. 
+                                                        </t>
+                                                    </h4>
+
+                                                    <div class="d-flex gap-1 align-items-center flex-shrink-0">
+                                                        <span t-if="l.get('is_pass')" class="badge bg-success text-white px-2 py-1">ĐẠT</span>
+                                                        <t t-else="">
+                                                            <span t-if="l.get('remediation_state') == 'done'" class="badge bg-success text-white px-2 py-1">HOÀN THÀNH</span>
+                                                            <span t-elif="l.get('remediation_state') == 'remediated' or l.get('remediation_note') or l.get('remediation_image_url')" class="badge bg-info text-white px-2 py-1">ĐÃ PHẢN HỒI</span>
+                                                            <span t-else="" class="badge-fail-tag">CẦN PHẢN HỒI</span>
+                                                        </t>
+                                                        
+                                                        <t t-if="sec.get('is_severe')">
+                                                            <span class="small font-weight-bold text-muted ms-1">
+                                                                <t t-if="l.get('is_pass')">
+                                                                    <t t-out="l.get('deduction') or 10"/>/<t t-out="l.get('deduction') or 10"/>
+                                                                </t>
+                                                                <t t-else="">
+                                                                    0/<t t-out="l.get('deduction') or 10"/>
+                                                                </t>
+                                                            </span>
+                                                        </t>
+                                                    </div>
+                                                </div>
+
+                                                <!-- Content snippet -->
+                                                <p class="wj-criterion-content mb-2">
+                                                    <t t-out="l.get('content')"/>
+                                                </p>
+
+                                                <!-- Minh chứng lỗi (Inspector) -->
+                                                <t t-if="not l.get('is_pass')">
+                                                    <div class="evidence-box p-2 mb-2 d-flex gap-2 align-items-start">
+                                                        <img t-if="l.get('evidence_image_url')" t-att-src="l.get('evidence_image_url')" class="rounded border wj-img-zoom" width="60" height="60" style="object-fit: cover;"/>
+                                                        <div class="flex-fill">
+                                                            <div class="small font-weight-bold text-danger mb-1">Minh chứng lỗi:</div>
+                                                            <div class="small text-muted mb-1">
+                                                                <t t-out="l.get('note') or 'Có lỗi vi phạm cần đăng hình ảnh/ghi chú khắc phục.'"/>
+                                                            </div>
+                                                            <!-- Show Send button only if not remediated yet -->
+                                                            <t t-if="not l.get('remediation_note') and not l.get('remediation_image_url')">
+                                                                <a t-attf-href="/portal/inspection/remediation/#{l.get('id')}" class="btn btn-xs btn-outline-primary font-weight-bold mt-1">
+                                                                    <i class="feather icon-message-square me-1"/>Gửi phản hồi cho lỗi này
+                                                                </a>
+                                                            </t>
+                                                        </div>
+                                                    </div>
+                                                </t>
+
+                                                <!-- Phản hồi khắc phục (Store) -->
+                                                <t t-if="l.get('remediation_note') or l.get('remediation_image_url')">
+                                                    <div class="evidence-box p-2 mb-2 d-flex gap-2 align-items-start" style="border-color: #bae6fd !important; background-color: #f0f9ff !important;">
+                                                        <img t-if="l.get('remediation_image_url')" t-att-src="l.get('remediation_image_url')" class="rounded border wj-img-zoom" width="60" height="60" style="object-fit: cover;"/>
+                                                        <div class="flex-fill">
+                                                            <div class="small font-weight-bold text-info mb-1" style="color: #0284c7 !important;">Phản hồi khắc phục:</div>
+                                                            <div class="small text-dark mb-1">
+                                                                <t t-out="l.get('remediation_note') or 'Đã đính kèm ảnh khắc phục.'"/>
+                                                            </div>
+                                                            <!-- Allow editing if not approved yet -->
+                                                            <t t-if="l.get('remediation_state') != 'done'">
+                                                                <a t-attf-href="/portal/inspection/remediation/#{l.get('id')}" class="btn btn-xs btn-outline-info font-weight-bold mt-1">
+                                                                    <i class="feather icon-edit-2 me-1"/>Sửa phản hồi
+                                                                </a>
+                                                            </t>
+                                                        </div>
+                                                    </div>
+                                                </t>
                                             </div>
                                         </t>
                                     </div>
-                                </t>
-                            </div>
+                                </div>
+                            </t>
                         </div>
-                    </t>
 
-                </div>
+                        <!-- 4. Tab content 2: Exam (Read-only view) -->
+                        <div id="tab_content_exam" class="d-none">
+                            <!-- Exam Info Card -->
+                            <div class="pb-3 mb-3">
+                                <h2 class="h6 font-weight-bold text-dark mb-3">Thông tin bài kiểm tra</h2>
+                                <div class="row g-3 small text-muted">
+                                    <div class="col-6">
+                                        <span class="d-block text-uppercase text-muted" style="font-size: 0.72rem; letter-spacing: 0.5px;">NHÂN VIÊN ĐƯỢC KIỂM TRA</span>
+                                        <strong class="text-dark d-block mt-1" style="font-size: 0.95rem;">
+                                            <t t-out="insp.test_employee_name or 'Chưa xác định'"/>
+                                        </strong>
+                                    </div>
+                                    <div class="col-6">
+                                        <span class="d-block text-uppercase text-muted" style="font-size: 0.72rem; letter-spacing: 0.5px;">ĐIỂM SỐ ĐẠT ĐƯỢC</span>
+                                        <strong class="text-dark d-block mt-1" style="font-size: 0.95rem; color: #104f7c !important;">
+                                            <t t-out="int(insp.exam_score)"/> / <t t-out="int(insp.template_id.exam_max_score or 5)"/>đ
+                                        </strong>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Questions List -->
+                            <t t-if="not insp.exam_line_ids">
+                                <div class="py-5 text-center bg-white rounded shadow-sm border mb-4">
+                                    <i class="feather icon-file-text text-secondary mb-2" style="font-size: 2rem;"/>
+                                    <p class="text-muted small mb-0">Không có dữ liệu bài kiểm tra.</p>
+                                </div>
+                            </t>
+                            <t t-else="">
+                                <t t-foreach="insp.exam_line_ids" t-as="q_line">
+                                    <div class="p-3 mb-3 border rounded border-start border-4" t-attf-style="border-left-width: 5px !important; border-left-color: #{'#22c55e' if q_line.is_correct else '#ef4444'} !important; background-color: #ffffff;">
+                                        <div class="d-flex justify-content-between align-items-center mb-2">
+                                            <span class="font-weight-bold text-dark" style="font-size: 0.9rem;">
+                                                Câu <t t-out="q_line_index + 1"/>
+                                            </span>
+                                            <span t-if="q_line.is_correct" class="badge px-2 py-1 fw-bold bg-success text-white" style="border-radius: 4px; font-size: 0.75rem;">
+                                                ĐÚNG (+<t t-out="int(q_line.point)"/>đ)
+                                            </span>
+                                            <span t-else="" class="badge px-2 py-1 fw-bold bg-danger text-white" style="border-radius: 4px; font-size: 0.75rem;">
+                                                SAI (0đ)
+                                            </span>
+                                        </div>
+                                        <p class="text-dark mb-3 exam-question-text" t-att-data-answer="q_line.answer or ''" t-att-data-correct-answers="q_line.quest_id.correct_answers" style="font-size: 0.95rem; font-weight: 500; line-height: 1.4;">
+                                            <t t-out="q_line.quest_content_snapshot"/>
+                                        </p>
+                                        <div class="p-2 rounded bg-light border mb-2" style="background-color: #f8fafc !important;">
+                                            <div class="small text-muted mb-1" style="font-size: 0.78rem;">Đáp án đã điền:</div>
+                                            <div class="small text-dark font-weight-bold" style="font-size: 0.85rem; white-space: pre-wrap;"><t t-out="q_line.answer or 'Bỏ trống'"/></div>
+                                        </div>
+
+                                    </div>
+                                </t>
+                            </t>
+                        </div>
+
+
+
+
+
+                    <!-- Lightbox Modal for Image Preview -->
+                    <div id="wj_lightbox" class="wj-lightbox-modal" onclick="this.style.display='none'">
+                        <span class="wj-lightbox-close">&amp;times;</span>
+                        <img class="wj-lightbox-content" id="wj_lightbox_img"/>
+                    </div>
+
+                    </div> <!-- closes detail-card-box -->
+                </div> <!-- closes p-3 -->
 
                 <!-- Bottom Floating Bar -->
                 <div t-if="insp.state == 'need_remediation' and unanswered_count > 0" id="bottom_remediation_bar" class="fixed-bottom-bar d-flex align-items-center justify-content-between shadow-lg">
