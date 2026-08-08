@@ -9,9 +9,19 @@
             <!-- Embedded Styles for immediate reliability in Portal -->
             <style>
                 .wj-inspection-container {
-                    max-width: 600px;
+                    max-width: 100%;
                     margin: 0 auto;
                     min-height: 100vh;
+                }
+                @media (min-width: 768px) {
+                    .wj-inspection-container {
+                        max-width: 900px;
+                    }
+                }
+                @media (min-width: 1200px) {
+                    .wj-inspection-container {
+                        max-width: 1100px;
+                    }
                 }
                 .wj-inspection-title {
                     color: #38bdf8;
@@ -127,7 +137,130 @@
             <t t-set="ph_title" t-value="'Khảo sát'"/>
             <t t-call="wujia_portal_layout.wj_page_header"/>
 
-            <div class="wj-inspection-container p-3 bg-white">
+            <!-- ================= PC ≥992px ================= -->
+            <div class="content-wrapper d-none d-lg-block wj-inspection-pc">
+                <!-- Page Header -->
+                <div class="wj-pc-page-header">
+                    <div>
+                        <h1 class="wj-pc-page-header__title">Khảo sát &amp; Đánh giá</h1>
+                        <p class="wj-pc-page-header__crumb">Portal / Giám sát &amp; Đánh giá / Khảo sát</p>
+                    </div>
+                </div>
+
+                <!-- Filter Bar -->
+                <form method="get" action="/portal/inspection" class="wj-pc-filterbar">
+                    <div class="wj-pc-filterbar__row">
+                        <input type="hidden" name="tab" t-att-value="active_tab" />
+                        <span class="wj-pc-filter-search">
+                            <i class="feather icon-search" />
+                            <input type="text" name="search" t-att-value="search_q"
+                                placeholder="Tìm kiếm theo mã phiếu..."
+                                class="wj-pc-filter-control" />
+                        </span>
+                        <span class="wj-pc-filterbar__actions">
+                            <a t-attf-href="/portal/inspection?tab=#{active_tab}"
+                                class="wj-pc-btn wj-pc-btn--secondary">Đặt lại</a>
+                            <button type="submit" class="wj-pc-btn wj-pc-btn--primary">Tìm kiếm</button>
+                        </span>
+                    </div>
+                </form>
+
+                <!-- Main PC Card -->
+                <div class="wj-pc-card">
+                    <!-- Card Header & PC Tabs -->
+                    <div class="wj-pc-card__head d-flex justify-content-between align-items-center">
+                        <div>
+                            <h2 class="wj-pc-card__title">Danh sách phiếu khảo sát</h2>
+                            <p class="wj-pc-card__subtitle">Theo dõi kết quả đánh giá chất lượng và khắc phục vi phạm</p>
+                        </div>
+                        <div class="d-flex gap-2">
+                            <a t-attf-href="/portal/inspection?tab=all&amp;search=#{search_q}"
+                                t-attf-class="wj-pc-btn #{'wj-pc-btn--primary' if active_tab == 'all' else 'wj-pc-btn--secondary'}">
+                                Tất cả
+                            </a>
+                            <a t-attf-href="/portal/inspection?tab=need_remediation&amp;search=#{search_q}"
+                                t-attf-class="wj-pc-btn #{'wj-pc-btn--primary' if active_tab == 'need_remediation' else 'wj-pc-btn--secondary'}">
+                                Chờ phản hồi
+                            </a>
+                            <a t-attf-href="/portal/inspection?tab=done&amp;search=#{search_q}"
+                                t-attf-class="wj-pc-btn #{'wj-pc-btn--primary' if active_tab == 'done' else 'wj-pc-btn--secondary'}">
+                                Hoàn thành
+                            </a>
+                        </div>
+                    </div>
+
+                    <!-- Empty State -->
+                    <div t-if="not inspection_items" class="wj-pc-empty">
+                        <div class="wj-pc-empty__icon">
+                            <i class="feather icon-inbox" />
+                        </div>
+                        <p class="wj-pc-empty__title">Không tìm thấy phiếu khảo sát nào</p>
+                        <p class="wj-pc-empty__sub">Thử thay đổi từ khóa tìm kiếm hoặc chọn tab khác.</p>
+                    </div>
+
+                    <!-- Table PC list -->
+                    <t t-else="">
+                        <table class="wj-pc-table">
+                            <thead>
+                                <tr>
+                                    <th>Mã phiếu</th>
+                                    <th>Ngày giám sát</th>
+                                    <th>Trạng thái</th>
+                                    <th>Điểm tổng kết</th>
+                                    <th class="text-end">Thao tác</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr t-foreach="inspection_items" t-as="item">
+                                    <td class="wj-pc-td--code">
+                                        <a t-att-href="item.get('detail_url')" class="wj-pc-link" t-out="item.get('display_name') or item.get('title')"/>
+                                    </td>
+                                    <td t-out="item.get('planned_date')"/>
+                                    <td>
+                                        <span class="wj-pc-badge" t-attf-style="background-color: #{item.get('badge_bg') or '#dcfce7'}; color: #{item.get('badge_color') or '#15803d'};">
+                                            <t t-out="item.get('state_label')"/>
+                                        </span>
+                                    </td>
+                                    <td class="font-weight-bold">
+                                        <span t-attf-style="color: #{item.get('badge_color')};">
+                                            <t t-out="item.get('total_score')"/>
+                                        </span> /100
+                                    </td>
+                                    <td class="text-end">
+                                        <a t-att-href="item.get('detail_url')" class="wj-pc-btn wj-pc-btn--secondary">Xem chi tiết</a>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+
+                        <!-- Pagination PC -->
+                        <div t-if="total_pages and total_pages &gt; 1" class="wj-pc-pagination mt-4">
+                            <span class="wj-pc-pagination__count">
+                                Trang <t t-out="page"/> / <t t-out="total_pages"/>
+                            </span>
+                            <div class="d-flex gap-1">
+                                <a t-attf-href="/portal/inspection?tab=#{active_tab}&amp;search=#{search_q}&amp;page=#{page - 1}"
+                                    t-attf-class="wj-pc-page-btn #{'is-disabled' if page &lt;= 1 else ''}">
+                                    <i class="feather icon-chevron-left"/>
+                                </a>
+                                <t t-foreach="page_range or []" t-as="p">
+                                    <a t-attf-href="/portal/inspection?tab=#{active_tab}&amp;search=#{search_q}&amp;page=#{p}"
+                                        t-attf-class="wj-pc-page-btn #{'is-active' if p == page else ''}">
+                                        <t t-out="p"/>
+                                    </a>
+                                </t>
+                                <a t-attf-href="/portal/inspection?tab=#{active_tab}&amp;search=#{search_q}&amp;page=#{page + 1}"
+                                    t-attf-class="wj-pc-page-btn #{'is-disabled' if page &gt;= total_pages else ''}">
+                                    <i class="feather icon-chevron-right"/>
+                                </a>
+                            </div>
+                        </div>
+                    </t>
+                </div>
+            </div>
+
+            <!-- ================= Mobile <992px ================= -->
+            <div class="wj-inspection-container d-lg-none p-3 bg-white">
 
                 <!-- Search Input -->
                 <form method="get" action="/portal/inspection" class="mb-3">
@@ -165,7 +298,7 @@
                     <p class="text-muted small mb-0">Thử thay đổi từ khóa tìm kiếm hoặc chọn tab khác.</p>
                 </div>
 
-                <!-- Inspection Card List -->
+                <!-- Inspection Card List (Mobile) -->
                 <div t-else="" class="d-flex flex-column gap-3 mb-4">
                     <t t-foreach="inspection_items" t-as="item">
                         <a t-att-href="item.get('detail_url')" class="text-decoration-none text-dark">

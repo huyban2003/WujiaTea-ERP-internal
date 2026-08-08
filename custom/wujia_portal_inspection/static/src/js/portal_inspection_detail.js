@@ -36,11 +36,21 @@
         // 3. Tab Switcher
         var tabBtnChecklist = document.getElementById('tab_btn_checklist');
         var tabBtnExam = document.getElementById('tab_btn_exam');
+        var pcTabBtnChecklist = document.getElementById('pc_tab_btn_checklist');
+        var pcTabBtnExam = document.getElementById('pc_tab_btn_exam');
         if (tabBtnChecklist && tabBtnExam) {
             tabBtnChecklist.addEventListener('click', function () {
                 switchInspectionTab('checklist');
             });
             tabBtnExam.addEventListener('click', function () {
+                switchInspectionTab('exam');
+            });
+        }
+        if (pcTabBtnChecklist && pcTabBtnExam) {
+            pcTabBtnChecklist.addEventListener('click', function () {
+                switchInspectionTab('checklist');
+            });
+            pcTabBtnExam.addEventListener('click', function () {
                 switchInspectionTab('exam');
             });
         }
@@ -97,65 +107,105 @@
             var examTab = document.getElementById('tab_content_exam');
             var checkBtn = document.getElementById('tab_btn_checklist');
             var examBtn = document.getElementById('tab_btn_exam');
-            
-            if (!checkTab || !examTab || !checkBtn || !examBtn) return;
+            var pcCheckTab = document.getElementById('pc_tab_content_checklist');
+            var pcExamTab = document.getElementById('pc_tab_content_exam');
+            var pcCheckBtn = document.getElementById('pc_tab_btn_checklist');
+            var pcExamBtn = document.getElementById('pc_tab_btn_exam');
             
             if (tabName === 'checklist') {
-                checkTab.classList.remove('d-none');
-                examTab.classList.add('d-none');
+                if (checkTab) checkTab.classList.remove('d-none');
+                if (examTab) examTab.classList.add('d-none');
+                if (pcCheckTab) pcCheckTab.classList.remove('d-none');
+                if (pcExamTab) pcExamTab.classList.add('d-none');
                 
-                checkBtn.style.background = '#ffffff';
-                checkBtn.style.color = '#104f7c';
-                checkBtn.classList.add('shadow-sm');
-                checkBtn.classList.remove('shadow-none');
-                
-                examBtn.style.background = 'transparent';
-                examBtn.style.color = '#64748b';
-                examBtn.classList.remove('shadow-sm');
-                examBtn.classList.add('shadow-none');
+                if (checkBtn) {
+                    checkBtn.style.background = '#ffffff';
+                    checkBtn.style.color = '#104f7c';
+                    checkBtn.classList.add('shadow-sm');
+                    checkBtn.classList.remove('shadow-none');
+                }
+                if (examBtn) {
+                    examBtn.style.background = 'transparent';
+                    examBtn.style.color = '#64748b';
+                    examBtn.classList.remove('shadow-sm');
+                    examBtn.classList.add('shadow-none');
+                }
+                if (pcCheckBtn) {
+                    pcCheckBtn.className = 'wj-pc-btn wj-pc-btn--primary';
+                }
+                if (pcExamBtn) {
+                    pcExamBtn.className = 'wj-pc-btn wj-pc-btn--secondary';
+                }
             } else {
-                checkTab.classList.add('d-none');
-                examTab.classList.remove('d-none');
+                if (checkTab) checkTab.classList.add('d-none');
+                if (examTab) examTab.classList.remove('d-none');
+                if (pcCheckTab) pcCheckTab.classList.add('d-none');
+                if (pcExamTab) pcExamTab.classList.remove('d-none');
                 
-                checkBtn.style.background = 'transparent';
-                checkBtn.style.color = '#64748b';
-                checkBtn.classList.remove('shadow-sm');
-                checkBtn.classList.add('shadow-none');
-                
-                examBtn.style.background = '#ffffff';
-                examBtn.style.color = '#104f7c';
-                examBtn.classList.add('shadow-sm');
-                examBtn.classList.remove('shadow-none');
+                if (checkBtn) {
+                    checkBtn.style.background = 'transparent';
+                    checkBtn.style.color = '#64748b';
+                    checkBtn.classList.remove('shadow-sm');
+                    checkBtn.classList.add('shadow-none');
+                }
+                if (examBtn) {
+                    examBtn.style.background = '#ffffff';
+                    examBtn.style.color = '#104f7c';
+                    examBtn.classList.add('shadow-sm');
+                    examBtn.classList.remove('shadow-none');
+                }
+                if (pcCheckBtn) {
+                    pcCheckBtn.className = 'wj-pc-btn wj-pc-btn--secondary';
+                }
+                if (pcExamBtn) {
+                    pcExamBtn.className = 'wj-pc-btn wj-pc-btn--primary';
+                }
             }
         }
 
         // 4. Remediation Form logic
-        var remediationForm = document.getElementById('remediation_form_submit');
-        if (remediationForm) {
-            var imageInput = document.getElementById('image_upload_input');
+        var remediationForms = document.querySelectorAll('form[action="/portal/inspection/remediation/submit"]');
+        remediationForms.forEach(function (form) {
+            var imageInput = form.querySelector('.image-upload-input');
+            var dropzone = form.querySelector('.upload-dropzone');
+            
             if (imageInput) {
                 imageInput.addEventListener('change', function () {
-                    previewRemediationImage(this);
+                    if (imageInput.files && imageInput.files[0]) {
+                        var reader = new FileReader();
+                        reader.onload = function (e) {
+                            var placeholder = form.querySelector('.upload-placeholder');
+                            if (placeholder) placeholder.classList.add('d-none');
+                            var preview = form.querySelector('.upload-preview-img');
+                            if (preview) {
+                                preview.src = e.target.result;
+                                preview.classList.remove('d-none');
+                            }
+                        }
+                        reader.readAsDataURL(imageInput.files[0]);
+                    }
                 });
             }
 
-            var dropzone = remediationForm.querySelector('.upload-dropzone');
             if (dropzone && imageInput) {
                 dropzone.addEventListener('click', function () {
                     imageInput.click();
                 });
             }
 
-            var noteInput = document.getElementById('remediation_note_input');
+            var noteInput = form.querySelector('.remediation-note-input');
             if (noteInput) {
                 noteInput.addEventListener('keyup', function () {
-                    countChars(this);
+                    var counter = form.querySelector('.char-count');
+                    if (counter) {
+                        counter.innerText = noteInput.value.length;
+                    }
                 });
             }
 
-            remediationForm.addEventListener('submit', function (e) {
+            form.addEventListener('submit', function (e) {
                 e.preventDefault();
-                var formData = new FormData(remediationForm);
+                var formData = new FormData(form);
                 var csrfToken = (window.odoo && window.odoo.csrf_token) ? window.odoo.csrf_token : '';
                 if (csrfToken) {
                     formData.set('csrf_token', csrfToken);
@@ -170,24 +220,27 @@
                         return response.json();
                     }
                     return { status: 'redirect', message: 'Phiên đăng nhập hết hạn, vui lòng đăng nhập lại.' };
-                })
-                .then(function (data) {
+                }).then(function (data) {
                     if (data.status === 'redirect') {
                         window.location.href = '/web/login';
                         return;
                     }
                     if (data.status === 'success') {
                         if (data.franchise_code) {
-                            document.getElementById('modal_franchise_code').innerText = data.franchise_code;
+                            var franchiseCodeElem = document.getElementById('modal_franchise_code');
+                            if (franchiseCodeElem) franchiseCodeElem.innerText = data.franchise_code;
                         }
                         if (data.category_name) {
-                            document.getElementById('modal_category_name').innerText = data.category_name;
+                            var catNameElem = document.getElementById('modal_category_name');
+                            if (catNameElem) catNameElem.innerText = data.category_name;
                         }
                         if (data.submit_time) {
-                            document.getElementById('modal_submit_time').innerText = data.submit_time;
+                            var submitTimeElem = document.getElementById('modal_submit_time');
+                            if (submitTimeElem) submitTimeElem.innerText = data.submit_time;
                         }
                         if (data.detail_url) {
-                            document.getElementById('modal_detail_url').setAttribute('href', data.detail_url);
+                            var detailUrlElem = document.getElementById('modal_detail_url');
+                            if (detailUrlElem) detailUrlElem.setAttribute('href', data.detail_url);
                         }
                         const modal = document.getElementById('remediation_success_modal');
                         if (modal) {
@@ -201,7 +254,7 @@
                     alert('Có lỗi xảy ra khi gửi phản hồi, vui lòng thử lại.');
                 });
             });
-        }
+        });
 
         function previewRemediationImage(input) {
             if (input.files && input.files[0]) {

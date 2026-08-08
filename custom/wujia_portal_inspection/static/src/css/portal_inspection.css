@@ -1,8 +1,31 @@
 /* Giao diện danh sách & chi tiết phiếu giám sát / khảo sát */
 .wj-inspection-container {
-    max-width: 600px;
+    max-width: 100%;
     margin: 0 auto;
     min-height: 100vh;
+}
+
+@media (min-width: 768px) {
+    .wj-inspection-container {
+        max-width: 900px;
+    }
+}
+
+@media (min-width: 1200px) {
+    .wj-inspection-container {
+        max-width: 1100px;
+    }
+}
+
+.wj-tabs-nav {
+    width: 100%;
+}
+
+@media (min-width: 768px) {
+    .wj-tabs-nav {
+        max-width: 500px;
+        margin: 0 auto;
+    }
 }
 
 .wj-inspection-title {
