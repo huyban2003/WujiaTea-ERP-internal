@@ -24,6 +24,8 @@ SUMMARY_KEYS = {
     'has_overdue', 'overdue_count', 'nearest_due', 'confirmed_date', 'invoices',
 }
 INVOICE_KEYS = {'name', 'date', 'due', 'status', 'amount'}
+# PC (STT10) mở rộng additive: bảng cần 3 số/hoá đơn.
+PC_INVOICE_KEYS = {'total', 'paid', 'remaining'}
 PAYMENT_KEYS = {'ref', 'date', 'time', 'method', 'trace', 'amount', 'state'}
 
 
@@ -112,6 +114,24 @@ class TestPortalDebtWired(TransactionCase):
             self.assertIsInstance(inv['due'], date)
             self.assertIn(inv['status'], ('overdue', 'unpaid', 'partial', 'paid'))
 
+    # ---- PC (STT10): invoice enrichment total/paid/remaining --------
+    def test_invoice_enrichment_total_paid_remaining(self):
+        s = self._summary()
+        for inv in s['invoices']:
+            self.assertTrue(PC_INVOICE_KEYS.issubset(set(inv)),
+                            'thiếu key PC total/paid/remaining trên hoá đơn')
+            # Bất biến bảng PC: Tổng = Đã trả + Còn phải trả (giữ cả với credit note âm).
+            self.assertAlmostEqual(inv['total'], inv['paid'] + inv['remaining'], places=2)
+        # Tổng 3 cột khớp tổng tuần (credit note out_refund vẫn âm nhất quán).
+        self.assertAlmostEqual(sum(i['total'] for i in s['invoices']), s['total'], places=2)
+        self.assertAlmostEqual(sum(i['remaining'] for i in s['invoices']), s['remaining'], places=2)
+        by_name = {i['name']: i for i in s['invoices']}
+        ov = by_name[self.inv_overdue.name]                 # chưa trả đồng nào
+        self.assertEqual((ov['total'], ov['paid'], ov['remaining']), (1_000_000, 0, 1_000_000))
+        cn = by_name[self.credit.name]                       # credit note giữ dấu âm
+        self.assertEqual(cn['total'], -500_000)
+        self.assertEqual(cn['paid'], 0)
+
     def test_credit_note_reduces_debt_and_totals_consistent(self):
         s = self._summary()
         self.assertEqual(s['total'], 2_500_000)        # 1,000,000 + 2,000,000 − 500,000
@@ -163,6 +183,23 @@ class TestPortalDebtWired(TransactionCase):
         h = self.debt.get_payments(self.franchise.id, today=date(2026, 7, 31))
         self.assertNotIn(other_pay.name, {p['ref'] for p in h['payments']})
 
+    # ---- PC (STT10): keyword filter (mã payment / nội dung) ---------
+    def test_payment_history_keyword_filters(self):
+        base = self.debt.get_payments(self.franchise.id, today=date(2026, 7, 31))
+        self.assertIn(self.pay_ok.name, {p['ref'] for p in base['payments']})
+        # Khớp theo mã payment → còn giao dịch; không khớp → rỗng.
+        hit = self.debt.get_payments(self.franchise.id, today=date(2026, 7, 31),
+                                     keyword=self.pay_ok.name)
+        self.assertIn(self.pay_ok.name, {p['ref'] for p in hit['payments']})
+        miss = self.debt.get_payments(self.franchise.id, today=date(2026, 7, 31),
+                                      keyword='ZZ-KHONG-KHOP-QWERTY')
+        self.assertEqual(miss['payments'], [])
+        # keyword rỗng/None ⇒ không đổi hành vi (mobile không truyền).
+        for empty in (None, '', '   '):
+            self.assertEqual(len(self.debt.get_payments(
+                self.franchise.id, today=date(2026, 7, 31), keyword=empty)['payments']),
+                len(base['payments']))
+
     # ---- bank info ---------------------------------------------------
     def test_bank_info_picks_smallest_sequence_enabled(self):
         Bank = self.env['res.partner.bank']
@@ -181,6 +218,21 @@ class TestPortalDebtWired(TransactionCase):
         bank = self.debt.get_bank_info(self.franchise.id, 100, 29)
         self.assertIn('chưa được cấu hình', bank['name'])     # không TK nào bật portal
         self.assertEqual(bank['account'], '')
+
+    # ---- PC (STT10): tách empty → empty_week / no_debt (rule 10c/10d) ----
+    def test_empty_substate(self):
+        # Cửa hàng còn công nợ ở kỳ khác → 'empty_week'.
+        self.franchise.invalidate_recordset(['portal_debt_remaining'])
+        self.assertGreater(self.franchise.portal_debt_remaining, 0)
+        self.assertEqual(self.debt._empty_substate(self.franchise.id), 'empty_week')
+        # Cửa hàng không phát sinh gì → hết nợ mọi kỳ → 'no_debt'.
+        clean = self.env['wujia.franchise.management'].create({
+            'code': 'HDEBT0', 'name': 'Debt store empty', 'franchise_end_date': '2030-01-01',
+            'partner_id': self.env['res.partner'].create({'name': 'HDEBT0 partner'}).id})
+        self.assertEqual(clean.portal_debt_remaining or 0, 0)
+        self.assertEqual(self.debt._empty_substate(clean.id), 'no_debt')
+        # Chưa chọn cửa hàng → 'no_debt' (không raise).
+        self.assertEqual(self.debt._empty_substate(False), 'no_debt')
 
     # ---- badge store (perf) -----------------------------------------
     def test_badge_aggregates_stored(self):
@@ -219,6 +271,23 @@ class TestPortalDebtAccess(HttpCase):
         self.assertEqual(res.status_code, 200)
         self.assertIn('wj-debt', res.text)
         self.assertNotIn('Không có quyền xem', res.text)
+
+    def test_owner_pc_blocks_render(self):
+        """Khối desktop STT10 render không lỗi (500 sẽ trượt): tab strip + filter PC."""
+        self.authenticate('debt_owner', 'debt_owner')
+        res = self.url_open('/portal/debt', timeout=30)
+        self.assertEqual(res.status_code, 200)
+        self.assertIn('wj-debt-pc', res.text)          # wrapper desktop
+        self.assertIn('wj-debt-pc-tabs', res.text)     # tab Công nợ / Lịch sử
+        self.assertIn('wj-debt-pc-filter', res.text)   # filter row PC
+
+    def test_payment_history_pc_keyword_renders(self):
+        """PC lịch sử + tham số tìm kiếm ?q= render 200 (ô search hiện đúng)."""
+        self.authenticate('debt_owner', 'debt_owner')
+        res = self.url_open('/portal/debt/payment-history?q=abc', timeout=30)
+        self.assertEqual(res.status_code, 200)
+        self.assertIn('wj-debt-pc', res.text)
+        self.assertIn('Tìm mã thanh toán', res.text)   # placeholder ô search PC
 
     def test_staff_is_denied(self):
         self.authenticate('debt_staff', 'debt_staff')

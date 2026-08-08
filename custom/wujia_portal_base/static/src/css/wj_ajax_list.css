@@ -1,0 +1,17 @@
+/* WJ_AjaxList — trạng thái đang nạp của vùng swap (wj_ajax_list.js).
+   Mờ nhẹ + chặn click trùng trong lúc chờ; không đổi layout nên không dịch chuyển gì. */
+.wj-ajax-busy {
+    opacity: .55;
+    pointer-events: none;
+    transition: opacity .12s linear;
+}
+
+/* Gộp nhiều khối con vào MỘT vùng swap trên mobile: .wujia-mpage đặt gap cho con trực
+   tiếp, thêm wrapper là mất gap đó → lặp lại flex+gap ở wrapper để spacing không đổi. */
+@media (max-width: 991.98px) {
+    .wj-ajax-slot {
+        display: flex;
+        flex-direction: column;
+        gap: var(--wujia-mshell-content-gap);
+    }
+}

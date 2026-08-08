@@ -11,7 +11,7 @@ from odoo.addons.wujia_portal_base.controllers.portal import (
     get_active_franchise_ids_filter,
 )
 from odoo.addons.wujia_portal_base.controllers.utils import (
-    local_day_range_utc, portal_tz, to_local_dt,
+    group_counts, local_day_range_utc, page_numbers, portal_tz, to_local_dt,
 )
 
 _logger = logging.getLogger(__name__)
@@ -55,41 +55,9 @@ BATCH_STATUS_GROUP = {
 }
 
 
-def _page_numbers(current, last, edge=1, around=1):
-    """Windowed page list cho numbered pager: [1, '…', 4, 5, 6, '…', 20]."""
-    if last < 1:
-        return []
-    keep = set(range(1, edge + 1)) | set(range(last - edge + 1, last + 1))
-    keep |= set(range(current - around, current + around + 1))
-    pages = sorted(p for p in keep if 1 <= p <= last)
-    result, prev = [], 0
-    for p in pages:
-        if prev and p - prev > 1:
-            result.append('…')
-        result.append(p)
-        prev = p
-    return result
-
-
-# Trạng thái → nhóm chip (đảo BATCH_STATUS_GROUP), dựng 1 lần lúc import.
-STATUS_TO_GROUP = {s: g for g, ss in BATCH_STATUS_GROUP.items() for s in ss}
-
-
 def _chip_counts(Batch, base_domain):
-    """Đếm chuyến theo nhóm cho chips card-head.
-
-    1 `_read_group` thay vì 4 `search_count`: base_domain join qua picking_ids
-    (+ sale_id) nên mỗi lần đếm là một lần join lại — với 1500 user thì 4 lần
-    lặp là phần đắt nhất của trang. Group-by trên field đã index, gộp Python.
-    """
-    counts = {'all': 0, 'soon': 0, 'going': 0, 'done': 0}
-    for status, count in Batch._read_group(
-            base_domain, groupby=['delivery_batch_status'], aggregates=['__count']):
-        counts['all'] += count
-        group = STATUS_TO_GROUP.get(status)
-        if group:
-            counts[group] += count
-    return counts
+    """Đếm chuyến theo nhóm cho chips card-head — 1 `_read_group`, xem `group_counts`."""
+    return group_counts(Batch, base_domain, 'delivery_batch_status', BATCH_STATUS_GROUP)
 
 
 def _hhmm(dt, tz):
@@ -214,7 +182,7 @@ class WujiaPortalDelivery(http.Controller):
                 'page': {'num': page}, 'page_count': last_page, 'page_total': total,
                 'page_previous': {'num': max(1, page - 1)},
                 'page_next': {'num': min(last_page, page + 1)},
-                'page_nums': _page_numbers(page, last_page),
+                'page_nums': page_numbers(page, last_page),
                 'offset': offset, 'count': len(batches),
                 'querystring': '&'.join(p for p in (
                     f'bs={bs}' if bs else '',

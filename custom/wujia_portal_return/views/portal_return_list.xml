@@ -4,6 +4,10 @@
     <template id="portal_return_list" name="Wujia Portal — Return List">
         <t t-call="wujia_portal_layout.app_layout">
             <t t-set="title">Yêu cầu đổi trả</t>
+            <t t-call="wujia_portal_base.wj_ajax_list_config">
+                <t t-set="wjl_path" t-value="'/portal/return'"/>
+                <t t-set="wjl_slots" t-value="'wj-ret-pc,wj-ret-mbody'"/>
+            </t>
 
             <!-- Desktop ≥992px — giữ nguyên, bọc d-none d-lg-block (S20) -->
             <div class="content-wrapper d-none d-lg-block">
@@ -53,6 +57,8 @@
                         </div>
                     </div>
 
+                    <!-- Vùng swap AJAX: bảng + pager (bộ lọc ngoài, JS đồng bộ theo URL). -->
+                    <div id="wj-ret-pc">
                     <!-- Table (Sprint 9.13b 2026-05-27: MẪU 02 — wujia-content-card-table) -->
                     <div class="wujia-content-card">
                         <div class="wujia-content-card-header">
@@ -124,6 +130,7 @@
                             </li>
                         </ul>
                     </nav>
+                    </div>
                 </div>
             </div>
 
@@ -165,6 +172,7 @@
                         </div>
                     </form>
 
+                    <div id="wj-ret-mbody" class="wj-ajax-slot">
                     <!-- Empty: chưa có YC nào (no-data thật) -->
                     <t t-if="not returns and not q and not state and not date_from and not date_to">
                         <div class="wj-empty-state wj-empty-state--rich">
@@ -233,6 +241,7 @@
                             <a t-attf-href="/portal/return?page=#{pager['page_next']['num']}&amp;#{pager.get('querystring','')}">»</a>
                         </nav>
                     </t>
+                    </div>
                 </t>
             </div>
             <!-- /mobile -->

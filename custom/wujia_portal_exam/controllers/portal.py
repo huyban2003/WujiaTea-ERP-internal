@@ -32,10 +32,12 @@ from odoo.tools.image import image_process
 from odoo.addons.wujia_portal_base.controllers.portal import (
     get_active_franchise_id,
 )
+from odoo.addons.wujia_portal_base.controllers.utils import page_numbers
 
 _logger = logging.getLogger(__name__)
 
 PAGE_SIZE = 10  # spec: list mặc định 10/trang
+PAGE_SIZES = (10, 20, 50)  # whitelist ?limit — khớp <select> trong pager PC
 DEFAULT_TZ = 'Asia/Ho_Chi_Minh'
 MAX_PHOTO_BYTES = 5 * 1024 * 1024
 PHOTO_MIMES = ('image/jpeg', 'image/jpg', 'image/png')
@@ -253,10 +255,16 @@ class WujiaPortalExam(http.Controller):
     # --------------------------------------------------------------- list
     @http.route(['/portal/exam'], type='http', auth='user', sitemap=False)
     def portal_exam_schedule(self, page=1, state='', result='', q='',
-                             date_from='', date_to='', **kw):
+                             date_from='', date_to='', limit=None, **kw):
         fid = get_active_franchise_id()
         Reg = request.env['wujia.exam.registration'].sudo()
-        m_items, pc_regs, pager = [], [], _empty_pager()
+        try:
+            size = int(limit)
+        except (TypeError, ValueError):
+            size = PAGE_SIZE
+        if size not in PAGE_SIZES:                  # whitelist: ?limit=100000 không kéo cả bảng
+            size = PAGE_SIZE
+        m_items, pc_regs, pager = [], [], _empty_pager(size)
         if fid:
             domain = [('franchise_id', '=', fid)]
             if state in M_REG_BADGE:
@@ -281,20 +289,29 @@ class WujiaPortalExam(http.Controller):
             except (TypeError, ValueError):
                 page = 1
             total = Reg.search_count(domain)
-            offset = (page - 1) * PAGE_SIZE
-            regs = Reg.search(domain, limit=PAGE_SIZE, offset=offset,
+            pages = max(1, (total + size - 1) // size)
+            page = min(page, pages)                 # ?page=99 → trang cuối, không rơi ra rỗng
+            offset = (page - 1) * size
+            regs = Reg.search(domain, limit=size, offset=offset,
                               order='request_date desc, id desc')
             for reg in regs:
                 m_items.append(_m_list_item(reg))
                 pc_regs.append(_pc_list_item(reg))
-            pages = max(1, (total + PAGE_SIZE - 1) // PAGE_SIZE)
             pager = {'from': offset + 1 if total else 0,
-                     'to': min(offset + PAGE_SIZE, total), 'total': total,
-                     'size': PAGE_SIZE, 'page': page, 'pages': pages}
+                     'to': min(offset + size, total), 'total': total,
+                     'size': size, 'page': page, 'pages': pages,
+                     'numbers': page_numbers(page, pages)}
+        # querystring giữ bộ lọc khi chuyển trang (link pager nối thêm &page=N).
+        querystring = '&'.join(
+            '%s=%s' % (k, v) for k, v in
+            [('state', state), ('result', result), ('q', q),
+             ('date_from', date_from), ('date_to', date_to),
+             ('limit', size if size != PAGE_SIZE else '')] if v
+        )
         return request.render('wujia_portal_exam.portal_exam_schedule', {
             'm_exam_items': m_items,
             'pc_regs': pc_regs, 'pc_reg_states': PC_REG_STATES,
-            'pc_pager': pager,
+            'pc_pager': pager, 'querystring': querystring,
             'f_state': state, 'f_result': result, 'f_q': q,
         })
 
@@ -475,9 +492,9 @@ class WujiaPortalExam(http.Controller):
 # --------------------------------------------------------------------------- #
 # Mappers (record → dict template) — key trùng field thật.
 # --------------------------------------------------------------------------- #
-def _empty_pager():
-    return {'from': 0, 'to': 0, 'total': 0, 'size': PAGE_SIZE,
-            'page': 1, 'pages': 1}
+def _empty_pager(size=PAGE_SIZE):
+    return {'from': 0, 'to': 0, 'total': 0, 'size': size,
+            'page': 1, 'pages': 1, 'numbers': [1]}
 
 
 def _m_list_item(reg):

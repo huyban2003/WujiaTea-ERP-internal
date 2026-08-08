@@ -249,17 +249,20 @@ class WujiaPortalDebt(models.AbstractModel):
         return options[0], options
 
     @api.model
-    def get_payments(self, franchise_id, month=None, date_from=None, date_to=None, today=None):
+    def get_payments(self, franchise_id, month=None, date_from=None, date_to=None, today=None,
+                     keyword=None):
         """Lịch sử thanh toán đã xác nhận trong 1 kỳ (Figma màn 06, CT-054).
 
         Ưu tiên `month` (dropdown). `date_from`/`date_to` vẫn nhận được để BA/FE
-        gọi khoảng tuỳ ý sau này. Mặc định = tháng hiện tại."""
+        gọi khoảng tuỳ ý sau này. Mặc định = tháng hiện tại. `keyword` (PC STT10):
+        lọc theo mã/nội dung thanh toán — mobile không truyền nên hành vi cũ không đổi."""
         opt, options = self._resolve_month(month, today=today)
         date_from = date_from or opt['date_from']
         date_to = date_to or opt['date_to']
         if date_from > date_to:
             date_from, date_to = date_to, date_from
-        payments = self._query_payments(franchise_id, date_from, date_to) if franchise_id else []
+        payments = (self._query_payments(franchise_id, date_from, date_to, keyword=keyword)
+                    if franchise_id else [])
         return {
             'month_key': opt['key'],
             'months': [{'key': m['key'], 'label': m['label']} for m in options],
@@ -309,6 +312,19 @@ class WujiaPortalDebt(models.AbstractModel):
             return 'H000'
         franchise = self.env['wujia.franchise.management'].sudo().browse(franchise_id)
         return franchise.exists().code or 'H000'
+
+    @api.model
+    def _empty_substate(self, franchise_id):
+        """PC STT10 (rule 10c/10d) — chỉ gọi khi tuần đang chọn KHÔNG có hoá đơn:
+        'empty_week' nếu cửa hàng còn công nợ ở kỳ khác, 'no_debt' nếu hết nợ mọi kỳ.
+
+        ⚠️ Đọc field STORE `portal_debt_remaining` (stored, cron+hook cập nhật ở
+        wujia_account) → 0 query on-the-fly, đúng perf-first 1500 user (cùng nguồn
+        với get_shell_badge). Mobile KHÔNG dùng — giữ nguyên 1 empty state cũ."""
+        if not franchise_id:
+            return 'no_debt'
+        franchise = self.env['wujia.franchise.management'].sudo().browse(franchise_id).exists()
+        return 'empty_week' if (franchise.portal_debt_remaining or 0) > 0 else 'no_debt'
 
     @api.model
     def _empty_payload(self):
@@ -371,12 +387,19 @@ class WujiaPortalDebt(models.AbstractModel):
                     due_dates.append(move.invoice_date_due)
             # Số dòng: còn dư → hiển thị số dư; đã tất toán → tổng. Credit note âm.
             line_amount = move.amount_residual if move.amount_residual > 0 else move.amount_total
+            # PC (STT10): bảng cần 3 số/hoá đơn (Tổng / Đã trả / Còn phải trả). Additive —
+            # mobile bỏ qua các key này; giữ dấu `sign` nhất quán với tổng tuần (credit note âm).
+            inv_total = sign * move.amount_total
+            inv_remaining = sign * (move.amount_residual if move.amount_residual > 0 else 0.0)
             invoices.append({
                 'name': move.name or move.ref or '—',
                 'date': move.invoice_date,
                 'due': move.invoice_date_due or move.invoice_date,
                 'status': status,
                 'amount': sign * line_amount,
+                'total': inv_total,
+                'paid': inv_total - inv_remaining,
+                'remaining': inv_remaining,
             })
         paid = total - remaining
 
@@ -421,15 +444,21 @@ class WujiaPortalDebt(models.AbstractModel):
         return local_dt.strftime('%H:%M')
 
     @api.model
-    def _query_payments(self, franchise_id, date_from, date_to):
+    def _query_payments(self, franchise_id, date_from, date_to, keyword=None):
         """Payment đã xác nhận của cửa hàng trong kỳ (CT-054). Chi ngược (outbound) hiển
-        thị số âm để không cộng nhầm vào "đã trả" (BA §6)."""
-        payments = self.env['account.payment'].sudo().search([
+        thị số âm để không cộng nhầm vào "đã trả" (BA §6).
+
+        `keyword` (PC): lọc thêm theo mã payment (`name`) hoặc nội dung (`memo`)."""
+        domain = [
             ('franchise_id', '=', franchise_id),
             ('state', 'in', _CONFIRMED_PAYMENT_STATES),
             ('date', '>=', date_from),
             ('date', '<=', date_to),
-        ], order='date desc, id desc')
+        ]
+        kw = (keyword or '').strip()
+        if kw:
+            domain += ['|', ('name', 'ilike', kw), ('memo', 'ilike', kw)]
+        payments = self.env['account.payment'].sudo().search(domain, order='date desc, id desc')
         result = []
         for payment in payments:
             sign = -1.0 if payment.payment_type == 'outbound' else 1.0

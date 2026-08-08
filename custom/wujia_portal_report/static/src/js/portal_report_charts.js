@@ -8,7 +8,14 @@
         return v || fallback;
     }
 
-    document.addEventListener("DOMContentLoaded", function () {
+    // Chart nằm TRONG vùng swap của wj_ajax_list → vẽ lại sau mỗi lần lọc, nếu không
+    // ApexCharts đã render vào node cũ (đã bị thay) và biểu đồ biến mất.
+    const charts = [];
+
+    function render() {
+        while (charts.length) {
+            charts.pop().destroy();
+        }
         const wrap = document.getElementById("report-chart-months");
         if (!wrap || typeof ApexCharts === "undefined") return;
 
@@ -49,7 +56,9 @@
                 },
                 legend: { position: "top", horizontalAlign: "right" },
             };
-            new ApexCharts(wrap, optionsMonths).render();
+            const chartMonths = new ApexCharts(wrap, optionsMonths);
+            charts.push(chartMonths);
+            chartMonths.render();
         } else {
             wrap.innerHTML = '<div class="alert alert-info mb-0">Chưa có dữ liệu trong khoảng đã chọn.</div>';
         }
@@ -76,9 +85,14 @@
                     } } },
                 },
             };
-            new ApexCharts(stateWrap, optionsState).render();
+            const chartState = new ApexCharts(stateWrap, optionsState);
+            charts.push(chartState);
+            chartState.render();
         } else if (stateWrap) {
             stateWrap.innerHTML = '<div class="text-muted text-center py-4">Chưa có dữ liệu.</div>';
         }
-    });
+    }
+
+    document.addEventListener("DOMContentLoaded", render);
+    document.addEventListener("wj:list:swapped", render);
 })();

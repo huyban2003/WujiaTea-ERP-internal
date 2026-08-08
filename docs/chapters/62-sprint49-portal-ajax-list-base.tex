@@ -1,0 +1,184 @@
+\chapter{Sprint 49 --- Lọc/phân trang không reload cho TOÀN portal (base \texttt{wj\_ajax\_list}) (2026-08-07)}
+
+\section{Bối cảnh}
+
+Commit \texttt{ed2b659} (Sprint 48) đã bỏ reload khi lọc cho \textbf{riêng màn Giao hàng}:
+bấm chip trạng thái / đổi trang không còn điều hướng thật, server không phải dựng lại shell
+portal (navbar $+$ sidebar $+$ chuông). Đo được \textbf{136ms $\to$ 32ms} mỗi lần bấm.
+
+Dev hỏi đúng: \emph{sao chỉ mỗi màn Giao hàng?} Grep xác nhận \textbf{10 màn danh sách còn lại
+vẫn reload} --- Lịch sử mua hàng, Thông báo, Đặt hàng (catalog), Hỗ trợ, Bù hàng, Kiến thức,
+Đăng ký thi, Yêu cầu thông tin, Báo cáo, Lịch sử thanh toán. Attribute chặn click
+(\texttt{data-wj-dlv-nav}) và bộ bắt \texttt{submit} chỉ tồn tại trong
+\texttt{wujia\_portal\_delivery}. Với 1500 cửa hàng, mỗi lần lọc là một lần dựng lại toàn bộ
+shell --- vừa khó chịu cho người dùng vừa tốn CPU server giờ cao điểm.
+
+\section{Quyết định đã chốt với chủ dự án}
+
+\begin{itemize}
+  \item \textbf{Kiến trúc hybrid}: MỘT file JS ở base chạy \textbf{2 chế độ}, thay vì mỗi màn
+    một script.
+  \item \textbf{Phạm vi $=$ tất cả} 11 màn danh sách, không làm nửa vời.
+  \item \textbf{Cái gì base được thì để base}; chỉ tách ra màn khi thật sự không dùng chung được.
+  \item Sửa luôn 2 phát hiện ngoài phạm vi tìm thấy trong lúc rà (xem \S\ref{sec:s49-ngoaipv}).
+\end{itemize}
+
+\section{Cái gì generic được, cái gì không}
+
+Bản delivery gồm 3 tầng, mức tái dùng rất khác nhau:
+
+\begin{itemize}
+  \item \textbf{JS bắt click/submit $\to$ fetch $\to$ swap $\to$ pushState} (161 dòng):
+    \textbf{đưa hết vào base}, xoá bản riêng của delivery.
+  \item \textbf{Template đánh \texttt{id} ổn định lên khối kết quả}: \textbf{quy ước}, mỗi màn
+    tự làm --- base không làm hộ được vì mỗi màn một cấu trúc QWeb.
+  \item \textbf{Route \texttt{/results}}: Odoo đăng ký route \textbf{tĩnh} theo decorator
+    \texttt{@http.route} $\Rightarrow$ \textbf{không sinh động được}, mỗi màn vẫn cần 1 route ---
+    nhưng thân route còn đúng 3 dòng.
+\end{itemize}
+
+Hai chế độ của base JS khác nhau \textbf{đúng một chỗ}: gọi URL nào.
+
+\begin{itemize}
+  \item \textbf{Chế độ nhẹ} (không khai \texttt{data-wj-fragment}): fetch chính URL danh sách,
+    bóc slot theo \texttt{id} rồi thay tại chỗ. \textbf{Không đụng controller}. Người dùng hết
+    reload, hết nháy trắng, giữ vị trí cuộn, Back đúng --- chỉ là server vẫn dựng shell.
+  \item \textbf{Chế độ đầy đủ} (có khai \texttt{data-wj-fragment}): fetch route phụ chỉ trả các
+    khối kết quả. Đúng cái delivery đang chạy.
+\end{itemize}
+
+\section{Đã làm}
+
+\textbf{Base \texttt{wujia\_portal\_base} (\texttt{19.0.6.0.0}):}
+
+\begin{itemize}
+  \item \texttt{static/src/js/wj\_ajax\_list.js} --- generic hoá từ
+    \texttt{portal\_delivery\_filter.js}, thêm 4 thứ bản delivery không cần: đọc cấu hình từ
+    node ẩn do QWeb sinh; đồng bộ mọi \texttt{[name]} của form lọc từ query params sau khi swap
+    (thay đoạn hardcode \texttt{\#wj-dlv-bs}); bắn
+    \texttt{CustomEvent('wj:list:swapped')} để widget trong vùng swap tự rebind; nhận link
+    ngoài vùng swap qua \texttt{data-wj-nav}. Giữ nguyên abort request cũ, \texttt{aria-busy},
+    \textbf{fallback điều hướng thường khi fetch lỗi}, \texttt{pushState} $+$ \texttt{popstate}.
+  \item \texttt{views/wj\_ajax\_list.xml} --- template \texttt{wj\_ajax\_list\_config}: mỗi màn
+    khai \textbf{3--4 dòng} (\texttt{wjl\_path}, \texttt{wjl\_slots}, tuỳ chọn
+    \texttt{wjl\_fragment}, \texttt{wjl\_scroll}).
+  \item \texttt{static/src/css/wj\_ajax\_list.css} --- \texttt{.wj-ajax-busy} (mờ $+$ chặn click
+    trùng) và \texttt{.wj-ajax-slot} (lặp lại \texttt{flex-gap} của \texttt{.wujia-mpage} cho
+    wrapper mới, giữ nguyên spacing mobile).
+  \item \texttt{controllers/utils.py} $+$ 2 helper: \texttt{page\_numbers()} (đang trùng lặp ở 2
+    module) và \texttt{group\_counts()} --- đếm chip bằng \textbf{1 \texttt{\_read\_group}} thay
+    vì N \texttt{search\_count}.
+\end{itemize}
+
+\textbf{Delivery migrate về base} (\texttt{19.0.3.5.0}): xoá hẳn
+\texttt{portal\_delivery\_filter.js}, xoá \texttt{data-wj-dlv-nav}, dùng
+\texttt{page\_numbers}/\texttt{group\_counts} của base. \textbf{Route \texttt{/portal/delivery/results}
+và 3 \texttt{id} slot giữ nguyên} $\Rightarrow$ đây là bài test regression tốt nhất. Tiện thể nút
+``Xóa lọc'' bản PC (trước đây reload cả trang) nay cũng chạy AJAX.
+
+\textbf{7 màn chế độ nhẹ} --- chỉ template, \textbf{0 dòng controller}: Hỗ trợ, Bù hàng, Kiến
+thức, Đăng ký thi, Yêu cầu thông tin, Báo cáo, Lịch sử thanh toán.
+
+\textbf{3 màn nóng lên chế độ đầy đủ}: Lịch sử mua hàng, Thông báo, Đặt hàng (catalog) ---
+tách \texttt{\_xxx\_list\_values()} dùng chung $+$ route \texttt{/results} $+$ template
+\texttt{..\_results\_part}. Giỏ hàng \textbf{cố ý để ngoài} vùng swap
+(\texttt{portal\_cart\_sync.js} vẫn lo như cũ).
+
+\textbf{4 file JS sửa cho an toàn khi swap:} chart báo cáo vẽ lại theo \texttt{wj:list:swapped}
+(và \texttt{destroy()} instance cũ); nút ``đánh dấu đã đọc'' của Thông báo và nút thêm giỏ của
+catalog chuyển sang \textbf{delegation trên document}; select kỳ công nợ đổi sang
+\texttt{requestSubmit()}.
+
+\section{Perf / Trade-off}
+
+Ba tầng độc lập nhau:
+
+\begin{enumerate}
+  \item \textbf{Bỏ điều hướng} (base JS, mọi màn) --- người dùng hết thấy trang trắng, giữ vị
+    trí cuộn.
+  \item \textbf{Bỏ dựng shell} (route \texttt{/results}, 3 màn nóng) --- đo trên DB copy, median
+    5 lần: Giao hàng \textbf{16{,}3 $\to$ 7{,}5ms} ($\times$2{,}2), Lịch sử mua hàng
+    \textbf{14{,}8 $\to$ 6{,}3ms} ($\times$2{,}3), Thông báo \textbf{20{,}0 $\to$ 8{,}3ms}
+    ($\times$2{,}4), Đặt hàng \textbf{31{,}0 $\to$ 23{,}8ms} ($\times$1{,}3 --- catalog nặng ở
+    phần dựng giá, không ở shell).
+  \item \textbf{Bỏ query thừa} --- \texttt{group\_counts()} (delivery: 4{,}08ms $\to$ 0{,}99ms).
+    3 màn nóng mỗi màn chỉ còn 1 \texttt{search\_count} (đếm tổng cho phân trang, không bỏ được).
+\end{enumerate}
+
+\textbf{Trade-off đã chấp nhận:} 7 màn chế độ nhẹ server vẫn dựng shell. Đổi lại
+\textbf{0 dòng controller, 0 route mới} --- nâng lên chế độ đầy đủ sau này chỉ là thêm 1 route
+$+$ tách template, không phải viết lại JS.
+
+\section{Ngoài phạm vi --- đã sửa luôn}\label{sec:s49-ngoaipv}
+
+\begin{itemize}
+  \item \texttt{\_unread\_count()} (\texttt{wujia\_portal\_notification}) nạp \textbf{toàn bộ id}
+    thông báo còn hiệu lực về Python rồi trừ số đã đọc --- badge chuông chạy trên
+    \textbf{mọi trang portal}, với 1500 cửa hàng là kéo cả bảng mỗi request. Đổi sang
+    \textbf{2 \texttt{search\_count}}, đẩy điều kiện xuống subquery bằng operator
+    \texttt{('notification\_id', 'any', eff\_domain)}. Đối chiếu cũ--mới:
+    \textbf{0 lệch trên 45 phép so} (5 user $\times$ 4 tập cửa hàng $\times$ có/không lọc cửa hàng).
+  \item \textbf{Pager PC màn Đăng ký thi} là \texttt{<span>} không \texttt{href} $\Rightarrow$
+    \textbf{phân trang chưa từng chạy} dù controller đã nhận \texttt{page} (đúng ghi chú
+    \texttt{LIMIT} của UI-PC-BASE-005). Nay là link thật $+$ \texttt{page\_numbers} của base
+    $+$ querystring giữ bộ lọc; ô \texttt{10/20/50} đưa vào form và có tác dụng (whitelist
+    \texttt{limit}, chặn \texttt{?limit=99999}); \texttt{?page=99} kẹp về trang cuối; control
+    lọc giữ giá trị khi F5. Pager nằm sẵn trong slot nên AJAX tự nhận, không khai thêm gì.
+\end{itemize}
+
+\section{Kiểm thử}
+
+Trên \textbf{DB copy cô lập \texttt{wujia\_tea\_s50} / port 8051} (một session khác đang giữ
+\texttt{s49}/8049 --- không đụng vào; cũng không đụng \texttt{wujia\_tea\_19}/8019):
+
+\begin{itemize}
+  \item \texttt{-u} 12 module \texttt{--stop-after-init} $\Rightarrow$ \textbf{RC$=$0, 0 ERROR/Traceback}.
+  \item \textbf{E2E Playwright 11 màn $\times$ 2 viewport} (391$\times$844 $+$ 1920$\times$1080):
+    \textbf{21/22 OK}. Mỗi ca kiểm: nội dung đổi, \textbf{marker \texttt{window} còn nguyên}
+    (chứng minh không tải lại tài liệu), URL đổi đúng, Back về đúng URL và cũng không reload,
+    0 JS pageerror, 0 tràn ngang. Ca còn lại là \textbf{mobile màn Đăng ký thi} --- bản điện
+    thoại không có UI lọc/phân trang, đúng thiết kế.
+  \item \textbf{Fuzz 24 tổ hợp tham số} lên 4 route \texttt{/results} (rỗng, sai giá trị,
+    \texttt{page=99}, tiếng Việt có dấu): 200 hết, \textbf{không} chứa navbar/sidebar.
+  \item \textbf{Fallback không-JS}: 11 URL đã lọc trả nguyên trang 200 như trước sprint.
+  \item Phân trang màn Đăng ký thi (seed 23 phiếu): trang 1/2/3 đúng khoảng
+    1--10 / 11--20 / 21--23; \texttt{?page=99} về trang cuối; \texttt{?limit=50} ra 1 trang;
+    \texttt{?limit=99999} bị chặn về 10; link giữ \texttt{state=submitted}.
+  \item Smoke 5 màn ngoài phạm vi (\texttt{/portal}, giỏ, hồ sơ, 2 màn chi tiết): 200.
+\end{itemize}
+
+\textbf{2 lỗi tự tìm ra trong lúc verify (đã sửa):} (a) fragment
+\texttt{/portal/order/results} 500 vì \texttt{cart\_qty\_map}/\texttt{has\_spec} được
+\texttt{t-set} ở \textbf{trang} chứ không ở part template --- fragment chỉ gọi part nên không
+thấy biến; (b) bộ e2e ban đầu đếm \texttt{performance.getEntriesByType('navigation')} để phát
+hiện reload, \textbf{sai} vì tài liệu mới cũng có đúng 1 entry --- đổi sang đánh dấu lên
+\texttt{window} rồi kiểm dấu còn không.
+
+\section{Giới hạn / Bàn giao}
+
+\begin{itemize}
+  \item \textbf{7 màn chế độ nhẹ} server vẫn dựng shell (chủ ý --- xem Trade-off).
+  \item \textbf{Mobile màn Đăng ký thi} vẫn chưa có UI lọc/phân trang; phần sửa sprint này chỉ
+    chạm bản PC.
+  \item \textbf{Chưa có Issue ID trên sheet} cho cả việc bỏ reload lẫn pager Đăng ký thi ---
+    \texttt{qa\_sync} dry-run báo \emph{Set Ready for Retest (0)}, không ghi gì. Đã cập nhật ghi
+    chú \texttt{LIMIT} của UI-PC-BASE-005 trong ledger; đề nghị BA mở issue để retest.
+  \item \textbf{Deploy thủ công}: chỉ \texttt{-u} các module đã đụng, \textbf{không} \texttt{-i},
+    \textbf{không} migration (không có schema change), không bump \texttt{?v=} (asset nằm trong
+    \texttt{web.assets\_frontend}).
+  \item Dev \textbf{không tự Done}.
+\end{itemize}
+
+\section{Công thức cho màn danh sách mới}
+
+\begin{enumerate}
+  \item Đánh \texttt{id} ổn định lên các khối kết quả (PC $+$ mobile). Khối phải
+    \textbf{luôn render} (dùng \texttt{t-att-hidden}), vì cái không render thì không có chỗ để thay.
+  \item Thêm \texttt{t-call="wujia\_portal\_base.wj\_ajax\_list\_config"} với
+    \texttt{wjl\_path} $+$ \texttt{wjl\_slots}. \textbf{Xong --- đã hết reload.}
+  \item Muốn nhanh hơn nữa: tách \texttt{\_xxx\_list\_values()}, thêm route \texttt{/results}
+    (3 dòng), tách template \texttt{..\_results\_part}, khai thêm \texttt{wjl\_fragment}.
+  \item Lưu ý: link ngoài vùng swap cần \texttt{data-wj-nav="1"}; auto-submit phải dùng
+    \texttt{requestSubmit()} (\texttt{submit()} bỏ qua listener); widget trong vùng swap phải
+    rebind theo \texttt{wj:list:swapped} hoặc dùng delegation.
+\end{enumerate}

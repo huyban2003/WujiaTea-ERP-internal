@@ -5,6 +5,11 @@
     <template id="portal_knowledge_list" name="Wujia Portal — Knowledge List">
         <t t-call="wujia_portal_layout.app_layout">
             <t t-set="title">Thư viện kiến thức</t>
+            <t t-call="wujia_portal_base.wj_ajax_list_config">
+                <t t-set="wjl_path" t-value="'/portal/knowledge'"/>
+                <t t-set="wjl_slots"
+                   t-value="'wj-know-pc-cats,wj-know-pc-body,wj-know-mcount,wj-know-mchips,wj-know-mbody'"/>
+            </t>
             <!-- ===== Desktop (≥992px) — GIỮ NGUYÊN (Sprint 9.13b) ===== -->
             <div class="content-wrapper d-none d-lg-block">
                 <t t-call="wujia_portal_layout.wj_page_header">
@@ -33,7 +38,7 @@
 
                     <div class="row">
                         <!-- Category nav -->
-                        <div class="col-md-3 col-12 mb-2">
+                        <div class="col-md-3 col-12 mb-2" id="wj-know-pc-cats">
                             <div class="card">
                                 <div class="card-header py-2"><h6 class="mb-0">Danh mục</h6></div>
                                 <div class="list-group list-group-flush knowledge-cat-list">
@@ -53,7 +58,7 @@
                         </div>
 
                         <!-- Articles list — MẪU 04 Card danh sách + icon (Sprint 9.13b 2026-05-27) -->
-                        <div class="col-md-9 col-12">
+                        <div class="col-md-9 col-12" id="wj-know-pc-body">
                             <div class="wujia-content-card">
                                 <div class="wujia-content-card-header">
                                     <div class="wujia-content-card-header-icon">
@@ -134,7 +139,7 @@
                     <t t-set="ph_variant" t-value="'title'"/>
                     <t t-set="ph_title">Kiến thức</t>
                 </t>
-                <p class="wj-count-meta wj-count-meta--primary"><t t-out="len(articles)"/> bài viết</p>
+                <p class="wj-count-meta wj-count-meta--primary" id="wj-know-mcount"><t t-out="len(articles)"/> bài viết</p>
 
                 <!-- Filter canonical 01-ChipSlide (Figma 4785:562) — keyword + category chips -->
                 <form method="get" action="/portal/knowledge" class="wj-filter-card">
@@ -145,7 +150,7 @@
                         </div>
                         <button type="submit" class="wj-filter-search-btn"><i class="feather icon-search"/></button>
                     </div>
-                    <div class="wj-filter-chips">
+                    <div class="wj-filter-chips" id="wj-know-mchips">
                         <a href="/portal/knowledge"
                            t-attf-class="wj-filter-chip#{'' if category_id else ' is-active'}">Tất cả</a>
                         <t t-foreach="categories" t-as="cat">
@@ -156,6 +161,7 @@
                     </div>
                 </form>
 
+                <div id="wj-know-mbody" class="wj-ajax-slot">
                 <div t-if="not articles" class="wj-empty-state wj-empty-state--rich">
                     <span class="wj-empty-state-icon"/>
                     <p class="wj-empty-state-title">Chưa có bài viết</p>
@@ -236,6 +242,7 @@
                            t-attf-href="/portal/knowledge?page=#{pager['page_next']['num']}&amp;#{pager.get('querystring','')}">›</a>
                     </nav>
                 </t>
+                </div>
             </div>
             <!-- /mobile -->
         </t>

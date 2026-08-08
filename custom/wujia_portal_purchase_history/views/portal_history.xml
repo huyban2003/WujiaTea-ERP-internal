@@ -1,14 +1,183 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
 
+    <!-- ============== Khối kết quả (swap được bằng AJAX khi lọc) ==============
+         5 mảnh: 'pcerr'/'merr' (dòng lỗi khoảng ngày trong bộ lọc — LUÔN render, ẩn
+         bằng [hidden] để AJAX có chỗ mà thay), 'pc' (card bảng desktop), 'mchips'
+         (chip preset mobile trong form lọc), 'mbody' (list/empty + pager mobile).
+         Trang đầy đủ t-call từng mảnh đúng chỗ; /portal/purchase-history/results trả
+         cả 5 để JS thay tại chỗ. -->
+    <template id="portal_history_results_part" name="Wujia Portal — History Results Part">
+        <!-- status_type → badge CSS. Controller trả status_type ngữ nghĩa, template map sang
+             hệ badge riêng (PC / mobile) — logic/label đã tập trung ở controller. -->
+        <t t-set="pc_badge" t-value="{'pending': 'wj-pc-badge--pending', 'sent': 'wj-pc-badge--sent', 'confirmed': 'wj-pc-badge--confirmed', 'transit': 'wj-pc-badge--transit', 'done': 'wj-pc-badge--done'}"/>
+        <t t-set="mobile_badge" t-value="{'pending': 'wujia-badge-muted', 'sent': 'wujia-badge-info', 'confirmed': 'wujia-badge-success', 'transit': 'wujia-badge-warning', 'done': 'wujia-badge-success'}"/>
+
+        <!-- Lỗi khoảng ngày báo tại FilterBar, KHÔNG dùng empty state (WJ-PH-007) -->
+        <p t-if="part == 'pcerr'" id="wj-hist-pcerr" class="wj-filter-error" role="alert"
+           t-att-hidden="None if filter_error else 'hidden'" t-out="filter_error"/>
+        <p t-if="part == 'merr'" id="wj-hist-merr" class="wj-filter-error" role="alert"
+           t-att-hidden="None if filter_error else 'hidden'" t-out="filter_error"/>
+
+        <!-- ===== PC: card bảng danh sách đơn ===== -->
+        <div t-if="part == 'pc'" id="wj-hist-pc" class="wj-pc-card">
+            <div class="wj-pc-card__head">
+                <div>
+                    <h3 class="wj-pc-card__title">Danh sách đơn hàng</h3>
+                    <p class="wj-pc-card__subtitle">Theo dõi đơn đặt hàng của cửa hàng đang thao tác</p>
+                </div>
+                <span t-if="rows" class="wj-pc-card__count"><t t-out="pager.get('page_total', len(rows))"/> bản ghi</span>
+            </div>
+
+            <!-- filter_error đã báo ở FilterBar → không hiện thêm empty state (2 thông điệp mâu thuẫn) -->
+            <div t-if="not rows and not filter_error" class="wj-pc-empty">
+                <span class="wj-pc-empty__icon"><i class="feather icon-inbox"/></span>
+                <h3 class="wj-pc-empty__title">Chưa có đơn hàng</h3>
+                <p class="wj-pc-empty__sub">Chưa có đơn hàng nào khớp bộ lọc.</p>
+            </div>
+
+            <table t-if="rows" class="wj-pc-table">
+                <thead>
+                    <tr>
+                        <th>Mã đơn</th>
+                        <th>Ngày tạo</th>
+                        <th>Ngày xác nhận</th>
+                        <th>Người đặt</th>
+                        <th class="text-end">Tổng tiền</th>
+                        <th>Batch / giao hàng</th>
+                        <th>Trạng thái</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr t-foreach="rows" t-as="r">
+                        <td class="wj-pc-td--code">
+                            <a t-attf-href="/portal/purchase-history/#{r['id']}" class="wj-pc-link" t-out="r['name']"/>
+                        </td>
+                        <td class="wj-pc-td--muted" t-out="r['create_date'] and r['create_date'].strftime('%d/%m/%Y %H:%M') or '—'"/>
+                        <td class="wj-pc-td--muted" t-out="r['date_order'] and r['date_order'].strftime('%d/%m/%Y') or '—'"/>
+                        <td t-out="r['requester_display']"/>
+                        <td class="text-end wj-pc-td--amount" t-out="money(r['amount_total'], r['currency_symbol'], r['currency_decimals'])"/>
+                        <td t-out="r['batch_name'] or 'Chưa giao'"/>
+                        <td>
+                            <span t-attf-class="wj-pc-badge #{pc_badge.get(r['status_type'], 'wj-pc-badge--pending')}" t-out="r['state_label']"/>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <!-- Pagination: count trái, page-size + Trước [n] Sau phải.
+                 Ẩn cả khối khi ≤10 bản ghi (BA cho phép); ngưỡng là option nhỏ
+                 nhất, không phải page_size đang chọn — chọn 50 mà còn 20 bản ghi
+                 thì vẫn phải bấm về 10 được (UI-PC-BASE-005). -->
+            <div t-if="rows and pager['page_total'] &gt; 10" class="wj-pc-pagination">
+                <span class="wj-pc-pagination__count">
+                    Hiển thị <t t-out="pager['offset'] + 1"/>–<t t-out="pager['offset'] + pager['count']"/> / <t t-out="pager['page_total']"/> bản ghi
+                </span>
+                <!-- Đổi số dòng/trang = submit thật, giữ bộ lọc, quay về trang 1 -->
+                <form method="get" action="/portal/purchase-history" class="wj-pc-pagination__size-form">
+                    <input type="hidden" name="q" t-att-value="q"/>
+                    <input type="hidden" name="date_from" t-att-value="date_from"/>
+                    <input type="hidden" name="date_to" t-att-value="date_to"/>
+                    <input type="hidden" name="state" t-att-value="state"/>
+                    <select name="page_size" class="wj-pc-pagination__size"
+                            aria-label="Số dòng mỗi trang" onchange="this.form.requestSubmit()">
+                        <t t-foreach="[10, 20, 50]" t-as="ps">
+                            <option t-att-value="ps"
+                                    t-att-selected="'selected' if page_size == ps else None">
+                                <t t-out="ps"/> / trang
+                            </option>
+                        </t>
+                    </select>
+                </form>
+                <a t-attf-href="/portal/purchase-history?page=#{pager['page_previous']['num']}&amp;#{pager['querystring'] or ''}"
+                   t-attf-class="wj-pc-page-btn #{'is-disabled' if pager['page']['num'] &lt;= 1 else ''}">Trước</a>
+                <t t-foreach="pager['page_nums']" t-as="pn">
+                    <span t-if="pn == '…'" class="wj-pc-page-btn">…</span>
+                    <a t-else=""
+                       t-attf-href="/portal/purchase-history?page=#{pn}&amp;#{pager['querystring'] or ''}"
+                       t-attf-class="wj-pc-page-btn #{'is-active' if pn == pager['page']['num'] else ''}"
+                       t-out="pn"/>
+                </t>
+                <a t-attf-href="/portal/purchase-history?page=#{pager['page_next']['num']}&amp;#{pager['querystring'] or ''}"
+                   t-attf-class="wj-pc-page-btn #{'is-disabled' if pager['page']['num'] &gt;= pager['page_count'] else ''}">Sau</a>
+            </div>
+        </div>
+
+        <!-- ===== Mobile: chip preset (nằm trong form lọc) ===== -->
+        <div t-if="part == 'mchips'" id="wj-hist-mchips" class="wj-filter-chips">
+            <a href="/portal/purchase-history?preset=this_month"
+               t-attf-class="wj-filter-chip #{'is-active' if preset == 'this_month' else ''}">Tháng này</a>
+            <a href="/portal/purchase-history?preset=last_month"
+               t-attf-class="wj-filter-chip #{'is-active' if preset == 'last_month' else ''}">Tháng trước</a>
+            <a href="/portal/purchase-history?state=sale"
+               t-attf-class="wj-filter-chip #{'is-active' if state == 'sale' else ''}">Đã xác nhận</a>
+            <a href="/portal/purchase-history" class="wj-filter-chip wj-filter-chip--clear">Xóa lọc</a>
+        </div>
+
+        <!-- ===== Mobile: thân kết quả (listhead + list/empty + pager) ===== -->
+        <div t-if="part == 'mbody'" id="wj-hist-mbody" class="wj-ajax-slot">
+            <!-- Header danh sách -->
+            <div class="wujia-mhist-listhead">
+                <span class="wujia-mhist-listhead-title">Danh sách đơn</span>
+                <span class="wj-count-meta"><t t-out="len(rows)"/> đơn gần nhất</span>
+            </div>
+
+            <!-- Danh sách đơn -->
+            <t t-set="mhist_filtered" t-value="q or date_from or date_to or preset or state"/>
+            <div t-if="not rows and not filter_error" class="wj-empty-state wj-empty-state--rich">
+                <span class="wj-empty-state-icon"/>
+                <p class="wj-empty-state-title">Chưa có đơn hàng</p>
+                <p class="wj-empty-state-sub">Hiện chưa có đơn hàng nào để hiển thị.</p>
+                <p class="wj-empty-state-sub">Đơn mới sẽ xuất hiện tại đây khi được cập nhật.</p>
+                <a t-if="mhist_filtered" href="/portal/purchase-history" class="wj-empty-state-btn">Xóa lọc</a>
+                <button t-else="" type="button" class="wj-empty-state-btn" onclick="window.location.reload()">Tải lại</button>
+            </div>
+            <div t-if="rows" class="wujia-mhist-list">
+                <a t-foreach="rows" t-as="r" t-attf-href="/portal/purchase-history/#{r['id']}"
+                   class="wujia-mhist-row">
+                    <span class="wujia-mhist-row-main">
+                        <span class="wujia-mhist-row-code" t-out="r['name']"/>
+                        <span class="wujia-mhist-row-date"
+                              t-out="r['create_date'] and r['create_date'].strftime('%H:%M · %d/%m/%Y') or ''"/>
+                    </span>
+                    <span class="wujia-mhist-row-side">
+                        <span t-attf-class="wujia-badge #{mobile_badge.get(r['status_type'], 'wujia-badge-muted')}" t-out="r['state_label']"/>
+                        <span class="wujia-mhist-row-amount"
+                              t-out="money(r['amount_total'], r['currency_symbol'], r['currency_decimals'])"/>
+                    </span>
+                </a>
+            </div>
+
+            <!-- Pager -->
+            <nav t-if="pager and pager.get('page_count', 0) &gt; 1" class="wujia-mhist-pager">
+                <a t-attf-href="/portal/purchase-history?page=#{pager['page_previous']['num']}&amp;#{pager['querystring'] or ''}">«</a>
+                <span>Trang <t t-out="pager['page']['num']"/> / <t t-out="pager['page_count']"/></span>
+                <a t-attf-href="/portal/purchase-history?page=#{pager['page_next']['num']}&amp;#{pager['querystring'] or ''}">»</a>
+            </nav>
+        </div>
+    </template>
+
+    <!-- Fragment AJAX: cả 5 mảnh, JS thay từng khối theo id. -->
+    <template id="portal_history_results" name="Wujia Portal — History Results Fragment">
+        <div t-if="not no_store">
+            <t t-foreach="['pcerr', 'pc', 'merr', 'mchips', 'mbody']" t-as="pt">
+                <t t-call="wujia_portal_purchase_history.portal_history_results_part">
+                    <t t-set="part" t-value="pt"/>
+                </t>
+            </t>
+        </div>
+    </template>
+
     <!-- ============== List page ============== -->
     <template id="portal_history_list" name="Wujia Portal — Purchase History List">
         <t t-call="wujia_portal_layout.app_layout">
             <t t-set="title">Lịch sử đặt hàng</t>
-            <!-- status_type → badge CSS. Controller trả status_type ngữ nghĩa, template map sang
-                 hệ badge riêng (PC / mobile) — logic/label đã tập trung ở controller. -->
-            <t t-set="pc_badge" t-value="{'pending': 'wj-pc-badge--pending', 'sent': 'wj-pc-badge--sent', 'confirmed': 'wj-pc-badge--confirmed', 'transit': 'wj-pc-badge--transit', 'done': 'wj-pc-badge--done'}"/>
-            <t t-set="mobile_badge" t-value="{'pending': 'wujia-badge-muted', 'sent': 'wujia-badge-info', 'confirmed': 'wujia-badge-success', 'transit': 'wujia-badge-warning', 'done': 'wujia-badge-success'}"/>
+            <t t-call="wujia_portal_base.wj_ajax_list_config">
+                <t t-set="wjl_path" t-value="'/portal/purchase-history'"/>
+                <t t-set="wjl_slots"
+                   t-value="'wj-hist-pcerr,wj-hist-pc,wj-hist-merr,wj-hist-mchips,wj-hist-mbody'"/>
+                <t t-set="wjl_fragment" t-value="'/portal/purchase-history/results'"/>
+            </t>
             <div class="content-wrapper">
 
                 <!-- ============================================================
@@ -56,93 +225,15 @@
                                     <button type="submit" class="wj-pc-btn wj-pc-btn--primary">Tìm</button>
                                 </span>
                             </div>
-                            <!-- Lỗi khoảng ngày báo tại đây, KHÔNG dùng empty state (WJ-PH-007) -->
-                            <p t-if="filter_error" class="wj-filter-error" role="alert" t-out="filter_error"/>
+                            <t t-call="wujia_portal_purchase_history.portal_history_results_part">
+                                <t t-set="part" t-value="'pcerr'"/>
+                            </t>
                         </form>
 
                         <!-- Bảng danh sách đơn -->
-                        <div class="wj-pc-card">
-                            <div class="wj-pc-card__head">
-                                <div>
-                                    <h3 class="wj-pc-card__title">Danh sách đơn hàng</h3>
-                                    <p class="wj-pc-card__subtitle">Theo dõi đơn đặt hàng của cửa hàng đang thao tác</p>
-                                </div>
-                                <span t-if="rows" class="wj-pc-card__count"><t t-out="pager.get('page_total', len(rows))"/> bản ghi</span>
-                            </div>
-
-                            <!-- filter_error đã báo ở FilterBar → không hiện thêm empty state (2 thông điệp mâu thuẫn) -->
-                            <div t-if="not rows and not filter_error" class="wj-pc-empty">
-                                <span class="wj-pc-empty__icon"><i class="feather icon-inbox"/></span>
-                                <h3 class="wj-pc-empty__title">Chưa có đơn hàng</h3>
-                                <p class="wj-pc-empty__sub">Chưa có đơn hàng nào khớp bộ lọc.</p>
-                            </div>
-
-                            <table t-if="rows" class="wj-pc-table">
-                                <thead>
-                                    <tr>
-                                        <th>Mã đơn</th>
-                                        <th>Ngày tạo</th>
-                                        <th>Ngày xác nhận</th>
-                                        <th>Người đặt</th>
-                                        <th class="text-end">Tổng tiền</th>
-                                        <th>Batch / giao hàng</th>
-                                        <th>Trạng thái</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <tr t-foreach="rows" t-as="r">
-                                        <td class="wj-pc-td--code">
-                                            <a t-attf-href="/portal/purchase-history/#{r['id']}" class="wj-pc-link" t-out="r['name']"/>
-                                        </td>
-                                        <td class="wj-pc-td--muted" t-out="r['create_date'] and r['create_date'].strftime('%d/%m/%Y %H:%M') or '—'"/>
-                                        <td class="wj-pc-td--muted" t-out="r['date_order'] and r['date_order'].strftime('%d/%m/%Y') or '—'"/>
-                                        <td t-out="r['requester_display']"/>
-                                        <td class="text-end wj-pc-td--amount" t-out="money(r['amount_total'], r['currency_symbol'], r['currency_decimals'])"/>
-                                        <td t-out="r['batch_name'] or 'Chưa giao'"/>
-                                        <td>
-                                            <span t-attf-class="wj-pc-badge #{pc_badge.get(r['status_type'], 'wj-pc-badge--pending')}" t-out="r['state_label']"/>
-                                        </td>
-                                    </tr>
-                                </tbody>
-                            </table>
-
-                            <!-- Pagination: count trái, page-size + Trước [n] Sau phải.
-                                 Ẩn cả khối khi ≤10 bản ghi (BA cho phép); ngưỡng là option nhỏ
-                                 nhất, không phải page_size đang chọn — chọn 50 mà còn 20 bản ghi
-                                 thì vẫn phải bấm về 10 được (UI-PC-BASE-005). -->
-                            <div t-if="rows and pager['page_total'] &gt; 10" class="wj-pc-pagination">
-                                <span class="wj-pc-pagination__count">
-                                    Hiển thị <t t-out="pager['offset'] + 1"/>–<t t-out="pager['offset'] + pager['count']"/> / <t t-out="pager['page_total']"/> bản ghi
-                                </span>
-                                <!-- Đổi số dòng/trang = submit thật, giữ bộ lọc, quay về trang 1 -->
-                                <form method="get" action="/portal/purchase-history" class="wj-pc-pagination__size-form">
-                                    <input type="hidden" name="q" t-att-value="q"/>
-                                    <input type="hidden" name="date_from" t-att-value="date_from"/>
-                                    <input type="hidden" name="date_to" t-att-value="date_to"/>
-                                    <input type="hidden" name="state" t-att-value="state"/>
-                                    <select name="page_size" class="wj-pc-pagination__size"
-                                            aria-label="Số dòng mỗi trang" onchange="this.form.submit()">
-                                        <t t-foreach="[10, 20, 50]" t-as="ps">
-                                            <option t-att-value="ps"
-                                                    t-att-selected="'selected' if page_size == ps else None">
-                                                <t t-out="ps"/> / trang
-                                            </option>
-                                        </t>
-                                    </select>
-                                </form>
-                                <a t-attf-href="/portal/purchase-history?page=#{pager['page_previous']['num']}&amp;#{pager['querystring'] or ''}"
-                                   t-attf-class="wj-pc-page-btn #{'is-disabled' if pager['page']['num'] &lt;= 1 else ''}">Trước</a>
-                                <t t-foreach="pager['page_nums']" t-as="pn">
-                                    <span t-if="pn == '…'" class="wj-pc-page-btn">…</span>
-                                    <a t-else=""
-                                       t-attf-href="/portal/purchase-history?page=#{pn}&amp;#{pager['querystring'] or ''}"
-                                       t-attf-class="wj-pc-page-btn #{'is-active' if pn == pager['page']['num'] else ''}"
-                                       t-out="pn"/>
-                                </t>
-                                <a t-attf-href="/portal/purchase-history?page=#{pager['page_next']['num']}&amp;#{pager['querystring'] or ''}"
-                                   t-attf-class="wj-pc-page-btn #{'is-disabled' if pager['page']['num'] &gt;= pager['page_count'] else ''}">Sau</a>
-                            </div>
-                        </div>
+                        <t t-call="wujia_portal_purchase_history.portal_history_results_part">
+                            <t t-set="part" t-value="'pc'"/>
+                        </t>
                     </t>
                 </div>
                 <!-- /desktop -->
@@ -185,57 +276,17 @@
                                            t-att-min="date_from or None"/>
                                 </label>
                             </div>
-                            <!-- Lỗi khoảng ngày báo tại đây, KHÔNG dùng empty state (WJ-PH-007) -->
-                            <p t-if="filter_error" class="wj-filter-error" role="alert" t-out="filter_error"/>
-                            <div class="wj-filter-chips">
-                                <a href="/portal/purchase-history?preset=this_month"
-                                   t-attf-class="wj-filter-chip #{'is-active' if preset == 'this_month' else ''}">Tháng này</a>
-                                <a href="/portal/purchase-history?preset=last_month"
-                                   t-attf-class="wj-filter-chip #{'is-active' if preset == 'last_month' else ''}">Tháng trước</a>
-                                <a href="/portal/purchase-history?state=sale"
-                                   t-attf-class="wj-filter-chip #{'is-active' if state == 'sale' else ''}">Đã xác nhận</a>
-                                <a href="/portal/purchase-history" class="wj-filter-chip wj-filter-chip--clear">Xóa lọc</a>
-                            </div>
+                            <t t-call="wujia_portal_purchase_history.portal_history_results_part">
+                                <t t-set="part" t-value="'merr'"/>
+                            </t>
+                            <t t-call="wujia_portal_purchase_history.portal_history_results_part">
+                                <t t-set="part" t-value="'mchips'"/>
+                            </t>
                         </form>
 
-                        <!-- Header danh sách -->
-                        <div class="wujia-mhist-listhead">
-                            <span class="wujia-mhist-listhead-title">Danh sách đơn</span>
-                            <span class="wj-count-meta"><t t-out="len(rows)"/> đơn gần nhất</span>
-                        </div>
-
-                        <!-- Danh sách đơn -->
-                        <t t-set="mhist_filtered" t-value="q or date_from or date_to or preset or state"/>
-                        <div t-if="not rows and not filter_error" class="wj-empty-state wj-empty-state--rich">
-                            <span class="wj-empty-state-icon"/>
-                            <p class="wj-empty-state-title">Chưa có đơn hàng</p>
-                            <p class="wj-empty-state-sub">Hiện chưa có đơn hàng nào để hiển thị.</p>
-                            <p class="wj-empty-state-sub">Đơn mới sẽ xuất hiện tại đây khi được cập nhật.</p>
-                            <a t-if="mhist_filtered" href="/portal/purchase-history" class="wj-empty-state-btn">Xóa lọc</a>
-                            <button t-else="" type="button" class="wj-empty-state-btn" onclick="window.location.reload()">Tải lại</button>
-                        </div>
-                        <div t-if="rows" class="wujia-mhist-list">
-                            <a t-foreach="rows" t-as="r" t-attf-href="/portal/purchase-history/#{r['id']}"
-                               class="wujia-mhist-row">
-                                <span class="wujia-mhist-row-main">
-                                    <span class="wujia-mhist-row-code" t-out="r['name']"/>
-                                    <span class="wujia-mhist-row-date"
-                                          t-out="r['create_date'] and r['create_date'].strftime('%H:%M · %d/%m/%Y') or ''"/>
-                                </span>
-                                <span class="wujia-mhist-row-side">
-                                    <span t-attf-class="wujia-badge #{mobile_badge.get(r['status_type'], 'wujia-badge-muted')}" t-out="r['state_label']"/>
-                                    <span class="wujia-mhist-row-amount"
-                                          t-out="money(r['amount_total'], r['currency_symbol'], r['currency_decimals'])"/>
-                                </span>
-                            </a>
-                        </div>
-
-                        <!-- Pager -->
-                        <nav t-if="pager and pager.get('page_count', 0) &gt; 1" class="wujia-mhist-pager">
-                            <a t-attf-href="/portal/purchase-history?page=#{pager['page_previous']['num']}&amp;#{pager['querystring'] or ''}">«</a>
-                            <span>Trang <t t-out="pager['page']['num']"/> / <t t-out="pager['page_count']"/></span>
-                            <a t-attf-href="/portal/purchase-history?page=#{pager['page_next']['num']}&amp;#{pager['querystring'] or ''}">»</a>
-                        </nav>
+                        <t t-call="wujia_portal_purchase_history.portal_history_results_part">
+                            <t t-set="part" t-value="'mbody'"/>
+                        </t>
                     </t>
                 </div>
                 <!-- /mobile -->

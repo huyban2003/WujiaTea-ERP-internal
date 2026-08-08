@@ -4,6 +4,10 @@
     <template id="portal_info_request_list" name="Wujia Portal — Info Request List">
         <t t-call="wujia_portal_layout.app_layout">
             <t t-set="title">Yêu cầu cập nhật thông tin</t>
+            <t t-call="wujia_portal_base.wj_ajax_list_config">
+                <t t-set="wjl_path" t-value="'/portal/info-request'"/>
+                <t t-set="wjl_slots" t-value="'wj-inf-body'"/>
+            </t>
             <div class="content-wrapper">
                 <t t-call="wujia_portal_layout.wj_page_header">
                     <t t-set="ph_platform" t-value="'pc'"/>
@@ -60,6 +64,8 @@
                         </div>
                     </div>
 
+                    <!-- Vùng swap AJAX: bảng + pager (bộ lọc ngoài, JS đồng bộ theo URL). -->
+                    <div id="wj-inf-body">
                     <div class="wujia-content-card">
                         <div class="wujia-content-card-header">
                             <div class="wujia-content-card-header-icon">
@@ -129,6 +135,7 @@
                             </li>
                         </ul>
                     </nav>
+                    </div>
                 </div>
             </div>
         </t>

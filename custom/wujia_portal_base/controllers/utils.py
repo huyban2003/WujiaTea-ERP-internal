@@ -258,6 +258,50 @@ def paginate(model, domain, page=1, page_size=20, order='id desc',
     }
 
 
+def page_numbers(current, last, edge=1, around=1):
+    """Windowed page list cho numbered pager: [1, '…', 4, 5, 6, '…', 20]."""
+    if last < 1:
+        return []
+    keep = set(range(1, edge + 1)) | set(range(last - edge + 1, last + 1))
+    keep |= set(range(current - around, current + around + 1))
+    pages = sorted(p for p in keep if 1 <= p <= last)
+    result, prev = [], 0
+    for p in pages:
+        if prev and p - prev > 1:
+            result.append('…')
+        result.append(p)
+        prev = p
+    return result
+
+
+def group_counts(model, domain, field, groups=None, total_key='all'):
+    """Đếm bản ghi theo nhóm cho chip lọc — MỘT `_read_group`, không N `search_count`.
+
+    N `search_count` là N lần chạy lại nguyên domain; domain portal thường join qua
+    m2o/o2m (picking_ids, batch_id…) nên với 1500 user đây là phần đắt nhất của trang.
+    Group-by chạy trên field đã index, gộp lại bằng Python.
+
+    Args:
+        groups: {tên chip: [giá trị field]} để gộp nhiều trạng thái vào 1 chip.
+                None → mỗi giá trị field là một chip.
+    Returns:
+        dict {tên chip: số lượng} + total_key = tổng. Chip không có bản ghi vẫn trả 0.
+    """
+    Model = model if hasattr(model, '_read_group') else request.env[model]
+    value_to_group = {v: g for g, values in (groups or {}).items() for v in values}
+    counts = {total_key: 0}
+    counts.update({g: 0 for g in (groups or {})})
+    for value, count in Model._read_group(domain, groupby=[field], aggregates=['__count']):
+        counts[total_key] += count
+        if groups is None:
+            counts[value] = counts.get(value, 0) + count
+        else:
+            group = value_to_group.get(value)
+            if group:
+                counts[group] += count
+    return counts
+
+
 # ---------------------------------------------------------------------------
 # Form re-render helper (PRG anti-pattern fallback)
 # ---------------------------------------------------------------------------

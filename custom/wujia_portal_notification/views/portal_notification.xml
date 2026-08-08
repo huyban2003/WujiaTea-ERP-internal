@@ -2,13 +2,225 @@
 <odoo>
 
     <!-- ============== List ============== -->
-    <template id="portal_notification_list" name="Wujia Portal — Notification List">
-        <t t-call="wujia_portal_layout.app_layout">
-            <t t-set="title">Thông báo</t>
-            <!-- Mobile — loại→icon/tone-màu; ưu tiên→badge (keys BA: normal/important/urgent) -->
+    <!-- ============== Khối kết quả (swap được bằng AJAX khi lọc) ==============
+         5 mảnh dùng chung trang đầy đủ và /portal/notification/results: chip nhanh PC,
+         card bảng PC, bộ đếm mobile, chip mobile, thân danh sách + pager mobile. -->
+    <template id="portal_notification_results_part" name="Wujia Portal — Notification Results Part">
+        <!-- Mobile — loại→icon/tone-màu; ưu tiên→badge (keys BA: normal/important/urgent) -->
             <t t-set="WJ_TONE" t-value="{'URG': 'red', 'GEN': 'cyan', 'PROMO': 'amber', 'SYS': 'violet', 'OTH': 'green'}"/>
             <t t-set="WJ_ICON" t-value="{'URG': 'icon-alert-triangle', 'GEN': 'icon-bell', 'PROMO': 'icon-gift', 'SYS': 'icon-settings', 'OTH': 'icon-info'}"/>
             <t t-set="WJ_PTAG" t-value="{'urgent': ('Cần làm', 'wujia-badge-success', 'icon-check-circle'), 'important': ('Quan trọng', 'wujia-badge-warning', 'icon-alert-triangle'), 'normal': ('Thông thường', 'wujia-badge-info', 'icon-info')}"/>
+
+        <div t-if="part == 'pcchips'" id="wj-noti-pcchips" class="wj-filter-chips wj-pc-noti-chips">
+            <a t-attf-href="/portal/notification#{('?keyword=' + keyword) if keyword else ''}"
+               t-attf-class="wj-filter-chip #{'is-active' if not unread and not priority else ''}">Tất cả</a>
+            <a t-attf-href="/portal/notification?unread=1#{('&amp;keyword=' + keyword) if keyword else ''}"
+               t-attf-class="wj-filter-chip #{'is-active' if unread else ''}">Chưa đọc</a>
+            <a t-attf-href="/portal/notification?priority=important#{('&amp;keyword=' + keyword) if keyword else ''}"
+               t-attf-class="wj-filter-chip #{'is-active' if priority == 'important' else ''}">Quan trọng</a>
+            <a t-attf-href="/portal/notification?priority=urgent#{('&amp;keyword=' + keyword) if keyword else ''}"
+               t-attf-class="wj-filter-chip #{'is-active' if priority == 'urgent' else ''}">Cần làm</a>
+        </div>
+
+        <div t-if="part == 'pc'" id="wj-noti-pc" class="wj-pc-card">
+            <div class="wj-pc-card__head">
+                <div>
+                    <h3 class="wj-pc-card__title wj-pc-card__title--sm">Danh sách thông báo</h3>
+                    <p class="wj-pc-card__subtitle">Hiển thị thông báo còn hiệu lực, đúng đối tượng nhận.</p>
+                </div>
+                <div class="wj-pc-noti-head-actions">
+                    <span t-if="cnt_unread" class="wj-pc-badge wj-pc-badge--cancel"><t t-out="cnt_unread"/> chưa đọc</span>
+                    <button type="button" id="wj-noti-bulk-read" class="wj-pc-btn wj-pc-btn--primary">
+                        <i class="feather icon-check-circle"/>Đánh dấu đã đọc
+                    </button>
+                </div>
+            </div>
+
+            <div t-if="not notifications" class="wj-pc-empty">
+                <span class="wj-pc-empty__icon"><i class="feather icon-bell"/></span>
+                <h3 class="wj-pc-empty__title">Không có thông báo</h3>
+                <p class="wj-pc-empty__sub">Không có thông báo nào khớp bộ lọc hiện tại.</p>
+            </div>
+
+            <table t-else="" class="wj-pc-table wj-pc-noti-table" id="wj-noti-table">
+                <thead>
+                    <tr>
+                        <th>Loại</th>
+                        <th>Thông báo</th>
+                        <th>Ngày gửi</th>
+                        <th>Trạng thái</th>
+                        <th class="text-end">Thao tác</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <t t-foreach="notifications" t-as="n">
+                        <t t-set="is_read" t-value="n.id in read_ids"/>
+                        <tr t-attf-class="wj-pc-noti-row #{'' if is_read else 'wj-pc-noti-row--unread'}"
+                            t-att-data-noti-id="n.id">
+                            <td>
+                                <span class="wj-pc-noti-type-chip">
+                                    <t t-if="n.type_id" t-out="n.type_id.name"/><t t-else="">—</t>
+                                </span>
+                            </td>
+                            <td>
+                                <div class="wj-pc-noti-title-cell">
+                                    <span t-attf-class="wj-pc-noti-title #{'' if is_read else 'wj-pc-noti-title--unread'}">
+                                        <span t-if="not is_read" class="wj-pc-noti-dot"/>
+                                        <t t-out="n.name"/>
+                                    </span>
+                                    <span t-if="n.summary" class="wj-pc-noti-summary" t-out="n.summary"/>
+                                </div>
+                            </td>
+                            <td class="wj-pc-td--muted" t-out="n.published_date and n.published_date.strftime('%d/%m/%Y') or '—'"/>
+                            <td>
+                                <span t-if="not is_read" class="wj-pc-badge wj-pc-badge--cancel">Chưa đọc</span>
+                                <span t-else="" class="wj-pc-badge wj-pc-badge--pending">Đã đọc</span>
+                                <span t-if="n.is_expired" class="wj-pc-badge wj-pc-badge--confirmed">Đã hết hiệu lực</span>
+                            </td>
+                            <td class="text-end">
+                                <a t-attf-href="/portal/notification/#{n.id}" class="wj-pc-link">Xem</a>
+                            </td>
+                        </tr>
+                    </t>
+                </tbody>
+            </table>
+
+            <!-- Pagination — pager keys của notification: page/page_count/page_previous/page_next.
+                 Ẩn cả khối khi ≤10 thông báo (BA cho phép); ngưỡng là option nhỏ nhất,
+                 không phải page_size đang chọn (UI-PC-BASE-005). -->
+            <div t-if="notifications and pager and total &gt; 10" class="wj-pc-pagination">
+                <span class="wj-pc-pagination__count">
+                    Hiển thị <t t-out="(pager['page']['num'] - 1) * page_size + 1"/>–<t t-out="min(pager['page']['num'] * page_size, total)"/> / <t t-out="total"/> thông báo
+                </span>
+                <!-- Đổi số dòng/trang = submit thật, giữ bộ lọc, quay về trang 1 -->
+                <form method="get" action="/portal/notification" class="wj-pc-pagination__size-form">
+                    <input type="hidden" name="keyword" t-att-value="keyword or ''"/>
+                    <input type="hidden" name="type_id" t-att-value="type_id or ''"/>
+                    <input type="hidden" name="read_status" t-att-value="read_status or ''"/>
+                    <input type="hidden" name="unread" t-att-value="unread or ''"/>
+                    <input type="hidden" name="date_from" t-att-value="date_from or ''"/>
+                    <input type="hidden" name="date_to" t-att-value="date_to or ''"/>
+                    <input type="hidden" name="priority" t-att-value="priority or ''"/>
+                    <input type="hidden" name="tab" t-att-value="tab or ''"/>
+                    <select name="limit" class="wj-pc-pagination__size"
+                            aria-label="Số dòng mỗi trang" onchange="this.form.requestSubmit()">
+                        <t t-foreach="[10, 20, 50]" t-as="ps">
+                            <option t-att-value="ps"
+                                    t-att-selected="'selected' if page_size == ps else None">
+                                <t t-out="ps"/> / trang
+                            </option>
+                        </t>
+                    </select>
+                </form>
+                <a t-attf-href="/portal/notification?page=#{pager['page_previous']['num']}&amp;#{pager.get('querystring','')}"
+                   t-attf-class="wj-pc-page-btn #{'is-disabled' if pager['page']['num'] &lt;= 1 else ''}">Trước</a>
+                <t t-foreach="range(1, pager['page_count'] + 1)" t-as="pn">
+                    <a t-attf-href="/portal/notification?page=#{pn}&amp;#{pager.get('querystring','')}"
+                       t-attf-class="wj-pc-page-btn #{'is-active' if pn == pager['page']['num'] else ''}"
+                       t-out="pn"/>
+                </t>
+                <a t-attf-href="/portal/notification?page=#{pager['page_next']['num']}&amp;#{pager.get('querystring','')}"
+                   t-attf-class="wj-pc-page-btn #{'is-disabled' if pager['page']['num'] &gt;= pager['page_count'] else ''}">Sau</a>
+            </div>
+        </div>
+
+        <p t-if="part == 'mcount'" id="wj-noti-mcount" class="wj-count-meta wujia-mnoti-count">
+            <t t-out="total"/> thông báo • <t t-out="cnt_unread"/> chưa đọc
+        </p>
+
+        <div t-if="part == 'mchips'" id="wj-noti-mchips" class="wj-filter-chips">
+            <a t-attf-href="/portal/notification#{('?keyword=' + keyword) if keyword else ''}"
+               t-attf-class="wj-filter-chip #{'is-active' if not unread and not priority else ''}">Tất cả</a>
+            <a t-attf-href="/portal/notification?unread=1#{('&amp;keyword=' + keyword) if keyword else ''}"
+               t-attf-class="wj-filter-chip #{'is-active' if unread else ''}">Chưa đọc</a>
+            <a t-attf-href="/portal/notification?priority=important#{('&amp;keyword=' + keyword) if keyword else ''}"
+               t-attf-class="wj-filter-chip #{'is-active' if priority == 'important' else ''}">Quan trọng</a>
+            <a t-attf-href="/portal/notification?priority=urgent#{('&amp;keyword=' + keyword) if keyword else ''}"
+               t-attf-class="wj-filter-chip #{'is-active' if priority == 'urgent' else ''}">Cần làm</a>
+        </div>
+
+        <div t-if="part == 'mbody'" id="wj-noti-mbody" class="wj-ajax-slot">
+            <!-- List -->
+            <div t-if="not notifications" class="wj-empty-state wj-empty-state--rich">
+                <span class="wj-empty-state-icon"/>
+                <p class="wj-empty-state-title">Chưa có thông báo</p>
+                <p class="wj-empty-state-sub">Hiện chưa có thông báo nào để hiển thị.</p>
+                <p class="wj-empty-state-sub">Thông báo từ HQ sẽ hiển thị tại đây khi có.</p>
+                <a t-if="keyword or unread" href="/portal/notification" class="wj-empty-state-btn">Xóa lọc</a>
+                <button t-else="" type="button" class="wj-empty-state-btn" onclick="window.location.reload()">Tải lại</button>
+            </div>
+            <div t-else="" class="wujia-mnoti-list">
+                <t t-foreach="notifications" t-as="n">
+                    <t t-set="is_read" t-value="n.id in read_ids"/>
+                    <!-- UI tạm: icon/màu theo loại + badge theo độ ưu tiên (derive field sẵn có; BA/controller tinh chỉnh sau) -->
+                    <t t-set="tone" t-value="WJ_TONE.get(n.type_id.code, 'cyan')"/>
+                    <t t-set="ticon" t-value="WJ_ICON.get(n.type_id.code, 'icon-bell')"/>
+                    <t t-set="ptag" t-value="WJ_PTAG.get(n.priority)"/>
+                    <a t-attf-href="/portal/notification/#{n.id}"
+                       t-attf-class="wujia-mnoti-row #{'' if is_read else 'is-unread'}">
+                        <span t-attf-class="wujia-mnoti-row-icon wujia-mnoti-tone-#{tone}">
+                            <i t-attf-class="feather #{ticon}"/>
+                        </span>
+                        <span class="wujia-mnoti-row-main">
+                            <span class="wujia-mnoti-row-title" t-out="n.name"/>
+                            <span class="wujia-mnoti-row-source">
+                                <t t-out="n.type_id.name"/><t t-if="n.dispatch_number"> • <t t-out="n.dispatch_number"/></t>
+                            </span>
+                            <span class="wujia-mnoti-row-tags">
+                                <span t-if="ptag" t-attf-class="wujia-badge #{ptag[1]}">
+                                    <i t-attf-class="feather #{ptag[2]}"/><t t-out="ptag[0]"/>
+                                </span>
+                                <span t-if="n.is_expired" class="wujia-badge wujia-badge-muted">
+                                    <i class="feather icon-clock"/>Đã hết hiệu lực
+                                </span>
+                                <span t-if="n.attachment_ids" class="wujia-badge wujia-badge-info">
+                                    <i class="feather icon-paperclip"/>Có file
+                                </span>
+                            </span>
+                        </span>
+                        <span class="wujia-mnoti-row-side">
+                            <span t-if="not is_read" class="wujia-mnoti-row-dot"/>
+                            <span class="wujia-mnoti-row-date"
+                                  t-out="n.published_date and n.published_date.strftime('%d/%m/%Y · %H:%M') or ''"/>
+                        </span>
+                    </a>
+                </t>
+            </div>
+
+            <!-- Pager gọn -->
+            <div t-if="pager and pager.get('page_count', 0) &gt; 1" class="wujia-mnoti-pager">
+                <a t-if="pager['page']['num'] &gt; 1"
+                   t-attf-href="/portal/notification?page=#{pager['page_previous']['num']}&amp;#{pager.get('querystring','')}"
+                   class="wujia-mnoti-pager-btn">‹</a>
+                <span>Trang <t t-out="pager['page']['num']"/>/<t t-out="pager['page_count']"/></span>
+                <a t-if="pager['page']['num'] &lt; pager['page_count']"
+                   t-attf-href="/portal/notification?page=#{pager['page_next']['num']}&amp;#{pager.get('querystring','')}"
+                   class="wujia-mnoti-pager-btn">›</a>
+            </div>
+        </div>
+
+    </template>
+
+    <!-- Fragment AJAX: cả 5 mảnh, JS thay từng khối theo id. -->
+    <template id="portal_notification_results" name="Wujia Portal — Notification Results Fragment">
+        <div>
+            <t t-foreach="['pcchips', 'pc', 'mcount', 'mchips', 'mbody']" t-as="pt">
+                <t t-call="wujia_portal_notification.portal_notification_results_part">
+                    <t t-set="part" t-value="pt"/>
+                </t>
+            </t>
+        </div>
+    </template>
+
+    <template id="portal_notification_list" name="Wujia Portal — Notification List">
+        <t t-call="wujia_portal_layout.app_layout">
+            <t t-set="title">Thông báo</t>
+            <t t-call="wujia_portal_base.wj_ajax_list_config">
+                <t t-set="wjl_path" t-value="'/portal/notification'"/>
+                <t t-set="wjl_slots"
+                   t-value="'wj-noti-pcchips,wj-noti-pc,wj-noti-mcount,wj-noti-mchips,wj-noti-mbody'"/>
+                <t t-set="wjl_fragment" t-value="'/portal/notification/results'"/>
+            </t>
             <!-- Desktop ≥992px — Figma PC_Notification_List (4683:101) -->
             <div class="content-wrapper d-none d-lg-block">
                 <t t-call="wujia_portal_layout.wj_page_header">
@@ -63,119 +275,14 @@
                     </div>
                 </form>
                 <!-- Quick chips: dưới filter card, trên bảng (Figma 4683:101 — strip riêng) -->
-                <div class="wj-filter-chips wj-pc-noti-chips">
-                    <a t-attf-href="/portal/notification#{('?keyword=' + keyword) if keyword else ''}"
-                       t-attf-class="wj-filter-chip #{'is-active' if not unread and not priority else ''}">Tất cả</a>
-                    <a t-attf-href="/portal/notification?unread=1#{('&amp;keyword=' + keyword) if keyword else ''}"
-                       t-attf-class="wj-filter-chip #{'is-active' if unread else ''}">Chưa đọc</a>
-                    <a t-attf-href="/portal/notification?priority=important#{('&amp;keyword=' + keyword) if keyword else ''}"
-                       t-attf-class="wj-filter-chip #{'is-active' if priority == 'important' else ''}">Quan trọng</a>
-                    <a t-attf-href="/portal/notification?priority=urgent#{('&amp;keyword=' + keyword) if keyword else ''}"
-                       t-attf-class="wj-filter-chip #{'is-active' if priority == 'urgent' else ''}">Cần làm</a>
-                </div>
+                <t t-call="wujia_portal_notification.portal_notification_results_part">
+                    <t t-set="part" t-value="'pcchips'"/>
+                </t>
 
                 <!-- Bảng danh sách -->
-                <div class="wj-pc-card">
-                    <div class="wj-pc-card__head">
-                        <div>
-                            <h3 class="wj-pc-card__title wj-pc-card__title--sm">Danh sách thông báo</h3>
-                            <p class="wj-pc-card__subtitle">Hiển thị thông báo còn hiệu lực, đúng đối tượng nhận.</p>
-                        </div>
-                        <div class="wj-pc-noti-head-actions">
-                            <span t-if="cnt_unread" class="wj-pc-badge wj-pc-badge--cancel"><t t-out="cnt_unread"/> chưa đọc</span>
-                            <button type="button" id="wj-noti-bulk-read" class="wj-pc-btn wj-pc-btn--primary">
-                                <i class="feather icon-check-circle"/>Đánh dấu đã đọc
-                            </button>
-                        </div>
-                    </div>
-
-                    <div t-if="not notifications" class="wj-pc-empty">
-                        <span class="wj-pc-empty__icon"><i class="feather icon-bell"/></span>
-                        <h3 class="wj-pc-empty__title">Không có thông báo</h3>
-                        <p class="wj-pc-empty__sub">Không có thông báo nào khớp bộ lọc hiện tại.</p>
-                    </div>
-
-                    <table t-else="" class="wj-pc-table wj-pc-noti-table" id="wj-noti-table">
-                        <thead>
-                            <tr>
-                                <th>Loại</th>
-                                <th>Thông báo</th>
-                                <th>Ngày gửi</th>
-                                <th>Trạng thái</th>
-                                <th class="text-end">Thao tác</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <t t-foreach="notifications" t-as="n">
-                                <t t-set="is_read" t-value="n.id in read_ids"/>
-                                <tr t-attf-class="wj-pc-noti-row #{'' if is_read else 'wj-pc-noti-row--unread'}"
-                                    t-att-data-noti-id="n.id">
-                                    <td>
-                                        <span class="wj-pc-noti-type-chip">
-                                            <t t-if="n.type_id" t-out="n.type_id.name"/><t t-else="">—</t>
-                                        </span>
-                                    </td>
-                                    <td>
-                                        <div class="wj-pc-noti-title-cell">
-                                            <span t-attf-class="wj-pc-noti-title #{'' if is_read else 'wj-pc-noti-title--unread'}">
-                                                <span t-if="not is_read" class="wj-pc-noti-dot"/>
-                                                <t t-out="n.name"/>
-                                            </span>
-                                            <span t-if="n.summary" class="wj-pc-noti-summary" t-out="n.summary"/>
-                                        </div>
-                                    </td>
-                                    <td class="wj-pc-td--muted" t-out="n.published_date and n.published_date.strftime('%d/%m/%Y') or '—'"/>
-                                    <td>
-                                        <span t-if="not is_read" class="wj-pc-badge wj-pc-badge--cancel">Chưa đọc</span>
-                                        <span t-else="" class="wj-pc-badge wj-pc-badge--pending">Đã đọc</span>
-                                        <span t-if="n.is_expired" class="wj-pc-badge wj-pc-badge--confirmed">Đã hết hiệu lực</span>
-                                    </td>
-                                    <td class="text-end">
-                                        <a t-attf-href="/portal/notification/#{n.id}" class="wj-pc-link">Xem</a>
-                                    </td>
-                                </tr>
-                            </t>
-                        </tbody>
-                    </table>
-
-                    <!-- Pagination — pager keys của notification: page/page_count/page_previous/page_next.
-                         Ẩn cả khối khi ≤10 thông báo (BA cho phép); ngưỡng là option nhỏ nhất,
-                         không phải page_size đang chọn (UI-PC-BASE-005). -->
-                    <div t-if="notifications and pager and total &gt; 10" class="wj-pc-pagination">
-                        <span class="wj-pc-pagination__count">
-                            Hiển thị <t t-out="(pager['page']['num'] - 1) * page_size + 1"/>–<t t-out="min(pager['page']['num'] * page_size, total)"/> / <t t-out="total"/> thông báo
-                        </span>
-                        <!-- Đổi số dòng/trang = submit thật, giữ bộ lọc, quay về trang 1 -->
-                        <form method="get" action="/portal/notification" class="wj-pc-pagination__size-form">
-                            <input type="hidden" name="keyword" t-att-value="keyword or ''"/>
-                            <input type="hidden" name="type_id" t-att-value="type_id or ''"/>
-                            <input type="hidden" name="read_status" t-att-value="read_status or ''"/>
-                            <input type="hidden" name="unread" t-att-value="unread or ''"/>
-                            <input type="hidden" name="date_from" t-att-value="date_from or ''"/>
-                            <input type="hidden" name="date_to" t-att-value="date_to or ''"/>
-                            <input type="hidden" name="priority" t-att-value="priority or ''"/>
-                            <input type="hidden" name="tab" t-att-value="tab or ''"/>
-                            <select name="limit" class="wj-pc-pagination__size"
-                                    aria-label="Số dòng mỗi trang" onchange="this.form.submit()">
-                                <t t-foreach="[10, 20, 50]" t-as="ps">
-                                    <option t-att-value="ps"
-                                            t-att-selected="'selected' if page_size == ps else None">
-                                        <t t-out="ps"/> / trang
-                                    </option>
-                                </t>
-                            </select>
-                        </form>
-                        <a t-attf-href="/portal/notification?page=#{pager['page_previous']['num']}&amp;#{pager.get('querystring','')}"
-                           t-attf-class="wj-pc-page-btn #{'is-disabled' if pager['page']['num'] &lt;= 1 else ''}">Trước</a>
-                        <t t-foreach="range(1, pager['page_count'] + 1)" t-as="pn">
-                            <a t-attf-href="/portal/notification?page=#{pn}&amp;#{pager.get('querystring','')}"
-                               t-attf-class="wj-pc-page-btn #{'is-active' if pn == pager['page']['num'] else ''}"
-                               t-out="pn"/>
-                        </t>
-                        <a t-attf-href="/portal/notification?page=#{pager['page_next']['num']}&amp;#{pager.get('querystring','')}"
-                           t-attf-class="wj-pc-page-btn #{'is-disabled' if pager['page']['num'] &gt;= pager['page_count'] else ''}">Sau</a>
-                    </div>
-                </div>
+                <t t-call="wujia_portal_notification.portal_notification_results_part">
+                    <t t-set="part" t-value="'pc'"/>
+                </t>
             </div>
 
             <!-- Mobile &lt;992px — Figma Screen_Notification_List_v9 (4651:686) -->
@@ -185,9 +292,9 @@
                     <t t-set="ph_variant" t-value="'title'"/>
                     <t t-set="ph_title">Thông báo</t>
                 </t>
-                <p class="wj-count-meta wujia-mnoti-count">
-                    <t t-out="total"/> thông báo • <t t-out="cnt_unread"/> chưa đọc
-                </p>
+                <t t-call="wujia_portal_notification.portal_notification_results_part">
+                    <t t-set="part" t-value="'mcount'"/>
+                </t>
 
                 <!-- Filter canonical 01-ChipSlide (Figma 4785:562) — keyword + chips (hidden unread) -->
                 <form method="get" action="/portal/notification" class="wj-filter-card">
@@ -200,75 +307,14 @@
                         <button type="submit" class="wj-filter-search-btn"><i class="feather icon-search"/></button>
                     </div>
                     <!-- Tất cả / Chưa đọc / Quan trọng / Cần làm — đều functional (keys BA) -->
-                    <div class="wj-filter-chips">
-                        <a t-attf-href="/portal/notification#{('?keyword=' + keyword) if keyword else ''}"
-                           t-attf-class="wj-filter-chip #{'is-active' if not unread and not priority else ''}">Tất cả</a>
-                        <a t-attf-href="/portal/notification?unread=1#{('&amp;keyword=' + keyword) if keyword else ''}"
-                           t-attf-class="wj-filter-chip #{'is-active' if unread else ''}">Chưa đọc</a>
-                        <a t-attf-href="/portal/notification?priority=important#{('&amp;keyword=' + keyword) if keyword else ''}"
-                           t-attf-class="wj-filter-chip #{'is-active' if priority == 'important' else ''}">Quan trọng</a>
-                        <a t-attf-href="/portal/notification?priority=urgent#{('&amp;keyword=' + keyword) if keyword else ''}"
-                           t-attf-class="wj-filter-chip #{'is-active' if priority == 'urgent' else ''}">Cần làm</a>
-                    </div>
+                    <t t-call="wujia_portal_notification.portal_notification_results_part">
+                        <t t-set="part" t-value="'mchips'"/>
+                    </t>
                 </form>
 
-                <!-- List -->
-                <div t-if="not notifications" class="wj-empty-state wj-empty-state--rich">
-                    <span class="wj-empty-state-icon"/>
-                    <p class="wj-empty-state-title">Chưa có thông báo</p>
-                    <p class="wj-empty-state-sub">Hiện chưa có thông báo nào để hiển thị.</p>
-                    <p class="wj-empty-state-sub">Thông báo từ HQ sẽ hiển thị tại đây khi có.</p>
-                    <a t-if="keyword or unread" href="/portal/notification" class="wj-empty-state-btn">Xóa lọc</a>
-                    <button t-else="" type="button" class="wj-empty-state-btn" onclick="window.location.reload()">Tải lại</button>
-                </div>
-                <div t-else="" class="wujia-mnoti-list">
-                    <t t-foreach="notifications" t-as="n">
-                        <t t-set="is_read" t-value="n.id in read_ids"/>
-                        <!-- UI tạm: icon/màu theo loại + badge theo độ ưu tiên (derive field sẵn có; BA/controller tinh chỉnh sau) -->
-                        <t t-set="tone" t-value="WJ_TONE.get(n.type_id.code, 'cyan')"/>
-                        <t t-set="ticon" t-value="WJ_ICON.get(n.type_id.code, 'icon-bell')"/>
-                        <t t-set="ptag" t-value="WJ_PTAG.get(n.priority)"/>
-                        <a t-attf-href="/portal/notification/#{n.id}"
-                           t-attf-class="wujia-mnoti-row #{'' if is_read else 'is-unread'}">
-                            <span t-attf-class="wujia-mnoti-row-icon wujia-mnoti-tone-#{tone}">
-                                <i t-attf-class="feather #{ticon}"/>
-                            </span>
-                            <span class="wujia-mnoti-row-main">
-                                <span class="wujia-mnoti-row-title" t-out="n.name"/>
-                                <span class="wujia-mnoti-row-source">
-                                    <t t-out="n.type_id.name"/><t t-if="n.dispatch_number"> • <t t-out="n.dispatch_number"/></t>
-                                </span>
-                                <span class="wujia-mnoti-row-tags">
-                                    <span t-if="ptag" t-attf-class="wujia-badge #{ptag[1]}">
-                                        <i t-attf-class="feather #{ptag[2]}"/><t t-out="ptag[0]"/>
-                                    </span>
-                                    <span t-if="n.is_expired" class="wujia-badge wujia-badge-muted">
-                                        <i class="feather icon-clock"/>Đã hết hiệu lực
-                                    </span>
-                                    <span t-if="n.attachment_ids" class="wujia-badge wujia-badge-info">
-                                        <i class="feather icon-paperclip"/>Có file
-                                    </span>
-                                </span>
-                            </span>
-                            <span class="wujia-mnoti-row-side">
-                                <span t-if="not is_read" class="wujia-mnoti-row-dot"/>
-                                <span class="wujia-mnoti-row-date"
-                                      t-out="n.published_date and n.published_date.strftime('%d/%m/%Y · %H:%M') or ''"/>
-                            </span>
-                        </a>
-                    </t>
-                </div>
-
-                <!-- Pager gọn -->
-                <div t-if="pager and pager.get('page_count', 0) &gt; 1" class="wujia-mnoti-pager">
-                    <a t-if="pager['page']['num'] &gt; 1"
-                       t-attf-href="/portal/notification?page=#{pager['page_previous']['num']}&amp;#{pager.get('querystring','')}"
-                       class="wujia-mnoti-pager-btn">‹</a>
-                    <span>Trang <t t-out="pager['page']['num']"/>/<t t-out="pager['page_count']"/></span>
-                    <a t-if="pager['page']['num'] &lt; pager['page_count']"
-                       t-attf-href="/portal/notification?page=#{pager['page_next']['num']}&amp;#{pager.get('querystring','')}"
-                       class="wujia-mnoti-pager-btn">›</a>
-                </div>
+                <t t-call="wujia_portal_notification.portal_notification_results_part">
+                    <t t-set="part" t-value="'mbody'"/>
+                </t>
             </div>
         </t>
     </template>

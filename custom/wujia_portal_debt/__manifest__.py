@@ -1,8 +1,8 @@
 {
     'name': 'Wujia Portal — Công nợ & thanh toán',
-    'version': '19.0.2.2.0',
+    'version': '19.0.3.1.0',
     'category': 'Wujia',
-    'summary': 'Công nợ theo tuần, lịch sử thanh toán và màn chuyển khoản (portal mobile)',
+    'summary': 'Công nợ theo tuần, lịch sử thanh toán và màn chuyển khoản (portal mobile + PC)',
     'description': """
 Wujia Portal — Công nợ & thanh toán
 ===================================
@@ -13,6 +13,12 @@ Dựng 7 màn Figma ``WJ_Debt_..._MVP_v31`` (page Dashboard, node 5013).
 seam đọc ``account.move``/``account.payment`` scope theo ``franchise_id`` (3 field custom
 ở module ``wujia_account``), badge công nợ dùng field store perf, controller chặn Staff.
 Template/CSS/JS KHÔNG đổi — chỉ ruột seam + controller guard.
+**Sprint 49** — giao diện PC 1920×1080 (BA task Tasks!STT10, Figma ``WJ_Debt_PC_MVP_v1_1``
+node 5077): khối desktop ``.wj-debt-pc`` (d-none d-lg-block) bám hệ ``wj-pc-*``/shell
+``pc_source_ui_v1_5`` — tab Công nợ/Lịch sử, filter, summary 3 cột (5 biến thể state),
+bảng hoá đơn phân trang, empty box, modal QR. Mobile giữ nguyên (bọc ``d-lg-none``).
+Seam mở rộng **additive** (mỗi hoá đơn thêm ``total/paid/remaining``; ``get_payments``
+thêm ``keyword``) + controller thêm context PC — KHÔNG đổi field/rule/migration.
 """,
     'author': 'WujiaTea',
     'license': 'LGPL-3',

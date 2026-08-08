@@ -7,8 +7,8 @@ from odoo.http import request
 
 from odoo.addons.wujia_portal_base.controllers.portal import get_active_franchise_id
 from odoo.addons.wujia_portal_base.controllers.utils import (
-    local_day_range_utc, portal_line_price_vals, portal_money, portal_tax_mapper,
-    portal_tz, to_local_dt,
+    local_day_range_utc, page_numbers, portal_line_price_vals, portal_money,
+    portal_tax_mapper, portal_tz, to_local_dt,
 )
 
 
@@ -52,22 +52,6 @@ BACKEND_REQUESTER_LABEL = 'Ngô Gia tạo đơn'
 ERR_NO_STORE = 'Không xác định được cửa hàng đang thao tác. Vui lòng chọn lại cửa hàng.'
 ERR_NOT_FOUND = 'Không tìm thấy đơn hàng hoặc bạn không có quyền xem đơn hàng này.'
 ERR_DATE_RANGE = 'Từ ngày không được lớn hơn Đến ngày'
-
-
-def _page_numbers(current, last, edge=1, around=1):
-    """Windowed page list cho numbered pager: [1, '…', 4, 5, 6, '…', 20]."""
-    if last < 1:
-        return []
-    keep = set(range(1, edge + 1)) | set(range(last - edge + 1, last + 1))
-    keep |= set(range(current - around, current + around + 1))
-    pages = sorted(p for p in keep if 1 <= p <= last)
-    result, prev = [], 0
-    for p in pages:
-        if prev and p - prev > 1:
-            result.append('…')
-        result.append(p)
-        prev = p
-    return result
 
 
 def _parse_date(value):
@@ -223,9 +207,9 @@ class WujiaPortalHistory(http.Controller):
         opts += [(key, meta[0]) for key, meta in DELIVERY_OVERRIDE_META.items()]
         return opts
 
-    @http.route(['/portal/purchase-history'], type='http', auth='user', sitemap=False)
-    def portal_history_list(self, page=1, page_size=PAGE_SIZE, date_from='', date_to='',
-                            state='', preset='', q='', **kw):
+    def _history_list_values(self, page=1, page_size=PAGE_SIZE, date_from='', date_to='',
+                             state='', preset='', q='', **kw):
+        """Context danh sách đơn — dùng chung cho trang đầy đủ và fragment AJAX."""
         SO = request.env['sale.order'].sudo()
         base_ctx = {
             'date_from': '', 'date_to': '', 'state': '', 'preset': '', 'q': '',
@@ -237,8 +221,7 @@ class WujiaPortalHistory(http.Controller):
 
         fid = get_active_franchise_id()
         if not fid:
-            return request.render('wujia_portal_purchase_history.portal_history_list', dict(
-                base_ctx, no_store=True, error=ERR_NO_STORE, rows=[], pager={}))
+            return dict(base_ctx, no_store=True, error=ERR_NO_STORE, rows=[], pager={})
 
         # Preset shortcut → khoảng create_date.
         today = date.today()
@@ -255,10 +238,9 @@ class WujiaPortalHistory(http.Controller):
         # WJ-PH-007 — khoảng ngày đảo ngược: không chạy query, giữ nguyên 2 ô đã nhập,
         # báo lỗi TẠI FilterBar (empty state "Chưa có đơn hàng" làm người dùng tưởng hết dữ liệu).
         if df and dt and df > dt:
-            return request.render('wujia_portal_purchase_history.portal_history_list', dict(
-                base_ctx, no_store=False, error='', rows=[], pager={},
-                date_from=date_from, date_to=date_to, state=state, preset=preset, q=q,
-                filter_error=ERR_DATE_RANGE))
+            return dict(base_ctx, no_store=False, error='', rows=[], pager={},
+                        date_from=date_from, date_to=date_to, state=state, preset=preset,
+                        q=q, filter_error=ERR_DATE_RANGE)
 
         tz = portal_tz()
 
@@ -311,16 +293,26 @@ class WujiaPortalHistory(http.Controller):
             'page_count': last_page, 'page_total': total,
             'page_previous': {'num': max(1, page - 1)},
             'page_next': {'num': min(last_page, page + 1)},
-            'page_nums': _page_numbers(page, last_page),
+            'page_nums': page_numbers(page, last_page),
             'offset': offset, 'count': len(rows),
             'querystring': self._qs(date_from=date_from, date_to=date_to, state=state, q=q,
                                     page_size=page_size if page_size != PAGE_SIZE else ''),
         }
 
-        return request.render('wujia_portal_purchase_history.portal_history_list', dict(
-            base_ctx, no_store=False, error='', rows=rows, pager=pager,
-            date_from=date_from, date_to=date_to, state=state, preset=preset, q=q,
-            page_size=page_size))
+        return dict(base_ctx, no_store=False, error='', rows=rows, pager=pager,
+                    date_from=date_from, date_to=date_to, state=state, preset=preset, q=q,
+                    page_size=page_size)
+
+    @http.route(['/portal/purchase-history'], type='http', auth='user', sitemap=False)
+    def portal_history_list(self, **kw):
+        return request.render('wujia_portal_purchase_history.portal_history_list',
+                              self._history_list_values(**kw))
+
+    @http.route(['/portal/purchase-history/results'], type='http', auth='user', sitemap=False)
+    def portal_history_results(self, **kw):
+        """Fragment các khối kết quả cho lọc AJAX — cùng context, bỏ shell portal."""
+        return request.render('wujia_portal_purchase_history.portal_history_results',
+                              self._history_list_values(**kw))
 
     @http.route(['/portal/purchase-history/<int:order_id>'],
                 type='http', auth='user', sitemap=False)

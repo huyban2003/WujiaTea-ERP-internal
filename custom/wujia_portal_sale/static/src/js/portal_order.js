@@ -38,27 +38,29 @@
 
     document.addEventListener("DOMContentLoaded", function () {
         // Catalog: Add-to-cart (desktop + mobile) — server tự tăng theo bước min_qty.
-        document.querySelectorAll(".btn-add-cart").forEach(function (btn) {
-            btn.addEventListener("click", function (ev) {
-                ev.preventDefault();
-                const productId = parseInt(btn.dataset.productId, 10);
-                btn.disabled = true;
-                jsonRpc("/portal/order/cart/add", { product_id: productId })
-                    .then(function (res) {
-                        btn.disabled = false;
-                        if (res.error) {
-                            toast(errText(res), false);
-                            return;
-                        }
-                        if (res.warning) toast(res.message, false);
-                        else toast("Đã thêm vào giỏ (" + res.qty + ")", true);
-                        syncCart();
-                    })
-                    .catch(function () {
-                        btn.disabled = false;
-                        toast("Lỗi kết nối", false);
-                    });
-            });
+        // Delegation: nút nằm trong vùng swap của wj_ajax_list (lọc/phân trang thay DOM),
+        // bind trực tiếp sẽ mất listener sau lần lọc đầu.
+        document.addEventListener("click", function (ev) {
+            const btn = ev.target.closest ? ev.target.closest(".btn-add-cart") : null;
+            if (!btn || btn.disabled) return;
+            ev.preventDefault();
+            const productId = parseInt(btn.dataset.productId, 10);
+            btn.disabled = true;
+            jsonRpc("/portal/order/cart/add", { product_id: productId })
+                .then(function (res) {
+                    btn.disabled = false;
+                    if (res.error) {
+                        toast(errText(res), false);
+                        return;
+                    }
+                    if (res.warning) toast(res.message, false);
+                    else toast("Đã thêm vào giỏ (" + res.qty + ")", true);
+                    syncCart();
+                })
+                .catch(function () {
+                    btn.disabled = false;
+                    toast("Lỗi kết nối", false);
+                });
         });
 
         // Product detail: Add-to-cart (có ô nhập số lượng).
