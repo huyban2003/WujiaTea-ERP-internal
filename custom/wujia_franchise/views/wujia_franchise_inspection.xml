@@ -125,7 +125,7 @@
                                         string="Nội dung kiểm tra checklist"
                                     />
 
-                                    <field name="criterion_type_snapshot"
+                                    <!-- <field name="criterion_type_snapshot"
                                         readonly="1"
                                         force_save="1"
                                         string="Loại tiêu chí"
@@ -138,7 +138,7 @@
                                         readonly="1"
                                         force_save="1"
                                         string="Điểm trừ vi phạm"
-                                        invisible="display_type == 'section'" />
+                                        invisible="display_type == 'section'" /> -->
 
                                     <field name="is_pass"
                                         widget="boolean_toggle"
@@ -175,9 +175,15 @@
                                         invisible="display_type == 'section'"
                                         required="not is_pass and require_evidence_if_fail and display_type == 'line'" />
 
-                                    <field name="remediation_state" decoration-danger="remediation_state == 'need_remediation'" decoration-warning="remediation_state == 'remediated'" decoration-success="remediation_state == 'done'" column_invisible="parent.state not in ['need_remediation', 'done']" invisible="display_type == 'section'"/>
+                                    <field name="remediation_state"
+                                        decoration-danger="remediation_state == 'need_remediation'"
+                                        decoration-warning="remediation_state == 'remediated'"
+                                        decoration-success="remediation_state == 'done'"
+                                        column_invisible="parent.state not in ['need_remediation', 'done']"
+                                        invisible="display_type == 'section'" />
                                     <field name="remediation_note"
                                         placeholder="Ghi chú khắc phục của cửa hàng..."
+                                        column_invisible="parent.state not in ['need_remediation', 'done']"
                                         invisible="display_type == 'section'" />
 
                                     <field name="remediation_image"
@@ -185,6 +191,7 @@
                                         options="{'size': [50, 50]}"
                                         string="Ảnh sau khắc phục"
                                         invisible="display_type == 'section'"
+                                        column_invisible="parent.state not in ['need_remediation', 'done']"
                                         readonly="parent.state not in ('need_remediation', 'in_progress', 'draft')" />
                                 </list>
                             </field>
