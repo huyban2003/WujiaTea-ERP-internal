@@ -1,0 +1,222 @@
+\chapter{Sprint 50 --- Trạng thái trống dữ liệu trang Home Mobile (SVG BA $391\times1734$) (2026-08-09)}
+
+\section{Bối cảnh}
+
+Task BA \texttt{Tasks!STT11} (\emph{``Portal / Trang chủ Mobile --- Điều chỉnh giao diện trạng
+thái trống dữ liệu trang Home Mobile''}, giao 2026-08-09, ưu tiên Cao, loại UI-Issue,
+\texttt{Sẵn sàng cho AI = Yes}, \textbf{\texttt{Cho phép tự deploy = No}}).
+
+Nhánh mobile của Home (\texttt{wujia\_portal\_base/views/portal\_home.xml}, khối
+\texttt{.wujia-mhome} \texttt{d-lg-none}) đang dùng \textbf{4 kiểu empty khác nhau} cho 5 block
+danh sách: \texttt{wujia-empty-state} (icon feather $+$ 1 dòng) ở Thông báo,
+\texttt{wj-empty-state--compact} (chỉ 1 dòng chữ 13px) ở Đơn hàng/Kiến thức, và cùng class đó
+nhưng \emph{bọc thêm} \texttt{.wujia-mdash-card} ở Giao hàng/Đổi trả. Nhìn rời rạc, không có icon
+lẫn câu giải thích ``khi nào thì có dữ liệu''.
+
+Đồng thời tile KPI \textbf{Công nợ} in ``0 đ'' \emph{ngay cả khi chưa hề có chứng từ kế toán} ---
+sai nghĩa kế toán: \texttt{portal\_debt\_remaining} bằng $0$ ở \textbf{cả hai} trường hợp ``chưa
+đồng bộ'' và ``đã trả hết''.
+
+Đính kèm BA: file \texttt{Wujia\_Home\_Mobile\_Empty\_State.svg} ($391\times1734$), link Drive
+nằm ở hyperlink của ô \texttt{Tasks!E12} --- \textbf{không phải} ở nội dung ô (CSV export chỉ ra
+tên file; phải đọc hyperlink qua \texttt{export?format=xlsx} $+$ openpyxl).
+
+Phạm vi: \textbf{UI-only $+$ 1 seam đọc}. Out-of-scope BA ghi rõ --- không redesign trạng thái có
+dữ liệu, không đụng Desktop, không đổi model/field/controller contract/phân quyền/logic kế toán,
+\textbf{không thêm button/CTA trong block}, không tự deploy.
+
+\section{Số đo lấy từ SVG (getBBox, không ước lượng)}
+
+Text trong SVG là \emph{outline path} (không có node \texttt{<text>}) $\Rightarrow$ không đọc
+được bằng regex. Cách lấy số thật: nhúng SVG inline vào một trang HTML, mở bằng Chromium
+(Playwright) rồi gọi \texttt{getBBox()} trên từng \texttt{<path>}.
+
+\begin{center}
+\begin{tabular}{ll}
+\hline
+\textbf{Thành phần} & \textbf{Giá trị} \\
+\hline
+Card empty & $x=16$, $w=359$, $h=108$, nền trắng, viền nhẹ, radius 16 \\
+Tile icon & $44\times44$ tại $x=32$, cách mép trên card $32$, nền \texttt{\#E9F7FC} \\
+Text block & bắt đầu $x=90.6$ (gap tile$\rightarrow$text $\approx15$) \\
+Tiêu đề & cap-box $h=14.2$ $\Rightarrow$ 16px/700 \\
+2 dòng phụ & 14px/400, khoảng cách dòng 17.7 \\
+Pitch 2 card & 162px \\
+KPI Công nợ & hiển thị \textbf{---} thay vì ``0 đ'' \\
+\hline
+\end{tabular}
+\end{center}
+
+Mockup vẽ \textbf{5 card}, \emph{không} có block ``Công nợ tóm tắt'' riêng --- Acceptance \#1 đếm
+6 block là tính cả tile KPI Công nợ trong hero (Acceptance \#5 xác nhận).
+
+\section{4 fork đã chốt với chủ dự án}
+
+\begin{itemize}
+  \item \textbf{Thứ tự block}: mockup khác code cũ $\Rightarrow$ chốt \emph{sắp lại theo mockup}
+    (Thông báo $\rightarrow$ Giao hàng $\rightarrow$ Đơn hàng $\rightarrow$ Kiến thức
+    $\rightarrow$ Đổi trả). Chỉ đổi vị trí \texttt{<section>}, không sửa ruột danh sách.
+  \item \textbf{Link ``Xem tất cả''}: mockup không vẽ, nhưng Acceptance \#3 chỉ cấm CTA
+    \emph{bên trong} block $\Rightarrow$ \textbf{giữ nguyên}, ghi câu hỏi lên sheet.
+  \item \textbf{KPI Công nợ}: chốt thêm \emph{1 query đếm chỉ ở Home} (không đổi schema, không
+    đụng đường chạy trên mọi trang).
+  \item \textbf{2 khối ``Hỗ trợ nhanh'' / ``Thông tin cửa hàng''}: mockup không vẽ nhưng không
+    phải data-driven $\Rightarrow$ \textbf{giữ nguyên}, ghi câu hỏi lên sheet.
+\end{itemize}
+
+\section{Đã làm}
+
+\subsection{\texttt{wujia\_portal\_layout} \texttt{19.0.31.12.0} $\rightarrow$ \texttt{19.0.31.13.0}}
+
+\texttt{static/assets/css/\_components.css} --- \textbf{chỉ THÊM} modifier
+\texttt{.wj-empty-state--row}, không sửa một dòng selector cũ (file này 8 module dùng chung,
+blast radius toàn portal --- bài học S47). Tái dùng \texttt{.wj-empty-state-icon} sẵn có; nhánh
+\texttt{:has(> i)} vốn là circle 64 nên modifier ghi đè thành vuông 44 radius 12. \textbf{Không}
+dùng \texttt{.wj-empty-state-btn} (Acceptance \#3 cấm CTA).
+
+\begin{lstlisting}
+.wj-empty-state--row {
+    display: flex;  align-items: center;  gap: 14px;
+    min-height: 108px;  padding: 22px 15px;  text-align: left;
+    background: var(--wujia-morder-card-bg);
+    border: 1px solid var(--wujia-border-soft);
+    border-radius: var(--wujia-card-radius);
+}
+/* flex:0 0 44px vi `.wj-empty-state-icon` khong co flex-shrink rieng ->
+   bi co theo chieu dai mo ta (do duoc 36px truoc khi pin). */
+.wj-empty-state--row .wj-empty-state-icon {
+    flex: 0 0 44px;  width: 44px;  height: 44px;
+    margin-bottom: 0;  border-radius: 12px;
+}
+\end{lstlisting}
+
+Cặp \texttt{padding: 22px 15px} $+$ \texttt{min-height: 108px} $+$ \texttt{align-items: center}
+là nghiệm khớp mockup ở \emph{cả hai} tình huống: mô tả 2 dòng $\Rightarrow$ nội dung $61.4$px,
+cộng padding $44$ và border $2$ ra $107.4 < 108$ nên \texttt{min-height} thắng, box đúng $108$ và
+canh giữa đẩy tile về đúng $dy=32$; mô tả 1 dòng $\Rightarrow$ vẫn $108$.
+
+\subsection{\texttt{wujia\_portal\_base} \texttt{19.0.6.0.0} $\rightarrow$ \texttt{19.0.7.0.0}}
+
+\texttt{views/portal\_home.xml}, \textbf{chỉ trong} \texttt{<div class="wujia-mhome d-lg-none">}:
+
+\begin{itemize}
+  \item Sắp lại 5 \texttt{<section>} theo mockup (di chuyển nguyên khối).
+  \item Thay 5 empty-state cũ bằng markup chung; card empty \textbf{là chính nó}, không lồng
+    trong \texttt{.wujia-mdash-card} như Giao hàng/Đổi trả trước đây (tránh double-border).
+  \item Tile KPI Công nợ fallback (khi \texttt{wujia\_portal\_debt} chưa cài):
+    \texttt{money(0, \ldots)} $\rightarrow$ \texttt{---}.
+  \item Nhánh PC (\texttt{wujia-content-card-empty}) \textbf{không đụng}.
+\end{itemize}
+
+Nội dung 5 block bám mockup: Thông báo ``Bạn đã xem hết thông báo'' / Giao hàng ``Chưa có chuyến
+giao sắp tới'' / Đơn hàng ``Chưa có đơn hàng'' / Kiến thức ``Chưa có bài viết mới'' / Đổi trả
+``Chưa có yêu cầu đổi trả'', mỗi block kèm 1 câu giải thích khi nào dữ liệu xuất hiện.
+
+\subsection{\texttt{wujia\_portal\_debt} \texttt{19.0.3.1.0} $\rightarrow$ \texttt{19.0.3.2.0}}
+
+Thêm \texttt{get\_home\_debt\_kpi()} --- method \textbf{mới, additive};
+\texttt{get\_shell\_badge()} giữ nguyên từng byte vì nó chạy trên \emph{mọi} trang mobile và phải
+giữ 0 query. Không model, không field $\Rightarrow$ \textbf{không migration}.
+
+\begin{lstlisting}[language=Python]
+@api.model
+def get_home_debt_kpi(self):
+    badge = self.get_shell_badge()
+    franchise_id = ...  # resolve tu session, khong tin client
+    has_data = bool(franchise_id) and bool(
+        self.env['account.move'].sudo().search_count([
+            ('franchise_id', '=', franchise_id),
+            ('move_type', 'in', _DEBT_MOVE_TYPES),
+            ('state', '=', 'posted'),
+        ], limit=1))
+    badge['has_data'] = has_data
+    if not has_data:
+        badge['remaining_label'] = '—'
+    return badge
+\end{lstlisting}
+
+\texttt{views/home\_kpi\_inherit.xml} đổi \texttt{t-set} sang method mới;
+\texttt{bottomnav\_inherit.xml} \textbf{không đụng}.
+
+\section{Lý do / Trade-off}
+
+\textbf{Vì sao không thêm field store để biết ``đã đồng bộ chưa''.} Cách chính xác nhất là một
+field store$+$index trên \texttt{wujia.franchise.management} tính trong cùng cron/hook của
+\texttt{wujia\_account} ($0$ query). Nhưng Out-of-scope của task cấm đổi model/field, nên chọn
+phương án \emph{1 count trên cột đã có index}, và tách hẳn ra method riêng để đường chạy nóng
+(\texttt{get\_shell\_badge} trên bottom-nav mọi trang) không gánh thêm query nào. Đổi lại Home
+tốn thêm đúng 1 query/lần tải --- chấp nhận được ở 1500 user, và có thể nâng cấp thành field
+store sau khi BA mở scope.
+
+\textbf{Vì sao giữ ``Xem tất cả'' và 2 khối cuối.} Mockup thiếu chúng nhưng Acceptance chỉ cấm
+CTA \emph{trong} block, còn 2 khối cuối không phải trạng thái dữ liệu. Bỏ đi là \emph{redesign},
+đúng thứ Out-of-scope cấm --- nên giữ và hỏi BA, không tự quyết.
+
+\section{Verify}
+
+Chạy trên \textbf{DB copy cô lập} \texttt{wujia\_tea\_s50} (cổng 8050, \emph{không} đụng
+\texttt{wujia\_tea\_19}/8019), xoá sạch sau khi xong:
+
+\begin{itemize}
+  \item \texttt{-u wujia\_portal\_layout,wujia\_portal\_base,wujia\_portal\_debt
+    --stop-after-init}: \textbf{RC$=$0}, 0 ERROR/CRITICAL/Traceback.
+  \item \texttt{--test-tags wujia\_debt}: \textbf{19 test, 0 failed / 0 error} (chứng minh
+    \texttt{get\_shell\_badge} không hồi quy).
+  \item Harness Playwright đo bbox $+$ computed-style vs node SVG: \textbf{ALL OK} --- card
+    $359\times108$, tile $44\times44$ tại $x=32$ $dy=32$, text $x=90$, title 16/700, sub
+    14/17.7; không block nào chứa \texttt{<a>}/\texttt{<button>}.
+  \item Responsive \textbf{391 / 375 / 360}: overflow ngang $=0$, không card nào chồng/chạm biên.
+  \item Regression store CÓ dữ liệu: render 12 row, empty-state không xuất hiện; đổi cửa hàng
+    hiện hành vẫn đúng trạng thái.
+  \item KPI Công nợ đủ 2 vế Acceptance \#5: chưa có chứng từ $\rightarrow$ \texttt{---}; tạo 1
+    hoá đơn posted dư nợ $0$ $\rightarrow$ \texttt{0 \$}.
+  \item Smoke 6 trang portal (\texttt{order}, \texttt{notification}, \texttt{delivery},
+    \texttt{return}, \texttt{support}, \texttt{franchise-information}): 200, overflow $=0$,
+    0 JS pageerror --- empty-state cũ (\texttt{--compact}, \texttt{--rich}) không đổi hình.
+  \item Build lại trên \texttt{wujia\_tea\_19}: RC$=$0, 96 module, 0 ERROR, 19 test 0 failed.
+\end{itemize}
+
+\section{Bài học}
+
+\begin{itemize}
+  \item \textbf{Đính kèm của BA có thể nằm ở \emph{hyperlink} của ô, không phải nội dung ô.}
+    \texttt{Tasks!E12} chỉ chứa chuỗi ``\texttt{Wujia\_Home\_Mobile\_Empty\_State.svg}''; file
+    thật ở link Drive gắn vào ô đó. CSV export \textbf{mất} hyperlink $\Rightarrow$ phải tải
+    \texttt{export?format=xlsx} rồi đọc \texttt{cell.hyperlink.target} bằng openpyxl. Tìm file
+    trên Drive bằng tên cũng trượt (file nằm ngoài phạm vi search của tài khoản đang dùng).
+  \item \textbf{SVG Figma xuất ra thường là outline path, không có \texttt{<text>}}. Muốn lấy số
+    đo thì nhúng inline vào trang rồi \texttt{getBBox()} --- parse thủ công lệnh path
+    (\texttt{H}/\texttt{V} xen kẽ toạ độ) cho ra bbox \emph{sai hoàn toàn}.
+  \item \textbf{Comment XML không được chứa \texttt{--}}. Ghi tên class modifier
+    (\texttt{.wj-empty-state--row}) vào comment $\Rightarrow$ file XML hỏng
+    (\emph{not well-formed}). Diễn đạt bằng chữ thay vì dán tên class.
+  \item \textbf{Icon trong flexbox phải pin \texttt{flex: 0 0 <size>}}. Tile đo được $36$px thay
+    vì $44$ vì \texttt{.wj-empty-state-icon} chỉ đặt \texttt{width}, không có
+    \texttt{flex-shrink} --- mô tả càng dài thì icon càng bị bóp.
+  \item \textbf{Nguồn chân lý là node, harness sai thì sửa harness} (L7 tái khẳng định): harness
+    báo FAIL ``KPI Công nợ'' trong khi code đúng --- nhãn KPI bị \texttt{text-transform:
+    uppercase} nên so chuỗi ``Công nợ'' trượt. Sửa harness, không sửa code.
+  \item \textbf{Dữ liệu ``rỗng'' của Home không rỗng theo cửa hàng}: Thông báo và Kiến thức là
+    nguồn toàn hệ thống, nên cửa hàng mới tinh vẫn thấy 2 khối đó có dữ liệu. Muốn đo đủ 5
+    empty-state phải tắt nguồn 2 danh sách này \emph{trên DB copy}, và chạy regression
+    ``có dữ liệu'' \emph{trước} khi tắt.
+  \item \textbf{\texttt{pkill -f} gộp chung dòng lệnh với thứ khác vẫn tự giết chính nó} (exit
+    144) --- lặp lại đúng bẫy đã ghi ở L8; tách lệnh dọn ra một dòng riêng.
+\end{itemize}
+
+\section{Bàn giao}
+
+\texttt{Tasks!STT11} $\rightarrow$ \textbf{Ready for Retest} (Dev không tự đóng \texttt{Done}),
+kèm 4 câu hỏi ở cột \emph{Câu hỏi Dev (AI)}. Đã verify lại bằng \texttt{export?format=csv}: cột
+A--N của BA nguyên vẹn.
+
+\textbf{CHƯA DEPLOY} --- task ghi \texttt{Cho phép tự deploy = No}. Lệnh khi deploy:
+\texttt{-u wujia\_portal\_layout,wujia\_portal\_base,wujia\_portal\_debt} (\emph{không}
+\texttt{-i}, \emph{không} migration, \emph{không} cần bump \texttt{?v=}).
+
+\textbf{LIMIT}: (a) chỗ ngắt dòng của mô tả rộng hơn mockup vài chữ do không giới hạn cứng bề
+rộng cột chữ (chiều cao card vẫn đúng $108$); (b) màu chữ quy về token design-system
+(\texttt{\#111827}/\texttt{\#6B7280}) thay vì hex rời của bản SVG
+(\texttt{\#1F2933}/\texttt{\#74808C}) theo quy ước ``không hex cứng''; (c) hoá đơn demo trên UAT
+đang là USD nên tile Công nợ hiện ký hiệu \texttt{\$} --- dữ liệu test, không phải lỗi UI (cùng
+ghi chú từ S48/S49).

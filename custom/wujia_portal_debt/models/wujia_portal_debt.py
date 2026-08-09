@@ -216,6 +216,34 @@ class WujiaPortalDebt(models.AbstractModel):
             'currency_decimals': store_currency.decimal_places or 0,
         }
 
+    @api.model
+    def get_home_debt_kpi(self):
+        """Tile KPI Công nợ ở Home mobile — phân biệt "chưa có dữ liệu" với 0đ thật.
+
+        `portal_debt_remaining` = 0 ở CẢ hai trường hợp: cửa hàng chưa hề có chứng từ
+        kế toán, và cửa hàng đã trả hết. In "0 đ" cho trường hợp đầu là sai nghĩa kế
+        toán (STT11 acceptance #5) ⇒ đếm thêm 1 lần xem có chứng từ nào không.
+
+        ⚠️ CHỈ Home gọi (1 lần/trang, `franchise_id` store+index, `limit=1`).
+        Shell/bottomnav vẫn dùng `get_shell_badge()` để giữ 0 query trên mọi trang."""
+        badge = self.get_shell_badge()
+        try:
+            from odoo.addons.wujia_portal_base.controllers.portal import (
+                get_active_franchise_id,
+            )
+            franchise_id = get_active_franchise_id()
+        except Exception:  # noqa: BLE001 — render backend/cron: không có request
+            franchise_id = False
+        has_data = bool(franchise_id) and bool(self.env['account.move'].sudo().search_count([
+            ('franchise_id', '=', franchise_id),
+            ('move_type', 'in', _DEBT_MOVE_TYPES),
+            ('state', '=', 'posted'),
+        ], limit=1))
+        badge['has_data'] = has_data
+        if not has_data:
+            badge['remaining_label'] = '—'
+        return badge
+
     # ------------------------------------------------------------------
     # Kỳ thanh toán (màn 06) — CT-054
     # ------------------------------------------------------------------

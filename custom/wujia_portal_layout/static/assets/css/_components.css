@@ -416,6 +416,33 @@ h2, .wujia-h2 { font-size: var(--wujia-font-size-h2) !important; font-weight: 60
 .wj-empty-state-btn > i { font-size: 15px; line-height: 1; }
 .wj-empty-state-btn:hover,
 .wj-empty-state-btn:focus { background: var(--wujia-primary-dark); color: #FFFFFF; }
+/* --row = empty-state ngang cho các block Home mobile (SVG BA 391×1734, card 359×108:
+   tile 44 tại x=32/y=+32, text từ x=90.6). KHÔNG có CTA — thao tác nằm ở Hành động nhanh. */
+.wj-empty-state--row {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    min-height: 108px;
+    padding: 22px 15px;
+    text-align: left;
+    background: var(--wujia-morder-card-bg);
+    border: 1px solid var(--wujia-border-soft);
+    border-radius: var(--wujia-card-radius);
+}
+/* Ghi đè circle-64 của nhánh :has(> i) → square 44 như mockup.
+   flex:0 0 44px vì `.wj-empty-state-icon` không có flex-shrink riêng → bị co
+   theo chiều dài mô tả (đo được 36px trước khi pin). */
+.wj-empty-state--row .wj-empty-state-icon {
+    flex: 0 0 44px;
+    width: 44px;
+    height: 44px;
+    margin-bottom: 0;
+    border-radius: 12px;
+}
+.wj-empty-state--row .wj-empty-state-icon > i { font-size: 20px; }
+.wj-empty-state--row .wj-empty-state-body { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+.wj-empty-state--row .wj-empty-state-title { font-size: 16px; line-height: 20px; text-align: left; }
+.wj-empty-state--row .wj-empty-state-sub { font-size: 14px; line-height: 17.7px; text-align: left; }
 
 /* ---------- UI-14: Responsive — let detail panel stack on tablet/mobile ---------- */
 @media (max-width: 991.98px) {
