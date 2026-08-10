@@ -34,20 +34,50 @@ tr.text-warning td,
     font-weight: 500 !important;
 }
 
+/* Inactive badges */
 .o_selection_badge[value='"need_remediation"'] {
+    background-color: #fff3cd !important;
+    color: #fd7e14 !important;
+    border: 1.5px solid #fd7e14 !important;
+    opacity: 0.85;
+}
+.o_selection_badge[value='"remediated"'] {
+    background-color: #e2e3e5 !important;
+    color: #0707ff !important;
+    border: 1.5px solid #0707ff !important;
+    opacity: 0.85;
+}
+.o_selection_badge[value='"done"'] {
+    background-color: #d4edda !important;
+    color: #28a745 !important;
+    border: 1.5px solid #28a745 !important;
+    opacity: 0.85;
+}
+
+/* Active badges */
+.o_selection_badge[value='"need_remediation"'].active {
     background-color: #fd7e14 !important;
     color: #ffffff !important;
+    border: 2px solid #b25902 !important;
+    box-shadow: 0 0 0 3px rgba(253, 126, 20, 0.3) !important;
+    font-weight: bold !important;
+    opacity: 1 !important;
 }
-
-
-.o_selection_badge[value='"done"'] {
-    background-color: #28a745 !important;
-    color: #ffffff !important;
-}
-
-.o_selection_badge[value='"remediated"'] {
+.o_selection_badge[value='"remediated"'].active {
     background-color: #0707ff !important;
     color: #ffffff !important;
+    border: 2px solid #0303b2 !important;
+    box-shadow: 0 0 0 3px rgba(7, 7, 255, 0.3) !important;
+    font-weight: bold !important;
+    opacity: 1 !important;
+}
+.o_selection_badge[value='"done"'].active {
+    background-color: #28a745 !important;
+    color: #ffffff !important;
+    border: 2px solid #1e7e34 !important;
+    box-shadow: 0 0 0 3px rgba(40, 167, 69, 0.3) !important;
+    font-weight: bold !important;
+    opacity: 1 !important;
 }
 .badge[raw-value="need_remediation"] {
     background-color: #fd7e14 !important;
