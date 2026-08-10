@@ -1,0 +1,176 @@
+\chapter{Sprint 51 --- Rule ưu tiên Issue List, chuẩn hoá UI Component, batch B0$+$B1 Exam (2026-08-10)}
+
+\section{Bối cảnh}
+
+Session này \textbf{không} chạy theo tab \texttt{Tasks} mà theo yêu cầu của chủ dự án: ghi lại ba
+quy tắc vận hành, rồi mở màn chuỗi batch cho tab \texttt{5. Issue List}.
+
+Ba việc cần ghi:
+
+\begin{enumerate}
+  \item \texttt{Tasks!STT1} (\emph{``Fix lỗi issue list''}, ưu tiên Cao, trỏ tab
+    \texttt{5. Issue List}) là \textbf{task thường trực, ưu tiên số 1}. Trước sprint này
+    \texttt{/wujia-start} \emph{không hề đọc} tab Issue List $\Rightarrow$ issue BA log lên bị bỏ
+    sót. Bằng chứng: \textbf{WJ-ORD-023 đã fix từ 2026-08-04 (commit \texttt{63dc4bc}) nhưng đến
+    2026-08-10 sheet vẫn ghi \texttt{Ready for Dev}} --- không ai sync ngược.
+  \item \textbf{Không ``bùm phát làm hết''} --- 12 issue \texttt{Ready for Dev} phải chia batch
+    theo module $+$ blast radius, mỗi session một mẻ. Kèm yêu cầu chất lượng: code hiện hơi
+    phình, comment quá dày $\Rightarrow$ khi fix phải gọn lại, comment 1 dòng đủ ý.
+  \item Tab mới \textbf{\texttt{UI Component}} (gid \texttt{488333015}) là chuẩn component dùng
+    chung toàn portal, phải hiểu và map ngược về Issue List.
+\end{enumerate}
+
+\section{Tab \texttt{UI Component} --- đọc được gì}
+
+Sheet có \textbf{hai khối} nằm chung một tab:
+
+\begin{itemize}
+  \item \textbf{Khối 1} (dòng 1--23): danh mục \textbf{23 component} / 9 nhóm (Global Shell,
+    Navigation, Page Structure, Container, Filter, Detail, Status, Data Display, Feedback,
+    Action, Domain). Mỗi dòng chỉ có Component ID, nhóm, nhận diện trên portal, quan hệ/boundary,
+    ví dụ.
+  \item \textbf{Khối 2} (từ dòng 29): spec đầy đủ (Mục tiêu, Hiện trạng, Spec chuẩn hoá,
+    Variants, Màn hình áp dụng, Acceptance, Out-of-scope, Priority, Status). \textbf{Mới có 2
+    dòng}: \texttt{CMP-PG-001} (PageHeader) và \texttt{CMP-BPH-001} (BackPageHeader,
+    Status $=$ \texttt{BA Confirmed}). \textbf{21 component còn lại chưa có spec}.
+\end{itemize}
+
+Hai tab nối nhau qua cột \texttt{Related Feature ID}: \texttt{UI-PAGEHEADER-001} $\rightarrow$
+\texttt{CMP-PG-001}, \texttt{UI-BACKPAGEHEADER-001} $\rightarrow$ \texttt{CMP-BPH-001}. Nói cách
+khác Issue List là \emph{kênh triển khai $+$ retest} của tab UI Component; 10 issue còn lại là
+lỗi lẻ, không gắn component.
+
+\textbf{Chốt với chủ dự án}: 21 component chưa có spec thì \textbf{chờ BA viết}, không tự đoán
+px/màu (đúng rule Ask-don't-assume).
+
+\section{Bảng batch B0--B4}
+
+\begin{center}
+\begin{tabular}{lll}
+\hline
+\textbf{Batch} & \textbf{Issue} & \textbf{Module} \\
+\hline
+B0 reconcile (0 code) & WJ-ORD-023 & --- \\
+B1 Exam (6 issue, 1 lần \texttt{-u}) & WJ-EXAM-001\ldots006 & \texttt{wujia\_portal\_exam} \\
+B2 lỗi dữ liệu & WJ-NOTI-001, WJ-PROD-001 & \texttt{..\_notification}, \texttt{wujia\_sale} \\
+B3 CMP-PG-001 (tách B3a/B3b) & UI-PAGEHEADER-001 & \texttt{wujia\_portal\_layout} $+$ 24 file \\
+B4 CMP-BPH-001 $+$ shell & UI-BACKPAGEHEADER-001, FUNC-MOB-SHELL-005 & \texttt{..\_layout}, \texttt{..\_base} \\
+\hline
+\end{tabular}
+\end{center}
+
+Session này làm \textbf{B0 $+$ B1}. B2 để sau vì WJ-PROD-001 có fork phải hỏi (cột DB là
+\texttt{jsonb} nhưng model khai \texttt{fields.Char}); B3/B4 là việc component, để session riêng.
+
+\section{Nơi ghi rule}
+
+\begin{itemize}
+  \item \texttt{\textasciitilde/.claude/commands/wujia-start.md} --- thêm \textbf{Step 2b} (bắt
+    buộc, trước khi hỏi task): chạy \texttt{issue\_queue.py --dev}, reconcile code$\leftrightarrow$sheet
+    bằng \texttt{git log -S"<ID>"} $+$ \texttt{grep -rn "<ID>" custom/} \emph{trước khi} nhận
+    việc, bám bảng batch, mỗi issue xong phải đối chiếu cột \texttt{Kết quả mong muốn} đạt
+    $\ge90\%$. Snapshot Step 3 thêm dòng \texttt{Issue List: <n> Ready for Dev --- batch kế: <Bx>}.
+  \item \texttt{docs/wujia-compact-summary.md} --- §5 Pending, §7 (rule ưu tiên), §12 (gotcha
+    ``\texttt{Ready for Dev} không có nghĩa là chưa làm''), và \textbf{§13 mới
+    \texttt{wujia-ui-component-standard}} chứa danh mục 23 component, bảng batch, chuẩn nghiệm
+    thu $\ge90\%$ và quy ước code.
+\end{itemize}
+
+\section{B0 --- WJ-ORD-023}
+
+Không viết dòng code nào. Thêm entry vào \texttt{docs/qa-issue-ledger.yaml} trỏ commit
+\texttt{63dc4bc}, chạy \texttt{qa\_sync.py} (dry) rồi \texttt{--apply} $\Rightarrow$
+\texttt{Ready for Dev} $\rightarrow$ \texttt{Ready for Retest}. Verify bằng
+\texttt{export?format=csv} (\textbf{không} dùng gviz --- gviz tôn trọng filter ẩn của BA làm lệch
+số dòng).
+
+\section{B1 --- 6 issue Exam}
+
+\begin{center}
+\begin{tabular}{ll}
+\hline
+\textbf{Issue} & \textbf{Nội dung fix} \\
+\hline
+WJ-EXAM-001 & Validate SĐT thống nhất client$\leftrightarrow$server \\
+WJ-EXAM-002 & Tách trạng thái ``Hết chỗ'' khỏi ``Đã đóng'' \\
+WJ-EXAM-003 & Bước Xác nhận hiện đủ 4 dòng có nhãn $+$ cột Năm sinh (PC) \\
+WJ-EXAM-004 & \texttt{birth\_year} in ``1.995'' $\rightarrow$ ``1995'' \\
+WJ-EXAM-005 & Bỏ chữ ``Tập tin nhị phân'', thêm cột Ảnh \\
+WJ-EXAM-006 & Ghi chú thi lại chỉ hiện khi có người Không đạt \\
+\hline
+\end{tabular}
+\end{center}
+
+Chi tiết đáng ghi:
+
+\begin{itemize}
+  \item \textbf{WJ-EXAM-001} phơi ra một \emph{lệch thật} giữa hai lớp: JS bản PC nhận
+    \texttt{/\^{}[0-9 .+-]\{9,15\}\$/} trong khi server đòi
+    \texttt{PHONE\_RE = /\^{}(0|+84)[0-9]\{8,10\}\$/}. Người dùng PC qua được validate client rồi
+    bị chặn lúc submit. Chốt: lấy regex server làm nguồn chân lý duy nhất, import
+    \texttt{PHONE\_RE} từ model vào controller, khai lại đúng chuỗi đó ở cả hai file JS, và sửa
+    placeholder gây hiểu nhầm \texttt{0901 234 567} $\rightarrow$ \texttt{0901234567}.
+  \item \textbf{WJ-EXAM-002}: \texttt{\_course\_meta()} trước chỉ trả cờ \texttt{closed}. Thêm
+    tập \texttt{in\_deadline} (kỳ thi còn hạn đăng ký) để phân biệt \emph{kín chỗ} với
+    \emph{không còn kỳ nào} $\Rightarrow$ ba nhãn ``Còn lịch'' / ``Hết chỗ'' / ``Đã đóng''.
+  \item \textbf{WJ-EXAM-004}: sửa \emph{view}, không đổi kiểu field ---
+    \texttt{options="\{'enable\_formatting': false\}"} (Odoo 19 \texttt{IntegerField} có nhận
+    prop này).
+  \item \textbf{WJ-EXAM-005}: chuỗi ``Tập tin nhị phân'' nằm trong \emph{thuộc tính}
+    \texttt{alt} (mặc định core là \texttt{\_t("Binary file")}), không phải text node ---
+    Playwright \texttt{text=} không thấy, phải regex trên \texttt{page.content()}.
+    \texttt{ImageField.extractProps} có map \texttt{alt: attrs.alt} nên đặt được
+    \texttt{alt} ngay trên \texttt{<field>}. Thêm compute \texttt{photo\_state}
+    (``Chưa có ảnh'' / ``Đã tải''), không lưu DB.
+\end{itemize}
+
+\section{Chuẩn nghiệm thu $\ge90\%$ --- đo bằng máy}
+
+Chủ dự án yêu cầu \emph{``làm xong issue phải test lại cho chắc khớp 90--95\% BA yêu cầu''}.
+Cách làm đã ghi thành rule trong §13:
+
+\begin{enumerate}
+  \item \textbf{DB copy cô lập}: \texttt{createdb -T wujia\_tea\_19 wujia\_tea\_s51} $+$ copy
+    filestore $+$ \texttt{--db-filter} $+$ port riêng \textbf{8051} --- không đụng 8019.
+  \item \textbf{Build sạch}: \texttt{-u wujia\_portal\_exam --stop-after-init} $\Rightarrow$
+    RC$=$0, 0 ERROR/Traceback.
+  \item \textbf{Đo bằng Playwright}, không nhìn ảnh: $391\times844$ mobile / $1920\times1080$ PC.
+  \item \textbf{Bảng đối chiếu} mỗi acceptance một dòng \texttt{Yêu cầu | Đo được | Pass/Fail}.
+  \item \textbf{Regression} $\ge3$ trang portal khác $\times$ 2 viewport.
+\end{enumerate}
+
+Kết quả đo được: backend 2/2, portal 8/8, WJ-EXAM-002 đủ cả hai nhánh (``Hết chỗ'' với 0 link
+chọn; ``Đã đóng'' khi không còn kỳ mở), WJ-EXAM-006 đủ hai nhánh, regression 6 route $\times$ 2
+viewport $=$ 12/12, \texttt{overflowX} $=0$, 0 JS \texttt{pageerror}. B0 đo trực tiếp trên UAT:
+5/5. Dọn sạch sau khi đo: dừng 8051, \texttt{DROP DATABASE wujia\_tea\_s51}, xoá filestore.
+
+\section{Bẫy gặp trong lúc đo}
+
+\begin{itemize}
+  \item \texttt{qa\_sync.py} \textbf{không có} cờ \texttt{--dry-run} --- mặc định đã là dry, thêm
+    \texttt{--apply} mới ghi.
+  \item Click dòng \texttt{.o\_list\_table} bị chính \texttt{<table>} chặn $\Rightarrow$ điều
+    hướng thẳng \texttt{/odoo/action-.../<id>}.
+  \item Mật khẩu \texttt{admin/Wujia@2026} chỉ đúng trên UAT; local là \texttt{admin/admin}.
+  \item \texttt{wujia.exam.session.capacity} không cho $=0$ $\Rightarrow$ muốn ép trạng thái
+    ``Hết chỗ'' thì \emph{đóng} kỳ còn chỗ, đừng zero sức chứa.
+  \item XML-RPC \texttt{search\_read} phải truyền \texttt{[[domain], [fields]]} theo vị trí, lồng
+    hai lớp sẽ ra \texttt{Domain() invalid item in domain}.
+\end{itemize}
+
+\section{Module \texttt{mcp\_server}}
+
+Chủ dự án đưa thêm thư mục \texttt{custom/mcp\_server} (bên thứ ba, ``MCP Server''
+\texttt{19.0.2.0.0}, much Consulting, license \textbf{OPL-1}, 8.1\,MB, 61 file \texttt{.py}) để
+commit chung cho BA test MCP. \texttt{depends}: \texttt{base, base\_setup, mail, rpc, web};
+\texttt{external\_dependencies.python}: \texttt{authlib>=1.6.12,<1.7.0}, \texttt{defusedxml},
+\texttt{packaging}. \texttt{compileall} RC$=$0. \textbf{Lưu ý khi lên server}: env hiện
+\emph{thiếu} \texttt{packaging} $\Rightarrow$ phải \texttt{pip install} trước; và vì là module
+mới nên cài bằng \texttt{-i mcp\_server} một lần, không phải \texttt{-u}.
+
+\section{Kết quả}
+
+Commit \texttt{1821097} \texttt{fix(portal-exam): six UAT issues on exam registration
+(WJ-EXAM-001..006)} --- 9 file. Sheet: 7 issue (WJ-ORD-023 $+$ WJ-EXAM-001\ldots006) đã ở
+\texttt{Ready for Retest} ngày 10/08/2026, verify lại bằng CSV export. \textbf{Chưa deploy UAT}
+(mọi task BA đang ghi \texttt{Cho phép tự deploy = No}).
