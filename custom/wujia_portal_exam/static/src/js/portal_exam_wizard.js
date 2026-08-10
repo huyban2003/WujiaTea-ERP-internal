@@ -9,6 +9,8 @@
     'use strict';
 
     var MAX_PHOTO_BYTES = 5 * 1024 * 1024;
+    /* Giống hệt PHONE_RE của model — client chặn trước, server vẫn kiểm lại. */
+    var PHONE_RE = /^(0|\+84)[0-9]{8,10}$/;
 
     function jsonRpc(url, params) {
         return fetch(url, {
@@ -242,6 +244,12 @@
                     ok = false;
                     return;
                 }
+                if (!PHONE_RE.test(phone)) {
+                    showPersonErr(person,
+                        'Số điện thoại không hợp lệ (vd 0901234567).');
+                    ok = false;
+                    return;
+                }
                 var p = {
                     employee_name: name,
                     phone: phone,
@@ -260,15 +268,20 @@
             var box = wizard.querySelector('[data-exam-cf-people]');
             if (!box) { return; }
             box.innerHTML = '';
+            /* WJ-EXAM-003 — đủ 4 nhãn để người đăng ký đối chiếu trước khi gửi. */
             participants.forEach(function (p) {
                 var row = document.createElement('div');
                 row.className = 'wujia-mexam-cfperson';
                 row.innerHTML =
                     '<span class="wujia-mexam-cfperson-name"></span>' +
-                    '<span class="wujia-mexam-cfperson-meta"></span>';
+                    '<span class="wujia-mexam-cfperson-kv"></span>' +
+                    '<span class="wujia-mexam-cfperson-kv"></span>' +
+                    '<span class="wujia-mexam-cfperson-kv"></span>';
+                var kv = row.querySelectorAll('.wujia-mexam-cfperson-kv');
                 row.querySelector('.wujia-mexam-cfperson-name').textContent = p.employee_name;
-                row.querySelector('.wujia-mexam-cfperson-meta').textContent =
-                    (p.job_position || '—') + ' • ' + p.phone;
+                kv[0].textContent = 'Số điện thoại: ' + p.phone;
+                kv[1].textContent = 'Năm sinh: ' + (p.birth_year || '—');
+                kv[2].textContent = 'Chức vụ: ' + (p.job_position || '—');
                 box.appendChild(row);
             });
         }

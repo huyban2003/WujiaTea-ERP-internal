@@ -33,6 +33,9 @@ from odoo.addons.wujia_portal_base.controllers.portal import (
     get_active_franchise_id,
 )
 from odoo.addons.wujia_portal_base.controllers.utils import page_numbers
+from odoo.addons.wujia_portal_exam.models.wujia_exam_registration_line import (
+    PHONE_RE,
+)
 
 _logger = logging.getLogger(__name__)
 
@@ -227,7 +230,11 @@ def _exam_slots(course, d):
 
 
 def _course_meta(course):
-    """Meta ngắn cho card khóa thi (mobile) + cờ 'closed' (không còn lịch)."""
+    """Meta ngắn cho card khóa thi (mobile) + cờ 'closed'/'full'.
+
+    WJ-EXAM-002: 'full' = còn lịch mở, còn hạn, nhưng hết chỗ — khác hẳn 'closed'
+    (không còn kỳ thi nào mở/còn hạn). Cả hai đều không cho đăng ký.
+    """
     Session = request.env['wujia.exam.session'].sudo()
     today = fields.Date.context_today(request.env.user)
     horizon = today + timedelta(days=course.registration_horizon_days)
@@ -238,10 +245,13 @@ def _course_meta(course):
         ('state', '=', 'open'),
     ])
     has_open = any(_selectable(s, now) for s in upcoming)
+    in_deadline = [s for s in upcoming
+                   if not s.registration_deadline or now <= s.registration_deadline]
     return {
         'meta': '%d kỳ thi • Trong %d ngày tới' % (
             len(upcoming), course.registration_horizon_days),
         'closed': not has_open,
+        'full': not has_open and bool(in_deadline),
     }
 
 
@@ -329,9 +339,11 @@ class WujiaPortalExam(http.Controller):
             meta = _course_meta(c)
             m_courses.append({
                 'course_id': c.id, 'title': c.name, 'meta': meta['meta'],
-                'status': 'Còn lịch' if not meta['closed'] else 'Đã đóng',
-                'badge': 'wujia-badge-info' if not meta['closed']
-                else 'wujia-badge-muted',
+                'status': ('Còn lịch' if not meta['closed']
+                           else 'Hết chỗ' if meta['full'] else 'Đã đóng'),
+                'badge': ('wujia-badge-info' if not meta['closed']
+                          else 'wujia-badge-warning' if meta['full']
+                          else 'wujia-badge-muted'),
                 'closed': meta['closed'],
             })
         selected = courses.browse(int(course_id)) if course_id else courses[:1]
@@ -569,6 +581,8 @@ def _m_detail(reg):
             (' • ' + _result_summary(reg)[0]) if published else ''),
         'status': status, 'badge': badge,
         'state': reg.state, 'is_published': published, 'reason': reason,
+        # WJ-EXAM-006 — chỉ nhắc "đăng ký thi lại" khi thật sự có người trượt.
+        'has_failed': published and any(l.result == 'failed' for l in reg.line_ids),
         'people': _reg_lines(reg, published),
     }
 
@@ -633,6 +647,10 @@ def _build_line_vals(p):
     if not name or not phone:
         raise ValidationError(_(
             "Mỗi người dự thi cần có họ tên và số điện thoại."))
+    # WJ-EXAM-001 — chặn ngay ở controller thay vì đợi constraint lúc flush.
+    if not PHONE_RE.match(phone):
+        raise ValidationError(_(
+            "Số điện thoại '%s' không hợp lệ (vd 0901234567).", phone))
     vals = {
         'employee_name': name, 'phone': phone,
         'job_position': (p.get('job_position') or '').strip() or False,
