@@ -295,6 +295,39 @@
                 });
             });
         }
+
+        // 6. Back to Top Button Logic (Show on scroll, auto-hide after 3s of inactivity)
+        var backToTopBtn = document.getElementById('wj_back_to_top_btn');
+        if (backToTopBtn) {
+            var scrollTimeout = null;
+            
+            window.addEventListener('scroll', function () {
+                var scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+                
+                if (scrollTop > 300) {
+                    backToTopBtn.classList.add('show-btn');
+                    
+                    // Clear previous timeout
+                    if (scrollTimeout) {
+                        clearTimeout(scrollTimeout);
+                    }
+                    
+                    // Set new timeout to hide the button after 3 seconds of no scrolling
+                    scrollTimeout = setTimeout(function () {
+                        backToTopBtn.classList.remove('show-btn');
+                    }, 3000);
+                } else {
+                    backToTopBtn.classList.remove('show-btn');
+                    if (scrollTimeout) {
+                        clearTimeout(scrollTimeout);
+                    }
+                }
+            });
+            
+            backToTopBtn.addEventListener('click', function () {
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            });
+        }
     }
 
     if (document.readyState === 'loading') {

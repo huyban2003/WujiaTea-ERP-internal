@@ -404,3 +404,190 @@
 .wj-lightbox-close:hover {
     color: #0f172a;
 }
+
+/* Success Popup / Modal Styles */
+.wj-success-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(15, 23, 42, 0.65);
+    backdrop-filter: blur(4px);
+    z-index: 2050;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.25s ease, visibility 0.25s ease;
+}
+.wj-success-overlay.show-modal {
+    opacity: 1;
+    visibility: visible;
+}
+.wj-success-card {
+    background: #ffffff;
+    border-radius: 24px;
+    max-width: 440px;
+    width: 100%;
+    padding: 28px 24px;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+    transform: scale(0.9);
+    transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+.wj-success-overlay.show-modal .wj-success-card {
+    transform: scale(1);
+}
+.wj-info-box-bg {
+    background-color: #ffffff;
+    border: 1px solid #f1f5f9;
+    border-radius: 16px;
+    padding: 16px;
+}
+.wj-chip-code {
+    background-color: #e0f2fe;
+    color: #0284c7;
+    font-weight: 700;
+    font-size: 0.8rem;
+    padding: 4px 10px;
+    border-radius: 6px;
+}
+.btn-action-primary {
+    background-color: #38bdf8;
+    border-color: #38bdf8;
+    color: #ffffff;
+    font-weight: 700;
+    border-radius: 14px;
+    height: 48px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    text-decoration: none;
+    transition: all 0.2s;
+}
+.btn-action-primary:hover {
+    background-color: #0284c7;
+    border-color: #0284c7;
+    color: #ffffff;
+}
+.btn-action-outline {
+    background-color: #ffffff;
+    border: 1.5px solid #cbd5e1;
+    color: #334155;
+    font-weight: 700;
+    border-radius: 14px;
+    height: 48px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    text-decoration: none;
+    transition: all 0.2s;
+}
+.btn-action-outline:hover {
+    background-color: #f8fafc;
+    color: #0f172a;
+}
+
+/* Compact Horizontal Distribution List */
+.wj-distribution-row {
+    scrollbar-width: none; /* Hide scrollbar Firefox */
+}
+.wj-distribution-row::-webkit-scrollbar {
+    display: none; /* Hide scrollbar Chrome/Safari */
+}
+
+.wj-dist-card {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 60px;
+    height: 60px;
+    background: #ffffff;
+    border: 2px solid #e2e8f0;
+    border-top: 4px solid #0284c7; /* Colored top border */
+    border-radius: 12px;
+    text-decoration: none !important;
+    transition: all 0.2s ease;
+}
+
+.wj-dist-card.severe-card {
+    border-color: #fecaca;
+    border-top-color: #ef4444;
+}
+
+.wj-dist-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.05);
+}
+
+.wj-dist-val {
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: #0284c7;
+}
+
+.wj-dist-val.severe-val {
+    color: #ef4444;
+}
+
+.wj-dist-label {
+    font-size: 0.72rem;
+    font-weight: 600;
+    line-height: 1.2;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    color: #475569 !important;
+    max-width: 80px;
+}
+
+/* Floating Back to Top Button */
+#wj_back_to_top_btn {
+    position: fixed;
+    bottom: 90px;
+    right: 20px;
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    z-index: 2000;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.3s ease, visibility 0.3s ease, transform 0.2s ease, background-color 0.2s ease;
+    background-color: rgba(56, 189, 248, 0.85) !important; /* Translucent blue */
+    backdrop-filter: blur(4px);
+    border: none;
+    color: #ffffff;
+    box-shadow: 0 4px 12px rgba(2, 132, 199, 0.3);
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+#wj_back_to_top_btn:hover {
+    background-color: rgba(2, 132, 199, 0.65) !important;
+    transform: translateY(-2px);
+}
+
+#wj_back_to_top_btn.show-btn {
+    opacity: 1;
+    visibility: visible;
+}
+
+/* Row highlight for critical criteria */
+.wj-critical-row {
+    background-color: #fde68a !important; /* Soft Amber Yellow */
+    border-color: #fcd34d !important;
+}
+
+.wj-critical-row .text-dark,
+.wj-critical-row .wj-criterion-title,
+.wj-critical-row .wj-criterion-content,
+.wj-critical-row .small.text-muted {
+    color: #78350f !important; /* Dark Amber Text color */
+}

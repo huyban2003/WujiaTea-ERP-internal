@@ -129,25 +129,37 @@
                                 <div t-att-id="sec.get('id') + '_pc'"
                                     class="pt-3 pb-2 mb-4 border-bottom">
                                     <div
-                                        class="d-flex justify-content-between align-items-center mb-3 pb-2 border-bottom p-3 rounded"
-                                        style="background-color: #f8fafc;">
+                                        t-attf-class="d-flex justify-content-between align-items-center mb-3 pb-2 border-bottom p-3 rounded #{'wj-severe-header' if sec.get('is_severe') else ''}"
+                                        t-attf-style="#{'background-color: #fee2e2 !important; border: 1px solid #fca5a5 !important;' if sec.get('is_severe') else 'background-color: #f8fafc;'}">
                                         <div>
-                                            <h3 class="font-weight-bold text-dark mb-1"
+                                            <h3
+                                                t-attf-class="font-weight-bold mb-1 #{'text-danger' if sec.get('is_severe') else 'text-dark'}"
                                                 style="font-size: 15px;">
                                                 <t t-out="sec.get('title')" />
                                             </h3>
-                                            <p class="text-muted mb-0 small">
+                                            <p
+                                                t-attf-class="mb-0 small #{'text-danger' if sec.get('is_severe') else 'text-muted'}">
                                                 <t t-out="sec.get('subtitle')" />
                                             </p>
                                         </div>
-                                        <span class="wj-pc-badge wj-pc-badge--pending"
-                                            style="font-size: 13px; font-weight: 700;"> Max: <t
-                                                t-out="sec.get('max_score')" />đ </span>
+                                        <t t-if="sec.get('is_severe')">
+                                            <span class="badge bg-danger text-white"
+                                                style="font-size: 13px; font-weight: 700;"> -<t
+                                                    t-out="sec.get('total_deducted')" />đ </span>
+                                        </t>
+                                        <t t-else="">
+                                            <span class="wj-pc-badge wj-pc-badge--pending"
+                                                style="font-size: 13px; font-weight: 700;">
+                                                <t
+                                                    t-out="sec.get('current_score')" />/<t
+                                                    t-out="sec.get('max_score')" />đ </span>
+                                        </t>
                                     </div>
 
                                     <div class="d-flex flex-column gap-3">
                                         <t t-foreach="sec.get('lines')" t-as="l">
-                                            <div class="border rounded p-3 mb-2 bg-white"
+                                            <div
+                                                t-attf-class="border rounded p-3 mb-2 #{'wj-critical-row' if l.get('criterion_type_snapshot') == 'critical' else 'bg-white'}"
                                                 style="border-color: #f1f5f9 !important;">
                                                 <div
                                                     class="d-flex justify-content-between align-items-center mb-2 pb-2 border-bottom">
@@ -270,7 +282,7 @@
                                 <div class="row g-3">
                                     <t t-foreach="insp.exam_line_ids" t-as="q_line">
                                         <div class="col-12">
-                                            <div class="border rounded p-3 mb-2 bg-white"
+                                            <div class="border rounded p-2 mb-2 bg-white"
                                                 t-attf-style="border-left: 4px solid #{'#22c55e' if q_line.is_correct else '#ef4444'} !important;">
                                                 <div
                                                     class="d-flex justify-content-between align-items-center mb-2 pb-1 border-bottom">
@@ -296,7 +308,10 @@
                                                     <div class="text-muted mb-1"
                                                         style="font-size: 12px; font-weight: 600;">Đáp
                                                         án đã điền:</div>
-                                                    <div class="text-dark font-weight-bold" style="font-size: 13px; white-space: pre-wrap;"><t t-out="q_line.answer or 'Bỏ trống'"/></div>
+                                                    <div class="text-dark font-weight-bold"
+                                                        style="font-size: 13px; white-space: pre-wrap;">
+                                                        <t t-out="q_line.answer or 'Bỏ trống'" />
+                                                    </div>
                                                 </div>
                                             </div>
                                         </div>
@@ -317,16 +332,16 @@
 
                         <!-- 1. Phần Tổng điểm kiểm tra -->
                         <div class="text-center pb-3 border-bottom mb-3">
-                            <div class="text-uppercase font-weight-bold text-muted mb-3"
+                            <div class="text-uppercase font-weight-bold text-muted mb-1"
                                 style="letter-spacing: 1px; font-size: 0.85rem; color: #64748b !important;">TỔNG
                                 ĐIỂM KIỂM TRA</div>
 
                             <div
                                 class="position-relative d-flex align-items-center justify-content-center mx-auto"
-                                style="width: 240px; height: 120px;">
+                                style="width: 120px; height: 60px;">
                                 <!-- SVG Progress border -->
-                                <svg class="position-absolute top-0 start-0" width="240"
-                                    height="120" viewBox="0 0 240 120">
+                                <svg class="position-absolute top-0 start-0" width="100%"
+                                    height="100%" viewBox="0 0 240 120">
                                     <!-- Gray Background -->
                                     <path
                                         d="M 215 5 L 15 5 A 10 10 0 0 0 5 15 L 5 95 A 10 10 0 0 0 15 105 L 215 105 A 10 10 0 0 0 225 95 L 225 15 A 10 10 0 0 0 215 5 Z"
@@ -344,39 +359,31 @@
                                 <!-- Center Text: Score -->
                                 <div class="text-center" style="z-index: 1;">
                                     <span class="fw-bold"
-                                        style="font-size: 3rem; color: #104f7c; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">
+                                        style="font-size: 2rem; color: #104f7c; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">
                                         <t t-out="total_score or 0" />
                                     </span>
                                     <span
-                                        style="font-size: 1.5rem; color: #104f7c; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">
+                                        style="font-size: 1.1rem; color: #104f7c; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">
                                         /100</span>
                                 </div>
                             </div>
 
-                            <!-- Badge Xếp hạng -->
-                            <div class="mt-3 mb-3">
-                                <span class="d-inline-flex align-items-center px-3 py-1 fw-bold"
-                                    style="background: #e6f9ed; color: #1f9254; border-radius: 20px; font-size: 0.85rem; border: 1px solid #c2f0d5;">
-                                    <svg class="me-1" width="14" height="14" viewBox="0 0 24 24"
-                                        fill="none" stroke="currentColor" stroke-width="3"
-                                        stroke-linecap="round" stroke-linejoin="round"
-                                        style="vertical-align: middle; margin-top: -1px;">
-                                        <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
-                                        <polyline points="22 4 12 14.01 9 11.01"></polyline>
-                                    </svg>
+                            <!-- Thông tin bổ sung (Mã tiệm, Ngày, Xếp hạng) trên cùng 1 dòng -->
+                            <div
+                                class="d-flex align-items-center justify-content-center flex-wrap gap-2 mt-1 text-muted small"
+                                style="font-size: 0.9rem; color: #64748b !important;">
+                                <span>Mã tiệm: <strong class="text-dark">
+                                        <t t-out="franchise_code or ''" />
+                                    </strong></span>
+                                <span class="mx-1 text-muted">•</span>
+                                <span>Ngày: <strong class="text-dark">
+                                        <t t-out="planned_date or ''" />
+                                    </strong></span>
+                                <span class="mx-1 text-muted">•</span>
+                                <span class="d-inline-flex align-items-center px-2 py-0.5 fw-bold"
+                                    style="background: #e6f9ed; color: #1f9254; border-radius: 12px; font-size: 0.8rem; border: 1px solid #c2f0d5;">
                                     XẾP HẠNG <t t-out="grade_name or 'B+'" />
                                 </span>
-                            </div>
-
-                            <!-- Mã tiệm & Ngày -->
-                            <div class="text-center text-muted small"
-                                style="font-size: 0.95rem; line-height: 1.6; color: #64748b !important;">
-                                <div>Mã tiệm: <strong class="text-dark">
-                                        <t t-out="franchise_code or ''" />
-                                    </strong></div>
-                                <div>Ngày: <strong class="text-dark">
-                                        <t t-out="planned_date or ''" />
-                                    </strong></div>
                             </div>
                         </div>
 
@@ -397,22 +404,25 @@
 
                         <!-- 3. Tab content 1: Checklist -->
                         <div id="tab_content_checklist">
-                            <!-- Lưới 2x2 Tổng quan Phân bổ kết quả -->
+                            <!-- Lưới Ngang (Single Row) Phân bổ kết quả -->
                             <div class="pb-3 mb-3">
                                 <h2 class="h6 font-weight-bold text-dark mb-3">Phân bổ kết quả</h2>
-                                <div class="row g-3">
+                                <div
+                                    class="d-flex align-items-start gap-2 overflow-x-auto pb-2 wj-distribution-row">
                                     <t t-foreach="category_summaries" t-as="c_sum">
-                                        <div class="col-6 col-md-3">
+                                        <div
+                                            class="d-flex flex-column align-items-center text-center flex-shrink-0"
+                                            style="width: 80px;">
                                             <a t-attf-href="##{c_sum.get('target_sec')}"
-                                                t-attf-class="summary-2x2-card text-center d-block text-decoration-none #{'severe-card' if c_sum.get('is_severe') else ''}">
+                                                t-attf-class="wj-dist-card #{'severe-card' if c_sum.get('is_severe') else ''}">
                                                 <div
-                                                    t-attf-class="summary-val-text #{'severe-val' if c_sum.get('is_severe') else ''}">
+                                                    t-attf-class="wj-dist-val #{'severe-val' if c_sum.get('is_severe') else ''}">
                                                     <t t-out="c_sum.get('val_str')" />
                                                 </div>
-                                                <div class="small text-muted mt-1">
-                                                    <t t-out="c_sum.get('name')" />
-                                                </div>
                                             </a>
+                                            <div class="wj-dist-label mt-1 text-muted">
+                                                <t t-out="c_sum.get('name')" />
+                                            </div>
                                         </div>
                                     </t>
                                 </div>
@@ -422,23 +432,36 @@
                             <t t-foreach="sections" t-as="sec">
                                 <div t-att-id="sec.get('id')" class="border-top pt-3 pb-2 mb-3">
                                     <div
-                                        class="d-flex justify-content-between align-items-center mb-3 border-bottom pb-2 p-3 rounded-3"
-                                        style="background-color: #f1f5f9 !important;">
+                                        t-attf-class="d-flex justify-content-between align-items-center mb-3 border-bottom pb-2 p-2 rounded-3 #{'wj-severe-header' if sec.get('is_severe') else ''}"
+                                        t-attf-style="#{'background-color: #fee2e2 !important; border: 1px solid #fca5a5 !important;' if sec.get('is_severe') else 'background-color: #f1f5f9 !important;'}">
                                         <div>
-                                            <h3 class="wj-category-header-title mb-1">
+                                            <h3
+                                                t-attf-class="wj-category-header-title mb-1 #{'text-danger' if sec.get('is_severe') else ''}">
                                                 <t t-out="sec.get('title')" />
                                             </h3>
-                                            <p class="wj-category-header-subtitle mb-0">
+                                            <p
+                                                t-attf-class="wj-category-header-subtitle mb-0 #{'text-danger' if sec.get('is_severe') else ''}">
                                                 <t t-out="sec.get('subtitle')" />
                                             </p>
                                         </div>
-                                        <span class="wj-detail-max-chip"> Max: <t
-                                                t-out="sec.get('max_score')" />đ </span>
+                                        <t t-if="sec.get('is_severe')">
+                                            <span class="badge bg-danger text-white"
+                                                style="font-size: 12px; font-weight: 700; border-radius: 20px; padding: 4px 10px;">
+                                                -<t
+                                                    t-out="sec.get('total_deducted')" />đ </span>
+                                        </t>
+                                        <t t-else="">
+                                            <span class="wj-detail-max-chip">
+                                                <t
+                                                    t-out="sec.get('current_score')" />/<t
+                                                    t-out="sec.get('max_score')" />đ </span>
+                                        </t>
                                     </div>
 
                                     <div class="d-flex flex-column gap-3">
                                         <t t-foreach="sec.get('lines')" t-as="l">
-                                            <div class="border-bottom pb-3">
+                                            <div
+                                                t-attf-class="border-bottom pb-3 #{'wj-critical-row p-2 rounded' if l.get('criterion_type_snapshot') == 'critical' else ''}">
                                                 <div
                                                     class="d-flex justify-content-between align-items-center mb-1">
                                                     <h4 class="wj-criterion-title small mb-0">
@@ -462,21 +485,6 @@
                                                                 PHẢN HỒI</span>
                                                             <span t-else="" class="badge-fail-tag">CẦN
                                                                 PHẢN HỒI</span>
-                                                        </t>
-
-                                                        <t t-if="sec.get('is_severe')">
-                                                            <span
-                                                                class="small font-weight-bold text-muted ms-1">
-                                                                <t t-if="l.get('is_pass')">
-                                                                    <t
-                                                                        t-out="l.get('deduction') or 10" />
-                                                                    /<t
-                                                                        t-out="l.get('deduction') or 10" />
-                                                                </t>
-                                                                <t t-else=""> 0/<t
-                                                                        t-out="l.get('deduction') or 10" />
-                                                                </t>
-                                                            </span>
                                                         </t>
                                                     </div>
                                                 </div>
@@ -598,7 +606,10 @@
                                             style="background-color: #f8fafc !important;">
                                             <div class="small text-muted mb-1"
                                                 style="font-size: 0.78rem;">Đáp án đã điền:</div>
-                                            <div class="small text-dark font-weight-bold" style="font-size: 0.85rem; white-space: pre-wrap;"><t t-out="q_line.answer or 'Bỏ trống'"/></div>
+                                            <div class="small text-dark font-weight-bold"
+                                                style="font-size: 0.85rem; white-space: pre-wrap;">
+                                                <t t-out="q_line.answer or 'Bỏ trống'" />
+                                            </div>
                                         </div>
                                     </div>
                                 </t>
@@ -635,6 +646,11 @@
                         </button>
                     </div>
                 </div>
+
+                <!-- Nút Cuộn lên đầu trang (Back to Top) -->
+                <button type="button" id="wj_back_to_top_btn" class="shadow-lg">
+                    <i class="feather icon-arrow-up" style="font-size: 1.2rem; font-weight: bold;" />
+                </button>
             </div>
         </t>
     </template>

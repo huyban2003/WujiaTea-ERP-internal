@@ -108,9 +108,9 @@ class WujiaPortalInspectionController(http.Controller):
 
             if insp.state == 'need_remediation':
                 state_label = 'Chờ phản hồi'
-                badge_bg = '#ffe4e6'
-                badge_color = '#e11d48'
-                progress_color = '#ef4444'
+                badge_bg = '#fef3c7'
+                badge_color = '#d97706'
+                progress_color = '#f59e0b'
 
             title_str = insp.name or "Khảo sát"
             if not title_str or title_str == "Khảo sát cửa hàng nhượng quyền" or title_str.startswith("Khảo sát cửa hàng nhượng quyền"):
@@ -207,6 +207,7 @@ class WujiaPortalInspectionController(http.Controller):
                     'current_score': 0,
                     'max_score': 0,
                     'fail_count': 0,
+                    'total_deducted': 0,
                     'lines': []
                 }
                 sections.append(current_sec)
@@ -240,6 +241,7 @@ class WujiaPortalInspectionController(http.Controller):
                     'evidence_image_url': f"/web/image/wujia.franchise.inspection.line/{line.id}/evidence_image" if line.evidence_image else False,
                     'remediation_state': line.remediation_state or 'need_remediation',
                     'remediation_image_url': f"/web/image/wujia.franchise.inspection.line/{line.id}/remediation_image" if line.remediation_image else False,
+                    'criterion_type_snapshot': line.criterion_type_snapshot or '',
                 }
 
                 if current_sec is None:
@@ -251,6 +253,7 @@ class WujiaPortalInspectionController(http.Controller):
                         'current_score': 0,
                         'max_score': 0,
                         'fail_count': 0,
+                        'total_deducted': 0,
                         'lines': []
                     }
                     sections.append(current_sec)
@@ -263,6 +266,7 @@ class WujiaPortalInspectionController(http.Controller):
                     current_sec['current_score'] += line_weight
                 else:
                     current_sec['fail_count'] += 1
+                    current_sec['total_deducted'] += line_weight
 
         category_summaries = []
         for sec in sections:
