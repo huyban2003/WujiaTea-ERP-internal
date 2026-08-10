@@ -96,5 +96,50 @@
             <field name="groups" eval="[(4, ref('group_supervision_admin'))]"/>
         </record>
 
+        <!-- Portal Rules for franchise inspections and schedules -->
+        <record id="rule_franchise_inspection_portal" model="ir.rule">
+            <field name="name">Franchise Inspection: Portal: own store only</field>
+            <field name="model_id" ref="model_wujia_franchise_inspection"/>
+            <field name="domain_force">[('franchise_id.member_ids.user_id', '=', user.id)]</field>
+            <field name="groups" eval="[(4, ref('base.group_portal'))]"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_unlink" eval="False"/>
+        </record>
+
+        <record id="rule_franchise_inspection_line_portal" model="ir.rule">
+            <field name="name">Franchise Inspection Line: Portal: own store only</field>
+            <field name="model_id" ref="model_wujia_franchise_inspection_line"/>
+            <field name="domain_force">[('inspection_id.franchise_id.member_ids.user_id', '=', user.id)]</field>
+            <field name="groups" eval="[(4, ref('base.group_portal'))]"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_unlink" eval="False"/>
+        </record>
+
+        <record id="rule_supervision_schedule_portal" model="ir.rule">
+            <field name="name">Supervision Schedule: Portal: own store only</field>
+            <field name="model_id" ref="model_wujia_supervision_schedule"/>
+            <field name="domain_force">[('store_id.member_ids.user_id', '=', user.id)]</field>
+            <field name="groups" eval="[(4, ref('base.group_portal'))]"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_unlink" eval="False"/>
+        </record>
+
+        <record id="rule_franchise_inspection_exam_line_portal" model="ir.rule">
+            <field name="name">Franchise Inspection Exam Line: Portal: own store only</field>
+            <field name="model_id" ref="model_wujia_franchise_inspection_exam_line"/>
+            <field name="domain_force">[('inspection_id.franchise_id.member_ids.user_id', '=', user.id)]</field>
+            <field name="groups" eval="[(4, ref('base.group_portal'))]"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_unlink" eval="False"/>
+        </record>
+
     </data>
 </odoo>

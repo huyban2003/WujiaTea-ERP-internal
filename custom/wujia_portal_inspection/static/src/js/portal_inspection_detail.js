@@ -205,6 +205,15 @@
 
             form.addEventListener('submit', function (e) {
                 e.preventDefault();
+
+                var submitBtn = form.querySelector('button[type="submit"]');
+                var originalHtml = '';
+                if (submitBtn) {
+                    originalHtml = submitBtn.innerHTML;
+                    submitBtn.disabled = true;
+                    submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span> Đang gửi...';
+                }
+
                 var formData = new FormData(form);
                 var csrfToken = (window.odoo && window.odoo.csrf_token) ? window.odoo.csrf_token : '';
                 if (csrfToken) {
@@ -215,6 +224,10 @@
                     method: 'POST',
                     body: formData
                 }).then(function (response) {
+                    if (submitBtn) {
+                        submitBtn.disabled = false;
+                        submitBtn.innerHTML = originalHtml;
+                    }
                     var contentType = response.headers.get('content-type') || '';
                     if (contentType.indexOf('application/json') !== -1) {
                         return response.json();
@@ -250,6 +263,10 @@
                         alert(data.message || 'Gửi phản hồi thất bại, vui lòng thử lại.');
                     }
                 }).catch(function (err) {
+                    if (submitBtn) {
+                        submitBtn.disabled = false;
+                        submitBtn.innerHTML = originalHtml;
+                    }
                     console.error('Submit error:', err);
                     alert('Có lỗi xảy ra khi gửi phản hồi, vui lòng thử lại.');
                 });
