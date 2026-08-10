@@ -51,3 +51,71 @@ tr.text-info td,
     background-color: #0707ff !important;
     color: #ffffff !important;
 }
+
+/* Custom styling for the list view boolean toggle (is_pass) */
+.o_list_renderer .wujia-inspection-pass-toggle,
+.o_list_renderer td[name="is_pass"] {
+    vertical-align: middle !important;
+}
+
+/* Base style for form-check form-switch container */
+.o_list_renderer td[name="is_pass"] .form-check.form-switch,
+.wujia-inspection-pass-toggle .form-check.form-switch {
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    padding-left: 0 !important;
+    margin: 0 !important;
+    min-height: auto !important;
+}
+
+/* The actual toggle switch input */
+.o_list_renderer td[name="is_pass"] .form-check-input,
+.wujia-inspection-pass-toggle .form-check-input,
+.wujia-inspection-pass-toggle.form-check-input {
+    width: 2.2rem !important;
+    height: 1.1rem !important;
+    margin-left: 0 !important;
+    cursor: pointer !important;
+    background-color: #f43f5e !important; /* Rose Red for Fail */
+    border: 1.5px solid #e11d48 !important;
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='-4 -4 8 8'%3e%3ccircle r='3' fill='%23fff'/%3e%3c/svg%3e") !important;
+    border-radius: 2rem !important;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1) !important;
+    transition: background-position 0.2s cubic-bezier(0.4, 0, 0.2, 1), background-color 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease !important;
+}
+
+/* Checked (Pass) state */
+.o_list_renderer td[name="is_pass"] .form-check-input:checked,
+.wujia-inspection-pass-toggle .form-check-input:checked,
+.wujia-inspection-pass-toggle.form-check-input:checked {
+    background-color: #10b981 !important; /* Emerald Green for Pass */
+    border-color: #059669 !important;
+    background-position: right center !important;
+}
+
+/* Hover effects */
+.o_list_renderer td[name="is_pass"] .form-check-input:hover,
+.wujia-inspection-pass-toggle .form-check-input:hover {
+    filter: brightness(1.05);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15) !important;
+}
+
+/* Focus styles */
+.o_list_renderer td[name="is_pass"] .form-check-input:focus,
+.wujia-inspection-pass-toggle .form-check-input:focus {
+    outline: none !important;
+    box-shadow: 0 0 0 0.25rem rgba(16, 185, 129, 0.25) !important;
+}
+.o_list_renderer td[name="is_pass"] .form-check-input:not(:checked):focus,
+.wujia-inspection-pass-toggle .form-check-input:not(:checked):focus {
+    box-shadow: 0 0 0 0.25rem rgba(244, 63, 94, 0.25) !important;
+}
+
+/* Disabled / Readonly state style */
+.o_list_renderer td[name="is_pass"] .form-check-input:disabled,
+.wujia-inspection-pass-toggle .form-check-input:disabled {
+    opacity: 0.8 !important;
+    cursor: default !important;
+    filter: grayscale(15%) brightness(0.95);
+}

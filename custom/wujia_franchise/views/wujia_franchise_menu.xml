@@ -12,16 +12,16 @@
           │   ├─ Lịch giám sát
           │   ├─ Cửa hàng cần giám sát
           │   ├─ Chờ xử lý khắc phục
-          │   └─ Lịch sử giám sát
+          │   ├─ Lịch sử giám sát
+          │   └─ Cấu hình giám sát
+          │       ├─ Mẫu phiếu giám sát         (action_wujia_franchise_inspection_template)
+          │       ├─ Danh mục tiêu chí           (action_wujia_franchise_inspection_category)
+          │       ├─ Thư viện câu hỏi kiểm tra
+          │       └─ Xếp hạng giám sát
           ├─ Báo cáo
           │   ├─ Phân tích kết quả giám sát
           │   └─ Phân tích tiêu chí vi phạm
           └─ Configuration / Cấu hình
-              ├─ Cấu hình giám sát
-              │   ├─ Mẫu phiếu giám sát         (action_wujia_franchise_inspection_template)
-              │   ├─ Danh mục tiêu chí           (action_wujia_franchise_inspection_category)
-              │   ├─ Thư viện câu hỏi kiểm tra
-              │   └─ Xếp hạng giám sát
               └─ Area Management
                   ├─ Area
                   ├─ Province / City
@@ -88,6 +88,34 @@
         action="action_wujia_franchise_inspection_history"
         sequence="50" />
 
+    <menuitem id="menu_wujia_inspection_config_root"
+        name="Cấu hình giám sát"
+        parent="menu_wujia_inspection_supervision_root"
+        sequence="60" />
+
+    <menuitem id="menu_wujia_inspection_template"
+        name="Mẫu phiếu giám sát"
+        parent="menu_wujia_inspection_config_root"
+        action="action_wujia_franchise_inspection_template"
+        sequence="10" />
+
+    <menuitem id="menu_wujia_inspection_category"
+        name="Danh mục tiêu chí"
+        parent="menu_wujia_inspection_config_root"
+        action="action_wujia_franchise_inspection_category"
+        sequence="20" />
+
+    <menuitem id="menu_wujia_inspection_question_bank"
+        name="Thư viện câu hỏi kiểm tra"
+        parent="menu_wujia_inspection_config_root"
+        action="action_wujia_franchise_inspection_question"
+        sequence="30" />
+
+    <menuitem id="menu_wujia_inspection_ranking"
+        name="Xếp hạng giám sát"
+        parent="menu_wujia_inspection_config_root"
+        action="action_wujia_franchise_inspection_grade"
+        sequence="40" />
     <!-- 3. Báo cáo -->
     <menuitem id="menu_wujia_inspection_report_root"
         name="Báo cáo"
@@ -113,34 +141,6 @@
         sequence="90"
         groups="group_franchise_manager" />
 
-    <menuitem id="menu_wujia_inspection_config_root"
-        name="Cấu hình giám sát"
-        parent="menu_wujia_config_root"
-        sequence="5" />
-
-    <menuitem id="menu_wujia_inspection_template"
-        name="Mẫu phiếu giám sát"
-        parent="menu_wujia_inspection_config_root"
-        action="action_wujia_franchise_inspection_template"
-        sequence="10" />
-
-    <menuitem id="menu_wujia_inspection_category"
-        name="Danh mục tiêu chí"
-        parent="menu_wujia_inspection_config_root"
-        action="action_wujia_franchise_inspection_category"
-        sequence="20" />
-
-    <menuitem id="menu_wujia_inspection_question_bank"
-        name="Thư viện câu hỏi kiểm tra"
-        parent="menu_wujia_inspection_config_root"
-        action="action_wujia_franchise_inspection_question"
-        sequence="30" />
-
-    <menuitem id="menu_wujia_inspection_ranking"
-        name="Xếp hạng giám sát"
-        parent="menu_wujia_inspection_config_root"
-        action="action_wujia_franchise_inspection_grade"
-        sequence="40" />
 
     <!-- Area Management -->
     <menuitem id="menu_wujia_config_area_root"
