@@ -337,9 +337,10 @@ class WujiaPortalInspectionController(http.Controller):
         criterion_name = _clean_content(line.content_snapshot or (line.template_line_id.content if line.template_line_id else ''))
 
         planned_date_fmt = ""
-        if insp.planned_date:
+        if insp.create_date:
             try:
-                planned_date_fmt = fields.Date.from_string(insp.planned_date).strftime('%H:%M - %d/%m/%Y')
+                local_dt = fields.Datetime.context_timestamp(request.env.user, insp.create_date)
+                planned_date_fmt = local_dt.strftime('%H:%M - %d/%m/%Y')
             except Exception:
                 planned_date_fmt = str(insp.planned_date)
 
