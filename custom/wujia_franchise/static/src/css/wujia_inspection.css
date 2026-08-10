@@ -22,6 +22,18 @@ tr.text-info td,
     font-weight: 600 !important;
 }
 
+/* Background color vàng đậm/amber cao cấp cho dòng tiêu chí quan trọng (critical - decoration-warning) */
+.o_list_renderer tr.text-warning,
+.o_list_view tr.text-warning,
+tr.o_data_row.text-warning,
+tr.text-warning td,
+.o_list_renderer tr.text-warning > td,
+.o_list_view tr.text-warning > td {
+    background-color: #fde68a !important; /* Soft Amber Yellow */
+    color: #78350f !important;             /* Dark Amber Text */
+    font-weight: 500 !important;
+}
+
 .o_selection_badge[value='"need_remediation"'] {
     background-color: #fd7e14 !important;
     color: #ffffff !important;
