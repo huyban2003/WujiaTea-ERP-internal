@@ -313,10 +313,8 @@
                                                         style="font-size: 12px; font-weight: 600;">Đáp
                                                         án đã điền:</div>
                                                     <div class="text-dark font-weight-bold"
-                                                        style="font-size: 13px; white-space: pre-wrap;">
-                                                        <t
-                                                            t-out="(q_line.answer or '').strip() or 'Bỏ trống'" />
-                                                    </div>
+                                                        style="font-size: 13px; white-space: pre-wrap;"
+                                                        t-out="(q_line.answer or '').strip() or 'Bỏ trống'" />
                                                 </div>
                                             </div>
                                         </div>
@@ -616,10 +614,8 @@
                                             <div class="small text-muted mb-1"
                                                 style="font-size: 0.78rem;">Đáp án đã điền:</div>
                                             <div class="small text-dark font-weight-bold"
-                                                style="font-size: 0.85rem; white-space: pre-wrap;">
-                                                <t
-                                                    t-out="(q_line.answer or '').strip() or 'Bỏ trống'" />
-                                            </div>
+                                                style="font-size: 0.85rem; white-space: pre-wrap;"
+                                                t-out="(q_line.answer or '').strip() or 'Bỏ trống'" />
                                         </div>
                                     </div>
                                 </t>
