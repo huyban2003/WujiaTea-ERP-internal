@@ -98,8 +98,16 @@
                             <tbody>
                                 <tr t-foreach="inspection_items" t-as="item">
                                     <td class="wj-pc-td--code">
-                                        <a t-att-href="item.get('detail_url')" class="wj-pc-link"
-                                            t-out="item.get('display_name') or item.get('title')" />
+                                        <div class="d-inline-flex align-items-center gap-2">
+                                            <a t-att-href="item.get('detail_url')" class="wj-pc-link"
+                                                t-out="item.get('display_name') or item.get('title')" />
+                                            <t t-if="item.get('grade_label')">
+                                                <span class="badge"
+                                                    t-attf-style="background-color: #{item.get('badge_bg') or '#f1f5f9'}; color: #{item.get('badge_color') or '#1e293b'}; border: 1px solid #{item.get('badge_color') or '#cbd5e1'}; font-weight: 700; font-size: 0.75rem; padding: 2px 7px; border-radius: 4px;">
+                                                    <t t-out="item.get('grade_label')" />
+                                                </span>
+                                            </t>
+                                        </div>
                                     </td>
                                     <td t-out="item.get('planned_date')" />
                                     <td>
@@ -196,47 +204,54 @@
                         <a t-att-href="item.get('detail_url')"
                             class="text-decoration-none text-dark">
                             <div class="inspection-card-item p-3 mb-3">
-                                <!-- Top Info Header -->
-                                <div class="d-flex justify-content-end align-items-center mb-2">
-                                    <span class="status-dot-badge"
+                                <!-- Top Header Row: Name & Grade Badge on Left (ngang status), Status Badge on Right -->
+                                <div class="d-flex justify-content-between align-items-center mb-3">
+                                    <div class="d-flex align-items-center gap-2 flex-wrap">
+                                        <h6 class="h6 font-weight-bold text-dark m-0 inspection-card-title" style="font-size: 1.05rem;">
+                                            <t t-out="item.get('display_name') or item.get('title')" />
+                                        </h6>
+                                        <t t-if="item.get('grade_label')">
+                                            <span class="badge"
+                                                t-attf-style="background-color: #{item.get('badge_bg') or '#f1f5f9'}; color: #{item.get('badge_color') or '#1e293b'}; border: 1px solid #{item.get('badge_color') or '#cbd5e1'}; font-weight: 700; font-size: 0.75rem; padding: 2px 7px; border-radius: 4px;">
+                                                <t t-out="item.get('grade_label')" />
+                                            </span>
+                                        </t>
+                                    </div>
+                                    <span class="status-dot-badge ms-2 text-nowrap"
                                         t-attf-style="background-color: #{item.get('badge_bg') or '#dcfce7'}; color: #{item.get('badge_color') or '#15803d'}; padding: 4px 12px; border-radius: 20px; font-size: 0.8rem; font-weight: 700;">
                                         • <t t-out="item.get('state_label')" />
                                     </span>
                                 </div>
 
-                                <!-- Title (Exam / Inspection Name) -->
-                                <h6 class="h6 font-weight-bold text-dark mb-3 inspection-card-title">
-                                    <t t-out="item.get('display_name') or item.get('title')" />
-                                </h6>
-
                                 <!-- Details Row: Left (Planned Date) & Right (Total Score) -->
-                                <div class="d-flex justify-content-between align-items-end mb-1">
-                                    <div>
+                                <div class="d-flex justify-content-between align-items-start mb-1">
+                                    <div class="d-flex flex-column justify-content-between">
                                         <div
-                                            class="text-muted font-weight-bold text-uppercase mb-1 inspection-label-sub">
+                                            class="text-muted font-weight-bold text-uppercase inspection-label-sub">
                                             NGÀY GIÁM SÁT
                                         </div>
                                         <div
                                             class="font-weight-bold text-dark small d-flex align-items-center gap-1"
-                                            style="font-size: 0.9rem;">
+                                            style="font-size: 0.9rem; min-height: 24px;">
                                             <i class="feather icon-calendar text-muted me-1" />
                                             <t t-out="item.get('planned_date')" />
                                         </div>
                                     </div>
 
-                                    <div class="text-right">
+                                    <div class="text-end text-right d-flex flex-column justify-content-between align-items-end">
                                         <div
-                                            class="text-muted font-weight-bold text-uppercase mb-1 inspection-label-sub">
+                                            class="text-muted font-weight-bold text-uppercase inspection-label-sub">
                                             ĐIỂM TỔNG KẾT
                                         </div>
-                                        <div class="font-weight-bold small"
-                                            style="font-size: 1.1rem; color: #1e293b;">
+                                        <div
+                                            class="font-weight-bold small d-flex align-items-center justify-content-end gap-1"
+                                            style="font-size: 1.1rem; color: #1e293b; min-height: 24px;">
                                             <span t-attf-style="color: #{item.get('badge_color')};"
                                                 class="font-weight-bold inspection-score-num">
                                                 <t t-out="item.get('total_score')" />
                                             </span>
                                             <span class="text-muted font-weight-normal"
-                                                style="font-size: 0.85rem;"> /100</span>
+                                                style="font-size: 0.85rem;">/100</span>
                                         </div>
                                     </div>
                                 </div>

@@ -97,9 +97,22 @@ class WujiaPortalInspectionController(http.Controller):
             criteria_lines = insp.line_ids.filtered(lambda l: l.display_type == 'line')
             failed_lines = criteria_lines.filtered(lambda l: not l.is_pass or l.result == 'fail')
             unanswered_failed_lines = failed_lines.filtered(lambda l: not l.remediation_image and not l.remediation_note)
-
             first_unanswered_id = unanswered_failed_lines[0].id if unanswered_failed_lines else (failed_lines[0].id if failed_lines else False)
-            grade_name = insp.grade_id.name if insp.grade_id else 'N/A'
+            grade_name = insp.grade_id.name if insp.grade_id else ''
+            if not grade_name and insp.total_score is not False and insp.total_score is not None:
+                all_grades = request.env['wujia.franchise.inspection.grade'].sudo().search([], order='min_score desc')
+                for g in all_grades:
+                    if g.min_score <= (insp.total_score or 0.0) <= g.max_score:
+                        grade_name = g.name
+                        break
+
+            grade_label = ""
+            if grade_name and grade_name != 'N/A':
+                grade_str = str(grade_name).strip()
+                if not grade_str.startswith('Loại') and not grade_str.startswith('Hạng'):
+                    grade_label = f"Loại {grade_str}"
+                else:
+                    grade_label = grade_str
 
             state_label = 'Hoàn thành'
             badge_bg = '#dcfce7'
@@ -146,6 +159,7 @@ class WujiaPortalInspectionController(http.Controller):
                 'progress_color': progress_color,
                 'total_score': int(insp.total_score or 0),
                 'grade_name': grade_name,
+                'grade_label': grade_label,
                 'total_criteria': len(criteria_lines),
                 'pass_count': len(criteria_lines) - len(failed_lines),
                 'failed_count': len(failed_lines),
