@@ -147,10 +147,11 @@
                     }).then(function (r) {
                         return r.json();
                     }).then(function (j) {
-                        // KHÔNG dùng `&&`/`<`/`>` trong <script> inline: QWeb serialize
-                        // template bằng lxml nên ký tự đó ra HTML dưới dạng thực thể
-                        // (`&amp;&amp;`), mà HTML5 không giải mã thực thể bên trong
-                        // <script> ⇒ cả khối JS chết vì SyntaxError.
+                        // KHÔNG dùng toán tử AND/so-sánh-lớn-nhỏ của JS trong script
+                        // inline: QWeb serialize template bằng lxml nên các ký tự đó ra
+                        // HTML dưới dạng thực thể, mà HTML5 không giải mã thực thể bên
+                        // trong thẻ script ⇒ cả khối JS chết vì SyntaxError. Viết if
+                        // lồng như dưới, hoặc đưa hẳn ra static/src/js/.
                         var v = '';
                         if (j) {
                             if (j.result) {

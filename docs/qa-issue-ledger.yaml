@@ -870,7 +870,7 @@ WJ-EXAM-006:
 
 WJ-NOTI-001:
   sprint: "2026-08-11-B2"
-  build_override: "CHƯA lên UAT | Sprint 2026-08-11-B2 | commit: cc7570f | Deploy: -u wujia_portal_notification,wujia_portal_base (không có bước cập nhật dữ liệu) | URL: /portal, /portal/notification"
+  build_override: "ĐÃ lên UAT 11/08/2026 http://113.161.187.126:8019 | Sprint 2026-08-11-B2 | commit: cc7570f | Deploy: -u wujia_portal_notification,wujia_portal_base (không có bước cập nhật dữ liệu) | URL: /portal, /portal/notification"
   url: "/portal, /portal/notification, /portal/notification/<id>"
   odoo_fit: "Custom"
   fix: "Portal trước đây in thẳng giờ lưu trong máy chủ (giờ quốc tế) nên luôn sớm hơn backend 7 tiếng. Nay mọi chỗ hiện ngày giờ gửi thông báo đều đổi sang múi giờ người dùng (mặc định Asia/Ho_Chi_Minh) qua cùng một hàm dùng chung: Trang chủ, danh sách, chi tiết và popup chuông. Bộ lọc từ ngày đến ngày cũng được quy đổi, trước đây chọn ngày 03/08 sẽ hụt mất các thông báo gửi buổi sáng"
@@ -880,7 +880,7 @@ WJ-NOTI-001:
 
 WJ-PROD-001:
   sprint: "2026-08-11-B2"
-  build_override: "CHƯA lên UAT | Sprint 2026-08-11-B2 | commit: cc7570f | Deploy: -u wujia_sale (CÓ bước cập nhật dữ liệu, đổi tên cột) | URL: Odoo Backend — Biến thể sản phẩm > tab Wujia Portal"
+  build_override: "ĐÃ lên UAT 11/08/2026 http://113.161.187.126:8019 | Sprint 2026-08-11-B2 | commit: cc7570f | Deploy: -u wujia_sale (CÓ bước cập nhật dữ liệu, đổi tên cột) | URL: Odoo Backend — Biến thể sản phẩm > tab Wujia Portal"
   url: "Odoo Backend: Bán hàng > Sản phẩm > Biến thể sản phẩm > tab Wujia Portal"
   odoo_fit: "Custom"
   fix: "Trường Quy cách của Wujia trước đây mang tên kỹ thuật trùng với một trường có sẵn của app Thương mại điện tử trong Odoo. Trên UAT app đó đang được cài, hai trường đụng nhau làm cột trong cơ sở dữ liệu đổi sang định dạng khác, nên lưu Quy cách là báo lỗi. Nay trường Quy cách của Wujia được đặt tên riêng nên không còn đụng độ. Nhãn hiển thị vẫn là Quy cách, vị trí trong tab Wujia Portal giữ nguyên, giá trị đã nhập trước đó được chuyển sang nguyên vẹn"
@@ -890,7 +890,7 @@ WJ-PROD-001:
 
 UI-PAGEHEADER-001:
   sprint: "2026-08-11-B3a+B3b"
-  build_override: "CHƯA lên UAT | Sprint 2026-08-11-B3a+B3b | commit: 4da3a57 + 30bed39 | Deploy: -u wujia_portal_layout,wujia_portal_sale,wujia_portal_purchase_history,wujia_portal_notification,wujia_portal_support,wujia_portal_debt,wujia_portal_knowledge,wujia_portal_return,wujia_portal_exam (không có bước cập nhật dữ liệu) | URL: đủ 17 màn của bảng đặt tên"
+  build_override: "ĐÃ lên UAT 11/08/2026 http://113.161.187.126:8019 | Sprint 2026-08-11-B3a+B3b | commit: 4da3a57 + 30bed39 | Deploy: -u wujia_portal_layout,wujia_portal_sale,wujia_portal_purchase_history,wujia_portal_notification,wujia_portal_support,wujia_portal_debt,wujia_portal_knowledge,wujia_portal_return,wujia_portal_exam (không có bước cập nhật dữ liệu) | URL: đủ 17 màn của bảng đặt tên"
   url: "/portal/order, /portal/purchase-history, /portal/delivery, /portal/debt, /portal/notification, /portal/knowledge, /portal/support, /portal/exam, /portal/profile, /portal/return, /portal/purchase-history/<id>, /portal/delivery/<id>, /portal/notification/<id>, /portal/support/<id>, /portal/support/new, /portal/return/<id>, /portal/return/new"
   odoo_fit: "Custom"
   fix: "Tiêu đề đầu trang nay dùng chung một khuôn duy nhất theo CMP-PG-001 trên toàn bộ 17 màn của bảng đặt tên. Máy tính: chữ 26, dòng cao 32, đậm 700, hàng cao 64, cách trên dưới 16, không thêm khoảng cách xuống nội dung. Điện thoại: chữ 22, dòng cao 28, đậm 700, hàng cao 52, cách trên dưới 12, cách nội dung bên dưới đúng 8. Con số phụ bên cạnh tiêu đề (số sản phẩm, số đơn, số hóa đơn, số chưa đọc) nằm ngay trong khuôn tiêu đề, chữ 14 trên máy tính và 13 trên điện thoại, và vẫn tự đổi số khi lọc mà không tải lại trang. Tiêu đề dài nay xuống dòng thay vì bị cắt bằng dấu ba chấm. Tên trang lấy đúng bảng đặt tên: Hỗ trợ, Kiến thức, Tài khoản, Bù hàng, Công nợ, Chi tiết đơn hàng, Chi tiết yêu cầu hỗ trợ, Chi tiết yêu cầu bù hàng. Những màn trước đây tự dựng tiêu đề riêng (Đặt hàng bản điện thoại, bốn màn Công nợ, ba màn Tài khoản trên máy tính, màn Đăng ký thi trên máy tính) nay đều dùng chung khuôn. Mã đơn, mã ticket và mã yêu cầu đã gỡ khỏi tiêu đề; ở màn Chi tiết yêu cầu hỗ trợ và Chi tiết yêu cầu bù hàng trên máy tính, mã (và tiêu đề ticket) được đưa xuống thẻ Thông tin sẵn có để không mất dữ liệu hiển thị"
@@ -900,7 +900,7 @@ UI-PAGEHEADER-001:
 
 UI-BACKPAGEHEADER-001:
   sprint: "2026-08-11-B4"
-  build_override: "CHƯA lên UAT | Sprint 2026-08-11-B4 | commit: 70f3e4f | Deploy: -u wujia_portal_layout,wujia_portal_base,wujia_portal_debt,wujia_portal_support,wujia_portal_return (không có bước cập nhật dữ liệu) | URL: 7 màn chi tiết và tạo mới của đặc tả"
+  build_override: "ĐÃ lên UAT 11/08/2026 http://113.161.187.126:8019 | Sprint 2026-08-11-B4 | commit: 70f3e4f | Deploy: -u wujia_portal_layout,wujia_portal_base,wujia_portal_debt,wujia_portal_support,wujia_portal_return (không có bước cập nhật dữ liệu) | URL: 7 màn chi tiết và tạo mới của đặc tả | Đã kiểm lại trên UAT sau deploy, chỉ đọc không sửa dữ liệu: 104/105 điểm đo đạt (điểm còn lại là lỗi của chính công cụ đo, không phải của màn hình)"
   url: "/portal/purchase-history/<id>, /portal/delivery/<id>, /portal/notification/<id>, /portal/support/<id>, /portal/support/new, /portal/return/<id>, /portal/return/new"
   odoo_fit: "Custom"
   fix: "Nút Quay lại nay dùng chung một khuôn duy nhất theo đặc tả. Trên máy tính: nút chữ rộng 122 cao 40, bo góc 12, nền trắng, viền xám nhạt, mũi tên trái (trước đây là dấu ngoặc nhọn) màu xanh thương hiệu, chữ Quay lại cỡ 14 đậm 700 màu xám đậm; khi rê chuột hoặc di chuyển bằng bàn phím tới thì nền và viền chuyển xanh nhạt, chữ lẫn mũi tên chuyển xanh thương hiệu, đồng thời hiện viền chỉ dấu để người dùng bàn phím thấy rõ đang đứng ở đâu. Trên điện thoại: nút tròn 42×42 (trước đây là ô vuông bo góc 40×40), vùng chạm vẫn đủ 44×44, hàng tiêu đề vẫn cao đúng 52. Về hành vi: nút quay lại nay ưu tiên địa chỉ trả về được truyền kèm nếu hợp lệ, nếu không thì quay về đúng trang danh sách cha kèm bộ lọc và số trang mà người dùng đang xem, còn vào thẳng bằng đường dẫn dán tay thì về trang danh sách cha. Địa chỉ trả về được kiểm tra chặt, chỉ nhận đường dẫn nội bộ trong portal nên không thể bị lợi dụng để đẩy người dùng ra trang ngoài. Hai màn tạo mới (yêu cầu hỗ trợ và yêu cầu bù hàng) nay hỏi xác nhận trước khi rời trang nếu người dùng đã nhập dở, bấm Huỷ thì ở lại và giữ nguyên dữ liệu đã gõ"
@@ -910,10 +910,10 @@ UI-BACKPAGEHEADER-001:
 
 FUNC-MOB-SHELL-005:
   sprint: "2026-08-11-B4"
-  build_override: "CHƯA lên UAT | Sprint 2026-08-11-B4 | commit: 70f3e4f | Deploy: -u wujia_portal_base (không có bước cập nhật dữ liệu) | URL: mọi trang portal trên điện thoại"
+  build_override: "ĐÃ lên UAT 11/08/2026 http://113.161.187.126:8019 | Sprint 2026-08-11-B4 | commit: 70f3e4f | Deploy: -u wujia_portal_base (không có bước cập nhật dữ liệu) | URL: mọi trang portal trên điện thoại"
   url: "Mọi trang /portal/* trên điện thoại — dòng cửa hàng đang thao tác ngay dưới thanh trên cùng"
   odoo_fit: "Custom"
   fix: "Trên điện thoại, dòng cửa hàng đang thao tác trước đây chỉ để đọc, bấm vào không có gì xảy ra nên người dùng nhiều cửa hàng không đổi được nơi làm việc. Nay bấm vào dòng này sẽ mở đúng cửa sổ Đổi cửa hàng đang thao tác của bản máy tính, dùng chung một luồng chứ không làm luồng riêng: danh sách chỉ gồm cửa hàng người dùng được phép, cửa hàng đang chọn được đánh dấu sẵn, bấm Huỷ hoặc đóng thì không thay đổi gì, bấm Xác nhận thì đổi cửa hàng và ở lại đúng trang đang xem. Người chỉ có một cửa hàng thì dòng này vẫn để đọc như cũ, không tạo cảm giác bấm được rồi không có gì xảy ra. Hình thức và khoảng cách của dòng giữ nguyên hoàn toàn"
   impact: "Dòng cửa hàng đang thao tác trên điện thoại, ở mọi trang portal. Bản máy tính, quyền truy cập cửa hàng và cách đổi cửa hàng bên trong đều không đổi, vì dùng lại đúng cửa sổ và đúng đường xử lý sẵn có"
-  retest: "Đăng nhập bằng tài khoản có từ hai cửa hàng, mở portal trên điện thoại: bấm vào dòng cửa hàng đang thao tác, cửa sổ Đổi cửa hàng phải mở, đánh dấu đúng cửa hàng hiện tại và liệt kê đủ các cửa hàng được phép. Bấm Huỷ rồi bấm dấu × : dòng cửa hàng phải giữ nguyên. Mở lại, chọn cửa hàng khác rồi Xác nhận: dòng cửa hàng phải đổi mã, tên và vai trò, vẫn ở đúng trang cũ, dữ liệu trên trang và số trên giỏ hàng phải theo cửa hàng mới. Xem ở khổ 391×844: cửa sổ không được tràn ra ngoài màn hình hay chồng lên nội dung. Đăng nhập bằng tài khoản chỉ có một cửa hàng: bấm vào dòng đó không được mở gì"
-  limit: "Không có"
+  retest: "Lưu ý dùng tài khoản cửa hàng, KHÔNG dùng tài khoản quản trị: tài khoản quản trị trên UAT không gắn cửa hàng nào nên dòng cửa hàng không hiện, không kiểm được. Đăng nhập bằng tài khoản có từ hai cửa hàng, mở portal trên điện thoại: bấm vào dòng cửa hàng đang thao tác, cửa sổ Đổi cửa hàng phải mở, đánh dấu đúng cửa hàng hiện tại và liệt kê đủ các cửa hàng được phép. Bấm Huỷ rồi bấm dấu × : dòng cửa hàng phải giữ nguyên. Mở lại, chọn cửa hàng khác rồi Xác nhận: dòng cửa hàng phải đổi mã, tên và vai trò, vẫn ở đúng trang cũ, dữ liệu trên trang và số trên giỏ hàng phải theo cửa hàng mới. Xem ở khổ 391×844: cửa sổ không được tràn ra ngoài màn hình hay chồng lên nội dung. Đăng nhập bằng tài khoản chỉ có một cửa hàng: bấm vào dòng đó không được mở gì"
+  limit: "Phần đổi cửa hàng trên điện thoại đã chạy đủ end-to-end trên bản sao dữ liệu thật trước khi giao. Sau khi lên UAT, Dev chưa tự kiểm lại được vì tài khoản quản trị không gắn cửa hàng nào nên dòng cửa hàng đang thao tác không hiện; cần BA retest bằng tài khoản có từ hai cửa hàng"
