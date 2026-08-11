@@ -482,8 +482,7 @@ html body .content .content-wrapper {
        KHÔNG dùng :first-child: các trang này có block PC ẩn (d-none d-lg-block) đứng
        trước nên :first-child trỏ nhầm vào nó. !important vì _components.css nạp SAU
        file này, đồng specificity sẽ thắng. */
-    .content-wrapper .wj-page-header--m,
-    .content-wrapper .wujia-morder-titlerow { margin-top: 0 !important; }
+    .content-wrapper .wj-page-header--m { margin-top: 0 !important; }
     /* UI-MOB-HOME-001: home tự có pad 16 — bỏ pad-top của nó để không cộng dồn với wrapper. */
     .content-wrapper > .wujia-mhome { padding-top: 0 !important; }
 }

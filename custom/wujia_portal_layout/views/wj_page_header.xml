@@ -19,6 +19,9 @@
                 <span class="wj-page-header__back-label">Quay lại</span>
             </a>
             <h1 class="wj-page-header__title" t-att-title="ph_title" t-out="ph_title"/>
+            <!-- ph_meta (CMP-PG-001): markup thô, KHÔNG bọc element — 3 route có meta là slot
+                 swap của wj_ajax_list (replaceWith theo id). Caller tự gắn wj-page-header__meta. -->
+            <t t-if="ph_meta" t-out="ph_meta"/>
             <div t-if="ph_variant == 'create' and ph_can_create"
                  class="wj-page-header__actions">
                 <a t-att-href="ph_create_url or '#'" class="wj-page-header__create">

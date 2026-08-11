@@ -1321,22 +1321,7 @@ a.wujia-mhome-kpi:active { opacity: 0.85; }
 /* ---------- Catalog "Sản phẩm" (.wujia-morder) ---------- */
 /* RESP-MOB-ORDER-003: chừa chỗ cho floatbar + safe-area (WJ-ORD-013) */
 .wujia-morder { padding-bottom: calc(150px + env(safe-area-inset-bottom, 0px)); }
-.wujia-morder-titlerow {
-    display: flex;
-    align-items: baseline;
-    justify-content: space-between;
-    gap: 10px;
-    /* WJ-ORD-005: 16px trên (thoáng khỏi status-strip) → 12px xuống warnbar */
-    margin: 16px 0 12px;
-}
-.wujia-morder-title {
-    font-size: 25px;        /* Figma 4575:777 — title 25/700 (was 24) */
-    font-weight: 700;
-    color: var(--wujia-morder-text);
-    margin: 0;
-}
-/* WJ-ORD-005: bộ đếm "N SP" cùng hàng title, không xuống dòng, không co */
-.wujia-morder-count { flex: 0 0 auto; white-space: nowrap; }
+/* Title row riêng đã gỡ — catalog mobile nay dùng shared PageHeader (CMP-PG-001). */
 
 /* Order warning bar (WJ_Mobile_OrderWarningBar) — shared by catalog + cart */
 .wujia-morder-warnbar {
@@ -3228,27 +3213,34 @@ a.wujia-mhome-kpi:active { opacity: 0.85; }
 }
 
 /* ============================================================
-   WJ_PageHeader — component chuẩn hoá header portal (spec v1.0)
+   WJ_PageHeader — component chuẩn hoá header portal (BA CMP-PG-001)
    Base + mobile modifier (--m). PC modifier (--pc) ở _pc_components.css.
    Hàng layout độc lập trên nền content, không card/shadow/subtitle.
+   Padding NGANG do PageContainer lo (mpage 16 / content-wrapper PC), header
+   chỉ khai padding dọc để ra đúng chiều cao 1 hàng 52 (m) / 64 (pc).
    ============================================================ */
 .wj-page-header {
     display: flex;
     align-items: center;
+    flex-wrap: wrap;
     width: 100%;
     min-width: 0;
-    min-height: 44px;
     background: transparent;
 }
 .wj-page-header__title {
-    flex: 1 1 auto;
+    /* KHÔNG grow: meta phải nằm sát title chứ không bị đẩy ra mép phải PageContainer (spec) */
+    flex: 0 1 auto;
     min-width: 0;
     margin: 0;
-    overflow: hidden;
-    white-space: nowrap;
-    text-overflow: ellipsis;
+    overflow-wrap: anywhere;   /* CMP-PG-001: title dài xuống dòng, không ellipsis */
     font-weight: 700;
     color: var(--wj-title);
+}
+.wj-page-header__meta {
+    flex: 0 0 auto;
+    margin: 0;
+    font-weight: 600;
+    color: var(--wj-muted);
 }
 .wj-page-header__back {
     flex: 0 0 auto;
@@ -3262,7 +3254,7 @@ a.wujia-mhome-kpi:active { opacity: 0.85; }
     text-decoration: none;
 }
 .wj-page-header__back > i { font-size: 24px; line-height: 1; }
-.wj-page-header__actions { flex: 0 0 auto; margin-left: 16px; }
+.wj-page-header__actions { flex: 0 0 auto; margin-left: auto; }   /* action luôn nằm bên phải */
 .wj-page-header__create {
     display: inline-flex;
     align-items: center;
@@ -3281,15 +3273,25 @@ a.wujia-mhome-kpi:active { opacity: 0.85; }
 .wj-page-header__create > i { font-size: 20px; line-height: 1; }
 .wj-page-header__create:hover { background: var(--wj-primary-dark); color: #FFFFFF; }
 
-/* Mobile modifier — top 16 / row 44 / bottom 12, x kế thừa container (spec §3) */
-.wj-page-header--m { margin: 16px 0 12px; }
-.wujia-mpage > .wj-page-header--m { margin: 0; }   /* mpage gap/pad tự lo spacing */
+/* Mobile modifier (CMP-PG-001) — 1 hàng cao 52 = pad 12 + title 28 + pad 12; x do container. */
+.wj-page-header--m { padding: 12px 0; margin: 0 0 8px; min-height: 52px; }
+/* Gap header → nội dung đầu = 8 (spec). .wujia-mpage có gap chung 14 cho MỌI trang mobile
+   nên bù -6 tại đây thay vì đổi token dùng chung. */
+.wujia-mpage > .wj-page-header--m { margin-bottom: -6px; }
 /* !important để thắng global `h1 { font-size: … !important }` (_components.css gotcha #13) */
 .wj-page-header--m .wj-page-header__title { font-size: 22px !important; line-height: 28px; }
+/* Meta căn phải cùng hàng với title; hết chỗ thì flex-wrap đẩy xuống dưới (spec RESPONSIVE) */
+.wj-page-header--m .wj-page-header__meta {
+    font-size: 13px; line-height: 18px; margin-left: auto; text-align: right;
+}
+/* Back cao 40 > dòng title 28 → pad 6 để hàng vẫn đúng 52 (vùng chạm 44 nằm ngoài luồng) */
+.wj-page-header--m.wj-page-header--back { padding: 6px 0; }
 .wj-page-header--m .wj-page-header__back { width: 40px; height: 40px; margin-right: 12px; position: relative; }
 /* Mobile giữ nút icon-only: nhãn chữ chỉ dành cho PC (UI-PC-BASE-006) */
 .wj-page-header--m .wj-page-header__back-label { display: none; }
-.wj-page-header--m .wj-page-header__create { width: 112px; height: 40px; }
+/* Action mobile ≥44 (CMP-PG-001) → pad 4 để hàng vẫn đúng 52 */
+.wj-page-header--m.wj-page-header--create { padding: 4px 0; }
+.wj-page-header--m .wj-page-header__create { width: 112px; height: 44px; }
 /* Tap target ≥44 dù visual back 40 (spec) */
 .wj-page-header--m .wj-page-header__back::after {
     content: ""; position: absolute; top: 50%; left: 50%;

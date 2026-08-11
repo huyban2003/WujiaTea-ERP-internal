@@ -88,12 +88,14 @@
             </nav>
         </div>
 
-        <div t-if="part == 'mcount'" id="wj-ord-mcount" class="wujia-morder-titlerow">
-            <h1 class="wujia-morder-title">Đặt hàng</h1>
-            <span t-if="products" class="wj-count-meta wj-count-meta--bold wujia-morder-count">
-                <t t-out="len(products)"/> SP
-            </span>
-        </div>
+        <!-- Meta PageHeader (CMP-PG-001) — H1 nay do shared wj_page_header dựng; giữ nguyên
+             id để wj_ajax_list vẫn thay được số SP sau khi lọc. Luôn render (rỗng khi 0 SP). -->
+        <span t-if="part == 'mcount'" id="wj-ord-mcount" class="wj-page-header__meta">
+            <t t-if="products"><t t-out="len(products)"/> SP</t>
+        </span>
+        <span t-if="part == 'pccount'" id="wj-ord-pccount" class="wj-page-header__meta">
+            <t t-if="products"><t t-out="len(products)"/> SP</t>
+        </span>
 
         <!-- Luôn render (ẩn khi chưa có danh mục) — AJAX cần chỗ để thay. -->
         <div t-if="part == 'mchips'" id="wj-ord-mchips" class="wj-filter-chips wujia-morder-chips"
@@ -179,7 +181,7 @@
     <!-- Fragment AJAX: cả 4 mảnh, JS thay từng khối theo id. -->
     <template id="portal_order_catalog_results" name="Wujia Portal — Catalog Results Fragment">
         <div t-if="not no_franchise">
-            <t t-foreach="['pc', 'mcount', 'mchips', 'mbody']" t-as="pt">
+            <t t-foreach="['pc', 'pccount', 'mcount', 'mchips', 'mbody']" t-as="pt">
                 <t t-call="wujia_portal_sale.portal_order_catalog_results_part">
                     <t t-set="part" t-value="pt"/>
                 </t>
@@ -192,7 +194,7 @@
             <t t-set="title">Đặt hàng</t>
             <t t-call="wujia_portal_base.wj_ajax_list_config">
                 <t t-set="wjl_path" t-value="'/portal/order'"/>
-                <t t-set="wjl_slots" t-value="'wj-ord-pc,wj-ord-mcount,wj-ord-mchips,wj-ord-mbody'"/>
+                <t t-set="wjl_slots" t-value="'wj-ord-pc,wj-ord-pccount,wj-ord-mcount,wj-ord-mchips,wj-ord-mbody'"/>
                 <t t-set="wjl_fragment" t-value="'/portal/order/results'"/>
             </t>
             <div class="content-wrapper">
@@ -214,6 +216,11 @@
                             <t t-set="ph_platform" t-value="'pc'"/>
                             <t t-set="ph_variant" t-value="'title'"/>
                             <t t-set="ph_title">Đặt hàng</t>
+                            <t t-set="ph_meta">
+                                <t t-call="wujia_portal_sale.portal_order_catalog_results_part">
+                                    <t t-set="part" t-value="'pccount'"/>
+                                </t>
+                            </t>
                         </t>
 
                         <div t-if="error" class="alert alert-danger" role="alert"><t t-esc="error"/></div>
@@ -275,15 +282,22 @@
                         Bạn chưa được gán vào cửa hàng nào — không thể đặt hàng.
                     </div>
                     <t t-else="">
+                        <!-- WJ-ORD-005: H1 = task chính "Đặt hàng"; bộ đếm SP cùng hàng bên phải,
+                             cập nhật theo số SP đang hiển thị sau tìm/lọc. Từ CMP-PG-001 dùng
+                             shared PageHeader thay title row riêng. -->
+                        <t t-call="wujia_portal_layout.wj_page_header">
+                            <t t-set="ph_platform" t-value="'m'"/>
+                            <t t-set="ph_variant" t-value="'title'"/>
+                            <t t-set="ph_title">Đặt hàng</t>
+                            <t t-set="ph_meta">
+                                <t t-call="wujia_portal_sale.portal_order_catalog_results_part">
+                                    <t t-set="part" t-value="'mcount'"/>
+                                </t>
+                            </t>
+                        </t>
+
                         <div t-if="error" class="alert alert-danger" role="alert"><t t-esc="error"/></div>
                         <div t-if="message" class="alert alert-success" role="status"><t t-esc="message"/></div>
-
-                        <!-- WJ-ORD-005: H1 = task chính "Đặt hàng" (khớp PC + bottom-nav
-                             active), bộ đếm danh sách CÙNG hàng bên phải (không dòng riêng),
-                             cập nhật theo số SP đang hiển thị sau tìm/lọc. -->
-                        <t t-call="wujia_portal_sale.portal_order_catalog_results_part">
-                            <t t-set="part" t-value="'mcount'"/>
-                        </t>
 
                         <!-- Order warning bar — WJ-ORD-006: màu + nội dung theo trạng thái
                              thực (order_window_open server-side theo store tz); WJ-ORD-015:
