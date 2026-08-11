@@ -71,7 +71,7 @@
                                     <span t-if="n.summary" class="wj-pc-noti-summary" t-out="n.summary"/>
                                 </div>
                             </td>
-                            <td class="wj-pc-td--muted" t-out="n.published_date and n.published_date.strftime('%d/%m/%Y') or '—'"/>
+                            <td class="wj-pc-td--muted" t-out="wj_dt(n.published_date, '%d/%m/%Y') or '—'"/>
                             <td>
                                 <span t-if="not is_read" class="wj-pc-badge wj-pc-badge--cancel">Chưa đọc</span>
                                 <span t-else="" class="wj-pc-badge wj-pc-badge--pending">Đã đọc</span>
@@ -181,7 +181,7 @@
                         <span class="wujia-mnoti-row-side">
                             <span t-if="not is_read" class="wujia-mnoti-row-dot"/>
                             <span class="wujia-mnoti-row-date"
-                                  t-out="n.published_date and n.published_date.strftime('%d/%m/%Y · %H:%M') or ''"/>
+                                  t-out="wj_dt(n.published_date, '%d/%m/%Y · %H:%M')"/>
                         </span>
                     </a>
                 </t>
@@ -375,7 +375,7 @@
                                 </div>
                                 <div class="wj-pc-kv">
                                     <span class="wj-pc-kv__label">Ngày gửi</span>
-                                    <span class="wj-pc-kv__value" t-out="noti.published_date and noti.published_date.strftime('%d/%m/%Y · %H:%M') or '—'"/>
+                                    <span class="wj-pc-kv__value" t-out="wj_dt(noti.published_date, '%d/%m/%Y · %H:%M') or '—'"/>
                                 </div>
                             </div>
                         </div>
@@ -416,7 +416,7 @@
                 </t>
                 <p class="wj-count-meta">
                     <t t-if="noti.dispatch_number"><t t-out="noti.dispatch_number"/> • </t>
-                    <t t-out="noti.published_date and noti.published_date.strftime('%d/%m/%Y %H:%M') or ''"/>
+                    <t t-out="wj_dt(noti.published_date, '%d/%m/%Y %H:%M')"/>
                 </p>
 
                 <div class="wujia-mnoti-detail-card">

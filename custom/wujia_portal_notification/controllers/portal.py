@@ -9,6 +9,11 @@ from odoo.addons.wujia_portal_base.controllers.portal import (
     get_active_franchise_id,
     get_active_franchise_ids_filter,
 )
+from odoo.addons.wujia_portal_base.controllers.utils import (
+    fmt_local_dt,
+    local_day_range_utc,
+    portal_tz,
+)
 
 
 # BA FINAL: popup 5, view list mặc định 10 record/trang (FE gửi limit trong danh sách cho phép).
@@ -159,10 +164,12 @@ class WujiaPortalNotification(http.Controller):
         if df and dt and df > dt:
             date_error = ERROR_MESSAGES['INVALID_DATE_RANGE']
             df = dt = None
-        if df:
-            domain.append(('published_date', '>=', datetime.combine(df, datetime.min.time())))
-        if dt:
-            domain.append(('published_date', '<=', datetime.combine(dt, datetime.max.time())))
+        # Ngày người dùng chọn là giờ địa phương, cột published_date là UTC (WJ-NOTI-001).
+        utc_from, utc_to = local_day_range_utc(df, dt, portal_tz())
+        if utc_from:
+            domain.append(('published_date', '>=', utc_from))
+        if utc_to:
+            domain.append(('published_date', '<=', utc_to))
 
         tid = _parse_int(type_id)
         if tid:
@@ -229,6 +236,7 @@ class WujiaPortalNotification(http.Controller):
             'date_from': date_from, 'date_to': date_to, 'priority': priority,
             'page_size': lim,
             'PC_TYPE_TONE': PC_TYPE_TONE, 'PC_PRIORITY_TAGS': PC_PRIORITY_TAGS,
+            'wj_dt': fmt_local_dt,
         }
 
     @http.route(['/portal/notification'], type='http', auth='user', sitemap=False)
@@ -277,6 +285,7 @@ class WujiaPortalNotification(http.Controller):
         return request.render('wujia_portal_notification.portal_notification_detail', {
             'noti': noti,
             'PC_TYPE_TONE': PC_TYPE_TONE, 'PC_PRIORITY_TAGS': PC_PRIORITY_TAGS,
+            'wj_dt': fmt_local_dt,
         })
 
     @http.route(['/portal/notification/recent'], type='json',
@@ -297,7 +306,7 @@ class WujiaPortalNotification(http.Controller):
             'id': n.id,
             'name': n.name,
             'dispatch_number': n.dispatch_number or '',
-            'date': n.published_date.strftime('%d/%m/%Y %H:%M') if n.published_date else '',
+            'date': fmt_local_dt(n.published_date, '%d/%m/%Y %H:%M'),
             'type_code': n.type_id.code or 'GEN',
             'type_name': n.type_id.name or '',
             'priority': n.priority or 'normal',

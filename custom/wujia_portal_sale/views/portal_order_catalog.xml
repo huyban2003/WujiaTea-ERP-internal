@@ -10,7 +10,7 @@
              part nên t-set đặt ngoài sẽ không tồn tại ⇒ KeyError cart_qty_map. -->
         <t t-set="cart_qty_map"
            t-value="{l['product_id']: l['qty'] for l in cart_state['lines']} if cart_state else {}"/>
-        <t t-set="has_spec" t-value="any(p.description_ecommerce for p in products)"/>
+        <t t-set="has_spec" t-value="any(p.wujia_packaging for p in products)"/>
         <div t-if="part == 'pc'" id="wj-ord-pc">
             <!-- Product card -->
             <div class="wj-pc-card wj-pc-order-card">
@@ -48,7 +48,7 @@
                                     </a>
                                 </td>
                                 <td t-if="has_spec" class="wj-pc-order-spec"
-                                    t-out="product.description_ecommerce or '—'"/>
+                                    t-out="product.wujia_packaging or '—'"/>
                                 <td class="wj-pc-order-uom" t-out="product.uom_id.name or '—'"/>
                                 <td class="text-end wj-pc-order-price"
                                     t-out="money(price_map.get(product.id), cart_state['currency_symbol'] if cart_state else '', cart_state['currency_decimals'] if cart_state else 0)"/>
@@ -138,7 +138,7 @@
                                class="wujia-morder-row-info">
                                 <span class="wujia-morder-row-name" t-out="product.name"/>
                                 <span class="wujia-morder-row-spec"
-                                      t-out="product.description_ecommerce or product.uom_id.name or '—'"/>
+                                      t-out="product.wujia_packaging or product.uom_id.name or '—'"/>
                             </a>
                             <span class="wujia-morder-row-price"
                                   t-out="money(price_map.get(product.id), cart_state['currency_symbol'] if cart_state else '', cart_state['currency_decimals'] if cart_state else 0)"/>

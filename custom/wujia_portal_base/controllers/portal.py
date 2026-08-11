@@ -6,6 +6,7 @@ from odoo.addons.portal.controllers.portal import CustomerPortal
 from odoo.addons.wujia_portal_base.controllers.utils import (
     MOBILE_ORDER_BADGES,
     MOBILE_RETURN_BADGES,
+    fmt_local_dt,
     get_upcoming_batches,
     portal_money,
 )
@@ -280,6 +281,7 @@ class WujiaPortal(CustomerPortal):
             'top_currency_symbol': top_currency.symbol or '',
             'top_currency_decimals': top_currency.decimal_places or 0,
             'franchise_ids': franchise_ids,
+            'wj_dt': fmt_local_dt,
         }
 
     def _safe_count(self, model_name, kind, franchise_ids):

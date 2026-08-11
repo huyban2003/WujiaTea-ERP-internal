@@ -63,6 +63,12 @@ def to_local_dt(dt, tz):
     return pytz.utc.localize(dt).astimezone(tz).replace(tzinfo=None)
 
 
+def fmt_local_dt(dt, fmt, tz=None):
+    """Datetime UTC → chuỗi đã đổi sang giờ địa phương. Template dùng qua biến `wj_dt`."""
+    local = to_local_dt(dt, tz or portal_tz())
+    return local.strftime(fmt) if local else ''
+
+
 def local_day_range_utc(date_from, date_to, tz):
     """(date, date) giờ địa phương → (datetime, datetime) naive UTC để đưa vào domain.
 

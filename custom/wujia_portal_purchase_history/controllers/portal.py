@@ -140,7 +140,7 @@ def _history_line_vals(line, taxes_of=None):
     )
     return {
         'product_name': product.display_name or line.name,
-        'spec': product.description_ecommerce or '',
+        'spec': product.wujia_packaging or '',
         'uom_name': line.product_uom_id.name or '',
         'quantity': qty,
         'discount': line.discount or 0.0,

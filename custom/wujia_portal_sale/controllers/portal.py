@@ -289,7 +289,7 @@ class WujiaPortalSale(http.Controller):
                 'name_chinese': product.name_chinese or '',
                 'default_code': product.default_code or '',
                 'uom': product.uom_id.name or '—',
-                'spec': product.description_ecommerce or '',
+                'spec': product.wujia_packaging or '',
                 'qty': line.qty,
                 'min_qty': product.min_qty,
                 'max_qty': product.max_qty,
