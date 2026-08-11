@@ -796,3 +796,74 @@ UI-PC-BASE-007:
   impact: "13 màn chi tiết/tạo mới bản máy tính. Bản điện thoại không nhận dòng này nên không đổi gì"
   retest: "Ở 1920×1080 mở 13 màn chi tiết/tạo mới: mỗi màn có một dòng nhỏ phía trên tiêu đề đúng đường dẫn nghiệp vụ (Hỗ trợ / Tạo yêu cầu; Đặt hàng / Chi tiết sản phẩm; Lịch sử đặt hàng / Chi tiết đơn hàng; Thông báo / Chi tiết thông báo; Hỗ trợ / Chi tiết yêu cầu; Kiến thức / Chi tiết bài viết; Giao hàng / Chi tiết chuyến giao; Yêu cầu đổi trả / Tạo yêu cầu; Yêu cầu đổi trả / Chi tiết yêu cầu; Đặt hàng / Giỏ hàng; Yêu cầu cập nhật thông tin / Tạo yêu cầu; Yêu cầu cập nhật thông tin / Chi tiết yêu cầu; Thông tin cửa hàng / Hồ sơ cửa hàng). Nút Quay lại vẫn còn nguyên — dòng dẫn đường không thay thế nút quay lại"
   limit: "Dòng dẫn đường hiện là chữ thường, chưa bấm được vào từng cấp. Nếu BA muốn bấm vào 'Hỗ trợ' để về danh sách thì cần thêm một vòng nữa"
+
+WJ-ORD-023:
+  sprint: "2026-08-04"
+  commit: "63dc4bc"
+  deployed_date: "2026-08-10"
+  url: "/portal/order"
+  odoo_fit: "Custom"
+  fix: "Bộ lọc bản máy tính của màn Đặt hàng trước đây xếp dọc thành ba hàng (ô tìm, danh mục, nút Tìm), chiếm nhiều chiều cao và để trống mảng lớn bên phải. Nay ba thứ nằm chung một hàng trong một khung trắng: ô tìm co giãn chiếm phần rộng còn lại, danh mục và nút Tìm bám bên phải. Cách lọc và cách gửi biểu mẫu giữ nguyên như cũ"
+  impact: "Chỉ khối bộ lọc màn Đặt hàng bản máy tính. Bản điện thoại và cách lọc/danh sách sản phẩm không đụng tới"
+  retest: "Ở 1920×1080 mở Đặt hàng: ô tìm, danh mục và nút Tìm nằm cùng một hàng, cùng cao 42, cách nhau 12, không tràn hay chồng nhau. Chọn Topping rồi bấm Tìm: địa chỉ giữ category_id=2, ô danh mục vẫn đang chọn Topping, danh sách còn đúng 2 sản phẩm. Trang không có thanh cuộn ngang"
+  limit: "Không có. Đã đo lại trực tiếp trên UAT ngày 10/08/2026: cả 5 điểm trong Kết quả mong muốn đều đạt"
+
+WJ-EXAM-001:
+  sprint: "2026-08-10-B1"
+  build_override: "CHƯA lên UAT | Sprint 2026-08-10-B1 | commit: 1821097 | Deploy: -u wujia_portal_exam (không có bước cập nhật dữ liệu) | URL: /portal/exam/register"
+  url: "/portal/exam/register"
+  odoo_fit: "Custom"
+  fix: "Ô số điện thoại ở bước nhập nhân sự nay kiểm ngay tại chỗ theo đúng khuôn mà hệ thống vốn đã yêu cầu khi lưu (bắt đầu bằng 0 hoặc +84, tổng 9–11 chữ số). Gõ sai thì hiện lỗi ngay dưới dòng đó và không cho sang bước Xác nhận. Bản máy tính trước đây kiểm lỏng hơn máy chủ nên có số lọt tới lúc gửi mới báo lỗi, nay hai bên dùng chung một khuôn. Máy chủ cũng chặn lại một lần nữa khi nhận yêu cầu"
+  impact: "Bước 3 màn Đăng ký thi, cả điện thoại lẫn máy tính. Không đổi dữ liệu, quyền hay các bước khác"
+  retest: "Ở 391×844 mở Đăng ký thi, tới bước nhập nhân sự: nhập họ tên hợp lệ và số điện thoại 'abc' rồi bấm Tiếp tục — phải hiện lỗi 'Số điện thoại không hợp lệ (vd 0901234567)' và ở lại bước 3. Sửa thành 0901234567 rồi bấm Tiếp tục — phải sang được bước Xác nhận. Làm y vậy ở 1920×1080 trong ô thêm người tham gia"
+  limit: "Chỉ nhận số Việt Nam (0… hoặc +84…). Số quốc tế khác sẽ bị chặn — đây là khuôn đã có sẵn trong hệ thống từ trước, không phải quy tắc mới"
+
+WJ-EXAM-002:
+  sprint: "2026-08-10-B1"
+  build_override: "CHƯA lên UAT | Sprint 2026-08-10-B1 | commit: 1821097 | Deploy: -u wujia_portal_exam (không có bước cập nhật dữ liệu) | URL: /portal/exam/register"
+  url: "/portal/exam/register"
+  odoo_fit: "Custom"
+  fix: "Thẻ khóa thi trước đây chỉ có hai trạng thái: còn nhận hoặc 'Đã đóng'. Nay tách riêng trường hợp kỳ thi vẫn mở, vẫn trong hạn nhưng đã kín chỗ — thẻ ghi 'Hết chỗ' với nhãn màu cam. Chỉ khi không còn kỳ thi nào đang mở/còn hạn thì mới ghi 'Đã đóng'. Cả hai trường hợp đều không cho bấm chọn, y như trước"
+  impact: "Danh sách khóa thi ở màn Đăng ký thi bản điện thoại. Bản máy tính chọn khóa bằng ô danh sách nên không có thẻ trạng thái, không đổi gì"
+  retest: "Cho một khóa còn kỳ thi đang mở, chưa quá hạn nhưng đã kín chỗ: thẻ phải ghi 'Hết chỗ' và không có nút Chọn. Đóng nốt kỳ thi đó: thẻ chuyển 'Đã đóng', vẫn không có nút Chọn. Khóa còn chỗ vẫn ghi 'Còn lịch' và bấm chọn được"
+  limit: "Không có"
+
+WJ-EXAM-003:
+  sprint: "2026-08-10-B1"
+  build_override: "CHƯA lên UAT | Sprint 2026-08-10-B1 | commit: 1821097 | Deploy: -u wujia_portal_exam (không có bước cập nhật dữ liệu) | URL: /portal/exam/register"
+  url: "/portal/exam/register"
+  odoo_fit: "Custom"
+  fix: "Bước Xác nhận trên điện thoại trước đây gộp một dòng 'chức vụ • số điện thoại' và bỏ hẳn năm sinh. Nay mỗi người dự thi hiện bốn dòng có nhãn rõ: họ tên, Số điện thoại, Năm sinh, Chức vụ; ô chưa nhập hiện dấu gạch. Bảng Kiểm tra trên bản máy tính được thêm cột Năm sinh cho khớp"
+  impact: "Bước Xác nhận màn Đăng ký thi, điện thoại và máy tính. Dữ liệu gửi đi không đổi"
+  retest: "Nhập một người có đủ họ tên, số điện thoại, năm sinh, chức vụ rồi sang bước Xác nhận: ở 391×844 phải thấy đủ bốn dòng có nhãn. Ở 1920×1080 bấm Kiểm tra: bảng người tham gia phải có cột Năm sinh nằm giữa Số điện thoại và Chức vụ"
+  limit: "Không có"
+
+WJ-EXAM-004:
+  sprint: "2026-08-10-B1"
+  build_override: "CHƯA lên UAT | Sprint 2026-08-10-B1 | commit: 1821097 | Deploy: -u wujia_portal_exam (không có bước cập nhật dữ liệu) | URL: Odoo Backend — Phiếu đăng ký thi"
+  url: "Backend: Đăng ký thi > Phiếu đăng ký > tab Danh sách người dự thi"
+  odoo_fit: "Odoo Standard"
+  fix: "Cột Năm sinh trong danh sách người dự thi nay tắt dấu phân tách hàng nghìn, nên 1995 hiển thị đúng là 1995 chứ không phải 1.995. Kiểu dữ liệu của trường giữ nguyên, không đổi gì trong cơ sở dữ liệu"
+  impact: "Chỉ cách hiển thị cột Năm sinh ở màn Phiếu đăng ký thi trong Odoo. Không đụng dữ liệu đã lưu hay portal"
+  retest: "Mở một phiếu đăng ký thi có người sinh năm 1995, xem tab Danh sách người dự thi: cột Năm sinh phải ghi 1995. Sửa thành 2001 rồi lưu, mở lại vẫn phải ghi 2001"
+  limit: "Không có"
+
+WJ-EXAM-005:
+  sprint: "2026-08-10-B1"
+  build_override: "CHƯA lên UAT | Sprint 2026-08-10-B1 | commit: 1821097 | Deploy: -u wujia_portal_exam (không có bước cập nhật dữ liệu) | URL: Odoo Backend — Phiếu đăng ký thi"
+  url: "Backend: Đăng ký thi > Phiếu đăng ký > tab Danh sách người dự thi"
+  odoo_fit: "Custom"
+  fix: "Ô ảnh của người chưa tải ảnh trước đây mang chữ kỹ thuật 'Tập tin nhị phân'. Nay chữ đó được thay bằng 'Ảnh người dự thi', đồng thời thêm một cột Ảnh ghi rõ 'Chưa có ảnh' hoặc 'Đã tải' để nhìn là biết ngay. Cột này chỉ để đọc, tính ra lúc mở màn, không lưu thêm gì vào cơ sở dữ liệu"
+  impact: "Chỉ tab Danh sách người dự thi ở màn Phiếu đăng ký thi trong Odoo. Ảnh đã lưu và portal không đổi"
+  retest: "Mở một phiếu có người chưa tải ảnh: không được thấy chữ 'Tập tin nhị phân' ở đâu; cột Ảnh phải ghi 'Chưa có ảnh'. Tải một ảnh lên rồi lưu: cột đó chuyển thành 'Đã tải'. Xem ở cả tiếng Việt lẫn tiếng Anh đều phải đúng"
+  limit: "Không có"
+
+WJ-EXAM-006:
+  sprint: "2026-08-10-B1"
+  build_override: "CHƯA lên UAT | Sprint 2026-08-10-B1 | commit: 1821097 | Deploy: -u wujia_portal_exam (không có bước cập nhật dữ liệu) | URL: /portal/exam/registration/<id>"
+  url: "/portal/exam/registration/<id>"
+  odoo_fit: "Custom"
+  fix: "Dòng hướng dẫn 'Người không đạt có thể đăng ký thi lại khi có lịch mở' trước đây hiện với mọi phiếu đã công bố kết quả. Nay chỉ hiện khi phiếu có ít nhất một người Không đạt; phiếu mà tất cả đều Đạt thì không còn dòng này"
+  impact: "Màn chi tiết phiếu đăng ký thi bản điện thoại. Bản máy tính vốn không có dòng này nên không đổi. Nút Đăng ký thi mới giữ nguyên"
+  retest: "Mở một phiếu đã công bố kết quả mà tất cả người dự thi đều Đạt: không được thấy dòng hướng dẫn thi lại. Đổi một người thành Không đạt rồi mở lại: dòng hướng dẫn phải xuất hiện"
+  limit: "Không có"

@@ -275,15 +275,13 @@
                                     <span class="wujia-mhome-kpi-label">Đổi trả</span>
                                     <span class="wujia-mhome-kpi-value" t-out="return_requests_count or 0"/>
                                 </a>
-                                <!-- CÔNG NỢ: Sprint 17 — chưa build (account.move = Phase 2).
-                                     Tile inert UI-only (KHÔNG link — module /portal/debt đã xoá).
-                                     Dựng section + wire khi cần.
-                                     Số 0 vẫn phải mang ký hiệu tiền của công ty, không hardcode ₫ —
-                                     nếu không, màn hình Trang chủ có 2 ký hiệu tiền khác nhau (cụm D). -->
+                                <!-- CÔNG NỢ: tile inert khi wujia_portal_debt chưa cài (module đó
+                                     inherit thay bằng link + số thật). Không có nguồn ⇒ "—" chứ
+                                     KHÔNG in 0đ: 0 là một giá trị kế toán, thiếu dữ liệu thì không
+                                     được hiểu thành đã trả hết (STT11 acceptance #5). -->
                                 <div class="wujia-mhome-kpi">
                                     <span class="wujia-mhome-kpi-label">Công nợ</span>
-                                    <span class="wujia-mhome-kpi-value"
-                                          t-out="money(0, company_currency_symbol, company_currency_decimals)"/>
+                                    <span class="wujia-mhome-kpi-value">—</span>
                                 </div>
                             </div>
                         </section>
@@ -347,9 +345,12 @@
                                 <h3 class="wujia-mhome-section-title">Thông báo nổi bật</h3>
                                 <a href="/portal/notification" class="wujia-mhome-noti-link">Xem tất cả ›</a>
                             </div>
-                            <div t-if="not latest_notifications" class="wujia-empty-state">
-                                <i class="feather icon-bell"/>
-                                <p>Chưa có thông báo nào.</p>
+                            <div t-if="not latest_notifications" class="wj-empty-state wj-empty-state--row">
+                                <span class="wj-empty-state-icon"><i class="feather icon-bell"/></span>
+                                <div class="wj-empty-state-body">
+                                    <p class="wj-empty-state-title">Bạn đã xem hết thông báo</p>
+                                    <p class="wj-empty-state-sub">Thông báo quan trọng mới sẽ xuất hiện tại đây.</p>
+                                </div>
                             </div>
                             <div t-else="" class="wujia-mhome-noti-list">
                                 <t t-foreach="latest_notifications" t-as="noti">
@@ -371,7 +372,43 @@
                              3 màn dashboard (Figma mobile_dashboard 2474:2) gộp về Home
                              (dedupe: "Đơn hàng gần đây"/"Giao hàng sắp tới" mỗi mục 1 lần).
                              Reuse class .wujia-mdash-* (wujia_portal_layout). Công nợ BỎ
-                             đợt này (build sau). ============================================ -->
+                             đợt này (build sau).
+                             Sprint 50 (STT11): thứ tự 5 block bám mockup BA
+                             Wujia_Home_Mobile_Empty_State.svg — Thông báo / Giao hàng / Đơn hàng /
+                             Kiến thức / Đổi trả; mỗi block dùng chung modifier row của
+                             .wj-empty-state.
+                             ============================================ -->
+
+                        <!-- Giao hàng sắp tới -->
+                        <section class="wujia-mdash-sec">
+                            <div class="wujia-mdash-titlerow">
+                                <h2 class="wujia-mdash-title">Giao hàng sắp tới</h2>
+                                <a href="/portal/delivery" class="wujia-mdash-link">Xem tất cả ›</a>
+                            </div>
+                            <div t-if="not m_upcoming_batches" class="wj-empty-state wj-empty-state--row">
+                                <span class="wj-empty-state-icon"><i class="feather icon-truck"/></span>
+                                <div class="wj-empty-state-body">
+                                    <p class="wj-empty-state-title">Chưa có chuyến giao sắp tới</p>
+                                    <p class="wj-empty-state-sub">Lịch giao sẽ hiển thị khi đơn hàng được xác nhận.</p>
+                                </div>
+                            </div>
+                            <div t-else="" class="wujia-mdash-stack">
+                                <t t-foreach="m_upcoming_batches" t-as="it">
+                                    <a t-attf-href="/portal/delivery/#{it['batch'].id}" class="wujia-mdash-card wujia-mdash-item">
+                                        <span class="wujia-mdash-tile"><i class="feather icon-truck"/></span>
+                                        <span class="wujia-mdash-row-main">
+                                            <span class="wujia-mdash-row-title" t-out="it['batch'].name"/>
+                                            <span class="wujia-mdash-row-sub is-strong" t-out="it['when']"/>
+                                            <span class="wujia-mdash-row-sub">Tổng đơn: <t t-out="it['order_count']"/> đơn</span>
+                                            <span class="wujia-mdash-row-sub is-strong">
+                                                Tổng tiền: <t t-out="money(it['total'], store_currency_symbol, store_currency_decimals)"/>
+                                            </span>
+                                        </span>
+                                        <span t-attf-class="wujia-badge #{it['badge'][1]}" t-out="it['badge'][0]"/>
+                                    </a>
+                                </t>
+                            </div>
+                        </section>
 
                         <!-- Đơn hàng gần đây -->
                         <section class="wujia-mdash-sec">
@@ -379,8 +416,14 @@
                                 <h2 class="wujia-mdash-title">Đơn hàng gần đây</h2>
                                 <a href="/portal/purchase-history" class="wujia-mdash-link">Xem tất cả ›</a>
                             </div>
-                            <div class="wujia-mdash-card wujia-mdash-list">
-                                <div t-if="not recent_orders" class="wj-empty-state--compact">Chưa có đơn hàng.</div>
+                            <div t-if="not recent_orders" class="wj-empty-state wj-empty-state--row">
+                                <span class="wj-empty-state-icon"><i class="feather icon-file-text"/></span>
+                                <div class="wj-empty-state-body">
+                                    <p class="wj-empty-state-title">Chưa có đơn hàng</p>
+                                    <p class="wj-empty-state-sub">Đơn hàng mới sẽ hiển thị tại đây sau khi được tạo.</p>
+                                </div>
+                            </div>
+                            <div t-else="" class="wujia-mdash-card wujia-mdash-list">
                                 <t t-foreach="recent_orders" t-as="o">
                                     <a t-attf-href="/portal/purchase-history/#{o.id}" class="wujia-mdash-row">
                                         <span class="wujia-mdash-tile"><i class="feather icon-file-text"/></span>
@@ -399,26 +442,29 @@
                             </div>
                         </section>
 
-                        <!-- Giao hàng sắp tới -->
+                        <!-- Bài viết / Kiến thức mới -->
                         <section class="wujia-mdash-sec">
                             <div class="wujia-mdash-titlerow">
-                                <h2 class="wujia-mdash-title">Giao hàng sắp tới</h2>
-                                <a href="/portal/delivery" class="wujia-mdash-link">Xem tất cả ›</a>
+                                <h2 class="wujia-mdash-title">Bài viết / Kiến thức mới</h2>
+                                <a href="/portal/knowledge" class="wujia-mdash-link">Xem tất cả ›</a>
                             </div>
-                            <div class="wujia-mdash-stack">
-                                <div t-if="not m_upcoming_batches" class="wujia-mdash-card wj-empty-state--compact">Chưa có chuyến giao sắp tới.</div>
-                                <t t-foreach="m_upcoming_batches" t-as="it">
-                                    <a t-attf-href="/portal/delivery/#{it['batch'].id}" class="wujia-mdash-card wujia-mdash-item">
-                                        <span class="wujia-mdash-tile"><i class="feather icon-truck"/></span>
+                            <div t-if="not articles" class="wj-empty-state wj-empty-state--row">
+                                <span class="wj-empty-state-icon"><i class="feather icon-book"/></span>
+                                <div class="wj-empty-state-body">
+                                    <p class="wj-empty-state-title">Chưa có bài viết mới</p>
+                                    <p class="wj-empty-state-sub">Tài liệu hướng dẫn mới nhất sẽ được cập nhật tại đây.</p>
+                                </div>
+                            </div>
+                            <div t-else="" class="wujia-mdash-card wujia-mdash-list">
+                                <t t-foreach="articles" t-as="art">
+                                    <a t-attf-href="/portal/knowledge/#{art.slug}" class="wujia-mdash-row">
+                                        <span class="wujia-mdash-tile"><i class="feather icon-file-text"/></span>
                                         <span class="wujia-mdash-row-main">
-                                            <span class="wujia-mdash-row-title" t-out="it['batch'].name"/>
-                                            <span class="wujia-mdash-row-sub is-strong" t-out="it['when']"/>
-                                            <span class="wujia-mdash-row-sub">Tổng đơn: <t t-out="it['order_count']"/> đơn</span>
-                                            <span class="wujia-mdash-row-sub is-strong">
-                                                Tổng tiền: <t t-out="money(it['total'], store_currency_symbol, store_currency_decimals)"/>
-                                            </span>
+                                            <span class="wujia-mdash-row-title is-sm" t-out="art.name"/>
+                                            <span class="wujia-mdash-row-sub is-xs"
+                                                  t-out="art.publish_date and art.publish_date.strftime('%d/%m/%Y') or ''"/>
                                         </span>
-                                        <span t-attf-class="wujia-badge #{it['badge'][1]}" t-out="it['badge'][0]"/>
+                                        <i class="feather icon-chevron-right wujia-mdash-chev"/>
                                     </a>
                                 </t>
                             </div>
@@ -430,8 +476,14 @@
                                 <h2 class="wujia-mdash-title">Yêu cầu đổi trả gần đây</h2>
                                 <a href="/portal/return" class="wujia-mdash-link">Xem tất cả ›</a>
                             </div>
-                            <div class="wujia-mdash-stack">
-                                <div t-if="not latest_returns" class="wujia-mdash-card wj-empty-state--compact">Chưa có yêu cầu đổi trả.</div>
+                            <div t-if="not latest_returns" class="wj-empty-state wj-empty-state--row">
+                                <span class="wj-empty-state-icon"><i class="feather icon-corner-up-left"/></span>
+                                <div class="wj-empty-state-body">
+                                    <p class="wj-empty-state-title">Chưa có yêu cầu đổi trả</p>
+                                    <p class="wj-empty-state-sub">Yêu cầu mới sẽ hiển thị tại đây sau khi được tạo.</p>
+                                </div>
+                            </div>
+                            <div t-else="" class="wujia-mdash-stack">
                                 <t t-foreach="latest_returns" t-as="r">
                                     <a t-attf-href="/portal/return/#{r.id}" class="wujia-mdash-card wujia-mdash-item">
                                         <span class="wujia-mdash-row-main">
@@ -447,28 +499,6 @@
                                         </span>
                                         <t t-set="lbl" t-value="m_return_badges.get(r.state, (r.state, 'wujia-badge-muted'))"/>
                                         <span t-attf-class="wujia-badge #{lbl[1]}" t-out="lbl[0]"/>
-                                    </a>
-                                </t>
-                            </div>
-                        </section>
-
-                        <!-- Bài viết / Kiến thức mới -->
-                        <section class="wujia-mdash-sec">
-                            <div class="wujia-mdash-titlerow">
-                                <h2 class="wujia-mdash-title">Bài viết / Kiến thức mới</h2>
-                                <a href="/portal/knowledge" class="wujia-mdash-link">Xem tất cả ›</a>
-                            </div>
-                            <div class="wujia-mdash-card wujia-mdash-list">
-                                <div t-if="not articles" class="wj-empty-state--compact">Chưa có bài viết.</div>
-                                <t t-foreach="articles" t-as="art">
-                                    <a t-attf-href="/portal/knowledge/#{art.slug}" class="wujia-mdash-row">
-                                        <span class="wujia-mdash-tile"><i class="feather icon-file-text"/></span>
-                                        <span class="wujia-mdash-row-main">
-                                            <span class="wujia-mdash-row-title is-sm" t-out="art.name"/>
-                                            <span class="wujia-mdash-row-sub is-xs"
-                                                  t-out="art.publish_date and art.publish_date.strftime('%d/%m/%Y') or ''"/>
-                                        </span>
-                                        <i class="feather icon-chevron-right wujia-mdash-chev"/>
                                     </a>
                                 </t>
                             </div>

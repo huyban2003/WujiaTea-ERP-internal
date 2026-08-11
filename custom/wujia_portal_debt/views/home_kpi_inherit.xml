@@ -11,7 +11,9 @@
               inherit_id="wujia_portal_base.portal_home_page">
         <xpath expr="//div[hasclass('wujia-mhome-hero-kpis')]/div[hasclass('wujia-mhome-kpi')]"
                position="replace">
-            <t t-set="_debt_kpi" t-value="request.env['wujia.portal.debt'].get_shell_badge()"/>
+            <!-- get_home_debt_kpi (KHÔNG phải get_shell_badge): thêm 1 count để phân biệt
+                 "chưa có dữ liệu" (—) với 0đ thật — chỉ chạy ở Home, xem docstring. -->
+            <t t-set="_debt_kpi" t-value="request.env['wujia.portal.debt'].get_home_debt_kpi()"/>
             <a href="/portal/debt" class="wujia-mhome-kpi">
                 <span class="wujia-mhome-kpi-label">Công nợ</span>
                 <span class="wujia-mhome-kpi-value" t-out="_debt_kpi['remaining_label']"/>

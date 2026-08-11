@@ -561,21 +561,20 @@
         color: var(--wujia-text-primary);
     }
     .wujia-mexam-cfpeople { display: flex; flex-direction: column; gap: 14px; }
+    /* WJ-EXAM-003: xếp dọc 4 nhãn thay vì 1 dòng "chức vụ • sđt" */
     .wujia-mexam-cfperson {
         display: flex;
-        align-items: center;
-        justify-content: space-between;
-        gap: 10px;
+        flex-direction: column;
+        gap: 2px;
     }
     .wujia-mexam-cfperson-name {
         font-size: 15px;
         font-weight: 600;
         color: var(--wujia-text-primary);
     }
-    .wujia-mexam-cfperson-meta {
+    .wujia-mexam-cfperson-kv {
         font-size: 13px;
         color: var(--wujia-text-subtitle);
-        text-align: right;
     }
 
     /* ================= s6 — Kết quả ================= */

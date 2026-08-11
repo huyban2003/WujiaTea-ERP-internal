@@ -37,6 +37,10 @@ class WujiaExamRegistrationLine(models.Model):
     image_1920 = fields.Image(
         string='Candidate photo', max_width=1920, max_height=1920,
     )
+    photo_state = fields.Char(
+        string='Photo', compute='_compute_photo_state',
+        help='Reads "No photo" when the candidate has no picture yet.',
+    )
     result = fields.Selection(
         RESULT_STATE, string='Result', default='pending', required=True,
         index=True, tracking=True,
@@ -46,6 +50,11 @@ class WujiaExamRegistrationLine(models.Model):
         'res.users', string='Result entered by', readonly=True,
     )
     result_entered_date = fields.Datetime(string='Result entry date', readonly=True)
+
+    @api.depends('image_1920')
+    def _compute_photo_state(self):
+        for rec in self:
+            rec.photo_state = _("Uploaded") if rec.image_1920 else _("No photo")
 
     @api.constrains('phone')
     def _check_phone(self):

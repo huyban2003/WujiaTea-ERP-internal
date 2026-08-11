@@ -13,6 +13,8 @@
 
     var MAX_PHOTO_BYTES = 5 * 1024 * 1024;
     var PHOTO_MIME_RE = /^image\/(png|jpe?g)$/i;
+    /* Giống hệt PHONE_RE của model — regex cũ nới hơn server nên lọt tới submit. */
+    var PHONE_RE = /^(0|\+84)[0-9]{8,10}$/;
 
     function qs(root, sel) { return root ? root.querySelector(sel) : null; }
     function qsa(root, sel) {
@@ -362,7 +364,7 @@
         function saveParticipant() {
             var name = nameInput ? nameInput.value.trim() : "";
             var phone = phoneInput ? phoneInput.value.trim() : "";
-            var phoneOk = /^[0-9 .+-]{9,15}$/.test(phone);
+            var phoneOk = PHONE_RE.test(phone);
             if (!name || !phoneOk) {
                 if (phoneInput) { phoneInput.closest(".wj-pc-field").classList.toggle("is-invalid", !phoneOk); }
                 if (nameInput) { nameInput.closest(".wj-pc-field").classList.toggle("is-invalid", !name); }
@@ -463,11 +465,13 @@
                         + '"><i class="feather icon-user"></i></span></td>'
                         + '<td class="wj-exam-pc-td--name"></td>'
                         + "<td></td>"
+                        + '<td class="wj-pc-td--muted"></td>'
                         + '<td class="wj-pc-td--muted"></td>';
                     var td = r.querySelectorAll("td");
                     td[1].textContent = p.employee_name || "";
                     td[2].textContent = p.phone || "";
-                    td[3].textContent = p.job_position || "";
+                    td[3].textContent = p.birth_year || "—";
+                    td[4].textContent = p.job_position || "—";
                     sumBody.appendChild(r);
                 });
             }

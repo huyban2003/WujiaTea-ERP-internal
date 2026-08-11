@@ -51,10 +51,12 @@
                                     <field name="sequence" widget="handle"/>
                                     <field name="employee_name"/>
                                     <field name="phone"/>
-                                    <field name="birth_year"/>
+                                    <field name="birth_year"
+                                           options="{'enable_formatting': false}"/>
                                     <field name="job_position"/>
-                                    <field name="image_1920" widget="image"
+                                    <field name="image_1920" widget="image" alt="Candidate photo"
                                            options="{'size': [40, 40]}"/>
+                                    <field name="photo_state" readonly="1"/>
                                     <field name="result" readonly="parent.state != 'confirmed'"/>
                                     <field name="result_note"/>
                                 </list>

@@ -490,9 +490,9 @@
                             <div class="wj-pc-field wj-exam-pc-field">
                                 <label class="wj-pc-field__label wj-exam-pc-flabel" for="wj_exam_p_phone">Số điện thoại *</label>
                                 <input id="wj_exam_p_phone" type="text" name="phone" required="required"
-                                       class="wj-pc-control wj-exam-pc-control" placeholder="0901 234 567"/>
+                                       class="wj-pc-control wj-exam-pc-control" placeholder="0901234567"/>
                                 <!-- 07_UIStates · 5. Lỗi dữ liệu người thi -->
-                                <p class="wj-exam-pc-fielderr" data-wj-exam-phone-err="1" hidden="hidden">Số điện thoại không hợp lệ.</p>
+                                <p class="wj-exam-pc-fielderr" data-wj-exam-phone-err="1" hidden="hidden">Số điện thoại không hợp lệ (vd 0901234567).</p>
                             </div>
                             <div class="wj-pc-field wj-exam-pc-field">
                                 <label class="wj-pc-field__label wj-exam-pc-flabel" for="wj_exam_p_birth">Năm sinh</label>
@@ -591,6 +591,7 @@
                                         <th>Ảnh</th>
                                         <th>Họ và tên</th>
                                         <th>Số điện thoại</th>
+                                        <th>Năm sinh</th>
                                         <th>Chức vụ</th>
                                     </tr>
                                 </thead>
@@ -766,7 +767,7 @@
                             </div>
                             <div class="wujia-mexam-person-body">
                                 <input class="wujia-mexam-field" name="employee_name" placeholder="Họ và tên"/>
-                                <input class="wujia-mexam-field" name="phone" placeholder="Số điện thoại" inputmode="tel"/>
+                                <input class="wujia-mexam-field" name="phone" placeholder="Số điện thoại (vd 0901234567)" inputmode="tel"/>
                                 <div class="wujia-mexam-field-row">
                                     <input class="wujia-mexam-field" name="birth_year" placeholder="Năm sinh" inputmode="numeric"/>
                                     <input class="wujia-mexam-field" name="job_position" placeholder="Chức vụ"/>
@@ -1051,7 +1052,7 @@
                     </t>
                 </div>
 
-                <div t-if="reg_view['is_published']" class="wujia-mexam-cal-note wujia-mexam-rnote">
+                <div t-if="reg_view['has_failed']" class="wujia-mexam-cal-note wujia-mexam-rnote">
                     <i class="feather icon-info"/>
                     <span>Người không đạt có thể đăng ký thi lại khi có lịch mở.</span>
                 </div>
