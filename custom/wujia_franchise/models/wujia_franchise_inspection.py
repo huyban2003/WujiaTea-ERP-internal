@@ -27,7 +27,66 @@ class WujiaFranchiseInspection(models.Model):
     _description = 'Phiếu khảo sát đánh giá cửa hàng nhượng quyền'
     _order = 'id desc'
 
-    name = fields.Char(string='Tên phiếu khảo sát', required=True)
+    _sql_constraints = [
+        ('name_uniq', 'unique(name)', 'Mã/Tên phiếu khảo sát (name) đã tồn tại trong hệ thống! Không thể trùng lặp.'),
+    ]
+
+    @api.model
+    def _generate_inspection_name(self, franchise_id, schedule_id=None, seq_number=None):
+        """
+        Hàm sinh mã phiếu khảo sát dạng 'PSG-[mã cửa hàng]-[stt 4 chữ số]'.
+        Nếu tạo từ Lịch giám sát (schedule_id), tên phiếu sẽ khớp 100% với mã lịch giám sát (thay LGS thành PSG).
+        """
+        if schedule_id:
+            schedule = schedule_id if isinstance(schedule_id, models.Model) else self.env['wujia.supervision.schedule'].browse(schedule_id)
+            if schedule.exists() and schedule.name:
+                if schedule.name.startswith('LGS-'):
+                    return schedule.name.replace('LGS-', 'PSG-', 1)
+                return f"PSG-{schedule.name}"
+        if not franchise_id:
+            return 'PSG-STORE-0001'
+        store = franchise_id if isinstance(franchise_id, models.Model) else self.env['wujia.franchise.management'].browse(franchise_id)
+        if not store.exists():
+            return 'PSG-STORE-0001'
+
+        store_code = (store.code or store.name or 'STORE').strip().replace(' ', '_')
+
+        if seq_number is None:
+            seq_number = self.search_count([('franchise_id', '=', store.id)]) + 1
+
+        candidate_name = f"PSG-{store_code}-{seq_number:04d}"
+
+        # Kiểm tra trùng lặp: Nếu đã tồn tại candidate_name trong DB -> Gọi ĐỆ QUY tăng seq_number + 1
+        if self.search_count([('name', '=', candidate_name)]):
+            return self._generate_inspection_name(store, schedule_id=schedule_id, seq_number=seq_number + 1)
+
+        return candidate_name
+
+    @api.onchange('schedule_id', 'franchise_id')
+    def _onchange_schedule_or_franchise_set_name(self):
+        if self.schedule_id:
+            self.name = self._generate_inspection_name(self.franchise_id, schedule_id=self.schedule_id)
+        elif self.franchise_id:
+            if not self.name or self.name.startswith('PSG-') or self.name.startswith('Khảo sát') or self.name == 'New':
+                self.name = self._generate_inspection_name(self.franchise_id)
+
+    @api.model_create_multi
+    def create(self, vals_list):
+        for vals in vals_list:
+            franchise_id = vals.get('franchise_id')
+            schedule_id = vals.get('schedule_id')
+            current_name = vals.get('name')
+            if not current_name or current_name == 'New' or current_name.startswith('Khảo sát') or not current_name.startswith('PSG-'):
+                if schedule_id:
+                    vals['name'] = self._generate_inspection_name(franchise_id, schedule_id=schedule_id)
+                elif franchise_id:
+                    vals['name'] = self._generate_inspection_name(franchise_id)
+                elif not current_name:
+                    count = self.search_count([]) + 1
+                    vals['name'] = f"PSG-STORE-{count:04d}"
+        return super(WujiaFranchiseInspection, self).create(vals_list)
+
+    name = fields.Char(string='Tên phiếu khảo sát', required=True, copy=False)
 
     submit_date = fields.Date(
         string='Ngày nộp'
@@ -470,6 +529,11 @@ class WujiaFranchiseInspection(models.Model):
         }
 
     def write(self, vals):
+        if 'name' in vals and not self.env.su:
+            for rec in self:
+                if rec.name and vals['name'] != rec.name:
+                    raise ValidationError(_("Không thể thay đổi Mã/Tên phiếu khảo sát (%s) sau khi đã tạo!") % rec.name)
+
         if vals.get('state') == 'need_remediation':
             for rec in self:
                 for line in rec.line_ids.filtered(lambda l: l.display_type == 'line'):

@@ -13,14 +13,14 @@
           │   ├─ Cửa hàng cần giám sát
           │   ├─ Chờ xử lý khắc phục
           │   ├─ Lịch sử giám sát
-          │   └─ Cấu hình giám sát
-          │       ├─ Mẫu phiếu giám sát         (action_wujia_franchise_inspection_template)
-          │       ├─ Danh mục tiêu chí           (action_wujia_franchise_inspection_category)
-          │       ├─ Thư viện câu hỏi kiểm tra
-          │       └─ Xếp hạng giám sát
-          ├─ Báo cáo
-          │   ├─ Phân tích kết quả giám sát
-          │   └─ Phân tích tiêu chí vi phạm
+          │   ├─ Cấu hình giám sát
+          │   │   ├─ Mẫu phiếu giám sát         (action_wujia_franchise_inspection_template)
+          │   │   ├─ Danh mục tiêu chí           (action_wujia_franchise_inspection_category)
+          │   │   ├─ Thư viện câu hỏi kiểm tra
+          │   │   └─ Xếp hạng giám sát
+          │   └─ Báo cáo
+          │       ├─ Phân tích kết quả giám sát
+          │       └─ Phân tích tiêu chí vi phạm
           └─ Configuration / Cấu hình
               └─ Area Management
                   ├─ Area
@@ -116,11 +116,11 @@
         parent="menu_wujia_inspection_config_root"
         action="action_wujia_franchise_inspection_grade"
         sequence="40" />
-    <!-- 3. Báo cáo -->
+    <!-- 3. Báo cáo (Con của Giám sát cửa hàng) -->
     <menuitem id="menu_wujia_inspection_report_root"
         name="Báo cáo"
-        parent="menu_wujia_root"
-        sequence="40" />
+        parent="menu_wujia_inspection_supervision_root"
+        sequence="70" />
 
     <menuitem id="menu_wujia_inspection_report_result"
         name="Phân tích kết quả giám sát"

@@ -7,16 +7,16 @@
         <field name="model">wujia.supervision.schedule</field>
         <field name="arch" type="xml">
             <list string="Lịch giám sát cửa hàng">
-                <field name="name"/>
-                <field name="store_id"/>
-                <field name="user_id"/>
+                <field name="name" />
+                <field name="store_id" />
+                <field name="user_id" />
                 <!-- Thay date_start thành date -->
-                <field name="date" options="{'format': 'DD/MM/YYYY'}"/>
+                <field name="date" options="{'format': 'DD/MM/YYYY'}" />
                 <field name="state" widget="badge"
-                       decoration-info="state == 'draft'"
-                       decoration-warning="state == 'in_progress'"
-                       decoration-success="state == 'done'"
-                       decoration-danger="state == 'cancel'"/>
+                    decoration-info="state == 'draft'"
+                    decoration-warning="state == 'in_progress'"
+                    decoration-success="state == 'done'"
+                    decoration-danger="state == 'cancel'" />
             </list>
         </field>
     </record>
@@ -28,16 +28,16 @@
         <field name="arch" type="xml">
             <!-- Dùng date_start="date" (chỉ định trường date làm mốc lịch) -->
             <calendar string="Lịch giám sát cửa hàng"
-                      date_start="date"
-                      mode="month"
-                      color="state"
-                      create="true"
-                      quick_create="false"
-                      event_limit="5">
-                <field name="name"/>
-                <field name="store_id"/>
-                <field name="user_id" avatar_field="avatar_128"/>
-                <field name="state" filters="1"/>
+                date_start="date"
+                mode="month"
+                color="state"
+                create="true"
+                quick_create="false"
+                event_limit="5">
+                <field name="name" />
+                <field name="store_id" />
+                <field name="user_id" avatar_field="avatar_128" />
+                <field name="state" filters="1" />
             </calendar>
         </field>
     </record>
@@ -49,46 +49,48 @@
         <field name="arch" type="xml">
             <form string="Lịch giám sát">
                 <header>
-                    <field name="state" widget="statusbar" statusbar_visible="draft,in_progress,done"/>
+                    <field name="state" widget="statusbar"
+                        statusbar_visible="draft,in_progress,done" />
                 </header>
                 <sheet>
-                  <!-- SMART BUTTON HIỂN THỊ SỐ LƯỢNG PHIẾU KHẢO SÁT -->
+                    <!-- SMART BUTTON HIỂN THỊ SỐ LƯỢNG PHIẾU KHẢO SÁT -->
                     <div class="oe_button_box" name="button_box">
                         <button name="action_view_inspections"
-                                type="object"
-                                class="oe_stat_button"
-                                icon="fa-clipboard">
-                            <field name="inspection_count" widget="statinfo" string="Phiếu khảo sát"/>
+                            type="object"
+                            class="oe_stat_button"
+                            icon="fa-clipboard">
+                            <field name="inspection_count" widget="statinfo" string="Phiếu khảo sát" />
                         </button>
                     </div>
-                    
+
                     <div class="oe_title">
-                        <label for="name" string="Tiêu đề công việc"/>
+                        <label for="name" string="Tiêu đề công việc" />
                         <h1>
-                            <field name="name" placeholder="Ví dụ: Giám sát định kỳ tháng 7"/>
+                            <field name="name" readonly="1" force_save="1"
+                                placeholder="Ví dụ: Giám sát định kỳ tháng 7" />
                         </h1>
                     </div>
                     <group>
                         <group string="THÔNG TIN CỬA HÀNG">
-                            <field name="user_id" options="{'no_create': True, 'no_open': True}"/>
-                            <field name="store_id" 
-                                   domain="[('effective_supervision_user_id', '=', user_id)]"
-                                   options="{'no_create': True, 'no_open': True}"/>
+                            <field name="user_id" options="{'no_create': True, 'no_open': True}" />
+                            <field name="store_id"
+                                domain="[('effective_supervision_user_id', '=', user_id)]"
+                                options="{'no_create': True, 'no_open': True}" />
                         </group>
                         <group string="THỜI GIAN &amp; KẾT QUẢ ĐÁNH GIÁ GẦN NHẤT">
-                            <field name="date" 
-                                   string="Thời gian giám sát" 
-                                   options="{'format': 'DD/MM/YYYY'}"/>
-                            <field name="latest_total_score" 
-                                   string="Điểm mới nhất" 
-                                   readonly="1"/>
-                            <field name="latest_grade_id" 
-                                   string="Loại đánh giá mới nhất" 
-                                   widget="badge" 
-                                   readonly="1"/>
+                            <field name="date"
+                                string="Thời gian giám sát"
+                                options="{'format': 'DD/MM/YYYY'}" />
+                            <field name="latest_total_score"
+                                string="Điểm mới nhất"
+                                readonly="1" />
+                            <field name="latest_grade_id"
+                                string="Loại đánh giá mới nhất"
+                                widget="badge"
+                                readonly="1" />
                         </group>
                     </group>
-                    <field name="note" placeholder="Thêm ghi chú chi tiết..."/>
+                    <field name="note" placeholder="Thêm ghi chú chi tiết..." />
                 </sheet>
             </form>
         </field>
@@ -100,10 +102,10 @@
         <field name="model">wujia.supervision.schedule</field>
         <field name="arch" type="xml">
             <search string="Tìm kiếm Lịch giám sát">
-                <field name="name"/>
-                <field name="store_id"/>
-                <field name="user_id"/>
-                <filter string="Lịch của tôi" name="my_schedule" domain="[('user_id', '=', uid)]"/>
+                <field name="name" />
+                <field name="store_id" />
+                <field name="user_id" />
+                <filter string="Lịch của tôi" name="my_schedule" domain="[('user_id', '=', uid)]" />
             </search>
         </field>
     </record>
@@ -113,7 +115,7 @@
         <field name="name">Lịch giám sát cửa hàng</field>
         <field name="res_model">wujia.supervision.schedule</field>
         <field name="view_mode">calendar,list,form</field>
-        <field name="search_view_id" ref="view_wujia_supervision_schedule_search"/>
+        <field name="search_view_id" ref="view_wujia_supervision_schedule_search" />
         <field name="context">{'search_default_my_schedule': 1}</field>
     </record>
 
