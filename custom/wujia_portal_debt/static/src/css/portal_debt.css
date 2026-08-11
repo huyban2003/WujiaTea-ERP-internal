@@ -42,25 +42,14 @@
 }
 
 /* ---------- Header ---------- */
-.wj-debt-header { margin: 0; }
-/* !important để thắng global `h1 { font-size: … !important }` (gotcha #13 _components.css).
-   letter-spacing: 0 — body Vuexy set 0.14px, làm "Công nợ & thanh toán" (20 ký tự) tràn
-   5px và bị ellipsis ngay ở 391; Figma vẽ title không giãn chữ. */
-.wj-debt--overview .wj-page-header__title {
-    font-size: 26px !important;
-    line-height: 32px;
-    letter-spacing: 0;
-}
-.wj-debt-header__count {
-    flex: 0 0 auto;
-    margin-left: 8px;
-    font-size: 13px;
-    font-weight: 700;
-    color: var(--wj-debt-muted);
-}
-/* Figma back-header: nút 42×42, cách title 14, mép trên y=160 (không phải 167). */
+/* S53-B3b: header trang công nợ đã dùng chung CMP-PG-001 (22/28/700, cao 52).
+   Gỡ override 26px + .wj-debt-header/-__count (hand-roll cũ, không còn markup). */
+/* CMP-PG-001: gap PageHeader → nội dung đầu = 8px. .wj-debt là flex column gap 12
+   (không phải .wujia-mpage gap 14) ⇒ bù -4 để tổng đúng 8. */
+.wj-debt > .wj-page-header--m { margin-bottom: -4px; }
+/* Figma back-header: nút 42×42, cách title 14, mép trên y=160 (không phải 167).
+   Kích thước nút thuộc CMP-BPH-001 → chốt ở B4, tạm giữ. */
 .wj-debt--back { padding-top: 8px; }
-.wj-debt--back .wj-debt-header { margin-bottom: -4px; }
 .wj-debt--back .wj-page-header__back { width: 42px; height: 42px; margin-right: 14px; }
 
 /* ---------- Filter bar (359×54) ---------- */

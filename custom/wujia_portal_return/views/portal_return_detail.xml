@@ -10,8 +10,8 @@
                 <t t-call="wujia_portal_layout.wj_page_header">
                     <t t-set="ph_platform" t-value="'pc'"/>
                     <t t-set="ph_variant" t-value="'back'"/>
-                    <t t-set="ph_crumb">Yêu cầu đổi trả / Chi tiết yêu cầu</t>
-                    <t t-set="ph_title" t-value="rr.name"/>
+                    <t t-set="ph_crumb">Bù hàng / Chi tiết yêu cầu bù hàng</t>
+                    <t t-set="ph_title">Chi tiết yêu cầu bù hàng</t>
                     <t t-set="ph_back_url" t-value="'/portal/return'"/>
                 </t>
                 <t t-set="lbl" t-value="state_labels.get(rr.state, (rr.state, 'state-draft'))"/>
@@ -24,6 +24,10 @@
                                 <div class="card-header"><h5 class="mb-0">Thông tin yêu cầu</h5></div>
                                 <div class="card-body">
                                     <dl class="row mb-0 profile-dl">
+                                        <!-- S53-B3b: mã yêu cầu gỡ khỏi PageHeader (CMP-PG-001
+                                             CONTENT RULES) → hiển thị tại card thông tin. -->
+                                        <dt class="col-sm-5">Mã yêu cầu</dt>
+                                        <dd class="col-sm-7" t-out="rr.name"/>
                                         <dt class="col-sm-5">Cửa hàng</dt>
                                         <dd class="col-sm-7" t-out="rr.franchise_id.name or '—'"/>
                                         <dt class="col-sm-5">Ngày yêu cầu</dt>
@@ -166,7 +170,7 @@
                 <t t-call="wujia_portal_layout.wj_page_header">
                     <t t-set="ph_platform" t-value="'m'"/>
                     <t t-set="ph_variant" t-value="'back'"/>
-                    <t t-set="ph_title">Chi tiết yêu cầu</t>
+                    <t t-set="ph_title">Chi tiết yêu cầu bù hàng</t>
                     <t t-set="ph_back_url" t-value="'/portal/return'"/>
                 </t>
 

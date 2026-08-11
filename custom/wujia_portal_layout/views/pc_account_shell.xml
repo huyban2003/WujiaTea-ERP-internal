@@ -9,10 +9,18 @@
              each page keeps its own mobile block outside this call. -->
         <template id="pc_account_layout" name="Wujia PC — Account shell">
             <div class="content-wrapper d-none d-lg-block">
+                <!-- S53-B3b: header hand-roll → CMP-PG-001 (title 26/32/700, cao 64).
+                     acct_subtitle giữ lại nhưng nằm NGOÀI header (spec: PageHeader không
+                     có Subtitle trong phạm vi hiện tại) và margin-top 0 để gap header
+                     → nội dung đầu = 0. -->
                 <div class="wj-pc-acct-head">
-                    <p class="wj-pc-acct-head__crumb">Wujia Portal / Tài khoản</p>
-                    <h1 class="wj-pc-acct-head__title" t-out="acct_title"/>
-                    <p class="wj-pc-acct-head__sub" t-out="acct_subtitle"/>
+                    <t t-call="wujia_portal_layout.wj_page_header">
+                        <t t-set="ph_platform" t-value="'pc'"/>
+                        <t t-set="ph_variant" t-value="'title'"/>
+                        <t t-set="ph_crumb">Wujia Portal / Tài khoản</t>
+                        <t t-set="ph_title" t-value="acct_title"/>
+                    </t>
+                    <p t-if="acct_subtitle" class="wj-pc-acct-head__sub" t-out="acct_subtitle"/>
                 </div>
 
                 <div class="wj-pc-acct-grid">

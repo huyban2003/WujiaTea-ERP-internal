@@ -67,15 +67,15 @@
                  ============================================================ -->
             <div class="wj-debt wj-debt--overview d-lg-none">
 
-                <!-- Header: title 26/700 + đếm hoá đơn 13 phải (cùng hàng — Figma 5013:111).
-                     Hand-roll thay vì t-call wj_page_header vì component không có slot phải
-                     và bake sẵn d-lg-none; class dùng lại nguyên của component. -->
-                <header class="wj-page-header wj-page-header--m wj-page-header--title wj-debt-header">
-                    <h1 class="wj-page-header__title">Công nợ &amp; thanh toán</h1>
-                    <span class="wj-count-meta wj-debt-header__count">
-                        <t t-out="summary['invoice_count']"/> hóa đơn
-                    </span>
-                </header>
+                <!-- Từ CMP-PG-001 component đã có slot ph_meta → bỏ header hand-roll. -->
+                <t t-call="wujia_portal_layout.wj_page_header">
+                    <t t-set="ph_platform" t-value="'m'"/>
+                    <t t-set="ph_variant" t-value="'title'"/>
+                    <t t-set="ph_title">Công nợ</t>
+                    <t t-set="ph_meta">
+                        <span class="wj-page-header__meta"><t t-out="summary['invoice_count']"/> hóa đơn</span>
+                    </t>
+                </t>
 
                 <t t-call="wujia_portal_debt.wj_debt_filter">
                     <t t-set="f_action" t-value="'/portal/debt'"/>
@@ -202,8 +202,11 @@
                 <t t-call="wujia_portal_layout.wj_page_header">
                     <t t-set="ph_platform" t-value="'pc'"/>
                     <t t-set="ph_variant" t-value="'title'"/>
-                    <t t-set="ph_crumb">Portal / Công nợ &amp; thanh toán</t>
-                    <t t-set="ph_title">Công nợ &amp; thanh toán</t>
+                    <t t-set="ph_crumb">Portal / Công nợ</t>
+                    <t t-set="ph_title">Công nợ</t>
+                    <t t-set="ph_meta">
+                        <span class="wj-page-header__meta"><t t-out="summary['invoice_count']"/> hóa đơn</span>
+                    </t>
                 </t>
 
                 <t t-call="wujia_portal_debt.wj_debt_pc_tabs"/>
@@ -440,12 +443,12 @@
                  MOBILE (<992px) — giữ nguyên.
                  ============================================================ -->
             <div class="wj-debt wj-debt--back d-lg-none">
-                <header class="wj-page-header wj-page-header--m wj-page-header--back wj-debt-header">
-                    <a href="/portal/debt" class="wj-page-header__back" aria-label="Quay lại">
-                        <i class="feather icon-chevron-left"/>
-                    </a>
-                    <h1 class="wj-page-header__title">Lịch sử thanh toán</h1>
-                </header>
+                <t t-call="wujia_portal_layout.wj_page_header">
+                    <t t-set="ph_platform" t-value="'m'"/>
+                    <t t-set="ph_variant" t-value="'back'"/>
+                    <t t-set="ph_title">Lịch sử thanh toán</t>
+                    <t t-set="ph_back_url" t-value="'/portal/debt'"/>
+                </t>
 
                 <div id="wj-debt-hist-mbody">
                 <t t-call="wujia_portal_debt.wj_debt_filter">
@@ -506,8 +509,8 @@
                 <t t-call="wujia_portal_layout.wj_page_header">
                     <t t-set="ph_platform" t-value="'pc'"/>
                     <t t-set="ph_variant" t-value="'title'"/>
-                    <t t-set="ph_crumb">Portal / Công nợ &amp; thanh toán</t>
-                    <t t-set="ph_title">Công nợ &amp; thanh toán</t>
+                    <t t-set="ph_crumb">Portal / Công nợ</t>
+                    <t t-set="ph_title">Công nợ</t>
                 </t>
 
                 <t t-call="wujia_portal_debt.wj_debt_pc_tabs"/>
@@ -618,13 +621,12 @@
         <t t-call="wujia_portal_layout.app_layout">
             <t t-set="title">Thanh toán công nợ</t>
             <div class="wj-debt wj-debt--back">
-                <header class="wj-page-header wj-page-header--m wj-page-header--back wj-debt-header">
-                    <a t-attf-href="/portal/debt?week=#{summary['week_key']}"
-                       class="wj-page-header__back" aria-label="Quay lại">
-                        <i class="feather icon-chevron-left"/>
-                    </a>
-                    <h1 class="wj-page-header__title">Thanh toán công nợ</h1>
-                </header>
+                <t t-call="wujia_portal_layout.wj_page_header">
+                    <t t-set="ph_platform" t-value="'m'"/>
+                    <t t-set="ph_variant" t-value="'back'"/>
+                    <t t-set="ph_title">Thanh toán công nợ</t>
+                    <t t-set="ph_back_url" t-value="'/portal/debt?week=' + str(summary['week_key'])"/>
+                </t>
 
                 <section class="wj-debt-amount">
                     <span class="wj-debt-amount__label">SỐ TIỀN CẦN CHUYỂN</span>
@@ -686,9 +688,11 @@
         <t t-call="wujia_portal_layout.app_layout">
             <!-- Mobile -->
             <div class="wj-debt wj-mpage d-lg-none">
-                <header class="wj-debt-head">
-                    <h1 class="wj-debt-head__title">Công nợ &amp; thanh toán</h1>
-                </header>
+                <t t-call="wujia_portal_layout.wj_page_header">
+                    <t t-set="ph_platform" t-value="'m'"/>
+                    <t t-set="ph_variant" t-value="'title'"/>
+                    <t t-set="ph_title">Công nợ</t>
+                </t>
                 <div class="wj-empty-state wj-empty-state--rich wj-debt-empty">
                     <span class="wj-empty-state-icon"><i class="feather icon-lock"/></span>
                     <p class="wj-empty-state-title">Không có quyền xem</p>
@@ -701,8 +705,8 @@
                 <t t-call="wujia_portal_layout.wj_page_header">
                     <t t-set="ph_platform" t-value="'pc'"/>
                     <t t-set="ph_variant" t-value="'title'"/>
-                    <t t-set="ph_crumb">Portal / Công nợ &amp; thanh toán</t>
-                    <t t-set="ph_title">Công nợ &amp; thanh toán</t>
+                    <t t-set="ph_crumb">Portal / Công nợ</t>
+                    <t t-set="ph_title">Công nợ</t>
                 </t>
                 <div class="wj-pc-empty">
                     <span class="wj-pc-empty__icon"><i class="feather icon-lock"/></span>
