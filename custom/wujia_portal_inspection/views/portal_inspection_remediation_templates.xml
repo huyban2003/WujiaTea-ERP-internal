@@ -61,9 +61,7 @@
                                             class="d-flex justify-content-between align-items-center mb-2">
                                             <span class="wj-pc-badge wj-pc-badge--cancel"
                                                 style="height: 24px; min-width: auto; font-size: 11px;">KHÔNG
-                                                ĐẠT (-<t
-                                                    t-out="int(line.deduction_score_snapshot or 6)" />
-                                                đ)</span>
+                                                ĐẠT</span>
                                             <span class="text-muted small">
                                                 <t t-out="category_name" />
                                             </span>
@@ -85,9 +83,12 @@
 
                                     <!-- Ảnh lỗi trước -->
                                     <div t-if="evidence_image_url" class="p-3 rounded border">
-                                        <div class="d-flex justify-content-between align-items-center mb-2">
-                                            <span class="font-weight-bold text-dark small">Trước (Thanh tra)</span>
-                                            <span class="text-muted fst-italic small" style="font-size: 0.8rem;">
+                                        <div
+                                            class="d-flex justify-content-between align-items-center mb-2">
+                                            <span class="font-weight-bold text-dark small">Trước
+                                                (Thanh tra)</span>
+                                            <span class="text-muted fst-italic small"
+                                                style="font-size: 0.8rem;">
                                                 <t t-out="planned_date" />
                                             </span>
                                         </div>
