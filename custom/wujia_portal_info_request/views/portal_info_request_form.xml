@@ -147,7 +147,16 @@
                     }).then(function (r) {
                         return r.json();
                     }).then(function (j) {
-                        var v = (j &amp;&amp; j.result &amp;&amp; j.result.old_value) || '';
+                        // KHÔNG dùng `&&`/`<`/`>` trong <script> inline: QWeb serialize
+                        // template bằng lxml nên ký tự đó ra HTML dưới dạng thực thể
+                        // (`&amp;&amp;`), mà HTML5 không giải mã thực thể bên trong
+                        // <script> ⇒ cả khối JS chết vì SyntaxError.
+                        var v = '';
+                        if (j) {
+                            if (j.result) {
+                                v = j.result.old_value || '';
+                            }
+                        }
                         oldBox.value = v;
                     }).catch(function () {
                         oldBox.value = '';

@@ -211,13 +211,29 @@ User 1 cửa hàng: strip vẫn trơ & không render \texttt{<a>}, bấm không 
 
 \textbf{286/286 PASS.}
 
-\textbf{Miễn trừ tường minh (L7)}: \texttt{/portal/info-request/new} báo
-\texttt{SyntaxError: Unexpected token ';'}. Đây là lỗi \textbf{có sẵn trước B4}:
-\texttt{wujia\_portal\_info\_request/views/portal\_info\_request\_form.xml:122} phục vụ
-\texttt{\&\&} bị escape thành \texttt{\&amp;\&amp;} (marker \texttt{<![CDATA[} bị serializer
-gỡ), file đó \textbf{0 dòng diff} trong sprint này, và lỗi cấp bundle thì sẽ vỡ cả 22 trang
-chứ không riêng một. Miễn trừ ghi cứng \emph{đúng trang $+$ đúng thông điệp} trong harness,
-\textbf{không} nới ngưỡng --- và mở làm việc riêng, không sửa code ngoài scope trong B4.
+\textbf{Việc phát sinh --- sửa luôn trong phiên}: hồi quy bắt
+\texttt{/portal/info-request/new} ném \texttt{SyntaxError: Unexpected token ';'}. Truy ra là
+lỗi \textbf{có sẵn từ trước B4}, không phải hồi quy: \texttt{portal\_info\_request\_form.xml}
+có khối \texttt{<script>} inline dùng \texttt{\&\&}; QWeb serialize template bằng lxml nên ký
+tự đó ra HTML dưới dạng thực thể \texttt{\&amp;\&amp;}, mà HTML5 \textbf{không giải mã thực
+thể bên trong \texttt{<script>}} $\Rightarrow$ \emph{cả khối JS chết}. Cặp
+\texttt{//<![CDATA[} không cứu được vì serializer gỡ marker. Hệ quả nghiệp vụ: ô ``Giá trị
+hiện tại'' không bao giờ được điền và ô ``Trường cần sửa'' không bao giờ ẩn/hiện --- người
+dùng phải tự gõ lại giá trị cũ.
+
+Ban đầu B4 chỉ ghi \textbf{miễn trừ tường minh} (L7 --- khai báo đúng trang $+$ đúng thông
+điệp, \emph{không} nới ngưỡng) vì file đó có \textbf{0 dòng diff} trong sprint. Sau đó chủ dự
+án chốt sửa luôn: viết lại đoạn kiểm tra không dùng \texttt{\&\&} (chuyển thành \texttt{if}
+lồng), kèm chú thích cảnh báo cho người sau. Quét toàn bộ \texttt{custom/} bằng script tìm
+thực thể HTML nằm trong \texttt{<script>}: \textbf{đây là chỗ duy nhất} --- các
+\texttt{\&amp;} còn lại đều nằm trong \emph{thuộc tính} (\texttt{t-attf-href} phân trang) nên
+được giải mã bình thường. \texttt{wujia\_portal\_info\_request}
+\texttt{19.0.1.4.0} $\to$ \texttt{19.0.1.5.0}.
+
+Kiểm chứng riêng \textbf{12/12 Pass} ở cả hai breakpoint: 200, 0 lỗi JS, không còn thực thể
+trong \texttt{<script>}, và \emph{chứng minh JS chạy thật} --- chọn loại yêu cầu ``Khác'' thì
+ô ``Trường cần sửa'' hiện, chọn loại khác thì ẩn lại. Hồi quy chạy lại sau khi
+\textbf{gỡ bỏ miễn trừ}: vẫn \textbf{286/286 PASS}, nay không còn ngoại lệ nào.
 
 \section{File chạm tới}
 
@@ -239,12 +255,15 @@ chứ không riêng một. Miễn trừ ghi cứng \emph{đúng trang $+$ đúng
   \texttt{3.11.0} $\to$ \texttt{3.12.0} \\
 \texttt{wujia\_portal\_return} & \texttt{views/portal\_return\_form.xml} &
   \texttt{2.3.0} $\to$ \texttt{2.4.0} \\
+\texttt{wujia\_portal\_info\_request} & \texttt{views/portal\_info\_request\_form.xml}
+  (lỗi có sẵn, sửa kèm) & \texttt{1.4.0} $\to$ \texttt{1.5.0} \\
 \hline
 \end{tabular}
 \end{center}
 
 \textbf{Không} model/field mới, \textbf{không} migration, \textbf{không} đổi quyền hay dữ liệu.
-Commit \texttt{70f3e4f} trên nhánh \texttt{dev/2026-08-11-b4}. \textbf{Chưa deploy.}
+Nhánh \texttt{dev/2026-08-11-b4}: \texttt{70f3e4f} (B4) $+$ \texttt{b195d7c} (docs) $+$
+commit sửa lỗi inline script. \textbf{Chưa deploy.}
 
 \section{Bài học}
 
@@ -258,7 +277,13 @@ Commit \texttt{70f3e4f} trên nhánh \texttt{dev/2026-08-11-b4}. \textbf{Chưa d
 \item \textbf{Hai spec BA lệch nhau thì hỏi, đừng chọn.} 800 vs 700 cho title mobile: chọn 800
   sẽ phá bảng đo đã Pass của B3a. Ghi vào LIMIT và chuyển BA.
 \item \textbf{Lỗi có sẵn thì miễn trừ tường minh, đừng nới ngưỡng} (L7). Ghi rõ trang nào,
-  thông điệp nào, và bằng chứng nó không do sprint này (file 0 dòng diff).
+  thông điệp nào, và bằng chứng nó không do sprint này (file 0 dòng diff) --- rồi hỏi chủ dự
+  án có sửa luôn không, thay vì tự quyết một mình theo hướng nào.
+\item \textbf{Không bao giờ dùng \texttt{\&\&}, \texttt{<}, \texttt{>} trong \texttt{<script>}
+  inline của QWeb.} lxml serialize ra thực thể HTML, mà HTML5 không giải mã thực thể trong
+  \texttt{<script>} $\Rightarrow$ chết cả khối, \emph{im lặng}. \texttt{CDATA} không cứu được
+  (marker bị gỡ). Viết lại bằng \texttt{if} lồng, hoặc đưa hẳn ra file
+  \texttt{static/src/js/}.
 \item \textbf{Harness sai thì sửa harness} (L7/L9). Trong sprint này riêng harness sai 6 lần
   (login sai route, user không đọc được ticket, đọc computed style thay vì pseudo-element,
   query lồng chưa encode, đọc URL trước khi điều hướng xong, selector không scope, chọn user
@@ -278,6 +303,8 @@ Commit \texttt{70f3e4f} trên nhánh \texttt{dev/2026-08-11-b4}. \textbf{Chưa d
 \item Hệ \texttt{.wj-pc-page-header} vẫn còn ở \texttt{/portal/exam/register},
   \texttt{/portal/exam/\{id\}}, \texttt{pc\_preview}.
 \item Padding ngang PC vẫn do content-wrapper của shell Vuexy cấp --- chờ CMP PageContainer.
-\item \textbf{Việc mới phát hiện}: \texttt{portal\_info\_request\_form.xml:122} có inline
-  script chết vì \texttt{\&\&} bị escape --- lỗi có sẵn, ngoài scope B4, cần mở issue riêng.
+\item \texttt{portal\_info\_request\_form.xml} --- lỗi có sẵn (inline script chết vì
+  \texttt{\&\&} bị escape) \textbf{đã sửa} trong phiên theo yêu cầu chủ dự án. Lỗi này
+  \textbf{không có trong Issue List} của BA (Dev tự phát hiện lúc hồi quy) nên chưa có ID để
+  \texttt{qa\_sync}; nếu BA muốn theo dõi thì mở row mới.
 \end{enumerate}
