@@ -1863,9 +1863,10 @@ class KsDashboardNinjaItems(models.Model):
             rec.ks_record_count = rec._ksGetRecordCount(domain=[])
 
     def unlink(self):
-        channel = self.env['discuss.channel'].search([('ks_dashboard_item_id', 'in', self.ids)])
-        if channel:
-            channel.unlink()
+        if 'ks_dashboard_item_id' in self.env['discuss.channel']._fields:
+            channel = self.env['discuss.channel'].search([('ks_dashboard_item_id', 'in', self.ids)])
+            if channel:
+                channel.unlink()
         return super(KsDashboardNinjaItems, self).unlink()
 
     def _ksGetRecordCount(self, domain=[]):

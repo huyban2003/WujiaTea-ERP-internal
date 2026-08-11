@@ -299,8 +299,9 @@
                 </form>
             </div>
 
-            <!-- Gọi Modal Success Popup từ file XML riêng -->
+            <!-- Gọi Modal Success & Warning Popup từ file XML riêng -->
             <t t-call="wujia_portal_inspection.portal_inspection_success_popup" />
+            <t t-call="wujia_portal_inspection.portal_inspection_warning_popup" />
 
             <!-- Lightbox Modal for Image Preview -->
             <div id="wj_lightbox" class="wj-lightbox-modal" onclick="this.style.display='none'">

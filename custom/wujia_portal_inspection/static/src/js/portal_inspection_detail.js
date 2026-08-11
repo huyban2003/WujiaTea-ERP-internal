@@ -206,6 +206,16 @@
             form.addEventListener('submit', function (e) {
                 e.preventDefault();
 
+                var imageInput = form.querySelector('.image-upload-input');
+                var noteInput = form.querySelector('.remediation-note-input');
+                var hasImage = imageInput && imageInput.files && imageInput.files.length > 0;
+                var hasNote = noteInput && noteInput.value.trim().length > 0;
+
+                if (!hasImage && !hasNote) {
+                    showWarningPopup('Vui lòng nhập ghi chú hoặc tải lên ảnh minh chứng trước khi gửi phản hồi!', 5);
+                    return false;
+                }
+
                 var submitBtn = form.querySelector('button[type="submit"]');
                 var originalHtml = '';
                 if (submitBtn) {
@@ -267,34 +277,35 @@
                         submitBtn.disabled = false;
                         submitBtn.innerHTML = originalHtml;
                     }
-                    console.error('Submit error:', err);
-                    alert('Có lỗi xảy ra khi gửi phản hồi, vui lòng thử lại.');
                 });
             });
         });
 
-        function previewRemediationImage(input) {
-            if (input.files && input.files[0]) {
-                var reader = new FileReader();
-                reader.onload = function (e) {
-                    var placeholder = document.getElementById('upload_placeholder');
-                    if (placeholder) placeholder.classList.add('d-none');
-                    var preview = document.getElementById('upload_preview_img');
-                    if (preview) {
-                        preview.src = e.target.result;
-                        preview.classList.remove('d-none');
-                    }
-                }
-                reader.readAsDataURL(input.files[0]);
-            }
-        }
+        // 4.5 Submit Line Form Validation (No inline JS in XML)
+        var submitLineForms = document.querySelectorAll('form[action="/portal/remediation/submit_line"]');
+        submitLineForms.forEach(function (form) {
+            form.addEventListener('submit', function (e) {
+                var noteInput = form.querySelector('[name=remediation_note]');
+                var fileInput = form.querySelector('[name=remediation_image]');
+                var note = noteInput ? noteInput.value.trim() : '';
+                var hasNewFile = fileInput && fileInput.files && fileInput.files.length > 0;
+                var hasImg = hasNewFile || form.getAttribute('data-has-img') === 'true';
+                var hasNote = note !== '' || form.getAttribute('data-has-note') === 'true';
+                var reqImg = form.getAttribute('data-require-img') === 'true';
 
-        function countChars(textarea) {
-            var counter = document.getElementById('char_count');
-            if (counter) {
-                counter.innerText = textarea.value.length;
-            }
-        }
+                if (reqImg && !hasImg) {
+                    e.preventDefault();
+                    showWarningPopup('Tiêu chí này yêu cầu bắt buộc phải chọn ảnh minh chứng!', 5);
+                    return false;
+                }
+
+                if (!hasImg && !hasNote) {
+                    e.preventDefault();
+                    showWarningPopup('Vui lòng nhập ghi chú khắc phục hoặc chọn ảnh minh chứng trước khi gửi!', 5);
+                    return false;
+                }
+            });
+        });
 
         // 5. Image Lightbox Modal
         var previewImages = document.querySelectorAll('.wj-img-zoom');
@@ -346,6 +357,70 @@
             });
         }
     }
+
+    var warningTimer = null;
+    var warningInterval = null;
+
+    function showWarningPopup(msg, duration) {
+        duration = duration || 5;
+        var modal = document.getElementById('wj_warning_modal');
+        if (!modal) {
+            alert(msg);
+            return;
+        }
+
+        var msgElem = document.getElementById('wj_warning_message');
+        var secondsElem = document.getElementById('wj_warning_seconds');
+        var progressBar = document.getElementById('wj_warning_progress_bar');
+
+        if (msgElem) msgElem.innerText = msg;
+        if (secondsElem) secondsElem.innerText = duration;
+
+        if (progressBar) {
+            progressBar.style.transition = 'none';
+            progressBar.style.width = '100%';
+        }
+
+        modal.style.display = 'flex';
+        setTimeout(function () {
+            modal.classList.add('show-warning');
+            if (progressBar) {
+                progressBar.style.transition = 'width ' + duration + 's linear';
+                progressBar.style.width = '0%';
+            }
+        }, 20);
+
+        if (warningTimer) clearTimeout(warningTimer);
+        if (warningInterval) clearInterval(warningInterval);
+
+        var remaining = duration;
+        warningInterval = setInterval(function () {
+            remaining -= 1;
+            if (secondsElem) secondsElem.innerText = Math.max(0, remaining);
+            if (remaining <= 0) {
+                clearInterval(warningInterval);
+            }
+        }, 1000);
+
+        warningTimer = setTimeout(function () {
+            closeWarningModal();
+        }, duration * 1000);
+    }
+
+    function closeWarningModal() {
+        var modal = document.getElementById('wj_warning_modal');
+        if (modal) {
+            modal.classList.remove('show-warning');
+            setTimeout(function () {
+                modal.style.display = 'none';
+            }, 250);
+        }
+        if (warningTimer) clearTimeout(warningTimer);
+        if (warningInterval) clearInterval(warningInterval);
+    }
+
+    window.showWarningPopup = showWarningPopup;
+    window.closeWarningModal = closeWarningModal;
 
     if (document.readyState === 'loading') {
         document.addEventListener('DOMContentLoaded', initDetailScripts);

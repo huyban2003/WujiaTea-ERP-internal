@@ -183,7 +183,12 @@ class WujiaPortalInspectionController(http.Controller):
 
         criteria_lines = insp.line_ids.filtered(lambda l: l.display_type == 'line')
         failed_lines = criteria_lines.filtered(lambda l: not l.is_pass or l.result == 'fail')
-        unanswered_failed_lines = failed_lines.filtered(lambda l: not l.remediation_image and not l.remediation_note)
+        unanswered_failed_lines = failed_lines.filtered(
+            lambda l: (
+                l.remediation_state == 'need_remediation'
+                or (not l.remediation_image and not l.remediation_note and l.remediation_state not in ('remediated', 'done'))
+            )
+        )
         first_unanswered_id = unanswered_failed_lines[0].id if unanswered_failed_lines else (failed_lines[0].id if failed_lines else False)
 
         grade_name = insp.grade_id.name if insp.grade_id else 'B+'
@@ -376,20 +381,36 @@ class WujiaPortalInspectionController(http.Controller):
             return request.make_json_response({'status': 'error', 'message': 'Tiêu chí không tồn tại.'})
 
         write_vals = {}
-        if remediation_note:
-            write_vals['remediation_note'] = str(remediation_note).strip()
+        store_note = str(remediation_note).strip() if remediation_note else ''
+        if store_note:
+            write_vals['remediation_note'] = store_note
 
+        has_new_image = False
         if remediation_image:
             if isinstance(remediation_image, bytes):
                 write_vals['remediation_image'] = base64.b64encode(remediation_image).decode('utf-8')
+                has_new_image = True
             elif isinstance(remediation_image, str) and ',' in remediation_image:
                 write_vals['remediation_image'] = remediation_image.split(',')[1]
+                has_new_image = True
             elif isinstance(remediation_image, str) and len(remediation_image) > 10:
                 write_vals['remediation_image'] = remediation_image
+                has_new_image = True
             elif getattr(remediation_image, 'read', None):
                 img_data = remediation_image.read()
                 if img_data:
                     write_vals['remediation_image'] = base64.b64encode(img_data).decode('utf-8')
+                    has_new_image = True
+
+        has_image = has_new_image or bool(line.remediation_image)
+        has_note = bool(store_note) or bool(line.remediation_note)
+        require_ev = line.require_evidence_if_fail_snapshot or line.require_evidence_if_fail
+
+        if require_ev and not has_image:
+            return request.make_json_response({'status': 'error', 'message': 'Tiêu chí này yêu cầu bắt buộc phải có ảnh minh chứng.'})
+
+        if not has_image and not has_note:
+            return request.make_json_response({'status': 'error', 'message': 'Vui lòng nhập ghi chú khắc phục hoặc tải lên ảnh minh chứng trước khi gửi.'})
 
         write_vals['remediation_state'] = RemediationState.REMEDIATED.value
         try:

@@ -22,6 +22,18 @@
                             <strong>Thành công!</strong> Báo cáo khắc phục của cửa hàng đã được ghi nhận thành công.
                         </div>
                     </div>
+                    <div t-if="error_missing_data" class="alert alert-danger d-flex align-items-center gap-2 p-3 mb-3 rounded shadow-sm" style="background-color: #fef2f2; border: 1px solid #fecaca; color: #991b1b;">
+                        <i class="feather icon-alert-triangle text-danger" style="font-size: 1.2rem;"/>
+                        <div>
+                            <strong>Chưa thể gửi!</strong> Vui lòng nhập ghi chú khắc phục hoặc tải lên ảnh minh chứng.
+                        </div>
+                    </div>
+                    <div t-if="error_missing_image" class="alert alert-danger d-flex align-items-center gap-2 p-3 mb-3 rounded shadow-sm" style="background-color: #fef2f2; border: 1px solid #fecaca; color: #991b1b;">
+                        <i class="feather icon-alert-triangle text-danger" style="font-size: 1.2rem;"/>
+                        <div>
+                            <strong>Chưa thể gửi!</strong> Tiêu chí này yêu cầu bắt buộc phải có ảnh minh chứng.
+                        </div>
+                    </div>
                     <!-- Bộ lọc nhanh -->
                     <form method="get" action="/portal/remediation" class="wj-pc-filterbar">
                         <h2 class="wj-pc-filterbar__title">Bộ lọc nhanh</h2>
@@ -123,7 +135,10 @@
                                         <!-- Form nhập liệu hiện đại -->
                                         <form action="/portal/remediation/submit_line" method="post" enctype="multipart/form-data" 
                                               class="p-3 rounded border bg-white" 
-                                              style="border-color: var(--wj-pc-border-soft) !important;">
+                                              style="border-color: var(--wj-pc-border-soft) !important;"
+                                              t-att-data-has-img="'true' if item.get('has_remediation_image') else 'false'"
+                                              t-att-data-has-note="'true' if item.get('remediation_note') else 'false'"
+                                              t-att-data-require-img="'true' if item.get('require_evidence') else 'false'">
                                             <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
                                             <input type="hidden" name="line_id" t-att-value="item.get('id') or item.get('line_id')"/>
                                             
@@ -250,7 +265,10 @@
                                         <!-- Form Cập nhật đẹp -->
                                         <form action="/portal/remediation/submit_line" method="post" enctype="multipart/form-data" 
                                               class="p-3 rounded border bg-white" 
-                                              style="border-color: var(--wj-pc-border-soft) !important;">
+                                              style="border-color: var(--wj-pc-border-soft) !important;"
+                                              t-att-data-has-img="'true' if item.get('has_remediation_image') else 'false'"
+                                              t-att-data-has-note="'true' if item.get('remediation_note') else 'false'"
+                                              t-att-data-require-img="'true' if item.get('require_evidence') else 'false'">
                                             <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
                                             <input type="hidden" name="line_id" t-att-value="item.get('id') or item.get('line_id')"/>
                                             <input type="hidden" name="redirect_tab" value="completed"/>
@@ -365,6 +383,14 @@
                     <i class="feather icon-check-circle text-success" style="font-size: 1.1rem;"/>
                     <div><strong>Thành công!</strong> Đã gửi báo cáo khắc phục.</div>
                 </div>
+                <div t-if="error_missing_data" class="alert alert-danger d-flex align-items-center gap-2 p-2 mx-3 mb-2 rounded small" style="background-color: #fef2f2; border: 1px solid #fecaca; color: #991b1b;">
+                    <i class="feather icon-alert-triangle text-danger" style="font-size: 1.1rem;"/>
+                    <div><strong>Chưa thể gửi!</strong> Vui lòng nhập ghi chú hoặc chọn ảnh minh chứng.</div>
+                </div>
+                <div t-if="error_missing_image" class="alert alert-danger d-flex align-items-center gap-2 p-2 mx-3 mb-2 rounded small" style="background-color: #fef2f2; border: 1px solid #fecaca; color: #991b1b;">
+                    <i class="feather icon-alert-triangle text-danger" style="font-size: 1.1rem;"/>
+                    <div><strong>Chưa thể gửi!</strong> Tiêu chí này yêu cầu bắt buộc có ảnh minh chứng.</div>
+                </div>
 
                 <!-- Mobile Tabs -->
                 <div class="d-flex gap-2 mb-3">
@@ -414,7 +440,10 @@
                                     <span>Hạn khắc phục: <t t-out="item.get('due_date')" /></span>
                                 </p>
 
-                                <form action="/portal/remediation/submit_line" method="post" enctype="multipart/form-data" class="mt-2 pt-2 border-top">
+                                <form action="/portal/remediation/submit_line" method="post" enctype="multipart/form-data" class="mt-2 pt-2 border-top"
+                                      t-att-data-has-img="'true' if item.get('has_remediation_image') else 'false'"
+                                      t-att-data-has-note="'true' if item.get('remediation_note') else 'false'"
+                                      t-att-data-require-img="'true' if item.get('require_evidence') else 'false'">
                                     <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
                                     <input type="hidden" name="line_id" t-att-value="item.get('id') or item.get('line_id')"/>
                                     <input type="text" name="remediation_note" class="form-control form-control-sm mb-2" placeholder="Ghi chú khắc phục của cửa hàng..." t-att-value="item.get('remediation_note')"/>
@@ -497,7 +526,10 @@
                                 </p>
                                 
                                 <!-- Form Cập nhật trên Mobile (Khớp nghiệp vụ Desktop) -->
-                                <form action="/portal/remediation/submit_line" method="post" enctype="multipart/form-data" class="mt-2 pt-2 border-top">
+                                <form action="/portal/remediation/submit_line" method="post" enctype="multipart/form-data" class="mt-2 pt-2 border-top"
+                                      t-att-data-has-img="'true' if item.get('has_remediation_image') else 'false'"
+                                      t-att-data-has-note="'true' if item.get('remediation_note') else 'false'"
+                                      t-att-data-require-img="'true' if item.get('require_evidence') else 'false'">
                                     <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
                                     <input type="hidden" name="line_id" t-att-value="item.get('id') or item.get('line_id')"/>
                                     <input type="hidden" name="redirect_tab" value="completed"/>
@@ -556,6 +588,8 @@
                     </div>
                 </t>
             </div>
+            <!-- Include Warning Modal Popup -->
+            <t t-call="wujia_portal_inspection.portal_inspection_warning_popup" />
         </t>
     </template>
 

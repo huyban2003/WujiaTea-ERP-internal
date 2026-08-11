@@ -62,4 +62,36 @@
         </div>
     </template>
 
+    <!-- Template Modal Popup Cảnh báo dữ liệu (Tự động đóng trong 5s có đếm ngược) -->
+    <template id="portal_inspection_warning_popup" name="Wujia Portal — Warning Modal Popup">
+
+        <div id="wj_warning_modal" class="wj-warning-overlay" style="display: none;" onclick="if(event.target===this) closeWarningModal()">
+            <div class="wj-warning-card text-center">
+                <button type="button" class="wj-warning-close-btn" onclick="closeWarningModal()">
+                    <i class="feather icon-x"></i>
+                </button>
+
+                <div class="wj-warning-icon-wrapper">
+                    <i class="feather icon-alert-triangle"></i>
+                </div>
+
+                <h3 class="wj-warning-title">Cảnh báo thông tin</h3>
+                <p id="wj_warning_message" class="wj-warning-msg">
+                    Vui lòng nhập ghi chú hoặc tải lên ảnh minh chứng trước khi gửi phản hồi!
+                </p>
+
+                <div class="wj-warning-countdown-wrap">
+                    <span class="wj-warning-countdown-text">Tự động đóng sau <strong id="wj_warning_seconds">5</strong>s</span>
+                    <div class="wj-warning-progress">
+                        <div id="wj_warning_progress_bar" class="wj-warning-progress-bar"></div>
+                    </div>
+                </div>
+
+                <button type="button" class="wj-warning-confirm-btn" onclick="closeWarningModal()">
+                    Đã hiểu
+                </button>
+            </div>
+        </div>
+    </template>
+
 </odoo>

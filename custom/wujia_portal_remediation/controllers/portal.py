@@ -159,6 +159,8 @@ class WujiaPortalRemediationController(http.Controller):
             'date_to': date_to or '',
             'search_q': search or '',
             'submitted_success': bool(kwargs.get('submitted')),
+            'error_missing_data': kwargs.get('error') == 'missing_data',
+            'error_missing_image': kwargs.get('error') == 'missing_image',
             'pending_items': pending_items,
             'completed_items': completed_items,
             'pending_count': len(pending_items),
@@ -170,21 +172,38 @@ class WujiaPortalRemediationController(http.Controller):
     def portal_remediation_submit_line(self, line_id=None, note=None, remediation_note=None, remediation_image=None, redirect_tab=None, **kwargs):
         """
         Nộp/Cập nhật ảnh minh chứng & ghi chú khắc phục cho 1 dòng inspection_line.
+        Yêu cầu người dùng phải có ít nhất Ghi chú HOẶC Ảnh minh chứng mới cho phép gửi.
         """
         if line_id:
             line = request.env['wujia.franchise.inspection.line'].sudo().browse(int(line_id))
             if line.exists():
-                vals = {}
-                store_note = remediation_note or note
-                if store_note:
-                    vals['remediation_note'] = store_note
+                store_note = (remediation_note or note or '').strip()
+                has_new_image = False
+                file_content = None
                 if remediation_image and hasattr(remediation_image, 'read'):
                     file_content = remediation_image.read()
                     if file_content:
-                        vals['remediation_image'] = base64.b64encode(file_content)
+                        has_new_image = True
+
+                has_image = has_new_image or bool(line.remediation_image)
+                has_note = bool(store_note) or bool(line.remediation_note)
+                require_ev = line.require_evidence_if_fail_snapshot or line.require_evidence_if_fail
+
+                tab_fallback = redirect_tab if redirect_tab in ('pending', 'completed') else ('completed' if (has_image or has_note) else 'pending')
+
+                if require_ev and not has_image:
+                    return request.redirect(f'/portal/remediation?tab={tab_fallback}&error=missing_image')
+
+                if not has_image and not has_note:
+                    return request.redirect(f'/portal/remediation?tab={tab_fallback}&error=missing_data')
+
+                vals = {}
+                if store_note:
+                    vals['remediation_note'] = store_note
+                if has_new_image and file_content:
+                    vals['remediation_image'] = base64.b64encode(file_content)
                 if vals:
                     line.write(vals)
-        
-        # Mặc định chuyển sang tab 'completed' (Đã phản hồi) để người dùng thấy kết quả đã gửi
+
         tab_to_redirect = redirect_tab if redirect_tab in ('pending', 'completed') else 'completed'
         return request.redirect(f'/portal/remediation?tab={tab_to_redirect}&submitted=1')
