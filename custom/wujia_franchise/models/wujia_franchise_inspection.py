@@ -34,27 +34,27 @@ class WujiaFranchiseInspection(models.Model):
     @api.model
     def _generate_inspection_name(self, franchise_id, schedule_id=None, seq_number=None):
         """
-        Hàm sinh mã phiếu khảo sát dạng 'PSG-[mã cửa hàng]-[stt 4 chữ số]'.
-        Nếu tạo từ Lịch giám sát (schedule_id), tên phiếu sẽ khớp 100% với mã lịch giám sát (thay LGS thành PSG).
+        Hàm sinh mã phiếu khảo sát dạng 'PGS-[mã cửa hàng]-[stt 4 chữ số]'.
+        Nếu tạo từ Lịch giám sát (schedule_id), tên phiếu sẽ khớp 100% với mã lịch giám sát (thay LGS thành PGS).
         """
         if schedule_id:
             schedule = schedule_id if isinstance(schedule_id, models.Model) else self.env['wujia.supervision.schedule'].browse(schedule_id)
             if schedule.exists() and schedule.name:
                 if schedule.name.startswith('LGS-'):
-                    return schedule.name.replace('LGS-', 'PSG-', 1)
-                return f"PSG-{schedule.name}"
+                    return schedule.name.replace('LGS-', 'PGS-', 1)
+                return f"PGS-{schedule.name}"
         if not franchise_id:
-            return 'PSG-STORE-0001'
+            return 'PGS-STORE-0001'
         store = franchise_id if isinstance(franchise_id, models.Model) else self.env['wujia.franchise.management'].browse(franchise_id)
         if not store.exists():
-            return 'PSG-STORE-0001'
+            return 'PGS-STORE-0001'
 
         store_code = (store.code or store.name or 'STORE').strip().replace(' ', '_')
 
         if seq_number is None:
             seq_number = self.search_count([('franchise_id', '=', store.id)]) + 1
 
-        candidate_name = f"PSG-{store_code}-{seq_number:04d}"
+        candidate_name = f"PGS-{store_code}-{seq_number:04d}"
 
         # Kiểm tra trùng lặp: Nếu đã tồn tại candidate_name trong DB -> Gọi ĐỆ QUY tăng seq_number + 1
         if self.search_count([('name', '=', candidate_name)]):
@@ -67,7 +67,7 @@ class WujiaFranchiseInspection(models.Model):
         if self.schedule_id:
             self.name = self._generate_inspection_name(self.franchise_id, schedule_id=self.schedule_id)
         elif self.franchise_id:
-            if not self.name or self.name.startswith('PSG-') or self.name.startswith('Khảo sát') or self.name == 'New':
+            if not self.name or self.name.startswith('PGS-') or self.name.startswith('Khảo sát') or self.name == 'New':
                 self.name = self._generate_inspection_name(self.franchise_id)
 
     @api.model_create_multi
@@ -76,14 +76,14 @@ class WujiaFranchiseInspection(models.Model):
             franchise_id = vals.get('franchise_id')
             schedule_id = vals.get('schedule_id')
             current_name = vals.get('name')
-            if not current_name or current_name == 'New' or current_name.startswith('Khảo sát') or not current_name.startswith('PSG-'):
+            if not current_name or current_name == 'New' or current_name.startswith('Khảo sát') or not current_name.startswith('PGS-'):
                 if schedule_id:
                     vals['name'] = self._generate_inspection_name(franchise_id, schedule_id=schedule_id)
                 elif franchise_id:
                     vals['name'] = self._generate_inspection_name(franchise_id)
                 elif not current_name:
                     count = self.search_count([]) + 1
-                    vals['name'] = f"PSG-STORE-{count:04d}"
+                    vals['name'] = f"PGS-STORE-{count:04d}"
         return super(WujiaFranchiseInspection, self).create(vals_list)
 
     name = fields.Char(string='Tên phiếu khảo sát', required=True, copy=False)

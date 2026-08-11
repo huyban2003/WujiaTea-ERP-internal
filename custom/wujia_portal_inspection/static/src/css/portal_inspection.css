@@ -581,15 +581,19 @@
 
 /* Row highlight for critical criteria */
 .wj-critical-row {
-    background-color: #fde68a !important; /* Soft Amber Yellow */
-    border-color: #fcd34d !important;
+    background-color: #d5d5d573  !important; /* Muted Slate Gray Alpha */
+    border-color: #9b9ca7 !important;
 }
 
 .wj-critical-row .text-dark,
 .wj-critical-row .wj-criterion-title,
-.wj-critical-row .wj-criterion-content,
-.wj-critical-row .small.text-muted {
-    color: #78350f !important; /* Dark Amber Text color */
+.wj-critical-row .wj-criterion-content {
+    color: #1e293b !important; /* Dark Slate Gray - Độ tương phản cao, dễ đọc */
+}
+
+.wj-critical-row .small.text-muted,
+.wj-critical-row .text-muted {
+    color: #475569 !important; /* Medium Dark Slate for secondary text */
 }
 
 /* Warning Modal Popup */
