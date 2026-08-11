@@ -17,7 +17,7 @@
 
                 <div class="content-body">
                     <p t-if="error" class="alert alert-danger" t-out="error"/>
-                    <form method="post" action="/portal/return/new"
+                    <form method="post" action="/portal/return/new" data-wj-dirty-guard="1"
                           enctype="multipart/form-data" class="card wujia-return-form">
                         <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
                         <div class="alert alert-info mb-0 rounded-0">
@@ -116,7 +116,8 @@
 
                 <p t-if="error" class="text-danger small mb-2" t-out="error"/>
 
-                <form method="post" action="/portal/return/new" enctype="multipart/form-data">
+                <form method="post" action="/portal/return/new" enctype="multipart/form-data"
+                      data-wj-dirty-guard="1">
                     <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
                     <t t-if="franchises and len(franchises) == 1">
                         <input type="hidden" name="franchise_id" t-att-value="franchises[0].id"/>

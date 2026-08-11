@@ -47,10 +47,10 @@
 /* CMP-PG-001: gap PageHeader → nội dung đầu = 8px. .wj-debt là flex column gap 12
    (không phải .wujia-mpage gap 14) ⇒ bù -4 để tổng đúng 8. */
 .wj-debt > .wj-page-header--m { margin-bottom: -4px; }
-/* Figma back-header: nút 42×42, cách title 14, mép trên y=160 (không phải 167).
-   Kích thước nút thuộc CMP-BPH-001 → chốt ở B4, tạm giữ. */
+/* S54-B4: nút 42×42 nay là chuẩn CMP-BPH-001 ở base ⇒ gỡ override kích thước,
+   chỉ giữ mép trên y=160 và khoảng cách 14 theo Figma công nợ. */
 .wj-debt--back { padding-top: 8px; }
-.wj-debt--back .wj-page-header__back { width: 42px; height: 42px; margin-right: 14px; }
+.wj-debt--back .wj-page-header__back { margin-right: 14px; }
 
 /* ---------- Filter bar (359×54) ---------- */
 .wj-debt-filter {

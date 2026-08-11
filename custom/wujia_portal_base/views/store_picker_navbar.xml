@@ -37,27 +37,34 @@
              Sprint 10: ẩn trên Home (/portal) vì hero mobile đã show cửa hàng +
              role rồi → tránh trùng. Trang khác vẫn giữ strip làm chỉ báo store. -->
         <xpath expr="//div[hasclass('header-navbar-shadow')]" position="after">
-            <!-- Current Store Strip (BA Wujia_Source_UI_FINAL_v1, WJ_Mobile_CurrentStoreStrip).
-                 1 dòng "[code]  Tên cửa hàng  ...  Role".
-                 RULE CHUNG (apply-all): inject 1 lần trong app_layout → hiện trên MỌI
-                 trang mobile có active franchise (kể cả Home + Đặt hàng), nằm ngay dưới
-                 mobile header static 104px (navbar Vuexy đã ẩn <992px).
-                 NOTE (user chốt 2026-06-07): TẠM THỜI hiện strip đồng đều mọi trang cho
-                 nhất quán (Home/Order có trùng nhẹ store info trong hero/header — chấp
-                 nhận). Trước đó từng carve-out Home/Order theo Figma; đảo lại theo yêu
-                 cầu "cho nó đều". Nếu sau này muốn ẩn lại 2 trang đó → thêm điều kiện
-                 path tại đây. -->
-            <div t-if="_wujia_active_franchise" class="wujia-store-mobile-strip">
-                <span t-if="_wujia_active_franchise.code" class="wujia-store-strip-code"
-                      t-out="_wujia_active_franchise.code"/>
-                <strong class="wujia-store-mobile-strip-name"
-                        t-out="_wujia_active_franchise.name or _wujia_active_franchise.display_name"/>
-                <span t-if="_wujia_active_role" class="wujia-store-strip-role">
-                    <t t-if="_wujia_active_role == 'manager'">Manager</t>
-                    <t t-elif="_wujia_active_role == 'owner'">Owner</t>
-                    <t t-elif="_wujia_active_role == 'staff'">Staff</t>
-                </span>
-            </div>
+            <!-- Current Store Strip (BA WJ_Mobile_CurrentStoreStrip): 1 dòng
+                 "[code] Tên cửa hàng ... Role", hiện trên MỌI trang mobile có active
+                 franchise, ngay dưới mobile header static 104px.
+                 FUNC-MOB-SHELL-005: strip là trigger mở CÙNG popup của PC — chỉ khi user
+                 có >1 cửa hàng, vì store_picker_modal không được render khi chỉ có 1. -->
+            <t t-set="_wujia_strip_clickable"
+               t-value="_wujia_active_franchise and len(_wujia_accessible_ids) &gt; 1"/>
+            <t t-if="_wujia_active_franchise">
+                <t t-set="_wujia_strip_body">
+                    <span t-if="_wujia_active_franchise.code" class="wujia-store-strip-code"
+                          t-out="_wujia_active_franchise.code"/>
+                    <strong class="wujia-store-mobile-strip-name"
+                            t-out="_wujia_active_franchise.name or _wujia_active_franchise.display_name"/>
+                    <span t-if="_wujia_active_role" class="wujia-store-strip-role">
+                        <t t-if="_wujia_active_role == 'manager'">Manager</t>
+                        <t t-elif="_wujia_active_role == 'owner'">Owner</t>
+                        <t t-elif="_wujia_active_role == 'staff'">Staff</t>
+                    </span>
+                </t>
+                <a t-if="_wujia_strip_clickable" href="#" data-action="open-store-picker"
+                   class="wujia-store-mobile-strip wujia-store-mobile-strip--clickable"
+                   aria-label="Đổi cửa hàng đang thao tác">
+                    <t t-out="_wujia_strip_body"/>
+                </a>
+                <div t-else="" class="wujia-store-mobile-strip">
+                    <t t-out="_wujia_strip_body"/>
+                </div>
+            </t>
         </xpath>
         <!-- Modal đặt sau cùng + flag body để JS biết phải mở -->
         <xpath expr="//div[hasclass('drag-target')]" position="after">

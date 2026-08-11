@@ -229,7 +229,8 @@
                 <div class="content-body">
                     <!-- Component PC v1.5: card + field h42 + action bar có separator
                          (UI-PC-BASE-008/009). Route POST, name field, required GIỮ NGUYÊN. -->
-                    <form method="post" action="/portal/support/new" enctype="multipart/form-data" class="wj-pc-card">
+                    <form method="post" action="/portal/support/new" enctype="multipart/form-data"
+                          data-wj-dirty-guard="1" class="wj-pc-card">
                         <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
                         <div class="row g-3">
                             <div class="col-md-6 col-12">
@@ -303,7 +304,8 @@
                     <t t-set="ph_back_url" t-value="'/portal/support'"/>
                 </t>
 
-                <form method="post" action="/portal/support/new" enctype="multipart/form-data">
+                <form method="post" action="/portal/support/new" enctype="multipart/form-data"
+                      data-wj-dirty-guard="1">
                     <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
                     <div class="wujia-mdash-card">
                         <p class="wujia-mdash-title mb-3">Thông tin ticket</p>

@@ -420,13 +420,23 @@ input[type="file"].wj-pc-control { height: auto; min-height: var(--wj-pc-input-h
 /* Back 40 (CMP-BPH-001) và action 40 cao hơn dòng title 32 → pad 12 để hàng vẫn đúng 64 */
 .wj-page-header--pc.wj-page-header--back,
 .wj-page-header--pc.wj-page-header--create { padding: 12px 0; }
-/* Back PC = nút CÓ CHỮ 122×40, không icon-only (UI-PC-BASE-006, source v1.5).
-   Mobile vẫn icon 40×40 — nhãn ẩn ở nhánh --m trong _components.css. */
+/* Back PC = nút CÓ CHỮ 122×40 (CMP-BPH-001), không icon-only. Mobile là nút tròn
+   42×42 — nhãn ẩn ở nhánh --m trong _components.css. Nhãn #374151, icon #28A9DF. */
 .wj-page-header--pc .wj-page-header__back {
     width: 122px; height: 40px; margin-right: 18px;
     gap: 4px; font-size: 14px; font-weight: 700; white-space: nowrap;
+    color: var(--wujia-text-secondary);
 }
-.wj-page-header--pc .wj-page-header__back > i { font-size: 20px; }
+.wj-page-header--pc .wj-page-header__back > i { font-size: 20px; color: var(--wujia-primary); }
+/* Hover + focus-visible: nền/viền soft + chữ lẫn icon về primary (spec 3 state) */
+.wj-page-header--pc .wj-page-header__back:hover,
+.wj-page-header--pc .wj-page-header__back:focus-visible {
+    background: var(--wujia-primary-soft);
+    border-color: var(--wujia-primary-border-soft);
+    color: var(--wujia-primary);
+}
+.wj-page-header--pc .wj-page-header__back:hover > i,
+.wj-page-header--pc .wj-page-header__back:focus-visible > i { color: var(--wujia-primary); }
 /* Breadcrumb PC (UI-PC-BASE-007) — cùng token với .wj-pc-page-header__crumb */
 .wj-page-header__crumb {
     font-size: 14px;

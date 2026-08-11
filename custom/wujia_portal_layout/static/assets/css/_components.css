@@ -3254,6 +3254,11 @@ a.wujia-mhome-kpi:active { opacity: 0.85; }
     text-decoration: none;
 }
 .wj-page-header__back > i { font-size: 24px; line-height: 1; }
+/* Focus ring dùng chung 2 variant (CMP-BPH-001 accessibility) */
+.wj-page-header__back:focus-visible {
+    outline: 2px solid var(--wujia-primary);
+    outline-offset: 2px;
+}
 .wj-page-header__actions { flex: 0 0 auto; margin-left: auto; }   /* action luôn nằm bên phải */
 .wj-page-header__create {
     display: inline-flex;
@@ -3284,9 +3289,13 @@ a.wujia-mhome-kpi:active { opacity: 0.85; }
 .wj-page-header--m .wj-page-header__meta {
     font-size: 13px; line-height: 18px; margin-left: auto; text-align: right;
 }
-/* Back cao 40 > dòng title 28 → pad 6 để hàng vẫn đúng 52 (vùng chạm 44 nằm ngoài luồng) */
-.wj-page-header--m.wj-page-header--back { padding: 6px 0; }
-.wj-page-header--m .wj-page-header__back { width: 40px; height: 40px; margin-right: 12px; position: relative; }
+/* Back cao 42 > dòng title 28 → pad 5 để hàng vẫn đúng 52 (vùng chạm 44 nằm ngoài luồng) */
+.wj-page-header--m.wj-page-header--back { padding: 5px 0; }
+/* CMP-BPH-001: mobile là nút TRÒN 42×42 (base radius 12 dành cho PC) */
+.wj-page-header--m .wj-page-header__back {
+    width: 42px; height: 42px; margin-right: 12px; position: relative;
+    border-radius: 999px;
+}
 /* Mobile giữ nút icon-only: nhãn chữ chỉ dành cho PC (UI-PC-BASE-006) */
 .wj-page-header--m .wj-page-header__back-label { display: none; }
 /* Action mobile ≥44 (CMP-PG-001) → pad 4 để hàng vẫn đúng 52 */

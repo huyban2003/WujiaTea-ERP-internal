@@ -1,9 +1,37 @@
+from urllib.parse import urlsplit
+
 from odoo import models
 from odoo.http import request
 
 
 class IrHttp(models.AbstractModel):
     _inherit = 'ir.http'
+
+    def _wj_portal_path(self, url):
+        """Chỉ nhận đích điều hướng NỘI BỘ portal (CMP-BPH-001) — chặn open redirect."""
+        if not url or not isinstance(url, str) or '\\' in url or url.startswith('//'):
+            return False
+        # '..' leo ra ngoài /portal sau khi trình duyệt chuẩn hoá (vd /portal/../web)
+        if '..' in url.split('?')[0].split('/'):
+            return False
+        if url == '/portal' or url.startswith('/portal/') or url.startswith('/portal?'):
+            return url
+        return False
+
+    def _wj_back_url(self, default):
+        """URL nút Quay lại: return_url đã validate → Referer trùng list cha (giữ
+        filter/page) → fallback list cha. Không query, không history.back()."""
+        default = default or '/portal'
+        explicit = self._wj_portal_path(request.params.get('return_url'))
+        if explicit:
+            return explicit
+        ref = request.httprequest.referrer
+        if ref:
+            parts = urlsplit(ref)
+            if parts.netloc == request.httprequest.host and parts.path == urlsplit(default).path:
+                back = parts.path + (('?' + parts.query) if parts.query else '')
+                return self._wj_portal_path(back) or default
+        return default
 
     def get_frontend_session_info(self):
         # Shell portal tự dựng <head> nên phải tự gọi khối session info (WJ-ORD-002,
