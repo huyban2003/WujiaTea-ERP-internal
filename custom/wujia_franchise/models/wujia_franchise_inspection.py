@@ -278,6 +278,7 @@ class WujiaFranchiseInspection(models.Model):
         string='Tổng điểm',
         compute='_compute_total_score',
         store=True,
+        group_operator=False,
         _description='điểm = điểm checklist + điểm kiểm tra'
     )
 
