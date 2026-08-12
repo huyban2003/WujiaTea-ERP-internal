@@ -1,4 +1,456 @@
-/* Report — chart container. Sprint 9.12 (2026-05-27): removed .report-kpi*
-   — KPI cards migrated to .wujia-kpi-card in wujia_portal_layout/_components.css (UI-11). */
+/* Báo cáo đặt hàng — delta so với hệ component chung, theo 2 mockup SVG BA chốt
+   (STT12): PC 1440x1120 và Mobile 390x1385.
 
-.report-chart-area { width: 100%; min-height: 280px; }
+   Nguyên tắc: KHÔNG sửa _pc_components.css / _components.css (dùng chung 8 module).
+   File này nạp sau bundle nên thắng ở đồng-specificity; mọi màu đi qua token. */
+
+/* Navy "Hoàn thành" chưa có trong bộ token global (chỉ có primary/success/danger).
+   Khai báo cục bộ như .wj-debt-pc từng làm; promote lên global khi có component
+   StatusBadge chuẩn. Giá trị khớp STATE_LABELS trong controller. */
+.wj-rep-pc,
+.wujia-mreport { --wj-rep-done: #244B87; }
+
+/* ===================== PC (từ 992px) ===================== */
+
+.wj-rep-pc__subtitle {
+    margin: 0 0 14px;
+    font-size: 14px;
+    color: var(--wj-pc-muted);
+}
+
+/* Mockup: khoảng cách dọc giữa các khối là 14 (component chung dùng 24). */
+.wj-rep-pc .wj-rep-pcfilter,
+.wj-rep-pc .wj-rep-pcmetrics,
+.wj-rep-pc .wj-rep-pcrow { margin-bottom: 14px; }
+
+/* FilterBar 78 = 14 + control 50 + 14 (component chung là 88 với control 42). */
+.wj-rep-pcfilter { padding: 14px 16px; }
+.wj-rep-pcfilter__row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+.wj-rep-pcfilter__field {
+    position: relative;
+    display: block;
+    flex: 0 0 260px;
+    height: 50px;
+    padding: 6px 14px 0;
+    border: 1px solid var(--wj-pc-border-soft);
+    border-radius: var(--wj-pc-input-radius);
+    background: var(--wj-pc-table-header-bg);
+    cursor: pointer;
+}
+.wj-rep-pcfilter__label {
+    display: block;
+    font-size: 11px;
+    line-height: 14px;
+    color: var(--wj-pc-muted);
+}
+.wj-rep-pcfilter__input {
+    width: 100%;
+    height: 22px;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--wj-pc-text);
+}
+.wj-rep-pcfilter__input:focus { outline: none; }
+.wj-rep-pcfilter__field:focus-within {
+    border-color: var(--wujia-primary-border-soft);
+    box-shadow: 0 0 0 2px var(--wujia-primary-soft);
+}
+.wj-rep-pcfilter__actions {
+    margin-left: auto;
+    display: flex;
+    gap: 12px;
+}
+
+/* KPI: card 266x100, icon 46 nền ĐẶC + glyph trắng (component chung: 96 cao,
+   icon 52 nền nhạt + glyph màu). Thêm dòng mô tả thứ 3 mà component chưa có. */
+.wj-rep-pcmetrics { gap: 24px; }
+.wj-rep-pcmetrics .wj-pc-metric-card {
+    min-height: 100px;
+    gap: 14px;
+    padding: 0 16px;
+}
+.wj-rep-pcicon {
+    width: 46px;
+    height: 46px;
+    border-radius: 12px;
+    font-size: 20px;
+    color: #fff;
+}
+.wj-rep-pcicon--primary { background: var(--wujia-primary); }
+.wj-rep-pcicon--success { background: var(--wujia-success); }
+.wj-rep-pcicon--done    { background: var(--wj-rep-done); }
+.wj-rep-pcicon--danger  { background: var(--wujia-danger); }
+.wj-rep-pcmetrics .wj-pc-metric-card__value { font-size: 24px; }
+.wj-rep-pcmetric__desc {
+    font-size: 12px;
+    line-height: 16px;
+    color: var(--wj-pc-muted);
+}
+
+/* Hàng biểu đồ: 744 + 378 trong cột nội dung 1136, cách nhau 14. */
+.wj-rep-pcrow {
+    display: grid;
+    grid-template-columns: minmax(0, 744fr) minmax(0, 378fr);
+    gap: 14px;
+    align-items: stretch;
+}
+.wj-rep-pccard { padding: 0; }
+/* Head không kẻ đường dưới: quét toàn bộ node SVG vùng head của cả 3 card PC
+   không có line nào, chỉ bảng Top SP có dải nền header riêng. */
+.wj-rep-pccard__head {
+    align-items: center;
+    margin: 0;
+    padding: 16px;
+}
+/* Thân chart không đệm trên (chart tự có khoảng trắng), đáy 14 — khớp card 324. */
+.wj-rep-pccard__body { padding: 0 16px 14px; }
+.wj-rep-pccard__meta {
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--wujia-primary);
+    white-space: nowrap;
+}
+.wj-rep-pccard--chart .wj-rep-pccard__body,
+.wj-rep-pccard--state .wj-rep-pccard__body { min-height: 250px; }
+
+.wj-rep-pclegend {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    white-space: nowrap;
+}
+.wj-rep-pclegend__dot {
+    width: 9px;
+    height: 9px;
+    border-radius: 50%;
+    background: var(--wujia-primary);
+}
+.wj-rep-pclegend__name {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--wj-pc-muted);
+}
+.wj-rep-pclegend__hint {
+    margin-left: 8px;
+    font-size: 13px;
+    color: var(--wj-pc-muted);
+}
+
+/* Donut + chú giải nằm ngang (mockup: donut 134 trái, danh sách phải). */
+.wj-rep-pcstate {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+.wj-rep-pcdonut { flex: 0 0 168px; }
+.wj-rep-pclegend-list {
+    flex: 1 1 auto;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+.wj-rep-pclegend-list__item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 0;
+    font-size: 13px;
+}
+.wj-rep-pclegend-list__dot {
+    flex: 0 0 8px;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+}
+.wj-rep-pclegend-list__label {
+    flex: 1 1 auto;
+    color: var(--wujia-text-secondary);
+}
+.wj-rep-pclegend-list__value {
+    flex: 0 0 auto;
+    font-weight: 700;
+    color: var(--wj-pc-text);
+    white-space: nowrap;
+}
+
+/* Bảng Top SP: dải header 38 (component chung 50) + chữ header màu chính.
+   Shell Vuexy có rule tag-level `table th{font-size:16px!important}` nên phải
+   ghi đè kèm !important ở đúng scope này. */
+.wj-rep-pctable thead th {
+    height: 38px;
+    padding: 0 16px;
+    background: var(--wj-pc-table-header-bg);
+    color: var(--wujia-primary);
+    font-size: 14px !important;
+}
+.wj-rep-pctable tbody td { padding: 0 16px; }
+.wj-rep-pctable__num { text-align: right; }
+.wj-rep-pctable__stt { width: 72px; }
+
+.wj-rep-chart-empty {
+    margin: 0;
+    padding: 32px 0;
+    text-align: center;
+    font-size: 13px;
+    color: var(--wujia-text-subtitle);
+}
+
+/* ===================== MOBILE (dưới 992px) ===================== */
+
+@media (max-width: 991.98px) {
+    /* Mockup: các khối cách nhau 12 (BlankShell dùng 14). Luật bù -6px của
+       CMP-PG-001 tính theo gap 14, gap 12 thì phải bù -4 để giữ đúng 8. */
+    .wujia-mreport { gap: 12px; }
+    .wujia-mreport > .wj-page-header--m { margin-bottom: -4px; }
+
+    .wj-rep-mbody {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+    }
+
+    /* FilterBar 358x72: 2 ô 112x48 + nút Tìm 94x48 */
+    .wj-rep-mfilter {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        /* shell có form { margin-bottom: 15px } tag-level → phá gap 12 của .wujia-mpage */
+        margin-bottom: 0;
+        padding: 12px;
+        background: var(--wujia-bg-card);
+        border-radius: var(--wujia-card-radius);
+    }
+    .wj-rep-mfilter__field {
+        flex: 1 1 112px;
+        min-width: 0;
+        height: 48px;
+        padding: 5px 10px 0;
+        border: 1px solid var(--wj-pc-border-soft);
+        border-radius: 10px;
+        background: var(--wj-pc-table-header-bg);
+    }
+    .wj-rep-mfilter__label {
+        display: block;
+        font-size: 11px;
+        line-height: 14px;
+        color: var(--wujia-text-subtitle);
+    }
+    .wj-rep-mfilter__input {
+        width: 100%;
+        height: 22px;
+        padding: 0;
+        border: 0;
+        background: transparent;
+        font-size: 14px;
+        font-weight: 500;
+        color: var(--wujia-text-primary);
+    }
+    .wj-rep-mfilter__input:focus { outline: none; }
+    .wj-rep-mfilter__go {
+        flex: 0 0 94px;
+        height: 48px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 6px;
+        border: 0;
+        border-radius: 10px;
+        background: var(--wujia-primary);
+        color: #fff;
+        font-size: 15px;
+        font-weight: 700;
+    }
+
+    /* KPI 2 cột, card 175x86, thanh màu 28x4 ở đỉnh */
+    .wj-rep-mkpi-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 10px 8px;
+    }
+    .wj-rep-mkpi {
+        display: flex;
+        flex-direction: column;
+        min-height: 86px;
+        /* Đáy 8 chứ không 12: mockup xếp 3 dòng chữ sát đáy card, tổng nội tại
+           12+4+6+17+24+15+8 = 86 đúng bằng chiều cao node SVG. */
+        padding: 12px 12px 8px;
+        background: var(--wujia-bg-card);
+        border-radius: var(--wujia-card-radius);
+    }
+    .wj-rep-mkpi__bar {
+        width: 28px;
+        height: 4px;
+        border-radius: 999px;
+        margin-bottom: 6px;
+    }
+    .wj-rep-mkpi--primary .wj-rep-mkpi__bar { background: var(--wujia-primary); }
+    .wj-rep-mkpi--success .wj-rep-mkpi__bar { background: var(--wujia-success); }
+    .wj-rep-mkpi--done    .wj-rep-mkpi__bar { background: var(--wj-rep-done); }
+    .wj-rep-mkpi--danger  .wj-rep-mkpi__bar { background: var(--wujia-danger); }
+    .wj-rep-mkpi__label {
+        font-size: 13px;
+        line-height: 17px;
+        font-weight: 600;
+        color: var(--wujia-text-subtitle);
+    }
+    .wj-rep-mkpi__value {
+        font-size: 20px;
+        font-weight: 700;
+        line-height: 24px;
+        color: var(--wujia-text-primary);
+        word-break: break-word;
+    }
+    .wj-rep-mkpi__desc {
+        font-size: 12px;
+        line-height: 15px;
+        color: var(--wujia-text-subtitle);
+    }
+
+    /* Card chung của 3 khối dưới: head 46, thân padding 12.
+       Không kẻ đường dưới head — quét SVG cả 2 mockup không có node line nào
+       trong vùng head card, chỉ bảng Top SP mới có dải nền riêng. */
+    .wj-rep-mcard {
+        background: var(--wujia-bg-card);
+        border-radius: var(--wujia-card-radius);
+    }
+    .wj-rep-mcard__head {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 8px;
+        min-height: 50px;
+        padding: 0 12px;
+    }
+    .wj-rep-mcard__title {
+        margin: 0;
+        font-size: 18px !important;   /* shell có h1,h2 tag-level !important */
+        font-weight: 700;
+        line-height: 24px;
+        color: var(--wujia-text-primary);
+    }
+    .wj-rep-mcard__meta {
+        flex: 0 0 auto;
+        font-size: 13px;
+        font-weight: 700;
+        color: var(--wujia-primary);
+        white-space: nowrap;
+    }
+    .wj-rep-mcard__body { padding: 12px; }
+    /* Card chart: bỏ đệm trên (ApexCharts tự chừa) và đáy 8 → card về đúng 258. */
+    .wj-rep-mcard--chart .wj-rep-mcard__body { padding: 0 12px 8px; }
+    .wj-rep-mempty {
+        padding: 18px 0;
+        text-align: center;
+        font-size: 13px;
+        color: var(--wujia-text-subtitle);
+    }
+
+    .wj-rep-mchart { width: 100%; min-height: 180px; }
+    .wj-rep-mchart__note {
+        margin: 4px 0 0;
+        line-height: 16px;
+        font-size: 12px;
+        color: var(--wujia-text-subtitle);
+    }
+
+    /* Thanh xếp chồng 334x15 + chú giải 2 cột (mockup mobile không hiện %) */
+    .wj-rep-mstack {
+        display: flex;
+        height: 15px;
+        border-radius: 999px;
+        overflow: hidden;
+        background: var(--wujia-border-soft);
+    }
+    .wj-rep-mstack__seg { height: 100%; }
+    .wj-rep-mlegend {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 12px 16px;
+        list-style: none;
+        margin: 18px 0 0;
+        padding: 0;
+    }
+    .wj-rep-mlegend__item {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 13px;
+        min-width: 0;
+    }
+    .wj-rep-mlegend__dot {
+        flex: 0 0 8px;
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+    }
+    .wj-rep-mlegend__label {
+        flex: 1 1 auto;
+        min-width: 0;
+        color: var(--wujia-text-secondary);
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+    .wj-rep-mlegend__value {
+        flex: 0 0 auto;
+        font-weight: 700;
+        color: var(--wujia-text-primary);
+    }
+
+    /* Top SP dạng list: badge 22 nền xanh nhạt, tên đậm, tiền dạt phải */
+    .wj-rep-mtop { list-style: none; margin: 0; padding: 0; }
+    .wj-rep-mtop__row {
+        display: flex;
+        align-items: flex-start;
+        gap: 13px;
+        padding: 16px 0;
+        border-bottom: 1px solid var(--wj-pc-border-soft);
+    }
+    .wj-rep-mtop__row:first-child { padding-top: 4px; }
+    .wj-rep-mtop__row:last-child { border-bottom: 0; padding-bottom: 4px; }
+    .wj-rep-mtop__rank {
+        flex: 0 0 22px;
+        width: 22px;
+        height: 22px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 8px;
+        background: var(--wujia-primary-soft);
+        color: var(--wujia-primary);
+        font-size: 12px;
+        font-weight: 700;
+    }
+    .wj-rep-mtop__main {
+        flex: 1 1 auto;
+        min-width: 0;
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+    }
+    .wj-rep-mtop__name {
+        font-size: 14px;
+        font-weight: 700;
+        line-height: 19px;
+        color: var(--wujia-text-primary);
+        overflow-wrap: anywhere;
+    }
+    .wj-rep-mtop__sub {
+        font-size: 12px;
+        color: var(--wujia-text-subtitle);
+    }
+    .wj-rep-mtop__amount {
+        flex: 0 0 auto;
+        font-size: 14px;
+        font-weight: 700;
+        color: var(--wujia-text-primary);
+        white-space: nowrap;
+    }
+}
