@@ -37,6 +37,13 @@
 
     function monthsOptions(payload, mobile) {
         var primary = wujiaColor("primary", "#28A9DF");
+        /* 8 tháng "07/2026" không đủ chỗ trong 334px của mobile: để nguyên thì
+           ApexCharts cắt thành "07/2…", ép trim:false thì các nhãn chồng lên nhau.
+           Mobile rút thành "07/26", tooltip vẫn trả về nhãn đầy đủ. */
+        var full = payload.months_label || [];
+        var months = mobile
+            ? full.map(function (l) { return l.replace(/\/\d{2}(\d{2})$/, "/$1"); })
+            : full;
         /* yaxis.title chỉ được TỒN TẠI ở bản PC. Truyền title: undefined làm
            ApexCharts đọc title.text của undefined → ném lỗi và chart mobile
            không vẽ ra gì (canvas rỗng), nên phải bỏ hẳn khoá. */
@@ -92,19 +99,25 @@
                 },
             },
             xaxis: {
-                categories: payload.months_label || [],
+                categories: months,
                 axisBorder: { show: false },
                 axisTicks: { show: false },
                 labels: {
                     rotate: 0,
                     hideOverlappingLabels: true,
-                    style: { fontSize: mobile ? "11px" : "12px" },
+                    trim: false,
+                    style: { fontSize: mobile ? "9px" : "12px" },
                 },
             },
             yaxis: yaxis,
             grid: { borderColor: wujiaColor("border-soft", "#EEF2F5"), strokeDashArray: 0 },
             legend: { show: false },
             tooltip: {
+                x: {
+                    formatter: function (v, opt) {
+                        return (opt && full[opt.dataPointIndex]) || v;
+                    },
+                },
                 y: {
                     formatter: function (v, opt) {
                         var counts = payload.months_count || [];
