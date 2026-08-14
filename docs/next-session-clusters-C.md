@@ -21,6 +21,10 @@ mọi trang, chạy sau khi C7 sắp lại block Home thì khỏi làm hai lần
 > chủ dự án deploy UAT rồi BA retest. Chỉ khi cả 10 cụm ✅ mới chốt sprint (viết chapter
 > `.tex`, recompile PDF, tổng kết). Đừng đề xuất end sprint sớm.
 
+> 🔴 **Clean code (chốt 15/08/2026):** fix ở đúng chỗ gốc, tách helper dùng chung thay vì
+> copy-paste; không thêm field/file khi cái sẵn có đủ; comment ít thôi, chỉ giải thích *tại
+> sao* ở chỗ khó đoán. Đừng để code phình sau mỗi cụm.
+
 **Tiến độ cụm:** C1 ✅ 15/08/2026 `b623b70` (3 issue → Ready for Retest, đã push `main`,
 chờ deploy UAT; bảng đối chiếu `docs/c1-acceptance-matrix.md`) · C2 ☐ · C3 ☐ · C4 ☐ · C5 ☐ · C6 ☐ · C7 ☐ · C8 ☐ · C9 ☐ · C10 ☐
 (đánh ✅ + ngày + commit khi xong, để phiên sau biết đang tới đâu.)
