@@ -16,6 +16,9 @@ class SaleOrder(models.Model):
         'res.partner',
         string='Store partner',
         domain="[('is_franchise', '=', True)]",
+        compute='_compute_franchise_partner_id',
+        store=True,
+        readonly=False,
         index=True,
         tracking=True,
         help='Partner representing the franchise store owning the order — required when is_portal_order=True.',
@@ -23,9 +26,13 @@ class SaleOrder(models.Model):
     franchise_id = fields.Many2one(
         'wujia.franchise.management',
         string='Franchise store',
+        compute='_compute_franchise_id',
+        store=True,
+        readonly=False,
         index=True,
         tracking=True,
-        help='Store owning the order — required when is_portal_order=True.',
+        help='Store owning the order — required when is_portal_order=True. '
+             'Derived from partner_id when the partner maps to exactly one store.',
     )
     portal_requester_user_id = fields.Many2one(
         'res.users',
@@ -142,7 +149,29 @@ class SaleOrder(models.Model):
                         order.franchise_id.display_name,
                     ))
 
-    @api.onchange('franchise_id')
-    def _onchange_franchise_id(self):
-        if self.franchise_id and self.franchise_id.partner_id:
-            self.franchise_partner_id = self.franchise_id.partner_id
+    # ------------------------------------------------------------------
+    # Franchise suy từ partner (WJ-FRANCHISE-001) — compute store để chạy cả ở
+    # import/API, readonly=False cho phép admin chọn tay cửa hàng khác.
+    # ------------------------------------------------------------------
+    @api.depends('partner_id')
+    def _compute_franchise_id(self):
+        for order in self:
+            # Partner không map / map nhiều: giữ nguyên giá trị đang có, không đoán.
+            order.franchise_id = order.partner_id._wujia_unique_franchise() or order.franchise_id
+
+    @api.depends('franchise_id')
+    def _compute_franchise_partner_id(self):
+        for order in self:
+            order.franchise_partner_id = order.franchise_id.partner_id or order.franchise_partner_id
+
+    @api.onchange('partner_id')
+    def _onchange_partner_id_franchise_warning(self):
+        return self.partner_id._wujia_multi_mapping_warning()
+
+    def action_confirm(self):
+        # WJ-FRANCHISE-002: chặn trước khi sinh picking/hoá đơn với franchise trống/lệch.
+        for order in self:
+            order.partner_id._wujia_assert_document_franchise(
+                order.franchise_id, order.display_name,
+            )
+        return super().action_confirm()

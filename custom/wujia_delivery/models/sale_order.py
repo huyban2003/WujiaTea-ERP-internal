@@ -11,7 +11,11 @@ class SaleOrder(models.Model):
         for order in self:
             if not order.franchise_id:
                 continue
-            pickings_to_update = order.picking_ids.filtered(lambda p: not p.franchise_id)
+            # SO là nguồn chân lý: picking nay tự suy franchise từ partner giao hàng nên
+            # phải đè cả trường hợp lệch, không chỉ trường hợp trống.
+            pickings_to_update = order.picking_ids.filtered(
+                lambda p: p.franchise_id != order.franchise_id
+            )
             if pickings_to_update:
                 pickings_to_update.write({'franchise_id': order.franchise_id.id})
         return res

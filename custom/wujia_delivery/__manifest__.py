@@ -1,6 +1,6 @@
 {
     'name': 'Wujia Delivery',
-    'version': '19.0.1.0.0',
+    'version': '19.0.1.1.0',
     'category': 'Wujia',
     'summary': 'Điều phối giao hàng: gắn xe vào batch, tính cost, report đội xe / cửa hàng',
     'author': 'WujiaTea',
