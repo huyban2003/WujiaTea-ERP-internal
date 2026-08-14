@@ -17,11 +17,33 @@ class StockPicking(models.Model):
     franchise_id = fields.Many2one(
         'wujia.franchise.management',
         string='Franchise store',
+        compute='_compute_franchise_id',
+        store=True,
+        readonly=False,
         index=True,
         tracking=True,
-        help="Franchise store receiving the goods. Copied from the SO on confirm; "
-             "can be set manually for internal pickings.",
+        help="Franchise store receiving the goods. Derived from the partner when it maps "
+             "to exactly one store, overwritten by the SO on confirm; can be set manually "
+             "for internal pickings.",
     )
+
+    @api.depends('partner_id')
+    def _compute_franchise_id(self):
+        for picking in self:
+            # Partner không map / map nhiều: giữ nguyên giá trị đang có, không đoán.
+            picking.franchise_id = picking.partner_id._wujia_unique_franchise() or picking.franchise_id
+
+    @api.onchange('partner_id')
+    def _onchange_partner_id_franchise_warning(self):
+        return self.partner_id._wujia_multi_mapping_warning()
+
+    def button_validate(self):
+        # WJ-FRANCHISE-002: chặn hoàn tất phiếu khi partner map duy nhất mà cửa hàng trống/lệch.
+        for picking in self:
+            picking.partner_id._wujia_assert_document_franchise(
+                picking.franchise_id, picking.display_name,
+            )
+        return super().button_validate()
     area_id = fields.Many2one(
         'res.area',
         string='Area',

@@ -33,6 +33,7 @@ class WujiaFranchiseManagement(models.Model):
         'res.partner',
         string='Partner',
         ondelete='restrict',
+        index=True,
         tracking=True,
         help='Link to the res.partner representing the store — the transactional entity for '
              'sale.order, account.move, membership.',
