@@ -16,8 +16,13 @@ mọi trang, chạy sau khi C7 sắp lại block Home thì khỏi làm hai lần
 2. WJ-DEBT-008 = **ẩn hẳn khối QR** (nhánh OR của BA), KHÔNG sinh VietQR thật.
 3. WJ-DEBT-004 = **tách tổng theo từng loại tiền**, KHÔNG quy đổi tỷ giá.
 
-**Tiến độ cụm:** C1 ✅ 15/08/2026 `b623b70` (3 issue → Ready for Retest, **chưa deploy UAT**;
-bảng đối chiếu `docs/c1-acceptance-matrix.md`) · C2 ☐ · C3 ☐ · C4 ☐ · C5 ☐ · C6 ☐ · C7 ☐ · C8 ☐ · C9 ☐ · C10 ☐
+> 🔴 **LUẬT CHỦ DỰ ÁN CHỐT 15/08/2026 — KHÔNG `/wujia-end-sprint` cho tới khi ĐỦ 10 CỤM
+> C1–C10 xong.** Mỗi phiên làm 1 cụm, ghi tiến độ vào dòng dưới, commit + push `main` để
+> chủ dự án deploy UAT rồi BA retest. Chỉ khi cả 10 cụm ✅ mới chốt sprint (viết chapter
+> `.tex`, recompile PDF, tổng kết). Đừng đề xuất end sprint sớm.
+
+**Tiến độ cụm:** C1 ✅ 15/08/2026 `b623b70` (3 issue → Ready for Retest, đã push `main`,
+chờ deploy UAT; bảng đối chiếu `docs/c1-acceptance-matrix.md`) · C2 ☐ · C3 ☐ · C4 ☐ · C5 ☐ · C6 ☐ · C7 ☐ · C8 ☐ · C9 ☐ · C10 ☐
 (đánh ✅ + ngày + commit khi xong, để phiên sau biết đang tới đâu.)
 
 ---
