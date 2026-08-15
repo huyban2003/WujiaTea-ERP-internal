@@ -1118,7 +1118,7 @@ WJ-HOME-003:
 
 WJ-ORD-026:
   sprint: "2026-08-15-C9"
-  build_override: "Local | 15/08/2026 | Sprint 2026-08-15-C9 | wujia_portal_layout 19.0.31.17.0 + wujia_portal_sale 19.0.4.13.0 | Dev đo bằng trình duyệt trên bản sao dữ liệu riêng ở 360x640 và 391x844: nút Gửi đơn đặt hàng cách mép trên thanh chức năng dưới cùng 12px, 8/8 điểm đạt | CHỜ DEPLOY UAT | URL: /portal/order/cart"
+  build_override: "Local | 15/08/2026 | Sprint 2026-08-15-C9 | commit: 9a8784b | wujia_portal_layout 19.0.31.17.0 + wujia_portal_sale 19.0.4.13.0 | Dev đo bằng trình duyệt trên bản sao dữ liệu riêng ở 360x640 và 391x844: nút Gửi đơn đặt hàng cách mép trên thanh chức năng dưới cùng 12px, 8/8 điểm đạt | CHỜ DEPLOY UAT | URL: /portal/order/cart"
   url: "/portal/order/cart — nút Gửi đơn đặt hàng (điện thoại)"
   odoo_fit: "Custom"
   fix: "Khối tổng tiền cố định ở cuối giỏ hàng trước đây được đặt cách đáy màn hình một khoảng cố định từ thời thanh chức năng dưới cùng còn thấp, nên khi thanh này được nâng cao thì nút Gửi đơn đặt hàng bị che mất phần dưới. Nay khoảng cách đó lấy theo đúng chiều cao thật của thanh chức năng, kể cả phần chừa thêm cho vạch cảm ứng của điện thoại màn hình tràn viền, nên nút luôn nằm trọn phía trên thanh. Khoảng trống chừa dưới nội dung giỏ cũng tính theo cách này, cuộn hết vẫn đọc và sửa được ô ghi chú"
@@ -1128,7 +1128,7 @@ WJ-ORD-026:
 
 RESP-MOB-ORDER-002:
   sprint: "2026-08-15-C9"
-  build_override: "Local | 15/08/2026 | Sprint 2026-08-15-C9 | wujia_portal_layout 19.0.31.17.0 + wujia_portal_sale 19.0.4.13.0 | Dev đo bằng trình duyệt trên bản sao dữ liệu riêng ở 360x640 và 391x844: bề rộng tên sản phẩm 277px trên card 357px, 10/10 điểm đạt | CHỜ DEPLOY UAT | URL: /portal/order"
+  build_override: "Local | 15/08/2026 | Sprint 2026-08-15-C9 | commit: 9a8784b | wujia_portal_layout 19.0.31.17.0 + wujia_portal_sale 19.0.4.13.0 | Dev đo bằng trình duyệt trên bản sao dữ liệu riêng ở 360x640 và 391x844: bề rộng tên sản phẩm 277px trên card 357px, 10/10 điểm đạt | CHỜ DEPLOY UAT | URL: /portal/order"
   url: "/portal/order — thẻ sản phẩm (điện thoại)"
   odoo_fit: "Custom"
   fix: "Thẻ sản phẩm trên điện thoại nay chia hai hàng theo đúng đề xuất của BA: tên sản phẩm chiếm trọn hàng trên, còn quy cách, đơn giá và nút thêm vào giỏ xuống hàng dưới. Nhờ vậy tên có 277 điểm ảnh thay vì 150 trên máy 391 và 246 thay vì 122 trên máy 360, phần lớn tên nay nằm gọn một dòng. Tên vẫn tối đa hai dòng và có dấu ba chấm khi thật sự quá dài. Ảnh sản phẩm vẫn ở bên trái, nút thêm vào giỏ và bộ tăng giảm số lượng giữ nguyên kích thước vùng bấm"
@@ -1138,7 +1138,7 @@ RESP-MOB-ORDER-002:
 
 WJ-PH-008:
   sprint: "2026-08-15-C9"
-  build_override: "Local | 15/08/2026 | Sprint 2026-08-15-C9 | wujia_portal_purchase_history 19.0.3.6.0 | Dev đo bằng trình duyệt trên bản sao dữ liệu riêng ở 1920x1080 và 391x844 với 14 đơn: mặc định 10 dòng, 10/10 điểm đạt | CHỜ DEPLOY UAT | URL: /portal/purchase-history"
+  build_override: "Local | 15/08/2026 | Sprint 2026-08-15-C9 | commit: 9a8784b | wujia_portal_purchase_history 19.0.3.6.0 | Dev đo bằng trình duyệt trên bản sao dữ liệu riêng ở 1920x1080 và 391x844 với 14 đơn: mặc định 10 dòng, 10/10 điểm đạt | CHỜ DEPLOY UAT | URL: /portal/purchase-history"
   url: "/portal/purchase-history — số dòng mỗi trang"
   odoo_fit: "Custom"
   fix: "Lịch sử đặt hàng nay mặc định 10 dòng mỗi trang đúng như quy định của bộ giao diện, thay vì 20. Ô chọn số dòng mỗi trang và phần kiểm tra ở máy chủ dùng chung một danh sách 10, 20, 50 nên không thể lệch nhau; nhập tay một con số lạ trên đường dẫn thì hệ thống trả về mặc định 10 chứ không tải bừa. Số dòng đang chọn được giữ lại khi tìm kiếm, khi lọc theo trạng thái hoặc khoảng ngày và khi chuyển trang. Tổng số bản ghi, số trang và thứ tự đơn giữ nguyên, không có đơn nào bị lặp hay bỏ sót giữa các trang"
