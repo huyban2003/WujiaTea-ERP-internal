@@ -1080,14 +1080,14 @@ WJ-KNW-004:
 
 WJ-DELIVERY-005:
   sprint: "2026-08-15-C5"
-  build_override: "UAT | 15/08/2026 | Sprint 2026-08-15-C5 | commit: 6ac7807 | Đã deploy bản đầu (c77e335) nhưng CẦN DEPLOY LẠI bản 6ac7807: bản đầu chưa hiện chuyến chưa đặt ngày dự kiến trên trang chủ | Cập nhật wujia_portal_delivery + wujia_portal_base, không có bước cập nhật dữ liệu | URL: /portal"
+  build_override: "UAT | 15/08/2026 | Sprint 2026-08-15-C5 | commit: 6ac7807 | Đã deploy UAT, wujia_portal_delivery 19.0.3.6.0 + wujia_portal_base 19.0.7.3.0 | Dev đã đo lại trên trình duyệt UAT ngày 15/08/2026 (chỉ đọc, không sửa dữ liệu) ở 391x844 và 1920x1080: trang chủ hiện chuyến BATCH/OUT/00001 kèm đơn S00031 và dòng 1 đơn chưa giao | URL: /portal"
   url: "/portal — block Giao hàng sắp tới (điện thoại)"
   odoo_fit: "Custom"
   fix: "Trang chủ portal nay lấy dữ liệu giao hàng bằng đúng quy tắc cửa hàng đang chọn như trang Theo dõi giao hàng, và chỉ lấy chuyến chưa hoàn thành. Dưới tiêu đề block có thêm dòng tổng số đơn chưa giao của cửa hàng, tính trên mọi chuyến chưa hoàn thành. Mỗi thẻ chuyến hiện số đơn chưa giao của chính chuyến đó kèm mã các đơn tương ứng, thay cho cách đếm cũ gộp cả đơn đã giao. Chuyến đang bốc hàng hoặc đang giao vẫn hiện dù lịch dự kiến đã qua"
   impact: "Block Giao hàng sắp tới trên trang chủ bản điện thoại. Trang Theo dõi giao hàng, quyền xem và dữ liệu backend không đổi"
   retest: "Chọn một cửa hàng có chuyến đang giao và có đơn chưa giao rồi mở trang chủ: block Giao hàng sắp tới phải hiện chuyến đó, dòng đếm phải đúng số đơn chưa giao của cửa hàng, và mã đơn in trong thẻ phải đúng các đơn chưa giao của chuyến. Hoàn tất một chuyến ở backend rồi tải lại trang chủ: chuyến đó phải biến mất. Đổi sang cửa hàng khác: không được thấy dữ liệu của cửa hàng cũ"
   limit: "Block giao hàng trên trang chủ vẫn chỉ có bản điện thoại, bản máy tính chưa dựng (chủ dự án chốt giữ nguyên ngày 15/08/2026). Số thẻ chuyến hiện tối đa 2, thuộc phạm vi cụm C7 nên chưa đổi ở đợt này; vì vậy dòng tổng đơn chưa giao có thể lớn hơn tổng số đơn của 2 thẻ đang hiện"
-  limit_note_uat: "Đo lại trên UAT 15/08/2026 sau khi deploy: chuyến chưa giao duy nhất (BATCH/OUT/00001) chưa đặt ngày dự kiến nên bản đầu chưa liệt kê đơn; bản 6ac7807 cho chuyến chưa đặt lịch hiện ở cuối block, cần deploy lại rồi retest."
+  limit_note_uat: "Đo lại trên UAT 15/08/2026 sau khi deploy: chuyến chưa giao duy nhất (BATCH/OUT/00001) chưa đặt ngày dự kiến nên bản đầu chưa liệt kê đơn; bản 6ac7807 cho chuyến chưa đặt lịch hiện ở cuối block, đã deploy UAT và đo lại đạt."
 
 WJ-DELIVERY-006:
   sprint: "2026-08-15-C5"

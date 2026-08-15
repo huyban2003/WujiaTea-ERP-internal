@@ -113,3 +113,9 @@ chưa được đặt ngày dự kiến, mà rule chỉ nhận "lịch từ hôm
 ⇒ block rơi về trạng thái trống trong khi bộ đếm vẫn báo 1 đơn. Chủ dự án chốt 15/08: chuyến
 chưa hoàn thành mà **chưa đặt lịch vẫn hiện, xếp cuối** (Postgres xếp NULL cuối ở thứ tự tăng).
 Thêm 2 test, trong đó có ca đúng hình UAT: cửa hàng chỉ có một chuyến chưa đặt lịch.
+
+**Đo lại lần 2 sau khi deploy `6ac7807` (15/08/2026):** trang chủ hiện `BATCH/OUT/00001` với
+"Đơn chưa giao: 1 đơn · S00031" và dòng đếm "1 đơn chưa giao"; ô giờ ghi "Xuất phát (dự kiến) —"
+vì chuyến chưa đặt lịch. `BATCH/OUT/00002` vẫn "12/08 · 13:47 (thực tế)", search `S00035` vẫn
+badge Tất cả 1. 5 trang × 2 viewport: 200 · tràn ngang 0 · 0 lỗi JS. ⇒ **cả 4 issue đạt trên
+UAT**, hàng đợi deploy C5 trống.
