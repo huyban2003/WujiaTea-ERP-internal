@@ -373,17 +373,21 @@ class WujiaPortalDebt(models.AbstractModel):
         (KHÔNG tin giá trị portal gửi lên). Mở QR chỉ trả hướng dẫn — không tạo payment.
 
         ⚠️ Ảnh QR (tĩnh/động) BA CHƯA chốt (CT-055 cột ghi chú còn để ngỏ) ⇒ chỉ trả
-        STK + nội dung, defer ảnh QR (Need BA Confirm)."""
+        STK + nội dung, defer ảnh QR (Need BA Confirm).
+
+        `configured` = có tài khoản hợp lệ hay không; template rẽ theo cờ này thay vì
+        đoán từ chuỗi rỗng (WJ-DEBT-002)."""
         bank = self._portal_bank_account()
         if not bank:
             return {
-                'name': 'Cửa hàng chưa được cấu hình tài khoản nhận thanh toán. '
-                        'Vui lòng liên hệ bộ phận hỗ trợ.',
+                'configured': False,
+                'name': '',
                 'holder': '',
                 'account': '',
                 'memo': '',
             }
         return {
+            'configured': True,
             'name': bank.bank_id.name or bank.bank_name or 'Ngân hàng',
             'holder': bank.acc_holder_name or bank.partner_id.name or '',
             'account': bank.acc_number or '',
