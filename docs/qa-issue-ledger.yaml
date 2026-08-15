@@ -1077,3 +1077,40 @@ WJ-KNW-004:
   impact: "Trang chi tiết bài viết và đường dẫn tải đính kèm. Danh sách bài, quyền xem và nội dung bài đang hiển thị không đổi"
   retest: "Chọn một bài đang hiển thị, ghi lại đường dẫn, rồi ở phần quản trị chuyển bài về Nháp. Mở lại đường dẫn đó: phải về trang Kiến thức kèm dòng Bài viết không tồn tại hoặc không còn khả dụng, không thấy nội dung bài. Làm lại với bài lưu trữ, bài bị ẩn và bài đặt ngày phát hành ở tương lai: cùng một thông báo. Mở đường dẫn tải đính kèm của bài đã gỡ: cũng ra thông báo, không ra trang lỗi. Đưa bài trở lại trạng thái đã đăng rồi mở lại: phải xem được bình thường"
   limit: "Không có"
+
+WJ-DELIVERY-005:
+  sprint: "2026-08-15-C5"
+  build_override: "Đã push code, CHƯA lên UAT | 15/08/2026 | Sprint 2026-08-15-C5 | commit: 94756ff | Cần deploy: cập nhật wujia_portal_delivery 19.0.3.6.0 + wujia_portal_base 19.0.7.3.0 (không có bước cập nhật dữ liệu) | URL: /portal"
+  url: "/portal — block Giao hàng sắp tới (điện thoại)"
+  odoo_fit: "Custom"
+  fix: "Trang chủ portal nay lấy dữ liệu giao hàng bằng đúng quy tắc cửa hàng đang chọn như trang Theo dõi giao hàng, và chỉ lấy chuyến chưa hoàn thành. Dưới tiêu đề block có thêm dòng tổng số đơn chưa giao của cửa hàng, tính trên mọi chuyến chưa hoàn thành. Mỗi thẻ chuyến hiện số đơn chưa giao của chính chuyến đó kèm mã các đơn tương ứng, thay cho cách đếm cũ gộp cả đơn đã giao. Chuyến đang bốc hàng hoặc đang giao vẫn hiện dù lịch dự kiến đã qua"
+  impact: "Block Giao hàng sắp tới trên trang chủ bản điện thoại. Trang Theo dõi giao hàng, quyền xem và dữ liệu backend không đổi"
+  retest: "Chọn một cửa hàng có chuyến đang giao và có đơn chưa giao rồi mở trang chủ: block Giao hàng sắp tới phải hiện chuyến đó, dòng đếm phải đúng số đơn chưa giao của cửa hàng, và mã đơn in trong thẻ phải đúng các đơn chưa giao của chuyến. Hoàn tất một chuyến ở backend rồi tải lại trang chủ: chuyến đó phải biến mất. Đổi sang cửa hàng khác: không được thấy dữ liệu của cửa hàng cũ"
+  limit: "Block giao hàng trên trang chủ vẫn chỉ có bản điện thoại, bản máy tính chưa dựng (chủ dự án chốt giữ nguyên ngày 15/08/2026). Số thẻ chuyến hiện tối đa 2, thuộc phạm vi cụm C7 nên chưa đổi ở đợt này; vì vậy dòng tổng đơn chưa giao có thể lớn hơn tổng số đơn của 2 thẻ đang hiện"
+
+WJ-DELIVERY-006:
+  sprint: "2026-08-15-C5"
+  build_override: "Đã push code, CHƯA lên UAT | 15/08/2026 | Sprint 2026-08-15-C5 | commit: 94756ff | Cần deploy: cập nhật wujia_portal_delivery 19.0.3.6.0 + wujia_portal_base 19.0.7.3.0 (không có bước cập nhật dữ liệu) | URL: /portal/delivery"
+  url: "/portal/delivery — badge trạng thái ở đầu danh sách (máy tính)"
+  odoo_fit: "Custom"
+  fix: "Các badge đếm ở đầu danh sách chuyến giao nay tính trên đúng tập kết quả đang hiển thị: khi tìm theo mã chuyến hoặc mã đơn, và khi lọc khoảng ngày, badge Tất cả bằng đúng số dòng tìm được, các badge trạng thái cũng đếm trong chính tập đó. Xoá tìm kiếm và bộ lọc ngày thì các số trở về dữ liệu đầy đủ của cửa hàng đang chọn. Bấm chọn một badge trạng thái vẫn thấy số của các badge còn lại, không bị về 0"
+  impact: "Dãy badge đếm trên trang Theo dõi giao hàng. Danh sách, phân trang và dữ liệu backend không đổi. Số lần truy vấn giữ nguyên như trước"
+  retest: "Mở Theo dõi giao hàng, ghi lại các số ở dãy badge. Tìm một mã đơn chỉ thuộc một chuyến: danh sách còn 1 dòng và badge Tất cả phải là 1, các badge trạng thái phải khớp trạng thái của chuyến đó. Xoá ô tìm: các số phải trở lại như ban đầu. Chọn khoảng ngày chỉ chứa vài chuyến: badge phải khớp số dòng. Bấm một badge trạng thái: các badge khác vẫn giữ số"
+
+WJ-DELIVERY-007:
+  sprint: "2026-08-15-C5"
+  build_override: "Đã push code, CHƯA lên UAT | 15/08/2026 | Sprint 2026-08-15-C5 | commit: 94756ff | Cần deploy: cập nhật wujia_portal_delivery 19.0.3.6.0 + wujia_portal_base 19.0.7.3.0 (không có bước cập nhật dữ liệu) | URL: /portal/delivery"
+  url: "/portal/delivery và /portal/delivery/<id> (cả điện thoại và máy tính)"
+  odoo_fit: "Custom"
+  fix: "Xác nhận technical mapping BA gợi ý là đúng: hệ thống đã lưu sẵn thời gian xuất phát thực tế trên chuyến giao, ghi tự động khi chuyến chuyển sang Đang giao. Portal nay hiện thời gian thực tế đó khi chuyến đã xuất phát, và chỉ hiện giờ dự kiến khi chưa xuất phát; áp cho danh sách, trang chi tiết và block Giao hàng sắp tới ở trang chủ. Nhãn đi kèm đổi theo dữ liệu, ghi rõ Xuất phát (thực tế) hoặc Xuất phát (dự kiến) để phân biệt được bằng mắt. Giờ hiển thị đã quy đổi sang giờ Việt Nam"
+  impact: "Ô Xuất phát ở danh sách chuyến, trang chi tiết chuyến và thẻ chuyến trên trang chủ. Bộ lọc khoảng ngày vẫn lọc theo lịch dự kiến như cũ; dữ liệu backend không đổi"
+  retest: "Chọn một chuyến chưa xuất phát: portal phải ghi Xuất phát (dự kiến) kèm đúng giờ dự kiến trong backend. Cho chuyến xuất phát ở backend rồi mở lại portal: phải ghi Xuất phát (thực tế) kèm đúng giờ thực tế, không còn hiện giờ dự kiến ở ô đó. Đối chiếu giờ trên portal với giờ trong backend theo giờ Việt Nam. Kiểm cả danh sách, trang chi tiết và trang chủ, trên điện thoại lẫn máy tính"
+
+WJ-HOME-003:
+  sprint: "2026-08-15-C5"
+  build_override: "Đã push code, CHƯA lên UAT | 15/08/2026 | Sprint 2026-08-15-C5 | commit: 94756ff | Cần deploy: cập nhật wujia_portal_delivery 19.0.3.6.0 + wujia_portal_base 19.0.7.3.0 (không có bước cập nhật dữ liệu) | URL: /portal"
+  url: "/portal — block Giao hàng sắp tới (điện thoại)"
+  odoo_fit: "Custom"
+  fix: "Block Giao hàng sắp tới nay chỉ lấy chuyến chưa hoàn thành: chuyến Đã giao xong và Hủy chuyến không còn xuất hiện. Chuyến đang bốc hàng hoặc đang giao vẫn giữ lại kể cả khi lịch dự kiến đã qua, vì đó vẫn là hàng chưa tới cửa hàng. Thứ tự sắp theo lịch dự kiến gần nhất trước. Tên block giữ nguyên như BA yêu cầu. Không có chuyến nào thì vẫn hiện đúng khối trạng thái trống như trước"
+  impact: "Chỉ block Giao hàng sắp tới trên trang chủ bản điện thoại. Trang Theo dõi giao hàng và các block khác của trang chủ không đổi"
+  retest: "Mở trang chủ với cửa hàng có đủ chuyến ở các trạng thái: block Giao hàng sắp tới không được có chuyến Đã giao xong hay Hủy chuyến. Trạng thái và ngày giờ trên thẻ phải khớp backend. Nếu có nhiều chuyến chưa hoàn thành, chuyến có lịch gần nhất phải đứng trước. Hoàn tất chuyến cuối cùng rồi tải lại: block phải hiện khối chưa có chuyến giao sắp tới"

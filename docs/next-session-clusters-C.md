@@ -33,7 +33,9 @@ chờ deploy UAT; bảng đối chiếu `docs/c1-acceptance-matrix.md`) · C2 �
 6 breakpoint, 38 test + 116 hồi quy xanh; bảng đối chiếu `docs/c3-acceptance-matrix.md`) ·
 C4 ✅ 15/08/2026 `a292547` (4 issue → Ready for Retest, `-u wujia_portal_knowledge` không cập
 nhật dữ liệu; 60/60 đo đạt 2 viewport, 14 test mới + 87 hồi quy xanh; bảng đối chiếu
-`docs/c4-acceptance-matrix.md`) · C5 ☐ · C6 ☐ · C7 ☐ · C8 ☐ · C9 ☐ · C10 ☐
+`docs/c4-acceptance-matrix.md`) · C5 ✅ 15/08/2026 `94756ff` (4 issue → Ready for Retest,
+`-u wujia_portal_delivery,wujia_portal_base` không cập nhật dữ liệu; 20/20 đo đạt 2 viewport,
+9 test mới + 75 hồi quy xanh; bảng đối chiếu `docs/c5-acceptance-matrix.md`) · C6 ☐ · C7 ☐ · C8 ☐ · C9 ☐ · C10 ☐
 (đánh ✅ + ngày + commit khi xong, để phiên sau biết đang tới đâu.)
 
 ---
