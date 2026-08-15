@@ -1,6 +1,7 @@
 import re
 
 from odoo import _, api, fields, models
+from odoo.tools.mail import html_to_inner_content
 
 
 STATE_SELECTION = [
@@ -42,6 +43,11 @@ class WujiaKnowledgeArticle(models.Model):
     )
     summary = fields.Text(string='Summary', translate=True)
     content = fields.Html(string='Content', translate=True, sanitize=True)
+    wujia_content_text = fields.Text(
+        string='Content (plain text)', compute='_compute_wujia_content_text',
+        store=True, copy=False,
+        help='HTML-stripped content, used by portal search.',
+    )
     cover_image = fields.Binary(string='Cover image', attachment=True)
     cover_image_filename = fields.Char()
 
@@ -102,6 +108,14 @@ class WujiaKnowledgeArticle(models.Model):
             rec.is_published_portal = (
                 rec.state == 'published'
                 and (not rec.expired_date or rec.expired_date > now)
+            )
+
+    @api.depends('content')
+    def _compute_wujia_content_text(self):
+        # Search phải khớp cả khi keyword bị thẻ HTML cắt ngang → so trên text đã strip.
+        for rec in self:
+            rec.wujia_content_text = (
+                ' '.join(html_to_inner_content(rec.content).split()) or False
             )
 
     @api.model

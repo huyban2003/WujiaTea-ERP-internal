@@ -1,36 +1,79 @@
-from werkzeug.exceptions import Forbidden, NotFound
+import logging
 
-from odoo import http
+from werkzeug.exceptions import Forbidden
+
+from odoo import fields, http
 from odoo.http import request
 
+from odoo.addons.wujia_portal_base.controllers.utils import fmt_local_dt
+
+_logger = logging.getLogger(__name__)
 
 PAGE_SIZE = 12
+NOTICES = ('category_gone', 'tag_gone', 'article_gone')
+
+
+def _visible_domain():
+    """Bài được phép hiện trên portal: đã publish, đã tới ngày phát hành, chưa hết hạn.
+
+    `active` do active_test loại sẵn; `is_published_portal` đã gộp state + expired_date.
+    """
+    return [
+        ('is_published_portal', '=', True),
+        '|', ('publish_date', '=', False),
+             ('publish_date', '<=', fields.Datetime.now()),
+    ]
+
+
+def _keyword_domain(keyword):
+    return [
+        '|', '|', ('name', 'ilike', keyword),
+                  ('summary', 'ilike', keyword),
+                  ('wujia_content_text', 'ilike', keyword),
+    ]
 
 
 class WujiaPortalKnowledge(http.Controller):
 
+    @staticmethod
+    def _filter_record(model, raw_id):
+        """(record, invalid): id không parse được / không tồn tại / inactive ⇒ invalid."""
+        if not raw_id:
+            return model.browse(), False
+        try:
+            rec = model.browse(int(raw_id)).exists()
+        except (TypeError, ValueError):
+            return model.browse(), True
+        if not rec or not rec.active:
+            return model.browse(), True
+        return rec, False
+
     @http.route(['/portal/knowledge'], type='http', auth='user', sitemap=False)
     def portal_knowledge_list(self, page=1, category_id=None, tag_id=None,
-                              keyword='', **kw):
+                              keyword='', notice=None, **kw):
         Article = request.env['wujia.knowledge.article'].sudo()
         Category = request.env['wujia.knowledge.category'].sudo()
         Tag = request.env['wujia.knowledge.tag'].sudo()
 
-        domain = [('is_published_portal', '=', True)]
+        category, cat_invalid = self._filter_record(Category, category_id)
+        tag, tag_invalid = self._filter_record(Tag, tag_id)
+        if cat_invalid or tag_invalid:
+            _logger.info(
+                'Knowledge filter không hợp lệ (category_id=%r, tag_id=%r), user %s',
+                category_id, tag_id, request.env.uid,
+            )
+            return request.redirect(
+                '/portal/knowledge?notice=%s'
+                % ('category_gone' if cat_invalid else 'tag_gone')
+            )
+
+        domain = _visible_domain()
         if keyword:
-            domain.append(('name', 'ilike', keyword))
-        try:
-            cat_id = int(category_id) if category_id else None
-        except (TypeError, ValueError):
-            cat_id = None
-        if cat_id:
-            domain.append(('category_id', '=', cat_id))
-        try:
-            t_id = int(tag_id) if tag_id else None
-        except (TypeError, ValueError):
-            t_id = None
-        if t_id:
-            domain.append(('tag_ids', 'in', [t_id]))
+            domain += _keyword_domain(keyword)
+        if category:
+            domain.append(('category_id', '=', category.id))
+        if tag:
+            domain.append(('tag_ids', 'in', tag.ids))
 
         try:
             page = max(1, int(page))
@@ -52,8 +95,8 @@ class WujiaPortalKnowledge(http.Controller):
             'page_next': {'num': min(last_page, page + 1)},
             'querystring': '&'.join(
                 f'{k}={v}' for k, v in [
-                    ('category_id', cat_id or ''),
-                    ('tag_id', t_id or ''),
+                    ('category_id', category.id or ''),
+                    ('tag_id', tag.id or ''),
                     ('keyword', keyword),
                 ] if v
             ),
@@ -61,27 +104,28 @@ class WujiaPortalKnowledge(http.Controller):
         return request.render('wujia_portal_knowledge.portal_knowledge_list', {
             'articles': articles, 'categories': categories, 'tags': tags,
             'pager': pager, 'keyword': keyword,
-            'category_id': cat_id, 'tag_id': t_id,
-            'current_category': Category.browse(cat_id) if cat_id else None,
-            'current_tag': Tag.browse(t_id) if t_id else None,
+            'category_id': category.id or None, 'tag_id': tag.id or None,
+            'current_category': category or None,
+            'current_tag': tag or None,
+            'notice': notice if notice in NOTICES else '',
+            'wj_dt': fmt_local_dt,
         })
 
     @http.route(['/portal/knowledge/<string:slug>'],
                 type='http', auth='user', sitemap=False)
     def portal_knowledge_detail(self, slug, **kw):
-        article = request.env['wujia.knowledge.article'].sudo().search([
-            ('slug', '=', slug), ('is_published_portal', '=', True),
-        ], limit=1)
+        Article = request.env['wujia.knowledge.article'].sudo()
+        article = Article.search(_visible_domain() + [('slug', '=', slug)], limit=1)
         if not article:
-            return request.redirect('/portal/knowledge')
+            return request.redirect('/portal/knowledge?notice=article_gone')
         article.action_increment_view()
-        related = request.env['wujia.knowledge.article'].sudo().search([
-            ('category_id', '=', article.category_id.id),
-            ('id', '!=', article.id),
-            ('is_published_portal', '=', True),
-        ], order='publish_date desc', limit=4)
+        related = Article.search(
+            _visible_domain() + [
+                ('category_id', '=', article.category_id.id),
+                ('id', '!=', article.id),
+            ], order='publish_date desc', limit=4)
         return request.render('wujia_portal_knowledge.portal_knowledge_detail', {
-            'article': article, 'related': related,
+            'article': article, 'related': related, 'wj_dt': fmt_local_dt,
         })
 
     @http.route(['/portal/knowledge/<string:slug>/attachment/<int:att_id>'],
@@ -89,16 +133,15 @@ class WujiaPortalKnowledge(http.Controller):
     def portal_knowledge_attachment_download(self, slug, att_id, **kw):
         """Stream attachment bài viết (Sprint 15 — mobile bấm tải thật).
 
-        ACL: bài phải đang publish portal + attachment phải thuộc bài (m2m
+        ACL: bài phải đang hiện trên portal + attachment phải thuộc bài (m2m
         attachment_ids hoặc res_model/res_id trỏ về bài). KHÔNG dùng
         check_attachment_access (util đó check theo franchise — knowledge
         là global published cho mọi portal user).
         """
-        article = request.env['wujia.knowledge.article'].sudo().search([
-            ('slug', '=', slug), ('is_published_portal', '=', True),
-        ], limit=1)
+        article = request.env['wujia.knowledge.article'].sudo().search(
+            _visible_domain() + [('slug', '=', slug)], limit=1)
         if not article:
-            raise NotFound()
+            return request.redirect('/portal/knowledge?notice=article_gone')
         Attachment = request.env['ir.attachment'].sudo()
         att = Attachment.search([
             ('id', '=', att_id),
@@ -125,11 +168,9 @@ class WujiaPortalKnowledge(http.Controller):
         except (TypeError, ValueError):
             limit = 10
         Article = request.env['wujia.knowledge.article'].sudo()
-        articles = Article.search([
-            ('is_published_portal', '=', True),
-            '|', ('name', 'ilike', keyword),
-                 ('content', 'ilike', keyword),
-        ], limit=limit, order='publish_date desc')
+        articles = Article.search(
+            _visible_domain() + _keyword_domain(keyword),
+            limit=limit, order='publish_date desc')
         return {'results': [
             {
                 'id': a.id,
