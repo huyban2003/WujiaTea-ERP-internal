@@ -101,7 +101,31 @@ mang theo `page_size`.
 | Test `wujia_debt` + `wujia_delivery_c5` + `wujia_knowledge` (C2–C5) | **57 test, 0 failed / 0 error** |
 | Build `-u` 3 module `--stop-after-init` | RC=0, 0 ERROR / Traceback |
 
-**LIMIT:** chưa đo trên thiết bị thật có home-indicator (safe-area > 6px) — nhánh đó đi qua
+## Đo lại trên UAT sau khi deploy (15/08/2026)
+
+Deploy xong `-u wujia_portal_layout,wujia_portal_sale,wujia_portal_purchase_history`; đối chiếu
+XML-RPC: 3/3 module trên UAT khớp đĩa (`19.0.31.17.0` / `19.0.4.13.0` / `19.0.3.6.0`). Đo lại
+**chỉ đọc** trên `http://113.161.187.126:8019` bằng Playwright, dữ liệu thật (giỏ HCM-01 4 dòng,
+15 đơn lịch sử).
+
+| Kiểm tra trên UAT | Đo được | Pass |
+|---|---|---|
+| CTA giỏ vs footer @391×844 | CTA đáy 749 · footer đỉnh 761 → cách **12px** | ✅ |
+| CTA giỏ vs footer @360×640 | CTA đáy 545 · footer đỉnh 557 → cách **12px** | ✅ |
+| Ghi chú còn đọc được khi cuộn hết | đáy ô ghi chú cách khối tổng **54.5px** | ✅ |
+| Token nav sống trên UAT | `--wujia-mnav-total` resolve, `.wujia-mcart` padding-bottom = **199px** (83+116) | ✅ |
+| Tên SP @391 / @360 | **277.4px** / **246.4px**, 5/5 sản phẩm về 1 dòng, 0 chồng lấn | ✅ |
+| Lịch sử mặc định | selector **10**, trang 1 "1–10 / 15", trang 2 "11–15 / 15", 0 mã trùng | ✅ |
+| `page_size` không hợp lệ (`abc`, `7`) | về 10 | ✅ |
+| Giữ `page_size` khi lọc/tìm | `?page_size=20&state=sale` và `&q=S` → hidden input giữ **20**, selector 20 | ✅ |
+| Hồi quy `/portal`, `/portal/delivery`, `/portal/debt` × 2 viewport | 200 · tràn ngang 0 · 0 JS error | ✅ |
+
+**Không sửa dữ liệu UAT**: giỏ HCM-01 vốn đã có 4 dòng (lần đo đầu thấy trống chỉ vì phiên
+trình duyệt chưa chọn cửa hàng), nên không phải thêm/xoá gì.
+
+**LIMIT:** trên UAT chưa có sản phẩm nào tên đủ dài để ép xuống 2 dòng — nhánh 2 dòng + dấu ba
+chấm đã đo ở bản sao local (tên 92 ký tự → 2 dòng, thẻ 106px). Và chưa đo trên thiết bị thật
+có home-indicator (safe-area > 6px) — nhánh đó đi qua
 `env(safe-area-inset-bottom)` trong `--wujia-mnav-total`, headless Chromium luôn trả 0px.
 Công thức bám đúng `padding-bottom: max(6px, env(...))` của chính thanh nav nên chỉ chừa thừa
 chứ không thể chừa thiếu.
