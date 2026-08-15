@@ -136,14 +136,17 @@
                                      t-attf-src="/web/image/product.product/#{product.id}/image_128" alt=""/>
                                 <i t-else="" class="feather icon-package wujia-morder-row-thumb-ph"/>
                             </span>
+                            <!-- RESP-MOB-ORDER-002: tên chiếm nguyên hàng trên của card (grid
+                                 2 hàng), giá + ĐVT + nút giỏ xuống hàng dưới — theo đúng đề xuất
+                                 BA. 4 con của .wujia-morder-row = 4 ô grid, đừng bọc thêm lớp. -->
                             <a t-attf-href="/portal/order/product/#{product.id}"
-                               class="wujia-morder-row-info">
-                                <span class="wujia-morder-row-name" t-out="product.name"/>
+                               class="wujia-morder-row-name" t-out="product.name"/>
+                            <span class="wujia-morder-row-meta">
                                 <span class="wujia-morder-row-spec"
                                       t-out="product.wujia_packaging or product.uom_id.name or '—'"/>
-                            </a>
-                            <span class="wujia-morder-row-price"
-                                  t-out="money(price_map.get(product.id), cart_state['currency_symbol'] if cart_state else '', cart_state['currency_decimals'] if cart_state else 0)"/>
+                                <span class="wujia-morder-row-price"
+                                      t-out="money(price_map.get(product.id), cart_state['currency_symbol'] if cart_state else '', cart_state['currency_decimals'] if cart_state else 0)"/>
+                            </span>
                             <!-- WJ-ORD-021: qty=0 → nút "Thêm"; qty>0 → stepper "− N +"
                                  (giảm ở min = xoá dòng qua /cart/step product_id). data-qty
                                  điều khiển hiển thị; JS applyState morph theo qty_map.

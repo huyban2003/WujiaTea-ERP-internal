@@ -6,6 +6,7 @@ Chạy: `--test-tags wujia_history`.
      kể cả user có tz rỗng / tz rác (không được nổ trang).
   2. `TestHistoryStatus`   — 5 nhãn trạng thái gộp (đơn + chuyến giao) và domain lọc
      tương ứng, đặc biệt nhánh 'sale' không được nuốt đơn chưa có chuyến.
+  3. `TestHistoryPageSize` — WJ-PH-008: mặc định 10 dòng/trang + whitelist option.
 
 Không import `account.tests.common` (freezegun cũ trong env, xem Sprint 48).
 """
@@ -18,7 +19,8 @@ from odoo.addons.wujia_portal_base.controllers.utils import (
     DEFAULT_PORTAL_TZ, local_day_range_utc, portal_tz, to_local_dt,
 )
 from odoo.addons.wujia_portal_purchase_history.controllers.portal import (
-    _history_row_vals, _order_status, _status_domain,
+    PAGE_SIZE, PAGE_SIZE_OPTIONS, _history_row_vals, _order_status, _parse_page_size,
+    _status_domain,
 )
 
 
@@ -210,3 +212,43 @@ class TestHistoryStatus(HistoryCommon):
             hits = [k for k in keys if order in buckets[k]]
             self.assertEqual(len(hits), 1,
                              'đơn %s (%s) khớp %s nhóm lọc' % (order.name, label, len(hits)))
+
+
+@tagged('post_install', '-at_install', 'wujia_history')
+class TestHistoryPageSize(HistoryCommon):
+    """WJ-PH-008 — mặc định 10 dòng/trang (source PC v1.5) + chặn giá trị lạ."""
+
+    def test_default_is_ten(self):
+        self.assertEqual(PAGE_SIZE, 10)
+        self.assertEqual(_parse_page_size(None), 10)
+        self.assertEqual(_parse_page_size(''), 10)
+
+    def test_selector_options_are_the_whitelist(self):
+        # Template đọc chính hằng này → select và validate không bao giờ lệch nhau.
+        self.assertEqual(PAGE_SIZE_OPTIONS, (10, 20, 50))
+        self.assertIn(PAGE_SIZE, PAGE_SIZE_OPTIONS)
+
+    def test_valid_values_kept(self):
+        for value in PAGE_SIZE_OPTIONS:
+            self.assertEqual(_parse_page_size(str(value)), value)
+
+    def test_invalid_values_fall_back(self):
+        for bad in ('abc', '7', '0', '-5', '9999', 3.5, [], None):
+            self.assertEqual(_parse_page_size(bad), PAGE_SIZE,
+                             'page_size=%r phải rơi về mặc định' % (bad,))
+
+    def test_pages_do_not_overlap_or_drop(self):
+        """13 đơn / 10 dòng: trang 1 + trang 2 = đủ 13 đơn, không trùng."""
+        orders = self.env['sale.order'].browse()
+        for _ in range(13):
+            orders |= self._make_order()
+        domain = [('franchise_id', '=', self.franchise.id), ('state', '!=', 'cancel')]
+        SO = self.env['sale.order']
+        total = SO.search_count(domain)
+        self.assertEqual(total, 13)
+        page1 = SO.search(domain, limit=PAGE_SIZE, offset=0, order='create_date desc')
+        page2 = SO.search(domain, limit=PAGE_SIZE, offset=PAGE_SIZE, order='create_date desc')
+        self.assertEqual(len(page1), 10)
+        self.assertEqual(len(page2), 3)
+        self.assertFalse(page1 & page2, 'đơn không được lặp giữa 2 trang')
+        self.assertEqual(page1 | page2, orders)

@@ -274,6 +274,9 @@
 
     /* Footer / bottom-nav: active = brand cyan, badge = red */
     --wujia-mnav-height:             83px;
+    /* Chỗ nav THỰC chiếm: nav có padding-bottom max(6px, safe-area) nên máy có
+       home-indicator cao hơn 83. Mọi khối fixed phía trên nav phải bám biến này. */
+    --wujia-mnav-total:              calc(var(--wujia-mnav-height) + max(0px, env(safe-area-inset-bottom, 0px) - 6px));
     --wujia-mnav-active:             #28A9DF;
     --wujia-mnav-inactive:           #8A939E;
     --wujia-mnav-badge:              #EF4444;

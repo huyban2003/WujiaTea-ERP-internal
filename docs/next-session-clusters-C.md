@@ -35,7 +35,11 @@ C4 ✅ 15/08/2026 `a292547` (4 issue → Ready for Retest, `-u wujia_portal_know
 nhật dữ liệu; 60/60 đo đạt 2 viewport, 14 test mới + 87 hồi quy xanh; bảng đối chiếu
 `docs/c4-acceptance-matrix.md`) · C5 ✅ 15/08/2026 `94756ff` (4 issue → Ready for Retest,
 `-u wujia_portal_delivery,wujia_portal_base` không cập nhật dữ liệu; 20/20 đo đạt 2 viewport,
-9 test mới + 75 hồi quy xanh; bảng đối chiếu `docs/c5-acceptance-matrix.md`) · C6 ☐ · C7 ☐ · C8 ☐ · C9 ☐ · C10 ☐
+9 test mới + 75 hồi quy xanh; bảng đối chiếu `docs/c5-acceptance-matrix.md`) · C9 ✅ 15/08/2026 `9a8784b` (3 issue → Ready for Retest,
+**`-u wujia_portal_layout,wujia_portal_sale,wujia_portal_purchase_history`** — chú ý có
+`wujia_portal_layout` vì CSS gốc nằm ở đó, không cập nhật dữ liệu; 26/26 đo đạt ở 360/391/1920,
+8 test mới + 57 hồi quy xanh; bảng đối chiếu `docs/c9-acceptance-matrix.md`) ·
+C6 ☐ · C7 ☐ · C8 ☐ · C10 ☐
 (đánh ✅ + ngày + commit khi xong, để phiên sau biết đang tới đâu.)
 
 ---
