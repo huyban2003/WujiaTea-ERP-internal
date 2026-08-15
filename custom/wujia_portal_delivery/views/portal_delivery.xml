@@ -52,7 +52,10 @@
                             <td class="wj-pc-td--code">
                                 <a t-attf-href="/portal/delivery/#{b['id']}" class="wj-pc-dlv-codelink" t-out="b['name']"/>
                             </td>
-                            <td t-out="b['departure_full']"/>
+                            <td>
+                                <t t-out="b['departure_full']"/>
+                                <span t-if="b['departure_actual']" class="wj-count-meta"> (thực tế)</span>
+                            </td>
                             <td t-out="b['orders']"/>
                             <td><span t-attf-class="wj-pc-badge wj-pc-badge--dlv-#{b['pc_modifier']}" t-out="b['pc_label']"/></td>
                             <td t-out="b['vehicle']"/>
@@ -157,7 +160,7 @@
                             <span class="wujia-mdelivery-row-col">
                                 <i class="feather icon-calendar wujia-mdelivery-row-colicon"/>
                                 <span class="wujia-mdelivery-row-colbody">
-                                    <span class="wujia-mdelivery-row-collabel">Xuất phát</span>
+                                    <span class="wujia-mdelivery-row-collabel" t-out="b['departure_label']"/>
                                     <span class="wujia-mdelivery-row-colval" t-out="b['departure']"/>
                                 </span>
                             </span>
@@ -373,7 +376,7 @@
                     </div>
                     <div class="wj-pc-dlv-head-kv">
                         <div class="wj-pc-kv">
-                            <span class="wj-pc-kv__label">Xuất phát</span>
+                            <span class="wj-pc-kv__label" t-out="pc_departure_label"/>
                             <span class="wj-pc-kv__value" t-out="pc_departure"/>
                         </div>
                         <div class="wj-pc-kv">
@@ -503,7 +506,7 @@
                     <div class="wujia-mdelivery-inf-dep">
                         <i class="feather icon-calendar wujia-mdelivery-row-colicon"/>
                         <span class="wujia-mdelivery-row-colbody">
-                            <span class="wujia-mdelivery-row-collabel">Xuất phát</span>
+                            <span class="wujia-mdelivery-row-collabel" t-out="m_departure_label"/>
                             <span class="wujia-mdelivery-inf-depval" t-out="m_departure_full"/>
                         </span>
                     </div>

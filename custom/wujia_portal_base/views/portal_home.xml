@@ -385,6 +385,8 @@
                                 <h2 class="wujia-mdash-title">Giao hàng sắp tới</h2>
                                 <a href="/portal/delivery" class="wujia-mdash-link">Xem tất cả ›</a>
                             </div>
+                            <!-- div, không <p>: section là flex gap 10, margin của <p> sẽ cộng thêm 16px -->
+                            <div class="wj-count-meta"><t t-out="m_undelivered_count"/> đơn chưa giao</div>
                             <div t-if="not m_upcoming_batches" class="wj-empty-state wj-empty-state--row">
                                 <span class="wj-empty-state-icon"><i class="feather icon-truck"/></span>
                                 <div class="wj-empty-state-body">
@@ -398,8 +400,9 @@
                                         <span class="wujia-mdash-tile"><i class="feather icon-truck"/></span>
                                         <span class="wujia-mdash-row-main">
                                             <span class="wujia-mdash-row-title" t-out="it['batch'].name"/>
-                                            <span class="wujia-mdash-row-sub is-strong" t-out="it['when']"/>
-                                            <span class="wujia-mdash-row-sub">Tổng đơn: <t t-out="it['order_count']"/> đơn</span>
+                                            <span class="wujia-mdash-row-sub is-strong"><t t-out="it['when_label']"/>: <t t-out="it['when']"/></span>
+                                            <span class="wujia-mdash-row-sub">Đơn chưa giao: <t t-out="it['order_count']"/> đơn</span>
+                                            <span class="wujia-mdash-row-sub" t-out="it['order_names']"/>
                                             <span class="wujia-mdash-row-sub is-strong">
                                                 Tổng tiền: <t t-out="money(it['total'], store_currency_symbol, store_currency_decimals)"/>
                                             </span>

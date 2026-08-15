@@ -143,9 +143,9 @@ class WujiaPortal(CustomerPortal):
         #      BA còn review. recent_orders/latest_returns/active_franchise đã có
         #      sẵn ở _dashboard_values — chỉ bổ sung batch + articles + hotline. ----
         franchise_ids_list = list(franchise_ids) if franchise_ids else []
-        m_upcoming_batches = (
+        upcoming = (
             get_upcoming_batches(franchise_ids_list, limit=2)
-            if franchise_ids_list else []
+            if franchise_ids_list else {'items': [], 'undelivered_count': 0}
         )
         # Knowledge — base KHÔNG depend wujia_portal_knowledge → guard registry
         # (cùng pattern _safe_count/_safe_list; KHÔNG thêm depends, tránh coupling).
@@ -159,7 +159,8 @@ class WujiaPortal(CustomerPortal):
 
         values.update({
             # Sprint 17 dashboard-merge keys (mobile home d-lg-none)
-            'm_upcoming_batches': m_upcoming_batches,
+            'm_upcoming_batches': upcoming['items'],
+            'm_undelivered_count': upcoming['undelivered_count'],
             'm_order_badges': MOBILE_ORDER_BADGES,
             'm_return_badges': MOBILE_RETURN_BADGES,
             'articles': articles,
