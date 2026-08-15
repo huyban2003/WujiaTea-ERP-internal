@@ -950,7 +950,7 @@ WJ-DEBT-006:
 
 WJ-DEBT-001:
   sprint: "2026-08-15-C2"
-  build_override: "CHƯA lên UAT | Sprint 2026-08-15-C2 | commit: c656b95 | Deploy: -u wujia_portal_debt (không có bước cập nhật dữ liệu) | URL: /portal/debt"
+  build_override: "UAT | 15/08/2026 | Sprint 2026-08-15-C2 | commit: c656b95 | Đã deploy UAT, module wujia_portal_debt 19.0.4.0.0 | Dev đã smoke-test lại trên trình duyệt UAT ngày 15/08/2026 ở 391x844 và 1920x1080: 40/40 mục đạt | URL: /portal/debt"
   url: "/portal/debt (cả điện thoại và máy tính)"
   odoo_fit: "Custom"
   fix: "Thẻ tổng quan tuần và từng dòng hóa đơn nay suy ra trạng thái theo cùng một quy tắc nên không còn nói khác nhau. Tuần có hóa đơn mà chưa trả đồng nào ghi Chưa thanh toán ở cả hai chỗ; chỉ khi đã trả được một phần, tức số còn lại nhỏ hơn tổng, mới ghi Thanh toán một phần; có hóa đơn quá hạn thì ưu tiên Có quá hạn; trả hết thì Đã thanh toán. Đã thanh toán bằng 0 và Còn phải trả bằng số dư thật của hóa đơn. So sánh số tiền theo mức làm tròn của chính loại tiền trên hóa đơn nên số lẻ không làm lệch trạng thái"
@@ -960,7 +960,7 @@ WJ-DEBT-001:
 
 WJ-DEBT-004:
   sprint: "2026-08-15-C2"
-  build_override: "CHƯA lên UAT | Sprint 2026-08-15-C2 | commit: c656b95 | Deploy: -u wujia_portal_debt (không có bước cập nhật dữ liệu) | URL: /portal/debt/payment-history"
+  build_override: "UAT | 15/08/2026 | Sprint 2026-08-15-C2 | commit: c656b95 | Đã deploy UAT, module wujia_portal_debt 19.0.4.0.0 | Dev đã smoke-test lại trên trình duyệt UAT ngày 15/08/2026 ở 391x844 và 1920x1080: 40/40 mục đạt | URL: /portal/debt/payment-history"
   url: "/portal/debt/payment-history (cả điện thoại và máy tính)"
   odoo_fit: "Custom"
   fix: "Mỗi giao dịch trong Lịch sử thanh toán nay hiển thị theo đúng loại tiền của chính khoản thanh toán đó, kèm số chữ số lẻ tương ứng, thay vì luôn lấy tiền của công ty. Khối Tổng cộng tách thành nhiều dòng, mỗi loại tiền một dòng; không cộng số của hai loại tiền vào cùng một tổng và không quy đổi tỷ giá, đúng quyết định của chủ dự án. Kỳ chỉ có một loại tiền thì hiển thị y như trước, một dòng tổng duy nhất"
@@ -970,7 +970,7 @@ WJ-DEBT-004:
 
 WJ-DEBT-007:
   sprint: "2026-08-15-C2"
-  build_override: "CHƯA lên UAT | Sprint 2026-08-15-C2 | commit: c656b95 | Deploy: -u wujia_portal_debt (không có bước cập nhật dữ liệu) | URL: /portal/debt và /portal/debt/pay"
+  build_override: "UAT | 15/08/2026 | Sprint 2026-08-15-C2 | commit: c656b95 | Đã deploy UAT, module wujia_portal_debt 19.0.4.0.0 | Dev đã smoke-test lại trên trình duyệt UAT ngày 15/08/2026 ở 391x844 và 1920x1080: 40/40 mục đạt | URL: /portal/debt và /portal/debt/pay"
   url: "/portal/debt, /portal/debt/pay (cả điện thoại và máy tính)"
   odoo_fit: "Custom"
   fix: "Tuần mà giấy báo có lớn hơn số nợ nay có trạng thái riêng là Dư có, kèm dòng nói rõ số tiền được khấu trừ cho kỳ sau, và ô Còn phải trả hiển thị 0 thay vì số âm. Dòng giấy báo có trong danh sách chứng từ mang nhãn Giấy báo có và ghi Được trừ kèm số dương, không còn bị gắn nhãn Chưa thanh toán. Nút Thanh toán không hiện khi không còn khoản phải trả. Vào thẳng đường dẫn màn thanh toán trong trường hợp này thì hệ thống đưa về màn Công nợ kèm thông báo tuần đó không còn khoản cần thanh toán, không dựng mã QR và thông tin chuyển khoản nữa. Nội dung chuyển khoản do hệ thống tự sinh luôn kẹp về 0 nên không bao giờ chứa số âm"
@@ -980,7 +980,7 @@ WJ-DEBT-007:
 
 WJ-DEBT-010:
   sprint: "2026-08-15-C2"
-  build_override: "CHƯA lên UAT | Sprint 2026-08-15-C2 | commit: c656b95 | Deploy: -u wujia_portal_debt (không có bước cập nhật dữ liệu) | URL: /portal/debt"
+  build_override: "UAT | 15/08/2026 | Sprint 2026-08-15-C2 | commit: c656b95 | Đã deploy UAT, module wujia_portal_debt 19.0.4.0.0 | Dev đã smoke-test lại trên trình duyệt UAT ngày 15/08/2026 ở 391x844 và 1920x1080: 40/40 mục đạt | URL: /portal/debt"
   url: "/portal/debt (cả điện thoại và máy tính)"
   odoo_fit: "Custom"
   fix: "Mở màn Công nợ mà không chọn tuần thì hệ thống không nhảy vào tuần hiện tại nữa. Thứ tự ưu tiên: tuần quá hạn chưa thanh toán cũ nhất, nếu không có thì tuần liền trước, nếu tuần liền trước cũng không phát sinh hóa đơn thì mới là tuần hiện tại. Người dùng bấm chọn tuần khác trong danh sách thì vẫn ra đúng tuần đã chọn. Ngay dưới số tiền có thêm một dòng theo tình trạng của tuần: tuần đã thanh toán ghi ngày Ngô Gia xác nhận, tuần còn nợ ghi hạn thanh toán là thứ Năm của tuần kế tiếp, tuần chưa phát sinh hóa đơn thì còn phải trả bằng 0 và hạn thanh toán ghi dấu gạch. Danh sách chọn tuần giữ nguyên, không thêm nút lùi tuần hay tới tuần. Việc chọn tuần mặc định dùng đúng một lần đọc dữ liệu cho cả sáu tuần nên không làm trang chậm đi"

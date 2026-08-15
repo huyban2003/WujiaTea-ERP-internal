@@ -73,3 +73,36 @@ có 1 payment EUR + 2 payment USD.
   kèm banner thay vì đứng lại trang pay.
 - Ngoài phạm vi C2 (đã có ở cụm C3): QR thật, spacing mobile trang lịch sử, nút copy, sidebar
   desktop lọt vào trang pay.
+
+## Vòng đo lại trên UAT sau khi deploy (15/08/2026)
+
+Chủ dự án đã deploy `wujia_portal_debt 19.0.4.0.0` lên `http://113.161.187.126:8019`.
+Đo lại **trên chính dữ liệu thật của UAT** (HCM-01, franchise id 3, tiền USD), chỉ đọc —
+không tạo/sửa chứng từ, đúng giới hạn QA §10. Harness: `scratchpad/c2_uat_check.py`
+(Playwright chromium, 391×844 + 1920×1080).
+
+Dữ liệu UAT dùng để đo: `2026-W32` có `INV/2026/00001` quá hạn 12/08 còn dư 72.450 ·
+`2026-W33` có `INV/2026/00002` đã trả đủ + `RINV/2026/00001` giấy báo có 72.450 (dư có) ·
+`2026-W31` không phát sinh · tháng 08 có 2 khoản thanh toán USD (42.450 + 30.000).
+
+| Issue | Yêu cầu | Đo được trên UAT | Pass |
+|---|---|---|---|
+| 010 | `/portal/debt` không tham số → tuần quá hạn cũ nhất | `2026-W32` (03/08–09/08) ở cả 2 viewport | ✅ |
+| 010 | Dòng hạn thanh toán dưới số tiền | "Hạn thanh toán: 13/08/2026" (thứ Năm tuần kế) | ✅ |
+| 010 | Tuần chưa phát sinh → "Hạn thanh toán: -" | có, ở `2026-W31` | ✅ |
+| 010 | `?week=` hợp lệ vẫn thắng mặc định | mở `?week=2026-W31` → đúng W31 | ✅ |
+| 001 | Card và dòng hoá đơn cùng nghĩa | card "Có quá hạn" · dòng "Quá hạn" | ✅ |
+| 001 | Đã thanh toán 0 / Còn phải trả đúng số dư | `0,00 $` / `72.450,00 $`, không số âm | ✅ |
+| 007 | Tuần dư có có trạng thái riêng | card "Dư có", "Dư có 72.450,00 $ được khấu trừ kỳ sau" | ✅ |
+| 007 | Giấy báo có không mang nhãn nợ | dòng "Giấy báo có" (không có "Chưa thanh toán") | ✅ |
+| 007 | Card không in số âm, Còn phải trả = 0 | `0,00 $` | ✅ |
+| 007 | Không có nút Thanh toán khi hết nợ | không render CTA ở cả mobile lẫn PC | ✅ |
+| 007 | Vào thẳng `/portal/debt/pay` khi dư có | 302 → `/portal/debt?week=2026-W33&notice=no_due` + banner | ✅ |
+| 007 | Nội dung chuyển khoản không âm | tuần còn nợ: `HCM-01 K32 72450` | ✅ |
+| 004 | Mỗi giao dịch theo tiền của chính nó | `42.450,00 $` · `30.000,00 $` — hết `₫` | ✅ |
+| 004 | Tổng tách theo loại tiền | mobile "Tổng đã xác nhận: 72.450,00 $" · PC "Tổng thanh toán trong thời gian lọc: 72.450,00 $" | ✅ |
+| REG | 5 trang khác × 2 viewport: 200, tràn ngang 0, 0 lỗi JS | Home, Đặt hàng, Lịch sử đặt hàng, Thông báo, Công nợ — đạt hết | ✅ |
+
+**40/40 mục PASS (100%)** — trên ngưỡng 90%. Status 4 issue giữ nguyên `Ready for Retest`
+(Dev không tự Done); cột Build/Deploy trên sheet đã đổi từ "CHƯA lên UAT" sang build UAT
+15/08/2026 kèm bằng chứng đo lại.
