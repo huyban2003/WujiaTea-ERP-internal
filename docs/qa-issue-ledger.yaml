@@ -947,3 +947,43 @@ WJ-DEBT-006:
   impact: "Chỉ trường Cửa hàng nhượng quyền của chứng từ sinh từ luồng đảo. Số tiền, tài khoản, thuế và quy tắc hạch toán không đổi"
   retest: "Mở hóa đơn INV/2026/00002 của HCM-01 đã ghi sổ, bấm Giấy báo có > Đảo: bản nháp RINV sinh ra phải có sẵn Cửa hàng nhượng quyền [HCM-01]. Ghi sổ giấy báo có: cửa hàng vẫn phải là [HCM-01]. Đăng nhập portal bằng tài khoản HCM-01 vào màn Công nợ: phải thấy giấy báo có này; đăng nhập tài khoản cửa hàng khác: không được thấy. Làm lại với lựa chọn Đảo ngược và tạo hóa đơn: chứng từ mới cũng phải mang đúng cửa hàng"
   limit: "Không có"
+
+WJ-DEBT-001:
+  sprint: "2026-08-15-C2"
+  build_override: "CHƯA lên UAT | Sprint 2026-08-15-C2 | commit: c656b95 | Deploy: -u wujia_portal_debt (không có bước cập nhật dữ liệu) | URL: /portal/debt"
+  url: "/portal/debt (cả điện thoại và máy tính)"
+  odoo_fit: "Custom"
+  fix: "Thẻ tổng quan tuần và từng dòng hóa đơn nay suy ra trạng thái theo cùng một quy tắc nên không còn nói khác nhau. Tuần có hóa đơn mà chưa trả đồng nào ghi Chưa thanh toán ở cả hai chỗ; chỉ khi đã trả được một phần, tức số còn lại nhỏ hơn tổng, mới ghi Thanh toán một phần; có hóa đơn quá hạn thì ưu tiên Có quá hạn; trả hết thì Đã thanh toán. Đã thanh toán bằng 0 và Còn phải trả bằng số dư thật của hóa đơn. So sánh số tiền theo mức làm tròn của chính loại tiền trên hóa đơn nên số lẻ không làm lệch trạng thái"
+  impact: "Nhãn trạng thái của thẻ tổng quan trên màn Công nợ, cả điện thoại lẫn máy tính. Số liệu, quyền xem và cách lấy dữ liệu không đổi; danh sách hóa đơn, lịch sử thanh toán và màn thanh toán không đụng tới"
+  retest: "Mở Công nợ ở tuần có đúng một hóa đơn chưa trả đồng nào: thẻ tổng quan và dòng hóa đơn phải cùng ghi Chưa thanh toán, Đã thanh toán bằng 0, Còn phải trả bằng đúng giá trị hóa đơn. Ghi nhận một khoản thanh toán một phần cho hóa đơn đó rồi mở lại: cả hai chỗ phải chuyển sang Thanh toán một phần. Đối soát nốt phần còn lại: cả hai chuyển sang Đã thanh toán. Tuần có hóa đơn quá hạn: thẻ ghi Có quá hạn. Kiểm ở cả điện thoại và máy tính"
+  limit: "Nhãn Chưa thanh toán do Dev đề xuất cho đồng bộ với dòng hóa đơn; BA đổi chữ được ở vòng retest"
+
+WJ-DEBT-004:
+  sprint: "2026-08-15-C2"
+  build_override: "CHƯA lên UAT | Sprint 2026-08-15-C2 | commit: c656b95 | Deploy: -u wujia_portal_debt (không có bước cập nhật dữ liệu) | URL: /portal/debt/payment-history"
+  url: "/portal/debt/payment-history (cả điện thoại và máy tính)"
+  odoo_fit: "Custom"
+  fix: "Mỗi giao dịch trong Lịch sử thanh toán nay hiển thị theo đúng loại tiền của chính khoản thanh toán đó, kèm số chữ số lẻ tương ứng, thay vì luôn lấy tiền của công ty. Khối Tổng cộng tách thành nhiều dòng, mỗi loại tiền một dòng; không cộng số của hai loại tiền vào cùng một tổng và không quy đổi tỷ giá, đúng quyết định của chủ dự án. Kỳ chỉ có một loại tiền thì hiển thị y như trước, một dòng tổng duy nhất"
+  impact: "Cột số tiền và khối tổng của màn Lịch sử thanh toán, cả điện thoại lẫn máy tính. Bộ lọc kỳ, ô tìm kiếm, phân trang và cách lọc theo cửa hàng không đổi. Màn Công nợ và màn thanh toán không đụng tới"
+  retest: "Ghi sổ hai khoản thanh toán khác loại tiền cho cùng một cửa hàng trong cùng kỳ, ví dụ một khoản USD và một khoản EUR. Mở Lịch sử thanh toán: mỗi dòng phải hiện đúng ký hiệu tiền của khoản đó, không được quy về một loại. Khối Tổng cộng phải có hai dòng riêng, mỗi dòng một loại tiền, và không có dòng nào cộng gộp hai loại. Lọc sang kỳ chỉ có một loại tiền: phải thấy đúng một dòng tổng như trước. Kiểm ở cả điện thoại và máy tính"
+  limit: "Không quy đổi tỷ giá — chủ dự án chốt tách tổng theo từng loại tiền. Nếu sau này BA muốn thêm một dòng quy đổi thì cần chốt nguồn tỷ giá và ngày áp dụng, sẽ mở issue riêng"
+
+WJ-DEBT-007:
+  sprint: "2026-08-15-C2"
+  build_override: "CHƯA lên UAT | Sprint 2026-08-15-C2 | commit: c656b95 | Deploy: -u wujia_portal_debt (không có bước cập nhật dữ liệu) | URL: /portal/debt và /portal/debt/pay"
+  url: "/portal/debt, /portal/debt/pay (cả điện thoại và máy tính)"
+  odoo_fit: "Custom"
+  fix: "Tuần mà giấy báo có lớn hơn số nợ nay có trạng thái riêng là Dư có, kèm dòng nói rõ số tiền được khấu trừ cho kỳ sau, và ô Còn phải trả hiển thị 0 thay vì số âm. Dòng giấy báo có trong danh sách chứng từ mang nhãn Giấy báo có và ghi Được trừ kèm số dương, không còn bị gắn nhãn Chưa thanh toán. Nút Thanh toán không hiện khi không còn khoản phải trả. Vào thẳng đường dẫn màn thanh toán trong trường hợp này thì hệ thống đưa về màn Công nợ kèm thông báo tuần đó không còn khoản cần thanh toán, không dựng mã QR và thông tin chuyển khoản nữa. Nội dung chuyển khoản do hệ thống tự sinh luôn kẹp về 0 nên không bao giờ chứa số âm"
+  impact: "Màn Công nợ và màn Thanh toán, cả điện thoại lẫn máy tính, ở các tuần đã trả hết hoặc đang dư có. Bảng hóa đơn trên máy tính vẫn giữ dấu âm của giấy báo có theo đúng cách ghi sổ kế toán, nhưng dòng đó đã mang nhãn Giấy báo có. Số liệu kế toán, quyền xem và luồng đối soát không đổi"
+  retest: "Chọn một tuần có hóa đơn đã trả đủ rồi ghi sổ thêm một giấy báo có cùng tuần. Mở Công nợ tuần đó: thẻ tổng quan phải ghi Dư có, Còn phải trả bằng 0, có dòng nêu số tiền được khấu trừ kỳ sau, và không có nút Thanh toán. Dòng giấy báo có phải ghi Giấy báo có và Được trừ kèm số dương, tuyệt đối không ghi Chưa thanh toán. Dán thẳng đường dẫn màn thanh toán của tuần đó vào trình duyệt: phải quay về màn Công nợ kèm thông báo, không thấy mã QR, số tài khoản hay nội dung chuyển khoản. Sang tuần còn nợ thật, mở màn thanh toán: nội dung chuyển khoản phải có số tiền dương đúng bằng số còn phải trả"
+  limit: "Nhãn Dư có và Giấy báo có do Dev đề xuất, BA đổi chữ được ở vòng retest. Bảng hóa đơn trên máy tính vẫn để số âm cho dòng giấy báo có vì đó là cách ghi đúng của kế toán; nếu BA muốn đổi sang số dương thì báo để chỉnh"
+
+WJ-DEBT-010:
+  sprint: "2026-08-15-C2"
+  build_override: "CHƯA lên UAT | Sprint 2026-08-15-C2 | commit: c656b95 | Deploy: -u wujia_portal_debt (không có bước cập nhật dữ liệu) | URL: /portal/debt"
+  url: "/portal/debt (cả điện thoại và máy tính)"
+  odoo_fit: "Custom"
+  fix: "Mở màn Công nợ mà không chọn tuần thì hệ thống không nhảy vào tuần hiện tại nữa. Thứ tự ưu tiên: tuần quá hạn chưa thanh toán cũ nhất, nếu không có thì tuần liền trước, nếu tuần liền trước cũng không phát sinh hóa đơn thì mới là tuần hiện tại. Người dùng bấm chọn tuần khác trong danh sách thì vẫn ra đúng tuần đã chọn. Ngay dưới số tiền có thêm một dòng theo tình trạng của tuần: tuần đã thanh toán ghi ngày Ngô Gia xác nhận, tuần còn nợ ghi hạn thanh toán là thứ Năm của tuần kế tiếp, tuần chưa phát sinh hóa đơn thì còn phải trả bằng 0 và hạn thanh toán ghi dấu gạch. Danh sách chọn tuần giữ nguyên, không thêm nút lùi tuần hay tới tuần. Việc chọn tuần mặc định dùng đúng một lần đọc dữ liệu cho cả sáu tuần nên không làm trang chậm đi"
+  impact: "Tuần được mở sẵn khi vào màn Công nợ và dòng thông tin dưới số tiền, cả điện thoại lẫn máy tính. Cách tính số liệu của từng tuần, danh sách chọn tuần, quyền xem và phạm vi cửa hàng không đổi. Đường dẫn có sẵn tham số tuần, kể cả link đã lưu, vẫn mở đúng tuần đó"
+  retest: "Với cửa hàng đang có tuần quá hạn chưa thanh toán, mở /portal/debt không kèm tham số: phải tự chọn tuần quá hạn cũ nhất. Cửa hàng không có tuần quá hạn nhưng tuần liền trước có hóa đơn: phải tự chọn tuần liền trước. Cửa hàng không phát sinh gì trong sáu tuần: phải là tuần hiện tại. Chọn tay một tuần khác trong danh sách, hoặc mở đường dẫn có sẵn tham số tuần: phải đúng tuần được chọn. Kiểm dòng dưới số tiền: tuần đã thanh toán ghi Ngô Gia xác nhận kèm ngày, tuần còn nợ ghi Hạn thanh toán là thứ Năm tuần kế tiếp, tuần chưa có hóa đơn ghi Hạn thanh toán dấu gạch và còn phải trả bằng 0"
+  limit: "Danh sách chọn tuần vẫn là sáu tuần gần nhất như trước; tuần quá hạn cũ hơn sáu tuần không nằm trong danh sách nên không được chọn làm mặc định. Nếu BA cần nhìn xa hơn thì mở issue riêng để nới danh sách"
