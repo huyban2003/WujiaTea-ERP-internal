@@ -1037,3 +1037,43 @@ WJ-DEBT-009:
   impact: "Chỉ khoảng cách giữa các khối của màn Lịch sử thanh toán bản điện thoại. Nội dung, bộ lọc kỳ, số liệu và bản máy tính không đổi"
   retest: "Mở Lịch sử thanh toán ở 360px, 391px, 430px và 500px: đo khoảng cách bộ lọc đến banner 12, banner đến tiêu đề Các khoản thanh toán 24, tiêu đề đến giao dịch đầu tiên 12, giữa các giao dịch 12, giao dịch cuối đến dòng Tổng đã xác nhận 12, lề trái phải 16. Các thẻ không được dính nhau hay tràn ngang. Đổi kỳ trong bộ lọc rồi đo lại: khoảng cách phải giữ nguyên. Mở ở 1440px: bố cục máy tính không được đổi"
   limit: "Không có"
+
+WJ-KNW-001:
+  sprint: "2026-08-15-C4"
+  build_override: "CHƯA lên UAT | Sprint 2026-08-15-C4 | commit: a292547 | Deploy: -u wujia_portal_knowledge (KHÔNG có bước cập nhật dữ liệu) | Dev đã đo trên bản sao dữ liệu riêng ngày 15/08/2026 ở 391x844 và 1920x1080: 60/60 điểm đạt | URL: /portal/knowledge"
+  url: "/portal/knowledge (cả điện thoại và máy tính)"
+  odoo_fit: "Custom"
+  fix: "Mở Thư viện kiến thức bằng đường dẫn có danh mục hoặc thẻ không tồn tại, hoặc danh mục đã bị ẩn, thì hệ thống không còn báo lỗi kỹ thuật. Trang bỏ điều kiện lọc sai, quay về đúng trang Kiến thức và hiện một dòng thông báo Danh mục đã chọn không còn khả dụng, riêng thẻ thì ghi Thẻ đã chọn không còn khả dụng. Không còn hiện tên bảng dữ liệu, mã bản ghi hay mã người dùng ra ngoài; những chi tiết đó chỉ ghi vào nhật ký máy chủ. Lọc bằng danh mục hoặc thẻ hợp lệ vẫn chạy như cũ"
+  impact: "Trang Thư viện kiến thức, cả điện thoại và máy tính. Danh sách bài, phân trang, quyền xem và nội dung bài không đổi"
+  retest: "Mở /portal/knowledge?category_id=999999 và /portal/knowledge?tag_id=999999: phải ra trang Kiến thức bình thường kèm dòng thông báo, tuyệt đối không thấy chữ wujia.knowledge hay User kèm số, không thấy trang lỗi. Ẩn một danh mục ở phần quản trị rồi mở đường dẫn có danh mục đó: cũng phải ra thông báo tương tự. Chọn một danh mục hợp lệ: phải lọc đúng và không có thông báo. Kiểm cả trên điện thoại và máy tính"
+  limit: "Không có"
+
+WJ-KNW-002:
+  sprint: "2026-08-15-C4"
+  build_override: "CHƯA lên UAT | Sprint 2026-08-15-C4 | commit: a292547 | Deploy: -u wujia_portal_knowledge (KHÔNG có bước cập nhật dữ liệu) | Dev đã đo trên bản sao dữ liệu riêng ngày 15/08/2026 ở 391x844 và 1920x1080: 60/60 điểm đạt | URL: /portal/knowledge/<slug>"
+  url: "/portal/knowledge và /portal/knowledge/<slug> (cả điện thoại và máy tính)"
+  odoo_fit: "Custom"
+  fix: "Ngày giờ phát hành của bài viết trên portal nay được đổi sang giờ Việt Nam trước khi hiển thị, dùng đúng cách quy đổi mà các màn portal khác đang dùng. Trước đây portal in thẳng giờ lưu trong hệ thống nên sớm hơn 7 tiếng so với ô Publish date ở phần quản trị. Áp cho cả sáu chỗ hiển thị ngày: danh sách máy tính, danh sách điện thoại, bài nổi bật, trang chi tiết, bài liên quan và dòng chân bài"
+  impact: "Mọi chỗ hiển thị ngày phát hành trong Thư viện kiến thức. Dữ liệu lưu trữ, thứ tự sắp xếp bài và các màn khác không đổi"
+  retest: "Chọn một bài đang hiển thị, ở phần quản trị đặt Publish date là 12/08/2026 16:05 rồi mở trang chi tiết bài đó trên portal: phải thấy đúng 12/08/2026 16:05, không được ra 09:05. So thêm ngày hiển thị ở danh sách với ô trong phần quản trị. Kiểm cả trên điện thoại và máy tính"
+  limit: "Không có"
+
+WJ-KNW-003:
+  sprint: "2026-08-15-C4"
+  build_override: "CHƯA lên UAT | Sprint 2026-08-15-C4 | commit: a292547 | Deploy: -u wujia_portal_knowledge (KHÔNG có bước cập nhật dữ liệu) | Dev đã đo trên bản sao dữ liệu riêng ngày 15/08/2026 ở 391x844 và 1920x1080: 60/60 điểm đạt | URL: /portal/knowledge"
+  url: "/portal/knowledge — ô tìm kiếm (cả điện thoại và máy tính)"
+  odoo_fit: "Custom"
+  fix: "Ô tìm kiếm nay tìm cả trong tiêu đề, phần tóm tắt và phần nội dung của bài, thay vì chỉ tiêu đề. Nội dung được lấy bản chữ đã bỏ hết định dạng nên gõ một cụm bị in đậm hoặc xuống dòng cắt ngang vẫn ra kết quả, và cũng không còn ra kết quả rác do trùng với mã định dạng. Kết quả vẫn chỉ gồm bài đang hiển thị hợp lệ: đã đăng, chưa bị ẩn, đã tới ngày phát hành và chưa hết hạn. Gõ từ khóa không có thì vẫn hiện thông báo chưa có bài viết như bình thường. Ô tìm nhanh gợi ý khi đang gõ cũng dùng đúng một quy tắc này"
+  impact: "Ô tìm kiếm ở trang Thư viện kiến thức và ô gợi ý khi gõ. Danh sách, phân trang, lọc danh mục và nội dung bài không đổi. Bài đang đặt lịch phát hành ngày mai trở đi nay không còn nằm trong kết quả cho tới đúng ngày"
+  retest: "Chọn một bài có câu chỉ xuất hiện trong phần tóm tắt, gõ câu đó vào ô tìm: phải ra bài. Làm tương tự với một câu chỉ có trong phần nội dung, kể cả câu có chữ in đậm ở giữa: phải ra bài. Gõ một chuỗi không tồn tại: phải ra thông báo chưa có bài viết. Chuyển một bài về nháp rồi tìm lại bằng từ khóa của bài đó: không được ra. Kiểm cả trên điện thoại và máy tính"
+  limit: "Tìm kiếm so khớp trên bản gốc của nội dung; nếu sau này bài có thêm bản dịch ngôn ngữ khác thì phần dịch chưa được tìm riêng. Portal đang chạy tiếng Việt nên chưa ảnh hưởng"
+
+WJ-KNW-004:
+  sprint: "2026-08-15-C4"
+  build_override: "CHƯA lên UAT | Sprint 2026-08-15-C4 | commit: a292547 | Deploy: -u wujia_portal_knowledge (KHÔNG có bước cập nhật dữ liệu) | Dev đã đo trên bản sao dữ liệu riêng ngày 15/08/2026 ở 391x844 và 1920x1080: 60/60 điểm đạt | URL: /portal/knowledge/<slug>"
+  url: "/portal/knowledge/<slug> — mở thẳng đường dẫn bài đã gỡ"
+  odoo_fit: "Custom"
+  fix: "Mở thẳng đường dẫn của một bài đã chuyển về nháp, đã lưu trữ, đã ẩn, đã hết hạn hoặc chưa tới ngày phát hành thì hệ thống vẫn đưa về trang Kiến thức, nhưng nay có kèm dòng thông báo Bài viết không tồn tại hoặc không còn khả dụng. Câu thông báo giống nhau cho mọi lý do nên không tiết lộ bài đang ở trạng thái nào. Đường dẫn tải tệp đính kèm của bài đã gỡ cũng ra thông báo này thay vì trang không tìm thấy"
+  impact: "Trang chi tiết bài viết và đường dẫn tải đính kèm. Danh sách bài, quyền xem và nội dung bài đang hiển thị không đổi"
+  retest: "Chọn một bài đang hiển thị, ghi lại đường dẫn, rồi ở phần quản trị chuyển bài về Nháp. Mở lại đường dẫn đó: phải về trang Kiến thức kèm dòng Bài viết không tồn tại hoặc không còn khả dụng, không thấy nội dung bài. Làm lại với bài lưu trữ, bài bị ẩn và bài đặt ngày phát hành ở tương lai: cùng một thông báo. Mở đường dẫn tải đính kèm của bài đã gỡ: cũng ra thông báo, không ra trang lỗi. Đưa bài trở lại trạng thái đã đăng rồi mở lại: phải xem được bình thường"
+  limit: "Không có"
