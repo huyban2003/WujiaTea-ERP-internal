@@ -990,7 +990,7 @@ WJ-DEBT-010:
 
 WJ-DEBT-002:
   sprint: "2026-08-15-C3"
-  build_override: "CHƯA lên UAT | Sprint 2026-08-15-C3 | commit: 0398fa3 | Deploy: -u wujia_portal_debt (KHÔNG có bước cập nhật dữ liệu) | URL: /portal/debt/pay"
+  build_override: "UAT | 15/08/2026 | Sprint 2026-08-15-C3 | commit: 0398fa3 | Đã deploy UAT, module wujia_portal_debt 19.0.4.1.0 | Dev đã kiểm lại trên trình duyệt UAT ngày 15/08/2026 (chỉ đọc, không sửa dữ liệu) ở 360/391/430/500/768/1440: 107/108 điểm đo đạt — điểm còn lại là giả định của công cụ đo (UAT chỉ có 1 loại tiền tệ nên bảng tổng chỉ có 1 dòng, đúng thực tế) | URL: /portal/debt/pay"
   url: "/portal/debt/pay (cả điện thoại và máy tính) và cửa sổ Thanh toán trên máy tính ở /portal/debt"
   odoo_fit: "Custom"
   fix: "Khi công ty chưa có tài khoản ngân hàng nào bật nhận thanh toán qua portal, màn Thanh toán chỉ hiển thị đúng một thông báo Chưa cấu hình tài khoản nhận thanh toán kèm hướng dẫn liên hệ bộ phận hỗ trợ. Không còn khung mã QR, không còn các dòng Ngân hàng, Chủ tài khoản, Số tài khoản, Nội dung để trống, và không còn nút sao chép nào để bấm nhầm. Cửa sổ Thanh toán trên máy tính cũng rẽ đúng nhánh này. Khi đã cấu hình tài khoản hợp lệ thì màn hình hiện đầy đủ thông tin chuyển khoản như bình thường. Màn hình chỉ để đọc, không tạo phiếu thanh toán và không đụng tới công nợ"
@@ -1000,7 +1000,7 @@ WJ-DEBT-002:
 
 WJ-DEBT-003:
   sprint: "2026-08-15-C3"
-  build_override: "CHƯA lên UAT | Sprint 2026-08-15-C3 | commit: 0398fa3 | Deploy: -u wujia_portal_debt (KHÔNG có bước cập nhật dữ liệu) | URL: /portal/debt/pay"
+  build_override: "UAT | 15/08/2026 | Sprint 2026-08-15-C3 | commit: 0398fa3 | Đã deploy UAT, module wujia_portal_debt 19.0.4.1.0 | Dev đã kiểm lại trên trình duyệt UAT ngày 15/08/2026 (chỉ đọc, không sửa dữ liệu) ở 360/391/430/500/768/1440: 107/108 điểm đo đạt — điểm còn lại là giả định của công cụ đo (UAT chỉ có 1 loại tiền tệ nên bảng tổng chỉ có 1 dòng, đúng thực tế) | URL: /portal/debt/pay"
   url: "/portal/debt/pay (đo tại 360px, 391px, 430px, 500px, 768px và 1440px)"
   odoo_fit: "Custom"
   fix: "Màn Thanh toán nay dùng đúng một bộ khung với màn Công nợ. Dưới 992px chỉ dựng bản điện thoại, nội dung rộng trọn màn hình, lề hai bên 16 và không phát sinh cuộn ngang. Từ 992px trở lên dựng bản máy tính theo đúng khung PC của portal, gồm thẻ số tiền cần chuyển, thông tin chuyển khoản và nút quay về màn Công nợ. Trước đây trang này chỉ có một bản dựng cho điện thoại nhưng lại hiển thị ở mọi bề rộng nên trên máy tính là một cột hẹp nằm giữa khung PC"
@@ -1010,7 +1010,7 @@ WJ-DEBT-003:
 
 WJ-DEBT-005:
   sprint: "2026-08-15-C3"
-  build_override: "CHƯA lên UAT | Sprint 2026-08-15-C3 | commit: 0398fa3 | Deploy: -u wujia_portal_debt (KHÔNG có bước cập nhật dữ liệu) | URL: /portal/debt/pay"
+  build_override: "UAT | 15/08/2026 | Sprint 2026-08-15-C3 | commit: 0398fa3 | Đã deploy UAT, module wujia_portal_debt 19.0.4.1.0 | Dev đã kiểm lại trên trình duyệt UAT ngày 15/08/2026 (chỉ đọc, không sửa dữ liệu) ở 360/391/430/500/768/1440: 107/108 điểm đo đạt — điểm còn lại là giả định của công cụ đo (UAT chỉ có 1 loại tiền tệ nên bảng tổng chỉ có 1 dòng, đúng thực tế) | URL: /portal/debt/pay"
   url: "/portal/debt/pay và cửa sổ Thanh toán trên máy tính ở /portal/debt"
   odoo_fit: "Custom"
   fix: "Hai nút sao chép nay báo kết quả rõ ràng. Sao chép được thì nút đổi màu và hiện chữ Đã sao chép ngay bên dưới, tự tắt sau ít giây. Trình duyệt từ chối thì hiện chữ báo không sao chép được kèm hướng dẫn chạm giữ để copy tay, thay vì im lặng như trước. Trang chạy trên HTTP nên đường sao chép chính là cách dự phòng của trình duyệt, đã bổ sung bước chọn vùng văn bản cho máy iPhone vốn bỏ qua cách chọn cũ. Nút không bao giờ sao chép chuỗi rỗng: chưa cấu hình tài khoản thì nút không còn tồn tại, còn giá trị trống thì báo chưa có giá trị để sao chép. Nội dung sao chép lấy đúng giá trị đang hiển thị trên màn hình"
@@ -1020,7 +1020,7 @@ WJ-DEBT-005:
 
 WJ-DEBT-008:
   sprint: "2026-08-15-C3"
-  build_override: "CHƯA lên UAT | Sprint 2026-08-15-C3 | commit: 0398fa3 | Deploy: -u wujia_portal_debt (KHÔNG có bước cập nhật dữ liệu) | URL: /portal/debt/pay"
+  build_override: "UAT | 15/08/2026 | Sprint 2026-08-15-C3 | commit: 0398fa3 | Đã deploy UAT, module wujia_portal_debt 19.0.4.1.0 | Dev đã kiểm lại trên trình duyệt UAT ngày 15/08/2026 (chỉ đọc, không sửa dữ liệu) ở 360/391/430/500/768/1440: 107/108 điểm đo đạt — điểm còn lại là giả định của công cụ đo (UAT chỉ có 1 loại tiền tệ nên bảng tổng chỉ có 1 dòng, đúng thực tế) | URL: /portal/debt/pay"
   url: "/portal/debt/pay và cửa sổ Thanh toán trên máy tính ở /portal/debt"
   odoo_fit: "Custom"
   fix: "Theo nhánh thứ hai trong mong đợi của BA và quyết định của chủ dự án: bỏ hẳn khối mã QR khỏi màn Thanh toán và khỏi cửa sổ Thanh toán trên máy tính. Không còn tiêu đề Quét QR để chuyển khoản, không còn khung QR minh hoạ, không còn dòng chú thích QR minh họa không dùng để thanh toán và không còn nút Tải mã QR vốn bấm không ra gì. Màn hình chỉ giữ thông tin chuyển khoản thủ công, đúng với cấu hình tài khoản ở backend"
@@ -1030,7 +1030,7 @@ WJ-DEBT-008:
 
 WJ-DEBT-009:
   sprint: "2026-08-15-C3"
-  build_override: "CHƯA lên UAT | Sprint 2026-08-15-C3 | commit: 0398fa3 | Deploy: -u wujia_portal_debt (KHÔNG có bước cập nhật dữ liệu) | URL: /portal/debt/payment-history"
+  build_override: "UAT | 15/08/2026 | Sprint 2026-08-15-C3 | commit: 0398fa3 | Đã deploy UAT, module wujia_portal_debt 19.0.4.1.0 | Dev đã kiểm lại trên trình duyệt UAT ngày 15/08/2026 (chỉ đọc, không sửa dữ liệu) ở 360/391/430/500/768/1440: 107/108 điểm đo đạt — điểm còn lại là giả định của công cụ đo (UAT chỉ có 1 loại tiền tệ nên bảng tổng chỉ có 1 dòng, đúng thực tế) | URL: /portal/debt/payment-history"
   url: "/portal/debt/payment-history (điện thoại 360px, 391px, 430px, 500px)"
   odoo_fit: "Custom"
   fix: "Các khối trên màn Lịch sử thanh toán bản điện thoại đã có lại khoảng cách phân cấp: bộ lọc cách banner 12, banner cách tiêu đề danh sách 24, tiêu đề cách giao dịch đầu tiên 12, giữa các giao dịch 12, danh sách cách khối Tổng cộng 12, lề hai bên vẫn 16. Nguyên nhân là lớp bọc phục vụ cơ chế lọc không tải lại trang đã làm mất khoảng cách chung của cả trang, nay trả lại đúng nhịp thay vì vá từng khối. Bản máy tính giữ nguyên như cũ"

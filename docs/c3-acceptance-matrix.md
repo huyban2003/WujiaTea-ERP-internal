@@ -150,3 +150,28 @@ W32 quá hạn 70.000 $, W30 dư có, W29 không phát sinh (chốt chặn C2), 
   08-14. QR thật (VietQR tĩnh/động) vẫn chờ BA chốt CT-055 — sẽ mở issue riêng.
 - **WJ-DEBT-005** đo bằng `navigator.clipboard.readText()` với permission `clipboard-read`;
   môi trường đo là HTTP (giống UAT) nên đường chạy thật là nhánh `execCommand`.
+
+## Retest trên UAT sau deploy (15/08/2026, chỉ đọc)
+
+Môi trường: `http://113.161.187.126:8019` — `wujia_portal_debt` **19.0.4.1.0** (xác nhận qua
+`ir.module.module`). Harness `scratchpad/c3_uat.py` (bản UAT của `c3_measure.py`, đã **gỡ hẳn**
+hàm đổi cấu hình bank — không ghi gì lên UAT). Dữ liệu đo: HCM-01, tuần `2026-W32`
+(INV/2026/00001 còn dư 72.450 USD). Ảnh: `scratchpad/c3u_shots/`.
+
+| Nhóm | Số điểm đo | Kết quả |
+|---|---|---|
+| WJ-DEBT-009 (spacing 360/391/430/500 + desktop 1440) | 34 | 34 PASS — đo đúng 16 / 12 / 24 / 12 / 12 / 12 ở cả 4 bề rộng |
+| WJ-DEBT-003 (shell trang pay, 6 breakpoint) | 33 | 33 PASS — sidebar off-canvas, tràn ngang 0, `<992` chỉ khối mobile, `1440` chỉ khối PC |
+| WJ-DEBT-008 (không còn QR) | 15 | 15 PASS — 0 element `.wj-debt-qr`/`.wj-debt-pc-qr`, HTML `/portal/debt` và `/portal/debt/pay` không còn chuỗi "Quét QR"/"QR minh họa"/"Tải mã QR" |
+| WJ-DEBT-005 (copy + phản hồi, mobile & PC) | 12 | 12 PASS — 2 nút/khối, cả 4 lần bấm đều hiện "Đã sao chép" (UAT là HTTP ⇒ chạy nhánh `execCommand`) |
+| WJ-DEBT-002 (nhánh đã cấu hình) | 2 | 2 PASS — đủ 4 dòng ngân hàng, không dòng rỗng, không hiện thông báo "chưa cấu hình" |
+| Hồi quy 5 trang × 2 viewport | 10 | 10 PASS — 0 tràn ngang, 0 lỗi JS |
+| Chốt C2 | 2 | 1 PASS (tuần hết nợ vẫn 302 `notice=no_due`) / 1 không áp dụng |
+
+**107/108 (99,1%).** Điểm còn lại là **giả định của công cụ đo**, không phải lỗi màn hình: kịch
+bản "tổng đa tệ nhiều dòng" viết cho DB copy có seed USD + EUR; UAT chỉ có **một** hoá đơn USD nên
+bảng tổng đúng ra chỉ có 1 dòng (`Tổng đã xác nhận: 72.450,00 $`).
+
+**Giới hạn của lần retest này:** nhánh **chưa cấu hình tài khoản** (WJ-DEBT-002) không đo được
+trên UAT vì cần tắt `portal_payment_enabled` — là sửa cấu hình UAT, ngoài quyền chỉ-đọc. Nhánh đó
+đã được phủ bằng 3 test tự động + đo Playwright trên DB copy (bảng phía trên).
