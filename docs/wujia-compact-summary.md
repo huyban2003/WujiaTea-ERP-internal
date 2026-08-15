@@ -2,7 +2,7 @@
 
 **Mục đích:** context inject vào mọi session. Mỗi §section search-able qua `/recall`. History chi tiết → `chapters/*.tex` + git log.
 
-**Cập nhật:** 2026-08-15 (C1+C2+C3 xong, chờ deploy UAT — §5) · 2026-08-14 — Phiên **phân cụm C1–C10** cho 32 issue `Ready for Dev` mới (STT 83–114, BA audit UAT 11–13/08): 0 code, chỉ đối chiếu source + chia cụm + viết prompt từng session (§13 + `docs/next-session-clusters-C.md`). Sprint code gần nhất: **S55** (UI Báo cáo đặt hàng, `05269b4`+`d7a7ead`, **ĐÃ deploy UAT, còn nợ chapter**). State hiện tại → §5.
+**Cập nhật:** 2026-08-15 (C1+C2+C3 xong; C2+C3 đã deploy UAT và retest đạt — §5) · 2026-08-14 — Phiên **phân cụm C1–C10** cho 32 issue `Ready for Dev` mới (STT 83–114, BA audit UAT 11–13/08): 0 code, chỉ đối chiếu source + chia cụm + viết prompt từng session (§13 + `docs/next-session-clusters-C.md`). Sprint code gần nhất: **S55** (UI Báo cáo đặt hàng, `05269b4`+`d7a7ead`, **ĐÃ deploy UAT, còn nợ chapter**). State hiện tại → §5.
 
 ---
 
