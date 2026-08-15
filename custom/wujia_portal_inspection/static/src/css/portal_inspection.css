@@ -1,3 +1,16 @@
+/* SPA-like AJAX content swap animation */
+#wj-inspection-content {
+    transition: opacity 0.25s ease, transform 0.25s ease;
+    opacity: 1;
+    transform: translateY(0);
+}
+
+#wj-inspection-content.wj-content-fading {
+    opacity: 0.4;
+    transform: translateY(6px);
+    pointer-events: none;
+}
+
 /* Giao diện danh sách & chi tiết phiếu giám sát / khảo sát */
 .wj-inspection-container {
     max-width: 100%;

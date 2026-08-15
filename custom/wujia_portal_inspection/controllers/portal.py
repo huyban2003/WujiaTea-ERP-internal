@@ -42,8 +42,8 @@ def _clean_content(text):
 
 class WujiaPortalInspectionController(http.Controller):
 
-    @http.route(['/portal/inspection'], type='http', auth='user', website=True)
-    def portal_inspection_list(self, tab='all', date_from=None, date_to=None, search=None, page=1, **kwargs):
+    def _get_inspection_list_values(self, tab='all', date_from=None, date_to=None, search=None, page=1):
+        """Shared logic for building inspection list template values."""
         try:
             page = int(page)
             if page < 1:
@@ -168,7 +168,7 @@ class WujiaPortalInspectionController(http.Controller):
             }
             inspection_items.append(item_data)
 
-        values = {
+        return {
             '_inspection_active': True,
             'active_tab': tab if tab in ('all', 'need_remediation', 'done') else 'all',
             'date_from': date_from or '',
@@ -180,7 +180,24 @@ class WujiaPortalInspectionController(http.Controller):
             'total_count': total_count,
             'page_range': list(range(1, total_pages + 1)),
         }
+
+    @http.route(['/portal/inspection'], type='http', auth='user', website=True)
+    def portal_inspection_list(self, tab='all', date_from=None, date_to=None, search=None, page=1, **kwargs):
+        values = self._get_inspection_list_values(tab, date_from, date_to, search, page)
         return request.render('wujia_portal_inspection.portal_inspection_main', values)
+
+    @http.route(['/portal/inspection/ajax'], type='http', auth='user', website=True)
+    def portal_inspection_list_ajax(self, tab='all', date_from=None, date_to=None, search=None, page=1, **kwargs):
+        """Return only the content fragment as JSON for SPA-like navigation."""
+        values = self._get_inspection_list_values(tab, date_from, date_to, search, page)
+        html = request.env['ir.qweb']._render('wujia_portal_inspection.portal_inspection_list_content', values)
+        return request.make_json_response({
+            'html': str(html),
+            'active_tab': values['active_tab'],
+            'search_q': values['search_q'],
+            'page': values['page'],
+            'total_pages': values['total_pages'],
+        })
 
     @http.route(['/portal/inspection/detail/<int:inspection_id>'], type='http', auth='user', website=True)
     def portal_inspection_detail(self, inspection_id=None, **kwargs):

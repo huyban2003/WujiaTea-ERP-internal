@@ -72,7 +72,7 @@ class WujiaSupervisionSchedule(models.Model):
     )
     
     # Thời gian giám sát
-    date = fields.Date(string='Thời gian giám sát', required=True)
+    date = fields.Date(string='Thời gian giám sát', required=True, index=True)
     
     # Trạng thái lịch
     state = fields.Selection([
