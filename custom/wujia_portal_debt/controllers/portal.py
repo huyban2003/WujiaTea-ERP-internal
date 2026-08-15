@@ -90,7 +90,7 @@ def _store_label(franchise_id):
 class WujiaPortalDebt(http.Controller):
 
     @http.route(['/portal/debt'], type='http', auth='user', sitemap=False)
-    def portal_debt(self, week=None, all=None, page=None, **kw):
+    def portal_debt(self, week=None, all=None, page=None, notice=None, **kw):
         """Overview — Mobile: 4 biến thể theo `state`. PC (STT10): 5 biến thể
         (empty tách 'empty_week'/'no_debt' theo rule 10c/10d) + bảng phân trang + modal QR."""
         franchise_id = get_active_franchise_id()
@@ -126,13 +126,15 @@ class WujiaPortalDebt(http.Controller):
             'store_label': _store_label(franchise_id),
             'bank': bank,
             'active_tab': 'debt',
+            'notice': notice if notice == 'no_due' else '',
         })
 
     @http.route(['/portal/debt/payment-history'], type='http', auth='user', sitemap=False)
     def portal_debt_payment_history(self, month=None, date_from=None, date_to=None,
                                     q=None, page=None, **kw):
         """Màn 06 — các khoản Ngô Gia đã xác nhận trong kỳ. PC (STT10): thêm ô tìm
-        kiếm (`q`) + bảng phân trang. `history['total']` vẫn là tổng TOÀN kỳ đã lọc."""
+        kiếm (`q`) + bảng phân trang. `history['totals']` = tổng TOÀN kỳ đã lọc, tách
+        theo từng loại tiền (WJ-DEBT-004)."""
         franchise_id = get_active_franchise_id()
         allowed, denied = _debt_access(franchise_id)
         if not allowed:
@@ -163,6 +165,11 @@ class WujiaPortalDebt(http.Controller):
             return denied
         debt = request.env['wujia.portal.debt']
         summary = debt.get_summary(franchise_id, week=week)
+        # Hết nợ (hoặc dư có) thì không có gì để chuyển khoản — về trang công nợ kèm
+        # thông báo thay vì in số âm/QR (WJ-DEBT-007).
+        if summary['remaining'] <= 0:
+            return request.redirect(
+                '/portal/debt?week=%s&notice=no_due' % summary['week_key'])
         bank = debt.get_bank_info(
             franchise_id, summary['remaining'], summary['week_number'])
         return request.render('wujia_portal_debt.portal_debt_pay', {
