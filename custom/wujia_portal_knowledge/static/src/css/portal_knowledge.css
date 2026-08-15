@@ -13,3 +13,14 @@
 .article-content { font-size: 1rem; line-height: 1.7; color: var(--wujia-text-primary); }
 .article-content img { max-width: 100%; height: auto; border-radius: 6px; margin: 1rem 0; }
 .article-content h2, .article-content h3 { color: var(--wujia-primary); margin-top: 1.5rem; }
+
+/* Thông báo lọc/bài không còn khả dụng (C4 — WJ-KNW-001/004). */
+.wj-know-notice {
+    display: flex; align-items: center; gap: 8px;
+    margin-bottom: 12px; padding: 10px 14px;
+    background: var(--wujia-primary-soft);
+    border: 1px solid var(--wujia-primary-border-soft);
+    border-radius: var(--wujia-card-radius);
+    color: var(--wujia-text-primary); font-size: 14px; line-height: 20px;
+}
+.wj-know-notice i { color: var(--wujia-primary); flex: 0 0 16px; }
