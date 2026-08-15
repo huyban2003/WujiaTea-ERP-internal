@@ -445,6 +445,46 @@ def format_batch_departure(dt, tz=None):
     )
 
 
+# --- Batch giao hàng: scope franchise + giờ xuất phát (cụm C5) --------------
+# Home và /portal/delivery phải cùng một tập dữ liệu và cùng một quy tắc giờ,
+# nên domain/filter/mapping giờ nằm ở đây thay vì chép lại mỗi controller.
+
+UNFINISHED_BATCH_STATUS = ('draft', 'assigned', 'loading', 'delivering')
+UNDELIVERED_PICKING_STATE = ('draft', 'waiting', 'confirmed', 'assigned')
+
+DEPARTURE_LABEL_ACTUAL = 'Xuất phát (thực tế)'
+DEPARTURE_LABEL_PLANNED = 'Xuất phát (dự kiến)'
+
+
+def batch_franchise_domain(franchise_ids):
+    """Batch có picking thuộc franchise — qua picking hoặc qua SO của picking."""
+    ids = list(franchise_ids)
+    return ['|', ('picking_ids.franchise_id', 'in', ids),
+                 ('picking_ids.sale_id.franchise_id', 'in', ids)]
+
+
+def own_pickings(batch, franchise_ids):
+    """Picking của franchise trong batch (batch có thể gom nhiều cửa hàng)."""
+    ids = set(franchise_ids)
+    return batch.picking_ids.filtered(
+        lambda p: (p.franchise_id and p.franchise_id.id in ids)
+        or (p.sale_id and p.sale_id.franchise_id and p.sale_id.franchise_id.id in ids)
+    )
+
+
+def departure_value(batch):
+    """(datetime, is_actual) — đã xuất phát thì lấy giờ thực tế, chưa thì giờ dự kiến.
+
+    WJ-DELIVERY-007: chỗ DUY NHẤT quyết định portal hiện giờ nào.
+    """
+    actual = batch.actual_departure if 'actual_departure' in batch._fields else False
+    return (actual, True) if actual else (batch.planned_departure, False)
+
+
+def departure_label(is_actual):
+    return DEPARTURE_LABEL_ACTUAL if is_actual else DEPARTURE_LABEL_PLANNED
+
+
 def get_recent_orders(franchise_ids, limit=3):
     """sale.order mới nhất của franchise — section "Đơn hàng gần đây"."""
     Order = request.env['sale.order'].sudo()
@@ -456,43 +496,73 @@ def get_recent_orders(franchise_ids, limit=3):
     )
 
 
-def get_upcoming_batches(franchise_ids, limit=2):
-    """Batch sắp giao có hàng của franchise — section "Giao hàng sắp tới".
+def format_order_names(names, keep=2):
+    """'S00035, S00036 +3' — danh sách mã đơn rút gọn."""
+    names = [n for n in names if n]
+    if not names:
+        return '—'
+    text = ', '.join(names[:keep])
+    if len(names) > keep:
+        text += ' +%d' % (len(names) - keep)
+    return text
 
-    Returns: list dict {batch, when, order_count, total, badge} đã tính sẵn
-    (Tổng đơn = số sale.order của franchise trong batch; Tổng tiền = sum
-    amount_total các đơn đó — tính trên limit 2 batch, perf OK 1500 user).
+
+def get_upcoming_batches(franchise_ids, limit=2):
+    """Section "Giao hàng sắp tới" — chỉ chuyến CHƯA hoàn thành của franchise.
+
+    Returns: {'items': [{batch, when, when_label, order_count, order_names, total,
+    badge}], 'undelivered_count': tổng đơn chưa giao trên MỌI chuyến chưa xong}.
     """
     Batch = request.env['stock.picking.batch'].sudo()
     if 'planned_departure' not in Batch._fields or not franchise_ids:
-        return []
+        return {'items': [], 'undelivered_count': 0}
     franchise_ids = list(franchise_ids)
     tz = portal_tz()
     # "Từ đầu hôm nay" là mốc giờ địa phương, planned_departure lưu UTC → phải quy đổi.
     start, _unused = local_day_range_utc(date.today(), None, tz)
-    batches = Batch.search([
-        ('planned_departure', '>=', start),
-        '|', ('picking_ids.franchise_id', 'in', franchise_ids),
-             ('picking_ids.sale_id.franchise_id', 'in', franchise_ids),
-    ], order='planned_departure asc', limit=limit)
+    batches = Batch.search(
+        batch_franchise_domain(franchise_ids) + [
+            ('delivery_batch_status', 'in', list(UNFINISHED_BATCH_STATUS)),
+            # Chuyến đang bốc/đang chạy vẫn là "chưa giao" dù lịch đã qua (WJ-DELIVERY-005).
+            '|', ('planned_departure', '>=', start),
+                 ('delivery_batch_status', 'in', ['loading', 'delivering']),
+        ], order='planned_departure asc', limit=limit)
     items = []
     for batch in batches:
-        own = batch.picking_ids.filtered(
-            lambda p: (p.franchise_id and p.franchise_id.id in franchise_ids)
-            or (p.sale_id and p.sale_id.franchise_id
-                and p.sale_id.franchise_id.id in franchise_ids)
-        )
+        own = own_pickings(batch, franchise_ids).filtered(
+            lambda p: p.state in UNDELIVERED_PICKING_STATE)
         orders = own.mapped('sale_id')
+        dep, is_actual = departure_value(batch)
         items.append({
             'batch': batch,
-            'when': format_batch_departure(batch.planned_departure, tz),
+            'when': format_batch_departure(dep, tz),
+            'when_label': departure_label(is_actual),
             'order_count': len(orders),
+            'order_names': format_order_names(orders.mapped('name')),
             'total': sum(orders.mapped('amount_total')),
             'badge': MOBILE_BATCH_BADGES.get(
                 batch.delivery_batch_status, ('Chuẩn bị giao', 'wujia-badge-muted'),
             ),
         })
-    return items
+    return {'items': items, 'undelivered_count': count_undelivered_orders(franchise_ids)}
+
+
+def count_undelivered_orders(franchise_ids):
+    """Số đơn (sale.order) chưa giao của franchise trên mọi chuyến chưa hoàn thành.
+
+    1 `_read_group` group-by sale_id — không lặp theo batch (1500 user).
+    """
+    Picking = request.env['stock.picking'].sudo()
+    if not franchise_ids or 'franchise_id' not in Picking._fields:
+        return 0
+    ids = list(franchise_ids)
+    groups = Picking._read_group([
+        ('batch_id.delivery_batch_status', 'in', list(UNFINISHED_BATCH_STATUS)),
+        ('state', 'in', list(UNDELIVERED_PICKING_STATE)),
+        ('sale_id', '!=', False),
+        '|', ('franchise_id', 'in', ids), ('sale_id.franchise_id', 'in', ids),
+    ], groupby=['sale_id'])
+    return len(groups)
 
 
 def require_role(min_role, franchise_id=None):
