@@ -90,7 +90,7 @@
                     <input type="hidden" name="state" t-att-value="state"/>
                     <select name="page_size" class="wj-pc-pagination__size"
                             aria-label="Số dòng mỗi trang" onchange="this.form.requestSubmit()">
-                        <t t-foreach="[10, 20, 50]" t-as="ps">
+                        <t t-foreach="page_size_options" t-as="ps">
                             <option t-att-value="ps"
                                     t-att-selected="'selected' if page_size == ps else None">
                                 <t t-out="ps"/> / trang
@@ -215,6 +215,8 @@
                     <t t-else="">
                         <!-- Bộ lọc nhanh: search + 2 date (create_date) + trạng thái + Reset/Tìm -->
                         <form method="get" action="/portal/purchase-history" class="wj-pc-filterbar">
+                            <!-- WJ-PH-008: giữ số dòng/trang khi tìm/lọc, đừng bắt chọn lại. -->
+                            <input type="hidden" name="page_size" t-att-value="page_size"/>
                             <!-- Card 88px: control 1 hàng, không dòng tiêu đề (UI-PC-BASE-003) -->
                             <div class="wj-pc-filterbar__row">
                                 <span class="wj-pc-filter-search">
@@ -279,6 +281,7 @@
                     <t t-else="">
                         <!-- Filter canonical 03-Advanced -->
                         <form method="get" action="/portal/purchase-history" class="wj-filter-card">
+                            <input type="hidden" name="page_size" t-att-value="page_size"/>
                             <div class="wj-filter-search">
                                 <div class="wj-filter-search-field">
                                     <i class="feather icon-search"/>

@@ -12,8 +12,10 @@ from odoo.addons.wujia_portal_base.controllers.utils import (
 )
 
 
-PAGE_SIZE = 20
-PAGE_SIZE_MAX = 100
+# WJ-PH-008: mặc định 10 theo source PC v1.5. PAGE_SIZE_OPTIONS là nguồn DUY NHẤT của
+# select "n / trang" — giá trị ngoài bộ này (URL sửa tay) rơi về mặc định.
+PAGE_SIZE = 10
+PAGE_SIZE_OPTIONS = (10, 20, 50)
 
 # state → (label VN, status_type). status_type = key ngữ nghĩa, template map sang badge CSS
 # riêng (PC/mobile). 'cancel' KHÔNG có ở đây — đơn huỷ bị loại khỏi lịch sử (BA). State custom
@@ -61,6 +63,15 @@ def _parse_date(value):
         return datetime.strptime(value, '%Y-%m-%d').date()
     except ValueError:
         return None
+
+
+def _parse_page_size(value):
+    """WJ-PH-008 — chỉ nhận đúng bộ option của selector; số rác/lạ về mặc định 10."""
+    try:
+        value = int(value)
+    except (TypeError, ValueError):
+        return PAGE_SIZE
+    return value if value in PAGE_SIZE_OPTIONS else PAGE_SIZE
 
 
 def _state_meta(state):
@@ -214,7 +225,7 @@ class WujiaPortalHistory(http.Controller):
         base_ctx = {
             'date_from': '', 'date_to': '', 'state': '', 'preset': '', 'q': '',
             'state_options': self._state_options(SO), 'filter_error': '',
-            'page_size': PAGE_SIZE,
+            'page_size': PAGE_SIZE, 'page_size_options': PAGE_SIZE_OPTIONS,
             # Format tiền dùng chung mọi module portal — ký hiệu theo currency của đơn.
             'money': portal_money,
         }
@@ -265,10 +276,7 @@ class WujiaPortalHistory(http.Controller):
             page = max(1, int(page))
         except (TypeError, ValueError):
             page = 1
-        try:
-            page_size = min(max(1, int(page_size)), PAGE_SIZE_MAX)
-        except (TypeError, ValueError):
-            page_size = PAGE_SIZE
+        page_size = _parse_page_size(page_size)
 
         total = SO.search_count(domain)
         offset = (page - 1) * page_size
