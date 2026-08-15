@@ -271,15 +271,16 @@ class WujiaFranchiseInspection(models.Model):
         string='Điểm kiểm tra',
         compute='_compute_exam_score',
         store=True,
-        _description='là điểm được lấy từ câu hỏi phần điền vào ô trống',
+        aggregator='avg',
+        help='là điểm được lấy từ câu hỏi phần điền vào ô trống',
     )
 
     total_score = fields.Float(
         string='Tổng điểm',
         compute='_compute_total_score',
         store=True,
-        group_operator=False,
-        _description='điểm = điểm checklist + điểm kiểm tra'
+        aggregator='avg',
+        help='điểm = điểm checklist + điểm kiểm tra',
     )
 
     grade_id = fields.Many2one(
@@ -309,12 +310,12 @@ class WujiaFranchiseInspection(models.Model):
 
     test_employee_name = fields.Char(
         string='Nhân viên được kiểm tra',
-        _description='nhận viện tại cửa hàng không có trong user'
+        help='nhận viện tại cửa hàng không có trong user',
     )
 
     tenure = fields.Float(
         string='Thâm niên',
-        _description='thời gian làm việc của nhân viên'
+        help='thời gian làm việc của nhân viên',
     )
 
     # RELATION 

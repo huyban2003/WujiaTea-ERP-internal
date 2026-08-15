@@ -14,29 +14,35 @@
                 <field name="category_id" string="Danh mục tiêu chí" />
                 <field name="planned_date" string="Ngày kiểm tra" />
                 <separator />
-                <filter string="Tiêu chí Đạt (Pass)" name="pass_only" domain="[('is_pass', '=', True)]" />
-                <filter string="Tiêu chí Vi phạm (Fail)" name="fail_only" domain="[('is_pass', '=', False)]" />
+                <filter string="Tiêu chí Đạt (Pass)" name="pass_only"
+                    domain="[('is_pass', '=', True)]" />
                 <separator />
                 <filter string="Thời gian kiểm tra" name="filter_planned_date" date="planned_date" />
                 <separator />
-                <filter string="Mẫu khảo sát" name="group_template" context="{'group_by': 'template_id'}" />
-                <filter string="Tiêu chí mẫu (Template Line)" name="group_template_line" context="{'group_by': 'template_line_id'}" />
-                <filter string="Nội dung tiêu chí" name="group_content" context="{'group_by': 'content_snapshot'}" />
-                <filter string="Kết quả (Đạt / Không đạt)" name="group_result" context="{'group_by': 'result'}" />
-                <filter string="Danh mục tiêu chí" name="group_category" context="{'group_by': 'category_id'}" />
-                <filter string="Cửa hàng" name="group_franchise" context="{'group_by': 'franchise_id'}" />
+                <filter string="Mẫu khảo sát" name="group_template"
+                    context="{'group_by': 'template_id'}" />
+                <filter string="Tiêu chí mẫu (Template Line)" name="group_template_line"
+                    context="{'group_by': 'template_line_id'}" />
+                <filter string="Nội dung tiêu chí" name="group_content"
+                    context="{'group_by': 'content_snapshot'}" />
+                <filter string="Kết quả (Đạt / Không đạt)" name="group_result"
+                    context="{'group_by': 'result'}" />
+                <filter string="Danh mục tiêu chí" name="group_category"
+                    context="{'group_by': 'category_id'}" />
+                <filter string="Cửa hàng" name="group_franchise"
+                    context="{'group_by': 'franchise_id'}" />
             </search>
         </field>
     </record>
 
-    <!-- Graph View: Biểu đồ cột song song (Cột đôi) - Mỗi cột là 1 Tiêu chí mẫu gốc, hiển thị số lần Đạt và Không đạt cạnh nhau -->
+    <!-- Graph View: Biểu đồ đường xếp chồng (Stacked line chart) - Phân tích tiêu chí vi phạm -->
     <record id="view_wujia_franchise_inspection_line_violation_graph" model="ir.ui.view">
         <field name="name">wujia.franchise.inspection.line.violation.graph</field>
         <field name="model">wujia.franchise.inspection.line</field>
         <field name="arch" type="xml">
-            <graph string="Phân tích tiêu chí vi phạm" type="bar" stacked="0" sample="1">
-                <field name="template_line_id" type="row"/>
-                <field name="result" type="col"/>
+            <graph string="Phân tích tiêu chí vi phạm" type="line" stacked="1" sample="1">
+                <field name="template_line_id" type="row" />
+                <field name="result" type="col" />
             </graph>
         </field>
     </record>
@@ -47,9 +53,9 @@
         <field name="model">wujia.franchise.inspection.line</field>
         <field name="arch" type="xml">
             <pivot string="Phân tích tiêu chí vi phạm" sample="1">
-                <field name="template_id" type="row"/>
-                <field name="template_line_id" type="row"/>
-                <field name="result" type="col"/>
+                <field name="template_id" type="row" />
+                <field name="template_line_id" type="row" />
+                <field name="result" type="col" />
             </pivot>
         </field>
     </record>
@@ -60,19 +66,22 @@
         <field name="model">wujia.franchise.inspection.line</field>
         <field name="arch" type="xml">
             <list string="Phân tích tiêu chí vi phạm" create="false" edit="false" delete="false">
-                <field name="template_id"/>
-                <field name="template_line_id"/>
-                <field name="inspection_id"/>
-                <field name="franchise_id"/>
-                <field name="category_id"/>
-                <field name="content_snapshot"/>
-                <field name="result" widget="badge" decoration-success="result == 'pass'" decoration-danger="result == 'fail'"/>
-                <field name="note" string="Ghi chú vi phạm (Admin)" optional="show"/>
-                <field name="remediation_note" string="Ghi chú khắc phục (Cửa hàng)" optional="show"/>
-                <field name="evidence_image" widget="image" options="{'size': [40, 40]}" optional="show"/>
-                <field name="remediation_image" widget="image" options="{'size': [40, 40]}" optional="show"/>
-                <field name="pass_count"/>
-                <field name="fail_count"/>
+                <field name="template_id" />
+                <field name="template_line_id" />
+                <field name="inspection_id" />
+                <field name="franchise_id" />
+                <field name="category_id" />
+                <field name="content_snapshot" />
+                <field name="result" widget="badge" decoration-success="result == 'pass'"
+                    decoration-danger="result == 'fail'" />
+                <field name="note" string="Ghi chú vi phạm (Admin)" optional="show" />
+                <field name="remediation_note" string="Ghi chú khắc phục (Cửa hàng)" optional="show" />
+                <field name="evidence_image" widget="image" options="{'size': [40, 40]}"
+                    optional="show" />
+                <field name="remediation_image" widget="image" options="{'size': [40, 40]}"
+                    optional="show" />
+                <field name="pass_count" />
+                <field name="fail_count" />
             </list>
         </field>
     </record>
@@ -86,29 +95,31 @@
                 <sheet>
                     <group>
                         <group string="THÔNG TIN TIÊU CHÍ">
-                            <field name="inspection_id" readonly="1" options="{'no_open': True}"/>
-                            <field name="franchise_id" readonly="1" options="{'no_open': True}"/>
-                            <field name="planned_date" readonly="1"/>
-                            <field name="category_id" readonly="1" options="{'no_open': True}"/>
-                            <field name="content_snapshot" readonly="1"/>
+                            <field name="inspection_id" readonly="1" options="{'no_open': True}" />
+                            <field name="franchise_id" readonly="1" options="{'no_open': True}" />
+                            <field name="planned_date" readonly="1" />
+                            <field name="category_id" readonly="1" options="{'no_open': True}" />
+                            <field name="content_snapshot" readonly="1" />
                         </group>
                         <group string="KẾT QUẢ &amp; BẰNG CHỨNG">
                             <field name="criterion_type_snapshot" readonly="1" widget="badge"
-                                   decoration-danger="criterion_type_snapshot == 'critical'"
-                                   decoration-info="criterion_type_snapshot == 'normal'"/>
-                            <field name="deduction_score_snapshot" readonly="1"/>
+                                decoration-danger="criterion_type_snapshot == 'critical'"
+                                decoration-info="criterion_type_snapshot == 'normal'" />
+                            <field name="deduction_score_snapshot" readonly="1" />
                             <field name="result" readonly="1" widget="badge"
-                                   decoration-success="result == 'pass'"
-                                   decoration-danger="result == 'fail'"/>
-                            <field name="note" readonly="1"/>
+                                decoration-success="result == 'pass'"
+                                decoration-danger="result == 'fail'" />
+                            <field name="note" readonly="1" />
                         </group>
                     </group>
                     <group string="BẰNG CHỨNG &amp; KHẮC PHỤC">
                         <group string="Bằng chứng vi phạm khi khảo sát">
-                            <field name="evidence_image" widget="image" options="{'size': [200, 200]}" readonly="1" nolabel="1"/>
+                            <field name="evidence_image" widget="image"
+                                options="{'size': [200, 200]}" readonly="1" nolabel="1" />
                         </group>
                         <group string="Ảnh sau khi đã khắc phục">
-                            <field name="remediation_image" widget="image" options="{'size': [200, 200]}" readonly="1" nolabel="1"/>
+                            <field name="remediation_image" widget="image"
+                                options="{'size': [200, 200]}" readonly="1" nolabel="1" />
                         </group>
                     </group>
                 </sheet>
@@ -116,17 +127,19 @@
         </field>
     </record>
 
-    <!-- Action Phân tích tiêu chí vi phạm (Chỉ tổng hợp dữ liệu từ các Phiếu khảo sát ở trạng thái 'Hoàn thành') -->
+    <!-- Action Phân tích tiêu chí vi phạm (Chỉ tổng hợp dữ liệu từ các Phiếu khảo sát ở trạng thái
+    'Hoàn thành') -->
     <record id="action_wujia_franchise_inspection_report_violation" model="ir.actions.act_window">
         <field name="name">Phân tích tiêu chí vi phạm</field>
         <field name="res_model">wujia.franchise.inspection.line</field>
-        <field name="domain">[('display_type', '=', 'line'), ('inspection_id.state', '=', 'done')]</field>
+        <field name="domain">[('display_type', '=', 'line'), ('inspection_id.state', 'in', ('done', 'need_remediation'))]</field>
         <field name="view_mode">graph,pivot,list</field>
         <field name="search_view_id" ref="view_wujia_franchise_inspection_line_search" />
         <field name="context">{}</field>
         <field name="help" type="html">
             <p class="o_view_nocontent_smiling_face">
-                Báo cáo phân tích tổng số câu Đạt / Vi phạm của từng tiêu chí mẫu trên các phiếu đã hoàn thành!
+                Báo cáo phân tích tổng số câu Đạt / Vi phạm của từng tiêu chí mẫu trên các phiếu đã
+                hoàn thành!
             </p>
         </field>
     </record>

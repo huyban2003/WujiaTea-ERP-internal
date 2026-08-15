@@ -35,6 +35,7 @@
     <record id="action_wujia_franchise_inspection_report_result" model="ir.actions.act_window">
         <field name="name">Phân tích kết quả giám sát</field>
         <field name="res_model">wujia.franchise.inspection</field>
+        <field name="domain">[('state', 'in', ['done', 'need_remediation'])]</field>
         <field name="view_mode">graph,pivot,list,form</field>
         <field name="search_view_id" ref="view_wujia_franchise_inspection_search" />
         <field name="context">{}</field>
