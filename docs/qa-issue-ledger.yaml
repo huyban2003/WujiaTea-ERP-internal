@@ -987,3 +987,53 @@ WJ-DEBT-010:
   impact: "Tuần được mở sẵn khi vào màn Công nợ và dòng thông tin dưới số tiền, cả điện thoại lẫn máy tính. Cách tính số liệu của từng tuần, danh sách chọn tuần, quyền xem và phạm vi cửa hàng không đổi. Đường dẫn có sẵn tham số tuần, kể cả link đã lưu, vẫn mở đúng tuần đó"
   retest: "Với cửa hàng đang có tuần quá hạn chưa thanh toán, mở /portal/debt không kèm tham số: phải tự chọn tuần quá hạn cũ nhất. Cửa hàng không có tuần quá hạn nhưng tuần liền trước có hóa đơn: phải tự chọn tuần liền trước. Cửa hàng không phát sinh gì trong sáu tuần: phải là tuần hiện tại. Chọn tay một tuần khác trong danh sách, hoặc mở đường dẫn có sẵn tham số tuần: phải đúng tuần được chọn. Kiểm dòng dưới số tiền: tuần đã thanh toán ghi Ngô Gia xác nhận kèm ngày, tuần còn nợ ghi Hạn thanh toán là thứ Năm tuần kế tiếp, tuần chưa có hóa đơn ghi Hạn thanh toán dấu gạch và còn phải trả bằng 0"
   limit: "Danh sách chọn tuần vẫn là sáu tuần gần nhất như trước; tuần quá hạn cũ hơn sáu tuần không nằm trong danh sách nên không được chọn làm mặc định. Nếu BA cần nhìn xa hơn thì mở issue riêng để nới danh sách"
+
+WJ-DEBT-002:
+  sprint: "2026-08-15-C3"
+  build_override: "CHƯA lên UAT | Sprint 2026-08-15-C3 | commit: 0398fa3 | Deploy: -u wujia_portal_debt (KHÔNG có bước cập nhật dữ liệu) | URL: /portal/debt/pay"
+  url: "/portal/debt/pay (cả điện thoại và máy tính) và cửa sổ Thanh toán trên máy tính ở /portal/debt"
+  odoo_fit: "Custom"
+  fix: "Khi công ty chưa có tài khoản ngân hàng nào bật nhận thanh toán qua portal, màn Thanh toán chỉ hiển thị đúng một thông báo Chưa cấu hình tài khoản nhận thanh toán kèm hướng dẫn liên hệ bộ phận hỗ trợ. Không còn khung mã QR, không còn các dòng Ngân hàng, Chủ tài khoản, Số tài khoản, Nội dung để trống, và không còn nút sao chép nào để bấm nhầm. Cửa sổ Thanh toán trên máy tính cũng rẽ đúng nhánh này. Khi đã cấu hình tài khoản hợp lệ thì màn hình hiện đầy đủ thông tin chuyển khoản như bình thường. Màn hình chỉ để đọc, không tạo phiếu thanh toán và không đụng tới công nợ"
+  impact: "Màn Thanh toán và cửa sổ Thanh toán trên máy tính. Số liệu công nợ, quyền xem và luồng đối soát không đổi"
+  retest: "Tắt Use for Portal Payment trên mọi tài khoản ngân hàng của công ty rồi mở màn Thanh toán của một tuần còn nợ: phải thấy đúng một thông báo chưa cấu hình, không có mã QR, không có dòng thông tin để trống, không có nút sao chép. Bật lại một tài khoản hợp lệ rồi mở lại: phải thấy đủ Ngân hàng, Chủ tài khoản, Số tài khoản, Nội dung chuyển khoản và hai nút sao chép. Kiểm cả trên điện thoại và trên máy tính, kể cả cửa sổ Thanh toán mở từ màn Công nợ. Kiểm lại công nợ của cửa hàng không đổi sau khi mở màn này"
+  limit: "Không có"
+
+WJ-DEBT-003:
+  sprint: "2026-08-15-C3"
+  build_override: "CHƯA lên UAT | Sprint 2026-08-15-C3 | commit: 0398fa3 | Deploy: -u wujia_portal_debt (KHÔNG có bước cập nhật dữ liệu) | URL: /portal/debt/pay"
+  url: "/portal/debt/pay (đo tại 360px, 391px, 430px, 500px, 768px và 1440px)"
+  odoo_fit: "Custom"
+  fix: "Màn Thanh toán nay dùng đúng một bộ khung với màn Công nợ. Dưới 992px chỉ dựng bản điện thoại, nội dung rộng trọn màn hình, lề hai bên 16 và không phát sinh cuộn ngang. Từ 992px trở lên dựng bản máy tính theo đúng khung PC của portal, gồm thẻ số tiền cần chuyển, thông tin chuyển khoản và nút quay về màn Công nợ. Trước đây trang này chỉ có một bản dựng cho điện thoại nhưng lại hiển thị ở mọi bề rộng nên trên máy tính là một cột hẹp nằm giữa khung PC"
+  impact: "Bố cục màn Thanh toán ở mọi bề rộng. Nội dung, số liệu và quyền xem không đổi; màn Công nợ và Lịch sử thanh toán không đụng tới"
+  retest: "Mở /portal/debt/pay của một tuần còn nợ lần lượt ở 360px, 391px, 430px, 500px và 768px: không được thấy thanh điều hướng dọc của máy tính, số tiền và thông tin chuyển khoản phải nằm trọn trong màn hình, không phải kéo ngang, thanh điều hướng dưới cùng không che nội dung. Mở ở 1440px: phải thấy bản máy tính đúng khung portal, không thấy bản điện thoại. Bấm nút Về trang công nợ phải quay lại đúng tuần đang xem"
+  limit: "Luồng thanh toán chính trên máy tính vẫn là cửa sổ mở từ nút Thanh toán số còn lại ở màn Công nợ; bản máy tính của trang này phục vụ trường hợp mở thẳng đường dẫn hoặc mở lại link đã lưu. Riêng ảnh BA chụp ngày 12/08 ở 500px Dev không tái hiện lại được ở lần tải mới: đo trên UAT hiện tại, thanh điều hướng dọc vẫn nằm ngoài màn hình ở mọi bề rộng điện thoại"
+
+WJ-DEBT-005:
+  sprint: "2026-08-15-C3"
+  build_override: "CHƯA lên UAT | Sprint 2026-08-15-C3 | commit: 0398fa3 | Deploy: -u wujia_portal_debt (KHÔNG có bước cập nhật dữ liệu) | URL: /portal/debt/pay"
+  url: "/portal/debt/pay và cửa sổ Thanh toán trên máy tính ở /portal/debt"
+  odoo_fit: "Custom"
+  fix: "Hai nút sao chép nay báo kết quả rõ ràng. Sao chép được thì nút đổi màu và hiện chữ Đã sao chép ngay bên dưới, tự tắt sau ít giây. Trình duyệt từ chối thì hiện chữ báo không sao chép được kèm hướng dẫn chạm giữ để copy tay, thay vì im lặng như trước. Trang chạy trên HTTP nên đường sao chép chính là cách dự phòng của trình duyệt, đã bổ sung bước chọn vùng văn bản cho máy iPhone vốn bỏ qua cách chọn cũ. Nút không bao giờ sao chép chuỗi rỗng: chưa cấu hình tài khoản thì nút không còn tồn tại, còn giá trị trống thì báo chưa có giá trị để sao chép. Nội dung sao chép lấy đúng giá trị đang hiển thị trên màn hình"
+  impact: "Hai nút sao chép ở màn Thanh toán và trong cửa sổ Thanh toán trên máy tính. Không đụng tới số liệu công nợ hay các trang khác"
+  retest: "Mở màn Thanh toán của tuần còn nợ. Đặt sẵn một chuỗi bất kỳ vào clipboard làm mốc. Bấm Sao chép số tài khoản: phải thấy chữ Đã sao chép và dán ra ngoài đúng số tài khoản đang hiển thị. Bấm Sao chép nội dung chuyển khoản: dán ra phải đúng nội dung đang hiển thị. Làm lại trên máy tính trong cửa sổ Thanh toán. Thử trên trình duyệt chặn clipboard hoặc tắt quyền: phải thấy dòng báo lỗi kèm hướng dẫn, không được im lặng"
+  limit: "Chữ báo thành công và báo lỗi do Dev đặt, BA đổi câu chữ được ở vòng retest. Trên trình duyệt cấm hoàn toàn thao tác sao chép thì chỉ có thể báo lỗi và mời copy tay"
+
+WJ-DEBT-008:
+  sprint: "2026-08-15-C3"
+  build_override: "CHƯA lên UAT | Sprint 2026-08-15-C3 | commit: 0398fa3 | Deploy: -u wujia_portal_debt (KHÔNG có bước cập nhật dữ liệu) | URL: /portal/debt/pay"
+  url: "/portal/debt/pay và cửa sổ Thanh toán trên máy tính ở /portal/debt"
+  odoo_fit: "Custom"
+  fix: "Theo nhánh thứ hai trong mong đợi của BA và quyết định của chủ dự án: bỏ hẳn khối mã QR khỏi màn Thanh toán và khỏi cửa sổ Thanh toán trên máy tính. Không còn tiêu đề Quét QR để chuyển khoản, không còn khung QR minh hoạ, không còn dòng chú thích QR minh họa không dùng để thanh toán và không còn nút Tải mã QR vốn bấm không ra gì. Màn hình chỉ giữ thông tin chuyển khoản thủ công, đúng với cấu hình tài khoản ở backend"
+  impact: "Màn Thanh toán và cửa sổ Thanh toán trên máy tính. Thông tin ngân hàng, số tiền và nội dung chuyển khoản giữ nguyên"
+  retest: "Cấu hình tài khoản ngân hàng portal hợp lệ rồi mở màn Thanh toán của tuần còn nợ: không được thấy bất kỳ hình QR nào, không thấy chữ Quét QR để chuyển khoản, QR minh họa hay nút Tải mã QR. Thông tin ngân hàng, chủ tài khoản, số tài khoản và nội dung chuyển khoản phải khớp đúng cấu hình ở backend. Kiểm cả trên điện thoại và trong cửa sổ Thanh toán trên máy tính"
+  limit: "Đây là phương án ẩn QR theo nhánh OR của acceptance. Mã QR quét được thật chưa làm vì câu hỏi QR tĩnh hay QR động của CT-055 treo từ Sprint 48 chưa có trả lời; khi BA chốt sẽ mở issue riêng để làm"
+
+WJ-DEBT-009:
+  sprint: "2026-08-15-C3"
+  build_override: "CHƯA lên UAT | Sprint 2026-08-15-C3 | commit: 0398fa3 | Deploy: -u wujia_portal_debt (KHÔNG có bước cập nhật dữ liệu) | URL: /portal/debt/payment-history"
+  url: "/portal/debt/payment-history (điện thoại 360px, 391px, 430px, 500px)"
+  odoo_fit: "Custom"
+  fix: "Các khối trên màn Lịch sử thanh toán bản điện thoại đã có lại khoảng cách phân cấp: bộ lọc cách banner 12, banner cách tiêu đề danh sách 24, tiêu đề cách giao dịch đầu tiên 12, giữa các giao dịch 12, danh sách cách khối Tổng cộng 12, lề hai bên vẫn 16. Nguyên nhân là lớp bọc phục vụ cơ chế lọc không tải lại trang đã làm mất khoảng cách chung của cả trang, nay trả lại đúng nhịp thay vì vá từng khối. Bản máy tính giữ nguyên như cũ"
+  impact: "Chỉ khoảng cách giữa các khối của màn Lịch sử thanh toán bản điện thoại. Nội dung, bộ lọc kỳ, số liệu và bản máy tính không đổi"
+  retest: "Mở Lịch sử thanh toán ở 360px, 391px, 430px và 500px: đo khoảng cách bộ lọc đến banner 12, banner đến tiêu đề Các khoản thanh toán 24, tiêu đề đến giao dịch đầu tiên 12, giữa các giao dịch 12, giao dịch cuối đến dòng Tổng đã xác nhận 12, lề trái phải 16. Các thẻ không được dính nhau hay tràn ngang. Đổi kỳ trong bộ lọc rồi đo lại: khoảng cách phải giữ nguyên. Mở ở 1440px: bố cục máy tính không được đổi"
+  limit: "Không có"
