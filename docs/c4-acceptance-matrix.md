@@ -11,6 +11,14 @@ unit/HTTP test mới `--test-tags wujia_knowledge`.
 **Kết quả tổng:** Playwright **60/60 đạt (100%)** · test module **14/14 xanh** · hồi quy
 **87 test** 3 module khác (`wujia_debt`, `wujia_notification`, `wujia_history`) 0 failed.
 
+**Sau khi deploy UAT (15/08/2026):** đo lại trên `http://113.161.187.126:8019` — chỉ đọc,
+không sửa dữ liệu — **42/42 đạt** ở 391×844 + 1920×1080 (`scratchpad/c4_uat_check.py`).
+`wujia_portal_knowledge` = `19.0.3.9.0`, 26/26 bài đã có bản text để search. Bài
+`uat-1208-knowledge` (KNW-000026) BA để nháp dùng luôn làm ca thử của WJ-KNW-004; giờ phát
+hành kiểm bằng bài `ui12-01` (lưu 27/05/2026 17:36 UTC, portal in **28/05/2026 00:36** —
+lệch múi giờ đổi cả ngày nên chứng minh chắc hơn). Khối thông báo hiện đúng **một** bản theo
+bề rộng: mobile 359px, PC 1572px.
+
 ---
 
 ## WJ-KNW-001 — category/tag không hợp lệ làm lộ thông tin kỹ thuật

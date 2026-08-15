@@ -920,7 +920,7 @@ FUNC-MOB-SHELL-005:
 
 WJ-FRANCHISE-001:
   sprint: "2026-08-15-C1"
-  build_override: "CHƯA lên UAT | Sprint 2026-08-15-C1 | commit: b623b70 | Deploy: -u wujia_franchise,wujia_sale,wujia_delivery,wujia_account (CÓ bước cập nhật dữ liệu, điền cửa hàng cho chứng từ cũ đang bỏ trống) | URL: Odoo Backend — Đơn bán / Phiếu kho / Hóa đơn"
+  build_override: "UAT | 15/08/2026 | Sprint 2026-08-15-C1 | commit: b623b70 | Đã deploy UAT (wujia_franchise 19.0.2.1.0, wujia_sale 19.0.4.3.0, wujia_delivery 19.0.1.1.0, wujia_account 19.0.1.1.0, đã chạy bước cập nhật dữ liệu) | Deploy: -u wujia_franchise,wujia_sale,wujia_delivery,wujia_account (CÓ bước cập nhật dữ liệu, điền cửa hàng cho chứng từ cũ đang bỏ trống) | URL: Odoo Backend — Đơn bán / Phiếu kho / Hóa đơn"
   url: "Odoo Backend: Bán hàng > Đơn bán; Tồn kho > Phiếu giao; Kế toán > Hóa đơn khách hàng"
   odoo_fit: "Custom"
   fix: "Chọn một khách hàng là cửa hàng nhượng quyền trên đơn bán, phiếu kho hoặc hóa đơn thì hệ thống tự điền Cửa hàng nhượng quyền; riêng đơn bán còn tự điền Partner cửa hàng và Khu vực. Việc tự điền nay chạy ở mọi đường tạo dữ liệu, kể cả nhập khẩu và tích hợp, chứ không chỉ khi thao tác trên màn hình. Đổi sang khách hàng thuộc cửa hàng khác thì cửa hàng được tính lại chứ không giữ giá trị cũ; người dùng vẫn được quyền chọn tay cửa hàng khác khi cần. Nếu một khách hàng đang gắn với nhiều cửa hàng thì hệ thống không đoán, để trống và hiện cảnh báo liệt kê các cửa hàng trùng. Địa chỉ giao hàng là địa chỉ con của cửa hàng cũng nhận đúng cửa hàng mẹ. Lần cập nhật này còn điền cửa hàng cho các chứng từ CŨ đang bỏ trống mà khách hàng chỉ thuộc một cửa hàng; chứng từ đã có cửa hàng thì giữ nguyên, không ghi đè"
@@ -930,7 +930,7 @@ WJ-FRANCHISE-001:
 
 WJ-FRANCHISE-002:
   sprint: "2026-08-15-C1"
-  build_override: "CHƯA lên UAT | Sprint 2026-08-15-C1 | commit: b623b70 | Deploy: -u wujia_franchise,wujia_sale,wujia_delivery,wujia_account (CÓ bước cập nhật dữ liệu) | URL: Odoo Backend — Xác nhận đơn bán / Validate phiếu kho / Ghi sổ hóa đơn"
+  build_override: "UAT | 15/08/2026 | Sprint 2026-08-15-C1 | commit: b623b70 | Đã deploy UAT (wujia_franchise 19.0.2.1.0, wujia_sale 19.0.4.3.0, wujia_delivery 19.0.1.1.0, wujia_account 19.0.1.1.0, đã chạy bước cập nhật dữ liệu) | Deploy: -u wujia_franchise,wujia_sale,wujia_delivery,wujia_account (CÓ bước cập nhật dữ liệu) | URL: Odoo Backend — Xác nhận đơn bán / Validate phiếu kho / Ghi sổ hóa đơn"
   url: "Odoo Backend: nút Xác nhận trên đơn bán, nút Xác nhận trên phiếu kho, nút Ghi sổ trên hóa đơn khách hàng"
   odoo_fit: "Custom"
   fix: "Khi khách hàng chỉ thuộc một cửa hàng mà chứng từ lại bỏ trống hoặc ghi sai cửa hàng, hệ thống chặn ngay tại nút Xác nhận đơn bán, Xác nhận phiếu kho và Ghi sổ hóa đơn, kèm thông báo nêu rõ tên khách hàng, cửa hàng đúng theo dữ liệu và việc cần sửa. Nhờ chặn ở bước xử lý chứ không chỉ ở màn nhập liệu nên nhập khẩu và tích hợp cũng không lọt được. Chứng từ tiếp theo vì thế không còn sinh ra với cửa hàng trống. Sửa cửa hàng cho đúng thì thao tác chạy tiếp bình thường"
@@ -940,7 +940,7 @@ WJ-FRANCHISE-002:
 
 WJ-DEBT-006:
   sprint: "2026-08-15-C1"
-  build_override: "CHƯA lên UAT | Sprint 2026-08-15-C1 | commit: b623b70 | Deploy: -u wujia_account (CÓ bước cập nhật dữ liệu) | URL: Odoo Backend — Hóa đơn khách hàng > Giấy báo có"
+  build_override: "UAT | 15/08/2026 | Sprint 2026-08-15-C1 | commit: b623b70 | Đã deploy UAT (wujia_franchise 19.0.2.1.0, wujia_sale 19.0.4.3.0, wujia_delivery 19.0.1.1.0, wujia_account 19.0.1.1.0, đã chạy bước cập nhật dữ liệu) | Deploy: -u wujia_account (CÓ bước cập nhật dữ liệu) | URL: Odoo Backend — Hóa đơn khách hàng > Giấy báo có"
   url: "Odoo Backend: Kế toán > Hóa đơn khách hàng > nút Giấy báo có (cả Đảo và Đảo ngược và tạo hóa đơn)"
   odoo_fit: "Custom"
   fix: "Tạo Giấy báo có bằng luồng chuẩn của Odoo từ một hóa đơn đã ghi sổ thì bản nháp sinh ra đã có sẵn Cửa hàng nhượng quyền của hóa đơn gốc, không phải gán tay. Áp cho cả hai lựa chọn Đảo và Đảo ngược và tạo hóa đơn. Sau khi ghi sổ, cửa hàng vẫn giữ nguyên nên portal của cửa hàng đó tổng hợp được giấy báo có, còn cửa hàng khác không nhìn thấy. Nút Nhân bản hóa đơn giữ nguyên cách hoạt động cũ. Giấy báo có đã tạo trước đây mà bỏ trống cửa hàng cũng được điền theo hóa đơn gốc trong lần cập nhật này"
@@ -1040,7 +1040,7 @@ WJ-DEBT-009:
 
 WJ-KNW-001:
   sprint: "2026-08-15-C4"
-  build_override: "CHƯA lên UAT | Sprint 2026-08-15-C4 | commit: a292547 | Deploy: -u wujia_portal_knowledge (KHÔNG có bước cập nhật dữ liệu) | Dev đã đo trên bản sao dữ liệu riêng ngày 15/08/2026 ở 391x844 và 1920x1080: 60/60 điểm đạt | URL: /portal/knowledge"
+  build_override: "UAT | 15/08/2026 | Sprint 2026-08-15-C4 | commit: a292547 | Đã deploy UAT, module wujia_portal_knowledge 19.0.3.9.0 | Dev đã đo lại trên trình duyệt UAT ngày 15/08/2026 (chỉ đọc, không sửa dữ liệu) ở 391x844 và 1920x1080: 42/42 điểm đạt | URL: /portal/knowledge"
   url: "/portal/knowledge (cả điện thoại và máy tính)"
   odoo_fit: "Custom"
   fix: "Mở Thư viện kiến thức bằng đường dẫn có danh mục hoặc thẻ không tồn tại, hoặc danh mục đã bị ẩn, thì hệ thống không còn báo lỗi kỹ thuật. Trang bỏ điều kiện lọc sai, quay về đúng trang Kiến thức và hiện một dòng thông báo Danh mục đã chọn không còn khả dụng, riêng thẻ thì ghi Thẻ đã chọn không còn khả dụng. Không còn hiện tên bảng dữ liệu, mã bản ghi hay mã người dùng ra ngoài; những chi tiết đó chỉ ghi vào nhật ký máy chủ. Lọc bằng danh mục hoặc thẻ hợp lệ vẫn chạy như cũ"
@@ -1050,7 +1050,7 @@ WJ-KNW-001:
 
 WJ-KNW-002:
   sprint: "2026-08-15-C4"
-  build_override: "CHƯA lên UAT | Sprint 2026-08-15-C4 | commit: a292547 | Deploy: -u wujia_portal_knowledge (KHÔNG có bước cập nhật dữ liệu) | Dev đã đo trên bản sao dữ liệu riêng ngày 15/08/2026 ở 391x844 và 1920x1080: 60/60 điểm đạt | URL: /portal/knowledge/<slug>"
+  build_override: "UAT | 15/08/2026 | Sprint 2026-08-15-C4 | commit: a292547 | Đã deploy UAT, module wujia_portal_knowledge 19.0.3.9.0 | Dev đã đo lại trên trình duyệt UAT ngày 15/08/2026 (chỉ đọc, không sửa dữ liệu) ở 391x844 và 1920x1080: 42/42 điểm đạt | URL: /portal/knowledge/<slug>"
   url: "/portal/knowledge và /portal/knowledge/<slug> (cả điện thoại và máy tính)"
   odoo_fit: "Custom"
   fix: "Ngày giờ phát hành của bài viết trên portal nay được đổi sang giờ Việt Nam trước khi hiển thị, dùng đúng cách quy đổi mà các màn portal khác đang dùng. Trước đây portal in thẳng giờ lưu trong hệ thống nên sớm hơn 7 tiếng so với ô Publish date ở phần quản trị. Áp cho cả sáu chỗ hiển thị ngày: danh sách máy tính, danh sách điện thoại, bài nổi bật, trang chi tiết, bài liên quan và dòng chân bài"
@@ -1060,7 +1060,7 @@ WJ-KNW-002:
 
 WJ-KNW-003:
   sprint: "2026-08-15-C4"
-  build_override: "CHƯA lên UAT | Sprint 2026-08-15-C4 | commit: a292547 | Deploy: -u wujia_portal_knowledge (KHÔNG có bước cập nhật dữ liệu) | Dev đã đo trên bản sao dữ liệu riêng ngày 15/08/2026 ở 391x844 và 1920x1080: 60/60 điểm đạt | URL: /portal/knowledge"
+  build_override: "UAT | 15/08/2026 | Sprint 2026-08-15-C4 | commit: a292547 | Đã deploy UAT, module wujia_portal_knowledge 19.0.3.9.0 | Dev đã đo lại trên trình duyệt UAT ngày 15/08/2026 (chỉ đọc, không sửa dữ liệu) ở 391x844 và 1920x1080: 42/42 điểm đạt | URL: /portal/knowledge"
   url: "/portal/knowledge — ô tìm kiếm (cả điện thoại và máy tính)"
   odoo_fit: "Custom"
   fix: "Ô tìm kiếm nay tìm cả trong tiêu đề, phần tóm tắt và phần nội dung của bài, thay vì chỉ tiêu đề. Nội dung được lấy bản chữ đã bỏ hết định dạng nên gõ một cụm bị in đậm hoặc xuống dòng cắt ngang vẫn ra kết quả, và cũng không còn ra kết quả rác do trùng với mã định dạng. Kết quả vẫn chỉ gồm bài đang hiển thị hợp lệ: đã đăng, chưa bị ẩn, đã tới ngày phát hành và chưa hết hạn. Gõ từ khóa không có thì vẫn hiện thông báo chưa có bài viết như bình thường. Ô tìm nhanh gợi ý khi đang gõ cũng dùng đúng một quy tắc này"
@@ -1070,7 +1070,7 @@ WJ-KNW-003:
 
 WJ-KNW-004:
   sprint: "2026-08-15-C4"
-  build_override: "CHƯA lên UAT | Sprint 2026-08-15-C4 | commit: a292547 | Deploy: -u wujia_portal_knowledge (KHÔNG có bước cập nhật dữ liệu) | Dev đã đo trên bản sao dữ liệu riêng ngày 15/08/2026 ở 391x844 và 1920x1080: 60/60 điểm đạt | URL: /portal/knowledge/<slug>"
+  build_override: "UAT | 15/08/2026 | Sprint 2026-08-15-C4 | commit: a292547 | Đã deploy UAT, module wujia_portal_knowledge 19.0.3.9.0 | Dev đã đo lại trên trình duyệt UAT ngày 15/08/2026 (chỉ đọc, không sửa dữ liệu) ở 391x844 và 1920x1080: 42/42 điểm đạt | URL: /portal/knowledge/<slug>"
   url: "/portal/knowledge/<slug> — mở thẳng đường dẫn bài đã gỡ"
   odoo_fit: "Custom"
   fix: "Mở thẳng đường dẫn của một bài đã chuyển về nháp, đã lưu trữ, đã ẩn, đã hết hạn hoặc chưa tới ngày phát hành thì hệ thống vẫn đưa về trang Kiến thức, nhưng nay có kèm dòng thông báo Bài viết không tồn tại hoặc không còn khả dụng. Câu thông báo giống nhau cho mọi lý do nên không tiết lộ bài đang ở trạng thái nào. Đường dẫn tải tệp đính kèm của bài đã gỡ cũng ra thông báo này thay vì trang không tìm thấy"
