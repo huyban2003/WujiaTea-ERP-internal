@@ -23,6 +23,9 @@ là `datetime.date` (template gọi `.strftime`); `status` ∈ overdue/unpaid/pa
 from datetime import date, timedelta
 
 from odoo import api, fields, models
+from odoo.tools import float_compare, float_is_zero
+
+from odoo.addons.wujia_portal_base.controllers.utils import portal_money
 
 # Số tuần / kỳ đổ vào dropdown bộ lọc (kỳ hiện tại + 5 kỳ trước).
 WEEK_CHOICES = 6
@@ -35,6 +38,8 @@ INVOICE_PREVIEW = 2
 STATE_BADGE = {
     'outstanding': ('Có quá hạn', 'danger'),
     'partial': ('Thanh toán một phần', 'info'),
+    'unpaid': ('Chưa thanh toán', 'warn'),
+    'credit': ('Dư có', 'info'),
     'paid': ('Đã thanh toán', 'success'),
 }
 
@@ -43,6 +48,7 @@ INVOICE_BADGE = {
     'overdue': ('Quá hạn', 'danger'),
     'unpaid': ('Chưa thanh toán', 'warn'),
     'partial': ('Một phần', 'info'),
+    'credit': ('Giấy báo có', 'info'),
     'paid': ('Đã thanh toán', 'success'),
 }
 
@@ -117,8 +123,8 @@ class WujiaPortalDebt(models.AbstractModel):
         ]
 
     @api.model
-    def _resolve_week(self, week=None, today=None):
-        """`?week=` → option tương ứng. Sai/thiếu/không thuộc danh sách → tuần hiện tại.
+    def _resolve_week(self, week=None, today=None, franchise_id=None):
+        """`?week=` → option tương ứng. Sai/thiếu → tuần MẶC ĐỊNH theo nghiệp vụ.
 
         Không bao giờ raise: bộ lọc là query param người dùng sửa được tay."""
         options = self._week_options(today=today)
@@ -126,29 +132,66 @@ class WujiaPortalDebt(models.AbstractModel):
             for opt in options:
                 if opt['key'] == week:
                     return opt, options
-        return options[0], options
+        return self._default_week(options, franchise_id, today=today), options
 
     @api.model
-    def _currency_decimals(self, moves=None):
-        """Số chữ số thập phân của currency công nợ — đi cặp với `_currency_symbol`."""
-        if moves:
-            currencies = moves.mapped('currency_id')
-            if len(currencies) == 1:
-                return currencies.decimal_places or 0
-        return self.env.company.currency_id.decimal_places or 0
+    def _default_week(self, options, franchise_id, today=None):
+        """Tuần mở sẵn khi URL không có `?week=` (WJ-DEBT-010).
+
+        Ưu tiên: tuần quá hạn CŨ NHẤT còn dư → tuần liền trước nếu có hoá đơn →
+        tuần hiện tại. Công nợ tuần N đến hạn thứ Năm tuần N+1 nên tuần hiện tại
+        gần như luôn chưa cần xử lý.
+
+        ⚠️ PERF: MỘT `search_read` cho cả 6 tuần rồi gộp trong Python — không lặp
+        `get_summary` theo tuần (6 query/lượt mở trang × 1500 user)."""
+        if not franchise_id:
+            return options[0]
+        today = today or date.today()
+        oldest = options[-1]['monday']
+        rows = self.env['account.move'].sudo().search_read([
+            ('franchise_id', '=', franchise_id),
+            ('move_type', 'in', _DEBT_MOVE_TYPES),
+            ('state', '=', 'posted'),
+            ('invoice_date', '>=', oldest),
+            ('invoice_date', '<=', options[0]['monday'] + timedelta(days=6)),
+        ], ['invoice_date', 'invoice_date_due', 'move_type', 'amount_residual'])
+        if not rows:
+            return options[0]
+        seen, overdue = set(), set()
+        for row in rows:
+            key = _week_key(_monday(row['invoice_date']))
+            seen.add(key)
+            due = row['invoice_date_due'] or row['invoice_date']
+            if (row['move_type'] == 'out_invoice' and row['amount_residual'] > 0
+                    and due < today):
+                overdue.add(key)
+        for opt in reversed(options):          # cũ nhất trước
+            if opt['key'] in overdue:
+                return opt
+        if len(options) > 1 and options[1]['key'] in seen:
+            return options[1]
+        return options[0]
 
     @api.model
-    def _currency_symbol(self, moves=None):
-        """Ký hiệu tiền của dữ liệu công nợ.
+    def _currency_of(self, records=None):
+        """Currency của một tập chứng từ (move hoặc payment) — dùng chung cho mọi màn.
 
-        Hoá đơn cùng một currency → lấy currency đó; rỗng hoặc pha trộn nhiều
-        currency → currency công ty (gộp số của nhiều currency vốn đã là chuyện
-        khác, không giải ở cụm D)."""
-        if moves:
-            currencies = moves.mapped('currency_id')
+        Cùng một currency → lấy currency đó; rỗng hoặc pha trộn → currency công ty
+        (khối nào cần tách từng loại tiền thì tự nhóm, xem `_group_totals`)."""
+        if records:
+            currencies = records.mapped('currency_id')
             if len(currencies) == 1:
-                return currencies.symbol or ''
-        return self.env.company.currency_id.symbol or ''
+                return currencies
+        return self.env.company.currency_id
+
+    @api.model
+    def _money_keys(self, records=None):
+        """2 key currency mà mọi payload trả về (template bind vào `vnd()`)."""
+        currency = self._currency_of(records)
+        return {
+            'currency_symbol': currency.symbol or '',
+            'currency_decimals': currency.decimal_places or 0,
+        }
 
     # ------------------------------------------------------------------
     # Summary — điểm nối duy nhất giữa UI và backend kế toán (CT-050/051/052)
@@ -161,7 +204,7 @@ class WujiaPortalDebt(models.AbstractModel):
         :param week: khoá tuần 'YYYY-Www'; sai hoặc None → tuần hiện tại
         :return: dict — luôn đủ key kể cả state 'empty', để template không phải `.get()`.
         """
-        opt, options = self._resolve_week(week, today=today)
+        opt, options = self._resolve_week(week, today=today, franchise_id=franchise_id)
         monday = opt['monday']
         base = {
             'franchise_id': franchise_id or False,
@@ -289,9 +332,11 @@ class WujiaPortalDebt(models.AbstractModel):
         date_to = date_to or opt['date_to']
         if date_from > date_to:
             date_from, date_to = date_to, date_from
-        payments = (self._query_payments(franchise_id, date_from, date_to, keyword=keyword)
-                    if franchise_id else [])
-        return {
+        payments, records = (self._query_payments(franchise_id, date_from, date_to,
+                                                  keyword=keyword)
+                             if franchise_id else ([], None))
+        totals = self._group_totals(payments)
+        payload = {
             'month_key': opt['key'],
             'months': [{'key': m['key'], 'label': m['label']} for m in options],
             'date_from': date_from,
@@ -299,10 +344,25 @@ class WujiaPortalDebt(models.AbstractModel):
             'range_label': '%s – %s' % (
                 date_from.strftime('%d/%m'), date_to.strftime('%d/%m/%Y')),
             'payments': payments,
-            'total': sum(p['amount'] for p in payments),
-            'currency_symbol': self._currency_symbol(),
-            'currency_decimals': self._currency_decimals(),
+            # Kỳ nhiều loại tiền thì KHÔNG có một tổng duy nhất (WJ-DEBT-004) —
+            # `total` chỉ còn nghĩa khi cả kỳ cùng một currency; UI đọc `totals`.
+            'total': totals[0]['amount'] if len(totals) == 1 else 0,
+            'totals': totals,
         }
+        payload.update(self._money_keys(records))
+        return payload
+
+    @api.model
+    def _group_totals(self, payments):
+        """Tổng đã xác nhận TÁCH THEO TỪNG LOẠI TIỀN (chủ dự án chốt 14/08: không quy
+        đổi tỷ giá, không cộng số khác currency)."""
+        buckets = {}
+        for pay in payments:
+            key = (pay['currency_symbol'], pay['currency_decimals'])
+            buckets[key] = buckets.get(key, 0.0) + pay['amount']
+        return [{'symbol': symbol, 'decimals': decimals, 'amount': amount,
+                 'label': portal_money(amount, symbol, decimals)}
+                for (symbol, decimals), amount in buckets.items()]
 
     @api.model
     def get_bank_info(self, franchise_id, amount, week_number):
@@ -327,8 +387,9 @@ class WujiaPortalDebt(models.AbstractModel):
             'name': bank.bank_id.name or bank.bank_name or 'Ngân hàng',
             'holder': bank.acc_holder_name or bank.partner_id.name or '',
             'account': bank.acc_number or '',
+            # Số âm (tuần dư có) không bao giờ được lọt vào nội dung CK — WJ-DEBT-007.
             'memo': '%s K%s %s' % (
-                self._franchise_code(franchise_id), week_number, int(amount or 0)),
+                self._franchise_code(franchise_id), week_number, max(int(amount or 0), 0)),
         }
 
     # ------------------------------------------------------------------
@@ -356,31 +417,43 @@ class WujiaPortalDebt(models.AbstractModel):
 
     @api.model
     def _empty_payload(self):
-        return {
+        payload = {
             'state': 'empty',
             'total': 0,
             'paid': 0,
             'remaining': 0,
+            'amount_due': 0,
+            'credit_amount': 0,
             'invoice_count': 0,
             'has_overdue': False,
             'overdue_count': 0,
             'nearest_due': False,
             'confirmed_date': False,
+            'payment_due_date': False,
+            'payment_due_label': '-',
             'invoices': [],
-            'currency_symbol': self._currency_symbol(),
-            'currency_decimals': self._currency_decimals(),
         }
+        payload.update(self._money_keys())
+        return payload
 
     @api.model
     def _invoice_status(self, move, today):
         """Trạng thái Portal của 1 chứng từ, suy từ payment_state + số dư + hạn (CT-051).
         Không tạo trạng thái kế toán mới."""
-        if move.amount_residual <= 0 or move.payment_state in _SETTLED_PAYMENT_STATES:
+        rounding = move.currency_id.rounding or 0.01
+        residual = move.amount_residual
+        if float_is_zero(residual, precision_rounding=rounding) or residual < 0 \
+                or move.payment_state in _SETTLED_PAYMENT_STATES:
             return 'paid'
-        if (move.move_type == 'out_invoice' and move.invoice_date_due
-                and move.invoice_date_due < today and move.amount_residual > 0):
+        # Giấy báo có còn dư = tiền cửa hàng ĐƯỢC trừ, không phải nợ (WJ-DEBT-007).
+        if move.move_type == 'out_refund':
+            return 'credit'
+        if move.invoice_date_due and move.invoice_date_due < today:
             return 'overdue'
-        if move.payment_state == 'partial':
+        # 'Một phần' chỉ khi đã trả được một ít (WJ-DEBT-001) — payment_state của Odoo
+        # có thể là 'partial' do khớp một dòng lẻ mà số tiền chưa giảm.
+        if float_compare(residual, move.amount_total,
+                         precision_rounding=rounding) < 0:
             return 'partial'
         return 'unpaid'
 
@@ -430,28 +503,43 @@ class WujiaPortalDebt(models.AbstractModel):
                 'remaining': inv_remaining,
             })
         paid = total - remaining
+        state = self._week_state(total, remaining, overdue_count,
+                                 self._currency_of(moves).rounding or 0.01)
+        due_date = monday + timedelta(days=10)   # thứ Năm tuần kế (BA: tuần N → thứ 5 tuần N+1)
 
-        if remaining <= 0:
-            state = 'paid'
-        elif overdue_count > 0:
-            state = 'outstanding'
-        else:
-            state = 'partial'
-
-        return {
+        payload = {
             'state': state,
             'total': total,
             'paid': paid,
             'remaining': remaining,
+            # Số ĐƯA RA UI: nợ không bao giờ âm, phần âm là dư có (WJ-DEBT-007).
+            'amount_due': max(remaining, 0.0),
+            'credit_amount': max(-remaining, 0.0),
             'invoice_count': len(invoices),
             'has_overdue': overdue_count > 0,
             'overdue_count': overdue_count,
             'nearest_due': min(due_dates) if due_dates else False,
             'confirmed_date': self._confirmed_date(moves) if state == 'paid' else False,
+            'payment_due_date': due_date,
+            'payment_due_label': due_date.strftime('%d/%m/%Y'),
             'invoices': invoices,
-            'currency_symbol': self._currency_symbol(moves),
-            'currency_decimals': self._currency_decimals(moves),
         }
+        payload.update(self._money_keys(moves))
+        return payload
+
+    @api.model
+    def _week_state(self, total, remaining, overdue_count, rounding):
+        """State của card tổng quan — CÙNG luật với `_invoice_status` để card và dòng
+        chứng từ không bao giờ nói khác nhau (WJ-DEBT-001)."""
+        if float_is_zero(remaining, precision_rounding=rounding):
+            return 'paid'
+        if remaining < 0:
+            return 'credit'          # dư có: credit note lớn hơn nợ (WJ-DEBT-007)
+        if overdue_count > 0:
+            return 'outstanding'
+        if float_compare(remaining, total, precision_rounding=rounding) < 0:
+            return 'partial'
+        return 'unpaid'
 
     @api.model
     def _confirmed_date(self, moves):
@@ -476,7 +564,8 @@ class WujiaPortalDebt(models.AbstractModel):
         """Payment đã xác nhận của cửa hàng trong kỳ (CT-054). Chi ngược (outbound) hiển
         thị số âm để không cộng nhầm vào "đã trả" (BA §6).
 
-        `keyword` (PC): lọc thêm theo mã payment (`name`) hoặc nội dung (`memo`)."""
+        `keyword` (PC): lọc thêm theo mã payment (`name`) hoặc nội dung (`memo`).
+        Trả `(list dict, recordset)` — recordset để gọi `_money_keys` mà khỏi query lại."""
         domain = [
             ('franchise_id', '=', franchise_id),
             ('state', 'in', _CONFIRMED_PAYMENT_STATES),
@@ -490,16 +579,23 @@ class WujiaPortalDebt(models.AbstractModel):
         result = []
         for payment in payments:
             sign = -1.0 if payment.payment_type == 'outbound' else 1.0
+            amount = sign * payment.amount
+            # Tiền của CHÍNH giao dịch, không phải của công ty (WJ-DEBT-004).
+            currency = payment.currency_id or self.env.company.currency_id
+            symbol, decimals = currency.symbol or '', currency.decimal_places or 0
             result.append({
                 'ref': payment.name or '—',
                 'date': payment.date,
                 'time': self._payment_time(payment),
                 'method': payment.journal_id.name or 'Chuyển khoản',
                 'trace': payment.memo or payment.name or '',
-                'amount': sign * payment.amount,
+                'amount': amount,
+                'currency_symbol': symbol,
+                'currency_decimals': decimals,
+                'amount_label': portal_money(amount, symbol, decimals),
                 'state': 'confirmed',
             })
-        return result
+        return result, payments
 
     @api.model
     def _portal_bank_account(self):

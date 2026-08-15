@@ -5,7 +5,9 @@ Chạy: `--test-tags wujia_debt`.
   1. `TestPortalDebtWired` — seam đọc account.move/account.payment thật: scope franchise
      (isolation), credit note giảm nợ, overdue, payment history lọc trạng thái, bank info,
      badge store.
-  2. `TestPortalDebtAccess` — controller chặn Staff, cho Owner/Manager, empty khi chưa
+  2. `TestPortalDebtRules` — cụm C2: trạng thái tuần == trạng thái dòng, dư có, đa tệ,
+     tuần mặc định + hạn thanh toán.
+  3. `TestPortalDebtAccess` — controller chặn Staff, cho Owner/Manager, empty khi chưa
      chọn cửa hàng (HttpCase).
 
 ⚠️ KHÔNG import `odoo.addons.account.tests.common` — chuỗi import của nó kéo theo
@@ -22,11 +24,13 @@ SUMMARY_KEYS = {
     'franchise_id', 'franchise_code', 'week_key', 'week_label', 'week_number',
     'week_short', 'weeks', 'state', 'total', 'paid', 'remaining', 'invoice_count',
     'has_overdue', 'overdue_count', 'nearest_due', 'confirmed_date', 'invoices',
+    'amount_due', 'credit_amount', 'payment_due_date', 'payment_due_label',
 }
 INVOICE_KEYS = {'name', 'date', 'due', 'status', 'amount'}
 # PC (STT10) mở rộng additive: bảng cần 3 số/hoá đơn.
 PC_INVOICE_KEYS = {'total', 'paid', 'remaining'}
-PAYMENT_KEYS = {'ref', 'date', 'time', 'method', 'trace', 'amount', 'state'}
+PAYMENT_KEYS = {'ref', 'date', 'time', 'method', 'trace', 'amount', 'state',
+                'currency_symbol', 'currency_decimals', 'amount_label'}
 
 
 @tagged('post_install', '-at_install', 'wujia_debt')
@@ -112,7 +116,7 @@ class TestPortalDebtWired(TransactionCase):
             self.assertTrue(INVOICE_KEYS.issubset(set(inv)))
             self.assertIsInstance(inv['date'], date)   # template gọi .strftime
             self.assertIsInstance(inv['due'], date)
-            self.assertIn(inv['status'], ('overdue', 'unpaid', 'partial', 'paid'))
+            self.assertIn(inv['status'], ('overdue', 'unpaid', 'partial', 'credit', 'paid'))
 
     # ---- PC (STT10): invoice enrichment total/paid/remaining --------
     def test_invoice_enrichment_total_paid_remaining(self):
@@ -215,6 +219,9 @@ class TestPortalDebtWired(TransactionCase):
         self.assertEqual(bank['memo'], 'HDEBT1 K29 2500000')  # backend tự tính nội dung CK
 
     def test_bank_info_not_configured_message(self):
+        # DB thật có thể đã bật sẵn 1 TK portal → tắt trong transaction test cho tất định.
+        self.env['res.partner.bank'].search(
+            [('id', 'in', self.company.bank_ids.ids)]).portal_payment_enabled = False
         bank = self.debt.get_bank_info(self.franchise.id, 100, 29)
         self.assertIn('chưa được cấu hình', bank['name'])     # không TK nào bật portal
         self.assertEqual(bank['account'], '')
@@ -241,6 +248,181 @@ class TestPortalDebtWired(TransactionCase):
         # Badge quá hạn theo NGÀY THẬT: cả 2 hoá đơn (due 07-14 & 07-25) đều đã qua hạn.
         self.assertEqual(self.franchise.portal_overdue_invoice_count, 2)
         self.assertEqual(self.franchise.portal_debt_remaining, 2_500_000)
+
+
+@tagged('post_install', '-at_install', 'wujia_debt')
+class TestPortalDebtRules(TransactionCase):
+    """Cụm C2 — WJ-DEBT-001/004/007/010: trạng thái, đa tệ, dư có, tuần mặc định."""
+
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        cls.debt = cls.env['wujia.portal.debt']
+        cls.company = cls.env.company
+        cls.income = cls.env['account.account'].search(
+            [('account_type', '=', 'income')], limit=1)
+        cls.sale_journal = cls.env['account.journal'].search(
+            [('type', '=', 'sale'), ('company_id', '=', cls.company.id)], limit=1)
+        cls.bank_journal = cls.env['account.journal'].search(
+            [('type', 'in', ('bank', 'cash')), ('company_id', '=', cls.company.id)], limit=1)
+        cls.customer = cls.env['res.partner'].create({'name': 'C2 customer'})
+        Partner = cls.env['res.partner']
+        Franchise = cls.env['wujia.franchise.management']
+        cls.f_unpaid = Franchise.create({
+            'code': 'HC201', 'name': 'C2 unpaid', 'franchise_end_date': '2030-01-01',
+            'partner_id': Partner.create({'name': 'HC201 partner'}).id})
+        cls.f_credit = Franchise.create({
+            'code': 'HC202', 'name': 'C2 credit', 'franchise_end_date': '2030-01-01',
+            'partner_id': Partner.create({'name': 'HC202 partner'}).id})
+        cls.f_week = Franchise.create({
+            'code': 'HC203', 'name': 'C2 weeks', 'franchise_end_date': '2030-01-01',
+            'partner_id': Partner.create({'name': 'HC203 partner'}).id})
+
+        # Tuần thử: Mon 2026-07-13 → Sun 2026-07-19, "hôm nay" = 2026-07-15.
+        cls.today = date(2026, 7, 15)
+        cls.week = '2026-W29'
+        cls.inv_unpaid = cls._move('out_invoice', cls.f_unpaid, date(2026, 7, 14),
+                                   date(2026, 7, 25), 72_450)      # chưa trả, chưa tới hạn
+
+    @classmethod
+    def _move(cls, move_type, franchise, inv_date, due, amount, currency=None):
+        vals = {
+            'move_type': move_type, 'partner_id': cls.customer.id, 'invoice_date': inv_date,
+            'journal_id': cls.sale_journal.id, 'franchise_id': franchise.id,
+            'invoice_payment_term_id': False,
+            'invoice_line_ids': [(0, 0, {
+                'name': 'line', 'quantity': 1, 'price_unit': amount,
+                'account_id': cls.income.id, 'tax_ids': [(6, 0, [])]})],
+        }
+        if currency:
+            vals['currency_id'] = currency.id
+        move = cls.env['account.move'].create(vals)
+        move.action_post()
+        move.invoice_date_due = due
+        return move
+
+    @classmethod
+    def _payment(cls, amount, pay_date, franchise, currency=None):
+        vals = {'amount': amount, 'date': pay_date, 'payment_type': 'inbound',
+                'partner_type': 'customer', 'partner_id': cls.customer.id,
+                'journal_id': cls.bank_journal.id}
+        if currency:
+            vals['currency_id'] = currency.id
+        payment = cls.env['account.payment'].create(vals)
+        payment.action_post()
+        payment.franchise_id = franchise
+        return payment
+
+    @classmethod
+    def _reconcile(cls, move, payment):
+        lines = (move.line_ids + payment.move_id.line_ids).filtered(
+            lambda line: line.account_id.account_type == 'asset_receivable'
+            and not line.reconciled)
+        lines.reconcile()
+
+    # ---- WJ-DEBT-001: card tổng quan == dòng hoá đơn ------------------
+    def test_unpaid_week_matches_invoice_line(self):
+        s = self.debt.get_summary(self.f_unpaid.id, week=self.week, today=self.today)
+        self.assertEqual(s['state'], 'unpaid')          # KHÔNG còn 'partial' khi paid == 0
+        self.assertEqual(s['paid'], 0)
+        self.assertEqual(s['remaining'], self.inv_unpaid.amount_residual)
+        self.assertEqual([i['status'] for i in s['invoices']], ['unpaid'])
+        from odoo.addons.wujia_portal_debt.models.wujia_portal_debt import (
+            INVOICE_BADGE, STATE_BADGE,
+        )
+        self.assertEqual(STATE_BADGE[s['state']][0], INVOICE_BADGE['unpaid'][0])
+
+    def test_partial_only_when_something_paid(self):
+        pay = self._payment(30_000, date(2026, 7, 15), self.f_unpaid)
+        self._reconcile(self.inv_unpaid, pay)
+        s = self.debt.get_summary(self.f_unpaid.id, week=self.week, today=self.today)
+        self.assertEqual(s['state'], 'partial')
+        self.assertEqual(s['paid'], 30_000)
+        self.assertEqual([i['status'] for i in s['invoices']], ['partial'])
+
+    # ---- WJ-DEBT-007: dư có -------------------------------------------
+    def test_credit_balance_week(self):
+        inv = self._move('out_invoice', self.f_credit, date(2026, 7, 14),
+                         date(2026, 7, 25), 72_450)
+        self._reconcile(inv, self._payment(72_450, date(2026, 7, 15), self.f_credit))
+        self._move('out_refund', self.f_credit, date(2026, 7, 16), date(2026, 7, 16), 72_450)
+        s = self.debt.get_summary(self.f_credit.id, week=self.week, today=self.today)
+        self.assertEqual(s['remaining'], -72_450)
+        self.assertEqual(s['state'], 'credit')
+        self.assertEqual(s['amount_due'], 0)             # UI không bao giờ in số âm
+        self.assertEqual(s['credit_amount'], 72_450)
+        statuses = {i['name']: i['status'] for i in s['invoices']}
+        self.assertNotIn('unpaid', statuses.values())    # credit note KHÔNG phải khoản nợ
+        self.assertIn('credit', statuses.values())
+
+    def test_memo_never_negative(self):
+        self.env['res.partner.bank'].create({
+            'acc_number': 'ACC-C2', 'partner_id': self.company.partner_id.id,
+            'sequence': 1, 'portal_payment_enabled': True})
+        bank = self.debt.get_bank_info(self.f_credit.id, -72_450, 33)
+        self.assertNotIn('-', bank['memo'])
+        self.assertTrue(bank['memo'].endswith(' 0'))
+
+    # ---- WJ-DEBT-004: đa tệ -------------------------------------------
+    def test_payment_history_per_currency(self):
+        other = self.env.ref('base.EUR')     # khác currency công ty (USD trên UAT)
+        other.active = True
+        self.assertNotEqual(other, self.company.currency_id)
+        self._payment(30_000, date(2026, 7, 3), self.f_week, currency=other)
+        self._payment(1_000, date(2026, 7, 4), self.f_week)      # currency công ty
+        h = self.debt.get_payments(self.f_week.id, today=date(2026, 7, 31))
+        self.assertEqual(len({p['ref'] for p in h['payments']}), 2)
+        symbols = {p['currency_symbol'] for p in h['payments']}
+        self.assertIn(other.symbol, symbols)
+        self.assertIn(self.company.currency_id.symbol, symbols)
+        for pay in h['payments']:
+            self.assertIn(pay['currency_symbol'], pay['amount_label'])
+        # Mỗi loại tiền MỘT dòng tổng, không cộng chéo, không quy đổi.
+        self.assertEqual(len(h['totals']), 2)
+        self.assertEqual({t['symbol'] for t in h['totals']}, symbols)
+        self.assertEqual({t['amount'] for t in h['totals']}, {30_000, 1_000})
+        self.assertEqual(h['total'], 0)                  # nhiều currency ⇒ không có 1 tổng
+
+    def test_payment_history_single_currency_keeps_total(self):
+        self._payment(500, date(2026, 7, 6), self.f_unpaid)
+        h = self.debt.get_payments(self.f_unpaid.id, today=date(2026, 7, 31))
+        self.assertEqual(len(h['totals']), 1)
+        self.assertEqual(h['total'], h['totals'][0]['amount'])
+
+    # ---- WJ-DEBT-010: tuần mặc định + hạn thanh toán -------------------
+    def test_default_week_prefers_oldest_overdue(self):
+        today = date(2026, 8, 13)                        # thứ Năm, tuần W33
+        self._move('out_invoice', self.f_week, date(2026, 7, 28),   # W31 — quá hạn cũ nhất
+                   date(2026, 8, 6), 1_000)
+        self._move('out_invoice', self.f_week, date(2026, 8, 4),    # W32 — cũng quá hạn
+                   date(2026, 8, 10), 2_000)
+        s = self.debt.get_summary(self.f_week.id, today=today)
+        self.assertEqual(s['week_key'], '2026-W31')
+        # ?week= hợp lệ vẫn thắng mặc định.
+        self.assertEqual(self.debt.get_summary(
+            self.f_week.id, week='2026-W33', today=today)['week_key'], '2026-W33')
+
+    def test_default_week_previous_then_current(self):
+        today = date(2026, 8, 13)
+        # Không có gì quá hạn: hoá đơn tuần liền trước (W32), hạn còn xa.
+        self._move('out_invoice', self.f_credit, date(2026, 8, 5), date(2026, 8, 20), 1_000)
+        self.assertEqual(self.debt.get_summary(
+            self.f_credit.id, today=today)['week_key'], '2026-W32')
+        # Cửa hàng không có chứng từ nào trong 6 tuần → tuần hiện tại.
+        clean = self.env['wujia.franchise.management'].create({
+            'code': 'HC204', 'name': 'C2 clean', 'franchise_end_date': '2030-01-01',
+            'partner_id': self.env['res.partner'].create({'name': 'HC204 partner'}).id})
+        self.assertEqual(self.debt.get_summary(clean.id, today=today)['week_key'], '2026-W33')
+
+    def test_payment_due_is_thursday_next_week(self):
+        s = self.debt.get_summary(self.f_unpaid.id, week=self.week, today=self.today)
+        self.assertEqual(s['payment_due_date'], date(2026, 7, 23))   # thứ Năm tuần kế
+        self.assertEqual(s['payment_due_date'].weekday(), 3)
+        self.assertEqual(s['payment_due_label'], '23/07/2026')
+        empty = self.debt.get_summary(self.f_unpaid.id, week='2026-W27', today=self.today)
+        self.assertEqual(empty['state'], 'empty')
+        self.assertEqual(empty['payment_due_label'], '-')
+        self.assertEqual(empty['remaining'], 0)
 
 
 @tagged('post_install', '-at_install', 'wujia_debt')
@@ -288,6 +470,16 @@ class TestPortalDebtAccess(HttpCase):
         self.assertEqual(res.status_code, 200)
         self.assertIn('wj-debt-pc', res.text)
         self.assertIn('Tìm mã thanh toán', res.text)   # placeholder ô search PC
+
+    def test_pay_page_blocked_when_nothing_due(self):
+        """WJ-DEBT-007: hết nợ → về trang công nợ kèm thông báo, không dựng QR/STK."""
+        self.authenticate('debt_owner', 'debt_owner')
+        res = self.url_open('/portal/debt/pay', timeout=30)
+        self.assertEqual(res.status_code, 200)
+        self.assertIn('/portal/debt', res.url)
+        self.assertNotIn('/portal/debt/pay', res.url)
+        self.assertNotIn('SỐ TIỀN CẦN CHUYỂN', res.text)
+        self.assertIn('không còn khoản cần thanh toán', res.text)
 
     def test_staff_is_denied(self):
         self.authenticate('debt_staff', 'debt_staff')

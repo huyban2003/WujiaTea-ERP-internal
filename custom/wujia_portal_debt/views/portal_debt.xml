@@ -86,6 +86,13 @@
                     <t t-set="f_selected" t-value="summary['week_key']"/>
                 </t>
 
+                <!-- Mở thẳng /portal/debt/pay khi hết nợ → redirect về đây kèm thông báo. -->
+                <div t-if="notice == 'no_due'" class="wj-debt-banner">
+                    <span class="wj-debt-banner__icon">i</span>
+                    <span class="wj-debt-banner__text">Tuần <t t-out="summary['week_label']"/>
+                        không còn khoản cần thanh toán.</span>
+                </div>
+
                 <!-- 05 Empty — chưa chọn cửa hàng cũng rơi vào đây (guard controller). -->
                 <t t-if="summary['state'] == 'empty'">
                     <div class="wj-empty-state wj-empty-state--rich wj-debt-empty">
@@ -97,6 +104,8 @@
                         <t t-else="">
                             <p class="wj-empty-state-title">Không có công nợ trong tuần</p>
                             <p class="wj-empty-state-sub">Tuần được chọn chưa phát sinh hóa đơn.</p>
+                            <p class="wj-empty-state-sub">Còn phải trả: <t t-out="vnd(0)"/></p>
+                            <p class="wj-empty-state-sub">Hạn thanh toán: <t t-out="summary['payment_due_label']"/></p>
                             <p class="wj-empty-state-sub">Chạm bộ lọc phía trên để chọn tuần khác.</p>
                         </t>
                     </div>
@@ -115,13 +124,24 @@
                             <span t-attf-class="wj-debt-badge wj-debt-badge--#{sbadge[1]}"
                                   t-out="sbadge[0]"/>
                         </div>
-                        <p class="wj-debt-summary__amount" t-out="vnd(summary['remaining'])"/>
+                        <p class="wj-debt-summary__amount" t-out="vnd(summary['amount_due'])"/>
                         <p t-if="summary['state'] == 'outstanding'" class="wj-debt-summary__meta">
                             <t t-out="summary['invoice_count']"/> hóa đơn • Hạn gần nhất
                             <t t-out="summary['nearest_due'].strftime('%d/%m/%Y')"/>
                         </p>
+                        <!-- Dòng ngay dưới số tiền (WJ-DEBT-010): đã trả → ngày xác nhận,
+                             còn nợ → hạn thứ Năm tuần kế, dư có → số được khấu trừ. -->
                         <p t-if="summary['state'] == 'paid'" class="wj-debt-summary__meta">
-                            Ngô Gia xác nhận ngày <t t-out="summary['confirmed_date'].strftime('%d/%m/%Y')"/>
+                            <t t-if="summary['confirmed_date']">Ngô Gia xác nhận ngày
+                                <t t-out="summary['confirmed_date'].strftime('%d/%m/%Y')"/>
+                            </t>
+                            <t t-else="">Đã thanh toán toàn bộ hóa đơn trong tuần</t>
+                        </p>
+                        <p t-elif="summary['state'] == 'credit'" class="wj-debt-summary__meta">
+                            Dư có <t t-out="vnd(summary['credit_amount'])"/> được khấu trừ kỳ sau
+                        </p>
+                        <p t-else="" class="wj-debt-summary__meta">
+                            Hạn thanh toán: <t t-out="summary['payment_due_label']"/>
                         </p>
                         <div class="wj-debt-summary__stats">
                             <div class="wj-debt-stat">
@@ -136,7 +156,7 @@
                     </section>
 
                     <!-- CTA chỉ có khi còn nợ. Frame 04 (đã trả hết) KHÔNG có nút này. -->
-                    <a t-if="summary['remaining'] &gt; 0"
+                    <a t-if="summary['amount_due'] &gt; 0"
                        t-attf-href="/portal/debt/pay?week=#{summary['week_key']}"
                        class="wj-debt-cta">Thanh toán</a>
 
@@ -161,16 +181,20 @@
                                 <span t-attf-class="wj-debt-badge wj-debt-badge--#{ibadge[1]} wj-debt-inv__badge"
                                       t-out="ibadge[0]"/>
                                 <span class="wj-debt-inv__meta">
-                                    <t t-if="inv['status'] == 'paid'">Đã xác nhận •
+                                    <t t-if="inv['status'] == 'paid' and summary['confirmed_date']">Đã xác nhận •
                                         <t t-out="summary['confirmed_date'].strftime('%d/%m/%Y')"/>
+                                    </t>
+                                    <t t-elif="inv['status'] == 'credit'">Giấy báo có •
+                                        <t t-out="inv['date'].strftime('%d/%m')"/>
                                     </t>
                                     <t t-else="">HĐ <t t-out="inv['date'].strftime('%d/%m')"/> •
                                         Hạn <t t-out="inv['due'].strftime('%d/%m')"/>
                                     </t>
                                 </span>
                                 <span class="wj-debt-inv__amount">
-                                    <t t-if="inv['status'] == 'paid'">Đã trả </t><t t-else="">Còn </t>
-                                    <t t-out="vnd(inv['amount'])"/>
+                                    <t t-if="inv['status'] == 'paid'">Đã trả <t t-out="vnd(inv['amount'])"/></t>
+                                    <t t-elif="inv['status'] == 'credit'">Được trừ <t t-out="vnd(-inv['amount'])"/></t>
+                                    <t t-else="">Còn <t t-out="vnd(inv['amount'])"/></t>
                                 </span>
                             </div>
                         </t>
@@ -190,14 +214,12 @@
                  DESKTOP (≥992px) — Figma WJ_Debt_PC_MVP_v1_1 (5077:*)
                  ============================================================ -->
             <div class="content-wrapper d-none d-lg-block wj-debt-pc">
-                <t t-set="PC_STATE_BADGE" t-value="{
-                    'outstanding': ('Có quá hạn', 'danger'),
-                    'partial': ('Thanh toán một phần', 'info'),
-                    'paid': ('Đã thanh toán', 'success'),
-                    'empty_week': ('Không phát sinh', 'muted'),
-                    'no_debt': ('Không có công nợ', 'success'),
-                }"/>
-                <t t-set="PC_INV_TONE" t-value="{'overdue': 'danger', 'unpaid': 'warn', 'partial': 'info', 'paid': 'success'}"/>
+                <!-- Nhãn state dùng chung với mobile (STATE_BADGE) + 2 biến thể riêng PC. -->
+                <t t-set="PC_STATE_BADGE" t-value="dict(STATE_BADGE,
+                    empty_week=('Không phát sinh', 'muted'),
+                    no_debt=('Không có công nợ', 'success'))"/>
+                <t t-set="PC_INV_TONE" t-value="{'overdue': 'danger', 'unpaid': 'warn',
+                    'partial': 'info', 'credit': 'info', 'paid': 'success'}"/>
 
                 <t t-call="wujia_portal_layout.wj_page_header">
                     <t t-set="ph_platform" t-value="'pc'"/>
@@ -233,6 +255,12 @@
                     <noscript><button type="submit" class="wj-pc-btn wj-pc-btn--secondary">Xem</button></noscript>
                 </form>
 
+                <div t-if="notice == 'no_due'" class="wj-debt-pc-banner">
+                    <span class="wj-debt-pc-banner__icon">i</span>
+                    <span class="wj-debt-pc-banner__text">Tuần <t t-out="summary['week_label']"/>
+                        không còn khoản cần thanh toán.</span>
+                </div>
+
                 <div t-if="no_store" class="wj-pc-empty">
                     <span class="wj-pc-empty__icon"><i class="feather icon-alert-circle"/></span>
                     <h3 class="wj-pc-empty__title">Chưa chọn cửa hàng</h3>
@@ -255,7 +283,12 @@
                             </div>
                             <div class="wj-debt-pc-summary__col">
                                 <span class="wj-debt-pc-summary__label">Còn phải trả</span>
-                                <span class="wj-debt-pc-summary__value" t-out="vnd(summary['remaining'])"/>
+                                <span class="wj-debt-pc-summary__value" t-out="vnd(summary['amount_due'])"/>
+                                <span class="wj-debt-pc-summary__due">
+                                    <t t-if="pc_state == 'credit'">Dư có <t t-out="vnd(summary['credit_amount'])"/> được khấu trừ kỳ sau</t>
+                                    <t t-elif="pc_state == 'paid' and summary['confirmed_date']">Ngô Gia xác nhận ngày <t t-out="summary['confirmed_date'].strftime('%d/%m/%Y')"/></t>
+                                    <t t-else="">Hạn thanh toán: <t t-out="summary['payment_due_label']"/></t>
+                                </span>
                             </div>
                         </div>
                         <div class="wj-debt-pc-summary__side">
@@ -267,6 +300,12 @@
                                 <t t-elif="pc_state == 'partial'">
                                     <t t-out="summary['invoice_count']"/> hóa đơn còn số dư
                                 </t>
+                                <t t-elif="pc_state == 'unpaid'">
+                                    <t t-out="summary['invoice_count']"/> hóa đơn chưa thanh toán
+                                </t>
+                                <t t-elif="pc_state == 'credit'">
+                                    Không còn khoản cần thanh toán trong tuần
+                                </t>
                                 <t t-elif="pc_state == 'paid'">
                                     <t t-if="summary['confirmed_date']">Ngô Gia xác nhận ngày <t t-out="summary['confirmed_date'].strftime('%d/%m/%Y')"/></t>
                                     <t t-else="">Đã thanh toán toàn bộ hóa đơn trong tuần</t>
@@ -274,7 +313,7 @@
                                 <t t-elif="pc_state == 'empty_week'">Tuần được chọn chưa phát sinh hóa đơn</t>
                                 <t t-else="">Hiện tại cửa hàng không có khoản cần thanh toán</t>
                             </span>
-                            <button t-if="summary['remaining'] &gt; 0 and bank" type="button"
+                            <button t-if="summary['amount_due'] &gt; 0 and bank" type="button"
                                     class="wj-pc-btn wj-pc-btn--primary wj-debt-pc-cta"
                                     data-wj-debt="open-pay">Thanh toán số còn lại</button>
                         </div>
@@ -372,7 +411,7 @@
                         <div class="wj-debt-pc-modal__amount">
                             <div>
                                 <span class="wj-debt-pc-modal__amount-label">Số tiền cần chuyển</span>
-                                <span class="wj-debt-pc-modal__amount-value" t-out="vnd(summary['remaining'])"/>
+                                <span class="wj-debt-pc-modal__amount-value" t-out="vnd(summary['amount_due'])"/>
                             </div>
                             <span class="wj-debt-pc-badge wj-debt-pc-badge--warn">Cần thanh toán</span>
                         </div>
@@ -492,11 +531,14 @@
                                     <t t-out="pay['time']"/> • <t t-out="pay['method']"/>
                                 </span>
                                 <span class="wj-debt-pay__trace">Tham chiếu: <t t-out="pay['trace']"/></span>
-                                <span class="wj-debt-pay__amount" t-out="vnd(pay['amount'])"/>
+                                <span class="wj-debt-pay__amount" t-out="pay['amount_label']"/>
                             </div>
                         </t>
                     </div>
-                    <p class="wj-debt-total">Tổng đã xác nhận: <t t-out="vnd(history['total'])"/></p>
+                    <!-- Nhiều loại tiền = nhiều dòng tổng, không quy đổi (WJ-DEBT-004). -->
+                    <t t-foreach="history['totals']" t-as="tot">
+                        <p class="wj-debt-total">Tổng đã xác nhận: <t t-out="tot['label']"/></p>
+                    </t>
                 </t>
                 </div>
             </div>
@@ -577,7 +619,7 @@
                                             </td>
                                             <td t-out="pay['method']"/>
                                             <td class="wj-pc-td--muted" t-out="pay['trace'] or '—'"/>
-                                            <td class="text-end wj-pc-td--amount" t-out="vnd(pay['amount'])"/>
+                                            <td class="text-end wj-pc-td--amount" t-out="pay['amount_label']"/>
                                             <td><span class="wj-debt-pc-badge wj-debt-pc-badge--success">Đã xác nhận</span></td>
                                         </tr>
                                     </tbody>
@@ -589,7 +631,9 @@
                                     Hiển thị <t t-out="pc_pager['offset'] + 1"/>–<t t-out="pc_pager['offset'] + pc_pager['count']"/> / <t t-out="pc_pager['page_total']"/> giao dịch
                                 </span>
                                 <span class="wj-debt-pc-pagination__right">
-                                    <span class="wj-debt-pc-pagination__total">Tổng thanh toán trong thời gian lọc: <t t-out="vnd(history['total'])"/></span>
+                                    <span class="wj-debt-pc-pagination__total">Tổng thanh toán trong thời gian lọc:
+                                        <t t-foreach="history['totals']" t-as="tot"><t t-if="not tot_first"> • </t><t t-out="tot['label']"/></t>
+                                    </span>
                                     <span class="wj-debt-pc-pagination__nav">
                                         <span class="wj-debt-pc-pagesize"><t t-out="pc_pager['page_size']"/> / trang</span>
                                         <t t-foreach="pc_pager['pages']" t-as="pn">
@@ -631,7 +675,7 @@
                 <section class="wj-debt-amount">
                     <span class="wj-debt-amount__label">SỐ TIỀN CẦN CHUYỂN</span>
                     <span class="wj-debt-amount__week">Tuần <t t-out="summary['week_short']"/></span>
-                    <span class="wj-debt-amount__value" t-out="vnd(summary['remaining'])"/>
+                    <span class="wj-debt-amount__value" t-out="vnd(summary['amount_due'])"/>
                 </section>
 
                 <!-- QR = placeholder tĩnh. BA chưa chốt "QR tĩnh hay QR động" (tab
