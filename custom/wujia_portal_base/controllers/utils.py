@@ -523,9 +523,11 @@ def get_upcoming_batches(franchise_ids, limit=2):
     batches = Batch.search(
         batch_franchise_domain(franchise_ids) + [
             ('delivery_batch_status', 'in', list(UNFINISHED_BATCH_STATUS)),
-            # Chuyến đang bốc/đang chạy vẫn là "chưa giao" dù lịch đã qua (WJ-DELIVERY-005).
-            '|', ('planned_departure', '>=', start),
-                 ('delivery_batch_status', 'in', ['loading', 'delivering']),
+            # Chuyến đang bốc/đang chạy, hoặc chưa đặt lịch, vẫn là "chưa giao" dù
+            # lịch đã qua hoặc còn trống (WJ-DELIVERY-005). PG xếp NULL cuối ở ASC.
+            '|', '|', ('planned_departure', '>=', start),
+                      ('planned_departure', '=', False),
+                      ('delivery_batch_status', 'in', ['loading', 'delivering']),
         ], order='planned_departure asc', limit=limit)
     items = []
     for batch in batches:

@@ -54,6 +54,10 @@ class DeliveryFixture:
         cls.batch_done = cls._batch('C5/DONE', 'done', cls.tomorrow)
         cls.so_done = cls._order(cls.franchise)
         cls._picking(cls.so_done, cls.franchise, cls.batch_done)
+        # Chuyến chưa đặt lịch: vẫn chưa giao nên phải hiện, xếp cuối.
+        cls.batch_noplan = cls._batch('C5/NOPLAN', 'draft', False)
+        cls.so_noplan = cls._order(cls.franchise)
+        cls._picking(cls.so_noplan, cls.franchise, cls.batch_noplan)
         # Cửa hàng khác — không được rò sang.
         cls.batch_other = cls._batch('C5/OTHER', 'assigned', cls.tomorrow)
         cls._picking(cls._order(cls.other), cls.other, cls.batch_other)
@@ -185,7 +189,49 @@ class TestDeliveryPortalData(HttpCase, DeliveryFixture):
 
     def test_home_counts_only_undelivered_orders(self):
         block = self._home_delivery_block(self._get('/portal'))
-        self.assertIn('2 đơn chưa giao', block)         # so_open + so_going
+        # so_open + so_going + so_noplan; chuyến đã giao và phiếu huỷ không tính.
+        self.assertIn('3 đơn chưa giao', block)
         self.assertIn(self.so_open.name, block)
-        self.assertNotIn(self.so_cancel.name, block)    # phiếu đã huỷ không tính
+        self.assertNotIn(self.so_cancel.name, block)
         self.assertNotIn(self.so_done.name, block)
+
+    def test_home_prefers_scheduled_batches(self):
+        """Chuyến có lịch đứng trước; chuyến chưa đặt lịch xếp cuối (limit 2 nên chưa hiện)."""
+        block = self._home_delivery_block(self._get('/portal'))
+        self.assertIn(self.batch_soon.name, block)
+        self.assertIn(self.batch_going.name, block)
+        self.assertNotIn(self.batch_noplan.name, block)
+
+
+@tagged('post_install', '-at_install', 'wujia_delivery_c5')
+class TestHomeUnscheduledOnly(HttpCase, DeliveryFixture):
+    """Ca UAT: cửa hàng chỉ có 1 chuyến chưa hoàn thành và chuyến đó CHƯA đặt lịch."""
+
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        partner = cls.env['res.partner'].create({'name': 'C5C partner'})
+        cls.franchise = cls.env['wujia.franchise.management'].create({
+            'code': 'HC5C', 'name': 'C5 store C', 'franchise_end_date': '2030-01-01',
+            'partner_id': partner.id})
+        cls.product = cls.env['product.product'].create({
+            'name': 'C5C product', 'type': 'consu', 'list_price': 50_000})
+        cls.picking_type = cls.env['stock.warehouse'].search([], limit=1).out_type_id
+        cls.batch = cls._batch('C5/NOSCHED', 'draft', False)
+        cls.order = cls._order(cls.franchise)
+        cls._picking(cls.order, cls.franchise, cls.batch)
+        user = cls.env['res.users'].create({
+            'name': 'c5_owner_c', 'login': 'c5_owner_c', 'password': 'c5_owner_c',
+            'group_ids': [(6, 0, [cls.env.ref('base.group_portal').id])]})
+        cls.env['wujia.franchise.member'].create({
+            'user_id': user.id, 'franchise_id': cls.franchise.id, 'role': 'owner'})
+
+    def test_home_shows_unscheduled_batch(self):
+        self.authenticate('c5_owner_c', 'c5_owner_c')
+        res = self.url_open('/portal', timeout=30)
+        self.assertEqual(res.status_code, 200)
+        block = TestDeliveryPortalData._home_delivery_block(res.text)
+        self.assertIn('1 đơn chưa giao', block)
+        self.assertIn(self.batch.name, block)
+        self.assertIn(self.order.name, block)
+        self.assertNotIn('Chưa có chuyến giao sắp tới', block)
