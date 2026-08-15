@@ -2,10 +2,11 @@
  *
  * Hành vi (Figma không có tương tác nào khác):
  *   1. Bộ lọc tuần/kỳ: <select> phủ kín card → đổi là submit luôn, khỏi nút "Xem".
- *   2. Nút copy số tài khoản / nội dung chuyển khoản (màn 07 + modal PC).
- *   3. PC (STT10): mở/đóng modal QR "Thanh toán số còn lại" (open-pay / close-pay /
- *      click backdrop / phím Esc). Nút "PDF" và "Tải mã QR" là <button type="button">
- *      không handler ⇒ no-op MVP (chưa có endpoint/file — đúng ghi chú BA).
+ *   2. Nút copy số tài khoản / nội dung chuyển khoản (màn 07 + modal PC), có phản hồi
+ *      thành công/thất bại nhìn thấy được (WJ-DEBT-005).
+ *   3. PC (STT10): mở/đóng modal "Thanh toán số còn lại" (open-pay / close-pay /
+ *      click backdrop / phím Esc). Nút "PDF" là <button type="button"> không handler
+ *      ⇒ no-op MVP (chưa có endpoint — đúng ghi chú BA).
  *
  * Vanilla + delegation trên document: trang render server-side, không có OWL
  * component nào ở đây, và cùng pattern với các script portal khác của Wujia.
@@ -72,16 +73,34 @@
         }
         ev.preventDefault();
         var value = btn.getAttribute('data-wj-debt-value') || '';
+        if (!value) {
+            flash(btn, false, 'Chưa có giá trị để sao chép.');
+            return;
+        }
         copyText(value).then(function (ok) {
-            if (!ok) {
-                return;
-            }
-            btn.classList.add('is-copied');
-            window.setTimeout(function () {
-                btn.classList.remove('is-copied');
-            }, 1500);
+            flash(btn, ok, ok ? 'Đã sao chép' :
+                'Không sao chép được — chạm giữ vào giá trị để copy thủ công.');
         });
     });
+
+    /* Phản hồi tại chỗ: đổi màu nút + chữ trong ô role="status" của chính block ngân
+       hàng đang bấm (mobile hay modal PC). Trước đây thất bại là im lặng hoàn toàn. */
+    function flash(btn, ok, message) {
+        var block = btn.closest('.wj-debt-bank, .wj-debt-pc-bank');
+        var msg = block ? block.querySelector('.wj-debt-copy-msg') : null;
+        btn.classList.toggle('is-copied', ok);
+        if (msg) {
+            msg.textContent = message;
+            msg.classList.toggle('is-error', !ok);
+        }
+        window.setTimeout(function () {
+            btn.classList.remove('is-copied');
+            if (msg) {
+                msg.textContent = '';
+                msg.classList.remove('is-error');
+            }
+        }, 2500);
+    }
 
     document.addEventListener('keydown', function (ev) {
         if (ev.key === 'Escape') {
@@ -113,9 +132,12 @@
         ta.value = value;
         ta.setAttribute('readonly', 'readonly');
         ta.style.position = 'fixed';
+        ta.style.top = '0';
         ta.style.opacity = '0';
         document.body.appendChild(ta);
+        ta.focus();
         ta.select();
+        ta.setSelectionRange(0, value.length);   // iOS/Safari bỏ qua select() trần
         var ok = false;
         try {
             ok = document.execCommand('copy');

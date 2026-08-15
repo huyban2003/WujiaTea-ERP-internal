@@ -8,7 +8,7 @@ Chạy: `--test-tags wujia_debt`.
   2. `TestPortalDebtRules` — cụm C2: trạng thái tuần == trạng thái dòng, dư có, đa tệ,
      tuần mặc định + hạn thanh toán.
   3. `TestPortalDebtAccess` — controller chặn Staff, cho Owner/Manager, empty khi chưa
-     chọn cửa hàng (HttpCase).
+     chọn cửa hàng, và cụm C3: trang thanh toán (bank chưa cấu hình, 2 shell, gỡ QR).
 
 ⚠️ KHÔNG import `odoo.addons.account.tests.common` — chuỗi import của nó kéo theo
 `base.tests.test_date_utils` dùng `freeze_time(as_kwarg=...)`, vỡ với freezegun cũ trong
@@ -215,16 +215,19 @@ class TestPortalDebtWired(TransactionCase):
         Bank.create({'acc_number': 'ACC-LATE', 'partner_id': partner.id,
                      'sequence': 9, 'portal_payment_enabled': True})
         bank = self.debt.get_bank_info(self.franchise.id, 2_500_000, 29)
+        self.assertTrue(bank['configured'])
         self.assertEqual(bank['account'], 'ACC-WIN')          # enabled + sequence nhỏ nhất
         self.assertEqual(bank['memo'], 'HDEBT1 K29 2500000')  # backend tự tính nội dung CK
 
-    def test_bank_info_not_configured_message(self):
+    def test_bank_info_not_configured_flag(self):
         # DB thật có thể đã bật sẵn 1 TK portal → tắt trong transaction test cho tất định.
         self.env['res.partner.bank'].search(
             [('id', 'in', self.company.bank_ids.ids)]).portal_payment_enabled = False
         bank = self.debt.get_bank_info(self.franchise.id, 100, 29)
-        self.assertIn('chưa được cấu hình', bank['name'])     # không TK nào bật portal
-        self.assertEqual(bank['account'], '')
+        # WJ-DEBT-002: cờ tường minh + KHÔNG trường rỗng nào mang chữ (template tự rẽ).
+        self.assertFalse(bank['configured'])
+        self.assertEqual([bank['name'], bank['holder'], bank['account'], bank['memo']],
+                         ['', '', '', ''])
 
     # ---- PC (STT10): tách empty → empty_week / no_debt (rule 10c/10d) ----
     def test_empty_substate(self):
@@ -437,6 +440,28 @@ class TestPortalDebtAccess(HttpCase):
         cls.owner = cls._portal_user('debt_owner', 'owner')
         cls.staff = cls._portal_user('debt_staff', 'staff')
 
+        # Một hoá đơn chưa trả trong tuần hiện tại → trang /portal/debt/pay mới render
+        # (C2 chặn route khi amount_due <= 0).
+        today = date.today()
+        cls.due_week = '%04d-W%02d' % today.isocalendar()[:2]
+        cls.empty_week = '%04d-W%02d' % (today - timedelta(weeks=3)).isocalendar()[:2]
+        invoice = cls.env['account.move'].create({
+            'move_type': 'out_invoice',
+            'partner_id': cls.env['res.partner'].create({'name': 'HACC1 customer'}).id,
+            'invoice_date': today,
+            'journal_id': cls.env['account.journal'].search(
+                [('type', '=', 'sale'), ('company_id', '=', cls.env.company.id)], limit=1).id,
+            'franchise_id': cls.franchise.id,
+            'invoice_payment_term_id': False,
+            'invoice_line_ids': [(0, 0, {
+                'name': 'line', 'quantity': 1, 'price_unit': 1_500_000,
+                'account_id': cls.env['account.account'].search(
+                    [('account_type', '=', 'income')], limit=1).id,
+                'tax_ids': [(6, 0, [])]})],
+        })
+        invoice.action_post()
+        invoice.invoice_date_due = today + timedelta(days=7)
+
     @classmethod
     def _portal_user(cls, login, role):
         user = cls.env['res.users'].create({
@@ -474,12 +499,56 @@ class TestPortalDebtAccess(HttpCase):
     def test_pay_page_blocked_when_nothing_due(self):
         """WJ-DEBT-007: hết nợ → về trang công nợ kèm thông báo, không dựng QR/STK."""
         self.authenticate('debt_owner', 'debt_owner')
-        res = self.url_open('/portal/debt/pay', timeout=30)
+        res = self.url_open('/portal/debt/pay?week=%s' % self.empty_week, timeout=30)
         self.assertEqual(res.status_code, 200)
         self.assertIn('/portal/debt', res.url)
         self.assertNotIn('/portal/debt/pay', res.url)
         self.assertNotIn('SỐ TIỀN CẦN CHUYỂN', res.text)
         self.assertIn('không còn khoản cần thanh toán', res.text)
+
+    # ---- cụm C3: trang thanh toán ------------------------------------
+    def _pay_page(self):
+        """Trang pay của tuần có nợ thật (route tự chặn khi amount_due <= 0 — C2)."""
+        self.authenticate('debt_owner', 'debt_owner')
+        return self.url_open(
+            '/portal/debt/pay?week=%s' % self.due_week, timeout=30)
+
+    def test_pay_page_without_bank_shows_single_empty_state(self):
+        """WJ-DEBT-002: chưa cấu hình TK → 1 thông báo, không nút copy, không trường rỗng."""
+        self.env['res.partner.bank'].search(
+            [('id', 'in', self.env.company.bank_ids.ids)]).portal_payment_enabled = False
+        self.env.flush_all()
+        res = self._pay_page()
+        self.assertEqual(res.status_code, 200)
+        self.assertIn('Chưa cấu hình tài khoản nhận thanh toán', res.text)
+        self.assertNotIn('data-wj-debt="copy"', res.text)
+        self.assertNotIn('THÔNG TIN CHUYỂN KHOẢN', res.text)
+
+    def test_pay_page_with_bank_has_both_shells_and_copy(self):
+        """WJ-DEBT-003/005: mobile d-lg-none + khối PC, nút copy có ô phản hồi."""
+        self.env['res.partner.bank'].create({
+            'acc_number': 'C3-ACC-0001', 'partner_id': self.env.company.partner_id.id,
+            'acc_holder_name': 'NGO GIA C3', 'sequence': 1, 'portal_payment_enabled': True})
+        self.env.flush_all()
+        res = self._pay_page()
+        self.assertEqual(res.status_code, 200)
+        self.assertIn('wj-debt--pay d-lg-none', res.text)   # khối mobile chỉ dưới 992
+        self.assertIn('wj-debt-pc', res.text)               # khối desktop
+        self.assertIn('C3-ACC-0001', res.text)
+        self.assertEqual(res.text.count('data-wj-debt="copy"'), 4)   # 2 mobile + 2 PC
+        self.assertIn('wj-debt-copy-msg', res.text)
+
+    def test_no_qr_markup_left(self):
+        """WJ-DEBT-008: gỡ hẳn khối QR ở cả trang pay và modal PC."""
+        self.env['res.partner.bank'].create({
+            'acc_number': 'C3-ACC-0002', 'partner_id': self.env.company.partner_id.id,
+            'sequence': 1, 'portal_payment_enabled': True})
+        self.env.flush_all()
+        for text in (self._pay_page().text,
+                     self.url_open('/portal/debt', timeout=30).text):
+            for dead in ('wj-debt-qr', 'wj-debt-pc-qr', 'QR minh họa',
+                         'Quét QR để chuyển khoản', 'Tải mã QR'):
+                self.assertNotIn(dead, text)
 
     def test_staff_is_denied(self):
         self.authenticate('debt_staff', 'debt_staff')
