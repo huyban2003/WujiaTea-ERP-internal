@@ -91,3 +91,25 @@ Test tự động: `wujia_delivery_c5` 9/9 · hồi quy `wujia_account` 17 + `wu
   chốt 15/08 giữ nguyên mobile-only.
 - Bộ lọc khoảng ngày vẫn lọc theo **lịch dự kiến** (`planned_departure`); C5 không đổi ý nghĩa
   bộ lọc, chỉ đổi giá trị hiển thị ở cột Xuất phát.
+
+---
+
+## Đo lại trên UAT sau deploy (15/08/2026, chỉ đọc)
+
+`http://113.161.187.126:8019` — `wujia_portal_delivery` 19.0.3.6.0 + `wujia_portal_base`
+19.0.7.3.0 (đối chiếu XML-RPC). Playwright 391×844 + 1920×1080, không sửa dữ liệu.
+
+| Điểm đo | Kết quả UAT | Pass |
+|---|---|---|
+| WJ-DELIVERY-007 — chuyến đã xuất phát | `BATCH/OUT/00002`: **12/08 · 13:47 (thực tế)** thay cho 15:30 dự kiến — đúng con số BA nêu trong issue | ✅ |
+| WJ-DELIVERY-007 — chuyến chưa xuất phát | `BATCH/OUT/00001`: "Xuất phát (dự kiến) —" (chuyến này chưa đặt lịch) | ✅ |
+| WJ-DELIVERY-006 — search | `?q=S00035` → 1 dòng, badge **Tất cả 1** · Đang giao 0 · Sắp giao 0 · Đã giao 1; xoá search → Tất cả 2 | ✅ |
+| WJ-HOME-003 | chuyến `Đã giao` không còn trong block "Giao hàng sắp tới" | ✅ |
+| WJ-DELIVERY-005 | dòng đếm "1 đơn chưa giao" đúng, **nhưng** khối chuyến trống | ❌ → đã sửa |
+| Hồi quy | `/portal`, `/portal/delivery` (+2 biến thể), 2 trang chi tiết: 200 · tràn ngang 0 · 0 lỗi JS ở cả 2 viewport | ✅ |
+
+**Điểm ❌ và cách sửa (`6ac7807`, cần deploy lại):** chuyến chưa giao duy nhất của cửa hàng UAT
+chưa được đặt ngày dự kiến, mà rule chỉ nhận "lịch từ hôm nay trở đi" hoặc "đang bốc/đang giao"
+⇒ block rơi về trạng thái trống trong khi bộ đếm vẫn báo 1 đơn. Chủ dự án chốt 15/08: chuyến
+chưa hoàn thành mà **chưa đặt lịch vẫn hiện, xếp cuối** (Postgres xếp NULL cuối ở thứ tự tăng).
+Thêm 2 test, trong đó có ca đúng hình UAT: cửa hàng chỉ có một chuyến chưa đặt lịch.
