@@ -5,16 +5,18 @@ from odoo import api, fields, models, _
 class WujiaFranchiseInspectionQuestion(models.Model):
     _name = 'wujia.franchise.inspection.question'
     _description = 'Thư viện câu hỏi kiểm tra khảo sát'
+    _inherit = ['mail.thread', 'mail.activity.mixin']
     _order = 'id desc'
     _rec_name = 'question_text'
 
-    code = fields.Char(string='Mã câu hỏi')
+    code = fields.Char(string='Mã câu hỏi', tracking=True)
     question_text = fields.Text(
         string='Nội dung câu hỏi',
         required=True,
+        tracking=True,
         help='Nội dung câu hỏi. Dùng ký tự ____ đại diện cho vị trí chỗ trống cần điền.'
     )
-    score = fields.Float(string='Điểm số', default=1.0, help='Điểm số đạt được khi trả lời đúng câu hỏi này')
+    score = fields.Float(string='Điểm số', default=1.0, tracking=True, help='Điểm số đạt được khi trả lời đúng câu hỏi này')
     
     # Mảng JSON lưu trữ mảng đáp án đúng tương ứng với các ô trống (Dùng default=False để tránh Odoo gọi list(self))
     correct_answers = fields.Json(
@@ -35,7 +37,7 @@ class WujiaFranchiseInspectionQuestion(models.Model):
              '- Nếu 1 chỗ trống có nhiều đáp án chấp nhận được, phân cách nhau bằng dấu phẩy (,).'
     )
     
-    active = fields.Boolean(string='Kích hoạt', default=True)
+    active = fields.Boolean(string='Kích hoạt', default=True, tracking=True)
 
     @api.depends('code', 'question_text')
     def _compute_display_name(self):

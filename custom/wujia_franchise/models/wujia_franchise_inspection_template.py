@@ -43,24 +43,26 @@ class WujiaFranchiseInspectionCategory(models.Model):
 class WujiaFranchiseInspectionTemplate(models.Model):
     _name = 'wujia.franchise.inspection.template'
     _description = 'Mẫu khảo sát đánh giá cửa hàng nhượng quyền'
+    _inherit = ['mail.thread', 'mail.activity.mixin']
     _order = 'effective_date desc, id desc'
 
-    name = fields.Char(string='Tên mẫu khảo sát', required=True)
-    code = fields.Char(string='Mã mẫu')
-    version = fields.Char(string='Phiên bản', default='v1.0')
+    name = fields.Char(string='Tên mẫu khảo sát', required=True, tracking=True)
+    code = fields.Char(string='Mã mẫu', tracking=True)
+    version = fields.Char(string='Phiên bản', default='v1.0', tracking=True)
     state = fields.Selection([
         ('draft', 'Draft'),
         ('active', 'Active'),
         ('archived', 'Archived'),
-    ], string='Trạng thái', default='draft', required=True)
-    effective_date = fields.Date(string='Ngày áp dụng', default=fields.Date.context_today)
+    ], string='Trạng thái', default='draft', required=True, tracking=True)
+    effective_date = fields.Date(string='Ngày áp dụng', default=fields.Date.context_today, tracking=True)
     
-    checklist_max_score = fields.Float(string='Điểm tối đa Checklist', default=95.0)
-    exam_max_score = fields.Float(string='Điểm tối đa Bài thi', default=5.0)
+    checklist_max_score = fields.Float(string='Điểm tối đa Checklist', default=95.0, tracking=True)
+    exam_max_score = fields.Float(string='Điểm tối đa Bài thi', default=5.0, tracking=True)
     total_max_score = fields.Float(
         string='Tổng điểm tối đa',
         compute='_compute_total_max_score',
         store=True,
+        tracking=True,
     )
     
     line_ids = fields.One2many(

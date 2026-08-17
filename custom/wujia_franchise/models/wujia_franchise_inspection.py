@@ -25,6 +25,7 @@ class WujiaFranchiseInspection(models.Model):
 
     _name = 'wujia.franchise.inspection'
     _description = 'Phiếu khảo sát đánh giá cửa hàng nhượng quyền'
+    _inherit = ['mail.thread', 'mail.activity.mixin']
     _order = 'id desc'
 
     _sql_constraints = [
@@ -86,13 +87,15 @@ class WujiaFranchiseInspection(models.Model):
                     vals['name'] = f"PGS-STORE-{count:04d}"
         return super(WujiaFranchiseInspection, self).create(vals_list)
 
-    name = fields.Char(string='Tên phiếu khảo sát', required=True, copy=False)
+    name = fields.Char(string='Tên phiếu khảo sát', required=True, copy=False, tracking=True)
 
     submit_date = fields.Date(
-        string='Ngày nộp'
+        string='Ngày nộp',
+        tracking=True,
     )
     confirm_date = fields.Date(
-        string='Ngày xác nhận'
+        string='Ngày xác nhận',
+        tracking=True,
     )
 
     state = fields.Selection([
@@ -101,10 +104,11 @@ class WujiaFranchiseInspection(models.Model):
         ('need_remediation', 'Cần khắc phục'),
         ('done', 'Hoàn thành'),
         ('cancel', 'Đã hủy')
-    ], string='Trạng thái', default='draft')
+    ], string='Trạng thái', default='draft', tracking=True)
 
     planned_date = fields.Date(
         string='Ngày dự kiến',
+        tracking=True,
     )
 
     checklist_score = fields.Float(
@@ -113,6 +117,7 @@ class WujiaFranchiseInspection(models.Model):
         store=True,
         readonly=True,
         default=95.0,
+        tracking=True,
     )
 
     @api.depends('line_ids.is_pass', 'line_ids.result', 'line_ids.deduction_score_snapshot', 'line_ids.display_type')
@@ -272,6 +277,7 @@ class WujiaFranchiseInspection(models.Model):
         compute='_compute_exam_score',
         store=True,
         aggregator='avg',
+        tracking=True,
         help='là điểm được lấy từ câu hỏi phần điền vào ô trống',
     )
 
@@ -280,6 +286,7 @@ class WujiaFranchiseInspection(models.Model):
         compute='_compute_total_score',
         store=True,
         aggregator='avg',
+        tracking=True,
         help='điểm = điểm checklist + điểm kiểm tra',
     )
 
@@ -289,6 +296,7 @@ class WujiaFranchiseInspection(models.Model):
         compute='_compute_grade',
         store=True,
         readonly=True,
+        tracking=True,
     )
 
     @api.onchange('checklist_score', 'exam_score')
@@ -299,7 +307,8 @@ class WujiaFranchiseInspection(models.Model):
             rec._compute_grade()
     
     next_due_date = fields.Date(
-        string='Lần kiểm tra kế tiếp',   
+        string='Lần kiểm tra kế tiếp',
+        tracking=True,
     )
 
     next_schedule_id = fields.Many2one(
@@ -325,6 +334,7 @@ class WujiaFranchiseInspection(models.Model):
         string='Lịch giám sát',
         required=True,
         ondelete='cascade',
+        tracking=True,
     )
     
     template_id = fields.Many2one(
@@ -332,6 +342,7 @@ class WujiaFranchiseInspection(models.Model):
         string='Mẫu khảo sát',
         required=True,
         ondelete='restrict',
+        tracking=True,
     )
 
     franchise_id = fields.Many2one(
@@ -339,6 +350,7 @@ class WujiaFranchiseInspection(models.Model):
         string='Cửa hàng',
         required=True,
         ondelete='restrict',
+        tracking=True,
     )
 
     inspector_user_id = fields.Many2one(
@@ -346,7 +358,8 @@ class WujiaFranchiseInspection(models.Model):
         string='Người kiểm tra',
         required=True,
         ondelete='restrict',
-        default=lambda self: self.env.user
+        default=lambda self: self.env.user,
+        tracking=True,
     )
 
     previous_inspection_id = fields.Many2one(
