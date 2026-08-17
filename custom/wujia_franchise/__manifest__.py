@@ -44,6 +44,7 @@ Hợp nhất 2 model trong cùng 1 module để tránh circular dep
         'views/wujia_franchise_inspection_question_views.xml',
         'views/wujia_franchise_inspection_grade_views.xml',
         'views/wujia_franchise_inspection.xml',
+        'views/inspection_survey_web_templates.xml',
         'views/wujia_franchise_inspection_history_views.xml',
         'views/wujia_franchise_inspection_remediation_views.xml',
         'views/wujia_franchise_inspection_report_views.xml',

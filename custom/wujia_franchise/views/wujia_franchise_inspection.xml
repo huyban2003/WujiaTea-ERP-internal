@@ -47,6 +47,20 @@
                         statusbar_visible="draft,in_progress,need_remediation,done,cancel" />
                 </header>
                 <sheet>
+                    <!-- SMART BUTTON MỞ NỘI DUNG / CHI TIẾT KHẢO SÁT -->
+                    <div class="oe_button_box" name="button_box">
+                        <button name="action_open_inspection_detail"
+                            type="object"
+                            class="oe_stat_button"
+                            icon="fa-file-text-o"
+                            string="Khảo sát"
+                            invisible="state != 'in_progress'">
+                            <div class="o_stat_info">
+                                <span class="o_stat_text">Khảo sát</span>
+                            </div>
+                        </button>
+                    </div>
+
                     <div class="oe_title">
                         <label for="name" string="Tên phiếu khảo sát" />
                         <h1>
@@ -225,6 +239,16 @@
                                     Kết quả chấm điểm: <b class="fs-5 text-success"><field
                                             name="exam_score" readonly="1" /> điểm</b>.</span>
                             </div>
+                            <group>
+                                <group>
+                                    <field name="test_employee_name"
+                                        readonly="is_exam_submitted or state in ('done', 'cancel')" />
+                                </group>
+                                <group>
+                                    <field name="tenure"
+                                        readonly="is_exam_submitted or state in ('done', 'cancel')" />
+                                </group>
+                            </group>
                             <field name="exam_line_ids"
                                 readonly="is_exam_submitted or state in ('done', 'cancel')">
                                 <list editable="bottom" create="false" delete="false">
@@ -256,7 +280,7 @@
                         </page>
                     </notebook>
                 </sheet>
-                <chatter/>
+                <chatter />
             </form>
         </field>
     </record>
