@@ -217,11 +217,26 @@
         <template id="wujia_portal_layout.login_container">
             <t t-call="wujia_portal_layout.login_layout">
                 <div class="wj-auth">
-                    <!-- Pill ngôn ngữ — UI-only (§7): render đúng Figma, chưa wire đổi lang. -->
-                    <div class="wj-auth__lang">
-                        <span class="wj-auth__flag"/>
-                        <span class="wj-auth__lang-text">Tiếng Việt</span>
-                        <i class="feather icon-chevron-down"/>
+                    <!-- Pill ngôn ngữ — WJ-LANG-001: danh sách theo ngôn ngữ đang bật,
+                         đổi được ngay ở màn đăng nhập (route set-lang nhận cả khách). -->
+                    <t t-set="wj_langs" t-value="request.env['ir.http']._wj_portal_langs()"/>
+                    <div class="dropdown wj-auth__langwrap">
+                        <a class="wj-auth__lang dropdown-toggle" href="#" id="wj-auth-lang"
+                           data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                            <t t-foreach="[l for l in wj_langs if l['current']][:1]" t-as="l">
+                                <span t-attf-class="wj-auth__flag flag-icon {{l['flag']}}"/>
+                                <span class="wj-auth__lang-text" t-out="l['label']"/>
+                            </t>
+                            <i class="feather icon-chevron-down"/>
+                        </a>
+                        <div class="dropdown-menu dropdown-menu-right" aria-labelledby="wj-auth-lang">
+                            <a t-foreach="wj_langs" t-as="l" class="dropdown-item"
+                               t-attf-href="/portal/set-lang/{{l['code']}}"
+                               t-att-data-url_code="l['url_code']">
+                                <i t-attf-class="flag-icon {{l['flag']}}"/>
+                                <t t-out="l['label']"/>
+                            </a>
+                        </div>
                     </div>
 
                     <div class="wj-auth__brand">

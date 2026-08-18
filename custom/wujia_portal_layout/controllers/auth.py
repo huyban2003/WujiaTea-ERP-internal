@@ -17,6 +17,7 @@ from odoo.http import request
 from odoo.addons.web.controllers.home import ensure_db
 
 from odoo.addons.wujia_portal_base.controllers.utils import rate_limit
+from odoo.addons.wujia_portal_layout.controllers.portal import PRE_LOGIN_LANG
 
 _logger = logging.getLogger(__name__)
 
@@ -44,6 +45,7 @@ class WujiaAuthController(AuthSignupHome):
                 }
                 request.session.authenticate(request.env, credential)
                 request.params['login_success'] = True
+                self._apply_pre_login_lang()
                 if redirect:
                     return request.redirect(redirect)
                 if request.env.user.has_group('base.group_user'):
@@ -59,6 +61,14 @@ class WujiaAuthController(AuthSignupHome):
             values['login'] = request.session.get('auth_login')
 
         return request.render('wujia_portal_layout.login', values)
+
+    def _apply_pre_login_lang(self):
+        """Giữ ngôn ngữ đã chọn ở màn đăng nhập: authenticate() ghi đè
+        context['lang'] bằng res.users.lang, nên phải ghi lại vào tài khoản."""
+        code = request.session.pop(PRE_LOGIN_LANG, None)
+        if code and code != request.env.user.lang:
+            request.env.user.sudo().lang = code
+            request.session.context = dict(request.session.context or {}, lang=code)
 
     @http.route('/portal/logout', type='http', auth='public', sitemap=False)
     def portal_logout(self, redirect='/portal/login'):

@@ -33,6 +33,31 @@ class IrHttp(models.AbstractModel):
                 return self._wj_portal_path(back) or default
         return default
 
+    def _wj_portal_langs(self):
+        """Ngôn ngữ cho bộ chọn của portal — nguồn duy nhất, gọi từ QWeb.
+
+        Đọc ngôn ngữ ĐANG BẬT (Settings → Languages); bật thêm ngôn ngữ nào là
+        portal có ngay mục đó, không sửa code (WJ-LANG-001). `_get_active_by` đã
+        được Odoo ormcache ⇒ 0 query/trang.
+        """
+        current = self.env.lang
+        langs = []
+        for code, data in self.env['res.lang'].sudo()._get_active_by('code').items():
+            # 'Vietnamese / Tiếng Việt' → tên bản địa; không có '/' thì giữ nguyên.
+            label = data.name.split(' / ')[-1].strip() or data.name
+            langs.append({
+                'code': code,
+                'url_code': data.url_code,
+                'label': label,
+                'flag': 'flag-icon-%s' % code.split('_')[-1].split('@')[0].lower(),
+                'current': code == current,
+            })
+        return langs
+
+    def _wj_html_lang(self):
+        """Giá trị cho <html lang> — theo ngôn ngữ đang dùng, không ghim vi/en."""
+        return (self.env.lang or 'en_US').replace('_', '-')
+
     def get_frontend_session_info(self):
         # Shell portal tự dựng <head> nên phải tự gọi khối session info (WJ-ORD-002,
         # views/layouts.xml). Các route portal là route http thường, không khai báo

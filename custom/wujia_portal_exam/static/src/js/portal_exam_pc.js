@@ -70,6 +70,7 @@
         var noteInput    = qs(root, "#wj_exam_note");
 
         var sumValues    = qsa(root, ".wj-exam-pc-sumkv__value");   // 0 course·1 dt·2 loc·3 hạn·4 store
+        var helpText     = qs(root, "[data-wj-exam-help]");
         var quotaChip    = qs(root, ".wj-exam-pc-quota .wj-exam-pc-chip--primary");
         var seatChip     = qs(root, ".wj-exam-pc-quota .wj-exam-pc-chip--green");
 
@@ -103,8 +104,10 @@
                      loc: "—", seats: 0, deadline: "—" };
         }
         function parseMax() {
-            var m = quotaChip ? /\/\s*(\d+)/.exec(quotaChip.textContent) : null;
-            return m ? parseInt(m[1], 10) : 4;
+            // Giới hạn của khóa đang chọn; chọn ca thi thì ca ghi đè (selectSlot).
+            if (!courseSelect || courseSelect.selectedIndex < 0) { return 0; }
+            var opt = courseSelect.options[courseSelect.selectedIndex];
+            return parseInt(opt.getAttribute("data-wj-exam-course-max"), 10) || 0;
         }
         function currentCourseId() {
             return courseSelect ? (parseInt(courseSelect.value, 10) || 0) : 0;
@@ -195,7 +198,7 @@
                     btn.setAttribute("disabled", "disabled");
                 } else {
                     btn.setAttribute("data-wj-exam-slot-session", s.session_id);
-                    btn.setAttribute("data-wj-exam-slot-max", s.max_per_reg || 4);
+                    btn.setAttribute("data-wj-exam-slot-max", s.max_per_reg);
                     btn.setAttribute("data-wj-exam-slot-loc", s.location || "—");
                     btn.setAttribute("data-wj-exam-slot-seats", s.seats);
                     btn.setAttribute("data-wj-exam-slot-deadline", s.deadline || "—");
@@ -287,6 +290,13 @@
             var txt = realRows().length + " / " + maxPer;
             if (quotaChip) { quotaChip.textContent = txt; }
             if (mQuotaChip) { mQuotaChip.textContent = txt; }
+            // WJ-EXAM-007: hướng dẫn đi cùng chip, nếu không ca thi có quota khác
+            // khóa sẽ để lại câu cũ.
+            if (helpText) {
+                helpText.textContent = maxPer
+                    ? ("Mỗi phiếu được đăng ký tối đa " + maxPer + " người.")
+                    : "Chọn khóa thi để xem giới hạn người mỗi phiếu.";
+            }
         }
 
         /* ================= Người tham gia (bảng + modal) ================= */
@@ -383,7 +393,7 @@
                 editingRow._wjPhoto = modalPhoto || "";
                 renderRowCells(editingRow);
             } else {
-                if (realRows().length >= maxPer) {
+                if (maxPer && realRows().length >= maxPer) {
                     if (fieldHelp) { fieldHelp.textContent = "Tối đa " + maxPer + " người mỗi phiếu."; }
                     show(fieldHelp);
                     return;
@@ -611,6 +621,7 @@
         root.addEventListener("change", function (ev) {
             if (ev.target === courseSelect) {
                 chosen = freshChosen();
+                maxPer = parseMax();
                 clearSlots("Chọn một ngày có lịch để xem khung giờ.");
                 if (slotTitle) { slotTitle.textContent = "Khung giờ"; }
                 var ym = getYM();

@@ -258,11 +258,13 @@
                                             t-out="pc_summary['course_name']"/>
                                     <option t-foreach="pc_courses" t-as="c"
                                             t-att-value="c['course_id']"
+                                            t-att-data-wj-exam-course-max="c['max_per_reg']"
                                             t-att-selected="c_index == 0 and 'selected' or None"
                                             t-out="c['title']"/>
                                 </select>
                             </div>
-                            <p class="wj-exam-pc-help">Mỗi phiếu được đăng ký tối đa 4 người.</p>
+                            <p class="wj-exam-pc-help" data-wj-exam-help="1"
+                               t-out="pc_summary['max_hint']"/>
 
                             <!-- 2. Chọn lịch thi -->
                             <h3 class="wj-exam-pc-sectitle wj-exam-pc-sectitle--sm">Chọn lịch thi</h3>

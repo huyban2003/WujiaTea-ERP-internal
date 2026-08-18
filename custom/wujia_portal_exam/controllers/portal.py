@@ -146,6 +146,23 @@ def _selectable(session, now):
             and session.available_participant_count > 0)
 
 
+def _max_per_reg(record):
+    """Giới hạn người / phiếu — NGUỒN DUY NHẤT cho hướng dẫn, quota, validate.
+
+    Ca thi cấu hình riêng được thì ưu tiên, để trống mới lấy của khóa (WJ-EXAM-007
+    sinh ra vì UI từng chép tay số 4 = default của field).
+    """
+    if record._name == 'wujia.exam.session':
+        return (record.max_participants_per_registration
+                or record.course_id.max_participants_per_registration)
+    return record.max_participants_per_registration
+
+
+def _max_hint(n):
+    return (_("Mỗi phiếu được đăng ký tối đa %d người.", n) if n
+            else _("Chọn khóa thi để xem giới hạn người mỗi phiếu."))
+
+
 def _day_state(day_sessions, d, today, horizon, now):
     """Trạng thái 1 ngày trên lịch: available / full / none."""
     if d < today or d > horizon:
@@ -218,7 +235,7 @@ def _exam_slots(course, d):
         slots.append({
             'session_id': s.id, 'time': _slot_time_label(s), 'status': status,
             'available': ok, 'seats': s.available_participant_count,
-            'max_per_reg': s.max_participants_per_registration,
+            'max_per_reg': _max_per_reg(s),
             'location': s.location or '—',
             # Additive (Sprint 46) — nhãn hạn đăng ký cho tóm tắt PC. Mobile
             # renderSlots không đọc key này ⇒ 0 regression.
@@ -357,14 +374,14 @@ class WujiaPortalExam(http.Controller):
         sel_meta = _course_meta(selected) if selected else {'meta': ''}
         # PC "Đăng ký mới" — dữ liệu THẬT (Sprint 46, thay demo PC_*). Grid dùng
         # chung biến `calendar` real; khóa/khung giờ/người do JS nạp qua endpoint.
-        max_per_reg = (selected.max_participants_per_registration
-                       if selected else 4) or 4
+        max_per_reg = _max_per_reg(selected) if selected else 0
         store_name = request.env['wujia.franchise.management'].sudo().browse(
             fid).name or '—'
         pc_summary = {
             'course_name': selected.name if selected else 'Chưa có khóa thi',
             'franchise_name': store_name,
             'quota_label': '0 / %d' % max_per_reg, 'max_per_reg': max_per_reg,
+            'max_hint': _max_hint(max_per_reg),
             # JS lấp khi chọn khung giờ.
             'exam_date': '—', 'exam_datetime': '—', 'location': '—',
             'registration_deadline': '—', 'seat_label': '—',
@@ -380,7 +397,8 @@ class WujiaPortalExam(http.Controller):
             'calendar': calendar,
             'slots': [],   # nạp qua AJAX khi chọn ngày
             # PC "Đăng ký mới" — context thật (grid = `calendar`, người tự nhập).
-            'pc_courses': [{'course_id': c.id, 'title': c.name} for c in courses],
+            'pc_courses': [{'course_id': c.id, 'title': c.name,
+                            'max_per_reg': _max_per_reg(c)} for c in courses],
             'pc_lines': [], 'pc_summary': pc_summary,
         })
 
@@ -429,11 +447,11 @@ class WujiaPortalExam(http.Controller):
                     'message': 'Khung giờ đã thay đổi hoặc không còn. Vui lòng'
                                ' chọn lại lịch thi.'}
         parts = participants or []
-        max_p = session.max_participants_per_registration or 4
+        max_p = _max_per_reg(session)
         if not parts:
             return {'error': 'validation',
                     'message': 'Cần ít nhất 1 người dự thi.'}
-        if len(parts) > max_p:
+        if max_p and len(parts) > max_p:
             return {'error': 'validation',
                     'message': 'Tối đa %d người mỗi phiếu.' % max_p}
         try:

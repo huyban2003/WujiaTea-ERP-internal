@@ -28,24 +28,20 @@
             <div class="wujia-mheader-actions">
                 <!-- Language -->
                 <div class="dropdown dropdown-language wujia-mheader-action-wrap">
+                    <t t-set="wj_langs" t-value="request.env['ir.http']._wj_portal_langs()"/>
                     <a class="wujia-mheader-action dropdown-toggle" id="m-dropdown-flag" href="#"
                        data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"
                        aria-label="Language">
-                        <t t-if="lang == 'vi_VN'">
-                            <i class="flag-icon flag-icon-vn"/>
-                        </t>
-                        <t t-else="">
-                            <i class="flag-icon flag-icon-us"/>
+                        <t t-foreach="[l for l in wj_langs if l['current']][:1]" t-as="l">
+                            <i t-attf-class="flag-icon {{l['flag']}}"/>
                         </t>
                     </a>
                     <div class="dropdown-menu dropdown-menu-right" aria-labelledby="m-dropdown-flag">
-                        <a class="dropdown-item" href="/portal/set-lang/en_US" data-url_code="en">
-                            <i class="flag-icon flag-icon-us"/>
-                            English
-                        </a>
-                        <a class="dropdown-item" href="/portal/set-lang/vi_VN" data-url_code="vi">
-                            <i class="flag-icon flag-icon-vn"/>
-                            Việt Nam
+                        <a t-foreach="wj_langs" t-as="l" class="dropdown-item"
+                           t-attf-href="/portal/set-lang/{{l['code']}}"
+                           t-att-data-url_code="l['url_code']">
+                            <i t-attf-class="flag-icon {{l['flag']}}"/>
+                            <t t-out="l['label']"/>
                         </a>
                     </div>
                 </div>
