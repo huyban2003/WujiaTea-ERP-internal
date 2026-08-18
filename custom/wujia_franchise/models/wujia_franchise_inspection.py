@@ -553,7 +553,7 @@ class WujiaFranchiseInspection(models.Model):
         return {
             'type': 'ir.actions.act_url',
             'url': f'/franchise/inspection/do/{self.id}',
-            'target': 'new',
+            'target': 'self',
         }
 
     def write(self, vals):
@@ -642,7 +642,7 @@ class WujiaFranchiseInspection(models.Model):
                     lines = []
                     for item in q.correct_answers:
                         if isinstance(item, list):
-                            lines.append(', '.join(str(x) for x in item))
+                            lines.append('; '.join(str(x) for x in item))
                         elif item:
                             lines.append(str(item))
                     correct_snap = '\n'.join(lines)
@@ -831,20 +831,6 @@ class WujiaFranchiseInspectionLine(models.Model):
         required=True,
     )
 
-    @api.onchange('is_pass')
-    def _onchange_is_pass(self):
-        if self.is_pass:
-            self.result = 'pass'
-        else:
-            self.result = 'fail'
-
-    @api.onchange('result')
-    def _onchange_result(self):
-        if self.result == 'pass':
-            self.is_pass = True
-        else:
-            self.is_pass = False
-    
     note = fields.Text(
         string='Ghi chú vi phạm (Admin)',
     )
@@ -855,14 +841,6 @@ class WujiaFranchiseInspectionLine(models.Model):
         (RemediationState.DONE.value, 'Đã duyệt (Hoàn thành)'),
     ], string='Trạng thái khắc phục', tracking=True)
 
-    @api.onchange('is_pass', 'result')
-    def _onchange_is_pass_remediation_state(self):
-        if self.is_pass or self.result == 'pass':
-            self.remediation_state = RemediationState.DONE.value
-        else:
-            if not self.remediation_state or self.remediation_state == RemediationState.DONE.value:
-                self.remediation_state = RemediationState.NEED_REMEDIATION.value
-    
     remediation_note = fields.Text(
         string='Ghi chú khắc phục (Cửa hàng)',
         help='Ghi chú phản hồi/khắc phục do cửa hàng nhập từ Portal.'
@@ -959,18 +937,6 @@ class WujiaFranchiseInspectionLine(models.Model):
         default=1,
     )
 
-    @api.depends('is_pass', 'result', 'display_type')
-    def _compute_pass_fail_count(self):
-        for rec in self:
-            if rec.display_type == 'line':
-                rec.pass_count = 1 if (rec.is_pass or rec.result == 'pass') else 0
-                rec.fail_count = 0 if (rec.is_pass or rec.result == 'pass') else 1
-                rec.line_count = 1
-            else:
-                rec.pass_count = 0
-                rec.fail_count = 0
-                rec.line_count = 0
-
     category_id = fields.Many2one(
         'wujia.franchise.inspection.category',
         string='Danh mục tiêu chí',
@@ -1006,6 +972,50 @@ class WujiaFranchiseInspectionLine(models.Model):
         string='Phiếu khảo sát đợt trước',
         readonly=True,
     )
+    
+    content_class = fields.Char(
+        string="CSS Class cho nội dung", 
+        compute="_compute_content_class",
+    )
+    
+    @api.onchange('is_pass')
+    def _onchange_is_pass(self):
+        if self.is_pass:
+            self.result = 'pass'
+        else:
+            self.result = 'fail'
+
+    @api.onchange('result')
+    def _onchange_result(self):
+        if self.result == 'pass':
+            self.is_pass = True
+        else:
+            self.is_pass = False
+    
+ 
+    @api.onchange('is_pass', 'result')
+    def _onchange_is_pass_remediation_state(self):
+        if self.is_pass or self.result == 'pass':
+            self.remediation_state = RemediationState.DONE.value
+        else:
+            if not self.remediation_state or self.remediation_state == RemediationState.DONE.value:
+                self.remediation_state = RemediationState.NEED_REMEDIATION.value
+    
+   
+
+    @api.depends('is_pass', 'result', 'display_type')
+    def _compute_pass_fail_count(self):
+        for rec in self:
+            if rec.display_type == 'line':
+                rec.pass_count = 1 if (rec.is_pass or rec.result == 'pass') else 0
+                rec.fail_count = 0 if (rec.is_pass or rec.result == 'pass') else 1
+                rec.line_count = 1
+            else:
+                rec.pass_count = 0
+                rec.fail_count = 0
+                rec.line_count = 0
+
+   
 
     def action_view_previous_inspection(self):
         """Mở popup Form View xem duy nhất 1 dòng tiêu chí đợt trước (Readonly)"""
@@ -1021,10 +1031,6 @@ class WujiaFranchiseInspectionLine(models.Model):
             'target': 'new',
             'context': {'create': False, 'edit': False},
         }
-    content_class = fields.Char(
-        string="CSS Class cho nội dung", 
-        compute="_compute_content_class",
-    )
 
     # 2. Phương thức tính toán class
     @api.depends('display_type')

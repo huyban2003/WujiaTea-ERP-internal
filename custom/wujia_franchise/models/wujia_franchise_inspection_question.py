@@ -34,7 +34,7 @@ class WujiaFranchiseInspectionQuestion(models.Model):
         help='Nhập đáp án đúng cho từng chỗ trống ____.\n'
              '- Chỗ trống 1: Nhập ở Dòng 1.\n'
              '- Chỗ trống 2: Nhập ở Dòng 2.\n'
-             '- Nếu 1 chỗ trống có nhiều đáp án chấp nhận được, phân cách nhau bằng dấu phẩy (,).'
+             '- Nếu 1 chỗ trống có nhiều đáp án chấp nhận được, phân cách nhau bằng dấu chấm phẩy (;).'
     )
     
     active = fields.Boolean(string='Kích hoạt', default=True, tracking=True)
@@ -72,7 +72,7 @@ class WujiaFranchiseInspectionQuestion(models.Model):
                             if x is not None and not isinstance(x, models.BaseModel) and isinstance(x, (str, int, float))
                         ]
                         if clean_items:
-                            formatted_lines.append(', '.join(clean_items))
+                            formatted_lines.append('; '.join(clean_items))
                     elif isinstance(item, (str, int, float)) and item:
                         formatted_lines.append(str(item))
                 rec.correct_answers_text = '\n'.join(formatted_lines)
@@ -91,8 +91,8 @@ class WujiaFranchiseInspectionQuestion(models.Model):
                     line_clean = line.strip()
                     if not line_clean:
                         continue
-                    if ',' in line_clean:
-                        parts = [p.strip() for p in line_clean.split(',') if p.strip()]
+                    if ';' in line_clean:
+                        parts = [p.strip() for p in line_clean.split(';') if p.strip()]
                         result_list.append(parts)
                     else:
                         result_list.append(line_clean)
