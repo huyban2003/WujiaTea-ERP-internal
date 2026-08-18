@@ -11,7 +11,7 @@
                 <field name="store_id" />
                 <field name="user_id" />
                 <!-- Thay date_start thành date -->
-                <field name="date" options="{'format': 'DD/MM/YYYY'}" />
+                <field name="date" />
                 <field name="state" widget="badge"
                     decoration-info="state == 'draft'"
                     decoration-warning="state == 'in_progress'"
@@ -92,9 +92,7 @@
                             </group>
                         </group>
                         <group string="THỜI GIAN &amp; KẾT QUẢ ĐÁNH GIÁ GẦN NHẤT">
-                            <field name="date"
-                                string="Thời gian giám sát"
-                                options="{'format': 'DD/MM/YYYY'}" />
+                            <field name="date" string="Thời gian giám sát" />
                             <field name="latest_total_score"
                                 string="Điểm mới nhất"
                                 readonly="1" />
