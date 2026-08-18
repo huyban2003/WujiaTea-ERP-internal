@@ -61,3 +61,26 @@ người" là chuỗi chép tay (default của field), nay đã gỡ.
 3. **Cờ suy từ hậu tố mã ngôn ngữ** (`vi_VN`→`vn`, `zh_TW`→`tw`). Bộ `flag-icon` trong repo
    có đủ cờ cho các ngôn ngữ dự kiến; ngôn ngữ không có mã quốc gia (vd `sr@latin`) sẽ
    không có cờ — chưa phát sinh, mở issue riêng nếu BA cần.
+
+---
+
+## Đo lại trên UAT sau khi deploy (18/08/2026)
+
+Sau khi deploy `wujia_portal_exam 19.0.5.6.0` + `wujia_portal_layout 19.0.31.18.0` lên UAT
+(`http://113.161.187.126:8019`), đo lại bằng `scratchpad/c10_measure_uat.py` — **chỉ đọc**,
+không tạo phiếu / đơn / email. Kết quả: **30/30 Pass (100%)**.
+
+| Nhóm | Đo được trên UAT |
+|---|---|
+| Bộ chọn ở màn đăng nhập | 3 mục `English (US)` · `ภาษาไทย` · `Tiếng Việt` |
+| Đổi ngôn ngữ khi chưa đăng nhập | Chọn Thai → cờ `flag-icon-th`, `<html lang>` = `th-TH` ngay |
+| Giữ sau đăng nhập | Vẫn Thai ở `/portal/profile` và khi sang trang khác |
+| Navbar PC / header mobile | Mỗi nơi đúng 3 mục, nhãn bản địa |
+| Giới hạn người/phiếu | Khoá `QA-MANUAL-HCM-20260803`: hướng dẫn "tối đa 2 người" + chip `0 / 2`; đổi sang `Thi pha chế định kỳ` → cả hai thành `4` |
+| Hồi quy | `/portal/order`, `/portal/delivery`, `/portal/knowledge` × PC + mobile: 200, 0 lỗi JS, 0 tràn ngang (6/6) |
+
+Đã trả `res.users.lang` của tài khoản đo về `vi_VN` sau khi đo.
+
+**Chưa đo được trên UAT:** nhánh "ca thi cấu hình riêng thắng khoá" — UAT hiện không còn ca thi
+nào mở (ca duy nhất hết hạn 16/08/2026). Nhánh này đã chứng minh trên bản sao cơ sở dữ liệu
+(bảng trên); cần BA mở thêm một ca còn hạn, giới hạn khác khoá, để retest trọn vẹn.
