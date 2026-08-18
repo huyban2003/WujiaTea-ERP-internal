@@ -39,7 +39,9 @@ nhật dữ liệu; 60/60 đo đạt 2 viewport, 14 test mới + 87 hồi quy xa
 **`-u wujia_portal_layout,wujia_portal_sale,wujia_portal_purchase_history`** — chú ý có
 `wujia_portal_layout` vì CSS gốc nằm ở đó, không cập nhật dữ liệu; 26/26 đo đạt ở 360/391/1920,
 8 test mới + 57 hồi quy xanh; bảng đối chiếu `docs/c9-acceptance-matrix.md`) ·
-C6 ☐ · C7 ☐ · C8 ☐ · C10 ☐
+C10 ✅ 18/08/2026 (2 issue → Ready for Retest, `-u wujia_portal_exam,wujia_portal_layout`
+không cập nhật dữ liệu; 33/33 đo đạt 2 viewport, 20 test mới + 82 hồi quy xanh; bảng đối
+chiếu `docs/c10-acceptance-matrix.md`) · C6 ☐ · C7 ☐ · C8 ☐
 (đánh ✅ + ngày + commit khi xong, để phiên sau biết đang tới đâu.)
 
 ---

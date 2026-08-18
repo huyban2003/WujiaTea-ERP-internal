@@ -2,7 +2,7 @@
 <odoo>
     <data>
         <template id="layout" name="Basic layout">
-            <html lass="no-js" lang="en">
+            <html class="no-js" t-att-lang="request.env['ir.http']._wj_html_lang()">
                 <head>
                     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
                     <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
@@ -63,25 +63,21 @@
                                  do wujia_portal_sale + wujia_portal_notification chèn vào ul này. -->
                             <ul class="nav navbar-nav float-right wj-pc-navactions">
                                 <li class="dropdown dropdown-language nav-item">
+                                    <t t-set="wj_langs" t-value="request.env['ir.http']._wj_portal_langs()"/>
+                                    <t t-set="wj_lang_cur" t-value="[l for l in wj_langs if l['current']][:1]"/>
                                     <a class="dropdown-toggle nav-link text-white" id="dropdown-flag" href="#"
                                        data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                        <t t-if="lang == 'vi_VN'">
-                                            <i class="flag-icon flag-icon-vn"/>
-                                            <span class="selected-language">Việt Nam</span>
-                                        </t>
-                                        <t t-else="">
-                                            <i class="flag-icon flag-icon-us"/>
-                                            <span class="selected-language">English</span>
+                                        <t t-foreach="wj_lang_cur" t-as="l">
+                                            <i t-attf-class="flag-icon {{l['flag']}}"/>
+                                            <span class="selected-language" t-out="l['label']"/>
                                         </t>
                                     </a>
                                     <div class="dropdown-menu dropdown-menu-right" aria-labelledby="dropdown-flag">
-                                        <a class="dropdown-item" href="/portal/set-lang/en_US" data-url_code="en">
-                                            <i class="flag-icon flag-icon-us"/>
-                                            English
-                                        </a>
-                                        <a class="dropdown-item" href="/portal/set-lang/vi_VN" data-url_code="vi">
-                                            <i class="flag-icon flag-icon-vn"/>
-                                            Việt Nam
+                                        <a t-foreach="wj_langs" t-as="l" class="dropdown-item"
+                                           t-attf-href="/portal/set-lang/{{l['code']}}"
+                                           t-att-data-url_code="l['url_code']">
+                                            <i t-attf-class="flag-icon {{l['flag']}}"/>
+                                            <t t-out="l['label']"/>
                                         </a>
                                     </div>
                                 </li>
@@ -231,7 +227,7 @@
 
 
         <template id="login_layout" name="Login layout">
-            <html class="no-js" lang="vi">
+            <html class="no-js" t-att-lang="request.env['ir.http']._wj_html_lang()">
                 <head>
                     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
                     <meta http-equiv="X-UA-Compatible" content="IE=edge"/>

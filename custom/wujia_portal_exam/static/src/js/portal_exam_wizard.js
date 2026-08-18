@@ -48,9 +48,9 @@
         var pendingSessionId = 0;
         var pendingTime = '';
         var pendingLoc = '';
-        var pendingMax = 4;
+        var pendingMax = 0;
 
-        var chosen = { sessionId: 0, dateLabel: '', time: '', loc: '', max: 4 };
+        var chosen = { sessionId: 0, dateLabel: '', time: '', loc: '', max: 0 };
 
         /* ---------- Step navigation ---------- */
         function showStep(n) {
@@ -141,7 +141,7 @@
                     btn.setAttribute('data-exam-session-id', s.session_id);
                     btn.setAttribute('data-exam-time', s.time);
                     btn.setAttribute('data-exam-loc', s.location || '');
-                    btn.setAttribute('data-exam-max', s.max_per_reg || 4);
+                    btn.setAttribute('data-exam-max', s.max_per_reg);
                 }
                 btn.innerHTML =
                     '<i class="feather icon-clock wujia-mexam-slot-ico"></i>' +
@@ -171,7 +171,7 @@
             pendingSessionId = parseInt(btn.getAttribute('data-exam-session-id'), 10) || 0;
             pendingTime = btn.getAttribute('data-exam-time') || '';
             pendingLoc = btn.getAttribute('data-exam-loc') || '';
-            pendingMax = parseInt(btn.getAttribute('data-exam-max'), 10) || 4;
+            pendingMax = parseInt(btn.getAttribute('data-exam-max'), 10) || 0;
             if (confirmSlotBtn) { confirmSlotBtn.disabled = false; }
         }
 
@@ -198,7 +198,7 @@
         }
         function addPerson() {
             if (!personList || !personTpl) { return; }
-            if (personRows().length >= (chosen.max || 4)) {
+            if (chosen.max && personRows().length >= chosen.max) {
                 flashPersonLimit();
                 return;
             }
@@ -216,7 +216,7 @@
         }
         function flashPersonLimit() {
             var last = personRows()[personRows().length - 1];
-            if (last) { showPersonErr(last, 'Tối đa ' + (chosen.max || 4) + ' người mỗi phiếu.'); }
+            if (last) { showPersonErr(last, 'Tối đa ' + chosen.max + ' người mỗi phiếu.'); }
         }
         function showPersonErr(person, msg) {
             var err = person.querySelector('[data-exam-person-err]');

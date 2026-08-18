@@ -1145,3 +1145,23 @@ WJ-PH-008:
   impact: "Trang Lịch sử đặt hàng, cả bản máy tính lẫn điện thoại. Nội dung đơn, bộ lọc, quyền xem và trang chi tiết đơn không đổi. Người đang quen xem 20 dòng chỉ cần chọn lại 20 ở ô số dòng mỗi trang"
   retest: "Mở Lịch sử đặt hàng khi cửa hàng có hơn 10 đơn: ô số dòng phải hiện 10 và trang 1 có đúng 10 dòng. Sang trang 2 và đối chiếu mã đơn với trang 1: không được trùng, cộng lại phải đủ tổng bản ghi ghi ở góc trái. Chọn 20 dòng rồi bấm tìm kiếm hoặc lọc trạng thái: ô số dòng phải vẫn là 20. Sửa đường dẫn thành page_size bằng một số lạ: trang vẫn mở bình thường và về 10 dòng"
   limit: "Không có"
+
+WJ-EXAM-007:
+  sprint: "2026-08-18-C10"
+  build_override: "UAT | 18/08/2026 | Sprint 2026-08-18-C10 | wujia_portal_exam 19.0.5.6.0 | Chưa deploy UAT, đã đo trên bản sao cơ sở dữ liệu cách ly (cổng 8056) ở 1920x1080: khóa giới hạn 2 hiện đúng 2 ở cả câu hướng dẫn và ô Giới hạn mỗi phiếu, đổi sang khóa giới hạn 4 thì cả hai đổi theo, chọn ca thi cấu hình riêng 3 người thì cả hai ra 3 | URL: /portal/exam/register"
+  url: "/portal/exam/register — Giới hạn người tham gia"
+  odoo_fit: "Custom"
+  fix: "Màn đăng ký thi trước đây có câu hướng dẫn ghi cứng tối đa 4 người, trong khi ô Giới hạn mỗi phiếu lấy số thật từ cấu hình nên hai chỗ đá nhau. Nay mọi vị trí đều đọc cùng một nguồn: giới hạn của ca thi, ca nào để trống thì lấy giới hạn của khóa thi. Đổi khóa hoặc chọn ca khác thì câu hướng dẫn, ô giới hạn và thông báo khi thêm quá số người đều đổi theo cùng lúc. Máy chủ vẫn kiểm lại đúng giới hạn đó khi gửi phiếu nên không thể gửi vượt bằng cách sửa trình duyệt. Bản điện thoại cũng bỏ hết số 4 mặc định, lấy theo ca thi đã chọn. Giá trị đang có hiệu lực với khóa BA kiểm thử là 2 người mỗi phiếu"
+  impact: "Màn đăng ký thi trên máy tính và điện thoại. Cấu hình khóa thi và ca thi trong phần quản trị không đổi, dữ liệu phiếu đã có không đổi. Muốn đổi giới hạn thì sửa ở ca thi hoặc khóa thi, giao diện tự cập nhật"
+  retest: "Mở màn đăng ký thi với khóa có giới hạn 2: câu hướng dẫn phải ghi tối đa 2 người và ô Giới hạn mỗi phiếu phải là 0 / 2, không còn chỗ nào ghi 4. Đổi sang khóa giới hạn 4: cả hai chỗ phải thành 4. Chọn một ca thi có cấu hình riêng khác khóa: cả hai chỗ phải lấy số của ca thi. Thêm người tới đúng giới hạn rồi thêm tiếp: phải bị chặn kèm thông báo ghi đúng con số đó. Đổi giới hạn trong phần quản trị rồi tải lại trang: giao diện phải hiện số mới"
+  limit: "Không có"
+
+WJ-LANG-001:
+  sprint: "2026-08-18-C10"
+  build_override: "UAT | 18/08/2026 | Sprint 2026-08-18-C10 | wujia_portal_layout 19.0.31.18.0 | Chưa deploy UAT, đã đo trên bản sao cơ sở dữ liệu cách ly (cổng 8056) có cài sẵn tiếng Thái, ở 1920x1080 và 391x844: bộ chọn ra đủ ba ngôn ngữ trên máy tính, điện thoại và màn đăng nhập; chọn tiếng Thái ở màn đăng nhập rồi đăng nhập vẫn giữ tiếng Thái | URL: /portal"
+  url: "Portal toàn hệ thống — bộ chọn ngôn ngữ (máy tính, điện thoại, màn đăng nhập)"
+  odoo_fit: "Custom"
+  fix: "Bộ chọn ngôn ngữ trước đây viết cứng đúng hai mục English và Vietnam trong giao diện, nên cài thêm ngôn ngữ mới thì không hiện. Nay danh sách lấy động theo các ngôn ngữ đang bật trong phần cài đặt: bật thêm ngôn ngữ nào là portal có ngay mục đó, kể cả tiếng Thái hay tiếng Trung phồn thể, không phải sửa gì thêm. Tên ngôn ngữ hiển thị theo tên bản ngữ và cờ lấy theo mã ngôn ngữ. Màn đăng nhập trước đây chỉ có ô ngôn ngữ trang trí, nay bấm đổi được thật; ngôn ngữ chọn lúc chưa đăng nhập được giữ lại sau khi đăng nhập. Thẻ ngôn ngữ của trang cũng đổi theo ngôn ngữ đang dùng thay vì ghim sẵn"
+  impact: "Thanh trên cùng bản máy tính, thanh trên cùng bản điện thoại và màn đăng nhập của portal. Cách đổi ngôn ngữ vẫn dùng đường dẫn cũ, tiếng Anh và tiếng Việt hoạt động như trước. Không thêm bảng dữ liệu, không đổi cấu hình ngôn ngữ hiện có"
+  retest: "Mở portal trên máy tính: bộ chọn phải có đủ ba mục English, Tiếng Việt và tiếng Thái, mục đang dùng hiện đúng tên và cờ. Kiểm tương tự trên điện thoại và ở màn đăng nhập. Chọn tiếng Thái rồi chuyển qua vài trang: vẫn giữ tiếng Thái. Chọn tiếng Thái ngay ở màn đăng nhập rồi đăng nhập: vẫn là tiếng Thái. Đổi lại tiếng Việt và tiếng Anh: phải chuyển bình thường. Nhờ quản trị bật thêm một ngôn ngữ khác trong phần cài đặt rồi tải lại portal: mục mới phải tự xuất hiện"
+  limit: "Cụm này chỉ sửa bộ chọn và cơ chế đổi ngôn ngữ. Nội dung tiếng Việt trong portal là bản gốc nên khi chọn tiếng Thái, phần nào chưa có bản dịch trong tệp ngôn ngữ vẫn hiển thị tiếng Việt. Ngoài ra ba chỗ nhãn đang được cố định tiếng Việt từ đợt chuẩn hóa ngôn ngữ trước (trạng thái nhượng quyền, mức độ ưu tiên ở chuông thông báo, loại yêu cầu cập nhật thông tin) vẫn ra tiếng Việt ở mọi ngôn ngữ; gỡ chỗ này cần BA chốt từ vựng nên chưa đụng tới"
