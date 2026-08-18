@@ -161,18 +161,23 @@
                                                                             class="fa fa-times"></i>
                                                                         K.Đạt</span>
                                                                 </t>
-                                                                <span
-                                                                    class="mini-badge note-indicator"
-                                                                    t-att-style="'display: inline-flex;' if l['note'] else 'display: none;'"
-                                                                    title="Có ghi chú">
-                                                                    <i class="fa fa-comment-dots"></i>
-                                                                </span>
-                                                                <span
-                                                                    class="mini-badge photo-indicator"
-                                                                    t-att-style="'display: inline-flex;' if l['has_evidence'] else 'display: none;'"
-                                                                    title="Có ảnh">
-                                                                    <i class="fa fa-camera"></i>
-                                                                </span>
+                                                                <div>
+                                                                    <span
+                                                                        class="mini-badge note-indicator"
+                                                                        t-att-style="'display: inline-flex;' if l['note'] else 'display: none;'"
+                                                                        title="Có ghi chú">
+                                                                        <i
+                                                                            class="fa fa-comment-dots"></i>
+                                                                    </span>
+                                                                    <span
+                                                                        class="mini-badge photo-indicator"
+                                                                        t-att-style="'display: inline-flex;' if l['has_evidence'] else 'display: none;'"
+                                                                        title="Có ảnh">
+                                                                        <i class="fa fa-camera"></i>
+                                                                    </span>
+
+                                                                </div>
+
                                                             </span>
                                                         </button>
                                                     </td>

@@ -594,9 +594,16 @@ body {
 }
 
 .detail-indicators {
-    display: inline-flex;
+    display: flex;
+    flex-direction: column;
     align-items: center;
     gap: 4px;
+}
+
+.detail-indicators > div {
+    display: flex;
+    gap: 4px;
+    justify-content: center;
 }
 
 .mini-badge {
@@ -611,8 +618,8 @@ body {
 
 .mini-badge.pass { background: #dcfce7; color: #15803d; border: 1px solid #86efac; }
 .mini-badge.fail { background: #fee2e2; color: #ef4444; border: 1px solid #fca5a5; }
-.mini-badge.note-indicator { background: #dbeafe; color: #1d4ed8; border: 1px solid #bfdbfe; }
-.mini-badge.photo-indicator { background: #fef3c7; color: #d97706; border: 1px solid #fde68a; }
+.mini-badge.note-indicator { background: #dbeafe; color: #1d4ed8; border: 1px solid #bfdbfe; padding: 2px 4px; min-width: 20px; justify-content: center; }
+.mini-badge.photo-indicator { background: #fef3c7; color: #d97706; border: 1px solid #fde68a; padding: 2px 4px; min-width: 20px; justify-content: center; }
 
 /* Light gray background for important / critical criteria */
 .checklist-table tr.item-row.important-row {

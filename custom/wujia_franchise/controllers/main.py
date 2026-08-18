@@ -2,6 +2,7 @@
 import json
 import base64
 from odoo import http, fields, _
+# pyrefly: ignore [missing-import]
 from odoo.http import request
 
 
@@ -94,6 +95,7 @@ class WujiaFranchiseInspectionWebController(http.Controller):
 
     @http.route(['/franchise/inspection/do/<int:inspection_id>/save'], type='json', auth='user', methods=['POST'])
     def save_inspection_survey(self, inspection_id, lines=None, exam_lines=None, test_employee_name=None, tenure=None, finish=True, **kwargs):
+        # kiểm tra tồn tại và điều kiện trước khi save phiếu 
         inspection = request.env['wujia.franchise.inspection'].sudo().browse(int(inspection_id))
         if not inspection.exists():
             return {'success': False, 'error': 'Phiếu khảo sát không tồn tại'}
@@ -108,13 +110,18 @@ class WujiaFranchiseInspectionWebController(http.Controller):
         if lines:
             for l_data in lines:
                 l_id = l_data.get('id')
+                # kiểm tra từng dòng có tồn tại không
                 line = LineModel.browse(int(l_id)) if l_id else None
+
+                # nếu tồn tại thì update và là line của chỉnh phiếu đó thì update 
                 if line and line.exists() and line.inspection_id.id == inspection.id:
                     vals = {
                         'is_pass': bool(l_data.get('is_pass')),
                         'note': l_data.get('note', '') or '',
                     }
+                    # gửi ảnh vi phạm 
                     evidence_b64 = l_data.get('evidence_image')
+                    
                     if evidence_b64 and 'base64,' in evidence_b64:
                         vals['evidence_image'] = evidence_b64.split('base64,')[1]
                     elif evidence_b64 is False:
