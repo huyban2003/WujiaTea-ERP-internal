@@ -1,4 +1,5 @@
 from odoo import models, fields, api, _
+# pyrefly: ignore [missing-import]
 from odoo.exceptions import ValidationError, UserError
 
 class WujiaSupervisionSchedule(models.Model):
@@ -9,55 +10,6 @@ class WujiaSupervisionSchedule(models.Model):
     _sql_constraints = [
         ('name_uniq', 'unique(name)', 'Tiêu đề/Mã lịch giám sát (name) đã tồn tại! Không thể đặt trùng lặp.'),
     ]
-
-    def write(self, vals):
-        if 'name' in vals and not self.env.su:
-            for rec in self:
-                if rec.name and vals['name'] != rec.name:
-                    raise ValidationError(_("Tiêu đề/Mã lịch giám sát (%s) không thể thay đổi sau khi đã tạo!") % rec.name)
-        return super().write(vals)
-
-    @api.model
-    def _generate_schedule_name(self, store_id, seq_number=None):
-        """
-        Hàm sinh đệ quy mã Lịch giám sát dạng 'LGS-[mã cửa hàng]-[stt 4 chữ số]'.
-        """
-        if not store_id:
-            return 'LGS-STORE-0001'
-        store = store_id if isinstance(store_id, models.Model) else self.env['wujia.franchise.management'].browse(store_id)
-        if not store.exists():
-            return 'LGS-STORE-0001'
-
-        store_code = (store.code or store.name or 'STORE').strip().replace(' ', '_')
-
-        if seq_number is None:
-            seq_number = self.search_count([('store_id', '=', store.id)]) + 1
-
-        candidate_name = f"LGS-{store_code}-{seq_number:04d}"
-
-        if self.search_count([('name', '=', candidate_name)]):
-            return self._generate_schedule_name(store, seq_number=seq_number + 1)
-
-        return candidate_name
-
-    @api.onchange('store_id')
-    def _onchange_store_id_set_name(self):
-        if self.store_id:
-            if not self.name or self.name.startswith('LGS-') or self.name.startswith('PGS-') or self.name.startswith('Lịch giám sát') or self.name == 'New':
-                self.name = self._generate_schedule_name(self.store_id)
-
-    @api.model_create_multi
-    def create(self, vals_list):
-        for vals in vals_list:
-            store_id = vals.get('store_id')
-            current_name = vals.get('name')
-            if not current_name or current_name == 'New' or current_name.startswith('Lịch giám sát') or not current_name.startswith('LGS-'):
-                if store_id:
-                    vals['name'] = self._generate_schedule_name(store_id)
-                elif not current_name:
-                    count = self.search_count([]) + 1
-                    vals['name'] = f"LGS-STORE-{count:04d}"
-        return super(WujiaSupervisionSchedule, self).create(vals_list)
 
     name = fields.Char(string='Tiêu đề', required=True, copy=False)
     
@@ -109,6 +61,75 @@ class WujiaSupervisionSchedule(models.Model):
         string='Loại đánh giá mới nhất',
         compute='_compute_latest_inspection_info',
     )
+
+    # dc, sdt, dv
+    address = fields.Text(related='store_id.address', string='Địa chỉ', readonly=True)
+    phone = fields.Char(related='store_id.phone', string='Số điện thoại', readonly=True)
+    google_map_url = fields.Char(related='store_id.google_map_url', string='Vị trí Google Maps', readonly=True)
+
+    def action_open_google_map(self):
+        self.ensure_one()
+        if self.google_map_url:
+            return {
+                'type': 'ir.actions.act_url',
+                'url': self.google_map_url,
+                'target': 'new',
+            }
+            
+        raise UserError(_("Không có đường dẫn Google Maps!"))
+
+    def write(self, vals):
+        if 'name' in vals and not self.env.su:
+            for rec in self:
+                if rec.name and vals['name'] != rec.name:
+                    has_inspection = self.env['wujia.franchise.inspection'].search_count([('schedule_id', '=', rec.id)]) > 0
+                    if has_inspection:
+                        raise ValidationError(_("Tiêu đề/Mã lịch giám sát (%s) không thể thay đổi sau khi đã tạo phiếu khảo sát!") % rec.name)
+        return super().write(vals)
+
+    @api.model
+    def _generate_schedule_name(self, store_id, seq_number=None):
+        """
+        Hàm sinh đệ quy mã Lịch giám sát dạng 'LGS-[mã cửa hàng]-[stt 4 chữ số]'.
+        """
+        if not store_id:
+            return 'LGS-STORE-0001'
+        store = store_id if isinstance(store_id, models.Model) else self.env['wujia.franchise.management'].browse(store_id)
+        if not store.exists():
+            return 'LGS-STORE-0001'
+
+        store_code = (store.code or store.name or 'STORE').strip().replace(' ', '_')
+
+        if seq_number is None:
+            seq_number = self.search_count([('store_id', '=', store.id)]) + 1
+
+        candidate_name = f"LGS-{store_code}-{seq_number:04d}"
+
+        if self.search_count([('name', '=', candidate_name)]):
+            return self._generate_schedule_name(store, seq_number=seq_number + 1)
+
+        return candidate_name
+
+    @api.onchange('store_id')
+    def _onchange_store_id_set_name(self):
+        if self.store_id:
+            if not self.name or self.name.startswith('LGS-') or self.name.startswith('PGS-') or self.name.startswith('Lịch giám sát') or self.name == 'New':
+                self.name = self._generate_schedule_name(self.store_id)
+
+    @api.model_create_multi
+    def create(self, vals_list):
+        for vals in vals_list:
+            store_id = vals.get('store_id')
+            current_name = vals.get('name')
+            if not current_name or current_name == 'New' or current_name.startswith('Lịch giám sát') or not current_name.startswith('LGS-'):
+                if store_id:
+                    vals['name'] = self._generate_schedule_name(store_id)
+                elif not current_name:
+                    count = self.search_count([]) + 1
+                    vals['name'] = f"LGS-STORE-{count:04d}"
+        return super(WujiaSupervisionSchedule, self).create(vals_list)
+
+   
 
     def _compute_inspection_info(self):
         if not self:

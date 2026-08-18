@@ -184,6 +184,7 @@ class WujiaFranchiseManagement(models.Model):
         compute='_compute_latest_inspection_info',
         store=True,
     )
+    google_map_url = fields.Char(string='Google Map URL')
 
     active = fields.Boolean(default=True)
 

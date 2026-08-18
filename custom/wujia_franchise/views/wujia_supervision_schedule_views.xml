@@ -76,6 +76,20 @@
                             <field name="store_id"
                                 domain="[('effective_supervision_user_id', '=', user_id)]"
                                 options="{'no_create': True, 'no_open': True}" />
+                            <!-- cần thêm địa chị, sĐt, định vị cửa hàng -->
+                            <group name="store_info" string="Địa chỉ &amp; Điện thoại">
+                                <field name="address" readonly="1" />
+                                <field name="phone" readonly="1" />
+                            </group>
+                            <group name="google_map_url" string="Định vị">
+                                <field name="google_map_url" invisible="1" />
+                                <button name="action_open_google_map"
+                                    string="Mở Google Maps"
+                                    type="object"
+                                    icon="fa-map-marker"
+                                    class="btn-secondary"
+                                    invisible="not google_map_url" />
+                            </group>
                         </group>
                         <group string="THỜI GIAN &amp; KẾT QUẢ ĐÁNH GIÁ GẦN NHẤT">
                             <field name="date"
