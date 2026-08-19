@@ -58,11 +58,37 @@ trên UAT** bằng cách nhúng CSS mới (L14), vì UAT có `website_sale` nên
 
 ## LIMIT
 
-- Phần **template** (bỏ chevron, gộp card, mã đơn đầy đủ) mới đo trên DB copy; UAT chưa có
-  bản này. Sau khi deploy phải đo lại trên UAT — riêng phần CSS của WJ-HOME-001 đã chứng
-  minh ngay trên UAT bằng cách nhúng (nhãn bị cắt 1 → 0 ở 360px).
+- ~~Phần template mới đo trên DB copy~~ → **đã đo lại trên UAT sau deploy 19/08** (xem mục
+  dưới). LIMIT này đã đóng.
 - Ô KPI **Công nợ** trên UAT đang là “—” (cửa hàng của tài khoản đo chưa có chứng từ kế
   toán), nên trường hợp số tiền dài chỉ ép được bằng trình duyệt chứ chưa gặp dữ liệu thật:
   đo cho thấy số tiền tự xuống dòng trong ô, không tràn và không đẩy lệch 4 KPI.
 - Trạng thái *pressed* khi chạm vẫn đo bằng trình duyệt giả lập điện thoại, chưa đo máy thật
   (kế thừa LIMIT của C6).
+
+## Đo lại trên UAT sau deploy (19/08/2026)
+
+Phiên bản trên UAT xác nhận qua XML-RPC: `wujia_portal_base` **19.0.7.4.0** installed,
+`wujia_portal_layout` **19.0.31.20.0** installed.
+
+| Hạng mục | Trước deploy (UAT) | Sau deploy (UAT) |
+|---|---|---|
+| Chevron cấp dòng | 11 | **0** |
+| Card trên trang | 8 | **6** (mỗi block danh sách đúng 1) |
+| Nhãn KPI bị cắt @360 | 1 (“Thông báo” 59/57) | **0** — 4 nhãn 1 dòng, không chồng lấn |
+| Mã đơn bị cắt @360 | 3 | **0** |
+| Bản ghi mỗi block preview | 5 / 3 | **≤2** (Đơn hàng 2, Kiến thức 2, Đổi trả 2; Thông báo và Giao hàng 1 vì UAT chỉ có 1 bản ghi) |
+| “Xem tất cả” | 5 | **5** (giữ nguyên) |
+| Tràn ngang @360/391/430/500 | 0 | **0** |
+| Class chết còn sót | — | **0** |
+| Lỗi JS (`pageerror`) | — | **[]** |
+| Chiều cao trang | — | 2300 @360 · 2262 @391/430/500 |
+
+Hồi quy đo lại **trên chính UAT**:
+
+| Hạng mục | Kết quả |
+|---|---|
+| Lưới B4 (ID thật của UAT: SO 41, batch 2, notification 1, ticket 16, return 6) | **286/286 PASS** (mobile 17/17, PC 17/17, 5/5 trang ngoài matrix, 6 chiều rộng) — 4 ô đỏ đo lúc trước là do dùng nhầm ID của DB local |
+| Vòng focus C6 — đi Tab thật 5 trang (`/portal`, `/order`, `/knowledge`, `/debt`, `/exam`) | **124/124** điểm dừng có vòng focus solid |
+| PC 1366/1920 × 4 trang dùng chung `.wujia-mdash-*` | status 200, tràn ngang 0, 0 dòng chết, 0 lỗi JS |
+| Ô KPI Công nợ ép số tiền dài `12.345.678 ₫` | nằm gọn trong tile (spill −5/−8px), 4 KPI vẫn cùng hàng |

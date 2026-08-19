@@ -1179,7 +1179,7 @@ WJ-PORTAL-UI-001:
 
 WJ-HOME-001:
   sprint: "2026-08-19-C7"
-  build_override: "UAT | 19/08/2026 | Sprint 2026-08-19-C7 | commit: b33b46f | Chưa deploy UAT — chờ chủ dự án cập nhật wujia_portal_base 19.0.7.4.0 + wujia_portal_layout 19.0.31.20.0 | Dev đã đo trên bản sao cơ sở dữ liệu ở 360, 391, 430 và 500 điểm ảnh: bốn nhãn KPI hiện đủ chữ trên cùng một hàng, mỗi nhãn một dòng; đồng thời chứng minh ngay trên UAT bằng cách nhúng thử phần giao diện mới, số nhãn bị cắt ở khổ 360 giảm từ 1 xuống 0 | URL: /portal"
+  build_override: "UAT | 19/08/2026 | Sprint 2026-08-19-C7 | commit: b33b46f | Đã deploy UAT — wujia_portal_base 19.0.7.4.0 + wujia_portal_layout 19.0.31.20.0 | Dev đo lại ngay trên UAT sau khi deploy ở 360, 391, 430 và 500 điểm ảnh: số nhãn KPI bị cắt giảm từ 1 xuống 0, cả bốn nhãn hiện đủ chữ, mỗi nhãn đúng một dòng, bốn ô cùng nằm trên một hàng, nhãn không đè lên số, không lỗi trình duyệt | URL: /portal"
   url: "/portal — block Tổng quan cửa hàng (điện thoại)"
   odoo_fit: "Custom"
   fix: "Bốn nhãn KPI ở đầu trang chủ không còn bị cắt cụt thành Đơn hà… hay Thông …. Trước đây nhãn được cố tình cắt bằng dấu ba chấm khi thiếu chỗ; nay bỏ hẳn kiểu cắt đó, thu nhỏ khoảng cách chữ và lề trong ô ở màn hình hẹp dưới 380 điểm ảnh để bốn KPI vẫn nằm trên một hàng và hiện đủ tên. Chỗ chừa sẵn cho nhãn tính theo hai dòng nên nếu sau này có nhãn dài bất thường thì nhãn xuống dòng chứ không bị cắt, và bốn con số vẫn thẳng hàng nhau. Ô Công nợ khi có số tiền dài thì số tự xuống dòng trong ô, không tràn ra ngoài và không đẩy lệch các ô còn lại. Không phải chuyển sang lưới hai hàng hai cột vì khổ nhỏ nhất đã đủ chỗ, đúng thứ tự ưu tiên BA chốt"
@@ -1189,7 +1189,7 @@ WJ-HOME-001:
 
 WJ-HOME-002:
   sprint: "2026-08-19-C7"
-  build_override: "UAT | 19/08/2026 | Sprint 2026-08-19-C7 | commit: b33b46f | Chưa deploy UAT — chờ chủ dự án cập nhật wujia_portal_base 19.0.7.4.0 + wujia_portal_layout 19.0.31.20.0 | Dev đã đo trên bản sao cơ sở dữ liệu ở 360, 391, 430 và 500 điểm ảnh: số mã bị cắt giảm từ 1 xuống 0, không trang nào cuộn ngang | URL: /portal"
+  build_override: "UAT | 19/08/2026 | Sprint 2026-08-19-C7 | commit: b33b46f | Đã deploy UAT — wujia_portal_base 19.0.7.4.0 + wujia_portal_layout 19.0.31.20.0 | Dev đo lại ngay trên UAT sau khi deploy ở 360, 391, 430 và 500 điểm ảnh: số mã đơn bị cắt giảm từ 3 xuống 0 ở khổ 360, không dòng nào còn dấu ba chấm, không trang nào cuộn ngang | URL: /portal"
   url: "/portal — block Đơn hàng gần đây (điện thoại)"
   odoo_fit: "Custom"
   fix: "Mã đơn trong block Đơn hàng gần đây nay hiện đầy đủ. Trước đây mã, ngày, số tiền, trạng thái và mũi tên chen nhau trên một dòng nên mã bị cắt thành S0… và các đơn trông giống hệt nhau. Nay mã đơn chiếm trọn dòng đầu cùng với nhãn trạng thái, còn ngày đặt và số tiền lùi xuống dòng phụ; mũi tên xem chi tiết đã bỏ nên có thêm chỗ. Mã chuyến giao ở block Giao hàng sắp tới cũng được sửa cùng cách vì bị cắt y hệt. Giờ đặt hàng hiển thị theo giờ Việt Nam thay vì giờ gốc của máy chủ"
@@ -1199,7 +1199,7 @@ WJ-HOME-002:
 
 WJ-HOME-006:
   sprint: "2026-08-19-C7"
-  build_override: "UAT | 19/08/2026 | Sprint 2026-08-19-C7 | commit: b33b46f | Chưa deploy UAT — chờ chủ dự án cập nhật wujia_portal_base 19.0.7.4.0 + wujia_portal_layout 19.0.31.20.0 | Dev đã đo trên bản sao cơ sở dữ liệu: tạo 4 đơn thì trang chủ hiện đúng 2 đơn mới nhất, mọi block preview đều 2 dòng, chiều cao trang giảm từ 2752 xuống 2634 điểm ảnh ở khổ 360 với cùng bộ dữ liệu | URL: /portal"
+  build_override: "UAT | 19/08/2026 | Sprint 2026-08-19-C7 | commit: b33b46f | Đã deploy UAT — wujia_portal_base 19.0.7.4.0 + wujia_portal_layout 19.0.31.20.0 | Dev đo lại ngay trên UAT sau khi deploy: mọi block preview hiện tối đa 2 dòng đúng như yêu cầu, năm liên kết Xem tất cả còn nguyên, các block chỉ có một bản ghi vẫn hiển thị bình thường | URL: /portal"
   url: "/portal — số bản ghi mỗi block preview (điện thoại và máy tính)"
   odoo_fit: "Custom"
   fix: "Mọi block danh sách trên trang chủ nay hiển thị đúng hai bản ghi mới nhất. Trước đây Đơn hàng gần đây hiện năm dòng còn Thông báo, Đổi trả, Kiến thức hiện ba dòng nên trang bị kéo dài và các block cuối bị đẩy xuống sâu. Số lượng này nay là một con số duy nhất dùng chung cho cả năm nguồn dữ liệu, sửa một chỗ là mọi block đổi theo, không còn cảnh mỗi block một kiểu. Thứ tự vẫn từ mới đến cũ theo ngày nghiệp vụ của từng block, và liên kết Xem tất cả vẫn mở danh sách đầy đủ. Việc cắt bớt làm ở tầng dữ liệu chứ không phải giấu bằng giao diện, nên trang cũng nhẹ hơn"
@@ -1209,7 +1209,7 @@ WJ-HOME-006:
 
 WJ-HOME-007:
   sprint: "2026-08-19-C7"
-  build_override: "UAT | 19/08/2026 | Sprint 2026-08-19-C7 | commit: b33b46f | Chưa deploy UAT — chờ chủ dự án cập nhật wujia_portal_base 19.0.7.4.0 + wujia_portal_layout 19.0.31.20.0 | Dev đã đo trên bản sao cơ sở dữ liệu: số mũi tên ở cấp dòng giảm về 0 trên toàn trang, năm liên kết Xem tất cả giữ nguyên, đi phím Tab qua năm trang thì 124 trên 124 điểm dừng vẫn thấy viền chỉ dấu | URL: /portal"
+  build_override: "UAT | 19/08/2026 | Sprint 2026-08-19-C7 | commit: b33b46f | Đã deploy UAT — wujia_portal_base 19.0.7.4.0 + wujia_portal_layout 19.0.31.20.0 | Dev đo lại ngay trên UAT sau khi deploy: số mũi tên ở cấp dòng giảm từ 11 xuống 0 trên toàn trang, năm liên kết Xem tất cả giữ nguyên, đi phím Tab qua năm trang thì 124 trên 124 điểm dừng vẫn thấy viền chỉ dấu | URL: /portal"
   url: "/portal — dấu hiệu tương tác ở cấp dòng của mọi block (điện thoại)"
   odoo_fit: "Custom"
   fix: "Đã bỏ toàn bộ mũi tên xem chi tiết ở cấp dòng và cấp thẻ trong mọi block trang chủ, gồm Giao hàng, Đơn hàng, Kiến thức, Đổi trả, Thông báo và Hỗ trợ. Liên kết Xem tất cả ở tiêu đề từng block vẫn giữ. Mỗi dòng bấm được vốn đã là một vùng bấm trọn dòng nên bỏ mũi tên không làm mất chỗ bấm; trạng thái khi rê chuột, khi chạm và viền chỉ dấu bàn phím dùng đúng bộ trạng thái chung vừa chuẩn hóa ở đợt trước, không viết riêng cho trang chủ. Chỗ mũi tên cũ không để lại khoảng trống vì dòng tự co lại theo nội dung"
@@ -1219,7 +1219,7 @@ WJ-HOME-007:
 
 WJ-HOME-008:
   sprint: "2026-08-19-C7"
-  build_override: "UAT | 19/08/2026 | Sprint 2026-08-19-C7 | commit: b33b46f | Chưa deploy UAT — chờ chủ dự án cập nhật wujia_portal_base 19.0.7.4.0 + wujia_portal_layout 19.0.31.20.0 | Dev đã đo trên bản sao cơ sở dữ liệu ở bốn khổ điện thoại: mỗi block danh sách đúng một khung, khối Giao hàng và Đổi trả từ hai khung rời gộp còn một, không còn phần tử nào dùng kiểu khung rời cũ | URL: /portal"
+  build_override: "UAT | 19/08/2026 | Sprint 2026-08-19-C7 | commit: b33b46f | Đã deploy UAT — wujia_portal_base 19.0.7.4.0 + wujia_portal_layout 19.0.31.20.0 | Dev đo lại ngay trên UAT sau khi deploy ở bốn khổ điện thoại: mỗi block danh sách đúng một khung, tổng số khung trên trang giảm từ 8 xuống 6, không còn phần tử nào dùng kiểu khung rời cũ, không cuộn ngang | URL: /portal"
   url: "/portal — cấu trúc khung của các block danh sách (điện thoại)"
   odoo_fit: "Custom"
   fix: "Các block danh sách trên trang chủ nay dùng chung một kiểu: mỗi block là một khung, bên trong là các dòng ngăn nhau bằng một đường kẻ mảnh. Trước đây Giao hàng sắp tới và Yêu cầu đổi trả tách mỗi bản ghi thành một khung riêng, còn Thông báo nổi bật lại là các dải màu rời không nằm trong khung nào, nên ba block cùng loại mà trông khác hẳn nhau. Nay cả ba về đúng một mẫu với Đơn hàng và Kiến thức: cùng lề trong, cùng bo góc, cùng cỡ chữ, cùng kiểu biểu tượng và cùng nhãn trạng thái. Riêng Hành động nhanh và khối bốn KPI giữ bố cục riêng theo đúng yêu cầu. Phần giao diện của kiểu khung rời cũ đã được dọn khỏi mã nguồn để sau này không ai dùng nhầm lại"
