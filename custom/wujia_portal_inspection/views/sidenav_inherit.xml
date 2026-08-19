@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <!-- Thêm menu Khảo sát vào Desktop Sidenav Sidebar (priority=101 chạy sau layout_sidenav_figma prio=99) -->
+        <template id="pc_sidenav_inspection"
+                  inherit_id="wujia_portal_layout.layout_sidenav"
+                  priority="101"
+                  name="Wujia PC Sidenav — Khảo sát">
+            <xpath expr="//li[@id='nav_item_exam']" position="after">
+                <li t-attf-class="nav-item #{_inspection_active and 'active' or ''}" id="nav_item_inspection">
+                    <a href="/portal/inspection">
+                        <i class="feather icon-clipboard" aria-hidden="true"/>
+                        <span class="menu-title">Khảo sát</span>
+                    </a>
+                </li>
+            </xpath>
+        </template>
+
+        <!-- Thêm menu Khảo sát vào Mobile Bottom Sheet / Drawer Menu -->
+        <template id="mobile_bottomnav_inspection"
+                  inherit_id="wujia_portal_layout.mobile_bottomnav"
+                  priority="40"
+                  name="Wujia Mobile BottomSheet — Khảo sát">
+            <xpath expr="//div[hasclass('wujia-msheet-list')]" position="inside">
+                <a href="/portal/inspection" class="wujia-msheet-item">
+                    <span class="wujia-msheet-item-icon"><i class="feather icon-clipboard"/></span>
+                    <span class="wujia-msheet-item-text">
+                        <span class="wujia-msheet-item-title">Khảo sát</span>
+                        <span class="wujia-msheet-item-sub">Xem kết quả đánh giá &amp; khảo sát cửa hàng</span>
+                    </span>
+                    <i class="feather icon-chevron-right wujia-msheet-item-chevron"/>
+                </a>
+            </xpath>
+        </template>
+    </data>
+</odoo>
