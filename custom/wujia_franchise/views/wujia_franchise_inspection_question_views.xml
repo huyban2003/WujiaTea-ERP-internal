@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- Tree / List View -->
+    <record id="view_wujia_franchise_inspection_question_tree" model="ir.ui.view">
+        <field name="name">wujia.franchise.inspection.question.tree</field>
+        <field name="model">wujia.franchise.inspection.question</field>
+        <field name="arch" type="xml">
+            <list string="Thư viện câu hỏi kiểm tra">
+                <field name="code"/>
+                <field name="question_text"/>
+                <field name="score"/>
+                <field name="correct_answers_text" string="Đáp án đúng"/>
+                <field name="active" widget="boolean_toggle"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- Form View -->
+    <record id="view_wujia_franchise_inspection_question_form" model="ir.ui.view">
+        <field name="name">wujia.franchise.inspection.question.form</field>
+        <field name="model">wujia.franchise.inspection.question</field>
+        <field name="arch" type="xml">
+            <form string="Câu hỏi kiểm tra">
+                <header>
+                    <button name="action_save" string="Lưu câu hỏi" type="object" class="btn-primary"/>
+                </header>
+                <sheet>
+                    <div class="oe_title">
+                        <label for="code" string="Mã câu hỏi"/>
+                        <h2>
+                            <field name="code" placeholder="CH-VD-01"/>
+                        </h2>
+                    </div>
+                    <group>
+                        <group string="Thông tin chung">
+                            <field name="score"/>
+                            <field name="active" widget="boolean_toggle"/>
+                        </group>
+                    </group>
+
+                    <separator string="Nội dung câu hỏi"/>
+                    <div class="mb-3">
+                        <label for="question_text" string="Nhập nội dung câu hỏi (Dùng ký tự ____ đại diện cho vị trí điền trống)"/>
+                        <field name="question_text" placeholder="Ví dụ: Trà xanh Lài có ____cc nước cốt trà, ủ trong ____ phút ở nhiệt độ ____°C." required="1" class="w-100 fs-5"/>
+                    </div>
+
+                    <separator string="Cấu hình đáp án đúng"/>
+                    <div class="alert alert-info" role="alert">
+                        <strong>📌 Hướng dẫn nhập đáp án đúng:</strong>
+                        <ul class="mb-0 ps-3">
+                            <li>Nếu câu hỏi có 1 chỗ trống <code>____</code>: Nhập các đáp án đúng chấp nhận được (phân cách bằng dấu phẩy <code>,</code>).</li>
+                            <li>Nếu câu hỏi có nhiều chỗ trống <code>____</code>: Mỗi vị trí chỗ trống nhập trên <strong>1 dòng</strong> theo thứ tự.</li>
+                        </ul>
+                    </div>
+                    <div class="mb-3">
+                        <label for="correct_answers_text" string="Danh sách đáp án đúng"/>
+                        <field name="correct_answers_text" placeholder="500, 500ml&#10;10, 10 phút&#10;85, 85-90" class="w-100" rows="4"/>
+                    </div>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <!-- Search View -->
+    <record id="view_wujia_franchise_inspection_question_search" model="ir.ui.view">
+        <field name="name">wujia.franchise.inspection.question.search</field>
+        <field name="model">wujia.franchise.inspection.question</field>
+        <field name="arch" type="xml">
+            <search string="Tìm kiếm Câu hỏi kiểm tra">
+                <field name="code"/>
+                <field name="question_text"/>
+                <filter string="Archived" name="inactive" domain="[('active', '=', False)]"/>
+            </search>
+        </field>
+    </record>
+
+    <!-- Action -->
+    <record id="action_wujia_franchise_inspection_question" model="ir.actions.act_window">
+        <field name="name">Thư viện câu hỏi kiểm tra</field>
+        <field name="res_model">wujia.franchise.inspection.question</field>
+        <field name="view_mode">list,form</field>
+        <field name="search_view_id" ref="view_wujia_franchise_inspection_question_search"/>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Tạo câu hỏi kiểm tra mới cho thư viện!
+            </p>
+        </field>
+    </record>
+
+</odoo>

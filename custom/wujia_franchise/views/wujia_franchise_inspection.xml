@@ -1,0 +1,378 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- List View -->
+    <record id="view_wujia_franchise_inspection_list" model="ir.ui.view">
+        <field name="name">wujia.franchise.inspection.list</field>
+        <field name="model">wujia.franchise.inspection</field>
+        <field name="arch" type="xml">
+            <list string="label:wujia.franchise.inspection:list_title" default_order="id desc">
+                <field name="name" />
+                <field name="franchise_id" />
+                <field name="template_id" />
+                <field name="inspector_user_id" />
+                <field name="test_employee_name" />
+                <field name="planned_date" options="{'format': 'DD/MM/YYYY'}" />
+                <field name="total_score"
+                    string="label:wujia.franchise.inspection:field_total_score" />
+                <field name="grade_id" widget="badge" />
+                <field name="state" widget="badge"
+                    decoration-info="state == 'draft'"
+                    decoration-warning="state == 'in_progress'"
+                    decoration-danger="state == 'need_remediation'"
+                    decoration-success="state == 'done'"
+                    decoration-muted="state == 'cancel'" />
+            </list>
+        </field>
+    </record>
+
+    <!-- Form View -->
+    <record id="view_wujia_franchise_inspection_form" model="ir.ui.view">
+        <field name="name">wujia.franchise.inspection.form</field>
+        <field name="model">wujia.franchise.inspection</field>
+        <field name="arch" type="xml">
+            <form string="label:wujia.franchise.inspection:form_title">
+                <header>
+                    <button name="action_start"
+                        string="label:wujia.franchise.inspection:action_start" type="object"
+                        class="btn-primary" invisible="state != 'draft'" />
+                    <button name="action_need_remediation"
+                        string="label:wujia.franchise.inspection:action_need_remediation"
+                        type="object"
+                        class="btn-warning"
+                        invisible="state in ('done', 'cancel', 'need_remediation')" />
+                    <button name="action_done" string="label:wujia.franchise.inspection:action_done"
+                        type="object" class="btn-success"
+                        invisible="state in ('done', 'cancel')" />
+                    <button name="action_cancel"
+                        string="label:wujia.franchise.inspection:action_cancel" type="object"
+                        invisible="state in ('done', 'cancel')" />
+                    <button name="action_draft"
+                        string="label:wujia.franchise.inspection:action_draft" type="object"
+                        invisible="state in ('draft', 'done')" />
+                    <field name="state" widget="statusbar"
+                        statusbar_visible="draft,in_progress,need_remediation,done,cancel" />
+                </header>
+                <sheet>
+                    <!-- SMART BUTTON MỞ NỘI DUNG / CHI TIẾT KHẢO SÁT -->
+                    <div class="oe_button_box" name="button_box">
+                        <button name="action_open_inspection_detail"
+                            type="object"
+                            class="oe_stat_button"
+                            icon="fa-file-text-o"
+                            string="label:wujia.franchise.inspection:stat_inspection"
+                            invisible="state != 'in_progress'">
+
+                        </button>
+                    </div>
+
+                    <div class="oe_title">
+                        <label for="name" string="label:wujia.franchise.inspection:field_name" />
+                        <h1>
+                            <field name="name" readonly="1" force_save="1"
+                                placeholder="label:wujia.franchise.inspection:placeholder_name" />
+                        </h1>
+                    </div>
+                    <group>
+                        <group string="label:wujia.franchise.inspection:group_store_info">
+                            <field name="franchise_id" options="{'no_create': True}" />
+                            <field name="template_id" options="{'no_create': True}" />
+                            <field name="schedule_id" options="{'no_create': True}" />
+                            <field name="inspector_user_id" options="{'no_create': True}" />
+                            <field name="video" required="1" />
+
+                        </group>
+                        <group string="label:wujia.franchise.inspection:group_time_history">
+                            <field name="planned_date" />
+                            <field name="submit_date" invisible="1" />
+                            <field name="confirm_date" readonly="1" />
+                            <field name="previous_inspection_id" readonly="1" />
+                        </group>
+                    </group>
+
+                    <group>
+                        <group string="label:wujia.franchise.inspection:group_employee_survey">
+                            <field name="test_employee_name"
+                                placeholder="label:wujia.franchise.inspection:placeholder_employee_name" />
+                            <field name="tenure"
+                                placeholder="label:wujia.franchise.inspection:placeholder_tenure" />
+                        </group>
+                        <group string="label:wujia.franchise.inspection:group_next_plan">
+                            <label for="next_due_date"
+                                string="label:wujia.franchise.inspection:field_next_due_date" />
+                            <div class="o_row">
+                                <field name="next_due_date" class="oe_inline" />
+                                <button name="action_create_next_schedule"
+                                    type="object"
+                                    title="label:wujia.franchise.inspection:title_create_next_schedule"
+                                    icon="fa-arrow-right"
+                                    class="btn-link text-primary ps-1 pe-1"
+                                    invisible="not next_due_date" />
+                            </div>
+                            <field name="next_schedule_id" readonly="1"
+                                invisible="not next_schedule_id" />
+                        </group>
+                    </group>
+
+                    <group>
+                        <group string="label:wujia.franchise.inspection:group_component_scores">
+                            <field name="checklist_score" readonly="1" />
+                            <field name="exam_score" readonly="1" />
+                        </group>
+                        <group string="label:wujia.franchise.inspection:group_result_grade">
+                            <field name="total_score" class="fw-bold fs-4 text-primary" readonly="1" />
+                            <field name="grade_id" class="fw-bold fs-4 text-success"
+                                readonly="1" />
+                        </group>
+                    </group>
+
+                    <notebook>
+                        <page string="label:wujia.franchise.inspection:page_checklist"
+                            name="checklist">
+                            <field name="line_ids" readonly="state in ('done', 'cancel')">
+                                <list editable="bottom" create="false" delete="false" limit="100"
+                                    decoration-warning="criterion_type_snapshot == 'critical' and display_type == 'line'"
+                                    decoration-bf="display_type == 'line'"
+                                    decoration-info="display_type == 'section'">
+
+                                    <field name="display_type" column_invisible="True" />
+                                    <field name="sequence" widget="handle" />
+                                    <field name="template_line_id" column_invisible="True"
+                                        force_save="1" />
+                                    <field name="category_id" column_invisible="True" force_save="1" />
+                                    <field name="previous_line_id" column_invisible="True" />
+
+                                    <field name="content_snapshot"
+                                        readonly="1"
+                                        force_save="1"
+                                        string="label:wujia.franchise.inspection:field_content_snapshot"
+                                    />
+
+                                    <!-- <field name="criterion_type_snapshot"
+                                        readonly="1"
+                                        force_save="1"
+                                        string="Loại tiêu chí"
+                                        widget="badge"
+                                        invisible="display_type == 'section'"
+                                        decoration-danger="criterion_type_snapshot == 'critical'"
+                                        decoration-info="criterion_type_snapshot == 'normal'" />
+
+                                    <field name="deduction_score_snapshot"
+                                        readonly="1"
+                                        force_save="1"
+                                        string="Điểm trừ vi phạm"
+                                        invisible="display_type == 'section'" /> -->
+
+                                    <field name="is_pass"
+                                        widget="boolean_toggle"
+                                        string="label:wujia.franchise.inspection:field_is_pass"
+                                        invisible="display_type == 'section'"
+                                        class="wujia-inspection-pass-toggle"
+                                    />
+
+                                    <field name="previous_result"
+                                        readonly="1"
+                                        string="label:wujia.franchise.inspection:field_previous_result"
+                                        widget="badge"
+                                        invisible="display_type == 'section'"
+                                        decoration-success="previous_result == 'pass'"
+                                        decoration-danger="previous_result == 'fail'" />
+
+                                    <button name="action_view_previous_inspection"
+                                        type="object"
+                                        icon="fa-external-link"
+                                        title="label:wujia.franchise.inspection:title_view_prev_inspection"
+                                        class="btn-link text-primary p-0 me-1"
+                                        invisible="display_type == 'section' or not previous_result" />
+
+                                    <field name="require_note_if_fail" column_invisible="True" />
+                                    <field name="require_evidence_if_fail" column_invisible="True" />
+
+                                    <field name="note"
+                                        placeholder="label:wujia.franchise.inspection:placeholder_violation_note"
+                                        invisible="display_type == 'section'"
+                                        required="not is_pass and require_note_if_fail and display_type == 'line'" />
+
+                                    <field name="evidence_image"
+                                        widget="image"
+                                        options="{'size': [50, 50]}"
+                                        string="label:wujia.franchise.inspection:field_evidence_image"
+                                        invisible="display_type == 'section'"
+                                        required="not is_pass and require_evidence_if_fail and display_type == 'line'" />
+
+                                    <field name="remediation_state"
+                                        widget="selection_badge"
+                                        decoration-danger="remediation_state == 'need_remediation'"
+                                        decoration-warning="remediation_state == 'remediated'"
+                                        decoration-success="remediation_state == 'done'"
+                                        column_invisible="parent.state not in ['need_remediation', 'done']"
+                                        invisible="display_type == 'section'" />
+
+                                    <field name="remediation_note"
+                                        placeholder="label:wujia.franchise.inspection:placeholder_remediation_note"
+                                        column_invisible="parent.state not in ['need_remediation', 'done']"
+                                        invisible="display_type == 'section'" />
+
+                                    <field name="remediation_image"
+                                        widget="image"
+                                        options="{'size': [50, 50]}"
+                                        string="label:wujia.franchise.inspection:field_remediation_image"
+                                        invisible="display_type == 'section'"
+                                        column_invisible="parent.state not in ['need_remediation', 'done']"
+                                        readonly="parent.state not in ('need_remediation', 'in_progress', 'draft')" />
+                                </list>
+                            </field>
+                        </page>
+                        <page string="label:wujia.franchise.inspection:page_exam" name="exam">
+                            <!-- <field name="is_exam_submitted" column_invisible="True" /> -->
+                            <div
+                                class="alert alert-warning d-flex justify-content-between align-items-center mb-3"
+                                invisible="is_exam_submitted or state != 'draft'">
+                                <span><strong>Lưu ý:</strong> Vui lòng bấm <strong>"Bắt đầu thực
+                                    hiện"</strong> ở trên header để bắt đầu khảo sát và làm bài kiểm
+                                    tra!</span>
+                            </div>
+                            <div
+                                class="alert alert-info d-flex justify-content-between align-items-center mb-3"
+                                invisible="is_exam_submitted or state != 'in_progress'">
+                                <span><strong>Hướng dẫn:</strong> Nhân viên nhập câu trả lời vào ô
+                                    "Đáp án trả lời" bên dưới mỗi câu hỏi. Sau khi hoàn thành, bấm <strong>"Nộp
+                                    bài kiểm tra"</strong> để chấm điểm.</span>
+                                <button name="action_submit_exam"
+                                    string="label:wujia.franchise.inspection:action_submit_exam"
+                                    type="object" class="btn btn-primary fw-bold px-4"
+                                    invisible="is_exam_submitted or state != 'in_progress'" />
+                            </div>
+                            <div
+                                class="alert alert-success d-flex justify-content-between align-items-center mb-3"
+                                invisible="not is_exam_submitted">
+                                <span><strong>Đã nộp bài kiểm tra!</strong> Bài làm đã được khóa.
+                                    Kết quả chấm điểm: <b class="fs-5 text-success"><field
+                                            name="exam_score" readonly="1" /> điểm</b>.</span>
+                            </div>
+                            <group>
+                                <group>
+                                    <field name="test_employee_name"
+                                        readonly="is_exam_submitted or state in ('done', 'cancel')" />
+                                </group>
+                                <group>
+                                    <field name="tenure"
+                                        readonly="is_exam_submitted or state in ('done', 'cancel')" />
+                                </group>
+                            </group>
+                            <field name="exam_line_ids"
+                                readonly="is_exam_submitted or state in ('done', 'cancel')">
+                                <list editable="bottom" create="false" delete="false">
+                                    <field name="sequence" widget="handle" />
+                                    <field name="quest_id" column_invisible="True" />
+                                    <field name="quest_code_snapshot" readonly="1" force_save="1"
+                                        string="label:wujia.franchise.inspection:field_quest_code" />
+                                    <field name="quest_content_snapshot" readonly="1" force_save="1"
+                                        string="label:wujia.franchise.inspection:field_quest_content" />
+                                    <field name="answer"
+                                        placeholder="label:wujia.franchise.inspection:placeholder_answer"
+                                        readonly="parent.is_exam_submitted or parent.state in ('done', 'cancel')" />
+                                    <field name="_point_return"
+                                        string="label:wujia.franchise.inspection:field_point"
+                                        readonly="1"
+                                        invisible="not parent.is_exam_submitted" />
+                                </list>
+                            </field>
+                        </page>
+                        <page string="label:wujia.franchise.inspection:page_confirmation"
+                            name="confirmation">
+                            <group>
+                                <group
+                                    string="label:wujia.franchise.inspection:group_system_confirmer">
+                                    <field name="confirmed_user_id" options="{'no_create': True}" />
+                                </group>
+                                <group
+                                    string="label:wujia.franchise.inspection:group_manager_confirmer">
+                                    <field name="confirmed_member_id"
+                                        domain="[('franchise_id', '=', franchise_id)]"
+                                        options="{'no_create': True}" />
+                                </group>
+                            </group>
+                        </page>
+                    </notebook>
+                </sheet>
+                <chatter />
+            </form>
+        </field>
+    </record>
+
+    <!-- Search View -->
+    <record id="view_wujia_franchise_inspection_search" model="ir.ui.view">
+        <field name="name">wujia.franchise.inspection.search</field>
+        <field name="model">wujia.franchise.inspection</field>
+        <field name="arch" type="xml">
+            <search string="label:wujia.franchise.inspection:search_title">
+                <field name="name" />
+                <field name="franchise_id" />
+                <field name="inspector_user_id" />
+                <field name="schedule_id" />
+                <field name="planned_date" />
+                <separator />
+                <filter string="label:wujia.franchise.inspection:filter_my_inspection"
+                    name="my_inspection"
+                    domain="[('inspector_user_id', '=', uid)]" />
+                <separator />
+                <filter string="label:wujia.franchise.inspection:filter_planned_date"
+                    name="filter_planned_date" date="planned_date" />
+                <separator />
+                <filter string="label:wujia.franchise.inspection:filter_draft" name="draft"
+                    domain="[('state', '=', 'draft')]" />
+                <filter string="label:wujia.franchise.inspection:filter_in_progress"
+                    name="in_progress"
+                    domain="[('state', '=', 'in_progress')]" />
+                <filter string="label:wujia.franchise.inspection:filter_need_remediation"
+                    name="need_remediation"
+                    domain="[('state', '=', 'need_remediation')]" />
+                <filter string="label:wujia.franchise.inspection:filter_done" name="done"
+                    domain="[('state', '=', 'done')]" />
+                <filter string="label:wujia.franchise.inspection:filter_cancel" name="cancel"
+                    domain="[('state', '=', 'cancel')]" />
+                <separator />
+                <filter string="label:wujia.franchise.inspection:filter_grade_a" name="grade_a"
+                    domain="[('grade_id.name', '=', 'A')]" />
+                <filter string="label:wujia.franchise.inspection:filter_grade_b" name="grade_b"
+                    domain="[('grade_id.name', '=', 'B')]" />
+                <filter string="label:wujia.franchise.inspection:filter_grade_c" name="grade_c"
+                    domain="[('grade_id.name', '=', 'C')]" />
+                <filter string="label:wujia.franchise.inspection:filter_grade_d" name="grade_d"
+                    domain="[('grade_id.name', '=', 'D')]" />
+                <separator />
+                <filter string="label:wujia.franchise.inspection:filter_group_franchise"
+                    name="group_franchise"
+                    context="{'group_by': 'franchise_id'}" />
+                <filter string="label:wujia.franchise.inspection:filter_group_inspector"
+                    name="group_inspector"
+                    context="{'group_by': 'inspector_user_id'}" />
+                <filter string="label:wujia.franchise.inspection:filter_group_state"
+                    name="group_state" context="{'group_by': 'state'}" />
+                <filter string="label:wujia.franchise.inspection:filter_group_grade"
+                    name="group_grade" context="{'group_by': 'grade_id'}" />
+                <filter string="label:wujia.franchise.inspection:filter_group_planned_month"
+                    name="group_planned_date"
+                    context="{'group_by': 'planned_date:month'}" />
+                <filter string="label:wujia.franchise.inspection:filter_group_planned_day"
+                    name="group_planned_date_day"
+                    context="{'group_by': 'planned_date:day'}" />
+            </search>
+        </field>
+    </record>
+
+    <!-- Action Phiếu giám sát -->
+    <record id="action_wujia_franchise_inspection" model="ir.actions.act_window">
+        <field name="name">Phiếu giám sát</field>
+        <field name="res_model">wujia.franchise.inspection</field>
+        <field name="view_mode">list,form</field>
+        <field name="search_view_id" ref="view_wujia_franchise_inspection_search" />
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Tạo phiếu giám sát mới!
+            </p>
+        </field>
+    </record>
+
+</odoo>

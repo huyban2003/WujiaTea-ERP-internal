@@ -5,25 +5,31 @@
         <field name="name">wujia.franchise.management.list</field>
         <field name="model">wujia.franchise.management</field>
         <field name="arch" type="xml">
-            <list string="Franchise store" sample="1"
-                  decoration-danger="is_expired"
-                  decoration-warning="status == 'locked'"
-                  decoration-muted="status == 'closed'">
-                <field name="code"/>
-                <field name="name"/>
-                <field name="area_id" optional="show"/>
-                <field name="main_owner_member_id" optional="show"/>
-                <field name="franchise_start_date" optional="hide"/>
-                <field name="franchise_end_date"/>
-                <field name="remaining_days"/>
-                <field name="member_count"/>
+            <list string="Cửa hàng nhượng quyền" sample="1"
+                default_order="latest_inspection_date desc"
+                decoration-danger="is_expired"
+                decoration-warning="status == 'locked'"
+                decoration-muted="status == 'closed'">
+                <field name="code" />
+                <field name="name" />
+                <field name="area_id" optional="show" />
+                <field name="main_owner_member_id" optional="show" />
+                <field name="franchise_start_date" optional="hide" />
+                <field name="franchise_end_date" />
+                <field name="remaining_days" />
+                <field name="member_count" />
+                <field name="effective_supervision_user_id" optional="show" string="Người giám sát" />
+                <field name="latest_inspection_date" optional="show" string="Ngày khảo sát gần nhất" />
+                <field name="latest_total_score" optional="show" string="Điểm mới nhất" />
+                <field name="latest_grade_id" optional="show" widget="badge"
+                    string="Xếp loại mới nhất" />
                 <field name="status" widget="badge"
-                       decoration-success="status == 'active'"
-                       decoration-warning="status == 'locked'"
-                       decoration-danger="status == 'expired'"
-                       decoration-muted="status in ('draft', 'closed')"/>
-                <field name="portal_locked" optional="hide"/>
-                <field name="active" column_invisible="True"/>
+                    decoration-success="status == 'active'"
+                    decoration-warning="status == 'locked'"
+                    decoration-danger="status == 'expired'"
+                    decoration-muted="status in ('draft', 'closed')" />
+                <field name="portal_locked" optional="hide" />
+                <field name="active" column_invisible="True" />
             </list>
         </field>
     </record>
@@ -35,100 +41,117 @@
             <form string="Franchise store">
                 <header>
                     <button name="action_set_active" type="object"
-                            string="Activate" class="btn-primary"
-                            invisible="status == 'active'"/>
+                        string="Activate" class="btn-primary"
+                        invisible="status == 'active'" />
                     <button name="action_lock_portal" type="object"
-                            string="Lock portal" class="btn-warning"
-                            invisible="status in ('locked', 'closed')"/>
+                        string="Lock portal" class="btn-warning"
+                        invisible="status in ('locked', 'closed')" />
                     <button name="action_close" type="object"
-                            string="Close store" class="btn-danger"
-                            invisible="status == 'closed'"
-                            confirm="Closing this store blocks every portal access. Continue?"/>
+                        string="Close store" class="btn-danger"
+                        invisible="status == 'closed'"
+                        confirm="Closing this store blocks every portal access. Continue?" />
                     <field name="status" widget="statusbar"
-                           statusbar_visible="draft,active,locked,expired,closed"/>
+                        statusbar_visible="draft,active,locked,expired,closed" />
                 </header>
                 <sheet>
                     <div class="oe_button_box" name="button_box">
                         <button name="action_view_members" type="object"
-                                class="oe_stat_button" icon="fa-users">
-                            <field name="member_count" widget="statinfo" string="Members"/>
+                            class="oe_stat_button" icon="fa-users">
+                            <field name="member_count" widget="statinfo" string="Members" />
                         </button>
                     </div>
 
                     <widget name="web_ribbon" title="Hết hạn"
-                            bg_color="text-bg-danger" invisible="not is_expired"/>
+                        bg_color="text-bg-danger" invisible="not is_expired" />
                     <widget name="web_ribbon" title="Khóa portal"
-                            bg_color="text-bg-warning"
-                            invisible="not portal_locked or is_expired"/>
+                        bg_color="text-bg-warning"
+                        invisible="not portal_locked or is_expired" />
 
                     <div class="oe_title">
-                        <label for="name" class="oe_edit_only"/>
+                        <label for="name" class="oe_edit_only" />
                         <h1>
-                            <field name="display_name" readonly="1"/>
+                            <field name="display_name" readonly="1" />
                         </h1>
                     </div>
 
                     <group>
                         <group string="Identification">
-                            <field name="code" placeholder="H010"/>
-                            <field name="name" placeholder="e.g. 219 Vinh Vien store"/>
+                            <field name="code" placeholder="H010" />
+                            <field name="name" placeholder="e.g. 219 Vinh Vien store" />
                             <field name="partner_id"
-                                   options="{'no_create_edit': True}"/>
-                            <field name="main_owner_member_id" readonly="1"/>
+                                options="{'no_create_edit': True}" />
+                            <field name="main_owner_member_id" readonly="1" />
                         </group>
                         <group string="Contract">
-                            <field name="franchise_start_date"/>
-                            <field name="franchise_end_date"/>
-                            <field name="remaining_days"/>
-                            <field name="is_expired" invisible="1"/>
-                            <field name="opening_date"/>
+                            <field name="franchise_start_date" />
+                            <field name="franchise_end_date" />
+                            <field name="remaining_days" />
+                            <field name="is_expired" invisible="1" />
+                            <field name="opening_date" />
                         </group>
                     </group>
                     <group>
-                        <group string="Area &amp; address">
+                        <group string="Nhân viên giám sát">
+                            <field name="supervision_user_id"
+                                placeholder="Để trống sẽ dùng người phụ trách khu vực" />
+                            <field name="area_manager_user_id" readonly="1"
+                                string="Người phụ trách khu vực" />
+                        </group>
+                        <group string="Khảo sát đợt gần nhất">
+                            <field name="latest_inspection_date" readonly="1"
+                                string="Ngày khảo sát gần nhất" />
+                            <field name="latest_total_score" readonly="1"
+                                string="Điểm đánh giá mới nhất" />
+                            <field name="latest_grade_id" widget="badge" readonly="1"
+                                string="Loại đánh giá mới nhất" />
+                        </group>
+                    </group>
+                    <group>
+                        <group string="Khu vực &amp; Địa chỉ">
                             <field name="area_id"
-                                   options="{'no_create_edit': True}"/>
-                            <field name="state_id"/>
-                            <field name="address"/>
+                                options="{'no_create_edit': True}" />
+                            <field name="state_id" />
+                            <field name="address" />
+                            <field name="google_map_url" />
                         </group>
                         <group string="Contact">
-                            <field name="phone" widget="phone"/>
-                            <field name="email" widget="email"/>
+                            <field name="phone" widget="phone" />
+                            <field name="email" widget="email" />
                         </group>
                     </group>
                     <group>
                         <group string="Control flags">
-                            <field name="portal_locked"/>
-                            <field name="invoiced"/>
-                            <field name="active"/>
+                            <field name="portal_locked" />
+                            <field name="invoiced" />
+                            <field name="active" />
                         </group>
                     </group>
                     <notebook>
                         <page string="Members" name="members">
                             <field name="member_ids" context="{'default_franchise_id': id}">
                                 <list editable="bottom"
-                                      decoration-muted="not is_currently_valid"
-                                      decoration-bf="is_primary_owner">
-                                    <field name="user_id" options="{'no_create': True}"/>
-                                    <field name="role"/>
-                                    <field name="is_primary_owner"/>
-                                    <field name="date_from"/>
-                                    <field name="date_to"/>
-                                    <field name="is_currently_valid"/>
-                                    <field name="active" widget="boolean_toggle"/>
+                                    decoration-muted="not is_currently_valid"
+                                    decoration-bf="is_primary_owner">
+                                    <field name="user_id" options="{'no_create': True}" />
+                                    <field name="role" />
+                                    <field name="is_primary_owner" />
+                                    <field name="date_from" />
+                                    <field name="date_to" />
+                                    <field name="is_currently_valid" />
+                                    <field name="active" widget="boolean_toggle" />
                                 </list>
                             </field>
                         </page>
                         <page string="Operating description" name="description">
                             <field name="description"
-                                   placeholder="Operating notes: delivery, loading bans, parking bans..."/>
+                                placeholder="Operating notes: delivery, loading bans, parking bans..." />
                         </page>
                         <page string="Internal note" name="note">
-                            <field name="note" placeholder="Internal note"/>
+                            <field name="note" placeholder="Internal note" />
                         </page>
                     </notebook>
                 </sheet>
-                <chatter/>
+                <chatter />
             </form>
         </field>
     </record>
@@ -138,30 +161,30 @@
         <field name="model">wujia.franchise.management</field>
         <field name="arch" type="xml">
             <kanban sample="1">
-                <field name="code"/>
-                <field name="name"/>
-                <field name="area_name"/>
-                <field name="status"/>
-                <field name="is_expired"/>
-                <field name="member_count"/>
-                <field name="remaining_days"/>
+                <field name="code" />
+                <field name="name" />
+                <field name="area_name" />
+                <field name="status" />
+                <field name="is_expired" />
+                <field name="member_count" />
+                <field name="remaining_days" />
                 <templates>
                     <t t-name="card">
                         <div class="oe_kanban_card">
                             <div class="o_kanban_record_top">
                                 <div class="o_kanban_record_headings">
                                     <strong class="o_kanban_record_title">
-                                        <field name="display_name"/>
+                                        <field name="display_name" />
                                     </strong>
                                     <small class="text-muted">
-                                        <field name="area_name"/>
+                                        <field name="area_name" />
                                     </small>
                                 </div>
-                                <field name="status" widget="label_selection"/>
+                                <field name="status" widget="label_selection" />
                             </div>
                             <ul>
-                                <li>Remaining: <field name="remaining_days"/> days</li>
-                                <li>Members: <field name="member_count"/></li>
+                                <li>Remaining: <field name="remaining_days" /> days</li>
+                                <li>Members: <field name="member_count" /></li>
                             </ul>
                         </div>
                     </t>
@@ -175,53 +198,58 @@
         <field name="model">wujia.franchise.management</field>
         <field name="arch" type="xml">
             <search>
-                <field name="code"/>
-                <field name="name"/>
-                <field name="partner_id"/>
-                <field name="area_id"/>
-                <field name="main_owner_member_id"/>
-                <separator/>
-                <filter string="Active" name="filter_active"
-                        domain="[('status', '=', 'active')]"/>
+                <field name="code" />
+                <field name="name" />
+                <field name="partner_id" />
+                <field name="area_id" />
+                <field name="effective_supervision_user_id" />
+                <field name="main_owner_member_id" />
+                <separator />
+                <filter string="Cửa hàng tôi phụ trách" name="filter_my_inspection"
+                    domain="[('effective_supervision_user_id', '=', uid)]" />
+                <separator />
+                <filter string="Đang hoạt động" name="filter_active"
+                    domain="[('status', '=', 'active')]" />
                 <filter string="Contract expired" name="filter_expired"
-                        domain="[('is_expired', '=', True)]"/>
+                    domain="[('is_expired', '=', True)]" />
                 <filter string="Portal access blocked" name="filter_locked"
-                        domain="[('portal_locked', '=', True)]"/>
-                <separator/>
+                    domain="[('portal_locked', '=', True)]" />
+                <separator />
                 <filter string="Expiring soon (within 30 days)" name="filter_expiring_soon"
-                        domain="[('remaining_days', '&gt;=', 0), ('remaining_days', '&lt;=', 30)]"/>
-                <separator/>
+                    domain="[('remaining_days', '&gt;=', 0), ('remaining_days', '&lt;=', 30)]" />
+                <separator />
                 <filter string="Archived" name="filter_inactive"
-                        domain="[('active', '=', False)]"/>
+                    domain="[('active', '=', False)]" />
                 <filter string="Area" name="group_area"
-                        context="{'group_by': 'area_id'}"/>
+                    context="{'group_by': 'area_id'}" />
                 <filter string="Status" name="group_status"
-                        context="{'group_by': 'status'}"/>
+                    context="{'group_by': 'status'}" />
             </search>
         </field>
     </record>
 
     <record id="action_franchise_management" model="ir.actions.act_window">
-        <field name="name">Franchise Management</field>
+        <field name="name">Quản lý nhượng quyền</field>
         <field name="res_model">wujia.franchise.management</field>
         <field name="view_mode">list,kanban,form</field>
         <field name="context">{'search_default_filter_active': 1}</field>
         <field name="help" type="html">
             <p class="o_view_nocontent_smiling_face">Create the first franchise store record</p>
-            <p>The store record holds the franchise contract: start/end date, area, primary owner, status...</p>
+            <p>The store record holds the franchise contract: start/end date, area, primary owner,
+                status...</p>
         </field>
     </record>
 
     <!-- Cron tự động set status='expired' mỗi ngày -->
     <record id="ir_cron_check_franchise_expired" model="ir.cron">
         <field name="name">Wujia: Auto-expire franchise contract</field>
-        <field name="model_id" ref="model_wujia_franchise_management"/>
+        <field name="model_id" ref="model_wujia_franchise_management" />
         <field name="state">code</field>
         <field name="code">model._cron_check_expired()</field>
         <field name="interval_number">1</field>
         <field name="interval_type">days</field>
-        <field name="active" eval="True"/>
-        <field name="user_id" ref="base.user_root"/>
+        <field name="active" eval="True" />
+        <field name="user_id" ref="base.user_root" />
     </record>
 
 </odoo>

@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- Template Modal Popup Thông báo Gửi phản hồi thành công (Độc lập trong portal_inspection_success_templates.xml) -->
+    <template id="portal_inspection_success_popup" name="Wujia Portal — Success Modal Popup">
+
+
+        <!-- Modal Overlay Element -->
+        <div id="remediation_success_modal" class="wj-success-overlay">
+            <div class="wj-success-card text-center">
+
+                <!-- Title & Message -->
+                <h2 class="font-weight-bold text-dark mb-2" style="font-size: 1.6rem; letter-spacing: -0.5px;">
+                    Gửi phản hồi thành công!
+                </h2>
+                <p class="text-muted small mb-4 px-2" style="font-size: 0.9rem; line-height: 1.45;">
+                    Cảm ơn bạn đã gửi phản hồi. Chúng tôi đã ghi nhận thông tin và sẽ phản hồi kết quả sớm nhất.
+                </p>
+
+                <!-- Feedback Info Box -->
+                <div class="wj-info-box-bg mb-4 text-start">
+                    <div class="d-flex align-items-center gap-2 mb-3 pb-2 border-bottom">
+                        <i class="feather icon-file-text text-secondary" style="font-size: 1.2rem;"/>
+                        <span class="font-weight-bold text-dark small" style="font-size: 0.95rem;">Thông tin phản hồi</span>
+                    </div>
+
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <span class="text-muted small">Mã tiệm:</span>
+                        <span id="modal_franchise_code" class="wj-chip-code">
+                            <t t-out="modal_data.get('franchise_code') if modal_data else 'HN_ST042'"/>
+                        </span>
+                    </div>
+
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <span class="text-muted small">Hạng mục:</span>
+                        <span id="modal_category_name" class="font-weight-bold text-dark small">
+                            <t t-out="modal_data.get('category_name') if modal_data else 'Kiểm tra vệ sinh'"/>
+                        </span>
+                    </div>
+
+                    <div class="d-flex justify-content-between align-items-center">
+                        <span class="text-muted small">Thời gian:</span>
+                        <span id="modal_submit_time" class="text-muted small font-weight-bold">
+                            <t t-out="modal_data.get('submit_time') if modal_data else '24/10/2023 - 14:30'"/>
+                        </span>
+                    </div>
+                </div>
+
+                <!-- 2 Action Buttons -->
+                <div class="d-flex flex-column gap-2">
+                    <a href="/portal/inspection" class="btn-action-primary w-100">
+                        <i class="feather icon-list" style="font-size: 1.1rem;"/>
+                        <span>Về danh sách phiếu</span>
+                    </a>
+                    <a id="modal_detail_url" t-att-href="modal_data.get('detail_url') if modal_data else '/portal/inspection'" class="btn-action-outline w-100">
+                        <i class="feather icon-eye" style="font-size: 1.1rem;"/>
+                        <span>Xem lại phản hồi</span>
+                    </a>
+                </div>
+
+            </div>
+        </div>
+    </template>
+
+    <!-- Template Modal Popup Cảnh báo dữ liệu (Tự động đóng trong 5s có đếm ngược) -->
+    <template id="portal_inspection_warning_popup" name="Wujia Portal — Warning Modal Popup">
+
+        <div id="wj_warning_modal" class="wj-warning-overlay" style="display: none;" onclick="if(event.target===this) closeWarningModal()">
+            <div class="wj-warning-card text-center">
+                <button type="button" class="wj-warning-close-btn" onclick="closeWarningModal()">
+                    <i class="feather icon-x"></i>
+                </button>
+
+                <div class="wj-warning-icon-wrapper">
+                    <i class="feather icon-alert-triangle"></i>
+                </div>
+
+                <h3 class="wj-warning-title">Cảnh báo thông tin</h3>
+                <p id="wj_warning_message" class="wj-warning-msg">
+                    Vui lòng nhập ghi chú hoặc tải lên ảnh minh chứng trước khi gửi phản hồi!
+                </p>
+
+                <div class="wj-warning-countdown-wrap">
+                    <span class="wj-warning-countdown-text">Tự động đóng sau <strong id="wj_warning_seconds">5</strong>s</span>
+                    <div class="wj-warning-progress">
+                        <div id="wj_warning_progress_bar" class="wj-warning-progress-bar"></div>
+                    </div>
+                </div>
+
+                <button type="button" class="wj-warning-confirm-btn" onclick="closeWarningModal()">
+                    Đã hiểu
+                </button>
+            </div>
+        </div>
+    </template>
+
+</odoo>

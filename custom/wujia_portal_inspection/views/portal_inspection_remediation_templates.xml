@@ -1,0 +1,316 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- Template Form Phản hồi khắc phục tiêu chí (Đồng bộ UI với trang Chi tiết + Nhận Ghi chú
+    Admin + AJAX Pop-up Success) -->
+    <template id="portal_inspection_remediation_form" name="Wujia Portal — Phản hồi khắc phục">
+        <t t-call="wujia_portal_layout.app_layout">
+
+            <!-- Sử dụng component chuẩn wj_page_header từ wujia_portal_layout cho phần Header -->
+            <t t-set="ph_platform" t-value="'pc'" />
+            <t t-set="ph_variant" t-value="'back'" />
+            <t t-set="ph_title" t-value="'Phản hồi khắc phục'" />
+            <t t-set="ph_back_url" t-value="back_url or '/portal/inspection'" />
+            <t t-call="wujia_portal_layout.wj_page_header" />
+
+            <t t-set="ph_platform" t-value="'m'" />
+            <t t-set="ph_variant" t-value="'back'" />
+            <t t-set="ph_title" t-value="'Phản hồi khắc phục'" />
+            <t t-set="ph_back_url" t-value="back_url or '/portal/inspection'" />
+            <t t-call="wujia_portal_layout.wj_page_header" />
+
+            <!-- Khôi phục lại giao diện UI gốc chuẩn đẹp ban đầu cho phần Body Form -->
+            <!-- ================= PC ≥992px ================= -->
+            <div class="content-wrapper d-none d-lg-block wj-inspection-pc-remediation">
+                <!-- Page Header -->
+                <div class="wj-pc-page-header">
+                    <div>
+                        <h1 class="wj-pc-page-header__title">Phản hồi khắc phục</h1>
+                        <p class="wj-pc-page-header__crumb"> Portal / Giám sát &amp; Đánh giá / Khảo
+                            sát / Khắc phục / <t t-out="line_code or ''" />
+                        </p>
+                    </div>
+                    <div class="wj-pc-page-header__actions">
+                        <a t-att-href="back_url or '/portal/inspection'"
+                            class="wj-pc-btn wj-pc-btn--secondary">
+                            <i class="feather icon-chevron-left me-1" />Quay lại </a>
+                    </div>
+                </div>
+
+                <div class="content-body">
+                    <div class="wj-pc-card">
+                        <div class="wj-pc-card__head pb-2 border-bottom mb-3">
+                            <h2 class="wj-pc-card__title">Cập nhật báo cáo khắc phục</h2>
+                            <p class="wj-pc-card__subtitle">Vui lòng cung cấp hình ảnh thực tế sau
+                                khắc phục và giải trình chi tiết</p>
+                        </div>
+
+                        <form action="/portal/inspection/remediation/submit" method="POST"
+                            enctype="multipart/form-data">
+                            <input type="hidden" name="csrf_token"
+                                t-att-value="request.csrf_token()" />
+                            <input type="hidden" name="line_id" t-att-value="line.id" />
+
+                            <div class="row g-3">
+                                <!-- Cột Trái -->
+                                <div class="col-md-6 d-flex flex-column gap-3">
+                                    <!-- Tiêu chí vi phạm -->
+                                    <div class="p-3 rounded bg-light border"
+                                        style="border-color: #cbd5e1 !important;">
+                                        <div
+                                            class="d-flex justify-content-between align-items-center mb-2">
+                                            <span class="wj-pc-badge wj-pc-badge--cancel"
+                                                style="height: 24px; min-width: auto; font-size: 11px;">KHÔNG
+                                                ĐẠT</span>
+                                            <span class="text-muted small">
+                                                <t t-out="category_name" />
+                                            </span>
+                                        </div>
+                                        <h3 class="font-weight-bold text-dark mb-2"
+                                            style="font-size: 14px; line-height: 1.5;">
+                                            <t t-if="line_code">[<t t-out="line_code" />] </t>
+                                            <t t-out="criterion_name" />
+                                        </h3>
+                                        <div t-if="admin_note"
+                                            class="p-2.5 rounded bg-white border-start border-3 border-danger mt-2">
+                                            <div class="small font-weight-bold text-danger mb-1"><i
+                                                    class="feather icon-alert-circle me-1" />Admin
+                                                ghi chú:</div>
+                                            <div class="small text-dark fst-italic">"<t
+                                                    t-out="admin_note" />"</div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Ảnh lỗi trước -->
+                                    <div t-if="evidence_image_url" class="p-3 rounded border">
+                                        <div
+                                            class="d-flex justify-content-between align-items-center mb-2">
+                                            <span class="font-weight-bold text-dark small">Trước
+                                                (Thanh tra)</span>
+                                            <span class="text-muted fst-italic small"
+                                                style="font-size: 0.8rem;">
+                                                <t t-out="planned_date" />
+                                            </span>
+                                        </div>
+                                        <img t-att-src="evidence_image_url"
+                                            class="w-100 rounded border wj-img-zoom"
+                                            style="max-height: 220px; object-fit: cover;" />
+                                    </div>
+
+                                    <!-- Upload Ảnh Sau -->
+                                    <div class="p-3 rounded border">
+                                        <div
+                                            class="d-flex justify-content-between align-items-center mb-2">
+                                            <span class="font-weight-bold text-primary small">Sau
+                                                (Khắc phục)</span>
+                                            <i class="feather icon-camera text-primary" />
+                                        </div>
+                                        <input type="file" name="remediation_image" accept="image/*"
+                                            class="d-none image-upload-input" />
+                                        <div class="upload-dropzone p-4 text-center border rounded"
+                                            style="border: 2px dashed #cbd5e1 !important; background: #f8fafc; cursor: pointer;">
+                                            <div class="upload-placeholder">
+                                                <div class="mb-2 text-primary">
+                                                    <i class="feather icon-upload-cloud"
+                                                        style="font-size: 1.8rem;" />
+                                                </div>
+                                                <div class="font-weight-bold text-dark small">Tải
+                                                    lên ảnh khắc phục</div>
+                                                <div class="text-muted" style="font-size: 11px;">Nhấn
+                                                    vào đây để chọn ảnh</div>
+                                            </div>
+                                            <img
+                                                class="upload-preview-img w-100 rounded d-none wj-img-zoom"
+                                                style="max-height: 200px; object-fit: cover;" />
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Cột Phải -->
+                                <div class="col-md-6 d-flex flex-column justify-content-between">
+                                    <div class="d-flex flex-column gap-3">
+                                        <!-- Mô tả khắc phục -->
+                                        <div class="wj-pc-field">
+                                            <label class="wj-pc-field__label">Mô tả hành động khắc
+                                                phục</label>
+                                            <textarea name="remediation_note" rows="6"
+                                                class="wj-pc-control remediation-note-input"
+                                                placeholder="Nhập chi tiết quá trình khắc phục..."
+                                                maxlength="500"></textarea>
+                                            <div class="text-end text-muted small mt-1"
+                                                style="font-size: 11px;">
+                                                <span class="char-count">0</span>/500 </div>
+                                        </div>
+
+                                        <!-- Banner thông tin -->
+                                        <div
+                                            class="bg-light p-3 rounded border d-flex gap-2.5 align-items-start">
+                                            <i class="feather icon-info text-info me-1 mt-0.5"
+                                                style="font-size: 1.1rem;" />
+                                            <div>
+                                                <div
+                                                    class="font-weight-bold text-primary small mb-1"
+                                                    style="font-size: 12px; color: #0284c7 !important;">THÔNG
+                                                    TIN QUAN TRỌNG</div>
+                                                <div class="text-muted"
+                                                    style="font-size: 11.5px; line-height: 1.4;">
+                                                    Phản hồi của bạn sẽ được gửi trực tiếp đến bộ
+                                                    phận QC duyệt chất lượng. Vui lòng gửi ảnh chụp
+                                                    rõ nét và giải trình đầy đủ.
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="wj-pc-form-actions mt-4">
+                                        <a t-att-href="back_url or '/portal/inspection'"
+                                            class="wj-pc-btn wj-pc-btn--secondary">Hủy</a>
+                                        <button type="submit"
+                                            class="wj-pc-btn wj-pc-btn--primary px-4">Gửi phản hồi</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ================= Mobile <992px ================= -->
+            <div class="wj-inspection-container d-lg-none p-0 bg-light pb-5">
+                <form id="remediation_form_submit" action="/portal/inspection/remediation/submit"
+                    method="POST" enctype="multipart/form-data" class="p-3 d-flex flex-column gap-3">
+                    <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()" />
+                    <input type="hidden" name="line_id" t-att-value="line.id" />
+
+                    <!-- Thẻ 1: Thông tin Tiêu chí bị trừ điểm -->
+                    <div class="form-card-box p-3"
+                        style="background: #ffffff; border-radius: 16px; border: 1px solid #f1f5f9; box-shadow: 0 2px 8px rgba(0,0,0,0.03);">
+                        <div class="d-flex justify-content-between align-items-start gap-2 mb-2">
+                            <span
+                                class="badge-fail-tag d-inline-flex align-items-center justify-content-center flex-shrink-0"
+                                style="background: #fef2f2; color: #dc2626; font-size: 0.75rem; font-weight: 700; padding: 2px 8px; border-radius: 4px; height: 22px;">
+                                KHÔNG ĐẠT
+                            </span>
+                            <span class="text-muted small text-end"
+                                style="font-size: 0.8rem; line-height: 1.2;">
+                                <t t-out="category_name" />
+                            </span>
+                        </div>
+                        <h5 class="h6 font-weight-bold text-dark mb-2"
+                            style="font-size: 0.95rem; line-height: 1.4;">
+                            <t t-if="line_code">
+                                <t t-out="line_code" />
+                            </t>
+                            <t t-out="criterion_name" />
+                        </h5>
+                        <div t-if="admin_note"
+                            class="p-2.5 rounded-3 bg-light border-start border-3 border-danger">
+                            <div class="small font-weight-bold text-danger mb-1"
+                                style="font-size: 0.8rem;">
+                                <i class="feather icon-alert-circle me-1" />Ghi chú vi phạm từ
+                                Admin: </div>
+                            <div class="small text-dark fst-italic" style="font-size: 0.82rem;"> "<t
+                                    t-out="admin_note" />" </div>
+                        </div>
+                    </div>
+
+                    <!-- Thẻ 2: Ảnh Trước (Thanh tra) -->
+                    <div t-if="evidence_image_url" class="form-card-box p-3"
+                        style="background: #ffffff; border-radius: 16px; border: 1px solid #f1f5f9; box-shadow: 0 2px 8px rgba(0,0,0,0.03);">
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <span class="font-weight-bold text-dark small"
+                                style="font-size: 0.9rem;">Trước (Thanh tra)</span>
+                            <span class="text-muted fst-italic small" style="font-size: 0.8rem;">
+                                <t t-out="planned_date" />
+                            </span>
+                        </div>
+                        <img t-att-src="evidence_image_url"
+                            class="w-100 rounded-3 border wj-img-zoom"
+                            style="max-height: 200px; object-fit: cover;" />
+                    </div>
+
+                    <!-- Thẻ 3: Upload Ảnh Sau (Khắc phục) -->
+                    <div class="form-card-box p-3"
+                        style="background: #ffffff; border-radius: 16px; border: 1px solid #f1f5f9; box-shadow: 0 2px 8px rgba(0,0,0,0.03);">
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <span class="font-weight-bold text-primary small"
+                                style="font-size: 0.9rem; color: #0284c7 !important;">Sau (Khắc
+                                phục)</span>
+                            <i class="feather icon-camera text-primary"
+                                style="font-size: 1.1rem; color: #0284c7 !important;" />
+                        </div>
+                        <input type="file" class="d-none image-upload-input"
+                            name="remediation_image" accept="image/*" />
+                        <div class="upload-dropzone p-4 text-center border rounded-3"
+                            style="border: 2px dashed #cbd5e1 !important; background: #f8fafc; cursor: pointer;">
+                            <div class="upload-placeholder">
+                                <div
+                                    class="upload-icon-circle mb-2 d-inline-flex align-items-center justify-content-center rounded-circle bg-white shadow-sm"
+                                    style="width: 44px; height: 44px; color: #0284c7;">
+                                    <i class="feather icon-upload-cloud" style="font-size: 1.3rem;" />
+                                </div>
+                                <div class="font-weight-bold text-dark mb-1"
+                                    style="font-size: 0.92rem;">Tải lên ảnh khắc phục</div>
+                                <div class="text-muted small" style="font-size: 0.8rem;">Nhấn hoặc
+                                    kéo thả ảnh vào đây</div>
+                            </div>
+                            <img class="upload-preview-img w-100 rounded-3 d-none wj-img-zoom"
+                                style="max-height: 200px; object-fit: cover;" />
+                        </div>
+                    </div>
+
+                    <!-- Thẻ 4: Form Mô tả hành động khắc phục -->
+                    <div class="form-card-box p-3"
+                        style="background: #ffffff; border-radius: 16px; border: 1px solid #f1f5f9; box-shadow: 0 2px 8px rgba(0,0,0,0.03);">
+                        <label class="font-weight-bold text-dark small mb-2"
+                            style="font-size: 0.9rem;">Mô tả hành động khắc phục</label>
+                        <textarea name="remediation_note" rows="3"
+                            class="form-control border shadow-none small remediation-note-input"
+                            style="border-radius: 12px; font-size: 0.88rem;"
+                            placeholder="VD: Đã vệ sinh sạch sẽ khu vực cửa kính vào lúc 10:30..."
+                            maxlength="500"></textarea>
+                        <div class="text-end text-muted small mt-1" style="font-size: 0.75rem;"><span
+                                class="char-count">0</span>/500</div>
+                    </div>
+
+                    <!-- Thẻ 5: Banner QC -->
+                    <div class="bg-light p-3 rounded-3 border d-flex gap-2.5 align-items-start">
+                        <i class="feather icon-info text-info me-1 mt-0.5"
+                            style="font-size: 1.2rem;" />
+                        <div>
+                            <div class="font-weight-bold text-primary small mb-1"
+                                style="font-size: 0.85rem; letter-spacing: 0.5px; color: #0284c7 !important;">THÔNG
+                                TIN QUAN TRỌNG</div>
+                            <div class="text-muted small"
+                                style="font-size: 0.8rem; line-height: 1.4;">
+                                Phản hồi của bạn sẽ được gửi đến bộ phận kiểm soát chất lượng (QC)
+                                để thẩm định lại. Vui lòng đảm bảo hình ảnh rõ nét và mô tả chi tiết
+                                để được duyệt nhanh nhất.
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Nút bấm Gửi phản hồi chính ở đáy -->
+                    <button type="submit"
+                        class="btn btn-primary w-100 mt-2 shadow-sm d-flex align-items-center justify-content-center gap-2 font-weight-bold"
+                        style="border-radius: 12px; height: 46px; background-color: #0284c7; border-color: #0284c7; font-size: 0.95rem;">
+                        <span>Gửi phản hồi</span>
+                        <i class="feather icon-send" />
+                    </button>
+                </form>
+            </div>
+
+            <!-- Gọi Modal Success & Warning Popup từ file XML riêng -->
+            <t t-call="wujia_portal_inspection.portal_inspection_success_popup" />
+            <t t-call="wujia_portal_inspection.portal_inspection_warning_popup" />
+
+            <!-- Lightbox Modal for Image Preview -->
+            <div id="wj_lightbox" class="wj-lightbox-modal" onclick="this.style.display='none'">
+                <span class="wj-lightbox-close">&amp;times;</span>
+                <img class="wj-lightbox-content" id="wj_lightbox_img" />
+            </div>
+
+        </t>
+    </template>
+
+</odoo>
