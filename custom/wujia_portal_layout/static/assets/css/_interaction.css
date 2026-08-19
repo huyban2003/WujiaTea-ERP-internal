@@ -1,0 +1,153 @@
+/* Wujia Portal — trạng thái tương tác dùng chung (WJ-PORTAL-UI-001, cụm C6).
+   Nạp CUỐI trong asset_style_css.
+
+   ⚠️ web.assets_frontend (Bootstrap 5 của Odoo 19) nạp SAU mọi CSS custom và có
+   `a:hover{text-decoration:underline}` ở specificity (0,1,1). Thứ tự nguồn không
+   cứu được ⇒ mọi rule chống underline dưới đây phải >= (0,2,1).
+
+   ⚠️ Hover/pressed CHỈ được đổi background-color / border-color / box-shadow.
+   Đổi border-width, padding hay transform sẽ làm dịch layout — BA cấm. */
+
+
+/* ============ 1. Underline ============================================== */
+
+a:not(.wj-link):hover,
+a:not(.wj-link):focus,
+a:not(.wj-link):focus-visible,
+a:not(.wj-link):active {
+    text-decoration: none;
+}
+
+/* Chữ chạy do người dùng nhập (bài kiến thức, bong bóng chat) và inline text
+   link thật thì VẪN gạch chân. Cùng specificity (0,2,1) với rule trên nên bắt
+   buộc đứng sau. */
+:is(.article-content, .wujia-mknow-body, .wujia-mticket-bubble) a,
+:is(.article-content, .wujia-mknow-body, .wujia-mticket-bubble) a:hover,
+:is(.article-content, .wujia-mknow-body, .wujia-mticket-bubble) a:focus,
+a.wj-link:hover,
+a.wj-pc-link:hover {
+    text-decoration: underline;
+}
+
+
+/* ============ 2. Focus-visible ========================================== */
+/* Thắng `a:focus{outline:none}` (bootstrap-extended.css:4) và ~20 rule `outline:0`
+   khác của Vuexy — nặng nhất là loại descendant `.list-group .list-group-item-action:focus`
+   (0,3,0), nên bộ chọn ở đây cố ý dựng tới (0,3,1) bằng 2 lớp :not(). Phần tử đã
+   disabled thì không cần vòng focus. */
+
+a:not([disabled]):not([aria-disabled="true"]):focus-visible,
+button:not([disabled]):not([aria-disabled="true"]):focus-visible,
+[role="button"]:not([disabled]):not([aria-disabled="true"]):focus-visible,
+[tabindex]:not([tabindex="-1"]):not([disabled]):focus-visible,
+summary:not([aria-disabled="true"]):focus-visible,
+input:not([disabled]):not([readonly]):focus-visible,
+select:not([disabled]):not([aria-disabled="true"]):focus-visible,
+textarea:not([disabled]):not([readonly]):focus-visible {
+    outline: var(--wujia-focus-ring);
+    outline-offset: var(--wujia-focus-ring-offset);
+}
+
+
+/* ============ 3. Bề mặt trung tính: hover + pressed ===================== */
+/* Danh sách lấy từ kiểm kê bằng máy 22 route × 2 breakpoint. Chỉ gồm bề mặt
+   trắng/trong suốt đóng vai card / row / menu / tab / pagination / chip-chưa-chọn
+   / icon-button. Nút primary-CTA, chip ĐANG chọn và action trên thanh header tối
+   giữ nguyên trạng thái đã thiết kế theo Figma. */
+
+:is(
+    /* card + row */
+    .wujia-mhome-kpi, .wujia-mhome-action, .wujia-mhome-noti-row,
+    .wujia-mdash-card, .wujia-mdash-row, .wujia-mdelivery-row, .wujia-mexam-card,
+    .wujia-mhist-row, .wujia-mknow-feat, .wujia-mknow-row, .wujia-mnoti-row,
+    .wujia-mreturn-row, .wj-debt-actionrow, .wujia-kpi-card-link,
+    /* menu / tab / pagination */
+    .wj-pc-acct-nav__item:not(.is-active), .wj-debt-pc-tab:not(.is-active),
+    .wj-pc-page-btn:not(.is-active):not(.is-disabled),
+    .wj-debt-pc-pagebtn:not(.is-active), .page-link,
+    .wujia-store-mobile-strip--clickable,
+    /* chip chưa chọn */
+    .wj-filter-chip:not(.is-active), .wj-pc-dlv-chip:not(.is-active),
+    /* nút phụ + icon button */
+    .wj-pc-btn--secondary, .wj-page-header__back, .wujia-mreturn-btn-cancel,
+    .wj-pc-acct-eye, .wujia-maccount-eye, .wj-pc-cart-step, .wj-pc-cart-del,
+    .wujia-mcart-step, .wujia-mcart-del, .wujia-morder-mstep, .wujia-morder-row-add,
+    .wj-filter-search-btn, .wujia-morder-search-btn, .wj-exam-pc-navbtn,
+    .wj-debt-pc-pdf
+) {
+    transition: background-color var(--wujia-state-transition),
+                border-color var(--wujia-state-transition),
+                box-shadow var(--wujia-state-transition);
+    -webkit-tap-highlight-color: transparent;
+}
+
+@media (hover: hover) and (pointer: fine) {
+    :is(
+        .wujia-mhome-kpi, .wujia-mhome-action, .wujia-mhome-noti-row,
+        .wujia-mdash-card, .wujia-mdash-row, .wujia-mdelivery-row, .wujia-mexam-card,
+        .wujia-mhist-row, .wujia-mknow-feat, .wujia-mknow-row, .wujia-mnoti-row,
+        .wujia-mreturn-row, .wj-debt-actionrow, .wujia-kpi-card-link,
+        .wj-pc-acct-nav__item:not(.is-active), .wj-debt-pc-tab:not(.is-active),
+        .wj-pc-page-btn:not(.is-active):not(.is-disabled),
+        .wj-debt-pc-pagebtn:not(.is-active), .page-link,
+        .wujia-store-mobile-strip--clickable,
+        .wj-filter-chip:not(.is-active), .wj-pc-dlv-chip:not(.is-active),
+        .wj-pc-btn--secondary, .wj-page-header__back, .wujia-mreturn-btn-cancel,
+        .wj-pc-acct-eye, .wujia-maccount-eye, .wj-pc-cart-step, .wj-pc-cart-del,
+        .wujia-mcart-step, .wujia-mcart-del, .wujia-morder-mstep, .wujia-morder-row-add,
+        .wj-filter-search-btn, .wujia-morder-search-btn, .wj-exam-pc-navbtn,
+        .wj-debt-pc-pdf
+    ):hover {
+        background-color: var(--wujia-primary-soft);
+        border-color: var(--wujia-primary);
+        box-shadow: var(--wujia-hover-shadow);
+    }
+}
+
+/* Pressed — không bọc media query để thiết bị chạm cũng có phản hồi. Không
+   shadow: chạm là trạng thái tức thời, đổi nền/viền là đủ. */
+:is(
+    .wujia-mhome-kpi, .wujia-mhome-action, .wujia-mhome-noti-row,
+    .wujia-mdash-card, .wujia-mdash-row, .wujia-mdelivery-row, .wujia-mexam-card,
+    .wujia-mhist-row, .wujia-mknow-feat, .wujia-mknow-row, .wujia-mnoti-row,
+    .wujia-mreturn-row, .wj-debt-actionrow, .wujia-kpi-card-link,
+    .wj-pc-acct-nav__item:not(.is-active), .wj-debt-pc-tab:not(.is-active),
+    .wj-pc-page-btn:not(.is-active):not(.is-disabled),
+    .wj-debt-pc-pagebtn:not(.is-active), .page-link,
+    .wujia-store-mobile-strip--clickable,
+    .wj-filter-chip:not(.is-active), .wj-pc-dlv-chip:not(.is-active),
+    .wj-pc-btn--secondary, .wj-page-header__back, .wujia-mreturn-btn-cancel,
+    .wj-pc-acct-eye, .wujia-maccount-eye, .wj-pc-cart-step, .wj-pc-cart-del,
+    .wujia-mcart-step, .wujia-mcart-del, .wujia-morder-mstep, .wujia-morder-row-add,
+    .wj-filter-search-btn, .wujia-morder-search-btn, .wj-exam-pc-navbtn,
+    .wj-debt-pc-pdf
+):active {
+    background-color: var(--wujia-primary-light);
+    border-color: var(--wujia-primary);
+}
+
+
+/* ============ 4. Vá màu tím Vuexy lọt lưới ============================== */
+/* .list-group-item-action hover ra #7367F0 (màu mặc định Vuexy) trên
+   /portal/knowledge — sai nhận diện, và mục ĐANG chọn cũng hoá tím.
+   Rule thắng là loại descendant `.list-group .list-group-item[.active]:hover` của
+   bootstrap-extended ⇒ phải bám cùng tổ tiên mới đủ specificity. */
+
+.list-group .list-group-item-action:hover,
+.list-group .list-group-item-action:focus {
+    background-color: var(--wujia-primary-soft);
+    border-color: var(--wujia-primary);
+    color: var(--wujia-text-primary);
+}
+.list-group .list-group-item-action.active:hover,
+.list-group .list-group-item-action.active:focus {
+    background-color: var(--wujia-primary);
+    border-color: var(--wujia-primary);
+    color: #FFFFFF;
+}
+/* `.list-group .list-group-item.active:focus{outline:0}` (0,4,0) mạnh hơn cả bộ
+   chọn focus dùng chung ở khối 2 ⇒ trả lại vòng focus đúng chỗ đó. */
+.list-group .list-group-item-action.active:focus-visible {
+    outline: var(--wujia-focus-ring);
+    outline-offset: var(--wujia-focus-ring-offset);
+}

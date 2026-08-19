@@ -42,7 +42,15 @@ nhật dữ liệu; 60/60 đo đạt 2 viewport, 14 test mới + 87 hồi quy xa
 C10 ✅ 18/08/2026 `f99321b` (2 issue → Ready for Retest, `-u wujia_portal_exam,wujia_portal_layout`
 không cập nhật dữ liệu; 33/33 đo đạt 2 viewport, 20 test mới + 82 hồi quy xanh; **ĐÃ deploy UAT
 18/08, đo lại trên UAT 30/30 đạt** — trừ nhánh "ca thi thắng khoá" vì UAT hết ca mở; bảng đối
-chiếu `docs/c10-acceptance-matrix.md`) · C6 ☐ · C7 ☐ · C8 ☐
+chiếu `docs/c10-acceptance-matrix.md`) ·
+C6 ✅ 19/08/2026 `c2592b3` (1 issue → Ready for Retest, `-u wujia_portal_layout,wujia_portal_sale`
+không cập nhật dữ liệu; **gốc rễ = MỘT rule `a:hover{text-decoration:underline}` của
+`web.assets_frontend` nạp SAU mọi CSS custom** ⇒ gom toàn bộ trạng thái tương tác vào layer
+mới `_interaction.css` nạp cuối, thắng bằng specificity chứ không `!important`. ⚠️ **local
+KHÔNG tái hiện được lỗi** (UAT có `website_sale` ⇒ bundle khác) nên phải chứng minh bằng cách
+nhúng CSS vào chính UAT: underline 18→0 @1920 và 34→0 @391, thiếu focus ring 46→0 và 43→0,
+0 dịch layout, tím Vuexy 1→0; đi Tab thật 7/124→124/124; hồi quy B4 282/286 y hệt trước sau;
+148 test xanh; 8/8 acceptance — bảng đối chiếu `docs/c6-acceptance-matrix.md`) · C7 ☐ · C8 ☐
 (đánh ✅ + ngày + commit khi xong, để phiên sau biết đang tới đâu.)
 
 ---
