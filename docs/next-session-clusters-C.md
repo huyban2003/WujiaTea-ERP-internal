@@ -282,6 +282,17 @@ Việc:
 
 Nhắc: .wj-empty-state--row (S50) và các token Home hiện có phải tái dùng, không đẻ selector
 mới khi modifier sẵn có đủ. Đo Playwright 360/391/430/500 + regression PC.
+
+C6 ĐÃ XONG (deploy UAT 19/08, `c312cf2`) — dùng lại, ĐỪNG viết lại trạng thái tương tác:
+`_interaction.css` đã lo underline + focus-visible + hover + pressed cho mọi thành phần bấm
+được. Class Home đã nằm trong danh sách bề mặt trung tính của nó: `.wujia-mhome-kpi`,
+`.wujia-mhome-action`, `.wujia-mhome-noti-row`, `.wujia-mdash-card`, `.wujia-mdash-row`.
+⇒ WJ-HOME-007 "toàn vùng dòng là vùng bấm" chỉ cần **đặt đúng class đó lên phần tử bọc**;
+class nào ĐẺ MỚI thì phải thêm vào cả 3 danh sách trong `_interaction.css` (base/hover/active),
+không thì dòng mới sẽ không có hover/pressed. Token dùng: `--wujia-hover-shadow`,
+`--wujia-state-transition`, `--wujia-focus-ring`, `--wujia-focus-ring-offset`.
+Sửa `_variables.css` hay bất cứ CSS nào nạp bằng `<link>` thì **BẮT BUỘC bump `?v=` trong
+`assets.xml`** — C6 quên đúng chỗ này, suýt xoá sạch vòng focus của người dùng có cache cũ.
 ```
 
 ### C8 — SectionHeader `CMP-SH-001`
