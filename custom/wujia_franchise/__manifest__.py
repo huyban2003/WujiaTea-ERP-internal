@@ -1,6 +1,6 @@
 {
     'name': 'Wujia Franchise',
-    'version': '19.0.2.1.0',
+    'version': '19.0.3.0.0',
     'category': 'Wujia',
     'summary': 'Quản lý cửa hàng nhượng quyền + membership user portal',
     'author': 'WujiaTea',
@@ -55,7 +55,7 @@ Hợp nhất 2 model trong cùng 1 module để tránh circular dep
         'views/res_users_views.xml',
         'views/wujia_franchise_menu.xml',
         'data/inspection_grade_data.xml',
-        'data/wujia_inspection_template_demo.xml',
+        'data/wujia_inspection_bootstrap.xml',
         'data/ir_cron_data.xml',
     ],
     'assets': {

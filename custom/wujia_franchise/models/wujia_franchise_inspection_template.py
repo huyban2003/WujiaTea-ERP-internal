@@ -35,9 +35,6 @@ class WujiaFranchiseInspectionCategory(models.Model):
             if not existing:
                 self.create(cat_data)
 
-    def init(self):
-        super().init()
-        self._init_default_categories()
 
 
 class WujiaFranchiseInspectionTemplate(models.Model):
@@ -221,10 +218,6 @@ class WujiaFranchiseInspectionTemplate(models.Model):
                 self.env['wujia.franchise.inspection.template.line'].create(lines_to_create)
 
         template.write({'state': 'active'})
-
-    def init(self):
-        super().init()
-        self._init_demo_template()
 
 
 class WujiaFranchiseInspectionTemplateLine(models.Model):

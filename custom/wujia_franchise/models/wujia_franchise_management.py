@@ -13,7 +13,7 @@ class WujiaFranchiseManagement(models.Model):
     _description = 'Wujia Franchise Management'
     _inherit = ['mail.thread', 'mail.activity.mixin']
     _rec_name = 'display_name'
-    _order = 'latest_inspection_date desc, code, name'
+    _order = 'code, name'
 
     code = fields.Char(
         string='Store code',

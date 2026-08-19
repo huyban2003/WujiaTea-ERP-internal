@@ -4,12 +4,8 @@ from odoo import http, fields, _
 # pyrefly: ignore [missing-import]
 from odoo.http import request
 
-try:
-    # pyrefly: ignore [missing-import]
-    from odoo.addons.wujia_portal_base.controllers.portal import get_active_franchise_ids_filter
-except ImportError:
-    def get_active_franchise_ids_filter():
-        return []
+# pyrefly: ignore [missing-import]
+from odoo.addons.wujia_portal_base.controllers.portal import get_active_franchise_ids_filter
 
 
 def _parse_date(date_str):
@@ -37,8 +33,8 @@ class WujiaPortalRemediationController(http.Controller):
 
         # CHỈ lấy các phiếu khảo sát ở trạng thái 'need_remediation'
         inspection_domain = [('state', '=', 'need_remediation')]
-        if franchise_ids:
-            inspection_domain.append(('franchise_id', 'in', list(franchise_ids)))
+        # fail-closed: không thuộc cửa hàng nào ⇒ domain rỗng ⇒ không thấy phiếu nào
+        inspection_domain.append(('franchise_id', 'in', list(franchise_ids or ())))
 
         parsed_date_from = _parse_date(date_from)
         parsed_date_to = _parse_date(date_to)

@@ -8,11 +8,7 @@ from odoo import http, fields, _
 # pyrefly: ignore [missing-import]
 from odoo.http import request
 
-try:
-    from odoo.addons.wujia_portal_base.controllers.portal import get_active_franchise_ids_filter
-except ImportError:
-    def get_active_franchise_ids_filter():
-        return []
+from odoo.addons.wujia_portal_base.controllers.portal import get_active_franchise_ids_filter
 
 
 class RemediationState(str, Enum):
@@ -61,8 +57,8 @@ class WujiaPortalInspectionController(http.Controller):
         else:
             inspection_domain = [('state', 'in', ('need_remediation', 'done'))]
 
-        if franchise_ids:
-            inspection_domain.append(('franchise_id', 'in', list(franchise_ids)))
+        # fail-closed: không thuộc cửa hàng nào ⇒ domain rỗng ⇒ không thấy phiếu nào
+        inspection_domain.append(('franchise_id', 'in', list(franchise_ids or ())))
 
         parsed_date_from = _parse_date(date_from)
         parsed_date_to = _parse_date(date_to)
@@ -209,7 +205,7 @@ class WujiaPortalInspectionController(http.Controller):
             return request.redirect('/portal/inspection')
 
         franchise_ids = get_active_franchise_ids_filter()
-        if franchise_ids and insp.franchise_id.id not in franchise_ids:
+        if insp.franchise_id.id not in (franchise_ids or ()):
             return request.redirect('/portal/inspection')
 
         criteria_lines = insp.line_ids.filtered(lambda l: l.display_type == 'line')
@@ -357,7 +353,7 @@ class WujiaPortalInspectionController(http.Controller):
             return request.redirect('/portal/inspection')
 
         franchise_ids = get_active_franchise_ids_filter()
-        if franchise_ids and insp.franchise_id.id not in franchise_ids:
+        if insp.franchise_id.id not in (franchise_ids or ()):
             return request.redirect('/portal/inspection')
 
         cat_rec = line.category_id or (line.template_line_id.category_id if line.template_line_id else False)
@@ -394,7 +390,7 @@ class WujiaPortalInspectionController(http.Controller):
         }
         return request.render('wujia_portal_inspection.portal_inspection_remediation_form', values)
 
-    @http.route(['/portal/inspection/remediation/submit', '/portal/remediation/submit'], type='http', auth='user', methods=['POST'], csrf=False, website=True)
+    @http.route(['/portal/inspection/remediation/submit', '/portal/remediation/submit'], type='http', auth='user', methods=['POST'], csrf=True, website=True)
     def portal_inspection_remediation_submit(self, line_id=None, remediation_note=None, remediation_image=None, **kwargs):
         if not line_id and request.params.get('line_id'):
             line_id = request.params.get('line_id')
