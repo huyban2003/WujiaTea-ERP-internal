@@ -112,6 +112,11 @@ class WujiaFranchiseInspection(models.Model):
         string='Thâm niên',
         help='thời gian làm việc của nhân viên',
     )
+    # video 
+    video = fields.Binary(
+        string='Video',
+        attachment=True,
+    )
 
     # RELATION 
 
