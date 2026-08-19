@@ -50,9 +50,34 @@ Việc thật của phiên sau = **mở rộng glossary**.
 
 ---
 
-## Thứ tự làm (chủ dự án chưa chốt cách 1/2/3 — hỏi lại đầu phiên)
+## Cách làm — CHỦ DỰ ÁN ĐÃ CHỐT 19/08
 
-Nếu chốt **cách 1** (agent dịch, BA rà) thì đi theo đợt, mỗi đợt 1 phiên:
+> **"dịch và BA rà kèm file excel"** — agent dịch máy, **kèm file Excel cho BA rà**,
+> BA rà xong mới coi là xong. Không hỏi lại.
+
+Nghĩa là mỗi đợt có **2 sản phẩm**, không phải 1:
+
+1. File `.po`/`.pot` trong repo (máy dịch, nạp được ngay).
+2. **File Excel bàn giao BA** — mỗi dòng 1 chuỗi, cột:
+   `Module | Chuỗi gốc (EN) | Tiếng Việt | 中文 | ไทย | Nguồn | BA sửa thành | Ghi chú BA`
+   - Cột **Nguồn** ghi bản dịch từ đâu ra: `glossary` (BA đã duyệt trước đó) /
+     `máy dịch` (cần rà kỹ) / `giữ bản cũ`. BA rà cột `máy dịch` trước.
+   - Cột **BA sửa thành** để trống cho BA điền. BA trả file về → agent đọc ngược,
+     **ghi vào glossary** rồi sinh lại `.po` ⇒ lần sau không phải rà lại chuỗi đó nữa.
+   - Đây là vòng lặp: mỗi đợt BA rà, glossary dày lên, đợt sau máy dịch đúng hơn.
+
+⚠️ **Chưa có code cho phần Excel** — phiên sau phải viết, đề xuất thêm 2 cờ vào
+`scripts/sync_translations.py`:
+`--review-out <file.xlsx>` (xuất file cho BA) và `--review-in <file.xlsx>`
+(đọc cột "BA sửa thành" ngược vào `docs/i18n-glossary.csv`).
+Dùng `openpyxl` (đã có trong env `odoo`, Odoo phụ thuộc sẵn).
+
+Theo QA Operating Standard: đợt nào cũng chỉ tới **`Ready for Retest`**, BA rà xong
+mới `Done`.
+
+---
+
+## Thứ tự làm — mỗi đợt 1 phiên
 
 **Đợt 1 — khung portal** (1500 khách nhìn mỗi ngày, ưu tiên cao nhất):
 `wujia_portal_layout`, `wujia_portal_base`, `wujia_portal_sale`, `wujia_portal_delivery`,
