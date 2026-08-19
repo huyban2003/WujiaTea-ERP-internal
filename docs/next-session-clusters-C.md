@@ -50,7 +50,14 @@ mới `_interaction.css` nạp cuối, thắng bằng specificity chứ không `
 KHÔNG tái hiện được lỗi** (UAT có `website_sale` ⇒ bundle khác) nên phải chứng minh bằng cách
 nhúng CSS vào chính UAT: underline 18→0 @1920 và 34→0 @391, thiếu focus ring 46→0 và 43→0,
 0 dịch layout, tím Vuexy 1→0; đi Tab thật 7/124→124/124; hồi quy B4 282/286 y hệt trước sau;
-148 test xanh; 8/8 acceptance — bảng đối chiếu `docs/c6-acceptance-matrix.md`) · C7 ☐ · C8 ☐
+148 test xanh; 8/8 acceptance — bảng đối chiếu `docs/c6-acceptance-matrix.md`) ·
+C7 ✅ 19/08/2026 `b33b46f` (5 issue → Ready for Retest, `-u wujia_portal_base,wujia_portal_layout`
+không cập nhật dữ liệu; **một gốc rễ cho cả 5 issue**: Home dựng dồn nhiều sprint nên mỗi block
+một container, một dấu hiệu bấm, một limit. Gộp về 1 hằng `HOME_PREVIEW_LIMIT` + 1 bộ component
+`.wujia-mdash-card/-row`; 11 chevron cấp dòng → 0; nhãn KPI bỏ ellipsis, 4 KPI vẫn 1 hàng ở 360px;
+mã đơn chiếm trọn dòng 1. Chiều cao Home 2752→2634 @360 cùng dữ liệu. 27/27 acceptance, 5 test mới
++ 43 hồi quy xanh, lưới B4 282/286 y hệt C6, đi Tab 124/124; KPI chứng minh ngay trên UAT bằng
+nhúng CSS (cắt 1→0) — bảng đối chiếu `docs/c7-acceptance-matrix.md`) · C8 ☐
 (đánh ✅ + ngày + commit khi xong, để phiên sau biết đang tới đâu.)
 
 ---
