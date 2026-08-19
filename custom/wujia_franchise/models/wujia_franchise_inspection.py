@@ -39,17 +39,17 @@ class WujiaFranchiseInspection(models.Model):
         tracking=True,
     )
     confirm_date = fields.Date(
-        string='Ngày xác nhận',
+        string='fields:wujia.franchise.inspection:confirm_date',
         tracking=True,
     )
 
     state = fields.Selection([
-        ('draft', 'Nháp'),
-        ('in_progress', 'Đang thực hiện'),
-        ('need_remediation', 'Cần khắc phục'),
-        ('done', 'Hoàn thành'),
-        ('cancel', 'Đã hủy')
-    ], string='Trạng thái', default='draft', tracking=True)
+        ('draft', 'selection:wujia.franchise.inspection:state:draft'),
+        ('in_progress', 'selection:wujia.franchise.inspection:state:in_progress'),
+        ('need_remediation', 'selection:wujia.franchise.inspection:state:need_remediation'),
+        ('done', 'selection:wujia.franchise.inspection:state:done'),
+        ('cancel', 'selection:wujia.franchise.inspection:state:cancel')
+    ], string='Status', default='draft', tracking=True)
 
     planned_date = fields.Date(
         string='Ngày dự kiến',
@@ -57,7 +57,7 @@ class WujiaFranchiseInspection(models.Model):
     )
 
     checklist_score = fields.Float(
-        string='Điểm checklist',
+        string='fields:wujia.franchise.inspection:checklist_score',
         compute='_compute_checklist_score',
         store=True,
         readonly=True,
@@ -66,7 +66,7 @@ class WujiaFranchiseInspection(models.Model):
     )
 
     exam_score = fields.Float(
-        string='Điểm kiểm tra',
+        string='fields:wujia.franchise.inspection:exam_score',
         compute='_compute_exam_score',
         store=True,
         aggregator='avg',
@@ -75,7 +75,7 @@ class WujiaFranchiseInspection(models.Model):
     )
 
     total_score = fields.Float(
-        string='Tổng điểm',
+        string='fields:wujia.franchise.inspection:total_score',
         compute='_compute_total_score',
         store=True,
         aggregator='avg',
@@ -155,7 +155,7 @@ class WujiaFranchiseInspection(models.Model):
 
     previous_inspection_id = fields.Many2one(
         'wujia.franchise.inspection',
-        string='Phiếu khảo sát trước',
+        string='fields:wujia.franchise.inspection:previous_inspection_id',
         compute='_compute_previous_inspection_id',
         store=True,
         ondelete='set null',
@@ -830,7 +830,10 @@ class WujiaFranchiseInspectionLine(models.Model):
     )
 
     result = fields.Selection(
-        selection=[('pass', 'Đạt'), ('fail', 'Không đạt')],
+        selection=[
+            ('pass', 'selection:wujia.franchise.inspection.line:result:pass'),
+            ('fail', 'selection:wujia.franchise.inspection.line:result:fail')
+        ],
         string='Kết quả',
         default='pass',
         required=True,
@@ -841,9 +844,9 @@ class WujiaFranchiseInspectionLine(models.Model):
     )
 
     remediation_state = fields.Selection([
-        (RemediationState.NEED_REMEDIATION.value, 'Cần phản hồi'),
-        (RemediationState.REMEDIATED.value, 'Đã phản hồi'),
-        (RemediationState.DONE.value, 'Đã duyệt (Hoàn thành)'),
+        (RemediationState.NEED_REMEDIATION.value, 'selection:wujia.franchise.inspection.line:remediation_state:need_remediation'),
+        (RemediationState.REMEDIATED.value, 'selection:wujia.franchise.inspection.line:remediation_state:remediated'),
+        (RemediationState.DONE.value, 'selection:wujia.franchise.inspection.line:remediation_state:done'),
     ], string='Trạng thái khắc phục', tracking=True)
 
     remediation_note = fields.Text(
@@ -957,7 +960,10 @@ class WujiaFranchiseInspectionLine(models.Model):
     )
 
     previous_result = fields.Selection(
-        selection=[('pass', 'Đạt'), ('fail', 'Không đạt')],
+        selection=[
+            ('pass', 'selection:wujia.franchise.inspection.line:previous_result:pass'),
+            ('fail', 'selection:wujia.franchise.inspection.line:previous_result:fail')
+        ],
         string='Kết quả trước đó',
         compute='_compute_previous_line_info',
         store=True,

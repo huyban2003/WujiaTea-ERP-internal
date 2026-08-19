@@ -1,23 +1,42 @@
 # -*- coding: utf-8 -*-
 import json
 import base64
+import csv
+import os
 from odoo import http, fields, _
 # pyrefly: ignore [missing-import]
 from odoo.http import request
 
+CSV_PATH = os.path.join(os.path.dirname(__file__), '..', 'data', 'wujia_franchise_export.csv')
+
+def get_survey_translations(lang):
+    col = 'CN' if (lang and 'zh' in lang.lower()) else 'VN'
+    trans_map = {}
+    if os.path.exists(CSV_PATH):
+        with open(CSV_PATH, 'r', encoding='utf-8') as f:
+            reader = csv.DictReader(f)
+            for row in reader:
+                k = (row.get('key') or '').strip()
+                v = (row.get(col) or '').strip()
+                if k and v:
+                    trans_map[k] = v
+    return trans_map
 
 class WujiaFranchiseInspectionWebController(http.Controller):
 
     @http.route(['/franchise/inspection/do/<int:inspection_id>'], type='http', auth='user', website=True, sitemap=False)
     def do_inspection_survey(self, inspection_id, **kwargs):
         inspection = request.env['wujia.franchise.inspection'].sudo().browse(int(inspection_id))
-
-        if inspection.state == 'done':
+            
+        if not inspection.exists():
             return request.not_found()
             
-        # check inspector_user_id = user.id
-        if inspection.inspector_user_id.id != request.env.user.id:
-            return request.not_found()
+        # Allow Admin, Manager, Supervisor, Assigned Inspector, and Internal Users
+        user = request.env.user
+        is_admin = user.has_group('base.group_system') or user.id in (1, 2)
+        if not is_admin and inspection.inspector_user_id and inspection.inspector_user_id.id != user.id:
+            if not user.has_group('base.group_user'):
+                return request.not_found()
             
         if not inspection.exists():
             return request.not_found()
@@ -78,6 +97,12 @@ class WujiaFranchiseInspectionWebController(http.Controller):
         is_inspection_closed = (inspection.state in ('done', 'cancel'))
         is_exam_submitted = bool(inspection.is_exam_submitted)
 
+        user_lang = request.env.user.lang or request.context.get('lang', 'vi_VN')
+        trans_map = get_survey_translations(user_lang)
+
+        def _t(key, default=''):
+            return trans_map.get(key, default or key)
+
         values = {
             'inspection': inspection,
             'lines': lines,
@@ -90,6 +115,9 @@ class WujiaFranchiseInspectionWebController(http.Controller):
             'is_exam_submitted': is_exam_submitted,
             'test_employee_name': inspection.test_employee_name or '',
             'tenure': inspection.tenure or 0.0,
+            'trans_dict': trans_map,
+            'trans': trans_map,
+            'trans_json': json.dumps(trans_map, ensure_ascii=False),
         }
         return request.render('wujia_franchise.inspection_survey_do_page', values)
 

@@ -6,14 +6,15 @@
         <field name="name">wujia.franchise.inspection.list</field>
         <field name="model">wujia.franchise.inspection</field>
         <field name="arch" type="xml">
-            <list string="Phiếu khảo sát" default_order="id desc">
+            <list string="label:wujia.franchise.inspection:list_title" default_order="id desc">
                 <field name="name" />
                 <field name="franchise_id" />
                 <field name="template_id" />
                 <field name="inspector_user_id" />
                 <field name="test_employee_name" />
                 <field name="planned_date" options="{'format': 'DD/MM/YYYY'}" />
-                <field name="total_score" string="Tổng điểm" />
+                <field name="total_score"
+                    string="label:wujia.franchise.inspection:field_total_score" />
                 <field name="grade_id" widget="badge" />
                 <field name="state" widget="badge"
                     decoration-info="state == 'draft'"
@@ -30,18 +31,24 @@
         <field name="name">wujia.franchise.inspection.form</field>
         <field name="model">wujia.franchise.inspection</field>
         <field name="arch" type="xml">
-            <form string="Phiếu khảo sát đánh giá cửa hàng nhượng quyền">
+            <form string="label:wujia.franchise.inspection:form_title">
                 <header>
-                    <button name="action_start" string="Bắt đầu thực hiện" type="object"
+                    <button name="action_start"
+                        string="label:wujia.franchise.inspection:action_start" type="object"
                         class="btn-primary" invisible="state != 'draft'" />
-                    <button name="action_need_remediation" string="Cần khắc phục" type="object"
+                    <button name="action_need_remediation"
+                        string="label:wujia.franchise.inspection:action_need_remediation"
+                        type="object"
                         class="btn-warning"
                         invisible="state in ('done', 'cancel', 'need_remediation')" />
-                    <button name="action_done" string="Hoàn thành" type="object" class="btn-success"
+                    <button name="action_done" string="label:wujia.franchise.inspection:action_done"
+                        type="object" class="btn-success"
                         invisible="state in ('done', 'cancel')" />
-                    <button name="action_cancel" string="Hủy" type="object"
+                    <button name="action_cancel"
+                        string="label:wujia.franchise.inspection:action_cancel" type="object"
                         invisible="state in ('done', 'cancel')" />
-                    <button name="action_draft" string="Đặt về Nháp" type="object"
+                    <button name="action_draft"
+                        string="label:wujia.franchise.inspection:action_draft" type="object"
                         invisible="state in ('draft', 'done')" />
                     <field name="state" widget="statusbar"
                         statusbar_visible="draft,in_progress,need_remediation,done,cancel" />
@@ -53,23 +60,21 @@
                             type="object"
                             class="oe_stat_button"
                             icon="fa-file-text-o"
-                            string="Khảo sát"
+                            string="label:wujia.franchise.inspection:stat_inspection"
                             invisible="state != 'in_progress'">
-                            <div class="o_stat_info">
-                                <span class="o_stat_text">Khảo sát</span>
-                            </div>
+
                         </button>
                     </div>
 
                     <div class="oe_title">
-                        <label for="name" string="Tên phiếu khảo sát" />
+                        <label for="name" string="label:wujia.franchise.inspection:field_name" />
                         <h1>
                             <field name="name" readonly="1" force_save="1"
-                                placeholder="Mã phiếu tự động sinh (VD: PGS-HN_ST042-0001)..." />
+                                placeholder="label:wujia.franchise.inspection:placeholder_name" />
                         </h1>
                     </div>
                     <group>
-                        <group string="THÔNG TIN KHẢO SÁT &amp; CỬA HÀNG">
+                        <group string="label:wujia.franchise.inspection:group_store_info">
                             <field name="franchise_id" options="{'no_create': True}" />
                             <field name="template_id" options="{'no_create': True}" />
                             <field name="schedule_id" options="{'no_create': True}" />
@@ -77,7 +82,7 @@
                             <field name="video" required="1" />
 
                         </group>
-                        <group string="THỜI GIAN &amp; LỊCH SỬ">
+                        <group string="label:wujia.franchise.inspection:group_time_history">
                             <field name="planned_date" />
                             <field name="submit_date" invisible="1" />
                             <field name="confirm_date" readonly="1" />
@@ -86,18 +91,20 @@
                     </group>
 
                     <group>
-                        <group string="KHẢO SÁT NHÂN VIÊN">
+                        <group string="label:wujia.franchise.inspection:group_employee_survey">
                             <field name="test_employee_name"
-                                placeholder="Tên nhân viên tại cửa hàng..." />
-                            <field name="tenure" placeholder="Số tháng / năm làm việc..." />
+                                placeholder="label:wujia.franchise.inspection:placeholder_employee_name" />
+                            <field name="tenure"
+                                placeholder="label:wujia.franchise.inspection:placeholder_tenure" />
                         </group>
-                        <group string="KẾ HOẠCH TIẾP THEO">
-                            <label for="next_due_date" string="Lần kiểm tra kế tiếp" />
+                        <group string="label:wujia.franchise.inspection:group_next_plan">
+                            <label for="next_due_date"
+                                string="label:wujia.franchise.inspection:field_next_due_date" />
                             <div class="o_row">
                                 <field name="next_due_date" class="oe_inline" />
                                 <button name="action_create_next_schedule"
                                     type="object"
-                                    title="Tạo / Mở Lịch giám sát tiếp theo"
+                                    title="label:wujia.franchise.inspection:title_create_next_schedule"
                                     icon="fa-arrow-right"
                                     class="btn-link text-primary ps-1 pe-1"
                                     invisible="not next_due_date" />
@@ -108,11 +115,11 @@
                     </group>
 
                     <group>
-                        <group string="ĐIỂM THÀNH PHẦN">
+                        <group string="label:wujia.franchise.inspection:group_component_scores">
                             <field name="checklist_score" readonly="1" />
                             <field name="exam_score" readonly="1" />
                         </group>
-                        <group string="KẾT QUẢ &amp; XẾP LOẠI">
+                        <group string="label:wujia.franchise.inspection:group_result_grade">
                             <field name="total_score" class="fw-bold fs-4 text-primary" readonly="1" />
                             <field name="grade_id" class="fw-bold fs-4 text-success"
                                 readonly="1" />
@@ -120,7 +127,8 @@
                     </group>
 
                     <notebook>
-                        <page string="Danh sách Tiêu chí Checklist" name="checklist">
+                        <page string="label:wujia.franchise.inspection:page_checklist"
+                            name="checklist">
                             <field name="line_ids" readonly="state in ('done', 'cancel')">
                                 <list editable="bottom" create="false" delete="false" limit="100"
                                     decoration-warning="criterion_type_snapshot == 'critical' and display_type == 'line'"
@@ -137,7 +145,7 @@
                                     <field name="content_snapshot"
                                         readonly="1"
                                         force_save="1"
-                                        string="Nội dung kiểm tra checklist"
+                                        string="label:wujia.franchise.inspection:field_content_snapshot"
                                     />
 
                                     <!-- <field name="criterion_type_snapshot"
@@ -157,14 +165,14 @@
 
                                     <field name="is_pass"
                                         widget="boolean_toggle"
-                                        string="Đánh giá"
+                                        string="label:wujia.franchise.inspection:field_is_pass"
                                         invisible="display_type == 'section'"
                                         class="wujia-inspection-pass-toggle"
                                     />
 
                                     <field name="previous_result"
                                         readonly="1"
-                                        string="Đợt trước"
+                                        string="label:wujia.franchise.inspection:field_previous_result"
                                         widget="badge"
                                         invisible="display_type == 'section'"
                                         decoration-success="previous_result == 'pass'"
@@ -173,7 +181,7 @@
                                     <button name="action_view_previous_inspection"
                                         type="object"
                                         icon="fa-external-link"
-                                        title="Xem chi tiết phiếu khảo sát đợt trước"
+                                        title="label:wujia.franchise.inspection:title_view_prev_inspection"
                                         class="btn-link text-primary p-0 me-1"
                                         invisible="display_type == 'section' or not previous_result" />
 
@@ -181,14 +189,14 @@
                                     <field name="require_evidence_if_fail" column_invisible="True" />
 
                                     <field name="note"
-                                        placeholder="Ghi chú vi pham..."
+                                        placeholder="label:wujia.franchise.inspection:placeholder_violation_note"
                                         invisible="display_type == 'section'"
                                         required="not is_pass and require_note_if_fail and display_type == 'line'" />
 
                                     <field name="evidence_image"
                                         widget="image"
                                         options="{'size': [50, 50]}"
-                                        string="Bằng chứng vi phạm"
+                                        string="label:wujia.franchise.inspection:field_evidence_image"
                                         invisible="display_type == 'section'"
                                         required="not is_pass and require_evidence_if_fail and display_type == 'line'" />
 
@@ -201,21 +209,21 @@
                                         invisible="display_type == 'section'" />
 
                                     <field name="remediation_note"
-                                        placeholder="Ghi chú khắc phục của cửa hàng..."
+                                        placeholder="label:wujia.franchise.inspection:placeholder_remediation_note"
                                         column_invisible="parent.state not in ['need_remediation', 'done']"
                                         invisible="display_type == 'section'" />
 
                                     <field name="remediation_image"
                                         widget="image"
                                         options="{'size': [50, 50]}"
-                                        string="Ảnh sau khắc phục"
+                                        string="label:wujia.franchise.inspection:field_remediation_image"
                                         invisible="display_type == 'section'"
                                         column_invisible="parent.state not in ['need_remediation', 'done']"
                                         readonly="parent.state not in ('need_remediation', 'in_progress', 'draft')" />
                                 </list>
                             </field>
                         </page>
-                        <page string="Bài kiểm tra nhân viên" name="exam">
+                        <page string="label:wujia.franchise.inspection:page_exam" name="exam">
                             <!-- <field name="is_exam_submitted" column_invisible="True" /> -->
                             <div
                                 class="alert alert-warning d-flex justify-content-between align-items-center mb-3"
@@ -230,7 +238,8 @@
                                 <span><strong>Hướng dẫn:</strong> Nhân viên nhập câu trả lời vào ô
                                     "Đáp án trả lời" bên dưới mỗi câu hỏi. Sau khi hoàn thành, bấm <strong>"Nộp
                                     bài kiểm tra"</strong> để chấm điểm.</span>
-                                <button name="action_submit_exam" string="Nộp bài kiểm tra"
+                                <button name="action_submit_exam"
+                                    string="label:wujia.franchise.inspection:action_submit_exam"
                                     type="object" class="btn btn-primary fw-bold px-4"
                                     invisible="is_exam_submitted or state != 'in_progress'" />
                             </div>
@@ -257,23 +266,28 @@
                                     <field name="sequence" widget="handle" />
                                     <field name="quest_id" column_invisible="True" />
                                     <field name="quest_code_snapshot" readonly="1" force_save="1"
-                                        string="Mã câu hỏi" />
+                                        string="label:wujia.franchise.inspection:field_quest_code" />
                                     <field name="quest_content_snapshot" readonly="1" force_save="1"
-                                        string="Nội dung câu hỏi" />
+                                        string="label:wujia.franchise.inspection:field_quest_content" />
                                     <field name="answer"
-                                        placeholder="👉 Nhập câu trả lời của nhân viên tại đây..."
+                                        placeholder="label:wujia.franchise.inspection:placeholder_answer"
                                         readonly="parent.is_exam_submitted or parent.state in ('done', 'cancel')" />
-                                    <field name="_point_return" string="Điểm" readonly="1"
+                                    <field name="_point_return"
+                                        string="label:wujia.franchise.inspection:field_point"
+                                        readonly="1"
                                         invisible="not parent.is_exam_submitted" />
                                 </list>
                             </field>
                         </page>
-                        <page string="Xác nhận phiếu" name="confirmation">
+                        <page string="label:wujia.franchise.inspection:page_confirmation"
+                            name="confirmation">
                             <group>
-                                <group string="Người xác nhận hệ thống">
+                                <group
+                                    string="label:wujia.franchise.inspection:group_system_confirmer">
                                     <field name="confirmed_user_id" options="{'no_create': True}" />
                                 </group>
-                                <group string="Quản lý cửa hàng xác nhận">
+                                <group
+                                    string="label:wujia.franchise.inspection:group_manager_confirmer">
                                     <field name="confirmed_member_id"
                                         domain="[('franchise_id', '=', franchise_id)]"
                                         options="{'no_create': True}" />
@@ -292,40 +306,57 @@
         <field name="name">wujia.franchise.inspection.search</field>
         <field name="model">wujia.franchise.inspection</field>
         <field name="arch" type="xml">
-            <search string="Tìm kiếm Phiếu khảo sát">
+            <search string="label:wujia.franchise.inspection:search_title">
                 <field name="name" />
                 <field name="franchise_id" />
                 <field name="inspector_user_id" />
                 <field name="schedule_id" />
                 <field name="planned_date" />
                 <separator />
-                <filter string="Phiếu của tôi" name="my_inspection"
+                <filter string="label:wujia.franchise.inspection:filter_my_inspection"
+                    name="my_inspection"
                     domain="[('inspector_user_id', '=', uid)]" />
                 <separator />
-                <filter string="Thời gian kiểm tra" name="filter_planned_date" date="planned_date" />
+                <filter string="label:wujia.franchise.inspection:filter_planned_date"
+                    name="filter_planned_date" date="planned_date" />
                 <separator />
-                <filter string="Đang chờ (Draft)" name="draft" domain="[('state', '=', 'draft')]" />
-                <filter string="Đang thực hiện" name="in_progress"
+                <filter string="label:wujia.franchise.inspection:filter_draft" name="draft"
+                    domain="[('state', '=', 'draft')]" />
+                <filter string="label:wujia.franchise.inspection:filter_in_progress"
+                    name="in_progress"
                     domain="[('state', '=', 'in_progress')]" />
-                <filter string="Cần khắc phục" name="need_remediation"
+                <filter string="label:wujia.franchise.inspection:filter_need_remediation"
+                    name="need_remediation"
                     domain="[('state', '=', 'need_remediation')]" />
-                <filter string="Hoàn thành" name="done" domain="[('state', '=', 'done')]" />
-                <filter string="Đã hủy" name="cancel" domain="[('state', '=', 'cancel')]" />
+                <filter string="label:wujia.franchise.inspection:filter_done" name="done"
+                    domain="[('state', '=', 'done')]" />
+                <filter string="label:wujia.franchise.inspection:filter_cancel" name="cancel"
+                    domain="[('state', '=', 'cancel')]" />
                 <separator />
-                <filter string="Xếp loại A" name="grade_a" domain="[('grade_id.name', '=', 'A')]" />
-                <filter string="Xếp loại B" name="grade_b" domain="[('grade_id.name', '=', 'B')]" />
-                <filter string="Xếp loại C" name="grade_c" domain="[('grade_id.name', '=', 'C')]" />
-                <filter string="Xếp loại D" name="grade_d" domain="[('grade_id.name', '=', 'D')]" />
+                <filter string="label:wujia.franchise.inspection:filter_grade_a" name="grade_a"
+                    domain="[('grade_id.name', '=', 'A')]" />
+                <filter string="label:wujia.franchise.inspection:filter_grade_b" name="grade_b"
+                    domain="[('grade_id.name', '=', 'B')]" />
+                <filter string="label:wujia.franchise.inspection:filter_grade_c" name="grade_c"
+                    domain="[('grade_id.name', '=', 'C')]" />
+                <filter string="label:wujia.franchise.inspection:filter_grade_d" name="grade_d"
+                    domain="[('grade_id.name', '=', 'D')]" />
                 <separator />
-                <filter string="Cửa hàng" name="group_franchise"
+                <filter string="label:wujia.franchise.inspection:filter_group_franchise"
+                    name="group_franchise"
                     context="{'group_by': 'franchise_id'}" />
-                <filter string="Người kiểm tra" name="group_inspector"
+                <filter string="label:wujia.franchise.inspection:filter_group_inspector"
+                    name="group_inspector"
                     context="{'group_by': 'inspector_user_id'}" />
-                <filter string="Trạng thái" name="group_state" context="{'group_by': 'state'}" />
-                <filter string="Xếp loại" name="group_grade" context="{'group_by': 'grade_id'}" />
-                <filter string="Thời gian (Theo Tháng)" name="group_planned_date"
+                <filter string="label:wujia.franchise.inspection:filter_group_state"
+                    name="group_state" context="{'group_by': 'state'}" />
+                <filter string="label:wujia.franchise.inspection:filter_group_grade"
+                    name="group_grade" context="{'group_by': 'grade_id'}" />
+                <filter string="label:wujia.franchise.inspection:filter_group_planned_month"
+                    name="group_planned_date"
                     context="{'group_by': 'planned_date:month'}" />
-                <filter string="Thời gian (Theo Ngày)" name="group_planned_date_day"
+                <filter string="label:wujia.franchise.inspection:filter_group_planned_day"
+                    name="group_planned_date_day"
                     context="{'group_by': 'planned_date:day'}" />
             </search>
         </field>

@@ -4,6 +4,10 @@
 
 (function () {
   "use strict";
+  function _t(key, defVal) {
+    return (window.SURVEY_TRANS && window.SURVEY_TRANS[key]) || defVal || key;
+  }
+
 
   document.addEventListener("DOMContentLoaded", function () {
     const app = document.getElementById("surveyApp");

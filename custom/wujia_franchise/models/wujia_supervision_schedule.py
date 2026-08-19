@@ -28,12 +28,12 @@ class WujiaSupervisionSchedule(models.Model):
     
     # Trạng thái lịch
     state = fields.Selection([
-        ('draft', 'Nháp'),
-        ('in_progress', 'Đang thực hiện'),
-        ('need_remediation', 'Cần khắc phục'),
-        ('done', 'Hoàn thành'),
-        ('cancel', 'Đã hủy')
-    ], string='Trạng thái', default='draft')
+        ('draft', 'selection:wujia.supervision.schedule:state:draft'),
+        ('in_progress', 'selection:wujia.supervision.schedule:state:in_progress'),
+        ('need_remediation', 'selection:wujia.supervision.schedule:state:need_remediation'),
+        ('done', 'selection:wujia.supervision.schedule:state:done'),
+        ('cancel', 'selection:wujia.supervision.schedule:state:cancel')
+    ], string='Status', default='draft')
 
     note = fields.Text(string='Ghi chú')
 

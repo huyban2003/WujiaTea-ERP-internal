@@ -6,7 +6,7 @@
         <field name="name">wujia.supervision.schedule.tree</field>
         <field name="model">wujia.supervision.schedule</field>
         <field name="arch" type="xml">
-            <list string="Lịch giám sát cửa hàng">
+            <list string="label:wujia.supervision.schedule:list_title">
                 <field name="name" />
                 <field name="store_id" />
                 <field name="user_id" />
@@ -27,7 +27,7 @@
         <field name="model">wujia.supervision.schedule</field>
         <field name="arch" type="xml">
             <!-- Dùng date_start="date" (chỉ định trường date làm mốc lịch) -->
-            <calendar string="Lịch giám sát cửa hàng"
+            <calendar string="label:wujia.supervision.schedule:calendar_title"
                 date_start="date"
                 mode="month"
                 color="state"
@@ -47,7 +47,7 @@
         <field name="name">wujia.supervision.schedule.form</field>
         <field name="model">wujia.supervision.schedule</field>
         <field name="arch" type="xml">
-            <form string="Lịch giám sát">
+            <form string="label:wujia.supervision.schedule:form_title">
                 <header>
                     <field name="state" widget="statusbar"
                         statusbar_visible="draft,in_progress,done" />
@@ -59,50 +59,50 @@
                             type="object"
                             class="oe_stat_button"
                             icon="fa-clipboard">
-                            <field name="inspection_count" widget="statinfo" string="Phiếu khảo sát" />
+                            <field name="inspection_count" widget="statinfo" string="label:wujia.supervision.schedule:inspection_sheet" />
                         </button>
                     </div>
 
                     <div class="oe_title">
-                        <label for="name" string="Tiêu đề công việc" />
+                        <label for="name" string="label:wujia.supervision.schedule:job_title" />
                         <h1>
                             <field name="name" readonly="1" force_save="1"
-                                placeholder="Ví dụ: Giám sát định kỳ tháng 7" />
+                                placeholder="label:wujia.supervision.schedule:placeholder_name" />
                         </h1>
                     </div>
                     <group>
-                        <group string="THÔNG TIN CỬA HÀNG">
+                        <group string="label:wujia.supervision.schedule:store_information">
                             <field name="user_id" options="{'no_create': True, 'no_open': True}" />
                             <field name="store_id"
                                 domain="[('effective_supervision_user_id', '=', user_id)]"
                                 options="{'no_create': True, 'no_open': True}" />
                             <!-- cần thêm địa chị, sĐt, định vị cửa hàng -->
-                            <group name="store_info" string="Địa chỉ &amp; Điện thoại">
+                            <group name="store_info" string="label:wujia.supervision.schedule:address_and_phone">
                                 <field name="address" readonly="1" />
                                 <field name="phone" readonly="1" />
                             </group>
-                            <group name="google_map_url" string="Định vị">
+                            <group name="google_map_url" string="label:wujia.supervision.schedule:location">
                                 <field name="google_map_url" invisible="1" />
                                 <button name="action_open_google_map"
-                                    string="Mở Google Maps"
+                                    string="label:wujia.supervision.schedule:open_google_maps"
                                     type="object"
                                     icon="fa-map-marker"
                                     class="btn-secondary"
                                     invisible="not google_map_url" />
                             </group>
                         </group>
-                        <group string="THỜI GIAN &amp; KẾT QUẢ ĐÁNH GIÁ GẦN NHẤT">
-                            <field name="date" string="Thời gian giám sát" />
+                        <group string="label:wujia.supervision.schedule:latest_evaluation_time_and_result">
+                            <field name="date" string="label:wujia.supervision.schedule:supervision_time" />
                             <field name="latest_total_score"
-                                string="Điểm mới nhất"
+                                string="label:wujia.supervision.schedule:latest_score"
                                 readonly="1" />
                             <field name="latest_grade_id"
-                                string="Loại đánh giá mới nhất"
+                                string="label:wujia.supervision.schedule:latest_grade"
                                 widget="badge"
                                 readonly="1" />
                         </group>
                     </group>
-                    <field name="note" placeholder="Thêm ghi chú chi tiết..." />
+                    <field name="note" placeholder="label:wujia.supervision.schedule:add_detailed_note" />
                 </sheet>
             </form>
         </field>
@@ -113,11 +113,11 @@
         <field name="name">wujia.supervision.schedule.search</field>
         <field name="model">wujia.supervision.schedule</field>
         <field name="arch" type="xml">
-            <search string="Tìm kiếm Lịch giám sát">
+            <search string="label:wujia.supervision.schedule:search_title">
                 <field name="name" />
                 <field name="store_id" />
                 <field name="user_id" />
-                <filter string="Lịch của tôi" name="my_schedule" domain="[('user_id', '=', uid)]" />
+                <filter string="label:wujia.supervision.schedule:filter_my_schedule" name="my_schedule" domain="[('user_id', '=', uid)]" />
             </search>
         </field>
     </record>
