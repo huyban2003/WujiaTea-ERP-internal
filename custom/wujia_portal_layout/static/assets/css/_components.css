@@ -963,21 +963,31 @@ h2, .wujia-h2 { font-size: var(--wujia-font-size-h2) !important; font-weight: 60
 .wujia-mhome-kpi + .wujia-mhome-kpi {
     border-left: 1px solid var(--wujia-mhome-kpi-tile-border);
 }
+/* WJ-HOME-001: nhãn KPI KHÔNG được cắt bằng "…" (BA cấm). Nhãn dài bất thường thì
+   xuống dòng; min-height chừa sẵn 2 dòng để 4 con số vẫn thẳng hàng. */
 .wujia-mhome-kpi-label {
     font-size: 9px;
+    line-height: 12px;
+    min-height: 24px;
     font-weight: 700;
     letter-spacing: 0.04em;
     text-transform: uppercase;
     color: var(--wujia-mhome-kpi-label);
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
+    overflow-wrap: anywhere;
 }
 .wujia-mhome-kpi-value {
     font-size: 22px;
     font-weight: 700;
     line-height: 1.1;
     color: #FFFFFF;
+    overflow-wrap: anywhere;   /* ô Công nợ in số tiền (wujia_portal_debt) */
+}
+/* ≤380px: bù đúng vài px còn thiếu để 4 nhãn vẫn trọn trên MỘT dòng (đo 360px:
+   "Thông báo" cần 59 trong 57). Giảm khoảng cách chữ + padding, không giảm cỡ chữ. */
+@media (max-width: 380px) {
+    .wujia-mhome-kpi { padding: 0 5px; }
+    .wujia-mhome-kpi-label { letter-spacing: 0.01em; }
+    .wujia-mhome-kpi-value { font-size: 20px; }
 }
 a.wujia-mhome-kpi:active { opacity: 0.85; }
 
@@ -1112,49 +1122,8 @@ a.wujia-mhome-kpi:active { opacity: 0.85; }
     color: var(--wujia-primary);
     text-decoration: none;
 }
-.wujia-mhome-noti-list {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-}
-.wujia-mhome-noti-row {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    padding: 12px 14px;
-    background: var(--wujia-bg-card);
-    border: 1px solid var(--wujia-mhome-card-border);
-    border-left: 4px solid var(--wujia-text-muted);
-    border-radius: 12px;
-    text-decoration: none;
-}
-.wujia-mhome-noti-row.is-danger  { border-left-color: var(--wujia-danger); }
-.wujia-mhome-noti-row.is-info     { border-left-color: var(--wujia-primary); }
-.wujia-mhome-noti-row.is-warning  { border-left-color: var(--wujia-warning); }
-.wujia-mhome-noti-row.is-success  { border-left-color: var(--wujia-success); }
-.wujia-mhome-noti-row.is-muted    { border-left-color: var(--wujia-text-muted); }
-.wujia-mhome-noti-main { flex: 1 1 auto; min-width: 0; }
-.wujia-mhome-noti-title {
-    margin: 0;
-    font-size: 13px;
-    font-weight: 700;
-    color: var(--wujia-text-primary);
-    /* RESP-MOB-HOME-003: cho tiêu đề tối đa 2 dòng thay vì cắt 1 dòng */
-    display: -webkit-box;
-    -webkit-line-clamp: 2;
-    -webkit-box-orient: vertical;
-    overflow: hidden;
-}
-.wujia-mhome-noti-date {
-    margin: 2px 0 0;
-    font-size: 11px;
-    font-weight: 400;
-    color: var(--wujia-text-subtitle);
-}
-.wujia-mhome-noti-row .wujia-badge {
-    flex-shrink: 0;
-    font-size: 10px;
-}
+/* WJ-HOME-008: block này nay dùng chung .wujia-mdash-card/-row với các block Home
+   còn lại; chỉ tiêu đề block (-head/-link) là còn của riêng nó. */
 
 /* ---------- Bottom navigation (fixed, mobile only) ---------- */
 .wujia-mhome-navspacer { height: 72px; }
@@ -2789,11 +2758,6 @@ a.wujia-mhome-kpi:active { opacity: 0.85; }
         color: inherit;
     }
     a.wujia-mdash-card:hover { color: inherit; }
-    .wujia-mdash-stack {
-        display: flex;
-        flex-direction: column;
-        gap: 10px;
-    }
 
     /* ---------- Row trong card gộp (orders / debt kv / knowledge / quick) -- */
     .wujia-mdash-list { padding: 4px 14px; }
@@ -2807,6 +2771,12 @@ a.wujia-mhome-kpi:active { opacity: 0.85; }
     }
     .wujia-mdash-row + .wujia-mdash-row { border-top: 1px solid var(--wujia-morder-divider); }
     a.wujia-mdash-row:hover { color: inherit; }
+    /* Dòng nhiều dòng phụ (giao hàng / đơn hàng / đổi trả): icon và badge bám mép
+       trên thay vì căn giữa khối. Modifier trên chính .wujia-mdash-row nên thừa
+       hưởng luôn hover/pressed/focus của _interaction.css (C6). */
+    .wujia-mdash-row.is-stacked { align-items: flex-start; }
+    .wujia-mdash-row.is-stacked .wujia-mdash-row-main { gap: 4px; }
+    .wujia-mdash-row.is-stacked .wujia-badge { align-self: flex-start; }
 
     .wujia-mdash-tile {
         flex: 0 0 auto;
@@ -2850,6 +2820,21 @@ a.wujia-mhome-kpi:active { opacity: 0.85; }
     }
     .wujia-mdash-row-title.is-lg { font-size: 16px; }
     .wujia-mdash-row-title.is-sm { font-size: 13px; white-space: normal; }
+    /* WJ-HOME-002: mã đơn phải hiện đủ — các đơn chỉ khác nhau ở 2 số cuối. */
+    .wujia-mdash-row-title.is-code {
+        white-space: normal;
+        overflow: visible;
+        text-overflow: clip;
+        overflow-wrap: anywhere;
+    }
+    /* Giữ RESP-MOB-HOME-003 (tiêu đề tối đa 2 dòng) sau khi block Thông báo về
+       component chung — scope trong Home để không đụng Support/Franchise info. */
+    .wujia-mhome .wujia-mdash-row-title.is-sm {
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+    }
     .wujia-mdash-row-sub {
         font-size: 12px;
         color: var(--wujia-morder-text-sub);
@@ -2873,25 +2858,6 @@ a.wujia-mhome-kpi:active { opacity: 0.85; }
         white-space: nowrap;
     }
     .wujia-mdash-row .wujia-badge { flex: 0 0 auto; white-space: nowrap; }
-    .wujia-mdash-chev {
-        flex: 0 0 auto;
-        font-size: 18px;
-        color: var(--wujia-morder-text-muted);
-    }
-
-    /* ---------- Card rời (Giao hàng sắp tới / Yêu cầu đổi trả) ---------- */
-    .wujia-mdash-item {
-        display: flex;
-        align-items: flex-start;
-        gap: 12px;
-        padding: 16px;
-    }
-    .wujia-mdash-item .wujia-mdash-row-main { gap: 4px; }
-    .wujia-mdash-item .wujia-badge {
-        flex: 0 0 auto;
-        align-self: flex-start;
-        white-space: nowrap;
-    }
 
 /* Sprint 17 — Mobile Ticket Hỗ trợ (Figma Mobile_Ticket) — List/Create/Detail… */
 @media (max-width: 991.98px) {
