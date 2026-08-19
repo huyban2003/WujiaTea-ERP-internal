@@ -100,6 +100,38 @@ giữ nguyên — chúng vẫn được hưởng phần "bỏ underline" và "v�
 
 ---
 
+## 3b. Đo lại TRÊN UAT sau khi chủ dự án deploy (19/08/2026)
+
+Deploy xong, chạy lại **đúng bộ đo cũ** trên `http://113.161.187.126:8019` (chỉ đọc, không
+sửa dữ liệu), lần này **không nhúng CSS** nữa — đo chính bản đang chạy:
+
+| Phép đo | Trước deploy (UAT) | Sau deploy (UAT) |
+|---|---|---|
+| Thành phần bấm được còn gạch chân @1920 | 18 | **0** |
+| Thành phần bấm được còn gạch chân @391 | 34 | **0** |
+| Thiếu vòng focus @1920 | 46 | **0** |
+| Thiếu vòng focus @391 | 43 | **0** |
+| Ring đúng `2px solid` + offset `2px` | — | **53/53**, một màu duy nhất `rgb(15,124,168)` |
+| Component không có phản hồi hover @1920 / @391 | 28 / 33 | **16 / 7** (phần còn lại là nhóm cố ý giữ, mục 2) |
+| Hover/pressed làm đổi kích thước | — | **0/53** |
+| Hover ra tím Vuexy | 1 | **0** |
+| 22 route: HTTP 200 · tràn ngang · đổi chiều cao · lỗi JS | — | **22/22 · 0 · 0 · 0** |
+| Đi Tab thật 5 trang × 25 stop | 7/124 | **124/124** |
+
+⇒ **13/13 Pass @1920** và **12/12 Pass @391** trên UAT thật.
+
+**Hồi quy B4 trên UAT: `282/286`** — đúng bằng con số đo trên bản sao local. Lần chạy đầu ra
+`270/286` vì **ID bản ghi trong bộ đo là ID của DB local**: `stock.picking.batch` id 3,
+`wujia.notification` id 41, `wujia.support.ticket` id 40, `wujia.return.request` id 12 **không
+tồn tại trên UAT** (kiểm bằng XML-RPC), nên 4 trang chi tiết rơi về trang danh sách. Thay bằng
+ID thật của UAT (2 / 18 / 16 / 10) thì 16 ô đỏ còn **4**, đều ở `/portal/notification/18` —
+đây là thông báo QA nhắm theo khu vực mà cửa hàng đang chọn của `admin` không thuộc, nên
+portal trả về danh sách; `/portal/notification/1` mở bình thường, có đủ tiêu đề và nút Quay
+lại. **Không phải hồi quy của C6**: 5 trang chi tiết đó có `page_h` và số phần tử bấm được
+**giống hệt nhau trước và sau khi deploy**.
+
+---
+
 ## 4. LIMIT (đã ghi vào sheet cho BA)
 
 1. **Màu vòng focus dùng `--wujia-cta #0F7CA8`, không dùng `--wujia-primary-dark #168FC2`
