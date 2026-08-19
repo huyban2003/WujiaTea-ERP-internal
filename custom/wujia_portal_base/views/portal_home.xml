@@ -352,15 +352,15 @@
                                     <p class="wj-empty-state-sub">Thông báo quan trọng mới sẽ xuất hiện tại đây.</p>
                                 </div>
                             </div>
-                            <div t-else="" class="wujia-mhome-noti-list">
+                            <div t-else="" class="wujia-mdash-card wujia-mdash-list">
                                 <t t-foreach="latest_notifications" t-as="noti">
                                     <t t-set="noti_badge_cls" t-value="{'URG': 'wujia-badge-danger', 'GEN': 'wujia-badge-info', 'PROMO': 'wujia-badge-warning', 'SYS': 'wujia-badge-muted', 'OTH': 'wujia-badge-success'}.get(noti.type_id.code, 'wujia-badge-muted')"/>
-                                    <t t-set="noti_accent_cls" t-value="{'URG': 'is-danger', 'GEN': 'is-info', 'PROMO': 'is-warning', 'SYS': 'is-muted', 'OTH': 'is-success'}.get(noti.type_id.code, 'is-muted')"/>
-                                    <a t-attf-href="/portal/notification/#{noti.id}" t-attf-class="wujia-mhome-noti-row #{noti_accent_cls}">
-                                        <div class="wujia-mhome-noti-main">
-                                            <p class="wujia-mhome-noti-title" t-out="noti.name"/>
-                                            <p class="wujia-mhome-noti-date" t-out="wj_dt(noti.published_date, '%H:%M %d/%m/%Y')"/>
-                                        </div>
+                                    <a t-attf-href="/portal/notification/#{noti.id}" class="wujia-mdash-row">
+                                        <span class="wujia-mdash-tile"><i class="feather icon-bell"/></span>
+                                        <span class="wujia-mdash-row-main">
+                                            <span class="wujia-mdash-row-title is-sm" t-out="noti.name"/>
+                                            <span class="wujia-mdash-row-sub" t-out="wj_dt(noti.published_date, '%H:%M %d/%m/%Y')"/>
+                                        </span>
                                         <span t-if="noti.type_id" t-attf-class="wujia-badge #{noti_badge_cls}" t-out="noti.type_id.name"/>
                                     </a>
                                 </t>
@@ -394,12 +394,12 @@
                                     <p class="wj-empty-state-sub">Lịch giao sẽ hiển thị khi đơn hàng được xác nhận.</p>
                                 </div>
                             </div>
-                            <div t-else="" class="wujia-mdash-stack">
+                            <div t-else="" class="wujia-mdash-card wujia-mdash-list">
                                 <t t-foreach="m_upcoming_batches" t-as="it">
-                                    <a t-attf-href="/portal/delivery/#{it['batch'].id}" class="wujia-mdash-card wujia-mdash-item">
+                                    <a t-attf-href="/portal/delivery/#{it['batch'].id}" class="wujia-mdash-row is-stacked">
                                         <span class="wujia-mdash-tile"><i class="feather icon-truck"/></span>
                                         <span class="wujia-mdash-row-main">
-                                            <span class="wujia-mdash-row-title" t-out="it['batch'].name"/>
+                                            <span class="wujia-mdash-row-title is-code" t-out="it['batch'].name"/>
                                             <span class="wujia-mdash-row-sub is-strong"><t t-out="it['when_label']"/>: <t t-out="it['when']"/></span>
                                             <span class="wujia-mdash-row-sub">Đơn chưa giao: <t t-out="it['order_count']"/> đơn</span>
                                             <span class="wujia-mdash-row-sub" t-out="it['order_names']"/>
@@ -428,18 +428,19 @@
                             </div>
                             <div t-else="" class="wujia-mdash-card wujia-mdash-list">
                                 <t t-foreach="recent_orders" t-as="o">
-                                    <a t-attf-href="/portal/purchase-history/#{o.id}" class="wujia-mdash-row">
+                                    <!-- WJ-HOME-002: mã đơn chiếm trọn dòng 1, tiền + ngày xuống
+                                         dòng phụ — mã là thứ duy nhất phân biệt được các đơn. -->
+                                    <a t-attf-href="/portal/purchase-history/#{o.id}" class="wujia-mdash-row is-stacked">
                                         <span class="wujia-mdash-tile"><i class="feather icon-file-text"/></span>
                                         <span class="wujia-mdash-row-main">
-                                            <span class="wujia-mdash-row-title is-lg" t-out="o.name"/>
+                                            <span class="wujia-mdash-row-title is-lg is-code" t-out="o.name"/>
                                             <span class="wujia-mdash-row-sub"
-                                                  t-out="o.date_order and o.date_order.strftime('%H:%M %d/%m/%Y') or ''"/>
+                                                  t-out="o.date_order and wj_dt(o.date_order, '%H:%M %d/%m/%Y') or ''"/>
+                                            <span class="wujia-mdash-row-sub is-strong"
+                                                  t-out="money(o.amount_total, o.currency_id.symbol, o.currency_id.decimal_places)"/>
                                         </span>
-                                        <span class="wujia-mdash-amount"
-                                              t-out="money(o.amount_total, o.currency_id.symbol, o.currency_id.decimal_places)"/>
                                         <t t-set="lbl" t-value="m_order_badges.get(o.state, (o.state, 'wujia-badge-muted'))"/>
                                         <span t-attf-class="wujia-badge #{lbl[1]}" t-out="lbl[0]"/>
-                                        <i class="feather icon-chevron-right wujia-mdash-chev"/>
                                     </a>
                                 </t>
                             </div>
@@ -465,9 +466,8 @@
                                         <span class="wujia-mdash-row-main">
                                             <span class="wujia-mdash-row-title is-sm" t-out="art.name"/>
                                             <span class="wujia-mdash-row-sub is-xs"
-                                                  t-out="art.publish_date and art.publish_date.strftime('%d/%m/%Y') or ''"/>
+                                                  t-out="art.publish_date and wj_dt(art.publish_date, '%d/%m/%Y') or ''"/>
                                         </span>
-                                        <i class="feather icon-chevron-right wujia-mdash-chev"/>
                                     </a>
                                 </t>
                             </div>
@@ -486,9 +486,10 @@
                                     <p class="wj-empty-state-sub">Yêu cầu mới sẽ hiển thị tại đây sau khi được tạo.</p>
                                 </div>
                             </div>
-                            <div t-else="" class="wujia-mdash-stack">
+                            <div t-else="" class="wujia-mdash-card wujia-mdash-list">
                                 <t t-foreach="latest_returns" t-as="r">
-                                    <a t-attf-href="/portal/return/#{r.id}" class="wujia-mdash-card wujia-mdash-item">
+                                    <a t-attf-href="/portal/return/#{r.id}" class="wujia-mdash-row is-stacked">
+                                        <span class="wujia-mdash-tile"><i class="feather icon-corner-up-left"/></span>
                                         <span class="wujia-mdash-row-main">
                                             <span class="wujia-mdash-row-title" t-out="r.name"/>
                                             <span class="wujia-mdash-row-sub">
@@ -519,7 +520,6 @@
                                         <span class="wujia-mdash-row-title is-sm">Tạo yêu cầu hỗ trợ</span>
                                         <span class="wujia-mdash-row-sub">Gửi yêu cầu và theo dõi phản hồi</span>
                                     </span>
-                                    <i class="feather icon-chevron-right wujia-mdash-chev"/>
                                 </a>
                                 <a t-attf-href="tel:#{m_hotline or ''}" class="wujia-mdash-row">
                                     <span class="wujia-mdash-tile"><i class="feather icon-phone-call"/></span>
@@ -527,7 +527,6 @@
                                         <span class="wujia-mdash-row-title is-sm">Gọi hotline</span>
                                         <span class="wujia-mdash-row-sub is-primary" t-out="m_hotline or '—'"/>
                                     </span>
-                                    <i class="feather icon-chevron-right wujia-mdash-chev"/>
                                 </a>
                                 <a href="#" class="wujia-mdash-row">
                                     <span class="wujia-mdash-tile"><i class="feather icon-message-circle"/></span>
@@ -535,7 +534,6 @@
                                         <span class="wujia-mdash-row-title is-sm">Chat với chúng tôi</span>
                                         <span class="wujia-mdash-row-sub is-primary">Thời gian: 8:00 - 17:30</span>
                                     </span>
-                                    <i class="feather icon-chevron-right wujia-mdash-chev"/>
                                 </a>
                             </div>
                         </section>
