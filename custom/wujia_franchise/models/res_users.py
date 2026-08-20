@@ -49,7 +49,7 @@ class ResUsers(models.Model):
         self.ensure_one()
         return {
             'type': 'ir.actions.act_window',
-            'name': _('Franchise Memberships của %s', self.name),
+            'name': _('Franchise memberships of %s', self.name),
             'res_model': 'wujia.franchise.member',
             'view_mode': 'list,form',
             'domain': [('user_id', '=', self.id)],

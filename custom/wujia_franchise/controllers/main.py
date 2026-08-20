@@ -1,32 +1,10 @@
 # -*- coding: utf-8 -*-
 import json
 import base64
-import csv
-import os
 from odoo import http, fields, _
 # pyrefly: ignore [missing-import]
 from odoo.http import request
 
-# Glossary dùng chung toàn repo (repo_root/docs/), cùng nguồn với scripts/sync_translations.py.
-# Thiếu file thì t() tự rơi về default — trang khảo sát vẫn chạy.
-CSV_PATH = os.path.join(os.path.dirname(__file__), '..', '..', '..', 'docs', 'i18n-glossary.csv')
-
-_SURVEY_LANG_COL = (('zh', 'CN'), ('th', 'TH'))
-
-
-def get_survey_translations(lang):
-    low = (lang or '').lower()
-    col = next((c for p, c in _SURVEY_LANG_COL if p in low), 'VN')
-    trans_map = {}
-    if os.path.exists(CSV_PATH):
-        with open(CSV_PATH, 'r', encoding='utf-8') as f:
-            reader = csv.DictReader(f)
-            for row in reader:
-                k = (row.get('key') or '').strip()
-                v = (row.get(col) or '').strip()
-                if k and v:
-                    trans_map[k] = v
-    return trans_map
 
 class WujiaFranchiseInspectionWebController(http.Controller):
 
@@ -104,12 +82,9 @@ class WujiaFranchiseInspectionWebController(http.Controller):
         is_exam_submitted = bool(inspection.is_exam_submitted)
 
         user_lang = request.env.user.lang or request.context.get('lang', 'vi_VN')
-        trans_map = get_survey_translations(user_lang)
-
-        def _t(key, default=''):
-            return trans_map.get(key, default or key)
 
         values = {
+            'page_lang': user_lang.replace('_', '-'),
             'inspection': inspection,
             'lines': lines,
             'exam_lines': exam_lines,
@@ -121,9 +96,6 @@ class WujiaFranchiseInspectionWebController(http.Controller):
             'is_exam_submitted': is_exam_submitted,
             'test_employee_name': inspection.test_employee_name or '',
             'tenure': inspection.tenure or 0.0,
-            'trans_dict': trans_map,
-            'trans': trans_map,
-            'trans_json': json.dumps(trans_map, ensure_ascii=False),
         }
         return request.render('wujia_franchise.inspection_survey_do_page', values)
 

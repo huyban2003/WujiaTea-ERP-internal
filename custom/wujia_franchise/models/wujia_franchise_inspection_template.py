@@ -8,17 +8,17 @@ from odoo.exceptions import ValidationError
 
 class WujiaFranchiseInspectionCategory(models.Model):
     _name = 'wujia.franchise.inspection.category'
-    _description = 'Danh mục / Nhóm tiêu chí khảo sát'
+    _description = 'Inspection criterion category / group'
     _order = 'sequence, id'
 
-    name = fields.Char(string='Tên danh mục', required=True)
-    code = fields.Char(string='Mã danh mục')
-    sequence = fields.Integer(string='Thứ tự', default=10)
-    active = fields.Boolean(string='Kích hoạt', default=True)
-    is_severe = fields.Boolean(string='Vi phạm nghiêm trọng', default=False)
+    name = fields.Char(string='Category name', required=True)
+    code = fields.Char(string='Category code')
+    sequence = fields.Integer(string='Sequence', default=10)
+    active = fields.Boolean(string='Active', default=True)
+    is_severe = fields.Boolean(string='Critical violation', default=False)
 
     _sql_constraints = [
-        ('name_unique', 'UNIQUE(name)', 'Tên danh mục phải là duy nhất!'),
+        ('name_unique', 'UNIQUE(name)', 'The category name must be unique!'),
     ]
 
     @api.model
@@ -39,24 +39,24 @@ class WujiaFranchiseInspectionCategory(models.Model):
 
 class WujiaFranchiseInspectionTemplate(models.Model):
     _name = 'wujia.franchise.inspection.template'
-    _description = 'Mẫu khảo sát đánh giá cửa hàng nhượng quyền'
+    _description = 'Franchise store inspection template'
     _inherit = ['mail.thread', 'mail.activity.mixin']
     _order = 'effective_date desc, id desc'
 
-    name = fields.Char(string='Tên mẫu khảo sát', required=True, tracking=True)
-    code = fields.Char(string='Mã mẫu', tracking=True)
-    version = fields.Char(string='Phiên bản', default='v1.0', tracking=True)
+    name = fields.Char(string='Template name', required=True, tracking=True)
+    code = fields.Char(string='Template code', tracking=True)
+    version = fields.Char(string='Version', default='v1.0', tracking=True)
     state = fields.Selection([
         ('draft', 'Draft'),
         ('active', 'Active'),
         ('archived', 'Archived'),
-    ], string='Trạng thái', default='draft', required=True, tracking=True)
-    effective_date = fields.Date(string='Ngày áp dụng', default=fields.Date.context_today, tracking=True)
+    ], string='Status', default='draft', required=True, tracking=True)
+    effective_date = fields.Date(string='Effective date', default=fields.Date.context_today, tracking=True)
     
-    checklist_max_score = fields.Float(string='Điểm tối đa Checklist', default=95.0, tracking=True)
-    exam_max_score = fields.Float(string='Điểm tối đa Bài thi', default=5.0, tracking=True)
+    checklist_max_score = fields.Float(string='Maximum checklist score', default=95.0, tracking=True)
+    exam_max_score = fields.Float(string='Maximum exam score', default=5.0, tracking=True)
     total_max_score = fields.Float(
-        string='Tổng điểm tối đa',
+        string='Maximum total score',
         compute='_compute_total_max_score',
         store=True,
         tracking=True,
@@ -65,7 +65,7 @@ class WujiaFranchiseInspectionTemplate(models.Model):
     line_ids = fields.One2many(
         'wujia.franchise.inspection.template.line',
         'template_id',
-        string='Chi tiết tiêu chí',
+        string='Criterion details',
         copy=True,
     )
 
@@ -78,7 +78,7 @@ class WujiaFranchiseInspectionTemplate(models.Model):
     def _unlink_except_draft(self):
         for rec in self:
             if rec.state != 'draft':
-                raise ValidationError(_('Chỉ được phép xóa mẫu khảo sát khi ở trạng thái Draft!'))
+                raise ValidationError(_('An inspection template can only be deleted while in the Draft state!'))
 
     def write(self, vals):
         for rec in self:
@@ -86,8 +86,8 @@ class WujiaFranchiseInspectionTemplate(models.Model):
                 allowed_keys = {'state'}
                 if not set(vals.keys()).issubset(allowed_keys):
                     raise ValidationError(_(
-                        'Mẫu khảo sát "%s" đã ở trạng thái "%s" nên KHÔNG ĐƯỢC PHÉP chỉnh sửa nội dung!\n'
-                        'Nếu bạn muốn thay đổi tiêu chí, vui lòng bấm nút "Tạo phiên bản mới".'
+                        'Inspection template "%s" is in the "%s" state, so its content CANNOT be edited!\n'
+                        'To change the criteria, please click "Create new version".'
                     ) % (rec.name, rec.state))
         return super().write(vals)
 
@@ -154,7 +154,7 @@ class WujiaFranchiseInspectionTemplate(models.Model):
                 self.env['wujia.franchise.inspection.template.line'].create(new_lines)
 
         return {
-            'name': _('Mẫu khảo sát (Phiên bản mới)'),
+            'name': _('Inspection template (new version)'),
             'type': 'ir.actions.act_window',
             'res_model': 'wujia.franchise.inspection.template',
             'res_id': new_template.id,
@@ -172,7 +172,7 @@ class WujiaFranchiseInspectionTemplate(models.Model):
         Category = self.env['wujia.franchise.inspection.category']
 
         template = self.create({
-            'name': 'Khảo sát cửa hàng nhượng quyền',
+            'name': 'Franchise store inspection',
             'code': 'MM01',
             'state': 'draft',
             'version': 'v1.0',
@@ -222,36 +222,36 @@ class WujiaFranchiseInspectionTemplate(models.Model):
 
 class WujiaFranchiseInspectionTemplateLine(models.Model):
     _name = 'wujia.franchise.inspection.template.line'
-    _description = 'Dòng tiêu chí mẫu khảo sát cửa hàng'
+    _description = 'Inspection template criterion line'
     _order = 'sequence, id'
 
     template_id = fields.Many2one(
         'wujia.franchise.inspection.template',
-        string='Mẫu khảo sát',
+        string='Inspection template',
         required=True,
         ondelete='cascade',
     )
-    sequence = fields.Integer(string='Thứ tự', default=10)
+    sequence = fields.Integer(string='Sequence', default=10)
     display_type = fields.Selection([
-        ('line', 'Dòng tiêu chí'),
-        ('section', 'Section (Đầu mục)'),
-    ], string='Loại hiển thị', default='line', required=True)
-    criterion_code = fields.Char(string='Mã tiêu chí')
+        ('line', 'Criterion line'),
+        ('section', 'Section (heading)'),
+    ], string='Display type', default='line', required=True)
+    criterion_code = fields.Char(string='Criterion code')
     category_id = fields.Many2one(
         'wujia.franchise.inspection.category',
-        string='Danh mục tiêu chí',
+        string='Criterion categories',
     )
-    category = fields.Char(string='Danh mục (Text cũ)', related='category_id.name', readonly=True, store=True)
-    content = fields.Text(string='Nội dung tiêu chí')
+    category = fields.Char(string='Category (legacy text)', related='category_id.name', readonly=True, store=True)
+    content = fields.Text(string='Criterion content')
     criterion_type = fields.Selection([
-        ('normal', 'Bình thường'),
-        ('critical', 'Quan trọng / Điểm liệt'),
-    ], string='Loại tiêu chí', default='normal', required=True)
-    deduction_score = fields.Float(string='Điểm trừ', default=1.0)
-    require_note_if_fail = fields.Boolean(string='Yêu cầu ghi chú khi không đạt', default=False)
-    require_evidence_if_fail = fields.Boolean(string='Yêu cầu bằng chứng khi không đạt', default=False)
-    active = fields.Boolean(string='Kích hoạt', default=True)
-    is_severe = fields.Boolean(string='Vi phạm nghiêm trọng', default=False)
+        ('normal', 'Normal'),
+        ('critical', 'Critical / disqualifying'),
+    ], string='Criterion type', default='normal', required=True)
+    deduction_score = fields.Float(string='Deduction', default=1.0)
+    require_note_if_fail = fields.Boolean(string='Note required when failed', default=False)
+    require_evidence_if_fail = fields.Boolean(string='Evidence required when failed', default=False)
+    active = fields.Boolean(string='Active', default=True)
+    is_severe = fields.Boolean(string='Critical violation', default=False)
 
     @api.onchange('category_id', 'display_type')
     def _onchange_category_id_section(self):
@@ -267,26 +267,26 @@ class WujiaFranchiseInspectionTemplateLine(models.Model):
             if rec.display_type == 'section':
                 cat_name = rec.category_id.name if rec.category_id else rec.content
                 if sub_code:
-                    rec.display_name = f"[{sub_code}] {cat_name or _('Chưa chọn danh mục')}"
+                    rec.display_name = f"[{sub_code}] {cat_name or _('No category selected')}"
                 else:
-                    rec.display_name = cat_name or _('Chưa chọn danh mục')
+                    rec.display_name = cat_name or _('No category selected')
             else:
                 content = (rec.content or '').strip()
                 if sub_code:
                     rec.display_name = f"[{sub_code}] {content}"
                 else:
-                    rec.display_name = content or _("Tiêu chí không tên")
+                    rec.display_name = content or _('Unnamed criterion')
 
     @api.ondelete(at_uninstall=False)
     def _unlink_except_draft_template(self):
         for line in self:
             if line.template_id.state in ('active', 'archived'):
-                raise ValidationError(_('Không thể xóa tiêu chí của mẫu khảo sát đã ở trạng thái Active hoặc Archived!'))
+                raise ValidationError(_('Criteria of an Active or Archived inspection template cannot be deleted!'))
 
     def write(self, vals):
         for line in self:
             if line.template_id.state in ('active', 'archived'):
-                raise ValidationError(_('Không thể sửa tiêu chí của mẫu khảo sát đã ở trạng thái Active hoặc Archived!'))
+                raise ValidationError(_('Criteria of an Active or Archived inspection template cannot be edited!'))
         return super().write(vals)
 
     @api.model_create_multi
@@ -294,5 +294,5 @@ class WujiaFranchiseInspectionTemplateLine(models.Model):
         lines = super().create(vals_list)
         for line in lines:
             if line.template_id.state in ('active', 'archived'):
-                raise ValidationError(_('Không thể thêm tiêu chí mới vào mẫu khảo sát đã ở trạng thái Active hoặc Archived!'))
+                raise ValidationError(_('New criteria cannot be added to an Active or Archived inspection template!'))
         return lines

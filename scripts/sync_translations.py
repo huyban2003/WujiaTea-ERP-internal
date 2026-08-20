@@ -26,6 +26,7 @@ import argparse
 import configparser
 import csv
 import os
+import re
 import shutil
 import subprocess
 import sys
@@ -108,18 +109,21 @@ def build_po(pot_path, po_path, glossary, lang, bridge=None):
         cat = read_po(f, locale=lang)
     cat.locale = lang
 
-    n_gloss = n_keep = 0
+    def lookup(text):
+        entry = (glossary.get(text) or glossary.get(text.strip())
+                 or glossary.get(bridge.get(text, '')) or {})
+        v = entry.get(col, '') if col else ''
+        # glossary cũ có nhiều ô chép lại chính chuỗi nguồn — đó không phải bản dịch
+        return '' if v == text else v
+
+    n_gloss = n_keep = n_markup = 0
     for msg in cat:
         if not msg.id or not isinstance(msg.id, str):
             continue
-        val = ''
-        if col:
-            entry = (glossary.get(msg.id) or glossary.get(msg.id.strip())
-                     or glossary.get(bridge.get(msg.id, '')) or {})
-            val = entry.get(col, '')
-            # glossary cũ có nhiều ô chép lại chính chuỗi nguồn — đó không phải bản dịch
-            if val == msg.id:
-                val = ''
+        val = lookup(msg.id) if col else ''
+        if not val and col:
+            val = translate_markup(msg.id, lookup)
+            n_markup += 1 if val else 0
         if val:
             n_gloss += 1
         elif keep.get(msg.id):
@@ -130,6 +134,27 @@ def build_po(pot_path, po_path, glossary, lang, bridge=None):
     with open(po_path, 'wb') as f:
         write_po(f, cat, width=79, omit_header=False)
     return n_gloss, n_keep, sum(1 for m in cat if m.id)
+
+
+TAG_SPLIT = re.compile(r'(<[^>]+>)')
+
+
+def translate_markup(msgid, lookup):
+    """Chuỗi QWeb hay dính cả thẻ (`<i class="fa"/> Back`) nên tra thẳng là trượt.
+    Dịch từng đoạn CHỮ giữa các thẻ, đoạn nào không có trong glossary thì giữ nguyên."""
+    parts = TAG_SPLIT.split(msgid)
+    if len(parts) == 1:
+        return ''
+    out, hit = [], False
+    for p in parts:
+        text = p.strip()
+        val = lookup(text) if text and not p.startswith('<') else ''
+        if val:
+            hit = True
+            out.append(p.replace(text, val, 1))
+        else:
+            out.append(p)
+    return ''.join(out) if hit else ''
 
 
 def msgfmt_ok(path):

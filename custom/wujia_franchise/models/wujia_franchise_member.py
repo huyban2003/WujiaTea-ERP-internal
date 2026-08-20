@@ -31,9 +31,9 @@ class WujiaFranchiseMember(models.Model):
     )
     role = fields.Selection(
         [
-            (ROLE_OWNER, 'Chủ tiệm'),
-            (ROLE_MANAGER, 'Quản lý'),
-            (ROLE_STAFF, 'Nhân viên'),
+            (ROLE_OWNER, 'Store owner'),
+            (ROLE_MANAGER, 'Manager'),
+            (ROLE_STAFF, 'Staff'),
         ],
         string='Role',
         required=True,
@@ -82,7 +82,7 @@ class WujiaFranchiseMember(models.Model):
     def _check_dates(self):
         for rec in self:
             if rec.date_from and rec.date_to and rec.date_to < rec.date_from:
-                raise ValidationError(_("Ngày kết thúc phải >= ngày bắt đầu."))
+                raise ValidationError(_('The end date must be on or after the start date.'))
 
     @api.constrains('is_primary_owner', 'role', 'franchise_id', 'active')
     def _check_primary_owner(self):
@@ -90,7 +90,7 @@ class WujiaFranchiseMember(models.Model):
             if not rec.is_primary_owner:
                 continue
             if rec.role != ROLE_OWNER:
-                raise ValidationError(_("Chủ chính phải có role = Chủ tiệm."))
+                raise ValidationError(_('The primary owner must have the role Store owner.'))
             duplicate = self.search([
                 ('franchise_id', '=', rec.franchise_id.id),
                 ('is_primary_owner', '=', True),
@@ -99,7 +99,7 @@ class WujiaFranchiseMember(models.Model):
             ], limit=1)
             if duplicate:
                 raise ValidationError(_(
-                    "Cửa hàng '%s' đã có chủ chính. Hủy active membership cũ trước.",
+                    "Store '%s' already has a primary owner. Deactivate the previous membership first.",
                     rec.franchise_id.display_name,
                 ))
 
@@ -116,7 +116,7 @@ class WujiaFranchiseMember(models.Model):
             ], limit=1)
             if duplicate:
                 raise ValidationError(_(
-                    "User '%s' đã có membership active trong cửa hàng '%s'.",
+                    "User '%s' already has an active membership in store '%s'.",
                     rec.user_id.name, rec.franchise_id.display_name,
                 ))
 

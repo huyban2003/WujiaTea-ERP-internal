@@ -130,58 +130,58 @@ class WujiaFranchiseManagement(models.Model):
 
     supervision_user_id = fields.Many2one(
         'res.users',
-        string='Nhân viên giám sát',
+        string='Assigned inspector',
         tracking=True,
     )
 
     area_manager_user_id = fields.Many2one(
         related='area_id.manager_user_id',
-        string='Người phụ trách khu vực',
+        string='Area manager',
         readonly=True,
         store=False
     )
 
     effective_supervision_user_id = fields.Many2one(
         'res.users',
-        string='Người phụ trách giám sát',
+        string='Inspection owner',
         compute='_compute_effective_supervision_user',
         store=True,
-        help='Nhân viên giám sát của cửa hàng. Nếu chưa được gán riêng, sẽ lấy từ Người phụ trách khu vực.',
+        help='Inspector assigned to this store. If none is set, the area manager is used.',
     )
 
     next_supervision_date = fields.Date(
-        string='Ngày khảo sát kế tiếp',
+        string='Next inspection date',
         compute='_compute_next_supervision_date',
         store=True,
         search='_search_next_supervision_date',
-        help='Ngày lịch khảo sát gần nhất với ngày hiện tại (>= hôm nay), không tính lịch trong quá khứ và lịch đã hủy.',
+        help='Nearest scheduled inspection date from today onwards; past and cancelled schedules are ignored.',
     )
 
     inspection_ids = fields.One2many(
         'wujia.franchise.inspection',
         'franchise_id',
-        string='Danh sách phiếu khảo sát',
+        string='Inspection sheet list',
     )
 
     latest_inspection_id = fields.Many2one(
         'wujia.franchise.inspection',
-        string='Phiếu khảo sát mới nhất',
+        string='Latest inspection sheet',
         compute='_compute_latest_inspection_info',
         store=True,
     )
     latest_total_score = fields.Float(
-        string='Điểm đánh giá mới nhất',
+        string='Latest evaluation score',
         compute='_compute_latest_inspection_info',
         store=True,
     )
     latest_grade_id = fields.Many2one(
         'wujia.franchise.inspection.grade',
-        string='Loại đánh giá mới nhất',
+        string='Latest evaluation grade',
         compute='_compute_latest_inspection_info',
         store=True,
     )
     latest_inspection_date = fields.Date(
-        string='Ngày khảo sát gần nhất',
+        string='Latest inspection date',
         compute='_compute_latest_inspection_info',
         store=True,
     )
@@ -191,7 +191,7 @@ class WujiaFranchiseManagement(models.Model):
 
     _code_uniq = models.Constraint(
         'UNIQUE (code)',
-        'Mã cửa hàng phải duy nhất.',
+        'The store code must be unique.',
     )
 
     # ===========================================================
@@ -301,22 +301,21 @@ class WujiaFranchiseManagement(models.Model):
             if (rec.franchise_end_date and rec.franchise_start_date
                     and rec.franchise_end_date < rec.franchise_start_date):
                 raise ValidationError(_(
-                    "Ngày kết thúc nhượng quyền phải >= ngày bắt đầu."
+                    'The franchise end date must be on or after the start date.'
                 ))
 
     @api.constrains('email')
     def _check_email_format(self):
         for rec in self:
             if rec.email and not EMAIL_RE.match(rec.email):
-                raise ValidationError(_("Email '%s' không đúng định dạng.", rec.email))
+                raise ValidationError(_("Email '%s' has an invalid format.", rec.email))
 
     @api.constrains('status', 'partner_id')
     def _check_partner_required_when_active(self):
         for rec in self:
             if rec.status == 'active' and not rec.partner_id:
                 raise ValidationError(_(
-                    "Cửa hàng '%s' đang Active phải có Partner để hỗ trợ tạo "
-                    "sale.order / hóa đơn.", rec.display_name,
+                    "Active store '%s' must have a partner so that sales orders / invoices can be created.", rec.display_name,
                 ))
 
     # ===========================================================
@@ -334,7 +333,7 @@ class WujiaFranchiseManagement(models.Model):
         self.ensure_one()
         return {
             'type': 'ir.actions.act_window',
-            'name': _('Thành viên cửa hàng %s', self.display_name),
+            'name': _('Members of store %s', self.display_name),
             'res_model': 'wujia.franchise.member',
             'view_mode': 'list,form',
             'domain': [('franchise_id', '=', self.id)],

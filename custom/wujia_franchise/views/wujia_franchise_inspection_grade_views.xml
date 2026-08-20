@@ -6,7 +6,7 @@
         <field name="name">wujia.franchise.inspection.grade.list</field>
         <field name="model">wujia.franchise.inspection.grade</field>
         <field name="arch" type="xml">
-            <list string="Xếp hạng giám sát" editable="bottom">
+            <list string="Inspection grades" editable="bottom">
                 <field name="sequence" widget="handle" />
                 <field name="name" />
                 <field name="min_score" />
@@ -22,16 +22,16 @@
         <field name="name">wujia.franchise.inspection.grade.form</field>
         <field name="model">wujia.franchise.inspection.grade</field>
         <field name="arch" type="xml">
-            <form string="Xếp hạng giám sát">
+            <form string="Inspection grades">
                 <sheet>
                     <group>
-                        <group string="Thông tin xếp hạng">
+                        <group string="Grade information">
                             <field name="name" />
                             <field name="sequence" />
                             <field name="color" widget="color_picker" />
                             <field name="active" />
                         </group>
-                        <group string="Khoảng điểm">
+                        <group string="Score range">
                             <field name="min_score" />
                             <field name="max_score" />
                         </group>
@@ -46,14 +46,14 @@
 
     <!-- Action -->
     <record id="action_wujia_franchise_inspection_grade" model="ir.actions.act_window">
-        <field name="name">Xếp hạng giám sát</field>
+        <field name="name">Inspection grades</field>
         <field name="res_model">wujia.franchise.inspection.grade</field>
         <field name="view_mode">list,form</field>
         <field name="help" type="html">
             <p class="o_view_nocontent_smiling_face">
-                Tạo cấu hình xếp hạng giám sát đầu tiên!
+                Create the first inspection grade configuration!
             </p>
-            <p>Cấu hình các mức xếp hạng (A, B, C, D...) dựa trên khoảng điểm số.</p>
+            <p>Set up the grade levels (A, B, C, D...) based on score ranges.</p>
         </field>
     </record>
 

@@ -75,10 +75,10 @@ class ResPartner(models.Model):
         if state != 'multi':
             return None
         return {'warning': {
-            'title': _('Partner thuộc nhiều cửa hàng'),
+            'title': _('Partner belongs to several stores'),
             'message': _(
-                "Partner '%(partner)s' đang gắn với %(count)s cửa hàng: %(stores)s.\n"
-                "Hệ thống không tự chọn — vui lòng chọn cửa hàng nhượng quyền thủ công.",
+                "Partner '%(partner)s' is linked to %(count)s stores: %(stores)s.\n"
+                "The system cannot pick one — please select the franchise store manually.",
                 partner=self.display_name,
                 count=len(franchises),
                 stores=', '.join(franchises.mapped('display_name')),
@@ -97,16 +97,14 @@ class ResPartner(models.Model):
             return
         if not franchise:
             raise UserError(_(
-                "Chứng từ '%(doc)s' chưa có cửa hàng nhượng quyền.\n"
-                "Partner '%(partner)s' thuộc cửa hàng '%(store)s' — hãy điền "
-                "trường Cửa hàng nhượng quyền rồi thao tác lại.",
+                "Document '%(doc)s' has no franchise store.\n"
+                "Partner '%(partner)s' belongs to store '%(store)s' — please fill in the Franchise store field and try again.",
                 doc=doc_label, partner=self.display_name,
                 store=expected.display_name,
             ))
         raise UserError(_(
-            "Chứng từ '%(doc)s' đang gắn cửa hàng '%(current)s' nhưng partner "
-            "'%(partner)s' thuộc cửa hàng '%(store)s'.\n"
-            "Hãy sửa lại cho khớp rồi thao tác lại.",
+            "Document '%(doc)s' is linked to store '%(current)s' but partner '%(partner)s' belongs to store '%(store)s'.\n"
+            "Please make them match and try again.",
             doc=doc_label, current=franchise.display_name,
             partner=self.display_name, store=expected.display_name,
         ))
@@ -115,7 +113,7 @@ class ResPartner(models.Model):
         self.ensure_one()
         return {
             'type': 'ir.actions.act_window',
-            'name': _('Cửa hàng nhượng quyền của %s', self.display_name),
+            'name': _('Franchise stores of %s', self.display_name),
             'res_model': 'wujia.franchise.management',
             'view_mode': 'list,form',
             'domain': [('partner_id', '=', self.id)],

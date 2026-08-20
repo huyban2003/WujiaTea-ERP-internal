@@ -5,7 +5,7 @@
         <field name="name">wujia.franchise.management.list</field>
         <field name="model">wujia.franchise.management</field>
         <field name="arch" type="xml">
-            <list string="Cửa hàng nhượng quyền" sample="1"
+            <list string="Franchise store" sample="1"
                 default_order="latest_inspection_date desc"
                 decoration-danger="is_expired"
                 decoration-warning="status == 'locked'"
@@ -18,11 +18,11 @@
                 <field name="franchise_end_date" />
                 <field name="remaining_days" />
                 <field name="member_count" />
-                <field name="effective_supervision_user_id" optional="show" string="Người giám sát" />
-                <field name="latest_inspection_date" optional="show" string="Ngày khảo sát gần nhất" />
-                <field name="latest_total_score" optional="show" string="Điểm mới nhất" />
+                <field name="effective_supervision_user_id" optional="show" string="Supervisor" />
+                <field name="latest_inspection_date" optional="show" string="Latest inspection date" />
+                <field name="latest_total_score" optional="show" string="Latest score" />
                 <field name="latest_grade_id" optional="show" widget="badge"
-                    string="Xếp loại mới nhất" />
+                    string="Latest grade" />
                 <field name="status" widget="badge"
                     decoration-success="status == 'active'"
                     decoration-warning="status == 'locked'"
@@ -61,9 +61,9 @@
                         </button>
                     </div>
 
-                    <widget name="web_ribbon" title="Hết hạn"
+                    <widget name="web_ribbon" title="Expired"
                         bg_color="text-bg-danger" invisible="not is_expired" />
-                    <widget name="web_ribbon" title="Khóa portal"
+                    <widget name="web_ribbon" title="Portal locked"
                         bg_color="text-bg-warning"
                         invisible="not portal_locked or is_expired" />
 
@@ -91,23 +91,23 @@
                         </group>
                     </group>
                     <group>
-                        <group string="Nhân viên giám sát">
+                        <group string="Assigned inspector">
                             <field name="supervision_user_id"
-                                placeholder="Để trống sẽ dùng người phụ trách khu vực" />
+                                placeholder="Leave empty to use the area manager" />
                             <field name="area_manager_user_id" readonly="1"
-                                string="Người phụ trách khu vực" />
+                                string="Area manager" />
                         </group>
-                        <group string="Khảo sát đợt gần nhất">
+                        <group string="Latest inspection round">
                             <field name="latest_inspection_date" readonly="1"
-                                string="Ngày khảo sát gần nhất" />
+                                string="Latest inspection date" />
                             <field name="latest_total_score" readonly="1"
-                                string="Điểm đánh giá mới nhất" />
+                                string="Latest evaluation score" />
                             <field name="latest_grade_id" widget="badge" readonly="1"
-                                string="Loại đánh giá mới nhất" />
+                                string="Latest evaluation grade" />
                         </group>
                     </group>
                     <group>
-                        <group string="Khu vực &amp; Địa chỉ">
+                        <group string="Area &amp; address">
                             <field name="area_id"
                                 options="{'no_create_edit': True}" />
                             <field name="state_id" />
@@ -205,10 +205,10 @@
                 <field name="effective_supervision_user_id" />
                 <field name="main_owner_member_id" />
                 <separator />
-                <filter string="Cửa hàng tôi phụ trách" name="filter_my_inspection"
+                <filter string="Stores I manage" name="filter_my_inspection"
                     domain="[('effective_supervision_user_id', '=', uid)]" />
                 <separator />
-                <filter string="Đang hoạt động" name="filter_active"
+                <filter string="Active" name="filter_active"
                     domain="[('status', '=', 'active')]" />
                 <filter string="Contract expired" name="filter_expired"
                     domain="[('is_expired', '=', True)]" />
@@ -229,7 +229,7 @@
     </record>
 
     <record id="action_franchise_management" model="ir.actions.act_window">
-        <field name="name">Quản lý nhượng quyền</field>
+        <field name="name">Franchise management</field>
         <field name="res_model">wujia.franchise.management</field>
         <field name="view_mode">list,kanban,form</field>
         <field name="context">{'search_default_filter_active': 1}</field>

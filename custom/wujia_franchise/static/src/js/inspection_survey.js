@@ -4,14 +4,20 @@
 
 (function () {
   "use strict";
-  function _t(key, defVal) {
-    return (window.SURVEY_TRANS && window.SURVEY_TRANS[key]) || defVal || key;
-  }
 
+  // Nhãn hiển thị lấy từ khối #surveyI18n trong template — server đã dịch sẵn theo .po.
+  const I18N = {};
+  function tr(key, fallback) {
+    return I18N[key] || fallback || key;
+  }
 
   document.addEventListener("DOMContentLoaded", function () {
     const app = document.getElementById("surveyApp");
     if (!app) return;
+
+    document.querySelectorAll("#surveyI18n [data-key]").forEach(function (el) {
+      I18N[el.dataset.key] = el.innerHTML.trim();
+    });
 
     // Auto trim leading/trailing whitespace caused by IDE XML auto-formatters
     function cleanExamTextareas() {
@@ -83,7 +89,7 @@
       if (submitBtn) {
         submitBtn.disabled = true;
         submitBtn.innerHTML =
-          '<i class="fa fa-lock"></i> Đã hoàn thành &amp; Đã khóa';
+          '<i class="fa fa-lock"></i> ' + tr("locked", "Completed &amp; locked");
         submitBtn.style.background = "#64748b";
         submitBtn.style.boxShadow = "none";
         submitBtn.style.cursor = "not-allowed";
@@ -182,7 +188,7 @@
     function openPrevModal(data) {
       if (!prevModalOverlay) return;
       document.getElementById("prevInspName").innerText =
-        data.inspection_name || "Đợt trước";
+        data.inspection_name || tr("prev_round", "Previous round");
       document.getElementById("prevDate").innerText =
         data.planned_date || "---";
       document.getElementById("prevInspector").innerText =
@@ -191,17 +197,22 @@
       const resBadge = document.getElementById("prevResultBadge");
       if (data.is_pass) {
         resBadge.className = "badge-pass";
-        resBadge.innerHTML = '<i class="fa fa-check"></i> Đạt';
+        resBadge.innerHTML =
+          '<i class="fa fa-check"></i> ' + tr("passed", "Passed");
       } else {
         resBadge.className = "badge-fail";
         resBadge.innerHTML =
-          '<i class="fa fa-times"></i> Không đạt (Trừ ' +
+          '<i class="fa fa-times"></i> ' +
+          tr("failed", "Failed") +
+          " (" +
           (data.deduction_score || 0) +
-          " điểm)";
+          " " +
+          tr("points", "points") +
+          ")";
       }
 
       document.getElementById("prevNote").innerText =
-        data.note || "Không có ghi chú vi phạm";
+        data.note || tr("no_violation_note", "No violation note");
 
       const imgContainer = document.getElementById("prevEvidenceContainer");
       const imgEl = document.getElementById("prevEvidenceImg");
@@ -237,11 +248,14 @@
             const data = JSON.parse(rawJson);
             openPrevModal(data);
           } catch (err) {
-            alert("Chưa có thông tin dữ liệu chi tiết của đợt khảo sát trước.");
+            alert(tr("no_prev_detail", "No detail data for the previous inspection."));
           }
         } else {
           alert(
-            "Đây là đợt khảo sát đầu tiên hoặc không có dữ liệu đợt trước cho tiêu chí này.",
+            t(
+              "first_round",
+              "This is the first inspection, or there is no previous data for this criterion."
+            ),
           );
         }
       });
@@ -317,7 +331,10 @@
       // MUST REQUIRE Nhân viên được kiểm tra (test_employee_name)
       if (!isExamSubmitted && !empName) {
         showCustomAlert(
-          'Vui lòng nhập "Nhân viên được kiểm tra" trước khi lưu kết quả!',
+          t(
+            "require_employee",
+            'Please enter "Inspected employee" before saving the results!'
+          ),
           function () {
             switchTab("exam");
             if (nameInput) {
@@ -378,7 +395,7 @@
         );
         const data = await res.json();
         if (data.result && data.result.success) {
-          showToast("Đã lưu kết quả thành công!", false);
+          showToast(tr("saved_ok", "Results saved successfully!"), false);
           if (data.result.checklist_score !== undefined) {
             const lcs = document.getElementById("liveChecklistScore");
             if (lcs)
@@ -399,11 +416,11 @@
           lockExamTab();
         } else {
           showCustomAlert(
-            data.result ? data.result.error : "Có lỗi xảy ra khi lưu!",
+            data.result ? data.result.error : tr("save_error", "An error occurred while saving!"),
           );
         }
       } catch (err) {
-        showToast("Lỗi kết nối máy chủ!", true);
+        showToast(tr("conn_error", "Server connection error!"), true);
       }
     }
 
@@ -465,18 +482,19 @@
           const prevData = JSON.parse(rawJson);
           if (prevData.is_pass) {
             lineModalPrevBadge.className = "badge-pass";
-            lineModalPrevBadge.innerHTML = '<i class="fa fa-check"></i> Đạt';
+            lineModalPrevBadge.innerHTML =
+              '<i class="fa fa-check"></i> ' + tr("passed", "Passed");
           } else {
             lineModalPrevBadge.className = "badge-fail";
             lineModalPrevBadge.innerHTML =
-              '<i class="fa fa-times"></i> Không đạt';
+              '<i class="fa fa-times"></i> ' + tr("failed", "Failed");
           }
           lineModalPrevInspector.innerText =
             (prevData.planned_date || "") +
             " - " +
             (prevData.inspector || "---");
           lineModalPrevNote.innerText =
-            prevData.note || "Không có ghi chú vi phạm";
+            prevData.note || tr("no_violation_note", "No violation note");
           if (prevData.has_evidence && prevData.evidence_url) {
             lineModalPrevEvidenceImg.src = prevData.evidence_url;
             lineModalPrevEvidenceWrap.style.display = "block";
@@ -487,7 +505,7 @@
           lineModalPrevBadge.className = "badge-none";
           lineModalPrevBadge.innerText = "-";
           lineModalPrevInspector.innerText = "---";
-          lineModalPrevNote.innerText = "Chưa có thông tin đợt trước";
+          lineModalPrevNote.innerText = tr("no_prev_info", "No previous round information");
           lineModalPrevEvidenceWrap.style.display = "none";
         }
       } else {
@@ -495,7 +513,7 @@
         lineModalPrevBadge.innerText = "-";
         lineModalPrevInspector.innerText = "---";
         lineModalPrevNote.innerText =
-          "Đợt đầu tiên / Không có dữ liệu đợt trước";
+          tr("first_or_none", "First round / no previous data");
         lineModalPrevEvidenceWrap.style.display = "none";
       }
 
@@ -529,8 +547,8 @@
         lineModalCheck.checked = lineChk.checked;
         lineModalCheck.disabled = isInspectionClosed;
         lineModalCheckStatus.innerText = lineChk.checked
-          ? "Đạt"
-          : "Không đạt (Bị trừ điểm)";
+          ? tr("passed", "Passed")
+          : tr("failed_deducted", "Failed (points deducted)");
         lineModalCheckStatus.style.color = lineChk.checked
           ? "#15803d"
           : "#ef4444";
@@ -582,8 +600,8 @@
     if (lineModalCheck) {
       lineModalCheck.addEventListener("change", function () {
         lineModalCheckStatus.innerText = this.checked
-          ? "Đạt"
-          : "Không đạt (Bị trừ điểm)";
+          ? tr("passed", "Passed")
+          : tr("failed_deducted", "Failed (points deducted)");
         lineModalCheckStatus.style.color = this.checked ? "#15803d" : "#ef4444";
       });
     }

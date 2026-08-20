@@ -99,23 +99,23 @@ export class WujiaInspectionChart extends Component {
 
     
     get chartTitle() {
-        return this.chartData.title || _t("label:wujia.franchise.inspection:chart_history_title");
+        return this.chartData.title || _t("Inspection score history (last 10 rounds)");
     }
 
     get singleScoreLabel() {
-        return this.chartData.single_label || _t("label:wujia.franchise.inspection:chart_single_score");
+        return this.chartData.single_label || _t("Round score");
     }
 
     get avgScoreLabel() {
-        return this.chartData.avg_label || _t("label:wujia.franchise.inspection:chart_avg_score");
+        return this.chartData.avg_label || _t("Average score");
     }
 
     get noDataTitle() {
-        return this.chartData.no_data_title || _t("label:wujia.franchise.inspection:chart_no_data_title");
+        return this.chartData.no_data_title || _t("No history data yet!");
     }
 
     get noDataDesc() {
-        return this.chartData.no_data_desc || _t("label:wujia.franchise.inspection:chart_no_data_desc");
+        return this.chartData.no_data_desc || _t("Please pick an inspection template, or this store has no inspection sheet using this template in Done / Remediation required status.");
     }
 
     static props = {
