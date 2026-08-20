@@ -104,3 +104,122 @@ class WujiaFranchiseInspectionQuestion(models.Model):
         """Lưu bản ghi câu hỏi"""
         self.ensure_one()
         return True
+
+    def init(self):
+        super().init()
+        self._init_default_questions()
+
+    @api.model
+    def _init_default_questions(self):
+        """Khởi tạo danh sách 15 câu hỏi kiểm tra mặc định từ DB nếu chưa tồn tại trong database."""
+        default_questions = [
+            {
+                'code': '01',
+                'question_text': 'Công thức pha chế món "Sữa Tươi Khoai Môn Nghiền" 50% đường, đá bình thường: Khoai môn nghiền _____ viên (_____gr), Khoai Môn Nghiền vá ( gr), sữa tươi 150ml, nước đường ____cc, đong trà Olong có đường ml trên ca định lượng.',
+                'score': 1.0,
+                'correct_answers': [['1.5', '1,5'], '120', '10'],
+                'active': True,
+            },
+            {
+                'code': '02',
+                'question_text': 'Công thức pha chế món "Hồng Trà Kem Cheese" 50% đường, ít đá: Đong Hồng Trà có đường ____ml trên ca định lượng, đong Hồng trà không đường ____ml trên ca định lượng, cho đá đến vạch 450ml trên ly PP, kem chesse cho đến vạch ____ml trên lý PP',
+                'score': 1.0,
+                'correct_answers': ['250', '100', '600'],
+                'active': True,
+            },
+            {
+                'code': '03',
+                'question_text': 'Công thức pha chế món "Olong Nho" 70% đường, ít đá: _____gr mứt nho, _____cc nước cốt nho, cho đá đến vạch 300, đong ____ml Olong có đường trên ca định lượng, đong _____ml Olong không đường.',
+                'score': 1.0,
+                'correct_answers': ['50', '30', '200', '100'],
+                'active': True,
+            },
+            {
+                'code': '04',
+                'question_text': 'Công thức pha chế món "Olong Latte" + 1 phần Pudding Trứng Muối, size L, 50% đường, ít đá: Pudding Trứng Muối____ vá ( ____gr), sữa tươi 150ml, nước đường _____cc, đong trà Olong có đường ____ml trên ca định lượng, đong trà Olong không đường ____ml trên ca định lượng, đá đến vạch _______',
+                'score': 1.0,
+                'correct_answers': ['2', '120', '0', '250', '100', '800'],
+                'active': True,
+            },
+            {
+                'code': '05',
+                'question_text': 'Công thức pha chế món "Trà Xí Muội Ngô Gia" size M, ít đá: Hạt é _____ vá (_____gr), Thạch Aiyu_____ vá (____gr), đá đến vạch 300, đong trà Xí Muội ____ml trên ca định lượng',
+                'score': 1.0,
+                'correct_answers': ['2', '60', '1', '40', '300'],
+                'active': True,
+            },
+            {
+                'code': '06',
+                'question_text': 'Lượng sữa tươi trong thức uống "Sữa Tươi Trân Châu Đường Đen" nhiều đá size M là _____ml; size L là ______ml.',
+                'score': 1.0,
+                'correct_answers': ['200', '300'],
+                'active': True,
+            },
+            {
+                'code': '07',
+                'question_text': 'Điền chính xác định lượng các loại topping sau: Trân Châu Vị Dâu ___vá (____gr),Khoai môn Nghiền ____viên (____gr), Trân Châu 3Q Trắng _____vá (____gr).',
+                'score': 1.0,
+                'correct_answers': ['2', '100', '1', '80', '1', '45'],
+                'active': True,
+            },
+            {
+                'code': '08',
+                'question_text': 'Công thức pha chế món "Hồng Trà Bí Đao" size M, 70% đường, ít đá: Đong ____ml Trà Bí Đao trên ca định lượng, đong _____ml Hồng Trà có đường trên ca định lượng, đong ____ml Hồng Trà không đường trên ca định lượng, cho đá đến vạch ___trên ly PP.',
+                'score': 1.0,
+                'correct_answers': ['210', '70', '70', '600'],
+                'active': True,
+            },
+            {
+                'code': '09',
+                'question_text': 'Sau khi cho Hạt é, nước lọc và nước đường vào khuấy đều, để yên ___ phút mới có thể sử dụng.',
+                'score': 1.0,
+                'correct_answers': ['2'],
+                'active': True,
+            },
+            {
+                'code': '10',
+                'question_text': 'Hạn sử dụng của topping "Pudding Sương Sáo" đã khui là: ________',
+                'score': 1.0,
+                'correct_answers': [['Sử dụng ngay', 'dùng liền', 'dùng ngay']],
+                'active': True,
+            },
+            {
+                'code': '11',
+                'question_text': 'Hạn sử dụng của "Kem chesse" thành phân là: _____ngày (tốt nhất ___tiếng)',
+                'score': 1.0,
+                'correct_answers': ['1', ['24', '24h', '24H']],
+                'active': True,
+            },
+            {
+                'code': '12',
+                'question_text': 'Công thức nấu 150gr "Trân Châu Vị Dâu": Nước lọc_____ml, nước đường _____cc.',
+                'score': 1.0,
+                'correct_answers': ['2000', '25'],
+                'active': True,
+            },
+            {
+                'code': '13',
+                'question_text': 'Công thức nâu 300gr "Khoai Dẻo Tam Sắc": Nước lọc _____ml, nước đường _______cc.',
+                'score': 1.0,
+                'correct_answers': ['2000', '30'],
+                'active': True,
+            },
+            {
+                'code': '14',
+                'question_text': 'Công thức nâu 2000gr "Trân Châu Đường Đen": Nước lọc ____ml, nước đường ______cc, siro đường đen _____cc.',
+                'score': 1.0,
+                'correct_answers': ['5000', '220', '300'],
+                'active': True,
+            },
+            {
+                'code': '15',
+                'question_text': 'Công thức nâu 500gr "Trân Châu Khoai Môn": Nước lọc _____ml, nước đường _____cc.',
+                'score': 1.0,
+                'correct_answers': ['2500', '75'],
+                'active': True,
+            },
+        ]
+        for q_data in default_questions:
+            existing = self.with_context(active_test=False).search([('code', '=', q_data['code'])], limit=1)
+            if not existing:
+                self.create(q_data)
