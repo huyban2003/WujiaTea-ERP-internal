@@ -1,3 +1,4 @@
+import pandas as pd
 from enum import Enum
 
 
@@ -167,7 +168,6 @@ class WujiaFranchiseInspection(models.Model):
         'inspection_id',
         string='Chi tiết khảo sát',
         copy=False,
-        auto_join=True,
     )
 
     exam_line_ids = fields.One2many(
@@ -175,7 +175,13 @@ class WujiaFranchiseInspection(models.Model):
         'inspection_id',
         string='Điểm kiểm tra',
         copy=False,
-        auto_join=True,
+    )
+
+    report_line_ids = fields.One2many(
+        'wujia.franchise.inspection.report.line',
+        'inspection_id',
+        string='Dòng báo cáo',
+        copy=False,
     )
 
     is_exam_submitted = fields.Boolean(
@@ -1294,7 +1300,76 @@ class WujiaFranchiseInspectionLine(models.Model):
             else:
                 rec.display_name = rec.content_snapshot or _("Tiêu chí không xác định")
 
+class WujiaFranchiseInspectionReportLine(models.Model):
+    _name = 'wujia.franchise.inspection.report.line'
+    _description = 'Từng dòng báo cáo tài chính trong 3 tháng'
+    _order = 'sequence, id'
 
+    sequence = fields.Integer(string='Thứ tự', default=10)
+
+    date_month = fields.Date(
+        string='Tháng (YYYY-MM)',
+        required=True,
+    )
+    
+    days_of_month = fields.Integer(
+        string='Số ngày trong tháng',
+        compute='_compute_days_of_month',
+        store=True,
+    )
+
+    revenue = fields.Float(
+        string='Doanh thu',
+        required=True,
+    )
+
+    revenue_avg = fields.Float(
+        string='Doanh thu / ngày',
+        compute='_compute_revenue_avg',
+        store=True,
+        readonly=False,
+    )
+
+    total_app_sale = fields.Integer(
+        string='Tổng giao dịch qua app',
+        required=True,
+    )
+
+    percent_app_sale = fields.Float(
+        string='% giao dịch qua app',
+        required=True,
+    )
+
+    # RELATION
+    inspection_id = fields.Many2one(
+        'wujia.franchise.inspection',
+        string='Phiếu khảo sát',
+        required=True,
+        ondelete='cascade',
+    )
+
+    @api.depends('date_month')
+    def _compute_days_of_month(self):
+        for rec in self:
+            if rec.date_month:
+                try:
+                    period = pd.Period(rec.date_month)
+                    rec.days_of_month = period.days_in_month
+                except Exception:
+                    rec.days_of_month = 30
+            else:
+                rec.days_of_month = 0
+
+    @api.depends('revenue', 'days_of_month')
+    def _compute_revenue_avg(self):
+        for rec in self:
+            if rec.days_of_month and rec.days_of_month > 0:
+                rec.revenue_avg = round(rec.revenue / rec.days_of_month, 2)
+            else:
+                rec.revenue_avg = 0.0
+
+
+    
 class WujiaFranchiseInspectionExamLine(models.Model):
     _name = 'wujia.franchise.inspection.exam.line'
     _description = 'Điểm kiểm tra phiếu khảo sát đánh giá cửa hàng nhượng quyền'

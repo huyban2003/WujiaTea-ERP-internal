@@ -45,7 +45,7 @@ def load_csv_mappings():
         print(f"Lỗi: Không tìm thấy CSV tại {CSV_PATH}")
         return trans_map
 
-    with open(CSV_PATH, 'r', encoding='utf-8') as f:
+    with open(CSV_PATH, 'r', encoding='utf-8-sig') as f:
         reader = csv.DictReader(f)
         for row in reader:
             key = (row.get('key') or '').strip()

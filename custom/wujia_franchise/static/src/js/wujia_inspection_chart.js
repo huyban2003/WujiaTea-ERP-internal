@@ -3,21 +3,22 @@
 import { Component, xml } from "@odoo/owl";
 import { registry } from "@web/core/registry";
 import { standardFieldProps } from "@web/views/fields/standard_field_props";
+import { _t } from "@web/core/l10n/translation";
 
 export class WujiaInspectionChart extends Component {
     static template = xml`
         <div class="wujia-inspection-chart-container w-100 p-4 bg-white rounded border shadow-sm my-2" style="width: 100% !important; max-width: 100% !important;">
             <div class="d-flex justify-content-between align-items-center mb-3">
                 <h6 class="mb-0 fw-bold text-primary fs-5">
-                    <i class="fa fa-bar-chart me-2"></i> Lịch sử điểm số giám sát (10 đợt gần nhất)
+                    <i class="fa fa-bar-chart me-2"></i> <t t-esc="chartTitle"/>
                 </h6>
                 <t t-if="chartData.hasData">
                     <div class="d-flex align-items-center gap-3">
                         <span class="badge bg-primary-subtle text-primary border border-primary-subtle px-3 py-2 fs-6">
-                            <i class="fa fa-square me-1" style="color: #28A9DF;"></i> Điểm từng đợt
+                            <i class="fa fa-square me-1" style="color: #28A9DF;"></i> <t t-esc="singleScoreLabel"/>
                         </span>
                         <span class="badge bg-warning-subtle text-warning border border-warning-subtle px-3 py-2 fs-6">
-                            <i class="fa fa-minus me-1" style="color: #FF9F43; font-weight: bold;"></i> Điểm trung bình (<t t-esc="chartData.avgScore"/>)
+                            <i class="fa fa-minus me-1" style="color: #FF9F43; font-weight: bold;"></i> <t t-esc="avgScoreLabel"/> (<t t-esc="chartData.avgScore"/>)
                         </span>
                     </div>
                 </t>
@@ -27,8 +28,8 @@ export class WujiaInspectionChart extends Component {
                 <div class="alert alert-info d-flex align-items-center mb-0 py-4" role="alert">
                     <i class="fa fa-info-circle fa-2x me-3 text-info"></i>
                     <div>
-                        <strong>Chưa có dữ liệu lịch sử!</strong>
-                        <div class="text-muted">Vui lòng chọn <b>Mẫu khảo sát</b> hoặc cửa hàng này chưa có phiếu giám sát nào theo mẫu này ở trạng thái Hoàn thành / Cần khắc phục.</div>
+                        <strong><t t-esc="noDataTitle"/></strong>
+                        <div class="text-muted"><t t-esc="noDataDesc"/></div>
                     </div>
                 </div>
             </t>
@@ -95,6 +96,27 @@ export class WujiaInspectionChart extends Component {
             </t>
         </div>
     `;
+
+    
+    get chartTitle() {
+        return _t("Lịch sử điểm số giám sát (10 đợt gần nhất)");
+    }
+
+    get singleScoreLabel() {
+        return _t("Điểm từng đợt");
+    }
+
+    get avgScoreLabel() {
+        return _t("Điểm trung bình");
+    }
+
+    get noDataTitle() {
+        return _t("Chưa có dữ liệu lịch sử!");
+    }
+
+    get noDataDesc() {
+        return _t("Vui lòng chọn Mẫu khảo sát hoặc cửa hàng này chưa có phiếu giám sát nào theo mẫu này ở trạng thái Hoàn thành / Cần khắc phục.");
+    }
 
     static props = {
         ...standardFieldProps,
