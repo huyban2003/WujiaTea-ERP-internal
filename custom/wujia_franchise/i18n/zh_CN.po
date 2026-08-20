@@ -6,8 +6,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 19.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-08-20 04:17+0000\n"
-"PO-Revision-Date: 2026-08-20 04:17+0000\n"
+"POT-Creation-Date: 2026-08-20 04:42+0000\n"
+"PO-Revision-Date: 2026-08-20 04:42+0000\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "MIME-Version: 1.0\n"
@@ -259,12 +259,6 @@ msgstr ""
 #. odoo-python
 #: code:addons/wujia_franchise/models/wujia_franchise_inspection_template.py:0
 msgid "Chưa chọn danh mục"
-msgstr ""
-
-#. module: wujia_franchise
-#. odoo-javascript
-#: code:addons/wujia_franchise/static/src/js/wujia_inspection_chart.js:0
-msgid "Chưa có dữ liệu lịch sử!"
 msgstr ""
 
 #. module: wujia_franchise
@@ -1113,12 +1107,6 @@ msgid "Lịch sử giám sát"
 msgstr "監督紀錄"
 
 #. module: wujia_franchise
-#. odoo-javascript
-#: code:addons/wujia_franchise/static/src/js/wujia_inspection_chart.js:0
-msgid "Lịch sử điểm số giám sát (10 đợt gần nhất)"
-msgstr ""
-
-#. module: wujia_franchise
 #: model:res.groups,comment:wujia_franchise.group_franchise_manager
 msgid "Manage stores, create/delete memberships."
 msgstr ""
@@ -1384,11 +1372,6 @@ msgid "Người phụ trách khu vực"
 msgstr ""
 
 #. module: wujia_franchise
-#: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection__confirmed_user_id
-msgid "Người xác nhận"
-msgstr ""
-
-#. module: wujia_franchise
 #: model:ir.model.fields.selection,name:wujia_franchise.selection__wujia_franchise_member__role__staff
 msgid "Nhân viên"
 msgstr ""
@@ -1625,11 +1608,6 @@ msgid "Quản lý"
 msgstr ""
 
 #. module: wujia_franchise
-#: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection__confirmed_member_id
-msgid "Quản lý của hàng xác nhận"
-msgstr ""
-
-#. module: wujia_franchise
 #: model:ir.ui.menu,name:wujia_franchise.menu_wujia_config_area_root
 msgid "Quản lý khu vực"
 msgstr "區域管理"
@@ -1814,8 +1792,8 @@ msgstr "加盟成員"
 
 #. module: wujia_franchise
 #: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection_report_line__date_month
-msgid "Tháng (MM/YYYY)"
-msgstr "月份 (MM/YYYY)"
+msgid "Tháng (YYYY-MM)"
+msgstr ""
 
 #. module: wujia_franchise
 #: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection__tenure
@@ -2139,14 +2117,6 @@ msgid "View store and membership data."
 msgstr ""
 
 #. module: wujia_franchise
-#. odoo-javascript
-#: code:addons/wujia_franchise/static/src/js/wujia_inspection_chart.js:0
-msgid ""
-"Vui lòng chọn Mẫu khảo sát hoặc cửa hàng này chưa có phiếu giám sát nào theo"
-" mẫu này ở trạng thái Hoàn thành / Cần khắc phục."
-msgstr ""
-
-#. module: wujia_franchise
 #. odoo-python
 #: code:addons/wujia_franchise/models/wujia_franchise_inspection.py:0
 msgid "Vui lòng chọn ngày trong \"Lần kiểm tra kế tiếp\" trước khi tạo lịch!"
@@ -2276,6 +2246,16 @@ msgid "e.g. 219 Vinh Vien store"
 msgstr ""
 
 #. module: wujia_franchise
+#: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection__confirmed_member_id
+msgid "field:wujia.franchise.inspection:confirmed_member_id"
+msgstr "門店管理者確認"
+
+#. module: wujia_franchise
+#: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection__confirmed_user_id
+msgid "field:wujia.franchise.inspection:confirmed_user_id"
+msgstr "確認者"
+
+#. module: wujia_franchise
 #: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection__checklist_score
 msgid "fields:wujia.franchise.inspection:checklist_score"
 msgstr "Checklist 分數"
@@ -2329,6 +2309,46 @@ msgstr "開始執行"
 #: model_terms:ir.ui.view,arch_db:wujia_franchise.view_wujia_franchise_inspection_form
 msgid "label:wujia.franchise.inspection:action_submit_exam"
 msgstr "提交測驗"
+
+#. module: wujia_franchise
+#. odoo-javascript
+#. odoo-python
+#: code:addons/wujia_franchise/models/wujia_franchise_inspection.py:0
+#: code:addons/wujia_franchise/static/src/js/wujia_inspection_chart.js:0
+msgid "label:wujia.franchise.inspection:chart_avg_score"
+msgstr "平均分數"
+
+#. module: wujia_franchise
+#. odoo-javascript
+#. odoo-python
+#: code:addons/wujia_franchise/models/wujia_franchise_inspection.py:0
+#: code:addons/wujia_franchise/static/src/js/wujia_inspection_chart.js:0
+msgid "label:wujia.franchise.inspection:chart_history_title"
+msgstr "評核分數歷史紀錄（近10次）"
+
+#. module: wujia_franchise
+#. odoo-javascript
+#. odoo-python
+#: code:addons/wujia_franchise/models/wujia_franchise_inspection.py:0
+#: code:addons/wujia_franchise/static/src/js/wujia_inspection_chart.js:0
+msgid "label:wujia.franchise.inspection:chart_no_data_desc"
+msgstr "請選擇評核範本，或此門店目前尚無此範本已完成／待改善之監督表記錄。"
+
+#. module: wujia_franchise
+#. odoo-javascript
+#. odoo-python
+#: code:addons/wujia_franchise/models/wujia_franchise_inspection.py:0
+#: code:addons/wujia_franchise/static/src/js/wujia_inspection_chart.js:0
+msgid "label:wujia.franchise.inspection:chart_no_data_title"
+msgstr "暫無歷史數據！"
+
+#. module: wujia_franchise
+#. odoo-javascript
+#. odoo-python
+#: code:addons/wujia_franchise/models/wujia_franchise_inspection.py:0
+#: code:addons/wujia_franchise/static/src/js/wujia_inspection_chart.js:0
+msgid "label:wujia.franchise.inspection:chart_single_score"
+msgstr "各次評核分數"
 
 #. module: wujia_franchise
 #: model_terms:ir.ui.view,arch_db:wujia_franchise.view_wujia_franchise_inspection_form
@@ -2819,12 +2839,6 @@ msgid "Điểm số đạt được khi trả lời đúng câu hỏi này"
 msgstr ""
 
 #. module: wujia_franchise
-#. odoo-javascript
-#: code:addons/wujia_franchise/static/src/js/wujia_inspection_chart.js:0
-msgid "Điểm trung bình"
-msgstr ""
-
-#. module: wujia_franchise
 #: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection_line__deduction_score_snapshot
 #: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection_template_line__deduction_score
 msgid "Điểm trừ"
@@ -2863,12 +2877,6 @@ msgstr ""
 #. module: wujia_franchise
 #: model:ir.model.fields,help:wujia_franchise.field_wujia_franchise_inspection_grade__max_score
 msgid "Điểm tối đa của hạng này (bao gồm)"
-msgstr ""
-
-#. module: wujia_franchise
-#. odoo-javascript
-#: code:addons/wujia_franchise/static/src/js/wujia_inspection_chart.js:0
-msgid "Điểm từng đợt"
 msgstr ""
 
 #. module: wujia_franchise

@@ -205,7 +205,13 @@ class WujiaFranchiseInspection(models.Model):
         import json
         for rec in self:
             if not rec.franchise_id or not rec.template_id:
-                rec.inspection_chart_data = json.dumps({})
+                rec.inspection_chart_data = json.dumps({
+                    'title': _("label:wujia.franchise.inspection:chart_history_title"),
+                    'single_label': _("label:wujia.franchise.inspection:chart_single_score"),
+                    'avg_label': _("label:wujia.franchise.inspection:chart_avg_score"),
+                    'no_data_title': _("label:wujia.franchise.inspection:chart_no_data_title"),
+                    'no_data_desc': _("label:wujia.franchise.inspection:chart_no_data_desc"),
+                })
                 continue
             
             # Lấy 10 phiếu giám sát gần nhất của cửa hàng này theo đúng Mẫu khảo sát (template_id)
@@ -236,7 +242,12 @@ class WujiaFranchiseInspection(models.Model):
             rec.inspection_chart_data = json.dumps({
                 'labels': labels,
                 'scores': scores,
-                'avg_scores': avg_scores
+                'avg_scores': avg_scores,
+                'title': _("label:wujia.franchise.inspection:chart_history_title"),
+                'single_label': _("label:wujia.franchise.inspection:chart_single_score"),
+                'avg_label': _("label:wujia.franchise.inspection:chart_avg_score"),
+                'no_data_title': _("label:wujia.franchise.inspection:chart_no_data_title"),
+                'no_data_desc': _("label:wujia.franchise.inspection:chart_no_data_desc"),
             })
 
     @api.constrains('planned_date', 'franchise_id', 'state')
@@ -783,13 +794,13 @@ class WujiaFranchiseInspection(models.Model):
                 rec.previous_inspection_id = False
     
     confirmed_user_id = fields.Many2one('res.users',
-        string='Người xác nhận',
+        string='field:wujia.franchise.inspection:confirmed_user_id',
         required=True,
         ondelete='restrict',
         default=lambda self: self.env.user
     )
     confirmed_member_id = fields.Many2one('wujia.franchise.member',
-        string='Quản lý của hàng xác nhận',
+        string='field:wujia.franchise.inspection:confirmed_member_id',
         required=True,
         ondelete='restrict',
     )

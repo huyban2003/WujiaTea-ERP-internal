@@ -99,23 +99,23 @@ export class WujiaInspectionChart extends Component {
 
     
     get chartTitle() {
-        return _t("Lịch sử điểm số giám sát (10 đợt gần nhất)");
+        return this.chartData.title || _t("label:wujia.franchise.inspection:chart_history_title");
     }
 
     get singleScoreLabel() {
-        return _t("Điểm từng đợt");
+        return this.chartData.single_label || _t("label:wujia.franchise.inspection:chart_single_score");
     }
 
     get avgScoreLabel() {
-        return _t("Điểm trung bình");
+        return this.chartData.avg_label || _t("label:wujia.franchise.inspection:chart_avg_score");
     }
 
     get noDataTitle() {
-        return _t("Chưa có dữ liệu lịch sử!");
+        return this.chartData.no_data_title || _t("label:wujia.franchise.inspection:chart_no_data_title");
     }
 
     get noDataDesc() {
-        return _t("Vui lòng chọn Mẫu khảo sát hoặc cửa hàng này chưa có phiếu giám sát nào theo mẫu này ở trạng thái Hoàn thành / Cần khắc phục.");
+        return this.chartData.no_data_desc || _t("label:wujia.franchise.inspection:chart_no_data_desc");
     }
 
     static props = {

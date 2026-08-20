@@ -41,9 +41,10 @@ def export_pot():
 
 def load_csv_mappings():
     trans_map = {}
+    row_count = 0
     if not os.path.exists(CSV_PATH):
         print(f"Lỗi: Không tìm thấy CSV tại {CSV_PATH}")
-        return trans_map
+        return trans_map, 0
 
     with open(CSV_PATH, 'r', encoding='utf-8-sig') as f:
         reader = csv.DictReader(f)
@@ -51,11 +52,14 @@ def load_csv_mappings():
             key = (row.get('key') or '').strip()
             vn = (row.get('VN') or '').strip()
             cn = (row.get('CN') or '').strip()
+            if not key and not vn:
+                continue
+            row_count += 1
             if key:
                 trans_map[key] = {'VN': vn, 'CN': cn}
             if vn:
                 trans_map[vn] = {'VN': vn, 'CN': cn}
-    return trans_map
+    return trans_map, row_count
 
 def generate_po_from_pot(pot_path, out_po_path, trans_map, lang_col):
     with open(pot_path, 'r', encoding='utf-8') as f:
@@ -124,8 +128,8 @@ def main():
         print("Lỗi: Không thể xuất file POT.")
         sys.exit(1)
 
-    trans_map = load_csv_mappings()
-    print(f"Đã nạp {len(trans_map)} ánh xạ bản dịch từ CSV.")
+    trans_map, row_count = load_csv_mappings()
+    print(f"Đã nạp {row_count} dòng bản dịch từ CSV.")
 
     generate_po_from_pot(pot_path, VI_PO_PATH, trans_map, 'VN')
     generate_po_from_pot(pot_path, ZH_PO_PATH, trans_map, 'CN')
