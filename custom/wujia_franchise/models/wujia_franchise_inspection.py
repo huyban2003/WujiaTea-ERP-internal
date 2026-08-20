@@ -188,6 +188,77 @@ class WujiaFranchiseInspection(models.Model):
         string='Thời gian nộp bài kiểm tra',
         copy=False,
     )
+
+    inspection_chart_data = fields.Text(
+        string='Dữ liệu biểu đồ',
+        compute='_compute_inspection_chart_data',
+    )
+
+    @api.depends('franchise_id', 'template_id', 'total_score', 'state')
+    def _compute_inspection_chart_data(self):
+        import json
+        for rec in self:
+            if not rec.franchise_id or not rec.template_id:
+                rec.inspection_chart_data = json.dumps({})
+                continue
+            
+            # Lấy 10 phiếu giám sát gần nhất của cửa hàng này theo đúng Mẫu khảo sát (template_id)
+            inspections = self.env['wujia.franchise.inspection'].search([
+                ('franchise_id', '=', rec.franchise_id.id),
+                ('template_id', '=', rec.template_id.id),
+                ('state', 'in', ['done', 'need_remediation']),
+                ('planned_date', '!=', False)
+            ], order='planned_date desc, id desc', limit=10)
+            
+            # Sắp xếp theo thứ tự thời gian tăng dần từ cũ -> mới để vẽ biểu đồ
+            inspections = inspections.sorted(key=lambda r: (r.planned_date, r.id))
+            
+            labels = []
+            scores = []
+            avg_scores = []
+            
+            if inspections:
+                total_sum = sum(ins.total_score for ins in inspections)
+                overall_avg = total_sum / len(inspections)
+                
+                for ins in inspections:
+                    date_str = ins.planned_date.strftime('%d/%m/%Y') if ins.planned_date else ''
+                    labels.append(date_str)
+                    scores.append(ins.total_score)
+                    avg_scores.append(round(overall_avg, 2))
+            
+            rec.inspection_chart_data = json.dumps({
+                'labels': labels,
+                'scores': scores,
+                'avg_scores': avg_scores
+            })
+
+    @api.constrains('planned_date', 'franchise_id', 'state')
+    def _check_inspection_constraints(self):
+        today = fields.Date.context_today(self)
+        for rec in self:
+            if rec.state == 'cancel':
+                continue
+            if rec.planned_date and rec.planned_date > today:
+                raise ValidationError(_(
+                    "Không thể tạo hoặc lưu phiếu khảo sát cho ngày trong tương lai (%s)!\n"
+                    "Ngày khảo sát chưa đến (Hôm nay: %s). Bạn có thể tạo Lịch giám sát trước."
+                ) % (rec.planned_date.strftime('%d/%m/%Y'), today.strftime('%d/%m/%Y')))
+            
+            if rec.franchise_id and rec.planned_date:
+                duplicate = self.search([
+                    ('franchise_id', '=', rec.franchise_id.id),
+                    ('planned_date', '=', rec.planned_date),
+                    ('state', '!=', 'cancel'),
+                    ('id', '!=', rec.id)
+                ], limit=1)
+                if duplicate:
+                    raise ValidationError(_(
+                        "Trong 1 ngày (%s), mỗi cửa hàng '%s' chỉ được phép có tối đa 1 phiếu khảo sát!\n"
+                        "Đã có phiếu khảo sát (%s) trong ngày này."
+                    ) % (rec.planned_date.strftime('%d/%m/%Y'), rec.franchise_id.name, duplicate.name))
+
+
     @api.model
     def _generate_inspection_name(self, franchise_id, schedule_id=None, seq_number=None):
         """

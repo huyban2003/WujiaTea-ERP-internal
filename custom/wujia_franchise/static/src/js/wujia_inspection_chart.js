@@ -1,0 +1,173 @@
+/** @odoo-module **/
+
+import { Component, xml } from "@odoo/owl";
+import { registry } from "@web/core/registry";
+import { standardFieldProps } from "@web/views/fields/standard_field_props";
+
+export class WujiaInspectionChart extends Component {
+    static template = xml`
+        <div class="wujia-inspection-chart-container w-100 p-4 bg-white rounded border shadow-sm my-2" style="width: 100% !important; max-width: 100% !important;">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h6 class="mb-0 fw-bold text-primary fs-5">
+                    <i class="fa fa-bar-chart me-2"></i> Lịch sử điểm số giám sát (10 đợt gần nhất)
+                </h6>
+                <t t-if="chartData.hasData">
+                    <div class="d-flex align-items-center gap-3">
+                        <span class="badge bg-primary-subtle text-primary border border-primary-subtle px-3 py-2 fs-6">
+                            <i class="fa fa-square me-1" style="color: #28A9DF;"></i> Điểm từng đợt
+                        </span>
+                        <span class="badge bg-warning-subtle text-warning border border-warning-subtle px-3 py-2 fs-6">
+                            <i class="fa fa-minus me-1" style="color: #FF9F43; font-weight: bold;"></i> Điểm trung bình (<t t-esc="chartData.avgScore"/>)
+                        </span>
+                    </div>
+                </t>
+            </div>
+
+            <t t-if="!chartData.hasData">
+                <div class="alert alert-info d-flex align-items-center mb-0 py-4" role="alert">
+                    <i class="fa fa-info-circle fa-2x me-3 text-info"></i>
+                    <div>
+                        <strong>Chưa có dữ liệu lịch sử!</strong>
+                        <div class="text-muted">Vui lòng chọn <b>Mẫu khảo sát</b> hoặc cửa hàng này chưa có phiếu giám sát nào theo mẫu này ở trạng thái Hoàn thành / Cần khắc phục.</div>
+                    </div>
+                </div>
+            </t>
+
+            <t t-else="">
+                <div class="position-relative w-100" style="height: 350px; width: 100%;">
+                    <svg t-att-viewBox="viewBox" style="width: 100%; height: 100%; display: block;" class="w-100 h-100">
+                        <!-- Grid Lines -->
+                        <t t-foreach="gridLines" t-as="grid" t-key="grid.val">
+                            <line t-att-x1="padding.left" t-att-y1="grid.y" t-att-x2="chartWidth - padding.right" t-att-y2="grid.y" stroke="#edf2f7" stroke-width="1" stroke-dasharray="4,4" />
+                            <text t-att-x="padding.left - 12" t-att-y="grid.y + 4" text-anchor="end" font-size="12" fill="#718096" font-weight="500"><t t-esc="grid.val"/></text>
+                        </t>
+
+                        <!-- Average Line -->
+                        <line t-if="avgLineY !== false"
+                              t-att-x1="padding.left" 
+                              t-att-y1="avgLineY" 
+                              t-att-x2="chartWidth - padding.right" 
+                              t-att-y2="avgLineY" 
+                              stroke="#FF9F43" 
+                              stroke-width="2.5" 
+                              stroke-dasharray="6,4" />
+
+                        <!-- Bars -->
+                        <t t-foreach="bars" t-as="bar" t-key="bar.idx">
+                            <g class="wujia-chart-bar-group" style="cursor: pointer;">
+                                <rect t-att-x="bar.x" 
+                                      t-att-y="bar.y" 
+                                      t-att-width="bar.width" 
+                                      t-att-height="bar.height" 
+                                      rx="6" 
+                                      fill="url(#barGradient)" 
+                                      stroke="#1B87B5" 
+                                      stroke-width="1.5" />
+                                
+                                <text t-att-x="bar.x + bar.width / 2" 
+                                      t-att-y="bar.y - 8" 
+                                      text-anchor="middle" 
+                                      font-size="13" 
+                                      font-weight="bold" 
+                                      fill="#1B87B5">
+                                    <t t-esc="bar.score"/>
+                                </text>
+
+                                <text t-att-x="bar.x + bar.width / 2" 
+                                      t-att-y="chartHeight - padding.bottom + 22" 
+                                      text-anchor="middle" 
+                                      font-size="12" 
+                                      font-weight="500"
+                                      fill="#4A5568">
+                                    <t t-esc="bar.date"/>
+                                </text>
+                            </g>
+                        </t>
+
+                        <defs>
+                            <linearGradient id="barGradient" x1="0" y1="0" x2="0" y2="1">
+                                <stop offset="0%" stop-color="#28A9DF" stop-opacity="0.95" />
+                                <stop offset="100%" stop-color="#28A9DF" stop-opacity="0.55" />
+                            </linearGradient>
+                        </defs>
+                    </svg>
+                </div>
+            </t>
+        </div>
+    `;
+
+    static props = {
+        ...standardFieldProps,
+    };
+
+    get chartData() {
+        const raw = this.props.record.data[this.props.name];
+        if (!raw) return { hasData: false };
+        try {
+            const data = typeof raw === "string" ? JSON.parse(raw) : raw;
+            const labels = data.labels || [];
+            const scores = data.scores || [];
+            const avgScores = data.avg_scores || [];
+            const hasData = labels.length > 0 && scores.length > 0;
+            const avgScore = avgScores.length > 0 ? avgScores[0] : 0;
+            return { hasData, labels, scores, avgScores, avgScore };
+        } catch (e) {
+            return { hasData: false };
+        }
+    }
+
+    get chartWidth() { return 1200; }
+    get chartHeight() { return 320; }
+    get padding() { return { top: 30, right: 35, bottom: 45, left: 50 }; }
+    get viewBox() { return "0 0 " + this.chartWidth + " " + this.chartHeight; }
+
+    get gridLines() {
+        const lines = [];
+        const usableHeight = this.chartHeight - this.padding.top - this.padding.bottom;
+        for (let val = 0; val <= 100; val += 20) {
+            const y = this.chartHeight - this.padding.bottom - (val / 100) * usableHeight;
+            lines.push({ val, y });
+        }
+        return lines;
+    }
+
+    get avgLineY() {
+        const { avgScore, hasData } = this.chartData;
+        if (!hasData) return false;
+        const usableHeight = this.chartHeight - this.padding.top - this.padding.bottom;
+        return this.chartHeight - this.padding.bottom - (Math.min(Math.max(avgScore, 0), 100) / 100) * usableHeight;
+    }
+
+    get bars() {
+        const { labels, scores, hasData } = this.chartData;
+        if (!hasData) return [];
+        const usableWidth = this.chartWidth - this.padding.left - this.padding.right;
+        const usableHeight = this.chartHeight - this.padding.top - this.padding.bottom;
+        const count = labels.length;
+        const slotWidth = usableWidth / count;
+        const barWidth = Math.min(Math.max(slotWidth * 0.45, 36), 75);
+
+        return labels.map((date, idx) => {
+            const score = scores[idx] || 0;
+            const height = (Math.min(Math.max(score, 0), 100) / 100) * usableHeight;
+            const x = this.padding.left + idx * slotWidth + (slotWidth - barWidth) / 2;
+            const y = this.chartHeight - this.padding.bottom - height;
+            return {
+                idx,
+                date,
+                score,
+                x,
+                y,
+                width: barWidth,
+                height,
+            };
+        });
+    }
+}
+
+export const wujiaInspectionChartField = {
+    component: WujiaInspectionChart,
+    supportedTypes: ["text", "char"],
+};
+
+registry.category("fields").add("wujia_inspection_chart", wujiaInspectionChartField);

@@ -87,6 +87,25 @@ class WujiaSupervisionSchedule(models.Model):
                         raise ValidationError(_("Tiêu đề/Mã lịch giám sát (%s) không thể thay đổi sau khi đã tạo phiếu khảo sát!") % rec.name)
         return super().write(vals)
 
+    @api.constrains('store_id', 'date', 'state')
+    def _check_schedule_constraints(self):
+        for rec in self:
+            if rec.state == 'cancel':
+                continue
+            if rec.store_id and rec.date:
+                duplicate = self.search([
+                    ('store_id', '=', rec.store_id.id),
+                    ('date', '=', rec.date),
+                    ('state', '!=', 'cancel'),
+                    ('id', '!=', rec.id)
+                ], limit=1)
+                if duplicate:
+                    raise ValidationError(_(
+                        "Trong 1 ngày (%s), mỗi cửa hàng '%s' chỉ được phép có tối đa 1 lịch giám sát!\n"
+                        "Đã có lịch giám sát (%s) trong ngày này."
+                    ) % (rec.date.strftime('%d/%m/%Y'), rec.store_id.name, duplicate.name))
+
+
     @api.model
     def _generate_schedule_name(self, store_id, seq_number=None):
         """

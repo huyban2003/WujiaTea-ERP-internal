@@ -61,6 +61,7 @@ Hợp nhất 2 model trong cùng 1 module để tránh circular dep
     'assets': {
         'web.assets_backend': [
             'wujia_franchise/static/src/css/wujia_inspection.css',
+            'wujia_franchise/static/src/js/wujia_inspection_chart.js',
         ],
     },
     'installable': True,
