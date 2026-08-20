@@ -5,9 +5,9 @@
 
 /* ---------- Page header (crumb 13/700 + title 26/700 + subtitle 14/400) ---------- */
 .wj-pc-acct-head { margin-bottom: 20px; }
-.wj-pc-acct-head__crumb { font-size: 13px; font-weight: 700; color: #64748B; margin: 0 0 6px; }
-.wj-pc-acct-head__title { font-size: 26px; font-weight: 700; color: #111827; margin: 0; line-height: 1.2; }
-.wj-pc-acct-head__sub { font-size: 14px; font-weight: 400; color: #6B7280; margin: 6px 0 0; }
+/* S53-B3b: crumb + title do CMP-PG-001 lo (_components.css / _pc_components.css).
+   Subtitle margin-top 0 — gap PageHeader → nội dung đầu phải = 0. */
+.wj-pc-acct-head__sub { font-size: 14px; font-weight: 400; color: #6B7280; margin: 0; }
 
 /* ---------- 2-col grid: nav card (left) + content (right) ---------- */
 .wj-pc-acct-grid { display: grid; grid-template-columns: 268px 1fr; gap: 24px; align-items: start; }

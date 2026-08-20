@@ -14,7 +14,7 @@
                 <t t-call="wujia_portal_layout.wj_page_header">
                     <t t-set="ph_platform" t-value="'pc'"/>
                     <t t-set="ph_variant" t-value="'create'"/>
-                    <t t-set="ph_title">Yêu cầu hỗ trợ</t>
+                    <t t-set="ph_title">Hỗ trợ</t>
                     <t t-set="ph_create_url" t-value="'/portal/support/new'"/>
                     <t t-set="ph_can_create" t-value="True"/>
                 </t>
@@ -229,7 +229,8 @@
                 <div class="content-body">
                     <!-- Component PC v1.5: card + field h42 + action bar có separator
                          (UI-PC-BASE-008/009). Route POST, name field, required GIỮ NGUYÊN. -->
-                    <form method="post" action="/portal/support/new" enctype="multipart/form-data" class="wj-pc-card">
+                    <form method="post" action="/portal/support/new" enctype="multipart/form-data"
+                          data-wj-dirty-guard="1" class="wj-pc-card">
                         <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
                         <div class="row g-3">
                             <div class="col-md-6 col-12">
@@ -303,7 +304,8 @@
                     <t t-set="ph_back_url" t-value="'/portal/support'"/>
                 </t>
 
-                <form method="post" action="/portal/support/new" enctype="multipart/form-data">
+                <form method="post" action="/portal/support/new" enctype="multipart/form-data"
+                      data-wj-dirty-guard="1">
                     <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
                     <div class="wujia-mdash-card">
                         <p class="wujia-mdash-title mb-3">Thông tin ticket</p>
@@ -381,8 +383,8 @@
                 <t t-call="wujia_portal_layout.wj_page_header">
                     <t t-set="ph_platform" t-value="'pc'"/>
                     <t t-set="ph_variant" t-value="'back'"/>
-                    <t t-set="ph_crumb">Hỗ trợ / Chi tiết yêu cầu</t>
-                    <t t-set="ph_title" t-value="ticket.name + ' — ' + (ticket.title or '')"/>
+                    <t t-set="ph_crumb">Hỗ trợ / Chi tiết yêu cầu hỗ trợ</t>
+                    <t t-set="ph_title">Chi tiết yêu cầu hỗ trợ</t>
                     <t t-set="ph_back_url" t-value="'/portal/support'"/>
                 </t>
                 <!-- Status badge dời khỏi header (spec title-only) → block riêng dưới header -->
@@ -445,6 +447,12 @@
                                 <div class="card-header"><h6 class="mb-0">Thông tin</h6></div>
                                 <div class="card-body">
                                     <dl class="row mb-0 profile-dl">
+                                        <!-- S53-B3b: mã ticket + tiêu đề gỡ khỏi PageHeader
+                                             (CMP-PG-001 CONTENT RULES) → về card thông tin. -->
+                                        <dt class="col-5">Mã yêu cầu</dt>
+                                        <dd class="col-7" t-out="ticket.name"/>
+                                        <dt class="col-5">Tiêu đề</dt>
+                                        <dd class="col-7" t-out="ticket.title or '—'"/>
                                         <dt class="col-5">Cửa hàng</dt>
                                         <dd class="col-7" t-out="ticket.franchise_id.name or '—'"/>
                                         <dt class="col-5">Phân loại</dt>
@@ -475,7 +483,7 @@
                 <t t-call="wujia_portal_layout.wj_page_header">
                     <t t-set="ph_platform" t-value="'m'"/>
                     <t t-set="ph_variant" t-value="'back'"/>
-                    <t t-set="ph_title">Chi tiết ticket</t>
+                    <t t-set="ph_title">Chi tiết yêu cầu hỗ trợ</t>
                     <t t-set="ph_back_url" t-value="'/portal/support'"/>
                 </t>
 

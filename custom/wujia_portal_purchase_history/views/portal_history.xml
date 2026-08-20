@@ -2,11 +2,11 @@
 <odoo>
 
     <!-- ============== Khối kết quả (swap được bằng AJAX khi lọc) ==============
-         5 mảnh: 'pcerr'/'merr' (dòng lỗi khoảng ngày trong bộ lọc — LUÔN render, ẩn
-         bằng [hidden] để AJAX có chỗ mà thay), 'pc' (card bảng desktop), 'mchips'
-         (chip preset mobile trong form lọc), 'mbody' (list/empty + pager mobile).
-         Trang đầy đủ t-call từng mảnh đúng chỗ; /portal/purchase-history/results trả
-         cả 5 để JS thay tại chỗ. -->
+         7 mảnh: 'pcerr'/'merr' (dòng lỗi khoảng ngày trong bộ lọc — LUÔN render, ẩn
+         bằng [hidden] để AJAX có chỗ mà thay), 'pccount'/'mcount' (meta PageHeader),
+         'pc' (card bảng desktop), 'mchips' (chip preset mobile trong form lọc),
+         'mbody' (list/empty + pager mobile). Trang đầy đủ t-call từng mảnh đúng chỗ;
+         /portal/purchase-history/results trả cả 7 để JS thay tại chỗ. -->
     <template id="portal_history_results_part" name="Wujia Portal — History Results Part">
         <!-- status_type → badge CSS. Controller trả status_type ngữ nghĩa, template map sang
              hệ badge riêng (PC / mobile) — logic/label đã tập trung ở controller. -->
@@ -18,6 +18,15 @@
            t-att-hidden="None if filter_error else 'hidden'" t-out="filter_error"/>
         <p t-if="part == 'merr'" id="wj-hist-merr" class="wj-filter-error" role="alert"
            t-att-hidden="None if filter_error else 'hidden'" t-out="filter_error"/>
+
+        <!-- Meta PageHeader (CMP-PG-001 matrix: "{tổng số đơn} đơn") — slot AJAX riêng để
+             lọc xong vẫn thay được số. -->
+        <span t-if="part == 'pccount'" id="wj-hist-pccount" class="wj-page-header__meta">
+            <t t-out="pager.get('page_total', len(rows))"/> đơn
+        </span>
+        <span t-if="part == 'mcount'" id="wj-hist-mcount" class="wj-page-header__meta">
+            <t t-out="pager.get('page_total', len(rows))"/> đơn
+        </span>
 
         <!-- ===== PC: card bảng danh sách đơn ===== -->
         <div t-if="part == 'pc'" id="wj-hist-pc" class="wj-pc-card">
@@ -81,7 +90,7 @@
                     <input type="hidden" name="state" t-att-value="state"/>
                     <select name="page_size" class="wj-pc-pagination__size"
                             aria-label="Số dòng mỗi trang" onchange="this.form.requestSubmit()">
-                        <t t-foreach="[10, 20, 50]" t-as="ps">
+                        <t t-foreach="page_size_options" t-as="ps">
                             <option t-att-value="ps"
                                     t-att-selected="'selected' if page_size == ps else None">
                                 <t t-out="ps"/> / trang
@@ -160,7 +169,7 @@
     <!-- Fragment AJAX: cả 5 mảnh, JS thay từng khối theo id. -->
     <template id="portal_history_results" name="Wujia Portal — History Results Fragment">
         <div t-if="not no_store">
-            <t t-foreach="['pcerr', 'pc', 'merr', 'mchips', 'mbody']" t-as="pt">
+            <t t-foreach="['pcerr', 'pccount', 'pc', 'merr', 'mcount', 'mchips', 'mbody']" t-as="pt">
                 <t t-call="wujia_portal_purchase_history.portal_history_results_part">
                     <t t-set="part" t-value="pt"/>
                 </t>
@@ -175,7 +184,7 @@
             <t t-call="wujia_portal_base.wj_ajax_list_config">
                 <t t-set="wjl_path" t-value="'/portal/purchase-history'"/>
                 <t t-set="wjl_slots"
-                   t-value="'wj-hist-pcerr,wj-hist-pc,wj-hist-merr,wj-hist-mchips,wj-hist-mbody'"/>
+                   t-value="'wj-hist-pcerr,wj-hist-pccount,wj-hist-pc,wj-hist-merr,wj-hist-mcount,wj-hist-mchips,wj-hist-mbody'"/>
                 <t t-set="wjl_fragment" t-value="'/portal/purchase-history/results'"/>
             </t>
             <div class="content-wrapper">
@@ -188,6 +197,13 @@
                         <t t-set="ph_platform" t-value="'pc'"/>
                         <t t-set="ph_variant" t-value="'title'"/>
                         <t t-set="ph_title">Lịch sử đặt hàng</t>
+                        <t t-if="not no_store">
+                            <t t-set="ph_meta">
+                                <t t-call="wujia_portal_purchase_history.portal_history_results_part">
+                                    <t t-set="part" t-value="'pccount'"/>
+                                </t>
+                            </t>
+                        </t>
                     </t>
 
                     <div t-if="no_store" class="wj-pc-empty">
@@ -199,6 +215,8 @@
                     <t t-else="">
                         <!-- Bộ lọc nhanh: search + 2 date (create_date) + trạng thái + Reset/Tìm -->
                         <form method="get" action="/portal/purchase-history" class="wj-pc-filterbar">
+                            <!-- WJ-PH-008: giữ số dòng/trang khi tìm/lọc, đừng bắt chọn lại. -->
+                            <input type="hidden" name="page_size" t-att-value="page_size"/>
                             <!-- Card 88px: control 1 hàng, không dòng tiêu đề (UI-PC-BASE-003) -->
                             <div class="wj-pc-filterbar__row">
                                 <span class="wj-pc-filter-search">
@@ -246,6 +264,13 @@
                         <t t-set="ph_platform" t-value="'m'"/>
                         <t t-set="ph_variant" t-value="'title'"/>
                         <t t-set="ph_title">Lịch sử đặt hàng</t>
+                        <t t-if="not no_store">
+                            <t t-set="ph_meta">
+                                <t t-call="wujia_portal_purchase_history.portal_history_results_part">
+                                    <t t-set="part" t-value="'mcount'"/>
+                                </t>
+                            </t>
+                        </t>
                     </t>
 
                     <div t-if="no_store" class="wj-empty-state wj-empty-state--card">
@@ -256,6 +281,7 @@
                     <t t-else="">
                         <!-- Filter canonical 03-Advanced -->
                         <form method="get" action="/portal/purchase-history" class="wj-filter-card">
+                            <input type="hidden" name="page_size" t-att-value="page_size"/>
                             <div class="wj-filter-search">
                                 <div class="wj-filter-search-field">
                                     <i class="feather icon-search"/>
@@ -323,7 +349,7 @@
                         <t t-call="wujia_portal_layout.wj_page_header">
                             <t t-set="ph_platform" t-value="'m'"/>
                             <t t-set="ph_variant" t-value="'back'"/>
-                            <t t-set="ph_title">Chi tiết đơn</t>
+                            <t t-set="ph_title">Chi tiết đơn hàng</t>
                             <t t-set="ph_back_url" t-value="'/portal/purchase-history'"/>
                         </t>
                         <div class="wj-empty-state wj-empty-state--card">
@@ -345,7 +371,7 @@
                             <t t-set="ph_platform" t-value="'pc'"/>
                             <t t-set="ph_variant" t-value="'back'"/>
                             <t t-set="ph_crumb">Lịch sử đặt hàng / Chi tiết đơn hàng</t>
-                            <t t-set="ph_title" t-value="'Chi tiết đơn hàng ' + h['name']"/>
+                            <t t-set="ph_title">Chi tiết đơn hàng</t>
                             <t t-set="ph_back_url" t-value="'/portal/purchase-history'"/>
                         </t>
 
@@ -458,7 +484,7 @@
                         <t t-call="wujia_portal_layout.wj_page_header">
                             <t t-set="ph_platform" t-value="'m'"/>
                             <t t-set="ph_variant" t-value="'back'"/>
-                            <t t-set="ph_title">Chi tiết đơn</t>
+                            <t t-set="ph_title">Chi tiết đơn hàng</t>
                             <t t-set="ph_back_url" t-value="'/portal/purchase-history'"/>
                         </t>
 

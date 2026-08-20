@@ -71,7 +71,7 @@
                                     <span t-if="n.summary" class="wj-pc-noti-summary" t-out="n.summary"/>
                                 </div>
                             </td>
-                            <td class="wj-pc-td--muted" t-out="n.published_date and n.published_date.strftime('%d/%m/%Y') or '—'"/>
+                            <td class="wj-pc-td--muted" t-out="wj_dt(n.published_date, '%d/%m/%Y') or '—'"/>
                             <td>
                                 <span t-if="not is_read" class="wj-pc-badge wj-pc-badge--cancel">Chưa đọc</span>
                                 <span t-else="" class="wj-pc-badge wj-pc-badge--pending">Đã đọc</span>
@@ -124,9 +124,14 @@
             </div>
         </div>
 
-        <p t-if="part == 'mcount'" id="wj-noti-mcount" class="wj-count-meta wujia-mnoti-count">
-            <t t-out="total"/> thông báo • <t t-out="cnt_unread"/> chưa đọc
-        </p>
+        <!-- Meta PageHeader (CMP-PG-001 matrix: "{chưa đọc} chưa đọc"). Vẫn là slot AJAX
+             riêng nên nằm trong header mà lọc vẫn thay được số. -->
+        <span t-if="part == 'mcount'" id="wj-noti-mcount" class="wj-page-header__meta">
+            <t t-out="cnt_unread"/> chưa đọc
+        </span>
+        <span t-if="part == 'pccount'" id="wj-noti-pccount" class="wj-page-header__meta">
+            <t t-out="cnt_unread"/> chưa đọc
+        </span>
 
         <div t-if="part == 'mchips'" id="wj-noti-mchips" class="wj-filter-chips">
             <a t-attf-href="/portal/notification#{('?keyword=' + keyword) if keyword else ''}"
@@ -181,7 +186,7 @@
                         <span class="wujia-mnoti-row-side">
                             <span t-if="not is_read" class="wujia-mnoti-row-dot"/>
                             <span class="wujia-mnoti-row-date"
-                                  t-out="n.published_date and n.published_date.strftime('%d/%m/%Y · %H:%M') or ''"/>
+                                  t-out="wj_dt(n.published_date, '%d/%m/%Y · %H:%M')"/>
                         </span>
                     </a>
                 </t>
@@ -204,7 +209,7 @@
     <!-- Fragment AJAX: cả 5 mảnh, JS thay từng khối theo id. -->
     <template id="portal_notification_results" name="Wujia Portal — Notification Results Fragment">
         <div>
-            <t t-foreach="['pcchips', 'pc', 'mcount', 'mchips', 'mbody']" t-as="pt">
+            <t t-foreach="['pcchips', 'pccount', 'pc', 'mcount', 'mchips', 'mbody']" t-as="pt">
                 <t t-call="wujia_portal_notification.portal_notification_results_part">
                     <t t-set="part" t-value="pt"/>
                 </t>
@@ -218,7 +223,7 @@
             <t t-call="wujia_portal_base.wj_ajax_list_config">
                 <t t-set="wjl_path" t-value="'/portal/notification'"/>
                 <t t-set="wjl_slots"
-                   t-value="'wj-noti-pcchips,wj-noti-pc,wj-noti-mcount,wj-noti-mchips,wj-noti-mbody'"/>
+                   t-value="'wj-noti-pcchips,wj-noti-pccount,wj-noti-pc,wj-noti-mcount,wj-noti-mchips,wj-noti-mbody'"/>
                 <t t-set="wjl_fragment" t-value="'/portal/notification/results'"/>
             </t>
             <!-- Desktop ≥992px — Figma PC_Notification_List (4683:101) -->
@@ -227,6 +232,11 @@
                     <t t-set="ph_platform" t-value="'pc'"/>
                     <t t-set="ph_variant" t-value="'title'"/>
                     <t t-set="ph_title">Thông báo</t>
+                    <t t-set="ph_meta">
+                        <t t-call="wujia_portal_notification.portal_notification_results_part">
+                            <t t-set="part" t-value="'pccount'"/>
+                        </t>
+                    </t>
                 </t>
 
                 <!-- Bộ lọc — card 88px, 5 control cùng 1 hàng, nhãn đi vào aria-label/
@@ -291,9 +301,11 @@
                     <t t-set="ph_platform" t-value="'m'"/>
                     <t t-set="ph_variant" t-value="'title'"/>
                     <t t-set="ph_title">Thông báo</t>
-                </t>
-                <t t-call="wujia_portal_notification.portal_notification_results_part">
-                    <t t-set="part" t-value="'mcount'"/>
+                    <t t-set="ph_meta">
+                        <t t-call="wujia_portal_notification.portal_notification_results_part">
+                            <t t-set="part" t-value="'mcount'"/>
+                        </t>
+                    </t>
                 </t>
 
                 <!-- Filter canonical 01-ChipSlide (Figma 4785:562) — keyword + chips (hidden unread) -->
@@ -375,7 +387,7 @@
                                 </div>
                                 <div class="wj-pc-kv">
                                     <span class="wj-pc-kv__label">Ngày gửi</span>
-                                    <span class="wj-pc-kv__value" t-out="noti.published_date and noti.published_date.strftime('%d/%m/%Y · %H:%M') or '—'"/>
+                                    <span class="wj-pc-kv__value" t-out="wj_dt(noti.published_date, '%d/%m/%Y · %H:%M') or '—'"/>
                                 </div>
                             </div>
                         </div>
@@ -416,7 +428,7 @@
                 </t>
                 <p class="wj-count-meta">
                     <t t-if="noti.dispatch_number"><t t-out="noti.dispatch_number"/> • </t>
-                    <t t-out="noti.published_date and noti.published_date.strftime('%d/%m/%Y %H:%M') or ''"/>
+                    <t t-out="wj_dt(noti.published_date, '%d/%m/%Y %H:%M')"/>
                 </p>
 
                 <div class="wujia-mnoti-detail-card">

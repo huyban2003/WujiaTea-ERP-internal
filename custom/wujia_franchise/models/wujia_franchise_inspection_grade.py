@@ -49,10 +49,6 @@ class WujiaFranchiseInspectionGrade(models.Model):
          'Điểm tối thiểu phải nhỏ hơn hoặc bằng điểm tối đa!'),
     ]
 
-    def init(self):
-        """Tự động khởi tạo các khoản điểm xếp hạng mặc định khi module được cài đặt/cập nhật."""
-        super().init()
-        self._init_default_grades()
 
     @api.model
     def _init_default_grades(self):

@@ -20,6 +20,9 @@ from odoo.http import request
 _logger = logging.getLogger(__name__)
 
 
+# Ngôn ngữ khách chọn ở màn đăng nhập — auth.py áp vào res.users sau khi vào.
+PRE_LOGIN_LANG = 'wj_pre_login_lang'
+
 _PHONE_RE = re.compile(r'^[+]?[0-9\s().\-]{7,20}$')
 _AVATAR_MAX_BYTES = 2 * 1024 * 1024  # 2MB
 _AVATAR_MIME = ('image/png', 'image/jpeg', 'image/jpg', 'image/webp')
@@ -208,20 +211,24 @@ class WujiaPortalLayout(http.Controller):
         return request.render('wujia_portal_layout.change_password_page', values)
 
     # -------------------------------------------------------------- switch language
-    @http.route('/portal/set-lang/<string:lang_code>', type='http', auth='user',
+    @http.route('/portal/set-lang/<string:lang_code>', type='http', auth='public',
                 website=False, sitemap=False)
     def portal_set_lang(self, lang_code, **kw):
-        """Đổi ngôn ngữ user portal. Thay route /website/lang/* của module website —
+        """Đổi ngôn ngữ portal. Thay route /website/lang/* của module website —
         website KHÔNG cài trên portal Vuexy nên route đó 404 (bug đổi ngôn ngữ).
-        Set res.users.lang rồi redirect về trang trước; chỉ nhận URL nội bộ để
-        tránh open-redirect."""
+        Chỉ nhận ngôn ngữ đang bật + URL nội bộ (tránh open-redirect). Khách chưa
+        đăng nhập cũng đổi được để dùng ở màn login (WJ-LANG-001)."""
         lang = request.env['res.lang'].sudo().search(
             [('code', '=', lang_code), ('active', '=', True)], limit=1)
         if lang:
-            request.env.user.sudo().lang = lang.code
             # Session cache context['lang'] từ lúc login → phải cập nhật để đổi
             # ngôn ngữ có hiệu lực NGAY ở request kế (setter đánh dấu dirty → lưu).
             request.session.context = dict(request.session.context or {}, lang=lang.code)
+            if request.env.user._is_public():
+                # Chưa có tài khoản để ghi → nhớ tạm, portal_login áp sau khi vào.
+                request.session[PRE_LOGIN_LANG] = lang.code
+            else:
+                request.env.user.sudo().lang = lang.code
         target = '/portal'
         ref = request.httprequest.referrer
         if ref:

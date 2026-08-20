@@ -7,10 +7,16 @@ from odoo import http, fields, _
 # pyrefly: ignore [missing-import]
 from odoo.http import request
 
-CSV_PATH = os.path.join(os.path.dirname(__file__), '..', 'data', 'wujia_franchise_export.csv')
+# Glossary dùng chung toàn repo (repo_root/docs/), cùng nguồn với scripts/sync_translations.py.
+# Thiếu file thì t() tự rơi về default — trang khảo sát vẫn chạy.
+CSV_PATH = os.path.join(os.path.dirname(__file__), '..', '..', '..', 'docs', 'i18n-glossary.csv')
+
+_SURVEY_LANG_COL = (('zh', 'CN'), ('th', 'TH'))
+
 
 def get_survey_translations(lang):
-    col = 'CN' if (lang and 'zh' in lang.lower()) else 'VN'
+    low = (lang or '').lower()
+    col = next((c for p, c in _SURVEY_LANG_COL if p in low), 'VN')
     trans_map = {}
     if os.path.exists(CSV_PATH):
         with open(CSV_PATH, 'r', encoding='utf-8') as f:

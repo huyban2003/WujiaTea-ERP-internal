@@ -1,0 +1,310 @@
+\chapter{Sprint 54 --- Batch B4: \texttt{CMP-BPH-001} BackPageHeader $+$ Current Store Strip mobile (2026-08-11)}
+
+\section{Bối cảnh}
+
+Batch B4 theo bảng §13 gồm đúng hai issue của tab \texttt{5. Issue List}, cả hai
+\texttt{Owner = Dev}, \texttt{Severity Medium}, \texttt{Need BA Confirm = No}:
+
+\begin{itemize}
+\item \textbf{\texttt{UI-BACKPAGEHEADER-001}} (STT 74) --- chuẩn hoá nút Quay lại theo
+  \texttt{CMP-BPH-001} (tab \texttt{UI Component} gid \texttt{488333015}, Status
+  \texttt{BA Confirmed} 07/08/2026). Đây là component thứ \textbf{2/23} có spec đầy đủ, cùng
+  với \texttt{CMP-PG-001} đã làm ở Sprint 53.
+\item \textbf{\texttt{FUNC-MOB-SHELL-005}} (STT 82) --- trên PC bấm khung Current Store mở
+  popup ``Đổi cửa hàng đang thao tác''; trên mobile strip chỉ hiển thị mã/tên/role, bấm không
+  có gì xảy ra $\Rightarrow$ user mobile \textbf{không đổi được cửa hàng}. BA ghi rõ ``dùng
+  chung rule với PC''.
+\end{itemize}
+
+Hiện trạng trước B4: PC dùng \texttt{chevron-left} thay \texttt{arrow-left}, hover chỉ đổi màu
+chữ, không có focus ring; mobile là rounded-square 40$\times$40 thay vì circle 42$\times$42;
+chưa có chuẩn chung cho giữ filter/page, deep-link fallback và cảnh báo form chưa lưu.
+
+\section{Ba quyết định chốt với chủ dự án trước khi code}
+
+\begin{enumerate}
+\item \textbf{Title mobile giữ 22/28/\textbf{700}}. Hai spec BA lệch nhau: \texttt{CMP-BPH-001}
+  ghi 800, \texttt{CMP-PG-001} (component cha, đã nghiệm thu 34/34 ô ở B3a/B3b) ghi 700. Dev
+  \textbf{không tự chọn} --- giữ 700 để không phá bảng đo đã đạt, ghi câu hỏi cho BA vào phần
+  LIMIT của ledger.
+\item \textbf{\texttt{return\_url} theo chính sách chặt}: param nội bộ đã validate
+  $\rightarrow$ Referer \emph{chỉ khi} path trùng đúng list cha (giữ query filter/page)
+  $\rightarrow$ fallback list cha cứng. \textbf{Không} dùng \texttt{history.back()}.
+\item \textbf{Cảnh báo form chưa lưu}: \texttt{confirm()} native, \textbf{opt-in theo form}
+  (\texttt{data-wj-dirty-guard}), áp cho \texttt{/portal/support/new} và
+  \texttt{/portal/return/new}. Không dựng modal mới vì component modal chưa có spec.
+\end{enumerate}
+
+\section{Thiết kế}
+
+\subsection{Một seam duy nhất cho \texttt{return\_url}}
+
+\texttt{ph\_variant='back'} đang được gọi ở \textbf{31 chỗ / 14 file}. Sửa từng controller là
+31 điểm hồi quy. Thay vào đó đặt \textbf{một} helper trên \texttt{ir.http} và gọi thẳng từ
+\texttt{t-att-href} của component --- \textbf{0 dòng controller phải sửa}, 0 query thêm, và vì
+biểu thức nằm trong element đã bị \texttt{t-if} chặn nên header không-back không trả phí gì.
+
+\begin{verbatim}
+<a t-if="ph_variant == 'back'"
+   t-att-href="request.env['ir.http']._wj_back_url(ph_back_url)"
+   class="wj-page-header__back" aria-label="Quay lại">
+\end{verbatim}
+
+\texttt{wujia\_portal\_layout/models/ir\_http.py} thêm hai method thuần Python:
+
+\begin{itemize}
+\item \texttt{\_wj\_portal\_path(url)} --- chỉ nhận đường dẫn nội bộ: loại \texttt{//host},
+  loại \texttt{\textbackslash}, loại mọi segment \texttt{..}, và bắt buộc bắt đầu bằng
+  \texttt{/portal}.
+\item \texttt{\_wj\_back\_url(default)} --- param $\rightarrow$ Referer trùng path list cha
+  (giữ nguyên query) $\rightarrow$ \texttt{default}.
+\end{itemize}
+
+\textbf{Lỗ hổng thật bắt được khi đo}: \texttt{?return\_url=/portal/../web} \emph{qua} được bộ
+lọc tiền tố \texttt{/portal/} nhưng trình duyệt chuẩn hoá thành \texttt{/web} $\Rightarrow$
+thoát khỏi portal. Đây là lỗi code (không phải harness sai), đã vá bằng luật cấm segment
+\texttt{..} rồi build lại và đo lại.
+
+\subsection{CSS --- sửa trong phạm vi component, không đụng file shared}
+
+\texttt{\_components.css} là file dùng chung 8 module và shell Vuexy có 4 luật
+\texttt{!important} cấp tag (L4) $\Rightarrow$ mọi thay đổi đều bọc trong scope
+\texttt{.wj-page-header--pc} / \texttt{.wj-page-header--m}.
+
+\begin{itemize}
+\item PC (\texttt{\_pc\_components.css}): 122$\times$40 / radius 12, label 14/700
+  \texttt{--wujia-text-secondary}, icon \texttt{--wujia-primary};
+  \texttt{:hover, :focus-visible} $\rightarrow$ nền \texttt{--wujia-primary-soft} (\#EAF7FD),
+  viền \texttt{--wujia-primary-border-soft} (\#BFE8F7, \textbf{token mới} trong
+  \texttt{\_variables.css} --- không hex rời), chữ $+$ icon về primary.
+\item Mobile (\texttt{\_components.css}): \texttt{width/height 42}, \texttt{border-radius:
+  999px} (base radius 12 dành cho PC); \texttt{padding} hàng hạ từ 6 xuống \textbf{5} để
+  $5+42+5 = 52$ --- chiều cao hàng của \texttt{CMP-PG-001} \textbf{không đổi}. Vùng chạm
+  44$\times$44 vẫn do \texttt{::after} cấp (nằm ngoài luồng nên không đẩy layout).
+\item Focus ring dùng chung hai variant: \texttt{outline: 2px solid var(--wujia-primary);
+  outline-offset: 2px}.
+\item Icon tách theo platform ngay trong QWeb: PC \texttt{icon-arrow-left}
+  (\texttt{U+E828}), mobile \texttt{icon-chevron-left} (\texttt{U+E843}) --- render \emph{một}
+  icon theo \texttt{ph\_platform}, không render cả hai.
+\end{itemize}
+
+\texttt{wujia\_portal\_debt/static/src/css/portal\_debt.css:53} --- override 42$\times$42 mà
+B3b cố ý giữ \emph{chờ B4} nay đã \textbf{gỡ}, chỉ còn mép trên và khoảng cách 14 theo Figma
+công nợ.
+
+\subsection{Unsaved guard}
+
+\texttt{static/src/js/wj\_back\_guard.js} (mới, nạp qua bundle
+\texttt{web.assets\_frontend}): snapshot \texttt{FormData} lúc load, so lại lúc bấm Back; khác
+thì \texttt{confirm()}, Cancel $\rightarrow$ \texttt{preventDefault()}. Opt-in bằng thuộc tính
+\texttt{data-wj-dirty-guard} nên form lọc (\texttt{method="get"}) không bị chạm --- và form
+không đổi thì Back đi thẳng, đúng như BA mô tả.
+
+\subsection{A11y --- không viết code mò}
+
+Component render cả hai variant, ẩn bằng \texttt{d-flex d-lg-none} /
+\texttt{d-none d-lg-flex} $\Rightarrow$ \texttt{display:none} $\Rightarrow$ \emph{về nguyên
+tắc} đã bị loại khỏi accessibility tree. Việc của B4 là \textbf{đo để chứng minh}, không phải
+đoán rồi thêm \texttt{aria-hidden}: đếm link accessible tên ``Quay lại'' ở mỗi ô ---
+\textbf{$=1$ ở cả 14/14 ô}.
+
+\section{\texttt{FUNC-MOB-SHELL-005} --- chỉ cần một trigger}
+
+Hạ tầng đã đủ, \textbf{không viết luồng đổi cửa hàng riêng}: \texttt{store\_picker\_modal} đã
+SSR sẵn trong DOM mọi trang, \texttt{store\_picker.js:24} đã bind mọi
+\texttt{[data-action="open-store-picker"]}, route POST \texttt{/portal/franchise/switch} đã
+validate quyền $+$ set cookie $+$ redirect về \texttt{full\_path}.
+
+Việc duy nhất: \texttt{store\_picker\_navbar.xml} đổi \texttt{<div>} trơ thành \texttt{<a
+data-action="open-store-picker">} --- \textbf{chỉ khi} user có $>1$ cửa hàng, vì modal không
+được render khi chỉ có một (bấm sẽ chết). Nhánh \texttt{<div>} trơ giữ lại cho trường hợp một
+cửa hàng. Thân strip tách thành \texttt{t-set} dùng chung nên hai nhánh không lệch markup.
+
+CSS pin lại màu/gạch chân của thẻ \texttt{<a>} theo Vuexy để \textbf{bố cục và px không đổi} so
+với bản \texttt{<div>}, thêm \texttt{:active} nhẹ và focus ring.
+
+\section{Kiểm chứng}
+
+Toàn bộ chạy trên \textbf{bản sao cô lập} \texttt{wujia\_tea\_s54} (port 8055) ---
+\texttt{wujia\_tea\_19} và port 8019 \textbf{không bị đụng}. Lệnh build luôn kèm
+\texttt{wujia\_sale} vì pre-migrate S52 chưa từng chạy trên local chính.
+
+Build \texttt{--test-enable}: \textbf{RC$=0$, 91 test, 0 failed / 0 error}, 0 dòng
+\texttt{ERROR}. (12 dòng \texttt{Traceback} trong log là nhiễu \texttt{FileNotFoundError} mức
+INFO của GC filestore trên bản copy --- hàng \texttt{ir\_attachment} trỏ file thuộc filestore
+DB gốc.)
+
+\subsection{Bảng đo \texttt{CMP-BPH-001} --- 7 route $\times$ 2 breakpoint}
+
+Route đo: \texttt{purchase-history/\{id\}}, \texttt{delivery/\{id\}},
+\texttt{notification/\{id\}}, \texttt{support/\{id\}}, \texttt{support/new},
+\texttt{return/\{id\}}, \texttt{return/new} --- ở 391$\times$844 và 1920$\times$1080.
+
+\begin{longtable}{@{}p{6.6cm}p{5.1cm}p{2.6cm}@{}}
+\toprule
+\textbf{Yêu cầu (CMP-BPH-001)} & \textbf{Đo được (14 ô)} & \textbf{Kết quả} \\
+\midrule
+\endhead
+PC: 122$\times$40, radius 12 & \texttt{122.0$\times$40.0}, \texttt{12px} & Pass \\
+PC: nền \#FFFFFF, viền \#E5E7EB 1px & \texttt{rgb(255,255,255)}, \texttt{rgb(229,231,235)}, \texttt{1px} & Pass \\
+PC: icon \textbf{arrow-left} (không phải chevron) & \texttt{::before} $=$ \texttt{U+E828} $\ne$ \texttt{U+E843} & Pass \\
+PC: label ``Quay lại'' 14/700 \#374151 & \texttt{14px / 700 / rgb(55,65,81)} & Pass \\
+PC: icon \#28A9DF & \texttt{rgb(40,169,223)} & Pass \\
+PC hover: nền \#EAF7FD, viền \#BFE8F7, chữ$+$icon \#28A9DF & \texttt{rgb(234,247,253)} / \texttt{rgb(191,232,247)} / \texttt{rgb(40,169,223)} & Pass \\
+PC focus-visible: như hover $+$ focus ring & cùng màu $+$ \texttt{2px solid rgb(40,169,223)} & Pass \\
+Mobile: circle 42$\times$42 & \texttt{42.0$\times$42.0}, radius \texttt{999px} & Pass \\
+Mobile: vùng chạm $\geq$44$\times$44 & \texttt{::after} $=$ \texttt{44px$\times$44px} & Pass \\
+Mobile: icon chevron-left & \texttt{::before} $=$ \texttt{U+E843} & Pass \\
+Mobile: label ẩn (giữ nút tròn) & \texttt{label\_visible = false} & Pass \\
+Hàng header vẫn cao 52 (mobile) / 64 (PC) & \texttt{52.0} / \texttt{64.0} mọi ô & Pass \\
+Title giữ nguyên B3a: 22/28/700 --- 26/32/700 & đúng cả hai breakpoint & Pass \\
+Back không chồng title & \texttt{overlap = false} mọi ô & Pass \\
+Không scroll ngang & \texttt{overflow = 0} ở 14/14 ô & Pass \\
+Link accessible ``Quay lại'' đúng \textbf{1} mỗi viewport & \texttt{a11y\_back = 1} ở 14/14 ô & Pass \\
+Tab tới Back $+$ Enter điều hướng & \texttt{activeElement} đúng, \texttt{expect\_navigation} thành công & Pass \\
+0 lỗi JS & \texttt{pageerror} rỗng 14/14 & Pass \\
+\bottomrule
+\end{longtable}
+
+\textbf{14/14 ô Pass} trên toàn bộ tiêu chí $\Rightarrow$ 100\%.
+
+\subsection{Bảng hành vi --- 31 kiểm tra}
+
+\begin{longtable}{@{}p{6.6cm}p{5.1cm}p{2.6cm}@{}}
+\toprule
+\textbf{Yêu cầu} & \textbf{Đo được} & \textbf{Kết quả} \\
+\midrule
+\endhead
+\texttt{?return\_url=} nội bộ hợp lệ được dùng & \texttt{href} $=$ đúng URL truyền vào, kể cả \texttt{\&page=3} & Pass \\
+Vào từ list cha có filter/page $\rightarrow$ Back giữ query & Referer \texttt{?page=2\&...} được giữ nguyên & Pass \\
+Deep-link (không referer) $\rightarrow$ về list cha & \texttt{href} $=$ list cha & Pass \\
+\texttt{return\_url} ngoài (\texttt{https://evil.tld}, \texttt{//evil.tld}, \texttt{/portal/../web}) bị bỏ & cả ba $\rightarrow$ fallback list cha & Pass \\
+Không dùng \texttt{history.back()} & \texttt{href} là URL thật, điều hướng bằng link & Pass \\
+Tab $+$ Enter điều hướng đúng & \texttt{expect\_navigation} về đúng đích & Pass \\
+Form có nhập dở $\rightarrow$ Back hỏi xác nhận & \texttt{confirm} xuất hiện & Pass \\
+Cancel $\rightarrow$ ở lại, dữ liệu còn nguyên & URL không đổi, giá trị field giữ & Pass \\
+OK $\rightarrow$ rời trang & điều hướng về list cha & Pass \\
+Form không đổi $\rightarrow$ Back đi thẳng & không có dialog & Pass \\
+Mobile: bấm strip mở popup & overlay hiện, cửa hàng hiện tại được đánh dấu & Pass \\
+Huỷ / $\times$ $\rightarrow$ không đổi gì & cookie $+$ strip nguyên & Pass \\
+Chọn cửa hàng khác $+$ Xác nhận & strip đổi \texttt{HCM-01/Staff} $\rightarrow$ \texttt{HN-02/Manager}, ở lại đúng trang & Pass \\
+Giỏ hàng theo cửa hàng mới & badge \texttt{1} (hiện) $\rightarrow$ \texttt{0} (ẩn) & Pass \\
+Popup 391$\times$844 không tràn/chồng & overflow ngang $=0$, card nằm trong viewport & Pass \\
+User 1 cửa hàng: strip vẫn trơ & không render \texttt{<a>}, bấm không mở gì & Pass \\
+\bottomrule
+\end{longtable}
+
+\textbf{31/31 PASS.}
+
+\subsection{Hồi quy}
+
+\begin{itemize}
+\item \textbf{17 route PAGE NAMING MATRIX} (B3a/B3b) $\times$ 2 breakpoint: tên trang đúng
+  matrix, đúng 1 header hiển thị, chiều cao 64/52 nguyên vẹn, Back có/không đúng kỳ vọng,
+  overflow 0, 0 lỗi JS.
+\item \textbf{5 trang ngoài matrix} $\times$ 2 breakpoint: \texttt{/portal},
+  \texttt{/portal/order/cart}, \texttt{/portal/info-request/new},
+  \texttt{/portal/change-password}, \texttt{/portal/exam/register} --- 200, overflow 0.
+\item \textbf{6 chiều rộng} (360 / 391 / 768 / 1366 / 1440 / 1920) trên một route detail: Back
+  \texttt{42$\times$42} dưới 992, \texttt{122$\times$40} từ 992 trở lên, overflow 0 mọi mức.
+\end{itemize}
+
+\textbf{286/286 PASS.}
+
+\textbf{Việc phát sinh --- sửa luôn trong phiên}: hồi quy bắt
+\texttt{/portal/info-request/new} ném \texttt{SyntaxError: Unexpected token ';'}. Truy ra là
+lỗi \textbf{có sẵn từ trước B4}, không phải hồi quy: \texttt{portal\_info\_request\_form.xml}
+có khối \texttt{<script>} inline dùng \texttt{\&\&}; QWeb serialize template bằng lxml nên ký
+tự đó ra HTML dưới dạng thực thể \texttt{\&amp;\&amp;}, mà HTML5 \textbf{không giải mã thực
+thể bên trong \texttt{<script>}} $\Rightarrow$ \emph{cả khối JS chết}. Cặp
+\texttt{//<![CDATA[} không cứu được vì serializer gỡ marker. Hệ quả nghiệp vụ: ô ``Giá trị
+hiện tại'' không bao giờ được điền và ô ``Trường cần sửa'' không bao giờ ẩn/hiện --- người
+dùng phải tự gõ lại giá trị cũ.
+
+Ban đầu B4 chỉ ghi \textbf{miễn trừ tường minh} (L7 --- khai báo đúng trang $+$ đúng thông
+điệp, \emph{không} nới ngưỡng) vì file đó có \textbf{0 dòng diff} trong sprint. Sau đó chủ dự
+án chốt sửa luôn: viết lại đoạn kiểm tra không dùng \texttt{\&\&} (chuyển thành \texttt{if}
+lồng), kèm chú thích cảnh báo cho người sau. Quét toàn bộ \texttt{custom/} bằng script tìm
+thực thể HTML nằm trong \texttt{<script>}: \textbf{đây là chỗ duy nhất} --- các
+\texttt{\&amp;} còn lại đều nằm trong \emph{thuộc tính} (\texttt{t-attf-href} phân trang) nên
+được giải mã bình thường. \texttt{wujia\_portal\_info\_request}
+\texttt{19.0.1.4.0} $\to$ \texttt{19.0.1.5.0}.
+
+Kiểm chứng riêng \textbf{12/12 Pass} ở cả hai breakpoint: 200, 0 lỗi JS, không còn thực thể
+trong \texttt{<script>}, và \emph{chứng minh JS chạy thật} --- chọn loại yêu cầu ``Khác'' thì
+ô ``Trường cần sửa'' hiện, chọn loại khác thì ẩn lại. Hồi quy chạy lại sau khi
+\textbf{gỡ bỏ miễn trừ}: vẫn \textbf{286/286 PASS}, nay không còn ngoại lệ nào.
+
+\section{File chạm tới}
+
+\begin{center}
+\begin{tabular}{@{}p{4.4cm}p{6.6cm}p{3.1cm}@{}}
+\hline
+\textbf{Module} & \textbf{File} & \textbf{Version} \\
+\hline
+\texttt{wujia\_portal\_layout} & \texttt{views/wj\_page\_header.xml},
+  \texttt{models/ir\_http.py}, \texttt{\_components.css},
+  \texttt{\_pc\_components.css}, \texttt{\_variables.css},
+  \texttt{js/wj\_back\_guard.js} (mới), \texttt{views/assets.xml} &
+  \texttt{31.15.0} $\to$ \texttt{31.16.0} \\
+\texttt{wujia\_portal\_base} & \texttt{views/store\_picker\_navbar.xml},
+  \texttt{css/store\_picker.css} & \texttt{7.1.0} $\to$ \texttt{7.2.0} \\
+\texttt{wujia\_portal\_debt} & \texttt{css/portal\_debt.css} (gỡ override) &
+  \texttt{3.3.0} $\to$ \texttt{3.4.0} \\
+\texttt{wujia\_portal\_support} & \texttt{views/portal\_support.xml} &
+  \texttt{3.11.0} $\to$ \texttt{3.12.0} \\
+\texttt{wujia\_portal\_return} & \texttt{views/portal\_return\_form.xml} &
+  \texttt{2.3.0} $\to$ \texttt{2.4.0} \\
+\texttt{wujia\_portal\_info\_request} & \texttt{views/portal\_info\_request\_form.xml}
+  (lỗi có sẵn, sửa kèm) & \texttt{1.4.0} $\to$ \texttt{1.5.0} \\
+\hline
+\end{tabular}
+\end{center}
+
+\textbf{Không} model/field mới, \textbf{không} migration, \textbf{không} đổi quyền hay dữ liệu.
+Nhánh \texttt{dev/2026-08-11-b4}: \texttt{70f3e4f} (B4) $+$ \texttt{b195d7c} (docs) $+$
+commit sửa lỗi inline script. \textbf{Chưa deploy.}
+
+\section{Bài học}
+
+\begin{enumerate}
+\item \textbf{Blast radius lớn thì tìm seam, đừng sửa 31 chỗ.} Một helper trên
+  \texttt{ir.http} gọi từ QWeb cho toàn bộ 31 call site hưởng hành vi mới với 0 dòng
+  controller --- và cũng có nghĩa 0 chỗ để quên.
+\item \textbf{Validate redirect phải nghĩ tới bước chuẩn hoá của trình duyệt.} Kiểm tiền tố
+  \texttt{/portal/} là chưa đủ: \texttt{/portal/../web} qua được. Luật đúng là cấm segment
+  \texttt{..} \emph{trước} khi xét tiền tố.
+\item \textbf{Hai spec BA lệch nhau thì hỏi, đừng chọn.} 800 vs 700 cho title mobile: chọn 800
+  sẽ phá bảng đo đã Pass của B3a. Ghi vào LIMIT và chuyển BA.
+\item \textbf{Lỗi có sẵn thì miễn trừ tường minh, đừng nới ngưỡng} (L7). Ghi rõ trang nào,
+  thông điệp nào, và bằng chứng nó không do sprint này (file 0 dòng diff) --- rồi hỏi chủ dự
+  án có sửa luôn không, thay vì tự quyết một mình theo hướng nào.
+\item \textbf{Không bao giờ dùng \texttt{\&\&}, \texttt{<}, \texttt{>} trong \texttt{<script>}
+  inline của QWeb.} lxml serialize ra thực thể HTML, mà HTML5 không giải mã thực thể trong
+  \texttt{<script>} $\Rightarrow$ chết cả khối, \emph{im lặng}. \texttt{CDATA} không cứu được
+  (marker bị gỡ). Viết lại bằng \texttt{if} lồng, hoặc đưa hẳn ra file
+  \texttt{static/src/js/}.
+\item \textbf{Harness sai thì sửa harness} (L7/L9). Trong sprint này riêng harness sai 6 lần
+  (login sai route, user không đọc được ticket, đọc computed style thay vì pseudo-element,
+  query lồng chưa encode, đọc URL trước khi điều hướng xong, selector không scope, chọn user
+  mà role vốn không đổi, sai selector badge giỏ hàng) --- chân lý luôn là spec BA.
+\item \textbf{\texttt{pkill} chung lệnh với lệnh khởi động thì shell tự giết mình} (L8) ---
+  tách hai lần gọi.
+\end{enumerate}
+
+\section{LIMIT sau B4}
+
+\begin{enumerate}
+\item \textbf{Câu hỏi gửi BA} --- \texttt{CMP-BPH-001} ghi title mobile 800,
+  \texttt{CMP-PG-001} ghi 700. Dev giữ 700, chờ BA chốt.
+\item Cảnh báo chưa lưu hiện áp cho hai màn tạo mới; màn khác chưa có ô nhập nên chưa cần.
+\item 21/23 component còn lại chưa có spec, gồm \texttt{CMP-DS-001} DetailSummary --- mã
+  chứng từ vẫn nằm trong card thông tin sẵn có.
+\item Hệ \texttt{.wj-pc-page-header} vẫn còn ở \texttt{/portal/exam/register},
+  \texttt{/portal/exam/\{id\}}, \texttt{pc\_preview}.
+\item Padding ngang PC vẫn do content-wrapper của shell Vuexy cấp --- chờ CMP PageContainer.
+\item \texttt{portal\_info\_request\_form.xml} --- lỗi có sẵn (inline script chết vì
+  \texttt{\&\&} bị escape) \textbf{đã sửa} trong phiên theo yêu cầu chủ dự án. Lỗi này
+  \textbf{không có trong Issue List} của BA (Dev tự phát hiện lúc hồi quy) nên chưa có ID để
+  \texttt{qa\_sync}; nếu BA muốn theo dõi thì mở row mới.
+\end{enumerate}

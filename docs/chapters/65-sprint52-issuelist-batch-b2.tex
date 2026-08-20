@@ -1,0 +1,175 @@
+\chapter{Sprint 52 --- Batch B2 Issue List: đụng độ tên trường Quy cách $+$ múi giờ Thông báo (2026-08-11)}
+
+\section{Bối cảnh}
+
+Sprint 51 đã lên UAT (đối chiếu XML-RPC ngày 11-08: \texttt{wujia\_portal\_exam}
+\texttt{19.0.5.4.0} khớp local; ngoài ra \texttt{wj\_ks\_dashboard\_ninja} và
+\texttt{wj\_ks\_dn\_advance} \textbf{nay đã installed} trên UAT --- compact summary trước đó ghi
+``chưa cài'' là sai; \texttt{mcp\_server} vẫn \texttt{uninstalled}).
+
+Theo bảng batch của Sprint 51, session này làm \textbf{B2} --- hai lỗi dữ liệu:
+\texttt{WJ-PROD-001} (Severity \textbf{High}, chặn BA nhập liệu) và \texttt{WJ-NOTI-001}
+(lệch $-7$ giờ). B3 (\texttt{CMP-PG-001} PageHeader, 24 file) và B4 (\texttt{CMP-BPH-001} $+$
+shell mobile) để session riêng.
+
+\section{WJ-PROD-001 --- Quy cách không lưu được}
+
+\subsection{Triệu chứng}
+
+BA mở biến thể \emph{Hồng Trà Đài Loan KHÔNG Đường} (ID 2) $\rightarrow$ tab \textbf{Wujia
+Portal} $\rightarrow$ nhập Quy cách ``500 ml'' $\rightarrow$ Lưu $\rightarrow$ popup ``Rất
+tiếc!''. Lỗi kỹ thuật:
+\texttt{psycopg2.errors.DatatypeMismatch: column "description\_ecommerce" is of type jsonb but
+expression is of type character varying}.
+
+\subsection{Chẩn đoán}
+
+\texttt{wujia\_sale} khai \texttt{description\_ecommerce = fields.Char()} trên
+\texttt{product.product}. Tên này \textbf{trùng} field của core \texttt{website\_sale}:
+\texttt{product.template.description\_ecommerce = fields.Html(translate=html\_translate)} ---
+tức cột \textbf{jsonb}.
+
+Đo được:
+
+\begin{center}
+\begin{tabular}{lll}
+\hline
+& Local \texttt{wujia\_tea\_19} & UAT \\
+\hline
+\texttt{website\_sale} & \texttt{uninstalled} & \textbf{\texttt{installed}} ($+$ 5 module
+  \texttt{website\_sale\_*}) \\
+\texttt{ir\_model\_fields.translate} & \texttt{NULL} & \texttt{html\_translate} \\
+Cột \texttt{product\_product} & \texttt{varchar} & \textbf{\texttt{jsonb}} \\
+\hline
+\end{tabular}
+\end{center}
+
+Kiểu cột trên UAT được xác nhận \textbf{không cần quyền SQL}: gọi
+\texttt{product.product.search([('description\_ecommerce','=','\_\_probe\_\_')])} qua XML-RPC ---
+một thao tác chỉ đọc --- server trả \texttt{InvalidTextRepresentation: invalid input syntax for
+type json}, đúng chữ ký của cột jsonb.
+
+\textbf{Không module custom nào depend \texttt{website\_sale}} (đã kiểm
+\texttt{ir.module.module.dependency}) $\Rightarrow$ app này được cài tay trên UAT. Đây là lần thứ
+hai app Website gây phiền: \texttt{wujia\_portal\_layout/models/ir\_http.py} đã phải gán sẵn
+\texttt{request.website} để portal không 500 khi app Website có mặt.
+
+\subsection{Giới hạn của việc tái hiện --- ghi trung thực}
+
+Trên DB copy, \textbf{cài \texttt{website\_sale} rồi \texttt{-u wujia\_sale} KHÔNG tái hiện
+được} sự chuyển kiểu: cột \texttt{product\_product} vẫn \texttt{varchar}, kể cả sau khi xoá hẳn
+cột rồi để Odoo tạo lại. Nói cách khác \textbf{cơ chế lịch sử làm cột trên UAT thành jsonb chưa
+xác định được}, chỉ biết chắc trạng thái hiện tại của UAT là lệch (cột jsonb $+$ field Char).
+
+Triệu chứng thì tái hiện \textbf{chính xác}: ép cột về jsonb trên DB copy rồi \texttt{write} qua
+ORM cho ra \emph{đúng} thông báo lỗi BA gặp. Fix được kiểm trên chính DB đó.
+
+\subsection{Cách sửa (chủ dự án chốt 11-08)}
+
+Đổi tên trường: \texttt{description\_ecommerce} $\rightarrow$ \texttt{wujia\_packaging}. Lý do
+chọn hướng này thay vì gỡ \texttt{website\_sale} trên UAT:
+
+\begin{itemize}
+  \item Sửa dứt điểm ở phía mình, không đụng server đang chạy; BA cài lại app cũng không tái phát.
+  \item Tab \texttt{1. Model/ Field} của BA \textbf{không hề đặt tên trường này} (grep gid
+    \texttt{2041118658}, 0 hit) $\Rightarrow$ đổi tên không phá spec.
+  \item Nhãn hiển thị giữ nguyên ``Packaging''/``Quy cách'', vị trí trong tab Wujia Portal không
+    đổi $\Rightarrow$ BA không thấy khác gì.
+\end{itemize}
+
+Phương án ``khai đúng kiểu như core'' bị loại vì BA gõ ``500 ml'' sẽ lưu thành
+\texttt{<p>500 ml</p>} và vẫn dùng chung schema với core.
+
+\subsection{Thay đổi}
+
+\texttt{wujia\_sale} \texttt{19.0.4.1.0} $\rightarrow$ \texttt{19.0.4.2.0}:
+
+\begin{itemize}
+  \item \texttt{models/product\_product.py}: đổi tên field, giữ \texttt{string}/\texttt{help}.
+  \item \texttt{migrations/19.0.4.2.0/pre-migrate.py}: chịu được \textbf{ba} trạng thái --- chưa
+    có cột (no-op), cột \texttt{varchar} (\texttt{RENAME COLUMN}), cột \texttt{jsonb} (tạo cột
+    varchar, copy \texttt{->> 'en\_US'} với fallback giá trị dịch đầu tiên, drop cột cũ). Dọn
+    luôn row \texttt{ir\_model\_fields} tên cũ.
+  \item 6 chỗ tham chiếu ở \texttt{wujia\_sale} (view backend), \texttt{wujia\_portal\_sale}
+    (controller $+$ 2 view) và \texttt{wujia\_portal\_purchase\_history} (controller). Key JSON
+    trả về client vẫn là \texttt{'spec'} $\Rightarrow$ \textbf{không đụng một dòng JS nào} (bài
+    học L5-(3)).
+  \item \texttt{i18n/vi\_VN.po} $+$ \texttt{wujia\_sale.pot}: đổi tham chiếu
+    \texttt{field\_product\_product\_\_*} (msgid ``Packaging'' không đổi nên bản dịch ``Quy cách''
+    giữ nguyên --- sinh \texttt{.po} phải kèm \texttt{.pot}, bài học L8-(3)).
+  \item \texttt{tests/} \textbf{mới} (module trước đây có thư mục rỗng): 4 test nhập/sửa/xoá Quy
+    cách, lưu kèm field portal khác, và khẳng định field là Char không dịch.
+\end{itemize}
+
+\section{WJ-NOTI-001 --- portal lệch $-7$ giờ}
+
+Portal in thẳng \texttt{noti.published\_date.strftime(...)}, mà Odoo lưu Datetime dạng naive UTC
+$\Rightarrow$ backend ghi 09:51 thì portal hiện 02:51. Helper đã có sẵn từ trước
+(\texttt{portal\_tz}, \texttt{to\_local\_dt}, \texttt{local\_day\_range\_utc} trong
+\texttt{wujia\_portal\_base/controllers/utils.py}, đang được
+\texttt{wujia\_portal\_purchase\_history} và \texttt{wujia\_portal\_delivery} dùng) nên
+\textbf{tái dùng, không viết mới}.
+
+Thay đổi:
+
+\begin{itemize}
+  \item Thêm \texttt{fmt\_local\_dt(dt, fmt, tz=None)} --- một lớp mỏng trên hai helper cũ, trả
+    \texttt{''} khi rỗng.
+  \item Đưa vào qcontext dưới tên \texttt{wj\_dt} tại 4 chỗ render (3 route thông báo $+$ Home).
+    \textbf{Cố ý không} override \texttt{\_prepare\_qcontext} toàn cục --- blast radius là mọi
+    trang portal.
+  \item 6 điểm hiển thị đổi từ \texttt{X.strftime('fmt')} sang \texttt{wj\_dt(X, 'fmt')}: 4 ở
+    \texttt{portal\_notification.xml} (bảng PC, list mobile, khối chi tiết PC, chi tiết mobile),
+    2 ở \texttt{portal\_home.xml}.
+  \item JSON popup chuông dùng \texttt{fmt\_local\_dt}.
+  \item \textbf{Bộ lọc từ ngày/đến ngày} (chủ dự án chốt sửa luôn): trước đây ghép ngày người
+    dùng chọn thành datetime rồi so thẳng với cột UTC $\Rightarrow$ hụt nửa ngày. Nay qua
+    \texttt{local\_day\_range\_utc}.
+\end{itemize}
+
+\texttt{wujia\_portal\_notification} \texttt{19.0.2.5.0} $\rightarrow$ \texttt{19.0.2.6.0},
+\texttt{wujia\_portal\_base} \texttt{19.0.7.0.0} $\rightarrow$ \texttt{19.0.7.1.0}. Không đổi
+schema $\Rightarrow$ \textbf{không migration}. Thêm 6 test múi giờ, gồm ca đổi cả \emph{ngày}
+(20:30 UTC ngày 02-08 $=$ 03:30 ngày 03-08 giờ Việt Nam).
+
+\section{Verify}
+
+Làm trên \textbf{DB copy cô lập}, không đụng \texttt{wujia\_tea\_19}/8019.
+
+\begin{enumerate}
+  \item \textbf{Tái hiện trước khi sửa}: ép cột về jsonb trên bản copy $\rightarrow$ ORM
+    \texttt{write} nổ đúng \texttt{DatatypeMismatch} của BA.
+  \item \textbf{Migration cả hai nhánh}: bản copy cột \texttt{jsonb} và bản copy cột
+    \texttt{varchar}, mỗi bản \texttt{-u} 5 module $\rightarrow$ \textbf{RC$=$0, 0 ERROR/Traceback},
+    cột ra \texttt{varchar}, \textbf{dữ liệu giữ nguyên} (giá trị jsonb nhiều ngôn ngữ lấy đúng
+    bản \texttt{en\_US}).
+  \item \textbf{Ghi lại trên chính DB từng lỗi}: nhập ``500 ml'' $\rightarrow$ sửa ``750 ml''
+    $\rightarrow$ xoá trắng, cả ba đều lưu được.
+  \item \textbf{Unit test}: \texttt{--test-tags wujia\_sale,wujia\_notification} $\rightarrow$
+    \textbf{44 test, 0 failed / 0 error}.
+  \item \textbf{Đo bằng trình duyệt} (Playwright, $391\times844$ và $1920\times1080$, login
+    \texttt{dung.multi}, cookie \texttt{wujia\_active\_franchise\_id} set sẵn):
+    \textbf{41/41 PASS (100\%)} --- Home / danh sách / chi tiết / popup chuông đều ra
+    \texttt{09:51 03/08/2026} cho bản ghi UTC \texttt{02:51}, không còn chuỗi \texttt{02:51};
+    bộ lọc ngày 03/08 giữ đúng cả thông báo gửi 03:30 sáng; regression 3 trang khác
+    $\times$ 2 viewport status 200, tràn ngang $=0$, 0 JS pageerror.
+\end{enumerate}
+
+\textbf{Harness sai thì sửa harness} (L7/L9 tái khẳng định): 6 FAIL đầu tiên đều là lỗi kỳ vọng
+gõ tay, không phải lỗi code --- popup trả key \texttt{notifications} chứ không phải
+\texttt{items}; danh sách hiển thị \emph{số công văn} (\texttt{S32-OTH}) chứ không phải mã
+\texttt{ANN/2026/0030}; và sản phẩm mang chuỗi ``Thùng 24 chai'' vốn \emph{không} bật hiển thị
+portal.
+
+\section{Bàn giao}
+
+Commit \texttt{cc7570f}. Hai issue $\rightarrow$ \texttt{Ready for Retest} trên sheet ngày 11-08
+(Dev không tự \texttt{Done}), verify lại bằng \texttt{export?format=csv}.
+
+\textbf{Deploy tay}: \texttt{-u wujia\_sale,wujia\_portal\_notification,wujia\_portal\_base}.
+\texttt{wujia\_sale} \textbf{có bước cập nhật dữ liệu} (đổi tên cột); hai module kia không.
+Không \texttt{-i}, không bump \texttt{?v=}.
+
+\textbf{LIMIT}: (a) nếu trước đây có ai nhập Quy cách nhiều ngôn ngữ thì chỉ bản \texttt{en\_US}
+được giữ --- trường này vốn là ô chữ một ngôn ngữ; (b) cơ chế lịch sử làm cột trên UAT thành
+jsonb chưa xác định được, nhưng đổi tên khiến câu hỏi đó không còn ảnh hưởng.

@@ -147,7 +147,17 @@
                     }).then(function (r) {
                         return r.json();
                     }).then(function (j) {
-                        var v = (j &amp;&amp; j.result &amp;&amp; j.result.old_value) || '';
+                        // KHÔNG dùng toán tử AND/so-sánh-lớn-nhỏ của JS trong script
+                        // inline: QWeb serialize template bằng lxml nên các ký tự đó ra
+                        // HTML dưới dạng thực thể, mà HTML5 không giải mã thực thể bên
+                        // trong thẻ script ⇒ cả khối JS chết vì SyntaxError. Viết if
+                        // lồng như dưới, hoặc đưa hẳn ra static/src/js/.
+                        var v = '';
+                        if (j) {
+                            if (j.result) {
+                                v = j.result.old_value || '';
+                            }
+                        }
                         oldBox.value = v;
                     }).catch(function () {
                         oldBox.value = '';

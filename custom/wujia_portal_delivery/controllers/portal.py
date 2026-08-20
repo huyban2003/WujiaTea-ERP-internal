@@ -11,7 +11,9 @@ from odoo.addons.wujia_portal_base.controllers.portal import (
     get_active_franchise_ids_filter,
 )
 from odoo.addons.wujia_portal_base.controllers.utils import (
-    group_counts, local_day_range_utc, page_numbers, portal_tz, to_local_dt,
+    batch_franchise_domain, departure_label, departure_value, format_order_names,
+    group_counts, local_day_range_utc, own_pickings, page_numbers, portal_tz,
+    to_local_dt,
 )
 
 _logger = logging.getLogger(__name__)
@@ -97,12 +99,7 @@ def _related_orders(pickings):
     for so in pickings.mapped('sale_id'):
         if so.name and so.name not in names:
             names.append(so.name)
-    if not names:
-        return '—'
-    text = ', '.join(names[:2])
-    if len(names) > 2:
-        text += ' +%d' % (len(names) - 2)
-    return text
+    return format_order_names(names)
 
 
 class WujiaPortalDelivery(http.Controller):
@@ -130,10 +127,7 @@ class WujiaPortalDelivery(http.Controller):
         batches, m_pager, chip_counts, view_state = [], {}, {}, 'list'
         try:
             Batch = request.env['stock.picking.batch'].sudo()
-            base_domain = [
-                '|', ('picking_ids.franchise_id', 'in', list(franchise_ids)),
-                     ('picking_ids.sale_id.franchise_id', 'in', list(franchise_ids)),
-            ]
+            base_domain = batch_franchise_domain(franchise_ids)
             # Ngày người dùng chọn là giờ địa phương, planned_departure lưu UTC → phải quy đổi,
             # không thì lọc lệch nửa ngày ở 2 biên (cùng lỗi WJ-PH-002 bên Lịch sử đặt hàng).
             utc_from, utc_to = local_day_range_utc(
@@ -142,37 +136,37 @@ class WujiaPortalDelivery(http.Controller):
                 base_domain.append(('planned_departure', '>=', utc_from))
             if utc_to:
                 base_domain.append(('planned_departure', '<=', utc_to))
-            # Chips card-head: đếm theo scope franchise+date (không status, không keyword).
-            chip_counts = _chip_counts(Batch, base_domain)
+            # WJ-DELIVERY-006: chip đếm trên CHÍNH tập đã lọc (franchise + ngày +
+            # keyword). Bỏ `bs` để chọn 1 chip không làm 0 hết các chip còn lại.
+            kw_domain = ['|', ('name', 'ilike', q),
+                              ('picking_ids.sale_id.name', 'ilike', q)] if q else []
+            chip_counts = _chip_counts(Batch, base_domain + kw_domain)
 
-            bdomain = list(base_domain)
+            bdomain = list(base_domain) + kw_domain
             if bs in BATCH_STATUS_GROUP:
                 bdomain.append(('delivery_batch_status', 'in', BATCH_STATUS_GROUP[bs]))
-            if q:
-                bdomain += ['|', ('name', 'ilike', q),
-                                 ('picking_ids.sale_id.name', 'ilike', q)]
             total = Batch.search_count(bdomain)
             recs = Batch.search(bdomain, limit=PAGE_SIZE, offset=offset,
                                 order='planned_departure desc, id desc')
             for b in recs:
-                own = b.picking_ids.filtered(
-                    lambda p: (p.franchise_id and p.franchise_id.id in franchise_ids)
-                    or (p.sale_id and p.sale_id.franchise_id and p.sale_id.franchise_id.id in franchise_ids)
-                )
+                own = own_pickings(b, franchise_ids)
                 label, modifier = MOBILE_BATCH_BADGE.get(
                     b.delivery_batch_status, (b.delivery_batch_status or '—', 'muted'))
                 v = b.vehicle_id
                 vehicle_str = ('%s · %s' % (v.name, v.driver_name)) if v and v.driver_name else (v.name if v else '—')
                 upd = b.actual_departure or b.write_date
+                dep, is_actual = departure_value(b)
                 batches.append({
                     # Keys mobile (S24) — KHÔNG đổi:
                     'id': b.id, 'name': b.name or '—',
                     'label': label, 'modifier': modifier,
-                    'departure': _short_departure(b.planned_departure, tz),
+                    'departure': _short_departure(dep, tz),
+                    'departure_label': departure_label(is_actual),
+                    'departure_actual': is_actual,
                     'orders': _related_orders(own),
                     # Keys PC desktop:
                     'pc_label': label, 'pc_modifier': modifier,
-                    'departure_full': _full_departure(b.planned_departure, tz),
+                    'departure_full': _full_departure(dep, tz),
                     'vehicle': vehicle_str,
                     'plate': (v.license_plate if v and v.license_plate else '—'),
                     'updated': _hhmm(upd, tz),
@@ -241,14 +235,11 @@ class WujiaPortalDelivery(http.Controller):
         ], limit=1)
         if not batch:
             return request.redirect('/portal/delivery')
-        own_pickings = batch.picking_ids.filtered(
-            lambda p: (p.franchise_id and p.franchise_id.id in franchise_ids)
-                      or (p.sale_id and p.sale_id.franchise_id and p.sale_id.franchise_id.id in franchise_ids)
-        )
+        pickings = own_pickings(batch, franchise_ids)
 
         # Mobile (Figma 4731 detail): gom sản phẩm trong chuyến theo product → SL + ĐVT.
         products, seen = [], {}
-        for mv in own_pickings.mapped('move_ids'):
+        for mv in pickings.mapped('move_ids'):
             prod = mv.product_id
             if not prod:
                 continue
@@ -281,30 +272,34 @@ class WujiaPortalDelivery(http.Controller):
             _hhmm(batch.write_date if status == 'done' else None, tz),
         )
         so_names = []
-        for p in own_pickings:
+        for p in pickings:
             if p.sale_id and p.sale_id.name and p.sale_id.name not in so_names:
                 so_names.append(p.sale_id.name)
         src_location = '—'
-        if own_pickings and own_pickings[0].location_id:
-            loc = own_pickings[0].location_id
+        if pickings and pickings[0].location_id:
+            loc = pickings[0].location_id
             src_location = loc.complete_name or loc.name or '—'
-        fr = (own_pickings[:1].mapped('franchise_id')
-              or own_pickings[:1].mapped('sale_id.franchise_id'))[:1]
+        fr = (pickings[:1].mapped('franchise_id')
+              or pickings[:1].mapped('sale_id.franchise_id'))[:1]
         store_label = (('[%s] ' % fr.code) if fr and fr.code else '') + (fr.name if fr else '') or '—'
+        dep, is_actual = departure_value(batch)
+        dep_str, dep_label = _full_departure(dep, tz), departure_label(is_actual)
 
         return request.render('wujia_portal_delivery.portal_delivery_detail', {
-            'batch': batch, 'own_pickings': own_pickings,
+            'batch': batch, 'own_pickings': pickings,
             'products': products,
             # Mobile (S24):
             'm_badge': (label, modifier),
-            'm_departure_full': _full_departure(batch.planned_departure, tz),
+            'm_departure_full': dep_str,
+            'm_departure_label': dep_label,
             'm_updated': _full_departure(updated, tz),
-            'm_orders': _related_orders(own_pickings),
+            'm_orders': _related_orders(pickings),
             # PC desktop:
             'pc_badge': (label, modifier),
-            'pc_departure': _full_departure(batch.planned_departure, tz),
+            'pc_departure': dep_str,
+            'pc_departure_label': dep_label,
             'pc_updated': _full_departure(updated, tz),
-            'pc_orders': _related_orders(own_pickings),
+            'pc_orders': _related_orders(pickings),
             'so_names': so_names,
             'tl_steps': tl_steps,
             'tl_times': tl_times,
@@ -328,16 +323,14 @@ class WujiaPortalDelivery(http.Controller):
             raise NotFound()
         dt_start = batch.scheduled_date or datetime.now()
         dt_end = dt_start + timedelta(hours=2)
-        own_pickings = batch.picking_ids.filtered(
-            lambda p: p.franchise_id and p.franchise_id.id in franchise_ids
-        )
+        pickings = own_pickings(batch, franchise_ids)
         summary = f'Giao hàng {batch.name or batch.id}'
         description_parts = [f'Mã lô: {batch.name or batch.id}']
-        for p in own_pickings:
+        for p in pickings:
             description_parts.append(f'- {p.name}: {p.origin or ""}')
         description = '\n'.join(description_parts)
         location = ', '.join(
-            sorted({p.franchise_id.name for p in own_pickings if p.franchise_id})
+            sorted({p.franchise_id.name for p in pickings if p.franchise_id})
         )
         ics = (
             'BEGIN:VCALENDAR\r\n'

@@ -963,21 +963,31 @@ h2, .wujia-h2 { font-size: var(--wujia-font-size-h2) !important; font-weight: 60
 .wujia-mhome-kpi + .wujia-mhome-kpi {
     border-left: 1px solid var(--wujia-mhome-kpi-tile-border);
 }
+/* WJ-HOME-001: nhãn KPI KHÔNG được cắt bằng "…" (BA cấm). Nhãn dài bất thường thì
+   xuống dòng; min-height chừa sẵn 2 dòng để 4 con số vẫn thẳng hàng. */
 .wujia-mhome-kpi-label {
     font-size: 9px;
+    line-height: 12px;
+    min-height: 24px;
     font-weight: 700;
     letter-spacing: 0.04em;
     text-transform: uppercase;
     color: var(--wujia-mhome-kpi-label);
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
+    overflow-wrap: anywhere;
 }
 .wujia-mhome-kpi-value {
     font-size: 22px;
     font-weight: 700;
     line-height: 1.1;
     color: #FFFFFF;
+    overflow-wrap: anywhere;   /* ô Công nợ in số tiền (wujia_portal_debt) */
+}
+/* ≤380px: bù đúng vài px còn thiếu để 4 nhãn vẫn trọn trên MỘT dòng (đo 360px:
+   "Thông báo" cần 59 trong 57). Giảm khoảng cách chữ + padding, không giảm cỡ chữ. */
+@media (max-width: 380px) {
+    .wujia-mhome-kpi { padding: 0 5px; }
+    .wujia-mhome-kpi-label { letter-spacing: 0.01em; }
+    .wujia-mhome-kpi-value { font-size: 20px; }
 }
 a.wujia-mhome-kpi:active { opacity: 0.85; }
 
@@ -1112,49 +1122,8 @@ a.wujia-mhome-kpi:active { opacity: 0.85; }
     color: var(--wujia-primary);
     text-decoration: none;
 }
-.wujia-mhome-noti-list {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-}
-.wujia-mhome-noti-row {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    padding: 12px 14px;
-    background: var(--wujia-bg-card);
-    border: 1px solid var(--wujia-mhome-card-border);
-    border-left: 4px solid var(--wujia-text-muted);
-    border-radius: 12px;
-    text-decoration: none;
-}
-.wujia-mhome-noti-row.is-danger  { border-left-color: var(--wujia-danger); }
-.wujia-mhome-noti-row.is-info     { border-left-color: var(--wujia-primary); }
-.wujia-mhome-noti-row.is-warning  { border-left-color: var(--wujia-warning); }
-.wujia-mhome-noti-row.is-success  { border-left-color: var(--wujia-success); }
-.wujia-mhome-noti-row.is-muted    { border-left-color: var(--wujia-text-muted); }
-.wujia-mhome-noti-main { flex: 1 1 auto; min-width: 0; }
-.wujia-mhome-noti-title {
-    margin: 0;
-    font-size: 13px;
-    font-weight: 700;
-    color: var(--wujia-text-primary);
-    /* RESP-MOB-HOME-003: cho tiêu đề tối đa 2 dòng thay vì cắt 1 dòng */
-    display: -webkit-box;
-    -webkit-line-clamp: 2;
-    -webkit-box-orient: vertical;
-    overflow: hidden;
-}
-.wujia-mhome-noti-date {
-    margin: 2px 0 0;
-    font-size: 11px;
-    font-weight: 400;
-    color: var(--wujia-text-subtitle);
-}
-.wujia-mhome-noti-row .wujia-badge {
-    flex-shrink: 0;
-    font-size: 10px;
-}
+/* WJ-HOME-008: block này nay dùng chung .wujia-mdash-card/-row với các block Home
+   còn lại; chỉ tiêu đề block (-head/-link) là còn của riêng nó. */
 
 /* ---------- Bottom navigation (fixed, mobile only) ---------- */
 .wujia-mhome-navspacer { height: 72px; }
@@ -1321,22 +1290,7 @@ a.wujia-mhome-kpi:active { opacity: 0.85; }
 /* ---------- Catalog "Sản phẩm" (.wujia-morder) ---------- */
 /* RESP-MOB-ORDER-003: chừa chỗ cho floatbar + safe-area (WJ-ORD-013) */
 .wujia-morder { padding-bottom: calc(150px + env(safe-area-inset-bottom, 0px)); }
-.wujia-morder-titlerow {
-    display: flex;
-    align-items: baseline;
-    justify-content: space-between;
-    gap: 10px;
-    /* WJ-ORD-005: 16px trên (thoáng khỏi status-strip) → 12px xuống warnbar */
-    margin: 16px 0 12px;
-}
-.wujia-morder-title {
-    font-size: 25px;        /* Figma 4575:777 — title 25/700 (was 24) */
-    font-weight: 700;
-    color: var(--wujia-morder-text);
-    margin: 0;
-}
-/* WJ-ORD-005: bộ đếm "N SP" cùng hàng title, không xuống dòng, không co */
-.wujia-morder-count { flex: 0 0 auto; white-space: nowrap; }
+/* Title row riêng đã gỡ — catalog mobile nay dùng shared PageHeader (CMP-PG-001). */
 
 /* Order warning bar (WJ_Mobile_OrderWarningBar) — shared by catalog + cart */
 .wujia-morder-warnbar {
@@ -1435,10 +1389,17 @@ a.wujia-mhome-kpi:active { opacity: 0.85; }
     flex-direction: column;
     gap: 6px;
 }
+/* RESP-MOB-ORDER-002: tên SP ăn hết bề ngang card (hàng trên), giá/ĐVT/nút giỏ
+   xuống hàng dưới — trước là 1 hàng flex nên tên chỉ còn ~150/391px. */
 .wujia-morder-row {
-    display: flex;
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    grid-template-areas:
+        "thumb name name"
+        "thumb meta ctl";
     align-items: center;
-    gap: 12px;
+    column-gap: 12px;
+    row-gap: 2px;
     min-height: 58px;
     padding: 9px 12px;
     background: var(--wujia-morder-card-bg);
@@ -1446,7 +1407,7 @@ a.wujia-mhome-kpi:active { opacity: 0.85; }
     border-radius: 12px;
 }
 .wujia-morder-row-thumb {
-    flex: 0 0 auto;
+    grid-area: thumb;
     width: 42px;
     height: 38px;
     border-radius: 9px;
@@ -1469,34 +1430,38 @@ a.wujia-mhome-kpi:active { opacity: 0.85; }
     line-height: 1;
     color: var(--wujia-morder-thumb-text);
 }
-.wujia-morder-row-info {
-    flex: 1 1 auto;
-    min-width: 0;
-    display: flex;
-    flex-direction: column;
-    gap: 2px;
-    text-decoration: none;
-}
 .wujia-morder-row-name {
+    grid-area: name;
+    align-self: end;
     font-size: 14px;
     font-weight: 700;
     color: var(--wujia-morder-text);
+    text-decoration: none;
     /* RESP-MOB-ORDER-001: tên SP tối đa 2 dòng thay vì cắt 1 dòng */
     display: -webkit-box;
     -webkit-line-clamp: 2;
     -webkit-box-orient: vertical;
     overflow: hidden;
 }
+.wujia-morder-row-meta {
+    grid-area: meta;
+    display: flex;
+    align-items: baseline;
+    gap: 8px;
+    min-width: 0;
+}
 .wujia-morder-row-spec {
     font-size: 12px;
     color: var(--wujia-morder-text-sub);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
 .wujia-morder-row-price {
     flex: 0 0 auto;
     font-size: 14px;
     font-weight: 700;
     color: var(--wujia-morder-text);
-    text-align: right;
     white-space: nowrap;
 }
 .wujia-morder-row-add {
@@ -1537,7 +1502,7 @@ a.wujia-mhome-kpi:active { opacity: 0.85; }
    qty>0 hiện stepper "− N +". data-qty (server-render + JS morph) bật/tắt.
    WJ-ORD-011: nút stepper 38×40 (vùng chạm rộng). Giảm ở min = xoá dòng
    (server /cart/step product_id, JS toast "Đã bỏ khỏi giỏ"). */
-.wujia-morder-cartctl { flex: 0 0 auto; position: relative; }
+.wujia-morder-cartctl { grid-area: ctl; justify-self: end; position: relative; }
 .wujia-morder-cartctl .wujia-morder-mstepper { display: none; }
 .wujia-morder-cartctl:not([data-qty="0"]) .wujia-morder-add-btn { display: none; }
 .wujia-morder-cartctl:not([data-qty="0"]) .wujia-morder-mstepper { display: flex; }
@@ -1577,7 +1542,7 @@ a.wujia-mhome-kpi:active { opacity: 0.85; }
     left: 16px;
     right: 16px;
     /* Sprint 12: footer bottom-nav lên 83px (BA final) → nâng floatbar để không */
-    bottom: calc(var(--wujia-mnav-height) + 8px);
+    bottom: calc(var(--wujia-mnav-total) + 8px);
     z-index: 1029;
     display: flex;
     align-items: center;
@@ -1621,8 +1586,10 @@ a.wujia-mhome-kpi:active { opacity: 0.85; }
 }
 
 /* ---------- Cart "Giỏ hàng" (.wujia-mcart) ---------- */
-/* clear sticky summary + bottom-nav + home-indicator (WJ-ORD-013) */
-.wujia-mcart { padding-bottom: calc(180px + env(safe-area-inset-bottom, 0px)); }
+/* Chừa chỗ cho nav + khối tổng tiền fixed + home-indicator (WJ-ORD-013/026):
+   116 = chiều cao khối tổng (đo 172.5, phần dư nằm ở padding 96 của .app-content).
+   Bám token nav nên footer đổi cao thì khoảng chừa tự đổi theo. */
+.wujia-mcart { padding-bottom: calc(var(--wujia-mnav-total) + 116px); }
 .wujia-mcart-titlerow {
     display: flex;
     align-items: baseline;
@@ -1809,7 +1776,9 @@ a.wujia-mhome-kpi:active { opacity: 0.85; }
     position: fixed;
     left: 0;
     right: 0;
-    bottom: 64px;
+    /* WJ-ORD-026: trước là 64px cứng (footer đời cũ) trong khi nav thật cao 83
+       → nút Gửi đơn bị che 7px. Bám token nav, không gõ số. */
+    bottom: var(--wujia-mnav-total);
     z-index: 1029;
     background: var(--wujia-morder-card-bg);
     border-top: 1px solid var(--wujia-morder-divider);
@@ -2789,11 +2758,6 @@ a.wujia-mhome-kpi:active { opacity: 0.85; }
         color: inherit;
     }
     a.wujia-mdash-card:hover { color: inherit; }
-    .wujia-mdash-stack {
-        display: flex;
-        flex-direction: column;
-        gap: 10px;
-    }
 
     /* ---------- Row trong card gộp (orders / debt kv / knowledge / quick) -- */
     .wujia-mdash-list { padding: 4px 14px; }
@@ -2807,6 +2771,12 @@ a.wujia-mhome-kpi:active { opacity: 0.85; }
     }
     .wujia-mdash-row + .wujia-mdash-row { border-top: 1px solid var(--wujia-morder-divider); }
     a.wujia-mdash-row:hover { color: inherit; }
+    /* Dòng nhiều dòng phụ (giao hàng / đơn hàng / đổi trả): icon và badge bám mép
+       trên thay vì căn giữa khối. Modifier trên chính .wujia-mdash-row nên thừa
+       hưởng luôn hover/pressed/focus của _interaction.css (C6). */
+    .wujia-mdash-row.is-stacked { align-items: flex-start; }
+    .wujia-mdash-row.is-stacked .wujia-mdash-row-main { gap: 4px; }
+    .wujia-mdash-row.is-stacked .wujia-badge { align-self: flex-start; }
 
     .wujia-mdash-tile {
         flex: 0 0 auto;
@@ -2850,6 +2820,21 @@ a.wujia-mhome-kpi:active { opacity: 0.85; }
     }
     .wujia-mdash-row-title.is-lg { font-size: 16px; }
     .wujia-mdash-row-title.is-sm { font-size: 13px; white-space: normal; }
+    /* WJ-HOME-002: mã đơn phải hiện đủ — các đơn chỉ khác nhau ở 2 số cuối. */
+    .wujia-mdash-row-title.is-code {
+        white-space: normal;
+        overflow: visible;
+        text-overflow: clip;
+        overflow-wrap: anywhere;
+    }
+    /* Giữ RESP-MOB-HOME-003 (tiêu đề tối đa 2 dòng) sau khi block Thông báo về
+       component chung — scope trong Home để không đụng Support/Franchise info. */
+    .wujia-mhome .wujia-mdash-row-title.is-sm {
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+    }
     .wujia-mdash-row-sub {
         font-size: 12px;
         color: var(--wujia-morder-text-sub);
@@ -2873,25 +2858,6 @@ a.wujia-mhome-kpi:active { opacity: 0.85; }
         white-space: nowrap;
     }
     .wujia-mdash-row .wujia-badge { flex: 0 0 auto; white-space: nowrap; }
-    .wujia-mdash-chev {
-        flex: 0 0 auto;
-        font-size: 18px;
-        color: var(--wujia-morder-text-muted);
-    }
-
-    /* ---------- Card rời (Giao hàng sắp tới / Yêu cầu đổi trả) ---------- */
-    .wujia-mdash-item {
-        display: flex;
-        align-items: flex-start;
-        gap: 12px;
-        padding: 16px;
-    }
-    .wujia-mdash-item .wujia-mdash-row-main { gap: 4px; }
-    .wujia-mdash-item .wujia-badge {
-        flex: 0 0 auto;
-        align-self: flex-start;
-        white-space: nowrap;
-    }
 
 /* Sprint 17 — Mobile Ticket Hỗ trợ (Figma Mobile_Ticket) — List/Create/Detail… */
 @media (max-width: 991.98px) {
@@ -3228,27 +3194,34 @@ a.wujia-mhome-kpi:active { opacity: 0.85; }
 }
 
 /* ============================================================
-   WJ_PageHeader — component chuẩn hoá header portal (spec v1.0)
+   WJ_PageHeader — component chuẩn hoá header portal (BA CMP-PG-001)
    Base + mobile modifier (--m). PC modifier (--pc) ở _pc_components.css.
    Hàng layout độc lập trên nền content, không card/shadow/subtitle.
+   Padding NGANG do PageContainer lo (mpage 16 / content-wrapper PC), header
+   chỉ khai padding dọc để ra đúng chiều cao 1 hàng 52 (m) / 64 (pc).
    ============================================================ */
 .wj-page-header {
     display: flex;
     align-items: center;
+    flex-wrap: wrap;
     width: 100%;
     min-width: 0;
-    min-height: 44px;
     background: transparent;
 }
 .wj-page-header__title {
-    flex: 1 1 auto;
+    /* KHÔNG grow: meta phải nằm sát title chứ không bị đẩy ra mép phải PageContainer (spec) */
+    flex: 0 1 auto;
     min-width: 0;
     margin: 0;
-    overflow: hidden;
-    white-space: nowrap;
-    text-overflow: ellipsis;
+    overflow-wrap: anywhere;   /* CMP-PG-001: title dài xuống dòng, không ellipsis */
     font-weight: 700;
     color: var(--wj-title);
+}
+.wj-page-header__meta {
+    flex: 0 0 auto;
+    margin: 0;
+    font-weight: 600;
+    color: var(--wj-muted);
 }
 .wj-page-header__back {
     flex: 0 0 auto;
@@ -3262,7 +3235,12 @@ a.wujia-mhome-kpi:active { opacity: 0.85; }
     text-decoration: none;
 }
 .wj-page-header__back > i { font-size: 24px; line-height: 1; }
-.wj-page-header__actions { flex: 0 0 auto; margin-left: 16px; }
+/* Focus ring dùng chung 2 variant (CMP-BPH-001 accessibility) */
+.wj-page-header__back:focus-visible {
+    outline: 2px solid var(--wujia-primary);
+    outline-offset: 2px;
+}
+.wj-page-header__actions { flex: 0 0 auto; margin-left: auto; }   /* action luôn nằm bên phải */
 .wj-page-header__create {
     display: inline-flex;
     align-items: center;
@@ -3281,15 +3259,29 @@ a.wujia-mhome-kpi:active { opacity: 0.85; }
 .wj-page-header__create > i { font-size: 20px; line-height: 1; }
 .wj-page-header__create:hover { background: var(--wj-primary-dark); color: #FFFFFF; }
 
-/* Mobile modifier — top 16 / row 44 / bottom 12, x kế thừa container (spec §3) */
-.wj-page-header--m { margin: 16px 0 12px; }
-.wujia-mpage > .wj-page-header--m { margin: 0; }   /* mpage gap/pad tự lo spacing */
+/* Mobile modifier (CMP-PG-001) — 1 hàng cao 52 = pad 12 + title 28 + pad 12; x do container. */
+.wj-page-header--m { padding: 12px 0; margin: 0 0 8px; min-height: 52px; }
+/* Gap header → nội dung đầu = 8 (spec). .wujia-mpage có gap chung 14 cho MỌI trang mobile
+   nên bù -6 tại đây thay vì đổi token dùng chung. */
+.wujia-mpage > .wj-page-header--m { margin-bottom: -6px; }
 /* !important để thắng global `h1 { font-size: … !important }` (_components.css gotcha #13) */
 .wj-page-header--m .wj-page-header__title { font-size: 22px !important; line-height: 28px; }
-.wj-page-header--m .wj-page-header__back { width: 40px; height: 40px; margin-right: 12px; position: relative; }
+/* Meta căn phải cùng hàng với title; hết chỗ thì flex-wrap đẩy xuống dưới (spec RESPONSIVE) */
+.wj-page-header--m .wj-page-header__meta {
+    font-size: 13px; line-height: 18px; margin-left: auto; text-align: right;
+}
+/* Back cao 42 > dòng title 28 → pad 5 để hàng vẫn đúng 52 (vùng chạm 44 nằm ngoài luồng) */
+.wj-page-header--m.wj-page-header--back { padding: 5px 0; }
+/* CMP-BPH-001: mobile là nút TRÒN 42×42 (base radius 12 dành cho PC) */
+.wj-page-header--m .wj-page-header__back {
+    width: 42px; height: 42px; margin-right: 12px; position: relative;
+    border-radius: 999px;
+}
 /* Mobile giữ nút icon-only: nhãn chữ chỉ dành cho PC (UI-PC-BASE-006) */
 .wj-page-header--m .wj-page-header__back-label { display: none; }
-.wj-page-header--m .wj-page-header__create { width: 112px; height: 40px; }
+/* Action mobile ≥44 (CMP-PG-001) → pad 4 để hàng vẫn đúng 52 */
+.wj-page-header--m.wj-page-header--create { padding: 4px 0; }
+.wj-page-header--m .wj-page-header__create { width: 112px; height: 44px; }
 /* Tap target ≥44 dù visual back 40 (spec) */
 .wj-page-header--m .wj-page-header__back::after {
     content: ""; position: absolute; top: 50%; left: 50%;

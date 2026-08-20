@@ -20,14 +20,18 @@ from odoo.addons.wujia_portal_base.controllers.portal import (
     get_active_franchise_ids_filter,
     get_max_role_in_franchises,
 )
+from odoo.addons.wujia_portal_base.controllers.utils import portal_money
 
 
+# Màu lấy theo design system portal (2 mockup STT12 vẽ đúng bộ này), thay bộ
+# bootstrap cũ #6c757d/#28a745/#dc3545 — Acceptance #5 đòi màu trạng thái đồng
+# nhất với component portal. Nhãn và khoá state giữ nguyên.
 STATE_LABELS = {
-    'draft': ('Nháp', '#6c757d'),
-    'sent': ('Đã gửi', '#17a2b8'),
-    'sale': ('Đã xác nhận', '#28a745'),
-    'done': ('Hoàn thành', '#1f4180'),
-    'cancel': ('Đã hủy', '#dc3545'),
+    'draft': ('Nháp', '#8A939E'),
+    'sent': ('Đã gửi', '#20A0BC'),
+    'sale': ('Đã xác nhận', '#16A34A'),
+    'done': ('Hoàn thành', '#244B87'),
+    'cancel': ('Đã hủy', '#EF4444'),
 }
 
 
@@ -151,12 +155,22 @@ class WujiaPortalReport(http.Controller):
             'state_label': [s['label'] for s in state_summary if s['count']],
             'state_count': [s['count'] for s in state_summary if s['count']],
             'state_color': [s['color'] for s in state_summary if s['count']],
+            # Nhãn trục tiền của chart cũng phải theo currency công ty, không phải 'đ' cứng.
+            'currency': request.env.company.currency_id.symbol or '',
         }
+
+        # Ký hiệu + số lẻ theo currency công ty, KHÔNG nối ' ₫' cứng trong template
+        # (đúng luật WJ-ORD-025: công ty USD từng hiện số USD kèm ký hiệu ₫).
+        currency = request.env.company.currency_id
+        money = lambda amount: portal_money(                    # noqa: E731
+            amount, currency.symbol or '', currency.decimal_places)
 
         return request.render('wujia_portal_report.portal_report_orders', {
             'title': _('Báo cáo đặt hàng'),
             'date_from': df.strftime('%Y-%m-%d'),
             'date_to': dt.strftime('%Y-%m-%d'),
+            'money': money,
+            'currency_symbol': currency.symbol or '',
             # KPIs
             'total_orders': total_orders,
             'total_revenue': total_revenue,

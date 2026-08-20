@@ -405,21 +405,38 @@ input[type="file"].wj-pc-control { height: auto; min-height: var(--wj-pc-input-h
 }
 .wj-pc-filter-search > .wj-pc-filter-control { padding-left: 38px; }
 
-/* ---------- WJ_PageHeader — PC modifier (spec §5) ----------
-   Base .wj-page-header ở _components.css. PC: title 30/38/800, back 44,
-   gap-back-title 18, create 122×44, bottom 20. Top gap 24 do content-wrapper lo. */
-.wj-page-header--pc { margin: 0 0 20px; }
+/* ---------- WJ_PageHeader — PC modifier (BA CMP-PG-001) ----------
+   Base .wj-page-header ở _components.css. PC: 1 hàng cao 64 = pad 16 + title 32 + pad 16,
+   title 26/32/700, meta 14/20/600 sát title, back 122×40, create 122×44.
+   Padding ngang + gap trên do content-wrapper lo; KHÔNG cộng margin dọc dưới header (spec).
+   CMP-PG-001 cố ý overrule UI-PC-BASE-002 (30/800). */
+.wj-page-header--pc { padding: 16px 0; margin: 0; min-height: 64px; }
 /* !important để thắng global `h1 { font-size: … !important }` (_components.css gotcha #13) */
 /* font-weight cũng cần !important: _wujia_theme.css có
    `.content-wrapper h1 { font-weight: 700 !important }` (tag-level, thắng class). */
-.wj-page-header--pc .wj-page-header__title { font-size: 30px !important; line-height: 38px; font-weight: 800 !important; }
-/* Back PC = nút CÓ CHỮ 122×40, không icon-only (UI-PC-BASE-006, source v1.5).
-   Mobile vẫn icon 40×40 — nhãn ẩn ở nhánh --m trong _components.css. */
+.wj-page-header--pc .wj-page-header__title { font-size: 26px !important; line-height: 32px; font-weight: 700 !important; }
+/* Meta nằm gần title, KHÔNG đẩy ra mép phải PageContainer (spec RESPONSIVE) */
+.wj-page-header--pc .wj-page-header__meta { font-size: 14px; line-height: 20px; margin-left: 16px; }
+/* Back 40 (CMP-BPH-001) và action 40 cao hơn dòng title 32 → pad 12 để hàng vẫn đúng 64 */
+.wj-page-header--pc.wj-page-header--back,
+.wj-page-header--pc.wj-page-header--create { padding: 12px 0; }
+/* Back PC = nút CÓ CHỮ 122×40 (CMP-BPH-001), không icon-only. Mobile là nút tròn
+   42×42 — nhãn ẩn ở nhánh --m trong _components.css. Nhãn #374151, icon #28A9DF. */
 .wj-page-header--pc .wj-page-header__back {
     width: 122px; height: 40px; margin-right: 18px;
     gap: 4px; font-size: 14px; font-weight: 700; white-space: nowrap;
+    color: var(--wujia-text-secondary);
 }
-.wj-page-header--pc .wj-page-header__back > i { font-size: 20px; }
+.wj-page-header--pc .wj-page-header__back > i { font-size: 20px; color: var(--wujia-primary); }
+/* Hover + focus-visible: nền/viền soft + chữ lẫn icon về primary (spec 3 state) */
+.wj-page-header--pc .wj-page-header__back:hover,
+.wj-page-header--pc .wj-page-header__back:focus-visible {
+    background: var(--wujia-primary-soft);
+    border-color: var(--wujia-primary-border-soft);
+    color: var(--wujia-primary);
+}
+.wj-page-header--pc .wj-page-header__back:hover > i,
+.wj-page-header--pc .wj-page-header__back:focus-visible > i { color: var(--wujia-primary); }
 /* Breadcrumb PC (UI-PC-BASE-007) — cùng token với .wj-pc-page-header__crumb */
 .wj-page-header__crumb {
     font-size: 14px;
@@ -427,6 +444,6 @@ input[type="file"].wj-pc-control { height: auto; min-height: var(--wj-pc-input-h
     color: var(--wj-pc-muted);
     margin: 0 0 8px;
 }
-.wj-page-header--pc .wj-page-header__create { width: 122px; height: 44px; }
+.wj-page-header--pc .wj-page-header__create { width: 122px; height: 40px; }   /* CMP-PG-001: action PC cao 40 */
 /* Notification list — bulk-read action dời từ PageHeader xuống card head (spec: header title-only) */
 .wj-pc-noti-head-actions { display: flex; align-items: center; gap: 12px; }

@@ -1,199 +1,325 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
 
+    <!-- ================================================================
+         Báo cáo đặt hàng (BA Tasks STT12) — 2 mockup SVG đã chốt:
+         · PC 1440x1120  Bao-cao-dat-hang-Portal-PC-1440x1120.svg
+         · Mobile 390x1385 (link BA cấp ngoài sheet)
+         PC bám hệ wj-pc-*; mobile bám BlankShell .wujia-mpage.
+         Vùng swap wj_ajax_list tách riêng 2 id để mỗi bố cục giữ đúng
+         wrapper padding của mình (lọc vẫn không reload trang).
+         ================================================================ -->
+
     <template id="portal_report_orders" name="Wujia Portal — Báo cáo đặt hàng">
         <t t-call="wujia_portal_layout.app_layout">
             <t t-set="title">Báo cáo đặt hàng</t>
             <t t-call="wujia_portal_base.wj_ajax_list_config">
                 <t t-set="wjl_path" t-value="'/portal/reports/orders'"/>
-                <t t-set="wjl_slots" t-value="'wj-rep-body'"/>
+                <t t-set="wjl_slots" t-value="'wj-rep-pc-body,wj-rep-m-body'"/>
             </t>
-            <div class="content-wrapper wujia-mreport-wrap">
-                <t t-call="wujia_portal_layout.wj_page_header">
-                    <t t-set="ph_platform" t-value="'pc'"/>
-                    <t t-set="ph_variant" t-value="'title'"/>
-                    <t t-set="ph_title">Báo cáo đặt hàng</t>
-                </t>
+
+            <!-- Nhãn trạng thái nào có mặt trong kỳ (dùng chung cho donut PC và
+                 thanh xếp chồng mobile). Tổng đơn = mọi trạng thái, kể cả huỷ. -->
+            <t t-set="state_total" t-value="sum([s['count'] for s in state_summary])"/>
+
+            <!-- ============================================================
+                 MOBILE (dưới 992px)
+                 ============================================================ -->
+            <div class="d-lg-none wujia-mpage wujia-mreport">
                 <t t-call="wujia_portal_layout.wj_page_header">
                     <t t-set="ph_platform" t-value="'m'"/>
                     <t t-set="ph_variant" t-value="'title'"/>
                     <t t-set="ph_title">Báo cáo đặt hàng</t>
                 </t>
-                <!-- Mô tả nghiệp vụ dời khỏi header (spec: không subtitle) → meta line chuẩn -->
-                <p class="wj-count-meta mb-3">
-                    Tổng hợp đơn hàng theo tháng, sản phẩm bán nhiều, phân bố trạng thái.
-                    Quyền xem: <strong t-out="max_role"/>.
-                </p>
 
-                <div class="content-body">
-                    <!-- Filter bar -->
-                    <div class="card mb-2">
-                        <div class="card-body p-2">
-                            <form method="get" action="/portal/reports/orders" class="row g-2 align-items-end">
-                                <div class="col-md-3 col-6">
-                                    <label class="small text-muted mb-1">Từ ngày</label>
-                                    <input type="date" name="date_from" class="form-control form-control-sm"
-                                           t-att-value="date_from"/>
-                                </div>
-                                <div class="col-md-3 col-6">
-                                    <label class="small text-muted mb-1">Đến ngày</label>
-                                    <input type="date" name="date_to" class="form-control form-control-sm"
-                                           t-att-value="date_to"/>
-                                </div>
-                                <div class="col-md-6 col-12 text-end">
-                                    <button type="submit" class="btn btn-primary btn-sm">
-                                        <i class="fa fa-filter me-1"/>Áp dụng
-                                    </button>
-                                    <a href="/portal/reports/orders" class="btn btn-outline-secondary btn-sm">
-                                        <i class="fa fa-undo me-1"/>Reset
-                                    </a>
-                                </div>
-                            </form>
+                <form method="get" action="/portal/reports/orders" class="wj-rep-mfilter">
+                    <label class="wj-rep-mfilter__field">
+                        <span class="wj-rep-mfilter__label">Từ ngày</span>
+                        <input type="date" name="date_from" class="wj-rep-mfilter__input"
+                               t-att-value="date_from"/>
+                    </label>
+                    <label class="wj-rep-mfilter__field">
+                        <span class="wj-rep-mfilter__label">Đến ngày</span>
+                        <input type="date" name="date_to" class="wj-rep-mfilter__input"
+                               t-att-value="date_to"/>
+                    </label>
+                    <button type="submit" class="wj-rep-mfilter__go">
+                        <i class="feather icon-search"/>
+                        <span>Tìm</span>
+                    </button>
+                </form>
+
+                <div id="wj-rep-m-body" class="wj-rep-mbody">
+                    <!-- KPI lưới 2 cột, thanh màu ở đỉnh thay cho icon -->
+                    <div class="wj-rep-mkpi-grid">
+                        <div class="wj-rep-mkpi wj-rep-mkpi--primary">
+                            <span class="wj-rep-mkpi__bar"/>
+                            <span class="wj-rep-mkpi__label">Tổng đơn hàng</span>
+                            <span class="wj-rep-mkpi__value"
+                                  t-out="'{:,}'.format(total_orders).replace(',', '.')"/>
+                            <span class="wj-rep-mkpi__desc">Đã đặt + đã xác nhận</span>
+                        </div>
+                        <div class="wj-rep-mkpi wj-rep-mkpi--success">
+                            <span class="wj-rep-mkpi__bar"/>
+                            <span class="wj-rep-mkpi__label">Tổng chi phí</span>
+                            <span class="wj-rep-mkpi__value" t-out="money(total_revenue)"/>
+                            <span class="wj-rep-mkpi__desc">Khoảng đã chọn</span>
+                        </div>
+                        <div class="wj-rep-mkpi wj-rep-mkpi--done">
+                            <span class="wj-rep-mkpi__bar"/>
+                            <span class="wj-rep-mkpi__label">Đơn hoàn thành</span>
+                            <span class="wj-rep-mkpi__value"
+                                  t-out="'{:,}'.format(done_orders).replace(',', '.')"/>
+                            <span class="wj-rep-mkpi__desc">Đơn đã giao hàng</span>
+                        </div>
+                        <div class="wj-rep-mkpi wj-rep-mkpi--danger">
+                            <span class="wj-rep-mkpi__bar"/>
+                            <span class="wj-rep-mkpi__label">Đơn bị hủy</span>
+                            <span class="wj-rep-mkpi__value"
+                                  t-out="'{:,}'.format(cancel_orders).replace(',', '.')"/>
+                            <span class="wj-rep-mkpi__desc">Đơn đã bị huỷ không thực hiện</span>
                         </div>
                     </div>
 
-                    <!-- Vùng swap AJAX: KPI + 2 chart + top sản phẩm (bộ lọc ngày nằm
-                         ngoài). Chart vẽ lại qua sự kiện wj:list:swapped. -->
-                    <div id="wj-rep-body">
-                    <!-- ============ Block 1: 4 KPI cards (UI-11, Sprint 9.12) ============ -->
-                    <div class="row">
-                        <div class="col-lg-3 col-md-6 col-12 mb-2">
-                            <div class="wujia-kpi-card">
-                                <div class="wujia-kpi-icon wujia-kpi-icon-primary">
-                                    <i class="fa fa-file-text-o"/>
-                                </div>
-                                <div class="wujia-kpi-separator"/>
-                                <div class="wujia-kpi-content">
-                                    <p class="wujia-kpi-label">Tổng số đơn</p>
-                                    <div class="wujia-kpi-value" t-out="'{:,}'.format(total_orders).replace(',', '.')"/>
-                                    <small class="wujia-kpi-desc">không tính đơn hủy</small>
-                                </div>
-                            </div>
+                    <!-- Biểu đồ tháng: cột = doanh thu, số trong cột = số đơn -->
+                    <section class="wj-rep-mcard wj-rep-mcard--chart">
+                        <div class="wj-rep-mcard__head">
+                            <h2 class="wj-rep-mcard__title">Đơn hàng theo tháng</h2>
+                            <span class="wj-rep-mcard__meta">Doanh thu (<t t-out="currency_symbol"/>)</span>
                         </div>
-                        <div class="col-lg-3 col-md-6 col-12 mb-2">
-                            <div class="wujia-kpi-card">
-                                <div class="wujia-kpi-icon wujia-kpi-icon-success">
-                                    <i class="fa fa-money"/>
-                                </div>
-                                <div class="wujia-kpi-separator"/>
-                                <div class="wujia-kpi-content">
-                                    <p class="wujia-kpi-label">Tổng doanh thu</p>
-                                    <div class="wujia-kpi-value">
-                                        <t t-out="'{:,.0f}'.format(total_revenue).replace(',', '.')"/> ₫
-                                    </div>
-                                    <small class="wujia-kpi-desc">trong khoảng đã chọn</small>
-                                </div>
-                            </div>
+                        <div class="wj-rep-mcard__body">
+                            <div id="report-chart-months-m" class="wj-rep-mchart"
+                                 t-att-data-chart-payload="chart_payload_json"/>
+                            <p class="wj-rep-mchart__note">Số trong cột = số đơn</p>
                         </div>
-                        <div class="col-lg-3 col-md-6 col-12 mb-2">
-                            <div class="wujia-kpi-card">
-                                <div class="wujia-kpi-icon wujia-kpi-icon-info">
-                                    <i class="fa fa-check-circle"/>
-                                </div>
-                                <div class="wujia-kpi-separator"/>
-                                <div class="wujia-kpi-content">
-                                    <p class="wujia-kpi-label">Đơn hoàn thành</p>
-                                    <div class="wujia-kpi-value" t-out="'{:,}'.format(done_orders).replace(',', '.')"/>
-                                    <small class="wujia-kpi-desc">state = done</small>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-lg-3 col-md-6 col-12 mb-2">
-                            <div class="wujia-kpi-card">
-                                <div class="wujia-kpi-icon wujia-kpi-icon-danger">
-                                    <i class="fa fa-times-circle"/>
-                                </div>
-                                <div class="wujia-kpi-separator"/>
-                                <div class="wujia-kpi-content">
-                                    <p class="wujia-kpi-label">Đơn bị hủy</p>
-                                    <div class="wujia-kpi-value" t-out="'{:,}'.format(cancel_orders).replace(',', '.')"/>
-                                    <small class="wujia-kpi-desc">cần phân tích nguyên nhân</small>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+                    </section>
 
-                    <!-- ============ Block 2: Bar chart 12 tháng ============ -->
-                    <div class="row">
-                        <div class="col-lg-8 col-12 mb-2">
-                            <div class="card h-100">
-                                <div class="card-header py-2">
-                                    <h5 class="card-title mb-0">Đơn hàng theo tháng</h5>
-                                </div>
-                                <div class="card-body">
-                                    <div id="report-chart-months"
-                                         class="report-chart-area"
-                                         t-att-data-chart-payload="chart_payload_json"/>
-                                </div>
-                            </div>
+                    <!-- Phân bổ trạng thái: thanh xếp chồng + chú giải 2 cột -->
+                    <section class="wj-rep-mcard">
+                        <div class="wj-rep-mcard__head">
+                            <h2 class="wj-rep-mcard__title">Phân bổ trạng thái</h2>
+                            <span class="wj-rep-mcard__meta">
+                                <t t-out="'{:,}'.format(state_total).replace(',', '.')"/> đơn hàng
+                            </span>
                         </div>
-
-                        <!-- Block 4: Donut state -->
-                        <div class="col-lg-4 col-12 mb-2">
-                            <div class="card h-100">
-                                <div class="card-header py-2">
-                                    <h5 class="card-title mb-0">Phân bố trạng thái</h5>
-                                </div>
-                                <div class="card-body">
-                                    <div id="report-chart-state" class="report-chart-area"/>
-                                    <ul class="list-unstyled mt-2 mb-0 small">
-                                        <li t-foreach="state_summary" t-as="s" class="d-flex justify-content-between py-1">
-                                            <span>
-                                                <i class="fa fa-circle me-1" t-attf-style="color: #{s['color']}"/>
-                                                <t t-out="s['label']"/>
-                                            </span>
-                                            <span>
-                                                <strong t-out="'{:,}'.format(s['count']).replace(',', '.')"/>
-                                                <small class="text-muted ms-1">
-                                                    (<t t-out="'{:.1f}'.format(s['ratio'])"/>%)
-                                                </small>
-                                            </span>
-                                        </li>
-                                    </ul>
-                                </div>
+                        <div class="wj-rep-mcard__body">
+                            <div t-if="not state_total" class="wj-rep-mempty">
+                                Chưa có đơn hàng trong khoảng đã chọn.
                             </div>
+                            <t t-else="">
+                                <div class="wj-rep-mstack" role="img"
+                                     aria-label="Tỷ lệ đơn hàng theo trạng thái">
+                                    <t t-foreach="state_summary" t-as="s">
+                                        <span t-if="s['count']" class="wj-rep-mstack__seg"
+                                              t-attf-style="width: #{s['ratio']}%; background: #{s['color']}"
+                                              t-att-title="s['label']"/>
+                                    </t>
+                                </div>
+                                <ul class="wj-rep-mlegend">
+                                    <li t-foreach="state_summary" t-as="s" class="wj-rep-mlegend__item">
+                                        <span class="wj-rep-mlegend__dot"
+                                              t-attf-style="background: #{s['color']}"/>
+                                        <span class="wj-rep-mlegend__label" t-out="s['label']"/>
+                                        <span class="wj-rep-mlegend__value"
+                                              t-out="'{:,}'.format(s['count']).replace(',', '.')"/>
+                                    </li>
+                                </ul>
+                            </t>
                         </div>
-                    </div>
+                    </section>
 
-                    <!-- ============ Block 3: Top 10 sản phẩm (Sprint 9.13b: MẪU 02 wujia-content-card-table) ============ -->
-                    <div class="wujia-content-card">
-                        <div class="wujia-content-card-header">
-                            <div class="wujia-content-card-header-icon">
-                                <i class="feather icon-award"/>
-                            </div>
-                            <h4 class="wujia-content-card-header-title">Top 10 sản phẩm bán nhiều nhất</h4>
-                            <span t-if="top_products" class="wujia-content-card-header-link">
+                    <!-- Sản phẩm đặt nhiều nhất: list-card (PC dùng bảng) -->
+                    <section class="wj-rep-mcard">
+                        <div class="wj-rep-mcard__head">
+                            <h2 class="wj-rep-mcard__title">Sản phẩm đặt hàng nhiều nhất</h2>
+                            <span t-if="top_products" class="wj-rep-mcard__meta">
                                 <t t-out="len(top_products)"/> sản phẩm
                             </span>
                         </div>
-                        <div t-if="not top_products" class="wujia-empty-state">
-                            <i class="feather icon-bar-chart-2"/>
-                            <p>Chưa có sản phẩm nào trong khoảng thời gian đã chọn.</p>
+                        <div class="wj-rep-mcard__body">
+                            <div t-if="not top_products" class="wj-rep-mempty">
+                                Chưa có sản phẩm nào trong khoảng thời gian đã chọn.
+                            </div>
+                            <ul t-else="" class="wj-rep-mtop">
+                                <li t-foreach="top_products" t-as="p" class="wj-rep-mtop__row">
+                                    <span class="wj-rep-mtop__rank" t-out="p_index + 1"/>
+                                    <span class="wj-rep-mtop__main">
+                                        <span class="wj-rep-mtop__name"
+                                              t-out="p['name'] or 'Không xác định'"/>
+                                        <span class="wj-rep-mtop__sub">
+                                            <t t-out="'{:,.0f}'.format(p['qty']).replace(',', '.')"/>
+                                            <t t-out="p['uom']"/>
+                                        </span>
+                                    </span>
+                                    <span class="wj-rep-mtop__amount" t-out="money(p['total'])"/>
+                                </li>
+                            </ul>
                         </div>
-                        <div t-else="" class="table-responsive">
-                            <table class="wujia-content-card-table">
+                    </section>
+                </div>
+            </div>
+
+            <!-- ============================================================
+                 DESKTOP (từ 992px)
+                 ============================================================ -->
+            <div class="content-wrapper d-none d-lg-block wj-rep-pc">
+                <t t-call="wujia_portal_layout.wj_page_header">
+                    <t t-set="ph_platform" t-value="'pc'"/>
+                    <t t-set="ph_variant" t-value="'title'"/>
+                    <t t-set="ph_title">Báo cáo đặt hàng</t>
+                </t>
+                <p class="wj-rep-pc__subtitle">
+                    Theo dõi đơn hàng, doanh thu và sản phẩm của cửa hàng.
+                </p>
+
+                <form method="get" action="/portal/reports/orders"
+                      class="wj-pc-filterbar wj-rep-pcfilter">
+                    <div class="wj-rep-pcfilter__row">
+                        <label class="wj-rep-pcfilter__field">
+                            <span class="wj-rep-pcfilter__label">Từ ngày</span>
+                            <input type="date" name="date_from"
+                                   class="wj-rep-pcfilter__input" t-att-value="date_from"/>
+                        </label>
+                        <label class="wj-rep-pcfilter__field">
+                            <span class="wj-rep-pcfilter__label">Đến ngày</span>
+                            <input type="date" name="date_to"
+                                   class="wj-rep-pcfilter__input" t-att-value="date_to"/>
+                        </label>
+                        <div class="wj-rep-pcfilter__actions">
+                            <button type="submit" class="wj-pc-btn wj-pc-btn--primary">Áp dụng</button>
+                            <a href="/portal/reports/orders" data-wj-nav="1"
+                               class="wj-pc-btn wj-pc-btn--secondary">Đặt lại</a>
+                        </div>
+                    </div>
+                </form>
+
+                <div id="wj-rep-pc-body">
+                    <div class="wj-pc-metric-grid wj-rep-pcmetrics">
+                        <div class="wj-pc-metric-card">
+                            <span class="wj-pc-metric-card__icon wj-rep-pcicon wj-rep-pcicon--primary">
+                                <i class="feather icon-file-text"/>
+                            </span>
+                            <span class="wj-pc-metric-card__body">
+                                <span class="wj-pc-metric-card__label">Tổng đơn hàng</span>
+                                <span class="wj-pc-metric-card__value"
+                                      t-out="'{:,}'.format(total_orders).replace(',', '.')"/>
+                                <span class="wj-rep-pcmetric__desc">Đã đặt + đã xác nhận</span>
+                            </span>
+                        </div>
+                        <div class="wj-pc-metric-card">
+                            <span class="wj-pc-metric-card__icon wj-rep-pcicon wj-rep-pcicon--success">
+                                <i class="feather icon-credit-card"/>
+                            </span>
+                            <span class="wj-pc-metric-card__body">
+                                <span class="wj-pc-metric-card__label">Tổng chi phí</span>
+                                <span class="wj-pc-metric-card__value" t-out="money(total_revenue)"/>
+                                <span class="wj-rep-pcmetric__desc">Trong khoảng đã chọn</span>
+                            </span>
+                        </div>
+                        <div class="wj-pc-metric-card">
+                            <span class="wj-pc-metric-card__icon wj-rep-pcicon wj-rep-pcicon--done">
+                                <i class="feather icon-check-circle"/>
+                            </span>
+                            <span class="wj-pc-metric-card__body">
+                                <span class="wj-pc-metric-card__label">Đơn hoàn thành</span>
+                                <span class="wj-pc-metric-card__value"
+                                      t-out="'{:,}'.format(done_orders).replace(',', '.')"/>
+                                <span class="wj-rep-pcmetric__desc">Đơn đã giao hàng</span>
+                            </span>
+                        </div>
+                        <div class="wj-pc-metric-card">
+                            <span class="wj-pc-metric-card__icon wj-rep-pcicon wj-rep-pcicon--danger">
+                                <i class="feather icon-x-circle"/>
+                            </span>
+                            <span class="wj-pc-metric-card__body">
+                                <span class="wj-pc-metric-card__label">Đơn bị hủy</span>
+                                <span class="wj-pc-metric-card__value"
+                                      t-out="'{:,}'.format(cancel_orders).replace(',', '.')"/>
+                                <span class="wj-rep-pcmetric__desc">Đơn đã bị huỷ không thực hiện</span>
+                            </span>
+                        </div>
+                    </div>
+
+                    <div class="wj-rep-pcrow">
+                        <section class="wj-pc-card wj-rep-pccard wj-rep-pccard--chart">
+                            <div class="wj-pc-card__head wj-rep-pccard__head">
+                                <h2 class="wj-pc-card__title wj-pc-card__title--sm">Đơn hàng theo tháng</h2>
+                                <span class="wj-rep-pclegend">
+                                    <span class="wj-rep-pclegend__dot"/>
+                                    <span class="wj-rep-pclegend__name">Doanh thu</span>
+                                    <span class="wj-rep-pclegend__hint">Số trong cột: số đơn</span>
+                                </span>
+                            </div>
+                            <div class="wj-rep-pccard__body">
+                                <div id="report-chart-months" class="wj-rep-pcchart"
+                                     t-att-data-chart-payload="chart_payload_json"/>
+                            </div>
+                        </section>
+
+                        <section class="wj-pc-card wj-rep-pccard wj-rep-pccard--state">
+                            <div class="wj-pc-card__head wj-rep-pccard__head">
+                                <h2 class="wj-pc-card__title wj-pc-card__title--sm">Phân bổ trạng thái</h2>
+                                <span class="wj-rep-pccard__meta">
+                                    <t t-out="'{:,}'.format(state_total).replace(',', '.')"/> đơn hàng
+                                </span>
+                            </div>
+                            <div class="wj-rep-pccard__body wj-rep-pcstate">
+                                <div id="report-chart-state" class="wj-rep-pcdonut"/>
+                                <ul class="wj-rep-pclegend-list">
+                                    <li t-foreach="state_summary" t-as="s" class="wj-rep-pclegend-list__item">
+                                        <span class="wj-rep-pclegend-list__dot"
+                                              t-attf-style="background: #{s['color']}"/>
+                                        <span class="wj-rep-pclegend-list__label" t-out="s['label']"/>
+                                        <span class="wj-rep-pclegend-list__value">
+                                            <t t-out="'{:,}'.format(s['count']).replace(',', '.')"/>
+                                            ·
+                                            <t t-out="'{:.1f}'.format(s['ratio']).replace('.', ',')"/>%
+                                        </span>
+                                    </li>
+                                </ul>
+                            </div>
+                        </section>
+                    </div>
+
+                    <section class="wj-pc-card wj-rep-pccard wj-rep-pccard--top">
+                        <div class="wj-pc-card__head wj-rep-pccard__head">
+                            <h2 class="wj-pc-card__title wj-pc-card__title--sm">Top sản phẩm đặt hàng nhiều nhất</h2>
+                            <span t-if="top_products" class="wj-rep-pccard__meta">
+                                <t t-out="len(top_products)"/> sản phẩm
+                            </span>
+                        </div>
+                        <div class="wj-rep-pccard__body">
+                            <div t-if="not top_products" class="wj-pc-empty">
+                                <span class="wj-pc-empty__icon"><i class="feather icon-bar-chart-2"/></span>
+                                <h3 class="wj-pc-empty__title">Chưa có dữ liệu</h3>
+                                <p class="wj-pc-empty__sub">Chưa có sản phẩm nào trong khoảng thời gian đã chọn.</p>
+                            </div>
+                            <table t-else="" class="wj-pc-table wj-rep-pctable">
                                 <thead>
                                     <tr>
-                                        <th>STT</th>
+                                        <th class="wj-rep-pctable__stt">STT</th>
                                         <th>Sản phẩm</th>
-                                        <th class="text-end">Số lượng</th>
+                                        <th class="wj-rep-pctable__num">Số lượng</th>
                                         <th>Đơn vị</th>
-                                        <th class="text-end">Doanh thu</th>
+                                        <th class="wj-rep-pctable__num">Doanh thu</th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     <tr t-foreach="top_products" t-as="p">
-                                        <td t-out="p_index + 1"/>
-                                        <td t-out="p['name']"/>
-                                        <td class="text-end" t-out="'{:,.0f}'.format(p['qty']).replace(',', '.')"/>
+                                        <td class="wj-rep-pctable__stt" t-out="p_index + 1"/>
+                                        <!-- Dòng đơn không gắn sản phẩm (section/note) cho name=False,
+                                             QWeb t-out gặp False thì BỎ LUÔN thẻ td → lệch cả hàng. -->
+                                        <td t-out="p['name'] or 'Không xác định'"/>
+                                        <td class="wj-rep-pctable__num"
+                                            t-out="'{:,.0f}'.format(p['qty']).replace(',', '.')"/>
                                         <td t-out="p['uom']"/>
-                                        <td class="text-end" t-out="'{:,.0f}'.format(p['total']).replace(',', '.') + ' ₫'"/>
+                                        <td class="wj-rep-pctable__num wj-pc-td--amount"
+                                            t-out="money(p['total'])"/>
                                     </tr>
                                 </tbody>
                             </table>
                         </div>
-                    </div>
-                    </div>
+                    </section>
                 </div>
             </div>
         </t>

@@ -1,0 +1,15 @@
+# Odoo 19 — môi trường Python cho dev (bản thuần).
+#   conda env create -f environment.yml && conda activate odoo19
+# nodejs -> npm i -g rtlcss | postgresql -> pg_config/libpq (build psycopg2) + psql
+# wkhtmltopdf cài ở tầng OS (không qua đây).
+# Máy chặn mạng: bỏ dòng -r URL, clone odoo trước rồi: pip install -r ~/odoo/requirements.txt
+name: odoo19
+channels:
+  - conda-forge
+dependencies:
+  - python=3.10
+  - pip
+  - nodejs>=18
+  - postgresql
+  - pip:
+      - -r https://raw.githubusercontent.com/odoo/odoo/19.0/requirements.txt

@@ -1,0 +1,80 @@
+% Cài đặt Odoo 19 (dev) — compile: lualatex/xelatex odoo19-setup.tex
+\documentclass[11pt,a4paper]{article}
+\usepackage{fontspec}
+\setmainfont{Lato}
+\setmonofont{DejaVu Sans Mono}[Scale=0.9]
+\usepackage[margin=2.3cm]{geometry}
+\usepackage{parskip}
+\usepackage{enumitem}
+\usepackage{listings}
+\usepackage{xcolor}
+\usepackage[hidelinks]{hyperref}
+\definecolor{codebg}{RGB}{245,245,248}
+\lstset{basicstyle=\ttfamily\small, backgroundcolor=\color{codebg},
+  breaklines=true, columns=fullflexible, frame=single, framesep=4pt,
+  rulecolor=\color{black!15}, xleftmargin=4pt}
+
+\begin{document}
+
+\begin{center}{\LARGE\bfseries Cài đặt Odoo 19 (bản dev / thuần)}\end{center}
+\vspace{4pt}
+
+\section*{1. Cần cài sẵn}
+\begin{itemize}[nosep]
+  \item \textbf{git}, \textbf{Miniconda} (Python env), \textbf{PostgreSQL} 14+.
+  \item \textbf{wkhtmltopdf} bản Qt-patched 0.12.6 (chỉ để in PDF; thiếu vẫn chạy được) --- tải ở \url{https://github.com/wkhtmltopdf/packaging/releases}.
+  \item Node đi kèm trong \texttt{environment.yml} (để cài \texttt{rtlcss}).
+\end{itemize}
+
+\section*{2. Nguồn Odoo 19}
+Repo chính thức: \url{https://github.com/odoo/odoo} --- nhánh \texttt{19.0}.
+
+\section*{3. Thư viện Python}
+Dùng file \texttt{environment.yml} đi kèm (tạo env conda \texttt{odoo19} + cài toàn bộ package Odoo 19).
+
+\section*{4. Các lệnh chạy}
+Chạy lần lượt 5 nhóm: (1) thư viện hệ thống, (2) clone Odoo, (3) môi trường Python,
+(4) PostgreSQL + tạo role, (5) chạy Odoo. Xong mở \url{http://localhost:8069}
+(lần đầu tạo DB qua web).
+
+\begin{lstlisting}
+sudo apt update && sudo apt install -y git build-essential python3-dev \
+  libpq-dev libxml2-dev libxslt1-dev libldap2-dev libsasl2-dev \
+  libjpeg-dev zlib1g-dev libssl-dev libffi-dev
+
+git clone --depth 1 --branch 19.0 https://github.com/odoo/odoo.git ~/odoo
+
+conda env create -f environment.yml
+conda activate odoo19
+npm install -g rtlcss
+
+sudo apt install -y postgresql
+sudo service postgresql start
+sudo -u postgres createuser -s $USER
+
+cd ~/odoo
+python odoo-bin --addons-path=addons -d odoo_dev
+\end{lstlisting}
+
+\section*{5. (Tuỳ chọn) File config}
+Mục 4 chạy không cần config. Khi bắt đầu viết addon riêng + muốn hot-reload thì tạo
+file \texttt{odoo.conf} (đổi \texttt{USER} thành user máy bạn):
+
+\begin{lstlisting}
+[options]
+addons_path = /home/USER/odoo/addons,/home/USER/odoo-custom
+data_dir = /home/USER/odoo/.local-data
+db_host = 127.0.0.1
+db_port = 5432
+db_user = USER
+http_port = 8069
+workers = 0
+admin_passwd = admin
+\end{lstlisting}
+
+Chạy với config (kèm hot-reload):
+\begin{lstlisting}
+python odoo-bin -c odoo.conf -d odoo_dev --dev=all
+\end{lstlisting}
+
+\end{document}

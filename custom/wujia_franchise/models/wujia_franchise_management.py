@@ -13,7 +13,7 @@ class WujiaFranchiseManagement(models.Model):
     _description = 'Wujia Franchise Management'
     _inherit = ['mail.thread', 'mail.activity.mixin']
     _rec_name = 'display_name'
-    _order = 'latest_inspection_date desc, code, name'
+    _order = 'code, name'
 
     code = fields.Char(
         string='Store code',
@@ -34,6 +34,7 @@ class WujiaFranchiseManagement(models.Model):
         'res.partner',
         string='Partner',
         ondelete='restrict',
+        index=True,
         tracking=True,
         help='Link to the res.partner representing the store — the transactional entity for '
              'sale.order, account.move, membership.',

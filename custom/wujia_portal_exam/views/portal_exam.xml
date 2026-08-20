@@ -13,17 +13,19 @@
                  UI-only demo (parity với nhánh mobile): dữ liệu từ PC_REGS trong
                  controller, key trùng field thật để sprint wire sau chỉ đổi nguồn. -->
             <div class="content-wrapper d-none d-lg-block wj-exam-pc">
-                <div class="wj-pc-page-header">
-                    <div>
-                        <h1 class="wj-pc-page-header__title">Đăng ký thi</h1>
-                        <p class="wj-pc-page-header__crumb">Portal / Đào tạo / Đăng ký thi</p>
-                    </div>
-                    <div class="wj-pc-page-header__actions">
-                        <a href="/portal/exam/register" class="wj-pc-btn wj-pc-btn--primary">
-                            <i class="feather icon-plus"/>Đăng ký mới
-                        </a>
-                    </div>
-                </div>
+                <!-- S53-B3b: header hand-roll .wj-pc-page-header → CMP-PG-001.
+                     Matrix ghi /portal/exam là "Title only" nhưng OUT OF SCOPE của chính
+                     spec cấm đổi action hiện có ⇒ giữ nút "Đăng ký mới" (variant create),
+                     đã ghi câu hỏi cho BA trong ledger. -->
+                <t t-call="wujia_portal_layout.wj_page_header">
+                    <t t-set="ph_platform" t-value="'pc'"/>
+                    <t t-set="ph_variant" t-value="'create'"/>
+                    <t t-set="ph_crumb">Portal / Đào tạo / Đăng ký thi</t>
+                    <t t-set="ph_title">Đăng ký thi</t>
+                    <t t-set="ph_create_url" t-value="'/portal/exam/register'"/>
+                    <t t-set="ph_create_label" t-value="'Đăng ký mới'"/>
+                    <t t-set="ph_can_create" t-value="True"/>
+                </t>
                 <div class="content-body">
                     <!-- Bộ lọc nhanh — UI-only, chưa wire query (Figma y178 h88) -->
                     <form method="get" action="/portal/exam" class="wj-pc-filterbar wj-exam-pc-filterbar">
@@ -256,11 +258,13 @@
                                             t-out="pc_summary['course_name']"/>
                                     <option t-foreach="pc_courses" t-as="c"
                                             t-att-value="c['course_id']"
+                                            t-att-data-wj-exam-course-max="c['max_per_reg']"
                                             t-att-selected="c_index == 0 and 'selected' or None"
                                             t-out="c['title']"/>
                                 </select>
                             </div>
-                            <p class="wj-exam-pc-help">Mỗi phiếu được đăng ký tối đa 4 người.</p>
+                            <p class="wj-exam-pc-help" data-wj-exam-help="1"
+                               t-out="pc_summary['max_hint']"/>
 
                             <!-- 2. Chọn lịch thi -->
                             <h3 class="wj-exam-pc-sectitle wj-exam-pc-sectitle--sm">Chọn lịch thi</h3>

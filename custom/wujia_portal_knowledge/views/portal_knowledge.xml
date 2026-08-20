@@ -1,6 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
 
+    <!-- Thông báo nghiệp vụ khi lọc/bài không còn khả dụng (WJ-KNW-001/004).
+         Đặt NGOÀI slot của wj_ajax_list để lọc-không-reload không nuốt mất. -->
+    <template id="portal_knowledge_notice" name="Wujia Portal — Knowledge Notice">
+        <div t-if="notice" class="wj-know-notice" role="status">
+            <i class="feather icon-info"/>
+            <span t-if="notice == 'category_gone'">Danh mục đã chọn không còn khả dụng.</span>
+            <span t-if="notice == 'tag_gone'">Thẻ đã chọn không còn khả dụng.</span>
+            <span t-if="notice == 'article_gone'">Bài viết không tồn tại hoặc không còn khả dụng.</span>
+        </div>
+    </template>
+
     <!-- ============== List ============== -->
     <template id="portal_knowledge_list" name="Wujia Portal — Knowledge List">
         <t t-call="wujia_portal_layout.app_layout">
@@ -15,9 +26,10 @@
                 <t t-call="wujia_portal_layout.wj_page_header">
                     <t t-set="ph_platform" t-value="'pc'"/>
                     <t t-set="ph_variant" t-value="'title'"/>
-                    <t t-set="ph_title" t-value="('Kiến thức — ' + current_category.name) if current_category else 'Thư viện kiến thức'"/>
+                    <t t-set="ph_title">Kiến thức</t>
                 </t>
                 <div class="content-body">
+                    <t t-call="wujia_portal_knowledge.portal_knowledge_notice"/>
                     <!-- Search bar -->
                     <div class="card mb-2">
                         <div class="card-body p-2">
@@ -90,7 +102,7 @@
                                                 <span t-if="badge_lbl" t-attf-class="wujia-badge #{badge_cls} ms-1" t-out="badge_lbl"/>
                                             </div>
                                             <span class="wujia-content-card-row-date">
-                                                <t t-out="art.publish_date and art.publish_date.strftime('%d/%m/%Y') or ''"/>
+                                                <t t-out="wj_dt(art.publish_date, '%d/%m/%Y')"/>
                                                 · <i class="fa fa-eye"/> <t t-out="art.view_count or 0"/>
                                             </span>
                                         </li>
@@ -139,6 +151,7 @@
                     <t t-set="ph_variant" t-value="'title'"/>
                     <t t-set="ph_title">Kiến thức</t>
                 </t>
+                <t t-call="wujia_portal_knowledge.portal_knowledge_notice"/>
                 <p class="wj-count-meta wj-count-meta--primary" id="wj-know-mcount"><t t-out="len(articles)"/> bài viết</p>
 
                 <!-- Filter canonical 01-ChipSlide (Figma 4785:562) — keyword + category chips -->
@@ -198,7 +211,7 @@
                                               t-out="art.category_id.name"/>
                                     </span>
                                     <span class="wujia-mknow-date">
-                                        Cập nhật <t t-out="art.publish_date and art.publish_date.strftime('%d/%m/%Y') or ''"/>
+                                        Cập nhật <t t-out="wj_dt(art.publish_date, '%d/%m/%Y')"/>
                                     </span>
                                 </span>
                             </a>
@@ -225,7 +238,7 @@
                                                   t-out="art.category_id.name"/>
                                         </span>
                                         <span class="wujia-mknow-date">
-                                            Cập nhật <t t-out="art.publish_date and art.publish_date.strftime('%d/%m/%Y') or ''"/>
+                                            Cập nhật <t t-out="wj_dt(art.publish_date, '%d/%m/%Y')"/>
                                         </span>
                                     </span>
                                 </span>
@@ -274,7 +287,7 @@
                                     <h1 class="article-title" t-out="article.name"/>
                                     <p class="text-muted small mb-3">
                                         <span t-if="article.author_id"><i class="fa fa-user me-1"/><t t-out="article.author_id.name"/></span>
-                                        <span class="ms-3"><i class="fa fa-clock me-1"/><t t-out="article.publish_date and article.publish_date.strftime('%d/%m/%Y %H:%M') or ''"/></span>
+                                        <span class="ms-3"><i class="fa fa-clock me-1"/><t t-out="wj_dt(article.publish_date, '%d/%m/%Y %H:%M')"/></span>
                                         <span class="ms-3"><i class="fa fa-eye me-1"/><t t-out="article.view_count or 0"/> lượt xem</span>
                                     </p>
                                     <div class="article-content" t-out="article.content"/>
@@ -289,7 +302,7 @@
                                     <t t-foreach="related" t-as="r">
                                         <a t-attf-href="/portal/knowledge/#{r.slug}" class="list-group-item list-group-item-action py-2">
                                             <strong class="d-block small" t-out="r.name"/>
-                                            <small class="text-muted" t-out="r.publish_date and r.publish_date.strftime('%d/%m/%Y') or ''"/>
+                                            <small class="text-muted" t-out="wj_dt(r.publish_date, '%d/%m/%Y')"/>
                                         </a>
                                     </t>
                                 </div>
@@ -335,7 +348,7 @@
                     <div class="wujia-mknow-meta">
                         <t t-if="article.author_id" t-out="article.author_id.name"/>
                         <t t-if="article.author_id and article.publish_date"> • </t>
-                        <t t-if="article.publish_date">Cập nhật <t t-out="article.publish_date.strftime('%d/%m/%Y')"/></t>
+                        <t t-if="article.publish_date">Cập nhật <t t-out="wj_dt(article.publish_date, '%d/%m/%Y')"/></t>
                     </div>
 
                     <h2 class="wujia-mknow-h">Nội dung chính</h2>

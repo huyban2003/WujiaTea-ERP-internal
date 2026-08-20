@@ -21,7 +21,9 @@ class ProductProduct(models.Model):
         default=0,
         help='0 = unlimited. If > 0 it must be >= min and a multiple of min.',
     )
-    description_ecommerce = fields.Char(
+    # Đặt tiền tố wujia_: tên `description_ecommerce` trùng field Html dịch được của
+    # website_sale trên product.template, đụng độ làm cột đổi sang jsonb (WJ-PROD-001).
+    wujia_packaging = fields.Char(
         string='Packaging',
         help='Packaging shown on the portal, e.g. 10kg/bag, 120 pcs/carton.',
     )

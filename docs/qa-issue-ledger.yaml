@@ -867,3 +867,362 @@ WJ-EXAM-006:
   impact: "Màn chi tiết phiếu đăng ký thi bản điện thoại. Bản máy tính vốn không có dòng này nên không đổi. Nút Đăng ký thi mới giữ nguyên"
   retest: "Mở một phiếu đã công bố kết quả mà tất cả người dự thi đều Đạt: không được thấy dòng hướng dẫn thi lại. Đổi một người thành Không đạt rồi mở lại: dòng hướng dẫn phải xuất hiện"
   limit: "Không có"
+
+WJ-NOTI-001:
+  sprint: "2026-08-11-B2"
+  build_override: "ĐÃ lên UAT 11/08/2026 http://113.161.187.126:8019 | Sprint 2026-08-11-B2 | commit: cc7570f | Deploy: -u wujia_portal_notification,wujia_portal_base (không có bước cập nhật dữ liệu) | URL: /portal, /portal/notification"
+  url: "/portal, /portal/notification, /portal/notification/<id>"
+  odoo_fit: "Custom"
+  fix: "Portal trước đây in thẳng giờ lưu trong máy chủ (giờ quốc tế) nên luôn sớm hơn backend 7 tiếng. Nay mọi chỗ hiện ngày giờ gửi thông báo đều đổi sang múi giờ người dùng (mặc định Asia/Ho_Chi_Minh) qua cùng một hàm dùng chung: Trang chủ, danh sách, chi tiết và popup chuông. Bộ lọc từ ngày đến ngày cũng được quy đổi, trước đây chọn ngày 03/08 sẽ hụt mất các thông báo gửi buổi sáng"
+  impact: "Chỉ cách hiển thị và cách lọc theo ngày trên portal. Dữ liệu đã lưu, backend, quyền xem và trạng thái đã đọc không đổi"
+  retest: "Với thông báo backend ghi Ngày gửi 09:51 ngày 03/08/2026: Trang chủ, danh sách, trang chi tiết và popup chuông đều phải ghi 09:51 ngày 03/08/2026, không còn 02:51. Thông báo gửi lúc 03:30 sáng phải nằm trong bộ lọc ngày 03/08 chứ không rơi sang 02/08"
+  limit: "Nếu tài khoản đặt múi giờ khác trong Odoo thì portal hiển thị theo múi giờ đó, đúng như backend"
+
+WJ-PROD-001:
+  sprint: "2026-08-11-B2"
+  build_override: "ĐÃ lên UAT 11/08/2026 http://113.161.187.126:8019 | Sprint 2026-08-11-B2 | commit: cc7570f | Deploy: -u wujia_sale (CÓ bước cập nhật dữ liệu, đổi tên cột) | URL: Odoo Backend — Biến thể sản phẩm > tab Wujia Portal"
+  url: "Odoo Backend: Bán hàng > Sản phẩm > Biến thể sản phẩm > tab Wujia Portal"
+  odoo_fit: "Custom"
+  fix: "Trường Quy cách của Wujia trước đây mang tên kỹ thuật trùng với một trường có sẵn của app Thương mại điện tử trong Odoo. Trên UAT app đó đang được cài, hai trường đụng nhau làm cột trong cơ sở dữ liệu đổi sang định dạng khác, nên lưu Quy cách là báo lỗi. Nay trường Quy cách của Wujia được đặt tên riêng nên không còn đụng độ. Nhãn hiển thị vẫn là Quy cách, vị trí trong tab Wujia Portal giữ nguyên, giá trị đã nhập trước đó được chuyển sang nguyên vẹn"
+  impact: "Tab Wujia Portal của Biến thể sản phẩm, và chỗ hiện Quy cách trên portal (danh mục đặt hàng, chi tiết sản phẩm, lịch sử mua hàng). Các trường sản phẩm khác không đổi"
+  retest: "Mở biến thể Hồng Trà Đài Loan KHÔNG Đường (ID 2) > Chỉnh sửa > tab Wujia Portal > nhập Quy cách 500 ml > Lưu: phải lưu được, không hiện popup Rất tiếc. Tải lại trang vẫn thấy 500 ml. Sửa thành 750 ml rồi xoá trắng cũng phải lưu được. Lưu kèm các trường khác trong tab (Tên tiếng Trung, Số lượng tối thiểu) không lỗi. Sản phẩm nào có Quy cách và đang bật hiển thị portal thì /portal/order phải hiện đúng chuỗi đó"
+  limit: "Cần chạy bước cập nhật dữ liệu khi deploy (lệnh -u wujia_sale). Nếu trước đây có ai nhập Quy cách nhiều ngôn ngữ thì bản tiếng Anh được giữ, các bản dịch khác không còn — trường này vốn là ô chữ một ngôn ngữ"
+
+UI-PAGEHEADER-001:
+  sprint: "2026-08-11-B3a+B3b"
+  build_override: "ĐÃ lên UAT 11/08/2026 http://113.161.187.126:8019 | Sprint 2026-08-11-B3a+B3b | commit: 4da3a57 + 30bed39 | Deploy: -u wujia_portal_layout,wujia_portal_sale,wujia_portal_purchase_history,wujia_portal_notification,wujia_portal_support,wujia_portal_debt,wujia_portal_knowledge,wujia_portal_return,wujia_portal_exam (không có bước cập nhật dữ liệu) | URL: đủ 17 màn của bảng đặt tên"
+  url: "/portal/order, /portal/purchase-history, /portal/delivery, /portal/debt, /portal/notification, /portal/knowledge, /portal/support, /portal/exam, /portal/profile, /portal/return, /portal/purchase-history/<id>, /portal/delivery/<id>, /portal/notification/<id>, /portal/support/<id>, /portal/support/new, /portal/return/<id>, /portal/return/new"
+  odoo_fit: "Custom"
+  fix: "Tiêu đề đầu trang nay dùng chung một khuôn duy nhất theo CMP-PG-001 trên toàn bộ 17 màn của bảng đặt tên. Máy tính: chữ 26, dòng cao 32, đậm 700, hàng cao 64, cách trên dưới 16, không thêm khoảng cách xuống nội dung. Điện thoại: chữ 22, dòng cao 28, đậm 700, hàng cao 52, cách trên dưới 12, cách nội dung bên dưới đúng 8. Con số phụ bên cạnh tiêu đề (số sản phẩm, số đơn, số hóa đơn, số chưa đọc) nằm ngay trong khuôn tiêu đề, chữ 14 trên máy tính và 13 trên điện thoại, và vẫn tự đổi số khi lọc mà không tải lại trang. Tiêu đề dài nay xuống dòng thay vì bị cắt bằng dấu ba chấm. Tên trang lấy đúng bảng đặt tên: Hỗ trợ, Kiến thức, Tài khoản, Bù hàng, Công nợ, Chi tiết đơn hàng, Chi tiết yêu cầu hỗ trợ, Chi tiết yêu cầu bù hàng. Những màn trước đây tự dựng tiêu đề riêng (Đặt hàng bản điện thoại, bốn màn Công nợ, ba màn Tài khoản trên máy tính, màn Đăng ký thi trên máy tính) nay đều dùng chung khuôn. Mã đơn, mã ticket và mã yêu cầu đã gỡ khỏi tiêu đề; ở màn Chi tiết yêu cầu hỗ trợ và Chi tiết yêu cầu bù hàng trên máy tính, mã (và tiêu đề ticket) được đưa xuống thẻ Thông tin sẵn có để không mất dữ liệu hiển thị"
+  impact: "Toàn bộ 17 màn của bảng đặt tên, trên cả máy tính lẫn điện thoại. Ba màn nhóm Tài khoản (Thông tin tài khoản, Đổi mật khẩu, Thông tin cửa hàng) dùng chung khung tiêu đề mới nên cũng thay đổi hình thức phần đầu trang; câu mô tả phụ dưới tiêu đề vẫn giữ nguyên nội dung. Dữ liệu, quyền xem, quyền tạo mới và nghiệp vụ không đổi. Thanh trên cùng, dòng cửa hàng đang thao tác, menu trái và thanh dưới của điện thoại không đụng tới"
+  retest: "Mở lần lượt 17 màn của bảng đặt tên ở cả máy tính và điện thoại: tên trang phải đúng bảng, hai thiết bị ghi giống nhau, cùng cỡ chữ, cùng chiều cao hàng, cùng khoảng cách xuống nội dung. Con số bên cạnh tiêu đề (Đặt hàng, Lịch sử đặt hàng, Công nợ, Thông báo) phải đúng và phải tự đổi khi gõ từ khoá tìm kiếm mà trang không nhấp nháy tải lại. Màn Chi tiết yêu cầu hỗ trợ và Chi tiết yêu cầu bù hàng: tiêu đề không còn mã, nhưng mã vẫn phải nhìn thấy trong thân trang. Thử co trình duyệt về các bề rộng 360, 390, 768, 1366, 1440 và 1920: không được có thanh cuộn ngang, chữ không chồng nhau, mỗi màn chỉ thấy một tiêu đề"
+  limit: "Hai điểm xin BA chốt: (1) bảng đặt tên ghi màn Đăng ký thi là chỉ có tiêu đề, nhưng màn này đang có nút Đăng ký mới và chính đặc tả cấm đổi nút sẵn có, nên Dev tạm giữ nút; (2) còn bốn chỗ hiện số đếm rời nằm ở các màn mà bảng ghi chỉ có tiêu đề (Kiến thức, Đăng ký thi, Bù hàng), Dev giữ nguyên tại chỗ chứ không tự thêm số vào tiêu đề. Nút Quay lại giữ nguyên hình dạng hiện tại, sẽ chuẩn hoá ở issue UI-BACKPAGEHEADER-001. Mã chứng từ hiện nằm trong thẻ thông tin sẵn có chứ chưa phải khối Tóm tắt chứng từ chuẩn, vì thành phần đó chưa có đặc tả. Lề trái phải trên máy tính vẫn do khung nội dung của giao diện nền cấp, chưa tách thành thành phần riêng"
+
+UI-BACKPAGEHEADER-001:
+  sprint: "2026-08-11-B4"
+  build_override: "ĐÃ lên UAT 11/08/2026 http://113.161.187.126:8019 | Sprint 2026-08-11-B4 | commit: 70f3e4f | Deploy: -u wujia_portal_layout,wujia_portal_base,wujia_portal_debt,wujia_portal_support,wujia_portal_return (không có bước cập nhật dữ liệu) | URL: 7 màn chi tiết và tạo mới của đặc tả | Đã kiểm lại trên UAT sau deploy, chỉ đọc không sửa dữ liệu: 104/105 điểm đo đạt (điểm còn lại là lỗi của chính công cụ đo, không phải của màn hình)"
+  url: "/portal/purchase-history/<id>, /portal/delivery/<id>, /portal/notification/<id>, /portal/support/<id>, /portal/support/new, /portal/return/<id>, /portal/return/new"
+  odoo_fit: "Custom"
+  fix: "Nút Quay lại nay dùng chung một khuôn duy nhất theo đặc tả. Trên máy tính: nút chữ rộng 122 cao 40, bo góc 12, nền trắng, viền xám nhạt, mũi tên trái (trước đây là dấu ngoặc nhọn) màu xanh thương hiệu, chữ Quay lại cỡ 14 đậm 700 màu xám đậm; khi rê chuột hoặc di chuyển bằng bàn phím tới thì nền và viền chuyển xanh nhạt, chữ lẫn mũi tên chuyển xanh thương hiệu, đồng thời hiện viền chỉ dấu để người dùng bàn phím thấy rõ đang đứng ở đâu. Trên điện thoại: nút tròn 42×42 (trước đây là ô vuông bo góc 40×40), vùng chạm vẫn đủ 44×44, hàng tiêu đề vẫn cao đúng 52. Về hành vi: nút quay lại nay ưu tiên địa chỉ trả về được truyền kèm nếu hợp lệ, nếu không thì quay về đúng trang danh sách cha kèm bộ lọc và số trang mà người dùng đang xem, còn vào thẳng bằng đường dẫn dán tay thì về trang danh sách cha. Địa chỉ trả về được kiểm tra chặt, chỉ nhận đường dẫn nội bộ trong portal nên không thể bị lợi dụng để đẩy người dùng ra trang ngoài. Hai màn tạo mới (yêu cầu hỗ trợ và yêu cầu bù hàng) nay hỏi xác nhận trước khi rời trang nếu người dùng đã nhập dở, bấm Huỷ thì ở lại và giữ nguyên dữ liệu đã gõ"
+  impact: "Toàn bộ chỗ có nút Quay lại trên portal, cả máy tính lẫn điện thoại. Màn Công nợ trước đây tự chỉnh riêng kích thước nút nay dùng chung khuôn chuẩn, vị trí và khoảng cách theo thiết kế Công nợ giữ nguyên. Dữ liệu, quyền xem và nghiệp vụ không đổi; không màn nào đổi tên hay đổi chiều cao tiêu đề"
+  retest: "Mở 7 màn chi tiết và tạo mới ở cả máy tính và điện thoại: máy tính phải thấy nút chữ Quay lại có mũi tên trái, rê chuột vào đổi sang nền xanh nhạt; điện thoại phải thấy nút tròn, bấm được dễ dàng bằng ngón tay. Từ danh sách Hỗ trợ lọc theo trạng thái rồi sang trang 2, mở một yêu cầu và bấm Quay lại: phải về đúng trang 2 với bộ lọc còn nguyên. Dán thẳng đường dẫn chi tiết vào trình duyệt rồi bấm Quay lại: phải về danh sách cha. Vào màn Tạo yêu cầu bù hàng, gõ vài chữ rồi bấm Quay lại: phải hiện hộp xác nhận, chọn Huỷ thì ở lại và chữ đã gõ còn nguyên. Dùng phím Tab đi tới nút Quay lại rồi nhấn Enter: phải chuyển trang đúng như bấm chuột"
+  limit: "Một điểm xin BA chốt: đặc tả nút Quay lại ghi tiêu đề trang trên điện thoại đậm 800, còn đặc tả khuôn tiêu đề trang (đã nghiệm thu ở đợt trước) ghi đậm 700. Dev giữ 700 cho thống nhất toàn portal và không phá kết quả đo đã đạt của đợt trước, chờ BA quyết. Cảnh báo chưa lưu hiện áp cho hai màn tạo mới; các màn khác chưa có ô nhập nên chưa cần. Các thành phần khác của đầu trang (khối tóm tắt chứng từ, lề ngang trên máy tính) chưa có đặc tả nên chưa đụng tới"
+
+FUNC-MOB-SHELL-005:
+  sprint: "2026-08-11-B4"
+  build_override: "ĐÃ lên UAT 11/08/2026 http://113.161.187.126:8019 | Sprint 2026-08-11-B4 | commit: 70f3e4f | Deploy: -u wujia_portal_base (không có bước cập nhật dữ liệu) | URL: mọi trang portal trên điện thoại"
+  url: "Mọi trang /portal/* trên điện thoại — dòng cửa hàng đang thao tác ngay dưới thanh trên cùng"
+  odoo_fit: "Custom"
+  fix: "Trên điện thoại, dòng cửa hàng đang thao tác trước đây chỉ để đọc, bấm vào không có gì xảy ra nên người dùng nhiều cửa hàng không đổi được nơi làm việc. Nay bấm vào dòng này sẽ mở đúng cửa sổ Đổi cửa hàng đang thao tác của bản máy tính, dùng chung một luồng chứ không làm luồng riêng: danh sách chỉ gồm cửa hàng người dùng được phép, cửa hàng đang chọn được đánh dấu sẵn, bấm Huỷ hoặc đóng thì không thay đổi gì, bấm Xác nhận thì đổi cửa hàng và ở lại đúng trang đang xem. Người chỉ có một cửa hàng thì dòng này vẫn để đọc như cũ, không tạo cảm giác bấm được rồi không có gì xảy ra. Hình thức và khoảng cách của dòng giữ nguyên hoàn toàn"
+  impact: "Dòng cửa hàng đang thao tác trên điện thoại, ở mọi trang portal. Bản máy tính, quyền truy cập cửa hàng và cách đổi cửa hàng bên trong đều không đổi, vì dùng lại đúng cửa sổ và đúng đường xử lý sẵn có"
+  retest: "Lưu ý dùng tài khoản cửa hàng, KHÔNG dùng tài khoản quản trị: tài khoản quản trị trên UAT không gắn cửa hàng nào nên dòng cửa hàng không hiện, không kiểm được. Đăng nhập bằng tài khoản có từ hai cửa hàng, mở portal trên điện thoại: bấm vào dòng cửa hàng đang thao tác, cửa sổ Đổi cửa hàng phải mở, đánh dấu đúng cửa hàng hiện tại và liệt kê đủ các cửa hàng được phép. Bấm Huỷ rồi bấm dấu × : dòng cửa hàng phải giữ nguyên. Mở lại, chọn cửa hàng khác rồi Xác nhận: dòng cửa hàng phải đổi mã, tên và vai trò, vẫn ở đúng trang cũ, dữ liệu trên trang và số trên giỏ hàng phải theo cửa hàng mới. Xem ở khổ 391×844: cửa sổ không được tràn ra ngoài màn hình hay chồng lên nội dung. Đăng nhập bằng tài khoản chỉ có một cửa hàng: bấm vào dòng đó không được mở gì"
+  limit: "Phần đổi cửa hàng trên điện thoại đã chạy đủ end-to-end trên bản sao dữ liệu thật trước khi giao. Sau khi lên UAT, Dev chưa tự kiểm lại được vì tài khoản quản trị không gắn cửa hàng nào nên dòng cửa hàng đang thao tác không hiện; cần BA retest bằng tài khoản có từ hai cửa hàng"
+
+WJ-FRANCHISE-001:
+  sprint: "2026-08-15-C1"
+  build_override: "UAT | 15/08/2026 | Sprint 2026-08-15-C1 | commit: b623b70 | Đã deploy UAT (wujia_franchise 19.0.2.1.0, wujia_sale 19.0.4.3.0, wujia_delivery 19.0.1.1.0, wujia_account 19.0.1.1.0, đã chạy bước cập nhật dữ liệu) | Deploy: -u wujia_franchise,wujia_sale,wujia_delivery,wujia_account (CÓ bước cập nhật dữ liệu, điền cửa hàng cho chứng từ cũ đang bỏ trống) | URL: Odoo Backend — Đơn bán / Phiếu kho / Hóa đơn"
+  url: "Odoo Backend: Bán hàng > Đơn bán; Tồn kho > Phiếu giao; Kế toán > Hóa đơn khách hàng"
+  odoo_fit: "Custom"
+  fix: "Chọn một khách hàng là cửa hàng nhượng quyền trên đơn bán, phiếu kho hoặc hóa đơn thì hệ thống tự điền Cửa hàng nhượng quyền; riêng đơn bán còn tự điền Partner cửa hàng và Khu vực. Việc tự điền nay chạy ở mọi đường tạo dữ liệu, kể cả nhập khẩu và tích hợp, chứ không chỉ khi thao tác trên màn hình. Đổi sang khách hàng thuộc cửa hàng khác thì cửa hàng được tính lại chứ không giữ giá trị cũ; người dùng vẫn được quyền chọn tay cửa hàng khác khi cần. Nếu một khách hàng đang gắn với nhiều cửa hàng thì hệ thống không đoán, để trống và hiện cảnh báo liệt kê các cửa hàng trùng. Địa chỉ giao hàng là địa chỉ con của cửa hàng cũng nhận đúng cửa hàng mẹ. Lần cập nhật này còn điền cửa hàng cho các chứng từ CŨ đang bỏ trống mà khách hàng chỉ thuộc một cửa hàng; chứng từ đã có cửa hàng thì giữ nguyên, không ghi đè"
+  impact: "Trường Cửa hàng nhượng quyền trên đơn bán, phiếu kho và hóa đơn khách hàng, cùng Partner cửa hàng và Khu vực trên đơn bán. Quy tắc hạch toán, giá, tồn kho và quyền xem không đổi. Portal đặt hàng không đổi vì vốn đã tự truyền cửa hàng khi tạo đơn"
+  retest: "Tạo đơn bán mới, chọn khách hàng Wujia Tea — TP HCM Quận 1: Cửa hàng nhượng quyền phải tự hiện [HCM-01], Partner cửa hàng và Khu vực cũng phải tự điền. Đổi khách hàng sang Wujia Tea — Hà Nội Cầu Giấy: cửa hàng phải đổi sang [HN-01], không được giữ [HCM-01]. Làm tương tự trên phiếu kho mới và hóa đơn khách hàng mới. Với khách hàng đang gắn hai cửa hàng: ô cửa hàng phải để trống và hiện cảnh báo nêu tên hai cửa hàng đó. Với đơn đã tạo trước đây mà bỏ trống cửa hàng: sau khi cập nhật phải thấy đã được điền đúng theo khách hàng"
+  limit: "Khách hàng không gắn với cửa hàng nào (khách lẻ, nhà cung cấp) thì hệ thống im lặng, không hiện cảnh báo — nếu cảnh báo thì mọi hóa đơn mua hàng và bút toán đều bung thông báo, gây nhiễu. Xin BA xác nhận cách xử lý này. Chứng từ cũ đã có cửa hàng khác với khách hàng thì giữ nguyên, không tự sửa"
+
+WJ-FRANCHISE-002:
+  sprint: "2026-08-15-C1"
+  build_override: "UAT | 15/08/2026 | Sprint 2026-08-15-C1 | commit: b623b70 | Đã deploy UAT (wujia_franchise 19.0.2.1.0, wujia_sale 19.0.4.3.0, wujia_delivery 19.0.1.1.0, wujia_account 19.0.1.1.0, đã chạy bước cập nhật dữ liệu) | Deploy: -u wujia_franchise,wujia_sale,wujia_delivery,wujia_account (CÓ bước cập nhật dữ liệu) | URL: Odoo Backend — Xác nhận đơn bán / Validate phiếu kho / Ghi sổ hóa đơn"
+  url: "Odoo Backend: nút Xác nhận trên đơn bán, nút Xác nhận trên phiếu kho, nút Ghi sổ trên hóa đơn khách hàng"
+  odoo_fit: "Custom"
+  fix: "Khi khách hàng chỉ thuộc một cửa hàng mà chứng từ lại bỏ trống hoặc ghi sai cửa hàng, hệ thống chặn ngay tại nút Xác nhận đơn bán, Xác nhận phiếu kho và Ghi sổ hóa đơn, kèm thông báo nêu rõ tên khách hàng, cửa hàng đúng theo dữ liệu và việc cần sửa. Nhờ chặn ở bước xử lý chứ không chỉ ở màn nhập liệu nên nhập khẩu và tích hợp cũng không lọt được. Chứng từ tiếp theo vì thế không còn sinh ra với cửa hàng trống. Sửa cửa hàng cho đúng thì thao tác chạy tiếp bình thường"
+  impact: "Ba nút xử lý nói trên. Chỉ chặn khi khách hàng thuộc đúng một cửa hàng; hóa đơn nhà cung cấp và bút toán không bị ảnh hưởng. Chứng từ cũ đã xác nhận từ trước không bị khóa, vẫn sửa và thao tác bình thường"
+  retest: "Tạo đơn bán cho khách hàng Wujia Tea — TP HCM Quận 1, xóa trắng ô Cửa hàng nhượng quyền rồi bấm Xác nhận: phải hiện thông báo chặn có nêu tên khách hàng và mã cửa hàng đúng, đơn vẫn ở trạng thái báo giá và KHÔNG sinh phiếu giao. Điền lại cửa hàng đúng rồi Xác nhận: phải chạy được và phiếu giao sinh ra mang đúng cửa hàng. Thử gán một cửa hàng khác với khách hàng rồi Xác nhận: cũng phải bị chặn. Làm tương tự với nút Xác nhận của phiếu kho và nút Ghi sổ của hóa đơn khách hàng. Ghi sổ một hóa đơn nhà cung cấp: không được bị chặn"
+  limit: "Chỉ chặn khi khách hàng gắn đúng một cửa hàng. Khách hàng gắn nhiều cửa hàng thì không chặn vì hệ thống không có căn cứ để nói cửa hàng nào là đúng — trường hợp này người dùng nhận cảnh báo lúc chọn khách hàng"
+
+WJ-DEBT-006:
+  sprint: "2026-08-15-C1"
+  build_override: "UAT | 15/08/2026 | Sprint 2026-08-15-C1 | commit: b623b70 | Đã deploy UAT (wujia_franchise 19.0.2.1.0, wujia_sale 19.0.4.3.0, wujia_delivery 19.0.1.1.0, wujia_account 19.0.1.1.0, đã chạy bước cập nhật dữ liệu) | Deploy: -u wujia_account (CÓ bước cập nhật dữ liệu) | URL: Odoo Backend — Hóa đơn khách hàng > Giấy báo có"
+  url: "Odoo Backend: Kế toán > Hóa đơn khách hàng > nút Giấy báo có (cả Đảo và Đảo ngược và tạo hóa đơn)"
+  odoo_fit: "Custom"
+  fix: "Tạo Giấy báo có bằng luồng chuẩn của Odoo từ một hóa đơn đã ghi sổ thì bản nháp sinh ra đã có sẵn Cửa hàng nhượng quyền của hóa đơn gốc, không phải gán tay. Áp cho cả hai lựa chọn Đảo và Đảo ngược và tạo hóa đơn. Sau khi ghi sổ, cửa hàng vẫn giữ nguyên nên portal của cửa hàng đó tổng hợp được giấy báo có, còn cửa hàng khác không nhìn thấy. Nút Nhân bản hóa đơn giữ nguyên cách hoạt động cũ. Giấy báo có đã tạo trước đây mà bỏ trống cửa hàng cũng được điền theo hóa đơn gốc trong lần cập nhật này"
+  impact: "Chỉ trường Cửa hàng nhượng quyền của chứng từ sinh từ luồng đảo. Số tiền, tài khoản, thuế và quy tắc hạch toán không đổi"
+  retest: "Mở hóa đơn INV/2026/00002 của HCM-01 đã ghi sổ, bấm Giấy báo có > Đảo: bản nháp RINV sinh ra phải có sẵn Cửa hàng nhượng quyền [HCM-01]. Ghi sổ giấy báo có: cửa hàng vẫn phải là [HCM-01]. Đăng nhập portal bằng tài khoản HCM-01 vào màn Công nợ: phải thấy giấy báo có này; đăng nhập tài khoản cửa hàng khác: không được thấy. Làm lại với lựa chọn Đảo ngược và tạo hóa đơn: chứng từ mới cũng phải mang đúng cửa hàng"
+  limit: "Không có"
+
+WJ-DEBT-001:
+  sprint: "2026-08-15-C2"
+  build_override: "UAT | 15/08/2026 | Sprint 2026-08-15-C2 | commit: c656b95 | Đã deploy UAT, module wujia_portal_debt 19.0.4.0.0 | Dev đã smoke-test lại trên trình duyệt UAT ngày 15/08/2026 ở 391x844 và 1920x1080: 40/40 mục đạt | URL: /portal/debt"
+  url: "/portal/debt (cả điện thoại và máy tính)"
+  odoo_fit: "Custom"
+  fix: "Thẻ tổng quan tuần và từng dòng hóa đơn nay suy ra trạng thái theo cùng một quy tắc nên không còn nói khác nhau. Tuần có hóa đơn mà chưa trả đồng nào ghi Chưa thanh toán ở cả hai chỗ; chỉ khi đã trả được một phần, tức số còn lại nhỏ hơn tổng, mới ghi Thanh toán một phần; có hóa đơn quá hạn thì ưu tiên Có quá hạn; trả hết thì Đã thanh toán. Đã thanh toán bằng 0 và Còn phải trả bằng số dư thật của hóa đơn. So sánh số tiền theo mức làm tròn của chính loại tiền trên hóa đơn nên số lẻ không làm lệch trạng thái"
+  impact: "Nhãn trạng thái của thẻ tổng quan trên màn Công nợ, cả điện thoại lẫn máy tính. Số liệu, quyền xem và cách lấy dữ liệu không đổi; danh sách hóa đơn, lịch sử thanh toán và màn thanh toán không đụng tới"
+  retest: "Mở Công nợ ở tuần có đúng một hóa đơn chưa trả đồng nào: thẻ tổng quan và dòng hóa đơn phải cùng ghi Chưa thanh toán, Đã thanh toán bằng 0, Còn phải trả bằng đúng giá trị hóa đơn. Ghi nhận một khoản thanh toán một phần cho hóa đơn đó rồi mở lại: cả hai chỗ phải chuyển sang Thanh toán một phần. Đối soát nốt phần còn lại: cả hai chuyển sang Đã thanh toán. Tuần có hóa đơn quá hạn: thẻ ghi Có quá hạn. Kiểm ở cả điện thoại và máy tính"
+  limit: "Nhãn Chưa thanh toán do Dev đề xuất cho đồng bộ với dòng hóa đơn; BA đổi chữ được ở vòng retest"
+
+WJ-DEBT-004:
+  sprint: "2026-08-15-C2"
+  build_override: "UAT | 15/08/2026 | Sprint 2026-08-15-C2 | commit: c656b95 | Đã deploy UAT, module wujia_portal_debt 19.0.4.0.0 | Dev đã smoke-test lại trên trình duyệt UAT ngày 15/08/2026 ở 391x844 và 1920x1080: 40/40 mục đạt | URL: /portal/debt/payment-history"
+  url: "/portal/debt/payment-history (cả điện thoại và máy tính)"
+  odoo_fit: "Custom"
+  fix: "Mỗi giao dịch trong Lịch sử thanh toán nay hiển thị theo đúng loại tiền của chính khoản thanh toán đó, kèm số chữ số lẻ tương ứng, thay vì luôn lấy tiền của công ty. Khối Tổng cộng tách thành nhiều dòng, mỗi loại tiền một dòng; không cộng số của hai loại tiền vào cùng một tổng và không quy đổi tỷ giá, đúng quyết định của chủ dự án. Kỳ chỉ có một loại tiền thì hiển thị y như trước, một dòng tổng duy nhất"
+  impact: "Cột số tiền và khối tổng của màn Lịch sử thanh toán, cả điện thoại lẫn máy tính. Bộ lọc kỳ, ô tìm kiếm, phân trang và cách lọc theo cửa hàng không đổi. Màn Công nợ và màn thanh toán không đụng tới"
+  retest: "Ghi sổ hai khoản thanh toán khác loại tiền cho cùng một cửa hàng trong cùng kỳ, ví dụ một khoản USD và một khoản EUR. Mở Lịch sử thanh toán: mỗi dòng phải hiện đúng ký hiệu tiền của khoản đó, không được quy về một loại. Khối Tổng cộng phải có hai dòng riêng, mỗi dòng một loại tiền, và không có dòng nào cộng gộp hai loại. Lọc sang kỳ chỉ có một loại tiền: phải thấy đúng một dòng tổng như trước. Kiểm ở cả điện thoại và máy tính"
+  limit: "Không quy đổi tỷ giá — chủ dự án chốt tách tổng theo từng loại tiền. Nếu sau này BA muốn thêm một dòng quy đổi thì cần chốt nguồn tỷ giá và ngày áp dụng, sẽ mở issue riêng"
+
+WJ-DEBT-007:
+  sprint: "2026-08-15-C2"
+  build_override: "UAT | 15/08/2026 | Sprint 2026-08-15-C2 | commit: c656b95 | Đã deploy UAT, module wujia_portal_debt 19.0.4.0.0 | Dev đã smoke-test lại trên trình duyệt UAT ngày 15/08/2026 ở 391x844 và 1920x1080: 40/40 mục đạt | URL: /portal/debt và /portal/debt/pay"
+  url: "/portal/debt, /portal/debt/pay (cả điện thoại và máy tính)"
+  odoo_fit: "Custom"
+  fix: "Tuần mà giấy báo có lớn hơn số nợ nay có trạng thái riêng là Dư có, kèm dòng nói rõ số tiền được khấu trừ cho kỳ sau, và ô Còn phải trả hiển thị 0 thay vì số âm. Dòng giấy báo có trong danh sách chứng từ mang nhãn Giấy báo có và ghi Được trừ kèm số dương, không còn bị gắn nhãn Chưa thanh toán. Nút Thanh toán không hiện khi không còn khoản phải trả. Vào thẳng đường dẫn màn thanh toán trong trường hợp này thì hệ thống đưa về màn Công nợ kèm thông báo tuần đó không còn khoản cần thanh toán, không dựng mã QR và thông tin chuyển khoản nữa. Nội dung chuyển khoản do hệ thống tự sinh luôn kẹp về 0 nên không bao giờ chứa số âm"
+  impact: "Màn Công nợ và màn Thanh toán, cả điện thoại lẫn máy tính, ở các tuần đã trả hết hoặc đang dư có. Bảng hóa đơn trên máy tính vẫn giữ dấu âm của giấy báo có theo đúng cách ghi sổ kế toán, nhưng dòng đó đã mang nhãn Giấy báo có. Số liệu kế toán, quyền xem và luồng đối soát không đổi"
+  retest: "Chọn một tuần có hóa đơn đã trả đủ rồi ghi sổ thêm một giấy báo có cùng tuần. Mở Công nợ tuần đó: thẻ tổng quan phải ghi Dư có, Còn phải trả bằng 0, có dòng nêu số tiền được khấu trừ kỳ sau, và không có nút Thanh toán. Dòng giấy báo có phải ghi Giấy báo có và Được trừ kèm số dương, tuyệt đối không ghi Chưa thanh toán. Dán thẳng đường dẫn màn thanh toán của tuần đó vào trình duyệt: phải quay về màn Công nợ kèm thông báo, không thấy mã QR, số tài khoản hay nội dung chuyển khoản. Sang tuần còn nợ thật, mở màn thanh toán: nội dung chuyển khoản phải có số tiền dương đúng bằng số còn phải trả"
+  limit: "Nhãn Dư có và Giấy báo có do Dev đề xuất, BA đổi chữ được ở vòng retest. Bảng hóa đơn trên máy tính vẫn để số âm cho dòng giấy báo có vì đó là cách ghi đúng của kế toán; nếu BA muốn đổi sang số dương thì báo để chỉnh"
+
+WJ-DEBT-010:
+  sprint: "2026-08-15-C2"
+  build_override: "UAT | 15/08/2026 | Sprint 2026-08-15-C2 | commit: c656b95 | Đã deploy UAT, module wujia_portal_debt 19.0.4.0.0 | Dev đã smoke-test lại trên trình duyệt UAT ngày 15/08/2026 ở 391x844 và 1920x1080: 40/40 mục đạt | URL: /portal/debt"
+  url: "/portal/debt (cả điện thoại và máy tính)"
+  odoo_fit: "Custom"
+  fix: "Mở màn Công nợ mà không chọn tuần thì hệ thống không nhảy vào tuần hiện tại nữa. Thứ tự ưu tiên: tuần quá hạn chưa thanh toán cũ nhất, nếu không có thì tuần liền trước, nếu tuần liền trước cũng không phát sinh hóa đơn thì mới là tuần hiện tại. Người dùng bấm chọn tuần khác trong danh sách thì vẫn ra đúng tuần đã chọn. Ngay dưới số tiền có thêm một dòng theo tình trạng của tuần: tuần đã thanh toán ghi ngày Ngô Gia xác nhận, tuần còn nợ ghi hạn thanh toán là thứ Năm của tuần kế tiếp, tuần chưa phát sinh hóa đơn thì còn phải trả bằng 0 và hạn thanh toán ghi dấu gạch. Danh sách chọn tuần giữ nguyên, không thêm nút lùi tuần hay tới tuần. Việc chọn tuần mặc định dùng đúng một lần đọc dữ liệu cho cả sáu tuần nên không làm trang chậm đi"
+  impact: "Tuần được mở sẵn khi vào màn Công nợ và dòng thông tin dưới số tiền, cả điện thoại lẫn máy tính. Cách tính số liệu của từng tuần, danh sách chọn tuần, quyền xem và phạm vi cửa hàng không đổi. Đường dẫn có sẵn tham số tuần, kể cả link đã lưu, vẫn mở đúng tuần đó"
+  retest: "Với cửa hàng đang có tuần quá hạn chưa thanh toán, mở /portal/debt không kèm tham số: phải tự chọn tuần quá hạn cũ nhất. Cửa hàng không có tuần quá hạn nhưng tuần liền trước có hóa đơn: phải tự chọn tuần liền trước. Cửa hàng không phát sinh gì trong sáu tuần: phải là tuần hiện tại. Chọn tay một tuần khác trong danh sách, hoặc mở đường dẫn có sẵn tham số tuần: phải đúng tuần được chọn. Kiểm dòng dưới số tiền: tuần đã thanh toán ghi Ngô Gia xác nhận kèm ngày, tuần còn nợ ghi Hạn thanh toán là thứ Năm tuần kế tiếp, tuần chưa có hóa đơn ghi Hạn thanh toán dấu gạch và còn phải trả bằng 0"
+  limit: "Danh sách chọn tuần vẫn là sáu tuần gần nhất như trước; tuần quá hạn cũ hơn sáu tuần không nằm trong danh sách nên không được chọn làm mặc định. Nếu BA cần nhìn xa hơn thì mở issue riêng để nới danh sách"
+
+WJ-DEBT-002:
+  sprint: "2026-08-15-C3"
+  build_override: "UAT | 15/08/2026 | Sprint 2026-08-15-C3 | commit: 0398fa3 | Đã deploy UAT, module wujia_portal_debt 19.0.4.1.0 | Dev đã kiểm lại trên trình duyệt UAT ngày 15/08/2026 (chỉ đọc, không sửa dữ liệu) ở 360/391/430/500/768/1440: 107/108 điểm đo đạt — điểm còn lại là giả định của công cụ đo (UAT chỉ có 1 loại tiền tệ nên bảng tổng chỉ có 1 dòng, đúng thực tế) | URL: /portal/debt/pay"
+  url: "/portal/debt/pay (cả điện thoại và máy tính) và cửa sổ Thanh toán trên máy tính ở /portal/debt"
+  odoo_fit: "Custom"
+  fix: "Khi công ty chưa có tài khoản ngân hàng nào bật nhận thanh toán qua portal, màn Thanh toán chỉ hiển thị đúng một thông báo Chưa cấu hình tài khoản nhận thanh toán kèm hướng dẫn liên hệ bộ phận hỗ trợ. Không còn khung mã QR, không còn các dòng Ngân hàng, Chủ tài khoản, Số tài khoản, Nội dung để trống, và không còn nút sao chép nào để bấm nhầm. Cửa sổ Thanh toán trên máy tính cũng rẽ đúng nhánh này. Khi đã cấu hình tài khoản hợp lệ thì màn hình hiện đầy đủ thông tin chuyển khoản như bình thường. Màn hình chỉ để đọc, không tạo phiếu thanh toán và không đụng tới công nợ"
+  impact: "Màn Thanh toán và cửa sổ Thanh toán trên máy tính. Số liệu công nợ, quyền xem và luồng đối soát không đổi"
+  retest: "Tắt Use for Portal Payment trên mọi tài khoản ngân hàng của công ty rồi mở màn Thanh toán của một tuần còn nợ: phải thấy đúng một thông báo chưa cấu hình, không có mã QR, không có dòng thông tin để trống, không có nút sao chép. Bật lại một tài khoản hợp lệ rồi mở lại: phải thấy đủ Ngân hàng, Chủ tài khoản, Số tài khoản, Nội dung chuyển khoản và hai nút sao chép. Kiểm cả trên điện thoại và trên máy tính, kể cả cửa sổ Thanh toán mở từ màn Công nợ. Kiểm lại công nợ của cửa hàng không đổi sau khi mở màn này"
+  limit: "Không có"
+
+WJ-DEBT-003:
+  sprint: "2026-08-15-C3"
+  build_override: "UAT | 15/08/2026 | Sprint 2026-08-15-C3 | commit: 0398fa3 | Đã deploy UAT, module wujia_portal_debt 19.0.4.1.0 | Dev đã kiểm lại trên trình duyệt UAT ngày 15/08/2026 (chỉ đọc, không sửa dữ liệu) ở 360/391/430/500/768/1440: 107/108 điểm đo đạt — điểm còn lại là giả định của công cụ đo (UAT chỉ có 1 loại tiền tệ nên bảng tổng chỉ có 1 dòng, đúng thực tế) | URL: /portal/debt/pay"
+  url: "/portal/debt/pay (đo tại 360px, 391px, 430px, 500px, 768px và 1440px)"
+  odoo_fit: "Custom"
+  fix: "Màn Thanh toán nay dùng đúng một bộ khung với màn Công nợ. Dưới 992px chỉ dựng bản điện thoại, nội dung rộng trọn màn hình, lề hai bên 16 và không phát sinh cuộn ngang. Từ 992px trở lên dựng bản máy tính theo đúng khung PC của portal, gồm thẻ số tiền cần chuyển, thông tin chuyển khoản và nút quay về màn Công nợ. Trước đây trang này chỉ có một bản dựng cho điện thoại nhưng lại hiển thị ở mọi bề rộng nên trên máy tính là một cột hẹp nằm giữa khung PC"
+  impact: "Bố cục màn Thanh toán ở mọi bề rộng. Nội dung, số liệu và quyền xem không đổi; màn Công nợ và Lịch sử thanh toán không đụng tới"
+  retest: "Mở /portal/debt/pay của một tuần còn nợ lần lượt ở 360px, 391px, 430px, 500px và 768px: không được thấy thanh điều hướng dọc của máy tính, số tiền và thông tin chuyển khoản phải nằm trọn trong màn hình, không phải kéo ngang, thanh điều hướng dưới cùng không che nội dung. Mở ở 1440px: phải thấy bản máy tính đúng khung portal, không thấy bản điện thoại. Bấm nút Về trang công nợ phải quay lại đúng tuần đang xem"
+  limit: "Luồng thanh toán chính trên máy tính vẫn là cửa sổ mở từ nút Thanh toán số còn lại ở màn Công nợ; bản máy tính của trang này phục vụ trường hợp mở thẳng đường dẫn hoặc mở lại link đã lưu. Riêng ảnh BA chụp ngày 12/08 ở 500px Dev không tái hiện lại được ở lần tải mới: đo trên UAT hiện tại, thanh điều hướng dọc vẫn nằm ngoài màn hình ở mọi bề rộng điện thoại"
+
+WJ-DEBT-005:
+  sprint: "2026-08-15-C3"
+  build_override: "UAT | 15/08/2026 | Sprint 2026-08-15-C3 | commit: 0398fa3 | Đã deploy UAT, module wujia_portal_debt 19.0.4.1.0 | Dev đã kiểm lại trên trình duyệt UAT ngày 15/08/2026 (chỉ đọc, không sửa dữ liệu) ở 360/391/430/500/768/1440: 107/108 điểm đo đạt — điểm còn lại là giả định của công cụ đo (UAT chỉ có 1 loại tiền tệ nên bảng tổng chỉ có 1 dòng, đúng thực tế) | URL: /portal/debt/pay"
+  url: "/portal/debt/pay và cửa sổ Thanh toán trên máy tính ở /portal/debt"
+  odoo_fit: "Custom"
+  fix: "Hai nút sao chép nay báo kết quả rõ ràng. Sao chép được thì nút đổi màu và hiện chữ Đã sao chép ngay bên dưới, tự tắt sau ít giây. Trình duyệt từ chối thì hiện chữ báo không sao chép được kèm hướng dẫn chạm giữ để copy tay, thay vì im lặng như trước. Trang chạy trên HTTP nên đường sao chép chính là cách dự phòng của trình duyệt, đã bổ sung bước chọn vùng văn bản cho máy iPhone vốn bỏ qua cách chọn cũ. Nút không bao giờ sao chép chuỗi rỗng: chưa cấu hình tài khoản thì nút không còn tồn tại, còn giá trị trống thì báo chưa có giá trị để sao chép. Nội dung sao chép lấy đúng giá trị đang hiển thị trên màn hình"
+  impact: "Hai nút sao chép ở màn Thanh toán và trong cửa sổ Thanh toán trên máy tính. Không đụng tới số liệu công nợ hay các trang khác"
+  retest: "Mở màn Thanh toán của tuần còn nợ. Đặt sẵn một chuỗi bất kỳ vào clipboard làm mốc. Bấm Sao chép số tài khoản: phải thấy chữ Đã sao chép và dán ra ngoài đúng số tài khoản đang hiển thị. Bấm Sao chép nội dung chuyển khoản: dán ra phải đúng nội dung đang hiển thị. Làm lại trên máy tính trong cửa sổ Thanh toán. Thử trên trình duyệt chặn clipboard hoặc tắt quyền: phải thấy dòng báo lỗi kèm hướng dẫn, không được im lặng"
+  limit: "Chữ báo thành công và báo lỗi do Dev đặt, BA đổi câu chữ được ở vòng retest. Trên trình duyệt cấm hoàn toàn thao tác sao chép thì chỉ có thể báo lỗi và mời copy tay"
+
+WJ-DEBT-008:
+  sprint: "2026-08-15-C3"
+  build_override: "UAT | 15/08/2026 | Sprint 2026-08-15-C3 | commit: 0398fa3 | Đã deploy UAT, module wujia_portal_debt 19.0.4.1.0 | Dev đã kiểm lại trên trình duyệt UAT ngày 15/08/2026 (chỉ đọc, không sửa dữ liệu) ở 360/391/430/500/768/1440: 107/108 điểm đo đạt — điểm còn lại là giả định của công cụ đo (UAT chỉ có 1 loại tiền tệ nên bảng tổng chỉ có 1 dòng, đúng thực tế) | URL: /portal/debt/pay"
+  url: "/portal/debt/pay và cửa sổ Thanh toán trên máy tính ở /portal/debt"
+  odoo_fit: "Custom"
+  fix: "Theo nhánh thứ hai trong mong đợi của BA và quyết định của chủ dự án: bỏ hẳn khối mã QR khỏi màn Thanh toán và khỏi cửa sổ Thanh toán trên máy tính. Không còn tiêu đề Quét QR để chuyển khoản, không còn khung QR minh hoạ, không còn dòng chú thích QR minh họa không dùng để thanh toán và không còn nút Tải mã QR vốn bấm không ra gì. Màn hình chỉ giữ thông tin chuyển khoản thủ công, đúng với cấu hình tài khoản ở backend"
+  impact: "Màn Thanh toán và cửa sổ Thanh toán trên máy tính. Thông tin ngân hàng, số tiền và nội dung chuyển khoản giữ nguyên"
+  retest: "Cấu hình tài khoản ngân hàng portal hợp lệ rồi mở màn Thanh toán của tuần còn nợ: không được thấy bất kỳ hình QR nào, không thấy chữ Quét QR để chuyển khoản, QR minh họa hay nút Tải mã QR. Thông tin ngân hàng, chủ tài khoản, số tài khoản và nội dung chuyển khoản phải khớp đúng cấu hình ở backend. Kiểm cả trên điện thoại và trong cửa sổ Thanh toán trên máy tính"
+  limit: "Đây là phương án ẩn QR theo nhánh OR của acceptance. Mã QR quét được thật chưa làm vì câu hỏi QR tĩnh hay QR động của CT-055 treo từ Sprint 48 chưa có trả lời; khi BA chốt sẽ mở issue riêng để làm"
+
+WJ-DEBT-009:
+  sprint: "2026-08-15-C3"
+  build_override: "UAT | 15/08/2026 | Sprint 2026-08-15-C3 | commit: 0398fa3 | Đã deploy UAT, module wujia_portal_debt 19.0.4.1.0 | Dev đã kiểm lại trên trình duyệt UAT ngày 15/08/2026 (chỉ đọc, không sửa dữ liệu) ở 360/391/430/500/768/1440: 107/108 điểm đo đạt — điểm còn lại là giả định của công cụ đo (UAT chỉ có 1 loại tiền tệ nên bảng tổng chỉ có 1 dòng, đúng thực tế) | URL: /portal/debt/payment-history"
+  url: "/portal/debt/payment-history (điện thoại 360px, 391px, 430px, 500px)"
+  odoo_fit: "Custom"
+  fix: "Các khối trên màn Lịch sử thanh toán bản điện thoại đã có lại khoảng cách phân cấp: bộ lọc cách banner 12, banner cách tiêu đề danh sách 24, tiêu đề cách giao dịch đầu tiên 12, giữa các giao dịch 12, danh sách cách khối Tổng cộng 12, lề hai bên vẫn 16. Nguyên nhân là lớp bọc phục vụ cơ chế lọc không tải lại trang đã làm mất khoảng cách chung của cả trang, nay trả lại đúng nhịp thay vì vá từng khối. Bản máy tính giữ nguyên như cũ"
+  impact: "Chỉ khoảng cách giữa các khối của màn Lịch sử thanh toán bản điện thoại. Nội dung, bộ lọc kỳ, số liệu và bản máy tính không đổi"
+  retest: "Mở Lịch sử thanh toán ở 360px, 391px, 430px và 500px: đo khoảng cách bộ lọc đến banner 12, banner đến tiêu đề Các khoản thanh toán 24, tiêu đề đến giao dịch đầu tiên 12, giữa các giao dịch 12, giao dịch cuối đến dòng Tổng đã xác nhận 12, lề trái phải 16. Các thẻ không được dính nhau hay tràn ngang. Đổi kỳ trong bộ lọc rồi đo lại: khoảng cách phải giữ nguyên. Mở ở 1440px: bố cục máy tính không được đổi"
+  limit: "Không có"
+
+WJ-KNW-001:
+  sprint: "2026-08-15-C4"
+  build_override: "UAT | 15/08/2026 | Sprint 2026-08-15-C4 | commit: a292547 | Đã deploy UAT, module wujia_portal_knowledge 19.0.3.9.0 | Dev đã đo lại trên trình duyệt UAT ngày 15/08/2026 (chỉ đọc, không sửa dữ liệu) ở 391x844 và 1920x1080: 42/42 điểm đạt | URL: /portal/knowledge"
+  url: "/portal/knowledge (cả điện thoại và máy tính)"
+  odoo_fit: "Custom"
+  fix: "Mở Thư viện kiến thức bằng đường dẫn có danh mục hoặc thẻ không tồn tại, hoặc danh mục đã bị ẩn, thì hệ thống không còn báo lỗi kỹ thuật. Trang bỏ điều kiện lọc sai, quay về đúng trang Kiến thức và hiện một dòng thông báo Danh mục đã chọn không còn khả dụng, riêng thẻ thì ghi Thẻ đã chọn không còn khả dụng. Không còn hiện tên bảng dữ liệu, mã bản ghi hay mã người dùng ra ngoài; những chi tiết đó chỉ ghi vào nhật ký máy chủ. Lọc bằng danh mục hoặc thẻ hợp lệ vẫn chạy như cũ"
+  impact: "Trang Thư viện kiến thức, cả điện thoại và máy tính. Danh sách bài, phân trang, quyền xem và nội dung bài không đổi"
+  retest: "Mở /portal/knowledge?category_id=999999 và /portal/knowledge?tag_id=999999: phải ra trang Kiến thức bình thường kèm dòng thông báo, tuyệt đối không thấy chữ wujia.knowledge hay User kèm số, không thấy trang lỗi. Ẩn một danh mục ở phần quản trị rồi mở đường dẫn có danh mục đó: cũng phải ra thông báo tương tự. Chọn một danh mục hợp lệ: phải lọc đúng và không có thông báo. Kiểm cả trên điện thoại và máy tính"
+  limit: "Không có"
+
+WJ-KNW-002:
+  sprint: "2026-08-15-C4"
+  build_override: "UAT | 15/08/2026 | Sprint 2026-08-15-C4 | commit: a292547 | Đã deploy UAT, module wujia_portal_knowledge 19.0.3.9.0 | Dev đã đo lại trên trình duyệt UAT ngày 15/08/2026 (chỉ đọc, không sửa dữ liệu) ở 391x844 và 1920x1080: 42/42 điểm đạt | URL: /portal/knowledge/<slug>"
+  url: "/portal/knowledge và /portal/knowledge/<slug> (cả điện thoại và máy tính)"
+  odoo_fit: "Custom"
+  fix: "Ngày giờ phát hành của bài viết trên portal nay được đổi sang giờ Việt Nam trước khi hiển thị, dùng đúng cách quy đổi mà các màn portal khác đang dùng. Trước đây portal in thẳng giờ lưu trong hệ thống nên sớm hơn 7 tiếng so với ô Publish date ở phần quản trị. Áp cho cả sáu chỗ hiển thị ngày: danh sách máy tính, danh sách điện thoại, bài nổi bật, trang chi tiết, bài liên quan và dòng chân bài"
+  impact: "Mọi chỗ hiển thị ngày phát hành trong Thư viện kiến thức. Dữ liệu lưu trữ, thứ tự sắp xếp bài và các màn khác không đổi"
+  retest: "Chọn một bài đang hiển thị, ở phần quản trị đặt Publish date là 12/08/2026 16:05 rồi mở trang chi tiết bài đó trên portal: phải thấy đúng 12/08/2026 16:05, không được ra 09:05. So thêm ngày hiển thị ở danh sách với ô trong phần quản trị. Kiểm cả trên điện thoại và máy tính"
+  limit: "Không có"
+
+WJ-KNW-003:
+  sprint: "2026-08-15-C4"
+  build_override: "UAT | 15/08/2026 | Sprint 2026-08-15-C4 | commit: a292547 | Đã deploy UAT, module wujia_portal_knowledge 19.0.3.9.0 | Dev đã đo lại trên trình duyệt UAT ngày 15/08/2026 (chỉ đọc, không sửa dữ liệu) ở 391x844 và 1920x1080: 42/42 điểm đạt | URL: /portal/knowledge"
+  url: "/portal/knowledge — ô tìm kiếm (cả điện thoại và máy tính)"
+  odoo_fit: "Custom"
+  fix: "Ô tìm kiếm nay tìm cả trong tiêu đề, phần tóm tắt và phần nội dung của bài, thay vì chỉ tiêu đề. Nội dung được lấy bản chữ đã bỏ hết định dạng nên gõ một cụm bị in đậm hoặc xuống dòng cắt ngang vẫn ra kết quả, và cũng không còn ra kết quả rác do trùng với mã định dạng. Kết quả vẫn chỉ gồm bài đang hiển thị hợp lệ: đã đăng, chưa bị ẩn, đã tới ngày phát hành và chưa hết hạn. Gõ từ khóa không có thì vẫn hiện thông báo chưa có bài viết như bình thường. Ô tìm nhanh gợi ý khi đang gõ cũng dùng đúng một quy tắc này"
+  impact: "Ô tìm kiếm ở trang Thư viện kiến thức và ô gợi ý khi gõ. Danh sách, phân trang, lọc danh mục và nội dung bài không đổi. Bài đang đặt lịch phát hành ngày mai trở đi nay không còn nằm trong kết quả cho tới đúng ngày"
+  retest: "Chọn một bài có câu chỉ xuất hiện trong phần tóm tắt, gõ câu đó vào ô tìm: phải ra bài. Làm tương tự với một câu chỉ có trong phần nội dung, kể cả câu có chữ in đậm ở giữa: phải ra bài. Gõ một chuỗi không tồn tại: phải ra thông báo chưa có bài viết. Chuyển một bài về nháp rồi tìm lại bằng từ khóa của bài đó: không được ra. Kiểm cả trên điện thoại và máy tính"
+  limit: "Tìm kiếm so khớp trên bản gốc của nội dung; nếu sau này bài có thêm bản dịch ngôn ngữ khác thì phần dịch chưa được tìm riêng. Portal đang chạy tiếng Việt nên chưa ảnh hưởng"
+
+WJ-KNW-004:
+  sprint: "2026-08-15-C4"
+  build_override: "UAT | 15/08/2026 | Sprint 2026-08-15-C4 | commit: a292547 | Đã deploy UAT, module wujia_portal_knowledge 19.0.3.9.0 | Dev đã đo lại trên trình duyệt UAT ngày 15/08/2026 (chỉ đọc, không sửa dữ liệu) ở 391x844 và 1920x1080: 42/42 điểm đạt | URL: /portal/knowledge/<slug>"
+  url: "/portal/knowledge/<slug> — mở thẳng đường dẫn bài đã gỡ"
+  odoo_fit: "Custom"
+  fix: "Mở thẳng đường dẫn của một bài đã chuyển về nháp, đã lưu trữ, đã ẩn, đã hết hạn hoặc chưa tới ngày phát hành thì hệ thống vẫn đưa về trang Kiến thức, nhưng nay có kèm dòng thông báo Bài viết không tồn tại hoặc không còn khả dụng. Câu thông báo giống nhau cho mọi lý do nên không tiết lộ bài đang ở trạng thái nào. Đường dẫn tải tệp đính kèm của bài đã gỡ cũng ra thông báo này thay vì trang không tìm thấy"
+  impact: "Trang chi tiết bài viết và đường dẫn tải đính kèm. Danh sách bài, quyền xem và nội dung bài đang hiển thị không đổi"
+  retest: "Chọn một bài đang hiển thị, ghi lại đường dẫn, rồi ở phần quản trị chuyển bài về Nháp. Mở lại đường dẫn đó: phải về trang Kiến thức kèm dòng Bài viết không tồn tại hoặc không còn khả dụng, không thấy nội dung bài. Làm lại với bài lưu trữ, bài bị ẩn và bài đặt ngày phát hành ở tương lai: cùng một thông báo. Mở đường dẫn tải đính kèm của bài đã gỡ: cũng ra thông báo, không ra trang lỗi. Đưa bài trở lại trạng thái đã đăng rồi mở lại: phải xem được bình thường"
+  limit: "Không có"
+
+WJ-DELIVERY-005:
+  sprint: "2026-08-15-C5"
+  build_override: "UAT | 15/08/2026 | Sprint 2026-08-15-C5 | commit: 6ac7807 | Đã deploy UAT, wujia_portal_delivery 19.0.3.6.0 + wujia_portal_base 19.0.7.3.0 | Dev đã đo lại trên trình duyệt UAT ngày 15/08/2026 (chỉ đọc, không sửa dữ liệu) ở 391x844 và 1920x1080: trang chủ hiện chuyến BATCH/OUT/00001 kèm đơn S00031 và dòng 1 đơn chưa giao | URL: /portal"
+  url: "/portal — block Giao hàng sắp tới (điện thoại)"
+  odoo_fit: "Custom"
+  fix: "Trang chủ portal nay lấy dữ liệu giao hàng bằng đúng quy tắc cửa hàng đang chọn như trang Theo dõi giao hàng, và chỉ lấy chuyến chưa hoàn thành. Dưới tiêu đề block có thêm dòng tổng số đơn chưa giao của cửa hàng, tính trên mọi chuyến chưa hoàn thành. Mỗi thẻ chuyến hiện số đơn chưa giao của chính chuyến đó kèm mã các đơn tương ứng, thay cho cách đếm cũ gộp cả đơn đã giao. Chuyến đang bốc hàng hoặc đang giao vẫn hiện dù lịch dự kiến đã qua"
+  impact: "Block Giao hàng sắp tới trên trang chủ bản điện thoại. Trang Theo dõi giao hàng, quyền xem và dữ liệu backend không đổi"
+  retest: "Chọn một cửa hàng có chuyến đang giao và có đơn chưa giao rồi mở trang chủ: block Giao hàng sắp tới phải hiện chuyến đó, dòng đếm phải đúng số đơn chưa giao của cửa hàng, và mã đơn in trong thẻ phải đúng các đơn chưa giao của chuyến. Hoàn tất một chuyến ở backend rồi tải lại trang chủ: chuyến đó phải biến mất. Đổi sang cửa hàng khác: không được thấy dữ liệu của cửa hàng cũ"
+  limit: "Block giao hàng trên trang chủ vẫn chỉ có bản điện thoại, bản máy tính chưa dựng (chủ dự án chốt giữ nguyên ngày 15/08/2026). Số thẻ chuyến hiện tối đa 2, thuộc phạm vi cụm C7 nên chưa đổi ở đợt này; vì vậy dòng tổng đơn chưa giao có thể lớn hơn tổng số đơn của 2 thẻ đang hiện"
+  limit_note_uat: "Đo lại trên UAT 15/08/2026 sau khi deploy: chuyến chưa giao duy nhất (BATCH/OUT/00001) chưa đặt ngày dự kiến nên bản đầu chưa liệt kê đơn; bản 6ac7807 cho chuyến chưa đặt lịch hiện ở cuối block, đã deploy UAT và đo lại đạt."
+
+WJ-DELIVERY-006:
+  sprint: "2026-08-15-C5"
+  build_override: "UAT | 15/08/2026 | Sprint 2026-08-15-C5 | commit: c77e335 | Đã deploy UAT, wujia_portal_delivery 19.0.3.6.0 + wujia_portal_base 19.0.7.3.0 | Dev đã đo lại trên trình duyệt UAT ngày 15/08/2026 (chỉ đọc, không sửa dữ liệu) ở 391x844 và 1920x1080 | URL: /portal/delivery"
+  url: "/portal/delivery — badge trạng thái ở đầu danh sách (máy tính)"
+  odoo_fit: "Custom"
+  fix: "Các badge đếm ở đầu danh sách chuyến giao nay tính trên đúng tập kết quả đang hiển thị: khi tìm theo mã chuyến hoặc mã đơn, và khi lọc khoảng ngày, badge Tất cả bằng đúng số dòng tìm được, các badge trạng thái cũng đếm trong chính tập đó. Xoá tìm kiếm và bộ lọc ngày thì các số trở về dữ liệu đầy đủ của cửa hàng đang chọn. Bấm chọn một badge trạng thái vẫn thấy số của các badge còn lại, không bị về 0"
+  impact: "Dãy badge đếm trên trang Theo dõi giao hàng. Danh sách, phân trang và dữ liệu backend không đổi. Số lần truy vấn giữ nguyên như trước"
+  retest: "Mở Theo dõi giao hàng, ghi lại các số ở dãy badge. Tìm một mã đơn chỉ thuộc một chuyến: danh sách còn 1 dòng và badge Tất cả phải là 1, các badge trạng thái phải khớp trạng thái của chuyến đó. Xoá ô tìm: các số phải trở lại như ban đầu. Chọn khoảng ngày chỉ chứa vài chuyến: badge phải khớp số dòng. Bấm một badge trạng thái: các badge khác vẫn giữ số"
+
+WJ-DELIVERY-007:
+  sprint: "2026-08-15-C5"
+  build_override: "UAT | 15/08/2026 | Sprint 2026-08-15-C5 | commit: c77e335 | Đã deploy UAT, wujia_portal_delivery 19.0.3.6.0 + wujia_portal_base 19.0.7.3.0 | Dev đã đo lại trên trình duyệt UAT ngày 15/08/2026 (chỉ đọc, không sửa dữ liệu) ở 391x844 và 1920x1080 | URL: /portal/delivery và /portal/delivery/<id>"
+  url: "/portal/delivery và /portal/delivery/<id> (cả điện thoại và máy tính)"
+  odoo_fit: "Custom"
+  fix: "Xác nhận technical mapping BA gợi ý là đúng: hệ thống đã lưu sẵn thời gian xuất phát thực tế trên chuyến giao, ghi tự động khi chuyến chuyển sang Đang giao. Portal nay hiện thời gian thực tế đó khi chuyến đã xuất phát, và chỉ hiện giờ dự kiến khi chưa xuất phát; áp cho danh sách, trang chi tiết và block Giao hàng sắp tới ở trang chủ. Nhãn đi kèm đổi theo dữ liệu, ghi rõ Xuất phát (thực tế) hoặc Xuất phát (dự kiến) để phân biệt được bằng mắt. Giờ hiển thị đã quy đổi sang giờ Việt Nam"
+  impact: "Ô Xuất phát ở danh sách chuyến, trang chi tiết chuyến và thẻ chuyến trên trang chủ. Bộ lọc khoảng ngày vẫn lọc theo lịch dự kiến như cũ; dữ liệu backend không đổi"
+  retest: "Chọn một chuyến chưa xuất phát: portal phải ghi Xuất phát (dự kiến) kèm đúng giờ dự kiến trong backend. Cho chuyến xuất phát ở backend rồi mở lại portal: phải ghi Xuất phát (thực tế) kèm đúng giờ thực tế, không còn hiện giờ dự kiến ở ô đó. Đối chiếu giờ trên portal với giờ trong backend theo giờ Việt Nam. Kiểm cả danh sách, trang chi tiết và trang chủ, trên điện thoại lẫn máy tính"
+
+WJ-HOME-003:
+  sprint: "2026-08-15-C5"
+  build_override: "UAT | 15/08/2026 | Sprint 2026-08-15-C5 | commit: c77e335 | Đã deploy UAT, wujia_portal_delivery 19.0.3.6.0 + wujia_portal_base 19.0.7.3.0 | Dev đã đo lại trên trình duyệt UAT ngày 15/08/2026 (chỉ đọc, không sửa dữ liệu) ở 391x844 và 1920x1080 | URL: /portal"
+  url: "/portal — block Giao hàng sắp tới (điện thoại)"
+  odoo_fit: "Custom"
+  fix: "Block Giao hàng sắp tới nay chỉ lấy chuyến chưa hoàn thành: chuyến Đã giao xong và Hủy chuyến không còn xuất hiện. Chuyến đang bốc hàng hoặc đang giao vẫn giữ lại kể cả khi lịch dự kiến đã qua, vì đó vẫn là hàng chưa tới cửa hàng. Thứ tự sắp theo lịch dự kiến gần nhất trước. Tên block giữ nguyên như BA yêu cầu. Không có chuyến nào thì vẫn hiện đúng khối trạng thái trống như trước"
+  impact: "Chỉ block Giao hàng sắp tới trên trang chủ bản điện thoại. Trang Theo dõi giao hàng và các block khác của trang chủ không đổi"
+  retest: "Mở trang chủ với cửa hàng có đủ chuyến ở các trạng thái: block Giao hàng sắp tới không được có chuyến Đã giao xong hay Hủy chuyến. Trạng thái và ngày giờ trên thẻ phải khớp backend. Nếu có nhiều chuyến chưa hoàn thành, chuyến có lịch gần nhất phải đứng trước. Hoàn tất chuyến cuối cùng rồi tải lại: block phải hiện khối chưa có chuyến giao sắp tới"
+
+WJ-ORD-026:
+  sprint: "2026-08-15-C9"
+  build_override: "UAT | 15/08/2026 | Sprint 2026-08-15-C9 | commit: 9a8784b | Đã deploy UAT, wujia_portal_layout 19.0.31.17.0 + wujia_portal_sale 19.0.4.13.0 | Dev đã đo lại trên trình duyệt UAT ngày 15/08/2026 (chỉ đọc, không sửa dữ liệu) với giỏ 4 dòng của cửa hàng HCM-01 ở 360x640 và 391x844: nút Gửi đơn đặt hàng kết thúc ở 749 còn thanh chức năng bắt đầu ở 761, cách nhau 12px, không còn bị che | URL: /portal/order/cart"
+  url: "/portal/order/cart — nút Gửi đơn đặt hàng (điện thoại)"
+  odoo_fit: "Custom"
+  fix: "Khối tổng tiền cố định ở cuối giỏ hàng trước đây được đặt cách đáy màn hình một khoảng cố định từ thời thanh chức năng dưới cùng còn thấp, nên khi thanh này được nâng cao thì nút Gửi đơn đặt hàng bị che mất phần dưới. Nay khoảng cách đó lấy theo đúng chiều cao thật của thanh chức năng, kể cả phần chừa thêm cho vạch cảm ứng của điện thoại màn hình tràn viền, nên nút luôn nằm trọn phía trên thanh. Khoảng trống chừa dưới nội dung giỏ cũng tính theo cách này, cuộn hết vẫn đọc và sửa được ô ghi chú"
+  impact: "Trang giỏ hàng bản điện thoại và thanh giỏ hàng nổi ở trang Đặt hàng. Bố cục, số liệu, luồng gửi đơn và bản máy tính không đổi"
+  retest: "Mở giỏ hàng trên điện thoại với giỏ có nhiều dòng và một ghi chú dài, cuộn xuống cuối: nút Gửi đơn đặt hàng phải hiện trọn vẹn phía trên thanh chức năng dưới cùng, bấm được ở cả mép dưới của nút. Kiểm ở máy màn hình hẹp 360 và máy 391. Kiểm thêm khối tổng tiền vẫn đọc được và trang không bị trượt ngang"
+  limit: "Chưa kiểm được trên máy thật có vạch cảm ứng dưới màn hình vì trình duyệt đo tự động luôn báo khoảng chừa bằng 0; công thức bám đúng khoảng chừa của chính thanh chức năng nên chỉ có thể dư chứ không thiếu"
+
+RESP-MOB-ORDER-002:
+  sprint: "2026-08-15-C9"
+  build_override: "UAT | 15/08/2026 | Sprint 2026-08-15-C9 | commit: 9a8784b | Đã deploy UAT, wujia_portal_layout 19.0.31.17.0 + wujia_portal_sale 19.0.4.13.0 | Dev đã đo lại trên trình duyệt UAT ngày 15/08/2026 (chỉ đọc, không sửa dữ liệu) ở 360x640 và 391x844: tên sản phẩm rộng 277px trên thẻ 357px (trước 150px) và 246px trên máy 360px, cả 5 sản phẩm về 1 dòng, không đè giá hay nút giỏ | URL: /portal/order"
+  url: "/portal/order — thẻ sản phẩm (điện thoại)"
+  odoo_fit: "Custom"
+  fix: "Thẻ sản phẩm trên điện thoại nay chia hai hàng theo đúng đề xuất của BA: tên sản phẩm chiếm trọn hàng trên, còn quy cách, đơn giá và nút thêm vào giỏ xuống hàng dưới. Nhờ vậy tên có 277 điểm ảnh thay vì 150 trên máy 391 và 246 thay vì 122 trên máy 360, phần lớn tên nay nằm gọn một dòng. Tên vẫn tối đa hai dòng và có dấu ba chấm khi thật sự quá dài. Ảnh sản phẩm vẫn ở bên trái, nút thêm vào giỏ và bộ tăng giảm số lượng giữ nguyên kích thước vùng bấm"
+  impact: "Danh sách sản phẩm bản điện thoại ở trang Đặt hàng, kể cả sau khi lọc theo danh mục hoặc tìm kiếm. Bảng sản phẩm bản máy tính, giá, thuế và chức năng thêm vào giỏ không đổi. Thẻ cao thêm khoảng 20 điểm ảnh, đúng phần BA đã chấp nhận cho thẻ cao động"
+  retest: "Mở trang Đặt hàng trên điện thoại: tên sản phẩm phải trải hết chiều rộng thẻ trước khi xuống dòng, tối đa hai dòng, không đè lên giá, quy cách hay nút giỏ. Kiểm với sản phẩm có tên rất dài và cả sản phẩm tên ngắn. Kiểm ở máy 360 và 391, trang không được trượt ngang. Thêm sản phẩm vào giỏ rồi kiểm bộ tăng giảm số lượng vẫn hoạt động và không làm vỡ thẻ"
+  limit: "Không có"
+
+WJ-PH-008:
+  sprint: "2026-08-15-C9"
+  build_override: "UAT | 15/08/2026 | Sprint 2026-08-15-C9 | commit: 9a8784b | Đã deploy UAT, wujia_portal_purchase_history 19.0.3.6.0 | Dev đã đo lại trên trình duyệt UAT ngày 15/08/2026 (chỉ đọc, không sửa dữ liệu) ở 1920x1080 và 391x844 với 15 đơn thật: mặc định 10 dòng, trang 1 hiện 1-10/15, trang 2 hiện 11-15/15, không trùng mã đơn | URL: /portal/purchase-history"
+  url: "/portal/purchase-history — số dòng mỗi trang"
+  odoo_fit: "Custom"
+  fix: "Lịch sử đặt hàng nay mặc định 10 dòng mỗi trang đúng như quy định của bộ giao diện, thay vì 20. Ô chọn số dòng mỗi trang và phần kiểm tra ở máy chủ dùng chung một danh sách 10, 20, 50 nên không thể lệch nhau; nhập tay một con số lạ trên đường dẫn thì hệ thống trả về mặc định 10 chứ không tải bừa. Số dòng đang chọn được giữ lại khi tìm kiếm, khi lọc theo trạng thái hoặc khoảng ngày và khi chuyển trang. Tổng số bản ghi, số trang và thứ tự đơn giữ nguyên, không có đơn nào bị lặp hay bỏ sót giữa các trang"
+  impact: "Trang Lịch sử đặt hàng, cả bản máy tính lẫn điện thoại. Nội dung đơn, bộ lọc, quyền xem và trang chi tiết đơn không đổi. Người đang quen xem 20 dòng chỉ cần chọn lại 20 ở ô số dòng mỗi trang"
+  retest: "Mở Lịch sử đặt hàng khi cửa hàng có hơn 10 đơn: ô số dòng phải hiện 10 và trang 1 có đúng 10 dòng. Sang trang 2 và đối chiếu mã đơn với trang 1: không được trùng, cộng lại phải đủ tổng bản ghi ghi ở góc trái. Chọn 20 dòng rồi bấm tìm kiếm hoặc lọc trạng thái: ô số dòng phải vẫn là 20. Sửa đường dẫn thành page_size bằng một số lạ: trang vẫn mở bình thường và về 10 dòng"
+  limit: "Không có"
+
+WJ-EXAM-007:
+  sprint: "2026-08-18-C10"
+  build_override: "UAT | 18/08/2026 | Sprint 2026-08-18-C10 | commit: f99321b | Đã deploy UAT, wujia_portal_exam 19.0.5.6.0 | Dev đã đo lại trên trình duyệt UAT ngày 18/08/2026 (chỉ đọc, không tạo phiếu) ở 1920x1080: khóa QA-MANUAL-HCM-20260803 hiện đúng tối đa 2 người ở cả câu hướng dẫn lẫn ô Giới hạn mỗi phiếu (0 / 2), đổi sang khóa Thi pha chế định kỳ thì cả hai thành 4 | URL: /portal/exam/register"
+  url: "/portal/exam/register — Giới hạn người tham gia"
+  odoo_fit: "Custom"
+  fix: "Màn đăng ký thi trước đây có câu hướng dẫn ghi cứng tối đa 4 người, trong khi ô Giới hạn mỗi phiếu lấy số thật từ cấu hình nên hai chỗ đá nhau. Nay mọi vị trí đều đọc cùng một nguồn: giới hạn của ca thi, ca nào để trống thì lấy giới hạn của khóa thi. Đổi khóa hoặc chọn ca khác thì câu hướng dẫn, ô giới hạn và thông báo khi thêm quá số người đều đổi theo cùng lúc. Máy chủ vẫn kiểm lại đúng giới hạn đó khi gửi phiếu nên không thể gửi vượt bằng cách sửa trình duyệt. Bản điện thoại cũng bỏ hết số 4 mặc định, lấy theo ca thi đã chọn. Giá trị đang có hiệu lực với khóa BA kiểm thử là 2 người mỗi phiếu"
+  impact: "Màn đăng ký thi trên máy tính và điện thoại. Cấu hình khóa thi và ca thi trong phần quản trị không đổi, dữ liệu phiếu đã có không đổi. Muốn đổi giới hạn thì sửa ở ca thi hoặc khóa thi, giao diện tự cập nhật"
+  retest: "Mở màn đăng ký thi với khóa có giới hạn 2: câu hướng dẫn phải ghi tối đa 2 người và ô Giới hạn mỗi phiếu phải là 0 / 2, không còn chỗ nào ghi 4. Đổi sang khóa giới hạn 4: cả hai chỗ phải thành 4. Chọn một ca thi có cấu hình riêng khác khóa: cả hai chỗ phải lấy số của ca thi. Thêm người tới đúng giới hạn rồi thêm tiếp: phải bị chặn kèm thông báo ghi đúng con số đó. Đổi giới hạn trong phần quản trị rồi tải lại trang: giao diện phải hiện số mới"
+  limit: "Trên UAT hiện không còn ca thi nào mở để chọn (ca duy nhất của khóa QA-MANUAL đã hết hạn ngày 16/08/2026), nên phần lấy giới hạn theo ca thi Dev đo trên bản sao cơ sở dữ liệu chứ chưa đo được trực tiếp trên UAT. Muốn retest trọn vẹn phần này, nhờ BA mở thêm một ca thi còn hạn, tốt nhất là ca có giới hạn khác với giới hạn của khóa"
+
+WJ-LANG-001:
+  sprint: "2026-08-18-C10"
+  build_override: "UAT | 18/08/2026 | Sprint 2026-08-18-C10 | commit: f99321b | Đã deploy UAT, wujia_portal_layout 19.0.31.18.0 | Dev đã đo lại trên trình duyệt UAT ngày 18/08/2026 (chỉ đọc) ở 1920x1080 và 391x844: bộ chọn ra đủ ba ngôn ngữ English, Tiếng Việt, ภาษาไทย trên máy tính, điện thoại và màn đăng nhập; chọn tiếng Thái ngay ở màn đăng nhập rồi đăng nhập vẫn giữ tiếng Thái qua nhiều trang; đã trả tài khoản về tiếng Việt sau khi đo | URL: /portal"
+  url: "Portal toàn hệ thống — bộ chọn ngôn ngữ (máy tính, điện thoại, màn đăng nhập)"
+  odoo_fit: "Custom"
+  fix: "Bộ chọn ngôn ngữ trước đây viết cứng đúng hai mục English và Vietnam trong giao diện, nên cài thêm ngôn ngữ mới thì không hiện. Nay danh sách lấy động theo các ngôn ngữ đang bật trong phần cài đặt: bật thêm ngôn ngữ nào là portal có ngay mục đó, kể cả tiếng Thái hay tiếng Trung phồn thể, không phải sửa gì thêm. Tên ngôn ngữ hiển thị theo tên bản ngữ và cờ lấy theo mã ngôn ngữ. Màn đăng nhập trước đây chỉ có ô ngôn ngữ trang trí, nay bấm đổi được thật; ngôn ngữ chọn lúc chưa đăng nhập được giữ lại sau khi đăng nhập. Thẻ ngôn ngữ của trang cũng đổi theo ngôn ngữ đang dùng thay vì ghim sẵn"
+  impact: "Thanh trên cùng bản máy tính, thanh trên cùng bản điện thoại và màn đăng nhập của portal. Cách đổi ngôn ngữ vẫn dùng đường dẫn cũ, tiếng Anh và tiếng Việt hoạt động như trước. Không thêm bảng dữ liệu, không đổi cấu hình ngôn ngữ hiện có"
+  retest: "Mở portal trên máy tính: bộ chọn phải có đủ ba mục English, Tiếng Việt và tiếng Thái, mục đang dùng hiện đúng tên và cờ. Kiểm tương tự trên điện thoại và ở màn đăng nhập. Chọn tiếng Thái rồi chuyển qua vài trang: vẫn giữ tiếng Thái. Chọn tiếng Thái ngay ở màn đăng nhập rồi đăng nhập: vẫn là tiếng Thái. Đổi lại tiếng Việt và tiếng Anh: phải chuyển bình thường. Nhờ quản trị bật thêm một ngôn ngữ khác trong phần cài đặt rồi tải lại portal: mục mới phải tự xuất hiện"
+  limit: "Cụm này chỉ sửa bộ chọn và cơ chế đổi ngôn ngữ. Nội dung tiếng Việt trong portal là bản gốc nên khi chọn tiếng Thái, phần nào chưa có bản dịch trong tệp ngôn ngữ vẫn hiển thị tiếng Việt. Ngoài ra ba chỗ nhãn đang được cố định tiếng Việt từ đợt chuẩn hóa ngôn ngữ trước (trạng thái nhượng quyền, mức độ ưu tiên ở chuông thông báo, loại yêu cầu cập nhật thông tin) vẫn ra tiếng Việt ở mọi ngôn ngữ; gỡ chỗ này cần BA chốt từ vựng nên chưa đụng tới"
+
+WJ-PORTAL-UI-001:
+  sprint: "2026-08-19-C6"
+  build_override: "UAT | 19/08/2026 | Sprint 2026-08-19-C6 | commit: 159ffe3 | Đã deploy UAT, wujia_portal_layout 19.0.31.19.0 + wujia_portal_sale | Dev đã đo lại trực tiếp trên UAT sau khi deploy ngày 19/08/2026 (chỉ đọc, không sửa dữ liệu) ở 1920x1080 và 391x844 trên 22 trang: không còn thành phần bấm được nào gạch chân (trước 18 trên máy tính và 34 trên điện thoại), mọi thành phần bấm được đều có viền chỉ dấu bàn phím dày 2 điểm ảnh cách 2 điểm ảnh màu #0F7CA8 (trước thiếu 46 và 43 chỗ), đi phím Tab thật qua 5 trang thì 124 trên 124 điểm dừng đều thấy viền, không trang nào đổi chiều cao hay trượt ngang, không lỗi trình duyệt | URL: toàn bộ Portal"
+
+  url: "Portal toàn hệ thống — trạng thái hover, chỉ dấu bàn phím và trạng thái nhấn của mọi thành phần bấm được"
+  odoo_fit: "Custom"
+  fix: "Chữ trong khung, dòng danh sách, mục menu, nút, thẻ lọc, tab và nút biểu tượng không còn gạch chân ở bất kỳ trạng thái nào; chỉ liên kết chữ trong câu và nội dung bài viết do người dùng soạn mới giữ gạch chân. Nguyên nhân không nằm ở từng màn mà ở một quy tắc duy nhất của bộ giao diện gốc Odoo: bộ này được nạp sau toàn bộ giao diện riêng của Wujia nên mọi khai báo bỏ gạch chân rải rác trước đó đều bị đè. Vì vậy thay vì vá tiếp từng chỗ, toàn bộ trạng thái tương tác được gom về một tệp dùng chung nạp sau cùng, viết bằng biến màu thay vì mã màu rải rác. Kèm theo đó: khung và dòng trung tính khi rê chuột đổi nền xanh nhạt, viền xanh và có bóng nhẹ trong 150 mili giây; khi bấm hoặc chạm thì đổi nền và viền ngay lúc chạm rồi trả lại khi nhả, không giữ vệt gạch chân sau khi chạm; đi bằng phím Tab thì mọi điểm dừng đều có viền chỉ dấu dày 2 điểm ảnh cách thành phần 2 điểm ảnh, trước đây gần như không nhìn thấy gì. Riêng chỗ danh sách bài kiến thức trước đây rê chuột ra màu tím lạ của bộ giao diện gốc, nay về đúng màu nhận diện Wujia. Hiệu ứng chỉ đổi màu nền, màu viền và bóng nên không thành phần nào bị xê dịch hay đổi kích thước"
+  impact: "Toàn bộ giao diện Portal trên cả máy tính lẫn điện thoại, vì đây là tầng dùng chung. Không đụng tới dữ liệu, quyền xem, luồng nghiệp vụ hay bố cục: đã đo 22 trang ở hai khổ màn hình, không trang nào đổi chiều cao, không trang nào trượt ngang, không lỗi trình duyệt. Bảng đo diện rộng của đợt trước giữ nguyên 282 trên 286 điểm, đúng bằng số trước khi sửa. Nút primary, nút hành động chính và thẻ lọc đang được chọn giữ nguyên màu đã thiết kế, chỉ được hưởng phần bỏ gạch chân và viền chỉ dấu bàn phím"
+  retest: "Mở lần lượt các trang Portal trên máy tính rồi trên điện thoại. Rê chuột lên khung, dòng danh sách, mục menu, nút, thẻ lọc, tab và nút biểu tượng: không chỗ nào được gạch chân chữ, khung và dòng trung tính phải đổi nền xanh nhạt kèm viền xanh và bóng nhẹ, và không thành phần nào bị nhích đi hay đổi kích thước. Mở một bài kiến thức có liên kết trong nội dung: liên kết trong câu vẫn phải gạch chân. Nhấn phím Tab liên tục qua một trang: mỗi điểm dừng phải thấy rõ viền chỉ dấu màu xanh đậm, không được mất dấu đang ở đâu. Trên điện thoại, chạm giữ vào một khung: nền và viền phải đổi lúc chạm và trở lại như cũ khi nhả, không còn vệt gạch chân. Kiểm thêm danh sách bài kiến thức: rê chuột không được ra màu tím"
+  limit: "Viền chỉ dấu bàn phím dùng màu xanh đậm #0F7CA8 chứ không phải #168FC2 như mô tả trong yêu cầu. Lý do: #0F7CA8 đúng bằng viền chỉ dấu mà nhóm nút hành động chính đang dùng và BA đã duyệt ở đợt trước, đồng thời tương phản 4,71 lần so với nền trắng trong khi #168FC2 chỉ 3,32 lần, tức #168FC2 chưa đạt mức dễ nhìn theo chuẩn. Muốn đổi lại đúng #168FC2 thì chỉ sửa một biến màu, nhờ BA xác nhận. Ngoài ra nhóm đã có trạng thái riêng theo bộ giao diện gồm nút hành động chính, thẻ lọc và mục menu đang được chọn, và các nút trên thanh nền tối được cố ý giữ nguyên màu: ép nền xanh nhạt vào nút hành động chính sẽ làm chữ trắng gần như không đọc được, còn ép vào thẻ lọc đang chọn sẽ mất dấu hiệu đang chọn. Trạng thái lúc chạm mới chỉ đo bằng trình duyệt giả lập điện thoại, chưa đo trên máy thật, nhờ BA kiểm hộ khi retest"
+
+WJ-HOME-001:
+  sprint: "2026-08-19-C7"
+  build_override: "UAT | 19/08/2026 | Sprint 2026-08-19-C7 | commit: b33b46f | Đã deploy UAT — wujia_portal_base 19.0.7.4.0 + wujia_portal_layout 19.0.31.20.0 | Dev đo lại ngay trên UAT sau khi deploy ở 360, 391, 430 và 500 điểm ảnh: số nhãn KPI bị cắt giảm từ 1 xuống 0, cả bốn nhãn hiện đủ chữ, mỗi nhãn đúng một dòng, bốn ô cùng nằm trên một hàng, nhãn không đè lên số, không lỗi trình duyệt | URL: /portal"
+  url: "/portal — block Tổng quan cửa hàng (điện thoại)"
+  odoo_fit: "Custom"
+  fix: "Bốn nhãn KPI ở đầu trang chủ không còn bị cắt cụt thành Đơn hà… hay Thông …. Trước đây nhãn được cố tình cắt bằng dấu ba chấm khi thiếu chỗ; nay bỏ hẳn kiểu cắt đó, thu nhỏ khoảng cách chữ và lề trong ô ở màn hình hẹp dưới 380 điểm ảnh để bốn KPI vẫn nằm trên một hàng và hiện đủ tên. Chỗ chừa sẵn cho nhãn tính theo hai dòng nên nếu sau này có nhãn dài bất thường thì nhãn xuống dòng chứ không bị cắt, và bốn con số vẫn thẳng hàng nhau. Ô Công nợ khi có số tiền dài thì số tự xuống dòng trong ô, không tràn ra ngoài và không đẩy lệch các ô còn lại. Không phải chuyển sang lưới hai hàng hai cột vì khổ nhỏ nhất đã đủ chỗ, đúng thứ tự ưu tiên BA chốt"
+  impact: "Chỉ khối bốn KPI ở đầu trang chủ bản điện thoại. Bản máy tính và máy tính bảng không đổi vì phần thu hẹp chỉ áp dụng dưới 380 điểm ảnh và khối máy tính không sửa dòng nào. Số liệu, đường dẫn khi bấm vào từng KPI giữ nguyên"
+  retest: "Mở trang chủ trên điện thoại ở các khổ 360, 391, 430 và 500 điểm ảnh. Bốn nhãn Đơn hàng, Thông báo, Đổi trả, Công nợ phải hiện đủ chữ, không chỗ nào còn dấu ba chấm. Bốn ô phải nằm trên cùng một hàng, nhãn không đè lên số và không đè lên vạch phân cách. Xoay ngang màn hình và mở trên máy tính: khối KPI máy tính giữ nguyên như trước"
+  limit: "Ô Công nợ trên UAT hiện là dấu gạch ngang vì cửa hàng của tài khoản đo chưa có chứng từ kế toán, nên trường hợp số tiền dài Dev ép bằng trình duyệt để đo chứ chưa gặp dữ liệu thật. Nếu sau này BA thấy số tiền dài xuống dòng chưa ưng thì báo lại để chỉnh cỡ chữ"
+
+WJ-HOME-002:
+  sprint: "2026-08-19-C7"
+  build_override: "UAT | 19/08/2026 | Sprint 2026-08-19-C7 | commit: b33b46f | Đã deploy UAT — wujia_portal_base 19.0.7.4.0 + wujia_portal_layout 19.0.31.20.0 | Dev đo lại ngay trên UAT sau khi deploy ở 360, 391, 430 và 500 điểm ảnh: số mã đơn bị cắt giảm từ 3 xuống 0 ở khổ 360, không dòng nào còn dấu ba chấm, không trang nào cuộn ngang | URL: /portal"
+  url: "/portal — block Đơn hàng gần đây (điện thoại)"
+  odoo_fit: "Custom"
+  fix: "Mã đơn trong block Đơn hàng gần đây nay hiện đầy đủ. Trước đây mã, ngày, số tiền, trạng thái và mũi tên chen nhau trên một dòng nên mã bị cắt thành S0… và các đơn trông giống hệt nhau. Nay mã đơn chiếm trọn dòng đầu cùng với nhãn trạng thái, còn ngày đặt và số tiền lùi xuống dòng phụ; mũi tên xem chi tiết đã bỏ nên có thêm chỗ. Mã chuyến giao ở block Giao hàng sắp tới cũng được sửa cùng cách vì bị cắt y hệt. Giờ đặt hàng hiển thị theo giờ Việt Nam thay vì giờ gốc của máy chủ"
+  impact: "Block Đơn hàng gần đây và Giao hàng sắp tới trên trang chủ bản điện thoại. Dữ liệu đơn, đường dẫn sang trang chi tiết và trang Lịch sử đặt hàng không đổi"
+  retest: "Mở trang chủ trên điện thoại ở 360 và 391 điểm ảnh khi cửa hàng có nhiều đơn mã gần giống nhau. Mỗi đơn phải đọc được trọn mã, không chỗ nào còn dấu ba chấm; ngày và số tiền nằm dưới mã, nhãn trạng thái nằm bên phải và không đè lên mã. Trang không được cuộn ngang. Bấm vào một dòng phải mở đúng đơn có mã đó"
+  limit: "Không có"
+
+WJ-HOME-006:
+  sprint: "2026-08-19-C7"
+  build_override: "UAT | 19/08/2026 | Sprint 2026-08-19-C7 | commit: b33b46f | Đã deploy UAT — wujia_portal_base 19.0.7.4.0 + wujia_portal_layout 19.0.31.20.0 | Dev đo lại ngay trên UAT sau khi deploy: mọi block preview hiện tối đa 2 dòng đúng như yêu cầu, năm liên kết Xem tất cả còn nguyên, các block chỉ có một bản ghi vẫn hiển thị bình thường | URL: /portal"
+  url: "/portal — số bản ghi mỗi block preview (điện thoại và máy tính)"
+  odoo_fit: "Custom"
+  fix: "Mọi block danh sách trên trang chủ nay hiển thị đúng hai bản ghi mới nhất. Trước đây Đơn hàng gần đây hiện năm dòng còn Thông báo, Đổi trả, Kiến thức hiện ba dòng nên trang bị kéo dài và các block cuối bị đẩy xuống sâu. Số lượng này nay là một con số duy nhất dùng chung cho cả năm nguồn dữ liệu, sửa một chỗ là mọi block đổi theo, không còn cảnh mỗi block một kiểu. Thứ tự vẫn từ mới đến cũ theo ngày nghiệp vụ của từng block, và liên kết Xem tất cả vẫn mở danh sách đầy đủ. Việc cắt bớt làm ở tầng dữ liệu chứ không phải giấu bằng giao diện, nên trang cũng nhẹ hơn"
+  impact: "Trang chủ ở cả bản điện thoại lẫn bản máy tính, vì hai bản dùng chung một nguồn dữ liệu. Bản máy tính trước đây hiện năm đơn nay cũng còn hai đơn kèm liên kết Xem tất cả, đây là quyết định của chủ dự án để tránh tách đôi nguồn dữ liệu. Bốn con số ở khối KPI vẫn đếm trên toàn bộ dữ liệu chứ không bị giới hạn hai bản ghi. Các trang danh sách đầy đủ không đổi"
+  retest: "Mở trang chủ khi cửa hàng có nhiều hơn hai đơn, hai thông báo, hai yêu cầu đổi trả và hai bài viết. Mỗi block phải hiện đúng hai dòng, dòng trên cùng là bản ghi mới nhất. Bấm Xem tất cả ở từng block phải mở danh sách đầy đủ với số lượng như cũ. Kiểm block chỉ có một bản ghi và block chưa có dữ liệu: vẫn hiển thị bình thường, block rỗng vẫn ra khung thông báo trống. Cuộn xuống cuối trang: nội dung không bị thanh điều hướng dưới cùng che"
+  limit: "Không có"
+
+WJ-HOME-007:
+  sprint: "2026-08-19-C7"
+  build_override: "UAT | 19/08/2026 | Sprint 2026-08-19-C7 | commit: b33b46f | Đã deploy UAT — wujia_portal_base 19.0.7.4.0 + wujia_portal_layout 19.0.31.20.0 | Dev đo lại ngay trên UAT sau khi deploy: số mũi tên ở cấp dòng giảm từ 11 xuống 0 trên toàn trang, năm liên kết Xem tất cả giữ nguyên, đi phím Tab qua năm trang thì 124 trên 124 điểm dừng vẫn thấy viền chỉ dấu | URL: /portal"
+  url: "/portal — dấu hiệu tương tác ở cấp dòng của mọi block (điện thoại)"
+  odoo_fit: "Custom"
+  fix: "Đã bỏ toàn bộ mũi tên xem chi tiết ở cấp dòng và cấp thẻ trong mọi block trang chủ, gồm Giao hàng, Đơn hàng, Kiến thức, Đổi trả, Thông báo và Hỗ trợ. Liên kết Xem tất cả ở tiêu đề từng block vẫn giữ. Mỗi dòng bấm được vốn đã là một vùng bấm trọn dòng nên bỏ mũi tên không làm mất chỗ bấm; trạng thái khi rê chuột, khi chạm và viền chỉ dấu bàn phím dùng đúng bộ trạng thái chung vừa chuẩn hóa ở đợt trước, không viết riêng cho trang chủ. Chỗ mũi tên cũ không để lại khoảng trống vì dòng tự co lại theo nội dung"
+  impact: "Các block danh sách trên trang chủ bản điện thoại. Không đổi đường dẫn, không đổi dữ liệu. Người dùng vẫn bấm vào dòng để mở chi tiết như trước, chỉ khác là không còn mũi tên trang trí"
+  retest: "Mở trang chủ trên điện thoại và cuộn qua đủ sáu block. Không block nào còn mũi tên ở từng dòng hay từng thẻ. Tiêu đề mỗi block vẫn có liên kết Xem tất cả. Chạm vào bất kỳ chỗ nào trên một dòng, kể cả phần trống bên phải, phải mở được chi tiết. Chạm giữ một dòng: nền và viền đổi lúc chạm rồi trở lại khi nhả. Kiểm khoảng cách giữa các dòng: không có khoảng trống thừa ở mép phải"
+  limit: "Trạng thái lúc chạm mới đo bằng trình duyệt giả lập điện thoại, chưa đo trên máy thật, nhờ BA kiểm hộ khi retest"
+
+WJ-HOME-008:
+  sprint: "2026-08-19-C7"
+  build_override: "UAT | 19/08/2026 | Sprint 2026-08-19-C7 | commit: b33b46f | Đã deploy UAT — wujia_portal_base 19.0.7.4.0 + wujia_portal_layout 19.0.31.20.0 | Dev đo lại ngay trên UAT sau khi deploy ở bốn khổ điện thoại: mỗi block danh sách đúng một khung, tổng số khung trên trang giảm từ 8 xuống 6, không còn phần tử nào dùng kiểu khung rời cũ, không cuộn ngang | URL: /portal"
+  url: "/portal — cấu trúc khung của các block danh sách (điện thoại)"
+  odoo_fit: "Custom"
+  fix: "Các block danh sách trên trang chủ nay dùng chung một kiểu: mỗi block là một khung, bên trong là các dòng ngăn nhau bằng một đường kẻ mảnh. Trước đây Giao hàng sắp tới và Yêu cầu đổi trả tách mỗi bản ghi thành một khung riêng, còn Thông báo nổi bật lại là các dải màu rời không nằm trong khung nào, nên ba block cùng loại mà trông khác hẳn nhau. Nay cả ba về đúng một mẫu với Đơn hàng và Kiến thức: cùng lề trong, cùng bo góc, cùng cỡ chữ, cùng kiểu biểu tượng và cùng nhãn trạng thái. Riêng Hành động nhanh và khối bốn KPI giữ bố cục riêng theo đúng yêu cầu. Phần giao diện của kiểu khung rời cũ đã được dọn khỏi mã nguồn để sau này không ai dùng nhầm lại"
+  impact: "Ba block Giao hàng sắp tới, Yêu cầu đổi trả và Thông báo nổi bật trên trang chủ bản điện thoại. Nội dung từng dòng giữ nguyên, chỉ đổi cách đóng khung. Block Thông báo không còn dải màu bên trái phân biệt loại thông báo, thay vào đó vẫn có nhãn loại thông báo ở bên phải mỗi dòng như trước. Các trang khác dùng chung bộ khung này đã kiểm lại: Hỗ trợ, Đổi trả và Thông tin cửa hàng không đổi"
+  retest: "Mở trang chủ trên điện thoại. Ba block Thông báo nổi bật, Giao hàng sắp tới và Yêu cầu đổi trả mỗi block phải là một khung duy nhất, các dòng bên trong ngăn nhau bằng một đường kẻ, không còn mỗi bản ghi một khung rời. So sánh với block Đơn hàng gần đây và Kiến thức: lề, bo góc, cỡ chữ và nhãn trạng thái phải giống nhau. Khối Hành động nhanh và bốn KPI phải giữ nguyên bố cục cũ. Kiểm ở các khổ 360, 391, 430 và 500 điểm ảnh: không cuộn ngang, không có khung lồng trong khung"
+  limit: "Không có"

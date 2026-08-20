@@ -6,6 +6,7 @@ from odoo.addons.portal.controllers.portal import CustomerPortal
 from odoo.addons.wujia_portal_base.controllers.utils import (
     MOBILE_ORDER_BADGES,
     MOBILE_RETURN_BADGES,
+    fmt_local_dt,
     get_upcoming_batches,
     portal_money,
 )
@@ -31,6 +32,10 @@ FRANCHISE_STATUS_LABELS = {
 
 ACTIVE_FRANCHISE_COOKIE = 'wujia_active_franchise_id'
 ACTIVE_FRANCHISE_COOKIE_MAX_AGE = 30 * 24 * 3600  # 30 ngày
+
+# Số bản ghi MỌI block preview của Home hiển thị (WJ-HOME-006). Một hằng cho cả
+# 5 nguồn để không lệch nhau lần nữa; danh sách đầy đủ nằm sau "Xem tất cả".
+HOME_PREVIEW_LIMIT = 2
 
 
 # ----------------------------------------------------------------------
@@ -142,9 +147,9 @@ class WujiaPortal(CustomerPortal):
         #      BA còn review. recent_orders/latest_returns/active_franchise đã có
         #      sẵn ở _dashboard_values — chỉ bổ sung batch + articles + hotline. ----
         franchise_ids_list = list(franchise_ids) if franchise_ids else []
-        m_upcoming_batches = (
-            get_upcoming_batches(franchise_ids_list, limit=2)
-            if franchise_ids_list else []
+        upcoming = (
+            get_upcoming_batches(franchise_ids_list, limit=HOME_PREVIEW_LIMIT)
+            if franchise_ids_list else {'items': [], 'undelivered_count': 0}
         )
         # Knowledge — base KHÔNG depend wujia_portal_knowledge → guard registry
         # (cùng pattern _safe_count/_safe_list; KHÔNG thêm depends, tránh coupling).
@@ -153,12 +158,13 @@ class WujiaPortal(CustomerPortal):
         if Article is not None and 'is_published_portal' in Article._fields:
             articles = Article.sudo().search(
                 [('is_published_portal', '=', True)],
-                order='publish_date desc, id desc', limit=3,
+                order='publish_date desc, id desc', limit=HOME_PREVIEW_LIMIT,
             )
 
         values.update({
             # Sprint 17 dashboard-merge keys (mobile home d-lg-none)
-            'm_upcoming_batches': m_upcoming_batches,
+            'm_upcoming_batches': upcoming['items'],
+            'm_undelivered_count': upcoming['undelivered_count'],
             'm_order_badges': MOBILE_ORDER_BADGES,
             'm_return_badges': MOBILE_RETURN_BADGES,
             'articles': articles,
@@ -253,16 +259,16 @@ class WujiaPortal(CustomerPortal):
             'wujia.return.request', 'open_count', franchise_ids
         )
 
-        # ---- 4 list blocks (BA: latest noti & latest returns limit 3) ----
+        # ---- 4 list blocks — mọi block cùng HOME_PREVIEW_LIMIT (WJ-HOME-006) ----
         latest_notifications = self._safe_list(
-            'wujia.notification', franchise_ids, limit=3,
+            'wujia.notification', franchise_ids, limit=HOME_PREVIEW_LIMIT,
         )
         recent_orders = SO.search([
             ('franchise_id', 'in', franchise_ids),
             ('state', '!=', 'cancel'),
-        ], order='date_order desc', limit=5) if franchise_ids else SO.browse()
+        ], order='date_order desc', limit=HOME_PREVIEW_LIMIT) if franchise_ids else SO.browse()
         latest_returns = self._safe_list(
-            'wujia.return.request', franchise_ids, limit=3,
+            'wujia.return.request', franchise_ids, limit=HOME_PREVIEW_LIMIT,
         )
         top_products, top_currency = self._top_products(franchise_ids, limit=5)
 
@@ -280,6 +286,7 @@ class WujiaPortal(CustomerPortal):
             'top_currency_symbol': top_currency.symbol or '',
             'top_currency_decimals': top_currency.decimal_places or 0,
             'franchise_ids': franchise_ids,
+            'wj_dt': fmt_local_dt,
         }
 
     def _safe_count(self, model_name, kind, franchise_ids):

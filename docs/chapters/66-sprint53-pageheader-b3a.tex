@@ -1,0 +1,328 @@
+\chapter{Sprint 53 --- Batch B3a + B3b: chuẩn hoá PageHeader theo \texttt{CMP-PG-001} (2026-08-11)}
+
+\section{Bối cảnh}
+
+BA đã chốt tab \texttt{UI Component} (gid \texttt{488333015}) làm chuẩn component dùng chung
+toàn portal. Mới \textbf{2/23} component có spec đầy đủ, \texttt{CMP-PG-001} PageHeader là một
+trong hai (Status \texttt{BA Confirmed}, 07/08/2026); kênh triển khai là issue
+\texttt{UI-PAGEHEADER-001} (\texttt{5. Issue List} STT 73, Severity Medium, Owner Dev,
+\texttt{Need BA Confirm = No}).
+
+Vấn đề BA nêu: title đang 22/26/32 (mobile) và 26/28/30/32 (desktop); vài trang tự dựng header
+riêng; tên trang PC $\neq$ mobile; khoảng cách header $\rightarrow$ nội dung mỗi trang một
+kiểu; có trang ghép mã chứng từ vào title. Spec mới \textbf{cố ý overrule}
+\texttt{UI-PC-BASE-002} (PC 30/800) --- BA ghi rõ trong cả spec lẫn issue.
+
+Theo bảng batch, B3 tách hai session. Session này là \textbf{B3a}: sửa component $+$ 5 route
+mẫu, đo đạt rồi mới nhân rộng 12 route còn lại ở B3b. Chủ dự án chốt đầu phiên: 5 route mẫu là
+\texttt{/portal/order}, \texttt{/portal/purchase-history}, \texttt{/portal/notification},
+\texttt{/portal/support}, \texttt{/portal/purchase-history/\{id\}}; \textbf{đổi tên theo PAGE
+NAMING MATRIX ngay} cho 5 route này; \textbf{Meta lấy đúng chữ theo matrix}.
+
+\section{Thiết kế}
+
+\subsection{Slot \texttt{ph\_meta}}
+
+\texttt{wj\_page\_header.xml} thêm một slot duy nhất, render \textbf{markup thô, không bọc
+element}:
+
+\begin{verbatim}
+<t t-if="ph_meta" t-out="ph_meta"/>
+\end{verbatim}
+
+Lý do không bọc thêm \texttt{div}: ở 3 route, Meta là \textbf{slot swap của
+\texttt{wj\_ajax\_list}} --- JS gọi \texttt{target.replaceWith(fresh)} theo \texttt{id}
+(\texttt{wj\_ajax\_list.js:94}). Caller phải giữ nguyên element gốc kèm \texttt{id} thì lọc
+không-reload mới tiếp tục chạy. Hợp đồng: caller tự gắn class
+\texttt{wj-page-header\_\_meta}.
+
+Nhờ vậy Meta \textbf{nằm trong} PageHeader mà vẫn là mảnh AJAX độc lập --- không phải đổi một
+dòng JS nào (L5-(3) tái khẳng định: giữ nguyên \texttt{id}/key thì không có gì để hồi quy).
+
+\subsection{Số đo}
+
+\begin{center}
+\begin{tabular}{lll}
+\hline
+& Desktop & Mobile \\
+\hline
+Header một hàng & 64 & 52 \\
+Title & 26 / 32 / 700 & 22 / 28 / 700 \\
+Padding dọc & 16 & 12 \\
+Padding ngang & 24 (PageContainer) & 16 (PageContainer) \\
+Meta & 14 / 20 / 600, cách title 16 & 13 / 18 / 600, căn phải \\
+Gap header $\rightarrow$ nội dung & 0 & 8 \\
+Action & 40 & $\geq 44$ \\
+\hline
+\end{tabular}
+\end{center}
+
+Chiều cao \textbf{không} khai báo cứng: \texttt{padding} $+$ \texttt{line-height} cộng lại ra
+đúng 64/52, nên title dài xuống dòng thì header tự cao lên (acceptance \#7). Bỏ hẳn
+\texttt{white-space:nowrap} $+$ \texttt{text-overflow:ellipsis}, thay bằng
+\texttt{overflow-wrap:anywhere}.
+
+\subsection{Ba chỗ phải tính lại, không có sẵn trong spec}
+
+\begin{enumerate}
+\item \textbf{Gap 8 mobile đụng token dùng chung.} \texttt{.wujia-mpage} có
+  \texttt{gap: var(--wujia-mshell-content-gap)} $=14$ áp cho \textbf{mọi} trang mobile. Không
+  đổi token; bù \texttt{margin-bottom: -6px} scope đúng
+  \texttt{.wujia-mpage > .wj-page-header--m} ($14-6=8$). Trang mobile không thuộc
+  \texttt{.wujia-mpage} thì base cho thẳng \texttt{margin-bottom: 8px}.
+\item \textbf{Biến thể Back/Action cao hơn dòng title.} Back 40 (CMP-BPH-001) và action 40/44
+  lớn hơn dòng title 32/28, để nguyên padding 16/12 thì hàng ra 72/64 chứ không phải 64/52.
+  Giải: giảm padding \emph{theo biến thể} --- PC \texttt{--back}/\texttt{--create} pad 12
+  ($12+40+12=64$); mobile \texttt{--back} pad 6 ($6+40+6=52$), \texttt{--create} pad 4
+  ($4+44+4=52$). Cả hai con số của BA giữ nguyên, không phải chọn một bỏ một.
+\item \textbf{Meta PC bị đẩy ra mép phải.} Lần đo đầu: \texttt{metaLeft} $=1863$ trong khi
+  \texttt{titleRight} $=1847$ --- meta dính mép phải PageContainer, trái spec ``meta nằm gần
+  title''. Nguyên nhân: title \texttt{flex: 1 1 auto} nên giãn hết chỗ. Sửa title thành
+  \texttt{flex: 0 1 auto} và \texttt{.wj-page-header\_\_actions} thành
+  \texttt{margin-left: auto} (action vẫn bên phải). Đo lại: khoảng cách title$\rightarrow$meta
+  đúng \textbf{16.0} px ở cả 3 route có meta.
+\end{enumerate}
+
+\section{Áp lên 5 route mẫu}
+
+\begin{itemize}
+\item \texttt{/portal/order} --- mobile \textbf{chưa hề dùng} \texttt{wj\_page\_header}: nó tự
+  dựng \texttt{<h1 class="wujia-morder-title">} bên trong slot AJAX \texttt{\#wj-ord-mcount}
+  (đúng cái ``một số trang tự triển khai PageHeader riêng'' BA nêu). Nay chuyển sang shared
+  component, mảnh \texttt{mcount} chỉ còn là span meta ``\{n\} SP'' giữ nguyên \texttt{id};
+  thêm mảnh \texttt{pccount} cho PC. Ba class riêng
+  (\texttt{wujia-morder-titlerow/-title/-count}) đã gỡ khỏi \texttt{\_components.css}.
+\item \texttt{/portal/purchase-history} --- thêm mảnh \texttt{pccount}/\texttt{mcount} đọc
+  \texttt{pager['page\_total']} (tổng đơn, \textbf{không phải} \texttt{len(rows)} của trang
+  hiện tại). Section header ``Danh sách đơn / N đơn gần nhất'' trong \texttt{mbody} giữ nguyên
+  --- đó là SectionHeader, ngoài phạm vi \texttt{CMP-PG-001}.
+\item \texttt{/portal/notification} --- \texttt{\#wj-noti-mcount} từ chỗ là thẻ \texttt{<p>}
+  đứng sau header dời hẳn \textbf{vào trong} header; nội dung theo matrix
+  ``\{chưa đọc\} chưa đọc'' (trước là ``\{total\} thông báo $\bullet$ \{unread\} chưa đọc'').
+  Thêm \texttt{pccount} cho PC. Ba class chết trong \texttt{portal\_notification.css} đã gỡ.
+\item \texttt{/portal/support} --- PC ``Yêu cầu hỗ trợ'' $\rightarrow$ ``Hỗ trợ'' (mobile vốn
+  đã đúng); quyền và điều kiện hiển thị action giữ nguyên (acceptance \#9).
+\item \texttt{/portal/purchase-history/\{id\}} --- mobile ``Chi tiết đơn''
+  $\rightarrow$ ``Chi tiết đơn hàng'' (2 chỗ). \textbf{Không} gỡ \texttt{+ h['name']} khỏi
+  title PC --- việc đó thuộc B3b.
+\end{itemize}
+
+Không model/field, không controller, không migration. Bump: \texttt{wujia\_portal\_layout}
+\texttt{19.0.31.14.0}, \texttt{wujia\_portal\_sale} \texttt{19.0.4.12.0},
+\texttt{wujia\_portal\_purchase\_history} \texttt{19.0.3.4.0},
+\texttt{wujia\_portal\_notification} \texttt{19.0.2.7.0}, \texttt{wujia\_portal\_support}
+\texttt{19.0.3.10.0}.
+
+\section{Verify --- DB copy cô lập \texttt{wujia\_tea\_s53} (port 8053)}
+
+Build \texttt{-u} 5 module: \textbf{RC$=0$}, 0 ERROR/Traceback. Lần build đầu \textbf{đỏ} và đó
+là thông tin có ích: \texttt{wujia\_portal\_return} không validate được view
+\texttt{product.product.form.return} vì \emph{Field ``description\_ecommerce'' does not exist}
+--- bản copy local vẫn ở \texttt{wujia\_sale 19.0.4.1.0}, tức \textbf{pre-migrate của Sprint 52
+chưa từng chạy trên DB local chính} (S52 chỉ verify trên bản copy riêng rồi bỏ). Thêm
+\texttt{wujia\_sale} vào lượt \texttt{-u} là hết; không phải lỗi của B3a, nhưng ghi lại để
+đừng chẩn đoán nhầm lần sau.
+
+Test đơn vị trên bản copy thứ hai \texttt{wujia\_tea\_s53t}: \textbf{60 test, 0 failed, 0
+error}.
+
+\subsection{Bảng đối chiếu \texttt{CMP-PG-001} (Playwright, 391$\times$844 và 1920$\times$1080)}
+
+\begin{center}
+\begin{tabular}{lllc}
+\hline
+Yêu cầu & Đo được (mobile) & Đo được (PC) & Kết quả \\
+\hline
+Header 1 hàng cao 52 / 64 & 52.0 (4 route) & 64.0 (5 route) & Pass \\
+Title font/lh/weight & 22/28/700 & 26/32/700 & Pass \\
+Padding dọc 12 / 16 & 12px & 16px & Pass \\
+Meta font/lh/weight & 13/18/600 & 14/20/600 & Pass \\
+Meta căn phải (mobile) & mép phải $=$ mép container & --- & Pass \\
+Meta cách title 16 (PC) & --- & 16.0 & Pass \\
+Gap header $\rightarrow$ nội dung & 8.0 & 0.0 & Pass \\
+Action cao & 44.0 (support) & 40.0 (support) & Pass \\
+Back & 40$\times$40 & 122$\times$40 & Pass \\
+Title dài xuống dòng, không ellipsis & 8 dòng, cao 266 & 2 dòng, cao 116 & Pass \\
+Tên đúng PAGE NAMING MATRIX & 5/5 & 4/5 & Một phần \\
+Title/Meta không chồng nhau & 0 overlap & 0 overlap & Pass \\
+Không scroll ngang & 0 & 0 & Pass \\
+\hline
+\end{tabular}
+\end{center}
+
+$12{,}5/13 \approx \mathbf{96\%}$ Pass. Dòng ``một phần'' là title PC của trang chi tiết vẫn
+kèm mã đơn (\texttt{Chi tiết đơn hàng S00022}) --- \textbf{cố ý}, việc gỡ mã thuộc B3b.
+
+\subsection{AJAX --- Meta nằm trong header mà lọc vẫn thay được}
+
+Lọc bằng ô tìm kiếm ở \texttt{/portal/order}: meta \textbf{5 SP $\rightarrow$ 3 SP}; node bị
+thay thật (thuộc tính \texttt{data-stamp} đánh dấu trước khi lọc biến mất), \textbf{không}
+reload cả trang (thuộc tính đánh dấu trên \texttt{body} còn nguyên), meta vẫn nằm trong
+\texttt{.wj-page-header}, 0 JS \texttt{pageerror} --- đúng ở \textbf{cả hai} viewport. Kiểm
+thêm \texttt{/portal/purchase-history} và \texttt{/portal/notification}: node thay tại chỗ,
+không reload, không lỗi (con số không đổi vì bộ lọc thử khớp toàn bộ dữ liệu).
+
+\subsection{Regression}
+
+Quét 6 chiều rộng theo checklist BA (360 / 390 / 768 / 1366 / 1440 / 1920) $\times$ 5 route:
+\textbf{30/30} trả 200, overflow ngang $=0$, \textbf{đúng một} PageHeader hiển thị mỗi
+viewport (acceptance ``mỗi viewport chỉ một''), title/meta không chồng nhau, 0 JS
+\texttt{pageerror}. Ba trang chưa đụng tới (\texttt{/portal/delivery},
+\texttt{/portal/knowledge}, \texttt{/portal/debt}) $\times$ 2 viewport: 200, overflow $=0$,
+header vẫn render.
+
+\section{LIMIT của B3a (đã đóng hết ở B3b, trừ mục 3--4)}
+
+\begin{enumerate}
+\item Mới 5/17 route --- 12 route còn lại, gộp các \texttt{wj-count-meta} rời và gỡ mã chứng
+  từ khỏi title thuộc \textbf{B3b}.
+\item Title PC trang chi tiết đơn còn ghép mã đơn (B3b).
+\item Nút Back giữ nguyên hình dạng hiện tại --- \texttt{CMP-BPH-001} làm ở \textbf{B4}.
+\item Padding ngang do PageContainer cấp: mobile đo được đúng 16; PC nội dung bắt đầu ở
+  $x=324$ trên nền 1920 (shell Vuexy), không phải 24 tính từ mép màn hình --- đây là padding
+  của content-wrapper sẵn có, B3a cố ý không sửa file shared.
+\item \texttt{wujia\_portal\_debt} còn override title 26 và back 42$\times$42 riêng; sau khi
+  base về 26 thì thừa nhưng vô hại, dọn ở B3b.
+\end{enumerate}
+
+\section{Bài học}
+
+\textbf{Số của BA có thể mâu thuẫn nhau về mặt hình học --- đừng chọn một bỏ một, hãy tìm biến
+còn tự do.} ``Header 64'' và ``Back 40, padding 16'' không cùng đúng được; nhưng padding là
+\emph{biến thể-phụ thuộc}, nên hạ padding theo biến thể thì cả hai con số BA khoá đều giữ
+nguyên. Kèm: \texttt{pkill -f "<chuỗi có trong chính dòng lệnh>"} tự giết shell (exit 144) ---
+L8 lặp lại lần hai, tách lệnh dừng server ra một call riêng.
+
+
+% ===========================================================================
+\section{Batch B3b --- nhân rộng ra đủ 17 route}
+
+B3a đã chốt component và đo đạt trên 5 route mẫu. B3b nhân ra 12 route còn lại của
+\textsc{page naming matrix}, dọn nốt các header tự dựng và đưa mã chứng từ ra khỏi title.
+
+\subsection{Đổi tên theo PAGE NAMING MATRIX}
+
+\begin{longtable}{@{}p{4.7cm}p{3.6cm}p{6.4cm}@{}}
+\toprule
+\textbf{Route} & \textbf{Tên mới} & \textbf{Trước đó} \\
+\midrule
+\endhead
+\texttt{/portal/knowledge} & Kiến thức & PC: ``Thư viện kiến thức'' / ``Kiến thức --- \{chuyên mục\}'' \\
+\texttt{/portal/profile} & Tài khoản & PC: ``Thông tin tài khoản'' (mobile đã đúng) \\
+\texttt{/portal/return} & Bù hàng & PC ``Yêu cầu đổi trả'' / mobile ``Đổi trả hàng'' \\
+\texttt{/portal/return/\{id\}} & Chi tiết yêu cầu bù hàng & PC \texttt{rr.name} / mobile ``Chi tiết yêu cầu'' \\
+\texttt{/portal/support/\{id\}} & Chi tiết yêu cầu hỗ trợ & PC \texttt{ticket.name + tiêu đề} / mobile ``Chi tiết ticket'' \\
+\texttt{/portal/purchase-history/\{id\}} & Chi tiết đơn hàng & PC còn ghép \texttt{h['name']} \\
+\texttt{/portal/debt} & Công nợ + ``\{n\} hóa đơn'' & ``Công nợ \& thanh toán'', không meta \\
+\bottomrule
+\end{longtable}
+
+Ba route \texttt{/portal/delivery}, \texttt{/portal/exam}, \texttt{/portal/order} và các màn
+\texttt{.../new} đã đúng tên từ trước; chỉ kiểm lại bằng harness.
+
+\subsection{Ba header tự dựng cuối cùng}
+
+\begin{enumerate}
+\item \textbf{\texttt{wujia\_portal\_debt}} --- 4 header hand-roll (tổng quan, lịch sử thanh
+  toán, trang QR, trang không có quyền) chuyển hết sang \texttt{t-call wj\_page\_header}.
+  Gỡ luôn \texttt{.wj-debt-header}, \texttt{.wj-debt-header\_\_count} và override
+  \texttt{font-size: 26px} --- đúng mục 5 LIMIT của B3a.
+\item \textbf{\texttt{pc\_account\_shell}} --- shell PC dùng chung cho 3 màn tài khoản có
+  header riêng (\texttt{.wj-pc-acct-head\_\_crumb/\_\_title/\_\_sub}). Chuyển crumb + title
+  sang component; \texttt{acct\_subtitle} \emph{giữ nguyên nội dung} nhưng đặt ngoài
+  \texttt{<header>} và hạ \texttt{margin-top} về 0 --- spec ghi rõ ``không dùng Subtitle
+  trong phạm vi hiện tại'' và ``gap header $\to$ nội dung đầu = 0''.
+\item \textbf{\texttt{wujia\_portal\_exam}} PC list --- header hệ \texttt{.wj-pc-page-header}
+  (một component PC song song, di sản Sprint 39) chuyển sang \texttt{CMP-PG-001} variant
+  \texttt{create}.
+\end{enumerate}
+
+\subsection{Mã chứng từ ra khỏi title --- nhưng không được mất}
+
+CONTENT RULES của spec: ``Mã đơn, mã chuyến, mã ticket hoặc mã yêu cầu không ghép vào
+PageHeader; mã chứng từ và trạng thái hiển thị tại DetailSummary''. Nhưng \texttt{CMP-DS-001}
+(DetailSummary) \textbf{chưa có spec} --- dựng mới là đoán ý BA. Kiểm tra thực tế trước khi gỡ:
+
+\begin{itemize}
+\item \texttt{/portal/purchase-history/\{id\}} PC --- mã đơn đã có sẵn ở
+  \texttt{wj-pc-order-head\_\_code} $\Rightarrow$ gỡ khỏi title là đủ.
+\item \texttt{/portal/support/\{id\}} PC --- thân trang \emph{không} hiện mã lẫn tiêu đề
+  $\Rightarrow$ thêm hai dòng ``Mã yêu cầu'' + ``Tiêu đề'' vào card ``Thông tin'' sẵn có.
+\item \texttt{/portal/return/\{id\}} PC --- thân trang không hiện mã $\Rightarrow$ thêm dòng
+  ``Mã yêu cầu'' vào đầu \texttt{dl.profile-dl} của card ``Thông tin yêu cầu''.
+\item Cả hai màn mobile đã có card đầu trang kiểu DetailSummary (mã + badge + tiêu đề) --- giữ nguyên.
+\end{itemize}
+
+\subsection{Gap 8px: mỗi container một con số}
+
+B3a bù \texttt{margin-bottom: -6px} cho \texttt{.wujia-mpage} (gap chung 14). Trang công nợ
+dùng container riêng \texttt{.wj-debt} với \texttt{gap: 12} nên đo ra \textbf{20px} thay vì 8.
+Bù riêng \texttt{.wj-debt > .wj-page-header--m \{ margin-bottom: -4px \}}. Bài học nhỏ: khi
+component sống trong nhiều container flex khác nhau, ``gap tới nội dung'' không phải thuộc
+tính của component --- phải đo từng container.
+
+\subsection{Verify B3b --- DB copy \texttt{wujia\_tea\_s53b} (port 8054)}
+
+Build \texttt{-u wujia\_sale,\allowbreak{} wujia\_portal\_layout,\allowbreak{} debt,\allowbreak{}
+knowledge,\allowbreak{} return,\allowbreak{} support,\allowbreak{} purchase\_history,\allowbreak{}
+exam,\allowbreak{} sale,\allowbreak{} notification} $\to$ \textbf{RC=0}, không ERROR/Traceback
+thật (4 dòng ERROR là docutils cảnh báo thụt lề trong description module).
+
+Harness \texttt{s53b\_measure.py} chạy 17 route $\times$ 2 breakpoint (391$\times$844 và
+1920$\times$1080), mỗi ô kiểm 7 điều kiện:
+
+\begin{longtable}{@{}p{7.4cm}p{4.3cm}p{2.6cm}@{}}
+\toprule
+\textbf{Yêu cầu (CMP-PG-001)} & \textbf{Đo được} & \textbf{Kết quả} \\
+\midrule
+\endhead
+Tên trang đúng matrix (34 ô) & khớp 34/34 & Pass \\
+Meta đúng chữ (order/history/debt/notification) & ``5 SP'', ``3 đơn'', ``0 hóa đơn'', ``0 chưa đọc'' & Pass \\
+Chiều cao 1 hàng: PC 64 / mobile 52 & 64.0 / 52.0 mọi route & Pass \\
+Title PC 26/32/700 & 26px / 32px / 700 & Pass \\
+Title mobile 22/28/700 & 22px / 28px / 700 & Pass \\
+Meta PC 14/20/600 --- mobile 13/18/600 & đúng cả hai & Pass \\
+Padding dọc PC 16 / mobile 12 & 16px / 12px & Pass \\
+Gap header $\to$ nội dung: PC 0 / mobile 8 & 0.0 / 8.0 (kể cả công nợ sau khi bù) & Pass \\
+Action: PC cao 40, mobile $\ge$44 & 40.0 / 44.0 (support, return, exam) & Pass \\
+Title dài xuống dòng, không ellipsis & \texttt{white-space: normal}, \texttt{text-overflow: clip}; PC 2 dòng h116, mobile 8 dòng h266 & Pass \\
+Title/meta/action không chồng nhau & \texttt{metaOverlapTitle=false} mọi ô & Pass \\
+Không scroll ngang & overflow $=0$ ở 34/34 ô & Pass \\
+Mỗi viewport chỉ 1 PageHeader & \texttt{nHeaders}$=1$ ở 34/34 ô & Pass \\
+Mã chứng từ vẫn có trong thân trang & \texttt{WJ-TK/26/00040}, \texttt{RR/DEMO/002} tìm thấy ở cả 2 viewport & Pass \\
+0 lỗi JS & \texttt{pageerror} rỗng cả hai viewport & Pass \\
+\bottomrule
+\end{longtable}
+
+\textbf{34/34 ô Pass} trên toàn bộ tiêu chí $\Rightarrow$ 100\%, vượt ngưỡng 90\% của §13.
+
+\textbf{Regression AJAX}: \texttt{/portal/order} lọc từ khoá $\to$ meta ``5 SP'' $\to$ ``3 SP'',
+node bị \texttt{replaceWith} thật (stamp mất), URL không reload full; \texttt{/portal/history}
+và \texttt{/portal/notification} giữ nguyên số nhưng node vẫn được thay --- cơ chế
+\texttt{wj\_ajax\_list} còn nguyên sau khi meta dời vào trong header.
+
+\textbf{Regression trang ngoài matrix} (bị chạm gián tiếp qua \texttt{pc\_account\_shell} và
+exam): \texttt{/portal/change-password}, \texttt{/portal/franchise-information},
+\texttt{/portal/exam/register}, \texttt{/portal/order/cart}, \texttt{/portal/info-request} ---
+tất cả HTTP 200, overflow 0, đúng một \texttt{<h1>} hiển thị, 0 lỗi JS ở cả hai viewport.
+Nút ``Đăng ký mới'' của \texttt{/portal/exam} vẫn trỏ \texttt{/portal/exam/register}.
+
+\section{LIMIT sau B3b}
+
+\begin{enumerate}
+\item \textbf{Câu hỏi gửi BA (1)} --- Matrix ghi \texttt{/portal/exam} là ``Title only'',
+  nhưng trang đang có nút ``Đăng ký mới'' và chính spec cấm đổi action hiện có
+  (OUT OF SCOPE + acceptance \#9). Giữ nút, chờ BA chốt.
+\item \textbf{Câu hỏi gửi BA (2)} --- 4 chỗ \texttt{wj-count-meta} rời (Kiến thức, Đăng ký thi,
+  Bù hàng, danh sách con) nằm ở trang matrix ghi ``Title only''; giữ nguyên tại chỗ, không gộp
+  vào \texttt{ph\_meta} để không tự thêm meta ngoài matrix.
+\item \texttt{CMP-BPH-001} (Back button 122$\times$40 PC / circle 42$\times$42 mobile,
+  hover/focus, return\_url, unsaved guard) --- \textbf{B4}.
+\item \texttt{CMP-DS-001} DetailSummary chưa có spec: mã chứng từ hiện đang nằm trong card
+  thông tin sẵn có, chưa phải component DetailSummary chuẩn.
+\item Padding ngang PC vẫn do content-wrapper của shell Vuexy cấp (không phải 24 tính từ mép
+  màn hình) --- không sửa file shared, chờ CMP PageContainer.
+\item Hệ \texttt{.wj-pc-page-header} vẫn còn ở \texttt{/portal/exam/register},
+  \texttt{/portal/exam/\{id\}} và \texttt{pc\_preview} --- các route này không nằm trong
+  matrix nên chưa chuyển.
+\end{enumerate}

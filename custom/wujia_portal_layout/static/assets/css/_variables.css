@@ -7,6 +7,8 @@
     --wujia-primary-dark:   #168FC2;
     --wujia-primary-light:  #E0F7FF;
     --wujia-primary-soft:   #EAF7FD;
+    /* Viền cho nền -soft (CMP-BPH-001 hover/focus nút Quay lại). */
+    --wujia-primary-border-soft: #BFE8F7;
     --wujia-active-text:    #28A9DF;
 
     /* ---------- CTA (WJ-ORD-012): chữ-trắng-trên-nền cần AA 4.5:1. Brand
@@ -15,6 +17,15 @@
        Accent/icon/viền vẫn dùng --wujia-primary (không đổi nhận diện). ---------- */
     --wujia-cta:            #0F7CA8;
     --wujia-cta-dark:       #0C6688;
+
+    /* ---------- Trạng thái tương tác dùng chung (WJ-PORTAL-UI-001, cụm C6).
+       Nền/viền hover tái dùng --wujia-primary-soft + --wujia-primary, KHÔNG đẻ
+       token trùng nghĩa. Ring dùng --wujia-cta (4.71:1) thay --wujia-primary-dark
+       BA viết trong spec, để đồng bộ với ring sẵn có của nút CTA. ---------- */
+    --wujia-hover-shadow:     0 4px 12px rgba(17, 24, 39, 0.08);
+    --wujia-state-transition: 150ms ease;
+    --wujia-focus-ring:       2px solid var(--wujia-cta);
+    --wujia-focus-ring-offset: 2px;
 
     /* ---------- Surface / layout (BA bg #F3F6F8) ---------- */
     --wujia-bg-page:        #F3F6F8;
@@ -272,6 +283,9 @@
 
     /* Footer / bottom-nav: active = brand cyan, badge = red */
     --wujia-mnav-height:             83px;
+    /* Chỗ nav THỰC chiếm: nav có padding-bottom max(6px, safe-area) nên máy có
+       home-indicator cao hơn 83. Mọi khối fixed phía trên nav phải bám biến này. */
+    --wujia-mnav-total:              calc(var(--wujia-mnav-height) + max(0px, env(safe-area-inset-bottom, 0px) - 6px));
     --wujia-mnav-active:             #28A9DF;
     --wujia-mnav-inactive:           #8A939E;
     --wujia-mnav-badge:              #EF4444;

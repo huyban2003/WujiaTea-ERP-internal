@@ -35,33 +35,16 @@
     padding: 15px 16px 0;            /* shell header hết ở y=152, content top y=167 */
 }
 
-/* Figma chưa có frame PC. Không dựng màn PC, nhưng cũng không để trắng trang
-   khi mở trên desktop: ghim cột mobile 391 canh giữa. Gỡ khi BA cấp Figma PC. */
-@media (min-width: 992px) {
-    .wj-debt { max-width: 391px; margin: 0 auto 32px; }
-}
-
 /* ---------- Header ---------- */
-.wj-debt-header { margin: 0; }
-/* !important để thắng global `h1 { font-size: … !important }` (gotcha #13 _components.css).
-   letter-spacing: 0 — body Vuexy set 0.14px, làm "Công nợ & thanh toán" (20 ký tự) tràn
-   5px và bị ellipsis ngay ở 391; Figma vẽ title không giãn chữ. */
-.wj-debt--overview .wj-page-header__title {
-    font-size: 26px !important;
-    line-height: 32px;
-    letter-spacing: 0;
-}
-.wj-debt-header__count {
-    flex: 0 0 auto;
-    margin-left: 8px;
-    font-size: 13px;
-    font-weight: 700;
-    color: var(--wj-debt-muted);
-}
-/* Figma back-header: nút 42×42, cách title 14, mép trên y=160 (không phải 167). */
+/* S53-B3b: header trang công nợ đã dùng chung CMP-PG-001 (22/28/700, cao 52).
+   Gỡ override 26px + .wj-debt-header/-__count (hand-roll cũ, không còn markup). */
+/* CMP-PG-001: gap PageHeader → nội dung đầu = 8px. .wj-debt là flex column gap 12
+   (không phải .wujia-mpage gap 14) ⇒ bù -4 để tổng đúng 8. */
+.wj-debt > .wj-page-header--m { margin-bottom: -4px; }
+/* S54-B4: nút 42×42 nay là chuẩn CMP-BPH-001 ở base ⇒ gỡ override kích thước,
+   chỉ giữ mép trên y=160 và khoảng cách 14 theo Figma công nợ. */
 .wj-debt--back { padding-top: 8px; }
-.wj-debt--back .wj-debt-header { margin-bottom: -4px; }
-.wj-debt--back .wj-page-header__back { width: 42px; height: 42px; margin-right: 14px; }
+.wj-debt--back .wj-page-header__back { margin-right: 14px; }
 
 /* ---------- Filter bar (359×54) ---------- */
 .wj-debt-filter {
@@ -303,6 +286,12 @@
 }
 .wj-debt-banner__text { font-size: 11.5px; font-weight: 400; line-height: 18px; color: var(--wj-debt-text); }
 
+/* Slot của wj_ajax_list (S49) là <div> thường ⇒ nuốt gap 12 của .wj-debt (flex column)
+   nên mọi section dính 0px (WJ-DEBT-009). Trả lại nhịp 12, riêng banner → tiêu đề
+   danh sách là 24 (ranh giới 2 section). Scope theo id ⇒ desktop/overview không đổi. */
+#wj-debt-hist-mbody { display: flex; flex-direction: column; gap: 12px; }
+#wj-debt-hist-mbody .wj-debt-section { margin-top: 12px; }
+
 .wj-debt-payments { display: flex; flex-direction: column; gap: 12px; }
 .wj-debt-pay {
     display: grid;
@@ -322,7 +311,7 @@
 .wj-debt-pay__amount { justify-self: end; font-size: 16px; font-weight: 700; color: var(--wj-debt-text); }
 .wj-debt-total { margin: 0; text-align: right; font-size: 12px; font-weight: 400; color: var(--wj-debt-muted); }
 
-/* ---------- 07 — Số tiền / QR / ngân hàng / nhắc ---------- */
+/* ---------- 07 — Số tiền / ngân hàng / nhắc (khối QR đã gỡ, WJ-DEBT-008) ---------- */
 .wj-debt-amount {
     position: relative;
     display: grid;
@@ -346,33 +335,6 @@
     color: var(--wj-debt-muted);
 }
 .wj-debt-amount__value { grid-column: 1 / -1; font-size: 24px; font-weight: 700; color: var(--wj-debt-text); }
-
-.wj-debt-qr {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    height: 220px;
-    padding: 9px 14px 13px;
-    background: var(--wj-debt-card-bg);
-    border-radius: var(--wj-debt-radius);
-}
-.wj-debt-qr__title { align-self: flex-start; margin: 0; font-size: 17px !important; font-weight: 700; color: var(--wj-debt-text); }
-.wj-debt-qr__frame {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 160px;
-    height: 160px;
-    margin-top: 9px;
-    background: var(--wj-debt-card-bg);
-}
-/* Placeholder tĩnh — BA chưa chốt QR tĩnh/động, Figma ghi rõ "QR minh họa". */
-.wj-debt-qr__code {
-    width: 144px;
-    height: 144px;
-    background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 21 21' shape-rendering='crispEdges'%3E%3Cpath fill='%23111827' d='M0 0h7v1h-7zM10 0h2v1h-2zM14 0h7v1h-7zM0 1h1v1h-1zM6 1h1v1h-1zM10 1h1v1h-1zM14 1h1v1h-1zM20 1h1v1h-1zM0 2h1v1h-1zM2 2h3v1h-3zM6 2h1v1h-1zM9 2h1v1h-1zM11 2h1v1h-1zM14 2h1v1h-1zM16 2h3v1h-3zM20 2h1v1h-1zM0 3h1v1h-1zM2 3h3v1h-3zM6 3h1v1h-1zM9 3h1v1h-1zM14 3h1v1h-1zM16 3h3v1h-3zM20 3h1v1h-1zM0 4h1v1h-1zM2 4h3v1h-3zM6 4h1v1h-1zM9 4h3v1h-3zM14 4h1v1h-1zM16 4h3v1h-3zM20 4h1v1h-1zM0 5h1v1h-1zM6 5h1v1h-1zM9 5h1v1h-1zM12 5h1v1h-1zM14 5h1v1h-1zM20 5h1v1h-1zM0 6h7v1h-7zM8 6h1v1h-1zM10 6h1v1h-1zM12 6h1v1h-1zM14 6h7v1h-7zM10 7h3v1h-3zM6 8h1v1h-1zM11 8h1v1h-1zM0 9h1v1h-1zM4 9h2v1h-2zM8 9h1v1h-1zM10 9h1v1h-1zM14 9h1v1h-1zM17 9h2v1h-2zM20 9h1v1h-1zM3 10h6v1h-6zM10 10h1v1h-1zM12 10h2v1h-2zM0 11h1v1h-1zM3 11h2v1h-2zM7 11h2v1h-2zM16 11h4v1h-4zM1 12h1v1h-1zM6 12h3v1h-3zM11 12h1v1h-1zM13 12h2v1h-2zM18 12h3v1h-3zM12 13h1v1h-1zM14 13h3v1h-3zM18 13h1v1h-1zM0 14h7v1h-7zM10 14h2v1h-2zM14 14h2v1h-2zM17 14h1v1h-1zM20 14h1v1h-1zM0 15h1v1h-1zM6 15h1v1h-1zM9 15h1v1h-1zM13 15h8v1h-8zM0 16h1v1h-1zM2 16h3v1h-3zM6 16h1v1h-1zM9 16h2v1h-2zM12 16h1v1h-1zM14 16h2v1h-2zM18 16h1v1h-1zM20 16h1v1h-1zM0 17h1v1h-1zM2 17h3v1h-3zM6 17h1v1h-1zM9 17h2v1h-2zM17 17h1v1h-1zM0 18h1v1h-1zM2 18h3v1h-3zM6 18h1v1h-1zM9 18h6v1h-6zM16 18h1v1h-1zM18 18h3v1h-3zM0 19h1v1h-1zM6 19h1v1h-1zM9 19h1v1h-1zM12 19h1v1h-1zM16 19h1v1h-1zM19 19h2v1h-2zM0 20h7v1h-7zM12 20h7v1h-7z'/%3E%3C/svg%3E") center/contain no-repeat;
-}
-.wj-debt-qr__caption { margin: 6px 0 0; font-size: 10.5px; font-weight: 400; color: var(--wj-debt-muted); }
 
 .wj-debt-bank {
     display: flex;
@@ -419,6 +381,10 @@
 }
 .wj-debt-copy i { font-size: 14px; line-height: 1; }
 .wj-debt-copy.is-copied { color: var(--wj-debt-success); }
+/* Phản hồi copy (WJ-DEBT-005) — trống thì không chiếm chỗ, dùng chung mobile + PC. */
+.wj-debt-copy-msg { font-size: 12px; font-weight: 700; color: var(--wujia-success); }
+.wj-debt-copy-msg:empty { display: none; }
+.wj-debt-copy-msg.is-error { color: var(--wujia-mres-danger-value); }
 
 .wj-debt-hint {
     display: flex;
@@ -674,13 +640,13 @@
 .wj-debt-pc-banner__text { font-size: 14px; font-weight: 500; color: var(--wj-pc-text); }
 .wj-debt-pc-banner__aside { margin-left: auto; font-size: 13px; font-weight: 500; color: var(--wj-pc-muted); }
 
-/* ---------- Modal QR (2 cột: QR minh hoạ • thông tin chuyển khoản) ---------- */
+/* ---------- Modal chuyển khoản (1 cột: thông tin chuyển khoản) ---------- */
 .wj-debt-pc-modal[hidden] { display: none; }
-/* Panel dùng chung .wj-pc-modal__panel (420) — nới rộng cho layout 2 cột; selector
+/* Panel dùng chung .wj-pc-modal__panel (420) — nới rộng cho bảng thông tin; selector
    2 class thắng .wj-pc-modal__panel (1 class) bất kể thứ tự nạp bundle. */
 .wj-debt-pc-modal .wj-pc-modal__panel {
     position: relative;
-    width: 720px;
+    width: 560px;
     max-width: calc(100vw - 48px);
     padding: 28px 32px;
 }
@@ -701,27 +667,9 @@
 }
 .wj-debt-pc-modal__amount-label { display: block; margin-bottom: 4px; font-size: 13px; font-weight: 500; color: var(--wj-pc-muted); }
 .wj-debt-pc-modal__amount-value { font-size: 24px; font-weight: 700; color: var(--wj-pc-text); }
-.wj-debt-pc-modal__body { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
-
-.wj-debt-pc-qr {
-    display: flex; flex-direction: column; align-items: center;
-    padding: 20px;
-    background: var(--wj-pc-table-header-bg);
-    border: 1px solid var(--wj-pc-border-soft); border-radius: 12px;
-}
-.wj-debt-pc-qr__title { margin: 0 0 14px; font-size: 15px; font-weight: 700; color: var(--wj-pc-text); }
-.wj-debt-pc-qr__frame {
-    display: flex; align-items: center; justify-content: center;
-    width: 180px; height: 180px;
-    background: var(--wj-pc-card);
-    border: 1px solid var(--wj-pc-border-soft); border-radius: 12px;
-}
-/* QR = placeholder tĩnh (BA chưa chốt tĩnh/động; Figma ghi "QR minh họa"). Cùng ảnh mobile. */
-.wj-debt-pc-qr__code {
-    width: 160px; height: 160px;
-    background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 21 21' shape-rendering='crispEdges'%3E%3Cpath fill='%23111827' d='M0 0h7v1h-7zM10 0h2v1h-2zM14 0h7v1h-7zM0 1h1v1h-1zM6 1h1v1h-1zM10 1h1v1h-1zM14 1h1v1h-1zM20 1h1v1h-1zM0 2h1v1h-1zM2 2h3v1h-3zM6 2h1v1h-1zM9 2h1v1h-1zM11 2h1v1h-1zM14 2h1v1h-1zM16 2h3v1h-3zM20 2h1v1h-1zM0 3h1v1h-1zM2 3h3v1h-3zM6 3h1v1h-1zM9 3h1v1h-1zM14 3h1v1h-1zM16 3h3v1h-3zM20 3h1v1h-1zM0 4h1v1h-1zM2 4h3v1h-3zM6 4h1v1h-1zM9 4h3v1h-3zM14 4h1v1h-1zM16 4h3v1h-3zM20 4h1v1h-1zM0 5h1v1h-1zM6 5h1v1h-1zM9 5h1v1h-1zM12 5h1v1h-1zM14 5h1v1h-1zM20 5h1v1h-1zM0 6h7v1h-7zM8 6h1v1h-1zM10 6h1v1h-1zM12 6h1v1h-1zM14 6h7v1h-7zM10 7h3v1h-3zM6 8h1v1h-1zM11 8h1v1h-1zM0 9h1v1h-1zM4 9h2v1h-2zM8 9h1v1h-1zM10 9h1v1h-1zM14 9h1v1h-1zM17 9h2v1h-2zM20 9h1v1h-1zM3 10h6v1h-6zM10 10h1v1h-1zM12 10h2v1h-2zM0 11h1v1h-1zM3 11h2v1h-2zM7 11h2v1h-2zM16 11h4v1h-4zM1 12h1v1h-1zM6 12h3v1h-3zM11 12h1v1h-1zM13 12h2v1h-2zM18 12h3v1h-3zM12 13h1v1h-1zM14 13h3v1h-3zM18 13h1v1h-1zM0 14h7v1h-7zM10 14h2v1h-2zM14 14h2v1h-2zM17 14h1v1h-1zM20 14h1v1h-1zM0 15h1v1h-1zM6 15h1v1h-1zM9 15h1v1h-1zM13 15h8v1h-8zM0 16h1v1h-1zM2 16h3v1h-3zM6 16h1v1h-1zM9 16h2v1h-2zM12 16h1v1h-1zM14 16h2v1h-2zM18 16h1v1h-1zM20 16h1v1h-1zM0 17h1v1h-1zM2 17h3v1h-3zM6 17h1v1h-1zM9 17h2v1h-2zM17 17h1v1h-1zM0 18h1v1h-1zM2 18h3v1h-3zM6 18h1v1h-1zM9 18h6v1h-6zM16 18h1v1h-1zM18 18h3v1h-3zM0 19h1v1h-1zM6 19h1v1h-1zM9 19h1v1h-1zM12 19h1v1h-1zM16 19h1v1h-1zM19 19h2v1h-2zM0 20h7v1h-7zM12 20h7v1h-7z'/%3E%3C/svg%3E") center/contain no-repeat;
-}
-.wj-debt-pc-qr__caption { margin: 12px 0 0; font-size: 12px; font-weight: 500; color: var(--wj-pc-muted); }
+.wj-debt-pc-modal__body { display: block; }
+/* Trang /portal/debt/pay mở thẳng trên PC (WJ-DEBT-003) — cùng nội dung với modal. */
+.wj-debt-pc-paycard { max-width: 720px; }
 
 .wj-debt-pc-bank { display: flex; flex-direction: column; }
 .wj-debt-pc-bank__title { margin: 0 0 12px; font-size: 15px; font-weight: 700; color: var(--wj-pc-text); }
@@ -767,7 +715,6 @@
 @media (max-width: 1200px) {
     .wj-debt-pc-filter { flex-wrap: wrap; }
     .wj-debt-pc-filter__field--store { margin-left: 0; }
-    .wj-debt-pc-modal__body { grid-template-columns: 1fr; }
 }
 
 /* ---------- Dòng Công nợ trong sheet "Thêm" (Figma 01) ----------
