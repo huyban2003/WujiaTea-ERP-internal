@@ -228,16 +228,12 @@
                             <div
                                 class="alert alert-warning d-flex justify-content-between align-items-center mb-3"
                                 invisible="is_exam_submitted or state != 'draft'">
-                                <span><strong>Lưu ý:</strong> Vui lòng bấm <strong>"Bắt đầu thực
-                                    hiện"</strong> ở trên header để bắt đầu khảo sát và làm bài kiểm
-                                    tra!</span>
+                                <span><strong>Note:</strong> Please click <strong>"Start Inspection"</strong> on the header to start the inspection and take the exam!</span>
                             </div>
                             <div
                                 class="alert alert-info d-flex justify-content-between align-items-center mb-3"
                                 invisible="is_exam_submitted or state != 'in_progress'">
-                                <span><strong>Hướng dẫn:</strong> Nhân viên nhập câu trả lời vào ô
-                                    "Đáp án trả lời" bên dưới mỗi câu hỏi. Sau khi hoàn thành, bấm <strong>"Nộp
-                                    bài kiểm tra"</strong> để chấm điểm.</span>
+                                <span><strong>Instructions:</strong> Employees enter answers into the "Answer" box below each question. After completion, click <strong>"Submit Exam"</strong> to grade.</span>
                                 <button name="action_submit_exam"
                                     string="label:wujia.franchise.inspection:action_submit_exam"
                                     type="object" class="btn btn-primary fw-bold px-4"
@@ -246,9 +242,9 @@
                             <div
                                 class="alert alert-success d-flex justify-content-between align-items-center mb-3"
                                 invisible="not is_exam_submitted">
-                                <span><strong>Đã nộp bài kiểm tra!</strong> Bài làm đã được khóa.
-                                    Kết quả chấm điểm: <b class="fs-5 text-success"><field
-                                            name="exam_score" readonly="1" /> điểm</b>.</span>
+                                <span><strong>Exam Submitted!</strong> Answers have been locked.
+                                    Scoring result: <b class="fs-5 text-success"><field
+                                            name="exam_score" readonly="1" /> points</b>.</span>
                             </div>
                             <group>
                                 <group>
