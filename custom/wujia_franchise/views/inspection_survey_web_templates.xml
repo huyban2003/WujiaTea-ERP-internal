@@ -370,7 +370,8 @@
                                             t-out="t.get('label:wujia.franchise.inspection_survey:modal_line_detail_title', 'Chi tiết tiêu chí')" />
                                     </span>
                                 </div>
-                                <button type="button" class="modal-close" id="lineModalClose">
+                                <button type="button" class="modal-close" id="lineModalClose"
+                                    t-translation="off">
                                     &amp;times;</button>
                             </div>
                             <div class="modal-body"
@@ -406,7 +407,7 @@
                                                 <t
                                                     t-out="t.get('label:wujia.franchise.inspection_survey:modal_label_prev_note', ' Ghi chú trước:')" />
                                             </b>
-                                            <span id="lineModalPrevNote" t-translation="off">-</span>
+                                            <span id="lineModalPrevNote" t-esc="'-'"></span>
                                         </div>
                                         <div id="lineModalPrevEvidenceWrap"
                                             style="display: none; margin-top: 6px;">
@@ -497,7 +498,8 @@
                                     <t
                                         t-out="t.get('label:wujia.franchise.inspection_survey:alert_title', ' Thông báo')" />
                                 </div>
-                                <button type="button" class="modal-close" id="customAlertClose">
+                                <button type="button" class="modal-close" id="customAlertClose"
+                                    t-translation="off">
                                     &amp;times;</button>
                             </div>
                             <div class="modal-body" style="text-align: center; padding: 24px 20px;">
@@ -527,7 +529,8 @@
                                     <t
                                         t-out="t.get('label:wujia.franchise.inspection_survey:prev_modal_title', ' Chi tiết Đợt khảo sát trước')" />
                                 </div>
-                                <button type="button" class="modal-close" id="prevModalClose">
+                                <button type="button" class="modal-close" id="prevModalClose"
+                                    t-translation="off">
                                     &amp;times;</button>
                             </div>
                             <div class="modal-body">
