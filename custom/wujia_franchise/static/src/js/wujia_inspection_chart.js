@@ -6,7 +6,7 @@ import { standardFieldProps } from "@web/views/fields/standard_field_props";
 import { _t } from "@web/core/l10n/translation";
 
 export class WujiaInspectionChart extends Component {
-    static template = xml`
+  static template = xml`
         <div class="wujia-inspection-chart-container w-100 p-4 bg-white rounded border shadow-sm my-2" style="width: 100% !important; max-width: 100% !important;">
             <div class="d-flex justify-content-between align-items-center mb-3">
                 <h6 class="mb-0 fw-bold text-primary fs-5">
@@ -97,99 +97,161 @@ export class WujiaInspectionChart extends Component {
         </div>
     `;
 
-    
-    get chartTitle() {
-        return this.chartData.title || _t("Supervision Score History (Last 10 Rounds)");
+  get chartTitle() {
+    return _t("Supervision Score History (Last 10 Rounds)");
+  }
+
+  get singleScoreLabel() {
+    return _t("Score per Round");
+  }
+
+  get avgScoreLabel() {
+    return _t("Average Score");
+  }
+
+  get noDataTitle() {
+    return _t("No Historical Data Yet!");
+  }
+
+  get noDataDesc() {
+    return (
+      this.chartData.no_data_desc ||
+      _t(
+        "Please select a Supervision Template or this store has no completed/remediation inspection sheets yet.",
+      )
+    );
+  }
+
+  static props = {
+    ...standardFieldProps,
+  };
+
+  get chartData() {
+    const raw = this.props.record.data[this.props.name];
+    if (!raw) return { hasData: false };
+    try {
+      const data = typeof raw === "string" ? JSON.parse(raw) : raw;
+      const labels = data.labels || [];
+      const scores = data.scores || [];
+      const avgScores = data.avg_scores || [];
+      const hasData = labels.length > 0 && scores.length > 0;
+      const avgScore = avgScores.length > 0 ? avgScores[0] : 0;
+      return { hasData, labels, scores, avgScores, avgScore };
+    } catch (e) {
+      return { hasData: false };
     }
+  }
 
-    get singleScoreLabel() {
-        return this.chartData.single_label || _t("Score per Round");
+  get chartWidth() {
+    return 1200;
+  }
+  get chartHeight() {
+    return 320;
+  }
+  get padding() {
+    return { top: 30, right: 35, bottom: 45, left: 50 };
+  }
+  get viewBox() {
+    return "0 0 " + this.chartWidth + " " + this.chartHeight;
+  }
+
+  get gridLines() {
+    const lines = [];
+    const usableHeight =
+      this.chartHeight - this.padding.top - this.padding.bottom;
+    for (let val = 0; val <= 100; val += 20) {
+      const y =
+        this.chartHeight - this.padding.bottom - (val / 100) * usableHeight;
+      lines.push({ val, y });
     }
+    return lines;
+  }
 
-    get avgScoreLabel() {
-        return this.chartData.avg_label || _t("Average Score");
-    }
+  get avgLineY() {
+    const { avgScore, hasData } = this.chartData;
+    if (!hasData) return false;
+    const usableHeight =
+      this.chartHeight - this.padding.top - this.padding.bottom;
+    return (
+      this.chartHeight -
+      this.padding.bottom -
+      (Math.min(Math.max(avgScore, 0), 100) / 100) * usableHeight
+    );
+  }
 
-    get noDataTitle() {
-        return this.chartData.no_data_title || _t("No Historical Data Yet!");
-    }
+  get bars() {
+    const { labels, scores, hasData } = this.chartData;
+    if (!hasData) return [];
+    const usableWidth =
+      this.chartWidth - this.padding.left - this.padding.right;
+    const usableHeight =
+      this.chartHeight - this.padding.top - this.padding.bottom;
+    const count = labels.length;
+    const slotWidth = usableWidth / count;
+    const barWidth = Math.min(Math.max(slotWidth * 0.45, 36), 75);
 
-    get noDataDesc() {
-        return this.chartData.no_data_desc || _t("Please select a Supervision Template or this store has no completed/remediation inspection sheets yet.");
-    }
-
-    static props = {
-        ...standardFieldProps,
-    };
-
-    get chartData() {
-        const raw = this.props.record.data[this.props.name];
-        if (!raw) return { hasData: false };
-        try {
-            const data = typeof raw === "string" ? JSON.parse(raw) : raw;
-            const labels = data.labels || [];
-            const scores = data.scores || [];
-            const avgScores = data.avg_scores || [];
-            const hasData = labels.length > 0 && scores.length > 0;
-            const avgScore = avgScores.length > 0 ? avgScores[0] : 0;
-            return { hasData, labels, scores, avgScores, avgScore };
-        } catch (e) {
-            return { hasData: false };
-        }
-    }
-
-    get chartWidth() { return 1200; }
-    get chartHeight() { return 320; }
-    get padding() { return { top: 30, right: 35, bottom: 45, left: 50 }; }
-    get viewBox() { return "0 0 " + this.chartWidth + " " + this.chartHeight; }
-
-    get gridLines() {
-        const lines = [];
-        const usableHeight = this.chartHeight - this.padding.top - this.padding.bottom;
-        for (let val = 0; val <= 100; val += 20) {
-            const y = this.chartHeight - this.padding.bottom - (val / 100) * usableHeight;
-            lines.push({ val, y });
-        }
-        return lines;
-    }
-
-    get avgLineY() {
-        const { avgScore, hasData } = this.chartData;
-        if (!hasData) return false;
-        const usableHeight = this.chartHeight - this.padding.top - this.padding.bottom;
-        return this.chartHeight - this.padding.bottom - (Math.min(Math.max(avgScore, 0), 100) / 100) * usableHeight;
-    }
-
-    get bars() {
-        const { labels, scores, hasData } = this.chartData;
-        if (!hasData) return [];
-        const usableWidth = this.chartWidth - this.padding.left - this.padding.right;
-        const usableHeight = this.chartHeight - this.padding.top - this.padding.bottom;
-        const count = labels.length;
-        const slotWidth = usableWidth / count;
-        const barWidth = Math.min(Math.max(slotWidth * 0.45, 36), 75);
-
-        return labels.map((date, idx) => {
-            const score = scores[idx] || 0;
-            const height = (Math.min(Math.max(score, 0), 100) / 100) * usableHeight;
-            const x = this.padding.left + idx * slotWidth + (slotWidth - barWidth) / 2;
-            const y = this.chartHeight - this.padding.bottom - height;
-            return {
-                idx,
-                date,
-                score,
-                x,
-                y,
-                width: barWidth,
-                height,
-            };
-        });
-    }
+    return labels.map((date, idx) => {
+      const score = scores[idx] || 0;
+      const height = (Math.min(Math.max(score, 0), 100) / 100) * usableHeight;
+      const x =
+        this.padding.left + idx * slotWidth + (slotWidth - barWidth) / 2;
+      const y = this.chartHeight - this.padding.bottom - height;
+      return {
+        idx,
+        date,
+        score,
+        x,
+        y,
+        width: barWidth,
+        height,
+      };
+    });
+  }
 }
 
 export const wujiaInspectionChartField = {
-    component: WujiaInspectionChart,
-    supportedTypes: ["text", "char"],
+  component: WujiaInspectionChart,
+  supportedTypes: ["text", "char"],
 };
 
-registry.category("fields").add("wujia_inspection_chart", wujiaInspectionChartField);
+registry
+  .category("fields")
+  .add("wujia_inspection_chart", wujiaInspectionChartField);
+import { DateTimeField, dateField } from "@web/views/fields/datetime/datetime_field";
+
+export class WujiaMonthYearField extends DateTimeField {
+  getFormattedValue(valueIndex) {
+    const values = this.values;
+    const value = values[valueIndex];
+    if (!value) {
+      return "";
+    }
+    return value.toFormat ? value.toFormat("MM/yyyy") : value;
+  }
+}
+
+export function formatMonthYear(value) {
+  if (!value) {
+    return "";
+  }
+  return value.toFormat ? value.toFormat("MM/yyyy") : value;
+}
+
+export const wujiaMonthYearField = {
+  ...dateField,
+  component: WujiaMonthYearField,
+  displayName: _t("Month / Year"),
+  supportedTypes: ["date"],
+  formatter: "wujia_month_year",
+  extractProps: (fieldInfo, dynamicInfo) => {
+    const props = dateField.extractProps(fieldInfo, dynamicInfo);
+    return {
+      ...props,
+      minPrecision: "months",
+      maxPrecision: "months",
+    };
+  },
+};
+
+registry.category("formatters").add("wujia_month_year", formatMonthYear);
+registry.category("fields").add("wujia_month_year", wujiaMonthYearField);
