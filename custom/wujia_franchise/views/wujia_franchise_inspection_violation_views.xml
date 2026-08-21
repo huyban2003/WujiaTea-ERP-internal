@@ -130,16 +130,16 @@
     <!-- Action Phân tích tiêu chí vi phạm (Chỉ tổng hợp dữ liệu từ các Phiếu khảo sát ở trạng thái
     'Hoàn thành') -->
     <record id="action_wujia_franchise_inspection_report_violation" model="ir.actions.act_window">
-        <field name="name">Phân tích tiêu chí vi phạm</field>
+        <field name="name">Violation Criteria Analysis</field>
         <field name="res_model">wujia.franchise.inspection.line</field>
-        <field name="domain">[('display_type', '=', 'line'), ('inspection_id.state', 'in', ('done', 'need_remediation'))]</field>
+        <field name="domain">[('display_type', '=', 'line'), ('inspection_id.state', 'in', ('done',
+            'need_remediation'))]</field>
         <field name="view_mode">graph,pivot,list</field>
         <field name="search_view_id" ref="view_wujia_franchise_inspection_line_search" />
         <field name="context">{}</field>
         <field name="help" type="html">
             <p class="o_view_nocontent_smiling_face">
-                Báo cáo phân tích tổng số câu Đạt / Vi phạm của từng tiêu chí mẫu trên các phiếu đã
-                hoàn thành!
+                Violation criteria analysis report on completed inspection sheets!
             </p>
         </field>
     </record>

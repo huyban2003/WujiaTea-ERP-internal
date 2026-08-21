@@ -7,5 +7,3 @@ from . import wujia_franchise_inspection_question
 from . import wujia_franchise_inspection_grade
 from . import wujia_franchise_inspection
 from . import wujia_supervision_schedule
-
-from . import base_language_export
