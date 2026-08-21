@@ -6,11 +6,10 @@
         <field name="name">wujia.supervision.schedule.tree</field>
         <field name="model">wujia.supervision.schedule</field>
         <field name="arch" type="xml">
-            <list string="label:wujia.supervision.schedule:list_title">
+            <list string="Supervision Schedules">
                 <field name="name" />
                 <field name="store_id" />
                 <field name="user_id" />
-                <!-- Thay date_start thành date -->
                 <field name="date" />
                 <field name="state" widget="badge"
                     decoration-info="state == 'draft'"
@@ -26,8 +25,7 @@
         <field name="name">wujia.supervision.schedule.calendar</field>
         <field name="model">wujia.supervision.schedule</field>
         <field name="arch" type="xml">
-            <!-- Dùng date_start="date" (chỉ định trường date làm mốc lịch) -->
-            <calendar string="label:wujia.supervision.schedule:calendar_title"
+            <calendar string="Supervision Calendar"
                 date_start="date"
                 mode="month"
                 color="state"
@@ -47,7 +45,7 @@
         <field name="name">wujia.supervision.schedule.form</field>
         <field name="model">wujia.supervision.schedule</field>
         <field name="arch" type="xml">
-            <form string="label:wujia.supervision.schedule:form_title">
+            <form string="Supervision Schedule">
                 <header>
                     <field name="state" widget="statusbar"
                         statusbar_visible="draft,in_progress,done" />
@@ -59,50 +57,49 @@
                             type="object"
                             class="oe_stat_button"
                             icon="fa-clipboard">
-                            <field name="inspection_count" widget="statinfo" string="label:wujia.supervision.schedule:inspection_sheet" />
+                            <field name="inspection_count" widget="statinfo" string="Inspection Sheets" />
                         </button>
                     </div>
 
                     <div class="oe_title">
-                        <label for="name" string="label:wujia.supervision.schedule:job_title" />
+                        <label for="name" string="Schedule Title" />
                         <h1>
                             <field name="name" readonly="1" force_save="1"
-                                placeholder="label:wujia.supervision.schedule:placeholder_name" />
+                                placeholder="e.g. LGS-HCM01-0001" />
                         </h1>
                     </div>
                     <group>
-                        <group string="label:wujia.supervision.schedule:store_information">
+                        <group string="Store &amp; Inspector Information">
                             <field name="user_id" options="{'no_create': True, 'no_open': True}" />
                             <field name="store_id"
                                 domain="[('effective_supervision_user_id', '=', user_id)]"
                                 options="{'no_create': True, 'no_open': True}" />
-                            <!-- cần thêm địa chị, sĐt, định vị cửa hàng -->
-                            <group name="store_info" string="label:wujia.supervision.schedule:address_and_phone">
+                            <group name="store_info" string="Address &amp; Contact">
                                 <field name="address" readonly="1" />
                                 <field name="phone" readonly="1" />
                             </group>
-                            <group name="google_map_url" string="label:wujia.supervision.schedule:location">
+                            <group name="google_map_url" string="Location">
                                 <field name="google_map_url" invisible="1" />
                                 <button name="action_open_google_map"
-                                    string="label:wujia.supervision.schedule:open_google_maps"
+                                    string="Open Google Maps"
                                     type="object"
                                     icon="fa-map-marker"
                                     class="btn-secondary"
                                     invisible="not google_map_url" />
                             </group>
                         </group>
-                        <group string="label:wujia.supervision.schedule:latest_evaluation_time_and_result">
-                            <field name="date" string="label:wujia.supervision.schedule:supervision_time" />
+                        <group string="Schedule Date &amp; Latest Inspection Result">
+                            <field name="date" string="Scheduled Date" />
                             <field name="latest_total_score"
-                                string="label:wujia.supervision.schedule:latest_score"
+                                string="Latest Score"
                                 readonly="1" />
                             <field name="latest_grade_id"
-                                string="label:wujia.supervision.schedule:latest_grade"
+                                string="Latest Grade"
                                 widget="badge"
                                 readonly="1" />
                         </group>
                     </group>
-                    <field name="note" placeholder="label:wujia.supervision.schedule:add_detailed_note" />
+                    <field name="note" placeholder="Add detailed schedule notes or instructions here..." />
                 </sheet>
             </form>
         </field>
@@ -113,18 +110,18 @@
         <field name="name">wujia.supervision.schedule.search</field>
         <field name="model">wujia.supervision.schedule</field>
         <field name="arch" type="xml">
-            <search string="label:wujia.supervision.schedule:search_title">
+            <search string="Search Supervision Schedules">
                 <field name="name" />
                 <field name="store_id" />
                 <field name="user_id" />
-                <filter string="label:wujia.supervision.schedule:filter_my_schedule" name="my_schedule" domain="[('user_id', '=', uid)]" />
+                <filter string="My Schedules" name="my_schedule" domain="[('user_id', '=', uid)]" />
             </search>
         </field>
     </record>
 
     <!-- 5. ACTION -->
     <record id="action_wujia_supervision_schedule" model="ir.actions.act_window">
-        <field name="name">Lịch giám sát cửa hàng</field>
+        <field name="name">Supervision Schedules</field>
         <field name="res_model">wujia.supervision.schedule</field>
         <field name="view_mode">calendar,list,form</field>
         <field name="search_view_id" ref="view_wujia_supervision_schedule_search" />

@@ -25,40 +25,40 @@ class WujiaFranchiseInspection(models.Model):
                     rec.write({'state': 'done'})
 
     _name = 'wujia.franchise.inspection'
-    _description = 'Phiếu khảo sát đánh giá cửa hàng nhượng quyền'
+    _description = 'Franchise Store Inspection Sheet'
     _inherit = ['mail.thread', 'mail.activity.mixin']
     _order = 'id desc'
 
     _sql_constraints = [
-        ('name_uniq', 'unique(name)', 'Mã/Tên phiếu khảo sát (name) đã tồn tại trong hệ thống! Không thể trùng lặp.'),
+        ('name_uniq', 'unique(name)', 'The inspection name must be unique!'),
     ]
 
-    name = fields.Char(string='Tên phiếu khảo sát', required=True, copy=False, tracking=True)
+    name = fields.Char(string='Inspection Name', required=True, copy=False, tracking=True)
 
     submit_date = fields.Date(
-        string='Ngày nộp',
+        string='Submission Date',
         tracking=True,
     )
     confirm_date = fields.Date(
-        string='fields:wujia.franchise.inspection:confirm_date',
+        string='Confirmation Date',
         tracking=True,
     )
 
     state = fields.Selection([
-        ('draft', 'selection:wujia.franchise.inspection:state:draft'),
-        ('in_progress', 'selection:wujia.franchise.inspection:state:in_progress'),
-        ('need_remediation', 'selection:wujia.franchise.inspection:state:need_remediation'),
-        ('done', 'selection:wujia.franchise.inspection:state:done'),
-        ('cancel', 'selection:wujia.franchise.inspection:state:cancel')
+        ('draft', 'Draft'),
+        ('in_progress', 'In Progress'),
+        ('need_remediation', 'Need Remediation'),
+        ('done', 'Done'),
+        ('cancel', 'Cancelled')
     ], string='Status', default='draft', tracking=True)
 
     planned_date = fields.Date(
-        string='Ngày dự kiến',
+        string='Planned Date',
         tracking=True,
     )
 
     checklist_score = fields.Float(
-        string='fields:wujia.franchise.inspection:checklist_score',
+        string='Checklist Score',
         compute='_compute_checklist_score',
         store=True,
         readonly=True,
@@ -67,26 +67,26 @@ class WujiaFranchiseInspection(models.Model):
     )
 
     exam_score = fields.Float(
-        string='fields:wujia.franchise.inspection:exam_score',
+        string='Staff Exam Score',
         compute='_compute_exam_score',
         store=True,
         aggregator='avg',
         tracking=True,
-        help='là điểm được lấy từ câu hỏi phần điền vào ô trống',
+        help='Score calculated from blank fill-in exam questions.',
     )
 
     total_score = fields.Float(
-        string='fields:wujia.franchise.inspection:total_score',
+        string='Total Score',
         compute='_compute_total_score',
         store=True,
         aggregator='avg',
         tracking=True,
-        help='điểm = điểm checklist + điểm kiểm tra',
+        help='Total Score = Checklist Score + Staff Exam Score.',
     )
 
     grade_id = fields.Many2one(
         'wujia.franchise.inspection.grade',
-        string='Xếp loại',
+        string='Grade',
         compute='_compute_grade',
         store=True,
         readonly=True,
@@ -94,24 +94,24 @@ class WujiaFranchiseInspection(models.Model):
     )
     
     next_due_date = fields.Date(
-        string='Lần kiểm tra kế tiếp',
+        string='Next Inspection Date',
         tracking=True,
     )
 
     next_schedule_id = fields.Many2one(
         'wujia.supervision.schedule',
-        string='Lịch giám sát tiếp theo',
+        string='Next Supervision Schedule',
         ondelete='set null',
     )
 
     test_employee_name = fields.Char(
-        string='Nhân viên được kiểm tra',
-        help='nhận viện tại cửa hàng không có trong user',
+        string='Tested Employee',
+        help='Store employee taking the exam (not required to be a system user).',
     )
 
     tenure = fields.Float(
-        string='Thâm niên',
-        help='thời gian làm việc của nhân viên',
+        string='Tenure',
+        help='Working tenure of the tested employee.',
     )
     # video 
     video = fields.Binary(
@@ -123,7 +123,7 @@ class WujiaFranchiseInspection(models.Model):
 
     schedule_id = fields.Many2one(
         'wujia.supervision.schedule',
-        string='Lịch giám sát',
+        string='Supervision Schedule',
         required=True,
         ondelete='cascade',
         tracking=True,
@@ -131,7 +131,7 @@ class WujiaFranchiseInspection(models.Model):
     
     template_id = fields.Many2one(
         'wujia.franchise.inspection.template',
-        string='Mẫu khảo sát',
+        string='Inspection Template',
         required=True,
         ondelete='restrict',
         tracking=True,
@@ -139,7 +139,7 @@ class WujiaFranchiseInspection(models.Model):
 
     franchise_id = fields.Many2one(
         'wujia.franchise.management',
-        string='Cửa hàng',
+        string='Franchise Store',
         required=True,
         ondelete='restrict',
         tracking=True,
@@ -147,7 +147,7 @@ class WujiaFranchiseInspection(models.Model):
 
     inspector_user_id = fields.Many2one(
         'res.users',
-        string='Người kiểm tra',
+        string='Inspector',
         required=True,
         ondelete='restrict',
         default=lambda self: self.env.user,
@@ -156,7 +156,7 @@ class WujiaFranchiseInspection(models.Model):
 
     previous_inspection_id = fields.Many2one(
         'wujia.franchise.inspection',
-        string='fields:wujia.franchise.inspection:previous_inspection_id',
+        string='Previous Inspection',
         compute='_compute_previous_inspection_id',
         store=True,
         ondelete='set null',
@@ -166,37 +166,37 @@ class WujiaFranchiseInspection(models.Model):
     line_ids = fields.One2many(
         'wujia.franchise.inspection.line',
         'inspection_id',
-        string='Chi tiết khảo sát',
+        string='Inspection Details',
         copy=False,
     )
 
     exam_line_ids = fields.One2many(
         'wujia.franchise.inspection.exam.line',
         'inspection_id',
-        string='Điểm kiểm tra',
+        string='Staff Exam Lines',
         copy=False,
     )
 
     report_line_ids = fields.One2many(
         'wujia.franchise.inspection.report.line',
         'inspection_id',
-        string='Dòng báo cáo',
+        string='Revenue Report Lines',
         copy=False,
     )
 
     is_exam_submitted = fields.Boolean(
-        string='Đã nộp bài kiểm tra',
+        string='Exam Submitted',
         default=False,
         copy=False,
     )
 
     exam_submit_date = fields.Datetime(
-        string='Thời gian nộp bài kiểm tra',
+        string='Exam Submitted Date',
         copy=False,
     )
 
     inspection_chart_data = fields.Text(
-        string='Dữ liệu biểu đồ',
+        string='Inspection Chart Data',
         compute='_compute_inspection_chart_data',
     )
 
@@ -505,7 +505,7 @@ class WujiaFranchiseInspection(models.Model):
         """
         for rec in self:
             if rec.state != 'in_progress':
-                raise UserError(_("Phiếu khảo sát phải ở trạng thái 'Đang thực hiện' mới được phép nộp bài kiểm tra!"))
+                raise UserError(_("The inspection must be 'In Progress' to submit the staff exam!"))
 
             for line in rec.exam_line_ids:
                 line._evaluate_answer()
@@ -543,7 +543,7 @@ class WujiaFranchiseInspection(models.Model):
         for rec in self:
             for line in rec.line_ids:
                 if line.display_type == 'line' and not line.is_pass:
-                    criterion_name = line.content_snapshot or (line.template_line_id.content if line.template_line_id else _('Tiêu chí'))
+                    criterion_name = line.content_snapshot or (line.template_line_id.content if line.template_line_id else _('Criterion'))
                     
                     req_note = line.require_note_if_fail or line.require_note_if_fail_snapshot
                     req_evidence = line.require_evidence_if_fail or line.require_evidence_if_fail_snapshot
@@ -592,7 +592,7 @@ class WujiaFranchiseInspection(models.Model):
             failed_lines = rec.line_ids.filtered(lambda l: l.display_type == 'line' and not l.is_pass)
             uncompleted_lines = failed_lines.filtered(lambda l: l.remediation_state != RemediationState.DONE.value)
             if uncompleted_lines:
-                raise UserError(_("Không thể hoàn thành phiếu khảo sát! Vẫn còn %s tiêu chí vi phạm chưa được xử lý Hoàn thành (Done).") % len(uncompleted_lines))
+                raise UserError(_("Cannot complete inspection! There are still %s violation criteria not marked Done.") % len(uncompleted_lines))
             rec.write({
                 'state': 'done',
                 'confirm_date': rec.confirm_date or today,
@@ -617,22 +617,22 @@ class WujiaFranchiseInspection(models.Model):
         """
         self.ensure_one()
         if not self.next_due_date:
-            raise ValidationError(_('Vui lòng chọn ngày trong "Lần kiểm tra kế tiếp" trước khi tạo lịch!'))
+            raise ValidationError(_('Please select a date in "Next Inspection Date" before creating a schedule!'))
 
         if not self.next_schedule_id:
             store_name = self.franchise_id.name or ''
             new_schedule = self.env['wujia.supervision.schedule'].create({
-                'name': f"Lịch giám sát kế tiếp - {store_name}",
+                'name': f"Next Supervision Schedule - {store_name}",
                 'store_id': self.franchise_id.id,
                 'user_id': self.inspector_user_id.id or self.env.user.id,
                 'date': self.next_due_date,
                 'state': 'draft',
-                'note': f"Lịch được tạo tự động từ Phiếu khảo sát: {self.name}",
+                'note': f"Schedule automatically created from Inspection Sheet: {self.name}",
             })
             self.next_schedule_id = new_schedule.id
 
         return {
-            'name': _('Lịch giám sát tiếp theo'),
+            'name': _('Next Supervision Schedule'),
             'type': 'ir.actions.act_window',
             'res_model': 'wujia.supervision.schedule',
             'res_id': self.next_schedule_id.id,
@@ -653,7 +653,7 @@ class WujiaFranchiseInspection(models.Model):
         if 'name' in vals and not self.env.su:
             for rec in self:
                 if rec.name and vals['name'] != rec.name:
-                    raise ValidationError(_("Không thể thay đổi Mã/Tên phiếu khảo sát (%s) sau khi đã tạo!") % rec.name)
+                    raise ValidationError(_("Cannot change Inspection Name (%s) once created!") % rec.name)
 
         if vals.get('state') == 'need_remediation':
             for rec in self:
@@ -669,7 +669,7 @@ class WujiaFranchiseInspection(models.Model):
                 failed_lines = rec.line_ids.filtered(lambda l: l.display_type == 'line' and not l.is_pass)
                 uncompleted_lines = failed_lines.filtered(lambda l: l.remediation_state != RemediationState.DONE.value)
                 if uncompleted_lines:
-                    raise UserError(_("Không thể chuyển phiếu khảo sát sang Hoàn thành! Vẫn còn %s tiêu chí vi phạm chưa ở trạng thái Hoàn thành (Done).") % len(uncompleted_lines))
+                    raise UserError(_("Cannot complete inspection! There are still %s violation criteria not marked Done.") % len(uncompleted_lines))
 
         if vals.get('state') == 'done' and 'confirm_date' not in vals:
             vals['confirm_date'] = fields.Date.context_today(self)
@@ -794,13 +794,13 @@ class WujiaFranchiseInspection(models.Model):
                 rec.previous_inspection_id = False
     
     confirmed_user_id = fields.Many2one('res.users',
-        string='field:wujia.franchise.inspection:confirmed_user_id',
+        string='System Confirmer',
         required=True,
         ondelete='restrict',
         default=lambda self: self.env.user
     )
     confirmed_member_id = fields.Many2one('wujia.franchise.member',
-        string='field:wujia.franchise.inspection:confirmed_member_id',
+        string='Store Manager Confirmer',
         required=True,
         ondelete='restrict',
     )
@@ -889,106 +889,106 @@ class WujiaFranchiseInspectionLine(models.Model):
         return True
 
     _name = 'wujia.franchise.inspection.line'
-    _description = 'Từng dòng tiêu chí trong phiếu khảo sát đánh giá cửa hàng nhượng quyền'
+    _description = 'Inspection Line Detail'
     _order = 'sequence, id'
 
-    sequence = fields.Integer(string='Thứ tự', default=10)
+    sequence = fields.Integer(string='Sequence', default=10)
     display_type = fields.Selection([
         ('section', 'Section'),
         ('line', 'Line'),
     ], default='line', help="Trường kỹ thuật phân nhóm danh mục section header")
 
     content_snapshot = fields.Text(
-        string='Nội dung kiểm tra checklist',
+        string='Checklist Content',
     )
 
     deduction_score_snapshot = fields.Float(
-        string='Điểm trừ',
+        string='Deduction Score',
         default=0.0,
     )
 
     criterion_type_snapshot = fields.Char(
-        string='Loại tiêu chí',
+        string='Criterion Type',
         default='normal',
     )
 
     is_pass = fields.Boolean(
-        string='Đánh giá Đạt (Pass)',
+        string='Passed (Pass)',
         default=True,
     )
 
     result = fields.Selection(
         selection=[
-            ('pass', 'selection:wujia.franchise.inspection.line:result:pass'),
-            ('fail', 'selection:wujia.franchise.inspection.line:result:fail')
+            ('pass', 'Pass'),
+            ('fail', 'Fail')
         ],
-        string='Kết quả',
+        string='Result',
         default='pass',
         required=True,
     )
 
     note = fields.Text(
-        string='Ghi chú vi phạm (Admin)',
+        string='Violation Note (Admin)',
     )
 
     remediation_state = fields.Selection([
-        (RemediationState.NEED_REMEDIATION.value, 'selection:wujia.franchise.inspection.line:remediation_state:need_remediation'),
-        (RemediationState.REMEDIATED.value, 'selection:wujia.franchise.inspection.line:remediation_state:remediated'),
-        (RemediationState.DONE.value, 'selection:wujia.franchise.inspection.line:remediation_state:done'),
-    ], string='Trạng thái khắc phục', tracking=True)
+        (RemediationState.NEED_REMEDIATION.value, 'Need Remediation'),
+        (RemediationState.REMEDIATED.value, 'Remediated'),
+        (RemediationState.DONE.value, 'Done'),
+    ], string='Remediation Status', tracking=True)
 
     remediation_note = fields.Text(
-        string='Ghi chú khắc phục (Cửa hàng)',
-        help='Ghi chú phản hồi/khắc phục do cửa hàng nhập từ Portal.'
+        string='Remediation Note (Store)',
+        help='Remediation notes / feedback submitted by store via Portal.'
     )
 
     evidence_image = fields.Binary(
-        string='Hình ảnh bằng chứng (Khi khảo sát)',
+        string='Evidence Photo (Inspection)',
         attachment=True,
-        help='Hình ảnh bằng chứng chụp vi phạm khi thực hiện khảo sát.'
+        help='Violation evidence photo captured during inspection.'
     )
 
     remediation_image = fields.Binary(
-        string='Hình ảnh sau khắc phục',
+        string='Remediation Photo',
         attachment=True,
-        help='Hình ảnh chụp lại kết quả sau khi cửa hàng đã thực hiện khắc phục vi phạm.'
+        help='Photo showing results after store completed remediation.'
     )
 
     require_note_if_fail = fields.Boolean(
-        string='Yêu cầu ghi chú khi không đạt',
+        string='Require Note If Fail',
         related='template_line_id.require_note_if_fail',
         readonly=True,
         store=True,
     )
 
     require_evidence_if_fail = fields.Boolean(
-        string='Yêu cầu bằng chứng khi không đạt',
+        string='Require Evidence If Fail',
         related='template_line_id.require_evidence_if_fail',
         readonly=True,
         store=True,
     )
 
     require_note_if_fail_snapshot = fields.Boolean(
-        string='Snapshot yêu cầu ghi chú',
+        string='Require Note Snapshot',
         default=False,
     )
 
     require_evidence_if_fail_snapshot = fields.Boolean(
-        string='Snapshot yêu cầu bằng chứng',
+        string='Require Evidence Snapshot',
         default=False,
     )
     
     # RELATION 
     inspection_id = fields.Many2one(
         'wujia.franchise.inspection',
-        string='Phiếu khảo sát',
+        string='Inspection Sheet',
         required=True,
         ondelete='cascade',
     )
 
     template_line_id = fields.Many2one(
         'wujia.franchise.inspection.template.line',
-        string='Tiêu chí',
+        string='Inspection Criterion',
         required=False,
         ondelete='restrict',
     )
@@ -996,7 +996,7 @@ class WujiaFranchiseInspectionLine(models.Model):
     template_id = fields.Many2one(
         'wujia.franchise.inspection.template',
         related='inspection_id.template_id',
-        string='Mẫu khảo sát',
+        string='Inspection Template',
         store=True,
         readonly=True,
     )
@@ -1004,44 +1004,44 @@ class WujiaFranchiseInspectionLine(models.Model):
     franchise_id = fields.Many2one(
         'wujia.franchise.management',
         related='inspection_id.franchise_id',
-        string='Cửa hàng',
+        string='Franchise Store',
         store=True,
         readonly=True,
     )
 
     planned_date = fields.Date(
         related='inspection_id.planned_date',
-        string='Ngày kiểm tra',
+        string='Inspection Date',
         store=True,
         readonly=True,
     )
 
     pass_count = fields.Integer(
-        string='Số lần Đạt',
+        string='Pass Count',
         compute='_compute_pass_fail_count',
         store=True,
     )
 
     fail_count = fields.Integer(
-        string='Số lần Vi phạm (Không đạt)',
+        string='Violation Count',
         compute='_compute_pass_fail_count',
         store=True,
     )
 
     line_count = fields.Integer(
-        string='Số lượt kiểm tra',
+        string='Inspection Count',
         default=1,
     )
 
     category_id = fields.Many2one(
         'wujia.franchise.inspection.category',
-        string='Danh mục tiêu chí',
+        string='Section Category',
         ondelete='restrict',
     )
 
     previous_line_id = fields.Many2one(
         'wujia.franchise.inspection.line',
-        string='Line trước',
+        string='Previous Line',
         compute='_compute_previous_line_info',
         store=True,
         readonly=True,
@@ -1049,17 +1049,17 @@ class WujiaFranchiseInspectionLine(models.Model):
 
     previous_result = fields.Selection(
         selection=[
-            ('pass', 'selection:wujia.franchise.inspection.line:previous_result:pass'),
-            ('fail', 'selection:wujia.franchise.inspection.line:previous_result:fail')
+            ('pass', 'Pass'),
+            ('fail', 'Fail')
         ],
-        string='Kết quả trước đó',
+        string='Previous Result',
         compute='_compute_previous_line_info',
         store=True,
         readonly=True,
     )
 
     previous_deduction_score = fields.Float(
-        string='Điểm trừ đợt trước',
+        string='Previous Deduction Score',
         compute='_compute_previous_line_info',
         store=True,
         readonly=True,
@@ -1068,12 +1068,12 @@ class WujiaFranchiseInspectionLine(models.Model):
     previous_inspection_id = fields.Many2one(
         'wujia.franchise.inspection',
         related='inspection_id.previous_inspection_id',
-        string='Phiếu khảo sát đợt trước',
+        string='Previous Inspection',
         readonly=True,
     )
     
     content_class = fields.Char(
-        string="CSS Class cho nội dung", 
+        string="CSS Class for Content", 
         compute="_compute_content_class",
     )
     
@@ -1120,9 +1120,9 @@ class WujiaFranchiseInspectionLine(models.Model):
         """Mở popup Form View xem duy nhất 1 dòng tiêu chí đợt trước (Readonly)"""
         self.ensure_one()
         if not self.previous_line_id:
-            raise ValidationError(_('Không có dữ liệu tiêu chí này ở đợt khảo sát trước!'))
+            raise ValidationError(_('No historical data found for this criterion in previous inspection!'))
         return {
-            'name': _('Tiêu chí đợt trước: %s') % (self.content_snapshot or ''),
+            'name': _('Previous Criterion: %s') % (self.content_snapshot or ''),
             'type': 'ir.actions.act_window',
             'res_model': 'wujia.franchise.inspection.line',
             'res_id': self.previous_line_id.id,
@@ -1271,7 +1271,7 @@ class WujiaFranchiseInspectionLine(models.Model):
                 failed_lines = rec.line_ids.filtered(lambda l: l.display_type == 'line' and not l.is_pass)
                 uncompleted_lines = failed_lines.filtered(lambda l: l.remediation_state != RemediationState.DONE.value)
                 if uncompleted_lines:
-                    raise UserError(_("Không thể chuyển phiếu khảo sát sang Hoàn thành! Vẫn còn %s tiêu chí vi phạm chưa ở trạng thái Hoàn thành (Done).") % len(uncompleted_lines))
+                    raise UserError(_("Cannot complete inspection! There are still %s violation criteria not marked Done.") % len(uncompleted_lines))
 
         if 'is_pass' in vals:
             vals['result'] = 'pass' if vals['is_pass'] else 'fail'
@@ -1304,57 +1304,57 @@ class WujiaFranchiseInspectionLine(models.Model):
         """
         for rec in self:
             if rec.display_type == 'section':
-                rec.display_name = rec.content_snapshot or _("Danh mục tiêu chí")
+                rec.display_name = rec.content_snapshot or _("Criterion Category")
             elif rec.template_line_id:
                 code = rec.template_line_id.criterion_code or ''
                 rec.display_name = f"[{code}] {rec.content_snapshot or ''}" if code else (rec.content_snapshot or '')
             else:
-                rec.display_name = rec.content_snapshot or _("Tiêu chí không xác định")
+                rec.display_name = rec.content_snapshot or _("Undefined Criterion")
 
 class WujiaFranchiseInspectionReportLine(models.Model):
     _name = 'wujia.franchise.inspection.report.line'
-    _description = 'Từng dòng báo cáo tài chính trong 3 tháng'
+    _description = 'Inspection Financial Report Line (3 Months)'
     _order = 'sequence, id'
 
-    sequence = fields.Integer(string='Thứ tự', default=10)
+    sequence = fields.Integer(string='Sequence', default=10)
 
     date_month = fields.Date(
-        string='Tháng (YYYY-MM)',
+        string='Month (MM/YYYY)',
         required=True,
     )
     
     days_of_month = fields.Integer(
-        string='Số ngày trong tháng',
+        string='Days in Month',
         compute='_compute_days_of_month',
         store=True,
     )
 
     revenue = fields.Float(
-        string='Doanh thu',
+        string='Revenue',
         required=True,
     )
 
     revenue_avg = fields.Float(
-        string='Doanh thu / ngày',
+        string='Daily Average Revenue',
         compute='_compute_revenue_avg',
         store=True,
         readonly=False,
     )
 
     total_app_sale = fields.Integer(
-        string='Tổng giao dịch qua app',
+        string='Total App Orders',
         required=True,
     )
 
     percent_app_sale = fields.Float(
-        string='% giao dịch qua app',
+        string='% App Orders',
         required=True,
     )
 
     # RELATION
     inspection_id = fields.Many2one(
         'wujia.franchise.inspection',
-        string='Phiếu khảo sát',
+        string='Inspection Sheet',
         required=True,
         ondelete='cascade',
     )
@@ -1383,7 +1383,7 @@ class WujiaFranchiseInspectionReportLine(models.Model):
     
 class WujiaFranchiseInspectionExamLine(models.Model):
     _name = 'wujia.franchise.inspection.exam.line'
-    _description = 'Điểm kiểm tra phiếu khảo sát đánh giá cửa hàng nhượng quyền'
+    _description = 'Staff Exam Inspection Line'
     _order = 'sequence, id'
 
     sequence = fields.Integer(
@@ -1392,53 +1392,53 @@ class WujiaFranchiseInspectionExamLine(models.Model):
     )
 
     quest_code_snapshot = fields.Char(
-        string='Mã câu hỏi',
+        string='Question Code',
         required=True,
     )
 
     quest_content_snapshot = fields.Text(
-        string='Nội dung câu hỏi',
+        string='Question Text',
         required=True,
     )
 
     correct_answer_snapshot = fields.Text(
-        string='Đáp án đúng',
+        string='Correct Answer',
     )
     answer = fields.Text(
-        string='Đáp án trả lời',
+        string='Employee Answer',
     )
 
     is_correct = fields.Boolean(
-        string='Đúng',
+        string='Is Correct',
         default=False,
     )
     point = fields.Float(
-        string='Điểm',
+        string='Score',
         default=1.0,
     )
 
     is_locked = fields.Boolean(
-        string='Khóa',
+        string='Locked',
         default=False,
     )
 
     # RELATION
     inspection_id = fields.Many2one(
         'wujia.franchise.inspection',
-        string='Phiếu khảo sát',
+        string='Inspection Sheet',
         required=True,
         ondelete='cascade',
     )
     quest_id = fields.Many2one(
         'wujia.franchise.inspection.question',
-        string='Câu hỏi',
+        string='Question',
         required=True,
         ondelete='cascade',
     )
 
     # DISPLAY
     _point_return = fields.Float(
-        string='Điểm',
+        string='Score',
         compute='_compute_point',
     )
 

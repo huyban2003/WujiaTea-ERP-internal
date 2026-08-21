@@ -4,68 +4,68 @@ from odoo.exceptions import ValidationError, UserError
 
 class WujiaSupervisionSchedule(models.Model):
     _name = 'wujia.supervision.schedule'
-    _description = 'Lịch giám sát cửa hàng'
+    _description = 'Store Supervision Schedule'
     _order = 'date desc'
 
     _sql_constraints = [
-        ('name_uniq', 'unique(name)', 'Tiêu đề/Mã lịch giám sát (name) đã tồn tại! Không thể đặt trùng lặp.'),
+        ('name_uniq', 'unique(name)', 'Schedule title/code must be unique!'),
     ]
 
-    name = fields.Char(string='Tiêu đề', required=True, copy=False)
+    name = fields.Char(string='Schedule Title', required=True, copy=False)
     
     # Liên kết với Cửa hàng
-    store_id = fields.Many2one('wujia.franchise.management', string='Cửa hàng', required=True)
+    store_id = fields.Many2one('wujia.franchise.management', string='Franchise Store', required=True)
     
     # Nhân viên thực hiện giám sát
     user_id = fields.Many2one(
         'res.users', 
-        string='Nhân viên giám sát', 
+        string='Supervisor', 
         default=lambda self: self.env.user
     )
     
     # Thời gian giám sát
-    date = fields.Date(string='Thời gian giám sát', required=True, index=True)
+    date = fields.Date(string='Scheduled Date', required=True, index=True)
     
     # Trạng thái lịch
     state = fields.Selection([
-        ('draft', 'selection:wujia.supervision.schedule:state:draft'),
-        ('in_progress', 'selection:wujia.supervision.schedule:state:in_progress'),
-        ('need_remediation', 'selection:wujia.supervision.schedule:state:need_remediation'),
-        ('done', 'selection:wujia.supervision.schedule:state:done'),
-        ('cancel', 'selection:wujia.supervision.schedule:state:cancel')
+        ('draft', 'Draft'),
+        ('in_progress', 'In Progress'),
+        ('need_remediation', 'Need Remediation'),
+        ('done', 'Done'),
+        ('cancel', 'Cancelled')
     ], string='Status', default='draft')
 
-    note = fields.Text(string='Ghi chú')
+    note = fields.Text(string='Notes')
 
     inspection_id = fields.Many2one(
         'wujia.franchise.inspection',
-        string='Phiếu khảo sát',
+        string='Inspection Sheets',
         compute='_compute_inspection_info',
     )
     inspection_count = fields.Integer(
-        string='Số phiếu khảo sát',
+        string='Inspection Count',
         compute='_compute_inspection_info',
     )
 
     latest_inspection_id = fields.Many2one(
         'wujia.franchise.inspection',
-        string='Phiếu khảo sát mới nhất',
+        string='Latest Inspection Sheet',
         compute='_compute_latest_inspection_info',
     )
     latest_total_score = fields.Float(
-        string='Điểm mới nhất',
+        string='Latest Score',
         compute='_compute_latest_inspection_info',
     )
     latest_grade_id = fields.Many2one(
         'wujia.franchise.inspection.grade',
-        string='Loại đánh giá mới nhất',
+        string='Latest Grade',
         compute='_compute_latest_inspection_info',
     )
 
     # dc, sdt, dv
-    address = fields.Text(related='store_id.address', string='Địa chỉ', readonly=True)
-    phone = fields.Char(related='store_id.phone', string='Số điện thoại', readonly=True)
-    google_map_url = fields.Char(related='store_id.google_map_url', string='Vị trí Google Maps', readonly=True)
+    address = fields.Text(related='store_id.address', string='Address', readonly=True)
+    phone = fields.Char(related='store_id.phone', string='Phone', readonly=True)
+    google_map_url = fields.Char(related='store_id.google_map_url', string='Google Maps Location', readonly=True)
 
     def action_open_google_map(self):
         self.ensure_one()
@@ -76,7 +76,7 @@ class WujiaSupervisionSchedule(models.Model):
                 'target': 'new',
             }
             
-        raise UserError(_("Không có đường dẫn Google Maps!"))
+        raise UserError(_("Google Maps URL is not set!"))
 
     def write(self, vals):
         if 'name' in vals and not self.env.su:
@@ -84,7 +84,7 @@ class WujiaSupervisionSchedule(models.Model):
                 if rec.name and vals['name'] != rec.name:
                     has_inspection = self.env['wujia.franchise.inspection'].search_count([('schedule_id', '=', rec.id)]) > 0
                     if has_inspection:
-                        raise ValidationError(_("Tiêu đề/Mã lịch giám sát (%s) không thể thay đổi sau khi đã tạo phiếu khảo sát!") % rec.name)
+                        raise ValidationError(_("Schedule title/code (%s) cannot be changed once an inspection sheet has been created!") % rec.name)
         return super().write(vals)
 
     @api.constrains('store_id', 'date', 'state')
@@ -198,7 +198,7 @@ class WujiaSupervisionSchedule(models.Model):
         inspection = self.env['wujia.franchise.inspection'].search([('schedule_id', '=', self.id)], limit=1)
         if inspection:
             return {
-                'name': 'Phiếu khảo sát',
+                'name': 'Inspection Sheet',
                 'type': 'ir.actions.act_window',
                 'res_model': 'wujia.franchise.inspection',
                 'view_mode': 'form',
@@ -206,7 +206,7 @@ class WujiaSupervisionSchedule(models.Model):
                 'target': 'current',
             }
         return {
-            'name': 'Tạo phiếu khảo sát',
+            'name': 'Create Inspection Sheet',
             'type': 'ir.actions.act_window',
             'res_model': 'wujia.franchise.inspection',
             'view_mode': 'form',

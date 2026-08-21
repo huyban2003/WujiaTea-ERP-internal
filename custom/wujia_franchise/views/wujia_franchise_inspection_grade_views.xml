@@ -6,7 +6,7 @@
         <field name="name">wujia.franchise.inspection.grade.list</field>
         <field name="model">wujia.franchise.inspection.grade</field>
         <field name="arch" type="xml">
-            <list string="Xếp hạng giám sát" editable="bottom">
+            <list string="Inspection Grades" editable="bottom">
                 <field name="sequence" widget="handle" />
                 <field name="name" />
                 <field name="min_score" />
@@ -22,16 +22,16 @@
         <field name="name">wujia.franchise.inspection.grade.form</field>
         <field name="model">wujia.franchise.inspection.grade</field>
         <field name="arch" type="xml">
-            <form string="Xếp hạng giám sát">
+            <form string="Inspection Grade">
                 <sheet>
                     <group>
-                        <group string="Thông tin xếp hạng">
+                        <group string="Grade Information">
                             <field name="name" />
                             <field name="sequence" />
                             <field name="color" widget="color_picker" />
                             <field name="active" />
                         </group>
-                        <group string="Khoảng điểm">
+                        <group string="Score Range">
                             <field name="min_score" />
                             <field name="max_score" />
                         </group>
@@ -46,7 +46,7 @@
 
     <!-- Action -->
     <record id="action_wujia_franchise_inspection_grade" model="ir.actions.act_window">
-        <field name="name">Xếp hạng giám sát</field>
+        <field name="name">Inspection Grades</field>
         <field name="res_model">wujia.franchise.inspection.grade</field>
         <field name="view_mode">list,form</field>
         <field name="help" type="html">

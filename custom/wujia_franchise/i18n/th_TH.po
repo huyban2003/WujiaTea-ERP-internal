@@ -6,9 +6,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 19.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-08-21 00:00+0000\n"
-"PO-Revision-Date: 2026-08-21 00:00+0000\n"
-"Last-Translator: \n"
+"POT-Creation-Date: 2026-08-21 14:40+0000\n"
+"PO-Revision-Date: 2026-08-21 14:40+0000\n"
 "Language-Team: \n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -16,14 +15,14 @@ msgstr ""
 "Plural-Forms: \n"
 
 #. module: wujia_franchise
-#: model:ir.ui.menu,name:wujia_franchise.menu_wujia_root
+#: menu:wujia_franchise.menu_wujia_franchise_mgmt
 msgid "Franchise Management"
-msgstr "ร้านค้าแฟรนไชส์"
+msgstr "การจัดการแฟรนไชส์"
 
 #. module: wujia_franchise
-#: model:ir.ui.menu,name:wujia_franchise.menu_wujia_operation_root
+#: menu:wujia_franchise.menu_wujia_operation_root
 msgid "Operations"
-msgstr "ดำเนินงาน"
+msgstr "การดำเนินงาน"
 
 #. module: wujia_franchise
 #: model:ir.ui.menu,name:wujia_franchise.menu_wujia_franchise_management
@@ -31,14 +30,14 @@ msgid "Franchise Management"
 msgstr "การจัดการแฟรนไชส์"
 
 #. module: wujia_franchise
-#: model:ir.ui.menu,name:wujia_franchise.menu_wujia_franchise_member
+#: menu:wujia_franchise.menu_wujia_franchise_member
 msgid "Franchise Members"
 msgstr "สมาชิกแฟรนไชส์"
 
 #. module: wujia_franchise
-#: model:ir.ui.menu,name:wujia_franchise.menu_wujia_inspection_supervision_root
+#: menu:wujia_franchise.menu_wujia_inspection_root
 msgid "Store Supervision"
-msgstr "หัวหน้างานร้านค้า"
+msgstr "การตรวจสาขา"
 
 #. module: wujia_franchise
 #: model:ir.ui.menu,name:wujia_franchise.menu_wujia_inspection_sheet
@@ -46,9 +45,9 @@ msgid "Supervision Sheets"
 msgstr "แบบฟอร์มการติดตาม"
 
 #. module: wujia_franchise
-#: model:ir.ui.menu,name:wujia_franchise.menu_wujia_inspection_schedule
+#: model_terms:ir.ui.view,arch_db:wujia_supervision_schedule_form
 msgid "Supervision Schedule"
-msgstr "ตารางการตรวจสอบ"
+msgstr "ตารางตรวจ"
 
 #. module: wujia_franchise
 #: model:ir.ui.menu,name:wujia_franchise.menu_wujia_inspection_pending_store
@@ -56,19 +55,19 @@ msgid "Stores Needing Supervision"
 msgstr "ร้านค้าแห่งนี้ต้องการการดูแลควบคุม"
 
 #. module: wujia_franchise
-#: model:ir.ui.menu,name:wujia_franchise.menu_wujia_inspection_remediation
+#: menu:wujia_franchise.menu_wujia_franchise_inspection_remediation
 msgid "Pending Remediation"
-msgstr "กำลังรอให้ปัญหาได้รับการแก้ไข"
+msgstr "รอการปรับปรุง"
 
 #. module: wujia_franchise
-#: model:ir.ui.menu,name:wujia_franchise.menu_wujia_inspection_history
+#: model_terms:ir.ui.view,arch_db:wujia_franchise.view_wujia_franchise_management_form
 msgid "Supervision History"
-msgstr "ประวัติการติดตาม"
+msgstr "ประวัติการตรวจ"
 
 #. module: wujia_franchise
-#: model:ir.ui.menu,name:wujia_franchise.menu_wujia_inspection_config_root
+#: menu:wujia_franchise.menu_wujia_inspection_config
 msgid "Supervision Configuration"
-msgstr "การกำหนดค่าการตรวจสอบ"
+msgstr "การตั้งค่าการตรวจ"
 
 #. module: wujia_franchise
 #: model:ir.ui.menu,name:wujia_franchise.menu_wujia_inspection_template
@@ -106,17 +105,17 @@ msgid "Violation Analysis"
 msgstr "การวิเคราะห์เกณฑ์การละเมิด"
 
 #. module: wujia_franchise
-#: model:ir.ui.menu,name:wujia_franchise.menu_wujia_config_root
+#: menu:wujia_franchise.menu_wujia_franchise_config
 msgid "Configuration"
 msgstr "การกำหนดค่า"
 
 #. module: wujia_franchise
-#: model:ir.ui.menu,name:wujia_franchise.menu_wujia_config_area_root
+#: menu:wujia_franchise.menu_wujia_area_mgmt
 msgid "Area Management"
 msgstr "การจัดการพื้นที่"
 
 #. module: wujia_franchise
-#: model:ir.ui.menu,name:wujia_franchise.menu_wujia_config_area
+#: menu:wujia_franchise.menu_res_area
 msgid "Areas"
 msgstr "พื้นที่"
 
@@ -151,19 +150,19 @@ msgid "Supervision Template"
 msgstr "แบบฟอร์มสำรวจ"
 
 #. module: wujia_franchise
-#: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection__inspector_user_id
+#: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection__inspector_id
 msgid "Inspector"
 msgstr "ผู้ตรวจสอบ"
 
 #. module: wujia_franchise
 #: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection__test_employee_name
 msgid "Tested Employee"
-msgstr "พนักงานคนดังกล่าวถูกตรวจสอบแล้ว"
+msgstr "พนักงานที่รับการทดสอบ"
 
 #. module: wujia_franchise
 #: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection__planned_date
 msgid "Planned Date"
-msgstr "วันที่คาดการณ์"
+msgstr "วันที่วางแผน"
 
 #. module: wujia_franchise
 #: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection__total_score
@@ -173,7 +172,7 @@ msgstr "คะแนนรวม"
 #. module: wujia_franchise
 #: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection__grade_id
 msgid "Grade"
-msgstr "อันดับ"
+msgstr "เกรด"
 
 #. module: wujia_franchise
 #: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection__state
@@ -221,14 +220,14 @@ msgid "Member Count"
 msgstr "จำนวนสมาชิก"
 
 #. module: wujia_franchise
-#: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_management__effective_supervision_user_id
+#: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_management__supervisor_user_id
 msgid "Supervisor"
-msgstr "หัวหน้างาน"
+msgstr "เจ้าหน้าที่ตรวจสอบ"
 
 #. module: wujia_franchise
 #: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_management__latest_inspection_date
 msgid "Latest Inspection Date"
-msgstr "วันที่ทำการสำรวจครั้งล่าสุด"
+msgstr "วันที่ประเมินล่าสุด"
 
 #. module: wujia_franchise
 #: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_management__latest_total_score
@@ -238,7 +237,7 @@ msgstr "คะแนนล่าสุด"
 #. module: wujia_franchise
 #: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_management__latest_grade_id
 msgid "Latest Grade"
-msgstr "อันดับล่าสุด"
+msgstr "เกรดล่าสุด"
 
 #. module: wujia_franchise
 #: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_management__status
@@ -323,10 +322,10 @@ msgstr "ที่อยู่และหมายเลขโทรศัพท
 #. module: wujia_franchise
 #: model_terms:ir.ui.view,arch_db:wujia_franchise.view_wujia_supervision_schedule_form
 msgid "Location"
-msgstr "ที่ตั้ง"
+msgstr "ตำแหน่ง"
 
 #. module: wujia_franchise
-#: model_terms:ir.ui.view,arch_db:wujia_franchise.view_wujia_supervision_schedule_form
+#: model_terms:ir.ui.view,arch_db:wujia_supervision_schedule_form
 msgid "Open Google Maps"
 msgstr "เปิด Google Maps"
 
@@ -391,7 +390,7 @@ msgid "Status"
 msgstr "สถานะ"
 
 #. module: wujia_franchise
-#: model:ir.model.fields,field_description:wujia_franchise.field_wujia_supervision_schedule__note
+#: model:ir.model.fields,field_description:wujia_supervision_schedule.field_wujia_supervision_schedule__note
 msgid "Notes"
 msgstr "บันทึก"
 
@@ -431,17 +430,17 @@ msgid "Phone Number"
 msgstr "หมายเลขโทรศัพท์"
 
 #. module: wujia_franchise
-#: model:ir.model.fields,field_description:wujia_franchise.field_wujia_supervision_schedule__google_map_url
+#: model:ir.model.fields,field_description:wujia_supervision_schedule.field_wujia_supervision_schedule__google_map_url
 msgid "Google Maps Location"
-msgstr "ตำแหน่งบน Google Maps"
+msgstr "ตำแหน่ง Google Maps"
 
 #. module: wujia_franchise
-#: model:ir.model.fields.selection,name:wujia_franchise.selection__wujia_supervision_schedule__state__draft
+#: model:ir.model.fields.selection,name:wujia_franchise.selection__wujia_franchise_inspection__state__draft
 msgid "Draft"
-msgstr "ตี"
+msgstr "ร่าง"
 
 #. module: wujia_franchise
-#: model:ir.model.fields.selection,name:wujia_franchise.selection__wujia_supervision_schedule__state__in_progress
+#: model:ir.model.fields.selection,name:wujia_franchise.selection__wujia_franchise_inspection__state__in_progress
 msgid "In Progress"
 msgstr "กำลังดำเนินการ"
 
@@ -456,7 +455,7 @@ msgid "Done"
 msgstr "สมบูรณ์"
 
 #. module: wujia_franchise
-#: model:ir.model.fields.selection,name:wujia_franchise.selection__wujia_supervision_schedule__state__cancel
+#: model:ir.model.fields.selection,name:wujia_franchise.selection__wujia_franchise_inspection__state__cancel
 msgid "Cancelled"
 msgstr "ยกเลิก"
 
@@ -478,7 +477,7 @@ msgstr "คะแนนรวม"
 #. module: wujia_franchise
 #: model_terms:ir.ui.view,arch_db:wujia_franchise.view_wujia_franchise_inspection_form
 msgid "Start Inspection"
-msgstr "เริ่มดำเนินการ"
+msgstr "เริ่มการตรวจ"
 
 #. module: wujia_franchise
 #: model_terms:ir.ui.view,arch_db:wujia_franchise.view_wujia_franchise_inspection_form
@@ -536,9 +535,9 @@ msgid "Employee Name"
 msgstr "ชื่อพนักงานในร้าน..."
 
 #. module: wujia_franchise
-#: model_terms:ir.ui.view,arch_db:wujia_franchise.view_wujia_franchise_inspection_form
+#: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection__tenure
 msgid "Tenure"
-msgstr "จำนวนเดือน/ปีที่ทำงาน..."
+msgstr "อายุงาน"
 
 #. module: wujia_franchise
 #: model_terms:ir.ui.view,arch_db:wujia_franchise.view_wujia_franchise_inspection_form
@@ -581,9 +580,9 @@ msgid "Is Pass"
 msgstr "ประเมิน"
 
 #. module: wujia_franchise
-#: model_terms:ir.ui.view,arch_db:wujia_franchise.view_wujia_franchise_inspection_form
+#: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection_line__previous_result
 msgid "Previous Result"
-msgstr "ก่อนหน้า"
+msgstr "ผลลัพธ์ครั้งก่อน"
 
 #. module: wujia_franchise
 #: model_terms:ir.ui.view,arch_db:wujia_franchise.view_wujia_franchise_inspection_form
@@ -746,24 +745,24 @@ msgid "Time (By Day)"
 msgstr "เวลา (ต่อวัน)"
 
 #. module: wujia_franchise
-#: model:ir.model.fields.selection,name:wujia_franchise.selection__wujia_franchise_inspection_line__result__pass
+#: selection:wujia.franchise.inspection.line:result:pass
 msgid "Pass"
-msgstr "รับ"
+msgstr "ผ่าน"
 
 #. module: wujia_franchise
-#: model:ir.model.fields.selection,name:wujia_franchise.selection__wujia_franchise_inspection_line__result__fail
+#: selection:wujia.franchise.inspection.line:result:fail
 msgid "Fail"
-msgstr "ล้มเหลว"
+msgstr "ไม่ผ่าน"
 
 #. module: wujia_franchise
-#: model:ir.model.fields.selection,name:wujia_franchise.selection__wujia_franchise_inspection_line__remediation_state__need_remediation
+#: model:ir.model.fields.selection,name:wujia_franchise.selection__wujia_franchise_inspection__state__need_remediation
 msgid "Need Remediation"
-msgstr "ต้องการรับฟังความคิดเห็น"
+msgstr "ต้องปรับปรุง"
 
 #. module: wujia_franchise
 #: model:ir.model.fields.selection,name:wujia_franchise.selection__wujia_franchise_inspection_line__remediation_state__remediated
 msgid "Remediated"
-msgstr "ได้รับคำตอบแล้ว"
+msgstr "ปรับปรุงแล้ว"
 
 #. module: wujia_franchise
 #: model:ir.model.fields.selection,name:wujia_franchise.selection__wujia_franchise_inspection_line__remediation_state__done
@@ -793,7 +792,7 @@ msgstr "วันที่ยืนยัน"
 #. module: wujia_franchise
 #: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection__checklist_score
 msgid "Checklist Score"
-msgstr "คะแนนเช็คลิสต์"
+msgstr "คะแนนแบบตรวจสอบ"
 
 #. module: wujia_franchise
 #: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection__exam_score
@@ -853,12 +852,12 @@ msgstr "ผู้จัดการร้านยืนยันแล้ว"
 #. module: wujia_franchise
 #: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection_line__sequence
 msgid "Sequence"
-msgstr "คำสั่ง"
+msgstr "ลำดับ"
 
 #. module: wujia_franchise
-#: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection_line__display_type
+#: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection_template_line__display_type
 msgid "Display Type"
-msgstr "จัดประเภท"
+msgstr "ประเภทการแสดงผล"
 
 #. module: wujia_franchise
 #: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection_line__content_snapshot
@@ -923,7 +922,7 @@ msgstr "ผลลัพธ์ก่อนหน้า"
 #. module: wujia_franchise
 #: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection_line__previous_deduction_score
 msgid "Previous Deduction Score"
-msgstr "ข้อเสียจากรอบที่แล้ว"
+msgstr "คะแนนที่ถูกหักครั้งก่อน"
 
 #. module: wujia_franchise
 #: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection_exam_line__sequence
@@ -1016,9 +1015,9 @@ msgid "Checklist"
 msgstr "รายการตรวจสอบ"
 
 #. module: wujia_franchise
-#: model_terms:ir.ui.view,arch_db:wujia_franchise.inspection_survey_do_page
+#: model_terms:ir.ui.view,arch_db:wujia_franchise.view_wujia_franchise_inspection_form
 msgid "Staff Exam"
-msgstr "ตรวจสอบพนักงาน"
+msgstr "แบบทดสอบพนักงาน"
 
 #. module: wujia_franchise
 #: model_terms:ir.ui.view,arch_db:wujia_franchise.inspection_survey_do_page
@@ -1081,9 +1080,9 @@ msgid "Previous Round: Fail"
 msgstr "รอบที่แล้ว: ล้มเหลว"
 
 #. module: wujia_franchise
-#: model_terms:ir.ui.view,arch_db:wujia_franchise.inspection_survey_do_page
+#: model:ir.model.fields.selection,name:wujia_franchise.selection__wujia_franchise_inspection_line__result__fail
 msgid "Fail"
-msgstr "เค. ดัต"
+msgstr "ไม่ผ่าน"
 
 #. module: wujia_franchise
 #: model_terms:ir.ui.view,arch_db:wujia_franchise.inspection_survey_do_page
@@ -1206,14 +1205,14 @@ msgid "Evaluate this criterion:"
 msgstr "ประเมินเกณฑ์นี้:"
 
 #. module: wujia_franchise
-#: model_terms:ir.ui.view,arch_db:wujia_franchise.inspection_survey_do_page
+#: model:ir.model.fields.selection,name:wujia_franchise.selection__wujia_franchise_inspection_line__result__pass
 msgid "Pass"
-msgstr "รับ"
+msgstr "ผ่าน"
 
 #. module: wujia_franchise
-#: model_terms:ir.ui.view,arch_db:wujia_franchise.inspection_survey_do_page
+#: model:ir.model.fields.selection,name:wujia_franchise.selection__wujia_franchise_inspection__state__done
 msgid "Done"
-msgstr "สมบูรณ์"
+msgstr "เสร็จสมบูรณ์"
 
 #. module: wujia_franchise
 #: model_terms:ir.ui.view,arch_db:wujia_franchise.inspection_survey_do_page
@@ -1436,7 +1435,7 @@ msgid "Save Question"
 msgstr "บันทึกคำถาม"
 
 #. module: wujia_franchise
-#: model_terms:ir.ui.view,arch_db:wujia_franchise.view_wujia_franchise_inspection_question_form
+#: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection_exam_line__quest_code_snapshot
 msgid "Question Code"
 msgstr "รหัสคำถาม"
 
@@ -1446,7 +1445,7 @@ msgid "Correct Answers"
 msgstr "คำตอบที่ถูกต้อง"
 
 #. module: wujia_franchise
-#: model_terms:ir.ui.view,arch_db:wujia_franchise.view_wujia_franchise_inspection_question_form
+#: model_terms:ir.ui.view,arch_db:wujia_franchise.view_wujia_franchise_management_form
 msgid "General Information"
 msgstr "ข้อมูลทั่วไป"
 
@@ -1501,7 +1500,7 @@ msgid "Create a new inspection question for the library!"
 msgstr "สร้างคำถามแบบทดสอบใหม่สำหรับคลังคำถาม!"
 
 #. module: wujia_franchise
-#: model:ir.actions.act_window,name:wujia_franchise.action_wujia_franchise_inspection_report_violation
+#: menu:wujia_franchise.menu_wujia_franchise_inspection_report_violation
 msgid "Violation Criteria Analysis"
 msgstr "การวิเคราะห์เกณฑ์การละเมิด"
 
@@ -1509,3 +1508,697 @@ msgstr "การวิเคราะห์เกณฑ์การละเม
 #: model_terms:ir.ui.view,arch_db:wujia_franchise.view_wujia_franchise_inspection_line_search
 msgid "Violation criteria analysis report on completed inspection sheets!"
 msgstr "รายงานการวิเคราะห์เกณฑ์การละเมิดในแบบฟอร์มการตรวจสอบที่เสร็จสมบูรณ์!"
+
+#. module: wujia_franchise
+#: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection__name
+msgid "Inspection Name"
+msgstr "ชื่อแบบประเมิน"
+
+#. module: wujia_franchise
+#: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection__submit_date
+msgid "Submission Date"
+msgstr "วันที่ส่ง"
+
+#. module: wujia_franchise
+#: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection__exam_score
+msgid "Staff Exam Score"
+msgstr "คะแนนสอบพนักงาน"
+
+#. module: wujia_franchise
+#: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection__next_due_date
+msgid "Next Inspection Date"
+msgstr "วันที่ตรวจครั้งถัดไป"
+
+#. module: wujia_franchise
+#: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection__next_schedule_id
+msgid "Next Supervision Schedule"
+msgstr "ตารางตรวจครั้งถัดไป"
+
+#. module: wujia_franchise
+#: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection__template_id
+msgid "Inspection Template"
+msgstr "แบบฟอร์มการตรวจ"
+
+#. module: wujia_franchise
+#: model_terms:ir.ui.view,arch_db:wujia_franchise.view_wujia_franchise_management_form
+msgid "Franchise Store"
+msgstr "สาขาแฟรนไชส์"
+
+#. module: wujia_franchise
+#: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection__previous_inspection_id
+msgid "Previous Inspection"
+msgstr "แบบประเมินครั้งก่อน"
+
+#. module: wujia_franchise
+#: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection__confirmed_user_id
+msgid "System Confirmer"
+msgstr "ผู้ยืนยันระบบ"
+
+#. module: wujia_franchise
+#: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection__confirmed_member_id
+msgid "Store Manager Confirmer"
+msgstr "ผู้จัดการสาขายืนยัน"
+
+#. module: wujia_franchise
+#: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection__line_ids
+msgid "Inspection Details"
+msgstr "รายละเอียดการตรวจ"
+
+#. module: wujia_franchise
+#: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection__exam_line_ids
+msgid "Staff Exam Lines"
+msgstr "รายการทดสอบพนักงาน"
+
+#. module: wujia_franchise
+#: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection__report_line_ids
+msgid "Revenue Report Lines"
+msgstr "รายการรายงานรายได้"
+
+#. module: wujia_franchise
+#: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection__is_exam_submitted
+msgid "Exam Submitted"
+msgstr "ส่งข้อสอบแล้ว"
+
+#. module: wujia_franchise
+#: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection__exam_submitted_date
+msgid "Exam Submitted Date"
+msgstr "เวลาที่ส่งข้อสอบ"
+
+#. module: wujia_franchise
+#: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection__inspection_chart_data
+msgid "Inspection Chart Data"
+msgstr "ข้อมูลแผนภูมิ"
+
+#. module: wujia_franchise
+#: selection:wujia.franchise.inspection.line:display_type:line
+msgid "Criterion Line"
+msgstr "เกณฑ์การประเมิน"
+
+#. module: wujia_franchise
+#: selection:wujia.franchise.inspection.line:display_type:section
+msgid "Section Header"
+msgstr "หัวข้อกลุ่ม"
+
+#. module: wujia_franchise
+#: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection_line__content_snapshot
+msgid "Checklist Content"
+msgstr "เนื้อหาแบบตรวจสอบ"
+
+#. module: wujia_franchise
+#: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection_line__deduction_score_snapshot
+msgid "Deduction Score"
+msgstr "คะแนนที่ถูกหัก"
+
+#. module: wujia_franchise
+#: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection_line__criterion_type_snapshot
+msgid "Criterion Type"
+msgstr "ประเภทเกณฑ์"
+
+#. module: wujia_franchise
+#: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection_line__is_pass
+msgid "Passed (Pass)"
+msgstr "ผ่าน (Pass)"
+
+#. module: wujia_franchise
+#: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection_line__note
+msgid "Violation Note (Admin)"
+msgstr "บันทึกการละเมิด (แอดมิน)"
+
+#. module: wujia_franchise
+#: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection_line__remediation_state
+msgid "Remediation Status"
+msgstr "สถานะการปรับปรุง"
+
+#. module: wujia_franchise
+#: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection_line__remediation_note
+msgid "Remediation Note (Store)"
+msgstr "บันทึกการปรับปรุง (สาขา)"
+
+#. module: wujia_franchise
+#: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection_line__evidence_image
+msgid "Evidence Photo (Inspection)"
+msgstr "ภาพถ่ายหลักฐาน (ตอนตรวจ)"
+
+#. module: wujia_franchise
+#: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection_line__remediation_image
+msgid "Remediation Photo"
+msgstr "ภาพถ่ายหลังปรับปรุง"
+
+#. module: wujia_franchise
+#: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection_line__require_note_if_fail
+msgid "Require Note If Fail"
+msgstr "ต้องระบุบันทึกหากไม่ผ่าน"
+
+#. module: wujia_franchise
+#: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection_line__require_evidence_if_fail
+msgid "Require Evidence If Fail"
+msgstr "ต้องมีหลักฐานหากไม่ผ่าน"
+
+#. module: wujia_franchise
+#: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection_line__inspection_id
+msgid "Inspection Sheet"
+msgstr "แบบประเมิน"
+
+#. module: wujia_franchise
+#: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection_line__template_line_id
+msgid "Inspection Criterion"
+msgstr "เกณฑ์การตรวจ"
+
+#. module: wujia_franchise
+#: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection_line__inspection_date
+msgid "Inspection Date"
+msgstr "วันที่ตรวจ"
+
+#. module: wujia_franchise
+#: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection_line__pass_count
+msgid "Pass Count"
+msgstr "จำนวนครั้งที่ผ่าน"
+
+#. module: wujia_franchise
+#: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection_line__violation_count
+msgid "Violation Count"
+msgstr "จำนวนครั้งที่ละเมิด"
+
+#. module: wujia_franchise
+#: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection_line__inspection_count
+msgid "Inspection Count"
+msgstr "จำนวนรอบการตรวจ"
+
+#. module: wujia_franchise
+#: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection_line__section_header
+msgid "Section Category"
+msgstr "หมวดหมู่เกณฑ์"
+
+#. module: wujia_franchise
+#: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection_line__previous_line_id
+msgid "Previous Line"
+msgstr "แถวก่อนหน้า"
+
+#. module: wujia_franchise
+#: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection_report_line__days_of_month
+msgid "Days in Month"
+msgstr "จำนวนวันในเดือน"
+
+#. module: wujia_franchise
+#: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection_report_line__revenue_avg
+msgid "Daily Average Revenue"
+msgstr "รายได้เฉลี่ยต่อวัน"
+
+#. module: wujia_franchise
+#: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection_report_line__total_app_sale
+msgid "Total App Orders"
+msgstr "จำนวนคำสั่งซื้อผ่านแอปทั้งหมด"
+
+#. module: wujia_franchise
+#: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection_exam_line__quest_text_snapshot
+msgid "Question Text"
+msgstr "เนื้อหาคำถาม"
+
+#. module: wujia_franchise
+#: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection_exam_line__correct_answer_snapshot
+msgid "Correct Answer"
+msgstr "คำตอบที่ถูกต้อง"
+
+#. module: wujia_franchise
+#: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection_exam_line__employee_answer
+msgid "Employee Answer"
+msgstr "คำตอบของพนักงาน"
+
+#. module: wujia_franchise
+#: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection_exam_line__score
+msgid "Score"
+msgstr "คะแนน"
+
+#. module: wujia_franchise
+#: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection_exam_line__is_locked
+msgid "Locked"
+msgstr "ล็อค"
+
+#. module: wujia_franchise
+#: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection_exam_line__quest_id
+msgid "Question"
+msgstr "คำถาม"
+
+#. module: wujia_franchise
+#. odoo-javascript
+#. odoo-python
+#: code:addons/wujia_franchise/models/wujia_franchise_inspection.py:0
+msgid "The inspection must be 'In Progress' to submit the staff exam!"
+msgstr "แบบประเมินต้องอยู่ในสถานะ 'กำลังดำเนินการ' จึงจะสามารถส่งข้อสอบได้!"
+
+#. module: wujia_franchise
+#. odoo-javascript
+#. odoo-python
+#: code:addons/wujia_franchise/models/wujia_franchise_inspection.py:0
+msgid "Please select a date in \"Next Inspection Date\" before creating a schedule!"
+msgstr "กรุณาเลือกวันที่ใน \"วันที่ตรวจครั้งถัดไป\" ก่อนสร้างตาราง!"
+
+#. module: wujia_franchise
+#: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection_category__name
+msgid "Category Name"
+msgstr "ชื่อหมวดหมู่"
+
+#. module: wujia_franchise
+#: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection_category__code
+msgid "Category Code"
+msgstr "รหัสหมวดหมู่"
+
+#. module: wujia_franchise
+#: selection:wujia.franchise.inspection.template:status:active
+msgid "Active"
+msgstr "กำลังใช้งาน"
+
+#. module: wujia_franchise
+#: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection_category__is_severe
+msgid "Severe Violation"
+msgstr "การละเมิดร้ายแรง"
+
+#. module: wujia_franchise
+#: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection_template__name
+msgid "Template Name"
+msgstr "ชื่อแบบฟอร์มการตรวจ"
+
+#. module: wujia_franchise
+#: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection_template__code
+msgid "Template Code"
+msgstr "รหัสแบบฟอร์ม"
+
+#. module: wujia_franchise
+#: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection_template__version
+msgid "Version"
+msgstr "เวอร์ชัน"
+
+#. module: wujia_franchise
+#: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection_template__effective_date
+msgid "Effective Date"
+msgstr "มีผลบังคับใช้"
+
+#. module: wujia_franchise
+#: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection_template__checklist_max_score
+msgid "Checklist Max Score"
+msgstr "คะแนนสูงสุดแบบตรวจสอบ"
+
+#. module: wujia_franchise
+#: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection_template__exam_max_score
+msgid "Exam Max Score"
+msgstr "คะแนนสูงสุดแบบทดสอบ"
+
+#. module: wujia_franchise
+#: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection_template__total_max_score
+msgid "Total Max Score"
+msgstr "คะแนนสูงสุดรวม"
+
+#. module: wujia_franchise
+#: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection_template__line_ids
+msgid "Inspection Criteria"
+msgstr "รายการเกณฑ์การตรวจ"
+
+#. module: wujia_franchise
+#: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection_template_line__criterion_code
+msgid "Criterion Code"
+msgstr "รหัสเกณฑ์"
+
+#. module: wujia_franchise
+#: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection_template_line__category_id
+msgid "Category"
+msgstr "หมวดหมู่เกณฑ์"
+
+#. module: wujia_franchise
+#: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection_template_line__category
+msgid "Category (Legacy)"
+msgstr "หมวดหมู่ (ข้อความเดิม)"
+
+#. module: wujia_franchise
+#: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection_template_line__content
+msgid "Criterion Content"
+msgstr "เนื้อหาเกณฑ์"
+
+#. module: wujia_franchise
+#: selection:wujia.franchise.inspection.template.line:criterion_type:normal
+msgid "Normal"
+msgstr "ปกติ"
+
+#. module: wujia_franchise
+#: selection:wujia.franchise.inspection.template.line:criterion_type:critical
+msgid "Critical / Knockout"
+msgstr "สำคัญ / จุดวิกฤต"
+
+#. module: wujia_franchise
+#: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection_grade__min_score
+msgid "Minimum Score"
+msgstr "คะแนนต่ำสุด"
+
+#. module: wujia_franchise
+#: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection_grade__max_score
+msgid "Maximum Score"
+msgstr "คะแนนสูงสุด"
+
+#. module: wujia_franchise
+#: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_management__effective_area_manager_id
+msgid "Area Manager"
+msgstr "ผู้จัดการเขต"
+
+#. module: wujia_franchise
+#: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_management__effective_supervision_user_id
+msgid "Assigned Supervisor"
+msgstr "ผู้ตรวจสอบที่ได้รับมอบหมาย"
+
+#. module: wujia_franchise
+#: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_management__latest_inspection_id
+msgid "Latest Inspection Sheet"
+msgstr "แบบประเมินล่าสุด"
+
+#. module: wujia_franchise
+#: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_management__latest_inspection_score
+msgid "Latest Inspection Score"
+msgstr "คะแนนการประเมินล่าสุด"
+
+#. module: wujia_franchise
+#: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_management__latest_inspection_grade_id
+msgid "Latest Inspection Grade"
+msgstr "เกรดการประเมินล่าสุด"
+
+#. module: wujia_franchise
+#: model:ir.model.fields,field_description:wujia_supervision_schedule.field_wujia_supervision_schedule__name
+msgid "Schedule Title"
+msgstr "หัวข้อตารางตรวจ"
+
+#. module: wujia_franchise
+#: model:ir.model.fields,field_description:wujia_supervision_schedule.field_wujia_supervision_schedule__date
+msgid "Scheduled Date"
+msgstr "วันที่กำหนดตรวจ"
+
+#. module: wujia_franchise
+#: selection:wujia.franchise.member:role:owner
+msgid "Owner"
+msgstr "เจ้าของร้าน"
+
+#. module: wujia_franchise
+#: selection:wujia.franchise.member:role:manager
+msgid "Manager"
+msgstr "ผู้จัดการ"
+
+#. module: wujia_franchise
+#: selection:wujia.franchise.member:role:staff
+msgid "Staff"
+msgstr "พนักงาน"
+
+#. module: wujia_franchise
+#: selection:wujia.franchise.inspection.template:status:archived
+msgid "Archived"
+msgstr "ที่เก็บถาวร"
+
+#. module: wujia_franchise
+#: menu:wujia_franchise.menu_wujia_franchise_inspection
+msgid "Inspection Sheets"
+msgstr "แบบประเมินการตรวจ"
+
+#. module: wujia_franchise
+#: menu:wujia_franchise.menu_wujia_supervision_schedule
+msgid "Supervision Schedules"
+msgstr "ตารางตรวจ"
+
+#. module: wujia_franchise
+#: menu:wujia_franchise.menu_wujia_franchise_needed_inspection
+msgid "Stores Needing Inspection"
+msgstr "สาขาที่ต้องตรวจ"
+
+#. module: wujia_franchise
+#: menu:wujia_franchise.menu_wujia_franchise_inspection_template
+msgid "Inspection Templates"
+msgstr "แบบฟอร์มการตรวจ"
+
+#. module: wujia_franchise
+#: menu:wujia_franchise.menu_wujia_franchise_inspection_category
+msgid "Inspection Categories"
+msgstr "หมวดหมู่เกณฑ์"
+
+#. module: wujia_franchise
+#: menu:wujia_franchise.menu_wujia_franchise_inspection_question
+msgid "Question Library"
+msgstr "คลังคำถามแบบทดสอบ"
+
+#. module: wujia_franchise
+#: menu:wujia_franchise.menu_wujia_franchise_inspection_grade
+msgid "Inspection Grades"
+msgstr "เกรดการประเมิน"
+
+#. module: wujia_franchise
+#: menu:wujia_franchise.menu_wujia_inspection_report
+msgid "Reporting"
+msgstr "รายงาน"
+
+#. module: wujia_franchise
+#: menu:wujia_franchise.menu_wujia_franchise_inspection_report_dashboard
+msgid "Inspection Results Analysis"
+msgstr "การวิเคราะห์ผลการตรวจ"
+
+#. module: wujia_franchise
+#: menu:wujia_franchise.menu_res_country_state
+msgid "Provinces / Cities"
+msgstr "จังหวัด / เมือง"
+
+#. module: wujia_franchise
+#: menu:wujia_franchise.menu_res_ward
+msgid "Wards / Communes"
+msgstr "แขวง / ตำบล"
+
+#. module: wujia_franchise
+#: model_terms:ir.ui.view,arch_db:wujia_franchise.view_wujia_franchise_inspection_tree
+msgid "Franchise Inspections"
+msgstr "แบบประเมินสาขา"
+
+#. module: wujia_franchise
+#: model_terms:ir.ui.view,arch_db:wujia_franchise.view_wujia_franchise_inspection_form
+msgid "Franchise Inspection"
+msgstr "แบบประเมินสาขา"
+
+#. module: wujia_franchise
+#: model_terms:ir.ui.view,arch_db:wujia_franchise.view_wujia_franchise_inspection_form
+msgid "Mark Done"
+msgstr "เสร็จสิ้น"
+
+#. module: wujia_franchise
+#: model_terms:ir.ui.view,arch_db:wujia_franchise.view_wujia_franchise_inspection_form
+msgid "Reset to Draft"
+msgstr "ตั้งเป็นแบบร่าง"
+
+#. module: wujia_franchise
+#: model_terms:ir.ui.view,arch_db:wujia_franchise.view_wujia_franchise_inspection_form
+msgid "Create Next Schedule"
+msgstr "สร้างตารางถัดไป"
+
+#. module: wujia_franchise
+#: model_terms:ir.ui.view,arch_db:wujia_franchise.view_wujia_franchise_inspection_form
+msgid "Open Inspection Survey Web"
+msgstr "เปิดหน้าเว็บตรวจประเมิน"
+
+#. module: wujia_franchise
+#: model_terms:ir.ui.view,arch_db:wujia_franchise.view_wujia_franchise_inspection_form
+msgid "Revenue Report"
+msgstr "รายงานรายได้"
+
+#. module: wujia_franchise
+#: model_terms:ir.ui.view,arch_db:wujia_franchise.view_wujia_franchise_inspection_form
+msgid "Confirmation"
+msgstr "การยืนยัน"
+
+#. module: wujia_franchise
+#: model_terms:ir.ui.view,arch_db:wujia_franchise.view_wujia_franchise_inspection_form
+msgid "Scoring Summary"
+msgstr "สรุปคะแนน"
+
+#. module: wujia_franchise
+#: model_terms:ir.ui.view,arch_db:wujia_franchise.view_wujia_franchise_inspection_form
+msgid "Next Supervision Cycle"
+msgstr "รอบการตรวจถัดไป"
+
+#. module: wujia_franchise
+#: model_terms:ir.ui.view,arch_db:wujia_franchise.view_wujia_franchise_inspection_form
+msgid "System Confirmation"
+msgstr "การยืนยันระบบ"
+
+#. module: wujia_franchise
+#: model_terms:ir.ui.view,arch_db:wujia_franchise.view_wujia_franchise_inspection_form
+msgid "Store Manager Confirmation"
+msgstr "การยืนยันของผู้จัดการ"
+
+#. module: wujia_franchise
+#: model_terms:ir.ui.view,arch_db:wujia_franchise.view_wujia_franchise_inspection_form
+msgid "3-Month Revenue Detail"
+msgstr "รายละเอียดรายได้ 3 เดือน"
+
+#. module: wujia_franchise
+#: model_terms:ir.ui.view,arch_db:wujia_franchise.view_wujia_franchise_inspection_form
+msgid "Inspection Criteria List"
+msgstr "รายการเกณฑ์การตรวจ"
+
+#. module: wujia_franchise
+#: model_terms:ir.ui.view,arch_db:wujia_franchise.view_wujia_franchise_inspection_search
+msgid "Search Inspections"
+msgstr "ค้นหาแบบประเมิน"
+
+#. module: wujia_franchise
+#: model_terms:ir.ui.view,arch_db:wujia_franchise.view_wujia_franchise_inspection_search
+msgid "My Inspections"
+msgstr "แบบประเมินของฉัน"
+
+#. module: wujia_franchise
+#: model_terms:ir.ui.view,arch_db:wujia_franchise.view_wujia_franchise_management_tree
+msgid "Franchise Stores"
+msgstr "สาขาแฟรนไชส์"
+
+#. module: wujia_franchise
+#: model_terms:ir.ui.view,arch_db:wujia_franchise.view_wujia_franchise_management_form
+msgid "Contract & Operations"
+msgstr "สัญญาและการดำเนินงาน"
+
+#. module: wujia_franchise
+#: model_terms:ir.ui.view,arch_db:wujia_franchise.view_wujia_franchise_management_form
+msgid "Legal & Partner Information"
+msgstr "ข้อมูลทางกฎหมายและพาร์ทเนอร์"
+
+#. module: wujia_franchise
+#: model_terms:ir.ui.view,arch_db:wujia_franchise.view_wujia_franchise_management_form
+msgid "Address & Area"
+msgstr "ที่อยู่และพื้นที่"
+
+#. module: wujia_franchise
+#: model_terms:ir.ui.view,arch_db:wujia_franchise.view_wujia_franchise_management_form
+msgid "Franchise Contract"
+msgstr "สัญญาแฟรนไชส์"
+
+#. module: wujia_franchise
+#: model_terms:ir.ui.view,arch_db:wujia_franchise.view_wujia_franchise_management_form
+msgid "Operational Controls"
+msgstr "การควบคุมการดำเนินงาน"
+
+#. module: wujia_franchise
+#: model_terms:ir.ui.view,arch_db:wujia_franchise.view_wujia_franchise_management_form
+msgid "Assigned Personnel"
+msgstr "บุคลากรที่รับผิดชอบ"
+
+#. module: wujia_franchise
+#: model_terms:ir.ui.view,arch_db:wujia_franchise.view_wujia_franchise_management_search
+msgid "Search Franchise Stores"
+msgstr "ค้นหาสาขาแฟรนไชส์"
+
+#. module: wujia_franchise
+#: model_terms:ir.ui.view,arch_db:wujia_franchise.view_wujia_supervision_schedule_form
+msgid "Store Location & Contact"
+msgstr "ที่ตั้งและการติดต่อสาขา"
+
+#. module: wujia_franchise
+#: model_terms:ir.ui.view,arch_db:wujia_franchise.view_wujia_supervision_schedule_form
+msgid "Latest Inspection Result"
+msgstr "ผลการประเมินล่าสุด"
+
+#. module: wujia_franchise
+#: model_terms:ir.ui.view,arch_db:wujia_franchise.view_wujia_supervision_schedule_form
+msgid "View Inspection Sheet"
+msgstr "ดูแบบประเมิน"
+
+#. module: wujia_franchise
+#: model_terms:ir.ui.view,arch_db:wujia_supervision_schedule_form
+msgid "Create Inspection Sheet"
+msgstr "สร้างแบบประเมิน"
+
+#. module: wujia_franchise
+#: model_terms:ir.ui.view,arch_db:wujia_supervision_schedule_search
+msgid "Search Supervision Schedules"
+msgstr "ค้นหาตารางตรวจ"
+
+#. module: wujia_franchise
+#: model_terms:ir.ui.view,arch_db:wujia_franchise.view_wujia_franchise_inspection_line_tree
+msgid "Violation Criteria Details"
+msgstr "รายละเอียดเกณฑ์การละเมิด"
+
+#. module: wujia_franchise
+#: model_terms:ir.ui.view,arch_db:wujia_franchise.view_wujia_franchise_inspection_line_search
+msgid "Search Violation Criteria"
+msgstr "ค้นหาเกณฑ์การละเมิด"
+
+#. module: wujia_franchise
+#: model_terms:ir.ui.view,arch_db:wujia_franchise.view_wujia_franchise_inspection_line_search
+msgid "Passed Criteria"
+msgstr "เกณฑ์ที่ผ่าน"
+
+#. module: wujia_franchise
+#: model_terms:ir.ui.view,arch_db:wujia_franchise.view_wujia_franchise_inspection_line_search
+msgid "Violated Criteria"
+msgstr "เกณฑ์ที่ละเมิด (ไม่ผ่าน)"
+
+#. module: wujia_franchise
+#: model_terms:ir.ui.view,arch_db:wujia_franchise.view_wujia_supervision_schedule_calendar
+msgid "Supervision Calendar"
+msgstr "ปฏิทินการตรวจ"
+
+#. module: wujia_franchise
+#: model_terms:ir.ui.view,arch_db:wujia_franchise.view_wujia_supervision_schedule_form
+msgid "Store & Inspector Information"
+msgstr "ข้อมูลสาขาและผู้ตรวจสอบ"
+
+#. module: wujia_franchise
+#: model_terms:ir.ui.view,arch_db:wujia_franchise.view_wujia_supervision_schedule_form
+msgid "Address & Contact"
+msgstr "ที่อยู่และการติดต่อ"
+
+#. module: wujia_franchise
+#: model_terms:ir.ui.view,arch_db:wujia_franchise.view_wujia_supervision_schedule_form
+msgid "Schedule Date & Latest Inspection Result"
+msgstr "วันที่กำหนดตรวจและผลการประเมินล่าสุด"
+
+#. module: wujia_franchise
+#: model_terms:ir.ui.view,arch_db:wujia_franchise.view_wujia_supervision_schedule_search
+msgid "My Schedules"
+msgstr "ตารางของฉัน"
+
+#. module: wujia_franchise
+#: model_terms:ir.ui.view,arch_db:wujia_franchise.view_franchise_management_search
+msgid "My Assigned Stores"
+msgstr "สาขาที่ฉันรับผิดชอบ"
+
+#. module: wujia_franchise
+#: model_terms:ir.ui.view,arch_db:wujia_franchise.view_franchise_management_form
+msgid "Expired"
+msgstr "หมดอายุ"
+
+#. module: wujia_franchise
+#: model_terms:ir.ui.view,arch_db:wujia_franchise.view_franchise_management_form
+msgid "Portal Locked"
+msgstr "ล็อกพอร์ทัล"
+
+#. module: wujia_franchise
+#: model_terms:ir.ui.view,arch_db:wujia_franchise.view_franchise_management_form
+msgid "Area & Address"
+msgstr "พื้นที่และที่อยู่"
+
+#. module: wujia_franchise
+#: model_terms:ir.ui.view,arch_db:wujia_franchise.view_wujia_franchise_inspection_line_search
+msgid "Template Criterion"
+msgstr "เกณฑ์แบบฟอร์ม"
+
+#. module: wujia_franchise
+#: model_terms:ir.ui.view,arch_db:wujia_franchise.view_wujia_franchise_inspection_line_form
+msgid "Historical Criterion Details"
+msgstr "รายละเอียดเกณฑ์ในอดีต"
+
+#. module: wujia_franchise
+#: model_terms:ir.ui.view,arch_db:wujia_franchise.view_wujia_franchise_inspection_line_form
+msgid "Violation Evidence (Inspection)"
+msgstr "หลักฐานการไม่ผ่าน (ตอนตรวจ)"
+
+#. module: wujia_franchise
+#: model_terms:ir.ui.view,arch_db:wujia_franchise.view_wujia_franchise_inspection_line_form
+msgid "Remediation Photo (Store)"
+msgstr "ภาพถ่ายหลังปรับปรุง (สาขา)"
+
+#. module: wujia_franchise
+#: model_terms:ir.ui.view,arch_db:wujia_franchise.view_wujia_franchise_inspection_grade_form
+msgid "Grade Information"
+msgstr "ข้อมูลเกรด"
+
+#. module: wujia_franchise
+#: model_terms:ir.ui.view,arch_db:wujia_franchise.view_wujia_franchise_inspection_grade_form
+msgid "Score Range"
+msgstr "ช่วงคะแนน"

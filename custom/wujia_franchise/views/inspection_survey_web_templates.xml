@@ -1,15 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-    <template id="inspection_survey_do_page" name="Trang thực hiện Khảo sát đánh giá">
+    <template id="inspection_survey_do_page" name="Franchise Inspection Survey Page">
         <t t-set="t" t-value="trans_dict or trans or {}" />
         <t t-set="tj" t-value="trans_json or '{}'" />
         <t t-call-assets="web.assets_frontend" t-js="false" />
-        <html lang="vi">
+        <html lang="en">
             <head>
                 <meta charset="utf-8" />
                 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
                 <title><t
-                        t-out="t.get('label:wujia.franchise.inspection_survey:page_title', 'Khảo sát đánh giá')" />
+                        t-out="t.get('label:wujia.franchise.inspection_survey:page_title', 'Inspection Survey')" />
                     - <t t-esc="inspection.name" /></title>
                 <link rel="preconnect" href="https://fonts.googleapis.com" />
                 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="" />
@@ -37,7 +37,7 @@
                                     class="back-btn">
                                     <i class="fa fa-arrow-left"></i>
                                     <t
-                                        t-out="t.get('label:wujia.franchise.inspection_survey:btn_back', 'Quay lại')" />
+                                        t-out="t.get('label:wujia.franchise.inspection_survey:btn_back', 'Back')" />
                                 </a>
                                 <div>
                                     <h1 class="survey-title">
@@ -49,7 +49,7 @@
                                                 style="font-size: 13px; margin-left: 10px; background: #e2e8f0; color: #475569; border-color: #cbd5e1;">
                                                 <i class="fa fa-lock"></i>
                                                 <t
-                                                    t-out="t.get('label:wujia.franchise.inspection_survey:status_completed', 'Đã hoàn thành')" />
+                                                    t-out="t.get('label:wujia.franchise.inspection_survey:status_completed', 'Completed')" />
                                             </span>
                                         </t>
                                     </h1>
@@ -69,7 +69,7 @@
                                 <div class="score-pill">
                                     <div class="label">
                                         <t
-                                            t-out="t.get('label:wujia.franchise.inspection_survey:score_exam', 'Kiểm tra NV')" />
+                                            t-out="t.get('label:wujia.franchise.inspection_survey:score_exam', 'Staff Exam')" />
                                     </div>
                                     <div class="val" id="liveExamScore"><t
                                             t-esc="inspection.exam_score" /> / <t
@@ -78,7 +78,7 @@
                                 <div class="score-pill">
                                     <div class="label">
                                         <t
-                                            t-out="t.get('label:wujia.franchise.inspection_survey:score_total', 'Tổng điểm')" />
+                                            t-out="t.get('label:wujia.franchise.inspection_survey:score_total', 'Total Score')" />
                                     </div>
                                     <div class="val" id="liveTotalScore">
                                         <t t-esc="inspection.total_score" />
@@ -87,7 +87,7 @@
                                 <div class="score-pill">
                                     <div class="label">
                                         <t
-                                            t-out="t.get('label:wujia.franchise.inspection_survey:score_grade', 'Xếp loại')" />
+                                            t-out="t.get('label:wujia.franchise.inspection_survey:score_grade', 'Grade')" />
                                     </div>
                                     <div class="val" id="liveGrade">
                                         <t
@@ -104,7 +104,7 @@
                             <button type="button" class="nav-tab-btn active" id="tabChecklistBtn">
                                 <i class="fa fa-list-check"></i>
                                 <t
-                                    t-out="t.get('label:wujia.franchise.inspection_survey:tab_checklist', 'Tiêu chí Checklist')" />
+                                    t-out="t.get('label:wujia.franchise.inspection_survey:tab_checklist', 'Checklist Criteria')" />
                                 <span
                                     class="nav-badge">
                                     <t t-esc="checklist_count" />
@@ -113,7 +113,7 @@
                             <button type="button" class="nav-tab-btn" id="tabExamBtn">
                                 <i class="fa fa-file-signature"></i>
                                 <t
-                                    t-out="t.get('label:wujia.franchise.inspection_survey:tab_exam', 'Bài kiểm tra nhân viên')" />
+                                    t-out="t.get('label:wujia.franchise.inspection_survey:tab_exam', 'Staff Exam')" />
                                 <span
                                     class="nav-badge">
                                     <t t-esc="exam_count" />
@@ -129,17 +129,17 @@
                                         <tr>
                                             <th class="col-content">
                                                 <t
-                                                    t-out="t.get('label:wujia.franchise.inspection_survey:th_checklist_content', 'Nội dung kiểm tra checklist')" />
+                                                    t-out="t.get('label:wujia.franchise.inspection_survey:th_checklist_content', 'Checklist Content')" />
                                             </th>
                                             <th class="col-actions"
                                                 style="width: 5%; text-align: center;">
                                                 <t
-                                                    t-out="t.get('label:wujia.franchise.inspection_survey:th_info', 'Thông tin')" />
+                                                    t-out="t.get('label:wujia.franchise.inspection_survey:th_info', 'Information')" />
                                             </th>
                                             <th class="col-eval"
                                                 style="width: 5%; text-align: center;">
                                                 <t
-                                                    t-out="t.get('label:wujia.franchise.inspection_survey:th_evaluation', 'Đánh giá')" />
+                                                    t-out="t.get('label:wujia.franchise.inspection_survey:th_evaluation', 'Evaluation')" />
                                             </th>
                                         </tr>
                                     </thead>
@@ -164,7 +164,7 @@
                                                         <t
                                                             t-if="l.get('criterion_type') == 'critical' or l.get('is_important')">
                                                             <span class="badge-important-star"
-                                                                t-att-title="t.get('label:wujia.franchise.inspection_survey:title_critical_star', 'Tiêu chí quan trọng / Điểm liệt')">
+                                                                t-att-title="t.get('label:wujia.franchise.inspection_survey:title_critical_star', 'Critical Criterion / Knockout')">
                                                                 <i
                                                                     class="fa fa-star text-warning me-1"></i>
                                                             </span>
@@ -181,7 +181,7 @@
 
                                                         <button type="button"
                                                             class="btn-open-line-detail"
-                                                            t-att-title="t.get('label:wujia.franchise.inspection_survey:title_detail_btn', 'Xem đợt trước, nhập ghi chú &amp; tải ảnh')">
+                                                            t-att-title="t.get('label:wujia.franchise.inspection_survey:title_detail_btn', 'View previous inspection, enter notes &amp; upload photo')">
                                                             <span class="detail-btn-text">
                                                                 <i
                                                                     class="fa fa-pen-to-square"></i>
@@ -190,35 +190,35 @@
                                                                 <t
                                                                     t-if="l['previous_result'] == 'pass'">
                                                                     <span class="mini-badge pass"
-                                                                        t-att-title="t.get('label:wujia.franchise.inspection_survey:title_prev_pass', 'Đợt trước: Đạt')">
+                                                                        t-att-title="t.get('label:wujia.franchise.inspection_survey:title_prev_pass', 'Previous: Pass')">
                                                                         <i
                                                                             class="fa fa-check"></i>
                                                                         <t
-                                                                            t-out="t.get('label:wujia.franchise.inspection_survey:badge_pass', 'Đạt')" />
+                                                                            t-out="t.get('label:wujia.franchise.inspection_survey:badge_pass', 'Pass')" />
                                                                     </span>
                                                                 </t>
                                                                 <t
                                                                     t-elif="l['previous_result'] == 'fail'">
                                                                     <span class="mini-badge fail"
-                                                                        t-att-title="t.get('label:wujia.franchise.inspection_survey:title_prev_fail', 'Đợt trước: Không đạt')">
+                                                                        t-att-title="t.get('label:wujia.franchise.inspection_survey:title_prev_fail', 'Previous: Fail')">
                                                                         <i
                                                                             class="fa fa-times"></i>
                                                                         <t
-                                                                            t-out="t.get('label:wujia.franchise.inspection_survey:badge_fail', 'K.Đạt')" />
+                                                                            t-out="t.get('label:wujia.franchise.inspection_survey:badge_fail', 'Fail')" />
                                                                     </span>
                                                                 </t>
                                                                 <div>
                                                                     <span
                                                                         class="mini-badge note-indicator"
                                                                         t-att-style="'display: inline-flex;' if l['note'] else 'display: none;'"
-                                                                        t-att-title="t.get('label:wujia.franchise.inspection_survey:title_has_note', 'Có ghi chú')">
+                                                                        t-att-title="t.get('label:wujia.franchise.inspection_survey:title_has_note', 'Has note')">
                                                                         <i
                                                                             class="fa fa-comment-dots"></i>
                                                                     </span>
                                                                     <span
                                                                         class="mini-badge photo-indicator"
                                                                         t-att-style="'display: inline-flex;' if l['has_evidence'] else 'display: none;'"
-                                                                        t-att-title="t.get('label:wujia.franchise.inspection_survey:title_has_photo', 'Có ảnh')">
+                                                                        t-att-title="t.get('label:wujia.franchise.inspection_survey:title_has_photo', 'Has photo')">
                                                                         <i class="fa fa-camera"></i>
                                                                     </span>
 
@@ -255,13 +255,13 @@
                                         style="font-size: 15px; font-weight: 700; color: #1e293b; margin: 0; display: flex; align-items: center; gap: 8px;">
                                         <i class="fa fa-user-gear text-primary"></i>
                                         <t
-                                            t-out="t.get('label:wujia.franchise.inspection_survey:header_staff_info', 'Thông tin Nhân viên làm bài kiểm tra')" />
+                                            t-out="t.get('label:wujia.franchise.inspection_survey:header_staff_info', 'Tested Employee Information')" />
                                     </h3>
                                     <span id="examLockStatusBadge" class="badge-pass"
                                         t-att-style="'display: inline-flex; background: #e2e8f0; color: #475569; border-color: #cbd5e1;' if is_exam_submitted else 'display: none; background: #e2e8f0; color: #475569; border-color: #cbd5e1;'">
                                         <i class="fa fa-lock"></i>
                                         <t
-                                            t-out="t.get('label:wujia.franchise.inspection_survey:exam_submitted_locked', 'Bài kiểm tra đã nộp &amp; đã khóa')" />
+                                            t-out="t.get('label:wujia.franchise.inspection_survey:exam_submitted_locked', 'Staff exam submitted &amp; locked')" />
                                     </span>
                                 </div>
                                 <div style="display: flex; gap: 20px; flex-wrap: wrap;">
@@ -269,11 +269,11 @@
                                         <label
                                             style="font-size: 12px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; margin-bottom: 6px; display: block;">
                                             <t
-                                                t-out="t.get('label:wujia.franchise.inspection_survey:label_tested_employee', 'Nhân viên được kiểm tra')" />
+                                                t-out="t.get('label:wujia.franchise.inspection_survey:label_tested_employee', 'Tested Employee')" />
                                             <span style="color: #ef4444;" t-translation="off">*</span>
                                         </label>
                                         <input type="text" id="testEmployeeName" class="note-input"
-                                            t-att-placeholder="t.get('label:wujia.franchise.inspection_survey:placeholder_employee_name', 'Họ và tên nhân viên...')"
+                                            t-att-placeholder="t.get('label:wujia.franchise.inspection_survey:placeholder_employee_name', 'Employee full name...')"
                                             t-att-value="test_employee_name"
                                             t-att-readonly="'readonly' if is_exam_submitted else None" />
                                     </div>
@@ -281,10 +281,10 @@
                                         <label
                                             style="font-size: 12px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; margin-bottom: 6px; display: block;">
                                             <t
-                                                t-out="t.get('label:wujia.franchise.inspection_survey:label_tenure', 'Thâm niên')" />
+                                                t-out="t.get('label:wujia.franchise.inspection_survey:label_tenure', 'Tenure')" />
                                         </label>
                                         <input type="text" id="tenure" class="note-input"
-                                            t-att-placeholder="t.get('label:wujia.franchise.inspection_survey:placeholder_tenure', 'Thâm niên (ví dụ: 0.5, 1, 2)...')"
+                                            t-att-placeholder="t.get('label:wujia.franchise.inspection_survey:placeholder_tenure', 'Tenure (e.g. 0.5, 1, 2 years)...')"
                                             t-att-value="tenure"
                                             t-att-readonly="'readonly' if is_exam_submitted else None" />
                                     </div>
@@ -306,7 +306,7 @@
                                             </div>
                                             <div>
                                                 <textarea class="exam-textarea exam-ans"
-                                                    t-att-placeholder="t.get('label:wujia.franchise.inspection_survey:placeholder_exam_ans', 'Nhập đáp án trả lời của nhân viên tại đây...')"
+                                                    t-att-placeholder="t.get('label:wujia.franchise.inspection_survey:placeholder_exam_ans', 'Enter employee answer here...')"
                                                     t-att-readonly="'readonly' if is_exam_submitted else None"
                                                     t-esc="el['answer'] or ''" />
                                             </div>
@@ -320,7 +320,7 @@
                                         style="color: #cbd5e1; margin-bottom: 12px;"></i>
                                     <p style="font-size: 16px; font-weight: 600;">
                                         <t
-                                            t-out="t.get('label:wujia.franchise.inspection_survey:empty_exam_message', 'Phiếu khảo sát này không có bài kiểm tra nhân viên.')" />
+                                            t-out="t.get('label:wujia.franchise.inspection_survey:empty_exam_message', 'This inspection sheet has no staff exam questions.')" />
                                     </p>
                                 </div>
                             </t>
@@ -332,7 +332,7 @@
                             <div style="font-size: 13px; color: var(--text-muted);">
                                 <i class="fa fa-info-circle text-primary"></i>
                                 <t
-                                    t-out="t.get('label:wujia.franchise.inspection_survey:bottom_prev_hint', 'Bấm vào nhãn Đợt trước để xem thông tin khảo sát kỳ trước.')" />
+                                    t-out="t.get('label:wujia.franchise.inspection_survey:bottom_prev_hint', 'Click previous inspection badge to view historical details.')" />
                             </div>
                             <div style="display: flex; gap: 12px;">
                                 <t t-if="not is_inspection_closed">
@@ -340,7 +340,7 @@
                                         id="btnFinishSurvey">
                                         <i class="fa fa-circle-check"></i>
                                         <t
-                                            t-out="t.get('label:wujia.franchise.inspection_survey:btn_save', 'Lưu')" />
+                                            t-out="t.get('label:wujia.franchise.inspection_survey:btn_save', 'Save')" />
                                     </button>
                                 </t>
                                 <t t-else="">
@@ -348,7 +348,7 @@
                                         style="background: #e2e8f0; color: #475569; cursor: not-allowed;">
                                         <i class="fa fa-lock"></i>
                                         <t
-                                            t-out="t.get('label:wujia.franchise.inspection_survey:btn_survey_completed', 'Phiếu khảo sát đã hoàn tất')" />
+                                            t-out="t.get('label:wujia.franchise.inspection_survey:btn_survey_completed', 'Inspection Completed')" />
                                     </span>
                                 </t>
                             </div>
@@ -367,7 +367,7 @@
                                     <i class="fa fa-list-check" style="color: #ffffff;"></i>
                                     <span id="lineModalTitle">
                                         <t
-                                            t-out="t.get('label:wujia.franchise.inspection_survey:modal_line_detail_title', 'Chi tiết tiêu chí')" />
+                                            t-out="t.get('label:wujia.franchise.inspection_survey:modal_line_detail_title', 'Criterion Details')" />
                                     </span>
                                 </div>
                                 <button type="button" class="modal-close" id="lineModalClose"
@@ -388,7 +388,7 @@
                                         <span>
                                             <i class="fa fa-history text-primary"></i>
                                             <t
-                                                t-out="t.get('label:wujia.franchise.inspection_survey:modal_prev_inspection', 'Đợt khảo sát trước')" />
+                                                t-out="t.get('label:wujia.franchise.inspection_survey:modal_prev_inspection', 'Previous Inspection')" />
                                         </span>
                                         <span id="lineModalPrevBadge" class="badge-none"
                                             t-translation="off">-</span>
@@ -398,14 +398,14 @@
                                         <div>
                                             <b>
                                                 <t
-                                                    t-out="t.get('label:wujia.franchise.inspection_survey:modal_label_inspector', ' Người kiểm tra:')" />
+                                                    t-out="t.get('label:wujia.franchise.inspection_survey:modal_label_inspector', 'Inspector:')" />
                                             </b>
                                             <span id="lineModalPrevInspector" t-translation="off">-</span>
                                         </div>
                                         <div>
                                             <b>
                                                 <t
-                                                    t-out="t.get('label:wujia.franchise.inspection_survey:modal_label_prev_note', ' Ghi chú trước:')" />
+                                                    t-out="t.get('label:wujia.franchise.inspection_survey:modal_label_prev_note', 'Previous Note:')" />
                                             </b>
                                             <span id="lineModalPrevNote" t-esc="'-'"></span>
                                         </div>
@@ -422,11 +422,11 @@
                                         style="display: block; margin-bottom: 6px;">
                                         <i class="fa fa-pen-to-square text-primary"></i>
                                         <t
-                                            t-out="t.get('label:wujia.franchise.inspection_survey:modal_label_violation_note', ' Ghi chú vi phạm')" />
+                                            t-out="t.get('label:wujia.franchise.inspection_survey:modal_label_violation_note', 'Violation Note')" />
                                     </label>
                                     <textarea id="lineModalNoteInput" class="exam-textarea"
                                         style="min-height: 75px; font-size: 13px;"
-                                        t-att-placeholder="t.get('label:wujia.franchise.inspection_survey:placeholder_modal_violation_note', ' Nhập ghi chú vi phạm nếu có...')"></textarea>
+                                        t-att-placeholder="t.get('label:wujia.franchise.inspection_survey:placeholder_modal_violation_note', 'Enter violation note if any...')"></textarea>
                                 </div>
 
                                 <div>
@@ -434,7 +434,7 @@
                                         style="display: block; margin-bottom: 6px;">
                                         <i class="fa fa-camera text-primary"></i>
                                         <t
-                                            t-out="t.get('label:wujia.franchise.inspection_survey:modal_label_evidence_photo', ' Bằng chứng vi phạm (Hình ảnh)')" />
+                                            t-out="t.get('label:wujia.franchise.inspection_survey:modal_label_evidence_photo', 'Violation Evidence Photo')" />
                                     </label>
                                     <div style="display: flex; align-items: center; gap: 16px;">
                                         <button type="button" class="btn btn-save"
@@ -442,19 +442,19 @@
                                             style="font-size: 13px; padding: 8px 16px;">
                                             <i class="fa fa-upload"></i>
                                             <t
-                                                t-out="t.get('label:wujia.franchise.inspection_survey:btn_upload_photo', ' Chụp / Tải ảnh')" />
+                                                t-out="t.get('label:wujia.franchise.inspection_survey:btn_upload_photo', 'Capture / Upload Photo')" />
                                         </button>
                                         <div id="lineModalImgContainer"
                                             style="display: none; align-items: center; gap: 10px;">
                                             <img id="lineModalImgPreview" src=""
                                                 style="width: 60px; height: 60px; border-radius: 8px; object-fit: cover; border: 1px solid #cbd5e1; cursor: pointer;"
-                                                t-att-title="t.get('label:wujia.franchise.inspection_survey:title_change_photo', ' Bấm để đổi ảnh')" />
+                                                t-att-title="t.get('label:wujia.franchise.inspection_survey:title_change_photo', 'Click to change photo')" />
                                             <span
                                                 style="font-size: 12px; color: #16a34a; font-weight: 600;">
                                                 <i
                                                     class="fa fa-check-circle"></i>
                                                 <t
-                                                    t-out="t.get('label:wujia.franchise.inspection_survey:has_photo_text', ' Đã có ảnh')" />
+                                                    t-out="t.get('label:wujia.franchise.inspection_survey:has_photo_text', 'Photo attached')" />
                                             </span>
                                         </div>
                                     </div>
@@ -464,7 +464,7 @@
                                     style="display: flex; align-items: center; justify-content: space-between; background: #f1f5f9; padding: 12px 16px; border-radius: 10px;">
                                     <span style="font-size: 14px; font-weight: 700; color: #1e293b;">
                                         <t
-                                            t-out="t.get('label:wujia.franchise.inspection_survey:modal_label_evaluate_criterion', ' Đánh giá tiêu chí này:')" />
+                                            t-out="t.get('label:wujia.franchise.inspection_survey:modal_label_evaluate_criterion', 'Evaluate this criterion:')" />
                                     </span>
                                     <label class="checkbox-wrap"
                                         style="gap: 8px; font-weight: 700; font-size: 14px; cursor: pointer;">
@@ -472,7 +472,7 @@
                                             id="lineModalCheck" />
                                         <span id="lineModalCheckStatus">
                                             <t
-                                                t-out="t.get('label:wujia.franchise.inspection_survey:modal_check_pass_text', ' Đạt')" />
+                                                t-out="t.get('label:wujia.franchise.inspection_survey:modal_check_pass_text', 'Pass')" />
                                         </span>
                                     </label>
                                 </div>
@@ -483,7 +483,7 @@
                                     style="padding: 8px 24px;">
                                     <i class="fa fa-check"></i>
                                     <t
-                                        t-out="t.get('label:wujia.franchise.inspection_survey:btn_modal_finish', ' Hoàn tất')" />
+                                        t-out="t.get('label:wujia.franchise.inspection_survey:btn_modal_finish', 'Done')" />
                                 </button>
                             </div>
                         </div>
@@ -496,7 +496,7 @@
                                 <div class="modal-title">
                                     <i class="fa fa-triangle-exclamation"></i>
                                     <t
-                                        t-out="t.get('label:wujia.franchise.inspection_survey:alert_title', ' Thông báo')" />
+                                        t-out="t.get('label:wujia.franchise.inspection_survey:alert_title', 'Notice')" />
                                 </div>
                                 <button type="button" class="modal-close" id="customAlertClose"
                                     t-translation="off">
@@ -509,12 +509,12 @@
                                 <p id="customAlertMessage"
                                     style="font-size: 15px; font-weight: 600; color: #1e293b; line-height: 1.5; margin-bottom: 20px;">
                                     <t
-                                        t-out="t.get('label:wujia.franchise.inspection_survey:alert_msg_input_employee', ' Vui lòng nhập Nhân viên được kiểm tra!')" />
+                                        t-out="t.get('label:wujia.franchise.inspection_survey:alert_msg_input_employee', 'Please enter Tested Employee name!')" />
                                 </p>
                                 <button type="button" class="btn btn-submit" id="customAlertBtnOk"
                                     style="width: 100%; justify-content: center; background: #ef4444; box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);">
                                     <t
-                                        t-out="t.get('label:wujia.franchise.inspection_survey:btn_alert_ok', ' Đã hiểu')" />
+                                        t-out="t.get('label:wujia.franchise.inspection_survey:btn_alert_ok', 'OK')" />
                                 </button>
                             </div>
                         </div>
@@ -527,7 +527,7 @@
                                 <div class="modal-title">
                                     <i class="fa fa-history"></i>
                                     <t
-                                        t-out="t.get('label:wujia.franchise.inspection_survey:prev_modal_title', ' Chi tiết Đợt khảo sát trước')" />
+                                        t-out="t.get('label:wujia.franchise.inspection_survey:prev_modal_title', 'Previous Inspection Details')" />
                                 </div>
                                 <button type="button" class="modal-close" id="prevModalClose"
                                     t-translation="off">
@@ -537,7 +537,7 @@
                                 <div class="modal-field">
                                     <div class="modal-label">
                                         <t
-                                            t-out="t.get('label:wujia.franchise.inspection_survey:prev_modal_label_sheet', ' Phiếu khảo sát đợt trước')" />
+                                            t-out="t.get('label:wujia.franchise.inspection_survey:prev_modal_label_sheet', 'Previous Inspection Sheet')" />
                                     </div>
                                     <div class="modal-val" id="prevInspName">-</div>
                                 </div>
@@ -545,14 +545,14 @@
                                     <div>
                                         <div class="modal-label">
                                             <t
-                                                t-out="t.get('label:wujia.franchise.inspection_survey:prev_modal_label_date', ' Ngày thực hiện')" />
+                                                t-out="t.get('label:wujia.franchise.inspection_survey:prev_modal_label_date', 'Inspection Date')" />
                                         </div>
                                         <div class="modal-val" id="prevDate">-</div>
                                     </div>
                                     <div>
                                         <div class="modal-label">
                                             <t
-                                                t-out="t.get('label:wujia.franchise.inspection_survey:prev_modal_label_inspector', ' Người kiểm tra')" />
+                                                t-out="t.get('label:wujia.franchise.inspection_survey:prev_modal_label_inspector', 'Inspector')" />
                                         </div>
                                         <div class="modal-val" id="prevInspector">-</div>
                                     </div>

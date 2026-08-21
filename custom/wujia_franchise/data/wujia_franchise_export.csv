@@ -1,15 +1,15 @@
-key,option,VN,CN,TH
-Franchise Management,"model:ir.ui.menu,name:wujia_franchise.menu_wujia_root",Cửa Hàng Nhượng Quyền,加盟管理,ร้านค้าแฟรนไชส์
-Operations,"model:ir.ui.menu,name:wujia_franchise.menu_wujia_operation_root",Vận hành,營運,ดำเนินงาน
+﻿key,option,VN,CN,TH
+Franchise Management,menu:wujia_franchise.menu_wujia_franchise_mgmt,Quản lý nhượng quyền,加盟門市管理,การจัดการแฟรนไชส์
+Operations,menu:wujia_franchise.menu_wujia_operation_root,Vận hành,營運作業,การดำเนินงาน
 Franchise Management,"model:ir.ui.menu,name:wujia_franchise.menu_wujia_franchise_management",Quản lý nhượng quyền,加盟管理,การจัดการแฟรนไชส์
-Franchise Members,"model:ir.ui.menu,name:wujia_franchise.menu_wujia_franchise_member",Thành viên nhượng quyền,加盟成員,สมาชิกแฟรนไชส์
-Store Supervision,"model:ir.ui.menu,name:wujia_franchise.menu_wujia_inspection_supervision_root",Giám sát cửa hàng,門店監督,หัวหน้างานร้านค้า
+Franchise Members,menu:wujia_franchise.menu_wujia_franchise_member,Thành viên nhượng quyền,加盟成員管理,สมาชิกแฟรนไชส์
+Store Supervision,menu:wujia_franchise.menu_wujia_inspection_root,Giám sát cửa hàng,門市督導管理,การตรวจสาขา
 Supervision Sheets,"model:ir.ui.menu,name:wujia_franchise.menu_wujia_inspection_sheet",Phiếu giám sát,督導表,แบบฟอร์มการติดตาม
-Supervision Schedule,"model:ir.ui.menu,name:wujia_franchise.menu_wujia_inspection_schedule",Lịch giám sát,監督排程,ตารางการตรวจสอบ
+Supervision Schedule,"model_terms:ir.ui.view,arch_db:wujia_supervision_schedule_form",Lịch giám sát,督導日程,ตารางตรวจ
 Stores Needing Supervision,"model:ir.ui.menu,name:wujia_franchise.menu_wujia_inspection_pending_store",Cửa hàng cần giám sát,待監督門店,ร้านค้าแห่งนี้ต้องการการดูแลควบคุม
-Pending Remediation,"model:ir.ui.menu,name:wujia_franchise.menu_wujia_inspection_remediation",Chờ xử lý khắc phục,待改善,กำลังรอให้ปัญหาได้รับการแก้ไข
-Supervision History,"model:ir.ui.menu,name:wujia_franchise.menu_wujia_inspection_history",Lịch sử giám sát,監督紀錄,ประวัติการติดตาม
-Supervision Configuration,"model:ir.ui.menu,name:wujia_franchise.menu_wujia_inspection_config_root",Cấu hình giám sát,監督設定,การกำหนดค่าการตรวจสอบ
+Pending Remediation,menu:wujia_franchise.menu_wujia_franchise_inspection_remediation,Chờ xử lý khắc phục,待改善追蹤,รอการปรับปรุง
+Supervision History,"model_terms:ir.ui.view,arch_db:wujia_franchise.view_wujia_franchise_management_form",Lịch sử giám sát,督導歷史紀錄,ประวัติการตรวจ
+Supervision Configuration,menu:wujia_franchise.menu_wujia_inspection_config,Cấu hình giám sát,督導系統設定,การตั้งค่าการตรวจ
 Supervision Templates,"model:ir.ui.menu,name:wujia_franchise.menu_wujia_inspection_template",Mẫu phiếu giám sát,監督表範本,แม่แบบแบบฟอร์มการติดตาม
 Criterion Categories,"model:ir.ui.menu,name:wujia_franchise.menu_wujia_inspection_category",Danh mục tiêu chí,評核項目分類,รายการเกณฑ์
 Question Bank,"model:ir.ui.menu,name:wujia_franchise.menu_wujia_inspection_question_bank",Thư viện câu hỏi kiểm tra,考題題庫,คลังคำถามทดสอบ
@@ -17,20 +17,20 @@ Supervision Ranking,"model:ir.ui.menu,name:wujia_franchise.menu_wujia_inspection
 Reports,"model:ir.ui.menu,name:wujia_franchise.menu_wujia_inspection_report_root",Báo cáo,報告,รายงาน
 Supervision Result Analysis,"model:ir.ui.menu,name:wujia_franchise.menu_wujia_inspection_report_result",Phân tích kết quả giám sát,監督結果分析,การวิเคราะห์ผลการติดตาม
 Violation Analysis,"model:ir.ui.menu,name:wujia_franchise.menu_wujia_inspection_report_violation",Phân tích tiêu chí vi phạm,違規項目分析,การวิเคราะห์เกณฑ์การละเมิด
-Configuration,"model:ir.ui.menu,name:wujia_franchise.menu_wujia_config_root",Cấu hình,設定,การกำหนดค่า
-Area Management,"model:ir.ui.menu,name:wujia_franchise.menu_wujia_config_area_root",Quản lý khu vực,區域管理,การจัดการพื้นที่
-Areas,"model:ir.ui.menu,name:wujia_franchise.menu_wujia_config_area",Khu vực,區域,พื้นที่
+Configuration,menu:wujia_franchise.menu_wujia_franchise_config,Cấu hình,系統配置,การกำหนดค่า
+Area Management,menu:wujia_franchise.menu_wujia_area_mgmt,Quản lý khu vực,區域劃分管理,การจัดการพื้นที่
+Areas,menu:wujia_franchise.menu_res_area,Khu vực,營運區域,พื้นที่
 State / City,"model:ir.ui.menu,name:wujia_franchise.menu_wujia_config_state",Tỉnh / Thành phố,省／市,จังหวัด/เมือง
 Ward / Commune,"model:ir.ui.menu,name:wujia_franchise.menu_wujia_config_ward",Phường / Xã,坊／社,เขต/ชุมชน
 Supervision Sheets,"model:ir.actions.act_window,name:wujia_franchise.action_wujia_franchise_inspection",Phiếu giám sát,監督表,แบบฟอร์มการติดตาม
 Name,"model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection__name",Tên phiếu khảo sát,評核表名稱,ชื่อแบบฟอร์มสำรวจ
 Store,"model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection__franchise_id",Cửa hàng,門店,ร้านค้า
 Supervision Template,"model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection__template_id",Mẫu khảo sát,評核範本,แบบฟอร์มสำรวจ
-Inspector,"model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection__inspector_user_id",Người kiểm tra,檢查人員,ผู้ตรวจสอบ
-Tested Employee,"model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection__test_employee_name",Nhân viên được kiểm tra,受檢員工,พนักงานคนดังกล่าวถูกตรวจสอบแล้ว
-Planned Date,"model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection__planned_date",Ngày dự kiến,預計日期,วันที่คาดการณ์
+Inspector,"model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection__inspector_id",Người kiểm tra,督導人員,ผู้ตรวจสอบ
+Tested Employee,"model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection__test_employee_name",Nhân viên được kiểm tra,受測員工,พนักงานที่รับการทดสอบ
+Planned Date,"model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection__planned_date",Ngày dự kiến,預計日期,วันที่วางแผน
 Total Score,"model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection__total_score",Tổng điểm,總分,คะแนนรวม
-Grade,"model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection__grade_id",Xếp loại,評等,อันดับ
+Grade,"model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection__grade_id",Xếp loại,評級,เกรด
 Status,"model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection__state",Trạng thái,狀態,สถานะ
 Franchise Management,"model:ir.actions.act_window,name:wujia_franchise.action_franchise_management",Quản lý nhượng quyền,加盟管理,การจัดการแฟรนไชส์
 Code,"model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_management__code",Mã cửa hàng,店號,รหัสร้านค้า
@@ -40,10 +40,10 @@ Primary Owner,"model:ir.model.fields,field_description:wujia_franchise.field_wuj
 Franchise Expiration Date,"model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_management__franchise_end_date",Ngày hết hạn nhượng quyền,加盟合約到期日,วันหมดอายุของแฟรนไชส์
 Remaining Days,"model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_management__remaining_days",Số ngày còn lại,剩餘天數,จำนวนวันที่เหลือ
 Member Count,"model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_management__member_count",Số lượng thành viên,人員數,จำนวนสมาชิก
-Supervisor,"model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_management__effective_supervision_user_id",Người giám sát,監督人員,หัวหน้างาน
-Latest Inspection Date,"model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_management__latest_inspection_date",Ngày khảo sát gần nhất,最近監督日期,วันที่ทำการสำรวจครั้งล่าสุด
-Latest Score,"model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_management__latest_total_score",Điểm đánh giá mới nhất,最新監督分數,คะแนนล่าสุด
-Latest Grade,"model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_management__latest_grade_id",Xếp loại mới nhất,最新評等,อันดับล่าสุด
+Supervisor,"model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_management__supervisor_user_id",Nhân viên giám sát,督導人員,เจ้าหน้าที่ตรวจสอบ
+Latest Inspection Date,"model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_management__latest_inspection_date",Ngày khảo sát gần nhất,最新評核日期,วันที่ประเมินล่าสุด
+Latest Score,"model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_management__latest_total_score",Điểm mới nhất,最新評核分數,คะแนนล่าสุด
+Latest Grade,"model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_management__latest_grade_id",Xếp loại mới nhất,最新評核等級,เกรดล่าสุด
 Status,"model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_management__status",Trạng thái,狀態,สถานะ
 Store Supervision Schedule,"model:ir.actions.act_window,name:wujia_franchise.action_wujia_supervision_schedule",Lịch giám sát cửa hàng,門店監督排程,ตารางการตรวจสอบร้านค้า
 Draft,"model:ir.model.fields.selection,name:wujia_franchise.selection__wujia_franchise_inspection__state__draft",Nháp,草稿,ตี
@@ -60,8 +60,8 @@ Job Title,"model_terms:ir.ui.view,arch_db:wujia_franchise.view_wujia_supervision
 e.g. July Regular Supervision,"model_terms:ir.ui.view,arch_db:wujia_franchise.view_wujia_supervision_schedule_form",Ví dụ: Giám sát định kỳ tháng 7,例如：7月份定期監督,ตัวอย่าง: การตรวจสอบรายเดือนในเดือนกรกฎาคม
 STORE INFORMATION,"model_terms:ir.ui.view,arch_db:wujia_franchise.view_wujia_supervision_schedule_form",THÔNG TIN CỬA HÀNG,門店資訊,ข้อมูลร้านค้า
 Address & Phone,"model_terms:ir.ui.view,arch_db:wujia_franchise.view_wujia_supervision_schedule_form",Địa chỉ & Điện thoại,地址與電話,ที่อยู่และหมายเลขโทรศัพท์
-Location,"model_terms:ir.ui.view,arch_db:wujia_franchise.view_wujia_supervision_schedule_form",Định vị,定位,ที่ตั้ง
-Open Google Maps,"model_terms:ir.ui.view,arch_db:wujia_franchise.view_wujia_supervision_schedule_form",Mở Google Maps,開啟谷歌地圖,เปิด Google Maps
+Location,"model_terms:ir.ui.view,arch_db:wujia_franchise.view_wujia_supervision_schedule_form",Vị trí,位置,ตำแหน่ง
+Open Google Maps,"model_terms:ir.ui.view,arch_db:wujia_supervision_schedule_form",Xem vị trí Google Map,開啟 Google Maps,เปิด Google Maps
 LATEST EVALUATION TIME & RESULT,"model_terms:ir.ui.view,arch_db:wujia_franchise.view_wujia_supervision_schedule_form",THỜI GIAN & KẾT QUẢ ĐÁNH GIÁ GẦN NHẤT,最近監督時間與結果,เวลาและผลการประเมินล่าสุด
 Supervision Time,"model_terms:ir.ui.view,arch_db:wujia_franchise.view_wujia_supervision_schedule_form",Thời gian giám sát,監督時間,เวลาตรวจสอบ
 Latest Score,"model_terms:ir.ui.view,arch_db:wujia_franchise.view_wujia_supervision_schedule_form",Điểm mới nhất,最新分數,ข่าวล่าสุด
@@ -74,7 +74,7 @@ Store,"model:ir.model.fields,field_description:wujia_franchise.field_wujia_super
 Supervisor,"model:ir.model.fields,field_description:wujia_franchise.field_wujia_supervision_schedule__user_id",Nhân viên giám sát,監督人員,หัวหน้างาน
 Supervision Date,"model:ir.model.fields,field_description:wujia_franchise.field_wujia_supervision_schedule__date",Thời gian giám sát,監督時間,เวลาตรวจสอบ
 Status,"model:ir.model.fields,field_description:wujia_franchise.field_wujia_supervision_schedule__state",Trạng thái,狀態,สถานะ
-Notes,"model:ir.model.fields,field_description:wujia_franchise.field_wujia_supervision_schedule__note",Ghi chú,備註,บันทึก
+Notes,"model:ir.model.fields,field_description:wujia_supervision_schedule.field_wujia_supervision_schedule__note",Ghi chú,備註,บันทึก
 Supervision Sheet,"model:ir.model.fields,field_description:wujia_franchise.field_wujia_supervision_schedule__inspection_id",Phiếu khảo sát,監督表,แบบฟอร์มสำรวจ
 Supervision Sheet Count,"model:ir.model.fields,field_description:wujia_franchise.field_wujia_supervision_schedule__inspection_count",Số phiếu khảo sát,監督表編號,จำนวนการตอบแบบสอบถาม
 Latest Supervision Sheet,"model:ir.model.fields,field_description:wujia_franchise.field_wujia_supervision_schedule__latest_inspection_id",Phiếu khảo sát mới nhất,最新監督表,แบบฟอร์มสำรวจล่าสุด
@@ -82,16 +82,16 @@ Latest Score,"model:ir.model.fields,field_description:wujia_franchise.field_wuji
 Latest Grade,"model:ir.model.fields,field_description:wujia_franchise.field_wujia_supervision_schedule__latest_grade_id",Loại đánh giá mới nhất,最新評核,ประเภทรีวิวล่าสุด
 Address,"model:ir.model.fields,field_description:wujia_franchise.field_wujia_supervision_schedule__address",Địa chỉ,地址,ที่อยู่
 Phone Number,"model:ir.model.fields,field_description:wujia_franchise.field_wujia_supervision_schedule__phone",Số điện thoại,電話號碼,หมายเลขโทรศัพท์
-Google Maps Location,"model:ir.model.fields,field_description:wujia_franchise.field_wujia_supervision_schedule__google_map_url",Vị trí Google Maps,谷歌地圖位置,ตำแหน่งบน Google Maps
-Draft,"model:ir.model.fields.selection,name:wujia_franchise.selection__wujia_supervision_schedule__state__draft",Nháp,草稿,ตี
-In Progress,"model:ir.model.fields.selection,name:wujia_franchise.selection__wujia_supervision_schedule__state__in_progress",Đang thực hiện,進行中,กำลังดำเนินการ
+Google Maps Location,"model:ir.model.fields,field_description:wujia_supervision_schedule.field_wujia_supervision_schedule__google_map_url",Vị trí Google Maps,Google Maps 位置,ตำแหน่ง Google Maps
+Draft,"model:ir.model.fields.selection,name:wujia_franchise.selection__wujia_franchise_inspection__state__draft",Dự thảo,草稿,ร่าง
+In Progress,"model:ir.model.fields.selection,name:wujia_franchise.selection__wujia_franchise_inspection__state__in_progress",Đang thực hiện,進行中,กำลังดำเนินการ
 Need Remediation,"model:ir.model.fields.selection,name:wujia_franchise.selection__wujia_supervision_schedule__state__need_remediation",Cần khắc phục,待改善,ต้องแก้ไข
 Done,"model:ir.model.fields.selection,name:wujia_franchise.selection__wujia_supervision_schedule__state__done",Hoàn thành,已完成,สมบูรณ์
-Cancelled,"model:ir.model.fields.selection,name:wujia_franchise.selection__wujia_supervision_schedule__state__cancel",Đã hủy,已取消,ยกเลิก
+Cancelled,"model:ir.model.fields.selection,name:wujia_franchise.selection__wujia_franchise_inspection__state__cancel",Đã hủy,已取消,ยกเลิก
 Supervision Sheets,"model_terms:ir.ui.view,arch_db:wujia_franchise.view_wujia_franchise_inspection_tree",Phiếu khảo sát,監督表,แบบฟอร์มสำรวจ
 Franchise Store Supervision Sheet,"model_terms:ir.ui.view,arch_db:wujia_franchise.view_wujia_franchise_inspection_form",Phiếu khảo sát đánh giá cửa hàng nhượng quyền,加盟門店監督表,แบบฟอร์มสำรวจประเมินผลร้านแฟรนไชส์
 Total Score,"model_terms:ir.ui.view,arch_db:wujia_franchise.view_wujia_franchise_inspection_form",Tổng điểm,總分,คะแนนรวม
-Start Inspection,"model_terms:ir.ui.view,arch_db:wujia_franchise.view_wujia_franchise_inspection_form",Bắt đầu thực hiện,開始執行,เริ่มดำเนินการ
+Start Inspection,"model_terms:ir.ui.view,arch_db:wujia_franchise.view_wujia_franchise_inspection_form",Bắt đầu thực hiện,開始評核,เริ่มการตรวจ
 Need Remediation,"model_terms:ir.ui.view,arch_db:wujia_franchise.view_wujia_franchise_inspection_form",Cần khắc phục,待改善,ต้องแก้ไข
 Complete,"model_terms:ir.ui.view,arch_db:wujia_franchise.view_wujia_franchise_inspection_form",Hoàn thành,已完成,สมบูรณ์
 Cancel,"model_terms:ir.ui.view,arch_db:wujia_franchise.view_wujia_franchise_inspection_form",Hủy,取消,ยกเลิก
@@ -103,7 +103,7 @@ Group Store Info,"model_terms:ir.ui.view,arch_db:wujia_franchise.view_wujia_fran
 Group Time History,"model_terms:ir.ui.view,arch_db:wujia_franchise.view_wujia_franchise_inspection_form",THỜI GIAN & LỊCH SỬ,時間與歷史紀錄,เวลาและประวัติศาสตร์
 Group Employee Survey,"model_terms:ir.ui.view,arch_db:wujia_franchise.view_wujia_franchise_inspection_form",KHẢO SÁT NHÂN VIÊN,員工評核,แบบสำรวจพนักงาน
 Employee Name,"model_terms:ir.ui.view,arch_db:wujia_franchise.view_wujia_franchise_inspection_form",Tên nhân viên tại cửa hàng...,店員姓名...,ชื่อพนักงานในร้าน...
-Tenure,"model_terms:ir.ui.view,arch_db:wujia_franchise.view_wujia_franchise_inspection_form",Số tháng / năm làm việc...,工作月數／年資...,จำนวนเดือน/ปีที่ทำงาน...
+Tenure,"model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection__tenure",Thâm niên,年資,อายุงาน
 Group Next Plan,"model_terms:ir.ui.view,arch_db:wujia_franchise.view_wujia_franchise_inspection_form",KẾ HOẠCH TIẾP THEO,後續計畫,แผนต่อไป
 Next Due Date,"model_terms:ir.ui.view,arch_db:wujia_franchise.view_wujia_franchise_inspection_form",Lần kiểm tra kế tiếp,下一次監督,การทดสอบครั้งต่อไป
 Title Create Next Schedule,"model_terms:ir.ui.view,arch_db:wujia_franchise.view_wujia_franchise_inspection_form",Tạo / Mở Lịch giám sát tiếp theo,建立／開啟下一次監督排程,สร้าง/เปิดตารางการตรวจสอบถัดไป
@@ -112,7 +112,7 @@ Group Result Grade,"model_terms:ir.ui.view,arch_db:wujia_franchise.view_wujia_fr
 Page Checklist,"model_terms:ir.ui.view,arch_db:wujia_franchise.view_wujia_franchise_inspection_form",Danh sách Tiêu chí Checklist,Checklist 評核項目清單,รายการตรวจสอบเกณฑ์
 Content Snapshot,"model_terms:ir.ui.view,arch_db:wujia_franchise.view_wujia_franchise_inspection_form",Nội dung kiểm tra checklist,Checklist 檢查內容,เนื้อหาในรายการตรวจสอบ
 Is Pass,"model_terms:ir.ui.view,arch_db:wujia_franchise.view_wujia_franchise_inspection_form",Đánh giá,評核,ประเมิน
-Previous Result,"model_terms:ir.ui.view,arch_db:wujia_franchise.view_wujia_franchise_inspection_form",Đợt trước,上一次,ก่อนหน้า
+Previous Result,"model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection_line__previous_result",Kết quả trước đó,上次結果,ผลลัพธ์ครั้งก่อน
 Title View Prev Inspection,"model_terms:ir.ui.view,arch_db:wujia_franchise.view_wujia_franchise_inspection_form",Xem chi tiết phiếu khảo sát đợt trước,查看上一次監督表詳細內容,ดูรายละเอียดของแบบสำรวจครั้งก่อน
 Violation Note,"model_terms:ir.ui.view,arch_db:wujia_franchise.view_wujia_franchise_inspection_form",Ghi chú vi pham...,違規備註...,หนังสือแจ้งเตือนการฝ่าฝืน...
 Evidence Image,"model_terms:ir.ui.view,arch_db:wujia_franchise.view_wujia_franchise_inspection_form",Bằng chứng vi phạm,違規證明,หลักฐานการละเมิด
@@ -145,16 +145,16 @@ Status,"model_terms:ir.ui.view,arch_db:wujia_franchise.view_wujia_franchise_insp
 Grade,"model_terms:ir.ui.view,arch_db:wujia_franchise.view_wujia_franchise_inspection_search",Xếp loại,評等,อันดับ
 Time (By Month),"model_terms:ir.ui.view,arch_db:wujia_franchise.view_wujia_franchise_inspection_search",Thời gian (Theo Tháng),時間（按月份）,ระยะเวลา (รายเดือน)
 Time (By Day),"model_terms:ir.ui.view,arch_db:wujia_franchise.view_wujia_franchise_inspection_search",Thời gian (Theo Ngày),時間（按日期）,เวลา (ต่อวัน)
-Pass,"model:ir.model.fields.selection,name:wujia_franchise.selection__wujia_franchise_inspection_line__result__pass",Đạt,合格,รับ
-Fail,"model:ir.model.fields.selection,name:wujia_franchise.selection__wujia_franchise_inspection_line__result__fail",Không đạt,不合格,ล้มเหลว
-Need Remediation,"model:ir.model.fields.selection,name:wujia_franchise.selection__wujia_franchise_inspection_line__remediation_state__need_remediation",Cần phản hồi,待回覆,ต้องการรับฟังความคิดเห็น
-Remediated,"model:ir.model.fields.selection,name:wujia_franchise.selection__wujia_franchise_inspection_line__remediation_state__remediated",Đã phản hồi,已回覆,ได้รับคำตอบแล้ว
+Pass,selection:wujia.franchise.inspection.line:result:pass,Đạt,合格,ผ่าน
+Fail,selection:wujia.franchise.inspection.line:result:fail,Không đạt,不合格,ไม่ผ่าน
+Need Remediation,"model:ir.model.fields.selection,name:wujia_franchise.selection__wujia_franchise_inspection__state__need_remediation",Cần khắc phục,待改善,ต้องปรับปรุง
+Remediated,"model:ir.model.fields.selection,name:wujia_franchise.selection__wujia_franchise_inspection_line__remediation_state__remediated",Đã khắc phục,已改善,ปรับปรุงแล้ว
 Done,"model:ir.model.fields.selection,name:wujia_franchise.selection__wujia_franchise_inspection_line__remediation_state__done",Đã duyệt (Hoàn thành),已核准（完成）,อนุมัติแล้ว (เสร็จสมบูรณ์)
 Pass,"model:ir.model.fields.selection,name:wujia_franchise.selection__wujia_franchise_inspection_line__previous_result__pass",Đạt,合格,รับ
 Fail,"model:ir.model.fields.selection,name:wujia_franchise.selection__wujia_franchise_inspection_line__previous_result__fail",Không đạt,不合格,ล้มเหลว
 Submit Date,"model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection__submit_date",Ngày nộp,提交日期,วันที่ส่งเอกสาร
 Confirm Date,"model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection__confirm_date",Ngày xác nhận,確認日期,วันที่ยืนยัน
-Checklist Score,"model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection__checklist_score",Điểm checklist,Checklist 分數,คะแนนเช็คลิสต์
+Checklist Score,"model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection__checklist_score",Điểm Checklist,檢查表分數,คะแนนแบบตรวจสอบ
 Exam Score,"model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection__exam_score",Điểm kiểm tra,測驗分數,ด่าน
 Next Due Date,"model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection__next_due_date",Lần kiểm tra kế tiếp,下一次檢查,การทดสอบครั้งต่อไป
 Next Schedule Id,"model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection__next_schedule_id",Lịch giám sát tiếp theo,下一次監督排程,ตารางการตรวจสอบครั้งต่อไป
@@ -166,8 +166,8 @@ Line Ids,"model:ir.model.fields,field_description:wujia_franchise.field_wujia_fr
 Exam Line Ids,"model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection__exam_line_ids",Chi tiết bài kiểm tra,測驗詳細內容,รายละเอียดการทดสอบ
 Confirmed User Id,"model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection__confirmed_user_id",Người xác nhận hệ thống,系統確認人員,ตัวตรวจสอบระบบ
 Confirmed Member Id,"model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection__confirmed_member_id",Quản lý cửa hàng xác nhận,門店管理員確認,ผู้จัดการร้านยืนยันแล้ว
-Sequence,"model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection_line__sequence",Thứ tự,順序,คำสั่ง
-Display Type,"model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection_line__display_type",Phân loại,分類,จัดประเภท
+Sequence,"model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection_line__sequence",Thứ tự,順序,ลำดับ
+Display Type,"model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection_template_line__display_type",Loại hiển thị,顯示類型,ประเภทการแสดงผล
 Content Snapshot,"model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection_line__content_snapshot",Nội dung kiểm tra checklist,Checklist 檢查內容,เนื้อหาในรายการตรวจสอบ
 Deduction Score Snapshot,"model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection_line__deduction_score_snapshot",Điểm trừ,扣分,ข้อเสีย
 Criterion Type Snapshot,"model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection_line__criterion_type_snapshot",Loại tiêu chí,評核項目類型,ประเภทของเกณฑ์
@@ -180,7 +180,7 @@ Evidence Image,"model:ir.model.fields,field_description:wujia_franchise.field_wu
 Remediation Image,"model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection_line__remediation_image",Ảnh sau khắc phục,改善後照片,ภาพถ่ายหลังการปรับแต่ง
 Previous Line Id,"model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection_line__previous_line_id",Line trước,上一次 Line,บรรทัดก่อนหน้า
 Previous Result,"model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection_line__previous_result",Kết quả trước đó,上一次結果,ผลลัพธ์ก่อนหน้า
-Previous Deduction Score,"model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection_line__previous_deduction_score",Điểm trừ đợt trước,上一次扣分,ข้อเสียจากรอบที่แล้ว
+Previous Deduction Score,"model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection_line__previous_deduction_score",Điểm trừ đợt trước,上次扣分,คะแนนที่ถูกหักครั้งก่อน
 Sequence,"model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection_exam_line__sequence",Thứ tự,順序,คำสั่ง
 Quest Code Snapshot,"model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection_exam_line__quest_code_snapshot",Mã câu hỏi,題目編號,รหัสคำถาม
 Quest Content Snapshot,"model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection_exam_line__quest_content_snapshot",Nội dung câu hỏi,題目內容,เนื้อหาคำถาม
@@ -199,7 +199,7 @@ Evaluation Survey,"model_terms:ir.ui.view,arch_db:wujia_franchise.inspection_sur
 Back,"model_terms:ir.ui.view,arch_db:wujia_franchise.inspection_survey_do_page",Quay lại,返回,กลับมา
 Completed,"model_terms:ir.ui.view,arch_db:wujia_franchise.inspection_survey_do_page",Đã hoàn thành,已完成,สมบูรณ์
 Checklist,"model_terms:ir.ui.view,arch_db:wujia_franchise.inspection_survey_do_page",Checklist,Checklist,รายการตรวจสอบ
-Staff Exam,"model_terms:ir.ui.view,arch_db:wujia_franchise.inspection_survey_do_page",Kiểm tra NV,員工檢查,ตรวจสอบพนักงาน
+Staff Exam,"model_terms:ir.ui.view,arch_db:wujia_franchise.view_wujia_franchise_inspection_form",Bài kiểm tra nhân viên,員工測驗,แบบทดสอบพนักงาน
 Total Score,"model_terms:ir.ui.view,arch_db:wujia_franchise.inspection_survey_do_page",Tổng điểm,總分,คะแนนรวม
 Grade,"model_terms:ir.ui.view,arch_db:wujia_franchise.inspection_survey_do_page",Xếp loại,評等,อันดับ
 Checklist Criteria,"model_terms:ir.ui.view,arch_db:wujia_franchise.inspection_survey_do_page",Tiêu chí Checklist,Checklist 評核項目,เกณฑ์รายการตรวจสอบ
@@ -212,7 +212,7 @@ View Previous Round Add Notes & Photos,"model_terms:ir.ui.view,arch_db:wujia_fra
 Previous Round: Pass,"model_terms:ir.ui.view,arch_db:wujia_franchise.inspection_survey_do_page",Đợt trước: Đạt,上一次：合格,รอบที่แล้ว: ผ่านแล้ว
 Pass,"model_terms:ir.ui.view,arch_db:wujia_franchise.inspection_survey_do_page",Đạt,合格,รับ
 Previous Round: Fail,"model_terms:ir.ui.view,arch_db:wujia_franchise.inspection_survey_do_page",Đợt trước: Không đạt,上一次：不合格,รอบที่แล้ว: ล้มเหลว
-Fail,"model_terms:ir.ui.view,arch_db:wujia_franchise.inspection_survey_do_page",K.Đạt,不合格,เค. ดัต
+Fail,"model:ir.model.fields.selection,name:wujia_franchise.selection__wujia_franchise_inspection_line__result__fail",Không đạt,不合格,ไม่ผ่าน
 Has Notes,"model_terms:ir.ui.view,arch_db:wujia_franchise.inspection_survey_do_page",Có ghi chú,有備註,มีบันทึกอยู่
 Has Photos,"model_terms:ir.ui.view,arch_db:wujia_franchise.inspection_survey_do_page",Có ảnh,有照片,มีรูปภาพ
 Examined Staff Information,"model_terms:ir.ui.view,arch_db:wujia_franchise.inspection_survey_do_page",Thông tin Nhân viên làm bài kiểm tra,測驗員工資訊,ข้อมูลเกี่ยวกับบุคลากรที่เข้ารับการทดสอบ
@@ -237,8 +237,8 @@ Capture / Upload Photo,"model_terms:ir.ui.view,arch_db:wujia_franchise.inspectio
 Click to change photo,"model_terms:ir.ui.view,arch_db:wujia_franchise.inspection_survey_do_page",Bấm để đổi ảnh,點擊更換照片,คลิกเพื่อเปลี่ยนรูปภาพ
 Photo attached,"model_terms:ir.ui.view,arch_db:wujia_franchise.inspection_survey_do_page",Đã có ảnh,已有照片,รูปภาพพร้อมให้ดาวน์โหลดแล้ว
 Evaluate this criterion:,"model_terms:ir.ui.view,arch_db:wujia_franchise.inspection_survey_do_page",Đánh giá tiêu chí này:,評核此項目：,ประเมินเกณฑ์นี้:
-Pass,"model_terms:ir.ui.view,arch_db:wujia_franchise.inspection_survey_do_page",Đạt,合格,รับ
-Done,"model_terms:ir.ui.view,arch_db:wujia_franchise.inspection_survey_do_page",Hoàn tất,完成,สมบูรณ์
+Pass,"model:ir.model.fields.selection,name:wujia_franchise.selection__wujia_franchise_inspection_line__result__pass",Đạt,合格,ผ่าน
+Done,"model:ir.model.fields.selection,name:wujia_franchise.selection__wujia_franchise_inspection__state__done",Hoàn thành,已完成,เสร็จสมบูรณ์
 Notification,"model_terms:ir.ui.view,arch_db:wujia_franchise.inspection_survey_do_page",Thông báo,通知,การแจ้งเตือน
 Please enter the Tested Employee!,"model_terms:ir.ui.view,arch_db:wujia_franchise.inspection_survey_do_page",Vui lòng nhập Nhân viên được kiểm tra!,請輸入受檢員工！,กรุณาระบุชื่อพนักงานที่กำลังได้รับการตรวจสอบ!
 Got it,"model_terms:ir.ui.view,arch_db:wujia_franchise.inspection_survey_do_page",Đã hiểu,了解,เข้าใจแล้ว
@@ -281,9 +281,9 @@ Answers have been locked. Scoring result:,"model_terms:ir.ui.view,arch_db:wujia_
 Inspection Questions,"model:ir.actions.act_window,name:wujia_franchise.action_wujia_franchise_inspection_question",Thư viện câu hỏi kiểm tra,測驗題庫,คลังคำถามแบบทดสอบ
 Inspection Question,"model_terms:ir.ui.view,arch_db:wujia_franchise.view_wujia_franchise_inspection_question_form",Câu hỏi kiểm tra,測驗題目,คำถามแบบทดสอบ
 Save Question,"model_terms:ir.ui.view,arch_db:wujia_franchise.view_wujia_franchise_inspection_question_form",Lưu câu hỏi,儲存題目,บันทึกคำถาม
-Question Code,"model_terms:ir.ui.view,arch_db:wujia_franchise.view_wujia_franchise_inspection_question_form",Mã câu hỏi,題目編號,รหัสคำถาม
+Question Code,"model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection_exam_line__quest_code_snapshot",Mã câu hỏi,題目編號,รหัสคำถาม
 Correct Answers,"model_terms:ir.ui.view,arch_db:wujia_franchise.view_wujia_franchise_inspection_question_tree",Đáp án đúng,正確答案,คำตอบที่ถูกต้อง
-General Information,"model_terms:ir.ui.view,arch_db:wujia_franchise.view_wujia_franchise_inspection_question_form",Thông tin chung,基本資訊,ข้อมูลทั่วไป
+General Information,"model_terms:ir.ui.view,arch_db:wujia_franchise.view_wujia_franchise_management_form",Thông tin chung,基本資訊,ข้อมูลทั่วไป
 Question Content,"model_terms:ir.ui.view,arch_db:wujia_franchise.view_wujia_franchise_inspection_question_form",Nội dung câu hỏi,題目內容,เนื้อหาคำถาม
 Enter question content (Use ____ to represent blank fill-in positions),"model_terms:ir.ui.view,arch_db:wujia_franchise.view_wujia_franchise_inspection_question_form",Nhập nội dung câu hỏi (Dùng ký tự ____ đại diện cho vị trí điền trống),輸入題目內容（使用 ____ 代表填空位置）,กรอกเนื้อหาคำถาม (ใช้ ____ แทนตำแหน่งเติมคำในช่องว่าง)
 "Example: Jasmine Green Tea has ____cc tea broth, brewed for ____ minutes at ____°C.","model_terms:ir.ui.view,arch_db:wujia_franchise.view_wujia_franchise_inspection_question_form","Ví dụ: Trà xanh Lài có ____cc nước cốt trà, ủ trong ____ phút ở nhiệt độ ____°C.",範例：茉莉綠茶使用 ____cc 茶湯，於 ____°C 下沖泡 ____ 分鐘。,ตัวอย่าง: ชาเขียวมะลิใช้ชา ____cc แช่เป็นเวลา ____ นาที ที่อุณหภูมิ ____°C
@@ -294,5 +294,143 @@ If the question has multiple blanks (____): Enter each blank on 1 separate line 
 Correct Answer List,"model_terms:ir.ui.view,arch_db:wujia_franchise.view_wujia_franchise_inspection_question_form",Danh sách đáp án đúng,正確答案清單,รายการคำตอบที่ถูกต้อง
 Search Inspection Questions,"model_terms:ir.ui.view,arch_db:wujia_franchise.view_wujia_franchise_inspection_question_search",Tìm kiếm Câu hỏi kiểm tra,搜尋測驗題目,ค้นหาคำถามแบบทดสอบ
 Create a new inspection question for the library!,"model_terms:ir.ui.view,arch_db:wujia_franchise.view_wujia_franchise_inspection_question_search",Tạo câu hỏi kiểm tra mới cho thư viện!,為題庫建立新測驗題目！,สร้างคำถามแบบทดสอบใหม่สำหรับคลังคำถาม!
-Violation Criteria Analysis,"model:ir.actions.act_window,name:wujia_franchise.action_wujia_franchise_inspection_report_violation",Phân tích tiêu chí vi phạm,違規項目分析,การวิเคราะห์เกณฑ์การละเมิด
+Violation Criteria Analysis,menu:wujia_franchise.menu_wujia_franchise_inspection_report_violation,Phân tích tiêu chí vi phạm,違規項目分析,การวิเคราะห์เกณฑ์การละเมิด
 Violation criteria analysis report on completed inspection sheets!,"model_terms:ir.ui.view,arch_db:wujia_franchise.view_wujia_franchise_inspection_line_search",Báo cáo phân tích tổng số câu Đạt / Vi phạm của từng tiêu chí mẫu trên các phiếu đã hoàn thành!,已完成監督表之各範本項目 合格／違規 統計分析報告！,รายงานการวิเคราะห์เกณฑ์การละเมิดในแบบฟอร์มการตรวจสอบที่เสร็จสมบูรณ์!
+Inspection Name,"model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection__name",Tên phiếu khảo sát,評核表名稱,ชื่อแบบประเมิน
+Submission Date,"model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection__submit_date",Ngày nộp,提交日期,วันที่ส่ง
+Staff Exam Score,"model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection__exam_score",Điểm kiểm tra nhân viên,員工測驗分數,คะแนนสอบพนักงาน
+Next Inspection Date,"model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection__next_due_date",Lần kiểm tra kế tiếp,下次評核日期,วันที่ตรวจครั้งถัดไป
+Next Supervision Schedule,"model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection__next_schedule_id",Lịch giám sát tiếp theo,下次督導日程,ตารางตรวจครั้งถัดไป
+Inspection Template,"model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection__template_id",Mẫu khảo sát,評核範本,แบบฟอร์มการตรวจ
+Franchise Store,"model_terms:ir.ui.view,arch_db:wujia_franchise.view_wujia_franchise_management_form",Cửa hàng nhượng quyền,加盟門市,สาขาแฟรนไชส์
+Previous Inspection,"model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection__previous_inspection_id",Phiếu khảo sát trước,上次評核表,แบบประเมินครั้งก่อน
+System Confirmer,"model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection__confirmed_user_id",Người xác nhận hệ thống,系統確認人,ผู้ยืนยันระบบ
+Store Manager Confirmer,"model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection__confirmed_member_id",Quản lý cửa hàng xác nhận,門市店長確認,ผู้จัดการสาขายืนยัน
+Inspection Details,"model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection__line_ids",Chi tiết khảo sát,評核明細,รายละเอียดการตรวจ
+Staff Exam Lines,"model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection__exam_line_ids",Chi tiết kiểm tra nhân viên,員工測驗明細,รายการทดสอบพนักงาน
+Revenue Report Lines,"model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection__report_line_ids",Dòng báo cáo doanh thu,營收報告明細,รายการรายงานรายได้
+Exam Submitted,"model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection__is_exam_submitted",Đã nộp bài kiểm tra,已提交測驗,ส่งข้อสอบแล้ว
+Exam Submitted Date,"model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection__exam_submitted_date",Thời gian nộp bài kiểm tra,測驗提交時間,เวลาที่ส่งข้อสอบ
+Inspection Chart Data,"model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection__inspection_chart_data",Dữ liệu biểu đồ,圖表數據,ข้อมูลแผนภูมิ
+Criterion Line,selection:wujia.franchise.inspection.line:display_type:line,Dòng tiêu chí,評核項目行,เกณฑ์การประเมิน
+Section Header,selection:wujia.franchise.inspection.line:display_type:section,Tiêu đề nhóm,分類標題,หัวข้อกลุ่ม
+Checklist Content,"model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection_line__content_snapshot",Nội dung kiểm tra checklist,檢查表項目內容,เนื้อหาแบบตรวจสอบ
+Deduction Score,"model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection_line__deduction_score_snapshot",Điểm trừ,扣分,คะแนนที่ถูกหัก
+Criterion Type,"model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection_line__criterion_type_snapshot",Loại tiêu chí,項目類別,ประเภทเกณฑ์
+Passed (Pass),"model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection_line__is_pass",Đánh giá Đạt (Pass),合格 (Pass),ผ่าน (Pass)
+Violation Note (Admin),"model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection_line__note",Ghi chú vi phạm (Admin),違規備註 (管理員),บันทึกการละเมิด (แอดมิน)
+Remediation Status,"model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection_line__remediation_state",Trạng thái khắc phục,改善狀態,สถานะการปรับปรุง
+Remediation Note (Store),"model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection_line__remediation_note",Ghi chú khắc phục (Cửa hàng),改善備註 (門市),บันทึกการปรับปรุง (สาขา)
+Evidence Photo (Inspection),"model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection_line__evidence_image",Hình ảnh bằng chứng (Khi khảo sát),現場照片 (評核時),ภาพถ่ายหลักฐาน (ตอนตรวจ)
+Remediation Photo,"model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection_line__remediation_image",Hình ảnh sau khắc phục,改善後照片,ภาพถ่ายหลังปรับปรุง
+Require Note If Fail,"model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection_line__require_note_if_fail",Yêu cầu ghi chú khi không đạt,不合格需備註,ต้องระบุบันทึกหากไม่ผ่าน
+Require Evidence If Fail,"model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection_line__require_evidence_if_fail",Yêu cầu bằng chứng khi không đạt,不合格需照片,ต้องมีหลักฐานหากไม่ผ่าน
+Inspection Sheet,"model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection_line__inspection_id",Phiếu khảo sát,評核表,แบบประเมิน
+Inspection Criterion,"model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection_line__template_line_id",Tiêu chí,評核項目,เกณฑ์การตรวจ
+Inspection Date,"model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection_line__inspection_date",Ngày kiểm tra,評核日期,วันที่ตรวจ
+Pass Count,"model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection_line__pass_count",Số lần Đạt,合格次數,จำนวนครั้งที่ผ่าน
+Violation Count,"model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection_line__violation_count",Số lần Vi phạm (Không đạt),違規次數,จำนวนครั้งที่ละเมิด
+Inspection Count,"model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection_line__inspection_count",Số lượt kiểm tra,評核總次數,จำนวนรอบการตรวจ
+Section Category,"model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection_line__section_header",Danh mục tiêu chí,項目分類,หมวดหมู่เกณฑ์
+Previous Line,"model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection_line__previous_line_id",Line trước,上次記錄行,แถวก่อนหน้า
+Days in Month,"model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection_report_line__days_of_month",Số ngày trong tháng,當月天數,จำนวนวันในเดือน
+Daily Average Revenue,"model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection_report_line__revenue_avg",Doanh thu / ngày,日均營收,รายได้เฉลี่ยต่อวัน
+Total App Orders,"model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection_report_line__total_app_sale",Tổng giao dịch qua app,App 總訂單數,จำนวนคำสั่งซื้อผ่านแอปทั้งหมด
+Question Text,"model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection_exam_line__quest_text_snapshot",Nội dung câu hỏi,題目內容,เนื้อหาคำถาม
+Correct Answer,"model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection_exam_line__correct_answer_snapshot",Đáp án đúng,正確答案,คำตอบที่ถูกต้อง
+Employee Answer,"model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection_exam_line__employee_answer",Đáp án trả lời,員工回答,คำตอบของพนักงาน
+Score,"model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection_exam_line__score",Điểm,得分,คะแนน
+Locked,"model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection_exam_line__is_locked",Khóa,已鎖定,ล็อค
+Question,"model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection_exam_line__quest_id",Câu hỏi,測驗題目,คำถาม
+The inspection must be 'In Progress' to submit the staff exam!,code:addons/wujia_franchise/models/wujia_franchise_inspection.py:0,Phiếu khảo sát phải ở trạng thái 'Đang thực hiện' mới được phép nộp bài kiểm tra!,評核表必須處於「進行中」狀態方可提交測驗！,แบบประเมินต้องอยู่ในสถานะ 'กำลังดำเนินการ' จึงจะสามารถส่งข้อสอบได้!
+"Please select a date in ""Next Inspection Date"" before creating a schedule!",code:addons/wujia_franchise/models/wujia_franchise_inspection.py:0,"Vui lòng chọn ngày trong ""Lần kiểm tra kế tiếp"" trước khi tạo lịch!",建立日程前請先選擇「下次評核日期」！,"กรุณาเลือกวันที่ใน ""วันที่ตรวจครั้งถัดไป"" ก่อนสร้างตาราง!"
+Category Name,"model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection_category__name",Tên danh mục,類別名稱,ชื่อหมวดหมู่
+Category Code,"model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection_category__code",Mã danh mục,類別代碼,รหัสหมวดหมู่
+Active,selection:wujia.franchise.inspection.template:status:active,Đang sử dụng,使用中,กำลังใช้งาน
+Severe Violation,"model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection_category__is_severe",Vi phạm nghiêm trọng,嚴重違規,การละเมิดร้ายแรง
+Template Name,"model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection_template__name",Tên mẫu khảo sát,評核範本名稱,ชื่อแบบฟอร์มการตรวจ
+Template Code,"model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection_template__code",Mã mẫu,範本代碼,รหัสแบบฟอร์ม
+Version,"model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection_template__version",Phiên bản,版本,เวอร์ชัน
+Effective Date,"model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection_template__effective_date",Ngày áp dụng,生效日期,มีผลบังคับใช้
+Checklist Max Score,"model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection_template__checklist_max_score",Điểm tối đa Checklist,檢查表最高分,คะแนนสูงสุดแบบตรวจสอบ
+Exam Max Score,"model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection_template__exam_max_score",Điểm tối đa Bài thi,測驗最高分,คะแนนสูงสุดแบบทดสอบ
+Total Max Score,"model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection_template__total_max_score",Tổng điểm tối đa,總最高分,คะแนนสูงสุดรวม
+Inspection Criteria,"model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection_template__line_ids",Chi tiết tiêu chí,評核項目明細,รายการเกณฑ์การตรวจ
+Criterion Code,"model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection_template_line__criterion_code",Mã tiêu chí,項目代碼,รหัสเกณฑ์
+Category,"model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection_template_line__category_id",Danh mục tiêu chí,項目類別,หมวดหมู่เกณฑ์
+Category (Legacy),"model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection_template_line__category",Danh mục (Text cũ),項目類別 (舊版文字),หมวดหมู่ (ข้อความเดิม)
+Criterion Content,"model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection_template_line__content",Nội dung tiêu chí,評核項目內容,เนื้อหาเกณฑ์
+Normal,selection:wujia.franchise.inspection.template.line:criterion_type:normal,Bình thường,一般,ปกติ
+Critical / Knockout,selection:wujia.franchise.inspection.template.line:criterion_type:critical,Quan trọng / Điểm liệt,重要 / 否決項,สำคัญ / จุดวิกฤต
+Minimum Score,"model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection_grade__min_score",Điểm tối thiểu,最低分,คะแนนต่ำสุด
+Maximum Score,"model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection_grade__max_score",Điểm tối đa,最高分,คะแนนสูงสุด
+Area Manager,"model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_management__effective_area_manager_id",Người phụ trách khu vực,區域主管,ผู้จัดการเขต
+Assigned Supervisor,"model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_management__effective_supervision_user_id",Người giám sát,督導人員,ผู้ตรวจสอบที่ได้รับมอบหมาย
+Latest Inspection Sheet,"model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_management__latest_inspection_id",Phiếu khảo sát mới nhất,最新評核表,แบบประเมินล่าสุด
+Latest Inspection Score,"model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_management__latest_inspection_score",Điểm đánh giá mới nhất,最新評核分數,คะแนนการประเมินล่าสุด
+Latest Inspection Grade,"model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_management__latest_inspection_grade_id",Loại đánh giá mới nhất,最新評核等級,เกรดการประเมินล่าสุด
+Schedule Title,"model:ir.model.fields,field_description:wujia_supervision_schedule.field_wujia_supervision_schedule__name",Tiêu đề,督導日程標題,หัวข้อตารางตรวจ
+Scheduled Date,"model:ir.model.fields,field_description:wujia_supervision_schedule.field_wujia_supervision_schedule__date",Thời gian giám sát,預定督導日期,วันที่กำหนดตรวจ
+Owner,selection:wujia.franchise.member:role:owner,Chủ tiệm,店東,เจ้าของร้าน
+Manager,selection:wujia.franchise.member:role:manager,Quản lý,店長,ผู้จัดการ
+Staff,selection:wujia.franchise.member:role:staff,Nhân viên,門市人員,พนักงาน
+Archived,selection:wujia.franchise.inspection.template:status:archived,Lưu trữ,已封存,ที่เก็บถาวร
+Inspection Sheets,menu:wujia_franchise.menu_wujia_franchise_inspection,Phiếu giám sát,督導評核表,แบบประเมินการตรวจ
+Supervision Schedules,menu:wujia_franchise.menu_wujia_supervision_schedule,Lịch giám sát,督導日程安排,ตารางตรวจ
+Stores Needing Inspection,menu:wujia_franchise.menu_wujia_franchise_needed_inspection,Cửa hàng cần giám sát,待督導門市,สาขาที่ต้องตรวจ
+Inspection Templates,menu:wujia_franchise.menu_wujia_franchise_inspection_template,Mẫu phiếu giám sát,評核範本設定,แบบฟอร์มการตรวจ
+Inspection Categories,menu:wujia_franchise.menu_wujia_franchise_inspection_category,Danh mục tiêu chí,評核項目類別,หมวดหมู่เกณฑ์
+Question Library,menu:wujia_franchise.menu_wujia_franchise_inspection_question,Thư viện câu hỏi kiểm tra,測驗題庫管理,คลังคำถามแบบทดสอบ
+Inspection Grades,menu:wujia_franchise.menu_wujia_franchise_inspection_grade,Xếp hạng giám sát,評核等級設定,เกรดการประเมิน
+Reporting,menu:wujia_franchise.menu_wujia_inspection_report,Báo cáo,統計報表,รายงาน
+Inspection Results Analysis,menu:wujia_franchise.menu_wujia_franchise_inspection_report_dashboard,Phân tích kết quả giám sát,督導結果分析,การวิเคราะห์ผลการตรวจ
+Provinces / Cities,menu:wujia_franchise.menu_res_country_state,Tỉnh / Thành phố,省份 / 城市,จังหวัด / เมือง
+Wards / Communes,menu:wujia_franchise.menu_res_ward,Phường / Xã,坊 / 社 / 鄉鎮,แขวง / ตำบล
+Franchise Inspections,"model_terms:ir.ui.view,arch_db:wujia_franchise.view_wujia_franchise_inspection_tree",Phiếu giám sát,門市評核表,แบบประเมินสาขา
+Franchise Inspection,"model_terms:ir.ui.view,arch_db:wujia_franchise.view_wujia_franchise_inspection_form",Phiếu giám sát,門市評核表,แบบประเมินสาขา
+Mark Done,"model_terms:ir.ui.view,arch_db:wujia_franchise.view_wujia_franchise_inspection_form",Hoàn thành,標記完成,เสร็จสิ้น
+Reset to Draft,"model_terms:ir.ui.view,arch_db:wujia_franchise.view_wujia_franchise_inspection_form",Đặt về Draft,重設為草稿,ตั้งเป็นแบบร่าง
+Create Next Schedule,"model_terms:ir.ui.view,arch_db:wujia_franchise.view_wujia_franchise_inspection_form",Tạo lịch tiếp theo,建立下次日程,สร้างตารางถัดไป
+Open Inspection Survey Web,"model_terms:ir.ui.view,arch_db:wujia_franchise.view_wujia_franchise_inspection_form",Mở trang Khảo sát Web,開啟線上評核頁面,เปิดหน้าเว็บตรวจประเมิน
+Revenue Report,"model_terms:ir.ui.view,arch_db:wujia_franchise.view_wujia_franchise_inspection_form",Báo cáo doanh thu,營收報告,รายงานรายได้
+Confirmation,"model_terms:ir.ui.view,arch_db:wujia_franchise.view_wujia_franchise_inspection_form",Xác nhận,確認簽署,การยืนยัน
+Scoring Summary,"model_terms:ir.ui.view,arch_db:wujia_franchise.view_wujia_franchise_inspection_form",Tổng kết điểm số,評分摘要,สรุปคะแนน
+Next Supervision Cycle,"model_terms:ir.ui.view,arch_db:wujia_franchise.view_wujia_franchise_inspection_form",Kỳ giám sát tiếp theo,下次督導週期,รอบการตรวจถัดไป
+System Confirmation,"model_terms:ir.ui.view,arch_db:wujia_franchise.view_wujia_franchise_inspection_form",Người xác nhận hệ thống,系統確認人,การยืนยันระบบ
+Store Manager Confirmation,"model_terms:ir.ui.view,arch_db:wujia_franchise.view_wujia_franchise_inspection_form",Quản lý cửa hàng xác nhận,門市店長確認,การยืนยันของผู้จัดการ
+3-Month Revenue Detail,"model_terms:ir.ui.view,arch_db:wujia_franchise.view_wujia_franchise_inspection_form",Báo cáo chi tiết doanh thu 3 tháng,近3個月營收明細,รายละเอียดรายได้ 3 เดือน
+Inspection Criteria List,"model_terms:ir.ui.view,arch_db:wujia_franchise.view_wujia_franchise_inspection_form",Danh sách tiêu chí đánh giá,評核項目清單,รายการเกณฑ์การตรวจ
+Search Inspections,"model_terms:ir.ui.view,arch_db:wujia_franchise.view_wujia_franchise_inspection_search",Tìm kiếm Phiếu giám sát,搜尋評核表,ค้นหาแบบประเมิน
+My Inspections,"model_terms:ir.ui.view,arch_db:wujia_franchise.view_wujia_franchise_inspection_search",Phiếu của tôi,我的評核表,แบบประเมินของฉัน
+Franchise Stores,"model_terms:ir.ui.view,arch_db:wujia_franchise.view_wujia_franchise_management_tree",Cửa hàng nhượng quyền,加盟門市清單,สาขาแฟรนไชส์
+Contract & Operations,"model_terms:ir.ui.view,arch_db:wujia_franchise.view_wujia_franchise_management_form",Hợp đồng & Vận hành,合約與營運,สัญญาและการดำเนินงาน
+Legal & Partner Information,"model_terms:ir.ui.view,arch_db:wujia_franchise.view_wujia_franchise_management_form",Thông tin pháp lý & Liên kết,法律與合作夥伴資訊,ข้อมูลทางกฎหมายและพาร์ทเนอร์
+Address & Area,"model_terms:ir.ui.view,arch_db:wujia_franchise.view_wujia_franchise_management_form",Địa chỉ & Khu vực,地址與營運區域,ที่อยู่และพื้นที่
+Franchise Contract,"model_terms:ir.ui.view,arch_db:wujia_franchise.view_wujia_franchise_management_form",Hợp đồng nhượng quyền,加盟合約,สัญญาแฟรนไชส์
+Operational Controls,"model_terms:ir.ui.view,arch_db:wujia_franchise.view_wujia_franchise_management_form",Điều khiển vận hành,營運控制,การควบคุมการดำเนินงาน
+Assigned Personnel,"model_terms:ir.ui.view,arch_db:wujia_franchise.view_wujia_franchise_management_form",Nhân sự phụ trách,負責人員,บุคลากรที่รับผิดชอบ
+Search Franchise Stores,"model_terms:ir.ui.view,arch_db:wujia_franchise.view_wujia_franchise_management_search",Tìm kiếm Cửa hàng,搜尋加盟門市,ค้นหาสาขาแฟรนไชส์
+Store Location & Contact,"model_terms:ir.ui.view,arch_db:wujia_franchise.view_wujia_supervision_schedule_form",Địa điểm & Liên hệ cửa hàng,門市位置與聯絡方式,ที่ตั้งและการติดต่อสาขา
+Latest Inspection Result,"model_terms:ir.ui.view,arch_db:wujia_franchise.view_wujia_supervision_schedule_form",Kết quả khảo sát mới nhất,最新評核結果,ผลการประเมินล่าสุด
+View Inspection Sheet,"model_terms:ir.ui.view,arch_db:wujia_franchise.view_wujia_supervision_schedule_form",Xem phiếu khảo sát,檢視評核表,ดูแบบประเมิน
+Create Inspection Sheet,"model_terms:ir.ui.view,arch_db:wujia_supervision_schedule_form",Tạo phiếu khảo sát,建立評核表,สร้างแบบประเมิน
+Search Supervision Schedules,"model_terms:ir.ui.view,arch_db:wujia_supervision_schedule_search",Tìm kiếm Lịch giám sát,搜尋督導日程,ค้นหาตารางตรวจ
+Violation Criteria Details,"model_terms:ir.ui.view,arch_db:wujia_franchise.view_wujia_franchise_inspection_line_tree",Chi tiết tiêu chí vi phạm,違規項目明細,รายละเอียดเกณฑ์การละเมิด
+Search Violation Criteria,"model_terms:ir.ui.view,arch_db:wujia_franchise.view_wujia_franchise_inspection_line_search",Tìm kiếm Tiêu chí vi phạm,搜尋違規項目,ค้นหาเกณฑ์การละเมิด
+Passed Criteria,"model_terms:ir.ui.view,arch_db:wujia_franchise.view_wujia_franchise_inspection_line_search",Tiêu chí Đạt,合格項目,เกณฑ์ที่ผ่าน
+Violated Criteria,"model_terms:ir.ui.view,arch_db:wujia_franchise.view_wujia_franchise_inspection_line_search",Tiêu chí Vi phạm (Không đạt),違規項目 (不合格),เกณฑ์ที่ละเมิด (ไม่ผ่าน)
+Supervision Calendar,"model_terms:ir.ui.view,arch_db:wujia_franchise.view_wujia_supervision_schedule_calendar",Lịch giám sát,督導行事曆,ปฏิทินการตรวจ
+Store & Inspector Information,"model_terms:ir.ui.view,arch_db:wujia_franchise.view_wujia_supervision_schedule_form",Thông tin cửa hàng & nhân viên giám sát,門市與督導人員資訊,ข้อมูลสาขาและผู้ตรวจสอบ
+Address & Contact,"model_terms:ir.ui.view,arch_db:wujia_franchise.view_wujia_supervision_schedule_form",Địa chỉ & Liên hệ,地址與聯絡方式,ที่อยู่และการติดต่อ
+Schedule Date & Latest Inspection Result,"model_terms:ir.ui.view,arch_db:wujia_franchise.view_wujia_supervision_schedule_form",Thời gian giám sát & Kết quả khảo sát mới nhất,預定督導時間與最新評核結果,วันที่กำหนดตรวจและผลการประเมินล่าสุด
+My Schedules,"model_terms:ir.ui.view,arch_db:wujia_franchise.view_wujia_supervision_schedule_search",Lịch của tôi,我的督導日程,ตารางของฉัน
+My Assigned Stores,"model_terms:ir.ui.view,arch_db:wujia_franchise.view_franchise_management_search",Cửa hàng tôi phụ trách,我負責的門市,สาขาที่ฉันรับผิดชอบ
+Expired,"model_terms:ir.ui.view,arch_db:wujia_franchise.view_franchise_management_form",Hết hạn,已過期,หมดอายุ
+Portal Locked,"model_terms:ir.ui.view,arch_db:wujia_franchise.view_franchise_management_form",Khóa portal,鎖定入口網站,ล็อกพอร์ทัล
+Area & Address,"model_terms:ir.ui.view,arch_db:wujia_franchise.view_franchise_management_form",Khu vực & Địa chỉ,區域與地址,พื้นที่และที่อยู่
+Template Criterion,"model_terms:ir.ui.view,arch_db:wujia_franchise.view_wujia_franchise_inspection_line_search",Tiêu chí mẫu,範本評核項目,เกณฑ์แบบฟอร์ม
+Historical Criterion Details,"model_terms:ir.ui.view,arch_db:wujia_franchise.view_wujia_franchise_inspection_line_form",Chi tiết tiêu chí đợt trước,歷史評核項目明細,รายละเอียดเกณฑ์ในอดีต
+Violation Evidence (Inspection),"model_terms:ir.ui.view,arch_db:wujia_franchise.view_wujia_franchise_inspection_line_form",Bằng chứng vi phạm khi khảo sát,現場違規證明 (評核時),หลักฐานการไม่ผ่าน (ตอนตรวจ)
+Remediation Photo (Store),"model_terms:ir.ui.view,arch_db:wujia_franchise.view_wujia_franchise_inspection_line_form",Ảnh sau khi đã khắc phục,改善後照片 (門市),ภาพถ่ายหลังปรับปรุง (สาขา)
+Grade Information,"model_terms:ir.ui.view,arch_db:wujia_franchise.view_wujia_franchise_inspection_grade_form",Thông tin xếp hạng,評級資訊,ข้อมูลเกรด
+Score Range,"model_terms:ir.ui.view,arch_db:wujia_franchise.view_wujia_franchise_inspection_grade_form",Khoảng điểm,分數範圍,ช่วงคะแนน

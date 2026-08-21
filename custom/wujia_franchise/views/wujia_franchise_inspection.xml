@@ -6,7 +6,7 @@
         <field name="name">wujia.franchise.inspection.list</field>
         <field name="model">wujia.franchise.inspection</field>
         <field name="arch" type="xml">
-            <list string="label:wujia.franchise.inspection:list_title" default_order="id desc">
+            <list string="Franchise Inspections" default_order="id desc">
                 <field name="name" />
                 <field name="franchise_id" />
                 <field name="template_id" />
@@ -14,7 +14,7 @@
                 <field name="test_employee_name" />
                 <field name="planned_date" options="{'format': 'DD/MM/YYYY'}" />
                 <field name="total_score"
-                    string="label:wujia.franchise.inspection:field_total_score" />
+                    string="Total Score" />
                 <field name="grade_id" widget="badge" />
                 <field name="state" widget="badge"
                     decoration-info="state == 'draft'"
@@ -31,24 +31,24 @@
         <field name="name">wujia.franchise.inspection.form</field>
         <field name="model">wujia.franchise.inspection</field>
         <field name="arch" type="xml">
-            <form string="label:wujia.franchise.inspection:form_title">
+            <form string="Franchise Inspection">
                 <header>
                     <button name="action_start"
-                        string="label:wujia.franchise.inspection:action_start" type="object"
+                        string="Start Inspection" type="object"
                         class="btn-primary" invisible="state != 'draft'" />
                     <button name="action_need_remediation"
-                        string="label:wujia.franchise.inspection:action_need_remediation"
+                        string="Need Remediation"
                         type="object"
                         class="btn-warning"
                         invisible="state in ('done', 'cancel', 'need_remediation')" />
-                    <button name="action_done" string="label:wujia.franchise.inspection:action_done"
+                    <button name="action_done" string="Mark Done"
                         type="object" class="btn-success"
                         invisible="state in ('done', 'cancel')" />
                     <button name="action_cancel"
-                        string="label:wujia.franchise.inspection:action_cancel" type="object"
+                        string="Cancel" type="object"
                         invisible="state in ('done', 'cancel')" />
                     <button name="action_draft"
-                        string="label:wujia.franchise.inspection:action_draft" type="object"
+                        string="Reset to Draft" type="object"
                         invisible="state in ('draft', 'done')" />
                     <field name="state" widget="statusbar"
                         statusbar_visible="draft,in_progress,need_remediation,done,cancel" />
@@ -60,21 +60,21 @@
                             type="object"
                             class="oe_stat_button"
                             icon="fa-file-text-o"
-                            string="label:wujia.franchise.inspection:stat_inspection"
+                            string="Inspection Sheets"
                             invisible="state != 'in_progress'">
 
                         </button>
                     </div>
 
                     <div class="oe_title">
-                        <label for="name" string="label:wujia.franchise.inspection:field_name" />
+                        <label for="name" string="Inspection Name" />
                         <h1>
                             <field name="name" readonly="1" force_save="1"
-                                placeholder="label:wujia.franchise.inspection:placeholder_name" />
+                                placeholder="e.g. PGS-HCM01-0001" />
                         </h1>
                     </div>
                     <group>
-                        <group string="label:wujia.franchise.inspection:group_store_info">
+                        <group string="Store Information">
                             <field name="franchise_id" options="{'no_create': True}" />
                             <field name="template_id" options="{'no_create': True}" />
                             <field name="schedule_id" options="{'no_create': True}" />
@@ -82,7 +82,7 @@
                             <field name="video" required="1" />
 
                         </group>
-                        <group string="label:wujia.franchise.inspection:group_time_history">
+                        <group string="Timeline &amp; History">
                             <field name="planned_date" />
                             <field name="submit_date" invisible="1" />
                             <field name="confirm_date" readonly="1" />
@@ -91,20 +91,20 @@
                     </group>
 
                     <group>
-                        <group string="label:wujia.franchise.inspection:group_employee_survey">
+                        <group string="Tested Employee Information">
                             <field name="test_employee_name"
-                                placeholder="label:wujia.franchise.inspection:placeholder_employee_name" />
+                                placeholder="Employee full name..." />
                             <field name="tenure"
-                                placeholder="label:wujia.franchise.inspection:placeholder_tenure" />
+                                placeholder="Tenure (e.g. 1 year, 6 months)..." />
                         </group>
-                        <group string="label:wujia.franchise.inspection:group_next_plan">
+                        <group string="Next Inspection Plan">
                             <label for="next_due_date"
-                                string="label:wujia.franchise.inspection:field_next_due_date" />
+                                string="Next Inspection Date" />
                             <div class="o_row">
                                 <field name="next_due_date" class="oe_inline" />
                                 <button name="action_create_next_schedule"
                                     type="object"
-                                    title="label:wujia.franchise.inspection:title_create_next_schedule"
+                                    title="Create Next Supervision Schedule"
                                     icon="fa-arrow-right"
                                     class="btn-link text-primary ps-1 pe-1"
                                     invisible="not next_due_date" />
@@ -115,11 +115,11 @@
                     </group>
 
                     <group>
-                        <group string="label:wujia.franchise.inspection:group_component_scores">
+                        <group string="Component Scores">
                             <field name="checklist_score" readonly="1" />
                             <field name="exam_score" readonly="1" />
                         </group>
-                        <group string="label:wujia.franchise.inspection:group_result_grade">
+                        <group string="Evaluation Result &amp; Grade">
                             <field name="total_score" class="fw-bold fs-4 text-primary" readonly="1" />
                             <field name="grade_id" class="fw-bold fs-4 text-success"
                                 readonly="1" />
@@ -127,7 +127,7 @@
                     </group>
 
                     <notebook>
-                        <page string="label:wujia.franchise.inspection:page_checklist"
+                        <page string="Checklist Criteria"
                             name="checklist">
                             <field name="line_ids" readonly="state in ('done', 'cancel')">
                                 <list editable="bottom" create="false" delete="false" limit="100"
@@ -145,13 +145,13 @@
                                     <field name="content_snapshot"
                                         readonly="1"
                                         force_save="1"
-                                        string="label:wujia.franchise.inspection:field_content_snapshot"
+                                        string="Checklist Content"
                                     />
 
                                     <!-- <field name="criterion_type_snapshot"
                                         readonly="1"
                                         force_save="1"
-                                        string="Loại tiêu chí"
+                                        string="Criterion Type"
                                         widget="badge"
                                         invisible="display_type == 'section'"
                                         decoration-danger="criterion_type_snapshot == 'critical'"
@@ -160,19 +160,19 @@
                                     <field name="deduction_score_snapshot"
                                         readonly="1"
                                         force_save="1"
-                                        string="Điểm trừ vi phạm"
+                                        string="Deduction Score"
                                         invisible="display_type == 'section'" /> -->
 
                                     <field name="is_pass"
                                         widget="boolean_toggle"
-                                        string="label:wujia.franchise.inspection:field_is_pass"
+                                        string="Passed (Pass)"
                                         invisible="display_type == 'section'"
                                         class="wujia-inspection-pass-toggle"
                                     />
 
                                     <field name="previous_result"
                                         readonly="1"
-                                        string="label:wujia.franchise.inspection:field_previous_result"
+                                        string="Previous Result"
                                         widget="badge"
                                         invisible="display_type == 'section'"
                                         decoration-success="previous_result == 'pass'"
@@ -181,7 +181,7 @@
                                     <button name="action_view_previous_inspection"
                                         type="object"
                                         icon="fa-external-link"
-                                        title="label:wujia.franchise.inspection:title_view_prev_inspection"
+                                        title="View Previous Inspection Line"
                                         class="btn-link text-primary p-0 me-1"
                                         invisible="display_type == 'section' or not previous_result" />
 
@@ -189,14 +189,14 @@
                                     <field name="require_evidence_if_fail" column_invisible="True" />
 
                                     <field name="note"
-                                        placeholder="label:wujia.franchise.inspection:placeholder_violation_note"
+                                        placeholder="Enter violation note if any..."
                                         invisible="display_type == 'section'"
                                         required="not is_pass and require_note_if_fail and display_type == 'line'" />
 
                                     <field name="evidence_image"
                                         widget="image"
                                         options="{'size': [50, 50]}"
-                                        string="label:wujia.franchise.inspection:field_evidence_image"
+                                        string="Evidence Photo"
                                         invisible="display_type == 'section'"
                                         required="not is_pass and require_evidence_if_fail and display_type == 'line'" />
 
@@ -209,21 +209,21 @@
                                         invisible="display_type == 'section'" />
 
                                     <field name="remediation_note"
-                                        placeholder="label:wujia.franchise.inspection:placeholder_remediation_note"
+                                        placeholder="Enter store remediation note..."
                                         column_invisible="parent.state not in ['need_remediation', 'done']"
                                         invisible="display_type == 'section'" />
 
                                     <field name="remediation_image"
                                         widget="image"
                                         options="{'size': [50, 50]}"
-                                        string="label:wujia.franchise.inspection:field_remediation_image"
+                                        string="Remediation Photo"
                                         invisible="display_type == 'section'"
                                         column_invisible="parent.state not in ['need_remediation', 'done']"
                                         readonly="parent.state not in ('need_remediation', 'in_progress', 'draft')" />
                                 </list>
                             </field>
                         </page>
-                        <page string="label:wujia.franchise.inspection:page_exam" name="exam">
+                        <page string="Staff Exam" name="exam">
                             <!-- <field name="is_exam_submitted" column_invisible="True" /> -->
                             <div
                                 class="alert alert-warning d-flex justify-content-between align-items-center mb-3"
@@ -241,7 +241,7 @@
                                     <p class="d-inline">Employees enter answers into the "Answer" box below each question. After completion, click "Submit Exam" to grade.</p>
                                 </div>
                                 <button name="action_submit_exam"
-                                    string="label:wujia.franchise.inspection:action_submit_exam"
+                                    string="Submit Exam"
                                     type="object" class="btn btn-primary fw-bold px-4"
                                     invisible="is_exam_submitted or state != 'in_progress'" />
                             </div>
@@ -273,24 +273,24 @@
                                     <field name="sequence" widget="handle" />
                                     <field name="quest_id" column_invisible="True" />
                                     <field name="quest_code_snapshot" readonly="1" force_save="1"
-                                        string="label:wujia.franchise.inspection:field_quest_code" />
+                                        string="Question Code" />
                                     <field name="quest_content_snapshot" readonly="1" force_save="1"
-                                        string="label:wujia.franchise.inspection:field_quest_content" />
+                                        string="Question Content" />
                                     <field name="answer"
-                                        placeholder="label:wujia.franchise.inspection:placeholder_answer"
+                                        placeholder="Enter employee answer..."
                                         readonly="parent.is_exam_submitted or parent.state in ('done', 'cancel')" />
                                     <field name="_point_return"
-                                        string="label:wujia.franchise.inspection:field_point"
+                                        string="Score"
                                         readonly="1"
                                         invisible="not parent.is_exam_submitted" />
                                 </list>
                             </field>
                         </page>
-                        <page string="label:wujia.franchise.inspection:page_report" name="report">
+                        <page string="Revenue Report" name="report">
                             <field name="inspection_chart_data" widget="wujia_inspection_chart"
                                 nolabel="1" class="w-100 d-block" />
                             <separator
-                                string="label:wujia.franchise.inspection:separator_revenue_detail"
+                                string="3-Month Revenue Detail"
                                 class="mt-4 mb-2" />
                             <field name="report_line_ids" nolabel="1"
                                 readonly="state in ('done', 'cancel')">
@@ -304,15 +304,15 @@
                                 </list>
                             </field>
                         </page>
-                        <page string="label:wujia.franchise.inspection:page_confirmation"
+                        <page string="Confirmation"
                             name="confirmation">
                             <group>
                                 <group
-                                    string="label:wujia.franchise.inspection:group_system_confirmer">
+                                    string="System Confirmation">
                                     <field name="confirmed_user_id" options="{'no_create': True}" />
                                 </group>
                                 <group
-                                    string="label:wujia.franchise.inspection:group_manager_confirmer">
+                                    string="Store Manager Confirmation">
                                     <field name="confirmed_member_id"
                                         domain="[('franchise_id', '=', franchise_id)]"
                                         options="{'no_create': True}" />
@@ -331,56 +331,56 @@
         <field name="name">wujia.franchise.inspection.search</field>
         <field name="model">wujia.franchise.inspection</field>
         <field name="arch" type="xml">
-            <search string="label:wujia.franchise.inspection:search_title">
+            <search string="Search Inspections">
                 <field name="name" />
                 <field name="franchise_id" />
                 <field name="inspector_user_id" />
                 <field name="schedule_id" />
                 <field name="planned_date" />
                 <separator />
-                <filter string="label:wujia.franchise.inspection:filter_my_inspection"
+                <filter string="My Inspections"
                     name="my_inspection"
                     domain="[('inspector_user_id', '=', uid)]" />
                 <separator />
-                <filter string="label:wujia.franchise.inspection:filter_planned_date"
+                <filter string="Planned Date"
                     name="filter_planned_date" date="planned_date" />
                 <separator />
-                <filter string="label:wujia.franchise.inspection:filter_draft" name="draft"
+                <filter string="Draft" name="draft"
                     domain="[('state', '=', 'draft')]" />
-                <filter string="label:wujia.franchise.inspection:filter_in_progress"
+                <filter string="In Progress"
                     name="in_progress"
                     domain="[('state', '=', 'in_progress')]" />
-                <filter string="label:wujia.franchise.inspection:filter_need_remediation"
+                <filter string="Need Remediation"
                     name="need_remediation"
                     domain="[('state', '=', 'need_remediation')]" />
-                <filter string="label:wujia.franchise.inspection:filter_done" name="done"
+                <filter string="Done" name="done"
                     domain="[('state', '=', 'done')]" />
-                <filter string="label:wujia.franchise.inspection:filter_cancel" name="cancel"
+                <filter string="Cancelled" name="cancel"
                     domain="[('state', '=', 'cancel')]" />
                 <separator />
-                <filter string="label:wujia.franchise.inspection:filter_grade_a" name="grade_a"
+                <filter string="Grade A" name="grade_a"
                     domain="[('grade_id.name', '=', 'A')]" />
-                <filter string="label:wujia.franchise.inspection:filter_grade_b" name="grade_b"
+                <filter string="Grade B" name="grade_b"
                     domain="[('grade_id.name', '=', 'B')]" />
-                <filter string="label:wujia.franchise.inspection:filter_grade_c" name="grade_c"
+                <filter string="Grade C" name="grade_c"
                     domain="[('grade_id.name', '=', 'C')]" />
-                <filter string="label:wujia.franchise.inspection:filter_grade_d" name="grade_d"
+                <filter string="Grade D" name="grade_d"
                     domain="[('grade_id.name', '=', 'D')]" />
                 <separator />
-                <filter string="label:wujia.franchise.inspection:filter_group_franchise"
+                <filter string="Franchise Store"
                     name="group_franchise"
                     context="{'group_by': 'franchise_id'}" />
-                <filter string="label:wujia.franchise.inspection:filter_group_inspector"
+                <filter string="Inspector"
                     name="group_inspector"
                     context="{'group_by': 'inspector_user_id'}" />
-                <filter string="label:wujia.franchise.inspection:filter_group_state"
+                <filter string="Status"
                     name="group_state" context="{'group_by': 'state'}" />
-                <filter string="label:wujia.franchise.inspection:filter_group_grade"
+                <filter string="Grade"
                     name="group_grade" context="{'group_by': 'grade_id'}" />
-                <filter string="label:wujia.franchise.inspection:filter_group_planned_month"
+                <filter string="Planned Month"
                     name="group_planned_date"
                     context="{'group_by': 'planned_date:month'}" />
-                <filter string="label:wujia.franchise.inspection:filter_group_planned_day"
+                <filter string="Planned Day"
                     name="group_planned_date_day"
                     context="{'group_by': 'planned_date:day'}" />
             </search>
@@ -389,13 +389,13 @@
 
     <!-- Action Phiếu giám sát -->
     <record id="action_wujia_franchise_inspection" model="ir.actions.act_window">
-        <field name="name">Phiếu giám sát</field>
+        <field name="name">Franchise Inspections</field>
         <field name="res_model">wujia.franchise.inspection</field>
         <field name="view_mode">list,form</field>
         <field name="search_view_id" ref="view_wujia_franchise_inspection_search" />
         <field name="help" type="html">
             <p class="o_view_nocontent_smiling_face">
-                Tạo phiếu giám sát mới!
+                Create a new inspection sheet!
             </p>
         </field>
     </record>

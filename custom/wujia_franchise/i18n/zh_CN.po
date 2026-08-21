@@ -6,9 +6,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 19.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-08-21 00:00+0000\n"
-"PO-Revision-Date: 2026-08-21 00:00+0000\n"
-"Last-Translator: \n"
+"POT-Creation-Date: 2026-08-21 14:40+0000\n"
+"PO-Revision-Date: 2026-08-21 14:40+0000\n"
 "Language-Team: \n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -16,14 +15,14 @@ msgstr ""
 "Plural-Forms: \n"
 
 #. module: wujia_franchise
-#: model:ir.ui.menu,name:wujia_franchise.menu_wujia_root
+#: menu:wujia_franchise.menu_wujia_franchise_mgmt
 msgid "Franchise Management"
-msgstr "加盟管理"
+msgstr "加盟門市管理"
 
 #. module: wujia_franchise
-#: model:ir.ui.menu,name:wujia_franchise.menu_wujia_operation_root
+#: menu:wujia_franchise.menu_wujia_operation_root
 msgid "Operations"
-msgstr "營運"
+msgstr "營運作業"
 
 #. module: wujia_franchise
 #: model:ir.ui.menu,name:wujia_franchise.menu_wujia_franchise_management
@@ -31,14 +30,14 @@ msgid "Franchise Management"
 msgstr "加盟管理"
 
 #. module: wujia_franchise
-#: model:ir.ui.menu,name:wujia_franchise.menu_wujia_franchise_member
+#: menu:wujia_franchise.menu_wujia_franchise_member
 msgid "Franchise Members"
-msgstr "加盟成員"
+msgstr "加盟成員管理"
 
 #. module: wujia_franchise
-#: model:ir.ui.menu,name:wujia_franchise.menu_wujia_inspection_supervision_root
+#: menu:wujia_franchise.menu_wujia_inspection_root
 msgid "Store Supervision"
-msgstr "門店監督"
+msgstr "門市督導管理"
 
 #. module: wujia_franchise
 #: model:ir.ui.menu,name:wujia_franchise.menu_wujia_inspection_sheet
@@ -46,9 +45,9 @@ msgid "Supervision Sheets"
 msgstr "督導表"
 
 #. module: wujia_franchise
-#: model:ir.ui.menu,name:wujia_franchise.menu_wujia_inspection_schedule
+#: model_terms:ir.ui.view,arch_db:wujia_supervision_schedule_form
 msgid "Supervision Schedule"
-msgstr "監督排程"
+msgstr "督導日程"
 
 #. module: wujia_franchise
 #: model:ir.ui.menu,name:wujia_franchise.menu_wujia_inspection_pending_store
@@ -56,19 +55,19 @@ msgid "Stores Needing Supervision"
 msgstr "待監督門店"
 
 #. module: wujia_franchise
-#: model:ir.ui.menu,name:wujia_franchise.menu_wujia_inspection_remediation
+#: menu:wujia_franchise.menu_wujia_franchise_inspection_remediation
 msgid "Pending Remediation"
-msgstr "待改善"
+msgstr "待改善追蹤"
 
 #. module: wujia_franchise
-#: model:ir.ui.menu,name:wujia_franchise.menu_wujia_inspection_history
+#: model_terms:ir.ui.view,arch_db:wujia_franchise.view_wujia_franchise_management_form
 msgid "Supervision History"
-msgstr "監督紀錄"
+msgstr "督導歷史紀錄"
 
 #. module: wujia_franchise
-#: model:ir.ui.menu,name:wujia_franchise.menu_wujia_inspection_config_root
+#: menu:wujia_franchise.menu_wujia_inspection_config
 msgid "Supervision Configuration"
-msgstr "監督設定"
+msgstr "督導系統設定"
 
 #. module: wujia_franchise
 #: model:ir.ui.menu,name:wujia_franchise.menu_wujia_inspection_template
@@ -106,19 +105,19 @@ msgid "Violation Analysis"
 msgstr "違規項目分析"
 
 #. module: wujia_franchise
-#: model:ir.ui.menu,name:wujia_franchise.menu_wujia_config_root
+#: menu:wujia_franchise.menu_wujia_franchise_config
 msgid "Configuration"
-msgstr "設定"
+msgstr "系統配置"
 
 #. module: wujia_franchise
-#: model:ir.ui.menu,name:wujia_franchise.menu_wujia_config_area_root
+#: menu:wujia_franchise.menu_wujia_area_mgmt
 msgid "Area Management"
-msgstr "區域管理"
+msgstr "區域劃分管理"
 
 #. module: wujia_franchise
-#: model:ir.ui.menu,name:wujia_franchise.menu_wujia_config_area
+#: menu:wujia_franchise.menu_res_area
 msgid "Areas"
-msgstr "區域"
+msgstr "營運區域"
 
 #. module: wujia_franchise
 #: model:ir.ui.menu,name:wujia_franchise.menu_wujia_config_state
@@ -151,14 +150,14 @@ msgid "Supervision Template"
 msgstr "評核範本"
 
 #. module: wujia_franchise
-#: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection__inspector_user_id
+#: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection__inspector_id
 msgid "Inspector"
-msgstr "檢查人員"
+msgstr "督導人員"
 
 #. module: wujia_franchise
 #: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection__test_employee_name
 msgid "Tested Employee"
-msgstr "受檢員工"
+msgstr "受測員工"
 
 #. module: wujia_franchise
 #: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection__planned_date
@@ -173,7 +172,7 @@ msgstr "總分"
 #. module: wujia_franchise
 #: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection__grade_id
 msgid "Grade"
-msgstr "評等"
+msgstr "評級"
 
 #. module: wujia_franchise
 #: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection__state
@@ -221,24 +220,24 @@ msgid "Member Count"
 msgstr "人員數"
 
 #. module: wujia_franchise
-#: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_management__effective_supervision_user_id
+#: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_management__supervisor_user_id
 msgid "Supervisor"
-msgstr "監督人員"
+msgstr "督導人員"
 
 #. module: wujia_franchise
 #: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_management__latest_inspection_date
 msgid "Latest Inspection Date"
-msgstr "最近監督日期"
+msgstr "最新評核日期"
 
 #. module: wujia_franchise
 #: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_management__latest_total_score
 msgid "Latest Score"
-msgstr "最新監督分數"
+msgstr "最新評核分數"
 
 #. module: wujia_franchise
 #: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_management__latest_grade_id
 msgid "Latest Grade"
-msgstr "最新評等"
+msgstr "最新評核等級"
 
 #. module: wujia_franchise
 #: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_management__status
@@ -323,12 +322,12 @@ msgstr "地址與電話"
 #. module: wujia_franchise
 #: model_terms:ir.ui.view,arch_db:wujia_franchise.view_wujia_supervision_schedule_form
 msgid "Location"
-msgstr "定位"
+msgstr "位置"
 
 #. module: wujia_franchise
-#: model_terms:ir.ui.view,arch_db:wujia_franchise.view_wujia_supervision_schedule_form
+#: model_terms:ir.ui.view,arch_db:wujia_supervision_schedule_form
 msgid "Open Google Maps"
-msgstr "開啟谷歌地圖"
+msgstr "開啟 Google Maps"
 
 #. module: wujia_franchise
 #: model_terms:ir.ui.view,arch_db:wujia_franchise.view_wujia_supervision_schedule_form
@@ -391,7 +390,7 @@ msgid "Status"
 msgstr "狀態"
 
 #. module: wujia_franchise
-#: model:ir.model.fields,field_description:wujia_franchise.field_wujia_supervision_schedule__note
+#: model:ir.model.fields,field_description:wujia_supervision_schedule.field_wujia_supervision_schedule__note
 msgid "Notes"
 msgstr "備註"
 
@@ -431,17 +430,17 @@ msgid "Phone Number"
 msgstr "電話號碼"
 
 #. module: wujia_franchise
-#: model:ir.model.fields,field_description:wujia_franchise.field_wujia_supervision_schedule__google_map_url
+#: model:ir.model.fields,field_description:wujia_supervision_schedule.field_wujia_supervision_schedule__google_map_url
 msgid "Google Maps Location"
-msgstr "谷歌地圖位置"
+msgstr "Google Maps 位置"
 
 #. module: wujia_franchise
-#: model:ir.model.fields.selection,name:wujia_franchise.selection__wujia_supervision_schedule__state__draft
+#: model:ir.model.fields.selection,name:wujia_franchise.selection__wujia_franchise_inspection__state__draft
 msgid "Draft"
 msgstr "草稿"
 
 #. module: wujia_franchise
-#: model:ir.model.fields.selection,name:wujia_franchise.selection__wujia_supervision_schedule__state__in_progress
+#: model:ir.model.fields.selection,name:wujia_franchise.selection__wujia_franchise_inspection__state__in_progress
 msgid "In Progress"
 msgstr "進行中"
 
@@ -456,7 +455,7 @@ msgid "Done"
 msgstr "已完成"
 
 #. module: wujia_franchise
-#: model:ir.model.fields.selection,name:wujia_franchise.selection__wujia_supervision_schedule__state__cancel
+#: model:ir.model.fields.selection,name:wujia_franchise.selection__wujia_franchise_inspection__state__cancel
 msgid "Cancelled"
 msgstr "已取消"
 
@@ -478,7 +477,7 @@ msgstr "總分"
 #. module: wujia_franchise
 #: model_terms:ir.ui.view,arch_db:wujia_franchise.view_wujia_franchise_inspection_form
 msgid "Start Inspection"
-msgstr "開始執行"
+msgstr "開始評核"
 
 #. module: wujia_franchise
 #: model_terms:ir.ui.view,arch_db:wujia_franchise.view_wujia_franchise_inspection_form
@@ -536,9 +535,9 @@ msgid "Employee Name"
 msgstr "店員姓名..."
 
 #. module: wujia_franchise
-#: model_terms:ir.ui.view,arch_db:wujia_franchise.view_wujia_franchise_inspection_form
+#: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection__tenure
 msgid "Tenure"
-msgstr "工作月數／年資..."
+msgstr "年資"
 
 #. module: wujia_franchise
 #: model_terms:ir.ui.view,arch_db:wujia_franchise.view_wujia_franchise_inspection_form
@@ -581,9 +580,9 @@ msgid "Is Pass"
 msgstr "評核"
 
 #. module: wujia_franchise
-#: model_terms:ir.ui.view,arch_db:wujia_franchise.view_wujia_franchise_inspection_form
+#: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection_line__previous_result
 msgid "Previous Result"
-msgstr "上一次"
+msgstr "上次結果"
 
 #. module: wujia_franchise
 #: model_terms:ir.ui.view,arch_db:wujia_franchise.view_wujia_franchise_inspection_form
@@ -746,24 +745,24 @@ msgid "Time (By Day)"
 msgstr "時間（按日期）"
 
 #. module: wujia_franchise
-#: model:ir.model.fields.selection,name:wujia_franchise.selection__wujia_franchise_inspection_line__result__pass
+#: selection:wujia.franchise.inspection.line:result:pass
 msgid "Pass"
 msgstr "合格"
 
 #. module: wujia_franchise
-#: model:ir.model.fields.selection,name:wujia_franchise.selection__wujia_franchise_inspection_line__result__fail
+#: selection:wujia.franchise.inspection.line:result:fail
 msgid "Fail"
 msgstr "不合格"
 
 #. module: wujia_franchise
-#: model:ir.model.fields.selection,name:wujia_franchise.selection__wujia_franchise_inspection_line__remediation_state__need_remediation
+#: model:ir.model.fields.selection,name:wujia_franchise.selection__wujia_franchise_inspection__state__need_remediation
 msgid "Need Remediation"
-msgstr "待回覆"
+msgstr "待改善"
 
 #. module: wujia_franchise
 #: model:ir.model.fields.selection,name:wujia_franchise.selection__wujia_franchise_inspection_line__remediation_state__remediated
 msgid "Remediated"
-msgstr "已回覆"
+msgstr "已改善"
 
 #. module: wujia_franchise
 #: model:ir.model.fields.selection,name:wujia_franchise.selection__wujia_franchise_inspection_line__remediation_state__done
@@ -793,7 +792,7 @@ msgstr "確認日期"
 #. module: wujia_franchise
 #: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection__checklist_score
 msgid "Checklist Score"
-msgstr "Checklist 分數"
+msgstr "檢查表分數"
 
 #. module: wujia_franchise
 #: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection__exam_score
@@ -856,9 +855,9 @@ msgid "Sequence"
 msgstr "順序"
 
 #. module: wujia_franchise
-#: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection_line__display_type
+#: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection_template_line__display_type
 msgid "Display Type"
-msgstr "分類"
+msgstr "顯示類型"
 
 #. module: wujia_franchise
 #: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection_line__content_snapshot
@@ -923,7 +922,7 @@ msgstr "上一次結果"
 #. module: wujia_franchise
 #: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection_line__previous_deduction_score
 msgid "Previous Deduction Score"
-msgstr "上一次扣分"
+msgstr "上次扣分"
 
 #. module: wujia_franchise
 #: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection_exam_line__sequence
@@ -1016,9 +1015,9 @@ msgid "Checklist"
 msgstr "Checklist"
 
 #. module: wujia_franchise
-#: model_terms:ir.ui.view,arch_db:wujia_franchise.inspection_survey_do_page
+#: model_terms:ir.ui.view,arch_db:wujia_franchise.view_wujia_franchise_inspection_form
 msgid "Staff Exam"
-msgstr "員工檢查"
+msgstr "員工測驗"
 
 #. module: wujia_franchise
 #: model_terms:ir.ui.view,arch_db:wujia_franchise.inspection_survey_do_page
@@ -1081,7 +1080,7 @@ msgid "Previous Round: Fail"
 msgstr "上一次：不合格"
 
 #. module: wujia_franchise
-#: model_terms:ir.ui.view,arch_db:wujia_franchise.inspection_survey_do_page
+#: model:ir.model.fields.selection,name:wujia_franchise.selection__wujia_franchise_inspection_line__result__fail
 msgid "Fail"
 msgstr "不合格"
 
@@ -1206,14 +1205,14 @@ msgid "Evaluate this criterion:"
 msgstr "評核此項目："
 
 #. module: wujia_franchise
-#: model_terms:ir.ui.view,arch_db:wujia_franchise.inspection_survey_do_page
+#: model:ir.model.fields.selection,name:wujia_franchise.selection__wujia_franchise_inspection_line__result__pass
 msgid "Pass"
 msgstr "合格"
 
 #. module: wujia_franchise
-#: model_terms:ir.ui.view,arch_db:wujia_franchise.inspection_survey_do_page
+#: model:ir.model.fields.selection,name:wujia_franchise.selection__wujia_franchise_inspection__state__done
 msgid "Done"
-msgstr "完成"
+msgstr "已完成"
 
 #. module: wujia_franchise
 #: model_terms:ir.ui.view,arch_db:wujia_franchise.inspection_survey_do_page
@@ -1436,7 +1435,7 @@ msgid "Save Question"
 msgstr "儲存題目"
 
 #. module: wujia_franchise
-#: model_terms:ir.ui.view,arch_db:wujia_franchise.view_wujia_franchise_inspection_question_form
+#: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection_exam_line__quest_code_snapshot
 msgid "Question Code"
 msgstr "題目編號"
 
@@ -1446,7 +1445,7 @@ msgid "Correct Answers"
 msgstr "正確答案"
 
 #. module: wujia_franchise
-#: model_terms:ir.ui.view,arch_db:wujia_franchise.view_wujia_franchise_inspection_question_form
+#: model_terms:ir.ui.view,arch_db:wujia_franchise.view_wujia_franchise_management_form
 msgid "General Information"
 msgstr "基本資訊"
 
@@ -1501,7 +1500,7 @@ msgid "Create a new inspection question for the library!"
 msgstr "為題庫建立新測驗題目！"
 
 #. module: wujia_franchise
-#: model:ir.actions.act_window,name:wujia_franchise.action_wujia_franchise_inspection_report_violation
+#: menu:wujia_franchise.menu_wujia_franchise_inspection_report_violation
 msgid "Violation Criteria Analysis"
 msgstr "違規項目分析"
 
@@ -1509,3 +1508,697 @@ msgstr "違規項目分析"
 #: model_terms:ir.ui.view,arch_db:wujia_franchise.view_wujia_franchise_inspection_line_search
 msgid "Violation criteria analysis report on completed inspection sheets!"
 msgstr "已完成監督表之各範本項目 合格／違規 統計分析報告！"
+
+#. module: wujia_franchise
+#: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection__name
+msgid "Inspection Name"
+msgstr "評核表名稱"
+
+#. module: wujia_franchise
+#: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection__submit_date
+msgid "Submission Date"
+msgstr "提交日期"
+
+#. module: wujia_franchise
+#: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection__exam_score
+msgid "Staff Exam Score"
+msgstr "員工測驗分數"
+
+#. module: wujia_franchise
+#: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection__next_due_date
+msgid "Next Inspection Date"
+msgstr "下次評核日期"
+
+#. module: wujia_franchise
+#: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection__next_schedule_id
+msgid "Next Supervision Schedule"
+msgstr "下次督導日程"
+
+#. module: wujia_franchise
+#: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection__template_id
+msgid "Inspection Template"
+msgstr "評核範本"
+
+#. module: wujia_franchise
+#: model_terms:ir.ui.view,arch_db:wujia_franchise.view_wujia_franchise_management_form
+msgid "Franchise Store"
+msgstr "加盟門市"
+
+#. module: wujia_franchise
+#: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection__previous_inspection_id
+msgid "Previous Inspection"
+msgstr "上次評核表"
+
+#. module: wujia_franchise
+#: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection__confirmed_user_id
+msgid "System Confirmer"
+msgstr "系統確認人"
+
+#. module: wujia_franchise
+#: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection__confirmed_member_id
+msgid "Store Manager Confirmer"
+msgstr "門市店長確認"
+
+#. module: wujia_franchise
+#: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection__line_ids
+msgid "Inspection Details"
+msgstr "評核明細"
+
+#. module: wujia_franchise
+#: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection__exam_line_ids
+msgid "Staff Exam Lines"
+msgstr "員工測驗明細"
+
+#. module: wujia_franchise
+#: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection__report_line_ids
+msgid "Revenue Report Lines"
+msgstr "營收報告明細"
+
+#. module: wujia_franchise
+#: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection__is_exam_submitted
+msgid "Exam Submitted"
+msgstr "已提交測驗"
+
+#. module: wujia_franchise
+#: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection__exam_submitted_date
+msgid "Exam Submitted Date"
+msgstr "測驗提交時間"
+
+#. module: wujia_franchise
+#: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection__inspection_chart_data
+msgid "Inspection Chart Data"
+msgstr "圖表數據"
+
+#. module: wujia_franchise
+#: selection:wujia.franchise.inspection.line:display_type:line
+msgid "Criterion Line"
+msgstr "評核項目行"
+
+#. module: wujia_franchise
+#: selection:wujia.franchise.inspection.line:display_type:section
+msgid "Section Header"
+msgstr "分類標題"
+
+#. module: wujia_franchise
+#: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection_line__content_snapshot
+msgid "Checklist Content"
+msgstr "檢查表項目內容"
+
+#. module: wujia_franchise
+#: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection_line__deduction_score_snapshot
+msgid "Deduction Score"
+msgstr "扣分"
+
+#. module: wujia_franchise
+#: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection_line__criterion_type_snapshot
+msgid "Criterion Type"
+msgstr "項目類別"
+
+#. module: wujia_franchise
+#: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection_line__is_pass
+msgid "Passed (Pass)"
+msgstr "合格 (Pass)"
+
+#. module: wujia_franchise
+#: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection_line__note
+msgid "Violation Note (Admin)"
+msgstr "違規備註 (管理員)"
+
+#. module: wujia_franchise
+#: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection_line__remediation_state
+msgid "Remediation Status"
+msgstr "改善狀態"
+
+#. module: wujia_franchise
+#: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection_line__remediation_note
+msgid "Remediation Note (Store)"
+msgstr "改善備註 (門市)"
+
+#. module: wujia_franchise
+#: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection_line__evidence_image
+msgid "Evidence Photo (Inspection)"
+msgstr "現場照片 (評核時)"
+
+#. module: wujia_franchise
+#: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection_line__remediation_image
+msgid "Remediation Photo"
+msgstr "改善後照片"
+
+#. module: wujia_franchise
+#: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection_line__require_note_if_fail
+msgid "Require Note If Fail"
+msgstr "不合格需備註"
+
+#. module: wujia_franchise
+#: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection_line__require_evidence_if_fail
+msgid "Require Evidence If Fail"
+msgstr "不合格需照片"
+
+#. module: wujia_franchise
+#: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection_line__inspection_id
+msgid "Inspection Sheet"
+msgstr "評核表"
+
+#. module: wujia_franchise
+#: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection_line__template_line_id
+msgid "Inspection Criterion"
+msgstr "評核項目"
+
+#. module: wujia_franchise
+#: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection_line__inspection_date
+msgid "Inspection Date"
+msgstr "評核日期"
+
+#. module: wujia_franchise
+#: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection_line__pass_count
+msgid "Pass Count"
+msgstr "合格次數"
+
+#. module: wujia_franchise
+#: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection_line__violation_count
+msgid "Violation Count"
+msgstr "違規次數"
+
+#. module: wujia_franchise
+#: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection_line__inspection_count
+msgid "Inspection Count"
+msgstr "評核總次數"
+
+#. module: wujia_franchise
+#: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection_line__section_header
+msgid "Section Category"
+msgstr "項目分類"
+
+#. module: wujia_franchise
+#: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection_line__previous_line_id
+msgid "Previous Line"
+msgstr "上次記錄行"
+
+#. module: wujia_franchise
+#: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection_report_line__days_of_month
+msgid "Days in Month"
+msgstr "當月天數"
+
+#. module: wujia_franchise
+#: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection_report_line__revenue_avg
+msgid "Daily Average Revenue"
+msgstr "日均營收"
+
+#. module: wujia_franchise
+#: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection_report_line__total_app_sale
+msgid "Total App Orders"
+msgstr "App 總訂單數"
+
+#. module: wujia_franchise
+#: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection_exam_line__quest_text_snapshot
+msgid "Question Text"
+msgstr "題目內容"
+
+#. module: wujia_franchise
+#: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection_exam_line__correct_answer_snapshot
+msgid "Correct Answer"
+msgstr "正確答案"
+
+#. module: wujia_franchise
+#: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection_exam_line__employee_answer
+msgid "Employee Answer"
+msgstr "員工回答"
+
+#. module: wujia_franchise
+#: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection_exam_line__score
+msgid "Score"
+msgstr "得分"
+
+#. module: wujia_franchise
+#: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection_exam_line__is_locked
+msgid "Locked"
+msgstr "已鎖定"
+
+#. module: wujia_franchise
+#: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection_exam_line__quest_id
+msgid "Question"
+msgstr "測驗題目"
+
+#. module: wujia_franchise
+#. odoo-javascript
+#. odoo-python
+#: code:addons/wujia_franchise/models/wujia_franchise_inspection.py:0
+msgid "The inspection must be 'In Progress' to submit the staff exam!"
+msgstr "評核表必須處於「進行中」狀態方可提交測驗！"
+
+#. module: wujia_franchise
+#. odoo-javascript
+#. odoo-python
+#: code:addons/wujia_franchise/models/wujia_franchise_inspection.py:0
+msgid "Please select a date in \"Next Inspection Date\" before creating a schedule!"
+msgstr "建立日程前請先選擇「下次評核日期」！"
+
+#. module: wujia_franchise
+#: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection_category__name
+msgid "Category Name"
+msgstr "類別名稱"
+
+#. module: wujia_franchise
+#: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection_category__code
+msgid "Category Code"
+msgstr "類別代碼"
+
+#. module: wujia_franchise
+#: selection:wujia.franchise.inspection.template:status:active
+msgid "Active"
+msgstr "使用中"
+
+#. module: wujia_franchise
+#: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection_category__is_severe
+msgid "Severe Violation"
+msgstr "嚴重違規"
+
+#. module: wujia_franchise
+#: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection_template__name
+msgid "Template Name"
+msgstr "評核範本名稱"
+
+#. module: wujia_franchise
+#: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection_template__code
+msgid "Template Code"
+msgstr "範本代碼"
+
+#. module: wujia_franchise
+#: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection_template__version
+msgid "Version"
+msgstr "版本"
+
+#. module: wujia_franchise
+#: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection_template__effective_date
+msgid "Effective Date"
+msgstr "生效日期"
+
+#. module: wujia_franchise
+#: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection_template__checklist_max_score
+msgid "Checklist Max Score"
+msgstr "檢查表最高分"
+
+#. module: wujia_franchise
+#: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection_template__exam_max_score
+msgid "Exam Max Score"
+msgstr "測驗最高分"
+
+#. module: wujia_franchise
+#: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection_template__total_max_score
+msgid "Total Max Score"
+msgstr "總最高分"
+
+#. module: wujia_franchise
+#: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection_template__line_ids
+msgid "Inspection Criteria"
+msgstr "評核項目明細"
+
+#. module: wujia_franchise
+#: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection_template_line__criterion_code
+msgid "Criterion Code"
+msgstr "項目代碼"
+
+#. module: wujia_franchise
+#: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection_template_line__category_id
+msgid "Category"
+msgstr "項目類別"
+
+#. module: wujia_franchise
+#: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection_template_line__category
+msgid "Category (Legacy)"
+msgstr "項目類別 (舊版文字)"
+
+#. module: wujia_franchise
+#: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection_template_line__content
+msgid "Criterion Content"
+msgstr "評核項目內容"
+
+#. module: wujia_franchise
+#: selection:wujia.franchise.inspection.template.line:criterion_type:normal
+msgid "Normal"
+msgstr "一般"
+
+#. module: wujia_franchise
+#: selection:wujia.franchise.inspection.template.line:criterion_type:critical
+msgid "Critical / Knockout"
+msgstr "重要 / 否決項"
+
+#. module: wujia_franchise
+#: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection_grade__min_score
+msgid "Minimum Score"
+msgstr "最低分"
+
+#. module: wujia_franchise
+#: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection_grade__max_score
+msgid "Maximum Score"
+msgstr "最高分"
+
+#. module: wujia_franchise
+#: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_management__effective_area_manager_id
+msgid "Area Manager"
+msgstr "區域主管"
+
+#. module: wujia_franchise
+#: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_management__effective_supervision_user_id
+msgid "Assigned Supervisor"
+msgstr "督導人員"
+
+#. module: wujia_franchise
+#: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_management__latest_inspection_id
+msgid "Latest Inspection Sheet"
+msgstr "最新評核表"
+
+#. module: wujia_franchise
+#: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_management__latest_inspection_score
+msgid "Latest Inspection Score"
+msgstr "最新評核分數"
+
+#. module: wujia_franchise
+#: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_management__latest_inspection_grade_id
+msgid "Latest Inspection Grade"
+msgstr "最新評核等級"
+
+#. module: wujia_franchise
+#: model:ir.model.fields,field_description:wujia_supervision_schedule.field_wujia_supervision_schedule__name
+msgid "Schedule Title"
+msgstr "督導日程標題"
+
+#. module: wujia_franchise
+#: model:ir.model.fields,field_description:wujia_supervision_schedule.field_wujia_supervision_schedule__date
+msgid "Scheduled Date"
+msgstr "預定督導日期"
+
+#. module: wujia_franchise
+#: selection:wujia.franchise.member:role:owner
+msgid "Owner"
+msgstr "店東"
+
+#. module: wujia_franchise
+#: selection:wujia.franchise.member:role:manager
+msgid "Manager"
+msgstr "店長"
+
+#. module: wujia_franchise
+#: selection:wujia.franchise.member:role:staff
+msgid "Staff"
+msgstr "門市人員"
+
+#. module: wujia_franchise
+#: selection:wujia.franchise.inspection.template:status:archived
+msgid "Archived"
+msgstr "已封存"
+
+#. module: wujia_franchise
+#: menu:wujia_franchise.menu_wujia_franchise_inspection
+msgid "Inspection Sheets"
+msgstr "督導評核表"
+
+#. module: wujia_franchise
+#: menu:wujia_franchise.menu_wujia_supervision_schedule
+msgid "Supervision Schedules"
+msgstr "督導日程安排"
+
+#. module: wujia_franchise
+#: menu:wujia_franchise.menu_wujia_franchise_needed_inspection
+msgid "Stores Needing Inspection"
+msgstr "待督導門市"
+
+#. module: wujia_franchise
+#: menu:wujia_franchise.menu_wujia_franchise_inspection_template
+msgid "Inspection Templates"
+msgstr "評核範本設定"
+
+#. module: wujia_franchise
+#: menu:wujia_franchise.menu_wujia_franchise_inspection_category
+msgid "Inspection Categories"
+msgstr "評核項目類別"
+
+#. module: wujia_franchise
+#: menu:wujia_franchise.menu_wujia_franchise_inspection_question
+msgid "Question Library"
+msgstr "測驗題庫管理"
+
+#. module: wujia_franchise
+#: menu:wujia_franchise.menu_wujia_franchise_inspection_grade
+msgid "Inspection Grades"
+msgstr "評核等級設定"
+
+#. module: wujia_franchise
+#: menu:wujia_franchise.menu_wujia_inspection_report
+msgid "Reporting"
+msgstr "統計報表"
+
+#. module: wujia_franchise
+#: menu:wujia_franchise.menu_wujia_franchise_inspection_report_dashboard
+msgid "Inspection Results Analysis"
+msgstr "督導結果分析"
+
+#. module: wujia_franchise
+#: menu:wujia_franchise.menu_res_country_state
+msgid "Provinces / Cities"
+msgstr "省份 / 城市"
+
+#. module: wujia_franchise
+#: menu:wujia_franchise.menu_res_ward
+msgid "Wards / Communes"
+msgstr "坊 / 社 / 鄉鎮"
+
+#. module: wujia_franchise
+#: model_terms:ir.ui.view,arch_db:wujia_franchise.view_wujia_franchise_inspection_tree
+msgid "Franchise Inspections"
+msgstr "門市評核表"
+
+#. module: wujia_franchise
+#: model_terms:ir.ui.view,arch_db:wujia_franchise.view_wujia_franchise_inspection_form
+msgid "Franchise Inspection"
+msgstr "門市評核表"
+
+#. module: wujia_franchise
+#: model_terms:ir.ui.view,arch_db:wujia_franchise.view_wujia_franchise_inspection_form
+msgid "Mark Done"
+msgstr "標記完成"
+
+#. module: wujia_franchise
+#: model_terms:ir.ui.view,arch_db:wujia_franchise.view_wujia_franchise_inspection_form
+msgid "Reset to Draft"
+msgstr "重設為草稿"
+
+#. module: wujia_franchise
+#: model_terms:ir.ui.view,arch_db:wujia_franchise.view_wujia_franchise_inspection_form
+msgid "Create Next Schedule"
+msgstr "建立下次日程"
+
+#. module: wujia_franchise
+#: model_terms:ir.ui.view,arch_db:wujia_franchise.view_wujia_franchise_inspection_form
+msgid "Open Inspection Survey Web"
+msgstr "開啟線上評核頁面"
+
+#. module: wujia_franchise
+#: model_terms:ir.ui.view,arch_db:wujia_franchise.view_wujia_franchise_inspection_form
+msgid "Revenue Report"
+msgstr "營收報告"
+
+#. module: wujia_franchise
+#: model_terms:ir.ui.view,arch_db:wujia_franchise.view_wujia_franchise_inspection_form
+msgid "Confirmation"
+msgstr "確認簽署"
+
+#. module: wujia_franchise
+#: model_terms:ir.ui.view,arch_db:wujia_franchise.view_wujia_franchise_inspection_form
+msgid "Scoring Summary"
+msgstr "評分摘要"
+
+#. module: wujia_franchise
+#: model_terms:ir.ui.view,arch_db:wujia_franchise.view_wujia_franchise_inspection_form
+msgid "Next Supervision Cycle"
+msgstr "下次督導週期"
+
+#. module: wujia_franchise
+#: model_terms:ir.ui.view,arch_db:wujia_franchise.view_wujia_franchise_inspection_form
+msgid "System Confirmation"
+msgstr "系統確認人"
+
+#. module: wujia_franchise
+#: model_terms:ir.ui.view,arch_db:wujia_franchise.view_wujia_franchise_inspection_form
+msgid "Store Manager Confirmation"
+msgstr "門市店長確認"
+
+#. module: wujia_franchise
+#: model_terms:ir.ui.view,arch_db:wujia_franchise.view_wujia_franchise_inspection_form
+msgid "3-Month Revenue Detail"
+msgstr "近3個月營收明細"
+
+#. module: wujia_franchise
+#: model_terms:ir.ui.view,arch_db:wujia_franchise.view_wujia_franchise_inspection_form
+msgid "Inspection Criteria List"
+msgstr "評核項目清單"
+
+#. module: wujia_franchise
+#: model_terms:ir.ui.view,arch_db:wujia_franchise.view_wujia_franchise_inspection_search
+msgid "Search Inspections"
+msgstr "搜尋評核表"
+
+#. module: wujia_franchise
+#: model_terms:ir.ui.view,arch_db:wujia_franchise.view_wujia_franchise_inspection_search
+msgid "My Inspections"
+msgstr "我的評核表"
+
+#. module: wujia_franchise
+#: model_terms:ir.ui.view,arch_db:wujia_franchise.view_wujia_franchise_management_tree
+msgid "Franchise Stores"
+msgstr "加盟門市清單"
+
+#. module: wujia_franchise
+#: model_terms:ir.ui.view,arch_db:wujia_franchise.view_wujia_franchise_management_form
+msgid "Contract & Operations"
+msgstr "合約與營運"
+
+#. module: wujia_franchise
+#: model_terms:ir.ui.view,arch_db:wujia_franchise.view_wujia_franchise_management_form
+msgid "Legal & Partner Information"
+msgstr "法律與合作夥伴資訊"
+
+#. module: wujia_franchise
+#: model_terms:ir.ui.view,arch_db:wujia_franchise.view_wujia_franchise_management_form
+msgid "Address & Area"
+msgstr "地址與營運區域"
+
+#. module: wujia_franchise
+#: model_terms:ir.ui.view,arch_db:wujia_franchise.view_wujia_franchise_management_form
+msgid "Franchise Contract"
+msgstr "加盟合約"
+
+#. module: wujia_franchise
+#: model_terms:ir.ui.view,arch_db:wujia_franchise.view_wujia_franchise_management_form
+msgid "Operational Controls"
+msgstr "營運控制"
+
+#. module: wujia_franchise
+#: model_terms:ir.ui.view,arch_db:wujia_franchise.view_wujia_franchise_management_form
+msgid "Assigned Personnel"
+msgstr "負責人員"
+
+#. module: wujia_franchise
+#: model_terms:ir.ui.view,arch_db:wujia_franchise.view_wujia_franchise_management_search
+msgid "Search Franchise Stores"
+msgstr "搜尋加盟門市"
+
+#. module: wujia_franchise
+#: model_terms:ir.ui.view,arch_db:wujia_franchise.view_wujia_supervision_schedule_form
+msgid "Store Location & Contact"
+msgstr "門市位置與聯絡方式"
+
+#. module: wujia_franchise
+#: model_terms:ir.ui.view,arch_db:wujia_franchise.view_wujia_supervision_schedule_form
+msgid "Latest Inspection Result"
+msgstr "最新評核結果"
+
+#. module: wujia_franchise
+#: model_terms:ir.ui.view,arch_db:wujia_franchise.view_wujia_supervision_schedule_form
+msgid "View Inspection Sheet"
+msgstr "檢視評核表"
+
+#. module: wujia_franchise
+#: model_terms:ir.ui.view,arch_db:wujia_supervision_schedule_form
+msgid "Create Inspection Sheet"
+msgstr "建立評核表"
+
+#. module: wujia_franchise
+#: model_terms:ir.ui.view,arch_db:wujia_supervision_schedule_search
+msgid "Search Supervision Schedules"
+msgstr "搜尋督導日程"
+
+#. module: wujia_franchise
+#: model_terms:ir.ui.view,arch_db:wujia_franchise.view_wujia_franchise_inspection_line_tree
+msgid "Violation Criteria Details"
+msgstr "違規項目明細"
+
+#. module: wujia_franchise
+#: model_terms:ir.ui.view,arch_db:wujia_franchise.view_wujia_franchise_inspection_line_search
+msgid "Search Violation Criteria"
+msgstr "搜尋違規項目"
+
+#. module: wujia_franchise
+#: model_terms:ir.ui.view,arch_db:wujia_franchise.view_wujia_franchise_inspection_line_search
+msgid "Passed Criteria"
+msgstr "合格項目"
+
+#. module: wujia_franchise
+#: model_terms:ir.ui.view,arch_db:wujia_franchise.view_wujia_franchise_inspection_line_search
+msgid "Violated Criteria"
+msgstr "違規項目 (不合格)"
+
+#. module: wujia_franchise
+#: model_terms:ir.ui.view,arch_db:wujia_franchise.view_wujia_supervision_schedule_calendar
+msgid "Supervision Calendar"
+msgstr "督導行事曆"
+
+#. module: wujia_franchise
+#: model_terms:ir.ui.view,arch_db:wujia_franchise.view_wujia_supervision_schedule_form
+msgid "Store & Inspector Information"
+msgstr "門市與督導人員資訊"
+
+#. module: wujia_franchise
+#: model_terms:ir.ui.view,arch_db:wujia_franchise.view_wujia_supervision_schedule_form
+msgid "Address & Contact"
+msgstr "地址與聯絡方式"
+
+#. module: wujia_franchise
+#: model_terms:ir.ui.view,arch_db:wujia_franchise.view_wujia_supervision_schedule_form
+msgid "Schedule Date & Latest Inspection Result"
+msgstr "預定督導時間與最新評核結果"
+
+#. module: wujia_franchise
+#: model_terms:ir.ui.view,arch_db:wujia_franchise.view_wujia_supervision_schedule_search
+msgid "My Schedules"
+msgstr "我的督導日程"
+
+#. module: wujia_franchise
+#: model_terms:ir.ui.view,arch_db:wujia_franchise.view_franchise_management_search
+msgid "My Assigned Stores"
+msgstr "我負責的門市"
+
+#. module: wujia_franchise
+#: model_terms:ir.ui.view,arch_db:wujia_franchise.view_franchise_management_form
+msgid "Expired"
+msgstr "已過期"
+
+#. module: wujia_franchise
+#: model_terms:ir.ui.view,arch_db:wujia_franchise.view_franchise_management_form
+msgid "Portal Locked"
+msgstr "鎖定入口網站"
+
+#. module: wujia_franchise
+#: model_terms:ir.ui.view,arch_db:wujia_franchise.view_franchise_management_form
+msgid "Area & Address"
+msgstr "區域與地址"
+
+#. module: wujia_franchise
+#: model_terms:ir.ui.view,arch_db:wujia_franchise.view_wujia_franchise_inspection_line_search
+msgid "Template Criterion"
+msgstr "範本評核項目"
+
+#. module: wujia_franchise
+#: model_terms:ir.ui.view,arch_db:wujia_franchise.view_wujia_franchise_inspection_line_form
+msgid "Historical Criterion Details"
+msgstr "歷史評核項目明細"
+
+#. module: wujia_franchise
+#: model_terms:ir.ui.view,arch_db:wujia_franchise.view_wujia_franchise_inspection_line_form
+msgid "Violation Evidence (Inspection)"
+msgstr "現場違規證明 (評核時)"
+
+#. module: wujia_franchise
+#: model_terms:ir.ui.view,arch_db:wujia_franchise.view_wujia_franchise_inspection_line_form
+msgid "Remediation Photo (Store)"
+msgstr "改善後照片 (門市)"
+
+#. module: wujia_franchise
+#: model_terms:ir.ui.view,arch_db:wujia_franchise.view_wujia_franchise_inspection_grade_form
+msgid "Grade Information"
+msgstr "評級資訊"
+
+#. module: wujia_franchise
+#: model_terms:ir.ui.view,arch_db:wujia_franchise.view_wujia_franchise_inspection_grade_form
+msgid "Score Range"
+msgstr "分數範圍"

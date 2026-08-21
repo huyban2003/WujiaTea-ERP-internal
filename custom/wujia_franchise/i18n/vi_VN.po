@@ -6,9 +6,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 19.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-08-21 00:00+0000\n"
-"PO-Revision-Date: 2026-08-21 00:00+0000\n"
-"Last-Translator: \n"
+"POT-Creation-Date: 2026-08-21 14:40+0000\n"
+"PO-Revision-Date: 2026-08-21 14:40+0000\n"
 "Language-Team: \n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -16,12 +15,12 @@ msgstr ""
 "Plural-Forms: \n"
 
 #. module: wujia_franchise
-#: model:ir.ui.menu,name:wujia_franchise.menu_wujia_root
+#: menu:wujia_franchise.menu_wujia_franchise_mgmt
 msgid "Franchise Management"
-msgstr "Cửa Hàng Nhượng Quyền"
+msgstr "Quản lý nhượng quyền"
 
 #. module: wujia_franchise
-#: model:ir.ui.menu,name:wujia_franchise.menu_wujia_operation_root
+#: menu:wujia_franchise.menu_wujia_operation_root
 msgid "Operations"
 msgstr "Vận hành"
 
@@ -31,12 +30,12 @@ msgid "Franchise Management"
 msgstr "Quản lý nhượng quyền"
 
 #. module: wujia_franchise
-#: model:ir.ui.menu,name:wujia_franchise.menu_wujia_franchise_member
+#: menu:wujia_franchise.menu_wujia_franchise_member
 msgid "Franchise Members"
 msgstr "Thành viên nhượng quyền"
 
 #. module: wujia_franchise
-#: model:ir.ui.menu,name:wujia_franchise.menu_wujia_inspection_supervision_root
+#: menu:wujia_franchise.menu_wujia_inspection_root
 msgid "Store Supervision"
 msgstr "Giám sát cửa hàng"
 
@@ -46,7 +45,7 @@ msgid "Supervision Sheets"
 msgstr "Phiếu giám sát"
 
 #. module: wujia_franchise
-#: model:ir.ui.menu,name:wujia_franchise.menu_wujia_inspection_schedule
+#: model_terms:ir.ui.view,arch_db:wujia_supervision_schedule_form
 msgid "Supervision Schedule"
 msgstr "Lịch giám sát"
 
@@ -56,17 +55,17 @@ msgid "Stores Needing Supervision"
 msgstr "Cửa hàng cần giám sát"
 
 #. module: wujia_franchise
-#: model:ir.ui.menu,name:wujia_franchise.menu_wujia_inspection_remediation
+#: menu:wujia_franchise.menu_wujia_franchise_inspection_remediation
 msgid "Pending Remediation"
 msgstr "Chờ xử lý khắc phục"
 
 #. module: wujia_franchise
-#: model:ir.ui.menu,name:wujia_franchise.menu_wujia_inspection_history
+#: model_terms:ir.ui.view,arch_db:wujia_franchise.view_wujia_franchise_management_form
 msgid "Supervision History"
 msgstr "Lịch sử giám sát"
 
 #. module: wujia_franchise
-#: model:ir.ui.menu,name:wujia_franchise.menu_wujia_inspection_config_root
+#: menu:wujia_franchise.menu_wujia_inspection_config
 msgid "Supervision Configuration"
 msgstr "Cấu hình giám sát"
 
@@ -106,17 +105,17 @@ msgid "Violation Analysis"
 msgstr "Phân tích tiêu chí vi phạm"
 
 #. module: wujia_franchise
-#: model:ir.ui.menu,name:wujia_franchise.menu_wujia_config_root
+#: menu:wujia_franchise.menu_wujia_franchise_config
 msgid "Configuration"
 msgstr "Cấu hình"
 
 #. module: wujia_franchise
-#: model:ir.ui.menu,name:wujia_franchise.menu_wujia_config_area_root
+#: menu:wujia_franchise.menu_wujia_area_mgmt
 msgid "Area Management"
 msgstr "Quản lý khu vực"
 
 #. module: wujia_franchise
-#: model:ir.ui.menu,name:wujia_franchise.menu_wujia_config_area
+#: menu:wujia_franchise.menu_res_area
 msgid "Areas"
 msgstr "Khu vực"
 
@@ -151,7 +150,7 @@ msgid "Supervision Template"
 msgstr "Mẫu khảo sát"
 
 #. module: wujia_franchise
-#: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection__inspector_user_id
+#: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection__inspector_id
 msgid "Inspector"
 msgstr "Người kiểm tra"
 
@@ -221,9 +220,9 @@ msgid "Member Count"
 msgstr "Số lượng thành viên"
 
 #. module: wujia_franchise
-#: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_management__effective_supervision_user_id
+#: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_management__supervisor_user_id
 msgid "Supervisor"
-msgstr "Người giám sát"
+msgstr "Nhân viên giám sát"
 
 #. module: wujia_franchise
 #: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_management__latest_inspection_date
@@ -233,7 +232,7 @@ msgstr "Ngày khảo sát gần nhất"
 #. module: wujia_franchise
 #: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_management__latest_total_score
 msgid "Latest Score"
-msgstr "Điểm đánh giá mới nhất"
+msgstr "Điểm mới nhất"
 
 #. module: wujia_franchise
 #: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_management__latest_grade_id
@@ -323,12 +322,12 @@ msgstr "Địa chỉ & Điện thoại"
 #. module: wujia_franchise
 #: model_terms:ir.ui.view,arch_db:wujia_franchise.view_wujia_supervision_schedule_form
 msgid "Location"
-msgstr "Định vị"
+msgstr "Vị trí"
 
 #. module: wujia_franchise
-#: model_terms:ir.ui.view,arch_db:wujia_franchise.view_wujia_supervision_schedule_form
+#: model_terms:ir.ui.view,arch_db:wujia_supervision_schedule_form
 msgid "Open Google Maps"
-msgstr "Mở Google Maps"
+msgstr "Xem vị trí Google Map"
 
 #. module: wujia_franchise
 #: model_terms:ir.ui.view,arch_db:wujia_franchise.view_wujia_supervision_schedule_form
@@ -391,7 +390,7 @@ msgid "Status"
 msgstr "Trạng thái"
 
 #. module: wujia_franchise
-#: model:ir.model.fields,field_description:wujia_franchise.field_wujia_supervision_schedule__note
+#: model:ir.model.fields,field_description:wujia_supervision_schedule.field_wujia_supervision_schedule__note
 msgid "Notes"
 msgstr "Ghi chú"
 
@@ -431,17 +430,17 @@ msgid "Phone Number"
 msgstr "Số điện thoại"
 
 #. module: wujia_franchise
-#: model:ir.model.fields,field_description:wujia_franchise.field_wujia_supervision_schedule__google_map_url
+#: model:ir.model.fields,field_description:wujia_supervision_schedule.field_wujia_supervision_schedule__google_map_url
 msgid "Google Maps Location"
 msgstr "Vị trí Google Maps"
 
 #. module: wujia_franchise
-#: model:ir.model.fields.selection,name:wujia_franchise.selection__wujia_supervision_schedule__state__draft
+#: model:ir.model.fields.selection,name:wujia_franchise.selection__wujia_franchise_inspection__state__draft
 msgid "Draft"
-msgstr "Nháp"
+msgstr "Dự thảo"
 
 #. module: wujia_franchise
-#: model:ir.model.fields.selection,name:wujia_franchise.selection__wujia_supervision_schedule__state__in_progress
+#: model:ir.model.fields.selection,name:wujia_franchise.selection__wujia_franchise_inspection__state__in_progress
 msgid "In Progress"
 msgstr "Đang thực hiện"
 
@@ -456,7 +455,7 @@ msgid "Done"
 msgstr "Hoàn thành"
 
 #. module: wujia_franchise
-#: model:ir.model.fields.selection,name:wujia_franchise.selection__wujia_supervision_schedule__state__cancel
+#: model:ir.model.fields.selection,name:wujia_franchise.selection__wujia_franchise_inspection__state__cancel
 msgid "Cancelled"
 msgstr "Đã hủy"
 
@@ -536,9 +535,9 @@ msgid "Employee Name"
 msgstr "Tên nhân viên tại cửa hàng..."
 
 #. module: wujia_franchise
-#: model_terms:ir.ui.view,arch_db:wujia_franchise.view_wujia_franchise_inspection_form
+#: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection__tenure
 msgid "Tenure"
-msgstr "Số tháng / năm làm việc..."
+msgstr "Thâm niên"
 
 #. module: wujia_franchise
 #: model_terms:ir.ui.view,arch_db:wujia_franchise.view_wujia_franchise_inspection_form
@@ -581,9 +580,9 @@ msgid "Is Pass"
 msgstr "Đánh giá"
 
 #. module: wujia_franchise
-#: model_terms:ir.ui.view,arch_db:wujia_franchise.view_wujia_franchise_inspection_form
+#: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection_line__previous_result
 msgid "Previous Result"
-msgstr "Đợt trước"
+msgstr "Kết quả trước đó"
 
 #. module: wujia_franchise
 #: model_terms:ir.ui.view,arch_db:wujia_franchise.view_wujia_franchise_inspection_form
@@ -746,24 +745,24 @@ msgid "Time (By Day)"
 msgstr "Thời gian (Theo Ngày)"
 
 #. module: wujia_franchise
-#: model:ir.model.fields.selection,name:wujia_franchise.selection__wujia_franchise_inspection_line__result__pass
+#: selection:wujia.franchise.inspection.line:result:pass
 msgid "Pass"
 msgstr "Đạt"
 
 #. module: wujia_franchise
-#: model:ir.model.fields.selection,name:wujia_franchise.selection__wujia_franchise_inspection_line__result__fail
+#: selection:wujia.franchise.inspection.line:result:fail
 msgid "Fail"
 msgstr "Không đạt"
 
 #. module: wujia_franchise
-#: model:ir.model.fields.selection,name:wujia_franchise.selection__wujia_franchise_inspection_line__remediation_state__need_remediation
+#: model:ir.model.fields.selection,name:wujia_franchise.selection__wujia_franchise_inspection__state__need_remediation
 msgid "Need Remediation"
-msgstr "Cần phản hồi"
+msgstr "Cần khắc phục"
 
 #. module: wujia_franchise
 #: model:ir.model.fields.selection,name:wujia_franchise.selection__wujia_franchise_inspection_line__remediation_state__remediated
 msgid "Remediated"
-msgstr "Đã phản hồi"
+msgstr "Đã khắc phục"
 
 #. module: wujia_franchise
 #: model:ir.model.fields.selection,name:wujia_franchise.selection__wujia_franchise_inspection_line__remediation_state__done
@@ -793,7 +792,7 @@ msgstr "Ngày xác nhận"
 #. module: wujia_franchise
 #: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection__checklist_score
 msgid "Checklist Score"
-msgstr "Điểm checklist"
+msgstr "Điểm Checklist"
 
 #. module: wujia_franchise
 #: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection__exam_score
@@ -856,9 +855,9 @@ msgid "Sequence"
 msgstr "Thứ tự"
 
 #. module: wujia_franchise
-#: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection_line__display_type
+#: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection_template_line__display_type
 msgid "Display Type"
-msgstr "Phân loại"
+msgstr "Loại hiển thị"
 
 #. module: wujia_franchise
 #: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection_line__content_snapshot
@@ -1016,9 +1015,9 @@ msgid "Checklist"
 msgstr "Checklist"
 
 #. module: wujia_franchise
-#: model_terms:ir.ui.view,arch_db:wujia_franchise.inspection_survey_do_page
+#: model_terms:ir.ui.view,arch_db:wujia_franchise.view_wujia_franchise_inspection_form
 msgid "Staff Exam"
-msgstr "Kiểm tra NV"
+msgstr "Bài kiểm tra nhân viên"
 
 #. module: wujia_franchise
 #: model_terms:ir.ui.view,arch_db:wujia_franchise.inspection_survey_do_page
@@ -1081,9 +1080,9 @@ msgid "Previous Round: Fail"
 msgstr "Đợt trước: Không đạt"
 
 #. module: wujia_franchise
-#: model_terms:ir.ui.view,arch_db:wujia_franchise.inspection_survey_do_page
+#: model:ir.model.fields.selection,name:wujia_franchise.selection__wujia_franchise_inspection_line__result__fail
 msgid "Fail"
-msgstr "K.Đạt"
+msgstr "Không đạt"
 
 #. module: wujia_franchise
 #: model_terms:ir.ui.view,arch_db:wujia_franchise.inspection_survey_do_page
@@ -1206,14 +1205,14 @@ msgid "Evaluate this criterion:"
 msgstr "Đánh giá tiêu chí này:"
 
 #. module: wujia_franchise
-#: model_terms:ir.ui.view,arch_db:wujia_franchise.inspection_survey_do_page
+#: model:ir.model.fields.selection,name:wujia_franchise.selection__wujia_franchise_inspection_line__result__pass
 msgid "Pass"
 msgstr "Đạt"
 
 #. module: wujia_franchise
-#: model_terms:ir.ui.view,arch_db:wujia_franchise.inspection_survey_do_page
+#: model:ir.model.fields.selection,name:wujia_franchise.selection__wujia_franchise_inspection__state__done
 msgid "Done"
-msgstr "Hoàn tất"
+msgstr "Hoàn thành"
 
 #. module: wujia_franchise
 #: model_terms:ir.ui.view,arch_db:wujia_franchise.inspection_survey_do_page
@@ -1436,7 +1435,7 @@ msgid "Save Question"
 msgstr "Lưu câu hỏi"
 
 #. module: wujia_franchise
-#: model_terms:ir.ui.view,arch_db:wujia_franchise.view_wujia_franchise_inspection_question_form
+#: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection_exam_line__quest_code_snapshot
 msgid "Question Code"
 msgstr "Mã câu hỏi"
 
@@ -1446,7 +1445,7 @@ msgid "Correct Answers"
 msgstr "Đáp án đúng"
 
 #. module: wujia_franchise
-#: model_terms:ir.ui.view,arch_db:wujia_franchise.view_wujia_franchise_inspection_question_form
+#: model_terms:ir.ui.view,arch_db:wujia_franchise.view_wujia_franchise_management_form
 msgid "General Information"
 msgstr "Thông tin chung"
 
@@ -1501,7 +1500,7 @@ msgid "Create a new inspection question for the library!"
 msgstr "Tạo câu hỏi kiểm tra mới cho thư viện!"
 
 #. module: wujia_franchise
-#: model:ir.actions.act_window,name:wujia_franchise.action_wujia_franchise_inspection_report_violation
+#: menu:wujia_franchise.menu_wujia_franchise_inspection_report_violation
 msgid "Violation Criteria Analysis"
 msgstr "Phân tích tiêu chí vi phạm"
 
@@ -1509,3 +1508,697 @@ msgstr "Phân tích tiêu chí vi phạm"
 #: model_terms:ir.ui.view,arch_db:wujia_franchise.view_wujia_franchise_inspection_line_search
 msgid "Violation criteria analysis report on completed inspection sheets!"
 msgstr "Báo cáo phân tích tổng số câu Đạt / Vi phạm của từng tiêu chí mẫu trên các phiếu đã hoàn thành!"
+
+#. module: wujia_franchise
+#: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection__name
+msgid "Inspection Name"
+msgstr "Tên phiếu khảo sát"
+
+#. module: wujia_franchise
+#: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection__submit_date
+msgid "Submission Date"
+msgstr "Ngày nộp"
+
+#. module: wujia_franchise
+#: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection__exam_score
+msgid "Staff Exam Score"
+msgstr "Điểm kiểm tra nhân viên"
+
+#. module: wujia_franchise
+#: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection__next_due_date
+msgid "Next Inspection Date"
+msgstr "Lần kiểm tra kế tiếp"
+
+#. module: wujia_franchise
+#: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection__next_schedule_id
+msgid "Next Supervision Schedule"
+msgstr "Lịch giám sát tiếp theo"
+
+#. module: wujia_franchise
+#: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection__template_id
+msgid "Inspection Template"
+msgstr "Mẫu khảo sát"
+
+#. module: wujia_franchise
+#: model_terms:ir.ui.view,arch_db:wujia_franchise.view_wujia_franchise_management_form
+msgid "Franchise Store"
+msgstr "Cửa hàng nhượng quyền"
+
+#. module: wujia_franchise
+#: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection__previous_inspection_id
+msgid "Previous Inspection"
+msgstr "Phiếu khảo sát trước"
+
+#. module: wujia_franchise
+#: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection__confirmed_user_id
+msgid "System Confirmer"
+msgstr "Người xác nhận hệ thống"
+
+#. module: wujia_franchise
+#: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection__confirmed_member_id
+msgid "Store Manager Confirmer"
+msgstr "Quản lý cửa hàng xác nhận"
+
+#. module: wujia_franchise
+#: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection__line_ids
+msgid "Inspection Details"
+msgstr "Chi tiết khảo sát"
+
+#. module: wujia_franchise
+#: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection__exam_line_ids
+msgid "Staff Exam Lines"
+msgstr "Chi tiết kiểm tra nhân viên"
+
+#. module: wujia_franchise
+#: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection__report_line_ids
+msgid "Revenue Report Lines"
+msgstr "Dòng báo cáo doanh thu"
+
+#. module: wujia_franchise
+#: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection__is_exam_submitted
+msgid "Exam Submitted"
+msgstr "Đã nộp bài kiểm tra"
+
+#. module: wujia_franchise
+#: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection__exam_submitted_date
+msgid "Exam Submitted Date"
+msgstr "Thời gian nộp bài kiểm tra"
+
+#. module: wujia_franchise
+#: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection__inspection_chart_data
+msgid "Inspection Chart Data"
+msgstr "Dữ liệu biểu đồ"
+
+#. module: wujia_franchise
+#: selection:wujia.franchise.inspection.line:display_type:line
+msgid "Criterion Line"
+msgstr "Dòng tiêu chí"
+
+#. module: wujia_franchise
+#: selection:wujia.franchise.inspection.line:display_type:section
+msgid "Section Header"
+msgstr "Tiêu đề nhóm"
+
+#. module: wujia_franchise
+#: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection_line__content_snapshot
+msgid "Checklist Content"
+msgstr "Nội dung kiểm tra checklist"
+
+#. module: wujia_franchise
+#: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection_line__deduction_score_snapshot
+msgid "Deduction Score"
+msgstr "Điểm trừ"
+
+#. module: wujia_franchise
+#: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection_line__criterion_type_snapshot
+msgid "Criterion Type"
+msgstr "Loại tiêu chí"
+
+#. module: wujia_franchise
+#: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection_line__is_pass
+msgid "Passed (Pass)"
+msgstr "Đánh giá Đạt (Pass)"
+
+#. module: wujia_franchise
+#: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection_line__note
+msgid "Violation Note (Admin)"
+msgstr "Ghi chú vi phạm (Admin)"
+
+#. module: wujia_franchise
+#: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection_line__remediation_state
+msgid "Remediation Status"
+msgstr "Trạng thái khắc phục"
+
+#. module: wujia_franchise
+#: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection_line__remediation_note
+msgid "Remediation Note (Store)"
+msgstr "Ghi chú khắc phục (Cửa hàng)"
+
+#. module: wujia_franchise
+#: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection_line__evidence_image
+msgid "Evidence Photo (Inspection)"
+msgstr "Hình ảnh bằng chứng (Khi khảo sát)"
+
+#. module: wujia_franchise
+#: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection_line__remediation_image
+msgid "Remediation Photo"
+msgstr "Hình ảnh sau khắc phục"
+
+#. module: wujia_franchise
+#: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection_line__require_note_if_fail
+msgid "Require Note If Fail"
+msgstr "Yêu cầu ghi chú khi không đạt"
+
+#. module: wujia_franchise
+#: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection_line__require_evidence_if_fail
+msgid "Require Evidence If Fail"
+msgstr "Yêu cầu bằng chứng khi không đạt"
+
+#. module: wujia_franchise
+#: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection_line__inspection_id
+msgid "Inspection Sheet"
+msgstr "Phiếu khảo sát"
+
+#. module: wujia_franchise
+#: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection_line__template_line_id
+msgid "Inspection Criterion"
+msgstr "Tiêu chí"
+
+#. module: wujia_franchise
+#: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection_line__inspection_date
+msgid "Inspection Date"
+msgstr "Ngày kiểm tra"
+
+#. module: wujia_franchise
+#: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection_line__pass_count
+msgid "Pass Count"
+msgstr "Số lần Đạt"
+
+#. module: wujia_franchise
+#: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection_line__violation_count
+msgid "Violation Count"
+msgstr "Số lần Vi phạm (Không đạt)"
+
+#. module: wujia_franchise
+#: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection_line__inspection_count
+msgid "Inspection Count"
+msgstr "Số lượt kiểm tra"
+
+#. module: wujia_franchise
+#: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection_line__section_header
+msgid "Section Category"
+msgstr "Danh mục tiêu chí"
+
+#. module: wujia_franchise
+#: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection_line__previous_line_id
+msgid "Previous Line"
+msgstr "Line trước"
+
+#. module: wujia_franchise
+#: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection_report_line__days_of_month
+msgid "Days in Month"
+msgstr "Số ngày trong tháng"
+
+#. module: wujia_franchise
+#: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection_report_line__revenue_avg
+msgid "Daily Average Revenue"
+msgstr "Doanh thu / ngày"
+
+#. module: wujia_franchise
+#: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection_report_line__total_app_sale
+msgid "Total App Orders"
+msgstr "Tổng giao dịch qua app"
+
+#. module: wujia_franchise
+#: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection_exam_line__quest_text_snapshot
+msgid "Question Text"
+msgstr "Nội dung câu hỏi"
+
+#. module: wujia_franchise
+#: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection_exam_line__correct_answer_snapshot
+msgid "Correct Answer"
+msgstr "Đáp án đúng"
+
+#. module: wujia_franchise
+#: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection_exam_line__employee_answer
+msgid "Employee Answer"
+msgstr "Đáp án trả lời"
+
+#. module: wujia_franchise
+#: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection_exam_line__score
+msgid "Score"
+msgstr "Điểm"
+
+#. module: wujia_franchise
+#: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection_exam_line__is_locked
+msgid "Locked"
+msgstr "Khóa"
+
+#. module: wujia_franchise
+#: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection_exam_line__quest_id
+msgid "Question"
+msgstr "Câu hỏi"
+
+#. module: wujia_franchise
+#. odoo-javascript
+#. odoo-python
+#: code:addons/wujia_franchise/models/wujia_franchise_inspection.py:0
+msgid "The inspection must be 'In Progress' to submit the staff exam!"
+msgstr "Phiếu khảo sát phải ở trạng thái 'Đang thực hiện' mới được phép nộp bài kiểm tra!"
+
+#. module: wujia_franchise
+#. odoo-javascript
+#. odoo-python
+#: code:addons/wujia_franchise/models/wujia_franchise_inspection.py:0
+msgid "Please select a date in \"Next Inspection Date\" before creating a schedule!"
+msgstr "Vui lòng chọn ngày trong \"Lần kiểm tra kế tiếp\" trước khi tạo lịch!"
+
+#. module: wujia_franchise
+#: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection_category__name
+msgid "Category Name"
+msgstr "Tên danh mục"
+
+#. module: wujia_franchise
+#: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection_category__code
+msgid "Category Code"
+msgstr "Mã danh mục"
+
+#. module: wujia_franchise
+#: selection:wujia.franchise.inspection.template:status:active
+msgid "Active"
+msgstr "Đang sử dụng"
+
+#. module: wujia_franchise
+#: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection_category__is_severe
+msgid "Severe Violation"
+msgstr "Vi phạm nghiêm trọng"
+
+#. module: wujia_franchise
+#: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection_template__name
+msgid "Template Name"
+msgstr "Tên mẫu khảo sát"
+
+#. module: wujia_franchise
+#: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection_template__code
+msgid "Template Code"
+msgstr "Mã mẫu"
+
+#. module: wujia_franchise
+#: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection_template__version
+msgid "Version"
+msgstr "Phiên bản"
+
+#. module: wujia_franchise
+#: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection_template__effective_date
+msgid "Effective Date"
+msgstr "Ngày áp dụng"
+
+#. module: wujia_franchise
+#: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection_template__checklist_max_score
+msgid "Checklist Max Score"
+msgstr "Điểm tối đa Checklist"
+
+#. module: wujia_franchise
+#: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection_template__exam_max_score
+msgid "Exam Max Score"
+msgstr "Điểm tối đa Bài thi"
+
+#. module: wujia_franchise
+#: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection_template__total_max_score
+msgid "Total Max Score"
+msgstr "Tổng điểm tối đa"
+
+#. module: wujia_franchise
+#: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection_template__line_ids
+msgid "Inspection Criteria"
+msgstr "Chi tiết tiêu chí"
+
+#. module: wujia_franchise
+#: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection_template_line__criterion_code
+msgid "Criterion Code"
+msgstr "Mã tiêu chí"
+
+#. module: wujia_franchise
+#: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection_template_line__category_id
+msgid "Category"
+msgstr "Danh mục tiêu chí"
+
+#. module: wujia_franchise
+#: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection_template_line__category
+msgid "Category (Legacy)"
+msgstr "Danh mục (Text cũ)"
+
+#. module: wujia_franchise
+#: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection_template_line__content
+msgid "Criterion Content"
+msgstr "Nội dung tiêu chí"
+
+#. module: wujia_franchise
+#: selection:wujia.franchise.inspection.template.line:criterion_type:normal
+msgid "Normal"
+msgstr "Bình thường"
+
+#. module: wujia_franchise
+#: selection:wujia.franchise.inspection.template.line:criterion_type:critical
+msgid "Critical / Knockout"
+msgstr "Quan trọng / Điểm liệt"
+
+#. module: wujia_franchise
+#: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection_grade__min_score
+msgid "Minimum Score"
+msgstr "Điểm tối thiểu"
+
+#. module: wujia_franchise
+#: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection_grade__max_score
+msgid "Maximum Score"
+msgstr "Điểm tối đa"
+
+#. module: wujia_franchise
+#: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_management__effective_area_manager_id
+msgid "Area Manager"
+msgstr "Người phụ trách khu vực"
+
+#. module: wujia_franchise
+#: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_management__effective_supervision_user_id
+msgid "Assigned Supervisor"
+msgstr "Người giám sát"
+
+#. module: wujia_franchise
+#: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_management__latest_inspection_id
+msgid "Latest Inspection Sheet"
+msgstr "Phiếu khảo sát mới nhất"
+
+#. module: wujia_franchise
+#: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_management__latest_inspection_score
+msgid "Latest Inspection Score"
+msgstr "Điểm đánh giá mới nhất"
+
+#. module: wujia_franchise
+#: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_management__latest_inspection_grade_id
+msgid "Latest Inspection Grade"
+msgstr "Loại đánh giá mới nhất"
+
+#. module: wujia_franchise
+#: model:ir.model.fields,field_description:wujia_supervision_schedule.field_wujia_supervision_schedule__name
+msgid "Schedule Title"
+msgstr "Tiêu đề"
+
+#. module: wujia_franchise
+#: model:ir.model.fields,field_description:wujia_supervision_schedule.field_wujia_supervision_schedule__date
+msgid "Scheduled Date"
+msgstr "Thời gian giám sát"
+
+#. module: wujia_franchise
+#: selection:wujia.franchise.member:role:owner
+msgid "Owner"
+msgstr "Chủ tiệm"
+
+#. module: wujia_franchise
+#: selection:wujia.franchise.member:role:manager
+msgid "Manager"
+msgstr "Quản lý"
+
+#. module: wujia_franchise
+#: selection:wujia.franchise.member:role:staff
+msgid "Staff"
+msgstr "Nhân viên"
+
+#. module: wujia_franchise
+#: selection:wujia.franchise.inspection.template:status:archived
+msgid "Archived"
+msgstr "Lưu trữ"
+
+#. module: wujia_franchise
+#: menu:wujia_franchise.menu_wujia_franchise_inspection
+msgid "Inspection Sheets"
+msgstr "Phiếu giám sát"
+
+#. module: wujia_franchise
+#: menu:wujia_franchise.menu_wujia_supervision_schedule
+msgid "Supervision Schedules"
+msgstr "Lịch giám sát"
+
+#. module: wujia_franchise
+#: menu:wujia_franchise.menu_wujia_franchise_needed_inspection
+msgid "Stores Needing Inspection"
+msgstr "Cửa hàng cần giám sát"
+
+#. module: wujia_franchise
+#: menu:wujia_franchise.menu_wujia_franchise_inspection_template
+msgid "Inspection Templates"
+msgstr "Mẫu phiếu giám sát"
+
+#. module: wujia_franchise
+#: menu:wujia_franchise.menu_wujia_franchise_inspection_category
+msgid "Inspection Categories"
+msgstr "Danh mục tiêu chí"
+
+#. module: wujia_franchise
+#: menu:wujia_franchise.menu_wujia_franchise_inspection_question
+msgid "Question Library"
+msgstr "Thư viện câu hỏi kiểm tra"
+
+#. module: wujia_franchise
+#: menu:wujia_franchise.menu_wujia_franchise_inspection_grade
+msgid "Inspection Grades"
+msgstr "Xếp hạng giám sát"
+
+#. module: wujia_franchise
+#: menu:wujia_franchise.menu_wujia_inspection_report
+msgid "Reporting"
+msgstr "Báo cáo"
+
+#. module: wujia_franchise
+#: menu:wujia_franchise.menu_wujia_franchise_inspection_report_dashboard
+msgid "Inspection Results Analysis"
+msgstr "Phân tích kết quả giám sát"
+
+#. module: wujia_franchise
+#: menu:wujia_franchise.menu_res_country_state
+msgid "Provinces / Cities"
+msgstr "Tỉnh / Thành phố"
+
+#. module: wujia_franchise
+#: menu:wujia_franchise.menu_res_ward
+msgid "Wards / Communes"
+msgstr "Phường / Xã"
+
+#. module: wujia_franchise
+#: model_terms:ir.ui.view,arch_db:wujia_franchise.view_wujia_franchise_inspection_tree
+msgid "Franchise Inspections"
+msgstr "Phiếu giám sát"
+
+#. module: wujia_franchise
+#: model_terms:ir.ui.view,arch_db:wujia_franchise.view_wujia_franchise_inspection_form
+msgid "Franchise Inspection"
+msgstr "Phiếu giám sát"
+
+#. module: wujia_franchise
+#: model_terms:ir.ui.view,arch_db:wujia_franchise.view_wujia_franchise_inspection_form
+msgid "Mark Done"
+msgstr "Hoàn thành"
+
+#. module: wujia_franchise
+#: model_terms:ir.ui.view,arch_db:wujia_franchise.view_wujia_franchise_inspection_form
+msgid "Reset to Draft"
+msgstr "Đặt về Draft"
+
+#. module: wujia_franchise
+#: model_terms:ir.ui.view,arch_db:wujia_franchise.view_wujia_franchise_inspection_form
+msgid "Create Next Schedule"
+msgstr "Tạo lịch tiếp theo"
+
+#. module: wujia_franchise
+#: model_terms:ir.ui.view,arch_db:wujia_franchise.view_wujia_franchise_inspection_form
+msgid "Open Inspection Survey Web"
+msgstr "Mở trang Khảo sát Web"
+
+#. module: wujia_franchise
+#: model_terms:ir.ui.view,arch_db:wujia_franchise.view_wujia_franchise_inspection_form
+msgid "Revenue Report"
+msgstr "Báo cáo doanh thu"
+
+#. module: wujia_franchise
+#: model_terms:ir.ui.view,arch_db:wujia_franchise.view_wujia_franchise_inspection_form
+msgid "Confirmation"
+msgstr "Xác nhận"
+
+#. module: wujia_franchise
+#: model_terms:ir.ui.view,arch_db:wujia_franchise.view_wujia_franchise_inspection_form
+msgid "Scoring Summary"
+msgstr "Tổng kết điểm số"
+
+#. module: wujia_franchise
+#: model_terms:ir.ui.view,arch_db:wujia_franchise.view_wujia_franchise_inspection_form
+msgid "Next Supervision Cycle"
+msgstr "Kỳ giám sát tiếp theo"
+
+#. module: wujia_franchise
+#: model_terms:ir.ui.view,arch_db:wujia_franchise.view_wujia_franchise_inspection_form
+msgid "System Confirmation"
+msgstr "Người xác nhận hệ thống"
+
+#. module: wujia_franchise
+#: model_terms:ir.ui.view,arch_db:wujia_franchise.view_wujia_franchise_inspection_form
+msgid "Store Manager Confirmation"
+msgstr "Quản lý cửa hàng xác nhận"
+
+#. module: wujia_franchise
+#: model_terms:ir.ui.view,arch_db:wujia_franchise.view_wujia_franchise_inspection_form
+msgid "3-Month Revenue Detail"
+msgstr "Báo cáo chi tiết doanh thu 3 tháng"
+
+#. module: wujia_franchise
+#: model_terms:ir.ui.view,arch_db:wujia_franchise.view_wujia_franchise_inspection_form
+msgid "Inspection Criteria List"
+msgstr "Danh sách tiêu chí đánh giá"
+
+#. module: wujia_franchise
+#: model_terms:ir.ui.view,arch_db:wujia_franchise.view_wujia_franchise_inspection_search
+msgid "Search Inspections"
+msgstr "Tìm kiếm Phiếu giám sát"
+
+#. module: wujia_franchise
+#: model_terms:ir.ui.view,arch_db:wujia_franchise.view_wujia_franchise_inspection_search
+msgid "My Inspections"
+msgstr "Phiếu của tôi"
+
+#. module: wujia_franchise
+#: model_terms:ir.ui.view,arch_db:wujia_franchise.view_wujia_franchise_management_tree
+msgid "Franchise Stores"
+msgstr "Cửa hàng nhượng quyền"
+
+#. module: wujia_franchise
+#: model_terms:ir.ui.view,arch_db:wujia_franchise.view_wujia_franchise_management_form
+msgid "Contract & Operations"
+msgstr "Hợp đồng & Vận hành"
+
+#. module: wujia_franchise
+#: model_terms:ir.ui.view,arch_db:wujia_franchise.view_wujia_franchise_management_form
+msgid "Legal & Partner Information"
+msgstr "Thông tin pháp lý & Liên kết"
+
+#. module: wujia_franchise
+#: model_terms:ir.ui.view,arch_db:wujia_franchise.view_wujia_franchise_management_form
+msgid "Address & Area"
+msgstr "Địa chỉ & Khu vực"
+
+#. module: wujia_franchise
+#: model_terms:ir.ui.view,arch_db:wujia_franchise.view_wujia_franchise_management_form
+msgid "Franchise Contract"
+msgstr "Hợp đồng nhượng quyền"
+
+#. module: wujia_franchise
+#: model_terms:ir.ui.view,arch_db:wujia_franchise.view_wujia_franchise_management_form
+msgid "Operational Controls"
+msgstr "Điều khiển vận hành"
+
+#. module: wujia_franchise
+#: model_terms:ir.ui.view,arch_db:wujia_franchise.view_wujia_franchise_management_form
+msgid "Assigned Personnel"
+msgstr "Nhân sự phụ trách"
+
+#. module: wujia_franchise
+#: model_terms:ir.ui.view,arch_db:wujia_franchise.view_wujia_franchise_management_search
+msgid "Search Franchise Stores"
+msgstr "Tìm kiếm Cửa hàng"
+
+#. module: wujia_franchise
+#: model_terms:ir.ui.view,arch_db:wujia_franchise.view_wujia_supervision_schedule_form
+msgid "Store Location & Contact"
+msgstr "Địa điểm & Liên hệ cửa hàng"
+
+#. module: wujia_franchise
+#: model_terms:ir.ui.view,arch_db:wujia_franchise.view_wujia_supervision_schedule_form
+msgid "Latest Inspection Result"
+msgstr "Kết quả khảo sát mới nhất"
+
+#. module: wujia_franchise
+#: model_terms:ir.ui.view,arch_db:wujia_franchise.view_wujia_supervision_schedule_form
+msgid "View Inspection Sheet"
+msgstr "Xem phiếu khảo sát"
+
+#. module: wujia_franchise
+#: model_terms:ir.ui.view,arch_db:wujia_supervision_schedule_form
+msgid "Create Inspection Sheet"
+msgstr "Tạo phiếu khảo sát"
+
+#. module: wujia_franchise
+#: model_terms:ir.ui.view,arch_db:wujia_supervision_schedule_search
+msgid "Search Supervision Schedules"
+msgstr "Tìm kiếm Lịch giám sát"
+
+#. module: wujia_franchise
+#: model_terms:ir.ui.view,arch_db:wujia_franchise.view_wujia_franchise_inspection_line_tree
+msgid "Violation Criteria Details"
+msgstr "Chi tiết tiêu chí vi phạm"
+
+#. module: wujia_franchise
+#: model_terms:ir.ui.view,arch_db:wujia_franchise.view_wujia_franchise_inspection_line_search
+msgid "Search Violation Criteria"
+msgstr "Tìm kiếm Tiêu chí vi phạm"
+
+#. module: wujia_franchise
+#: model_terms:ir.ui.view,arch_db:wujia_franchise.view_wujia_franchise_inspection_line_search
+msgid "Passed Criteria"
+msgstr "Tiêu chí Đạt"
+
+#. module: wujia_franchise
+#: model_terms:ir.ui.view,arch_db:wujia_franchise.view_wujia_franchise_inspection_line_search
+msgid "Violated Criteria"
+msgstr "Tiêu chí Vi phạm (Không đạt)"
+
+#. module: wujia_franchise
+#: model_terms:ir.ui.view,arch_db:wujia_franchise.view_wujia_supervision_schedule_calendar
+msgid "Supervision Calendar"
+msgstr "Lịch giám sát"
+
+#. module: wujia_franchise
+#: model_terms:ir.ui.view,arch_db:wujia_franchise.view_wujia_supervision_schedule_form
+msgid "Store & Inspector Information"
+msgstr "Thông tin cửa hàng & nhân viên giám sát"
+
+#. module: wujia_franchise
+#: model_terms:ir.ui.view,arch_db:wujia_franchise.view_wujia_supervision_schedule_form
+msgid "Address & Contact"
+msgstr "Địa chỉ & Liên hệ"
+
+#. module: wujia_franchise
+#: model_terms:ir.ui.view,arch_db:wujia_franchise.view_wujia_supervision_schedule_form
+msgid "Schedule Date & Latest Inspection Result"
+msgstr "Thời gian giám sát & Kết quả khảo sát mới nhất"
+
+#. module: wujia_franchise
+#: model_terms:ir.ui.view,arch_db:wujia_franchise.view_wujia_supervision_schedule_search
+msgid "My Schedules"
+msgstr "Lịch của tôi"
+
+#. module: wujia_franchise
+#: model_terms:ir.ui.view,arch_db:wujia_franchise.view_franchise_management_search
+msgid "My Assigned Stores"
+msgstr "Cửa hàng tôi phụ trách"
+
+#. module: wujia_franchise
+#: model_terms:ir.ui.view,arch_db:wujia_franchise.view_franchise_management_form
+msgid "Expired"
+msgstr "Hết hạn"
+
+#. module: wujia_franchise
+#: model_terms:ir.ui.view,arch_db:wujia_franchise.view_franchise_management_form
+msgid "Portal Locked"
+msgstr "Khóa portal"
+
+#. module: wujia_franchise
+#: model_terms:ir.ui.view,arch_db:wujia_franchise.view_franchise_management_form
+msgid "Area & Address"
+msgstr "Khu vực & Địa chỉ"
+
+#. module: wujia_franchise
+#: model_terms:ir.ui.view,arch_db:wujia_franchise.view_wujia_franchise_inspection_line_search
+msgid "Template Criterion"
+msgstr "Tiêu chí mẫu"
+
+#. module: wujia_franchise
+#: model_terms:ir.ui.view,arch_db:wujia_franchise.view_wujia_franchise_inspection_line_form
+msgid "Historical Criterion Details"
+msgstr "Chi tiết tiêu chí đợt trước"
+
+#. module: wujia_franchise
+#: model_terms:ir.ui.view,arch_db:wujia_franchise.view_wujia_franchise_inspection_line_form
+msgid "Violation Evidence (Inspection)"
+msgstr "Bằng chứng vi phạm khi khảo sát"
+
+#. module: wujia_franchise
+#: model_terms:ir.ui.view,arch_db:wujia_franchise.view_wujia_franchise_inspection_line_form
+msgid "Remediation Photo (Store)"
+msgstr "Ảnh sau khi đã khắc phục"
+
+#. module: wujia_franchise
+#: model_terms:ir.ui.view,arch_db:wujia_franchise.view_wujia_franchise_inspection_grade_form
+msgid "Grade Information"
+msgstr "Thông tin xếp hạng"
+
+#. module: wujia_franchise
+#: model_terms:ir.ui.view,arch_db:wujia_franchise.view_wujia_franchise_inspection_grade_form
+msgid "Score Range"
+msgstr "Khoảng điểm"

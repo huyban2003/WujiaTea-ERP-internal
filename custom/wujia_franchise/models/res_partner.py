@@ -75,7 +75,7 @@ class ResPartner(models.Model):
         if state != 'multi':
             return None
         return {'warning': {
-            'title': _('Partner thuộc nhiều cửa hàng'),
+            'title': _('Partner linked to multiple stores'),
             'message': _(
                 "Partner '%(partner)s' đang gắn với %(count)s cửa hàng: %(stores)s.\n"
                 "Hệ thống không tự chọn — vui lòng chọn cửa hàng nhượng quyền thủ công.",
@@ -97,9 +97,7 @@ class ResPartner(models.Model):
             return
         if not franchise:
             raise UserError(_(
-                "Chứng từ '%(doc)s' chưa có cửa hàng nhượng quyền.\n"
-                "Partner '%(partner)s' thuộc cửa hàng '%(store)s' — hãy điền "
-                "trường Cửa hàng nhượng quyền rồi thao tác lại.",
+                "Document '%(doc)s' has no franchise store specified.\nPartner '%(partner)s' belongs to store '%(store)s' — please fill the Franchise Store field and retry.",
                 doc=doc_label, partner=self.display_name,
                 store=expected.display_name,
             ))
@@ -115,7 +113,7 @@ class ResPartner(models.Model):
         self.ensure_one()
         return {
             'type': 'ir.actions.act_window',
-            'name': _('Cửa hàng nhượng quyền của %s', self.display_name),
+            'name': _('Franchise Stores of %s', self.display_name),
             'res_model': 'wujia.franchise.management',
             'view_mode': 'list,form',
             'domain': [('partner_id', '=', self.id)],

@@ -7,31 +7,31 @@ from odoo.exceptions import ValidationError
 
 class WujiaFranchiseInspectionGrade(models.Model):
     _name = 'wujia.franchise.inspection.grade'
-    _description = 'Cấu hình xếp hạng giám sát'
+    _description = 'Inspection Grade Configuration'
     _order = 'min_score desc'
 
     name = fields.Char(
-        string='Xếp hạng',
+        string='Grade',
         required=True,
-        help='Tên xếp hạng, ví dụ: A, B, C, D',
+        help='Grade name, e.g.: A, B, C, D',
     )
     min_score = fields.Float(
-        string='Điểm tối thiểu',
+        string='Minimum Score',
         required=True,
-        help='Điểm tối thiểu để đạt hạng này (bao gồm)',
+        help='Minimum score to achieve this grade (inclusive)',
     )
     max_score = fields.Float(
-        string='Điểm tối đa',
+        string='Maximum Score',
         required=True,
         default=100.0,
-        help='Điểm tối đa của hạng này (bao gồm)',
+        help='Maximum score for this grade (inclusive)',
     )
     description = fields.Text(
-        string='Mô tả',
-        help='Mô tả ngắn cho hạng xếp loại này',
+        string='Description',
+        help='Short description for this grade',
     )
     sequence = fields.Integer(
-        string='Thứ tự',
+        string='Sequence',
         default=10,
     )
     active = fields.Boolean(
@@ -40,13 +40,13 @@ class WujiaFranchiseInspectionGrade(models.Model):
     )
     color = fields.Integer(
         string='Color',
-        help='Màu hiển thị trên badge',
+        help='Badge color index',
     )
 
     _sql_constraints = [
-        ('name_unique', 'UNIQUE(name)', 'Tên xếp hạng phải là duy nhất!'),
+        ('name_unique', 'UNIQUE(name)', 'Grade name must be unique!'),
         ('score_check', 'CHECK(min_score <= max_score)',
-         'Điểm tối thiểu phải nhỏ hơn hoặc bằng điểm tối đa!'),
+         'Minimum score must be less than or equal to maximum score!'),
     ]
 
 
@@ -76,7 +76,7 @@ class WujiaFranchiseInspectionGrade(models.Model):
             if rec_id:
                 domain.append(('id', '!=', rec_id))
             if self.search_count(domain) > 0:
-                raise ValidationError(_('Tên xếp hạng "%s" đã tồn tại!', record.name))
+                raise ValidationError(_('Grade "%s" already exists!', record.name))
 
     @api.constrains('min_score', 'max_score')
     def _check_score_overlap(self):

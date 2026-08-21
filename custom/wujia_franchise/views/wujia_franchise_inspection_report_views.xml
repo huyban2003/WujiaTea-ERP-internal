@@ -10,7 +10,7 @@
         <field name="name">wujia.franchise.inspection.report.graph</field>
         <field name="model">wujia.franchise.inspection</field>
         <field name="arch" type="xml">
-            <graph string="Phân tích kết quả giám sát" type="bar" stacked="0" sample="1">
+            <graph string="Inspection Results Analysis" type="bar" stacked="0" sample="1">
                 <field name="planned_date" interval="day" type="row"/>
                 <field name="franchise_id" type="col"/>
                 <field name="total_score" type="measure"/>
@@ -23,7 +23,7 @@
         <field name="name">wujia.franchise.inspection.report.pivot</field>
         <field name="model">wujia.franchise.inspection</field>
         <field name="arch" type="xml">
-            <pivot string="Phân tích kết quả giám sát" sample="1">
+            <pivot string="Inspection Results Analysis" sample="1">
                 <field name="planned_date" interval="month" type="row"/>
                 <field name="franchise_id" type="col"/>
                 <field name="total_score" type="measure"/>
@@ -33,7 +33,7 @@
 
     <!-- Action Phân tích kết quả giám sát -->
     <record id="action_wujia_franchise_inspection_report_result" model="ir.actions.act_window">
-        <field name="name">Phân tích kết quả giám sát</field>
+        <field name="name">Inspection Results Analysis</field>
         <field name="res_model">wujia.franchise.inspection</field>
         <field name="domain">[('state', 'in', ['done', 'need_remediation'])]</field>
         <field name="view_mode">graph,pivot,list,form</field>

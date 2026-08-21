@@ -6,9 +6,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 19.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-08-21 00:00+0000\n"
-"PO-Revision-Date: 2026-08-21 00:00+0000\n"
-"Last-Translator: \n"
+"POT-Creation-Date: 2026-08-21 14:40+0000\n"
+"PO-Revision-Date: 2026-08-21 14:40+0000\n"
 "Language-Team: \n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -16,12 +15,12 @@ msgstr ""
 "Plural-Forms: \n"
 
 #. module: wujia_franchise
-#: model:ir.ui.menu,name:wujia_franchise.menu_wujia_root
+#: menu:wujia_franchise.menu_wujia_franchise_mgmt
 msgid "Franchise Management"
 msgstr ""
 
 #. module: wujia_franchise
-#: model:ir.ui.menu,name:wujia_franchise.menu_wujia_operation_root
+#: menu:wujia_franchise.menu_wujia_operation_root
 msgid "Operations"
 msgstr ""
 
@@ -31,12 +30,12 @@ msgid "Franchise Management"
 msgstr ""
 
 #. module: wujia_franchise
-#: model:ir.ui.menu,name:wujia_franchise.menu_wujia_franchise_member
+#: menu:wujia_franchise.menu_wujia_franchise_member
 msgid "Franchise Members"
 msgstr ""
 
 #. module: wujia_franchise
-#: model:ir.ui.menu,name:wujia_franchise.menu_wujia_inspection_supervision_root
+#: menu:wujia_franchise.menu_wujia_inspection_root
 msgid "Store Supervision"
 msgstr ""
 
@@ -46,7 +45,7 @@ msgid "Supervision Sheets"
 msgstr ""
 
 #. module: wujia_franchise
-#: model:ir.ui.menu,name:wujia_franchise.menu_wujia_inspection_schedule
+#: model_terms:ir.ui.view,arch_db:wujia_supervision_schedule_form
 msgid "Supervision Schedule"
 msgstr ""
 
@@ -56,17 +55,17 @@ msgid "Stores Needing Supervision"
 msgstr ""
 
 #. module: wujia_franchise
-#: model:ir.ui.menu,name:wujia_franchise.menu_wujia_inspection_remediation
+#: menu:wujia_franchise.menu_wujia_franchise_inspection_remediation
 msgid "Pending Remediation"
 msgstr ""
 
 #. module: wujia_franchise
-#: model:ir.ui.menu,name:wujia_franchise.menu_wujia_inspection_history
+#: model_terms:ir.ui.view,arch_db:wujia_franchise.view_wujia_franchise_management_form
 msgid "Supervision History"
 msgstr ""
 
 #. module: wujia_franchise
-#: model:ir.ui.menu,name:wujia_franchise.menu_wujia_inspection_config_root
+#: menu:wujia_franchise.menu_wujia_inspection_config
 msgid "Supervision Configuration"
 msgstr ""
 
@@ -106,17 +105,17 @@ msgid "Violation Analysis"
 msgstr ""
 
 #. module: wujia_franchise
-#: model:ir.ui.menu,name:wujia_franchise.menu_wujia_config_root
+#: menu:wujia_franchise.menu_wujia_franchise_config
 msgid "Configuration"
 msgstr ""
 
 #. module: wujia_franchise
-#: model:ir.ui.menu,name:wujia_franchise.menu_wujia_config_area_root
+#: menu:wujia_franchise.menu_wujia_area_mgmt
 msgid "Area Management"
 msgstr ""
 
 #. module: wujia_franchise
-#: model:ir.ui.menu,name:wujia_franchise.menu_wujia_config_area
+#: menu:wujia_franchise.menu_res_area
 msgid "Areas"
 msgstr ""
 
@@ -151,7 +150,7 @@ msgid "Supervision Template"
 msgstr ""
 
 #. module: wujia_franchise
-#: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection__inspector_user_id
+#: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection__inspector_id
 msgid "Inspector"
 msgstr ""
 
@@ -221,7 +220,7 @@ msgid "Member Count"
 msgstr ""
 
 #. module: wujia_franchise
-#: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_management__effective_supervision_user_id
+#: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_management__supervisor_user_id
 msgid "Supervisor"
 msgstr ""
 
@@ -326,7 +325,7 @@ msgid "Location"
 msgstr ""
 
 #. module: wujia_franchise
-#: model_terms:ir.ui.view,arch_db:wujia_franchise.view_wujia_supervision_schedule_form
+#: model_terms:ir.ui.view,arch_db:wujia_supervision_schedule_form
 msgid "Open Google Maps"
 msgstr ""
 
@@ -391,7 +390,7 @@ msgid "Status"
 msgstr ""
 
 #. module: wujia_franchise
-#: model:ir.model.fields,field_description:wujia_franchise.field_wujia_supervision_schedule__note
+#: model:ir.model.fields,field_description:wujia_supervision_schedule.field_wujia_supervision_schedule__note
 msgid "Notes"
 msgstr ""
 
@@ -431,17 +430,17 @@ msgid "Phone Number"
 msgstr ""
 
 #. module: wujia_franchise
-#: model:ir.model.fields,field_description:wujia_franchise.field_wujia_supervision_schedule__google_map_url
+#: model:ir.model.fields,field_description:wujia_supervision_schedule.field_wujia_supervision_schedule__google_map_url
 msgid "Google Maps Location"
 msgstr ""
 
 #. module: wujia_franchise
-#: model:ir.model.fields.selection,name:wujia_franchise.selection__wujia_supervision_schedule__state__draft
+#: model:ir.model.fields.selection,name:wujia_franchise.selection__wujia_franchise_inspection__state__draft
 msgid "Draft"
 msgstr ""
 
 #. module: wujia_franchise
-#: model:ir.model.fields.selection,name:wujia_franchise.selection__wujia_supervision_schedule__state__in_progress
+#: model:ir.model.fields.selection,name:wujia_franchise.selection__wujia_franchise_inspection__state__in_progress
 msgid "In Progress"
 msgstr ""
 
@@ -456,7 +455,7 @@ msgid "Done"
 msgstr ""
 
 #. module: wujia_franchise
-#: model:ir.model.fields.selection,name:wujia_franchise.selection__wujia_supervision_schedule__state__cancel
+#: model:ir.model.fields.selection,name:wujia_franchise.selection__wujia_franchise_inspection__state__cancel
 msgid "Cancelled"
 msgstr ""
 
@@ -536,7 +535,7 @@ msgid "Employee Name"
 msgstr ""
 
 #. module: wujia_franchise
-#: model_terms:ir.ui.view,arch_db:wujia_franchise.view_wujia_franchise_inspection_form
+#: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection__tenure
 msgid "Tenure"
 msgstr ""
 
@@ -581,7 +580,7 @@ msgid "Is Pass"
 msgstr ""
 
 #. module: wujia_franchise
-#: model_terms:ir.ui.view,arch_db:wujia_franchise.view_wujia_franchise_inspection_form
+#: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection_line__previous_result
 msgid "Previous Result"
 msgstr ""
 
@@ -746,17 +745,17 @@ msgid "Time (By Day)"
 msgstr ""
 
 #. module: wujia_franchise
-#: model:ir.model.fields.selection,name:wujia_franchise.selection__wujia_franchise_inspection_line__result__pass
+#: selection:wujia.franchise.inspection.line:result:pass
 msgid "Pass"
 msgstr ""
 
 #. module: wujia_franchise
-#: model:ir.model.fields.selection,name:wujia_franchise.selection__wujia_franchise_inspection_line__result__fail
+#: selection:wujia.franchise.inspection.line:result:fail
 msgid "Fail"
 msgstr ""
 
 #. module: wujia_franchise
-#: model:ir.model.fields.selection,name:wujia_franchise.selection__wujia_franchise_inspection_line__remediation_state__need_remediation
+#: model:ir.model.fields.selection,name:wujia_franchise.selection__wujia_franchise_inspection__state__need_remediation
 msgid "Need Remediation"
 msgstr ""
 
@@ -856,7 +855,7 @@ msgid "Sequence"
 msgstr ""
 
 #. module: wujia_franchise
-#: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection_line__display_type
+#: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection_template_line__display_type
 msgid "Display Type"
 msgstr ""
 
@@ -1016,7 +1015,7 @@ msgid "Checklist"
 msgstr ""
 
 #. module: wujia_franchise
-#: model_terms:ir.ui.view,arch_db:wujia_franchise.inspection_survey_do_page
+#: model_terms:ir.ui.view,arch_db:wujia_franchise.view_wujia_franchise_inspection_form
 msgid "Staff Exam"
 msgstr ""
 
@@ -1081,7 +1080,7 @@ msgid "Previous Round: Fail"
 msgstr ""
 
 #. module: wujia_franchise
-#: model_terms:ir.ui.view,arch_db:wujia_franchise.inspection_survey_do_page
+#: model:ir.model.fields.selection,name:wujia_franchise.selection__wujia_franchise_inspection_line__result__fail
 msgid "Fail"
 msgstr ""
 
@@ -1206,12 +1205,12 @@ msgid "Evaluate this criterion:"
 msgstr ""
 
 #. module: wujia_franchise
-#: model_terms:ir.ui.view,arch_db:wujia_franchise.inspection_survey_do_page
+#: model:ir.model.fields.selection,name:wujia_franchise.selection__wujia_franchise_inspection_line__result__pass
 msgid "Pass"
 msgstr ""
 
 #. module: wujia_franchise
-#: model_terms:ir.ui.view,arch_db:wujia_franchise.inspection_survey_do_page
+#: model:ir.model.fields.selection,name:wujia_franchise.selection__wujia_franchise_inspection__state__done
 msgid "Done"
 msgstr ""
 
@@ -1436,7 +1435,7 @@ msgid "Save Question"
 msgstr ""
 
 #. module: wujia_franchise
-#: model_terms:ir.ui.view,arch_db:wujia_franchise.view_wujia_franchise_inspection_question_form
+#: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection_exam_line__quest_code_snapshot
 msgid "Question Code"
 msgstr ""
 
@@ -1446,7 +1445,7 @@ msgid "Correct Answers"
 msgstr ""
 
 #. module: wujia_franchise
-#: model_terms:ir.ui.view,arch_db:wujia_franchise.view_wujia_franchise_inspection_question_form
+#: model_terms:ir.ui.view,arch_db:wujia_franchise.view_wujia_franchise_management_form
 msgid "General Information"
 msgstr ""
 
@@ -1501,11 +1500,705 @@ msgid "Create a new inspection question for the library!"
 msgstr ""
 
 #. module: wujia_franchise
-#: model:ir.actions.act_window,name:wujia_franchise.action_wujia_franchise_inspection_report_violation
+#: menu:wujia_franchise.menu_wujia_franchise_inspection_report_violation
 msgid "Violation Criteria Analysis"
 msgstr ""
 
 #. module: wujia_franchise
 #: model_terms:ir.ui.view,arch_db:wujia_franchise.view_wujia_franchise_inspection_line_search
 msgid "Violation criteria analysis report on completed inspection sheets!"
+msgstr ""
+
+#. module: wujia_franchise
+#: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection__name
+msgid "Inspection Name"
+msgstr ""
+
+#. module: wujia_franchise
+#: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection__submit_date
+msgid "Submission Date"
+msgstr ""
+
+#. module: wujia_franchise
+#: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection__exam_score
+msgid "Staff Exam Score"
+msgstr ""
+
+#. module: wujia_franchise
+#: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection__next_due_date
+msgid "Next Inspection Date"
+msgstr ""
+
+#. module: wujia_franchise
+#: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection__next_schedule_id
+msgid "Next Supervision Schedule"
+msgstr ""
+
+#. module: wujia_franchise
+#: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection__template_id
+msgid "Inspection Template"
+msgstr ""
+
+#. module: wujia_franchise
+#: model_terms:ir.ui.view,arch_db:wujia_franchise.view_wujia_franchise_management_form
+msgid "Franchise Store"
+msgstr ""
+
+#. module: wujia_franchise
+#: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection__previous_inspection_id
+msgid "Previous Inspection"
+msgstr ""
+
+#. module: wujia_franchise
+#: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection__confirmed_user_id
+msgid "System Confirmer"
+msgstr ""
+
+#. module: wujia_franchise
+#: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection__confirmed_member_id
+msgid "Store Manager Confirmer"
+msgstr ""
+
+#. module: wujia_franchise
+#: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection__line_ids
+msgid "Inspection Details"
+msgstr ""
+
+#. module: wujia_franchise
+#: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection__exam_line_ids
+msgid "Staff Exam Lines"
+msgstr ""
+
+#. module: wujia_franchise
+#: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection__report_line_ids
+msgid "Revenue Report Lines"
+msgstr ""
+
+#. module: wujia_franchise
+#: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection__is_exam_submitted
+msgid "Exam Submitted"
+msgstr ""
+
+#. module: wujia_franchise
+#: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection__exam_submitted_date
+msgid "Exam Submitted Date"
+msgstr ""
+
+#. module: wujia_franchise
+#: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection__inspection_chart_data
+msgid "Inspection Chart Data"
+msgstr ""
+
+#. module: wujia_franchise
+#: selection:wujia.franchise.inspection.line:display_type:line
+msgid "Criterion Line"
+msgstr ""
+
+#. module: wujia_franchise
+#: selection:wujia.franchise.inspection.line:display_type:section
+msgid "Section Header"
+msgstr ""
+
+#. module: wujia_franchise
+#: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection_line__content_snapshot
+msgid "Checklist Content"
+msgstr ""
+
+#. module: wujia_franchise
+#: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection_line__deduction_score_snapshot
+msgid "Deduction Score"
+msgstr ""
+
+#. module: wujia_franchise
+#: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection_line__criterion_type_snapshot
+msgid "Criterion Type"
+msgstr ""
+
+#. module: wujia_franchise
+#: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection_line__is_pass
+msgid "Passed (Pass)"
+msgstr ""
+
+#. module: wujia_franchise
+#: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection_line__note
+msgid "Violation Note (Admin)"
+msgstr ""
+
+#. module: wujia_franchise
+#: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection_line__remediation_state
+msgid "Remediation Status"
+msgstr ""
+
+#. module: wujia_franchise
+#: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection_line__remediation_note
+msgid "Remediation Note (Store)"
+msgstr ""
+
+#. module: wujia_franchise
+#: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection_line__evidence_image
+msgid "Evidence Photo (Inspection)"
+msgstr ""
+
+#. module: wujia_franchise
+#: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection_line__remediation_image
+msgid "Remediation Photo"
+msgstr ""
+
+#. module: wujia_franchise
+#: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection_line__require_note_if_fail
+msgid "Require Note If Fail"
+msgstr ""
+
+#. module: wujia_franchise
+#: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection_line__require_evidence_if_fail
+msgid "Require Evidence If Fail"
+msgstr ""
+
+#. module: wujia_franchise
+#: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection_line__inspection_id
+msgid "Inspection Sheet"
+msgstr ""
+
+#. module: wujia_franchise
+#: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection_line__template_line_id
+msgid "Inspection Criterion"
+msgstr ""
+
+#. module: wujia_franchise
+#: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection_line__inspection_date
+msgid "Inspection Date"
+msgstr ""
+
+#. module: wujia_franchise
+#: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection_line__pass_count
+msgid "Pass Count"
+msgstr ""
+
+#. module: wujia_franchise
+#: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection_line__violation_count
+msgid "Violation Count"
+msgstr ""
+
+#. module: wujia_franchise
+#: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection_line__inspection_count
+msgid "Inspection Count"
+msgstr ""
+
+#. module: wujia_franchise
+#: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection_line__section_header
+msgid "Section Category"
+msgstr ""
+
+#. module: wujia_franchise
+#: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection_line__previous_line_id
+msgid "Previous Line"
+msgstr ""
+
+#. module: wujia_franchise
+#: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection_report_line__days_of_month
+msgid "Days in Month"
+msgstr ""
+
+#. module: wujia_franchise
+#: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection_report_line__revenue_avg
+msgid "Daily Average Revenue"
+msgstr ""
+
+#. module: wujia_franchise
+#: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection_report_line__total_app_sale
+msgid "Total App Orders"
+msgstr ""
+
+#. module: wujia_franchise
+#: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection_exam_line__quest_text_snapshot
+msgid "Question Text"
+msgstr ""
+
+#. module: wujia_franchise
+#: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection_exam_line__correct_answer_snapshot
+msgid "Correct Answer"
+msgstr ""
+
+#. module: wujia_franchise
+#: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection_exam_line__employee_answer
+msgid "Employee Answer"
+msgstr ""
+
+#. module: wujia_franchise
+#: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection_exam_line__score
+msgid "Score"
+msgstr ""
+
+#. module: wujia_franchise
+#: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection_exam_line__is_locked
+msgid "Locked"
+msgstr ""
+
+#. module: wujia_franchise
+#: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection_exam_line__quest_id
+msgid "Question"
+msgstr ""
+
+#. module: wujia_franchise
+#. odoo-javascript
+#. odoo-python
+#: code:addons/wujia_franchise/models/wujia_franchise_inspection.py:0
+msgid "The inspection must be 'In Progress' to submit the staff exam!"
+msgstr ""
+
+#. module: wujia_franchise
+#. odoo-javascript
+#. odoo-python
+#: code:addons/wujia_franchise/models/wujia_franchise_inspection.py:0
+msgid "Please select a date in \"Next Inspection Date\" before creating a schedule!"
+msgstr ""
+
+#. module: wujia_franchise
+#: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection_category__name
+msgid "Category Name"
+msgstr ""
+
+#. module: wujia_franchise
+#: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection_category__code
+msgid "Category Code"
+msgstr ""
+
+#. module: wujia_franchise
+#: selection:wujia.franchise.inspection.template:status:active
+msgid "Active"
+msgstr ""
+
+#. module: wujia_franchise
+#: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection_category__is_severe
+msgid "Severe Violation"
+msgstr ""
+
+#. module: wujia_franchise
+#: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection_template__name
+msgid "Template Name"
+msgstr ""
+
+#. module: wujia_franchise
+#: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection_template__code
+msgid "Template Code"
+msgstr ""
+
+#. module: wujia_franchise
+#: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection_template__version
+msgid "Version"
+msgstr ""
+
+#. module: wujia_franchise
+#: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection_template__effective_date
+msgid "Effective Date"
+msgstr ""
+
+#. module: wujia_franchise
+#: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection_template__checklist_max_score
+msgid "Checklist Max Score"
+msgstr ""
+
+#. module: wujia_franchise
+#: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection_template__exam_max_score
+msgid "Exam Max Score"
+msgstr ""
+
+#. module: wujia_franchise
+#: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection_template__total_max_score
+msgid "Total Max Score"
+msgstr ""
+
+#. module: wujia_franchise
+#: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection_template__line_ids
+msgid "Inspection Criteria"
+msgstr ""
+
+#. module: wujia_franchise
+#: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection_template_line__criterion_code
+msgid "Criterion Code"
+msgstr ""
+
+#. module: wujia_franchise
+#: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection_template_line__category_id
+msgid "Category"
+msgstr ""
+
+#. module: wujia_franchise
+#: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection_template_line__category
+msgid "Category (Legacy)"
+msgstr ""
+
+#. module: wujia_franchise
+#: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection_template_line__content
+msgid "Criterion Content"
+msgstr ""
+
+#. module: wujia_franchise
+#: selection:wujia.franchise.inspection.template.line:criterion_type:normal
+msgid "Normal"
+msgstr ""
+
+#. module: wujia_franchise
+#: selection:wujia.franchise.inspection.template.line:criterion_type:critical
+msgid "Critical / Knockout"
+msgstr ""
+
+#. module: wujia_franchise
+#: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection_grade__min_score
+msgid "Minimum Score"
+msgstr ""
+
+#. module: wujia_franchise
+#: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection_grade__max_score
+msgid "Maximum Score"
+msgstr ""
+
+#. module: wujia_franchise
+#: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_management__effective_area_manager_id
+msgid "Area Manager"
+msgstr ""
+
+#. module: wujia_franchise
+#: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_management__effective_supervision_user_id
+msgid "Assigned Supervisor"
+msgstr ""
+
+#. module: wujia_franchise
+#: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_management__latest_inspection_id
+msgid "Latest Inspection Sheet"
+msgstr ""
+
+#. module: wujia_franchise
+#: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_management__latest_inspection_score
+msgid "Latest Inspection Score"
+msgstr ""
+
+#. module: wujia_franchise
+#: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_management__latest_inspection_grade_id
+msgid "Latest Inspection Grade"
+msgstr ""
+
+#. module: wujia_franchise
+#: model:ir.model.fields,field_description:wujia_supervision_schedule.field_wujia_supervision_schedule__name
+msgid "Schedule Title"
+msgstr ""
+
+#. module: wujia_franchise
+#: model:ir.model.fields,field_description:wujia_supervision_schedule.field_wujia_supervision_schedule__date
+msgid "Scheduled Date"
+msgstr ""
+
+#. module: wujia_franchise
+#: selection:wujia.franchise.member:role:owner
+msgid "Owner"
+msgstr ""
+
+#. module: wujia_franchise
+#: selection:wujia.franchise.member:role:manager
+msgid "Manager"
+msgstr ""
+
+#. module: wujia_franchise
+#: selection:wujia.franchise.member:role:staff
+msgid "Staff"
+msgstr ""
+
+#. module: wujia_franchise
+#: selection:wujia.franchise.inspection.template:status:archived
+msgid "Archived"
+msgstr ""
+
+#. module: wujia_franchise
+#: menu:wujia_franchise.menu_wujia_franchise_inspection
+msgid "Inspection Sheets"
+msgstr ""
+
+#. module: wujia_franchise
+#: menu:wujia_franchise.menu_wujia_supervision_schedule
+msgid "Supervision Schedules"
+msgstr ""
+
+#. module: wujia_franchise
+#: menu:wujia_franchise.menu_wujia_franchise_needed_inspection
+msgid "Stores Needing Inspection"
+msgstr ""
+
+#. module: wujia_franchise
+#: menu:wujia_franchise.menu_wujia_franchise_inspection_template
+msgid "Inspection Templates"
+msgstr ""
+
+#. module: wujia_franchise
+#: menu:wujia_franchise.menu_wujia_franchise_inspection_category
+msgid "Inspection Categories"
+msgstr ""
+
+#. module: wujia_franchise
+#: menu:wujia_franchise.menu_wujia_franchise_inspection_question
+msgid "Question Library"
+msgstr ""
+
+#. module: wujia_franchise
+#: menu:wujia_franchise.menu_wujia_franchise_inspection_grade
+msgid "Inspection Grades"
+msgstr ""
+
+#. module: wujia_franchise
+#: menu:wujia_franchise.menu_wujia_inspection_report
+msgid "Reporting"
+msgstr ""
+
+#. module: wujia_franchise
+#: menu:wujia_franchise.menu_wujia_franchise_inspection_report_dashboard
+msgid "Inspection Results Analysis"
+msgstr ""
+
+#. module: wujia_franchise
+#: menu:wujia_franchise.menu_res_country_state
+msgid "Provinces / Cities"
+msgstr ""
+
+#. module: wujia_franchise
+#: menu:wujia_franchise.menu_res_ward
+msgid "Wards / Communes"
+msgstr ""
+
+#. module: wujia_franchise
+#: model_terms:ir.ui.view,arch_db:wujia_franchise.view_wujia_franchise_inspection_tree
+msgid "Franchise Inspections"
+msgstr ""
+
+#. module: wujia_franchise
+#: model_terms:ir.ui.view,arch_db:wujia_franchise.view_wujia_franchise_inspection_form
+msgid "Franchise Inspection"
+msgstr ""
+
+#. module: wujia_franchise
+#: model_terms:ir.ui.view,arch_db:wujia_franchise.view_wujia_franchise_inspection_form
+msgid "Mark Done"
+msgstr ""
+
+#. module: wujia_franchise
+#: model_terms:ir.ui.view,arch_db:wujia_franchise.view_wujia_franchise_inspection_form
+msgid "Reset to Draft"
+msgstr ""
+
+#. module: wujia_franchise
+#: model_terms:ir.ui.view,arch_db:wujia_franchise.view_wujia_franchise_inspection_form
+msgid "Create Next Schedule"
+msgstr ""
+
+#. module: wujia_franchise
+#: model_terms:ir.ui.view,arch_db:wujia_franchise.view_wujia_franchise_inspection_form
+msgid "Open Inspection Survey Web"
+msgstr ""
+
+#. module: wujia_franchise
+#: model_terms:ir.ui.view,arch_db:wujia_franchise.view_wujia_franchise_inspection_form
+msgid "Revenue Report"
+msgstr ""
+
+#. module: wujia_franchise
+#: model_terms:ir.ui.view,arch_db:wujia_franchise.view_wujia_franchise_inspection_form
+msgid "Confirmation"
+msgstr ""
+
+#. module: wujia_franchise
+#: model_terms:ir.ui.view,arch_db:wujia_franchise.view_wujia_franchise_inspection_form
+msgid "Scoring Summary"
+msgstr ""
+
+#. module: wujia_franchise
+#: model_terms:ir.ui.view,arch_db:wujia_franchise.view_wujia_franchise_inspection_form
+msgid "Next Supervision Cycle"
+msgstr ""
+
+#. module: wujia_franchise
+#: model_terms:ir.ui.view,arch_db:wujia_franchise.view_wujia_franchise_inspection_form
+msgid "System Confirmation"
+msgstr ""
+
+#. module: wujia_franchise
+#: model_terms:ir.ui.view,arch_db:wujia_franchise.view_wujia_franchise_inspection_form
+msgid "Store Manager Confirmation"
+msgstr ""
+
+#. module: wujia_franchise
+#: model_terms:ir.ui.view,arch_db:wujia_franchise.view_wujia_franchise_inspection_form
+msgid "3-Month Revenue Detail"
+msgstr ""
+
+#. module: wujia_franchise
+#: model_terms:ir.ui.view,arch_db:wujia_franchise.view_wujia_franchise_inspection_form
+msgid "Inspection Criteria List"
+msgstr ""
+
+#. module: wujia_franchise
+#: model_terms:ir.ui.view,arch_db:wujia_franchise.view_wujia_franchise_inspection_search
+msgid "Search Inspections"
+msgstr ""
+
+#. module: wujia_franchise
+#: model_terms:ir.ui.view,arch_db:wujia_franchise.view_wujia_franchise_inspection_search
+msgid "My Inspections"
+msgstr ""
+
+#. module: wujia_franchise
+#: model_terms:ir.ui.view,arch_db:wujia_franchise.view_wujia_franchise_management_tree
+msgid "Franchise Stores"
+msgstr ""
+
+#. module: wujia_franchise
+#: model_terms:ir.ui.view,arch_db:wujia_franchise.view_wujia_franchise_management_form
+msgid "Contract & Operations"
+msgstr ""
+
+#. module: wujia_franchise
+#: model_terms:ir.ui.view,arch_db:wujia_franchise.view_wujia_franchise_management_form
+msgid "Legal & Partner Information"
+msgstr ""
+
+#. module: wujia_franchise
+#: model_terms:ir.ui.view,arch_db:wujia_franchise.view_wujia_franchise_management_form
+msgid "Address & Area"
+msgstr ""
+
+#. module: wujia_franchise
+#: model_terms:ir.ui.view,arch_db:wujia_franchise.view_wujia_franchise_management_form
+msgid "Franchise Contract"
+msgstr ""
+
+#. module: wujia_franchise
+#: model_terms:ir.ui.view,arch_db:wujia_franchise.view_wujia_franchise_management_form
+msgid "Operational Controls"
+msgstr ""
+
+#. module: wujia_franchise
+#: model_terms:ir.ui.view,arch_db:wujia_franchise.view_wujia_franchise_management_form
+msgid "Assigned Personnel"
+msgstr ""
+
+#. module: wujia_franchise
+#: model_terms:ir.ui.view,arch_db:wujia_franchise.view_wujia_franchise_management_search
+msgid "Search Franchise Stores"
+msgstr ""
+
+#. module: wujia_franchise
+#: model_terms:ir.ui.view,arch_db:wujia_franchise.view_wujia_supervision_schedule_form
+msgid "Store Location & Contact"
+msgstr ""
+
+#. module: wujia_franchise
+#: model_terms:ir.ui.view,arch_db:wujia_franchise.view_wujia_supervision_schedule_form
+msgid "Latest Inspection Result"
+msgstr ""
+
+#. module: wujia_franchise
+#: model_terms:ir.ui.view,arch_db:wujia_franchise.view_wujia_supervision_schedule_form
+msgid "View Inspection Sheet"
+msgstr ""
+
+#. module: wujia_franchise
+#: model_terms:ir.ui.view,arch_db:wujia_supervision_schedule_form
+msgid "Create Inspection Sheet"
+msgstr ""
+
+#. module: wujia_franchise
+#: model_terms:ir.ui.view,arch_db:wujia_supervision_schedule_search
+msgid "Search Supervision Schedules"
+msgstr ""
+
+#. module: wujia_franchise
+#: model_terms:ir.ui.view,arch_db:wujia_franchise.view_wujia_franchise_inspection_line_tree
+msgid "Violation Criteria Details"
+msgstr ""
+
+#. module: wujia_franchise
+#: model_terms:ir.ui.view,arch_db:wujia_franchise.view_wujia_franchise_inspection_line_search
+msgid "Search Violation Criteria"
+msgstr ""
+
+#. module: wujia_franchise
+#: model_terms:ir.ui.view,arch_db:wujia_franchise.view_wujia_franchise_inspection_line_search
+msgid "Passed Criteria"
+msgstr ""
+
+#. module: wujia_franchise
+#: model_terms:ir.ui.view,arch_db:wujia_franchise.view_wujia_franchise_inspection_line_search
+msgid "Violated Criteria"
+msgstr ""
+
+#. module: wujia_franchise
+#: model_terms:ir.ui.view,arch_db:wujia_franchise.view_wujia_supervision_schedule_calendar
+msgid "Supervision Calendar"
+msgstr ""
+
+#. module: wujia_franchise
+#: model_terms:ir.ui.view,arch_db:wujia_franchise.view_wujia_supervision_schedule_form
+msgid "Store & Inspector Information"
+msgstr ""
+
+#. module: wujia_franchise
+#: model_terms:ir.ui.view,arch_db:wujia_franchise.view_wujia_supervision_schedule_form
+msgid "Address & Contact"
+msgstr ""
+
+#. module: wujia_franchise
+#: model_terms:ir.ui.view,arch_db:wujia_franchise.view_wujia_supervision_schedule_form
+msgid "Schedule Date & Latest Inspection Result"
+msgstr ""
+
+#. module: wujia_franchise
+#: model_terms:ir.ui.view,arch_db:wujia_franchise.view_wujia_supervision_schedule_search
+msgid "My Schedules"
+msgstr ""
+
+#. module: wujia_franchise
+#: model_terms:ir.ui.view,arch_db:wujia_franchise.view_franchise_management_search
+msgid "My Assigned Stores"
+msgstr ""
+
+#. module: wujia_franchise
+#: model_terms:ir.ui.view,arch_db:wujia_franchise.view_franchise_management_form
+msgid "Expired"
+msgstr ""
+
+#. module: wujia_franchise
+#: model_terms:ir.ui.view,arch_db:wujia_franchise.view_franchise_management_form
+msgid "Portal Locked"
+msgstr ""
+
+#. module: wujia_franchise
+#: model_terms:ir.ui.view,arch_db:wujia_franchise.view_franchise_management_form
+msgid "Area & Address"
+msgstr ""
+
+#. module: wujia_franchise
+#: model_terms:ir.ui.view,arch_db:wujia_franchise.view_wujia_franchise_inspection_line_search
+msgid "Template Criterion"
+msgstr ""
+
+#. module: wujia_franchise
+#: model_terms:ir.ui.view,arch_db:wujia_franchise.view_wujia_franchise_inspection_line_form
+msgid "Historical Criterion Details"
+msgstr ""
+
+#. module: wujia_franchise
+#: model_terms:ir.ui.view,arch_db:wujia_franchise.view_wujia_franchise_inspection_line_form
+msgid "Violation Evidence (Inspection)"
+msgstr ""
+
+#. module: wujia_franchise
+#: model_terms:ir.ui.view,arch_db:wujia_franchise.view_wujia_franchise_inspection_line_form
+msgid "Remediation Photo (Store)"
+msgstr ""
+
+#. module: wujia_franchise
+#: model_terms:ir.ui.view,arch_db:wujia_franchise.view_wujia_franchise_inspection_grade_form
+msgid "Grade Information"
+msgstr ""
+
+#. module: wujia_franchise
+#: model_terms:ir.ui.view,arch_db:wujia_franchise.view_wujia_franchise_inspection_grade_form
+msgid "Score Range"
 msgstr ""
