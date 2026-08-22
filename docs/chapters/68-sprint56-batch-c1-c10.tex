@@ -1,0 +1,184 @@
+\chapter{Sprint 56 --- Batch C1--C10: đóng 32 issue \texttt{Ready for Dev} của tab \texttt{5. Issue List} (2026-08-15 $\rightarrow$ 2026-08-23)}
+
+\section{Bối cảnh}
+
+Ngày 14/08/2026 tab \texttt{5. Issue List} tồn \textbf{32 issue} ở trạng thái
+\texttt{Ready for Dev} (STT 83--114), toàn bộ \texttt{Owner = Dev},
+\texttt{Need BA Confirm = No}. Phiên 14/08 \textbf{không viết một dòng code nào}: đọc hết 32
+issue, đối chiếu với source thật, rồi chia thành \textbf{10 cụm theo gốc rễ chung} chứ không
+theo thứ tự trong sheet --- bảng cụm nằm ở \texttt{docs/next-session-clusters-C.md} và §13 của
+compact summary.
+
+Chủ dự án chốt ba luật cho cả batch:
+
+\begin{enumerate}
+\item \textbf{Mỗi phiên đúng một cụm}, một lần \texttt{-u}, một lần deploy UAT. Không gộp cụm
+  để ``cho nhanh''.
+\item \textbf{Không được chạy \texttt{/wujia-end-sprint} cho tới khi đủ 10/10 cụm.} Chốt sprint
+  sớm thì chapter và commit lệch nhau, phiên sau nạp ngữ cảnh sai.
+\item \textbf{Clean code}: sửa ở đúng chỗ gốc, tách helper dùng chung thay vì chép; không thêm
+  field/file khi cái sẵn có đủ; comment chỉ giải thích \emph{tại sao} ở chỗ khó đoán.
+\end{enumerate}
+
+Thứ tự chạy \textbf{không phải} C1$\rightarrow$C10 tuần tự mà là
+C1 $\rightarrow$ C2 $\rightarrow$ C3 $\rightarrow$ C4 $\rightarrow$ C5 $\rightarrow$ C9
+$\rightarrow$ C10 $\rightarrow$ C6 $\rightarrow$ C7 $\rightarrow$ C8, vì có ràng buộc phụ
+thuộc: C1 sửa gốc dữ liệu mà C2/C3/C5 cần để retest; C6 (trạng thái tương tác của component
+chung) phải xong trước C7 (Home dùng lại các trạng thái đó); C8 chạm heading của mọi trang nên
+để cuối, chạy sau khi C7 đã sắp lại Home thì khỏi làm hai lần.
+
+\section{Kết quả từng cụm}
+
+\begin{itemize}
+\item \textbf{C1 --- Franchise backend} (3 issue, \texttt{b623b70}, 15/08). Gốc rễ: cửa hàng
+  không suy được từ đối tác, không được kiểm tra ở backend, và không kế thừa khi tạo giấy báo
+  có. Một helper dùng chung partner $\rightarrow$ cửa hàng (một truy vấn có chỉ mục, không tìm
+  trong vòng lặp), chặn ở \texttt{action\_confirm} / \texttt{button\_validate} /
+  \texttt{action\_post} nên import và API cũng không lọt.
+
+\item \textbf{C2 --- Công nợ, luồng dữ liệu} (4 issue, \texttt{c656b95}, 15/08). 38/38 ô đo
+  đạt, 113 test xanh.
+
+\item \textbf{C3 --- Công nợ, giao diện} (5 issue, \texttt{0398fa3}, 15/08). 115/115 ô đo đạt
+  ở 6 chiều rộng, 38 test $+$ 116 hồi quy xanh.
+
+\item \textbf{C4 --- Kiến thức} (4 issue, \texttt{a292547}, 15/08). 60/60 ô đo, 14 test mới
+  $+$ 87 hồi quy.
+
+\item \textbf{C5 --- Giao hàng} (4 issue, \texttt{94756ff}, 15/08). 20/20 ô đo, 9 test mới
+  $+$ 75 hồi quy.
+
+\item \textbf{C9 --- Lịch sử đặt hàng} (3 issue, \texttt{9a8784b}, 15/08). 26/26 ô đo ở
+  360/391/1920. Bẫy: CSS gốc nằm ở \texttt{wujia\_portal\_layout} nên lệnh \texttt{-u} phải
+  kèm module đó, thiếu là deploy xong không thấy đổi gì.
+
+\item \textbf{C10 --- Đăng ký thi} (2 issue, \texttt{f99321b}, 18/08). 33/33 ô đo, 20 test mới
+  $+$ 82 hồi quy. Đã deploy UAT và đo lại trên UAT 30/30 --- trừ nhánh ``ca thi thắng khoá'' vì
+  UAT hết ca mở.
+
+\item \textbf{C6 --- Trạng thái tương tác} (1 issue, \texttt{c2592b3}, 19/08). Xem §3.
+
+\item \textbf{C7 --- Trang chủ} (5 issue, \texttt{b33b46f}, 19/08). Năm issue \textbf{một gốc
+  rễ}: Home dựng dồn qua nhiều sprint nên mỗi khối một khung chứa, một dấu hiệu bấm được, một
+  giới hạn số dòng riêng. Gom về một hằng \texttt{HOME\_PREVIEW\_LIMIT} và một bộ
+  \texttt{.wujia-mdash-card/-row}; 11 mũi tên cấp dòng $\rightarrow$ 0; chiều cao Home
+  2752 $\rightarrow$ 2634 điểm ảnh ở khổ 360 với cùng dữ liệu.
+
+\item \textbf{C8 --- Tiêu đề khối danh sách} (1 issue, hai phiên: \texttt{59299f1} 22/08 và
+  \texttt{02f77ca} 23/08). Xem §4.
+\end{itemize}
+
+\section{C6 --- gốc rễ nằm ở thứ tự nạp CSS, không nằm ở CSS của mình}
+
+Issue báo: mọi liên kết trong portal bị gạch chân khi rê chuột, và nhiều chỗ mất viền chỉ dấu
+bàn phím. Đọc code custom thì \emph{không có} rule nào gạch chân. Gốc rễ thật là \textbf{một
+rule \texttt{a:hover\{text-decoration:underline\}} của bundle \texttt{web.assets\_frontend}
+được nạp SAU toàn bộ CSS custom}.
+
+Cách xử lý: thay vì rải \texttt{!important} khắp nơi, gom toàn bộ trạng thái tương tác vào một
+tầng mới \texttt{\_interaction.css} nạp cuối cùng và thắng bằng độ đặc hiệu của bộ chọn.
+
+Điểm đáng ghi nhất của cụm này là \textbf{local không tái hiện được lỗi}: UAT có cài
+\texttt{website\_sale} nên bundle khác hẳn máy dev. Bằng chứng phải lấy bằng cách nhúng thẳng
+CSS ứng viên vào chính UAT rồi đo trước/sau: gạch chân 18$\rightarrow$0 ở khổ 1920 và
+34$\rightarrow$0 ở khổ 391, thiếu viền chỉ dấu 46$\rightarrow$0 và 43$\rightarrow$0, 0 dịch
+layout; đi phím Tab thật 7/124 $\rightarrow$ 124/124.
+
+\section{C8 --- một khuôn duy nhất cho tiêu đề khối danh sách}
+
+Đây là cụm dài nhất, phải tách làm hai phiên.
+
+\subsection{Kiểm kê trước, code sau}
+
+Portal có \textbf{183 tiêu đề thô}. Phân loại \textbf{theo tổ tiên trong cây DOM} chứ không
+theo tên class: nếu tổ tiên gần nhất có nền $+$ bo góc $+$ đệm thì đó là tiêu đề của thẻ, thuộc
+component khác, ngoài phạm vi. Kết quả: 89 tiêu đề thẻ $+$ 3 tiêu đề trang $+$ 24 loại khác
+nằm ngoài phạm vi, còn lại là các chỗ thật sự phải đổi
+(\texttt{docs/c8-heading-inventory.md}).
+
+\subsection{Hai điều Odoo 19 không cho làm}
+
+\begin{itemize}
+\item \textbf{QWeb Odoo 19 không có directive đặt tên thẻ động.} Cặp
+  \texttt{t-tag-open/t-tag-close} là chi tiết kỹ thuật bên trong trình biên dịch, sinh ra từ
+  thẻ tĩnh (\texttt{ir\_qweb.py:1705}), không dùng được từ template. Vì vậy component phải rẽ
+  ba nhánh \texttt{t-if/t-elif/t-else} cho ba cấp tiêu đề --- xấu nhưng là cách duy nhất.
+\item \textbf{Comment XML cấm hai gạch nối liền nhau.} Viết tên một modifier BEM có
+  \texttt{-{}-} vào comment là chết build với \texttt{XMLSyntaxError}. Phải diễn đạt bằng lời.
+\end{itemize}
+
+\subsection{Ép luật ``tối đa một thứ bên phải'' bằng chính component}
+
+Có màn cần bên phải là con số đếm, có màn cần là liên kết ``Xem tất cả'', và ở trang công nợ
+thì \emph{tuỳ dữ liệu} mà là cái nào. Thay vì để mỗi màn tự nhớ luật, component chọn theo thứ
+tự ưu tiên \texttt{action > control > meta}: màn cứ truyền cả hai, component tự bỏ bớt.
+
+\begin{verbatim}
+<t t-set="_sh_slot"
+   t-value="'action' if sh_action_url else
+            ('control' if sh_control else ('meta' if sh_meta else 'none'))"/>
+\end{verbatim}
+
+\subsection{Chống tái phát}
+
+Sau khi đổi hết, các class tiêu đề rời cũ bị xoá hẳn khỏi mã nguồn, kèm một test quét
+\texttt{ir.ui.view.arch\_db} của toàn bộ giao diện và bắt lỗi nếu có class nào sống lại. Ràng
+buộc thứ tự: \textbf{chỉ được xoá CSS sau khi đã đổi xong template dùng nó} --- xoá trước là
+vỡ giao diện im lặng.
+
+\subsection{Số đo}
+
+C8a 46/46 ô, C8b 62/62 ô trên bản sao cơ sở dữ liệu; 64 test; lưới hồi quy 17 tuyến $\times$ 2
+khổ màn hình \textbf{286/286}; đi phím Tab \textbf{447/447} điểm dừng còn viền chỉ dấu. Đo lại
+sau khi deploy UAT: 58/60 (hai ô không đo được vì UAT không có hoá đơn đến hạn nên trang thanh
+toán chuyển hướng đúng như thiết kế) $+$ 46/46 $+$ 286/286 $+$ 448/448.
+
+\section{Quy trình đo áp cho cả 10 cụm}
+
+Mỗi cụm đều: bản sao cơ sở dữ liệu \textbf{cô lập trên cổng riêng} (không đụng cơ sở dữ liệu
+dev chính), một bảng đối chiếu \texttt{Yêu cầu | Đo được | Đạt/Không} phải $\geq$ 90\%, hồi quy
+tối thiểu 3 trang $\times$ 2 khổ màn hình, rồi mới ghi ledger và đồng bộ sheet. \textbf{Dev
+không tự đóng \texttt{Done}}, chỉ đẩy tới \texttt{Ready for Retest}.
+
+Hai lần trong batch này bảng đo ra đỏ mà \textbf{lỗi nằm ở bộ đo, không nằm ở code}:
+
+\begin{enumerate}
+\item Trang công nợ ra rỗng vì bản sao chỉ có đúng một hoá đơn nháp không gắn cửa hàng ---
+  mồi dữ liệu xong là đủ điểm.
+\item Bốn ô đỏ ở trang hỗ trợ vì phiếu đang mở thuộc cửa hàng khác với cửa hàng đang chọn, nên
+  bị đẩy về danh sách \emph{đúng như phân quyền thiết kế}. Đây chính là ``4 ô đỏ có sẵn'' mà
+  hai sprint trước từng ghi nhận mà chưa truy ra gốc.
+\end{enumerate}
+
+Bài học lặp lại: \textbf{bảng đo ra đỏ thì nghi bộ đo và dữ liệu trước, đừng vội sửa code}.
+
+\section{Gì đã làm (mức nghiệp vụ)}
+
+Batch này dọn 32 lỗi giao diện và dữ liệu mà bên kiểm thử ghi nhận trong đợt rà UAT đầu tháng
+8. Người dùng portal --- tức chủ và nhân viên của khoảng 1500 cửa hàng nhượng quyền --- sẽ thấy
+portal ``đều tay'' hơn: tiêu đề các khối danh sách cùng một cỡ trên cùng một loại màn hình,
+liên kết không còn bị gạch chân loạn khi rê chuột, đi bằng bàn phím luôn nhìn thấy mình đang ở
+đâu, trang chủ ngắn lại và các khối cùng một kiểu bấm. Phía kế toán và vận hành thì được lợi ở
+phần dữ liệu: đơn hàng, phiếu kho và hoá đơn nay bắt buộc phải gắn đúng cửa hàng, kể cả khi
+tạo bằng import hay API, và giấy báo có tự kế thừa cửa hàng của hoá đơn gốc thay vì để trống.
+
+\section{Lý do và đánh đổi}
+
+\begin{itemize}
+\item \textbf{Độ đậm tiêu đề giữ 700 thay vì 800.} Bảng thành phần mới ghi 800 nhưng một yêu
+  cầu trước đó đang ép cứng toàn portal về 700. Dev \textbf{không tự chọn}: giữ 700 cho khớp
+  cái đang chạy, ghi câu hỏi vào phần LIMIT chờ BA chốt.
+\item \textbf{Nhịp dọc trang công nợ đổi từ 24/12 sang 16/8.} Con số 24/12 là luật riêng của
+  màn đó, từng được BA nghiệm thu ở cụm C3. Chủ dự án chốt bỏ luật riêng để mọi màn cùng một
+  cách tính --- ưu tiên đồng bộ hơn giữ nguyên con số cũ. Đã ghi rõ cho BA biết khi retest.
+\item \textbf{Khối ``Thông tin chuyển khoản'' đi qua khuôn chung nhưng giữ dáng nhãn nhỏ.} Ép
+  đúng cỡ chữ của khuôn thì tràn thẻ cao cố định 150 điểm ảnh. Chọn phương án dung hoà, và giữ
+  phần CSS riêng đó \emph{trong} tệp của module công nợ chứ không đẩy vào tệp dùng chung.
+\end{itemize}
+
+\section{Còn treo lại cho BA}
+
+Ba câu hỏi cố ý \textbf{không đoán} mà để lại kèm \texttt{Need Clarification}: chọn 800 hay
+700; tiêu đề nằm trong khung có tính là tiêu đề khối không (câu này đang chặn đúng một chỗ ở
+màn Khảo sát, Dev cố ý chưa đổi); và dòng đếm trên tiêu đề trang có áp cùng quy tắc viết đầy
+đủ không. Module Phản hồi khắc phục đã bị gỡ khỏi hệ thống nên \textbf{cố ý} nằm ngoài batch.
