@@ -22,9 +22,9 @@
                 <link rel="stylesheet" href="/wujia_franchise/static/src/css/inspection_survey.css" />
             </head>
             <body>
-                <script type="text/javascript">
-                    window.SURVEY_TRANS = <t t-out="tj"/>;
-                </script>
+                <!-- Bảng dịch đi qua thuộc tính: trình duyệt không giải mã thực thể bên
+                     trong <script>, nên t-out ở đó làm chết cả khối JS (L11). -->
+                <div id="surveyTransData" class="d-none" t-att-data-trans="tj"/>
                 <div id="surveyApp" t-att-data-inspection-id="inspection.id"
                     t-att-data-max-checklist-score="max_checklist_score"
                     t-att-data-is-exam-submitted="'true' if is_exam_submitted else 'false'"

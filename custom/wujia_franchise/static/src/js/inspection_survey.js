@@ -4,12 +4,24 @@
 
 (function () {
   "use strict";
+  let _trans = null;
+  function _loadTrans() {
+    const el = document.getElementById("surveyTransData");
+    try {
+      _trans = el ? JSON.parse(el.dataset.trans || "{}") : {};
+    } catch (e) {
+      _trans = {};
+    }
+    window.SURVEY_TRANS = _trans;
+    return _trans;
+  }
   function _t(key, defVal) {
-    return (window.SURVEY_TRANS && window.SURVEY_TRANS[key]) || defVal || key;
+    return (_trans || _loadTrans())[key] || defVal || key;
   }
 
 
   document.addEventListener("DOMContentLoaded", function () {
+    _loadTrans();
     const app = document.getElementById("surveyApp");
     if (!app) return;
 
