@@ -204,16 +204,22 @@
 
                     <t t-call="wujia_portal_debt.wj_debt_history_row"/>
 
-                    <div class="wj-debt-section">
-                        <h2 class="wj-debt-section__title"
-                            t-out="'Hóa đơn còn số dư' if summary['state'] == 'partial' else 'Hóa đơn trong tuần'"/>
-                        <a t-if="hidden_count"
-                           t-attf-href="/portal/debt?week=#{summary['week_key']}&amp;all=1"
-                           class="wj-debt-section__more">Xem thêm <t t-out="hidden_count"/> hóa đơn ›</a>
-                        <span t-else="" class="wj-debt-section__count">
-                            <t t-out="summary['invoice_count']"/> hóa đơn
-                        </span>
-                    </div>
+                    <!-- CMP-SH-001. Còn hoá đơn bị ẩn thì right slot là link, không thì là
+                         count — component tự ưu tiên action > meta nên chỉ ra MỘT slot. -->
+                    <t t-call="wujia_portal_layout.wj_section_header">
+                        <t t-set="sh_title"
+                           t-value="'Hóa đơn còn số dư' if summary['state'] == 'partial' else 'Hóa đơn trong tuần'"/>
+                        <t t-set="sh_level" t-value="2"/>
+                        <t t-set="sh_platform" t-value="'m'"/>
+                        <t t-set="sh_action_url"
+                           t-value="('/portal/debt?week=%s&amp;all=1' % summary['week_key']) if hidden_count else False"/>
+                        <t t-set="sh_action_label">Xem thêm <t t-out="hidden_count"/> hóa đơn ›</t>
+                        <t t-set="sh_meta">
+                            <span class="wj-section-header__meta">
+                                <t t-out="summary['invoice_count']"/> hóa đơn
+                            </span>
+                        </t>
+                    </t>
 
                     <div class="wj-debt-invoices">
                         <t t-foreach="invoices" t-as="inv">
@@ -508,12 +514,16 @@
                         xác nhận trong thời gian đã chọn.</span>
                 </div>
 
-                <div class="wj-debt-section">
-                    <h2 class="wj-debt-section__title">Các khoản thanh toán</h2>
-                    <span class="wj-debt-section__count">
-                        <t t-out="len(history['payments'])"/> giao dịch
-                    </span>
-                </div>
+                <t t-call="wujia_portal_layout.wj_section_header">
+                    <t t-set="sh_title">Các khoản thanh toán</t>
+                    <t t-set="sh_level" t-value="2"/>
+                    <t t-set="sh_platform" t-value="'m'"/>
+                    <t t-set="sh_meta">
+                        <span class="wj-section-header__meta">
+                            <t t-out="len(history['payments'])"/> giao dịch
+                        </span>
+                    </t>
+                </t>
 
                 <div t-if="not history['payments']"
                      class="wj-empty-state wj-empty-state--rich wj-debt-empty">
@@ -685,7 +695,14 @@
 
                 <t t-if="bank['configured']">
                     <section class="wj-debt-bank">
-                        <h2 class="wj-debt-bank__title">THÔNG TIN CHUYỂN KHOẢN</h2>
+                        <!-- CMP-SH-001 nhưng khối này là thẻ cao cố định 150px ⇒ tắt nhịp
+                             bằng modifier flush, dáng nhãn giữ ở portal_debt.css (LIMIT chờ BA). -->
+                        <t t-call="wujia_portal_layout.wj_section_header">
+                            <t t-set="sh_title">THÔNG TIN CHUYỂN KHOẢN</t>
+                            <t t-set="sh_level" t-value="2"/>
+                            <t t-set="sh_platform" t-value="'m'"/>
+                            <t t-set="sh_class" t-value="'wj-section-header--flush'"/>
+                        </t>
                         <div class="wj-debt-bank__row">
                             <span class="wj-debt-bank__label">Ngân hàng</span>
                             <span class="wj-debt-bank__value" t-out="bank['name']"/>

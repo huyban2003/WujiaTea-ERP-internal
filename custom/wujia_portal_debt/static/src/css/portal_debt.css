@@ -223,12 +223,7 @@
 .wj-debt-actionrow__sub { font-size: 11px; font-weight: 400; color: var(--wj-debt-muted); }
 .wj-debt-actionrow__chevron { flex: 0 0 auto; font-size: 16px; color: var(--wj-debt-muted); }
 
-/* ---------- Section header (h23) ---------- */
-.wj-debt-section { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; }
-.wj-debt-section__title { margin: 0; font-size: 19px !important; font-weight: 700; color: var(--wj-debt-text); }
-.wj-debt-section__more,
-.wj-debt-section__count { flex: 0 0 auto; font-size: 13px; font-weight: 700; color: var(--wj-debt-muted); }
-.wj-debt-section__more { text-decoration: none; }
+/* Section header dùng chung CMP-SH-001 (C8b) — bộ class .wj-debt-section* đã gỡ. */
 
 /* ---------- Card hoá đơn (359×62, gap 6) ---------- */
 .wj-debt-invoices { display: flex; flex-direction: column; gap: 6px; }
@@ -287,10 +282,9 @@
 .wj-debt-banner__text { font-size: 11.5px; font-weight: 400; line-height: 18px; color: var(--wj-debt-text); }
 
 /* Slot của wj_ajax_list (S49) là <div> thường ⇒ nuốt gap 12 của .wj-debt (flex column)
-   nên mọi section dính 0px (WJ-DEBT-009). Trả lại nhịp 12, riêng banner → tiêu đề
-   danh sách là 24 (ranh giới 2 section). Scope theo id ⇒ desktop/overview không đổi. */
+   nên mọi section dính 0px (WJ-DEBT-009). Trả lại nhịp 12. Riêng nhịp quanh tiêu đề nay
+   do CMP-SH-001 lo (16/8), bỏ margin-top 12 riêng của C3 để debt tính nhịp y hệt mọi trang. */
 #wj-debt-hist-mbody { display: flex; flex-direction: column; gap: 12px; }
-#wj-debt-hist-mbody .wj-debt-section { margin-top: 12px; }
 
 .wj-debt-payments { display: flex; flex-direction: column; gap: 12px; }
 .wj-debt-pay {
@@ -344,10 +338,12 @@
     background: var(--wj-debt-card-bg);
     border-radius: var(--wj-debt-radius);
 }
-.wj-debt-bank__title {
-    margin: 0 0 8px;
+/* Tiêu đề khối này đi qua CMP-SH-001 (C8b) nhưng giữ dáng nhãn: thẻ cao cố định 150px,
+   ép 20/28 của component là tràn. Chờ BA chốt đây là tiêu đề thẻ hay tiêu đề khối. */
+.wj-debt-bank .wj-section-header { margin-bottom: 8px; }
+.wj-debt-bank .wj-section-header__title {
     font-size: 11px !important;
-    font-weight: 700;
+    line-height: normal;
     letter-spacing: 0.02em;
     color: var(--wj-debt-muted);
 }

@@ -70,8 +70,16 @@ sinh từ thẻ tĩnh — `ir_qweb.py:1705`) nên heading phải rẽ 3 nhánh `
 46/46 acceptance @391/360/1920, 15 test mới + 63 hồi quy xanh, lưới B4 **286/286**, đi Tab **248/248**.
 ⚠️ **2 spec BA mâu thuẫn**: `CMP-SH-001` ghi weight 800 nhưng `UI-06` (S35) ép `.content-wrapper h1..h6
 {font-weight:700!important}` — Dev giữ 700, đã ghi LIMIT chờ BA. Bảng đối chiếu
-`docs/c8-acceptance-matrix.md`) · C8b ☐ (5 call site còn lại: exam, debt, notification, return, report;
-⚠️ CHƯA được xoá CSS `.wujia-mhist-listhead*` vì `portal_return_list.xml:189` còn dùng)
+`docs/c8-acceptance-matrix.md`) · **C8b ✅ 23/08/2026** (nhánh `dev/2026-08-23-c8b`): 6 call
+site còn lại — debt 209/512/688, exam 759 (**chỗ C8a kiểm kê sót**) + 1036, return 189 ⇒ đủ
+**19/19**, bullet #2 từ 72% lên **100%**, issue `UI-SECTIONHEADER-001` → `Ready for Retest`.
+Xoá hẳn `.wujia-mhist-listhead*` + `.wj-debt-section*` + `.wujia-mexam-sectitle` (có unit test
+chống tái phát). Ca dung hoà debt:688 (nhãn trong thẻ cao cố định 150px): vẫn qua component
+nhưng giữ dáng nhãn scope ở `portal_debt.css`. Nhịp debt đổi **24/12 → 16/8 của component**
+theo hướng đồng bộ (chủ dự án chốt, khác con số C3 đã duyệt — đã ghi rõ cho BA).
+`wujia_portal_inspection` kiểm kê xong: **0 call site chắc chắn**, 1 chỗ chờ BA trả lời LIMIT-2;
+`wujia_portal_remediation` cố ý bỏ ngoài. 62/62 + 46/46 + 64 test + B4 286/286 + Tab 447/447
+⇒ **đủ 10/10 cụm C1–C10**.
 (đánh ✅ + ngày + commit khi xong, để phiên sau biết đang tới đâu.)
 
 ---

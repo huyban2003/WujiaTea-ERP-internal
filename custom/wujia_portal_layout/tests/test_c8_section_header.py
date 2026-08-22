@@ -111,7 +111,22 @@ class TestSectionHeaderCallSites(TransactionCase):
         'wujia_portal_sale.mcart_panel': 1,
         'wujia_portal_purchase_history.portal_history_results_part': 1,
         'wujia_portal_delivery.portal_delivery_results_part': 1,
+        # C8b
+        'wujia_portal_debt.portal_debt_overview': 1,
+        'wujia_portal_debt.portal_debt_payment_history': 1,
+        'wujia_portal_debt.portal_debt_pay': 1,
+        'wujia_portal_exam.portal_exam_register': 1,
+        'wujia_portal_exam.portal_exam_registration_detail': 1,
+        'wujia_portal_return.portal_return_list': 1,
     }
+
+    # Class rời đã bị component thay; còn sót là có màn tự dựng lại tiêu đề riêng.
+    # KHÔNG liệt `wujia-mdash-title`: return/support còn dùng nó làm nhãn TRONG card
+    # (CardHeader, ngoài scope CMP-SH-001).
+    RETIRED_CLASSES = (
+        'wujia-mhist-listhead', 'wujia-morder-listhead', 'wujia-mcart-listhead',
+        'wujia-mexam-sectitle', 'wj-debt-section__title',
+    )
 
     def test_call_sites_use_component(self):
         for xmlid, count in self.CALL_SITES.items():
@@ -119,6 +134,14 @@ class TestSectionHeaderCallSites(TransactionCase):
                 self.assertEqual(
                     self._arch(xmlid).count('wujia_portal_layout.wj_section_header'),
                     count)
+
+    def test_retired_heading_classes_are_gone(self):
+        views = self.env['ir.ui.view'].search(
+            [('arch_db', '!=', False), ('type', '=', 'qweb')])
+        for cls in self.RETIRED_CLASSES:
+            with self.subTest(css_class=cls):
+                self.assertEqual(
+                    [v.xml_id for v in views if cls in (v.arch_db or '')], [])
 
     def _sh_metas(self, xmlid):
         """Nội dung mọi slot meta của SectionHeader trong view (bỏ qua meta của

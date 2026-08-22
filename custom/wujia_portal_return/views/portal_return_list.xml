@@ -186,10 +186,14 @@
                         </div>
                     </t>
                     <t t-else="">
-                        <div class="wujia-mhist-listhead">
-                            <span class="wujia-mhist-listhead-title">Lịch sử yêu cầu</span>
-                            <span class="wj-count-meta"><t t-out="len(returns)"/> yêu cầu</span>
-                        </div>
+                        <t t-call="wujia_portal_layout.wj_section_header">
+                            <t t-set="sh_title">Lịch sử yêu cầu</t>
+                            <t t-set="sh_level" t-value="3"/>
+                            <t t-set="sh_platform" t-value="'m'"/>
+                            <t t-set="sh_meta">
+                                <span class="wj-section-header__meta"><t t-out="len(returns)"/> yêu cầu</span>
+                            </t>
+                        </t>
 
                         <!-- Empty: tìm không ra (lọc rỗng → Xóa lọc) -->
                         <div t-if="not returns" class="wj-empty-state wj-empty-state--rich">

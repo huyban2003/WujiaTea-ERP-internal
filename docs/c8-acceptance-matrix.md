@@ -1,9 +1,11 @@
 # C8 — Ma trận nghiệm thu `UI-SECTIONHEADER-001` (STT 83 · `CMP-SH-001`)
 
-Phiên 2026-08-22 · branch `dev/2026-08-22-c8` · **phạm vi C8a** (component + 5 route mẫu).
-Đo bằng máy: Playwright + chromium (env `odoo`), DB copy cô lập `wujia_tea_c8` port **8059**
-(KHÔNG đụng `wujia_tea_19`/8019). Harness ở `scratchpad/` (`c8_measure.py`, `c8_tabwalk.py`,
-`b4_regression.py`) — không đưa vào repo theo §13.
+§1–§5 = phiên 2026-08-22, branch `dev/2026-08-22-c8`, **phạm vi C8a** (component + 5 route mẫu),
+DB copy `wujia_tea_c8` port **8059**. **§6 = phiên 2026-08-23, branch `dev/2026-08-23-c8b`**,
+6 call site còn lại, DB copy `wujia_tea_c8b` port **8061**.
+Đo bằng máy: Playwright + chromium (env `odoo`); KHÔNG đụng `wujia_tea_19`/8019. Harness ở
+`scratchpad/` (`c8_measure.py`, `c8b_measure.py`, `c8_tabwalk.py`, `b4_regression.py`) —
+không đưa vào repo theo §13.
 
 ---
 
@@ -11,8 +13,8 @@ Phiên 2026-08-22 · branch `dev/2026-08-22-c8` · **phạm vi C8a** (component 
 
 | # | Yêu cầu (nguyên văn rút gọn) | Đo được | Pass/Fail |
 |---|---|---|---|
-| 1 | Toàn bộ trang Portal và route con được **audit** đúng loại heading | 183 heading thô → phân loại 132 heading trong scope: **12 SectionHeader / 89 CardHeader / 3 PageHeader / 24 Khác**, cộng 5 construct listhead không phải heading thật → tổng **18 call site** SectionHeader (`docs/c8-heading-inventory.md`) | **Pass** |
-| 2 | Toàn bộ trang Portal và route con được **migrate** | **13/18 call site** đã chuyển (C8a). 5 site còn lại (exam, debt, notification, return, report) thuộc C8b — ranh giới ghi rõ ở §4 inventory | **Fail (một phần — 72%)** |
+| 1 | Toàn bộ trang Portal và route con được **audit** đúng loại heading | 183 heading thô → phân loại 132 heading trong scope: **12 SectionHeader / 89 CardHeader / 3 PageHeader / 24 Khác**, cộng 5 construct listhead không phải heading thật → tổng **19 call site** SectionHeader (18 chốt ở C8a + 1 chỗ sót phát hiện ở C8b, `docs/c8-heading-inventory.md` §2d) | **Pass** |
+| 2 | Toàn bộ trang Portal và route con được **migrate** | **19/19 call site** đã chuyển (13 ở C8a + 6 ở C8b, xem §6) | **Pass** (từ 72% → 100%) |
 | 3 | PC title **22/30**/800 | 22px / 30px / **700** (xem LIMIT-1) | **Pass** (size+line-height) / LIMIT weight |
 | 4 | PC spacing **20px trước / 12px sau** | `mt=20px mb=12px` | **Pass** |
 | 5 | Mobile title **20/28**/800 | 20px / 28px / **700** (xem LIMIT-1) | **Pass** (size+line-height) / LIMIT weight |
@@ -29,9 +31,9 @@ Phiên 2026-08-22 · branch `dev/2026-08-22-c8` · **phạm vi C8a** (component 
 | 16 | Tách rõ **PageHeader / CardHeader / SectionHeader** | Inventory phân loại theo **tổ tiên DOM** chứ không theo tên class; 89 CardHeader giữ nguyên, 3 PageHeader thuộc `CMP-PG-001` | **Pass** (xem LIMIT-2) |
 | 17 | **Tối đa MỘT right slot** | Component tự chọn ưu tiên `action` > `control` > `meta`; unit test chứng minh truyền cả 3 chỉ render `action` | **Pass** |
 
-**Tổng: 16/17 bullet Pass (94%)** — vượt ngưỡng ≥90% của §13 về mặt chất lượng component,
-**nhưng bullet #2 (migrate toàn bộ) mới đạt 13/18** ⇒ theo kế hoạch C8a/C8b đã chốt với chủ dự án,
-issue **giữ ở `Ready for Dev`**, chỉ ghi tiến độ vào ledger, đóng khi C8b xong.
+**Tổng: 17/17 bullet Pass (100%)** sau C8b — bullet #2 từ 13/18 lên **19/19**. Hai LIMIT ở §3
+(weight 800-vs-700 và cách đọc rule card) **giữ nguyên**: đó là hai chỗ **hai tài liệu BA mâu
+thuẫn nhau**, Dev không tự quyết. Issue chuyển **`Ready for Retest`** (Dev không tự đóng `Done`).
 
 ---
 
@@ -76,7 +78,8 @@ Spec nói heading trong card **không phải** SectionHeader, nhưng chính BA l
 "Danh sách sản phẩm" (`/portal/order` PC, trong `.wj-pc-order-card`) là SectionHeader.
 Dev diễn giải: **card đóng vai container của một danh sách** thì heading đầu danh sách vẫn là
 SectionHeader; card nội dung thường thì là CardHeader. Chi tiết ở §2c `docs/c8-heading-inventory.md`.
-👉 **Cần BA xác nhận cách đọc này** trước khi C8b nhân ra 5 site còn lại.
+👉 **Cần BA xác nhận cách đọc này.** C8b không nhân thêm chỗ nào theo diễn giải này — chỗ duy
+nhất rơi vào ca đó (`wujia_portal_inspection` list:34) đã **để lại chờ BA**, xem mục dưới.
 
 **LIMIT-3 — meta của PageHeader trên `/portal/order` vẫn ghi "N SP" và ẩn khi = 0.**
 `portal_order_catalog.xml:95-100` (`#wj-ord-mcount`, `#wj-ord-pccount`) là slot meta của
@@ -85,10 +88,16 @@ dưới đã dùng "N sản phẩm" và hiện cả khi 0.
 👉 **Cần BA xác nhận** có áp luôn rule count (từ đầy đủ + hiện khi 0) cho PageHeader không —
 nếu có, xử lý ở C8b cùng `CMP-PG-001`.
 
-**LIMIT-4 — phạm vi C8a.** 5 call site còn lại (`portal_exam`, `portal_debt`,
-`portal_notification`, `portal_return_list`, `portal_report`) chưa migrate. ⚠️ CSS class cũ
-`.wujia-mhist-listhead*` **chưa được xoá** vì `portal_return_list.xml:189` còn dùng — chỉ xoá
-sau khi C8b chuyển nốt.
+~~**LIMIT-4 — phạm vi C8a.**~~ ✅ **Đóng ở C8b 23/08**: 6 call site còn lại đã migrate,
+`.wujia-mhist-listhead*` + `.wj-debt-section*` + `.wujia-mexam-sectitle` đã xoá.
+
+**Need Clarification (mới, C8b) — 1 chỗ ở `wujia_portal_inspection`.**
+Module giám sát nay đã installed trên UAT nên vào phạm vi. Kiểm kê ra 3 PageHeader + 12
+CardHeader + **1 chỗ lửng lơ**: `portal_inspection_list_templates.xml:34` "Danh sách phiếu
+khảo sát" nằm trong `.wj-pc-card__head` — **cấu trúc giống hệt** "Danh sách chuyến giao" mà BA
+đã tự chỉ đích danh là SectionHeader. Tức là nó phụ thuộc thẳng vào **LIMIT-2**.
+👉 Chủ dự án chốt: **để lại chờ BA trả lời câu LIMIT-2**, không đoán. `wujia_portal_remediation`
+**cố ý bỏ ngoài** (code đã bị xoá ở `f789a56`, UAT `uninstalled`).
 
 ---
 
@@ -135,3 +144,64 @@ count "5 sản phẩm" và "0 sản phẩm" khi lọc rỗng, `/portal/delivery`
    Chromium đưa focus vào shadow root; harness đã fallback qua CDP nên UAT ra 250/250.
 
 ⇒ Không phát hiện khác biệt nào giữa local và UAT. Ba LIMIT ở §3 giữ nguyên, chờ BA.
+
+---
+
+## 6. C8b — 6 call site còn lại (23/08/2026, branch `dev/2026-08-23-c8b`)
+
+DB copy cô lập **`wujia_tea_c8b` port 8061** (nền `wujia_tea_mt2` = DB đã cài sẵn + merge
+`thai`, gần UAT nhất; KHÔNG đụng `wujia_tea_19`/8019 lẫn `wujia_tea_c8`/8059). Worktree
+`WujiaTea-c8b`. Harness `c8b_measure.py` + `b4_regression.py` + `c8b_tabwalk.py` ở scratchpad,
+không vào repo (§13).
+
+### 6a. Đã migrate
+
+| Route | File:dòng | Level | Right slot | Đo được |
+|---|---|:---:|---|---|
+| `/portal/debt` | `portal_debt.xml:209` | H2 | `action` khi còn hoá đơn ẩn, không thì `meta` | 20/28/700, `#111827`; meta `1 hóa đơn` 14/20/700 `#6B7280`; nhịp 16/8; tối đa 1 slot |
+| `/portal/debt/payment-history` | `:512` | H2 | `meta` | 20/28/700; `1 giao dịch`; header nằm THẲNG trong slot `#wj-debt-hist-mbody` |
+| `/portal/debt/pay` | `:688` | H2 | — | Heading thật, giữ dáng nhãn 11px, thẻ vẫn cao **150px**, nội dung không tràn (ca dung hoà §2e inventory) |
+| `/portal/exam/register` bước 3 | `portal_exam.xml:759` | H2 | — | 20/28/700 — **chỗ C8a sót** |
+| `/portal/exam` chi tiết | `:1036` | H2 | — | 20/28/700; hai chỗ "Danh sách nhân sự" nay **cùng một cỡ** (trước 16 vs 20) |
+| `/portal/return` | `portal_return_list.xml:189` | H3 | `meta` | Từ `div`+`span` thành `H3` thật; `5 yêu cầu`; nhịp 16/8 |
+
+### 6b. Số đo máy
+
+| Hạng mục | Kết quả |
+|---|---|
+| Build `-u` 6 module (`layout,debt,exam,return,sale,inspection`), `--stop-after-init` | **RC=0** |
+| Acceptance C8b @391/360/1920 | **62/62 Pass (100%)** |
+| Acceptance C8a chạy lại (13 call site cũ) | **46/46** — không hồi quy dù đã xoá CSS dùng chung |
+| Test `wujia_section_header_c8` + `wujia_debt` + `wujia_delivery_c5` + `wujia_home_c7` | **64 test — 0 failed, 0 error** |
+| Hồi quy diện rộng kiểu B4 (17 route × 2 breakpoint + 5 trang ngoài lưới + 6 width) | **286/286** |
+| Tab-walk a11y **9 trang** × 2 viewport (thêm debt / payment-history / return / exam) | **447/447 stop có focus ring** |
+
+### 6c. Thay đổi CSS + nhịp dọc
+
+- **Xoá hẳn**: `.wujia-mhist-listhead` + `.wujia-mhist-listhead-title` (`_components.css`),
+  `.wj-debt-section*` (`portal_debt.css`), `.wujia-mpage .wujia-mexam-sectitle`
+  (`portal_exam.css`). Có unit test `test_retired_heading_classes_are_gone` chống tái phát.
+- **Nhịp debt đổi theo hướng ĐỒNG BỘ** (chủ dự án chốt 23/08): C3/WJ-DEBT-009 từng chốt riêng
+  cho `#wj-debt-hist-mbody` là `gap 12 + margin-top 12` = **24 trên / 12 dưới**. Nay bỏ rule
+  riêng đó, debt dùng đúng margin **16/8** của `CMP-SH-001` y hệt 13 chỗ C8a ⇒ thị giác thành
+  **28 trên / 20 dưới** (16 + gap 12 và 8 + gap 12) — **cùng cách tính với toàn portal**.
+  👉 Đây là con số BA từng nghiệm thu ở C3; đổi là **cố ý**, để một mình một luật thì đúng
+  bullet #16 "tách rõ và dùng chung" lại hỏng. Nhờ BA ghi nhận khi retest.
+- `?v=1172` → **`?v=1173`** (`_components.css` + `_pc_components.css`). 4 manifest bump:
+  layout `19.0.32.1.0` · debt `19.0.4.2.0` · exam `19.0.5.7.0` · return `19.0.2.5.0`.
+
+### 6d. Hai lần harness sai, KHÔNG phải code sai (L7/L9 lặp lại)
+
+1. **Lượt đầu 50/55**, 5 ô đỏ đều ở `/portal/debt` và `/portal/debt/pay`. Nguyên nhân: DB copy
+   chỉ có **1 hoá đơn nháp, `franchise_id` NULL** ⇒ trang ra empty state / `/pay` redirect
+   (đúng rule C2), không có gì để đo. Chạy `scripts/seed_debt_demo.py` ⇒ **62/62**.
+2. **Lưới B4 lượt đầu 282/286**, 4 ô đỏ ở `/portal/support/40`. Đọc DB: ticket 40 thuộc
+   **cửa hàng 1**, phiên đo đang ở HCM-01 (id 3) ⇒ bị đẩy về danh sách, đúng như thiết kế.
+   Đổi sang ticket 19 (đúng cửa hàng) ⇒ **286/286**. Đây chính là "4 ô đỏ sẵn có" mà C6/C7 ghi
+   nhận — nay đã truy ra gốc, **không phải lỗi phân quyền**.
+
+### 6e. Lỗi tự gây, ghi để khỏi lặp
+
+Comment XML chứa `--flush` ⇒ `XMLSyntaxError: Comment must not contain '--'`, build RC=255.
+**XML cấm hai gạch nối trong comment** — viết tên modifier BEM có `--` vào comment là chết
+build. Diễn đạt bằng lời ("modifier flush") thay vì dán tên class.
