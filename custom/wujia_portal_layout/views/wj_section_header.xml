@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- WJ_SectionHeader — component chuẩn hoá tiêu đề section portal (BA CMP-SH-001).
+         4 variant: default / meta / action / control — TỐI ĐA MỘT right slot (spec).
+         sh_platform 'm' | 'pc' bake sẵn visibility; bỏ trống = hiện ở mọi breakpoint.
+         sh_meta / sh_control là markup THÔ, KHÔNG bọc element — bài học B3a: 3 route dùng
+         meta làm slot swap của wj_ajax_list (replaceWith theo id), bọc thêm là vỡ. -->
+    <template id="wj_section_header" name="Wujia — Section Header component">
+        <t t-set="_sh_lvl" t-value="sh_level or 3"/>
+        <t t-set="_sh_slot"
+           t-value="'action' if sh_action_url else ('control' if sh_control else ('meta' if sh_meta else 'none'))"/>
+        <t t-set="_sh_vis"
+           t-value="('d-flex d-lg-none' if sh_platform == 'm' else 'd-none d-lg-flex') if sh_platform else 'd-flex'"/>
+        <div t-att-id="sh_id"
+             t-attf-class="wj-section-header wj-section-header--#{_sh_slot} wj-section-header--#{sh_platform or 'any'} #{_sh_vis} #{sh_class or ''}">
+            <!-- Heading THẬT theo sh_level (spec cấm <span>, cấm hard-code cùng một cấp).
+                 Odoo 19 QWeb KHÔNG có directive đặt tên thẻ động (t-tag-open/close là kỹ
+                 thuật, sinh từ thẻ tĩnh) ⇒ buộc phải rẽ nhánh, chỉ mình dòng heading. -->
+            <h2 t-if="_sh_lvl == 2" class="wj-section-header__title" t-out="sh_title"/>
+            <h4 t-elif="_sh_lvl == 4" class="wj-section-header__title" t-out="sh_title"/>
+            <h3 t-else="" class="wj-section-header__title" t-out="sh_title"/>
+
+            <a t-if="_sh_slot == 'action'" t-att-href="sh_action_url"
+               class="wj-section-header__action">
+                <span t-out="sh_action_label or 'Xem tất cả'"/>
+                <i t-if="sh_action_icon" t-attf-class="feather icon-#{sh_action_icon}"/>
+            </a>
+            <t t-elif="_sh_slot == 'control'" t-out="sh_control"/>
+            <t t-elif="_sh_slot == 'meta'" t-out="sh_meta"/>
+        </div>
+    </template>
+</odoo>

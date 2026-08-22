@@ -447,3 +447,12 @@ input[type="file"].wj-pc-control { height: auto; min-height: var(--wj-pc-input-h
 .wj-page-header--pc .wj-page-header__create { width: 122px; height: 40px; }   /* CMP-PG-001: action PC cao 40 */
 /* Notification list — bulk-read action dời từ PageHeader xuống card head (spec: header title-only) */
 .wj-pc-noti-head-actions { display: flex; align-items: center; gap: 12px; }
+
+/* WJ_SectionHeader PC (CMP-SH-001) — title 22/30/800, nhịp 20 trước / 12 sau, gap ≥16. */
+.wj-section-header--pc { margin: 20px 0 12px; column-gap: 16px; row-gap: 4px; }
+/* !important để thắng global `h2 { font-size: … !important }` (_components.css:6) */
+.wj-section-header--pc .wj-section-header__title {
+    font-size: 22px !important;
+    line-height: 30px;
+}
+.wj-section-header--pc.wj-section-header--flush { margin: 0; }

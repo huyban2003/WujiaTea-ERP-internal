@@ -57,7 +57,21 @@ một container, một dấu hiệu bấm, một limit. Gộp về 1 hằng `HOM
 `.wujia-mdash-card/-row`; 11 chevron cấp dòng → 0; nhãn KPI bỏ ellipsis, 4 KPI vẫn 1 hàng ở 360px;
 mã đơn chiếm trọn dòng 1. Chiều cao Home 2752→2634 @360 cùng dữ liệu. 27/27 acceptance, 5 test mới
 + 43 hồi quy xanh, lưới B4 282/286 y hệt C6, đi Tab 124/124; KPI chứng minh ngay trên UAT bằng
-nhúng CSS (cắt 1→0) — bảng đối chiếu `docs/c7-acceptance-matrix.md`) · C8 ☐
+nhúng CSS (cắt 1→0) — bảng đối chiếu `docs/c7-acceptance-matrix.md`) ·
+**C8a ✅ 22/08/2026 `__C8A_COMMIT__`** (issue **VẪN GIỮ `Ready for Dev`** — C8a mới migrate 13/18
+call site, đóng khi C8b xong; ledger đã có sẵn entry ở dạng comment, bỏ `#` là chạy `qa_sync` được.
+`-u wujia_portal_layout,wujia_portal_base,wujia_portal_delivery,wujia_portal_sale,wujia_portal_purchase_history`
+không cập nhật dữ liệu, không module mới, đã bump `?v=1172`. **Kiểm kê trước, code sau**: 183 heading
+thô → phân loại theo TỔ TIÊN DOM chứ không theo tên class ⇒ 89 CardHeader + 3 PageHeader + 24 Khác
+nằm ngoài scope, còn đúng **18 call site** SectionHeader — `docs/c8-heading-inventory.md`.
+Component `wj_section_header` chọn right slot theo ưu tiên `action > control > meta` để ép rule
+"tối đa MỘT". ⚠️ **Odoo 19 QWeb KHÔNG có directive đặt tên thẻ động** (`t-tag-open/close` là kỹ thuật,
+sinh từ thẻ tĩnh — `ir_qweb.py:1705`) nên heading phải rẽ 3 nhánh `t-if/t-elif/t-else`.
+46/46 acceptance @391/360/1920, 15 test mới + 63 hồi quy xanh, lưới B4 **286/286**, đi Tab **248/248**.
+⚠️ **2 spec BA mâu thuẫn**: `CMP-SH-001` ghi weight 800 nhưng `UI-06` (S35) ép `.content-wrapper h1..h6
+{font-weight:700!important}` — Dev giữ 700, đã ghi LIMIT chờ BA. Bảng đối chiếu
+`docs/c8-acceptance-matrix.md`) · C8b ☐ (5 call site còn lại: exam, debt, notification, return, report;
+⚠️ CHƯA được xoá CSS `.wujia-mhist-listhead*` vì `portal_return_list.xml:189` còn dùng)
 (đánh ✅ + ngày + commit khi xong, để phiên sau biết đang tới đâu.)
 
 ---

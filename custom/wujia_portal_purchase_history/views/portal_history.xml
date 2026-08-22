@@ -125,11 +125,15 @@
 
         <!-- ===== Mobile: thân kết quả (listhead + list/empty + pager) ===== -->
         <div t-if="part == 'mbody'" id="wj-hist-mbody" class="wj-ajax-slot">
-            <!-- Header danh sách -->
-            <div class="wujia-mhist-listhead">
-                <span class="wujia-mhist-listhead-title">Danh sách đơn</span>
-                <span class="wj-count-meta"><t t-out="len(rows)"/> đơn gần nhất</span>
-            </div>
+            <!-- Header danh sách (CMP-SH-001) -->
+            <t t-call="wujia_portal_layout.wj_section_header">
+                <t t-set="sh_title">Danh sách đơn</t>
+                <t t-set="sh_level" t-value="3"/>
+                <t t-set="sh_platform" t-value="'m'"/>
+                <t t-set="sh_meta">
+                    <span class="wj-section-header__meta"><t t-out="len(rows)"/> đơn gần nhất</span>
+                </t>
+            </t>
 
             <!-- Danh sách đơn -->
             <t t-set="mhist_filtered" t-value="q or date_from or date_to or preset or state"/>
