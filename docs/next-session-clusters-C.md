@@ -353,6 +353,71 @@ props. Học bài học B3a: nếu chỗ nào Meta là slot swap của wj_ajax_l
 markup thô, KHÔNG bọc thêm element.
 ```
 
+### C8b — SectionHeader: nhân ra phần còn lại  ⬅️ PHIÊN KẾ TIẾP
+
+```
+Cụm C8b: nốt phần còn lại của UI-SECTIONHEADER-001 (STT 83). C8a đã xong 22/08
+(commit 59299f1, merge a42b128, ĐÃ deploy UAT và đo lại trên UAT 46/46 + 286/286 + 250/250).
+Issue vẫn đang ở "Ready for Dev" — C8b xong mới được chuyển "Ready for Retest".
+
+ĐỌC TRƯỚC, ĐỪNG KHẢO SÁT LẠI:
+- docs/c8-heading-inventory.md §4 = danh sách chính xác chỗ còn lại (đã phân loại xong 183
+  heading, §2c là cách đọc rule "heading trong card").
+- docs/c8-acceptance-matrix.md = 17 gạch đầu dòng của BA + số đo local/UAT + 3 LIMIT.
+- custom/wujia_portal_layout/views/wj_section_header.xml = component, đã có sẵn props
+  sh_title / sh_level / sh_platform / sh_meta / sh_control / sh_action_* / sh_class / sh_id.
+
+5 CALL SITE CÒN LẠI (đúng 5, không phải nhiều hơn):
+  wujia_portal_debt/views/portal_debt.xml           dòng 209, 512, 688
+  wujia_portal_exam/views/portal_exam.xml           dòng 1036
+  wujia_portal_return/views/portal_return_list.xml  dòng 189
+Cộng 2 module merge nhánh thai: wujia_portal_inspection (ĐÃ installed trên UAT 19.0.1.0.0
+⇒ nay thuộc scope, phải kiểm kê heading của nó) và wujia_portal_remediation (vẫn
+uninstalled ⇒ tạm để ngoài, ghi rõ trong bảng nghiệm thu là đã cố ý bỏ).
+
+BẪY ĐÃ BIẾT — đừng dẫm lại:
+1. portal_debt.xml:688 đang VIẾT HOA toàn bộ. Spec CMP-SH-001 không có text-transform ⇒ phải
+   bỏ, nhưng kiểm xem có phải BA cố ý không trước khi đổi.
+2. .wujia-mhist-listhead* dùng ở 2 file. C8a mới chuyển history. CHỈ ĐƯỢC XOÁ CSS đó sau khi
+   chuyển xong portal_return_list.xml:189 — grep xác nhận 0 chỗ dùng rồi mới xoá.
+3. Odoo 19 QWeb KHÔNG có directive đặt tên thẻ động (t-tag-open/close là kỹ thuật, sinh từ
+   thẻ tĩnh — ir_qweb.py:1705). Component đã rẽ 3 nhánh t-if/t-elif/t-else sẵn, đừng sửa lại.
+4. KHÔNG dùng .wj-section-header:first-child{margin-top:0} — mỗi header là con đầu của
+   <section> riêng nên selector đó khớp TẤT CẢ, giết luôn nhịp 16/8. Dùng modifier --flush.
+5. Meta là slot swap của wj_ajax_list thì phải render MARKUP THÔ, không bọc element (B3a).
+6. Harness đi Tab: input[type=date] đưa focus vào shadow root nên thẻ cha không match :focus
+   ⇒ phải fallback ép :focus-visible bằng CDP, nếu không sẽ báo thiếu focus ring giả.
+7. Harness đo trên UAT: id bản ghi chi tiết KHÁC local (delivery 2, notification 19,
+   support 16, return 10) — dùng id local sẽ ra 270/286 giả.
+
+3 CÂU HỎI ĐANG CHỜ BA (§3 acceptance matrix). Câu 2 nên có đáp án TRƯỚC khi code C8b:
+1. CMP-SH-001 ghi weight 800 nhưng UI-06 (S35) ép .content-wrapper h1..h6 {font-weight:700
+   !important}. Dev đang giữ 700. BA chốt con số nào?
+2. Spec nói "heading trong card = CardHeader" nhưng chính BA chỉ đích danh 2 heading nằm
+   trong card là SectionHeader. Cách đọc của Dev ở §2c inventory — BA xác nhận chưa?
+3. Meta của PageHeader trên /portal/order vẫn ghi "N SP" và ẩn khi = 0 (thuộc CMP-PG-001,
+   ngoài scope C8). Có áp luôn luật đếm cho PageHeader không?
+Nếu BA chưa trả lời câu 2: vẫn làm được các chỗ rõ ràng, chỗ mơ hồ thì để lại + ghi
+Need Clarification, ĐỪNG tự đoán.
+
+NGHIỆM THU (giống C8a):
+- DB copy cô lập port riêng, KHÔNG đụng wujia_tea_19/8019.
+- -u wujia_portal_layout,wujia_portal_debt,wujia_portal_exam,wujia_portal_return,
+  wujia_portal_inspection — ⚠️ chạm wujia_portal_return thì BẮT BUỘC kèm wujia_sale.
+- Bump ?v= trong assets.xml (hiện 1172) nếu sửa CSS.
+- Chạy lại 4 bộ đã có: c8_measure (46 phép), b4_regression (286), c8_tabwalk (248),
+  và test tag wujia_section_header_c8 + wujia_debt + wujia_delivery_c5 + wujia_home_c7.
+  Bổ sung phép đo cho các trang mới đụng.
+- Xong ĐỦ 18/18 call site thì: mở khối comment UI-SECTIONHEADER-001 trong
+  docs/qa-issue-ledger.yaml (đã soạn sẵn, chỉ cần bỏ dấu # và điền commit), rồi
+  cd scripts/ba_spec && python3 qa_sync.py --dry-run → --apply, verify bằng export?format=csv
+  (KHÔNG dùng gviz). Dev KHÔNG tự đóng Done.
+- Sau C8b là ĐỦ 10 cụm ⇒ mới được chạy /wujia-end-sprint.
+
+HÀNG ĐỢI SAU C8b: WJ-PORTAL-UI-003 + WJ-PORTAL-UI-004 (STT 116/117, BA audit 20/08, a11y
+focus — chủ dự án chốt 22/08 để sau C8).
+```
+
 ### C9 — Order / History nhỏ
 
 ```
