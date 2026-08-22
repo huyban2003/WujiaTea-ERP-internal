@@ -14,12 +14,14 @@
         <div t-if="part == 'pc'" id="wj-ord-pc">
             <!-- Product card -->
             <div class="wj-pc-card wj-pc-order-card">
-                <div class="wj-pc-order-cardhead">
-                    <h3 class="wj-pc-order-cardtitle">Danh sách sản phẩm</h3>
-                    <span class="wj-count-meta wj-count-meta--bold">
-                        <t t-out="product_count"/> sản phẩm
-                    </span>
-                </div>
+                <t t-call="wujia_portal_layout.wj_section_header">
+                    <t t-set="sh_title">Danh sách sản phẩm</t>
+                    <t t-set="sh_level" t-value="3"/>
+                    <t t-set="sh_platform" t-value="'pc'"/>
+                    <t t-set="sh_meta">
+                        <span class="wj-section-header__meta"><t t-out="product_count"/> sản phẩm</span>
+                    </t>
+                </t>
                 <div t-if="not products" class="wj-empty-state">
                     <i class="feather icon-package"/>
                     <p>Không có sản phẩm phù hợp.</p>
@@ -110,13 +112,15 @@
         </div>
 
         <div t-if="part == 'mbody'" id="wj-ord-mbody" class="wj-ajax-slot">
-            <!-- List header -->
-            <div class="wujia-morder-listhead">
-                <span class="wujia-morder-listhead-title">Danh sách sản phẩm</span>
-                <span t-if="products" class="wj-count-meta wj-count-meta--bold">
-                    <t t-out="len(products)"/> SP
-                </span>
-            </div>
+            <!-- List header — CMP-SH-001: count dùng TỪ ĐẦY ĐỦ và hiện cả khi = 0 -->
+            <t t-call="wujia_portal_layout.wj_section_header">
+                <t t-set="sh_title">Danh sách sản phẩm</t>
+                <t t-set="sh_level" t-value="3"/>
+                <t t-set="sh_platform" t-value="'m'"/>
+                <t t-set="sh_meta">
+                    <span class="wj-section-header__meta"><t t-out="len(products)"/> sản phẩm</span>
+                </t>
+            </t>
 
             <!-- Empty -->
             <div t-if="not products" class="wujia-empty-state">

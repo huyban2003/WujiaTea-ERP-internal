@@ -43,12 +43,15 @@
                 <span t-else="">Ngoài khung giờ — mở lại lúc <t t-out="order_window_reopen"/>. Khung: <t t-out="order_window_label"/></span>
             </div>
 
-            <!-- List header -->
-            <div class="wujia-mcart-listhead">
-                <span>Sản phẩm trong giỏ</span>
-                <!-- WJ-ORD-022: số mặt hàng (SKU) -->
-                <span class="wj-count-meta wj-count-meta--bold"><t t-out="len(cs_lines)"/> mặt hàng</span>
-            </div>
+            <!-- List header (CMP-SH-001) — WJ-ORD-022: số MẶT HÀNG (SKU), không phải tổng SL -->
+            <t t-call="wujia_portal_layout.wj_section_header">
+                <t t-set="sh_title">Sản phẩm trong giỏ</t>
+                <t t-set="sh_level" t-value="3"/>
+                <t t-set="sh_platform" t-value="'m'"/>
+                <t t-set="sh_meta">
+                    <span class="wj-section-header__meta"><t t-out="len(cs_lines)"/> mặt hàng</span>
+                </t>
+            </t>
 
             <!-- Cart scroll container — render TẤT CẢ (no see-more) -->
             <div class="wujia-mcart-scroll">

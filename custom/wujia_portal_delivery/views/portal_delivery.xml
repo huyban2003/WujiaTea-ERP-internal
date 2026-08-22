@@ -11,14 +11,22 @@
         <!-- ===== PC: card danh sách (head + chips + states + pager) ===== -->
         <div t-if="part == 'pc'" id="wj-dlv-pc-card" class="wj-pc-card">
             <div class="wj-pc-card__head">
-                <div>
-                    <h3 class="wj-pc-card__title">Danh sách chuyến giao</h3>
-                    <p t-if="view_state == 'loading'" class="wj-pc-card__subtitle">Đang tải dữ liệu...</p>
-                    <p t-elif="view_state == 'list'" class="wj-pc-card__subtitle">
-                        <t t-out="len(batches)"/> chuyến · Mới nhất trước
-                    </p>
-                    <p t-elif="view_state == 'empty'" class="wj-pc-card__subtitle">0 chuyến</p>
-                </div>
+                <!-- CMP-SH-001 variant meta (BA chỉ đích danh trang này). Chips lọc KHÔNG vào
+                     right slot: chúng là CMP-FC-001, và spec cấm 2 right slot cùng lúc. -->
+                <t t-call="wujia_portal_layout.wj_section_header">
+                    <t t-set="sh_title">Danh sách chuyến giao</t>
+                    <t t-set="sh_level" t-value="3"/>
+                    <t t-set="sh_platform" t-value="'pc'"/>
+                    <t t-set="sh_class" t-value="'wj-section-header--inline'"/>
+                    <t t-set="sh_meta">
+                        <!-- view_state 'error' cố ý KHÔNG có meta, y như trước C8 -->
+                        <span t-if="view_state in ('loading', 'list', 'empty')" class="wj-section-header__meta">
+                            <t t-if="view_state == 'loading'">Đang tải dữ liệu...</t>
+                            <t t-elif="view_state == 'list'"><t t-out="len(batches)"/> chuyến · Mới nhất trước</t>
+                            <t t-else="">0 chuyến</t>
+                        </span>
+                    </t>
+                </t>
                 <!-- Chips số đếm (clickable filter, luôn hiện màu status) -->
                 <div t-if="view_state == 'list'" class="wj-pc-dlv-chips">
                     <a t-attf-href="/portal/delivery?bs=#{_dq}"

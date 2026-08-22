@@ -105,9 +105,9 @@ class WujiaFranchiseInspectionQuestion(models.Model):
         self.ensure_one()
         return True
 
-    def init(self):
-        super().init()
-        self._init_default_questions()
+    # KHÔNG seed trong init(): init() chạy giữa lúc registry đang dựng bảng theo từng model
+    # nên search/create còn UndefinedTable. data/wujia_inspection_bootstrap.xml đã gọi
+    # _init_default_questions bằng <function>, chạy sau khi bảng đã có (L15).
 
     @api.model
     def _init_default_questions(self):

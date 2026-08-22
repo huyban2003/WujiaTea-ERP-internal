@@ -3287,3 +3287,85 @@ a.wujia-mhome-kpi:active { opacity: 0.85; }
     content: ""; position: absolute; top: 50%; left: 50%;
     width: 44px; height: 44px; transform: translate(-50%, -50%);
 }
+
+/* ============================================================
+   WJ_SectionHeader — component chuẩn hoá tiêu đề section (BA CMP-SH-001)
+   Base + mobile modifier (--m / --any). PC modifier (--pc) ở _pc_components.css.
+   TỐI ĐA MỘT right slot: action > control > meta (guard ở template).
+   Padding NGANG do PageContainer lo; component chỉ khai nhịp dọc.
+   ============================================================ */
+.wj-section-header {
+    display: flex;
+    align-items: baseline;
+    flex-wrap: wrap;          /* hết chỗ → right slot xuống dòng, KHÔNG tự ẩn (spec) */
+    width: 100%;
+    min-width: 0;
+    background: transparent;
+}
+.wj-section-header__title {
+    flex: 0 1 auto;
+    min-width: 0;
+    margin: 0;
+    overflow-wrap: anywhere;  /* title dài xuống dòng; spec cấm ellipsis khi không xem được đủ */
+    /* ⚠️ CMP-SH-001 ghi 800 nhưng UI-06 (S35) BA chốt heading TỐI ĐA 700 và ép bằng
+       `.content-wrapper h1..h6 { font-weight: 700 !important }` (_wujia_theme.css:35).
+       Giữ 700 cho khớp UI-06 + CMP-PG-001 đang chạy; chờ BA gỡ mâu thuẫn (LIMIT). */
+    font-weight: 700;
+    color: var(--wujia-text-primary);
+}
+/* Right slot luôn dạt phải và không tự xuống dòng giữa chừng (spec) */
+.wj-section-header__action,
+.wj-section-header__meta,
+.wj-section-header > .wj-section-header__control {
+    flex: 0 0 auto;
+    margin: 0 0 0 auto;
+    white-space: nowrap;
+    font-weight: 700;
+    font-size: 14px;
+    line-height: 20px;
+}
+.wj-section-header__meta { color: var(--wujia-text-subtitle); }
+.wj-section-header__action {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    color: var(--wujia-primary);
+    text-decoration: none;
+}
+.wj-section-header__action > i { font-size: 16px; line-height: 1; }
+.wj-section-header > .wj-section-header__control {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 12px;
+    border: 1px solid var(--wujia-border);
+    border-radius: 10px;
+    background: var(--wujia-bg-card);
+    color: var(--wujia-text-secondary);
+}
+
+/* Mobile (--m) + không khai nền tảng (--any): title 20/28/800, nhịp 16 trước / 8 sau. */
+.wj-section-header--m,
+.wj-section-header--any { margin: 16px 0 8px; column-gap: 12px; row-gap: 4px; }
+/* !important để thắng global `h2 { font-size: … !important }` (_components.css:6) */
+.wj-section-header--m .wj-section-header__title,
+.wj-section-header--any .wj-section-header__title {
+    font-size: 20px !important;
+    line-height: 28px;
+}
+/* Spec: container đã tự lo nhịp (padding hoặc flex gap) thì KHÔNG cộng margin của header —
+   caller opt-in bằng --flush. KHÔNG dùng :first-child: mỗi header là con đầu của <section>
+   riêng nên :first-child khớp TẤT CẢ, giết luôn nhịp 16/8 của mọi khối. */
+.wj-section-header--flush { margin-top: 0; margin-bottom: 0; }
+/* --inline: đặt trong hàng flex sẵn có (vd .wj-pc-card__head có chips ở mép phải).
+   KHÔNG chiếm trọn hàng và meta bám sát title thay vì dạt hẳn ra mép container. */
+.wj-section-header--inline { width: auto; flex: 1 1 auto; margin: 0; }
+.wj-section-header--inline > .wj-section-header__meta,
+.wj-section-header--inline > .wj-section-header__action { margin-left: 16px; }
+/* Vùng chạm ≥44 cho action mobile mà không nống chiều cao hàng (spec) */
+.wj-section-header--m .wj-section-header__action::after,
+.wj-section-header--any .wj-section-header__action::after {
+    content: ""; position: absolute; top: 50%; right: 0;
+    width: 100%; min-width: 44px; height: 44px; transform: translateY(-50%);
+}
