@@ -8,17 +8,17 @@ from odoo.exceptions import ValidationError
 
 class WujiaFranchiseInspectionCategory(models.Model):
     _name = 'wujia.franchise.inspection.category'
-    _description = 'Inspection criterion category / group'
+    _description = 'Inspection Category / Group'
     _order = 'sequence, id'
 
-    name = fields.Char(string='Category name', required=True)
-    code = fields.Char(string='Category code')
+    name = fields.Char(string='Category Name', required=True)
+    code = fields.Char(string='Category Code')
     sequence = fields.Integer(string='Sequence', default=10)
     active = fields.Boolean(string='Active', default=True)
-    is_severe = fields.Boolean(string='Critical violation', default=False)
+    is_severe = fields.Boolean(string='Severe Violation', default=False)
 
     _sql_constraints = [
-        ('name_unique', 'UNIQUE(name)', 'The category name must be unique!'),
+        ('name_unique', 'UNIQUE(name)', 'Category Name must be unique!'),
     ]
 
     @api.model
@@ -39,24 +39,24 @@ class WujiaFranchiseInspectionCategory(models.Model):
 
 class WujiaFranchiseInspectionTemplate(models.Model):
     _name = 'wujia.franchise.inspection.template'
-    _description = 'Franchise store inspection template'
+    _description = 'Franchise Store Inspection Template'
     _inherit = ['mail.thread', 'mail.activity.mixin']
     _order = 'effective_date desc, id desc'
 
-    name = fields.Char(string='Template name', required=True, tracking=True)
-    code = fields.Char(string='Template code', tracking=True)
+    name = fields.Char(string='Template Name', required=True, tracking=True)
+    code = fields.Char(string='Template Code', tracking=True)
     version = fields.Char(string='Version', default='v1.0', tracking=True)
     state = fields.Selection([
         ('draft', 'Draft'),
         ('active', 'Active'),
         ('archived', 'Archived'),
     ], string='Status', default='draft', required=True, tracking=True)
-    effective_date = fields.Date(string='Effective date', default=fields.Date.context_today, tracking=True)
+    effective_date = fields.Date(string='Effective Date', default=fields.Date.context_today, tracking=True)
     
-    checklist_max_score = fields.Float(string='Maximum checklist score', default=95.0, tracking=True)
-    exam_max_score = fields.Float(string='Maximum exam score', default=5.0, tracking=True)
+    checklist_max_score = fields.Float(string='Checklist Max Score', default=95.0, tracking=True)
+    exam_max_score = fields.Float(string='Exam Max Score', default=5.0, tracking=True)
     total_max_score = fields.Float(
-        string='Maximum total score',
+        string='Total Max Score',
         compute='_compute_total_max_score',
         store=True,
         tracking=True,
@@ -65,7 +65,7 @@ class WujiaFranchiseInspectionTemplate(models.Model):
     line_ids = fields.One2many(
         'wujia.franchise.inspection.template.line',
         'template_id',
-        string='Criterion details',
+        string='Inspection Criteria',
         copy=True,
     )
 
@@ -78,7 +78,7 @@ class WujiaFranchiseInspectionTemplate(models.Model):
     def _unlink_except_draft(self):
         for rec in self:
             if rec.state != 'draft':
-                raise ValidationError(_('An inspection template can only be deleted while in the Draft state!'))
+                raise ValidationError(_('Only Draft templates can be deleted!'))
 
     def write(self, vals):
         for rec in self:
@@ -86,8 +86,8 @@ class WujiaFranchiseInspectionTemplate(models.Model):
                 allowed_keys = {'state'}
                 if not set(vals.keys()).issubset(allowed_keys):
                     raise ValidationError(_(
-                        'Inspection template "%s" is in the "%s" state, so its content CANNOT be edited!\n'
-                        'To change the criteria, please click "Create new version".'
+                        'Inspection template "%s" is in "%s" status and cannot be modified!\n'
+                        'If you want to change criteria, please click "Create New Version".'
                     ) % (rec.name, rec.state))
         return super().write(vals)
 
@@ -154,7 +154,7 @@ class WujiaFranchiseInspectionTemplate(models.Model):
                 self.env['wujia.franchise.inspection.template.line'].create(new_lines)
 
         return {
-            'name': _('Inspection template (new version)'),
+            'name': _('Inspection Template (New Version)'),
             'type': 'ir.actions.act_window',
             'res_model': 'wujia.franchise.inspection.template',
             'res_id': new_template.id,
@@ -172,7 +172,7 @@ class WujiaFranchiseInspectionTemplate(models.Model):
         Category = self.env['wujia.franchise.inspection.category']
 
         template = self.create({
-            'name': 'Franchise store inspection',
+            'name': 'Khảo sát cửa hàng nhượng quyền',
             'code': 'MM01',
             'state': 'draft',
             'version': 'v1.0',
@@ -222,36 +222,36 @@ class WujiaFranchiseInspectionTemplate(models.Model):
 
 class WujiaFranchiseInspectionTemplateLine(models.Model):
     _name = 'wujia.franchise.inspection.template.line'
-    _description = 'Inspection template criterion line'
+    _description = 'Inspection Template Line'
     _order = 'sequence, id'
 
     template_id = fields.Many2one(
         'wujia.franchise.inspection.template',
-        string='Inspection template',
+        string='Inspection Template',
         required=True,
         ondelete='cascade',
     )
     sequence = fields.Integer(string='Sequence', default=10)
     display_type = fields.Selection([
-        ('line', 'Criterion line'),
-        ('section', 'Section (heading)'),
-    ], string='Display type', default='line', required=True)
-    criterion_code = fields.Char(string='Criterion code')
+        ('line', 'Criterion Line'),
+        ('section', 'Section Header'),
+    ], string='Display Type', default='line', required=True)
+    criterion_code = fields.Char(string='Criterion Code')
     category_id = fields.Many2one(
         'wujia.franchise.inspection.category',
-        string='Criterion categories',
+        string='Category',
     )
-    category = fields.Char(string='Category (legacy text)', related='category_id.name', readonly=True, store=True)
-    content = fields.Text(string='Criterion content')
+    category = fields.Char(string='Category (Legacy)', related='category_id.name', readonly=True, store=True)
+    content = fields.Text(string='Criterion Content')
     criterion_type = fields.Selection([
         ('normal', 'Normal'),
-        ('critical', 'Critical / disqualifying'),
-    ], string='Criterion type', default='normal', required=True)
-    deduction_score = fields.Float(string='Deduction', default=1.0)
-    require_note_if_fail = fields.Boolean(string='Note required when failed', default=False)
-    require_evidence_if_fail = fields.Boolean(string='Evidence required when failed', default=False)
+        ('critical', 'Critical / Knockout'),
+    ], string='Criterion Type', default='normal', required=True)
+    deduction_score = fields.Float(string='Deduction Score', default=1.0)
+    require_note_if_fail = fields.Boolean(string='Require Note If Fail', default=False)
+    require_evidence_if_fail = fields.Boolean(string='Require Evidence If Fail', default=False)
     active = fields.Boolean(string='Active', default=True)
-    is_severe = fields.Boolean(string='Critical violation', default=False)
+    is_severe = fields.Boolean(string='Severe Violation', default=False)
 
     @api.onchange('category_id', 'display_type')
     def _onchange_category_id_section(self):
@@ -267,26 +267,26 @@ class WujiaFranchiseInspectionTemplateLine(models.Model):
             if rec.display_type == 'section':
                 cat_name = rec.category_id.name if rec.category_id else rec.content
                 if sub_code:
-                    rec.display_name = f"[{sub_code}] {cat_name or _('No category selected')}"
+                    rec.display_name = f"[{sub_code}] {cat_name or _('No Category Selected')}"
                 else:
-                    rec.display_name = cat_name or _('No category selected')
+                    rec.display_name = cat_name or _('No Category Selected')
             else:
                 content = (rec.content or '').strip()
                 if sub_code:
                     rec.display_name = f"[{sub_code}] {content}"
                 else:
-                    rec.display_name = content or _('Unnamed criterion')
+                    rec.display_name = content or _("Unnamed Criterion")
 
     @api.ondelete(at_uninstall=False)
     def _unlink_except_draft_template(self):
         for line in self:
             if line.template_id.state in ('active', 'archived'):
-                raise ValidationError(_('Criteria of an Active or Archived inspection template cannot be deleted!'))
+                raise ValidationError(_('Cannot delete criteria of an Active or Archived template!'))
 
     def write(self, vals):
         for line in self:
             if line.template_id.state in ('active', 'archived'):
-                raise ValidationError(_('Criteria of an Active or Archived inspection template cannot be edited!'))
+                raise ValidationError(_('Cannot modify criteria of an Active or Archived template!'))
         return super().write(vals)
 
     @api.model_create_multi
@@ -294,5 +294,5 @@ class WujiaFranchiseInspectionTemplateLine(models.Model):
         lines = super().create(vals_list)
         for line in lines:
             if line.template_id.state in ('active', 'archived'):
-                raise ValidationError(_('New criteria cannot be added to an Active or Archived inspection template!'))
+                raise ValidationError(_('Cannot add new criteria to an Active or Archived template!'))
         return lines

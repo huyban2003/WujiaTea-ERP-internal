@@ -25,40 +25,40 @@ class WujiaFranchiseInspection(models.Model):
                     rec.write({'state': 'done'})
 
     _name = 'wujia.franchise.inspection'
-    _description = 'Franchise store inspection sheet'
+    _description = 'Franchise Store Inspection Sheet'
     _inherit = ['mail.thread', 'mail.activity.mixin']
     _order = 'id desc'
 
     _sql_constraints = [
-        ('name_uniq', 'unique(name)', 'The inspection sheet code/name (name) already exists! Duplicates are not allowed.'),
+        ('name_uniq', 'unique(name)', 'The inspection name must be unique!'),
     ]
 
-    name = fields.Char(string='Inspection sheet name', required=True, copy=False, tracking=True)
+    name = fields.Char(string='Inspection Name', required=True, copy=False, tracking=True)
 
     submit_date = fields.Date(
-        string='Submission date',
+        string='Submission Date',
         tracking=True,
     )
     confirm_date = fields.Date(
-        string='Confirmation date',
+        string='Confirmation Date',
         tracking=True,
     )
 
     state = fields.Selection([
         ('draft', 'Draft'),
-        ('in_progress', 'In progress'),
-        ('need_remediation', 'Remediation required'),
+        ('in_progress', 'In Progress'),
+        ('need_remediation', 'Need Remediation'),
         ('done', 'Done'),
         ('cancel', 'Cancelled')
     ], string='Status', default='draft', tracking=True)
 
     planned_date = fields.Date(
-        string='Planned date',
+        string='Planned Date',
         tracking=True,
     )
 
     checklist_score = fields.Float(
-        string='Checklist score',
+        string='Checklist Score',
         compute='_compute_checklist_score',
         store=True,
         readonly=True,
@@ -67,21 +67,21 @@ class WujiaFranchiseInspection(models.Model):
     )
 
     exam_score = fields.Float(
-        string='Exam score',
+        string='Staff Exam Score',
         compute='_compute_exam_score',
         store=True,
         aggregator='avg',
         tracking=True,
-        help='Score taken from the fill-in-the-blank questions',
+        help='Score calculated from blank fill-in exam questions.',
     )
 
     total_score = fields.Float(
-        string='Total score',
+        string='Total Score',
         compute='_compute_total_score',
         store=True,
         aggregator='avg',
         tracking=True,
-        help='Score = checklist score + exam score',
+        help='Total Score = Checklist Score + Staff Exam Score.',
     )
 
     grade_id = fields.Many2one(
@@ -94,24 +94,24 @@ class WujiaFranchiseInspection(models.Model):
     )
     
     next_due_date = fields.Date(
-        string='Next inspection',
+        string='Next Inspection Date',
         tracking=True,
     )
 
     next_schedule_id = fields.Many2one(
         'wujia.supervision.schedule',
-        string='Next supervision schedule',
+        string='Next Supervision Schedule',
         ondelete='set null',
     )
 
     test_employee_name = fields.Char(
-        string='Employee tested',
-        help='Store employee who has no Odoo user account',
+        string='Tested Employee',
+        help='Store employee taking the exam (not required to be a system user).',
     )
 
     tenure = fields.Float(
         string='Tenure',
-        help='How long the employee has worked here',
+        help='Working tenure of the tested employee.',
     )
     # video 
     video = fields.Binary(
@@ -123,7 +123,7 @@ class WujiaFranchiseInspection(models.Model):
 
     schedule_id = fields.Many2one(
         'wujia.supervision.schedule',
-        string='Supervision schedule',
+        string='Supervision Schedule',
         required=True,
         ondelete='cascade',
         tracking=True,
@@ -131,7 +131,7 @@ class WujiaFranchiseInspection(models.Model):
     
     template_id = fields.Many2one(
         'wujia.franchise.inspection.template',
-        string='Inspection template',
+        string='Inspection Template',
         required=True,
         ondelete='restrict',
         tracking=True,
@@ -139,7 +139,7 @@ class WujiaFranchiseInspection(models.Model):
 
     franchise_id = fields.Many2one(
         'wujia.franchise.management',
-        string='Store',
+        string='Franchise Store',
         required=True,
         ondelete='restrict',
         tracking=True,
@@ -156,7 +156,7 @@ class WujiaFranchiseInspection(models.Model):
 
     previous_inspection_id = fields.Many2one(
         'wujia.franchise.inspection',
-        string='Previous inspection sheet',
+        string='Previous Inspection',
         compute='_compute_previous_inspection_id',
         store=True,
         ondelete='set null',
@@ -166,39 +166,152 @@ class WujiaFranchiseInspection(models.Model):
     line_ids = fields.One2many(
         'wujia.franchise.inspection.line',
         'inspection_id',
-        string='Inspection details',
+        string='Inspection Details',
         copy=False,
     )
 
     exam_line_ids = fields.One2many(
         'wujia.franchise.inspection.exam.line',
         'inspection_id',
-        string='Exam score',
+        string='Staff Exam Lines',
         copy=False,
     )
 
     report_line_ids = fields.One2many(
         'wujia.franchise.inspection.report.line',
         'inspection_id',
-        string='Report lines',
+        string='Revenue Report Lines',
         copy=False,
     )
 
+    attendance_line_ids = fields.One2many(
+        'wujia.franchise.inspection.attendance.line',
+        'inspection_id',
+        string='Staff Attendance',
+        domain=[('line_type', '=', 'attendance')],
+        copy=False,
+        help='Danh sách nhân viên có mặt trong buổi khảo sát.',
+    )
+
+    passed_member_ids = fields.Many2many(
+        'wujia.franchise.member',
+        string='Passed Staff',
+        compute='_compute_passed_member_ids',
+        help='Danh sách nhân viên đã thi đậu thuộc cửa hàng.',
+    )
+
+    present_count = fields.Integer(
+        string='Present Staff',
+        compute='_compute_present_count',
+        store=True,
+        help='Số nhân viên đang có mặt tại cửa hàng.',
+    )
+
+    passed_count = fields.Integer(
+        string='Passed Staff Count',
+        compute='_compute_passed_stats',
+        store=True,
+        help='Tổng số nhân viên đã thi đậu.',
+    )
+
     is_exam_submitted = fields.Boolean(
-        string='Exam submitted',
+        string='Exam Submitted',
         default=False,
         copy=False,
     )
 
     exam_submit_date = fields.Datetime(
-        string='Exam submission time',
+        string='Exam Submitted Date',
         copy=False,
     )
 
     inspection_chart_data = fields.Text(
-        string='Chart data',
+        string='Inspection Chart Data',
         compute='_compute_inspection_chart_data',
     )
+
+    @api.depends('attendance_line_ids.is_present')
+    def _compute_present_count(self):
+        for rec in self:
+            rec.present_count = len(rec.attendance_line_ids.filtered('is_present'))
+
+    @api.depends('franchise_id')
+    def _compute_passed_member_ids(self):
+        for rec in self:
+            if rec.franchise_id:
+                rec.passed_member_ids = self.env['wujia.franchise.member'].search([
+                    ('franchise_id', '=', rec.franchise_id.id),
+                    ('active', '=', True),
+                    ('is_working', '=', True),
+                    ('is_pass', '=', True),
+                ])
+            else:
+                rec.passed_member_ids = False
+
+    @api.depends('passed_member_ids')
+    def _compute_passed_stats(self):
+        for rec in self:
+            rec.passed_count = len(rec.passed_member_ids)
+
+    @api.model
+    def default_get(self, fields_list):
+        res = super(WujiaFranchiseInspection, self).default_get(fields_list)
+        franchise_id = res.get('franchise_id') or self.env.context.get('default_franchise_id')
+        if franchise_id:
+            members = self.env['wujia.franchise.member'].search([
+                ('franchise_id', '=', franchise_id),
+                ('active', '=', True),
+                ('is_working', '=', True),
+            ])
+            att_commands = []
+            seq = 10
+            for m in members:
+                user = m.user_id
+                phone = getattr(user, 'phone', '') or getattr(m, 'phone', '') or ''
+                line_vals = {
+                    'sequence': seq,
+                    'line_type': 'attendance',
+                    'member_id': m.id,
+                    'employee_name': user.name if user else (m.display_name or ''),
+                    'role': m.role or 'staff',
+                    'phone': phone,
+                    'is_present': True,
+                    'is_pass': m.is_pass,
+                }
+                att_commands.append(fields.Command.create(line_vals))
+                seq += 10
+            if 'attendance_line_ids' in fields_list or not fields_list:
+                res['attendance_line_ids'] = att_commands
+        return res
+
+    @api.onchange('franchise_id')
+    def _onchange_franchise_id_populate_attendance(self):
+        """Tự động tải danh sách thành viên active của cửa hàng vào bảng điểm danh."""
+        if self.franchise_id:
+            members = self.env['wujia.franchise.member'].search([
+                ('franchise_id', '=', self.franchise_id.id),
+                ('active', '=', True),
+                ('is_working', '=', True),
+            ])
+            att_commands = [fields.Command.clear()]
+            seq = 10
+            for m in members:
+                user = m.user_id
+                phone = getattr(user, 'phone', '') or getattr(m, 'phone', '') or ''
+                att_commands.append(fields.Command.create({
+                    'sequence': seq,
+                    'line_type': 'attendance',
+                    'member_id': m.id,
+                    'employee_name': user.name if user else (m.display_name or ''),
+                    'role': m.role or 'staff',
+                    'phone': phone,
+                    'is_present': True,
+                    'is_pass': m.is_pass,
+                }))
+                seq += 10
+            self.attendance_line_ids = att_commands
+        else:
+            self.attendance_line_ids = [fields.Command.clear()]
 
     @api.depends('franchise_id', 'template_id', 'total_score', 'state')
     def _compute_inspection_chart_data(self):
@@ -206,11 +319,11 @@ class WujiaFranchiseInspection(models.Model):
         for rec in self:
             if not rec.franchise_id or not rec.template_id:
                 rec.inspection_chart_data = json.dumps({
-                    'title': _("Inspection score history (last 10 rounds)"),
-                    'single_label': _("Round score"),
-                    'avg_label': _("Average score"),
-                    'no_data_title': _("No history data yet!"),
-                    'no_data_desc': _("Please pick an inspection template, or this store has no inspection sheet using this template in Done / Remediation required status."),
+                    'title': _("Supervision Score History (Last 10 Rounds)"),
+                    'single_label': _("Score per Round"),
+                    'avg_label': _("Average Score"),
+                    'no_data_title': _("No Historical Data Yet!"),
+                    'no_data_desc': _("Please select a Supervision Template or this store has no completed/remediation inspection sheets yet."),
                 })
                 continue
             
@@ -227,6 +340,8 @@ class WujiaFranchiseInspection(models.Model):
             
             labels = []
             scores = []
+            grades = []
+            display_scores = []
             avg_scores = []
             
             if inspections:
@@ -237,17 +352,26 @@ class WujiaFranchiseInspection(models.Model):
                     date_str = ins.planned_date.strftime('%d/%m/%Y') if ins.planned_date else ''
                     labels.append(date_str)
                     scores.append(ins.total_score)
+                    grade_name = (ins.grade_id.name if ins.grade_id else '').strip()
+                    grades.append(grade_name)
+
+                    score_val = ins.total_score
+                    score_str = f"{int(score_val)}" if score_val.is_integer() else f"{score_val:.1f}"
+                    display_text = f"{score_str} ({grade_name})" if grade_name else score_str
+                    display_scores.append(display_text)
                     avg_scores.append(round(overall_avg, 2))
             
             rec.inspection_chart_data = json.dumps({
                 'labels': labels,
                 'scores': scores,
+                'grades': grades,
+                'display_scores': display_scores,
                 'avg_scores': avg_scores,
-                'title': _("Inspection score history (last 10 rounds)"),
-                'single_label': _("Round score"),
-                'avg_label': _("Average score"),
-                'no_data_title': _("No history data yet!"),
-                'no_data_desc': _("Please pick an inspection template, or this store has no inspection sheet using this template in Done / Remediation required status."),
+                'title': _("Supervision Score History (Last 10 Rounds)"),
+                'single_label': _("Score per Round"),
+                'avg_label': _("Average Score"),
+                'no_data_title': _("No Historical Data Yet!"),
+                'no_data_desc': _("Please select a Supervision Template or this store has no completed/remediation inspection sheets yet."),
             })
 
     @api.constrains('planned_date', 'franchise_id', 'state')
@@ -258,8 +382,8 @@ class WujiaFranchiseInspection(models.Model):
                 continue
             if rec.planned_date and rec.planned_date > today:
                 raise ValidationError(_(
-                    'An inspection sheet cannot be created or saved for a future date (%s)!\n'
-                    'The inspection date has not arrived yet (today: %s). You may create a supervision schedule instead.'
+                    "Không thể tạo hoặc lưu phiếu khảo sát cho ngày trong tương lai (%s)!\n"
+                    "Ngày khảo sát chưa đến (Hôm nay: %s). Bạn có thể tạo Lịch giám sát trước."
                 ) % (rec.planned_date.strftime('%d/%m/%Y'), today.strftime('%d/%m/%Y')))
             
             if rec.franchise_id and rec.planned_date:
@@ -271,8 +395,8 @@ class WujiaFranchiseInspection(models.Model):
                 ], limit=1)
                 if duplicate:
                     raise ValidationError(_(
-                        "On a single day (%s), store '%s' may have at most one inspection sheet!\n"
-                        "Sheet (%s) already exists on that day."
+                        "Trong 1 ngày (%s), mỗi cửa hàng '%s' chỉ được phép có tối đa 1 phiếu khảo sát!\n"
+                        "Đã có phiếu khảo sát (%s) trong ngày này."
                     ) % (rec.planned_date.strftime('%d/%m/%Y'), rec.franchise_id.name, duplicate.name))
 
 
@@ -329,7 +453,37 @@ class WujiaFranchiseInspection(models.Model):
                 elif not current_name:
                     count = self.search_count([]) + 1
                     vals['name'] = f"PGS-STORE-{count:04d}"
-        return super(WujiaFranchiseInspection, self).create(vals_list)
+
+            # Tự động nạp attendance_line_ids nếu chưa có trong vals
+            if franchise_id and ('attendance_line_ids' not in vals or not vals.get('attendance_line_ids')):
+                members = self.env['wujia.franchise.member'].search([
+                    ('franchise_id', '=', franchise_id),
+                    ('active', '=', True),
+                    ('is_working', '=', True),
+                ])
+                att_lines = []
+                seq = 10
+                for m in members:
+                    user = m.user_id
+                    phone = getattr(user, 'phone', '') or getattr(m, 'phone', '') or ''
+                    line_vals = {
+                        'sequence': seq,
+                        'line_type': 'attendance',
+                        'member_id': m.id,
+                        'employee_name': user.name if user else (m.display_name or ''),
+                        'role': m.role or 'staff',
+                        'phone': phone,
+                        'is_present': True,
+                        'is_pass': m.is_pass,
+                    }
+                    att_lines.append((0, 0, line_vals))
+                    seq += 10
+                if att_lines:
+                    vals['attendance_line_ids'] = att_lines
+
+        records = super(WujiaFranchiseInspection, self).create(vals_list)
+        records.mapped('franchise_id')._compute_latest_inspection_info()
+        return records
 
    
     @api.depends('line_ids.is_pass', 'line_ids.result', 'line_ids.deduction_score_snapshot', 'line_ids.display_type')
@@ -505,7 +659,7 @@ class WujiaFranchiseInspection(models.Model):
         """
         for rec in self:
             if rec.state != 'in_progress':
-                raise UserError(_("The inspection sheet must be 'In progress' before the exam can be submitted!"))
+                raise UserError(_("The inspection must be 'In Progress' to submit the staff exam!"))
 
             for line in rec.exam_line_ids:
                 line._evaluate_answer()
@@ -550,13 +704,12 @@ class WujiaFranchiseInspection(models.Model):
 
                     if req_note and not line.note:
                         raise ValidationError(_(
-                            'Criterion "%s" was rated FAILED and requires a violation NOTE!\nPlease enter the note before continuing.'
+                            'Tiêu chí "%s" được đánh giá KHÔNG ĐẠT và yêu cầu phải có GHI CHÚ vi phạm!\nVui lòng nhập ghi chú trước khi tiếp tục.'
                         ) % criterion_name)
                     
                     if req_evidence and not line.evidence_image:
                         raise ValidationError(_(
-                            'Criterion "%s" was rated FAILED and requires PHOTO EVIDENCE!\n'
-                            'Please upload the evidence photo before continuing.'
+                            'Tiêu chí "%s" được đánh giá KHÔNG ĐẠT và yêu cầu phải có HÌNH ẢNH BẰNG CHỨNG!\nVui lòng tải ảnh bằng chứng lên trước khi tiếp tục.'
                         ) % criterion_name)
 
     def _validate_exam_lines(self):
@@ -567,8 +720,8 @@ class WujiaFranchiseInspection(models.Model):
         for rec in self:
             if rec.exam_line_ids and not rec.is_exam_submitted:
                 raise ValidationError(_(
-                    'The employee exam has not been submitted!\n'
-                    'Please go to the "Employee exam" tab and click "Submit exam" before marking the sheet as done.'
+                    'Bài kiểm tra nhân viên chưa được nộp!\n'
+                    'Vui lòng chuyển sang tab "Bài kiểm tra nhân viên" và bấm nút "Nộp bài kiểm tra" trước khi thực hiện Hoàn thành.'
                 ))
 
     def action_need_remediation(self):
@@ -593,7 +746,7 @@ class WujiaFranchiseInspection(models.Model):
             failed_lines = rec.line_ids.filtered(lambda l: l.display_type == 'line' and not l.is_pass)
             uncompleted_lines = failed_lines.filtered(lambda l: l.remediation_state != RemediationState.DONE.value)
             if uncompleted_lines:
-                raise UserError(_('The inspection sheet cannot be completed! %s violated criteria are still not marked as Done.') % len(uncompleted_lines))
+                raise UserError(_("Cannot complete inspection! There are still %s violation criteria not marked Done.") % len(uncompleted_lines))
             rec.write({
                 'state': 'done',
                 'confirm_date': rec.confirm_date or today,
@@ -618,22 +771,22 @@ class WujiaFranchiseInspection(models.Model):
         """
         self.ensure_one()
         if not self.next_due_date:
-            raise ValidationError(_('Please pick a date in "Next inspection" before creating the schedule!'))
+            raise ValidationError(_('Please select a date in "Next Inspection Date" before creating a schedule!'))
 
         if not self.next_schedule_id:
             store_name = self.franchise_id.name or ''
             new_schedule = self.env['wujia.supervision.schedule'].create({
-                'name': f"Lịch giám sát kế tiếp - {store_name}",
+                'name': f"Next Supervision Schedule - {store_name}",
                 'store_id': self.franchise_id.id,
                 'user_id': self.inspector_user_id.id or self.env.user.id,
                 'date': self.next_due_date,
                 'state': 'draft',
-                'note': f"Lịch được tạo tự động từ Phiếu khảo sát: {self.name}",
+                'note': f"Schedule automatically created from Inspection Sheet: {self.name}",
             })
             self.next_schedule_id = new_schedule.id
 
         return {
-            'name': _('Next supervision schedule'),
+            'name': _('Next Supervision Schedule'),
             'type': 'ir.actions.act_window',
             'res_model': 'wujia.supervision.schedule',
             'res_id': self.next_schedule_id.id,
@@ -654,7 +807,7 @@ class WujiaFranchiseInspection(models.Model):
         if 'name' in vals and not self.env.su:
             for rec in self:
                 if rec.name and vals['name'] != rec.name:
-                    raise ValidationError(_('The inspection sheet code/name (%s) cannot be changed after creation!') % rec.name)
+                    raise ValidationError(_("Cannot change Inspection Name (%s) once created!") % rec.name)
 
         if vals.get('state') == 'need_remediation':
             for rec in self:
@@ -670,7 +823,7 @@ class WujiaFranchiseInspection(models.Model):
                 failed_lines = rec.line_ids.filtered(lambda l: l.display_type == 'line' and not l.is_pass)
                 uncompleted_lines = failed_lines.filtered(lambda l: l.remediation_state != RemediationState.DONE.value)
                 if uncompleted_lines:
-                    raise UserError(_('The inspection sheet cannot be moved to Done! %s violated criteria are still not in the Done state.') % len(uncompleted_lines))
+                    raise UserError(_("Cannot complete inspection! There are still %s violation criteria not marked Done.") % len(uncompleted_lines))
 
         if vals.get('state') == 'done' and 'confirm_date' not in vals:
             vals['confirm_date'] = fields.Date.context_today(self)
@@ -681,6 +834,15 @@ class WujiaFranchiseInspection(models.Model):
                     schedule_state_keys = dict(rec.schedule_id._fields['state'].selection)
                     if vals['state'] in schedule_state_keys and rec.schedule_id.state != vals['state']:
                         rec.schedule_id.state = vals['state']
+        if any(f in vals for f in ('state', 'total_score', 'grade_id', 'planned_date', 'franchise_id')):
+            self.mapped('franchise_id')._compute_latest_inspection_info()
+        return res
+
+    def unlink(self):
+        stores = self.mapped('franchise_id')
+        res = super().unlink()
+        if stores:
+            stores._compute_latest_inspection_info()
         return res
 
     def _generate_random_exam_lines(self):
@@ -795,14 +957,13 @@ class WujiaFranchiseInspection(models.Model):
                 rec.previous_inspection_id = False
     
     confirmed_user_id = fields.Many2one('res.users',
-        string='Confirmed by',
+        string='System Confirmer',
         required=True,
         ondelete='restrict',
         default=lambda self: self.env.user
     )
     confirmed_member_id = fields.Many2one('wujia.franchise.member',
-        string='Confirmed by store manager',
-        required=True,
+        string='Store Manager Confirmer',
         ondelete='restrict',
     )
 
@@ -812,6 +973,7 @@ class WujiaFranchiseInspection(models.Model):
             self.planned_date = self.schedule_id.date
             if self.schedule_id.store_id:
                 self.franchise_id = self.schedule_id.store_id
+                self._onchange_franchise_id_populate_attendance()
             if self.schedule_id.user_id:
                 self.inspector_user_id = self.schedule_id.user_id
 
@@ -890,31 +1052,31 @@ class WujiaFranchiseInspectionLine(models.Model):
         return True
 
     _name = 'wujia.franchise.inspection.line'
-    _description = 'Criterion line of a franchise store inspection sheet'
+    _description = 'Inspection Line Detail'
     _order = 'sequence, id'
 
     sequence = fields.Integer(string='Sequence', default=10)
     display_type = fields.Selection([
         ('section', 'Section'),
         ('line', 'Line'),
-    ], default='line', help='Technical field used to group section headers')
+    ], default='line', help="Trường kỹ thuật phân nhóm danh mục section header")
 
     content_snapshot = fields.Text(
-        string='Checklist content',
+        string='Checklist Content',
     )
 
     deduction_score_snapshot = fields.Float(
-        string='Deduction',
+        string='Deduction Score',
         default=0.0,
     )
 
     criterion_type_snapshot = fields.Char(
-        string='Criterion type',
+        string='Criterion Type',
         default='normal',
     )
 
     is_pass = fields.Boolean(
-        string='Passed',
+        string='Passed (Pass)',
         default=True,
     )
 
@@ -929,67 +1091,67 @@ class WujiaFranchiseInspectionLine(models.Model):
     )
 
     note = fields.Text(
-        string='Violation note (admin)',
+        string='Violation Note (Admin)',
     )
 
     remediation_state = fields.Selection([
-        (RemediationState.NEED_REMEDIATION.value, 'Response required'),
-        (RemediationState.REMEDIATED.value, 'Responded'),
-        (RemediationState.DONE.value, 'Approved (completed)'),
-    ], string='Remediation status', tracking=True)
+        (RemediationState.NEED_REMEDIATION.value, 'Need Remediation'),
+        (RemediationState.REMEDIATED.value, 'Remediated'),
+        (RemediationState.DONE.value, 'Done'),
+    ], string='Remediation Status', tracking=True)
 
     remediation_note = fields.Text(
-        string='Remediation note (store)',
-        help='Response / remediation note entered by the store from the portal.'
+        string='Remediation Note (Store)',
+        help='Remediation notes / feedback submitted by store via Portal.'
     )
 
     evidence_image = fields.Binary(
-        string='Evidence photo (at inspection)',
+        string='Evidence Photo (Inspection)',
         attachment=True,
-        help='Photo of the violation taken during the inspection.'
+        help='Violation evidence photo captured during inspection.'
     )
 
     remediation_image = fields.Binary(
-        string='Photo after remediation',
+        string='Remediation Photo',
         attachment=True,
-        help='Photo of the result after the store fixed the violation.'
+        help='Photo showing results after store completed remediation.'
     )
 
     require_note_if_fail = fields.Boolean(
-        string='Note required when failed',
+        string='Require Note If Fail',
         related='template_line_id.require_note_if_fail',
         readonly=True,
         store=True,
     )
 
     require_evidence_if_fail = fields.Boolean(
-        string='Evidence required when failed',
+        string='Require Evidence If Fail',
         related='template_line_id.require_evidence_if_fail',
         readonly=True,
         store=True,
     )
 
     require_note_if_fail_snapshot = fields.Boolean(
-        string='Snapshot of the note requirement',
+        string='Require Note Snapshot',
         default=False,
     )
 
     require_evidence_if_fail_snapshot = fields.Boolean(
-        string='Snapshot of the evidence requirement',
+        string='Require Evidence Snapshot',
         default=False,
     )
     
     # RELATION 
     inspection_id = fields.Many2one(
         'wujia.franchise.inspection',
-        string='Inspection sheet',
+        string='Inspection Sheet',
         required=True,
         ondelete='cascade',
     )
 
     template_line_id = fields.Many2one(
         'wujia.franchise.inspection.template.line',
-        string='Criterion',
+        string='Inspection Criterion',
         required=False,
         ondelete='restrict',
     )
@@ -997,7 +1159,7 @@ class WujiaFranchiseInspectionLine(models.Model):
     template_id = fields.Many2one(
         'wujia.franchise.inspection.template',
         related='inspection_id.template_id',
-        string='Inspection template',
+        string='Inspection Template',
         store=True,
         readonly=True,
     )
@@ -1005,44 +1167,44 @@ class WujiaFranchiseInspectionLine(models.Model):
     franchise_id = fields.Many2one(
         'wujia.franchise.management',
         related='inspection_id.franchise_id',
-        string='Store',
+        string='Franchise Store',
         store=True,
         readonly=True,
     )
 
     planned_date = fields.Date(
         related='inspection_id.planned_date',
-        string='Inspection date',
+        string='Inspection Date',
         store=True,
         readonly=True,
     )
 
     pass_count = fields.Integer(
-        string='Pass count',
+        string='Pass Count',
         compute='_compute_pass_fail_count',
         store=True,
     )
 
     fail_count = fields.Integer(
-        string='Fail count',
+        string='Violation Count',
         compute='_compute_pass_fail_count',
         store=True,
     )
 
     line_count = fields.Integer(
-        string='Inspection count',
+        string='Inspection Count',
         default=1,
     )
 
     category_id = fields.Many2one(
         'wujia.franchise.inspection.category',
-        string='Criterion categories',
+        string='Section Category',
         ondelete='restrict',
     )
 
     previous_line_id = fields.Many2one(
         'wujia.franchise.inspection.line',
-        string='Previous line',
+        string='Previous Line',
         compute='_compute_previous_line_info',
         store=True,
         readonly=True,
@@ -1053,14 +1215,14 @@ class WujiaFranchiseInspectionLine(models.Model):
             ('pass', 'Pass'),
             ('fail', 'Fail')
         ],
-        string='Previous result',
+        string='Previous Result',
         compute='_compute_previous_line_info',
         store=True,
         readonly=True,
     )
 
     previous_deduction_score = fields.Float(
-        string='Previous round deduction',
+        string='Previous Deduction Score',
         compute='_compute_previous_line_info',
         store=True,
         readonly=True,
@@ -1069,12 +1231,12 @@ class WujiaFranchiseInspectionLine(models.Model):
     previous_inspection_id = fields.Many2one(
         'wujia.franchise.inspection',
         related='inspection_id.previous_inspection_id',
-        string='Previous inspection sheet',
+        string='Previous Inspection',
         readonly=True,
     )
     
     content_class = fields.Char(
-        string='CSS class for the content', 
+        string="CSS Class for Content", 
         compute="_compute_content_class",
     )
     
@@ -1121,9 +1283,9 @@ class WujiaFranchiseInspectionLine(models.Model):
         """Mở popup Form View xem duy nhất 1 dòng tiêu chí đợt trước (Readonly)"""
         self.ensure_one()
         if not self.previous_line_id:
-            raise ValidationError(_('No data for this criterion in the previous inspection!'))
+            raise ValidationError(_('No historical data found for this criterion in previous inspection!'))
         return {
-            'name': _('Previous inspection criterion: %s') % (self.content_snapshot or ''),
+            'name': _('Previous Criterion: %s') % (self.content_snapshot or ''),
             'type': 'ir.actions.act_window',
             'res_model': 'wujia.franchise.inspection.line',
             'res_id': self.previous_line_id.id,
@@ -1272,7 +1434,7 @@ class WujiaFranchiseInspectionLine(models.Model):
                 failed_lines = rec.line_ids.filtered(lambda l: l.display_type == 'line' and not l.is_pass)
                 uncompleted_lines = failed_lines.filtered(lambda l: l.remediation_state != RemediationState.DONE.value)
                 if uncompleted_lines:
-                    raise UserError(_('The inspection sheet cannot be moved to Done! %s violated criteria are still not in the Done state.') % len(uncompleted_lines))
+                    raise UserError(_("Cannot complete inspection! There are still %s violation criteria not marked Done.") % len(uncompleted_lines))
 
         if 'is_pass' in vals:
             vals['result'] = 'pass' if vals['is_pass'] else 'fail'
@@ -1305,27 +1467,27 @@ class WujiaFranchiseInspectionLine(models.Model):
         """
         for rec in self:
             if rec.display_type == 'section':
-                rec.display_name = rec.content_snapshot or _('Criterion categories')
+                rec.display_name = rec.content_snapshot or _("Criterion Category")
             elif rec.template_line_id:
                 code = rec.template_line_id.criterion_code or ''
                 rec.display_name = f"[{code}] {rec.content_snapshot or ''}" if code else (rec.content_snapshot or '')
             else:
-                rec.display_name = rec.content_snapshot or _('Unknown criterion')
+                rec.display_name = rec.content_snapshot or _("Undefined Criterion")
 
 class WujiaFranchiseInspectionReportLine(models.Model):
     _name = 'wujia.franchise.inspection.report.line'
-    _description = 'Financial report line over three months'
+    _description = 'Inspection Financial Report Line (3 Months)'
     _order = 'sequence, id'
 
     sequence = fields.Integer(string='Sequence', default=10)
 
     date_month = fields.Date(
-        string='Month (YYYY-MM)',
+        string='Month (MM/YYYY)',
         required=True,
     )
     
     days_of_month = fields.Integer(
-        string='Days in the month',
+        string='Days in Month',
         compute='_compute_days_of_month',
         store=True,
     )
@@ -1336,26 +1498,26 @@ class WujiaFranchiseInspectionReportLine(models.Model):
     )
 
     revenue_avg = fields.Float(
-        string='Revenue per day',
+        string='Daily Average Revenue',
         compute='_compute_revenue_avg',
         store=True,
         readonly=False,
     )
 
     total_app_sale = fields.Integer(
-        string='Total in-app transactions',
+        string='Total App Orders',
         required=True,
     )
 
     percent_app_sale = fields.Float(
-        string='In-app transaction rate',
+        string='% App Orders',
         required=True,
     )
 
     # RELATION
     inspection_id = fields.Many2one(
         'wujia.franchise.inspection',
-        string='Inspection sheet',
+        string='Inspection Sheet',
         required=True,
         ondelete='cascade',
     )
@@ -1384,33 +1546,33 @@ class WujiaFranchiseInspectionReportLine(models.Model):
     
 class WujiaFranchiseInspectionExamLine(models.Model):
     _name = 'wujia.franchise.inspection.exam.line'
-    _description = 'Exam score of a franchise store inspection sheet'
+    _description = 'Staff Exam Inspection Line'
     _order = 'sequence, id'
 
     sequence = fields.Integer(
-        string='Sequence',
+        string='Thứ tự',
         default=10,
     )
 
     quest_code_snapshot = fields.Char(
-        string='Question code',
+        string='Question Code',
         required=True,
     )
 
     quest_content_snapshot = fields.Text(
-        string='Question content',
+        string='Question Text',
         required=True,
     )
 
     correct_answer_snapshot = fields.Text(
-        string='Correct answer',
+        string='Correct Answer',
     )
     answer = fields.Text(
-        string='Answer given',
+        string='Employee Answer',
     )
 
     is_correct = fields.Boolean(
-        string='Correct',
+        string='Is Correct',
         default=False,
     )
     point = fields.Float(
@@ -1426,7 +1588,7 @@ class WujiaFranchiseInspectionExamLine(models.Model):
     # RELATION
     inspection_id = fields.Many2one(
         'wujia.franchise.inspection',
-        string='Inspection sheet',
+        string='Inspection Sheet',
         required=True,
         ondelete='cascade',
     )
@@ -1519,4 +1681,120 @@ class WujiaFranchiseInspectionExamLine(models.Model):
             rec.is_correct = is_right
             rec.point = max_score if is_right else 0.0
 
-    
+
+class WujiaFranchiseInspectionAttendanceLine(models.Model):
+    _name = 'wujia.franchise.inspection.attendance.line'
+    _description = 'Inspection Staff Attendance / Passed Line'
+    _order = 'sequence, id'
+
+    sequence = fields.Integer(string='Sequence', default=10)
+
+    line_type = fields.Selection([
+        ('attendance', 'Attendance'),
+        ('passed', 'Passed Exam'),
+    ], string='Line Type', required=True, default='attendance',
+        help='Phân loại dòng: điểm danh có mặt hoặc nhân viên đã thi đậu.')
+
+    inspection_id = fields.Many2one(
+        'wujia.franchise.inspection',
+        string='Inspection Sheet',
+        required=True,
+        ondelete='cascade',
+        index=True,
+    )
+
+    member_id = fields.Many2one(
+        'wujia.franchise.member',
+        string='Store Member',
+        ondelete='set null',
+        help='Liên kết tới thành viên cửa hàng.',
+    )
+
+    employee_name = fields.Char(
+        string='Employee Name',
+        required=True,
+    )
+
+    role = fields.Selection([
+        ('owner', 'Owner'),
+        ('manager', 'Manager'),
+        ('staff', 'Staff'),
+    ], string='Role', default='staff')
+
+    phone = fields.Char(string='Phone')
+
+    is_present = fields.Boolean(
+        string='Present',
+        default=True,
+        help='Nhân viên có mặt tại cửa hàng trong buổi khảo sát.',
+    )
+
+    is_pass = fields.Boolean(
+        string='Passed Exam',
+        default=False,
+        help='Nhân viên đã vượt qua kỳ thi chứng nhận.',
+    )
+
+    note = fields.Char(string='Note')
+
+    def action_deactivate_member(self):
+        """Chuyển nhân viên sang trạng thái Đã nghỉ / Không còn làm việc (is_working=False) và xóa dòng khỏi đợt khảo sát."""
+        for line in self:
+            if line.member_id:
+                line.member_id.write({'is_working': False})
+            line.unlink()
+        return True
+
+    def action_save_to_member(self):
+        """Lưu hoặc tạo mới thông tin thành viên cửa hàng từ dòng điểm danh (nút mũi tên ->)."""
+        self.ensure_one()
+        if not self.employee_name or not self.employee_name.strip():
+            raise ValidationError(_("Please enter Employee Name before saving!"))
+
+        store_id = self.inspection_id.franchise_id.id if self.inspection_id.franchise_id else False
+        if not store_id:
+            raise ValidationError(_("Please select a Franchise Store first!"))
+
+        if self.member_id:
+            # Cập nhật thông tin thành viên hiện tại
+            vals = {'role': self.role or 'staff'}
+            if self.member_id.user_id:
+                user_vals = {}
+                if self.employee_name:
+                    user_vals['name'] = self.employee_name.strip()
+                if self.phone:
+                    user_vals['phone'] = self.phone.strip()
+                if user_vals:
+                    self.member_id.user_id.write(user_vals)
+            self.member_id.write(vals)
+        else:
+            # Tìm xem user đã tồn tại theo tên/sđt hoặc tạo mới user + member
+            users = self.env['res.users'].search([('name', '=ilike', self.employee_name.strip())], limit=1)
+            if not users:
+                # Tạo portal user placeholder
+                import random
+                clean_name = ''.join(e for e in self.employee_name if e.isalnum() or e.isspace()).strip().lower().replace(' ', '.')
+                login_candidate = f"{clean_name or 'staff'}.{random.randint(1000, 9999)}@wujiatea.internal"
+                portal_group = self.env.ref('base.group_portal', raise_if_not_found=False)
+                user_vals = {
+                    'name': self.employee_name.strip(),
+                    'login': login_candidate,
+                    'phone': self.phone or '',
+                }
+                if portal_group:
+                    user_vals['group_ids'] = [(6, 0, [portal_group.id])]
+                users = self.env['res.users'].create(user_vals)
+            
+            # Tạo member mới
+            new_member = self.env['wujia.franchise.member'].create({
+                'franchise_id': store_id,
+                'user_id': users.id,
+                'role': self.role or 'staff',
+                'is_pass': self.is_pass,
+                'is_working': True,
+                'active': True,
+            })
+            self.write({'member_id': new_member.id})
+
+        return True
+

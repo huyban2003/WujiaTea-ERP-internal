@@ -6,7 +6,7 @@
         <field name="name">wujia.franchise.inspection.category.tree</field>
         <field name="model">wujia.franchise.inspection.category</field>
         <field name="arch" type="xml">
-            <list string="Criterion categories" editable="bottom">
+            <list string="Inspection Categories" editable="bottom">
                 <field name="sequence" widget="handle" />
                 <field name="name" />
                 <field name="active" widget="boolean_toggle" />
@@ -18,7 +18,7 @@
         <field name="name">wujia.franchise.inspection.category.form</field>
         <field name="model">wujia.franchise.inspection.category</field>
         <field name="arch" type="xml">
-            <form string="Criterion categories">
+            <form string="Inspection Category">
                 <sheet>
                     <group>
                         <group>
@@ -35,12 +35,12 @@
     </record>
 
     <record id="action_wujia_franchise_inspection_category" model="ir.actions.act_window">
-        <field name="name">Criterion categories</field>
+        <field name="name">Inspection Categories</field>
         <field name="res_model">wujia.franchise.inspection.category</field>
         <field name="view_mode">list,form</field>
         <field name="help" type="html">
             <p class="o_view_nocontent_smiling_face">
-                Create a new inspection criterion category / group!
+                Create a new inspection category / group!
             </p>
         </field>
     </record>
@@ -50,7 +50,7 @@
         <field name="name">wujia.franchise.inspection.template.tree</field>
         <field name="model">wujia.franchise.inspection.template</field>
         <field name="arch" type="xml">
-            <list string="Inspection template">
+            <list string="Inspection Templates">
                 <field name="code" />
                 <field name="name" />
                 <field name="version" />
@@ -71,13 +71,13 @@
         <field name="name">wujia.franchise.inspection.template.form</field>
         <field name="model">wujia.franchise.inspection.template</field>
         <field name="arch" type="xml">
-            <form string="Inspection template">
+            <form string="Inspection Template">
                 <header>
-                    <button name="action_activate" string="Active" type="object"
+                    <button name="action_activate" string="Activate" type="object"
                         class="btn-primary" invisible="state == 'active'" />
-                    <button name="action_create_new_version" string="Create a new version"
+                    <button name="action_create_new_version" string="Create New Version"
                         type="object" class="btn-success" invisible="state == 'draft'" />
-                    <button name="action_reset_draft" string="Reset to draft" type="object"
+                    <button name="action_reset_draft" string="Reset to Draft" type="object"
                         invisible="state == 'draft'" />
                     <button name="action_archive" string="Archive" type="object"
                         invisible="state == 'archived'" />
@@ -85,21 +85,21 @@
                 </header>
                 <sheet>
                     <div class="oe_title">
-                        <label for="name" string="Template name" />
+                        <label for="name" string="Template Name" />
                         <h1>
                             <field name="name"
-                                placeholder="E.g. Store hygiene &amp; quality inspection template 2026"
+                                placeholder="e.g. Store Hygiene &amp; Quality Inspection Template 2026"
                                 readonly="state in ('active', 'archived')" />
                         </h1>
                     </div>
                     <group>
                         <group>
-                            <field name="code" placeholder="TPL-INS-01"
+                            <field name="code" placeholder="MẪU-KS-01"
                                 readonly="state in ('active', 'archived')" />
                             <field name="version" readonly="state in ('active', 'archived')" />
                             <field name="effective_date" readonly="state in ('active', 'archived')" />
                         </group>
-                        <group string="Score scale setup">
+                        <group string="Scoring Configuration">
                             <field name="checklist_max_score"
                                 readonly="state in ('active', 'archived')" />
                             <field name="exam_max_score" readonly="state in ('active', 'archived')" />
@@ -107,11 +107,11 @@
                         </group>
                     </group>
                     <notebook>
-                        <page string="Criterion list" name="lines">
+                        <page string="Inspection Criteria" name="lines">
                             <field name="line_ids" readonly="state in ('active', 'archived')">
                                 <list editable="bottom" limit="100" decoration-bf="display_type == 'section'" decoration-info="display_type == 'section'">
                                     <control>
-                                        <create name="add_line_control" string="Add a criterion line" context="{'default_display_type': 'line'}"/>
+                                        <create name="add_line_control" string="Add a line" context="{'default_display_type': 'line'}"/>
                                         <create name="add_section_control" string="Add a section" context="{'default_display_type': 'section'}"/>
                                     </control>
                                     <field name="sequence" widget="handle" />
@@ -139,7 +139,7 @@
         <field name="name">wujia.franchise.inspection.template.search</field>
         <field name="model">wujia.franchise.inspection.template</field>
         <field name="arch" type="xml">
-            <search string="Search inspection templates">
+            <search string="Search Inspection Templates">
                 <field name="name" />
                 <field name="code" />
                 <field name="version" />
@@ -149,7 +149,7 @@
                 <filter string="Archived" name="archived" domain="[('state', '=', 'archived')]" />
                 <separator />
                 <filter string="Status" name="group_state" context="{'group_by': 'state'}" />
-                <filter string="Effective date" name="group_date"
+                <filter string="Effective Date" name="group_date"
                     context="{'group_by': 'effective_date'}" />
             </search>
         </field>
@@ -157,13 +157,13 @@
 
     <!-- Template Action -->
     <record id="action_wujia_franchise_inspection_template" model="ir.actions.act_window">
-        <field name="name">Inspection template</field>
+        <field name="name">Inspection Templates</field>
         <field name="res_model">wujia.franchise.inspection.template</field>
         <field name="view_mode">list,form</field>
         <field name="search_view_id" ref="view_wujia_franchise_inspection_template_search" />
         <field name="help" type="html">
             <p class="o_view_nocontent_smiling_face">
-                Create a new inspection template for the franchise network!
+                Create a new inspection template for the franchise store system!
             </p>
         </field>
     </record>

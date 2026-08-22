@@ -229,32 +229,44 @@
                                                     </div>
                                                 </t>
 
-                                                <!-- Remediation note (PC - Matched with evidence box) -->
-                                                <t t-if="l.get('remediation_note') or l.get('remediation_image_url')">
-                                                    <div class="evidence-box p-3 mb-2 d-flex gap-3 align-items-start"
-                                                         style="border-color: #bae6fd !important; background-color: #f0f9ff !important; border-style: solid !important;">
+                                                <!-- Remediation note (PC - Matched with evidence
+                                                box) -->
+                                                <t
+                                                    t-if="l.get('remediation_note') or l.get('remediation_image_url')">
+                                                    <div
+                                                        class="evidence-box p-3 mb-2 d-flex gap-3 align-items-start"
+                                                        style="border-color: #bae6fd !important; background-color: #f0f9ff !important; border-style: solid !important;">
                                                         <img t-if="l.get('remediation_image_url')"
                                                             t-att-src="l.get('remediation_image_url')"
                                                             class="rounded border wj-img-zoom flex-shrink-0"
                                                             width="64" height="64"
                                                             style="object-fit: cover;" />
-                                                        <div t-else="" class="rounded border bg-white d-flex align-items-center justify-content-center text-muted flex-shrink-0"
-                                                             style="width: 64px; height: 64px;">
-                                                            <i class="feather icon-image" style="font-size: 1.2rem;"/>
+                                                        <div t-else=""
+                                                            class="rounded border bg-white d-flex align-items-center justify-content-center text-muted flex-shrink-0"
+                                                            style="width: 64px; height: 64px;">
+                                                            <i class="feather icon-image"
+                                                                style="font-size: 1.2rem;" />
                                                         </div>
                                                         <div class="flex-fill">
-                                                            <div class="small font-weight-bold text-info mb-1"
-                                                                style="color: #0284c7 !important;">PHẢN HỒI KHẮC PHỤC (CỬA HÀNG)</div>
-                                                            <div class="small text-dark font-weight-medium">
-                                                                <t t-out="l.get('remediation_note') or 'Đã đính kèm ảnh khắc phục.'" />
+                                                            <div
+                                                                class="small font-weight-bold text-info mb-1"
+                                                                style="color: #0284c7 !important;">PHẢN
+                                                                HỒI KHẮC PHỤC (CỬA HÀNG)</div>
+                                                            <div
+                                                                class="small text-dark font-weight-medium">
+                                                                <t
+                                                                    t-out="l.get('remediation_note') or 'Đã đính kèm ảnh khắc phục.'" />
                                                             </div>
                                                         </div>
-                                                        <t t-if="l.get('remediation_state') != 'done'">
-                                                            <a t-attf-href="/portal/inspection/remediation/#{l.get('id')}"
+                                                        <t
+                                                            t-if="l.get('remediation_state') != 'done'">
+                                                            <a
+                                                                t-attf-href="/portal/inspection/remediation/#{l.get('id')}"
                                                                 class="btn btn-sm btn-outline-info rounded-circle d-inline-flex align-items-center justify-content-center p-0 flex-shrink-0 align-self-center shadow-sm"
                                                                 style="width: 36px; height: 36px; color: #0284c7; border-color: #38bdf8; background: #ffffff;"
                                                                 title="Sửa phản hồi">
-                                                                <i class="feather icon-edit-2" style="font-size: 1rem;" />
+                                                                <i class="feather icon-edit-2"
+                                                                    style="font-size: 1rem;" />
                                                             </a>
                                                         </t>
                                                     </div>
@@ -524,32 +536,43 @@
                                                     </div>
                                                 </t>
 
-                                                <!-- Phản hồi khắc phục (Mobile - Matched with evidence box) -->
-                                                <t t-if="l.get('remediation_note') or l.get('remediation_image_url')">
-                                                    <div class="evidence-box p-2 mb-2 d-flex gap-2 align-items-start"
-                                                         style="border-color: #bae6fd !important; background-color: #f0f9ff !important; border-style: solid !important;">
+                                                <!-- Phản hồi khắc phục (Mobile - Matched with
+                                                evidence box) -->
+                                                <t
+                                                    t-if="l.get('remediation_note') or l.get('remediation_image_url')">
+                                                    <div
+                                                        class="evidence-box p-2 mb-2 d-flex gap-2 align-items-start"
+                                                        style="border-color: #bae6fd !important; background-color: #f0f9ff !important; border-style: solid !important;">
                                                         <img t-if="l.get('remediation_image_url')"
                                                             t-att-src="l.get('remediation_image_url')"
                                                             class="rounded border wj-img-zoom flex-shrink-0"
                                                             width="60" height="60"
                                                             style="object-fit: cover;" />
-                                                        <div t-else="" class="rounded border bg-white d-flex align-items-center justify-content-center text-muted flex-shrink-0"
-                                                             style="width: 60px; height: 60px;">
-                                                            <i class="feather icon-image" style="font-size: 1.1rem;"/>
+                                                        <div t-else=""
+                                                            class="rounded border bg-white d-flex align-items-center justify-content-center text-muted flex-shrink-0"
+                                                            style="width: 60px; height: 60px;">
+                                                            <i class="feather icon-image"
+                                                                style="font-size: 1.1rem;" />
                                                         </div>
                                                         <div class="flex-fill">
-                                                            <div class="small font-weight-bold text-info mb-1"
-                                                                style="color: #0284c7 !important;">Phản hồi khắc phục:</div>
+                                                            <div
+                                                                class="small font-weight-bold text-info mb-1"
+                                                                style="color: #0284c7 !important;">Phản
+                                                                hồi khắc phục:</div>
                                                             <div class="small text-dark">
-                                                                <t t-out="l.get('remediation_note') or 'Đã đính kèm ảnh khắc phục.'" />
+                                                                <t
+                                                                    t-out="l.get('remediation_note') or 'Đã đính kèm ảnh khắc phục.'" />
                                                             </div>
                                                         </div>
-                                                        <t t-if="l.get('remediation_state') != 'done'">
-                                                            <a t-attf-href="/portal/inspection/remediation/#{l.get('id')}"
+                                                        <t
+                                                            t-if="l.get('remediation_state') != 'done'">
+                                                            <a
+                                                                t-attf-href="/portal/inspection/remediation/#{l.get('id')}"
                                                                 class="btn btn-xs btn-outline-info rounded-circle d-inline-flex align-items-center justify-content-center p-0 flex-shrink-0 align-self-center shadow-sm me-1"
                                                                 style="width: 32px; height: 32px; color: #0284c7; border-color: #38bdf8; background: #ffffff;"
                                                                 title="Sửa phản hồi">
-                                                                <i class="feather icon-edit-2" style="font-size: 0.9rem;" />
+                                                                <i class="feather icon-edit-2"
+                                                                    style="font-size: 0.9rem;" />
                                                             </a>
                                                         </t>
                                                     </div>
@@ -617,7 +640,7 @@
                         <!-- Lightbox Modal for Image Preview -->
                         <div id="wj_lightbox" class="wj-lightbox-modal"
                             onclick="this.style.display='none'">
-                            <span class="wj-lightbox-close">&amp;times;</span>
+                            <span class="wj-lightbox-close" t-translation="off">&amp;times;</span>
                             <img class="wj-lightbox-content" id="wj_lightbox_img" />
                         </div>
 

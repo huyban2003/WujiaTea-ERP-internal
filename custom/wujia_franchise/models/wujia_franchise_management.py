@@ -130,60 +130,88 @@ class WujiaFranchiseManagement(models.Model):
 
     supervision_user_id = fields.Many2one(
         'res.users',
-        string='Assigned inspector',
+        string='Supervisor',
         tracking=True,
     )
 
     area_manager_user_id = fields.Many2one(
         related='area_id.manager_user_id',
-        string='Area manager',
+        string='Area Manager',
         readonly=True,
         store=False
     )
 
     effective_supervision_user_id = fields.Many2one(
         'res.users',
-        string='Inspection owner',
+        string='Assigned Supervisor',
         compute='_compute_effective_supervision_user',
         store=True,
-        help='Inspector assigned to this store. If none is set, the area manager is used.',
+        help='Franchise supervisor. If not assigned, defaults to Area Manager.',
     )
 
     next_supervision_date = fields.Date(
-        string='Next inspection date',
+        string='Next Inspection Date',
         compute='_compute_next_supervision_date',
         store=True,
         search='_search_next_supervision_date',
-        help='Nearest scheduled inspection date from today onwards; past and cancelled schedules are ignored.',
+        help='Nearest upcoming inspection date (>= today), excluding past and cancelled schedules.',
     )
 
     inspection_ids = fields.One2many(
         'wujia.franchise.inspection',
         'franchise_id',
-        string='Inspection sheet list',
+        string='Inspection Sheets',
+    )
+    document_ids = fields.One2many(
+        'wujia.franchise.document',
+        'franchise_id',
+        string='Documents',
+        copy=False,
+    )
+    inspection_chart_data = fields.Text(
+        string='Inspection Chart Data',
+        compute='_compute_inspection_chart_data',
     )
 
     latest_inspection_id = fields.Many2one(
         'wujia.franchise.inspection',
-        string='Latest inspection sheet',
+        string='Latest Inspection Sheet',
         compute='_compute_latest_inspection_info',
         store=True,
     )
     latest_total_score = fields.Float(
-        string='Latest evaluation score',
+        string='Latest Inspection Score',
         compute='_compute_latest_inspection_info',
         store=True,
     )
     latest_grade_id = fields.Many2one(
         'wujia.franchise.inspection.grade',
-        string='Latest evaluation grade',
+        string='Latest Inspection Grade',
         compute='_compute_latest_inspection_info',
         store=True,
     )
     latest_inspection_date = fields.Date(
-        string='Latest inspection date',
+        string='Latest Inspection Date',
         compute='_compute_latest_inspection_info',
         store=True,
+    )
+    consecutive_c_count = fields.Integer(
+        string='Consecutive C Count',
+        compute='_compute_latest_inspection_info',
+        store=True,
+        help='Number of consecutive completed inspections with grade C from the latest round.',
+    )
+    consecutive_d_count = fields.Integer(
+        string='Consecutive D Count',
+        compute='_compute_latest_inspection_info',
+        store=True,
+        help='Number of consecutive completed inspections with grade D from the latest round.',
+    )
+    consecutive_cd_count = fields.Integer(
+        string='Consecutive C/D Count',
+        compute='_compute_latest_inspection_info',
+        store=True,
+        help='Consecutive count of grade C if latest is C, or consecutive count of grade D if latest is D.',
     )
     google_map_url = fields.Char(string='Google Map URL')
 
@@ -191,7 +219,7 @@ class WujiaFranchiseManagement(models.Model):
 
     _code_uniq = models.Constraint(
         'UNIQUE (code)',
-        'The store code must be unique.',
+        'Store code must be unique.',
     )
 
     # ===========================================================
@@ -271,26 +299,99 @@ class WujiaFranchiseManagement(models.Model):
         if not self:
             return
 
-        # Dùng ORM QueryBuilder (_read_group) để Group By franchise_id và lấy MAX(id) tại Database
-        groups = self.env['wujia.franchise.inspection']._read_group(
-            domain=[
-                ('franchise_id', 'in', self.ids),
-                ('state', '=', 'done'),
-            ],
-            groupby=['franchise_id'],
-            aggregates=['id:max'],
-        )
-
-        latest_ids = [max_id for franchise, max_id in groups if max_id]
-        latest_inspections = self.env['wujia.franchise.inspection'].browse(latest_ids)
-        latest_by_franchise = {insp.franchise_id.id: insp for insp in latest_inspections}
-
         for rec in self:
-            latest = latest_by_franchise.get(rec.id)
-            rec.latest_inspection_id = latest
-            rec.latest_total_score = latest.total_score if latest else 0.0
-            rec.latest_grade_id = latest.grade_id if latest else False
-            rec.latest_inspection_date = latest.planned_date if latest else False
+            done_inspections = rec.inspection_ids.filtered(
+                lambda i: i.state == 'done' and i.planned_date
+            ).sorted(
+                key=lambda i: (i.planned_date, i.id),
+                reverse=True
+            )
+            if done_inspections:
+                latest = done_inspections[0]
+                rec.latest_inspection_id = latest
+                rec.latest_total_score = latest.total_score
+                rec.latest_grade_id = latest.grade_id
+                rec.latest_inspection_date = latest.planned_date
+
+                # Separate consecutive counts for grade C and grade D
+                count_c = 0
+                count_d = 0
+                latest_grade_name = latest.grade_id.name if latest.grade_id else ''
+
+                if latest_grade_name == 'C':
+                    for insp in done_inspections:
+                        if insp.grade_id and insp.grade_id.name == 'C':
+                            count_c += 1
+                        else:
+                            break
+                elif latest_grade_name == 'D':
+                    for insp in done_inspections:
+                        if insp.grade_id and insp.grade_id.name == 'D':
+                            count_d += 1
+                        else:
+                            break
+
+                rec.consecutive_c_count = count_c
+                rec.consecutive_d_count = count_d
+                rec.consecutive_cd_count = count_c if latest_grade_name == 'C' else (count_d if latest_grade_name == 'D' else 0)
+            else:
+                rec.latest_inspection_id = False
+                rec.latest_total_score = 0.0
+                rec.latest_grade_id = False
+                rec.latest_inspection_date = False
+                rec.consecutive_c_count = 0
+                rec.consecutive_d_count = 0
+                rec.consecutive_cd_count = 0
+
+    @api.depends('inspection_ids.total_score', 'inspection_ids.grade_id', 'inspection_ids.planned_date', 'inspection_ids.state')
+    def _compute_inspection_chart_data(self):
+        import json
+        for rec in self:
+            inspections = rec.inspection_ids.filtered(
+                lambda i: i.state in ('done', 'need_remediation') and i.planned_date
+            ).sorted(
+                key=lambda i: (i.planned_date, i.id)
+            )
+
+            # Take last 10 rounds
+            if len(inspections) > 10:
+                inspections = inspections[-10:]
+
+            labels = []
+            scores = []
+            grades = []
+            display_scores = []
+            avg_scores = []
+
+            if inspections:
+                total_sum = sum(ins.total_score for ins in inspections)
+                overall_avg = total_sum / len(inspections)
+
+                for ins in inspections:
+                    date_str = ins.planned_date.strftime('%d/%m/%Y') if ins.planned_date else ''
+                    labels.append(date_str)
+                    scores.append(ins.total_score)
+                    grade_name = (ins.grade_id.name if ins.grade_id else '').strip()
+                    grades.append(grade_name)
+
+                    score_val = ins.total_score
+                    score_str = f"{int(score_val)}" if score_val.is_integer() else f"{score_val:.1f}"
+                    display_text = f"{score_str} ({grade_name})" if grade_name else score_str
+                    display_scores.append(display_text)
+                    avg_scores.append(round(overall_avg, 2))
+
+            rec.inspection_chart_data = json.dumps({
+                'labels': labels,
+                'scores': scores,
+                'grades': grades,
+                'display_scores': display_scores,
+                'avg_scores': avg_scores,
+                'title': _("Supervision Score History (Last 10 Rounds)"),
+                'single_label': _("Score per Round"),
+                'avg_label': _("Average Score"),
+                'no_data_title': _("No Historical Data Yet!"),
+                'no_data_desc': _("This store has no completed/remediation inspection sheets yet."),
+            })
 
     # ===========================================================
     # Constraints
@@ -301,21 +402,21 @@ class WujiaFranchiseManagement(models.Model):
             if (rec.franchise_end_date and rec.franchise_start_date
                     and rec.franchise_end_date < rec.franchise_start_date):
                 raise ValidationError(_(
-                    'The franchise end date must be on or after the start date.'
+                    "Franchise end date must be >= start date."
                 ))
 
     @api.constrains('email')
     def _check_email_format(self):
         for rec in self:
             if rec.email and not EMAIL_RE.match(rec.email):
-                raise ValidationError(_("Email '%s' has an invalid format.", rec.email))
+                raise ValidationError(_("Email '%s' is invalid.", rec.email))
 
     @api.constrains('status', 'partner_id')
     def _check_partner_required_when_active(self):
         for rec in self:
             if rec.status == 'active' and not rec.partner_id:
                 raise ValidationError(_(
-                    "Active store '%s' must have a partner so that sales orders / invoices can be created.", rec.display_name,
+                    "Active store '%s' must have an associated Partner for sales orders/invoicing.", rec.display_name,
                 ))
 
     # ===========================================================
@@ -333,7 +434,7 @@ class WujiaFranchiseManagement(models.Model):
         self.ensure_one()
         return {
             'type': 'ir.actions.act_window',
-            'name': _('Members of store %s', self.display_name),
+            'name': _('Members of %s', self.display_name),
             'res_model': 'wujia.franchise.member',
             'view_mode': 'list,form',
             'domain': [('franchise_id', '=', self.id)],
@@ -365,3 +466,31 @@ class WujiaFranchiseManagement(models.Model):
             ('active', '=', True),
         ])
         expired.write({'status': 'expired'})
+
+
+class WujiaFranchiseDocument(models.Model):
+    _name = 'wujia.franchise.document'
+    _description = 'Franchise Store Document'
+    _order = 'create_date desc, id desc'
+
+    franchise_id = fields.Many2one(
+        'wujia.franchise.management',
+        string='Franchise Store',
+        required=True,
+        ondelete='cascade',
+    )
+    name = fields.Char(
+        string='Document Name',
+    )
+    file = fields.Binary(
+        string='Download',
+        required=True,
+        attachment=True,
+    )
+
+    @api.model_create_multi
+    def create(self, vals_list):
+        for vals in vals_list:
+            if not vals.get('name') and vals.get('file'):
+                vals['name'] = _('Document')
+        return super().create(vals_list)

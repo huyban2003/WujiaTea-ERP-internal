@@ -1,10 +1,32 @@
 # -*- coding: utf-8 -*-
 import json
 import base64
+import csv
+import os
 from odoo import http, fields, _
 # pyrefly: ignore [missing-import]
 from odoo.http import request
 
+# Glossary dùng chung toàn repo (repo_root/docs/), cùng nguồn với scripts/sync_translations.py.
+# Thiếu file thì t() tự rơi về default — trang khảo sát vẫn chạy.
+CSV_PATH = os.path.join(os.path.dirname(__file__), '..', '..', '..', 'docs', 'i18n-glossary.csv')
+
+_SURVEY_LANG_COL = (('zh', 'CN'), ('th', 'TH'), ('vi', 'VN'), ('en', 'EN'))
+
+
+def get_survey_translations(lang):
+    low = (lang or '').lower()
+    col = next((c for p, c in _SURVEY_LANG_COL if p in low), 'EN')
+    trans_map = {}
+    if os.path.exists(CSV_PATH):
+        with open(CSV_PATH, 'r', encoding='utf-8') as f:
+            reader = csv.DictReader(f)
+            for row in reader:
+                k = (row.get('key') or '').strip()
+                v = (row.get(col) or '').strip()
+                if k and v:
+                    trans_map[k] = v
+    return trans_map
 
 class WujiaFranchiseInspectionWebController(http.Controller):
 
@@ -36,7 +58,7 @@ class WujiaFranchiseInspectionWebController(http.Controller):
                     'planned_date': str(prev_line.inspection_id.planned_date) if (prev_line.inspection_id and prev_line.inspection_id.planned_date) else '',
                     'inspector': prev_line.inspection_id.inspector_user_id.name if (prev_line.inspection_id and prev_line.inspection_id.inspector_user_id) else '',
                     'is_pass': prev_line.is_pass,
-                    'note': prev_line.note or 'Không có ghi chú vi phạm',
+                    'note': prev_line.note or 'No violation note',
                     'deduction_score': prev_line.deduction_score_snapshot or 0.0,
                     'has_evidence': bool(prev_line.evidence_image),
                     'evidence_url': f'/web/image/wujia.franchise.inspection.line/{prev_line.id}/evidence_image' if prev_line.evidence_image else '',
@@ -81,10 +103,13 @@ class WujiaFranchiseInspectionWebController(http.Controller):
         is_inspection_closed = (inspection.state in ('done', 'cancel'))
         is_exam_submitted = bool(inspection.is_exam_submitted)
 
-        user_lang = request.env.user.lang or request.context.get('lang', 'vi_VN')
+        user_lang = kwargs.get('lang') or request.params.get('lang') or request.context.get('lang') or request.env.user.lang or 'en_US'
+        trans_map = get_survey_translations(user_lang)
+
+        def _t(key, default=''):
+            return trans_map.get(key, default or key)
 
         values = {
-            'page_lang': user_lang.replace('_', '-'),
             'inspection': inspection,
             'lines': lines,
             'exam_lines': exam_lines,
@@ -96,6 +121,9 @@ class WujiaFranchiseInspectionWebController(http.Controller):
             'is_exam_submitted': is_exam_submitted,
             'test_employee_name': inspection.test_employee_name or '',
             'tenure': inspection.tenure or 0.0,
+            'trans_dict': trans_map,
+            'trans': trans_map,
+            'trans_json': json.dumps(trans_map, ensure_ascii=False),
         }
         return request.render('wujia_franchise.inspection_survey_do_page', values)
 
@@ -104,10 +132,10 @@ class WujiaFranchiseInspectionWebController(http.Controller):
         # kiểm tra tồn tại và điều kiện trước khi save phiếu 
         inspection = request.env['wujia.franchise.inspection'].sudo().browse(int(inspection_id))
         if not inspection.exists():
-            return {'success': False, 'error': 'Phiếu khảo sát không tồn tại'}
+            return {'success': False, 'error': 'Inspection sheet does not exist'}
 
         if inspection.state in ('done', 'cancel'):
-            return {'success': False, 'error': 'Phiếu khảo sát đã hoàn tất hoặc bị hủy, không thể chỉnh sửa!'}
+            return {'success': False, 'error': 'Inspection sheet is already completed or cancelled and cannot be edited!'}
 
         LineModel = request.env['wujia.franchise.inspection.line'].sudo()
         ExamLineModel = request.env['wujia.franchise.inspection.exam.line'].sudo()

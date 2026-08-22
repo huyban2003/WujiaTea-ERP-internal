@@ -7,28 +7,28 @@ from odoo.exceptions import ValidationError
 
 class WujiaFranchiseInspectionGrade(models.Model):
     _name = 'wujia.franchise.inspection.grade'
-    _description = 'Inspection grade configuration'
+    _description = 'Inspection Grade Configuration'
     _order = 'min_score desc'
 
     name = fields.Char(
         string='Grade',
         required=True,
-        help='Grade name, e.g. A, B, C, D',
+        help='Grade name, e.g.: A, B, C, D',
     )
     min_score = fields.Float(
-        string='Minimum score',
+        string='Minimum Score',
         required=True,
-        help='Lowest score for this grade (inclusive)',
+        help='Minimum score to achieve this grade (inclusive)',
     )
     max_score = fields.Float(
-        string='Maximum score',
+        string='Maximum Score',
         required=True,
         default=100.0,
-        help='Highest score for this grade (inclusive)',
+        help='Maximum score for this grade (inclusive)',
     )
     description = fields.Text(
         string='Description',
-        help='Short description of this grade',
+        help='Short description for this grade',
     )
     sequence = fields.Integer(
         string='Sequence',
@@ -40,13 +40,13 @@ class WujiaFranchiseInspectionGrade(models.Model):
     )
     color = fields.Integer(
         string='Color',
-        help='Colour shown on the badge',
+        help='Badge color index',
     )
 
     _sql_constraints = [
-        ('name_unique', 'UNIQUE(name)', 'The grade name must be unique!'),
+        ('name_unique', 'UNIQUE(name)', 'Grade name must be unique!'),
         ('score_check', 'CHECK(min_score <= max_score)',
-         'The minimum score must be less than or equal to the maximum score!'),
+         'Minimum score must be less than or equal to maximum score!'),
     ]
 
 
@@ -76,7 +76,7 @@ class WujiaFranchiseInspectionGrade(models.Model):
             if rec_id:
                 domain.append(('id', '!=', rec_id))
             if self.search_count(domain) > 0:
-                raise ValidationError(_('Grade name "%s" already exists!', record.name))
+                raise ValidationError(_('Grade "%s" already exists!', record.name))
 
     @api.constrains('min_score', 'max_score')
     def _check_score_overlap(self):
@@ -95,7 +95,8 @@ class WujiaFranchiseInspectionGrade(models.Model):
             overlapping = self.search(domain, limit=1)
             if overlapping and overlapping.id != rec_id:
                 raise ValidationError(
-                    _('The score range [%(min)s - %(max)s] of grade "%(name)s" overlaps grade "%(other)s" [%(other_min)s - %(other_max)s]!',
+                    _('Khoảng điểm [%(min)s - %(max)s] của hạng "%(name)s" bị chồng lấn '
+                      'với hạng "%(other)s" [%(other_min)s - %(other_max)s]!',
                       min=record.min_score,
                       max=record.max_score,
                       name=record.name,

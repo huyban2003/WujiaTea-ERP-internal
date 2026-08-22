@@ -6,30 +6,30 @@
         <field name="name">wujia.franchise.inspection.line.search</field>
         <field name="model">wujia.franchise.inspection.line</field>
         <field name="arch" type="xml">
-            <search string="Search inspection criteria">
-                <field name="template_id" string="Inspection template" />
-                <field name="template_line_id" string="Template criterion" />
-                <field name="content_snapshot" string="Criterion content" />
-                <field name="franchise_id" string="Store" />
-                <field name="category_id" string="Criterion categories" />
-                <field name="planned_date" string="Inspection date" />
+            <search string="Search Violation Criteria">
+                <field name="template_id" string="Inspection Template" />
+                <field name="template_line_id" string="Template Criterion" />
+                <field name="content_snapshot" string="Criterion Content" />
+                <field name="franchise_id" string="Franchise Store" />
+                <field name="category_id" string="Section Category" />
+                <field name="planned_date" string="Inspection Date" />
                 <separator />
-                <filter string="Passed criteria" name="pass_only"
+                <filter string="Passed Criteria (Pass)" name="pass_only"
                     domain="[('is_pass', '=', True)]" />
                 <separator />
-                <filter string="Inspection time" name="filter_planned_date" date="planned_date" />
+                <filter string="Inspection Date" name="filter_planned_date" date="planned_date" />
                 <separator />
-                <filter string="Inspection template" name="group_template"
+                <filter string="Inspection Template" name="group_template"
                     context="{'group_by': 'template_id'}" />
-                <filter string="Template criterion line" name="group_template_line"
+                <filter string="Template Criterion" name="group_template_line"
                     context="{'group_by': 'template_line_id'}" />
-                <filter string="Criterion content" name="group_content"
+                <filter string="Criterion Content" name="group_content"
                     context="{'group_by': 'content_snapshot'}" />
-                <filter string="Result (pass / fail)" name="group_result"
+                <filter string="Result (Pass / Fail)" name="group_result"
                     context="{'group_by': 'result'}" />
-                <filter string="Criterion categories" name="group_category"
+                <filter string="Section Category" name="group_category"
                     context="{'group_by': 'category_id'}" />
-                <filter string="Store" name="group_franchise"
+                <filter string="Franchise Store" name="group_franchise"
                     context="{'group_by': 'franchise_id'}" />
             </search>
         </field>
@@ -40,7 +40,7 @@
         <field name="name">wujia.franchise.inspection.line.violation.graph</field>
         <field name="model">wujia.franchise.inspection.line</field>
         <field name="arch" type="xml">
-            <graph string="Violated criteria analysis" type="line" stacked="1" sample="1">
+            <graph string="Violation Criteria Analysis" type="line" stacked="1" sample="1">
                 <field name="template_line_id" type="row" />
                 <field name="result" type="col" />
             </graph>
@@ -52,7 +52,7 @@
         <field name="name">wujia.franchise.inspection.line.violation.pivot</field>
         <field name="model">wujia.franchise.inspection.line</field>
         <field name="arch" type="xml">
-            <pivot string="Violated criteria analysis" sample="1">
+            <pivot string="Violation Criteria Analysis" sample="1">
                 <field name="template_id" type="row" />
                 <field name="template_line_id" type="row" />
                 <field name="result" type="col" />
@@ -65,7 +65,7 @@
         <field name="name">wujia.franchise.inspection.line.violation.list</field>
         <field name="model">wujia.franchise.inspection.line</field>
         <field name="arch" type="xml">
-            <list string="Violated criteria analysis" create="false" edit="false" delete="false">
+            <list string="Violation Criteria Analysis" create="false" edit="false" delete="false">
                 <field name="template_id" />
                 <field name="template_line_id" />
                 <field name="inspection_id" />
@@ -74,8 +74,8 @@
                 <field name="content_snapshot" />
                 <field name="result" widget="badge" decoration-success="result == 'pass'"
                     decoration-danger="result == 'fail'" />
-                <field name="note" string="Violation note (admin)" optional="show" />
-                <field name="remediation_note" string="Remediation note (store)" optional="show" />
+                <field name="note" string="Violation Note (Admin)" optional="show" />
+                <field name="remediation_note" string="Remediation Note (Store)" optional="show" />
                 <field name="evidence_image" widget="image" options="{'size': [40, 40]}"
                     optional="show" />
                 <field name="remediation_image" widget="image" options="{'size': [40, 40]}"
@@ -91,17 +91,17 @@
         <field name="name">wujia.franchise.inspection.line.form</field>
         <field name="model">wujia.franchise.inspection.line</field>
         <field name="arch" type="xml">
-            <form string="Previous round criterion details" create="false" edit="false" delete="false">
+            <form string="Historical Criterion Details" create="false" edit="false" delete="false">
                 <sheet>
                     <group>
-                        <group string="CRITERION INFORMATION">
+                        <group string="THÔNG TIN TIÊU CHÍ">
                             <field name="inspection_id" readonly="1" options="{'no_open': True}" />
                             <field name="franchise_id" readonly="1" options="{'no_open': True}" />
                             <field name="planned_date" readonly="1" />
                             <field name="category_id" readonly="1" options="{'no_open': True}" />
                             <field name="content_snapshot" readonly="1" />
                         </group>
-                        <group string="RESULT &amp; EVIDENCE">
+                        <group string="KẾT QUẢ &amp; BẰNG CHỨNG">
                             <field name="criterion_type_snapshot" readonly="1" widget="badge"
                                 decoration-danger="criterion_type_snapshot == 'critical'"
                                 decoration-info="criterion_type_snapshot == 'normal'" />
@@ -112,12 +112,12 @@
                             <field name="note" readonly="1" />
                         </group>
                     </group>
-                    <group string="EVIDENCE &amp; REMEDIATION">
-                        <group string="Violation evidence at inspection time">
+                    <group string="BẰNG CHỨNG &amp; KHẮC PHỤC">
+                        <group string="Violation Evidence (Inspection)">
                             <field name="evidence_image" widget="image"
                                 options="{'size': [200, 200]}" readonly="1" nolabel="1" />
                         </group>
-                        <group string="Photo after remediation">
+                        <group string="Remediation Photo (Store)">
                             <field name="remediation_image" widget="image"
                                 options="{'size': [200, 200]}" readonly="1" nolabel="1" />
                         </group>
@@ -130,15 +130,16 @@
     <!-- Action Phân tích tiêu chí vi phạm (Chỉ tổng hợp dữ liệu từ các Phiếu khảo sát ở trạng thái
     'Hoàn thành') -->
     <record id="action_wujia_franchise_inspection_report_violation" model="ir.actions.act_window">
-        <field name="name">Violated criteria analysis</field>
+        <field name="name">Violation Criteria Analysis</field>
         <field name="res_model">wujia.franchise.inspection.line</field>
-        <field name="domain">[('display_type', '=', 'line'), ('inspection_id.state', 'in', ('done', 'need_remediation'))]</field>
+        <field name="domain">[('display_type', '=', 'line'), ('inspection_id.state', 'in', ('done',
+            'need_remediation'))]</field>
         <field name="view_mode">graph,pivot,list</field>
         <field name="search_view_id" ref="view_wujia_franchise_inspection_line_search" />
         <field name="context">{}</field>
         <field name="help" type="html">
             <p class="o_view_nocontent_smiling_face">
-                Analysis of pass / violation counts per template criterion across completed sheets!
+                Violation criteria analysis report on completed inspection sheets!
             </p>
         </field>
     </record>

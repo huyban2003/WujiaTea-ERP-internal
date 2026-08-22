@@ -6,11 +6,10 @@
         <field name="name">wujia.supervision.schedule.tree</field>
         <field name="model">wujia.supervision.schedule</field>
         <field name="arch" type="xml">
-            <list string="Store supervision schedules">
+            <list string="Supervision Schedules">
                 <field name="name" />
                 <field name="store_id" />
                 <field name="user_id" />
-                <!-- Thay date_start thành date -->
                 <field name="date" />
                 <field name="state" widget="badge"
                     decoration-info="state == 'draft'"
@@ -26,8 +25,7 @@
         <field name="name">wujia.supervision.schedule.calendar</field>
         <field name="model">wujia.supervision.schedule</field>
         <field name="arch" type="xml">
-            <!-- Dùng date_start="date" (chỉ định trường date làm mốc lịch) -->
-            <calendar string="Store supervision schedules"
+            <calendar string="Supervision Calendar"
                 date_start="date"
                 mode="month"
                 color="state"
@@ -47,7 +45,7 @@
         <field name="name">wujia.supervision.schedule.form</field>
         <field name="model">wujia.supervision.schedule</field>
         <field name="arch" type="xml">
-            <form string="Supervision schedule">
+            <form string="Supervision Schedule">
                 <header>
                     <field name="state" widget="statusbar"
                         statusbar_visible="draft,in_progress,done" />
@@ -59,25 +57,24 @@
                             type="object"
                             class="oe_stat_button"
                             icon="fa-clipboard">
-                            <field name="inspection_count" widget="statinfo" string="Inspection sheets" />
+                            <field name="inspection_count" widget="statinfo" string="Inspection Sheets" />
                         </button>
                     </div>
 
                     <div class="oe_title">
-                        <label for="name" string="Task title" />
+                        <label for="name" string="Schedule Title" />
                         <h1>
                             <field name="name" readonly="1" force_save="1"
-                                placeholder="E.g. Monthly supervision for July" />
+                                placeholder="e.g. LGS-HCM01-0001" />
                         </h1>
                     </div>
                     <group>
-                        <group string="STORE INFORMATION">
+                        <group string="Store &amp; Inspector Information">
                             <field name="user_id" options="{'no_create': True, 'no_open': True}" />
                             <field name="store_id"
                                 domain="[('effective_supervision_user_id', '=', user_id)]"
                                 options="{'no_create': True, 'no_open': True}" />
-                            <!-- cần thêm địa chị, sĐt, định vị cửa hàng -->
-                            <group name="store_info" string="Address &amp; phone">
+                            <group name="store_info" string="Address &amp; Contact">
                                 <field name="address" readonly="1" />
                                 <field name="phone" readonly="1" />
                             </group>
@@ -91,18 +88,18 @@
                                     invisible="not google_map_url" />
                             </group>
                         </group>
-                        <group string="LATEST EVALUATION TIME &amp; RESULT">
-                            <field name="date" string="Supervision date" />
+                        <group string="Schedule Date &amp; Latest Inspection Result">
+                            <field name="date" string="Scheduled Date" />
                             <field name="latest_total_score"
-                                string="Latest score"
+                                string="Latest Score"
                                 readonly="1" />
                             <field name="latest_grade_id"
-                                string="Latest grade"
+                                string="Latest Grade"
                                 widget="badge"
                                 readonly="1" />
                         </group>
                     </group>
-                    <field name="note" placeholder="Add a detailed note..." />
+                    <field name="note" placeholder="Add detailed schedule notes or instructions here..." />
                 </sheet>
             </form>
         </field>
@@ -113,18 +110,18 @@
         <field name="name">wujia.supervision.schedule.search</field>
         <field name="model">wujia.supervision.schedule</field>
         <field name="arch" type="xml">
-            <search string="Search supervision schedules">
+            <search string="Search Supervision Schedules">
                 <field name="name" />
                 <field name="store_id" />
                 <field name="user_id" />
-                <filter string="My schedules" name="my_schedule" domain="[('user_id', '=', uid)]" />
+                <filter string="My Schedules" name="my_schedule" domain="[('user_id', '=', uid)]" />
             </search>
         </field>
     </record>
 
     <!-- 5. ACTION -->
     <record id="action_wujia_supervision_schedule" model="ir.actions.act_window">
-        <field name="name">Store supervision schedule</field>
+        <field name="name">Supervision Schedules</field>
         <field name="res_model">wujia.supervision.schedule</field>
         <field name="view_mode">calendar,list,form</field>
         <field name="search_view_id" ref="view_wujia_supervision_schedule_search" />
