@@ -100,3 +100,38 @@ gây `psycopg2.errors.UndefinedTable` (RC=255) trên **mọi** build. Đây là 
 `data/wujia_inspection_bootstrap.xml:10` vốn đã seed bằng `<function>`, chạy sau khi bảng đã tồn tại.
 ⚠️ **Lỗi này có sẵn trên `main` và đang chặn hàng đợi deploy merge `thai` (`538f75e`)** — báo riêng
 cho chủ dự án, không phải hệ quả của C8.
+
+---
+
+## 5. Đo lại NGAY TRÊN UAT sau khi deploy (22/08/2026)
+
+Deploy xác nhận bằng XML-RPC chỉ-đọc: `wujia_portal_layout **19.0.32.0.0**`, view
+`wujia_portal_layout.wj_section_header` có mặt, 6 module cùng ghi lúc 16:07 22/08; trình duyệt
+nhận đúng `_components.css?v=1172` + `_pc_components.css?v=1172`.
+Đo bằng tài khoản `admin`, **chỉ đọc**: không tạo đơn/hoá đơn/email, không đổi quyền, không sửa
+dữ liệu (cookie `wujia_active_franchise_id` là cookie phía trình duyệt, không ghi gì vào DB;
+harness bản UAT đã **gỡ hẳn** bước thêm vào giỏ mà bản local dùng).
+
+| Hạng mục | Local (`wujia_tea_c8`) | **UAT sau deploy** |
+|---|---|---|
+| Acceptance `CMP-SH-001` @391/360/1920 | 46/46 | **46/46** |
+| Hồi quy diện rộng kiểu B4 | 286/286 | **286/286** |
+| Tab-walk a11y (5 trang × 2 viewport) | 248/248 | **250/250** |
+
+Vì UAT có `website_sale` + 5 `website_sale_*` nên bundle frontend khác local (L10/L14 —
+đúng chỗ C6 và C7 từng "local đẹp, UAT than"). Lần này số đo trùng khít: title 20/28 mobile và
+22/30 PC, nhịp 16/8 và 20/12, màu `rgb(17,24,39)` / `rgb(107,114,128)` / `rgb(40,169,223)`,
+count "5 sản phẩm" và "0 sản phẩm" khi lọc rỗng, `/portal/delivery` PC ra variant meta
+"2 chuyến · Mới nhất trước" và chips lọc vẫn nằm ngoài right slot.
+
+### Hai lần harness sai, KHÔNG phải code sai (L7/L9)
+
+1. **Lượt B4 đầu ra 270/286.** 16 ô đỏ đều ở 4 trang chi tiết
+   (`/portal/delivery/3`, `/portal/notification/41`, `/portal/support/40`, `/portal/return/12`):
+   trang **redirect về danh sách** kể cả khi đã chọn cửa hàng. Nguyên nhân: đó là **id của DB
+   local**, đọc XML-RPC trên UAT thì cả 4 đều `KHÔNG TỒN TẠI` (id thật lần lượt là 2 / 19 / 16 / 10).
+   Sửa id trong harness ⇒ **286/286**. C8 không đụng template chi tiết nào.
+2. **`input[type=date]` trong FilterBar** — như đã ghi ở §2, host không match `:focus` khi
+   Chromium đưa focus vào shadow root; harness đã fallback qua CDP nên UAT ra 250/250.
+
+⇒ Không phát hiện khác biệt nào giữa local và UAT. Ba LIMIT ở §3 giữ nguyên, chờ BA.
