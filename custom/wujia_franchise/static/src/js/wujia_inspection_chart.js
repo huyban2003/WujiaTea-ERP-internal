@@ -242,7 +242,6 @@ export const wujiaMonthYearField = {
   component: WujiaMonthYearField,
   displayName: _t("Month / Year"),
   supportedTypes: ["date"],
-  formatter: "wujia_month_year",
   extractProps: (fieldInfo, dynamicInfo) => {
     const props = dateField.extractProps(fieldInfo, dynamicInfo);
     return {

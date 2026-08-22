@@ -6,8 +6,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 19.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-08-21 14:40+0000\n"
-"PO-Revision-Date: 2026-08-21 14:40+0000\n"
+"POT-Creation-Date: 2026-08-22 10:04+0000\n"
+"PO-Revision-Date: 2026-08-22 10:04+0000\n"
 "Language-Team: \n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -2202,3 +2202,228 @@ msgstr "評級資訊"
 #: model_terms:ir.ui.view,arch_db:wujia_franchise.view_wujia_franchise_inspection_grade_form
 msgid "Score Range"
 msgstr "分數範圍"
+
+#. module: wujia_franchise
+#: model:ir.model,name:wujia_franchise.model_wujia_franchise_inspection_attendance_line
+msgid "Inspection Staff Attendance / Passed Line"
+msgstr "督導員工出勤 / 通過考試記錄"
+
+#. module: wujia_franchise
+#: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_member__is_pass
+msgid "Passed Exam"
+msgstr "通過考試"
+
+#. module: wujia_franchise
+#: model_terms:ir.ui.view,arch_db:wujia_franchise.view_wujia_franchise_member_search
+msgid "Passed Exam"
+msgstr "通過考試"
+
+#. module: wujia_franchise
+#: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection__attendance_line_ids
+msgid "Staff Attendance"
+msgstr "員工出勤簽到"
+
+#. module: wujia_franchise
+#: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection__passed_line_ids
+msgid "Passed Staff"
+msgstr "已通過考核員工"
+
+#. module: wujia_franchise
+#: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection__present_count
+msgid "Present Staff"
+msgstr "在場人數"
+
+#. module: wujia_franchise
+#: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection__passed_count
+msgid "Passed Staff Count"
+msgstr "通過考核人數"
+
+#. module: wujia_franchise
+#: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection_attendance_line__line_type
+msgid "Line Type"
+msgstr "行類型"
+
+#. module: wujia_franchise
+#: model:ir.model.fields.selection,name:wujia_franchise.selection__wujia_franchise_inspection_attendance_line__line_type__attendance
+msgid "Attendance"
+msgstr "出勤"
+
+#. module: wujia_franchise
+#: model:ir.model.fields.selection,name:wujia_franchise.selection__wujia_franchise_inspection_attendance_line__line_type__passed
+msgid "Passed Exam"
+msgstr "通過考試"
+
+#. module: wujia_franchise
+#: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection_attendance_line__inspection_id
+msgid "Inspection Sheet"
+msgstr "督導評分表"
+
+#. module: wujia_franchise
+#: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection_attendance_line__member_id
+msgid "Store Member"
+msgstr "門市成員"
+
+#. module: wujia_franchise
+#: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection_attendance_line__employee_name
+msgid "Employee Name"
+msgstr "員工姓名"
+
+#. module: wujia_franchise
+#: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection_attendance_line__role
+msgid "Role"
+msgstr "職位"
+
+#. module: wujia_franchise
+#: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection_attendance_line__phone
+msgid "Phone"
+msgstr "電話號碼"
+
+#. module: wujia_franchise
+#: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection_attendance_line__is_present
+msgid "Present"
+msgstr "在場"
+
+#. module: wujia_franchise
+#: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection_attendance_line__is_pass
+msgid "Passed Exam"
+msgstr "通過考試"
+
+#. module: wujia_franchise
+#: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection_attendance_line__note
+msgid "Note"
+msgstr "備註"
+
+#. module: wujia_franchise
+#: model_terms:ir.ui.view,arch_db:wujia_franchise.view_wujia_franchise_inspection_form
+msgid "Store Staff Present at Inspection"
+msgstr "督導現場門市出勤員工"
+
+#. module: wujia_franchise
+#: model_terms:ir.ui.view,arch_db:wujia_franchise.view_wujia_franchise_inspection_form
+msgid "Present:"
+msgstr "在場："
+
+#. module: wujia_franchise
+#: model_terms:ir.ui.view,arch_db:wujia_franchise.view_wujia_franchise_inspection_form
+msgid "Save New Employee"
+msgstr "保存新員工"
+
+#. module: wujia_franchise
+#: model_terms:ir.ui.view,arch_db:wujia_franchise.view_wujia_franchise_inspection_form
+msgid "Create store member record for new attendance lines"
+msgstr "為新增出勤記錄建立門市成員資料"
+
+#. module: wujia_franchise
+#: model_terms:ir.ui.view,arch_db:wujia_franchise.view_wujia_franchise_inspection_form
+msgid "Phone number"
+msgstr "電話號碼"
+
+#. module: wujia_franchise
+#: model_terms:ir.ui.view,arch_db:wujia_franchise.view_wujia_franchise_inspection_form
+msgid "Present"
+msgstr "在場"
+
+#. module: wujia_franchise
+#: model_terms:ir.ui.view,arch_db:wujia_franchise.view_wujia_franchise_inspection_form
+msgid "Deactivate this employee"
+msgstr "停用此員工"
+
+#. module: wujia_franchise
+#: model_terms:ir.ui.view,arch_db:wujia_franchise.view_wujia_franchise_inspection_form
+msgid "Are you sure you want to deactivate this employee? The line will be removed."
+msgstr "您確定要停用該員工嗎？該行記錄將被移除。"
+
+#. module: wujia_franchise
+#: model_terms:ir.ui.view,arch_db:wujia_franchise.view_wujia_franchise_inspection_form
+msgid "Note / Reason if absent..."
+msgstr "備註 / 缺勤原因..."
+
+#. module: wujia_franchise
+#: model_terms:ir.ui.view,arch_db:wujia_franchise.view_wujia_franchise_inspection_form
+msgid "Passed Exam Staff"
+msgstr "已通過考核員工"
+
+#. module: wujia_franchise
+#: model_terms:ir.ui.view,arch_db:wujia_franchise.view_wujia_franchise_inspection_form
+msgid "Phone"
+msgstr "電話"
+
+#. module: wujia_franchise
+#: model_terms:ir.ui.view,arch_db:wujia_franchise.view_wujia_franchise_inspection_form
+msgid "Note"
+msgstr "備註"
+
+#. module: wujia_franchise
+#: model_terms:ir.ui.view,arch_db:wujia_franchise.view_wujia_franchise_inspection_form
+msgid "Passed Staff:"
+msgstr "通過考核："
+
+#. module: wujia_franchise
+#: model_terms:ir.ui.view,arch_db:wujia_franchise.view_wujia_franchise_inspection_form
+msgid "Store Information"
+msgstr "門市資訊"
+
+#. module: wujia_franchise
+#: model_terms:ir.ui.view,arch_db:wujia_franchise.view_wujia_franchise_inspection_form
+msgid "Timeline & History"
+msgstr "進度與歷史"
+
+#. module: wujia_franchise
+#: model_terms:ir.ui.view,arch_db:wujia_franchise.view_wujia_franchise_inspection_form
+msgid "Timeline &amp; History"
+msgstr "進度與歷史"
+
+#. module: wujia_franchise
+#: model_terms:ir.ui.view,arch_db:wujia_franchise.view_wujia_franchise_inspection_form
+msgid "Tested Employee Information"
+msgstr "受測員工資訊"
+
+#. module: wujia_franchise
+#: model_terms:ir.ui.view,arch_db:wujia_franchise.view_wujia_franchise_inspection_form
+msgid "Next Inspection Plan"
+msgstr "下次評核計劃"
+
+#. module: wujia_franchise
+#: model_terms:ir.ui.view,arch_db:wujia_franchise.view_wujia_franchise_inspection_form
+msgid "Component Scores"
+msgstr "分項分數"
+
+#. module: wujia_franchise
+#: model_terms:ir.ui.view,arch_db:wujia_franchise.view_wujia_franchise_inspection_form
+msgid "Evaluation Result & Grade"
+msgstr "評核結果與等級"
+
+#. module: wujia_franchise
+#: model_terms:ir.ui.view,arch_db:wujia_franchise.view_wujia_franchise_inspection_form
+msgid "Evaluation Result &amp; Grade"
+msgstr "評核結果與等級"
+
+#. module: wujia_franchise
+#: model_terms:ir.ui.view,arch_db:wujia_franchise.view_wujia_franchise_inspection_form
+msgid "Next Inspection Date"
+msgstr "下次評核日期"
+
+#. module: wujia_franchise
+#: model_terms:ir.ui.view,arch_db:wujia_franchise.view_wujia_franchise_inspection_form
+msgid "Create Next Supervision Schedule"
+msgstr "建立下次督導日程"
+
+#. module: wujia_franchise
+#: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_member__is_working
+msgid "Is Working"
+msgstr "在職狀態"
+
+#. module: wujia_franchise
+#: model_terms:ir.ui.view,arch_db:wujia_franchise.view_wujia_franchise_member_search
+msgid "Currently Working"
+msgstr "在職"
+
+#. module: wujia_franchise
+#: model_terms:ir.ui.view,arch_db:wujia_franchise.view_wujia_franchise_member_search
+msgid "Resigned / Not Working"
+msgstr "離職"
+
+#. module: wujia_franchise
+#: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection__passed_member_ids
+msgid "Passed Staff"
+msgstr "已通過考核員工"

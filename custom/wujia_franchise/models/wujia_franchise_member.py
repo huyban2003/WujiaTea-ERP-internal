@@ -50,6 +50,19 @@ class WujiaFranchiseMember(models.Model):
     )
     date_to = fields.Date(string='Valid until')
     active = fields.Boolean(default=True)
+    is_pass = fields.Boolean(
+        string='Passed Exam',
+        default=False,
+        tracking=True,
+        help='Nhân viên đã vượt qua kỳ thi chứng nhận.',
+    )
+    is_working = fields.Boolean(
+        string='Is Working',
+        default=True,
+        tracking=True,
+        help='Đánh dấu nhân viên còn đang làm việc tại cửa hàng hay đã nghỉ việc.',
+    )
+    phone = fields.Char(related='user_id.phone', string='Phone', readonly=True)
 
     display_name = fields.Char(compute='_compute_display_name', store=True)
     is_currently_valid = fields.Boolean(
@@ -68,12 +81,13 @@ class WujiaFranchiseMember(models.Model):
                 role_label.get(rec.role, ''),
             )
 
-    @api.depends('active', 'date_from', 'date_to')
+    @api.depends('active', 'is_working', 'date_from', 'date_to')
     def _compute_is_currently_valid(self):
         today = fields.Date.context_today(self)
         for rec in self:
             rec.is_currently_valid = bool(
                 rec.active
+                and rec.is_working
                 and (not rec.date_from or rec.date_from <= today)
                 and (not rec.date_to or rec.date_to >= today)
             )

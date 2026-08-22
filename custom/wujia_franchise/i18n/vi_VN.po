@@ -6,8 +6,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 19.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-08-21 14:40+0000\n"
-"PO-Revision-Date: 2026-08-21 14:40+0000\n"
+"POT-Creation-Date: 2026-08-22 10:04+0000\n"
+"PO-Revision-Date: 2026-08-22 10:04+0000\n"
 "Language-Team: \n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -532,7 +532,7 @@ msgstr "KHẢO SÁT NHÂN VIÊN"
 #. module: wujia_franchise
 #: model_terms:ir.ui.view,arch_db:wujia_franchise.view_wujia_franchise_inspection_form
 msgid "Employee Name"
-msgstr "Tên nhân viên tại cửa hàng..."
+msgstr "Tên nhân viên"
 
 #. module: wujia_franchise
 #: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection__tenure
@@ -1112,7 +1112,7 @@ msgstr "Nhân viên được kiểm tra"
 #. module: wujia_franchise
 #: model_terms:ir.ui.view,arch_db:wujia_franchise.inspection_survey_do_page
 msgid "Staff full name..."
-msgstr "Họ và tên nhân viên..."
+msgstr "Họ tên"
 
 #. module: wujia_franchise
 #: model_terms:ir.ui.view,arch_db:wujia_franchise.inspection_survey_do_page
@@ -2202,3 +2202,228 @@ msgstr "Thông tin xếp hạng"
 #: model_terms:ir.ui.view,arch_db:wujia_franchise.view_wujia_franchise_inspection_grade_form
 msgid "Score Range"
 msgstr "Khoảng điểm"
+
+#. module: wujia_franchise
+#: model:ir.model,name:wujia_franchise.model_wujia_franchise_inspection_attendance_line
+msgid "Inspection Staff Attendance / Passed Line"
+msgstr "Dòng điểm danh / nhân viên thi đậu khảo sát"
+
+#. module: wujia_franchise
+#: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_member__is_pass
+msgid "Passed Exam"
+msgstr "Đã thi đậu"
+
+#. module: wujia_franchise
+#: model_terms:ir.ui.view,arch_db:wujia_franchise.view_wujia_franchise_member_search
+msgid "Passed Exam"
+msgstr "Đã thi đậu"
+
+#. module: wujia_franchise
+#: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection__attendance_line_ids
+msgid "Staff Attendance"
+msgstr "Điểm danh nhân viên"
+
+#. module: wujia_franchise
+#: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection__passed_line_ids
+msgid "Passed Staff"
+msgstr "Nhân viên thi đậu"
+
+#. module: wujia_franchise
+#: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection__present_count
+msgid "Present Staff"
+msgstr "Số nhân viên có mặt"
+
+#. module: wujia_franchise
+#: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection__passed_count
+msgid "Passed Staff Count"
+msgstr "Số nhân viên thi đậu"
+
+#. module: wujia_franchise
+#: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection_attendance_line__line_type
+msgid "Line Type"
+msgstr "Loại dòng"
+
+#. module: wujia_franchise
+#: model:ir.model.fields.selection,name:wujia_franchise.selection__wujia_franchise_inspection_attendance_line__line_type__attendance
+msgid "Attendance"
+msgstr "Có mặt"
+
+#. module: wujia_franchise
+#: model:ir.model.fields.selection,name:wujia_franchise.selection__wujia_franchise_inspection_attendance_line__line_type__passed
+msgid "Passed Exam"
+msgstr "Thi đậu"
+
+#. module: wujia_franchise
+#: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection_attendance_line__inspection_id
+msgid "Inspection Sheet"
+msgstr "Phiếu khảo sát"
+
+#. module: wujia_franchise
+#: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection_attendance_line__member_id
+msgid "Store Member"
+msgstr "Thành viên cửa hàng"
+
+#. module: wujia_franchise
+#: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection_attendance_line__employee_name
+msgid "Employee Name"
+msgstr "Tên nhân viên"
+
+#. module: wujia_franchise
+#: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection_attendance_line__role
+msgid "Role"
+msgstr "Vai trò"
+
+#. module: wujia_franchise
+#: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection_attendance_line__phone
+msgid "Phone"
+msgstr "SĐT"
+
+#. module: wujia_franchise
+#: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection_attendance_line__is_present
+msgid "Present"
+msgstr "Có mặt"
+
+#. module: wujia_franchise
+#: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection_attendance_line__is_pass
+msgid "Passed Exam"
+msgstr "Đã thi đậu"
+
+#. module: wujia_franchise
+#: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection_attendance_line__note
+msgid "Note"
+msgstr "Ghi chú"
+
+#. module: wujia_franchise
+#: model_terms:ir.ui.view,arch_db:wujia_franchise.view_wujia_franchise_inspection_form
+msgid "Store Staff Present at Inspection"
+msgstr "Nhân viên có mặt tại cửa hàng"
+
+#. module: wujia_franchise
+#: model_terms:ir.ui.view,arch_db:wujia_franchise.view_wujia_franchise_inspection_form
+msgid "Present:"
+msgstr "Có mặt:"
+
+#. module: wujia_franchise
+#: model_terms:ir.ui.view,arch_db:wujia_franchise.view_wujia_franchise_inspection_form
+msgid "Save New Employee"
+msgstr "Lưu nhân viên mới"
+
+#. module: wujia_franchise
+#: model_terms:ir.ui.view,arch_db:wujia_franchise.view_wujia_franchise_inspection_form
+msgid "Create store member record for new attendance lines"
+msgstr "Tạo thông tin thành viên cửa hàng cho dòng điểm danh mới"
+
+#. module: wujia_franchise
+#: model_terms:ir.ui.view,arch_db:wujia_franchise.view_wujia_franchise_inspection_form
+msgid "Phone number"
+msgstr "SĐT"
+
+#. module: wujia_franchise
+#: model_terms:ir.ui.view,arch_db:wujia_franchise.view_wujia_franchise_inspection_form
+msgid "Present"
+msgstr "Có mặt"
+
+#. module: wujia_franchise
+#: model_terms:ir.ui.view,arch_db:wujia_franchise.view_wujia_franchise_inspection_form
+msgid "Deactivate this employee"
+msgstr "Tắt hoạt động nhân viên này"
+
+#. module: wujia_franchise
+#: model_terms:ir.ui.view,arch_db:wujia_franchise.view_wujia_franchise_inspection_form
+msgid "Are you sure you want to deactivate this employee? The line will be removed."
+msgstr "Bạn có chắc chắn muốn tắt hoạt động nhân viên này không? Dòng này sẽ được xóa khỏi danh sách."
+
+#. module: wujia_franchise
+#: model_terms:ir.ui.view,arch_db:wujia_franchise.view_wujia_franchise_inspection_form
+msgid "Note / Reason if absent..."
+msgstr "Ghi chú / Lý do nếu vắng mặt..."
+
+#. module: wujia_franchise
+#: model_terms:ir.ui.view,arch_db:wujia_franchise.view_wujia_franchise_inspection_form
+msgid "Passed Exam Staff"
+msgstr "Nhân viên đã thi đậu"
+
+#. module: wujia_franchise
+#: model_terms:ir.ui.view,arch_db:wujia_franchise.view_wujia_franchise_inspection_form
+msgid "Phone"
+msgstr "SĐT"
+
+#. module: wujia_franchise
+#: model_terms:ir.ui.view,arch_db:wujia_franchise.view_wujia_franchise_inspection_form
+msgid "Note"
+msgstr "Ghi chú"
+
+#. module: wujia_franchise
+#: model_terms:ir.ui.view,arch_db:wujia_franchise.view_wujia_franchise_inspection_form
+msgid "Passed Staff:"
+msgstr "Nhân viên thi đậu:"
+
+#. module: wujia_franchise
+#: model_terms:ir.ui.view,arch_db:wujia_franchise.view_wujia_franchise_inspection_form
+msgid "Store Information"
+msgstr "THÔNG TIN CỬA HÀNG"
+
+#. module: wujia_franchise
+#: model_terms:ir.ui.view,arch_db:wujia_franchise.view_wujia_franchise_inspection_form
+msgid "Timeline & History"
+msgstr "TIẾN TRÌNH & LỊCH SỬ"
+
+#. module: wujia_franchise
+#: model_terms:ir.ui.view,arch_db:wujia_franchise.view_wujia_franchise_inspection_form
+msgid "Timeline &amp; History"
+msgstr "TIẾN TRÌNH & LỊCH SỬ"
+
+#. module: wujia_franchise
+#: model_terms:ir.ui.view,arch_db:wujia_franchise.view_wujia_franchise_inspection_form
+msgid "Tested Employee Information"
+msgstr "THÔNG TIN NHÂN VIÊN ĐƯỢC KIỂM TRA"
+
+#. module: wujia_franchise
+#: model_terms:ir.ui.view,arch_db:wujia_franchise.view_wujia_franchise_inspection_form
+msgid "Next Inspection Plan"
+msgstr "KẾ HOẠCH KHẢO SÁT KẾ TIẾP"
+
+#. module: wujia_franchise
+#: model_terms:ir.ui.view,arch_db:wujia_franchise.view_wujia_franchise_inspection_form
+msgid "Component Scores"
+msgstr "ĐIỂM THÀNH PHẦN"
+
+#. module: wujia_franchise
+#: model_terms:ir.ui.view,arch_db:wujia_franchise.view_wujia_franchise_inspection_form
+msgid "Evaluation Result & Grade"
+msgstr "KẾT QUẢ ĐÁNH GIÁ & XẾP LOẠI"
+
+#. module: wujia_franchise
+#: model_terms:ir.ui.view,arch_db:wujia_franchise.view_wujia_franchise_inspection_form
+msgid "Evaluation Result &amp; Grade"
+msgstr "KẾT QUẢ ĐÁNH GIÁ & XẾP LOẠI"
+
+#. module: wujia_franchise
+#: model_terms:ir.ui.view,arch_db:wujia_franchise.view_wujia_franchise_inspection_form
+msgid "Next Inspection Date"
+msgstr "Ngày khảo sát kế tiếp"
+
+#. module: wujia_franchise
+#: model_terms:ir.ui.view,arch_db:wujia_franchise.view_wujia_franchise_inspection_form
+msgid "Create Next Supervision Schedule"
+msgstr "Tạo lịch giám sát tiếp theo"
+
+#. module: wujia_franchise
+#: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_member__is_working
+msgid "Is Working"
+msgstr "Đang làm việc"
+
+#. module: wujia_franchise
+#: model_terms:ir.ui.view,arch_db:wujia_franchise.view_wujia_franchise_member_search
+msgid "Currently Working"
+msgstr "Đang làm việc"
+
+#. module: wujia_franchise
+#: model_terms:ir.ui.view,arch_db:wujia_franchise.view_wujia_franchise_member_search
+msgid "Resigned / Not Working"
+msgstr "Đã nghỉ việc"
+
+#. module: wujia_franchise
+#: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection__passed_member_ids
+msgid "Passed Staff"
+msgstr "Nhân viên thi đậu"

@@ -318,6 +318,66 @@
                                         options="{'no_create': True}" />
                                 </group>
                             </group>
+
+                            <!-- ====== 50-50 Layout: Present Staff & Passed Staff ====== -->
+                            <div class="row mt-4">
+                                <!-- Cột 1 (50%): Nhân viên có mặt tại cửa hàng -->
+                                <div class="col-lg-6 col-12 pe-lg-3 border-end">
+                                    <separator string="Store Staff Present at Inspection" class="mb-2" />
+                                    <div class="d-flex align-items-center mb-2">
+                                        <div class="alert alert-info py-1 px-3 mb-0 d-inline-flex align-items-center">
+                                            <p class="d-inline fw-bold me-1 mb-0">Present:</p>
+                                            <field name="present_count" readonly="1" class="d-inline fw-bold text-success" />
+                                        </div>
+                                    </div>
+                                    <field name="attendance_line_ids" readonly="state in ('done', 'cancel')">
+                                        <list editable="bottom">
+                                            <field name="sequence" widget="handle" />
+                                            <field name="line_type" column_invisible="True" force_save="1" />
+                                            <field name="member_id" column_invisible="True" />
+                                            <field name="employee_name" placeholder="Employee Name" />
+                                            <field name="role" widget="badge"
+                                                decoration-info="role == 'staff'"
+                                                decoration-warning="role == 'manager'"
+                                                decoration-success="role == 'owner'" />
+                                            <field name="phone" placeholder="Phone" />
+                                            <field name="is_present" widget="boolean_toggle" string="Present" />
+                                            <button name="action_save_to_member" type="object"
+                                                icon="fa-arrow-right"
+                                                title="Save or update this member to Store Membership"
+                                                class="btn-link text-primary p-0" />
+                                            <button name="action_deactivate_member" type="object"
+                                                icon="fa-info-circle"
+                                                title="Deactivate this employee (active = False)"
+                                                class="btn-link text-danger p-0"
+                                                confirm="Are you sure you want to deactivate this employee (active = False)? The employee remains saved in the system history."
+                                                invisible="not member_id" />
+                                            <field name="note" placeholder="Note..." />
+                                        </list>
+                                    </field>
+                                </div>
+
+                                <!-- Cột 2 (50%): Nhân viên đã thi đậu -->
+                                <div class="col-lg-6 col-12 ps-lg-3">
+                                    <separator string="Passed Exam Staff" class="mb-2" />
+                                    <div class="d-flex align-items-center mb-2">
+                                        <div class="alert alert-success py-1 px-3 mb-0 d-inline-flex align-items-center">
+                                            <p class="d-inline fw-bold me-1 mb-0">Passed Staff:</p>
+                                            <field name="passed_count" readonly="1" class="d-inline fw-bold" />
+                                        </div>
+                                    </div>
+                                    <field name="passed_member_ids" readonly="1">
+                                        <list create="false" delete="false">
+                                            <field name="user_id" string="Employee Name" />
+                                            <field name="role" widget="badge"
+                                                decoration-info="role == 'staff'"
+                                                decoration-warning="role == 'manager'"
+                                                decoration-success="role == 'owner'" />
+                                            <field name="phone" string="Phone" />
+                                        </list>
+                                    </field>
+                                </div>
+                            </div>
                         </page>
                     </notebook>
                 </sheet>

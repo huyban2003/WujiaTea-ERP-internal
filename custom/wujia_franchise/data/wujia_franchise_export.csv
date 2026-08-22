@@ -102,7 +102,7 @@ e.g. July Regular Supervision,"model_terms:ir.ui.view,arch_db:wujia_franchise.vi
 Group Store Info,"model_terms:ir.ui.view,arch_db:wujia_franchise.view_wujia_franchise_inspection_form",THÔNG TIN KHẢO SÁT & CỬA HÀNG,評核與門店資訊,ข้อมูลแบบสำรวจและร้านค้า
 Group Time History,"model_terms:ir.ui.view,arch_db:wujia_franchise.view_wujia_franchise_inspection_form",THỜI GIAN & LỊCH SỬ,時間與歷史紀錄,เวลาและประวัติศาสตร์
 Group Employee Survey,"model_terms:ir.ui.view,arch_db:wujia_franchise.view_wujia_franchise_inspection_form",KHẢO SÁT NHÂN VIÊN,員工評核,แบบสำรวจพนักงาน
-Employee Name,"model_terms:ir.ui.view,arch_db:wujia_franchise.view_wujia_franchise_inspection_form",Tên nhân viên tại cửa hàng...,店員姓名...,ชื่อพนักงานในร้าน...
+Employee Name,"model_terms:ir.ui.view,arch_db:wujia_franchise.view_wujia_franchise_inspection_form",Tên nhân viên,店員姓名...,ชื่อพนักงานในร้าน...
 Tenure,"model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection__tenure",Thâm niên,年資,อายุงาน
 Group Next Plan,"model_terms:ir.ui.view,arch_db:wujia_franchise.view_wujia_franchise_inspection_form",KẾ HOẠCH TIẾP THEO,後續計畫,แผนต่อไป
 Next Due Date,"model_terms:ir.ui.view,arch_db:wujia_franchise.view_wujia_franchise_inspection_form",Lần kiểm tra kế tiếp,下一次監督,การทดสอบครั้งต่อไป
@@ -218,7 +218,7 @@ Has Photos,"model_terms:ir.ui.view,arch_db:wujia_franchise.inspection_survey_do_
 Examined Staff Information,"model_terms:ir.ui.view,arch_db:wujia_franchise.inspection_survey_do_page",Thông tin Nhân viên làm bài kiểm tra,測驗員工資訊,ข้อมูลเกี่ยวกับบุคลากรที่เข้ารับการทดสอบ
 Exam submitted & locked,"model_terms:ir.ui.view,arch_db:wujia_franchise.inspection_survey_do_page",Bài kiểm tra đã nộp & đã khóa,測驗已提交並鎖定,แบบทดสอบได้รับการส่งแล้วและถูกล็อกเรียบร้อยแล้ว
 Tested Employee,"model_terms:ir.ui.view,arch_db:wujia_franchise.inspection_survey_do_page",Nhân viên được kiểm tra,受檢員工,พนักงานคนดังกล่าวถูกตรวจสอบแล้ว
-Staff full name...,"model_terms:ir.ui.view,arch_db:wujia_franchise.inspection_survey_do_page",Họ và tên nhân viên...,員工姓名...,ชื่อ-นามสกุลเต็มของพนักงาน...
+Staff full name...,"model_terms:ir.ui.view,arch_db:wujia_franchise.inspection_survey_do_page",Họ tên,員工姓名...,ชื่อ-นามสกุลเต็มของพนักงาน...
 Tenure,"model_terms:ir.ui.view,arch_db:wujia_franchise.inspection_survey_do_page",Thâm niên,年資,ความอาวุโส
 Tenure (e.g. 0.5 1 2)...,"model_terms:ir.ui.view,arch_db:wujia_franchise.inspection_survey_do_page","Thâm niên (ví dụ: 0.5, 1, 2)...","年資（例如：0.5, 1,2)...","ระดับอาวุโส (เช่น 0.5, 1, 2)..."
 Enter staff answers here...,"model_terms:ir.ui.view,arch_db:wujia_franchise.inspection_survey_do_page",Nhập đáp án trả lời của nhân viên tại đây...,請在此輸入員工作答答案...,กรุณาป้อนคำตอบของพนักงานที่นี่...
@@ -434,3 +434,48 @@ Violation Evidence (Inspection),"model_terms:ir.ui.view,arch_db:wujia_franchise.
 Remediation Photo (Store),"model_terms:ir.ui.view,arch_db:wujia_franchise.view_wujia_franchise_inspection_line_form",Ảnh sau khi đã khắc phục,改善後照片 (門市),ภาพถ่ายหลังปรับปรุง (สาขา)
 Grade Information,"model_terms:ir.ui.view,arch_db:wujia_franchise.view_wujia_franchise_inspection_grade_form",Thông tin xếp hạng,評級資訊,ข้อมูลเกรด
 Score Range,"model_terms:ir.ui.view,arch_db:wujia_franchise.view_wujia_franchise_inspection_grade_form",Khoảng điểm,分數範圍,ช่วงคะแนน
+Inspection Staff Attendance / Passed Line,"model:ir.model,name:wujia_franchise.model_wujia_franchise_inspection_attendance_line",Dòng điểm danh / nhân viên thi đậu khảo sát,督導員工出勤 / 通過考試記錄,รายการการเข้างานของพนักงาน / ผู้ผ่านการทดสอบ
+Passed Exam,"model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_member__is_pass",Đã thi đậu,通過考試,ผ่านการทดสอบ
+Passed Exam,"model_terms:ir.ui.view,arch_db:wujia_franchise.view_wujia_franchise_member_search",Đã thi đậu,通過考試,ผ่านการทดสอบ
+Staff Attendance,"model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection__attendance_line_ids",Điểm danh nhân viên,員工出勤簽到,การเข้างานของพนักงาน
+Passed Staff,"model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection__passed_line_ids",Nhân viên thi đậu,已通過考核員工,พนักงานที่ผ่านการทดสอบ
+Present Staff,"model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection__present_count",Số nhân viên có mặt,在場人數,พนักงานที่มาปฏิบัติงาน
+Passed Staff Count,"model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection__passed_count",Số nhân viên thi đậu,通過考核人數,จำนวนพนักงานที่ผ่านการทดสอบ
+Line Type,"model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection_attendance_line__line_type",Loại dòng,行類型,ประเภทรายการ
+Attendance,"model:ir.model.fields.selection,name:wujia_franchise.selection__wujia_franchise_inspection_attendance_line__line_type__attendance",Có mặt,出勤,มาปฏิบัติงาน
+Passed Exam,"model:ir.model.fields.selection,name:wujia_franchise.selection__wujia_franchise_inspection_attendance_line__line_type__passed",Thi đậu,通過考試,ผ่านการทดสอบ
+Inspection Sheet,"model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection_attendance_line__inspection_id",Phiếu khảo sát,督導評分表,ใบตรวจประเมิน
+Store Member,"model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection_attendance_line__member_id",Thành viên cửa hàng,門市成員,สมาชิกสาขา
+Employee Name,"model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection_attendance_line__employee_name",Tên nhân viên,員工姓名,ชื่อพนักงาน
+Role,"model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection_attendance_line__role",Vai trò,職位,ตำแหน่ง
+Phone,"model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection_attendance_line__phone",SĐT,電話號碼,เบอร์โทรศัพท์
+Present,"model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection_attendance_line__is_present",Có mặt,在場,มาปฏิบัติงาน
+Passed Exam,"model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection_attendance_line__is_pass",Đã thi đậu,通過考試,ผ่านการทดสอบ
+Note,"model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection_attendance_line__note",Ghi chú,備註,หมายเหตุ
+Store Staff Present at Inspection,"model_terms:ir.ui.view,arch_db:wujia_franchise.view_wujia_franchise_inspection_form",Nhân viên có mặt tại cửa hàng,督導現場門市出勤員工,พนักงานสาขาที่มาปฏิบัติงานขณะตรวจ
+Present:,"model_terms:ir.ui.view,arch_db:wujia_franchise.view_wujia_franchise_inspection_form",Có mặt:,在場：,มาปฏิบัติงาน:
+Save New Employee,"model_terms:ir.ui.view,arch_db:wujia_franchise.view_wujia_franchise_inspection_form",Lưu nhân viên mới,保存新員工,บันทึกพนักงานใหม่
+Create store member record for new attendance lines,"model_terms:ir.ui.view,arch_db:wujia_franchise.view_wujia_franchise_inspection_form",Tạo thông tin thành viên cửa hàng cho dòng điểm danh mới,為新增出勤記錄建立門市成員資料,สร้างข้อมูลสมาชิกสาขาสำหรับรายการเข้างานใหม่
+Phone number,"model_terms:ir.ui.view,arch_db:wujia_franchise.view_wujia_franchise_inspection_form",SĐT,電話號碼,หมายเลขโทรศัพท์
+Present,"model_terms:ir.ui.view,arch_db:wujia_franchise.view_wujia_franchise_inspection_form",Có mặt,在場,มาปฏิบัติงาน
+Deactivate this employee,"model_terms:ir.ui.view,arch_db:wujia_franchise.view_wujia_franchise_inspection_form",Tắt hoạt động nhân viên này,停用此員工,ปิดการใช้งานพนักงานนี้
+Are you sure you want to deactivate this employee? The line will be removed.,"model_terms:ir.ui.view,arch_db:wujia_franchise.view_wujia_franchise_inspection_form",Bạn có chắc chắn muốn tắt hoạt động nhân viên này không? Dòng này sẽ được xóa khỏi danh sách.,您確定要停用該員工嗎？該行記錄將被移除。,คุณแน่ใจหรือไม่ว่าต้องการปิดการใช้งานพนักงานนี้? รายการนี้จะถูกลบออก
+Note / Reason if absent...,"model_terms:ir.ui.view,arch_db:wujia_franchise.view_wujia_franchise_inspection_form",Ghi chú / Lý do nếu vắng mặt...,備註 / 缺勤原因...,หมายเหตุ / เหตุผลหากไม่มาปฏิบัติงาน...
+Passed Exam Staff,"model_terms:ir.ui.view,arch_db:wujia_franchise.view_wujia_franchise_inspection_form",Nhân viên đã thi đậu,已通過考核員工,รายชื่อพนักงานที่ผ่านการทดสอบ
+Phone,"model_terms:ir.ui.view,arch_db:wujia_franchise.view_wujia_franchise_inspection_form",SĐT,電話,เบอร์โทรศัพท์
+Note,"model_terms:ir.ui.view,arch_db:wujia_franchise.view_wujia_franchise_inspection_form",Ghi chú,備註,หมายเหตุ
+Passed Staff:,"model_terms:ir.ui.view,arch_db:wujia_franchise.view_wujia_franchise_inspection_form",Nhân viên thi đậu:,通過考核：,ผ่านการทดสอบ:
+Store Information,"model_terms:ir.ui.view,arch_db:wujia_franchise.view_wujia_franchise_inspection_form",THÔNG TIN CỬA HÀNG,門市資訊,ข้อมูลสาขา
+Timeline & History,"model_terms:ir.ui.view,arch_db:wujia_franchise.view_wujia_franchise_inspection_form",TIẾN TRÌNH & LỊCH SỬ,進度與歷史,ไทม์ไลน์และประวัติ
+Timeline &amp; History,"model_terms:ir.ui.view,arch_db:wujia_franchise.view_wujia_franchise_inspection_form",TIẾN TRÌNH & LỊCH SỬ,進度與歷史,ไทม์ไลน์และประวัติ
+Tested Employee Information,"model_terms:ir.ui.view,arch_db:wujia_franchise.view_wujia_franchise_inspection_form",THÔNG TIN NHÂN VIÊN ĐƯỢC KIỂM TRA,受測員工資訊,ข้อมูลพนักงานที่รับการทดสอบ
+Next Inspection Plan,"model_terms:ir.ui.view,arch_db:wujia_franchise.view_wujia_franchise_inspection_form",KẾ HOẠCH KHẢO SÁT KẾ TIẾP,下次評核計劃,แผนการตรวจครั้งถัดไป
+Component Scores,"model_terms:ir.ui.view,arch_db:wujia_franchise.view_wujia_franchise_inspection_form",ĐIỂM THÀNH PHẦN,分項分數,คะแนนองค์ประกอบ
+Evaluation Result & Grade,"model_terms:ir.ui.view,arch_db:wujia_franchise.view_wujia_franchise_inspection_form",KẾT QUẢ ĐÁNH GIÁ & XẾP LOẠI,評核結果與等級,ผลการประเมินและเกรด
+Evaluation Result &amp; Grade,"model_terms:ir.ui.view,arch_db:wujia_franchise.view_wujia_franchise_inspection_form",KẾT QUẢ ĐÁNH GIÁ & XẾP LOẠI,評核結果與等級,ผลการประเมินและเกรด
+Next Inspection Date,"model_terms:ir.ui.view,arch_db:wujia_franchise.view_wujia_franchise_inspection_form",Ngày khảo sát kế tiếp,下次評核日期,วันที่ตรวจครั้งถัดไป
+Create Next Supervision Schedule,"model_terms:ir.ui.view,arch_db:wujia_franchise.view_wujia_franchise_inspection_form",Tạo lịch giám sát tiếp theo,建立下次督導日程,สร้างตารางตรวจครั้งถัดไป
+Is Working,"model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_member__is_working",Đang làm việc,在職狀態,กำลังทำงาน
+Currently Working,"model_terms:ir.ui.view,arch_db:wujia_franchise.view_wujia_franchise_member_search",Đang làm việc,在職,กำลังทำงาน
+Resigned / Not Working,"model_terms:ir.ui.view,arch_db:wujia_franchise.view_wujia_franchise_member_search",Đã nghỉ việc,離職,ลาออก / ไม่ได้ทำงาน
+Passed Staff,"model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection__passed_member_ids",Nhân viên thi đậu,已通過考核員工,พนักงานที่ผ่านการทดสอบ

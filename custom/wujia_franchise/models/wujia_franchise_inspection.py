@@ -184,6 +184,36 @@ class WujiaFranchiseInspection(models.Model):
         copy=False,
     )
 
+    attendance_line_ids = fields.One2many(
+        'wujia.franchise.inspection.attendance.line',
+        'inspection_id',
+        string='Staff Attendance',
+        domain=[('line_type', '=', 'attendance')],
+        copy=False,
+        help='Danh sách nhân viên có mặt trong buổi khảo sát.',
+    )
+
+    passed_member_ids = fields.Many2many(
+        'wujia.franchise.member',
+        string='Passed Staff',
+        compute='_compute_passed_member_ids',
+        help='Danh sách nhân viên đã thi đậu thuộc cửa hàng.',
+    )
+
+    present_count = fields.Integer(
+        string='Present Staff',
+        compute='_compute_present_count',
+        store=True,
+        help='Số nhân viên đang có mặt tại cửa hàng.',
+    )
+
+    passed_count = fields.Integer(
+        string='Passed Staff Count',
+        compute='_compute_passed_stats',
+        store=True,
+        help='Tổng số nhân viên đã thi đậu.',
+    )
+
     is_exam_submitted = fields.Boolean(
         string='Exam Submitted',
         default=False,
@@ -199,6 +229,89 @@ class WujiaFranchiseInspection(models.Model):
         string='Inspection Chart Data',
         compute='_compute_inspection_chart_data',
     )
+
+    @api.depends('attendance_line_ids.is_present')
+    def _compute_present_count(self):
+        for rec in self:
+            rec.present_count = len(rec.attendance_line_ids.filtered('is_present'))
+
+    @api.depends('franchise_id')
+    def _compute_passed_member_ids(self):
+        for rec in self:
+            if rec.franchise_id:
+                rec.passed_member_ids = self.env['wujia.franchise.member'].search([
+                    ('franchise_id', '=', rec.franchise_id.id),
+                    ('active', '=', True),
+                    ('is_working', '=', True),
+                    ('is_pass', '=', True),
+                ])
+            else:
+                rec.passed_member_ids = False
+
+    @api.depends('passed_member_ids')
+    def _compute_passed_stats(self):
+        for rec in self:
+            rec.passed_count = len(rec.passed_member_ids)
+
+    @api.model
+    def default_get(self, fields_list):
+        res = super(WujiaFranchiseInspection, self).default_get(fields_list)
+        franchise_id = res.get('franchise_id') or self.env.context.get('default_franchise_id')
+        if franchise_id:
+            members = self.env['wujia.franchise.member'].search([
+                ('franchise_id', '=', franchise_id),
+                ('active', '=', True),
+                ('is_working', '=', True),
+            ])
+            att_commands = []
+            seq = 10
+            for m in members:
+                user = m.user_id
+                phone = getattr(user, 'phone', '') or getattr(m, 'phone', '') or ''
+                line_vals = {
+                    'sequence': seq,
+                    'line_type': 'attendance',
+                    'member_id': m.id,
+                    'employee_name': user.name if user else (m.display_name or ''),
+                    'role': m.role or 'staff',
+                    'phone': phone,
+                    'is_present': True,
+                    'is_pass': m.is_pass,
+                }
+                att_commands.append(fields.Command.create(line_vals))
+                seq += 10
+            if 'attendance_line_ids' in fields_list or not fields_list:
+                res['attendance_line_ids'] = att_commands
+        return res
+
+    @api.onchange('franchise_id')
+    def _onchange_franchise_id_populate_attendance(self):
+        """Tự động tải danh sách thành viên active của cửa hàng vào bảng điểm danh."""
+        if self.franchise_id:
+            members = self.env['wujia.franchise.member'].search([
+                ('franchise_id', '=', self.franchise_id.id),
+                ('active', '=', True),
+                ('is_working', '=', True),
+            ])
+            att_commands = [fields.Command.clear()]
+            seq = 10
+            for m in members:
+                user = m.user_id
+                phone = getattr(user, 'phone', '') or getattr(m, 'phone', '') or ''
+                att_commands.append(fields.Command.create({
+                    'sequence': seq,
+                    'line_type': 'attendance',
+                    'member_id': m.id,
+                    'employee_name': user.name if user else (m.display_name or ''),
+                    'role': m.role or 'staff',
+                    'phone': phone,
+                    'is_present': True,
+                    'is_pass': m.is_pass,
+                }))
+                seq += 10
+            self.attendance_line_ids = att_commands
+        else:
+            self.attendance_line_ids = [fields.Command.clear()]
 
     @api.depends('franchise_id', 'template_id', 'total_score', 'state')
     def _compute_inspection_chart_data(self):
@@ -329,6 +442,34 @@ class WujiaFranchiseInspection(models.Model):
                 elif not current_name:
                     count = self.search_count([]) + 1
                     vals['name'] = f"PGS-STORE-{count:04d}"
+
+            # Tự động nạp attendance_line_ids nếu chưa có trong vals
+            if franchise_id and ('attendance_line_ids' not in vals or not vals.get('attendance_line_ids')):
+                members = self.env['wujia.franchise.member'].search([
+                    ('franchise_id', '=', franchise_id),
+                    ('active', '=', True),
+                    ('is_working', '=', True),
+                ])
+                att_lines = []
+                seq = 10
+                for m in members:
+                    user = m.user_id
+                    phone = getattr(user, 'phone', '') or getattr(m, 'phone', '') or ''
+                    line_vals = {
+                        'sequence': seq,
+                        'line_type': 'attendance',
+                        'member_id': m.id,
+                        'employee_name': user.name if user else (m.display_name or ''),
+                        'role': m.role or 'staff',
+                        'phone': phone,
+                        'is_present': True,
+                        'is_pass': m.is_pass,
+                    }
+                    att_lines.append((0, 0, line_vals))
+                    seq += 10
+                if att_lines:
+                    vals['attendance_line_ids'] = att_lines
+
         return super(WujiaFranchiseInspection, self).create(vals_list)
 
    
@@ -801,7 +942,6 @@ class WujiaFranchiseInspection(models.Model):
     )
     confirmed_member_id = fields.Many2one('wujia.franchise.member',
         string='Store Manager Confirmer',
-        required=True,
         ondelete='restrict',
     )
 
@@ -811,6 +951,7 @@ class WujiaFranchiseInspection(models.Model):
             self.planned_date = self.schedule_id.date
             if self.schedule_id.store_id:
                 self.franchise_id = self.schedule_id.store_id
+                self._onchange_franchise_id_populate_attendance()
             if self.schedule_id.user_id:
                 self.inspector_user_id = self.schedule_id.user_id
 
@@ -1518,4 +1659,120 @@ class WujiaFranchiseInspectionExamLine(models.Model):
             rec.is_correct = is_right
             rec.point = max_score if is_right else 0.0
 
-    
+
+class WujiaFranchiseInspectionAttendanceLine(models.Model):
+    _name = 'wujia.franchise.inspection.attendance.line'
+    _description = 'Inspection Staff Attendance / Passed Line'
+    _order = 'sequence, id'
+
+    sequence = fields.Integer(string='Sequence', default=10)
+
+    line_type = fields.Selection([
+        ('attendance', 'Attendance'),
+        ('passed', 'Passed Exam'),
+    ], string='Line Type', required=True, default='attendance',
+        help='Phân loại dòng: điểm danh có mặt hoặc nhân viên đã thi đậu.')
+
+    inspection_id = fields.Many2one(
+        'wujia.franchise.inspection',
+        string='Inspection Sheet',
+        required=True,
+        ondelete='cascade',
+        index=True,
+    )
+
+    member_id = fields.Many2one(
+        'wujia.franchise.member',
+        string='Store Member',
+        ondelete='set null',
+        help='Liên kết tới thành viên cửa hàng.',
+    )
+
+    employee_name = fields.Char(
+        string='Employee Name',
+        required=True,
+    )
+
+    role = fields.Selection([
+        ('owner', 'Owner'),
+        ('manager', 'Manager'),
+        ('staff', 'Staff'),
+    ], string='Role', default='staff')
+
+    phone = fields.Char(string='Phone')
+
+    is_present = fields.Boolean(
+        string='Present',
+        default=True,
+        help='Nhân viên có mặt tại cửa hàng trong buổi khảo sát.',
+    )
+
+    is_pass = fields.Boolean(
+        string='Passed Exam',
+        default=False,
+        help='Nhân viên đã vượt qua kỳ thi chứng nhận.',
+    )
+
+    note = fields.Char(string='Note')
+
+    def action_deactivate_member(self):
+        """Chuyển nhân viên sang trạng thái Đã nghỉ / Không còn làm việc (is_working=False) và xóa dòng khỏi đợt khảo sát."""
+        for line in self:
+            if line.member_id:
+                line.member_id.write({'is_working': False})
+            line.unlink()
+        return True
+
+    def action_save_to_member(self):
+        """Lưu hoặc tạo mới thông tin thành viên cửa hàng từ dòng điểm danh (nút mũi tên ->)."""
+        self.ensure_one()
+        if not self.employee_name or not self.employee_name.strip():
+            raise ValidationError(_("Please enter Employee Name before saving!"))
+
+        store_id = self.inspection_id.franchise_id.id if self.inspection_id.franchise_id else False
+        if not store_id:
+            raise ValidationError(_("Please select a Franchise Store first!"))
+
+        if self.member_id:
+            # Cập nhật thông tin thành viên hiện tại
+            vals = {'role': self.role or 'staff'}
+            if self.member_id.user_id:
+                user_vals = {}
+                if self.employee_name:
+                    user_vals['name'] = self.employee_name.strip()
+                if self.phone:
+                    user_vals['phone'] = self.phone.strip()
+                if user_vals:
+                    self.member_id.user_id.write(user_vals)
+            self.member_id.write(vals)
+        else:
+            # Tìm xem user đã tồn tại theo tên/sđt hoặc tạo mới user + member
+            users = self.env['res.users'].search([('name', '=ilike', self.employee_name.strip())], limit=1)
+            if not users:
+                # Tạo portal user placeholder
+                import random
+                clean_name = ''.join(e for e in self.employee_name if e.isalnum() or e.isspace()).strip().lower().replace(' ', '.')
+                login_candidate = f"{clean_name or 'staff'}.{random.randint(1000, 9999)}@wujiatea.internal"
+                portal_group = self.env.ref('base.group_portal', raise_if_not_found=False)
+                user_vals = {
+                    'name': self.employee_name.strip(),
+                    'login': login_candidate,
+                    'phone': self.phone or '',
+                }
+                if portal_group:
+                    user_vals['group_ids'] = [(6, 0, [portal_group.id])]
+                users = self.env['res.users'].create(user_vals)
+            
+            # Tạo member mới
+            new_member = self.env['wujia.franchise.member'].create({
+                'franchise_id': store_id,
+                'user_id': users.id,
+                'role': self.role or 'staff',
+                'is_pass': self.is_pass,
+                'is_working': True,
+                'active': True,
+            })
+            self.write({'member_id': new_member.id})
+
+        return True
+
