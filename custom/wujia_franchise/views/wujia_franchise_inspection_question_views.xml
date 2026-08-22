@@ -6,12 +6,12 @@
         <field name="name">wujia.franchise.inspection.question.tree</field>
         <field name="model">wujia.franchise.inspection.question</field>
         <field name="arch" type="xml">
-            <list string="Exam question bank">
-                <field name="code"/>
-                <field name="question_text"/>
-                <field name="score"/>
-                <field name="correct_answers_text" string="Correct answer"/>
-                <field name="active" widget="boolean_toggle"/>
+            <list string="Inspection Questions">
+                <field name="code" />
+                <field name="question_text" />
+                <field name="score" />
+                <field name="correct_answers_text" string="Correct Answers" />
+                <field name="active" widget="boolean_toggle" />
             </list>
         </field>
     </record>
@@ -21,44 +21,52 @@
         <field name="name">wujia.franchise.inspection.question.form</field>
         <field name="model">wujia.franchise.inspection.question</field>
         <field name="arch" type="xml">
-            <form string="Exam question">
+            <form string="Inspection Question">
                 <header>
-                    <button name="action_save" string="Save question" type="object" class="btn-primary"/>
+                    <button name="action_save" string="Save Question" type="object"
+                        class="btn-primary" />
                 </header>
                 <sheet>
                     <div class="oe_title">
-                        <label for="code" string="Question code"/>
+                        <label for="code" string="Question Code" />
                         <h2>
-                            <field name="code" placeholder="CH-VD-01"/>
+                            <field name="code" placeholder="CH-VD-01" />
                         </h2>
                     </div>
                     <group>
-                        <group string="General information">
-                            <field name="score"/>
-                            <field name="active" widget="boolean_toggle"/>
+                        <group string="General Information">
+                            <field name="score" />
+                            <field name="active" widget="boolean_toggle" />
                         </group>
                     </group>
 
-                    <separator string="Question content"/>
+                    <separator string="Question Content" />
                     <div class="mb-3">
-                        <label for="question_text" string="Enter the question (use ____ to mark each blank)"/>
-                        <field name="question_text" placeholder="E.g. Jasmine green tea uses ____cc of tea concentrate, brewed for ____ minutes at ____°C." required="1" class="w-100 fs-5"/>
+                        <label for="question_text"
+                            string="Enter question content (Use ____ to represent blank fill-in positions)" />
+                        <field name="question_text"
+                            placeholder="Example: Jasmine Green Tea has ____cc tea broth, brewed for ____ minutes at ____°C."
+                            required="1" class="w-100 fs-5" />
                     </div>
 
-                    <separator string="Correct answer setup"/>
+                    <separator string="Correct Answer Configuration" />
                     <div class="alert alert-info" role="alert">
-                        <strong>📌 How to enter the correct answers:</strong>
+                        <p class="fw-bold mb-1">📌 Instructions for entering correct answers:</p>
                         <ul class="mb-0 ps-3">
-                            <li>If the question has one blank <code>____</code>: enter every accepted answer (separated by commas <code>,</code>).</li>
-                            <li>If the question has several blanks <code>____</code>: enter each blank on <strong>its own line</strong> in order.</li>
+                            <li>If the question has 1 blank (____): Enter acceptable correct answers
+                                (separated by commas ;).</li>
+                            <li>If the question has multiple blanks (____): Enter each blank on 1
+                                separate line in order.</li>
                         </ul>
                     </div>
                     <div class="mb-3">
-                        <label for="correct_answers_text" string="Correct answer list"/>
-                        <field name="correct_answers_text" placeholder="500, 500ml&#10;10, 10 minutes&#10;85, 85-90" class="w-100" rows="4"/>
+                        <label for="correct_answers_text" string="Correct Answer List" />
+                        <field name="correct_answers_text"
+                            placeholder="500, 500ml&#10;10, 10 minutes&#10;85, 85-90" class="w-100"
+                            rows="4" />
                     </div>
                 </sheet>
-                <chatter/>
+                <chatter />
             </form>
         </field>
     </record>
@@ -68,23 +76,23 @@
         <field name="name">wujia.franchise.inspection.question.search</field>
         <field name="model">wujia.franchise.inspection.question</field>
         <field name="arch" type="xml">
-            <search string="Search exam questions">
-                <field name="code"/>
-                <field name="question_text"/>
-                <filter string="Archived" name="inactive" domain="[('active', '=', False)]"/>
+            <search string="Search Inspection Questions">
+                <field name="code" />
+                <field name="question_text" />
+                <filter string="Archived" name="inactive" domain="[('active', '=', False)]" />
             </search>
         </field>
     </record>
 
     <!-- Action -->
     <record id="action_wujia_franchise_inspection_question" model="ir.actions.act_window">
-        <field name="name">Exam question bank</field>
+        <field name="name">Inspection Questions</field>
         <field name="res_model">wujia.franchise.inspection.question</field>
         <field name="view_mode">list,form</field>
-        <field name="search_view_id" ref="view_wujia_franchise_inspection_question_search"/>
+        <field name="search_view_id" ref="view_wujia_franchise_inspection_question_search" />
         <field name="help" type="html">
             <p class="o_view_nocontent_smiling_face">
-                Add a new exam question to the bank!
+                Create a new inspection question for the library!
             </p>
         </field>
     </record>

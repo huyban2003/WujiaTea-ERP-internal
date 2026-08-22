@@ -31,9 +31,9 @@ class WujiaFranchiseMember(models.Model):
     )
     role = fields.Selection(
         [
-            (ROLE_OWNER, 'Store owner'),
-            (ROLE_MANAGER, 'Manager'),
-            (ROLE_STAFF, 'Staff'),
+            (ROLE_OWNER, 'Chủ tiệm'),
+            (ROLE_MANAGER, 'Quản lý'),
+            (ROLE_STAFF, 'Nhân viên'),
         ],
         string='Role',
         required=True,
@@ -50,6 +50,19 @@ class WujiaFranchiseMember(models.Model):
     )
     date_to = fields.Date(string='Valid until')
     active = fields.Boolean(default=True)
+    is_pass = fields.Boolean(
+        string='Passed Exam',
+        default=False,
+        tracking=True,
+        help='Nhân viên đã vượt qua kỳ thi chứng nhận.',
+    )
+    is_working = fields.Boolean(
+        string='Is Working',
+        default=True,
+        tracking=True,
+        help='Đánh dấu nhân viên còn đang làm việc tại cửa hàng hay đã nghỉ việc.',
+    )
+    phone = fields.Char(related='user_id.phone', string='Phone', readonly=True)
 
     display_name = fields.Char(compute='_compute_display_name', store=True)
     is_currently_valid = fields.Boolean(
@@ -68,12 +81,13 @@ class WujiaFranchiseMember(models.Model):
                 role_label.get(rec.role, ''),
             )
 
-    @api.depends('active', 'date_from', 'date_to')
+    @api.depends('active', 'is_working', 'date_from', 'date_to')
     def _compute_is_currently_valid(self):
         today = fields.Date.context_today(self)
         for rec in self:
             rec.is_currently_valid = bool(
                 rec.active
+                and rec.is_working
                 and (not rec.date_from or rec.date_from <= today)
                 and (not rec.date_to or rec.date_to >= today)
             )
@@ -82,7 +96,7 @@ class WujiaFranchiseMember(models.Model):
     def _check_dates(self):
         for rec in self:
             if rec.date_from and rec.date_to and rec.date_to < rec.date_from:
-                raise ValidationError(_('The end date must be on or after the start date.'))
+                raise ValidationError(_("End date must be >= start date."))
 
     @api.constrains('is_primary_owner', 'role', 'franchise_id', 'active')
     def _check_primary_owner(self):
@@ -90,7 +104,7 @@ class WujiaFranchiseMember(models.Model):
             if not rec.is_primary_owner:
                 continue
             if rec.role != ROLE_OWNER:
-                raise ValidationError(_('The primary owner must have the role Store owner.'))
+                raise ValidationError(_("Main owner must have role = Owner."))
             duplicate = self.search([
                 ('franchise_id', '=', rec.franchise_id.id),
                 ('is_primary_owner', '=', True),
@@ -99,7 +113,7 @@ class WujiaFranchiseMember(models.Model):
             ], limit=1)
             if duplicate:
                 raise ValidationError(_(
-                    "Store '%s' already has a primary owner. Deactivate the previous membership first.",
+                    "Store '%s' already has a main owner. Please deactivate previous owner membership first.",
                     rec.franchise_id.display_name,
                 ))
 

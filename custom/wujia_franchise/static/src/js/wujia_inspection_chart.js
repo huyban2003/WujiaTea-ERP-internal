@@ -6,7 +6,7 @@ import { standardFieldProps } from "@web/views/fields/standard_field_props";
 import { _t } from "@web/core/l10n/translation";
 
 export class WujiaInspectionChart extends Component {
-    static template = xml`
+  static template = xml`
         <div class="wujia-inspection-chart-container w-100 p-4 bg-white rounded border shadow-sm my-2" style="width: 100% !important; max-width: 100% !important;">
             <div class="d-flex justify-content-between align-items-center mb-3">
                 <h6 class="mb-0 fw-bold text-primary fs-5">
@@ -61,8 +61,8 @@ export class WujiaInspectionChart extends Component {
                                       t-att-width="bar.width" 
                                       t-att-height="bar.height" 
                                       rx="6" 
-                                      fill="url(#barGradient)" 
-                                      stroke="#1B87B5" 
+                                      t-att-fill="bar.color" 
+                                      t-att-stroke="bar.strokeColor" 
                                       stroke-width="1.5" />
                                 
                                 <text t-att-x="bar.x + bar.width / 2" 
@@ -70,8 +70,8 @@ export class WujiaInspectionChart extends Component {
                                       text-anchor="middle" 
                                       font-size="13" 
                                       font-weight="bold" 
-                                      fill="#1B87B5">
-                                    <t t-esc="bar.score"/>
+                                      t-att-fill="bar.textColor">
+                                    <t t-esc="bar.displayScore"/>
                                 </text>
 
                                 <text t-att-x="bar.x + bar.width / 2" 
@@ -84,112 +84,200 @@ export class WujiaInspectionChart extends Component {
                                 </text>
                             </g>
                         </t>
-
-                        <defs>
-                            <linearGradient id="barGradient" x1="0" y1="0" x2="0" y2="1">
-                                <stop offset="0%" stop-color="#28A9DF" stop-opacity="0.95" />
-                                <stop offset="100%" stop-color="#28A9DF" stop-opacity="0.55" />
-                            </linearGradient>
-                        </defs>
                     </svg>
                 </div>
             </t>
         </div>
     `;
 
-    
-    get chartTitle() {
-        return this.chartData.title || _t("Inspection score history (last 10 rounds)");
+  get chartTitle() {
+    return _t("Supervision Score History (Last 10 Rounds)");
+  }
+
+  get singleScoreLabel() {
+    return _t("Score per Round");
+  }
+
+  get avgScoreLabel() {
+    return _t("Average Score");
+  }
+
+  get noDataTitle() {
+    return _t("No Historical Data Yet!");
+  }
+
+  get noDataDesc() {
+    return (
+      this.chartData.no_data_desc ||
+      _t(
+        "Please select a Supervision Template or this store has no completed/remediation inspection sheets yet.",
+      )
+    );
+  }
+
+  static props = {
+    ...standardFieldProps,
+  };
+
+  get chartData() {
+    const raw = this.props.record.data[this.props.name];
+    if (!raw) return { hasData: false };
+    try {
+      const data = typeof raw === "string" ? JSON.parse(raw) : raw;
+      const labels = data.labels || [];
+      const scores = data.scores || [];
+      const grades = data.grades || [];
+      const displayScores = data.display_scores || [];
+      const avgScores = data.avg_scores || [];
+      const hasData = labels.length > 0 && scores.length > 0;
+      const avgScore = avgScores.length > 0 ? avgScores[0] : 0;
+      return { hasData, labels, scores, grades, displayScores, avgScores, avgScore };
+    } catch (e) {
+      return { hasData: false };
     }
+  }
 
-    get singleScoreLabel() {
-        return this.chartData.single_label || _t("Round score");
+  get chartWidth() {
+    return 1200;
+  }
+  get chartHeight() {
+    return 320;
+  }
+  get padding() {
+    return { top: 30, right: 35, bottom: 45, left: 50 };
+  }
+  get viewBox() {
+    return "0 0 " + this.chartWidth + " " + this.chartHeight;
+  }
+
+  get gridLines() {
+    const lines = [];
+    const usableHeight =
+      this.chartHeight - this.padding.top - this.padding.bottom;
+    for (let val = 0; val <= 100; val += 20) {
+      const y =
+        this.chartHeight - this.padding.bottom - (val / 100) * usableHeight;
+      lines.push({ val, y });
     }
+    return lines;
+  }
 
-    get avgScoreLabel() {
-        return this.chartData.avg_label || _t("Average score");
-    }
+  get avgLineY() {
+    const { avgScore, hasData } = this.chartData;
+    if (!hasData) return false;
+    const usableHeight =
+      this.chartHeight - this.padding.top - this.padding.bottom;
+    return (
+      this.chartHeight -
+      this.padding.bottom -
+      (Math.min(Math.max(avgScore, 0), 100) / 100) * usableHeight
+    );
+  }
 
-    get noDataTitle() {
-        return this.chartData.no_data_title || _t("No history data yet!");
-    }
+  get bars() {
+    const { labels, scores, grades, displayScores, hasData } = this.chartData;
+    if (!hasData) return [];
+    const usableWidth =
+      this.chartWidth - this.padding.left - this.padding.right;
+    const usableHeight =
+      this.chartHeight - this.padding.top - this.padding.bottom;
+    const count = labels.length;
+    const slotWidth = usableWidth / count;
+    const barWidth = Math.min(Math.max(slotWidth * 0.45, 45), 85);
 
-    get noDataDesc() {
-        return this.chartData.no_data_desc || _t("Please pick an inspection template, or this store has no inspection sheet using this template in Done / Remediation required status.");
-    }
+    return labels.map((date, idx) => {
+      const score = scores[idx] || 0;
+      const grade = grades[idx] || "";
+      const displayScore = displayScores[idx] || (grade ? `${score} (${grade})` : `${score}`);
+      const height = (Math.min(Math.max(score, 0), 100) / 100) * usableHeight;
+      const x =
+        this.padding.left + idx * slotWidth + (slotWidth - barWidth) / 2;
+      const y = this.chartHeight - this.padding.bottom - height;
 
-    static props = {
-        ...standardFieldProps,
-    };
+      // Dynamic colors based on Grade
+      let color = "#28A9DF";
+      let strokeColor = "#1B87B5";
+      let textColor = "#1B87B5";
 
-    get chartData() {
-        const raw = this.props.record.data[this.props.name];
-        if (!raw) return { hasData: false };
-        try {
-            const data = typeof raw === "string" ? JSON.parse(raw) : raw;
-            const labels = data.labels || [];
-            const scores = data.scores || [];
-            const avgScores = data.avg_scores || [];
-            const hasData = labels.length > 0 && scores.length > 0;
-            const avgScore = avgScores.length > 0 ? avgScores[0] : 0;
-            return { hasData, labels, scores, avgScores, avgScore };
-        } catch (e) {
-            return { hasData: false };
-        }
-    }
+      if (grade === "A") {
+        color = "#28C76F";
+        strokeColor = "#1E9553";
+        textColor = "#1E9553";
+      } else if (grade === "B") {
+        color = "#28A9DF";
+        strokeColor = "#1B87B5";
+        textColor = "#1B87B5";
+      } else if (grade === "C") {
+        color = "#FF9F43";
+        strokeColor = "#D97B20";
+        textColor = "#D97B20";
+      } else if (grade === "D") {
+        color = "#EA5455";
+        strokeColor = "#BD2829";
+        textColor = "#BD2829";
+      }
 
-    get chartWidth() { return 1200; }
-    get chartHeight() { return 320; }
-    get padding() { return { top: 30, right: 35, bottom: 45, left: 50 }; }
-    get viewBox() { return "0 0 " + this.chartWidth + " " + this.chartHeight; }
-
-    get gridLines() {
-        const lines = [];
-        const usableHeight = this.chartHeight - this.padding.top - this.padding.bottom;
-        for (let val = 0; val <= 100; val += 20) {
-            const y = this.chartHeight - this.padding.bottom - (val / 100) * usableHeight;
-            lines.push({ val, y });
-        }
-        return lines;
-    }
-
-    get avgLineY() {
-        const { avgScore, hasData } = this.chartData;
-        if (!hasData) return false;
-        const usableHeight = this.chartHeight - this.padding.top - this.padding.bottom;
-        return this.chartHeight - this.padding.bottom - (Math.min(Math.max(avgScore, 0), 100) / 100) * usableHeight;
-    }
-
-    get bars() {
-        const { labels, scores, hasData } = this.chartData;
-        if (!hasData) return [];
-        const usableWidth = this.chartWidth - this.padding.left - this.padding.right;
-        const usableHeight = this.chartHeight - this.padding.top - this.padding.bottom;
-        const count = labels.length;
-        const slotWidth = usableWidth / count;
-        const barWidth = Math.min(Math.max(slotWidth * 0.45, 36), 75);
-
-        return labels.map((date, idx) => {
-            const score = scores[idx] || 0;
-            const height = (Math.min(Math.max(score, 0), 100) / 100) * usableHeight;
-            const x = this.padding.left + idx * slotWidth + (slotWidth - barWidth) / 2;
-            const y = this.chartHeight - this.padding.bottom - height;
-            return {
-                idx,
-                date,
-                score,
-                x,
-                y,
-                width: barWidth,
-                height,
-            };
-        });
-    }
+      return {
+        idx,
+        date,
+        score,
+        grade,
+        displayScore,
+        color,
+        strokeColor,
+        textColor,
+        x,
+        y,
+        width: barWidth,
+        height,
+      };
+    });
+  }
 }
 
 export const wujiaInspectionChartField = {
-    component: WujiaInspectionChart,
-    supportedTypes: ["text", "char"],
+  component: WujiaInspectionChart,
+  supportedTypes: ["text", "char"],
 };
 
-registry.category("fields").add("wujia_inspection_chart", wujiaInspectionChartField);
+registry
+  .category("fields")
+  .add("wujia_inspection_chart", wujiaInspectionChartField);
+
+import { DateTimeField, dateField } from "@web/views/fields/datetime/datetime_field";
+
+export class WujiaMonthYearField extends DateTimeField {
+  getFormattedValue(valueIndex) {
+    const values = this.values;
+    const value = values[valueIndex];
+    if (!value) {
+      return "";
+    }
+    return value.toFormat ? value.toFormat("MM/yyyy") : value;
+  }
+}
+
+export function formatMonthYear(value) {
+  if (!value) {
+    return "";
+  }
+  return value.toFormat ? value.toFormat("MM/yyyy") : value;
+}
+
+export const wujiaMonthYearField = {
+  ...dateField,
+  component: WujiaMonthYearField,
+  displayName: _t("Month / Year"),
+  supportedTypes: ["date"],
+  extractProps: (fieldInfo, dynamicInfo) => {
+    const props = dateField.extractProps(fieldInfo, dynamicInfo);
+    return {
+      ...props,
+      minPrecision: "months",
+      maxPrecision: "months",
+    };
+  },
+};
+
+registry.category("formatters").add("wujia_month_year", formatMonthYear);
+registry.category("fields").add("wujia_month_year", wujiaMonthYearField);

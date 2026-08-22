@@ -1,19 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
 
-    <!-- Action Cửa hàng cần giám sát -->
+    <!-- Action: Stores Needing Inspection (Filtered by Latest Grade C or D) -->
     <record id="action_franchise_needed_inspection" model="ir.actions.act_window">
-        <field name="name">Stores due for inspection</field>
+        <field name="name">Stores Needing Inspection</field>
         <field name="res_model">wujia.franchise.management</field>
-        <field name="view_mode">list,form</field>
+        <field name="view_mode">list,kanban,form</field>
+        <field name="domain">[('latest_grade_id.name', 'in', ['C', 'D'])]</field>
         <field name="search_view_id" ref="view_franchise_management_search" />
         <field name="context">{
-            'search_default_filter_my_inspection': 1,
             'search_default_filter_active': 1,
             }</field>
         <field name="help" type="html">
             <p class="o_view_nocontent_smiling_face">
-                Stores that need a periodic inspection!
+                Stores with latest inspection grade C or D needing supervision!
             </p>
         </field>
     </record>

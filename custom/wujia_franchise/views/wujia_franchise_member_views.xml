@@ -15,6 +15,8 @@
                 <field name="date_from"/>
                 <field name="date_to"/>
                 <field name="is_currently_valid"/>
+                <field name="is_pass" widget="boolean_toggle" />
+                <field name="is_working" widget="boolean_toggle" />
                 <field name="active" column_invisible="True"/>
             </list>
         </field>
@@ -40,6 +42,8 @@
                             <field name="date_from"/>
                             <field name="date_to"/>
                             <field name="is_currently_valid"/>
+                            <field name="is_pass" widget="boolean_toggle"/>
+                            <field name="is_working" widget="boolean_toggle"/>
                             <field name="active" widget="boolean_toggle"/>
                         </group>
                     </group>
@@ -58,12 +62,19 @@
                 <field name="role"/>
                 <filter string="Currently valid" name="filter_currently_valid"
                         domain="[('is_currently_valid', '=', True)]"/>
+                <filter string="Currently Working" name="filter_is_working"
+                        domain="[('is_working', '=', True)]"/>
+                <filter string="Resigned / Not Working" name="filter_not_working"
+                        domain="[('is_working', '=', False)]"/>
                 <filter string="Store owner" name="filter_owner"
                         domain="[('role', '=', 'owner')]"/>
                 <filter string="Manager" name="filter_manager"
                         domain="[('role', '=', 'manager')]"/>
                 <filter string="Staff" name="filter_staff"
                         domain="[('role', '=', 'staff')]"/>
+                <separator/>
+                <filter string="Passed Exam" name="filter_passed"
+                        domain="[('is_pass', '=', True)]"/>
                 <separator/>
                 <filter string="Archived" name="filter_inactive"
                         domain="[('active', '=', False)]"/>

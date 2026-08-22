@@ -6,7 +6,7 @@
         <field name="name">wujia.franchise.inspection.list</field>
         <field name="model">wujia.franchise.inspection</field>
         <field name="arch" type="xml">
-            <list string="Inspection sheets" default_order="id desc">
+            <list string="Franchise Inspections" default_order="id desc">
                 <field name="name" />
                 <field name="franchise_id" />
                 <field name="template_id" />
@@ -14,7 +14,7 @@
                 <field name="test_employee_name" />
                 <field name="planned_date" options="{'format': 'DD/MM/YYYY'}" />
                 <field name="total_score"
-                    string="Total score" />
+                    string="Total Score" />
                 <field name="grade_id" widget="badge" />
                 <field name="state" widget="badge"
                     decoration-info="state == 'draft'"
@@ -31,24 +31,24 @@
         <field name="name">wujia.franchise.inspection.form</field>
         <field name="model">wujia.franchise.inspection</field>
         <field name="arch" type="xml">
-            <form string="Franchise store inspection sheet">
+            <form string="Franchise Inspection">
                 <header>
                     <button name="action_start"
-                        string="Start" type="object"
+                        string="Start Inspection" type="object"
                         class="btn-primary" invisible="state != 'draft'" />
                     <button name="action_need_remediation"
-                        string="Require remediation"
+                        string="Need Remediation"
                         type="object"
                         class="btn-warning"
                         invisible="state in ('done', 'cancel', 'need_remediation')" />
-                    <button name="action_done" string="Complete"
+                    <button name="action_done" string="Mark Done"
                         type="object" class="btn-success"
                         invisible="state in ('done', 'cancel')" />
                     <button name="action_cancel"
                         string="Cancel" type="object"
                         invisible="state in ('done', 'cancel')" />
                     <button name="action_draft"
-                        string="Reset to draft" type="object"
+                        string="Reset to Draft" type="object"
                         invisible="state in ('draft', 'done')" />
                     <field name="state" widget="statusbar"
                         statusbar_visible="draft,in_progress,need_remediation,done,cancel" />
@@ -60,21 +60,21 @@
                             type="object"
                             class="oe_stat_button"
                             icon="fa-file-text-o"
-                            string="Inspections"
+                            string="Inspection Sheets"
                             invisible="state != 'in_progress'">
 
                         </button>
                     </div>
 
                     <div class="oe_title">
-                        <label for="name" string="Inspection sheet name" />
+                        <label for="name" string="Inspection Name" />
                         <h1>
                             <field name="name" readonly="1" force_save="1"
-                                placeholder="Sheet code is generated automatically (e.g. PGS-HN_ST042-0001)..." />
+                                placeholder="e.g. PGS-HCM01-0001" />
                         </h1>
                     </div>
                     <group>
-                        <group string="INSPECTION &amp; STORE INFORMATION">
+                        <group string="Store Information">
                             <field name="franchise_id" options="{'no_create': True}" />
                             <field name="template_id" options="{'no_create': True}" />
                             <field name="schedule_id" options="{'no_create': True}" />
@@ -82,7 +82,7 @@
                             <field name="video" required="1" />
 
                         </group>
-                        <group string="TIME &amp; HISTORY">
+                        <group string="Timeline &amp; History">
                             <field name="planned_date" />
                             <field name="submit_date" invisible="1" />
                             <field name="confirm_date" readonly="1" />
@@ -91,20 +91,20 @@
                     </group>
 
                     <group>
-                        <group string="EMPLOYEE SURVEY">
+                        <group string="Tested Employee Information">
                             <field name="test_employee_name"
-                                placeholder="Name of the employee at the store..." />
+                                placeholder="Employee full name..." />
                             <field name="tenure"
-                                placeholder="Months / years of service..." />
+                                placeholder="Tenure (e.g. 1 year, 6 months)..." />
                         </group>
-                        <group string="NEXT PLAN">
+                        <group string="Next Inspection Plan">
                             <label for="next_due_date"
-                                string="Next inspection" />
+                                string="Next Inspection Date" />
                             <div class="o_row">
                                 <field name="next_due_date" class="oe_inline" />
                                 <button name="action_create_next_schedule"
                                     type="object"
-                                    title="Create / open the next supervision schedule"
+                                    title="Create Next Supervision Schedule"
                                     icon="fa-arrow-right"
                                     class="btn-link text-primary ps-1 pe-1"
                                     invisible="not next_due_date" />
@@ -115,11 +115,11 @@
                     </group>
 
                     <group>
-                        <group string="COMPONENT SCORES">
+                        <group string="Component Scores">
                             <field name="checklist_score" readonly="1" />
                             <field name="exam_score" readonly="1" />
                         </group>
-                        <group string="RESULT &amp; GRADE">
+                        <group string="Evaluation Result &amp; Grade">
                             <field name="total_score" class="fw-bold fs-4 text-primary" readonly="1" />
                             <field name="grade_id" class="fw-bold fs-4 text-success"
                                 readonly="1" />
@@ -127,7 +127,7 @@
                     </group>
 
                     <notebook>
-                        <page string="Checklist criteria"
+                        <page string="Checklist Criteria"
                             name="checklist">
                             <field name="line_ids" readonly="state in ('done', 'cancel')">
                                 <list editable="bottom" create="false" delete="false" limit="100"
@@ -145,13 +145,13 @@
                                     <field name="content_snapshot"
                                         readonly="1"
                                         force_save="1"
-                                        string="Checklist content"
+                                        string="Checklist Content"
                                     />
 
                                     <!-- <field name="criterion_type_snapshot"
                                         readonly="1"
                                         force_save="1"
-                                        string="Criterion type"
+                                        string="Criterion Type"
                                         widget="badge"
                                         invisible="display_type == 'section'"
                                         decoration-danger="criterion_type_snapshot == 'critical'"
@@ -160,19 +160,19 @@
                                     <field name="deduction_score_snapshot"
                                         readonly="1"
                                         force_save="1"
-                                        string="Violation deduction"
+                                        string="Deduction Score"
                                         invisible="display_type == 'section'" /> -->
 
                                     <field name="is_pass"
                                         widget="boolean_toggle"
-                                        string="Evaluation"
+                                        string="Passed (Pass)"
                                         invisible="display_type == 'section'"
                                         class="wujia-inspection-pass-toggle"
                                     />
 
                                     <field name="previous_result"
                                         readonly="1"
-                                        string="Previous round"
+                                        string="Previous Result"
                                         widget="badge"
                                         invisible="display_type == 'section'"
                                         decoration-success="previous_result == 'pass'"
@@ -181,7 +181,7 @@
                                     <button name="action_view_previous_inspection"
                                         type="object"
                                         icon="fa-external-link"
-                                        title="View the previous inspection sheet"
+                                        title="View Previous Inspection Line"
                                         class="btn-link text-primary p-0 me-1"
                                         invisible="display_type == 'section' or not previous_result" />
 
@@ -189,14 +189,14 @@
                                     <field name="require_evidence_if_fail" column_invisible="True" />
 
                                     <field name="note"
-                                        placeholder="Violation note..."
+                                        placeholder="Enter violation note if any..."
                                         invisible="display_type == 'section'"
                                         required="not is_pass and require_note_if_fail and display_type == 'line'" />
 
                                     <field name="evidence_image"
                                         widget="image"
                                         options="{'size': [50, 50]}"
-                                        string="Violation evidence"
+                                        string="Evidence Photo"
                                         invisible="display_type == 'section'"
                                         required="not is_pass and require_evidence_if_fail and display_type == 'line'" />
 
@@ -209,41 +209,53 @@
                                         invisible="display_type == 'section'" />
 
                                     <field name="remediation_note"
-                                        placeholder="Remediation note from the store..."
+                                        placeholder="Enter store remediation note..."
                                         column_invisible="parent.state not in ['need_remediation', 'done']"
                                         invisible="display_type == 'section'" />
 
                                     <field name="remediation_image"
                                         widget="image"
                                         options="{'size': [50, 50]}"
-                                        string="Photo after remediation"
+                                        string="Remediation Photo"
                                         invisible="display_type == 'section'"
                                         column_invisible="parent.state not in ['need_remediation', 'done']"
                                         readonly="parent.state not in ('need_remediation', 'in_progress', 'draft')" />
                                 </list>
                             </field>
                         </page>
-                        <page string="Employee exam" name="exam">
+                        <page string="Staff Exam" name="exam">
                             <!-- <field name="is_exam_submitted" column_invisible="True" /> -->
                             <div
                                 class="alert alert-warning d-flex justify-content-between align-items-center mb-3"
                                 invisible="is_exam_submitted or state != 'draft'">
-                                <span><strong>Note:</strong> Please click <strong>"Start"</strong> in the header to start the inspection and the exam!</span>
+                                <div>
+                                    <p class="d-inline fw-bold me-1">Note:</p>
+                                    <p class="d-inline">Please click "Start Inspection" on the header to start the inspection and take the exam!</p>
+                                </div>
                             </div>
                             <div
                                 class="alert alert-info d-flex justify-content-between align-items-center mb-3"
                                 invisible="is_exam_submitted or state != 'in_progress'">
-                                <span><strong>How it works:</strong> The employee types the answer in the "Answer given" box under each question. When finished, click <strong>"Submit exam"</strong> to grade it.</span>
+                                <div>
+                                    <p class="d-inline fw-bold me-1">Instructions:</p>
+                                    <p class="d-inline">Employees enter answers into the "Answer" box below each question. After completion, click "Submit Exam" to grade.</p>
+                                </div>
                                 <button name="action_submit_exam"
-                                    string="Submit exam"
+                                    string="Submit Exam"
                                     type="object" class="btn btn-primary fw-bold px-4"
                                     invisible="is_exam_submitted or state != 'in_progress'" />
                             </div>
                             <div
                                 class="alert alert-success d-flex justify-content-between align-items-center mb-3"
                                 invisible="not is_exam_submitted">
-                                <span><strong>Exam submitted!</strong> The paper is locked. Grading result: <b class="fs-5 text-success"><field
-                                            name="exam_score" readonly="1" /> points</b>.</span>
+                                <div>
+                                    <p class="d-inline fw-bold me-1">Exam Submitted!</p>
+                                    <p class="d-inline">Answers have been locked. Scoring result:</p>
+                                    <span class="fs-5 text-success fw-bold ms-1">
+                                        <field name="exam_score" readonly="1" class="d-inline" />
+                                    </span>
+                                    <p class="d-inline fs-5 text-success fw-bold ms-1">points</p>
+                                </div>
                             </div>
                             <group>
                                 <group>
@@ -261,11 +273,11 @@
                                     <field name="sequence" widget="handle" />
                                     <field name="quest_id" column_invisible="True" />
                                     <field name="quest_code_snapshot" readonly="1" force_save="1"
-                                        string="Question code" />
+                                        string="Question Code" />
                                     <field name="quest_content_snapshot" readonly="1" force_save="1"
-                                        string="Question content" />
+                                        string="Question Content" />
                                     <field name="answer"
-                                        placeholder="👉 Enter the employee's answer here..."
+                                        placeholder="Enter employee answer..."
                                         readonly="parent.is_exam_submitted or parent.state in ('done', 'cancel')" />
                                     <field name="_point_return"
                                         string="Score"
@@ -274,18 +286,17 @@
                                 </list>
                             </field>
                         </page>
-                        <page string="Report" name="report">
+                        <page string="Revenue Report" name="report">
                             <field name="inspection_chart_data" widget="wujia_inspection_chart"
                                 nolabel="1" class="w-100 d-block" />
                             <separator
-                                string="Detailed revenue report"
+                                string="3-Month Revenue Detail"
                                 class="mt-4 mb-2" />
                             <field name="report_line_ids" nolabel="1"
                                 readonly="state in ('done', 'cancel')">
                                 <list editable="bottom">
                                     <field name="sequence" widget="handle" />
-                                    <field name="date_month"
-                                        options="{'min_precision': 'months', 'format': 'MM/yyyy'}" />
+                                    <field name="date_month" widget="wujia_month_year" />
                                     <field name="revenue" />
                                     <field name="revenue_avg" />
                                     <field name="total_app_sale" />
@@ -293,20 +304,80 @@
                                 </list>
                             </field>
                         </page>
-                        <page string="Sheet confirmation"
+                        <page string="Confirmation"
                             name="confirmation">
                             <group>
                                 <group
-                                    string="System confirmer">
+                                    string="System Confirmation">
                                     <field name="confirmed_user_id" options="{'no_create': True}" />
                                 </group>
                                 <group
-                                    string="Store manager confirmation">
+                                    string="Store Manager Confirmation">
                                     <field name="confirmed_member_id"
                                         domain="[('franchise_id', '=', franchise_id)]"
                                         options="{'no_create': True}" />
                                 </group>
                             </group>
+
+                            <!-- ====== 50-50 Layout: Present Staff & Passed Staff ====== -->
+                            <div class="row mt-4">
+                                <!-- Cột 1 (50%): Nhân viên có mặt tại cửa hàng -->
+                                <div class="col-lg-6 col-12 pe-lg-3 border-end">
+                                    <separator string="Store Staff Present at Inspection" class="mb-2" />
+                                    <div class="d-flex align-items-center mb-2">
+                                        <div class="alert alert-info py-1 px-3 mb-0 d-inline-flex align-items-center">
+                                            <p class="d-inline fw-bold me-1 mb-0">Present:</p>
+                                            <field name="present_count" readonly="1" class="d-inline fw-bold text-success" />
+                                        </div>
+                                    </div>
+                                    <field name="attendance_line_ids" readonly="state in ('done', 'cancel')">
+                                        <list editable="bottom">
+                                            <field name="sequence" widget="handle" />
+                                            <field name="line_type" column_invisible="True" force_save="1" />
+                                            <field name="member_id" column_invisible="True" />
+                                            <field name="employee_name" placeholder="Employee Name" />
+                                            <field name="role" widget="badge"
+                                                decoration-info="role == 'staff'"
+                                                decoration-warning="role == 'manager'"
+                                                decoration-success="role == 'owner'" />
+                                            <field name="phone" placeholder="Phone" />
+                                            <field name="is_present" widget="boolean_toggle" string="Present" />
+                                            <button name="action_save_to_member" type="object"
+                                                icon="fa-arrow-right"
+                                                title="Save or update this member to Store Membership"
+                                                class="btn-link text-primary p-0" />
+                                            <button name="action_deactivate_member" type="object"
+                                                icon="fa-info-circle"
+                                                title="Deactivate this employee (active = False)"
+                                                class="btn-link text-danger p-0"
+                                                confirm="Are you sure you want to deactivate this employee (active = False)? The employee remains saved in the system history."
+                                                invisible="not member_id" />
+                                            <field name="note" placeholder="Note..." />
+                                        </list>
+                                    </field>
+                                </div>
+
+                                <!-- Cột 2 (50%): Nhân viên đã thi đậu -->
+                                <div class="col-lg-6 col-12 ps-lg-3">
+                                    <separator string="Passed Exam Staff" class="mb-2" />
+                                    <div class="d-flex align-items-center mb-2">
+                                        <div class="alert alert-success py-1 px-3 mb-0 d-inline-flex align-items-center">
+                                            <p class="d-inline fw-bold me-1 mb-0">Passed Staff:</p>
+                                            <field name="passed_count" readonly="1" class="d-inline fw-bold" />
+                                        </div>
+                                    </div>
+                                    <field name="passed_member_ids" readonly="1">
+                                        <list create="false" delete="false">
+                                            <field name="user_id" string="Employee Name" />
+                                            <field name="role" widget="badge"
+                                                decoration-info="role == 'staff'"
+                                                decoration-warning="role == 'manager'"
+                                                decoration-success="role == 'owner'" />
+                                            <field name="phone" string="Phone" />
+                                        </list>
+                                    </field>
+                                </div>
+                            </div>
                         </page>
                     </notebook>
                 </sheet>
@@ -320,26 +391,26 @@
         <field name="name">wujia.franchise.inspection.search</field>
         <field name="model">wujia.franchise.inspection</field>
         <field name="arch" type="xml">
-            <search string="Search inspection sheets">
+            <search string="Search Inspections">
                 <field name="name" />
                 <field name="franchise_id" />
                 <field name="inspector_user_id" />
                 <field name="schedule_id" />
                 <field name="planned_date" />
                 <separator />
-                <filter string="My inspections"
+                <filter string="My Inspections"
                     name="my_inspection"
                     domain="[('inspector_user_id', '=', uid)]" />
                 <separator />
-                <filter string="Inspection date"
+                <filter string="Planned Date"
                     name="filter_planned_date" date="planned_date" />
                 <separator />
-                <filter string="Pending (Draft)" name="draft"
+                <filter string="Draft" name="draft"
                     domain="[('state', '=', 'draft')]" />
-                <filter string="In progress"
+                <filter string="In Progress"
                     name="in_progress"
                     domain="[('state', '=', 'in_progress')]" />
-                <filter string="Remediation required"
+                <filter string="Need Remediation"
                     name="need_remediation"
                     domain="[('state', '=', 'need_remediation')]" />
                 <filter string="Done" name="done"
@@ -356,7 +427,7 @@
                 <filter string="Grade D" name="grade_d"
                     domain="[('grade_id.name', '=', 'D')]" />
                 <separator />
-                <filter string="Store"
+                <filter string="Franchise Store"
                     name="group_franchise"
                     context="{'group_by': 'franchise_id'}" />
                 <filter string="Inspector"
@@ -366,10 +437,10 @@
                     name="group_state" context="{'group_by': 'state'}" />
                 <filter string="Grade"
                     name="group_grade" context="{'group_by': 'grade_id'}" />
-                <filter string="Date (by month)"
+                <filter string="Planned Month"
                     name="group_planned_date"
                     context="{'group_by': 'planned_date:month'}" />
-                <filter string="Date (by day)"
+                <filter string="Planned Day"
                     name="group_planned_date_day"
                     context="{'group_by': 'planned_date:day'}" />
             </search>
@@ -378,7 +449,7 @@
 
     <!-- Action Phiếu giám sát -->
     <record id="action_wujia_franchise_inspection" model="ir.actions.act_window">
-        <field name="name">Inspection sheets</field>
+        <field name="name">Franchise Inspections</field>
         <field name="res_model">wujia.franchise.inspection</field>
         <field name="view_mode">list,form</field>
         <field name="search_view_id" ref="view_wujia_franchise_inspection_search" />

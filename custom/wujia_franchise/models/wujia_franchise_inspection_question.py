@@ -4,34 +4,37 @@ from odoo import api, fields, models, _
 
 class WujiaFranchiseInspectionQuestion(models.Model):
     _name = 'wujia.franchise.inspection.question'
-    _description = 'Inspection exam question bank'
+    _description = 'Inspection Question Library'
     _inherit = ['mail.thread', 'mail.activity.mixin']
     _order = 'id desc'
     _rec_name = 'question_text'
 
-    code = fields.Char(string='Question code', tracking=True)
+    code = fields.Char(string='Question Code', tracking=True)
     question_text = fields.Text(
-        string='Question content',
+        string='Question Text',
         required=True,
         tracking=True,
-        help='Question content. Use ____ to mark each blank to fill in.'
+        help='Question content. Use ____ to represent blanks to fill.'
     )
-    score = fields.Float(string='Score', default=1.0, tracking=True, help='Score awarded for answering this question correctly')
+    score = fields.Float(string='Score', default=1.0, tracking=True, help='Score obtained when answering this question correctly.')
     
     # Mảng JSON lưu trữ mảng đáp án đúng tương ứng với các ô trống (Dùng default=False để tránh Odoo gọi list(self))
     correct_answers = fields.Json(
-        string='Correct answers array (JSON)',
+        string='Correct Answers (JSON)',
         default=False,
-        help='JSON array holding the answers for each ____ blank. E.g. [["500", "500ml"], ["10", "10 minutes"]]'
+        help='Mảng JSON chứa đáp án cho từng vị trí trống ____. Ví dụ: [["500", "500ml"], ["10", "10 phút"]]'
     )
     
     # Giao diện nhập liệu thân thiện cho người dùng
     correct_answers_text = fields.Text(
-        string='Correct answers (one line per blank)',
+        string='Correct Answers (1 Line per Blank)',
         compute='_compute_correct_answers_text',
         inverse='_inverse_correct_answers_text',
         store=False,
-        help='Enter the correct answer for each ____ blank.\n- Blank 1: on line 1.\n- Blank 2: on line 2.\n- If a blank accepts several answers, separate them with a semicolon (;).'
+        help='Nhập đáp án đúng cho từng chỗ trống ____.\n'
+             '- Chỗ trống 1: Nhập ở Dòng 1.\n'
+             '- Chỗ trống 2: Nhập ở Dòng 2.\n'
+             '- Nếu 1 chỗ trống có nhiều đáp án chấp nhận được, phân cách nhau bằng dấu chấm phẩy (;).'
     )
     
     active = fields.Boolean(string='Active', default=True, tracking=True)
@@ -48,7 +51,7 @@ class WujiaFranchiseInspectionQuestion(models.Model):
             elif rec.code:
                 rec.display_name = rec.code
             else:
-                rec.display_name = 'New question'
+                rec.display_name = _("New Question")
 
     @api.depends('correct_answers')
     def _compute_correct_answers_text(self):

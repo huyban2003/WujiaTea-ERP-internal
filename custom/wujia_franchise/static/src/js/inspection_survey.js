@@ -4,20 +4,14 @@
 
 (function () {
   "use strict";
-
-  // Nhãn hiển thị lấy từ khối #surveyI18n trong template — server đã dịch sẵn theo .po.
-  const I18N = {};
-  function tr(key, fallback) {
-    return I18N[key] || fallback || key;
+  function _t(key, defVal) {
+    return (window.SURVEY_TRANS && window.SURVEY_TRANS[key]) || defVal || key;
   }
+
 
   document.addEventListener("DOMContentLoaded", function () {
     const app = document.getElementById("surveyApp");
     if (!app) return;
-
-    document.querySelectorAll("#surveyI18n [data-key]").forEach(function (el) {
-      I18N[el.dataset.key] = el.innerHTML.trim();
-    });
 
     // Auto trim leading/trailing whitespace caused by IDE XML auto-formatters
     function cleanExamTextareas() {
@@ -89,7 +83,7 @@
       if (submitBtn) {
         submitBtn.disabled = true;
         submitBtn.innerHTML =
-          '<i class="fa fa-lock"></i> ' + tr("locked", "Completed &amp; locked");
+          '<i class="fa fa-lock"></i> ' + _t('label:wujia.franchise.inspection_survey:status_completed', 'Completed &amp; Locked');
         submitBtn.style.background = "#64748b";
         submitBtn.style.boxShadow = "none";
         submitBtn.style.cursor = "not-allowed";
@@ -188,7 +182,7 @@
     function openPrevModal(data) {
       if (!prevModalOverlay) return;
       document.getElementById("prevInspName").innerText =
-        data.inspection_name || tr("prev_round", "Previous round");
+        data.inspection_name || _t("label:wujia.franchise.inspection_survey:modal_prev_inspection", "Previous Inspection");
       document.getElementById("prevDate").innerText =
         data.planned_date || "---";
       document.getElementById("prevInspector").innerText =
@@ -197,22 +191,17 @@
       const resBadge = document.getElementById("prevResultBadge");
       if (data.is_pass) {
         resBadge.className = "badge-pass";
-        resBadge.innerHTML =
-          '<i class="fa fa-check"></i> ' + tr("passed", "Passed");
+        resBadge.innerHTML = '<i class="fa fa-check"></i> ' + _t("label:wujia.franchise.inspection_survey:badge_pass", "Pass");
       } else {
         resBadge.className = "badge-fail";
         resBadge.innerHTML =
-          '<i class="fa fa-times"></i> ' +
-          tr("failed", "Failed") +
-          " (" +
+          '<i class="fa fa-times"></i> ' + _t("label:wujia.franchise.inspection_survey:badge_fail", "Fail") + ' (-' +
           (data.deduction_score || 0) +
-          " " +
-          tr("points", "points") +
-          ")";
+          _t("label:wujia.franchise.inspection_survey:points_suffix", " pts)");
       }
 
       document.getElementById("prevNote").innerText =
-        data.note || tr("no_violation_note", "No violation note");
+        data.note || _t("label:wujia.franchise.inspection_survey:no_prev_note", "No violation note");
 
       const imgContainer = document.getElementById("prevEvidenceContainer");
       const imgEl = document.getElementById("prevEvidenceImg");
@@ -248,14 +237,11 @@
             const data = JSON.parse(rawJson);
             openPrevModal(data);
           } catch (err) {
-            alert(tr("no_prev_detail", "No detail data for the previous inspection."));
+            alert(_t("label:wujia.franchise.inspection_survey:no_prev_data", "No previous inspection data available for this criterion."));
           }
         } else {
           alert(
-            t(
-              "first_round",
-              "This is the first inspection, or there is no previous data for this criterion."
-            ),
+            _t("label:wujia.franchise.inspection_survey:no_prev_data", "No previous inspection data available for this criterion."),
           );
         }
       });
@@ -331,10 +317,7 @@
       // MUST REQUIRE Nhân viên được kiểm tra (test_employee_name)
       if (!isExamSubmitted && !empName) {
         showCustomAlert(
-          t(
-            "require_employee",
-            'Please enter "Inspected employee" before saving the results!'
-          ),
+          _t("label:wujia.franchise.inspection_survey:alert_msg_input_employee", "Please enter Tested Employee name before saving!"),
           function () {
             switchTab("exam");
             if (nameInput) {
@@ -395,7 +378,7 @@
         );
         const data = await res.json();
         if (data.result && data.result.success) {
-          showToast(tr("saved_ok", "Results saved successfully!"), false);
+          showToast(_t("label:wujia.franchise.inspection_survey:toast_saved", "Results saved successfully!"), false);
           if (data.result.checklist_score !== undefined) {
             const lcs = document.getElementById("liveChecklistScore");
             if (lcs)
@@ -416,11 +399,11 @@
           lockExamTab();
         } else {
           showCustomAlert(
-            data.result ? data.result.error : tr("save_error", "An error occurred while saving!"),
+            data.result ? data.result.error : _t("label:wujia.franchise.inspection_survey:toast_error", "An error occurred while saving!"),
           );
         }
       } catch (err) {
-        showToast(tr("conn_error", "Server connection error!"), true);
+        showToast(_t("label:wujia.franchise.inspection_survey:toast_network_error", "Server connection error!"), true);
       }
     }
 
@@ -482,19 +465,18 @@
           const prevData = JSON.parse(rawJson);
           if (prevData.is_pass) {
             lineModalPrevBadge.className = "badge-pass";
-            lineModalPrevBadge.innerHTML =
-              '<i class="fa fa-check"></i> ' + tr("passed", "Passed");
+            lineModalPrevBadge.innerHTML = '<i class="fa fa-check"></i> ' + _t("label:wujia.franchise.inspection_survey:badge_pass", "Pass");
           } else {
             lineModalPrevBadge.className = "badge-fail";
             lineModalPrevBadge.innerHTML =
-              '<i class="fa fa-times"></i> ' + tr("failed", "Failed");
+              '<i class="fa fa-times"></i> ' + _t("label:wujia.franchise.inspection_survey:badge_fail", "Fail");
           }
           lineModalPrevInspector.innerText =
             (prevData.planned_date || "") +
             " - " +
             (prevData.inspector || "---");
           lineModalPrevNote.innerText =
-            prevData.note || tr("no_violation_note", "No violation note");
+            prevData.note || _t("label:wujia.franchise.inspection_survey:no_prev_note", "No violation note");
           if (prevData.has_evidence && prevData.evidence_url) {
             lineModalPrevEvidenceImg.src = prevData.evidence_url;
             lineModalPrevEvidenceWrap.style.display = "block";
@@ -505,7 +487,7 @@
           lineModalPrevBadge.className = "badge-none";
           lineModalPrevBadge.innerText = "-";
           lineModalPrevInspector.innerText = "---";
-          lineModalPrevNote.innerText = tr("no_prev_info", "No previous round information");
+          lineModalPrevNote.innerText = _t("label:wujia.franchise.inspection_survey:no_prev_data", "No previous inspection data");
           lineModalPrevEvidenceWrap.style.display = "none";
         }
       } else {
@@ -513,7 +495,7 @@
         lineModalPrevBadge.innerText = "-";
         lineModalPrevInspector.innerText = "---";
         lineModalPrevNote.innerText =
-          tr("first_or_none", "First round / no previous data");
+          _t("label:wujia.franchise.inspection_survey:no_prev_data", "No previous inspection data");
         lineModalPrevEvidenceWrap.style.display = "none";
       }
 
@@ -547,8 +529,8 @@
         lineModalCheck.checked = lineChk.checked;
         lineModalCheck.disabled = isInspectionClosed;
         lineModalCheckStatus.innerText = lineChk.checked
-          ? tr("passed", "Passed")
-          : tr("failed_deducted", "Failed (points deducted)");
+          ? _t("label:wujia.franchise.inspection_survey:badge_pass", "Pass")
+          : _t("label:wujia.franchise.inspection_survey:badge_fail", "Fail");
         lineModalCheckStatus.style.color = lineChk.checked
           ? "#15803d"
           : "#ef4444";
@@ -600,8 +582,8 @@
     if (lineModalCheck) {
       lineModalCheck.addEventListener("change", function () {
         lineModalCheckStatus.innerText = this.checked
-          ? tr("passed", "Passed")
-          : tr("failed_deducted", "Failed (points deducted)");
+          ? _t("label:wujia.franchise.inspection_survey:badge_pass", "Pass")
+          : _t("label:wujia.franchise.inspection_survey:badge_fail", "Fail");
         lineModalCheckStatus.style.color = this.checked ? "#15803d" : "#ef4444";
       });
     }
