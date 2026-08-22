@@ -58,7 +58,7 @@ một container, một dấu hiệu bấm, một limit. Gộp về 1 hằng `HOM
 mã đơn chiếm trọn dòng 1. Chiều cao Home 2752→2634 @360 cùng dữ liệu. 27/27 acceptance, 5 test mới
 + 43 hồi quy xanh, lưới B4 282/286 y hệt C6, đi Tab 124/124; KPI chứng minh ngay trên UAT bằng
 nhúng CSS (cắt 1→0) — bảng đối chiếu `docs/c7-acceptance-matrix.md`) ·
-**C8a ✅ 22/08/2026 `__C8A_COMMIT__`** (issue **VẪN GIỮ `Ready for Dev`** — C8a mới migrate 13/18
+**C8a ✅ 22/08/2026 `59299f1`** (issue **VẪN GIỮ `Ready for Dev`** — C8a mới migrate 13/18
 call site, đóng khi C8b xong; ledger đã có sẵn entry ở dạng comment, bỏ `#` là chạy `qa_sync` được.
 `-u wujia_portal_layout,wujia_portal_base,wujia_portal_delivery,wujia_portal_sale,wujia_portal_purchase_history`
 không cập nhật dữ liệu, không module mới, đã bump `?v=1172`. **Kiểm kê trước, code sau**: 183 heading
