@@ -205,3 +205,32 @@ không vào repo (§13).
 Comment XML chứa `--flush` ⇒ `XMLSyntaxError: Comment must not contain '--'`, build RC=255.
 **XML cấm hai gạch nối trong comment** — viết tên modifier BEM có `--` vào comment là chết
 build. Diễn đạt bằng lời ("modifier flush") thay vì dán tên class.
+
+---
+
+## §7. Đo lại TRÊN UAT sau khi deploy C8b — 23/08/2026
+
+Chủ dự án deploy `aa26e0e` lên `http://113.161.187.126:8019/` chiều 23/08. Đo lại bằng chính
+bộ harness của phiên, chỉ đổi base URL + tài khoản (`admin` / mật khẩu UAT). **Thao tác chỉ
+đọc**: chỉ điều hướng GET và đổi cookie chọn cửa hàng, không tạo đơn/hoá đơn/email nào.
+
+| Bộ đo | Kết quả UAT | Ghi chú |
+|---|---|---|
+| Acceptance C8b (6 call site mới) | **58/60** | 2 ô không đo được, xem dưới |
+| Acceptance C8a (13 call site cũ) | **46/46** | không hồi quy dù đã xoá CSS rời |
+| Lưới hồi quy B4 (17 route × 2 khổ + 6 chiều rộng) | **286/286** | |
+| Đi phím Tab (9 trang × 2 khổ) | **448/448** | mọi điểm dừng còn viền chỉ dấu |
+
+Xác nhận bản build đúng: trang phục vụ `_components.css?v=1173`, và số phần tử mang class rời
+`mhist-listhead` trên `/portal/return` là **0**.
+
+**Hai ô không đo được là do DỮ LIỆU UAT, không phải lỗi code.** `/portal/debt/pay` trên UAT
+chuyển hướng về `/portal/debt?...&notice=no_due` vì cửa hàng đang xem **không có hoá đơn đến
+hạn**, nên khối "Thông tin chuyển khoản" không hề được dựng ra để đo. Đây đúng là hành vi đã
+chốt ở C2. Chỗ này đã đo đủ trên DB copy có dữ liệu mồi (thẻ vẫn cao đúng 150px, tiêu đề đi
+qua component mà vẫn giữ dáng nhãn 11px) — xem §6b. Nhờ tester khi retest chọn tuần **có hoá
+đơn đến hạn** rồi mới bấm Thanh toán để nhìn khối này.
+
+Thêm một phát hiện về dữ liệu UAT: trong 14 cửa hàng, **chỉ cửa hàng thứ 3 có hoá đơn và có
+đăng ký thi**. Tester nên chọn đúng cửa hàng đó, nếu không các màn công nợ và đăng ký thi sẽ
+ra trạng thái rỗng và tưởng nhầm là lỗi.
