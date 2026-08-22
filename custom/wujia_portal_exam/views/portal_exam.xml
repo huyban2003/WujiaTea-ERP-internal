@@ -756,7 +756,11 @@
                         <span class="wujia-mexam-selcard-badge">Đã chọn</span>
                     </div>
 
-                    <h2 class="wujia-mexam-sectitle">Danh sách nhân sự</h2>
+                    <t t-call="wujia_portal_layout.wj_section_header">
+                        <t t-set="sh_title">Danh sách nhân sự</t>
+                        <t t-set="sh_level" t-value="2"/>
+                        <t t-set="sh_platform" t-value="'m'"/>
+                    </t>
                     <!-- Khối nhân sự chuẩn (JS clone khi "Thêm người", tối đa theo
                          session.max_participants_per_registration). Input có name để
                          JS gom; ảnh optional đọc qua FileReader → base64. -->
@@ -1033,7 +1037,11 @@
                     </span>
                 </div>
 
-                <h2 class="wujia-mexam-sectitle">Danh sách nhân sự</h2>
+                <t t-call="wujia_portal_layout.wj_section_header">
+                    <t t-set="sh_title">Danh sách nhân sự</t>
+                    <t t-set="sh_level" t-value="2"/>
+                    <t t-set="sh_platform" t-value="'m'"/>
+                </t>
                 <div class="wujia-mexam-rlist">
                     <t t-foreach="reg_view['people']" t-as="p">
                         <div class="wujia-mexam-rrow">

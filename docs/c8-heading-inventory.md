@@ -17,7 +17,7 @@ bằng lxml đi ngược cây tìm ancestor `card` / `modal` / `empty-state`.
 | `*_backend_views.xml` | Backend Odoo, không phải portal |
 | `wujia_portal_layout/views/pc_preview.xml` | Trang demo nội bộ |
 | `login_page.xml` · `forgot_pass.xml` · `change_password_page.xml` · `profile_page.xml` | Auth (`CMP-*` chưa phủ, S39 dựng riêng) |
-| `wujia_portal_inspection` · `wujia_portal_remediation` | Merge `thai` 19/08, **chưa deploy UAT** → để C8b |
+| `wujia_portal_inspection` · `wujia_portal_remediation` | Merge `thai` 19/08, **chưa deploy UAT** → để C8b (đã kiểm kê ở §6) |
 
 Còn **132 heading / 22 file** đưa vào phân loại.
 
@@ -25,16 +25,16 @@ Còn **132 heading / 22 file** đưa vào phân loại.
 
 | Loại | Số lượng | Xử lý |
 |---|---:|---|
-| **SectionHeader** | **12** | ✅ Trong scope C8 |
+| **SectionHeader** | **13** | ✅ Trong scope C8 (12 khi kiểm kê C8a + 1 chỗ sót, xem §2d) |
 | CardHeader | 89 | ❌ Spec nói rõ: heading nằm trong card **KHÔNG** phải SectionHeader |
 | PageHeader | 3 | ❌ Đã có `CMP-PG-001` (B3a/B3b) |
 | Khác (EmptyState / Modal / DetailSummary) | 24 | ❌ Thuộc `CMP-ES-001` / `CMP-DS-001`, BA chưa viết spec |
 
 Cộng thêm **5 call site KHÔNG phải heading thật** (đang là `<div>` + `<span>`) — chính là
 triệu chứng BA mô tả trong issue, cộng `portal_delivery.xml:15` được BA promote ở §2c
-⇒ tổng **18 call site** trong scope.
+⇒ tổng **19 call site** trong scope (18 khi chốt C8a, +1 chỗ sót phát hiện ở C8b — §2d).
 
-### 2a. SectionHeader — heading thật (12)
+### 2a. SectionHeader — heading thật (13)
 
 | File | Dòng | Tag | Class hiện tại | Nội dung |
 |---|---:|---|---|---|
@@ -48,8 +48,9 @@ triệu chứng BA mô tả trong issue, cộng `portal_delivery.xml:15` đượ
 | ″ | 544 | h2 | `wujia-mdash-title` | Thông tin cửa hàng |
 | `wujia_portal_debt/views/portal_debt.xml` | 209 | h2 | `wj-debt-section__title` | Hóa đơn còn số dư / trong tuần |
 | ″ | 512 | h2 | `wj-debt-section__title` | Các khoản thanh toán |
-| ″ | 688 | h2 | `wj-debt-bank__title` | THÔNG TIN CHUYỂN KHOẢN |
-| `wujia_portal_exam/views/portal_exam.xml` | 1036 | h2 | `wujia-mexam-sectitle` | Danh sách nhân sự |
+| ″ | 688 | h2 | `wj-debt-bank__title` | THÔNG TIN CHUYỂN KHOẢN (ca dung hoà — §2e) |
+| `wujia_portal_exam/views/portal_exam.xml` | 759 | h2 | `wujia-mexam-sectitle` | Danh sách nhân sự (**sót ở C8a** — §2d) |
+| ″ | 1036 | h2 | `wujia-mexam-sectitle` | Danh sách nhân sự |
 
 ### 2b. SectionHeader — chưa là heading thật (5) ⚠️ đúng ca BA than
 
@@ -80,6 +81,35 @@ chỉ đích danh** hai chỗ nằm trong card và gọi chúng là SectionHeade
 SectionHeader; card **là một mẩu nội dung trong trang** (KPI, thông tin vận chuyển, sản phẩm
 trong chuyến…) thì đầu card là CardHeader. Áp diễn giải này, `portal_delivery.xml:15` và
 `portal_order_catalog.xml:15` vào scope ⇒ **18 call site**. Ghi LIMIT, nhờ BA xác nhận khi retest.
+
+### 2d. ⚠️ Chỗ SÓT của kiểm kê C8a — `portal_exam.xml:759` (phát hiện ở C8b)
+
+Chữ "Danh sách nhân sự" xuất hiện **2 lần** trong `portal_exam.xml`, cùng thẻ `<h2>`, cùng
+class `wujia-mexam-sectitle`: dòng **759** (bước 3 wizard tạo đăng ký) và **1036** (trang chi
+tiết đăng ký). Bảng §3 của C8a ghi `portal_exam.xml` Sec=**1** — script kiểm kê gộp hai dòng
+trùng (class + text giống hệt) làm một.
+
+Soi tay chuỗi tổ tiên của :759 ⇒ `section.wujia-mexam-panel` › `div.d-lg-none.wujia-mpage
+.wujia-mexam-wizard`. `.wujia-mexam-panel` là **flex column không nền, không bo góc, không
+padding** ⇒ đúng phép thử tổ tiên DOM thì đây là SectionHeader thật, y hệt :1036.
+
+Chủ dự án chốt 23/08: **đưa vào scope** ⇒ tổng **19 call site**. Bỏ nó lại thì hai dòng chữ
+y hệt nhau render hai cỡ khác nhau (16px ở wizard vs 20px ở chi tiết) — đúng loại lỗi issue
+này đang đòi dẹp. Đo sau khi migrate: cả hai đều `20px`.
+
+### 2e. Ca dung hoà — `portal_debt.xml:688` "THÔNG TIN CHUYỂN KHOẢN"
+
+Đo CSS: `.wj-debt-bank` có `background` + `border-radius` + `padding` + **`height: 150px` cố
+định** ⇒ theo **chính phép thử tổ tiên DOM** đã hạ `portal_home.xml:292` xuống CardHeader thì
+dòng này cũng là CardHeader. Bản thân nó là nhãn `11px` + `letter-spacing` viết hoa gõ tay,
+không phải tiêu đề khối.
+
+Chủ dự án chốt 23/08 — **dung hoà**: vẫn chuyển sang component (thành heading thật, đi qua một
+khuôn duy nhất, chịu rule "tối đa MỘT right slot"), nhưng tắt nhịp bằng modifier `--flush` và
+giữ dáng nhãn bằng **CSS scope trong `portal_debt.css`** (`.wj-debt-bank .wj-section-header*`),
+KHÔNG đẻ modifier trong `_components.css` dùng chung. Đo sau khi migrate: `H2`, `11px`, thẻ
+vẫn cao đúng **150px**, nội dung không tràn. BA chốt sau chỉ cần gỡ khối CSS scope đó.
+👉 **Cần BA xác nhận** đây là CardHeader (gỡ khỏi scope) hay SectionHeader thật (nới chiều cao thẻ).
 
 ## 3. Phân bố theo file (132 heading)
 
@@ -128,19 +158,44 @@ trong chuyến…) thì đầu card là CardHeader. Áp diễn giải này, `por
 | `/portal/purchase-history` | `portal_history.xml` | 1 |
 | `/portal/order/cart` | `portal_order_cart.xml` | 1 |
 
-**C8b (phiên sau)** — **5 call site** còn lại + 2 module merge `thai`:
+**C8b (phiên 23/08)** ✅ — **6 call site** còn lại ⇒ đủ **19/19**:
 
-| File | Dòng | Ghi chú |
+| File | Dòng | Đã làm |
 |---|---:|---|
-| `wujia_portal_debt/views/portal_debt.xml` | 209, 512, 688 | 688 đang VIẾT HOA toàn bộ — spec không cho phép `text-transform`, kiểm lại |
-| `wujia_portal_exam/views/portal_exam.xml` | 1036 | |
-| `wujia_portal_return/views/portal_return_list.xml` | 189 | `wujia-mhist-listhead`, dùng chung CSS với history ⇒ **phải chuyển cùng lúc với C8a hoặc giữ CSS cũ đến C8b** |
-| `wujia_portal_inspection` · `_remediation` | — | Chờ deploy UAT xong mới đụng |
+| `wujia_portal_debt/views/portal_debt.xml` | 209 | Right slot có điều kiện: `sh_action_url` khi còn hoá đơn ẩn, không thì `sh_meta` count ⇒ component tự ép "tối đa MỘT" |
+| ″ | 512 | Nằm trong slot `#wj-debt-hist-mbody` của `wj_ajax_list` (swap cả khối) |
+| ″ | 688 | Ca dung hoà §2e — component + `--flush` + dáng nhãn scope ở `portal_debt.css` |
+| `wujia_portal_exam/views/portal_exam.xml` | 759 | Chỗ C8a sót (§2d) |
+| ″ | 1036 | |
+| `wujia_portal_return/views/portal_return_list.xml` | 189 | Xong chỗ này mới xoá `.wujia-mhist-listhead*` |
+| `wujia_portal_inspection` | — | Kiểm kê §6 ⇒ **0 call site chắc chắn**, 1 chỗ chờ BA |
+| ~~`wujia_portal_remediation`~~ | — | **Cố ý bỏ ngoài**: anh Thái đã xoá code (`f789a56`), UAT `uninstalled` |
 
-⚠️ **Ràng buộc thứ tự:** `wujia-mhist-listhead` dùng ở **2 file** (`portal_history.xml:129`
-và `portal_return_list.xml:189`). C8a chỉ chuyển history ⇒ **KHÔNG được xoá CSS
-`.wujia-mhist-listhead*`** khỏi `_components.css` cho tới khi C8b chuyển nốt return.
+⚠️ **Ràng buộc thứ tự (đã thoả):** `wujia-mhist-listhead` dùng ở **2 file**
+(`portal_history.xml:129` và `portal_return_list.xml:189`). C8a chỉ chuyển history nên phải
+giữ CSS; C8b chuyển nốt return rồi mới xoá `.wujia-mhist-listhead*` khỏi `_components.css`.
+Cùng lượt xoá `.wj-debt-section*` (`portal_debt.css`) và `.wujia-mexam-sectitle`
+(`portal_exam.css`) — grep xác nhận 0 hit trước khi xoá, có unit test chống tái phát.
 
 ## 5. Cách tái lập
 
 Script kiểm kê: `scratchpad/c8_inventory.py` (harness, **không** commit vào repo theo §13).
+
+## 6. Kiểm kê `wujia_portal_inspection` (bổ sung ở C8b)
+
+Module giám sát/chấm điểm cửa hàng của anh Thái **đã installed trên UAT 22/08** ⇒ nay thuộc
+phạm vi. Soi bằng lxml theo tổ tiên DOM, 4 file template (bỏ `sidenav_inherit.xml`):
+
+| Loại | Số | Ghi chú |
+|---|---:|---|
+| PageHeader `wj-pc-page-header__title` | 3 | Thuộc `CMP-PG-001`, ngoài scope C8 |
+| CardHeader (trong `.wj-pc-card` / trang success) | 12 | Ngoài scope theo spec |
+| **Lửng lơ — chờ BA** | **1** | `portal_inspection_list_templates.xml:34` "Danh sách phiếu khảo sát" |
+
+Khối mobile (`d-lg-none`, `list:143`) chỉ có ô tìm kiếm + danh sách, **không có** section head.
+
+⚠️ Chỗ lửng lơ nằm trong `.wj-pc-card__head` — **cấu trúc giống hệt** `/portal/delivery`
+"Danh sách chuyến giao" mà BA tự chỉ đích danh là SectionHeader (§2c). Tức là nó rơi đúng vào
+**LIMIT-2 đang chờ BA trả lời**. Chủ dự án chốt 23/08: **để lại, không migrate**, ghi
+`Need Clarification`; BA trả lời câu 2 xong mới áp. Vẫn `-u` module này trong lượt nghiệm thu
+để chứng minh việc xoá CSS dùng chung không làm vỡ nó.
