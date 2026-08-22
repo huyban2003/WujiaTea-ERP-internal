@@ -23,6 +23,10 @@
                 <field name="latest_total_score" optional="show" string="Latest Score" />
                 <field name="latest_grade_id" optional="show" widget="badge"
                     string="Latest Grade" />
+                <field name="consecutive_cd_count" optional="show" widget="badge"
+                    string="Consecutive C/D"
+                    decoration-danger="consecutive_cd_count &gt;= 2"
+                    decoration-warning="consecutive_cd_count == 1" />
                 <field name="status" widget="badge"
                     decoration-success="status == 'active'"
                     decoration-warning="status == 'locked'"
@@ -146,6 +150,19 @@
                             <field name="description"
                                 placeholder="Operating notes: delivery, loading bans, parking bans..." />
                         </page>
+                        <page string="Documents" name="documents">
+                            <field name="document_ids" context="{'default_franchise_id': id}">
+                                <list editable="bottom">
+                                    <field name="name" string="Document Name" />
+                                    <field name="file" widget="binary" filename="name" string="Download" />
+                                    <field name="create_date" string="Created On" readonly="1" />
+                                </list>
+                            </field>
+                        </page>
+                        <page string="Report" name="report">
+                            <field name="inspection_chart_data" widget="wujia_inspection_chart"
+                                nolabel="1" class="w-100 d-block" />
+                        </page>
                         <page string="Internal note" name="note">
                             <field name="note" placeholder="Internal note" />
                         </page>
@@ -217,6 +234,13 @@
                 <separator />
                 <filter string="Expiring soon (within 30 days)" name="filter_expiring_soon"
                     domain="[('remaining_days', '&gt;=', 0), ('remaining_days', '&lt;=', 30)]" />
+                <separator />
+                <filter string="Needs Supervision (Grade C / D)" name="filter_grade_cd"
+                    domain="[('latest_grade_id.name', 'in', ['C', 'D'])]" />
+                <filter string="Latest Grade C" name="filter_latest_grade_c"
+                    domain="[('latest_grade_id.name', '=', 'C')]" />
+                <filter string="Latest Grade D" name="filter_latest_grade_d"
+                    domain="[('latest_grade_id.name', '=', 'D')]" />
                 <separator />
                 <filter string="Archived" name="filter_inactive"
                     domain="[('active', '=', False)]" />

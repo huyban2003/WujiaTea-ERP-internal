@@ -340,6 +340,8 @@ class WujiaFranchiseInspection(models.Model):
             
             labels = []
             scores = []
+            grades = []
+            display_scores = []
             avg_scores = []
             
             if inspections:
@@ -350,11 +352,20 @@ class WujiaFranchiseInspection(models.Model):
                     date_str = ins.planned_date.strftime('%d/%m/%Y') if ins.planned_date else ''
                     labels.append(date_str)
                     scores.append(ins.total_score)
+                    grade_name = (ins.grade_id.name if ins.grade_id else '').strip()
+                    grades.append(grade_name)
+
+                    score_val = ins.total_score
+                    score_str = f"{int(score_val)}" if score_val.is_integer() else f"{score_val:.1f}"
+                    display_text = f"{score_str} ({grade_name})" if grade_name else score_str
+                    display_scores.append(display_text)
                     avg_scores.append(round(overall_avg, 2))
             
             rec.inspection_chart_data = json.dumps({
                 'labels': labels,
                 'scores': scores,
+                'grades': grades,
+                'display_scores': display_scores,
                 'avg_scores': avg_scores,
                 'title': _("Supervision Score History (Last 10 Rounds)"),
                 'single_label': _("Score per Round"),
@@ -470,7 +481,9 @@ class WujiaFranchiseInspection(models.Model):
                 if att_lines:
                     vals['attendance_line_ids'] = att_lines
 
-        return super(WujiaFranchiseInspection, self).create(vals_list)
+        records = super(WujiaFranchiseInspection, self).create(vals_list)
+        records.mapped('franchise_id')._compute_latest_inspection_info()
+        return records
 
    
     @api.depends('line_ids.is_pass', 'line_ids.result', 'line_ids.deduction_score_snapshot', 'line_ids.display_type')
@@ -821,6 +834,15 @@ class WujiaFranchiseInspection(models.Model):
                     schedule_state_keys = dict(rec.schedule_id._fields['state'].selection)
                     if vals['state'] in schedule_state_keys and rec.schedule_id.state != vals['state']:
                         rec.schedule_id.state = vals['state']
+        if any(f in vals for f in ('state', 'total_score', 'grade_id', 'planned_date', 'franchise_id')):
+            self.mapped('franchise_id')._compute_latest_inspection_info()
+        return res
+
+    def unlink(self):
+        stores = self.mapped('franchise_id')
+        res = super().unlink()
+        if stores:
+            stores._compute_latest_inspection_info()
         return res
 
     def _generate_random_exam_lines(self):
