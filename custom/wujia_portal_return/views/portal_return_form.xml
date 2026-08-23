@@ -50,10 +50,14 @@
                                         <option value="">— Chọn đơn —</option>
                                         <t t-foreach="orders" t-as="o">
                                             <option t-att-value="o.id">
-                                                <t t-out="o.name"/> — <t t-out="o.date_order and o.date_order.strftime('%d/%m/%Y') or ''"/>
+                                                <t t-out="o.name"/> — <t t-out="wj_dt(o.date_order, '%d/%m/%Y')"/>
                                             </option>
                                         </t>
                                     </select>
+                                    <small t-if="not orders" class="text-danger">
+                                        Không tìm thấy đơn hàng đủ điều kiện trong
+                                        <t t-out="window_days"/> ngày gần nhất.
+                                    </small>
                                 </div>
                                 <div class="col-md-6 col-12">
                                     <label class="form-label">Sản phẩm (trong đơn)</label>
@@ -81,11 +85,23 @@
                                               placeholder="Mô tả chi tiết tình trạng hàng cần bù/đổi..."/>
                                 </div>
                                 <div class="col-12">
-                                    <label class="form-label">Ảnh minh chứng (tối thiểu 3 ảnh)</label>
+                                    <label class="form-label">
+                                        Ảnh minh chứng (<t t-out="min_images"/>–<t t-out="max_images"/> ảnh)
+                                    </label>
                                     <input type="file" name="images" class="form-control"
-                                           accept="image/png,image/jpeg" multiple="multiple"/>
-                                    <small class="text-muted">JPG/PNG, dung lượng &lt; 5MB/ảnh.</small>
+                                           accept="image/jpeg,image/png" multiple="multiple"/>
+                                    <small class="text-muted">
+                                        JPG/PNG, tối đa 5MB mỗi ảnh · tổng minh chứng ≤ <t t-out="max_total_mb"/>MB.
+                                    </small>
                                     <div id="image-preview-grid" class="row g-2 mt-2"></div>
+                                </div>
+                                <div class="col-12">
+                                    <label class="form-label">Video minh chứng (không bắt buộc)</label>
+                                    <input type="file" name="video" class="form-control"
+                                           accept="video/mp4,video/quicktime"/>
+                                    <small class="text-muted">
+                                        Tối đa 1 video MP4/MOV, ≤ <t t-out="max_video_mb"/>MB.
+                                    </small>
                                 </div>
                             </div>
                         </div>
@@ -137,10 +153,14 @@
                             <option value="">— Chọn đơn —</option>
                             <t t-foreach="orders" t-as="o">
                                 <option t-att-value="o.id">
-                                    <t t-out="o.name"/> — <t t-out="o.date_order and o.date_order.strftime('%d/%m/%Y') or ''"/>
+                                    <t t-out="o.name"/> — <t t-out="wj_dt(o.date_order, '%d/%m/%Y')"/>
                                 </option>
                             </t>
                         </select>
+                        <p t-if="not orders" class="wujia-mticket-hint text-danger">
+                            Không tìm thấy đơn hàng đủ điều kiện trong
+                            <t t-out="window_days"/> ngày gần nhất.
+                        </p>
                         <label class="wujia-mticket-label">Sản phẩm (trong đơn)</label>
                         <select name="sale_order_line_id" class="form-select wj-return-line" required="required">
                             <option value="">— Chọn đơn trước —</option>
@@ -178,9 +198,18 @@
 
                     <div class="wujia-mdash-card">
                         <p class="wujia-mdash-title mb-1">Hình ảnh đính kèm</p>
-                        <p class="wujia-mticket-hint">Tối thiểu 3 ảnh, chụp rõ bao bì &amp; lỗi sản phẩm.</p>
+                        <p class="wujia-mticket-hint">
+                            <t t-out="min_images"/>–<t t-out="max_images"/> ảnh JPG/PNG (≤5MB mỗi ảnh),
+                            chụp rõ bao bì &amp; lỗi sản phẩm.
+                        </p>
                         <input type="file" name="images" class="form-control"
-                               accept="image/png,image/jpeg" multiple="multiple"/>
+                               accept="image/jpeg,image/png" multiple="multiple"/>
+                        <p class="wujia-mticket-hint mt-3 mb-1">
+                            Video minh chứng (không bắt buộc) — tối đa 1 file MP4/MOV
+                            ≤ <t t-out="max_video_mb"/>MB, tổng minh chứng ≤ <t t-out="max_total_mb"/>MB.
+                        </p>
+                        <input type="file" name="video" class="form-control"
+                               accept="video/mp4,video/quicktime"/>
                     </div>
 
                     <div class="wujia-mreturn-cta">

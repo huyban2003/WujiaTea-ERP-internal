@@ -255,6 +255,7 @@ class CompensationProcessWizard(models.TransientModel):
                 'franchise_partner_id': partner.id,
                 'is_return_order': True,
                 'origin': _('Bù hàng'),
+                'state': 'sent',  # BA STT3 #11: tạo ở 'sent', HQ tự confirm
             })
             created |= order
             for g, covered in active:

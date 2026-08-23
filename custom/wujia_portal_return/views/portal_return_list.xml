@@ -4,6 +4,12 @@
     <template id="portal_return_list" name="Wujia Portal — Return List">
         <t t-call="wujia_portal_layout.app_layout">
             <t t-set="title">Yêu cầu đổi trả</t>
+            <!-- Câu chữ ở template, key ở controller (pattern C4/WJ-KNW-002). -->
+            <t t-set="notice_text" t-value="{
+                'no_store': 'Không xác định được cửa hàng hiện tại. Vui lòng chọn lại cửa hàng.',
+                'not_found': 'Không tìm thấy yêu cầu hoặc bạn không có quyền truy cập.',
+                'bad_filter': 'Bộ lọc không hợp lệ. Vui lòng kiểm tra lại.',
+            }.get(notice)"/>
             <t t-call="wujia_portal_base.wj_ajax_list_config">
                 <t t-set="wjl_path" t-value="'/portal/return'"/>
                 <t t-set="wjl_slots" t-value="'wj-ret-pc,wj-ret-mbody'"/>
@@ -22,6 +28,8 @@
                 <div t-if="no_franchise" class="alert alert-warning m-3">
                     Bạn chưa được gán vào cửa hàng nào.
                 </div>
+
+                <div t-if="notice_text" class="alert alert-warning m-3" t-out="notice_text"/>
 
                 <div t-if="not no_franchise" class="content-body">
                     <!-- Filter -->
@@ -90,12 +98,12 @@
                                 <tbody>
                                     <tr t-foreach="returns" t-as="rr">
                                         <td><a t-attf-href="/portal/return/#{rr.id}" t-out="rr.name"/></td>
-                                        <td t-out="rr.request_date and rr.request_date.strftime('%d/%m/%Y %H:%M') or ''"/>
+                                        <td t-out="wj_dt(rr.request_date, '%d/%m/%Y %H:%M')"/>
                                         <td t-out="rr.franchise_id.name or '—'"/>
                                         <td t-out="rr.issue_type_id.name or '—'"/>
                                         <td t-out="rr.sale_order_id.name or '—'"/>
                                         <td class="text-center">
-                                            <t t-set="lbl" t-value="state_labels.get(rr.state, (rr.state, 'wujia-badge-muted'))"/>
+                                            <t t-set="lbl" t-value="wj_state_label(rr)"/>
                                             <span t-attf-class="wujia-badge #{lbl[1]}" t-out="lbl[0]"/>
                                             <t t-if="rr.resolution_type == 'compensation'">
                                                 <t t-set="clbl" t-value="comp_status_labels.get(rr.compensation_status, ('', 'wujia-badge-muted'))"/>
@@ -143,6 +151,11 @@
                     <t t-set="ph_create_url" t-value="'/portal/return/new'"/>
                     <t t-set="ph_can_create" t-value="True"/>
                 </t>
+
+                <div t-if="notice_text" class="wj-empty-state wj-empty-state--card">
+                    <i class="feather icon-alert-circle"/>
+                    <p t-out="notice_text"/>
+                </div>
 
                 <div t-if="no_franchise" class="wj-empty-state wj-empty-state--card">
                     <i class="feather icon-alert-circle"/>
@@ -216,7 +229,7 @@
                                                 <t t-set="clbl" t-value="comp_status_labels.get(rr.compensation_status, ('', 'wujia-badge-muted'))"/>
                                                 <span t-if="clbl[0]" t-attf-class="wujia-badge #{clbl[1]}" t-out="clbl[0]"/>
                                             </t>
-                                            <t t-set="lbl" t-value="state_labels.get(rr.state, (rr.state, 'wujia-badge-muted'))"/>
+                                            <t t-set="lbl" t-value="wj_state_label(rr)"/>
                                             <span t-attf-class="wujia-badge #{lbl[1]}" t-out="lbl[0]"/>
                                         </span>
                                     </span>
@@ -231,7 +244,7 @@
                                         <span class="wujia-mreturn-row-metacell">
                                             <span class="lbl">Ngày YC</span>
                                             <span class="val"
-                                                  t-out="rr.request_date and rr.request_date.strftime('%d/%m') or '—'"/>
+                                                  t-out="wj_dt(rr.request_date, '%d/%m') or '—'"/>
                                         </span>
                                     </span>
                                 </span>

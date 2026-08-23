@@ -14,7 +14,7 @@
                     <t t-set="ph_title">Chi tiết yêu cầu bù hàng</t>
                     <t t-set="ph_back_url" t-value="'/portal/return'"/>
                 </t>
-                <t t-set="lbl" t-value="state_labels.get(rr.state, (rr.state, 'state-draft'))"/>
+                <t t-set="lbl" t-value="wj_state_label(rr)"/>
                 <div class="mb-2"><span t-attf-class="badge state-badge #{lbl[1]}" t-out="lbl[0]"/></div>
 
                 <div class="content-body">
@@ -31,7 +31,7 @@
                                         <dt class="col-sm-5">Cửa hàng</dt>
                                         <dd class="col-sm-7" t-out="rr.franchise_id.name or '—'"/>
                                         <dt class="col-sm-5">Ngày yêu cầu</dt>
-                                        <dd class="col-sm-7" t-out="rr.request_date and rr.request_date.strftime('%d/%m/%Y %H:%M') or ''"/>
+                                        <dd class="col-sm-7" t-out="wj_dt(rr.request_date, '%d/%m/%Y %H:%M')"/>
                                         <dt class="col-sm-5">Đơn gốc</dt>
                                         <dd class="col-sm-7">
                                             <t t-if="rr.sale_order_id">
@@ -42,9 +42,9 @@
                                         <dt class="col-sm-5">Loại lỗi</dt>
                                         <dd class="col-sm-7" t-out="rr.issue_type_id.name or '—'"/>
                                         <dt class="col-sm-5">Thời gian mở hàng</dt>
-                                        <dd class="col-sm-7" t-out="rr.opening_datetime and rr.opening_datetime.strftime('%d/%m/%Y %H:%M') or '—'"/>
+                                        <dd class="col-sm-7" t-out="wj_dt(rr.opening_datetime, '%d/%m/%Y %H:%M') or '—'"/>
                                         <dt class="col-sm-5">Ngày sản xuất</dt>
-                                        <dd class="col-sm-7" t-out="rr.production_date and rr.production_date.strftime('%d/%m/%Y') or '—'"/>
+                                        <dd class="col-sm-7" t-out="wj_dt(rr.production_date, '%d/%m/%Y') or '—'"/>
                                         <dt class="col-sm-5">Người tạo</dt>
                                         <dd class="col-sm-7" t-out="rr.requester_user_id.name or '—'"/>
                                     </dl>
@@ -108,11 +108,18 @@
                                     <dd class="col-sm-8">
                                         <t t-out="'{:,.2f}'.format(comp['approved_qty'])"/> <t t-out="comp['approved_uom']"/>
                                     </dd>
+                                    <dt class="col-sm-4">Đã đưa vào đơn bù</dt>
+                                    <dd class="col-sm-8">
+                                        <t t-out="'{:,.2f}'.format(comp['allocated_qty'])"/> <t t-out="comp['approved_uom']"/>
+                                    </dd>
                                     <dt class="col-sm-4">Tình trạng bù</dt>
                                     <dd class="col-sm-8">
                                         <span t-attf-class="wujia-badge #{comp['status'][1]}" t-out="comp['status'][0]"/>
                                     </dd>
                                 </dl>
+                                <div t-if="comp['all_cancelled']" class="alert alert-warning mt-3 mb-0">
+                                    Đơn bù đã bị hủy. Nếu vẫn cần bù hàng, vui lòng tạo yêu cầu mới.
+                                </div>
                                 <div class="mt-3">
                                     <div class="d-flex justify-content-between small text-muted mb-1">
                                         <span>Đã bù <strong t-out="'{:,.2f}'.format(comp['compensated_qty'])"/> <t t-out="comp['approved_uom']"/></span>
@@ -177,12 +184,12 @@
                 <div class="wujia-mdash-card">
                     <div class="wujia-mreturn-row-head">
                         <span class="wujia-mreturn-row-code" t-out="rr.name"/>
-                        <t t-set="lbl" t-value="state_labels.get(rr.state, (rr.state, 'wujia-badge-muted'))"/>
+                        <t t-set="lbl" t-value="wj_state_label(rr)"/>
                         <span t-attf-class="wujia-badge #{lbl[1]}" t-out="lbl[0]"/>
                     </div>
                     <div class="wujia-mreturn-summary-meta">
                         <span t-out="rr.sale_order_id.name or '—'"/>
-                        <span t-out="rr.request_date and rr.request_date.strftime('%d/%m/%Y') or '—'"/>
+                        <span t-out="wj_dt(rr.request_date, '%d/%m/%Y') or '—'"/>
                     </div>
                 </div>
 
@@ -191,12 +198,12 @@
                     <div class="wujia-mhist-kv">
                         <span class="wujia-mhist-kv-label">Ngày yêu cầu</span>
                         <span class="wujia-mhist-kv-value"
-                              t-out="rr.request_date and rr.request_date.strftime('%d/%m/%Y') or '—'"/>
+                              t-out="wj_dt(rr.request_date, '%d/%m/%Y') or '—'"/>
                     </div>
                     <div class="wujia-mhist-kv">
                         <span class="wujia-mhist-kv-label">Thời gian mở hàng</span>
                         <span class="wujia-mhist-kv-value"
-                              t-out="rr.opening_datetime and rr.opening_datetime.strftime('%d/%m/%Y %H:%M') or '—'"/>
+                              t-out="wj_dt(rr.opening_datetime, '%d/%m/%Y %H:%M') or '—'"/>
                     </div>
                     <div class="wujia-mhist-kv">
                         <span class="wujia-mhist-kv-label">Đơn gốc</span>
@@ -238,11 +245,20 @@
                             </span>
                         </div>
                         <div class="wujia-mhist-kv">
+                            <span class="wujia-mhist-kv-label">Đã đưa vào đơn bù</span>
+                            <span class="wujia-mhist-kv-value">
+                                <t t-out="'{:,.2f}'.format(comp['allocated_qty'])"/> <t t-out="comp['approved_uom']"/>
+                            </span>
+                        </div>
+                        <div class="wujia-mhist-kv">
                             <span class="wujia-mhist-kv-label">Tình trạng bù</span>
                             <span class="wujia-mhist-kv-value">
                                 <span t-attf-class="wujia-badge #{comp['status'][1]}" t-out="comp['status'][0]"/>
                             </span>
                         </div>
+                        <p t-if="comp['all_cancelled']" class="wujia-mticket-hint">
+                            Đơn bù đã bị hủy. Nếu vẫn cần bù hàng, vui lòng tạo yêu cầu mới.
+                        </p>
                         <div class="wujia-mreturn-progress-wrap">
                             <div class="wujia-mreturn-progress-meta">
                                 <span>Đã bù <t t-out="'{:,.2f}'.format(comp['compensated_qty'])"/></span>
