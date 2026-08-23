@@ -1,0 +1,66 @@
+\chapter{Sprint 55 --- UI Báo cáo đặt hàng theo mockup PC + Mobile (2026-08-12, viết bù sau Sprint 56)}
+
+\emph{Chapter này ghi lại Sprint 55 (12/08/2026), viết bù ngày 23/08 sau khi Sprint 56
+đóng batch C1--C10 --- vì vậy số chapter đứng sau chapter Sprint 56.}
+
+\section{Bối cảnh}
+
+Task \texttt{Tasks!STT12}: trang \texttt{/portal/reports/orders} là \textbf{trang portal
+cuối cùng} còn dựng bằng Bootstrap thô --- không theo design system, và \textbf{chưa từng có
+bố cục mobile}. BA chốt 2 mockup SVG (PC + Mobile) trong bộ
+\texttt{UI/mobile\_source\_ui\_v2\_3}; yêu cầu chuẩn hoá về đúng hệ thành phần đã dùng toàn
+portal.
+
+\section{Việc đã làm}
+
+Commit \texttt{05269b4} + hotfix \texttt{d7a7ead}, module \texttt{wujia\_portal\_report}
+(không migration, không module mới):
+
+\begin{itemize}
+\item \textbf{Template} tách 2 khối PC (\texttt{d-none d-lg-block}) / Mobile
+  (\texttt{d-lg-none}), tái dùng \texttt{wj\_page\_header} + hệ \texttt{wj-pc-*}. Hai slot
+  swap \texttt{wj-rep-pc-body} / \texttt{wj-rep-m-body} nên cơ chế \emph{lọc không reload}
+  (\texttt{wj\_ajax\_list}, Sprint 49) chạy cho \textbf{cả hai} bố cục với cùng một route
+  fragment.
+\item \textbf{CSS}: toàn bộ delta px nằm trong \texttt{portal\_report.css} --- không đụng
+  file shared (\texttt{\_components.css} / \texttt{\_pc\_components.css}).
+\item \textbf{Chart} (ApexCharts): một series cột = doanh thu, số in trong cột = số đơn,
+  trục tiền rút gọn (tr/k).
+\item \textbf{Controller}: màu trạng thái về token design system; tiền tệ format theo
+  currency công ty (\texttt{portal\_money}) thay vì nối \texttt{' đ'} cứng (luật WJ-ORD-025).
+\end{itemize}
+
+\section{Ba lỗi lộ ra khi đo, sửa kèm}
+
+\begin{enumerate}
+\item \texttt{yaxis.title=undefined} làm ApexCharts ném lỗi $\Rightarrow$ chart mobile
+  \textbf{không vẽ được gì} --- lỗi chỉ bắt được qua \texttt{pageerror}, nhìn trang chỉ thấy
+  khung trắng.
+\item Dòng ``Top sản phẩm'' có \texttt{product\_id} rỗng cho \texttt{name=False}: QWeb
+  \texttt{t-out} với giá trị \texttt{False} \textbf{bỏ luôn thẻ \texttt{<td>}} chứ không in
+  chuỗi rỗng $\Rightarrow$ lệch cả hàng bảng. Nay in ``Không xác định''.
+\item Ký hiệu tiền hardcode ở 2 chỗ template.
+\end{enumerate}
+
+Hotfix \texttt{d7a7ead} (recheck trên UAT với dữ liệu thật trải 8 tháng): nhãn tháng trục X
+bản mobile (334px) bị ApexCharts cắt thành ``01/2\ldots''; ép \texttt{trim:false} thì nhãn
+chồng nhau $\Rightarrow$ rút nhãn mobile thành ``07/26'' (PC giữ ``07/2026''), hạ cỡ chữ 9px,
+tooltip trả nhãn đầy đủ qua \texttt{tooltip.x}.
+
+\section{Nghiệm thu}
+
+Đo máy đối chiếu node SVG mockup \textbf{31/31 PASS}; lọc không reload, đổi cửa hàng, Staff bị
+chặn, ngày ngược đều đạt; responsive 1440/1366/390/375/360 overflow 0; regression 4 trang
+$\times$ 2 viewport 8/8 HTTP 200, 0 pageerror; build \texttt{-u} RC=0. \textbf{Đã deploy UAT
+12/08} (\texttt{-u wujia\_portal\_report}).
+
+\section{Bài học}
+
+\begin{itemize}
+\item \texttt{t-out} với \texttt{False} nuốt cả thẻ chứa --- field relational rỗng phải qua
+  fallback trước khi đưa vào cell bảng.
+\item Lỗi JS của thư viện chart làm chết \emph{cả khối} im lặng (giống bài học L11 inline
+  script) --- đo phải bắt \texttt{pageerror}, không tin mắt nhìn.
+\item Nhãn trục hẹp: đừng chống cắt bằng \texttt{trim:false} (chồng chữ) --- rút format nhãn
+  theo viewport rồi trả bản đầy đủ vào tooltip.
+\end{itemize}
