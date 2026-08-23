@@ -32,14 +32,15 @@
                 <span class="wujia-mhome-nav-badge wujia-bnav-noti-badge" style="display:none;">0</span>
                 <span class="wujia-mhome-nav-label">Thông báo</span>
             </a>
-            <!-- Sprint 14: "Thêm" opens the More bottom sheet (Figma WJ_MoreBottom
-                 4477:242), replacing the Sprint 12 interim sidebar toggle.
-                 wujia_mobile_more_sheet.js binds [data-wujia-more]. -->
-            <a href="#" data-wujia-more="toggle"
-               t-attf-class="wujia-mhome-nav-item #{'is-active' if _bnav_active == 'more' else ''}">
+            <!-- "Thêm" opens the More bottom sheet; wujia_mobile_more_sheet.js
+                 binds [data-wujia-more]. <button> để Space kích hoạt được
+                 (WJ-PORTAL-UI-004). -->
+            <button type="button" data-wujia-more="toggle" aria-haspopup="dialog"
+                    aria-expanded="false"
+                    t-attf-class="wujia-mhome-nav-item #{'is-active' if _bnav_active == 'more' else ''}">
                 <i class="feather icon-grid"/>
                 <span class="wujia-mhome-nav-label">Thêm</span>
-            </a>
+            </button>
         </nav>
 
         <!-- WJ_Mobile_MoreBottomSheet_Simple_v1 (Figma WJ_MoreBottom 4477:242) —
@@ -49,7 +50,7 @@
              in the Figma frame — added per user decision 2026-06-11 because the
              sheet replaces the only mobile entry point to /portal/reports/orders. -->
         <div class="wujia-msheet-backdrop d-lg-none" data-wujia-more="close"/>
-        <div class="wujia-msheet d-lg-none" role="dialog" aria-label="Thêm chức năng">
+        <div class="wujia-msheet d-lg-none" role="dialog" aria-modal="true" aria-label="Thêm chức năng">
             <div class="wujia-msheet-handle"/>
             <button type="button" class="wujia-msheet-close" data-wujia-more="close" aria-label="Đóng">
                 <i class="feather icon-x"/>

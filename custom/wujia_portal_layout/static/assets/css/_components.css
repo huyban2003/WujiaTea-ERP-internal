@@ -1152,6 +1152,10 @@ a.wujia-mhome-kpi:active { opacity: 0.85; }
     padding: 8px 0 4px;
     text-decoration: none;
     color: var(--wujia-mnav-inactive);
+    /* Tab "Thêm" là <button> (WJ-PORTAL-UI-004) — reset để đồng dạng các <a>. */
+    background: none;
+    border: 0;
+    font: inherit;
 }
 .wujia-mhome-nav-item i {
     font-size: 22px;
@@ -2322,6 +2326,9 @@ a.wujia-mhome-kpi:active { opacity: 0.85; }
     .wujia-msheet.is-open {
         transform: translateY(0);
         visibility: visible;
+        /* Chỉ transition transform: visibility flip tức thời khi mở để focus()
+           nút đóng ăn ngay (WJ-PORTAL-UI-004); chiều đóng vẫn delay theo base. */
+        transition: transform 0.25s ease;
     }
     .wujia-msheet-handle {
         width: 67px;
