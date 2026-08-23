@@ -41,4 +41,16 @@ Fix: nút "Thêm" `<a href="#">`→`<button type="button">` (Space hoạt độn
 
 ## Deploy
 
-`-u wujia_portal_layout` (19.0.32.2.0) — không data update, không module mới; bump `?v=1174` (`_wujia_theme.css`, `_components.css`, `wujia_mobile_more_sheet.js`).
+`-u wujia_portal_layout` (19.0.32.2.0) — không data update, không module mới; bump `?v=1174` (`_wujia_theme.css`, `_components.css`, `wujia_mobile_more_sheet.js`); sau quick-win dead-CSS: 19.0.32.2.1, `_components.css?v=1175`.
+
+## Đo lại trên UAT sau deploy (23/08)
+
+Chủ dự án deploy `-u wujia_portal_layout`, xác nhận XML-RPC bản `19.0.32.2.1`. Harness `scratchpad/a11y_uat_check.py` (admin, POST authenticate L13/3, cookie cửa hàng 3):
+
+- Asset sanity: `_components.css?v=1175` + `_wujia_theme.css?v=1174` + `more_sheet.js?v=1174` có mặt trong HTML.
+- **UI-003: 11/11** — `.main-menu` hidden @391 (40 Tab 0 stop lọt), visible @1920 (16 stop y nguyên), tablet 1024 mở→focus được / đóng qua overlay→hết focus.
+- **UI-004: 13/13** — Enter + Space mở → focus nút đóng, trap 15 Tab + Shift+Tab wrap, Esc/backdrop/nút X đóng + trả focus, scroll-lock gỡ, aria-expanded đúng 2 chiều.
+- Hồi quy dead-CSS 6 trang × 2 viewport: overflow 0, 0 pageerror, footer 5 tab đồng cao.
+- **Lưới B4 trên UAT: 286/286 PASS** (`scratchpad/b4_uat.py` = `b4_regression.py` thay ID thật cửa hàng 3: SO 41 / batch 2 / notification 19 / ticket 16 / return 9; login form `anh.owner` không dùng được trên UAT → admin + POST authenticate).
+
+⇒ Cả 2 issue giữ nguyên `Ready for Retest`, chờ BA; quick-win xoá CSS chết **không ảnh hưởng** issue đã fix nào.

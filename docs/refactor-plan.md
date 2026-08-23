@@ -11,6 +11,27 @@ inspection/attendance/document + survey controllers + CSV-runtime i18n trong
 
 ---
 
+## 🔴 LUẬT BẤT DI BẤT DỊCH cho MỌI cụm R (chủ dự án chốt 23/08)
+
+**Refactor KHÔNG ĐƯỢC phá issue đã fix.** Toàn bộ hành vi hiện tại là kết quả của ~115
+issue đã đóng qua QA — mỗi con số, mỗi nhãn, mỗi redirect đều có thể là "Kết quả mong
+muốn" của một issue nào đó. Trước khi sửa BẤT KỲ file nào:
+
+1. **Tra sổ trước khi đụng**: grep file định sửa trong `docs/qa-issue-ledger.yaml` +
+   `docs/*-acceptance-matrix.md` — biết những issue nào đã "đóng dấu" hành vi ở đó.
+   Con số/hành vi nằm trong acceptance BA đã duyệt thì KHÔNG đổi (kể cả khi thấy "xấu");
+   muốn đổi phải hỏi chủ dự án như tiền lệ nhịp debt C8b.
+2. **Đo TRƯỚC–SAU bằng máy, không tin mắt**: chạy lại các harness phủ vùng đụng —
+   tối thiểu **lưới B4** (`scripts/ba_spec/b4_regression.py`, 286 check phủ 17 route +
+   6 breakpoint) + tab-walk a11y + unit test các tag liên quan. CSS thì thêm
+   **semantic diff** (parse rule cũ/mới, phần MẤT = đúng danh sách chủ đích, phần THÊM = 0
+   — mẫu phiên 23/08). Kết quả trước = sau thì mới được commit.
+3. **Quy trình đã kiểm chứng phiên 23/08** (quick-win 42 rule CSS chết): sau khi xoá,
+   chạy lại acceptance + B4 + tab-walk + 24 test trên DB copy → xanh hết → deploy →
+   **đo lại trên chính UAT** cũng 286/286 + 27/27 a11y. Các cụm R làm đúng vòng này.
+
+---
+
 ## KẾT LUẬN TỔNG (đọc trước khi hoảng)
 
 **Code KHÔNG mục nát.** Khác với lo ngại, phần nền giữ kỷ luật tốt qua các sprint fix:
