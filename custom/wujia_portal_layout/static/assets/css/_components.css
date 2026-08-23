@@ -306,31 +306,6 @@ h2, .wujia-h2 { font-size: var(--wujia-font-size-h2) !important; font-weight: 60
 /* Compact date row (variant 04 — 2 pill hẹp + search btn cùng hàng) */
 .wj-filter-dates--compact .wj-filter-date { flex: 1 1 0; }
 /* Period select pill (variant 05 — dropdown kỳ công nợ, reserve cho Phase 2) */
-.wj-filter-period {
-    position: relative;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    flex: 1 1 auto;
-    height: 38px;
-    border: 1px solid var(--wujia-border);
-    border-radius: 10px;
-    background: var(--wujia-filter-field-bg);
-    padding: 0 10px;
-}
-.wj-filter-period > i { flex: 0 0 auto; font-size: 15px; color: var(--wujia-text-muted); }
-.wj-filter-period select {
-    flex: 1 1 auto;
-    min-width: 0;
-    border: 0;
-    background: transparent;
-    font-size: 12px;
-    font-weight: 700;
-    color: var(--wujia-morder-text);
-    -webkit-appearance: none;
-    appearance: none;
-    cursor: pointer;
-}
 /* Mobile chip reconcile về Figma (32h/11.3px/700). Desktop (≥992, PC noti) giữ base 13/600. */
 @media (max-width: 991.98px) {
     .wj-filter-chip { font-size: 11.3px; font-weight: 700; color: var(--wujia-text-secondary); }
@@ -446,36 +421,17 @@ h2, .wujia-h2 { font-size: var(--wujia-font-size-h2) !important; font-weight: 60
 
 /* ---------- UI-14: Responsive — let detail panel stack on tablet/mobile ---------- */
 @media (max-width: 991.98px) {
-    .wujia-two-pane { flex-direction: column !important; }
-    .wujia-two-pane > * { width: 100% !important; max-width: 100% !important; }
-}
+        }
 
 /* Sprint 9.6 (2026-05-25): Responsive auto-scale utility classes */
 
 /* Container responsive: padding-inline scales fluidly between 12px and 32px */
-.wujia-container {
-    width: 100%;
-    padding-inline: clamp(12px, 3vw, 32px);
-    margin-inline: auto;
-    max-width: 1400px;
-}
 
 /* Grid responsive: auto-fit columns, min 280px, gap scales 12-24px. */
-.wujia-grid-responsive {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(min(280px, 100%), 1fr));
-    gap: clamp(12px, 2vw, 24px);
-}
 
 /* Stack on mobile, optionally row at >=md. Add .wujia-row-md to flip to row. */
-.wujia-stack-mobile {
-    display: flex;
-    flex-direction: column;
-    gap: clamp(8px, 1.5vw, 16px);
-}
 @media (min-width: 768px) {
-    .wujia-stack-mobile.wujia-row-md { flex-direction: row; }
-}
+    }
 
 /* Sprint 9.12 (2026-05-27): UI-11 KPI Card component */
 .wujia-kpi-card-link {
@@ -514,7 +470,6 @@ h2, .wujia-h2 { font-size: var(--wujia-font-size-h2) !important; font-weight: 60
     line-height: 1;
 }
 .wujia-kpi-icon-primary { background: var(--wujia-primary); }
-.wujia-kpi-icon-success { background: var(--wujia-success); }
 .wujia-kpi-icon-warning { background: var(--wujia-warning); }
 .wujia-kpi-icon-danger  { background: var(--wujia-danger); }
 .wujia-kpi-icon-info    { background: var(--wujia-primary-dark); }
@@ -1042,15 +997,6 @@ a.wujia-mhome-kpi:active { opacity: 0.85; }
 }
 
 /* ---------- Grid "Hành động nhanh" — Figma #4712:2 v4 ---------- */
-.wujia-mhome-section-title {
-    margin: 0 0 12px;
-    font-size: 18px;
-    font-weight: 700;
-    color: var(--wujia-text-primary);
-}
-.wujia-mhome-actions .wujia-mhome-section-title {
-    margin-bottom: 8px;
-}
 /* UI-MOB-HOME-002: token thống nhất cho MỌI tiêu đề section cấp 1 ở Home =
    18px / line-height 24px / weight 700. Scope .wujia-mhome để KHÔNG đụng
    .wujia-mdash-title dùng chung Support/Return; !important để thắng global h2
@@ -1107,26 +1053,10 @@ a.wujia-mhome-kpi:active { opacity: 0.85; }
 }
 
 /* ---------- "Thông báo nổi bật" ---------- */
-.wujia-mhome-noti-head {
-    display: flex;
-    align-items: baseline;
-    justify-content: space-between;
-    gap: 8px;
-    margin-bottom: 12px;
-}
-.wujia-mhome-noti-head .wujia-mhome-section-title { margin: 0; }
-.wujia-mhome-noti-link {
-    font-size: 12px;
-    font-weight: 700;
-    white-space: nowrap;
-    color: var(--wujia-primary);
-    text-decoration: none;
-}
 /* WJ-HOME-008: block này nay dùng chung .wujia-mdash-card/-row với các block Home
    còn lại; chỉ tiêu đề block (-head/-link) là còn của riêng nó. */
 
 /* ---------- Bottom navigation (fixed, mobile only) ---------- */
-.wujia-mhome-navspacer { height: 72px; }
 .wujia-mhome-bottomnav {
     position: fixed;
     left: 0;
@@ -1376,17 +1306,6 @@ a.wujia-mhome-kpi:active { opacity: 0.85; }
 /* chip = base 32h (reconcile canonical Figma 4785:498; bỏ override 30px cũ) */
 
 /* List header */
-.wujia-morder-listhead {
-    display: flex;
-    align-items: baseline;
-    justify-content: space-between;
-    margin-bottom: 8px;
-}
-.wujia-morder-listhead-title {
-    font-size: 15px;
-    font-weight: 700;
-    color: var(--wujia-morder-text);
-}
 /* Product rows (WJ_Mobile_ProductRow_Compact v2 — mỗi row 1 card, gap 6) */
 .wujia-morder-list {
     display: flex;
@@ -1594,47 +1513,7 @@ a.wujia-mhome-kpi:active { opacity: 0.85; }
    116 = chiều cao khối tổng (đo 172.5, phần dư nằm ở padding 96 của .app-content).
    Bám token nav nên footer đổi cao thì khoảng chừa tự đổi theo. */
 .wujia-mcart { padding-bottom: calc(var(--wujia-mnav-total) + 116px); }
-.wujia-mcart-titlerow {
-    display: flex;
-    align-items: baseline;
-    justify-content: space-between;
-    margin: 4px 0 12px;
-}
-.wujia-mcart-title {
-    font-size: 24px;
-    font-weight: 700;
-    color: var(--wujia-morder-text);
-    margin: 0;
-}
 /* Back secondary button (WJ_Mobile_BackSecondaryButton — v2: 38px inline) */
-.wujia-mcart-back {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    height: 38px;
-    padding: 0 14px;
-    border: 1px solid var(--wujia-morder-primary);
-    border-radius: 10px;
-    background: var(--wujia-morder-card-bg);
-    color: var(--wujia-morder-primary);
-    font-size: 13px;
-    font-weight: 700;
-    text-decoration: none;
-    margin-bottom: 14px;
-}
-.wujia-mcart-back i { font-size: 15px; }
-.wujia-mcart-listhead {
-    display: flex;
-    align-items: baseline;
-    justify-content: space-between;
-    margin-bottom: 8px;
-}
-.wujia-mcart-listhead span:first-child {
-    font-size: 15px; font-weight: 700; color: var(--wujia-morder-text);
-}
-.wujia-mcart-listhead span:last-child {
-    font-size: 13px; font-weight: 700; color: var(--wujia-morder-text-sub);
-}
 /* Cart rows (WJ_Mobile_CartRow v2 — mỗi row 1 card, gap 6) */
 .wujia-mcart-scroll {
     display: flex;
@@ -2065,39 +1944,7 @@ a.wujia-mhome-kpi:active { opacity: 0.85; }
 /* Sprint 13 — Mobile LỊCH SỬ ĐẶT HÀNG (Figma 4445:4) — List + Detail */
 
 /* Title chung (List + Detail) — v2: titlerow + count / detail back button */
-.wujia-mhist-titlerow {
-    display: flex;
-    align-items: baseline;
-    justify-content: space-between;
-    margin: 4px 0 14px;
-}
 /* chip = base 32h (reconcile canonical Figma 4785:498; bỏ override 28/12 cũ) */
-.wujia-mhist-title {
-    font-size: 24px;
-    font-weight: 700;
-    color: var(--wujia-morder-text);
-    margin: 0;
-}
-.wujia-mhist-detail-head {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    margin: 4px 0 14px;
-}
-.wujia-mhist-back {
-    flex: 0 0 auto;
-    width: 42px;
-    height: 42px;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    border: 1px solid var(--wujia-morder-border);
-    border-radius: 10px;
-    background: var(--wujia-morder-card-bg);
-    color: var(--wujia-morder-primary);
-    font-size: 20px;
-    text-decoration: none;
-}
 
 /* ====================== LIST ====================== */
 
@@ -2434,21 +2281,9 @@ a.wujia-mhome-kpi:active { opacity: 0.85; }
 /* Sprint 15 — Mobile KIẾN THỨC (Figma WJ_Knowledge_Mobile 4475:2) — List + De… */
 @media (max-width: 991.98px) {
     /* ---------- Title row ---------- */
-    .wujia-mknow-titlerow {
-        display: flex;
-        align-items: baseline;
-        justify-content: space-between;
-        gap: 8px;
-    }
-    /* RESP-MOB-SHELL-003: bỏ top-pad riêng 11px — mốc đầu nội dung dùng chung
+        /* RESP-MOB-SHELL-003: bỏ top-pad riêng 11px — mốc đầu nội dung dùng chung
        --wujia-mcontent-top ở .wujia-mpage. */
-    .wujia-mknow-title {
-        font-size: 25px;        /* Figma 4475:2 — title 25/700 (was 22/800) */
-        font-weight: 700;
-        color: var(--wujia-morder-text);
-        margin: 0;
-    }
-
+    
     /* ---------- Card base (search / empty / article detail) ---------- */
     .wujia-mknow-card {
         background: var(--wujia-morder-card-bg);
@@ -2581,43 +2416,7 @@ a.wujia-mhome-kpi:active { opacity: 0.85; }
     }
 
     /* ====================== DETAIL ====================== */
-    .wujia-mknow-backrow {
-        display: flex;
-        align-items: center;
-        gap: 12px;
-    }
-    .wujia-mknow-back {
-        flex: 0 0 auto;
-        width: 44px;
-        height: 44px;
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        border: 1px solid var(--wujia-morder-border);
-        border-radius: 50%;
-        background: var(--wujia-morder-card-bg);
-        color: var(--wujia-morder-text);
-        text-decoration: none;
-    }
-    .wujia-mknow-back i { font-size: 18px; line-height: 1; }
-    .wujia-mknow-backmeta {
-        display: flex;
-        flex-direction: column;
-        gap: 2px;
-        min-width: 0;
-    }
-    .wujia-mknow-eyebrow {
-        font-size: 12px;
-        font-weight: 700;
-        letter-spacing: 0.04em;
-        text-transform: uppercase;
-        color: var(--wujia-morder-primary);
-    }
-    .wujia-mknow-crumb {
-        font-size: 13px;
-        color: var(--wujia-morder-text-sub);
-    }
-
+                        
     .wujia-mknow-article { padding: 16px; }
     .wujia-mknow-article-title {
         font-size: 19px;
@@ -2846,61 +2645,14 @@ a.wujia-mhome-kpi:active { opacity: 0.85; }
     }
     .wujia-mdash-row-sub.is-xs { font-size: 11px; }
 
-    .wujia-mdash-amount {
-        flex: 0 0 auto;
-        margin-left: auto;
-        font-size: 13px;
-        font-weight: 700;
-        color: var(--wujia-morder-text);
-        white-space: nowrap;
-    }
-    .wujia-mdash-row .wujia-badge { flex: 0 0 auto; white-space: nowrap; }
+        .wujia-mdash-row .wujia-badge { flex: 0 0 auto; white-space: nowrap; }
 
 /* Sprint 17 — Mobile Ticket Hỗ trợ (Figma Mobile_Ticket) — List/Create/Detail… */
 @media (max-width: 991.98px) {
     /* ---------- Top row List (H1 + nút Tạo) ---------- */
-    .wujia-mticket-toprow {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        gap: 8px;
-    }
-    .wujia-mticket-h1 {
-        font-size: 22px;
-        font-weight: 700;
-        color: var(--wujia-morder-text);
-        margin: 0;
-    }
-    .wujia-mticket-create-pill {
-        flex: 0 0 auto;
-        display: inline-flex;
-        align-items: center;
-        gap: 4px;
-        height: 34px;
-        padding: 0 16px;
-        border-radius: 999px;
-        background: var(--wujia-morder-primary);
-        color: #FFFFFF;
-        font-size: 14px;
-        font-weight: 700;
-        text-decoration: none;
-        white-space: nowrap;
-    }
-    .wujia-mticket-create-pill:hover,
-    .wujia-mticket-create-pill:focus { color: #FFFFFF; }
-
+                
     /* ---------- Back row (Create / Detail) ---------- */
-    .wujia-mticket-back {
-        display: inline-flex;
-        align-items: center;
-        gap: 8px;
-        font-size: 15px;
-        font-weight: 600;
-        color: var(--wujia-morder-text);
-        text-decoration: none;
-    }
-    .wujia-mticket-back i { font-size: 20px; line-height: 1; }
-
+        
     /* ---------- Form tạo ticket (label + hint) ---------- */
     .wujia-mticket-label {
         display: block;
