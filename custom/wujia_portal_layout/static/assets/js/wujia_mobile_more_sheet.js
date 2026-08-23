@@ -28,11 +28,22 @@
             return sheet.classList.contains('is-open');
         }
 
+        // WJ-PORTAL-UI-004: sheet là dialog modal — focus vào nút đóng khi mở,
+        // Tab/Shift+Tab quay vòng trong sheet, đóng thì trả focus về nút Thêm.
+        function focusables() {
+            return sheet.querySelectorAll('button, a[href]');
+        }
+
         function open() {
             sheet.classList.add('is-open');
             backdrop.classList.add('is-open');
             document.body.classList.add('wujia-msheet-open');
             toggleTab.classList.add('is-active');
+            toggleTab.setAttribute('aria-expanded', 'true');
+            var closeBtn = sheet.querySelector('.wujia-msheet-close');
+            if (closeBtn) {
+                closeBtn.focus();
+            }
         }
 
         function close() {
@@ -42,6 +53,8 @@
             if (!tabWasActive) {
                 toggleTab.classList.remove('is-active');
             }
+            toggleTab.setAttribute('aria-expanded', 'false');
+            toggleTab.focus();
         }
 
         toggleTab.addEventListener('click', function (ev) {
@@ -61,8 +74,33 @@
         });
 
         document.addEventListener('keydown', function (ev) {
-            if (ev.key === 'Escape' && isOpen()) {
+            if (!isOpen()) {
+                return;
+            }
+            if (ev.key === 'Escape') {
                 close();
+                return;
+            }
+            if (ev.key !== 'Tab') {
+                return;
+            }
+            var items = focusables();
+            if (!items.length) {
+                return;
+            }
+            var first = items[0];
+            var last = items[items.length - 1];
+            var active = document.activeElement;
+            // Focus đang ngoài sheet (vd còn trên nút Thêm) → kéo vào trong.
+            if (!sheet.contains(active)) {
+                ev.preventDefault();
+                (ev.shiftKey ? last : first).focus();
+            } else if (ev.shiftKey && active === first) {
+                ev.preventDefault();
+                last.focus();
+            } else if (!ev.shiftKey && active === last) {
+                ev.preventDefault();
+                first.focus();
             }
         });
     }

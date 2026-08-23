@@ -493,3 +493,10 @@ html body .content .content-wrapper {
 @media (max-width: 767.98px) {
     .drag-target { display: none !important; }
 }
+
+/* WJ-PORTAL-UI-003: sidebar off-canvas (<1200px) chỉ ẩn bằng transform/left nên
+   logo + link vẫn nằm trong tab order. visibility gỡ khỏi cả tab order lẫn
+   a11y tree; .menu-open (hamburger tablet) khôi phục focus. Desktop bất biến. */
+@media (max-width: 1199.98px) {
+    body:not(.menu-open) .main-menu { visibility: hidden; }
+}
