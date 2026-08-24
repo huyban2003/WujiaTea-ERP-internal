@@ -482,7 +482,7 @@ class WujiaFranchiseInspection(models.Model):
                     vals['attendance_line_ids'] = att_lines
 
         records = super(WujiaFranchiseInspection, self).create(vals_list)
-        records.mapped('franchise_id')._compute_latest_inspection_info()
+        records.mapped('franchise_id').sudo()._compute_latest_inspection_info()
         return records
 
    
@@ -835,11 +835,11 @@ class WujiaFranchiseInspection(models.Model):
                     if vals['state'] in schedule_state_keys and rec.schedule_id.state != vals['state']:
                         rec.schedule_id.state = vals['state']
         if any(f in vals for f in ('state', 'total_score', 'grade_id', 'planned_date', 'franchise_id')):
-            self.mapped('franchise_id')._compute_latest_inspection_info()
+            self.mapped('franchise_id').sudo()._compute_latest_inspection_info()
         return res
 
     def unlink(self):
-        stores = self.mapped('franchise_id')
+        stores = self.mapped('franchise_id').sudo()
         res = super().unlink()
         if stores:
             stores._compute_latest_inspection_info()
@@ -1765,11 +1765,11 @@ class WujiaFranchiseInspectionAttendanceLine(models.Model):
                 if self.phone:
                     user_vals['phone'] = self.phone.strip()
                 if user_vals:
-                    self.member_id.user_id.write(user_vals)
-            self.member_id.write(vals)
+                    self.member_id.user_id.sudo().write(user_vals)
+            self.member_id.sudo().write(vals)
         else:
             # Tìm xem user đã tồn tại theo tên/sđt hoặc tạo mới user + member
-            users = self.env['res.users'].search([('name', '=ilike', self.employee_name.strip())], limit=1)
+            users = self.env['res.users'].sudo().search([('name', '=ilike', self.employee_name.strip())], limit=1)
             if not users:
                 # Tạo portal user placeholder
                 import random
@@ -1783,10 +1783,10 @@ class WujiaFranchiseInspectionAttendanceLine(models.Model):
                 }
                 if portal_group:
                     user_vals['group_ids'] = [(6, 0, [portal_group.id])]
-                users = self.env['res.users'].create(user_vals)
+                users = self.env['res.users'].sudo().create(user_vals)
             
             # Tạo member mới
-            new_member = self.env['wujia.franchise.member'].create({
+            new_member = self.env['wujia.franchise.member'].sudo().create({
                 'franchise_id': store_id,
                 'user_id': users.id,
                 'role': self.role or 'staff',
