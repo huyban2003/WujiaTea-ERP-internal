@@ -37,25 +37,33 @@
                         <div class="card-body p-2">
                             <form method="get" action="/portal/return" class="row g-2 align-items-center">
                                 <div class="col-md-3 col-12">
-                                    <label class="small text-muted mb-1">Trạng thái</label>
-                                    <select name="state" class="form-select form-select-sm">
+                                    <label for="wj-ret-state-pc" class="small text-muted mb-1">Trạng thái</label>
+                                    <select id="wj-ret-state-pc" name="state" class="form-select form-select-sm">
                                         <option value="">— Tất cả —</option>
-                                        <t t-foreach="state_labels.items()" t-as="kv">
-                                            <option t-att-value="kv[0]"
-                                                    t-att-selected="'selected' if state == kv[0] else None"
-                                                    t-out="kv[1][0]"/>
+                                        <t t-foreach="filter_options" t-as="opt">
+                                            <option t-att-value="opt[0]"
+                                                    t-att-selected="'selected' if state == opt[0] else None"
+                                                    t-out="opt[1]"/>
                                         </t>
                                     </select>
                                 </div>
-                                <div class="col-md-3 col-6">
-                                    <label class="small text-muted mb-1">Từ ngày</label>
-                                    <input type="date" name="date_from" class="form-control form-control-sm" t-att-value="date_from"/>
+                                <!-- UAT-BH-005: PC trước đây thiếu ô từ khoá dù controller đã nhận `q`. -->
+                                <div class="col-md-3 col-12">
+                                    <label for="wj-ret-q-pc" class="small text-muted mb-1">Từ khoá</label>
+                                    <input id="wj-ret-q-pc" type="text" name="q"
+                                           class="form-control form-control-sm"
+                                           placeholder="Mã YC / mã đơn / sản phẩm"
+                                           t-att-value="q or ''"/>
                                 </div>
-                                <div class="col-md-3 col-6">
-                                    <label class="small text-muted mb-1">Đến ngày</label>
-                                    <input type="date" name="date_to" class="form-control form-control-sm" t-att-value="date_to"/>
+                                <div class="col-md-2 col-6">
+                                    <label for="wj-ret-from-pc" class="small text-muted mb-1">Từ ngày</label>
+                                    <input id="wj-ret-from-pc" type="date" name="date_from" class="form-control form-control-sm" t-att-value="date_from"/>
                                 </div>
-                                <div class="col-md-3 col-12 text-end">
+                                <div class="col-md-2 col-6">
+                                    <label for="wj-ret-to-pc" class="small text-muted mb-1">Đến ngày</label>
+                                    <input id="wj-ret-to-pc" type="date" name="date_to" class="form-control form-control-sm" t-att-value="date_to"/>
+                                </div>
+                                <div class="col-md-2 col-12 text-end">
                                     <label class="small text-muted mb-1 d-block">&#160;</label>
                                     <button type="submit" class="btn btn-primary btn-sm">
                                         <i class="fa fa-search"/> Lọc
@@ -168,10 +176,21 @@
                         <div class="wj-filter-search">
                             <div class="wj-filter-search-field">
                                 <i class="feather icon-search"/>
-                                <input type="text" name="q" placeholder="Tìm mã YC / mã đơn" t-att-value="q or ''"/>
+                                <input type="text" name="q" placeholder="Mã YC / mã đơn / sản phẩm" t-att-value="q or ''"/>
                             </div>
                             <button type="submit" class="wj-filter-search-btn"><i class="feather icon-search"/></button>
                         </div>
+                        <!-- UAT-BH-005: mobile trước đây thiếu lọc trạng thái. -->
+                        <select name="state" class="wj-filter-select"
+                                aria-label="Lọc theo trạng thái"
+                                onchange="this.form.submit()">
+                            <option value="">— Tất cả trạng thái —</option>
+                            <t t-foreach="filter_options" t-as="opt">
+                                <option t-att-value="opt[0]"
+                                        t-att-selected="'selected' if state == opt[0] else None"
+                                        t-out="opt[1]"/>
+                            </t>
+                        </select>
                         <div class="wj-filter-dates">
                             <label class="wj-filter-date">
                                 <i class="feather icon-calendar"/>

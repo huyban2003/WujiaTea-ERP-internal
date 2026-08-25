@@ -232,12 +232,35 @@
     </record>
 
     <!-- Return Order — SO tạo từ bù hàng (is_return_order=True) -->
+    <!-- UAT-BH-003: list view mặc định của `sale` có sample="1" ⇒ khi chưa có SO bù,
+         web dựng bản ghi giả REF0001… cạnh empty state (web/model/sample_server.js).
+         View riêng, sample="0" ⇒ rỗng là rỗng. -->
+    <record id="view_wujia_return_order_list" model="ir.ui.view">
+        <field name="name">wujia.return.order.list</field>
+        <field name="model">sale.order</field>
+        <field name="arch" type="xml">
+            <list string="Compensation orders" sample="0" create="false"
+                  decoration-muted="state == 'cancel'">
+                <field name="name"/>
+                <field name="franchise_id"/>
+                <field name="partner_id"/>
+                <field name="date_order"/>
+                <field name="amount_total" sum="Total"/>
+                <field name="state"/>
+            </list>
+        </field>
+    </record>
+
     <record id="action_wujia_return_order" model="ir.actions.act_window">
         <field name="name">Compensation orders</field>
         <field name="res_model">sale.order</field>
         <field name="view_mode">list,form</field>
         <field name="domain">[('is_return_order', '=', True)]</field>
         <field name="context">{'search_default_filter_return_order': 1}</field>
+        <field name="view_ids" eval="[(5, 0, 0),
+            (0, 0, {'sequence': 10, 'view_mode': 'list',
+                    'view_id': ref('view_wujia_return_order_list')}),
+            (0, 0, {'sequence': 20, 'view_mode': 'form'})]"/>
         <field name="help" type="html">
             <p class="o_view_nocontent_smiling_face">No compensation order yet.</p>
             <p>The zero-value compensation SO appears once HQ runs "Process compensation".</p>

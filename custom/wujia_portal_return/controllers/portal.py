@@ -74,6 +74,36 @@ COMPENSATION_STATUS_LABELS = {
 }
 
 
+# Bộ lọc trạng thái portal (UAT-BH-006) — nguồn DUY NHẤT cho dropdown PC + mobile.
+# Nhãn ở đây phải trùng nhãn badge trên card, nên lọc theo NHÃN chứ không theo state
+# thô: 'reviewing' và 'processing' cùng badge "Đang xử lý" ⇒ gộp; "Đang bù một phần"
+# là pseudo-state (processing + compensation_status='partial'), không có trong schema.
+# Giữ 'Nháp' vì portal cho lưu nháp nên danh sách có thật trạng thái này.
+FILTER_OPTIONS = [
+    ('draft', 'Nháp'),
+    ('submitted', 'Đã gửi'),
+    ('processing', 'Đang xử lý'),
+    ('approved', 'Đã duyệt'),
+    ('partial', 'Đang bù một phần'),
+    ('done', 'Hoàn tất'),
+    ('rejected', 'Từ chối'),
+    ('cancelled', 'Đã huỷ'),
+]
+
+
+def state_filter_domain(key):
+    """Domain của một lựa chọn lọc — [] nếu key rỗng hoặc không hợp lệ."""
+    if key == 'partial':
+        return [('state', '=', 'processing'),
+                ('compensation_status', '=', 'partial')]
+    if key == 'processing':
+        return [('state', 'in', ('reviewing', 'processing')),
+                '!', ('compensation_status', '=', 'partial')]
+    if key in dict(FILTER_OPTIONS):
+        return [('state', '=', key)]
+    return []
+
+
 def state_label(rr):
     """Nhãn trạng thái portal — 6 nhãn BA, suy từ state + tiến độ bù.
 
@@ -96,8 +126,7 @@ class WujiaPortalReturn(http.Controller):
                                   self._list_ctx(no_franchise=True, notice='no_store'))
 
         domain = [('franchise_id', 'in', list(franchise_ids))]
-        if state and state in STATE_LABELS:
-            domain.append(('state', '=', state))
+        domain += state_filter_domain(state)
         q = (q or '').strip()
         if q:
             # Action 2: mã yêu cầu · mã đơn · chuyến · tên/mã sản phẩm.
@@ -252,6 +281,7 @@ class WujiaPortalReturn(http.Controller):
             'no_franchise': False, 'returns': [], 'pager': {}, 'total': 0,
             'state_labels': STATE_LABELS, 'wj_state_label': state_label,
             'comp_status_labels': COMPENSATION_STATUS_LABELS,
+            'filter_options': FILTER_OPTIONS,
             'state': '', 'date_from': '', 'date_to': '', 'q': '', 'notice': '',
             'wj_dt': fmt_local_dt,
         }

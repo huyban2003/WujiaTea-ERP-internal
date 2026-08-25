@@ -306,6 +306,18 @@ h2, .wujia-h2 { font-size: var(--wujia-font-size-h2) !important; font-weight: 60
 /* Compact date row (variant 04 — 2 pill hẹp + search btn cùng hàng) */
 .wj-filter-dates--compact .wj-filter-date { flex: 1 1 0; }
 /* Period select pill (variant 05 — dropdown kỳ công nợ, reserve cho Phase 2) */
+/* Select pill — cùng hình học .wj-filter-date, dùng cho lọc trạng thái (UAT-BH-005). */
+.wj-filter-select {
+    width: 100%;
+    height: 38px;
+    border: 1px solid var(--wujia-border);
+    border-radius: 10px;
+    background: var(--wujia-filter-field-bg);
+    padding: 0 10px;
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--wujia-morder-text);
+}
 /* Mobile chip reconcile về Figma (32h/11.3px/700). Desktop (≥992, PC noti) giữ base 13/600. */
 @media (max-width: 991.98px) {
     .wj-filter-chip { font-size: 11.3px; font-weight: 700; color: var(--wujia-text-secondary); }

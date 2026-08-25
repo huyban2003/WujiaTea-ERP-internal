@@ -134,7 +134,12 @@ class CompensationProcessWizard(models.TransientModel):
             return False
         return True
 
-    def _build_group_commands(self, requests):
+    def _bucket_requests(self, requests):
+        """Gom request thành nhóm SO bù, FIFO theo ngày duyệt. Trả dict key → recordset.
+
+        Dùng CHUNG cho default_get (dựng nhóm) và action_confirm (tính lại từ dữ
+        liệu sống) — hai nơi phải gom y hệt nhau thì khoá nhóm mới khớp được.
+        """
         ordered = requests.sorted(
             key=lambda r: (r.approved_date or r.request_date, r.request_date, r.id))
         buckets = {}
@@ -146,6 +151,28 @@ class CompensationProcessWizard(models.TransientModel):
                    req.compensation_policy, round(req.compensation_unit_qty, 6))
             buckets.setdefault(key, self.env['wujia.return.request'])
             buckets[key] |= req
+        return buckets
+
+    @staticmethod
+    def _group_key(group):
+        """Khoá của dòng nhóm trên wizard — phải khớp key của `_bucket_requests`."""
+        return (group.franchise_id.id, group.compensation_product_id.id,
+                group.claim_uom_id.id, group.delivery_uom_id.id,
+                group.policy, round(group.unit_qty, 6))
+
+    def _live_buckets(self):
+        """Gom lại từ request_ids theo dữ liệu HIỆN TẠI (gọi sau khi đã khoá)."""
+        requests = self.request_ids.exists().filtered(self._is_eligible)
+        return self._bucket_requests(requests)
+
+    def _total_claim(self, requests, claim_uom):
+        """Tổng quyền lợi còn lại của nhóm, chốt về precision ĐVT quyền lợi."""
+        total = sum(self._convert(r.unallocated_qty, r.approved_uom_id, claim_uom)
+                    for r in requests)
+        return float_round(total, precision_rounding=(claim_uom.rounding or 0.01))
+
+    def _build_group_commands(self, requests):
+        buckets = self._bucket_requests(requests)
         commands = []
         for reqs in buckets.values():
             commands.append((0, 0, self._group_vals(reqs)))
@@ -156,11 +183,7 @@ class CompensationProcessWizard(models.TransientModel):
         delivery_uom = reqs[0].compensation_delivery_uom_id
         policy = reqs[0].compensation_policy
         unit_qty = reqs[0].compensation_unit_qty
-        total_claim = sum(
-            self._convert(r.unallocated_qty, r.approved_uom_id, claim_uom)
-            for r in reqs)
-        # Chốt về precision ĐVT quyền lợi — tránh float drift qua nhiều vòng bù.
-        total_claim = float_round(total_claim, precision_rounding=(claim_uom.rounding or 0.01))
+        total_claim = self._total_claim(reqs, claim_uom)
         suggested, covered = self._claim_to_delivery(
             total_claim, policy, unit_qty, claim_uom, delivery_uom)
         dist = dict(self._fifo_distribute(reqs, covered, claim_uom))
@@ -185,12 +208,16 @@ class CompensationProcessWizard(models.TransientModel):
 
     # ------------------------------------------------------------- confirm (7-8)
     def _lock_and_revalidate(self):
-        """Bước 7: khoá request NOWAIT + đọc lại unallocated_qty chống 2 user."""
+        """Bước 7: khoá request NOWAIT rồi gom lại nhóm theo dữ liệu SỐNG.
+
+        Trả dict `key nhóm → recordset request`. Wizard chỉ được tin **một** con
+        số do HQ nhập (`delivery_qty`); quyền lợi còn lại đọc lại từ DB dưới khoá,
+        rồi so với `total_claim_qty` client gửi lên — lệch nghĩa là có người khác
+        vừa đụng vào, phải mở lại wizard.
+        """
         requests = self.request_ids
         if not requests:
-            return
-        snap = {l.request_id.id: l.request_remaining_qty
-                for l in self.group_ids.line_ids}
+            return {}
         try:
             with self.env.cr.savepoint():
                 self.env.cr.execute(
@@ -202,20 +229,31 @@ class CompensationProcessWizard(models.TransientModel):
                 "Yêu cầu đang được người khác xử lý. Vui lòng thử lại sau."))
         requests.invalidate_recordset(
             ['unallocated_qty', 'allocated_qty', 'compensated_qty', 'remaining_qty'])
-        for req in requests:
-            # Re-check state: request có thể bị huỷ/từ chối SAU khi mở wizard
-            # (unallocated_qty không đổi khi chỉ đổi state → phải kiểm riêng).
-            if req.state not in ('approved', 'processing') or \
-                    abs((req.unallocated_qty or 0.0) - snap.get(req.id, 0.0)) > EPS:
+
+        buckets = self._live_buckets()
+        for g in self.group_ids:
+            if not (g.franchise_id and g.compensation_product_id
+                    and g.claim_uom_id and g.delivery_uom_id):
+                # Bất biến kỹ thuật: view PHẢI có force_save trên field chỉ-đọc.
                 raise UserError(_(
-                    "Dữ liệu đã thay đổi (yêu cầu '%s'). Vui lòng đóng và mở lại "
-                    "wizard.", req.name))
+                    "Wizard bị mất dữ liệu nhóm khi lưu (thiếu force_save trong "
+                    "giao diện). Vui lòng báo bộ phận kỹ thuật."))
+            reqs = buckets.get(self._group_key(g))
+            # Nhóm biến mất = request bị huỷ/từ chối/đã bù đủ sau khi mở wizard.
+            if not reqs or abs(self._total_claim(reqs, g.claim_uom_id)
+                               - (g.total_claim_qty or 0.0)) > EPS:
+                raise UserError(_(
+                    "Dữ liệu đã thay đổi (nhóm '%s' của cửa hàng '%s'). Vui lòng "
+                    "đóng và mở lại wizard.",
+                    g.compensation_product_id.display_name or '?',
+                    g.franchise_id.display_name or '?'))
+        return buckets
 
     def action_confirm(self):
         self.ensure_one()
-        if not self.group_ids:
+        if not self.group_ids or not self.request_ids:
             raise UserError(_("Không có nhóm nào để xử lý."))
-        self._lock_and_revalidate()
+        buckets = self._lock_and_revalidate()
 
         SaleOrder = self.env['sale.order'].sudo()
         SaleOrderLine = self.env['sale.order.line'].sudo()
@@ -241,7 +279,7 @@ class CompensationProcessWizard(models.TransientModel):
                     raise UserError(_(
                         "Nhóm '%s': SL giao vượt quyền lợi còn lại.",
                         g.compensation_product_id.display_name))
-                active.append((g, covered))
+                active.append((g, covered, buckets[self._group_key(g)]))
             if not active:
                 continue
             partner = franchise.partner_id
@@ -258,7 +296,7 @@ class CompensationProcessWizard(models.TransientModel):
                 'state': 'sent',  # BA STT3 #11: tạo ở 'sent', HQ tự confirm
             })
             created |= order
-            for g, covered in active:
+            for g, covered, reqs in active:
                 # Tạo từng dòng SO rồi gắn allocation ngay — không phụ thuộc thứ
                 # tự order_line (2 group cùng SP/ĐVT khác policy vẫn map đúng dòng).
                 so_line = SaleOrderLine.create({
@@ -269,8 +307,9 @@ class CompensationProcessWizard(models.TransientModel):
                     'price_unit': 0.0,
                 })
                 so_line.price_unit = 0.0  # ép 0đ, không theo pricelist (BA điểm 2)
-                dist = self._fifo_distribute(
-                    g.line_ids.mapped('request_id'), covered, g.claim_uom_id)
+                # FIFO rải trên recordset SỐNG (không đọc g.line_ids: client có thể
+                # không gửi sub-list nếu HQ không mở từng nhóm — UAT-BH-001).
+                dist = self._fifo_distribute(reqs, covered, g.claim_uom_id)
                 for req, alloc_qty in dist:
                     if alloc_qty <= EPS:
                         continue
@@ -307,23 +346,26 @@ class CompensationProcessWizardGroup(models.TransientModel):
     _description = 'Compensation SO group (wizard)'
     _order = 'id'
 
+    # ⚠️ KHÔNG khai readonly=True ở tầng Python cho field phải sống tới
+    # action_confirm: web client BỎ mọi field readonly khi gửi vals lên server
+    # (`record.js` _getChanges: readonly && !forceSave → skip) ⇒ wizard được tạo
+    # với giá trị rỗng/0 dù default_get tính đúng (UAT-BH-001). Khoá ở VIEW bằng
+    # readonly="1" force_save="1".
     wizard_id = fields.Many2one(
         'wujia.compensation.process.wizard', required=True, ondelete='cascade')
-    franchise_id = fields.Many2one(
-        'wujia.franchise.management', string='Store', readonly=True)
+    franchise_id = fields.Many2one('wujia.franchise.management', string='Store')
     compensation_product_id = fields.Many2one(
-        'product.product', string='Compensation product', readonly=True)
-    delivery_uom_id = fields.Many2one('uom.uom', string='Delivery UoM', readonly=True)
-    claim_uom_id = fields.Many2one('uom.uom', string='Entitlement UoM', readonly=True)
+        'product.product', string='Compensation product')
+    delivery_uom_id = fields.Many2one('uom.uom', string='Delivery UoM')
+    claim_uom_id = fields.Many2one('uom.uom', string='Entitlement UoM')
     policy = fields.Selection(
         [('exact', 'Exact quantity'), ('accumulate', 'Whole-pack accumulation')],
-        string='Policy', readonly=True)
+        string='Policy')
     unit_qty = fields.Float(
-        string='Entitlement per delivery unit', digits=UOM_DIGITS, readonly=True)
-    total_claim_qty = fields.Float(
-        string='Total entitlement', digits=UOM_DIGITS, readonly=True)
+        string='Entitlement per delivery unit', digits=UOM_DIGITS)
+    total_claim_qty = fields.Float(string='Total entitlement', digits=UOM_DIGITS)
     suggested_delivery_qty = fields.Float(
-        string='Proposed delivery qty', digits=UOM_DIGITS, readonly=True)
+        string='Proposed delivery qty', digits=UOM_DIGITS)
     delivery_qty = fields.Float(string='Delivery qty', digits=UOM_DIGITS)
     line_ids = fields.One2many(
         'wujia.compensation.process.wizard.line', 'group_id', string='Request')
@@ -336,12 +378,11 @@ class CompensationProcessWizardLine(models.TransientModel):
     _description = 'Compensation request line (wizard)'
     _order = 'id'
 
+    # Cùng lý do UAT-BH-001 như model group: readonly chỉ đặt ở view + force_save.
     group_id = fields.Many2one(
         'wujia.compensation.process.wizard.group', required=True, ondelete='cascade')
-    request_id = fields.Many2one(
-        'wujia.return.request', string='Request', readonly=True)
-    request_uom_id = fields.Many2one('uom.uom', string='Entitlement UoM', readonly=True)
+    request_id = fields.Many2one('wujia.return.request', string='Request')
+    request_uom_id = fields.Many2one('uom.uom', string='Entitlement UoM')
     request_remaining_qty = fields.Float(
-        string='Qty to compensate', digits=UOM_DIGITS, readonly=True)
-    allocate_qty = fields.Float(
-        string='Allocated qty (FIFO)', digits=UOM_DIGITS, readonly=True)
+        string='Qty to compensate', digits=UOM_DIGITS)
+    allocate_qty = fields.Float(string='Allocated qty (FIFO)', digits=UOM_DIGITS)
