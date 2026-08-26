@@ -41,9 +41,18 @@ html body {
 /* UI-06 (Sprint 39, retest): heading vẫn render "Inter Tight" — Odoo 19 web
    assets đặt heading font-family = Inter Tight, thắng inherit từ html body.
    Ép Inter cho MỌI heading + page-header title (đo computed-style server: trước
-   fix = "Inter Tight"; sau fix phải = "Inter"). */
-.content-wrapper h1, .content-wrapper h2, .content-wrapper h3,
-.content-wrapper h4, .content-wrapper h5, .content-wrapper h6,
+   fix = "Inter Tight"; sau fix phải = "Inter").
+   WJ-PORTAL-UI-002 (D2): neo cũ là `.content-wrapper` nên mọi heading NGOÀI nó
+   (BlankShell mobile .wujia-mpage, khối PC của wujia_portal_inspection, popup
+   chuông) vẫn Inter Tight — rule khớp element luôn thắng inherit từ html body,
+   bất kể specificity. Đổi neo sang `html body` để phủ cả trang, phủ thêm class
+   .h1..h6 (wujia_portal_inspection dùng class="h6").
+   🔴 CỐ Ý không nới rule font-weight ở trên: nới sẽ ép heading mobile về 700,
+   phá weight 800 của CMP-SH-001 (C8a/C8b) và bảng đo B3a/B4 đã Pass. */
+html body h1, html body h2, html body h3,
+html body h4, html body h5, html body h6,
+html body .h1, html body .h2, html body .h3,
+html body .h4, html body .h5, html body .h6,
 .wj-page-header__title,
 .wj-page-header__title h1, .wj-page-header__title h2 {
     font-family: var(--wujia-font-family) !important;

@@ -168,7 +168,15 @@
     --wujia-mobile-strip-border-bottom: 1px solid var(--wujia-border);
 
     /* ---------- Typography ---------- */
-    --wujia-font-family:    'Inter', sans-serif;
+    /* WJ-PORTAL-UI-002 (D2): Inter tự host chỉ khai unicode-range Latin/Latin-ext
+       (inter.css) nên glyph Thái/Trung rơi về generic sans-serif — mỗi máy một font.
+       Nối fallback theo TÊN font hệ thống (0 byte tải thêm, đúng perf-first 1500 user);
+       'Odoo Unicode Support Noto' của Odoo chỉ phủ Cyrillic/Hebrew/Arabic/Telugu. */
+    --wujia-font-family:    'Inter',
+                            'Noto Sans Thai', 'Leelawadee UI', 'Thonburi',
+                            'Noto Sans SC', 'Noto Sans CJK SC', 'Microsoft YaHei', 'PingFang SC',
+                            'Odoo Unicode Support Noto',
+                            sans-serif;
     --wujia-font-size-body: 15px;
     --wujia-font-size-h1:   32px;
     --wujia-font-size-h2:   24px;
