@@ -15,29 +15,39 @@ prompt của cụm đó rồi bắt tay.
 **Prompt gõ vào phiên sau:**
 
 > `/wujia-start`
-> làm cụm D3a. Trước khi bắt tay, xử 2 việc tồn của phiên 27/08 trong `docs/next-session-clusters-D.md` §Bàn giao: (1) cầu ghi Google Sheet đang 404, (2) nhãn "tất cả" của bộ lọc bù hàng lệch PC↔mobile.
+> làm cụm D3a. Trước khi bắt tay, xử việc tồn của phiên 27/08 trong `docs/next-session-clusters-D.md` §Bàn giao: nhãn "tất cả" của bộ lọc bù hàng lệch PC↔mobile, sửa 2 dòng và ghép vào chuyến deploy D3.
 
-**Tồn 1 — 🔴 CẦU GHI SHEET (Apps Script bridge) ĐANG 404, PHẢI XỬ TRƯỚC.**
-`sheet_io.ping()` → `HTTP Error 404`; GET thẳng `webapp_url` lại ra **trang đăng nhập của
-Google** ⇒ bản deploy web app đã bị thay hoặc đổi quyền truy cập từ "Anyone" sang hạn chế.
-Đọc sheet vẫn bình thường (đi qua `export?format=csv` công khai), **chỉ ghi là chết**.
-Hệ quả cụ thể đang treo: **5 issue đã deploy nhưng cột `Build / Deploy` vẫn ghi "Chờ deploy
-UAT"** (`WJ-PORTAL-UI-002` dòng 108 · `UAT-BH-001` 111 · `UAT-BH-003` 112 · `UAT-BH-005` 113 ·
-`UAT-BH-006` 114) ⇒ **BA đọc sheet sẽ tưởng chưa cài được lên UAT nên chưa retest.**
-Cách xử: chủ dự án deploy lại bridge theo `docs/03_OAUTH_SHEET_SETUP.md` (nhớ chọn
-*Who has access: Anyone*), dán URL mới vào `scripts/ba_spec/sheet_endpoint.json`, rồi chạy
-**script mới viết sẵn ở phiên 27/08**:
+**Việc sheet — ✅ ĐÃ XONG 27/08, không còn tồn.** Cả 5 issue đã deploy nay ghi
+**`ĐÃ DEPLOY UAT 27/08/2026 — sẵn sàng retest`** ở cột `Build / Deploy` + ngày cập nhật 27/08
++ 5 dòng `7. ISSUE HISTORY`, verify lại bằng CSV công khai (`WJ-PORTAL-UI-002` dòng 108 ·
+`UAT-BH-001` 111 · `UAT-BH-003` 112 · `UAT-BH-005` 113 · `UAT-BH-006` 114). BA retest được ngay.
 
-```
-cd scripts/ba_spec
-python3 qa_deploy_mark.py WJ-PORTAL-UI-002 UAT-BH-001 UAT-BH-003 UAT-BH-005 UAT-BH-006   # xem trước
-python3 qa_deploy_mark.py --apply --date 27/08/2026 ... --note "<số đo sau deploy>"
-```
+⚠️ **Bài học công cụ, ghi để phiên sau khỏi chẩn đoán sai như phiên này:**
 
-`qa_deploy_mark.py` sinh ra vì `qa_sync.py` **cố ý idempotent** — issue đã `Ready for Retest`
-thì không ghi đè nữa, nên cột Build/Deploy mắc kẹt ở "Chờ deploy UAT" sau mỗi lần cài đặt.
-Script chỉ đổi phần đầu cột P + cột Ngày cập nhật + thêm dòng History, **không** đụng trạng
-thái/owner. Nếu bridge vẫn chết thì nhờ BA sửa tay 5 ô đó.
+1. **`qa_sync.py` cố ý idempotent** — issue đã `Ready for Retest` thì không ghi đè nữa, nên cột
+   Build/Deploy **mắc kẹt ở "Chờ deploy UAT" sau mỗi lần cài đặt** và BA tưởng chưa deploy được.
+   Đã viết `scripts/ba_spec/qa_deploy_mark.py` cho đúng việc này: chỉ đổi phần đầu cột P + cột
+   Ngày cập nhật + thêm dòng History, **không** đụng trạng thái/owner. **Sau mỗi lần chủ dự án
+   deploy UAT, chạy nó:**
+   ```
+   cd scripts/ba_spec
+   python3 qa_deploy_mark.py <ID> <ID> …                     # dry-run
+   python3 qa_deploy_mark.py --apply --date dd/mm/yyyy <ID> … --note "<số đo sau deploy>"
+   ```
+2. 🔴 **Bridge Apps Script trả 404 KHÔNG có nghĩa là nó chết.** Phiên này `sheet_io.ping()` lỗi
+   404 vài lần liên tiếp, GET thẳng `webapp_url` ra trang "Không tìm thấy trang — Drive", đã kết
+   luận nhầm là deployment bị xoá/đổi quyền. Vài phút sau **ping lại 4/4 OK, không sửa gì cả** —
+   là **lỗi tạm của phía Google**. ⇒ Gặp 404 thì **thử lại sau vài phút** trước khi bảo chủ dự
+   án deploy lại bridge.
+3. 🔴 **404 không có nghĩa là chưa ghi.** Lần `--apply` bị 404 đó **thực ra đã ghi xong ô** trên
+   sheet, chỉ là response không về nên Python raise **trước khi** kịp thêm dòng History ⇒ dữ
+   liệu ghi một nửa mà log báo "fail". ⇒ Bridge lỗi thì **đọc lại sheet để kiểm**, đừng cho là
+   chưa ghi rồi chạy lại mù.
+4. ⚠️ **Tra dòng phải dùng đúng tên tab `"Issue List"`** (có trong `KNOWN_GID` ⇒ đi
+   `export?format=csv`, số dòng tuyệt đối). Gọi `read_values("5. Issue List")` sẽ rơi xuống
+   đường `gviz` và **ăn theo filter đang bật của tab** ⇒ chỉ ra 25 dòng, issue nằm ở dòng 7 thay
+   vì 108 — ghi theo số đó là **đè nhầm sang issue khác**. Tab History cũng vậy: đọc phải là
+   `"7. ISSUE HISTORY"`, còn ghi thì `append_row("ISSUE HISTORY", …)` (bridge tự khớp gần đúng).
 
 ⚠️ **Bẫy đã trả giá khi tra dòng**: `sheet_io.read_values("5. Issue List")` đi đường `gviz`
 nên **ăn theo filter đang bật của tab** ⇒ chỉ ra 25 dòng và số dòng LỆCH HẲN (issue nằm ở dòng
@@ -45,7 +55,7 @@ nên **ăn theo filter đang bật của tab** ⇒ chỉ ra 25 dòng và số d�
 gọi đúng tên `"Issue List"` (có trong `KNOWN_GID` ⇒ đi `export?format=csv`, bỏ qua filter) —
 đúng như `qa_sync.py` đang làm.
 
-**Tồn 2 — nhãn option "tất cả" lệch PC↔mobile** (phát hiện khi đo lại D1 trên UAT):
+**Tồn duy nhất — nhãn option "tất cả" lệch PC↔mobile** (phát hiện khi đo lại D1 trên UAT):
 `custom/wujia_portal_return/views/portal_return_list.xml:42` ghi `— Tất cả —`, còn `:187` ghi
 `— Tất cả trạng thái —`. 8 nhãn trạng thái thật thì khớp 100% (sinh từ nguồn duy nhất
 `FILTER_OPTIONS` mà D1 dựng), riêng option rỗng bị **gõ tay 2 chỗ**. Đúng loại lệch mà
