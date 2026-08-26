@@ -51,7 +51,11 @@ của R1 (hex cứng → token).
 **Tiến độ cụm:** D1 ✅ 25/08/2026 (4 issue → Ready for Retest; `-u wujia_portal_return,wujia_sale,wujia_portal_layout`
 trên DB copy `wujia_tea_d1` port 8065 → RC=0; **26/26 đo đạt (100%)**, 6 test mới + 33 hồi quy
 = 39 test xanh, lưới B4 286/286, tab-walk 2 viewport sạch; bảng đối chiếu
-`docs/d1-acceptance-matrix.md`) · D2 ⬜ · D3 ⬜ · D4 ⬜ · D5 ⬜ · D6 ⬜ · R1–R5 ⬜
+`docs/d1-acceptance-matrix.md`) · **D2 ✅ 26/08/2026** (`b70d26a`, WJ-PORTAL-UI-002 →
+Ready for Retest; `-u wujia_portal_layout` trên DB copy `wujia_tea_d2` port 8066 → RC=0;
+**14/14 acceptance**, chỗ ≠ Inter **145 → 0** trên 80 ô đo **ngay trên UAT**, B4 286/286,
+tab-walk 331 stop giữ nguyên thứ tự + ring; `docs/d2-acceptance-matrix.md` +
+`docs/d2-font-inventory.md`) · D3 ⬜ · D4 ⬜ · D5 ⬜ · D6 ⬜ · R1–R5 ⬜
 
 ---
 
@@ -74,7 +78,29 @@ trên DB copy `wujia_tea_d1` port 8065 → RC=0; **26/26 đo đạt (100%)**, 6 
 - **Còn nợ sang D6:** control lọc mobile cao **38px**, chưa đạt touch target 44–48px của
   **UAT-BH-009**.
 
-## D2 — Font Inter + fallback CJK (WJ-PORTAL-UI-002) — `-u wujia_portal_layout`
+## D2 — Font Inter + fallback CJK (WJ-PORTAL-UI-002) ✅ — `-u wujia_portal_layout`
+
+Đã xong 26/08 (`b70d26a`). Kết luận để D3/D4/D6 khỏi đào lại:
+
+- **Gốc rễ không phải "component tự override font"** như đề xuất BA đoán: không module nào
+  khai Inter Tight cả. Rule ép Inter (`_wujia_theme.css`, UI-06/S39) neo `.content-wrapper`,
+  còn rule `h1..h6{font-family:"Inter Tight"…}` đến từ bundle `website` ⇒ mọi heading ngoài
+  neo đó thua, vì **rule khớp element luôn thắng kế thừa, bất kể specificity**. Đổi neo sang
+  `html body` là hết, một luật cho toàn portal.
+- `wj_section_header` (component chung C8) cũng nằm trong số dính ⇒ đừng vá theo màn.
+- **`--wujia-font-family` nay đã có fallback Thái/CJK** → dùng thẳng cho spec `CMP-CH-001`/
+  `CMP-SC-001` (D3/D4) và cho BH-007 (D6), **không khai lại stack font ở chỗ khác**.
+  Bẫy đã trả giá: phải khai **cả `'Noto Sans SC'` lẫn `'Noto Sans CJK SC'`**, thiếu cái sau
+  thì chữ Hán rơi sang biến thể **JP**.
+- 🔴 **Rule `font-weight:700 !important` ở `_wujia_theme.css:35-40` VẪN neo `.content-wrapper`**
+  — cố ý để nguyên (nới sẽ phá weight 800 của `CMP-SH-001`). D3 đụng weight thì nhớ điều này.
+- Harness còn dùng lại được: `scratchpad/d2_font_audit.py` (quét font 16 route × 5 bp trên UAT,
+  có `--patch`/`--control`), `d2_compare.py`, `d2_tabwalk.py` (tab-walk A/B bằng
+  `ctx.route()` trả file CSS bản HEAD — **cách A/B CSS trên cùng một server**).
+- ⚠️ Bẫy đo đã trả giá 2 lần: (1) không set cookie `wujia_active_franchise_id` ⇒ portal ra
+  "Chưa chọn cửa hàng", đo trang rỗng; (2) chỉ quét leaf node ⇒ bỏ sót heading có `<span>` con.
+
+### Prompt gốc (giữ để tham chiếu)
 
 > Prompt: "làm cụm D2". Rule hiện có chỉ phủ `.content-wrapper h1..h6` +
 > `.wj-page-header__title` (`_wujia_theme.css:41-50`, ghi chú UI-06 S39); các màn BA nêu
