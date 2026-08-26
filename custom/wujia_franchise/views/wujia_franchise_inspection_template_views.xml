@@ -77,6 +77,9 @@
                         class="btn-primary" invisible="state == 'active'" />
                     <button name="action_create_new_version" string="Create New Version"
                         type="object" class="btn-success" invisible="state == 'draft'" />
+                    <button name="action_export_criteria_excel" string="Xuất Excel tiêu chí"
+                        type="object" class="btn-secondary" icon="fa-file-text-o"
+                        invisible="not line_ids" />
                     <button name="action_reset_draft" string="Reset to Draft" type="object"
                         invisible="state == 'draft'" />
                     <button name="action_archive" string="Archive" type="object"
@@ -108,28 +111,54 @@
                     </group>
                     <notebook>
                         <page string="Inspection Criteria" name="lines">
+                            <div class="d-flex justify-content-between align-items-center mb-2"
+                                invisible="state in ('active', 'archived')">
+                                <span class="text-muted small">
+                                    <i class="fa fa-info-circle me-1" /> Có thể bấm <strong>"Nhập
+                                    Excel"</strong> hoặc <strong>"Tải mẫu Excel"</strong> trên thanh
+                                    điều khiển để nhập nhanh danh sách tiêu chí. </span>
+                                <div>
+                                    <button name="action_open_import_wizard" string="Nhập từ Excel"
+                                        type="object"
+                                        class="btn btn-sm btn-outline-success me-1"
+                                        icon="fa-file-excel-o" />
+                                    <button name="action_download_excel_sample"
+                                        string="Tải file mẫu" type="object"
+                                        class="btn btn-sm btn-outline-secondary" icon="fa-download" />
+                                </div>
+                            </div>
                             <field name="line_ids" readonly="state in ('active', 'archived')">
-                                <list editable="bottom" limit="100" decoration-bf="display_type == 'section'" decoration-info="display_type == 'section'">
+                                <list editable="bottom" limit="100"
+                                    decoration-bf="display_type == 'section'"
+                                    decoration-info="display_type == 'section'">
                                     <control>
-                                        <create name="add_line_control" string="Add a line" context="{'default_display_type': 'line'}"/>
-                                        <create name="add_section_control" string="Add a section" context="{'default_display_type': 'section'}"/>
+                                        <create name="add_line_control" string="Add a line"
+                                            context="{'default_display_type': 'line'}" />
+                                        <create name="add_section_control" string="Add a section"
+                                            context="{'default_display_type': 'section'}" />
                                     </control>
                                     <field name="sequence" widget="handle" />
                                     <field name="display_type" column_invisible="True" />
                                     <field name="criterion_code" />
                                     <field name="category_id" />
-                                    <field name="content" invisible="display_type == 'section'" required="display_type == 'line'" />
-                                    <field name="criterion_type" invisible="display_type == 'section'" />
-                                    <field name="deduction_score" invisible="display_type == 'section'" />
-                                    <field name="require_note_if_fail" invisible="display_type == 'section'" />
-                                    <field name="require_evidence_if_fail" invisible="display_type == 'section'" />
-                                    <field name="active" widget="boolean_toggle" invisible="display_type == 'section'" />
+                                    <field name="content" invisible="display_type == 'section'"
+                                        required="display_type == 'line'" />
+                                    <field name="criterion_type"
+                                        invisible="display_type == 'section'" />
+                                    <field name="deduction_score"
+                                        invisible="display_type == 'section'" />
+                                    <field name="require_note_if_fail"
+                                        invisible="display_type == 'section'" />
+                                    <field name="require_evidence_if_fail"
+                                        invisible="display_type == 'section'" />
+                                    <field name="active" widget="boolean_toggle"
+                                        invisible="display_type == 'section'" />
                                 </list>
                             </field>
                         </page>
                     </notebook>
                 </sheet>
-                <chatter/>
+                <chatter />
             </form>
         </field>
     </record>
@@ -165,6 +194,50 @@
             <p class="o_view_nocontent_smiling_face">
                 Create a new inspection template for the franchise store system!
             </p>
+        </field>
+    </record>
+
+    <!-- Inspection Template Import Wizard View -->
+    <record id="view_wujia_franchise_inspection_template_import_wizard_form" model="ir.ui.view">
+        <field name="name">wujia.franchise.inspection.template.import.wizard.form</field>
+        <field name="model">wujia.franchise.inspection.template.import.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Nhập Tiêu Chí Khảo Sát Từ Excel">
+                <div class="alert alert-info d-flex align-items-center mb-3" role="alert">
+                    <i class="fa fa-info-circle fa-2x me-3 text-info" />
+                    <div>
+                        <h6 class="alert-heading fw-bold mb-1">Hướng dẫn nhập tiêu chí từ file Excel</h6>
+                        <ul class="mb-0 ps-3 small">
+                            <li>Chỉ chấp nhận file Excel định dạng <strong>.xlsx</strong> hoặc <strong>
+                                .xlsm</strong>.</li>
+                            <li>Nếu chưa có file mẫu chuẩn, vui lòng bấm nút <strong>"Tải file mẫu
+                                Excel"</strong> bên dưới.</li>
+                            <li>Dòng có Loại dòng là <em>"Section / Phân mục"</em> sẽ tạo tiêu đề
+                                phân nhóm, các dòng sau thuộc nhóm đó.</li>
+                        </ul>
+                    </div>
+                </div>
+                <group>
+                    <group>
+                        <field name="template_id" readonly="1" force_save="1"
+                            options="{'no_open': True}" />
+                        <field name="file_data" filename="file_name" widget="binary" />
+                        <field name="file_name" invisible="1" />
+                    </group>
+                    <group>
+                        <field name="import_mode" widget="radio" />
+                        <field name="auto_create_category" widget="boolean_toggle" />
+                    </group>
+                </group>
+                <footer>
+                    <button name="action_import_excel" string="Nhập Dữ Liệu / Import" type="object"
+                        class="btn-primary" icon="fa-upload" />
+                    <button name="action_download_sample_excel" string="Tải File Mẫu Excel"
+                        type="object"
+                        class="btn-outline-secondary" icon="fa-download" />
+                    <button string="Hủy / Cancel" class="btn-secondary" special="cancel" />
+                </footer>
+            </form>
         </field>
     </record>
 
