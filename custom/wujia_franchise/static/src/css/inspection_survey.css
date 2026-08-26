@@ -806,3 +806,49 @@ body {
     color: #dc2626;
     border-color: #fca5a5;
 }
+
+
+/* Signature Responsive Scale & Padding */
+#sigPreviewContainer {
+    position: relative;
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 10px;
+    height: 220px;
+    width: 100%;
+    max-width: 580px;
+    margin: 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    overflow: hidden;
+    padding: 16px;
+    box-sizing: border-box;
+}
+
+#signaturePreviewImg {
+    max-height: 180px;
+    max-width: 90%;
+    width: auto;
+    height: auto;
+    object-fit: contain;
+    pointer-events: none;
+    display: block;
+    margin: 0 auto;
+    transition: transform 0.2s ease;
+}
+
+@media (max-width: 768px) {
+    #sigPreviewContainer {
+        height: 190px !important;
+        min-height: 190px !important;
+        padding: 12px 14px !important;
+    }
+    #signaturePreviewImg {
+        max-height: 155px !important;
+        max-width: 86% !important;
+        transform: scale(0.88) !important;
+        transform-origin: center center !important;
+    }
+}

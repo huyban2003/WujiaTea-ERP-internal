@@ -1301,13 +1301,29 @@
         });
       }
 
+      function exportSafePaddedCanvas(sourceCanvas) {
+        const w = sourceCanvas.width;
+        const h = sourceCanvas.height;
+        const outCanvas = document.createElement("canvas");
+        outCanvas.width = w;
+        outCanvas.height = h;
+        const outCtx = outCanvas.getContext("2d");
+        
+        // Scale content by 92% and center to guarantee zero edge cropping
+        const scale = 0.92;
+        const offX = (w * (1 - scale)) / 2;
+        const offY = (h * (1 - scale)) / 2;
+        outCtx.drawImage(sourceCanvas, offX, offY, w * scale, h * scale);
+        return outCanvas.toDataURL("image/png");
+      }
+
       if (btnSaveSignModal) {
         btnSaveSignModal.addEventListener("click", function () {
           if (!hasDrawn) {
             showCustomAlert("Thông báo", "Vui lòng vẽ chữ ký trước khi đồng ý!");
             return;
           }
-          const dataUrl = sigCanvas.toDataURL("image/png");
+          const dataUrl = exportSafePaddedCanvas(sigCanvas);
           if (sigDataInput) sigDataInput.value = dataUrl;
           if (signaturePreviewImg) {
             signaturePreviewImg.src = dataUrl;

@@ -23,7 +23,7 @@
                 <meta http-equiv="Pragma" content="no-cache" />
                 <meta http-equiv="Expires" content="0" />
                 <!-- File CSS rieng voi cache-buster -->
-                <link rel="stylesheet" href="/wujia_franchise/static/src/css/inspection_survey.css?v=1787733825" />
+                <link rel="stylesheet" href="/wujia_franchise/static/src/css/inspection_survey.css?v=1787736927" />
             </head>
             <body>
                 <script type="text/javascript">
@@ -723,7 +723,7 @@
                                 </div>
                                 <div style="padding: 18px;">
                                     <!-- Khung xem trước chữ ký (Chuẩn giao diện như Backend) -->
-                                    <div id="sigPreviewContainer" role="button" tabindex="0" style="position: relative; background: #ffffff; border: 1px solid #e2e8f0; border-radius: 8px; height: 240px; min-height: 240px; width: 100%; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.2s ease; overflow: hidden; padding: 10px; box-sizing: border-box;" title="Bấm vào để mở bảng ký tên">
+                                    <div id="sigPreviewContainer" role="button" tabindex="0" style="position: relative; background: #ffffff; border: 1px solid #e2e8f0; border-radius: 10px; height: 240px; min-height: 240px; width: 100%; max-width: 600px; margin: 0 auto; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.2s ease; overflow: hidden; padding: 12px; box-sizing: border-box;" title="Bấm vào để mở bảng ký tên">
                                         <div id="sigEmptyPrompt" t-att-style="'display: none;' if has_signature else 'text-align: center; color: #2563eb;'">
                                             <div style="width: 44px; height: 44px; background: #eff6ff; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; margin-bottom: 6px;">
                                                 <i class="fa fa-pencil" style="font-size: 20px; color: #2563eb;"></i>
@@ -735,7 +735,7 @@
                                                 <t t-out="t.get('label:wujia.franchise.inspection_survey:prompt_sign_desc', 'Mở khung vẽ chữ ký cảm ứng')" />
                                             </div>
                                         </div>
-                                        <img id="signaturePreviewImg" t-att-src="signature_image_url" t-att-style="'display: block;' if has_signature else 'display: none;'" style="max-height: 220px; max-width: 96%; width: 100%; height: 100%; object-fit: contain; pointer-events: none;" />
+                                        <img id="signaturePreviewImg" t-att-src="signature_image_url" t-att-style="'display: block;' if has_signature else 'display: none;'" style="max-height: 216px; max-width: 100%; width: auto; height: auto; object-fit: contain; pointer-events: none;" />
                                     </div>
                                     <input type="hidden" id="signatureDataInput" name="signature_image" />
                                     <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 10px; font-size: 12px; color: #64748b;">
@@ -943,7 +943,7 @@
 
                 <!-- File JavaScript riêng -->
                 <!-- File JavaScript rieng voi cache-buster -->
-                <script type="text/javascript" src="/wujia_franchise/static/src/js/inspection_survey.js?v=1787733825"></script>
+                <script type="text/javascript" src="/wujia_franchise/static/src/js/inspection_survey.js?v=1787736927"></script>
             
     <!-- Modal Thêm Nhân Viên Điểm Danh -->
     <div id="addStaffModalOverlay" class="custom-modal-overlay" style="display: none; position: fixed; inset: 0; background: rgba(15, 23, 42, 0.6); backdrop-filter: blur(4px); z-index: 9999; align-items: center; justify-content: center; padding: 20px;">
@@ -1018,8 +1018,8 @@
                         &amp;times;
                     </button>
                 </div>
-                <div style="padding: 20px; background: #ffffff;">
-                    <div style="position: relative; background: #ffffff; border: 1px solid #cbd5e1; border-radius: 8px; height: 260px; min-height: 260px; width: 100%; touch-action: none !important; display: flex; align-items: center; justify-content: center; cursor: crosshair; overflow: hidden;">
+                <div style="padding: 16px 20px; background: #ffffff;">
+                    <div style="position: relative; background: #ffffff; border: 1px solid #cbd5e1; border-radius: 10px; height: 240px; min-height: 240px; width: 100%; max-width: 600px; margin: 0 auto; touch-action: none !important; display: flex; align-items: center; justify-content: center; cursor: crosshair; overflow: hidden; box-shadow: inset 0 1px 3px rgba(0,0,0,0.03);">
                         <canvas id="signatureCanvas" style="width: 100%; height: 100%; position: absolute; inset: 0; z-index: 2; touch-action: none !important;"></canvas>
                         <div id="sigModalPlaceholder" style="color: #94a3b8; font-size: 14px; font-weight: 500; pointer-events: none; z-index: 1; text-align: center;">
                             <i class="fa fa-pencil mb-2" style="font-size: 24px; display: block; color: #cbd5e1;"></i>

@@ -1157,7 +1157,13 @@ class WujiaFranchiseInspection(models.Model):
 
     def action_print_pdf(self):
         self.ensure_one()
-        return self.env.ref('wujia_franchise.action_report_franchise_inspection').report_action(self)
+        action = self.env.ref('wujia_franchise.action_report_franchise_inspection').report_action(self)
+        store_name = self.franchise_id.name or ''
+        plan_date = self.planned_date.strftime('%d-%m-%Y') if self.planned_date else ''
+        custom_name = f"Báo cáo Khảo sát Giám sát [{store_name}] [{plan_date}]"
+        action['name'] = custom_name
+        action['display_name'] = custom_name
+        return action
 
     def get_report_translations(self, lang=None):
         try:
