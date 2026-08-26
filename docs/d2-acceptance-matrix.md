@@ -79,3 +79,40 @@ rà: `/portal/debt/payment-history`, `/portal/reports/orders`, `/portal/info-req
 ```
 Không module mới · không cập nhật dữ liệu · `?v=1177` đã bump (còn thấy font cũ = cache trình
 duyệt/proxy).
+
+---
+
+## 🔁 Đo lại CHỈ-ĐỌC trên chính UAT SAU KHI DEPLOY (27/08/2026)
+
+Chủ dự án đã chạy `-u wujia_portal_layout`. Xác nhận qua XML-RPC:
+**`wujia_portal_layout 19.0.32.4.0 installed`** (khớp manifest trên đĩa) và trang thật phục vụ
+**`_variables.css?v=1177` + `_wujia_theme.css?v=1177`** ⇒ asset đã ăn, không còn cache cũ.
+
+⚠️ Lượt này **KHÔNG nhúng CSS** — cả "trước" (`d2_before.json`, đo 26/08 trên UAT chưa deploy)
+lẫn "sau" (`d2_uat_deployed.json`, đo 27/08 trên UAT đã deploy) đều là **trang thật nguyên
+trạng** ⇒ **không còn artifact nhúng lặp** như bảng đối chứng ở trên. Đây là phép so sạch nhất
+của cả cụm.
+
+| # | Hạng mục | Trước deploy | Sau deploy | Kết quả |
+|---|---|---|---|---|
+| 1 | Chỗ ≠ Inter (hiện / ẩn) | **49 / 96 = 145** | **0 / 0** | ✅ |
+| 2 | Ô có chuỗi `"Inter Tight"` trong computed | 80/80 | **0/80** | ✅ |
+| 3 | HTTP 200 · `pageerror` · tràn ngang | 80 / 0 / 0 | **80 / 0 / 0** | ✅ |
+| 4 | `scrollHeight` từng trang | — | **0/80 ô lệch** | ✅ |
+| 5 | Số dòng heading (`getClientRects().length`) | — | **0 heading lệch** | ✅ |
+| 6 | `font-weight` từng heading | — | **0 heading lệch** (weight 800 `CMP-SH-001` nguyên vẹn) | ✅ |
+| 7 | Font icon (`feather`+`FontAwesome`, 4.965 glyph) | 4.965 | **4.965, giống hệt 80/80 ô** | ✅ |
+| 8 | Token `--wujia-font-family` trên trang thật | `'Inter', sans-serif` | đủ stack Thai + CJK + Odoo Noto | ✅ |
+| 9 | `getPlatformFontsForNode` — Việt | Inter Tight | **Inter** | ✅ |
+| 10 | … Thái `ข้อมูลส่วนตัว` | (may rủi) | **Noto Sans Thai** | ✅ |
+| 11 | … Trung `个人资料` | Noto Sans CJK **JP** | **Noto Sans CJK SC** | ✅ |
+| 12 | Chỗ BA than: desktop Khảo sát `wj-pc-card__title` "Danh sách phiếu khảo sát" | Inter Tight | **Inter / 700** | ✅ |
+| 13 | Lưới B4 trên chính UAT (id thật) | 286/286 | **286/286 PASS** | ✅ |
+| 14 | Tab-walk 6 route × 2 viewport | — | **346 stop**, 342 có focus ring (4 chỗ thiếu là **có sẵn từ trước**), **0 điểm dừng nào còn font ≠ Inter** | ✅ |
+
+⇒ **14/14 sau deploy.** LIMIT 6 ("chưa deploy, cần đo lại") **đã đóng**. Các LIMIT 1–5 vẫn
+nguyên (fallback là tên font hệ thống; đo trên Linux; `zh_CN` chưa bật; cố ý không nới
+`font-weight`; popup chuông ngoài phạm vi BA nêu).
+
+**Harness:** `scratchpad/d2_font_audit.py` (không cờ `--patch`) · `scratchpad/d2_b4_uat.py`
+(vá 2 chỗ của `b4_regression.py` cho chạy được trên UAT: login admin + id thật).

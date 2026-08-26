@@ -8,6 +8,53 @@ Kế hoạch đầy đủ: `~/.claude/plans/bright-conjuring-sutherland.md`; chu
 **Cách dùng:** `/wujia-start` → nói "làm cụm D&lt;n&gt;" → Claude đọc file này, lấy đúng khối
 prompt của cụm đó rồi bắt tay.
 
+---
+
+## 📌 BÀN GIAO cho phiên sau (chốt 27/08/2026)
+
+**Prompt gõ vào phiên sau:**
+
+> `/wujia-start`
+> làm cụm D3a. Trước khi bắt tay, xử 2 việc tồn của phiên 27/08 trong `docs/next-session-clusters-D.md` §Bàn giao: (1) cầu ghi Google Sheet đang 404, (2) nhãn "tất cả" của bộ lọc bù hàng lệch PC↔mobile.
+
+**Tồn 1 — 🔴 CẦU GHI SHEET (Apps Script bridge) ĐANG 404, PHẢI XỬ TRƯỚC.**
+`sheet_io.ping()` → `HTTP Error 404`; GET thẳng `webapp_url` lại ra **trang đăng nhập của
+Google** ⇒ bản deploy web app đã bị thay hoặc đổi quyền truy cập từ "Anyone" sang hạn chế.
+Đọc sheet vẫn bình thường (đi qua `export?format=csv` công khai), **chỉ ghi là chết**.
+Hệ quả cụ thể đang treo: **5 issue đã deploy nhưng cột `Build / Deploy` vẫn ghi "Chờ deploy
+UAT"** (`WJ-PORTAL-UI-002` dòng 108 · `UAT-BH-001` 111 · `UAT-BH-003` 112 · `UAT-BH-005` 113 ·
+`UAT-BH-006` 114) ⇒ **BA đọc sheet sẽ tưởng chưa cài được lên UAT nên chưa retest.**
+Cách xử: chủ dự án deploy lại bridge theo `docs/03_OAUTH_SHEET_SETUP.md` (nhớ chọn
+*Who has access: Anyone*), dán URL mới vào `scripts/ba_spec/sheet_endpoint.json`, rồi chạy
+**script mới viết sẵn ở phiên 27/08**:
+
+```
+cd scripts/ba_spec
+python3 qa_deploy_mark.py WJ-PORTAL-UI-002 UAT-BH-001 UAT-BH-003 UAT-BH-005 UAT-BH-006   # xem trước
+python3 qa_deploy_mark.py --apply --date 27/08/2026 ... --note "<số đo sau deploy>"
+```
+
+`qa_deploy_mark.py` sinh ra vì `qa_sync.py` **cố ý idempotent** — issue đã `Ready for Retest`
+thì không ghi đè nữa, nên cột Build/Deploy mắc kẹt ở "Chờ deploy UAT" sau mỗi lần cài đặt.
+Script chỉ đổi phần đầu cột P + cột Ngày cập nhật + thêm dòng History, **không** đụng trạng
+thái/owner. Nếu bridge vẫn chết thì nhờ BA sửa tay 5 ô đó.
+
+⚠️ **Bẫy đã trả giá khi tra dòng**: `sheet_io.read_values("5. Issue List")` đi đường `gviz`
+nên **ăn theo filter đang bật của tab** ⇒ chỉ ra 25 dòng và số dòng LỆCH HẲN (issue nằm ở dòng
+7 thay vì 108). Ghi theo số dòng đó là **ghi đè nhầm issue khác**. Muốn số dòng tuyệt đối phải
+gọi đúng tên `"Issue List"` (có trong `KNOWN_GID` ⇒ đi `export?format=csv`, bỏ qua filter) —
+đúng như `qa_sync.py` đang làm.
+
+**Tồn 2 — nhãn option "tất cả" lệch PC↔mobile** (phát hiện khi đo lại D1 trên UAT):
+`custom/wujia_portal_return/views/portal_return_list.xml:42` ghi `— Tất cả —`, còn `:187` ghi
+`— Tất cả trạng thái —`. 8 nhãn trạng thái thật thì khớp 100% (sinh từ nguồn duy nhất
+`FILTER_OPTIONS` mà D1 dựng), riêng option rỗng bị **gõ tay 2 chỗ**. Đúng loại lệch mà
+`UAT-BH-005` đang dẹp, tuy chỉ là chữ hiển thị (cùng `value=""`, không đổi kết quả lọc).
+Sửa 2 dòng, **ghép vào chuyến deploy của D3**, không deploy riêng.
+
+**Trạng thái khác:** hàng đợi deploy **TRỐNG** · Issue List **0 `Ready for Dev`** ngoài lứa D
+đang chạy · nhánh `dev/2026-08-26-d2` đã merge, `main` = `f0a7cb4` trở đi.
+
 **Thứ tự chạy:** D1 → D2 → D3 (nhiều session D3a…) → D4 (D4a…) → D5 (D5a…) → D6 → **R1–R5**.
 Lý do: D1 là 2 High chức năng, độc lập. D2 rẻ và là **tiền đề** của spec CardHeader/SurfaceCard
 ("Inter + fallback Unicode") và của BH-007 (tên song ngữ CJK). D3 → D4 → D5 theo đúng quan hệ
@@ -56,6 +103,14 @@ Ready for Retest; `-u wujia_portal_layout` trên DB copy `wujia_tea_d2` port 806
 **14/14 acceptance**, chỗ ≠ Inter **145 → 0** trên 80 ô đo **ngay trên UAT**, B4 286/286,
 tab-walk 331 stop giữ nguyên thứ tự + ring; `docs/d2-acceptance-matrix.md` +
 `docs/d2-font-inventory.md`) · D3 ⬜ · D4 ⬜ · D5 ⬜ · D6 ⬜ · R1–R5 ⬜
+
+🚚 **D1 + D2 ĐÃ DEPLOY UAT 27/08** (`wujia_portal_layout 19.0.32.4.0` · `wujia_portal_return
+19.0.2.7.0` · `wujia_sale 19.0.4.3.0`, xác nhận XML-RPC) **+ đo lại chỉ-đọc ngay trên UAT**:
+D2 **14/14** (chỗ ≠ Inter 145→0, `scrollHeight`/số dòng/`font-weight`/icon **0 lệch trên 80 ô**,
+B4 286/286, tab-walk 346 stop) · D1 **27/28**. **Hàng đợi deploy: TRỐNG.**
+🔴 **Việc kèm cho phiên sau**: option "tất cả" của bộ lọc bù hàng lệch chữ PC↔mobile
+(`portal_return_list.xml:42` `— Tất cả —` vs `:187` `— Tất cả trạng thái —`) — gõ tay 2 chỗ,
+đúng loại lệch UAT-BH-005 đang dẹp; sửa 2 dòng, **ghép vào chuyến deploy D3**.
 
 ---
 

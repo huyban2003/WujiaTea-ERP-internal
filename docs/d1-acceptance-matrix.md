@@ -141,3 +141,57 @@ attachment asset là tự sinh lại; (b) `wujia_portal_remediation` "inconsiste
 | `views/portal_return_list.xml` | ô từ khoá PC · select trạng thái mobile · thống nhất placeholder |
 | `wujia_portal_layout/static/assets/css/_components.css` | thêm `.wj-filter-select` (class mới, không đụng selector cũ) — `?v=1176` |
 | `tests/test_compensation_wizard_d1.py` | 6 test mô phỏng đúng đường web client |
+
+---
+
+## 🔁 Đo lại CHỈ-ĐỌC trên chính UAT SAU KHI DEPLOY (27/08/2026)
+
+XML-RPC xác nhận **`wujia_portal_return 19.0.2.7.0` · `wujia_sale 19.0.4.3.0` ·
+`wujia_portal_layout 19.0.32.4.0`** — cả 3 `installed`, khớp manifest trên đĩa.
+Harness: `scratchpad/d1_uat_verify.py`. **Kết quả 27/28 Pass**, 1 Fail là **phát hiện thật**
+(xem cuối mục).
+
+🔴 **UAT-BH-001 CỐ Ý KHÔNG ĐO ở đây**: chạy wizard "Create compensation SO" sẽ **sinh SO +
+allocation thật** trên server — vi phạm giới hạn QA §10 (không tạo đơn thật). Để BA retest.
+Bằng chứng của BH-001 nằm ở phần đo trên DB copy phía trên (SO `S00227`, 8/8 Pass) + 6 unit test.
+
+| Hạng mục | Đo trên UAT | Kết quả |
+|---|---|---|
+| **BH-005** PC có ô từ khoá `q` | 383.8×28.3px, có `<label for>` | ✅ |
+| **BH-005** mobile có ô từ khoá `q` | 285×38px | ✅ |
+| **BH-005** PC có select trạng thái | 383.8×30.4px | ✅ |
+| **BH-005** mobile có select trạng thái | 333×38px, `aria-label="Lọc theo trạng thái"` | ✅ |
+| **BH-005** cả 2 viewport có `date_from` + `date_to` | 1/1 ở cả hai | ✅ |
+| **BH-005** placeholder ô từ khoá thống nhất | `Mã YC / mã đơn / sản phẩm` ở cả hai | ✅ |
+| **BH-005** tràn ngang + `pageerror` | 0 / 0 ở cả 2 viewport | ✅ |
+| **BH-006** 8 trạng thái, mỗi value một nhãn duy nhất | 8 value / 8 nhãn phân biệt (trước đây 2 dòng "Đang xử lý") | ✅ |
+| **BH-006** đủ 7 nhãn BA liệt kê | `Đã gửi · Đang xử lý · Đã duyệt · Đang bù một phần · Hoàn tất · Từ chối · Đã huỷ` | ✅ |
+| **BH-006** lọc từng trạng thái | 8/8 HTTP 200 **và giữ đúng lựa chọn** trong select | ✅ |
+| **BH-006** các nhãn rời nhau, phủ hết dữ liệu | `2+0+0+2+0+0+2+0 = 6` = đúng 6 dòng khi không lọc | ✅ |
+| **BH-003** danh sách "Compensation orders" | **0 dòng mẫu `REF####`**, 0 SO bù thật, empty state đứng một mình | ✅ |
+| **BH-003** dùng view riêng của module | đúng **6 cột** `Mã đơn hàng · Cửa hàng nhượng quyền · Khách hàng · Ngày đặt hàng · Tổng · Trạng thái` (view `sale` mặc định là 8 cột, **không** có cột cửa hàng) | ✅ |
+
+**Dữ liệu UAT lúc đo:** 12 yêu cầu bù hàng (cửa hàng 1: 2 `done` + 2 `submitted`; cửa hàng 2:
+2 `approved`; **cửa hàng 3: 2 `approved` + 2 `draft` + 2 `rejected`**) · **0 SO bù**
+(`is_return_order=True`) — đúng như BH-003 mô tả: UAT chưa từng tạo được SO bù vì BH-001 chặn.
+⚠️ Vì vậy 4 trạng thái `submitted/processing/partial/done` **chưa có dữ liệu ở cửa hàng 3**
+⇒ phép thử "nhãn rời nhau" mới phủ 3/8 trạng thái. Nhờ BA retest trên cửa hàng 1 để phủ nốt.
+
+### 🔴 Phát hiện thật (1 Fail) — nhãn option "tất cả" lệch giữa PC và mobile
+
+| Nơi | Chuỗi |
+|---|---|
+| PC (`portal_return_list.xml:42`) | `— Tất cả —` |
+| Mobile (`portal_return_list.xml:187`) | `— Tất cả trạng thái —` |
+
+8 nhãn trạng thái thật thì **khớp 100%** (đều sinh từ nguồn duy nhất `FILTER_OPTIONS` mà D1
+dựng), riêng option rỗng bị **gõ tay ở hai chỗ** nên trôi chữ. Đúng loại lệch mà UAT-BH-005
+đang dẹp, nhưng chỉ là chữ hiển thị, **không ảnh hưởng kết quả lọc** (cùng `value=""`).
+**Chưa sửa** — chờ chủ dự án chốt vì sửa là phải deploy lại; đề xuất đưa vào chung chuyến
+deploy của cụm D3.
+
+⚠️ **3 lần harness sai, không phải code sai (L7/L9 lặp lại)**: (1) `b4_regression.py` login bằng
+form `anh.owner` — UAT không dùng được, phải admin + POST authenticate; (2) đếm dòng bằng
+selector đoán (`.wujia-mreturn-card`, `.wj-pc-table`) ⇒ ra **0 dòng, suýt kết luận "UAT rỗng"**,
+tên thật là `table.wujia-content-card-table tbody tr` (PC) và `a.wujia-mreturn-row` (mobile);
+(3) assert tên cột bằng tiếng Anh trong khi **UAT chạy `vi_VN`** ⇒ báo Fail giả.
