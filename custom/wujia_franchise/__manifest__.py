@@ -44,6 +44,7 @@ Hợp nhất 2 model trong cùng 1 module để tránh circular dep
         'views/wujia_franchise_inspection_question_views.xml',
         'views/wujia_franchise_inspection_grade_views.xml',
         'views/wujia_franchise_inspection.xml',
+        'views/wujia_franchise_inspection_report_templates.xml',
         'views/inspection_survey_web_templates.xml',
         'views/wujia_franchise_inspection_history_views.xml',
         'views/wujia_franchise_inspection_remediation_views.xml',
@@ -62,6 +63,7 @@ Hợp nhất 2 model trong cùng 1 module để tránh circular dep
         'web.assets_backend': [
             'wujia_franchise/static/src/css/wujia_inspection.css',
             'wujia_franchise/static/src/js/wujia_inspection_chart.js',
+            'wujia_franchise/static/src/js/wujia_gps_field.js',
         ],
     },
     'installable': True,

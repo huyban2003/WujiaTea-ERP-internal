@@ -531,3 +531,206 @@ Latest Inspection Grade,"model:ir.model.fields,field_description:wujia_franchise
 Leave empty to default to Area Manager,"model_terms:ir.ui.view,arch_db:wujia_franchise.view_franchise_management_form",Để trống sẽ mặc định lấy Người phụ trách khu vực,留空則預設為區域主管,เว้นว่างไว้เพื่อใช้ค่าเริ่มต้นเป็นผู้จัดการพื้นที่
 Operating notes: delivery loading bans parking bans...,"model_terms:ir.ui.view,arch_db:wujia_franchise.view_franchise_management_form",Ghi chú vận hành: giao nhận hàng cấm tải cấm đỗ...,營運備註：外送 禁行時間 停靠規定...,หมายเหตุการดำเนินงาน: การส่งของ ข้อห้ามเวลา...
 e.g. 219 Vinh Vien store,"model_terms:ir.ui.view,arch_db:wujia_franchise.view_franchise_management_form",Ví dụ: Cửa hàng 219 Vĩnh Viễn,例如：219 永遠門市,ตัวอย่าง: สาขา 219 วิญเหวียน
+Latitude,"model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection__latitude",Vĩ độ (Latitude),緯度 (Latitude),ละติจูด (Latitude)
+Longitude,"model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection__longitude",Kinh độ (Longitude),經度 (Longitude),ลองจิจูด (Longitude)
+Check-in Time,"model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection__checkin_time",Thời gian Check-in GPS,GPS打卡時間,เวลาเช็คอิน GPS
+GPS Location Info,"model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection__checkin_address",Thông tin vị trí GPS,GPS定位資訊,ข้อมูลตำแหน่ง GPS
+Google Maps URL,"model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection__google_maps_url",Đường dẫn Google Maps,Google地圖連結,ลิงก์ Google Maps
+Google Maps,"model_terms:ir.ui.view,arch_db:wujia_franchise.view_wujia_franchise_inspection_form",Google Maps,Google地圖,Google Maps
+Get Current Location (GPS),"model_terms:ir.ui.view,arch_db:wujia_franchise.view_wujia_franchise_inspection_form",Lấy vị trí hiện tại (GPS),取得目前位置 (GPS),รับตำแหน่งปัจจุบัน (GPS)
+Update GPS Location,"model_terms:ir.ui.view,arch_db:wujia_franchise.view_wujia_franchise_inspection_form",Cập nhật vị trí GPS,更新GPS位置,อัปเดตตำแหน่ง GPS
+Open Google Maps,"model_terms:ir.ui.view,arch_db:wujia_franchise.view_wujia_franchise_inspection_tree",Mở Google Maps,開啟Google地圖,เปิด Google Maps
+Store Appearance Issues & Remediation Notes,"model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection__store_appearance_issues",Ghi nhận ngoại quan kém & Lỗi trọng điểm,店鋪觀感不良敘述 與 待改善之重點缺失項目,รายละเอียดสภาพร้านที่ไม่เหมาะสมและข้อบกพร่องสำคัญที่ต้องปรับปรุง
+Previous Appearance Issues,"model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection__previous_store_appearance_issues",Ghi nhận đợt trước gần nhất,前次評核重點缺失記錄（最近一次）,บันทึกข้อบกพร่องครั้งก่อนล่าสุด
+Notes & Remediation,"model_terms:ir.ui.view,arch_db:wujia_franchise.view_wujia_franchise_inspection_form",Ghi chú lưu ý & Khắc phục,備註與改善項目,หมายเหตุและการแก้ไข
+Previous Inspection Notes (Most Recent),"model_terms:ir.ui.view,arch_db:wujia_franchise.view_wujia_franchise_inspection_form",Ghi nhận đợt trước gần nhất (Lần gần nhất),前次評核重點缺失記錄（最近一次）,บันทึกข้อบกพร่องครั้งก่อนล่าสุด
+Current Inspection Notes (To remediate),"model_terms:ir.ui.view,arch_db:wujia_franchise.view_wujia_franchise_inspection_form",Ghi nhận đợt này (Cần khắc phục),本次評核重點缺失記錄（待改善）,บันทึกข้อบกพร่องครั้ง này (ต้องแก้ไข)
+Confirmation & Attendance,model:wujia_franchise.inspection_survey_do_page,Thông tin Xác nhận & Điểm danh,確認與出勤資訊,ข้อมูลการยืนยันและการเช็คชื่อ
+System Confirmer,model:wujia_franchise.inspection_survey_do_page,Người xác nhận hệ thống,系統確認人員,ผู้ยืนยันระบบ
+Store Manager Confirmer,model:wujia_franchise.inspection_survey_do_page,Quản lý / Đại diện cửa hàng xác nhận,門店主管確認,ผู้จัดการร้านยืนยัน
+Store Staff Present at Inspection,model:wujia_franchise.inspection_survey_do_page,Nhân viên có mặt tại buổi khảo sát,到店出勤員工,พนักงานที่มาปฏิบัติงานที่ร้าน
+Passed Exam Staff,model:wujia_franchise.inspection_survey_do_page,Nhân viên đã thi đậu chứng nhận,已通過考核之員工,พนักงานที่ผ่านการทดสอบ
+Present Staff,model:wujia_franchise.inspection_survey_do_page,Có mặt,出勤,มาปฏิบัติงาน
+Passed Staff,model:wujia_franchise.inspection_survey_do_page,Đã thi đậu,通過,ผ่านการทดสอบ
+Employee Name,model:wujia_franchise.inspection_survey_do_page,Họ và tên,姓名,ชื่อ-นามสกุล
+Role,model:wujia_franchise.inspection_survey_do_page,Chức vụ,職位,ตำแหน่ง
+Phone,model:wujia_franchise.inspection_survey_do_page,Điện thoại,聯絡電話,เบอร์โทรศัพท์
+Note,model:wujia_franchise.inspection_survey_do_page,Ghi chú,備註,หมายเหตุ
+Add Employee,model:wujia_franchise.inspection_survey_do_page,+ Thêm nhân viên,+ 新增出勤人員,+ เพิ่มพนักงาน
+Save to Member,model:wujia_franchise.inspection_survey_do_page,Lưu thông tin vào Thành viên cửa hàng,儲存／更新至門店成員資料,บันทึกข้อมูลไปยังสมาชิกของร้าน
+Deactivate Member,model:wujia_franchise.inspection_survey_do_page,Nghỉ việc (Vô hiệu hóa thành viên),離職（停用該成員）,ลาออก (ยกเลิกการใช้งานสมาชิก)
+Remove from Survey,model:wujia_franchise.inspection_survey_do_page,Loại bỏ khỏi đợt khảo sát này,從本次評核名單移除,นำออกจากรายการประเมินครั้งนี้
+View on Google Maps,code:addons/wujia_franchise/static/src/js/wujia_gps_field.js,Xem Google Maps,在 Google 地圖中查看,ดูบน Google Maps
+Open location on Google Maps,code:addons/wujia_franchise/static/src/js/wujia_gps_field.js,Mở vị trí trên Google Maps,在 Google 地圖中開啟位置,เปิดตำแหน่งบน Google Maps
+No GPS coordinates recorded,code:addons/wujia_franchise/static/src/js/wujia_gps_field.js,Chưa ghi nhận tọa độ GPS,尚未記錄 GPS 座標,ยังไม่ได้บันทึกพิกัด GPS
+Click to request permission and acquire GPS coordinates from browser/device,code:addons/wujia_franchise/static/src/js/wujia_gps_field.js,Nhấn để xin quyền và lấy tọa độ GPS từ trình duyệt / thiết bị,點擊以請求權限並獲取瀏覽器／設備的 GPS 座標,คลิกเพื่อขอสิทธิ์และรับพิกัด GPS จากเบราว์เซอร์/อุปกรณ์
+Locating GPS...,code:addons/wujia_franchise/static/src/js/wujia_gps_field.js,Đang định vị GPS...,正在定位 GPS...,กำลังระบุตำแหน่ง GPS...
+Re-acquire GPS,code:addons/wujia_franchise/static/src/js/wujia_gps_field.js,Cập nhật lại GPS,重新獲取 GPS,อัปเดต GPS อีกครั้ง
+Your browser does not support Geolocation (GPS)!,code:addons/wujia_franchise/static/src/js/wujia_gps_field.js,Trình duyệt của bạn không hỗ trợ chức năng Geolocation (Định vị GPS)!,您的瀏覽器不支援 Geolocation (GPS 定位) 功能！,เบราว์เซอร์ของคุณไม่รองรับฟังก์ชัน Geolocation (ระบุตำแหน่ง GPS)!
+"GPS location acquired and saved successfully: %s, %s (Accuracy: ±%sm)",code:addons/wujia_franchise/static/src/js/wujia_gps_field.js,"Đã lấy và lưu vị trí GPS thành công: %s, %s (Độ chính xác: ±%sm)","已成功獲取並儲存 GPS 位置：%s, %s（精確度：±%sm）","รับและบันทึกตำแหน่ง GPS สำเร็จแล้ว: %s, %s (ความแม่นยำ: ±%sm)"
+Unable to acquire GPS location.,code:addons/wujia_franchise/static/src/js/wujia_gps_field.js,Không thể lấy vị trí GPS.,無法獲取 GPS 位置。,ไม่สามารถรับตำแหน่ง GPS ได้
+You denied access to location. Please grant Location permission in your browser address bar!,code:addons/wujia_franchise/static/src/js/wujia_gps_field.js,Bạn đã từ chối cấp quyền truy cập vị trí. Vui lòng cho phép quyền vị trí (Location) trên thanh địa chỉ trình duyệt!,您已拒絕位置存取權限。請在瀏覽器網址列中允許位置權限！,คุณปฏิเสธการอนุญาตการเข้าถึงตำแหน่ง โปรดอนุญาตสิทธิ์ตำแหน่งบนแถบที่อยู่ของเบราว์เซอร์!
+Location information is currently unavailable. Please enable GPS and network connection!,code:addons/wujia_franchise/static/src/js/wujia_gps_field.js,Thông tin vị trí hiện không khả dụng. Vui lòng bật GPS và kết nối mạng!,目前無法獲取位置資訊。請開啟 GPS 並檢查網路連線！,ข้อมูลตำแหน่งไม่พร้อมใช้งานในขณะนี้ โปรดเปิด GPS และเชื่อมต่อเครือข่าย!
+GPS request timed out. Please try again!,code:addons/wujia_franchise/static/src/js/wujia_gps_field.js,Quá thời gian yêu cầu định vị GPS. Vui lòng thử lại!,GPS 定位請求超時。請重試！,หมดเวลาคำขอระบุตำแหน่ง GPS โปรดลองอีกครั้ง!
+No GPS coordinates to open Google Maps! Please click 'Get Current Location' first.,code:addons/wujia_franchise/static/src/js/wujia_gps_field.js,Chưa có tọa độ GPS để mở Google Maps! Vui lòng bấm 'Lấy vị trí GPS' trước.,尚未有 GPS 座標以開啟 Google 地圖！請先點擊「獲取當前位置 (GPS)」。,ยังไม่มีพิกัด GPS เพื่อเปิด Google Maps! โปรดคลิก 'รับตำแหน่งปัจจุบัน (GPS)' ก่อน
+Store Appearance Issues & Key Remediation Items,label:wujia.franchise.inspection_survey:notes_main_title,Ghi nhận ngoại quan kém & lỗi trọng điểm cần khắc phục,店鋪觀感不良敘述 與 待改善之重點缺失項目,รายการปรับปรุงรูปลักษณ์ร้านค้าและประเด็นสำคัญ
+Record defective appearance and key issues requiring remediation for the store.,label:wujia.franchise.inspection_survey:notes_sub_title,Ghi nhận ngoại quan kém và các lỗi trọng điểm cần khắc phục của cửa hàng.,記錄門市外觀不佳及需要改善的重點缺失項目。,บันทึกรูปลักษณ์ที่ไม่ดีและประเด็นสำคัญที่ต้องแก้ไขของร้านค้า
+Previous Inspection Notes (Last Visit),label:wujia.franchise.inspection_survey:label_prev_notes,Ghi nhận đợt trước gần nhất (Lần gần nhất),上一次監督記錄（最近一次）,บันทึกการตรวจสอบครั้งก่อน (ครั้งล่าสุด)
+No defective appearance records or key issues from the previous inspection.,label:wujia.franchise.inspection_survey:no_prev_notes,Không có ghi nhận ngoại quan kém hoặc lỗi trọng điểm từ đợt khảo sát trước.,上一次監督無外觀不佳或重點缺失記錄。,ไม่มีบันทึกรูปลักษณ์ที่ไม่ดีหรือประเด็นสำคัญจากการตรวจสอบครั้งก่อน
+Current Inspection Notes (Requires Remediation),label:wujia.franchise.inspection_survey:label_current_notes,Ghi nhận đợt này (Cần khắc phục),本次監督記錄（待改善）,บันทึกการตรวจสอบครั้งนี้ (ต้องแก้ไข)
+Enter defective appearance and key issues requiring remediation for this visit...,label:wujia.franchise.inspection_survey:placeholder_notes,Nhập chi tiết ngoại quan kém và các lỗi trọng điểm cần khắc phục của cửa hàng đợt này...,輸入本次門市外觀不佳及需要改善的重點缺失項目詳細內容...,กรอกรายละเอียดรูปลักษณ์ที่ไม่ดีและประเด็นสำคัญที่ต้องแก้ไข...
+Confirmation & Attendance Information,label:wujia.franchise.inspection_survey:header_confirmation,Thông tin Xác nhận & Điểm danh,確認與出勤資訊,ข้อมูลการยืนยันและการเช็คชื่อ
+System Confirmer,label:wujia.franchise.inspection_survey:label_system_confirmer,Người xác nhận hệ thống,系統確認人員,ผู้ยืนยันระบบ
+Store Manager / Store Representative Confirmation,label:wujia.franchise.inspection_survey:label_store_confirmer,Quản lý / Đại diện cửa hàng xác nhận,門市管理員／門市代表確認,ผู้จัดการร้าน / ตัวแทนร้านค้ายืนยัน
+--- Select Store Manager ---,label:wujia.franchise.inspection_survey:placeholder_select_store_manager,--- Chọn Quản lý cửa hàng ---,--- 選擇門市管理員 ---,--- เลือกผู้จัดการร้าน ---
+Staff Present at Inspection,label:wujia.franchise.inspection_survey:title_present_staff,Nhân viên có mặt tại buổi khảo sát,本次評核在場員工,พนักงานที่เข้าร่วมการประเมิน
+Present,label:wujia.franchise.inspection_survey:label_present_count,Có mặt,出勤,เข้าร่วม
++ Add Employee,label:wujia.franchise.inspection_survey:btn_add_staff,+ Thêm nhân viên,+ 新增員工,+ เพิ่มพนักงาน
+Certified / Passed Exam Staff,label:wujia.franchise.inspection_survey:title_passed_staff,Nhân viên đã thi đậu chứng nhận,已考試合格認證之員工,พนักงานที่ผ่านการทดสอบ
+Passed,label:wujia.franchise.inspection_survey:label_passed_count,Đã thi đậu,已合格,ผ่านแล้ว
+Store does not have certified staff yet.,label:wujia.franchise.inspection_survey:empty_passed,Cửa hàng chưa có nhân viên đạt chứng nhận.,門市尚無取得認證之員工。,ร้านค้ายังไม่มีพนักงานที่ได้รับการรับรอง
+No employees in attendance list.,label:wujia.franchise.inspection_survey:empty_attendance,Chưa có nhân viên nào trong danh sách điểm danh.,出勤名單中尚無員工。,ยังไม่มีพนักงานในรายการเช็คชื่อ
+Full Name,label:wujia.franchise.inspection_survey:th_staff_name,Họ và tên,姓名,ชื่อ-นามสกุล
+Role,label:wujia.franchise.inspection_survey:th_staff_role,Chức vụ,職稱,ตำแหน่ง
+Present,label:wujia.franchise.inspection_survey:th_staff_present,Có mặt,出勤,มา
+Staff,label:wujia.franchise.inspection_survey:role_staff,Nhân viên,員工,พนักงาน
+Manager,label:wujia.franchise.inspection_survey:role_manager,Quản lý,店長／管理員,ผู้จัดการ
+Owner,label:wujia.franchise.inspection_survey:role_owner,Chủ cửa hàng,店東／負責人,เจ้าของร้าน
+Save info to Store Members,label:wujia.franchise.inspection_survey:btn_save_member,Lưu thông tin vào Thành viên cửa hàng,儲存資訊至門市成員,บันทึกข้อมูลไปยังสมาชิกของร้าน
+Resigned (Deactivate Member),label:wujia.franchise.inspection_survey:btn_deactivate_member,Nghỉ việc (Vô hiệu hóa thành viên),離職（停用成員）,ลาออก (ปิดใช้งานสมาชิก)
+Add New Attendance Employee,label:wujia.franchise.inspection_survey:modal_add_staff_title,Thêm nhân viên điểm danh mới,新增出勤員工,เพิ่มพนักงานเช็คชื่อใหม่
+Employee Full Name,label:wujia.franchise.inspection_survey:label_staff_name,Họ và tên nhân viên,員工姓名,ชื่อ-นามสกุลพนักงาน
+Role,label:wujia.franchise.inspection_survey:label_staff_role,Chức vụ,職稱,ตำแหน่ง
+Phone Number,label:wujia.franchise.inspection_survey:label_staff_phone,Số điện thoại,電話號碼,หมายเลขโทรศัพท์
+Cancel,label:wujia.franchise.inspection_survey:btn_cancel,Hủy,取消,ยกเลิก
+Add to List,label:wujia.franchise.inspection_survey:btn_confirm_add,Thêm vào danh sách,新增至清單,เพิ่มลงในรายการ
+Notes & Remediation,label:wujia.franchise.inspection_survey:tab_notes,Ghi chú & Khắc phục,備註與改善,บันทึกและการปรับปรุง
+Confirmation,label:wujia.franchise.inspection_survey:tab_confirmation,Xác nhận,確認,การยืนยัน
+Evaluation Survey,label:wujia.franchise.inspection_survey:page_title,Khảo sát đánh giá,評核,การสำรวจและการประเมินผล
+Back,label:wujia.franchise.inspection_survey:btn_back,Quay lại,返回,ย้อนกลับ
+Completed,label:wujia.franchise.inspection_survey:status_completed,Đã hoàn thành,已完成,เสร็จสมบูรณ์
+Checklist,label:wujia.franchise.inspection_survey:score_checklist,Checklist,Checklist,Checklist
+Staff Exam,label:wujia.franchise.inspection_survey:score_exam,Kiểm tra NV,員工測驗,ทดสอบพนักงาน
+Total Score,label:wujia.franchise.inspection_survey:score_total,Tổng điểm,總分,คะแนนรวม
+Grade,label:wujia.franchise.inspection_survey:score_grade,Xếp loại,評等,ระดับผล
+Checklist Criteria,label:wujia.franchise.inspection_survey:tab_checklist,Tiêu chí Checklist,Checklist 評核項目,เกณฑ์ Checklist
+Staff Exam,label:wujia.franchise.inspection_survey:tab_exam,Bài kiểm tra nhân viên,員工測驗,แบบทดสอบพนักงาน
+Checklist Criteria Content,label:wujia.franchise.inspection_survey:th_checklist_content,Nội dung kiểm tra checklist,Checklist 檢查內容,เนื้อหาการตรวจ Checklist
+Information,label:wujia.franchise.inspection_survey:th_info,Thông tin,資訊,ข้อมูล
+Evaluation,label:wujia.franchise.inspection_survey:th_evaluation,Đánh giá,評核,การประเมิน
+Critical Criterion / Disqualification,label:wujia.franchise.inspection_survey:title_critical_star,Tiêu chí quan trọng / Điểm liệt,重要項目／致命扣分項目,เกณฑ์สำคัญ / ข้อตัดคะแนนร้ายแรง
+"Criterion details, violation note & photo evidence",label:wujia.franchise.inspection_survey:title_detail_btn,"Chi tiết tiêu chí, ghi chú & bằng chứng",評核項目詳細內容、備註與證明照片,รายละเอียดเกณฑ์ บันทึก และหลักฐานภาพถ่าย
+Previous Round: Pass,label:wujia.franchise.inspection_survey:title_prev_pass,Đợt trước: Đạt,上一次：合格,ครั้งก่อน: ผ่าน
+Pass,label:wujia.franchise.inspection_survey:badge_pass,Đạt,合格,ผ่าน
+Previous Round: Fail,label:wujia.franchise.inspection_survey:title_prev_fail,Đợt trước: Không đạt,上一次：不合格,ครั้งก่อน: ไม่ผ่าน
+Fail,label:wujia.franchise.inspection_survey:badge_fail,Không đạt,不合格,ไม่ผ่าน
+Has Note,label:wujia.franchise.inspection_survey:title_has_note,Có ghi chú,有備註,มีหมายเหตุ
+Has Photo,label:wujia.franchise.inspection_survey:title_has_photo,Có ảnh,有照片,มีภาพ
+Tested Employee Information,label:wujia.franchise.inspection_survey:header_staff_info,Thông tin Nhân viên làm bài kiểm tra,測驗員工資訊,ข้อมูลพนักงานที่ทำแบบทดสอบ
+Staff exam submitted & locked,label:wujia.franchise.inspection_survey:exam_submitted_locked,Bài kiểm tra đã nộp & đã khóa,測驗已提交並鎖定,ส่งแบบทดสอบและล็อกแล้ว
+Tested Employee,label:wujia.franchise.inspection_survey:label_tested_employee,Nhân viên được kiểm tra,受檢員工,พนักงานที่ถูกตรวจ
+Employee full name...,label:wujia.franchise.inspection_survey:placeholder_employee_name,Họ và tên nhân viên...,員工姓名...,ชื่อ-นามสกุลพนักงาน...
+Tenure,label:wujia.franchise.inspection_survey:label_tenure,Thâm niên,年資,อายุงาน
+"Tenure (e.g. 0.5, 1, 2 years)...",label:wujia.franchise.inspection_survey:placeholder_tenure,"Thâm niên (ví dụ: 0.5, 1, 2)...",年資（例如：0.5、1、2）...,"อายุงาน (เช่น 0.5, 1, 2)..."
+Enter employee answer here...,label:wujia.franchise.inspection_survey:placeholder_exam_ans,Nhập đáp án trả lời của nhân viên tại đây...,請在此輸入員工作答答案...,กรอกคำตอบของพนักงานที่นี่...
+This inspection sheet has no staff exam questions.,label:wujia.franchise.inspection_survey:empty_exam_message,Phiếu khảo sát này không có bài kiểm tra nhân viên.,此評核表沒有員工測驗。,ใบประเมินนี้ไม่มีแบบทดสอบพนักงาน
+Save,label:wujia.franchise.inspection_survey:btn_save,Lưu,儲存,บันทึก
+Inspection Completed,label:wujia.franchise.inspection_survey:btn_survey_completed,Phiếu khảo sát đã hoàn tất,評核表已完成,การประเมินเสร็จสมบูรณ์
+Criterion Details,label:wujia.franchise.inspection_survey:modal_line_detail_title,Chi tiết tiêu chí,評核項目詳細內容,รายละเอียดเกณฑ์
+Previous Inspection,label:wujia.franchise.inspection_survey:modal_prev_inspection,Đợt khảo sát trước,上一次評核,การประเมินครั้งก่อน
+Inspector:,label:wujia.franchise.inspection_survey:modal_label_inspector,Người kiểm tra:,檢查人員：,ผู้ตรวจสอบ:
+Previous Note:,label:wujia.franchise.inspection_survey:modal_label_prev_note,Ghi chú trước:,上次備註：,หมายเหตุครั้งก่อน:
+Violation Note,label:wujia.franchise.inspection_survey:modal_label_violation_note,Ghi chú vi phạm,違規備註,หมายเหตุการไม่ผ่าน
+Enter violation note if any...,label:wujia.franchise.inspection_survey:placeholder_modal_violation_note,Nhập ghi chú vi phạm nếu có...,輸入違規備註（如有）...,กรอกหมายเหตุการไม่ผ่าน (ถ้ามี)...
+Violation Evidence Photo,label:wujia.franchise.inspection_survey:modal_label_evidence_photo,Bằng chứng vi phạm (Hình ảnh),違規證明（照片）,หลักฐานการไม่ผ่าน (ภาพ)
+Capture / Upload Photo,label:wujia.franchise.inspection_survey:btn_upload_photo,Chụp / Tải ảnh,拍照／上傳照片,ถ่ายภาพ / อัปโหลดภาพ
+Click to change photo,label:wujia.franchise.inspection_survey:title_change_photo,Bấm để đổi ảnh,點擊更換照片,คลิกเพื่อเปลี่ยนภาพ
+Photo attached,label:wujia.franchise.inspection_survey:has_photo_text,Đã có ảnh,已有照片,มีภาพแล้ว
+Evaluate this criterion:,label:wujia.franchise.inspection_survey:modal_label_evaluate_criterion,Đánh giá tiêu chí này:,評核此項目：,ประเมินเกณฑ์นี้:
+Pass,label:wujia.franchise.inspection_survey:modal_check_pass_text,Đạt,合格,ผ่าน
+Done,label:wujia.franchise.inspection_survey:btn_modal_finish,Hoàn tất,完成,เสร็จสิ้น
+Group Score:,label:wujia.franchise.inspection_survey:label_section_score,Điểm nhóm:,組別分數：,คะแนนกลุ่ม:
+Export PDF,button:wujia.franchise.inspection:action_print_pdf,Xuất PDF,匯出 PDF,ส่งออก PDF
+PDF Report,report:wujia.franchise.inspection:action_report_franchise_inspection,Báo cáo PDF,PDF 報告,รายงาน PDF
+Inspection Report,"ir.actions.report,name:wujia_franchise.action_report_franchise_inspection",Báo cáo Khảo sát Giám sát,監督評核報告,รายงานการประเมินการกำกับดูแล
+Digital Signature (Store Representative),label:wujia.franchise.inspection_survey:title_signature_pad,Chữ ký điện tử (Đại diện cửa hàng),電子簽名（門市代表）,ลายเซ็นอิเล็กทรอนิกส์ (ตัวแทนร้านค้า)
+Clear Signature,label:wujia.franchise.inspection_survey:btn_clear_sig,Xóa chữ ký,清除簽名,ล้างลายเซ็น
+Draw signature with touch or pen here...,label:wujia.franchise.inspection_survey:hint_sign_here,Vẽ chữ ký bằng tay hoặc bút tại đây...,請在此處以觸控或手寫筆簽名...,วาดลายเซ็นด้วยมือหรือปากกาที่นี่...
+Signature Hint Note,label:wujia.franchise.inspection_survey:sig_hint_note,Chữ ký sẽ được lưu tự động vào phiếu khảo sát và bản in PDF.,簽名將自動儲存至評核記錄與 PDF 報告中。,ลายเซ็นจะถูกบันทึกลงในแบบประเมิน và รายงาน PDF โดยอัตโนมัติ
+Click to Sign,label:wujia.franchise.inspection_survey:btn_open_sign,Bấm vào để ký,點擊進行簽名,คลิกเพื่อเซ็นชื่อ
+Prompt Click to Sign,label:wujia.franchise.inspection_survey:prompt_click_sign,Bấm vào đây để ký tên,請點擊此處簽名,คลิกที่นี่เพื่อเซ็นชื่อ
+Prompt Sign Description,label:wujia.franchise.inspection_survey:prompt_sign_desc,Mở khung vẽ chữ ký cảm ứng,開啟全螢幕觸控簽名面板,เปิดแผงเซ็นชื่อแบบสัมผัส
+Store Representative Signature Modal Title,label:wujia.franchise.inspection_survey:modal_sig_title,Ký tên xác nhận đại diện cửa hàng,門市代表簽名確認,การลงนามยืนยันตัวแทนร้านค้า
+Draw signature with finger or pen,label:wujia.franchise.inspection_survey:modal_sig_sub,Vẽ chữ ký bằng tay hoặc bút cảm ứng,使用手指或觸控筆進行簽名,วาดลายเซ็นด้วยนิ้วหรือปากกาสัมผัส
+Draw signature here...,label:wujia.franchise.inspection_survey:hint_draw_modal,Vẽ chữ ký tại đây...,請在此處繪製簽名...,วาดลายเซ็นที่นี่...
+Rotate phone tip,label:wujia.franchise.inspection_survey:modal_sig_tip,Xoay ngang màn hình nếu muốn không gian ký rộng hơn.,如需更大簽名空間可將螢幕橫向放置。,หมุนหน้าจอแนวนอนหากต้องการพื้นที่เซ็นชื่อกว้างขึ้น
+Accept & Use Signature,label:wujia.franchise.inspection_survey:btn_accept_sig,Đồng ý & Sử dụng chữ ký,確認並套用簽名,ตกลงและใช้ลายเซ็น
+Signed,label:wujia.franchise.inspection_survey:label_signed,Đã ký,已簽名,ลงนามแล้ว
+Store Representative Signature,"model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection__signature_image",Chữ ký đại diện cửa hàng,門市代表簽名,ลายเซ็นตัวแทนร้านค้า
+Inspector Signature,"model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection__inspector_signature_image",Chữ ký giám sát viên,監察員簽名,ลายเซ็นผู้ตรวจสอบ
+Signature Date,"model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection__signature_date",Ngày ký,簽名日期,วันที่ลงนาม
+Please draw signature before accepting!,label:wujia.franchise.inspection_survey:alert_draw_required,Vui lòng vẽ chữ ký trước khi đồng ý!,確認前請先繪製簽名！,กรุณาวาดลายเซ็นก่อนยืนยัน!
+Signature recorded! Click Save to finish.,label:wujia.franchise.inspection_survey:toast_sig_recorded,Đã ghi nhận chữ ký! Hãy bấm nút 'Lưu' để hoàn tất.,已記錄簽名！請點擊「儲存」以完成。,บันทึกลายเซ็นแล้ว! กรุณาคลิก 'บันทึก' เพื่อเสร็จสิ้น
+Signature removed. Click Save to update.,label:wujia.franchise.inspection_survey:toast_sig_removed,Đã xóa chữ ký. Hãy bấm nút 'Lưu' để cập nhật.,已清除簽名。請點擊「儲存」以更新。,ลบลายเซ็นแล้ว กรุณาคลิก 'บันทึก' เพื่ออัปเดต
+Just signed (unsaved),label:wujia.franchise.inspection_survey:label_just_signed,Vừa ký (chưa lưu),剛簽名（未儲存）,เพิ่งเซ็น (ยังไม่ได้บันทึก)
+3-Month Revenue Report Tab,label:wujia.franchise.inspection_survey:tab_revenue,Doanh thu 3 tháng,三個月營收報表,รายงานรายได้ 3 เดือน
+3-Month Revenue Report Title,label:wujia.franchise.inspection_survey:title_revenue_report,BÁO CÁO CHI TIẾT DOANH THU 3 THÁNG,三個月詳細營收報告,รายงานรายละเอียดรายได้ 3 เดือน
+Add a Line,label:wujia.franchise.inspection_survey:btn_add_revenue_row,Thêm một dòng,新增一行,เพิ่มบรรทัด
+Month,label:wujia.franchise.inspection_survey:th_month,Tháng,月份,เดือน
+Revenue,label:wujia.franchise.inspection_survey:th_revenue,Doanh thu,營業額,รายได้
+Daily Average Revenue,label:wujia.franchise.inspection_survey:th_revenue_avg,Doanh thu/ngày,日均營收,รายได้/วัน
+Total App Orders,label:wujia.franchise.inspection_survey:th_total_app_sale,Tổng đơn App,App 總單數,ยอดสั่ง qua App
+% App Orders,label:wujia.franchise.inspection_survey:th_percent_app_sale,% Đơn App,% App 訂單,% สั่ง qua App
+Empty Revenue Note,label:wujia.franchise.inspection_survey:empty_revenue,Chưa có dòng dữ liệu doanh thu nào. Bấm 'Thêm một dòng' để tạo.,尚無營收數據，請點擊「新增一行」以建立。,ยังไม่มีข้อมูลรายได้ คลิก 'เพิ่มบรรทัด' เพื่อสร้าง
+Saving Survey Data...,label:wujia.franchise.inspection_survey:loading_saving,Đang lưu dữ liệu khảo sát...,正在儲存評核資料...,กำลังบันทึกข้อมูลการตรวจสอบ...
+Saving...,label:wujia.franchise.inspection_survey:label_saving,Đang lưu...,儲存中...,กำลังบันทึก...
+Adding Staff Member...,label:wujia.franchise.inspection_survey:loading_adding_staff,Đang thêm nhân viên...,正在新增員工...,กำลังเพิ่มพนักงาน...
+Adding...,label:wujia.franchise.inspection_survey:btn_adding_staff,Đang thêm...,新增中...,กำลังเพิ่ม...
+Inspection Report Preview Title,label:wujia.franchise.inspection_report:bar_title,Xem trước Báo cáo Khảo sát Giám sát,督導巡店評核報告預覽,ดูตัวอย่างรายงานการตรวจสอบการกำกับดูแล
+Inspection Report Preview Sub,label:wujia.franchise.inspection_report:bar_sub,Bấm nút in bên dưới để lưu file PDF hoặc in trực tiếp ra máy in.,點擊下方按鈕以儲存為 PDF 檔案或直接連接印表機列印。,คลิกปุ่มด้านล่างเพื่อบันทึกเป็นไฟล์ PDF หรือพิมพ์ออกเครื่องพิมพ์โดยตรง
+Print / Export PDF Button,label:wujia.franchise.inspection_report:btn_print,In / Xuất PDF,列印 / 匯出 PDF,พิมพ์ / ส่งออก PDF
+Store Supervision Inspection Sheet Title,label:wujia.franchise.inspection_report:report_title,PHIẾU KHẢO SÁT GIÁM SÁT CỬA HÀNG,門市督導巡檢評核表,แบบฟอร์มการตรวจสอบและกำกับดูแลร้านค้า
+Inspection Date Label,label:wujia.franchise.inspection_report:label_planned_date,Ngày khảo sát:,巡檢日期：,วันที่ตรวจสอบ:
+Store Label,label:wujia.franchise.inspection_report:label_store,Cửa hàng:,門市名稱：,ร้านค้า:
+Inspector Label,label:wujia.franchise.inspection_report:label_inspector,Người kiểm tra:,督導人員：,ผู้ตรวจสอบ:
+Address Label,label:wujia.franchise.inspection_report:label_address,Địa chỉ:,門市地址：,ที่อยู่:
+Store Representative Label,label:wujia.franchise.inspection_report:label_store_rep,Đại diện cửa hàng:,門市代表：,ตัวแทนร้านค้า:
+Status Label,label:wujia.franchise.inspection_report:label_state,Trạng thái:,評核狀態：,สถานะ:
+State Completed,label:wujia.franchise.inspection_report:state_done,Đã hoàn thành,已完成,เสร็จสมบูรณ์
+State Remediation,label:wujia.franchise.inspection_report:state_remediation,Cần khắc phục,待改善,ต้องปรับปรุง
+State In Progress,label:wujia.franchise.inspection_report:state_in_progress,Đang thực hiện,進行中,กำลังดำเนินการ
+State Draft,label:wujia.franchise.inspection_report:state_draft,Bản nháp,草稿,ฉบับร่าง
+Tested Employee Label,label:wujia.franchise.inspection_report:label_test_employee,Nhân viên làm test:,受測員工：,พนักงานที่เข้ารับการทดสอบ:
+Tenure Label,label:wujia.franchise.inspection_report:label_tenure,Thâm niên:,年資：,อายุงาน:
+Checklist Score Card,label:wujia.franchise.inspection_report:card_checklist_score,Điểm Checklist,檢查表得分,คะแนนเช็คลิสต์
+Staff Exam Card,label:wujia.franchise.inspection_report:card_exam_score,Kiểm tra NV,員工測驗,การทดสอบพนักงาน
+Total Score Card,label:wujia.franchise.inspection_report:card_total_score,Tổng Điểm Đạt,總考核得分,คะแนนรวมที่ได้
+Grade Card,label:wujia.franchise.inspection_report:card_grade,Xếp Loại,評定等級,ระดับเกรด
+Section I Heading,label:wujia.franchise.inspection_report:sec_checklist_title,I. Bảng Đánh Giá Tiêu Chí Checklist,一、 檢查項目評核清單,I. ตารางประเมินเกณฑ์เช็คลิสต์
+Table Header No,label:wujia.franchise.inspection_report:th_stt,STT,序號,ลำดับ
+Table Header Criteria Content,label:wujia.franchise.inspection_report:th_content,Nội dung Tiêu chí,檢查項目與標準,เนื้อหาเกณฑ์การประเมิน
+Table Header Evaluation,label:wujia.franchise.inspection_report:th_eval,Đánh giá,評核結果,การประเมิน
+Table Header Violation Note,label:wujia.franchise.inspection_report:th_note,Ghi chú vi phạm,違規備註與說明,บันทึกข้อผิดพลาด
+Table Header Evidence Photo,label:wujia.franchise.inspection_report:th_evidence,Ảnh bằng chứng,現場照片佐證,รูปภาพหลักฐาน
+No Photo Label,label:wujia.franchise.inspection_report:label_no_photo,Không,無,ไม่มี
+Section II Heading,label:wujia.franchise.inspection_report:sec_exam_title,II. Kết Quả Kiểm Tra Kiến Thức Nhân Viên,二、 員工專業知識測驗結果,II. ผลการทดสอบความรู้พนักงาน
+Exam Question Code,label:wujia.franchise.inspection_report:th_exam_code,Mã,題號,รหัส
+Exam Question Content,label:wujia.franchise.inspection_report:th_exam_question,Câu hỏi,考題內容,คำถาม
+Exam Staff Answer,label:wujia.franchise.inspection_report:th_exam_answer,Câu trả lời của nhân viên,員工回答內容,คำตอบของพนักงาน
+Exam Score Achieved,label:wujia.franchise.inspection_report:th_exam_score,Điểm đạt,得分,คะแนนที่ได้
+Section III Heading,label:wujia.franchise.inspection_report:sec_attendance_title,III. Điểm Danh Nhân Viên & Ghi Nhận Khắc Phục,三、 員工出勤點名與改善事項記錄,III. การเช็คชื่อพนักงานและบันทึกการปรับปรุง
+Poor Store Appearance Header,label:wujia.franchise.inspection_report:th_issues_header,Ghi nhận ngoại quan kém & Lỗi trọng điểm đợt này,門市外觀缺失與本次重點改善項目,บันทึกข้อบกพร่องของร้านและจุดสำคัญที่ต้องแก้ไข
+Attendance List Header,label:wujia.franchise.inspection_report:th_attendance_header,Danh sách nhân viên có mặt tại buổi khảo sát,巡檢現場在崗出勤人員名單,รายชื่อพนักงานที่อยู่ปฏิบัติงานขณะตรวจสอบ
+Staff Word,label:wujia.franchise.inspection_report:word_person,người,人,คน
+Remediation Details Label,label:wujia.franchise.inspection_report:label_remediation_content,Nội dung cần khắc phục:,需改善與糾正項目：,รายละเอียดที่ต้องปรับปรุงแก้ไข:
+No Critical Issues Noted,label:wujia.franchise.inspection_report:empty_issues,Không có ghi nhận lỗi ngoại quan trọng điểm.,無重大外觀或營運缺失記錄。,ไม่มีบันทึกข้อบกพร่องสำคัญ
+Role Store Owner,label:wujia.franchise.inspection_report:role_owner,Chủ cửa hàng,店東,เจ้าของร้าน
+Role Store Manager,label:wujia.franchise.inspection_report:role_manager,Quản lý,店長,ผู้จัดการ
+Role Store Staff,label:wujia.franchise.inspection_report:role_staff,Nhân viên,店員,พนักงาน
+Present Badge,label:wujia.franchise.inspection_report:badge_present,[Có mặt],[出勤],[มาปฏิบัติงาน]
+Absent Badge,label:wujia.franchise.inspection_report:badge_absent,[Vắng],[缺席],[ขาดงาน]
+No Attendance List,label:wujia.franchise.inspection_report:empty_attendance,Chưa có danh sách điểm danh,尚無出勤點名名單,ยังไม่มีรายชื่อเช็คชื่อ
+Section IV Heading,label:wujia.franchise.inspection_report:sec_revenue_title,IV. Báo Cáo Chi Tiết Doanh Thu 3 Tháng,四、 近三個月詳細營收報告,IV. รายงานรายละเอียดรายได้ 3 เดือนย้อนหลัง
+Signatures Store Rep Block,label:wujia.franchise.inspection_report:sig_store_rep_title,ĐẠI DIỆN CỬA HÀNG XÁC NHẬN,門市代表確認簽名,ตัวแทนร้านค้ายืนยันและลงนาม
+Signatures Inspector Block,label:wujia.franchise.inspection_report:sig_inspector_title,NGƯỜI KIỂM TRA / GIÁM SÁT VIÊN,督導人員確認簽名,ผู้ตรวจสอบ / ผู้กำกับดูแลลงนาม
+Sign and Full Name Sub,label:wujia.franchise.inspection_report:sig_sub_instruction,(Ký và ghi rõ họ tên),（請親筆簽名並正楷書寫姓名）,(เซ็นชื่อและระบุชื่อ-นามสกุล)

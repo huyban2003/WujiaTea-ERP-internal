@@ -15,7 +15,9 @@
                 <field name="planned_date" options="{'format': 'DD/MM/YYYY'}" />
                 <field name="total_score"
                     string="Total Score" />
-                <field name="grade_id" widget="badge" />
+                <field name="checkin_time" optional="show" widget="datetime" string="Check-in GPS" />
+                <button name="action_open_google_maps" type="object" icon="fa-map-marker"
+                    title="Xem trên Google Maps" invisible="not latitude and not longitude" />
                 <field name="state" widget="badge"
                     decoration-info="state == 'draft'"
                     decoration-warning="state == 'in_progress'"
@@ -54,15 +56,33 @@
                         statusbar_visible="draft,in_progress,need_remediation,done,cancel" />
                 </header>
                 <sheet>
-                    <!-- SMART BUTTON MỞ NỘI DUNG / CHI TIẾT KHẢO SÁT -->
+                    <!-- SMART BUTTON MỞ NỘI DUNG / CHI TIẾT KHẢO SÁT & GOOGLE MAPS -->
                     <div class="oe_button_box" name="button_box">
+                        <button name="action_open_google_maps"
+                            type="object"
+                            class="oe_stat_button"
+                            icon="fa-map-marker"
+                            invisible="not latitude and not longitude">
+                            <div class="o_stat_info">
+                                <span class="o_stat_text text-primary">Google Maps</span>
+                                <span class="o_stat_value text-success" style="font-size: 11px;">Located</span>
+                            </div>
+                        </button>
                         <button name="action_open_inspection_detail"
                             type="object"
                             class="oe_stat_button"
                             icon="fa-file-text-o"
                             string="Inspection Sheets"
                             invisible="state != 'in_progress'">
-
+                        </button>
+                        <button name="action_print_pdf"
+                            type="object"
+                            class="oe_stat_button"
+                            icon="fa-print">
+                            <div class="o_stat_info">
+                                <span class="o_stat_text text-danger">Báo cáo PDF</span>
+                                <span class="o_stat_value" style="font-size: 11px;">In / Xuất PDF</span>
+                            </div>
                         </button>
                     </div>
 
@@ -87,6 +107,18 @@
                             <field name="submit_date" invisible="1" />
                             <field name="confirm_date" readonly="1" />
                             <field name="previous_inspection_id" readonly="1" />
+                        </group>
+                    </group>
+
+                    <group string="GPS Check-in &amp; Location">
+                        <group>
+                            <field name="checkin_address" widget="wujia_gps_field" string="GPS Location" force_save="1" />
+                            <field name="google_maps_url" widget="url" text="Open Google Maps" invisible="not latitude and not longitude" readonly="1" string="Map" />
+                        </group>
+                        <group>
+                            <field name="latitude" readonly="1" force_save="1" digits="[10, 6]" />
+                            <field name="longitude" readonly="1" force_save="1" digits="[10, 6]" />
+                            <field name="checkin_time" readonly="1" force_save="1" invisible="not checkin_time" />
                         </group>
                     </group>
 
@@ -286,6 +318,32 @@
                                 </list>
                             </field>
                         </page>
+                        <page string="Notes &amp; Remediation" name="appearance_issues">
+                            <div class="alert alert-info d-flex align-items-center gap-2 mb-3 p-3 rounded" role="alert">
+                                <i class="fa fa-info-circle fa-lg text-primary"></i>
+                                <div>
+                                    <strong class="d-block">Store Appearance &amp; Key Remediation Issues</strong>
+                                    <span class="small text-muted">Record poor store appearance and key issues that need to be resolved.</span>
+                                </div>
+                            </div>
+                            <div class="row g-3">
+                                <div class="col-12 col-lg-6">
+                                    <label for="previous_store_appearance_issues" class="fw-bold text-primary mb-2 d-block" string="Previous Inspection Notes (Most Recent)" />
+                                    <field name="previous_store_appearance_issues" readonly="1" nolabel="1"
+                                        placeholder="No notes from previous inspection..."
+                                        class="w-100"
+                                        style="min-height: 160px; background-color: #f8fafc; border-left: 4px solid #3b82f6; border-radius: 8px; padding: 10px;" />
+                                </div>
+                                <div class="col-12 col-lg-6">
+                                    <label for="store_appearance_issues" class="fw-bold text-dark mb-2 d-block" string="Current Inspection Notes (To remediate)" />
+                                    <field name="store_appearance_issues" nolabel="1"
+                                        placeholder="Enter poor store appearance details and key issues to improve for this inspection..."
+                                        readonly="state in ('done', 'cancel')"
+                                        class="w-100"
+                                        style="min-height: 160px; border-radius: 8px; padding: 10px;" />
+                                </div>
+                            </div>
+                        </page>
                         <page string="Revenue Report" name="report">
                             <field name="inspection_chart_data" widget="wujia_inspection_chart"
                                 nolabel="1" class="w-100 d-block" />
@@ -310,12 +368,15 @@
                                 <group
                                     string="System Confirmation">
                                     <field name="confirmed_user_id" options="{'no_create': True}" />
+                                    <field name="inspector_signature_image" widget="signature" string="Inspector Signature" />
                                 </group>
                                 <group
                                     string="Store Manager Confirmation">
                                     <field name="confirmed_member_id"
                                         domain="[('franchise_id', '=', franchise_id)]"
                                         options="{'no_create': True}" />
+                                    <field name="signature_image" widget="signature" string="Store Representative Signature" />
+                                    <field name="signature_date" readonly="1" invisible="not signature_date" />
                                 </group>
                             </group>
 
@@ -378,6 +439,7 @@
                                     </field>
                                 </div>
                             </div>
+
                         </page>
                     </notebook>
                 </sheet>

@@ -9,21 +9,26 @@ from odoo.http import request
 
 # Glossary dùng chung toàn repo (repo_root/docs/), cùng nguồn với scripts/sync_translations.py.
 # Thiếu file thì t() tự rơi về default — trang khảo sát vẫn chạy.
-CSV_PATH = os.path.join(os.path.dirname(__file__), '..', '..', '..', 'docs', 'i18n-glossary.csv')
+CSV_PATH = os.path.join(os.path.dirname(__file__), '..', 'data', 'wujia_franchise_export.csv')
 
-_SURVEY_LANG_COL = (('zh', 'CN'), ('th', 'TH'), ('vi', 'VN'), ('en', 'EN'))
+_SURVEY_LANG_COL = (('zh', 'CN'), ('cn', 'CN'), ('th', 'TH'), ('vi', 'VN'), ('vn', 'VN'))
 
 
 def get_survey_translations(lang):
     low = (lang or '').lower()
-    col = next((c for p, c in _SURVEY_LANG_COL if p in low), 'EN')
+    col = next((c for p, c in _SURVEY_LANG_COL if p in low), 'VN')
     trans_map = {}
     if os.path.exists(CSV_PATH):
         with open(CSV_PATH, 'r', encoding='utf-8') as f:
             reader = csv.DictReader(f)
             for row in reader:
+                opt = (row.get('option') or '').strip()
                 k = (row.get('key') or '').strip()
                 v = (row.get(col) or '').strip()
+                if not v:
+                    v = (row.get('VN') or '').strip()
+                if opt and v:
+                    trans_map[opt] = v
                 if k and v:
                     trans_map[k] = v
     return trans_map
@@ -52,13 +57,17 @@ class WujiaFranchiseInspectionWebController(http.Controller):
         for line in inspection.line_ids:
             prev_line = line.previous_line_id
             prev_info = None
+            has_prev_note = bool(prev_line and prev_line.exists() and prev_line.note and prev_line.note.strip())
+            prev_note_text = prev_line.note.strip() if (prev_line and prev_line.exists() and prev_line.note) else ''
+            
             if prev_line and prev_line.exists():
                 prev_info = {
                     'inspection_name': prev_line.inspection_id.name if prev_line.inspection_id else '',
                     'planned_date': str(prev_line.inspection_id.planned_date) if (prev_line.inspection_id and prev_line.inspection_id.planned_date) else '',
                     'inspector': prev_line.inspection_id.inspector_user_id.name if (prev_line.inspection_id and prev_line.inspection_id.inspector_user_id) else '',
                     'is_pass': prev_line.is_pass,
-                    'note': prev_line.note or 'No violation note',
+                    'note': prev_note_text,
+                    'has_note': has_prev_note,
                     'deduction_score': prev_line.deduction_score_snapshot or 0.0,
                     'has_evidence': bool(prev_line.evidence_image),
                     'evidence_url': f'/web/image/wujia.franchise.inspection.line/{prev_line.id}/evidence_image' if prev_line.evidence_image else '',
@@ -77,6 +86,8 @@ class WujiaFranchiseInspectionWebController(http.Controller):
                 'is_pass': line.is_pass,
                 'previous_result': line.previous_result or '',
                 'previous_info': prev_info,
+                'has_prev_note': has_prev_note,
+                'prev_note': prev_note_text,
                 'note': line.note or '',
                 'has_evidence': bool(line.evidence_image),
                 'evidence_image_url': f'/web/image/wujia.franchise.inspection.line/{line.id}/evidence_image' if line.evidence_image else '',
@@ -85,6 +96,32 @@ class WujiaFranchiseInspectionWebController(http.Controller):
                 'deduction_score': line.deduction_score_snapshot or 0.0,
             }
             lines.append(line_data)
+
+        # Group lines by section and compute section total/earned scores
+        current_section = None
+        for l in lines:
+            if l.get('display_type') == 'section':
+                current_section = l
+                l['section_id'] = l['id']
+                l['section_total_score'] = 0.0
+                l['section_earned_score'] = 0.0
+                l['section_total_count'] = 0
+                l['section_pass_count'] = 0
+            elif current_section:
+                l['section_id'] = current_section['id']
+                score = float(l.get('deduction_score') or 0.0)
+                current_section['section_total_score'] += score
+                if l.get('is_pass'):
+                    current_section['section_earned_score'] += score
+                    current_section['section_pass_count'] += 1
+                current_section['section_total_count'] += 1
+
+        for l in lines:
+            if l.get('display_type') == 'section':
+                tot = l.get('section_total_score', 0.0)
+                earned = l.get('section_earned_score', 0.0)
+                l['section_total_score_str'] = str(int(tot)) if tot.is_integer() else f"{tot:.1f}"
+                l['section_earned_score_str'] = str(int(earned)) if earned.is_integer() else f"{earned:.1f}"
 
         # Exam lines
         exam_lines = []
@@ -103,14 +140,54 @@ class WujiaFranchiseInspectionWebController(http.Controller):
         is_inspection_closed = (inspection.state in ('done', 'cancel'))
         is_exam_submitted = bool(inspection.is_exam_submitted)
 
-        user_lang = kwargs.get('lang') or request.params.get('lang') or request.context.get('lang') or request.env.user.lang or 'en_US'
+        user_lang = kwargs.get('lang') or request.params.get('lang') or request.env.user.lang or request.context.get('lang') or 'vi_VN'
         trans_map = get_survey_translations(user_lang)
 
         def _t(key, default=''):
             return trans_map.get(key, default or key)
 
+        grades_data = [
+            {
+                'id': g.id,
+                'name': g.name,
+                'min_score': g.min_score,
+                'max_score': g.max_score,
+            }
+            for g in request.env['wujia.franchise.inspection.grade'].sudo().search([], order='min_score desc')
+        ]
+
+        store_members = request.env['wujia.franchise.member'].sudo().search([
+            ('franchise_id', '=', inspection.franchise_id.id),
+            ('active', '=', True),
+            ('is_working', '=', True),
+        ], order='role, id')
+
+        attendance_lines = [
+            {
+                'id': att.id,
+                'member_id': att.member_id.id if att.member_id else False,
+                'employee_name': att.employee_name or '',
+                'role': att.role or 'staff',
+                'phone': att.phone or '',
+                'is_present': att.is_present,
+                'note': att.note or '',
+            }
+            for att in inspection.attendance_line_ids
+        ]
+
+        passed_members = [
+            {
+                'id': m.id,
+                'name': m.user_id.name if m.user_id else '',
+                'role': m.role or 'staff',
+                'phone': m.phone or '',
+            }
+            for m in inspection.passed_member_ids
+        ]
+
         values = {
             'inspection': inspection,
+            'grades_json': json.dumps(grades_data, ensure_ascii=False),
             'lines': lines,
             'exam_lines': exam_lines,
             'checklist_count': len([l for l in lines if l.get('display_type') == 'line']),
@@ -120,7 +197,45 @@ class WujiaFranchiseInspectionWebController(http.Controller):
             'is_inspection_closed': is_inspection_closed,
             'is_exam_submitted': is_exam_submitted,
             'test_employee_name': inspection.test_employee_name or '',
-            'tenure': inspection.tenure or 0.0,
+            'tenure': inspection.tenure or '',
+            'store_appearance_issues': inspection.store_appearance_issues or '',
+            'previous_store_appearance_issues': inspection.previous_store_appearance_issues or '',
+            'confirmed_user_name': inspection.confirmed_user_id.name if inspection.confirmed_user_id else request.env.user.name,
+            'has_signature': bool(inspection.signature_image),
+            'signature_image_url': f'/web/image/wujia.franchise.inspection/{inspection.id}/signature_image' if inspection.signature_image else '',
+            'signature_date': str(inspection.signature_date) if inspection.signature_date else '',
+            'confirmed_member_id': inspection.confirmed_member_id.id if inspection.confirmed_member_id else False,
+            'store_members': store_members,
+            'attendance_lines': attendance_lines,
+            'passed_members': passed_members,
+            'months_list': (
+                [('01', '01月'), ('02', '02月'), ('03', '03月'), ('04', '04月'), ('05', '05月'), ('06', '06月'), ('07', '07月'), ('08', '08月'), ('09', '09月'), ('10', '10月'), ('11', '11月'), ('12', '12月')]
+                if any(x in user_lang.lower() for x in ('zh', 'cn')) else (
+                    [('01', 'ม.ค. (01)'), ('02', 'ก.พ. (02)'), ('03', 'มี.ค. (03)'), ('04', 'เม.ย. (04)'), ('05', 'พ.ค. (05)'), ('06', 'มิ.ย. (06)'), ('07', 'ก.ค. (07)'), ('08', 'ส.ค. (08)'), ('09', 'ก.ย. (09)'), ('10', 'ต.ค. (10)'), ('11', 'พ.ย. (11)'), ('12', 'ธ.ค. (12)')]
+                    if 'th' in user_lang.lower() else
+                    [('01', 'Tháng 01'), ('02', 'Tháng 02'), ('03', 'Tháng 03'), ('04', 'Tháng 04'), ('05', 'Tháng 05'), ('06', 'Tháng 06'), ('07', 'Tháng 07'), ('08', 'Tháng 08'), ('09', 'Tháng 09'), ('10', 'Tháng 10'), ('11', 'Tháng 11'), ('12', 'Tháng 12')]
+                )
+            ),
+            'years_list': [str(y) for y in range(2023, 2031)],
+            'report_lines': [
+                {
+                    'id': rl.id,
+                    'date_month': str(rl.date_month) if rl.date_month else '',
+                    'month_val': rl.date_month.strftime('%m') if rl.date_month else '01',
+                    'year_val': rl.date_month.strftime('%Y') if rl.date_month else '2026',
+                    'date_month_val': rl.date_month.strftime('%Y-%m') if rl.date_month else '',
+                    'date_month_str': rl.date_month.strftime('%m/%Y') if rl.date_month else '',
+                    'revenue': rl.revenue or 0.0,
+                    'revenue_avg': rl.revenue_avg or 0.0,
+                    'total_app_sale': rl.total_app_sale or 0,
+                    'percent_app_sale': rl.percent_app_sale or 0.0,
+                }
+                for rl in inspection.report_line_ids.sorted(key=lambda r: (r.sequence, r.id))
+            ],
+            'present_count': inspection.present_count,
+            'passed_count': len(passed_members),
+            't': trans_map,
+            'tj': json.dumps(trans_map, ensure_ascii=False),
             'trans_dict': trans_map,
             'trans': trans_map,
             'trans_json': json.dumps(trans_map, ensure_ascii=False),
@@ -128,7 +243,7 @@ class WujiaFranchiseInspectionWebController(http.Controller):
         return request.render('wujia_franchise.inspection_survey_do_page', values)
 
     @http.route(['/franchise/inspection/do/<int:inspection_id>/save'], type='json', auth='user', methods=['POST'])
-    def save_inspection_survey(self, inspection_id, lines=None, exam_lines=None, test_employee_name=None, tenure=None, finish=True, **kwargs):
+    def save_inspection_survey(self, inspection_id, lines=None, exam_lines=None, test_employee_name=None, tenure=None, store_appearance_issues=None, confirmed_member_id=None, attendance_lines=None, signature_image=None, report_lines=None, finish=True, **kwargs):
         # kiểm tra tồn tại và điều kiện trước khi save phiếu 
         inspection = request.env['wujia.franchise.inspection'].sudo().browse(int(inspection_id))
         if not inspection.exists():
@@ -172,10 +287,7 @@ class WujiaFranchiseInspectionWebController(http.Controller):
 
             insp_vals['test_employee_name'] = emp_name_clean
             if tenure is not None:
-                try:
-                    insp_vals['tenure'] = float(tenure) if tenure else 0.0
-                except (ValueError, TypeError):
-                    insp_vals['tenure'] = 0.0
+                insp_vals['tenure'] = str(tenure).strip() if tenure else ''
 
             if exam_lines:
                 for el_data in exam_lines:
@@ -187,6 +299,32 @@ class WujiaFranchiseInspectionWebController(http.Controller):
                         exam_line._evaluate_answer()
 
             insp_vals['is_exam_submitted'] = True
+
+        if store_appearance_issues is not None:
+            insp_vals['store_appearance_issues'] = store_appearance_issues
+
+        sig_data = signature_image or kwargs.get('signature_image')
+        if sig_data and 'base64,' in sig_data:
+            insp_vals['signature_image'] = sig_data.split('base64,', 1)[1]
+            insp_vals['signature_date'] = fields.Datetime.now()
+        elif sig_data == 'CLEAR':
+            insp_vals['signature_image'] = False
+            insp_vals['signature_date'] = False
+
+        if confirmed_member_id is not None:
+            insp_vals['confirmed_member_id'] = int(confirmed_member_id) if confirmed_member_id else False
+
+        if attendance_lines:
+            AttLineModel = request.env['wujia.franchise.inspection.attendance.line'].sudo()
+            for a_item in attendance_lines:
+                att_id = a_item.get('id')
+                if att_id:
+                    att = AttLineModel.browse(int(att_id))
+                    if att.exists() and att.inspection_id.id == inspection.id:
+                        att.write({
+                            'is_present': bool(a_item.get('is_present', True)),
+                            'note': a_item.get('note', '') or False,
+                        })
 
         if insp_vals:
             inspection.write(insp_vals)
@@ -211,3 +349,81 @@ class WujiaFranchiseInspectionWebController(http.Controller):
             'grade': inspection.grade_id.name if inspection.grade_id else '',
             'state': inspection.state,
         }
+
+    @http.route(['/franchise/inspection/do/<int:inspection_id>/attendance/add'], type='json', auth='user', methods=['POST'])
+    def add_attendance_line(self, inspection_id, employee_name, role='staff', phone='', note='', is_present=True, **kwargs):
+        inspection = request.env['wujia.franchise.inspection'].sudo().browse(int(inspection_id))
+        if not inspection.exists() or inspection.state in ('done', 'cancel'):
+            return {'success': False, 'error': 'Phiếu khảo sát đã khóa hoặc không tồn tại!'}
+        
+        emp_name = (employee_name or '').strip()
+        if not emp_name:
+            return {'success': False, 'error': 'Vui lòng nhập Họ và tên nhân viên!'}
+        
+        new_line = request.env['wujia.franchise.inspection.attendance.line'].sudo().create({
+            'inspection_id': inspection.id,
+            'employee_name': emp_name,
+            'role': role or 'staff',
+            'phone': (phone or '').strip(),
+            'note': (note or '').strip(),
+            'is_present': bool(is_present),
+        })
+        
+        return {
+            'success': True,
+            'line': {
+                'id': new_line.id,
+                'member_id': False,
+                'employee_name': new_line.employee_name,
+                'role': new_line.role,
+                'phone': new_line.phone or '',
+                'is_present': new_line.is_present,
+                'note': new_line.note or '',
+            },
+            'present_count': inspection.present_count,
+        }
+
+    @http.route(['/franchise/inspection/do/<int:inspection_id>/attendance/save_member'], type='json', auth='user', methods=['POST'])
+    def save_attendance_to_member(self, inspection_id, line_id, employee_name=None, role=None, phone=None, **kwargs):
+        line = request.env['wujia.franchise.inspection.attendance.line'].sudo().browse(int(line_id))
+        if not line.exists() or line.inspection_id.id != int(inspection_id):
+            return {'success': False, 'error': 'Dòng điểm danh không tồn tại!'}
+        
+        if employee_name:
+            line.employee_name = employee_name.strip()
+        if role:
+            line.role = role
+        if phone is not None:
+            line.phone = phone.strip()
+            
+        try:
+            line.action_save_to_member()
+            return {
+                'success': True,
+                'member_id': line.member_id.id if line.member_id else False,
+            }
+        except Exception as e:
+            return {'success': False, 'error': str(e)}
+
+    @http.route(['/franchise/inspection/do/<int:inspection_id>/attendance/deactivate_member'], type='json', auth='user', methods=['POST'])
+    def deactivate_attendance_member(self, inspection_id, line_id, **kwargs):
+        line = request.env['wujia.franchise.inspection.attendance.line'].sudo().browse(int(line_id))
+        if not line.exists() or line.inspection_id.id != int(inspection_id):
+            return {'success': False, 'error': 'Dòng điểm danh không tồn tại!'}
+        
+        try:
+            inspection = line.inspection_id
+            line.action_deactivate_member()
+            return {'success': True, 'present_count': inspection.present_count}
+        except Exception as e:
+            return {'success': False, 'error': str(e)}
+
+    @http.route(['/franchise/inspection/do/<int:inspection_id>/attendance/delete_line'], type='json', auth='user', methods=['POST'])
+    def delete_attendance_line(self, inspection_id, line_id, **kwargs):
+        line = request.env['wujia.franchise.inspection.attendance.line'].sudo().browse(int(line_id))
+        if not line.exists() or line.inspection_id.id != int(inspection_id):
+            return {'success': False, 'error': 'Dòng điểm danh không tồn tại!'}
+        
+        inspection = line.inspection_id
+        line.unlink()
+        return {'success': True, 'present_count': inspection.present_count}

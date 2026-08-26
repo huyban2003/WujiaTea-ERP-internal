@@ -109,15 +109,96 @@ class WujiaFranchiseInspection(models.Model):
         help='Store employee taking the exam (not required to be a system user).',
     )
 
-    tenure = fields.Float(
+    tenure = fields.Char(
         string='Tenure',
-        help='Working tenure of the tested employee.',
+        help='Working tenure of the tested employee (e.g. 1 năm, 6 tháng, 2 years).',
     )
     # video 
     video = fields.Binary(
         string='Video',
         attachment=True,
     )
+
+    # Online Signature Fields
+    signature_image = fields.Binary(
+        string='Store Representative Signature',
+        attachment=True,
+        copy=False,
+    )
+    signature_date = fields.Datetime(
+        string='Signature Date',
+        copy=False,
+    )
+    inspector_signature_image = fields.Binary(
+        string='Inspector Signature',
+        attachment=True,
+        copy=False,
+    )
+
+    # GPS / Geolocation Fields
+    latitude = fields.Float(
+        string='Latitude',
+        digits=(10, 7),
+        copy=False,
+        tracking=True,
+        help='Tọa độ vĩ độ (Latitude) khi thực hiện khảo sát',
+    )
+    longitude = fields.Float(
+        string='Longitude',
+        digits=(10, 7),
+        copy=False,
+        tracking=True,
+        help='Tọa độ kinh độ (Longitude) khi thực hiện khảo sát',
+    )
+    checkin_time = fields.Datetime(
+        string='Check-in Time',
+        copy=False,
+        tracking=True,
+        help='Thời gian ghi nhận vị trí GPS',
+    )
+    checkin_address = fields.Char(
+        string='GPS Location',
+        copy=False,
+        tracking=True,
+        help='Thông tin hiển thị tọa độ và độ chính xác GPS',
+    )
+    google_maps_url = fields.Char(
+        string='Google Maps URL',
+        compute='_compute_google_maps_url',
+        help='Liên kết mở vị trí khảo sát trên Google Maps',
+    )
+
+    @api.depends('latitude', 'longitude')
+    def _compute_google_maps_url(self):
+        for rec in self:
+            if rec.latitude or rec.longitude:
+                rec.google_maps_url = f"https://www.google.com/maps?q={rec.latitude},{rec.longitude}"
+            else:
+                rec.google_maps_url = False
+
+    def action_open_google_maps(self):
+        """Mở vị trí tọa độ GPS trên Google Maps."""
+        self.ensure_one()
+        if not (self.latitude or self.longitude):
+            raise UserError(_('Chưa có thông tin tọa độ GPS! Vui lòng bấm "Lấy vị trí GPS" trước.'))
+        return {
+            'type': 'ir.actions.act_url',
+            'url': f"https://www.google.com/maps?q={self.latitude},{self.longitude}",
+            'target': 'new',
+        }
+
+    def action_update_gps_location(self, latitude, longitude, address=None):
+        """Lưu trực tiếp tọa độ GPS vào CSDL."""
+        self.ensure_one()
+        vals = {
+            'latitude': float(latitude),
+            'longitude': float(longitude),
+            'checkin_time': fields.Datetime.now(),
+        }
+        if address:
+            vals['checkin_address'] = address
+        self.write(vals)
+        return True
 
     # RELATION 
 
@@ -162,6 +243,39 @@ class WujiaFranchiseInspection(models.Model):
         ondelete='set null',
         readonly=True
     )
+
+    store_appearance_issues = fields.Text(
+        string='Ghi nhận ngoại quan kém & Lỗi trọng điểm',
+        tracking=True,
+        help='店鋪觀感不良敘述 與 待改善之重點缺失項目 / Ghi nhận ngoại quan kém và các lỗi trọng điểm cần khắc phục',
+    )
+    previous_store_appearance_issues = fields.Text(
+        string='Ghi nhận đợt trước gần nhất',
+        compute='_compute_previous_store_appearance_issues',
+        readonly=True,
+        help='Ghi nhận ngoại quan kém và các lỗi trọng điểm từ đợt khảo sát trước',
+    )
+
+    @api.depends('previous_inspection_id', 'previous_inspection_id.store_appearance_issues', 'franchise_id', 'planned_date')
+    def _compute_previous_store_appearance_issues(self):
+        for rec in self:
+            if rec.previous_inspection_id and rec.previous_inspection_id.store_appearance_issues:
+                rec.previous_store_appearance_issues = rec.previous_inspection_id.store_appearance_issues
+            elif rec.franchise_id:
+                domain = [
+                    ('franchise_id', '=', rec.franchise_id.id),
+                    ('store_appearance_issues', '!=', False),
+                    ('store_appearance_issues', '!=', ''),
+                ]
+                current_id = rec._origin.id if rec._origin else (rec.id if isinstance(rec.id, int) else False)
+                if current_id:
+                    domain.append(('id', '!=', current_id))
+                if rec.planned_date:
+                    domain.append(('planned_date', '<=', rec.planned_date))
+                prev = self.search(domain, order='planned_date desc, id desc', limit=1)
+                rec.previous_store_appearance_issues = prev.store_appearance_issues if prev else False
+            else:
+                rec.previous_store_appearance_issues = False
 
     line_ids = fields.One2many(
         'wujia.franchise.inspection.line',
@@ -210,7 +324,7 @@ class WujiaFranchiseInspection(models.Model):
     passed_count = fields.Integer(
         string='Passed Staff Count',
         compute='_compute_passed_stats',
-        store=True,
+        store=False,
         help='Tổng số nhân viên đã thi đậu.',
     )
 
@@ -248,7 +362,7 @@ class WujiaFranchiseInspection(models.Model):
             else:
                 rec.passed_member_ids = False
 
-    @api.depends('passed_member_ids')
+    @api.depends('franchise_id', 'passed_member_ids')
     def _compute_passed_stats(self):
         for rec in self:
             rec.passed_count = len(rec.passed_member_ids)
@@ -1041,6 +1155,19 @@ class WujiaFranchiseInspection(models.Model):
                     vals['exam_line_ids'] = exam_lines
         return super().create(vals_list)
 
+    def action_print_pdf(self):
+        self.ensure_one()
+        return self.env.ref('wujia_franchise.action_report_franchise_inspection').report_action(self)
+
+    def get_report_translations(self, lang=None):
+        try:
+            from odoo.addons.wujia_franchise.controllers.main import get_survey_translations
+            target_lang = lang or self.env.context.get('lang') or self.env.user.lang or 'vi_VN'
+            return get_survey_translations(target_lang)
+        except Exception:
+            return {}
+
+
 class WujiaFranchiseInspectionLine(models.Model):
 
     def action_toggle_remediation_state(self):
@@ -1153,7 +1280,7 @@ class WujiaFranchiseInspectionLine(models.Model):
         'wujia.franchise.inspection.template.line',
         string='Inspection Criterion',
         required=False,
-        ondelete='restrict',
+        ondelete='set null',
     )
 
     template_id = fields.Many2one(
@@ -1798,3 +1925,13 @@ class WujiaFranchiseInspectionAttendanceLine(models.Model):
 
         return True
 
+
+
+
+    def get_report_translations(self, lang=None):
+        try:
+            from odoo.addons.wujia_franchise.controllers.main import get_survey_translations
+            target_lang = lang or self.env.context.get('lang') or self.env.user.lang or 'vi_VN'
+            return get_survey_translations(target_lang)
+        except Exception:
+            return {}
