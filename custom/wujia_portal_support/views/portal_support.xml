@@ -47,15 +47,16 @@
                     <div id="wj-sup-pc">
                     <!-- Tickets — MẪU 06 Card ticket (Sprint 9.13b 2026-05-27) -->
                     <div class="wujia-content-card">
-                        <div class="wujia-content-card-header">
-                            <div class="wujia-content-card-header-icon">
-                                <i class="feather icon-life-buoy"/>
-                            </div>
-                            <h4 class="wujia-content-card-header-title">Yêu cầu hỗ trợ đang mở</h4>
-                            <span t-if="tickets" class="wujia-content-card-header-link">
-                                <t t-out="len(tickets)"/> ticket
-                            </span>
-                        </div>
+                        <!-- CMP-CH-001: count cố ý BỎ `t-if` — spec ghi rõ "Count 0 vẫn hiển thị". -->
+                        <t t-call="wujia_portal_layout.wj_card_header">
+                            <t t-set="ch_title">Yêu cầu hỗ trợ đang mở</t>
+                            <t t-set="ch_level" t-value="4"/>
+                            <t t-set="ch_platform" t-value="'pc'"/>
+                            <t t-set="ch_icon" t-value="'life-buoy'"/>
+                            <t t-set="ch_meta">
+                                <span class="wj-card-header__meta"><t t-out="len(tickets)"/> ticket</span>
+                            </t>
+                        </t>
                         <div t-if="not tickets" class="wujia-empty-state">
                             <i class="feather icon-life-buoy"/>
                             <p>Bạn chưa có ticket nào. <a href="/portal/support/new">Gửi yêu cầu hỗ trợ</a>.</p>

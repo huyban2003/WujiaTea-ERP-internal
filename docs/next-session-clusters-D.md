@@ -10,14 +10,62 @@ prompt của cụm đó rồi bắt tay.
 
 ---
 
-## 📌 BÀN GIAO cho phiên sau (chốt 27/08/2026)
+## 📌 BÀN GIAO cho phiên sau (chốt 28/08/2026)
 
 **Prompt gõ vào phiên sau:**
 
 > `/wujia-start`
-> làm cụm D3a. Trước khi bắt tay, xử việc tồn của phiên 27/08 trong `docs/next-session-clusters-D.md` §Bàn giao: nhãn "tất cả" của bộ lọc bù hàng lệch PC↔mobile, sửa 2 dòng và ghép vào chuyến deploy D3.
+> làm cụm D3b. Đọc `docs/d3-cardheader-inventory.md` §bảng theo file để lấy nhóm màn kế tiếp, và `docs/d3-acceptance-matrix.md` §LIMIT để biết 4 chỗ đang treo chờ BA.
 
-**Việc sheet — ✅ ĐÃ XONG 27/08, không còn tồn.** Cả 5 issue đã deploy nay ghi
+**🚚 CHỜ DEPLOY: D3a.** Nhánh `dev/2026-08-27-d3a` đã merge `main`. Chủ dự án deploy UAT bằng
+`-u wujia_portal_layout,wujia_portal_support,wujia_portal_delivery,wujia_portal_base,wujia_portal_return,wujia_sale`
+(không module mới, không cập nhật dữ liệu, không migration; `?v=1178` đã bump sẵn). Deploy xong
+thì **chạy `qa_deploy_mark.py`** — nhưng lưu ý `UI-CARDHEADER-001` **vẫn `Ready for Dev`**, chưa
+có gì để `qa_sync.py` handoff; entry ledger đã soạn sẵn **dạng comment** trong
+`docs/qa-issue-ledger.yaml`, D3n bỏ `#` là chạy được (tiền lệ C8a).
+
+**Việc tồn 27/08 — ✅ XONG.** Nhãn option "tất cả" của bộ lọc bù hàng nay gom về **một hằng**
+`FILTER_ALL_LABEL` cạnh `FILTER_OPTIONS` (`wujia_portal_return/controllers/portal.py`), cả PC
+lẫn mobile đều `t-out="filter_all_label"`. Đo trên browser: PC `— Tất cả —` → **`— Tất cả trạng
+thái —`**, khớp mobile. `value=""` không đổi ⇒ kết quả lọc bất biến.
+
+### Còn treo sau D3a — đọc trước khi làm D3b
+
+1. **Fork `wj-pc-acct-headcard` (19 hit) chưa trả lời.** Markup có **HAI** vùng phải
+   (`__chips` + `__box`) mà spec cho **tối đa MỘT** trailing. D3a **không đụng file**, lấy
+   `wj-pc-acct-panel-title` cùng route làm mẫu thay thế. Cần BA chốt: chips/box ra **ngoài**
+   CardHeader (Dev nghiêng về cái này) / gộp thành **một** control / cho `regular` + miễn trừ.
+2. **Title dài vượt 2 dòng.** Spec tự chỏi: *"wrap tối đa 2 dòng"* + *"không ellipsis"*. Dev
+   chọn hiện đủ chữ. Đo thật: 2 dòng chứa ~64 ký tự @360 và ~96 @1440, tiêu đề dài nhất trong
+   mã nguồn là **22 ký tự** ⇒ mọi call site thực tế đều 1 dòng. Cần BA chốt ưu tiên.
+3. **3 chỗ SectionHeader/CardHeader vẫn treo từ C8** (`portal_delivery.xml:15`,
+   `portal_order_catalog.xml:17`, `portal_debt.xml:688` "THÔNG TIN CHUYỂN KHOẢN",
+   `portal_inspection_list_templates.xml:34`) — **KHÔNG tự quyết lại**.
+4. **FilterCard = 0 call site** ⇒ theo MAPPING của BA đây là **dựng MỚI**, không phải migrate.
+
+### 🔴 Bài học D3a — đừng lặp lại ở D3b
+
+- **Gỡ `mb-*` ở call site là CHƯA đủ.** `/portal/support` vẫn cách 28px vì lớp **body** tự khai
+  `margin-top` (`.wujia-content-card-table { margin: 16px … }`). Phải **đo `gapToBody` bằng
+  `getBoundingClientRect()`**, rồi trung hoà đúng lớp body đó:
+  `.wj-card-header + <lớp-body> { margin-top: 0 }`. Danh sách này nằm cuối khối CardHeader
+  trong `_components.css`, rút dần mỗi session.
+- **Vị trí trong card KHÔNG phải tiêu chí phân loại.** Bộ lọc "phải là con đầu của card" từng
+  loại nhầm **31** CardHeader hợp lệ (vd `wj-pc-acct-headcard__title` nằm trong `__main` sau
+  `__icon`). Ranh giới của BA thuần tuý là **"nằm trong card ⇒ CardHeader"**.
+- **`--log-level=warn` nuốt dòng `odoo.tests.result` khi test PASS** (nó là INFO; chỉ khi FAIL
+  mới là ERROR) ⇒ tưởng "test không chạy". Dùng `--log-level=test`.
+- **A/B bằng 2 DB rẻ và sạch hơn A/B bằng CSS interception** khi thay đổi nằm ở `arch_db`:
+  clone DB, `-u` một bên, dựng 2 server 2 port. Harness: `scratchpad/d3_measure.py` ·
+  `d3_probe_ch.py` · `d3_edge.py` · `d3_tabwalk.py`.
+
+### 🆕 6 issue BA vừa đổ lên — lứa **D7+**, CHƯA phân cụm
+
+BA thêm STT **128–133** sau khi lứa D được chốt: **StatusBadge · PageContainer · Pagination ·
+Sidebar · Button · UI-MOB-HOME-004**. Chủ dự án chốt 27/08: **chỉ ghi nhận, không đụng** cho
+tới khi xong D3–D6. Phân cụm chúng thành D7… sau khi D6 đóng.
+
+**Việc sheet (đợt 27/08) — ✅ ĐÃ XONG, không còn tồn.** Cả 5 issue đã deploy nay ghi
 **`ĐÃ DEPLOY UAT 27/08/2026 — sẵn sàng retest`** ở cột `Build / Deploy` + ngày cập nhật 27/08
 + 5 dòng `7. ISSUE HISTORY`, verify lại bằng CSV công khai (`WJ-PORTAL-UI-002` dòng 108 ·
 `UAT-BH-001` 111 · `UAT-BH-003` 112 · `UAT-BH-005` 113 · `UAT-BH-006` 114). BA retest được ngay.
@@ -55,15 +103,9 @@ nên **ăn theo filter đang bật của tab** ⇒ chỉ ra 25 dòng và số d�
 gọi đúng tên `"Issue List"` (có trong `KNOWN_GID` ⇒ đi `export?format=csv`, bỏ qua filter) —
 đúng như `qa_sync.py` đang làm.
 
-**Tồn duy nhất — nhãn option "tất cả" lệch PC↔mobile** (phát hiện khi đo lại D1 trên UAT):
-`custom/wujia_portal_return/views/portal_return_list.xml:42` ghi `— Tất cả —`, còn `:187` ghi
-`— Tất cả trạng thái —`. 8 nhãn trạng thái thật thì khớp 100% (sinh từ nguồn duy nhất
-`FILTER_OPTIONS` mà D1 dựng), riêng option rỗng bị **gõ tay 2 chỗ**. Đúng loại lệch mà
-`UAT-BH-005` đang dẹp, tuy chỉ là chữ hiển thị (cùng `value=""`, không đổi kết quả lọc).
-Sửa 2 dòng, **ghép vào chuyến deploy của D3**, không deploy riêng.
-
-**Trạng thái khác:** hàng đợi deploy **TRỐNG** · Issue List **0 `Ready for Dev`** ngoài lứa D
-đang chạy · nhánh `dev/2026-08-26-d2` đã merge, `main` = `f0a7cb4` trở đi.
+**Trạng thái khác:** hàng đợi deploy có **D3a chờ lên UAT** · Issue List: ngoài lứa D đang chạy
+còn **6 issue mới STT 128–133** đã ghi nhận thành lứa **D7+** (chưa đụng) · nhánh
+`dev/2026-08-27-d3a` đã merge `main`.
 
 **Thứ tự chạy:** D1 → D2 → D3 (nhiều session D3a…) → D4 (D4a…) → D5 (D5a…) → D6 → **R1–R5**.
 Lý do: D1 là 2 High chức năng, độc lập. D2 rẻ và là **tiền đề** của spec CardHeader/SurfaceCard
@@ -112,15 +154,20 @@ trên DB copy `wujia_tea_d1` port 8065 → RC=0; **26/26 đo đạt (100%)**, 6 
 Ready for Retest; `-u wujia_portal_layout` trên DB copy `wujia_tea_d2` port 8066 → RC=0;
 **14/14 acceptance**, chỗ ≠ Inter **145 → 0** trên 80 ô đo **ngay trên UAT**, B4 286/286,
 tab-walk 331 stop giữ nguyên thứ tự + ring; `docs/d2-acceptance-matrix.md` +
-`docs/d2-font-inventory.md`) · D3 ⬜ · D4 ⬜ · D5 ⬜ · D6 ⬜ · R1–R5 ⬜
+`docs/d2-font-inventory.md`) · **D3a ✅ 27/08/2026** (dựng `wj_card_header` + kiểm kê
+`docs/d3-cardheader-inventory.md` **103 call site** trong đó **31 giả-heading** — đúng bệnh BA
+nêu; migrate **4 họ markup** mẫu = 10 header; `-u` 6 module trên DB copy `wujia_tea_d3` port
+8067 → RC=0, `Registry loaded in 6.302s`; **105 test xanh** + 26 test mới có **mutation check**;
+acceptance **19✅/1⚠️/1⏳ = 95%**, mật độ **16/16 ô không cao lên**, 3/4 route thẻ thấp đi
+20.6/22.0/**104.0**px, giả-heading **8 → 0**, B4 **286/286**, tab-walk 175 stop giữ nguyên,
+font Inter 514/514 y hệt; `docs/d3-acceptance-matrix.md`) · D3b…D3n ⬜ · D4 ⬜ · D5 ⬜ ·
+D6 ⬜ · R1–R5 ⬜
 
 🚚 **D1 + D2 ĐÃ DEPLOY UAT 27/08** (`wujia_portal_layout 19.0.32.4.0` · `wujia_portal_return
 19.0.2.7.0` · `wujia_sale 19.0.4.3.0`, xác nhận XML-RPC) **+ đo lại chỉ-đọc ngay trên UAT**:
 D2 **14/14** (chỗ ≠ Inter 145→0, `scrollHeight`/số dòng/`font-weight`/icon **0 lệch trên 80 ô**,
-B4 286/286, tab-walk 346 stop) · D1 **27/28**. **Hàng đợi deploy: TRỐNG.**
-🔴 **Việc kèm cho phiên sau**: option "tất cả" của bộ lọc bù hàng lệch chữ PC↔mobile
-(`portal_return_list.xml:42` `— Tất cả —` vs `:187` `— Tất cả trạng thái —`) — gõ tay 2 chỗ,
-đúng loại lệch UAT-BH-005 đang dẹp; sửa 2 dòng, **ghép vào chuyến deploy D3**.
+B4 286/286, tab-walk 346 stop) · D1 **27/28**.
+🚚 **D3a chờ deploy UAT** — xem lệnh + version ở đầu §Bàn giao.
 
 ---
 
@@ -185,16 +232,21 @@ B4 286/286, tab-walk 346 stop) · D1 **27/28**. **Hàng đợi deploy: TRỐNG.*
 > Prompt: "làm cụm D3a" (rồi D3b, D3c…). Mô hình đã chạy trơn ở C8: **kiểm kê trước, code sau,
 > phân loại theo TỔ TIÊN DOM chứ không theo tên class**.
 
-- **D3a:** dựng `docs/d3-cardheader-inventory.md` liệt kê mọi heading **nằm trong card**
-  (nghi vấn: `wujia-content-card-header*` ~30, `wj-pc-acct-headcard` 33, title trong
-  `wj-pc-card` 154, `wujia-mdash-title`, label 11px viết hoa của debt). Phân 3 loại
-  PageHeader / SectionHeader / **CardHeader**. Dựng `wj_card_header` cạnh `wj_section_header`,
-  API: leading `[icon? + title + subtitle?]` + trailing **tối đa một** trong
-  `meta/count | action | control`; props `variant=compact|regular` (compact mặc định).
-  Migrate 3–4 route mẫu, đo đủ rồi mới nhân.
-- **D3b…D3n:** migrate hết call site, mỗi session một nhóm màn, mỗi session một lần `-u`,
-  mỗi session đo lại B4 286/286 + tab-walk. Issue **giữ `Ready for Dev`** cho tới khi đủ 100%
-  (tiền lệ C8a→C8b).
+- **D3a ✅ 27/08.** Kiểm kê `docs/d3-cardheader-inventory.md`: 218 ứng viên trong card → 91 bị
+  loại theo vai trò → **127 CardHeader** (96 heading thật + **31 giả-heading** = đúng bệnh BA
+  nêu) → loại tay 23 → **104** ⇒ **103 chỗ gọi thật**. Con số thật **nhỏ hơn hẳn** ước lượng
+  của kế hoạch: `wj-pc-card__title` **23–25** chứ không phải 154, `wj-pc-acct-headcard` **19**
+  chứ không phải 33 ⇒ D3 nhẹ hơn dự kiến. Component `wj_card_header` + CSS đã xong; migrate
+  **4 họ markup** mẫu (10 header). Đo: `docs/d3-acceptance-matrix.md` — **95%**.
+- **D3b…D3n:** migrate hết call site theo **bảng-theo-file** ở §kế hoạch của inventory, mỗi
+  session một nhóm màn, mỗi session một lần `-u`, mỗi session đo lại B4 286/286 + tab-walk.
+  Issue **giữ `Ready for Dev`** cho tới khi đủ 100% (tiền lệ C8a→C8b); entry ledger đã soạn
+  sẵn **dạng comment** ở cuối `docs/qa-issue-ledger.yaml`, D3n bỏ `#` là dùng được.
+- 🔴 **Bẫy D3a đã trả giá, đừng lặp:** (1) gỡ `mb-*` ở call site **chưa đủ** — lớp body tự khai
+  `margin-top`, phải đo `gapToBody` bằng `getBoundingClientRect()` rồi trung hoà bằng
+  `.wj-card-header + <lớp-body> { margin-top: 0 }`; (2) **vị trí trong card không phải tiêu
+  chí** — lọc "phải là con đầu của card" từng loại nhầm 31 header hợp lệ; (3)
+  `--log-level=warn` **nuốt dòng kết quả test khi PASS**, dùng `--log-level=test`.
 - Con số bắt buộc: desktop compact 18/24/600–700, regular 20/28/700; mobile compact 16/22/600–700,
   regular 18/24/700; header→body 12/8. **CardHeader không tự thêm padding, không đặt chiều cao.**
 - ⚠️ `_wujia_theme.css:35` ép `.content-wrapper h1..h6{font-weight:700!important}` (UI-06/S35)

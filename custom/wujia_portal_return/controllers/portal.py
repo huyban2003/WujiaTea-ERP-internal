@@ -90,6 +90,12 @@ FILTER_OPTIONS = [
     ('cancelled', 'Đã huỷ'),
 ]
 
+# Option rỗng của dropdown lọc — nguồn DUY NHẤT, y như FILTER_OPTIONS. Trước đây gõ
+# tay ở cả 2 chỗ nên PC ra "— Tất cả —" còn mobile ra "— Tất cả trạng thái —" (phát
+# hiện khi đo lại D1 trên UAT). Lấy chữ mobile vì mobile không có <label> nhìn thấy
+# được, chỉ có aria-label.
+FILTER_ALL_LABEL = '— Tất cả trạng thái —'
+
 
 def state_filter_domain(key):
     """Domain của một lựa chọn lọc — [] nếu key rỗng hoặc không hợp lệ."""
@@ -282,6 +288,7 @@ class WujiaPortalReturn(http.Controller):
             'state_labels': STATE_LABELS, 'wj_state_label': state_label,
             'comp_status_labels': COMPENSATION_STATUS_LABELS,
             'filter_options': FILTER_OPTIONS,
+            'filter_all_label': FILTER_ALL_LABEL,
             'state': '', 'date_from': '', 'date_to': '', 'q': '', 'notice': '',
             'wj_dt': fmt_local_dt,
         }

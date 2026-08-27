@@ -3130,3 +3130,137 @@ a.wujia-mhome-kpi:active { opacity: 0.85; }
     content: ""; position: absolute; top: 50%; right: 0;
     width: 100%; min-width: 44px; height: 44px; transform: translateY(-50%);
 }
+
+/* ============================================================
+   WJ_CardHeader — component chuẩn hoá tiêu đề TRONG card (BA CMP-CH-001)
+   Base + mobile modifier (--m / --any). PC modifier (--pc) ở _pc_components.css.
+   TỐI ĐA MỘT trailing: action > control > meta (guard ở template).
+   🔴 KHÔNG khai padding, KHÔNG khai height — đó là việc của SurfaceCard (D4).
+      Component chỉ khai nhịp dọc (margin) + gap.
+   ============================================================ */
+.wj-card-header {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;          /* <360 hết chỗ → trailing xuống dòng, KHÔNG tự ẩn (spec) */
+    width: 100%;
+    min-width: 0;
+    background: transparent;
+}
+.wj-card-header__lead {
+    display: flex;
+    align-items: center;
+    flex: 1 1 auto;
+    min-width: 0;
+    gap: 12px;
+}
+/* Icon nhận diện — tái dùng đúng token của .wujia-content-card-header-icon để 31 chỗ
+   thuộc họ đó migrate xong trông y hệt trước. */
+.wj-card-header__icon {
+    flex: 0 0 var(--wujia-content-card-header-icon-size);
+    width: var(--wujia-content-card-header-icon-size);
+    height: var(--wujia-content-card-header-icon-size);
+    border-radius: 50%;
+    background: var(--wujia-content-card-header-icon-bg);
+    color: #FFFFFF;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    line-height: 1;
+}
+.wj-card-header__text { min-width: 0; }
+.wj-card-header__title {
+    margin: 0;
+    min-width: 0;
+    /* Spec: wrap tối đa 2 dòng, KHÔNG ellipsis khi không có cách xem đầy đủ ⇒ cố ý
+       KHÔNG dùng -webkit-line-clamp (clamp là ellipsis + giấu chữ). */
+    overflow-wrap: anywhere;
+    /* ⚠️ CMP-CH-001 ghi 600–700; UI-06 (S35) ép `.content-wrapper h1..h6
+       { font-weight:700 !important }` (_wujia_theme.css:35) ⇒ 600 không ăn.
+       700 nằm trong khoảng BA cho phép nên đây KHÔNG phải LIMIT. */
+    font-weight: 700;
+    color: var(--wujia-text-primary);
+}
+.wj-card-header__subtitle {
+    margin: 2px 0 0;
+    font-weight: 400;
+    color: var(--wujia-text-subtitle);
+    overflow-wrap: anywhere;
+}
+/* Trailing luôn dạt phải, không tự xuống dòng giữa chừng (spec) */
+.wj-card-header__action,
+.wj-card-header__meta,
+.wj-card-header > .wj-card-header__control {
+    flex: 0 0 auto;
+    margin: 0 0 0 auto;
+    white-space: nowrap;
+    font-weight: 600;
+}
+.wj-card-header__meta { color: var(--wujia-text-subtitle); }
+.wj-card-header__action {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    color: var(--wujia-primary);
+    text-decoration: none;
+}
+.wj-card-header__action > i { font-size: 16px; line-height: 1; }
+.wj-card-header > .wj-card-header__control {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+}
+/* Divider mặc định TẮT; chỉ bật cho card chứa bảng/danh sách dày đặc (spec).
+   Đây là chỗ DUY NHẤT component được phép có padding, và chỉ padding-bottom để
+   chữ không dính vào đường kẻ. */
+.wj-card-header--divider {
+    border-bottom: 1px solid var(--wujia-border-soft);
+}
+
+/* Mobile (--m) + không khai nền tảng (--any) */
+.wj-card-header--m,
+.wj-card-header--any { column-gap: 8px; row-gap: 4px; }
+/* !important để thắng global `h2 { font-size: … !important }` (_components.css:6)
+   và `.card .card-title, .card-header h4/h5 { font-size: … !important }` (:8) */
+.wj-card-header--m.wj-card-header--compact .wj-card-header__title,
+.wj-card-header--any.wj-card-header--compact .wj-card-header__title {
+    font-size: 16px !important;
+    line-height: 22px;
+}
+.wj-card-header--m.wj-card-header--regular .wj-card-header__title,
+.wj-card-header--any.wj-card-header--regular .wj-card-header__title {
+    font-size: 18px !important;
+    line-height: 24px;
+}
+.wj-card-header--m.wj-card-header--compact,
+.wj-card-header--any.wj-card-header--compact { margin: 0 0 8px; }
+.wj-card-header--m.wj-card-header--regular,
+.wj-card-header--any.wj-card-header--regular { margin: 0 0 12px; }
+.wj-card-header--m .wj-card-header__subtitle,
+.wj-card-header--any .wj-card-header__subtitle { font-size: 13px; line-height: 18px; }
+.wj-card-header--m .wj-card-header__action,
+.wj-card-header--any .wj-card-header__action,
+.wj-card-header--m .wj-card-header__meta,
+.wj-card-header--any .wj-card-header__meta { font-size: 13px; line-height: 18px; }
+.wj-card-header--m.wj-card-header--divider,
+.wj-card-header--any.wj-card-header--divider { padding-bottom: 8px; }
+/* Vùng chạm ≥44 cho action mobile mà KHÔNG nống chiều cao hàng (spec ghi rõ:
+   "touch target không đồng nghĩa làm tăng chiều cao toàn header") */
+.wj-card-header--m .wj-card-header__action::after,
+.wj-card-header--any .wj-card-header__action::after {
+    content: ""; position: absolute; top: 50%; right: 0;
+    width: 100%; min-width: 44px; height: 44px; transform: translateY(-50%);
+}
+/* Container đã tự lo nhịp (padding/flex gap) thì KHÔNG cộng margin của header —
+   caller opt-in bằng --flush. KHÔNG dùng :first-child: mỗi header là con đầu của
+   card riêng nên :first-child khớp TẤT CẢ (bẫy đã trả giá ở C8). */
+.wj-card-header--flush { margin-top: 0; margin-bottom: 0; }
+
+/* Spec CẤM cộng chồng margin header với margin body. Migrate đã gỡ được `mb-*` nằm
+   trên chính dòng tiêu đề, nhưng vài lớp BODY cũ tự khai `margin-top` nên khoảng cách
+   thật vẫn là tổng hai bên — đo được ở /portal/support: header 12 + bảng 16 = 28px.
+   Trung hoà đúng lớp body đó khi nó đứng NGAY SAU CardHeader; không đụng rule gốc vì
+   `.wujia-content-card-table` còn 31 chỗ chưa migrate vẫn cần 16px khi không có header.
+   Danh sách này rút dần theo D3b…D3n và chết hẳn khi lớp cũ bị xoá. */
+.wj-card-header + .wujia-content-card-table { margin-top: 0; }

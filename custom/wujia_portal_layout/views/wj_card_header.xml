@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- WJ_CardHeader — component chuẩn hoá tiêu đề NẰM TRONG card (BA CMP-CH-001).
+         Ranh giới: heading cấp trang → wj_page_header; heading mở đầu section nhưng
+         NGOÀI card → wj_section_header; trong card → chỗ này.
+
+         Leading  = [icon? + title + subtitle?]
+         Trailing = TỐI ĐA MỘT trong meta/count | action | control (spec).
+         ch_meta / ch_control là markup THÔ, KHÔNG bọc element — bài học B3a: slot
+         swap của wj_ajax_list thay theo id, bọc thêm một tầng là vỡ.
+
+         ch_variant 'compact' (mặc định, BA chốt compact-first) | 'regular'.
+         ch_platform 'm' | 'pc' bake sẵn visibility; bỏ trống = hiện mọi breakpoint.
+         🔴 Component KHÔNG khai padding và KHÔNG khai height — padding là việc của
+         SurfaceCard (CMP-SC-001, cụm D4). Chỉ khai nhịp dọc + gap. -->
+    <template id="wj_card_header" name="Wujia — Card Header component">
+        <t t-set="_ch_lvl" t-value="ch_level or 3"/>
+        <t t-set="_ch_var" t-value="'regular' if ch_variant == 'regular' else 'compact'"/>
+        <t t-set="_ch_slot"
+           t-value="'action' if ch_action_url else ('control' if ch_control else ('meta' if ch_meta else 'none'))"/>
+        <t t-set="_ch_vis"
+           t-value="('d-flex d-lg-none' if ch_platform == 'm' else 'd-none d-lg-flex') if ch_platform else 'd-flex'"/>
+        <div t-att-id="ch_id"
+             t-attf-class="wj-card-header wj-card-header--#{_ch_var} wj-card-header--#{_ch_slot} wj-card-header--#{ch_platform or 'any'} #{'wj-card-header--divider ' if ch_divider else ''}#{_ch_vis} #{ch_class or ''}">
+            <div class="wj-card-header__lead">
+                <!-- Icon nhận diện: trang trí ⇒ aria-hidden (spec). Icon TỰ MANG NGHĨA
+                     thì caller truyền ch_icon_label để có accessible name. -->
+                <span t-if="ch_icon" class="wj-card-header__icon"
+                      t-att-aria-hidden="'true' if not ch_icon_label else None"
+                      t-att-role="'img' if ch_icon_label else None"
+                      t-att-aria-label="ch_icon_label or None">
+                    <i t-attf-class="feather icon-#{ch_icon}"/>
+                </span>
+                <div class="wj-card-header__text">
+                    <!-- Heading THẬT theo ch_level (spec cấm P/SPAN giả heading).
+                         Odoo 19 QWeb KHÔNG có directive đặt tên thẻ động
+                         (t-tag-open/close sinh từ thẻ TĨNH, ir_qweb.py:1705) ⇒ buộc
+                         phải rẽ nhánh, chỉ mình dòng heading. -->
+                    <h2 t-if="_ch_lvl == 2" class="wj-card-header__title" t-out="ch_title"/>
+                    <h4 t-elif="_ch_lvl == 4" class="wj-card-header__title" t-out="ch_title"/>
+                    <h3 t-else="" class="wj-card-header__title" t-out="ch_title"/>
+                    <p t-if="ch_subtitle" class="wj-card-header__subtitle" t-out="ch_subtitle"/>
+                </div>
+            </div>
+
+            <a t-if="_ch_slot == 'action'" t-att-href="ch_action_url"
+               class="wj-card-header__action">
+                <span t-out="ch_action_label or 'Xem tất cả'"/>
+                <i t-if="ch_action_icon" t-attf-class="feather icon-#{ch_action_icon}"/>
+            </a>
+            <t t-elif="_ch_slot == 'control'" t-out="ch_control"/>
+            <t t-elif="_ch_slot == 'meta'" t-out="ch_meta"/>
+        </div>
+    </template>
+</odoo>

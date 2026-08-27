@@ -57,12 +57,11 @@
 
                 <!-- Panel: Thông tin nhượng quyền -->
                 <div class="wj-pc-card">
-                    <div class="wj-pc-card__head">
-                        <div>
-                            <h3 class="wj-pc-acct-panel-title">Thông tin nhượng quyền</h3>
-                            <p class="wj-pc-acct-panel-sub">Thông tin chính của cửa hàng hiện tại</p>
-                        </div>
-                    </div>
+                    <t t-call="wujia_portal_layout.wj_card_header">
+                        <t t-set="ch_title">Thông tin nhượng quyền</t>
+                        <t t-set="ch_subtitle">Thông tin chính của cửa hàng hiện tại</t>
+                        <t t-set="ch_platform" t-value="'pc'"/>
+                    </t>
                     <div class="wj-pc-acct-kv-grid wj-pc-acct-kv-grid--3">
                         <div class="wj-pc-acct-field">
                             <span class="wj-pc-acct-field__label">Mã cửa hàng</span>
@@ -96,12 +95,11 @@
                 <!-- Panel: Thành viên cửa hàng — 3 trạng thái -->
                 <div class="wj-pc-card">
                     <t t-if="is_owner_manager">
-                        <div class="wj-pc-card__head">
-                            <div>
-                                <h3 class="wj-pc-acct-panel-title">Thành viên cửa hàng</h3>
-                                <p class="wj-pc-acct-panel-sub">Owner/Manager được xem danh sách tài khoản thuộc cửa hàng hiện tại</p>
-                            </div>
-                        </div>
+                        <t t-call="wujia_portal_layout.wj_card_header">
+                            <t t-set="ch_title">Thành viên cửa hàng</t>
+                            <t t-set="ch_subtitle">Owner/Manager được xem danh sách tài khoản thuộc cửa hàng hiện tại</t>
+                            <t t-set="ch_platform" t-value="'pc'"/>
+                        </t>
                         <t t-if="members">
                             <table class="wj-pc-table wj-pc-acct-members">
                                 <thead>
