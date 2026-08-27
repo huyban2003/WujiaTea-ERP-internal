@@ -7,11 +7,11 @@
         <t t-set="doc_plan_date"
             t-value="docs[0].planned_date.strftime('%d-%m-%Y') if (docs and docs[0].planned_date) else ''" />
         <t t-set="title"
-            t-value="'Báo cáo Khảo sát Giám sát [%s] [%s]' % (doc_store_name, doc_plan_date)" />
+            t-value="'Franchise Inspection Report [%s] [%s]' % (doc_store_name, doc_plan_date)" />
         <t t-call="web.html_container">
             <script type="text/javascript">
                 (function() {
-                    var title = "Báo cáo Khảo sát Giám sát [<t t-esc="doc_store_name" />] [<t t-esc="doc_plan_date" />]";
+                    var title = "Franchise Inspection Report [<t t-esc="doc_store_name" />] [<t t-esc="doc_plan_date" />]";
                     document.title = title;
                     try {
                         if (window.parent &amp;&amp; window.parent.document) {
@@ -38,22 +38,22 @@
                             <div class="action-bar-title">
                                 <i class="fa fa-file-pdf"></i>
                                 <t
-                                    t-out="t.get('label:wujia.franchise.inspection_report:bar_title', 'Xem trước Báo cáo Khảo sát Giám sát')" />
+                                    t-out="t.get('label:wujia.franchise.inspection_report:bar_title', 'Preview Franchise Inspection Report')" />
                             </div>
                             <div class="action-bar-sub">
                                 <t
-                                    t-out="t.get('label:wujia.franchise.inspection_report:bar_sub', 'Bấm nút in bên dưới để lưu file PDF hoặc in trực tiếp ra máy in.')" />
+                                    t-out="t.get('label:wujia.franchise.inspection_report:bar_sub', 'Click print button below to save PDF file or print directly.')" />
                             </div>
                             <div style="font-size: 11px; color: #64748b; margin-top: 4px;">
                                 <i class="fa fa-circle-info text-primary me-1"></i>
                                 <t
-                                    t-out="t.get('label:wujia.franchise.inspection_report:print_tip', 'Mẹo: Bỏ tích ô Headers and footers (Tiêu đề và chân trang) trong hộp thoại in của trình duyệt để ẩn hoàn toàn link URL và ngày giờ.')" />
+                                    t-out="t.get('label:wujia.franchise.inspection_report:print_tip', 'Tip: Uncheck Headers and footers in the browser print dialog to hide URL and timestamps.')" />
                             </div>
                         </div>
                         <button type="button" id="btnPrintReport" class="btn-print-action">
                             <i class="fa fa-print"></i>
                             <t
-                                t-out="t.get('label:wujia.franchise.inspection_report:btn_print', 'In / Xuất PDF')" />
+                                t-out="t.get('label:wujia.franchise.inspection_report:btn_print', 'Print / Export PDF')" />
                         </button>
                     </div>
 
@@ -62,7 +62,7 @@
                         <div>
                             <h1 class="report-title">
                                 <t
-                                    t-out="t.get('label:wujia.franchise.inspection_report:report_title', 'PHIẾU KHẢO SÁT GIÁM SÁT CỬA HÀNG')" />
+                                    t-out="t.get('label:wujia.franchise.inspection_report:report_title', 'FRANCHISE STORE SUPERVISION INSPECTION REPORT')" />
                             </h1>
                             <div class="store-name-sub">
                                 <t t-esc="doc.franchise_id.name" /> (<t
@@ -74,7 +74,7 @@
                             </div>
                             <div class="report-date-text">
                                 <t
-                                    t-out="t.get('label:wujia.franchise.inspection_report:label_planned_date', 'Ngày khảo sát:')" />
+                                    t-out="t.get('label:wujia.franchise.inspection_report:label_planned_date', 'Inspection Date:')" />
                                 <strong>
                                     <t t-esc="doc.planned_date"
                                         t-options='{"widget": "date", "format": "dd/MM/yyyy"}' />
@@ -88,7 +88,7 @@
                         <tr>
                             <td class="label-cell">
                                 <t
-                                    t-out="t.get('label:wujia.franchise.inspection_report:label_store', 'Cửa hàng:')" />
+                                    t-out="t.get('label:wujia.franchise.inspection_report:label_store', 'Franchise Store:')" />
                             </td>
                             <td>
                                 <strong style="color: #0f172a;">
@@ -97,7 +97,7 @@
                             </td>
                             <td class="label-cell">
                                 <t
-                                    t-out="t.get('label:wujia.franchise.inspection_report:label_inspector', 'Người kiểm tra:')" />
+                                    t-out="t.get('label:wujia.franchise.inspection_report:label_inspector', 'Inspector:')" />
                             </td>
                             <td>
                                 <t t-esc="doc.inspector_user_id.name" />
@@ -106,14 +106,14 @@
                         <tr>
                             <td class="label-cell">
                                 <t
-                                    t-out="t.get('label:wujia.franchise.inspection_report:label_address', 'Địa chỉ:')" />
+                                    t-out="t.get('label:wujia.franchise.inspection_report:label_address', 'Address:')" />
                             </td>
                             <td>
                                 <t t-esc="doc.franchise_id.address or '---'" />
                             </td>
                             <td class="label-cell">
                                 <t
-                                    t-out="t.get('label:wujia.franchise.inspection_report:label_store_rep', 'Đại diện cửa hàng:')" />
+                                    t-out="t.get('label:wujia.franchise.inspection_report:label_store_rep', 'Store Representative:')" />
                             </td>
                             <td>
                                 <t
@@ -123,35 +123,35 @@
                         <tr>
                             <td class="label-cell">
                                 <t
-                                    t-out="t.get('label:wujia.franchise.inspection_report:label_state', 'Trạng thái:')" />
+                                    t-out="t.get('label:wujia.franchise.inspection_report:label_state', 'Status:')" />
                             </td>
                             <td>
                                 <span
                                     t-att-class="'badge-rep-pass' if doc.state == 'done' else 'badge-rep-fail'">
                                     <t t-if="doc.state == 'done'">
                                         <t
-                                            t-out="t.get('label:wujia.franchise.inspection_report:state_done', 'Đã hoàn thành')" />
+                                            t-out="t.get('label:wujia.franchise.inspection_report:state_done', 'Completed')" />
                                     </t>
                                     <t t-elif="doc.state == 'need_remediation'">
                                         <t
-                                            t-out="t.get('label:wujia.franchise.inspection_report:state_remediation', 'Cần khắc phục')" />
+                                            t-out="t.get('label:wujia.franchise.inspection_report:state_remediation', 'Need Remediation')" />
                                     </t>
                                     <t t-elif="doc.state == 'in_progress'">
                                         <t
-                                            t-out="t.get('label:wujia.franchise.inspection_report:state_in_progress', 'Đang thực hiện')" />
+                                            t-out="t.get('label:wujia.franchise.inspection_report:state_in_progress', 'In Progress')" />
                                     </t>
                                     <t t-else="">
                                         <t
-                                            t-out="t.get('label:wujia.franchise.inspection_report:state_draft', 'Bản nháp')" />
+                                            t-out="t.get('label:wujia.franchise.inspection_report:state_draft', 'Draft')" />
                                     </t>
                                 </span>
                             </td>
                             <td class="label-cell">
                                 <t
-                                    t-out="t.get('label:wujia.franchise.inspection_report:label_test_employee', 'Nhân viên làm test:')" />
+                                    t-out="t.get('label:wujia.franchise.inspection_report:label_test_employee', 'Tested Employee:')" />
                             </td>
                             <td><t t-esc="doc.test_employee_name or '---'" /> (<t
-                                    t-out="t.get('label:wujia.franchise.inspection_report:label_tenure', 'Thâm niên:')" /> <t
+                                    t-out="t.get('label:wujia.franchise.inspection_report:label_tenure', 'Tenure:')" /> <t
                                     t-esc="doc.tenure or '---'" />)</td>
                         </tr>
                     </table>
@@ -161,28 +161,28 @@
                         <div class="score-box">
                             <div class="s-label">
                                 <t
-                                    t-out="t.get('label:wujia.franchise.inspection_report:card_checklist_score', 'Điểm Checklist')" />
+                                    t-out="t.get('label:wujia.franchise.inspection_report:card_checklist_score', 'Checklist Score')" />
                             </div>
                             <div class="s-val"><t t-esc="doc.checklist_score" /> / 95</div>
                         </div>
                         <div class="score-box">
                             <div class="s-label">
                                 <t
-                                    t-out="t.get('label:wujia.franchise.inspection_report:card_exam_score', 'Kiểm tra NV')" />
+                                    t-out="t.get('label:wujia.franchise.inspection_report:card_exam_score', 'Staff Exam')" />
                             </div>
                             <div class="s-val"><t t-esc="doc.exam_score" /> / 5</div>
                         </div>
                         <div class="score-box highlight-total">
                             <div class="s-label">
                                 <t
-                                    t-out="t.get('label:wujia.franchise.inspection_report:card_total_score', 'Tổng Điểm Đạt')" />
+                                    t-out="t.get('label:wujia.franchise.inspection_report:card_total_score', 'Total Passed Score')" />
                             </div>
                             <div class="s-val"><t t-esc="doc.total_score" /> / 100</div>
                         </div>
                         <div class="score-box">
                             <div class="s-label">
                                 <t
-                                    t-out="t.get('label:wujia.franchise.inspection_report:card_grade', 'Xếp Loại')" />
+                                    t-out="t.get('label:wujia.franchise.inspection_report:card_grade', 'Grade')" />
                             </div>
                             <div class="s-val s-val-grade">
                                 <t t-esc="doc.grade_id.name if doc.grade_id else '---'" />
@@ -193,7 +193,7 @@
                     <!-- Section I: Checklist Criteria -->
                     <h3 class="section-heading">
                         <t
-                            t-out="t.get('label:wujia.franchise.inspection_report:sec_checklist_title', 'I. Bảng Đánh Giá Tiêu Chí Checklist')" />
+                            t-out="t.get('label:wujia.franchise.inspection_report:sec_checklist_title', 'I. Checklist Criteria Evaluation Table')" />
                     </h3>
                     <table class="rep-table">
                         <thead>
@@ -204,19 +204,19 @@
                                 </th>
                                 <th style="width: 50%;">
                                     <t
-                                        t-out="t.get('label:wujia.franchise.inspection_report:th_content', 'Nội dung Tiêu chí')" />
+                                        t-out="t.get('label:wujia.franchise.inspection_report:th_content', 'Criterion Content')" />
                                 </th>
                                 <th style="width: 12%; text-align: center;">
                                     <t
-                                        t-out="t.get('label:wujia.franchise.inspection_report:th_eval', 'Đánh giá')" />
+                                        t-out="t.get('label:wujia.franchise.inspection_report:th_eval', 'Evaluation')" />
                                 </th>
                                 <th style="width: 18%;">
                                     <t
-                                        t-out="t.get('label:wujia.franchise.inspection_report:th_note', 'Ghi chú vi phạm')" />
+                                        t-out="t.get('label:wujia.franchise.inspection_report:th_note', 'Violation Notes')" />
                                 </th>
                                 <th style="width: 15%; text-align: center;">
                                     <t
-                                        t-out="t.get('label:wujia.franchise.inspection_report:th_evidence', 'Ảnh bằng chứng')" />
+                                        t-out="t.get('label:wujia.franchise.inspection_report:th_evidence', 'Evidence Photo')" />
                                 </th>
                             </tr>
                         </thead>
@@ -262,7 +262,7 @@
                                             <t t-else="">
                                                 <span style="color: #cbd5e1; font-size: 11px;">
                                                     <t
-                                                        t-out="t.get('label:wujia.franchise.inspection_report:label_no_photo', 'Không')" />
+                                                        t-out="t.get('label:wujia.franchise.inspection_report:label_no_photo', 'None')" />
                                                 </span>
                                             </t>
                                         </td>
@@ -276,26 +276,26 @@
                     <t t-if="doc.exam_line_ids">
                         <h3 class="section-heading">
                             <t
-                                t-out="t.get('label:wujia.franchise.inspection_report:sec_exam_title', 'II. Kết Quả Kiểm Tra Kiến Thức Nhân Viên')" />
-                            (<t t-esc="doc.test_employee_name or 'Nhân viên'" />) </h3>
+                                t-out="t.get('label:wujia.franchise.inspection_report:sec_exam_title', 'II. Staff Knowledge Examination Results')" />
+                            (<t t-esc="doc.test_employee_name or 'Staff'" />) </h3>
                         <table class="rep-table">
                             <thead>
                                 <tr>
                                     <th style="width: 8%; text-align: center;">
                                         <t
-                                            t-out="t.get('label:wujia.franchise.inspection_report:th_exam_code', 'Mã')" />
+                                            t-out="t.get('label:wujia.franchise.inspection_report:th_exam_code', 'Code')" />
                                     </th>
                                     <th style="width: 42%;">
                                         <t
-                                            t-out="t.get('label:wujia.franchise.inspection_report:th_exam_question', 'Câu hỏi')" />
+                                            t-out="t.get('label:wujia.franchise.inspection_report:th_exam_question', 'Question')" />
                                     </th>
                                     <th style="width: 35%;">
                                         <t
-                                            t-out="t.get('label:wujia.franchise.inspection_report:th_exam_answer', 'Câu trả lời của nhân viên')" />
+                                            t-out="t.get('label:wujia.franchise.inspection_report:th_exam_answer', 'Employee Answer')" />
                                     </th>
                                     <th style="width: 15%; text-align: center;">
                                         <t
-                                            t-out="t.get('label:wujia.franchise.inspection_report:th_exam_score', 'Điểm đạt')" />
+                                            t-out="t.get('label:wujia.franchise.inspection_report:th_exam_score', 'Earned Points')" />
                                     </th>
                                 </tr>
                             </thead>
@@ -327,22 +327,22 @@
                         </table>
                     </t>
 
-                    <!-- Section III: Attendance & Store Appearance -->
+                    <!-- Section III: Attendance &amp; Store Appearance -->
                     <h3 class="section-heading">
                         <t
-                            t-out="t.get('label:wujia.franchise.inspection_report:sec_attendance_title', 'III. Điểm Danh Nhân Viên &amp; Ghi Nhận Khắc Phục')" />
+                            t-out="t.get('label:wujia.franchise.inspection_report:sec_attendance_title', 'III. Employee Attendance &amp; Remediation Notes')" />
                     </h3>
                     <table class="rep-table">
                         <thead>
                             <tr>
                                 <th style="width: 50%;">
                                     <t
-                                        t-out="t.get('label:wujia.franchise.inspection_report:th_issues_header', 'Ghi nhận ngoại quan kém &amp; Lỗi trọng điểm đợt này')" />
+                                        t-out="t.get('label:wujia.franchise.inspection_report:th_issues_header', 'Store Appearance Issues &amp; Key Remediations This Period')" />
                                 </th>
                                 <th style="width: 50%;"><t
-                                        t-out="t.get('label:wujia.franchise.inspection_report:th_attendance_header', 'Danh sách nhân viên có mặt tại buổi khảo sát')" />
+                                        t-out="t.get('label:wujia.franchise.inspection_report:th_attendance_header', 'List of Employees Present at Inspection')" />
                                     (<t t-esc="doc.present_count" /> <t
-                                        t-out="t.get('label:wujia.franchise.inspection_report:word_person', 'người')" />
+                                        t-out="t.get('label:wujia.franchise.inspection_report:word_person', 'people')" />
                                     )</th>
                             </tr>
                         </thead>
@@ -351,11 +351,11 @@
                                 <td class="remediation-box">
                                     <div class="remediation-box-label">
                                         <t
-                                            t-out="t.get('label:wujia.franchise.inspection_report:label_remediation_content', 'Nội dung cần khắc phục:')" />
+                                            t-out="t.get('label:wujia.franchise.inspection_report:label_remediation_content', 'Remediation Content:')" />
                                     </div>
                                     <div class="remediation-box-content">
                                         <t
-                                            t-esc="doc.store_appearance_issues or t.get('label:wujia.franchise.inspection_report:empty_issues', 'Không có ghi nhận lỗi ngoại quan trọng điểm.')" />
+                                            t-esc="(doc.store_appearance_issues or '').strip() or t.get('label:wujia.franchise.inspection_report:empty_issues', 'No key store appearance issues recorded.')" />
                                     </div>
                                 </td>
                                 <td class="attendance-list-cell">
@@ -371,21 +371,21 @@
                                                             style="color: #475569; font-size: 11px;">
                                                             (<t t-if="att.role == 'owner'">
                                                                 <t
-                                                                    t-out="t.get('label:wujia.franchise.inspection_report:role_owner', 'Chủ cửa hàng')" />
+                                                                    t-out="t.get('label:wujia.franchise.inspection_report:role_owner', 'Store Owner')" />
                                                             </t><t
                                                                 t-elif="att.role == 'manager'">
                                                                 <t
-                                                                    t-out="t.get('label:wujia.franchise.inspection_report:role_manager', 'Quản lý')" />
+                                                                    t-out="t.get('label:wujia.franchise.inspection_report:role_manager', 'Manager')" />
                                                             </t><t
                                                                 t-else="">
                                                                 <t
-                                                                    t-out="t.get('label:wujia.franchise.inspection_report:role_staff', 'Nhân viên')" />
+                                                                    t-out="t.get('label:wujia.franchise.inspection_report:role_staff', 'Staff')" />
                                                             </t>
                                                             ) </span>
                                                         <span
                                                             style="color: #15803d; font-size: 11px; font-weight: 600; margin-left: 4px;">
                                                             <t
-                                                                t-out="t.get('label:wujia.franchise.inspection_report:badge_present', '[Có mặt]')" />
+                                                                t-out="t.get('label:wujia.franchise.inspection_report:badge_present', '[Present]')" />
                                                         </span>
                                                     </t>
                                                     <t t-else="">
@@ -396,21 +396,21 @@
                                                             style="color: #94a3b8; font-size: 11px;">
                                                             (<t t-if="att.role == 'owner'">
                                                                 <t
-                                                                    t-out="t.get('label:wujia.franchise.inspection_report:role_owner', 'Chủ cửa hàng')" />
+                                                                    t-out="t.get('label:wujia.franchise.inspection_report:role_owner', 'Store Owner')" />
                                                             </t><t
                                                                 t-elif="att.role == 'manager'">
                                                                 <t
-                                                                    t-out="t.get('label:wujia.franchise.inspection_report:role_manager', 'Quản lý')" />
+                                                                    t-out="t.get('label:wujia.franchise.inspection_report:role_manager', 'Manager')" />
                                                             </t><t
                                                                 t-else="">
                                                                 <t
-                                                                    t-out="t.get('label:wujia.franchise.inspection_report:role_staff', 'Nhân viên')" />
+                                                                    t-out="t.get('label:wujia.franchise.inspection_report:role_staff', 'Staff')" />
                                                             </t>
                                                             ) </span>
                                                         <span
                                                             style="color: #ef4444; font-size: 11px; font-weight: 600; margin-left: 4px;">
                                                             <t
-                                                                t-out="t.get('label:wujia.franchise.inspection_report:badge_absent', '[Vắng]')" />
+                                                                t-out="t.get('label:wujia.franchise.inspection_report:badge_absent', '[Absent]')" />
                                                         </span>
                                                     </t>
                                                 </li>
@@ -420,7 +420,7 @@
                                     <t t-else="">
                                         <span style="color: #94a3b8; font-style: italic;">
                                             <t
-                                                t-out="t.get('label:wujia.franchise.inspection_report:empty_attendance', 'Chưa có danh sách điểm danh')" />
+                                                t-out="t.get('label:wujia.franchise.inspection_report:empty_attendance', 'No attendance list recorded')" />
                                         </span>
                                     </t>
                                 </td>
@@ -432,30 +432,30 @@
                     <t t-if="doc.report_line_ids">
                         <h3 class="section-heading">
                             <t
-                                t-out="t.get('label:wujia.franchise.inspection_report:sec_revenue_title', 'IV. Báo Cáo Chi Tiết Doanh Thu 3 Tháng')" />
+                                t-out="t.get('label:wujia.franchise.inspection_report:sec_revenue_title', 'IV. 3 Months Detailed Revenue Report')" />
                         </h3>
                         <table class="rep-table">
                             <thead>
                                 <tr>
                                     <th style="width: 18%; text-align: center; white-space: nowrap;">
                                         <t
-                                            t-out="t.get('label:wujia.franchise.inspection_survey:th_month', 'Tháng')" />
+                                            t-out="t.get('label:wujia.franchise.inspection_survey:th_month', 'Month')" />
                                     </th>
                                     <th style="width: 22%; text-align: right; white-space: nowrap;">
                                         <t
-                                            t-out="t.get('label:wujia.franchise.inspection_survey:th_revenue', 'Doanh thu')" />
+                                            t-out="t.get('label:wujia.franchise.inspection_survey:th_revenue', 'Revenue')" />
                                     </th>
                                     <th style="width: 22%; text-align: right; white-space: nowrap;">
                                         <t
-                                            t-out="t.get('label:wujia.franchise.inspection_survey:th_revenue_avg', 'Doanh thu/ngày')" />
+                                            t-out="t.get('label:wujia.franchise.inspection_survey:th_revenue_avg', 'Daily Revenue')" />
                                     </th>
                                     <th style="width: 20%; text-align: right; white-space: nowrap;">
                                         <t
-                                            t-out="t.get('label:wujia.franchise.inspection_survey:th_total_app_sale', 'Tổng đơn App')" />
+                                            t-out="t.get('label:wujia.franchise.inspection_survey:th_total_app_sale', 'Total App Orders')" />
                                     </th>
                                     <th style="width: 18%; text-align: right; white-space: nowrap;">
                                         <t
-                                            t-out="t.get('label:wujia.franchise.inspection_survey:th_percent_app_sale', '% Đơn App')" />
+                                            t-out="t.get('label:wujia.franchise.inspection_survey:th_percent_app_sale', 'App Orders %')" />
                                     </th>
                                 </tr>
                             </thead>
@@ -496,11 +496,11 @@
                                 <td>
                                     <div class="sig-title">
                                         <t
-                                            t-out="t.get('label:wujia.franchise.inspection_report:sig_store_rep_title', 'ĐẠI DIỆN CỬA HÀNG XÁC NHẬN')" />
+                                            t-out="t.get('label:wujia.franchise.inspection_report:sig_store_rep_title', 'STORE REPRESENTATIVE CONFIRMATION')" />
                                     </div>
                                     <div class="sig-subtitle">
                                         <t
-                                            t-out="t.get('label:wujia.franchise.inspection_report:sig_sub_instruction', '(Ký và ghi rõ họ tên)')" />
+                                            t-out="t.get('label:wujia.franchise.inspection_report:sig_sub_instruction', '(Signature &amp; Full Name)')" />
                                     </div>
                                     <div class="sig-img-box">
                                         <t t-if="doc.signature_image">
@@ -516,11 +516,11 @@
                                 <td>
                                     <div class="sig-title">
                                         <t
-                                            t-out="t.get('label:wujia.franchise.inspection_report:sig_inspector_title', 'NGƯỜI KIỂM TRA / GIÁM SÁT VIÊN')" />
+                                            t-out="t.get('label:wujia.franchise.inspection_report:sig_inspector_title', 'INSPECTOR / SUPERVISOR')" />
                                     </div>
                                     <div class="sig-subtitle">
                                         <t
-                                            t-out="t.get('label:wujia.franchise.inspection_report:sig_sub_instruction', '(Ký và ghi rõ họ tên)')" />
+                                            t-out="t.get('label:wujia.franchise.inspection_report:sig_sub_instruction', '(Signature &amp; Full Name)')" />
                                     </div>
                                     <div class="sig-img-box">
                                         <t t-if="doc.inspector_signature_image">
@@ -541,7 +541,7 @@
                     <div class="report-print-footer">
                         <div>WujiaTea ERP — <t t-esc="doc.name" /> (<t t-esc="doc.franchise_id.name" />
                             )</div>
-                        <div>Ngày khảo sát: <t t-esc="doc.planned_date"
+                        <div>Inspection Date: <t t-esc="doc.planned_date"
                                 t-options='{"widget": "date", "format": "dd/MM/yyyy"}' /></div>
                     </div>
 
@@ -552,12 +552,12 @@
 
     <!-- Report Action -->
     <record id="action_report_franchise_inspection" model="ir.actions.report">
-        <field name="name">Báo cáo Khảo sát Giám sát</field>
+        <field name="name">Franchise Inspection Report</field>
         <field name="model">wujia.franchise.inspection</field>
         <field name="report_type">qweb-html</field>
         <field name="report_name">wujia_franchise.report_inspection_document</field>
         <field name="report_file">wujia_franchise.report_inspection_document</field>
-        <field name="print_report_name">'Báo cáo Khảo sát Giám sát [%s] [%s]' %
+        <field name="print_report_name">'Franchise Inspection Report [%s] [%s]' %
             (object.franchise_id.name or '', (object.planned_date or
             datetime.date.today()).strftime('%d-%m-%Y'))</field>
         <field name="binding_model_id" ref="model_wujia_franchise_inspection" />

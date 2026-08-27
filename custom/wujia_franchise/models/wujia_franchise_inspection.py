@@ -111,7 +111,7 @@ class WujiaFranchiseInspection(models.Model):
 
     tenure = fields.Char(
         string='Tenure',
-        help='Working tenure of the tested employee (e.g. 1 năm, 6 tháng, 2 years).',
+        help='Working tenure of the tested employee (e.g. 1 year, 6 months, 2 years).',
     )
     # video 
     video = fields.Binary(
@@ -141,31 +141,31 @@ class WujiaFranchiseInspection(models.Model):
         digits=(10, 7),
         copy=False,
         tracking=True,
-        help='Tọa độ vĩ độ (Latitude) khi thực hiện khảo sát',
+        help='Latitude coordinate of inspection',
     )
     longitude = fields.Float(
         string='Longitude',
         digits=(10, 7),
         copy=False,
         tracking=True,
-        help='Tọa độ kinh độ (Longitude) khi thực hiện khảo sát',
+        help='Longitude coordinate of inspection',
     )
     checkin_time = fields.Datetime(
         string='Check-in Time',
         copy=False,
         tracking=True,
-        help='Thời gian ghi nhận vị trí GPS',
+        help='GPS location record time',
     )
     checkin_address = fields.Char(
         string='GPS Location',
         copy=False,
         tracking=True,
-        help='Thông tin hiển thị tọa độ và độ chính xác GPS',
+        help='GPS coordinates and accuracy information',
     )
     google_maps_url = fields.Char(
         string='Google Maps URL',
         compute='_compute_google_maps_url',
-        help='Liên kết mở vị trí khảo sát trên Google Maps',
+        help='Link to open inspection location on Google Maps',
     )
 
     @api.depends('latitude', 'longitude')
@@ -245,15 +245,15 @@ class WujiaFranchiseInspection(models.Model):
     )
 
     store_appearance_issues = fields.Text(
-        string='Ghi nhận ngoại quan kém & Lỗi trọng điểm',
+        string='Store Appearance Issues & Key Remediations',
         tracking=True,
         help='店鋪觀感不良敘述 與 待改善之重點缺失項目 / Ghi nhận ngoại quan kém và các lỗi trọng điểm cần khắc phục',
     )
     previous_store_appearance_issues = fields.Text(
-        string='Ghi nhận đợt trước gần nhất',
+        string='Previous Inspection Notes',
         compute='_compute_previous_store_appearance_issues',
         readonly=True,
-        help='Ghi nhận ngoại quan kém và các lỗi trọng điểm từ đợt khảo sát trước',
+        help='Store appearance issues and key remediations from previous inspection',
     )
 
     @api.depends('previous_inspection_id', 'previous_inspection_id.store_appearance_issues', 'franchise_id', 'planned_date')
@@ -304,28 +304,28 @@ class WujiaFranchiseInspection(models.Model):
         string='Staff Attendance',
         domain=[('line_type', '=', 'attendance')],
         copy=False,
-        help='Danh sách nhân viên có mặt trong buổi khảo sát.',
+        help='List of employees present during inspection.',
     )
 
     passed_member_ids = fields.Many2many(
         'wujia.franchise.member',
         string='Passed Staff',
         compute='_compute_passed_member_ids',
-        help='Danh sách nhân viên đã thi đậu thuộc cửa hàng.',
+        help='List of certified passed employees belonging to the store.',
     )
 
     present_count = fields.Integer(
         string='Present Staff',
         compute='_compute_present_count',
         store=True,
-        help='Số nhân viên đang có mặt tại cửa hàng.',
+        help='Number of employees present at the store.',
     )
 
     passed_count = fields.Integer(
         string='Passed Staff Count',
         compute='_compute_passed_stats',
         store=False,
-        help='Tổng số nhân viên đã thi đậu.',
+        help='Total number of passed employees.',
     )
 
     is_exam_submitted = fields.Boolean(

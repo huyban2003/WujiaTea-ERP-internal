@@ -215,7 +215,7 @@ class WujiaFranchiseInspectionTemplate(models.Model):
             "Danh mục / Nhóm",
             "Nội dung tiêu chí",
             "Phân loại (Thông thường/Điểm liệt)",
-            "Điểm trừ",
+            "Deduction Score",
             "Bắt buộc ghi chú nếu vi phạm (Có/Không)",
             "Bắt buộc ảnh nếu vi phạm (Có/Không)"
         ]
@@ -472,7 +472,7 @@ class WujiaFranchiseInspectionTemplateLine(models.Model):
 
 class WujiaFranchiseInspectionTemplateImportWizard(models.TransientModel):
     _name = 'wujia.franchise.inspection.template.import.wizard'
-    _description = 'Wizard Nhập Tiêu Chí Khảo Sát Từ Excel'
+    _description = 'Import Inspection Criteria Wizard'
 
     template_id = fields.Many2one(
         'wujia.franchise.inspection.template',

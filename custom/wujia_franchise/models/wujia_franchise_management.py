@@ -58,7 +58,6 @@ class WujiaFranchiseManagement(models.Model):
     )
     franchise_end_date = fields.Date(
         string='Franchise end date',
-        required=True,
         tracking=True,
     )
     remaining_days = fields.Integer(
@@ -245,11 +244,11 @@ class WujiaFranchiseManagement(models.Model):
                 rec.remaining_days = 0
                 rec.is_expired = False
 
-    @api.depends('member_ids.is_currently_valid')
+    @api.depends('member_ids.is_currently_valid', 'member_ids.active', 'member_ids.is_working')
     def _compute_member_count(self):
         for rec in self:
             rec.member_count = len(
-                rec.member_ids.filtered('is_currently_valid')
+                rec.member_ids.filtered(lambda m: m.active and m.is_working)
             )
 
     @api.depends('member_ids.role', 'member_ids.is_currently_valid')
@@ -466,6 +465,204 @@ class WujiaFranchiseManagement(models.Model):
             ('active', '=', True),
         ])
         expired.write({'status': 'expired'})
+
+
+
+    @api.model
+    def _bootstrap_franchise_data(self):
+        """Tự động nạp dữ liệu từ các file CSV chuẩn trong data/ khi cài đặt hoặc upgrade module."""
+        import os
+        import csv
+        import datetime
+        from odoo import fields
+
+        data_dir = os.path.join(os.path.dirname(__file__), '..', 'data')
+
+        # 1. Nạp Khu vực (res.area.csv)
+        area_csv = os.path.join(data_dir, 'res.area.csv')
+        if os.path.exists(area_csv) and self.env['res.area'].search_count([]) < 100:
+            try:
+                Area = self.env['res.area']
+                with open(area_csv, mode='r', encoding='utf-8') as f:
+                    reader = csv.DictReader(f)
+                    for row in reader:
+                        code = row.get('code', '').strip()
+                        name = row.get('name', '').strip()
+                        seq = int(row['sequence']) if row.get('sequence') and row['sequence'].isdigit() else 10
+                        desc = row.get('description', '')
+                        if not Area.search(['|', ('code', '=', code), ('name', '=', name)], limit=1):
+                            Area.create({
+                                'code': code,
+                                'name': name,
+                                'sequence': seq,
+                                'description': desc,
+                                'active': True,
+                            })
+            except Exception as e:
+                print(f"[BOOTSTRAP CSV] Lỗi nạp res.area.csv: {e}")
+
+        # 2. Nạp Cửa hàng nhượng quyền & Partner (wujia.franchise.management.csv)
+        franchise_csv = os.path.join(data_dir, 'wujia.franchise.management.csv')
+        partner_csv = os.path.join(data_dir, 'res.partner.franchise.csv')
+        if os.path.exists(franchise_csv) and self.search_count([]) < 100:
+            try:
+                Partner = self.env['res.partner']
+                Area = self.env['res.area']
+                
+                # Nạp partner trước
+                partner_map = {}
+                if os.path.exists(partner_csv):
+                    with open(partner_csv, mode='r', encoding='utf-8') as f:
+                        reader = csv.DictReader(f)
+                        for row in reader:
+                            name = row.get('name', '').strip()
+                            phone = row.get('phone', '').strip()
+                            street = row.get('street', '').strip()
+                            p = Partner.search([('name', '=', name)], limit=1)
+                            if not p:
+                                p = Partner.create({
+                                    'name': name,
+                                    'is_franchise': True,
+                                    'phone': phone,
+                                    'street': street,
+                                })
+                            partner_map[row.get('id', '').strip()] = p.id
+
+                # Nạp franchise
+                with open(franchise_csv, mode='r', encoding='utf-8') as f:
+                    reader = csv.DictReader(f)
+                    for row in reader:
+                        code = row.get('code', '').strip()
+                        name = row.get('name', '').strip()
+                        p_ext_id = row.get('partner_id/id', '').replace('wujia_franchise.', '').strip()
+                        partner_id = partner_map.get(p_ext_id, False)
+                        if not partner_id:
+                            p = Partner.search([('name', '=', name)], limit=1)
+                            partner_id = p.id if p else False
+
+                        start_str = row.get('franchise_start_date', '').strip() or None
+                        end_str = row.get('franchise_end_date', '').strip() or None
+
+                        f_rec = self.with_context(active_test=False).search([('code', '=', code)], limit=1)
+                        vals = {
+                            'code': code,
+                            'name': name,
+                            'partner_id': partner_id,
+                            'phone': row.get('phone', '').strip(),
+                            'address': row.get('address', '').strip(),
+                            'franchise_start_date': start_str or fields.Date.today(),
+                            'franchise_end_date': end_str or None,
+                            'status': row.get('status', 'active').strip() or 'active',
+                            'portal_locked': bool(int(row.get('portal_locked', '0'))),
+                            'invoiced': bool(int(row.get('invoiced', '0'))),
+                            'description': row.get('description', ''),
+                        }
+                        if not f_rec:
+                            self.create(vals)
+                        else:
+                            f_rec.write(vals)
+            except Exception as e:
+                print(f"[BOOTSTRAP CSV] Lỗi nạp wujia.franchise.management.csv: {e}")
+
+        # 3. Nạp Kết quả thi (calendar.event.result.csv)
+        if 'wujia.exam.registration' in self.env:
+            exam_csv = os.path.join(data_dir, 'calendar.event.result.csv')
+            if os.path.exists(exam_csv) and self.env['wujia.exam.registration.line'].search_count([]) < 100:
+                try:
+                    Course = self.env['wujia.exam.course']
+                    TimeSlot = self.env['wujia.exam.time.slot']
+                    Session = self.env['wujia.exam.session']
+                    Registration = self.env['wujia.exam.registration']
+                    Franchise = self.env['wujia.franchise.management']
+
+                    default_franchise = Franchise.search([], limit=1)
+                    slot = TimeSlot.search([('code', '=', 'S0820')], limit=1)
+                    if not slot:
+                        slot = TimeSlot.create({
+                            'name': 'Ca sáng 08:20–10:00',
+                            'code': 'S0820',
+                            'time_from': 8.3333,
+                            'time_to': 10.0,
+                        })
+
+                    course = Course.search([('name', '=', 'Khóa thi pha chế & vận hành')], limit=1)
+                    if not course:
+                        course = Course.create({
+                            'name': 'Khóa thi pha chế & vận hành',
+                            'description': '<p>Đánh giá năng lực nghiệp vụ và pha chế cửa hàng.</p>',
+                            'time_slot_ids': [(6, 0, [slot.id])],
+                            'max_participants_per_registration': 1000,
+                            'registration_horizon_days': 365,
+                        })
+                        if course.state != 'published':
+                            course.action_publish()
+                    elif course.max_participants_per_registration < 1000:
+                        course.write({'max_participants_per_registration': 1000})
+
+                    grouped_data = {}
+                    with open(exam_csv, mode='r', encoding='utf-8') as f:
+                        reader = csv.DictReader(f)
+                        for row in reader:
+                            f_code = row.get('franchise_code', '').strip()
+                            exam_date_str = row.get('exam_date', '').strip()
+                            try:
+                                exam_date = datetime.datetime.strptime(exam_date_str, '%Y-%m-%d').date()
+                            except Exception:
+                                exam_date = fields.Date.today()
+
+                            key = (f_code, exam_date)
+                            if key not in grouped_data:
+                                grouped_data[key] = []
+
+                            grouped_data[key].append({
+                                'employee_name': row.get('employee_name', '').strip(),
+                                'phone': row.get('phone', '0900000000').strip(),
+                                'birth_year': int(row['birth_year']) if row.get('birth_year') and row['birth_year'].isdigit() else 2000,
+                                'job_position': row.get('job_position', 'Staff').strip(),
+                                'result': row.get('result', 'passed').strip(),
+                            })
+
+                    session_cache = {}
+                    franchise_cache = {}
+                    for (f_code, exam_date) in grouped_data.keys():
+                        if exam_date not in session_cache:
+                            sess = Session.search([
+                                ('course_id', '=', course.id),
+                                ('exam_date', '=', exam_date),
+                                ('time_slot_id', '=', slot.id),
+                            ], limit=1)
+                            if not sess:
+                                sess = Session.create({
+                                    'course_id': course.id,
+                                    'exam_date': exam_date,
+                                    'time_slot_id': slot.id,
+                                    'location': 'Trung tâm đào tạo Ngô Gia',
+                                    'capacity': 50000,
+                                    'max_participants_per_registration': 1000,
+                                })
+                            else:
+                                sess.write({'capacity': 50000, 'max_participants_per_registration': 1000})
+                            session_cache[exam_date] = sess
+
+                    for (f_code, exam_date), lines in grouped_data.items():
+                        if f_code not in franchise_cache:
+                            franchise = Franchise.search([('code', '=', f_code)], limit=1) if f_code else False
+                            franchise_cache[f_code] = franchise or default_franchise
+                        f_rec = franchise_cache[f_code]
+                        sess = session_cache[exam_date]
+
+                        chunk_size = 50
+                        chunks = [lines[i:i + chunk_size] for i in range(0, len(lines), chunk_size)]
+                        for chunk in chunks:
+                            line_commands = [(0, 0, l_vals) for l_vals in chunk]
+                            Registration.create({
+                                'session_id': sess.id,
+                                'franchise_id': f_rec.id,
+                                'state': 'confirmed',
+                                'line_ids': line_commands,
+                            })
+                except Exception as e:
+                    print(f"[BOOTSTRAP CSV] Lỗi nạp calendar.event.result.csv: {e}")
 
 
 class WujiaFranchiseDocument(models.Model):

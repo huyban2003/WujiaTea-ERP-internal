@@ -17,7 +17,7 @@
                     string="Total Score" />
                 <field name="checkin_time" optional="show" widget="datetime" string="Check-in GPS" />
                 <button name="action_open_google_maps" type="object" icon="fa-map-marker"
-                    title="Xem trên Google Maps" invisible="not latitude and not longitude" />
+                    title="View on Google Maps" invisible="not latitude and not longitude" />
                 <field name="state" widget="badge"
                     decoration-info="state == 'draft'"
                     decoration-warning="state == 'in_progress'"
@@ -56,7 +56,7 @@
                         statusbar_visible="draft,in_progress,need_remediation,done,cancel" />
                 </header>
                 <sheet>
-                    <!-- SMART BUTTON MỞ NỘI DUNG / CHI TIẾT KHẢO SÁT & GOOGLE MAPS -->
+                    <!-- SMART BUTTON MỞ NỘI DUNG / CHI TIẾT KHẢO SÁT &amp; GOOGLE MAPS -->
                     <div class="oe_button_box" name="button_box">
                         <button name="action_open_google_maps"
                             type="object"
@@ -80,8 +80,8 @@
                             class="oe_stat_button"
                             icon="fa-print">
                             <div class="o_stat_info">
-                                <span class="o_stat_text text-danger">Báo cáo PDF</span>
-                                <span class="o_stat_value" style="font-size: 11px;">In / Xuất PDF</span>
+                                <span class="o_stat_text text-danger">PDF Report</span>
+                                <span class="o_stat_value" style="font-size: 11px;">Print / Export PDF</span>
                             </div>
                         </button>
                     </div>
@@ -380,9 +380,9 @@
                                 </group>
                             </group>
 
-                            <!-- ====== 50-50 Layout: Present Staff & Passed Staff ====== -->
+                            <!-- ====== 50-50 Layout: Present Staff &amp; Passed Staff ====== -->
                             <div class="row mt-4">
-                                <!-- Cột 1 (50%): Nhân viên có mặt tại cửa hàng -->
+                                <!-- Cột 1 (50%): Staff có mặt tại cửa hàng -->
                                 <div class="col-lg-6 col-12 pe-lg-3 border-end">
                                     <separator string="Store Staff Present at Inspection" class="mb-2" />
                                     <div class="d-flex align-items-center mb-2">
@@ -418,7 +418,7 @@
                                     </field>
                                 </div>
 
-                                <!-- Cột 2 (50%): Nhân viên đã thi đậu -->
+                                <!-- Cột 2 (50%): Staff đã thi đậu -->
                                 <div class="col-lg-6 col-12 ps-lg-3">
                                     <separator string="Passed Exam Staff" class="mb-2" />
                                     <div class="d-flex align-items-center mb-2">

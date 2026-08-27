@@ -32,8 +32,8 @@ class WujiaFranchiseMember(models.Model):
     role = fields.Selection(
         [
             (ROLE_OWNER, 'Chủ tiệm'),
-            (ROLE_MANAGER, 'Quản lý'),
-            (ROLE_STAFF, 'Nhân viên'),
+            (ROLE_MANAGER, 'Manager'),
+            (ROLE_STAFF, 'Staff'),
         ],
         string='Role',
         required=True,
@@ -71,15 +71,10 @@ class WujiaFranchiseMember(models.Model):
         index=True,
     )
 
-    @api.depends('user_id.name', 'franchise_id.display_name', 'role')
+    @api.depends('user_id.name')
     def _compute_display_name(self):
-        role_label = dict(self._fields['role']._description_selection(self.env))
         for rec in self:
-            rec.display_name = '%s @ %s (%s)' % (
-                rec.user_id.name or '',
-                rec.franchise_id.display_name or '',
-                role_label.get(rec.role, ''),
-            )
+            rec.display_name = rec.user_id.name or ''
 
     @api.depends('active', 'is_working', 'date_from', 'date_to')
     def _compute_is_currently_valid(self):

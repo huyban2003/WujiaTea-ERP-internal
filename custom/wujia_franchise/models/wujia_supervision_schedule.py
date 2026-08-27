@@ -132,7 +132,7 @@ class WujiaSupervisionSchedule(models.Model):
     @api.onchange('store_id')
     def _onchange_store_id_set_name(self):
         if self.store_id:
-            if not self.name or self.name.startswith('LGS-') or self.name.startswith('PGS-') or self.name.startswith('Lịch giám sát') or self.name == 'New':
+            if not self.name or self.name.startswith('LGS-') or self.name.startswith('PGS-') or self.name.startswith('Supervision Schedule') or self.name == 'New':
                 self.name = self._generate_schedule_name(self.store_id)
 
     @api.model_create_multi
@@ -140,7 +140,7 @@ class WujiaSupervisionSchedule(models.Model):
         for vals in vals_list:
             store_id = vals.get('store_id')
             current_name = vals.get('name')
-            if not current_name or current_name == 'New' or current_name.startswith('Lịch giám sát') or not current_name.startswith('LGS-'):
+            if not current_name or current_name == 'New' or current_name.startswith('Supervision Schedule') or not current_name.startswith('LGS-'):
                 if store_id:
                     vals['name'] = self._generate_schedule_name(store_id)
                 elif not current_name:
