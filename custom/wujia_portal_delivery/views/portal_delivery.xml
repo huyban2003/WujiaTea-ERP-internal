@@ -401,9 +401,10 @@
                 <!-- Two-column: vận chuyển | đơn liên quan + timeline -->
                 <div class="wj-pc-two-col">
                     <div class="wj-pc-card">
-                        <div class="wj-pc-card__head">
-                            <h3 class="wj-pc-card__title wj-pc-card__title--sm">Thông tin vận chuyển</h3>
-                        </div>
+                        <t t-call="wujia_portal_layout.wj_card_header">
+                            <t t-set="ch_title">Thông tin vận chuyển</t>
+                            <t t-set="ch_platform" t-value="'pc'"/>
+                        </t>
                         <div class="wj-pc-kv-grid">
                             <div class="wj-pc-kv">
                                 <span class="wj-pc-kv__label">Xe / tài xế</span>
@@ -431,9 +432,10 @@
                     </div>
 
                     <div class="wj-pc-card">
-                        <div class="wj-pc-card__head">
-                            <h3 class="wj-pc-card__title wj-pc-card__title--sm">Đơn liên quan</h3>
-                        </div>
+                        <t t-call="wujia_portal_layout.wj_card_header">
+                            <t t-set="ch_title">Đơn liên quan</t>
+                            <t t-set="ch_platform" t-value="'pc'"/>
+                        </t>
                         <div class="wj-pc-dlv-so-chips">
                             <span t-foreach="so_names" t-as="so" class="wj-pc-dlv-so-chip" t-out="so"/>
                             <span t-if="not so_names" class="wj-pc-td--muted">—</span>
@@ -463,13 +465,16 @@
 
                 <!-- Products -->
                 <div class="wj-pc-card">
-                    <div class="wj-pc-card__head">
-                        <div>
-                            <h3 class="wj-pc-card__title">Sản phẩm trong chuyến</h3>
-                            <p class="wj-pc-card__subtitle">Dạng bảng để đối chiếu nhanh tên sản phẩm, số lượng và đơn vị tính.</p>
-                        </div>
-                        <a href="#" class="wj-pc-btn wj-pc-btn--secondary"><i class="feather icon-download"/>Tải danh sách</a>
-                    </div>
+                    <!-- Nút "Tải danh sách" đi vào slot `control` (bề mặt bấm nhìn thấy được,
+                         giữ nguyên class wj-pc-btn) chứ không phải `action` dạng chữ. -->
+                    <t t-call="wujia_portal_layout.wj_card_header">
+                        <t t-set="ch_title">Sản phẩm trong chuyến</t>
+                        <t t-set="ch_subtitle">Dạng bảng để đối chiếu nhanh tên sản phẩm, số lượng và đơn vị tính.</t>
+                        <t t-set="ch_platform" t-value="'pc'"/>
+                        <t t-set="ch_control">
+                            <a href="#" class="wj-pc-btn wj-pc-btn--secondary wj-card-header__control"><i class="feather icon-download"/>Tải danh sách</a>
+                        </t>
+                    </t>
                     <table class="wj-pc-table wj-pc-dlv-table">
                         <thead>
                             <tr>

@@ -140,7 +140,12 @@
                     </t>
 
                     <div class="wujia-mdash-card">
-                        <p class="wujia-mdash-title mb-3">Thông tin đơn hàng</p>
+                        <!-- CMP-CH-001: `<p>` giả heading → heading THẬT; `mb-3` gỡ hẳn để
+                             không cộng chồng margin của header với margin body (spec). -->
+                        <t t-call="wujia_portal_layout.wj_card_header">
+                            <t t-set="ch_title">Thông tin đơn hàng</t>
+                            <t t-set="ch_platform" t-value="'m'"/>
+                        </t>
                         <t t-if="franchises and len(franchises) &gt; 1">
                             <label class="wujia-mticket-label">Cửa hàng</label>
                             <select name="franchise_id" class="form-select mb-3" required="required">
@@ -168,7 +173,10 @@
                     </div>
 
                     <div class="wujia-mdash-card">
-                        <p class="wujia-mdash-title mb-3">Số lượng &amp; lô</p>
+                        <t t-call="wujia_portal_layout.wj_card_header">
+                            <t t-set="ch_title">Số lượng &amp; lô</t>
+                            <t t-set="ch_platform" t-value="'m'"/>
+                        </t>
                         <div class="wujia-mreturn-grid2">
                             <div>
                                 <label class="wujia-mticket-label">SL yêu cầu</label>
@@ -185,7 +193,10 @@
                     </div>
 
                     <div class="wujia-mdash-card">
-                        <p class="wujia-mdash-title mb-3">Nội dung lỗi</p>
+                        <t t-call="wujia_portal_layout.wj_card_header">
+                            <t t-set="ch_title">Nội dung lỗi</t>
+                            <t t-set="ch_platform" t-value="'m'"/>
+                        </t>
                         <label class="wujia-mticket-label">Loại lỗi</label>
                         <select name="issue_type_id" class="form-select mb-3" required="required">
                             <option value="">— Chọn loại lỗi —</option>
@@ -197,7 +208,13 @@
                     </div>
 
                     <div class="wujia-mdash-card">
-                        <p class="wujia-mdash-title mb-1">Hình ảnh đính kèm</p>
+                        <!-- Dòng hint 11px bên dưới CỐ Ý giữ nguyên là body, không đưa vào
+                             ch_subtitle: subtitle của spec là 13/18, to hơn hint hiện tại
+                             ⇒ đưa vào sẽ làm thẻ THƯA ra, trái acceptance BA. -->
+                        <t t-call="wujia_portal_layout.wj_card_header">
+                            <t t-set="ch_title">Hình ảnh đính kèm</t>
+                            <t t-set="ch_platform" t-value="'m'"/>
+                        </t>
                         <p class="wujia-mticket-hint">
                             <t t-out="min_images"/>–<t t-out="max_images"/> ảnh JPG/PNG (≤5MB mỗi ảnh),
                             chụp rõ bao bì &amp; lỗi sản phẩm.

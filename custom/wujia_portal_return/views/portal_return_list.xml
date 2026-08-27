@@ -39,7 +39,7 @@
                                 <div class="col-md-3 col-12">
                                     <label for="wj-ret-state-pc" class="small text-muted mb-1">Trạng thái</label>
                                     <select id="wj-ret-state-pc" name="state" class="form-select form-select-sm">
-                                        <option value="">— Tất cả —</option>
+                                        <option value="" t-out="filter_all_label"/>
                                         <t t-foreach="filter_options" t-as="opt">
                                             <option t-att-value="opt[0]"
                                                     t-att-selected="'selected' if state == opt[0] else None"
@@ -184,7 +184,7 @@
                         <select name="state" class="wj-filter-select"
                                 aria-label="Lọc theo trạng thái"
                                 onchange="this.form.submit()">
-                            <option value="">— Tất cả trạng thái —</option>
+                            <option value="" t-out="filter_all_label"/>
                             <t t-foreach="filter_options" t-as="opt">
                                 <option t-att-value="opt[0]"
                                         t-att-selected="'selected' if state == opt[0] else None"
