@@ -204,8 +204,16 @@ xác nhận bằng bảng so chữ hiển thị `/portal/return` (12/12 ô y h�
    file/route làm mẫu 3.
 4. **FilterCard = 0 call site** — theo bảng MAPPING của BA thì đây là **dựng MỚI**, không
    phải migrate (hiện chưa màn nào có header cho khối lọc). Nằm ở D3b trở đi.
-5. **Đo trên bản dựng cô lập, chưa đo lại trên UAT.** Cần chạy lại
-   `scripts/ba_spec/qa_deploy_mark.py` + đo lại sau khi chủ dự án deploy.
+5. ~~Đo trên bản dựng cô lập, chưa đo lại trên UAT.~~ **✅ ĐÃ ĐO LẠI TRÊN UAT 28/08.** Chủ
+   dự án đã deploy (6 module `installed`, layout `19.0.32.5.0`). Đo lại chỉ-đọc trên chính
+   `http://113.161.187.126:8019` × 3 breakpoint 1440/390/360: **14 header · 0 lỗi**. Khớp
+   100% số BA — PC `18/24 w700 pad 0 mb 12 gap 12`, mobile `16/22 w700 mb 8 gap 8`,
+   subtitle `14/20 w400`, mọi title **1 dòng**, `text-overflow: clip`; **0 giả-heading còn
+   lại** trên 4 route mẫu; 0 tràn ngang · 0 JS error · HTTP 200. Bước này bắt buộc vì L14/L10
+   (UAT có `website`/`website_sale` ⇒ bundle frontend khác local, từng lật ngược kết quả ở
+   C6 và D2) — lần này bundle UAT **không** lật gì. Ảnh: `scratchpad/d3-uat-shots/`.
+   Hai kiểm tra phụ trên UAT cũng xanh: nhãn lọc bù hàng **PC = mobile = `— Tất cả trạng
+   thái —`**, và `?state=cancelled` cho meta **`0 ticket`** (count 0 vẫn hiện, đúng spec).
 
 ---
 

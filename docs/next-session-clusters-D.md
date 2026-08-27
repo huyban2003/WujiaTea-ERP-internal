@@ -17,12 +17,14 @@ prompt của cụm đó rồi bắt tay.
 > `/wujia-start`
 > làm cụm D3b. Đọc `docs/d3-cardheader-inventory.md` §bảng theo file để lấy nhóm màn kế tiếp, và `docs/d3-acceptance-matrix.md` §LIMIT để biết 4 chỗ đang treo chờ BA.
 
-**🚚 CHỜ DEPLOY: D3a.** Nhánh `dev/2026-08-27-d3a` đã merge `main`. Chủ dự án deploy UAT bằng
-`-u wujia_portal_layout,wujia_portal_support,wujia_portal_delivery,wujia_portal_base,wujia_portal_return,wujia_sale`
-(không module mới, không cập nhật dữ liệu, không migration; `?v=1178` đã bump sẵn). Deploy xong
-thì **chạy `qa_deploy_mark.py`** — nhưng lưu ý `UI-CARDHEADER-001` **vẫn `Ready for Dev`**, chưa
-có gì để `qa_sync.py` handoff; entry ledger đã soạn sẵn **dạng comment** trong
-`docs/qa-issue-ledger.yaml`, D3n bỏ `#` là chạy được (tiền lệ C8a).
+**✅ D3a ĐÃ DEPLOY VÀ ĐÃ ĐO LẠI TRÊN UAT (28/08).** Nhánh `dev/2026-08-27-d3a` merge `main`,
+chủ dự án đã deploy — 6 module `installed`, `wujia_portal_layout 19.0.32.5.0`. Đo lại chỉ-đọc
+trên chính UAT × 3 breakpoint: **14 header · 0 lỗi**, khớp 100% số BA, 0 giả-heading, 0 tràn
+ngang, 0 JS error. Nhãn lọc bù hàng PC = mobile = `— Tất cả trạng thái —`; `?state=cancelled`
+ra meta `0 ticket` (count 0 vẫn hiện). Chi tiết ở `docs/d3-acceptance-matrix.md` §LIMIT 5.
+`UI-CARDHEADER-001` **vẫn `Ready for Dev`** (mới 4/103 call site) ⇒ **chưa** có gì cho
+`qa_sync.py` handoff; entry ledger soạn sẵn **dạng comment** trong `docs/qa-issue-ledger.yaml`,
+D3n bỏ `#` là chạy được (tiền lệ C8a).
 
 **Việc tồn 27/08 — ✅ XONG.** Nhãn option "tất cả" của bộ lọc bù hàng nay gom về **một hằng**
 `FILTER_ALL_LABEL` cạnh `FILTER_OPTIONS` (`wujia_portal_return/controllers/portal.py`), cả PC
@@ -42,6 +44,15 @@ thái —`**, khớp mobile. `value=""` không đổi ⇒ kết quả lọc bấ
    `portal_order_catalog.xml:17`, `portal_debt.xml:688` "THÔNG TIN CHUYỂN KHOẢN",
    `portal_inspection_list_templates.xml:34`) — **KHÔNG tự quyết lại**.
 4. **FilterCard = 0 call site** ⇒ theo MAPPING của BA đây là **dựng MỚI**, không phải migrate.
+5. **🆕 Nhãn option rỗng của bộ lọc lệch GIỮA CÁC MÀN** (phát hiện khi đo lại UAT 28/08, cùng
+   họ với việc tồn 27/08 nhưng **rộng hơn**, chưa sửa vì ngoài phạm vi D3a). Quét mọi `<select>`
+   đang hiện trên UAT: `/portal/return` → `— Tất cả trạng thái —` ✅ (vừa sửa) · `/portal/support`
+   → `— Tất cả —` · `/portal/delivery` và `/portal/purchase-history` → `Tất cả trạng thái`
+   (**không có gạch em**) · `/portal/notification` → dùng chính tên trường (`Loại thông báo`,
+   `Trạng thái`). **4 kiểu chữ cho cùng một ý.** Cả 4 màn đều gõ tay trong `.xml`, không màn nào
+   lệch PC↔mobile (3 màn kia mobile không có select nhìn thấy được) ⇒ **không phải bug hiển thị,
+   là nợ nhất quán**. Cách sửa giống hệt D3a: một hằng dùng chung. Ghép vào **D7+** cùng lứa
+   component-hoá, hoặc làm kèm khi D3b/D3c động vào đúng file đó.
 
 ### 🔴 Bài học D3a — đừng lặp lại ở D3b
 
