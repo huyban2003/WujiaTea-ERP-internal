@@ -1323,10 +1323,14 @@ WJ-PORTAL-UI-002:
 # =====================================================================================
 
 # =====================================================================================
-# UI-CARDHEADER-001 (STT 125) — D3a 27/08: mới phủ 4 trên 103 chỗ gọi (dựng thành phần
-# dùng chung + 4 họ giao diện mẫu). Issue CỐ Ý GIỮ `Ready for Dev`, CHƯA handoff —
-# đúng tiền lệ C8a→C8b. Số đo: docs/d3-acceptance-matrix.md (19 đạt / 1 cần BA chốt /
-# 1 còn phạm vi = 95%). Kiểm kê 103 chỗ: docs/d3-cardheader-inventory.md.
+# UI-CARDHEADER-001 (STT 125) — D3b 28/08: đã phủ 36 trên 103 chỗ gọi
+# (D3a 10 + D3b 26). Issue CỐ Ý GIỮ `Ready for Dev`, CHƯA handoff — đúng tiền lệ C8a→C8b.
+# Số đo: docs/d3-acceptance-matrix.md (D3a, 95%) + docs/d3b-acceptance-matrix.md
+# (D3b, 20 đạt / 1 còn phạm vi = 95%). Kiểm kê 103 chỗ: docs/d3-cardheader-inventory.md.
+# Nhóm kế: D3c = 15 chỗ còn lại của 4 file D3a (support 6 · delivery 3 · franchise-information 6).
+#
+# ⚠️ Khối YAML bên dưới vẫn là số liệu của D3a — D3n phải viết lại theo tổng cuối cùng,
+#    đừng bỏ dấu # rồi đẩy nguyên số cũ lên sheet.
 # 🔧 D3n (phiên phủ nốt 100%) chỉ việc BỎ dấu # của khối dưới, cập nhật lại các con số
 #    rồi chạy `python3 qa_sync.py --apply --only UI-CARDHEADER-001`.
 #

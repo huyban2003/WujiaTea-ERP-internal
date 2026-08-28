@@ -82,6 +82,7 @@ Chia theo vị trí trong card:
 | `portal_knowledge.xml:287, 337` | `h1` tiêu đề bài viết | **Nội dung**, không phải header card — cùng luật BA cấm dùng CardHeader cho tên sản phẩm |
 | `portal_notification.xml:364, 448` | `h2` tiêu đề thông báo | ″ |
 | `portal_order_product_detail.xml:34` | `h3` tên sản phẩm | ″ — BA ghi thẳng: *"Không dùng CardHeader cho tên sản phẩm"* |
+| `portal_order_result.xml:25` | `h2.wujia-mres-title` | *(thêm ở D3b)* Màn kết quả gửi đơn — **hero của trang**, không phải header card; đúng tiền lệ `portal_inspection_success_templates.xml:13` ngay trên |
 
 ## 4. Map về 7 nhóm MAPPING của BA
 
@@ -102,25 +103,31 @@ nằm cùng card với `:181` ⇒ là **subtitle của header đó**, không ph�
 
 | File | Call site | Dự kiến |
 |---|---:|---|
-| `wujia_portal_exam/views/portal_exam.xml` | 21 | D3c (một mình một session) |
-| `wujia_portal_return/views/portal_return_detail.xml` | 15 | D3d |
-| `wujia_portal_purchase_history/views/portal_history.xml` | 10 | D3d |
-| `wujia_portal_base/views/portal_franchise_information.xml` | 10 | **D3a (mẫu 3)** |
-| `wujia_portal_delivery/views/portal_delivery.xml` | 8 | **D3a (mẫu 2)** |
-| `wujia_portal_notification/views/portal_notification.xml` | 7 | D3b |
-| `wujia_portal_support/views/portal_support.xml` | 7 | **D3a (mẫu 1)** |
-| `wujia_portal_knowledge/views/portal_knowledge.xml` | 7 | D3b |
-| `wujia_portal_base/views/portal_home.xml` | 5 | D3b |
-| `wujia_portal_debt/views/portal_debt.xml` | 5 | D3e (đụng số đo S43/C3 — cẩn thận) |
-| `wujia_portal_base/views/portal_franchise_profile.xml` | 4 | D3b |
-| `wujia_portal_inspection/*` (4 file) | 9 | D3e (xem §6) |
-| `wujia_portal_return/views/portal_return_form.xml` | 4 | **D3a (mẫu 4)** |
-| `wujia_portal_report/views/portal_report_orders.xml` | 3 | D3b |
-| `wujia_portal_sale/*` (3 file) | 3 | D3b |
-| Còn lại (`info_request`, `return_list`) | 2 | D3b |
+| `wujia_portal_exam/views/portal_exam.xml` | 21 | D3d (một mình một session) |
+| `wujia_portal_return/views/portal_return_detail.xml` | 15 | D3e |
+| `wujia_portal_purchase_history/views/portal_history.xml` | 10 | D3e |
+| `wujia_portal_base/views/portal_franchise_information.xml` | 10 | **D3a (mẫu 3)** — 2 xong, **6 còn → D3c** |
+| `wujia_portal_delivery/views/portal_delivery.xml` | 8 | **D3a (mẫu 2)** — 3 xong, **3 còn → D3c** |
+| `wujia_portal_notification/views/portal_notification.xml` | 7 | **D3b ✅** (5 chỗ; 2 chỗ còn lại là §3 tiêu đề thông báo) |
+| `wujia_portal_support/views/portal_support.xml` | 7 | **D3a (mẫu 1)** — 1 xong, **6 còn → D3c** |
+| `wujia_portal_knowledge/views/portal_knowledge.xml` | 7 | **D3b ✅** (5 chỗ; 2 chỗ còn lại là §3 tiêu đề bài viết) |
+| `wujia_portal_base/views/portal_home.xml` | 5 | **D3b ✅** |
+| `wujia_portal_debt/views/portal_debt.xml` | 5 | D3f (đụng số đo S43/C3 — cẩn thận) |
+| `wujia_portal_base/views/portal_franchise_profile.xml` | 4 | **D3b ✅** |
+| `wujia_portal_inspection/*` (4 file) | 9 | D3f (xem §6) |
+| `wujia_portal_return/views/portal_return_form.xml` | 4 | **D3a (mẫu 4)** — 4 xong ✅ |
+| `wujia_portal_report/views/portal_report_orders.xml` | 3 | **D3b ✅** |
+| `wujia_portal_sale/*` (3 file) | 3 | **D3b ✅** (2 chỗ; `portal_order_result.xml` đã loại → §3) |
+| Còn lại (`info_request`, `return_list`) | 2 | **D3b ✅** |
 
 **D3a phủ 4 file / 29 call site** — nhưng cố ý **không migrate hết 4 file**, chỉ lấy đủ mẫu mỗi
-họ markup (xem `docs/d3-acceptance-matrix.md`); phần còn lại của chính 4 file đó rơi vào D3b.
+họ markup (xem `docs/d3-acceptance-matrix.md`); phần còn lại của chính 4 file đó rơi vào **D3c**.
+
+**Tiến độ (2026-08-28, sau D3b): 36/103.** D3a 10 · D3b 26.
+Nhóm kế: **D3c = 15 chỗ còn lại của 4 file D3a** (support 6 · delivery 3 · franchise-information 6).
+
+> ⚠️ Con số cột "Call site" là **tổng theo file**, gồm cả chỗ đã bị loại ở §3, nên cộng dồn
+> ra 113 chứ không phải 103 — bám `scratchpad/d3_inventory.py` mới ra danh sách đúng.
 
 ## 6. Chỗ KHÔNG đụng — chờ BA (kế thừa LIMIT của C8, đừng quyết lại)
 

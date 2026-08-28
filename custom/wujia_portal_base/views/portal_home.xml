@@ -112,16 +112,14 @@
                         <!-- Latest notifications (UI-12, Sprint 9.13) -->
                         <div class="col-lg-6 col-12 mb-2">
                             <div class="wujia-content-card">
-                                <div class="wujia-content-card-header">
-                                    <div class="wujia-content-card-header-icon">
-                                        <i class="feather icon-bell"/>
-                                    </div>
-                                    <h4 class="wujia-content-card-header-title">Thông báo mới nhất</h4>
-                                    <a href="/portal/notification" class="wujia-content-card-header-link">
-                                        Xem tất cả
-                                        <i class="feather icon-chevron-right"/>
-                                    </a>
-                                </div>
+                                <t t-call="wujia_portal_layout.wj_card_header">
+                                    <t t-set="ch_title">Thông báo mới nhất</t>
+                                    <t t-set="ch_level" t-value="4"/>
+                                    <t t-set="ch_platform" t-value="'pc'"/>
+                                    <t t-set="ch_icon" t-value="'bell'"/>
+                                    <t t-set="ch_action_url" t-value="'/portal/notification'"/>
+                                    <t t-set="ch_action_icon" t-value="'chevron-right'"/>
+                                </t>
                                 <div t-if="not latest_notifications" class="wujia-content-card-empty">Chưa có thông báo nào.</div>
                                 <ul t-else="" class="wujia-content-card-body">
                                     <li t-foreach="latest_notifications" t-as="noti" class="wujia-content-card-row">
@@ -141,16 +139,14 @@
                         <!-- Recent orders (UI-12, Sprint 9.13) -->
                         <div class="col-lg-6 col-12 mb-2">
                             <div class="wujia-content-card">
-                                <div class="wujia-content-card-header">
-                                    <div class="wujia-content-card-header-icon">
-                                        <i class="feather icon-shopping-cart"/>
-                                    </div>
-                                    <h4 class="wujia-content-card-header-title">Đơn hàng gần đây</h4>
-                                    <a href="/portal/purchase-history" class="wujia-content-card-header-link">
-                                        Xem tất cả
-                                        <i class="feather icon-chevron-right"/>
-                                    </a>
-                                </div>
+                                <t t-call="wujia_portal_layout.wj_card_header">
+                                    <t t-set="ch_title">Đơn hàng gần đây</t>
+                                    <t t-set="ch_level" t-value="4"/>
+                                    <t t-set="ch_platform" t-value="'pc'"/>
+                                    <t t-set="ch_icon" t-value="'shopping-cart'"/>
+                                    <t t-set="ch_action_url" t-value="'/portal/purchase-history'"/>
+                                    <t t-set="ch_action_icon" t-value="'chevron-right'"/>
+                                </t>
                                 <div t-if="not recent_orders" class="wujia-content-card-empty">Chưa có đơn hàng nào.</div>
                                 <ul t-else="" class="wujia-content-card-body">
                                     <li t-foreach="recent_orders" t-as="order" class="wujia-content-card-row">
@@ -172,16 +168,14 @@
                         <!-- Latest return requests (UI-12, Sprint 9.13) -->
                         <div class="col-lg-6 col-12 mb-2">
                             <div class="wujia-content-card">
-                                <div class="wujia-content-card-header">
-                                    <div class="wujia-content-card-header-icon">
-                                        <i class="feather icon-corner-up-left"/>
-                                    </div>
-                                    <h4 class="wujia-content-card-header-title">Yêu cầu đổi trả gần đây</h4>
-                                    <a href="/portal/return" class="wujia-content-card-header-link">
-                                        Xem tất cả
-                                        <i class="feather icon-chevron-right"/>
-                                    </a>
-                                </div>
+                                <t t-call="wujia_portal_layout.wj_card_header">
+                                    <t t-set="ch_title">Yêu cầu đổi trả gần đây</t>
+                                    <t t-set="ch_level" t-value="4"/>
+                                    <t t-set="ch_platform" t-value="'pc'"/>
+                                    <t t-set="ch_icon" t-value="'corner-up-left'"/>
+                                    <t t-set="ch_action_url" t-value="'/portal/return'"/>
+                                    <t t-set="ch_action_icon" t-value="'chevron-right'"/>
+                                </t>
                                 <div t-if="not latest_returns" class="wujia-content-card-empty">Chưa có yêu cầu nào.</div>
                                 <ul t-else="" class="wujia-content-card-body">
                                     <li t-foreach="latest_returns" t-as="rr" class="wujia-content-card-row">
@@ -204,12 +198,12 @@
                              content-card listing như đặt hàng / lịch sử đặt hàng -->
                         <div class="col-lg-6 col-12 mb-2">
                             <div class="wujia-content-card">
-                                <div class="wujia-content-card-header">
-                                    <div class="wujia-content-card-header-icon">
-                                        <i class="feather icon-trending-up"/>
-                                    </div>
-                                    <h4 class="wujia-content-card-header-title">Sản phẩm mua nhiều nhất</h4>
-                                </div>
+                                <t t-call="wujia_portal_layout.wj_card_header">
+                                    <t t-set="ch_title">Sản phẩm mua nhiều nhất</t>
+                                    <t t-set="ch_level" t-value="4"/>
+                                    <t t-set="ch_platform" t-value="'pc'"/>
+                                    <t t-set="ch_icon" t-value="'trending-up'"/>
+                                </t>
                                 <div t-if="not top_products" class="wujia-content-card-empty">Chưa có dữ liệu.</div>
                                 <table t-else="" class="wujia-content-card-table">
                                     <thead>
@@ -288,14 +282,19 @@
 
                         <!-- Card: KHUNG GIỜ ĐẶT HÀNG (3 trạng thái) -->
                         <section class="wujia-mhome-window">
-                            <div class="wujia-mhome-window-head">
-                                <h3 class="wujia-mhome-window-title">Khung giờ đặt hàng</h3>
-                                <span t-if="order_window['state'] == 'open'" class="wujia-mhome-window-status is-open">
-                                    Đang mở <small>· còn <t t-out="order_window['remaining_hhmm']"/></small>
-                                </span>
-                                <span t-elif="order_window['state'] == 'closed'" class="wujia-mhome-window-status is-closed">Đã đóng</span>
-                                <span t-else="" class="wujia-mhome-window-status is-always">Đặt hàng 24/7</span>
-                            </div>
+                            <t t-call="wujia_portal_layout.wj_card_header">
+                                <t t-set="ch_title">Khung giờ đặt hàng</t>
+                                <t t-set="ch_platform" t-value="'m'"/>
+                                <!-- Pill giữ nguyên class/màu riêng; lead `flex:1 1 auto` đã đẩy nó
+                                     sang phải nên KHÔNG cần thêm class trailing (thêm là mất màu). -->
+                                <t t-set="ch_meta">
+                                    <span t-if="order_window['state'] == 'open'" class="wujia-mhome-window-status is-open">
+                                        Đang mở <small>· còn <t t-out="order_window['remaining_hhmm']"/></small>
+                                    </span>
+                                    <span t-elif="order_window['state'] == 'closed'" class="wujia-mhome-window-status is-closed">Đã đóng</span>
+                                    <span t-else="" class="wujia-mhome-window-status is-always">Đặt hàng 24/7</span>
+                                </t>
+                            </t>
                             <div t-if="order_window['state'] == 'open'" class="wujia-mhome-window-progress">
                                 <div class="wujia-mhome-window-progress-bar" t-attf-style="width: #{order_window['progress_pct']}%"/>
                             </div>

@@ -242,14 +242,19 @@
 
                     <div class="wj-rep-pcrow">
                         <section class="wj-pc-card wj-rep-pccard wj-rep-pccard--chart">
-                            <div class="wj-pc-card__head wj-rep-pccard__head">
-                                <h2 class="wj-pc-card__title wj-pc-card__title--sm">Đơn hàng theo tháng</h2>
-                                <span class="wj-rep-pclegend">
-                                    <span class="wj-rep-pclegend__dot"/>
-                                    <span class="wj-rep-pclegend__name">Doanh thu</span>
-                                    <span class="wj-rep-pclegend__hint">Số trong cột: số đơn</span>
-                                </span>
-                            </div>
+                            <t t-call="wujia_portal_layout.wj_card_header">
+                                <t t-set="ch_title">Đơn hàng theo tháng</t>
+                                <t t-set="ch_level" t-value="2"/>
+                                <t t-set="ch_platform" t-value="'pc'"/>
+                                <t t-set="ch_class" t-value="'wj-rep-pccard__head wj-card-header--flush'"/>
+                                <t t-set="ch_meta">
+                                    <span class="wj-rep-pclegend">
+                                        <span class="wj-rep-pclegend__dot"/>
+                                        <span class="wj-rep-pclegend__name">Doanh thu</span>
+                                        <span class="wj-rep-pclegend__hint">Số trong cột: số đơn</span>
+                                    </span>
+                                </t>
+                            </t>
                             <div class="wj-rep-pccard__body">
                                 <div id="report-chart-months" class="wj-rep-pcchart"
                                      t-att-data-chart-payload="chart_payload_json"/>
@@ -257,12 +262,17 @@
                         </section>
 
                         <section class="wj-pc-card wj-rep-pccard wj-rep-pccard--state">
-                            <div class="wj-pc-card__head wj-rep-pccard__head">
-                                <h2 class="wj-pc-card__title wj-pc-card__title--sm">Phân bổ trạng thái</h2>
-                                <span class="wj-rep-pccard__meta">
-                                    <t t-out="'{:,}'.format(state_total).replace(',', '.')"/> đơn hàng
-                                </span>
-                            </div>
+                            <t t-call="wujia_portal_layout.wj_card_header">
+                                <t t-set="ch_title">Phân bổ trạng thái</t>
+                                <t t-set="ch_level" t-value="2"/>
+                                <t t-set="ch_platform" t-value="'pc'"/>
+                                <t t-set="ch_class" t-value="'wj-rep-pccard__head wj-card-header--flush'"/>
+                                <t t-set="ch_meta">
+                                    <span class="wj-rep-pccard__meta">
+                                        <t t-out="'{:,}'.format(state_total).replace(',', '.')"/> đơn hàng
+                                    </span>
+                                </t>
+                            </t>
                             <div class="wj-rep-pccard__body wj-rep-pcstate">
                                 <div id="report-chart-state" class="wj-rep-pcdonut"/>
                                 <ul class="wj-rep-pclegend-list">
@@ -282,12 +292,18 @@
                     </div>
 
                     <section class="wj-pc-card wj-rep-pccard wj-rep-pccard--top">
-                        <div class="wj-pc-card__head wj-rep-pccard__head">
-                            <h2 class="wj-pc-card__title wj-pc-card__title--sm">Top sản phẩm đặt hàng nhiều nhất</h2>
-                            <span t-if="top_products" class="wj-rep-pccard__meta">
-                                <t t-out="len(top_products)"/> sản phẩm
-                            </span>
-                        </div>
+                        <!-- CMP-CH-001: count cố ý BỎ `t-if` — spec ghi rõ "Count 0 vẫn hiển thị". -->
+                        <t t-call="wujia_portal_layout.wj_card_header">
+                            <t t-set="ch_title">Top sản phẩm đặt hàng nhiều nhất</t>
+                            <t t-set="ch_level" t-value="2"/>
+                            <t t-set="ch_platform" t-value="'pc'"/>
+                            <t t-set="ch_class" t-value="'wj-rep-pccard__head wj-card-header--flush'"/>
+                            <t t-set="ch_meta">
+                                <span class="wj-rep-pccard__meta">
+                                    <t t-out="len(top_products)"/> sản phẩm
+                                </span>
+                            </t>
+                        </t>
                         <div class="wj-rep-pccard__body">
                             <div t-if="not top_products" class="wj-pc-empty">
                                 <span class="wj-pc-empty__icon"><i class="feather icon-bar-chart-2"/></span>

@@ -52,7 +52,13 @@
                         <!-- Category nav -->
                         <div class="col-md-3 col-12 mb-2" id="wj-know-pc-cats">
                             <div class="card">
-                                <div class="card-header py-2"><h6 class="mb-0">Danh mục</h6></div>
+                                <div class="card-header py-2">
+                                    <t t-call="wujia_portal_layout.wj_card_header">
+                                        <t t-set="ch_title">Danh mục</t>
+                                        <t t-set="ch_level" t-value="4"/>
+                                        <t t-set="ch_class" t-value="'wj-card-header--flush'"/>
+                                    </t>
+                                </div>
                                 <div class="list-group list-group-flush knowledge-cat-list">
                                     <a href="/portal/knowledge"
                                        t-attf-class="list-group-item list-group-item-action#{' active' if not category_id else ''}">
@@ -72,18 +78,17 @@
                         <!-- Articles list — MẪU 04 Card danh sách + icon (Sprint 9.13b 2026-05-27) -->
                         <div class="col-md-9 col-12" id="wj-know-pc-body">
                             <div class="wujia-content-card">
-                                <div class="wujia-content-card-header">
-                                    <div class="wujia-content-card-header-icon">
-                                        <i class="feather icon-book"/>
-                                    </div>
-                                    <h4 class="wujia-content-card-header-title">
-                                        <t t-if="current_category" t-out="current_category.name"/>
-                                        <t t-else="">Tài liệu mới cập nhật</t>
-                                    </h4>
-                                    <span t-if="articles" class="wujia-content-card-header-link">
-                                        <t t-out="len(articles)"/> bài viết
-                                    </span>
-                                </div>
+                                <!-- CMP-CH-001: count cố ý BỎ `t-if` — spec ghi rõ "Count 0 vẫn hiển thị". -->
+                                <t t-call="wujia_portal_layout.wj_card_header">
+                                    <t t-set="ch_title"
+                                       t-value="current_category.name if current_category else 'Tài liệu mới cập nhật'"/>
+                                    <t t-set="ch_level" t-value="4"/>
+                                    <t t-set="ch_platform" t-value="'pc'"/>
+                                    <t t-set="ch_icon" t-value="'book'"/>
+                                    <t t-set="ch_meta">
+                                        <span class="wj-card-header__meta"><t t-out="len(articles)"/> bài viết</span>
+                                    </t>
+                                </t>
                                 <div t-if="not articles" class="wujia-empty-state">
                                     <i class="feather icon-book"/>
                                     <p>Chưa có bài viết.</p>
@@ -297,7 +302,13 @@
 
                         <div class="col-lg-3 col-12">
                             <div t-if="related" class="card">
-                                <div class="card-header py-2"><h6 class="mb-0">Bài liên quan</h6></div>
+                                <div class="card-header py-2">
+                                    <t t-call="wujia_portal_layout.wj_card_header">
+                                        <t t-set="ch_title">Bài liên quan</t>
+                                        <t t-set="ch_level" t-value="4"/>
+                                        <t t-set="ch_class" t-value="'wj-card-header--flush'"/>
+                                    </t>
+                                </div>
                                 <div class="list-group list-group-flush">
                                     <t t-foreach="related" t-as="r">
                                         <a t-attf-href="/portal/knowledge/#{r.slug}" class="list-group-item list-group-item-action py-2">
@@ -351,12 +362,20 @@
                         <t t-if="article.publish_date">Cập nhật <t t-out="wj_dt(article.publish_date, '%d/%m/%Y')"/></t>
                     </div>
 
-                    <h2 class="wujia-mknow-h">Nội dung chính</h2>
+                    <t t-call="wujia_portal_layout.wj_card_header">
+                        <t t-set="ch_title">Nội dung chính</t>
+                        <t t-set="ch_level" t-value="2"/>
+                        <t t-set="ch_platform" t-value="'m'"/>
+                    </t>
                     <p t-if="article.summary" class="wujia-mknow-lead" t-out="article.summary"/>
                     <div class="wujia-mknow-body" t-out="article.content"/>
 
                     <t t-if="article.attachment_ids">
-                        <h2 class="wujia-mknow-h">Tài liệu đính kèm</h2>
+                        <t t-call="wujia_portal_layout.wj_card_header">
+                            <t t-set="ch_title">Tài liệu đính kèm</t>
+                            <t t-set="ch_level" t-value="2"/>
+                            <t t-set="ch_platform" t-value="'m'"/>
+                        </t>
                         <t t-foreach="article.attachment_ids" t-as="att">
                             <t t-set="att_ext" t-value="att.name and '.' in att.name and att.name.rsplit('.', 1)[1].upper() or (att.mimetype or '').rsplit('/', 1)[-1].upper()"/>
                             <t t-set="att_size" t-value="att.file_size and (att.file_size &gt;= 1048576 and '%.1f MB' % (att.file_size / 1048576.0) or '%d KB' % max(1, att.file_size // 1024)) or ''"/>

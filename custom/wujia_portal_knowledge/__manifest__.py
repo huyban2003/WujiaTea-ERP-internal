@@ -1,6 +1,6 @@
 {
     'name': 'Wujia Portal — Knowledge Library',
-    'version': '19.0.3.9.0',
+    'version': '19.0.3.10.0',
     'category': 'Wujia',
     'summary': 'Thư viện kiến thức / blog / SOP cho cửa hàng nhượng quyền',
     'author': 'WujiaTea',

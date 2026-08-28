@@ -10,12 +10,32 @@ prompt của cụm đó rồi bắt tay.
 
 ---
 
-## 📌 BÀN GIAO cho phiên sau (chốt 28/08/2026)
+## 📌 BÀN GIAO cho phiên sau (chốt 28/08/2026 — sau D3b)
 
 **Prompt gõ vào phiên sau:**
 
 > `/wujia-start`
-> làm cụm D3b. Đọc `docs/d3-cardheader-inventory.md` §bảng theo file để lấy nhóm màn kế tiếp, và `docs/d3-acceptance-matrix.md` §LIMIT để biết 4 chỗ đang treo chờ BA.
+> làm cụm D3c. Đọc `docs/d3-cardheader-inventory.md` §5 để lấy 15 chỗ còn lại của 4 file D3a (support 6 · delivery 3 · franchise-information 6), và `docs/d3b-acceptance-matrix.md` §10 LIMIT để biết 6 chỗ đang treo chờ BA.
+
+### ✅ D3b XONG (28/08) — chờ chủ dự án deploy
+
+Nhánh `dev/2026-08-28-d3b` → `main`. **26 call site / 7 file / 7 module**, tổng phủ **36/103**.
+Nghiệm thu **20✅/1⏳ = 95%** → `docs/d3b-acceptance-matrix.md`.
+
+Lệnh deploy (**bắt buộc kèm `wujia_sale`**, thiếu là RC=255 tại `backend_product_views.xml:5`):
+
+```
+-u wujia_portal_layout,wujia_portal_base,wujia_portal_knowledge,wujia_portal_notification,\
+   wujia_portal_report,wujia_portal_sale,wujia_portal_info_request,wujia_portal_return,wujia_sale
+```
+
+Không module mới · không migration · không cập nhật dữ liệu · `?v=1179` đã bump.
+Sau deploy: **đo lại chỉ-đọc trên UAT** (L14/L10) → `scripts/ba_spec/qa_deploy_mark.py`.
+`UI-CARDHEADER-001` **vẫn `Ready for Dev`** (36/103) ⇒ **KHÔNG** chạy `qa_sync.py`.
+
+**Số đáng nhớ của D3b:** tổng `scrollHeight` **−24px** · giả-heading **0/44 ô** · lưới B4
+**286/286** · chạy lại bảng D3a **356 phép so, 0 lệch** · tab-walk **433 stop, ring 16/16** ·
+font **66 tiêu đề, 0 lệch** · unit test **0 failed/0 error/169**.
 
 **✅ D3a ĐÃ DEPLOY VÀ ĐÃ ĐO LẠI TRÊN UAT (28/08).** Nhánh `dev/2026-08-27-d3a` merge `main`,
 chủ dự án đã deploy — 6 module `installed`, `wujia_portal_layout 19.0.32.5.0`. Đo lại chỉ-đọc
@@ -31,7 +51,36 @@ D3n bỏ `#` là chạy được (tiền lệ C8a).
 lẫn mobile đều `t-out="filter_all_label"`. Đo trên browser: PC `— Tất cả —` → **`— Tất cả trạng
 thái —`**, khớp mobile. `value=""` không đổi ⇒ kết quả lọc bất biến.
 
-### Còn treo sau D3a — đọc trước khi làm D3b
+### 🔴 Bài học D3b — đừng lặp lại ở D3c
+
+- **`ch_platform` KHÔNG mặc định là `'pc'`.** `/portal/info-request` **mất hẳn tiêu đề ở
+  mobile** vì `.wujia-content-card` của màn đó **không nằm trong khối `d-none d-lg-block`** —
+  một markup phục vụ cả hai nền tảng. Trước khi đặt `ch_platform`, phải
+  `grep "d-none\|d-lg-"` **trong chính view**; không có ⇒ để trống (biến thể `--any`).
+  Đã chốt bằng test `test_shared_markup_views_do_not_bake_platform`.
+- **Đo rồi mới thêm rule — và đo xong có thể là "không thêm gì".** 6 lớp body "ứng viên"
+  trong kế hoạch (`.card-body`, `.list-group`, `.wujia-mknow-body`, `.wj-rep-pccard__body`,
+  `.wj-pc-kv-grid`, `.wj-pc-noti-detail-body`) **không lớp nào cộng chồng**: mọi `gapToBody`
+  đều giảm (18→12, 14→12, 10→8). Thêm rule mù ở đây là **bóp nhịp xuống dưới chuẩn BA**.
+- **`--flush` trần thua specificity.** `.wj-card-header--flush` là (0,1,0), thua rule nhịp
+  `.wj-card-header--m.wj-card-header--compact` (0,2,0) ⇒ phải khai kèm `--m`/`--any`.
+  Bên `--pc` may mà đã có cặp nên D3a không lộ.
+- **`--any` = một markup cho cả hai nền tảng** (họ Bootstrap `.card-header`) ⇒ phải có khối
+  `@media (min-width: 992px)` riêng, nếu không nó dùng **số mobile ở mọi bề rộng**.
+- **Component chỉ có `h2/h3/h4`.** Gặp `h5`/`h6` cũ thì buộc phải đổi cấp — kiểm tra outline
+  trước/sau, đừng để tụt cấp (D3b: 3 chỗ đổi, cả 3 đều **bớt** nhảy cấp).
+- **Thẻ cao lên chưa chắc là lỗi.** 4 thẻ của D3b cao thêm 2–10px vì tiêu đề cũ **nhỏ hơn
+  chuẩn** (`h6` 12.3px, `h5` 15.3px, `h3` 14px). Phải truy nguồn tăng là *chữ* hay *margin*
+  trước khi kết luận — margin mới là lỗi.
+- **`wujia_core` dời logfile giữa chừng** sang `<thư-mục-logfile>/<năm>/<tháng>/<ngày>.log`
+  ⇒ file `--logfile` chỉ có ~49 dòng đầu, **không** có `odoo.tests.result`. Đọc file đã dời.
+  Traceback `py.warnings` của `wj_ks_dashboard_ninja/controllers/ks_domain_fix.py:8`
+  (`@route(type='json')` deprecated) là **cảnh báo**, không phải lỗi.
+- **Dữ liệu rỗng làm call site "tàng hình".** `related` luôn rỗng (0 sản phẩm có
+  `public_categ_id`) ⇒ header `--any` duy nhất không đo được. Phải bơm dữ liệu **giống hệt
+  nhau trên CẢ HAI DB copy**, không thì cứ tưởng đã đo đủ.
+
+### Còn treo sau D3a — đọc trước khi làm D3c
 
 1. **Fork `wj-pc-acct-headcard` (19 hit) chưa trả lời.** Markup có **HAI** vùng phải
    (`__chips` + `__box`) mà spec cho **tối đa MỘT** trailing. D3a **không đụng file**, lấy
@@ -52,7 +101,11 @@ thái —`**, khớp mobile. `value=""` không đổi ⇒ kết quả lọc bấ
    `Trạng thái`). **4 kiểu chữ cho cùng một ý.** Cả 4 màn đều gõ tay trong `.xml`, không màn nào
    lệch PC↔mobile (3 màn kia mobile không có select nhìn thấy được) ⇒ **không phải bug hiển thị,
    là nợ nhất quán**. Cách sửa giống hệt D3a: một hằng dùng chung. Ghép vào **D7+** cùng lứa
-   component-hoá, hoặc làm kèm khi D3b/D3c động vào đúng file đó.
+   component-hoá. **D3b có động vào `portal_notification.xml` nhưng CỐ Ý không sửa kèm** — đổi
+   chữ hiển thị là hỏng chính phép kiểm "chữ hiển thị không đổi" của bảng hồi quy.
+6. **🆕 `/portal/notification/41` có `H3` đứng TRƯỚC `H2`** (outline `H1 H3 H2 H3 H3`) — lỗi thứ
+   tự **có sẵn**, không do D3b (đo trước/sau y hệt nhau). Không sửa ở cụm D3 vì đổi `ch_level`
+   là đổi outline ngoài phạm vi issue. Đề xuất gộp **R2**.
 
 ### 🔴 Bài học D3a — đừng lặp lại ở D3b
 
@@ -171,14 +224,21 @@ nêu; migrate **4 họ markup** mẫu = 10 header; `-u` 6 module trên DB copy `
 8067 → RC=0, `Registry loaded in 6.302s`; **105 test xanh** + 26 test mới có **mutation check**;
 acceptance **19✅/1⚠️/1⏳ = 95%**, mật độ **16/16 ô không cao lên**, 3/4 route thẻ thấp đi
 20.6/22.0/**104.0**px, giả-heading **8 → 0**, B4 **286/286**, tab-walk 175 stop giữ nguyên,
-font Inter 514/514 y hệt; `docs/d3-acceptance-matrix.md`) · D3b…D3n ⬜ · D4 ⬜ · D5 ⬜ ·
-D6 ⬜ · R1–R5 ⬜
+font Inter 514/514 y hệt; `docs/d3-acceptance-matrix.md`) · **D3b ✅ 28/08/2026** (migrate
+**26 call site / 7 file / 7 module** ⇒ phủ **36/103**; vá 2 lỗ hổng component `--flush`
+specificity + `--any` thiếu số desktop; `-u` 9 module trên DB copy `wujia_tea_d3b` port 8068
+→ RC=0; **169 test xanh** + 4 test mới có **mutation check**; acceptance **20✅/1⏳ = 95%**,
+tổng `scrollHeight` **−24px** trên 44 ô, giả-heading **0/44**, outline 8 giữ/3 tốt lên, chữ
+hiển thị 43/44 giống hệt (1 ô mọc đúng "0 kết quả" theo yêu cầu BA), B4 **286/286**, bảng D3a
+chạy lại **356 phép so 0 lệch**, tab-walk 433 stop ring 16/16, font 66 tiêu đề 0 lệch;
+bắt được **1 lỗi thật**: `/portal/info-request` mất tiêu đề ở mobile do bake `ch_platform`;
+`docs/d3b-acceptance-matrix.md`) · D3c…D3n ⬜ · D4 ⬜ · D5 ⬜ · D6 ⬜ · R1–R5 ⬜
 
 🚚 **D1 + D2 ĐÃ DEPLOY UAT 27/08** (`wujia_portal_layout 19.0.32.4.0` · `wujia_portal_return
 19.0.2.7.0` · `wujia_sale 19.0.4.3.0`, xác nhận XML-RPC) **+ đo lại chỉ-đọc ngay trên UAT**:
 D2 **14/14** (chỗ ≠ Inter 145→0, `scrollHeight`/số dòng/`font-weight`/icon **0 lệch trên 80 ô**,
 B4 286/286, tab-walk 346 stop) · D1 **27/28**.
-🚚 **D3a chờ deploy UAT** — xem lệnh + version ở đầu §Bàn giao.
+🚚 **D3b chờ deploy UAT** — xem lệnh + version ở đầu §Bàn giao. (D3a đã deploy + đo lại 28/08.)
 
 ---
 
@@ -249,8 +309,13 @@ B4 286/286, tab-walk 346 stop) · D1 **27/28**.
   của kế hoạch: `wj-pc-card__title` **23–25** chứ không phải 154, `wj-pc-acct-headcard` **19**
   chứ không phải 33 ⇒ D3 nhẹ hơn dự kiến. Component `wj_card_header` + CSS đã xong; migrate
   **4 họ markup** mẫu (10 header). Đo: `docs/d3-acceptance-matrix.md` — **95%**.
-- **D3b…D3n:** migrate hết call site theo **bảng-theo-file** ở §kế hoạch của inventory, mỗi
+- **D3b ✅ 28/08.** 26 call site / 7 file (home · franchise_profile · knowledge · notification ·
+  report_orders · pc_cart_panel + product_detail · info_request · return_list) ⇒ **36/103**.
+  Vá 2 lỗ hổng component (`--flush` thua specificity ở mobile/`--any`; `--any` thiếu khối
+  `@media ≥992px`). Đo: `docs/d3b-acceptance-matrix.md` — **95%**.
+- **D3c…D3n:** migrate hết call site theo **bảng-theo-file** ở §kế hoạch của inventory, mỗi
   session một nhóm màn, mỗi session một lần `-u`, mỗi session đo lại B4 286/286 + tab-walk.
+  **D3c = 15 chỗ còn lại của 4 file D3a** (support 6 · delivery 3 · franchise-information 6).
   Issue **giữ `Ready for Dev`** cho tới khi đủ 100% (tiền lệ C8a→C8b); entry ledger đã soạn
   sẵn **dạng comment** ở cuối `docs/qa-issue-ledger.yaml`, D3n bỏ `#` là dùng được.
 - 🔴 **Bẫy D3a đã trả giá, đừng lặp:** (1) gỡ `mb-*` ở call site **chưa đủ** — lớp body tự khai

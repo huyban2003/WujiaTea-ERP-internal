@@ -28,7 +28,11 @@
                         <div class="col-lg-6 col-12 mb-2">
                             <div class="card h-100">
                                 <div class="card-header">
-                                    <h4 class="card-title mb-0">Thông tin định danh</h4>
+                                    <t t-call="wujia_portal_layout.wj_card_header">
+                                        <t t-set="ch_title">Thông tin định danh</t>
+                                        <t t-set="ch_level" t-value="4"/>
+                                        <t t-set="ch_class" t-value="'wj-card-header--flush'"/>
+                                    </t>
                                 </div>
                                 <div class="card-body">
                                     <dl class="row mb-0 profile-dl">
@@ -62,7 +66,11 @@
                         <div class="col-lg-6 col-12 mb-2">
                             <div class="card h-100">
                                 <div class="card-header">
-                                    <h4 class="card-title mb-0">Liên hệ</h4>
+                                    <t t-call="wujia_portal_layout.wj_card_header">
+                                        <t t-set="ch_title">Liên hệ</t>
+                                        <t t-set="ch_level" t-value="4"/>
+                                        <t t-set="ch_class" t-value="'wj-card-header--flush'"/>
+                                    </t>
                                 </div>
                                 <div class="card-body">
                                     <dl class="row mb-0 profile-dl">
@@ -90,7 +98,11 @@
                         <div class="col-lg-6 col-12 mb-2">
                             <div class="card h-100">
                                 <div class="card-header">
-                                    <h4 class="card-title mb-0">Hợp đồng nhượng quyền</h4>
+                                    <t t-call="wujia_portal_layout.wj_card_header">
+                                        <t t-set="ch_title">Hợp đồng nhượng quyền</t>
+                                        <t t-set="ch_level" t-value="4"/>
+                                        <t t-set="ch_class" t-value="'wj-card-header--flush'"/>
+                                    </t>
                                 </div>
                                 <div class="card-body">
                                     <dl class="row mb-0 profile-dl">
@@ -119,7 +131,11 @@
                         <div class="col-lg-6 col-12 mb-2">
                             <div class="card h-100">
                                 <div class="card-header">
-                                    <h4 class="card-title mb-0">Yêu cầu cập nhật thông tin</h4>
+                                    <t t-call="wujia_portal_layout.wj_card_header">
+                                        <t t-set="ch_title">Yêu cầu cập nhật thông tin</t>
+                                        <t t-set="ch_level" t-value="4"/>
+                                        <t t-set="ch_class" t-value="'wj-card-header--flush'"/>
+                                    </t>
                                 </div>
                                 <div class="card-body">
                                     <p class="text-muted">

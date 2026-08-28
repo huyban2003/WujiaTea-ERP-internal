@@ -210,6 +210,9 @@
         font-size: 15px; font-weight: 700;
         color: var(--wujia-morder-text); margin: 18px 0 10px;
     }
+    /* CMP-CH-001 chỉ định nghĩa nhịp header→body; khoảng cách với khối PHÍA TRÊN là
+       việc của container (sẽ về SurfaceCard ở D4). Giữ đúng 18px của thiết kế cũ. */
+    .wujia-mnoti-detail-card > .wj-card-header { margin-top: 18px; }
     .wujia-mnoti-detail-files { display: flex; flex-direction: column; gap: 8px; }
     .wujia-mnoti-detail-file {
         display: flex;

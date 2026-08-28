@@ -155,17 +155,73 @@ class TestCardHeaderComponent(TransactionCase):
 
 @tagged('post_install', '-at_install', 'wujia_card_header_d3')
 class TestCardHeaderCallSites(TransactionCase):
-    """4 route mẫu của D3a phải dùng component và bỏ được các bệnh BA nêu."""
+    """Route đã migrate (D3a + D3b) phải dùng component và bỏ được các bệnh BA nêu."""
 
     CALL_SITES = {
+        # D3a — 4 họ markup mẫu
         'wujia_portal_support.portal_support_list': 1,
         'wujia_portal_delivery.portal_delivery_detail': 3,
         'wujia_portal_base.portal_franchise_information': 2,
         'wujia_portal_return.portal_return_form': 4,
+        # D3b — nhóm màn kế tiếp
+        'wujia_portal_base.portal_home_page': 5,
+        'wujia_portal_base.portal_franchise_profile_full': 4,
+        'wujia_portal_knowledge.portal_knowledge_list': 2,
+        'wujia_portal_knowledge.portal_knowledge_detail': 3,
+        'wujia_portal_notification.portal_notification_results_part': 1,
+        'wujia_portal_notification.portal_notification_detail': 4,
+        'wujia_portal_report.portal_report_orders': 3,
+        'wujia_portal_sale.pc_cart_panel': 1,
+        'wujia_portal_sale.portal_order_product_detail': 1,
+        'wujia_portal_info_request.portal_info_request_list': 1,
+        'wujia_portal_return.portal_return_list': 1,
     }
+
+    # Count phải hiện cả khi = 0 ⇒ khối trailing KHÔNG được bọc `t-if` theo recordset.
+    ZERO_COUNT_VIEWS = {
+        'wujia_portal_support.portal_support_list': 'tickets',
+        'wujia_portal_knowledge.portal_knowledge_list': 'articles',
+        'wujia_portal_report.portal_report_orders': 'top_products',
+        'wujia_portal_info_request.portal_info_request_list': 'requests',
+        'wujia_portal_return.portal_return_list': 'returns',
+    }
+
+    # Họ Bootstrap `.card-header` giữ wrapper (đã có padding + border) ⇒ header phải
+    # `--flush`, nếu không là cộng chồng margin (spec cấm).
+    FLUSH_VIEWS = {
+        'wujia_portal_base.portal_franchise_profile_full': 4,
+        'wujia_portal_knowledge.portal_knowledge_list': 1,
+        'wujia_portal_knowledge.portal_knowledge_detail': 1,
+    }
+
+    # Class heading cũ đã migrate hết trong CHÍNH view đó ⇒ không được tái xuất hiện.
+    RETIRED_IN_VIEW = {
+        'wujia_portal_base.portal_home_page': ('wujia-content-card-header-title',
+                                               'wujia-mhome-window-title'),
+        'wujia_portal_base.portal_franchise_profile_full': ('card-title',),
+        'wujia_portal_knowledge.portal_knowledge_detail': ('wujia-mknow-h',),
+        'wujia_portal_notification.portal_notification_detail': ('wujia-mnoti-detail-sectitle',),
+        'wujia_portal_report.portal_report_orders': ('wj-pc-card__title',),
+        'wujia_portal_sale.pc_cart_panel': ('wj-pc-cart-title',),
+        'wujia_portal_info_request.portal_info_request_list': ('wujia-content-card-header-title',),
+        'wujia_portal_return.portal_return_list': ('wujia-content-card-header-title',),
+    }
+
+    # View KHÔNG tách PC/mobile (không có `d-none d-lg-*`) ⇒ một markup phục vụ cả hai
+    # nền tảng. Bake `ch_platform` ở đây là nuốt mất tiêu đề ở nền tảng còn lại —
+    # đo được ở D3b: /portal/info-request mất hẳn header khi ≤991px.
+    SHARED_MARKUP_VIEWS = ('wujia_portal_info_request.portal_info_request_list',)
 
     def _arch(self, xmlid):
         return self.env.ref(xmlid).arch_db
+
+    def test_shared_markup_views_do_not_bake_platform(self):
+        for xmlid in self.SHARED_MARKUP_VIEWS:
+            with self.subTest(view=xmlid):
+                arch = self._arch(xmlid)
+                self.assertNotIn('d-lg-none', arch, 'view này phải là markup dùng chung')
+                # bám directive, KHÔNG bám chữ: comment giải thích cũng chứa "ch_platform"
+                self.assertNotIn('t-set="ch_platform"', arch)
 
     def test_call_sites_use_component(self):
         for xmlid, count in self.CALL_SITES.items():
@@ -175,13 +231,28 @@ class TestCardHeaderCallSites(TransactionCase):
                     count)
 
     def test_count_not_hidden_when_zero(self):
-        # Spec: "Count 0 vẫn hiển thị" ⇒ meta không được bọc trong t-if="tickets".
-        root = html.fromstring(
-            '<div>%s</div>' % self._arch('wujia_portal_support.portal_support_list'))
-        metas = root.xpath('.//*[@class="wj-card-header__meta"]')
-        self.assertEqual(len(metas), 1)
-        for node in metas + metas[0].xpath('.//*'):
-            self.assertNotIn('tickets', node.get('t-if') or '')
+        # Spec: "Count 0 vẫn hiển thị" ⇒ khối count không được bọc `t-if` theo recordset.
+        for xmlid, recordset in self.ZERO_COUNT_VIEWS.items():
+            with self.subTest(view=xmlid):
+                root = html.fromstring('<div>%s</div>' % self._arch(xmlid))
+                counts = root.xpath('.//t[@t-set="ch_meta"]')
+                self.assertTrue(counts, 'view phải có slot count')
+                for node in counts:
+                    for el in [node] + node.xpath('.//*'):
+                        self.assertNotIn(recordset, el.get('t-if') or '')
+
+    def test_flush_on_legacy_card_header_wrapper(self):
+        for xmlid, count in self.FLUSH_VIEWS.items():
+            with self.subTest(view=xmlid):
+                self.assertEqual(
+                    self._arch(xmlid).count('wj-card-header--flush'), count)
+
+    def test_retired_heading_classes_gone_from_migrated_views(self):
+        for xmlid, classes in self.RETIRED_IN_VIEW.items():
+            arch = self._arch(xmlid)
+            for cls in classes:
+                with self.subTest(view=xmlid, cls=cls):
+                    self.assertNotIn('class="%s' % cls, arch)
 
     def test_migrated_headers_drop_stacking_margin(self):
         # Spec cấm cộng chồng margin header với body ⇒ `mb-3`/`mb-1` phải biến mất
