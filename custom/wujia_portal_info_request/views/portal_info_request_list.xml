@@ -67,15 +67,17 @@
                     <!-- Vùng swap AJAX: bảng + pager (bộ lọc ngoài, JS đồng bộ theo URL). -->
                     <div id="wj-inf-body">
                     <div class="wujia-content-card">
-                        <div class="wujia-content-card-header">
-                            <div class="wujia-content-card-header-icon">
-                                <i class="feather icon-edit"/>
-                            </div>
-                            <h4 class="wujia-content-card-header-title">Danh sách yêu cầu</h4>
-                            <span t-if="requests" class="wujia-content-card-header-link">
-                                <t t-out="len(requests)"/> kết quả
-                            </span>
-                        </div>
+                        <!-- CMP-CH-001: count cố ý BỎ `t-if` — spec ghi rõ "Count 0 vẫn hiển thị". -->
+                        <t t-call="wujia_portal_layout.wj_card_header">
+                            <t t-set="ch_title">Danh sách yêu cầu</t>
+                            <t t-set="ch_level" t-value="4"/>
+                            <!-- Màn này KHÔNG tách PC/mobile (không có d-none d-lg-*) nên
+                                 KHÔNG bake ch_platform: 'pc' sẽ nuốt mất tiêu đề ở mobile. -->
+                            <t t-set="ch_icon" t-value="'edit'"/>
+                            <t t-set="ch_meta">
+                                <span class="wj-card-header__meta"><t t-out="len(requests)"/> kết quả</span>
+                            </t>
+                        </t>
                         <div t-if="not requests" class="wujia-empty-state">
                             <i class="feather icon-edit"/>
                             <p>Chưa có yêu cầu nào. <a href="/portal/info-request/new">Tạo yêu cầu đầu tiên</a>.</p>

@@ -23,18 +23,19 @@
         </div>
 
         <div t-if="part == 'pc'" id="wj-noti-pc" class="wj-pc-card">
-            <div class="wj-pc-card__head">
-                <div>
-                    <h3 class="wj-pc-card__title wj-pc-card__title--sm">Danh sách thông báo</h3>
-                    <p class="wj-pc-card__subtitle">Hiển thị thông báo còn hiệu lực, đúng đối tượng nhận.</p>
-                </div>
-                <div class="wj-pc-noti-head-actions">
-                    <span t-if="cnt_unread" class="wj-pc-badge wj-pc-badge--cancel"><t t-out="cnt_unread"/> chưa đọc</span>
-                    <button type="button" id="wj-noti-bulk-read" class="wj-pc-btn wj-pc-btn--primary">
-                        <i class="feather icon-check-circle"/>Đánh dấu đã đọc
-                    </button>
-                </div>
-            </div>
+            <t t-call="wujia_portal_layout.wj_card_header">
+                <t t-set="ch_title">Danh sách thông báo</t>
+                <t t-set="ch_subtitle">Hiển thị thông báo còn hiệu lực, đúng đối tượng nhận.</t>
+                <t t-set="ch_platform" t-value="'pc'"/>
+                <t t-set="ch_control">
+                    <div class="wj-pc-noti-head-actions wj-card-header__control">
+                        <span t-if="cnt_unread" class="wj-pc-badge wj-pc-badge--cancel"><t t-out="cnt_unread"/> chưa đọc</span>
+                        <button type="button" id="wj-noti-bulk-read" class="wj-pc-btn wj-pc-btn--primary">
+                            <i class="feather icon-check-circle"/>Đánh dấu đã đọc
+                        </button>
+                    </div>
+                </t>
+            </t>
 
             <div t-if="not notifications" class="wj-pc-empty">
                 <span class="wj-pc-empty__icon"><i class="feather icon-bell"/></span>
@@ -354,7 +355,13 @@
                 <div class="wj-pc-two-col">
                     <!-- Trái: nội dung thông báo -->
                     <div class="wj-pc-card">
-                        <h3 class="wj-pc-card__title">Nội dung thông báo</h3>
+                        <!-- Biến thể flush vì thẻ hr ngay dưới đã là dải phân cách + nhịp 18px
+                             của thiết kế cũ; header tự thêm 12px nữa là cộng chồng (spec cấm). -->
+                        <t t-call="wujia_portal_layout.wj_card_header">
+                            <t t-set="ch_title">Nội dung thông báo</t>
+                            <t t-set="ch_platform" t-value="'pc'"/>
+                            <t t-set="ch_class" t-value="'wj-card-header--flush'"/>
+                        </t>
                         <hr class="wj-pc-noti-rule"/>
                         <div class="wj-pc-noti-detail-badgerow">
                             <span t-if="dptag" t-attf-class="wj-pc-badge #{dptag[1]}" t-out="dptag[0]"/>
@@ -371,9 +378,10 @@
                     <!-- Phải: thông tin + tài liệu -->
                     <div class="wj-pc-noti-side">
                         <div class="wj-pc-card">
-                            <div class="wj-pc-card__head">
-                                <h3 class="wj-pc-card__title wj-pc-card__title--sm">Thông tin thông báo</h3>
-                            </div>
+                            <t t-call="wujia_portal_layout.wj_card_header">
+                                <t t-set="ch_title">Thông tin thông báo</t>
+                                <t t-set="ch_platform" t-value="'pc'"/>
+                            </t>
                             <div class="wj-pc-kv-grid wj-pc-kv-grid--single">
                                 <div class="wj-pc-kv">
                                     <span class="wj-pc-kv__label">Mã thông báo</span>
@@ -393,9 +401,10 @@
                         </div>
 
                         <div t-if="noti.attachment_ids" class="wj-pc-card">
-                            <div class="wj-pc-card__head">
-                                <h3 class="wj-pc-card__title wj-pc-card__title--sm">Tài liệu đính kèm</h3>
-                            </div>
+                            <t t-call="wujia_portal_layout.wj_card_header">
+                                <t t-set="ch_title">Tài liệu đính kèm</t>
+                                <t t-set="ch_platform" t-value="'pc'"/>
+                            </t>
                             <div class="wj-pc-noti-attach-list">
                                 <t t-foreach="noti.attachment_ids" t-as="att">
                                     <div class="wj-pc-noti-attach-row">
@@ -464,7 +473,10 @@
                     <div class="wujia-mnoti-detail-body" t-out="noti.content"/>
 
                     <t t-if="noti.attachment_ids">
-                        <h3 class="wujia-mnoti-detail-sectitle">File đính kèm</h3>
+                        <t t-call="wujia_portal_layout.wj_card_header">
+                            <t t-set="ch_title">File đính kèm</t>
+                            <t t-set="ch_platform" t-value="'m'"/>
+                        </t>
                         <div class="wujia-mnoti-detail-files">
                             <a t-foreach="noti.attachment_ids" t-as="att"
                                t-attf-href="/portal/notification/#{noti.id}/attachment/#{att.id}"

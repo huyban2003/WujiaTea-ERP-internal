@@ -77,15 +77,16 @@
                     <div id="wj-ret-pc">
                     <!-- Table (Sprint 9.13b 2026-05-27: MẪU 02 — wujia-content-card-table) -->
                     <div class="wujia-content-card">
-                        <div class="wujia-content-card-header">
-                            <div class="wujia-content-card-header-icon">
-                                <i class="feather icon-refresh-cw"/>
-                            </div>
-                            <h4 class="wujia-content-card-header-title">Danh sách yêu cầu đổi trả</h4>
-                            <span t-if="returns" class="wujia-content-card-header-link">
-                                <t t-out="len(returns)"/> kết quả
-                            </span>
-                        </div>
+                        <!-- CMP-CH-001: count cố ý BỎ `t-if` — spec ghi rõ "Count 0 vẫn hiển thị". -->
+                        <t t-call="wujia_portal_layout.wj_card_header">
+                            <t t-set="ch_title">Danh sách yêu cầu đổi trả</t>
+                            <t t-set="ch_level" t-value="4"/>
+                            <t t-set="ch_platform" t-value="'pc'"/>
+                            <t t-set="ch_icon" t-value="'refresh-cw'"/>
+                            <t t-set="ch_meta">
+                                <span class="wj-card-header__meta"><t t-out="len(returns)"/> kết quả</span>
+                            </t>
+                        </t>
                         <div t-if="not returns" class="wujia-empty-state">
                             <i class="feather icon-corner-up-left"/>
                             <p>Chưa có yêu cầu nào. <a href="/portal/return/new">Tạo yêu cầu đầu tiên</a>.</p>

@@ -2448,6 +2448,9 @@ a.wujia-mhome-kpi:active { opacity: 0.85; }
         color: var(--wujia-morder-text);
         margin: 16px 0 8px;
     }
+    /* CMP-CH-001 chỉ định nghĩa nhịp header→body; khoảng cách với khối PHÍA TRÊN là
+       việc của container (sẽ về SurfaceCard ở D4). Giữ đúng 16px của thiết kế cũ. */
+    .wujia-mknow-article > .wj-card-header { margin-top: 16px; }
     .wujia-mknow-lead {
         font-size: 14px;
         line-height: 1.6;
@@ -3254,8 +3257,36 @@ a.wujia-mhome-kpi:active { opacity: 0.85; }
 }
 /* Container đã tự lo nhịp (padding/flex gap) thì KHÔNG cộng margin của header —
    caller opt-in bằng --flush. KHÔNG dùng :first-child: mỗi header là con đầu của
-   card riêng nên :first-child khớp TẤT CẢ (bẫy đã trả giá ở C8). */
+   card riêng nên :first-child khớp TẤT CẢ (bẫy đã trả giá ở C8).
+   ⚠️ Phải kèm --m/--any: rule nhịp ở trên là (0,2,0) nên --flush trần (0,1,0) THUA. */
 .wj-card-header--flush { margin-top: 0; margin-bottom: 0; }
+.wj-card-header--m.wj-card-header--flush,
+.wj-card-header--any.wj-card-header--flush { margin: 0; }
+
+/* --any = MỘT markup phục vụ cả hai nền tảng (họ Bootstrap `.card-header`: không
+   tách được PC/mobile nên không bake được ch_platform). Số ở trên là số mobile của
+   BA; từ 992px — đúng ranh giới `d-lg-*` mà ch_platform dùng — phải lên số desktop. */
+@media (min-width: 992px) {
+    .wj-card-header--any { column-gap: 12px; }
+    .wj-card-header--any.wj-card-header--regular { column-gap: 16px; }
+    .wj-card-header--any.wj-card-header--compact .wj-card-header__title {
+        font-size: 18px !important;
+        line-height: 24px;
+    }
+    .wj-card-header--any.wj-card-header--regular .wj-card-header__title {
+        font-size: 20px !important;
+        line-height: 28px;
+    }
+    .wj-card-header--any.wj-card-header--compact { margin: 0 0 12px; }
+    .wj-card-header--any.wj-card-header--regular { margin: 0 0 16px; }
+    .wj-card-header--any.wj-card-header--flush { margin: 0; }
+    .wj-card-header--any .wj-card-header__subtitle { font-size: 14px; line-height: 20px; }
+    .wj-card-header--any .wj-card-header__action,
+    .wj-card-header--any .wj-card-header__meta { font-size: 14px; line-height: 20px; }
+    .wj-card-header--any.wj-card-header--divider { padding-bottom: 12px; }
+    .wj-card-header--any .wj-card-header__action::after { height: 40px; min-width: 0; }
+    .wj-card-header--any > .wj-card-header__control { min-height: 40px; }
+}
 
 /* Spec CẤM cộng chồng margin header với margin body. Migrate đã gỡ được `mb-*` nằm
    trên chính dòng tiêu đề, nhưng vài lớp BODY cũ tự khai `margin-top` nên khoảng cách

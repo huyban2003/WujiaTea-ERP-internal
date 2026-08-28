@@ -78,7 +78,10 @@
                             </div>
 
                             <div t-if="related" class="mt-4">
-                                <h5>Sản phẩm liên quan</h5>
+                                <t t-call="wujia_portal_layout.wj_card_header">
+                                    <t t-set="ch_title">Sản phẩm liên quan</t>
+                                    <t t-set="ch_level" t-value="4"/>
+                                </t>
                                 <div class="row g-2">
                                     <t t-foreach="related" t-as="rel">
                                         <div class="col-6 col-md-2">
