@@ -17,10 +17,20 @@ prompt của cụm đó rồi bắt tay.
 > `/wujia-start`
 > làm cụm D3c. Đọc `docs/d3-cardheader-inventory.md` §5 để lấy 15 chỗ còn lại của 4 file D3a (support 6 · delivery 3 · franchise-information 6), và `docs/d3b-acceptance-matrix.md` §10 LIMIT để biết 6 chỗ đang treo chờ BA.
 
-### ✅ D3b XONG (28/08) — chờ chủ dự án deploy
+### ✅ D3b XONG + ĐÃ ĐO LẠI TRÊN UAT (28/08) — còn **1 lượt deploy nhỏ**
 
 Nhánh `dev/2026-08-28-d3b` → `main`. **26 call site / 7 file / 7 module**, tổng phủ **36/103**.
-Nghiệm thu **20✅/1⏳ = 95%** → `docs/d3b-acceptance-matrix.md`.
+Nghiệm thu **21✅/1⏳ = 95,5%** → `docs/d3b-acceptance-matrix.md`.
+
+Chủ dự án đã deploy lượt 1; đo lại chỉ-đọc trên UAT (13 route × 3 breakpoint) bắt được
+**1 lỗi thật**: title trong `.card > .card-body` sai màu (`#212529` thay vì `#111827`) vì
+theme Vuexy có `:where(.card…) .card-body:not(…) h4 { color: inherit }` **(0,4,1)** đè
+`.wj-card-header__title` (0,1,0). Đã vá bằng `!important` + test khoá (mutation check đỏ
+đúng 1 test). Sau vá: **46/46 header, 0 vấn đề** trên chính UAT. Chi tiết → §12 bảng nghiệm thu.
+
+⚠️ **Deploy lượt 2 (nhỏ):** `-u wujia_portal_layout` — layout `19.0.32.7.0`, `?v=1180`.
+Xong thì chạy `python3 scratchpad/d3b_uat_verify.py` (không `WJ_PATCH`) để xác nhận trên
+bundle thật, rồi `scripts/ba_spec/qa_deploy_mark.py`.
 
 Lệnh deploy (**bắt buộc kèm `wujia_sale`**, thiếu là RC=255 tại `backend_product_views.xml:5`):
 
@@ -29,13 +39,13 @@ Lệnh deploy (**bắt buộc kèm `wujia_sale`**, thiếu là RC=255 tại `bac
    wujia_portal_report,wujia_portal_sale,wujia_portal_info_request,wujia_portal_return,wujia_sale
 ```
 
-Không module mới · không migration · không cập nhật dữ liệu · `?v=1179` đã bump.
+Không module mới · không migration · không cập nhật dữ liệu · `?v=1180` đã bump.
 Sau deploy: **đo lại chỉ-đọc trên UAT** (L14/L10) → `scripts/ba_spec/qa_deploy_mark.py`.
 `UI-CARDHEADER-001` **vẫn `Ready for Dev`** (36/103) ⇒ **KHÔNG** chạy `qa_sync.py`.
 
 **Số đáng nhớ của D3b:** tổng `scrollHeight` **−24px** · giả-heading **0/44 ô** · lưới B4
 **286/286** · chạy lại bảng D3a **356 phép so, 0 lệch** · tab-walk **433 stop, ring 16/16** ·
-font **66 tiêu đề, 0 lệch** · unit test **0 failed/0 error/169**.
+font **66 tiêu đề, 0 lệch** · unit test **0 failed/0 error/170** · UAT sau vá **46/46 header, 0 vấn đề**.
 
 **✅ D3a ĐÃ DEPLOY VÀ ĐÃ ĐO LẠI TRÊN UAT (28/08).** Nhánh `dev/2026-08-27-d3a` merge `main`,
 chủ dự án đã deploy — 6 module `installed`, `wujia_portal_layout 19.0.32.5.0`. Đo lại chỉ-đọc
@@ -76,6 +86,16 @@ thái —`**, khớp mobile. `value=""` không đổi ⇒ kết quả lọc bấ
   ⇒ file `--logfile` chỉ có ~49 dòng đầu, **không** có `odoo.tests.result`. Đọc file đã dời.
   Traceback `py.warnings` của `wj_ks_dashboard_ninja/controllers/ks_domain_fix.py:8`
   (`@route(type='json')` deprecated) là **cảnh báo**, không phải lỗi.
+- **`var()` không phải nghi phạm mặc định khi màu sai.** Giả thuyết "thiếu token ⇒ `var()`
+  invalid ⇒ inherit" **sai** — token có ở cả `:root` lẫn element. Thủ phạm là rule theme
+  `:where(.card…) .card-body:not(…) h4 { color: inherit }`: `:not()` **mang độ đặc hiệu của
+  tham số** nên nó là **(0,4,1)**, không phải (0,1,1). Truy bằng CDP
+  `CSS.getMatchedStylesForNode` + `matchingSelectors` (đọc đúng selector nào trong danh sách
+  khớp), đừng đoán. Không nâng specificity nào hợp lý thắng nổi ⇒ `!important`.
+- **Harness đo sai còn nguy hơn không đo.** Lượt UAT đầu báo 6 lỗi thì **3 là slug không tồn
+  tại** (Odoo trả trang danh sách, đo nhầm trang — phải kiểm `href` thật từ trang list) và
+  **3 là kỳ vọng quá rộng** (`padding: 0` áp cho cả header cố ý giữ class container cũ).
+  Chỉ 3/9 cảnh báo là lỗi thật.
 - **Dữ liệu rỗng làm call site "tàng hình".** `related` luôn rỗng (0 sản phẩm có
   `public_categ_id`) ⇒ header `--any` duy nhất không đo được. Phải bơm dữ liệu **giống hệt
   nhau trên CẢ HAI DB copy**, không thì cứ tưởng đã đo đủ.
@@ -211,7 +231,7 @@ của R1 (hex cứng → token).
   xoá attachment asset cho tự sinh lại, đừng truy như lỗi sản phẩm.
 - `freezegun` phải là **1.1.0**.
 
-**Tiến độ cụm:** D1 ✅ 25/08/2026 (4 issue → Ready for Retest; `-u wujia_portal_return,wujia_sale,wujia_portal_layout`
+**Tiến độ cụm:** D3b ✅ 28/08 (36/103 call site, đã đo lại UAT) · D1 ✅ 25/08/2026 (4 issue → Ready for Retest; `-u wujia_portal_return,wujia_sale,wujia_portal_layout`
 trên DB copy `wujia_tea_d1` port 8065 → RC=0; **26/26 đo đạt (100%)**, 6 test mới + 33 hồi quy
 = 39 test xanh, lưới B4 286/286, tab-walk 2 viewport sạch; bảng đối chiếu
 `docs/d1-acceptance-matrix.md`) · **D2 ✅ 26/08/2026** (`b70d26a`, WJ-PORTAL-UI-002 →

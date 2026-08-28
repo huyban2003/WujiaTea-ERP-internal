@@ -1,6 +1,7 @@
 # D3b — bảng đối chiếu acceptance (UI-CARDHEADER-001, STT 125 · `CMP-CH-001`)
 
-**Ngày đo:** 2026-08-28 · **Kết quả: 20/21 Pass, 1 phần (95%)** — ô "phần" là **phạm vi cố
+**Ngày đo:** 2026-08-28 (local) + đo lại trên UAT sau deploy cùng ngày → **§12** ·
+**Kết quả: 21/22 Pass, 1 phần (95,5%)** — ô "phần" là **phạm vi cố
 ý**: sau D3b mới phủ **36/103** call site, nên issue **giữ `Ready for Dev`** (tiền lệ
 C8a→C8b). Kiểm kê gốc rễ → `docs/d3-cardheader-inventory.md`. Phiên trước → `d3-acceptance-matrix.md`.
 
@@ -316,15 +317,72 @@ header**. Đo được vì `cardHeaders` @390 = **0** trong khi trước đó c�
 - **Bắt buộc kèm `wujia_sale`** vì có chạm `wujia_portal_return` (rename `description_ecommerce`
   S52) — thiếu là **RC=255** tại `backend_product_views.xml:5`.
 - Không module mới · không migration · không cập nhật dữ liệu.
-- Cache-bust `?v=1179` đã bump trong `wujia_portal_layout/views/assets.xml` (4 chỗ).
-- Version: layout `19.0.32.6.0` · base `19.0.7.6.0` · knowledge `19.0.3.10.0` ·
+- Cache-bust `?v=1180` đã bump trong `wujia_portal_layout/views/assets.xml` (4 chỗ).
+- Version: layout `19.0.32.7.0` · base `19.0.7.6.0` · knowledge `19.0.3.10.0` ·
   notification `19.0.2.8.0` · report `19.0.2.1.0` · portal_sale `19.0.4.14.0` ·
   info_request `19.0.1.6.0` · return `19.0.2.9.0`.
 - Sau deploy: **đo lại chỉ-đọc trên UAT** (L14/L10) → `scripts/ba_spec/qa_deploy_mark.py`.
+- 🆕 **Deploy lượt 2 (bản vá màu, §12):** chỉ `-u wujia_portal_layout` — layout lên
+  `19.0.32.7.0`, `?v=1180`. Sau khi lên, chạy lại `python3 scratchpad/d3b_uat_verify.py`
+  **không** `WJ_PATCH` để xác nhận 46/46 trên bundle thật.
 
 ---
 
-## 12. Tổng kết 21 ô acceptance
+## 12. Đo lại trên UAT sau deploy (28/08) — 🔴 lỗi thật thứ hai, đã sửa
+
+Harness `scratchpad/d3b_uat_verify.py` (chỉ-đọc, QA §10): 13 route × 3 breakpoint
+(1440 · 390 · 360), admin + `POST /web/session/authenticate`, cookie
+`wujia_active_franchise_id=3`. Khác D3a một điểm: **kỳ vọng suy từ chính modifier của
+element** (`--pc/--m/--any` × `--compact/--regular` × `--flush`) thay vì bảng cứng theo
+route — chính bảng cứng đã đẻ 7 báo động giả ở D3a.
+
+**Lượt 1 — 38/44 đạt, 3 nhóm cảnh báo:**
+
+| Cảnh báo | Phán quyết |
+|---|---|
+| `/portal/knowledge/<slug>` thiếu "Bài liên quan" / "Nội dung chính" (3 ô) | **Lỗi của harness.** Slug `quy-trinh-bao-tri` không tồn tại trên UAT ⇒ Odoo trả về trang **danh sách**, đo nhầm trang. Đổi sang `ui12-01` (mở đúng trang chi tiết, có cả hai tiêu đề). |
+| `/portal/reports/orders` `padding: 16px` (3 ô) | **Sai kỳ vọng, không phải lỗi.** Padding đến từ class cũ `wj-rep-pccard__head` **cố ý giữ lại** — đúng lý do phải thêm `--flush`. Đã thu hẹp assertion: chỉ đòi `padding: 0` khi header **không mang class ngoài họ `wj-card-header*`**. |
+| `/portal/order/product/7` màu `rgb(33, 37, 41)` (3 ô) | 🔴 **Lỗi thật của component.** |
+
+### Lỗi màu — truy đến rule thắng bằng CDP `CSS.getMatchedStylesForNode`
+
+Giả thuyết đầu tiên (thiếu token ⇒ `var()` invalid ⇒ rơi về inherit) **sai**: đo tại chỗ cho
+`--wujia-text-primary` = `#111827` ở cả `:root` lẫn chính element. Rule thật sự thắng:
+
+```
+:where(.card:not([data-vxml])) .card-body:not(.card[data-vxml] .card-body) h4
+    { color: inherit }                                    ← theme Vuexy
+```
+
+Độ đặc hiệu **(0,4,1)** — vì `:not()` mang độ đặc hiệu của **tham số** `.card[data-vxml] .card-body`
+(0,3,0) — đè `.wj-card-header__title` (0,1,0). Title do đó lấy màu của `.card-body`
+(`#212529` trên UAT, đen ở local). **Chỉ route này dính** vì chỉ nó bọc header trong
+`.card > .card-body` thật; các card khác của portal là markup riêng.
+
+Không nâng specificity nào hợp lý thắng nổi (0,4,1) ⇒ dùng `!important`, **cùng cơ chế đã
+dùng sẵn cho `font-size` của `--any`**:
+
+```css
+.wj-card-header__title { … color: var(--wujia-text-primary) !important; }
+```
+
+Khoá bằng test `test_title_colour_beats_theme_card_body_rule` (đọc thẳng `_components.css`);
+**mutation check**: bỏ `!important` ⇒ đúng 1 test đỏ.
+
+> **Bài học:** lỗi này có **cả trước lẫn sau migrate** (`<h5>` trần cũ cũng inherit) nên
+> không phải hồi quy — nhưng nó là **sai số BA**, và chỉ lộ ra vì đo `color` thật trên UAT.
+> Đúng dự báo L14/L10.
+
+**Lượt 2 — bơm bản vá phía client (`WJ_PATCH=1`, không đụng server) + slug đúng + assertion đã
+thu hẹp: `46/46 header đạt toàn bộ số BA · 0 vấn đề`** (cỡ chữ, line-height, weight 700,
+màu `rgb(17,24,39)`, font Inter, margin nhịp, gap ngang, tag `h2/h3/h4`, trailing là con trực
+tiếp và không đè title, ≤2 dòng, icon `aria-hidden`).
+
+⚠️ **Bản vá màu cần deploy lượt 2** (chỉ `wujia_portal_layout`, `?v=1180`) — xem §11.
+
+---
+
+## 12b. Tổng kết 22 ô acceptance
 
 | # | Hạng mục | Kết quả |
 |---|---|---|
@@ -342,12 +400,13 @@ header**. Đo được vì `cardHeaders` @390 = **0** trong khi trước đó c�
 | 12 | Outline heading | ✅ 8 giữ / 3 tốt lên |
 | 13 | Chữ hiển thị | ✅ 43/44 giống hệt, 1 ô đổi đúng chủ đích |
 | 14 | Build `-u` 9 module | ✅ RC=0 |
-| 15 | Unit test | ✅ 0 failed / 0 error / 169 |
+| 15 | Unit test | ✅ 0 failed / 0 error / 170 |
 | 16 | Mutation check | ✅ đúng 1 test đỏ |
 | 17 | Lưới B4 | ✅ 286/286 |
 | 18 | Bảng D3a chạy lại | ✅ 356 so, 0 lệch |
 | 19 | Tab-walk a11y | ✅ stop + ring 16/16 |
 | 20 | Font / màu / weight | ✅ 66 tiêu đề, 0 lệch |
 | 21 | Phủ 100% call site | ⏳ **36/103 — cố ý**, còn D3c… D3x |
+| 22 | Đo lại trên UAT (§12) | ✅ **46/46 header, 0 vấn đề** (sau bản vá màu) |
 
-**20 ✅ / 1 ⏳ = 95%** (ô ⏳ là phạm vi cố ý, giữ issue ở `Ready for Dev`).
+**21 ✅ / 1 ⏳ = 95,5%** (ô ⏳ là phạm vi cố ý, giữ issue ở `Ready for Dev`).
