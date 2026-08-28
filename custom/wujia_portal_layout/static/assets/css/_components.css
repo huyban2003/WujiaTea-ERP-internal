@@ -109,7 +109,7 @@ h2, .wujia-h2 { font-size: var(--wujia-font-size-h2) !important; font-weight: 60
 .wujia-btn-secondary {
     background-color: #FFFFFF !important;
     border: 1px solid var(--wujia-border) !important;
-    color: var(--wujia-text-primary) !important;
+    color: var(--wujia-text-primary);
     min-height: var(--wujia-btn-height-secondary);
 }
 .btn-secondary:hover,
@@ -118,7 +118,7 @@ h2, .wujia-h2 { font-size: var(--wujia-font-size-h2) !important; font-weight: 60
 .wujia-btn-secondary:hover {
     background-color: var(--wujia-bg-page) !important;
     border-color: var(--wujia-border) !important;
-    color: var(--wujia-text-primary) !important;
+    color: var(--wujia-text-primary);
 }
 
 /* Semantic buttons: keep Bootstrap colors, force h=42 for height parity */
@@ -3182,7 +3182,11 @@ a.wujia-mhome-kpi:active { opacity: 0.85; }
        { font-weight:700 !important }` (_wujia_theme.css:35) ⇒ 600 không ăn.
        700 nằm trong khoảng BA cho phép nên đây KHÔNG phải LIMIT. */
     font-weight: 700;
-    color: var(--wujia-text-primary);
+    /* ⚠️ Theme Vuexy có `:where(.card:not([data-vxml])) .card-body:not(...) h4 { color: inherit }`
+       = (0,4,1), đè mọi cách nâng specificity hợp lý ⇒ title trong `.card > .card-body`
+       rơi về màu body (#212529 trên UAT, đen ở local). Đo được ở D3b trên
+       /portal/order/product/<id>. `!important` cùng cơ chế đã dùng cho font-size. */
+    color: var(--wujia-text-primary) !important;
 }
 .wj-card-header__subtitle {
     margin: 2px 0 0;

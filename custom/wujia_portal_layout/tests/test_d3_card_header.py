@@ -5,6 +5,8 @@ title là heading THẬT theo level từng màn, TỐI ĐA một trailing, count
 trailing ra markup thô để `wj_ajax_list` swap được, icon trang trí có aria-hidden,
 compact là mặc định và migrate KHÔNG được cộng chồng margin header với body.
 """
+import os
+
 from lxml import html
 from markupsafe import Markup
 
@@ -260,6 +262,18 @@ class TestCardHeaderCallSites(TransactionCase):
         root = html.fromstring(
             '<div>%s</div>' % self._arch('wujia_portal_return.portal_return_form'))
         self.assertEqual(root.xpath('.//p[contains(@class,"wujia-mdash-title")]'), [])
+
+    def test_title_colour_beats_theme_card_body_rule(self):
+        # Theme Vuexy có `:where(.card…) .card-body:not(…) h4 { color: inherit }` = (0,4,1);
+        # bỏ `!important` là title trong `.card > .card-body` rơi về màu body — đo được ở
+        # D3b trên /portal/order/product/<id> (UAT #212529, local đen).
+        path = os.path.join(os.path.dirname(__file__), '..', 'static', 'assets',
+                            'css', '_components.css')
+        with open(path, encoding='utf-8') as fh:
+            css = fh.read()
+        # cắt ở `\n}` chứ không phải `}`: trong block có comment chứa `{ … !important }`
+        block = css.split('.wj-card-header__title {', 1)[1].split('\n}', 1)[0]
+        self.assertIn('color: var(--wujia-text-primary) !important', block)
 
     def test_no_pseudo_heading_left_in_migrated_views(self):
         for xmlid in self.CALL_SITES:
