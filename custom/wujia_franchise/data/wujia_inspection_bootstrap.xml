@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <odoo>
     <!-- Khởi tạo các khoản điểm xếp hạng mặc định (A, B, C, D) nếu chưa tồn tại trong DB -->
     <function model="wujia.franchise.inspection.grade" name="_init_default_grades"/>
@@ -8,4 +8,6 @@
     <function model="wujia.franchise.inspection.template" name="_init_demo_template"/>
     <!-- Khởi tạo thư viện 15 câu hỏi trắc nghiệm / điền từ mặc định nếu chưa tồn tại -->
     <function model="wujia.franchise.inspection.question" name="_init_default_questions"/>
+    <!-- Khởi tạo dữ liệu khu vực, cửa hàng, kết quả thi và tài khoản nhân viên từ CSV -->
+    <function model="wujia.franchise.management" name="_bootstrap_franchise_data"/>
 </odoo>

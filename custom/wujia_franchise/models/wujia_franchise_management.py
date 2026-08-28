@@ -564,105 +564,104 @@ class WujiaFranchiseManagement(models.Model):
             except Exception as e:
                 print(f"[BOOTSTRAP CSV] Lỗi nạp wujia.franchise.management.csv: {e}")
 
-        # 3. Nạp Kết quả thi (calendar.event.result.csv)
-        if 'wujia.exam.registration' in self.env:
-            exam_csv = os.path.join(data_dir, 'calendar.event.result.csv')
-            if os.path.exists(exam_csv) and self.env['wujia.exam.registration.line'].search_count([]) < 100:
-                try:
-                    Course = self.env['wujia.exam.course']
-                    TimeSlot = self.env['wujia.exam.time.slot']
-                    Session = self.env['wujia.exam.session']
-                    Registration = self.env['wujia.exam.registration']
-                    Franchise = self.env['wujia.franchise.management']
+        # 3. Nạp Nhân viên cửa hàng từ employee.csv và liên kết vào wujia.franchise.member theo franchise_code
+        emp_csv = os.path.join(data_dir, 'employee.csv')
+        if os.path.exists(emp_csv):
+            try:
+                portal_group = self.env.ref('base.group_portal', raise_if_not_found=False)
+                Member = self.env['wujia.franchise.member']
+                Franchise = self.env['wujia.franchise.management']
 
-                    default_franchise = Franchise.search([], limit=1)
-                    slot = TimeSlot.search([('code', '=', 'S0820')], limit=1)
-                    if not slot:
-                        slot = TimeSlot.create({
-                            'name': 'Ca sáng 08:20–10:00',
-                            'code': 'S0820',
-                            'time_from': 8.3333,
-                            'time_to': 10.0,
-                        })
+                # Lấy bản đồ franchise_code -> franchise_id
+                all_franchises = Franchise.with_context(active_test=False).search([])
+                f_map = {f.code.strip(): f.id for f in all_franchises if f.code}
 
-                    course = Course.search([('name', '=', 'Khóa thi pha chế & vận hành')], limit=1)
-                    if not course:
-                        course = Course.create({
-                            'name': 'Khóa thi pha chế & vận hành',
-                            'description': '<p>Đánh giá năng lực nghiệp vụ và pha chế cửa hàng.</p>',
-                            'time_slot_ids': [(6, 0, [slot.id])],
-                            'max_participants_per_registration': 1000,
-                            'registration_horizon_days': 365,
-                        })
-                        if course.state != 'published':
-                            course.action_publish()
-                    elif course.max_participants_per_registration < 1000:
-                        course.write({'max_participants_per_registration': 1000})
+                # Đọc danh sách nhân viên từ employee.csv
+                rows = []
+                unique_users = {}
+                with open(emp_csv, mode='r', encoding='utf-8') as f:
+                    reader = csv.DictReader(f)
+                    for r in reader:
+                        phone = r.get('phone', '').strip()
+                        name = r.get('employee_name', '').strip()
+                        if phone:
+                            if phone not in unique_users:
+                                unique_users[phone] = name or phone
+                            rows.append(r)
 
-                    grouped_data = {}
-                    with open(exam_csv, mode='r', encoding='utf-8') as f:
-                        reader = csv.DictReader(f)
-                        for row in reader:
-                            f_code = row.get('franchise_code', '').strip()
-                            exam_date_str = row.get('exam_date', '').strip()
-                            try:
-                                exam_date = datetime.datetime.strptime(exam_date_str, '%Y-%m-%d').date()
-                            except Exception:
-                                exam_date = fields.Date.today()
+                # Tạo partner & user nếu chưa có
+                existing_users = {}
+                if unique_users:
+                    self.env.cr.execute("SELECT login, id FROM res_users WHERE login IN %s", (tuple(unique_users.keys()),))
+                    for login, uid in self.env.cr.fetchall():
+                        existing_users[login] = uid
 
-                            key = (f_code, exam_date)
-                            if key not in grouped_data:
-                                grouped_data[key] = []
+                    to_create = [(phone, name) for phone, name in unique_users.items() if phone not in existing_users]
+                    for phone, name in to_create:
+                        self.env.cr.execute("""
+                            INSERT INTO res_partner (name, phone, active, is_company, partner_share, lang, create_date, write_date)
+                            VALUES (%s, %s, TRUE, FALSE, TRUE, 'vi_VN', NOW(), NOW())
+                            RETURNING id
+                        """, (name, phone))
+                        partner_id = self.env.cr.fetchone()[0]
 
-                            grouped_data[key].append({
-                                'employee_name': row.get('employee_name', '').strip(),
-                                'phone': row.get('phone', '0900000000').strip(),
-                                'birth_year': int(row['birth_year']) if row.get('birth_year') and row['birth_year'].isdigit() else 2000,
-                                'job_position': row.get('job_position', 'Staff').strip(),
-                                'result': row.get('result', 'passed').strip(),
-                            })
+                        self.env.cr.execute("""
+                            INSERT INTO res_users (login, partner_id, active, share, notification_type, company_id, create_date, write_date)
+                            VALUES (%s, %s, TRUE, TRUE, 'email', 1, NOW(), NOW())
+                            RETURNING id
+                        """, (phone, partner_id))
+                        user_id = self.env.cr.fetchone()[0]
 
-                    session_cache = {}
-                    franchise_cache = {}
-                    for (f_code, exam_date) in grouped_data.keys():
-                        if exam_date not in session_cache:
-                            sess = Session.search([
-                                ('course_id', '=', course.id),
-                                ('exam_date', '=', exam_date),
-                                ('time_slot_id', '=', slot.id),
-                            ], limit=1)
-                            if not sess:
-                                sess = Session.create({
-                                    'course_id': course.id,
-                                    'exam_date': exam_date,
-                                    'time_slot_id': slot.id,
-                                    'location': 'Trung tâm đào tạo Ngô Gia',
-                                    'capacity': 50000,
-                                    'max_participants_per_registration': 1000,
-                                })
+                        if portal_group:
+                            self.env.cr.execute("""
+                                INSERT INTO res_groups_users_rel (gid, uid) VALUES (%s, %s) ON CONFLICT DO NOTHING
+                            """, (portal_group.id, user_id))
+
+                        self.env.cr.execute("""
+                            INSERT INTO res_company_users_rel (cid, user_id) VALUES (1, %s) ON CONFLICT DO NOTHING
+                        """, (user_id,))
+                        existing_users[phone] = user_id
+
+                # Tạo thành viên cửa hàng (wujia.franchise.member)
+                if Member.search_count([]) < 100:
+                    created_pairs = set()
+                    self.env.cr.execute("SELECT user_id, franchise_id FROM wujia_franchise_member")
+                    for uid, fid in self.env.cr.fetchall():
+                        created_pairs.add((uid, fid))
+
+                    for r in rows:
+                        phone = r.get('phone', '').strip()
+                        f_code = r.get('franchise_code', '').strip()
+                        user_id = existing_users.get(phone)
+                        franchise_id = f_map.get(f_code)
+
+                        if user_id and franchise_id and (user_id, franchise_id) not in created_pairs:
+                            job = r.get('job_position', '').strip().lower()
+                            if 'chủ' in job or 'owner' in job:
+                                role = 'owner'
+                            elif 'quản' in job or 'manager' in job:
+                                role = 'manager'
                             else:
-                                sess.write({'capacity': 50000, 'max_participants_per_registration': 1000})
-                            session_cache[exam_date] = sess
+                                role = 'staff'
 
-                    for (f_code, exam_date), lines in grouped_data.items():
-                        if f_code not in franchise_cache:
-                            franchise = Franchise.search([('code', '=', f_code)], limit=1) if f_code else False
-                            franchise_cache[f_code] = franchise or default_franchise
-                        f_rec = franchise_cache[f_code]
-                        sess = session_cache[exam_date]
+                            is_pass = (r.get('result', '').strip().lower() == 'passed')
+                            exam_date_str = r.get('exam_date', '').strip()
+                            try:
+                                date_from = datetime.datetime.strptime(exam_date_str, '%Y-%m-%d').date()
+                            except Exception:
+                                date_from = fields.Date.today()
 
-                        chunk_size = 50
-                        chunks = [lines[i:i + chunk_size] for i in range(0, len(lines), chunk_size)]
-                        for chunk in chunks:
-                            line_commands = [(0, 0, l_vals) for l_vals in chunk]
-                            Registration.create({
-                                'session_id': sess.id,
-                                'franchise_id': f_rec.id,
-                                'state': 'confirmed',
-                                'line_ids': line_commands,
-                            })
-                except Exception as e:
-                    print(f"[BOOTSTRAP CSV] Lỗi nạp calendar.event.result.csv: {e}")
+                            self.env.cr.execute("""
+                                INSERT INTO wujia_franchise_member (
+                                    user_id, franchise_id, role, is_pass, is_working, active, date_from, create_date, write_date
+                                ) VALUES (
+                                    %s, %s, %s, %s, TRUE, TRUE, %s, NOW(), NOW()
+                                )
+                            """, (user_id, franchise_id, role, is_pass, date_from))
+                            created_pairs.add((user_id, franchise_id))
+
+            except Exception as e:
+                print(f"[BOOTSTRAP] Lỗi nạp employee.csv: {e}")
 
 
 class WujiaFranchiseDocument(models.Model):

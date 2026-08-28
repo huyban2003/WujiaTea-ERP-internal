@@ -465,7 +465,7 @@
         const b64 = row.dataset.b64Image || null;
 
         const item = { id: parseInt(id), is_pass: isPass, note: note };
-        if (b64) item.evidence_image = b64;
+        if (b64 !== null && b64 !== undefined) item.evidence_image = b64;
         lines.push(item);
       });
 
@@ -685,7 +685,71 @@
 
     let activeRow = null;
 
+    function compressImage(file, maxWidth, maxHeight, quality) {
+      maxWidth = maxWidth || 1280;
+      maxHeight = maxHeight || 1280;
+      quality = quality || 0.75;
+      return new Promise(function (resolve, reject) {
+        const reader = new FileReader();
+        reader.onload = function (e) {
+          const img = new Image();
+          img.onload = function () {
+            let width = img.width;
+            let height = img.height;
+            if (width > height) {
+              if (width > maxWidth) {
+                height = Math.round((height * maxWidth) / width);
+                width = maxWidth;
+              }
+            } else {
+              if (height > maxHeight) {
+                width = Math.round((width * maxHeight) / height);
+                height = maxHeight;
+              }
+            }
+            const canvas = document.createElement("canvas");
+            canvas.width = width;
+            canvas.height = height;
+            const ctx = canvas.getContext("2d");
+            ctx.drawImage(img, 0, 0, width, height);
+            const dataUrl = canvas.toDataURL("image/jpeg", quality);
+            resolve(dataUrl);
+          };
+          img.onerror = function () {
+            resolve(e.target.result);
+          };
+          img.src = e.target.result;
+        };
+        reader.onerror = reject;
+        reader.readAsDataURL(file);
+      });
+    }
+
+
+
     function openLineDetailModal(row) {
+      if (
+        activeRow === row &&
+        lineDetailModalOverlay &&
+        lineDetailModalOverlay.style.display === "flex"
+      ) {
+        return; // Dang mo cho dung tieu chi nay, khong ghi de mat ghi chu dang go
+      }
+
+      // Luu ghi chu cua hang truoc do neu doi hang
+      if (activeRow && activeRow !== row) {
+        const prevNoteInput = activeRow.querySelector(".line-note");
+        if (prevNoteInput && lineModalNoteInput) {
+          prevNoteInput.value = lineModalNoteInput.value;
+          const noteInd = activeRow.querySelector(".note-indicator");
+          if (noteInd) {
+            noteInd.style.display = lineModalNoteInput.value.trim()
+              ? "inline-flex"
+            : "none";
+          }
+        }
+      }
+
       activeRow = row;
       const contentTd = row.querySelector(".col-content");
       const contentText = contentTd ? contentTd.innerText.trim() : "";
@@ -777,18 +841,32 @@
       // Image
       const rowImgB64 = row.dataset.b64Image;
       const existingImg = row.querySelector(".img-preview");
-      let imgSrc = rowImgB64 || (existingImg ? existingImg.src : "");
-      if (imgSrc && imgSrc.length > 20) {
-        lineModalImgPreview.src = imgSrc;
-        lineModalImgContainer.style.display = "inline-flex";
-      } else {
-        lineModalImgContainer.style.display = "none";
+      let imgSrc = "";
+      if (rowImgB64 === "REMOVE") {
+        imgSrc = "";
+      } else if (rowImgB64 && rowImgB64.length > 20) {
+        imgSrc = rowImgB64;
+      } else if (existingImg && existingImg.src && existingImg.src.length > 20) {
+        imgSrc = existingImg.src;
       }
 
-      if (lineModalTriggerUpload) {
-        lineModalTriggerUpload.style.display = isInspectionClosed
-          ? "none"
-          : "inline-flex";
+      if (imgSrc) {
+        if (lineModalImgPreview) lineModalImgPreview.src = imgSrc;
+        if (lineModalImgContainer) lineModalImgContainer.style.display = "flex";
+        if (lineModalUploadDropzone) lineModalUploadDropzone.style.display = "none";
+      } else {
+        if (lineModalImgPreview) lineModalImgPreview.src = "";
+        if (lineModalImgContainer) lineModalImgContainer.style.display = "none";
+        if (lineModalUploadDropzone) {
+          lineModalUploadDropzone.style.display = isInspectionClosed ? "none" : "block";
+        }
+      }
+
+      if (lineModalBtnChangePhoto) {
+        lineModalBtnChangePhoto.style.display = isInspectionClosed ? "none" : "inline-flex";
+      }
+      if (lineModalBtnDeletePhoto) {
+        lineModalBtnDeletePhoto.style.display = isInspectionClosed ? "none" : "inline-flex";
       }
 
       // Evaluation Checkbox
@@ -856,30 +934,129 @@
       });
     }
 
-    if (lineModalTriggerUpload || lineModalImgPreview) {
-      const handleUpload = function () {
+    // Dong bo tuc thi ghi chu vi pham khi nguoi dung dang go (Real-time 2-way sync)
+    if (lineModalNoteInput) {
+      lineModalNoteInput.addEventListener("input", function () {
+        if (activeRow) {
+          const noteInput = activeRow.querySelector(".line-note");
+          if (noteInput) {
+            noteInput.value = this.value;
+          }
+          const noteInd = activeRow.querySelector(".note-indicator");
+          if (noteInd) {
+            noteInd.style.display = this.value.trim()
+              ? "inline-flex"
+            : "none";
+          }
+        }
+      });
+    }
+
+    const handleModalUpload = function (e) {
+      if (e) {
+        e.preventDefault();
+        e.stopPropagation();
+      }
+      if (!activeRow || isInspectionClosed) return;
+      const noteInput = activeRow.querySelector(".line-note");
+      if (noteInput && lineModalNoteInput) {
+        noteInput.value = lineModalNoteInput.value;
+        const noteInd = activeRow.querySelector(".note-indicator");
+        if (noteInd) {
+          noteInd.style.display = lineModalNoteInput.value.trim() ? "inline-flex" : "none";
+        }
+      }
+      const fileInput = activeRow.querySelector(".line-file");
+      if (fileInput) fileInput.click();
+    };
+
+    if (lineModalUploadDropzone) {
+      lineModalUploadDropzone.addEventListener("click", handleModalUpload);
+    }
+    if (lineModalBtnChangePhoto) {
+      lineModalBtnChangePhoto.addEventListener("click", handleModalUpload);
+    }
+    if (lineModalBtnDeletePhoto) {
+      lineModalBtnDeletePhoto.addEventListener("click", function (e) {
+        e.preventDefault();
+        e.stopPropagation();
         if (!activeRow || isInspectionClosed) return;
+        activeRow.dataset.b64Image = "REMOVE";
         const fileInput = activeRow.querySelector(".line-file");
-        if (fileInput) fileInput.click();
-      };
-      if (lineModalTriggerUpload)
-        lineModalTriggerUpload.addEventListener("click", handleUpload);
-      if (lineModalImgPreview)
-        lineModalImgPreview.addEventListener("click", handleUpload);
+        if (fileInput) fileInput.value = "";
+        const photoInd = activeRow.querySelector(".photo-indicator");
+        if (photoInd) photoInd.style.display = "none";
+        const previewImg = activeRow.querySelector(".img-preview");
+        if (previewImg) {
+          previewImg.src = "";
+          previewImg.style.display = "none";
+        }
+        const triggerBtn = activeRow.querySelector(".btn-trigger-upload");
+        if (triggerBtn) {
+          triggerBtn.style.display = "inline-flex";
+        }
+
+        if (lineModalImgPreview) lineModalImgPreview.src = "";
+        if (lineModalImgContainer) lineModalImgContainer.style.display = "none";
+        if (lineModalUploadDropzone) lineModalUploadDropzone.style.display = "block";
+      });
+    }
+    if (lineModalImgPreviewWrap) {
+      lineModalImgPreviewWrap.addEventListener("click", function (e) {
+        e.stopPropagation();
+        if (lineModalImgPreview && lineModalImgPreview.src) {
+          window.open(lineModalImgPreview.src, "_blank");
+        }
+      });
     }
 
     // Bind both button and item-row click to open Line Detail Modal
     document.querySelectorAll(".item-row").forEach(function (row) {
       row.addEventListener("click", function (e) {
-        // If clicking checkbox in col-eval, let it toggle without opening modal
+        // Bo qua neu nhan vao checkbox hoac file input
         if (
           e.target.closest(".col-eval") ||
-          e.target.classList.contains("line-check")
+          e.target.classList.contains("line-check") ||
+          e.target.classList.contains("line-file")
         ) {
           return;
         }
         openLineDetailModal(row);
       });
+
+      const fileInput = row.querySelector(".line-file");
+      if (fileInput) {
+        fileInput.addEventListener("click", function (e) {
+          e.stopPropagation();
+        });
+        fileInput.addEventListener("change", async function (e) {
+          e.stopPropagation();
+          if (this.files && this.files[0]) {
+            try {
+              const compressedB64 = await compressImage(this.files[0]);
+              row.dataset.b64Image = compressedB64;
+              const photoInd = row.querySelector(".photo-indicator");
+              if (photoInd) photoInd.style.display = "inline-flex";
+              const previewImg = row.querySelector(".img-preview");
+              if (previewImg) {
+                previewImg.src = compressedB64;
+                previewImg.style.display = "block";
+              }
+              const triggerBtn = row.querySelector(".btn-trigger-upload");
+              if (triggerBtn) {
+                triggerBtn.style.display = "none";
+              }
+              if (activeRow === row) {
+                if (lineModalImgPreview) lineModalImgPreview.src = compressedB64;
+                if (lineModalImgContainer) lineModalImgContainer.style.display = "flex";
+                if (lineModalUploadDropzone) lineModalUploadDropzone.style.display = "none";
+              }
+            } catch (err) {
+              console.error("Loi nen anh:", err);
+            }
+          }
+        });
+      }
     });
 
     document.querySelectorAll(".btn-open-line-detail").forEach(function (btn) {
@@ -888,28 +1065,6 @@
         const row = this.closest(".item-row");
         if (row) openLineDetailModal(row);
       });
-    });
-
-    // Also update photo indicator when file changes on row
-    document.querySelectorAll(".item-row").forEach(function (row) {
-      const fileInput = row.querySelector(".line-file");
-      if (fileInput) {
-        fileInput.addEventListener("change", function () {
-          if (this.files && this.files[0]) {
-            const reader = new FileReader();
-            reader.onload = function (e) {
-              row.dataset.b64Image = e.target.result;
-              const photoInd = row.querySelector(".photo-indicator");
-              if (photoInd) photoInd.style.display = "inline-flex";
-              if (activeRow === row && lineModalImgPreview) {
-                lineModalImgPreview.src = e.target.result;
-                lineModalImgContainer.style.display = "inline-flex";
-              }
-            };
-            reader.readAsDataURL(this.files[0]);
-          }
-        });
-      }
     });
     // Attendance Management (Add, Save Member, Deactivate, Delete)
     const addStaffModalOverlay = document.getElementById(

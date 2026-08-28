@@ -105,9 +105,6 @@ class WujiaFranchiseInspectionQuestion(models.Model):
         self.ensure_one()
         return True
 
-    def init(self):
-        super().init()
-        self._init_default_questions()
 
     @api.model
     def _init_default_questions(self):

@@ -848,32 +848,58 @@
                                 </div>
 
                                 <div>
-                                    <label class="modal-label"
-                                        style="display: block; margin-bottom: 6px;">
-                                        <i class="fa fa-camera text-primary"></i>
-                                        <t
-                                            t-out="t.get('label:wujia.franchise.inspection_survey:modal_label_evidence_photo', 'Violation Evidence Photo')" />
+                                    <label class="modal-label" style="display: block; margin-bottom: 8px; font-weight: 700; color: #334155; font-size: 13px;">
+                                        <i class="fa fa-camera text-primary me-1"></i>
+                                        <t t-out="t.get('label:wujia.franchise.inspection_survey:modal_label_evidence_photo', 'Violation Evidence Photo')" />
                                     </label>
-                                    <div style="display: flex; align-items: center; gap: 16px;">
-                                        <button type="button" class="btn btn-save"
-                                            id="lineModalTriggerUpload"
-                                            style="font-size: 13px; padding: 8px 16px;">
-                                            <i class="fa fa-upload"></i>
-                                            <t
-                                                t-out="t.get('label:wujia.franchise.inspection_survey:btn_upload_photo', 'Capture / Upload Photo')" />
-                                        </button>
-                                        <div id="lineModalImgContainer"
-                                            style="display: none; align-items: center; gap: 10px;">
-                                            <img id="lineModalImgPreview" src=""
-                                                style="width: 60px; height: 60px; border-radius: 8px; object-fit: cover; border: 1px solid #cbd5e1; cursor: pointer;"
-                                                t-att-title="t.get('label:wujia.franchise.inspection_survey:title_change_photo', 'Click to change photo')" />
-                                            <span
-                                                style="font-size: 12px; color: #16a34a; font-weight: 600;">
-                                                <i
-                                                    class="fa fa-check-circle"></i>
-                                                <t
-                                                    t-out="t.get('label:wujia.franchise.inspection_survey:has_photo_text', 'Photo attached')" />
-                                            </span>
+
+                                    <!-- State 1: Dropzone Card when NO photo -->
+                                    <div id="lineModalUploadDropzone" class="photo-upload-dropzone">
+                                        <div style="display: flex; flex-direction: column; align-items: center; gap: 8px;">
+                                            <div style="width: 44px; height: 44px; border-radius: 50%; background: #eff6ff; color: #2563eb; display: flex; align-items: center; justify-content: center; font-size: 18px; box-shadow: 0 2px 6px rgba(37,99,235,0.12);">
+                                                <i class="fa fa-cloud-arrow-up"></i>
+                                            </div>
+                                            <div>
+                                                <span style="font-size: 13px; font-weight: 600; color: #1e293b; display: block;">
+                                                    <t t-out="t.get('label:wujia.franchise.inspection_survey:photo_upload_title', 'Chụp ảnh hoặc Chọn từ thiết bị')" />
+                                                </span>
+                                                <span style="font-size: 11px; color: #64748b;">
+                                                    <t t-out="t.get('label:wujia.franchise.inspection_survey:photo_format_hint', 'Hỗ trợ JPG, PNG, WEBP (tự động tối ưu)')" />
+                                                </span>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- State 2: Attached Photo Preview Card with Change & Delete Actions -->
+                                    <div id="lineModalImgContainer" class="photo-preview-card" style="display: none;">
+                                        <div style="display: flex; align-items: center; gap: 12px; min-width: 0;">
+                                            <div class="photo-preview-thumb-wrap" id="lineModalImgPreviewWrap" title="Bấm để xem ảnh lớn">
+                                                <img id="lineModalImgPreview" src="" alt="Evidence" />
+                                                <span class="zoom-badge">
+                                                    <i class="fa fa-magnifying-glass"></i>
+                                                </span>
+                                            </div>
+                                            <div style="min-width: 0;">
+                                                <div style="display: flex; align-items: center; gap: 6px; margin-bottom: 4px;">
+                                                    <span class="badge-pass" style="font-size: 11px; padding: 2px 8px; font-weight: 600;">
+                                                        <i class="fa fa-check-circle me-1"></i>
+                                                        <t t-out="t.get('label:wujia.franchise.inspection_survey:has_photo_text', 'Đã đính kèm ảnh')" />
+                                                    </span>
+                                                </div>
+                                                <span style="font-size: 11px; color: #64748b; display: block;">
+                                                    <t t-out="t.get('label:wujia.franchise.inspection_survey:photo_attached_hint', 'Ảnh chụp bằng chứng vi phạm')" />
+                                                </span>
+                                            </div>
+                                        </div>
+                                        <div style="display: flex; align-items: center; gap: 8px; flex-shrink: 0;">
+                                            <button type="button" class="btn-photo-action btn-photo-change" id="lineModalBtnChangePhoto" title="Chọn hoặc chụp ảnh khác">
+                                                <i class="fa fa-rotate"></i>
+                                                <t t-out="t.get('label:wujia.franchise.inspection_survey:btn_change_photo', 'Đổi ảnh')" />
+                                            </button>
+                                            <button type="button" class="btn-photo-action btn-photo-delete" id="lineModalBtnDeletePhoto" title="Xóa ảnh này">
+                                                <i class="fa fa-trash-can"></i>
+                                                <t t-out="t.get('label:wujia.franchise.inspection_survey:btn_delete_photo', 'Xóa ảnh')" />
+                                            </button>
                                         </div>
                                     </div>
                                 </div>

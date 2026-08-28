@@ -33,6 +33,7 @@ def get_survey_translations(lang):
                     trans_map[k] = v
     return trans_map
 
+
 class WujiaFranchiseInspectionWebController(http.Controller):
 
     @http.route(['/franchise/inspection/do/<int:inspection_id>'], type='http', auth='user', website=True, sitemap=False)
@@ -48,23 +49,31 @@ class WujiaFranchiseInspectionWebController(http.Controller):
         if not is_admin and inspection.inspector_user_id and inspection.inspector_user_id.id != user.id:
             if not user.has_group('base.group_user'):
                 return request.not_found()
-            
-        if not inspection.exists():
-            return request.not_found()
+
+        lines_rec = inspection.line_ids
+
+        # Kích hoạt prefetch tự động của Odoo ORM cho toàn bộ recordset liên kết (Tránh N+1)
+        prev_lines = lines_rec.mapped('previous_line_id')
+        prev_inspections = prev_lines.mapped('inspection_id')
+        prev_inspections.mapped('inspector_user_id')
+        lines_rec.mapped('template_line_id')
 
         # Build lines data grouped / ordered
         lines = []
-        for line in inspection.line_ids:
+        for line in lines_rec:
             prev_line = line.previous_line_id
             prev_info = None
-            has_prev_note = bool(prev_line and prev_line.exists() and prev_line.note and prev_line.note.strip())
-            prev_note_text = prev_line.note.strip() if (prev_line and prev_line.exists() and prev_line.note) else ''
+            has_prev_note = False
+            prev_note_text = ''
             
-            if prev_line and prev_line.exists():
+            if prev_line:
+                p_note = (prev_line.note or '').strip()
+                has_prev_note = bool(p_note and p_note not in ('No violation note', 'Chưa có ghi chú', '-'))
+                prev_note_text = p_note if has_prev_note else ''
                 prev_info = {
                     'inspection_name': prev_line.inspection_id.name if prev_line.inspection_id else '',
                     'planned_date': str(prev_line.inspection_id.planned_date) if (prev_line.inspection_id and prev_line.inspection_id.planned_date) else '',
-                    'inspector': prev_line.inspection_id.inspector_user_id.name if (prev_line.inspection_id and prev_line.inspection_id.inspector_user_id) else '',
+                    'inspector': prev_line.inspection_id.inspector_user_id.name if (prev_line.inspection_id and prev_line.inspection_id.inspector_user_id) else '---',
                     'is_pass': prev_line.is_pass,
                     'note': prev_note_text,
                     'has_note': has_prev_note,
@@ -74,7 +83,8 @@ class WujiaFranchiseInspectionWebController(http.Controller):
                 }
 
             crit_type = line.criterion_type_snapshot or (line.template_line_id.criterion_type if line.template_line_id else 'normal')
-            is_important = (crit_type == 'critical') or (line.deduction_score_snapshot and line.deduction_score_snapshot >= 5.0)
+            deduction_score = line.deduction_score_snapshot or 0.0
+            is_important = (crit_type == 'critical') or (deduction_score >= 5.0)
 
             line_data = {
                 'id': line.id,
@@ -93,7 +103,7 @@ class WujiaFranchiseInspectionWebController(http.Controller):
                 'evidence_image_url': f'/web/image/wujia.franchise.inspection.line/{line.id}/evidence_image' if line.evidence_image else '',
                 'require_note': line.require_note_if_fail or line.require_note_if_fail_snapshot,
                 'require_evidence': line.require_evidence_if_fail or line.require_evidence_if_fail_snapshot,
-                'deduction_score': line.deduction_score_snapshot or 0.0,
+                'deduction_score': deduction_score,
             }
             lines.append(line_data)
 
@@ -123,10 +133,10 @@ class WujiaFranchiseInspectionWebController(http.Controller):
                 l['section_total_score_str'] = str(int(tot)) if tot.is_integer() else f"{tot:.1f}"
                 l['section_earned_score_str'] = str(int(earned)) if earned.is_integer() else f"{earned:.1f}"
 
-        # Exam lines
-        exam_lines = []
-        for el in inspection.exam_line_ids:
-            exam_lines.append({
+        # Exam lines: Prefetch câu hỏi
+        inspection.exam_line_ids.mapped('quest_id')
+        exam_lines = [
+            {
                 'id': el.id,
                 'sequence': el.sequence,
                 'code': el.quest_code_snapshot or '',
@@ -135,7 +145,9 @@ class WujiaFranchiseInspectionWebController(http.Controller):
                 'is_correct': el.is_correct,
                 'point': el.point or 0.0,
                 'max_score': el.quest_id.score if (el.quest_id and el.quest_id.score) else 1.0,
-            })
+            }
+            for el in inspection.exam_line_ids
+        ]
 
         is_inspection_closed = (inspection.state in ('done', 'cancel'))
         is_exam_submitted = bool(inspection.is_exam_submitted)
@@ -244,7 +256,6 @@ class WujiaFranchiseInspectionWebController(http.Controller):
 
     @http.route(['/franchise/inspection/do/<int:inspection_id>/save'], type='json', auth='user', methods=['POST'])
     def save_inspection_survey(self, inspection_id, lines=None, exam_lines=None, test_employee_name=None, tenure=None, store_appearance_issues=None, confirmed_member_id=None, attendance_lines=None, signature_image=None, report_lines=None, finish=True, **kwargs):
-        # kiểm tra tồn tại và điều kiện trước khi save phiếu 
         inspection = request.env['wujia.franchise.inspection'].sudo().browse(int(inspection_id))
         if not inspection.exists():
             return {'success': False, 'error': 'Inspection sheet does not exist'}
@@ -252,33 +263,32 @@ class WujiaFranchiseInspectionWebController(http.Controller):
         if inspection.state in ('done', 'cancel'):
             return {'success': False, 'error': 'Inspection sheet is already completed or cancelled and cannot be edited!'}
 
-        LineModel = request.env['wujia.franchise.inspection.line'].sudo()
-        ExamLineModel = request.env['wujia.franchise.inspection.exam.line'].sudo()
-
-        # Update checklist lines (Checklist tab is NOT locked by exam submission)
+        # 1. Tối ưu cập nhật checklist lines: So sánh qua ORM để chỉ ghi các dòng thực sự thay đổi
         if lines:
+            line_map = {l.id: l for l in inspection.line_ids.filtered(lambda x: x.display_type == 'line')}
             for l_data in lines:
-                l_id = l_data.get('id')
-                # kiểm tra từng dòng có tồn tại không
-                line = LineModel.browse(int(l_id)) if l_id else None
+                l_id = int(l_data.get('id', 0))
+                line = line_map.get(l_id)
+                if not line:
+                    continue
+                new_is_pass = bool(l_data.get('is_pass'))
+                new_note = (l_data.get('note', '') or '').strip()
+                evidence_b64 = l_data.get('evidence_image')
 
-                # nếu tồn tại thì update và là line của chỉnh phiếu đó thì update 
-                if line and line.exists() and line.inspection_id.id == inspection.id:
-                    vals = {
-                        'is_pass': bool(l_data.get('is_pass')),
-                        'note': l_data.get('note', '') or '',
-                    }
-                    # gửi ảnh vi phạm 
-                    evidence_b64 = l_data.get('evidence_image')
-                    
-                    if evidence_b64 and 'base64,' in evidence_b64:
-                        vals['evidence_image'] = evidence_b64.split('base64,')[1]
-                    elif evidence_b64 is False:
-                        vals['evidence_image'] = False
+                vals = {}
+                if line.is_pass != new_is_pass:
+                    vals['is_pass'] = new_is_pass
+                if (line.note or '').strip() != new_note:
+                    vals['note'] = new_note
+                if evidence_b64 and 'base64,' in evidence_b64:
+                    vals['evidence_image'] = evidence_b64.split('base64,')[1]
+                elif (evidence_b64 in (False, 'REMOVE', 'CLEAR', '') or evidence_b64 is False) and line.evidence_image:
+                    vals['evidence_image'] = False
 
+                if vals:
                     line.write(vals)
 
-        # Update exam lines & info only if exam is not already submitted
+        # 2. Tối ưu cập nhật exam lines
         insp_vals = {}
         if not inspection.is_exam_submitted:
             emp_name_clean = (test_employee_name or '').strip()
@@ -290,11 +300,14 @@ class WujiaFranchiseInspectionWebController(http.Controller):
                 insp_vals['tenure'] = str(tenure).strip() if tenure else ''
 
             if exam_lines:
+                exam_map = {el.id: el for el in inspection.exam_line_ids}
                 for el_data in exam_lines:
-                    el_id = el_data.get('id')
-                    exam_line = ExamLineModel.browse(int(el_id)) if el_id else None
-                    if exam_line and exam_line.exists() and exam_line.inspection_id.id == inspection.id:
-                        ans = el_data.get('answer', '') or ''
+                    el_id = int(el_data.get('id', 0))
+                    exam_line = exam_map.get(el_id)
+                    if not exam_line:
+                        continue
+                    ans = (el_data.get('answer', '') or '').strip()
+                    if (exam_line.answer or '').strip() != ans:
                         exam_line.write({'answer': ans})
                         exam_line._evaluate_answer()
 
@@ -314,28 +327,33 @@ class WujiaFranchiseInspectionWebController(http.Controller):
         if confirmed_member_id is not None:
             insp_vals['confirmed_member_id'] = int(confirmed_member_id) if confirmed_member_id else False
 
+        # 3. Tối ưu cập nhật attendance lines
         if attendance_lines:
-            AttLineModel = request.env['wujia.franchise.inspection.attendance.line'].sudo()
+            att_map = {att.id: att for att in inspection.attendance_line_ids}
             for a_item in attendance_lines:
-                att_id = a_item.get('id')
-                if att_id:
-                    att = AttLineModel.browse(int(att_id))
-                    if att.exists() and att.inspection_id.id == inspection.id:
-                        att.write({
-                            'is_present': bool(a_item.get('is_present', True)),
-                            'note': a_item.get('note', '') or False,
-                        })
+                att_id = int(a_item.get('id', 0))
+                att = att_map.get(att_id)
+                if not att:
+                    continue
+                is_present = bool(a_item.get('is_present', True))
+                note = a_item.get('note', '') or False
+                att_vals = {}
+                if att.is_present != is_present:
+                    att_vals['is_present'] = is_present
+                if (att.note or False) != note:
+                    att_vals['note'] = note
+                if att_vals:
+                    att.write(att_vals)
 
         if insp_vals:
             inspection.write(insp_vals)
 
-        # Recompute scores & grade
+        # 4. Tính toán lại điểm số & grade bằng các phương thức ORM
         inspection._compute_checklist_score()
         inspection._compute_exam_score()
         inspection._compute_total_score()
         inspection._compute_grade()
 
-        # Update inspection state based on checklist pass/fail if completing
         failed_lines = inspection.line_ids.filtered(lambda l: l.display_type == 'line' and not l.is_pass)
         if failed_lines and inspection.state == 'draft':
             inspection.action_need_remediation()
