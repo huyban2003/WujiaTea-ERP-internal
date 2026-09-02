@@ -106,10 +106,10 @@ nằm cùng card với `:181` ⇒ là **subtitle của header đó**, không ph�
 | `wujia_portal_exam/views/portal_exam.xml` | 21 | D3d (một mình một session) |
 | `wujia_portal_return/views/portal_return_detail.xml` | 15 | D3e |
 | `wujia_portal_purchase_history/views/portal_history.xml` | 10 | D3e |
-| `wujia_portal_base/views/portal_franchise_information.xml` | 10 | **D3a (mẫu 3)** — 2 xong, **6 còn → D3c** |
-| `wujia_portal_delivery/views/portal_delivery.xml` | 8 | **D3a (mẫu 2)** — 3 xong, **3 còn → D3c** |
+| `wujia_portal_base/views/portal_franchise_information.xml` | 10 | **D3a + D3c ✅** — 2 + 4; còn `:40`/`:49` chờ BA (§6), `:290` đã loại §3 |
+| `wujia_portal_delivery/views/portal_delivery.xml` | 8 | **D3a + D3c ✅** — 3 + 1; `:118`/`:126` đã loại §3 |
 | `wujia_portal_notification/views/portal_notification.xml` | 7 | **D3b ✅** (5 chỗ; 2 chỗ còn lại là §3 tiêu đề thông báo) |
-| `wujia_portal_support/views/portal_support.xml` | 7 | **D3a (mẫu 1)** — 1 xong, **6 còn → D3c** |
+| `wujia_portal_support/views/portal_support.xml` | 7 | **D3a + D3c ✅** — 1 + 6 |
 | `wujia_portal_knowledge/views/portal_knowledge.xml` | 7 | **D3b ✅** (5 chỗ; 2 chỗ còn lại là §3 tiêu đề bài viết) |
 | `wujia_portal_base/views/portal_home.xml` | 5 | **D3b ✅** |
 | `wujia_portal_debt/views/portal_debt.xml` | 5 | D3f (đụng số đo S43/C3 — cẩn thận) |
@@ -123,8 +123,15 @@ nằm cùng card với `:181` ⇒ là **subtitle của header đó**, không ph�
 **D3a phủ 4 file / 29 call site** — nhưng cố ý **không migrate hết 4 file**, chỉ lấy đủ mẫu mỗi
 họ markup (xem `docs/d3-acceptance-matrix.md`); phần còn lại của chính 4 file đó rơi vào **D3c**.
 
-**Tiến độ (2026-08-28, sau D3b): 36/103.** D3a 10 · D3b 26.
-Nhóm kế: **D3c = 15 chỗ còn lại của 4 file D3a** (support 6 · delivery 3 · franchise-information 6).
+**Tiến độ (2026-09-02, sau D3c): 47/103.** D3a 10 · D3b 26 · D3c 11.
+Nhóm kế: **D3d = `portal_exam.xml`** (21 call site, một mình một session).
+
+> ⚠️ **Đính chính.** Bàn giao D3b ghi "D3c = 15 chỗ (support 6 · delivery 3 ·
+> franchise-information 6)". Chạy lại `d3_inventory.py` cho thấy con số đó **cộng cả dòng đã bị
+> loại ở §3** (`delivery:118/126`, `franchise_information:290`) và **cả 2 chỗ đang chờ BA ở §6**
+> (`franchise_information:40/49`). Số làm thật của D3c là **11**: support 6 · delivery 1 ·
+> franchise-information 4. Đừng cộng cột "Call site" của bảng trên để suy ra việc còn lại —
+> luôn chạy lại `scratchpad/d3_inventory.py`.
 
 > ⚠️ Con số cột "Call site" là **tổng theo file**, gồm cả chỗ đã bị loại ở §3, nên cộng dồn
 > ra 113 chứ không phải 103 — bám `scratchpad/d3_inventory.py` mới ra danh sách đúng.
@@ -147,6 +154,15 @@ Nhóm kế: **D3c = 15 chỗ còn lại của 4 file D3a** (support 6 · deliver
 và `__box` (Quyền xem hiện tại), trong khi spec ghi **tối đa MỘT trailing**. D3a làm theo hướng
 an toàn: **chips + box đứng ngoài CardHeader**, là nội dung card ⇒ giữ nguyên hiển thị, đúng
 chữ spec, 0 rủi ro hồi quy. Đã ghi LIMIT; BA trả lời thì D3b chỉnh.
+**Vẫn treo sau D3c** (`:40` + `:49`) — chờ BA, đừng tự quyết lại.
+
+### 3 fork chủ dự án chốt ở D3c (2026-09-02) — đã làm, đừng mở lại
+
+| # | Chỗ | Fork | Phán quyết |
+|---|---|---|---|
+| 1 | `portal_franchise_information.xml:157` `h3.wj-pc-acct-staff__title` | CardHeader hay đẩy sang `CMP-ES-001` (khối "Chế độ xem cơ bản" chỉ hiện với role staff)? | **Migrate — coi là CardHeader.** Icon + 2 dòng `__line` + tag `__tag` **ở lại ngoài header** (đúng lối xử `__chips/__box` của D3a). Dùng biến thể flush vì `__line` đã tự khai `margin-top:8px` |
+| 2 | `portal_franchise_information.xml:179` + `:185` (mobile) | Giữ thứ tự cũ `h2 → badgerow → h3 tên cửa hàng`, hay đưa tên cửa hàng lên làm `ch_subtitle`? | **ĐỔI thứ tự DOM**: `[h2 + tên cửa hàng làm dòng phụ] → badgerow → p khu vực`. Lý do quyết: **bản PC của chính card đó** (`wj-pc-acct-headcard`, dòng 40–47) vốn đã xếp `title → sub → chips` ⇒ mobile khớp PC |
+| 3 | `portal_delivery.xml:377–384` (PC summary head) | Badge trạng thái + 3 cặp KV bên phải — cái nào là trailing (spec cho **tối đa 1**)? | **title = mã chuyến · subtitle = "Chuyến giao cho …" · trailing = badge**; khối 3 cặp KV **ở lại là nội dung card**. Kèm 1 rule CSS scope delivery cho badge bám sát mã (`d3c-acceptance-matrix.md` §9) |
 
 ## 7. CSS chờ xoá (sau khi migrate đủ 100%)
 
@@ -157,6 +173,9 @@ xoá sớm là vỡ). Danh sách phải grep ra 0 hit rồi mới xoá:
 `.wujia-mhist-card-head` · `.wujia-maccount-cardtitle` · `.wj-pc-acct-panel-title` ·
 `.wj-pc-acct-staff__title` · `.wujia-mexam-*title` · `.wj-exam-pc-sectitle` ·
 `.wj-pc-cart-title` · `.wujia-mknow-h` · `.wujia-mnoti-detail-sectitle` · `.wj-debt-summary__head`
+
+*Thêm sau D3c:* `.wujia-maccount-store-name` · `.wj-pc-dlv-head-meta` (đã 0 hit trong view) ·
+`.wj-pc-order-head__code` — ⚠️ **chưa được xoá**: `portal_history.xml:387` còn dùng, chờ **D3e**.
 
 Chống tái phát bằng unit test quét `arch_db` mọi view qweb — đúng khuôn
 `test_retired_heading_classes_are_gone` của C8b.

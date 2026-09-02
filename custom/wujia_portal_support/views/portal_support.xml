@@ -309,7 +309,11 @@
                       data-wj-dirty-guard="1">
                     <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
                     <div class="wujia-mdash-card">
-                        <p class="wujia-mdash-title mb-3">Thông tin ticket</p>
+                        <t t-call="wujia_portal_layout.wj_card_header">
+                            <t t-set="ch_title">Thông tin ticket</t>
+                            <t t-set="ch_level" t-value="2"/>
+                            <t t-set="ch_platform" t-value="'m'"/>
+                        </t>
 
                         <label class="wujia-mticket-label">Loại yêu cầu</label>
                         <select name="category_id" class="form-select mb-3" required="required">
@@ -395,13 +399,21 @@
                     <div class="row">
                         <div class="col-md-8 col-12">
                             <div class="card mb-2">
-                                <div class="card-header"><h5 class="mb-0">Nội dung yêu cầu</h5></div>
+                                <t t-call="wujia_portal_layout.wj_card_header">
+                                    <t t-set="ch_title">Nội dung yêu cầu</t>
+                                    <t t-set="ch_platform" t-value="'pc'"/>
+                                    <t t-set="ch_class" t-value="'card-header wj-card-header--flush'"/>
+                                </t>
                                 <div class="card-body">
                                     <div t-out="ticket.description or '—'"/>
                                 </div>
                             </div>
                             <div t-if="ticket.attachment_ids" class="card mb-2">
-                                <div class="card-header"><h6 class="mb-0">File đính kèm</h6></div>
+                                <t t-call="wujia_portal_layout.wj_card_header">
+                                    <t t-set="ch_title">File đính kèm</t>
+                                    <t t-set="ch_platform" t-value="'pc'"/>
+                                    <t t-set="ch_class" t-value="'card-header wj-card-header--flush'"/>
+                                </t>
                                 <ul class="list-group list-group-flush">
                                     <li t-foreach="ticket.attachment_ids" t-as="att" class="list-group-item">
                                         <a t-attf-href="/web/content/ir.attachment/#{att.id}/datas?download=true">
@@ -413,7 +425,11 @@
 
                             <!-- Chatter — show comment messages, oldest first -->
                             <div class="card support-chatter mb-2">
-                                <div class="card-header"><h6 class="mb-0">Trao đổi</h6></div>
+                                <t t-call="wujia_portal_layout.wj_card_header">
+                                    <t t-set="ch_title">Trao đổi</t>
+                                    <t t-set="ch_platform" t-value="'pc'"/>
+                                    <t t-set="ch_class" t-value="'card-header wj-card-header--flush'"/>
+                                </t>
                                 <div class="card-body">
                                     <t t-set="comments" t-value="ticket.message_ids.filtered(lambda m: m.message_type == 'comment').sorted('date')"/>
                                     <div t-if="not comments" class="wujia-empty-state">
@@ -445,7 +461,11 @@
 
                         <div class="col-md-4 col-12">
                             <div class="card">
-                                <div class="card-header"><h6 class="mb-0">Thông tin</h6></div>
+                                <t t-call="wujia_portal_layout.wj_card_header">
+                                    <t t-set="ch_title">Thông tin</t>
+                                    <t t-set="ch_platform" t-value="'pc'"/>
+                                    <t t-set="ch_class" t-value="'card-header wj-card-header--flush'"/>
+                                </t>
                                 <div class="card-body">
                                     <dl class="row mb-0 profile-dl">
                                         <!-- S53-B3b: mã ticket + tiêu đề gỡ khỏi PageHeader
@@ -535,9 +555,19 @@
                 <!-- Lịch sử trao đổi -->
                 <t t-set="comments" t-value="ticket.message_ids.filtered(lambda m: m.message_type == 'comment').sorted('date')"/>
                 <div class="wujia-mdash-card" style="padding:0;">
-                    <div class="wujia-mdash-titlerow" style="padding:14px 14px 0;">
-                        <h2 class="wujia-mdash-title" style="font-size:16px;">Lịch sử trao đổi</h2>
-                        <span class="wujia-mdash-link" style="cursor:default;"><t t-out="len(comments)"/> phản hồi</span>
+                    <!-- Card khai padding:0 nên phần đệm ở lại wrapper: CardHeader cố ý KHÔNG
+                         tự khai padding (việc của SurfaceCard, cụm D4). Biến thể flush để giữ
+                         đúng nhịp 0px xuống luồng trao đổi như trước. -->
+                    <div style="padding:14px 14px 0;">
+                        <t t-call="wujia_portal_layout.wj_card_header">
+                            <t t-set="ch_title">Lịch sử trao đổi</t>
+                            <t t-set="ch_level" t-value="2"/>
+                            <t t-set="ch_platform" t-value="'m'"/>
+                            <t t-set="ch_class" t-value="'wj-card-header--flush'"/>
+                            <t t-set="ch_meta">
+                                <span class="wj-card-header__meta"><t t-out="len(comments)"/> phản hồi</span>
+                            </t>
+                        </t>
                     </div>
                     <div class="wujia-mticket-thread">
                         <div t-if="not comments" class="wj-empty-state--compact">Chưa có trao đổi nào.</div>

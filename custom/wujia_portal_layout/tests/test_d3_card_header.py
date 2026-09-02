@@ -162,9 +162,12 @@ class TestCardHeaderCallSites(TransactionCase):
     CALL_SITES = {
         # D3a — 4 họ markup mẫu
         'wujia_portal_support.portal_support_list': 1,
-        'wujia_portal_delivery.portal_delivery_detail': 3,
-        'wujia_portal_base.portal_franchise_information': 2,
         'wujia_portal_return.portal_return_form': 4,
+        # D3c — nốt phần còn lại của chính 4 file D3a
+        'wujia_portal_delivery.portal_delivery_detail': 4,
+        'wujia_portal_base.portal_franchise_information': 6,
+        'wujia_portal_support.portal_support_form': 1,
+        'wujia_portal_support.portal_support_detail': 5,
         # D3b — nhóm màn kế tiếp
         'wujia_portal_base.portal_home_page': 5,
         'wujia_portal_base.portal_franchise_profile_full': 4,
@@ -186,6 +189,7 @@ class TestCardHeaderCallSites(TransactionCase):
         'wujia_portal_report.portal_report_orders': 'top_products',
         'wujia_portal_info_request.portal_info_request_list': 'requests',
         'wujia_portal_return.portal_return_list': 'returns',
+        'wujia_portal_support.portal_support_detail': 'comments',
     }
 
     # Họ Bootstrap `.card-header` giữ wrapper (đã có padding + border) ⇒ header phải
@@ -194,6 +198,12 @@ class TestCardHeaderCallSites(TransactionCase):
         'wujia_portal_base.portal_franchise_profile_full': 4,
         'wujia_portal_knowledge.portal_knowledge_list': 1,
         'wujia_portal_knowledge.portal_knowledge_detail': 1,
+        # D3c: 4 card Bootstrap + card "Lịch sử trao đổi" (card khai padding:0)
+        'wujia_portal_support.portal_support_detail': 5,
+        # khối `wj-pc-acct-staff` — dòng `__line` dưới đã tự khai margin-top 8px
+        'wujia_portal_base.portal_franchise_information': 1,
+        # summary head chuyến giao — `.wj-pc-order-head` đã có padding riêng
+        'wujia_portal_delivery.portal_delivery_detail': 1,
     }
 
     # Class heading cũ đã migrate hết trong CHÍNH view đó ⇒ không được tái xuất hiện.
@@ -207,6 +217,13 @@ class TestCardHeaderCallSites(TransactionCase):
         'wujia_portal_sale.pc_cart_panel': ('wj-pc-cart-title',),
         'wujia_portal_info_request.portal_info_request_list': ('wujia-content-card-header-title',),
         'wujia_portal_return.portal_return_list': ('wujia-content-card-header-title',),
+        # D3c
+        'wujia_portal_support.portal_support_form': ('wujia-mdash-title',),
+        'wujia_portal_support.portal_support_detail': ('wujia-mdash-title',),
+        'wujia_portal_base.portal_franchise_information': ('wujia-maccount-cardtitle',
+                                                           'wujia-maccount-store-name'),
+        'wujia_portal_delivery.portal_delivery_detail': ('wj-pc-order-head__code',
+                                                         'wj-pc-dlv-head-meta'),
     }
 
     # View KHÔNG tách PC/mobile (không có `d-none d-lg-*`) ⇒ một markup phục vụ cả hai
@@ -274,6 +291,29 @@ class TestCardHeaderCallSites(TransactionCase):
         # cắt ở `\n}` chứ không phải `}`: trong block có comment chứa `{ … !important }`
         block = css.split('.wj-card-header__title {', 1)[1].split('\n}', 1)[0]
         self.assertIn('color: var(--wujia-text-primary) !important', block)
+
+    def test_bootstrap_card_header_wrapper_class_is_kept(self):
+        # Component KHÔNG tự khai padding ⇒ 4 card Bootstrap của /portal/support/<id> phải
+        # giữ class `card-header` (nguồn padding + border-bottom), nếu không header dính
+        # sát mép card. Cùng lý do phải kèm biến thể flush.
+        arch = self._arch('wujia_portal_support.portal_support_detail')
+        self.assertEqual(arch.count("'card-header wj-card-header--flush'"), 4)
+
+    def test_store_name_became_subtitle_not_a_second_heading(self):
+        # Chủ dự án chốt 02/09: mobile xếp giống bản PC cùng card (tiêu đề → dòng phụ →
+        # badge). Tên cửa hàng phải đi vào slot subtitle, KHÔNG còn là heading rời, và
+        # hàng badge phải nằm SAU header.
+        root = html.fromstring(
+            '<div>%s</div>' % self._arch('wujia_portal_base.portal_franchise_information'))
+        subs = root.xpath('.//t[@t-set="ch_subtitle"][@t-value="franchise.name or \'—\'"]')
+        self.assertEqual(len(subs), 1)
+        card = root.xpath('.//div[contains(@class,"wujia-mdash-card")]'
+                          '[t[@t-call="wujia_portal_layout.wj_card_header"]]'
+                          '[div[@class="wujia-maccount-badgerow"]]')
+        self.assertEqual(len(card), 1, 'card "Cửa hàng nhượng quyền" phải còn nguyên')
+        kids = [c.get('t-call') or c.get('class') for c in card[0]]
+        self.assertLess(kids.index('wujia_portal_layout.wj_card_header'),
+                        kids.index('wujia-maccount-badgerow'))
 
     def test_no_pseudo_heading_left_in_migrated_views(self):
         for xmlid in self.CALL_SITES:

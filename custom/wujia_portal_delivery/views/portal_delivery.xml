@@ -376,11 +376,18 @@
                 <!-- Summary card -->
                 <div class="wj-pc-order-head wj-pc-dlv-head">
                     <div>
-                        <div class="wj-pc-dlv-head-coderow">
-                            <h2 class="wj-pc-order-head__code" t-out="batch.name or '—'"/>
-                            <span t-attf-class="wj-pc-badge wj-pc-badge--dlv-#{pc_badge[1]}" t-out="pc_badge[0]"/>
-                        </div>
-                        <p class="wj-pc-dlv-head-meta">Chuyến giao cho <t t-out="store_label"/></p>
+                        <!-- Khối 3 cặp KV bên phải ở lại là NỘI DUNG card (spec cho tối đa MỘT
+                             trailing) ⇒ trailing của header là badge trạng thái. -->
+                        <t t-call="wujia_portal_layout.wj_card_header">
+                            <t t-set="ch_title" t-value="batch.name or '—'"/>
+                            <t t-set="ch_subtitle">Chuyến giao cho <t t-out="store_label"/></t>
+                            <t t-set="ch_level" t-value="2"/>
+                            <t t-set="ch_platform" t-value="'pc'"/>
+                            <t t-set="ch_class" t-value="'wj-card-header--flush'"/>
+                            <t t-set="ch_meta">
+                                <span t-attf-class="wj-pc-badge wj-pc-badge--dlv-#{pc_badge[1]}" t-out="pc_badge[0]"/>
+                            </t>
+                        </t>
                     </div>
                     <div class="wj-pc-dlv-head-kv">
                         <div class="wj-pc-kv">

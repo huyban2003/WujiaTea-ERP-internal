@@ -10,14 +10,64 @@ prompt của cụm đó rồi bắt tay.
 
 ---
 
-## 📌 BÀN GIAO cho phiên sau (chốt 28/08/2026 — sau D3b)
+## 📌 BÀN GIAO cho phiên sau (chốt 02/09/2026 — sau D3c)
 
 **Prompt gõ vào phiên sau:**
 
 > `/wujia-start`
-> làm cụm D3c. Đọc `docs/d3-cardheader-inventory.md` §5 để lấy 15 chỗ còn lại của 4 file D3a (support 6 · delivery 3 · franchise-information 6), và `docs/d3b-acceptance-matrix.md` §10 LIMIT để biết 6 chỗ đang treo chờ BA.
+> làm cụm D3d = `portal_exam.xml` (21 call site, một mình một session). Đọc `docs/d3c-acceptance-matrix.md` §11 LIMIT để biết chỗ nào đang treo chờ BA, và §9 để biết bẫy bố cục vừa trả giá ở D3c (slot trailing trôi ra mép vì `__lead` là `flex:1 1 auto`).
 
-### ✅ D3b XONG + ĐÃ ĐO LẠI TRÊN UAT (28/08) — còn **1 lượt deploy nhỏ**
+### ✅ D3c XONG (02/09) — **chờ chủ dự án deploy**, chưa đo lại trên UAT
+
+Nhánh `dev/2026-09-02-d3c`. **11 call site / 3 file / 3 module** — nốt phần còn lại của 4 file
+D3a. Tổng phủ **47/103**. Nghiệm thu **20✅ + 1 phần = 97,6%** → `docs/d3c-acceptance-matrix.md`.
+
+```
+-u wujia_portal_layout,wujia_portal_base,wujia_portal_support,wujia_portal_delivery
+```
+
+Không module mới · không migration · không cập nhật dữ liệu · **không** cần kèm `wujia_sale`
+(không đụng `wujia_portal_return`) · **không** cần bump `?v=` (rule CSS mới nằm trong asset
+bundle của `wujia_portal_delivery`, không phải `<link>` tay).
+Version: base `19.0.7.7.0` · support `19.0.3.14.0` · delivery `19.0.3.8.1` · layout
+`19.0.32.7.0` (không đổi — chỉ thêm test).
+
+Sau deploy: **đo lại chỉ-đọc trên UAT** (L14/L10) bằng `scratchpad/d3b_uat_verify.py` →
+`scripts/ba_spec/qa_deploy_mark.py`. `UI-CARDHEADER-001` **vẫn `Ready for Dev`** (47/103) ⇒
+**KHÔNG** chạy `qa_sync.py`; entry ledger giữ dạng comment.
+
+**Số đáng nhớ của D3c:** tổng `scrollHeight` **−19px** · giả-heading **0** trên cả 4 route ·
+lưới B4 **286/286** · tab-walk **250 stop, 12/12 route giữ nguyên số/thứ tự/ring** · chạy lại
+bảng D3b **0 lệch**, bảng D3a **0 lệch ngoài ý muốn** · unit test **32, 0 failed/0 error**,
+mutation **đúng 1 đỏ** · màu **`rgb(17,24,39)` ở 11/11 call site**.
+
+⚠️ **2 chỗ ĐỔI THỨ TỰ DOM** (chủ dự án duyệt trước khi code, BA cần xác nhận lúc retest):
+tên cửa hàng ở `/portal/franchise-information` mobile lên làm **dòng phụ** của tiêu đề (badge
+xuống dưới, khớp bản PC cùng card), và badge trạng thái ở `/portal/delivery/<id>` PC thành
+**slot trailing** của header. Ảnh trước/sau: `scratchpad/d3c-shots/`.
+
+### 🔴 Bài học D3c — đừng lặp lại ở D3d
+
+- **Đừng tin con số ở doc bàn giao — chạy lại `d3_inventory.py`.** Bàn giao D3b ghi "15 chỗ";
+  số làm thật là **11** vì con số cũ cộng cả dòng đã loại ở §3 và 2 chỗ đang chờ BA ở §6.
+- **Số đo đạt hết vẫn có thể vỡ bố cục — phải CHỤP ẢNH.** Badge trạng thái delivery trôi ra
+  mép phải cột trái vì `.wj-card-header__lead` là `flex: 1 1 auto` nở hết bề rộng. Mọi
+  `fontSize/lineHeight/color/gap` đều Pass; chỉ ảnh mới lộ. Sửa bằng **1 rule scope module**
+  (`.wj-pc-dlv-head .wj-card-header__lead { flex: 0 1 auto; }`), **không** đụng component chung.
+- **Comment XML không được chứa `--`.** Viết `--flush` trong `<!-- -->` là
+  `XMLSyntaxError: Comment must not contain '--'` — đổi chữ thành "biến thể flush".
+- **Test `post_install` nằm ở module khác** ⇒ `-u wujia_portal_support --test-tags …` ra
+  **"0 tests"** mà RC vẫn 0. Mutation check phải `-u wujia_portal_layout` (nơi chứa test).
+- **Id trong URL phải scrape từ chính trang danh sách.** `/portal/support/1` và `/2` **âm thầm
+  redirect** về trang list vì thuộc cửa hàng khác cookie đang ghim ⇒ đo nhầm trang (bẫy D3b lặp).
+- **M2M cần chèn bảng nối.** Bơm attachment cho ticket: đặt `res_id` là **không đủ**, phải
+  insert vào `wujia_support_ticket_attachment_rel`. Và `mail_message_subtype.name` là **jsonb**
+  trong Odoo 19 ⇒ `WHERE name->>'en_US' = 'Discussions'`.
+- **Thẻ có đồng hồ làm harness báo động giả.** `/portal` 360px báo `cardH` 97→122,4; đo lại
+  thì **cả hai server** đều 122,4 — chiều cao đổi theo phút xuống dòng, không phải hồi quy.
+  Bài học "harness đo sai còn nguy hơn không đo" lặp y hệt D3b.
+
+### ✅ D3b XONG + ĐÃ ĐO LẠI TRÊN UAT (28/08) — còn **1 lượt deploy nhỏ** *(lịch sử)*
 
 Nhánh `dev/2026-08-28-d3b` → `main`. **26 call site / 7 file / 7 module**, tổng phủ **36/103**.
 Nghiệm thu **21✅/1⏳ = 95,5%** → `docs/d3b-acceptance-matrix.md`.
@@ -100,7 +150,7 @@ thái —`**, khớp mobile. `value=""` không đổi ⇒ kết quả lọc bấ
   `public_categ_id`) ⇒ header `--any` duy nhất không đo được. Phải bơm dữ liệu **giống hệt
   nhau trên CẢ HAI DB copy**, không thì cứ tưởng đã đo đủ.
 
-### Còn treo sau D3a — đọc trước khi làm D3c
+### Còn treo sau D3a — vẫn treo sau D3c, đọc trước khi làm D3d
 
 1. **Fork `wj-pc-acct-headcard` (19 hit) chưa trả lời.** Markup có **HAI** vùng phải
    (`__chips` + `__box`) mà spec cho **tối đa MỘT** trailing. D3a **không đụng file**, lấy
@@ -333,9 +383,13 @@ B4 286/286, tab-walk 346 stop) · D1 **27/28**.
   report_orders · pc_cart_panel + product_detail · info_request · return_list) ⇒ **36/103**.
   Vá 2 lỗ hổng component (`--flush` thua specificity ở mobile/`--any`; `--any` thiếu khối
   `@media ≥992px`). Đo: `docs/d3b-acceptance-matrix.md` — **95%**.
-- **D3c…D3n:** migrate hết call site theo **bảng-theo-file** ở §kế hoạch của inventory, mỗi
+- **D3c ✅ 02/09.** 11 call site / 3 file — nốt phần còn lại của 4 file D3a (support 6 ·
+  delivery 1 · franchise-information 4) ⇒ **47/103**. Kèm 1 rule CSS scope delivery cho slot
+  trailing và **2 chỗ đổi thứ tự DOM** đã được chủ dự án duyệt. Đo:
+  `docs/d3c-acceptance-matrix.md` — **97,6%**.
+- **D3d…D3n:** migrate hết call site theo **bảng-theo-file** ở §kế hoạch của inventory, mỗi
   session một nhóm màn, mỗi session một lần `-u`, mỗi session đo lại B4 286/286 + tab-walk.
-  **D3c = 15 chỗ còn lại của 4 file D3a** (support 6 · delivery 3 · franchise-information 6).
+  **D3d = `portal_exam.xml`, 21 call site** (một mình một session).
   Issue **giữ `Ready for Dev`** cho tới khi đủ 100% (tiền lệ C8a→C8b); entry ledger đã soạn
   sẵn **dạng comment** ở cuối `docs/qa-issue-ledger.yaml`, D3n bỏ `#` là dùng được.
 - 🔴 **Bẫy D3a đã trả giá, đừng lặp:** (1) gỡ `mb-*` ở call site **chưa đủ** — lớp body tự khai
