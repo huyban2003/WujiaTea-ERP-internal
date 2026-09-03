@@ -17,10 +17,17 @@ prompt của cụm đó rồi bắt tay.
 > `/wujia-start`
 > làm cụm D3d = `portal_exam.xml` (21 call site, một mình một session). Đọc `docs/d3c-acceptance-matrix.md` §11 LIMIT để biết chỗ nào đang treo chờ BA, và §9 để biết bẫy bố cục vừa trả giá ở D3c (slot trailing trôi ra mép vì `__lead` là `flex:1 1 auto`).
 
-### ✅ D3c XONG (02/09) — **chờ chủ dự án deploy**, chưa đo lại trên UAT
+### ✅ D3c ĐÃ MERGE + PUSH + DEPLOY + ĐO LẠI TRÊN UAT (03/09)
 
 Nhánh `dev/2026-09-02-d3c`. **11 call site / 3 file / 3 module** — nốt phần còn lại của 4 file
-D3a. Tổng phủ **47/103**. Nghiệm thu **20✅ + 1 phần = 97,6%** → `docs/d3c-acceptance-matrix.md`.
+D3a. Tổng phủ **47/103**. Nghiệm thu local **20✅ + 1 phần = 97,6%** → `docs/d3c-acceptance-matrix.md`.
+
+🔴 **Bài học 03/09 — đừng lặp lại:** phiên D3c (02/09) code xong nhưng **quên merge+push**
+— commit `b6cfcbe` nằm một mình trên nhánh, `origin/main` vẫn dừng ở D3b (`aef14e1`) suốt
+1 ngày dù ai cũng tưởng đã deploy. Phát hiện bằng kiểm phiên bản module qua XML-RPC (đọc-
+chỉ) đối chiếu với version trên đĩa — **luôn làm bước này đầu mỗi phiên review/deploy**,
+đừng chỉ tin lời kể. **Cuối MỖI phiên D3x: merge `dev/...` → `main` → `push origin` NGAY,
+đừng để dồn.**
 
 ```
 -u wujia_portal_layout,wujia_portal_base,wujia_portal_support,wujia_portal_delivery
@@ -32,9 +39,13 @@ bundle của `wujia_portal_delivery`, không phải `<link>` tay).
 Version: base `19.0.7.7.0` · support `19.0.3.14.0` · delivery `19.0.3.8.1` · layout
 `19.0.32.7.0` (không đổi — chỉ thêm test).
 
-Sau deploy: **đo lại chỉ-đọc trên UAT** (L14/L10) bằng `scratchpad/d3b_uat_verify.py` →
-`scripts/ba_spec/qa_deploy_mark.py`. `UI-CARDHEADER-001` **vẫn `Ready for Dev`** (47/103) ⇒
-**KHÔNG** chạy `qa_sync.py`; entry ledger giữ dạng comment.
+✅ **Đã deploy UAT 03/09 + đo lại chỉ-đọc ngay trên UAT** bằng `scratchpad/d3c_uat_verify.py`
+(gộp 13 route D3a+D3b regression + 6 route mới D3c, 3 breakpoint): **74/74 header đạt toàn
+bộ số BA**, 0 tràn ngang, 0 JS error. Kèm audit hợp nhất 47/103 call site (2 kiểu lỗi đã
+từng dính — tràn `__lead` flex, màu bị theme đè — quét lại KHÔNG thấy tái diễn chỗ nào
+khác) + 183 test 0 failed/0 error trên 10 module bị đụng. Chi tiết đầy đủ →
+`docs/d3-consolidated-audit-2026-09-03.md`. `UI-CARDHEADER-001` **vẫn `Ready for Dev`**
+(47/103, đúng tiền lệ C8a→C8b) ⇒ **KHÔNG** chạy `qa_sync.py`; entry ledger giữ dạng comment.
 
 **Số đáng nhớ của D3c:** tổng `scrollHeight` **−19px** · giả-heading **0** trên cả 4 route ·
 lưới B4 **286/286** · tab-walk **250 stop, 12/12 route giữ nguyên số/thứ tự/ring** · chạy lại
