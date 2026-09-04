@@ -725,3 +725,53 @@
 .wj-warning-confirm-btn:hover {
     background: #b45309;
 }
+
+/* ---------- CMP-CH-001 (D3f) ---------- */
+/* Nhãn phụ giữa thân card: phải nhỏ hơn tiêu đề card, không thì mất phân cấp
+   (tiền lệ D3e). Dùng đúng 14px của nhãn phụ D3e để cả portal một cỡ, KHÔNG giữ
+   12.3px riêng của inspection. Thêm `.wj-pc-card` để thắng rule biến thể (0,3,0)
+   của component nằm ở bundle khác; font-size bị component đặt !important. */
+.wj-pc-card .wj-card-header.wj-insp-sublabel .wj-card-header__title {
+    font-size: .875rem !important;
+    line-height: 1.2;
+}
+
+/* Tiêu đề tiêu chí trong hộp "Tiêu chí vi phạm": 14px/700 là THIẾT KẾ — nó là
+   chữ chính của hộp, lấy 18px của component thì hộp vỡ, lấy .875rem của nhãn phụ
+   thì tụt ngang hàng nhãn muted phía trên, mất phân cấp. */
+.wj-pc-card .wj-card-header.wj-insp-critlabel .wj-card-header__title {
+    font-size: 14px !important;
+    line-height: 1.5;
+}
+.wj-pc-card .wj-card-header.wj-insp-critlabel { margin: 0 0 .5rem; }
+
+/* Head của khối `t-foreach sections`: 15px là THIẾT KẾ (nhỏ hơn tiêu đề card 18px
+   vì nó là đầu MỘT nhóm bên trong card). Nhánh severe tô nền đỏ bằng inline
+   style, mà component khai màu chữ trên chính `.wj-card-header__title` nên màu
+   trắng không thừa kế xuống được — phải trả lại bằng rule. */
+.wj-insp-sechead .wj-card-header.wj-insp-sechead__hb { margin: 0; }
+.wj-insp-sechead .wj-card-header.wj-insp-sechead__hb .wj-card-header__title {
+    font-size: 15px !important;
+    line-height: 1.2;              /* = 18px, đúng bằng dáng cũ */
+}
+.wj-insp-sechead:not(.wj-insp-sechead--severe) .wj-card-header__subtitle { color: #6c757d !important; }
+.wj-insp-sechead--severe .wj-card-header__title { color: #ffffff !important; }
+.wj-insp-sechead--severe .wj-card-header__subtitle { color: rgba(255, 255, 255, .8) !important; }
+
+/* Bản mobile của cùng head đó: dáng riêng (0.95rem xanh #0284c7) là THIẾT KẾ,
+   không phải drift — mobile và PC vốn khác cỡ. */
+.wj-insp-sechead--m .wj-card-header.wj-insp-sechead__hb .wj-card-header__title {
+    font-size: .95rem !important;
+    line-height: 1.35;
+    color: #0284c7 !important;
+}
+/* Phải bám đủ `.wj-card-header.wj-insp-sechead__hb` mới lên (0,5,0): rule màu
+   xanh ngay trên đã là (0,4,0)!important, viết ngắn hơn là THUA — bẫy đặc hiệu
+   D3e §7, lần này đo mới lộ (tiêu đề nhánh severe ra màu xanh trên nền đỏ). */
+.wj-insp-sechead--m.wj-insp-sechead--severe
+    .wj-card-header.wj-insp-sechead__hb .wj-card-header__title { color: #ffffff !important; }
+.wj-insp-sechead--m .wj-card-header.wj-insp-sechead__hb .wj-card-header__subtitle {
+    font-size: .82rem;
+    line-height: 1.35;
+    color: #64748b;
+}

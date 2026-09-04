@@ -1323,11 +1323,17 @@ WJ-PORTAL-UI-002:
 # =====================================================================================
 
 # =====================================================================================
-# UI-CARDHEADER-001 (STT 125) — D3b 28/08: đã phủ 36 trên 103 chỗ gọi
-# (D3a 10 + D3b 26). Issue CỐ Ý GIỮ `Ready for Dev`, CHƯA handoff — đúng tiền lệ C8a→C8b.
-# Số đo: docs/d3-acceptance-matrix.md (D3a, 95%) + docs/d3b-acceptance-matrix.md
-# (D3b, 20 đạt / 1 còn phạm vi = 95%). Kiểm kê 103 chỗ: docs/d3-cardheader-inventory.md.
-# Nhóm kế: D3c = 15 chỗ còn lại của 4 file D3a (support 6 · delivery 3 · franchise-information 6).
+# UI-CARDHEADER-001 (STT 125) — D3f 04/09: đã phủ 95 trên 105 chỗ gọi
+# (D3a 10 + D3b 26 + D3c 11 + D3d 14 + D3e 24 + D3f 10). Issue CỐ Ý GIỮ `Ready for Dev`,
+# CHƯA handoff — đúng tiền lệ C8a→C8b. KHÔNG chạy qa_sync.py cho tới khi đủ 100%.
+# Số đo từng cụm: docs/d3{,b,c,d,e,f}-acceptance-matrix.md. Kiểm kê: docs/d3-cardheader-inventory.md.
+#
+# ⚠️ Mẫu số đổi 103 → 105: 103 của D3a lệch 2 (mẫu số honest sau khi vá bug đếm của
+#    scratchpad/d3_inventory.py là 101), cộng 4 chỗ D3f phát sinh mà kiểm kê không bắt.
+# DANH SÁCH ACTIONABLE ĐÃ HẾT. Còn đúng 4 chỗ defer chờ BA (§6 inventory) + các chỗ §3:
+#    franchise_information:40/49 · exam:375 parthead · exam:769 · inspection_list:34 · debt:688.
+# ⇒ Phiên kế KHÔNG phải migrate tiếp, mà là REVIEW LẠI TOÀN CỤM D3 BẰNG ẢNH CHỤP
+#    (chủ dự án chốt 04/09) + một lượt gửi BA gộp 5 câu hỏi treo ở trên.
 #
 # ⚠️ Khối YAML bên dưới vẫn là số liệu của D3a — D3n phải viết lại theo tổng cuối cùng,
 #    đừng bỏ dấu # rồi đẩy nguyên số cũ lên sheet.

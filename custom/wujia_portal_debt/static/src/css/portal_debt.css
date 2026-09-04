@@ -734,3 +734,31 @@
     font-weight: 700;
     white-space: nowrap;
 }
+
+/* ---------- CMP-CH-001 (D3f) ---------- */
+/* Nhãn cảnh báo trong hộp hint cao 52px của Figma S43: cỡ 11.5px là THIẾT KẾ
+   (hộp chỉ 52px, lấy 18px của component là vỡ), nên giữ bằng rule scope.
+   Cần `.wj-debt-hint` phía trước để thắng rule biến thể (0,3,0) của component ở
+   bundle khác; font-size bị component đặt !important. */
+.wj-debt-hint .wj-card-header.wj-debt-hint-head { margin: 0; }
+.wj-debt-hint .wj-card-header.wj-debt-hint-head .wj-card-header__title {
+    font-size: 11.5px !important;
+    line-height: 1.5;              /* = 17.3px, đúng bằng dáng cũ */
+    color: var(--wj-debt-warn-strong) !important;
+}
+
+/* Đầu card tổng S43: hình học Figma khoá cứng (hàng 15px, badge absolute, nhãn
+   11px viết hoa) nên component chỉ được vào làm CẤU TRÚC, dáng giữ nguyên.
+   `__head` giữ lại để rule badge absolute và chiều cao 15px vẫn áp. */
+.wj-debt-summary__head .wj-card-header.wj-debt-summary__hb {
+    margin: 0;
+    height: 15px;
+    align-items: flex-start;
+}
+.wj-debt-summary__head .wj-card-header.wj-debt-summary__hb .wj-card-header__title {
+    font-size: 11px !important;
+    font-weight: 700;
+    line-height: 1.5;              /* = 16.5px, đúng bằng dáng cũ */
+    letter-spacing: .02em;
+    color: var(--wj-debt-muted) !important;
+}
