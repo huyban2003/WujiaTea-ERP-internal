@@ -269,3 +269,30 @@ cuối không bị cắt, **0 tràn ngang**. Số đo CardHeader chạy lại: *
 vẫn đúng 1 (chỗ defer), **243 test 0 failed / 0 error**. Ảnh: `scratchpad/d3d-shots/fix-reg-*.png`.
 
 `wujia_portal_exam` **19.0.5.8.0 → 19.0.5.9.0** ⇒ cần **deploy lượt 2**: `-u wujia_portal_exam`.
+
+
+---
+
+## 12. Kết quả đo lại trên UAT sau deploy lượt 2 (04/09)
+
+`wujia_portal_exam` **19.0.5.9.0** trên UAT (đối chiếu `ir.module.module` qua XML-RPC chỉ-đọc).
+
+**`scratchpad/d3d_uat_verify.py`: 128/128 header đạt toàn bộ số BA · 0 VẤN ĐỀ.**
+22 route × 3 breakpoint (1440/390/360), gồm 13 route regression D3a+D3b+D3c và 9 route exam
+(3 màn × PC/mobile + 4 bước wizard). 0 giả-heading ngoài chỗ defer, 0 tràn ngang, 0 JS error,
+HTTP 200 toàn bộ. Ảnh: `scratchpad/d3d-uat-shots/`.
+
+> 🔴 **Hai lỗi của chính harness, không phải của sản phẩm** — ghi lại vì đều thuộc loại "báo
+> động giả làm che lỗi thật", đúng bài học đã trả giá ở D3a/D3c:
+> 1. Danh sách bỏ qua chỗ defer viết theo tên **div bọc** (`wj-exam-pc-parthead`) trong khi
+>    heading mang tên `wj-exam-pc-sectitle` ⇒ báo lỗi giả.
+> 2. Vòng in báo cáo **tách khỏi** vòng đo, nhưng vẫn đọc biến `real` của vòng đo ⇒ luôn nhận
+>    giá trị rơi rớt của lần lặp CUỐI, điều kiện bỏ qua không bao giờ đúng. Phải lấy từ `key`.
+
+**Đã ghi sheet:** `qa_deploy_mark.py UI-CARDHEADER-001 --apply` (dòng 118) — cột P dẫn đầu bằng
+cảnh báo **"⚠ MỚI PHỦ 61/103 CALL SITE — issue vẫn Ready for Dev, CHƯA retest toàn issue"**, kèm
+phạm vi retest được ngay là **riêng 3 màn Đăng ký thi**. Trạng thái issue **không đổi**
+(`Ready for Dev`), **KHÔNG** chạy `qa_sync.py`, ledger vẫn dạng comment.
+
+**Câu hỏi BA cho 3 chỗ defer:** `docs/ba-question-cardheader-trailing.md` (gộp 1 lượt: 1 chỗ treo
+từ D3a + 2 chỗ exam của D3d).

@@ -21,17 +21,31 @@ prompt của cụm đó rồi bắt tay.
 > doc bàn giao. Đọc `docs/d3d-acceptance-matrix.md` §5 (bẫy specificity, đã trả giá **hai lần**)
 > và §6 (JS đọc thẳng tên class tiêu đề — grep `querySelector` trong JS của module trước khi migrate).
 
-### ✅ D3d XONG LOCAL (04/09) — chờ chủ dự án deploy
+### ✅ D3d XONG + ĐÃ DEPLOY UAT + ĐO LẠI (04/09)
 
 Nhánh `dev/2026-09-04-d3d`. **14 call site / 1 file** (`wujia_portal_exam/views/portal_exam.xml`).
 Tổng phủ **61/103**. Nghiệm thu local **21✅ + 2 phần = 95,7%** → `docs/d3d-acceptance-matrix.md`.
 
-Deploy: `-u wujia_portal_layout,wujia_portal_exam` · `wujia_portal_exam` **19.0.5.8.0** · không
-module mới, không migration, không cần bump `?v=`.
+Đã deploy **2 lượt**: lượt 1 `-u wujia_portal_layout,wujia_portal_exam` (**19.0.5.8.0**), lượt 2
+`-u wujia_portal_exam` (**19.0.5.9.0**, vá bố cục <1600px phát hiện khi đo UAT). Không module mới,
+không migration, không cần bump `?v=`.
+
+**Đo lại chỉ-đọc trên UAT sau deploy: `128/128` header đạt số BA, `0 VẤN ĐỀ`** (22 route ×
+3 breakpoint). Sheet đã `qa_deploy_mark` với cảnh báo phạm vi 61/103 dẫn đầu cột P; issue **vẫn
+`Ready for Dev`**, **KHÔNG** chạy `qa_sync.py`.
+
+🔴 **Bài học lớn nhất phiên này: SỐ ĐO SẠCH VẪN CÓ THỂ ĐANG GIẤU LỖI VỠ BỐ CỤC.** Nghiệm thu local
+ra 95,7% và ghi cột PC bị bóp ở ≤1440 thành "lỗi có sẵn, không phải hồi quy" — **đúng nhưng chưa
+đủ**: chỉ khi đo trên UAT mới lộ tiêu đề ra **3 dòng** (spec cho tối đa 2), vì D3d nâng cỡ chữ
+16→18px theo chuẩn BA đã đẩy nó qua ngưỡng. ⇒ "lỗi có sẵn" **không tự động** nghĩa là "không phải
+việc của mình": phải kiểm xem thay đổi của mình có đẩy nó **qua ngưỡng spec** hay không.
 
 **Số đáng nhớ của D3d:** giả-heading **21 → 1** (1 còn lại là chỗ defer chờ BA) · **32/32** ô số đo
 đạt chuẩn BA · mọi thẻ PC **thấp hơn** sau migrate · `textDigest` **giống hệt 18/18 ô** · **316 test**
 0 fail trên 10 module · mutation **đỏ đúng 1 test** · wizard chạy tay **6/6**.
+
+**Câu hỏi BA đã soạn sẵn** cho 3 chỗ defer → `docs/ba-question-cardheader-trailing.md` (gộp 1 lượt:
+`wj-pc-acct-headcard` treo từ D3a + 2 chỗ exam). Gửi được ngay, không cần soạn lại.
 
 **3 chỗ defer chờ BA** (ghi §6 inventory): `:375` parthead + `:769` person-head (đều **2 trailing**,
 spec cho 1 — gộp chung lượt hỏi với `wj-pc-acct-headcard` treo từ D3a) · `:858` sheet-title (loại
