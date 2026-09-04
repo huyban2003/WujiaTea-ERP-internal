@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- Kế thừa User Preferences (Thay đổi tùy chọn của tôi) -->
+    <record id="view_users_form_simple_modif_inherit_inspection" model="ir.ui.view">
+        <field name="name">res.users.preferences.form.inherit.inspection</field>
+        <field name="model">res.users</field>
+        <field name="inherit_id" ref="base.view_users_form_simple_modif" />
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='signature']" position="after">
+                <field name="inspection_signature" widget="signature"
+                    string="Chữ ký giám sát / Chữ ký số" />
+            </xpath>
+        </field>
+    </record>
+
+    <!-- Kế thừa User Form View trong Cài đặt > Người dùng -->
+    <record id="view_users_form_inherit_inspection" model="ir.ui.view">
+        <field name="name">res.users.form.inherit.inspection</field>
+        <field name="model">res.users</field>
+        <field name="inherit_id" ref="base.view_users_form" />
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='signature']" position="after">
+                <field name="inspection_signature" widget="signature"
+                    string="Chữ ký giám sát / Chữ ký số" />
+            </xpath>
+        </field>
+    </record>
+
+</odoo>

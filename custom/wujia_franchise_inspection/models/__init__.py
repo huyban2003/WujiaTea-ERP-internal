@@ -6,3 +6,4 @@ from . import wujia_franchise_inspection_template
 from . import wujia_supervision_schedule
 from . import wujia_franchise_inspection
 from . import wujia_franchise_management
+from . import res_users

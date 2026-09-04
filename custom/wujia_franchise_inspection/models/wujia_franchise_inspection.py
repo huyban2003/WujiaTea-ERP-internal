@@ -385,9 +385,34 @@ class WujiaFranchiseInspection(models.Model):
         for rec in self:
             rec.passed_count = len(rec.passed_member_ids)
 
+    def _get_user_configured_signature(self, user):
+        """Lấy chữ ký mẫu nếu hệ thống có module sign hoặc user đã cấu hình chữ ký."""
+        if not user:
+            return False
+        # 1. Chữ ký cấu hình trực tiếp trong hồ sơ User
+        if hasattr(user, 'inspection_signature') and user.inspection_signature:
+            return user.inspection_signature
+        # 2. Module sign (Odoo Enterprise) lưu ở user.sign_signature
+        if hasattr(user, 'sign_signature') and user.sign_signature:
+            return user.sign_signature
+        # 2. Hoặc lưu ở user.digital_signature
+        if hasattr(user, 'digital_signature') and user.digital_signature:
+            return user.digital_signature
+        # 3. Hoặc kiểm tra partner_id.signature nếu có dạng binary
+        partner = getattr(user, 'partner_id', None)
+        if partner and hasattr(partner, 'signature') and partner.signature:
+            val = partner.signature
+            if isinstance(val, bytes) or (isinstance(val, str) and not val.startswith('<')):
+                return val
+        return False
+
     @api.model
     def default_get(self, fields_list):
         res = super(WujiaFranchiseInspection, self).default_get(fields_list)
+        if ('inspector_signature_image' in fields_list or not fields_list) and not res.get('inspector_signature_image'):
+            sig = self._get_user_configured_signature(self.env.user)
+            if sig:
+                res['inspector_signature_image'] = sig
         franchise_id = res.get('franchise_id') or self.env.context.get('default_franchise_id')
         if franchise_id:
             members = self.env['wujia.franchise.member'].search([
@@ -579,6 +604,14 @@ class WujiaFranchiseInspection(models.Model):
             franchise_id = vals.get('franchise_id')
             schedule_id = vals.get('schedule_id')
             current_name = vals.get('name')
+            # Tự động nạp chữ ký cấu hình của user nếu có, không có thì thôi
+            if not vals.get('inspector_signature_image'):
+                user_id = vals.get('confirmed_user_id')
+                user = self.env['res.users'].browse(user_id) if user_id else self.env.user
+                sig = self._get_user_configured_signature(user)
+                if sig:
+                    vals['inspector_signature_image'] = sig
+
             if not current_name or current_name == 'New' or current_name.startswith('Khảo sát') or not current_name.startswith('PGS-'):
                 if schedule_id:
                     vals['name'] = self._generate_inspection_name(franchise_id, schedule_id=schedule_id)
@@ -1188,6 +1221,13 @@ class WujiaFranchiseInspection(models.Model):
         string='Store Manager Confirmer',
         ondelete='restrict',
     )
+
+    @api.onchange('confirmed_user_id')
+    def _onchange_confirmed_user_id_signature(self):
+        if self.confirmed_user_id:
+            sig = self._get_user_configured_signature(self.confirmed_user_id)
+            if sig:
+                self.inspector_signature_image = sig
 
     @api.onchange('schedule_id')
     def _onchange_schedule_id(self):
