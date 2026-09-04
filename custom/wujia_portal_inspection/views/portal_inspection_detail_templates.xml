@@ -445,19 +445,19 @@
                             <!-- Danh sách các Danh mục kiểm tra -->
                             <t t-foreach="sections" t-as="sec">
                                 <div t-att-id="sec.get('id')" class="border-top pt-3 pb-2 mb-3">
+                                    <t t-set="_sec_sev"
+                                       t-value="sec.get('is_severe') and sec.get('total_deducted') > 0"/>
                                     <div
-                                        t-attf-class="d-flex justify-content-between align-items-center mb-3 border-bottom pb-2 p-3 rounded-3"
-                                        t-attf-style="#{'background-color: #b91c1c !important; color: #ffffff !important;' if (sec.get('is_severe') and sec.get('total_deducted') > 0) else 'background-color: #f1f5f9 !important;'}">
-                                        <div>
-                                            <h3
-                                                t-attf-class="wj-category-header-title mb-1 #{'text-white' if (sec.get('is_severe') and sec.get('total_deducted') > 0) else ''}">
-                                                <t t-out="sec.get('title')" />
-                                            </h3>
-                                            <p t-attf-class="wj-category-header-subtitle mb-0"
-                                                t-attf-style="#{'color: rgba(255, 255, 255, 0.8) !important;' if (sec.get('is_severe') and sec.get('total_deducted') > 0) else 'color: #6c757d !important;'}">
-                                                <t t-out="sec.get('subtitle')" />
-                                            </p>
-                                        </div>
+                                        t-attf-class="mb-3 border-bottom pb-2 p-3 rounded-3 wj-insp-sechead wj-insp-sechead--m #{'wj-insp-sechead--severe' if _sec_sev else ''}"
+                                        t-attf-style="#{'background-color: #b91c1c !important; color: #ffffff !important;' if _sec_sev else 'background-color: #f1f5f9 !important;'}">
+                                        <t t-call="wujia_portal_layout.wj_card_header">
+                                            <t t-set="ch_title" t-value="sec.get('title')"/>
+                                            <t t-set="ch_subtitle" t-value="sec.get('subtitle')"/>
+                                            <t t-set="ch_level" t-value="3"/>
+                                            <t t-set="ch_platform" t-value="'m'"/>
+                                            <t t-set="ch_class"
+                                               t-value="'wj-card-header--flush wj-insp-sechead__hb'"/>
+                                            <t t-set="ch_meta">
                                         <t t-if="sec.get('is_severe')">
                                             <span t-if="sec.get('total_deducted') > 0"
                                                 class="badge bg-white text-danger"
@@ -473,6 +473,8 @@
                                                 <t
                                                     t-out="sec.get('current_score')" />/<t
                                                     t-out="sec.get('max_score')" />đ </span>
+                                        </t>
+                                            </t>
                                         </t>
                                     </div>
 

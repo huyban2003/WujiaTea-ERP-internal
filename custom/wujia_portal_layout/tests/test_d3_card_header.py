@@ -423,3 +423,125 @@ class TestCardHeaderExamJsContract(TransactionCase):
         arch = self.env.ref('wujia_portal_exam.portal_exam_register').arch_db
         self.assertIn('wujia-mexam-person-name', arch)
         self.assertIn("querySelector('.wujia-mexam-person-name')", self._js())
+
+
+@tagged('post_install', '-at_install', 'wujia_card_header_d3')
+class TestCardHeaderD3f(TransactionCase):
+    """D3f — công nợ + khảo sát. Chín call site này đều PHẢI kèm một rule scope trả
+    dáng: bỏ rule đi thì component áp 18px và card 52px / 142px của Figma vỡ ngay,
+    mà build vẫn xanh. Guard bám CẢ KHAI BÁO (không phải chuỗi con) vì đổi tên
+    selector là kiểu chết im lặng đã bắt được ở D3e §10.
+    """
+
+    CALL_SITES = {
+        'wujia_portal_debt.portal_debt_overview': 2,          # __head S43 + "Hóa đơn trong tuần"
+        'wujia_portal_debt.portal_debt_payment_history': 1,
+        'wujia_portal_debt.portal_debt_pay': 1,               # nhãn hint 11.5px
+        'wujia_portal_inspection.portal_inspection_detail': 4,
+        'wujia_portal_inspection.portal_inspection_remediation_form': 2,
+    }
+
+    def _arch(self, xmlid):
+        return self.env.ref(xmlid).arch_db
+
+    def _css(self, module, name):
+        path = os.path.join(os.path.dirname(__file__), '..', '..', module,
+                            'static', 'src', 'css', name)
+        with open(path, encoding='utf-8') as fh:
+            return fh.read()
+
+    def test_call_sites_use_component(self):
+        for xmlid, count in self.CALL_SITES.items():
+            with self.subTest(view=xmlid):
+                self.assertEqual(
+                    self._arch(xmlid).count('wujia_portal_layout.wj_card_header'), count)
+
+    # --- công nợ ---------------------------------------------------------
+
+    def test_debt_summary_keeps_its_head_wrapper(self):
+        # Hai rule hình học Figma S43 bám `.wj-debt-summary__head`: hàng 15px và
+        # badge `position:absolute`. Gỡ div bọc là badge rơi xuống thành flex item.
+        arch = self._arch('wujia_portal_debt.portal_debt_overview')
+        self.assertIn('wj-debt-summary__head', arch)
+        css = self._css('wujia_portal_debt', 'portal_debt.css')
+        self.assertRegex(css, r'\.wj-debt-summary__head\s*\{[^}]*height:\s*15px')
+        self.assertRegex(
+            css,
+            r'\.wj-debt-summary__head \.wj-debt-badge\s*\{[^}]*position:\s*absolute')
+
+    def test_debt_summary_label_stays_11px(self):
+        # Cần `.wj-debt-summary__head` phía trước để thắng biến thể (0,3,0) của
+        # component, và !important vì component đặt font-size !important.
+        self.assertRegex(
+            self._css('wujia_portal_debt', 'portal_debt.css'),
+            r'\.wj-debt-summary__head \.wj-card-header\.wj-debt-summary__hb'
+            r'\s+\.wj-card-header__title\s*\{[^}]*font-size:\s*11px\s*!important')
+
+    def test_debt_hint_label_stays_smaller_than_card_title(self):
+        # Hộp hint chỉ cao 52px; lấy 18px của component là tràn.
+        self.assertRegex(
+            self._css('wujia_portal_debt', 'portal_debt.css'),
+            r'\.wj-debt-hint \.wj-card-header\.wj-debt-hint-head'
+            r'\s+\.wj-card-header__title\s*\{[^}]*font-size:\s*11\.5px\s*!important')
+
+    # --- khảo sát --------------------------------------------------------
+
+    def test_inspection_tab_buttons_keep_their_ids(self):
+        # `portal_inspection_detail.js` lấy 2 nút này bằng getElementById; bọc vào
+        # ch_control mà đổi id thì tab chết im lặng, không có lỗi JS.
+        arch = self._arch('wujia_portal_inspection.portal_inspection_detail')
+        for btn_id in ('pc_tab_btn_checklist', 'pc_tab_btn_exam'):
+            self.assertIn(btn_id, arch)
+        js_path = os.path.join(os.path.dirname(__file__), '..', '..',
+                               'wujia_portal_inspection', 'static', 'src', 'js',
+                               'portal_inspection_detail.js')
+        with open(js_path, encoding='utf-8') as fh:
+            js = fh.read()
+        for btn_id in ('pc_tab_btn_checklist', 'pc_tab_btn_exam'):
+            self.assertIn(btn_id, js)
+
+    def test_section_head_severe_branch_repaints_the_title(self):
+        # Nền đỏ đặt bằng inline style nên màu trắng KHÔNG thừa kế xuống được:
+        # component khai color ngay trên `.wj-card-header__title`.
+        css = self._css('wujia_portal_inspection', 'portal_inspection.css')
+        self.assertRegex(
+            css,
+            r'\.wj-insp-sechead--severe \.wj-card-header__title\s*\{'
+            r'[^}]*color:\s*#ffffff\s*!important')
+        self.assertRegex(
+            css,
+            r'\.wj-insp-sechead--severe \.wj-card-header__subtitle\s*\{'
+            r'[^}]*color:\s*rgba\(255, 255, 255, \.8\)\s*!important')
+        # Bản mobile: rule màu xanh của nó đã là (0,4,0)!important nên rule severe
+        # phải bám đủ `.wj-card-header.wj-insp-sechead__hb` mới thắng.
+        self.assertRegex(
+            css,
+            r'\.wj-insp-sechead--m\.wj-insp-sechead--severe\s+'
+            r'\.wj-card-header\.wj-insp-sechead__hb \.wj-card-header__title\s*\{'
+            r'[^}]*color:\s*#ffffff\s*!important')
+
+    def test_section_head_keeps_its_15px(self):
+        self.assertRegex(
+            self._css('wujia_portal_inspection', 'portal_inspection.css'),
+            r'\.wj-insp-sechead \.wj-card-header\.wj-insp-sechead__hb'
+            r'\s+\.wj-card-header__title\s*\{[^}]*font-size:\s*15px\s*!important')
+
+    def test_inspection_sublabels_keep_their_own_shape(self):
+        # Nhãn phụ giữa thân card (`Phân bổ kết quả`) và tiêu đề tiêu chí trong hộp
+        # `Tiêu chí vi phạm` — mỗi cái một cỡ THIẾT KẾ, đều nhỏ hơn tiêu đề card.
+        css = self._css('wujia_portal_inspection', 'portal_inspection.css')
+        self.assertRegex(
+            css,
+            r'\.wj-pc-card \.wj-card-header\.wj-insp-sublabel'
+            r'\s+\.wj-card-header__title\s*\{[^}]*font-size:\s*\.875rem\s*!important')
+        self.assertRegex(
+            css,
+            r'\.wj-pc-card \.wj-card-header\.wj-insp-critlabel'
+            r'\s+\.wj-card-header__title\s*\{[^}]*font-size:\s*14px\s*!important')
+
+    def test_severe_flag_computed_once(self):
+        # Ba chỗ (nền, màu chữ, badge) phải dùng CHUNG một điều kiện, không chép tay.
+        arch = self._arch('wujia_portal_inspection.portal_inspection_detail')
+        # 2 vòng lặp (PC + mobile), mỗi vòng đúng MỘT lần tính cờ.
+        self.assertEqual(arch.count('_sec_sev'), 6)
+        self.assertEqual(arch.count("sec.get('is_severe') and sec.get('total_deducted') &gt; 0"), 2)

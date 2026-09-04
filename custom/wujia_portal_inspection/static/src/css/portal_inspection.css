@@ -757,3 +757,21 @@
 .wj-insp-sechead:not(.wj-insp-sechead--severe) .wj-card-header__subtitle { color: #6c757d !important; }
 .wj-insp-sechead--severe .wj-card-header__title { color: #ffffff !important; }
 .wj-insp-sechead--severe .wj-card-header__subtitle { color: rgba(255, 255, 255, .8) !important; }
+
+/* Bản mobile của cùng head đó: dáng riêng (0.95rem xanh #0284c7) là THIẾT KẾ,
+   không phải drift — mobile và PC vốn khác cỡ. */
+.wj-insp-sechead--m .wj-card-header.wj-insp-sechead__hb .wj-card-header__title {
+    font-size: .95rem !important;
+    line-height: 1.35;
+    color: #0284c7 !important;
+}
+/* Phải bám đủ `.wj-card-header.wj-insp-sechead__hb` mới lên (0,5,0): rule màu
+   xanh ngay trên đã là (0,4,0)!important, viết ngắn hơn là THUA — bẫy đặc hiệu
+   D3e §7, lần này đo mới lộ (tiêu đề nhánh severe ra màu xanh trên nền đỏ). */
+.wj-insp-sechead--m.wj-insp-sechead--severe
+    .wj-card-header.wj-insp-sechead__hb .wj-card-header__title { color: #ffffff !important; }
+.wj-insp-sechead--m .wj-card-header.wj-insp-sechead__hb .wj-card-header__subtitle {
+    font-size: .82rem;
+    line-height: 1.35;
+    color: #64748b;
+}
