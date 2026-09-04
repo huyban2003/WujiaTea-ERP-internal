@@ -184,6 +184,10 @@ class TestCardHeaderCallSites(TransactionCase):
         'wujia_portal_exam.portal_exam_schedule': 2,
         'wujia_portal_exam.portal_exam_register': 9,
         'wujia_portal_exam.portal_exam_registration_detail': 3,
+        # D3e — chi tiết bù hàng + lịch sử đặt hàng
+        'wujia_portal_return.portal_return_detail': 15,
+        'wujia_portal_purchase_history.portal_history_results_part': 1,
+        'wujia_portal_purchase_history.portal_history_detail': 8,
     }
 
     # Count phải hiện cả khi = 0 ⇒ khối trailing KHÔNG được bọc `t-if` theo recordset.
@@ -194,6 +198,7 @@ class TestCardHeaderCallSites(TransactionCase):
         'wujia_portal_info_request.portal_info_request_list': 'requests',
         'wujia_portal_return.portal_return_list': 'returns',
         'wujia_portal_support.portal_support_detail': 'comments',
+        'wujia_portal_purchase_history.portal_history_results_part': 'rows',
     }
 
     # Họ Bootstrap `.card-header` giữ wrapper (đã có padding + border) ⇒ header phải
@@ -208,6 +213,9 @@ class TestCardHeaderCallSites(TransactionCase):
         'wujia_portal_base.portal_franchise_information': 1,
         # summary head chuyến giao — `.wj-pc-order-head` đã có padding riêng
         'wujia_portal_delivery.portal_delivery_detail': 1,
+        # D3e: 5 card Bootstrap của chi tiết bù hàng + summary head lịch sử đặt hàng
+        'wujia_portal_return.portal_return_detail': 5,
+        'wujia_portal_purchase_history.portal_history_detail': 1,
     }
 
     # Class heading cũ đã migrate hết trong CHÍNH view đó ⇒ không được tái xuất hiện.
@@ -235,6 +243,12 @@ class TestCardHeaderCallSites(TransactionCase):
                                                    'wujia-mexam-cftitle',
                                                    'wj-exam-pc-slots__title'),
         'wujia_portal_exam.portal_exam_registration_detail': ('wujia-mexam-rsum-title',),
+        # D3e
+        'wujia_portal_return.portal_return_detail': ('wujia-mhist-card-head',),
+        'wujia_portal_purchase_history.portal_history_results_part': ('wj-pc-card__title',),
+        'wujia_portal_purchase_history.portal_history_detail': ('wujia-mhist-card-head',
+                                                                'wj-pc-order-head__code',
+                                                                'wj-pc-card__title'),
     }
 
     # View KHÔNG tách PC/mobile (không có `d-none d-lg-*`) ⇒ một markup phục vụ cả hai
@@ -333,6 +347,50 @@ class TestCardHeaderCallSites(TransactionCase):
                 self.assertEqual(
                     root.xpath('.//p[contains(@class,"wujia-mdash-title")]'
                                '|.//p[contains(@class,"card-title")]'), [])
+
+
+@tagged('post_install', '-at_install', 'wujia_card_header_d3')
+class TestCardHeaderD3eLayout(TransactionCase):
+    """D3e — hai bẫy đã trả giá khi migrate 2 file này, khoá lại bằng test."""
+
+    def _arch(self, xmlid):
+        return self.env.ref(xmlid).arch_db
+
+    def test_order_head_meta_stays_card_content(self):
+        # Dòng meta dài hơn mã đơn; đưa nó vào `ch_subtitle` thì lead nở theo nó và
+        # badge (trailing) trôi khỏi mã đơn — chỉ ẢNH CHỤP bắt được, số đo vẫn Pass.
+        root = html.fromstring(
+            '<div>%s</div>'
+            % self._arch('wujia_portal_purchase_history.portal_history_detail'))
+        head = root.xpath('.//div[@class="wj-pc-order-head"]')
+        self.assertEqual(len(head), 1)
+        self.assertTrue(head[0].xpath('.//p[@class="wj-pc-order-head__meta"]'))
+        self.assertEqual(head[0].xpath('.//t[@t-set="ch_subtitle"]'), [])
+
+    def test_order_head_lead_shrinks_in_shared_css(self):
+        # Rule gom về gốc `.wj-pc-order-head` (2 consumer: delivery D3c + history D3e).
+        path = os.path.join(os.path.dirname(__file__), '..', 'static', 'assets',
+                            'css', '_pc_components.css')
+        with open(path, encoding='utf-8') as fh:
+            css = fh.read()
+        self.assertRegex(
+            css,
+            r'\.wj-pc-order-head \.wj-card-header__lead\s*\{[^}]*flex:\s*0 1 auto')
+
+    def test_return_sublabels_keep_their_own_shape(self):
+        # 4 nhãn phụ trong thân card: chuẩn hoá cấu trúc nhưng KHÔNG được to bằng
+        # tiêu đề card cha, nếu không một card có ba dòng chữ cùng cỡ.
+        arch = self._arch('wujia_portal_return.portal_return_detail')
+        self.assertEqual(arch.count("'wj-return-sublabel"), 4)
+        path = os.path.join(os.path.dirname(__file__), '..', '..', 'wujia_portal_return',
+                            'static', 'src', 'css', 'portal_return.css')
+        with open(path, encoding='utf-8') as fh:
+            css = fh.read()
+        # Bám kèm `.wj-card-header` + tổ tiên `.card-body` để thắng rule biến thể (0,2,0).
+        self.assertRegex(
+            css,
+            r'\.card-body > \.wj-card-header\.wj-return-sublabel'
+            r'\s+\.wj-card-header__title\s*\{[^}]*font-size:\s*\.875rem')
 
 
 class TestCardHeaderExamJsContract(TransactionCase):

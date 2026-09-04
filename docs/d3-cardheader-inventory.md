@@ -104,8 +104,8 @@ nằm cùng card với `:181` ⇒ là **subtitle của header đó**, không ph�
 | File | Call site | Dự kiến |
 |---|---:|---|
 | `wujia_portal_exam/views/portal_exam.xml` | 21 | **D3d ✅** — 14 chỗ; 3 defer chờ BA (§6), 4 đã loại §3 |
-| `wujia_portal_return/views/portal_return_detail.xml` | 15 | D3e |
-| `wujia_portal_purchase_history/views/portal_history.xml` | 10 | D3e |
+| `wujia_portal_return/views/portal_return_detail.xml` | 15 | **D3e ✅** — 15 chỗ |
+| `wujia_portal_purchase_history/views/portal_history.xml` | 10 | **D3e ✅** — 9 chỗ; `:395` đã loại §3 |
 | `wujia_portal_base/views/portal_franchise_information.xml` | 10 | **D3a + D3c ✅** — 2 + 4; còn `:40`/`:49` chờ BA (§6), `:290` đã loại §3 |
 | `wujia_portal_delivery/views/portal_delivery.xml` | 8 | **D3a + D3c ✅** — 3 + 1; `:118`/`:126` đã loại §3 |
 | `wujia_portal_notification/views/portal_notification.xml` | 7 | **D3b ✅** (5 chỗ; 2 chỗ còn lại là §3 tiêu đề thông báo) |
@@ -123,9 +123,27 @@ nằm cùng card với `:181` ⇒ là **subtitle của header đó**, không ph�
 **D3a phủ 4 file / 29 call site** — nhưng cố ý **không migrate hết 4 file**, chỉ lấy đủ mẫu mỗi
 họ markup (xem `docs/d3-acceptance-matrix.md`); phần còn lại của chính 4 file đó rơi vào **D3c**.
 
-**Tiến độ (2026-09-04, sau D3d): 61/103.** D3a 10 · D3b 26 · D3c 11 · D3d 14.
-Nhóm kế: **D3e = `portal_return_detail.xml` (15) + `portal_history.xml` (10)** — chạy lại
-`d3_inventory.py` trước, con số 15/10 là tổng theo file (gồm cả dòng §3).
+**Tiến độ (2026-09-04, sau D3e): 85/103.** D3a 10 · D3b 26 · D3c 11 · D3d 14 · D3e 24.
+Nhóm kế: **D3f = `portal_debt.xml` (5) + `wujia_portal_inspection/*` (9)** — chạy lại
+`d3_inventory.py` trước, mọi con số trong bảng trên là **tổng theo file** (gồm cả dòng §3).
+
+📌 **Chủ dự án chốt (2026-09-04): hết cụm D3 sẽ có một phiên review lại toàn cụm để soát vỡ giao
+diện** — chạy bằng **ảnh chụp**, không chỉ bảng số. Ba phiên liên tiếp (D3c badge trôi · D3d mất
+nhịp dọc · D3e thẻ tóm tắt vỡ) đều là lỗi mà **mọi số đo vẫn Pass**.
+
+> ⚠️ **Đính chính D3e.** Bảng trên ghi `15 / 10`; `portal_history.xml:395` là `__right` — slot
+> phải, đã bị §3 loại ⇒ còn **9**. D3e làm thật **24**. Đây là **lần thứ ba liên tiếp** con số bàn
+> giao bị cộng dư.
+
+**Quyết định D3e — 4 nhãn phụ giữa thân `portal_return_detail.xml`** (`Ghi chú từ cửa hàng`,
+`Lý do từ chối`, `Phản hồi từ Ngô Gia`, `Đơn bù hàng`): **migrate hết** để sửa một chỗ là sửa hết,
+nhưng **trả dáng `h6` cũ bằng rule scope** trong `wujia_portal_return/.../portal_return.css` — chúng
+không mở đầu card nên phải nhỏ hơn tiêu đề card, để cỡ component thì mất phân cấp. Đo được
+trước = sau từng pixel. **Đừng "dọn dẹp" rule này ở phiên sau.**
+
+**Quyết định D3e — rule vá tràn `flex`:** gom về gốc
+`.wj-pc-order-head .wj-card-header__lead { flex: 0 1 auto; }` trong `_pc_components.css`; đã **xoá**
+bản trùng `.wj-pc-dlv-head ...` ở `portal_delivery.css`.
 
 > ⚠️ **Đính chính D3d.** Bàn giao D3c ghi "D3d = 21 chỗ" — cộng cả 4 dòng đã bị §3 loại
 > (`:279` cal-head không title · `:378` slot phải · `:521`/`:527` chữ vùng kéo-thả). Số thật
@@ -191,8 +209,10 @@ xoá sớm là vỡ). Danh sách phải grep ra 0 hit rồi mới xoá:
 `.wj-pc-acct-staff__title` · `.wujia-mexam-*title` · `.wj-exam-pc-sectitle` ·
 `.wj-pc-cart-title` · `.wujia-mknow-h` · `.wujia-mnoti-detail-sectitle` · `.wj-debt-summary__head`
 
-*Thêm sau D3c:* `.wujia-maccount-store-name` · `.wj-pc-dlv-head-meta` (đã 0 hit trong view) ·
-`.wj-pc-order-head__code` — ⚠️ **chưa được xoá**: `portal_history.xml:387` còn dùng, chờ **D3e**.
+*Thêm sau D3c:* `.wujia-maccount-store-name` · `.wj-pc-dlv-head-meta` (đã 0 hit trong view).
+
+*Thêm sau D3e (0 hit trong view, **vẫn chưa xoá** — khoá tới 100%):* `.wujia-mhist-card-head`
+(2 file cuối cùng dùng nó đều đã migrate) · `.wj-pc-order-head__code` (+ `__code-row`).
 
 Chống tái phát bằng unit test quét `arch_db` mọi view qweb — đúng khuôn
 `test_retired_heading_classes_are_gone` của C8b.

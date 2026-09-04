@@ -21,7 +21,14 @@
                     <div class="row">
                         <div class="col-md-6 col-12 mb-2">
                             <div class="card h-100">
-                                <div class="card-header"><h5 class="mb-0">Thông tin yêu cầu</h5></div>
+                                <div class="card-header">
+                                    <t t-call="wujia_portal_layout.wj_card_header">
+                                        <t t-set="ch_title">Thông tin yêu cầu</t>
+                                        <t t-set="ch_level" t-value="3"/>
+                                        <t t-set="ch_platform" t-value="'pc'"/>
+                                        <t t-set="ch_class" t-value="'wj-card-header--flush'"/>
+                                    </t>
+                                </div>
                                 <div class="card-body">
                                     <dl class="row mb-0 profile-dl">
                                         <!-- S53-B3b: mã yêu cầu gỡ khỏi PageHeader (CMP-PG-001
@@ -54,19 +61,41 @@
 
                         <div class="col-md-6 col-12 mb-2">
                             <div class="card h-100">
-                                <div class="card-header"><h5 class="mb-0">Ghi chú &amp; Phản hồi</h5></div>
+                                <div class="card-header">
+                                    <t t-call="wujia_portal_layout.wj_card_header">
+                                        <t t-set="ch_title">Ghi chú &amp; Phản hồi</t>
+                                        <t t-set="ch_level" t-value="3"/>
+                                        <t t-set="ch_platform" t-value="'pc'"/>
+                                        <t t-set="ch_class" t-value="'wj-card-header--flush'"/>
+                                    </t>
+                                </div>
                                 <div class="card-body">
-                                    <h6 class="text-muted">Ghi chú từ cửa hàng</h6>
+                                    <t t-call="wujia_portal_layout.wj_card_header">
+                                        <t t-set="ch_title">Ghi chú từ cửa hàng</t>
+                                        <t t-set="ch_level" t-value="4"/>
+                                        <t t-set="ch_platform" t-value="'pc'"/>
+                                        <t t-set="ch_class" t-value="'wj-return-sublabel'"/>
+                                    </t>
                                     <p t-if="rr.note" t-out="rr.note"/>
                                     <p t-else="" class="text-muted fst-italic">Không có ghi chú.</p>
                                     <t t-if="rr.reject_reason">
                                         <hr/>
-                                        <h6 class="text-danger">Lý do từ chối</h6>
+                                        <t t-call="wujia_portal_layout.wj_card_header">
+                                            <t t-set="ch_title">Lý do từ chối</t>
+                                            <t t-set="ch_level" t-value="4"/>
+                                            <t t-set="ch_platform" t-value="'pc'"/>
+                                            <t t-set="ch_class" t-value="'wj-return-sublabel wj-return-sublabel--danger'"/>
+                                        </t>
                                         <p t-out="rr.reject_reason"/>
                                     </t>
                                     <t t-if="comp and comp.get('approval_note')">
                                         <hr/>
-                                        <h6 class="text-muted">Phản hồi từ Ngô Gia</h6>
+                                        <t t-call="wujia_portal_layout.wj_card_header">
+                                            <t t-set="ch_title">Phản hồi từ Ngô Gia</t>
+                                            <t t-set="ch_level" t-value="4"/>
+                                            <t t-set="ch_platform" t-value="'pc'"/>
+                                            <t t-set="ch_class" t-value="'wj-return-sublabel'"/>
+                                        </t>
                                         <p t-out="comp['approval_note']"/>
                                     </t>
                                 </div>
@@ -75,7 +104,14 @@
                     </div>
 
                     <div class="card mb-2">
-                        <div class="card-header"><h5 class="mb-0">Sản phẩm yêu cầu</h5></div>
+                        <div class="card-header">
+                            <t t-call="wujia_portal_layout.wj_card_header">
+                                <t t-set="ch_title">Sản phẩm yêu cầu</t>
+                                <t t-set="ch_level" t-value="3"/>
+                                <t t-set="ch_platform" t-value="'pc'"/>
+                                <t t-set="ch_class" t-value="'wj-card-header--flush'"/>
+                            </t>
+                        </div>
                         <div class="card-body p-0">
                             <table class="table mb-0">
                                 <thead><tr><th>Sản phẩm</th><th class="text-end">SL yêu cầu</th><th>ĐVT</th></tr></thead>
@@ -91,7 +127,14 @@
                     </div>
 
                     <div class="card mb-2" t-if="comp">
-                        <div class="card-header"><h5 class="mb-0">Phương án xử lý &amp; Tiến độ bù</h5></div>
+                        <div class="card-header">
+                            <t t-call="wujia_portal_layout.wj_card_header">
+                                <t t-set="ch_title">Phương án xử lý &amp; Tiến độ bù</t>
+                                <t t-set="ch_level" t-value="3"/>
+                                <t t-set="ch_platform" t-value="'pc'"/>
+                                <t t-set="ch_class" t-value="'wj-card-header--flush'"/>
+                            </t>
+                        </div>
                         <div class="card-body">
                             <dl class="row mb-0 profile-dl">
                                 <dt class="col-sm-4">Phương án xử lý</dt>
@@ -134,7 +177,12 @@
                                 </div>
                                 <t t-if="comp['orders']">
                                     <hr/>
-                                    <h6 class="text-muted">Đơn bù hàng</h6>
+                                    <t t-call="wujia_portal_layout.wj_card_header">
+                                        <t t-set="ch_title">Đơn bù hàng</t>
+                                        <t t-set="ch_level" t-value="4"/>
+                                        <t t-set="ch_platform" t-value="'pc'"/>
+                                        <t t-set="ch_class" t-value="'wj-return-sublabel'"/>
+                                    </t>
                                     <table class="table table-sm mb-0">
                                         <tbody>
                                             <tr t-foreach="comp['orders']" t-as="o">
@@ -150,7 +198,14 @@
                     </div>
 
                     <div class="card" t-if="rr.image_attachment_ids">
-                        <div class="card-header"><h5 class="mb-0">Ảnh minh chứng</h5></div>
+                        <div class="card-header">
+                            <t t-call="wujia_portal_layout.wj_card_header">
+                                <t t-set="ch_title">Ảnh minh chứng</t>
+                                <t t-set="ch_level" t-value="3"/>
+                                <t t-set="ch_platform" t-value="'pc'"/>
+                                <t t-set="ch_class" t-value="'wj-card-header--flush'"/>
+                            </t>
+                        </div>
                         <div class="card-body">
                             <div class="row g-2">
                                 <t t-foreach="rr.image_attachment_ids" t-as="img">
@@ -194,7 +249,10 @@
                 </div>
 
                 <div class="wujia-mdash-card">
-                    <div class="wujia-mhist-card-head">Thông tin đơn hàng</div>
+                    <t t-call="wujia_portal_layout.wj_card_header">
+                        <t t-set="ch_title">Thông tin đơn hàng</t>
+                        <t t-set="ch_platform" t-value="'m'"/>
+                    </t>
                     <div class="wujia-mhist-kv">
                         <span class="wujia-mhist-kv-label">Ngày yêu cầu</span>
                         <span class="wujia-mhist-kv-value"
@@ -212,7 +270,10 @@
                 </div>
 
                 <div class="wujia-mdash-card">
-                    <div class="wujia-mhist-card-head">Sản phẩm yêu cầu</div>
+                    <t t-call="wujia_portal_layout.wj_card_header">
+                        <t t-set="ch_title">Sản phẩm yêu cầu</t>
+                        <t t-set="ch_platform" t-value="'m'"/>
+                    </t>
                     <div class="wujia-mhist-kv">
                         <span class="wujia-mhist-kv-label">Sản phẩm</span>
                         <span class="wujia-mhist-kv-value" t-out="rr.product_id.display_name or '—'"/>
@@ -226,7 +287,10 @@
                 </div>
 
                 <div t-if="comp" class="wujia-mdash-card">
-                    <div class="wujia-mhist-card-head">Phương án xử lý &amp; Tiến độ bù</div>
+                    <t t-call="wujia_portal_layout.wj_card_header">
+                        <t t-set="ch_title">Phương án xử lý &amp; Tiến độ bù</t>
+                        <t t-set="ch_platform" t-value="'m'"/>
+                    </t>
                     <div class="wujia-mhist-kv">
                         <span class="wujia-mhist-kv-label">Phương án</span>
                         <span class="wujia-mhist-kv-value">
@@ -278,7 +342,10 @@
                 </div>
 
                 <div class="wujia-mdash-card">
-                    <div class="wujia-mhist-card-head">Nội dung lỗi</div>
+                    <t t-call="wujia_portal_layout.wj_card_header">
+                        <t t-set="ch_title">Nội dung lỗi</t>
+                        <t t-set="ch_platform" t-value="'m'"/>
+                    </t>
                     <div class="wujia-mhist-kv">
                         <span class="wujia-mhist-kv-label">Loại lỗi</span>
                         <span class="wujia-mhist-kv-value" t-out="rr.issue_type_id.name or '—'"/>
@@ -287,7 +354,10 @@
                 </div>
 
                 <div t-if="rr.image_attachment_ids" class="wujia-mdash-card">
-                    <div class="wujia-mhist-card-head"><t t-out="len(rr.image_attachment_ids)"/> ảnh đính kèm</div>
+                    <t t-call="wujia_portal_layout.wj_card_header">
+                        <t t-set="ch_title"><t t-out="len(rr.image_attachment_ids)"/> ảnh đính kèm</t>
+                        <t t-set="ch_platform" t-value="'m'"/>
+                    </t>
                     <div class="wujia-mreturn-thumbs">
                         <a t-foreach="rr.image_attachment_ids" t-as="img" target="_blank"
                            t-attf-href="/portal/return/#{rr.id}/attachment/#{img.id}">
@@ -298,7 +368,10 @@
                 </div>
 
                 <div class="wujia-mdash-card wujia-mreturn-response">
-                    <div class="wujia-mhist-card-head">Phản hồi của Ngô Gia</div>
+                    <t t-call="wujia_portal_layout.wj_card_header">
+                        <t t-set="ch_title">Phản hồi của Ngô Gia</t>
+                        <t t-set="ch_platform" t-value="'m'"/>
+                    </t>
                     <p t-if="rr.reject_reason" class="wujia-mreturn-resp-body" t-out="rr.reject_reason"/>
                     <p t-elif="comp and comp.get('approval_note')" class="wujia-mreturn-resp-body" t-out="comp['approval_note']"/>
                     <p t-else="" class="wujia-mhist-note">Chưa có phản hồi từ Ngô Gia.</p>

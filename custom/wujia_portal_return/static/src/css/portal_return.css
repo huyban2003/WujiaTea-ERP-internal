@@ -95,3 +95,19 @@
     .wujia-mreturn-so-name { font-weight: 600; color: var(--wujia-morder-text); }
     .wujia-mreturn-so-deliv { color: var(--wujia-morder-text-sub); }
 }
+
+/* ---- Detail: 4 nhãn phụ trong thân card dùng CMP-CH-001 (D3e) ----
+   Chúng KHÔNG mở đầu card (card đã có tiêu đề riêng) nên phải nhỏ hơn tiêu đề đó;
+   để nguyên số component thì ba dòng chữ trong một card bằng cỡ nhau, mất phân cấp.
+   Số lấy đúng dáng `h6` cũ đo được trước khi migrate (0.875rem/1.2, mb .5rem).
+   Selector đi qua `.card-body >` để đạt (0,3,0) — rule biến thể của component là
+   (0,2,0) và nằm ở bundle khác, so specificity mới chắc thắng (bẫy D3b/D3d). */
+.card-body > .wj-card-header.wj-return-sublabel { margin: 0 0 .5rem; }
+.card-body > .wj-card-header.wj-return-sublabel .wj-card-header__title {
+    font-size: .875rem !important;
+    line-height: 1.2;
+    color: rgba(0, 0, 0, .7) !important;
+}
+.card-body > .wj-card-header.wj-return-sublabel--danger .wj-card-header__title {
+    color: var(--bs-danger, #dc3545) !important;
+}
