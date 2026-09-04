@@ -682,6 +682,13 @@ class TestCardHeaderD3Review(TransactionCase):
                 with self.subTest(css=rel, cls=cls):
                     self.assertNotRegex(css, r'\.%s([^-_a-zA-Z0-9]|$)' % re.escape(cls))
 
+    def test_exam_summary_card_keeps_the_rhythm_of_its_neighbour(self):
+        # Bốn card một trang phải cùng nhịp header->body; 36px là DRIFT của riêng nó.
+        css = self._read(self.EXAM)
+        m = re.search(r'\.wj-exam-pc-sumlist\s*\{[^}]*margin-top:\s*(\d+)px', css)
+        self.assertTrue(m, 'không tìm thấy margin-top của .wj-exam-pc-sumlist')
+        self.assertEqual(m.group(1), '18')
+
 
 def _contrast(fg, bg):
     """Tỉ số tương phản WCAG 2.1 giữa hai màu hex."""
