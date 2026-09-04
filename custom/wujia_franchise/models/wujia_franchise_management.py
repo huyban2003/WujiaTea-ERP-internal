@@ -446,6 +446,7 @@ class WujiaFranchiseManagement(models.Model):
         action = self.env['ir.actions.act_window']._for_xml_id(
             'wujia_franchise.action_franchise_onboarding_wizard'
         )
+        action['name'] = _("Add store users") if mode == 'member' else _("Store onboarding")
         action['context'] = {
             'default_franchise_id': self.id,
             'default_mode': mode,

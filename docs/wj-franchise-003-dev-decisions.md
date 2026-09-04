@@ -89,3 +89,19 @@ Ngày: 04/09/2026 · Module `wujia_franchise` `19.0.4.0.0`.
 - **Dev chọn:** wizard, vào được từ **3 chỗ**: menu *Vận hành → Onboarding cửa hàng* (tạo mới), nút
   *Store onboarding* trên cửa hàng Nháp, nút *Add store users* trên mọi cửa hàng.
 - **Vì sao:** nếu chỉ có luồng tạo mới thì cửa hàng đã tồn tại vẫn phải thêm người dùng bằng cách cũ.
+
+### 13. Dịch màn hình mới sang tiếng Việt (phát sinh khi test trên UAT ngày 04/09)
+- **BA nói:** không đề cập ngôn ngữ.
+- **Phát hiện khi test:** sau khi deploy, toàn bộ màn onboarding hiện **tiếng Anh** giữa một backend
+  tiếng Việt — nút *Add store users*, tiêu đề *Store onboarding*, các cột *Full name / Login (email) /
+  Role*, và cả câu báo lỗi *"Please add at least one store user."*. Người dùng màn này là nhân sự HQ
+  người Việt nên đây không phải chuyện thẩm mỹ.
+- **Dev chọn:** dịch bằng file ngôn ngữ trong mã nguồn (`i18n/vi_VN.po`), không dịch tay trên giao diện.
+- **Vì sao:** bản dịch tiếng Việt hiện có của module nằm **trong database chứ không nằm trong mã nguồn**
+  — dựng lại database là mất sạch, và bản chạy thật sau này sẽ phải dịch lại từ đầu. Đưa vào mã nguồn
+  thì bản dịch đi theo mọi lần cài đặt.
+- **Việc kèm theo:** bỏ đánh số "1. / 2. / 3." ở tiêu đề ba khối, vì khi mở ở chế độ *thêm người dùng*
+  thì khối 1 và 2 bị ẩn, chỉ còn mỗi nhãn "3." đứng trơ. Tiêu đề hộp thoại nay đổi theo chế độ:
+  *Onboarding cửa hàng* khi tạo mới, *Thêm người dùng cửa hàng* khi bổ sung người dùng.
+- **Nếu BA muốn đổi chữ:** sửa trong `custom/wujia_franchise/i18n/vi_VN.po` rồi deploy lại, không cần
+  sửa mã.

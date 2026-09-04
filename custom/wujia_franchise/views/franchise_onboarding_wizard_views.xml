@@ -9,7 +9,7 @@
                 <field name="mode" invisible="1"/>
                 <field name="franchise_id" invisible="1"/>
 
-                <group string="1. Store" invisible="mode != 'store' or franchise_id">
+                <group string="Store information" invisible="mode != 'store' or franchise_id">
                     <group>
                         <field name="code" placeholder="H010"
                                required="mode == 'store' and not franchise_id"/>
@@ -29,7 +29,7 @@
                     </group>
                 </group>
 
-                <group string="2. Store Partner" invisible="franchise_id and mode == 'member'">
+                <group string="Store Partner details" invisible="franchise_id and mode == 'member'">
                     <field name="partner_mode" widget="radio"/>
                     <field name="partner_id" invisible="partner_mode != 'existing'"
                            required="partner_mode == 'existing' and not franchise_id"
@@ -61,7 +61,7 @@
                            invisible="partner_mode != 'new' or not duplicate_partner_ids"/>
                 </group>
 
-                <group string="3. Store users">
+                <group string="Store user list">
                     <field name="member_line_ids" nolabel="1" colspan="2">
                         <list editable="bottom">
                             <field name="user_mode"/>

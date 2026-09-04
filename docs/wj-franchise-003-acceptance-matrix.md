@@ -73,6 +73,34 @@ Sprint: `2026-09-04-WJ-FRANCHISE-003` · module `wujia_franchise` `19.0.3.1.1` �
 (bài học L12), `HN-02` **vẫn hoạt động bình thường** và vẫn sửa được; chỉ khi HQ khoá rồi bấm Activate
 lại mới bị chặn cho tới khi gán Owner.
 
+## Kiểm trên trình duyệt sau khi deploy UAT (04/09, chỉ đọc — không ghi dữ liệu)
+
+Đăng nhập backend UAT bằng Chromium 1600×1000, mở màn onboarding qua menu và qua nút trên cửa hàng:
+
+| Điểm kiểm | Đo được | Kết quả |
+|---|---|---|
+| Module đã lên UAT | `wujia_franchise 19.0.4.0.0`, trạng thái `installed` | Đạt |
+| Menu *Vận hành → Onboarding cửa hàng* | có, chỉ nhóm HQ thấy | Đạt |
+| Một màn duy nhất, đủ 3 khối | Cửa hàng · Đối tác · Người dùng, cùng một hộp thoại | Đạt |
+| Không phải chọn loại tài khoản kỹ thuật | 0 ô `share` / `group_ids` / `user_type` trên màn | Đạt |
+| Không cần bật chế độ debug | mở thẳng từ menu, không qua Cài đặt | Đạt |
+| Mở từ cửa hàng đã có | tự ẩn khối Cửa hàng + Đối tác, chỉ còn khối Người dùng | Đạt |
+| Nút *Store onboarding* ẩn khi cửa hàng đã Active | đúng | Đạt |
+| Xác nhận khi chưa nhập người dùng nào | báo *"Please add at least one store user."*, **không ghi gì** (số cửa hàng/membership/tài khoản/đối tác trước và sau đều là 3 / 9 / 6 / 11) | Đạt |
+| Lỗi JavaScript | 0 | Đạt |
+| Tràn ngang | không | Đạt |
+| **Ngôn ngữ màn hình** | **hiện tiếng Anh giữa backend tiếng Việt** | **Không đạt → đã sửa** |
+
+Chỗ không đạt đã xử lý ngay trong phiên: bổ sung bản dịch tiếng Việt vào mã nguồn
+(`i18n/vi_VN.po` + `wujia_franchise.pot`), bỏ đánh số "1./2./3." ở tiêu đề khối, và đổi tiêu đề hộp
+thoại theo chế độ. Đo lại trên bản sao database cô lập: **0 nhãn nào còn chưa dịch**, bộ test
+**18/18 đạt**, cập nhật module RC=0. Đóng gói ở phiên bản `19.0.4.0.1`, **cần deploy lại UAT**.
+
+> Ghi chú kỹ thuật cho lần sau: file `.po` của Odoo 19 được **ghép với file `.pot` cùng thư mục** lúc
+> nạp — mọi chuỗi chỉ thêm vào `.po` mà thiếu trong `.pot` đều bị coi là lỗi thời và **bỏ qua im lặng**.
+> Phải thêm vào cả hai file. Ngoài ra dạng tham chiếu `menu:<module>.<xmlid>` không còn hợp lệ, phải
+> dùng `model:ir.ui.menu,name:<module>.<xmlid>`.
+
 ## LIMIT
 
 1. **Store `Draft` chỉ bị chặn ở Portal.** Backend vẫn tạo/xác nhận được đơn hàng và ghi sổ hoá đơn cho
@@ -82,7 +110,7 @@ lại mới bị chặn cho tới khi gán Owner.
    Settings → Users và báo cửa hàng thủ công.
 3. **Dò trùng partner theo số điện thoại** so 8 chữ số cuối. Odoo 19 **không còn** field `mobile` trên
    `res.partner` nên không dò được cột đó.
-4. **Chưa retest trên UAT bằng thao tác thật** — theo giới hạn QA, phiên này không tạo cửa hàng/tài
+4. **Chưa retest trên UAT bằng thao tác thật** (phần nhìn đã kiểm, xem bảng trên) — theo giới hạn QA, phiên này không tạo cửa hàng/tài
    khoản thật trên UAT. Cần BA retest sau khi deploy.
 5. **`wujia_franchise_inspection.py:1772` vẫn tự sinh portal user** bằng cách so khớp theo TÊN rồi đặt
    login ngẫu nhiên `@wujiatea.internal`. Đây là một nguồn sinh user trùng khác, nằm ở luồng khảo sát
