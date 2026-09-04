@@ -746,3 +746,19 @@
     line-height: 1.5;              /* = 17.3px, đúng bằng dáng cũ */
     color: var(--wj-debt-warn-strong) !important;
 }
+
+/* Đầu card tổng S43: hình học Figma khoá cứng (hàng 15px, badge absolute, nhãn
+   11px viết hoa) nên component chỉ được vào làm CẤU TRÚC, dáng giữ nguyên.
+   `__head` giữ lại để rule badge absolute và chiều cao 15px vẫn áp. */
+.wj-debt-summary__head .wj-card-header.wj-debt-summary__hb {
+    margin: 0;
+    height: 15px;
+    align-items: flex-start;
+}
+.wj-debt-summary__head .wj-card-header.wj-debt-summary__hb .wj-card-header__title {
+    font-size: 11px !important;
+    font-weight: 700;
+    line-height: 1.5;              /* = 16.5px, đúng bằng dáng cũ */
+    letter-spacing: .02em;
+    color: var(--wj-debt-muted) !important;
+}

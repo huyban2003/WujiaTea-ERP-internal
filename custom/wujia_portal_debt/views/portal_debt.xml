@@ -162,9 +162,17 @@
                     <t t-set="sbadge" t-value="STATE_BADGE[summary['state']]"/>
                     <section t-attf-class="wj-debt-summary wj-debt-summary--#{summary['state']}">
                         <div class="wj-debt-summary__head">
-                            <span class="wj-debt-summary__label">CÒN PHẢI TRẢ</span>
-                            <span t-attf-class="wj-debt-badge wj-debt-badge--#{sbadge[1]}"
-                                  t-out="sbadge[0]"/>
+                            <t t-call="wujia_portal_layout.wj_card_header">
+                                <t t-set="ch_title">CÒN PHẢI TRẢ</t>
+                                <t t-set="ch_level" t-value="3"/>
+                                <t t-set="ch_platform" t-value="'m'"/>
+                                <t t-set="ch_class"
+                                   t-value="'wj-card-header--flush wj-debt-summary__hb'"/>
+                                <t t-set="ch_meta">
+                                    <span t-attf-class="wj-debt-badge wj-debt-badge--#{sbadge[1]}"
+                                          t-out="sbadge[0]"/>
+                                </t>
+                            </t>
                         </div>
                         <p class="wj-debt-summary__amount" t-out="vnd(summary['amount_due'])"/>
                         <p t-if="summary['state'] == 'outstanding'" class="wj-debt-summary__meta">
