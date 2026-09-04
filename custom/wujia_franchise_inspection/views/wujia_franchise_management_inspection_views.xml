@@ -5,13 +5,13 @@
     <record id="view_franchise_management_form_inherit_inspection" model="ir.ui.view">
         <field name="name">wujia.franchise.management.form.inherit.inspection</field>
         <field name="model">wujia.franchise.management</field>
-        <field name="inherit_id" ref="wujia_franchise.view_franchise_management_form"/>
+        <field name="inherit_id" ref="wujia_franchise.view_franchise_management_form" />
         <field name="arch" type="xml">
             <!-- Smart button: Phiếu khảo sát -->
             <xpath expr="//div[@name='button_box']" position="inside">
                 <button name="action_view_inspections" type="object"
-                    class="oe_stat_button" icon="fa-clipboard-check">
-                    <field name="inspection_count" widget="statinfo" string="Inspections"/>
+                    class="oe_stat_button" icon="fa-check-square-o">
+                    <field name="inspection_count" widget="statinfo" string="Inspections" />
                 </button>
             </xpath>
 
@@ -19,13 +19,17 @@
             <xpath expr="//group[field[@name='area_id']]" position="before">
                 <group>
                     <group string="Assigned Supervisor">
-                        <field name="supervision_user_id" placeholder="Leave empty to default to Area Manager"/>
-                        <field name="area_manager_user_id" readonly="1" string="Area Manager"/>
+                        <field name="supervision_user_id"
+                            placeholder="Leave empty to default to Area Manager" />
+                        <field name="area_manager_user_id" readonly="1" string="Area Manager" />
                     </group>
                     <group string="Latest Inspection">
-                        <field name="latest_inspection_date" readonly="1" string="Latest Inspection Date"/>
-                        <field name="latest_total_score" readonly="1" string="Latest Inspection Score"/>
-                        <field name="latest_grade_id" widget="badge" readonly="1" string="Latest Inspection Grade"/>
+                        <field name="latest_inspection_date" readonly="1"
+                            string="Latest Inspection Date" />
+                        <field name="latest_total_score" readonly="1"
+                            string="Latest Inspection Score" />
+                        <field name="latest_grade_id" widget="badge" readonly="1"
+                            string="Latest Inspection Grade" />
                     </group>
                 </group>
             </xpath>
@@ -34,7 +38,7 @@
             <xpath expr="//notebook" position="inside">
                 <page string="Supervision Report" name="supervision_report">
                     <field name="inspection_chart_data" widget="wujia_inspection_chart"
-                        nolabel="1" class="w-100 d-block"/>
+                        nolabel="1" class="w-100 d-block" />
                 </page>
             </xpath>
         </field>
@@ -44,24 +48,24 @@
     <record id="view_franchise_management_search_inherit_inspection" model="ir.ui.view">
         <field name="name">wujia.franchise.management.search.inherit.inspection</field>
         <field name="model">wujia.franchise.management</field>
-        <field name="inherit_id" ref="wujia_franchise.view_franchise_management_search"/>
+        <field name="inherit_id" ref="wujia_franchise.view_franchise_management_search" />
         <field name="arch" type="xml">
             <xpath expr="//field[@name='area_id']" position="after">
-                <field name="effective_supervision_user_id"/>
+                <field name="effective_supervision_user_id" />
             </xpath>
             <xpath expr="//filter[@name='filter_active']" position="before">
                 <filter string="My Assigned Stores" name="filter_my_inspection"
-                    domain="[('effective_supervision_user_id', '=', uid)]"/>
-                <separator/>
+                    domain="[('effective_supervision_user_id', '=', uid)]" />
+                <separator />
             </xpath>
             <xpath expr="//search" position="inside">
-                <separator/>
+                <separator />
                 <filter string="Needs Supervision (Grade C / D)" name="filter_grade_cd"
-                    domain="[('latest_grade_id.name', 'in', ['C', 'D'])]"/>
+                    domain="[('latest_grade_id.name', 'in', ['C', 'D'])]" />
                 <filter string="Latest Grade C" name="filter_latest_grade_c"
-                    domain="[('latest_grade_id.name', '=', 'C')]"/>
+                    domain="[('latest_grade_id.name', '=', 'C')]" />
                 <filter string="Latest Grade D" name="filter_latest_grade_d"
-                    domain="[('latest_grade_id.name', '=', 'D')]"/>
+                    domain="[('latest_grade_id.name', '=', 'D')]" />
             </xpath>
         </field>
     </record>
@@ -71,15 +75,16 @@
     <record id="view_franchise_management_list_inherit_inspection" model="ir.ui.view">
         <field name="name">wujia.franchise.management.list.inherit.inspection</field>
         <field name="model">wujia.franchise.management</field>
-        <field name="inherit_id" ref="wujia_franchise.view_franchise_management_list"/>
+        <field name="inherit_id" ref="wujia_franchise.view_franchise_management_list" />
         <field name="arch" type="xml">
             <xpath expr="//field[@name='member_count']" position="after">
-                <field name="effective_supervision_user_id" optional="show" string="Assigned Supervisor"/>
-                <field name="latest_inspection_date" optional="show" string="Latest Inspection Date"/>
-                <field name="latest_total_score" optional="show" string="Latest Score"/>
-                <field name="latest_grade_id" optional="show" widget="badge" string="Latest Grade"/>
-                <field name="consecutive_c_count" optional="hide" string="Consecutive C"/>
-                <field name="consecutive_d_count" optional="hide" string="Consecutive D"/>
+                <field name="effective_supervision_user_id" optional="show"
+                    string="Assigned Supervisor" />
+                <field name="latest_inspection_date" optional="show" string="Latest Inspection Date" />
+                <field name="latest_total_score" optional="show" string="Latest Score" />
+                <field name="latest_grade_id" optional="show" widget="badge" string="Latest Grade" />
+                <field name="consecutive_c_count" optional="hide" string="Consecutive C" />
+                <field name="consecutive_d_count" optional="hide" string="Consecutive D" />
             </xpath>
         </field>
     </record>
