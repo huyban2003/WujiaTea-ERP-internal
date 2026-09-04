@@ -105,3 +105,8 @@ Ngày: 04/09/2026 · Module `wujia_franchise` `19.0.4.0.0`.
   *Onboarding cửa hàng* khi tạo mới, *Thêm người dùng cửa hàng* khi bổ sung người dùng.
 - **Nếu BA muốn đổi chữ:** sửa trong `custom/wujia_franchise/i18n/vi_VN.po` rồi deploy lại, không cần
   sửa mã.
+
+- **Ghi chú kỹ thuật (phát hiện ở lượt kiểm lần hai):** câu báo lỗi và tiêu đề hộp thoại sinh từ mã
+  chương trình cần một dòng đánh dấu riêng trong file ngôn ngữ thì mới được dịch. Thiếu dòng đó thì
+  không có lỗi nào hiện ra, chữ chỉ lặng lẽ giữ nguyên tiếng Anh — nên bản dịch phải kiểm bằng cách
+  mở màn hình thật chứ không tin vào việc "file đã có chữ tiếng Việt".

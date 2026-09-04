@@ -100,6 +100,11 @@ thoại theo chế độ. Đo lại trên bản sao database cô lập: **0 nhã
 > nạp — mọi chuỗi chỉ thêm vào `.po` mà thiếu trong `.pot` đều bị coi là lỗi thời và **bỏ qua im lặng**.
 > Phải thêm vào cả hai file. Ngoài ra dạng tham chiếu `menu:<module>.<xmlid>` không còn hợp lệ, phải
 > dùng `model:ir.ui.menu,name:<module>.<xmlid>`.
+>
+> Lượt kiểm sau khi deploy `19.0.4.0.1` còn bắt thêm hai chỗ: nút *Cancel* và tiêu đề hộp thoại vẫn
+> tiếng Anh. Nguyên nhân: câu sinh ra từ **mã Python** chỉ được dịch khi mục trong `.po` có thêm dòng
+> chú thích `#. odoo-python` — thiếu dòng đó thì Odoo bỏ qua, kể cả khi tham chiếu `code:` đã đúng.
+> Đã bổ sung cho 27 mục và đóng gói lại ở `19.0.4.0.2`.
 
 ## LIMIT
 

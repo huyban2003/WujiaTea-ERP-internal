@@ -493,6 +493,7 @@ msgstr ""
 
 #. module: wujia_franchise
 #: model_terms:ir.ui.view,arch_db:wujia_franchise.view_wujia_franchise_inspection_form
+#: model_terms:ir.ui.view,arch_db:wujia_franchise.view_franchise_onboarding_wizard_form
 msgid "Cancel"
 msgstr ""
 
@@ -2697,13 +2698,16 @@ msgid "e.g. 219 Vinh Vien store"
 msgstr ""
 
 #. module: wujia_franchise
+#. odoo-python
 #: model:ir.actions.act_window,name:wujia_franchise.action_franchise_onboarding_wizard
 #: model_terms:ir.ui.view,arch_db:wujia_franchise.view_franchise_onboarding_wizard_form
 #: model:ir.ui.menu,name:wujia_franchise.menu_wujia_franchise_onboarding
+#: code:addons/wujia_franchise/models/wujia_franchise_management.py:0
 msgid "Store onboarding"
 msgstr ""
 
 #. module: wujia_franchise
+#. odoo-python
 #: model_terms:ir.ui.view,arch_db:wujia_franchise.view_franchise_management_form
 #: code:addons/wujia_franchise/models/wujia_franchise_management.py:0
 #: model:ir.model.fields.selection,name:wujia_franchise.selection__wujia_franchise_onboarding_wizard__mode__member
@@ -2896,126 +2900,151 @@ msgid "Franchise store onboarding"
 msgstr ""
 
 #. module: wujia_franchise
+#. odoo-python
 #: code:addons/wujia_franchise/wizards/franchise_onboarding_wizard.py:0
 msgid "Only HQ (Wujia Franchise / Administrator) may run store onboarding."
 msgstr ""
 
 #. module: wujia_franchise
+#. odoo-python
 #: code:addons/wujia_franchise/wizards/franchise_onboarding_wizard.py:0
 msgid "Store code and store name are required."
 msgstr ""
 
 #. module: wujia_franchise
+#. odoo-python
 #: code:addons/wujia_franchise/wizards/franchise_onboarding_wizard.py:0
 msgid "Franchise end date is required."
 msgstr ""
 
 #. module: wujia_franchise
+#. odoo-python
 #: code:addons/wujia_franchise/wizards/franchise_onboarding_wizard.py:0
 msgid "Store code '%(code)s' already exists (%(store)s)."
 msgstr ""
 
 #. module: wujia_franchise
+#. odoo-python
 #: code:addons/wujia_franchise/wizards/franchise_onboarding_wizard.py:0
 msgid "Please select the store to add users to."
 msgstr ""
 
 #. module: wujia_franchise
+#. odoo-python
 #: code:addons/wujia_franchise/wizards/franchise_onboarding_wizard.py:0
 msgid "Please select the Partner to link."
 msgstr ""
 
 #. module: wujia_franchise
+#. odoo-python
 #: code:addons/wujia_franchise/wizards/franchise_onboarding_wizard.py:0
 msgid "Partner '%s' is archived."
 msgstr ""
 
 #. module: wujia_franchise
+#. odoo-python
 #: code:addons/wujia_franchise/wizards/franchise_onboarding_wizard.py:0
 msgid "Please enter the name of the new Store Partner."
 msgstr ""
 
 #. module: wujia_franchise
+#. odoo-python
 #: code:addons/wujia_franchise/wizards/franchise_onboarding_wizard.py:0
 msgid "These partners look like duplicates of '%(name)s':\n%(list)s\n\nLink one of them instead, or tick the confirmation box to create a new one anyway."
 msgstr ""
 
 #. module: wujia_franchise
+#. odoo-python
 #: code:addons/wujia_franchise/wizards/franchise_onboarding_wizard.py:0
 msgid "Please add at least one store user."
 msgstr ""
 
 #. module: wujia_franchise
+#. odoo-python
 #: code:addons/wujia_franchise/wizards/franchise_onboarding_wizard.py:0
 msgid "The same login is used twice in this form: %s"
 msgstr ""
 
 #. module: wujia_franchise
+#. odoo-python
 #: code:addons/wujia_franchise/wizards/franchise_onboarding_wizard.py:0
 msgid "A store may only have one primary owner."
 msgstr ""
 
 #. module: wujia_franchise
+#. odoo-python
 #: code:addons/wujia_franchise/wizards/franchise_onboarding_wizard.py:0
 msgid "The primary owner must have the Owner role."
 msgstr ""
 
 #. module: wujia_franchise
+#. odoo-python
 #: code:addons/wujia_franchise/wizards/franchise_onboarding_wizard.py:0
 msgid "Please select the existing portal user."
 msgstr ""
 
 #. module: wujia_franchise
+#. odoo-python
 #: code:addons/wujia_franchise/wizards/franchise_onboarding_wizard.py:0
 msgid "User '%s' is archived. Restore it first, or create a new portal user."
 msgstr ""
 
 #. module: wujia_franchise
+#. odoo-python
 #: code:addons/wujia_franchise/wizards/franchise_onboarding_wizard.py:0
 msgid "Login '%s' belongs to an Internal User. Onboarding never changes user types — please use a portal account instead."
 msgstr ""
 
 #. module: wujia_franchise
+#. odoo-python
 #: code:addons/wujia_franchise/wizards/franchise_onboarding_wizard.py:0
 msgid "User '%s' is not a Portal User. Onboarding never changes user types."
 msgstr ""
 
 #. module: wujia_franchise
+#. odoo-python
 #: code:addons/wujia_franchise/wizards/franchise_onboarding_wizard.py:0
 msgid "User '%(login)s' already has an active membership in store '%(store)s'."
 msgstr ""
 
 #. module: wujia_franchise
+#. odoo-python
 #: code:addons/wujia_franchise/wizards/franchise_onboarding_wizard.py:0
 msgid "Full name and login are required for a new portal user."
 msgstr ""
 
 #. module: wujia_franchise
+#. odoo-python
 #: code:addons/wujia_franchise/wizards/franchise_onboarding_wizard.py:0
 msgid "An account already uses this login or email: %(login)s (%(name)s). Switch this line to 'Use an existing Portal User' — onboarding never creates a second account."
 msgstr ""
 
 #. module: wujia_franchise
+#. odoo-python
 #: code:addons/wujia_franchise/wizards/franchise_onboarding_wizard.py:0
 msgid "Partner '%(partner)s' is already linked to %(count)s stores: %(stores)s."
 msgstr ""
 
 #. module: wujia_franchise
+#. odoo-python
 #: code:addons/wujia_franchise/wizards/franchise_onboarding_wizard.py:0
 msgid "Partner '%(partner)s' is already the Store Partner of '%(store)s'."
 msgstr ""
 
 #. module: wujia_franchise
+#. odoo-python
 #: code:addons/wujia_franchise/models/wujia_franchise_management.py:0
 msgid "a Store Partner"
 msgstr ""
 
 #. module: wujia_franchise
+#. odoo-python
 #: code:addons/wujia_franchise/models/wujia_franchise_management.py:0
 msgid "at least one valid Owner membership"
 msgstr ""
 
 #. module: wujia_franchise
+#. odoo-python
 #: code:addons/wujia_franchise/models/wujia_franchise_management.py:0
 msgid "Store '%(store)s' cannot be activated yet — it still needs %(missing)s. Run store onboarding to complete it; the store stays in Draft meanwhile."
 msgstr ""
