@@ -339,8 +339,8 @@ vẫn đỏ. Mọi guard dùng `assertRegex` khớp **cả khai báo** (bài h�
 
 ## 9. LIMIT
 
-1. **Chưa deploy UAT.** Mọi số đo và ảnh của §3/§5.5 chạy trên DB clone cục bộ (`_a` / `_b`).
-   UAT hiện vẫn chạy mã trước phiên review. Sau deploy **phải đo lại chỉ-đọc trên chính UAT**.
+1. ~~Chưa deploy UAT.~~ ✅ **GỠ 04/09** — commit `0d8366d` đã deploy, đo lại chỉ-đọc trên chính UAT
+   (§13). LIMIT này đóng.
 2. Hộp "Sau khi chuyển khoản" **chưa từng render bằng dữ liệu thật** (§4.1).
 3. `UI-CARDHEADER-001` **vẫn chưa 100%** (95/105) ⇒ ledger giữ dạng **COMMENT**, **KHÔNG chạy
    `qa_sync.py`**.
@@ -379,3 +379,54 @@ là đúng kiểu "làm hết một lượt" mà quy trình đã cấm.
 
 CSS đổi ⇒ `?v=` lên **1190** cho `_components.css`, `_pc_components.css`, `_pc_account.css`
 (§9 gotcha #1).
+
+---
+
+## 13. Đo lại trên chính UAT sau deploy (04/09, commit `0d8366d`)
+
+Mọi số ở §3/§5.5 là của DB clone. Đây là lượt đo **chỉ-đọc trên `113.161.187.126:8019`**, cùng harness,
+cookie `wujia_active_franchise_id=3` (HCM-01). Id bản ghi do `discover()` scrape từ chính UAT — **khác id
+local**, nên không tái dùng số cũ: `order=44 · batch=1 · ret=13 · noti=19 · ticket=16 · reg=4 · insp=3 ·
+prod=3 · fr=3`.
+
+### 13.1 Ba ngưỡng chủ dự án đặt
+
+| Ngưỡng | Kết quả UAT |
+|---|---|
+| 0 cờ `HIERARCHY` | **0** ✅ |
+| 0 cờ `CONTRAST` | **0** ✅ |
+| 0 nhóm `DRIFT` chưa giải trình | **0** ✅ |
+
+**124/124 lượt đo trả về trang đúng · 0 lỗi tải · 0 lỗi JS · 0 trang tràn ngang · 176 CardHeader.**
+
+### 13.2 Bằng chứng deploy đã ăn — không phải "Pass rỗng"
+
+Bài học D3c (tưởng đã deploy mà quên merge) nên phải chứng minh bằng **giá trị chỉ tồn tại sau khi sửa**,
+không chỉ nhìn cờ sạch:
+
+| Chỗ sửa | Trước (mã cũ) | Đo được trên UAT |
+|---|---|---|
+| §3.2 head danh mục khảo sát mobile | `#0284c7` → tương phản **3.74** | `rgb(3,105,161)` = `#0369a1` → **5.42** |
+| §3.1 khối con màn thi | 18px, bằng tiêu đề card | **16px** dưới tiêu đề card 18px |
+
+Nhánh nghiêm trọng vẫn **trắng trên đỏ**: `rgb(255,255,255)` trên `rgb(185,28,28)` = **6.47**, đúng cả
+PC lẫn mobile. Head danh mục bản PC `#111827` trên `#f8fafc` = 16.96.
+
+### 13.3 Sáu cờ còn lại — đều đã giải trình từ trước, không có cờ mới
+
+- `debt-pay` × 4 viewport: **REDIRECT NGẦM** `notice=no_due` — đúng hành vi WJ-DEBT-007 (§4.1), HCM-01
+  đang dư CÓ nên không tuần nào còn nợ.
+- `exam-register` @1920 + @1440: **RHYTHM lệch 18px** giữa `'Thông tin đăng ký'`=18 và
+  `'Tóm tắt đăng ký'`=36 — đúng chỗ §3.4 **cố ý chưa sửa**, đang chờ chủ dự án chốt câu hỏi 6.
+  (Trên UAT chỉ lộ 2 card nên chênh lệch là 18px thay vì dải 18/12/24/36 của clone — cùng một gốc.)
+
+### 13.4 Giả-heading còn sót: **2**, đều là chỗ đã biết
+
+`/portal/inspection` @1920 và @1440, mỗi trang 1 — chính là `portal_inspection_list_templates.xml:34`
+"Danh sách phiếu khảo sát", **chỗ chờ BA** (§8 câu 4). Bản mobile: 0. Không phải hồi quy.
+
+### 13.5 Lệch số header UAT ↔ clone — do DỮ LIỆU, không do mã
+
+`report-orders` 0→3 · `exam-register` mobile 1→3 · `notification-detail` 3→2 · `delivery` 4→0. UAT và
+clone khác nhau về đơn/phiếu/thông báo đang tồn tại, mà số CardHeader phụ thuộc số khối có dữ liệu.
+Đã kiểm chéo: mọi cỡ chữ ở §13.1 vẫn nằm trong nhóm chuẩn hoặc nhóm THIẾT KẾ có nguồn dẫn.
