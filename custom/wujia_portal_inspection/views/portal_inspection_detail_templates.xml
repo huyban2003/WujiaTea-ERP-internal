@@ -87,25 +87,29 @@
 
                     <!-- Main PC Card -->
                     <div class="wj-pc-card mb-4">
-                        <div
-                            class="wj-pc-card__head d-flex justify-content-between align-items-center mb-4 pb-2 border-bottom">
-                            <div>
-                                <h2 class="wj-pc-card__title">Kết quả đánh giá chi tiết</h2>
-                                <p class="wj-pc-card__subtitle">Xem chi tiết đánh giá hoặc kết quả
-                                    bài kiểm tra lý thuyết</p>
-                            </div>
-                            <div class="d-flex gap-2">
+                        <t t-call="wujia_portal_layout.wj_card_header">
+                            <t t-set="ch_title">Kết quả đánh giá chi tiết</t>
+                            <t t-set="ch_subtitle">Xem chi tiết đánh giá hoặc kết quả bài kiểm tra lý thuyết</t>
+                            <t t-set="ch_level" t-value="2"/>
+                            <t t-set="ch_platform" t-value="'pc'"/>
+                            <t t-set="ch_divider" t-value="True"/>
+                            <t t-set="ch_control">
                                 <button type="button" id="pc_tab_btn_checklist"
                                     class="wj-pc-btn wj-pc-btn--primary">Kết quả đánh giá</button>
                                 <button type="button" id="pc_tab_btn_exam"
                                     class="wj-pc-btn wj-pc-btn--secondary">Bài kiểm tra</button>
-                            </div>
-                        </div>
+                            </t>
+                        </t>
 
                         <!-- PC Tab 1: Checklist -->
                         <div id="pc_tab_content_checklist">
                             <div class="pb-3 mb-4 border-bottom">
-                                <h3 class="h6 font-weight-bold text-dark mb-3">Phân bổ kết quả</h3>
+                                <t t-call="wujia_portal_layout.wj_card_header">
+                                    <t t-set="ch_title">Phân bổ kết quả</t>
+                                    <t t-set="ch_level" t-value="3"/>
+                                    <t t-set="ch_platform" t-value="'pc'"/>
+                                    <t t-set="ch_class" t-value="'wj-insp-sublabel'"/>
+                                </t>
                                 <div class="row g-3">
                                     <t t-foreach="category_summaries" t-as="c_sum">
                                         <div class="col-md-3">

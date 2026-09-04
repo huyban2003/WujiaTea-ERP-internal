@@ -725,3 +725,13 @@
 .wj-warning-confirm-btn:hover {
     background: #b45309;
 }
+
+/* ---------- CMP-CH-001 (D3f) ---------- */
+/* Nhãn phụ giữa thân card: phải nhỏ hơn tiêu đề card, không thì mất phân cấp
+   (tiền lệ D3e). Dùng đúng 14px của nhãn phụ D3e để cả portal một cỡ, KHÔNG giữ
+   12.3px riêng của inspection. Thêm `.wj-pc-card` để thắng rule biến thể (0,3,0)
+   của component nằm ở bundle khác; font-size bị component đặt !important. */
+.wj-pc-card .wj-card-header.wj-insp-sublabel .wj-card-header__title {
+    font-size: .875rem !important;
+    line-height: 1.2;
+}

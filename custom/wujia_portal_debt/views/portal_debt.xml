@@ -369,10 +369,14 @@
 
                     <!-- Bảng hóa đơn trong tuần -->
                     <div class="wj-pc-card wj-debt-pc-card">
-                        <div class="wj-pc-card__head">
-                            <h3 class="wj-pc-card__title">Hóa đơn trong tuần</h3>
-                            <span class="wj-pc-card__count"><t t-out="summary['invoice_count']"/> hóa đơn</span>
-                        </div>
+                        <t t-call="wujia_portal_layout.wj_card_header">
+                            <t t-set="ch_title">Hóa đơn trong tuần</t>
+                            <t t-set="ch_level" t-value="3"/>
+                            <t t-set="ch_platform" t-value="'pc'"/>
+                            <t t-set="ch_meta">
+                                <span class="wj-pc-card__count"><t t-out="summary['invoice_count']"/> hóa đơn</span>
+                            </t>
+                        </t>
 
                         <t t-if="pc_invoices">
                             <div class="wj-debt-pc-tablewrap">
@@ -606,10 +610,14 @@
                     </div>
 
                     <div class="wj-pc-card wj-debt-pc-card" id="wj-debt-hist-pc">
-                        <div class="wj-pc-card__head">
-                            <h3 class="wj-pc-card__title">Các khoản thanh toán</h3>
-                            <span class="wj-pc-card__count"><t t-out="len(history['payments'])"/> giao dịch</span>
-                        </div>
+                        <t t-call="wujia_portal_layout.wj_card_header">
+                            <t t-set="ch_title">Các khoản thanh toán</t>
+                            <t t-set="ch_level" t-value="3"/>
+                            <t t-set="ch_platform" t-value="'pc'"/>
+                            <t t-set="ch_meta">
+                                <span class="wj-pc-card__count"><t t-out="len(history['payments'])"/> giao dịch</span>
+                            </t>
+                        </t>
 
                         <t t-if="pc_payments">
                             <div class="wj-debt-pc-tablewrap">
