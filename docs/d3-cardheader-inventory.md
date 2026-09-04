@@ -112,9 +112,9 @@ nằm cùng card với `:181` ⇒ là **subtitle của header đó**, không ph�
 | `wujia_portal_support/views/portal_support.xml` | 7 | **D3a + D3c ✅** — 1 + 6 |
 | `wujia_portal_knowledge/views/portal_knowledge.xml` | 7 | **D3b ✅** (5 chỗ; 2 chỗ còn lại là §3 tiêu đề bài viết) |
 | `wujia_portal_base/views/portal_home.xml` | 5 | **D3b ✅** |
-| `wujia_portal_debt/views/portal_debt.xml` | 5 | D3f (đụng số đo S43/C3 — cẩn thận) |
+| `wujia_portal_debt/views/portal_debt.xml` | 5 | **D3f ✅** — 4 chỗ; `:40` actionrow đã loại §3 |
 | `wujia_portal_base/views/portal_franchise_profile.xml` | 4 | **D3b ✅** |
-| `wujia_portal_inspection/*` (4 file) | 9 | D3f (xem §6) |
+| `wujia_portal_inspection/*` (4 file) | 9 | **D3f ✅** — 6 chỗ; `list:34` chờ BA (§6), `detail:176`→D5, `success:13/78` §3 |
 | `wujia_portal_return/views/portal_return_form.xml` | 4 | **D3a (mẫu 4)** — 4 xong ✅ |
 | `wujia_portal_report/views/portal_report_orders.xml` | 3 | **D3b ✅** |
 | `wujia_portal_sale/*` (3 file) | 3 | **D3b ✅** (2 chỗ; `portal_order_result.xml` đã loại → §3) |
@@ -123,9 +123,24 @@ nằm cùng card với `:181` ⇒ là **subtitle của header đó**, không ph�
 **D3a phủ 4 file / 29 call site** — nhưng cố ý **không migrate hết 4 file**, chỉ lấy đủ mẫu mỗi
 họ markup (xem `docs/d3-acceptance-matrix.md`); phần còn lại của chính 4 file đó rơi vào **D3c**.
 
-**Tiến độ (2026-09-04, sau D3e): 85/103.** D3a 10 · D3b 26 · D3c 11 · D3d 14 · D3e 24.
-Nhóm kế: **D3f = `portal_debt.xml` (5) + `wujia_portal_inspection/*` (9)** — chạy lại
-`d3_inventory.py` trước, mọi con số trong bảng trên là **tổng theo file** (gồm cả dòng §3).
+**Tiến độ (2026-09-04, sau D3f): 95/105.** D3a 10 · D3b 26 · D3c 11 · D3d 14 · D3e 24 · D3f 10.
+**Danh sách actionable đã HẾT.** Còn lại đúng 4 chỗ defer chờ BA ở §6 + các chỗ §3.
+
+> ⚠️ **Đính chính D3f — bug ĐẾM của chính harness, không phải của doc.**
+> `d3_inventory.py` chỉ bỏ qua wrapper `t-call` tới `wj_section_header`, **thiếu
+> `wj_card_header`** ⇒ mọi call site ĐÃ migrate mà giữ `div.card-header` bọc ngoài vẫn bị đếm
+> lại. Chạy thô ra **53**; vá xong còn **40**. Đây là lần đầu con số sai đến từ harness chứ
+> không phải doc bàn giao — **đã vá trong `scratchpad/d3_inventory.py`**, phiên sau không gặp lại.
+>
+> Mẫu số cũng lệch: 85 + 12 actionable + 4 defer = **101**, không phải 103. Con số 105 ở trên là
+> **101 + 4 chỗ D3f phát sinh** (xem dưới).
+
+> ⚠️ **D3f phát sinh 4 chỗ kiểm kê KHÔNG bắt được.** Head khối `t-foreach sections` của
+> `portal_inspection_detail_templates.xml` có **bản mobile song sinh** (`:450`) mà phép thử
+> "tổ tiên là card" của harness trượt. Lòi ra nhờ guard `_sec_sev` đếm được 4 thay vì 2. Để
+> nguyên thì PC và mobile lệch nhau — đúng cái cụm D3 đang chống ⇒ đã migrate luôn.
+> ⇒ **Bài học: kiểm kê là sàn, không phải trần.** Migrate xong một head thì grep tìm bản song
+> sinh của nền tảng còn lại trước khi đóng.
 
 📌 **Chủ dự án chốt (2026-09-04): hết cụm D3 sẽ có một phiên review lại toàn cụm để soát vỡ giao
 diện** — chạy bằng **ảnh chụp**, không chỉ bảng số. Ba phiên liên tiếp (D3c badge trôi · D3d mất
@@ -190,6 +205,29 @@ Cả hai đều có **HAI vùng trailing** trong khi spec cho tối đa MỘT �
 
 `portal_exam.xml:858` `wujia-mexam-sheet-title` **loại hẳn** theo tiền lệ §3
 (`mobile_bottomnav.xml:58`): bottom-sheet overlay, không phải tiêu đề card trong trang.
+
+### Quyết định D3f (2026-09-04) — đã làm, đừng mở lại
+
+Chủ dự án chốt: **đang đồng bộ mọi màn về một component ⇒ migrate hết chỗ là CardHeader thật,
+chấp nhận vỡ rồi vá dần**; và **khác biệt nào là DRIFT thì cho hội tụ về chuẩn chung, chỉ khác
+biệt nào là THIẾT KẾ mới giữ bằng rule scope**. Áp dụng cho 10 chỗ D3f:
+
+| Giữ bằng rule scope (THIẾT KẾ) | Cho hội tụ (DRIFT) |
+|---|---|
+| nhãn 11px card tổng S43 (khung 142px khoá cứng) | tiêu đề card 22/24px → **18px** chuẩn |
+| nhãn hint 11.5px amber (hộp 52px) | màu `text-dark` bootstrap → token portal |
+| tiêu đề tiêu chí 14px (chữ chính của hộp) | subtitle 13.125px → **14px** chuẩn |
+| head section 15px PC / .95rem xanh mobile | nhịp header→body 18/21px → **12px** |
+
+**3 chỗ loại — vì SAI COMPONENT, không phải vì sợ vỡ:** `debt:40` (hàng điều hướng có chevron
+⇒ `CMP-DL-001`) · `detail:176` (tiêu đề một dòng trong `t-foreach lines` ⇒ **D5**; thêm chặn kỹ
+thuật: title có `<span>` lồng mà `ch_title` là `t-out`) · `success:78` (modal overlay, mở ra thì
+phải mở lại cả `mobile_bottomnav:58` + `header_bell:22` đã chốt loại từ D3a).
+
+🔴 **Bẫy đặc hiệu tái xuất lần 2 (D3e §7).** Rule severe bản mobile viết ngắn (0,3,0) **thua**
+rule màu xanh mobile (0,4,0)`!important` ngay trên nó ⇒ tiêu đề nhánh nghiêm trọng ra **màu xanh
+trên nền đỏ**. Quy tắc: rule scope mới phải **đếm đặc hiệu so với chính các rule scope cùng file**,
+không chỉ so với component.
 
 ### 3 fork chủ dự án chốt ở D3c (2026-09-02) — đã làm, đừng mở lại
 
