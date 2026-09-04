@@ -191,13 +191,27 @@ người dùng.
   \texttt{WJ-PORTAL-UI-002/003/004} (D2), \texttt{WJ-FRANCHISE-003}.
 \item Còn treo: \texttt{UI-CARDHEADER-001} ở \texttt{Need Clarification} --- cần gửi BA một
   lượt gộp năm câu hỏi để gỡ.
-\item \textbf{Deploy UAT --- một phần.} \texttt{wujia\_franchise 19.0.4.0.1} đã lên UAT
-  (đo chỉ-đọc 04/09: module \texttt{installed}, menu \emph{Onboarding cửa hàng} và toàn bộ
-  nhãn trường của wizard đọc ở \texttt{lang=vi\_VN} đều ra tiếng Việt). Bản
-  \textbf{\texttt{19.0.4.0.2}} (\texttt{7568711}, dấu \texttt{\#. odoo-python}) \textbf{chưa
-  lên} --- đo trên UAT thấy hai tiêu đề hộp thoại dựng từ Python vẫn trả về
-  \emph{``Store onboarding''} / \emph{``Add store users''} kể cả ở \texttt{lang=vi\_VN}. Lệnh
-  \texttt{-u wujia\_franchise}, không cần đổi số hiệu bộ giao diện.
+\item \textbf{Deploy UAT --- xong, và đo hai lượt mới xong.} Lượt đo đầu (chỉ-đọc, XML-RPC)
+  bắt được \textbf{deploy mới đi một nửa}: UAT ở \texttt{19.0.4.0.1} trong khi repo đã
+  \texttt{19.0.4.0.2}. Phần dịch lấy từ \emph{dữ liệu} đã ăn (menu \emph{Onboarding cửa hàng},
+  nhãn trường, danh sách chọn), nhưng gọi \texttt{action\_open\_onboarding} /
+  \texttt{action\_open\_add\_members} với \texttt{context=\{'lang':'vi\_VN'\}} vẫn trả về
+  \emph{``Store onboarding''} / \emph{``Add store users''} --- tức chuỗi dựng từ \emph{Python}
+  chưa dịch, đúng phần \texttt{7568711} vá. \textbf{Nhìn menu tiếng Việt mà kết luận đã xong
+  thì sai.} Sau khi chủ dự án cài \texttt{19.0.4.0.2}, đo lại đúng phép đo đó: module
+  \texttt{19.0.4.0.2 installed}, hai tiêu đề trả về \emph{``Onboarding cửa hàng''} /
+  \emph{``Thêm người dùng cửa hàng''}. Lệnh \texttt{-u wujia\_franchise}, không cần đổi số hiệu
+  bộ giao diện. \textbf{Hàng đợi deploy: trống.}
+\item \textbf{Ghi sheet: chọn đúng script, đừng ép sai script.} Đổi cột Build/Deploy sang
+  \emph{ĐÃ DEPLOY UAT} \textbf{không làm được bằng \texttt{qa\_sync.py}} --- dòng 127 đã ở
+  \texttt{Ready for Retest} nên nó kiểm \texttt{status in DONE\_STATES} rồi \texttt{continue}
+  \emph{trước} cả nhánh \texttt{--force}, skip idempotent, không đụng cột P. Mà
+  \texttt{qa\_deploy\_mark.py} thì chỉ \emph{thêm tiền tố} vào chuỗi đang có trên sheet --- vốn
+  còn là bản \texttt{19.0.4.0.0}, chỉ một commit --- nên ghi tiền tố lên đó là để BA đọc nhầm
+  bản. Cách đúng: ghi lại \textbf{trọn} cột P từ \texttt{build\_override} của ledger, giữ
+  nguyên trạng thái/owner, kèm dòng \emph{ISSUE HISTORY}. Verify độc lập bằng
+  \texttt{export?format=csv} và \textbf{đối chiếu cột ID của đúng dòng tuyệt đối 127} trước khi
+  tin (bẫy lệch dòng đã tái phát một lần).
 \item Đã gửi BA một văn bản gộp năm câu hỏi treo của \texttt{UI-CARDHEADER-001}
   (\texttt{docs/ba-questions-ui-cardheader-001.md}), kèm hai đề nghị mở issue riêng: chỗ tự
   sinh tài khoản theo tên ở màn phiếu giám sát, và cửa hàng \texttt{HN-02} thiếu chủ tiệm.
