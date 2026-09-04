@@ -744,3 +744,16 @@
     line-height: 1.5;
 }
 .wj-pc-card .wj-card-header.wj-insp-critlabel { margin: 0 0 .5rem; }
+
+/* Head của khối `t-foreach sections`: 15px là THIẾT KẾ (nhỏ hơn tiêu đề card 18px
+   vì nó là đầu MỘT nhóm bên trong card). Nhánh severe tô nền đỏ bằng inline
+   style, mà component khai màu chữ trên chính `.wj-card-header__title` nên màu
+   trắng không thừa kế xuống được — phải trả lại bằng rule. */
+.wj-insp-sechead .wj-card-header.wj-insp-sechead__hb { margin: 0; }
+.wj-insp-sechead .wj-card-header.wj-insp-sechead__hb .wj-card-header__title {
+    font-size: 15px !important;
+    line-height: 1.2;              /* = 18px, đúng bằng dáng cũ */
+}
+.wj-insp-sechead:not(.wj-insp-sechead--severe) .wj-card-header__subtitle { color: #6c757d !important; }
+.wj-insp-sechead--severe .wj-card-header__title { color: #ffffff !important; }
+.wj-insp-sechead--severe .wj-card-header__subtitle { color: rgba(255, 255, 255, .8) !important; }

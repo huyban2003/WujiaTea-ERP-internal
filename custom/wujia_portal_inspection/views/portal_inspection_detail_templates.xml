@@ -132,35 +132,36 @@
                             <t t-foreach="sections" t-as="sec">
                                 <div t-att-id="sec.get('id') + '_pc'"
                                     class="pt-3 pb-2 mb-4 border-bottom">
+                                    <t t-set="_sec_sev"
+                                       t-value="sec.get('is_severe') and sec.get('total_deducted') > 0"/>
                                     <div
-                                        t-attf-class="d-flex justify-content-between align-items-center mb-3 pb-2 border-bottom p-3 rounded"
-                                        t-attf-style="#{'background-color: #b91c1c !important; color: #ffffff !important;' if (sec.get('is_severe') and sec.get('total_deducted') > 0) else 'background-color: #f8fafc;'}">
-                                        <div>
-                                            <h3
-                                                t-attf-class="font-weight-bold mb-1 #{'text-white' if (sec.get('is_severe') and sec.get('total_deducted') > 0) else 'text-dark'}"
-                                                style="font-size: 15px;">
-                                                <t t-out="sec.get('title')" />
-                                            </h3>
-                                            <p t-attf-class="mb-0 small"
-                                                t-attf-style="#{'color: rgba(255, 255, 255, 0.8) !important;' if (sec.get('is_severe') and sec.get('total_deducted') > 0) else 'color: #6c757d !important;'}">
-                                                <t t-out="sec.get('subtitle')" />
-                                            </p>
-                                        </div>
-                                        <t t-if="sec.get('is_severe')">
-                                            <span t-if="sec.get('total_deducted') > 0"
-                                                class="badge bg-white text-danger"
-                                                style="font-size: 13px; font-weight: 700; color: #b91c1c !important;">
-                                                -<t
-                                                    t-out="sec.get('total_deducted')" />đ </span>
-                                            <span t-else="" class="badge bg-success text-white"
-                                                style="font-size: 13px; font-weight: 700;"> 0đ </span>
-                                        </t>
-                                        <t t-else="">
-                                            <span class="wj-pc-badge wj-pc-badge--pending"
-                                                style="font-size: 13px; font-weight: 700;">
-                                                <t
-                                                    t-out="sec.get('current_score')" />/<t
-                                                    t-out="sec.get('max_score')" />đ </span>
+                                        t-attf-class="mb-3 pb-2 border-bottom p-3 rounded wj-insp-sechead #{'wj-insp-sechead--severe' if _sec_sev else ''}"
+                                        t-attf-style="#{'background-color: #b91c1c !important; color: #ffffff !important;' if _sec_sev else 'background-color: #f8fafc;'}">
+                                        <t t-call="wujia_portal_layout.wj_card_header">
+                                            <t t-set="ch_title" t-value="sec.get('title')"/>
+                                            <t t-set="ch_subtitle" t-value="sec.get('subtitle')"/>
+                                            <t t-set="ch_level" t-value="3"/>
+                                            <t t-set="ch_platform" t-value="'pc'"/>
+                                            <t t-set="ch_class"
+                                               t-value="'wj-card-header--flush wj-insp-sechead__hb'"/>
+                                            <t t-set="ch_meta">
+                                                <t t-if="sec.get('is_severe')">
+                                                    <span t-if="sec.get('total_deducted') > 0"
+                                                        class="badge bg-white text-danger"
+                                                        style="font-size: 13px; font-weight: 700; color: #b91c1c !important;">
+                                                        -<t
+                                                            t-out="sec.get('total_deducted')" />đ </span>
+                                                    <span t-else="" class="badge bg-success text-white"
+                                                        style="font-size: 13px; font-weight: 700;"> 0đ </span>
+                                                </t>
+                                                <t t-else="">
+                                                    <span class="wj-pc-badge wj-pc-badge--pending"
+                                                        style="font-size: 13px; font-weight: 700;">
+                                                        <t
+                                                            t-out="sec.get('current_score')" />/<t
+                                                            t-out="sec.get('max_score')" />đ </span>
+                                                </t>
+                                            </t>
                                         </t>
                                     </div>
 
