@@ -44,8 +44,13 @@
         <field name="arch" type="xml">
             <form string="Franchise store">
                 <header>
+                    <button name="action_open_onboarding" type="object"
+                        string="Store onboarding" class="btn-primary"
+                        invisible="status != 'draft'" />
+                    <button name="action_open_add_members" type="object"
+                        string="Add store users" />
                     <button name="action_set_active" type="object"
-                        string="Activate" class="btn-primary"
+                        string="Activate" class="btn-secondary"
                         invisible="status == 'active'" />
                     <button name="action_lock_portal" type="object"
                         string="Lock portal" class="btn-warning"

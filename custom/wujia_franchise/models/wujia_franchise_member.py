@@ -8,6 +8,12 @@ ROLE_STAFF = 'staff'
 
 ROLE_RANK = {ROLE_STAFF: 1, ROLE_MANAGER: 2, ROLE_OWNER: 3}
 
+ROLE_SELECTION = [
+    (ROLE_OWNER, 'Chủ tiệm'),
+    (ROLE_MANAGER, 'Quản lý'),
+    (ROLE_STAFF, 'Nhân viên'),
+]
+
 
 class WujiaFranchiseMember(models.Model):
     _name = 'wujia.franchise.member'
@@ -30,11 +36,7 @@ class WujiaFranchiseMember(models.Model):
         index=True,
     )
     role = fields.Selection(
-        [
-            (ROLE_OWNER, 'Chủ tiệm'),
-            (ROLE_MANAGER, 'Quản lý'),
-            (ROLE_STAFF, 'Nhân viên'),
-        ],
+        ROLE_SELECTION,
         string='Role',
         required=True,
         default=ROLE_STAFF,
