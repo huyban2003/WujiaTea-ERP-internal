@@ -195,6 +195,15 @@ bố cục chồng khít bản "trước" ngoài phần cao/thấp đã giải t
 `wujia_portal_exam` **19.0.5.7.0 → 19.0.5.8.0**. **Không** module mới, **không** migration,
 **không** cần bump `?v=` (CSS/JS exam nằm trong `web.assets_frontend`, không phải `<link>` tay).
 
+**Harness đo lại UAT đã viết sẵn và đã chạy thử TRƯỚC deploy** (chỉ-đọc, giới hạn QA §10 — không
+submit wizard, 4 bước mobile kích hoạt bằng gỡ `hidden` chứ không bấm nút). Baseline trước deploy:
+**74/74 header D3a+D3b+D3c vẫn đạt toàn bộ số BA**, và 3 route exam ra **đúng 21 giả-heading** khớp
+tuyệt đối với phía "trước" đo ở local ⇒ harness đo đúng chỗ, sau deploy con số này phải về **1**.
+id phiếu thi **scrape từ chính trang danh sách** (ra `/portal/exam/registration/4` — id DB copy là
+14, **không dùng lại được**; bẫy D3b/D3c). Đã gỡ 2 false-positive mà audit 03/09 đã kết luận:
+lớp `card-header` (vừa là div Bootstrap bao ngoài vừa là `ch_class` của chính component) và 4 tiêu
+đề gõ nhầm route ở `/portal/support/new` (chúng thuộc `/portal/return/new`).
+
 Sau khi chủ dự án deploy: chạy `scratchpad/d3d_uat_verify.py` **chỉ-đọc** trên UAT, 3 breakpoint
 1440/390/360, **kỳ vọng theo nền tảng** (khối `d-none d-lg-*` ĐÚNG RA phải vắng ở mobile — harness
 mù nền tảng từng báo 7 lỗi giả ở D3a), rồi mới `qa_deploy_mark.py`.
