@@ -108,7 +108,7 @@ class WujiaFranchiseManagement(models.Model):
         ],
         string='Status',
         required=True,
-        default='active',
+        default='draft',
         tracking=True,
     )
 
@@ -441,10 +441,43 @@ class WujiaFranchiseManagement(models.Model):
             'context': {'default_franchise_id': self.id},
         }
 
+    def _onboarding_action(self, mode):
+        self.ensure_one()
+        action = self.env['ir.actions.act_window']._for_xml_id(
+            'wujia_franchise.action_franchise_onboarding_wizard'
+        )
+        action['context'] = {
+            'default_franchise_id': self.id,
+            'default_mode': mode,
+            'default_partner_mode': 'existing' if self.partner_id else 'new',
+        }
+        return action
+
+    def action_open_onboarding(self):
+        return self._onboarding_action('store')
+
+    def action_open_add_members(self):
+        return self._onboarding_action('member')
+
     def action_set_active(self):
         for rec in self:
+            rec._assert_ready_to_activate()
             rec.status = 'active'
             rec.portal_locked = False
+
+    def _assert_ready_to_activate(self):
+        self.ensure_one()
+        missing = []
+        if not self.partner_id:
+            missing.append(_("a Store Partner"))
+        if not self.main_owner_member_id:
+            missing.append(_("at least one valid Owner membership"))
+        if missing:
+            raise ValidationError(_(
+                "Store '%(store)s' cannot be activated yet — it still needs %(missing)s. "
+                "Run store onboarding to complete it; the store stays in Draft meanwhile.",
+                store=self.display_name, missing=', '.join(missing),
+            ))
 
     def action_lock_portal(self):
         for rec in self:

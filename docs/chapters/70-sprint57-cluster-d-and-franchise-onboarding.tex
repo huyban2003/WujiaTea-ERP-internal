@@ -1,0 +1,157 @@
+\chapter{Sprint 57 --- Cụm D (bù hàng, font, CardHeader) + Onboarding cửa hàng (2026-08-25 $\to$ 2026-09-04)}
+
+\emph{Chapter này gộp toàn bộ sprint D: bốn cụm giao diện D1--D3 chạy từ 25/08 đến 04/09,
+và issue nghiệp vụ \texttt{WJ-FRANCHISE-003} đóng ngày 04/09. Số đo chi tiết từng cụm nằm ở
+\texttt{docs/d\{,b,c,d,e,f\}-acceptance-matrix.md}, \texttt{docs/d2-acceptance-matrix.md},
+\texttt{docs/d3-review-matrix.md} và \texttt{docs/wj-franchise-003-acceptance-matrix.md}.}
+
+\section{Bối cảnh}
+
+Sau khi Sprint 56 đóng batch C1--C10, BA audit UAT mở lứa issue mới. Phiên 25/08 phân thành
+sáu cụm \texttt{D1--D6} cộng năm cụm refactor \texttt{R1--R5}
+(\texttt{docs/next-session-clusters-D.md}). Sprint này chạy hết D1, D2, D3 và chèn thêm một
+issue nghiệp vụ Severity High mà BA mở ngày 02/09.
+
+\section{D1 --- Bù hàng: bốn issue nhãn và bộ lọc (25/08)}
+
+Bốn issue \texttt{UAT-BH-001/003/005/006}, module \texttt{wujia\_portal\_return}. Gốc rễ
+chung: nhãn hiển thị và nhãn trong ô lọc được viết ở hai chỗ khác nhau nên trôi khỏi nhau ---
+danh sách chọn có \emph{hai dòng cùng ghi} ``Đang xử lý'', còn ``Đang bù một phần'' hiện được
+trên thẻ nhưng không lọc được vì nó không phải một trạng thái lưu trong bảng mà là kết hợp
+của \emph{đang xử lý} và \emph{đã giao một phần}. Cách sửa là gom về \textbf{một danh sách
+nhãn duy nhất} cho cả hiển thị lẫn bộ lọc, và định nghĩa hai nhãn chồng lấn thành hai tập
+rời nhau. Kiểm chứng bằng một tính chất chứ không bằng mắt: dựng dữ liệu đủ tám trạng thái
+rồi cộng số kết quả của tám lần lọc --- phải đúng bằng tổng danh sách khi không lọc, tức là
+các nhãn vừa không trùng vừa không bỏ sót.
+
+\section{D2 --- Font Portal về Inter toàn bộ (26/08)}
+
+Issue \texttt{WJ-PORTAL-UI-002}. BA nêu bốn màn còn hiện font Inter Tight. Đo trên UAT cho
+thấy đó không phải lỗi của bốn màn, mà là \textbf{một luật CSS đặt hụt phạm vi}: luật ép font
+chỉ có hiệu lực bên trong khung nội dung chính, trong khi các màn mobile và khối danh sách
+Khảo sát lại dựng bên ngoài khung đó. Nới phạm vi luật ra toàn trang sửa một lần cho tất cả,
+và máy quét lộ thêm ba màn nữa cùng bệnh mà BA chưa thấy. Kèm theo: khai font dự phòng cho
+chữ Thái và chữ Trung, vì bộ Inter tự cài chỉ có Latinh và tiếng Việt.
+
+\section{D3 --- CardHeader \texttt{CMP-CH-001}: sáu cụm migrate + một phiên review (27/08 -- 04/09)}
+
+Cụm lớn nhất sprint. Kiểm kê \texttt{docs/d3-cardheader-inventory.md} lọc 218 ứng viên xuống
+\textbf{103 chỗ gọi thật}, phân loại \textbf{theo tổ tiên DOM chứ không theo tên class} (kế
+thừa bài học C8), trong đó có 31 ``giả-heading'' là thẻ \texttt{<p>}/\texttt{<span>} đóng vai
+tiêu đề --- đúng bệnh BA nêu.
+
+\begin{itemize}
+\item \textbf{D3a} 27/08 --- dựng \texttt{wj\_card\_header} + 10 chỗ gọi mẫu.
+\item \textbf{D3b} 28/08 --- 26 chỗ gọi, phủ 36/103.
+\item \textbf{D3c} 02/09 --- 11 chỗ gọi, phủ 47/103.
+\item \textbf{D3d} 04/09 --- 14 chỗ gọi ở màn thi, phủ 61/103.
+\item \textbf{D3e} 04/09 --- 24 chỗ gọi ở đổi trả và lịch sử, phủ 85/103.
+\item \textbf{D3f} + review 04/09 --- 10 chỗ gọi cuối, \textbf{95/105}, rồi một phiên đo lại
+  toàn cụm bằng ảnh chụp trên chính UAT.
+\end{itemize}
+
+Bốn bài học đắt nhất của cụm này, đáng nhớ hơn cả con số:
+
+\begin{enumerate}
+\item \textbf{Số đo Pass hết mà bố cục vẫn vỡ.} Ở D3c, sau migrate thì mọi chỉ số cỡ chữ,
+  dòng cao, màu, khoảng cách đều đạt --- nhưng nhãn trạng thái \textbf{trôi ra mép phải cột}
+  vì vùng dẫn của component là \texttt{flex:1 1 auto} nên nở hết bề rộng. Chỉ ảnh chụp mới
+  bắt được. Từ đó chốt: cụm giao diện nào cũng phải có một lượt review bằng ảnh.
+\item \textbf{\texttt{:not()} mang độ đặc hiệu của tham số.} Ở D3b, tiêu đề trong
+  \texttt{.card > .card-body} ra màu \texttt{\#212529} thay vì \texttt{\#111827}. Giả thuyết
+  ``thiếu token'' \textbf{sai}; thủ phạm truy bằng CDP là một luật của theme Vuexy đạt
+  \texttt{(0,4,1)} nhờ \texttt{:not()}, đè luật của component ở \texttt{(0,1,0)}.
+\item \textbf{Đo rồi mới thêm luật --- và kết luận là không thêm gì.} Sáu lớp thân thẻ
+  ``ứng viên'' bị nghi cộng chồng khoảng cách; đo thật thì \emph{không lớp nào} cộng chồng,
+  thêm luật mù sẽ bóp nhịp xuống dưới chuẩn BA.
+\item \textbf{Harness sai còn nguy hơn không đo.} Lượt đo UAT đầu của D3b báo chín cảnh báo
+  thì chỉ ba là lỗi thật: ba cái do đường dẫn không tồn tại nên Odoo trả trang danh sách và
+  máy đo nhầm trang, ba cái do kỳ vọng viết quá rộng.
+\end{enumerate}
+
+Phiên review 04/09 (\texttt{0d8366d}) đo \textbf{quan hệ} thay vì đo tuyệt đối: 31 đường dẫn
+$\times$ 4 khổ màn = 124 lượt, 174 tiêu đề trong thẻ --- 0 lỗi kịch bản, 0 tràn ngang, 0 nhóm
+cỡ chữ trôi chưa giải trình. Sửa ba chỗ, trong đó có một lỗi tương phản \textbf{có sẵn}
+(3,74 lên 5,42). Xoá 17 lớp CSS chết. Bài học D3c của phiên review: chứng minh bản cài đặt ăn
+thật phải bằng \emph{giá trị chỉ có sau khi sửa}, không phải bằng việc nhìn thấy bảng sạch cờ.
+
+Issue \texttt{UI-CARDHEADER-001} \textbf{chưa đóng}: BA đã tự chuyển sang
+\texttt{Need Clarification} nên Dev không ghi sheet được, và bản thân nó vẫn ở 95/105 vì chín
+chỗ còn lại đều là câu hỏi treo chờ BA.
+
+\section{\texttt{WJ-FRANCHISE-003} --- Onboarding cửa hàng một luồng (04/09)}
+
+Issue Severity High, BA mở 02/09. Mở một cửa hàng mới đang phải đi qua ba màn rời: tạo hồ sơ
+cửa hàng, tự tìm rồi gắn đối tác, sang phần Người dùng tạo tài khoản và phải tự biết chọn
+đúng loại tài khoản (có khi phải bật chế độ kỹ thuật), rồi quay lại gán thành viên. Hậu quả:
+dễ đẻ đối tác và tài khoản trùng, gắn nhầm đối tác cửa hàng thành hồ sơ cá nhân, bỏ sót thành
+viên.
+
+Commit \texttt{8a4932e}, module \texttt{wujia\_franchise} \texttt{19.0.3.1.1} $\to$
+\texttt{19.0.4.0.0}. \textbf{Không bảng mới, không đổi cấu trúc dữ liệu, không migration,
+Portal không đụng một dòng.}
+
+\begin{itemize}
+\item \texttt{wujia.franchise.onboarding.wizard} (transient) + dòng con
+  \texttt{...member.line}: một màn gộp bốn việc, vào được từ menu \emph{Vận hành $\to$
+  Onboarding cửa hàng} và từ hai nút trên hồ sơ cửa hàng.
+\item \texttt{status} đổi mặc định \texttt{active} $\to$ \texttt{draft}; bản ghi cũ giữ
+  nguyên.
+\item \texttt{\_assert\_ready\_to\_activate()} gọi từ \texttt{action\_set\_active()}: phải có
+  đối tác và ít nhất một chủ tiệm hiệu lực. Đặt ở \textbf{method hành động}, không phải
+  \texttt{@api.constrains} --- bài học L12: constrains sẽ khoá cứng cửa hàng cũ, sửa ghi chú
+  cũng không nổi.
+\item Dò trùng đối tác theo tên / 8 số cuối điện thoại / thư điện tử / mã số thuế, chặn tới
+  khi HQ tick xác nhận.
+\item Ba lớp chặn cho tài khoản sẵn có: nhóm nội bộ, đã lưu trữ, đã là thành viên --- báo lỗi
+  rõ và \textbf{tuyệt đối không tự sửa quyền của ai}.
+\item Quyền: \texttt{\_assert\_hq()} kiểm nhóm rồi mới \texttt{sudo()}, thay vì cấp quyền
+  quản trị người dùng cho HQ (rộng hơn nhiều so với điều BA cần).
+\item Tái dùng: \texttt{res.partner.\_wujia\_franchise\_mapping()} của cụm C1 cho cảnh báo
+  mapping, \texttt{main\_owner\_member\_id} sẵn có cho điều kiện kích hoạt, và tách
+  \texttt{ROLE\_SELECTION} ra hằng dùng chung thay vì chép lại danh sách vai trò.
+\end{itemize}
+
+\paragraph{Lý do / Trade-off.} Hai quyết định đáng ghi. Thứ nhất, \textbf{hồ sơ cá nhân của
+tài khoản Portal đứng độc lập, không làm con của đối tác cửa hàng}: gắn cha thì danh bạ gọn
+hơn, nhưng khi đó ``đối tác thương mại'' của người dùng chính là cửa hàng, và bộ quy tắc suy
+ra cửa hàng từ đối tác (dựng ở cụm C1) sẽ tự gán cửa hàng cho mọi chứng từ mang tên cá nhân
+đó --- lẫn công nợ. Thứ hai, \textbf{cửa hàng Nháp mới chỉ bị chặn ở Portal}: lớp chặn đơn
+hàng và hoá đơn nằm trong code vừa nghiệm thu ở C1/C2, đụng vào là phải chạy lại toàn bộ hồi
+quy cụm ấy, nên ghi thành LIMIT tường minh cho BA quyết.
+
+\paragraph{Chứng minh.} 18 phép thử mới, \textbf{bảy lớp kiểm tra đều được chứng minh có tác
+dụng bằng mutation} --- tạm gỡ từng lớp ra thì đúng phép thử tương ứng đỏ. Đáng nói là lượt
+mutation đầu tiên phát hiện lớp chặn ``tài khoản nội bộ'' \emph{không được chứng minh}: gỡ nó
+ra mà không phép thử nào đỏ, vì lớp kế tiếp bắt hộ. Phải siết phép thử để nó kiểm đúng nội
+dung thông báo thì mutation mới đỏ --- đúng bài học L8 rằng khẳng định lỏng là khẳng định
+rỗng.
+
+\paragraph{Hồi quy chứng minh bằng đối chứng.} Chạy 13 module: bản có thay đổi ra
+\texttt{0 failed, 7 error / 299}; chạy \emph{đúng lệnh đó} trên bản chưa thay đổi (stash) ra
+\texttt{0 failed, 7 error / 282}. Bảy lỗi giống hệt $\Rightarrow$ có sẵn, do
+\texttt{wujia\_portal\_inspection} chưa cài trên DB kiểm thử. Không có lượt đối chứng này thì
+bảy lỗi đó rất dễ bị quy oan cho đợt sửa.
+
+\paragraph{Đo trước khi bật cổng.} Đọc chỉ-đọc trên UAT qua XML-RPC: 3 cửa hàng, cả 3 đang
+hoạt động, 0 cửa hàng thiếu đối tác, \textbf{1 cửa hàng \texttt{HN-02} thiếu chủ tiệm hiệu
+lực}. Vì điều kiện đặt ở nút nên \texttt{HN-02} vẫn chạy bình thường.
+
+\paragraph{Ghi lại cho BA.} Spec để mở nhiều chi tiết kỹ thuật, nên toàn bộ \textbf{12 điểm
+Dev phải tự quyết} được ghi thành một bản riêng
+(\texttt{docs/wj-franchise-003-dev-decisions.md}), mỗi mục nêu \emph{spec nói gì $\cdot$ Dev
+chọn gì $\cdot$ vì sao $\cdot$ đổi thì mất gì}. Trong đó có một phát hiện ngoài phạm vi:
+màn phiếu giám sát cửa hàng cũng đang tự sinh tài khoản Portal bằng cách so khớp \emph{theo
+tên} rồi đặt tên đăng nhập ngẫu nhiên --- đúng nguồn sinh tài khoản trùng mà issue này muốn
+dẹp, nhưng nằm ở luồng khác nên đề nghị BA mở issue riêng.
+
+\section{Trạng thái cuối sprint}
+
+\begin{itemize}
+\item Đã handoff cho BA: \texttt{UAT-BH-001/003/005/006} (D1),
+  \texttt{WJ-PORTAL-UI-002/003/004} (D2), \texttt{WJ-FRANCHISE-003}.
+\item Còn treo: \texttt{UI-CARDHEADER-001} ở \texttt{Need Clarification} --- cần gửi BA một
+  lượt gộp năm câu hỏi để gỡ.
+\item Chưa deploy UAT: \texttt{wujia\_franchise 19.0.4.0.0}, lệnh
+  \texttt{-u wujia\_franchise}, không cần đổi số hiệu bộ giao diện.
+\end{itemize}
