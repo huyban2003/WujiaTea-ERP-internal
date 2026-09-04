@@ -1335,6 +1335,16 @@ WJ-PORTAL-UI-002:
 # ⇒ Phiên kế KHÔNG phải migrate tiếp, mà là REVIEW LẠI TOÀN CỤM D3 BẰNG ẢNH CHỤP
 #    (chủ dự án chốt 04/09) + một lượt gửi BA gộp 5 câu hỏi treo ở trên.
 #
+# ✅ D3 REVIEW 04/09 ĐÃ CHẠY — docs/d3-review-matrix.md. Vẫn 95/105, KHÔNG migrate thêm.
+#    Đo QUAN HỆ 31 route × 4 viewport = 124 lượt, 174 CardHeader: 0 lỗi JS, 0 tràn ngang,
+#    0 nhóm cỡ chữ DRIFT chưa giải trình. Sửa 3 chỗ: khối con màn thi 18→16px (D3d làm mất
+#    phân cấp mà bảng số vẫn Pass) · head danh mục khảo sát mobile #0284c7→#0369a1
+#    (tương phản 3.74 → 5.42, lỗi a11y CÓ SẴN) · gom 2 rule nhãn phụ trùng nhau về modifier
+#    chung. Xoá 17 lớp CSS chết (semantic diff: MẤT đúng danh sách, THÊM 0).
+#    Test wujia_card_header_d3: 0 failed / 52 (baseline D3f 44), 8 guard mới đều
+#    chứng minh bằng mutation. Δquery 7/7 route D3 = 0.
+#    VẪN CHƯA 100% ⇒ giữ nguyên COMMENT, KHÔNG chạy qa_sync.py.
+#
 # ⚠️ Khối YAML bên dưới vẫn là số liệu của D3a — D3n phải viết lại theo tổng cuối cùng,
 #    đừng bỏ dấu # rồi đẩy nguyên số cũ lên sheet.
 # 🔧 D3n (phiên phủ nốt 100%) chỉ việc BỎ dấu # của khối dưới, cập nhật lại các con số

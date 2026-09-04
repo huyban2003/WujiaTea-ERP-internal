@@ -108,16 +108,17 @@
                                     <t t-set="ch_title">Phân bổ kết quả</t>
                                     <t t-set="ch_level" t-value="3"/>
                                     <t t-set="ch_platform" t-value="'pc'"/>
-                                    <t t-set="ch_class" t-value="'wj-insp-sublabel'"/>
+                                    <t t-set="ch_class" t-value="'wj-card-header--sublabel wj-insp-sublabel'"/>
                                 </t>
                                 <div class="row g-3">
                                     <t t-foreach="category_summaries" t-as="c_sum">
+                                        <t t-set="_cs_sev" t-value="c_sum.get('is_severe')"/>
                                         <div class="col-md-3">
                                             <a t-attf-href="##{c_sum.get('target_sec')}_pc"
-                                                t-attf-class="summary-2x2-card text-center d-block text-decoration-none #{'severe-card' if c_sum.get('is_severe') else ''}"
+                                                t-attf-class="summary-2x2-card text-center d-block text-decoration-none #{'severe-card' if _cs_sev else ''}"
                                                 style="height: 100%;">
                                                 <div
-                                                    t-attf-class="summary-val-text #{'severe-val' if c_sum.get('is_severe') else ''}">
+                                                    t-attf-class="summary-val-text #{'severe-val' if _cs_sev else ''}">
                                                     <t t-out="c_sum.get('val_str')" />
                                                 </div>
                                                 <div class="small text-muted mt-1">
@@ -426,11 +427,12 @@
                                 <div
                                     class="row justify-content-center g-2 pb-2 text-center wj-distribution-row">
                                     <t t-foreach="category_summaries" t-as="c_sum">
+                                        <t t-set="_cs_sev" t-value="c_sum.get('is_severe')"/>
                                         <div class="col">
                                             <a t-attf-href="##{c_sum.get('target_sec')}"
-                                                t-attf-class="wj-dist-card m-auto #{'severe-card' if c_sum.get('is_severe') else ''}">
+                                                t-attf-class="wj-dist-card m-auto #{'severe-card' if _cs_sev else ''}">
                                                 <div
-                                                    t-attf-class="wj-dist-val #{'severe-val' if c_sum.get('is_severe') else ''}">
+                                                    t-attf-class="wj-dist-val #{'severe-val' if _cs_sev else ''}">
                                                     <t t-out="c_sum.get('val_str')" />
                                                 </div>
                                             </a>

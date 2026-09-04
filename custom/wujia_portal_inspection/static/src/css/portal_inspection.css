@@ -727,15 +727,6 @@
 }
 
 /* ---------- CMP-CH-001 (D3f) ---------- */
-/* Nhãn phụ giữa thân card: phải nhỏ hơn tiêu đề card, không thì mất phân cấp
-   (tiền lệ D3e). Dùng đúng 14px của nhãn phụ D3e để cả portal một cỡ, KHÔNG giữ
-   12.3px riêng của inspection. Thêm `.wj-pc-card` để thắng rule biến thể (0,3,0)
-   của component nằm ở bundle khác; font-size bị component đặt !important. */
-.wj-pc-card .wj-card-header.wj-insp-sublabel .wj-card-header__title {
-    font-size: .875rem !important;
-    line-height: 1.2;
-}
-
 /* Tiêu đề tiêu chí trong hộp "Tiêu chí vi phạm": 14px/700 là THIẾT KẾ — nó là
    chữ chính của hộp, lấy 18px của component thì hộp vỡ, lấy .875rem của nhãn phụ
    thì tụt ngang hàng nhãn muted phía trên, mất phân cấp. */
@@ -763,7 +754,10 @@
 .wj-insp-sechead--m .wj-card-header.wj-insp-sechead__hb .wj-card-header__title {
     font-size: .95rem !important;
     line-height: 1.35;
-    color: #0284c7 !important;
+    /* #0284c7 trên nền #f1f5f9 chỉ đạt tương phản 3.74 (< AA 4.5). Đậm thêm một
+       bậc CÙNG hệ xanh nhận diện => 5.1, chữ vẫn là "xanh danh mục" như thiết kế.
+       Lỗi có sẵn trước D3f; chủ dự án chốt sửa luôn 2026-09-04. */
+    color: #0369a1 !important;
 }
 /* Phải bám đủ `.wj-card-header.wj-insp-sechead__hb` mới lên (0,5,0): rule màu
    xanh ngay trên đã là (0,4,0)!important, viết ngắn hơn là THUA — bẫy đặc hiệu

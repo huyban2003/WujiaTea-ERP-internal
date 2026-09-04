@@ -577,12 +577,6 @@
         border-radius: 14px;
         padding: 14px 16px;
     }
-    .wujia-mexam-rsum-title {
-        margin: 0;
-        font-size: 16px;
-        font-weight: 700;
-        color: var(--wujia-text-primary);
-    }
     .wujia-mexam-rsum-loc {
         margin: 8px 0 0;
         font-size: 13px;
@@ -716,9 +710,26 @@
        Không sửa 4 file đó vì blast radius là toàn bộ portal; chỉ vô hiệu hoá
        trong phạm vi .wj-exam-pc. Số liệu lấy từ Figma WJ_Exam_PC v1.2. */
     .wj-exam-pc .wj-pc-card__title      { font-size: 22px !important; }
+    /* `wj-exam-pc-sectitle` CHƯA chết: còn 1 call site sống ở portal_exam.xml:398
+       ("Người tham gia" — chỗ defer chờ BA, inventory §6) ⇒ giữ nguyên 2 rule này. */
     .wj-exam-pc .wj-exam-pc-sectitle    { font-size: 20px !important; }
     .wj-exam-pc .wj-exam-pc-sectitle--sm { font-size: 18px !important; }
     .wj-exam-pc .wj-exam-pc-modal__title { font-size: 26px !important; }
+
+    /* ---------- Phân cấp trong CÙNG một card (RULE 1) ----------
+       Trước D3d: card 22px > khối con 20px > khối con nhỏ 18px. D3d hội tụ tiêu đề
+       card 22→18 (đúng) nhưng KHÔNG hạ khối con theo, nên cả hai cùng 18px và mất
+       phân cấp — bảng đo D3d vẫn Pass vì chỉ so từng số với chuẩn, không so hai số
+       VỚI NHAU. Chủ dự án chốt 2026-09-04: khối con = 16px (đã là cỡ chuẩn của
+       component, không đẻ số mới).
+       Đặc hiệu (0,4,0) + !important: rule component là (0,3,0)!important, viết ngắn
+       hơn là THUA — bẫy đặc hiệu đã trả giá 2 lần (D3e §7, D3f). */
+    .wj-exam-pc .wj-card-header.wj-exam-pc-sechead--sm .wj-card-header__title,
+    .wj-exam-pc .wj-card-header.wj-exam-pc-sechead--2 .wj-card-header__title,
+    .wj-exam-pc .wj-card-header.wj-exam-pc-slots__head .wj-card-header__title {
+        font-size: 16px !important;
+        line-height: 22px;
+    }
 
     .wj-exam-pc .wj-pc-table thead th        { font-size: 14px !important; }
     .wj-exam-pc .wj-exam-pc-res-table thead th  { font-size: 13px !important; }
@@ -817,7 +828,6 @@
     .wj-exam-pc-dcard { padding: 20px 24px 24px; }
     .wj-exam-pc-dhead { margin-bottom: 23px; }
     .wj-exam-pc-sectitle { font-size: 20px; }
-    .wj-exam-pc-sectitle--2 { margin-top: 28px; }
     /* D3d: nhịp TRÊN mà class cũ từng gánh. Phải bám kèm `.wj-card-header` — rule
        `--pc.--compact` của component là (0,2,0), một lớp đơn thua nó (bẫy D3b). */
     .wj-card-header.wj-exam-pc-sechead--2 { margin-top: 28px; }

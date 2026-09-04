@@ -6,6 +6,7 @@ trailing ra markup thô để `wj_ajax_list` swap được, icon trang trí có 
 compact là mặc định và migrate KHÔNG được cộng chồng margin header với body.
 """
 import os
+import re
 
 from lxml import html
 from markupsafe import Markup
@@ -381,16 +382,20 @@ class TestCardHeaderD3eLayout(TransactionCase):
         # 4 nhãn phụ trong thân card: chuẩn hoá cấu trúc nhưng KHÔNG được to bằng
         # tiêu đề card cha, nếu không một card có ba dòng chữ cùng cỡ.
         arch = self._arch('wujia_portal_return.portal_return_detail')
-        self.assertEqual(arch.count("'wj-return-sublabel"), 4)
+        # Từ D3 REVIEW, ch_class mở đầu bằng modifier chung rồi mới tới lớp module.
+        self.assertEqual(arch.count("wj-card-header--sublabel wj-return-sublabel"), 4)
         path = os.path.join(os.path.dirname(__file__), '..', '..', 'wujia_portal_return',
                             'static', 'src', 'css', 'portal_return.css')
         with open(path, encoding='utf-8') as fh:
             css = fh.read()
-        # Bám kèm `.wj-card-header` + tổ tiên `.card-body` để thắng rule biến thể (0,2,0).
+        # Cỡ chữ đã về modifier dùng chung `wj-card-header--sublabel` (D3 REVIEW
+        # 2026-09-04) — ở lại file module đúng phần MÀU riêng. Quan hệ được giữ
+        # vẫn y nguyên: nhãn phụ .875rem < tiêu đề card 18px.
         self.assertRegex(
             css,
             r'\.card-body > \.wj-card-header\.wj-return-sublabel'
-            r'\s+\.wj-card-header__title\s*\{[^}]*font-size:\s*\.875rem')
+            r'\s+\.wj-card-header__title\s*\{[^}]*color:')
+        self.assertEqual(arch.count('wj-card-header--sublabel'), 4)
 
 
 class TestCardHeaderExamJsContract(TransactionCase):
@@ -530,10 +535,10 @@ class TestCardHeaderD3f(TransactionCase):
         # Nhãn phụ giữa thân card (`Phân bổ kết quả`) và tiêu đề tiêu chí trong hộp
         # `Tiêu chí vi phạm` — mỗi cái một cỡ THIẾT KẾ, đều nhỏ hơn tiêu đề card.
         css = self._css('wujia_portal_inspection', 'portal_inspection.css')
-        self.assertRegex(
-            css,
-            r'\.wj-pc-card \.wj-card-header\.wj-insp-sublabel'
-            r'\s+\.wj-card-header__title\s*\{[^}]*font-size:\s*\.875rem\s*!important')
+        # `wj-insp-sublabel` nay lấy cỡ từ modifier chung `wj-card-header--sublabel`
+        # (D3 REVIEW 2026-09-04) — call site phải mang kèm modifier đó.
+        self.assertIn('wj-card-header--sublabel wj-insp-sublabel',
+                      self._arch('wujia_portal_inspection.portal_inspection_detail'))
         self.assertRegex(
             css,
             r'\.wj-pc-card \.wj-card-header\.wj-insp-critlabel'
@@ -545,3 +550,144 @@ class TestCardHeaderD3f(TransactionCase):
         # 2 vòng lặp (PC + mobile), mỗi vòng đúng MỘT lần tính cờ.
         self.assertEqual(arch.count('_sec_sev'), 6)
         self.assertEqual(arch.count("sec.get('is_severe') and sec.get('total_deducted') &gt; 0"), 2)
+
+
+@tagged('post_install', '-at_install', 'wujia_card_header_d3')
+class TestCardHeaderD3Review(TransactionCase):
+    """D3 REVIEW (2026-09-04) — phiên soát lại cả cụm bằng phép đo QUAN HỆ.
+
+    Bảng đo cũ chỉ hỏi "số này có đúng chuẩn không" nên Pass sạch ba lần mà giao
+    diện vẫn vỡ. Ở đây mỗi guard giữ một QUAN HỆ: nhãn phụ phải nhỏ hơn tiêu đề
+    card cùng card, hai module cùng vai trò phải dùng CHUNG một khai báo, và chữ
+    phải đủ tương phản với nền của chính nó.
+    """
+
+    def _read(self, rel):
+        path = os.path.join(os.path.dirname(__file__), '..', '..', rel)
+        with open(path, encoding='utf-8') as fh:
+            return fh.read()
+
+    def _arch(self, xmlid):
+        return self.env.ref(xmlid).arch_db
+
+    COMPONENTS = 'wujia_portal_layout/static/assets/css/_components.css'
+    EXAM = 'wujia_portal_exam/static/src/css/portal_exam.css'
+    INSP = 'wujia_portal_inspection/static/src/css/portal_inspection.css'
+    RETURN = 'wujia_portal_return/static/src/css/portal_return.css'
+
+    # --- nhãn phụ: một khai báo dùng chung, không chép hai bản -------------
+
+    def test_sublabel_size_lives_in_one_shared_rule(self):
+        # Trước phiên này `portal_return.css` và `portal_inspection.css` có HAI bản
+        # trùng tuyệt đối cho cùng vai trò "nhãn phụ giữa thân card". Gộp về một
+        # modifier ở component: sửa một chỗ là sửa hết (đồng bộ ở tầng code).
+        css = self._read(self.COMPONENTS)
+        self.assertRegex(
+            css,
+            r'\.wj-card-header\.wj-card-header--any\.wj-card-header--sublabel'
+            r'\s+\.wj-card-header__title,[^{]*\{[^}]*font-size:\s*\.875rem\s*!important')
+        # Đủ ba nền tảng, không thì bản mobile/pc rơi về 18px của component.
+        for plat in ('any', 'm', 'pc'):
+            self.assertIn('.wj-card-header.wj-card-header--%s.wj-card-header--sublabel'
+                          % plat, css)
+
+    def test_module_css_no_longer_redeclares_sublabel_size(self):
+        # Còn bản chép tay nào là "đồng bộ" lại vỡ ngay lần sửa sau.
+        for rel in (self.RETURN, self.INSP):
+            with self.subTest(css=rel):
+                self.assertNotRegex(
+                    self._read(rel),
+                    r'\.wj-(return|insp)-sublabel[^{}]*\.wj-card-header__title\s*\{'
+                    r'[^}]*font-size')
+
+    def test_sublabel_call_sites_carry_the_shared_modifier(self):
+        # 5 chỗ: 4 ở phiếu trả hàng (D3e) + 1 ở khảo sát (D3f).
+        self.assertEqual(
+            self._arch('wujia_portal_return.portal_return_detail')
+            .count('wj-card-header--sublabel'), 4)
+        self.assertEqual(
+            self._arch('wujia_portal_inspection.portal_inspection_detail')
+            .count('wj-card-header--sublabel'), 1)
+
+    # --- phân cấp trong CÙNG một card (RULE 1) ----------------------------
+
+    def test_exam_nested_labels_step_down_from_the_card_title(self):
+        # D3d hội tụ tiêu đề card 22->18 nhưng không hạ khối con theo, nên cả hai
+        # cùng 18px và mất phân cấp — bảng đo D3d vẫn Pass vì so từng số với chuẩn
+        # chứ không so hai số VỚI NHAU. Chủ dự án chốt khối con = 16px.
+        css = self._read(self.EXAM)
+        self.assertRegex(
+            css,
+            r'\.wj-exam-pc \.wj-card-header\.wj-exam-pc-sechead--sm'
+            r'\s+\.wj-card-header__title,\s*'
+            r'\.wj-exam-pc \.wj-card-header\.wj-exam-pc-sechead--2'
+            r'\s+\.wj-card-header__title,\s*'
+            r'\.wj-exam-pc \.wj-card-header\.wj-exam-pc-slots__head'
+            r'\s+\.wj-card-header__title\s*\{[^}]*font-size:\s*16px\s*!important')
+        # 16px phải NHỎ HƠN 18px của tiêu đề card exam (đang khai ngay trên nó).
+        self.assertRegex(css, r'\.wj-exam-pc \.wj-pc-card__title\s*\{'
+                              r'[^}]*font-size:\s*22px\s*!important')
+
+    def test_exam_sectitle_rules_survive_because_a_call_site_is_still_live(self):
+        # `wj-exam-pc-sectitle` CHƯA chết: còn 1 call site ở portal_exam.xml
+        # ("Người tham gia" — chỗ defer chờ BA). Xoá rule là vỡ im lặng.
+        css = self._read(self.EXAM)
+        self.assertRegex(css, r'\.wj-exam-pc \.wj-exam-pc-sectitle\s*\{'
+                              r'[^}]*font-size:\s*20px\s*!important')
+
+    # --- tương phản chữ / nền (a11y) --------------------------------------
+
+    def test_mobile_category_head_meets_wcag_aa(self):
+        # #0284c7 trên #f1f5f9 chỉ được 3.74. Guard tính THẬT tỉ số tương phản
+        # chứ không chỉ so chuỗi màu — đổi màu khác mà vẫn tối là vẫn đỏ.
+        css = self._read(self.INSP)
+        m = re.search(
+            r'\.wj-insp-sechead--m \.wj-card-header\.wj-insp-sechead__hb'
+            r'\s+\.wj-card-header__title\s*\{[^}]*color:\s*(#[0-9a-fA-F]{6})',
+            css)
+        self.assertTrue(m, 'mất rule màu head danh mục bản mobile')
+        self.assertGreaterEqual(round(_contrast(m.group(1), '#f1f5f9'), 2), 4.5)
+
+    # --- điều kiện tính một lần -------------------------------------------
+
+    def test_category_severe_flag_computed_once_per_loop(self):
+        # Bài học `_sec_sev` của D3f, áp cho vòng lặp thẻ phân bổ: 2 vòng (PC +
+        # mobile), mỗi vòng đúng MỘT lần tính cờ, hai chỗ dùng lại.
+        arch = self._arch('wujia_portal_inspection.portal_inspection_detail')
+        self.assertEqual(arch.count('_cs_sev'), 6)
+        self.assertEqual(arch.count("c_sum.get('is_severe')"), 2)
+
+    # --- CSS chết đã xoá ----------------------------------------------------
+
+    DEAD = (
+        'wujia-content-card-header', 'wujia-mdash-title', 'wujia-mhist-card-head',
+        'wujia-mknow-h', 'wujia-maccount-store-name', 'wj-pc-acct-staff__title',
+        'wj-pc-order-head__code', 'wj-pc-cart-title', 'wj-pc-dlv-head-meta',
+        'wujia-mexam-rsum-title', 'wujia-mnoti-detail-sectitle',
+        'wj-exam-pc-sectitle--2',
+    )
+    DEAD_CSS = (COMPONENTS, EXAM,
+                'wujia_portal_layout/static/assets/css/_pc_account.css',
+                'wujia_portal_layout/static/assets/css/_pc_components.css',
+                'wujia_portal_sale/static/src/css/portal_order.css',
+                'wujia_portal_delivery/static/src/css/portal_delivery.css',
+                'wujia_portal_notification/static/src/css/portal_notification.css')
+
+    def test_dead_card_header_classes_stay_deleted(self):
+        # Chúng đã hết call site sau khi D3 migrate 95 chỗ; để lại là mỗi phiên sau
+        # lại phải đọc và đoán xem còn sống không.
+        for rel in self.DEAD_CSS:
+            css = self._read(rel)
+            for cls in self.DEAD:
+                with self.subTest(css=rel, cls=cls):
+                    self.assertNotRegex(css, r'\.%s([^-_a-zA-Z0-9]|$)' % re.escape(cls))
+
+
+def _contrast(fg, bg):
+    """Tỉ số tương phản WCAG 2.1 giữa hai màu hex."""
+    def lum(h):
+        c = [int(h[i:i + 2], 16) / 255 for i in (1, 3, 5)]
+        c = [x / 12.92 if x <= 0.04045 else ((x + 0.055) / 1.055) ** 2.4 for x in c]
+        return 0.2126 * c[0] + 0.7152 * c[1] + 0.0722 * c[2]
+    a, b = sorted((lum(fg), lum(bg)), reverse=True)
+    return (a + 0.05) / (b + 0.05)

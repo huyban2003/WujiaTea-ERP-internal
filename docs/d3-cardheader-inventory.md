@@ -229,6 +229,21 @@ rule màu xanh mobile (0,4,0)`!important` ngay trên nó ⇒ tiêu đề nhánh 
 trên nền đỏ**. Quy tắc: rule scope mới phải **đếm đặc hiệu so với chính các rule scope cùng file**,
 không chỉ so với component.
 
+### Quyết định D3 REVIEW (2026-09-04) — đã làm, đừng mở lại
+
+Chi tiết + bằng chứng ảnh/số: `docs/d3-review-matrix.md`.
+
+| Chỗ | Phán quyết | Lý do |
+|---|---|---|
+| Nhãn khối con trong card màn thi (`wj-exam-pc-sechead--sm` · `--2` · `wj-exam-pc-slots__head`) | **DRIFT → hội tụ 18px → 16px** | D3d hạ tiêu đề card 22→18 nhưng không hạ khối con theo ⇒ ba bậc sập thành một. 16px là cỡ chuẩn sẵn có của component, không đẻ số mới |
+| Head danh mục khảo sát bản mobile `#0284c7` | **Lỗi a11y có sẵn → sửa `#0369a1`** | tương phản 3.74 < AA 4.5; đậm một bậc cùng hệ xanh ⇒ 5.42, giữ nguyên vai trò "xanh danh mục" |
+| Nhãn phụ giữa thân card (`wj-return-sublabel`, `wj-insp-sublabel`) | **THIẾT KẾ, nhưng gom về modifier chung `wj-card-header--sublabel`** | hai bản CSS trùng tuyệt đối cho cùng một vai trò ⇒ đồng bộ ở tầng code; màu riêng vẫn ở module |
+| Badge `ch_meta` 3 nhánh của khảo sát (PC + mobile) | **KHÔNG gom template con** | hai bản khác thật 4 điểm (13/12px, bo góc, padding, lớp nhánh `else`) ⇒ tham số hoá lãi không bù rủi ro; để D4 |
+| Nhịp header→body 18/12/24/**36**px ở `/portal/exam/register` | **TREO — hỏi chủ dự án** | chênh lệch nằm ở `margin-top` của THÂN card, không thuộc hợp đồng `CMP-CH-001` |
+
+🔴 **Whitelist THIẾT KẾ chỉ được chứa thứ chủ dự án đã chốt.** Trong phiên này tôi từng tự thêm một
+dòng không có nguồn (`wj-exam-pc-sechead`) và nó **che mất đúng phát hiện chính**. Đã bỏ.
+
 ### 3 fork chủ dự án chốt ở D3c (2026-09-02) — đã làm, đừng mở lại
 
 | # | Chỗ | Fork | Phán quyết |
@@ -254,6 +269,33 @@ xoá sớm là vỡ). Danh sách phải grep ra 0 hit rồi mới xoá:
 
 Chống tái phát bằng unit test quét `arch_db` mọi view qweb — đúng khuôn
 `test_retired_heading_classes_are_gone` của C8b.
+
+### ĐÃ XOÁ ở phiên D3 REVIEW (2026-09-04) — 17 lớp / 21 selector
+
+Mỗi lớp đều grep ra **0 call site** trong view + template + JS (biên
+`\.CLASS([^-_a-zA-Z0-9]|$)`) trước khi cắt; xoá xong chạy **semantic diff CSS**
+(`scratchpad/css_semdiff.py`): **MẤT = đúng 21 selector chủ đích · THÊM = 0 · ĐỔI = 0**.
+
+`.wujia-content-card-header` (+ `-icon`, `-title`, `-link`, `-link:hover`, `-link i`, và
+`.wujia-content-card--flush > .wujia-content-card-header`) · `.wujia-mhome .wujia-mhome-section-title`
++ `.wujia-mhome .wujia-mdash-title` · `.wujia-mdash-title` · `.wujia-mhist-card-head` ·
+`.wujia-mknow-h` · `.wujia-maccount-store-name` · `.wj-pc-acct-staff__title` ·
+`.wj-pc-order-head__code` (+ `__code-row`) · `.wj-pc-cart-title` · `.wj-pc-dlv-head-meta` ·
+`.wujia-mexam-rsum-title` · `.wujia-mnoti-detail-sectitle` · `.wj-exam-pc-sectitle--2`.
+
+**CÒN GIỮ, đừng xoá ở phiên sau:**
+
+| Lớp | Vì sao còn |
+|---|---|
+| `.wj-exam-pc-sectitle` (+ `--sm`) | còn **1 call site sống** ở `portal_exam.xml:398` ("Người tham gia" — chỗ defer chờ BA §6) |
+| `.wj-pc-card__title` · `.wujia-maccount-cardtitle` · `.wj-pc-acct-panel-title` | còn call site ở các chỗ §3/§6 |
+| `.wj-debt-summary__head` | 2 rule hình học Figma S43 bám vào, có test `test_debt_summary_keeps_its_head_wrapper` |
+
+Token CSS của họ `content-card` (`--wujia-content-card-header-icon-size/-bg` ở `_variables.css`)
+**vẫn dùng** cho `.wj-card-header__icon` ⇒ giữ. Riêng `--wujia-content-card-link-color` nay không còn
+rule nào tham chiếu — để lại trong bảng token, không xoá kèm (ngoài phạm vi cụm D3).
+
+Guard: `TestCardHeaderD3Review.test_dead_card_header_classes_stay_deleted`.
 
 ## 8. Cách tái lập
 

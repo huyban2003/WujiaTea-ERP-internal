@@ -550,53 +550,6 @@ h2, .wujia-h2 { font-size: var(--wujia-font-size-h2) !important; font-weight: 60
     flex-direction: column;
 }
 
-.wujia-content-card-header {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    margin-bottom: 16px;
-}
-.wujia-content-card-header-icon {
-    flex-shrink: 0;
-    width: var(--wujia-content-card-header-icon-size);
-    height: var(--wujia-content-card-header-icon-size);
-    border-radius: 50%;
-    background: var(--wujia-content-card-header-icon-bg);
-    color: #FFFFFF;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 18px;
-    line-height: 1;
-}
-.wujia-content-card-header-title {
-    flex: 1 1 auto;
-    margin: 0;
-    font-size: 17px;
-    font-weight: 700;
-    color: var(--wujia-text-primary);
-    line-height: 1.3;
-}
-.wujia-content-card-header-link {
-    flex-shrink: 0;
-    color: var(--wujia-content-card-link-color) !important;
-    font-size: 14px;
-    font-weight: 500;
-    text-decoration: none !important;
-    display: inline-flex;
-    align-items: center;
-    gap: 4px;
-    white-space: nowrap;
-}
-.wujia-content-card-header-link:hover {
-    color: var(--wujia-primary-dark) !important;
-    text-decoration: none !important;
-}
-.wujia-content-card-header-link i {
-    font-size: 16px;
-    line-height: 1;
-}
-
 .wujia-content-card-body {
     list-style: none;
     margin: 0;
@@ -671,10 +624,6 @@ h2, .wujia-h2 { font-size: var(--wujia-font-size-h2) !important; font-weight: 60
 /* Flush variant — drops padding so child tables/lists span edge-to-edge. */
 .wujia-content-card--flush {
     padding: 0;
-}
-.wujia-content-card--flush > .wujia-content-card-header {
-    padding: var(--wujia-content-card-padding) var(--wujia-content-card-padding) 0;
-    margin-bottom: var(--wujia-content-card-padding);
 }
 .wujia-content-card--flush > .table,
 .wujia-content-card--flush > .table-responsive > .table {
@@ -1009,19 +958,13 @@ a.wujia-mhome-kpi:active { opacity: 0.85; }
 }
 
 /* ---------- Grid "Hành động nhanh" — Figma #4712:2 v4 ---------- */
-/* UI-MOB-HOME-002: token thống nhất cho MỌI tiêu đề section cấp 1 ở Home =
-   18px / line-height 24px / weight 700. Scope .wujia-mhome để KHÔNG đụng
-   .wujia-mdash-title dùng chung Support/Return; !important để thắng global h2
-   (24px) trên các section h2.wujia-mdash-title. Retest cũ fail vì thiếu
-   line-height (BA yêu cầu 24px rõ ràng) → bổ sung. Ngoại lệ: title trong card
-   "Khung giờ đặt hàng" (.wujia-mhome-window-title, 14px) GIỮ hierarchy riêng,
-   KHÔNG dùng token này (đúng "Mong muốn" của issue). */
-.wujia-mhome .wujia-mhome-section-title,
-.wujia-mhome .wujia-mdash-title {
-    font-size: 18px !important;
-    line-height: 24px !important;
-    font-weight: 700 !important;
-}
+/* UI-MOB-HOME-002 (lịch sử): tiêu đề section cấp 1 ở Home từng có token riêng
+   18/24/700 tại đây. Rule đó đã hết call site sau khi CMP-SH-001 (SectionHeader,
+   BA duyệt 11/08) tiếp quản — Home nay render qua `wj-section-header__title`,
+   đo trên UAT 2026-09-04 ra 20/28/700 — nên rule cũ được xoá ở phiên D3 REVIEW.
+   Ý ĐỊNH của issue vẫn giữ nguyên và vẫn đúng: tiêu đề TRONG card ("Khung giờ
+   đặt hàng", 16px qua CMP-CH-001) phải NHỎ HƠN tiêu đề section, không dùng
+   chung token với nó. */
 .wujia-mhome-actions-grid {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
@@ -2081,12 +2024,6 @@ a.wujia-mhome-kpi:active { opacity: 0.85; }
     padding: 16px;
     margin-bottom: 14px;
 }
-.wujia-mhist-card-head {
-    font-size: 16px;
-    font-weight: 700;
-    color: var(--wujia-morder-text);
-    margin-bottom: 12px;
-}
 /* Figma: 2 cột — label cột trái cố định, value căn TRÁI cùng một mốc x */
 .wujia-mhist-kv {
     display: flex;
@@ -2442,12 +2379,6 @@ a.wujia-mhome-kpi:active { opacity: 0.85; }
         color: var(--wujia-morder-text-sub);
         margin-top: 8px;
     }
-    .wujia-mknow-h {
-        font-size: 16px;
-        font-weight: 700;
-        color: var(--wujia-morder-text);
-        margin: 16px 0 8px;
-    }
     /* CMP-CH-001 chỉ định nghĩa nhịp header→body; khoảng cách với khối PHÍA TRÊN là
        việc của container (sẽ về SurfaceCard ở D4). Giữ đúng 16px của thiết kế cũ. */
     .wujia-mknow-article > .wj-card-header { margin-top: 16px; }
@@ -2542,12 +2473,6 @@ a.wujia-mhome-kpi:active { opacity: 0.85; }
         align-items: baseline;
         justify-content: space-between;
         gap: 8px;
-    }
-    .wujia-mdash-title {
-        font-size: 18px;
-        font-weight: 700;
-        color: var(--wujia-morder-text);
-        margin: 0;
     }
     .wujia-mdash-link {
         flex: 0 0 auto;
@@ -2846,12 +2771,6 @@ a.wujia-mhome-kpi:active { opacity: 0.85; }
         flex-wrap: wrap;
         gap: 8px;
         margin-bottom: 10px;
-    }
-    .wujia-maccount-store-name {
-        font-size: 18px;
-        font-weight: 700;
-        color: var(--wujia-morder-text);
-        margin: 0;
     }
     .wujia-maccount-store-sub {
         font-size: 13px;
@@ -3156,8 +3075,8 @@ a.wujia-mhome-kpi:active { opacity: 0.85; }
     min-width: 0;
     gap: 12px;
 }
-/* Icon nhận diện — tái dùng đúng token của .wujia-content-card-header-icon để 31 chỗ
-   thuộc họ đó migrate xong trông y hệt trước. */
+/* Icon nhận diện — giữ nguyên token 40px / nền primary của họ content-card cũ để 31 chỗ
+   migrate xong trông y hệt trước (lớp cũ đã xoá, token ở _variables.css:196-197). */
 .wj-card-header__icon {
     flex: 0 0 var(--wujia-content-card-header-icon-size);
     width: var(--wujia-content-card-header-icon-size);
@@ -3263,6 +3182,21 @@ a.wujia-mhome-kpi:active { opacity: 0.85; }
    caller opt-in bằng --flush. KHÔNG dùng :first-child: mỗi header là con đầu của
    card riêng nên :first-child khớp TẤT CẢ (bẫy đã trả giá ở C8).
    ⚠️ Phải kèm --m/--any: rule nhịp ở trên là (0,2,0) nên --flush trần (0,1,0) THUA. */
+/* --- Nhãn phụ giữa THÂN card (modifier dùng chung) ---
+   Không mở đầu card ⇒ phải nhỏ hơn tiêu đề card, không thì mất phân cấp (RULE 1).
+   Gom từ hai bản TRÙNG TUYỆT ĐỐI ở portal_return.css (D3e) và portal_inspection.css
+   (D3f) — sửa một chỗ là sửa hết; màu riêng của từng module vẫn để ở module đó.
+   Đặc hiệu (0,4,0): rule cỡ chữ của component là (0,3,0)!important ở CẢ hai bundle,
+   nên phải bám thêm lớp nền tảng thay vì trông chờ thứ tự nạp file (bẫy đặc hiệu
+   D3e §7 / D3f, đã trả giá 2 lần). */
+.wj-card-header.wj-card-header--any.wj-card-header--sublabel .wj-card-header__title,
+.wj-card-header.wj-card-header--m.wj-card-header--sublabel .wj-card-header__title,
+.wj-card-header.wj-card-header--pc.wj-card-header--sublabel .wj-card-header__title {
+    font-size: .875rem !important;
+    line-height: 1.2;
+}
+.wj-card-header--sublabel { margin: 0 0 .5rem; }
+
 .wj-card-header--flush { margin-top: 0; margin-bottom: 0; }
 .wj-card-header--m.wj-card-header--flush,
 .wj-card-header--any.wj-card-header--flush { margin: 0; }

@@ -1,6 +1,6 @@
 {
     'name': 'Wujia Portal — Return Request',
-    'version': '19.0.2.10.0',
+    'version': '19.0.2.11.0',
     'category': 'Wujia',
     'summary': 'Bù hàng / đổi trả — portal single-product + backend admin + workflow',
     'author': 'WujiaTea',

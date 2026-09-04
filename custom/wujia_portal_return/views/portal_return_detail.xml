@@ -74,7 +74,7 @@
                                         <t t-set="ch_title">Ghi chú từ cửa hàng</t>
                                         <t t-set="ch_level" t-value="4"/>
                                         <t t-set="ch_platform" t-value="'pc'"/>
-                                        <t t-set="ch_class" t-value="'wj-return-sublabel'"/>
+                                        <t t-set="ch_class" t-value="'wj-card-header--sublabel wj-return-sublabel'"/>
                                     </t>
                                     <p t-if="rr.note" t-out="rr.note"/>
                                     <p t-else="" class="text-muted fst-italic">Không có ghi chú.</p>
@@ -84,7 +84,7 @@
                                             <t t-set="ch_title">Lý do từ chối</t>
                                             <t t-set="ch_level" t-value="4"/>
                                             <t t-set="ch_platform" t-value="'pc'"/>
-                                            <t t-set="ch_class" t-value="'wj-return-sublabel wj-return-sublabel--danger'"/>
+                                            <t t-set="ch_class" t-value="'wj-card-header--sublabel wj-return-sublabel wj-return-sublabel--danger'"/>
                                         </t>
                                         <p t-out="rr.reject_reason"/>
                                     </t>
@@ -94,7 +94,7 @@
                                             <t t-set="ch_title">Phản hồi từ Ngô Gia</t>
                                             <t t-set="ch_level" t-value="4"/>
                                             <t t-set="ch_platform" t-value="'pc'"/>
-                                            <t t-set="ch_class" t-value="'wj-return-sublabel'"/>
+                                            <t t-set="ch_class" t-value="'wj-card-header--sublabel wj-return-sublabel'"/>
                                         </t>
                                         <p t-out="comp['approval_note']"/>
                                     </t>
@@ -181,7 +181,7 @@
                                         <t t-set="ch_title">Đơn bù hàng</t>
                                         <t t-set="ch_level" t-value="4"/>
                                         <t t-set="ch_platform" t-value="'pc'"/>
-                                        <t t-set="ch_class" t-value="'wj-return-sublabel'"/>
+                                        <t t-set="ch_class" t-value="'wj-card-header--sublabel wj-return-sublabel'"/>
                                     </t>
                                     <table class="table table-sm mb-0">
                                         <tbody>
