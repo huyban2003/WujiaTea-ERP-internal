@@ -145,6 +145,45 @@ màn phiếu giám sát cửa hàng cũng đang tự sinh tài khoản Portal b�
 tên} rồi đặt tên đăng nhập ngẫu nhiên --- đúng nguồn sinh tài khoản trùng mà issue này muốn
 dẹp, nhưng nằm ở luồng khác nên đề nghị BA mở issue riêng.
 
+\paragraph{Dịch màn hình mới sang tiếng Việt --- ba bẫy im lặng của i18n Odoo 19.}
+Phát sinh \emph{sau} khi cài lên UAT ngày 04/09: toàn bộ màn onboarding hiện tiếng Anh giữa một
+backend tiếng Việt. Người dùng màn này là nhân sự HQ người Việt nên đây không phải chuyện thẩm
+mỹ. Dev chọn dịch bằng file ngôn ngữ \textbf{trong mã nguồn} (\texttt{i18n/vi\_VN.po}) chứ không
+dịch tay trên giao diện, vì bản dịch tiếng Việt đang có của module nằm \emph{trong database} ---
+dựng lại DB là mất sạch, và bản chạy thật sau này sẽ phải dịch lại từ đầu. Ba bẫy gặp phải, cả
+ba đều \textbf{không lỗi, không cảnh báo, chỉ là nhãn vẫn tiếng Anh}:
+
+\begin{enumerate}
+\item \textbf{Odoo ghép \texttt{.po} với \texttt{.pot} cùng thư mục lúc nạp.} Chuỗi có trong
+  \texttt{.po} mà \textbf{thiếu trong \texttt{.pot}} thì bị \textbf{bỏ qua im lặng}. Sinh
+  \texttt{.po} thì phải sinh \texttt{.pot} cùng lúc, không được sinh mỗi một file. Đây là
+  \textbf{tái phát của L8(3)} đã ghi từ Sprint 44 --- lần đó biểu hiện là msgid mới thành
+  obsolete, lần này là chuỗi mới không bao giờ được nạp; cùng một gốc.
+\item \textbf{Dạng tham chiếu menu đã đổi.} \texttt{\#: menu:<module>.<xmlid>} \textbf{không
+  còn hợp lệ}, phải viết \texttt{\#: model:ir.ui.menu,name:<module>.<xmlid>}. Bằng chứng còn
+  nguyên trong chính \texttt{custom/wujia\_franchise/i18n/vi\_VN.po}: hai dạng cùng tồn tại
+  cạnh nhau, và chỉ dạng \texttt{model:ir.ui.menu,name:} là ăn --- đọc menu \texttt{id 463}
+  trên UAT ở \texttt{lang=vi\_VN} ra \emph{``Onboarding cửa hàng''}, còn các menu khai theo
+  dạng cũ vẫn ra tiếng Anh.
+\item \textbf{Chuỗi trong code cần \emph{chú thích đánh dấu}, không phải chỉ cần tham chiếu.}
+  Sau bản \texttt{19.0.4.0.1}, tiêu đề hộp thoại và \emph{mọi} \texttt{UserError} vẫn tiếng
+  Anh dù entry đã có tham chiếu \texttt{\#: code:addons/...}. Odoo 19 chỉ nhận bản dịch code
+  khi entry mang dòng chú thích \texttt{\#. odoo-python} --- thiếu dòng đó thì tham chiếu
+  \texttt{code:} là vô nghĩa. Phải thêm dấu này cho cả 27 entry code và cấp cho
+  \emph{``Store onboarding''} một tham chiếu code riêng (nó vừa là tên menu vừa là tiêu đề hộp
+  thoại dựng từ Python). Sửa ở \texttt{7568711}, module lên \texttt{19.0.4.0.2}.
+\end{enumerate}
+
+Bài học chung của ba bẫy: \textbf{i18n Odoo hỏng thì hỏng không tiếng động} --- không có cách
+nào biết ngoài việc \emph{mở đúng màn ở đúng ngôn ngữ mà nhìn}, hoặc đọc chỉ-đọc từng nhãn qua
+XML-RPC với \texttt{context=\{'lang': 'vi\_VN'\}}. Không được coi ``RC=0, cài sạch'' là bằng
+chứng đã dịch xong.
+
+Việc kèm theo: bỏ đánh số ``1. / 2. / 3.'' ở tiêu đề ba khối --- khi mở ở chế độ \emph{thêm
+người dùng} thì khối 1 và 2 bị ẩn, chỉ còn mỗi nhãn ``3.'' đứng trơ. Tiêu đề hộp thoại nay đổi
+theo chế độ: \emph{Onboarding cửa hàng} khi tạo mới, \emph{Thêm người dùng cửa hàng} khi bổ sung
+người dùng.
+
 \section{Trạng thái cuối sprint}
 
 \begin{itemize}
@@ -152,6 +191,14 @@ dẹp, nhưng nằm ở luồng khác nên đề nghị BA mở issue riêng.
   \texttt{WJ-PORTAL-UI-002/003/004} (D2), \texttt{WJ-FRANCHISE-003}.
 \item Còn treo: \texttt{UI-CARDHEADER-001} ở \texttt{Need Clarification} --- cần gửi BA một
   lượt gộp năm câu hỏi để gỡ.
-\item Chưa deploy UAT: \texttt{wujia\_franchise 19.0.4.0.0}, lệnh
+\item \textbf{Deploy UAT --- một phần.} \texttt{wujia\_franchise 19.0.4.0.1} đã lên UAT
+  (đo chỉ-đọc 04/09: module \texttt{installed}, menu \emph{Onboarding cửa hàng} và toàn bộ
+  nhãn trường của wizard đọc ở \texttt{lang=vi\_VN} đều ra tiếng Việt). Bản
+  \textbf{\texttt{19.0.4.0.2}} (\texttt{7568711}, dấu \texttt{\#. odoo-python}) \textbf{chưa
+  lên} --- đo trên UAT thấy hai tiêu đề hộp thoại dựng từ Python vẫn trả về
+  \emph{``Store onboarding''} / \emph{``Add store users''} kể cả ở \texttt{lang=vi\_VN}. Lệnh
   \texttt{-u wujia\_franchise}, không cần đổi số hiệu bộ giao diện.
+\item Đã gửi BA một văn bản gộp năm câu hỏi treo của \texttt{UI-CARDHEADER-001}
+  (\texttt{docs/ba-questions-ui-cardheader-001.md}), kèm hai đề nghị mở issue riêng: chỗ tự
+  sinh tài khoản theo tên ở màn phiếu giám sát, và cửa hàng \texttt{HN-02} thiếu chủ tiệm.
 \end{itemize}
