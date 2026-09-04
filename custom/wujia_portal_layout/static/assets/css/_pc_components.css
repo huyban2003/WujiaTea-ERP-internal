@@ -372,6 +372,10 @@ input[type="file"].wj-pc-control { height: auto; min-height: var(--wj-pc-input-h
 .wj-pc-order-head__right { text-align: right; flex-shrink: 0; padding-right: 24px; }
 .wj-pc-order-head__amount { font-size: 28px; font-weight: 700; color: var(--wj-pc-text); margin: 4px 0 0; line-height: 1.1; }
 .wj-pc-order-head__note { font-size: 13px; font-weight: 400; color: var(--wj-pc-subtle); margin: 8px 0 0; }
+/* CardHeader trong summary head: lead mặc định `flex:1 1 auto` giãn hết bề rộng cột
+   trái ⇒ trailing (badge) trôi ra mép, cách mã cả trăm px (D3c đo trên /portal/delivery,
+   D3e trên /portal/purchase-history). Cột trái vốn co theo nội dung. */
+.wj-pc-order-head .wj-card-header__lead { flex: 0 1 auto; }
 
 /* ---------- Data table footer (total row) — Figma "Tổng cộng" bg #F8FAFC h54 ---------- */
 .wj-pc-table tfoot td {
