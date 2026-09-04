@@ -1717,3 +1717,66 @@
     0%, 100% { opacity: 1; }
     50%      { opacity: .45; }
 }
+
+/* ==========================================================================
+   D3d · Vá bố cục màn "Đăng ký mới" ở laptop <1600px
+   --------------------------------------------------------------------------
+   Lỗi CÓ SẴN (đo trên cả bản trước migrate): `.wj-exam-pc-schedule` khai
+   `grid-template-columns: 646fr 390fr`, nhưng track `fr` mặc định có
+   `min-width: auto` ⇒ cột lịch KHÔNG chịu co dưới min-content 572px của lưới
+   ngày, nên **toàn bộ phần thiếu dồn hết sang cột "Khung giờ"**:
+
+        1920 → 389px   1600 → 235px   1520 → 178px   ≤1450 → 135px
+
+   Ở 135px chữ xuống dòng từng từ. Cùng lý do, `.wj-exam-pc-parthead` là flex
+   với `__side` chiếm cứng 640px (ô Ghi chú `width:430px` + nút) ⇒ tiêu đề trái
+   còn 59px. Trang được dựng cho 1920.
+
+   D3d không gây ra lỗi này, nhưng làm nó **vượt ngưỡng spec**: tiêu đề lên
+   18px theo chuẩn BA `CMP-CH-001` nên từ 2 dòng thành **3 dòng**, trong khi
+   spec cho tối đa 2 ⇒ phải xử ngay, không để lại thành nợ.
+
+   Cách xử: dưới 1600 thì **xếp dọc**, mỗi khối full width. KHÔNG đụng
+   `min-width` của lịch (bóp lịch = vỡ lưới 7 ngày), KHÔNG đổi số đo BA của
+   tiêu đề. Đo tại 1600 mọi thứ còn đẹp (cột 235px, tiêu đề 1 dòng) nên lấy
+   đúng 1600 làm mốc.
+   ========================================================================== */
+@media (min-width: 992px) and (max-width: 1599.98px) {
+    .wj-exam-pc-schedule { grid-template-columns: minmax(0, 1fr); }
+    /* Khi đã xếp dọc thì panel khung giờ không cần gánh chiều cao của lịch. */
+    .wj-exam-pc-slots { min-height: 0; }
+
+    /* Tiêu đề "Người tham gia" được trọn một hàng; ô Ghi chú + nút xuống hàng
+       dưới và co giãn theo bề rộng thật thay vì cố định 430px. */
+    .wj-exam-pc-parthead { flex-wrap: wrap; }
+    .wj-exam-pc-parthead__side {
+        flex: 1 1 100%;
+        justify-content: space-between;
+        gap: 16px;
+    }
+    .wj-exam-pc-notefield { flex: 1 1 auto; width: auto; }
+}
+
+/* `table-layout: fixed` vẫn tràn vài px mà hộp bọc đang `overflow: hidden`
+   ⇒ cột "Thao tác" bị CẮT CỤT. Đo ra bị cắt ở CẢ 1600 (còn 2 cột) lẫn ≤1440
+   ⇒ rule này phải phủ toàn bộ PC, không nhét trong media query xếp dọc.
+   Cuộn ngang nằm trong chính hộp, trang không cuộn ngang. */
+@media (min-width: 992px) {
+    .wj-exam-pc-tablebox { overflow-x: auto; }
+}
+
+/* Bảng người tham gia là `table-layout: fixed` với 6 cột khai theo % — tỉ lệ
+   dựng cho hộp 1050px. Hộp hẹp hơn thì cột cuối "Thao tác" (8,745%) không đủ
+   chỗ sau `padding: 0 18px` và bị CẮT CỤT. Đo mép chữ so với mép ô:
+
+        1920 → dư 3px    1700 → dư 1px    1600 → THIẾU 5px
+
+   ⇒ dải cần vá là **dưới 1700**, không phải chỉ dưới 1600 (mốc xếp dọc ở trên).
+   Trả `table-layout: auto` cho trình duyệt chia cột theo nội dung thật; từ 1700
+   trở lên giữ nguyên tỉ lệ Figma.
+
+   ⚠️ ĐÃ THỬ `min-width: 1000px` + cuộn ngang — HỎNG HƠN: bảng kéo phình cả thẻ
+   cha từ 723px lên 1002px (đo `.wj-exam-pc-schedule`). Không dùng lại. */
+@media (min-width: 992px) and (max-width: 1699.98px) {
+    .wj-exam-pc-part-table { table-layout: auto; }
+}

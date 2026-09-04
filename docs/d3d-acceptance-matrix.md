@@ -163,11 +163,7 @@ các class exam đã nghỉ hưu, đặt trong `wujia_portal_layout/tests` (nơi
 **L2 · Phủ 61/103 (59,2%).** Issue **giữ `Ready for Dev`**, ledger giữ dạng comment, **không** chạy
 `qa_sync.py`. Còn lại D3e trở đi.
 
-**L3 · Cột PC bị bóp ở ≤1440 — lỗi có sẵn, KHÔNG phải hồi quy D3d.** `.wj-exam-pc-slots` còn 135px
-và `.wj-exam-pc-parthead > div` còn 59px ở 1440 ⇒ chữ xuống dòng từng ký tự. **Đo trên cả server
-"trước"** ra y hệt: trang `/portal/exam/register` được dựng cho 1920. Ảnh `reg-1440-before.png` vs
-`reg-1440-after.png` chồng khít về bố cục. Ghi nhận thành **finding riêng**, không sửa trong D3d
-(ngoài phạm vi issue CardHeader).
+**L3 · ĐÃ SỬA (bổ sung 04/09, sau khi đo trên UAT thật).** Xem §11.
 
 **L4 · 6 lệch của bảng D3b ở `/portal/reports/orders` là artifact của DB baseline.** Đo lặp 3 lần
 mỗi server — **ổn định**, nên không phải nhiễu. Truy bằng listener `requestfailed`: server "trước"
@@ -222,3 +218,54 @@ Không mở lại kết luận của audit sâu 03/09; chỉ kiểm ba thứ d�
    **false-positive đã ghi trong audit 03/09** (mù nền tảng + heading ngoài card).
 
 ⇒ D3a–D3c **sạch**, không phát sinh việc.
+
+
+---
+
+## 11. Bổ sung sau deploy — vá bố cục `/portal/exam/register` dưới 1600px
+
+Đo lại chỉ-đọc trên UAT ngay sau khi deploy: **123/128 header đạt toàn bộ số BA**. 5 dòng còn lại
+đều thuộc **cùng một trang** (harness đo lặp trang đó 5 lần vì 4 bước wizard dùng chung URL), gồm
+đúng 2 phát hiện:
+
+**(a) `wj-exam-pc-sectitle` còn 1 — ĐÚNG THIẾT KẾ, không phải sót.** Đó là `<h3>` "Người tham gia"
+ở `:398`, chính là call site **defer chờ BA** (2 trailing). Nó vẫn là **heading thật**, chỉ chưa
+dùng component chung. Harness ban đầu chặn nhầm theo tên `wj-exam-pc-parthead` (tên của **div bọc**)
+nên không nhận ra — đã sửa danh sách bỏ qua.
+
+**(b) Tiêu đề "Khung giờ ngày" ra 3 DÒNG ở ≤1450 — vi phạm spec (tối đa 2), PHẢI SỬA.**
+
+Gốc rễ là lỗi **có sẵn**: `.wj-exam-pc-schedule` khai `grid-template-columns: 646fr 390fr`, nhưng
+track `fr` mặc định có `min-width: auto` ⇒ cột lịch **không chịu co** dưới min-content 572px của
+lưới 7 ngày, nên **toàn bộ phần thiếu dồn hết sang cột "Khung giờ"**:
+
+| Bề rộng | 1920 | 1600 | 1560 | 1520 | 1450 | 1440 |
+|---|---|---|---|---|---|---|
+| Cột "Khung giờ" | 389px | 235px | 206px | 178px | **135px** | **135px** |
+| Tiêu đề | 1 dòng | 1 dòng | 1 dòng | **2 dòng** | **3 dòng** | **3 dòng** |
+| Tiêu đề "Người tham gia" | 295px | 159px | 130px | 102px | **59px** | **59px** |
+
+D3d **không gây ra** lỗi này (đo trên bản trước migrate ra squeeze y hệt), nhưng tiêu đề lên 18px
+theo chuẩn BA đã đẩy nó **từ 2 dòng thành 3** ⇒ vượt ngưỡng spec, không để lại thành nợ được.
+
+**Cách xử (chủ dự án chốt "sửa gọn ngay trong D3d"):** dưới 1600 thì **xếp dọc**, mỗi khối full
+width. **KHÔNG** bóp `min-width` của lịch (bóp = vỡ lưới 7 ngày), **KHÔNG** đổi số đo BA của tiêu đề.
+Mốc 1600 lấy từ số đo thật: tại đúng 1600 cột còn 235px và tiêu đề vẫn 1 dòng.
+
+Kèm 2 vá phụ trên cùng trang, mỗi cái đều **đo ra dải áp dụng riêng** chứ không đoán:
+
+- `.wj-exam-pc-tablebox` đang `overflow: hidden` ⇒ cột "Thao tác" **bị cắt cụt**. Cho cuộn ngang
+  trong chính hộp, phủ **toàn bộ PC**.
+- Bảng `table-layout: fixed` chia 6 cột theo % (tỉ lệ dựng cho hộp 1050px). Đo mép chữ so với mép ô:
+  **1920 dư 3px · 1700 dư 1px · 1600 THIẾU 5px** ⇒ dải cần vá là **dưới 1700**, không phải dưới 1600.
+  Trả `table-layout: auto` trong đúng dải đó; từ 1700 trở lên giữ nguyên tỉ lệ Figma.
+
+> ⚠️ **Một hướng đã thử và BỎ:** `min-width: 1000px` trên bảng + cuộn ngang. Hỏng hơn — bảng
+> **kéo phình cả thẻ cha** từ 723px lên 1002px (đo `.wj-exam-pc-schedule`). Ghi lại để đừng thử lại.
+
+**Nghiệm thu bản vá:** 8 bề rộng **1920 / 1700 / 1650 / 1600 / 1560 / 1520 / 1440 / 1280** — **8/8
+đạt**: ≥1600 giữ 2 cột, <1600 xếp dọc, tiêu đề **luôn 1 dòng**, số BA vẫn **18/24/700**, chữ cột
+cuối không bị cắt, **0 tràn ngang**. Số đo CardHeader chạy lại: **32/32 ô đạt chuẩn BA**, giả-heading
+vẫn đúng 1 (chỗ defer), **243 test 0 failed / 0 error**. Ảnh: `scratchpad/d3d-shots/fix-reg-*.png`.
+
+`wujia_portal_exam` **19.0.5.8.0 → 19.0.5.9.0** ⇒ cần **deploy lượt 2**: `-u wujia_portal_exam`.
