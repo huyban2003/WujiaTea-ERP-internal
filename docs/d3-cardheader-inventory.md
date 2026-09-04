@@ -103,7 +103,7 @@ nằm cùng card với `:181` ⇒ là **subtitle của header đó**, không ph�
 
 | File | Call site | Dự kiến |
 |---|---:|---|
-| `wujia_portal_exam/views/portal_exam.xml` | 21 | D3d (một mình một session) |
+| `wujia_portal_exam/views/portal_exam.xml` | 21 | **D3d ✅** — 14 chỗ; 3 defer chờ BA (§6), 4 đã loại §3 |
 | `wujia_portal_return/views/portal_return_detail.xml` | 15 | D3e |
 | `wujia_portal_purchase_history/views/portal_history.xml` | 10 | D3e |
 | `wujia_portal_base/views/portal_franchise_information.xml` | 10 | **D3a + D3c ✅** — 2 + 4; còn `:40`/`:49` chờ BA (§6), `:290` đã loại §3 |
@@ -123,8 +123,14 @@ nằm cùng card với `:181` ⇒ là **subtitle của header đó**, không ph�
 **D3a phủ 4 file / 29 call site** — nhưng cố ý **không migrate hết 4 file**, chỉ lấy đủ mẫu mỗi
 họ markup (xem `docs/d3-acceptance-matrix.md`); phần còn lại của chính 4 file đó rơi vào **D3c**.
 
-**Tiến độ (2026-09-02, sau D3c): 47/103.** D3a 10 · D3b 26 · D3c 11.
-Nhóm kế: **D3d = `portal_exam.xml`** (21 call site, một mình một session).
+**Tiến độ (2026-09-04, sau D3d): 61/103.** D3a 10 · D3b 26 · D3c 11 · D3d 14.
+Nhóm kế: **D3e = `portal_return_detail.xml` (15) + `portal_history.xml` (10)** — chạy lại
+`d3_inventory.py` trước, con số 15/10 là tổng theo file (gồm cả dòng §3).
+
+> ⚠️ **Đính chính D3d.** Bàn giao D3c ghi "D3d = 21 chỗ" — cộng cả 4 dòng đã bị §3 loại
+> (`:279` cal-head không title · `:378` slot phải · `:521`/`:527` chữ vùng kéo-thả). Số thật
+> **17**, chủ dự án chốt defer 3 ⇒ **14 làm ở D3d**. Lỗi cộng nhầm này lặp lại **hai phiên liên
+> tiếp** ⇒ quy tắc: **luôn chạy lại `d3_inventory.py`, đừng tin con số ở doc bàn giao.**
 
 > ⚠️ **Đính chính.** Bàn giao D3b ghi "D3c = 15 chỗ (support 6 · delivery 3 ·
 > franchise-information 6)". Chạy lại `d3_inventory.py` cho thấy con số đó **cộng cả dòng đã bị
@@ -155,6 +161,17 @@ và `__box` (Quyền xem hiện tại), trong khi spec ghi **tối đa MỘT tra
 an toàn: **chips + box đứng ngoài CardHeader**, là nội dung card ⇒ giữ nguyên hiển thị, đúng
 chữ spec, 0 rủi ro hồi quy. Đã ghi LIMIT; BA trả lời thì D3b chỉnh.
 **Vẫn treo sau D3c** (`:40` + `:49`) — chờ BA, đừng tự quyết lại.
+
+**2 fork mới của D3d (2026-09-04) — CÙNG HỌ với `wj-pc-acct-headcard`, gộp chung 1 lượt hỏi BA.**
+Cả hai đều có **HAI vùng trailing** trong khi spec cho tối đa MỘT ⇒ **defer, không đụng file**:
+
+| Chỗ | Hai trailing | Vì sao không tự quyết |
+|---|---|---|
+| `portal_exam.xml:375` `wj-exam-pc-parthead` | ô nhập "Ghi chú" + nút "Thêm người" | Cả hai đều là **control tương tác**, không cái nào rõ ràng là "nội dung card" như lối xử `__chips/__box` của D3a |
+| `portal_exam.xml:769` `wujia-mexam-person-head` | badge "Bắt buộc" + nút xóa người | Ngoài 2-trailing, node này còn bị `portal_exam_wizard.js` `cloneNode` làm **template dựng người mới** ⇒ đổi cấu trúc = rủi ro chết im lặng cao nhất cụm D3 |
+
+`portal_exam.xml:858` `wujia-mexam-sheet-title` **loại hẳn** theo tiền lệ §3
+(`mobile_bottomnav.xml:58`): bottom-sheet overlay, không phải tiêu đề card trong trang.
 
 ### 3 fork chủ dự án chốt ở D3c (2026-09-02) — đã làm, đừng mở lại
 

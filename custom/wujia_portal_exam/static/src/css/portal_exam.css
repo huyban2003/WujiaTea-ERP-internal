@@ -818,6 +818,9 @@
     .wj-exam-pc-dhead { margin-bottom: 23px; }
     .wj-exam-pc-sectitle { font-size: 20px; }
     .wj-exam-pc-sectitle--2 { margin-top: 28px; }
+    /* D3d: nhịp TRÊN mà class cũ từng gánh. Phải bám kèm `.wj-card-header` — rule
+       `--pc.--compact` của component là (0,2,0), một lớp đơn thua nó (bẫy D3b). */
+    .wj-card-header.wj-exam-pc-sechead--2 { margin-top: 28px; }
     .wj-exam-pc-secsub { margin-top: 7px; font-size: 13px; font-weight: 400; }
 
     /* KV grid 4 cột × 2 hàng, ô h72 (Figma y310 / y398) */
@@ -994,6 +997,7 @@
         font-size: 18px;
         line-height: 22px;
     }
+    .wj-exam-pc-fcard .wj-card-header.wj-exam-pc-sechead--sm { margin-top: 16px; }
 
     /* ---------- 2. Chọn lịch thi (Figma y466 h310) ---------- */
     .wj-exam-pc-schedule {

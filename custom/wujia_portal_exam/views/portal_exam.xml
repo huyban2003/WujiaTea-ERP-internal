@@ -70,10 +70,13 @@
 
                     <div class="wj-pc-card wj-exam-pc-card" id="wj-exam-pc-body">
                         <div class="wj-pc-card__head wj-exam-pc-card__head">
-                            <div>
-                                <h2 class="wj-pc-card__title">Lịch sử đăng ký</h2>
-                                <p class="wj-pc-card__subtitle">Theo dõi phiếu đăng ký và kết quả thi của cửa hàng đang thao tác</p>
-                            </div>
+                            <t t-call="wujia_portal_layout.wj_card_header">
+                                <t t-set="ch_title">Lịch sử đăng ký</t>
+                                <t t-set="ch_subtitle">Theo dõi phiếu đăng ký và kết quả thi của cửa hàng đang thao tác</t>
+                                <t t-set="ch_level" t-value="2"/>
+                                <t t-set="ch_platform" t-value="'pc'"/>
+                                <t t-set="ch_class" t-value="'wj-card-header--flush'"/>
+                            </t>
                         </div>
 
                         <div t-if="not pc_regs" class="wj-pc-empty">
@@ -194,9 +197,15 @@
                     <a t-foreach="m_exam_items" t-as="item" t-att-href="item['link']"
                        class="wujia-mexam-card">
                         <div class="wujia-mexam-card-top">
-                            <h3 class="wujia-mexam-card-title" t-out="item['title']"/>
-                            <span t-attf-class="wujia-badge #{item['badge']} wujia-mexam-card-badge"
-                                  t-out="item['status']"/>
+                            <t t-call="wujia_portal_layout.wj_card_header">
+                                <t t-set="ch_title" t-value="item['title']"/>
+                                <t t-set="ch_platform" t-value="'m'"/>
+                                <t t-set="ch_class" t-value="'wj-card-header--flush'"/>
+                                <t t-set="ch_meta">
+                                    <span t-attf-class="wujia-badge #{item['badge']} wujia-mexam-card-badge"
+                                          t-out="item['status']"/>
+                                </t>
+                            </t>
                         </div>
                         <p class="wujia-mexam-card-line">
                             <i class="feather icon-calendar"/>
@@ -246,8 +255,13 @@
                         <div class="wj-pc-card wj-exam-pc-fcard">
 
                             <!-- 1. Thông tin đăng ký -->
-                            <h2 class="wj-pc-card__title wj-exam-pc-sectitle">Thông tin đăng ký</h2>
-                            <p class="wj-pc-card__subtitle wj-exam-pc-secsub">Chọn khóa thi, lịch thi và nhập người tham gia.</p>
+                            <t t-call="wujia_portal_layout.wj_card_header">
+                                <t t-set="ch_title">Thông tin đăng ký</t>
+                                <t t-set="ch_subtitle">Chọn khóa thi, lịch thi và nhập người tham gia.</t>
+                                <t t-set="ch_level" t-value="2"/>
+                                <t t-set="ch_platform" t-value="'pc'"/>
+                                <t t-set="ch_class" t-value="'wj-exam-pc-sechead'"/>
+                            </t>
 
                             <div class="wj-pc-field wj-exam-pc-field">
                                 <label class="wj-pc-field__label wj-exam-pc-flabel" for="wj_exam_course">Khóa thi *</label>
@@ -267,8 +281,12 @@
                                t-out="pc_summary['max_hint']"/>
 
                             <!-- 2. Chọn lịch thi -->
-                            <h3 class="wj-exam-pc-sectitle wj-exam-pc-sectitle--sm">Chọn lịch thi</h3>
-                            <p class="wj-exam-pc-secsub">Chọn một ngày có lịch, sau đó chọn khung giờ còn chỗ.</p>
+                            <t t-call="wujia_portal_layout.wj_card_header">
+                                <t t-set="ch_title">Chọn lịch thi</t>
+                                <t t-set="ch_subtitle">Chọn một ngày có lịch, sau đó chọn khung giờ còn chỗ.</t>
+                                <t t-set="ch_platform" t-value="'pc'"/>
+                                <t t-set="ch_class" t-value="'wj-exam-pc-sechead wj-exam-pc-sechead--sm'"/>
+                            </t>
 
                             <div class="wj-exam-pc-schedule">
                                 <!-- Lịch tháng — dữ liệu THẬT (biến `calendar`); JS đổi
@@ -334,8 +352,13 @@
 
                                 <!-- Khung giờ -->
                                 <div class="wj-exam-pc-slots" data-wj-exam-slots="1">
-                                    <p class="wj-exam-pc-slots__title">Khung giờ ngày <t t-out="pc_summary['exam_date']"/></p>
-                                    <p class="wj-exam-pc-slots__sub"><t t-out="pc_summary['course_name']"/> · giờ địa phương</p>
+                                    <t t-call="wujia_portal_layout.wj_card_header">
+                                        <t t-set="ch_title">Khung giờ ngày <t t-out="pc_summary['exam_date']"/></t>
+                                        <t t-set="ch_subtitle"><t t-out="pc_summary['course_name']"/> · giờ địa phương</t>
+                                        <t t-set="ch_level" t-value="4"/>
+                                        <t t-set="ch_platform" t-value="'pc'"/>
+                                        <t t-set="ch_class" t-value="'wj-exam-pc-slots__head'"/>
+                                    </t>
                                     <!-- Khung giờ nạp thật qua /portal/exam/slots (mỗi nút
                                          mang data-wj-exam-slot-session). JS dựng danh sách. -->
                                     <div class="wj-exam-pc-slots__list" data-wj-exam-slot-list="1"/>
@@ -423,8 +446,13 @@
 
                         <!-- ============ CỘT PHẢI — tóm tắt ============ -->
                         <aside class="wj-pc-card wj-exam-pc-sumcard">
-                            <h2 class="wj-pc-card__title wj-exam-pc-sectitle">Tóm tắt đăng ký</h2>
-                            <p class="wj-pc-card__subtitle wj-exam-pc-secsub">Thông tin sẽ được gửi để Ngô Gia xác nhận.</p>
+                            <t t-call="wujia_portal_layout.wj_card_header">
+                                <t t-set="ch_title">Tóm tắt đăng ký</t>
+                                <t t-set="ch_subtitle">Thông tin sẽ được gửi để Ngô Gia xác nhận.</t>
+                                <t t-set="ch_level" t-value="2"/>
+                                <t t-set="ch_platform" t-value="'pc'"/>
+                                <t t-set="ch_class" t-value="'wj-exam-pc-sechead'"/>
+                            </t>
 
                             <div class="wj-exam-pc-sumlist">
                                 <div class="wj-exam-pc-sumkv">
@@ -655,7 +683,11 @@
                                  t-att-data-exam-closed="c['closed'] and '1' or '0'"
                                  t-att-data-exam-course-id="c['course_id']">
                                 <div class="wujia-mexam-course-main">
-                                    <h3 class="wujia-mexam-course-title" t-out="c['title']"/>
+                                    <t t-call="wujia_portal_layout.wj_card_header">
+                                        <t t-set="ch_title" t-value="c['title']"/>
+                                        <t t-set="ch_platform" t-value="'m'"/>
+                                        <t t-set="ch_class" t-value="'wj-card-header--flush'"/>
+                                    </t>
                                     <p class="wujia-mexam-course-meta" t-out="c['meta']"/>
                                     <span t-attf-class="wujia-badge #{c['badge']} wujia-mexam-course-badge"
                                           t-out="c['status']"/>
@@ -682,7 +714,11 @@
 
                     <div class="wujia-mexam-selcard">
                         <div class="wujia-mexam-selcard-main">
-                            <h3 class="wujia-mexam-selcard-title" t-out="selected_course['title']"/>
+                            <t t-call="wujia_portal_layout.wj_card_header">
+                                <t t-set="ch_title" t-value="selected_course['title']"/>
+                                <t t-set="ch_platform" t-value="'m'"/>
+                                <t t-set="ch_class" t-value="'wj-card-header--flush'"/>
+                            </t>
                             <p class="wujia-mexam-selcard-meta" t-out="selected_course['meta']"/>
                         </div>
                         <span class="wujia-mexam-selcard-badge">Đã chọn</span>
@@ -750,7 +786,11 @@
 
                     <div class="wujia-mexam-selcard">
                         <div class="wujia-mexam-selcard-main">
-                            <h3 class="wujia-mexam-selcard-title" t-out="selected_course['title']"/>
+                            <t t-call="wujia_portal_layout.wj_card_header">
+                                <t t-set="ch_title" t-value="selected_course['title']"/>
+                                <t t-set="ch_platform" t-value="'m'"/>
+                                <t t-set="ch_class" t-value="'wj-card-header--flush'"/>
+                            </t>
                             <p class="wujia-mexam-selcard-meta" data-exam-sched-line="1">Thứ 5, 02/07/2026 • 08:20</p>
                         </div>
                         <span class="wujia-mexam-selcard-badge">Đã chọn</span>
@@ -813,7 +853,12 @@
                     </div>
 
                     <div class="wujia-mexam-cfcard">
-                        <h2 class="wujia-mexam-cftitle">Thông tin lịch thi</h2>
+                        <t t-call="wujia_portal_layout.wj_card_header">
+                            <t t-set="ch_title">Thông tin lịch thi</t>
+                            <t t-set="ch_level" t-value="2"/>
+                            <t t-set="ch_platform" t-value="'m'"/>
+                            <t t-set="ch_class" t-value="'wujia-mexam-cfhead'"/>
+                        </t>
                         <div class="wujia-mexam-kv">
                             <span class="wujia-mexam-kv-k">Khóa thi</span>
                             <span class="wujia-mexam-kv-v" t-out="selected_course['title']"/>
@@ -833,7 +878,12 @@
                     </div>
 
                     <div class="wujia-mexam-cfcard">
-                        <h2 class="wujia-mexam-cftitle">Nhân sự tham gia</h2>
+                        <t t-call="wujia_portal_layout.wj_card_header">
+                            <t t-set="ch_title">Nhân sự tham gia</t>
+                            <t t-set="ch_level" t-value="2"/>
+                            <t t-set="ch_platform" t-value="'m'"/>
+                            <t t-set="ch_class" t-value="'wujia-mexam-cfhead'"/>
+                        </t>
                         <!-- JS đổ từ dữ liệu đã nhập ở bước 3 -->
                         <div class="wujia-mexam-cfpeople" data-exam-cf-people="1"/>
                     </div>
@@ -900,11 +950,16 @@
 
                     <div class="wj-pc-card wj-exam-pc-dcard">
                         <div class="wj-pc-card__head wj-exam-pc-dhead">
-                            <div>
-                                <h2 class="wj-pc-card__title wj-exam-pc-sectitle">Thông tin đăng ký</h2>
-                                <p class="wj-pc-card__subtitle wj-exam-pc-secsub" t-out="pc_detail['card_sub']"/>
-                            </div>
-                            <span t-attf-class="wj-pc-badge wj-exam-pc-pbadge #{pb[1]}"><t t-out="pb[0]"/></span>
+                            <t t-call="wujia_portal_layout.wj_card_header">
+                                <t t-set="ch_title">Thông tin đăng ký</t>
+                                <t t-set="ch_subtitle" t-value="pc_detail['card_sub']"/>
+                                <t t-set="ch_level" t-value="2"/>
+                                <t t-set="ch_platform" t-value="'pc'"/>
+                                <t t-set="ch_class" t-value="'wj-card-header--flush'"/>
+                                <t t-set="ch_meta">
+                                    <span t-attf-class="wj-pc-badge wj-exam-pc-pbadge #{pb[1]}"><t t-out="pb[0]"/></span>
+                                </t>
+                            </t>
                         </div>
 
                         <div class="wj-exam-pc-kvgrid">
@@ -943,8 +998,13 @@
                         </div>
 
                         <t t-if="pc_detail.get('show_results')">
-                            <h2 class="wj-pc-card__title wj-exam-pc-sectitle wj-exam-pc-sectitle--2">Kết quả thi</h2>
-                            <p class="wj-pc-card__subtitle wj-exam-pc-secsub">Kết quả được công bố theo từng người đã đăng ký.</p>
+                            <t t-call="wujia_portal_layout.wj_card_header">
+                                <t t-set="ch_title">Kết quả thi</t>
+                                <t t-set="ch_subtitle">Kết quả được công bố theo từng người đã đăng ký.</t>
+                                <t t-set="ch_level" t-value="2"/>
+                                <t t-set="ch_platform" t-value="'pc'"/>
+                                <t t-set="ch_class" t-value="'wj-exam-pc-sechead wj-exam-pc-sechead--2'"/>
+                            </t>
                             <table class="wj-pc-table wj-exam-pc-res-table">
                                 <thead>
                                     <tr>
@@ -1012,9 +1072,15 @@
 
                 <div class="wujia-mexam-rsum">
                     <div class="wujia-mexam-card-top">
-                        <h3 class="wujia-mexam-rsum-title" t-out="reg_view['title']"/>
-                        <span t-attf-class="wujia-badge #{reg_view['badge']} wujia-mexam-card-badge"
-                              t-out="reg_view['status']"/>
+                        <t t-call="wujia_portal_layout.wj_card_header">
+                            <t t-set="ch_title" t-value="reg_view['title']"/>
+                            <t t-set="ch_platform" t-value="'m'"/>
+                            <t t-set="ch_class" t-value="'wj-card-header--flush'"/>
+                            <t t-set="ch_meta">
+                                <span t-attf-class="wujia-badge #{reg_view['badge']} wujia-mexam-card-badge"
+                                      t-out="reg_view['status']"/>
+                            </t>
+                        </t>
                     </div>
                     <p class="wujia-mexam-card-line">
                         <i class="feather icon-hash"/><span t-out="reg_view['name']"/>

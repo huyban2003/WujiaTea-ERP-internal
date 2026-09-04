@@ -10,12 +10,46 @@ prompt của cụm đó rồi bắt tay.
 
 ---
 
-## 📌 BÀN GIAO cho phiên sau (chốt 02/09/2026 — sau D3c)
+## 📌 BÀN GIAO cho phiên sau (chốt 04/09/2026 — sau D3d)
 
 **Prompt gõ vào phiên sau:**
 
 > `/wujia-start`
-> làm cụm D3d = `portal_exam.xml` (21 call site, một mình một session). Đọc `docs/d3c-acceptance-matrix.md` §11 LIMIT để biết chỗ nào đang treo chờ BA, và §9 để biết bẫy bố cục vừa trả giá ở D3c (slot trailing trôi ra mép vì `__lead` là `flex:1 1 auto`).
+> làm cụm D3e = `portal_return_detail.xml` + `portal_history.xml`. **Chạy lại
+> `scratchpad/d3_inventory.py` trước khi lập kế hoạch** — con số 15/10 trong bảng §5 inventory là
+> tổng theo file (gồm cả dòng đã bị §3 loại); hai phiên liên tiếp (D3c, D3d) đều cộng nhầm vì tin
+> doc bàn giao. Đọc `docs/d3d-acceptance-matrix.md` §5 (bẫy specificity, đã trả giá **hai lần**)
+> và §6 (JS đọc thẳng tên class tiêu đề — grep `querySelector` trong JS của module trước khi migrate).
+
+### ✅ D3d XONG LOCAL (04/09) — chờ chủ dự án deploy
+
+Nhánh `dev/2026-09-04-d3d`. **14 call site / 1 file** (`wujia_portal_exam/views/portal_exam.xml`).
+Tổng phủ **61/103**. Nghiệm thu local **21✅ + 2 phần = 95,7%** → `docs/d3d-acceptance-matrix.md`.
+
+Deploy: `-u wujia_portal_layout,wujia_portal_exam` · `wujia_portal_exam` **19.0.5.8.0** · không
+module mới, không migration, không cần bump `?v=`.
+
+**Số đáng nhớ của D3d:** giả-heading **21 → 1** (1 còn lại là chỗ defer chờ BA) · **32/32** ô số đo
+đạt chuẩn BA · mọi thẻ PC **thấp hơn** sau migrate · `textDigest` **giống hệt 18/18 ô** · **316 test**
+0 fail trên 10 module · mutation **đỏ đúng 1 test** · wizard chạy tay **6/6**.
+
+**3 chỗ defer chờ BA** (ghi §6 inventory): `:375` parthead + `:769` person-head (đều **2 trailing**,
+spec cho 1 — gộp chung lượt hỏi với `wj-pc-acct-headcard` treo từ D3a) · `:858` sheet-title (loại
+hẳn, bottom-sheet overlay theo tiền lệ §3).
+
+### 🔴 Bài học D3d — đừng lặp lại ở D3e
+
+1. **Bẫy specificity lặp lần THỨ HAI** (D3b `--flush` → D3d `--sechead`). Rule nhịp dọc cũ một lớp
+   đơn là (0,1,0), **thua** `.wj-card-header--pc.wj-card-header--compact` (0,2,0) của component ⇒
+   nhịp dọc biến mất mà **mọi số đo font/màu/gap vẫn Pass**. Chỉ **ảnh chụp** bắt được. Quy tắc:
+   mọi hook spacing scope module phải viết `.wj-card-header.<lớp-của-mình>`.
+2. **JS đọc thẳng tên class tiêu đề = chết im lặng.** `portal_exam_wizard.js` chép tên khóa thi
+   sang thẻ "đã chọn" qua `.wujia-mexam-course-title`. Migrate quên sửa ⇒ tên biến mất ở bước 2/3,
+   **console sạch bong, 0 lỗi**. Trước mỗi file: `grep -n "querySelector" static/src/js/*.js`.
+3. **Dữ liệu quá khứ làm wizard bất động.** Mọi ca thi đều đã qua ⇒ khóa render `is-closed`, không
+   có link "Chọn". Phải seed session tương lai **giống hệt trên cả hai DB**, và nhớ `_selectable()`
+   đọc field **stored** (`available_participant_count` > 0), không compute on-the-fly.
+4. **Đừng tin con số ở doc bàn giao** (lặp lại từ D3c) — chạy lại `d3_inventory.py`.
 
 ### ✅ D3c ĐÃ MERGE + PUSH + DEPLOY + ĐO LẠI TRÊN UAT (03/09)
 
@@ -313,7 +347,7 @@ tổng `scrollHeight` **−24px** trên 44 ô, giả-heading **0/44**, outline 8
 hiển thị 43/44 giống hệt (1 ô mọc đúng "0 kết quả" theo yêu cầu BA), B4 **286/286**, bảng D3a
 chạy lại **356 phép so 0 lệch**, tab-walk 433 stop ring 16/16, font 66 tiêu đề 0 lệch;
 bắt được **1 lỗi thật**: `/portal/info-request` mất tiêu đề ở mobile do bake `ch_platform`;
-`docs/d3b-acceptance-matrix.md`) · D3c…D3n ⬜ · D4 ⬜ · D5 ⬜ · D6 ⬜ · R1–R5 ⬜
+`docs/d3b-acceptance-matrix.md`) · D3c ✅ · D3d ✅ · D3e…D3n ⬜ · D4 ⬜ · D5 ⬜ · D6 ⬜ · R1–R5 ⬜
 
 🚚 **D1 + D2 ĐÃ DEPLOY UAT 27/08** (`wujia_portal_layout 19.0.32.4.0` · `wujia_portal_return
 19.0.2.7.0` · `wujia_sale 19.0.4.3.0`, xác nhận XML-RPC) **+ đo lại chỉ-đọc ngay trên UAT**:
@@ -394,13 +428,15 @@ B4 286/286, tab-walk 346 stop) · D1 **27/28**.
   report_orders · pc_cart_panel + product_detail · info_request · return_list) ⇒ **36/103**.
   Vá 2 lỗ hổng component (`--flush` thua specificity ở mobile/`--any`; `--any` thiếu khối
   `@media ≥992px`). Đo: `docs/d3b-acceptance-matrix.md` — **95%**.
+- **D3d ✅ 04/09.** 14 call site / 1 file (`portal_exam.xml`) — phủ **61/103**;
+  3 chỗ defer chờ BA. `docs/d3d-acceptance-matrix.md`.
 - **D3c ✅ 02/09.** 11 call site / 3 file — nốt phần còn lại của 4 file D3a (support 6 ·
   delivery 1 · franchise-information 4) ⇒ **47/103**. Kèm 1 rule CSS scope delivery cho slot
   trailing và **2 chỗ đổi thứ tự DOM** đã được chủ dự án duyệt. Đo:
   `docs/d3c-acceptance-matrix.md` — **97,6%**.
-- **D3d…D3n:** migrate hết call site theo **bảng-theo-file** ở §kế hoạch của inventory, mỗi
+- **D3e…D3n:** migrate hết call site theo **bảng-theo-file** ở §kế hoạch của inventory, mỗi
   session một nhóm màn, mỗi session một lần `-u`, mỗi session đo lại B4 286/286 + tab-walk.
-  **D3d = `portal_exam.xml`, 21 call site** (một mình một session).
+  **D3e = `portal_return_detail.xml` + `portal_history.xml`** (chạy lại `d3_inventory.py`).
   Issue **giữ `Ready for Dev`** cho tới khi đủ 100% (tiền lệ C8a→C8b); entry ledger đã soạn
   sẵn **dạng comment** ở cuối `docs/qa-issue-ledger.yaml`, D3n bỏ `#` là dùng được.
 - 🔴 **Bẫy D3a đã trả giá, đừng lặp:** (1) gỡ `mb-*` ở call site **chưa đủ** — lớp body tự khai

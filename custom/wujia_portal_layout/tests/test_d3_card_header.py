@@ -180,6 +180,10 @@ class TestCardHeaderCallSites(TransactionCase):
         'wujia_portal_sale.portal_order_product_detail': 1,
         'wujia_portal_info_request.portal_info_request_list': 1,
         'wujia_portal_return.portal_return_list': 1,
+        # D3d — màn Đăng ký thi (PC + wizard mobile)
+        'wujia_portal_exam.portal_exam_schedule': 2,
+        'wujia_portal_exam.portal_exam_register': 9,
+        'wujia_portal_exam.portal_exam_registration_detail': 3,
     }
 
     # Count phải hiện cả khi = 0 ⇒ khối trailing KHÔNG được bọc `t-if` theo recordset.
@@ -224,6 +228,13 @@ class TestCardHeaderCallSites(TransactionCase):
                                                            'wujia-maccount-store-name'),
         'wujia_portal_delivery.portal_delivery_detail': ('wj-pc-order-head__code',
                                                          'wj-pc-dlv-head-meta'),
+        # D3d
+        'wujia_portal_exam.portal_exam_schedule': ('wujia-mexam-card-title',),
+        'wujia_portal_exam.portal_exam_register': ('wujia-mexam-course-title',
+                                                   'wujia-mexam-selcard-title',
+                                                   'wujia-mexam-cftitle',
+                                                   'wj-exam-pc-slots__title'),
+        'wujia_portal_exam.portal_exam_registration_detail': ('wujia-mexam-rsum-title',),
     }
 
     # View KHÔNG tách PC/mobile (không có `d-none d-lg-*`) ⇒ một markup phục vụ cả hai
@@ -322,3 +333,35 @@ class TestCardHeaderCallSites(TransactionCase):
                 self.assertEqual(
                     root.xpath('.//p[contains(@class,"wujia-mdash-title")]'
                                '|.//p[contains(@class,"card-title")]'), [])
+
+
+class TestCardHeaderExamJsContract(TransactionCase):
+    """D3d — `portal_exam_wizard.js` đọc tiêu đề khoá thi để chép sang thẻ "đã chọn".
+
+    Migrate đổi tên class tiêu đề mà quên sửa JS thì KHÔNG có lỗi, không đỏ build:
+    tên khoá thi chỉ âm thầm biến mất khỏi bước 2 và 3 (đã chứng minh bằng mutation).
+    """
+
+    def _js(self):
+        path = os.path.join(os.path.dirname(__file__), '..', '..', 'wujia_portal_exam',
+                            'static', 'src', 'js', 'portal_exam_wizard.js')
+        with open(path, encoding='utf-8') as fh:
+            return fh.read()
+
+    def test_wizard_reads_component_title_not_retired_class(self):
+        js = self._js()
+        self.assertIn("card.querySelector('.wj-card-header__title')", js)
+        for retired in ("'.wujia-mexam-course-title'", "'.wujia-mexam-selcard-title'"):
+            self.assertNotIn(retired, js)
+
+    def test_wizard_still_scopes_selected_card_title_to_that_card(self):
+        # Bám `.wj-card-header__title` trần là quét TRÚNG mọi header khác của wizard
+        # (bước 1 + bước 4) rồi ghi đè tên chúng.
+        self.assertIn(".wujia-mexam-selcard .wj-card-header__title", self._js())
+
+    def test_person_head_left_untouched_pending_ba(self):
+        # 2 vùng trailing (badge "Bắt buộc" + nút xoá) > tối đa MỘT của spec ⇒ defer;
+        # và JS clone chính khối này làm template, đọc `.wujia-mexam-person-name`.
+        arch = self.env.ref('wujia_portal_exam.portal_exam_register').arch_db
+        self.assertIn('wujia-mexam-person-name', arch)
+        self.assertIn("querySelector('.wujia-mexam-person-name')", self._js())
