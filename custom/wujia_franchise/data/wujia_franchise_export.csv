@@ -52,7 +52,7 @@ Staff Exam Inspection Line,"model:ir.model,name:wujia_franchise.model_wujia_fran
 Inspection Grade Configuration,"model:ir.model,name:wujia_franchise.model_wujia_franchise_inspection_grade",Cấu hình xếp loại giám sát,Inspection Grade Configuration,Inspection Grade Configuration
 Inspection Line Detail,"model:ir.model,name:wujia_franchise.model_wujia_franchise_inspection_line",Chi tiết dòng tiêu chí giám sát,Inspection Line Detail,Inspection Line Detail
 Inspection Question Library,"model:ir.model,name:wujia_franchise.model_wujia_franchise_inspection_question",Thư viện câu hỏi giám sát,Inspection Question Library,Inspection Question Library
-Inspection Financial Report Line (3 Months),"model:ir.model,name:wujia_franchise.model_wujia_franchise_inspection_report_line",Chi tiết báo cáo tài chính giám sát (3 tháng),Inspection Financial Report Line (3 Months),Inspection Financial Report Line (3 Months)
+Inspection Financial Report Line (3 Months),"model:ir.model,name:wujia_franchise.model_wujia_franchise_inspection_report_line",Chi tiết báo cáo tài chính giám sát (3 tháng),督導財務報告明細 (3個月),รายละเอียดรายงานการเงินการตรวจประเมิน (3 เดือน)
 Franchise Store Inspection Template,"model:ir.model,name:wujia_franchise.model_wujia_franchise_inspection_template",Mẫu phiếu giám sát cửa hàng nhượng quyền,Franchise Store Inspection Template,Franchise Store Inspection Template
 Import Inspection Criteria Wizard,"model:ir.model,name:wujia_franchise.model_wujia_franchise_inspection_template_import_wizard",Trình hướng dẫn nhập tiêu chí giám sát,Import Inspection Criteria Wizard,Import Inspection Criteria Wizard
 Inspection Template Line,"model:ir.model,name:wujia_franchise.model_wujia_franchise_inspection_template_line",Dòng mẫu phiếu giám sát,Inspection Template Line,Inspection Template Line
@@ -169,7 +169,7 @@ Number of employees present at the store.,"model:ir.model.fields,help:wujia_fran
 Previous Inspection,"model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection__previous_inspection_id",Phiếu khảo sát trước,上次評核,การตรวจครั้งก่อน
 Previous Inspection Notes,"model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection__previous_store_appearance_issues",Ghi nhận đợt trước gần nhất,上次督導缺失記錄,บันทึกการตรวจครั้งก่อน
 Store appearance issues and key remediations from previous inspection,"model:ir.model.fields,help:wujia_franchise.field_wujia_franchise_inspection__previous_store_appearance_issues",Các vấn đề diện mạo cửa hàng và khắc phục trọng điểm từ đợt giám sát trước,Store appearance issues and key remediations from previous inspection,Store appearance issues and key remediations from previous inspection
-Revenue Report Lines,"model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection__report_line_ids",Chi tiết báo cáo doanh thu,Revenue Report Lines,Revenue Report Lines
+Revenue Report Lines,"model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection__report_line_ids",Chi tiết báo cáo doanh thu,營業額報告明細,รายการรายงานรายได้
 Supervision Schedule,"model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection__schedule_id",Lịch trình giám sát,Supervision Schedule,Supervision Schedule
 Signature Date,"model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection__signature_date",Ngày ký,Signature Date,Signature Date
 Store Representative Signature,"model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection__signature_image",Chữ ký đại diện cửa hàng,門店負責人簽名,ลายเซ็นตัวแทนร้านค้า
@@ -348,16 +348,16 @@ Last Updated on,"model:ir.model.fields,field_description:wujia_franchise.field_w
 Last Updated by,"model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection_question__write_uid",Cập nhật lần cuối bởi,Last Updated by,Last Updated by
 Created on,"model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection_report_line__create_date",Ngày tạo,Created on,Created on
 Created by,"model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection_report_line__create_uid",Người tạo,Created by,Created by
-Month (MM/YYYY),"model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection_report_line__date_month",Tháng (MM/YYYY),Month (MM/YYYY),Month (MM/YYYY)
-Days in Month,"model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection_report_line__days_of_month",Số ngày trong tháng,Days in Month,Days in Month
+Month (MM/YYYY),"model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection_report_line__date_month",Tháng / Năm,月份 (MM/YYYY),เดือน (MM/YYYY)
+Days in Month,"model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection_report_line__days_of_month",Số ngày trong tháng,當月天數,จำนวนวันในเดือน
 Display Name,"model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection_report_line__display_name",Tên hiển thị,Display Name,Display Name
 ID,"model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection_report_line__id",ID,ID,ID
 Inspection Sheet,"model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection_report_line__inspection_id",Phiếu giám sát,Inspection Sheet,Inspection Sheet
-% App Orders,"model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection_report_line__percent_app_sale",Tỷ lệ đơn hàng App (%),% App Orders,% App Orders
-Revenue,"model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection_report_line__revenue",Doanh thu,Revenue,Revenue
-Daily Average Revenue,"model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection_report_line__revenue_avg",Doanh thu trung bình ngày,Daily Average Revenue,Daily Average Revenue
+% App Orders,"model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection_report_line__percent_app_sale",Tỷ lệ đặt app (%),App 訂單比率 (%),อัตราส่วนคำสั่งซื้อ App (%)
+Revenue,"model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection_report_line__revenue",Doanh thu,營業額,รายได้
+Daily Average Revenue,"model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection_report_line__revenue_avg",Doanh thu TB ngày,日均營業額,รายได้เฉลี่ยต่อวัน
 Sequence,"model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection_report_line__sequence",Thứ tự,Sequence,Sequence
-Total App Orders,"model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection_report_line__total_app_sale",Tổng đơn hàng App,Total App Orders,Total App Orders
+Mini App Orders,"model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection_report_line__total_app_sale",Tổng đơn hàng Mini App,Mini App 訂單總數,ยอดคำสั่งซื้อ Mini App ทั้งหมด
 Last Updated on,"model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection_report_line__write_date",Cập nhật lần cuối vào,Last Updated on,Last Updated on
 Last Updated by,"model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection_report_line__write_uid",Cập nhật lần cuối bởi,Last Updated by,Last Updated by
 Next Activity Deadline,"model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection_template__activity_date_deadline",Hạn chót hoạt động tiếp theo,Next Activity Deadline,Next Activity Deadline
@@ -777,7 +777,7 @@ No notes from previous inspection...,"model_terms:ir.ui.view,arch_db:wujia_franc
 Current Inspection Notes (To remediate),"model_terms:ir.ui.view,arch_db:wujia_franchise.view_wujia_franchise_inspection_form",Ghi chú đợt giám sát này (Cần khắc phục),Current Inspection Notes (To remediate),Current Inspection Notes (To remediate)
 Enter poor store appearance details and key issues to improve for this inspection...,"model_terms:ir.ui.view,arch_db:wujia_franchise.view_wujia_franchise_inspection_form",Nhập chi tiết diện mạo chưa đạt và các vấn đề trọng điểm cần cải thiện trong đợt này...,Enter poor store appearance details and key issues to improve for this inspection...,Enter poor store appearance details and key issues to improve for this inspection...
 Notes & Remediation,"model_terms:ir.ui.view,arch_db:wujia_franchise.view_wujia_franchise_inspection_form",Ghi chú & Khắc phục,備註與改善,บันทึกและแก้ไข
-3-Month Revenue Detail,"model_terms:ir.ui.view,arch_db:wujia_franchise.view_wujia_franchise_inspection_form",Chi tiết doanh thu 3 tháng,3-Month Revenue Detail,3-Month Revenue Detail
+3-Month Revenue Detail,"model_terms:ir.ui.view,arch_db:wujia_franchise.wujia_franchise_inspection_form_view",Chi tiết doanh thu 3 tháng,3個月營業額明細,รายละเอียดรายได้ 3 เดือน
 Revenue Report,"model_terms:ir.ui.view,arch_db:wujia_franchise.view_wujia_franchise_inspection_form",Báo cáo doanh thu,營收報告,รายงานรายได้
 Inspector Signature,"model_terms:ir.ui.view,arch_db:wujia_franchise.view_wujia_franchise_inspection_form",Chữ ký giám sát viên,督導人員簽名,ลายเซ็นผู้ตรวจ
 System Confirmation,"model_terms:ir.ui.view,arch_db:wujia_franchise.view_wujia_franchise_inspection_form",Xác nhận hệ thống,System Confirmation,System Confirmation
@@ -1212,14 +1212,14 @@ Previous Inspection Notes (Latest),label:wujia.franchise.inspection_survey:label
 No store appearance issues or key remediations recorded from previous inspection.,label:wujia.franchise.inspection_survey:no_prev_notes,Không có ghi nhận ngoại quan kém hoặc lỗi trọng điểm từ đợt khảo sát trước.,前次督導無外觀不佳或重大缺失記錄。,ไม่มีบันทึกข้อบกพร่องจากการตรวจครั้งก่อน
 Current Inspection Notes (Need Remediation),label:wujia.franchise.inspection_survey:label_current_notes,Ghi nhận đợt này (Cần khắc phục),本次督導缺失記錄（待改善）,บันทึกข้อบกพร่องครั้งนี้ (ต้องแก้ไข)
 Enter store appearance issues and key remediations for this inspection...,label:wujia.franchise.inspection_survey:placeholder_notes,Nhập chi tiết ngoại quan kém và các lỗi trọng điểm cần khắc phục của cửa hàng đợt này...,請輸入本次門市外觀缺失與重點改善事項...,Enter store appearance issues and key remediations for this inspection...
-3 MONTHS DETAILED REVENUE REPORT,label:wujia.franchise.inspection_survey:title_revenue_report,BÁO CÁO CHI TIẾT DOANH THU 3 THÁNG,近3個月營業額詳細報告,รายงานรายได้ 3 เดือนโดยละเอียด
-Add a line,label:wujia.franchise.inspection_survey:btn_add_revenue_row,Thêm một dòng,新增一行,เพิ่มแถว
-Month,label:wujia.franchise.inspection_survey:th_month,Tháng,月份,เดือน
-Revenue,label:wujia.franchise.inspection_survey:th_revenue,Doanh thu,營業額,รายได้
-Daily Revenue,label:wujia.franchise.inspection_survey:th_revenue_avg,Doanh thu/ngày,日均營業額,รายได้เฉลี่ยต่อวัน
-Total App Orders,label:wujia.franchise.inspection_survey:th_total_app_sale,Tổng đơn App,外送平台總單數,ยอดขายผ่านแอปทั้งหมด
-App Orders %,label:wujia.franchise.inspection_survey:th_percent_app_sale,% Đơn App,外送平台佔比%,เปอร์เซ็นต์ยอดขายผ่านแอป
-No revenue data recorded.,label:wujia.franchise.inspection_survey:empty_revenue,Chưa có dòng dữ liệu doanh thu nào.,尚無營業額數據記錄。,ไม่มีข้อมูลรายได้
+label:wujia.franchise.inspection_survey:title_revenue_report,label:wujia.franchise.inspection_survey:title_revenue_report,BÁO CÁO CHI TIẾT DOANH THU 3 THÁNG,3個月詳細營業額報告,รายงานรายได้ละเอียด 3 เดือน
+label:wujia.franchise.inspection_survey:btn_add_revenue_row,label:wujia.franchise.inspection_survey:btn_add_revenue_row,+ Thêm dòng,+ 新增項目,+ เพิ่มรายการ
+label:wujia.franchise.inspection_survey:th_month,label:wujia.franchise.inspection_survey:th_month,Tháng / Năm,月份,เดือน
+label:wujia.franchise.inspection_survey:th_revenue,label:wujia.franchise.inspection_survey:th_revenue,Doanh thu,營業額,รายได้
+label:wujia.franchise.inspection_survey:th_revenue_avg,label:wujia.franchise.inspection_survey:th_revenue_avg,Doanh thu TB ngày,日均營業額,รายได้เฉลี่ยต่อวัน
+label:wujia.franchise.inspection_survey:th_total_app_sale,label:wujia.franchise.inspection_survey:th_total_app_sale,Tổng đơn hàng Mini App,Mini App 訂單總數,ยอดคำสั่งซื้อ Mini App ทั้งหมด
+label:wujia.franchise.inspection_survey:th_percent_app_sale,label:wujia.franchise.inspection_survey:th_percent_app_sale,Tỷ lệ đặt app (%),App 訂單比率 (%),อัตราส่วนคำสั่งซื้อ App (%)
+label:wujia.franchise.inspection_survey:empty_revenue,label:wujia.franchise.inspection_survey:empty_revenue,Chưa có dữ liệu doanh thu.,尚未記錄營業額數據。,ยังไม่มีข้อมูลรายได้
 Confirmation & Attendance Information,label:wujia.franchise.inspection_survey:header_confirmation,Thông tin Xác nhận & Điểm danh,簽核與出勤確認資訊,ข้อมูลการยืนยันและการลงชื่อ
 System Confirmer,label:wujia.franchise.inspection_survey:label_system_confirmer,Người xác nhận hệ thống,System Confirmer,System Confirmer
 Store Manager / Representative Confirmation,label:wujia.franchise.inspection_survey:label_store_confirmer,Xác nhận của Quản lý / Đại diện cửa hàng,Store Manager / Representative Confirmation,Store Manager / Representative Confirmation
@@ -1325,7 +1325,7 @@ Staff,label:wujia.franchise.inspection_report:role_staff,Nhân viên,門市員�
 [Present],label:wujia.franchise.inspection_report:badge_present,[Có mặt],[出勤],[มา]
 [Absent],label:wujia.franchise.inspection_report:badge_absent,[Vắng],[缺勤],[ขาด]
 No attendance list recorded,label:wujia.franchise.inspection_report:empty_attendance,Chưa có danh sách điểm danh,尚無現場出勤簽到名單,ไม่มีรายชื่อ
-IV. 3 Months Detailed Revenue Report,label:wujia.franchise.inspection_report:sec_revenue_title,IV. Báo cáo chi tiết doanh thu 3 tháng,四、近3個月營業額詳細報告,IV. รายงานรายได้ 3 เดือน
+label:wujia.franchise.inspection_report:sec_revenue_title,label:wujia.franchise.inspection_report:sec_revenue_title,IV. Báo cáo chi tiết doanh thu 3 tháng,IV. 3個月詳細營業額報告,IV. รายงานรายได้ละเอียด 3 เดือน
 STORE REPRESENTATIVE CONFIRMATION,label:wujia.franchise.inspection_report:sig_store_rep_title,ĐẠI DIỆN CỬA HÀNG XÁC NHẬN,門店負責人確認簽署,ตัวแทนร้านค้ายืนยัน
 (Signature & Full Name),label:wujia.franchise.inspection_report:sig_sub_instruction,(Ký và ghi rõ họ tên),（簽名並註明全名）,(ลงชื่อและระบุชื่อเต็ม)
 INSPECTOR / SUPERVISOR,label:wujia.franchise.inspection_report:sig_inspector_title,NGƯỜI KIỂM TRA / GIÁM SÁT VIÊN,督導評核人員簽署,ผู้ตรวจสอบ / หัวหน้างาน
@@ -1341,11 +1341,15 @@ No staff examination questions on this inspection.,label:wujia.franchise.inspect
 Month,label:wujia.franchise.inspection_report:th_rev_month,Tháng,月份,เดือน
 Revenue,label:wujia.franchise.inspection_report:th_rev_total,Doanh thu,營業額,รายได้
 Daily Revenue,label:wujia.franchise.inspection_report:th_rev_avg,Doanh thu/ngày,日均營業額,รายได้เฉลี่ยต่อวัน
-Total App Orders,label:wujia.franchise.inspection_report:th_rev_app_orders,Tổng đơn App,外送平台總單數,ยอดขายผ่านแอป
+Total App Orders,label:wujia.franchise.inspection_report:th_rev_app_orders,Tổng đơn hàng Mini App,Mini App 訂單總數,ยอดคำสั่งซื้อ Mini App ทั้งหมด
 App Orders %,label:wujia.franchise.inspection_report:th_rev_app_percent,% Đơn App,外送平台佔比%,เปอร์เซ็นต์แอป
 No revenue data recorded.,label:wujia.franchise.inspection_report:empty_revenue,Chưa có dòng dữ liệu doanh thu nào.,尚無營業額數據記錄。,ไม่มีข้อมูลรายได้
 Change Photo,label:wujia.franchise.inspection_survey:btn_change_photo,Đổi ảnh,更換照片,เปลี่ยนรูป
 Delete Photo,label:wujia.franchise.inspection_survey:btn_delete_photo,Xóa ảnh,刪除照片,ลบรูป
-Supports JPG PNG WEBP (auto-optimized),label:wujia.franchise.inspection_survey:photo_format_hint,Hỗ trợ JPG, PNG, WEBP (tự động tối ưu),支援 JPG, PNG, WEBP (自動優化),รองรับ JPG, PNG, WEBP (ปรับคุณภาพอัตโนมัติ)
+Supports JPG PNG WEBP (auto-optimized),label:wujia.franchise.inspection_survey:photo_format_hint,Hỗ trợ JPG, PNG, WEBP (tự động tối ưu)
 Violation Evidence Photo Attached,label:wujia.franchise.inspection_survey:photo_attached_hint,Ảnh chụp bằng chứng vi phạm,違規證據照片,รูปถ่ายหลักฐานการละเมิด
 Click to upload or capture photo,label:wujia.franchise.inspection_survey:photo_upload_title,Chụp ảnh hoặc Chọn từ thiết bị,拍照或從裝置選取,ถ่ายภาพหรือเลือกจากอุปกรณ์
+label:wujia.franchise.inspection_survey:th_percent_goods,label:wujia.franchise.inspection_survey:th_percent_goods,Tỉ lệ hàng hóa (%),貨品比例 (%),อัตราส่วนสินค้า (%)
+Goods Ratio (%),"model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_inspection_report_line__percent_goods",Tỉ lệ hàng hóa (%),貨品比例 (%),อัตราส่วนสินค้า (%)
+label:wujia.franchise.inspection_survey:btn_sync_posapp,label:wujia.franchise.inspection_survey:btn_sync_posapp,Đồng bộ PosApp,同步 PosApp,ซิงค์ PosApp
+label:wujia.franchise.inspection_report:label_select_lang,label:wujia.franchise.inspection_report:label_select_lang,Ngôn ngữ in:,列印語言:,ภาษาที่พิมพ์:

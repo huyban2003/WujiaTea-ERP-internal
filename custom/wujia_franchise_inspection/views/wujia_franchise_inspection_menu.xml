@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- 2. Giám sát cửa hàng -->
+    <menuitem id="menu_wujia_inspection_supervision_root"
+        name="Store Supervision"
+        parent="wujia_franchise.menu_wujia_root"
+        sequence="30" />
+
+    <menuitem id="menu_wujia_inspection_sheet"
+        name="Inspection Sheets"
+        parent="menu_wujia_inspection_supervision_root"
+        action="action_wujia_franchise_inspection"
+        sequence="10" />
+
+    <menuitem id="menu_wujia_inspection_schedule"
+        name="Supervision Schedules"
+        parent="menu_wujia_inspection_supervision_root"
+        action="action_wujia_supervision_schedule"
+        sequence="20" />
+
+    <menuitem id="menu_wujia_inspection_pending_store"
+        name="Stores Needing Inspection"
+        parent="menu_wujia_inspection_supervision_root"
+        action="action_franchise_needed_inspection"
+        sequence="30" />
+
+    <menuitem id="menu_wujia_inspection_remediation"
+        name="Pending Remediation"
+        parent="menu_wujia_inspection_supervision_root"
+        action="action_wujia_franchise_inspection_remediation"
+        sequence="40" />
+
+    <menuitem id="menu_wujia_inspection_history"
+        name="Supervision History"
+        parent="menu_wujia_inspection_supervision_root"
+        action="action_wujia_franchise_inspection_history"
+        sequence="50" />
+
+    <menuitem id="menu_wujia_inspection_config_root"
+        name="Supervision Configuration"
+        parent="menu_wujia_inspection_supervision_root"
+        sequence="60" />
+
+    <menuitem id="menu_wujia_inspection_template"
+        name="Inspection Templates"
+        parent="menu_wujia_inspection_config_root"
+        action="action_wujia_franchise_inspection_template"
+        sequence="10" />
+
+    <menuitem id="menu_wujia_inspection_category"
+        name="Inspection Categories"
+        parent="menu_wujia_inspection_config_root"
+        action="action_wujia_franchise_inspection_category"
+        sequence="20" />
+
+    <menuitem id="menu_wujia_inspection_question_bank"
+        name="Question Library"
+        parent="menu_wujia_inspection_config_root"
+        action="action_wujia_franchise_inspection_question"
+        sequence="30" />
+
+    <menuitem id="menu_wujia_inspection_ranking"
+        name="Inspection Grades"
+        parent="menu_wujia_inspection_config_root"
+        action="action_wujia_franchise_inspection_grade"
+        sequence="40" />
+
+    <!-- 3. Báo cáo -->
+    <menuitem id="menu_wujia_inspection_report_root"
+        name="Reporting"
+        parent="menu_wujia_inspection_supervision_root"
+        sequence="70" />
+
+    <menuitem id="menu_wujia_inspection_report_result"
+        name="Inspection Results Analysis"
+        parent="menu_wujia_inspection_report_root"
+        action="action_wujia_franchise_inspection_report_result"
+        sequence="10" />
+
+    <menuitem id="menu_wujia_inspection_report_violation"
+        name="Violation Criteria Analysis"
+        parent="menu_wujia_inspection_report_root"
+        action="action_wujia_franchise_inspection_report_violation"
+        sequence="20" />
+
+</odoo>

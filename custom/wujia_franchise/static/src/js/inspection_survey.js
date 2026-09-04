@@ -560,6 +560,7 @@
                     const ySel = r.querySelector(".rev-year-sel");
                     const revInp = r.querySelector(".rev-amount-input");
                     const avgInp = r.querySelector(".rev-avg-input");
+                    const goodsInp = r.querySelector(".rev-goods-input");
                     const appInp = r.querySelector(".rev-app-sale-input");
                     const pctInp = r.querySelector(".rev-percent-input");
                     const mVal = mSel ? mSel.value : "01";
@@ -569,6 +570,9 @@
                       date_month: `${yVal}-${mVal}-01`,
                       revenue: revInp ? parseFloat(revInp.value || 0) : 0,
                       revenue_avg: avgInp ? parseFloat(avgInp.value || 0) : 0,
+                      percent_goods: goodsInp
+                        ? parseFloat(goodsInp.value || 0)
+                        : 0,
                       total_app_sale: appInp ? parseInt(appInp.value || 0) : 0,
                       percent_app_sale: pctInp
                         ? parseFloat(pctInp.value || 0)
@@ -1520,33 +1524,35 @@
     }
 
     function calculateRowAvg(row) {
-      const monthInp = row.querySelector(".rev-month-input");
+      const monthSel = row.querySelector(".rev-month-sel");
+      const yearSel = row.querySelector(".rev-year-sel");
       const revInp = row.querySelector(".rev-amount-input");
       const avgInp = row.querySelector(".rev-avg-input");
-      if (!monthInp || !revInp || !avgInp) return;
+      if (!revInp || !avgInp) return;
 
       const revVal = parseFloat(revInp.value) || 0;
-      const mVal = monthInp.value; // YYYY-MM
-      if (mVal && mVal.includes("-")) {
-        const parts = mVal.split("-");
-        const y = parseInt(parts[0]);
-        const m = parseInt(parts[1]);
-        const days = getDaysInMonth(y, m);
-        if (days > 0 && revVal > 0) {
-          avgInp.value = (revVal / days).toFixed(2);
-        } else {
-          avgInp.value = "0";
-        }
+      const now = new Date();
+      let y = now.getFullYear(), m = now.getMonth() + 1;
+      if (yearSel && monthSel) {
+        y = parseInt(yearSel.value) || now.getFullYear();
+        m = parseInt(monthSel.value) || (now.getMonth() + 1);
+      }
+      const days = getDaysInMonth(y, m);
+      if (days > 0 && revVal > 0) {
+        avgInp.value = Math.round(revVal / days);
+      } else {
+        avgInp.value = "0";
       }
     }
 
     function bindRevenueRowEvents(row) {
-      const monthInp = row.querySelector(".rev-month-input");
+      const monthSel = row.querySelector(".rev-month-sel");
+      const yearSel = row.querySelector(".rev-year-sel");
       const revInp = row.querySelector(".rev-amount-input");
       const delBtn = row.querySelector(".btn-delete-rev-row");
 
-      if (monthInp)
-        monthInp.addEventListener("change", () => calculateRowAvg(row));
+      if (monthSel) monthSel.addEventListener("change", () => calculateRowAvg(row));
+      if (yearSel) yearSel.addEventListener("change", () => calculateRowAvg(row));
       if (revInp) revInp.addEventListener("input", () => calculateRowAvg(row));
 
       if (delBtn) {
@@ -1569,6 +1575,124 @@
         .forEach(bindRevenueRowEvents);
     }
 
+        function getMonthOptionsHtml(selectedMonth) {
+      const existingSelect = document.querySelector(".rev-month-sel");
+      if (existingSelect && existingSelect.options.length > 0) {
+        let html = "";
+        for (let i = 0; i < existingSelect.options.length; i++) {
+          const opt = existingSelect.options[i];
+          const isSel = (opt.value === selectedMonth) ? 'selected="selected"' : "";
+          html += `<option value="${opt.value}" ${isSel}>${opt.text}</option>`;
+        }
+        return html;
+      }
+      let html = "";
+      for (let i = 1; i <= 12; i++) {
+        const val = String(i).padStart(2, "0");
+        const isSel = (val === selectedMonth) ? 'selected="selected"' : "";
+        html += `<option value="${val}" ${isSel}>${val}</option>`;
+      }
+      return html;
+    }
+
+    function getYearOptionsHtml(selectedYear) {
+      const existingSelect = document.querySelector(".rev-year-sel");
+      if (existingSelect && existingSelect.options.length > 0) {
+        let html = "";
+        for (let i = 0; i < existingSelect.options.length; i++) {
+          const opt = existingSelect.options[i];
+          const isSel = (opt.value === String(selectedYear)) ? 'selected="selected"' : "";
+          html += `<option value="${opt.value}" ${isSel}>${opt.text}</option>`;
+        }
+        return html;
+      }
+      const curY = new Date().getFullYear();
+      let html = "";
+      for (let y = curY - 3; y <= curY + 2; y++) {
+        const isSel = (String(y) === String(selectedYear || curY)) ? 'selected="selected"' : "";
+        html += `<option value="${y}" ${isSel}>${y}</option>`;
+      }
+      return html;
+    }
+
+    const btnSyncPosApp = document.getElementById("btnSyncPosApp");
+    if (btnSyncPosApp) {
+      btnSyncPosApp.addEventListener("click", async function () {
+        const origHtml = btnSyncPosApp.innerHTML;
+        btnSyncPosApp.disabled = true;
+        btnSyncPosApp.innerHTML = '<i class="fa fa-spinner fa-spin me-1"></i> Đang đồng bộ...';
+        try {
+          const res = await fetch(`/franchise/inspection/do/${inspectionId}/sync_posapp`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ jsonrpc: "2.0", params: {} })
+          });
+          const data = await res.json();
+          if (data.result && data.result.success) {
+            const fetchedLines = data.result.report_lines || [];
+            if (revenueTbody) {
+              revenueTbody.innerHTML = "";
+              if (revenueEmptyState) revenueEmptyState.style.display = "none";
+              
+              fetchedLines.forEach((item) => {
+                const tr = document.createElement("tr");
+                tr.className = "revenue-row";
+                tr.style.borderBottom = "1px solid #f1f5f9";
+                tr.innerHTML = `
+                  <td style="padding: 8px 10px;">
+                    <div style="display: flex; gap: 4px; align-items: center;">
+                      <select class="rev-month-sel note-input" style="padding: 6px 4px; font-size: 12px; font-weight: 600; min-width: 95px; background: #fff;">
+                        ${getMonthOptionsHtml(item.month_val)}
+                      </select>
+                      <select class="rev-year-sel note-input" style="padding: 6px 4px; font-size: 12px; font-weight: 600; min-width: 68px; background: #fff;">
+                        ${getYearOptionsHtml(item.year_val)}
+                      </select>
+                    </div>
+                  </td>
+                  <td style="padding: 8px 10px;">
+                    <input type="number" step="any" class="rev-amount-input note-input" value="${item.revenue || 0}" style="padding: 6px 8px; font-size: 13px; width: 100%; font-weight: 600; text-align: right;" />
+                  </td>
+                  <td style="padding: 8px 10px;">
+                    <input type="number" step="any" class="rev-avg-input note-input" value="${item.revenue_avg || 0}" style="padding: 6px 8px; font-size: 13px; width: 100%; background: #f8fafc; font-weight: 600; text-align: right;" />
+                  </td>
+                  <td style="padding: 8px 10px;">
+                    <div style="display: flex; align-items: center; gap: 4px;">
+                      <input type="number" step="any" class="rev-goods-input note-input" value="${item.percent_goods || 0}" style="padding: 6px 8px; font-size: 13px; width: 100%; font-weight: 600; text-align: right;" />
+                      <span style="font-weight: 700; color: #64748b;">%</span>
+                    </div>
+                  </td>
+                  <td style="padding: 8px 10px;">
+                    <input type="number" step="1" class="rev-app-sale-input note-input" value="${item.total_app_sale || 0}" style="padding: 6px 8px; font-size: 13px; width: 100%; font-weight: 600; text-align: right;" />
+                  </td>
+                  <td style="padding: 8px 10px;">
+                    <div style="display: flex; align-items: center; gap: 4px;">
+                      <input type="number" step="any" class="rev-percent-input note-input" value="${item.percent_app_sale || 0}" style="padding: 6px 8px; font-size: 13px; width: 100%; font-weight: 600; text-align: right;" />
+                      <span style="font-weight: 700; color: #64748b;">%</span>
+                    </div>
+                  </td>
+                  <td style="padding: 8px 4px; text-align: center;">
+                    <button type="button" class="btn btn-sm text-danger btn-delete-rev-row" style="background: transparent; border: none; font-size: 14px; cursor: pointer;" title="Xóa dòng">
+                      <i class="fa fa-trash-can"></i>
+                    </button>
+                  </td>
+                `;
+                revenueTbody.appendChild(tr);
+                bindRevenueRowEvents(tr);
+              });
+            }
+            showToast(data.result.message || "Đã lấy số liệu từ PosApp. Bấm Lưu kết quả để lưu lại.", false);
+          } else {
+            showToast((data.result && data.result.error) || "Lỗi đồng bộ PosApp", true);
+          }
+        } catch (err) {
+          showToast("Lỗi kết nối khi đồng bộ PosApp", true);
+        } finally {
+          btnSyncPosApp.disabled = false;
+          btnSyncPosApp.innerHTML = origHtml;
+        }
+      });
+    }
+
     if (btnAddRevenueRow) {
       btnAddRevenueRow.addEventListener("click", function () {
         if (!revenueTbody) return;
@@ -1583,13 +1707,26 @@
         tr.style.borderBottom = "1px solid #f1f5f9";
         tr.innerHTML = `
           <td style="padding: 8px 10px;">
-            <input type="month" class="rev-month-input note-input" value="${curMonthStr}" style="padding: 6px 8px; font-size: 13px; width: 100%; font-weight: 600;" />
+            <div style="display: flex; gap: 4px; align-items: center;">
+              <select class="rev-month-sel note-input" style="padding: 6px 4px; font-size: 12px; font-weight: 600; min-width: 95px; background: #fff;">
+                ${getMonthOptionsHtml(curMonthStr.slice(5, 7))}
+              </select>
+              <select class="rev-year-sel note-input" style="padding: 6px 4px; font-size: 12px; font-weight: 600; min-width: 68px; background: #fff;">
+                ${getYearOptionsHtml(curMonthStr.slice(0, 4))}
+              </select>
+            </div>
           </td>
           <td style="padding: 8px 10px;">
             <input type="number" step="any" class="rev-amount-input note-input" placeholder="0" style="padding: 6px 8px; font-size: 13px; width: 100%; font-weight: 600; text-align: right;" />
           </td>
           <td style="padding: 8px 10px;">
             <input type="number" step="any" class="rev-avg-input note-input" placeholder="0" style="padding: 6px 8px; font-size: 13px; width: 100%; background: #f8fafc; font-weight: 600; text-align: right;" />
+          </td>
+          <td style="padding: 8px 10px;">
+            <div style="display: flex; align-items: center; gap: 4px;">
+              <input type="number" step="any" class="rev-goods-input note-input" placeholder="0" style="padding: 6px 8px; font-size: 13px; width: 100%; font-weight: 600; text-align: right;" />
+              <span style="font-weight: 700; color: #64748b;">%</span>
+            </div>
           </td>
           <td style="padding: 8px 10px;">
             <input type="number" step="1" class="rev-app-sale-input note-input" placeholder="0" style="padding: 6px 8px; font-size: 13px; width: 100%; font-weight: 600; text-align: right;" />

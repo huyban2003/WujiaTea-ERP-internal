@@ -239,6 +239,7 @@ class WujiaFranchiseInspectionWebController(http.Controller):
                     'date_month_str': rl.date_month.strftime('%m/%Y') if rl.date_month else '',
                     'revenue': rl.revenue or 0.0,
                     'revenue_avg': rl.revenue_avg or 0.0,
+                    'percent_goods': rl.percent_goods or 0.0,
                     'total_app_sale': rl.total_app_sale or 0,
                     'percent_app_sale': rl.percent_app_sale or 0.0,
                 }
@@ -253,6 +254,36 @@ class WujiaFranchiseInspectionWebController(http.Controller):
             'trans_json': json.dumps(trans_map, ensure_ascii=False),
         }
         return request.render('wujia_franchise.inspection_survey_do_page', values)
+
+    @http.route(['/franchise/inspection/do/<int:inspection_id>/sync_posapp'], type='json', auth='user', methods=['POST'])
+    def sync_posapp_revenue(self, inspection_id, **kwargs):
+        inspection = request.env['wujia.franchise.inspection'].sudo().browse(int(inspection_id))
+        if not inspection.exists():
+            return {'success': False, 'error': 'Inspection sheet does not exist'}
+        if inspection.state in ('done', 'cancel'):
+            return {'success': False, 'error': 'Inspection sheet is already completed or cancelled!'}
+        
+        try:
+            lines_data = inspection._fetch_posapp_revenue_data()
+            commands = [(5, 0, 0)]
+            for ld in lines_data:
+                commands.append((0, 0, {
+                    'sequence': ld['sequence'],
+                    'date_month': fields.Date.from_string(ld['date_month']),
+                    'revenue': ld['revenue'],
+                    'revenue_avg': ld['revenue_avg'],
+                    'percent_goods': ld['percent_goods'],
+                    'total_app_sale': ld['total_app_sale'],
+                    'percent_app_sale': ld['percent_app_sale'],
+                }))
+            inspection.write({'report_line_ids': commands})
+            return {
+                'success': True,
+                'report_lines': lines_data,
+                'message': 'Đã đồng bộ doanh thu từ PosApp thành công!'
+            }
+        except Exception as e:
+            return {'success': False, 'error': str(e)}
 
     @http.route(['/franchise/inspection/do/<int:inspection_id>/save'], type='json', auth='user', methods=['POST'])
     def save_inspection_survey(self, inspection_id, lines=None, exam_lines=None, test_employee_name=None, tenure=None, store_appearance_issues=None, confirmed_member_id=None, attendance_lines=None, signature_image=None, report_lines=None, finish=True, **kwargs):
@@ -344,6 +375,36 @@ class WujiaFranchiseInspectionWebController(http.Controller):
                     att_vals['note'] = note
                 if att_vals:
                     att.write(att_vals)
+
+        # Cập nhật các dòng báo cáo doanh thu 3 tháng (report_lines)
+        if report_lines is not None:
+            existing_report_lines = {rl.id: rl for rl in inspection.report_line_ids}
+            sent_ids = []
+            seq = 10
+            for r_data in report_lines:
+                r_id = int(r_data.get('id', 0)) if r_data.get('id') else 0
+                d_month = r_data.get('date_month') or fields.Date.context_today(inspection)
+                vals = {
+                    'sequence': seq,
+                    'date_month': d_month,
+                    'revenue': float(r_data.get('revenue', 0.0) or 0.0),
+                    'revenue_avg': float(r_data.get('revenue_avg', 0.0) or 0.0),
+                    'percent_goods': float(r_data.get('percent_goods', 0.0) or 0.0),
+                    'total_app_sale': int(r_data.get('total_app_sale', 0) or 0),
+                    'percent_app_sale': float(r_data.get('percent_app_sale', 0.0) or 0.0),
+                }
+                seq += 10
+                if r_id and r_id in existing_report_lines:
+                    existing_report_lines[r_id].write(vals)
+                    sent_ids.append(r_id)
+                else:
+                    vals['inspection_id'] = inspection.id
+                    new_rl = request.env['wujia.franchise.inspection.report.line'].sudo().create(vals)
+                    sent_ids.append(new_rl.id)
+            
+            for rl_id, rl_obj in existing_report_lines.items():
+                if rl_id not in sent_ids:
+                    rl_obj.unlink()
 
         if insp_vals:
             inspection.write(insp_vals)

@@ -23,9 +23,6 @@ Module hợp nhất 2 phân hệ chính của nhượng quyền (BA spec mục A
 Extension chuẩn:
    - res.partner.is_franchise (compute từ franchise_ids != False), franchise_ids.
    - res.users.member_ids + smart-button.
-
-Hợp nhất 2 model trong cùng 1 module để tránh circular dep
-(mgmt.member_ids ↔ member.franchise_id).
 """,
     'license': 'LGPL-3',
     'depends': [
@@ -40,32 +37,12 @@ Hợp nhất 2 model trong cùng 1 module để tránh circular dep
         'security/wujia_franchise_rules.xml',
         'views/wujia_franchise_management_views.xml',
         'views/wujia_franchise_member_views.xml',
-        'views/wujia_franchise_inspection_template_views.xml',
-        'views/wujia_franchise_inspection_question_views.xml',
-        'views/wujia_franchise_inspection_grade_views.xml',
-        'views/wujia_franchise_inspection.xml',
-        'views/wujia_franchise_inspection_report_templates.xml',
-        'views/inspection_survey_web_templates.xml',
-        'views/wujia_franchise_inspection_history_views.xml',
-        'views/wujia_franchise_inspection_remediation_views.xml',
-        'views/wujia_franchise_inspection_report_views.xml',
-        'views/wujia_franchise_inspection_violation_views.xml',
-        'views/wujia_franchise_needed_inspection_views.xml',
-        'views/wujia_supervision_schedule_views.xml',
         'views/res_partner_views.xml',
         'views/res_users_views.xml',
         'views/wujia_franchise_menu.xml',
-        'data/inspection_grade_data.xml',
-        'data/wujia_inspection_bootstrap.xml',
         'data/ir_cron_data.xml',
+        'data/wujia_franchise_bootstrap.xml',
     ],
-    'assets': {
-        'web.assets_backend': [
-            'wujia_franchise/static/src/css/wujia_inspection.css',
-            'wujia_franchise/static/src/js/wujia_inspection_chart.js',
-            'wujia_franchise/static/src/js/wujia_gps_field.js',
-        ],
-    },
     'installable': True,
     'application': True,
     'auto_install': False,

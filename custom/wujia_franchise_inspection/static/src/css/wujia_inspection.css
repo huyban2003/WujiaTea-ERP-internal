@@ -1,0 +1,174 @@
+/* Target tr.fw-bold / tr.fw-bolder do decoration-bf="display_type == 'line'" tạo ra */
+.o_list_view tr.fw-bold td[name="content_snapshot"],
+.o_list_renderer tr.fw-bold td[name="content_snapshot"],
+tr.o_data_row.fw-bold td[name="content_snapshot"],
+tr.fw-bold td[name="content_snapshot"],
+.o_list_view tr.fw-bolder td[name="content_snapshot"],
+.o_list_renderer tr.fw-bolder td[name="content_snapshot"],
+tr.o_data_row.fw-bolder td[name="content_snapshot"],
+tr.fw-bolder td[name="content_snapshot"] {
+    padding-left: 24px !important;
+}
+
+/* Background color xám nhạt cao cấp cho dòng Section trong list view */
+.o_list_renderer tr.text-info,
+.o_list_view tr.text-info,
+tr.o_data_row.text-info,
+tr.text-info td,
+.o_list_renderer tr.text-info > td,
+.o_list_view tr.text-info > td {
+    background-color: #e9ecef !important;
+    color: #1e293b !important;
+    font-weight: 600 !important;
+}
+
+/* Background color vàng đậm/amber cao cấp cho dòng tiêu chí quan trọng (critical - decoration-warning) */
+.o_list_renderer tr.text-warning,
+.o_list_view tr.text-warning,
+tr.o_data_row.text-warning,
+tr.text-warning td,
+.o_list_renderer tr.text-warning > td,
+.o_list_view tr.text-warning > td {
+    background-color: #fde68a !important; /* Soft Amber Yellow */
+    color: #78350f !important;             /* Dark Amber Text */
+    font-weight: 500 !important;
+}
+
+/* Inactive badges */
+.o_selection_badge[value='"need_remediation"'] {
+    background-color: #fff3cd !important;
+    color: #fd7e14 !important;
+    border: 1.5px solid #fd7e14 !important;
+    opacity: 0.85;
+}
+.o_selection_badge[value='"remediated"'] {
+    background-color: #e2e3e5 !important;
+    color: #0707ff !important;
+    border: 1.5px solid #0707ff !important;
+    opacity: 0.85;
+}
+.o_selection_badge[value='"done"'] {
+    background-color: #d4edda !important;
+    color: #28a745 !important;
+    border: 1.5px solid #28a745 !important;
+    opacity: 0.85;
+}
+
+/* Active badges */
+.o_selection_badge[value='"need_remediation"'].active {
+    background-color: #fd7e14 !important;
+    color: #ffffff !important;
+    border: 2px solid #b25902 !important;
+    box-shadow: 0 0 0 3px rgba(253, 126, 20, 0.3) !important;
+    font-weight: bold !important;
+    opacity: 1 !important;
+}
+.o_selection_badge[value='"remediated"'].active {
+    background-color: #0707ff !important;
+    color: #ffffff !important;
+    border: 2px solid #0303b2 !important;
+    box-shadow: 0 0 0 3px rgba(7, 7, 255, 0.3) !important;
+    font-weight: bold !important;
+    opacity: 1 !important;
+}
+.o_selection_badge[value='"done"'].active {
+    background-color: #28a745 !important;
+    color: #ffffff !important;
+    border: 2px solid #1e7e34 !important;
+    box-shadow: 0 0 0 3px rgba(40, 167, 69, 0.3) !important;
+    font-weight: bold !important;
+    opacity: 1 !important;
+}
+.badge[raw-value="need_remediation"] {
+    background-color: #fd7e14 !important;
+    color: #ffffff !important;
+}
+
+.badge[raw-value="done"] {
+    background-color: #28a745 !important;
+    color: #ffffff !important;
+}
+
+.badge[raw-value="remediated"] {
+    background-color: #0707ff !important;
+    color: #ffffff !important;
+}
+
+/* Custom styling for the list view boolean toggle (is_pass) */
+.o_list_renderer .wujia-inspection-pass-toggle,
+.o_list_renderer td[name="is_pass"] {
+    vertical-align: middle !important;
+}
+
+/* Base style for form-check form-switch container */
+.o_list_renderer td[name="is_pass"] .form-check.form-switch,
+.wujia-inspection-pass-toggle .form-check.form-switch {
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    padding-left: 0 !important;
+    margin: 0 !important;
+    min-height: auto !important;
+}
+
+/* The actual toggle switch input */
+.o_list_renderer td[name="is_pass"] .form-check-input,
+.wujia-inspection-pass-toggle .form-check-input,
+.wujia-inspection-pass-toggle.form-check-input {
+    width: 2.2rem !important;
+    height: 1.1rem !important;
+    margin-left: 0 !important;
+    cursor: pointer !important;
+    background-color: #f43f5e !important; /* Rose Red for Fail */
+    border: 1.5px solid #e11d48 !important;
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='-4 -4 8 8'%3e%3ccircle r='3' fill='%23fff'/%3e%3c/svg%3e") !important;
+    border-radius: 2rem !important;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1) !important;
+    transition: background-position 0.2s cubic-bezier(0.4, 0, 0.2, 1), background-color 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease !important;
+}
+
+/* Checked (Pass) state */
+.o_list_renderer td[name="is_pass"] .form-check-input:checked,
+.wujia-inspection-pass-toggle .form-check-input:checked,
+.wujia-inspection-pass-toggle.form-check-input:checked {
+    background-color: #10b981 !important; /* Emerald Green for Pass */
+    border-color: #059669 !important;
+    background-position: right center !important;
+}
+
+/* Hover effects */
+.o_list_renderer td[name="is_pass"] .form-check-input:hover,
+.wujia-inspection-pass-toggle .form-check-input:hover {
+    filter: brightness(1.05);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15) !important;
+}
+
+/* Focus styles */
+.o_list_renderer td[name="is_pass"] .form-check-input:focus,
+.wujia-inspection-pass-toggle .form-check-input:focus {
+    outline: none !important;
+    box-shadow: 0 0 0 0.25rem rgba(16, 185, 129, 0.25) !important;
+}
+.o_list_renderer td[name="is_pass"] .form-check-input:not(:checked):focus,
+.wujia-inspection-pass-toggle .form-check-input:not(:checked):focus {
+    box-shadow: 0 0 0 0.25rem rgba(244, 63, 94, 0.25) !important;
+}
+
+/* Disabled / Readonly state style */
+.o_list_renderer td[name="is_pass"] .form-check-input:disabled,
+.wujia-inspection-pass-toggle .form-check-input:disabled {
+    opacity: 0.8 !important;
+    cursor: default !important;
+    filter: grayscale(15%) brightness(0.95);
+}
+
+/* Full width inspection chart widget */
+.o_field_wujia_inspection_chart,
+.o_field_widget[name="inspection_chart_data"],
+.wujia-inspection-chart-container {
+    width: 100% !important;
+    max-width: 100% !important;
+    display: block !important;
+    flex: 1 1 100% !important;
+}
+

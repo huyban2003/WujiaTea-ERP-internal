@@ -1,17 +1,29 @@
-import pandas as pd
+# -*- coding: utf-8 -*-
+import calendar
+from datetime import datetime, date
+from dateutil.relativedelta import relativedelta
 from enum import Enum
+import json
+import logging
+import random
+import re
+
+import pandas as pd
+
+from odoo import api, fields, models, _
+# pyrefly: ignore [missing-import]
+from odoo.exceptions import ValidationError, UserError
+
+from .posapp_client import PosAppClient
+from odoo.addons.wujia_franchise.controllers.main import get_survey_translations
+
+_logger = logging.getLogger(__name__)
 
 
 class RemediationState(str, Enum):
     NEED_REMEDIATION = 'need_remediation'
     REMEDIATED = 'remediated'
-    DONE = 'done'
-
-# -*- coding: utf-8 -*-
-import random
-from odoo import api, fields, models, _
-# pyrefly: ignore [missing-import]
-from odoo.exceptions import ValidationError, UserError
+    DONE = 'done' 
 
 
 class WujiaFranchiseInspection(models.Model):
@@ -429,7 +441,6 @@ class WujiaFranchiseInspection(models.Model):
 
     @api.depends('franchise_id', 'template_id', 'total_score', 'state')
     def _compute_inspection_chart_data(self):
-        import json
         for rec in self:
             if not rec.franchise_id or not rec.template_id:
                 rec.inspection_chart_data = json.dumps({
@@ -746,9 +757,9 @@ class WujiaFranchiseInspection(models.Model):
 
     @api.depends('exam_line_ids.point', 'exam_line_ids.is_correct')
     def _compute_exam_score(self):
-        """Tự động tính tổng điểm bài kiểm tra từ điểm của từng câu hỏi."""
+        """Tự động tính tổng điểm bài kiểm tra từ các câu hỏi trả lời đúng."""
         for rec in self:
-            rec.exam_score = sum(line.point for line in rec.exam_line_ids)
+            rec.exam_score = sum(line.point for line in rec.exam_line_ids if line.is_correct)
             if rec.template_id:
                 rec.exam_score = min(rec.template_id.exam_max_score, rec.exam_score)
 
@@ -907,6 +918,117 @@ class WujiaFranchiseInspection(models.Model):
             'view_mode': 'form',
             'target': 'current',
         }
+
+    def _fetch_posapp_revenue_data(self):
+        """
+        Chỉ lấy dữ liệu thống kê doanh thu 3 tháng gần nhất từ PosApp API, KHÔNG lưu trực tiếp vào CSDL.
+        Trả về danh sách dict các dòng để giao diện form/web hiển thị và người dùng bấm Lưu mới lưu.
+        """
+        self.ensure_one()
+        if not self.franchise_id or not self.franchise_id.code:
+            raise UserError(_("Cửa hàng chưa có mã cửa hàng (Store Code) để đồng bộ PosApp!"))
+
+        shop_code = (self.franchise_id.code or '').strip()
+        ref_date = self.planned_date or fields.Date.context_today(self)
+
+        # Tính 3 tháng gần nhất trước ngày khảo sát
+        date_ranges = []
+        for i in range(1, 4):
+            m_date = ref_date - relativedelta(months=i)
+            year = m_date.year
+            month = m_date.month
+            last_day = calendar.monthrange(year, month)[1]
+            date_ranges.append((
+                f"{year:04d}-{month:02d}-01",
+                f"{year:04d}-{month:02d}-{last_day:02d}"
+            ))
+
+        client = PosAppClient()
+        try:
+            result_groups = client.get_orders_by_date_ranges(
+                date_ranges=date_ranges,
+                shop_code=shop_code,
+                max_workers=min(3, len(date_ranges))
+            )
+        except Exception as e:
+            raise UserError(_("Lỗi khi kết nối đến PosApp API: %s") % str(e))
+
+        if not result_groups:
+            raise UserError(_("Không lấy được dữ liệu doanh thu từ PosApp cho cửa hàng '%s'. Vui lòng kiểm tra lại kết nối hoặc mã cửa hàng!") % shop_code)
+
+        # Sắp xếp các tháng theo thứ tự thời gian tăng dần
+        result_groups = sorted(result_groups, key=lambda x: x.get('date', ''))
+
+        lines_data = []
+        seq = 10
+        for group in result_groups:
+            d_str = group.get('date')  # 'YYYY-MM'
+            if not d_str:
+                continue
+            month_date = fields.Date.from_string(f"{d_str}-01")
+            total_rev = float(group.get('total_amount', 0.0) or 0.0)
+            total_app_amount = float(group.get('total_amount_app', 0.0) or 0.0)
+            mini_app_orders = int(group.get('count_amount_mini_app', 0) or 0)
+
+            # Tính phần trăm doanh thu từ app
+            pct_app = round((total_app_amount / total_rev) * 100, 2) if total_rev > 0 else 0.0
+
+            # Tính doanh thu trung bình ngày theo số ngày thực tế trong tháng
+            period_days = calendar.monthrange(month_date.year, month_date.month)[1]
+            rev_avg = round(total_rev / period_days, 2) if period_days > 0 else 0.0
+
+            lines_data.append({
+                'sequence': seq,
+                'date_month': str(month_date),
+                'month_val': month_date.strftime('%m'),
+                'year_val': month_date.strftime('%Y'),
+                'date_month_str': month_date.strftime('%m/%Y'),
+                'revenue': total_rev,
+                'revenue_avg': rev_avg,
+                'percent_goods': 0.0,
+                'total_app_sale': mini_app_orders,
+                'percent_app_sale': pct_app,
+            })
+            seq += 10
+
+        return lines_data
+
+    def action_sync_posapp_revenue(self):
+        """
+        Lấy số liệu từ PosApp và lưu vào record.
+        Trả về False để Odoo Web Client tự động cập nhật dữ liệu bảng One2many tại chỗ mượt mà,
+        chỉ cập nhật đúng bảng đó mà không làm chớp/reload lại toàn bộ trang.
+        """
+        self.ensure_one()
+        lines_data = self._fetch_posapp_revenue_data()
+
+        commands = [(5, 0, 0)]
+        for ld in lines_data:
+            commands.append((0, 0, {
+                'sequence': ld['sequence'],
+                'date_month': fields.Date.from_string(ld['date_month']),
+                'revenue': ld['revenue'],
+                'revenue_avg': ld['revenue_avg'],
+                'percent_goods': ld['percent_goods'],
+                'total_app_sale': ld['total_app_sale'],
+                'percent_app_sale': ld['percent_app_sale'],
+            }))
+
+        self.write({'report_line_ids': commands})
+
+        # Gửi thông báo popup nhẹ qua Bus (không điều hướng hay chớp trang)
+        self.env['bus.bus']._sendone(
+            self.env.user.partner_id,
+            'simple_notification',
+            {
+                'title': _('Đồng bộ PosApp thành công'),
+                'message': _("Đã nạp thành công %s tháng doanh thu từ PosApp!") % len(lines_data),
+                'type': 'success',
+                'sticky': False,
+            }
+        )
+
+        return False
 
     def action_open_inspection_detail(self):
         """Mở trang Website chuyên dụng để thực hiện khảo sát Checklist độc lập"""
@@ -1165,9 +1287,17 @@ class WujiaFranchiseInspection(models.Model):
         action['display_name'] = custom_name
         return action
 
+    def get_all_translations_json(self):
+        """Trả về toàn bộ từ điển 3 ngôn ngữ (vi_VN, zh_CN, th_TH) dạng JSON để frontend chuyển đổi tức thì."""
+        data = {
+            'vi_VN': get_survey_translations('vi_VN'),
+            'zh_CN': get_survey_translations('zh_CN'),
+            'th_TH': get_survey_translations('th_TH'),
+        }
+        return json.dumps(data, ensure_ascii=False)
+
     def get_report_translations(self, lang=None):
         try:
-            from odoo.addons.wujia_franchise.controllers.main import get_survey_translations
             target_lang = lang or self.env.context.get('lang') or self.env.user.lang or 'vi_VN'
             return get_survey_translations(target_lang)
         except Exception:
@@ -1637,14 +1767,16 @@ class WujiaFranchiseInspectionReportLine(models.Model):
         readonly=False,
     )
 
+    percent_goods = fields.Float(
+        string='Goods Ratio (%)',
+    )
+
     total_app_sale = fields.Integer(
-        string='Total App Orders',
-        required=True,
+        string='Total Mini App Orders',
     )
 
     percent_app_sale = fields.Float(
         string='% App Orders',
-        required=True,
     )
 
     # RELATION
@@ -1710,7 +1842,7 @@ class WujiaFranchiseInspectionExamLine(models.Model):
     )
     point = fields.Float(
         string='Score',
-        default=1.0,
+        default=0.0,
     )
 
     is_locked = fields.Boolean(
@@ -1756,7 +1888,6 @@ class WujiaFranchiseInspectionExamLine(models.Model):
 
     def _evaluate_answer(self):
         """So sánh đáp án trả lời của nhân viên với đáp án đúng snapshot"""
-        import re
         for rec in self:
             max_score = rec.quest_id.score if (rec.quest_id and rec.quest_id.score) else 1.0
             if not rec.answer:
@@ -1905,7 +2036,6 @@ class WujiaFranchiseInspectionAttendanceLine(models.Model):
             users = self.env['res.users'].sudo().search([('name', '=ilike', self.employee_name.strip())], limit=1)
             if not users:
                 # Tạo portal user placeholder
-                import random
                 clean_name = ''.join(e for e in self.employee_name if e.isalnum() or e.isspace()).strip().lower().replace(' ', '.')
                 login_candidate = f"{clean_name or 'staff'}.{random.randint(1000, 9999)}@wujiatea.internal"
                 portal_group = self.env.ref('base.group_portal', raise_if_not_found=False)
@@ -1936,7 +2066,6 @@ class WujiaFranchiseInspectionAttendanceLine(models.Model):
 
     def get_report_translations(self, lang=None):
         try:
-            from odoo.addons.wujia_franchise.controllers.main import get_survey_translations
             target_lang = lang or self.env.context.get('lang') or self.env.user.lang or 'vi_VN'
             return get_survey_translations(target_lang)
         except Exception:

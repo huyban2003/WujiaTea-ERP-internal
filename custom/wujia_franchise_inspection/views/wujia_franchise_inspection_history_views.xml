@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- Action Lịch sử giám sát (Lọc người kiểm tra là người dùng hiện tại &amp; Gom nhóm theo Franchise Store) -->
+    <record id="action_wujia_franchise_inspection_history" model="ir.actions.act_window">
+        <field name="name">Supervision History</field>
+        <field name="res_model">wujia.franchise.inspection</field>
+        <field name="view_mode">list,form</field>
+        <field name="search_view_id" ref="view_wujia_franchise_inspection_search" />
+        <field name="context">{
+            'search_default_my_inspection': 1,
+            'search_default_group_franchise': 1
+        }</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                View supervision history!
+            </p>
+        </field>
+    </record>
+
+</odoo>

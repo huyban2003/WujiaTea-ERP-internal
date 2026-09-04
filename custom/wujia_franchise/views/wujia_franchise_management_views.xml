@@ -6,7 +6,7 @@
         <field name="model">wujia.franchise.management</field>
         <field name="arch" type="xml">
             <list string="Franchise Stores" sample="1"
-                default_order="latest_inspection_date desc"
+                default_order="code asc, name asc"
                 decoration-danger="is_expired"
                 decoration-warning="status == 'locked'"
                 decoration-muted="status == 'closed'">
@@ -18,15 +18,7 @@
                 <field name="franchise_end_date" />
                 <field name="remaining_days" />
                 <field name="member_count" />
-                <field name="effective_supervision_user_id" optional="show" string="Assigned Supervisor" />
-                <field name="latest_inspection_date" optional="show" string="Latest Inspection Date" />
-                <field name="latest_total_score" optional="show" string="Latest Score" />
-                <field name="latest_grade_id" optional="show" widget="badge"
-                    string="Latest Grade" />
-                <field name="consecutive_cd_count" optional="show" widget="badge"
-                    string="Consecutive C/D"
-                    decoration-danger="consecutive_cd_count &gt;= 2"
-                    decoration-warning="consecutive_cd_count == 1" />
+
                 <field name="status" widget="badge"
                     decoration-success="status == 'active'"
                     decoration-warning="status == 'locked'"
@@ -94,22 +86,7 @@
                             <field name="opening_date" />
                         </group>
                     </group>
-                    <group>
-                        <group string="Assigned Supervisor">
-                            <field name="supervision_user_id"
-                                placeholder="Leave empty to default to Area Manager" />
-                            <field name="area_manager_user_id" readonly="1"
-                                string="Area Manager" />
-                        </group>
-                        <group string="Latest Inspection">
-                            <field name="latest_inspection_date" readonly="1"
-                                string="Latest Inspection Date" />
-                            <field name="latest_total_score" readonly="1"
-                                string="Latest Inspection Score" />
-                            <field name="latest_grade_id" widget="badge" readonly="1"
-                                string="Latest Inspection Grade" />
-                        </group>
-                    </group>
+
                     <group>
                         <group string="Area &amp; Address">
                             <field name="area_id"
@@ -159,10 +136,7 @@
                                 </list>
                             </field>
                         </page>
-                        <page string="Report" name="report">
-                            <field name="inspection_chart_data" widget="wujia_inspection_chart"
-                                nolabel="1" class="w-100 d-block" />
-                        </page>
+
                         <page string="Internal note" name="note">
                             <field name="note" placeholder="Internal note" />
                         </page>
@@ -219,11 +193,7 @@
                 <field name="name" />
                 <field name="partner_id" />
                 <field name="area_id" />
-                <field name="effective_supervision_user_id" />
                 <field name="main_owner_member_id" />
-                <separator />
-                <filter string="My Assigned Stores" name="filter_my_inspection"
-                    domain="[('effective_supervision_user_id', '=', uid)]" />
                 <separator />
                 <filter string="Active" name="filter_active"
                     domain="[('status', '=', 'active')]" />
@@ -234,13 +204,7 @@
                 <separator />
                 <filter string="Expiring soon (within 30 days)" name="filter_expiring_soon"
                     domain="[('remaining_days', '&gt;=', 0), ('remaining_days', '&lt;=', 30)]" />
-                <separator />
-                <filter string="Needs Supervision (Grade C / D)" name="filter_grade_cd"
-                    domain="[('latest_grade_id.name', 'in', ['C', 'D'])]" />
-                <filter string="Latest Grade C" name="filter_latest_grade_c"
-                    domain="[('latest_grade_id.name', '=', 'C')]" />
-                <filter string="Latest Grade D" name="filter_latest_grade_d"
-                    domain="[('latest_grade_id.name', '=', 'D')]" />
+
                 <separator />
                 <filter string="Archived" name="filter_inactive"
                     domain="[('active', '=', False)]" />

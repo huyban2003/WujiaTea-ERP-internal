@@ -1,0 +1,11 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Khởi tạo các khoản điểm xếp hạng mặc định (A, B, C, D) nếu chưa tồn tại trong DB -->
+    <function model="wujia.franchise.inspection.grade" name="_init_default_grades"/>
+    <!-- Khởi tạo các danh mục tiêu chí mặc định nếu chưa tồn tại trong DB -->
+    <function model="wujia.franchise.inspection.category" name="_init_default_categories"/>
+    <!-- Khởi tạo dữ liệu mẫu khảo sát MM01 (Khảo sát cửa hàng nhượng quyền) cùng các danh mục và tiêu chí nếu chưa có -->
+    <function model="wujia.franchise.inspection.template" name="_init_demo_template"/>
+    <!-- Khởi tạo thư viện 15 câu hỏi trắc nghiệm / điền từ mặc định nếu chưa tồn tại -->
+    <function model="wujia.franchise.inspection.question" name="_init_default_questions"/>
+</odoo>

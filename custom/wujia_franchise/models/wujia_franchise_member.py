@@ -13,7 +13,7 @@ class WujiaFranchiseMember(models.Model):
     _name = 'wujia.franchise.member'
     _description = 'Wujia Franchise Membership'
     _order = 'franchise_id, is_primary_owner desc, date_from desc, id desc'
-    _rec_name = 'display_name'
+    _rec_name = 'user_id'
 
     user_id = fields.Many2one(
         'res.users',
@@ -64,7 +64,6 @@ class WujiaFranchiseMember(models.Model):
     )
     phone = fields.Char(related='user_id.phone', string='Phone', readonly=True)
 
-    display_name = fields.Char(compute='_compute_display_name', store=True)
     is_currently_valid = fields.Boolean(
         compute='_compute_is_currently_valid',
         store=True,
@@ -74,7 +73,14 @@ class WujiaFranchiseMember(models.Model):
     @api.depends('user_id.name')
     def _compute_display_name(self):
         for rec in self:
-            rec.display_name = rec.user_id.name or ''
+            rec.display_name = rec.user_id.name or _('Chưa có tên')
+
+    @api.model
+    def _name_search(self, name, domain=None, operator='ilike', limit=None, order=None):
+        domain = domain or []
+        if name:
+            domain = [('user_id.name', operator, name)] + domain
+        return super()._name_search(name, domain=domain, operator=operator, limit=limit, order=order)
 
     @api.depends('active', 'is_working', 'date_from', 'date_to')
     def _compute_is_currently_valid(self):
