@@ -68,11 +68,14 @@
                                                 <t t-out="category_name" />
                                             </span>
                                         </div>
-                                        <h3 class="font-weight-bold text-dark mb-2"
-                                            style="font-size: 14px; line-height: 1.5;">
-                                            <t t-if="line_code">[<t t-out="line_code" />] </t>
-                                            <t t-out="criterion_name" />
-                                        </h3>
+                                        <t t-set="_crit_title"
+                                           t-value="('[%s] %s' % (line_code, criterion_name)) if line_code else criterion_name"/>
+                                        <t t-call="wujia_portal_layout.wj_card_header">
+                                            <t t-set="ch_title" t-value="_crit_title"/>
+                                            <t t-set="ch_level" t-value="3"/>
+                                            <t t-set="ch_platform" t-value="'pc'"/>
+                                            <t t-set="ch_class" t-value="'wj-card-header--flush wj-insp-critlabel'"/>
+                                        </t>
                                         <div t-if="admin_note"
                                             class="p-2.5 rounded bg-white border-start border-3 border-danger mt-2">
                                             <div class="small font-weight-bold text-danger mb-1"><i

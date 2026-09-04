@@ -741,7 +741,12 @@
                     </section>
 
                     <section class="wj-debt-hint">
-                        <span class="wj-debt-hint__title">Sau khi chuyển khoản</span>
+                        <t t-call="wujia_portal_layout.wj_card_header">
+                            <t t-set="ch_title">Sau khi chuyển khoản</t>
+                            <t t-set="ch_level" t-value="3"/>
+                            <t t-set="ch_platform" t-value="'m'"/>
+                            <t t-set="ch_class" t-value="'wj-card-header--flush wj-debt-hint-head'"/>
+                        </t>
                         <span class="wj-debt-hint__sub">Công nợ cập nhật sau khi Ngô Gia xác nhận.</span>
                     </section>
                 </t>

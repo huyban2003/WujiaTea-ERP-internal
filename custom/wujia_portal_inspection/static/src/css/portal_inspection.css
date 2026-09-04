@@ -735,3 +735,12 @@
     font-size: .875rem !important;
     line-height: 1.2;
 }
+
+/* Tiêu đề tiêu chí trong hộp "Tiêu chí vi phạm": 14px/700 là THIẾT KẾ — nó là
+   chữ chính của hộp, lấy 18px của component thì hộp vỡ, lấy .875rem của nhãn phụ
+   thì tụt ngang hàng nhãn muted phía trên, mất phân cấp. */
+.wj-pc-card .wj-card-header.wj-insp-critlabel .wj-card-header__title {
+    font-size: 14px !important;
+    line-height: 1.5;
+}
+.wj-pc-card .wj-card-header.wj-insp-critlabel { margin: 0 0 .5rem; }
