@@ -1,0 +1,305 @@
+{
+  "summary": "Soát diff chuẩn hoá vi->en backend Wujia theo 4 nhóm module, tìm chỗ dịch sai ngữ cảnh hoặc phá code",
+  "agentCount": 4,
+  "logs": [],
+  "result": {
+    "total": 29,
+    "findings": [
+      {
+        "file": "custom/wujia_portal_return/models/wujia_return_request.py",
+        "line": "12",
+        "severity": "blocker",
+        "problem": "Chuỗi tiếng Việt 'Từ chối' dùng ở 2 ngữ cảnh: (a) nút action_reject trên form (verb, đúng là 'Reject', xem views/backend_return_request_views.xml dòng 20) và (b) nhãn trạng thái STATE_SELECTION state='rejected' (tính từ, phải là 'Rejected'). Script dịch cả hai thành 'Reject', khiến statusbar hiển thị 'Reject' y hệt tên nút. Cùng lỗi ở filter_rejected trong views/backend_return_request_views.xml dòng 204 (string=\"Reject\" cho domain state='rejected').",
+        "suggested_en": "STATE_SELECTION: ('rejected', 'Rejected'); filter_rejected: string=\"Rejected\" (giữ nguyên nút action_reject là \"Reject\")."
+      },
+      {
+        "file": "custom/wujia_portal_notification/models/wujia_notification.py",
+        "line": "21",
+        "severity": "blocker",
+        "problem": "Chuỗi tiếng Việt 'Lưu trữ' được dùng ở 2 ngữ cảnh khác nhau trong cùng module: (a) nút hành động action_archive_notification (verb, đúng là 'Archive') và (b) nhãn trạng thái Selection state='archived' (tính từ, phải là 'Archived'). Script dịch đồng loạt thành 'Archive' cho cả hai, khiến statusbar/tag của bản ghi đã lưu trữ hiển thị 'Archive' giống hệt tên nút bấm, gây nhầm lẫn. Cùng lỗi ở custom/wujia_portal_notification/views/backend_notification_views.xml dòng 246 (filter string=\"Archive\" name=\"filter_archived\").",
+        "suggested_en": "STATE_SELECTION: ('archived', 'Archived'); filter_archived: string=\"Archived\" (giữ nguyên button action_archive_notification là \"Archive\")."
+      },
+      {
+        "file": "custom/wujia_portal_support/views/wujia_support_backend_views.xml",
+        "line": "188",
+        "severity": "blocker",
+        "problem": "Cùng lỗi như trên: script đổi `t-name=\"kanban-box\"` thành `t-name=\"card\"` — sửa attribute kỹ thuật của template kanban, không phải nhãn hiển thị.",
+        "suggested_en": "Revert t-name to its original technical value (or move this change to a separate non-translation commit); do not let the label-translation script touch t-name."
+      },
+      {
+        "file": "custom/wujia_portal_knowledge/views/wujia_knowledge_backend_views.xml",
+        "line": "200",
+        "severity": "blocker",
+        "problem": "Script sửa nhầm vào attribute kỹ thuật `t-name` của template kanban (đổi 'kanban-box' -> 'card'), không phải nhãn hiển thị Việt->Anh. Đây là tên định danh template QWeb dùng để Odoo render kanban card, hoàn toàn nằm ngoài phạm vi 'chuẩn hoá nhãn tiếng Việt'. (Ghi chú: giá trị 'card' trùng với convention đã dùng ở vài module khác trong repo nên có thể vô hại về mặt kỹ thuật, nhưng vẫn cần review riêng vì không phải là việc dịch nhãn và không nên lẫn vào commit dịch thuật.)",
+        "suggested_en": "Revert t-name to its original technical value (or move this change to a separate non-translation commit); do not let the label-translation script touch t-name."
+      },
+      {
+        "file": "custom/wujia_portal_info_request/views/info_request_backend.xml",
+        "line": "80",
+        "severity": "blocker",
+        "problem": "Trong cùng file này, nút action_reject (dòng 42) và tab notebook chứa refuse_reason (dòng 80) đều nguyên gốc là 'Từ chối' nhưng phục vụ 2 ngữ cảnh khác nhau (hành động vs. tiêu đề mục hiển thị lý do từ chối). Cả hai bị dịch thành cùng một chữ 'Reject', khiến tab đọc như một nút bấm.",
+        "suggested_en": "Rejected (hoặc 'Rejection reason' vì tab chỉ chứa field refuse_reason)"
+      },
+      {
+        "file": "custom/wujia_portal_info_request/models/wujia_info_update_request.py",
+        "line": "27",
+        "severity": "blocker",
+        "problem": "STATE dùng 'Từ chối' làm nhãn trạng thái nhưng bị dịch giống hệt nhãn nút action_reject ('Reject') trong info_request_backend.xml. Nên là tính từ mô tả trạng thái, không phải động từ mệnh lệnh.",
+        "suggested_en": "Rejected"
+      },
+      {
+        "file": "custom/wujia_portal_exam/views/backend_exam_registration_views.xml",
+        "line": "119",
+        "severity": "blocker",
+        "problem": "Filter 'filter_rejected' (domain state='rejected') dùng cùng chuỗi nguồn 'Từ chối' với nút action_reject trong cùng file (dòng 13), cả hai đều bị dịch thành 'Reject'. Filter lọc theo trạng thái nên cần dạng tính từ, hiện đang trùng với nhãn nút hành động.",
+        "suggested_en": "Rejected"
+      },
+      {
+        "file": "custom/wujia_portal_exam/models/wujia_exam_registration.py",
+        "line": "13",
+        "severity": "blocker",
+        "problem": "REG_STATE dùng 'Từ chối' (nhãn trạng thái) nhưng script dịch giống hệt nhãn nút hành động action_reject ('Từ chối' -> 'Reject' trong backend_exam_registration_views.xml). Trạng thái 'rejected' hiển thị trên statusbar/list/kanban giờ ghi 'Reject' (động từ mệnh lệnh) thay vì tính từ mô tả trạng thái đã hoàn tất, không nhất quán với 3 state còn lại (Submitted/Approved/Cancelled đều là dạng đã hoàn thành).",
+        "suggested_en": "Rejected"
+      },
+      {
+        "file": "custom/wujia_franchise/views/wujia_franchise_management_views.xml",
+        "line": "41",
+        "severity": "blocker",
+        "problem": "Chuỗi tiếng Việt \"Khóa portal\" được dùng ở 2 ngữ cảnh khác nhau trong cùng codebase: (1) nhãn field boolean `portal_locked` (models/wujia_franchise_management.py dòng 88, mô tả trạng thái) và (2) nhãn nút hành động `action_lock_portal` (view này, dòng 40-41, người dùng bấm để khóa portal). Script dịch cả hai thành cùng một chuỗi \"Portal locked\" (quá khứ phân từ/trạng thái). Với field boolean thì đúng, nhưng với nút bấm (verb hành động) thì sai — người dùng sẽ đọc nút là mô tả trạng thái thay vì hành động cần thực hiện.",
+        "failure_scenario": "Form cửa hàng (wujia.franchise.management) đang ở status != locked/closed hiển thị nút với label \"Portal locked\" thay vì \"Lock portal\" — người quản lý không hiểu đây là nút để bấm khóa portal, dễ nhầm là field/badge hiển thị trạng thái đã khóa rồi.",
+        "suggested_en": "Đổi label nút thành \"Lock portal\" (giữ nguyên field boolean portal_locked = \"Portal locked\")."
+      },
+      {
+        "file": "custom/wujia_delivery/models/stock_picking_batch.py",
+        "line": "6",
+        "severity": "blocker",
+        "problem": "Trùng nhãn cùng ngữ cảnh form: Selection key 'assigned' của DELIVERY_BATCH_STATUS dịch thành 'Vehicle assigned', trùng hệt với string của nút action_delivery_assign (custom/wujia_delivery/views/stock_picking_batch_views.xml dòng 10-11, cũng 'Vehicle assigned'). Cả hai cùng nằm trên header của form batch (statusbar + nút bấm) nên khi batch ở draft có xe, người dùng thấy 2 chữ 'Vehicle assigned' cạnh nhau — một là trạng thái tương lai trong statusbar, một là nút bấm để chuyển sang trạng thái đó. Nên tách nghĩa: trạng thái là tính từ mô tả, nút là hành động.",
+        "suggested_en": "('assigned', 'Vehicle assigned')  # state label; keep, but change button string to an action verb, e.g. string=\"Assign vehicle\""
+      },
+      {
+        "file": "custom/wujia_fleet/models/wujia_fleet_pricelist.py",
+        "line": "9",
+        "severity": "blocker",
+        "problem": "Trùng nhãn cùng ngữ cảnh form: Selection key 'archived' được dịch thành 'Archive' (nhãn trạng thái, hiển thị trong statusbar cùng field state), trong khi nút hành động action_archive_pricelist (custom/wujia_fleet/views/wujia_fleet_pricelist_views.xml dòng 41-42) cũng có string='Archive'. Cả hai cùng xuất hiện trên form pricelist (statusbar hiện các state kể cả state tương lai + nút bấm ngay cạnh header) -> người dùng thấy chữ 'Archive' lặp lại 2 lần với 2 vai trò khác nhau (trạng thái đã lưu trữ vs nút bấm để lưu trữ), gây nhầm lẫn. Các state khác đều là tính từ/quá khứ phân từ (Draft, In effect, Expired) nên 'archived' nên theo mẫu đó.",
+        "suggested_en": "('archived', 'Archived')  # keep button string='Archive' as the action verb"
+      },
+      {
+        "file": "custom/wujia_fleet/models/wujia_fleet_type.py",
+        "line": "40-41",
+        "severity": "blocker",
+        "problem": "Help của max_payload_kg chỉ dịch nửa đầu, phần \"cho cảnh báo vượt tải batch.\" còn nguyên tiếng Việt.",
+        "suggested_en": "help='= payload_capacity_ton × 1000. Used to compare against planned_weight for the batch overload warning.'"
+      },
+      {
+        "file": "custom/wujia_fleet/models/wujia_fleet_provider.py",
+        "line": "33-34",
+        "severity": "blocker",
+        "problem": "Help của partner_id chỉ dịch nửa đầu, phần \"và cần xuất PO.\" còn nguyên tiếng Việt.",
+        "suggested_en": "help='Link to the Odoo contact / vendor when the carrier is a supplier and a PO needs to be issued.'"
+      },
+      {
+        "file": "custom/wujia_fleet/models/wujia_fleet_pricelist_line.py",
+        "line": "25-26",
+        "severity": "blocker",
+        "problem": "Help của area_ids chỉ dịch nửa đầu, phần \"của picking nằm trong danh sách này.\" còn nguyên tiếng Việt.",
+        "suggested_en": "help='A price line can cover several areas — it matches when the picking area is in this list.'"
+      },
+      {
+        "file": "custom/wujia_delivery/models/stock_picking_batch.py",
+        "line": "97-98",
+        "severity": "blocker",
+        "problem": "Help của pricelist_id chỉ dịch nửa đầu, phần \"có thể override thủ công.\" còn nguyên tiếng Việt -> \"Shipping pricelist. Auto-suggested from vehicle type + carrier + date; có thể override thủ công.\"",
+        "suggested_en": "help='Shipping pricelist. Auto-suggested from vehicle type + carrier + date; can be overridden manually.'"
+      },
+      {
+        "file": "custom/wujia_delivery/models/stock_picking.py",
+        "line": "74-75",
+        "severity": "blocker",
+        "problem": "Cùng lỗi: help nhiều dòng của shipping_cost chỉ dịch dòng đầu, dòng sau \"trong tổng planned_weight của batch.\" bị bỏ sót -> help text nửa Anh nửa Việt.",
+        "suggested_en": "help='Shipping cost allocated in proportion to the picking planned_weight within the batch total planned_weight.'"
+      },
+      {
+        "file": "custom/wujia_delivery/models/stock_picking.py",
+        "line": "22-23",
+        "severity": "blocker",
+        "problem": "Chuỗi help nhiều dòng chỉ dịch được nửa đầu, nửa sau vẫn còn tiếng Việt nguyên văn, tạo ra help-text lẫn lộn Anh/Việt hiển thị cho người dùng: \"Franchise store receiving the goods. Copied from the SO on confirm; can be set thủ công cho picking nội bộ.\"",
+        "suggested_en": "help='Franchise store receiving the goods. Copied from the SO on confirm; can also be set manually for internal pickings.'"
+      },
+      {
+        "file": "custom/wujia_franchise/models/wujia_franchise_management.py",
+        "line": "45",
+        "severity": "wrong-label",
+        "problem": "field state_id (res.country.state) có string gốc 'Tỉnh/Thành' (Tỉnh hoặc Thành phố trực thuộc trung ương) nhưng bị dịch chỉ thành 'Province', bỏ mất nghĩa 'Thành phố' (vd Hà Nội, TP.HCM là centrally-run city chứ không phải province). Sai nghĩa nghiệp vụ vì field này chứa cả 2 loại đơn vị hành chính.",
+        "failure_scenario": "User chọn Hà Nội / TP.HCM vào field này — nhãn 'Province' khiến user hiểu nhầm field chỉ nhận tên tỉnh, có thể chọn sai hoặc thắc mắc tại sao thành phố trực thuộc TW lại nằm trong field 'Province'.",
+        "suggested_en": "Province/City"
+      },
+      {
+        "file": "custom/wujia_sale/models/sale_order.py",
+        "line": "60",
+        "severity": "wrong-label",
+        "problem": "Help text field is_return_order gốc 'Đánh dấu SO tạo tự động từ quản lý bù/đổi trả (Function K).' — 'bù' = Compensation, 'đổi trả' = Return/Exchange (theo từ vựng đã chốt). Bản dịch chỉ còn 'compensation/return management', bỏ mất phần 'Exchange', làm sai lệch phạm vi nghiệp vụ (Function K quản lý cả đổi trả/exchange chứ không chỉ return).",
+        "failure_scenario": "Người đọc help text tiếng Anh (vd dev mới, support) hiểu Function K chỉ xử lý 'return' (trả hàng), không biết nó cũng xử lý 'exchange' (đổi hàng) — có thể bỏ sót luồng đổi hàng khi debug/maintain hoặc viết tài liệu.",
+        "suggested_en": "Marks an SO generated automatically by compensation/return-exchange management (Function K)."
+      },
+      {
+        "file": "custom/wujia_portal_exam/models/wujia_exam_registration.py",
+        "line": "43",
+        "severity": "wrong-label",
+        "problem": "franchise_id (Many2one tới wujia.franchise.management) dịch 'Cửa hàng' thành 'Store' đơn thuần, không khớp thuật ngữ đã chốt 'cửa hàng nhượng quyền=Franchise store'. Toàn bộ codebase hiện dùng 'Franchise store' cho field trỏ tới model này (vd custom/wujia_franchise/models/wujia_franchise_member.py:27, res_partner.py:10).",
+        "suggested_en": "Franchise store"
+      },
+      {
+        "file": "custom/wujia_portal_exam/views/backend_exam_registration_views.xml",
+        "line": "41",
+        "severity": "wrong-label",
+        "problem": "Group box 'Cửa hàng' bao field franchise_id bị dịch thành 'Store' thay vì thuật ngữ đã chốt 'Franchise store'.",
+        "suggested_en": "Franchise store"
+      },
+      {
+        "file": "custom/wujia_portal_exam/views/backend_exam_registration_views.xml",
+        "line": "124",
+        "severity": "wrong-label",
+        "problem": "Filter group_by franchise_id 'Cửa hàng' bị dịch thành 'Store' thay vì 'Franchise store' theo thuật ngữ đã chốt.",
+        "suggested_en": "Franchise store"
+      },
+      {
+        "file": "custom/wujia_portal_info_request/models/wujia_info_update_request.py",
+        "line": "49",
+        "severity": "wrong-label",
+        "problem": "franchise_id (Many2one tới wujia.franchise.management) dịch 'Cửa hàng' thành 'Store', không khớp thuật ngữ đã chốt 'Franchise store' đang dùng nhất quán ở nơi khác trong hệ thống cho cùng loại field.",
+        "suggested_en": "Franchise store"
+      },
+      {
+        "file": "custom/wujia_portal_info_request/views/info_request_backend.xml",
+        "line": "116",
+        "severity": "wrong-label",
+        "problem": "Filter group_by franchise_id 'Cửa hàng' bị dịch thành 'Store' thay vì 'Franchise store'.",
+        "suggested_en": "Franchise store"
+      },
+      {
+        "file": "custom/wujia_portal_info_request/models/wujia_info_update_request.py",
+        "line": "74",
+        "severity": "wrong-label",
+        "problem": "Field 'priority' (technical name priority, giá trị Normal/Urgent tương ứng 'Bình thường'/'Khẩn') có string gốc 'Mức độ' (mức ưu tiên/độ khẩn) nhưng bị dịch thành 'Severity' (mức độ nghiêm trọng/tác động — sai nghĩa nghiệp vụ, đây là mức độ khẩn cấp/ưu tiên xử lý yêu cầu, không phải mức độ nghiêm trọng của sự cố).",
+        "suggested_en": "Priority"
+      },
+      {
+        "file": "custom/wujia_portal_notification/models/wujia_notification.py",
+        "line": "20",
+        "severity": "wrong-label",
+        "problem": "Chuỗi gốc 'Đã gửi' (mô tả state='published') được dịch không nhất quán trong cùng file: ở STATE_SELECTION dịch thành 'Submitted' (ngụ ý đang chờ duyệt), nhưng ở help text của field is_published_portal (dòng 139: \"active + state = Sent + shown on portal\") lại mô tả đúng state đó là 'Sent'. Về nghiệp vụ, thông báo ở trạng thái này là đã publish/hiển thị ngay trên portal (do HQ chủ động Gửi thông báo), không phải đang \"chờ duyệt\" như 'Submitted' ngụ ý — gây sai lệch nghĩa so với help text và nút hành động 'Send notification'. Cùng vấn đề ở views/backend_notification_views.xml filter_published dòng 244.",
+        "suggested_en": "STATE_SELECTION: ('published', 'Sent') — đồng bộ với help text 'Sent' và nút 'Send notification'; đổi filter_published tương ứng."
+      },
+      {
+        "file": "custom/wujia_portal_return/models/wujia_return_request.py",
+        "line": "20",
+        "severity": "wrong-label",
+        "problem": "RESOLUTION_SELECTION option ('refuse', 'Từ chối') được dịch thành 'Reject' — trùng y hệt với nhãn trạng thái ('rejected', 'Reject') ở dòng 12 dù đây là 2 field khác nhau (state vs resolution_type) hiển thị cùng lúc trên form. Ngoài ra 'Reject' (động từ) không đồng nhất về ngữ pháp với các option cùng field: 'Exchange', 'Return', 'Compensation' (đều là danh từ/kết quả xử lý).",
+        "suggested_en": "RESOLUTION_SELECTION: ('refuse', 'Refused') để nhất quán ngữ pháp với Exchange/Return/Compensation và không trùng nhãn với state 'Rejected'."
+      },
+      {
+        "file": "custom/wujia_portal_return/wizards/compensation_process_wizard_views.xml",
+        "line": "57",
+        "severity": "wrong-label",
+        "problem": "Nút Discard chuẩn của wizard (`special=\"cancel\"`) vốn ghi 'Huỷ' (nghĩa chung: đóng/huỷ wizard, không gắn với 1 request cụ thể — wizard này gom nhiều return request để tạo SO bù hàng). Script dịch thành 'Cancel request' (sao chép lại cách dịch của nút action_cancel bên form return request, nơi \"huỷ\" đúng là huỷ MỘT request cụ thể). Trong context wizard này không có 'request' nào bị huỷ, dịch 'Cancel request' gây hiểu lầm nghiệp vụ.",
+        "suggested_en": "string=\"Cancel\" (hoặc \"Discard\") thay vì \"Cancel request\"."
+      },
+      {
+        "file": "custom/wujia_portal_return/views/backend_menu.xml",
+        "line": "5",
+        "severity": "wrong-label",
+        "problem": "Menu gốc 'Bù hàng / Đổi trả' bị dịch thành 'Compensation / Returns', làm mất hẳn phần 'Đổi' (Exchange). Theo từ vựng đã chốt, đổi trả=Return/Exchange; module này thực tế có resolution_type gồm cả exchange/return/compensation/refuse nên tên menu bỏ sót 'Exchange' làm sai lệch phạm vi nghiệp vụ thể hiện trên menu.",
+        "suggested_en": "\"Compensation / Return-Exchange\" (hoặc \"Compensation / Returns & Exchanges\")."
+      }
+    ]
+  },
+  "workflowProgress": [
+    {
+      "type": "workflow_phase",
+      "index": 1,
+      "title": "Review"
+    },
+    {
+      "type": "workflow_agent",
+      "index": 1,
+      "label": "review:core+delivery+fleet",
+      "phaseIndex": 1,
+      "phaseTitle": "Review",
+      "agentId": "a0969199230e58cf7",
+      "model": "claude-sonnet-5",
+      "state": "done",
+      "startedAt": 1785490986987,
+      "queuedAt": 1785490986971,
+      "attempt": 1,
+      "lastToolName": "StructuredOutput",
+      "promptPreview": "Repo: /home/huyban/odoo-dev/WujiaTea (Odoo 19). Sprint 44 vừa chạy script chuẩn hoá nhãn BACKEND tiếng Việt -> tiếng Anh.\nChạy: cd /home/huyban/odoo-dev/WujiaTea && git diff -- custom/wujia_core custom/wujia_delivery custom/wujia_fleet\nĐọc TOÀN BỘ diff của nhóm này rồi báo lỗi. Chỉ báo 3 loại sau, KHÔNG báo chuyện văn phong/style:\n\n1. blocker — script thay nhầm vào chỗ KHÔNG phải nhãn hiển thị: bê…",
+      "lastProgressAt": 1785491273211,
+      "tokens": 75816,
+      "toolCalls": 9,
+      "durationMs": 286223,
+      "resultPreview": "{\"findings\":[{\"file\":\"custom/wujia_delivery/models/stock_picking.py\",\"line\":\"22-23\",\"severity\":\"blocker\",\"problem\":\"Chuỗi help nhiều dòng chỉ dịch được nửa đầu, nửa sau vẫn còn tiếng Việt nguyên văn, tạo ra help-text lẫn lộn Anh/Việt hiển thị cho người dùng: \\\"Franchise store receiving the goods. Copied from the SO on confirm; can be set thủ công cho picking nội bộ.\\\"\",\"suggested_en\":\"help='Franch…"
+    },
+    {
+      "type": "workflow_agent",
+      "index": 2,
+      "label": "review:franchise+sale+debt+purchase_history",
+      "phaseIndex": 1,
+      "phaseTitle": "Review",
+      "agentId": "a45288809dd786715",
+      "model": "claude-sonnet-5",
+      "state": "done",
+      "startedAt": 1785490986989,
+      "queuedAt": 1785490986971,
+      "attempt": 1,
+      "lastToolName": "StructuredOutput",
+      "promptPreview": "Repo: /home/huyban/odoo-dev/WujiaTea (Odoo 19). Sprint 44 vừa chạy script chuẩn hoá nhãn BACKEND tiếng Việt -> tiếng Anh.\nChạy: cd /home/huyban/odoo-dev/WujiaTea && git diff -- custom/wujia_franchise custom/wujia_sale custom/wujia_portal_debt custom/wujia_portal_purchase_history\nĐọc TOÀN BỘ diff của nhóm này rồi báo lỗi. Chỉ báo 3 loại sau, KHÔNG báo chuyện văn phong/style:\n\n1. blocker — script th…",
+      "lastProgressAt": 1785491262520,
+      "tokens": 101150,
+      "toolCalls": 22,
+      "durationMs": 275531,
+      "resultPreview": "{\"findings\":[{\"file\":\"custom/wujia_franchise/views/wujia_franchise_management_views.xml\",\"line\":\"41\",\"severity\":\"blocker\",\"problem\":\"Chuỗi tiếng Việt \\\"Khóa portal\\\" được dùng ở 2 ngữ cảnh khác nhau trong cùng codebase: (1) nhãn field boolean `portal_locked` (models/wujia_franchise_management.py dòng 88, mô tả trạng thái) và (2) nhãn nút hành động `action_lock_portal` (view này, dòng 40-41, người …"
+    },
+    {
+      "type": "workflow_agent",
+      "index": 3,
+      "label": "review:exam+info_request",
+      "phaseIndex": 1,
+      "phaseTitle": "Review",
+      "agentId": "ab92f846fca9ce958",
+      "model": "claude-sonnet-5",
+      "state": "done",
+      "startedAt": 1785490986989,
+      "queuedAt": 1785490986971,
+      "attempt": 1,
+      "lastToolName": "StructuredOutput",
+      "promptPreview": "Repo: /home/huyban/odoo-dev/WujiaTea (Odoo 19). Sprint 44 vừa chạy script chuẩn hoá nhãn BACKEND tiếng Việt -> tiếng Anh.\nChạy: cd /home/huyban/odoo-dev/WujiaTea && git diff -- custom/wujia_portal_exam custom/wujia_portal_info_request\nĐọc TOÀN BỘ diff của nhóm này rồi báo lỗi. Chỉ báo 3 loại sau, KHÔNG báo chuyện văn phong/style:\n\n1. blocker — script thay nhầm vào chỗ KHÔNG phải nhãn hiển thị: bên…",
+      "lastProgressAt": 1785491234942,
+      "tokens": 63763,
+      "toolCalls": 13,
+      "durationMs": 247953,
+      "resultPreview": "{\"findings\":[{\"file\":\"custom/wujia_portal_exam/models/wujia_exam_registration.py\",\"line\":\"13\",\"severity\":\"blocker\",\"problem\":\"REG_STATE dùng 'Từ chối' (nhãn trạng thái) nhưng script dịch giống hệt nhãn nút hành động action_reject ('Từ chối' -> 'Reject' trong backend_exam_registration_views.xml). Trạng thái 'rejected' hiển thị trên statusbar/list/kanban giờ ghi 'Reject' (động từ mệnh lệnh) thay vì …"
+    },
+    {
+      "type": "workflow_agent",
+      "index": 4,
+      "label": "review:notification+return+order_window+support+knowledge",
+      "phaseIndex": 1,
+      "phaseTitle": "Review",
+      "agentId": "a1a8bd875e905ea5d",
+      "model": "claude-sonnet-5",
+      "state": "done",
+      "startedAt": 1785490986990,
+      "queuedAt": 1785490986971,
+      "attempt": 1,
+      "lastToolName": "StructuredOutput",
+      "promptPreview": "Repo: /home/huyban/odoo-dev/WujiaTea (Odoo 19). Sprint 44 vừa chạy script chuẩn hoá nhãn BACKEND tiếng Việt -> tiếng Anh.\nChạy: cd /home/huyban/odoo-dev/WujiaTea && git diff -- custom/wujia_portal_notification custom/wujia_portal_return custom/wujia_portal_order_window custom/wujia_portal_support custom/wujia_portal_knowledge\nĐọc TOÀN BỘ diff của nhóm này rồi báo lỗi. Chỉ báo 3 loại sau, KHÔNG báo…",
+      "lastProgressAt": 1785491331230,
+      "tokens": 111569,
+      "toolCalls": 24,
+      "durationMs": 344240,
+      "resultPreview": "{\"findings\":[{\"file\":\"custom/wujia_portal_knowledge/views/wujia_knowledge_backend_views.xml\",\"line\":\"200\",\"severity\":\"blocker\",\"problem\":\"Script sửa nhầm vào attribute kỹ thuật `t-name` của template kanban (đổi 'kanban-box' -> 'card'), không phải nhãn hiển thị Việt->Anh. Đây là tên định danh template QWeb dùng để Odoo render kanban card, hoàn toàn nằm ngoài phạm vi 'chuẩn hoá nhãn tiếng Việt'. (Gh…"
+    }
+  ],
+  "totalTokens": 352298,
+  "totalToolCalls": 68
+}

@@ -1,0 +1,122 @@
+
+== WJ-ORD-012 · contrast nút CTA ==
+  OK   product detail mobile HTTP  200
+  OK   contrast Thêm vào giỏ (mobile) [default]  4.7:1  fg=rgb(255, 255, 255) bg=rgb(15, 124, 168) opacity=1
+  OK   contrast Thêm vào giỏ (mobile) [hover]  6.42:1  fg=rgb(255, 255, 255) bg=rgb(12, 102, 136) opacity=1
+  OK   contrast Thêm vào giỏ (mobile) [focus]  4.7:1  fg=rgb(255, 255, 255) bg=rgb(15, 124, 168) opacity=1
+  OK   contrast Thêm vào giỏ (mobile) [disabled]  4.83:1  fg=rgb(255, 255, 255) bg=rgb(107, 114, 128) opacity=1
+  OK   btn-primary đã gỡ khỏi CTA (mobile)  btn wj-cta-btn btn-add-cart-detail waves-effect waves-light
+  OK   product detail pc HTTP  200
+  OK   contrast Thêm vào giỏ (pc) [default]  4.7:1  fg=rgb(255, 255, 255) bg=rgb(15, 124, 168) opacity=1
+  OK   contrast Thêm vào giỏ (pc) [hover]  6.42:1  fg=rgb(255, 255, 255) bg=rgb(12, 102, 136) opacity=1
+  OK   contrast Thêm vào giỏ (pc) [focus]  4.7:1  fg=rgb(255, 255, 255) bg=rgb(15, 124, 168) opacity=1
+  OK   contrast Thêm vào giỏ (pc) [disabled]  4.83:1  fg=rgb(255, 255, 255) bg=rgb(107, 114, 128) opacity=1
+  OK   btn-primary đã gỡ khỏi CTA (pc)  btn wj-cta-btn btn-add-cart-detail waves-effect waves-light
+  info  .wj-cta-btn trên /portal = 0
+  OK   contrast Vào cửa hàng (pc) [default]  4.7:1  fg=rgb(255, 255, 255) bg=rgb(15, 124, 168) opacity=1
+  OK   contrast Vào cửa hàng (pc) [hover]  6.42:1  fg=rgb(255, 255, 255) bg=rgb(12, 102, 136) opacity=1
+  info  không còn .btn-primary nào render trên /portal
+  OK   contrast store picker (pc) [default]  4.7:1  fg=rgb(255, 255, 255) bg=rgb(15, 124, 168) opacity=1
+  OK   contrast store picker (pc) [hover]  6.42:1  fg=rgb(255, 255, 255) bg=rgb(12, 102, 136) opacity=1
+
+== WJ-ORD-011 · vùng chạm ==
+  OK   /portal/order mobile HTTP  200
+  OK   touch catalog Thêm (mobile)#0  visual 44x40 → hit 44x44 (cần ≥44x44)
+  OK   touch catalog Thêm (mobile)#1  visual 44x40 → hit 44x44 (cần ≥44x44)
+  OK   touch catalog Thêm (mobile)#2  visual 44x40 → hit 44x44 (cần ≥44x44)
+  OK   touch catalog stepper (mobile)#0  visual 38x40 → hit 44x44 (cần ≥44x44)
+  OK   touch catalog stepper (mobile)#1  visual 38x40 → hit 44x44 (cần ≥44x44)
+  OK   touch catalog stepper (mobile)#2  visual 38x40 → hit 44x44 (cần ≥44x44)
+  OK   touch catalog stepper (mobile)#3  visual 38x40 → hit 44x44 (cần ≥44x44)
+  OK   hittest catalog step#0 dx=-14  wujia-morder-mstep wujia-morder-mstep-minus
+  OK   hittest catalog step#1 dx=-14  wujia-morder-mstep wujia-morder-mstep-plus
+  OK   hittest catalog step#2 dx=-14  wujia-morder-mstep wujia-morder-mstep-minus
+  OK   hittest catalog step#3 dx=-14  wujia-morder-mstep wujia-morder-mstep-plus
+  OK   hittest catalog step#0 dx=0  wujia-morder-mstep wujia-morder-mstep-minus
+  OK   hittest catalog step#1 dx=0  wujia-morder-mstep wujia-morder-mstep-plus
+  OK   hittest catalog step#2 dx=0  wujia-morder-mstep wujia-morder-mstep-minus
+  OK   hittest catalog step#3 dx=0  wujia-morder-mstep wujia-morder-mstep-plus
+  OK   hittest catalog step#0 dx=14  wujia-morder-mstep wujia-morder-mstep-minus
+  OK   hittest catalog step#1 dx=14  wujia-morder-mstep wujia-morder-mstep-plus
+  OK   hittest catalog step#2 dx=14  wujia-morder-mstep wujia-morder-mstep-minus
+  OK   hittest catalog step#3 dx=14  wujia-morder-mstep wujia-morder-mstep-plus
+  OK   layout row catalog không đổi trước/sau  sau=[[357.4, 82], [357.4, 82], [357.4, 82]] trước=[[357.4, 82], [357.4, 82], [357.4, 82]]
+  OK   layout stepper catalog không đổi trước/sau  sau=[[0, 0], [0, 0], [112, 42]] trước=[[0, 0], [0, 0], [112, 42]]
+  OK   overflow ngang /portal/order mobile  0
+  OK   0 JS pageerror /portal/order  []
+  OK   /portal/order/cart mobile HTTP  200
+  OK   touch giỏ stepper (mobile)#0  visual 36x36 → hit 44x44 (cần ≥44x44)
+  OK   touch giỏ stepper (mobile)#1  visual 36x36 → hit 44x44 (cần ≥44x44)
+  OK   touch giỏ stepper (mobile)#2  visual 36x36 → hit 44x44 (cần ≥44x44)
+  OK   touch giỏ stepper (mobile)#3  visual 36x36 → hit 44x44 (cần ≥44x44)
+  OK   touch giỏ xoá (mobile)#0  visual 36x36 → hit 44x44 (cần ≥44x44)
+  OK   touch giỏ xoá (mobile)#1  visual 36x36 → hit 44x44 (cần ≥44x44)
+  OK   hittest cart step#0 dx=-14  wujia-mcart-step wujia-mcart-step-minus
+  OK   hittest cart step#1 dx=-14  wujia-mcart-step wujia-mcart-step-plus
+  OK   hittest cart step#2 dx=-14  wujia-mcart-step wujia-mcart-step-minus
+  OK   hittest cart step#3 dx=-14  wujia-mcart-step wujia-mcart-step-plus
+  OK   hittest cart step#0 dx=0  wujia-mcart-step wujia-mcart-step-minus
+  OK   hittest cart step#1 dx=0  wujia-mcart-step wujia-mcart-step-plus
+  OK   hittest cart step#2 dx=0  wujia-mcart-step wujia-mcart-step-minus
+  OK   hittest cart step#3 dx=0  wujia-mcart-step wujia-mcart-step-plus
+  OK   hittest cart step#0 dx=14  wujia-mcart-step wujia-mcart-step-minus
+  OK   hittest cart step#1 dx=14  wujia-mcart-step wujia-mcart-step-plus
+  OK   hittest cart step#2 dx=14  wujia-mcart-step wujia-mcart-step-minus
+  OK   hittest cart step#3 dx=14  wujia-mcart-step wujia-mcart-step-plus
+  OK   layout card giỏ không đổi trước/sau  sau=[[357.4, 111.5], [357.4, 111.5]] trước=[[357.4, 111.5], [357.4, 111.5]]
+  OK   layout stepper giỏ không đổi trước/sau  sau=[[108, 38], [108, 38]] trước=[[108, 38], [108, 38]]
+  OK   overflow ngang giỏ mobile  0
+  OK   touch giỏ stepper (PC)#0  visual 32x32 → hit 32x32 (cần ≥32x32)
+  OK   touch giỏ stepper (PC)#1  visual 32x32 → hit 32x32 (cần ≥32x32)
+  OK   touch giỏ stepper (PC)#2  visual 32x32 → hit 32x32 (cần ≥32x32)
+  OK   touch giỏ stepper (PC)#3  visual 32x32 → hit 32x32 (cần ≥32x32)
+  OK   touch giỏ xoá (PC)#0  visual 34x34 → hit 34x34 (cần ≥32x32)
+  OK   touch giỏ xoá (PC)#1  visual 34x34 → hit 34x34 (cần ≥32x32)
+
+== WJ-ORD-019 · focus ring + Enter submit + tab-walk ==
+  OK   focus ring search mobile  2px solid rgb(15, 124, 168) (:focus-visible=True)
+  OK   ring contrast vs trắng mobile  4.7:1
+  OK   Enter submit mobile  keyword=Tra
+  OK   focus ring search pc  2px solid rgb(15, 124, 168) (:focus-visible=True)
+  OK   ring contrast vs trắng pc  4.7:1
+  OK   Enter submit pc  keyword=Tra&category_id=
+  tab-walk mobile:
+     0 A        navbar-brand  text-color-title                 out=3px none       visible=True
+     1 A                                                       out=3px none       visible=True
+     2 A                                                       out=3px none       visible=True
+     3 A                                                       out=3px none       visible=True
+     4 A                                                       out=3px none       visible=True
+     5 A                                                       out=3px none       visible=True
+     6 A                                                       out=3px none       visible=True
+     7 A                                                       out=3px none       visible=True
+     8 A                                                       out=3px none       visible=True
+     9 A                                                       out=3px none       visible=True
+    10 A                                                       out=3px none       visible=True
+    11 A        wujia-mheader-logo                             out=3px none       visible=True
+    12 A        wujia-mheader-action dropdown-toggle           out=0px none       visible=True
+    13 A        wujia-mheader-action                           out=3px none       visible=True
+    14 A        wujia-mheader-action wujia-mheader-avatar drop out=0px none       visible=True
+    15 INPUT                                                   out=2px solid      visible=True
+    16 BUTTON   wujia-morder-search-btn                        out=2px solid      visible=True
+    17 A        wujia-morder-row-info                          out=2px solid      visible=True
+    18 BUTTON   wujia-morder-row-add wujia-morder-add-btn      out=2px solid      visible=True
+    19 A        wujia-morder-row-info                          out=2px solid      visible=True
+    20 BUTTON   wujia-morder-row-add wujia-morder-add-btn      out=2px solid      visible=True
+    21 A        wujia-morder-row-info                          out=2px solid      visible=True
+  OK   tab KHÔNG chạm control ẩn  0 control ẩn nhận focus
+  OK   mọi control trang đặt hàng có ring ≥2px  []
+
+== Regression smoke ==
+  OK   smoke /portal @391  http=200 overflow=0 err=0
+  OK   smoke /portal @1920  http=200 overflow=0 err=0
+  OK   smoke /portal/order @391  http=200 overflow=0 err=0
+  OK   smoke /portal/order @1920  http=200 overflow=0 err=0
+  OK   smoke /portal/order/cart @391  http=200 overflow=0 err=0
+  OK   smoke /portal/order/cart @1920  http=200 overflow=0 err=0
+  OK   smoke /portal/notification @391  http=200 overflow=0 err=0
+  OK   smoke /portal/notification @1920  http=200 overflow=0 err=0
+  OK   smoke /portal/debt @391  http=200 overflow=0 err=0
+  OK   smoke /portal/debt @1920  http=200 overflow=0 err=0
+
+======================================================================
+TỔNG: 0 FAIL
