@@ -45,34 +45,46 @@
                     <!-- Metric cards -->
                     <h5 style="margin:24px 0 12px;color:#6B7280;">Metric cards (h96 · icon 52)</h5>
                     <div class="wj-pc-metric-grid">
-                        <div class="wj-pc-metric-card">
+                        <t t-call="wujia_portal_layout.wj_surface_card">
+                            <t t-set="sc_variant" t-value="'summary'"/>
+                            <t t-set="sc_body" t-value="'flush'"/>
+                            <t t-set="sc_class" t-value="'wj-pc-metric-card'"/>
                             <span class="wj-pc-metric-card__icon wj-pc-metric-card__icon--blue"><i class="feather icon-shopping-bag"/></span>
                             <span class="wj-pc-metric-card__body">
                                 <span class="wj-pc-metric-card__label">Đơn hôm nay</span>
                                 <span class="wj-pc-metric-card__value">12</span>
                             </span>
-                        </div>
-                        <div class="wj-pc-metric-card">
+                        </t>
+                        <t t-call="wujia_portal_layout.wj_surface_card">
+                            <t t-set="sc_variant" t-value="'summary'"/>
+                            <t t-set="sc_body" t-value="'flush'"/>
+                            <t t-set="sc_class" t-value="'wj-pc-metric-card'"/>
                             <span class="wj-pc-metric-card__icon wj-pc-metric-card__icon--yellow"><i class="feather icon-clock"/></span>
                             <span class="wj-pc-metric-card__body">
                                 <span class="wj-pc-metric-card__label">Đang xử lý</span>
                                 <span class="wj-pc-metric-card__value">08</span>
                             </span>
-                        </div>
-                        <div class="wj-pc-metric-card">
+                        </t>
+                        <t t-call="wujia_portal_layout.wj_surface_card">
+                            <t t-set="sc_variant" t-value="'summary'"/>
+                            <t t-set="sc_body" t-value="'flush'"/>
+                            <t t-set="sc_class" t-value="'wj-pc-metric-card'"/>
                             <span class="wj-pc-metric-card__icon wj-pc-metric-card__icon--green"><i class="feather icon-check-circle"/></span>
                             <span class="wj-pc-metric-card__body">
                                 <span class="wj-pc-metric-card__label">Hoàn tất</span>
                                 <span class="wj-pc-metric-card__value">36</span>
                             </span>
-                        </div>
-                        <div class="wj-pc-metric-card">
+                        </t>
+                        <t t-call="wujia_portal_layout.wj_surface_card">
+                            <t t-set="sc_variant" t-value="'summary'"/>
+                            <t t-set="sc_body" t-value="'flush'"/>
+                            <t t-set="sc_class" t-value="'wj-pc-metric-card'"/>
                             <span class="wj-pc-metric-card__icon wj-pc-metric-card__icon--red"><i class="feather icon-alert-circle"/></span>
                             <span class="wj-pc-metric-card__body">
                                 <span class="wj-pc-metric-card__label">Cần chú ý</span>
                                 <span class="wj-pc-metric-card__value">03</span>
                             </span>
-                        </div>
+                        </t>
                     </div>
 
                     <!-- Filter bar -->

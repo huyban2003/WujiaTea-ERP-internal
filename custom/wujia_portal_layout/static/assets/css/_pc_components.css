@@ -129,15 +129,16 @@
     gap: 16px;
     margin-bottom: var(--wj-pc-content-padding);
 }
+/* D4e1: dáng khung (nền/viền/bo góc/gap) sang .wj-surface-card. Hai thứ ở lại
+   là hình học riêng của họ, chủ dự án chốt giữ: đệm dọc = 0 nên min-height là
+   SÀN chiều cao thiết kế, bỏ đi thì thẻ cao lên 96→121..126 (đo thật) ⇒ thưa
+   hơn sau migration, chỏi Kết quả mong muốn của BA. Đệm ngang 22→16 hội tụ với
+   trang báo cáo. */
 .wj-pc-metric-card {
     display: flex;
     align-items: center;
-    gap: 16px;
     min-height: var(--wj-pc-metric-h);
-    padding: 0 22px;
-    background: var(--wj-pc-card);
-    border: 1px solid var(--wj-pc-border-soft);
-    border-radius: 16px;
+    padding: 0 16px;
 }
 .wj-pc-metric-card__icon {
     flex-shrink: 0;

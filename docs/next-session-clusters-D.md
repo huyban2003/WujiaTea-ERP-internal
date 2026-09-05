@@ -527,7 +527,8 @@ Ba route **không đo được trên máy local**, phát hiện khi đo D4a:
 | ✅ **D4b XONG (04/09)** | `wujia-kpi-card` + `wujia-content-card` — **nhóm "bỏ shadow, thêm viền"** | 12 / 6 | `wujia_portal_layout`, `wujia_portal_base` | Thấp — cả hai chỉ lệch **đúng một luật**: có `--wujia-card-shadow` (BA: không shadow) và **thiếu viền**; `wujia-kpi-card` là `wholeCard` ⇒ kiểm luôn focus/hover sau khi bỏ shadow | Gọn, **và quan trọng hơn: 5/5 route dùng nó đều ĐO ĐƯỢC trên máy local** (`/portal` 8 bề mặt · `/knowledge` 2 · `/support` 1 · `/return` 1 · `/info-request` 1) ⇒ dùng để **hiệu chỉnh chính bảng đo trước–sau**. Sai ở đây thì rẻ |
 | ✅ **D4c XONG (05/09)** | `wj-pc-card` (34) + `wj-pc-acct-headcard` (2) + **8 modifier** (không phải 9 — `wj-dlv-pc-card` là `id=`, không tồn tại) | **36 call site / 20 file** | 10 module portal | 🔴 Cao nhất cụm — đã đi qua: radius **18→16** (6 rule tiêu thụ token, 4 nằm NGOÀI họ), padding **24→16**, 5 call site không thể thành `<div>` | Số đo đầy đủ: **`docs/d4c-acceptance-matrix.md`**. 185 bề mặt · 0 ô mất record · 26/95 ô thấp xuống · **lồng thẻ trắng 6→0** · 33 test / 10 đột biến đỏ đúng chỗ |
 | ✅ **D4d XONG (05/09)** | Mobile: `wujia-mdash-card` + `mhist`/`mknow`/`mnoti`/`mres`/`mexam`/`mdelivery-prodcard` + `wj-filter-card` — **50 lượt, không phải 51** (51 là lỗi cộng của chính bảng này) | **50 / 18** | 10 module portal | Đã đi qua: padding 16→12, viền `#EEF2F5`→`#E5E7EB` (4 họ), gap 10/14/12→8 (3 họ) | Số đo đầy đủ: **`docs/d4d-acceptance-matrix.md`**. 225 bề mặt · **0 ô mất record** · 14/95 ô thấp xuống · touch target **109px** · ảnh @1440 khác **0 pixel** · 45 test / **11 đột biến đỏ đúng chỗ** |
-| **D4e** | `wj-rep-mcard` + **20 lượt `wj-pc-metric-card` của trang báo cáo** | 36 / 2 | `wujia_portal_report`, `wujia_portal_layout` | Trung bình — `wj-rep-mcard` **không có viền hẳn**, thêm viền là đổi hình học 16 khối báo cáo | 🔴 **Chặn kỹ thuật: `/portal/reports/orders` đang 500 có sẵn** (tz `Asia/Saigon`, cụm **R3**) ⇒ **không đo được trên local**. Hoặc **chạy R3 trước**, hoặc đo trên UAT. Đừng xếp lượt này khi chưa gỡ chặn |
+| ✅ **D4e1 XONG (05/09)** | `wj-pc-metric-card` — **toàn họ** (báo cáo 4 · gallery `pc_preview` 4 · khảo sát 4) | **12 / 3** | `wujia_portal_layout`, `wujia_portal_report`, `wujia_portal_inspection` | Đã đi qua: min-height là SÀN thiết kế (đệm dọc 0) nên GIỮ; gỡ override liên module SỐNG (0,2,0) | Số đo: **`docs/d4e1-acceptance-matrix.md`**. Hai chữ ký dáng khung → MỘT · 0 ô mất record · ảnh ngoài phạm vi khác 0 pixel · 52 test / 7 đột biến đỏ đúng chỗ |
+| **D4e2** | `wj-rep-mcard` (3) + 2 món nợ D4d: nhịp header→body `18/23/25` · 2 inline `padding:14px 14px 0` | 3 + nợ / 5 | `wujia_portal_layout`, `_report`, `_base`, `_support`, `_exam`, `_notification` | 🔴 `wj-rep-mcard` **không có viền hẳn** ⇒ thêm viền là đổi hình học 3 khối báo cáo; card `--chart` căn cho ra đúng 258 → 260 | Chặn tz đã gỡ bằng DB copy (cách D4e1). BẮT BUỘC ảnh trước/sau @390 |
 | **D4f** | Bootstrap thô `card`/`card-header`/`card-footer`/`card-body` (trừ 2 file legacy) | 75 / 13 | `wujia_portal_base`, `_return`, `_sale`, `_support`, `_knowledge`, `_info_request` | 🔴 **Blast radius lớn nhất** — `.card` là lớp dùng chung của Bootstrap, đụng vào là dễ lan ra ngoài phạm vi portal | **CUỐI**, đúng chỉ đạo. Sau D4b–D4e đã có component chuẩn thì đây chỉ còn là việc thay lớp, không phải việc quyết số |
 | — | `wj-auth-card` (15) | 15 / 1 | — | — | 🔒 **THIẾT KẾ S39 — giữ dáng.** Dev tự quyết theo luật D3f |
 | — | **24 lượt `wj-pc-metric-card` của màn Khảo sát** | 24 / 1 | — | — | Đi theo nhóm Khảo sát: BA ghi provisional, **và** `wujia_portal_inspection` đang `uninstalled` trên DB dev ⇒ **không đo được trên local** |
@@ -631,6 +632,40 @@ cách ngoài card, một cái là giữa hai card. Ghi ở inventory §7 để p
   LIMIT); ở 360px các trường chật (SL yêu cầu, Ngày sản xuất) xuống 1 cột; thêm `id/for` hoặc
   `aria-labelledby` cho mọi label (`views/portal_return_form.xml`). Đo bằng harness a11y đã có
   (tab-walk + `forcePseudoState` cho `input[type=date]` — bẫy C8a).
+
+### ✅ D4e1 XONG (05/09) — toàn bộ họ `wj-pc-metric-card`, 12 shell / 3 file / 3 module
+
+Số đo đầy đủ: **`docs/d4e1-acceptance-matrix.md`**. Tiến độ cụm **110/384 ≈ 29%**.
+`wujia_portal_layout` → **19.0.36.0.0**, `?v=1190 → 1200`;
+`-u wujia_portal_layout,wujia_portal_report,wujia_portal_inspection` **một lần**, RC=0.
+**CHỜ DEPLOY UAT.**
+
+Kết quả cốt lõi: **hai chữ ký dáng khung về MỘT** — trước là báo cáo `pad 0/16 · gap 14 ·
+minH 100` vs gallery+khảo sát `pad 0/22 · gap 16 · minH 96`; sau là cả ba
+`pad 0/16 · gap 12 · minH 96`. Variant-theo-route bị xoá.
+
+### 🔴 Bài học D4e1 — đọc trước khi làm D4e2
+
+1. 🔴 **Con số "bỏ min-height thì thẻ thấp đi" của prompt là SAI — vì nó đoán nội dung.**
+   Prompt tính 84/92 từ giả định nội dung = icon 52px; đo thật nội dung là khối 3 dòng cao
+   **52–98px**, nên lấy `compact p16` thì thẻ **CAO LÊN 121–130**, tức *thưa hơn* — chỏi
+   thẳng câu BA viết. **Đừng nhận một phép tính hình học trong prompt mà không đo lại.**
+2. 🔴 **Bảy guard cùng "KHÔNG ĐỎ" một lượt = bộ dò hỏng, không phải guard yếu.** Bộ dò
+   mutation viết `FAIL: (Subtest )?[A-Za-z]+\.[a-z_]+` nên **không khớp tên lớp có chữ số**
+   (`TestSurfaceCardD4e1`). Cùng họ bẫy D4d #2 (sed trượt thụt lề), chỉ đổi chỗ trượt.
+   Xác minh TAY một đột biến trước khi kết luận.
+3. 🔴 **Đột biến làm XML sai cú pháp thì `-u` abort, view không đổi, test XANH OAN.** Đổi
+   `<t t-call>` thành `<div>` để lại `</t>` lệch ⇒ `ExpatError`. Đột biến phải **giữ XML
+   hợp lệ** (đổi sang một template khác là cách sạch).
+4. **"Rule chết hay sống" phải đếm lúc chạy.** `.wj-rep-pcmetrics .wj-pc-metric-card` khớp
+   **đúng 4 phần tử ở cả 5 khổ** ⇒ SỐNG, khác hẳn bẫy #4 của D4d (0 phần tử).
+5. **Không phải "đo được" là "hết chặn nghiệp vụ".** Màn Khảo sát nay đo được, nhưng cờ
+   *provisional* của BA gắn vào **field mapping**, không gắn vào khung ⇒ migrate khung là
+   tự quyết được, và phải ghi rõ là không chốt hộ field mapping.
+6. **Kiểm kê sai lần thứ 4.** `wj-pc-metric-card` 44→**12**, `wj-rep-mcard` 16→**3**. Và
+   `scripts/qa/wj_inventory.py` mà prompt nhắc **không tồn tại**.
+7. **Chia lượt theo HỌ, không theo file.** Chẻ một họ giữa hai lượt = tự tạo cửa sổ
+   variant-theo-route trong lúc chờ lượt sau.
 
 ### 🔴 Bài học D4d — đọc trước khi làm D4e
 

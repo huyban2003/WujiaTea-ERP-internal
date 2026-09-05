@@ -1569,3 +1569,92 @@ WJ-FRANCHISE-003:
 #    chỗ mới lộ 4 test đỏ; (b) đột biến sed neo sai thụt lề thì KHÔNG áp được mà bảng vẫn in
 #    "KHÔNG ĐỎ" cho một guard hoàn toàn tốt.
 # =====================================================================================
+
+# =====================================================================================
+# UI-SURFACECARD-001 (STT 127) — D4e1 05/09: phủ thêm 12, tổng 110 trên 384 lượt (~29%).
+# Issue VẪN GIỮ `Ready for Dev`, CHƯA handoff — Dev KHÔNG tự đóng Done (QA Operating
+# Standard §2). Chỉ chạy qa_sync.py --apply khi chủ dự án chốt.
+#
+# ✅ D4e1 XONG — TOÀN BỘ họ wj-pc-metric-card = 12 call site / 3 file / 3 module.
+#    Chia theo HỌ chứ không theo màn: chẻ đôi họ giữa hai lượt là tự tạo cửa sổ
+#    variant-theo-route, đúng thứ BA cấm. `-u` đúng MỘT lần, RC=0.
+#    Số đo đầy đủ: docs/d4e1-acceptance-matrix.md. wujia_portal_layout → 19.0.36.0.0,
+#    ?v=1190 → 1200. wujia_portal_report / wujia_portal_inspection chỉ đổi XML, KHÔNG bump.
+#
+# FIX
+#    - _pc_components.css:132 — rút background/border/border-radius/gap khỏi
+#      .wj-pc-metric-card; đệm ngang 0 22px → 0 16px. GIỮ display:flex+align-items
+#      (--summary chỉ khai gap, bỏ flex là gap vô tác dụng) và GIỮ min-height (LIMIT 1).
+#    - portal_report.css:74 — GỠ HẲN override liên module
+#      .wj-rep-pcmetrics .wj-pc-metric-card {min-height:100px; gap:14px; padding:0 16px}.
+#      Rule này SỐNG (đếm lúc chạy: khớp đúng 4 phần tử ở cả 5 khổ), đặc hiệu (0,2,0)
+#      thắng chủ sở hữu (0,1,0) và nạp sau ⇒ giữ lại là đẻ variant theo route.
+#      CỐ Ý GIỮ .wj-rep-pcmetrics{gap:24px} (gap của LƯỚI) và __value{font-size:24px}.
+#    - 12 call site → t-call wj_surface_card, sc_variant='summary' · sc_body='flush' ·
+#      sc_class='wj-pc-metric-card' (Luật #1: lớp cũ nuôi CSS con __icon/__body/__label/
+#      __value và 3 danh sách :is() (0,3,0) của _interaction.css).
+#
+# IMPACT
+#    - HAI chữ ký dáng khung về MỘT: trước = báo cáo (pad 0/16 · gap 14 · minH 100) vs
+#      gallery+khảo sát (pad 0/22 · gap 16 · minH 96); sau = cả ba (pad 0/16 · gap 12 ·
+#      minH 96). Đây là hạng mục chính của issue.
+#    - /portal/reports/orders: thẻ 100→96, pageH −4px ⇒ DÀY hơn, đúng "không thưa hơn".
+#    - Lợi ngoài dự tính: "Tổng chi phí 342.200,00 $" từ 2 dòng về 1 dòng (gap 14→12 trả
+#      lại đúng chỗ thiếu) — đúng ý BA "primary amount dễ quét".
+#    - Mobile: họ này chỉ còn hiện trên gallery dev (2 route sản phẩm bọc d-none d-lg-*)
+#      ⇒ radius 16→14 và gap 16→8 KHÔNG đổi gì trên sản phẩm thật.
+#    - 60/60 bề mặt · 0 lỗi JS · 0 tràn ngang · 0 redirect · 0 ô mất record (acceptance
+#      #11) · 0 lồng white card · nhịp header→body 15/15 ô GIỐNG HỆT.
+#    - Diff pixel 3 trang NGOÀI phạm vi: /portal/support và /portal/delivery = 0 pixel cả
+#      2 khổ; /portal @1440 = 0 pixel; /portal @390 khác 8×9px = ĐỒNG HỒ ĐẾM NGƯỢC
+#      (còn 06:04 → 06:05), soi ảnh xác nhận, tiền lệ D3c — không phải hồi quy.
+#    - RULE 1+2 chạy lại: 4 cờ, CẢ 4 là debt-pay redirect ?notice=no_due (có sẵn, đúng
+#      thiết kế WJ-DEBT-007) · 0 DRIFT cỡ chữ · KHÔNG cờ mới.
+#    - Quét đặc hiệu 280 file CSS (loại tên con BEM, tách rule trạng thái nghỉ): đúng
+#      1 hit = padding ở .wj-pc-metric-card, chính là thứ chủ dự án chốt giữ.
+#
+# RETEST (đề nghị BA soi trên UAT sau deploy)
+#    - /portal/reports/orders @1440: dải 4 ô KPI thấp đi 4px, khoảng cách icon↔chữ chặt
+#      hơn 2px, và số tiền "Tổng chi phí" nay nằm gọn 1 dòng.
+#    - /portal/inspection/detail/<id> @1440: 4 ô KPI đệm ngang 22→16, gap 16→12.
+#    - Cả hai màn: kiểm bằng mắt xem có chữ/số nào chạm mép thẻ không.
+#
+# LIMIT
+#    1. padding NGANG (0 16px) và min-height (96px) CỐ Ý ở lại rule họ, KHÔNG dời sang
+#       .wj-surface-card. Lý do có số đo: đệm dọc của họ này = 0 nên min-height là SÀN
+#       chiều cao thiết kế; nội dung thật cao 52–98px (không phải 52 như prompt giả định)
+#       ⇒ lấy compact p16 thì thẻ CAO LÊN 121–130px, tức THƯA HƠN sau migration, chỏi
+#       thẳng câu BA viết trong Kết quả mong muốn và acceptance #11. Tiền lệ
+#       .wj-debt-summary{height:142px} của D4c. CHỦ DỰ ÁN CHỐT sau khi xem bảng số.
+#    2. Đo trên DB COPY wujia_tea_d4e1 (cổng 8075), CHƯA soi UAT. Hai route sản phẩm
+#       KHÔNG đo được trên wujia_tea_19: /portal/reports/orders 500 (tz Asia/Saigon) và
+#       wujia_portal_inspection uninstalled. PHẢI đo lại chỉ-đọc trên UAT sau deploy
+#       (L14/L10) rồi mới qa_deploy_mark.py.
+#    3. Bug tz /portal/reports/orders KHÔNG sửa — thuộc cụm R3
+#       (wujia_portal_base/controllers/utils.py:38). D4e1 chỉ né trên bản copy.
+#    4. wujia_portal_inspection vẫn `uninstalled` trên wujia_tea_19 (prompt D4e ghi "nay
+#       DB dev đã cài" là SAI). Deploy UAT phải kiểm module này có installed không, nếu
+#       chưa thì 4 lượt khảo sát không hiện để retest.
+#    5. Nhóm Khảo sát vẫn provisional — D4e1 CHỈ đụng khung, KHÔNG chốt hộ BA field
+#       mapping nào. BA viết rõ: "Màn Khảo sát chỉ nghiệm thu field mapping sau khi có
+#       seed data."
+#    6. ĐÍNH CHÍNH kiểm kê lần thứ 4: wj-pc-metric-card là 12 shell (không phải 44),
+#       wj-rep-mcard là 3 (không phải 16) — đếm thô bắt cả class con BEM. Và
+#       scripts/qa/wj_inventory.py mà prompt nhắc KHÔNG TỒN TẠI (harness thật:
+#       scratchpad/d4_inventory.py). → inventory §13.
+#    7. wj-rep-mcard (3) + 2 món nợ D4d (nhịp 18/23/25 · 2 inline padding:14px 14px 0)
+#       sang D4e2, CHƯA đụng ở lượt này.
+#    8. Tiến độ cụm 110/384 ≈ 29% ⇒ giữ `Ready for Dev`, kế tiếp D4e2.
+#
+# TEST
+#    custom/wujia_portal_layout/tests/test_d4_surface_card.py (tag wujia_surface_card_d4):
+#    52 test — 0 failed / 0 error (45 của D4b+D4c+D4d + 7 mới). KHÔNG đẻ file test song song.
+#    scratchpad/d4e1_mutate.sh: 7/7 đột biến ĐỎ ĐÚNG CHỖ + run đối chứng 52/0/0.
+#    ⚠️ HAI bẫy harness mới, cả hai đều thuộc loại "báo guard rỗng OAN":
+#    (a) bộ dò FAIL viết [A-Za-z]+ nên KHÔNG khớp tên lớp có CHỮ SỐ (TestSurfaceCardD4e1)
+#        ⇒ cả 7 đột biến báo "KHÔNG ĐỎ" trong khi thật ra cả 7 đều đỏ. Bảy guard cùng
+#        rỗng một lượt = dấu hiệu bộ dò hỏng, không phải guard yếu — xác minh tay 1 cái
+#        trước khi kết luận. Cùng họ với bẫy D4d #2, chỉ đổi chỗ trượt.
+#    (b) đột biến làm XML SAI CÚ PHÁP thì -u abort, view không đổi, test XANH OAN. Đổi
+#        <t t-call> thành <div> để lại </t> lệch ⇒ ExpatError. Đột biến phải GIỮ XML hợp lệ.
+# =====================================================================================

@@ -369,3 +369,74 @@ C8) ⇒ giữ tag, **thêm thẳng class chủ sở hữu** — cách D4c đã c
 
 Còn lại: `wj-pc-metric-card` (44) + `wj-rep-mcard` (16) → D4e · Bootstrap `.card` thô (75) → D4f ·
 `wj-auth-card` (15) THIẾT KẾ S39 · nhóm Khảo sát (21) *provisional* · **26 lượt mới ở §12.2**.
+
+## 13. Đính chính & bổ sung sau lượt D4e1 (05/09/2026)
+
+### 13.1 Con số của họ `wj-pc-metric-card` và `wj-rep-mcard` — đếm thô, sai gấp 4 lần
+
+§4/§11.4/§12.5 ghi `wj-pc-metric-card` **44** và `wj-rep-mcard` **16**. Đếm **shell thật**
+(`class="…"`, loại con BEM `__`) ra:
+
+| Họ | Kiểm kê cũ | Shell thật | Phân bố |
+|---|---:|---:|---|
+| `wj-pc-metric-card` | 44 | **12** | báo cáo 4 · gallery `pc_preview` 4 · khảo sát 4 |
+| `wj-rep-mcard` | 16 | **3** | `portal_report_orders.xml:85 · 98 · 132` (2 thường + 1 `--chart`) |
+
+Cùng một lỗi đã thổi kiểm kê D4d lên 51 (bài học D4d #10): `wj-pc-metric-card` có 4 lớp con
+`__icon` `__body` `__label` `__value`, `wj-rep-mcard` có `__head` `__title` `__meta` `__body`.
+**Đừng cộng cột "Call site" của bảng-theo-file để suy ra việc còn lại** — đây là lần đính chính
+thứ tư liên tiếp của cụm D.
+
+> ⚠️ `scripts/qa/wj_inventory.py` mà prompt D4e nhắc tới **không tồn tại**. Harness thật là
+> `scratchpad/d4_inventory.py` (dev-only, gitignored).
+
+### 13.2 `pc_preview.xml` nằm trong `EXCLUDE_FILES` — loại CÓ CHỦ Ý, không phải bỏ sót
+
+`scratchpad/d4_inventory.py` liệt `pc_preview.xml` cùng 2 file legacy ADR-004 với ghi chú
+*"trang demo nội bộ"*. Chủ dự án chốt **kéo 4 lượt này vào D4e1**: gallery là bản tham chiếu để
+đối chiếu SVG của BA, để lệch thì gallery nói dối. Route `/portal/_pc-preview` đòi
+`base.group_user` ⇒ đo bằng phiên **`admin`**; mọi route portal khác vẫn phải `anh.owner`.
+
+### 13.3 Nhóm Khảo sát — cờ *provisional* của BA chỉ gắn vào FIELD MAPPING
+
+BA viết trong `Kết quả mong muốn` của `UI-SURFACECARD-001`: *"Màn Khảo sát chỉ nghiệm thu
+**field mapping** sau khi có seed data."* D4e1 chỉ đụng **dáng khung** — thứ mà `CMP-SC-001` là
+chủ sở hữu duy nhất vô điều kiện ⇒ chủ dự án chốt **kéo 4 lượt khảo sát vào, không hỏi BA**.
+Việc này **không** chốt hộ BA bất kỳ field mapping nào.
+
+> 🔴 `wujia_portal_inspection` trên `wujia_tea_19` vẫn **`uninstalled`** (prompt D4e ghi "nay DB
+> dev đã cài" là **sai**). Đo được là nhờ DB copy `wujia_tea_d4e1`.
+
+### 13.4 🔴 `min-height` của họ này KHÔNG phải số chết — đo mới biết
+
+Prompt D4e tính "bỏ `min-height` thì thẻ còn 84 (compact) / 92 (regular)" từ giả định **nội dung
+= icon 52px**. Đo thật thì nội dung là khối 3 dòng, cao **52–98px**:
+
+| Route | Thẻ cao | Nội dung | `min-height` gánh | Nếu lấy compact p16 |
+|---|---:|---:|---:|---:|
+| `/portal/_pc-preview` PC | 96 | 56 | 40 | 88 |
+| `/portal/inspection/detail/1` PC | 96 | 52–**89** | 7–44 | 84–**121** |
+| `/portal/reports/orders` PC | 100 | 67–**94** | 6–33 | 99–**126** |
+| `/portal/_pc-preview` @390 | 100 | **98** | 2 | **130** |
+
+Đệm dọc của họ này bằng **0**, nên `min-height` là **SÀN chiều cao thiết kế**. Bỏ nó đi thì thẻ
+**cao lên**, không thấp đi ⇒ *thưa hơn sau migration*, chỏi thẳng câu BA viết (*"Portal dùng
+thống nhất CMP-SC-001 và **không thưa hơn** sau migration"*) và acceptance #11.
+
+**Chốt của chủ dự án:** giữ đệm dọc 0 + `min-height`, hội tụ hai họ về **một** bộ số
+`minH 96 · pad-x 16 · gap 12` (mobile 8). Ghi LIMIT: `padding` ngang và `min-height` **cố ý ở
+lại** rule họ — tiền lệ `.wj-debt-summary { height: 142px }` của D4c.
+
+### 13.5 Tiến độ cụm
+
+| Lượt | Phạm vi | Lượt phủ |
+|---|---|---|
+| D4b | `wujia-kpi-card` (4) + `wujia-content-card` (8) | 12 |
+| D4c | `wj-pc-card` (34) + `wj-pc-acct-headcard` (2) | 36 |
+| D4d | 10 họ mobile + `wj-filter-card` | 50 |
+| **D4e1** | `wj-pc-metric-card` — **toàn họ** (báo cáo 4 · gallery 4 · khảo sát 4) | **12** |
+| | | **110 / 384 ≈ 29%** |
+
+Còn lại: `wj-rep-mcard` (3) + 2 món nợ D4d → **D4e2** · Bootstrap `.card` thô (75) → D4f ·
+`wj-auth-card` (15) THIẾT KẾ S39 · 9 họ còn lại nhóm Khảo sát (17) *provisional* ·
+**26 lượt mới ở §12.2**.

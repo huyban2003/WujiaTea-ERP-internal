@@ -37,7 +37,10 @@
                     <!-- Metric overview row -->
                     <div class="wj-pc-metric-grid">
                         <!-- Metric 1: Điểm đánh giá -->
-                        <div class="wj-pc-metric-card">
+                        <t t-call="wujia_portal_layout.wj_surface_card">
+                            <t t-set="sc_variant" t-value="'summary'"/>
+                            <t t-set="sc_body" t-value="'flush'"/>
+                            <t t-set="sc_class" t-value="'wj-pc-metric-card'"/>
                             <div class="wj-pc-metric-card__icon wj-pc-metric-card__icon--blue">
                                 <i class="feather icon-award" />
                             </div>
@@ -46,9 +49,12 @@
                                 <span class="wj-pc-metric-card__value"><t t-out="total_score or 0" />
                                     /100</span>
                             </div>
-                        </div>
+                        </t>
                         <!-- Metric 2: Xếp hạng -->
-                        <div class="wj-pc-metric-card">
+                        <t t-call="wujia_portal_layout.wj_surface_card">
+                            <t t-set="sc_variant" t-value="'summary'"/>
+                            <t t-set="sc_body" t-value="'flush'"/>
+                            <t t-set="sc_class" t-value="'wj-pc-metric-card'"/>
                             <div class="wj-pc-metric-card__icon wj-pc-metric-card__icon--green">
                                 <i class="feather icon-check-circle" />
                             </div>
@@ -57,9 +63,12 @@
                                 <span class="wj-pc-metric-card__value">LOẠI <t
                                         t-out="grade_name or 'B+'" /></span>
                             </div>
-                        </div>
+                        </t>
                         <!-- Metric 3: Mã tiệm -->
-                        <div class="wj-pc-metric-card">
+                        <t t-call="wujia_portal_layout.wj_surface_card">
+                            <t t-set="sc_variant" t-value="'summary'"/>
+                            <t t-set="sc_body" t-value="'flush'"/>
+                            <t t-set="sc_class" t-value="'wj-pc-metric-card'"/>
                             <div class="wj-pc-metric-card__icon wj-pc-metric-card__icon--yellow">
                                 <i class="feather icon-home" />
                             </div>
@@ -69,9 +78,12 @@
                                     <t t-out="franchise_code or ''" />
                                 </span>
                             </div>
-                        </div>
+                        </t>
                         <!-- Metric 4: Ngày giám sát -->
-                        <div class="wj-pc-metric-card">
+                        <t t-call="wujia_portal_layout.wj_surface_card">
+                            <t t-set="sc_variant" t-value="'summary'"/>
+                            <t t-set="sc_body" t-value="'flush'"/>
+                            <t t-set="sc_class" t-value="'wj-pc-metric-card'"/>
                             <div class="wj-pc-metric-card__icon wj-pc-metric-card__icon--red">
                                 <i class="feather icon-calendar" />
                             </div>
@@ -82,7 +94,7 @@
                                     <t t-out="planned_date or ''" />
                                 </span>
                             </div>
-                        </div>
+                        </t>
                     </div>
 
                     <!-- Main PC Card -->

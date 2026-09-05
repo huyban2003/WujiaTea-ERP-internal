@@ -195,7 +195,10 @@
 
                 <div id="wj-rep-pc-body">
                     <div class="wj-pc-metric-grid wj-rep-pcmetrics">
-                        <div class="wj-pc-metric-card">
+                        <t t-call="wujia_portal_layout.wj_surface_card">
+                            <t t-set="sc_variant" t-value="'summary'"/>
+                            <t t-set="sc_body" t-value="'flush'"/>
+                            <t t-set="sc_class" t-value="'wj-pc-metric-card'"/>
                             <span class="wj-pc-metric-card__icon wj-rep-pcicon wj-rep-pcicon--primary">
                                 <i class="feather icon-file-text"/>
                             </span>
@@ -205,8 +208,11 @@
                                       t-out="'{:,}'.format(total_orders).replace(',', '.')"/>
                                 <span class="wj-rep-pcmetric__desc">Đã đặt + đã xác nhận</span>
                             </span>
-                        </div>
-                        <div class="wj-pc-metric-card">
+                        </t>
+                        <t t-call="wujia_portal_layout.wj_surface_card">
+                            <t t-set="sc_variant" t-value="'summary'"/>
+                            <t t-set="sc_body" t-value="'flush'"/>
+                            <t t-set="sc_class" t-value="'wj-pc-metric-card'"/>
                             <span class="wj-pc-metric-card__icon wj-rep-pcicon wj-rep-pcicon--success">
                                 <i class="feather icon-credit-card"/>
                             </span>
@@ -215,8 +221,11 @@
                                 <span class="wj-pc-metric-card__value" t-out="money(total_revenue)"/>
                                 <span class="wj-rep-pcmetric__desc">Trong khoảng đã chọn</span>
                             </span>
-                        </div>
-                        <div class="wj-pc-metric-card">
+                        </t>
+                        <t t-call="wujia_portal_layout.wj_surface_card">
+                            <t t-set="sc_variant" t-value="'summary'"/>
+                            <t t-set="sc_body" t-value="'flush'"/>
+                            <t t-set="sc_class" t-value="'wj-pc-metric-card'"/>
                             <span class="wj-pc-metric-card__icon wj-rep-pcicon wj-rep-pcicon--done">
                                 <i class="feather icon-check-circle"/>
                             </span>
@@ -226,8 +235,11 @@
                                       t-out="'{:,}'.format(done_orders).replace(',', '.')"/>
                                 <span class="wj-rep-pcmetric__desc">Đơn đã giao hàng</span>
                             </span>
-                        </div>
-                        <div class="wj-pc-metric-card">
+                        </t>
+                        <t t-call="wujia_portal_layout.wj_surface_card">
+                            <t t-set="sc_variant" t-value="'summary'"/>
+                            <t t-set="sc_body" t-value="'flush'"/>
+                            <t t-set="sc_class" t-value="'wj-pc-metric-card'"/>
                             <span class="wj-pc-metric-card__icon wj-rep-pcicon wj-rep-pcicon--danger">
                                 <i class="feather icon-x-circle"/>
                             </span>
@@ -237,7 +249,7 @@
                                       t-out="'{:,}'.format(cancel_orders).replace(',', '.')"/>
                                 <span class="wj-rep-pcmetric__desc">Đơn đã bị huỷ không thực hiện</span>
                             </span>
-                        </div>
+                        </t>
                     </div>
 
                     <div class="wj-rep-pcrow">

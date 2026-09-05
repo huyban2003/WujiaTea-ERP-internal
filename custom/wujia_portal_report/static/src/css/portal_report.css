@@ -68,14 +68,12 @@
     gap: 12px;
 }
 
-/* KPI: card 266x100, icon 46 nền ĐẶC + glyph trắng (component chung: 96 cao,
+/* KPI: card 266x96, icon 46 nền ĐẶC + glyph trắng (component chung: 96 cao,
    icon 52 nền nhạt + glyph màu). Thêm dòng mô tả thứ 3 mà component chưa có. */
 .wj-rep-pcmetrics { gap: 24px; }
-.wj-rep-pcmetrics .wj-pc-metric-card {
-    min-height: 100px;
-    gap: 14px;
-    padding: 0 16px;
-}
+/* D4e1: gỡ hẳn override liên module — nó khớp THẬT 4 phần tử (đo lúc chạy) và
+   đặc hiệu (0,2,0) thắng chủ sở hữu, giữ lại là đẻ variant theo route. Ba số
+   min-height/gap/padding nay hội tụ về họ chung: 96 / 12 / 0 16. */
 .wj-rep-pcicon {
     width: 46px;
     height: 46px;

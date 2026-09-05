@@ -461,3 +461,78 @@ class TestSurfaceCardD4d(TransactionCase):
         for v in views:
             with self.subTest(key=v.key):
                 self.assertNotIn('padding:0', v.arch_db.replace(' ', ''))
+
+
+@tagged('post_install', '-at_install', 'wujia_surface_card_d4')
+class TestSurfaceCardD4e1(TransactionCase):
+    """D4e1 — họ wj-pc-metric-card: 12 shell / 3 file (báo cáo · gallery · khảo sát).
+
+    Hai thứ CỐ Ý ở lại rule họ, chủ dự án chốt sau khi đo: đệm dọc của họ này
+    bằng 0 nên `min-height` là SÀN chiều cao thiết kế — bỏ đi thì thẻ cao lên
+    96→121..126 (đo thật) ⇒ *thưa hơn* sau migration, chỏi đúng câu BA viết
+    trong `Kết quả mong muốn`. Đệm ngang 22→16 hội tụ hai họ về một số.
+    """
+
+    OWNED_HERE = ('background', 'border', 'border-radius', 'box-shadow', 'gap')
+    CALL_SITES = ('wujia_portal_report.portal_report_orders',
+                  'wujia_portal_layout.pc_preview_page',
+                  'wujia_portal_inspection.portal_inspection_detail')
+
+    # --- chủ sở hữu dáng khung -------------------------------------------
+
+    def test_metric_card_no_longer_declares_surface_shape(self):
+        for body in _rules_anywhere(_css('_pc_components.css'), '.wj-pc-metric-card'):
+            for prop in self.OWNED_HERE:
+                with self.subTest(prop=prop):
+                    self.assertFalse(
+                        _declares(body, prop),
+                        f'.wj-pc-metric-card vẫn khai {prop} — phải ở .wj-surface-card')
+
+    def test_report_cross_module_override_is_gone(self):
+        # Rule này SỐNG (đo lúc chạy: khớp đúng 4 phần tử ở cả 5 khổ) và đặc hiệu
+        # (0,2,0) thắng chủ sở hữu (0,1,0) ⇒ giữ lại là đẻ variant theo route.
+        css = _strip_comments(_mod_css('wujia_portal_report', 'portal_report.css'))
+        self.assertNotRegex(css, r'\.wj-rep-pcmetrics\s+\.wj-pc-metric-card\s*\{')
+
+    def test_report_keeps_its_non_shape_overrides(self):
+        # Cỡ chữ và gap của LƯỚI không phải dáng khung — cố ý giữ.
+        css = _strip_comments(_mod_css('wujia_portal_report', 'portal_report.css'))
+        self.assertIn('.wj-rep-pcmetrics .wj-pc-metric-card__value', css)
+        self.assertIsNotNone(_rule(css, '.wj-rep-pcmetrics'))
+
+    # --- hai thứ cố ý ở lại ----------------------------------------------
+
+    def test_metric_card_keeps_flex_and_height_floor(self):
+        body = _rule(_css('_pc_components.css'), '.wj-pc-metric-card')
+        self.assertIsNotNone(body)
+        # --summary chỉ khai gap, KHÔNG khai display ⇒ bỏ flex là gap vô tác dụng.
+        self.assertTrue(_declares(body, 'display'))
+        self.assertTrue(_declares(body, 'align-items'))
+        self.assertTrue(_declares(body, 'min-height'))
+        self.assertIn('--wj-pc-metric-h', body)
+
+    def test_horizontal_inset_converged_to_16(self):
+        body = _rule(_css('_pc_components.css'), '.wj-pc-metric-card')
+        self.assertRegex(body, r'padding:\s*0\s+16px')
+
+    # --- call site --------------------------------------------------------
+
+    def test_all_metric_call_sites_use_the_component(self):
+        for key in self.CALL_SITES:
+            view = self.env['ir.ui.view'].search([('key', '=', key)], limit=1)
+            with self.subTest(key=key):
+                self.assertTrue(view, f'không thấy view {key}')
+                arch = view.arch_db
+                self.assertNotIn('<div class="wj-pc-metric-card">', arch)
+                self.assertIn('wujia_portal_layout.wj_surface_card', arch)
+                # Luật #1: lớp cũ phải còn, nếu không CSS con __icon/__body đứt.
+                self.assertIn('wj-pc-metric-card', arch)
+
+    def test_call_sites_bake_summary_and_flush(self):
+        # summary = biến thể DUY NHẤT khai gap (Luật #8); flush vì đệm dọc = 0.
+        for key in self.CALL_SITES:
+            view = self.env['ir.ui.view'].search([('key', '=', key)], limit=1)
+            with self.subTest(key=key):
+                arch = view.arch_db
+                self.assertIn("'summary'", arch)
+                self.assertIn("'flush'", arch)
