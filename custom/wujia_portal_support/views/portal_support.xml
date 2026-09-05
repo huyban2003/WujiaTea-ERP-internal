@@ -46,58 +46,60 @@
                     <!-- Vùng swap AJAX: card + pager (bộ lọc nằm ngoài, JS đồng bộ theo URL). -->
                     <div id="wj-sup-pc">
                     <!-- Tickets — MẪU 06 Card ticket (Sprint 9.13b 2026-05-27) -->
-                    <div class="wujia-content-card">
-                        <!-- CMP-CH-001: count cố ý BỎ `t-if` — spec ghi rõ "Count 0 vẫn hiển thị". -->
-                        <t t-call="wujia_portal_layout.wj_card_header">
-                            <t t-set="ch_title">Yêu cầu hỗ trợ đang mở</t>
-                            <t t-set="ch_level" t-value="4"/>
-                            <t t-set="ch_platform" t-value="'pc'"/>
-                            <t t-set="ch_icon" t-value="'life-buoy'"/>
-                            <t t-set="ch_meta">
-                                <span class="wj-card-header__meta"><t t-out="len(tickets)"/> ticket</span>
-                            </t>
+                    <t t-call="wujia_portal_layout.wj_surface_card">
+                        <t t-set="sc_density" t-value="'regular'"/>
+                        <t t-set="sc_class" t-value="'wujia-content-card'"/>
+                    <!-- CMP-CH-001: count cố ý BỎ `t-if` — spec ghi rõ "Count 0 vẫn hiển thị". -->
+                    <t t-call="wujia_portal_layout.wj_card_header">
+                        <t t-set="ch_title">Yêu cầu hỗ trợ đang mở</t>
+                        <t t-set="ch_level" t-value="4"/>
+                        <t t-set="ch_platform" t-value="'pc'"/>
+                        <t t-set="ch_icon" t-value="'life-buoy'"/>
+                        <t t-set="ch_meta">
+                            <span class="wj-card-header__meta"><t t-out="len(tickets)"/> ticket</span>
                         </t>
-                        <div t-if="not tickets" class="wujia-empty-state">
-                            <i class="feather icon-life-buoy"/>
-                            <p>Bạn chưa có ticket nào. <a href="/portal/support/new">Gửi yêu cầu hỗ trợ</a>.</p>
-                        </div>
-                        <table t-else="" class="wujia-content-card-table">
-                            <thead>
-                                <tr>
-                                    <th>Mã yêu cầu</th>
-                                    <th>Tiêu đề</th>
-                                    <th>Phân loại</th>
-                                    <th>Cửa hàng</th>
-                                    <th>Ngày tạo</th>
-                                    <th class="text-center">Ưu tiên</th>
-                                    <th class="text-center">Trạng thái</th>
-                                    <th class="text-end"></th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr t-foreach="tickets" t-as="t">
-                                    <td><a t-attf-href="/portal/support/#{t.id}" t-out="t.name"/></td>
-                                    <td t-out="t.title"/>
-                                    <td t-out="t.category_id.name or '—'"/>
-                                    <td t-out="t.franchise_id.name or '—'"/>
-                                    <td t-out="t.create_date and t.create_date.strftime('%d/%m/%Y') or ''"/>
-                                    <td class="text-center">
-                                        <t t-set="prio" t-value="priority_labels.get(t.priority, (t.priority, 'wujia-badge-muted'))"/>
-                                        <span t-attf-class="wujia-badge #{prio[1]}" t-out="prio[0]"/>
-                                    </td>
-                                    <td class="text-center">
-                                        <t t-set="lbl" t-value="state_labels.get(t.state, (t.state, 'wujia-badge-muted'))"/>
-                                        <span t-attf-class="wujia-badge #{lbl[1]}" t-out="lbl[0]"/>
-                                    </td>
-                                    <td class="text-end">
-                                        <a t-attf-href="/portal/support/#{t.id}" class="btn btn-sm btn-primary">
-                                            <i class="fa fa-eye" title="View"/>
-                                        </a>
-                                    </td>
-                                </tr>
-                            </tbody>
-                        </table>
+                    </t>
+                    <div t-if="not tickets" class="wujia-empty-state">
+                        <i class="feather icon-life-buoy"/>
+                        <p>Bạn chưa có ticket nào. <a href="/portal/support/new">Gửi yêu cầu hỗ trợ</a>.</p>
                     </div>
+                    <table t-else="" class="wujia-content-card-table">
+                        <thead>
+                            <tr>
+                                <th>Mã yêu cầu</th>
+                                <th>Tiêu đề</th>
+                                <th>Phân loại</th>
+                                <th>Cửa hàng</th>
+                                <th>Ngày tạo</th>
+                                <th class="text-center">Ưu tiên</th>
+                                <th class="text-center">Trạng thái</th>
+                                <th class="text-end"></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr t-foreach="tickets" t-as="t">
+                                <td><a t-attf-href="/portal/support/#{t.id}" t-out="t.name"/></td>
+                                <td t-out="t.title"/>
+                                <td t-out="t.category_id.name or '—'"/>
+                                <td t-out="t.franchise_id.name or '—'"/>
+                                <td t-out="t.create_date and t.create_date.strftime('%d/%m/%Y') or ''"/>
+                                <td class="text-center">
+                                    <t t-set="prio" t-value="priority_labels.get(t.priority, (t.priority, 'wujia-badge-muted'))"/>
+                                    <span t-attf-class="wujia-badge #{prio[1]}" t-out="prio[0]"/>
+                                </td>
+                                <td class="text-center">
+                                    <t t-set="lbl" t-value="state_labels.get(t.state, (t.state, 'wujia-badge-muted'))"/>
+                                    <span t-attf-class="wujia-badge #{lbl[1]}" t-out="lbl[0]"/>
+                                </td>
+                                <td class="text-end">
+                                    <a t-attf-href="/portal/support/#{t.id}" class="btn btn-sm btn-primary">
+                                        <i class="fa fa-eye" title="View"/>
+                                    </a>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    </t>
 
                     <nav t-if="pager and pager.get('page_count', 0) &gt; 1" class="mt-2">
                         <ul class="pagination wujia-pagination justify-content-center mb-0">
@@ -231,7 +233,7 @@
                     <!-- Component PC v1.5: card + field h42 + action bar có separator
                          (UI-PC-BASE-008/009). Route POST, name field, required GIỮ NGUYÊN. -->
                     <form method="post" action="/portal/support/new" enctype="multipart/form-data"
-                          data-wj-dirty-guard="1" class="wj-pc-card">
+                          data-wj-dirty-guard="1" class="wj-surface-card wj-pc-card">
                         <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
                         <div class="row g-3">
                             <div class="col-md-6 col-12">

@@ -15,7 +15,10 @@
                     <div t-if="message" class="wj-pc-acct-banner is-ok" role="status" t-out="message"/>
 
                     <!-- Header card: avatar + name + email + chips + store box -->
-                    <div class="wj-pc-acct-headcard">
+                    <t t-call="wujia_portal_layout.wj_surface_card">
+                        <t t-set="sc_variant" t-value="'record'"/>
+                        <t t-set="sc_density" t-value="'regular'"/>
+                        <t t-set="sc_class" t-value="'wj-pc-acct-headcard'"/>
                         <img class="wj-pc-acct-headcard__avatar" alt="avatar"
                              t-att-src="'/web/image/res.users/' + str(user.id) + '/avatar_128'"/>
                         <div class="wj-pc-acct-headcard__main">
@@ -33,10 +36,11 @@
                             </span>
                             <span class="wj-pc-acct-headcard__box-sub">Dữ liệu hiển thị theo cửa hàng đang thao tác</span>
                         </div>
-                    </div>
+                    </t>
 
                     <!-- Panel: Thông tin cá nhân -->
-                    <div class="wj-pc-card">
+                    <t t-call="wujia_portal_layout.wj_surface_card">
+                        <t t-set="sc_class" t-value="'wj-pc-card'"/>
                         <div class="wj-pc-card__head">
                             <div>
                                 <h3 class="wj-pc-acct-panel-title">Thông tin cá nhân</h3>
@@ -79,7 +83,7 @@
                         <div class="wj-pc-acct-note">
                             Thông tin tài khoản được quản lý bởi Ngô Gia. Vui lòng liên hệ quản trị nếu cần cập nhật.
                         </div>
-                    </div>
+                    </t>
                 </t>
 
                 <!-- ===== Mobile (<992px) — Figma Mobile_Account_Info màn 01 (READONLY).

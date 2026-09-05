@@ -9,7 +9,9 @@
         <t t-set="_dq" t-value="chip_qs or ''"/>
 
         <!-- ===== PC: card danh sách (head + chips + states + pager) ===== -->
-        <div t-if="part == 'pc'" id="wj-dlv-pc-card" class="wj-pc-card">
+        <t t-call="wujia_portal_layout.wj_surface_card" t-if="part == 'pc'">
+            <t t-set="sc_class" t-value="'wj-pc-card'"/>
+            <t t-set="sc_id" t-value="'wj-dlv-pc-card'"/>
             <div class="wj-pc-card__head">
                 <!-- CMP-SH-001 variant meta (BA chỉ đích danh trang này). Chips lọc KHÔNG vào
                      right slot: chúng là CMP-FC-001, và spec cấm 2 right slot cùng lúc. -->
@@ -128,7 +130,7 @@
                 <a t-attf-href="/portal/delivery?#{m_pager.get('querystring','') if m_pager else ''}"
                    class="wj-pc-btn wj-pc-btn--primary"><i class="feather icon-refresh-cw"/>Tải lại</a>
             </div>
-        </div>
+        </t>
 
         <!-- ===== Mobile: chips trạng thái (nằm trong form lọc) ===== -->
         <div t-if="part == 'mchips'" id="wj-dlv-mchips" class="wj-filter-chips">
@@ -407,7 +409,8 @@
 
                 <!-- Two-column: vận chuyển | đơn liên quan + timeline -->
                 <div class="wj-pc-two-col">
-                    <div class="wj-pc-card">
+                    <t t-call="wujia_portal_layout.wj_surface_card">
+                        <t t-set="sc_class" t-value="'wj-pc-card'"/>
                         <t t-call="wujia_portal_layout.wj_card_header">
                             <t t-set="ch_title">Thông tin vận chuyển</t>
                             <t t-set="ch_platform" t-value="'pc'"/>
@@ -436,9 +439,10 @@
                                 <span class="wj-pc-kv__value wj-pc-kv__value--primary" t-out="pc_badge[0]"/>
                             </div>
                         </div>
-                    </div>
+                    </t>
 
-                    <div class="wj-pc-card">
+                    <t t-call="wujia_portal_layout.wj_surface_card">
+                        <t t-set="sc_class" t-value="'wj-pc-card'"/>
                         <t t-call="wujia_portal_layout.wj_card_header">
                             <t t-set="ch_title">Đơn liên quan</t>
                             <t t-set="ch_platform" t-value="'pc'"/>
@@ -467,11 +471,12 @@
                                 <span class="wj-pc-dlv-tl-label">Hoàn tất</span>
                             </div>
                         </div>
-                    </div>
+                    </t>
                 </div>
 
                 <!-- Products -->
-                <div class="wj-pc-card">
+                <t t-call="wujia_portal_layout.wj_surface_card">
+                    <t t-set="sc_class" t-value="'wj-pc-card'"/>
                     <!-- Nút "Tải danh sách" đi vào slot `control` (bề mặt bấm nhìn thấy được,
                          giữ nguyên class wj-pc-btn) chứ không phải `action` dạng chữ. -->
                     <t t-call="wujia_portal_layout.wj_card_header">
@@ -503,7 +508,7 @@
                             </tr>
                         </tbody>
                     </table>
-                </div>
+                </t>
             </div>
 
             <!-- Mobile <992px — Figma 4731:155 (delivery detail), batch-centric (S24) -->

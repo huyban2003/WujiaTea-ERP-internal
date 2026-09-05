@@ -22,7 +22,9 @@
                t-attf-class="wj-filter-chip #{'is-active' if priority == 'urgent' else ''}">Cần làm</a>
         </div>
 
-        <div t-if="part == 'pc'" id="wj-noti-pc" class="wj-pc-card">
+        <t t-call="wujia_portal_layout.wj_surface_card" t-if="part == 'pc'">
+            <t t-set="sc_class" t-value="'wj-pc-card'"/>
+            <t t-set="sc_id" t-value="'wj-noti-pc'"/>
             <t t-call="wujia_portal_layout.wj_card_header">
                 <t t-set="ch_title">Danh sách thông báo</t>
                 <t t-set="ch_subtitle">Hiển thị thông báo còn hiệu lực, đúng đối tượng nhận.</t>
@@ -123,7 +125,7 @@
                 <a t-attf-href="/portal/notification?page=#{pager['page_next']['num']}&amp;#{pager.get('querystring','')}"
                    t-attf-class="wj-pc-page-btn #{'is-disabled' if pager['page']['num'] &gt;= pager['page_count'] else ''}">Sau</a>
             </div>
-        </div>
+        </t>
 
         <!-- Meta PageHeader (CMP-PG-001 matrix: "{chưa đọc} chưa đọc"). Vẫn là slot AJAX
              riêng nên nằm trong header mà lọc vẫn thay được số. -->
@@ -354,7 +356,8 @@
 
                 <div class="wj-pc-two-col">
                     <!-- Trái: nội dung thông báo -->
-                    <div class="wj-pc-card">
+                    <t t-call="wujia_portal_layout.wj_surface_card">
+                        <t t-set="sc_class" t-value="'wj-pc-card'"/>
                         <!-- Biến thể flush vì thẻ hr ngay dưới đã là dải phân cách + nhịp 18px
                              của thiết kế cũ; header tự thêm 12px nữa là cộng chồng (spec cấm). -->
                         <t t-call="wujia_portal_layout.wj_card_header">
@@ -373,11 +376,12 @@
                             <i class="feather icon-alert-triangle"/>Thông báo khẩn — cần xử lý ngay
                         </p>
                         <div class="wj-pc-noti-detail-body" t-out="noti.content"/>
-                    </div>
+                    </t>
 
                     <!-- Phải: thông tin + tài liệu -->
                     <div class="wj-pc-noti-side">
-                        <div class="wj-pc-card">
+                        <t t-call="wujia_portal_layout.wj_surface_card">
+                            <t t-set="sc_class" t-value="'wj-pc-card'"/>
                             <t t-call="wujia_portal_layout.wj_card_header">
                                 <t t-set="ch_title">Thông tin thông báo</t>
                                 <t t-set="ch_platform" t-value="'pc'"/>
@@ -398,9 +402,10 @@
                                     <span class="wj-pc-kv__value" t-out="wj_dt(noti.published_date, '%d/%m/%Y · %H:%M') or '—'"/>
                                 </div>
                             </div>
-                        </div>
+                        </t>
 
-                        <div t-if="noti.attachment_ids" class="wj-pc-card">
+                        <t t-call="wujia_portal_layout.wj_surface_card" t-if="noti.attachment_ids">
+                            <t t-set="sc_class" t-value="'wj-pc-card'"/>
                             <t t-call="wujia_portal_layout.wj_card_header">
                                 <t t-set="ch_title">Tài liệu đính kèm</t>
                                 <t t-set="ch_platform" t-value="'pc'"/>
@@ -422,7 +427,7 @@
                                     </div>
                                 </t>
                             </div>
-                        </div>
+                        </t>
                     </div>
                 </div>
             </div>

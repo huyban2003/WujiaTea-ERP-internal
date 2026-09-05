@@ -27,7 +27,8 @@
             </form>
 
             <!-- Main PC Card -->
-            <div class="wj-pc-card">
+            <t t-call="wujia_portal_layout.wj_surface_card">
+                <t t-set="sc_class" t-value="'wj-pc-card'"/>
                 <!-- Card Header &amp; PC Tabs -->
                 <div class="wj-pc-card__head d-flex justify-content-between align-items-center">
                     <div>
@@ -136,7 +137,7 @@
                         </div>
                     </div>
                 </t>
-            </div>
+            </t>
         </div>
 
         <!-- ================= Mobile <992px ================= -->

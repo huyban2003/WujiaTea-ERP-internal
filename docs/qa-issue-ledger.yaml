@@ -1376,3 +1376,101 @@ WJ-FRANCHISE-003:
   impact: "Chỉ phần quản trị nhượng quyền ở giao diện nội bộ. Cổng thông tin của cửa hàng không đổi một dòng nào. Không thêm bảng, không đổi cấu trúc dữ liệu, không có bước cập nhật dữ liệu cũ: cửa hàng đang có trên máy chủ giữ nguyên trạng thái, chỉ cửa hàng tạo mới từ nay mới sinh ra ở Nháp. Điều kiện kích hoạt đặt ở nút bấm chứ không phải ràng buộc dữ liệu, nên cửa hàng cũ đang hoạt động mà thiếu chủ tiệm vẫn sửa và vận hành bình thường, không bị khoá cứng. Đã đọc số liệu thật trên máy chủ trước khi làm: ba cửa hàng đều đang hoạt động, không cửa hàng nào thiếu đối tác, một cửa hàng mã HN-02 thiếu chủ tiệm hiệu lực. Kiểm tra chạy trên một bản sao cơ sở dữ liệu riêng ở cổng riêng, không đụng máy chủ đang chạy: 18 phép thử mới đều đạt và mỗi lớp kiểm tra đều được chứng minh có tác dụng bằng cách tạm gỡ ra thấy đúng phép thử tương ứng đỏ; chạy lại toàn bộ 13 phần mềm liên quan được 299 phép thử với 7 lỗi, và lượt đối chứng chạy đúng lệnh đó trên bản chưa sửa cũng ra đúng 7 lỗi ấy, nên bảy lỗi đó là vốn có của cơ sở dữ liệu kiểm thử chứ không phải do đợt sửa này."
   retest: "Vào Quản lý nhượng quyền, mục Vận hành, chọn Onboarding cửa hàng. Nhập mã và tên cửa hàng, ngày kết thúc hợp đồng, chọn Tạo đối tác mới với tên và số điện thoại giống một đối tác đã có: hệ thống phải hiện danh sách nghi trùng và không cho lưu cho tới khi tích ô xác nhận. Thêm một dòng người dùng, chọn Tạo tài khoản mới, đặt vai trò Chủ tiệm và tích Chủ tiệm chính, rồi xác nhận. Kết quả phải là: cửa hàng hiện ra ở trạng thái Nháp, đã gắn đối tác, tab Thành viên có đúng một dòng. Vào phần Người dùng kiểm tài khoản vừa tạo: chỉ có quyền cổng thông tin, và hồ sơ liên hệ của tài khoản KHÔNG phải hồ sơ đối tác của cửa hàng. Chạy lại đúng màn onboarding đó lần nữa cho cùng cửa hàng: không được sinh thêm đối tác thứ hai, và thêm lại đúng người dùng cũ phải báo lỗi trùng thành viên chứ không tạo dòng thứ hai. Thử dòng người dùng chọn Dùng tài khoản sẵn có và trỏ vào một tài khoản nhân viên nội bộ: phải báo lỗi nói rõ đó là tài khoản nội bộ, và sau khi báo lỗi thì quyền của tài khoản đó phải y nguyên. Cuối cùng bấm Kích hoạt trên một cửa hàng Nháp chưa có chủ tiệm: phải bị chặn, báo rõ còn thiếu chủ tiệm, và cửa hàng vẫn ở Nháp; gán chủ tiệm rồi bấm lại thì mới chuyển sang Đang hoạt động."
   limit: "Thứ nhất, cửa hàng ở trạng thái Nháp mới chỉ bị chặn ở cổng thông tin của cửa hàng, còn ở giao diện nội bộ thì vẫn tạo và xác nhận đơn hàng, ghi sổ hoá đơn cho cửa hàng Nháp được. Chỗ chặn đó nằm trong phần vừa nghiệm thu ở đợt sửa trước về gắn cửa hàng cho chứng từ, đụng vào là phải chạy lại toàn bộ kiểm tra của đợt ấy, nên đợt này cố ý không đụng. Nhờ BA cho biết có cần chặn cả ở giao diện nội bộ không, nếu có thì mở một mục riêng. Thứ hai, mật khẩu và thư mời vẫn nằm ngoài phạm vi đúng như BA ghi: hệ thống không gửi thư nào khi tạo tài khoản, người quản trị tự đặt mật khẩu ở phần Người dùng rồi báo cho cửa hàng. Thứ ba, việc dò trùng theo số điện thoại chỉ so tám chữ số cuối, và bản Odoo này đã bỏ hẳn ô Di động trên hồ sơ đối tác nên không dò được ô đó. Thứ tư, đợt này chưa thao tác thật trên máy chủ kiểm thử vì quy định không tạo cửa hàng hay tài khoản thật ở đó, nên nhờ BA chạy lại kịch bản trên sau khi cài đặt. Thứ năm, còn một chỗ khác cũng đang tự sinh tài khoản cổng thông tin theo cách cũ là màn phiếu giám sát cửa hàng: nó tìm người theo tên rồi tự đặt tên đăng nhập ngẫu nhiên, đúng kiểu sinh tài khoản trùng mà mục này muốn dẹp, nhưng nằm ở luồng giám sát nên đợt này không sửa, đề nghị BA mở một mục riêng. Thứ sáu, toàn bộ mười hai điểm Dev phải tự quyết vì spec không nói đã ghi thành một bản riêng để BA rà, trong đó đáng chú ý là việc cửa hàng tạo tay ngoài màn onboarding từ nay cũng sinh ra ở Nháp, và cửa hàng mã HN-02 trên máy chủ hiện thiếu chủ tiệm hiệu lực."
+
+# =====================================================================================
+# UI-SURFACECARD-001 (STT 127) — D4b 04/09: mới phủ 12 trên 384 lượt dùng (~3%).
+# Issue CỐ Ý GIỮ `Ready for Dev`, CHƯA handoff — đúng tiền lệ C8a→C8b và D3a→D3f.
+# KHÔNG chạy qa_sync.py cho tới khi phủ đủ (kế hoạch chia lượt: D4b…D4f,
+# docs/next-session-clusters-D.md mục D4; kiểm kê: docs/d4-surfacecard-inventory.md).
+#
+# ✅ D4b XONG — hai họ `wujia-kpi-card` (4) + `wujia-content-card` (8), 6 file.
+#    Số đo: docs/d4b-acceptance-matrix.md.
+#    Dựng nền cho cả cụm: component `wj_surface_card` + 4 token density/gap/radius.
+#    Đạt đủ bảng BA ở 5 khổ: radius 16/14 · viền 1px #EEF2F5 (PC) / #E5E7EB (mobile) ·
+#    KHÔNG shadow · padding compact 16→12, regular 20→14 · gap 12/8.
+#    Acceptance BA #11 (số record thấy trong viewport không giảm): 25/25 ô ĐẠT.
+#    22 test, 0 failed; 10/10 guard chứng minh bằng mutation.
+#    RULE 1 + RULE 2 (d3-review-matrix §1) chạy lại: GIỐNG HỆT baseline, 0 cờ mới.
+#
+# 🔴 Ba điều D4c…D4f phải mang theo:
+#    1. Bẫy #4 của inventory §7 CÓ THẬT và RULE 1/2 KHÔNG bắt được: đặt `gap` ở rule
+#       gốc SurfaceCard làm nhịp header→body thành 24px (12 margin của wj_card_header
+#       + 12 gap) trong khi D3 vừa hội tụ về 12. RULE 1/2 sạch vì nó đo sự KHÔNG ĐỀU,
+#       mà lỗi này đều tay trên mọi card. Phải đo THẲNG nhịp (scratchpad/d4b_rhythm.py).
+#       ⇒ `gap` chỉ đặt ở biến thể xếp ngang (`--summary`), KHÔNG ở base.
+#    2. Chủ sở hữu dáng khung phải DUY NHẤT: rút hẳn background/radius/shadow/padding
+#       khỏi rule cũ của từng họ thay vì để hai rule cùng đặc hiệu (0,1,0) tranh nhau.
+#    3. `min-height` KHÔNG phải cách làm 4 thẻ cao bằng nhau — nó vốn không làm được
+#       (đo trước: 140/140/105/105 SO LE dù có min-height 100px). Cách đúng là
+#       height:100% trên cả thẻ <a> bọc ngoài lẫn card, để .row stretch chuyền xuống.
+#
+# ⚠️ LIMIT của riêng lượt này, ghi để lượt sau khỏi đo lại:
+#    - Hai họ này là PC-only: dưới 992px chúng render 0x0 ở 4/5 route ⇒ cột mobile của
+#      bảng BA gần như KHÔNG QUAN SÁT ĐƯỢC, chỉ /portal/info-request có một điểm đo thật.
+#      Rule mobile vẫn viết đủ vì D4d sẽ dùng lại chính component này cho họ mobile.
+#    - /portal/support có sẵn bảng tràn khỏi card ở 1024 (-7px) và 992 (-39px). Sau D4b:
+#      1024 hết hẳn, 992 còn -8px. Lỗi CÓ SẴN, D4b thu hẹp chứ không gây ra.
+# =====================================================================================
+
+# =====================================================================================
+# UI-SURFACECARD-001 (STT 127) — D4c 05/09: phủ thêm 36, tổng 48 trên 384 lượt (~12%).
+# Issue VẪN GIỮ `Ready for Dev`, CHƯA handoff — Dev KHÔNG tự đóng Done (QA Operating
+# Standard §2). Chỉ chạy qa_sync.py --apply khi chủ dự án chốt.
+#
+# ✅ D4c XONG — `wj-pc-card` (34) + `wj-pc-acct-headcard` (2) = 36 call site / 20 file,
+#    8 modifier CSS, 10 module `-u` đúng một lần (RC=0, 0 ERROR).
+#    Số đo đầy đủ: docs/d4c-acceptance-matrix.md. wujia_portal_layout → 19.0.34.0.0.
+#
+# FIX
+#    - Token --wj-pc-card-radius 18 → 16 (hội tụ về --wujia-surface-radius); thêm
+#      --wujia-surface-tonal (#F8FAFC) + --wujia-surface-tonal-radius (12px).
+#    - Component wj_surface_card: thêm ĐÚNG MỘT prop `sc_tone` (tonal) — nền D4b giữ nguyên.
+#    - Biến thể mới .wj-surface-card--tonal: nền tonal, KHÔNG viền, KHÔNG bóng, radius 12.
+#    - Rút hẳn dáng khung (nền/viền/bo góc/đệm) khỏi .wj-pc-card, .wj-pc-acct-headcard và
+#      7 modifier ⇒ .wj-surface-card là CHỦ SỞ HỮU DUY NHẤT (Luật #7).
+#    - 2 vi phạm lồng thẻ trắng của /portal/exam/register (.wj-exam-pc-cal, .wj-exam-pc-slots)
+#      chuyển sang --flush --tonal, giữ nguyên đệm riêng của từng panel.
+#
+# IMPACT (đo thật, getComputedStyle, 19 route × 5 khổ 1440/1024/992/390/360)
+#    - PC: radius 18→16, padding 24→16 (compact) / 22-24→20 (regular, headcard).
+#      Mobile: radius 14, padding 12. Viền 1px rgb(238,242,245), shadow none.
+#    - 4 bề mặt NGOÀI họ cùng ăn token (wj-pc-acct-nav, wj-pc-empty, wj-pc-order-head,
+#      wj-pc-cart): chỉ hội tụ radius 18→16, GIỮ NGUYÊN đệm riêng — đúng chủ ý.
+#    - Acceptance BA #11: KHÔNG ô nào giảm record trong viewport (116→118); recordsTotal
+#      không đổi (280→280); 26/95 ô GIẢM chiều cao trang, 0 ô tăng ⇒ mật độ tốt lên.
+#    - Vi phạm lồng thẻ trắng: 6 → 0. 185 bề mặt duyệt được cả trước lẫn sau (≠ đo rỗng).
+#    - 0 lỗi JS, 0 tràn ngang, 95/95 ô trả trang.
+#    - Nhịp header→body ĐO TUYỆT ĐỐI: histogram giống hệt trước–sau
+#      (12px×32 · 18px×14 · 23px×2 · 25px×2 · 0px×2) ⇒ D4c không xê dịch nhịp.
+#    - RULE 1 + RULE 2 (d3-review-matrix §1): giống hệt baseline, 0 cờ mới.
+#
+# RETEST (đề nghị BA soi trên UAT sau deploy)
+#    - /portal/exam/register @1440: nền tonal của lịch + khung giờ (thay thẻ trắng lồng nhau).
+#    - Mọi màn PC: khung hẹp lại 8px mỗi bên (padding 24→16) — kiểm bằng mắt xem có chỗ nào
+#      chữ/bảng chạm mép không.
+#    - 6 call site inspection/report: local phải dựng DB copy mới đo được (xem LIMIT 2).
+#
+# LIMIT
+#    1. /portal/debt/pay không đo được trên wujia_tea_19 (cửa hàng hết nợ ⇒ redirect
+#       notice=no_due, WJ-DEBT-007) ⇒ wj-debt-pc-paycard mới chỉ chứng minh bằng test tĩnh.
+#    2. 6 call site (inspection ×3, report ×3) đã đo trên DB COPY CÔ LẬP `wujia_tea_d4c`
+#       cổng 8074: `-i wujia_portal_inspection` RC=0, seed 1 phiếu need_remediation, và đổi
+#       tz anh.owner Asia/Saigon→Asia/Ho_Chi_Minh (CHỈ dữ liệu trên bản copy) để
+#       /portal/reports/orders trả 200. Cả 6 đo r16 · pad 16 (report flush 0) · 0 lỗi JS ·
+#       0 tràn ngang. KHÔNG sửa lỗi tz của cụm R3. Vẫn nên soi lại trên UAT sau deploy.
+#    3. .wj-debt-summary { height: 142px } GIỮ NGUYÊN — THIẾT KẾ S43, ngoài phạm vi.
+#    4. Chạy lại bảng đo C3 màn Công nợ (chốt của chủ dự án): mọi cam kết WJ-DEBT-002/003/
+#       005/008/009 đo lại đều ĐẠT. DELTA duy nhất: nhịp banner→tiêu đề đo 28px trong khi
+#       bảng C3 gốc (15/08) ghi 24px. KHÔNG do D4c — diff wujia_portal_debt lượt này chỉ
+#       chạm phần PC; chênh lệch đến từ cụm D3b khi wj_section_header thành component.
+#    5. Câu hỏi nhịp §3.4 của d3-review-matrix CHỜ CHỦ DỰ ÁN QUYẾT: 18/23/25px có kéo về
+#       12px không. Dev đã trình số thật + truy nguyên đến đúng dòng CSS, KHÔNG tự sửa.
+#       Đính chính: con số 36px ghi cho .wj-exam-pc-sumlist đã cũ — CSS hiện tại là 18px và
+#       hai card của /portal/exam/register đo 18px BẰNG NHAU, không lệch.
+#    6. Tiến độ cụm 48/384 ≈ 12% ⇒ giữ `Ready for Dev`, kế tiếp D4d (mobile, 51 lượt).
+#
+# TEST
+#    custom/wujia_portal_layout/tests/test_d4_surface_card.py (tag wujia_surface_card_d4):
+#    33 test — 0 failed / 0 error (22 của D4b + 11 mới). KHÔNG đẻ file test song song.
+#    scratchpad/d4c_mutate.sh: 10/10 đột biến ĐỎ ĐÚNG CHỖ + 1 run đối chứng không đột biến.
+# =====================================================================================

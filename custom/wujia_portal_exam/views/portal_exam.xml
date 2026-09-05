@@ -68,7 +68,9 @@
                         </div>
                     </form>
 
-                    <div class="wj-pc-card wj-exam-pc-card" id="wj-exam-pc-body">
+                    <t t-call="wujia_portal_layout.wj_surface_card">
+                        <t t-set="sc_class" t-value="'wj-pc-card wj-exam-pc-card'"/>
+                        <t t-set="sc_id" t-value="'wj-exam-pc-body'"/>
                         <div class="wj-pc-card__head wj-exam-pc-card__head">
                             <t t-call="wujia_portal_layout.wj_card_header">
                                 <t t-set="ch_title">Lịch sử đăng ký</t>
@@ -153,7 +155,7 @@
                             <a t-attf-href="/portal/exam?page=#{min(pc_pager['pages'], pc_pager['page'] + 1)}#{'&amp;' + querystring if querystring else ''}"
                                t-attf-class="wj-pc-page-btn #{'is-disabled' if pc_pager['page'] &gt;= pc_pager['pages'] else ''}">›</a>
                         </div>
-                    </div>
+                    </t>
                 </div>
             </div>
 
@@ -252,7 +254,8 @@
 
                     <div class="wj-pc-two-col wj-exam-pc-two-col">
                         <!-- ============ CỘT TRÁI — biểu mẫu ============ -->
-                        <div class="wj-pc-card wj-exam-pc-fcard">
+                        <t t-call="wujia_portal_layout.wj_surface_card">
+                            <t t-set="sc_class" t-value="'wj-pc-card wj-exam-pc-fcard'"/>
 
                             <!-- 1. Thông tin đăng ký -->
                             <t t-call="wujia_portal_layout.wj_card_header">
@@ -291,7 +294,7 @@
                             <div class="wj-exam-pc-schedule">
                                 <!-- Lịch tháng — dữ liệu THẬT (biến `calendar`); JS đổi
                                      tháng/khóa qua /portal/exam/calendar. -->
-                                <div class="wj-exam-pc-cal" data-wj-exam-cal="1"
+                                <div class="wj-surface-card wj-surface-card--flush wj-surface-card--tonal wj-exam-pc-cal" data-wj-exam-cal="1"
                                      t-att-data-exam-year="calendar['year']"
                                      t-att-data-exam-month="calendar['month']">
                                     <div class="wj-exam-pc-cal__head">
@@ -351,7 +354,7 @@
                                 </div>
 
                                 <!-- Khung giờ -->
-                                <div class="wj-exam-pc-slots" data-wj-exam-slots="1">
+                                <div class="wj-surface-card wj-surface-card--flush wj-surface-card--tonal wj-exam-pc-slots" data-wj-exam-slots="1">
                                     <t t-call="wujia_portal_layout.wj_card_header">
                                         <t t-set="ch_title">Khung giờ ngày <t t-out="pc_summary['exam_date']"/></t>
                                         <t t-set="ch_subtitle"><t t-out="pc_summary['course_name']"/> · giờ địa phương</t>
@@ -442,10 +445,10 @@
                                 <button type="button" class="wj-pc-btn wj-pc-btn--primary wj-exam-pc-checkbtn"
                                         data-wj-exam-check="1">Kiểm tra thông tin</button>
                             </div>
-                        </div>
+                        </t>
 
                         <!-- ============ CỘT PHẢI — tóm tắt ============ -->
-                        <aside class="wj-pc-card wj-exam-pc-sumcard">
+                        <aside class="wj-surface-card wj-pc-card wj-exam-pc-sumcard">
                             <t t-call="wujia_portal_layout.wj_card_header">
                                 <t t-set="ch_title">Tóm tắt đăng ký</t>
                                 <t t-set="ch_subtitle">Thông tin sẽ được gửi để Ngô Gia xác nhận.</t>
@@ -948,7 +951,8 @@
                         <i class="feather icon-chevron-left"/>Quay lại
                     </a>
 
-                    <div class="wj-pc-card wj-exam-pc-dcard">
+                    <t t-call="wujia_portal_layout.wj_surface_card">
+                        <t t-set="sc_class" t-value="'wj-pc-card wj-exam-pc-dcard'"/>
                         <div class="wj-pc-card__head wj-exam-pc-dhead">
                             <t t-call="wujia_portal_layout.wj_card_header">
                                 <t t-set="ch_title">Thông tin đăng ký</t>
@@ -1055,7 +1059,7 @@
                                 <p class="wj-exam-pc-banner__text" t-out="pc_detail['banner_text']"/>
                             </div>
                         </div>
-                    </div>
+                    </t>
                 </div>
             </div>
 

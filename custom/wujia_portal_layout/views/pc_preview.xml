@@ -97,7 +97,8 @@
 
                     <!-- Data table -->
                     <h5 style="margin:24px 0 12px;color:#6B7280;">Data table (header 50 · row 58)</h5>
-                    <div class="wj-pc-card">
+                    <t t-call="wujia_portal_layout.wj_surface_card">
+                        <t t-set="sc_class" t-value="'wj-pc-card'"/>
                         <div class="wj-pc-card__head">
                             <div>
                                 <h3 class="wj-pc-card__title">Danh sách đơn hàng</h3>
@@ -157,7 +158,7 @@
                             <a href="#" class="wj-pc-page-btn">3</a>
                             <a href="#" class="wj-pc-page-btn">›</a>
                         </div>
-                    </div>
+                    </t>
 
                     <!-- Form fields -->
                     <h5 style="margin:24px 0 12px;color:#6B7280;">Form fields (h42)</h5>

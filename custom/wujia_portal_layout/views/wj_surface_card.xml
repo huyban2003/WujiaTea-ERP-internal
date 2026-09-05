@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- WJ_SurfaceCard — component chuẩn hoá KHUNG card portal (BA CMP-SC-001).
+         Ranh giới: khung là chỗ này; tiêu đề trong khung là wj_card_header
+         (CMP-CH-001). Component này KHÔNG khai dáng tiêu đề.
+
+         sc_variant  section (mặc định) | record | summary | transactional
+         sc_density  compact (mặc định, BA chốt compact-first) | regular
+         sc_body     padded (mặc định) | flush  — flush cho bảng/list tràn mép
+         sc_tone     tonal ⇒ vùng phụ LỒNG trong card: nền #F8FAFC, không viền
+         sc_href     có ⇒ interactive wholeCard, bọc thẻ <a> quanh khung
+         sc_class    lớp cũ của call site, giữ để CSS con và :is() hover không đứt
+         sc_link_class  lớp cũ của thẻ <a> bọc ngoài, cùng lý do
+
+         🔴 KHÔNG khai chiều cao: BA cấm khoá cứng. Thẻ cùng hàng cao bằng nhau
+         bằng height:100% ở CSS, không phải min-height. -->
+    <template id="wj_surface_card" name="Wujia — Surface Card component">
+        <t t-set="_sc_var"
+           t-value="sc_variant if sc_variant in ('record', 'summary', 'transactional') else 'section'"/>
+        <t t-set="_sc_den" t-value="'regular' if sc_density == 'regular' else 'compact'"/>
+        <t t-set="_sc_body" t-value="'flush' if sc_body == 'flush' else 'padded'"/>
+        <t t-set="_sc_tone" t-value="' wj-surface-card--tonal' if sc_tone == 'tonal' else ''"/>
+        <t t-set="_sc_cls"
+           t-valuef="wj-surface-card wj-surface-card--{{_sc_var}} wj-surface-card--{{_sc_den}} wj-surface-card--{{_sc_body}}{{_sc_tone}} {{sc_class or ''}}"/>
+
+        <a t-if="sc_href" t-att-href="sc_href"
+           t-attf-class="wj-surface-card-link #{sc_link_class or ''}">
+            <div t-att-id="sc_id" t-att-class="_sc_cls">
+                <t t-out="0"/>
+            </div>
+        </a>
+        <div t-else="" t-att-id="sc_id" t-att-class="_sc_cls">
+            <t t-out="0"/>
+        </div>
+    </template>
+</odoo>

@@ -25,7 +25,10 @@
 
             <t t-call="wujia_portal_layout.pc_account_layout">
                 <!-- Header card -->
-                <div class="wj-pc-acct-headcard">
+                <t t-call="wujia_portal_layout.wj_surface_card">
+                    <t t-set="sc_variant" t-value="'record'"/>
+                    <t t-set="sc_density" t-value="'regular'"/>
+                    <t t-set="sc_class" t-value="'wj-pc-acct-headcard'"/>
                     <span class="wj-pc-acct-headcard__icon">
                         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
                              stroke="currentColor" stroke-width="2" stroke-linecap="round"
@@ -53,10 +56,11 @@
                             <t t-else="">Nhân viên cửa hàng</t>
                         </span>
                     </div>
-                </div>
+                </t>
 
                 <!-- Panel: Thông tin nhượng quyền -->
-                <div class="wj-pc-card">
+                <t t-call="wujia_portal_layout.wj_surface_card">
+                    <t t-set="sc_class" t-value="'wj-pc-card'"/>
                     <t t-call="wujia_portal_layout.wj_card_header">
                         <t t-set="ch_title">Thông tin nhượng quyền</t>
                         <t t-set="ch_subtitle">Thông tin chính của cửa hàng hiện tại</t>
@@ -90,10 +94,11 @@
                             <span class="wj-pc-acct-field__value" t-out="nguoi_phu_trach"/>
                         </div>
                     </div>
-                </div>
+                </t>
 
                 <!-- Panel: Thành viên cửa hàng — 3 trạng thái -->
-                <div class="wj-pc-card">
+                <t t-call="wujia_portal_layout.wj_surface_card">
+                    <t t-set="sc_class" t-value="'wj-pc-card'"/>
                     <t t-if="is_owner_manager">
                         <t t-call="wujia_portal_layout.wj_card_header">
                             <t t-set="ch_title">Thành viên cửa hàng</t>
@@ -167,7 +172,7 @@
                             </div>
                         </div>
                     </t>
-                </div>
+                </t>
             </t>
 
             <!-- ===== Mobile (<992px) — Figma Mobile_Account_Info màn 02 "Thông tin cửa hàng".

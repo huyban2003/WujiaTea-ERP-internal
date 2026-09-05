@@ -467,25 +467,140 @@ B4 286/286, tab-walk 346 stop) · D1 **27/28**.
   rẽ `t-if/t-elif/t-else` như `wj_section_header`.
 - ⚠️ Trailing slot render **markup thô không bọc element** để `wj_ajax_list` swap được.
 
-## D4 — SurfaceCard `CMP-SC-001` (UI-SURFACECARD-001) — cụm to nhất, D4a…D4n
+## D4 — SurfaceCard `CMP-SC-001` (UI-SURFACECARD-001) — D4a…D4f
 
-> Prompt: "làm cụm D4a". 4 variant BA chốt: `section` / `record` / `summary` / `transactional`;
-> props `density` (compact mặc định), `bodyMode` (`padded|flushBody`), `interactive`
-> (`none|wholeCard|actions`).
+> **D4a XONG 04/09/2026** — kiểm kê + kế hoạch chia lượt, **0 dòng code**.
+> Bảng đầy đủ: **`docs/d4-surfacecard-inventory.md`**. Đọc nó TRƯỚC khi làm bất kỳ lượt nào.
 
-- **D4a:** kiểm kê họ card (`wj-pc-card` 154, `wujia-mdash-card` 36, `wujia-morder-card` 35,
-  `wujia-content-card*` ~90, `wujia-mexam/mhist/maccount/mknow-card`…) → bảng
-  `docs/d4-surfacecard-inventory.md` map **từng cụm class → variant** theo đúng bảng "MAPPING
-  VARIANT + DATA THEO MÀN HÌNH" BA viết sẵn. Dựng component + migrate 1 màn mẫu mỗi variant, đo.
-- **D4b…D4n:** migrate theo **nhóm component, không theo route** (BA cấm tạo variant theo tên
-  route/màn hình).
-- Con số: desktop radius 16, border 1px `#EEF2F5`, **không shadow mặc định**, padding compact 16
-  / regular 20, gap 12; mobile radius 14, border `#E5E7EB`, padding 12/14, gap 8; **cấm lồng
-  white card trong white card** (vùng phụ dùng tonal inset `#F8FAFC` radius 12).
-- 🔴 Đây là chỗ **áp số BA làm đổi mật độ thật** (desktop đang nhiều card padding 22–28) ⇒ mỗi
-  màn một bảng đo trước–sau; ghi LIMIT ở chỗ số mới **mâu thuẫn issue đã Pass** (nhịp 16/8 của
-  `CMP-SH-001` chốt ở C8b; số đo debt của S43/C3).
-- Hex trong spec phải vào `_variables.css` thành token `--wujia-*` (rule "không hex cứng").
+**Quy mô:** 442 lượt / 67 họ thô → **384 lượt / 65 họ trong phạm vi**; trong đó **27 họ /
+246 lượt là SHELL thật**. Gấp hơn bốn lần D3.
+
+**Điều làm D4 nguy hiểm hơn D3:** D3 đổi cỡ chữ *bên trong* thẻ; D4 đổi **chính cái khung**
+⇒ mọi trang đổi chiều cao thật, và **nhịp header→body 12px mà D3 vừa hội tụ cũng đổi theo**.
+
+### 🔴 Ràng buộc ĐO ĐƯỢC — quyết định thứ tự lượt nhiều hơn cả kích cỡ
+
+Ba route **không đo được trên máy local**, phát hiện khi đo D4a:
+
+| Route | Vì sao | Kéo theo họ nào |
+|---|---|---|
+| `/portal/reports/orders` | **500 có sẵn** — tz `Asia/Saigon`, cụm **R3** | `wj-rep-mcard` (16) + `wj-pc-metric-card` phần báo cáo (20) |
+| `/portal/inspection*` | `wujia_portal_inspection` **`uninstalled`** trên DB dev | toàn bộ nhóm Khảo sát (21) + `wj-pc-metric-card` phần khảo sát (24) |
+
+⇒ **`wj-pc-metric-card` (44 lượt — họ to thứ nhì) nằm TRỌN trong hai route không đo được.**
+Đó là lý do nó **không** được chọn làm lượt hiệu chỉnh, dù nó gọn nhất về file. Không có bảng
+đo trước–sau thì không được migrate — đúng luật số 2 dưới đây.
+
+### Luật chung cho MỌI lượt D4b…D4f
+
+1. **Đúng một lần `-u`** mỗi lượt.
+2. **Một bảng đo trước–sau** ở đủ 5 khổ BA chỉ định (**1440 · 1024 · 992/991 · 390 · 360**),
+   gồm chiều cao trang **và số record thấy trong viewport** (acceptance #11 của BA: số record
+   thấy được **không được giảm** nếu BA/UI chưa duyệt).
+3. 🔴 **Chạy lại RULE 1 + RULE 2 của `d3-review-matrix.md`** (`scratchpad/d3_review.py`) sau
+   mỗi lượt — đổi padding khung là đổi nhịp header→body mà D3 vừa hội tụ. **Không được coi
+   D3 là đã xong.** ⚠️ **D4b chứng minh: RULE 1/2 là điều kiện CẦN, KHÔNG ĐỦ** — chúng đo
+   *sự không đều giữa các card*, nên một sai số **đều tay trên mọi card** lọt qua sạch sẽ.
+   Phải kèm **một phép đo TUYỆT ĐỐI** nhịp header→body (`scratchpad/d4b_rhythm.py`).
+   `--portal-login anh.owner` là **bắt buộc**: mặc định của script là `None` ⇒ rơi về `admin`
+   ⇒ 0 bề mặt mà vẫn báo chạy xong (bẫy "Pass rỗng").
+4. Chỗ nào **lồng ≥2** hoặc đổi padding khung ⇒ **bắt buộc chụp ảnh**, đừng tin bảng số
+   (bài học D3e: badge trôi 966px mà mọi số vẫn Pass).
+5. Đo rồi mới thêm rule; đặc hiệu của rule scope mới phải đếm **so với chính các rule cùng
+   file**, không chỉ so với component (bẫy `:not()` đã tái xuất **2 lần**).
+6. Guard phải chứng minh bằng **mutation** (tạm gỡ ra, thấy đúng test tương ứng đỏ) —
+   `assertIn` là guard giả. ⚠️ Test dùng `subTest` in ra `FAIL: Subtest Lop.test (params)` —
+   bộ dò mutation thiếu chữ `Subtest` sẽ **báo guard rỗng oan** (dính ở D4b).
+7. 🆕 **Chủ sở hữu DUY NHẤT dáng khung.** Khi migrate một họ sang `wj-surface-card`, **rút hẳn**
+   `background`/`border`/`border-radius`/`padding`/`box-shadow`/`gap` khỏi rule cũ, đừng để hai
+   rule cùng đặc hiệu `(0,1,0)` cùng khai rồi phân xử bằng thứ tự nguồn. Lớp cũ **giữ nguyên ở
+   call site** (qua `sc_class`) để CSS con và 3 danh sách `:is()` của `_interaction.css` không đứt.
+8. 🆕 **`gap` chỉ đặt ở biến thể xếp ngang (`--summary`), CẤM đặt ở rule gốc** — cộng chồng với
+   `margin` của `wj_card_header` thành 24px (xem bài học D4b).
+9. 🆕 **Không khoá chiều cao** (BA cấm) — nhưng `min-height` cũng **chưa bao giờ** làm các thẻ
+   cao bằng nhau. Cách đúng: `height: 100%` trên **cả** `<a>` bọc ngoài lẫn card.
+
+### Thứ tự lượt — chia theo HỌ, không theo màn (BA cấm variant theo route)
+
+| Lượt | Họ | Lượt / file | `-u` | Rủi ro chính | Vì sao xếp ở đây |
+|---|---|---:|---|---|---|
+| ✅ **D4b XONG (04/09)** | `wujia-kpi-card` + `wujia-content-card` — **nhóm "bỏ shadow, thêm viền"** | 12 / 6 | `wujia_portal_layout`, `wujia_portal_base` | Thấp — cả hai chỉ lệch **đúng một luật**: có `--wujia-card-shadow` (BA: không shadow) và **thiếu viền**; `wujia-kpi-card` là `wholeCard` ⇒ kiểm luôn focus/hover sau khi bỏ shadow | Gọn, **và quan trọng hơn: 5/5 route dùng nó đều ĐO ĐƯỢC trên máy local** (`/portal` 8 bề mặt · `/knowledge` 2 · `/support` 1 · `/return` 1 · `/info-request` 1) ⇒ dùng để **hiệu chỉnh chính bảng đo trước–sau**. Sai ở đây thì rẻ |
+| ✅ **D4c XONG (05/09)** | `wj-pc-card` (34) + `wj-pc-acct-headcard` (2) + **8 modifier** (không phải 9 — `wj-dlv-pc-card` là `id=`, không tồn tại) | **36 call site / 20 file** | 10 module portal | 🔴 Cao nhất cụm — đã đi qua: radius **18→16** (6 rule tiêu thụ token, 4 nằm NGOÀI họ), padding **24→16**, 5 call site không thể thành `<div>` | Số đo đầy đủ: **`docs/d4c-acceptance-matrix.md`**. 185 bề mặt · 0 ô mất record · 26/95 ô thấp xuống · **lồng thẻ trắng 6→0** · 33 test / 10 đột biến đỏ đúng chỗ |
+| **D4d** | Mobile: `wujia-mdash-card` + `mhist`/`mknow`/`mnoti`/`mres`/`mexam`/`mdelivery-prodcard` + `wj-filter-card` | 51 / 18 | 10 module portal | Trung bình — `wujia-mdash-card` **đã đúng cả 3 số**, phần lớn việc là padding 16→12 và viền `#EEF2F5`→`#E5E7EB` | Cùng bộ token `--wujia-morder-*` ⇒ một nhóm rủi ro đồng nhất. `wujia-mdash-card` là `wholeCard` ⇒ kiểm luôn touch target 44×48 |
+| **D4e** | `wj-rep-mcard` + **20 lượt `wj-pc-metric-card` của trang báo cáo** | 36 / 2 | `wujia_portal_report`, `wujia_portal_layout` | Trung bình — `wj-rep-mcard` **không có viền hẳn**, thêm viền là đổi hình học 16 khối báo cáo | 🔴 **Chặn kỹ thuật: `/portal/reports/orders` đang 500 có sẵn** (tz `Asia/Saigon`, cụm **R3**) ⇒ **không đo được trên local**. Hoặc **chạy R3 trước**, hoặc đo trên UAT. Đừng xếp lượt này khi chưa gỡ chặn |
+| **D4f** | Bootstrap thô `card`/`card-header`/`card-footer`/`card-body` (trừ 2 file legacy) | 75 / 13 | `wujia_portal_base`, `_return`, `_sale`, `_support`, `_knowledge`, `_info_request` | 🔴 **Blast radius lớn nhất** — `.card` là lớp dùng chung của Bootstrap, đụng vào là dễ lan ra ngoài phạm vi portal | **CUỐI**, đúng chỉ đạo. Sau D4b–D4e đã có component chuẩn thì đây chỉ còn là việc thay lớp, không phải việc quyết số |
+| — | `wj-auth-card` (15) | 15 / 1 | — | — | 🔒 **THIẾT KẾ S39 — giữ dáng.** Dev tự quyết theo luật D3f |
+| — | **24 lượt `wj-pc-metric-card` của màn Khảo sát** | 24 / 1 | — | — | Đi theo nhóm Khảo sát: BA ghi provisional, **và** `wujia_portal_inspection` đang `uninstalled` trên DB dev ⇒ **không đo được trên local** |
+| — | Nhóm Khảo sát (11 họ / 21 lượt) | 21 / 5 | — | — | BA ghi *"provisional, chưa có seed data"* + acceptance #12. Lệch nặng nhất portal nhưng **chưa khoá field mapping**; DB dev còn `uninstalled` ⇒ chưa đo được |
+
+### 🔴 Bài học D4b — đọc trước khi làm D4c
+
+Số đo trước–sau đầy đủ: **`docs/d4b-acceptance-matrix.md`**. Ba điều chỉ phép đo mới thấy:
+
+1. **Bẫy #4 của inventory §7 CÓ THẬT, và RULE 1/2 mù trước nó.** `gap` ở rule gốc SurfaceCard
+   cộng chồng margin `wj_card_header` ⇒ nhịp header→body **24px** trong khi D3 vừa hội tụ 12px.
+   RULE 1 + RULE 2 vẫn **sạch tuyệt đối** vì lỗi đều tay mọi card. ⇒ luật chung #3 và #8.
+2. **4 thẻ KPI vốn ĐANG SO LE** dù có `min-height: 100px` — đo được `[140,140,105,105]` @1440.
+   Bỏ `min-height` theo lệnh BA **đồng thời sửa lỗi có sẵn**: `height:100%` cho `[142×4]`. ⇒ #9.
+3. **Baseline dễ nhiễm.** Odoo 19 **tự regenerate asset bundle theo checksum** kể cả khi không
+   bật `--dev` ⇒ sửa CSS là ăn ngay. Muốn chụp baseline sau khi đã lỡ sửa thì phải
+   `git stash push` đúng file CSS, đo, rồi `stash pop`.
+
+Ngoài ra: `_render()` của `ir_qweb.py:712` **cố ý pop `values['0']`** ⇒ test slot `0` phải tạo
+`ir.ui.view` chứa `t-call` thật, không bơm `0` vào `_render` được.
+
+**Còn lại của cụm: 234 lượt / 25 họ** (D4c 87 · D4d 51 · D4e 36 · D4f 75, cộng phần treo).
+`--wujia-surface-tonal` **chưa đẻ** — cố ý hoãn sang D4c, nơi nó thực sự có người dùng.
+
+### 🔴 Bài học D4c — đọc trước khi làm D4d
+
+Số đo đầy đủ: **`docs/d4c-acceptance-matrix.md`**. Bốn điều đáng mang sang lượt sau:
+
+1. **Kiểm kê là SÀN.** Bảng §4 của D4a nói `--wj-pc-card-radius` có 4 rule tiêu thụ — thật ra
+   **6**, vì 4 bề mặt trắng PC (`wj-pc-acct-nav`, `wj-pc-empty`, `wj-pc-order-head`, `wj-pc-cart`)
+   **không có chữ "card" trong tên** nên quét tĩnh không ra. Trước mỗi lượt phải grep lại
+   **từng token**, đừng tin bảng họ.
+2. **QWeb Odoo 19 không đổi được tên thẻ** ⇒ call site là `<form>`/`<aside>`/`<section>` thì
+   `t-call` sẽ nuốt mất thẻ (mất route POST, mất landmark). Cách đúng: **thêm thẳng class
+   `.wj-surface-card`** vào thẻ gốc. D4d/D4f chắc chắn gặp lại — mobile có nhiều `<a>`/`<li>`.
+3. **Guard so chuỗi con là bẫy.** `test_..._no_longer_declares_padding` đỏ oan vì
+   `top: var(--wj-pc-content-padding)` **chứa** chữ "padding". Phải khớp *khai báo thuộc tính*:
+   `(?:^|;)\s*padding\s*:`. Test sai → sửa test, đừng sửa code cho vừa test.
+4. **Đo tuyệt đối trả lời được câu hỏi mà RULE 1/2 không trả lời nổi.** Histogram nhịp
+   header→body của toàn portal PC: `12×32 · 18×14 · 23×2 · 25×2 · 0×2`, **giống hệt trước và sau**
+   ⇒ D4c không xê dịch nhịp. Nguồn từng con số đã truy nguyên đến đúng dòng CSS (matrix §4) —
+   phần lớn độ lệch là do **`.wj-pc-card__head` chưa migrate CardHeader**, không phải do khung.
+
+**Còn lại của cụm: 198 lượt / 22 họ** (D4d 51 · D4e 36 · D4f 75, cộng phần treo). Tiến độ
+**48/384 ≈ 12%** ⇒ `UI-SURFACECARD-001` **vẫn `Ready for Dev`**, chưa đủ để handoff.
+
+### ✅ Việc phải làm TRƯỚC lượt D4b — dựng nền *(D4b đã làm xong)*
+
+- Thêm token vào `_variables.css`: **`--wujia-surface-tonal` (`#F8FAFC`)** +
+  `--wujia-surface-tonal-radius: 12px` + 4 token density (16/20/12/14) + 2 token gap (12/8).
+  **2 trong 3 hex BA chốt đã có tên sẵn** (`--wujia-border-soft`, `--wujia-border`) — dùng
+  lại, đừng đẻ token trùng hex.
+- Dựng component `wj_surface_card` (khuôn `wj_card_header` của D3a): 4 biến thể
+  `section`/`record`/`summary`/`transactional` × props `density`/`bodyMode`/`interactive`.
+- Cột `interactive` **đọc từ CSS, không đoán**: danh sách `:is(...)` ở `_interaction.css`
+  chính là bản kiểm kê "thẻ bấm được cả khối" có sẵn.
+
+### 🟢 KHÔNG có câu hỏi nào chặn D4 — cả bốn chỗ Dev tự quyết
+
+Bốn chỗ ban đầu tưởng phải hỏi BA, rà kỹ thì quyết được hết (inventory §6). Văn bản **thông
+báo** (không phải câu hỏi) gửi BA: `docs/ba-notice-d4-surfacecard.md`.
+
+1. **`wj-filter-card` (7) + `wj-pc-acct-headcard` (20)** — câu (a)/(d)/(e) đang treo ở
+   `UI-CARDHEADER-001` chỉ hỏi về **tiêu đề và khối bên phải**, không đụng gì tới **khung**
+   ⇒ tách đôi: khung làm ngay ở D4c/D4d, slot vẫn chờ. **Gỡ 27 lượt khỏi hàng chờ.**
+2. **`height: 142px` card tổng Công nợ (S43)** chỏi *"không đặt fixed height"* ⇒ **giữ 142**,
+   cùng luật với `wj-auth-card`: bản vẽ Figma cụ thể BA đã duyệt thắng quy tắc chung. Ghi LIMIT.
+3. **Nhóm Khảo sát** — **chính BA đã viết** *"provisional, chưa khoá field mapping"* +
+   acceptance #12 ⇒ để nguyên, hỏi lại là thừa.
+4. **`wj-auth-card`** — THIẾT KẾ S39, giữ dáng.
+
+*(gap card 12/8 vs nhịp SectionHeader 16/8 của C8b: **không chỏi thật** — một cái là khoảng
+cách ngoài card, một cái là giữa hai card. Ghi ở inventory §7 để phiên sau khỏi nhầm.)*
 
 ## D5 — DataList `CMP-DL-001` (UI-DATALIST-001) — D5a…D5n
 

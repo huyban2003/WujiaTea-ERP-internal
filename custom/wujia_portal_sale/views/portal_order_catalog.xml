@@ -13,7 +13,8 @@
         <t t-set="has_spec" t-value="any(p.wujia_packaging for p in products)"/>
         <div t-if="part == 'pc'" id="wj-ord-pc">
             <!-- Product card -->
-            <div class="wj-pc-card wj-pc-order-card">
+            <t t-call="wujia_portal_layout.wj_surface_card">
+                <t t-set="sc_class" t-value="'wj-pc-card wj-pc-order-card'"/>
                 <t t-call="wujia_portal_layout.wj_section_header">
                     <t t-set="sh_title">Danh sách sản phẩm</t>
                     <t t-set="sh_level" t-value="3"/>
@@ -70,7 +71,7 @@
                         </tbody>
                     </table>
                 </t>
-            </div>
+            </t>
 
             <!-- Pager (numbered — wj-pc) -->
             <nav t-if="pager and pager.get('page_count', 0) &gt; 1"

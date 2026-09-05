@@ -241,7 +241,7 @@
                     </div>
 
                     <div class="wj-rep-pcrow">
-                        <section class="wj-pc-card wj-rep-pccard wj-rep-pccard--chart">
+                        <section class="wj-surface-card wj-surface-card--flush wj-pc-card wj-rep-pccard wj-rep-pccard--chart">
                             <t t-call="wujia_portal_layout.wj_card_header">
                                 <t t-set="ch_title">Đơn hàng theo tháng</t>
                                 <t t-set="ch_level" t-value="2"/>
@@ -261,7 +261,7 @@
                             </div>
                         </section>
 
-                        <section class="wj-pc-card wj-rep-pccard wj-rep-pccard--state">
+                        <section class="wj-surface-card wj-surface-card--flush wj-pc-card wj-rep-pccard wj-rep-pccard--state">
                             <t t-call="wujia_portal_layout.wj_card_header">
                                 <t t-set="ch_title">Phân bổ trạng thái</t>
                                 <t t-set="ch_level" t-value="2"/>
@@ -291,7 +291,7 @@
                         </section>
                     </div>
 
-                    <section class="wj-pc-card wj-rep-pccard wj-rep-pccard--top">
+                    <section class="wj-surface-card wj-surface-card--flush wj-pc-card wj-rep-pccard wj-rep-pccard--top">
                         <!-- CMP-CH-001: count cố ý BỎ `t-if` — spec ghi rõ "Count 0 vẫn hiển thị". -->
                         <t t-call="wujia_portal_layout.wj_card_header">
                             <t t-set="ch_title">Top sản phẩm đặt hàng nhiều nhất</t>

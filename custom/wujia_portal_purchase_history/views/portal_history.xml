@@ -29,7 +29,9 @@
         </span>
 
         <!-- ===== PC: card bảng danh sách đơn ===== -->
-        <div t-if="part == 'pc'" id="wj-hist-pc" class="wj-pc-card">
+        <t t-call="wujia_portal_layout.wj_surface_card" t-if="part == 'pc'">
+            <t t-set="sc_class" t-value="'wj-pc-card'"/>
+            <t t-set="sc_id" t-value="'wj-hist-pc'"/>
             <!-- CMP-CH-001: count cố ý BỎ `t-if` — spec ghi rõ "Count 0 vẫn hiển thị". -->
             <t t-call="wujia_portal_layout.wj_card_header">
                 <t t-set="ch_title">Danh sách đơn hàng</t>
@@ -113,7 +115,7 @@
                 <a t-attf-href="/portal/purchase-history?page=#{pager['page_next']['num']}&amp;#{pager['querystring'] or ''}"
                    t-attf-class="wj-pc-page-btn #{'is-disabled' if pager['page']['num'] &gt;= pager['page_count'] else ''}">Sau</a>
             </div>
-        </div>
+        </t>
 
         <!-- ===== Mobile: chip preset (nằm trong form lọc) ===== -->
         <div t-if="part == 'mchips'" id="wj-hist-mchips" class="wj-filter-chips">
@@ -416,7 +418,8 @@
 
                         <!-- 2 panel thông tin -->
                         <div class="wj-pc-two-col">
-                            <div class="wj-pc-card">
+                            <t t-call="wujia_portal_layout.wj_surface_card">
+                                <t t-set="sc_class" t-value="'wj-pc-card'"/>
                                 <t t-call="wujia_portal_layout.wj_card_header">
                                     <t t-set="ch_title">Thông tin đơn hàng</t>
                                     <t t-set="ch_level" t-value="3"/>
@@ -440,8 +443,9 @@
                                         <span class="wj-pc-kv__value wj-pc-kv__value--primary" t-out="h['state_label']"/>
                                     </div>
                                 </div>
-                            </div>
-                            <div class="wj-pc-card">
+                            </t>
+                            <t t-call="wujia_portal_layout.wj_surface_card">
+                                <t t-set="sc_class" t-value="'wj-pc-card'"/>
                                 <t t-call="wujia_portal_layout.wj_card_header">
                                     <t t-set="ch_title">Batch / giao hàng</t>
                                     <t t-set="ch_level" t-value="3"/>
@@ -465,11 +469,12 @@
                                         <span class="wj-pc-kv__value" t-out="b and b['departure'] and b['departure'].strftime('%d/%m/%Y · %H:%M') or '—'"/>
                                     </div>
                                 </div>
-                            </div>
+                            </t>
                         </div>
 
                         <!-- Bảng sản phẩm đã đặt — giá đã gồm thuế -->
-                        <div class="wj-pc-card">
+                        <t t-call="wujia_portal_layout.wj_surface_card">
+                            <t t-set="sc_class" t-value="'wj-pc-card'"/>
                             <t t-call="wujia_portal_layout.wj_card_header">
                                 <t t-set="ch_title">Sản phẩm đã đặt</t>
                                 <t t-set="ch_level" t-value="3"/>
@@ -504,7 +509,7 @@
                                     </tr>
                                 </tfoot>
                             </table>
-                        </div>
+                        </t>
                     </div>
                     <!-- /desktop -->
 

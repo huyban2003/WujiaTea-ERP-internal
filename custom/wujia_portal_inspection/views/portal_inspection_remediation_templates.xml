@@ -38,7 +38,8 @@
                 </div>
 
                 <div class="content-body">
-                    <div class="wj-pc-card">
+                    <t t-call="wujia_portal_layout.wj_surface_card">
+                        <t t-set="sc_class" t-value="'wj-pc-card'"/>
                         <t t-call="wujia_portal_layout.wj_card_header">
                             <t t-set="ch_title">Cập nhật báo cáo khắc phục</t>
                             <t t-set="ch_subtitle">Vui lòng cung cấp hình ảnh thực tế sau khắc phục và giải trình chi tiết</t>
@@ -176,7 +177,7 @@
                                 </div>
                             </div>
                         </form>
-                    </div>
+                    </t>
                 </div>
             </div>
 

@@ -376,7 +376,8 @@
                     </section>
 
                     <!-- Bảng hóa đơn trong tuần -->
-                    <div class="wj-pc-card wj-debt-pc-card">
+                    <t t-call="wujia_portal_layout.wj_surface_card">
+                        <t t-set="sc_class" t-value="'wj-pc-card wj-debt-pc-card'"/>
                         <t t-call="wujia_portal_layout.wj_card_header">
                             <t t-set="ch_title">Hóa đơn trong tuần</t>
                             <t t-set="ch_level" t-value="3"/>
@@ -455,7 +456,7 @@
                                 </t>
                             </div>
                         </t>
-                    </div>
+                    </t>
                 </t>
 
                 <!-- Modal QR (chỉ dựng khi còn số phải trả — CTA mới hiện) -->
@@ -617,7 +618,9 @@
                         <span class="wj-debt-pc-banner__aside">Lọc theo ngày thanh toán</span>
                     </div>
 
-                    <div class="wj-pc-card wj-debt-pc-card" id="wj-debt-hist-pc">
+                    <t t-call="wujia_portal_layout.wj_surface_card">
+                        <t t-set="sc_class" t-value="'wj-pc-card wj-debt-pc-card'"/>
+                        <t t-set="sc_id" t-value="'wj-debt-hist-pc'"/>
                         <t t-call="wujia_portal_layout.wj_card_header">
                             <t t-set="ch_title">Các khoản thanh toán</t>
                             <t t-set="ch_level" t-value="3"/>
@@ -682,7 +685,7 @@
                                 <p class="wj-debt-pc-emptybox__sub">Kỳ được chọn chưa có khoản thanh toán nào được xác nhận.</p>
                             </div>
                         </t>
-                    </div>
+                    </t>
                 </t>
             </div>
             <!-- /desktop -->
@@ -777,7 +780,8 @@
                     <t t-set="ph_title">Thanh toán công nợ</t>
                 </t>
 
-                <div class="wj-pc-card wj-debt-pc-paycard">
+                <t t-call="wujia_portal_layout.wj_surface_card">
+                    <t t-set="sc_class" t-value="'wj-pc-card wj-debt-pc-paycard'"/>
                     <div class="wj-debt-pc-modal__amount">
                         <div>
                             <span class="wj-debt-pc-modal__amount-label">Số tiền cần chuyển • tuần <t t-out="summary['week_label']"/></span>
@@ -790,7 +794,7 @@
                         <a t-attf-href="/portal/debt?week=#{summary['week_key']}"
                            class="wj-pc-btn wj-pc-btn--secondary">Về trang công nợ</a>
                     </div>
-                </div>
+                </t>
             </div>
             <!-- /desktop -->
         </t>

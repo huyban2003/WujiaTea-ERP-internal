@@ -81,7 +81,7 @@
     --wj-pc-danger:         var(--wujia-danger);
 
     /* PC dimensional tokens (BA pc_source_ui_v1_4 — Sprint PC-1, desktop only). */
-    --wj-pc-card-radius:      18px;
+    --wj-pc-card-radius:      16px;   /* D4c: 18→16, hội tụ về --wujia-surface-radius */
     --wj-pc-component-radius: 12px;
     --wj-pc-input-radius:     10px;
     --wj-pc-pill-radius:      999px;
@@ -122,10 +122,22 @@
     --wujia-card-shadow:    0 2px 6px rgba(15, 23, 42, 0.04);
     --wujia-section-gap:    28px;
 
+    /* ---------- SurfaceCard CMP-SC-001 (D4) ----------
+       Bộ số BA cho MỌI card portal. Radius có token RIÊNG để không phải đụng
+       --wujia-card-radius (còn nuôi wj-auth-card THIẾT KẾ S39, portal_order,
+       store_picker). Viền dùng lại --wujia-border-soft / --wujia-border. */
+    --wujia-surface-radius:       16px;
+    --wujia-surface-pad-compact:  16px;
+    --wujia-surface-pad-regular:  20px;
+    --wujia-surface-gap:          12px;
+    /* Nền vùng phụ LỒNG trong card — BA cấm thẻ trắng lồng thẻ trắng. */
+    --wujia-surface-tonal:        #F8FAFC;
+    --wujia-surface-tonal-radius: 12px;
+
     /* ---------- KPI Card ---------- */
-    --wujia-kpi-card-min-height:  100px;
-    --wujia-kpi-card-padding:     16px;
-    --wujia-kpi-card-gap:         12px;
+    /* min-height / padding / gap đã gỡ hẳn: dáng khung nay do SurfaceCard sở hữu
+       (CMP-SC-001). BA cấm khoá cứng chiều cao — 4 thẻ cao bằng nhau bằng
+       height:100% trong .row, xem _components.css. */
     --wujia-kpi-icon-size:        56px;
     --wujia-kpi-icon-radius:      12px;
     --wujia-kpi-icon-bg:          var(--wujia-primary);
@@ -192,7 +204,7 @@
     --wujia-font-size-subtitle: 14px;
 
     /* ---------- Content Card ---------- */
-    --wujia-content-card-padding:           22px;
+    --wujia-content-card-padding:           var(--wujia-surface-pad-regular);
     --wujia-content-card-header-icon-size:  40px;
     --wujia-content-card-header-icon-bg:    var(--wujia-primary);
     --wujia-content-card-bullet-size:       8px;
@@ -344,11 +356,13 @@ html { font-size: 14px; }
 @media (min-width: 992px)  { html { font-size: 16px; } }
 @media (min-width: 1200px) { html { font-size: 16px; } }
 
-/* KPI mobile/tablet override (<992px): 1 card / row, compact. */
+/* SurfaceCard + KPI mobile/tablet override (<992px): 1 card / row, compact. */
 @media (max-width: 991.98px) {
     :root {
+        --wujia-surface-radius:      14px;
+        --wujia-surface-pad-compact: 12px;
+        --wujia-surface-pad-regular: 14px;
+        --wujia-surface-gap:         8px;
         --wujia-kpi-icon-size:       52px;
-        --wujia-kpi-card-min-height: 92px;
-        --wujia-kpi-card-padding:    14px;
     }
 }

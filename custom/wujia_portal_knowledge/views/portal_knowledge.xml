@@ -77,43 +77,45 @@
 
                         <!-- Articles list — MẪU 04 Card danh sách + icon (Sprint 9.13b 2026-05-27) -->
                         <div class="col-md-9 col-12" id="wj-know-pc-body">
-                            <div class="wujia-content-card">
-                                <!-- CMP-CH-001: count cố ý BỎ `t-if` — spec ghi rõ "Count 0 vẫn hiển thị". -->
-                                <t t-call="wujia_portal_layout.wj_card_header">
-                                    <t t-set="ch_title"
-                                       t-value="current_category.name if current_category else 'Tài liệu mới cập nhật'"/>
-                                    <t t-set="ch_level" t-value="4"/>
-                                    <t t-set="ch_platform" t-value="'pc'"/>
-                                    <t t-set="ch_icon" t-value="'book'"/>
-                                    <t t-set="ch_meta">
-                                        <span class="wj-card-header__meta"><t t-out="len(articles)"/> bài viết</span>
-                                    </t>
+                            <t t-call="wujia_portal_layout.wj_surface_card">
+                                <t t-set="sc_density" t-value="'regular'"/>
+                                <t t-set="sc_class" t-value="'wujia-content-card'"/>
+                            <!-- CMP-CH-001: count cố ý BỎ `t-if` — spec ghi rõ "Count 0 vẫn hiển thị". -->
+                            <t t-call="wujia_portal_layout.wj_card_header">
+                                <t t-set="ch_title"
+                                   t-value="current_category.name if current_category else 'Tài liệu mới cập nhật'"/>
+                                <t t-set="ch_level" t-value="4"/>
+                                <t t-set="ch_platform" t-value="'pc'"/>
+                                <t t-set="ch_icon" t-value="'book'"/>
+                                <t t-set="ch_meta">
+                                    <span class="wj-card-header__meta"><t t-out="len(articles)"/> bài viết</span>
                                 </t>
-                                <div t-if="not articles" class="wujia-empty-state">
-                                    <i class="feather icon-book"/>
-                                    <p>Chưa có bài viết.</p>
-                                </div>
-                                <ul t-else="" class="wujia-content-card-body">
-                                    <t t-foreach="articles" t-as="art">
-                                        <t t-set="badge_cls" t-value="{'mandatory': 'wujia-badge-danger', 'important': 'wujia-badge-warning', 'new': 'wujia-badge-info'}.get(art.portal_badge, '')"/>
-                                        <t t-set="badge_lbl" t-value="{'mandatory': 'Bắt buộc', 'important': 'Quan trọng', 'new': 'Mới'}.get(art.portal_badge, '')"/>
-                                        <li class="wujia-content-card-row">
-                                            <span class="wujia-content-card-row-bullet"/>
-                                            <div class="wujia-content-card-row-content">
-                                                <a t-attf-href="/portal/knowledge/#{art.slug}">
-                                                    <t t-out="art.name"/>
-                                                </a>
-                                                <span t-if="art.category_id" class="wujia-badge wujia-badge-muted ms-1" t-out="art.category_id.name"/>
-                                                <span t-if="badge_lbl" t-attf-class="wujia-badge #{badge_cls} ms-1" t-out="badge_lbl"/>
-                                            </div>
-                                            <span class="wujia-content-card-row-date">
-                                                <t t-out="wj_dt(art.publish_date, '%d/%m/%Y')"/>
-                                                · <i class="fa fa-eye"/> <t t-out="art.view_count or 0"/>
-                                            </span>
-                                        </li>
-                                    </t>
-                                </ul>
+                            </t>
+                            <div t-if="not articles" class="wujia-empty-state">
+                                <i class="feather icon-book"/>
+                                <p>Chưa có bài viết.</p>
                             </div>
+                            <ul t-else="" class="wujia-content-card-body">
+                                <t t-foreach="articles" t-as="art">
+                                    <t t-set="badge_cls" t-value="{'mandatory': 'wujia-badge-danger', 'important': 'wujia-badge-warning', 'new': 'wujia-badge-info'}.get(art.portal_badge, '')"/>
+                                    <t t-set="badge_lbl" t-value="{'mandatory': 'Bắt buộc', 'important': 'Quan trọng', 'new': 'Mới'}.get(art.portal_badge, '')"/>
+                                    <li class="wujia-content-card-row">
+                                        <span class="wujia-content-card-row-bullet"/>
+                                        <div class="wujia-content-card-row-content">
+                                            <a t-attf-href="/portal/knowledge/#{art.slug}">
+                                                <t t-out="art.name"/>
+                                            </a>
+                                            <span t-if="art.category_id" class="wujia-badge wujia-badge-muted ms-1" t-out="art.category_id.name"/>
+                                            <span t-if="badge_lbl" t-attf-class="wujia-badge #{badge_cls} ms-1" t-out="badge_lbl"/>
+                                        </div>
+                                        <span class="wujia-content-card-row-date">
+                                            <t t-out="wj_dt(art.publish_date, '%d/%m/%Y')"/>
+                                            · <i class="fa fa-eye"/> <t t-out="art.view_count or 0"/>
+                                        </span>
+                                    </li>
+                                </t>
+                            </ul>
+                            </t>
 
                             <nav t-if="pager and pager.get('page_count', 0) &gt; 1" class="mt-3">
                                 <ul class="pagination wujia-pagination justify-content-center mb-0">

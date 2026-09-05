@@ -86,7 +86,8 @@
                     </div>
 
                     <!-- Main PC Card -->
-                    <div class="wj-pc-card mb-4">
+                    <t t-call="wujia_portal_layout.wj_surface_card">
+                        <t t-set="sc_class" t-value="'wj-pc-card mb-4'"/>
                         <t t-call="wujia_portal_layout.wj_card_header">
                             <t t-set="ch_title">Kết quả đánh giá chi tiết</t>
                             <t t-set="ch_subtitle">Xem chi tiết đánh giá hoặc kết quả bài kiểm tra lý thuyết</t>
@@ -336,7 +337,7 @@
                                 </div>
                             </t>
                         </div>
-                    </div>
+                    </t>
                 </div>
             </div>
 

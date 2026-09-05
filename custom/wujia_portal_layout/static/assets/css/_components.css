@@ -448,24 +448,24 @@ h2, .wujia-h2 { font-size: var(--wujia-font-size-h2) !important; font-weight: 60
 /* Sprint 9.12 (2026-05-27): UI-11 KPI Card component */
 .wujia-kpi-card-link {
     display: block;
+    height: 100%;   /* .row đã stretch cột; <a> phải chuyền chiều cao xuống card */
     text-decoration: none !important;
     color: inherit;
 }
+/* D4b: dáng khung (nền/bo góc/viền/đệm/gap) đã chuyển sang .wj-surface-card —
+   chủ sở hữu DUY NHẤT, tránh hai rule cùng đặc hiệu tranh nhau khai padding.
+   Còn lại ở đây chỉ là bố cục bên trong thẻ KPI. */
 .wujia-kpi-card {
     display: flex;
     align-items: center;
-    gap: var(--wujia-kpi-card-gap);
-    min-height: var(--wujia-kpi-card-min-height);
-    padding: var(--wujia-kpi-card-padding);
-    background: var(--wujia-bg-card);
-    border-radius: var(--wujia-card-radius);
-    box-shadow: var(--wujia-card-shadow);
-    transition: transform 0.15s ease, box-shadow 0.15s ease;
+    height: 100%;   /* 4 thẻ cùng hàng cao bằng nhau, thay cho min-height BA cấm */
+    transition: transform 0.15s ease, border-color 0.15s ease;
 }
 .wujia-kpi-card-link:hover .wujia-kpi-card,
 .wujia-kpi-card:hover {
+    /* BA: không shadow. Affordance wholeCard giữ bằng nhấc 2px + đậm viền. */
     transform: translateY(-2px);
-    box-shadow: 0 4px 18px rgba(0, 0, 0, 0.10);
+    border-color: var(--wujia-primary);
 }
 
 .wujia-kpi-icon {
@@ -540,11 +540,8 @@ h2, .wujia-h2 { font-size: var(--wujia-font-size-h2) !important; font-weight: 60
 }
 
 /* Content Card (UI-12, Sprint 9.13, 2026-05-27) */
+/* D4b: dáng khung chuyển sang .wj-surface-card (xem chú thích ở .wujia-kpi-card). */
 .wujia-content-card {
-    background: var(--wujia-bg-card);
-    border-radius: var(--wujia-card-radius);
-    box-shadow: var(--wujia-card-shadow);
-    padding: var(--wujia-content-card-padding);
     height: 100%;
     display: flex;
     flex-direction: column;
@@ -619,6 +616,48 @@ h2, .wujia-h2 { font-size: var(--wujia-font-size-h2) !important; font-weight: 60
     .wujia-content-card-row-date {
         display: none;
     }
+}
+
+/* ============================================================================
+   SurfaceCard CMP-SC-001 (D4) — chủ sở hữu DUY NHẤT của dáng khung card.
+   Đặt sau các họ card cũ để mọi khai báo dáng chỉ nằm ở đây, không tranh chấp.
+   Đặc hiệu (0,1,0); modifier cũng (0,1,0) nên thứ tự trong khối này quyết định.
+   ========================================================================= */
+.wj-surface-card {
+    background: var(--wujia-bg-card);
+    border: 1px solid var(--wujia-border-soft);
+    border-radius: var(--wujia-surface-radius);
+    padding: var(--wujia-surface-pad-compact);
+    /* BA: không shadow mặc định. */
+}
+.wj-surface-card--regular {
+    padding: var(--wujia-surface-pad-regular);
+}
+/* gap CHỈ ở đây, không ở base: card xếp dọc (section/record) đã có nhịp
+   header→body 12px do margin của wj_card_header, thêm gap là cộng chồng
+   thành 24px — đo được, RULE 1/2 không thấy vì nó đều tay mọi card. */
+.wj-surface-card--summary {
+    gap: var(--wujia-surface-gap);
+}
+.wj-surface-card--flush {
+    padding: 0;
+}
+/* Vùng phụ lồng trong card: nền tonal, không viền, không bóng (BA D4c). */
+.wj-surface-card--tonal {
+    background: var(--wujia-surface-tonal);
+    border: 0;
+    border-radius: var(--wujia-surface-tonal-radius);
+    box-shadow: none;
+}
+.wj-surface-card-link {
+    display: block;
+    height: 100%;
+    text-decoration: none !important;
+    color: inherit;
+}
+@media (max-width: 991.98px) {
+    /* Viền mobile đổi tông theo BA; radius/padding/gap đi theo token ở _variables. */
+    .wj-surface-card { border-color: var(--wujia-border); }
 }
 
 /* Flush variant — drops padding so child tables/lists span edge-to-edge. */
@@ -3075,8 +3114,8 @@ a.wujia-mhome-kpi:active { opacity: 0.85; }
     min-width: 0;
     gap: 12px;
 }
-/* Icon nhận diện — giữ nguyên token 40px / nền primary của họ content-card cũ để 31 chỗ
-   migrate xong trông y hệt trước (lớp cũ đã xoá, token ở _variables.css:196-197). */
+/* Icon nhận diện — giữ token 40px / nền primary của họ content-card cũ để các chỗ đã
+   migrate trông y hệt trước (lớp cũ đã xoá, token ở _variables.css). */
 .wj-card-header__icon {
     flex: 0 0 var(--wujia-content-card-header-icon-size);
     width: var(--wujia-content-card-header-icon-size);
@@ -3230,6 +3269,6 @@ a.wujia-mhome-kpi:active { opacity: 0.85; }
    trên chính dòng tiêu đề, nhưng vài lớp BODY cũ tự khai `margin-top` nên khoảng cách
    thật vẫn là tổng hai bên — đo được ở /portal/support: header 12 + bảng 16 = 28px.
    Trung hoà đúng lớp body đó khi nó đứng NGAY SAU CardHeader; không đụng rule gốc vì
-   `.wujia-content-card-table` còn 31 chỗ chưa migrate vẫn cần 16px khi không có header.
-   Danh sách này rút dần theo D3b…D3n và chết hẳn khi lớp cũ bị xoá. */
+   `.wujia-content-card-table` vẫn cần 16px ở ca không có header. Đính chính D4b: chỉ còn
+   6 call site bảng, cả 6 nằm trong card của D4b — không phải 31 như ghi lúc D3. */
 .wj-card-header + .wujia-content-card-table { margin-top: 0; }

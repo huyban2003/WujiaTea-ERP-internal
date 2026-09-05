@@ -766,7 +766,6 @@
     .wj-exam-pc-fc--search > .wj-pc-filter-control { padding-left: 50px; }
 
     /* ---------- Card danh sách (Figma y290) ---------- */
-    .wj-exam-pc-card { padding: 22px 24px 24px; }
     .wj-exam-pc-card__head { margin-bottom: 25px; }
     .wj-exam-pc-card .wj-pc-card__subtitle { margin-top: 5px; }
 
@@ -825,7 +824,6 @@
 
     .wj-exam-pc-back { min-width: 122px; margin-bottom: 18px; }
 
-    .wj-exam-pc-dcard { padding: 20px 24px 24px; }
     .wj-exam-pc-dhead { margin-bottom: 23px; }
     .wj-exam-pc-sectitle { font-size: 20px; }
     /* D3d: nhịp TRÊN mà class cũ từng gánh. Phải bám kèm `.wj-card-header` — rule
@@ -976,12 +974,10 @@
     /* ---------- Khung trang ---------- */
     .wj-exam-pc-create .wj-pc-page-header { margin-bottom: 7px; }
     .wj-exam-pc-create .wj-exam-pc-secsub { margin-bottom: 0; }
-    .wj-exam-pc-fcard { padding: 18px 24px 10px; }
     .wj-exam-pc-sumcard {
         align-self: start;
         position: sticky;
         top: var(--wj-pc-content-padding);
-        padding: 18px 24px 24px;
     }
 
     /* ---------- Field dùng chung ---------- */
@@ -1016,12 +1012,11 @@
         gap: 16px;
         margin-top: 9px;
     }
+    /* D4c: nền tonal thay nền trắng — BA cấm thẻ trắng lồng thẻ trắng.
+       Dáng do .wj-surface-card--tonal sở hữu; đây chỉ giữ chiều cao tối thiểu. */
     .wj-exam-pc-cal,
     .wj-exam-pc-slots {
         min-height: 310px;
-        border: 1px solid var(--wj-pc-border-soft);
-        border-radius: var(--wj-pc-component-radius);
-        background: var(--wj-pc-card);
     }
 
     /* Lịch tháng */

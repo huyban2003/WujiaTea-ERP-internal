@@ -66,61 +66,63 @@
 
                     <!-- Vùng swap AJAX: bảng + pager (bộ lọc ngoài, JS đồng bộ theo URL). -->
                     <div id="wj-inf-body">
-                    <div class="wujia-content-card">
-                        <!-- CMP-CH-001: count cố ý BỎ `t-if` — spec ghi rõ "Count 0 vẫn hiển thị". -->
-                        <t t-call="wujia_portal_layout.wj_card_header">
-                            <t t-set="ch_title">Danh sách yêu cầu</t>
-                            <t t-set="ch_level" t-value="4"/>
-                            <!-- Màn này KHÔNG tách PC/mobile (không có d-none d-lg-*) nên
-                                 KHÔNG bake ch_platform: 'pc' sẽ nuốt mất tiêu đề ở mobile. -->
-                            <t t-set="ch_icon" t-value="'edit'"/>
-                            <t t-set="ch_meta">
-                                <span class="wj-card-header__meta"><t t-out="len(requests)"/> kết quả</span>
-                            </t>
+                    <t t-call="wujia_portal_layout.wj_surface_card">
+                        <t t-set="sc_density" t-value="'regular'"/>
+                        <t t-set="sc_class" t-value="'wujia-content-card'"/>
+                    <!-- CMP-CH-001: count cố ý BỎ `t-if` — spec ghi rõ "Count 0 vẫn hiển thị". -->
+                    <t t-call="wujia_portal_layout.wj_card_header">
+                        <t t-set="ch_title">Danh sách yêu cầu</t>
+                        <t t-set="ch_level" t-value="4"/>
+                        <!-- Màn này KHÔNG tách PC/mobile (không có d-none d-lg-*) nên
+                             KHÔNG bake ch_platform: 'pc' sẽ nuốt mất tiêu đề ở mobile. -->
+                        <t t-set="ch_icon" t-value="'edit'"/>
+                        <t t-set="ch_meta">
+                            <span class="wj-card-header__meta"><t t-out="len(requests)"/> kết quả</span>
                         </t>
-                        <div t-if="not requests" class="wujia-empty-state">
-                            <i class="feather icon-edit"/>
-                            <p>Chưa có yêu cầu nào. <a href="/portal/info-request/new">Tạo yêu cầu đầu tiên</a>.</p>
-                        </div>
-                        <div t-else="" class="table-responsive">
-                            <table class="wujia-content-card-table">
-                                <thead>
-                                    <tr>
-                                        <th>Mã</th>
-                                        <th>Ngày tạo</th>
-                                        <th>Cửa hàng</th>
-                                        <th>Loại</th>
-                                        <th>Giá trị mới</th>
-                                        <th>Mức độ</th>
-                                        <th class="text-center">Trạng thái</th>
-                                        <th></th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <tr t-foreach="requests" t-as="rec">
-                                        <td><a t-attf-href="/portal/info-request/#{rec.id}" t-out="rec.name"/></td>
-                                        <td t-out="rec.request_date and rec.request_date.strftime('%d/%m/%Y %H:%M') or ''"/>
-                                        <td t-out="rec.franchise_id.name or '—'"/>
-                                        <td t-out="dict(request_type_options).get(rec.request_type, '—')"/>
-                                        <td class="text-truncate" style="max-width: 200px;" t-att-title="rec.new_value or ''" t-out="rec.new_value or '—'"/>
-                                        <td>
-                                            <span t-if="rec.priority == 'urgent'" class="wujia-badge wujia-badge-danger">Khẩn</span>
-                                            <span t-else="" class="wujia-badge wujia-badge-muted">Bình thường</span>
-                                        </td>
-                                        <td class="text-center">
-                                            <t t-set="lbl" t-value="state_labels.get(rec.state, (rec.state, 'wujia-badge-muted'))"/>
-                                            <span t-attf-class="wujia-badge #{lbl[1]}" t-out="lbl[0]"/>
-                                        </td>
-                                        <td class="text-end">
-                                            <a t-attf-href="/portal/info-request/#{rec.id}" class="btn btn-sm btn-outline-primary">
-                                                <i class="fa fa-eye"/>
-                                            </a>
-                                        </td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                        </div>
+                    </t>
+                    <div t-if="not requests" class="wujia-empty-state">
+                        <i class="feather icon-edit"/>
+                        <p>Chưa có yêu cầu nào. <a href="/portal/info-request/new">Tạo yêu cầu đầu tiên</a>.</p>
                     </div>
+                    <div t-else="" class="table-responsive">
+                        <table class="wujia-content-card-table">
+                            <thead>
+                                <tr>
+                                    <th>Mã</th>
+                                    <th>Ngày tạo</th>
+                                    <th>Cửa hàng</th>
+                                    <th>Loại</th>
+                                    <th>Giá trị mới</th>
+                                    <th>Mức độ</th>
+                                    <th class="text-center">Trạng thái</th>
+                                    <th></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr t-foreach="requests" t-as="rec">
+                                    <td><a t-attf-href="/portal/info-request/#{rec.id}" t-out="rec.name"/></td>
+                                    <td t-out="rec.request_date and rec.request_date.strftime('%d/%m/%Y %H:%M') or ''"/>
+                                    <td t-out="rec.franchise_id.name or '—'"/>
+                                    <td t-out="dict(request_type_options).get(rec.request_type, '—')"/>
+                                    <td class="text-truncate" style="max-width: 200px;" t-att-title="rec.new_value or ''" t-out="rec.new_value or '—'"/>
+                                    <td>
+                                        <span t-if="rec.priority == 'urgent'" class="wujia-badge wujia-badge-danger">Khẩn</span>
+                                        <span t-else="" class="wujia-badge wujia-badge-muted">Bình thường</span>
+                                    </td>
+                                    <td class="text-center">
+                                        <t t-set="lbl" t-value="state_labels.get(rec.state, (rec.state, 'wujia-badge-muted'))"/>
+                                        <span t-attf-class="wujia-badge #{lbl[1]}" t-out="lbl[0]"/>
+                                    </td>
+                                    <td class="text-end">
+                                        <a t-attf-href="/portal/info-request/#{rec.id}" class="btn btn-sm btn-outline-primary">
+                                            <i class="fa fa-eye"/>
+                                        </a>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    </t>
 
                     <nav t-if="pager and pager.get('page_count', 0) &gt; 1" class="mt-2">
                         <ul class="pagination wujia-pagination justify-content-center mb-0">
