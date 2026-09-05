@@ -62,10 +62,15 @@ if has_model('wujia.notification') and franchises:
                 'name': f'Thông báo demo #{i+1}',
                 'type_id': types.get(code, env['wujia.notification.type'].browse()).id or False,
                 'dispatch_number': f'CV-{2026}-{i+1:03d}',
-                'date': now - timedelta(days=i),
+                # Sprint 41 đổi tên field: date -> published_date, và bỏ cờ
+                # `published` để thay bằng vòng đời state draft/published/archived.
+                'published_date': now - timedelta(days=i),
                 'content': f'<p>Đây là nội dung mẫu cho thông báo #{i+1}. Mục đích: test giao diện list + detail page.</p><p>Vui lòng xem kỹ và phản hồi nếu có thắc mắc.</p>',
-                'franchise_ids': [(6, 0, franchises.ids[:2 if i % 2 else 0])] if i % 3 else [(6, 0, [])],
-                'published': True,
+                # Sprint 42 thêm target_mode + ràng buộc: chế độ 'all' thì CẤM chọn
+                # cửa hàng. Có chọn cửa hàng ⇒ phải là 'manual'.
+                'target_mode': 'manual' if (i % 3 and i % 2) else 'all',
+                'franchise_ids': [(6, 0, franchises.ids[:2])] if (i % 3 and i % 2) else [(6, 0, [])],
+                'state': 'published',
                 'priority': 'urgent' if i == 0 else 'normal',
             },
             f'noti #{i+1}',
@@ -78,26 +83,39 @@ if has_model('wujia.notification') and franchises:
 # ============================================================
 # 4) Return requests (5 record, mix 5 state)
 # ============================================================
+# Sprint K đã redesign model: multi-line -> MỘT sản phẩm mỗi phiếu.
+# Field cũ error_id / refuse_reason / expected_delivery_date và model
+# wujia.return.error.type đều không còn; state cũng đổi bộ khoá.
 if has_model('wujia.return.request') and franchises:
     print("\n[4] Return requests (5 records)")
-    error_types = env['wujia.return.error.type'].search([], limit=5)
-    states = ['draft', 'sent', 'approved', 'rejected', 'done']
-    for i, st in enumerate(states):
-        rr = upsert(
-            'wujia.return.request',
-            [('name', '=', f'WJ-RR/26/DEMO{i+1:05d}')],
-            {
-                'name': f'WJ-RR/26/DEMO{i+1:05d}',
-                'franchise_id': franchises[i % len(franchises)].id,
-                'request_date': now - timedelta(days=i*2),
-                'state': st,
-                'error_id': error_types[i % len(error_types)].id if error_types else False,
-                'note': f'Yêu cầu đổi trả mẫu #{i+1} — {st}',
-                'expected_delivery_date': today + timedelta(days=3),
-                'refuse_reason': 'Không đủ chứng cứ ảnh' if st == 'rejected' else False,
-            },
-            f'return #{i+1}',
-        )
+    issue_types = env['wujia.return.issue.type'].search([], limit=5)
+    products = env['product.product'].search(
+        [('sale_ok', '=', True)], limit=5,
+    )
+    uom = env.ref('uom.product_uom_unit', raise_if_not_found=False)
+    if not issue_types or not products or not uom:
+        print("    ! bỏ qua: thiếu issue type / sản phẩm / đơn vị tính")
+    else:
+        states = ['draft', 'submitted', 'approved', 'rejected', 'done']
+        for i, st in enumerate(states):
+            rr = upsert(
+                'wujia.return.request',
+                [('name', '=', f'WJ-RR/26/DEMO{i+1:05d}')],
+                {
+                    'name': f'WJ-RR/26/DEMO{i+1:05d}',
+                    'franchise_id': franchises[i % len(franchises)].id,
+                    'request_date': now - timedelta(days=i*2),
+                    'state': st,
+                    'product_id': products[i % len(products)].id,
+                    'request_qty': 2.0 + i,
+                    'request_uom_id': uom.id,
+                    'opening_datetime': now - timedelta(days=i*2, hours=1),
+                    'issue_type_id': issue_types[i % len(issue_types)].id,
+                    'note': f'Yêu cầu đổi trả mẫu #{i+1} — {st}',
+                    'reject_reason': 'Không đủ chứng cứ ảnh' if st == 'rejected' else False,
+                },
+                f'return #{i+1}',
+            )
 
 # ============================================================
 # 5) Knowledge categories (3) + articles (8)

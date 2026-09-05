@@ -109,14 +109,17 @@ for i, (code, title, prio) in enumerate(noti_samples):
             'name': title,
             'type_id': ntypes.get(code).id if ntypes.get(code) else False,
             'dispatch_number': dispatch,
-            'date': now - timedelta(hours=i*6),
+            # Sprint 41: date -> published_date, cờ `published` -> state.
+            'published_date': now - timedelta(hours=i*6),
             'content': (
                 f'<p><strong>{title}</strong></p>'
                 f'<p>Nội dung thông báo #{i+1}. Vui lòng xem kỹ và phản hồi nếu có thắc mắc.</p>'
                 f'<ul><li>Áp dụng cho toàn bộ cửa hàng nhượng quyền</li><li>Hiệu lực từ {today.isoformat()}</li></ul>'
             ),
+            # Sprint 42: chọn cửa hàng cụ thể thì target_mode phải là 'manual'.
+            'target_mode': 'manual',
             'franchise_ids': [(6, 0, franchises.ids)],
-            'published': True,
+            'state': 'published',
             'priority': prio,
         },
         f'noti #{i+1}',
@@ -166,28 +169,38 @@ for i, (cat, title, badge, state) in enumerate(article_samples):
     )
 
 # ---------- 3. Return requests (5 record, 5 state) — idempotent on name code ----------
+# Sprint K redesign: một sản phẩm mỗi phiếu. Model wujia.return.error.type và các
+# field error_id / expected_delivery_date / refuse_reason không còn tồn tại.
 print(f"\n[4] Return requests (5 records)")
-error_types = env['wujia.return.error.type'].search([], limit=5)
-states = ['draft', 'sent', 'approved', 'rejected', 'done']
-state_labels = {'draft': 'Nháp', 'sent': 'Đã gửi', 'approved': 'Đã duyệt',
+issue_types = env['wujia.return.issue.type'].search([], limit=5)
+rr_products = env['product.product'].search([('sale_ok', '=', True)], limit=5)
+rr_uom = env.ref('uom.product_uom_unit', raise_if_not_found=False)
+states = ['draft', 'submitted', 'approved', 'rejected', 'done']
+state_labels = {'draft': 'Nháp', 'submitted': 'Đã gửi', 'approved': 'Đã duyệt',
                 'rejected': 'Từ chối', 'done': 'Hoàn thành'}
-for i, st in enumerate(states):
-    code = f'WJ-RR/DEMO/{i+1:03d}'
-    upsert(
-        'wujia.return.request',
-        [('name', '=', code)],
-        {
-            'name': code,
-            'franchise_id': franchises[i % len(franchises)].id,
-            'request_date': now - timedelta(days=i),
-            'state': st,
-            'error_id': error_types[i % len(error_types)].id if error_types else False,
-            'note': f'Yêu cầu đổi trả #{i+1} — trạng thái {state_labels[st]}',
-            'expected_delivery_date': today + timedelta(days=3),
-            'refuse_reason': 'Không đủ chứng cứ ảnh' if st == 'rejected' else False,
-        },
-        f'return #{i+1} {st}',
-    )
+if not (issue_types and rr_products and rr_uom):
+    print("    ! bỏ qua: thiếu loại lỗi / sản phẩm / đơn vị tính")
+else:
+    for i, st in enumerate(states):
+        code = f'WJ-RR/DEMO/{i+1:03d}'
+        upsert(
+            'wujia.return.request',
+            [('name', '=', code)],
+            {
+                'name': code,
+                'franchise_id': franchises[i % len(franchises)].id,
+                'request_date': now - timedelta(days=i),
+                'state': st,
+                'product_id': rr_products[i % len(rr_products)].id,
+                'request_qty': 1.0 + i,
+                'request_uom_id': rr_uom.id,
+                'opening_datetime': now - timedelta(days=i, hours=2),
+                'issue_type_id': issue_types[i % len(issue_types)].id,
+                'note': f'Yêu cầu đổi trả #{i+1} — trạng thái {state_labels[st]}',
+                'reject_reason': 'Không đủ chứng cứ ảnh' if st == 'rejected' else False,
+            },
+            f'return #{i+1} {st}',
+        )
 
 # ---------- 3b. Products — minimum 5 for sale order seeding ----------
 print(f"\n[5a] Products (ensure at least 5 storable goods)")

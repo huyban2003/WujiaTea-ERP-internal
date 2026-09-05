@@ -77,11 +77,14 @@ for days, hour, code, prio, disp, title, body, read_admin, attach in ROWS:
         'name': title,
         'type_id': t.id if t else False,
         'dispatch_number': disp,
-        'date': date,
+        # Sprint 41 đổi date -> published_date và thay cờ `published` bằng state;
+        # Sprint 42 thêm target_mode, chế độ 'all' là broadcast và CẤM chọn cửa hàng.
+        'published_date': date,
         'content': body,
         'priority': prio,
-        'published': True,
-        'franchise_ids': [(5, 0, 0)],  # broadcast (tất cả cửa hàng)
+        'state': 'published',
+        'target_mode': 'all',
+        'franchise_ids': [(5, 0, 0)],
     }
     noti = Noti.create(vals)
     if attach:
@@ -103,4 +106,4 @@ for days, hour, code, prio, disp, title, body, read_admin, attach in ROWS:
 
 env.cr.commit()
 print('DONE: %d notifications created (recent window).' % created)
-print('TOTAL published:', Noti.search_count([('published', '=', True)]))
+print('TOTAL published:', Noti.search_count([('state', '=', 'published')]))

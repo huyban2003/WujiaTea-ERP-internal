@@ -39,6 +39,11 @@ docs/chapters/*.aux
 
 # BA-spec ingestion toolchain — dev-only, không lên server
 scripts/ba_spec/
+# Dấu / ở cuối KHÔNG khớp symlink: trên máy Mac scripts/ba_spec là symlink trỏ ra
+# ~/wujia-devkit/ba_spec, nên git vẫn theo dõi chính cái symlink. Thêm dòng không
+# có dấu / và cả bản sao lưu — bộ này là dev-only, tuyệt đối không lên server.
+scripts/ba_spec
+scripts/ba_spec.bak.*/
 ks_dashboard_ninja_v18/
 
 # Harness đo đạc dev-only (§13): KHÔNG lên server, KHÔNG vào repo.
