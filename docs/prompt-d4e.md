@@ -28,6 +28,10 @@ python3 scripts/qa/wj_inventory.py --sites wj-rep-mcard wj-pc-metric-card
 1. **4 lượt gallery `pc_preview.xml`** (`/portal/_pc-preview`, inventory §13.2) — kiểm kê
    bỏ sót. Đây là bản tham chiếu component để đối chiếu SVG của BA, **để lệch thì gallery
    nói dối**. Kéo vào D4e hay tách lượt riêng?
+   Route này **`auth='user'` + chặn user không phải nội bộ** ⇒ phải đăng nhập `admin`
+   (mật khẩu dev: `admin` — **không** phải `wujia_admin`, đó là mật khẩu master của trình
+   quản lý CSDL). Đã bấm thử 05/09: HTTP **200**, render đúng **4** shell.
+
 2. **4 lượt `wj-pc-metric-card` màn Khảo sát** — trước xếp "không đo được" vì
    `wujia_portal_inspection` `uninstalled`; nay DB dev đã cài và `/portal/inspection` trả
    200. Tách khỏi nhóm *provisional* hay vẫn chờ BA chốt field mapping?
