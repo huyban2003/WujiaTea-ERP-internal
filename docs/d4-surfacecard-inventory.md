@@ -369,3 +369,54 @@ C8) ⇒ giữ tag, **thêm thẳng class chủ sở hữu** — cách D4c đã c
 
 Còn lại: `wj-pc-metric-card` (44) + `wj-rep-mcard` (16) → D4e · Bootstrap `.card` thô (75) → D4f ·
 `wj-auth-card` (15) THIẾT KẾ S39 · nhóm Khảo sát (21) *provisional* · **26 lượt mới ở §12.2**.
+
+## 13. Đính chính lần ba — số của D4e (05/09/2026, phiên máy Mac)
+
+### 13.1 🔴 D4e là **7** call site, không phải 36
+
+Bảng §11.4/§12.5 và `next-session-clusters-D.md:530` đều ghi *"`wj-pc-metric-card` (44) +
+`wj-rep-mcard` (16) → D4e"*. Cả hai con số là **grep thô**, bắt luôn tên con BEM
+(`__icon` · `__body` · `__label` · `__value` · `__head` · `__title` · `__meta`) — **đúng
+lỗi mà §12.1 vừa sửa cho D4d một ngày trước đó**.
+
+Đếm lại bằng `scripts/qa/wj_inventory.py` (chỉ tính khi tên lớp đứng trọn trong thuộc tính
+class hoặc trong slot `sc_class`):
+
+| Họ | Doc ghi | **Shell thật** | File |
+|---|---:|---:|---|
+| `wj-rep-mcard` | 16 | **3** | `portal_report_orders.xml:85, 98, 132` |
+| `wj-pc-metric-card` — báo cáo | 20 | **4** | `portal_report_orders.xml:198, 209, 219, 230` |
+| `wj-pc-metric-card` — khảo sát | 24 | **4** | `portal_inspection_detail_templates.xml:40, 51, 62, 74` |
+| `wj-pc-metric-card` — gallery | *bỏ sót* | **4** | `pc_preview.xml:48, 55, 62, 69` |
+
+**Kiểm chứng bằng trang chạy thật**, không chỉ bằng grep: đếm shell trong HTML mà
+`/portal/reports/orders` trả về ra đúng **3 + 4 = 7**.
+
+⇒ **D4e = 7 call site / 1 file / 1 module.** Nhỏ hơn D4d bảy lần.
+
+### 13.2 Kiểm kê bỏ sót 4 lượt `wj-pc-metric-card` ở gallery component
+
+`wujia_portal_layout/views/pc_preview.xml` (route `/portal/_pc-preview`, `auth='user'`,
+chặn user không phải nội bộ) có **4** shell mà bảng §4 không tính. Đây là bản tham chiếu
+component dùng để đối chiếu với SVG của BA; **để nó lệch thì gallery nói dối**.
+
+Điểm đáng giá: route này **đo được trên máy local** — không dính chặn nào của §3.
+
+### 13.3 Cả hai "chặn kỹ thuật" của §3 đều đã hết hạn
+
+Đo lại trên DB dựng mới ngày 05/09, đăng nhập `anh.owner` với `tz = 'Asia/Saigon'` —
+đúng cấu hình được ghi là gây 500:
+
+| Route | §3 ghi | Đo lại 05/09 |
+|---|---|---|
+| `/portal/reports/orders` | 500 (tz, cụm R3) | **HTTP 200**, biểu đồ render, 7 shell đủ |
+| `/portal/inspection` | module `uninstalled` trên DB dev | **HTTP 200** — `reseed_full.sh` nay cài đủ 21 module |
+
+Nguyên nhân chặn thứ nhất: `portal_tz()` (`wujia_portal_base/controllers/utils.py:38`) đã
+có nhánh `except → DEFAULT_PORTAL_TZ` từ commit `2f0e466`, và controller báo cáo thì
+**không hề dùng tz**. Chặn thứ hai chỉ là thiếu module trên DB dev cũ, không phải tính chất
+của mã nguồn.
+
+🔑 Bài học lặp lại lần thứ ba trong cụm này (sau `WJ-ORD-023` và §12.1): **con số và trạng
+thái trong tài liệu bàn giao là giả thuyết, không phải sự thật.** Trước mỗi lượt phải chạy
+lại phép đếm và bấm thử lại chính route đó.

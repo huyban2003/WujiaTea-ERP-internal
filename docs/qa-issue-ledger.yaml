@@ -1569,3 +1569,52 @@ WJ-FRANCHISE-003:
 #    chỗ mới lộ 4 test đỏ; (b) đột biến sed neo sai thụt lề thì KHÔNG áp được mà bảng vẫn in
 #    "KHÔNG ĐỎ" cho một guard hoàn toàn tốt.
 # =====================================================================================
+
+# =====================================================================================
+# UI-SURFACECARD-001 (STT 127) — ĐÍNH CHÍNH 05/09 (phiên máy Mac, 0 call site mới).
+# Vẫn `Ready for Dev`, ledger vẫn dạng comment, KHÔNG chạy qa_sync.py.
+#
+# 1. D4b/c/d ĐÃ MERGE VÀO main + push (`5758495`). Trước phiên này hai commit
+#    `4110f71` + `5758495` chỉ nằm trên nhánh `dev/2026-09-05-d4c` — đúng bẫy D3c
+#    hôm 03/09 (quên merge, một ngày sau mới lộ vì UAT chạy bản cũ).
+# 2. 🔴 Hai lỗi deploy vá ở `20b6de1`, cả hai KHÔNG lộ ra bằng test hay bảng đo:
+#    (a) 4 file CSS nạp bằng <link ?v=> tay đều đổi mà `?v=` vẫn đứng ở 1180/1190
+#        của D3 ⇒ trình duyệt BA phục vụ lại cache cũ, retest sẽ báo "không đổi gì".
+#        Bump cả bốn lên 1200.
+#    (b) 13/14 module bị đụng KHÔNG bump version ⇒ restart sau git pull không nạp
+#        lại XML của chúng, VÀ mất luôn phép kiểm deploy bằng số phiên bản qua
+#        XML-RPC — chính phép kiểm đã bắt được D3c chưa lên UAT. Bump patch đủ 13.
+#    Lệnh deploy + 4 bước kiểm sau deploy: `docs/deploy-d4-2026-09-05.md`.
+# 3. 🔴 ĐÍNH CHÍNH SỐ D4e (lần thứ ba của cụm này): doc ghi 36 lượt, THẬT là **7**
+#    (`wj-rep-mcard` 3 + `wj-pc-metric-card` báo cáo 4). Nguyên nhân y hệt §12.1 của
+#    D4d: grep thô bắt luôn tên con BEM. Kiểm chứng bằng chính HTML trang chạy thật
+#    ra đúng 3+4. Kiểm kê còn BỎ SÓT 4 lượt ở gallery `pc_preview.xml`.
+#    → `docs/d4-surfacecard-inventory.md` §13, prompt ở `docs/prompt-d4e.md`.
+# 4. ✅ CẢ HAI CHẶN KỸ THUẬT CỦA D4e ĐÃ HẾT HẠN — đo lại chứ không suy từ doc:
+#    `/portal/reports/orders` với tz `Asia/Saigon` trả **200** (portal_tz đã có nhánh
+#    fallback từ `2f0e466`, mà controller báo cáo thì không dùng tz); `/portal/
+#    inspection` trả **200** vì reseed nay cài đủ 21 module. D4e đo được trên local.
+# 5. Ba vấn đề CÓ SẴN lộ ra khi đo mốc, KHÔNG thuộc D4e — đã ghi ở prompt-d4e.md §cuối:
+#    RULE 1 vỡ 3 ô ở `/portal/delivery` PC (empty state 28px > tiêu đề card 22px,
+#    thuộc CMP-ES-001); tiêu đề card lệch chuẩn 18px ở 4 màn (nợ RULE 2, D7+);
+#    15 card chưa có `.wj-card-header` (khối lượng còn lại của cụm D3).
+#
+# MÔI TRƯỜNG
+#    Dựng lại toàn bộ trên máy Mac: 21 module installed, reseed RC=0 / 0 ERROR,
+#    13 route portal trả 200. Ba seed đã hỏng lặng lẽ từ Sprint 41/42/K được vá
+#    (wujia.notification đổi date→published_date + bỏ cờ published + thêm ràng buộc
+#    target_mode; wujia.return.error.type không còn) — không ai biết vì reseed toàn
+#    bộ chưa chạy lại từ dạo đó. Thêm `seed_products_demo.py`: không seed nào tạo
+#    sản phẩm, mà thiếu sản phẩm thì không có đơn hàng, kéo theo màn báo cáo rỗng.
+#
+# TEST
+#    `-u wujia_portal_layout --test-tags wujia_surface_card_d4` trên DB Mac mới:
+#    **45 test, 0 failed / 0 error** — khớp mốc D4d ⇒ môi trường không phải nguồn sai lệch.
+#    ⚠️ Phải đổi cổng (`--http-port 8099`) nếu server dev đang chạy, không thì RC=1 vì
+#    "Address already in use" — rất dễ đọc nhầm thành test đỏ.
+#
+# BỘ ĐO
+#    `scripts/qa/wj_inventory.py` + `wj_measure.py` (mới, nằm TRONG repo). Bộ đo cũ ở
+#    `scratchpad/` gitignored nên đổi máy là mất trắng — đó là việc phải làm lại cả phiên
+#    này. Đã kiểm chứng: chạy trên 10 họ mobile của D4d ra đúng 50, khớp bảng §4.
+# =====================================================================================
