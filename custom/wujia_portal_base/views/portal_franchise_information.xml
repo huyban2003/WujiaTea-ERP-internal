@@ -186,7 +186,9 @@
                 </t>
 
                 <!-- Card: Cửa hàng nhượng quyền -->
-                <div class="wujia-mdash-card">
+                <t t-call="wujia_portal_layout.wj_surface_card">
+                    <t t-set="sc_variant" t-value="'section'"/>
+                    <t t-set="sc_class" t-value="'wujia-mdash-card'"/>
                     <!-- Tên cửa hàng lên làm dòng phụ của tiêu đề (chủ dự án chốt 02/09) ⇒ mobile
                          xếp giống bản PC cùng card: tiêu đề → dòng phụ → badge. -->
                     <t t-call="wujia_portal_layout.wj_card_header">
@@ -221,10 +223,12 @@
                             <span class="wujia-maccount-kv-val" t-out="franchise.address or '—'"/>
                         </div>
                     </div>
-                </div>
+                </t>
 
                 <!-- Card: Hợp đồng nhượng quyền -->
-                <div class="wujia-mdash-card">
+                <t t-call="wujia_portal_layout.wj_surface_card">
+                    <t t-set="sc_variant" t-value="'section'"/>
+                    <t t-set="sc_class" t-value="'wujia-mdash-card'"/>
                     <t t-call="wujia_portal_layout.wj_card_header">
                         <t t-set="ch_title">Hợp đồng nhượng quyền</t>
                         <t t-set="ch_level" t-value="2"/>
@@ -249,13 +253,14 @@
                             </span>
                         </div>
                     </div>
-                </div>
+                </t>
 
                 <!-- Card: Thành viên cửa hàng -->
-                <div class="wujia-mdash-card" style="padding:0;">
-                    <!-- Card khai padding:0 ⇒ phần đệm ở lại wrapper (CardHeader cố ý KHÔNG tự
-                         khai padding, việc của SurfaceCard cụm D4). KHÔNG dùng biến thể flush:
-                         nhịp header→body của spec là 8px, nhỏ hơn 12px cũ ⇒ đặc hơn. -->
+                <t t-call="wujia_portal_layout.wj_surface_card">
+                    <t t-set="sc_variant" t-value="'section'"/>
+                    <t t-set="sc_body" t-value="'flush'"/>
+                    <t t-set="sc_class" t-value="'wujia-mdash-card'"/>
+                    <!-- flush ⇒ đệm ở lại wrapper dưới, giữ inset 14 khớp wujia-mdash-list. -->
                     <div style="padding:14px 14px 0;">
                         <t t-call="wujia_portal_layout.wj_card_header">
                             <t t-set="ch_title">Thành viên cửa hàng</t>
@@ -277,7 +282,7 @@
                             <span t-else="" class="wujia-badge wujia-badge-muted">Inactive</span>
                         </div>
                     </div>
-                </div>
+                </t>
             </div>
         </t>
     </template>

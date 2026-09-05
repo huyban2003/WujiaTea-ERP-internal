@@ -319,3 +319,145 @@ class TestSurfaceCardD4c(TransactionCase):
         for v in views:
             with self.subTest(key=v.key):
                 self.assertIn('wj-surface-card', v.arch_db)
+
+
+@tagged('post_install', '-at_install', 'wujia_surface_card_d4')
+class TestSurfaceCardD4d(TransactionCase):
+    """D4d — 10 họ MOBILE + wj-filter-card. Lượt đầu tiên dùng cột mobile của
+    component, nên guard cả token @media lẫn từng rule cũ."""
+
+    # Rule gốc nằm ở _components.css; 5 họ bị module riêng đè, nạp SAU nên
+    # thắng theo thứ tự nguồn dù cùng đặc hiệu (0,1,0).
+    SHARED = ('.wj-filter-card', '.wujia-mres-card', '.wujia-mhist-card',
+              '.wujia-mknow-card', '.wujia-mdash-card')
+    OWNED = ('background', 'border', 'border-radius', 'padding', 'box-shadow', 'gap')
+
+    # --- chủ sở hữu DUY NHẤT của dáng khung -------------------------------
+
+    def test_shared_mobile_families_no_longer_declare_shape(self):
+        css = _css('_components.css')
+        for sel in self.SHARED:
+            for body in _rules_anywhere(css, sel):
+                for prop in self.OWNED:
+                    with self.subTest(sel=sel, prop=prop):
+                        self.assertFalse(
+                            _declares(body, prop),
+                            f'{sel} vẫn khai {prop} — dáng khung phải nằm ở .wj-surface-card')
+
+    def test_module_owned_families_no_longer_declare_shape(self):
+        for module, name, sels in (
+                ('wujia_portal_exam', 'portal_exam.css',
+                 ('.wujia-mexam-card', '.wujia-mexam-cfcard')),
+                ('wujia_portal_notification', 'portal_notification.css',
+                 ('.wujia-mnoti-detail-card',)),
+                ('wujia_portal_delivery', 'portal_delivery.css',
+                 ('.wujia-mdelivery-prodcard',))):
+            css = _mod_css(module, name)
+            for sel in sels:
+                for body in _rules_anywhere(css, sel):
+                    for prop in self.OWNED:
+                        with self.subTest(sel=sel, prop=prop):
+                            self.assertFalse(_declares(body, prop))
+
+    def test_selcard_keeps_only_its_tonal_fill(self):
+        # Nền tonal là sắc thái BA duyệt cho thẻ "đang chọn"; KHÔNG dùng biến thể
+        # --tonal vì biến thể đó bỏ hẳn viền, còn BA vẫn đòi viền 1px.
+        bodies = _rules_anywhere(_mod_css('wujia_portal_exam', 'portal_exam.css'),
+                                 '.wujia-mexam-selcard')
+        self.assertTrue(bodies)
+        joined = ''.join(bodies)
+        self.assertIn('var(--wujia-surface-tonal)', joined)
+        for prop in ('border', 'border-radius', 'padding', 'gap'):
+            with self.subTest(prop=prop):
+                self.assertFalse(_declares(joined, prop))
+
+    # --- bẫy đã trả giá ---------------------------------------------------
+
+    def test_filter_chips_compensation_is_gone(self):
+        # gap 10 của wj-filter-card là số BÙ: có .wj-filter-chips{margin-top:-2px}
+        # kèm. Kéo gap về 8 mà giữ -2px thì khoảng hở thật thành 6px — RULE 1/2
+        # mù trước lỗi này vì nó đều tay mọi card.
+        css = _strip_comments(_css('_components.css'))
+        self.assertNotRegex(css, r'\.wj-filter-card\s*>\s*\.wj-filter-chips\s*\{[^}]*margin-top')
+
+    def test_notification_no_longer_overrides_knowledge_card(self):
+        # Rule liên module .wujia-mnoti .wujia-mknow-card{padding:9px 12px} đo lúc
+        # chạy ra 0 phần tử khớp ⇒ rule chết, giữ lại chỉ để lệch hai màn.
+        css = _strip_comments(_mod_css('wujia_portal_notification',
+                                       'portal_notification.css'))
+        self.assertNotIn('.wujia-mnoti .wujia-mknow-card', css)
+
+    def test_knowledge_article_no_longer_overrides_padding(self):
+        # .wujia-mknow-article{padding:16px} từng ĐÈ compact 14 của card — đo được
+        # 16 ở /portal/knowledge/<slug>. Kiểm kê D4a ghi p14, đó là số của rule gốc.
+        for body in _rules_anywhere(_css('_components.css'), '.wujia-mknow-article'):
+            self.assertFalse(_declares(body, 'padding'))
+
+    # --- những thứ CỐ Ý giữ lại -------------------------------------------
+
+    def test_non_shape_rules_survive(self):
+        keep = (
+            (_css('_components.css'), '.wujia-mres-card', 'max-width'),
+            (_css('_components.css'), '.wujia-mhist-card', 'margin-bottom'),
+            (_css('_components.css'), '.wujia-mdash-card', 'display'),
+            (_mod_css('wujia_portal_delivery', 'portal_delivery.css'),
+             '.wujia-mdelivery-prodcard', 'overflow'),
+        )
+        for css, sel, prop in keep:
+            with self.subTest(sel=sel, prop=prop):
+                self.assertTrue(any(_declares(b, prop)
+                                    for b in _rules_anywhere(css, sel)),
+                                f'{sel} mất {prop} — đó không phải dáng khung')
+
+    def test_mdash_list_keeps_its_own_inset(self):
+        # 9 call site "gộp" dùng sc_body="flush": card không khai đệm, phần đệm
+        # là của chính danh sách (4/14) + nhịp dọc 12 của .wujia-mdash-row.
+        self.assertTrue(any(_declares(b, 'padding')
+                            for b in _rules_anywhere(_css('_components.css'),
+                                                     '.wujia-mdash-list')))
+
+    # --- token cột mobile --------------------------------------------------
+
+    def test_mobile_tokens_match_ba(self):
+        css = _strip_comments(_css('_variables.css'))
+        block = css[css.index('@media (max-width: 991.98px)'):]
+        for token, value in (('--wujia-surface-radius', '14px'),
+                             ('--wujia-surface-pad-compact', '12px'),
+                             ('--wujia-surface-pad-regular', '14px'),
+                             ('--wujia-surface-gap', '8px')):
+            with self.subTest(token=token):
+                self.assertRegex(block, re.escape(token) + r':\s*' + re.escape(value))
+
+    def test_mobile_border_tone_is_the_stronger_one(self):
+        # BA: mobile viền #E5E7EB (--wujia-border), desktop #EEF2F5 (--wujia-border-soft).
+        css = _strip_comments(_css('_components.css'))
+        m = re.search(r'@media \(max-width: 991\.98px\) \{\s*'
+                      r'\.wj-surface-card \{([^}]*)\}', css)
+        self.assertIsNotNone(m, 'mất nhánh @media của .wj-surface-card')
+        self.assertIn('var(--wujia-border)', m.group(1))
+
+    # --- call site ---------------------------------------------------------
+
+    def test_mobile_non_div_call_sites_carry_the_owner_class(self):
+        # 6 <form method="get"> lọc, 1 <article> landmark, 1 <a> wholeCard và 1
+        # <div role="status"> — t-call sinh <div> trơn nên sẽ nuốt mất tag/thuộc
+        # tính. Giữ tag, thêm thẳng class (cách D4c đã chốt).
+        for key, tag in (('wujia_portal_knowledge.portal_knowledge_detail', '<article'),
+                         ('wujia_portal_exam.portal_exam_schedule', '<a'),
+                         ('wujia_portal_sale.mres_shell', 'role="status"')):
+            view = self.env['ir.ui.view'].search([('key', '=', key)], limit=1)
+            with self.subTest(key=key):
+                self.assertTrue(view, f'không thấy view {key}')
+                self.assertIn('wj-surface-card', view.arch_db)
+                self.assertIn(tag, view.arch_db)
+
+    def test_no_inline_padding_left_on_migrated_cards(self):
+        # Bẫy #5: style inline thắng mọi CSS. Đã chuyển sang sc_body="flush",
+        # để cả hai cùng tồn tại là mâu thuẫn im lặng.
+        views = self.env['ir.ui.view'].search(
+            [('key', 'in', ['wujia_portal_base.portal_franchise_information',
+                            'wujia_portal_support.portal_support_detail'])])
+        self.assertEqual(len(views), 2)
+        for v in views:
+            with self.subTest(key=v.key):
+                self.assertNotIn('padding:0', v.arch_db.replace(' ', ''))

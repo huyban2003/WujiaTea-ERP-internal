@@ -22,8 +22,8 @@
     /* Title + count nay do shared PageHeader lo (CMP-PG-001) — 3 class riêng đã gỡ. */
     .wujia-mnoti-chips { margin: 2px 0; }
     .wujia-mnoti .wj-filter-chip { font-size: 12px; }   /* Figma 4651:655 — chip label 12 (base 13) */
-    /* Search = Compact filter bar Figma (input 30px, không phải 42px của mknow chuẩn) */
-    .wujia-mnoti .wujia-mknow-card { padding: 9px 12px; }
+    /* Search = Compact filter bar Figma (input 30px, không phải 42px của mknow chuẩn).
+       D4d: gỡ override .wujia-mnoti .wujia-mknow-card — đo lúc chạy ra 0 phần tử khớp. */
     .wujia-mnoti .wujia-mknow-search-input { height: 30px; font-size: 13px; border-radius: 8px; padding: 0 12px 0 34px; }
     .wujia-mnoti .wujia-mknow-search-field > i { font-size: 14px; }
     .wujia-mnoti .wujia-mknow-search-btn { height: 30px; padding: 0 16px; font-size: 13px; border-radius: 8px; }
@@ -152,12 +152,7 @@
     .wujia-mnoti-detail-headmain { min-width: 0; }
     .wujia-mnoti-detail-title { font-size: 22px; font-weight: 700; color: var(--wujia-morder-text); margin: 0; }
     .wujia-mnoti-detail-sub { font-size: 12px; color: var(--wujia-morder-text-sub); margin: 2px 0 0; }
-    .wujia-mnoti-detail-card {
-        background: var(--wujia-morder-card-bg);
-        border: 1px solid var(--wujia-morder-border);
-        border-radius: var(--wujia-morder-radius);
-        padding: 16px;
-    }
+    /* D4d: dáng khung .wujia-mnoti-detail-card sang .wj-surface-card. */
     .wujia-mnoti-detail-typerow { display: flex; align-items: center; gap: 12px; }
     .wujia-mnoti-detail-typeicon {
         flex: 0 0 auto;

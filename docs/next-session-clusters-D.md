@@ -526,7 +526,7 @@ Ba route **không đo được trên máy local**, phát hiện khi đo D4a:
 |---|---|---:|---|---|---|
 | ✅ **D4b XONG (04/09)** | `wujia-kpi-card` + `wujia-content-card` — **nhóm "bỏ shadow, thêm viền"** | 12 / 6 | `wujia_portal_layout`, `wujia_portal_base` | Thấp — cả hai chỉ lệch **đúng một luật**: có `--wujia-card-shadow` (BA: không shadow) và **thiếu viền**; `wujia-kpi-card` là `wholeCard` ⇒ kiểm luôn focus/hover sau khi bỏ shadow | Gọn, **và quan trọng hơn: 5/5 route dùng nó đều ĐO ĐƯỢC trên máy local** (`/portal` 8 bề mặt · `/knowledge` 2 · `/support` 1 · `/return` 1 · `/info-request` 1) ⇒ dùng để **hiệu chỉnh chính bảng đo trước–sau**. Sai ở đây thì rẻ |
 | ✅ **D4c XONG (05/09)** | `wj-pc-card` (34) + `wj-pc-acct-headcard` (2) + **8 modifier** (không phải 9 — `wj-dlv-pc-card` là `id=`, không tồn tại) | **36 call site / 20 file** | 10 module portal | 🔴 Cao nhất cụm — đã đi qua: radius **18→16** (6 rule tiêu thụ token, 4 nằm NGOÀI họ), padding **24→16**, 5 call site không thể thành `<div>` | Số đo đầy đủ: **`docs/d4c-acceptance-matrix.md`**. 185 bề mặt · 0 ô mất record · 26/95 ô thấp xuống · **lồng thẻ trắng 6→0** · 33 test / 10 đột biến đỏ đúng chỗ |
-| **D4d** | Mobile: `wujia-mdash-card` + `mhist`/`mknow`/`mnoti`/`mres`/`mexam`/`mdelivery-prodcard` + `wj-filter-card` | 51 / 18 | 10 module portal | Trung bình — `wujia-mdash-card` **đã đúng cả 3 số**, phần lớn việc là padding 16→12 và viền `#EEF2F5`→`#E5E7EB` | Cùng bộ token `--wujia-morder-*` ⇒ một nhóm rủi ro đồng nhất. `wujia-mdash-card` là `wholeCard` ⇒ kiểm luôn touch target 44×48 |
+| ✅ **D4d XONG (05/09)** | Mobile: `wujia-mdash-card` + `mhist`/`mknow`/`mnoti`/`mres`/`mexam`/`mdelivery-prodcard` + `wj-filter-card` — **50 lượt, không phải 51** (51 là lỗi cộng của chính bảng này) | **50 / 18** | 10 module portal | Đã đi qua: padding 16→12, viền `#EEF2F5`→`#E5E7EB` (4 họ), gap 10/14/12→8 (3 họ) | Số đo đầy đủ: **`docs/d4d-acceptance-matrix.md`**. 225 bề mặt · **0 ô mất record** · 14/95 ô thấp xuống · touch target **109px** · ảnh @1440 khác **0 pixel** · 45 test / **11 đột biến đỏ đúng chỗ** |
 | **D4e** | `wj-rep-mcard` + **20 lượt `wj-pc-metric-card` của trang báo cáo** | 36 / 2 | `wujia_portal_report`, `wujia_portal_layout` | Trung bình — `wj-rep-mcard` **không có viền hẳn**, thêm viền là đổi hình học 16 khối báo cáo | 🔴 **Chặn kỹ thuật: `/portal/reports/orders` đang 500 có sẵn** (tz `Asia/Saigon`, cụm **R3**) ⇒ **không đo được trên local**. Hoặc **chạy R3 trước**, hoặc đo trên UAT. Đừng xếp lượt này khi chưa gỡ chặn |
 | **D4f** | Bootstrap thô `card`/`card-header`/`card-footer`/`card-body` (trừ 2 file legacy) | 75 / 13 | `wujia_portal_base`, `_return`, `_sale`, `_support`, `_knowledge`, `_info_request` | 🔴 **Blast radius lớn nhất** — `.card` là lớp dùng chung của Bootstrap, đụng vào là dễ lan ra ngoài phạm vi portal | **CUỐI**, đúng chỉ đạo. Sau D4b–D4e đã có component chuẩn thì đây chỉ còn là việc thay lớp, không phải việc quyết số |
 | — | `wj-auth-card` (15) | 15 / 1 | — | — | 🔒 **THIẾT KẾ S39 — giữ dáng.** Dev tự quyết theo luật D3f |
@@ -631,6 +631,41 @@ cách ngoài card, một cái là giữa hai card. Ghi ở inventory §7 để p
   LIMIT); ở 360px các trường chật (SL yêu cầu, Ngày sản xuất) xuống 1 cột; thêm `id/for` hoặc
   `aria-labelledby` cho mọi label (`views/portal_return_form.xml`). Đo bằng harness a11y đã có
   (tab-walk + `forcePseudoState` cho `input[type=date]` — bẫy C8a).
+
+### 🔴 Bài học D4d — đọc trước khi làm D4e
+
+Số đo trước–sau đầy đủ: **`docs/d4d-acceptance-matrix.md`**. Tiến độ cụm **98/384 ≈ 26%**.
+
+1. 🔴 **`logfile` trong `odoo.conf` nuốt sạch stdout — "RC=0, 0 ERROR" trên log RỖNG là XANH
+   GIẢ.** Ba lần chạy test đầu tiên đọc ra "0 lỗi" từ một file 0 dòng. Bằng chứng thật nằm ở
+   `logs/<năm>/<tháng>/<ngày>.log` (`wujia_core` tự xoay log theo ngày). Đọc đúng chỗ mới lộ
+   **4 test đỏ**. Luôn `N=$(wc -l < $L)` **trước** mỗi lần chạy rồi `tail -n +$((N+1))`.
+2. 🔴 **Đột biến không áp được cũng báo "guard yếu".** `sed` neo `^    --wujia-surface-pad-compact`
+   trượt vì dòng thật thụt **8 dấu cách** ⇒ bảng in "KHÔNG ĐỎ" cho một guard hoàn toàn tốt. Phải
+   xác nhận đột biến **đã vào file** (`grep` lại) trước khi kết luận.
+3. **`xml_id` phải TRA, không được ĐOÁN.** 3/4 test đỏ chỉ vì đoán `..._page` trong khi tên thật
+   là `portal_knowledge_detail` / `portal_exam_schedule` / `mres_shell`. Một file XML có nhiều
+   `<template id=…>`; dò chủ sở hữu của một dòng bằng `awk '/<template id="/{…} NR==N{print}'`.
+4. **Kiểm kê là SÀN — lần này SÀN hụt 26 lượt và một mệnh đề SAI.** Xem `d4-surfacecard-inventory.md`
+   §12.2: `wj-empty-state` bị ghi "không khai nền + bo góc" trong khi khai đủ, và là **20** lượt
+   chứ không phải 5. Đọc CSS tĩnh không thay được **đo lúc chạy** (§12.3: `mknow-card` đo 16 chứ
+   không phải 14 vì `.wujia-mknow-article` đè).
+5. **Đo tuyệt đối bắt được cái RULE 1/2 mù.** Bẫy `margin-top: -2px` bù cho `gap: 10` — cặp con
+   `wj-filter-dates → wj-filter-chips` đo **8px** trong khi mọi cặp anh em đo **10px**. Giữ `-2px`
+   khi gap về 8 sẽ thành **6px** mà **RULE 1/2 vẫn xanh**.
+6. **Rule chết phải chứng minh bằng số phần tử khớp lúc chạy, không phải bằng suy luận.**
+   `.wujia-mnoti .wujia-mknow-card` khớp **0 phần tử** ⇒ gỡ là vô hại, có bằng chứng.
+7. **Không phải màn nào "không đo được" cũng cần DB copy.** Chốt đầu phiên là dựng
+   `wujia_tea_d4d` + POST một đơn cho `wujia-mres-card`; hoá ra `/portal/order/rejected` là
+   **GET thuần** và `/portal/order/submitted/<id>` chỉ cần **một SO portal sẵn có đúng franchise**
+   (`S00002`). **Tra dữ liệu sẵn có trước khi dựng hạ tầng** — và không sinh dữ liệu là đúng QA §10.
+8. **Ảnh khác 0 pixel là bằng chứng "không rò rỉ" mạnh hơn mọi bảng số.** `/portal` @1440 trước/sau
+   khác **đúng 0 pixel** (`PIL.ImageChops.difference(...).getbbox() is None`).
+9. **`:is()` lấy đặc hiệu của đối số MẠNH NHẤT.** Ba danh sách hover/pressed ở `_interaction.css`
+   là **(0,3,0)** vì chứa `.wj-pc-page-btn:not(.is-active):not(.is-disabled)` — đây là lý do
+   Luật #1 bắt **giữ lớp cũ qua `sc_class`**; bỏ đi là hover/pressed của 41 thẻ chết câm.
+10. **Quét đặc hiệu phải loại tên con BEM.** `'.wujia-mexam-card' in selector` khớp cả
+    `.wujia-mexam-card-badge` ⇒ 9/15 "vi phạm" là giả. Cũng chính lỗi này thổi kiểm kê thô lên 51.
 
 ## R1–R5 — Optimize (sau khi 11 issue cụm D đã `Ready for Retest`)
 

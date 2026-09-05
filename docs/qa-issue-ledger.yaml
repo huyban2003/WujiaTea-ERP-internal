@@ -1474,3 +1474,98 @@ WJ-FRANCHISE-003:
 #    33 test — 0 failed / 0 error (22 của D4b + 11 mới). KHÔNG đẻ file test song song.
 #    scratchpad/d4c_mutate.sh: 10/10 đột biến ĐỎ ĐÚNG CHỖ + 1 run đối chứng không đột biến.
 # =====================================================================================
+
+# =====================================================================================
+# UI-SURFACECARD-001 (STT 127) — D4d 05/09: phủ thêm 50, tổng 98 trên 384 lượt (~26%).
+# Issue VẪN GIỮ `Ready for Dev`, CHƯA handoff — Dev KHÔNG tự đóng Done (QA Operating
+# Standard §2). Chỉ chạy qa_sync.py --apply khi chủ dự án chốt.
+#
+# ✅ D4d XONG — 10 họ mobile + wj-filter-card = 50 call site / 18 file / 10 module.
+#    Lượt ĐẦU TIÊN dùng cột mobile của component (@media max-width 991.98px viết ở D4b
+#    nhưng D4b/D4c đều PC-only ⇒ coi như code mới). `-u` đúng MỘT lần, RC=0, 0 ERROR.
+#    Số đo đầy đủ: docs/d4d-acceptance-matrix.md. wujia_portal_layout → 19.0.35.0.0.
+#
+# FIX
+#    - Rút hẳn dáng khung (nền/viền/bo góc/đệm/bóng/gap) khỏi 10 họ: wj-filter-card,
+#      wujia-mres-card, wujia-mhist-card, wujia-mknow-card, wujia-mdash-card
+#      (_components.css) + wujia-mexam-card, -selcard, -cfcard (portal_exam.css) +
+#      wujia-mnoti-detail-card (portal_notification.css) + wujia-mdelivery-prodcard
+#      (portal_delivery.css) ⇒ .wj-surface-card là CHỦ SỞ HỮU DUY NHẤT (Luật #7).
+#    - Gỡ 3 rule đè: .wj-filter-card > .wj-filter-chips { margin-top:-2px } (bù cho gap 10),
+#      .wujia-mnoti .wujia-mknow-card { padding:9px 12px } (rule CHẾT, 0 phần tử khớp),
+#      .wujia-mknow-article { padding:16px } (kiểm kê bỏ sót — chính nó làm mknow-card đo 16).
+#    - Giữ có chủ đích: mres-card max-width 420 + text-align, mhist-card margin-bottom 14,
+#      mdash-card display/text-decoration/color + a:hover, mdelivery-prodcard overflow:hidden,
+#      mdash-list padding 4px 14px, mexam-selcard background var(--wujia-surface-tonal).
+#    - 41/50 call site chuyển t-call; 9/50 GIỮ THẺ GỐC và thêm thẳng class chủ sở hữu
+#      (6 <form method="get">, <article>, <a t-foreach>, <div role="status" aria-live>)
+#      — QWeb O19 không có directive đổi tên thẻ (ir_qweb.py:1705, chốt ở C8).
+#    - 2 style inline `padding:0` → sc_body="flush" (bẫy #5: inline thắng mọi CSS).
+#    - 3 họ có gap (wj-filter-card, mexam-cfcard, mexam-selcard) đi qua biến thể --summary
+#      — cách DUY NHẤT lấy gap 8 mà không phá Luật #8 (cấm gap ở rule gốc).
+#    - mexam-selcard KHÔNG dùng sc_tone="tonal": biến thể đó bỏ hẳn viền (border:0), còn BA
+#      vẫn đòi viền 1px #E5E7EB ⇒ dùng biến thể thường + giữ ĐÚNG MỘT khai báo nền.
+#
+# IMPACT (đo thật, getComputedStyle, 19 route × 5 khổ 1440/1024/992/390/360 + 2 route mres)
+#    - Mobile: radius 14 · viền 1px rgb(229,231,235) · shadow none · compact 12 · regular 14
+#      · gap 8 — ĐÚNG số BA ở toàn bộ 12 lớp. 4 họ đang lệch viền #EEF2F5 đã về đúng tông.
+#      padding 16→12 (mhist/mknow/mnoti-detail/mexam-cfcard), 14→12 (mdash/mexam-card/
+#      -selcard), gap 10/14/12 → 8.
+#    - Acceptance BA #11: KHÔNG ô nào giảm record trong viewport (121→122); recordsTotal
+#      không đổi ở mọi ô; 14/95 ô GIẢM chiều cao trang, 0 ô tăng ⇒ mật độ tốt lên.
+#    - 225 bề mặt duyệt được cả trước lẫn sau (≠ đo rỗng). 0 lỗi JS, 0 tràn ngang, 95/95
+#      ô trả trang. Vi phạm lồng thẻ trắng 0 → 0.
+#    - KHÔNG rò rỉ sang PC, hai phép độc lập: bề mặt mobile nhìn thấy ở ≥992 là 0 trước và
+#      sau; VÀ ảnh /portal @1440 trước/sau khác ĐÚNG 0 PIXEL (PIL.ImageChops, bbox None).
+#    - Nhịp header→body ĐO TUYỆT ĐỐI: 56 khoá trùng khớp, ĐÚNG 2 ô đổi nhịp
+#      (/portal/return @390 và @360, wj-filter-search→wj-filter-select 10px→8px) — chính là
+#      gap BA yêu cầu. Bẫy #3 chứng minh bằng số: trước khi sửa, cặp dates→chips đo 8px
+#      trong khi mọi cặp anh em đo 10px (= gap 10 − 2px). Giữ -2px sẽ thành 6px mà RULE 1/2
+#      VẪN XANH — ca sai số đều tay điển hình.
+#    - Touch target wholeCard @390/@360: cạnh nhỏ nhất 109px (BA ≥44). Giảm 4px so với trước
+#      do padding 14→12, vẫn dư 65px.
+#    - RULE 1 + RULE 2 (--portal-login anh.owner): ĐÚNG 5 cờ có sẵn từ baseline D4c
+#      (4× debt-pay redirect no_due + inspection@360 tràn 11px), 0 cờ mới, 0 drift cỡ chữ.
+#    - Đặc hiệu CSS: quét 280 file CSS của custom/ — chỉ CÒN 1 rule khai dáng khung ở trạng
+#      thái nghỉ cho 10 họ (mexam-selcard background, giữ có chủ đích). 3 danh sách :is()
+#      ở _interaction.css là :hover/:active (phản hồi tương tác, không phải dáng nghỉ).
+#
+# RETEST (đề nghị BA soi trên UAT sau deploy)
+#    - Mọi màn mobile: card đặc lại 2–4px mỗi bên (padding 16/14 → 12) — kiểm bằng mắt xem
+#      có chỗ nào chữ/badge chạm mép không, nhất là /portal/return/<id> và /portal/exam.
+#    - /portal/notification và /portal/knowledge: ô tìm kiếm + thẻ bài viết nay cùng đệm 12.
+#    - /portal/order/submitted/<id> và /portal/order/rejected mở trên MÀN HÌNH RỘNG: nay
+#      nhận đúng cột PC của BA (r16 · pad 20) thay cho pad 20/16 · r14 cũ — xem LIMIT 2.
+#
+# LIMIT
+#    1. Đo trên wujia_tea_19 (dev), CHƯA soi UAT — UAT 8019 chỉ đọc/nhìn được sau deploy.
+#    2. wujia-mres-card ở khổ ≥992 đổi từ pad 20/16 · r14 sang cột PC của BA (pad 20 · r16).
+#       Đây là màn luồng mobile nhưng mở được bằng URL trên desktop; thay đổi ĐÚNG SPEC
+#       nhưng NHÌN THẤY ĐƯỢC ⇒ cần BA xác nhận khi retest.
+#    3. Hai card flush (portal_franchise_information, portal_support_detail) còn inline
+#       style="padding:14px 14px 0" ở wrapper con — CÓ TỪ TRƯỚC D4d, giữ để khớp inset 14
+#       của .wujia-mdash-list. Hội tụ cả hai về 12 là việc của D4e.
+#    4. Kiểm kê là SÀN: bắt thêm 26 lượt bề mặt trắng mobile NGOÀI kiểm kê (8 họ) — chủ dự
+#       án chốt GHI BỔ SUNG, KHÔNG kéo vào D4d. 20 thuộc CMP-ES-001 (wj-empty-state --rich
+#       15 + --card 5), 4 thuộc UI-DATALIST-001 (mknow-feat/-row, mreturn-row, mdelivery-row),
+#       2 chưa có chủ (mhist-summary, mticket-reply). ĐÍNH CHÍNH inventory §C: mệnh đề
+#       "wj-empty-state không khai nền + bo góc" là SAI, và là 20 lượt chứ không phải 5.
+#    5. ĐÍNH CHÍNH kiểm kê: D4d là 50 lượt, KHÔNG phải 51 — 51 là lỗi cộng của bảng tóm tắt
+#       next-session-clusters-D.md:529 (đếm thô bắt cả class con BEM). Không call site nào
+#       bị bỏ sót. Thêm 2 số đo hụt: mknow-card đo 16 (không phải 14, do .wujia-mknow-article
+#       đè); mdash-card có 3 biến thể đệm (12 · flush 0 · mdash-list 4/14), không phải 2.
+#    6. Nhịp header→body PC 18/23/25 vẫn ĐỂ NGUYÊN (chốt #4 đầu phiên) — mang sang D4e.
+#    7. Hội tụ token --wujia-border ↔ --wujia-morder-border và --wujia-border-soft ↔
+#       --wujia-morder-divider (cùng hex) CHƯA LÀM — phải hỏi chủ dự án trước.
+#    8. Tiến độ cụm 98/384 ≈ 26% ⇒ giữ `Ready for Dev`, kế tiếp D4e (wj-pc-metric-card 44 +
+#       wj-rep-mcard 16) — nhưng D4e đang bị CHẶN bởi /portal/reports/orders 500 (tz, cụm R3).
+#
+# TEST
+#    custom/wujia_portal_layout/tests/test_d4_surface_card.py (tag wujia_surface_card_d4):
+#    45 test — 0 failed / 0 error (33 của D4b+D4c + 12 mới). KHÔNG đẻ file test song song.
+#    scratchpad/d4d_mutate.sh: 11/11 đột biến ĐỎ ĐÚNG CHỖ + 1 run đối chứng không đột biến.
+#    ⚠️ Hai bẫy harness đã trả giá: (a) logfile trong odoo.conf nuốt stdout ⇒ "RC=0, 0 ERROR"
+#    trên log RỖNG là XANH GIẢ, bằng chứng thật ở logs/<năm>/<tháng>/<ngày>.log — đọc đúng
+#    chỗ mới lộ 4 test đỏ; (b) đột biến sed neo sai thụt lề thì KHÔNG áp được mà bảng vẫn in
+#    "KHÔNG ĐỎ" cho một guard hoàn toàn tốt.
+# =====================================================================================

@@ -16,7 +16,7 @@
                 <t t-set="ph_variant" t-value="'title'"/>
                 <t t-set="ph_title" t-value="res_page_title"/>
             </t>
-            <div class="wujia-mres-card" role="status" aria-live="polite">
+            <div class="wj-surface-card wj-surface-card--section wj-surface-card--regular wj-surface-card--padded wujia-mres-card" role="status" aria-live="polite">
                 <div t-attf-class="wujia-mres-icon wujia-mres-icon--#{res_tone}" aria-hidden="true">
                     <span class="wujia-mres-icon-inner">
                         <i t-attf-class="feather #{'icon-check' if res_tone == 'ok' else 'icon-alert-circle'}"/>

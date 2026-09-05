@@ -162,7 +162,7 @@
                 <p class="wj-count-meta wj-count-meta--primary" id="wj-know-mcount"><t t-out="len(articles)"/> bài viết</p>
 
                 <!-- Filter canonical 01-ChipSlide (Figma 4785:562) — keyword + category chips -->
-                <form method="get" action="/portal/knowledge" class="wj-filter-card">
+                <form method="get" action="/portal/knowledge" class="wj-surface-card wj-surface-card--summary wj-surface-card--compact wj-surface-card--padded wj-filter-card">
                     <div class="wj-filter-search">
                         <div class="wj-filter-search-field">
                             <i class="feather icon-search"/>
@@ -346,7 +346,7 @@
                     <t t-set="ph_back_url" t-value="'/portal/knowledge'"/>
                 </t>
 
-                <article class="wujia-mknow-card wujia-mknow-article">
+                <article class="wj-surface-card wj-surface-card--record wj-surface-card--compact wj-surface-card--padded wujia-mknow-card wujia-mknow-article">
                     <h1 class="wujia-mknow-article-title" t-out="article.name"/>
                     <!-- Badge map mobile: important → danger (Figma đỏ; desktop warning — drift, đối chiếu BA) -->
                     <t t-set="m_badge_cls" t-value="{'mandatory': 'wujia-badge-danger', 'important': 'wujia-badge-danger', 'new': 'wujia-badge-info'}"/>

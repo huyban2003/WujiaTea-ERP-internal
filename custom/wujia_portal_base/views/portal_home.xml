@@ -374,7 +374,10 @@
                                     <p class="wj-empty-state-sub">Thông báo quan trọng mới sẽ xuất hiện tại đây.</p>
                                 </div>
                             </div>
-                            <div t-else="" class="wujia-mdash-card wujia-mdash-list">
+                            <t t-call="wujia_portal_layout.wj_surface_card" t-else="">
+                                <t t-set="sc_variant" t-value="'section'"/>
+                                <t t-set="sc_body" t-value="'flush'"/>
+                                <t t-set="sc_class" t-value="'wujia-mdash-card wujia-mdash-list'"/>
                                 <t t-foreach="latest_notifications" t-as="noti">
                                     <t t-set="noti_badge_cls" t-value="{'URG': 'wujia-badge-danger', 'GEN': 'wujia-badge-info', 'PROMO': 'wujia-badge-warning', 'SYS': 'wujia-badge-muted', 'OTH': 'wujia-badge-success'}.get(noti.type_id.code, 'wujia-badge-muted')"/>
                                     <a t-attf-href="/portal/notification/#{noti.id}" class="wujia-mdash-row">
@@ -386,7 +389,7 @@
                                         <span t-if="noti.type_id" t-attf-class="wujia-badge #{noti_badge_cls}" t-out="noti.type_id.name"/>
                                     </a>
                                 </t>
-                            </div>
+                            </t>
                         </section>
 
                         <!-- ============================================================
@@ -419,7 +422,10 @@
                                     <p class="wj-empty-state-sub">Lịch giao sẽ hiển thị khi đơn hàng được xác nhận.</p>
                                 </div>
                             </div>
-                            <div t-else="" class="wujia-mdash-card wujia-mdash-list">
+                            <t t-call="wujia_portal_layout.wj_surface_card" t-else="">
+                                <t t-set="sc_variant" t-value="'section'"/>
+                                <t t-set="sc_body" t-value="'flush'"/>
+                                <t t-set="sc_class" t-value="'wujia-mdash-card wujia-mdash-list'"/>
                                 <t t-foreach="m_upcoming_batches" t-as="it">
                                     <a t-attf-href="/portal/delivery/#{it['batch'].id}" class="wujia-mdash-row is-stacked">
                                         <span class="wujia-mdash-tile"><i class="feather icon-truck"/></span>
@@ -435,7 +441,7 @@
                                         <span t-attf-class="wujia-badge #{it['badge'][1]}" t-out="it['badge'][0]"/>
                                     </a>
                                 </t>
-                            </div>
+                            </t>
                         </section>
 
                         <!-- Đơn hàng gần đây -->
@@ -454,7 +460,10 @@
                                     <p class="wj-empty-state-sub">Đơn hàng mới sẽ hiển thị tại đây sau khi được tạo.</p>
                                 </div>
                             </div>
-                            <div t-else="" class="wujia-mdash-card wujia-mdash-list">
+                            <t t-call="wujia_portal_layout.wj_surface_card" t-else="">
+                                <t t-set="sc_variant" t-value="'section'"/>
+                                <t t-set="sc_body" t-value="'flush'"/>
+                                <t t-set="sc_class" t-value="'wujia-mdash-card wujia-mdash-list'"/>
                                 <t t-foreach="recent_orders" t-as="o">
                                     <!-- WJ-HOME-002: mã đơn chiếm trọn dòng 1, tiền + ngày xuống
                                          dòng phụ — mã là thứ duy nhất phân biệt được các đơn. -->
@@ -471,7 +480,7 @@
                                         <span t-attf-class="wujia-badge #{lbl[1]}" t-out="lbl[0]"/>
                                     </a>
                                 </t>
-                            </div>
+                            </t>
                         </section>
 
                         <!-- Bài viết / Kiến thức mới -->
@@ -490,7 +499,10 @@
                                     <p class="wj-empty-state-sub">Tài liệu hướng dẫn mới nhất sẽ được cập nhật tại đây.</p>
                                 </div>
                             </div>
-                            <div t-else="" class="wujia-mdash-card wujia-mdash-list">
+                            <t t-call="wujia_portal_layout.wj_surface_card" t-else="">
+                                <t t-set="sc_variant" t-value="'section'"/>
+                                <t t-set="sc_body" t-value="'flush'"/>
+                                <t t-set="sc_class" t-value="'wujia-mdash-card wujia-mdash-list'"/>
                                 <t t-foreach="articles" t-as="art">
                                     <a t-attf-href="/portal/knowledge/#{art.slug}" class="wujia-mdash-row">
                                         <span class="wujia-mdash-tile"><i class="feather icon-file-text"/></span>
@@ -501,7 +513,7 @@
                                         </span>
                                     </a>
                                 </t>
-                            </div>
+                            </t>
                         </section>
 
                         <!-- Yêu cầu đổi trả gần đây -->
@@ -520,7 +532,10 @@
                                     <p class="wj-empty-state-sub">Yêu cầu mới sẽ hiển thị tại đây sau khi được tạo.</p>
                                 </div>
                             </div>
-                            <div t-else="" class="wujia-mdash-card wujia-mdash-list">
+                            <t t-call="wujia_portal_layout.wj_surface_card" t-else="">
+                                <t t-set="sc_variant" t-value="'section'"/>
+                                <t t-set="sc_body" t-value="'flush'"/>
+                                <t t-set="sc_class" t-value="'wujia-mdash-card wujia-mdash-list'"/>
                                 <t t-foreach="latest_returns" t-as="r">
                                     <a t-attf-href="/portal/return/#{r.id}" class="wujia-mdash-row is-stacked">
                                         <span class="wujia-mdash-tile"><i class="feather icon-corner-up-left"/></span>
@@ -539,7 +554,7 @@
                                         <span t-attf-class="wujia-badge #{lbl[1]}" t-out="lbl[0]"/>
                                     </a>
                                 </t>
-                            </div>
+                            </t>
                         </section>
 
                         <!-- Hỗ trợ nhanh (Chat UI-only href # — chưa có channel) -->
@@ -549,7 +564,10 @@
                                 <t t-set="sh_level" t-value="2"/>
                                 <t t-set="sh_platform" t-value="'m'"/>
                             </t>
-                            <div class="wujia-mdash-card wujia-mdash-list">
+                            <t t-call="wujia_portal_layout.wj_surface_card">
+                                <t t-set="sc_variant" t-value="'section'"/>
+                                <t t-set="sc_body" t-value="'flush'"/>
+                                <t t-set="sc_class" t-value="'wujia-mdash-card wujia-mdash-list'"/>
                                 <a href="/portal/support/new" class="wujia-mdash-row">
                                     <span class="wujia-mdash-tile"><i class="feather icon-headphones"/></span>
                                     <span class="wujia-mdash-row-main">
@@ -571,7 +589,7 @@
                                         <span class="wujia-mdash-row-sub is-primary">Thời gian: 8:00 - 17:30</span>
                                     </span>
                                 </a>
-                            </div>
+                            </t>
                         </section>
 
                         <!-- Thông tin cửa hàng -->
@@ -581,7 +599,10 @@
                                 <t t-set="sh_level" t-value="2"/>
                                 <t t-set="sh_platform" t-value="'m'"/>
                             </t>
-                            <div class="wujia-mdash-card wujia-mdash-list">
+                            <t t-call="wujia_portal_layout.wj_surface_card">
+                                <t t-set="sc_variant" t-value="'section'"/>
+                                <t t-set="sc_body" t-value="'flush'"/>
+                                <t t-set="sc_class" t-value="'wujia-mdash-card wujia-mdash-list'"/>
                                 <div class="wujia-mdash-row">
                                     <span class="wujia-mdash-ico"><i class="feather icon-map-pin"/></span>
                                     <span class="wujia-mdash-row-main">
@@ -604,7 +625,7 @@
                                               t-out="active_franchise.main_owner_member_id.user_id.name or '—'"/>
                                     </span>
                                 </div>
-                            </div>
+                            </t>
                         </section>
                     </t>
                 </div>

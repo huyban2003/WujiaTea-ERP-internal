@@ -99,7 +99,9 @@
                         <t t-set="ph_title">Tài khoản</t>
                     </t>
 
-                    <div class="wujia-mdash-card">
+                    <t t-call="wujia_portal_layout.wj_surface_card">
+                        <t t-set="sc_variant" t-value="'section'"/>
+                        <t t-set="sc_class" t-value="'wujia-mdash-card'"/>
                         <h2 class="wujia-maccount-cardtitle">Hồ sơ cá nhân</h2>
                         <div class="wujia-maccount-head">
                             <img class="wujia-maccount-avatar"
@@ -136,7 +138,7 @@
                                 <span class="wujia-maccount-kv-val" t-out="role_label or '—'"/>
                             </div>
                         </div>
-                    </div>
+                    </t>
                 </div>
             </t>
         </template>

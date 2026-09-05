@@ -76,11 +76,8 @@
     }
     .wujia-mexam-list { display: flex; flex-direction: column; gap: 12px; }
     .wujia-mexam-card {
+        /* D4d: dáng khung sang .wj-surface-card; giữ tag <a> vì QWeb O19 không đổi tên thẻ. */
         display: block;
-        background: #FFFFFF;
-        border: 1px solid var(--wujia-border-soft);
-        border-radius: 14px;
-        padding: 14px 16px;
         text-decoration: none;
     }
     .wujia-mexam-card-top {
@@ -211,14 +208,11 @@
 
     /* ================= Selected card (s2/s3) ================= */
     .wujia-mexam-selcard {
+        /* D4d: dáng khung sang .wj-surface-card; giữ nền tonal vì --tonal bỏ hẳn viền. */
         display: flex;
         align-items: center;
         justify-content: space-between;
-        gap: 12px;
-        background: #F8FAFC;
-        border: 1px solid var(--wujia-border-soft);
-        border-radius: 14px;
-        padding: 14px 16px;
+        background: var(--wujia-surface-tonal);
     }
     .wujia-mexam-selcard-main { flex: 1 1 auto; min-width: 0; }
     .wujia-mexam-selcard-title {
@@ -531,13 +525,9 @@
 
     /* ================= s5 — Xác nhận ================= */
     .wujia-mexam-cfcard {
-        background: #FFFFFF;
-        border: 1px solid var(--wujia-border-soft);
-        border-radius: 14px;
-        padding: 16px;
+        /* D4d: dáng khung + gap sang .wj-surface-card (--summary, gap 8). */
         display: flex;
         flex-direction: column;
-        gap: 14px;
     }
     .wujia-mpage .wujia-mexam-cftitle {
         margin: 0;

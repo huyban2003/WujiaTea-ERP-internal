@@ -139,7 +139,9 @@
                         <input type="hidden" name="franchise_id" t-att-value="franchises[0].id"/>
                     </t>
 
-                    <div class="wujia-mdash-card">
+                    <t t-call="wujia_portal_layout.wj_surface_card">
+                        <t t-set="sc_variant" t-value="'section'"/>
+                        <t t-set="sc_class" t-value="'wujia-mdash-card'"/>
                         <!-- CMP-CH-001: `<p>` giả heading → heading THẬT; `mb-3` gỡ hẳn để
                              không cộng chồng margin của header với margin body (spec). -->
                         <t t-call="wujia_portal_layout.wj_card_header">
@@ -170,9 +172,11 @@
                         <select name="sale_order_line_id" class="form-select wj-return-line" required="required">
                             <option value="">— Chọn đơn trước —</option>
                         </select>
-                    </div>
+                    </t>
 
-                    <div class="wujia-mdash-card">
+                    <t t-call="wujia_portal_layout.wj_surface_card">
+                        <t t-set="sc_variant" t-value="'section'"/>
+                        <t t-set="sc_class" t-value="'wujia-mdash-card'"/>
                         <t t-call="wujia_portal_layout.wj_card_header">
                             <t t-set="ch_title">Số lượng &amp; lô</t>
                             <t t-set="ch_platform" t-value="'m'"/>
@@ -190,9 +194,11 @@
                         </div>
                         <label class="wujia-mticket-label">Thời gian mở hàng</label>
                         <input type="datetime-local" name="opening_datetime" class="form-control" required="required"/>
-                    </div>
+                    </t>
 
-                    <div class="wujia-mdash-card">
+                    <t t-call="wujia_portal_layout.wj_surface_card">
+                        <t t-set="sc_variant" t-value="'section'"/>
+                        <t t-set="sc_class" t-value="'wujia-mdash-card'"/>
                         <t t-call="wujia_portal_layout.wj_card_header">
                             <t t-set="ch_title">Nội dung lỗi</t>
                             <t t-set="ch_platform" t-value="'m'"/>
@@ -205,9 +211,11 @@
                         <label class="wujia-mticket-label">Ghi chú</label>
                         <textarea name="note" rows="3" class="form-control"
                                   placeholder="Mô tả chi tiết tình trạng hàng…"/>
-                    </div>
+                    </t>
 
-                    <div class="wujia-mdash-card">
+                    <t t-call="wujia_portal_layout.wj_surface_card">
+                        <t t-set="sc_variant" t-value="'section'"/>
+                        <t t-set="sc_class" t-value="'wujia-mdash-card'"/>
                         <!-- Dòng hint 11px bên dưới CỐ Ý giữ nguyên là body, không đưa vào
                              ch_subtitle: subtitle của spec là 13/18, to hơn hint hiện tại
                              ⇒ đưa vào sẽ làm thẻ THƯA ra, trái acceptance BA. -->
@@ -227,7 +235,7 @@
                         </p>
                         <input type="file" name="video" class="form-control"
                                accept="video/mp4,video/quicktime"/>
-                    </div>
+                    </t>
 
                     <div class="wujia-mreturn-cta">
                         <a href="/portal/return" class="wujia-mreturn-btn-cancel">Hủy</a>

@@ -131,9 +131,8 @@
 
     /* ---------- Detail: product table ---------- */
     .wujia-mdelivery-prodcard {
-        background: var(--wujia-morder-card-bg);
-        border: 1px solid var(--wujia-morder-border);
-        border-radius: var(--wujia-morder-radius); overflow: hidden;
+        /* D4d: dáng khung sang .wj-surface-card (--flush); overflow cắt góc hàng đầu. */
+        overflow: hidden;
     }
     .wujia-mdelivery-prodrow { display: flex; align-items: flex-start; gap: 8px; padding: 10px 14px; }
     .wujia-mdelivery-prodrow + .wujia-mdelivery-prodrow { border-top: 1px solid var(--wujia-morder-divider); }

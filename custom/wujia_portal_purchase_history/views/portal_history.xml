@@ -289,7 +289,7 @@
 
                     <t t-else="">
                         <!-- Filter canonical 03-Advanced -->
-                        <form method="get" action="/portal/purchase-history" class="wj-filter-card">
+                        <form method="get" action="/portal/purchase-history" class="wj-surface-card wj-surface-card--summary wj-surface-card--compact wj-surface-card--padded wj-filter-card">
                             <input type="hidden" name="page_size" t-att-value="page_size"/>
                             <div class="wj-filter-search">
                                 <div class="wj-filter-search-field">
@@ -539,7 +539,9 @@
                         </div>
 
                         <!-- Thông tin đơn hàng -->
-                        <div class="wujia-mhist-card">
+                        <t t-call="wujia_portal_layout.wj_surface_card">
+                            <t t-set="sc_variant" t-value="'record'"/>
+                            <t t-set="sc_class" t-value="'wujia-mhist-card'"/>
                             <t t-call="wujia_portal_layout.wj_card_header">
                                 <t t-set="ch_title">Thông tin đơn hàng</t>
                                 <t t-set="ch_platform" t-value="'m'"/>
@@ -562,10 +564,12 @@
                                 <span class="wujia-mhist-kv-label">Số dòng hàng</span>
                                 <span class="wujia-mhist-kv-value"><t t-out="'%02d' % h['product_line_count']"/> sản phẩm</span>
                             </div>
-                        </div>
+                        </t>
 
                         <!-- Thông tin batch / giao hàng -->
-                        <div class="wujia-mhist-card">
+                        <t t-call="wujia_portal_layout.wj_surface_card">
+                            <t t-set="sc_variant" t-value="'record'"/>
+                            <t t-set="sc_class" t-value="'wujia-mhist-card'"/>
                             <t t-call="wujia_portal_layout.wj_card_header">
                                 <t t-set="ch_title">Thông tin batch / giao hàng</t>
                                 <t t-set="ch_platform" t-value="'m'"/>
@@ -587,19 +591,23 @@
                                 <span class="wujia-mhist-kv-value"
                                       t-out="b and b['departure'] and b['departure'].strftime('%d/%m/%Y · %H:%M') or '—'"/>
                             </div>
-                        </div>
+                        </t>
 
                         <!-- Ghi chú khi đặt hàng — dùng portal_note (order.note = T&C Odoo, sai ngữ nghĩa) -->
-                        <div class="wujia-mhist-card">
+                        <t t-call="wujia_portal_layout.wj_surface_card">
+                            <t t-set="sc_variant" t-value="'record'"/>
+                            <t t-set="sc_class" t-value="'wujia-mhist-card'"/>
                             <t t-call="wujia_portal_layout.wj_card_header">
                                 <t t-set="ch_title">Ghi chú khi đặt hàng</t>
                                 <t t-set="ch_platform" t-value="'m'"/>
                             </t>
                             <p class="wujia-mhist-note" t-out="detail['note'] or 'Không có ghi chú.'"/>
-                        </div>
+                        </t>
 
                         <!-- Danh sách sản phẩm — thành tiền đã gồm thuế -->
-                        <div class="wujia-mhist-card">
+                        <t t-call="wujia_portal_layout.wj_surface_card">
+                            <t t-set="sc_variant" t-value="'record'"/>
+                            <t t-set="sc_class" t-value="'wujia-mhist-card'"/>
                             <t t-call="wujia_portal_layout.wj_card_header">
                                 <t t-set="ch_title">Danh sách sản phẩm</t>
                                 <t t-set="ch_platform" t-value="'m'"/>
@@ -612,7 +620,7 @@
                                 <span class="wujia-mhist-prod-amount"
                                       t-out="money(line['line_total_tax_included'], h['currency_symbol'], h['currency_decimals'])"/>
                             </div>
-                        </div>
+                        </t>
                     </div>
                     <!-- /mobile -->
                 </t>

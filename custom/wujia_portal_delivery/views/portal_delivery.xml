@@ -325,7 +325,7 @@
 
                 <t t-else="">
                     <!-- Filter canonical 03-Advanced (Figma 4785:753) — keyword wire vào q sẵn có -->
-                    <form method="get" action="/portal/delivery" class="wj-filter-card" id="wj-dlv-mform">
+                    <form method="get" action="/portal/delivery" class="wj-surface-card wj-surface-card--summary wj-surface-card--compact wj-surface-card--padded wj-filter-card" id="wj-dlv-mform">
                         <!-- Luôn render (kể cả rỗng) để JS đồng bộ khi bấm chip AJAX. -->
                         <input type="hidden" name="bs" id="wj-dlv-bs" t-att-value="bs or ''"/>
                         <div class="wj-filter-search">
@@ -521,7 +521,9 @@
                 </t>
 
                 <!-- Batch info -->
-                <div class="wujia-mdash-card">
+                <t t-call="wujia_portal_layout.wj_surface_card">
+                    <t t-set="sc_variant" t-value="'section'"/>
+                    <t t-set="sc_class" t-value="'wujia-mdash-card'"/>
                     <div class="wujia-mdelivery-inf-top">
                         <span class="wujia-mdelivery-row-label">Chuyến xe</span>
                         <span t-attf-class="wujia-mdelivery-badge wujia-mdelivery-badge--#{m_badge[1]}" t-out="m_badge[0]"/>
@@ -536,11 +538,13 @@
                         </span>
                     </div>
                     <div class="wujia-mdelivery-inf-updated">Cập nhật: <t t-out="m_updated"/></div>
-                </div>
+                </t>
 
                 <!-- Thông tin chuyến -->
                 <div class="wujia-mdelivery-sectiontop">Thông tin chuyến</div>
-                <div class="wujia-mdash-card">
+                <t t-call="wujia_portal_layout.wj_surface_card">
+                    <t t-set="sc_variant" t-value="'section'"/>
+                    <t t-set="sc_class" t-value="'wujia-mdash-card'"/>
                     <div class="wujia-mdelivery-inforow">
                         <span class="lbl">Đơn liên quan</span>
                         <span class="val" t-out="m_orders"/>
@@ -556,11 +560,14 @@
                         <span class="lbl">Biển số</span>
                         <span class="val" t-out="batch.vehicle_id.license_plate or '—'"/>
                     </div>
-                </div>
+                </t>
 
                 <!-- Sản phẩm trong chuyến -->
                 <div class="wujia-mdelivery-sectiontop">Sản phẩm trong chuyến</div>
-                <div class="wujia-mdelivery-prodcard">
+                <t t-call="wujia_portal_layout.wj_surface_card">
+                    <t t-set="sc_variant" t-value="'section'"/>
+                    <t t-set="sc_body" t-value="'flush'"/>
+                    <t t-set="sc_class" t-value="'wujia-mdelivery-prodcard'"/>
                     <div class="wujia-mdelivery-prodrow wujia-mdelivery-prodrow--head">
                         <span class="nm">Tên sản phẩm</span>
                         <span class="qt">SL</span>
@@ -574,7 +581,7 @@
                         </div>
                     </t>
                     <div t-if="not products" class="wujia-mdelivery-prodempty">Chưa có sản phẩm trong chuyến.</div>
-                </div>
+                </t>
             </div>
         </t>
     </template>

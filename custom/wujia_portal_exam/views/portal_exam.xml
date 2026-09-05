@@ -169,7 +169,9 @@
                 <p class="wj-count-meta" id="wj-exam-mcount"><t t-out="pc_pager['total']"/> đăng ký trong cửa hàng hiện tại</p>
 
                 <!-- Filter canonical 04-DateRangeOnly (Figma 4785:862) — demo UI-only (Phase 2 wire) -->
-                <div class="wj-filter-card">
+                <t t-call="wujia_portal_layout.wj_surface_card">
+                    <t t-set="sc_variant" t-value="'summary'"/>
+                    <t t-set="sc_class" t-value="'wj-filter-card'"/>
                     <div class="wj-filter-dates wj-filter-dates--compact">
                         <label class="wj-filter-date">
                             <i class="feather icon-calendar"/>
@@ -182,7 +184,7 @@
                         </label>
                         <button type="button" class="wj-filter-search-btn"><i class="feather icon-search"/></button>
                     </div>
-                </div>
+                </t>
 
                 <div id="wj-exam-mbody" class="wj-ajax-slot">
                 <!-- Empty: chưa có đăng ký (no-data chung Figma 4788:974) -->
@@ -197,7 +199,7 @@
                 </div>
                 <div t-else="" class="wujia-mexam-list">
                     <a t-foreach="m_exam_items" t-as="item" t-att-href="item['link']"
-                       class="wujia-mexam-card">
+                       class="wj-surface-card wj-surface-card--record wj-surface-card--compact wj-surface-card--padded wujia-mexam-card">
                         <div class="wujia-mexam-card-top">
                             <t t-call="wujia_portal_layout.wj_card_header">
                                 <t t-set="ch_title" t-value="item['title']"/>
@@ -715,7 +717,9 @@
                         <span class="wujia-mexam-stepbadge">Bước 2/4</span>
                     </div>
 
-                    <div class="wujia-mexam-selcard">
+                    <t t-call="wujia_portal_layout.wj_surface_card">
+                        <t t-set="sc_variant" t-value="'summary'"/>
+                        <t t-set="sc_class" t-value="'wujia-mexam-selcard'"/>
                         <div class="wujia-mexam-selcard-main">
                             <t t-call="wujia_portal_layout.wj_card_header">
                                 <t t-set="ch_title" t-value="selected_course['title']"/>
@@ -725,7 +729,7 @@
                             <p class="wujia-mexam-selcard-meta" t-out="selected_course['meta']"/>
                         </div>
                         <span class="wujia-mexam-selcard-badge">Đã chọn</span>
-                    </div>
+                    </t>
 
                     <div class="wujia-mexam-cal">
                         <div class="wujia-mexam-cal-legend">
@@ -787,7 +791,9 @@
                         <span class="wujia-mexam-stepbadge">Bước 3/4</span>
                     </div>
 
-                    <div class="wujia-mexam-selcard">
+                    <t t-call="wujia_portal_layout.wj_surface_card">
+                        <t t-set="sc_variant" t-value="'summary'"/>
+                        <t t-set="sc_class" t-value="'wujia-mexam-selcard'"/>
                         <div class="wujia-mexam-selcard-main">
                             <t t-call="wujia_portal_layout.wj_card_header">
                                 <t t-set="ch_title" t-value="selected_course['title']"/>
@@ -797,7 +803,7 @@
                             <p class="wujia-mexam-selcard-meta" data-exam-sched-line="1">Thứ 5, 02/07/2026 • 08:20</p>
                         </div>
                         <span class="wujia-mexam-selcard-badge">Đã chọn</span>
-                    </div>
+                    </t>
 
                     <t t-call="wujia_portal_layout.wj_section_header">
                         <t t-set="sh_title">Danh sách nhân sự</t>
@@ -855,7 +861,9 @@
                         <span class="wujia-mexam-stepbadge">Bước 4/4</span>
                     </div>
 
-                    <div class="wujia-mexam-cfcard">
+                    <t t-call="wujia_portal_layout.wj_surface_card">
+                        <t t-set="sc_variant" t-value="'summary'"/>
+                        <t t-set="sc_class" t-value="'wujia-mexam-cfcard'"/>
                         <t t-call="wujia_portal_layout.wj_card_header">
                             <t t-set="ch_title">Thông tin lịch thi</t>
                             <t t-set="ch_level" t-value="2"/>
@@ -878,9 +886,11 @@
                             <span class="wujia-mexam-kv-k">Địa điểm</span>
                             <span class="wujia-mexam-kv-v" data-exam-cf-loc="1">Trung tâm đào tạo Ngô Gia</span>
                         </div>
-                    </div>
+                    </t>
 
-                    <div class="wujia-mexam-cfcard">
+                    <t t-call="wujia_portal_layout.wj_surface_card">
+                        <t t-set="sc_variant" t-value="'summary'"/>
+                        <t t-set="sc_class" t-value="'wujia-mexam-cfcard'"/>
                         <t t-call="wujia_portal_layout.wj_card_header">
                             <t t-set="ch_title">Nhân sự tham gia</t>
                             <t t-set="ch_level" t-value="2"/>
@@ -889,7 +899,7 @@
                         </t>
                         <!-- JS đổ từ dữ liệu đã nhập ở bước 3 -->
                         <div class="wujia-mexam-cfpeople" data-exam-cf-people="1"/>
-                    </div>
+                    </t>
 
                     <!-- Lỗi nghiệp vụ từ backend (hết chỗ / quá hạn / validate) -->
                     <div class="wujia-mexam-cal-note wujia-mexam-rnote wujia-mexam-submit-err"

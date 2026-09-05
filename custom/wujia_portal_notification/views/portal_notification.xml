@@ -312,7 +312,7 @@
                 </t>
 
                 <!-- Filter canonical 01-ChipSlide (Figma 4785:562) — keyword + chips (hidden unread) -->
-                <form method="get" action="/portal/notification" class="wj-filter-card">
+                <form method="get" action="/portal/notification" class="wj-surface-card wj-surface-card--summary wj-surface-card--compact wj-surface-card--padded wj-filter-card">
                     <input type="hidden" name="unread" t-att-value="unread or ''"/>
                     <div class="wj-filter-search">
                         <div class="wj-filter-search-field">
@@ -445,7 +445,9 @@
                     <t t-out="wj_dt(noti.published_date, '%d/%m/%Y %H:%M')"/>
                 </p>
 
-                <div class="wujia-mnoti-detail-card">
+                <t t-call="wujia_portal_layout.wj_surface_card">
+                    <t t-set="sc_variant" t-value="'section'"/>
+                    <t t-set="sc_class" t-value="'wujia-mnoti-detail-card'"/>
                     <div t-if="noti.type_id" class="wujia-mnoti-detail-typerow">
                         <t t-set="dtone" t-value="WJ_TONE.get(noti.type_id.code, 'cyan')"/>
                         <span t-attf-class="wujia-mnoti-detail-typeicon wujia-mnoti-tone-#{dtone}">
@@ -497,7 +499,7 @@
                             </a>
                         </div>
                     </t>
-                </div>
+                </t>
             </div>
         </t>
     </template>

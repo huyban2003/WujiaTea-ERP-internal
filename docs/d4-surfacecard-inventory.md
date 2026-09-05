@@ -309,3 +309,63 @@ không ra. D4c đã hội tụ radius 18→16 cho cả 4, **giữ nguyên đệm
 
 Còn lại: `wj-pc-metric-card` (44) → D4e · mobile `wujia-m*` + `wj-filter-card` → D4d ·
 Bootstrap `.card` thô (75) → D4f.
+
+## 12. Đính chính & bổ sung sau lượt D4d (05/09/2026)
+
+### 12.1 D4d là **50** lượt, không phải 51
+
+Grep tĩnh ra đúng 50 call site shell. Phần dư của các con số thô là **class con BEM**
+(`wujia-mexam-card-top/-line/-badge`, `wujia-mexam-selcard-main/-meta/-badge`): `mexam-card` thô
+10 lượt nhưng shell chỉ **1**, `mexam-selcard` thô 8 nhưng shell chỉ **2**.
+
+Cộng lại chính §4 của tài liệu này (10 dòng họ mobile): 30+7+4+2+2+1+1+1+1+1 = **50**. Con số 51
+chỉ có ở **bảng tóm tắt D4 của `next-session-clusters-D.md:529`** ⇒ lỗi cộng của bảng tóm tắt,
+**không call site nào bị bỏ sót**.
+
+### 12.2 🔴 §C SAI — `wj-empty-state` **có** khai nền + bo góc, và là **20** lượt
+
+Dòng *"`wj-empty-state` (5 → CMP-ES-001) … không có CSS khai nền + bo góc ⇒ ngoài hợp đồng"*
+là **sai cả hai vế**. Áp lại đúng phép thử của chính tài liệu (khai đủ nền + viền + bo góc + đệm
+⇒ là shell), luật **"kiểm kê là SÀN không phải TRẦN"** bắt thêm **8 họ / 26 lượt**:
+
+| Lớp | Lượt | Neo | Chủ hợp đồng thật |
+|---|---:|---|---|
+| `wj-empty-state--rich` | 15 | `_components.css:359` | **CMP-ES-001** |
+| `wj-empty-state--card` | 5 | `_components.css:344` | **CMP-ES-001** |
+| `wujia-mknow-feat` | 1 | `_components.css:2335` | `UI-DATALIST-001` (STT 126) |
+| `wujia-mknow-row` | 1 | `_components.css:2370` | `UI-DATALIST-001` |
+| `wujia-mreturn-row` | 1 | `portal_return.css:33` | `UI-DATALIST-001` |
+| `wujia-mdelivery-row` | 1 | `portal_delivery.css:49` | `UI-DATALIST-001` |
+| `wujia-mhist-summary` | 1 | `_components.css:2030` | **chưa có chủ** |
+| `wujia-mticket-reply` | 1 | `_components.css:2712` | **chưa có chủ** |
+
+**Chốt của chủ dự án:** ghi bổ sung, **KHÔNG kéo vào D4d**.
+
+### 12.3 Hai số đo của §4 bị đo hụt
+
+| Họ | §4 ghi | Đo thật lúc chạy | Vì sao |
+|---|---|---|---|
+| `wujia-mknow-card` | padding 14 | **16** | `.wujia-mknow-article { padding: 16px }` đè — kiểm kê không thấy |
+| `wujia-mdash-card` | 2 biến thể (14 · flush 0) | **3** | thêm `.wujia-mdash-list { padding: 4px 14px }` |
+
+Cả hai chỉ lộ ra khi **đo tuyệt đối lúc chạy**; đọc CSS tĩnh không đủ.
+
+### 12.4 Call site không-`<div>` là **9**, không phải 2
+
+Prompt D4d chỉ cảnh báo `<article>` và `<a>`. Thực tế **cả 7 `wj-filter-card` đều là
+`<form method="get">`** (6 trong đó không đi `t-call` được — mất `<form>` là mất route lọc GET),
+cộng `<div role="status" aria-live="polite">` của màn kết quả gửi đơn mà component không mang
+được `role`/`aria-live`. QWeb O19 **không có directive đổi tên thẻ** (`ir_qweb.py:1705`, chốt ở
+C8) ⇒ giữ tag, **thêm thẳng class chủ sở hữu** — cách D4c đã chốt.
+
+### 12.5 Tiến độ cụm
+
+| Lượt | Phạm vi | Lượt phủ |
+|---|---|---|
+| D4b | `wujia-kpi-card` (4) + `wujia-content-card` (8) | 12 |
+| D4c | `wj-pc-card` (34) + `wj-pc-acct-headcard` (2) | 36 |
+| **D4d** | 10 họ mobile + `wj-filter-card` | **50** |
+| | | **98 / 384 ≈ 26%** |
+
+Còn lại: `wj-pc-metric-card` (44) + `wj-rep-mcard` (16) → D4e · Bootstrap `.card` thô (75) → D4f ·
+`wj-auth-card` (15) THIẾT KẾ S39 · nhóm Khảo sát (21) *provisional* · **26 lượt mới ở §12.2**.

@@ -228,16 +228,11 @@ h2, .wujia-h2 { font-size: var(--wujia-font-size-h2) !important; font-weight: 60
 
 /* Filter card canonical (Figma 4785:498 — 5 biến thể: search / date-range / chip-slide / period) */
 .wj-filter-card {
+    /* D4d: dáng khung + gap sang .wj-surface-card; -2px của chips bù gap 10 nên gỡ theo. */
     display: flex;
     flex-direction: column;
-    gap: 10px;
-    background: var(--wujia-morder-card-bg);
-    border: 1px solid var(--wujia-border-soft);
-    border-radius: var(--wujia-morder-radius);
-    padding: 12px;
     margin-bottom: 16px;
 }
-.wj-filter-card > .wj-filter-chips { margin-top: -2px; }   /* dates→chips gap 8 (bù gap card 10) */
 /* Search row: field (flex) + cyan button 38×38 */
 .wj-filter-search { display: flex; gap: 10px; }
 .wj-filter-search-field { position: relative; flex: 1 1 auto; display: flex; align-items: center; }
@@ -1765,13 +1760,8 @@ a.wujia-mhome-kpi:active { opacity: 0.85; }
 /* --- Trang kết quả (màn 03 thành công / 04 ngoài khung giờ) --- */
 .wujia-mres { padding-bottom: calc(24px + env(safe-area-inset-bottom, 0px)); }
 .wujia-mres-card {
-    /* Figma card 359 trên frame 391 = full width trừ padding shell 16.
-       max-width để mở trên desktop (không phải bản PC) vẫn gọn, không giãn full. */
+    /* Figma card 359/frame 391; max-width giữ gọn trên desktop. D4d: dáng khung sang .wj-surface-card. */
     max-width: 420px;
-    padding: 20px 16px;
-    background: var(--wujia-morder-card-bg);
-    border: 1px solid var(--wujia-morder-divider);
-    border-radius: var(--wujia-morder-radius);
     text-align: center;
 }
 .wujia-mres-icon {
@@ -2057,10 +2047,7 @@ a.wujia-mhome-kpi:active { opacity: 0.85; }
 
 /* Card thông tin (kv) */
 .wujia-mhist-card {
-    background: var(--wujia-morder-card-bg);
-    border: 1px solid var(--wujia-morder-border);
-    border-radius: var(--wujia-morder-radius);
-    padding: 16px;
+    /* D4d: dáng khung sang .wj-surface-card; margin là nhịp danh sách, giữ lại. */
     margin-bottom: 14px;
 }
 /* Figma: 2 cột — label cột trái cố định, value căn TRÁI cùng một mốc x */
@@ -2273,12 +2260,7 @@ a.wujia-mhome-kpi:active { opacity: 0.85; }
        --wujia-mcontent-top ở .wujia-mpage. */
     
     /* ---------- Card base (search / empty / article detail) ---------- */
-    .wujia-mknow-card {
-        background: var(--wujia-morder-card-bg);
-        border: 1px solid var(--wujia-morder-border);
-        border-radius: var(--wujia-morder-radius);
-        padding: 14px;
-    }
+    /* D4d: dáng khung sang .wj-surface-card — rule cũ không còn khai gì. */
 
     /* ---------- Section head ("Bài nổi bật" / "Mới cập nhật") ---------- */
     .wujia-mknow-sechead {
@@ -2405,7 +2387,7 @@ a.wujia-mhome-kpi:active { opacity: 0.85; }
 
     /* ====================== DETAIL ====================== */
                         
-    .wujia-mknow-article { padding: 16px; }
+    /* D4d: đệm 16 ở đây từng ĐÈ compact 14 của card (đo được) — trả về component. */
     .wujia-mknow-article-title {
         font-size: 19px;
         font-weight: 700;
@@ -2524,11 +2506,8 @@ a.wujia-mhome-kpi:active { opacity: 0.85; }
 
     /* ---------- Card base ---------- */
     .wujia-mdash-card {
+        /* D4d: dáng khung sang .wj-surface-card; giữ display + màu chữ của thẻ <a>. */
         display: block;
-        background: var(--wujia-morder-card-bg);
-        border: 1px solid var(--wujia-morder-border);
-        border-radius: var(--wujia-morder-radius);
-        padding: 14px;
         text-decoration: none;
         color: inherit;
     }
