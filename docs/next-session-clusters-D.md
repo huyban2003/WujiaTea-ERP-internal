@@ -528,7 +528,7 @@ Ba route **không đo được trên máy local**, phát hiện khi đo D4a:
 | ✅ **D4c XONG (05/09)** | `wj-pc-card` (34) + `wj-pc-acct-headcard` (2) + **8 modifier** (không phải 9 — `wj-dlv-pc-card` là `id=`, không tồn tại) | **36 call site / 20 file** | 10 module portal | 🔴 Cao nhất cụm — đã đi qua: radius **18→16** (6 rule tiêu thụ token, 4 nằm NGOÀI họ), padding **24→16**, 5 call site không thể thành `<div>` | Số đo đầy đủ: **`docs/d4c-acceptance-matrix.md`**. 185 bề mặt · 0 ô mất record · 26/95 ô thấp xuống · **lồng thẻ trắng 6→0** · 33 test / 10 đột biến đỏ đúng chỗ |
 | ✅ **D4d XONG (05/09)** | Mobile: `wujia-mdash-card` + `mhist`/`mknow`/`mnoti`/`mres`/`mexam`/`mdelivery-prodcard` + `wj-filter-card` — **50 lượt, không phải 51** (51 là lỗi cộng của chính bảng này) | **50 / 18** | 10 module portal | Đã đi qua: padding 16→12, viền `#EEF2F5`→`#E5E7EB` (4 họ), gap 10/14/12→8 (3 họ) | Số đo đầy đủ: **`docs/d4d-acceptance-matrix.md`**. 225 bề mặt · **0 ô mất record** · 14/95 ô thấp xuống · touch target **109px** · ảnh @1440 khác **0 pixel** · 45 test / **11 đột biến đỏ đúng chỗ** |
 | ✅ **D4e1 XONG (05/09)** | `wj-pc-metric-card` — **toàn họ** (báo cáo 4 · gallery `pc_preview` 4 · khảo sát 4) | **12 / 3** | `wujia_portal_layout`, `wujia_portal_report`, `wujia_portal_inspection` | Đã đi qua: min-height là SÀN thiết kế (đệm dọc 0) nên GIỮ; gỡ override liên module SỐNG (0,2,0) | Số đo: **`docs/d4e1-acceptance-matrix.md`**. Hai chữ ký dáng khung → MỘT · 0 ô mất record · ảnh ngoài phạm vi khác 0 pixel · 52 test / 7 đột biến đỏ đúng chỗ |
-| **D4e2** | `wj-rep-mcard` (3) + 2 món nợ D4d: nhịp header→body `18/23/25` · 2 inline `padding:14px 14px 0` | 3 + nợ / 5 | `wujia_portal_layout`, `_report`, `_base`, `_support`, `_exam`, `_notification` | 🔴 `wj-rep-mcard` **không có viền hẳn** ⇒ thêm viền là đổi hình học 3 khối báo cáo; card `--chart` căn cho ra đúng 258 → 260 | Chặn tz đã gỡ bằng DB copy (cách D4e1). BẮT BUỘC ảnh trước/sau @390 |
+| ✅ **D4e2 XONG (05/09)** | `wj-rep-mcard` (3) + **trả hết nợ D4d**: 2 inline `padding:14px 14px 0` · 18 ô nhịp header→body `18/23/25` → `12` | **3 + nợ / 9** | `wujia_portal_layout`, `_report`, `_base`, `_support`, `_exam` | Đã đi qua: rule cũ **không khai viền** ⇒ migrate là THÊM viền (`258→260`); override exam cùng đặc hiệu `(0,1,0)` nạp sau ⇒ phải **XOÁ** chứ không sửa số | Số đo: **`docs/d4e2-acceptance-matrix.md`**. Nhịp `0×2·12×32·18×14·23×2·25×2` → **`0×2·12×50`** · 230 bề mặt · 0 ô mất record · 0 cờ RULE mới · 60 test / **8 đột biến đỏ đúng chỗ** |
 | **D4f** | Bootstrap thô `card`/`card-header`/`card-footer`/`card-body` (trừ 2 file legacy) | 75 / 13 | `wujia_portal_base`, `_return`, `_sale`, `_support`, `_knowledge`, `_info_request` | 🔴 **Blast radius lớn nhất** — `.card` là lớp dùng chung của Bootstrap, đụng vào là dễ lan ra ngoài phạm vi portal | **CUỐI**, đúng chỉ đạo. Sau D4b–D4e đã có component chuẩn thì đây chỉ còn là việc thay lớp, không phải việc quyết số |
 | — | `wj-auth-card` (15) | 15 / 1 | — | — | 🔒 **THIẾT KẾ S39 — giữ dáng.** Dev tự quyết theo luật D3f |
 | — | **24 lượt `wj-pc-metric-card` của màn Khảo sát** | 24 / 1 | — | — | Đi theo nhóm Khảo sát: BA ghi provisional, **và** `wujia_portal_inspection` đang `uninstalled` trên DB dev ⇒ **không đo được trên local** |
@@ -632,6 +632,45 @@ cách ngoài card, một cái là giữa hai card. Ghi ở inventory §7 để p
   LIMIT); ở 360px các trường chật (SL yêu cầu, Ngày sản xuất) xuống 1 cột; thêm `id/for` hoặc
   `aria-labelledby` cho mọi label (`views/portal_return_form.xml`). Đo bằng harness a11y đã có
   (tab-walk + `forcePseudoState` cho `input[type=date]` — bẫy C8a).
+
+### ✅ D4e2 XONG (05/09) — `wj-rep-mcard` + **trả hết nợ D4d**
+
+Số đo đầy đủ: **`docs/d4e2-acceptance-matrix.md`**. Tiến độ cụm **113/384 ≈ 29%**.
+`wujia_portal_layout` → **19.0.37.0.0**, `?v=1200 → 1210`;
+`-u wujia_portal_layout,wujia_portal_report,wujia_portal_base,wujia_portal_support,wujia_portal_exam`
+**một lần**, RC=0. **CHỜ DEPLOY UAT.** Nợ D4d **không còn món nào**.
+
+Kết quả cốt lõi: nhịp header→body toàn portal PC về **một số duy nhất** —
+`0×2 · 12×32 · 18×14 · 23×2 · 25×2` → **`0×2 · 12×50`**, 18/18 ô hội tụ, 8/9 trang **đặc hơn**.
+
+### 🔴 Bài học D4e2 — đọc trước khi làm D4f
+
+1. 🔴 **KIỂM TRA LƯỢT TRƯỚC ĐÃ COMMIT VÀ ĐÃ `-u` CHƯA — trước khi đo baseline.** D4e1 còn
+   **15 file chưa commit** và DB cài `19.0.35.0.0` trong khi manifest ghi `19.0.36.0.0`;
+   D4e1 lại **cũng sửa `portal_report_orders.xml`** ⇒ baseline đầu của tôi đọc template D4d cũ
+   và cú `-u` của D4e2 sẽ nhét thay đổi D4e1 vào cột "sau". Số bề mặt **210 → 230** sau khi
+   sửa quy trình. `git diff --stat` + so `ir_module_module.latest_version` với manifest,
+   **mỗi lượt, trước khi đo**.
+2. 🔴 **Giữ LỚP thì được, giữ RULE dáng khung thì không.** Header exam mang **cả hai** lớp
+   (`wj-pc-card__head wj-exam-pc-card__head`), **cùng `(0,1,0)`**, file exam nạp sau ⇒ chỉnh
+   rule dùng chung về `12` mà để override sống thì **8 ô không nhúc nhích**. Phải **xoá** override.
+3. 🔴 **`grep -qF "$x"` nuốt chuỗi bắt đầu bằng `--` như tuỳ chọn** ⇒ đột biến báo "KHÔNG VÀO
+   FILE" oan. Viết `grep -qF -- "$x"`. (Bẫy thứ 3 cùng họ với D4d #2 và D4e1 #2.)
+4. 🔴 **`nohup … &` báo exit 0 ngay trong khi script còn chạy.** Chờ bằng
+   `until ! pgrep -f "<script>"; do sleep 30; done`, đừng tin thông báo "completed".
+5. 🔴 **Route đo có thể redirect ngầm mà bảng vẫn "Pass".** `/portal/support/1` thuộc franchise
+   khác ⇒ đá về `/portal/support`. Harness *có* cờ `redirect=True` cả 5 dòng — **tôi `tail` cụt
+   nên không thấy**. Tìm ticket đúng bằng SQL (`franchise_id=1`) rồi mới đo (`/portal/support/40`).
+6. **Dương tính giả của chính bộ quét đặc hiệu.** Nó báo `.wj-pc-card__head { gap: 16px }`;
+   `__head` là **con BEM**, `gap` ở đó là khoảng cách trong hàng flex, **không phải dáng khung**.
+   Sửa `FAMILIES` về selector khung ⇒ 0 hit / 280 file. (D4d #10, dính lại dạng khác.)
+7. **Khác 16 pixel ở mức chênh 1/255 không phải nhiễu, nhưng cũng không phải hồi quy.**
+   `/portal/order@1440` đổi vì thêm 1 rule padding ⇒ **khử răng cưa góc bo** làm tròn khác;
+   kích thước trang + mọi toạ độ y hệt. Control 2 lần chụp cùng trạng thái ra 0 px ⇒ bisect
+   được tới đúng file. **Ghi LIMIT, đừng tuyên bố "0 pixel".**
+8. **Prompt sai số học lẫn sai số dòng.** `_pc_components.css` neo ở **168** không phải 163;
+   nhịp hội tụ ra **`12×50`** không phải `12×48` (tổng 52 ô, chừa 2 ô `0`). Cộng lại histogram
+   trước khi nhận đích.
 
 ### ✅ D4e1 XONG (05/09) — toàn bộ họ `wj-pc-metric-card`, 12 shell / 3 file / 3 module
 

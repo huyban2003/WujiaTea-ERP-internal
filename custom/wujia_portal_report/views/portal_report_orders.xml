@@ -82,7 +82,7 @@
                     </div>
 
                     <!-- Biểu đồ tháng: cột = doanh thu, số trong cột = số đơn -->
-                    <section class="wj-rep-mcard wj-rep-mcard--chart">
+                    <section class="wj-surface-card wj-surface-card--section wj-surface-card--compact wj-surface-card--flush wj-rep-mcard wj-rep-mcard--chart">
                         <div class="wj-rep-mcard__head">
                             <h2 class="wj-rep-mcard__title">Đơn hàng theo tháng</h2>
                             <span class="wj-rep-mcard__meta">Doanh thu (<t t-out="currency_symbol"/>)</span>
@@ -95,7 +95,7 @@
                     </section>
 
                     <!-- Phân bổ trạng thái: thanh xếp chồng + chú giải 2 cột -->
-                    <section class="wj-rep-mcard">
+                    <section class="wj-surface-card wj-surface-card--section wj-surface-card--compact wj-surface-card--flush wj-rep-mcard">
                         <div class="wj-rep-mcard__head">
                             <h2 class="wj-rep-mcard__title">Phân bổ trạng thái</h2>
                             <span class="wj-rep-mcard__meta">
@@ -129,7 +129,7 @@
                     </section>
 
                     <!-- Sản phẩm đặt nhiều nhất: list-card (PC dùng bảng) -->
-                    <section class="wj-rep-mcard">
+                    <section class="wj-surface-card wj-surface-card--section wj-surface-card--compact wj-surface-card--flush wj-rep-mcard">
                         <div class="wj-rep-mcard__head">
                             <h2 class="wj-rep-mcard__title">Sản phẩm đặt hàng nhiều nhất</h2>
                             <span t-if="top_products" class="wj-rep-mcard__meta">

@@ -536,3 +536,79 @@ class TestSurfaceCardD4e1(TransactionCase):
                 arch = view.arch_db
                 self.assertIn("'summary'", arch)
                 self.assertIn("'flush'", arch)
+
+
+
+@tagged('post_install', '-at_install', 'wujia_surface_card_d4')
+class TestSurfaceCardD4e2(TransactionCase):
+    """D4e2 — wj-rep-mcard (3 shell mobile) + 2 món nợ D4d: inline padding và
+    nhịp header→body 18/23/25 → 12."""
+
+    # --- A · wj-rep-mcard -------------------------------------------------
+
+    def test_rep_mcard_no_longer_declares_surface_shape(self):
+        # Rule nằm TRONG @media ⇒ phải dùng _rules_anywhere, _rule sẽ trượt.
+        css = _mod_css('wujia_portal_report', 'portal_report.css')
+        for body in _rules_anywhere(css, '.wj-rep-mcard'):
+            for prop in ('background', 'border', 'border-radius', 'box-shadow', 'padding'):
+                with self.subTest(prop=prop):
+                    self.assertFalse(_declares(body, prop))
+
+    def test_rep_mcard_content_rules_survive(self):
+        # __head/__body là NỘI DUNG, không phải khung — rút nhầm là mất đệm.
+        css = _mod_css('wujia_portal_report', 'portal_report.css')
+        head = _rules_anywhere(css, '.wj-rep-mcard__head')
+        body = _rules_anywhere(css, '.wj-rep-mcard__body')
+        self.assertTrue(head and _declares(head[0], 'padding'))
+        self.assertTrue(head and _declares(head[0], 'min-height'))
+        self.assertTrue(body and _declares(body[0], 'padding'))
+
+    def test_rep_mcard_call_sites_carry_the_component(self):
+        view = self.env['ir.ui.view'].search(
+            [('key', '=', 'wujia_portal_report.portal_report_orders')], limit=1)
+        self.assertTrue(view)
+        arch = view.arch_db
+        self.assertEqual(arch.count('wj-surface-card--flush wj-rep-mcard'), 3)
+        # Luật #1: lớp cũ ở lại, nếu không CSS con __head/__body và :is() hover đứt.
+        self.assertIn('wj-rep-mcard--chart', arch)
+        self.assertNotIn('"wj-rep-mcard"', arch)
+
+    # --- B · 2 inline padding --------------------------------------------
+
+    def test_headpad_class_uses_the_token(self):
+        body = _rule(_css('_components.css'), '.wj-surface-headpad')
+        self.assertTrue(body)
+        self.assertIn('--wujia-surface-pad-regular', body)
+        self.assertNotIn('14px', body)
+
+    def test_inline_padding_gone_from_both_views(self):
+        for key in ('wujia_portal_base.portal_franchise_information',
+                    'wujia_portal_support.portal_support_detail'):
+            view = self.env['ir.ui.view'].search([('key', '=', key)], limit=1)
+            with self.subTest(key=key):
+                self.assertTrue(view, f'không thấy view {key}')
+                self.assertNotIn('padding:14px 14px 0', view.arch_db)
+                self.assertIn('wj-surface-headpad', view.arch_db)
+
+    # --- C · nhịp header→body → 12 ---------------------------------------
+
+    def test_pc_card_head_rhythm_is_12(self):
+        body = _rule(_css('_pc_components.css'), '.wj-pc-card__head')
+        self.assertTrue(body)
+        self.assertRegex(body, r'margin-bottom:\s*12px')
+
+    def test_exam_no_longer_overrides_the_rhythm(self):
+        css = _mod_css('wujia_portal_exam', 'portal_exam.css')
+        for sel in ('.wj-exam-pc-card__head', '.wj-exam-pc-dhead',
+                    '.wj-exam-pc-fcard .wj-exam-pc-field'):
+            with self.subTest(sel=sel):
+                for body in _rules_anywhere(css, sel):
+                    self.assertFalse(_declares(body, 'margin-bottom'))
+                    self.assertFalse(_declares(body, 'margin-top'))
+
+    def test_exam_sumlist_drops_margin_top_but_keeps_gap(self):
+        bodies = _rules_anywhere(_mod_css('wujia_portal_exam', 'portal_exam.css'),
+                                 '.wj-exam-pc-sumlist')
+        self.assertTrue(bodies)
+        self.assertFalse(_declares(bodies[0], 'margin-top'))
+        self.assertTrue(_declares(bodies[0], 'gap'))

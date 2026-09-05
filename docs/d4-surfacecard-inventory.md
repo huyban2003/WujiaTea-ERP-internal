@@ -440,3 +440,52 @@ lại** rule họ — tiền lệ `.wj-debt-summary { height: 142px }` của D4c
 Còn lại: `wj-rep-mcard` (3) + 2 món nợ D4d → **D4e2** · Bootstrap `.card` thô (75) → D4f ·
 `wj-auth-card` (15) THIẾT KẾ S39 · 9 họ còn lại nhóm Khảo sát (17) *provisional* ·
 **26 lượt mới ở §12.2**.
+
+## 14. Đính chính & bổ sung sau lượt D4e2 (05/09/2026)
+
+### 14.1 Ba con số của prompt sai — đính chính bằng `grep` và số học
+
+| Prompt ghi | Thật | Cách phát hiện |
+|---|---|---|
+| `.wj-pc-card__head` ở `_pc_components.css:**163**` | dòng **168** | `grep -n` |
+| nhịp hội tụ ra **`12×48`** | **`12×50 · 0×2`** (tổng 52 ô) | cộng lại histogram D4c: `0×2·12×32·18×14·23×2·25×2` |
+| `.wj-rep-mcard` giữ nguyên viền | rule cũ **không khai viền**, chỉ `background` + `border-radius` | đọc `portal_report.css:317` (nằm **trong** `@media (max-width: 991.98px)`) |
+
+### 14.2 Bốn chốt của chủ dự án ở lượt này
+
+1. **§3.1** — chấp nhận `258 → 260` và `r 16 → 14`; chỉ dừng lại nếu **mất record trong
+   viewport**. Đo ra 0 ô mất ⇒ đi tiếp.
+2. **§3.2** — `sc_body='flush'`; **không** migrate `__head` sang `wj_card_header`
+   (`__head` có `__meta` + `min-height:50`, ngoài hợp đồng CardHeader ⇒ việc của **D3**).
+3. **§3.3** — **Đường A**: bỏ inline, thay bằng **một** class trỏ token. Đổi hình học **0px**.
+   `.wujia-mdash-list` (11 call site) **ngoài phạm vi**.
+4. **§3.4** — làm **cả 18 ô**; 2 ô `0px` ở `/portal/notification/41` để nguyên (**R2**).
+
+### 14.3 Điều mới học được về đặc hiệu — vì sao phải XOÁ override exam
+
+Header exam mang **hai lớp cùng lúc** (`wj-pc-card__head wj-exam-pc-card__head`), **cùng đặc
+hiệu `(0,1,0)`**, file exam nạp **sau** ⇒ sửa rule dùng chung về `12` mà để override sống thì
+**8 ô exam không nhúc nhích**. Chỉ có **xoá hẳn** override mới đưa chúng về một chủ sở hữu.
+Đây là mặt trái của bài học D4d #9 (giữ lớp cũ để `:is()` hover không đứt): **giữ LỚP thì được,
+giữ RULE dáng khung thì không**.
+
+### 14.4 `wj-rep-mcard`: 3 shell, nhưng đếm thô ra 15
+
+Con BEM `__head`/`__title`/`__meta`/`__body` + biến thể `--chart` làm mọi phép đếm theo chuỗi
+phình lên 5×. Neo thật: `portal_report_orders.xml:85 · 98 · 132`. Nội dung (`__head` `0 12px`
++ `min-height:50`, `__body` `12px`, `--chart __body` `0 12px 8px`) **giữ nguyên** — chỉ dáng
+khung mới dời.
+
+### 14.5 Tiến độ cụm
+
+| Lượt | Phạm vi | Lượt phủ |
+|---|---|---|
+| D4b | `wujia-kpi-card` (4) + `wujia-content-card` (8) | 12 |
+| D4c | `wj-pc-card` (34) + `wj-pc-acct-headcard` (2) | 36 |
+| D4d | 10 họ mobile + `wj-filter-card` | 50 |
+| D4e1 | `wj-pc-metric-card` — toàn họ | 12 |
+| **D4e2** | `wj-rep-mcard` (3) + 2 inline padding + 18 ô nhịp header→body | **3 + nợ** |
+| | | **113 / 384 ≈ 29%** |
+
+Nợ D4d **đã trả hết**. Còn lại: Bootstrap `.card` thô (75) → **D4f** · `wj-auth-card` (15)
+THIẾT KẾ S39 · 9 họ còn lại nhóm Khảo sát (17) *provisional* · **26 lượt mới ở §12.2**.

@@ -310,13 +310,8 @@
         color: var(--wujia-text-subtitle);
     }
 
-    /* Card chung của 3 khối dưới: head 46, thân padding 12.
-       Không kẻ đường dưới head — quét SVG cả 2 mockup không có node line nào
-       trong vùng head card, chỉ bảng Top SP mới có dải nền riêng. */
-    .wj-rep-mcard {
-        background: var(--wujia-bg-card);
-        border-radius: var(--wujia-card-radius);
-    }
+    /* D4e2: dáng khung sang .wj-surface-card — rule cũ không còn khai gì.
+       Head không kẻ đường dưới: quét SVG cả 2 mockup không có node line nào. */
     .wj-rep-mcard__head {
         display: flex;
         align-items: center;

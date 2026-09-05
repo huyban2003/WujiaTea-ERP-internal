@@ -260,8 +260,7 @@
                     <t t-set="sc_variant" t-value="'section'"/>
                     <t t-set="sc_body" t-value="'flush'"/>
                     <t t-set="sc_class" t-value="'wujia-mdash-card'"/>
-                    <!-- flush ⇒ đệm ở lại wrapper dưới, giữ inset 14 khớp wujia-mdash-list. -->
-                    <div style="padding:14px 14px 0;">
+                    <div class="wj-surface-headpad">
                         <t t-call="wujia_portal_layout.wj_card_header">
                             <t t-set="ch_title">Thành viên cửa hàng</t>
                             <t t-set="ch_level" t-value="2"/>

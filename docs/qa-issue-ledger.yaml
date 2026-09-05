@@ -1658,3 +1658,91 @@ WJ-FRANCHISE-003:
 #    (b) đột biến làm XML SAI CÚ PHÁP thì -u abort, view không đổi, test XANH OAN. Đổi
 #        <t t-call> thành <div> để lại </t> lệch ⇒ ExpatError. Đột biến phải GIỮ XML hợp lệ.
 # =====================================================================================
+# UI-SURFACECARD-001 (STT 127) — D4e2 05/09: phủ thêm 3 shell + trả HẾT nợ D4d,
+# tổng 113 trên 384 lượt (~29%). Issue VẪN GIỮ `Ready for Dev`, CHƯA handoff —
+# Dev KHÔNG tự đóng Done (QA Operating Standard §2). Chỉ chạy qa_sync.py --apply
+# khi chủ dự án chốt.
+#
+# ✅ D4e2 XONG — nửa còn lại của D4e: 3 shell wj-rep-mcard + 2 inline padding +
+#    18 ô nhịp header→body. `-u` đúng MỘT lần, RC=0, 0 ERROR trong log xoay vòng.
+#    Số đo đầy đủ: docs/d4e2-acceptance-matrix.md. wujia_portal_layout → 19.0.37.0.0,
+#    ?v=1200 → 1210 (_components.css + _pc_components.css). 4 module còn lại chỉ đổi
+#    XML/CSS không versioned ⇒ KHÔNG bump.
+#
+# FIX
+#    - A · portal_report.css:317 — XOÁ HẲN rule .wj-rep-mcard (nằm trong
+#      @media max-width:991.98px). Rule cũ chỉ khai background + border-radius,
+#      KHÔNG khai viền. GIỮ __head (0 12px + min-height:50), __title, __meta,
+#      __body (12px), --chart __body (0 12px 8px) — đó là NỘI DUNG, không phải khung.
+#    - A · portal_report_orders.xml:85 · 98 · 132 — QWeb O19 không có directive đổi
+#      tên thẻ (ir_qweb.py:1705) và call site là <section> chứa <h2> ⇒ GIỮ <section>,
+#      gắn thẳng 4 lớp wj-surface-card{,--section,--compact,--flush}, GIỮ lớp cũ
+#      wj-rep-mcard (+ --chart) theo Luật #1. Đã kiểm: --section/--compact không có
+#      rule CSS nào, là mốc đánh dấu trơ.
+#    - B · _components.css — THÊM một class dùng chung (không đẻ 2 class cho 2 module):
+#      .wj-surface-headpad { padding: var(--wujia-surface-pad-regular)
+#      var(--wujia-surface-pad-regular) 0 }.
+#    - B · portal_franchise_information.xml:264 và portal_support.xml:574 — gỡ
+#      style="padding:14px 14px 0;", thay bằng class trên.
+#    - C · _pc_components.css:168 (KHÔNG phải 163 như prompt ghi) —
+#      .wj-pc-card__head margin-bottom 18px → 12px (10 ô).
+#    - C · portal_exam.css — XOÁ HẲN 3 override (.wj-exam-pc-card__head 25px,
+#      .wj-exam-pc-dhead 23px, .wj-exam-pc-fcard .wj-exam-pc-field margin-top 18px)
+#      và bỏ margin-top của .wj-exam-pc-sumlist (GIỮ display/flex-direction/gap:23px).
+#      Vì sao XOÁ chứ không sửa số: header exam mang CẢ HAI lớp (wj-pc-card__head
+#      wj-exam-pc-card__head), CÙNG đặc hiệu (0,1,0), file exam nạp SAU ⇒ chỉnh rule
+#      dùng chung mà để override sống thì 8 ô exam KHÔNG NHÚC NHÍCH.
+#
+# IMPACT
+#    - Nhịp header→body toàn portal PC về MỘT SỐ: 0×2 · 12×32 · 18×14 · 23×2 · 25×2
+#      → 0×2 · 12×50 (đo TUYỆT ĐỐI, 52 ô, 18/18 ô hội tụ, không ô nào ra 12+12).
+#    - 3 shell báo cáo: h 258→260 / 190→192 / 290→292 · radius 16→14 · viền none→1px
+#      #E5E7EB. +2px = viền trên+dưới. Ở 1440/1024/992 đo ra h=0 ⇒ chỉ-mobile,
+#      CHỨNG MINH BẰNG SỐ ĐO chứ không bằng đọc CSS.
+#    - 2 wrapper phần B: inlineStyle → rỗng mà pad 14/14/0/14, x=17, w, pageH ĐỀU
+#      KHÔNG ĐỔI ⇒ đổi chủ sở hữu, 0px hình học.
+#    - pageH đổi ở 9/50 ô, tất cả đúng hướng ĐẶC HƠN (change-password −18,
+#      exam/register −12 và −6, profile −6); reports/orders +6 là 3 viền phần A.
+#    - 230 bề mặt cả hai lượt · 0 ô mất record trong viewport (acceptance BA #11) ·
+#      0 lồng bề mặt trắng · 0 redirect ngầm · 0 HTTP≠200 · 0 tràn ngang · 0 lỗi JS.
+#    - Nợ D4d: trả HẾT (món #3 inline padding và món #5 nhịp header→body).
+#
+# RETEST
+#    - Chạy 5 khổ 1440/1024/992/390/360 × 10 route: scratchpad/d4e2_{before,after}.json.
+#    - Nhịp tuyệt đối: scratchpad/d4e2_rhythm_{before,after}.json (RULE 1/2 là điều
+#      kiện CẦN, KHÔNG ĐỦ — sai số đều tay lọt sạch, bài học D4b).
+#    - RULE 1+2 chạy lại: 5 cờ, Y HỆT baseline ⇒ 0 cờ mới. Hai cờ truy được nguyên
+#      nhân: 4× debt-pay redirect đúng thiết kế WJ-DEBT-007; inspection 404 vì
+#      wujia_portal_inspection đang uninstalled (trang 404 Odoo tràn 11px @360).
+#    - 42 ảnh trước/sau (14 route × 1440/390/360) + diff pixel PIL.
+#    - 60 test (D4e1 là 52 ⇒ +8 guard) · 8/8 ĐỘT BIẾN ĐỎ ĐÚNG CHỖ · run đối chứng xanh.
+#    - Quét đặc hiệu 280 file CSS: 0 hit khai dáng khung ngoài component.
+#
+# LIMIT
+#    1. .wujia-mdash-list (11 call site) NGOÀI phạm vi — inset 14 của nó vẫn tự khai.
+#       Đường A (§3.3) chỉ đổi chủ sở hữu của wrapper header.
+#    2. 8 ô exam sửa bằng cách XOÁ override, không phải chỉnh số — đo lại xác nhận
+#       collapse ra đúng 12, không phải 12+12.
+#    3. 2 ô 0px ở /portal/notification/41 GIỮ NGUYÊN — lỗi outline h3/h2 thuộc cụm R2.
+#    4. Bug tz /portal/reports/orders KHÔNG sửa — cụm R3
+#       (wujia_portal_base/controllers/utils.py:38). D4e2 chỉ né trên bản copy.
+#    5. CHƯA soi UAT. Phải đo lại CHỈ-ĐỌC trên http://113.161.187.126:8019/ sau deploy
+#       (L14/L10: UAT có website/website_sale nên bundle frontend khác local) rồi mới
+#       qa_deploy_mark.py.
+#    6. .wj-surface-headpad ở PC cho 20px (token) trong khi inline cũ luôn 14px. Hiện
+#       KHÔNG ảnh hưởng vì cả 2 wrapper là markup chỉ-mobile (0 phần tử ở 1440/1024/992).
+#    7. /portal/order@1440 lệch 16 pixel ở mức chênh 1/255 do thêm .wj-surface-headpad
+#       (khử răng cưa góc bo). Kích thước trang + mọi toạ độ y hệt ⇒ KHÔNG xê dịch bố
+#       cục. Ghi lại thay vì tuyên bố "0 pixel".
+#    8. 2 test đỏ CÓ SẴN (TestSurfaceCardD4e1.test_all_metric_call_sites_use_the_component
+#       và test_call_sites_bake_summary_and_flush) vì wujia_portal_inspection đang
+#       uninstalled trên DB dev — KHÔNG phải hồi quy D4e2, đã chứng minh bằng run đối
+#       chứng ở trạng thái D4e1 (đúng 2 lỗi ấy trên 52 test).
+#    9. D4e1 CHƯA COMMIT trên nhánh dev/2026-09-05-d4c — phải chốt chiến lược commit
+#       trước khi /wujia-end-sprint gộp nhầm hai lượt.
+#   10. Tiến độ cụm 113/384 ≈ 29% ⇒ issue GIỮ `Ready for Dev`. Dev không tự đóng Done.
+#
+# ODOO FIT
+#    - Không model mới, không field mới, không migration. Chỉ CSS + QWeb template.
+#    - Bump 1 module (wujia_portal_layout 19.0.37.0.0) + cache-bust ?v=1210.
+# =====================================================================================

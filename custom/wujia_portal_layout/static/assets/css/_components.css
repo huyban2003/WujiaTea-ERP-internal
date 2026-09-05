@@ -650,6 +650,10 @@ h2, .wujia-h2 { font-size: var(--wujia-font-size-h2) !important; font-weight: 60
     text-decoration: none !important;
     color: inherit;
 }
+/* Header nằm trong card --flush: trả lại inset của card, không dùng inline style. */
+.wj-surface-headpad {
+    padding: var(--wujia-surface-pad-regular) var(--wujia-surface-pad-regular) 0;
+}
 @media (max-width: 991.98px) {
     /* Viền mobile đổi tông theo BA; radius/padding/gap đi theo token ở _variables. */
     .wj-surface-card { border-color: var(--wujia-border); }
