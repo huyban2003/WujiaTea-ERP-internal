@@ -274,15 +274,15 @@
 
         <!-- Signup giữ nguyên Vuexy (route portal không dùng; Figma chưa có màn này). -->
         <template id="wujia_portal_layout.signup_form">
-            <div class="card rounded-0 mb-0 px-2 py-1">
-                <div class="card-header pb-1">
+            <div class="wj-surface-card wj-surface-card--section wj-surface-card--compact wj-surface-card--flush rounded-0 mb-0 px-2 py-1">
+                <div class="wj-surface-card__head pb-1">
                     <div class="card-title d-flex flex-column align-items-center w-100 text-center">
                         <img t-attf-src="data:image/png;base64,{{env.company.logo_web}}" alt="" width="200" height="100" style="object-fit: contain"/>
                     </div>
 
                 </div>
                 <div class="card-content">
-                    <div class="card-body">
+                    <div class="wj-surface-card__body">
                         <form method="POST">
                             <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
                             <input type="hidden" name="token" t-att-value="token"/>

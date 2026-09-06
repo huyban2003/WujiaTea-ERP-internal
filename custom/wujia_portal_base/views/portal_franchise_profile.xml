@@ -26,15 +26,15 @@
                     <div class="row">
                         <!-- Định danh + Trạng thái -->
                         <div class="col-lg-6 col-12 mb-2">
-                            <div class="card h-100">
-                                <div class="card-header">
+                            <div class="wj-surface-card wj-surface-card--section wj-surface-card--compact wj-surface-card--flush h-100">
+                                <div class="wj-surface-card__head">
                                     <t t-call="wujia_portal_layout.wj_card_header">
                                         <t t-set="ch_title">Thông tin định danh</t>
                                         <t t-set="ch_level" t-value="4"/>
                                         <t t-set="ch_class" t-value="'wj-card-header--flush'"/>
                                     </t>
                                 </div>
-                                <div class="card-body">
+                                <div class="wj-surface-card__body">
                                     <dl class="row mb-0 profile-dl">
                                         <dt class="col-sm-4">Mã</dt>
                                         <dd class="col-sm-8" t-out="franchise.code or '—'"/>
@@ -64,15 +64,15 @@
 
                         <!-- Liên hệ -->
                         <div class="col-lg-6 col-12 mb-2">
-                            <div class="card h-100">
-                                <div class="card-header">
+                            <div class="wj-surface-card wj-surface-card--section wj-surface-card--compact wj-surface-card--flush h-100">
+                                <div class="wj-surface-card__head">
                                     <t t-call="wujia_portal_layout.wj_card_header">
                                         <t t-set="ch_title">Liên hệ</t>
                                         <t t-set="ch_level" t-value="4"/>
                                         <t t-set="ch_class" t-value="'wj-card-header--flush'"/>
                                     </t>
                                 </div>
-                                <div class="card-body">
+                                <div class="wj-surface-card__body">
                                     <dl class="row mb-0 profile-dl">
                                         <dt class="col-sm-4">Địa chỉ</dt>
                                         <dd class="col-sm-8" t-out="franchise.address or '—'"/>
@@ -96,15 +96,15 @@
 
                         <!-- Hợp đồng -->
                         <div class="col-lg-6 col-12 mb-2">
-                            <div class="card h-100">
-                                <div class="card-header">
+                            <div class="wj-surface-card wj-surface-card--section wj-surface-card--compact wj-surface-card--flush h-100">
+                                <div class="wj-surface-card__head">
                                     <t t-call="wujia_portal_layout.wj_card_header">
                                         <t t-set="ch_title">Hợp đồng nhượng quyền</t>
                                         <t t-set="ch_level" t-value="4"/>
                                         <t t-set="ch_class" t-value="'wj-card-header--flush'"/>
                                     </t>
                                 </div>
-                                <div class="card-body">
+                                <div class="wj-surface-card__body">
                                     <dl class="row mb-0 profile-dl">
                                         <dt class="col-sm-5">Bắt đầu</dt>
                                         <dd class="col-sm-7" t-out="franchise.franchise_start_date and franchise.franchise_start_date.strftime('%d/%m/%Y') or '—'"/>
@@ -129,15 +129,15 @@
 
                         <!-- Yêu cầu cập nhật (placeholder cho Phase 2) -->
                         <div class="col-lg-6 col-12 mb-2">
-                            <div class="card h-100">
-                                <div class="card-header">
+                            <div class="wj-surface-card wj-surface-card--section wj-surface-card--compact wj-surface-card--flush h-100">
+                                <div class="wj-surface-card__head">
                                     <t t-call="wujia_portal_layout.wj_card_header">
                                         <t t-set="ch_title">Yêu cầu cập nhật thông tin</t>
                                         <t t-set="ch_level" t-value="4"/>
                                         <t t-set="ch_class" t-value="'wj-card-header--flush'"/>
                                     </t>
                                 </div>
-                                <div class="card-body">
+                                <div class="wj-surface-card__body">
                                     <p class="text-muted">
                                         Để cập nhật thông tin cửa hàng (địa chỉ, SĐT, giấy tờ...), vui lòng
                                         <a href="/portal/support/new">gửi yêu cầu hỗ trợ</a> kèm thông tin cần đổi.

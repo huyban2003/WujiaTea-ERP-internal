@@ -6,10 +6,12 @@ h1, .wujia-h1 { font-size: var(--wujia-font-size-h1) !important; font-weight: 70
 h2, .wujia-h2 { font-size: var(--wujia-font-size-h2) !important; font-weight: 600; }
 .card .card-title,
 .card-header h4,
-.card-header h5 {
+.card-header h5,
+.wj-surface-card__head .card-title,
+.wj-surface-card__head h4,
+.wj-surface-card__head h5 {
     font-size: var(--wujia-font-size-card-title) !important;
 }
-.card { box-shadow: var(--wujia-card-shadow); }
 
 /* ---------- UI-05: Standardized buttons ---------- */
 /* !important defensive across all properties: Vuexy bootstrap.css:2540 sets */
@@ -653,6 +655,42 @@ h2, .wujia-h2 { font-size: var(--wujia-font-size-h2) !important; font-weight: 60
 /* Header nằm trong card --flush: trả lại inset của card, không dùng inline style. */
 .wj-surface-headpad {
     padding: var(--wujia-surface-pad-regular) var(--wujia-surface-pad-regular) 0;
+}
+
+/* D4f: ba vùng con của SurfaceCard. Trước lượt này chúng là .card-header /
+   .card-body / .card-footer của Bootstrap, và bundle frontend của Odoo nạp SAU
+   CSS Wujia nên giành mất viền + nền. Đổi sang lớp của Wujia để hết tranh chấp. */
+.wj-surface-card__head {
+    padding: var(--wujia-surface-pad-compact) var(--wujia-surface-pad-compact) 12px;
+    background: transparent;
+    border-bottom: 1px solid var(--wujia-border);
+}
+.wj-surface-card__head > .card-title,
+.wj-surface-card__head > h2,
+.wj-surface-card__head > h3,
+.wj-surface-card__head > h4,
+.wj-surface-card__head > h5,
+.wj-surface-card__head > h6 {
+    margin: 0;
+    padding-left: 0;
+    color: var(--wujia-text-primary);
+}
+.wj-surface-card__body {
+    padding: var(--wujia-surface-pad-compact);
+}
+.wj-surface-card__body--flush {
+    padding: 0;
+}
+.wj-surface-card__foot {
+    padding: 12px var(--wujia-surface-pad-compact);
+    background: transparent;
+    border-top: 1px solid var(--wujia-border);
+}
+.wj-surface-card__media {
+    display: block;
+    width: 100%;
+    /* Thay cho overflow:hidden của .card đã gỡ: bo góc thẳng vào ảnh bìa. */
+    border-radius: var(--wujia-surface-radius) var(--wujia-surface-radius) 0 0;
 }
 @media (max-width: 991.98px) {
     /* Viền mobile đổi tông theo BA; radius/padding/gap đi theo token ở _variables. */

@@ -741,6 +741,52 @@ Số đo trước–sau đầy đủ: **`docs/d4d-acceptance-matrix.md`**. Tiế
 10. **Quét đặc hiệu phải loại tên con BEM.** `'.wujia-mexam-card' in selector` khớp cả
     `.wujia-mexam-card-badge` ⇒ 9/15 "vi phạm" là giả. Cũng chính lỗi này thổi kiểm kê thô lên 51.
 
+### ✅ D4f XONG (06/09) — gỡ hẳn Bootstrap `.card` khỏi Portal, **31 call site**
+
+`docs/d4f-acceptance-matrix.md`. Đếm lúc chạy: **89 thẻ `.card` hiện → 0**. 82 phép thay ở 14
+file XML, 4 file CSS. `-u` 7 module, 0 ERROR. 74 test (**+14**), đỏ đúng 2 lỗi có sẵn.
+**13/13 đột biến bị bắt.** Tiến độ cụm **113 → 144 / 384 ≈ 37%**.
+
+### 🔴 Bài học D4f — đọc trước khi làm lượt D4 tiếp theo
+
+1. **Luật #1 có ngoại lệ: lớp của FRAMEWORK thì KHÔNG giữ.** Chín lượt trước đều dời dáng giữa
+   các lớp *của Wujia* nên "giữ lớp cũ qua `sc_class`" luôn an toàn. `.card` thì không: bundle
+   `web.assets_frontend` của Odoo nạp **sau** mọi `<link>` Wujia ở **cùng đặc hiệu (0,1,0)**,
+   nên viền thẻ đo ra `rgba(0,0,0,.176)` **của Odoo** và radius Wujia chỉ sống nhờ `!important`.
+   Giữ lớp lại = để framework tiếp tục thắng ở lần nâng cấp Odoo sau. Vẫn giữ lớp **riêng của
+   module** (`knowledge-detail`, `support-chatter`, `wujia-return-form`).
+2. **Đếm bằng TOKEN, không bằng chuỗi con — cả trong kiểm kê lẫn trong guard.** `grep "card"`
+   khớp `card-body`, `wj-card-header`, `wujia-kpi-card` ⇒ kiểm kê ghi 75, prompt ghi 35, thật là
+   **44**. Và regex `(?:^|\s)card` trong test cũng sai cùng kiểu: `^` chỉ khớp **đầu chuỗi** nên
+   token đứng đầu thuộc tính (`class="card wj-…"`) lọt sạch. Phải `.split()`.
+3. **`_rule()` chỉ trả rule ĐẦU TIÊN.** Guard viết `assertFalse(_declares(_rule(css, sel), p))`
+   không bắt được một rule **thêm vào sau** cùng selector. Dùng `_rules_anywhere()` rồi quét hết.
+4. **Guard dùng `in` không bắt được call site rơi lớp khi view có nhiều thẻ.** Phải **đếm**:
+   `arch.count(<4 lớp>) == arch.count('wj-surface-card wj-surface-card--section')`.
+5. **Vòng đột biến phải tự phát hiện "0 test đã chạy".** Một lần sửa test làm hỏng cú pháp
+   (`re.compile(r"""…'"""")` — nháy cuối nuốt mất khối `"""`) khiến `-u` abort; nếu chỉ đếm dòng
+   `FAIL:` thì cả 13 vòng báo **xanh giả**. Bộ đếm `post-tests` cứu đúng chỗ đó. Ba lỗi thật khác
+   trong guard cũng do vòng đột biến moi ra, không phải do đọc code.
+6. **Rủi ro `margin-bottom: 2.2rem` phải tháo bằng số đo, không bằng suy đoán.** Vuexy cho `.card`
+   31px; nghe thì như bỏ đi là các thẻ dính vào nhau. Đo bằng `d4f_stack.py` (xếp mọi bề mặt theo
+   `top`, ghép cặp chồng >50% chiều ngang): **mọi** cặp có dính `.card` hở đúng **7px**, và 27/33
+   thẻ có `mb=31` là phần tử hiện **cuối cùng** trong cha ⇒ 31px là khoảng thừa đuôi. Histogram
+   khoảng hở trước/sau **y hệt**: `0×6 · 7×35 · 14×12 · 30×2`.
+7. **`overflow: hidden` là một tài sản phải trả riêng.** Ảnh bìa bo góc **nhờ** `overflow` của
+   `.card`, không nhờ radius của chính nó. Không được nhét `overflow` vào shell (đổi hành vi 113
+   thẻ cũ) — bo góc thẳng vào ảnh bằng một lớp hẹp (`.wj-surface-card__media`).
+8. **Utility ở call site (`p-2`/`py-2`) là NHỊP CỐ Ý, giữ lại.** Baseline đo ra 3 mức đệm
+   `card-body` (`0` / `7` / `14`); gỡ `p-2` là thanh lọc nhảy 7 → 16. Giữ thì đệm giữ nguyên và
+   histogram nhịp không xê dịch.
+9. **QWeb O19 không có directive đổi tên thẻ** (`ir_qweb.py:1705`). Call site không phải `<div>`
+   (`<form>`, `<article>`) thì **giữ thẻ, gắn lớp thẳng**, đừng cố `t-call` component.
+10. **Template chết phải chứng minh bằng số phần tử render lúc chạy.** `/portal/login` và
+    `/portal/forgot-pass` render **0** thẻ `.card` ở cả 5 khổ ⇒ `forgot_pass_back` và `signup_form`
+    là code chết, migrate không có rủi ro hình ảnh — và mối lo "khoá thiết kế S39" tự tan.
+11. **Ngoại lệ thì GHIM vào guard, đừng bỏ qua.** `/my/franchises/<id>` chạy trên bundle
+    `portal.portal_layout` của Odoo, không nạp một dòng CSS Wujia nào. Test ghim nó thành danh
+    sách **1 phần tử** thay vì `assertEqual(leaks, [])` — chỗ rò mới vẫn đỏ ngay.
+
 ## R1–R5 — Optimize (sau khi 11 issue cụm D đã `Ready for Retest`)
 
 > Prompt: "làm R&lt;n&gt;". Nội dung + nghiệm thu đã viết sẵn ở `docs/refactor-plan.md`.

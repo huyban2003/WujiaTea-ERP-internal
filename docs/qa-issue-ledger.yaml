@@ -1746,3 +1746,97 @@ WJ-FRANCHISE-003:
 #    - Không model mới, không field mới, không migration. Chỉ CSS + QWeb template.
 #    - Bump 1 module (wujia_portal_layout 19.0.37.0.0) + cache-bust ?v=1210.
 # =====================================================================================
+
+# =====================================================================================
+# UI-SURFACECARD-001 (STT 127) — D4f 06/09: phủ thêm 31, tổng 144 trên 384 lượt (~37%).
+# Issue VẪN GIỮ `Ready for Dev` — cụm CHƯA khép: còn `wj-auth-card` (15, THIẾT KẾ S39)
+# và 9 họ nhóm Khảo sát (17, module `wujia_portal_inspection` đang uninstalled).
+# Dev KHÔNG tự đóng Done (QA Operating Standard §2); qa_sync.py --apply chỉ khi chủ dự
+# án chốt.
+#
+# ✅ D4f XONG — nhóm cuối và khác hẳn 5 lượt trước: gỡ hẳn `.card` của Bootstrap.
+#    31 call site / 14 file XML / 4 file CSS / 82 phép thay. `-u` 7 module đúng MỘT lần,
+#    0 ERROR 0 CRITICAL. wujia_portal_layout → 19.0.38.0.0, assets ?v=1220.
+#    Số đo đầy đủ: docs/d4f-acceptance-matrix.md.
+#
+# 🔴 VÌ SAO LƯỢT NÀY PHẢI BỎ LỚP CŨ, TRÁI VỚI LUẬT #1 CỦA CẢ CỤM
+#    `.card` KHÔNG phải lớp của Wujia. Truy chủ rule bằng CSSOM lúc chạy: bundle
+#    `web.assets_frontend` của Odoo nạp SAU mọi <link> Wujia, CÙNG đặc hiệu (0,1,0),
+#    và cũng khai .card { background-color; border; border-radius }.
+#    ⇒ viền thẻ đo ra `1px rgba(0,0,0,.176)` — CỦA ODOO, không phải --wujia-border;
+#      radius 16 chỉ đứng được nhờ !important; card-footer nhận nền xám
+#      rgba(33,37,41,.03) dù Wujia khai transparent.
+#    Giữ chữ `card` lại = để Odoo tiếp tục thắng ở lần nâng cấp sau.
+#    Vẫn GIỮ lớp riêng của module (knowledge-detail, support-chatter, wujia-return-form).
+#
+# 4 CHỐT CỦA CHỦ DỰ ÁN (06/09), đã làm đủ
+#    1. Con của card → Đường A: card-header/body/footer → __head/__body/__foot.
+#    2. 3 rule .card toàn cục → chỉ gỡ nếu đếm lúc chạy ra 0 thẻ. Đo 89 → 0 ⇒ ĐÃ GỠ.
+#    3. ~18 thẻ PC mất shadow → cứ theo BA, có ảnh trước/sau.
+#    4. forgot_pass.xml template chết → "làm thì làm hết", migrate cả 3 call site auth.
+#
+# FIX
+#    - _components.css: thêm .wj-surface-card__head/__body/__body--flush/__foot/__media;
+#      xoá rule toàn cục .card { box-shadow }; danh sách selector cỡ chữ tiêu đề trỏ
+#      sang __head (GIÁ TRỊ KHÔNG ĐỔI — cỡ chữ là địa hạt D3).
+#    - _wujia_theme.css: xoá 43 dòng — trọn khối .card, .card > .card-header,
+#      .card > .card-header .card-title/h2-h6, .card-footer, .card-body .wujia-section-header.
+#    - portal_return.css: .card-body > .wj-card-header… → .wj-surface-card__body > …
+#      (cùng đặc hiệu (0,3,0) nên vẫn thắng). portal_support.css: .support-chatter .card-body
+#      → .support-chatter .wj-surface-card__body.
+#    - 31 call site nướng đủ 4 lớp shell (--section --compact --flush). Call site không
+#      phải <div> (<form> ×2, <article> ×1) giữ thẻ, gắn lớp thẳng — QWeb O19 không có
+#      directive đổi tên thẻ (ir_qweb.py:1705).
+#    - Utility p-2/py-2 GIỮ LẠI: baseline chứng minh là nhịp cố ý; gỡ là đệm nhảy 7 → 16.
+#    - overflow:hidden của .card KHÔNG đưa vào shell (đổi hành vi 113 thẻ D4b–D4e);
+#      ảnh bìa bo góc thẳng qua .wj-surface-card__media.
+#
+# IMPACT (getComputedStyle, 25 route × 5 khổ 1440/1024/992/390/360 = 125 lượt tải)
+#    - Thẻ `.card` HIỆN lúc chạy: 89 → 0 (thêm 5 thẻ biến thể _locked → 0).
+#    - Viền: rgba(0,0,0,.176) của Odoo → #EEF2F5 (PC) / #E5E7EB (mobile) của Wujia.
+#      Radius 16 PC / 14 mobile theo token, KHÔNG còn cần !important. Shadow → none.
+#    - card-footer hết nền xám lọt của Bootstrap, về transparent + border-top 1px.
+#    - Acceptance BA #11: 125/125 ô, KHÔNG ô nào giảm record trong viewport.
+#    - Chiều cao trang: 114 ô không đổi · 11 ô THẤP BỚT · 0 ô cao lên (sâu nhất −155px
+#      ở /portal/franchises/1/profile @360) ⇒ đặc hơn, đúng hướng BA.
+#    - Nhịp header→body đo TUYỆT ĐỐI: `0px ×2 · 12px ×50` — Y HỆT mốc D4e2, 52 ô.
+#    - Khoảng hở xếp chồng (d4f_stack.py): `0×6 · 7×35 · 14×12 · 30×2` trước = sau.
+#      Nỗi lo mất `margin-bottom: 2.2rem` của Vuexy đã tháo ngòi bằng số đo: mọi cặp
+#      dính .card vốn hở đúng 7px (do mb-2 ở call site, đã giữ), còn 27/33 thẻ có mb=31
+#      là phần tử hiện CUỐI CÙNG trong cha ⇒ 31px là khoảng thừa đuôi.
+#    - Đặc hiệu CSS toàn repo: 5 rule khai dáng khung cho .wj-surface-card, 0 rule ngoài
+#      file chủ. _rules_anywhere('.card') = rỗng ở cả 2 file.
+#
+# RETEST
+#    - 74 test tag wujia_surface_card_d4 (trước lượt: 60 ⇒ +14 test lớp TestSurfaceCardD4f).
+#      Đối chứng đỏ ĐÚNG 2 lỗi CÓ SẴN (wujia_portal_inspection uninstalled).
+#    - 13/13 đột biến bị bắt (scratchpad/d4f_mut.py).
+#    - RULE 1 + RULE 2: 5 cờ trước = 5 cờ sau, 0 nhóm cỡ chữ drift chưa giải trình.
+#    - Ảnh 69 tấm × 2 lượt: 37 giống hệt từng pixel, 9 đổi cỡ (đều THẤP BỚT), 23 khác.
+#      Ngoài phạm vi chỉ 4 tấm khác: /portal @360/@390 là ĐỒNG HỒ ĐẾM NGƯỢC (cắt ảnh
+#      phóng to đọc được `còn 03:00` → `còn 02:37`; /portal @1440 giống hệt), 2 tấm còn
+#      lại chênh ≤3/255 = khử răng cưa góc bo.
+#
+# ⚠️ LIMIT
+#    1. 12 call site module bên thứ ba (wj_ks_dashboard_ninja ×10, wj_ks_dn_advance ×1,
+#       mcp_server ×1 uninstalled) — bundle backend, không nạp CSS Portal. KHÔNG đụng.
+#    2. /my/franchises/<id> (wujia_portal_base.portal_my_franchise_detail,
+#       portal_templates.xml:106) chạy trên bundle portal.portal_layout của Odoo — đo lúc
+#       chạy: KHÔNG nạp một dòng CSS Wujia nào (radius 6px, shadow none). Để nguyên.
+#       Test ghim ngoại lệ này thành danh sách 1 phần tử ⇒ chỗ rò MỚI vẫn đỏ ngay.
+#    3. wujia_portal_inspection uninstalled ⇒ 2 test đỏ có sẵn + 1 cờ RULE 1 (404 tràn
+#       ngang 11px @360). Không phải hồi quy của D4f.
+#    4. Bug tz `Asia/Saigon` làm /portal/reports/orders trả 500 — thuộc cụm R3, chỉ vá
+#       trên bản copy để đo được, KHÔNG sửa wujia_portal_base/controllers/utils.py:38.
+#    5. 3 call site auth là TEMPLATE CHẾT — /portal/login và /portal/forgot-pass render
+#       0 thẻ .card ở cả 5 khổ (chứng minh lúc chạy). Đã migrate theo chốt #4 nhưng
+#       KHÔNG có bằng chứng ảnh vì chúng không hiện. Lượt nào bật lại các màn này phải
+#       đo riêng — login_page.xml:277 thuộc cụm auth KHOÁ THIẾT KẾ S39.
+#    6. card-img-top KHÔNG đo được trên DB này: không bài viết nào có ảnh bìa nên nhánh
+#       t-if không render. Rủi ro mất bo góc do gỡ overflow:hidden đã xử lý TƯỜNG MINH
+#       (.wj-surface-card__media + guard) nhưng CHƯA có số đo lúc chạy.
+#    7. CHƯA SOI UAT. Lượt này phụ thuộc THẲNG vào thứ tự nạp bundle của Odoo, mà UAT có
+#       website/website_sale nên bundle frontend KHÁC local — rủi ro lệch UAT cao nhất
+#       cụm (đã từng lật ngược kết quả ở C6 và D2). Phải đo lại CHỈ-ĐỌC trên
+#       http://113.161.187.126:8019/ sau deploy rồi mới qa_deploy_mark.py.
+# =====================================================================================

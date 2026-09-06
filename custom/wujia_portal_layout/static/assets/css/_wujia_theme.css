@@ -320,49 +320,7 @@ html body .h4, html body .h5, html body .h6,
     }
 }
 
-/* ---------- Card + section header flush fix ---------- */
-.card {
-    border-radius: var(--wujia-card-radius) !important;
-    border: 1px solid var(--wujia-border);
-    background-color: var(--wujia-bg-card);
-    overflow: hidden;
-    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.02);
-}
-.card > .card-header {
-    /* 6px left padding — just one breathing unit off the edge, not fully flush. */
-    padding: 14px 20px 14px 6px !important;
-    margin: 0 !important;
-    background-color: transparent !important;
-    border-bottom: 1px solid var(--wujia-border) !important;
-    border-left: none !important;
-    border-top: none !important;
-    border-right: none !important;
-    border-radius: 0 !important;
-}
-.card > .card-header .card-title,
-.card > .card-header > h2,
-.card > .card-header > h3,
-.card > .card-header > h4,
-.card > .card-header > h5,
-.card > .card-header > h6 {
-    margin: 0 !important;
-    padding-left: 0 !important;
-    font-weight: 600;
-    color: var(--wujia-text-primary);
-}
-.card-footer {
-    background-color: transparent;
-    border-top: 1px solid var(--wujia-border);
-}
-
-/* Full-bleed section header inside .card-body (for templates that put */
-.card-body .wujia-section-header {
-    margin: 0 calc(-1 * var(--wujia-card-padding));
-    padding: 8px var(--wujia-card-padding);
-    border-bottom: 1px solid var(--wujia-border);
-    font-weight: 600;
-    color: var(--wujia-text-primary);
-}
+/* D4f: khối dáng `.card` đã gỡ — chủ sở hữu là .wj-surface-card. */
 
 /* ---------- Tables ---------- */
 .table thead th {

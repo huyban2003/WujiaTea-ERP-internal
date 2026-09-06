@@ -612,3 +612,192 @@ class TestSurfaceCardD4e2(TransactionCase):
         self.assertTrue(bodies)
         self.assertFalse(_declares(bodies[0], 'margin-top'))
         self.assertTrue(_declares(bodies[0], 'gap'))
+
+
+# Token lớp `card` đứng riêng — dò chuỗi con sẽ khớp cả `card-body`, `wj-card-
+# header`, `wujia-kpi-card`. Và phải TÁCH TOKEN chứ đừng bắt bằng một regex có
+# `(?:^|\s)card`: token đứng ĐẦU thuộc tính (`class="card wj-…"`) không có ký
+# tự trắng đứng trước và `^` chỉ khớp đầu chuỗi ⇒ lọt. Đột biến D4f #1 bắt được.
+_CLS_ATTR = re.compile(
+    r'(?:class|t-attf-class)="([^"]*)"'
+    r'|t-value="\'([^\']*)\'"'
+)
+
+
+def _has_card_token(arch):
+    for a, b in _CLS_ATTR.findall(arch or ''):
+        if 'card' in (a or b).split():
+            return True
+    return False
+
+D4F_VIEWS = (
+    'wujia_portal_base.portal_franchise_profile_full',
+    'wujia_portal_base.portal_franchise_information_locked',
+    'wujia_portal_base.portal_franchises_list',
+    'wujia_portal_base.portal_franchise_detail',
+    'wujia_portal_info_request.portal_info_request_list',
+    'wujia_portal_info_request.portal_info_request_form',
+    'wujia_portal_info_request.portal_info_request_detail',
+    'wujia_portal_knowledge.portal_knowledge_list',
+    'wujia_portal_knowledge.portal_knowledge_detail',
+    'wujia_portal_return.portal_return_detail',
+    'wujia_portal_return.portal_return_form',
+    'wujia_portal_return.portal_return_list',
+    'wujia_portal_sale.portal_order_product_detail',
+    'wujia_portal_support.portal_support_list',
+    'wujia_portal_support.portal_support_detail',
+    'wujia_portal_layout.forgot_pass_back',
+    'wujia_portal_layout.signup_form',
+)
+SHELL = ('wj-surface-card', 'wj-surface-card--section',
+         'wj-surface-card--compact', 'wj-surface-card--flush')
+
+
+@tagged('post_install', '-at_install', 'wujia_surface_card_d4')
+class TestSurfaceCardD4f(TransactionCase):
+    """D4f — nhóm cuối: gỡ hẳn `.card` của Bootstrap khỏi Portal.
+
+    Khác mọi lượt trước ở một điểm: `.card` KHÔNG phải lớp của Wujia. Bundle
+    `web.assets_frontend` của Odoo nạp SAU mọi <link> của Wujia ở cùng đặc hiệu
+    (0,1,0) nên nền + viền thẻ do Odoo quyết, radius chỉ đứng nhờ !important.
+    Vì thế Luật #1 (giữ lớp cũ qua sc_class) KHÔNG áp dụng: giữ chữ `card` là
+    để Odoo tiếp tục thắng. Test dưới đây khoá cả hai đầu — call site sạch
+    token `card`, và dáng khung chỉ còn một chủ.
+    """
+
+    # --- A · call site không còn token `card` -----------------------------
+
+    def _arch(self, key):
+        view = self.env['ir.ui.view'].search([('key', '=', key)], limit=1)
+        self.assertTrue(view, f'không thấy view {key}')
+        return view.arch_db
+
+    def test_no_d4f_view_keeps_the_bootstrap_card_class(self):
+        for key in D4F_VIEWS:
+            with self.subTest(key=key):
+                self.assertFalse(_has_card_token(self._arch(key)))
+
+    def test_no_portal_view_at_all_keeps_the_card_class(self):
+        # Đếm trên TOÀN BỘ view đã cài, không chỉ 17 view trên: lượt sau thêm
+        # call site mới mà quên là test này đỏ ngay.
+        views = self.env['ir.ui.view'].search(
+            [('key', '=like', 'wujia_portal_%')])
+        leaks = [v.key for v in views if _has_card_token(v.arch_db)]
+        # NGOẠI LỆ ghi rõ: /my/franchises/<id> chạy trên bundle
+        # `portal.portal_layout` của Odoo, KHÔNG nạp một dòng CSS Wujia nào
+        # (đo lúc chạy D4f: radius 6px, shadow none). Đổi lớp ở đó là sửa dáng
+        # màn không thuộc shell Vuexy ⇒ để nguyên, ghi LIMIT.
+        self.assertEqual(leaks, ['wujia_portal_base.portal_my_franchise_detail'])
+
+    def test_children_migrated_to_the_bem_names(self):
+        for key in D4F_VIEWS:
+            arch = self._arch(key)
+            for old in ('"card-header', '"card-body', '"card-footer',
+                        '"card-img-top', "'card-header"):
+                with self.subTest(key=key, old=old):
+                    self.assertNotIn(old, arch)
+
+    def test_call_sites_bake_all_four_shell_classes(self):
+        # ĐẾM chứ không `in`: một call site rơi mất --flush mà call site khác
+        # cùng view còn giữ thì phép `in` vẫn xanh — đột biến D4f #3 đã lọt.
+        full = ' '.join(SHELL)
+        for key in D4F_VIEWS:
+            arch = self._arch(key)
+            with self.subTest(key=key):
+                n = arch.count('wj-surface-card wj-surface-card--section')
+                self.assertGreaterEqual(n, 1)
+                self.assertEqual(arch.count(full), n)
+
+    def test_module_own_classes_survive_next_to_the_shell(self):
+        # Luật #1 phần CÒN áp dụng được: lớp riêng của module nuôi CSS con và
+        # 3 danh sách :is() hover của _interaction.css — rút là đứt.
+        for key, cls in (('wujia_portal_knowledge.portal_knowledge_detail',
+                          'knowledge-detail'),
+                         ('wujia_portal_support.portal_support_detail',
+                          'support-chatter'),
+                         ('wujia_portal_return.portal_return_form',
+                          'wujia-return-form')):
+            with self.subTest(key=key):
+                self.assertIn('wj-surface-card--flush ' + cls, self._arch(key))
+
+    # --- B · con BEM khai đúng dáng --------------------------------------
+
+    def test_bem_children_declare_their_own_frame(self):
+        css = _css('_components.css')
+        head = _rule(css, '.wj-surface-card__head')
+        body = _rule(css, '.wj-surface-card__body')
+        foot = _rule(css, '.wj-surface-card__foot')
+        flush = _rule(css, '.wj-surface-card__body--flush')
+        for name, got in (('head', head), ('body', body),
+                          ('foot', foot), ('flush', flush)):
+            self.assertTrue(got, f'thiếu rule {name}')
+        self.assertTrue(_declares(head, 'padding'))
+        self.assertTrue(_declares(head, 'border-bottom'))
+        self.assertIn('transparent', head)
+        self.assertTrue(_declares(body, 'padding'))
+        self.assertTrue(_declares(foot, 'border-top'))
+        self.assertIn('transparent', foot)
+        self.assertRegex(flush, r'padding:\s*0')
+
+    def test_bem_children_use_the_tokens_not_raw_px(self):
+        css = _css('_components.css')
+        for sel in ('.wj-surface-card__head', '.wj-surface-card__body',
+                    '.wj-surface-card__foot'):
+            with self.subTest(sel=sel):
+                self.assertIn('--wujia-surface-pad-', _rule(css, sel))
+
+    def test_card_title_font_size_retargeted_to_the_head(self):
+        # Cỡ chữ tiêu đề là địa hạt D3 — chỉ trỏ lại tên, KHÔNG đổi giá trị.
+        css = _strip_comments(_css('_components.css'))
+        self.assertIn('.wj-surface-card__head .card-title', css)
+        self.assertIn('--wujia-font-size-card-title', css)
+
+    # --- C · dáng khung chỉ còn MỘT chủ -----------------------------------
+
+    def test_global_card_shape_rules_are_gone(self):
+        # Chốt #2 của chủ dự án: gỡ vì đếm lúc chạy ra 0 thẻ `.card` còn hiện.
+        for name in ('_wujia_theme.css', '_components.css'):
+            with self.subTest(css=name):
+                self.assertEqual(_rules_anywhere(_css(name), '.card'), [])
+
+    def test_theme_no_longer_shapes_card_children(self):
+        css = _css('_wujia_theme.css')
+        for sel in ('.card > .card-header', '.card-footer',
+                    '.card-body .wujia-section-header'):
+            with self.subTest(sel=sel):
+                self.assertEqual(_rules_anywhere(css, sel), [])
+
+    def test_module_css_retargeted_off_card_body(self):
+        ret = _mod_css('wujia_portal_return', 'portal_return.css')
+        sup = _mod_css('wujia_portal_support', 'portal_support.css')
+        self.assertIn('.wj-surface-card__body > .wj-card-header', ret)
+        self.assertNotIn('.card-body >', ret)
+        self.assertIn('.support-chatter .wj-surface-card__body', sup)
+        self.assertNotIn('.support-chatter .card-body', sup)
+
+    def test_surface_card_still_has_no_shadow(self):
+        body = _rule(_css('_components.css'), '.wj-surface-card')
+        self.assertTrue(body)
+        self.assertFalse(_declares(body, 'box-shadow'))
+
+    # --- D · ảnh bìa: bo góc thay cho overflow:hidden đã gỡ ---------------
+
+    def test_media_class_carries_the_radius_itself(self):
+        # `.card` cũ bo góc ảnh bìa NHỜ overflow:hidden của cha. Gỡ .card là
+        # mất cái đó, nên radius phải nằm thẳng trên ảnh.
+        css = _css('_components.css')
+        media = _rule(css, '.wj-surface-card__media')
+        self.assertTrue(media)
+        self.assertTrue(_declares(media, 'border-radius'))
+        self.assertIn('--wujia-surface-radius', media)
+        # Và KHÔNG được thêm overflow vào shell: 113 thẻ D4b–D4e chạy không có
+        # nó, thêm là đổi hành vi cả cụm. Quét MỌI rule của selector — `_rule`
+        # chỉ trả rule ĐẦU TIÊN nên một rule thêm sau nó sẽ lọt (đột biến #11).
+        for body in _rules_anywhere(css, '.wj-surface-card'):
+            self.assertFalse(_declares(body, 'overflow'))
+
+    def test_cover_images_use_the_media_class(self):
+        for key in ('wujia_portal_knowledge.portal_knowledge_detail',
+                    'wujia_portal_sale.portal_order_product_detail'):
+            with self.subTest(key=key):
+                self.assertIn('wj-surface-card__media', self._arch(key))

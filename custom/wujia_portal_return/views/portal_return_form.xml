@@ -18,13 +18,13 @@
                 <div class="content-body">
                     <p t-if="error" class="alert alert-danger" t-out="error"/>
                     <form method="post" action="/portal/return/new" data-wj-dirty-guard="1"
-                          enctype="multipart/form-data" class="card wujia-return-form">
+                          enctype="multipart/form-data" class="wj-surface-card wj-surface-card--section wj-surface-card--compact wj-surface-card--flush wujia-return-form">
                         <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
                         <div class="alert alert-info mb-0 rounded-0">
                             <i class="feather icon-info me-1"/>
                             Mỗi yêu cầu chỉ áp dụng cho <b>1 sản phẩm</b> trong đơn đặt.
                         </div>
-                        <div class="card-body">
+                        <div class="wj-surface-card__body">
                             <div class="row g-2">
                                 <div class="col-md-6 col-12">
                                     <label class="form-label">Cửa hàng</label>
@@ -105,7 +105,7 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="card-footer text-end">
+                        <div class="wj-surface-card__foot text-end">
                             <a href="/portal/return" class="btn btn-secondary me-2">Hủy</a>
                             <button type="submit" name="action" value="draft" class="btn btn-outline-primary me-2">Lưu nháp</button>
                             <button type="submit" name="action" value="send" class="btn btn-primary">

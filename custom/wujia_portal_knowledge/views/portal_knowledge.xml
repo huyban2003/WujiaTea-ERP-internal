@@ -31,8 +31,8 @@
                 <div class="content-body">
                     <t t-call="wujia_portal_knowledge.portal_knowledge_notice"/>
                     <!-- Search bar -->
-                    <div class="card mb-2">
-                        <div class="card-body p-2">
+                    <div class="wj-surface-card wj-surface-card--section wj-surface-card--compact wj-surface-card--flush mb-2">
+                        <div class="wj-surface-card__body p-2">
                             <form method="get" action="/portal/knowledge" class="row g-2">
                                 <div class="col-md-8 col-12">
                                     <input type="text" name="keyword" class="form-control form-control-sm"
@@ -51,8 +51,8 @@
                     <div class="row">
                         <!-- Category nav -->
                         <div class="col-md-3 col-12 mb-2" id="wj-know-pc-cats">
-                            <div class="card">
-                                <div class="card-header py-2">
+                            <div class="wj-surface-card wj-surface-card--section wj-surface-card--compact wj-surface-card--flush">
+                                <div class="wj-surface-card__head py-2">
                                     <t t-call="wujia_portal_layout.wj_card_header">
                                         <t t-set="ch_title">Danh mục</t>
                                         <t t-set="ch_level" t-value="4"/>
@@ -285,12 +285,12 @@
                 <div class="content-body">
                     <div class="row">
                         <div class="col-lg-9 col-12">
-                            <article class="card knowledge-detail">
+                            <article class="wj-surface-card wj-surface-card--section wj-surface-card--compact wj-surface-card--flush knowledge-detail">
                                 <img t-if="article.cover_image"
                                      t-attf-src="/web/image/wujia.knowledge.article/#{article.id}/cover_image"
-                                     class="card-img-top knowledge-detail-cover"
+                                     class="wj-surface-card__media knowledge-detail-cover"
                                      t-att-alt="article.name"/>
-                                <div class="card-body">
+                                <div class="wj-surface-card__body">
                                     <h1 class="article-title" t-out="article.name"/>
                                     <p class="text-muted small mb-3">
                                         <span t-if="article.author_id"><i class="fa fa-user me-1"/><t t-out="article.author_id.name"/></span>
@@ -303,8 +303,8 @@
                         </div>
 
                         <div class="col-lg-3 col-12">
-                            <div t-if="related" class="card">
-                                <div class="card-header py-2">
+                            <div t-if="related" class="wj-surface-card wj-surface-card--section wj-surface-card--compact wj-surface-card--flush">
+                                <div class="wj-surface-card__head py-2">
                                     <t t-call="wujia_portal_layout.wj_card_header">
                                         <t t-set="ch_title">Bài liên quan</t>
                                         <t t-set="ch_level" t-value="4"/>

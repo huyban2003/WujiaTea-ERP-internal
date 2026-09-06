@@ -489,3 +489,66 @@ khung mới dời.
 
 Nợ D4d **đã trả hết**. Còn lại: Bootstrap `.card` thô (75) → **D4f** · `wj-auth-card` (15)
 THIẾT KẾ S39 · 9 họ còn lại nhóm Khảo sát (17) *provisional* · **26 lượt mới ở §12.2**.
+
+## 15. Đính chính & bổ sung sau lượt D4f (06/09/2026)
+
+### 15.1 Con số `.card` của kiểm kê cũ SAI — đính chính bằng đếm token lớp
+
+Kiểm kê gốc ghi **75 lượt** `.card`, prompt D4f ghi **35**. Cả hai đều sai vì đếm bằng chuỗi
+con: `grep "card"` khớp cả `card-body`, `wj-card-header`, `wujia-kpi-card`, `card-content`.
+Đếm lại bằng **tách token** (`class="…".split()`, cộng `t-value="'…'"`):
+
+| Lớp | Kiểm kê cũ | Prompt D4f | **Thật** | Trong phạm vi Portal |
+|---|---:|---:|---:|---:|
+| `card` | 75 | 35 | **44** | **31** |
+| `card-body` | – | – | 47 | 28 |
+| `card-header` | – | – | 18 | 16 |
+| `card-footer` | – | – | 4 | 4 |
+| file bên thứ ba | – | 3 | **12** | – |
+
+31 = 28 trong phạm vi prompt **+ 3 màn auth** (chốt #4). 13 lượt còn lại ngoài phạm vi:
+12 lượt bên thứ ba + `portal_templates.xml:106`.
+
+### 15.2 Điều mới học được: **`.card` là lớp Wujia KHÔNG sở hữu**
+
+Mọi lượt D4b–D4e2 đều dời dáng giữa các lớp **của chính Wujia**, nên Luật #1 ("giữ lớp cũ qua
+`sc_class`") luôn an toàn. Lượt này khác: bundle `web.assets_frontend` của Odoo nạp **sau** mọi
+`<link>` của Wujia, cùng đặc hiệu `(0,1,0)`, và cũng khai `.card { background-color; border;
+border-radius }`. Đo lúc chạy: viền thẻ là `rgba(0,0,0,.176)` **của Odoo**, không phải
+`--wujia-border`; radius 16 chỉ đứng được nhờ `!important`; `card-footer` nhận nền xám
+`rgba(33,37,41,.03)` dù Wujia khai `transparent`.
+
+⇒ **Bổ sung Luật chung: lớp của FRAMEWORK thì không giữ, phải bỏ.** Giữ nó lại là để framework
+tiếp tục thắng ở lần nâng cấp sau. Chỉ giữ lớp **riêng của module Wujia**
+(`knowledge-detail`, `support-chatter`, `wujia-return-form`).
+
+### 15.3 Bốn chốt của chủ dự án ở lượt này
+
+1. **Con của card** — *"làm cho đồng bộ thì migrate đi rồi fix dần, vỡ thì phải chịu mà sửa"*
+   ⇒ **Đường A**: `card-header/body/footer` → `__head/__body/__foot`.
+2. **3 rule `.card` toàn cục** — chỉ gỡ nếu đếm lúc chạy ra 0 thẻ. Đo được **89 → 0** ⇒ **đã gỡ**.
+3. **~18 thẻ PC mất shadow** — *"cứ làm theo BA"*, có ảnh trước/sau, không dừng phiên.
+4. **`forgot_pass.xml`** — *"làm thì làm hết đi"* ⇒ migrate cả 3 call site auth.
+
+### 15.4 Cái `overflow: hidden` phải trả riêng
+
+`.card` cũ có `overflow: hidden`, và ảnh bìa (`card-img-top`) bo góc **nhờ** cái đó chứ không
+phải nhờ radius của chính nó. `wj-surface-card` **không** có `overflow` — thêm vào là đổi hành
+vi 113 thẻ đã chạy từ D4b. Cách trả: bo góc **thẳng vào ảnh** qua `.wj-surface-card__media`.
+⚠️ Không đo được lúc chạy — DB này không bài viết nào có ảnh bìa nên nhánh `t-if` không render.
+
+### 15.5 Tiến độ cụm
+
+| Lượt | Phạm vi | Lượt phủ |
+|---|---|---:|
+| D4b | `wujia-kpi-card` (4) + `wujia-content-card` (8) | 12 |
+| D4c | `wj-pc-card` (34) + `wj-pc-acct-headcard` (2) | 36 |
+| D4d | 10 họ mobile + `wj-filter-card` | 50 |
+| D4e1 | `wj-pc-metric-card` — toàn họ | 12 |
+| D4e2 | `wj-rep-mcard` (3) + 2 inline padding + 18 ô nhịp | 3 + nợ |
+| **D4f** | Bootstrap `.card` thô — **toàn bộ phần Portal** | **31** |
+| | | **144 / 384 ≈ 37%** |
+
+Còn lại: `wj-auth-card` (15) **THIẾT KẾ S39** · 9 họ nhóm Khảo sát (17) *provisional*, module
+`uninstalled` · 26 lượt bề mặt trắng mobile ở §12.2 (20 → `CMP-ES-001`, 4 → `UI-DATALIST-001`,
+2 chưa có chủ) · 13 lượt `.card` ngoài phạm vi ở §15.1.

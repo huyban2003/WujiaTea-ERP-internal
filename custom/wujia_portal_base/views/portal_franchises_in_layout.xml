@@ -29,9 +29,9 @@
                     <div t-if="not memberships" class="alert alert-info">
                         Bạn chưa được gán vào cửa hàng nào. Liên hệ quản trị viên.
                     </div>
-                    <div t-if="memberships" class="card">
+                    <div t-if="memberships" class="wj-surface-card wj-surface-card--section wj-surface-card--compact wj-surface-card--flush">
                         <div class="card-content">
-                            <div class="card-body p-0">
+                            <div class="wj-surface-card__body wj-surface-card__body--flush">
                                 <table class="table table-hover mb-0">
                                     <thead>
                                         <tr>
@@ -101,14 +101,14 @@
                     </div>
                 </div>
                 <div class="content-body">
-                    <div class="card">
-                        <div class="card-header d-flex align-items-center justify-content-between">
+                    <div class="wj-surface-card wj-surface-card--section wj-surface-card--compact wj-surface-card--flush">
+                        <div class="wj-surface-card__head d-flex align-items-center justify-content-between">
                             <h4 class="card-title mb-0">Thành viên cửa hàng</h4>
                             <span id="o_wujia_realtime_indicator"
                                   class="badge badge-success d-none">Đã cập nhật</span>
                         </div>
                         <div class="card-content">
-                            <div class="card-body p-0">
+                            <div class="wj-surface-card__body wj-surface-card__body--flush">
                                 <table id="o_wujia_franchise_members"
                                        t-att-data-franchise-id="franchise.id"
                                        class="table mb-0">
