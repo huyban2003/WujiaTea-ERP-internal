@@ -467,7 +467,7 @@ B4 286/286, tab-walk 346 stop) · D1 **27/28**.
   rẽ `t-if/t-elif/t-else` như `wj_section_header`.
 - ⚠️ Trailing slot render **markup thô không bọc element** để `wj_ajax_list` swap được.
 
-## D4 — SurfaceCard `CMP-SC-001` (UI-SURFACECARD-001) — D4a…D4f
+## D4 — SurfaceCard `CMP-SC-001` (UI-SURFACECARD-001) — D4a…D4h ✅ KHÉP 06/09
 
 > **D4a XONG 04/09/2026** — kiểm kê + kế hoạch chia lượt, **0 dòng code**.
 > Bảng đầy đủ: **`docs/d4-surfacecard-inventory.md`**. Đọc nó TRƯỚC khi làm bất kỳ lượt nào.
@@ -786,6 +786,39 @@ file XML, 4 file CSS. `-u` 7 module, 0 ERROR. 74 test (**+14**), đỏ đúng 2 
 11. **Ngoại lệ thì GHIM vào guard, đừng bỏ qua.** `/my/franchises/<id>` chạy trên bundle
     `portal.portal_layout` của Odoo, không nạp một dòng CSS Wujia nào. Test ghim nó thành danh
     sách **1 phần tử** thay vì `assertEqual(leaks, [])` — chỗ rò mới vẫn đỏ ngay.
+
+### ✅ D4g + D4h XONG (06/09) — soi UAT cho D4f · chốt `wj-auth-card` · nhóm Khảo sát, **KHÉP CỤM D4**
+
+`docs/d4g-acceptance-matrix.md`. **UAT khớp local** (0 `.card`, 86/86 shell đúng token, 0 rule ngoài
+`_components.css` kể cả bundle `website`) ⇒ LIMIT 7 của D4f đóng, sheet cột P đã đánh dấu deploy.
+`wj-auth-card` đính chính 15 → **4 shell**, chủ dự án chốt giữ S39 + LIMIT. D4h: inspection cài lên copy,
+đếm lúc chạy ra **7 shell** (3 họ CSS + **4 hộp khai dáng bằng `style=""`**), 3 token phân loại ngoài
+SurfaceCard (2 hộp thoại nổi + ô chỉ báo 60×60) và ghim guard. 83 test (+9), 0 đỏ; 30/30 ô `pageH`
+không đổi, 0 ô giảm record; ảnh ngoài phạm vi giống hệt từng pixel. Tiến độ **151/377 — không còn họ
+khung nào chưa có chủ**. Deploy lượt 3: `-u wujia_portal_inspection` (`docs/deploy-d4h-2026-09-06.md`).
+
+### 🔴 Bài học D4g/D4h — đọc trước khi mở cụm D5
+
+1. **`git fetch` TRƯỚC khi code trên nhánh sống nhiều ngày — và trước khi báo "đã lên main".** D4e1/e2/f
+   commit trên máy Linux từ gốc D4d trong khi máy Mac đã merge D4d + vá deploy vào `main` tối hôm trước;
+   máy Linux chưa fetch từ 04/09 nên `origin/main` local là ảnh cũ. Kết quả: chủ dự án deploy "D4f" mà
+   UAT thật ra chỉ có D4d. Phát hiện được **chỉ vì đo XML-RPC phiên bản module** thay vì tin git.
+2. **Quy ước bump sau merge hai máy:** lấy số **lớn hơn** rồi **bump patch thêm 1** cho mọi module có đụng
+   — để `installed_version` UAT phân biệt được "đã deploy" với "chưa". Từ nay mỗi lượt D đều bump.
+3. **Kiểm kê tĩnh sai ở module uninstalled — phải cài lên copy rồi đếm lúc chạy.** §2 đếm `table-card`/
+   `exam-card` không hề tồn tại, và **bỏ sót 4 hộp** khai dáng bằng `style=""` mà grep CSS không thấy.
+   `d4h_inv.py` quét mọi phần tử có token khớp `/card|-box$/` + computed style là cách đếm đúng.
+4. **Phân loại trước khi migrate, và GHIM phân loại vào guard.** Hộp thoại nổi (overlay + `scale`) và ô
+   chỉ báo 60×60 có bg/viền/radius nhưng không phải khung nội dung. Không ép vào shell; test khẳng định
+   chúng **vẫn** khai `box-shadow`/`width` để ai đổi phân loại phải qua test (không im lặng).
+5. **Tông ≠ dáng.** `border-color` xanh của ô tổng là điểm nhấn — giữ lại làm modifier (token), chỉ dời
+   `border-width`/radius/bg/padding sang shell. `.severe-card` vốn đã là modifier tông nên không đụng.
+6. **Harness đo tái dùng bằng `exec` bọc, không chép.** `d4g_uat_measure.py`/`d4h_measure.py`/`d4h_shot.py`/
+   `d4h_rhythm.py` đều `exec` file D4f rồi đổi đúng BASE/đăng nhập/route ⇒ số UAT so thẳng được với số local.
+   Bẫy: hàm có **tham số mặc định** (`session_cookie(login=OWNER)`) bind lúc `def`, đổi `ns["OWNER"]` sau
+   không ăn — phải truyền tường minh.
+7. **Đăng nhập UAT bằng admin + cookie cửa hàng; đo trên máy chủ mất ~1 route/45 s timeout.** Chạy lại
+   riêng khổ bị timeout (`VP=360`) thay vì chạy lại cả bộ.
 
 ## R1–R5 — Optimize (sau khi 11 issue cụm D đã `Ready for Retest`)
 

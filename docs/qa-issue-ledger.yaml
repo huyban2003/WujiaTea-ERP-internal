@@ -1887,3 +1887,37 @@ WJ-FRANCHISE-003:
 #       cụm (đã từng lật ngược kết quả ở C6 và D2). Phải đo lại CHỈ-ĐỌC trên
 #       http://113.161.187.126:8019/ sau deploy rồi mới qa_deploy_mark.py.
 # =====================================================================================
+# =====================================================================================
+# [D4g · 06/09/2026] UI-SURFACECARD-001 — SOI UAT cho D4f + chốt wj-auth-card (chưa entry thật)
+# Vì sao vẫn comment: 2/3 điều kiện §2.4 mới đạt (UAT khớp ✅ · wj-auth-card có chủ ✅);
+# nhóm Khảo sát chưa xong (D4h cùng phiên) ⇒ chưa được Ready for Retest.
+#
+# UAT (03:07 UTC, main 1c3ac12): 21 module latest == installed == manifest, layout 19.0.38.0.0,
+#   _components.css?v=1220 md5 bằng repo. Đo CHỈ-ĐỌC 25 route × 5 khổ (d4g_uat_measure.py bọc
+#   exec d4f_measure.py, admin + cookie cửa hàng HCM-01, id thật 16/13/3/ui12-01/4):
+#   - .card hiện = 0 (DOM 0) · 0 lỗi JS · 0 HTTP≠200 · 0 redirect ngầm · 0 lồng trắng-trắng.
+#   - shell 1px #EEF2F5 · 16px · none (PC, 86/86) · 1px #E5E7EB · 14px · none (mobile).
+#   - 0 rule ngoài _components.css khớp .wj-surface-card — website/website_sale không chạm.
+#   ⇒ LIMIT 7 của D4f ĐÓNG. Sheet: qa_deploy_mark cột P dòng 120, trạng thái giữ Ready for Dev.
+#   Thấy-nhưng-ngoài-phạm-vi: /portal/login + /portal/forgot-pass tràn ngang ≤1024 — có sẵn từ
+#   trước D4 (d4f_after.json cùng 8 ô), thuộc màn auth S39.
+#
+# wj-auth-card: đính chính 15 → 4 shell (đếm token). Chủ dự án chốt 06/09: GIỮ NGUYÊN + LIMIT
+#   (thiết kế S39, ngoài SCOPE 14 route, bóng theo Figma). 0 code. Mẫu số cụm 384 → 380.
+# =====================================================================================
+
+# =====================================================================================
+# UI-SURFACECARD-001 (STT 127) — D4h 06/09/2026: KHÉP CỤM D4 (D4b→D4h). Đủ 3 điều kiện §2.4:
+#   UAT khớp local (D4f, đo 06/09) · 2 họ cuối có chủ (wj-auth-card LIMIT, Khảo sát D4h) ·
+#   Kết quả mong muốn 9/10 ✅ + 1 ⚠ chờ chốt thiết kế (≥90%). Số đo: docs/d4g-acceptance-matrix.md.
+# Entry THẬT bên dưới; chạy `qa_sync.py --apply --only UI-SURFACECARD-001` CHỈ KHI chủ dự án chốt.
+UI-SURFACECARD-001:
+  sprint: "2026-09-06-D4h"
+  build_override: "Chờ deploy UAT | 06/09/2026 | Sprint 2026-09-06-D4h | commit: 7eb5d23 | wujia_portal_inspection 19.0.1.4.0 — deploy: -u wujia_portal_inspection (D4b→D4f đã lên UAT 06/09 03:07, đo chỉ-đọc khớp: .card hiện 0, shell 1px #EEF2F5/#E5E7EB · 16/14 · không bóng, 0 rule ngoài _components.css)"
+  url: "/portal — mọi thẻ nội dung trên Portal, cả máy tính và điện thoại (14 màn trong phạm vi BA + Khảo sát)"
+  odoo_fit: "Custom"
+  fix: "Trước đây mỗi màn Portal tự vẽ khung thẻ theo một kiểu riêng: hơn hai mươi họ thẻ khác nhau, bo góc từ 12 đến 24 điểm ảnh, có thẻ đổ bóng có thẻ không, đệm lệch nhau, và một phần lớn còn dùng thẳng thẻ mặc định của Odoo nên viền và nền do Odoo quyết chứ không do Wujia. Nay toàn bộ khung thẻ dùng chung một khuôn duy nhất: nền trắng, viền mỏng một điểm ảnh, bo góc 16 trên máy tính và 14 trên điện thoại, đệm gọn 16 hoặc 12, không đổ bóng, và chỉ một tệp giao diện được phép khai dáng khung. Các họ thẻ cũ giữ lại tên riêng để phần nội dung bên trong không đổi. Việc làm qua bảy đợt: dựng khuôn và bốn họ thẻ đầu, rồi thẻ máy tính, thẻ điện thoại, thẻ số liệu, thẻ báo cáo, gỡ hẳn thẻ mặc định của Odoo khỏi Portal, và đợt cuối là nhóm màn Khảo sát vốn chưa đo được vì phần mềm đó chưa cài trên máy dev. Ở nhóm Khảo sát phát hiện bốn hộp trên màn khắc phục khai dáng ngay trong mã màn hình chứ không qua tệp giao diện, chỉ đếm lúc chạy mới lộ, nay cũng đã đưa về khuôn chung"
+  impact: "Toàn bộ Portal. Không đổi dữ liệu, không đổi quyền, không đổi luồng nghiệp vụ, không đổi chữ. Mỗi đợt đều đo trước và sau trên bản sao ở năm khổ màn 1440, 1024, 992, 390 và 360: chiều cao trang và số bản ghi nhìn thấy trong một màn không giảm ở bất kỳ ô nào, nhịp tiêu đề sang thân thẻ giữ đúng 12 điểm ảnh, ảnh chụp các màn ngoài phạm vi giống hệt từng điểm ảnh. Sau khi cài lên máy chủ kiểm thử đã đo lại chỉ-đọc trên chính máy chủ ở 25 màn và năm khổ: không còn thẻ mặc định nào của Odoo, 86 trên 86 khung đúng viền, bo góc và không bóng, và không có luật giao diện nào từ phần bán hàng trực tuyến của Odoo chen vào. Bộ kiểm tra tự động 83 phép thử, mỗi đợt đều chứng minh có tác dụng bằng cách cố tình sửa sai rồi thấy đúng phép thử đỏ"
+  retest: "Mở lần lượt Trang chủ, Đặt hàng, Giỏ hàng, Lịch sử mua hàng, Đổi trả và Tạo yêu cầu đổi trả, Giao hàng, Công nợ, Thông báo, Hỗ trợ, Kiến thức, Đăng ký thi, Khảo sát và chi tiết một phiếu, Hồ sơ, Thông tin cửa hàng, Báo cáo đặt hàng, ở máy tính 1440 và điện thoại 390. Mọi thẻ nội dung phải cùng một dáng: nền trắng, viền mỏng, bo góc đều nhau, không đổ bóng, đệm gọn; các thẻ trên cùng một hàng cao bằng nhau. Không thẻ trắng nào nằm lọt trong thẻ trắng khác, trừ ô tổng điểm ở chi tiết Khảo sát đang chờ chốt thiết kế. Thu màn hình về 1024, 992 và 360: không cuộn ngang, không thẻ nào vỡ. Với màn Khảo sát chỉ nghiệm thu khung thẻ, phần nội dung trường dữ liệu để đợt có dữ liệu mẫu như BA đã ghi. Nếu vẫn thấy dáng cũ thì tải lại trang bỏ qua bộ nhớ đệm"
+  limit: "Thứ nhất, màn đăng nhập và quên mật khẩu cố ý giữ dáng riêng có bóng theo thiết kế đã duyệt S39, chủ dự án chốt ngày 06/09; các màn này cũng không nằm trong mười bốn màn BA nêu. Thứ hai, hai hộp thoại thông báo trên màn khắc phục Khảo sát và ô chỉ báo điểm nhỏ 60 điểm ảnh không được coi là thẻ nội dung nên giữ nguyên; nếu BA muốn chúng cùng khuôn thì báo để mở đợt riêng. Thứ ba, ở chi tiết Khảo sát trên máy tính, ô tổng điểm là hộp trắng nằm trong thẻ trắng từ trước; đưa về nền xám nhạt sẽ mất viền xanh nhấn nên chờ BA chốt. Thứ tư, đợt Khảo sát mới chỉ kiểm trên bản sao, chưa lên máy chủ kiểm thử; cột Build/Deploy sẽ được cập nhật sau khi cài. Thứ năm, trang chi tiết cửa hàng theo đường dẫn /my/franchises chạy trên bộ giao diện mặc định của Odoo, không nạp giao diện Wujia, nên để nguyên. Thứ sáu, mười hai chỗ dùng thẻ trong các phần mềm bên thứ ba ở giao diện nội bộ không thuộc Portal, không đụng"
+# =====================================================================================

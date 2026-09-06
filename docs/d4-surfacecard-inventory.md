@@ -603,3 +603,80 @@ vi 113 thẻ đã chạy từ D4b. Cách trả: bo góc **thẳng vào ảnh** q
 Còn lại: `wj-auth-card` (15) **THIẾT KẾ S39** · 9 họ nhóm Khảo sát (17) *provisional*, module
 `uninstalled` · 26 lượt bề mặt trắng mobile ở §12.2 (20 → `CMP-ES-001`, 4 → `UI-DATALIST-001`,
 2 chưa có chủ) · 13 lượt `.card` ngoài phạm vi ở §15.1.
+
+---
+
+## 16. Đính chính & bổ sung sau lượt D4g (06/09/2026) — soi UAT + chốt `wj-auth-card`
+
+### 16.1 UAT khớp local — D4b→D4f đã lên máy chủ thật
+
+Deploy 06/09 03:07 UTC (`main` = `1c3ac12`, gộp cả nhánh máy Mac `084f7b3` lẫn D4e1/e2/f). 21 module
+`latest == installed == manifest`, layout **19.0.38.0.0**, `_components.css?v=1220` md5 bằng repo.
+Đo chỉ-đọc 25 route × 5 khổ bằng chính `d4f_measure.py` (bọc `exec`, đổi đúng BASE/đăng nhập/id):
+**`.card` hiện = 0**, shell `1px #EEF2F5`/16px PC · `1px #E5E7EB`/14px mobile · shadow none ở
+**86/86 shell mỗi khổ**, **0 rule** ngoài `_components.css` khớp shell kể cả bundle `website`.
+Chi tiết: `docs/d4f-acceptance-matrix.md` §13. Sheet: cột P dòng 120 đã đánh dấu deploy, trạng thái
+**giữ `Ready for Dev`** (phủ 144/384).
+
+### 16.2 Đính chính lần tư — `wj-auth-card` là **4 shell**, không phải 15
+
+Bảng §2 đếm **15** cho họ `wj-auth-card` bằng `grep -c` chuỗi con — lặp đúng lỗi §15.1. Đếm lại
+bằng token lớp (`class=` → `.split()`), file `login_page.xml`:
+
+| Token | Số | Ở đâu | Vai trò |
+|---|---:|---|---|
+| `wj-auth-card` | **4** | `:12` login · `:73` forgot · `:115` OTP · `:158` reset | **shell** (khung) |
+| `wj-auth-card--*` (modifier) | 3 | cùng 4 shell | dáng riêng từng bước |
+| `wj-auth-card__*` (con) | 8 | tiêu đề / form / chân | nội dung, không khai khung |
+
+Dáng khung của `wj-auth-card` (`_auth.css:189` p 69/48/44, radius `--wujia-auth-card-radius`, shadow
+`0 10px 30px`; `@media :465` p 57/20/26, shadow `0 6px 18px`) **cố ý khác** SurfaceCard: đây là màn
+đăng nhập **khoá thiết kế S39**, không nằm trong SCOPE BA 14 route của CMP-SC-001, và có bóng theo
+Figma. **Chủ dự án chốt 06/09: giữ nguyên, ghi LIMIT.** 0 dòng code. Họ này rời khỏi mẫu số cụm:
+phạm vi kiểm kê còn **384 − 4 = 380** token phải xử lý; 15 − 4 = 11 token con/modifier chưa bao giờ
+là khung nên §2 đã đếm thừa.
+
+### 16.3 Tiến độ cụm (đã đính chính mẫu số)
+
+| Lượt | Phạm vi | Lượt phủ |
+|---|---|---:|
+| D4b→D4f | (như §15.5) | 144 |
+| D4g | soi UAT (0 code) · `wj-auth-card` → LIMIT (4 token rời mẫu số) | 0 |
+| | | **144 / 380 ≈ 38%** — còn nhóm Khảo sát (D4h, xem §17) |
+
+---
+
+## 17. Đính chính & bổ sung sau lượt D4h (06/09/2026) — nhóm Khảo sát, lần đầu đo được
+
+### 17.1 Kiểm kê lúc chạy thay cho kiểm kê tĩnh
+
+`wujia_portal_inspection` uninstalled trên mọi DB dev trước đây nên §2/§5 chỉ đếm bằng grep. Lượt này cài
+module lên copy `wujia_tea_d4g`, render 3 route + 2 popup, đếm token lớp lúc chạy (`scratchpad/d4h_inv.py`):
+
+| Token | §2 cũ | Thật | Ghi chú |
+|---|---:|---:|---|
+| `inspection-card-item` · `detail-card-box` · `summary-2x2-card` | 3 | **3** | khung thật, migrate |
+| `form-card-box` | 0 (không có CSS) | **4** | dáng khai bằng `style=""` tại call site — chỉ đếm lúc chạy mới lộ |
+| `wj-dist-card` | 1 | 1 | ô chỉ báo 60×60, **không phải khung** |
+| `wj-success-card` · `wj-warning-card` | 2 | 2 | hộp thoại nổi, **không phải khung** |
+| `table-card` · `exam-card` | 2 | **0** | không tồn tại trong module — kiểm kê cũ đếm nhầm |
+| `wj-info-box-bg` | — | 1 | hộp trắng lồng trong hộp thoại success; đi theo hộp thoại |
+
+### 17.2 Kết quả
+
+7 shell migrate (`--record` 1 · `--summary` 1 · `--section` 5), CSS module chỉ còn vị trí/transition/tông;
+`overflow:hidden` gỡ (không có gì cần cắt). 3 token phân loại ngoài SurfaceCard và **ghim** bằng
+`test_dialogs_and_dist_tile_are_pinned_out_of_scope`. Số đo: `docs/d4g-acceptance-matrix.md` §2–§8.
+
+### 17.3 Tiến độ cụm — KHÉP
+
+| Lượt | Phạm vi | Lượt phủ |
+|---|---|---:|
+| D4b→D4f | (§15.5) | 144 |
+| D4g | `wj-auth-card` → LIMIT (4 rời mẫu số) | 0 |
+| D4h | nhóm Khảo sát: 7 shell | 7 |
+| | phân loại ngoài SurfaceCard (dialog ×2, ô chỉ báo ×1) | −3 mẫu số |
+| | | **151 / 377 token đã đi qua phân loại** |
+
+Phần còn lại của 377 là token **con/modifier** (`__head`, `__body`, `--severe`, `wj-card-header__*`…) đi
+theo shell chứa nó (§4 luật #2), không phải khung — cụm SurfaceCard **không còn họ khung nào chưa có chủ**.

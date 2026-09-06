@@ -343,7 +343,49 @@ mobile, `shadow none`.
 6. **`card-img-top` không đo được trên DB này** — không bài viết nào có ảnh bìa nên nhánh `t-if`
    không bao giờ render. Rủi ro mất bo góc do gỡ `overflow:hidden` đã được xử lý **tường minh**
    bằng `.wj-surface-card__media` + guard, nhưng **chưa có số đo lúc chạy**.
-7. **Chưa soi UAT.** Lượt này phụ thuộc thẳng vào **thứ tự nạp bundle của Odoo**, mà UAT có
-   `website`/`website_sale` nên bundle frontend **khác** local — rủi ro lệch UAT cao nhất cụm
-   (đã từng lật ngược kết quả ở C6 và D2). Phải đo lại **chỉ-đọc** trên
-   `http://113.161.187.126:8019/` sau deploy rồi mới `qa_deploy_mark.py`.
+7. ~~Chưa soi UAT.~~ **Đã soi 06/09 (D4g, §13)** — khớp local ở cả 5 khổ, 0 rule ngoài
+   `_components.css` kể cả bundle `website`/`website_sale` của UAT. LIMIT này đóng.
+
+---
+
+## 13. Soi UAT chỉ-đọc sau deploy (lượt D4g, 06/09/2026)
+
+**Điều kiện vào** (XML-RPC `ir.module.module`, 03:07–03:08 UTC): 21 module Wujia có
+`latest_version == installed_version == version manifest trên `main``, không module nào lệch;
+`wujia_portal_layout` **19.0.38.0.0**, 9 module đụng D4e/D4f hậu tố `.2`. HTML `/portal/login` nạp
+`_components.css?v=1220`, `_pc_components.css?v=1220`, `_wujia_theme.css?v=1220`, `_variables.css?v=1200`;
+md5 `_components.css` tải từ UAT (bỏ CRLF) **bằng** repo: `5eaf3c24…`.
+
+**Cách đo**: `scratchpad/d4g_uat_measure.py` = `exec` nguyên `d4f_measure.py` (không chép logic), đổi
+đúng 3 chỗ: `BASE`/`DB` UAT, đăng nhập `admin` qua `/web/session/authenticate` + cookie
+`wujia_active_franchise_id=3` (HCM-01 — form portal không dùng được trên UAT, bẫy L13/3), id thật của
+UAT (`/portal/support/16`, `/portal/return/13`, `/portal/franchises/3/profile`, `/portal/knowledge/ui12-01`,
+`/portal/order/product/4`). 14 route scope + 9 route đối chứng + 2 route ẩn danh × **5 khổ**
+1440/1024/992/390/360. Chỉ GET + đọc DOM; không tạo dữ liệu. Kết quả `scratchpad/d4g_uat.json`
+(+ `d4g_uat360.json` chạy lại vì 1 lượt `/portal/franchises@360` timeout mạng 45 s, lượt hai trả 200).
+
+### 13.1 Ba con số prompt yêu cầu
+
+| # | Câu hỏi | UAT | Local D4f | Khớp |
+|---|---|---|---|---|
+| 1 | Thẻ `.card` Bootstrap **hiện** trên 25 route × 5 khổ | **0** (DOM cũng 0) | 0 | ✅ |
+| 2 | Shell `.wj-surface-card` — viền / radius / shadow | PC (1440/1024/992): `1px #EEF2F5` · 16px · none — **86/86 shell mỗi khổ**. Mobile (390/360): `1px #E5E7EB` · 14px · none — 86/86 và 85/85 | y hệt | ✅ |
+| 3 | Rule CSSOM **ngoài** `_components.css` khớp shell (`d4g_uat_who.py`, 4 route × 2 khổ, duyệt cả `@media`/`@supports`) | **0** — kể cả `website`/`website_sale` không nạp rule nào chạm `.wj-surface-card` | 0 | ✅ |
+
+Số đo phụ: 429 bề mặt duyệt (local 440 — chênh do dữ liệu UAT khác: HCM-01 không có yêu cầu cập
+nhật thông tin nên `/portal/info-request` ra trạng thái rỗng), **0 lỗi JS**, **0 HTTP ≠ 200**, **0
+redirect ngầm**, **0 bề mặt trắng lồng bề mặt trắng**. Route D4e1/D4e2 (`/portal/reports/orders`)
+lần đầu lên UAT: 7 shell `--summary --flush` PC, 3 shell mobile, đúng token.
+
+### 13.2 Điều thấy nhưng KHÔNG thuộc D4f
+
+- `/portal/login` và `/portal/forgot-pass` **tràn ngang** ở 1024/992/390/360 — **giống hệt local D4f**
+  (`d4f_after.json` cùng 8 ô), tức có sẵn trước cụm D4; màn auth khoá thiết kế S39 (LIMIT 5, chốt
+  `wj-auth-card` 06/09). Ghi để lượt auth (nếu có) đo riêng, không sửa ở đây.
+
+### 13.3 Việc đã làm với sheet
+
+`qa_deploy_mark.py UI-SURFACECARD-001 --apply` — chỉ đổi cột P (Build/Deploy) + Ngày cập nhật + 1 dòng
+History; **trạng thái giữ `Ready for Dev`** vì cụm mới phủ 144/384 token (37%) và 2 họ còn lại
+(`wj-auth-card` LIMIT, nhóm Khảo sát → D4h) chưa có chủ lúc đánh dấu. Verify bằng
+`export?format=csv` đối chiếu cột ID dòng tuyệt đối 120.
