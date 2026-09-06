@@ -84,18 +84,14 @@
     border-bottom-color: #38bdf8 !important;
 }
 
+/* D4h: dáng khung sang .wj-surface-card; overflow:hidden gỡ vì không còn gì cần cắt. */
 .inspection-card-item {
-    border-radius: 14px;
-    border: 1px solid #e2e8f0;
-    background: #ffffff;
     position: relative;
-    overflow: hidden;
-    transition: transform 0.15s ease, box-shadow 0.15s ease;
+    transition: transform 0.15s ease;
 }
 
 .inspection-card-item:hover {
     transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
 }
 
 .code-chip {
@@ -170,12 +166,7 @@
     border-bottom: 1px solid #e2e8f0;
 }
 
-.detail-card-box {
-    background: #ffffff;
-    border-radius: 16px;
-    border: 1px solid #f1f5f9;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03);
-}
+/* D4h: .detail-card-box — dáng khung sang .wj-surface-card, rule cũ không còn khai gì. */
 
 .score-box-border {
     border: 3px solid #38bdf8;
@@ -195,21 +186,18 @@
     font-weight: 700;
 }
 
+/* D4h: dáng khung sang .wj-surface-card; viền tông xanh giữ lại vì là tông (điểm nhấn), không phải dáng. */
 .summary-2x2-card {
-    border-radius: 14px;
-    border: 1.5px solid #38bdf8;
-    background: #ffffff;
-    padding: 12px;
+    border-color: var(--wujia-primary);
     text-align: center;
     cursor: pointer;
     text-decoration: none;
     display: block;
-    transition: transform 0.15s, box-shadow 0.15s;
+    transition: transform 0.15s;
 }
 
 .summary-2x2-card:hover {
     transform: translateY(-2px);
-    box-shadow: 0 4px 10px rgba(2, 132, 199, 0.12);
 }
 
 .summary-2x2-card.severe-card {

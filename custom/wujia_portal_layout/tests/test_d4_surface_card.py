@@ -801,3 +801,110 @@ class TestSurfaceCardD4f(TransactionCase):
                     'wujia_portal_sale.portal_order_product_detail'):
             with self.subTest(key=key):
                 self.assertIn('wj-surface-card__media', self._arch(key))
+
+
+D4H_CSS = ('wujia_portal_inspection', 'portal_inspection.css')
+D4H_SHAPE = ('background', 'background-color', 'border', 'border-radius',
+             'box-shadow', 'padding', 'overflow')
+D4H_SHELL = 'wj-surface-card wj-surface-card--%s wj-surface-card--compact wj-surface-card--padded '
+
+
+@tagged('post_install', '-at_install', 'wujia_surface_card_d4')
+class TestSurfaceCardD4h(TransactionCase):
+    """D4h — nhóm Khảo sát (wujia_portal_inspection), lượt đầu tiên đo được vì
+    module này vốn uninstalled trên mọi DB copy trước.
+
+    Đếm token lúc chạy (bài học D4f #2) cho ra 3 họ khung thật + 4 hộp inline:
+    `.inspection-card-item` (list mobile, wholeCard <a>), `.detail-card-box`
+    (hộp mobile duy nhất của chi tiết), `.summary-2x2-card` (ô tổng PC, <a>) và
+    4 `.form-card-box` khai dáng bằng style="" ngay tại call site. Hai hộp thoại
+    nổi (`.wj-success-card`, `.wj-warning-card`) và ô chỉ báo 60×60
+    (`.wj-dist-card`) KHÔNG phải SurfaceCard — ghim lại để đổi phải qua test.
+    """
+
+    def _arch(self, key):
+        view = self.env['ir.ui.view'].search([('key', '=', key)], limit=1)
+        self.assertTrue(view, f'không thấy view {key}')
+        return view.arch_db
+
+    # --- A · CSS module không còn khai dáng khung ------------------------
+
+    def test_inspection_families_no_longer_declare_shape(self):
+        css = _mod_css(*D4H_CSS)
+        for sel in ('.inspection-card-item', '.summary-2x2-card'):
+            bodies = _rules_anywhere(css, sel)
+            self.assertTrue(bodies, f'rule {sel} biến mất — lớp con/hover cần nó')
+            for body in bodies:
+                for prop in D4H_SHAPE:
+                    with self.subTest(sel=sel, prop=prop):
+                        self.assertFalse(_declares(body, prop))
+        # Rule chỉ có dáng ⇒ gỡ hẳn, không để rule rỗng.
+        self.assertEqual(_rules_anywhere(css, '.detail-card-box'), [])
+
+    def test_hover_no_longer_adds_a_shadow(self):
+        # Cùng chốt D4b: wholeCard hover nâng 2px nhưng KHÔNG thêm bóng.
+        css = _mod_css(*D4H_CSS)
+        for sel in ('.inspection-card-item:hover', '.summary-2x2-card:hover'):
+            bodies = _rules_anywhere(css, sel)
+            self.assertTrue(bodies)
+            for body in bodies:
+                with self.subTest(sel=sel):
+                    self.assertFalse(_declares(body, 'box-shadow'))
+                    self.assertTrue(_declares(body, 'transform'))
+
+    def test_summary_tile_keeps_its_accent_border_as_a_token(self):
+        # border-color là TÔNG (điểm nhấn xanh), không phải dáng ⇒ được giữ,
+        # nhưng phải là token, hết hex #38bdf8.
+        bodies = _rules_anywhere(_mod_css(*D4H_CSS), '.summary-2x2-card')
+        self.assertEqual(len(bodies), 1)
+        self.assertTrue(_declares(bodies[0], 'border-color'))
+        self.assertIn('--wujia-primary', bodies[0])
+        self.assertNotIn('#38bdf8', bodies[0].lower())
+
+    def test_severe_modifier_is_tone_only(self):
+        bodies = _rules_anywhere(_mod_css(*D4H_CSS), '.summary-2x2-card.severe-card')
+        self.assertEqual(len(bodies), 1)
+        self.assertTrue(_declares(bodies[0], 'border-color'))
+        self.assertTrue(_declares(bodies[0], 'background'))
+        for prop in ('border-radius', 'padding', 'box-shadow', 'border'):
+            self.assertFalse(_declares(bodies[0], prop))
+
+    # --- B · call site nướng shell, giữ lớp riêng ------------------------
+
+    def test_list_item_is_a_whole_card_link(self):
+        arch = self._arch('wujia_portal_inspection.portal_inspection_list_content')
+        self.assertEqual(arch.count('wj-surface-card-link'), 1)
+        self.assertEqual(arch.count(D4H_SHELL % 'record' + 'inspection-card-item'), 1)
+
+    def test_detail_call_sites_bake_the_shell(self):
+        arch = self._arch('wujia_portal_inspection.portal_inspection_detail')
+        self.assertEqual(arch.count(D4H_SHELL % 'summary' + 'summary-2x2-card'), 1)
+        self.assertEqual(arch.count(D4H_SHELL % 'section' + 'detail-card-box'), 1)
+
+    def test_remediation_boxes_dropped_the_inline_shape(self):
+        # 4 hộp từng khai bg/radius/viền/bóng bằng style="" — chỗ rò mà grep CSS
+        # không thấy, chỉ đếm lúc chạy mới lộ. ĐẾM đủ 4, không `in`.
+        arch = self._arch('wujia_portal_inspection.portal_inspection_remediation_form')
+        self.assertEqual(arch.count(D4H_SHELL % 'section' + 'form-card-box'), 4)
+        self.assertEqual(arch.count('form-card-box'), 4)
+        self.assertNotIn('box-shadow', arch)
+
+    def test_no_card_token_leaks_into_inspection_views(self):
+        views = self.env['ir.ui.view'].search(
+            [('key', '=like', 'wujia_portal_inspection.%')])
+        self.assertTrue(views)
+        self.assertEqual([v.key for v in views if _has_card_token(v.arch_db)], [])
+
+    # --- C · phân loại đã chốt: KHÔNG phải SurfaceCard ---------------------
+
+    def test_dialogs_and_dist_tile_are_pinned_out_of_scope(self):
+        css = _mod_css(*D4H_CSS)
+        for sel, prop in (('.wj-success-card', 'box-shadow'),
+                          ('.wj-warning-card', 'box-shadow'),
+                          ('.wj-dist-card', 'width')):
+            with self.subTest(sel=sel):
+                self.assertTrue(any(_declares(b, prop) for b in _rules_anywhere(css, sel)))
+        for key in ('wujia_portal_inspection.portal_inspection_success_popup',
+                    'wujia_portal_inspection.portal_inspection_warning_popup'):
+            with self.subTest(key=key):
+                self.assertNotIn('wj-surface-card', self._arch(key))

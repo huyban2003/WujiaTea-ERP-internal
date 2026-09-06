@@ -189,8 +189,7 @@
                     <input type="hidden" name="line_id" t-att-value="line.id" />
 
                     <!-- Thẻ 1: Thông tin Tiêu chí bị trừ điểm -->
-                    <div class="form-card-box p-3"
-                        style="background: #ffffff; border-radius: 16px; border: 1px solid #f1f5f9; box-shadow: 0 2px 8px rgba(0,0,0,0.03);">
+                    <div class="wj-surface-card wj-surface-card--section wj-surface-card--compact wj-surface-card--padded form-card-box p-3">
                         <div class="d-flex justify-content-between align-items-start gap-2 mb-2">
                             <span
                                 class="badge-fail-tag d-inline-flex align-items-center justify-content-center flex-shrink-0"
@@ -221,8 +220,7 @@
                     </div>
 
                     <!-- Thẻ 2: Ảnh Trước (Thanh tra) -->
-                    <div t-if="evidence_image_url" class="form-card-box p-3"
-                        style="background: #ffffff; border-radius: 16px; border: 1px solid #f1f5f9; box-shadow: 0 2px 8px rgba(0,0,0,0.03);">
+                    <div t-if="evidence_image_url" class="wj-surface-card wj-surface-card--section wj-surface-card--compact wj-surface-card--padded form-card-box p-3">
                         <div class="d-flex justify-content-between align-items-center mb-2">
                             <span class="font-weight-bold text-dark small"
                                 style="font-size: 0.9rem;">Trước (Thanh tra)</span>
@@ -236,8 +234,7 @@
                     </div>
 
                     <!-- Thẻ 3: Upload Ảnh Sau (Khắc phục) -->
-                    <div class="form-card-box p-3"
-                        style="background: #ffffff; border-radius: 16px; border: 1px solid #f1f5f9; box-shadow: 0 2px 8px rgba(0,0,0,0.03);">
+                    <div class="wj-surface-card wj-surface-card--section wj-surface-card--compact wj-surface-card--padded form-card-box p-3">
                         <div class="d-flex justify-content-between align-items-center mb-2">
                             <span class="font-weight-bold text-primary small"
                                 style="font-size: 0.9rem; color: #0284c7 !important;">Sau (Khắc
@@ -266,8 +263,7 @@
                     </div>
 
                     <!-- Thẻ 4: Form Mô tả hành động khắc phục -->
-                    <div class="form-card-box p-3"
-                        style="background: #ffffff; border-radius: 16px; border: 1px solid #f1f5f9; box-shadow: 0 2px 8px rgba(0,0,0,0.03);">
+                    <div class="wj-surface-card wj-surface-card--section wj-surface-card--compact wj-surface-card--padded form-card-box p-3">
                         <label class="font-weight-bold text-dark small mb-2"
                             style="font-size: 0.9rem;">Mô tả hành động khắc phục</label>
                         <textarea name="remediation_note" rows="3"

@@ -128,7 +128,7 @@
                                         <t t-set="_cs_sev" t-value="c_sum.get('is_severe')"/>
                                         <div class="col-md-3">
                                             <a t-attf-href="##{c_sum.get('target_sec')}_pc"
-                                                t-attf-class="summary-2x2-card text-center d-block text-decoration-none #{'severe-card' if _cs_sev else ''}"
+                                                t-attf-class="wj-surface-card wj-surface-card--summary wj-surface-card--compact wj-surface-card--padded summary-2x2-card text-center d-block text-decoration-none #{'severe-card' if _cs_sev else ''}"
                                                 style="height: 100%;">
                                                 <div
                                                     t-attf-class="summary-val-text #{'severe-val' if _cs_sev else ''}">
@@ -358,7 +358,7 @@
                 <div class="p-2">
 
                     <!-- Hộp chứa duy nhất (Single Unified Card) -->
-                    <div class="detail-card-box p-3 mb-4">
+                    <div class="wj-surface-card wj-surface-card--section wj-surface-card--compact wj-surface-card--padded detail-card-box p-3 mb-4">
 
                         <!-- 1. Phần Tổng điểm kiểm tra -->
                         <div class="text-center pb-3 border-bottom mb-3">
