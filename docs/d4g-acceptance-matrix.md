@@ -140,5 +140,29 @@ không phải khung (xem inventory §17).
 1. `wj-auth-card` (4 shell) giữ thiết kế S39 — chủ dự án chốt 06/09.
 2. Hộp thoại `wj-success-card`/`wj-warning-card` + ô chỉ báo `wj-dist-card` phân loại ngoài SurfaceCard, ghim guard.
 3. 2 cặp trắng-lồng-trắng ở chi tiết khảo sát PC có sẵn, chờ chốt thiết kế.
-4. D4h **chưa lên UAT** — cần deploy lượt 3 `-u wujia_portal_inspection` (`docs/deploy-d4h-2026-09-06.md`), đo lại chỉ-đọc.
+4. ~~D4h chưa lên UAT~~ — **đã lên 06/09 04:02 UTC**, đo lại chỉ-đọc khớp (§12).
 5. LIMIT 1/2/4/5/6 của D4f còn nguyên (module bên thứ ba, `/my/franchises`, tz R3, template chết, `card-img-top`).
+
+---
+
+## 12. Soi UAT sau deploy lượt 3 — D4h (06/09/2026, 04:02 UTC)
+
+XML-RPC: `wujia_portal_inspection` `19.0.1.4.0 == 19.0.1.4.0`, layout `19.0.38.0.0` giữ nguyên. Dữ liệu thật
+của HCM-01: phiếu `KS/D3REVIEW/001` (id 3, `need_remediation`, 2 dòng fail) — có cả nhánh **severe** mà copy
+local không có. `scratchpad/d4h_inv_uat.py` (admin + cookie cửa hàng 3, 1440 + 390) và `d4h_uat_measure.py`
+(toàn bộ 25 route × 5 khổ):
+
+| Token trên UAT | PC 1440 | Mobile 390 |
+|---|---|---|
+| `inspection-card-item` (record) | `1px #EEF2F5` · 16 · none | `1px #E5E7EB` · 14 · none |
+| `detail-card-box` (section) | ẩn (PC) | `1px #E5E7EB` · 14 · none |
+| `summary-2x2-card` (summary) | `1px #28A9DF` · 16 · none | ẩn |
+| `summary-2x2-card.severe-card` | bg `#FFF5F5` · viền `#FCA5A5` · 16 · none — modifier tông sống đúng | ẩn |
+| `form-card-box` ×3 hiện (ảnh Trước không có) | ẩn (PC) | `1px #E5E7EB` · 14 · none |
+| `wj-dist-card` / `.severe-card` | ẩn | ô chỉ báo 60×60 viền trên xanh/đỏ — ngoài shell, đúng phân loại |
+| `wj-success-card` / `wj-warning-card` | dialog, bóng giữ (chủ dự án chốt) | như PC |
+
+Toàn Portal sau D4h: 120 lượt trả 200, **`.card` hiện = 0**, 0 lỗi JS, 0 redirect ngầm, **0 bề mặt trắng lồng
+trắng**, tràn ngang chỉ 2 màn auth (có sẵn). Ảnh `scratchpad/d4h_uat_uat_*.png`: chi tiết PC hai ô tổng
+(xanh + đỏ nhạt), mobile hộp duy nhất không bóng, màn khắc phục 3 hộp viền mỏng. Sheet: `qa_deploy_mark.py`
+lần 2 — cột P `ĐÃ DEPLOY UAT 06/09/2026 — sẵn sàng retest`, trạng thái `Ready for Retest` (chủ dự án chốt apply).
