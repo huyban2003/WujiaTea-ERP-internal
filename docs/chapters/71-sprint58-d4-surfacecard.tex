@@ -1,0 +1,126 @@
+\chapter{Sprint 58 --- Cụm D4 SurfaceCard \texttt{CMP-SC-001} (2026-09-04 $\to$ 2026-09-06)}
+
+\emph{Chapter này gộp bảy lượt của một cụm giao diện duy nhất: dựng component
+\texttt{wj\_surface\_card} rồi dời dáng khung của mọi họ thẻ trên Portal về một chủ sở hữu.
+Số đo từng lượt nằm ở \texttt{docs/d4\{b,c,d,e1,e2,f,g\}-acceptance-matrix.md}; kiểm kê và
+các lần đính chính ở \texttt{docs/d4-surfacecard-inventory.md}.}
+
+\section{Bối cảnh}
+
+Issue \texttt{UI-SURFACECARD-001} (STT 127): BA audit UAT 25/08 thấy mỗi màn Portal tự vẽ khung
+thẻ một kiểu --- bo góc từ 12 đến 24 điểm ảnh, có thẻ đổ bóng có thẻ không, đệm lệch nhau ---
+và yêu cầu một khuôn duy nhất: bo góc 16/14, đệm gọn 16/12 (regular 20/14), viền nhẹ, không bóng
+mặc định, không thẻ trắng lồng thẻ trắng, không thưa hơn, kiểm ở năm khổ. Kiểm kê ban đầu đếm
+\textbf{384 lượt dùng / 65 họ}. Khác D3 (tiêu đề trong thẻ), ở đây đối tượng là \emph{dáng khung},
+tức thứ mà cả Bootstrap lẫn Odoo đều đang tranh quyền sở hữu.
+
+\section{Bảy lượt, một khuôn}
+
+\begin{itemize}
+\item \textbf{D4b} 04/09 --- dựng \texttt{wj\_surface\_card} (variant section/record/summary/
+  transactional, density compact/regular, body padded/flush, tone tonal, \texttt{sc\_href} cho
+  wholeCard) + hai họ đầu \texttt{wujia-kpi-card}, \texttt{wujia-content-card}: 12.
+\item \textbf{D4c} 05/09 --- \texttt{wj-pc-card} + \texttt{wj-pc-acct-headcard}: 36. Chốt
+  \texttt{--tonal} cho vùng phụ lồng trong thẻ.
+\item \textbf{D4d} 05/09 --- mười họ mobile + \texttt{wj-filter-card}: 50. Token mobile
+  (viền \texttt{\#E5E7EB}, bo 14, đệm 12).
+\item \textbf{D4e1 / D4e2} 05/09 --- \texttt{wj-pc-metric-card} toàn họ (12) và
+  \texttt{wj-rep-mcard} (3) + trả nợ đệm inline của D4d.
+\item \textbf{D4f} 06/09 --- gỡ hẳn \texttt{.card} của Bootstrap khỏi Portal: 31 call site,
+  89 thẻ hiện $\to$ 0. Phủ 144/384.
+\item \textbf{D4g} 06/09 --- soi UAT chỉ-đọc cho toàn bộ D4b$\to$D4f, chốt \texttt{wj-auth-card}.
+\item \textbf{D4h} 06/09 --- nhóm Khảo sát, lần đầu đo được: 7 shell. \textbf{Khép cụm.}
+\end{itemize}
+
+\paragraph{Gì đã làm.} Toàn bộ thẻ nội dung trên Portal nay cùng một dáng: nền trắng, viền một
+điểm ảnh, bo góc 16 trên máy tính và 14 trên điện thoại, đệm gọn, không đổ bóng; chỉ
+\texttt{\_components.css} được khai dáng khung. Các họ thẻ cũ giữ tên riêng để CSS con và hover
+không đứt. Kiểm tra tự động 83 phép thử, mỗi lượt đều chứng minh có tác dụng bằng đột biến.
+
+\section{Luật chung của cụm --- đúc từ bảy lượt}
+
+\begin{enumerate}
+\item \textbf{Luật \#1: giữ lớp cũ qua \texttt{sc\_class} --- trừ lớp của framework.} Chín lượt
+  đầu dời dáng giữa các lớp \emph{của Wujia} nên giữ tên là an toàn. \texttt{.card} thì không:
+  bundle \texttt{web.assets\_frontend} của Odoo nạp \emph{sau} mọi \texttt{<link>} Wujia ở cùng
+  đặc hiệu (0,1,0), nên viền thẻ đo ra \texttt{rgba(0,0,0,.176)} của Odoo và bo góc Wujia chỉ
+  sống nhờ \texttt{!important}. Giữ chữ \texttt{card} là để Odoo tiếp tục thắng.
+\item \textbf{Đếm bằng token lớp, không bằng chuỗi con.} \texttt{grep "card"} khớp
+  \texttt{card-body}, \texttt{wj-card-header}, \texttt{wujia-kpi-card}: kiểm kê ghi 75, thật là
+  44; \texttt{wj-auth-card} ghi 15, thật là \textbf{4} shell. Guard cũng phải \texttt{.split()}.
+\item \textbf{Guard đếm, không \texttt{in}.} Một call site rơi mất \texttt{--flush} trong khi
+  call site khác cùng view còn giữ thì \texttt{assertIn} vẫn xanh. Vòng đột biến D4f bắt được
+  ba lỗi như thế trong chính guard của mình --- và phải tự phát hiện ``0 test đã chạy'' vì XML
+  hỏng làm \texttt{-u} abort là xanh giả.
+\item \textbf{Rủi ro tháo bằng số đo, không bằng suy đoán.} Vuexy cho \texttt{.card}
+  \texttt{margin-bottom: 2.2rem}; nghe như bỏ đi là các thẻ dính nhau. Xếp mọi bề mặt theo
+  \texttt{top} rồi ghép cặp chồng nhau: mọi cặp có dính \texttt{.card} hở đúng 7px, và 27/33
+  thẻ có \texttt{mb=31} là phần tử cuối trong cha. Histogram khoảng hở trước/sau y hệt.
+\item \textbf{\texttt{overflow: hidden} là tài sản phải trả riêng.} Ảnh bìa bo góc \emph{nhờ}
+  \texttt{overflow} của cha. Không nhét vào shell (đổi hành vi 113 thẻ cũ); bo thẳng vào ảnh
+  bằng \texttt{.wj-surface-card\_\_media}.
+\item \textbf{Utility ở call site (\texttt{p-2}, \texttt{mb-3}) là nhịp cố ý --- giữ.}
+\item \textbf{Ngoại lệ thì ghim vào guard, đừng bỏ qua.} \texttt{/my/franchises/<id>} chạy trên
+  bundle \texttt{portal.portal\_layout} của Odoo, không nạp CSS Wujia: test ghim nó thành danh
+  sách một phần tử, chỗ rò mới vẫn đỏ ngay. D4h ghim theo cách đó cả hai hộp thoại nổi và ô chỉ
+  báo 60$\times$60 --- chúng \emph{vẫn} phải khai \texttt{box-shadow}/\texttt{width}, ai đổi phân
+  loại phải qua test.
+\end{enumerate}
+
+\section{D4g --- UAT không phải là git}
+
+Sáng 06/09 chủ dự án deploy ``D4f''. Đo chỉ-đọc XML-RPC \texttt{ir.module.module} ra layout
+\texttt{19.0.35.0.0} và md5 ba file CSS bằng \textbf{D4d}: UAT chỉ có D4d cộng bản vá deploy
+của máy Mac (\texttt{20b6de1}: \texttt{?v=1200} + bump \texttt{.1} cho 13 module). Nguyên nhân:
+D4e1/e2/f commit trên máy Linux từ gốc D4d mà \textbf{chưa fetch} từ 04/09, trong khi máy Mac đã
+merge D4d + vá vào \texttt{main} tối 05/09; hai bên rẽ nhánh 4/4 từ đúng một commit.
+
+\paragraph{Gỡ.} \texttt{git merge origin/main} (không rebase --- nhánh dev đã push), giải conflict
+15 manifest theo quy ước mới: \emph{lấy số lớn hơn rồi bump patch thêm 1 cho mọi module có đụng}
+(\texttt{.1 $\to$ .2}), để \texttt{installed\_version} trên UAT phân biệt được đã deploy với chưa;
+ledger YAML dùng \texttt{git checkout -m} rồi cắt theo chỉ số dòng vì regex non-greedy để sót
+một dấu \texttt{=======}. Kiểm trên bản sao có inspection installed như UAT rồi mới báo deploy.
+
+\paragraph{Kết quả sau deploy (03:07 UTC).} 21 module \texttt{latest == installed == manifest};
+25 route $\times$ 5 khổ bằng đúng harness local bọc \texttt{exec}: \texttt{.card} hiện = 0, 86/86
+shell mỗi khổ đúng viền/bo/không bóng, \textbf{0 rule ngoài \texttt{\_components.css}} khớp shell
+--- bundle \texttt{website}/\texttt{website\_sale} của UAT không chen vào. LIMIT ``chưa soi UAT''
+của D4f đóng. Chỉ hai màn auth tràn ngang $\le$1024, có sẵn từ trước cụm.
+
+\section{D4h --- Khảo sát: kiểm kê tĩnh sai ở module chưa cài}
+
+\texttt{wujia\_portal\_inspection} uninstalled trên mọi DB dev nên các kiểm kê trước chỉ grep.
+Cài lên bản sao, render ba route và hai popup rồi đếm token lúc chạy: \texttt{table-card} /
+\texttt{exam-card} \textbf{không tồn tại}; ngược lại \textbf{bốn hộp \texttt{form-card-box}} khai
+dáng bằng \texttt{style=""} ngay tại call site --- grep CSS không thấy. Kết quả: 7 shell
+(\texttt{--record} 1, \texttt{--summary} 1, \texttt{--section} 5); ba token phân loại ngoài
+SurfaceCard (hai hộp thoại nổi có \texttt{transform: scale}, một ô chỉ báo 60$\times$60 với
+\texttt{border-top} màu). Tông giữ, dáng dời: ô tổng giữ \texttt{border-color} xanh làm modifier
+token, \texttt{.severe-card} vốn đã là modifier tông nên không đụng.
+
+\paragraph{Chứng minh.} 30/30 ô \texttt{pageH} không đổi, 0 ô giảm bản ghi trong viewport; nhịp
+header$\to$body \texttt{-2$\times$2 · 12$\times$4} trước = sau; RULE 1/2 bốn cờ trước = bốn cờ
+sau (cờ 404 khảo sát của D4f biến mất); ảnh ngoài phạm vi giống hệt từng pixel, ảnh
+\texttt{/portal} mobile chỉ khác ở đồng hồ đếm ngược; 15/15 đột biến bị bắt.
+
+\paragraph{Lý do / Trade-off.} Không ép hộp thoại vào shell dù chúng mang chữ \emph{card}: mất
+bóng và đệm 28/24 $\to$ 16 là đổi thiết kế của một dialog, không phải đồng bộ thẻ nội dung --- để
+chủ dự án chốt. Ô tổng trắng lồng trong thẻ trắng ở chi tiết Khảo sát PC có sẵn từ trước; đổi
+sang \texttt{--tonal} sẽ mất viền xanh điểm nhấn, cũng chờ chốt.
+
+\section{Trạng thái cuối sprint}
+
+\begin{itemize}
+\item Cụm D4 \textbf{khép}: 151/377 token đã đi qua phân loại, không còn họ khung nào chưa có
+  chủ; phần còn lại là token con/modifier đi theo shell.
+\item \texttt{main} = \texttt{9cc2004} (D4h \texttt{7eb5d23}). D4b$\to$D4f đã trên UAT và đo khớp;
+  \textbf{hàng đợi deploy: \texttt{-u wujia\_portal\_inspection}} (\texttt{19.0.1.4.0},
+  \texttt{docs/deploy-d4h-2026-09-06.md}).
+\item Ledger có entry thật \texttt{UI-SURFACECARD-001}; \texttt{qa\_sync.py --dry-run} ra đúng
+  \emph{Ready for Dev $\to$ Ready for Retest}; \texttt{--apply} chờ chủ dự án chốt. Sheet cột P
+  dòng 120 đã ghi \emph{ĐÃ DEPLOY UAT 06/09} cho phần D4f.
+\item LIMIT ghi sheet: auth giữ S39 (chủ dự án chốt 06/09); hộp thoại + ô chỉ báo ngoài shell; ô
+  tổng lồng trắng chờ chốt; \texttt{/my/franchises} trên bundle Odoo; 12 chỗ module bên thứ ba.
+\item Bài học đắt nhất: \textbf{fetch trước khi code trên nhánh sống nhiều ngày}, và
+  \textbf{đo phiên bản trên máy chủ thay vì tin git} trước khi nói ``đã lên UAT''.
+\end{itemize}
