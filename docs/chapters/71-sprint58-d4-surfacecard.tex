@@ -113,14 +113,20 @@ sang \texttt{--tonal} sẽ mất viền xanh điểm nhấn, cũng chờ chốt.
 \begin{itemize}
 \item Cụm D4 \textbf{khép}: 151/377 token đã đi qua phân loại, không còn họ khung nào chưa có
   chủ; phần còn lại là token con/modifier đi theo shell.
-\item \texttt{main} = \texttt{9cc2004} (D4h \texttt{7eb5d23}). D4b$\to$D4f đã trên UAT và đo khớp;
-  \textbf{hàng đợi deploy: \texttt{-u wujia\_portal\_inspection}} (\texttt{19.0.1.4.0},
-  \texttt{docs/deploy-d4h-2026-09-06.md}).
-\item Ledger có entry thật \texttt{UI-SURFACECARD-001}; \texttt{qa\_sync.py --dry-run} ra đúng
-  \emph{Ready for Dev $\to$ Ready for Retest}; \texttt{--apply} chờ chủ dự án chốt. Sheet cột P
-  dòng 120 đã ghi \emph{ĐÃ DEPLOY UAT 06/09} cho phần D4f.
-\item LIMIT ghi sheet: auth giữ S39 (chủ dự án chốt 06/09); hộp thoại + ô chỉ báo ngoài shell; ô
-  tổng lồng trắng chờ chốt; \texttt{/my/franchises} trên bundle Odoo; 12 chỗ module bên thứ ba.
+\item \texttt{main} = \texttt{545ab02} (D4h \texttt{7eb5d23}). \textbf{Toàn bộ D4b$\to$D4h đã lên
+  UAT}: lượt 2 lúc 03:07 UTC (D4e1/e2/f), lượt 3 lúc 04:02 UTC (\texttt{wujia\_portal\_inspection}
+  \texttt{19.0.1.4.0}). Đo lại chỉ-đọc sau lượt 3 với phiếu thật \texttt{KS/D3REVIEW/001} của
+  HCM-01 --- có cả danh mục nghiêm trọng mà bản sao không có: 7 khung khảo sát đúng token,
+  modifier \texttt{.severe-card} sống đúng trên shell; toàn Portal 25 route $\times$ 5 khổ
+  \texttt{.card} hiện = 0, 0 lồng trắng, 0 lỗi JS. \textbf{Hàng đợi deploy: trống.}
+\item Sheet: chủ dự án chốt \texttt{qa\_sync.py --apply} $\Rightarrow$ \texttt{UI-SURFACECARD-001}
+  \textbf{\texttt{Ready for Retest}}, cột P \emph{ĐÃ DEPLOY UAT 06/09/2026} (hai lần
+  \texttt{qa\_deploy\_mark.py}: sau lượt 2 và sau lượt 3), verify bằng CSV đối chiếu cột ID dòng
+  tuyệt đối 120. Dev không set \texttt{Done} --- BA retest rồi đóng.
+\item LIMIT ghi sheet (chủ dự án chốt 06/09): auth giữ S39; hộp thoại success/warning và ô chỉ báo
+  60$\times$60 \textbf{giữ ngoài shell}; ô tổng \textbf{giữ viền xanh} dù lồng trắng;
+  \texttt{/my/franchises} trên bundle Odoo; 12 chỗ module bên thứ ba.
 \item Bài học đắt nhất: \textbf{fetch trước khi code trên nhánh sống nhiều ngày}, và
   \textbf{đo phiên bản trên máy chủ thay vì tin git} trước khi nói ``đã lên UAT''.
+\item Cụm kế theo \texttt{docs/next-session-clusters-D.md}: \textbf{D5 DataList} \texttt{CMP-DL-001}.
 \end{itemize}
