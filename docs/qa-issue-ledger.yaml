@@ -1921,3 +1921,41 @@ UI-SURFACECARD-001:
   retest: "Mở lần lượt Trang chủ, Đặt hàng, Giỏ hàng, Lịch sử mua hàng, Đổi trả và Tạo yêu cầu đổi trả, Giao hàng, Công nợ, Thông báo, Hỗ trợ, Kiến thức, Đăng ký thi, Khảo sát và chi tiết một phiếu, Hồ sơ, Thông tin cửa hàng, Báo cáo đặt hàng, ở máy tính 1440 và điện thoại 390. Mọi thẻ nội dung phải cùng một dáng: nền trắng, viền mỏng, bo góc đều nhau, không đổ bóng, đệm gọn; các thẻ trên cùng một hàng cao bằng nhau. Không thẻ trắng nào nằm lọt trong thẻ trắng khác, trừ ô tổng điểm ở chi tiết Khảo sát đang chờ chốt thiết kế. Thu màn hình về 1024, 992 và 360: không cuộn ngang, không thẻ nào vỡ. Với màn Khảo sát chỉ nghiệm thu khung thẻ, phần nội dung trường dữ liệu để đợt có dữ liệu mẫu như BA đã ghi. Nếu vẫn thấy dáng cũ thì tải lại trang bỏ qua bộ nhớ đệm"
   limit: "Thứ nhất, màn đăng nhập và quên mật khẩu cố ý giữ dáng riêng có bóng theo thiết kế đã duyệt S39, chủ dự án chốt ngày 06/09; các màn này cũng không nằm trong mười bốn màn BA nêu. Thứ hai, hai hộp thoại thông báo trên màn khắc phục Khảo sát và ô chỉ báo điểm nhỏ 60 điểm ảnh không được coi là thẻ nội dung nên giữ nguyên; nếu BA muốn chúng cùng khuôn thì báo để mở đợt riêng. Thứ ba, ở chi tiết Khảo sát trên máy tính, ô tổng điểm là hộp trắng nằm trong thẻ trắng từ trước; đưa về nền xám nhạt sẽ mất viền xanh nhấn nên chờ BA chốt. Thứ tư, đợt Khảo sát mới chỉ kiểm trên bản sao, chưa lên máy chủ kiểm thử; cột Build/Deploy sẽ được cập nhật sau khi cài. Thứ năm, trang chi tiết cửa hàng theo đường dẫn /my/franchises chạy trên bộ giao diện mặc định của Odoo, không nạp giao diện Wujia, nên để nguyên. Thứ sáu, mười hai chỗ dùng thẻ trong các phần mềm bên thứ ba ở giao diện nội bộ không thuộc Portal, không đụng"
 # =====================================================================================
+
+# =====================================================================================
+# UI-DATALIST-001 (STT 126) — D5a 06/09/2026: KIỂM KÊ, 0 dòng code sản phẩm.
+# CỐ Ý GIỮ `Ready for Dev` (tiền lệ D3a/D4a: phiên kiểm kê không migrate call site nào thì
+# không có gì để BA retest). Entry dưới đây là DẠNG COMMENT — KHÔNG chạy qa_sync.py cho tới
+# khi các lượt D5b…D5g phủ đủ và đạt ≥90% "Kết quả mong muốn".
+#
+# Kiểm kê: docs/d5-datalist-inventory.md · mốc đo trước: docs/d5-datalist-before.json
+#          + docs/d5-baseline.json · bộ đo mới trong repo: scripts/qa/wj_datalist.py
+#
+# Quy mô: 27 call site trong 10 route BA + 3 kề cận = 30 (D3 = 103 · D4 = 384).
+# Khoảng cách với spec, đo được ở 6 khổ 1440/1024/992/991/390/360, 0 lỗi JS · 0 tràn ngang:
+#   - th[scope] 0/21 lượt đo (0/14 bảng tĩnh) — yêu cầu SEMANTIC của BA vỡ 100%.
+#   - header bảng 46 hoặc 50 (BA 44); cell padding `0 22px` hoặc `14px 20px` (BA `10px 16px`);
+#     row thấp nhất 45px ở /portal (BA sàn 52).
+#   - mobile: gap 0 · 8 · 10 · 12 cho một quy tắc (BA 8); mreturn 122.3 vượt trần detail-card
+#     120; mnoti 99.9–129.3 và mknow 83.8–133.4 biên độ gấp rưỡi trong cùng một danh sách.
+#   - pager 5/11 khối vi phạm `page_count > 1` (debt ×2 + exam chỉ cần có record là hiện).
+#   - trạng thái `error` 0/10 route — chưa tồn tại ở đâu.
+# ĐÃ ĐÚNG SẴN: ngưỡng 992/991 — 30/30 ô ở 991/390/360 có 0 bảng render, 21/21 ô ở ≥992 có bảng.
+# CHẶN BỞI DỮ LIỆU (không phải kỹ thuật): debt 0 hoá đơn có franchise_id · inspection 0 phiếu ·
+#   support/delivery 1 record/cửa hàng ⇒ bổ seed trước D5b (BA acceptance #7: 0/1/2/10/11/50+).
+# CÂU HỎI BA duy nhất, hỏi khi tới D5d/D5e: field nào của bảng PC được phép ẩn trên mobile và
+#   ẩn rồi xem lại ở đâu (delivery PC 8 cột ↔ mobile 4; support PC 8 cột ↔ mobile 4).
+# =====================================================================================
+# ------------------------------- D5b (2026-09-07) -------------------------------
+# UI-DATALIST-001 vẫn Ready for Dev (3/31 call site) ⇒ CHƯA chạy qa_sync.py.
+# Xong: nền wj_data_list (DataViewport/DataItem/DataState/slot Pagination) + 3 call site họ
+#   wujia-content-card-table (/portal top sản phẩm · /portal/return · /portal/support).
+# Số: th[scope] 0/19 → 19/19 · header 46 → 44 · cell padding 14px 20px → 10px 16px · row ≥52.
+#   Acceptance #9: 0 ô mất record, 6 ô TĂNG (return 30→31/31→33, support 30→31/28→29).
+#   RULE 1/RULE 2 và nhịp header→body (8×2 · 12×33) giữ nguyên tuyệt đối.
+# Guard: 15 test wujia_data_list_d5, 9 mutation đều làm đúng test đó đỏ.
+# Seed cho cả cụm: scripts/seed_d5_datalist_demo.py (52 ticket · 28 bù hàng · 14 hoá đơn ·
+#   14 khảo sát · 14 chuyến giao cho HN-01) ⇒ D5c…D5h hết bị chặn bởi dữ liệu.
+# Bảng đo: docs/d5b-acceptance-matrix.md · trước/sau: docs/d5b-{before,after}.json
+# CHỜ DEPLOY UAT — chốt của chủ dự án 07/09: deploy DỒN một lượt sau khi khép cụm D5.
+# =====================================================================================

@@ -59,21 +59,26 @@
                             <span class="wj-card-header__meta"><t t-out="len(tickets)"/> ticket</span>
                         </t>
                     </t>
-                    <div t-if="not tickets" class="wujia-empty-state">
-                        <i class="feather icon-life-buoy"/>
-                        <p>Bạn chưa có ticket nào. <a href="/portal/support/new">Gửi yêu cầu hỗ trợ</a>.</p>
-                    </div>
-                    <table t-else="" class="wujia-content-card-table">
+                    <t t-call="wujia_portal_layout.wj_data_list">
+                        <t t-set="dl_table_class" t-value="'wujia-content-card-table'"/>
+                        <t t-set="dl_bleed" t-value="True"/>
+                        <t t-set="dl_empty" t-value="not tickets"/>
+                        <t t-set="dl_state">
+                            <div class="wujia-empty-state">
+                                <i class="feather icon-life-buoy"/>
+                                <p>Bạn chưa có ticket nào. <a href="/portal/support/new">Gửi yêu cầu hỗ trợ</a>.</p>
+                            </div>
+                        </t>
                         <thead>
                             <tr>
-                                <th>Mã yêu cầu</th>
-                                <th>Tiêu đề</th>
-                                <th>Phân loại</th>
-                                <th>Cửa hàng</th>
-                                <th>Ngày tạo</th>
-                                <th class="text-center">Ưu tiên</th>
-                                <th class="text-center">Trạng thái</th>
-                                <th class="text-end"></th>
+                                <th scope="col">Mã yêu cầu</th>
+                                <th scope="col">Tiêu đề</th>
+                                <th scope="col">Phân loại</th>
+                                <th scope="col">Cửa hàng</th>
+                                <th scope="col">Ngày tạo</th>
+                                <th scope="col" class="text-center">Ưu tiên</th>
+                                <th scope="col" class="text-center">Trạng thái</th>
+                                <th scope="col" class="text-end"></th>
                             </tr>
                         </thead>
                         <tbody>
@@ -98,7 +103,7 @@
                                 </td>
                             </tr>
                         </tbody>
-                    </table>
+                    </t>
                     </t>
 
                     <nav t-if="pager and pager.get('page_count', 0) &gt; 1" class="mt-2">

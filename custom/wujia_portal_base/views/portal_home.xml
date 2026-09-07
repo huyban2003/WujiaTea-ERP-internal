@@ -220,14 +220,19 @@
                                 <t t-set="ch_platform" t-value="'pc'"/>
                                 <t t-set="ch_icon" t-value="'trending-up'"/>
                             </t>
-                            <div t-if="not top_products" class="wujia-content-card-empty">Chưa có dữ liệu.</div>
-                            <table t-else="" class="wujia-content-card-table">
+                            <t t-call="wujia_portal_layout.wj_data_list">
+                                <t t-set="dl_table_class" t-value="'wujia-content-card-table'"/>
+                                <t t-set="dl_bleed" t-value="True"/>
+                                <t t-set="dl_empty" t-value="not top_products"/>
+                                <t t-set="dl_state">
+                                    <div class="wujia-content-card-empty">Chưa có dữ liệu.</div>
+                                </t>
                                 <thead>
                                     <tr>
-                                        <th>Sản phẩm</th>
-                                        <th class="text-end">SL</th>
-                                        <th>ĐVT</th>
-                                        <th class="text-end">Tổng</th>
+                                        <th scope="col">Sản phẩm</th>
+                                        <th scope="col" class="text-end">SL</th>
+                                        <th scope="col">ĐVT</th>
+                                        <th scope="col" class="text-end">Tổng</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -238,7 +243,7 @@
                                         <td class="text-end" t-out="money(p['total'], top_currency_symbol, top_currency_decimals)"/>
                                     </tr>
                                 </tbody>
-                            </table>
+                            </t>
                             </t>
                         </div>
                     </div>

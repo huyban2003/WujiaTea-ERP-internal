@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- WJ_DataList — component chuẩn hoá DANH SÁCH RECORD (BA CMP-DL-001).
+         Cấu trúc spec: DataList [DataViewport + DataItem(s) + DataState + Pagination].
+         CardHeader và Filter nằm NGOÀI. Khung card là wj_surface_card (CMP-SC-001).
+
+         KHÔNG đẻ cơ chế fetch/lọc/phân trang mới: 11/11 route đã dùng
+         wujia_portal_base.wj_ajax_list_config (S49); đây thuần tầng render.
+
+         dl_variant   table (mặc định, >=992) | compact-row | detail-card
+         dl_empty     True ⇒ render DataState thay cho viewport
+         dl_state     markup THÔ — EmptyState/no-result/error (CMP-ES-001)
+         dl_pager     markup THÔ — Pagination (CMP-PGNT-001), NGOÀI viewport
+         dl_bleed     bảng tràn mép card
+         dl_class / dl_table_class  lớp cũ của call site, giữ để CSS con và :is() hover không đứt -->
+    <template id="wj_data_list" name="Wujia — Data List component">
+        <t t-set="_dl_var"
+           t-value="dl_variant if dl_variant in ('compact-row', 'detail-card') else 'table'"/>
+        <t t-set="_dl_bleed" t-value="' wj-data-list--bleed' if dl_bleed else ''"/>
+        <div t-att-id="dl_id"
+             t-attf-class="wj-data-list wj-data-list--#{_dl_var}#{_dl_bleed} #{dl_class or ''}">
+            <t t-if="dl_empty">
+                <t t-out="dl_state"/>
+            </t>
+            <t t-else="">
+                <div class="wj-data-viewport">
+                    <table t-if="_dl_var == 'table'"
+                           t-attf-class="wj-data-table #{dl_table_class or ''}">
+                        <t t-out="0"/>
+                    </table>
+                    <t t-else="" t-out="0"/>
+                </div>
+            </t>
+            <t t-if="dl_pager" t-out="dl_pager"/>
+        </div>
+    </template>
+</odoo>

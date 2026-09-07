@@ -706,14 +706,16 @@ h2, .wujia-h2 { font-size: var(--wujia-font-size-h2) !important; font-weight: 60
     margin-bottom: 0;
 }
 
-/* Table body variant — for full-listing pages (UI-12 ext to listing pages, */
-.wujia-content-card-table {
+/* Legacy — chỉ còn /portal/info-request chưa migrate sang CMP-DL-001, gỡ ở lượt
+   dọn cuối cụm D5. `:not()` mang độ đặc hiệu của THAM SỐ (0,2,0) nên bảng đã
+   migrate (mang cả hai lớp) không bao giờ chạm khối này — một dáng, một chủ. */
+.wujia-content-card-table:not(.wj-data-table) {
     margin: 16px calc(-1 * var(--wujia-content-card-padding)) 0;
     width: calc(100% + 2 * var(--wujia-content-card-padding));
     border-collapse: separate;
     border-spacing: 0;
 }
-.wujia-content-card-table thead th {
+.wujia-content-card-table:not(.wj-data-table) thead th {
     background: var(--wujia-bg-page);
     color: var(--wujia-primary);
     font-weight: 600;
@@ -724,28 +726,85 @@ h2, .wujia-h2 { font-size: var(--wujia-font-size-h2) !important; font-weight: 60
     text-align: left;
     white-space: nowrap;
 }
-.wujia-content-card-table tbody td {
+.wujia-content-card-table:not(.wj-data-table) tbody td {
     padding: 14px var(--wujia-content-card-padding);
     border-bottom: 1px solid var(--wujia-border);
     vertical-align: middle;
     color: var(--wujia-text-secondary);
     font-size: 14px;
 }
-.wujia-content-card-table tbody tr:last-child td {
+.wujia-content-card-table:not(.wj-data-table) tbody tr:last-child td {
     border-bottom: none;
 }
-.wujia-content-card-table tbody tr:hover {
+.wujia-content-card-table:not(.wj-data-table) tbody tr:hover {
     background: rgba(40, 169, 223, 0.04);
 }
-.wujia-content-card-table td.text-end,
-.wujia-content-card-table th.text-end {
+.wujia-content-card-table:not(.wj-data-table) td.text-end,
+.wujia-content-card-table:not(.wj-data-table) th.text-end {
     text-align: right;
 }
-.wujia-content-card-table td.text-center,
-.wujia-content-card-table th.text-center {
+.wujia-content-card-table:not(.wj-data-table) td.text-center,
+.wujia-content-card-table:not(.wj-data-table) th.text-center {
     text-align: center;
 }
-.wujia-content-card-table .wujia-badge {
+.wujia-content-card-table:not(.wj-data-table) .wujia-badge {
+    white-space: nowrap;
+}
+
+/* ------------------------------------------------------------------------
+   CMP-DL-001 DataList — chủ sở hữu DUY NHẤT dáng danh sách record.
+   Số BA: header 44 · row single-line min 52 · cell padding 10px 16px.
+   Row cao 52 khai bằng `height` trên <tr> (hành xử như min: dòng nhiều chữ
+   tự nở), padding vẫn đúng 10/16 — khác cơ chế `height` của wj-pc-table.
+   ------------------------------------------------------------------------ */
+.wj-data-viewport {
+    overflow-x: auto;
+}
+.wj-data-list--bleed > .wj-data-viewport {
+    margin: 0 calc(-1 * var(--wujia-content-card-padding));
+}
+.wj-data-table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+}
+.wj-data-table thead th {
+    height: 44px;
+    padding: 0 16px;
+    background: var(--wujia-bg-page);
+    color: var(--wujia-primary);
+    font-weight: 600;
+    font-size: 14px;
+    border-top: 1px solid var(--wujia-border);
+    border-bottom: 1px solid var(--wujia-border);
+    text-align: left;
+    white-space: nowrap;
+}
+.wj-data-table tbody tr {
+    height: 52px;
+}
+.wj-data-table tbody td {
+    padding: 10px 16px;
+    border-bottom: 1px solid var(--wujia-border);
+    vertical-align: middle;
+    color: var(--wujia-text-secondary);
+    font-size: 14px;
+}
+.wj-data-table tbody tr:last-child td {
+    border-bottom: none;
+}
+.wj-data-table tbody tr:hover {
+    background: rgba(40, 169, 223, 0.04);
+}
+.wj-data-table td.text-end,
+.wj-data-table th.text-end {
+    text-align: right;
+}
+.wj-data-table td.text-center,
+.wj-data-table th.text-center {
+    text-align: center;
+}
+.wj-data-table .wujia-badge {
     white-space: nowrap;
 }
 
@@ -3292,4 +3351,4 @@ a.wujia-mhome-kpi:active { opacity: 0.85; }
    Trung hoà đúng lớp body đó khi nó đứng NGAY SAU CardHeader; không đụng rule gốc vì
    `.wujia-content-card-table` vẫn cần 16px ở ca không có header. Đính chính D4b: chỉ còn
    6 call site bảng, cả 6 nằm trong card của D4b — không phải 31 như ghi lúc D3. */
-.wj-card-header + .wujia-content-card-table { margin-top: 0; }
+.wj-card-header + .wujia-content-card-table:not(.wj-data-table) { margin-top: 0; }

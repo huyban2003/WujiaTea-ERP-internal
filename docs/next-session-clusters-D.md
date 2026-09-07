@@ -361,7 +361,7 @@ tổng `scrollHeight` **−24px** trên 44 ô, giả-heading **0/44**, outline 8
 hiển thị 43/44 giống hệt (1 ô mọc đúng "0 kết quả" theo yêu cầu BA), B4 **286/286**, bảng D3a
 chạy lại **356 phép so 0 lệch**, tab-walk 433 stop ring 16/16, font 66 tiêu đề 0 lệch;
 bắt được **1 lỗi thật**: `/portal/info-request` mất tiêu đề ở mobile do bake `ch_platform`;
-`docs/d3b-acceptance-matrix.md`) · D3c ✅ · D3d ✅ · D3e…D3n ⬜ · D4 ⬜ · D5 ⬜ · D6 ⬜ · R1–R5 ⬜
+`docs/d3b-acceptance-matrix.md`) · D3c ✅ · D3d ✅ · D3e ✅ · D3f ✅ · review ✅ · **D4 ✅ KHÉP 06/09** (D4b…D4h, `UI-SURFACECARD-001` Ready for Retest + ĐÃ DEPLOY UAT) · **D5a ✅ 06/09** (kiểm kê 31 call site, `docs/d5-datalist-inventory.md`, 0 code) · **D5b ✅ 07/09** (nền `wj_data_list` + 3 call site họ `wujia-content-card-table`, 3/31, `docs/d5b-acceptance-matrix.md`) · D5c…D5h ⬜ · D6 ⬜ · R1–R5 ⬜
 
 🚚 **D1 + D2 ĐÃ DEPLOY UAT 27/08** (`wujia_portal_layout 19.0.32.4.0` · `wujia_portal_return
 19.0.2.7.0` · `wujia_sale 19.0.4.3.0`, xác nhận XML-RPC) **+ đo lại chỉ-đọc ngay trên UAT**:
@@ -605,7 +605,89 @@ cách ngoài card, một cái là giữa hai card. Ghi ở inventory §7 để p
 
 ## D5 — DataList `CMP-DL-001` (UI-DATALIST-001) — D5a…D5n
 
-> Prompt: "làm cụm D5a".
+> Prompt: "làm cụm D5b" (D5a đã xong 06/09).
+
+### ✅ D5a XONG (06/09) — kiểm kê, 0 dòng code sản phẩm
+
+Bảng đầy đủ: **`docs/d5-datalist-inventory.md`**. Mốc đo trước: `docs/d5-datalist-before.json`
+(+ `docs/d5-baseline.json` cho RULE 1/2). Bộ đo mới trong repo: `scripts/qa/wj_datalist.py`.
+
+**Quy mô: 31 call site trong 10 route BA + 3 call site kề cận = 34.** Nhỏ nhất trong bộ
+component (D3 = 103 · D4 = 384) nhưng sâu nhất: đụng semantic, 4 trạng thái dữ liệu và điều
+kiện hiện pager, không chỉ CSS.
+
+**Ba khoảng cách lớn nhất, đo được chứ không suy:**
+- `th[scope]` = **0/21** lượt đo (0/14 bảng tĩnh) — yêu cầu SEMANTIC của BA vỡ 100%.
+- Header bảng **46 hoặc 50** (BA 44); cell padding **`0 22px`** hoặc **`14px 20px`** (BA `10px 16px`);
+  row thấp nhất **45px** ở `/portal` (BA sàn 52).
+- Pager: **5/11 khối vi phạm** `page_count > 1` — 6 cách viết khác nhau cho một quy tắc, trong đó
+  debt ×2 và exam chỉ cần `có record` là hiện pager.
+- Trạng thái `error` = **0/10 route**, chưa tồn tại ở đâu cả.
+
+**Đã ĐÚNG sẵn, đừng đụng:** ngưỡng 992/991 — 30/30 ô ở `991/390/360` có **0 bảng** render,
+21/21 ô ở `1440/1024/992` đều có bảng.
+
+**Chặn bởi DỮ LIỆU, không phải kỹ thuật:** `/portal/debt` 0 hoá đơn có `franchise_id` ·
+`/portal/inspection` 0 phiếu · support và delivery **1 record/cửa hàng**. BA acceptance #7 đòi
+thử 0/1/2/10/11/50+ ⇒ **bổ seed trước D5b**.
+
+**Đính chính ghi chú 05/09:** `/portal/reports/orders` **vẫn 500 trên máy Linux**. Nguyên nhân
+thật là **PostgreSQL**, không phải Odoo — PG 16.15/Ubuntu 24.04 chỉ biết `Asia/Ho_Chi_Minh`,
+không còn bí danh `Asia/Saigon`, mà `anh.owner` đang mang tz `Asia/Saigon` và chuỗi đó đi thẳng
+vào SQL của `_read_group` (`wujia_portal_report/controllers/portal.py:97`). Máy Mac hết lỗi vì
+tzdata khác, **không phải vì đã sửa**. Việc của cụm **R3**; không chặn D5 (báo cáo không nằm
+trong 10 route BA).
+
+### 🔴 Bài học D5a — đọc trước khi làm D5b
+
+1. **`--password` mặc định sai ⇒ cả bảng đo "Pass rỗng".** Lượt đầu chạy `wj_measure.py` với
+   mặc định `demo123` (DB dev là `wujia@test123`): 78/78 ô trả 200, 0 vi phạm, 0 tràn ngang —
+   sạch bong và sai hoàn toàn, vì mọi route redirect về `/web/login`. Chỉ dòng
+   `redirect ngầm: 78` tố giác. `wj_datalist.py` nay **exit ngay** nếu sau login vẫn ở `/web/login`.
+2. **Harness in ra số không tồn tại.** Bản đầu nhận cả cụm chip xếp ngang là danh sách ⇒ gap
+   **−32/−58px**. Chỉ nhận container có con **xếp dọc**.
+3. **Chuẩn hoá quá tay thì đo hụt.** Bản hai đòi hộp đồng nhất hoàn toàn ⇒ bỏ sót mọi danh sách
+   có header/pager là anh em của item. Phải lấy **dãy liên tiếp dài nhất cùng chữ ký lớp**.
+4. **DB dev lạc hậu mà không có dấu hiệu trên màn hình** — layout `19.0.35.0.0` vs repo
+   `19.0.38.0.0`, inspection còn `uninstalled`. So `latest_version` với `__manifest__.py` của
+   **từng** module trước khi đo, nếu không thì mốc "trước" là portal thời trước D4e.
+5. **Bẫy log L15 tái xuất** — `wujia_core` dời logfile sang `<thư-mục>/<năm>/<tháng>/<ngày>.log`;
+   traceback 500 không nằm trong file `--logfile`. Traceback đầu tiên thấy trong `logs/` lại là
+   của tiến trình cũ còn sót (`wujia_tea_d4g`), suýt quy oan.
+
+### 🔴 Bài học D5b — đọc trước khi làm D5c
+
+1. **Odoo 19 BỎ `values['0']` khi gọi `_render`** — chỉ cảnh báo, không lỗi ⇒ test component
+   render ra khung rỗng và 4 test "đỏ vì sản phẩm" thật ra đỏ vì slot không tồn tại. Test phải
+   dựng một view `qweb` tạm rồi `t-call` vào component, đúng như call site thật.
+2. **`git checkout <file>` để hoàn tác mutation xoá luôn cả lượt migrate của file đó** —
+   `portal_support.xml` mất sạch phần D5b, test kế tiếp báo "thiếu scope" như thể lỗi sản phẩm.
+   Hoàn tác mutation bằng phép thay ngược đúng chuỗi, KHÔNG bằng `git`.
+3. **Mutation sai chỗ ⇒ "guard xanh giả"**: `height: 44px` có **10 lần** trong `_components.css`,
+   `sed '0,/height: 44px;/'` trúng nav item chứ không trúng `.wj-data-table thead th`. Mutation
+   phải neo vào **cả selector**.
+4. **Seed đã xong cho toàn cụm** (`scripts/seed_d5_datalist_demo.py`): D5c…D5h không còn bị chặn
+   bởi dữ liệu. Chạy nó trên DB copy TRƯỚC khi đo mốc trước.
+
+### Thứ tự lượt D5b…D5g
+
+| Lượt | Nội dung | Call site | `-u` | Vì sao xếp ở đây |
+|---|---|---:|---|---|
+| **D5b** ✅ | Nền `wj_data_list` + hiệu chỉnh trên `wujia-content-card-table` (home top SP · return · support) | **3** | `_layout`, `_base`, `_return`+`wujia_sale`, `_support` | XONG 07/09 — `th[scope]` 0→100%, header 44, padding 10/16, row ≥52, **0 ô mất record** (6 ô còn tăng) |
+| **D5c** | Bảng PC họ `wj-pc-table`: purchase-history · delivery · notification | **3** | `_layout`, `_purchase_history`, `_delivery`, `_notification` | 🔴 nặng nhất: row 58 do `height` chứ không do padding |
+| **D5d** | List PC không phải bảng: 3 khối preview `/portal` + knowledge | **4** | `_layout`, `_base`, `_knowledge` | Cùng tầng CSS với D5b |
+| **D5e** | Mobile compact-row: mdash ×6 · mhist · mnoti · mknow | **9** | 6 module | `wujia-mhist-row` đã đúng chuẩn ⇒ làm mẫu |
+| **D5f** | Mobile detail-card: mreturn · mdelivery | **2** | `_return`+`wujia_sale`, `_delivery` | mreturn 122.3 > trần 120; delivery cần seed |
+| **D5g** | Công nợ PC ×2 + mobile ×2 | **4** | `_debt` | Chặn bởi dữ liệu |
+| **D5h** | Thi ×4 + Khảo sát ×2 | **6** | `_exam`, `_inspection` | Khảo sát provisional (BA acceptance #10) |
+
+Cộng 3+3+4+9+2+4+6 = **31**. ⚠️ `wj-pc-table` xuất hiện **15** lần trong mã nguồn nhưng chỉ
+**5** là danh sách record — đừng lấy số lần xuất hiện của class làm số call site.
+
+**Một câu hỏi BA duy nhất, hỏi khi tới D5d/D5e:** field nào của bảng PC được phép ẩn trên mobile
+và ẩn rồi xem lại ở đâu — delivery PC **8 cột** mà mobile 4, support PC **8 cột** mà mobile 4.
+Dev không tự quyết P1/P2/P3.
+
 
 - `>= 992px` DataTable semantic; `< 992px` chỉ **hai** layout: `compact-row` (mặc định) và
   `detail-card` (ngoại lệ: bù hàng, giao hàng). Cấu trúc `DataList [DataViewport + DataItem(s)
