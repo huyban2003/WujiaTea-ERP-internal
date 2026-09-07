@@ -26,9 +26,9 @@
                 href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,400;0,500;0,700;0,900;1,400;1,700&amp;family=Noto+Sans+Vietnamese:wght@400;500;600;700;800&amp;display=swap"
                 rel="stylesheet" />
             <link rel="stylesheet"
-                href="/wujia_franchise/static/src/css/inspection_report.css?v=1787990418" />
+                href="/wujia_franchise_inspection/static/src/css/inspection_report.css?v=1787990418" />
             <script type="text/javascript"
-                src="/wujia_franchise/static/src/js/inspection_report.js?v=1787990418"></script>
+                src="/wujia_franchise_inspection/static/src/js/inspection_report.js?v=1787990418"></script>
             <t t-foreach="docs" t-as="doc">
                 <t t-set="selected_lang"
                     t-value="(request and request.params and request.params.get('lang')) or doc.env.context.get('lang') or 'vi_VN'" />
@@ -268,11 +268,8 @@
                                     <th style="width: 8%; text-align: center;" data-i18n="label:wujia.franchise.inspection_report:th_exam_code">
                                         <t t-out="t.get('label:wujia.franchise.inspection_report:th_exam_code', 'Code')" />
                                     </th>
-                                    <th style="width: 42%;" data-i18n="label:wujia.franchise.inspection_report:th_exam_question">
+                                    <th style="width: 77%;" data-i18n="label:wujia.franchise.inspection_report:th_exam_question">
                                         <t t-out="t.get('label:wujia.franchise.inspection_report:th_exam_question', 'Question')" />
-                                    </th>
-                                    <th style="width: 35%;" data-i18n="label:wujia.franchise.inspection_report:th_exam_answer">
-                                        <t t-out="t.get('label:wujia.franchise.inspection_report:th_exam_answer', 'Employee Answer')" />
                                     </th>
                                     <th style="width: 15%; text-align: center;" data-i18n="label:wujia.franchise.inspection_report:th_exam_score">
                                         <t t-out="t.get('label:wujia.franchise.inspection_report:th_exam_score', 'Earned Points')" />
@@ -282,23 +279,15 @@
                             <tbody>
                                 <t t-foreach="doc.exam_line_ids" t-as="el">
                                     <tr>
-                                        <td
-                                            style="text-align: center; font-weight: 700; color: #2563eb;">
+                                        <td style="text-align: center; font-weight: 700; color: #2563eb; vertical-align: middle;">
                                             <t t-esc="el.quest_code_snapshot" />
                                         </td>
-                                        <td>
-                                            <t t-esc="el.quest_content_snapshot" />
+                                        <td style="line-height: 1.6;">
+                                            <t t-out="el.get_formatted_question_html()" />
                                         </td>
-                                        <td style="color: #334155;">
-                                            <t t-esc="el.answer or '---'" />
-                                        </td>
-                                        <td
-                                            style="text-align: center; font-weight: 700; white-space: nowrap;">
-                                            <span
-                                                t-att-style="'color: #15803d;' if el.is_correct else 'color: #b91c1c;'">
-                                                <t t-if="el.is_correct">✓</t><t t-else="">✗</t> <t
-                                                    t-esc="el.point" /> / <t
-                                                    t-esc="el.quest_id.score if el.quest_id else 1.0" />
+                                        <td style="text-align: center; font-weight: 700; white-space: nowrap; vertical-align: middle;">
+                                            <span t-att-style="'color: #15803d;' if el.is_correct else 'color: #b91c1c;'">
+                                                <t t-if="el.is_correct">✓</t><t t-else="">✗</t> <t t-esc="el.point" /> / <t t-esc="el.quest_id.score if el.quest_id else 1.0" />
                                             </span>
                                         </td>
                                     </tr>

@@ -13,9 +13,13 @@ import pandas as pd
 from odoo import api, fields, models, _
 # pyrefly: ignore [missing-import]
 from odoo.exceptions import ValidationError, UserError
+import re
+# pyrefly: ignore [missing-import]
+from markupsafe import Markup
 
 from .posapp_client import PosAppClient
 from odoo.addons.wujia_franchise_inspection.controllers.main import get_survey_translations
+from .google_drive_client import GoogleDriveClient
 
 _logger = logging.getLogger(__name__)
 
@@ -131,11 +135,48 @@ class WujiaFranchiseInspection(models.Model):
         string='Tenure',
         help='Working tenure of the tested employee (e.g. 1 year, 6 months, 2 years).',
     )
-    # video 
+    # Video Fields (Google Drive Storage)
     video = fields.Binary(
-        string='Video',
-        attachment=True,
+        string='Video Minh Chứng',
+        attachment=False,
+        help='Chọn file video để tự động tải lên Google Drive (không lưu trên server).',
     )
+    video_filename = fields.Char(
+        string='Video File Name',
+        copy=False,
+    )
+    video_url = fields.Char(
+        string='Google Drive Video URL',
+        copy=False,
+        tracking=True,
+        help='Đường dẫn xem trực tiếp video khảo sát trên Google Drive.',
+    )
+    video_drive_file_id = fields.Char(
+        string='Google Drive File ID',
+        copy=False,
+    )
+    video_upload_state = fields.Selection([
+        ('not_uploaded', 'Chưa có Video'),
+        ('uploading', 'Đang tải lên Drive...'),
+        ('uploaded', 'Đã lưu trên Google Drive'),
+        ('error', 'Lỗi tải lên Google Drive')
+    ], string='Trạng thái Video', default='not_uploaded', copy=False, tracking=True)
+
+    is_google_drive_enabled = fields.Boolean(
+        string='Is Google Drive Enabled',
+        compute='_compute_is_google_drive_enabled',
+    )
+
+    def _is_google_drive_video_enabled(self):
+        """Kiểm tra cấu hình hệ thống xem tính năng Google Drive Video có đang được kích hoạt không."""
+        return self.env['ir.config_parameter'].sudo().get_param(
+            'wujia_franchise_inspection.use_google_drive_video', 'False'
+        ).lower() in ('true', '1', 't', 'yes')
+
+    def _compute_is_google_drive_enabled(self):
+        enabled = self._is_google_drive_video_enabled()
+        for rec in self:
+            rec.is_google_drive_enabled = enabled
 
     # Online Signature Fields
     signature_image = fields.Binary(
@@ -216,6 +257,62 @@ class WujiaFranchiseInspection(models.Model):
         if address:
             vals['checkin_address'] = address
         self.write(vals)
+        return True
+
+    def _upload_video_to_google_drive(self, video_data, filename=None):
+        """
+        Uploads inspection video to Google Drive under 'wujia media/<store_code>/ks<YYYYMMDD>.mp4'.
+        """
+        self.ensure_one()
+
+        store_code = self.franchise_id.code or self.franchise_id.name or 'UNKNOWN'
+        store_code = re.sub(r'[^\w\-\.]', '_', str(store_code).strip())
+
+        insp_date = self.planned_date or self.submit_date or fields.Date.today()
+        date_str = insp_date.strftime('%Y%m%d')
+
+        client = GoogleDriveClient()
+        try:
+            res = client.upload_inspection_video(
+                video_data=video_data,
+                store_code=store_code,
+                date_str=date_str,
+                original_filename=filename or self.video_filename
+            )
+            return {
+                'video_url': res.get('webViewLink'),
+                'video_drive_file_id': res.get('id'),
+                'video_upload_state': 'uploaded',
+                'video': False,
+            }
+        except Exception as e:
+            _logger.error("Failed to upload video to Google Drive for inspection %s: %s", self.name, str(e))
+            return {
+                'video_upload_state': 'error',
+                'video': False,
+            }
+
+    def action_open_drive_video(self):
+        """Mở link xem video trực tiếp trên Google Drive trong tab mới."""
+        self.ensure_one()
+        if not self.video_url:
+            raise UserError(_("Phiếu khảo sát này chưa có link video trên Google Drive!"))
+        return {
+            'type': 'ir.actions.act_url',
+            'url': self.video_url,
+            'target': 'new',
+        }
+
+    def action_reupload_video_prompt(self):
+        """Xóa link video hiện tại để cho phép người dùng chọn và tải lên video mới."""
+        self.ensure_one()
+        self.write({
+            'video_url': False,
+            'video_drive_file_id': False,
+            'video_upload_state': 'not_uploaded',
+            'video': False,
+            'video_filename': False,
+        })
         return True
 
     # RELATION 
@@ -600,7 +697,11 @@ class WujiaFranchiseInspection(models.Model):
 
     @api.model_create_multi
     def create(self, vals_list):
-        for vals in vals_list:
+        use_drive = self._is_google_drive_video_enabled()
+        video_uploads = {}
+        for idx, vals in enumerate(vals_list):
+            if use_drive and vals.get('video'):
+                video_uploads[idx] = (vals.pop('video'), vals.get('video_filename'))
             franchise_id = vals.get('franchise_id')
             schedule_id = vals.get('schedule_id')
             current_name = vals.get('name')
@@ -649,6 +750,11 @@ class WujiaFranchiseInspection(models.Model):
                     vals['attendance_line_ids'] = att_lines
 
         records = super(WujiaFranchiseInspection, self).create(vals_list)
+        for idx, rec in enumerate(records):
+            if idx in video_uploads:
+                v_data, v_fname = video_uploads[idx]
+                rec.sudo().write({'video_upload_state': 'uploading', 'video': False})
+                rec._async_upload_video_to_google_drive(v_data, v_fname)
         records.mapped('franchise_id').sudo()._compute_latest_inspection_info()
         return records
 
@@ -1073,6 +1179,13 @@ class WujiaFranchiseInspection(models.Model):
         }
 
     def write(self, vals):
+        use_drive = self._is_google_drive_video_enabled()
+        video_data = None
+        video_filename = None
+        if use_drive and 'video' in vals and vals.get('video'):
+            video_data = vals.pop('video')
+            video_filename = vals.get('video_filename')
+
         if 'name' in vals and not self.env.su:
             for rec in self:
                 if rec.name and vals['name'] != rec.name:
@@ -1105,6 +1218,10 @@ class WujiaFranchiseInspection(models.Model):
                         rec.schedule_id.state = vals['state']
         if any(f in vals for f in ('state', 'total_score', 'grade_id', 'planned_date', 'franchise_id')):
             self.mapped('franchise_id').sudo()._compute_latest_inspection_info()
+        if video_data:
+            for rec in self:
+                rec.sudo().write({'video_upload_state': 'uploading', 'video': False})
+                rec._async_upload_video_to_google_drive(video_data, video_filename)
         return res
 
     def unlink(self):
@@ -2005,6 +2122,49 @@ class WujiaFranchiseInspectionExamLine(models.Model):
                     'is_correct': is_right,
                     'point': point_val,
                 })
+
+    def get_formatted_question_html(self):
+        """Điền trực tiếp đáp án của nhân viên vào các ô trống trong nội dung câu hỏi,
+        hiển thị dạng gạch chân nét đứt đỏ/xanh tương tự phiếu thi thật."""
+     
+        self.ensure_one()
+        question = self.quest_content_snapshot or ''
+        ans_raw = str(self.answer or '').strip()
+        is_correct = self.is_correct
+
+        if '\n' in ans_raw:
+            user_lines = [l.strip() for l in ans_raw.splitlines() if l.strip()]
+        elif ans_raw:
+            user_lines = [l.strip() for l in re.split(r'[\n,;]+', ans_raw) if l.strip()]
+        else:
+            user_lines = []
+
+        ans_idx = [0]
+
+        def replace_blank(match):
+            idx = ans_idx[0]
+            ans_idx[0] += 1
+            if idx < len(user_lines):
+                val = user_lines[idx]
+                if is_correct:
+                    return f'<span style="border-bottom: 2px solid #16a34a; color: #15803d; font-weight: 700; padding: 0 4px; display: inline-block; min-width: 28px; text-align: center;">{val}</span>'
+                else:
+                    return f'<span style="border-bottom: 2px dashed #ef4444; color: #dc2626; font-weight: 700; padding: 0 4px; display: inline-block; min-width: 28px; text-align: center;">{val}</span>'
+            else:
+                return '<span style="border-bottom: 2px dashed #ef4444; color: #dc2626; font-weight: 700; padding: 0 6px; display: inline-block; min-width: 28px; text-align: center;">...</span>'
+
+        if re.search(r'_{2,}', question):
+            formatted = re.sub(r'_{2,}', replace_blank, question)
+        else:
+            if user_lines:
+                ans_str = ', '.join(user_lines)
+                border_col = '#16a34a' if is_correct else '#ef4444'
+                text_col = '#15803d' if is_correct else '#dc2626'
+                formatted = f'{question} <span style="border-bottom: 2px dashed {border_col}; color: {text_col}; font-weight: 700; padding: 0 4px;">{ans_str}</span>'
+            else:
+                formatted = f'{question} <span style="border-bottom: 2px dashed #ef4444; color: #dc2626; font-weight: 700; padding: 0 6px;">...</span>'
+
+        return Markup(formatted)
 
 
 class WujiaFranchiseInspectionAttendanceLine(models.Model):

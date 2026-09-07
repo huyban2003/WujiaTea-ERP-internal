@@ -52,6 +52,7 @@ Extension kế thừa:
         'views/wujia_franchise_needed_inspection_views.xml',
         'views/wujia_supervision_schedule_views.xml',
         'views/wujia_franchise_management_inspection_views.xml',
+        'views/res_config_settings_views.xml',
         'views/wujia_franchise_inspection_menu.xml',
         'views/res_users_views.xml',
     ],

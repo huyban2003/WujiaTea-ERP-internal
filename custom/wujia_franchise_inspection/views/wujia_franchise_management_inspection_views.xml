@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <odoo>
 
     <!-- Kế thừa Form View của wujia.franchise.management -->
@@ -15,28 +15,24 @@
                 </button>
             </xpath>
 
-            <!-- Thêm thông tin Giám sát & Đợt kiểm tra gần nhất -->
-            <xpath expr="//group[field[@name='area_id']]" position="before">
-                <group>
-                    <group string="Assigned Supervisor">
-                        <field name="supervision_user_id"
-                            placeholder="Leave empty to default to Area Manager" />
-                        <field name="area_manager_user_id" readonly="1" string="Area Manager" />
-                    </group>
-                    <group string="Latest Inspection">
-                        <field name="latest_inspection_date" readonly="1"
-                            string="Latest Inspection Date" />
-                        <field name="latest_total_score" readonly="1"
-                            string="Latest Inspection Score" />
-                        <field name="latest_grade_id" widget="badge" readonly="1"
-                            string="Latest Inspection Grade" />
-                    </group>
-                </group>
-            </xpath>
-
-            <!-- Thêm tab Report biểu đồ lịch sử khảo sát -->
+            <!-- Thêm tab Khảo sát chứa thông tin Giám sát, Đợt kiểm tra gần nhất & Biểu đồ -->
             <xpath expr="//notebook" position="inside">
-                <page string="Supervision Report" name="supervision_report">
+                <page string="Khảo sát" name="franchise_inspection">
+                    <group>
+                        <group string="Assigned Supervisor">
+                            <field name="supervision_user_id"
+                                placeholder="Leave empty to default to Area Manager" />
+                            <field name="area_manager_user_id" readonly="1" string="Area Manager" />
+                        </group>
+                        <group string="Latest Inspection">
+                            <field name="latest_inspection_date" readonly="1"
+                                string="Latest Inspection Date" />
+                            <field name="latest_total_score" readonly="1"
+                                string="Latest Inspection Score" />
+                            <field name="latest_grade_id" widget="badge" readonly="1"
+                                string="Latest Inspection Grade" />
+                        </group>
+                    </group>
                     <field name="inspection_chart_data" widget="wujia_inspection_chart"
                         nolabel="1" class="w-100 d-block" />
                 </page>
