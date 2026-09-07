@@ -1305,7 +1305,7 @@ class WujiaFranchiseInspection(models.Model):
 
     def action_print_pdf(self):
         self.ensure_one()
-        action = self.env.ref('wujia_franchise.action_report_franchise_inspection').report_action(self)
+        action = (self.env.ref('wujia_franchise_inspection.action_report_franchise_inspection', raise_if_not_found=False) or self.env.ref('wujia_franchise.action_report_franchise_inspection')).report_action(self)
         store_code = self.franchise_id.code or self.franchise_id.name or ''
         plan_date = self.planned_date.strftime('%d-%m-%Y') if self.planned_date else ''
         custom_name = f"Báo cáo Khảo sát Giám sát [{store_code}] [{plan_date}]"
@@ -2000,7 +2000,7 @@ class WujiaFranchiseInspectionExamLine(models.Model):
             rec.is_correct = is_right
             point_val = max_score if is_right else 0.0
             rec.point = point_val
-            if rec.id and not isinstance(rec.id, models.NewId):
+            if rec.id and isinstance(rec.id, int):
                 super(WujiaFranchiseInspectionExamLine, rec).write({
                     'is_correct': is_right,
                     'point': point_val,

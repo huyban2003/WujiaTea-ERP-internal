@@ -255,7 +255,8 @@ class WujiaFranchiseInspectionWebController(http.Controller):
             'trans': trans_map,
             'trans_json': Markup(json.dumps(trans_map, ensure_ascii=False)),
         }
-        return request.render('wujia_franchise.inspection_survey_do_page', values)
+        template = 'wujia_franchise_inspection.inspection_survey_do_page' if request.env.ref('wujia_franchise_inspection.inspection_survey_do_page', raise_if_not_found=False) else 'wujia_franchise.inspection_survey_do_page'
+        return request.render(template, values)
 
     @http.route(['/franchise/inspection/do/<int:inspection_id>/sync_posapp'], type='json', auth='user', methods=['POST'])
     def sync_posapp_revenue(self, inspection_id, **kwargs):
