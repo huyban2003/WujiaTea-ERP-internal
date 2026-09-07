@@ -130,19 +130,25 @@
                                 <t t-set="ch_action_url" t-value="'/portal/notification'"/>
                                 <t t-set="ch_action_icon" t-value="'chevron-right'"/>
                             </t>
-                            <div t-if="not latest_notifications" class="wujia-content-card-empty">Chưa có thông báo nào.</div>
-                            <ul t-else="" class="wujia-content-card-body">
-                                <li t-foreach="latest_notifications" t-as="noti" class="wujia-content-card-row">
-                                    <span class="wujia-content-card-row-bullet"/>
-                                    <div class="wujia-content-card-row-content">
-                                        <a t-attf-href="/portal/notification/#{noti.id}" t-out="noti.name"/>
-                                    </div>
-                                    <span class="wujia-content-card-row-date" t-out="wj_dt(noti.published_date, '%H:%M %d/%m/%Y')"/>
-                                    <t t-set="noti_badge_cls" t-value="{'URG': 'wujia-badge-danger', 'GEN': 'wujia-badge-info', 'PROMO': 'wujia-badge-warning', 'SYS': 'wujia-badge-muted', 'OTH': 'wujia-badge-success'}.get(noti.type_id.code, 'wujia-badge-muted')"/>
-                                    <span t-if="noti.type_id" t-attf-class="wujia-badge #{noti_badge_cls}" t-out="noti.type_id.name"/>
-                                    <span t-else=""/>
-                                </li>
-                            </ul>
+                            <t t-call="wujia_portal_layout.wj_data_list">
+                                <t t-set="dl_variant" t-value="'compact-row'"/>
+                                <t t-set="dl_empty" t-value="not latest_notifications"/>
+                                <t t-set="dl_state">
+                                    <div class="wujia-content-card-empty">Chưa có thông báo nào.</div>
+                                </t>
+                                <ul class="wujia-content-card-body">
+                                    <li t-foreach="latest_notifications" t-as="noti" class="wj-data-item wujia-content-card-row">
+                                        <span class="wujia-content-card-row-bullet"/>
+                                        <div class="wujia-content-card-row-content">
+                                            <a t-attf-href="/portal/notification/#{noti.id}" t-out="noti.name"/>
+                                        </div>
+                                        <span class="wujia-content-card-row-date" t-out="wj_dt(noti.published_date, '%H:%M %d/%m/%Y')"/>
+                                        <t t-set="noti_badge_cls" t-value="{'URG': 'wujia-badge-danger', 'GEN': 'wujia-badge-info', 'PROMO': 'wujia-badge-warning', 'SYS': 'wujia-badge-muted', 'OTH': 'wujia-badge-success'}.get(noti.type_id.code, 'wujia-badge-muted')"/>
+                                        <span t-if="noti.type_id" t-attf-class="wujia-badge #{noti_badge_cls}" t-out="noti.type_id.name"/>
+                                        <span t-else=""/>
+                                    </li>
+                                </ul>
+                            </t>
                             </t>
                         </div>
 
@@ -159,21 +165,27 @@
                                 <t t-set="ch_action_url" t-value="'/portal/purchase-history'"/>
                                 <t t-set="ch_action_icon" t-value="'chevron-right'"/>
                             </t>
-                            <div t-if="not recent_orders" class="wujia-content-card-empty">Chưa có đơn hàng nào.</div>
-                            <ul t-else="" class="wujia-content-card-body">
-                                <li t-foreach="recent_orders" t-as="order" class="wujia-content-card-row">
-                                    <span class="wujia-content-card-row-bullet"/>
-                                    <div class="wujia-content-card-row-content">
-                                        <a t-attf-href="/portal/purchase-history/#{order.id}">
-                                            Đơn hàng <t t-out="order.name"/>
-                                        </a>
-                                    </div>
-                                    <span class="wujia-content-card-row-date" t-out="order.date_order and order.date_order.strftime('%H:%M %d/%m/%Y') or ''"/>
-                                    <t t-set="order_badge_cls" t-value="{'draft': 'wujia-badge-muted', 'sent': 'wujia-badge-info', 'sale': 'wujia-badge-success', 'done': 'wujia-badge-success', 'cancel': 'wujia-badge-danger'}.get(order.state, 'wujia-badge-muted')"/>
-                                    <t t-set="order_state_label" t-value="{'draft': 'Nháp', 'sent': 'Đã gửi', 'sale': 'Đã xác nhận', 'done': 'Hoàn thành', 'cancel': 'Đã huỷ'}.get(order.state, order.state)"/>
-                                    <span t-attf-class="wujia-badge #{order_badge_cls}" t-out="order_state_label"/>
-                                </li>
-                            </ul>
+                            <t t-call="wujia_portal_layout.wj_data_list">
+                                <t t-set="dl_variant" t-value="'compact-row'"/>
+                                <t t-set="dl_empty" t-value="not recent_orders"/>
+                                <t t-set="dl_state">
+                                    <div class="wujia-content-card-empty">Chưa có đơn hàng nào.</div>
+                                </t>
+                                <ul class="wujia-content-card-body">
+                                    <li t-foreach="recent_orders" t-as="order" class="wj-data-item wujia-content-card-row">
+                                        <span class="wujia-content-card-row-bullet"/>
+                                        <div class="wujia-content-card-row-content">
+                                            <a t-attf-href="/portal/purchase-history/#{order.id}">
+                                                Đơn hàng <t t-out="order.name"/>
+                                            </a>
+                                        </div>
+                                        <span class="wujia-content-card-row-date" t-out="order.date_order and order.date_order.strftime('%H:%M %d/%m/%Y') or ''"/>
+                                        <t t-set="order_badge_cls" t-value="{'draft': 'wujia-badge-muted', 'sent': 'wujia-badge-info', 'sale': 'wujia-badge-success', 'done': 'wujia-badge-success', 'cancel': 'wujia-badge-danger'}.get(order.state, 'wujia-badge-muted')"/>
+                                        <t t-set="order_state_label" t-value="{'draft': 'Nháp', 'sent': 'Đã gửi', 'sale': 'Đã xác nhận', 'done': 'Hoàn thành', 'cancel': 'Đã huỷ'}.get(order.state, order.state)"/>
+                                        <span t-attf-class="wujia-badge #{order_badge_cls}" t-out="order_state_label"/>
+                                    </li>
+                                </ul>
+                            </t>
                             </t>
                         </div>
 
@@ -190,21 +202,27 @@
                                 <t t-set="ch_action_url" t-value="'/portal/return'"/>
                                 <t t-set="ch_action_icon" t-value="'chevron-right'"/>
                             </t>
-                            <div t-if="not latest_returns" class="wujia-content-card-empty">Chưa có yêu cầu nào.</div>
-                            <ul t-else="" class="wujia-content-card-body">
-                                <li t-foreach="latest_returns" t-as="rr" class="wujia-content-card-row">
-                                    <span class="wujia-content-card-row-bullet"/>
-                                    <div class="wujia-content-card-row-content">
-                                        <a t-attf-href="/portal/return/#{rr.id}">
-                                            Đổi trả <t t-out="rr.name or '—'"/>
-                                        </a>
-                                    </div>
-                                    <span class="wujia-content-card-row-date" t-out="rr.request_date and rr.request_date.strftime('%H:%M %d/%m/%Y') or ''"/>
-                                    <t t-set="rr_badge_cls" t-value="{'draft': 'wujia-badge-muted', 'submitted': 'wujia-badge-info', 'reviewing': 'wujia-badge-warning', 'approved': 'wujia-badge-success', 'processing': 'wujia-badge-warning', 'rejected': 'wujia-badge-danger', 'done': 'wujia-badge-success', 'cancelled': 'wujia-badge-muted'}.get(rr.state, 'wujia-badge-muted')"/>
-                                    <t t-set="rr_state_label" t-value="{'draft': 'Nháp', 'submitted': 'Đã gửi', 'reviewing': 'Đang xét', 'approved': 'Đã duyệt', 'processing': 'Đang xử lý', 'rejected': 'Từ chối', 'done': 'Hoàn thành', 'cancelled': 'Đã huỷ'}.get(rr.state, rr.state)"/>
-                                    <span t-attf-class="wujia-badge #{rr_badge_cls}" t-out="rr_state_label"/>
-                                </li>
-                            </ul>
+                            <t t-call="wujia_portal_layout.wj_data_list">
+                                <t t-set="dl_variant" t-value="'compact-row'"/>
+                                <t t-set="dl_empty" t-value="not latest_returns"/>
+                                <t t-set="dl_state">
+                                    <div class="wujia-content-card-empty">Chưa có yêu cầu nào.</div>
+                                </t>
+                                <ul class="wujia-content-card-body">
+                                    <li t-foreach="latest_returns" t-as="rr" class="wj-data-item wujia-content-card-row">
+                                        <span class="wujia-content-card-row-bullet"/>
+                                        <div class="wujia-content-card-row-content">
+                                            <a t-attf-href="/portal/return/#{rr.id}">
+                                                Đổi trả <t t-out="rr.name or '—'"/>
+                                            </a>
+                                        </div>
+                                        <span class="wujia-content-card-row-date" t-out="rr.request_date and rr.request_date.strftime('%H:%M %d/%m/%Y') or ''"/>
+                                        <t t-set="rr_badge_cls" t-value="{'draft': 'wujia-badge-muted', 'submitted': 'wujia-badge-info', 'reviewing': 'wujia-badge-warning', 'approved': 'wujia-badge-success', 'processing': 'wujia-badge-warning', 'rejected': 'wujia-badge-danger', 'done': 'wujia-badge-success', 'cancelled': 'wujia-badge-muted'}.get(rr.state, 'wujia-badge-muted')"/>
+                                        <t t-set="rr_state_label" t-value="{'draft': 'Nháp', 'submitted': 'Đã gửi', 'reviewing': 'Đang xét', 'approved': 'Đã duyệt', 'processing': 'Đang xử lý', 'rejected': 'Từ chối', 'done': 'Hoàn thành', 'cancelled': 'Đã huỷ'}.get(rr.state, rr.state)"/>
+                                        <span t-attf-class="wujia-badge #{rr_badge_cls}" t-out="rr_state_label"/>
+                                    </li>
+                                </ul>
+                            </t>
                             </t>
                         </div>
 

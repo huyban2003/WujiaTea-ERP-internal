@@ -553,7 +553,7 @@ h2, .wujia-h2 { font-size: var(--wujia-font-size-h2) !important; font-weight: 60
     flex: 1 1 auto;
 }
 /* Sprint 9.13b 2026-05-27: each row carries its own bottom border so the body */
-.wujia-content-card-row {
+.wujia-content-card-row:not(.wj-data-item) {
     display: grid;
     grid-template-columns: auto 1fr auto auto;
     align-items: center;
@@ -561,10 +561,10 @@ h2, .wujia-h2 { font-size: var(--wujia-font-size-h2) !important; font-weight: 60
     padding: 12px 0;
     border-bottom: 1px solid var(--wujia-border);
 }
-.wujia-content-card-row:last-child {
+.wujia-content-card-row:not(.wj-data-item):last-child {
     border-bottom: none;
 }
-.wujia-content-card-row:hover {
+.wujia-content-card-row:not(.wj-data-item):hover {
     background: rgba(40, 169, 223, 0.04);
 }
 .wujia-content-card-row-bullet {
@@ -607,7 +607,7 @@ h2, .wujia-h2 { font-size: var(--wujia-font-size-h2) !important; font-weight: 60
 
 /* Mobile: hide date column to give content + badge room. */
 @media (max-width: 575.98px) {
-    .wujia-content-card-row {
+    .wujia-content-card-row:not(.wj-data-item) {
         grid-template-columns: auto 1fr auto;
     }
     .wujia-content-card-row-date {
@@ -806,6 +806,31 @@ h2, .wujia-h2 { font-size: var(--wujia-font-size-h2) !important; font-weight: 60
 }
 .wj-data-table .wujia-badge {
     white-space: nowrap;
+}
+
+/* ---------------------------------------------------------------------------
+   D5d — variant compact-row: .wj-data-item là chủ sở hữu DUY NHẤT dáng item.
+   Số BA: cao 64–76 · gap 8 · radius 12 · padding 10–12px 12–14px. Cách dựng
+   (item là card có viền, gap giữa hai item) lấy từ .wujia-mhist-row — mẫu duy
+   nhất D5a §7 công nhận là đã đúng chuẩn compact-row.
+   ------------------------------------------------------------------------ */
+.wj-data-list--compact-row .wj-data-item {
+    display: grid;
+    grid-template-columns: auto 1fr auto auto;
+    align-items: center;
+    gap: 12px;
+    min-height: 64px;
+    padding: 12px 14px;
+    background: var(--wujia-bg-card);
+    border: 1px solid var(--wujia-border);
+    border-radius: 12px;
+}
+.wj-data-list--compact-row .wj-data-item + .wj-data-item {
+    margin-top: 8px;
+}
+.wj-data-list--compact-row .wj-data-item:hover {
+    background: rgba(40, 169, 223, 0.04);
+    border-color: var(--wujia-primary);
 }
 
 /* Header right action icons (UI-13, Sprint 9.14, 2026-05-28) */

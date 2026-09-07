@@ -361,7 +361,7 @@ tổng `scrollHeight` **−24px** trên 44 ô, giả-heading **0/44**, outline 8
 hiển thị 43/44 giống hệt (1 ô mọc đúng "0 kết quả" theo yêu cầu BA), B4 **286/286**, bảng D3a
 chạy lại **356 phép so 0 lệch**, tab-walk 433 stop ring 16/16, font 66 tiêu đề 0 lệch;
 bắt được **1 lỗi thật**: `/portal/info-request` mất tiêu đề ở mobile do bake `ch_platform`;
-`docs/d3b-acceptance-matrix.md`) · D3c ✅ · D3d ✅ · D3e ✅ · D3f ✅ · review ✅ · **D4 ✅ KHÉP 06/09** (D4b…D4h, `UI-SURFACECARD-001` Ready for Retest + ĐÃ DEPLOY UAT) · **D5a ✅ 06/09** (kiểm kê 31 call site, `docs/d5-datalist-inventory.md`, 0 code) · **D5b ✅ 07/09** (nền `wj_data_list` + 3 call site họ `wujia-content-card-table`, 3/31, `docs/d5b-acceptance-matrix.md`) · **D5c ✅ 07/09** (họ `wj-pc-table`: purchase-history · delivery · notification, 6/31, `docs/d5c-acceptance-matrix.md`) · D5d…D5h ⬜ · D6 ⬜ · R1–R5 ⬜
+`docs/d3b-acceptance-matrix.md`) · D3c ✅ · D3d ✅ · D3e ✅ · D3f ✅ · review ✅ · **D4 ✅ KHÉP 06/09** (D4b…D4h, `UI-SURFACECARD-001` Ready for Retest + ĐÃ DEPLOY UAT) · **D5a ✅ 06/09** (kiểm kê 31 call site, `docs/d5-datalist-inventory.md`, 0 code) · **D5b ✅ 07/09** (nền `wj_data_list` + 3 call site họ `wujia-content-card-table`, 3/31, `docs/d5b-acceptance-matrix.md`) · **D5c ✅ 07/09** (họ `wj-pc-table`: purchase-history · delivery · notification, 6/31, `docs/d5c-acceptance-matrix.md`) · **D5d ✅ 07/09** (họ `li.wujia-content-card-row`: 3 khối preview `/portal` + `/portal/knowledge`, 10/31, `docs/d5d-acceptance-matrix.md`, bộ số **provisional** + 3 câu hỏi BA `docs/ba-questions-d5-datalist.md`) · D5e…D5h ⬜ · D6 ⬜ · R1–R5 ⬜
 
 🚚 **D1 + D2 ĐÃ DEPLOY UAT 27/08** (`wujia_portal_layout 19.0.32.4.0` · `wujia_portal_return
 19.0.2.7.0` · `wujia_sale 19.0.4.3.0`, xác nhận XML-RPC) **+ đo lại chỉ-đọc ngay trên UAT**:
@@ -689,13 +689,33 @@ trong 10 route BA).
    là số **cứng** ép cả hàng hai dòng; padding 10/16 của BA làm hàng một dòng co về 54–55 còn
    hàng hai dòng nở ra 77–89. Đọc bảng đo phải phân biệt "nở vì hết bị nén" với "phình".
 
+### 🔴 Bài học D5d — đọc trước khi làm D5e
+
+1. **Selector rộng một nấc là đo nhầm đối tượng — lần này ở `.//ul`.** Từ khi pager nằm TRONG
+   DataList, `call.xpath('.//ul/li')` vớ luôn `<li>` của `<ul class="pagination">`; test báo
+   `4 != 1` trông y như lỗi sản phẩm. Neo vào `ul[@class="wujia-content-card-body"]`. Cùng họ bẫy
+   `contains()` D5c #3 và `sed` D5b #3: ba lượt liên tiếp cùng một dạng sai.
+2. **Bộ đo mù đúng ở lượt cần nó nhất.** `rowsInViewport` chỉ có ở nhánh BẢNG của
+   `wj_datalist.py`; D5d là lượt duy nhất làm row **cao lên** — tức lượt cần acceptance #9 nhất.
+   Bổ trường cho nhánh danh sách **trước** khi đo mốc trước, rồi đo lại mốc trước từ đầu.
+3. **Ước lượng chiều cao trước khi đo sai gấp bốn lần.** Ước ~250–300px cho Home, đo ra **0px**
+   ở 1440/1024 và **+6px** ở 992: mỗi preview chỉ 2 bản ghi, và hai card cạnh nhau vốn đã bị card
+   cao hơn kéo bằng chiều cao nên phần nở rơi vào chỗ trống sẵn có. Đừng lấy ước lượng làm lý do
+   từ chối một thay đổi — đo rồi hãy kết luận (chỗ nở thật là knowledge, +235).
+4. **`sed` neo vào ĐUÔI chuỗi thì bắt luôn tên file dài hơn**: `_components.css?v=1230` khớp cả
+   `_pc_components.css?v=1230`. Lần này vô hại (bump cache thừa) nhưng cùng họ với mọi lần
+   `grep` thô bắt tên con BEM của cụm D4.
+5. **Dò hover phải ≥992 và phải biết con trỏ còn sót.** `ElementHandle.hover` timeout 30s ở khổ
+   hẹp vì `.main-menu` phủ lên; và ở đúng 992 con trỏ từ khổ trước làm ô "nghỉ" đọc ra màu hover
+   — hiện tượng có ở CẢ bảng trước lẫn bảng sau nên đừng đọc nhầm thành thay đổi.
+
 ### Thứ tự lượt D5b…D5g
 
 | Lượt | Nội dung | Call site | `-u` | Vì sao xếp ở đây |
 |---|---|---:|---|---|
 | **D5b** ✅ | Nền `wj_data_list` + hiệu chỉnh trên `wujia-content-card-table` (home top SP · return · support) | **3** | `_layout`, `_base`, `_return`+`wujia_sale`, `_support` | XONG 07/09 — `th[scope]` 0→100%, header 44, padding 10/16, row ≥52, **0 ô mất record** (6 ô còn tăng) |
 | **D5c** ✅ | Bảng PC họ `wj-pc-table`: purchase-history · delivery · notification | **3** | `_layout`, `_purchase_history`, `_delivery`, `_notification` | XONG 07/09 — `th[scope]` 20/20, header 44, padding 10/16, row 58 cứng → 54–89 mềm, guard pager **tách đôi**, 12 bảng ngoài phạm vi giữ nguyên 50/58 |
-| **D5d** | List PC không phải bảng: 3 khối preview `/portal` + knowledge | **4** | `_layout`, `_base`, `_knowledge` | Cùng tầng CSS với D5b |
+| **D5d** ✅ | List PC không phải bảng: 3 khối preview `/portal` + knowledge | **4** | `_layout`, `_base`, `_knowledge` | XONG 07/09 — variant `compact-row` đầu tiên, item 51.8 → 64 · gap 0 → 8 · radius 12 · `12px 14px`, `.wj-data-item` là chủ sở hữu duy nhất dáng, knowledge đưa Pagination vào trong DataList. Bộ số **provisional** (BA chưa có số cho danh sách PC không phải bảng) + acceptance #9 thủng ở knowledge 12 → 9 |
 | **D5e** | Mobile compact-row: mdash ×6 · mhist · mnoti · mknow | **9** | 6 module | `wujia-mhist-row` đã đúng chuẩn ⇒ làm mẫu |
 | **D5f** | Mobile detail-card: mreturn · mdelivery | **2** | `_return`+`wujia_sale`, `_delivery` | mreturn 122.3 > trần 120; delivery cần seed |
 | **D5g** | Công nợ PC ×2 + mobile ×2 | **4** | `_debt` | Chặn bởi dữ liệu |
@@ -704,7 +724,12 @@ trong 10 route BA).
 Cộng 3+3+4+9+2+4+6 = **31**. ⚠️ `wj-pc-table` xuất hiện **15** lần trong mã nguồn nhưng chỉ
 **5** là danh sách record — đừng lấy số lần xuất hiện của class làm số call site.
 
-**Một câu hỏi BA duy nhất, hỏi khi tới D5d/D5e:** field nào của bảng PC được phép ẩn trên mobile
+**✅ Đã soạn và gửi ở D5d — `docs/ba-questions-d5-datalist.md`, ba câu:** (1) field nào được ẩn
+trên mobile, (2) preview Home lệch field theo cả hai chiều (PC thiếu *số tiền* của đơn và *lý do*
+đổi trả mà mobile có), (3) danh sách PC không phải bảng lấy bộ số nào — kèm hệ quả đo được
+(knowledge 12 → 9 dòng đọc-không-cuộn). Nguyên văn câu treo từ D5a:
+
+field nào của bảng PC được phép ẩn trên mobile
 và ẩn rồi xem lại ở đâu — delivery PC **8 cột** mà mobile 4, support PC **8 cột** mà mobile 4.
 Dev không tự quyết P1/P2/P3.
 

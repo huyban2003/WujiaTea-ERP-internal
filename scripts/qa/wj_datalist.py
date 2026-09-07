@@ -102,6 +102,8 @@ PROBE = r"""
       key: name(box), itemKey: name(kids[0]), tag: kids[0].tagName.toLowerCase(),
       n: kids.length, ofChildren: all.length,
       itemH: { min: Math.min(...hs), max: Math.max(...hs) },
+      // D5d: acceptance #9 cũng phải đo được ở danh sách, không chỉ ở bảng.
+      rowsInViewport: kids.filter(k => k.getBoundingClientRect().top < window.innerHeight).length,
       gap, boxGap: boxCs.gap,
       pad: cs.paddingTop + ' ' + cs.paddingRight + ' ' + cs.paddingBottom
            + ' ' + cs.paddingLeft,

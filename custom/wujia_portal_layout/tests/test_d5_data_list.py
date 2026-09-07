@@ -180,8 +180,10 @@ class TestDataListCallSites(TransactionCase):
     def test_moi_th_deu_co_scope(self):
         for module, filename, n_cols in self.CALL_SITES:
             root = _view(module, filename)
-            calls = root.xpath('//t[@t-call="wujia_portal_layout.wj_data_list"]')
-            self.assertEqual(len(calls), 1, '%s: phải có đúng 1 DataList' % module)
+            # D5d: portal_home.xml nay có 4 DataList (3 preview + bảng top SP) ⇒ chọn
+            # theo cấu trúc chứ không theo số lượng.
+            calls = root.xpath('//t[@t-call="wujia_portal_layout.wj_data_list"][.//thead]')
+            self.assertEqual(len(calls), 1, '%s: phải có đúng 1 DataList dạng bảng' % module)
             ths = calls[0].xpath('.//thead//th')
             self.assertEqual(len(ths), n_cols, '%s: số cột đổi' % module)
             khong_scope = [html.tostring(t, encoding='unicode')[:60]
@@ -202,11 +204,15 @@ class TestDataListCallSites(TransactionCase):
                                  '%s: guard pager phải là > 1' % module)
 
     def test_home_preview_khong_gan_pagination(self):
-        """BA: preview dashboard dùng "Xem tất cả" ở CardHeader, KHÔNG pager."""
+        """BA: preview dashboard dùng "Xem tất cả" ở CardHeader, KHÔNG pager.
+        D5d: ghim cho CẢ BA khối preview, không chỉ khối top sản phẩm."""
         root = _view('wujia_portal_base', 'portal_home.xml')
-        call = root.xpath('//t[@t-call="wujia_portal_layout.wj_data_list"]')[0]
-        self.assertFalse(call.xpath('.//t[@t-set="dl_pager"]'))
-        self.assertFalse(call.xpath('.//nav'))
+        previews = root.xpath(
+            '//t[@t-call="wujia_portal_layout.wj_data_list"][not(.//thead)]')
+        self.assertEqual(len(previews), 3, 'phải đủ 3 khối preview dashboard')
+        for call in previews:
+            self.assertFalse(call.xpath('.//t[@t-set="dl_pager"]'))
+            self.assertFalse(call.xpath('.//nav'))
 
 
 @tagged('post_install', '-at_install', 'wujia_data_list_d5')
@@ -315,3 +321,100 @@ class TestDataListPcTable(TransactionCase):
         self.assertIsNotNone(body)
         self.assertRegex(body, r'height:\s*52px')
         self.assertRegex(body, r'padding:\s*10px 16px')
+
+
+@tagged('post_install', '-at_install', 'wujia_data_list_d5')
+class TestDataListCompactRow(TransactionCase):
+    """D5d — danh sách PC không phải bảng (`li.wujia-content-card-row`): variant
+    compact-row, một chủ sở hữu dáng, và call site đầu tiên dùng `dl_pager`."""
+
+    COMPACT_SITES = [
+        ('wujia_portal_base', 'portal_home.xml', 3),
+        ('wujia_portal_knowledge', 'portal_knowledge.xml', 1),
+    ]
+
+    def _compact_calls(self, module, filename):
+        root = _view(module, filename)
+        return root.xpath(
+            '//t[@t-call="wujia_portal_layout.wj_data_list"]'
+            '[t[@t-set="dl_variant"][@t-value="\'compact-row\'"]]')
+
+    def test_bon_call_site_dung_variant_compact_row(self):
+        for module, filename, n in self.COMPACT_SITES:
+            calls = self._compact_calls(module, filename)
+            self.assertEqual(len(calls), n, '%s: số call site compact-row đổi' % module)
+            for call in calls:
+                self.assertTrue(call.xpath('.//ul[@class="wujia-content-card-body"]'),
+                                '%s: mất container danh sách' % module)
+
+    def test_item_mang_ca_hai_lop(self):
+        """Neo vào TOKEN, không `contains()` — bẫy D5c #3 (tên lớp có biến thể BEM)."""
+        for module, filename, n in self.COMPACT_SITES:
+            for call in self._compact_calls(module, filename):
+                ul = './/ul[@class="wujia-content-card-body"]'
+                lis = call.xpath(ul + '/li') + call.xpath(ul + '/t/li')
+                self.assertEqual(len(lis), 1, '%s: mỗi danh sách đúng 1 item mẫu' % module)
+                tokens = (lis[0].get('class') or '').split()
+                self.assertIn('wj-data-item', tokens, '%s: item thiếu wj-data-item' % module)
+                self.assertIn('wujia-content-card-row', tokens,
+                              '%s: item mất lớp cũ (CSS con bullet/content/date đứt)' % module)
+
+    def test_mot_chu_so_huu_dang_compact_row(self):
+        """Mọi rule chạm CHÍNH lớp `.wujia-content-card-row` — kể cả trong @media —
+        phải mang `:not(.wj-data-item)`. Regex loại tên con BEM bằng ranh giới ký tự."""
+        css = _strip_comments(_css('_components.css'))
+        selectors = re.findall(r'([^{}]*\.wujia-content-card-row(?![-\w])[^{}]*)\{', css)
+        self.assertTrue(selectors, 'không còn rule nào của lớp cũ — sai phép đo')
+        for sel in selectors:
+            for part in sel.split(','):
+                if re.search(r'\.wujia-content-card-row(?![-\w])', part):
+                    self.assertIn(':not(.wj-data-item)', part,
+                                  'rule cũ còn chạm item đã migrate: %s' % part.strip())
+
+    def test_so_ba_cua_compact_row(self):
+        body = _rule(_css('_components.css'), '.wj-data-list--compact-row .wj-data-item')
+        self.assertIsNotNone(body, 'không tìm thấy rule item ở tầng gốc')
+        self.assertRegex(body, r'min-height:\s*64px')       # BA 64–76
+        self.assertRegex(body, r'padding:\s*12px 14px')     # BA 10–12px 12–14px
+        self.assertRegex(body, r'border-radius:\s*12px')    # BA 12
+        gap = _rule(_css('_components.css'),
+                    '.wj-data-list--compact-row .wj-data-item + .wj-data-item')
+        self.assertIsNotNone(gap, 'thiếu rule gap giữa hai item')
+        self.assertRegex(gap, r'margin-top:\s*8px')         # BA gap 8
+
+    def test_knowledge_pager_di_qua_dl_pager(self):
+        """Pager vào TRONG DataList (sơ đồ BA), guard `page_count > 1` giữ nguyên,
+        và khối PC không còn nav nào nằm ngoài."""
+        root = _view('wujia_portal_knowledge', 'portal_knowledge.xml')
+        call = self._compact_calls('wujia_portal_knowledge', 'portal_knowledge.xml')[0]
+        navs = call.xpath('./t[@t-set="dl_pager"]//nav')
+        self.assertEqual(len(navs), 1, 'pager phải nằm trong dl_pager')
+        cond = (navs[0].get('t-if') or '').replace(' ', '')
+        self.assertRegex(cond, r'page_count[^)]*\)?>1', 'guard pager phải là > 1')
+        pc = root.xpath('//div[@id="wj-know-pc-body"]')[0]
+        ngoai = [n for n in pc.xpath('.//nav')
+                 if not n.xpath('ancestor::t[@t-set="dl_pager"]')]
+        self.assertEqual(ngoai, [], 'còn pager cũ nằm ngoài DataList')
+
+    def test_dl_pager_render_duoc_khoi_co_t_foreach(self):
+        """Call site đầu tiên dùng dl_pager: chứng minh markup có `t-foreach` đi qua
+        `t-set` ra đủ nút, không rơi vào họ bẫy D5b #1 (Odoo 19 bỏ values['0'])."""
+        arch = ('<t t-name="wujia_portal_layout.wj_dl_pager_probe">'
+                '<t t-call="wujia_portal_layout.wj_data_list">'
+                '<t t-set="dl_variant" t-value="\'compact-row\'"/>'
+                '<t t-set="dl_pager">'
+                '<nav class="pager"><t t-foreach="range(1, 4)" t-as="pn">'
+                '<a class="page-link" t-out="pn"/></t></nav>'
+                '</t>'
+                '<ul><li class="wj-data-item">x</li></ul>'
+                '</t></t>')
+        view = self.env['ir.ui.view'].create({
+            'name': 'wj_dl_pager_probe', 'type': 'qweb',
+            'key': 'wujia_portal_layout.wj_dl_pager_probe', 'arch_db': arch,
+        })
+        root = html.fromstring(self.env['ir.qweb']._render(view.id))
+        links = root.xpath('.//nav[@class="pager"]/a')
+        self.assertEqual([a.text for a in links], ['1', '2', '3'])
+        self.assertFalse(root.xpath('.//nav[@class="pager"]'
+                                    '/ancestor::div[contains(@class,"wj-data-viewport")]'),
+                         'Pagination phải NGOÀI DataViewport')

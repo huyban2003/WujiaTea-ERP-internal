@@ -1959,3 +1959,30 @@ UI-SURFACECARD-001:
 # Bảng đo: docs/d5b-acceptance-matrix.md · trước/sau: docs/d5b-{before,after}.json
 # CHỜ DEPLOY UAT — chốt của chủ dự án 07/09: deploy DỒN một lượt sau khi khép cụm D5.
 # =====================================================================================
+# ------------------------------- D5c (2026-09-07) -------------------------------
+# UI-DATALIST-001 vẫn Ready for Dev (6/31 call site) ⇒ CHƯA chạy qa_sync.py.
+# Xong: họ bảng PC wj-pc-table — /portal/purchase-history · /portal/delivery · /portal/notification.
+# Số: th[scope] 20/20 · header 50 → 44 · padding `0 22px` → `10px 16px` · row 58 cứng → 54–89 mềm
+#   (đổi cơ chế: height trên <tr> + đệm thật trên <td>). Guard pager TÁCH ĐÔI: nút điều hướng theo
+#   BA `page_count > 1`, ô chọn số dòng/trang giữ `> 10` của UI-PC-BASE-005.
+#   12 bảng wj-pc-table ngoài phạm vi giữ nguyên 50/58. Acceptance #9: 27/27 ô, 0 ô giảm.
+# Guard: 23 test wujia_data_list_d5, 10 mutation. Bảng đo: docs/d5c-acceptance-matrix.md
+# =====================================================================================
+# ------------------------------- D5d (2026-09-07) -------------------------------
+# UI-DATALIST-001 vẫn Ready for Dev (10/31 call site) ⇒ CHƯA chạy qa_sync.py.
+# Xong: họ li.wujia-content-card-row — 3 khối preview /portal + /portal/knowledge. Variant
+#   `compact-row` dùng lần đầu; knowledge là call site đầu tiên đưa Pagination VÀO TRONG DataList.
+# Số (4 call site, cả 3 khổ PC): item 51.8 → 64 (BA 64–76) · gap 0 → 8 · radius 0 → 12 ·
+#   padding `12px 0` → `12px 14px`. Mobile BẤT BIẾN (khối PC không render <992).
+#   27 bảng của D5b/D5c: 0 ô đổi. RULE 1/RULE 2 + nhịp header→body giống hệt D5c.
+# Guard: 29 test wujia_data_list_d5 (0 failed/0 error), 7 mutation đều làm đúng test đó đỏ,
+#   hoàn tác bằng ảnh chụp byte + sha256 khớp 7/7.
+# HAI CHỖ TREO, đã soạn văn bản BA docs/ba-questions-d5-datalist.md:
+#   (a) bộ số 64–76 là PROVISIONAL — BA chưa cấp số cho danh sách PC không phải bảng;
+#   (b) acceptance #9 THỦNG ở knowledge: 12 → 9 dòng đọc-không-cuộn @900 (hệ quả cơ học của
+#       việc kéo row 51.8 → 64). Không tự vá, để BA chốt giữ 64 / cho bộ số riêng / trả dáng cũ.
+#   (c) kèm câu treo D5a §7 (field ẩn mobile) + phát hiện mới: preview Home lệch field CẢ HAI
+#       chiều — PC thiếu số tiền của đơn và lý do đổi trả mà mobile có.
+# Bảng đo: docs/d5d-acceptance-matrix.md · docs/d5d-{before,after,rule-after,probe-*}.json
+# CHỜ DEPLOY UAT — deploy DỒN một lượt sau khi khép cụm D5 (hàng đợi: D5b + D5c + D5d).
+# =====================================================================================

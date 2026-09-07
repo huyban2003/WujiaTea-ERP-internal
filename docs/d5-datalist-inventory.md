@@ -53,7 +53,7 @@ render record**.
 
 | # | Route | PC | file:dòng | Mobile | file:dòng | Đo được |
 |---|---|---|---|---|---|---|
-| 1–3 | `/portal` preview ×3 | `li.wujia-content-card-row` | `portal_home.xml:135/164/195` | `a.wujia-mdash-row` | `portal_home.xml:381/467/539` | ✅ |
+| 1–3 | `/portal` preview ×3 ✅D5d | `li.wujia-content-card-row` | `portal_home.xml:135/164/195` | `a.wujia-mdash-row` | `portal_home.xml:381/467/539` | ✅ |
 | 4 | `/portal` top sản phẩm | `tr` trong `wujia-content-card-table` | `portal_home.xml:234` | — | — | ✅ |
 | 5 | `/portal` chuyến sắp giao | — | — | `a.wujia-mdash-row is-stacked` | `portal_home.xml:429` | ✅ |
 | 6 | `/portal` bài viết | — | — | `a.wujia-mdash-row` | `portal_home.xml:506` | ✅ |
@@ -67,7 +67,7 @@ render record**.
 | 14 | `/portal/exam` | `tr` trong `wj-exam-pc-list-table` | `portal_exam.xml:103` | `a.wj-surface-card--record` | `:202` | ✅ |
 | 15 | `/portal/exam` khoá thi | — | — | `div.wujia-mexam-course` | `:686` | ✅ |
 | 16 | `/portal/exam` người dự thi | — | — | `div.wujia-mexam-rrow` | `:1126` | ✅ |
-| 17 | `/portal/knowledge` | `li.wujia-content-card-row` | `portal_knowledge.xml:99` | `a.wujia-mknow-row` | `:234` | ✅ |
+| 17 | `/portal/knowledge` ✅D5d | `li.wujia-content-card-row` | `portal_knowledge.xml:99` | `a.wujia-mknow-row` | `:234` | ✅ |
 | 18 | `/portal/inspection` | `tr` trong `wj-pc-table` | `portal_inspection_list_templates.xml:81` | `a.wj-surface-card-link` | `:188` | ❌ 0 record |
 
 **Ngoài 10 route BA nhưng CÙNG bệnh** (ghi lại để đừng bỏ quên, xử lý ở lượt cuối):
@@ -330,10 +330,12 @@ còn mobile 4. Dev **không tự quyết** cái nào là P1/P2/P3.
 migrate call site nào thì không có gì để BA retest. Entry ledger soạn sẵn **dạng comment** cuối
 `docs/qa-issue-ledger.yaml`, **chưa** chạy `qa_sync.py`.
 
-**Tiến độ cụm: 6/31 call site trong phạm vi BA** (D5b xong 07/09 — nền `wj_data_list` +
+**Tiến độ cụm: 10/31 call site trong phạm vi BA** (D5b xong 07/09 — nền `wj_data_list` +
 `/portal` top sản phẩm · `/portal/return` · `/portal/support`, số đo `docs/d5b-acceptance-matrix.md`;
 **D5c xong 07/09** — họ `wj-pc-table`: `/portal/purchase-history` · `/portal/delivery` ·
-`/portal/notification`, số đo `docs/d5c-acceptance-matrix.md`). Kế tiếp: **D5d**.
+`/portal/notification`, số đo `docs/d5c-acceptance-matrix.md`; **D5d xong 07/09** — họ
+`li.wujia-content-card-row`: 3 khối preview `/portal` + `/portal/knowledge`, số đo
+`docs/d5d-acceptance-matrix.md`). Kế tiếp: **D5e**.
 
 **Đã đóng ở D5b, không phải đo lại:** `th[scope]` của 3 bảng này 0→100 % · header 46→44 ·
 cell padding `14px 20px`→`10px 16px` · row ≥52 · guard pager `page_count > 1` được ghim bằng test.
@@ -344,5 +346,14 @@ do `height` trên `<tr>` + đệm thật) · guard pager **tách đôi** (nút �
 `page_count > 1`, ô chọn số dòng/trang giữ `> 10` của `UI-PC-BASE-005`) · 12 bảng `wj-pc-table`
 KHÔNG thuộc phạm vi đo lại vẫn nguyên 50/58/`0 22px`. Bộ đo `wj_datalist.py` nay có thêm trường
 `rowsInViewport` cho acceptance #9.
+**Đã đóng ở D5d, không phải đo lại:** 4 call site `li.wujia-content-card-row` chuyển sang
+variant `compact-row` · item 51.8 → **64** (BA 64–76) · gap 0 → **8** · radius 0 → **12** ·
+padding `12px 0` → **`12px 14px`** · `.wj-data-item` là chủ sở hữu DUY NHẤT dáng (4 rule cũ khoá
+bằng `:not(.wj-data-item)`) · 3 khối preview **không** pager, ghim bằng test · knowledge là call
+site đầu tiên đưa Pagination **vào trong** DataList qua `dl_pager`. **Hai chỗ còn treo**: bộ số
+64–76 là **provisional** (BA chưa cấp số cho danh sách PC không phải bảng) và acceptance #9 thủng
+ở knowledge (12 → 9 dòng đọc-không-cuộn) — cả hai nằm trong `docs/ba-questions-d5-datalist.md`.
+`wj_datalist.py` nay ghi `rowsInViewport` cho **cả nhánh danh sách**, không chỉ nhánh bảng.
+
 Seed §5 đã bổ xong bằng `scripts/seed_d5_datalist_demo.py` (52 ticket · 28 bù hàng · 14 hoá đơn ·
 14 khảo sát · 14 chuyến giao cho HN-01) ⇒ D5c…D5h **không còn bị chặn bởi dữ liệu**.

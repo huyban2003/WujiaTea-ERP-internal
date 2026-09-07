@@ -91,51 +91,59 @@
                                     <span class="wj-card-header__meta"><t t-out="len(articles)"/> bài viết</span>
                                 </t>
                             </t>
-                            <div t-if="not articles" class="wujia-empty-state">
-                                <i class="feather icon-book"/>
-                                <p>Chưa có bài viết.</p>
-                            </div>
-                            <ul t-else="" class="wujia-content-card-body">
-                                <t t-foreach="articles" t-as="art">
-                                    <t t-set="badge_cls" t-value="{'mandatory': 'wujia-badge-danger', 'important': 'wujia-badge-warning', 'new': 'wujia-badge-info'}.get(art.portal_badge, '')"/>
-                                    <t t-set="badge_lbl" t-value="{'mandatory': 'Bắt buộc', 'important': 'Quan trọng', 'new': 'Mới'}.get(art.portal_badge, '')"/>
-                                    <li class="wujia-content-card-row">
-                                        <span class="wujia-content-card-row-bullet"/>
-                                        <div class="wujia-content-card-row-content">
-                                            <a t-attf-href="/portal/knowledge/#{art.slug}">
-                                                <t t-out="art.name"/>
-                                            </a>
-                                            <span t-if="art.category_id" class="wujia-badge wujia-badge-muted ms-1" t-out="art.category_id.name"/>
-                                            <span t-if="badge_lbl" t-attf-class="wujia-badge #{badge_cls} ms-1" t-out="badge_lbl"/>
-                                        </div>
-                                        <span class="wujia-content-card-row-date">
-                                            <t t-out="wj_dt(art.publish_date, '%d/%m/%Y')"/>
-                                            · <i class="fa fa-eye"/> <t t-out="art.view_count or 0"/>
-                                        </span>
-                                    </li>
+                            <t t-call="wujia_portal_layout.wj_data_list">
+                                <t t-set="dl_variant" t-value="'compact-row'"/>
+                                <t t-set="dl_empty" t-value="not articles"/>
+                                <t t-set="dl_state">
+                                    <div class="wujia-empty-state">
+                                        <i class="feather icon-book"/>
+                                        <p>Chưa có bài viết.</p>
+                                    </div>
                                 </t>
-                            </ul>
-                            </t>
-
-                            <nav t-if="pager and pager.get('page_count', 0) &gt; 1" class="mt-3">
-                                <ul class="pagination wujia-pagination justify-content-center mb-0">
-                                    <li t-attf-class="page-item #{pager['page']['num'] == 1 and 'disabled' or ''}">
-                                        <a class="page-link"
-                                           t-attf-href="/portal/knowledge?page=#{pager['page_previous']['num']}&amp;#{pager.get('querystring','')}">«</a>
-                                    </li>
-                                    <t t-foreach="range(1, pager['page_count'] + 1)" t-as="pn">
-                                        <li t-attf-class="page-item #{pn == pager['page']['num'] and 'active' or ''}">
-                                            <a class="page-link"
-                                               t-attf-href="/portal/knowledge?page=#{pn}&amp;#{pager.get('querystring','')}"
-                                               t-out="pn"/>
+                                <t t-set="dl_pager">
+                                    <nav t-if="pager and pager.get('page_count', 0) &gt; 1" class="mt-3">
+                                        <ul class="pagination wujia-pagination justify-content-center mb-0">
+                                            <li t-attf-class="page-item #{pager['page']['num'] == 1 and 'disabled' or ''}">
+                                                <a class="page-link"
+                                                   t-attf-href="/portal/knowledge?page=#{pager['page_previous']['num']}&amp;#{pager.get('querystring','')}">«</a>
+                                            </li>
+                                            <t t-foreach="range(1, pager['page_count'] + 1)" t-as="pn">
+                                                <li t-attf-class="page-item #{pn == pager['page']['num'] and 'active' or ''}">
+                                                    <a class="page-link"
+                                                       t-attf-href="/portal/knowledge?page=#{pn}&amp;#{pager.get('querystring','')}"
+                                                       t-out="pn"/>
+                                                </li>
+                                            </t>
+                                            <li t-attf-class="page-item #{pager['page']['num'] == pager['page_count'] and 'disabled' or ''}">
+                                                <a class="page-link"
+                                                   t-attf-href="/portal/knowledge?page=#{pager['page_next']['num']}&amp;#{pager.get('querystring','')}">»</a>
+                                            </li>
+                                        </ul>
+                                    </nav>
+                                </t>
+                                <ul class="wujia-content-card-body">
+                                    <t t-foreach="articles" t-as="art">
+                                        <t t-set="badge_cls" t-value="{'mandatory': 'wujia-badge-danger', 'important': 'wujia-badge-warning', 'new': 'wujia-badge-info'}.get(art.portal_badge, '')"/>
+                                        <t t-set="badge_lbl" t-value="{'mandatory': 'Bắt buộc', 'important': 'Quan trọng', 'new': 'Mới'}.get(art.portal_badge, '')"/>
+                                        <li class="wj-data-item wujia-content-card-row">
+                                            <span class="wujia-content-card-row-bullet"/>
+                                            <div class="wujia-content-card-row-content">
+                                                <a t-attf-href="/portal/knowledge/#{art.slug}">
+                                                    <t t-out="art.name"/>
+                                                </a>
+                                                <span t-if="art.category_id" class="wujia-badge wujia-badge-muted ms-1" t-out="art.category_id.name"/>
+                                                <span t-if="badge_lbl" t-attf-class="wujia-badge #{badge_cls} ms-1" t-out="badge_lbl"/>
+                                            </div>
+                                            <span class="wujia-content-card-row-date">
+                                                <t t-out="wj_dt(art.publish_date, '%d/%m/%Y')"/>
+                                                · <i class="fa fa-eye"/> <t t-out="art.view_count or 0"/>
+                                            </span>
                                         </li>
                                     </t>
-                                    <li t-attf-class="page-item #{pager['page']['num'] == pager['page_count'] and 'disabled' or ''}">
-                                        <a class="page-link"
-                                           t-attf-href="/portal/knowledge?page=#{pager['page_next']['num']}&amp;#{pager.get('querystring','')}">»</a>
-                                    </li>
                                 </ul>
-                            </nav>
+                            </t>
+                            </t>
+
                         </div>
                     </div>
                 </div>
