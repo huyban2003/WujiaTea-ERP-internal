@@ -186,20 +186,23 @@
                         <t t-set="sc_variant" t-value="'section'"/>
                         <t t-set="sc_body" t-value="'flush'"/>
                         <t t-set="sc_class" t-value="'wujia-mdash-card wujia-mdash-list'"/>
-                        <a t-foreach="tickets" t-as="tk" t-attf-href="/portal/support/#{tk.id}"
-                           class="wujia-mdash-row">
-                            <span class="wujia-mdash-row-main">
-                                <span class="wujia-mdash-row-sub is-primary" t-out="tk.name"/>
-                                <span class="wujia-mdash-row-title is-sm" t-out="tk.title"/>
-                                <span t-if="tk.category_id" class="wujia-mticket-tag" t-out="tk.category_id.name"/>
-                            </span>
-                            <span class="wujia-mticket-rowside">
-                                <t t-set="lbl" t-value="m_ticket_badges.get(tk.state, (tk.state, 'wujia-badge-muted'))"/>
-                                <span t-attf-class="wujia-badge #{lbl[1]}" t-out="lbl[0]"/>
-                                <span class="wujia-mdash-row-sub"
-                                      t-out="tk.create_date and tk.create_date.strftime('%d/%m') or ''"/>
-                            </span>
-                        </a>
+                        <t t-call="wujia_portal_layout.wj_data_list">
+                            <t t-set="dl_variant" t-value="'compact-row'"/>
+                            <a t-foreach="tickets" t-as="tk" t-attf-href="/portal/support/#{tk.id}"
+                               class="wujia-mdash-row wj-data-item">
+                                <span class="wujia-mdash-row-main">
+                                    <span class="wujia-mdash-row-sub is-primary" t-out="tk.name"/>
+                                    <span class="wujia-mdash-row-title is-sm" t-out="tk.title"/>
+                                    <span t-if="tk.category_id" class="wujia-mticket-tag" t-out="tk.category_id.name"/>
+                                </span>
+                                <span class="wujia-mticket-rowside">
+                                    <t t-set="lbl" t-value="m_ticket_badges.get(tk.state, (tk.state, 'wujia-badge-muted'))"/>
+                                    <span t-attf-class="wujia-badge #{lbl[1]}" t-out="lbl[0]"/>
+                                    <span class="wujia-mdash-row-sub"
+                                          t-out="tk.create_date and tk.create_date.strftime('%d/%m') or ''"/>
+                                </span>
+                            </a>
+                        </t>
                     </t>
 
                     <nav t-if="pager and pager.get('page_count', 0) &gt; 1">

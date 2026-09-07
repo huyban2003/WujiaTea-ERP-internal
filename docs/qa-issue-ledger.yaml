@@ -1986,3 +1986,21 @@ UI-SURFACECARD-001:
 # Bảng đo: docs/d5d-acceptance-matrix.md · docs/d5d-{before,after,rule-after,probe-*}.json
 # CHỜ DEPLOY UAT — deploy DỒN một lượt sau khi khép cụm D5 (hàng đợi: D5b + D5c + D5d).
 # =====================================================================================
+# ------------------------------- D5e (2026-09-07) -------------------------------
+# UI-DATALIST-001 vẫn Ready for Dev (19/31 call site) ⇒ CHƯA chạy qa_sync.py.
+# Xong: 9 call site MOBILE của BỐN họ — wujia-mdash-row ×6 (5 khối /portal + /portal/support) ·
+#   mhist · mnoti · mknow. Việc đầu tiên là TÁCH rule D5d làm hai: dáng dùng chung ở
+#   `.wj-data-list--compact-row .wj-data-item`, layout (grid/flex) về từng họ — đắp nguyên rule cũ
+#   là ép lưới 4 cột của PC lên hàng mobile, vỡ cả 9 chỗ. Đo lại 4 call site D5d: 0/183 ô đổi.
+# Số: gap 0/10 → 8 · radius 0/14 → 12 · padding `12px 0`/`10px 14px`/`14px` → `12px 14px`
+#   (mnoti giữ padding-left 16 cho thanh accent is-unread). mnoti KHÔNG đổi một pixel (vốn đã
+#   đúng chuẩn). mknow thấp đi 4px. 27 bảng D5b/D5c + 10 hàng mdash ngoài phạm vi: 0 ô đổi.
+#   Hover 4 họ KHÔNG đổi — `:is()` của _interaction.css là (0,4,0) nhờ tham số đặc hiệu nhất.
+# GIÁ PHẢI TRẢ, đã báo BA (ba-questions mục 4), KHÔNG tự vá: Home mobile +145 (390) / +245 (360),
+#   support +271 (390); acceptance #9 thủng 1 ô (/portal @360 khối Thông báo 2 → 1);
+#   mnoti 99.9–129.3 và mknow 79.8–129.4 vượt trần compact-row 76 do nội dung tự xuống dòng.
+# Guard: 37 test wujia_data_list_d5 (0 failed/0 error), 9 mutation — 9/9 làm đỏ đúng một test,
+#   9/9 sha256 khớp sau khi hoàn tác bằng ảnh chụp byte.
+# Bảng đo: docs/d5e-acceptance-matrix.md · docs/d5e-{before,after,rule-after,hover}.json
+# CHỜ DEPLOY UAT — deploy DỒN một lượt sau khi khép cụm D5 (hàng đợi: D5b + D5c + D5d + D5e).
+# =====================================================================================

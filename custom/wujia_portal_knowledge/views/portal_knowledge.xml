@@ -238,28 +238,30 @@
                         <span class="wujia-mknow-sechead-title">Mới cập nhật</span>
                         <span class="wujia-mknow-sechead-pill">Mới nhất</span>
                     </div>
-                    <div class="wujia-mknow-list">
-                        <t t-foreach="m_rest" t-as="art">
-                            <a t-attf-href="/portal/knowledge/#{art.slug}" class="wujia-mknow-row">
-                                <span class="wujia-mknow-tile"><i class="feather icon-file-text"/></span>
-                                <span class="wujia-mknow-row-main">
-                                    <span class="wujia-mknow-row-title" t-out="art.name"/>
-                                    <span class="wujia-mknow-row-foot">
-                                        <span class="wujia-mknow-badges">
-                                            <span t-if="m_badge_lbl.get(art.portal_badge)"
-                                                  t-attf-class="wujia-badge #{m_badge_cls.get(art.portal_badge)}"
-                                                  t-out="m_badge_lbl.get(art.portal_badge)"/>
-                                            <span t-if="art.category_id" class="wujia-badge wujia-badge-info"
-                                                  t-out="art.category_id.name"/>
-                                        </span>
-                                        <span class="wujia-mknow-date">
-                                            Cập nhật <t t-out="wj_dt(art.publish_date, '%d/%m/%Y')"/>
+                    <t t-call="wujia_portal_layout.wj_data_list">
+                        <t t-set="dl_variant" t-value="'compact-row'"/>
+                        <t t-set="dl_class" t-value="'wujia-mknow-list'"/>
+                            <t t-foreach="m_rest" t-as="art">
+                                <a t-attf-href="/portal/knowledge/#{art.slug}" class="wujia-mknow-row wj-data-item">
+                                    <span class="wujia-mknow-tile"><i class="feather icon-file-text"/></span>
+                                    <span class="wujia-mknow-row-main">
+                                        <span class="wujia-mknow-row-title" t-out="art.name"/>
+                                        <span class="wujia-mknow-row-foot">
+                                            <span class="wujia-mknow-badges">
+                                                <span t-if="m_badge_lbl.get(art.portal_badge)"
+                                                      t-attf-class="wujia-badge #{m_badge_cls.get(art.portal_badge)}"
+                                                      t-out="m_badge_lbl.get(art.portal_badge)"/>
+                                                <span t-if="art.category_id" class="wujia-badge wujia-badge-info"
+                                                      t-out="art.category_id.name"/>
+                                            </span>
+                                            <span class="wujia-mknow-date">
+                                                Cập nhật <t t-out="wj_dt(art.publish_date, '%d/%m/%Y')"/>
+                                            </span>
                                         </span>
                                     </span>
-                                </span>
-                            </a>
-                        </t>
-                    </div>
+                                </a>
+                            </t>
+                    </t>
 
                     <!-- Pager (alias style .wujia-mhist-pager — group selector) -->
                     <nav t-if="pager and pager.get('page_count', 0) &gt; 1" class="wujia-mknow-pager">

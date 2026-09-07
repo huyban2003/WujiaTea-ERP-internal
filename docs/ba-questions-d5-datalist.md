@@ -1,6 +1,6 @@
 # Câu hỏi gửi BA — `CMP-DL-001` DataList (`UI-DATALIST-001`, STT 126)
 
-**Gửi sau lượt D5d (2026-09-07).** Ba câu, đều đã có số đo kèm theo. Câu 1 là câu treo từ phiên
+**Gửi sau lượt D5d (2026-09-07), bổ sung câu 4 sau lượt D5e.** Bốn câu, đều đã có số đo kèm theo. Câu 1 là câu treo từ phiên
 kiểm kê D5a; câu 2 và 3 là hai chỗ **mới lộ ra khi đo**, chưa từng nêu.
 
 Trong lúc chờ trả lời, phần đã làm vẫn chạy được trên UAT; nếu BA chốt khác, chỗ phải sửa đã được
@@ -66,6 +66,42 @@ Ba hướng, xin BA chọn:
 2. **Cho danh sách PC một bộ số riêng** (ví dụ 52–56 · gap 4) — dung hoà, nhưng thành bộ số thứ ba
    phải bảo trì.
 3. **Trả về dáng cũ** (51.8 · gap 0 · đường kẻ ngăn) và ghi nhận đây là ngoại lệ có chủ đích.
+
+## Câu 4 — Hàng mobile cao vượt trần 76px, và cái giá của việc thống nhất dáng (bổ sung sau lượt D5e)
+
+Lượt D5e đã đưa **9 danh sách mobile** về một bộ dáng (cao 64–76 · gap 8 · radius 12 · padding
+`12px 14px`). Ba con số đo được xin BA xem, vì Dev **không tự quyết**:
+
+**(a) Hai màn vượt trần 76px vì nội dung tự xuống dòng.**
+
+| Màn | Cao thật của hàng | Trần BA |
+|---|---|---:|
+| `/portal/notification` | **99,9 – 129,3** | 76 |
+| `/portal/knowledge` | **79,8 – 129,4** | 76 |
+
+Hàng thông báo mang tiêu đề + nguồn + tối đa 3 badge (ưu tiên · hết hiệu lực · có file); hàng bài
+viết mang tiêu đề 2 dòng + badge + ngày cập nhật. **Ép về 76 là phải bỏ bớt thông tin nghiệp vụ**
+— cùng loại với LIMIT đã được BA nghiệm thu ở D5c (hàng hai dòng 77–89 giữ nguyên theo cột ≥52).
+Dev **không tự ép**; xin BA chốt: (1) chấp nhận trần 76 chỉ áp cho hàng một dòng, hay (2) chỉ ra
+field nào bỏ được.
+
+**(b) Trang chủ mobile và Hỗ trợ dài thêm.**
+
+| Trang | 390px | 360px |
+|---|---|---|
+| `/portal` | 2883 → **3028** (+145) | 2996 → **3241** (+245) |
+| `/portal/support` | 2664 → **2935** (+271) | 2762 → **2935** (+173) |
+| `/portal/knowledge` | 1916 → **1852** (−64) | 2042 → **1978** (−64) |
+
+Nở **không phải** vì gap 8 mà vì đệm ngang 14px hai bên làm bề rộng chữ hụt 30px ⇒ xuống dòng
+thêm. Nếu BA muốn giữ trang ngắn, cách rẻ nhất là hạ đệm ngang về **12px** (vẫn trong dải BA
+`12–14px`) cho riêng các khối nằm trong thẻ.
+
+**(c) Acceptance #9 thủng đúng một ô.** `/portal` khổ **360**, khối *Thông báo mới nhất*: số dòng
+đọc được không cần cuộn **2 → 1**. Mọi ô còn lại giữ nguyên. Đây là hệ quả trực tiếp của (b).
+
+Xin BA chốt một trong ba: **giữ nguyên** (đổi độ dài trang lấy dáng thống nhất) · **hạ đệm ngang
+về 12px** · **cho khối preview Trang chủ một bộ số riêng**.
 
 ---
 

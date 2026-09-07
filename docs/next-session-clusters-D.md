@@ -361,7 +361,7 @@ tổng `scrollHeight` **−24px** trên 44 ô, giả-heading **0/44**, outline 8
 hiển thị 43/44 giống hệt (1 ô mọc đúng "0 kết quả" theo yêu cầu BA), B4 **286/286**, bảng D3a
 chạy lại **356 phép so 0 lệch**, tab-walk 433 stop ring 16/16, font 66 tiêu đề 0 lệch;
 bắt được **1 lỗi thật**: `/portal/info-request` mất tiêu đề ở mobile do bake `ch_platform`;
-`docs/d3b-acceptance-matrix.md`) · D3c ✅ · D3d ✅ · D3e ✅ · D3f ✅ · review ✅ · **D4 ✅ KHÉP 06/09** (D4b…D4h, `UI-SURFACECARD-001` Ready for Retest + ĐÃ DEPLOY UAT) · **D5a ✅ 06/09** (kiểm kê 31 call site, `docs/d5-datalist-inventory.md`, 0 code) · **D5b ✅ 07/09** (nền `wj_data_list` + 3 call site họ `wujia-content-card-table`, 3/31, `docs/d5b-acceptance-matrix.md`) · **D5c ✅ 07/09** (họ `wj-pc-table`: purchase-history · delivery · notification, 6/31, `docs/d5c-acceptance-matrix.md`) · **D5d ✅ 07/09** (họ `li.wujia-content-card-row`: 3 khối preview `/portal` + `/portal/knowledge`, 10/31, `docs/d5d-acceptance-matrix.md`, bộ số **provisional** + 3 câu hỏi BA `docs/ba-questions-d5-datalist.md`) · D5e…D5h ⬜ · D6 ⬜ · R1–R5 ⬜
+`docs/d3b-acceptance-matrix.md`) · D3c ✅ · D3d ✅ · D3e ✅ · D3f ✅ · review ✅ · **D4 ✅ KHÉP 06/09** (D4b…D4h, `UI-SURFACECARD-001` Ready for Retest + ĐÃ DEPLOY UAT) · **D5a ✅ 06/09** (kiểm kê 31 call site, `docs/d5-datalist-inventory.md`, 0 code) · **D5b ✅ 07/09** (nền `wj_data_list` + 3 call site họ `wujia-content-card-table`, 3/31, `docs/d5b-acceptance-matrix.md`) · **D5c ✅ 07/09** (họ `wj-pc-table`: purchase-history · delivery · notification, 6/31, `docs/d5c-acceptance-matrix.md`) · **D5d ✅ 07/09** (họ `li.wujia-content-card-row`: 3 khối preview `/portal` + `/portal/knowledge`, 10/31, `docs/d5d-acceptance-matrix.md`, bộ số **provisional** + 3 câu hỏi BA `docs/ba-questions-d5-datalist.md`) · **D5e ✅ 07/09** (9 call site mobile, 4 họ `mdash`/`mhist`/`mnoti`/`mknow`, 19/31, `docs/d5e-acceptance-matrix.md`) · D5f…D5h ⬜ · D6 ⬜ · R1–R5 ⬜
 
 🚚 **D1 + D2 ĐÃ DEPLOY UAT 27/08** (`wujia_portal_layout 19.0.32.4.0` · `wujia_portal_return
 19.0.2.7.0` · `wujia_sale 19.0.4.3.0`, xác nhận XML-RPC) **+ đo lại chỉ-đọc ngay trên UAT**:
@@ -709,6 +709,30 @@ trong 10 route BA).
    hẹp vì `.main-menu` phủ lên; và ở đúng 992 con trỏ từ khổ trước làm ô "nghỉ" đọc ra màu hover
    — hiện tượng có ở CẢ bảng trước lẫn bảng sau nên đừng đọc nhầm thành thay đổi.
 
+### 🔴 Bài học D5e — đọc trước khi làm D5f
+
+1. **Regex lớp CSS lần thứ tư mắc cùng một lỗi.** `class="wujia-mdash-row[^"]*"` khớp luôn
+   `wujia-mdash-row-main/-title/-sub` ⇒ gắn `wj-data-item` vào **31** phần tử thay vì 6. Sau
+   `grep` thô (D4), `contains()` (D5c #3), `sed` đuôi chuỗi (D5d #4), đây là lần thứ tư: **mọi**
+   phép so tên lớp phải có ranh giới `(?![-\w])`.
+2. **Guard tự chứng minh rỗng vì `:not(.wj-data-item)` CHỨA chuỗi `.wj-data-item`.** Điều kiện
+   "bỏ qua rule dáng mới" nuốt luôn mọi rule cũ, quét được 0 rule mà vẫn xanh. Cái bắt được là
+   `assertGreaterEqual(kiem, 1)`: guard phải kiểm **đã quét trúng cái gì**, không chỉ kiểm
+   "không thấy vi phạm". Bóc `:not(...)` trước khi xét.
+3. **Không dựng lại được mốc "trước" bằng cách thay riêng CSS** khi XML đã migrate: CSS ở `HEAD`
+   đã có `.wj-data-item` (D5d) nên hàng mobile ăn luôn dáng D5d, bảng "trước" ra y hệt "sau".
+   Mốc "trước" đúng là **hàng cùng họ chưa migrate trên cùng trang** — ở đây là 10 hàng mdash
+   ngoài phạm vi.
+4. **`:is()` mang độ đặc hiệu của tham số ĐẶC HIỆU NHẤT — lần này có lợi.** Danh sách hover của
+   `_interaction.css` chứa `.wj-pc-page-btn:not(.is-active):not(.is-disabled)` ⇒ cả khối là
+   (0,3,0), cộng `:hover` thành (0,4,0), thắng rule compact-row (0,3,0) ⇒ hover 4 họ mobile
+   **không đổi**. Dự đoán ban đầu ngược lại; chỉ `getComputedStyle` sau `mouse.move` mới biết.
+5. **Nở chiều cao không đến từ gap mà từ ĐỆM NGANG.** gap 8 chỉ cộng `8 × số khoảng`; thủ phạm
+   thật là `padding: 12px 14px` làm bề rộng nội dung hụt 30px ⇒ chữ xuống dòng thêm (khổ 360 một
+   hàng 188.5 → 231). Ước lượng theo gap sẽ sai gấp nhiều lần — đúng họ bài học D5d #3.
+6. **Đếm lại con số của chính prompt.** Prompt ghi "12 chỗ mdash không phải danh sách"; mã nguồn
+   ra **10** (home 609/616/623 + 644/651/658, support 543/550/558/565). Con số nay ghim bằng test.
+
 ### Thứ tự lượt D5b…D5g
 
 | Lượt | Nội dung | Call site | `-u` | Vì sao xếp ở đây |
@@ -716,7 +740,7 @@ trong 10 route BA).
 | **D5b** ✅ | Nền `wj_data_list` + hiệu chỉnh trên `wujia-content-card-table` (home top SP · return · support) | **3** | `_layout`, `_base`, `_return`+`wujia_sale`, `_support` | XONG 07/09 — `th[scope]` 0→100%, header 44, padding 10/16, row ≥52, **0 ô mất record** (6 ô còn tăng) |
 | **D5c** ✅ | Bảng PC họ `wj-pc-table`: purchase-history · delivery · notification | **3** | `_layout`, `_purchase_history`, `_delivery`, `_notification` | XONG 07/09 — `th[scope]` 20/20, header 44, padding 10/16, row 58 cứng → 54–89 mềm, guard pager **tách đôi**, 12 bảng ngoài phạm vi giữ nguyên 50/58 |
 | **D5d** ✅ | List PC không phải bảng: 3 khối preview `/portal` + knowledge | **4** | `_layout`, `_base`, `_knowledge` | XONG 07/09 — variant `compact-row` đầu tiên, item 51.8 → 64 · gap 0 → 8 · radius 12 · `12px 14px`, `.wj-data-item` là chủ sở hữu duy nhất dáng, knowledge đưa Pagination vào trong DataList. Bộ số **provisional** (BA chưa có số cho danh sách PC không phải bảng) + acceptance #9 thủng ở knowledge 12 → 9 |
-| **D5e** | Mobile compact-row: mdash ×6 · mhist · mnoti · mknow | **9** | 6 module | `wujia-mhist-row` đã đúng chuẩn ⇒ làm mẫu |
+| **D5e** ✅ | Mobile compact-row: mdash ×6 · mhist · mnoti · mknow | **9** | 6 module | XONG 07/09 — rule D5d **tách làm hai** (dáng chung ở `.wj-data-item`, layout ở từng họ), gap `0/10` → 8 · radius `0/14` → 12 · padding về `12px 14px` (mnoti giữ left 16 cho thanh accent), **mnoti không đổi một pixel**, hover 4 họ không đổi. Giá phải trả: Home mobile **+145/+245**, support **+271**, acceptance #9 thủng 1 ô (2 → 1 @360) — đã báo BA, không tự vá |
 | **D5f** | Mobile detail-card: mreturn · mdelivery | **2** | `_return`+`wujia_sale`, `_delivery` | mreturn 122.3 > trần 120; delivery cần seed |
 | **D5g** | Công nợ PC ×2 + mobile ×2 | **4** | `_debt` | Chặn bởi dữ liệu |
 | **D5h** | Thi ×4 + Khảo sát ×2 | **6** | `_exam`, `_inspection` | Khảo sát provisional (BA acceptance #10) |

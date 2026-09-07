@@ -330,12 +330,13 @@ còn mobile 4. Dev **không tự quyết** cái nào là P1/P2/P3.
 migrate call site nào thì không có gì để BA retest. Entry ledger soạn sẵn **dạng comment** cuối
 `docs/qa-issue-ledger.yaml`, **chưa** chạy `qa_sync.py`.
 
-**Tiến độ cụm: 10/31 call site trong phạm vi BA** (D5b xong 07/09 — nền `wj_data_list` +
+**Tiến độ cụm: 19/31 call site trong phạm vi BA** (D5b xong 07/09 — nền `wj_data_list` +
 `/portal` top sản phẩm · `/portal/return` · `/portal/support`, số đo `docs/d5b-acceptance-matrix.md`;
 **D5c xong 07/09** — họ `wj-pc-table`: `/portal/purchase-history` · `/portal/delivery` ·
 `/portal/notification`, số đo `docs/d5c-acceptance-matrix.md`; **D5d xong 07/09** — họ
 `li.wujia-content-card-row`: 3 khối preview `/portal` + `/portal/knowledge`, số đo
-`docs/d5d-acceptance-matrix.md`). Kế tiếp: **D5e**.
+`docs/d5d-acceptance-matrix.md`; **D5e xong 07/09** — 9 call site mobile của **bốn** họ
+`mdash`/`mhist`/`mnoti`/`mknow`, số đo `docs/d5e-acceptance-matrix.md`). Kế tiếp: **D5f**.
 
 **Đã đóng ở D5b, không phải đo lại:** `th[scope]` của 3 bảng này 0→100 % · header 46→44 ·
 cell padding `14px 20px`→`10px 16px` · row ≥52 · guard pager `page_count > 1` được ghim bằng test.
@@ -354,6 +355,15 @@ site đầu tiên đưa Pagination **vào trong** DataList qua `dl_pager`. **Hai
 64–76 là **provisional** (BA chưa cấp số cho danh sách PC không phải bảng) và acceptance #9 thủng
 ở knowledge (12 → 9 dòng đọc-không-cuộn) — cả hai nằm trong `docs/ba-questions-d5-datalist.md`.
 `wj_datalist.py` nay ghi `rowsInViewport` cho **cả nhánh danh sách**, không chỉ nhánh bảng.
+
+**Đã đóng ở D5e, không phải đo lại:** 9 call site mobile về `compact-row` · rule D5d **tách làm
+hai** (dáng dùng chung ở `.wj-data-item`, layout ở từng họ) · 4 họ khoá `:not(.wj-data-item)` ·
+gap `0/10` → **8** · radius `0/14` → **12** · padding `12px 0`/`10px 14px`/`14px` → **`12px 14px`**
+(mnoti giữ `padding-left 16` cho thanh accent) · mnoti **không đổi một pixel** · 10 hàng mdash
+KHÔNG phải danh sách giữ nguyên, ghim bằng test · hover 4 họ **không đổi** (`:is()` là (0,4,0) nhờ
+tham số đặc hiệu nhất). **Ba chỗ còn treo**: mnoti/mknow vượt trần 76, Home mobile nở +145/+245 và
+support +271, acceptance #9 thủng một ô (`/portal` @360, 2 → 1) — cả ba trong
+`docs/ba-questions-d5-datalist.md` mục 4.
 
 Seed §5 đã bổ xong bằng `scripts/seed_d5_datalist_demo.py` (52 ticket · 28 bù hàng · 14 hoá đơn ·
 14 khảo sát · 14 chuyến giao cho HN-01) ⇒ D5c…D5h **không còn bị chặn bởi dữ liệu**.

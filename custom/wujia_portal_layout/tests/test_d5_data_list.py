@@ -48,6 +48,36 @@ def _rule(css, selector):
     return out
 
 
+def _rule_in_media(css, selector):
+    """Thân của rule nằm TRONG @media. `_rule()` cố ý chỉ đọc tầng gốc (bẫy D4a)
+    nên gọi thẳng cho mknow/mnoti trả None ⇒ guard chứng-minh-rỗng (D5e)."""
+    css = _strip_comments(css)
+    depth, i, out = 0, 0, None
+    while i < len(css):
+        c = css[i]
+        if c == '{':
+            depth += 1
+        elif c == '}':
+            depth -= 1
+        elif depth == 1 and css.startswith(selector, i):
+            after = css[i + len(selector)]
+            if after in ' ,{\n':
+                j = css.index('{', i)
+                if css[i:j].strip() == selector:
+                    out = css[j + 1:css.index('}', j)]
+                    break
+        i += 1
+    return out
+
+
+def _chu_the(selector_part):
+    """Compound CUỐI của một selector — phần thực sự bị style. Bỏ pseudo-element
+    (::before) vì đó là con sinh ra, không phải chính hàng."""
+    if '::' in selector_part:
+        return ''
+    return re.split(r'[ >+~]+', selector_part.strip())[-1]
+
+
 def _view(module, filename):
     """Đọc dạng BYTES: file view có khai báo encoding, lxml từ chối chuỗi unicode."""
     with open(os.path.join(CUSTOM, module, 'views', filename), 'rb') as fh:
@@ -208,7 +238,8 @@ class TestDataListCallSites(TransactionCase):
         D5d: ghim cho CẢ BA khối preview, không chỉ khối top sản phẩm."""
         root = _view('wujia_portal_base', 'portal_home.xml')
         previews = root.xpath(
-            '//t[@t-call="wujia_portal_layout.wj_data_list"][not(.//thead)]')
+            '//t[@t-call="wujia_portal_layout.wj_data_list"][not(.//thead)]'
+            '[.//ul[@class="wujia-content-card-body"]]')
         self.assertEqual(len(previews), 3, 'phải đủ 3 khối preview dashboard')
         for call in previews:
             self.assertFalse(call.xpath('.//t[@t-set="dl_pager"]'))
@@ -335,9 +366,12 @@ class TestDataListCompactRow(TransactionCase):
 
     def _compact_calls(self, module, filename):
         root = _view(module, filename)
+        # D5e: mobile cũng dùng compact-row ⇒ neo vào container PC thật, không
+        # chỉ vào variant (nếu không phép chọn vớ luôn 6 call site mobile).
         return root.xpath(
             '//t[@t-call="wujia_portal_layout.wj_data_list"]'
-            '[t[@t-set="dl_variant"][@t-value="\'compact-row\'"]]')
+            '[t[@t-set="dl_variant"][@t-value="\'compact-row\'"]]'
+            '[.//ul[@class="wujia-content-card-body"]]')
 
     def test_bon_call_site_dung_variant_compact_row(self):
         for module, filename, n in self.COMPACT_SITES:
@@ -367,6 +401,10 @@ class TestDataListCompactRow(TransactionCase):
         self.assertTrue(selectors, 'không còn rule nào của lớp cũ — sai phép đo')
         for sel in selectors:
             for part in sel.split(','):
+                # D5e: rule layout MỚI của chính item đã migrate mang `.wj-data-item`
+                # ngoài `:not()` — đó không phải rule cũ.
+                if '.wj-data-item' in re.sub(r':not\([^)]*\)', '', part):
+                    continue
                 if re.search(r'\.wujia-content-card-row(?![-\w])', part):
                     self.assertIn(':not(.wj-data-item)', part,
                                   'rule cũ còn chạm item đã migrate: %s' % part.strip())
@@ -418,3 +456,144 @@ class TestDataListCompactRow(TransactionCase):
         self.assertFalse(root.xpath('.//nav[@class="pager"]'
                                     '/ancestor::div[contains(@class,"wj-data-viewport")]'),
                          'Pagination phải NGOÀI DataViewport')
+
+
+@tagged('post_install', '-at_install', 'wujia_data_list_d5')
+class TestDataListCompactRowMobile(TransactionCase):
+    """D5e — 9 call site mobile (mdash ×6 · mhist · mnoti · mknow): một chủ sở hữu
+    dáng cho CẢ BỐN họ, layout riêng từng họ, và bộ số BA của compact-row."""
+
+    MOBILE_SITES = [
+        ('wujia_portal_base', 'portal_home.xml', 5),
+        ('wujia_portal_support', 'portal_support.xml', 1),
+        ('wujia_portal_purchase_history', 'portal_history.xml', 1),
+        ('wujia_portal_notification', 'portal_notification.xml', 1),
+        ('wujia_portal_knowledge', 'portal_knowledge.xml', 1),
+    ]
+    HO = ('wujia-mdash-row', 'wujia-mhist-row', 'wujia-mnoti-row', 'wujia-mknow-row')
+
+    def _mobile_calls(self, module, filename):
+        """Call site compact-row KHÔNG phải của D5d (D5d dùng ul.wujia-content-card-body)."""
+        root = _view(module, filename)
+        return root.xpath(
+            '//t[@t-call="wujia_portal_layout.wj_data_list"]'
+            '[t[@t-set="dl_variant"][@t-value="\'compact-row\'"]]'
+            '[not(.//ul[@class="wujia-content-card-body"])]')
+
+    def _items(self, call):
+        out = []
+        for el in call.iter():
+            cls = el.get('class') or el.get('t-attf-class') or ''
+            if any(re.match(r'%s(\s|$)' % h, cls) for h in self.HO):
+                out.append((el, cls))
+        return out
+
+    def test_chin_call_site_mobile(self):
+        tong = 0
+        for module, filename, n in self.MOBILE_SITES:
+            calls = self._mobile_calls(module, filename)
+            self.assertEqual(len(calls), n, '%s: số call site mobile đổi' % module)
+            tong += len(calls)
+        self.assertEqual(tong, 9, 'D5e phủ đúng 9 call site')
+
+    def test_item_mang_ca_hai_lop(self):
+        """Neo TOKEN ĐỨNG ĐẦU — `contains()` khớp cả tên con BEM (bẫy D5c #3)."""
+        for module, filename, _n in self.MOBILE_SITES:
+            for call in self._mobile_calls(module, filename):
+                items = self._items(call)
+                self.assertEqual(len(items), 1,
+                                 '%s: mỗi danh sách đúng 1 item mẫu' % module)
+                self.assertIn('wj-data-item', items[0][1].split(),
+                              '%s: item thiếu wj-data-item' % module)
+
+    def test_is_stacked_con_du_ba_cho(self):
+        """3/6 khối mdash là biến thể nhiều dòng phụ — mất modifier là icon/badge
+        tụt về giữa khối mà không số đo nào đỏ."""
+        stacked = [cls for call in self._mobile_calls('wujia_portal_base', 'portal_home.xml')
+                   for _el, cls in self._items(call) if 'is-stacked' in cls.split()]
+        self.assertEqual(len(stacked), 3, 'số khối is-stacked đổi')
+
+    def test_muoi_hang_mdash_khong_phai_danh_sach_giu_nguyen(self):
+        """`wujia-mdash-row` còn 10 chỗ KHÔNG phải danh sách record (lối tắt Home,
+        hàng thông tin tĩnh Home/support) — đụng vào là đổi dáng 10 chỗ ngoài phạm vi."""
+        con_lai = 0
+        for module, filename in (('wujia_portal_base', 'portal_home.xml'),
+                                 ('wujia_portal_support', 'portal_support.xml')):
+            root = _view(module, filename)
+            for el in root.iter():
+                cls = el.get('class') or el.get('t-attf-class') or ''
+                if re.match(r'wujia-mdash-row(\s|$)', cls) and 'wj-data-item' not in cls.split():
+                    con_lai += 1
+        self.assertEqual(con_lai, 10, 'số hàng mdash ngoài phạm vi đổi')
+
+    def test_mot_chu_so_huu_dang_bon_ho(self):
+        """Rule cũ chỉ được chạm hàng CHƯA migrate. Xét compound CUỐI của mỗi
+        selector (rule của lớp con và ::before là biến thể ô, cố ý giữ)."""
+        for filename, ho in ((os.path.join(CSS_DIR, '_components.css'),
+                              ('wujia-mdash-row', 'wujia-mhist-row', 'wujia-mknow-row')),
+                             (os.path.join(CUSTOM, 'wujia_portal_notification', 'static', 'src',
+                                           'css', 'portal_notification.css'),
+                              ('wujia-mnoti-row',))):
+            with open(filename, encoding='utf-8') as fh:
+                css = _strip_comments(fh.read())
+            for lop in ho:
+                pat = re.compile(r'\.%s(?![-\w])' % lop)
+                selectors = re.findall(r'([^{}]*\.%s(?![-\w])[^{}]*)\{' % lop, css)
+                self.assertTrue(selectors, 'không còn rule nào của %s — sai phép đo' % lop)
+                kiem = 0
+                for sel in selectors:
+                    for part in sel.split(','):
+                        if not pat.search(_chu_the(part)):
+                            continue
+                        # `:not(.wj-data-item)` cũng chứa chuỗi `.wj-data-item` ⇒ phải
+                        # bóc `:not()` trước, nếu không guard tự chứng minh rỗng.
+                        if '.wj-data-item' in re.sub(r':not\([^)]*\)', '', part):
+                            continue
+                        kiem += 1
+                        self.assertIn(':not(.wj-data-item)', part,
+                                      'rule cũ còn chạm item đã migrate: %s' % part.strip())
+                self.assertGreaterEqual(kiem, 1, 'quét hụt rule của %s' % lop)
+
+    def test_layout_tung_ho_tach_khoi_dang(self):
+        """Dáng dùng chung ở .wj-data-item; layout (flex/grid) ở từng họ — gộp lại
+        là ép lưới 4 cột của PC lên hàng mobile, vỡ cả 9 chỗ."""
+        css = _css('_components.css')
+        dang = _rule(css, '.wj-data-list--compact-row .wj-data-item')
+        self.assertIsNotNone(dang)
+        self.assertNotIn('display: grid', dang, 'dáng chung không được mang layout')
+        self.assertNotIn('grid-template-columns', dang)
+        for sel in ('.wj-data-list--compact-row .wujia-mdash-row.wj-data-item',
+                    '.wj-data-list--compact-row .wujia-mhist-row.wj-data-item'):
+            body = _rule(css, sel)
+            self.assertIsNotNone(body, 'thiếu rule layout: %s' % sel)
+            self.assertRegex(body, r'display:\s*flex')
+        pc = _rule(css, '.wj-data-list--compact-row .wujia-content-card-row.wj-data-item')
+        self.assertIsNotNone(pc, 'D5d mất rule layout lưới 4 cột')
+        self.assertRegex(pc, r'grid-template-columns:\s*auto 1fr auto auto')
+
+    def test_layout_hai_ho_nam_trong_media(self):
+        """mknow và mnoti khai trong @media ⇒ phải đọc bằng _rule_in_media, gọi
+        _rule sẽ trả None và assert thành guard chứng-minh-rỗng."""
+        css = _css('_components.css')
+        sel = '.wj-data-list--compact-row .wujia-mknow-row.wj-data-item'
+        self.assertIsNone(_rule(css, sel), 'rule mknow không còn trong @media?')
+        body = _rule_in_media(css, sel)
+        self.assertIsNotNone(body, 'thiếu rule layout mknow trong @media')
+        self.assertRegex(body, r'align-items:\s*flex-start')
+        with open(os.path.join(CUSTOM, 'wujia_portal_notification', 'static', 'src', 'css',
+                               'portal_notification.css'), encoding='utf-8') as fh:
+            noti = fh.read()
+        body = _rule_in_media(noti, '.wj-data-list--compact-row .wujia-mnoti-row.wj-data-item')
+        self.assertIsNotNone(body, 'thiếu rule layout mnoti trong @media')
+        # Thanh accent is-unread rộng 4px nằm sát mép trái: về 14 là chữ đè lên nó.
+        self.assertRegex(body, r'padding-left:\s*16px')
+        self.assertRegex(body, r'position:\s*relative')
+
+    def test_thanh_accent_chua_doc_van_song(self):
+        """::before của .is-unread là con sinh ra, cố ý KHÔNG khoá :not() — khoá
+        nhầm là mất dấu 'chưa đọc' mà không số đo nào bắt."""
+        with open(os.path.join(CUSTOM, 'wujia_portal_notification', 'static', 'src', 'css',
+                               'portal_notification.css'), encoding='utf-8') as fh:
+            css = _strip_comments(fh.read())
+        self.assertIn('.wujia-mnoti-row.is-unread::before', css)
+        self.assertNotIn('.wujia-mnoti-row.is-unread:not(.wj-data-item)::before', css)

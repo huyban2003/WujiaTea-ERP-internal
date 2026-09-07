@@ -815,15 +815,36 @@ h2, .wujia-h2 { font-size: var(--wujia-font-size-h2) !important; font-weight: 60
    nhất D5a §7 công nhận là đã đúng chuẩn compact-row.
    ------------------------------------------------------------------------ */
 .wj-data-list--compact-row .wj-data-item {
-    display: grid;
-    grid-template-columns: auto 1fr auto auto;
-    align-items: center;
-    gap: 12px;
     min-height: 64px;
     padding: 12px 14px;
     background: var(--wujia-bg-card);
     border: 1px solid var(--wujia-border);
     border-radius: 12px;
+}
+/* D5e: layout là việc của từng HỌ (mobile là flex 3 vùng), dáng ở rule trên. */
+.wj-data-list--compact-row .wujia-content-card-row.wj-data-item {
+    display: grid;
+    grid-template-columns: auto 1fr auto auto;
+    align-items: center;
+    gap: 12px;
+}
+.wj-data-list--compact-row a.wj-data-item {
+    text-decoration: none;
+}
+.wj-data-list--compact-row .wujia-mdash-row.wj-data-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    color: inherit;
+}
+.wj-data-list--compact-row .wujia-mdash-row.wj-data-item.is-stacked {
+    align-items: flex-start;
+}
+.wj-data-list--compact-row .wujia-mhist-row.wj-data-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
 }
 .wj-data-list--compact-row .wj-data-item + .wj-data-item {
     margin-top: 8px;
@@ -2068,7 +2089,7 @@ a.wujia-mhome-kpi:active { opacity: 0.85; }
     flex-direction: column;
     gap: 8px;
 }
-.wujia-mhist-row {
+.wujia-mhist-row:not(.wj-data-item) {
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -2469,7 +2490,12 @@ a.wujia-mhome-kpi:active { opacity: 0.85; }
         flex-direction: column;
         gap: 10px;
     }
-    .wujia-mknow-row {
+    .wj-data-list--compact-row .wujia-mknow-row.wj-data-item {
+        display: flex;
+        align-items: flex-start;
+        gap: 12px;
+    }
+    .wujia-mknow-row:not(.wj-data-item) {
         display: flex;
         align-items: flex-start;
         gap: 12px;
@@ -2641,7 +2667,7 @@ a.wujia-mhome-kpi:active { opacity: 0.85; }
 
     /* ---------- Row trong card gộp (orders / debt kv / knowledge / quick) -- */
     .wujia-mdash-list { padding: 4px 14px; }
-    .wujia-mdash-row {
+    .wujia-mdash-row:not(.wj-data-item) {
         display: flex;
         align-items: center;
         gap: 12px;
@@ -2649,12 +2675,12 @@ a.wujia-mhome-kpi:active { opacity: 0.85; }
         text-decoration: none;
         color: inherit;
     }
-    .wujia-mdash-row + .wujia-mdash-row { border-top: 1px solid var(--wujia-morder-divider); }
-    a.wujia-mdash-row:hover { color: inherit; }
+    .wujia-mdash-row:not(.wj-data-item) + .wujia-mdash-row:not(.wj-data-item) { border-top: 1px solid var(--wujia-morder-divider); }
+    a.wujia-mdash-row:not(.wj-data-item):hover { color: inherit; }
     /* Dòng nhiều dòng phụ (giao hàng / đơn hàng / đổi trả): icon và badge bám mép
        trên thay vì căn giữa khối. Modifier trên chính .wujia-mdash-row nên thừa
        hưởng luôn hover/pressed/focus của _interaction.css (C6). */
-    .wujia-mdash-row.is-stacked { align-items: flex-start; }
+    .wujia-mdash-row.is-stacked:not(.wj-data-item) { align-items: flex-start; }
     .wujia-mdash-row.is-stacked .wujia-mdash-row-main { gap: 4px; }
     .wujia-mdash-row.is-stacked .wujia-badge { align-self: flex-start; }
 

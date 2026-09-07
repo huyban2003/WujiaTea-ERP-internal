@@ -30,7 +30,16 @@
 
     /* ---------- Notification list (card-per-row) ---------- */
     .wujia-mnoti-list { display: flex; flex-direction: column; gap: 8px; }
-    .wujia-mnoti-row {
+    /* D5e: dáng ở .wj-data-item; giữ padding-left 16 cho thanh accent is-unread. */
+    .wj-data-list--compact-row .wujia-mnoti-row.wj-data-item {
+        position: relative;
+        display: flex;
+        align-items: stretch;
+        gap: 12px;
+        padding-left: 16px;
+        overflow: hidden;
+    }
+    .wujia-mnoti-row:not(.wj-data-item) {
         position: relative;
         display: flex;
         align-items: stretch;

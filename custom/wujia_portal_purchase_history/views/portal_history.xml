@@ -156,21 +156,23 @@
                 <a t-if="mhist_filtered" href="/portal/purchase-history" class="wj-empty-state-btn">Xóa lọc</a>
                 <button t-else="" type="button" class="wj-empty-state-btn" onclick="window.location.reload()">Tải lại</button>
             </div>
-            <div t-if="rows" class="wujia-mhist-list">
-                <a t-foreach="rows" t-as="r" t-attf-href="/portal/purchase-history/#{r['id']}"
-                   class="wujia-mhist-row">
-                    <span class="wujia-mhist-row-main">
-                        <span class="wujia-mhist-row-code" t-out="r['name']"/>
-                        <span class="wujia-mhist-row-date"
-                              t-out="r['create_date'] and r['create_date'].strftime('%H:%M · %d/%m/%Y') or ''"/>
-                    </span>
-                    <span class="wujia-mhist-row-side">
-                        <span t-attf-class="wujia-badge #{mobile_badge.get(r['status_type'], 'wujia-badge-muted')}" t-out="r['state_label']"/>
-                        <span class="wujia-mhist-row-amount"
-                              t-out="money(r['amount_total'], r['currency_symbol'], r['currency_decimals'])"/>
-                    </span>
-                </a>
-            </div>
+            <t t-call="wujia_portal_layout.wj_data_list" t-if="rows">
+                <t t-set="dl_variant" t-value="'compact-row'"/>
+                <t t-set="dl_class" t-value="'wujia-mhist-list'"/>
+                    <a t-foreach="rows" t-as="r" t-attf-href="/portal/purchase-history/#{r['id']}"
+                       class="wujia-mhist-row wj-data-item">
+                        <span class="wujia-mhist-row-main">
+                            <span class="wujia-mhist-row-code" t-out="r['name']"/>
+                            <span class="wujia-mhist-row-date"
+                                  t-out="r['create_date'] and r['create_date'].strftime('%H:%M · %d/%m/%Y') or ''"/>
+                        </span>
+                        <span class="wujia-mhist-row-side">
+                            <span t-attf-class="wujia-badge #{mobile_badge.get(r['status_type'], 'wujia-badge-muted')}" t-out="r['state_label']"/>
+                            <span class="wujia-mhist-row-amount"
+                                  t-out="money(r['amount_total'], r['currency_symbol'], r['currency_decimals'])"/>
+                        </span>
+                    </a>
+            </t>
 
             <!-- Pager -->
             <nav t-if="pager and pager.get('page_count', 0) &gt; 1" class="wujia-mhist-pager">
