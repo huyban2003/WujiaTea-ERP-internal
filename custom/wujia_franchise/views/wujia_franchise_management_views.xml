@@ -36,13 +36,8 @@
         <field name="arch" type="xml">
             <form string="Franchise store">
                 <header>
-                    <button name="action_open_onboarding" type="object"
-                        string="Store onboarding" class="btn-primary"
-                        invisible="status != 'draft'" />
-                    <button name="action_open_add_members" type="object"
-                        string="Add store users" />
                     <button name="action_set_active" type="object"
-                        string="Activate" class="btn-secondary"
+                        string="Activate" class="btn-primary"
                         invisible="status == 'active'" />
                     <button name="action_lock_portal" type="object"
                         string="Lock portal" class="btn-warning"
@@ -136,7 +131,8 @@
                             <field name="document_ids" context="{'default_franchise_id': id}">
                                 <list editable="bottom">
                                     <field name="name" string="Document Name" />
-                                    <field name="file" widget="binary" filename="name" string="Download" />
+                                    <field name="file" widget="binary" filename="name"
+                                        string="Download" />
                                     <field name="create_date" string="Created On" readonly="1" />
                                 </list>
                             </field>
