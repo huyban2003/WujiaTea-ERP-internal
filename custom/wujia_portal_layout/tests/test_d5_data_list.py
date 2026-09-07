@@ -171,6 +171,10 @@ class TestDataListCallSites(TransactionCase):
         ('wujia_portal_base', 'portal_home.xml', 4),
         ('wujia_portal_return', 'portal_return_list.xml', 7),
         ('wujia_portal_support', 'portal_support.xml', 8),
+        # D5c — họ wj-pc-table
+        ('wujia_portal_purchase_history', 'portal_history.xml', 7),
+        ('wujia_portal_delivery', 'portal_delivery.xml', 8),
+        ('wujia_portal_notification', 'portal_notification.xml', 5),
     ]
 
     def test_moi_th_deu_co_scope(self):
@@ -203,3 +207,111 @@ class TestDataListCallSites(TransactionCase):
         call = root.xpath('//t[@t-call="wujia_portal_layout.wj_data_list"]')[0]
         self.assertFalse(call.xpath('.//t[@t-set="dl_pager"]'))
         self.assertFalse(call.xpath('.//nav'))
+
+
+@tagged('post_install', '-at_install', 'wujia_data_list_d5')
+class TestDataListPcTable(TransactionCase):
+    """D5c — họ bảng PC `wj-pc-table`: một chủ sở hữu dáng, guard pager, dáng mượn."""
+
+    # Biến thể Ô, không phải hình học danh sách ⇒ cố ý vẫn chạm bảng đã migrate.
+    ALLOWLIST = ('.wj-pc-td--code', '.wj-pc-td--muted', '.wj-pc-td--amount')
+
+    def test_pc_mot_chu_so_huu_dang(self):
+        css = _strip_comments(_css('_pc_components.css'))
+        selectors = re.findall(r'([^{}]*\.wj-pc-table[^{}]*)\{', css)
+        self.assertTrue(selectors)
+        kiem = 0
+        for sel in selectors:
+            for part in sel.split(','):
+                if '.wj-pc-table' not in part:
+                    continue
+                if any(x in part for x in self.ALLOWLIST):
+                    continue
+                kiem += 1
+                self.assertIn(':not(.wj-data-table)', part,
+                              'rule cũ còn chạm bảng đã migrate: %s' % part.strip())
+        self.assertGreaterEqual(kiem, 9, 'quét hụt rule .wj-pc-table')
+
+    def test_bang_khong_migrate_giu_nguyen_50_58(self):
+        """Khoá sai tay là 12 bảng khác (exam/debt/inspection/báo cáo…) đổi dáng theo."""
+        css = _css('_pc_components.css')
+        self.assertRegex(_rule(css, '.wj-pc-table:not(.wj-data-table) thead th'),
+                         r'height:\s*var\(--wj-pc-table-header-h\)')
+        self.assertRegex(_rule(css, '.wj-pc-table:not(.wj-data-table) tbody td'),
+                         r'height:\s*var\(--wj-pc-table-row-h\)')
+        var = _rule(_css('_variables.css'), ':root')
+        self.assertRegex(var, r'--wj-pc-table-header-h:\s*50px')
+        self.assertRegex(var, r'--wj-pc-table-row-h:\s*58px')
+
+    def test_pager_dieu_huong_guard_page_count(self):
+        """BA: điều hướng trang chỉ khi >1 trang. Ô chọn số dòng/trang là khối khác
+        (UI-PC-BASE-005) nên guard `> 10` của nó KHÔNG bị coi là vi phạm."""
+        cases = [
+            ('wujia_portal_purchase_history', 'portal_history.xml', '/portal/purchase-history'),
+            ('wujia_portal_notification', 'portal_notification.xml', '/portal/notification'),
+        ]
+        for module, filename, route in cases:
+            root = _view(module, filename)
+            nav = root.xpath('//a[contains(@t-attf-class, "wj-pc-page-btn")]')
+            self.assertTrue(nav, '%s: không thấy nút phân trang' % module)
+            for a in nav:
+                conds = [e.get('t-if') or '' for e in a.iterancestors() if e.get('t-if')]
+                self.assertTrue(
+                    any(re.search(r'page_count[^)]*\)?\s*>\s*1', c.replace('&gt;', '>'))
+                        for c in conds),
+                    '%s: nút phân trang không guard page_count > 1' % module)
+
+    def test_pager_delivery_khong_hien_khi_mot_trang(self):
+        root = _view('wujia_portal_delivery', 'portal_delivery.xml')
+        blocks = root.xpath('//div[@class="wj-pc-pagination"]')
+        self.assertTrue(blocks)
+        for b in blocks:
+            cond = (b.get('t-if') or '').replace('&gt;', '>').replace(' ', '')
+            self.assertRegex(cond, r'page_count[^)]*\)?>1',
+                             'delivery: pager vẫn hiện khi chỉ có 1 trang')
+
+    def test_noti_giu_lop_va_id_cu(self):
+        """`wj-pc-noti-row` KHÔNG có rule CSS nào — dáng đến hoàn toàn từ wj-pc-table,
+        nên mất lớp hay mất id là mất dáng/điểm bám mà không test nào khác bắt được."""
+        root = _view('wujia_portal_notification', 'portal_notification.xml')
+        call = root.xpath('//t[@t-call="wujia_portal_layout.wj_data_list"]')[0]
+        self.assertEqual(call.xpath('.//t[@t-set="dl_table_id"]')[0].get('t-value'),
+                         "'wj-noti-table'")
+        self.assertIn('wj-pc-noti-table',
+                      call.xpath('.//t[@t-set="dl_table_class"]')[0].get('t-value'))
+        # `contains()` là guard RỖNG ở đây: chuỗi con "wj-pc-noti-row" vẫn khớp qua
+        # nhánh "wj-pc-noti-row--unread" bên trong #{...}. Phải neo vào token đứng đầu.
+        rows = call.xpath('.//tbody//tr[@t-attf-class]')
+        self.assertEqual(len(rows), 1)
+        self.assertRegex(rows[0].get('t-attf-class'), r'^wj-pc-noti-row(\s|$)')
+
+    def test_component_chuyen_duoc_id_bang(self):
+        arch = ('<t t-name="wujia_portal_layout.wj_dl_id_probe">'
+                '<t t-call="%s"><t t-set="dl_table_id" t-value="\'x-tbl\'"/>'
+                '<tbody><tr><td>1</td></tr></tbody></t></t>') % TMPL
+        view = self.env['ir.ui.view'].create({
+            'name': 'wj_dl_id_probe', 'type': 'qweb',
+            'key': 'wujia_portal_layout.wj_dl_id_probe', 'arch_db': arch,
+        })
+        root = html.fromstring(self.env['ir.qweb']._render(view.id))
+        self.assertEqual(root.xpath('.//table')[0].get('id'), 'x-tbl')
+
+    def test_hover_noti_khong_bi_zebra_nuot(self):
+        """Zebra và hover cùng độ đặc hiệu (0,2,2) ⇒ row chẵn mất hover nếu không nâng."""
+        path = os.path.join(CUSTOM, 'wujia_portal_notification', 'static', 'src', 'css',
+                            'portal_notification.css')
+        with open(path, encoding='utf-8') as fh:
+            css = fh.read()
+        body = _rule(css, '.wj-data-table.wj-pc-noti-table tbody tr:hover')
+        self.assertIsNotNone(body, 'thiếu rule hover nâng độ đặc hiệu cho bảng noti')
+        self.assertIn('rgba(40, 169, 223, 0.04)', body)
+
+    def test_skeleton_delivery_khop_row_that(self):
+        """Skeleton giả hàng bảng — lệch số là loading nhảy hình khi đổ dữ liệu."""
+        path = os.path.join(CUSTOM, 'wujia_portal_delivery', 'static', 'src', 'css',
+                            'portal_delivery.css')
+        with open(path, encoding='utf-8') as fh:
+            body = _rule(fh.read(), '.wj-pc-dlv-skel-row')
+        self.assertIsNotNone(body)
+        self.assertRegex(body, r'height:\s*52px')
+        self.assertRegex(body, r'padding:\s*10px 16px')

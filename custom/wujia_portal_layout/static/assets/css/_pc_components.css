@@ -159,6 +159,7 @@
 .wj-pc-metric-card__value { font-size: 30px; font-weight: 700; color: var(--wj-pc-text); line-height: 1.1; }
 
 /* ---------- Card wrapper + data table (header 50 / row 58) — SVG DataTable ---------- */
+/* D5c: bảng đã migrate mang .wj-data-table (_components.css) làm chủ sở hữu DUY NHẤT hình học. */
 /* D4c: dáng khung (nền/viền/bo góc/đệm) chuyển sang .wj-surface-card. */
 .wj-pc-card__head {
     display: flex;
@@ -169,8 +170,8 @@
 }
 .wj-pc-card__title { font-size: 22px; font-weight: 700; color: var(--wj-pc-text); margin: 0; }
 .wj-pc-card__subtitle { font-size: 14px; font-weight: 500; color: var(--wj-pc-muted); margin: 6px 0 0; }
-.wj-pc-table { width: 100%; border-collapse: collapse; }
-.wj-pc-table thead th {
+.wj-pc-table:not(.wj-data-table) { width: 100%; border-collapse: collapse; }
+.wj-pc-table:not(.wj-data-table) thead th {
     height: var(--wj-pc-table-header-h);
     background: var(--wj-pc-table-header-bg);
     color: var(--wj-pc-muted);
@@ -180,16 +181,16 @@
     padding: 0 22px;
     white-space: nowrap;
 }
-.wj-pc-table thead th:first-child { border-radius: 12px 0 0 12px; }
-.wj-pc-table thead th:last-child  { border-radius: 0 12px 12px 0; }
-.wj-pc-table tbody td {
+.wj-pc-table:not(.wj-data-table) thead th:first-child { border-radius: 12px 0 0 12px; }
+.wj-pc-table:not(.wj-data-table) thead th:last-child  { border-radius: 0 12px 12px 0; }
+.wj-pc-table:not(.wj-data-table) tbody td {
     height: var(--wj-pc-table-row-h);
     padding: 0 22px;
     font-size: 14px;
     color: var(--wj-pc-text);
     border-bottom: 1px solid var(--wj-pc-border-soft);
 }
-.wj-pc-table tbody tr:last-child td { border-bottom: 0; }
+.wj-pc-table:not(.wj-data-table) tbody tr:last-child td { border-bottom: 0; }
 .wj-pc-table .wj-pc-td--code   { font-weight: 600; }
 .wj-pc-table .wj-pc-td--muted  { color: var(--wj-pc-muted); font-weight: 500; }
 .wj-pc-table .wj-pc-td--amount { font-weight: 700; }
@@ -372,7 +373,7 @@ input[type="file"].wj-pc-control { height: auto; min-height: var(--wj-pc-input-h
 .wj-pc-order-head .wj-card-header__lead { flex: 0 1 auto; }
 
 /* ---------- Data table footer (total row) — Figma "Tổng cộng" bg #F8FAFC h54 ---------- */
-.wj-pc-table tfoot td {
+.wj-pc-table:not(.wj-data-table) tfoot td {
     height: 54px;
     padding: 0 22px;
     background: var(--wj-pc-table-header-bg);
@@ -381,8 +382,8 @@ input[type="file"].wj-pc-control { height: auto; min-height: var(--wj-pc-input-h
     color: var(--wj-pc-text);
     border-top: 1px solid var(--wj-pc-border-soft);
 }
-.wj-pc-table tfoot td:first-child { border-radius: 0 0 0 12px; }
-.wj-pc-table tfoot td:last-child  { border-radius: 0 0 12px 0; }
+.wj-pc-table:not(.wj-data-table) tfoot td:first-child { border-radius: 0 0 0 12px; }
+.wj-pc-table:not(.wj-data-table) tfoot td:last-child  { border-radius: 0 0 12px 0; }
 
 /* ---------- Two-column row for detail info panels (≤1200 → stack) ---------- */
 .wj-pc-two-col { display: grid; grid-template-columns: 760fr 788fr; gap: 24px; margin-bottom: var(--wj-pc-content-padding); }

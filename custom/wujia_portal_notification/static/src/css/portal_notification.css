@@ -256,6 +256,8 @@
    Thanh cyan dùng box-shadow inset trên ô đầu — KHÔNG dùng tr::before
    (pseudo trên <tr> bị table layout coi như 1 cell phụ → đẩy lệch cả hàng, tràn viền). */
 .wj-pc-noti-table tbody tr:nth-child(even) { background: #FCFCFD; }
+/* D5c: zebra (0,2,2) nuốt hover của .wj-data-table (0,2,2) ở row chẵn — nâng độ đặc hiệu. */
+.wj-data-table.wj-pc-noti-table tbody tr:hover { background: rgba(40, 169, 223, 0.04); }
 .wj-pc-noti-row--unread td:first-child { box-shadow: inset 4px 0 0 var(--wj-pc-primary); }
 
 /* ---- List: title cell ---- */

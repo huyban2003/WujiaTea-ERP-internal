@@ -43,23 +43,26 @@
                 </t>
             </t>
 
-            <!-- filter_error đã báo ở FilterBar → không hiện thêm empty state (2 thông điệp mâu thuẫn) -->
-            <div t-if="not rows and not filter_error" class="wj-pc-empty">
-                <span class="wj-pc-empty__icon"><i class="feather icon-inbox"/></span>
-                <h3 class="wj-pc-empty__title">Chưa có đơn hàng</h3>
-                <p class="wj-pc-empty__sub">Chưa có đơn hàng nào khớp bộ lọc.</p>
-            </div>
-
-            <table t-if="rows" class="wj-pc-table">
+            <t t-call="wujia_portal_layout.wj_data_list">
+                <t t-set="dl_table_class" t-value="'wj-pc-table'"/>
+                <t t-set="dl_empty" t-value="not rows"/>
+                <t t-set="dl_state">
+                    <!-- filter_error đã báo ở FilterBar → không hiện thêm empty state (2 thông điệp mâu thuẫn) -->
+                    <div t-if="not filter_error" class="wj-pc-empty">
+                        <span class="wj-pc-empty__icon"><i class="feather icon-inbox"/></span>
+                        <h3 class="wj-pc-empty__title">Chưa có đơn hàng</h3>
+                        <p class="wj-pc-empty__sub">Chưa có đơn hàng nào khớp bộ lọc.</p>
+                    </div>
+                </t>
                 <thead>
                     <tr>
-                        <th>Mã đơn</th>
-                        <th>Ngày tạo</th>
-                        <th>Ngày xác nhận</th>
-                        <th>Người đặt</th>
-                        <th class="text-end">Tổng tiền</th>
-                        <th>Batch / giao hàng</th>
-                        <th>Trạng thái</th>
+                        <th scope="col">Mã đơn</th>
+                        <th scope="col">Ngày tạo</th>
+                        <th scope="col">Ngày xác nhận</th>
+                        <th scope="col">Người đặt</th>
+                        <th scope="col" class="text-end">Tổng tiền</th>
+                        <th scope="col">Batch / giao hàng</th>
+                        <th scope="col">Trạng thái</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -77,7 +80,7 @@
                         </td>
                     </tr>
                 </tbody>
-            </table>
+            </t>
 
             <!-- Pagination: count trái, page-size + Trước [n] Sau phải.
                  Ẩn cả khối khi ≤10 bản ghi (BA cho phép); ngưỡng là option nhỏ
@@ -103,17 +106,20 @@
                         </t>
                     </select>
                 </form>
-                <a t-attf-href="/portal/purchase-history?page=#{pager['page_previous']['num']}&amp;#{pager['querystring'] or ''}"
-                   t-attf-class="wj-pc-page-btn #{'is-disabled' if pager['page']['num'] &lt;= 1 else ''}">Trước</a>
-                <t t-foreach="pager['page_nums']" t-as="pn">
-                    <span t-if="pn == '…'" class="wj-pc-page-btn">…</span>
-                    <a t-else=""
-                       t-attf-href="/portal/purchase-history?page=#{pn}&amp;#{pager['querystring'] or ''}"
-                       t-attf-class="wj-pc-page-btn #{'is-active' if pn == pager['page']['num'] else ''}"
-                       t-out="pn"/>
+                <!-- BA CMP-DL-001: điều hướng trang chỉ khi >1 trang; ô chọn số dòng/trang ở trên giữ guard riêng của UI-PC-BASE-005. -->
+                <t t-if="pager['page_count'] &gt; 1">
+                    <a t-attf-href="/portal/purchase-history?page=#{pager['page_previous']['num']}&amp;#{pager['querystring'] or ''}"
+                       t-attf-class="wj-pc-page-btn #{'is-disabled' if pager['page']['num'] &lt;= 1 else ''}">Trước</a>
+                    <t t-foreach="pager['page_nums']" t-as="pn">
+                        <span t-if="pn == '…'" class="wj-pc-page-btn">…</span>
+                        <a t-else=""
+                           t-attf-href="/portal/purchase-history?page=#{pn}&amp;#{pager['querystring'] or ''}"
+                           t-attf-class="wj-pc-page-btn #{'is-active' if pn == pager['page']['num'] else ''}"
+                           t-out="pn"/>
+                    </t>
+                    <a t-attf-href="/portal/purchase-history?page=#{pager['page_next']['num']}&amp;#{pager['querystring'] or ''}"
+                       t-attf-class="wj-pc-page-btn #{'is-disabled' if pager['page']['num'] &gt;= pager['page_count'] else ''}">Sau</a>
                 </t>
-                <a t-attf-href="/portal/purchase-history?page=#{pager['page_next']['num']}&amp;#{pager['querystring'] or ''}"
-                   t-attf-class="wj-pc-page-btn #{'is-disabled' if pager['page']['num'] &gt;= pager['page_count'] else ''}">Sau</a>
             </div>
         </t>
 

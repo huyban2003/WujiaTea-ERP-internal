@@ -60,6 +60,8 @@ PROBE = r"""
       thScoped: ths.filter(x => x.getAttribute('scope')).length,
       headH: headRow && vis(headRow) ? px(headRow.getBoundingClientRect().height) : null,
       rowH: { min: Math.min(...hs), max: Math.max(...hs), n: hs.length },
+      // Acceptance #9: record ĐỌC ĐƯỢC không cần cuộn — row thấp đi thì số này phải tăng.
+      rowsInViewport: rows.filter(r => r.getBoundingClientRect().top < window.innerHeight).length,
       cellPad: cs ? cs.paddingTop + ' ' + cs.paddingRight + ' '
                     + cs.paddingBottom + ' ' + cs.paddingLeft : null,
       hasThead: !!t.tHead, hasTbody: !!body,

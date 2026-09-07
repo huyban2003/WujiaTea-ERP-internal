@@ -330,11 +330,19 @@ còn mobile 4. Dev **không tự quyết** cái nào là P1/P2/P3.
 migrate call site nào thì không có gì để BA retest. Entry ledger soạn sẵn **dạng comment** cuối
 `docs/qa-issue-ledger.yaml`, **chưa** chạy `qa_sync.py`.
 
-**Tiến độ cụm: 3/31 call site trong phạm vi BA** (D5b xong 07/09 — nền `wj_data_list` +
-`/portal` top sản phẩm · `/portal/return` · `/portal/support`; số đo
-`docs/d5b-acceptance-matrix.md`). Kế tiếp: **D5c**.
+**Tiến độ cụm: 6/31 call site trong phạm vi BA** (D5b xong 07/09 — nền `wj_data_list` +
+`/portal` top sản phẩm · `/portal/return` · `/portal/support`, số đo `docs/d5b-acceptance-matrix.md`;
+**D5c xong 07/09** — họ `wj-pc-table`: `/portal/purchase-history` · `/portal/delivery` ·
+`/portal/notification`, số đo `docs/d5c-acceptance-matrix.md`). Kế tiếp: **D5d**.
 
 **Đã đóng ở D5b, không phải đo lại:** `th[scope]` của 3 bảng này 0→100 % · header 46→44 ·
 cell padding `14px 20px`→`10px 16px` · row ≥52 · guard pager `page_count > 1` được ghim bằng test.
+
+**Đã đóng ở D5c, không phải đo lại:** `th[scope]` 20/20 của 3 bảng họ `wj-pc-table` · header
+50→44 · cell padding `0 22px`→`10px 16px` · row 58 (cứng, do `height` trên `<td>`) → 54–89 (mềm,
+do `height` trên `<tr>` + đệm thật) · guard pager **tách đôi** (nút điều hướng theo BA
+`page_count > 1`, ô chọn số dòng/trang giữ `> 10` của `UI-PC-BASE-005`) · 12 bảng `wj-pc-table`
+KHÔNG thuộc phạm vi đo lại vẫn nguyên 50/58/`0 22px`. Bộ đo `wj_datalist.py` nay có thêm trường
+`rowsInViewport` cho acceptance #9.
 Seed §5 đã bổ xong bằng `scripts/seed_d5_datalist_demo.py` (52 ticket · 28 bù hàng · 14 hoá đơn ·
 14 khảo sát · 14 chuyến giao cho HN-01) ⇒ D5c…D5h **không còn bị chặn bởi dữ liệu**.

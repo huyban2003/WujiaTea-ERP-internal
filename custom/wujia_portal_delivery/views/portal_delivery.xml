@@ -44,17 +44,19 @@
 
             <!-- STATE: list -->
             <t t-if="view_state == 'list'">
-                <table class="wj-pc-table wj-pc-dlv-table">
+                <!-- DataState của route này do view_state quyết ở tầng trên DataList (empty/loading/error là khối anh em). -->
+                <t t-call="wujia_portal_layout.wj_data_list">
+                    <t t-set="dl_table_class" t-value="'wj-pc-table wj-pc-dlv-table'"/>
                     <thead>
                         <tr>
-                            <th>Mã chuyến</th>
-                            <th>Giờ xuất phát</th>
-                            <th>Đơn liên quan</th>
-                            <th>Trạng thái</th>
-                            <th>Xe · tài xế</th>
-                            <th>Biển số</th>
-                            <th>Cập nhật</th>
-                            <th class="text-end">Thao tác</th>
+                            <th scope="col">Mã chuyến</th>
+                            <th scope="col">Giờ xuất phát</th>
+                            <th scope="col">Đơn liên quan</th>
+                            <th scope="col">Trạng thái</th>
+                            <th scope="col">Xe · tài xế</th>
+                            <th scope="col">Biển số</th>
+                            <th scope="col">Cập nhật</th>
+                            <th scope="col" class="text-end">Thao tác</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -77,9 +79,9 @@
                             </td>
                         </tr>
                     </tbody>
-                </table>
+                </t>
 
-                <div t-if="m_pager and m_pager.get('page_total', 0)" class="wj-pc-pagination">
+                <div t-if="m_pager and m_pager.get('page_count', 0) &gt; 1" class="wj-pc-pagination">
                     <span class="wj-pc-pagination__count">
                         Hiển thị <t t-out="m_pager['offset'] + 1"/>–<t t-out="m_pager['offset'] + m_pager['count']"/>
                         / <t t-out="m_pager['page_total']"/> chuyến

@@ -12,7 +12,8 @@
          dl_state     markup THÔ — EmptyState/no-result/error (CMP-ES-001)
          dl_pager     markup THÔ — Pagination (CMP-PGNT-001), NGOÀI viewport
          dl_bleed     bảng tràn mép card
-         dl_class / dl_table_class  lớp cũ của call site, giữ để CSS con và :is() hover không đứt -->
+         dl_class / dl_table_class  lớp cũ của call site, giữ để CSS con và :is() hover không đứt
+         dl_table_id  id cũ của <table> ở call site (JS/CSS ngoài có thể bám) -->
     <template id="wj_data_list" name="Wujia — Data List component">
         <t t-set="_dl_var"
            t-value="dl_variant if dl_variant in ('compact-row', 'detail-card') else 'table'"/>
@@ -25,6 +26,7 @@
             <t t-else="">
                 <div class="wj-data-viewport">
                     <table t-if="_dl_var == 'table'"
+                           t-att-id="dl_table_id"
                            t-attf-class="wj-data-table #{dl_table_class or ''}">
                         <t t-out="0"/>
                     </table>

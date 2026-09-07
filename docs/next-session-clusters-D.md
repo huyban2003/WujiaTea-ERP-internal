@@ -361,7 +361,7 @@ tổng `scrollHeight` **−24px** trên 44 ô, giả-heading **0/44**, outline 8
 hiển thị 43/44 giống hệt (1 ô mọc đúng "0 kết quả" theo yêu cầu BA), B4 **286/286**, bảng D3a
 chạy lại **356 phép so 0 lệch**, tab-walk 433 stop ring 16/16, font 66 tiêu đề 0 lệch;
 bắt được **1 lỗi thật**: `/portal/info-request` mất tiêu đề ở mobile do bake `ch_platform`;
-`docs/d3b-acceptance-matrix.md`) · D3c ✅ · D3d ✅ · D3e ✅ · D3f ✅ · review ✅ · **D4 ✅ KHÉP 06/09** (D4b…D4h, `UI-SURFACECARD-001` Ready for Retest + ĐÃ DEPLOY UAT) · **D5a ✅ 06/09** (kiểm kê 31 call site, `docs/d5-datalist-inventory.md`, 0 code) · **D5b ✅ 07/09** (nền `wj_data_list` + 3 call site họ `wujia-content-card-table`, 3/31, `docs/d5b-acceptance-matrix.md`) · D5c…D5h ⬜ · D6 ⬜ · R1–R5 ⬜
+`docs/d3b-acceptance-matrix.md`) · D3c ✅ · D3d ✅ · D3e ✅ · D3f ✅ · review ✅ · **D4 ✅ KHÉP 06/09** (D4b…D4h, `UI-SURFACECARD-001` Ready for Retest + ĐÃ DEPLOY UAT) · **D5a ✅ 06/09** (kiểm kê 31 call site, `docs/d5-datalist-inventory.md`, 0 code) · **D5b ✅ 07/09** (nền `wj_data_list` + 3 call site họ `wujia-content-card-table`, 3/31, `docs/d5b-acceptance-matrix.md`) · **D5c ✅ 07/09** (họ `wj-pc-table`: purchase-history · delivery · notification, 6/31, `docs/d5c-acceptance-matrix.md`) · D5d…D5h ⬜ · D6 ⬜ · R1–R5 ⬜
 
 🚚 **D1 + D2 ĐÃ DEPLOY UAT 27/08** (`wujia_portal_layout 19.0.32.4.0` · `wujia_portal_return
 19.0.2.7.0` · `wujia_sale 19.0.4.3.0`, xác nhận XML-RPC) **+ đo lại chỉ-đọc ngay trên UAT**:
@@ -669,12 +669,32 @@ trong 10 route BA).
 4. **Seed đã xong cho toàn cụm** (`scripts/seed_d5_datalist_demo.py`): D5c…D5h không còn bị chặn
    bởi dữ liệu. Chạy nó trên DB copy TRƯỚC khi đo mốc trước.
 
+### 🔴 Bài học D5c — đọc trước khi làm D5d
+
+1. **`pkill -f "http-port=8077"` khớp luôn dòng lệnh đang chạy ⇒ tự giết shell** (exit 144), và
+   cú `-u` phía sau chưa từng chạy dù tưởng đã chạy. Dừng server theo **PID**
+   (`ss -ltnp | grep :8077`), không theo pattern chứa chính chuỗi mình đang gõ.
+2. **Mutation thay bằng chuỗi RỖNG thì phép thay ngược PHÁ file**: `replace('', a, 1)` chèn mảnh
+   vào **đầu file**. Khi một vế rỗng, hoàn tác phải là **ghi lại ảnh chụp byte** lấy ngay trước
+   khi thay (vẫn không phải `git checkout` — bẫy D5b #2), và luôn đối chiếu `sha256`.
+3. **`contains()` trong XPath là guard chứng-minh-rỗng khi lớp có biến thể BEM**:
+   `tr[contains(@t-attf-class,"wj-pc-noti-row")]` vẫn khớp sau khi đã đổi tên lớp gốc, vì
+   `wj-pc-noti-row--unread` nằm trong nhánh `#{...}` của cùng thuộc tính ⇒ 0 test đỏ. Neo vào
+   **token đứng đầu**. Cùng họ bẫy D5b #3 nhưng ở tầng XPath, không phải `sed`.
+4. **Hai rule cùng độ đặc hiệu thì rule mới chỉ ăn nửa vời.** `.wj-data-table tbody tr:hover` và
+   zebra `.wj-pc-noti-table tbody tr:nth-child(even)` đều (0,2,2) ⇒ hover chết ở hàng chẵn. Số đo
+   không bắt được; chỉ `getComputedStyle` sau `hover` mới bắt. Migrate vào một bảng có dáng riêng
+   thì phải dò lại **tương tác**, không chỉ dò hình học.
+5. **Row nở ra không phải lúc nào cũng là hồi quy.** `0 22px` nghĩa là đệm dọc bằng 0, nên 58 cũ
+   là số **cứng** ép cả hàng hai dòng; padding 10/16 của BA làm hàng một dòng co về 54–55 còn
+   hàng hai dòng nở ra 77–89. Đọc bảng đo phải phân biệt "nở vì hết bị nén" với "phình".
+
 ### Thứ tự lượt D5b…D5g
 
 | Lượt | Nội dung | Call site | `-u` | Vì sao xếp ở đây |
 |---|---|---:|---|---|
 | **D5b** ✅ | Nền `wj_data_list` + hiệu chỉnh trên `wujia-content-card-table` (home top SP · return · support) | **3** | `_layout`, `_base`, `_return`+`wujia_sale`, `_support` | XONG 07/09 — `th[scope]` 0→100%, header 44, padding 10/16, row ≥52, **0 ô mất record** (6 ô còn tăng) |
-| **D5c** | Bảng PC họ `wj-pc-table`: purchase-history · delivery · notification | **3** | `_layout`, `_purchase_history`, `_delivery`, `_notification` | 🔴 nặng nhất: row 58 do `height` chứ không do padding |
+| **D5c** ✅ | Bảng PC họ `wj-pc-table`: purchase-history · delivery · notification | **3** | `_layout`, `_purchase_history`, `_delivery`, `_notification` | XONG 07/09 — `th[scope]` 20/20, header 44, padding 10/16, row 58 cứng → 54–89 mềm, guard pager **tách đôi**, 12 bảng ngoài phạm vi giữ nguyên 50/58 |
 | **D5d** | List PC không phải bảng: 3 khối preview `/portal` + knowledge | **4** | `_layout`, `_base`, `_knowledge` | Cùng tầng CSS với D5b |
 | **D5e** | Mobile compact-row: mdash ×6 · mhist · mnoti · mknow | **9** | 6 module | `wujia-mhist-row` đã đúng chuẩn ⇒ làm mẫu |
 | **D5f** | Mobile detail-card: mreturn · mdelivery | **2** | `_return`+`wujia_sale`, `_delivery` | mreturn 122.3 > trần 120; delivery cần seed |

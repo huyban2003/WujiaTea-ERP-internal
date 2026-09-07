@@ -39,20 +39,24 @@
                 </t>
             </t>
 
-            <div t-if="not notifications" class="wj-pc-empty">
-                <span class="wj-pc-empty__icon"><i class="feather icon-bell"/></span>
-                <h3 class="wj-pc-empty__title">Không có thông báo</h3>
-                <p class="wj-pc-empty__sub">Không có thông báo nào khớp bộ lọc hiện tại.</p>
-            </div>
-
-            <table t-else="" class="wj-pc-table wj-pc-noti-table" id="wj-noti-table">
+            <t t-call="wujia_portal_layout.wj_data_list">
+                <t t-set="dl_table_class" t-value="'wj-pc-table wj-pc-noti-table'"/>
+                <t t-set="dl_table_id" t-value="'wj-noti-table'"/>
+                <t t-set="dl_empty" t-value="not notifications"/>
+                <t t-set="dl_state">
+                    <div class="wj-pc-empty">
+                        <span class="wj-pc-empty__icon"><i class="feather icon-bell"/></span>
+                        <h3 class="wj-pc-empty__title">Không có thông báo</h3>
+                        <p class="wj-pc-empty__sub">Không có thông báo nào khớp bộ lọc hiện tại.</p>
+                    </div>
+                </t>
                 <thead>
                     <tr>
-                        <th>Loại</th>
-                        <th>Thông báo</th>
-                        <th>Ngày gửi</th>
-                        <th>Trạng thái</th>
-                        <th class="text-end">Thao tác</th>
+                        <th scope="col">Loại</th>
+                        <th scope="col">Thông báo</th>
+                        <th scope="col">Ngày gửi</th>
+                        <th scope="col">Trạng thái</th>
+                        <th scope="col" class="text-end">Thao tác</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -86,7 +90,7 @@
                         </tr>
                     </t>
                 </tbody>
-            </table>
+            </t>
 
             <!-- Pagination — pager keys của notification: page/page_count/page_previous/page_next.
                  Ẩn cả khối khi ≤10 thông báo (BA cho phép); ngưỡng là option nhỏ nhất,
@@ -115,15 +119,18 @@
                         </t>
                     </select>
                 </form>
-                <a t-attf-href="/portal/notification?page=#{pager['page_previous']['num']}&amp;#{pager.get('querystring','')}"
-                   t-attf-class="wj-pc-page-btn #{'is-disabled' if pager['page']['num'] &lt;= 1 else ''}">Trước</a>
-                <t t-foreach="range(1, pager['page_count'] + 1)" t-as="pn">
-                    <a t-attf-href="/portal/notification?page=#{pn}&amp;#{pager.get('querystring','')}"
-                       t-attf-class="wj-pc-page-btn #{'is-active' if pn == pager['page']['num'] else ''}"
-                       t-out="pn"/>
+                <!-- BA CMP-DL-001: điều hướng trang chỉ khi >1 trang; ô chọn số dòng/trang ở trên giữ guard riêng của UI-PC-BASE-005. -->
+                <t t-if="pager['page_count'] &gt; 1">
+                    <a t-attf-href="/portal/notification?page=#{pager['page_previous']['num']}&amp;#{pager.get('querystring','')}"
+                       t-attf-class="wj-pc-page-btn #{'is-disabled' if pager['page']['num'] &lt;= 1 else ''}">Trước</a>
+                    <t t-foreach="range(1, pager['page_count'] + 1)" t-as="pn">
+                        <a t-attf-href="/portal/notification?page=#{pn}&amp;#{pager.get('querystring','')}"
+                           t-attf-class="wj-pc-page-btn #{'is-active' if pn == pager['page']['num'] else ''}"
+                           t-out="pn"/>
+                    </t>
+                    <a t-attf-href="/portal/notification?page=#{pager['page_next']['num']}&amp;#{pager.get('querystring','')}"
+                       t-attf-class="wj-pc-page-btn #{'is-disabled' if pager['page']['num'] &gt;= pager['page_count'] else ''}">Sau</a>
                 </t>
-                <a t-attf-href="/portal/notification?page=#{pager['page_next']['num']}&amp;#{pager.get('querystring','')}"
-                   t-attf-class="wj-pc-page-btn #{'is-disabled' if pager['page']['num'] &gt;= pager['page_count'] else ''}">Sau</a>
             </div>
         </t>
 
