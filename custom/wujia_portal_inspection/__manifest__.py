@@ -6,7 +6,7 @@
     'summary': 'Giao diện xem phiếu khảo sát đánh giá cửa hàng nhượng quyền',
     'author': 'WujiaTea',
     'license': 'LGPL-3',
-    'depends': ['wujia_portal_base', 'wujia_portal_layout', 'wujia_franchise'],
+    'depends': ['wujia_portal_base', 'wujia_portal_layout', 'wujia_franchise', 'wujia_franchise_inspection'],
     'data': [
         'security/ir.model.access.csv',
         'views/sidenav_inherit.xml',

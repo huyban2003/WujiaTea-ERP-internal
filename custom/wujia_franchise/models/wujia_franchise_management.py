@@ -58,7 +58,6 @@ class WujiaFranchiseManagement(models.Model):
     )
     franchise_end_date = fields.Date(
         string='Franchise end date',
-        required=True,
         tracking=True,
     )
     remaining_days = fields.Integer(
@@ -134,84 +133,11 @@ class WujiaFranchiseManagement(models.Model):
         tracking=True,
     )
 
-    area_manager_user_id = fields.Many2one(
-        related='area_id.manager_user_id',
-        string='Area Manager',
-        readonly=True,
-        store=False
-    )
-
-    effective_supervision_user_id = fields.Many2one(
-        'res.users',
-        string='Assigned Supervisor',
-        compute='_compute_effective_supervision_user',
-        store=True,
-        help='Franchise supervisor. If not assigned, defaults to Area Manager.',
-    )
-
-    next_supervision_date = fields.Date(
-        string='Next Inspection Date',
-        compute='_compute_next_supervision_date',
-        store=True,
-        search='_search_next_supervision_date',
-        help='Nearest upcoming inspection date (>= today), excluding past and cancelled schedules.',
-    )
-
-    inspection_ids = fields.One2many(
-        'wujia.franchise.inspection',
-        'franchise_id',
-        string='Inspection Sheets',
-    )
     document_ids = fields.One2many(
         'wujia.franchise.document',
         'franchise_id',
         string='Documents',
         copy=False,
-    )
-    inspection_chart_data = fields.Text(
-        string='Inspection Chart Data',
-        compute='_compute_inspection_chart_data',
-    )
-
-    latest_inspection_id = fields.Many2one(
-        'wujia.franchise.inspection',
-        string='Latest Inspection Sheet',
-        compute='_compute_latest_inspection_info',
-        store=True,
-    )
-    latest_total_score = fields.Float(
-        string='Latest Inspection Score',
-        compute='_compute_latest_inspection_info',
-        store=True,
-    )
-    latest_grade_id = fields.Many2one(
-        'wujia.franchise.inspection.grade',
-        string='Latest Inspection Grade',
-        compute='_compute_latest_inspection_info',
-        store=True,
-    )
-    latest_inspection_date = fields.Date(
-        string='Latest Inspection Date',
-        compute='_compute_latest_inspection_info',
-        store=True,
-    )
-    consecutive_c_count = fields.Integer(
-        string='Consecutive C Count',
-        compute='_compute_latest_inspection_info',
-        store=True,
-        help='Number of consecutive completed inspections with grade C from the latest round.',
-    )
-    consecutive_d_count = fields.Integer(
-        string='Consecutive D Count',
-        compute='_compute_latest_inspection_info',
-        store=True,
-        help='Number of consecutive completed inspections with grade D from the latest round.',
-    )
-    consecutive_cd_count = fields.Integer(
-        string='Consecutive C/D Count',
-        compute='_compute_latest_inspection_info',
-        store=True,
-        help='Consecutive count of grade C if latest is C, or consecutive count of grade D if latest is D.',
     )
     google_map_url = fields.Char(string='Google Map URL')
 
@@ -245,11 +171,11 @@ class WujiaFranchiseManagement(models.Model):
                 rec.remaining_days = 0
                 rec.is_expired = False
 
-    @api.depends('member_ids.is_currently_valid')
+    @api.depends('member_ids.is_currently_valid', 'member_ids.active', 'member_ids.is_working')
     def _compute_member_count(self):
         for rec in self:
             rec.member_count = len(
-                rec.member_ids.filtered('is_currently_valid')
+                rec.member_ids.filtered(lambda m: m.active and m.is_working)
             )
 
     @api.depends('member_ids.role', 'member_ids.is_currently_valid')
@@ -259,139 +185,6 @@ class WujiaFranchiseManagement(models.Model):
                 lambda m: m.role == 'owner' and m.is_currently_valid
             )[:1]
             rec.main_owner_member_id = owner
-
-    @api.depends('supervision_user_id', 'area_id.manager_user_id')
-    def _compute_effective_supervision_user(self):
-        for rec in self:
-            rec.effective_supervision_user_id = (
-                rec.supervision_user_id or rec.area_id.manager_user_id
-            )
-
-    @api.depends()
-    def _compute_next_supervision_date(self):
-        if not self:
-            return
-        today = fields.Date.context_today(self)
-        groups = self.env['wujia.supervision.schedule']._read_group(
-            domain=[
-                ('store_id', 'in', self.ids),
-                ('date', '>=', today),
-                ('state', '!=', 'cancel'),
-            ],
-            groupby=['store_id'],
-            aggregates=['date:min'],
-        )
-        min_date_by_store = {store.id: min_date for store, min_date in groups if store and min_date}
-        for rec in self:
-            rec.next_supervision_date = min_date_by_store.get(rec.id, False)
-
-    def _search_next_supervision_date(self, operator, value):
-        today = fields.Date.context_today(self)
-        schedules = self.env['wujia.supervision.schedule'].search([
-            ('date', '>=', today),
-            ('date', operator, value),
-            ('state', '!=', 'cancel'),
-        ])
-        return [('id', 'in', schedules.mapped('store_id').ids)]
-
-    @api.depends('inspection_ids.total_score', 'inspection_ids.grade_id', 'inspection_ids.planned_date', 'inspection_ids.state')
-    def _compute_latest_inspection_info(self):
-        if not self:
-            return
-
-        for rec in self:
-            done_inspections = rec.inspection_ids.filtered(
-                lambda i: i.state == 'done' and i.planned_date
-            ).sorted(
-                key=lambda i: (i.planned_date, i.id),
-                reverse=True
-            )
-            if done_inspections:
-                latest = done_inspections[0]
-                rec.latest_inspection_id = latest
-                rec.latest_total_score = latest.total_score
-                rec.latest_grade_id = latest.grade_id
-                rec.latest_inspection_date = latest.planned_date
-
-                # Separate consecutive counts for grade C and grade D
-                count_c = 0
-                count_d = 0
-                latest_grade_name = latest.grade_id.name if latest.grade_id else ''
-
-                if latest_grade_name == 'C':
-                    for insp in done_inspections:
-                        if insp.grade_id and insp.grade_id.name == 'C':
-                            count_c += 1
-                        else:
-                            break
-                elif latest_grade_name == 'D':
-                    for insp in done_inspections:
-                        if insp.grade_id and insp.grade_id.name == 'D':
-                            count_d += 1
-                        else:
-                            break
-
-                rec.consecutive_c_count = count_c
-                rec.consecutive_d_count = count_d
-                rec.consecutive_cd_count = count_c if latest_grade_name == 'C' else (count_d if latest_grade_name == 'D' else 0)
-            else:
-                rec.latest_inspection_id = False
-                rec.latest_total_score = 0.0
-                rec.latest_grade_id = False
-                rec.latest_inspection_date = False
-                rec.consecutive_c_count = 0
-                rec.consecutive_d_count = 0
-                rec.consecutive_cd_count = 0
-
-    @api.depends('inspection_ids.total_score', 'inspection_ids.grade_id', 'inspection_ids.planned_date', 'inspection_ids.state')
-    def _compute_inspection_chart_data(self):
-        import json
-        for rec in self:
-            inspections = rec.inspection_ids.filtered(
-                lambda i: i.state in ('done', 'need_remediation') and i.planned_date
-            ).sorted(
-                key=lambda i: (i.planned_date, i.id)
-            )
-
-            # Take last 10 rounds
-            if len(inspections) > 10:
-                inspections = inspections[-10:]
-
-            labels = []
-            scores = []
-            grades = []
-            display_scores = []
-            avg_scores = []
-
-            if inspections:
-                total_sum = sum(ins.total_score for ins in inspections)
-                overall_avg = total_sum / len(inspections)
-
-                for ins in inspections:
-                    date_str = ins.planned_date.strftime('%d/%m/%Y') if ins.planned_date else ''
-                    labels.append(date_str)
-                    scores.append(ins.total_score)
-                    grade_name = (ins.grade_id.name if ins.grade_id else '').strip()
-                    grades.append(grade_name)
-
-                    score_val = ins.total_score
-                    score_str = f"{int(score_val)}" if score_val.is_integer() else f"{score_val:.1f}"
-                    display_text = f"{score_str} ({grade_name})" if grade_name else score_str
-                    display_scores.append(display_text)
-                    avg_scores.append(round(overall_avg, 2))
-
-            rec.inspection_chart_data = json.dumps({
-                'labels': labels,
-                'scores': scores,
-                'grades': grades,
-                'display_scores': display_scores,
-                'avg_scores': avg_scores,
-                'title': _("Supervision Score History (Last 10 Rounds)"),
-                'single_label': _("Score per Round"),
-                'avg_label': _("Average Score"),
-                'no_data_title': _("No Historical Data Yet!"),
-                'no_data_desc': _("This store has no completed/remediation inspection sheets yet."),
-            })
 
     # ===========================================================
     # Constraints
@@ -500,6 +293,203 @@ class WujiaFranchiseManagement(models.Model):
             ('active', '=', True),
         ])
         expired.write({'status': 'expired'})
+
+
+
+    @api.model
+    def _bootstrap_franchise_data(self):
+        """Tự động nạp dữ liệu từ các file CSV chuẩn trong data/ khi cài đặt hoặc upgrade module."""
+        import os
+        import csv
+        import datetime
+        from odoo import fields
+
+        data_dir = os.path.join(os.path.dirname(__file__), '..', 'data')
+
+        # 1. Nạp Khu vực (res.area.csv)
+        area_csv = os.path.join(data_dir, 'res.area.csv')
+        if os.path.exists(area_csv) and self.env['res.area'].search_count([]) < 100:
+            try:
+                Area = self.env['res.area']
+                with open(area_csv, mode='r', encoding='utf-8') as f:
+                    reader = csv.DictReader(f)
+                    for row in reader:
+                        code = row.get('code', '').strip()
+                        name = row.get('name', '').strip()
+                        seq = int(row['sequence']) if row.get('sequence') and row['sequence'].isdigit() else 10
+                        desc = row.get('description', '')
+                        if not Area.search(['|', ('code', '=', code), ('name', '=', name)], limit=1):
+                            Area.create({
+                                'code': code,
+                                'name': name,
+                                'sequence': seq,
+                                'description': desc,
+                                'active': True,
+                            })
+            except Exception as e:
+                print(f"[BOOTSTRAP CSV] Lỗi nạp res.area.csv: {e}")
+
+        # 2. Nạp Cửa hàng nhượng quyền & Partner (wujia.franchise.management.csv)
+        franchise_csv = os.path.join(data_dir, 'wujia.franchise.management.csv')
+        partner_csv = os.path.join(data_dir, 'res.partner.franchise.csv')
+        if os.path.exists(franchise_csv) and self.search_count([]) < 100:
+            try:
+                Partner = self.env['res.partner']
+                Area = self.env['res.area']
+                
+                # Nạp partner trước
+                partner_map = {}
+                if os.path.exists(partner_csv):
+                    with open(partner_csv, mode='r', encoding='utf-8') as f:
+                        reader = csv.DictReader(f)
+                        for row in reader:
+                            name = row.get('name', '').strip()
+                            phone = row.get('phone', '').strip()
+                            street = row.get('street', '').strip()
+                            p = Partner.search([('name', '=', name)], limit=1)
+                            if not p:
+                                p = Partner.create({
+                                    'name': name,
+                                    'is_franchise': True,
+                                    'phone': phone,
+                                    'street': street,
+                                })
+                            partner_map[row.get('id', '').strip()] = p.id
+
+                # Nạp franchise
+                with open(franchise_csv, mode='r', encoding='utf-8') as f:
+                    reader = csv.DictReader(f)
+                    for row in reader:
+                        code = row.get('code', '').strip()
+                        name = row.get('name', '').strip()
+                        p_ext_id = row.get('partner_id/id', '').replace('wujia_franchise.', '').strip()
+                        partner_id = partner_map.get(p_ext_id, False)
+                        if not partner_id:
+                            p = Partner.search([('name', '=', name)], limit=1)
+                            partner_id = p.id if p else False
+
+                        start_str = row.get('franchise_start_date', '').strip() or None
+                        end_str = row.get('franchise_end_date', '').strip() or None
+
+                        f_rec = self.with_context(active_test=False).search([('code', '=', code)], limit=1)
+                        vals = {
+                            'code': code,
+                            'name': name,
+                            'partner_id': partner_id,
+                            'phone': row.get('phone', '').strip(),
+                            'address': row.get('address', '').strip(),
+                            'franchise_start_date': start_str or fields.Date.today(),
+                            'franchise_end_date': end_str or None,
+                            'status': row.get('status', 'active').strip() or 'active',
+                            'portal_locked': bool(int(row.get('portal_locked', '0'))),
+                            'invoiced': bool(int(row.get('invoiced', '0'))),
+                            'description': row.get('description', ''),
+                        }
+                        if not f_rec:
+                            self.create(vals)
+                        else:
+                            f_rec.write(vals)
+            except Exception as e:
+                print(f"[BOOTSTRAP CSV] Lỗi nạp wujia.franchise.management.csv: {e}")
+
+        # 3. Nạp Nhân viên cửa hàng từ employee.csv và liên kết vào wujia.franchise.member theo franchise_code
+        emp_csv = os.path.join(data_dir, 'employee.csv')
+        if os.path.exists(emp_csv):
+            try:
+                portal_group = self.env.ref('base.group_portal', raise_if_not_found=False)
+                Member = self.env['wujia.franchise.member']
+                Franchise = self.env['wujia.franchise.management']
+
+                # Lấy bản đồ franchise_code -> franchise_id
+                all_franchises = Franchise.with_context(active_test=False).search([])
+                f_map = {f.code.strip(): f.id for f in all_franchises if f.code}
+
+                # Đọc danh sách nhân viên từ employee.csv
+                rows = []
+                unique_users = {}
+                with open(emp_csv, mode='r', encoding='utf-8') as f:
+                    reader = csv.DictReader(f)
+                    for r in reader:
+                        phone = r.get('phone', '').strip()
+                        name = r.get('employee_name', '').strip()
+                        if phone:
+                            if phone not in unique_users:
+                                unique_users[phone] = name or phone
+                            rows.append(r)
+
+                # Tạo partner & user nếu chưa có
+                existing_users = {}
+                if unique_users:
+                    self.env.cr.execute("SELECT login, id FROM res_users WHERE login IN %s", (tuple(unique_users.keys()),))
+                    for login, uid in self.env.cr.fetchall():
+                        existing_users[login] = uid
+
+                    to_create = [(phone, name) for phone, name in unique_users.items() if phone not in existing_users]
+                    for phone, name in to_create:
+                        self.env.cr.execute("""
+                            INSERT INTO res_partner (name, phone, active, is_company, partner_share, lang, create_date, write_date)
+                            VALUES (%s, %s, TRUE, FALSE, TRUE, 'vi_VN', NOW(), NOW())
+                            RETURNING id
+                        """, (name, phone))
+                        partner_id = self.env.cr.fetchone()[0]
+
+                        self.env.cr.execute("""
+                            INSERT INTO res_users (login, partner_id, active, share, notification_type, company_id, create_date, write_date)
+                            VALUES (%s, %s, TRUE, TRUE, 'email', 1, NOW(), NOW())
+                            RETURNING id
+                        """, (phone, partner_id))
+                        user_id = self.env.cr.fetchone()[0]
+
+                        if portal_group:
+                            self.env.cr.execute("""
+                                INSERT INTO res_groups_users_rel (gid, uid) VALUES (%s, %s) ON CONFLICT DO NOTHING
+                            """, (portal_group.id, user_id))
+
+                        self.env.cr.execute("""
+                            INSERT INTO res_company_users_rel (cid, user_id) VALUES (1, %s) ON CONFLICT DO NOTHING
+                        """, (user_id,))
+                        existing_users[phone] = user_id
+
+                # Tạo thành viên cửa hàng (wujia.franchise.member)
+                if Member.search_count([]) < 100:
+                    created_pairs = set()
+                    self.env.cr.execute("SELECT user_id, franchise_id FROM wujia_franchise_member")
+                    for uid, fid in self.env.cr.fetchall():
+                        created_pairs.add((uid, fid))
+
+                    for r in rows:
+                        phone = r.get('phone', '').strip()
+                        f_code = r.get('franchise_code', '').strip()
+                        user_id = existing_users.get(phone)
+                        franchise_id = f_map.get(f_code)
+
+                        if user_id and franchise_id and (user_id, franchise_id) not in created_pairs:
+                            job = r.get('job_position', '').strip().lower()
+                            if 'chủ' in job or 'owner' in job:
+                                role = 'owner'
+                            elif 'quản' in job or 'manager' in job:
+                                role = 'manager'
+                            else:
+                                role = 'staff'
+
+                            is_pass = (r.get('result', '').strip().lower() == 'passed')
+                            exam_date_str = r.get('exam_date', '').strip()
+                            try:
+                                date_from = datetime.datetime.strptime(exam_date_str, '%Y-%m-%d').date()
+                            except Exception:
+                                date_from = fields.Date.today()
+
+                            self.env.cr.execute("""
+                                INSERT INTO wujia_franchise_member (
+                                    user_id, franchise_id, role, is_pass, is_working, active, date_from, create_date, write_date
+                                ) VALUES (
+                                    %s, %s, %s, %s, TRUE, TRUE, %s, NOW(), NOW()
+                                )
+                            """, (user_id, franchise_id, role, is_pass, date_from))
+                            created_pairs.add((user_id, franchise_id))
+
+            except Exception as e:
+                print(f"[BOOTSTRAP] Lỗi nạp employee.csv: {e}")
 
 
 class WujiaFranchiseDocument(models.Model):

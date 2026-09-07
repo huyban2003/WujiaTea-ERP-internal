@@ -1,0 +1,602 @@
+
+@page {
+    size: A4 portrait;
+    margin: 10mm 12mm 12mm 12mm;
+}
+
+/* ==========================================================================
+   Wujia Franchise - Supervision Inspection Report (PDF / Print View)
+   ========================================================================== */
+
+* {
+    font-family: 'Roboto', 'Noto Sans Vietnamese', 'Arial', 'Segoe UI', Tahoma, sans-serif;
+    box-sizing: border-box;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+    color-adjust: exact !important;
+}
+
+body {
+    margin: 0;
+    padding: 0;
+    background: #f8fafc;
+    color: #1e293b;
+    font-size: 13px;
+    line-height: 1.5;
+}
+
+.report-article {
+    max-width: 900px;
+    margin: 20px auto;
+    background: #ffffff;
+    padding: 30px;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+}
+
+/* ==========================================================================
+   Print Media Styles (wkhtmltopdf & Browser Print)
+   ========================================================================== */
+@media print {
+    *, *:before, *:after {
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+        color-adjust: exact !important;
+    }
+    .no-print {
+        display: none !important;
+    }
+    body {
+        background: #ffffff !important;
+        padding: 0 !important;
+    }
+    .report-article {
+        max-width: 100% !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        box-shadow: none !important;
+        border-radius: 0 !important;
+    }
+    .rep-table {
+        page-break-inside: auto !important;
+        break-inside: auto !important;
+    }
+    .rep-table th {
+        background-color: #1e3a8a !important;
+        color: #ffffff !important;
+        -webkit-print-color-adjust: exact !important;
+    }
+    .rep-table .sec-row {
+        background-color: #f1f5f9 !important;
+        color: #0f172a !important;
+        -webkit-print-color-adjust: exact !important;
+    }
+    .important-rep-row td {
+        background-color: #fffdf0 !important;
+        -webkit-print-color-adjust: exact !important;
+    }
+    .important-rep-row td:first-child {
+        border-left: 3px solid #f59e0b !important;
+    }
+    .badge-rep-pass {
+        background-color: #dcfce7 !important;
+        color: #15803d !important;
+        border: 1px solid #86efac !important;
+        -webkit-print-color-adjust: exact !important;
+    }
+    .badge-rep-fail {
+        background-color: #fee2e2 !important;
+        color: #b91c1c !important;
+        border: 1px solid #fca5a5 !important;
+        -webkit-print-color-adjust: exact !important;
+    }
+    .score-box {
+        background-color: #f8fafc !important;
+        border: 1px solid #cbd5e1 !important;
+        -webkit-print-color-adjust: exact !important;
+    }
+    .score-box.highlight-total {
+        background-color: #eff6ff !important;
+        border: 1px solid #2563eb !important;
+        -webkit-print-color-adjust: exact !important;
+    }
+    .info-grid .label-cell {
+        background-color: #f8fafc !important;
+        -webkit-print-color-adjust: exact !important;
+    }
+    .remediation-box {
+        background-color: #fffbeb !important;
+        -webkit-print-color-adjust: exact !important;
+    }
+    .rep-table tr {
+        page-break-inside: avoid !important;
+        break-inside: avoid !important;
+    }
+    h1, h2, h3, .sec-row {
+        page-break-after: avoid !important;
+        break-after: avoid !important;
+    }
+    .sig-block-wrap {
+        page-break-inside: avoid !important;
+        break-inside: avoid !important;
+    }
+}
+
+/* ==========================================================================
+   Top Action Bar
+   ========================================================================== */
+.report-action-bar {
+    margin-bottom: 20px;
+    padding: 12px 18px;
+    background: #eff6ff;
+    border-radius: 8px;
+    border: 1px solid #bfdbfe;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 16px;
+}
+
+.action-bar-title {
+    color: #1e40af;
+    font-size: 15px;
+    font-weight: 700;
+}
+
+.action-bar-sub {
+    font-size: 12px;
+    color: #475569;
+    margin-top: 2px;
+}
+
+.lang-selector-box {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: #ffffff;
+    padding: 4px 8px 4px 10px;
+    border-radius: 6px;
+    border: 1px solid #cbd5e1;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+    height: 36px;
+    box-sizing: border-box;
+}
+
+.lang-selector-box select {
+    border: none;
+    background: transparent;
+    font-size: 13px;
+    font-weight: 600;
+    color: #0f172a;
+    outline: none;
+    cursor: pointer;
+    padding: 2px 4px;
+}
+
+.btn-print-action {
+    height: 36px;
+    padding: 0 18px;
+    background: #2563eb;
+    color: #ffffff;
+    border: none;
+    border-radius: 6px;
+    font-weight: 700;
+    cursor: pointer;
+    font-size: 13px;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    box-shadow: 0 1px 3px rgba(37, 99, 235, 0.3);
+    transition: background 0.2s ease;
+    white-space: nowrap;
+}
+
+.btn-print-action:hover {
+    background: #1d4ed8;
+}
+
+/* ==========================================================================
+   Report Header & Info Grid
+   ========================================================================== */
+.report-header {
+    border-bottom: 2px solid #2563eb;
+    padding-bottom: 12px;
+    margin-bottom: 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    page-break-inside: avoid;
+    break-inside: avoid;
+}
+
+.report-title {
+    font-size: 20px;
+    font-weight: 800;
+    color: #1e3a8a;
+    margin: 0;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.store-name-sub {
+    font-size: 14px;
+    font-weight: 700;
+    color: #0284c7;
+    margin-top: 4px;
+}
+
+.report-code-badge {
+    font-size: 14px;
+    font-weight: 800;
+    color: #1e293b;
+}
+
+.report-date-text {
+    font-size: 12px;
+    color: #64748b;
+    margin-top: 2px;
+}
+
+.info-grid {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 16px;
+    page-break-inside: avoid;
+    break-inside: avoid;
+}
+
+.info-grid td {
+    padding: 6px 10px;
+    border: 1px solid #e2e8f0;
+    font-size: 12px;
+}
+
+.info-grid .label-cell {
+    background: #f8fafc;
+    font-weight: 700;
+    color: #475569;
+    width: 18%;
+}
+
+/* ==========================================================================
+   Score Summary Cards
+   ========================================================================== */
+.score-container {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 20px;
+    page-break-inside: avoid;
+    break-inside: avoid;
+}
+
+.score-box {
+    flex: 1;
+    border: 1px solid #cbd5e1;
+    border-radius: 8px;
+    padding: 8px;
+    text-align: center;
+    background: #f8fafc;
+}
+
+.score-box.highlight-total {
+    border-color: #2563eb;
+    background: #eff6ff;
+}
+
+.score-box .s-label {
+    font-size: 11px;
+    font-weight: 700;
+    color: #64748b;
+    text-transform: uppercase;
+}
+
+.score-box.highlight-total .s-label {
+    color: #1e40af;
+}
+
+.score-box .s-val {
+    font-size: 18px;
+    font-weight: 800;
+    color: #2563eb;
+    margin-top: 2px;
+}
+
+.score-box.highlight-total .s-val {
+    color: #1d4ed8;
+}
+
+.score-box .s-val-grade {
+    color: #059669;
+}
+
+/* ==========================================================================
+   Section Headings & Tables
+   ========================================================================== */
+.section-heading {
+    font-size: 14px;
+    font-weight: 800;
+    color: #1e3a8a;
+    margin-top: 24px;
+    margin-bottom: 8px;
+    text-transform: uppercase;
+    page-break-after: avoid !important;
+    break-after: avoid !important;
+}
+
+.rep-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 16px;
+    font-size: 12px;
+}
+
+.rep-table tr {
+    page-break-inside: avoid !important;
+    break-inside: avoid !important;
+}
+
+.rep-table th {
+    background: #1e3a8a;
+    color: #ffffff;
+    padding: 7px 10px;
+    text-align: left;
+    font-weight: 700;
+}
+
+.rep-table td {
+    padding: 6px 10px;
+    border: 1px solid #e2e8f0;
+    vertical-align: middle;
+}
+
+.rep-table .sec-row {
+    background: #f1f5f9;
+    font-weight: 800;
+    color: #0f172a;
+    border-top: 2px solid #94a3b8;
+    page-break-after: avoid !important;
+    break-after: avoid !important;
+}
+
+.important-rep-row td {
+    background-color: #fffdf0 !important;
+}
+
+.important-rep-row td:first-child {
+    border-left: 3px solid #f59e0b !important;
+}
+
+.important-rep-row td:nth-child(2) {
+    font-weight: 600;
+    color: #0f172a;
+}
+
+/* ==========================================================================
+   Badges & Elements
+   ========================================================================== */
+.badge-rep-pass {
+    color: #15803d;
+    font-weight: 800;
+    background: #dcfce7;
+    padding: 2px 10px;
+    border-radius: 4px;
+    border: 1px solid #86efac;
+    display: inline-block;
+    font-size: 13px;
+    line-height: 1.2;
+    white-space: nowrap;
+}
+
+.badge-rep-fail {
+    color: #b91c1c;
+    font-weight: 800;
+    background: #fee2e2;
+    padding: 2px 10px;
+    border-radius: 4px;
+    border: 1px solid #fca5a5;
+    display: inline-block;
+    font-size: 13px;
+    line-height: 1.2;
+    white-space: nowrap;
+}
+
+.photo-thumb {
+    max-width: 80px;
+    max-height: 60px;
+    border-radius: 4px;
+    border: 1px solid #cbd5e1;
+    object-fit: cover;
+}
+
+.remediation-box {
+    vertical-align: top;
+    background: #fffbeb;
+    padding: 12px;
+}
+
+.remediation-box-label {
+    font-size: 11px;
+    font-weight: 700;
+    color: #b45309;
+    text-transform: uppercase;
+    margin-bottom: 4px;
+}
+
+.remediation-box-content {
+    font-size: 12px;
+    color: #78350f;
+    white-space: pre-line;
+    word-break: break-word;
+    line-height: 1.5;
+}
+
+.attendance-list-cell {
+    vertical-align: top;
+    padding: 10px;
+}
+
+.attendance-ul {
+    margin: 0;
+    padding-left: 18px;
+    font-size: 12px;
+    color: #334155;
+}
+
+.attendance-li {
+    margin-bottom: 4px;
+}
+
+/* ==========================================================================
+   Signatures Block
+   ========================================================================== */
+.sig-block-wrap {
+    page-break-inside: avoid !important;
+    break-inside: avoid !important;
+    margin-top: 24px;
+}
+
+.sig-grid {
+    width: 100%;
+    border-collapse: collapse;
+    page-break-inside: avoid !important;
+    break-inside: avoid !important;
+}
+
+.sig-grid tr, .sig-grid td {
+    page-break-inside: avoid !important;
+    break-inside: avoid !important;
+}
+
+.sig-grid td {
+    width: 50%;
+    text-align: center;
+    vertical-align: top;
+    padding: 10px;
+}
+
+.sig-title {
+    font-weight: 700;
+    color: #475569;
+    text-transform: uppercase;
+    font-size: 12px;
+}
+
+.sig-subtitle {
+    font-size: 11px;
+    color: #94a3b8;
+    margin-top: 2px;
+}
+
+.sig-img-box {
+    height: 80px;
+    min-height: 80px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 6px 0;
+    overflow: visible !important;
+}
+
+.sig-img-box img {
+    max-height: 75px !important;
+    max-width: 240px !important;
+    width: auto !important;
+    height: auto !important;
+    object-fit: contain !important;
+    display: block !important;
+    margin: 0 auto !important;
+}
+
+.sig-name {
+    font-weight: 700;
+    color: #0f172a;
+}
+
+.report-print-footer {
+    display: none;
+}
+
+@media print {
+    *, *:before, *:after {
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+        color-adjust: exact !important;
+    }
+    .no-print {
+        display: none !important;
+    }
+    body {
+        background: #ffffff !important;
+        padding: 0 !important;
+    }
+    .report-article {
+        max-width: 100% !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        box-shadow: none !important;
+        border-radius: 0 !important;
+    }
+    .rep-table {
+        page-break-inside: auto !important;
+        break-inside: auto !important;
+    }
+    .rep-table th {
+        background-color: #1e3a8a !important;
+        color: #ffffff !important;
+        -webkit-print-color-adjust: exact !important;
+    }
+    .rep-table .sec-row {
+        background-color: #f1f5f9 !important;
+        color: #0f172a !important;
+        -webkit-print-color-adjust: exact !important;
+    }
+    .important-rep-row td {
+        background-color: #fffdf0 !important;
+        -webkit-print-color-adjust: exact !important;
+    }
+    .important-rep-row td:first-child {
+        border-left: 3px solid #f59e0b !important;
+    }
+    .badge-rep-pass {
+        background-color: #dcfce7 !important;
+        color: #15803d !important;
+        border: 1px solid #86efac !important;
+        -webkit-print-color-adjust: exact !important;
+    }
+    .badge-rep-fail {
+        background-color: #fee2e2 !important;
+        color: #b91c1c !important;
+        border: 1px solid #fca5a5 !important;
+        -webkit-print-color-adjust: exact !important;
+    }
+    .score-box {
+        background-color: #f8fafc !important;
+        border: 1px solid #cbd5e1 !important;
+        -webkit-print-color-adjust: exact !important;
+    }
+    .score-box.highlight-total {
+        background-color: #eff6ff !important;
+        border: 1px solid #2563eb !important;
+        -webkit-print-color-adjust: exact !important;
+    }
+    .info-grid .label-cell {
+        background-color: #f8fafc !important;
+        -webkit-print-color-adjust: exact !important;
+    }
+    .remediation-box {
+        background-color: #fffbeb !important;
+        -webkit-print-color-adjust: exact !important;
+    }
+    .rep-table tr {
+        page-break-inside: avoid !important;
+        break-inside: avoid !important;
+    }
+    h1, h2, h3, .sec-row {
+        page-break-after: avoid !important;
+        break-after: avoid !important;
+    }
+    .sig-block-wrap {
+        page-break-inside: avoid !important;
+        break-inside: avoid !important;
+    }
+}
