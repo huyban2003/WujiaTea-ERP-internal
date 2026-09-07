@@ -722,6 +722,45 @@ class WujiaFranchiseInspection(models.Model):
                     count = self.search_count([]) + 1
                     vals['name'] = f"PGS-STORE-{count:04d}"
 
+            # Tự động nạp line_ids từ template nếu chưa có trong vals
+            template_id_val = vals.get('template_id')
+            if template_id_val and ('line_ids' not in vals or not vals.get('line_ids')):
+                tpl_rec = self.env['wujia.franchise.inspection.template'].browse(template_id_val)
+                if tpl_rec:
+                    lines_data = []
+                    for t_line in tpl_rec.line_ids:
+                        if t_line.display_type == 'section':
+                            cat_name = t_line.category_id.name if t_line.category_id else (t_line.content or 'Section')
+                            lines_data.append((0, 0, {
+                                'sequence': t_line.sequence,
+                                'display_type': 'section',
+                                'template_line_id': t_line.id,
+                                'category_id': t_line.category_id.id if t_line.category_id else False,
+                                'content_snapshot': cat_name,
+                            }))
+                        else:
+                            lines_data.append((0, 0, {
+                                'sequence': t_line.sequence,
+                                'display_type': 'line',
+                                'template_line_id': t_line.id,
+                                'category_id': t_line.category_id.id if t_line.category_id else False,
+                                'content_snapshot': t_line.content or '',
+                                'deduction_score_snapshot': t_line.deduction_score or 0.0,
+                                'criterion_type_snapshot': t_line.criterion_type or 'normal',
+                                'require_note_if_fail_snapshot': t_line.require_note_if_fail,
+                                'require_evidence_if_fail_snapshot': t_line.require_evidence_if_fail,
+                                'is_pass': True,
+                                'result': 'pass',
+                            }))
+                    if lines_data:
+                        vals['line_ids'] = lines_data
+
+            # Tự động tạo 5 câu hỏi ngẫu nhiên cho bài kiểm tra nếu chưa có
+            if 'exam_line_ids' not in vals or not vals.get('exam_line_ids'):
+                exam_lines = self._generate_random_exam_lines()
+                if exam_lines:
+                    vals['exam_line_ids'] = exam_lines
+
             # Tự động nạp attendance_line_ids nếu chưa có trong vals
             if franchise_id and ('attendance_line_ids' not in vals or not vals.get('attendance_line_ids')):
                 members = self.env['wujia.franchise.member'].search([
@@ -1410,15 +1449,7 @@ class WujiaFranchiseInspection(models.Model):
                     break
             rec.grade_id = matched_grade
 
-    @api.model_create_multi
-    def create(self, vals_list):
-        """Tự động tạo 5 câu hỏi ngẫu nhiên cho bài kiểm tra nếu chưa có khi tạo phiếu khảo sát mới."""
-        for vals in vals_list:
-            if 'exam_line_ids' not in vals or not vals['exam_line_ids']:
-                exam_lines = self._generate_random_exam_lines()
-                if exam_lines:
-                    vals['exam_line_ids'] = exam_lines
-        return super().create(vals_list)
+
 
     def action_print_pdf(self):
         self.ensure_one()
