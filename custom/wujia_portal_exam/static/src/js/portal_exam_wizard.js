@@ -335,10 +335,12 @@
 
         function chooseCourse(card) {
             courseId = parseInt(card.getAttribute('data-exam-course-id'), 10) || 0;
-            var titleEl = card.querySelector('.wujia-mexam-course-title');
+            // Tiêu đề khoá thi + tên khoá trên thẻ "đã chọn" nay do wj_card_header
+            // dựng (D3d) ⇒ bám class component, KHÔNG bám class cũ.
+            var titleEl = card.querySelector('.wj-card-header__title');
             var metaEl = card.querySelector('.wujia-mexam-course-meta');
             courseName = titleEl ? titleEl.textContent.trim() : '';
-            wizard.querySelectorAll('.wujia-mexam-selcard-title').forEach(function (el) {
+            wizard.querySelectorAll('.wujia-mexam-selcard .wj-card-header__title').forEach(function (el) {
                 el.textContent = courseName;
             });
             if (metaEl) {

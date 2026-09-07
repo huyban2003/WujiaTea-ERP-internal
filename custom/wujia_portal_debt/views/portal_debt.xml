@@ -162,9 +162,17 @@
                     <t t-set="sbadge" t-value="STATE_BADGE[summary['state']]"/>
                     <section t-attf-class="wj-debt-summary wj-debt-summary--#{summary['state']}">
                         <div class="wj-debt-summary__head">
-                            <span class="wj-debt-summary__label">CÒN PHẢI TRẢ</span>
-                            <span t-attf-class="wj-debt-badge wj-debt-badge--#{sbadge[1]}"
-                                  t-out="sbadge[0]"/>
+                            <t t-call="wujia_portal_layout.wj_card_header">
+                                <t t-set="ch_title">CÒN PHẢI TRẢ</t>
+                                <t t-set="ch_level" t-value="3"/>
+                                <t t-set="ch_platform" t-value="'m'"/>
+                                <t t-set="ch_class"
+                                   t-value="'wj-card-header--flush wj-debt-summary__hb'"/>
+                                <t t-set="ch_meta">
+                                    <span t-attf-class="wj-debt-badge wj-debt-badge--#{sbadge[1]}"
+                                          t-out="sbadge[0]"/>
+                                </t>
+                            </t>
                         </div>
                         <p class="wj-debt-summary__amount" t-out="vnd(summary['amount_due'])"/>
                         <p t-if="summary['state'] == 'outstanding'" class="wj-debt-summary__meta">
@@ -204,16 +212,22 @@
 
                     <t t-call="wujia_portal_debt.wj_debt_history_row"/>
 
-                    <div class="wj-debt-section">
-                        <h2 class="wj-debt-section__title"
-                            t-out="'Hóa đơn còn số dư' if summary['state'] == 'partial' else 'Hóa đơn trong tuần'"/>
-                        <a t-if="hidden_count"
-                           t-attf-href="/portal/debt?week=#{summary['week_key']}&amp;all=1"
-                           class="wj-debt-section__more">Xem thêm <t t-out="hidden_count"/> hóa đơn ›</a>
-                        <span t-else="" class="wj-debt-section__count">
-                            <t t-out="summary['invoice_count']"/> hóa đơn
-                        </span>
-                    </div>
+                    <!-- CMP-SH-001. Còn hoá đơn bị ẩn thì right slot là link, không thì là
+                         count — component tự ưu tiên action > meta nên chỉ ra MỘT slot. -->
+                    <t t-call="wujia_portal_layout.wj_section_header">
+                        <t t-set="sh_title"
+                           t-value="'Hóa đơn còn số dư' if summary['state'] == 'partial' else 'Hóa đơn trong tuần'"/>
+                        <t t-set="sh_level" t-value="2"/>
+                        <t t-set="sh_platform" t-value="'m'"/>
+                        <t t-set="sh_action_url"
+                           t-value="('/portal/debt?week=%s&amp;all=1' % summary['week_key']) if hidden_count else False"/>
+                        <t t-set="sh_action_label">Xem thêm <t t-out="hidden_count"/> hóa đơn ›</t>
+                        <t t-set="sh_meta">
+                            <span class="wj-section-header__meta">
+                                <t t-out="summary['invoice_count']"/> hóa đơn
+                            </span>
+                        </t>
+                    </t>
 
                     <div class="wj-debt-invoices">
                         <t t-foreach="invoices" t-as="inv">
@@ -362,11 +376,16 @@
                     </section>
 
                     <!-- Bảng hóa đơn trong tuần -->
-                    <div class="wj-pc-card wj-debt-pc-card">
-                        <div class="wj-pc-card__head">
-                            <h3 class="wj-pc-card__title">Hóa đơn trong tuần</h3>
-                            <span class="wj-pc-card__count"><t t-out="summary['invoice_count']"/> hóa đơn</span>
-                        </div>
+                    <t t-call="wujia_portal_layout.wj_surface_card">
+                        <t t-set="sc_class" t-value="'wj-pc-card wj-debt-pc-card'"/>
+                        <t t-call="wujia_portal_layout.wj_card_header">
+                            <t t-set="ch_title">Hóa đơn trong tuần</t>
+                            <t t-set="ch_level" t-value="3"/>
+                            <t t-set="ch_platform" t-value="'pc'"/>
+                            <t t-set="ch_meta">
+                                <span class="wj-pc-card__count"><t t-out="summary['invoice_count']"/> hóa đơn</span>
+                            </t>
+                        </t>
 
                         <t t-if="pc_invoices">
                             <div class="wj-debt-pc-tablewrap">
@@ -437,7 +456,7 @@
                                 </t>
                             </div>
                         </t>
-                    </div>
+                    </t>
                 </t>
 
                 <!-- Modal QR (chỉ dựng khi còn số phải trả — CTA mới hiện) -->
@@ -508,12 +527,16 @@
                         xác nhận trong thời gian đã chọn.</span>
                 </div>
 
-                <div class="wj-debt-section">
-                    <h2 class="wj-debt-section__title">Các khoản thanh toán</h2>
-                    <span class="wj-debt-section__count">
-                        <t t-out="len(history['payments'])"/> giao dịch
-                    </span>
-                </div>
+                <t t-call="wujia_portal_layout.wj_section_header">
+                    <t t-set="sh_title">Các khoản thanh toán</t>
+                    <t t-set="sh_level" t-value="2"/>
+                    <t t-set="sh_platform" t-value="'m'"/>
+                    <t t-set="sh_meta">
+                        <span class="wj-section-header__meta">
+                            <t t-out="len(history['payments'])"/> giao dịch
+                        </span>
+                    </t>
+                </t>
 
                 <div t-if="not history['payments']"
                      class="wj-empty-state wj-empty-state--rich wj-debt-empty">
@@ -595,11 +618,17 @@
                         <span class="wj-debt-pc-banner__aside">Lọc theo ngày thanh toán</span>
                     </div>
 
-                    <div class="wj-pc-card wj-debt-pc-card" id="wj-debt-hist-pc">
-                        <div class="wj-pc-card__head">
-                            <h3 class="wj-pc-card__title">Các khoản thanh toán</h3>
-                            <span class="wj-pc-card__count"><t t-out="len(history['payments'])"/> giao dịch</span>
-                        </div>
+                    <t t-call="wujia_portal_layout.wj_surface_card">
+                        <t t-set="sc_class" t-value="'wj-pc-card wj-debt-pc-card'"/>
+                        <t t-set="sc_id" t-value="'wj-debt-hist-pc'"/>
+                        <t t-call="wujia_portal_layout.wj_card_header">
+                            <t t-set="ch_title">Các khoản thanh toán</t>
+                            <t t-set="ch_level" t-value="3"/>
+                            <t t-set="ch_platform" t-value="'pc'"/>
+                            <t t-set="ch_meta">
+                                <span class="wj-pc-card__count"><t t-out="len(history['payments'])"/> giao dịch</span>
+                            </t>
+                        </t>
 
                         <t t-if="pc_payments">
                             <div class="wj-debt-pc-tablewrap">
@@ -656,7 +685,7 @@
                                 <p class="wj-debt-pc-emptybox__sub">Kỳ được chọn chưa có khoản thanh toán nào được xác nhận.</p>
                             </div>
                         </t>
-                    </div>
+                    </t>
                 </t>
             </div>
             <!-- /desktop -->
@@ -685,7 +714,14 @@
 
                 <t t-if="bank['configured']">
                     <section class="wj-debt-bank">
-                        <h2 class="wj-debt-bank__title">THÔNG TIN CHUYỂN KHOẢN</h2>
+                        <!-- CMP-SH-001 nhưng khối này là thẻ cao cố định 150px ⇒ tắt nhịp
+                             bằng modifier flush, dáng nhãn giữ ở portal_debt.css (LIMIT chờ BA). -->
+                        <t t-call="wujia_portal_layout.wj_section_header">
+                            <t t-set="sh_title">THÔNG TIN CHUYỂN KHOẢN</t>
+                            <t t-set="sh_level" t-value="2"/>
+                            <t t-set="sh_platform" t-value="'m'"/>
+                            <t t-set="sh_class" t-value="'wj-section-header--flush'"/>
+                        </t>
                         <div class="wj-debt-bank__row">
                             <span class="wj-debt-bank__label">Ngân hàng</span>
                             <span class="wj-debt-bank__value" t-out="bank['name']"/>
@@ -716,7 +752,12 @@
                     </section>
 
                     <section class="wj-debt-hint">
-                        <span class="wj-debt-hint__title">Sau khi chuyển khoản</span>
+                        <t t-call="wujia_portal_layout.wj_card_header">
+                            <t t-set="ch_title">Sau khi chuyển khoản</t>
+                            <t t-set="ch_level" t-value="3"/>
+                            <t t-set="ch_platform" t-value="'m'"/>
+                            <t t-set="ch_class" t-value="'wj-card-header--flush wj-debt-hint-head'"/>
+                        </t>
                         <span class="wj-debt-hint__sub">Công nợ cập nhật sau khi Ngô Gia xác nhận.</span>
                     </section>
                 </t>
@@ -739,7 +780,8 @@
                     <t t-set="ph_title">Thanh toán công nợ</t>
                 </t>
 
-                <div class="wj-pc-card wj-debt-pc-paycard">
+                <t t-call="wujia_portal_layout.wj_surface_card">
+                    <t t-set="sc_class" t-value="'wj-pc-card wj-debt-pc-paycard'"/>
                     <div class="wj-debt-pc-modal__amount">
                         <div>
                             <span class="wj-debt-pc-modal__amount-label">Số tiền cần chuyển • tuần <t t-out="summary['week_label']"/></span>
@@ -752,7 +794,7 @@
                         <a t-attf-href="/portal/debt?week=#{summary['week_key']}"
                            class="wj-pc-btn wj-pc-btn--secondary">Về trang công nợ</a>
                     </div>
-                </div>
+                </t>
             </div>
             <!-- /desktop -->
         </t>

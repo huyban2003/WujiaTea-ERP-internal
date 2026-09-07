@@ -19,8 +19,8 @@
                     <t t-set="ph_can_create" t-value="True"/>
                 </t>
                 <div class="content-body">
-                    <div class="card mb-2">
-                        <div class="card-body p-2">
+                    <div class="wj-surface-card wj-surface-card--section wj-surface-card--compact wj-surface-card--flush mb-2">
+                        <div class="wj-surface-card__body p-2">
                             <form method="get" action="/portal/support" class="row g-2">
                                 <div class="col-md-3 col-12">
                                     <label class="small text-muted mb-1">Trạng thái</label>
@@ -46,57 +46,60 @@
                     <!-- Vùng swap AJAX: card + pager (bộ lọc nằm ngoài, JS đồng bộ theo URL). -->
                     <div id="wj-sup-pc">
                     <!-- Tickets — MẪU 06 Card ticket (Sprint 9.13b 2026-05-27) -->
-                    <div class="wujia-content-card">
-                        <div class="wujia-content-card-header">
-                            <div class="wujia-content-card-header-icon">
-                                <i class="feather icon-life-buoy"/>
-                            </div>
-                            <h4 class="wujia-content-card-header-title">Yêu cầu hỗ trợ đang mở</h4>
-                            <span t-if="tickets" class="wujia-content-card-header-link">
-                                <t t-out="len(tickets)"/> ticket
-                            </span>
-                        </div>
-                        <div t-if="not tickets" class="wujia-empty-state">
-                            <i class="feather icon-life-buoy"/>
-                            <p>Bạn chưa có ticket nào. <a href="/portal/support/new">Gửi yêu cầu hỗ trợ</a>.</p>
-                        </div>
-                        <table t-else="" class="wujia-content-card-table">
-                            <thead>
-                                <tr>
-                                    <th>Mã yêu cầu</th>
-                                    <th>Tiêu đề</th>
-                                    <th>Phân loại</th>
-                                    <th>Cửa hàng</th>
-                                    <th>Ngày tạo</th>
-                                    <th class="text-center">Ưu tiên</th>
-                                    <th class="text-center">Trạng thái</th>
-                                    <th class="text-end"></th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr t-foreach="tickets" t-as="t">
-                                    <td><a t-attf-href="/portal/support/#{t.id}" t-out="t.name"/></td>
-                                    <td t-out="t.title"/>
-                                    <td t-out="t.category_id.name or '—'"/>
-                                    <td t-out="t.franchise_id.name or '—'"/>
-                                    <td t-out="t.create_date and t.create_date.strftime('%d/%m/%Y') or ''"/>
-                                    <td class="text-center">
-                                        <t t-set="prio" t-value="priority_labels.get(t.priority, (t.priority, 'wujia-badge-muted'))"/>
-                                        <span t-attf-class="wujia-badge #{prio[1]}" t-out="prio[0]"/>
-                                    </td>
-                                    <td class="text-center">
-                                        <t t-set="lbl" t-value="state_labels.get(t.state, (t.state, 'wujia-badge-muted'))"/>
-                                        <span t-attf-class="wujia-badge #{lbl[1]}" t-out="lbl[0]"/>
-                                    </td>
-                                    <td class="text-end">
-                                        <a t-attf-href="/portal/support/#{t.id}" class="btn btn-sm btn-primary">
-                                            <i class="fa fa-eye" title="View"/>
-                                        </a>
-                                    </td>
-                                </tr>
-                            </tbody>
-                        </table>
+                    <t t-call="wujia_portal_layout.wj_surface_card">
+                        <t t-set="sc_density" t-value="'regular'"/>
+                        <t t-set="sc_class" t-value="'wujia-content-card'"/>
+                    <!-- CMP-CH-001: count cố ý BỎ `t-if` — spec ghi rõ "Count 0 vẫn hiển thị". -->
+                    <t t-call="wujia_portal_layout.wj_card_header">
+                        <t t-set="ch_title">Yêu cầu hỗ trợ đang mở</t>
+                        <t t-set="ch_level" t-value="4"/>
+                        <t t-set="ch_platform" t-value="'pc'"/>
+                        <t t-set="ch_icon" t-value="'life-buoy'"/>
+                        <t t-set="ch_meta">
+                            <span class="wj-card-header__meta"><t t-out="len(tickets)"/> ticket</span>
+                        </t>
+                    </t>
+                    <div t-if="not tickets" class="wujia-empty-state">
+                        <i class="feather icon-life-buoy"/>
+                        <p>Bạn chưa có ticket nào. <a href="/portal/support/new">Gửi yêu cầu hỗ trợ</a>.</p>
                     </div>
+                    <table t-else="" class="wujia-content-card-table">
+                        <thead>
+                            <tr>
+                                <th>Mã yêu cầu</th>
+                                <th>Tiêu đề</th>
+                                <th>Phân loại</th>
+                                <th>Cửa hàng</th>
+                                <th>Ngày tạo</th>
+                                <th class="text-center">Ưu tiên</th>
+                                <th class="text-center">Trạng thái</th>
+                                <th class="text-end"></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr t-foreach="tickets" t-as="t">
+                                <td><a t-attf-href="/portal/support/#{t.id}" t-out="t.name"/></td>
+                                <td t-out="t.title"/>
+                                <td t-out="t.category_id.name or '—'"/>
+                                <td t-out="t.franchise_id.name or '—'"/>
+                                <td t-out="t.create_date and t.create_date.strftime('%d/%m/%Y') or ''"/>
+                                <td class="text-center">
+                                    <t t-set="prio" t-value="priority_labels.get(t.priority, (t.priority, 'wujia-badge-muted'))"/>
+                                    <span t-attf-class="wujia-badge #{prio[1]}" t-out="prio[0]"/>
+                                </td>
+                                <td class="text-center">
+                                    <t t-set="lbl" t-value="state_labels.get(t.state, (t.state, 'wujia-badge-muted'))"/>
+                                    <span t-attf-class="wujia-badge #{lbl[1]}" t-out="lbl[0]"/>
+                                </td>
+                                <td class="text-end">
+                                    <a t-attf-href="/portal/support/#{t.id}" class="btn btn-sm btn-primary">
+                                        <i class="fa fa-eye" title="View"/>
+                                    </a>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    </t>
 
                     <nav t-if="pager and pager.get('page_count', 0) &gt; 1" class="mt-2">
                         <ul class="pagination wujia-pagination justify-content-center mb-0">
@@ -144,7 +147,7 @@
                 </t>
                 <t t-else="">
                     <!-- Filter canonical 01-ChipSlide (Figma 4785:562) — search q + hidden state -->
-                    <form method="get" action="/portal/support" class="wj-filter-card">
+                    <form method="get" action="/portal/support" class="wj-surface-card wj-surface-card--summary wj-surface-card--compact wj-surface-card--padded wj-filter-card">
                         <input type="hidden" name="state" t-att-value="state or ''"/>
                         <div class="wj-filter-search">
                             <div class="wj-filter-search-field">
@@ -174,7 +177,10 @@
                         <p class="wj-empty-state-sub">Thử đổi từ khóa hoặc bỏ bộ lọc.</p>
                         <a href="/portal/support" class="wj-empty-state-btn">Xóa lọc</a>
                     </div>
-                    <div t-else="" class="wujia-mdash-card wujia-mdash-list">
+                    <t t-call="wujia_portal_layout.wj_surface_card" t-else="">
+                        <t t-set="sc_variant" t-value="'section'"/>
+                        <t t-set="sc_body" t-value="'flush'"/>
+                        <t t-set="sc_class" t-value="'wujia-mdash-card wujia-mdash-list'"/>
                         <a t-foreach="tickets" t-as="tk" t-attf-href="/portal/support/#{tk.id}"
                            class="wujia-mdash-row">
                             <span class="wujia-mdash-row-main">
@@ -189,7 +195,7 @@
                                       t-out="tk.create_date and tk.create_date.strftime('%d/%m') or ''"/>
                             </span>
                         </a>
-                    </div>
+                    </t>
 
                     <nav t-if="pager and pager.get('page_count', 0) &gt; 1">
                         <ul class="pagination wujia-pagination justify-content-center mb-0">
@@ -230,7 +236,7 @@
                     <!-- Component PC v1.5: card + field h42 + action bar có separator
                          (UI-PC-BASE-008/009). Route POST, name field, required GIỮ NGUYÊN. -->
                     <form method="post" action="/portal/support/new" enctype="multipart/form-data"
-                          data-wj-dirty-guard="1" class="wj-pc-card">
+                          data-wj-dirty-guard="1" class="wj-surface-card wj-pc-card">
                         <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
                         <div class="row g-3">
                             <div class="col-md-6 col-12">
@@ -307,8 +313,14 @@
                 <form method="post" action="/portal/support/new" enctype="multipart/form-data"
                       data-wj-dirty-guard="1">
                     <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
-                    <div class="wujia-mdash-card">
-                        <p class="wujia-mdash-title mb-3">Thông tin ticket</p>
+                    <t t-call="wujia_portal_layout.wj_surface_card">
+                        <t t-set="sc_variant" t-value="'section'"/>
+                        <t t-set="sc_class" t-value="'wujia-mdash-card'"/>
+                        <t t-call="wujia_portal_layout.wj_card_header">
+                            <t t-set="ch_title">Thông tin ticket</t>
+                            <t t-set="ch_level" t-value="2"/>
+                            <t t-set="ch_platform" t-value="'m'"/>
+                        </t>
 
                         <label class="wujia-mticket-label">Loại yêu cầu</label>
                         <select name="category_id" class="form-select mb-3" required="required">
@@ -358,7 +370,7 @@
                                 </t>
                             </select>
                         </t>
-                    </div>
+                    </t>
 
                     <p t-if="error == 'missing_fields'" class="text-danger small mt-2 mb-0">
                         Vui lòng điền đầy đủ thông tin bắt buộc.
@@ -393,14 +405,22 @@
                 <div class="content-body">
                     <div class="row">
                         <div class="col-md-8 col-12">
-                            <div class="card mb-2">
-                                <div class="card-header"><h5 class="mb-0">Nội dung yêu cầu</h5></div>
-                                <div class="card-body">
+                            <div class="wj-surface-card wj-surface-card--section wj-surface-card--compact wj-surface-card--flush mb-2">
+                                <t t-call="wujia_portal_layout.wj_card_header">
+                                    <t t-set="ch_title">Nội dung yêu cầu</t>
+                                    <t t-set="ch_platform" t-value="'pc'"/>
+                                    <t t-set="ch_class" t-value="'wj-surface-card__head wj-card-header--flush'"/>
+                                </t>
+                                <div class="wj-surface-card__body">
                                     <div t-out="ticket.description or '—'"/>
                                 </div>
                             </div>
-                            <div t-if="ticket.attachment_ids" class="card mb-2">
-                                <div class="card-header"><h6 class="mb-0">File đính kèm</h6></div>
+                            <div t-if="ticket.attachment_ids" class="wj-surface-card wj-surface-card--section wj-surface-card--compact wj-surface-card--flush mb-2">
+                                <t t-call="wujia_portal_layout.wj_card_header">
+                                    <t t-set="ch_title">File đính kèm</t>
+                                    <t t-set="ch_platform" t-value="'pc'"/>
+                                    <t t-set="ch_class" t-value="'wj-surface-card__head wj-card-header--flush'"/>
+                                </t>
                                 <ul class="list-group list-group-flush">
                                     <li t-foreach="ticket.attachment_ids" t-as="att" class="list-group-item">
                                         <a t-attf-href="/web/content/ir.attachment/#{att.id}/datas?download=true">
@@ -411,9 +431,13 @@
                             </div>
 
                             <!-- Chatter — show comment messages, oldest first -->
-                            <div class="card support-chatter mb-2">
-                                <div class="card-header"><h6 class="mb-0">Trao đổi</h6></div>
-                                <div class="card-body">
+                            <div class="wj-surface-card wj-surface-card--section wj-surface-card--compact wj-surface-card--flush support-chatter mb-2">
+                                <t t-call="wujia_portal_layout.wj_card_header">
+                                    <t t-set="ch_title">Trao đổi</t>
+                                    <t t-set="ch_platform" t-value="'pc'"/>
+                                    <t t-set="ch_class" t-value="'wj-surface-card__head wj-card-header--flush'"/>
+                                </t>
+                                <div class="wj-surface-card__body">
                                     <t t-set="comments" t-value="ticket.message_ids.filtered(lambda m: m.message_type == 'comment').sorted('date')"/>
                                     <div t-if="not comments" class="wujia-empty-state">
                                         <i class="feather icon-message-square"/>
@@ -429,7 +453,7 @@
                                         </div>
                                     </div>
                                 </div>
-                                <div t-if="ticket.state not in ('closed', 'cancelled')" class="card-footer">
+                                <div t-if="ticket.state not in ('closed', 'cancelled')" class="wj-surface-card__foot">
                                     <form method="post" t-attf-action="/portal/support/#{ticket.id}/reply">
                                         <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
                                         <textarea name="body" rows="3" class="form-control mb-2"
@@ -443,9 +467,13 @@
                         </div>
 
                         <div class="col-md-4 col-12">
-                            <div class="card">
-                                <div class="card-header"><h6 class="mb-0">Thông tin</h6></div>
-                                <div class="card-body">
+                            <div class="wj-surface-card wj-surface-card--section wj-surface-card--compact wj-surface-card--flush">
+                                <t t-call="wujia_portal_layout.wj_card_header">
+                                    <t t-set="ch_title">Thông tin</t>
+                                    <t t-set="ch_platform" t-value="'pc'"/>
+                                    <t t-set="ch_class" t-value="'wj-surface-card__head wj-card-header--flush'"/>
+                                </t>
+                                <div class="wj-surface-card__body">
                                     <dl class="row mb-0 profile-dl">
                                         <!-- S53-B3b: mã ticket + tiêu đề gỡ khỏi PageHeader
                                              (CMP-PG-001 CONTENT RULES) → về card thông tin. -->
@@ -488,17 +516,22 @@
                 </t>
 
                 <!-- Header card: mã + badge + tiêu đề -->
-                <div class="wujia-mdash-card">
+                <t t-call="wujia_portal_layout.wj_surface_card">
+                    <t t-set="sc_variant" t-value="'section'"/>
+                    <t t-set="sc_class" t-value="'wujia-mdash-card'"/>
                     <div class="d-flex align-items-center justify-content-between mb-2">
                         <span class="wujia-mdash-row-sub is-primary" t-out="ticket.name"/>
                         <t t-set="lbl" t-value="m_ticket_badges.get(ticket.state, (ticket.state, 'wujia-badge-muted'))"/>
                         <span t-attf-class="wujia-badge #{lbl[1]}" t-out="lbl[0]"/>
                     </div>
                     <p class="wujia-mdash-row-title mb-0" style="white-space:normal;" t-out="ticket.title"/>
-                </div>
+                </t>
 
                 <!-- Meta grid -->
-                <div class="wujia-mdash-card wujia-mdash-list">
+                <t t-call="wujia_portal_layout.wj_surface_card">
+                    <t t-set="sc_variant" t-value="'section'"/>
+                    <t t-set="sc_body" t-value="'flush'"/>
+                    <t t-set="sc_class" t-value="'wujia-mdash-card wujia-mdash-list'"/>
                     <div class="wujia-mdash-row">
                         <span class="wujia-mdash-ico"><i class="feather icon-tag"/></span>
                         <span class="wujia-mdash-row-main">
@@ -529,14 +562,24 @@
                                   t-out="ticket.create_date and ticket.create_date.strftime('%d/%m/%Y') or '—'"/>
                         </span>
                     </div>
-                </div>
+                </t>
 
                 <!-- Lịch sử trao đổi -->
                 <t t-set="comments" t-value="ticket.message_ids.filtered(lambda m: m.message_type == 'comment').sorted('date')"/>
-                <div class="wujia-mdash-card" style="padding:0;">
-                    <div class="wujia-mdash-titlerow" style="padding:14px 14px 0;">
-                        <h2 class="wujia-mdash-title" style="font-size:16px;">Lịch sử trao đổi</h2>
-                        <span class="wujia-mdash-link" style="cursor:default;"><t t-out="len(comments)"/> phản hồi</span>
+                <t t-call="wujia_portal_layout.wj_surface_card">
+                    <t t-set="sc_variant" t-value="'section'"/>
+                    <t t-set="sc_body" t-value="'flush'"/>
+                    <t t-set="sc_class" t-value="'wujia-mdash-card'"/>
+                    <div class="wj-surface-headpad">
+                        <t t-call="wujia_portal_layout.wj_card_header">
+                            <t t-set="ch_title">Lịch sử trao đổi</t>
+                            <t t-set="ch_level" t-value="2"/>
+                            <t t-set="ch_platform" t-value="'m'"/>
+                            <t t-set="ch_class" t-value="'wj-card-header--flush'"/>
+                            <t t-set="ch_meta">
+                                <span class="wj-card-header__meta"><t t-out="len(comments)"/> phản hồi</span>
+                            </t>
+                        </t>
                     </div>
                     <div class="wujia-mticket-thread">
                         <div t-if="not comments" class="wj-empty-state--compact">Chưa có trao đổi nào.</div>
@@ -550,7 +593,7 @@
                             </div>
                         </t>
                     </div>
-                </div>
+                </t>
 
                 <!-- Reply box (ẩn khi đóng / huỷ) -->
                 <form t-if="ticket.state not in ('closed', 'cancelled')" method="post"

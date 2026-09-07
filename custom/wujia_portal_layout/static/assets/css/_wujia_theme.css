@@ -41,9 +41,18 @@ html body {
 /* UI-06 (Sprint 39, retest): heading vẫn render "Inter Tight" — Odoo 19 web
    assets đặt heading font-family = Inter Tight, thắng inherit từ html body.
    Ép Inter cho MỌI heading + page-header title (đo computed-style server: trước
-   fix = "Inter Tight"; sau fix phải = "Inter"). */
-.content-wrapper h1, .content-wrapper h2, .content-wrapper h3,
-.content-wrapper h4, .content-wrapper h5, .content-wrapper h6,
+   fix = "Inter Tight"; sau fix phải = "Inter").
+   WJ-PORTAL-UI-002 (D2): neo cũ là `.content-wrapper` nên mọi heading NGOÀI nó
+   (BlankShell mobile .wujia-mpage, khối PC của wujia_portal_inspection, popup
+   chuông) vẫn Inter Tight — rule khớp element luôn thắng inherit từ html body,
+   bất kể specificity. Đổi neo sang `html body` để phủ cả trang, phủ thêm class
+   .h1..h6 (wujia_portal_inspection dùng class="h6").
+   🔴 CỐ Ý không nới rule font-weight ở trên: nới sẽ ép heading mobile về 700,
+   phá weight 800 của CMP-SH-001 (C8a/C8b) và bảng đo B3a/B4 đã Pass. */
+html body h1, html body h2, html body h3,
+html body h4, html body h5, html body h6,
+html body .h1, html body .h2, html body .h3,
+html body .h4, html body .h5, html body .h6,
 .wj-page-header__title,
 .wj-page-header__title h1, .wj-page-header__title h2 {
     font-family: var(--wujia-font-family) !important;
@@ -311,49 +320,7 @@ html body {
     }
 }
 
-/* ---------- Card + section header flush fix ---------- */
-.card {
-    border-radius: var(--wujia-card-radius) !important;
-    border: 1px solid var(--wujia-border);
-    background-color: var(--wujia-bg-card);
-    overflow: hidden;
-    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.02);
-}
-.card > .card-header {
-    /* 6px left padding — just one breathing unit off the edge, not fully flush. */
-    padding: 14px 20px 14px 6px !important;
-    margin: 0 !important;
-    background-color: transparent !important;
-    border-bottom: 1px solid var(--wujia-border) !important;
-    border-left: none !important;
-    border-top: none !important;
-    border-right: none !important;
-    border-radius: 0 !important;
-}
-.card > .card-header .card-title,
-.card > .card-header > h2,
-.card > .card-header > h3,
-.card > .card-header > h4,
-.card > .card-header > h5,
-.card > .card-header > h6 {
-    margin: 0 !important;
-    padding-left: 0 !important;
-    font-weight: 600;
-    color: var(--wujia-text-primary);
-}
-.card-footer {
-    background-color: transparent;
-    border-top: 1px solid var(--wujia-border);
-}
-
-/* Full-bleed section header inside .card-body (for templates that put */
-.card-body .wujia-section-header {
-    margin: 0 calc(-1 * var(--wujia-card-padding));
-    padding: 8px var(--wujia-card-padding);
-    border-bottom: 1px solid var(--wujia-border);
-    font-weight: 600;
-    color: var(--wujia-text-primary);
-}
+/* D4f: khối dáng `.card` đã gỡ — chủ sở hữu là .wj-surface-card. */
 
 /* ---------- Tables ---------- */
 .table thead th {
@@ -492,4 +459,11 @@ html body .content .content-wrapper {
    Tablet ≥768 vốn đã z-index:0 nên vô hại. */
 @media (max-width: 767.98px) {
     .drag-target { display: none !important; }
+}
+
+/* WJ-PORTAL-UI-003: sidebar off-canvas (<1200px) chỉ ẩn bằng transform/left nên
+   logo + link vẫn nằm trong tab order. visibility gỡ khỏi cả tab order lẫn
+   a11y tree; .menu-open (hamburger tablet) khôi phục focus. Desktop bất biến. */
+@media (max-width: 1199.98px) {
+    body:not(.menu-open) .main-menu { visibility: hidden; }
 }

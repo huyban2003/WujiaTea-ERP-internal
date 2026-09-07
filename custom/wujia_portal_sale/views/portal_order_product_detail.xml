@@ -20,8 +20,8 @@
                     <t t-set="ph_back_url" t-value="'/portal/order'"/>
                 </t>
                 <div class="content-body">
-                    <div class="card">
-                        <div class="card-body">
+                    <div class="wj-surface-card wj-surface-card--section wj-surface-card--compact wj-surface-card--flush">
+                        <div class="wj-surface-card__body">
                             <div class="row g-3">
                                 <!-- WJ-ORD-014: mobile giới hạn cao vùng ảnh ~240px để
                                      giá/quy tắc/CTA lên first viewport (CSS media query). -->
@@ -78,16 +78,19 @@
                             </div>
 
                             <div t-if="related" class="mt-4">
-                                <h5>Sản phẩm liên quan</h5>
+                                <t t-call="wujia_portal_layout.wj_card_header">
+                                    <t t-set="ch_title">Sản phẩm liên quan</t>
+                                    <t t-set="ch_level" t-value="4"/>
+                                </t>
                                 <div class="row g-2">
                                     <t t-foreach="related" t-as="rel">
                                         <div class="col-6 col-md-2">
                                             <a t-attf-href="/portal/order/product/#{rel.id}"
                                                class="text-decoration-none">
-                                                <div class="card h-100">
-                                                    <img class="card-img-top"
+                                                <div class="wj-surface-card wj-surface-card--section wj-surface-card--compact wj-surface-card--flush h-100">
+                                                    <img class="wj-surface-card__media"
                                                          t-attf-src="/web/image/product.product/#{rel.id}/image_256"/>
-                                                    <div class="card-body p-2">
+                                                    <div class="wj-surface-card__body p-2">
                                                         <small t-out="rel.name"/>
                                                     </div>
                                                 </div>

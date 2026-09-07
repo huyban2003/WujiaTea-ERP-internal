@@ -1226,3 +1226,698 @@ WJ-HOME-008:
   impact: "Ba block Giao hàng sắp tới, Yêu cầu đổi trả và Thông báo nổi bật trên trang chủ bản điện thoại. Nội dung từng dòng giữ nguyên, chỉ đổi cách đóng khung. Block Thông báo không còn dải màu bên trái phân biệt loại thông báo, thay vào đó vẫn có nhãn loại thông báo ở bên phải mỗi dòng như trước. Các trang khác dùng chung bộ khung này đã kiểm lại: Hỗ trợ, Đổi trả và Thông tin cửa hàng không đổi"
   retest: "Mở trang chủ trên điện thoại. Ba block Thông báo nổi bật, Giao hàng sắp tới và Yêu cầu đổi trả mỗi block phải là một khung duy nhất, các dòng bên trong ngăn nhau bằng một đường kẻ, không còn mỗi bản ghi một khung rời. So sánh với block Đơn hàng gần đây và Kiến thức: lề, bo góc, cỡ chữ và nhãn trạng thái phải giống nhau. Khối Hành động nhanh và bốn KPI phải giữ nguyên bố cục cũ. Kiểm ở các khổ 360, 391, 430 và 500 điểm ảnh: không cuộn ngang, không có khung lồng trong khung"
   limit: "Không có"
+
+# =====================================================================================
+# UI-SECTIONHEADER-001 (STT 83) — C8a 22/08 (13/18 call site, giữ Ready for Dev)
+# + C8b 23/08 (6 chỗ còn lại ⇒ 19/19) ⇒ NAY MỚI đẩy sang Ready for Retest.
+# Số đo đầy đủ: docs/c8-acceptance-matrix.md (§1–§5 C8a, §6 C8b) — 17/17 gạch đầu dòng đạt.
+UI-SECTIONHEADER-001:
+  sprint: "2026-08-23-C8b"
+  build_override: "Đã lên UAT 23/08/2026 (merge aa26e0e) | 23/08/2026 | Sprint 2026-08-23-C8b | commit: 02f77ca (C8b) nối tiếp 59299f1 (C8a) | wujia_portal_layout 19.0.32.1.0 + wujia_portal_debt 19.0.4.2.0 + wujia_portal_exam 19.0.5.7.0 + wujia_portal_return 19.0.2.5.0 + wujia_portal_base + wujia_portal_sale + wujia_portal_purchase_history + wujia_portal_delivery | Đo lại trên UAT sau deploy: acceptance C8b 58/60 (2 ô không đo được vì UAT không có hoá đơn đến hạn), acceptance C8a 46/46, lưới hồi quy 286/286, đi phím Tab 448/448 | Lưu ý cho tester: trong 14 cửa hàng chỉ cửa hàng thứ 3 có hoá đơn và có đăng ký thi | URL: /portal, /portal/order, /portal/order/cart, /portal/purchase-history, /portal/delivery, /portal/debt, /portal/debt/payment-history, /portal/debt/pay, /portal/exam, /portal/return"
+  url: "Portal toàn hệ thống — tiêu đề khối danh sách trên máy tính và điện thoại"
+  odoo_fit: "Custom"
+  fix: "Tiêu đề của các khối danh sách trong Portal nay dùng chung một khuôn duy nhất thay vì mỗi màn tự viết một kiểu. Trước đây cùng một khối Danh sách sản phẩm mà bản máy tính là tiêu đề cỡ 18 còn bản điện thoại chỉ là chữ thường cỡ 15, các màn khác thì rải rác 17, 18, 22 và cấp tiêu đề lộn xộn. Nay bản máy tính thống nhất cỡ 22 dòng cao 30, bản điện thoại cỡ 20 dòng cao 28, khoảng cách phía trên và phía dưới cũng cố định 20 và 12 trên máy tính, 16 và 8 trên điện thoại. Chữ tiêu đề là tiêu đề thật chứ không còn là chữ thường giả dạng, và mỗi màn tự chọn cấp tiêu đề cho đúng thứ bậc nội dung. Bên phải tiêu đề chỉ được có đúng một thứ: hoặc con số đếm, hoặc liên kết Xem tất cả, hoặc ô chọn nhanh, không bao giờ hai thứ cùng lúc. Con số đếm nay ghi bằng từ đầy đủ 5 sản phẩm thay vì 5 SP, và vẫn hiện khi bằng 0 chứ không biến mất như trước. Liên kết Xem tất cả có vùng chạm đủ 44 điểm ảnh mà không làm cao thêm hàng tiêu đề. Khi màn hình hẹp tới 360 điểm ảnh, tiêu đề xuống dòng chứ không bị cắt bằng ba chấm, và phần bên phải không tự ẩn đi. Các kiểu tiêu đề rời cũ đã được dọn hẳn khỏi mã nguồn, kèm một phép thử tự động quét toàn bộ giao diện để sau này không màn nào dựng lại kiểu riêng."
+  impact: "Đã áp cho toàn bộ 19 chỗ trên 10 màn: trang chủ, đặt hàng, giỏ hàng, lịch sử đặt hàng, danh sách chuyến giao (13 chỗ, đợt trước) và công nợ, lịch sử thanh toán, trang chuyển khoản, đăng ký thi, đổi trả (6 chỗ, đợt này). Không đụng dữ liệu, quyền xem hay luồng nghiệp vụ. Hai điểm BA cần biết. Thứ nhất, ở trang lịch sử thanh toán, khoảng cách quanh tiêu đề trước đây được chỉnh riêng cho màn đó là 24 phía trên và 12 phía dưới; nay bỏ luật riêng để dùng đúng khoảng cách chung của bảng thành phần, nên nhìn thành 28 phía trên và 20 phía dưới. Đây là chủ ý để mọi màn cùng một cách tính, xin BA ghi nhận khi nghiệm thu. Thứ hai, phần Thông tin chuyển khoản ở trang thanh toán nay cũng đi qua khuôn chung nhưng vẫn giữ dáng nhãn nhỏ như cũ, vì khối đó là thẻ có chiều cao cố định. Đã đo 17 màn ở hai khổ màn hình: không màn nào lỗi tải, không màn nào trượt ngang, không lỗi trình duyệt. Đi phím Tab qua 9 màn thì 447 trên 447 điểm dừng vẫn thấy viền chỉ dấu bàn phím. Bộ kiểm tra tự động 64 phép thử chạy lại đúng hết, trong đó phần đo của đợt trước vẫn nguyên 46 trên 46 dù đã xoá phần giao diện cũ."
+  retest: "Mở lần lượt trang chủ, đặt hàng, giỏ hàng, lịch sử đặt hàng, danh sách chuyến giao, công nợ, lịch sử thanh toán, đăng ký thi và đổi trả, trên máy tính rồi trên điện thoại. Mọi tiêu đề khối danh sách phải cùng một cỡ chữ trong cùng một khổ màn hình, không còn chỗ nào chữ thường giả làm tiêu đề. Ở trang đặt hàng, so bản máy tính với bản điện thoại: hai bên phải cùng một kiểu tiêu đề, không còn lệch 18 với 15 như trước. Ở trang đăng ký thi, so dòng Danh sách nhân sự ở bước 3 của phần tạo đăng ký với dòng cùng tên ở màn chi tiết đăng ký: trước đây hai chỗ lệch cỡ chữ, nay phải bằng nhau. Ở trang công nợ, khi còn hoá đơn bị ẩn bớt thì bên phải tiêu đề là liên kết Xem thêm, còn khi hiện đủ thì là dòng đếm số hoá đơn, không bao giờ có cả hai. Ở trang đổi trả, dòng Lịch sử yêu cầu phải là tiêu đề thật kèm dòng đếm số yêu cầu. Lọc cho ra không có sản phẩm nào ở trang đặt hàng: dòng đếm phải hiện 0 sản phẩm chứ không được biến mất. Ở màn danh sách chuyến giao trên máy tính, bên phải tiêu đề phải là dòng đếm số chuyến, còn các thẻ lọc vẫn nằm nguyên chỗ cũ. Thu màn hình còn 360 điểm ảnh: tiêu đề dài phải xuống dòng, tối đa hai dòng, không chỗ nào có ba chấm, và phần bên phải vẫn phải nhìn thấy. Nhấn Tab tới liên kết Xem tất cả: phải thấy viền chỉ dấu và vùng chạm rộng rãi."
+  limit: "Thứ nhất, bảng thành phần ghi độ đậm tiêu đề là 800 nhưng một yêu cầu trước đó của BA ở đợt Sprint 35 lại chốt tiêu đề đậm tối đa 700 và đang được ép cứng cho toàn bộ Portal, nên hai yêu cầu mâu thuẫn nhau. Dev giữ 700 cho khớp với yêu cầu đang chạy và với thành phần tiêu đề trang đã duyệt trước đó, nhờ BA chốt lại chọn con số nào. Thứ hai, bảng thành phần nói tiêu đề nằm trong khung thì không tính là tiêu đề khối, nhưng chính BA lại chỉ đích danh Danh sách chuyến giao và Danh sách sản phẩm là tiêu đề khối trong khi cả hai đều nằm trong khung; Dev hiểu là khung đóng vai hộp chứa danh sách thì vẫn tính. Câu này vẫn chờ BA, và nó đang chặn đúng một chỗ: dòng Danh sách phiếu khảo sát ở màn Khảo sát và Đánh giá có cấu trúc giống hệt Danh sách chuyến giao, nên Dev cố ý chưa đổi, chờ BA trả lời rồi mới áp. Thứ ba, ở trang đặt hàng còn một dòng đếm nữa nằm trên tiêu đề trang, dòng này thuộc thành phần tiêu đề trang chứ không phải tiêu đề khối nên vẫn ghi tắt 5 SP và vẫn ẩn khi bằng 0; nhờ BA cho biết có áp cùng quy tắc đếm không. Thứ tư, phần Thông tin chuyển khoản ở trang thanh toán nằm trong một thẻ có chiều cao cố định và bản thân nó là nhãn chữ nhỏ viết hoa, nên Dev cho nó đi qua khuôn chung nhưng giữ nguyên dáng nhãn để không vỡ thẻ; nhờ BA xác nhận đây là tiêu đề của thẻ hay tiêu đề khối. Thứ năm, màn Phản hồi khắc phục của phần giám sát đã bị gỡ khỏi hệ thống nên không nằm trong đợt này."
+# =====================================================================================
+
+# =====================================================================================
+# Batch a11y 23/08 — WJ-PORTAL-UI-003 + WJ-PORTAL-UI-004 (STT 116/117, BA audit 20/08).
+# Số đo: docs/a11y-batch-acceptance-matrix.md — 6/6 + 6/6 gạch acceptance, hồi quy 286/286.
+WJ-PORTAL-UI-003:
+  sprint: "2026-08-23-a11y"
+  build_override: "Chờ deploy UAT | 23/08/2026 | Sprint 2026-08-23-a11y | commit: 36188e1 | wujia_portal_layout 19.0.32.2.0 — deploy: -u wujia_portal_layout, không cập nhật dữ liệu, không module mới | Đo trên bản dựng cô lập: đi phím Tab 40 lần ở khổ điện thoại không lần nào rơi vào thanh điều hướng đang ẩn, bản máy tính giữ nguyên thứ tự, lưới hồi quy 286/286 | URL: /portal"
+  url: "/portal — mọi trang Portal ở khổ điện thoại và máy tính bảng"
+  odoo_fit: "Custom"
+  fix: "Ở khổ điện thoại, thanh điều hướng bên trái của bản máy tính vốn chỉ bị đẩy ra ngoài mép màn hình chứ chưa bị gỡ khỏi luồng bàn phím, nên người dùng nhấn Tab vẫn bị đưa lần lượt qua logo và các mục menu vô hình trước khi tới nội dung thật. Nay khi thanh này đang đóng thì toàn bộ phần tử bên trong được gỡ hẳn khỏi luồng Tab và khỏi cây trợ năng, nghĩa là trình đọc màn hình cũng không còn đọc nhầm các mục vô hình. Khi thanh được mở chủ động, ví dụ bằng nút ba gạch trên máy tính bảng, các mục bên trong lập tức nhận focus trở lại; đóng thanh thì chúng lại biến khỏi luồng Tab. Cách sửa chỉ dùng một luật giao diện duy nhất, không thêm mã chạy nào"
+  impact: "Mọi trang Portal ở khổ dưới 1200 điểm ảnh, vì thanh điều hướng này dựng chung cho toàn bộ Portal. Bản máy tính từ 1200 điểm ảnh trở lên không đổi một điểm dừng Tab nào, đã đo đối chứng. Chuột và chạm không liên quan vì thanh vốn không bấm được khi ẩn"
+  retest: "Mở Portal trên điện thoại hoặc thu trình duyệt dưới 1200 điểm ảnh, nhấn Tab liên tục từ đầu trang: focus phải đi thẳng vào các nút đang nhìn thấy, không có nhịp nào focus biến mất khỏi màn hình hay viền chỉ dấu nằm ngoài mép trái. Nhấn Shift+Tab đi ngược cũng vậy. Trên máy tính bảng ngang, bấm nút ba gạch mở thanh điều hướng rồi nhấn Tab: phải vào được các mục menu; bấm ra ngoài đóng thanh rồi Tab tiếp: không được rơi vào menu nữa. Mở bản máy tính: thứ tự Tab qua logo và menu trái phải y như trước"
+  limit: "Không có"
+
+WJ-PORTAL-UI-004:
+  sprint: "2026-08-23-a11y"
+  build_override: "Chờ deploy UAT | 23/08/2026 | Sprint 2026-08-23-a11y | commit: 36188e1 | wujia_portal_layout 19.0.32.2.0 — deploy: -u wujia_portal_layout, không cập nhật dữ liệu, không module mới | Đo trên bản dựng cô lập: mở bằng Enter và bằng Space đều đưa focus vào nút đóng, 15 lần Tab đều ở trong khay, Esc và chạm nền đều đóng và trả focus về nút Thêm | URL: /portal"
+  url: "/portal — khay Thêm chức năng mở từ thanh điều hướng dưới cùng (điện thoại)"
+  odoo_fit: "Custom"
+  fix: "Nút Thêm ở thanh dưới cùng nay là nút bấm thật thay vì liên kết giả, nên nhấn phím Space cũng mở được khay chứ không chỉ Enter như trước. Khi khay mở ra, focus tự chuyển vào nút đóng bên trong khay thay vì đứng yên ở nút Thêm phía sau lớp nền mờ; từ đó nhấn Tab hay Shift+Tab chỉ quay vòng trong các mục của khay, không lọt ra nội dung nền phía sau. Đóng khay bằng bất cứ cách nào, phím Esc, nút đóng, chạm nền mờ hay bấm lại nút Thêm, focus đều trở về đúng nút Thêm để người dùng đi tiếp từ chỗ cũ. Khay cũng được đánh dấu là hộp thoại đúng chuẩn trợ năng nên trình đọc màn hình thông báo đúng ngữ cảnh. Thao tác chạm giữ nguyên như cũ"
+  impact: "Chỉ khay Thêm chức năng trên bản điện thoại. Các liên kết bên trong khay, danh sách chức năng và hành vi chạm không đổi. Có một chỉnh nhỏ về hiệu ứng: lúc mở khay hiện ra tức thời thay vì mờ dần, để focus vào được ngay; hiệu ứng trượt lên vẫn giữ"
+  retest: "Trên điện thoại hoặc trình duyệt thu hẹp, nhấn Tab tới nút Thêm ở thanh dưới cùng rồi nhấn Enter: khay mở và viền chỉ dấu phải nằm ở nút đóng trong khay. Nhấn Tab liên tục hơn một vòng: focus chỉ chạy quanh nút đóng và các mục trong khay, không được rơi ra nội dung phía sau. Nhấn Esc: khay đóng, focus về nút Thêm. Làm lại từ đầu nhưng mở bằng phím Space: phải mở được y hệt. Mở khay rồi chạm vào nền mờ: khay đóng, trang cuộn lại bình thường. Chạm mở khay và chạm từng mục bên trong: vẫn điều hướng đúng như trước"
+  limit: "Không có"
+
+# =====================================================================================
+# Cụm D1 25/08 — UAT-BH-001/003/005/006 (BA audit UAT 23/08, Related Feature Task STT 3).
+# Số đo: docs/d1-acceptance-matrix.md — 26/26 gạch acceptance, hồi quy B4 286/286, 39 test xanh.
+UAT-BH-001:
+  sprint: "2026-08-25-D1"
+  build_override: "Chờ deploy UAT | 25/08/2026 | Sprint 2026-08-25-D1 | commit: 8613813 | wujia_portal_return 19.0.2.7.0 — deploy: -u wujia_portal_return,wujia_sale (bắt buộc kèm wujia_sale), không cập nhật dữ liệu, không module mới | Đo trên bản dựng cô lập bằng trình duyệt thật: trước khi sửa bấm nút không ra đơn nào, sau khi sửa ra đúng một đơn bù giá trị 0 với hai dòng đúng sản phẩm và đúng đơn vị giao, hai phiếu được ghi nhận phân bổ, phần lẻ 5kg vẫn treo chờ đợt sau | URL: Bù hàng > Yêu cầu bù hàng > Thao tác > Xử lý bù hàng"
+  url: "Backend — Yêu cầu bù hàng > Thao tác > Xử lý bù hàng"
+  odoo_fit: "Custom"
+  fix: "Bấm Tạo đơn bù trong bảng xử lý bù hàng trước đây luôn báo Dữ liệu đã thay đổi và không sinh đơn nào, dù phiếu đã được duyệt và bảng vẫn hiện đủ số liệu. Nguyên nhân là các ô chỉ để xem trong bảng đó bị khoá ở tầng sâu nhất, nên khi bấm nút, phần mềm chỉ nhận lại được ô số lượng giao mà mất hết thông tin cửa hàng, sản phẩm và đơn vị tính, rồi tự kết luận rằng dữ liệu đã bị người khác sửa. Nay các ô chỉ để xem vẫn khoá không cho gõ nhưng giá trị được gửi kèm đầy đủ, và quan trọng hơn, lúc bấm nút phần mềm tự tính lại toàn bộ nhóm bù và thứ tự ưu tiên trực tiếp từ các phiếu đang có trong hệ thống chứ không tin vào những gì màn hình gửi lên. Nhờ vậy dù người dùng không mở từng nhóm ra xem thì kết quả vẫn đúng. Cơ chế cảnh báo dữ liệu đã thay đổi vẫn giữ, nhưng nay chỉ bật khi quyền lợi thật sự thay đổi giữa lúc mở bảng và lúc bấm nút"
+  impact: "Chỉ chức năng Xử lý bù hàng ở backend. Mỗi cửa hàng vẫn gom đúng một đơn bù cho một lần xử lý, giá trị 0 đồng, chia theo thứ tự phiếu duyệt trước được bù trước. Thao tác lại lần hai trên phiếu đã bù hết sẽ báo không có yêu cầu hợp lệ chứ không sinh đơn trùng. Không đổi dữ liệu cũ, không đổi quyền, không đụng phần Portal. Đã bổ sung sáu phép thử tự động chạy đúng đường mà màn hình thật đi, trong đó có một phép thử canh chừng để lỗi này không tái phát"
+  retest: "Chọn vài phiếu bù hàng đã duyệt của cùng một cửa hàng, vào Thao tác chọn Xử lý bù hàng, KHÔNG mở từng nhóm ra xem, bấm thẳng Tạo đơn bù: phải sinh đúng một đơn bù giá trị 0 cho cửa hàng đó, các dòng đúng sản phẩm bù và đúng đơn vị giao. Mở phiếu gốc kiểm phần đã phân bổ và phần còn lại. Với phiếu có đơn vị quyền lợi khác đơn vị giao, ví dụ quyền lợi tính theo ki-lô-gam mà giao theo thùng, số lượng giao phải làm tròn xuống theo quy cách và phần lẻ vẫn treo lại chờ đợt sau. Chạy lại Xử lý bù hàng trên đúng những phiếu vừa bù hết: phải báo không có yêu cầu hợp lệ và không sinh thêm đơn nào. Thử mở bảng xử lý rồi để đó, nhờ người khác huỷ một phiếu trong danh sách, quay lại bấm Tạo đơn bù: phải báo dữ liệu đã thay đổi và không tạo đơn sai số"
+  limit: "Không có"
+
+UAT-BH-003:
+  sprint: "2026-08-25-D1"
+  build_override: "Chờ deploy UAT | 25/08/2026 | Sprint 2026-08-25-D1 | commit: 8613813 | wujia_portal_return 19.0.2.7.0 — deploy: -u wujia_portal_return,wujia_sale, không cập nhật dữ liệu, không module mới | Đo trên bản dựng cô lập: trước khi sửa màn hiện 10 dòng giả REF0001 đến REF0010 kèm dòng chữ chưa có dữ liệu, sau khi sửa hết sạch dòng giả; khi có đơn bù thật thì hiện đúng 3 trên tổng 35 đơn hàng trong hệ thống | URL: Bù hàng > Đơn bù hàng"
+  url: "Backend — Bù hàng > Đơn bù hàng"
+  odoo_fit: "Odoo standard (đổi cấu hình màn danh sách)"
+  fix: "Màn Đơn bù hàng trước đây vừa hiện dòng chữ chưa có dữ liệu vừa hiện mười dòng đơn hàng lạ mang mã REF0001 đến REF0010. Đây không phải dữ liệu thật và cũng không phải lỗi lọc: mười dòng đó là dữ liệu mẫu do Odoo tự dựng ra để minh hoạ mỗi khi danh sách đơn hàng trống, một tính năng mặc định của màn đơn hàng gốc. Vì lỗi không tạo được đơn bù nên danh sách luôn trống, và lần nào mở màn cũng thấy dữ liệu mẫu. Nay màn Đơn bù hàng dùng bảng riêng đã tắt hẳn tính năng dựng dữ liệu mẫu, đồng thời chỉ còn sáu cột đúng nghiệp vụ bù hàng là mã đơn, cửa hàng, khách hàng, ngày đặt, tổng tiền và trạng thái, và không cho tạo đơn tay từ màn này"
+  impact: "Chỉ màn Đơn bù hàng ở backend. Danh sách đơn hàng thường của Bán hàng không đổi vì đây là bảng riêng chỉ dùng cho màn này. Không đổi dữ liệu, không đổi quyền. Sau khi lỗi tạo đơn bù được sửa thì màn này bắt đầu có dữ liệu thật, đã kiểm đúng ba đơn bù trong khi hệ thống có ba mươi lăm đơn hàng các loại"
+  retest: "Mở Bù hàng rồi vào Đơn bù hàng khi chưa có đơn bù nào: chỉ được thấy dòng chữ chưa có dữ liệu, tuyệt đối không còn dòng nào mang mã REF. Xử lý một phiếu bù để sinh đơn bù rồi mở lại màn: phải thấy đúng đơn bù vừa tạo, không lẫn đơn hàng bán thường. Đối chiếu số dòng với số đơn bù thật. Kiểm các cột hiện ra đúng sáu cột nghiệp vụ và màn này không có nút tạo mới"
+  limit: "Không có"
+
+UAT-BH-005:
+  sprint: "2026-08-25-D1"
+  build_override: "Chờ deploy UAT | 25/08/2026 | Sprint 2026-08-25-D1 | commit: 8613813 | wujia_portal_return 19.0.2.7.0 + wujia_portal_layout 19.0.32.3.0 — deploy: -u wujia_portal_return,wujia_sale,wujia_portal_layout, không cập nhật dữ liệu, không module mới | Đo hai khổ màn 1920 và 391: cả hai bản đều đủ bốn ô lọc và chín lựa chọn trạng thái y hệt nhau, tám lần lọc đều trả về đúng và giữ nguyên lựa chọn, không cuộn ngang, đi phím Tab tới được cả bốn ô | URL: /portal/return"
+  url: "/portal/return — bộ lọc danh sách yêu cầu bù hàng (máy tính và điện thoại)"
+  odoo_fit: "Custom"
+  fix: "Bộ lọc của màn danh sách bù hàng trước đây lệch nhau giữa hai bản: bản máy tính có chọn trạng thái và khoảng ngày nhưng thiếu ô tìm theo từ khoá, bản điện thoại có ô từ khoá và khoảng ngày nhưng lại thiếu chọn trạng thái. Nay cả hai bản đều có đủ bốn thứ là từ khoá, trạng thái, từ ngày và đến ngày, dùng chung một cách xử lý ở máy chủ nên kết quả trả về giống hệt nhau. Phần xử lý vốn đã nhận đủ các điều kiện này từ trước, đợt này chỉ bổ sung ô nhập còn thiếu chứ không thêm luật lọc mới. Ô từ khoá ở hai bản nay ghi cùng một dòng gợi ý là mã yêu cầu, mã đơn hoặc sản phẩm, đúng với phạm vi tìm kiếm thật vì hệ thống còn tìm cả theo mã chuyến và mã sản phẩm"
+  impact: "Chỉ màn danh sách yêu cầu bù hàng của Portal. Không đổi dữ liệu, không đổi quyền xem, không đổi cách phân trang. Ô chọn trạng thái trên bản điện thoại tự lọc ngay khi chọn nên không cần bấm thêm nút. Có thêm một kiểu ô chọn dùng chung mới cho Portal, đặt cạnh kiểu ô ngày sẵn có, không sửa kiểu cũ nào. Đã kiểm bằng bàn phím: đi phím Tab tới được đủ bốn ô ở cả hai khổ màn và không lọt vào ô của bản đang bị ẩn"
+  retest: "Mở danh sách bù hàng trên máy tính: phải có đủ ô từ khoá, chọn trạng thái, từ ngày và đến ngày. Gõ một mã yêu cầu vào ô từ khoá rồi lọc, sau đó thử gõ tên sản phẩm: kết quả phải thu hẹp đúng. Mở cùng màn trên điện thoại: cũng phải có đủ bốn thứ đó, chọn trạng thái là danh sách tự lọc ngay. Lọc cùng một điều kiện ở hai bản và so kết quả: phải giống nhau. Sau khi lọc, ô chọn phải giữ nguyên lựa chọn vừa chọn. Thu màn hình còn 360 điểm ảnh: không được cuộn ngang. Nhấn Tab lần lượt: phải đi qua đủ bốn ô đang nhìn thấy"
+  limit: "Các ô lọc trên bản điện thoại hiện cao 38 điểm ảnh, chưa đạt mức chạm 44 đến 48 điểm ảnh. Phần này thuộc đúng phạm vi issue UAT-BH-009 nên Dev cố ý chưa đụng ở đợt này để không trộn hai issue vào một lần sửa"
+
+UAT-BH-006:
+  sprint: "2026-08-25-D1"
+  build_override: "Chờ deploy UAT | 25/08/2026 | Sprint 2026-08-25-D1 | commit: 8613813 | wujia_portal_return 19.0.2.7.0 — deploy: -u wujia_portal_return,wujia_sale, không cập nhật dữ liệu, không module mới | Đo trên bộ dữ liệu dựng đủ tám trạng thái: tám lần lọc cho ra các tập rời nhau và cộng lại đúng bằng tổng danh sách, mọi dòng trả về đều hiện đúng chữ của nhãn vừa lọc | URL: /portal/return"
+  url: "/portal/return — nhãn và bộ lọc trạng thái yêu cầu bù hàng"
+  odoo_fit: "Custom"
+  fix: "Danh sách chọn trạng thái trước đây có hai dòng cùng ghi Đang xử lý vì hai trạng thái nghiệp vụ khác nhau bị đặt trùng tên, còn nhãn Đang bù một phần thì chỉ hiện được trên thẻ chứ không chọn lọc được vì nó không phải một trạng thái lưu trong hệ thống mà là kết hợp của đang xử lý và đã giao được một phần. Nay nhãn hiển thị và nhãn trong ô lọc dùng chung một danh sách duy nhất nên không thể lệch nhau nữa: mỗi nhãn chỉ xuất hiện một lần, nhãn Đang bù một phần lọc ra đúng những yêu cầu đã giao được một phần, và nhãn Đang xử lý gom cả giai đoạn đang xem xét lẫn đang xử lý nhưng loại ra phần đã bù một phần để hai nhãn không chồng lấn"
+  impact: "Chỉ nhãn và bộ lọc trạng thái của màn danh sách bù hàng trên Portal, cả bản máy tính lẫn điện thoại. Không đổi trạng thái lưu trong hệ thống, không đổi luồng duyệt, không đổi dữ liệu cũ. Đã dựng dữ liệu đủ tám trạng thái để kiểm: cộng số dòng của tám nhãn lại đúng bằng tổng danh sách khi không lọc, nghĩa là các nhãn không trùng nhau và cũng không bỏ sót yêu cầu nào"
+  retest: "Mở ô chọn trạng thái ở màn danh sách bù hàng: phải thấy đủ các nhãn Đã gửi, Đang xử lý, Đã duyệt, Đang bù một phần, Hoàn tất, Từ chối, Đã huỷ và không còn hai dòng trùng chữ Đang xử lý. Chọn Đang bù một phần: chỉ ra những yêu cầu đã được giao một phần. Chọn Đang xử lý: ra các yêu cầu đang xem xét hoặc đang xử lý nhưng KHÔNG lẫn yêu cầu đang bù một phần. Với mỗi nhãn, đối chiếu chữ trạng thái hiện trên từng dòng kết quả phải đúng bằng nhãn vừa chọn. Cộng số kết quả của tất cả các nhãn lại phải bằng tổng số yêu cầu khi không lọc"
+  limit: "Dev có bổ sung thêm một nhãn ngoài bảy nhãn BA liệt kê là nhãn Nháp, vì Portal thực tế vẫn liệt kê các yêu cầu còn ở dạng nháp; nếu thiếu nhãn này thì cộng tất cả bộ lọc lại sẽ không phủ hết danh sách. Nhờ BA xác nhận khi nghiệm thu: giữ nhãn Nháp, hay ẩn hẳn yêu cầu nháp khỏi danh sách Portal — trường hợp sau là thay đổi nghiệp vụ chứ không phải sửa bộ lọc"
+# =====================================================================================
+# Cụm D2 26/08 — WJ-PORTAL-UI-002 (BA audit UAT 22/08, Related Feature UI-02).
+# Số đo: docs/d2-acceptance-matrix.md — 14/14 gạch acceptance, 80 ô đo trên chính UAT,
+# hồi quy B4 286/286 + tab-walk 331 stop. Kiểm kê gốc rễ: docs/d2-font-inventory.md.
+WJ-PORTAL-UI-002:
+  sprint: "2026-08-26-D2"
+  build_override: "ĐÃ DEPLOY UAT 27/08/2026 — sẵn sàng retest | 26/08/2026 | Sprint 2026-08-26-D2 | commit: b70d26a | wujia_portal_layout 19.0.32.4.0 (đã đối chiếu trên máy chủ, đúng phiên bản) — deploy: -u wujia_portal_layout, không cập nhật dữ liệu, không module mới, số hiệu bộ giao diện 1177 đã có hiệu lực trên máy chủ | Đo lại ngay trên máy chủ UAT sau khi cài đặt, ở 16 màn và 5 khổ màn 360, 390, 430, 500 và 1440: số chỗ còn dùng font khác từ 145 lượt xuống 0, không một ô nào lệch về chiều cao trang, số dòng tiêu đề, độ tràn ngang, độ đậm chữ hay font biểu tượng; chữ Thái và chữ Trung nay ra đúng font dự phòng đã khai. Hồi quy trên chính máy chủ: bộ kiểm tiêu đề trang 286 trên 286 đạt, đi bằng phím Tab qua 346 điểm dừng không đổi | URL: /portal"
+  url: "/portal — toàn bộ Portal, cả bản máy tính và điện thoại"
+  odoo_fit: "Custom"
+  fix: "Một số tiêu đề trên Portal vẫn hiện bằng font Inter Tight thay vì Inter, cụ thể là tiêu đề Danh sách phiếu khảo sát ở bản máy tính, và ở bản điện thoại là Hóa đơn trong tuần của Công nợ, tên kỳ thi của Đăng ký thi, Hồ sơ cá nhân của Hồ sơ. Nguyên nhân đã đo trực tiếp trên máy chủ: luật ép font Inter đặt từ đợt trước chỉ có hiệu lực bên trong khung nội dung chính, trong khi các màn dành cho điện thoại và khối danh sách của trang Khảo sát lại được dựng bên ngoài khung đó, nên chúng nhận font mặc định của Odoo. Đây không phải lỗi của riêng bốn màn BA nêu mà là một luật đặt hụt phạm vi, nên máy quét ra thêm ba chỗ nữa cùng bệnh mà BA chưa kịp thấy là Báo cáo đặt hàng, Thông tin cửa hàng và Đổi trả, cộng thêm tiêu đề trong khay thông báo của chuông vốn chỉ hiện khi bấm vào. Nay luật ép font được đặt lại ở phạm vi toàn trang nên mọi tiêu đề ở mọi màn đều là Inter, sửa một lần cho tất cả chứ không vá từng màn. Font biểu tượng giữ nguyên hoàn toàn. Kèm theo đó, Portal nay khai rõ font dự phòng cho chữ Thái và chữ Trung: bộ chữ Inter mà Portal tự cài chỉ có sẵn chữ Latinh và chữ Việt, nên trước đây chữ Thái và chữ Trung tuỳ máy người dùng mà hiện font gì cũng được, riêng chữ Trung còn bị chọn nhầm sang biến thể tiếng Nhật nên hình chữ sai kiểu vùng. Chữ Latinh và chữ Việt không đổi vì Inter vẫn được ưu tiên trước"
+  impact: "Toàn bộ Portal, cả máy tính lẫn điện thoại, vì đây là một luật giao diện dùng chung. Đã đo trước và sau trên chính máy chủ UAT ở 16 màn và 5 khổ màn: chiều cao từng trang, số dòng của từng tiêu đề, độ tràn ngang, font biểu tượng và lỗi kịch bản đều giống hệt nhau, không một ô nào lệch. Để chắc chắn con số này không bị nhiễu bởi chính cách đo, đã chạy thêm một lượt đối chứng nạp lại bản chưa sửa theo đúng cách đo đó, và lượt đối chứng cho ra cùng những chênh lệch nhỏ về chiều cao, chứng tỏ chênh lệch ấy là do cách đo chứ không do bản sửa. Không đổi cỡ chữ, không đổi độ đậm nhạt, không đổi màu, không đổi dữ liệu, không đổi quyền. Riêng độ đậm của tiêu đề cố ý giữ nguyên như cũ để không phá quy cách tiêu đề mục đã được duyệt ở đợt trước"
+  retest: "Mở lần lượt Trang chủ, Đặt hàng, Công nợ, Lịch sử thanh toán, Đăng ký thi, Hồ sơ, Giao hàng, Thông báo, Kiến thức, Hỗ trợ, Đổi trả, Lịch sử mua hàng, Báo cáo đặt hàng, Khảo sát, Yêu cầu thông tin và Thông tin cửa hàng, ở cả máy tính và điện thoại. Kiểm font của tiêu đề, nhãn, nội dung, bảng, thẻ, menu, biểu mẫu và nút: tất cả phải là Inter, không còn chỗ nào là Inter Tight. Chú ý bốn chỗ BA đã nêu là tiêu đề Danh sách phiếu khảo sát trên máy tính, Hóa đơn trong tuần ở Công nợ, tên kỳ thi ở Đăng ký thi và Hồ sơ cá nhân ở Hồ sơ. Bấm chuông thông báo và kiểm tiêu đề trong khay. Kiểm các biểu tượng mũi tên, chuông, tìm kiếm vẫn hiện đúng hình chứ không thành ô vuông. Thu màn hình lần lượt về 360, 390, 430 và 500 điểm ảnh: không được xuất hiện thêm chỗ nào bị xuống dòng khác trước, không cuộn ngang. Đổi ngôn ngữ sang tiếng Thái và xem lại vài màn: chữ Thái phải hiện đủ nét, không có ô vuông trống. Nếu vẫn thấy font cũ thì tải lại trang bỏ qua bộ nhớ đệm vì bộ giao diện đã tăng số hiệu"
+  limit: "Font dự phòng cho chữ Thái và chữ Trung khai theo tên font có sẵn trên máy người dùng chứ Portal không tự tải font về, để không bắt 1500 người dùng tải thêm vài megabyte mỗi lần vào. Máy nào không có sẵn các font đó thì vẫn hiện như hiện nay, không tệ hơn, nhưng giữa các máy có thể hơi khác nét nhau. Chữ Latinh và chữ Việt thì chắc chắn giống nhau ở mọi máy vì Portal tự cài font. Ngoài ra tiếng Trung hiện chưa được bật trên máy chủ UAT nên phần chữ Trung mới chỉ kiểm được bằng chữ mẫu chứ chưa kiểm trên màn thật; bản dịch đã có sẵn, chỉ cần bật ngôn ngữ là dùng được. Cuối cùng, độ đậm của tiêu đề cố ý không đụng tới dù nó cũng đang bị đặt hụt phạm vi giống hệt phần font, vì sửa sẽ làm nhạt các tiêu đề mục đã được duyệt ở đợt trước; nếu BA muốn thống nhất cả độ đậm thì mở một issue riêng"
+# =====================================================================================
+
+# =====================================================================================
+# UI-CARDHEADER-001 (STT 125) — D3f 04/09: đã phủ 95 trên 105 chỗ gọi
+# (D3a 10 + D3b 26 + D3c 11 + D3d 14 + D3e 24 + D3f 10). Issue CỐ Ý GIỮ `Ready for Dev`,
+# CHƯA handoff — đúng tiền lệ C8a→C8b. KHÔNG chạy qa_sync.py cho tới khi đủ 100%.
+# Số đo từng cụm: docs/d3{,b,c,d,e,f}-acceptance-matrix.md. Kiểm kê: docs/d3-cardheader-inventory.md.
+#
+# ⚠️ Mẫu số đổi 103 → 105: 103 của D3a lệch 2 (mẫu số honest sau khi vá bug đếm của
+#    scratchpad/d3_inventory.py là 101), cộng 4 chỗ D3f phát sinh mà kiểm kê không bắt.
+# DANH SÁCH ACTIONABLE ĐÃ HẾT. Còn đúng 4 chỗ defer chờ BA (§6 inventory) + các chỗ §3:
+#    franchise_information:40/49 · exam:375 parthead · exam:769 · inspection_list:34 · debt:688.
+# ⇒ Phiên kế KHÔNG phải migrate tiếp, mà là REVIEW LẠI TOÀN CỤM D3 BẰNG ẢNH CHỤP
+#    (chủ dự án chốt 04/09) + một lượt gửi BA gộp 5 câu hỏi treo ở trên.
+#
+# ✅ D3 REVIEW 04/09 ĐÃ CHẠY — docs/d3-review-matrix.md. Vẫn 95/105, KHÔNG migrate thêm.
+#    Đo QUAN HỆ 31 route × 4 viewport = 124 lượt, 174 CardHeader: 0 lỗi JS, 0 tràn ngang,
+#    0 nhóm cỡ chữ DRIFT chưa giải trình. Sửa 3 chỗ: khối con màn thi 18→16px (D3d làm mất
+#    phân cấp mà bảng số vẫn Pass) · head danh mục khảo sát mobile #0284c7→#0369a1
+#    (tương phản 3.74 → 5.42, lỗi a11y CÓ SẴN) · gom 2 rule nhãn phụ trùng nhau về modifier
+#    chung. Xoá 17 lớp CSS chết (semantic diff: MẤT đúng danh sách, THÊM 0).
+#    Test wujia_card_header_d3: 0 failed / 52 (baseline D3f 44), 8 guard mới đều
+#    chứng minh bằng mutation. Δquery 7/7 route D3 = 0.
+#    VẪN CHƯA 100% ⇒ giữ nguyên COMMENT, KHÔNG chạy qa_sync.py.
+#
+# ⚠️ Khối YAML bên dưới vẫn là số liệu của D3a — D3n phải viết lại theo tổng cuối cùng,
+#    đừng bỏ dấu # rồi đẩy nguyên số cũ lên sheet.
+# 🔧 D3n (phiên phủ nốt 100%) chỉ việc BỎ dấu # của khối dưới, cập nhật lại các con số
+#    rồi chạy `python3 qa_sync.py --apply --only UI-CARDHEADER-001`.
+#
+# UI-CARDHEADER-001:
+#   sprint: "2026-08-27-D3a"
+#   build_override: "Chờ deploy UAT | 27/08/2026 | Sprint 2026-08-27-D3a | wujia_portal_layout 19.0.32.5.0 + wujia_portal_support 19.0.3.13.0 + wujia_portal_delivery 19.0.3.7.0 + wujia_portal_base 19.0.7.5.0 + wujia_portal_return 19.0.2.8.0 — deploy: -u wujia_portal_layout,wujia_portal_support,wujia_portal_delivery,wujia_portal_base,wujia_portal_return,wujia_sale, không cập nhật dữ liệu, không thêm phần mềm mới, số hiệu bộ giao diện 1178 | URL: /portal/support, /portal/delivery/<mã chuyến>, /portal/franchise-information, /portal/return/new"
+#   url: "Portal — tiêu đề nằm trong thẻ, cả bản máy tính và điện thoại"
+#   odoo_fit: "Custom"
+#   fix: "Tiêu đề nằm bên trong các thẻ nội dung nay dùng chung một khuôn duy nhất thay vì mỗi màn tự viết một kiểu. Trước đây cùng là tiêu đề trong thẻ mà nơi dùng cỡ 17, nơi 18, nơi 20, nơi 22, có nơi lại là chữ thường giả dạng tiêu đề. Nay bản máy tính thống nhất cỡ 18 dòng cao 24 và cách phần nội dung bên dưới đúng 12, bản điện thoại cỡ 16 dòng cao 22 và cách 8. Bản cỡ lớn hơn dành cho thẻ cấp cao là 20 dòng cao 28 trên máy tính và 18 dòng cao 24 trên điện thoại, chỉ dùng khi BA xác nhận. Chữ tiêu đề nay là tiêu đề thật chứ không còn là đoạn văn giả dạng, mỗi màn tự chọn đúng cấp thứ bậc. Bên phải tiêu đề chỉ được có đúng một thứ, hoặc con số đếm, hoặc liên kết, hoặc một ô điều khiển, không bao giờ hai thứ cùng lúc. Con số đếm vẫn hiện khi bằng 0 chứ không biến mất như trước. Khuôn chung không tự đặt chiều cao và không tự đặt lề trong, để mật độ của thẻ giữ nguyên như cũ."
+#   impact: "Đợt này mới áp cho bốn màn đại diện bốn kiểu dựng giao diện khác nhau là Hỗ trợ, Chi tiết chuyến giao, Thông tin cửa hàng và Tạo yêu cầu bù hàng, tổng cộng mười tiêu đề. Không đụng dữ liệu, quyền xem hay luồng nghiệp vụ. Đã đo trước và sau ở bốn khổ màn 1920, 1440, 390 và 360: không màn nào cao lên, ba trong bốn màn còn thấp đi 20, 22 và 104 điểm ảnh, nghĩa là gọn hơn chứ không thưa ra. Số chỗ dùng chữ thường giả dạng tiêu đề giảm từ 8 xuống 0. Bộ kiểm tiêu đề trang vẫn 286 trên 286 đạt, đi bằng phím Tab qua 175 điểm dừng không đổi thứ tự và không mất viền chỉ dấu, font toàn trang vẫn là Inter y như trước. Chạy lại toàn bộ 105 phép thử tự động của năm phần mềm bị chạm tới, tất cả đều đạt."
+#   retest: "Mở lần lượt Hỗ trợ, Chi tiết một chuyến giao, Thông tin cửa hàng trên máy tính và Tạo yêu cầu bù hàng trên điện thoại. Mọi tiêu đề nằm trong thẻ phải cùng một cỡ chữ trong cùng một khổ màn hình. Ở màn Tạo yêu cầu bù hàng trên điện thoại, bốn dòng Thông tin đơn hàng, Số lượng và lô, Nội dung lỗi, Hình ảnh đính kèm phải là tiêu đề thật và khoảng cách xuống phần nội dung phải đều nhau, không còn thưa như trước. Ở màn Hỗ trợ, lọc trạng thái Đã huỷ cho ra danh sách rỗng: dòng đếm phải hiện 0 chứ không được biến mất. Ở màn Chi tiết chuyến giao, nút tải danh sách sản phẩm vẫn phải ở bên phải tiêu đề và bấm được. Thu màn hình còn 360 điểm ảnh: không cuộn ngang, tiêu đề không bị cắt bằng ba chấm, phần bên phải không tự ẩn. So chiều cao trang trước và sau khi cài đặt: không màn nào được cao lên."
+#   limit: "Thứ nhất, đợt này mới phủ 4 trên 103 chỗ gọi nên chưa thể nghiệm thu toàn bộ issue, các đợt sau sẽ phủ nốt theo bản kiểm kê đã lập. Thứ hai, bảng thành phần vừa yêu cầu tiêu đề dài chỉ xuống tối đa hai dòng vừa cấm cắt chữ bằng ba chấm, hai yêu cầu này chỏi nhau vì chặn hai dòng thì bắt buộc phải cắt chữ. Dev chọn luôn hiện đủ chữ. Đã đo thực tế: hai dòng chứa được khoảng 64 ký tự trên điện thoại và 96 ký tự trên máy tính, trong khi tiêu đề dài nhất đang có trong toàn hệ thống chỉ 22 ký tự, nên trên thực tế mọi tiêu đề đều nằm gọn một dòng. Nhờ BA chốt lại ưu tiên cái nào. Thứ ba, khối thông tin cửa hàng kiểu thẻ đầu trang có hai vùng bên phải là dãy nhãn trạng thái và ô quyền xem, trong khi bảng thành phần chỉ cho phép một vùng bên phải, nên Dev cố ý chưa đụng vào khối đó và chờ BA trả lời. Thứ tư, thẻ bộ lọc hiện chưa màn nào có tiêu đề nên đây là dựng mới chứ không phải chuyển đổi, sẽ làm ở đợt sau. Thứ năm, độ đậm tiêu đề là 700 theo đúng khoảng 600 đến 700 mà bảng thành phần cho phép, vì toàn Portal đang bị ép cứng 700 từ một yêu cầu trước đó."
+# =====================================================================================
+
+# =====================================================================================
+# WJ-FRANCHISE-003 (STT 134) — Onboarding cửa hàng một luồng, 04/09/2026.
+# Số đo: docs/wj-franchise-003-acceptance-matrix.md (21,5/22 = 97,7%).
+# Những chỗ Dev tự quyết mà spec không nói: docs/wj-franchise-003-dev-decisions.md (12 mục,
+# BA cần rà — trong đó mục 11 đề xuất mở issue riêng cho chỗ tự sinh user ở màn giám sát;
+# mục 13 ghi việc dịch màn hình sang tiếng Việt, phát sinh khi kiểm trên trình duyệt 04/09).
+WJ-FRANCHISE-003:
+  sprint: "2026-09-04-WJ-FRANCHISE-003"
+  build_override: "ĐÃ DEPLOY UAT 04/09/2026 — sẵn sàng retest | Sprint 2026-09-04-WJ-FRANCHISE-003 | commit: 8a4932e + d24bfe3 + 7568711 | wujia_franchise 19.0.4.0.2 — đã kiểm chỉ-đọc trên chính máy chủ thử nghiệm sau khi cài, không tạo và không sửa dữ liệu gì: phần mềm ở đúng bản 19.0.4.0.2 và đang chạy; menu Onboarding cửa hàng, toàn bộ nhãn trường, danh sách chọn, tiêu đề hộp thoại khi tạo cửa hàng mới và khi thêm người dùng đều đã ra tiếng Việt. Deploy: -u wujia_franchise — deploy: -u wujia_franchise, không cập nhật dữ liệu, không thêm phần mềm mới, không đổi giao diện Portal nên không cần đổi số hiệu bộ giao diện | Kiểm trên bản sao cơ sở dữ liệu riêng, cổng riêng, không đụng máy chủ đang chạy: cài đặt sạch không lỗi, 18 phép thử mới đều đạt, mỗi lớp kiểm tra đều được chứng minh là có tác dụng bằng cách tạm gỡ ra và thấy đúng phép thử tương ứng đỏ; chạy lại toàn bộ 13 phần mềm liên quan cho ra 299 phép thử với 7 lỗi y hệt lượt đối chứng chạy trên bản chưa sửa, nghĩa là không sinh lỗi mới | Sau lượt kiểm trên trình duyệt ngày 04/09 đã bổ sung bản dịch tiếng Việt cho toàn bộ màn onboarding vào mã nguồn, bỏ đánh số ở tiêu đề ba khối và đổi tiêu đề hộp thoại theo chế độ; kiểm lại trên bản sao cơ sở dữ liệu riêng: không còn nhãn nào chưa dịch, 18 phép thử vẫn đạt cả 18, cài đặt sạch không lỗi | URL: Backend — Quản lý nhượng quyền > Vận hành > Onboarding cửa hàng"
+  url: "Backend — Franchise Management: Operations > Store Onboarding, và nút trên hồ sơ cửa hàng"
+  odoo_fit: "Custom"
+  fix: "Trước đây mở một cửa hàng mới phải đi qua ba màn rời nhau: tạo hồ sơ cửa hàng, tự tìm rồi gắn đối tác, sang phần Người dùng tạo tài khoản và phải tự biết chọn đúng loại tài khoản, rồi quay lại cửa hàng gán thành viên. Nay có một màn duy nhất làm trọn cả bốn việc. Cửa hàng mới sinh ra ở trạng thái Nháp. Ở bước đối tác, người quản trị chọn tạo mới hoặc nối vào một đối tác sẵn có; nếu tạo mới mà hệ thống thấy đã có đối tác trùng tên, trùng tám số cuối điện thoại, trùng thư điện tử hoặc trùng mã số thuế thì hiện thẳng danh sách nghi trùng và dừng lại cho tới khi người quản trị xác nhận vẫn muốn tạo; nếu nối vào đối tác sẵn có mà đối tác đó đã là chủ thể của cửa hàng khác thì hiện cảnh báo ngay tại chỗ. Ở bước người dùng, mỗi dòng chọn tạo tài khoản mới hoặc dùng tài khoản sẵn có. Tạo mới thì hệ thống tự kiểm tên đăng nhập và thư điện tử, đã có ai dùng rồi thì báo và bắt chuyển sang dùng tài khoản sẵn có chứ không đẻ tài khoản thứ hai; tạo xong tài khoản chỉ mang quyền cổng thông tin, không hề có ô chọn loại tài khoản và không cần bật chế độ kỹ thuật. Dùng tài khoản sẵn có thì hệ thống chặn rõ ràng ba trường hợp: tài khoản thuộc nhóm nội bộ, tài khoản đã bị lưu trữ, và tài khoản đã là thành viên của chính cửa hàng này; cả ba trường hợp đều chỉ báo lỗi chứ tuyệt đối không tự sửa quyền của ai. Hồ sơ cá nhân của người dùng được tạo riêng, không bị gán nhầm thành hồ sơ đối tác của cửa hàng, nên công nợ của cửa hàng và giao dịch cá nhân không lẫn vào nhau. Toàn bộ việc kiểm tra chạy xong hết rồi mới bắt đầu ghi, nên hỏng ở bất kỳ bước nào cũng không để lại cửa hàng hay tài khoản mồ côi. Cuối cùng, nút Kích hoạt nay chỉ bấm được khi cửa hàng đã có đối tác và ít nhất một chủ tiệm còn hiệu lực; thiếu cái nào hệ thống nói thẳng thiếu cái đó và giữ cửa hàng ở Nháp."
+  impact: "Chỉ phần quản trị nhượng quyền ở giao diện nội bộ. Cổng thông tin của cửa hàng không đổi một dòng nào. Không thêm bảng, không đổi cấu trúc dữ liệu, không có bước cập nhật dữ liệu cũ: cửa hàng đang có trên máy chủ giữ nguyên trạng thái, chỉ cửa hàng tạo mới từ nay mới sinh ra ở Nháp. Điều kiện kích hoạt đặt ở nút bấm chứ không phải ràng buộc dữ liệu, nên cửa hàng cũ đang hoạt động mà thiếu chủ tiệm vẫn sửa và vận hành bình thường, không bị khoá cứng. Đã đọc số liệu thật trên máy chủ trước khi làm: ba cửa hàng đều đang hoạt động, không cửa hàng nào thiếu đối tác, một cửa hàng mã HN-02 thiếu chủ tiệm hiệu lực. Kiểm tra chạy trên một bản sao cơ sở dữ liệu riêng ở cổng riêng, không đụng máy chủ đang chạy: 18 phép thử mới đều đạt và mỗi lớp kiểm tra đều được chứng minh có tác dụng bằng cách tạm gỡ ra thấy đúng phép thử tương ứng đỏ; chạy lại toàn bộ 13 phần mềm liên quan được 299 phép thử với 7 lỗi, và lượt đối chứng chạy đúng lệnh đó trên bản chưa sửa cũng ra đúng 7 lỗi ấy, nên bảy lỗi đó là vốn có của cơ sở dữ liệu kiểm thử chứ không phải do đợt sửa này."
+  retest: "Vào Quản lý nhượng quyền, mục Vận hành, chọn Onboarding cửa hàng. Nhập mã và tên cửa hàng, ngày kết thúc hợp đồng, chọn Tạo đối tác mới với tên và số điện thoại giống một đối tác đã có: hệ thống phải hiện danh sách nghi trùng và không cho lưu cho tới khi tích ô xác nhận. Thêm một dòng người dùng, chọn Tạo tài khoản mới, đặt vai trò Chủ tiệm và tích Chủ tiệm chính, rồi xác nhận. Kết quả phải là: cửa hàng hiện ra ở trạng thái Nháp, đã gắn đối tác, tab Thành viên có đúng một dòng. Vào phần Người dùng kiểm tài khoản vừa tạo: chỉ có quyền cổng thông tin, và hồ sơ liên hệ của tài khoản KHÔNG phải hồ sơ đối tác của cửa hàng. Chạy lại đúng màn onboarding đó lần nữa cho cùng cửa hàng: không được sinh thêm đối tác thứ hai, và thêm lại đúng người dùng cũ phải báo lỗi trùng thành viên chứ không tạo dòng thứ hai. Thử dòng người dùng chọn Dùng tài khoản sẵn có và trỏ vào một tài khoản nhân viên nội bộ: phải báo lỗi nói rõ đó là tài khoản nội bộ, và sau khi báo lỗi thì quyền của tài khoản đó phải y nguyên. Cuối cùng bấm Kích hoạt trên một cửa hàng Nháp chưa có chủ tiệm: phải bị chặn, báo rõ còn thiếu chủ tiệm, và cửa hàng vẫn ở Nháp; gán chủ tiệm rồi bấm lại thì mới chuyển sang Đang hoạt động."
+  limit: "Thứ nhất, cửa hàng ở trạng thái Nháp mới chỉ bị chặn ở cổng thông tin của cửa hàng, còn ở giao diện nội bộ thì vẫn tạo và xác nhận đơn hàng, ghi sổ hoá đơn cho cửa hàng Nháp được. Chỗ chặn đó nằm trong phần vừa nghiệm thu ở đợt sửa trước về gắn cửa hàng cho chứng từ, đụng vào là phải chạy lại toàn bộ kiểm tra của đợt ấy, nên đợt này cố ý không đụng. Nhờ BA cho biết có cần chặn cả ở giao diện nội bộ không, nếu có thì mở một mục riêng. Thứ hai, mật khẩu và thư mời vẫn nằm ngoài phạm vi đúng như BA ghi: hệ thống không gửi thư nào khi tạo tài khoản, người quản trị tự đặt mật khẩu ở phần Người dùng rồi báo cho cửa hàng. Thứ ba, việc dò trùng theo số điện thoại chỉ so tám chữ số cuối, và bản Odoo này đã bỏ hẳn ô Di động trên hồ sơ đối tác nên không dò được ô đó. Thứ tư, đợt này chưa thao tác thật trên máy chủ kiểm thử vì quy định không tạo cửa hàng hay tài khoản thật ở đó, nên nhờ BA chạy lại kịch bản trên sau khi cài đặt. Thứ năm, còn một chỗ khác cũng đang tự sinh tài khoản cổng thông tin theo cách cũ là màn phiếu giám sát cửa hàng: nó tìm người theo tên rồi tự đặt tên đăng nhập ngẫu nhiên, đúng kiểu sinh tài khoản trùng mà mục này muốn dẹp, nhưng nằm ở luồng giám sát nên đợt này không sửa, đề nghị BA mở một mục riêng. Thứ sáu, toàn bộ mười hai điểm Dev phải tự quyết vì spec không nói đã ghi thành một bản riêng để BA rà, trong đó đáng chú ý là việc cửa hàng tạo tay ngoài màn onboarding từ nay cũng sinh ra ở Nháp, và cửa hàng mã HN-02 trên máy chủ hiện thiếu chủ tiệm hiệu lực."
+
+# =====================================================================================
+# UI-SURFACECARD-001 (STT 127) — D4b 04/09: mới phủ 12 trên 384 lượt dùng (~3%).
+# Issue CỐ Ý GIỮ `Ready for Dev`, CHƯA handoff — đúng tiền lệ C8a→C8b và D3a→D3f.
+# KHÔNG chạy qa_sync.py cho tới khi phủ đủ (kế hoạch chia lượt: D4b…D4f,
+# docs/next-session-clusters-D.md mục D4; kiểm kê: docs/d4-surfacecard-inventory.md).
+#
+# ✅ D4b XONG — hai họ `wujia-kpi-card` (4) + `wujia-content-card` (8), 6 file.
+#    Số đo: docs/d4b-acceptance-matrix.md.
+#    Dựng nền cho cả cụm: component `wj_surface_card` + 4 token density/gap/radius.
+#    Đạt đủ bảng BA ở 5 khổ: radius 16/14 · viền 1px #EEF2F5 (PC) / #E5E7EB (mobile) ·
+#    KHÔNG shadow · padding compact 16→12, regular 20→14 · gap 12/8.
+#    Acceptance BA #11 (số record thấy trong viewport không giảm): 25/25 ô ĐẠT.
+#    22 test, 0 failed; 10/10 guard chứng minh bằng mutation.
+#    RULE 1 + RULE 2 (d3-review-matrix §1) chạy lại: GIỐNG HỆT baseline, 0 cờ mới.
+#
+# 🔴 Ba điều D4c…D4f phải mang theo:
+#    1. Bẫy #4 của inventory §7 CÓ THẬT và RULE 1/2 KHÔNG bắt được: đặt `gap` ở rule
+#       gốc SurfaceCard làm nhịp header→body thành 24px (12 margin của wj_card_header
+#       + 12 gap) trong khi D3 vừa hội tụ về 12. RULE 1/2 sạch vì nó đo sự KHÔNG ĐỀU,
+#       mà lỗi này đều tay trên mọi card. Phải đo THẲNG nhịp (scratchpad/d4b_rhythm.py).
+#       ⇒ `gap` chỉ đặt ở biến thể xếp ngang (`--summary`), KHÔNG ở base.
+#    2. Chủ sở hữu dáng khung phải DUY NHẤT: rút hẳn background/radius/shadow/padding
+#       khỏi rule cũ của từng họ thay vì để hai rule cùng đặc hiệu (0,1,0) tranh nhau.
+#    3. `min-height` KHÔNG phải cách làm 4 thẻ cao bằng nhau — nó vốn không làm được
+#       (đo trước: 140/140/105/105 SO LE dù có min-height 100px). Cách đúng là
+#       height:100% trên cả thẻ <a> bọc ngoài lẫn card, để .row stretch chuyền xuống.
+#
+# ⚠️ LIMIT của riêng lượt này, ghi để lượt sau khỏi đo lại:
+#    - Hai họ này là PC-only: dưới 992px chúng render 0x0 ở 4/5 route ⇒ cột mobile của
+#      bảng BA gần như KHÔNG QUAN SÁT ĐƯỢC, chỉ /portal/info-request có một điểm đo thật.
+#      Rule mobile vẫn viết đủ vì D4d sẽ dùng lại chính component này cho họ mobile.
+#    - /portal/support có sẵn bảng tràn khỏi card ở 1024 (-7px) và 992 (-39px). Sau D4b:
+#      1024 hết hẳn, 992 còn -8px. Lỗi CÓ SẴN, D4b thu hẹp chứ không gây ra.
+# =====================================================================================
+
+# =====================================================================================
+# UI-SURFACECARD-001 (STT 127) — D4c 05/09: phủ thêm 36, tổng 48 trên 384 lượt (~12%).
+# Issue VẪN GIỮ `Ready for Dev`, CHƯA handoff — Dev KHÔNG tự đóng Done (QA Operating
+# Standard §2). Chỉ chạy qa_sync.py --apply khi chủ dự án chốt.
+#
+# ✅ D4c XONG — `wj-pc-card` (34) + `wj-pc-acct-headcard` (2) = 36 call site / 20 file,
+#    8 modifier CSS, 10 module `-u` đúng một lần (RC=0, 0 ERROR).
+#    Số đo đầy đủ: docs/d4c-acceptance-matrix.md. wujia_portal_layout → 19.0.34.0.0.
+#
+# FIX
+#    - Token --wj-pc-card-radius 18 → 16 (hội tụ về --wujia-surface-radius); thêm
+#      --wujia-surface-tonal (#F8FAFC) + --wujia-surface-tonal-radius (12px).
+#    - Component wj_surface_card: thêm ĐÚNG MỘT prop `sc_tone` (tonal) — nền D4b giữ nguyên.
+#    - Biến thể mới .wj-surface-card--tonal: nền tonal, KHÔNG viền, KHÔNG bóng, radius 12.
+#    - Rút hẳn dáng khung (nền/viền/bo góc/đệm) khỏi .wj-pc-card, .wj-pc-acct-headcard và
+#      7 modifier ⇒ .wj-surface-card là CHỦ SỞ HỮU DUY NHẤT (Luật #7).
+#    - 2 vi phạm lồng thẻ trắng của /portal/exam/register (.wj-exam-pc-cal, .wj-exam-pc-slots)
+#      chuyển sang --flush --tonal, giữ nguyên đệm riêng của từng panel.
+#
+# IMPACT (đo thật, getComputedStyle, 19 route × 5 khổ 1440/1024/992/390/360)
+#    - PC: radius 18→16, padding 24→16 (compact) / 22-24→20 (regular, headcard).
+#      Mobile: radius 14, padding 12. Viền 1px rgb(238,242,245), shadow none.
+#    - 4 bề mặt NGOÀI họ cùng ăn token (wj-pc-acct-nav, wj-pc-empty, wj-pc-order-head,
+#      wj-pc-cart): chỉ hội tụ radius 18→16, GIỮ NGUYÊN đệm riêng — đúng chủ ý.
+#    - Acceptance BA #11: KHÔNG ô nào giảm record trong viewport (116→118); recordsTotal
+#      không đổi (280→280); 26/95 ô GIẢM chiều cao trang, 0 ô tăng ⇒ mật độ tốt lên.
+#    - Vi phạm lồng thẻ trắng: 6 → 0. 185 bề mặt duyệt được cả trước lẫn sau (≠ đo rỗng).
+#    - 0 lỗi JS, 0 tràn ngang, 95/95 ô trả trang.
+#    - Nhịp header→body ĐO TUYỆT ĐỐI: histogram giống hệt trước–sau
+#      (12px×32 · 18px×14 · 23px×2 · 25px×2 · 0px×2) ⇒ D4c không xê dịch nhịp.
+#    - RULE 1 + RULE 2 (d3-review-matrix §1): giống hệt baseline, 0 cờ mới.
+#
+# RETEST (đề nghị BA soi trên UAT sau deploy)
+#    - /portal/exam/register @1440: nền tonal của lịch + khung giờ (thay thẻ trắng lồng nhau).
+#    - Mọi màn PC: khung hẹp lại 8px mỗi bên (padding 24→16) — kiểm bằng mắt xem có chỗ nào
+#      chữ/bảng chạm mép không.
+#    - 6 call site inspection/report: local phải dựng DB copy mới đo được (xem LIMIT 2).
+#
+# LIMIT
+#    1. /portal/debt/pay không đo được trên wujia_tea_19 (cửa hàng hết nợ ⇒ redirect
+#       notice=no_due, WJ-DEBT-007) ⇒ wj-debt-pc-paycard mới chỉ chứng minh bằng test tĩnh.
+#    2. 6 call site (inspection ×3, report ×3) đã đo trên DB COPY CÔ LẬP `wujia_tea_d4c`
+#       cổng 8074: `-i wujia_portal_inspection` RC=0, seed 1 phiếu need_remediation, và đổi
+#       tz anh.owner Asia/Saigon→Asia/Ho_Chi_Minh (CHỈ dữ liệu trên bản copy) để
+#       /portal/reports/orders trả 200. Cả 6 đo r16 · pad 16 (report flush 0) · 0 lỗi JS ·
+#       0 tràn ngang. KHÔNG sửa lỗi tz của cụm R3. Vẫn nên soi lại trên UAT sau deploy.
+#    3. .wj-debt-summary { height: 142px } GIỮ NGUYÊN — THIẾT KẾ S43, ngoài phạm vi.
+#    4. Chạy lại bảng đo C3 màn Công nợ (chốt của chủ dự án): mọi cam kết WJ-DEBT-002/003/
+#       005/008/009 đo lại đều ĐẠT. DELTA duy nhất: nhịp banner→tiêu đề đo 28px trong khi
+#       bảng C3 gốc (15/08) ghi 24px. KHÔNG do D4c — diff wujia_portal_debt lượt này chỉ
+#       chạm phần PC; chênh lệch đến từ cụm D3b khi wj_section_header thành component.
+#    5. Câu hỏi nhịp §3.4 của d3-review-matrix CHỜ CHỦ DỰ ÁN QUYẾT: 18/23/25px có kéo về
+#       12px không. Dev đã trình số thật + truy nguyên đến đúng dòng CSS, KHÔNG tự sửa.
+#       Đính chính: con số 36px ghi cho .wj-exam-pc-sumlist đã cũ — CSS hiện tại là 18px và
+#       hai card của /portal/exam/register đo 18px BẰNG NHAU, không lệch.
+#    6. Tiến độ cụm 48/384 ≈ 12% ⇒ giữ `Ready for Dev`, kế tiếp D4d (mobile, 51 lượt).
+#
+# TEST
+#    custom/wujia_portal_layout/tests/test_d4_surface_card.py (tag wujia_surface_card_d4):
+#    33 test — 0 failed / 0 error (22 của D4b + 11 mới). KHÔNG đẻ file test song song.
+#    scratchpad/d4c_mutate.sh: 10/10 đột biến ĐỎ ĐÚNG CHỖ + 1 run đối chứng không đột biến.
+# =====================================================================================
+
+# =====================================================================================
+# UI-SURFACECARD-001 (STT 127) — D4d 05/09: phủ thêm 50, tổng 98 trên 384 lượt (~26%).
+# Issue VẪN GIỮ `Ready for Dev`, CHƯA handoff — Dev KHÔNG tự đóng Done (QA Operating
+# Standard §2). Chỉ chạy qa_sync.py --apply khi chủ dự án chốt.
+#
+# ✅ D4d XONG — 10 họ mobile + wj-filter-card = 50 call site / 18 file / 10 module.
+#    Lượt ĐẦU TIÊN dùng cột mobile của component (@media max-width 991.98px viết ở D4b
+#    nhưng D4b/D4c đều PC-only ⇒ coi như code mới). `-u` đúng MỘT lần, RC=0, 0 ERROR.
+#    Số đo đầy đủ: docs/d4d-acceptance-matrix.md. wujia_portal_layout → 19.0.35.0.0.
+#
+# FIX
+#    - Rút hẳn dáng khung (nền/viền/bo góc/đệm/bóng/gap) khỏi 10 họ: wj-filter-card,
+#      wujia-mres-card, wujia-mhist-card, wujia-mknow-card, wujia-mdash-card
+#      (_components.css) + wujia-mexam-card, -selcard, -cfcard (portal_exam.css) +
+#      wujia-mnoti-detail-card (portal_notification.css) + wujia-mdelivery-prodcard
+#      (portal_delivery.css) ⇒ .wj-surface-card là CHỦ SỞ HỮU DUY NHẤT (Luật #7).
+#    - Gỡ 3 rule đè: .wj-filter-card > .wj-filter-chips { margin-top:-2px } (bù cho gap 10),
+#      .wujia-mnoti .wujia-mknow-card { padding:9px 12px } (rule CHẾT, 0 phần tử khớp),
+#      .wujia-mknow-article { padding:16px } (kiểm kê bỏ sót — chính nó làm mknow-card đo 16).
+#    - Giữ có chủ đích: mres-card max-width 420 + text-align, mhist-card margin-bottom 14,
+#      mdash-card display/text-decoration/color + a:hover, mdelivery-prodcard overflow:hidden,
+#      mdash-list padding 4px 14px, mexam-selcard background var(--wujia-surface-tonal).
+#    - 41/50 call site chuyển t-call; 9/50 GIỮ THẺ GỐC và thêm thẳng class chủ sở hữu
+#      (6 <form method="get">, <article>, <a t-foreach>, <div role="status" aria-live>)
+#      — QWeb O19 không có directive đổi tên thẻ (ir_qweb.py:1705, chốt ở C8).
+#    - 2 style inline `padding:0` → sc_body="flush" (bẫy #5: inline thắng mọi CSS).
+#    - 3 họ có gap (wj-filter-card, mexam-cfcard, mexam-selcard) đi qua biến thể --summary
+#      — cách DUY NHẤT lấy gap 8 mà không phá Luật #8 (cấm gap ở rule gốc).
+#    - mexam-selcard KHÔNG dùng sc_tone="tonal": biến thể đó bỏ hẳn viền (border:0), còn BA
+#      vẫn đòi viền 1px #E5E7EB ⇒ dùng biến thể thường + giữ ĐÚNG MỘT khai báo nền.
+#
+# IMPACT (đo thật, getComputedStyle, 19 route × 5 khổ 1440/1024/992/390/360 + 2 route mres)
+#    - Mobile: radius 14 · viền 1px rgb(229,231,235) · shadow none · compact 12 · regular 14
+#      · gap 8 — ĐÚNG số BA ở toàn bộ 12 lớp. 4 họ đang lệch viền #EEF2F5 đã về đúng tông.
+#      padding 16→12 (mhist/mknow/mnoti-detail/mexam-cfcard), 14→12 (mdash/mexam-card/
+#      -selcard), gap 10/14/12 → 8.
+#    - Acceptance BA #11: KHÔNG ô nào giảm record trong viewport (121→122); recordsTotal
+#      không đổi ở mọi ô; 14/95 ô GIẢM chiều cao trang, 0 ô tăng ⇒ mật độ tốt lên.
+#    - 225 bề mặt duyệt được cả trước lẫn sau (≠ đo rỗng). 0 lỗi JS, 0 tràn ngang, 95/95
+#      ô trả trang. Vi phạm lồng thẻ trắng 0 → 0.
+#    - KHÔNG rò rỉ sang PC, hai phép độc lập: bề mặt mobile nhìn thấy ở ≥992 là 0 trước và
+#      sau; VÀ ảnh /portal @1440 trước/sau khác ĐÚNG 0 PIXEL (PIL.ImageChops, bbox None).
+#    - Nhịp header→body ĐO TUYỆT ĐỐI: 56 khoá trùng khớp, ĐÚNG 2 ô đổi nhịp
+#      (/portal/return @390 và @360, wj-filter-search→wj-filter-select 10px→8px) — chính là
+#      gap BA yêu cầu. Bẫy #3 chứng minh bằng số: trước khi sửa, cặp dates→chips đo 8px
+#      trong khi mọi cặp anh em đo 10px (= gap 10 − 2px). Giữ -2px sẽ thành 6px mà RULE 1/2
+#      VẪN XANH — ca sai số đều tay điển hình.
+#    - Touch target wholeCard @390/@360: cạnh nhỏ nhất 109px (BA ≥44). Giảm 4px so với trước
+#      do padding 14→12, vẫn dư 65px.
+#    - RULE 1 + RULE 2 (--portal-login anh.owner): ĐÚNG 5 cờ có sẵn từ baseline D4c
+#      (4× debt-pay redirect no_due + inspection@360 tràn 11px), 0 cờ mới, 0 drift cỡ chữ.
+#    - Đặc hiệu CSS: quét 280 file CSS của custom/ — chỉ CÒN 1 rule khai dáng khung ở trạng
+#      thái nghỉ cho 10 họ (mexam-selcard background, giữ có chủ đích). 3 danh sách :is()
+#      ở _interaction.css là :hover/:active (phản hồi tương tác, không phải dáng nghỉ).
+#
+# RETEST (đề nghị BA soi trên UAT sau deploy)
+#    - Mọi màn mobile: card đặc lại 2–4px mỗi bên (padding 16/14 → 12) — kiểm bằng mắt xem
+#      có chỗ nào chữ/badge chạm mép không, nhất là /portal/return/<id> và /portal/exam.
+#    - /portal/notification và /portal/knowledge: ô tìm kiếm + thẻ bài viết nay cùng đệm 12.
+#    - /portal/order/submitted/<id> và /portal/order/rejected mở trên MÀN HÌNH RỘNG: nay
+#      nhận đúng cột PC của BA (r16 · pad 20) thay cho pad 20/16 · r14 cũ — xem LIMIT 2.
+#
+# LIMIT
+#    1. Đo trên wujia_tea_19 (dev), CHƯA soi UAT — UAT 8019 chỉ đọc/nhìn được sau deploy.
+#    2. wujia-mres-card ở khổ ≥992 đổi từ pad 20/16 · r14 sang cột PC của BA (pad 20 · r16).
+#       Đây là màn luồng mobile nhưng mở được bằng URL trên desktop; thay đổi ĐÚNG SPEC
+#       nhưng NHÌN THẤY ĐƯỢC ⇒ cần BA xác nhận khi retest.
+#    3. Hai card flush (portal_franchise_information, portal_support_detail) còn inline
+#       style="padding:14px 14px 0" ở wrapper con — CÓ TỪ TRƯỚC D4d, giữ để khớp inset 14
+#       của .wujia-mdash-list. Hội tụ cả hai về 12 là việc của D4e.
+#    4. Kiểm kê là SÀN: bắt thêm 26 lượt bề mặt trắng mobile NGOÀI kiểm kê (8 họ) — chủ dự
+#       án chốt GHI BỔ SUNG, KHÔNG kéo vào D4d. 20 thuộc CMP-ES-001 (wj-empty-state --rich
+#       15 + --card 5), 4 thuộc UI-DATALIST-001 (mknow-feat/-row, mreturn-row, mdelivery-row),
+#       2 chưa có chủ (mhist-summary, mticket-reply). ĐÍNH CHÍNH inventory §C: mệnh đề
+#       "wj-empty-state không khai nền + bo góc" là SAI, và là 20 lượt chứ không phải 5.
+#    5. ĐÍNH CHÍNH kiểm kê: D4d là 50 lượt, KHÔNG phải 51 — 51 là lỗi cộng của bảng tóm tắt
+#       next-session-clusters-D.md:529 (đếm thô bắt cả class con BEM). Không call site nào
+#       bị bỏ sót. Thêm 2 số đo hụt: mknow-card đo 16 (không phải 14, do .wujia-mknow-article
+#       đè); mdash-card có 3 biến thể đệm (12 · flush 0 · mdash-list 4/14), không phải 2.
+#    6. Nhịp header→body PC 18/23/25 vẫn ĐỂ NGUYÊN (chốt #4 đầu phiên) — mang sang D4e.
+#    7. Hội tụ token --wujia-border ↔ --wujia-morder-border và --wujia-border-soft ↔
+#       --wujia-morder-divider (cùng hex) CHƯA LÀM — phải hỏi chủ dự án trước.
+#    8. Tiến độ cụm 98/384 ≈ 26% ⇒ giữ `Ready for Dev`, kế tiếp D4e (wj-pc-metric-card 44 +
+#       wj-rep-mcard 16) — nhưng D4e đang bị CHẶN bởi /portal/reports/orders 500 (tz, cụm R3).
+#
+# TEST
+#    custom/wujia_portal_layout/tests/test_d4_surface_card.py (tag wujia_surface_card_d4):
+#    45 test — 0 failed / 0 error (33 của D4b+D4c + 12 mới). KHÔNG đẻ file test song song.
+#    scratchpad/d4d_mutate.sh: 11/11 đột biến ĐỎ ĐÚNG CHỖ + 1 run đối chứng không đột biến.
+#    ⚠️ Hai bẫy harness đã trả giá: (a) logfile trong odoo.conf nuốt stdout ⇒ "RC=0, 0 ERROR"
+#    trên log RỖNG là XANH GIẢ, bằng chứng thật ở logs/<năm>/<tháng>/<ngày>.log — đọc đúng
+#    chỗ mới lộ 4 test đỏ; (b) đột biến sed neo sai thụt lề thì KHÔNG áp được mà bảng vẫn in
+#    "KHÔNG ĐỎ" cho một guard hoàn toàn tốt.
+# =====================================================================================
+
+# =====================================================================================
+# UI-SURFACECARD-001 (STT 127) — ĐÍNH CHÍNH 05/09 (phiên máy Mac, 0 call site mới).
+# Vẫn `Ready for Dev`, ledger vẫn dạng comment, KHÔNG chạy qa_sync.py.
+#
+# 1. D4b/c/d ĐÃ MERGE VÀO main + push (`5758495`). Trước phiên này hai commit
+#    `4110f71` + `5758495` chỉ nằm trên nhánh `dev/2026-09-05-d4c` — đúng bẫy D3c
+#    hôm 03/09 (quên merge, một ngày sau mới lộ vì UAT chạy bản cũ).
+# 2. 🔴 Hai lỗi deploy vá ở `20b6de1`, cả hai KHÔNG lộ ra bằng test hay bảng đo:
+#    (a) 4 file CSS nạp bằng <link ?v=> tay đều đổi mà `?v=` vẫn đứng ở 1180/1190
+#        của D3 ⇒ trình duyệt BA phục vụ lại cache cũ, retest sẽ báo "không đổi gì".
+#        Bump cả bốn lên 1200.
+#    (b) 13/14 module bị đụng KHÔNG bump version ⇒ restart sau git pull không nạp
+#        lại XML của chúng, VÀ mất luôn phép kiểm deploy bằng số phiên bản qua
+#        XML-RPC — chính phép kiểm đã bắt được D3c chưa lên UAT. Bump patch đủ 13.
+#    Lệnh deploy + 4 bước kiểm sau deploy: `docs/deploy-d4-2026-09-05.md`.
+# 3. 🔴 ĐÍNH CHÍNH SỐ D4e (lần thứ ba của cụm này): doc ghi 36 lượt, THẬT là **7**
+#    (`wj-rep-mcard` 3 + `wj-pc-metric-card` báo cáo 4). Nguyên nhân y hệt §12.1 của
+#    D4d: grep thô bắt luôn tên con BEM. Kiểm chứng bằng chính HTML trang chạy thật
+#    ra đúng 3+4. Kiểm kê còn BỎ SÓT 4 lượt ở gallery `pc_preview.xml`.
+#    → `docs/d4-surfacecard-inventory.md` §13, prompt ở `docs/prompt-d4e.md`.
+# 4. ✅ CẢ HAI CHẶN KỸ THUẬT CỦA D4e ĐÃ HẾT HẠN — đo lại chứ không suy từ doc:
+#    `/portal/reports/orders` với tz `Asia/Saigon` trả **200** (portal_tz đã có nhánh
+#    fallback từ `2f0e466`, mà controller báo cáo thì không dùng tz); `/portal/
+#    inspection` trả **200** vì reseed nay cài đủ 21 module. D4e đo được trên local.
+# 5. Ba vấn đề CÓ SẴN lộ ra khi đo mốc, KHÔNG thuộc D4e — đã ghi ở prompt-d4e.md §cuối:
+#    RULE 1 vỡ 3 ô ở `/portal/delivery` PC (empty state 28px > tiêu đề card 22px,
+#    thuộc CMP-ES-001); tiêu đề card lệch chuẩn 18px ở 4 màn (nợ RULE 2, D7+);
+#    15 card chưa có `.wj-card-header` (khối lượng còn lại của cụm D3).
+#
+# MÔI TRƯỜNG
+#    Dựng lại toàn bộ trên máy Mac: 21 module installed, reseed RC=0 / 0 ERROR,
+#    13 route portal trả 200. Ba seed đã hỏng lặng lẽ từ Sprint 41/42/K được vá
+#    (wujia.notification đổi date→published_date + bỏ cờ published + thêm ràng buộc
+#    target_mode; wujia.return.error.type không còn) — không ai biết vì reseed toàn
+#    bộ chưa chạy lại từ dạo đó. Thêm `seed_products_demo.py`: không seed nào tạo
+#    sản phẩm, mà thiếu sản phẩm thì không có đơn hàng, kéo theo màn báo cáo rỗng.
+#
+# TEST
+#    `-u wujia_portal_layout --test-tags wujia_surface_card_d4` trên DB Mac mới:
+#    **45 test, 0 failed / 0 error** — khớp mốc D4d ⇒ môi trường không phải nguồn sai lệch.
+#    ⚠️ Phải đổi cổng (`--http-port 8099`) nếu server dev đang chạy, không thì RC=1 vì
+#    "Address already in use" — rất dễ đọc nhầm thành test đỏ.
+#
+# BỘ ĐO
+#    `scripts/qa/wj_inventory.py` + `wj_measure.py` (mới, nằm TRONG repo). Bộ đo cũ ở
+#    `scratchpad/` gitignored nên đổi máy là mất trắng — đó là việc phải làm lại cả phiên
+#    này. Đã kiểm chứng: chạy trên 10 họ mobile của D4d ra đúng 50, khớp bảng §4.
+
+# UI-SURFACECARD-001 (STT 127) — D4e1 05/09: phủ thêm 12, tổng 110 trên 384 lượt (~29%).
+# Issue VẪN GIỮ `Ready for Dev`, CHƯA handoff — Dev KHÔNG tự đóng Done (QA Operating
+# Standard §2). Chỉ chạy qa_sync.py --apply khi chủ dự án chốt.
+#
+# ✅ D4e1 XONG — TOÀN BỘ họ wj-pc-metric-card = 12 call site / 3 file / 3 module.
+#    Chia theo HỌ chứ không theo màn: chẻ đôi họ giữa hai lượt là tự tạo cửa sổ
+#    variant-theo-route, đúng thứ BA cấm. `-u` đúng MỘT lần, RC=0.
+#    Số đo đầy đủ: docs/d4e1-acceptance-matrix.md. wujia_portal_layout → 19.0.36.0.0,
+#    ?v=1190 → 1200. wujia_portal_report / wujia_portal_inspection chỉ đổi XML, KHÔNG bump.
+#
+# FIX
+#    - _pc_components.css:132 — rút background/border/border-radius/gap khỏi
+#      .wj-pc-metric-card; đệm ngang 0 22px → 0 16px. GIỮ display:flex+align-items
+#      (--summary chỉ khai gap, bỏ flex là gap vô tác dụng) và GIỮ min-height (LIMIT 1).
+#    - portal_report.css:74 — GỠ HẲN override liên module
+#      .wj-rep-pcmetrics .wj-pc-metric-card {min-height:100px; gap:14px; padding:0 16px}.
+#      Rule này SỐNG (đếm lúc chạy: khớp đúng 4 phần tử ở cả 5 khổ), đặc hiệu (0,2,0)
+#      thắng chủ sở hữu (0,1,0) và nạp sau ⇒ giữ lại là đẻ variant theo route.
+#      CỐ Ý GIỮ .wj-rep-pcmetrics{gap:24px} (gap của LƯỚI) và __value{font-size:24px}.
+#    - 12 call site → t-call wj_surface_card, sc_variant='summary' · sc_body='flush' ·
+#      sc_class='wj-pc-metric-card' (Luật #1: lớp cũ nuôi CSS con __icon/__body/__label/
+#      __value và 3 danh sách :is() (0,3,0) của _interaction.css).
+#
+# IMPACT
+#    - HAI chữ ký dáng khung về MỘT: trước = báo cáo (pad 0/16 · gap 14 · minH 100) vs
+#      gallery+khảo sát (pad 0/22 · gap 16 · minH 96); sau = cả ba (pad 0/16 · gap 12 ·
+#      minH 96). Đây là hạng mục chính của issue.
+#    - /portal/reports/orders: thẻ 100→96, pageH −4px ⇒ DÀY hơn, đúng "không thưa hơn".
+#    - Lợi ngoài dự tính: "Tổng chi phí 342.200,00 $" từ 2 dòng về 1 dòng (gap 14→12 trả
+#      lại đúng chỗ thiếu) — đúng ý BA "primary amount dễ quét".
+#    - Mobile: họ này chỉ còn hiện trên gallery dev (2 route sản phẩm bọc d-none d-lg-*)
+#      ⇒ radius 16→14 và gap 16→8 KHÔNG đổi gì trên sản phẩm thật.
+#    - 60/60 bề mặt · 0 lỗi JS · 0 tràn ngang · 0 redirect · 0 ô mất record (acceptance
+#      #11) · 0 lồng white card · nhịp header→body 15/15 ô GIỐNG HỆT.
+#    - Diff pixel 3 trang NGOÀI phạm vi: /portal/support và /portal/delivery = 0 pixel cả
+#      2 khổ; /portal @1440 = 0 pixel; /portal @390 khác 8×9px = ĐỒNG HỒ ĐẾM NGƯỢC
+#      (còn 06:04 → 06:05), soi ảnh xác nhận, tiền lệ D3c — không phải hồi quy.
+#    - RULE 1+2 chạy lại: 4 cờ, CẢ 4 là debt-pay redirect ?notice=no_due (có sẵn, đúng
+#      thiết kế WJ-DEBT-007) · 0 DRIFT cỡ chữ · KHÔNG cờ mới.
+#    - Quét đặc hiệu 280 file CSS (loại tên con BEM, tách rule trạng thái nghỉ): đúng
+#      1 hit = padding ở .wj-pc-metric-card, chính là thứ chủ dự án chốt giữ.
+#
+# RETEST (đề nghị BA soi trên UAT sau deploy)
+#    - /portal/reports/orders @1440: dải 4 ô KPI thấp đi 4px, khoảng cách icon↔chữ chặt
+#      hơn 2px, và số tiền "Tổng chi phí" nay nằm gọn 1 dòng.
+#    - /portal/inspection/detail/<id> @1440: 4 ô KPI đệm ngang 22→16, gap 16→12.
+#    - Cả hai màn: kiểm bằng mắt xem có chữ/số nào chạm mép thẻ không.
+#
+# LIMIT
+#    1. padding NGANG (0 16px) và min-height (96px) CỐ Ý ở lại rule họ, KHÔNG dời sang
+#       .wj-surface-card. Lý do có số đo: đệm dọc của họ này = 0 nên min-height là SÀN
+#       chiều cao thiết kế; nội dung thật cao 52–98px (không phải 52 như prompt giả định)
+#       ⇒ lấy compact p16 thì thẻ CAO LÊN 121–130px, tức THƯA HƠN sau migration, chỏi
+#       thẳng câu BA viết trong Kết quả mong muốn và acceptance #11. Tiền lệ
+#       .wj-debt-summary{height:142px} của D4c. CHỦ DỰ ÁN CHỐT sau khi xem bảng số.
+#    2. Đo trên DB COPY wujia_tea_d4e1 (cổng 8075), CHƯA soi UAT. Hai route sản phẩm
+#       KHÔNG đo được trên wujia_tea_19: /portal/reports/orders 500 (tz Asia/Saigon) và
+#       wujia_portal_inspection uninstalled. PHẢI đo lại chỉ-đọc trên UAT sau deploy
+#       (L14/L10) rồi mới qa_deploy_mark.py.
+#    3. Bug tz /portal/reports/orders KHÔNG sửa — thuộc cụm R3
+#       (wujia_portal_base/controllers/utils.py:38). D4e1 chỉ né trên bản copy.
+#    4. wujia_portal_inspection vẫn `uninstalled` trên wujia_tea_19 (prompt D4e ghi "nay
+#       DB dev đã cài" là SAI). Deploy UAT phải kiểm module này có installed không, nếu
+#       chưa thì 4 lượt khảo sát không hiện để retest.
+#    5. Nhóm Khảo sát vẫn provisional — D4e1 CHỈ đụng khung, KHÔNG chốt hộ BA field
+#       mapping nào. BA viết rõ: "Màn Khảo sát chỉ nghiệm thu field mapping sau khi có
+#       seed data."
+#    6. ĐÍNH CHÍNH kiểm kê lần thứ 4: wj-pc-metric-card là 12 shell (không phải 44),
+#       wj-rep-mcard là 3 (không phải 16) — đếm thô bắt cả class con BEM. Và
+#       scripts/qa/wj_inventory.py mà prompt nhắc KHÔNG TỒN TẠI (harness thật:
+#       scratchpad/d4_inventory.py). → inventory §13.
+#    7. wj-rep-mcard (3) + 2 món nợ D4d (nhịp 18/23/25 · 2 inline padding:14px 14px 0)
+#       sang D4e2, CHƯA đụng ở lượt này.
+#    8. Tiến độ cụm 110/384 ≈ 29% ⇒ giữ `Ready for Dev`, kế tiếp D4e2.
+#
+# TEST
+#    custom/wujia_portal_layout/tests/test_d4_surface_card.py (tag wujia_surface_card_d4):
+#    52 test — 0 failed / 0 error (45 của D4b+D4c+D4d + 7 mới). KHÔNG đẻ file test song song.
+#    scratchpad/d4e1_mutate.sh: 7/7 đột biến ĐỎ ĐÚNG CHỖ + run đối chứng 52/0/0.
+#    ⚠️ HAI bẫy harness mới, cả hai đều thuộc loại "báo guard rỗng OAN":
+#    (a) bộ dò FAIL viết [A-Za-z]+ nên KHÔNG khớp tên lớp có CHỮ SỐ (TestSurfaceCardD4e1)
+#        ⇒ cả 7 đột biến báo "KHÔNG ĐỎ" trong khi thật ra cả 7 đều đỏ. Bảy guard cùng
+#        rỗng một lượt = dấu hiệu bộ dò hỏng, không phải guard yếu — xác minh tay 1 cái
+#        trước khi kết luận. Cùng họ với bẫy D4d #2, chỉ đổi chỗ trượt.
+#    (b) đột biến làm XML SAI CÚ PHÁP thì -u abort, view không đổi, test XANH OAN. Đổi
+#        <t t-call> thành <div> để lại </t> lệch ⇒ ExpatError. Đột biến phải GIỮ XML hợp lệ.
+# =====================================================================================
+# UI-SURFACECARD-001 (STT 127) — D4e2 05/09: phủ thêm 3 shell + trả HẾT nợ D4d,
+# tổng 113 trên 384 lượt (~29%). Issue VẪN GIỮ `Ready for Dev`, CHƯA handoff —
+# Dev KHÔNG tự đóng Done (QA Operating Standard §2). Chỉ chạy qa_sync.py --apply
+# khi chủ dự án chốt.
+#
+# ✅ D4e2 XONG — nửa còn lại của D4e: 3 shell wj-rep-mcard + 2 inline padding +
+#    18 ô nhịp header→body. `-u` đúng MỘT lần, RC=0, 0 ERROR trong log xoay vòng.
+#    Số đo đầy đủ: docs/d4e2-acceptance-matrix.md. wujia_portal_layout → 19.0.37.0.0,
+#    ?v=1200 → 1210 (_components.css + _pc_components.css). 4 module còn lại chỉ đổi
+#    XML/CSS không versioned ⇒ KHÔNG bump.
+#
+# FIX
+#    - A · portal_report.css:317 — XOÁ HẲN rule .wj-rep-mcard (nằm trong
+#      @media max-width:991.98px). Rule cũ chỉ khai background + border-radius,
+#      KHÔNG khai viền. GIỮ __head (0 12px + min-height:50), __title, __meta,
+#      __body (12px), --chart __body (0 12px 8px) — đó là NỘI DUNG, không phải khung.
+#    - A · portal_report_orders.xml:85 · 98 · 132 — QWeb O19 không có directive đổi
+#      tên thẻ (ir_qweb.py:1705) và call site là <section> chứa <h2> ⇒ GIỮ <section>,
+#      gắn thẳng 4 lớp wj-surface-card{,--section,--compact,--flush}, GIỮ lớp cũ
+#      wj-rep-mcard (+ --chart) theo Luật #1. Đã kiểm: --section/--compact không có
+#      rule CSS nào, là mốc đánh dấu trơ.
+#    - B · _components.css — THÊM một class dùng chung (không đẻ 2 class cho 2 module):
+#      .wj-surface-headpad { padding: var(--wujia-surface-pad-regular)
+#      var(--wujia-surface-pad-regular) 0 }.
+#    - B · portal_franchise_information.xml:264 và portal_support.xml:574 — gỡ
+#      style="padding:14px 14px 0;", thay bằng class trên.
+#    - C · _pc_components.css:168 (KHÔNG phải 163 như prompt ghi) —
+#      .wj-pc-card__head margin-bottom 18px → 12px (10 ô).
+#    - C · portal_exam.css — XOÁ HẲN 3 override (.wj-exam-pc-card__head 25px,
+#      .wj-exam-pc-dhead 23px, .wj-exam-pc-fcard .wj-exam-pc-field margin-top 18px)
+#      và bỏ margin-top của .wj-exam-pc-sumlist (GIỮ display/flex-direction/gap:23px).
+#      Vì sao XOÁ chứ không sửa số: header exam mang CẢ HAI lớp (wj-pc-card__head
+#      wj-exam-pc-card__head), CÙNG đặc hiệu (0,1,0), file exam nạp SAU ⇒ chỉnh rule
+#      dùng chung mà để override sống thì 8 ô exam KHÔNG NHÚC NHÍCH.
+#
+# IMPACT
+#    - Nhịp header→body toàn portal PC về MỘT SỐ: 0×2 · 12×32 · 18×14 · 23×2 · 25×2
+#      → 0×2 · 12×50 (đo TUYỆT ĐỐI, 52 ô, 18/18 ô hội tụ, không ô nào ra 12+12).
+#    - 3 shell báo cáo: h 258→260 / 190→192 / 290→292 · radius 16→14 · viền none→1px
+#      #E5E7EB. +2px = viền trên+dưới. Ở 1440/1024/992 đo ra h=0 ⇒ chỉ-mobile,
+#      CHỨNG MINH BẰNG SỐ ĐO chứ không bằng đọc CSS.
+#    - 2 wrapper phần B: inlineStyle → rỗng mà pad 14/14/0/14, x=17, w, pageH ĐỀU
+#      KHÔNG ĐỔI ⇒ đổi chủ sở hữu, 0px hình học.
+#    - pageH đổi ở 9/50 ô, tất cả đúng hướng ĐẶC HƠN (change-password −18,
+#      exam/register −12 và −6, profile −6); reports/orders +6 là 3 viền phần A.
+#    - 230 bề mặt cả hai lượt · 0 ô mất record trong viewport (acceptance BA #11) ·
+#      0 lồng bề mặt trắng · 0 redirect ngầm · 0 HTTP≠200 · 0 tràn ngang · 0 lỗi JS.
+#    - Nợ D4d: trả HẾT (món #3 inline padding và món #5 nhịp header→body).
+#
+# RETEST
+#    - Chạy 5 khổ 1440/1024/992/390/360 × 10 route: scratchpad/d4e2_{before,after}.json.
+#    - Nhịp tuyệt đối: scratchpad/d4e2_rhythm_{before,after}.json (RULE 1/2 là điều
+#      kiện CẦN, KHÔNG ĐỦ — sai số đều tay lọt sạch, bài học D4b).
+#    - RULE 1+2 chạy lại: 5 cờ, Y HỆT baseline ⇒ 0 cờ mới. Hai cờ truy được nguyên
+#      nhân: 4× debt-pay redirect đúng thiết kế WJ-DEBT-007; inspection 404 vì
+#      wujia_portal_inspection đang uninstalled (trang 404 Odoo tràn 11px @360).
+#    - 42 ảnh trước/sau (14 route × 1440/390/360) + diff pixel PIL.
+#    - 60 test (D4e1 là 52 ⇒ +8 guard) · 8/8 ĐỘT BIẾN ĐỎ ĐÚNG CHỖ · run đối chứng xanh.
+#    - Quét đặc hiệu 280 file CSS: 0 hit khai dáng khung ngoài component.
+#
+# LIMIT
+#    1. .wujia-mdash-list (11 call site) NGOÀI phạm vi — inset 14 của nó vẫn tự khai.
+#       Đường A (§3.3) chỉ đổi chủ sở hữu của wrapper header.
+#    2. 8 ô exam sửa bằng cách XOÁ override, không phải chỉnh số — đo lại xác nhận
+#       collapse ra đúng 12, không phải 12+12.
+#    3. 2 ô 0px ở /portal/notification/41 GIỮ NGUYÊN — lỗi outline h3/h2 thuộc cụm R2.
+#    4. Bug tz /portal/reports/orders KHÔNG sửa — cụm R3
+#       (wujia_portal_base/controllers/utils.py:38). D4e2 chỉ né trên bản copy.
+#    5. CHƯA soi UAT. Phải đo lại CHỈ-ĐỌC trên http://113.161.187.126:8019/ sau deploy
+#       (L14/L10: UAT có website/website_sale nên bundle frontend khác local) rồi mới
+#       qa_deploy_mark.py.
+#    6. .wj-surface-headpad ở PC cho 20px (token) trong khi inline cũ luôn 14px. Hiện
+#       KHÔNG ảnh hưởng vì cả 2 wrapper là markup chỉ-mobile (0 phần tử ở 1440/1024/992).
+#    7. /portal/order@1440 lệch 16 pixel ở mức chênh 1/255 do thêm .wj-surface-headpad
+#       (khử răng cưa góc bo). Kích thước trang + mọi toạ độ y hệt ⇒ KHÔNG xê dịch bố
+#       cục. Ghi lại thay vì tuyên bố "0 pixel".
+#    8. 2 test đỏ CÓ SẴN (TestSurfaceCardD4e1.test_all_metric_call_sites_use_the_component
+#       và test_call_sites_bake_summary_and_flush) vì wujia_portal_inspection đang
+#       uninstalled trên DB dev — KHÔNG phải hồi quy D4e2, đã chứng minh bằng run đối
+#       chứng ở trạng thái D4e1 (đúng 2 lỗi ấy trên 52 test).
+#    9. D4e1 CHƯA COMMIT trên nhánh dev/2026-09-05-d4c — phải chốt chiến lược commit
+#       trước khi /wujia-end-sprint gộp nhầm hai lượt.
+#   10. Tiến độ cụm 113/384 ≈ 29% ⇒ issue GIỮ `Ready for Dev`. Dev không tự đóng Done.
+#
+# ODOO FIT
+#    - Không model mới, không field mới, không migration. Chỉ CSS + QWeb template.
+#    - Bump 1 module (wujia_portal_layout 19.0.37.0.0) + cache-bust ?v=1210.
+# =====================================================================================
+
+# =====================================================================================
+# UI-SURFACECARD-001 (STT 127) — D4f 06/09: phủ thêm 31, tổng 144 trên 384 lượt (~37%).
+# Issue VẪN GIỮ `Ready for Dev` — cụm CHƯA khép: còn `wj-auth-card` (15, THIẾT KẾ S39)
+# và 9 họ nhóm Khảo sát (17, module `wujia_portal_inspection` đang uninstalled).
+# Dev KHÔNG tự đóng Done (QA Operating Standard §2); qa_sync.py --apply chỉ khi chủ dự
+# án chốt.
+#
+# ✅ D4f XONG — nhóm cuối và khác hẳn 5 lượt trước: gỡ hẳn `.card` của Bootstrap.
+#    31 call site / 14 file XML / 4 file CSS / 82 phép thay. `-u` 7 module đúng MỘT lần,
+#    0 ERROR 0 CRITICAL. wujia_portal_layout → 19.0.38.0.0, assets ?v=1220.
+#    Số đo đầy đủ: docs/d4f-acceptance-matrix.md.
+#
+# 🔴 VÌ SAO LƯỢT NÀY PHẢI BỎ LỚP CŨ, TRÁI VỚI LUẬT #1 CỦA CẢ CỤM
+#    `.card` KHÔNG phải lớp của Wujia. Truy chủ rule bằng CSSOM lúc chạy: bundle
+#    `web.assets_frontend` của Odoo nạp SAU mọi <link> Wujia, CÙNG đặc hiệu (0,1,0),
+#    và cũng khai .card { background-color; border; border-radius }.
+#    ⇒ viền thẻ đo ra `1px rgba(0,0,0,.176)` — CỦA ODOO, không phải --wujia-border;
+#      radius 16 chỉ đứng được nhờ !important; card-footer nhận nền xám
+#      rgba(33,37,41,.03) dù Wujia khai transparent.
+#    Giữ chữ `card` lại = để Odoo tiếp tục thắng ở lần nâng cấp sau.
+#    Vẫn GIỮ lớp riêng của module (knowledge-detail, support-chatter, wujia-return-form).
+#
+# 4 CHỐT CỦA CHỦ DỰ ÁN (06/09), đã làm đủ
+#    1. Con của card → Đường A: card-header/body/footer → __head/__body/__foot.
+#    2. 3 rule .card toàn cục → chỉ gỡ nếu đếm lúc chạy ra 0 thẻ. Đo 89 → 0 ⇒ ĐÃ GỠ.
+#    3. ~18 thẻ PC mất shadow → cứ theo BA, có ảnh trước/sau.
+#    4. forgot_pass.xml template chết → "làm thì làm hết", migrate cả 3 call site auth.
+#
+# FIX
+#    - _components.css: thêm .wj-surface-card__head/__body/__body--flush/__foot/__media;
+#      xoá rule toàn cục .card { box-shadow }; danh sách selector cỡ chữ tiêu đề trỏ
+#      sang __head (GIÁ TRỊ KHÔNG ĐỔI — cỡ chữ là địa hạt D3).
+#    - _wujia_theme.css: xoá 43 dòng — trọn khối .card, .card > .card-header,
+#      .card > .card-header .card-title/h2-h6, .card-footer, .card-body .wujia-section-header.
+#    - portal_return.css: .card-body > .wj-card-header… → .wj-surface-card__body > …
+#      (cùng đặc hiệu (0,3,0) nên vẫn thắng). portal_support.css: .support-chatter .card-body
+#      → .support-chatter .wj-surface-card__body.
+#    - 31 call site nướng đủ 4 lớp shell (--section --compact --flush). Call site không
+#      phải <div> (<form> ×2, <article> ×1) giữ thẻ, gắn lớp thẳng — QWeb O19 không có
+#      directive đổi tên thẻ (ir_qweb.py:1705).
+#    - Utility p-2/py-2 GIỮ LẠI: baseline chứng minh là nhịp cố ý; gỡ là đệm nhảy 7 → 16.
+#    - overflow:hidden của .card KHÔNG đưa vào shell (đổi hành vi 113 thẻ D4b–D4e);
+#      ảnh bìa bo góc thẳng qua .wj-surface-card__media.
+#
+# IMPACT (getComputedStyle, 25 route × 5 khổ 1440/1024/992/390/360 = 125 lượt tải)
+#    - Thẻ `.card` HIỆN lúc chạy: 89 → 0 (thêm 5 thẻ biến thể _locked → 0).
+#    - Viền: rgba(0,0,0,.176) của Odoo → #EEF2F5 (PC) / #E5E7EB (mobile) của Wujia.
+#      Radius 16 PC / 14 mobile theo token, KHÔNG còn cần !important. Shadow → none.
+#    - card-footer hết nền xám lọt của Bootstrap, về transparent + border-top 1px.
+#    - Acceptance BA #11: 125/125 ô, KHÔNG ô nào giảm record trong viewport.
+#    - Chiều cao trang: 114 ô không đổi · 11 ô THẤP BỚT · 0 ô cao lên (sâu nhất −155px
+#      ở /portal/franchises/1/profile @360) ⇒ đặc hơn, đúng hướng BA.
+#    - Nhịp header→body đo TUYỆT ĐỐI: `0px ×2 · 12px ×50` — Y HỆT mốc D4e2, 52 ô.
+#    - Khoảng hở xếp chồng (d4f_stack.py): `0×6 · 7×35 · 14×12 · 30×2` trước = sau.
+#      Nỗi lo mất `margin-bottom: 2.2rem` của Vuexy đã tháo ngòi bằng số đo: mọi cặp
+#      dính .card vốn hở đúng 7px (do mb-2 ở call site, đã giữ), còn 27/33 thẻ có mb=31
+#      là phần tử hiện CUỐI CÙNG trong cha ⇒ 31px là khoảng thừa đuôi.
+#    - Đặc hiệu CSS toàn repo: 5 rule khai dáng khung cho .wj-surface-card, 0 rule ngoài
+#      file chủ. _rules_anywhere('.card') = rỗng ở cả 2 file.
+#
+# RETEST
+#    - 74 test tag wujia_surface_card_d4 (trước lượt: 60 ⇒ +14 test lớp TestSurfaceCardD4f).
+#      Đối chứng đỏ ĐÚNG 2 lỗi CÓ SẴN (wujia_portal_inspection uninstalled).
+#    - 13/13 đột biến bị bắt (scratchpad/d4f_mut.py).
+#    - RULE 1 + RULE 2: 5 cờ trước = 5 cờ sau, 0 nhóm cỡ chữ drift chưa giải trình.
+#    - Ảnh 69 tấm × 2 lượt: 37 giống hệt từng pixel, 9 đổi cỡ (đều THẤP BỚT), 23 khác.
+#      Ngoài phạm vi chỉ 4 tấm khác: /portal @360/@390 là ĐỒNG HỒ ĐẾM NGƯỢC (cắt ảnh
+#      phóng to đọc được `còn 03:00` → `còn 02:37`; /portal @1440 giống hệt), 2 tấm còn
+#      lại chênh ≤3/255 = khử răng cưa góc bo.
+#
+# ⚠️ LIMIT
+#    1. 12 call site module bên thứ ba (wj_ks_dashboard_ninja ×10, wj_ks_dn_advance ×1,
+#       mcp_server ×1 uninstalled) — bundle backend, không nạp CSS Portal. KHÔNG đụng.
+#    2. /my/franchises/<id> (wujia_portal_base.portal_my_franchise_detail,
+#       portal_templates.xml:106) chạy trên bundle portal.portal_layout của Odoo — đo lúc
+#       chạy: KHÔNG nạp một dòng CSS Wujia nào (radius 6px, shadow none). Để nguyên.
+#       Test ghim ngoại lệ này thành danh sách 1 phần tử ⇒ chỗ rò MỚI vẫn đỏ ngay.
+#    3. wujia_portal_inspection uninstalled ⇒ 2 test đỏ có sẵn + 1 cờ RULE 1 (404 tràn
+#       ngang 11px @360). Không phải hồi quy của D4f.
+#    4. Bug tz `Asia/Saigon` làm /portal/reports/orders trả 500 — thuộc cụm R3, chỉ vá
+#       trên bản copy để đo được, KHÔNG sửa wujia_portal_base/controllers/utils.py:38.
+#    5. 3 call site auth là TEMPLATE CHẾT — /portal/login và /portal/forgot-pass render
+#       0 thẻ .card ở cả 5 khổ (chứng minh lúc chạy). Đã migrate theo chốt #4 nhưng
+#       KHÔNG có bằng chứng ảnh vì chúng không hiện. Lượt nào bật lại các màn này phải
+#       đo riêng — login_page.xml:277 thuộc cụm auth KHOÁ THIẾT KẾ S39.
+#    6. card-img-top KHÔNG đo được trên DB này: không bài viết nào có ảnh bìa nên nhánh
+#       t-if không render. Rủi ro mất bo góc do gỡ overflow:hidden đã xử lý TƯỜNG MINH
+#       (.wj-surface-card__media + guard) nhưng CHƯA có số đo lúc chạy.
+#    7. CHƯA SOI UAT. Lượt này phụ thuộc THẲNG vào thứ tự nạp bundle của Odoo, mà UAT có
+#       website/website_sale nên bundle frontend KHÁC local — rủi ro lệch UAT cao nhất
+#       cụm (đã từng lật ngược kết quả ở C6 và D2). Phải đo lại CHỈ-ĐỌC trên
+#       http://113.161.187.126:8019/ sau deploy rồi mới qa_deploy_mark.py.
+# =====================================================================================
+# =====================================================================================
+# [D4g · 06/09/2026] UI-SURFACECARD-001 — SOI UAT cho D4f + chốt wj-auth-card (chưa entry thật)
+# Vì sao vẫn comment: 2/3 điều kiện §2.4 mới đạt (UAT khớp ✅ · wj-auth-card có chủ ✅);
+# nhóm Khảo sát chưa xong (D4h cùng phiên) ⇒ chưa được Ready for Retest.
+#
+# UAT (03:07 UTC, main 1c3ac12): 21 module latest == installed == manifest, layout 19.0.38.0.0,
+#   _components.css?v=1220 md5 bằng repo. Đo CHỈ-ĐỌC 25 route × 5 khổ (d4g_uat_measure.py bọc
+#   exec d4f_measure.py, admin + cookie cửa hàng HCM-01, id thật 16/13/3/ui12-01/4):
+#   - .card hiện = 0 (DOM 0) · 0 lỗi JS · 0 HTTP≠200 · 0 redirect ngầm · 0 lồng trắng-trắng.
+#   - shell 1px #EEF2F5 · 16px · none (PC, 86/86) · 1px #E5E7EB · 14px · none (mobile).
+#   - 0 rule ngoài _components.css khớp .wj-surface-card — website/website_sale không chạm.
+#   ⇒ LIMIT 7 của D4f ĐÓNG. Sheet: qa_deploy_mark cột P dòng 120, trạng thái giữ Ready for Dev.
+#   Thấy-nhưng-ngoài-phạm-vi: /portal/login + /portal/forgot-pass tràn ngang ≤1024 — có sẵn từ
+#   trước D4 (d4f_after.json cùng 8 ô), thuộc màn auth S39.
+#
+# wj-auth-card: đính chính 15 → 4 shell (đếm token). Chủ dự án chốt 06/09: GIỮ NGUYÊN + LIMIT
+#   (thiết kế S39, ngoài SCOPE 14 route, bóng theo Figma). 0 code. Mẫu số cụm 384 → 380.
+# =====================================================================================
+
+# =====================================================================================
+# UI-SURFACECARD-001 (STT 127) — D4h 06/09/2026: KHÉP CỤM D4 (D4b→D4h). Đủ 3 điều kiện §2.4:
+#   UAT khớp local (D4f, đo 06/09) · 2 họ cuối có chủ (wj-auth-card LIMIT, Khảo sát D4h) ·
+#   Kết quả mong muốn 9/10 ✅ + 1 ⚠ chờ chốt thiết kế (≥90%). Số đo: docs/d4g-acceptance-matrix.md.
+# Entry THẬT bên dưới; chạy `qa_sync.py --apply --only UI-SURFACECARD-001` CHỈ KHI chủ dự án chốt.
+UI-SURFACECARD-001:
+  sprint: "2026-09-06-D4h"
+  build_override: "Chờ deploy UAT | 06/09/2026 | Sprint 2026-09-06-D4h | commit: 7eb5d23 | wujia_portal_inspection 19.0.1.4.0 — deploy: -u wujia_portal_inspection (D4b→D4f đã lên UAT 06/09 03:07, đo chỉ-đọc khớp: .card hiện 0, shell 1px #EEF2F5/#E5E7EB · 16/14 · không bóng, 0 rule ngoài _components.css)"
+  url: "/portal — mọi thẻ nội dung trên Portal, cả máy tính và điện thoại (14 màn trong phạm vi BA + Khảo sát)"
+  odoo_fit: "Custom"
+  fix: "Trước đây mỗi màn Portal tự vẽ khung thẻ theo một kiểu riêng: hơn hai mươi họ thẻ khác nhau, bo góc từ 12 đến 24 điểm ảnh, có thẻ đổ bóng có thẻ không, đệm lệch nhau, và một phần lớn còn dùng thẳng thẻ mặc định của Odoo nên viền và nền do Odoo quyết chứ không do Wujia. Nay toàn bộ khung thẻ dùng chung một khuôn duy nhất: nền trắng, viền mỏng một điểm ảnh, bo góc 16 trên máy tính và 14 trên điện thoại, đệm gọn 16 hoặc 12, không đổ bóng, và chỉ một tệp giao diện được phép khai dáng khung. Các họ thẻ cũ giữ lại tên riêng để phần nội dung bên trong không đổi. Việc làm qua bảy đợt: dựng khuôn và bốn họ thẻ đầu, rồi thẻ máy tính, thẻ điện thoại, thẻ số liệu, thẻ báo cáo, gỡ hẳn thẻ mặc định của Odoo khỏi Portal, và đợt cuối là nhóm màn Khảo sát vốn chưa đo được vì phần mềm đó chưa cài trên máy dev. Ở nhóm Khảo sát phát hiện bốn hộp trên màn khắc phục khai dáng ngay trong mã màn hình chứ không qua tệp giao diện, chỉ đếm lúc chạy mới lộ, nay cũng đã đưa về khuôn chung"
+  impact: "Toàn bộ Portal. Không đổi dữ liệu, không đổi quyền, không đổi luồng nghiệp vụ, không đổi chữ. Mỗi đợt đều đo trước và sau trên bản sao ở năm khổ màn 1440, 1024, 992, 390 và 360: chiều cao trang và số bản ghi nhìn thấy trong một màn không giảm ở bất kỳ ô nào, nhịp tiêu đề sang thân thẻ giữ đúng 12 điểm ảnh, ảnh chụp các màn ngoài phạm vi giống hệt từng điểm ảnh. Sau khi cài lên máy chủ kiểm thử đã đo lại chỉ-đọc trên chính máy chủ ở 25 màn và năm khổ: không còn thẻ mặc định nào của Odoo, 86 trên 86 khung đúng viền, bo góc và không bóng, và không có luật giao diện nào từ phần bán hàng trực tuyến của Odoo chen vào. Bộ kiểm tra tự động 83 phép thử, mỗi đợt đều chứng minh có tác dụng bằng cách cố tình sửa sai rồi thấy đúng phép thử đỏ"
+  retest: "Mở lần lượt Trang chủ, Đặt hàng, Giỏ hàng, Lịch sử mua hàng, Đổi trả và Tạo yêu cầu đổi trả, Giao hàng, Công nợ, Thông báo, Hỗ trợ, Kiến thức, Đăng ký thi, Khảo sát và chi tiết một phiếu, Hồ sơ, Thông tin cửa hàng, Báo cáo đặt hàng, ở máy tính 1440 và điện thoại 390. Mọi thẻ nội dung phải cùng một dáng: nền trắng, viền mỏng, bo góc đều nhau, không đổ bóng, đệm gọn; các thẻ trên cùng một hàng cao bằng nhau. Không thẻ trắng nào nằm lọt trong thẻ trắng khác, trừ ô tổng điểm ở chi tiết Khảo sát đang chờ chốt thiết kế. Thu màn hình về 1024, 992 và 360: không cuộn ngang, không thẻ nào vỡ. Với màn Khảo sát chỉ nghiệm thu khung thẻ, phần nội dung trường dữ liệu để đợt có dữ liệu mẫu như BA đã ghi. Nếu vẫn thấy dáng cũ thì tải lại trang bỏ qua bộ nhớ đệm"
+  limit: "Thứ nhất, màn đăng nhập và quên mật khẩu cố ý giữ dáng riêng có bóng theo thiết kế đã duyệt S39, chủ dự án chốt ngày 06/09; các màn này cũng không nằm trong mười bốn màn BA nêu. Thứ hai, hai hộp thoại thông báo trên màn khắc phục Khảo sát và ô chỉ báo điểm nhỏ 60 điểm ảnh không được coi là thẻ nội dung nên giữ nguyên; nếu BA muốn chúng cùng khuôn thì báo để mở đợt riêng. Thứ ba, ở chi tiết Khảo sát trên máy tính, ô tổng điểm là hộp trắng nằm trong thẻ trắng từ trước; đưa về nền xám nhạt sẽ mất viền xanh nhấn nên chờ BA chốt. Thứ tư, đợt Khảo sát mới chỉ kiểm trên bản sao, chưa lên máy chủ kiểm thử; cột Build/Deploy sẽ được cập nhật sau khi cài. Thứ năm, trang chi tiết cửa hàng theo đường dẫn /my/franchises chạy trên bộ giao diện mặc định của Odoo, không nạp giao diện Wujia, nên để nguyên. Thứ sáu, mười hai chỗ dùng thẻ trong các phần mềm bên thứ ba ở giao diện nội bộ không thuộc Portal, không đụng"
+# =====================================================================================

@@ -25,7 +25,10 @@
 
             <t t-call="wujia_portal_layout.pc_account_layout">
                 <!-- Header card -->
-                <div class="wj-pc-acct-headcard">
+                <t t-call="wujia_portal_layout.wj_surface_card">
+                    <t t-set="sc_variant" t-value="'record'"/>
+                    <t t-set="sc_density" t-value="'regular'"/>
+                    <t t-set="sc_class" t-value="'wj-pc-acct-headcard'"/>
                     <span class="wj-pc-acct-headcard__icon">
                         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
                              stroke="currentColor" stroke-width="2" stroke-linecap="round"
@@ -53,16 +56,16 @@
                             <t t-else="">Nhân viên cửa hàng</t>
                         </span>
                     </div>
-                </div>
+                </t>
 
                 <!-- Panel: Thông tin nhượng quyền -->
-                <div class="wj-pc-card">
-                    <div class="wj-pc-card__head">
-                        <div>
-                            <h3 class="wj-pc-acct-panel-title">Thông tin nhượng quyền</h3>
-                            <p class="wj-pc-acct-panel-sub">Thông tin chính của cửa hàng hiện tại</p>
-                        </div>
-                    </div>
+                <t t-call="wujia_portal_layout.wj_surface_card">
+                    <t t-set="sc_class" t-value="'wj-pc-card'"/>
+                    <t t-call="wujia_portal_layout.wj_card_header">
+                        <t t-set="ch_title">Thông tin nhượng quyền</t>
+                        <t t-set="ch_subtitle">Thông tin chính của cửa hàng hiện tại</t>
+                        <t t-set="ch_platform" t-value="'pc'"/>
+                    </t>
                     <div class="wj-pc-acct-kv-grid wj-pc-acct-kv-grid--3">
                         <div class="wj-pc-acct-field">
                             <span class="wj-pc-acct-field__label">Mã cửa hàng</span>
@@ -91,17 +94,17 @@
                             <span class="wj-pc-acct-field__value" t-out="nguoi_phu_trach"/>
                         </div>
                     </div>
-                </div>
+                </t>
 
                 <!-- Panel: Thành viên cửa hàng — 3 trạng thái -->
-                <div class="wj-pc-card">
+                <t t-call="wujia_portal_layout.wj_surface_card">
+                    <t t-set="sc_class" t-value="'wj-pc-card'"/>
                     <t t-if="is_owner_manager">
-                        <div class="wj-pc-card__head">
-                            <div>
-                                <h3 class="wj-pc-acct-panel-title">Thành viên cửa hàng</h3>
-                                <p class="wj-pc-acct-panel-sub">Owner/Manager được xem danh sách tài khoản thuộc cửa hàng hiện tại</p>
-                            </div>
-                        </div>
+                        <t t-call="wujia_portal_layout.wj_card_header">
+                            <t t-set="ch_title">Thành viên cửa hàng</t>
+                            <t t-set="ch_subtitle">Owner/Manager được xem danh sách tài khoản thuộc cửa hàng hiện tại</t>
+                            <t t-set="ch_platform" t-value="'pc'"/>
+                        </t>
                         <t t-if="members">
                             <table class="wj-pc-table wj-pc-acct-members">
                                 <thead>
@@ -156,14 +159,20 @@
                         <div class="wj-pc-acct-staff">
                             <span class="wj-pc-acct-staff__icon"><i class="feather icon-users"/></span>
                             <div class="wj-pc-acct-staff__body">
-                                <h3 class="wj-pc-acct-staff__title">Thông tin thành viên</h3>
+                                <!-- Biến thể flush: dòng `__line` ngay dưới đã tự khai margin-top
+                                     8px, header thêm 12px nữa là cộng chồng (bẫy D3a). -->
+                                <t t-call="wujia_portal_layout.wj_card_header">
+                                    <t t-set="ch_title">Thông tin thành viên</t>
+                                    <t t-set="ch_platform" t-value="'pc'"/>
+                                    <t t-set="ch_class" t-value="'wj-card-header--flush'"/>
+                                </t>
                                 <p class="wj-pc-acct-staff__line">Tài khoản của bạn chỉ được xem thông tin cửa hàng cơ bản.</p>
                                 <p class="wj-pc-acct-staff__line wj-pc-acct-staff__line--muted">Danh sách thành viên sẽ hiển thị cho Owner/Manager theo quyền được cấp.</p>
                                 <span class="wj-pc-acct-staff__tag">Chế độ xem cơ bản</span>
                             </div>
                         </div>
                     </t>
-                </div>
+                </t>
             </t>
 
             <!-- ===== Mobile (<992px) — Figma Mobile_Account_Info màn 02 "Thông tin cửa hàng".
@@ -177,14 +186,22 @@
                 </t>
 
                 <!-- Card: Cửa hàng nhượng quyền -->
-                <div class="wujia-mdash-card">
-                    <h2 class="wujia-maccount-cardtitle">Cửa hàng nhượng quyền</h2>
+                <t t-call="wujia_portal_layout.wj_surface_card">
+                    <t t-set="sc_variant" t-value="'section'"/>
+                    <t t-set="sc_class" t-value="'wujia-mdash-card'"/>
+                    <!-- Tên cửa hàng lên làm dòng phụ của tiêu đề (chủ dự án chốt 02/09) ⇒ mobile
+                         xếp giống bản PC cùng card: tiêu đề → dòng phụ → badge. -->
+                    <t t-call="wujia_portal_layout.wj_card_header">
+                        <t t-set="ch_title">Cửa hàng nhượng quyền</t>
+                        <t t-set="ch_subtitle" t-value="franchise.name or '—'"/>
+                        <t t-set="ch_level" t-value="2"/>
+                        <t t-set="ch_platform" t-value="'m'"/>
+                    </t>
                     <div class="wujia-maccount-badgerow">
                         <span class="wujia-badge wujia-badge-info" t-out="franchise.code or '—'"/>
                         <span class="wujia-badge wujia-badge-success"
                               t-out="status_labels.get(franchise.status, franchise.status)"/>
                     </div>
-                    <h3 class="wujia-maccount-store-name" t-out="franchise.name or '—'"/>
                     <p class="wujia-maccount-store-sub"
                        t-out="'Khu vực ' + (franchise.area_id.name or '—')"/>
                     <div class="wujia-maccount-kvlist">
@@ -206,11 +223,17 @@
                             <span class="wujia-maccount-kv-val" t-out="franchise.address or '—'"/>
                         </div>
                     </div>
-                </div>
+                </t>
 
                 <!-- Card: Hợp đồng nhượng quyền -->
-                <div class="wujia-mdash-card">
-                    <h2 class="wujia-maccount-cardtitle">Hợp đồng nhượng quyền</h2>
+                <t t-call="wujia_portal_layout.wj_surface_card">
+                    <t t-set="sc_variant" t-value="'section'"/>
+                    <t t-set="sc_class" t-value="'wujia-mdash-card'"/>
+                    <t t-call="wujia_portal_layout.wj_card_header">
+                        <t t-set="ch_title">Hợp đồng nhượng quyền</t>
+                        <t t-set="ch_level" t-value="2"/>
+                        <t t-set="ch_platform" t-value="'m'"/>
+                    </t>
                     <div class="wujia-maccount-kvlist">
                         <div class="wujia-maccount-kv">
                             <span class="wujia-maccount-kv-key">Ngày bắt đầu</span>
@@ -230,11 +253,20 @@
                             </span>
                         </div>
                     </div>
-                </div>
+                </t>
 
                 <!-- Card: Thành viên cửa hàng -->
-                <div class="wujia-mdash-card" style="padding:0;">
-                    <h2 class="wujia-maccount-cardtitle" style="padding:14px 14px 0;">Thành viên cửa hàng</h2>
+                <t t-call="wujia_portal_layout.wj_surface_card">
+                    <t t-set="sc_variant" t-value="'section'"/>
+                    <t t-set="sc_body" t-value="'flush'"/>
+                    <t t-set="sc_class" t-value="'wujia-mdash-card'"/>
+                    <div class="wj-surface-headpad">
+                        <t t-call="wujia_portal_layout.wj_card_header">
+                            <t t-set="ch_title">Thành viên cửa hàng</t>
+                            <t t-set="ch_level" t-value="2"/>
+                            <t t-set="ch_platform" t-value="'m'"/>
+                        </t>
+                    </div>
                     <div t-if="not members" class="wj-empty-state--compact">Chưa có thành viên active.</div>
                     <div t-else="" class="wujia-mdash-list">
                         <div t-foreach="members" t-as="m" class="wujia-mdash-row">
@@ -249,7 +281,7 @@
                             <span t-else="" class="wujia-badge wujia-badge-muted">Inactive</span>
                         </div>
                     </div>
-                </div>
+                </t>
             </div>
         </t>
     </template>
@@ -261,8 +293,8 @@
             <t t-set="title" t-value="'Cửa hàng tạm khóa'"/>
             <div class="content-wrapper">
                 <div class="content-body">
-                    <div class="card mt-5">
-                        <div class="card-body wujia-empty-state">
+                    <div class="wj-surface-card wj-surface-card--section wj-surface-card--compact wj-surface-card--flush mt-5">
+                        <div class="wj-surface-card__body wujia-empty-state">
                             <i class="fa fa-lock"/>
                             <h4>Cửa hàng <t t-out="franchise.name"/> đang không truy cập được.</h4>
                             <p class="text-muted">

@@ -8,13 +8,16 @@
     <template id="pc_cart_panel" name="Wujia PC — Cart panel (shared)">
         <t t-set="cs_lines" t-value="cart_state['lines'] if cart_state else []"/>
         <div class="wj-pc-cart">
-            <div class="wj-pc-cart-head">
-                <h3 class="wj-pc-cart-title">Giỏ hàng</h3>
+            <t t-call="wujia_portal_layout.wj_card_header">
+                <t t-set="ch_title">Giỏ hàng</t>
+                <t t-set="ch_platform" t-value="'pc'"/>
                 <!-- WJ-ORD-022: header = số MẶT HÀNG (SKU), phân biệt tổng số lượng dưới -->
-                <span class="wj-pc-cart-count wj-count-meta wj-count-meta--bold">
-                    <t t-out="len(cs_lines)"/> mặt hàng
-                </span>
-            </div>
+                <t t-set="ch_meta">
+                    <span class="wj-pc-cart-count wj-count-meta wj-count-meta--bold">
+                        <t t-out="len(cs_lines)"/> mặt hàng
+                    </span>
+                </t>
+            </t>
 
             <!-- Warning bar khung giờ — WJ-ORD-006: màu + nội dung theo order_window_open
                  (server tính theo store tz); WJ-ORD-015: label khung qua đêm + UTC+7. -->

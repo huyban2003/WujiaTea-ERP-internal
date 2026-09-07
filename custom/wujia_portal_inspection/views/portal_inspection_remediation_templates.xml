@@ -38,12 +38,15 @@
                 </div>
 
                 <div class="content-body">
-                    <div class="wj-pc-card">
-                        <div class="wj-pc-card__head pb-2 border-bottom mb-3">
-                            <h2 class="wj-pc-card__title">Cập nhật báo cáo khắc phục</h2>
-                            <p class="wj-pc-card__subtitle">Vui lòng cung cấp hình ảnh thực tế sau
-                                khắc phục và giải trình chi tiết</p>
-                        </div>
+                    <t t-call="wujia_portal_layout.wj_surface_card">
+                        <t t-set="sc_class" t-value="'wj-pc-card'"/>
+                        <t t-call="wujia_portal_layout.wj_card_header">
+                            <t t-set="ch_title">Cập nhật báo cáo khắc phục</t>
+                            <t t-set="ch_subtitle">Vui lòng cung cấp hình ảnh thực tế sau khắc phục và giải trình chi tiết</t>
+                            <t t-set="ch_level" t-value="2"/>
+                            <t t-set="ch_platform" t-value="'pc'"/>
+                            <t t-set="ch_divider" t-value="True"/>
+                        </t>
 
                         <form action="/portal/inspection/remediation/submit" method="POST"
                             enctype="multipart/form-data">
@@ -66,11 +69,14 @@
                                                 <t t-out="category_name" />
                                             </span>
                                         </div>
-                                        <h3 class="font-weight-bold text-dark mb-2"
-                                            style="font-size: 14px; line-height: 1.5;">
-                                            <t t-if="line_code">[<t t-out="line_code" />] </t>
-                                            <t t-out="criterion_name" />
-                                        </h3>
+                                        <t t-set="_crit_title"
+                                           t-value="('[%s] %s' % (line_code, criterion_name)) if line_code else criterion_name"/>
+                                        <t t-call="wujia_portal_layout.wj_card_header">
+                                            <t t-set="ch_title" t-value="_crit_title"/>
+                                            <t t-set="ch_level" t-value="3"/>
+                                            <t t-set="ch_platform" t-value="'pc'"/>
+                                            <t t-set="ch_class" t-value="'wj-card-header--flush wj-insp-critlabel'"/>
+                                        </t>
                                         <div t-if="admin_note"
                                             class="p-2.5 rounded bg-white border-start border-3 border-danger mt-2">
                                             <div class="small font-weight-bold text-danger mb-1"><i
@@ -171,7 +177,7 @@
                                 </div>
                             </div>
                         </form>
-                    </div>
+                    </t>
                 </div>
             </div>
 
@@ -183,8 +189,7 @@
                     <input type="hidden" name="line_id" t-att-value="line.id" />
 
                     <!-- Thẻ 1: Thông tin Tiêu chí bị trừ điểm -->
-                    <div class="form-card-box p-3"
-                        style="background: #ffffff; border-radius: 16px; border: 1px solid #f1f5f9; box-shadow: 0 2px 8px rgba(0,0,0,0.03);">
+                    <div class="wj-surface-card wj-surface-card--section wj-surface-card--compact wj-surface-card--padded form-card-box p-3">
                         <div class="d-flex justify-content-between align-items-start gap-2 mb-2">
                             <span
                                 class="badge-fail-tag d-inline-flex align-items-center justify-content-center flex-shrink-0"
@@ -215,8 +220,7 @@
                     </div>
 
                     <!-- Thẻ 2: Ảnh Trước (Thanh tra) -->
-                    <div t-if="evidence_image_url" class="form-card-box p-3"
-                        style="background: #ffffff; border-radius: 16px; border: 1px solid #f1f5f9; box-shadow: 0 2px 8px rgba(0,0,0,0.03);">
+                    <div t-if="evidence_image_url" class="wj-surface-card wj-surface-card--section wj-surface-card--compact wj-surface-card--padded form-card-box p-3">
                         <div class="d-flex justify-content-between align-items-center mb-2">
                             <span class="font-weight-bold text-dark small"
                                 style="font-size: 0.9rem;">Trước (Thanh tra)</span>
@@ -230,8 +234,7 @@
                     </div>
 
                     <!-- Thẻ 3: Upload Ảnh Sau (Khắc phục) -->
-                    <div class="form-card-box p-3"
-                        style="background: #ffffff; border-radius: 16px; border: 1px solid #f1f5f9; box-shadow: 0 2px 8px rgba(0,0,0,0.03);">
+                    <div class="wj-surface-card wj-surface-card--section wj-surface-card--compact wj-surface-card--padded form-card-box p-3">
                         <div class="d-flex justify-content-between align-items-center mb-2">
                             <span class="font-weight-bold text-primary small"
                                 style="font-size: 0.9rem; color: #0284c7 !important;">Sau (Khắc
@@ -260,8 +263,7 @@
                     </div>
 
                     <!-- Thẻ 4: Form Mô tả hành động khắc phục -->
-                    <div class="form-card-box p-3"
-                        style="background: #ffffff; border-radius: 16px; border: 1px solid #f1f5f9; box-shadow: 0 2px 8px rgba(0,0,0,0.03);">
+                    <div class="wj-surface-card wj-surface-card--section wj-surface-card--compact wj-surface-card--padded form-card-box p-3">
                         <label class="font-weight-bold text-dark small mb-2"
                             style="font-size: 0.9rem;">Mô tả hành động khắc phục</label>
                         <textarea name="remediation_note" rows="3"

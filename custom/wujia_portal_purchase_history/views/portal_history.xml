@@ -29,14 +29,19 @@
         </span>
 
         <!-- ===== PC: card bảng danh sách đơn ===== -->
-        <div t-if="part == 'pc'" id="wj-hist-pc" class="wj-pc-card">
-            <div class="wj-pc-card__head">
-                <div>
-                    <h3 class="wj-pc-card__title">Danh sách đơn hàng</h3>
-                    <p class="wj-pc-card__subtitle">Theo dõi đơn đặt hàng của cửa hàng đang thao tác</p>
-                </div>
-                <span t-if="rows" class="wj-pc-card__count"><t t-out="pager.get('page_total', len(rows))"/> bản ghi</span>
-            </div>
+        <t t-call="wujia_portal_layout.wj_surface_card" t-if="part == 'pc'">
+            <t t-set="sc_class" t-value="'wj-pc-card'"/>
+            <t t-set="sc_id" t-value="'wj-hist-pc'"/>
+            <!-- CMP-CH-001: count cố ý BỎ `t-if` — spec ghi rõ "Count 0 vẫn hiển thị". -->
+            <t t-call="wujia_portal_layout.wj_card_header">
+                <t t-set="ch_title">Danh sách đơn hàng</t>
+                <t t-set="ch_subtitle">Theo dõi đơn đặt hàng của cửa hàng đang thao tác</t>
+                <t t-set="ch_level" t-value="3"/>
+                <t t-set="ch_platform" t-value="'pc'"/>
+                <t t-set="ch_meta">
+                    <span class="wj-pc-card__count"><t t-out="pager.get('page_total', len(rows))"/> bản ghi</span>
+                </t>
+            </t>
 
             <!-- filter_error đã báo ở FilterBar → không hiện thêm empty state (2 thông điệp mâu thuẫn) -->
             <div t-if="not rows and not filter_error" class="wj-pc-empty">
@@ -110,7 +115,7 @@
                 <a t-attf-href="/portal/purchase-history?page=#{pager['page_next']['num']}&amp;#{pager['querystring'] or ''}"
                    t-attf-class="wj-pc-page-btn #{'is-disabled' if pager['page']['num'] &gt;= pager['page_count'] else ''}">Sau</a>
             </div>
-        </div>
+        </t>
 
         <!-- ===== Mobile: chip preset (nằm trong form lọc) ===== -->
         <div t-if="part == 'mchips'" id="wj-hist-mchips" class="wj-filter-chips">
@@ -125,11 +130,15 @@
 
         <!-- ===== Mobile: thân kết quả (listhead + list/empty + pager) ===== -->
         <div t-if="part == 'mbody'" id="wj-hist-mbody" class="wj-ajax-slot">
-            <!-- Header danh sách -->
-            <div class="wujia-mhist-listhead">
-                <span class="wujia-mhist-listhead-title">Danh sách đơn</span>
-                <span class="wj-count-meta"><t t-out="len(rows)"/> đơn gần nhất</span>
-            </div>
+            <!-- Header danh sách (CMP-SH-001) -->
+            <t t-call="wujia_portal_layout.wj_section_header">
+                <t t-set="sh_title">Danh sách đơn</t>
+                <t t-set="sh_level" t-value="3"/>
+                <t t-set="sh_platform" t-value="'m'"/>
+                <t t-set="sh_meta">
+                    <span class="wj-section-header__meta"><t t-out="len(rows)"/> đơn gần nhất</span>
+                </t>
+            </t>
 
             <!-- Danh sách đơn -->
             <t t-set="mhist_filtered" t-value="q or date_from or date_to or preset or state"/>
@@ -280,7 +289,7 @@
 
                     <t t-else="">
                         <!-- Filter canonical 03-Advanced -->
-                        <form method="get" action="/portal/purchase-history" class="wj-filter-card">
+                        <form method="get" action="/portal/purchase-history" class="wj-surface-card wj-surface-card--summary wj-surface-card--compact wj-surface-card--padded wj-filter-card">
                             <input type="hidden" name="page_size" t-att-value="page_size"/>
                             <div class="wj-filter-search">
                                 <div class="wj-filter-search-field">
@@ -378,11 +387,23 @@
                         <!-- Card tóm tắt đơn -->
                         <div class="wj-pc-order-head">
                             <div>
+                                <!-- Eyebrow "Mã đơn" + khối Tổng tiền bên phải ở lại là NỘI DUNG
+                                     card (spec cho tối đa MỘT trailing) ⇒ trailing = badge. -->
                                 <p class="wj-pc-order-head__label">Mã đơn</p>
-                                <div class="wj-pc-order-head__code-row">
-                                    <h2 class="wj-pc-order-head__code" t-out="h['name']"/>
-                                    <span t-attf-class="wj-pc-badge #{pc_badge.get(h['status_type'], 'wj-pc-badge--pending')}" t-out="h['state_label']"/>
-                                </div>
+                                <t t-call="wujia_portal_layout.wj_card_header">
+                                    <t t-set="ch_title" t-value="h['name']"/>
+                                    <t t-set="ch_level" t-value="2"/>
+                                    <t t-set="ch_platform" t-value="'pc'"/>
+                                    <t t-set="ch_variant" t-value="'regular'"/>
+                                    <t t-set="ch_class" t-value="'wj-card-header--flush'"/>
+                                    <t t-set="ch_meta">
+                                        <span t-attf-class="wj-pc-badge #{pc_badge.get(h['status_type'], 'wj-pc-badge--pending')}" t-out="h['state_label']"/>
+                                    </t>
+                                </t>
+                                <!-- Dòng meta CỐ Ý ở lại là nội dung card, KHÔNG làm ch_subtitle:
+                                     nó dài hơn mã đơn nên khi nằm trong lead thì badge (trailing)
+                                     bị đẩy theo mép của nó, trôi khỏi mã đơn — ảnh chụp bắt được,
+                                     mọi số đo vẫn Pass. -->
                                 <p class="wj-pc-order-head__meta">
                                     Ngày tạo <t t-out="h['create_date'] and h['create_date'].strftime('%d/%m/%Y %H:%M') or '—'"/>
                                     · Người đặt <t t-out="h['requester_display']"/>
@@ -397,8 +418,13 @@
 
                         <!-- 2 panel thông tin -->
                         <div class="wj-pc-two-col">
-                            <div class="wj-pc-card">
-                                <div class="wj-pc-card__head"><h3 class="wj-pc-card__title wj-pc-card__title--sm">Thông tin đơn hàng</h3></div>
+                            <t t-call="wujia_portal_layout.wj_surface_card">
+                                <t t-set="sc_class" t-value="'wj-pc-card'"/>
+                                <t t-call="wujia_portal_layout.wj_card_header">
+                                    <t t-set="ch_title">Thông tin đơn hàng</t>
+                                    <t t-set="ch_level" t-value="3"/>
+                                    <t t-set="ch_platform" t-value="'pc'"/>
+                                </t>
                                 <div class="wj-pc-kv-grid">
                                     <div class="wj-pc-kv">
                                         <span class="wj-pc-kv__label">Ngày tạo</span>
@@ -417,9 +443,14 @@
                                         <span class="wj-pc-kv__value wj-pc-kv__value--primary" t-out="h['state_label']"/>
                                     </div>
                                 </div>
-                            </div>
-                            <div class="wj-pc-card">
-                                <div class="wj-pc-card__head"><h3 class="wj-pc-card__title wj-pc-card__title--sm">Batch / giao hàng</h3></div>
+                            </t>
+                            <t t-call="wujia_portal_layout.wj_surface_card">
+                                <t t-set="sc_class" t-value="'wj-pc-card'"/>
+                                <t t-call="wujia_portal_layout.wj_card_header">
+                                    <t t-set="ch_title">Batch / giao hàng</t>
+                                    <t t-set="ch_level" t-value="3"/>
+                                    <t t-set="ch_platform" t-value="'pc'"/>
+                                </t>
                                 <div class="wj-pc-kv-grid">
                                     <div class="wj-pc-kv">
                                         <span class="wj-pc-kv__label">Batch giao hàng</span>
@@ -438,15 +469,20 @@
                                         <span class="wj-pc-kv__value" t-out="b and b['departure'] and b['departure'].strftime('%d/%m/%Y · %H:%M') or '—'"/>
                                     </div>
                                 </div>
-                            </div>
+                            </t>
                         </div>
 
                         <!-- Bảng sản phẩm đã đặt — giá đã gồm thuế -->
-                        <div class="wj-pc-card">
-                            <div class="wj-pc-card__head">
-                                <h3 class="wj-pc-card__title">Sản phẩm đã đặt</h3>
-                                <span class="wj-pc-card__count"><t t-out="h['product_line_count']"/> sản phẩm</span>
-                            </div>
+                        <t t-call="wujia_portal_layout.wj_surface_card">
+                            <t t-set="sc_class" t-value="'wj-pc-card'"/>
+                            <t t-call="wujia_portal_layout.wj_card_header">
+                                <t t-set="ch_title">Sản phẩm đã đặt</t>
+                                <t t-set="ch_level" t-value="3"/>
+                                <t t-set="ch_platform" t-value="'pc'"/>
+                                <t t-set="ch_meta">
+                                    <span class="wj-pc-card__count"><t t-out="h['product_line_count']"/> sản phẩm</span>
+                                </t>
+                            </t>
                             <table class="wj-pc-table">
                                 <thead>
                                     <tr>
@@ -473,7 +509,7 @@
                                     </tr>
                                 </tfoot>
                             </table>
-                        </div>
+                        </t>
                     </div>
                     <!-- /desktop -->
 
@@ -503,8 +539,13 @@
                         </div>
 
                         <!-- Thông tin đơn hàng -->
-                        <div class="wujia-mhist-card">
-                            <div class="wujia-mhist-card-head">Thông tin đơn hàng</div>
+                        <t t-call="wujia_portal_layout.wj_surface_card">
+                            <t t-set="sc_variant" t-value="'record'"/>
+                            <t t-set="sc_class" t-value="'wujia-mhist-card'"/>
+                            <t t-call="wujia_portal_layout.wj_card_header">
+                                <t t-set="ch_title">Thông tin đơn hàng</t>
+                                <t t-set="ch_platform" t-value="'m'"/>
+                            </t>
                             <div class="wujia-mhist-kv">
                                 <span class="wujia-mhist-kv-label">Người đặt</span>
                                 <span class="wujia-mhist-kv-value" t-out="h['requester_display']"/>
@@ -523,11 +564,16 @@
                                 <span class="wujia-mhist-kv-label">Số dòng hàng</span>
                                 <span class="wujia-mhist-kv-value"><t t-out="'%02d' % h['product_line_count']"/> sản phẩm</span>
                             </div>
-                        </div>
+                        </t>
 
                         <!-- Thông tin batch / giao hàng -->
-                        <div class="wujia-mhist-card">
-                            <div class="wujia-mhist-card-head">Thông tin batch / giao hàng</div>
+                        <t t-call="wujia_portal_layout.wj_surface_card">
+                            <t t-set="sc_variant" t-value="'record'"/>
+                            <t t-set="sc_class" t-value="'wujia-mhist-card'"/>
+                            <t t-call="wujia_portal_layout.wj_card_header">
+                                <t t-set="ch_title">Thông tin batch / giao hàng</t>
+                                <t t-set="ch_platform" t-value="'m'"/>
+                            </t>
                             <div class="wujia-mhist-kv">
                                 <span class="wujia-mhist-kv-label">Số phiếu batch</span>
                                 <span class="wujia-mhist-kv-value" t-out="b and b['name'] or '—'"/>
@@ -545,17 +591,27 @@
                                 <span class="wujia-mhist-kv-value"
                                       t-out="b and b['departure'] and b['departure'].strftime('%d/%m/%Y · %H:%M') or '—'"/>
                             </div>
-                        </div>
+                        </t>
 
                         <!-- Ghi chú khi đặt hàng — dùng portal_note (order.note = T&C Odoo, sai ngữ nghĩa) -->
-                        <div class="wujia-mhist-card">
-                            <div class="wujia-mhist-card-head">Ghi chú khi đặt hàng</div>
+                        <t t-call="wujia_portal_layout.wj_surface_card">
+                            <t t-set="sc_variant" t-value="'record'"/>
+                            <t t-set="sc_class" t-value="'wujia-mhist-card'"/>
+                            <t t-call="wujia_portal_layout.wj_card_header">
+                                <t t-set="ch_title">Ghi chú khi đặt hàng</t>
+                                <t t-set="ch_platform" t-value="'m'"/>
+                            </t>
                             <p class="wujia-mhist-note" t-out="detail['note'] or 'Không có ghi chú.'"/>
-                        </div>
+                        </t>
 
                         <!-- Danh sách sản phẩm — thành tiền đã gồm thuế -->
-                        <div class="wujia-mhist-card">
-                            <div class="wujia-mhist-card-head">Danh sách sản phẩm</div>
+                        <t t-call="wujia_portal_layout.wj_surface_card">
+                            <t t-set="sc_variant" t-value="'record'"/>
+                            <t t-set="sc_class" t-value="'wujia-mhist-card'"/>
+                            <t t-call="wujia_portal_layout.wj_card_header">
+                                <t t-set="ch_title">Danh sách sản phẩm</t>
+                                <t t-set="ch_platform" t-value="'m'"/>
+                            </t>
                             <div t-foreach="detail['lines']" t-as="line" class="wujia-mhist-prod">
                                 <span class="wujia-mhist-prod-main">
                                     <span class="wujia-mhist-prod-name" t-out="line['product_name']"/>
@@ -564,7 +620,7 @@
                                 <span class="wujia-mhist-prod-amount"
                                       t-out="money(line['line_total_tax_included'], h['currency_symbol'], h['currency_decimals'])"/>
                             </div>
-                        </div>
+                        </t>
                     </div>
                     <!-- /mobile -->
                 </t>

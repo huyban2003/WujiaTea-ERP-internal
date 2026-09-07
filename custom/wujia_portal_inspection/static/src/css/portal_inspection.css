@@ -84,18 +84,14 @@
     border-bottom-color: #38bdf8 !important;
 }
 
+/* D4h: dáng khung sang .wj-surface-card; overflow:hidden gỡ vì không còn gì cần cắt. */
 .inspection-card-item {
-    border-radius: 14px;
-    border: 1px solid #e2e8f0;
-    background: #ffffff;
     position: relative;
-    overflow: hidden;
-    transition: transform 0.15s ease, box-shadow 0.15s ease;
+    transition: transform 0.15s ease;
 }
 
 .inspection-card-item:hover {
     transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
 }
 
 .code-chip {
@@ -170,12 +166,7 @@
     border-bottom: 1px solid #e2e8f0;
 }
 
-.detail-card-box {
-    background: #ffffff;
-    border-radius: 16px;
-    border: 1px solid #f1f5f9;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03);
-}
+/* D4h: .detail-card-box — dáng khung sang .wj-surface-card, rule cũ không còn khai gì. */
 
 .score-box-border {
     border: 3px solid #38bdf8;
@@ -195,21 +186,18 @@
     font-weight: 700;
 }
 
+/* D4h: dáng khung sang .wj-surface-card; viền tông xanh giữ lại vì là tông (điểm nhấn), không phải dáng. */
 .summary-2x2-card {
-    border-radius: 14px;
-    border: 1.5px solid #38bdf8;
-    background: #ffffff;
-    padding: 12px;
+    border-color: var(--wujia-primary);
     text-align: center;
     cursor: pointer;
     text-decoration: none;
     display: block;
-    transition: transform 0.15s, box-shadow 0.15s;
+    transition: transform 0.15s;
 }
 
 .summary-2x2-card:hover {
     transform: translateY(-2px);
-    box-shadow: 0 4px 10px rgba(2, 132, 199, 0.12);
 }
 
 .summary-2x2-card.severe-card {
@@ -724,4 +712,48 @@
 }
 .wj-warning-confirm-btn:hover {
     background: #b45309;
+}
+
+/* ---------- CMP-CH-001 (D3f) ---------- */
+/* Tiêu đề tiêu chí trong hộp "Tiêu chí vi phạm": 14px/700 là THIẾT KẾ — nó là
+   chữ chính của hộp, lấy 18px của component thì hộp vỡ, lấy .875rem của nhãn phụ
+   thì tụt ngang hàng nhãn muted phía trên, mất phân cấp. */
+.wj-pc-card .wj-card-header.wj-insp-critlabel .wj-card-header__title {
+    font-size: 14px !important;
+    line-height: 1.5;
+}
+.wj-pc-card .wj-card-header.wj-insp-critlabel { margin: 0 0 .5rem; }
+
+/* Head của khối `t-foreach sections`: 15px là THIẾT KẾ (nhỏ hơn tiêu đề card 18px
+   vì nó là đầu MỘT nhóm bên trong card). Nhánh severe tô nền đỏ bằng inline
+   style, mà component khai màu chữ trên chính `.wj-card-header__title` nên màu
+   trắng không thừa kế xuống được — phải trả lại bằng rule. */
+.wj-insp-sechead .wj-card-header.wj-insp-sechead__hb { margin: 0; }
+.wj-insp-sechead .wj-card-header.wj-insp-sechead__hb .wj-card-header__title {
+    font-size: 15px !important;
+    line-height: 1.2;              /* = 18px, đúng bằng dáng cũ */
+}
+.wj-insp-sechead:not(.wj-insp-sechead--severe) .wj-card-header__subtitle { color: #6c757d !important; }
+.wj-insp-sechead--severe .wj-card-header__title { color: #ffffff !important; }
+.wj-insp-sechead--severe .wj-card-header__subtitle { color: rgba(255, 255, 255, .8) !important; }
+
+/* Bản mobile của cùng head đó: dáng riêng (0.95rem xanh #0284c7) là THIẾT KẾ,
+   không phải drift — mobile và PC vốn khác cỡ. */
+.wj-insp-sechead--m .wj-card-header.wj-insp-sechead__hb .wj-card-header__title {
+    font-size: .95rem !important;
+    line-height: 1.35;
+    /* #0284c7 trên nền #f1f5f9 chỉ đạt tương phản 3.74 (< AA 4.5). Đậm thêm một
+       bậc CÙNG hệ xanh nhận diện => 5.1, chữ vẫn là "xanh danh mục" như thiết kế.
+       Lỗi có sẵn trước D3f; chủ dự án chốt sửa luôn 2026-09-04. */
+    color: #0369a1 !important;
+}
+/* Phải bám đủ `.wj-card-header.wj-insp-sechead__hb` mới lên (0,5,0): rule màu
+   xanh ngay trên đã là (0,4,0)!important, viết ngắn hơn là THUA — bẫy đặc hiệu
+   D3e §7, lần này đo mới lộ (tiêu đề nhánh severe ra màu xanh trên nền đỏ). */
+.wj-insp-sechead--m.wj-insp-sechead--severe
+    .wj-card-header.wj-insp-sechead__hb .wj-card-header__title { color: #ffffff !important; }
+.wj-insp-sechead--m .wj-card-header.wj-insp-sechead__hb .wj-card-header__subtitle {
+    font-size: .82rem;
+    line-height: 1.35;
+    color: #64748b;
 }

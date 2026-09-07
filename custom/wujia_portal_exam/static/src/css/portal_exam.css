@@ -35,13 +35,6 @@
         white-space: nowrap;
         line-height: 1.5;
     }
-    .wujia-mpage .wujia-mexam-sectitle {
-        margin: 4px 0 0;
-        font-size: 16px !important;   /* beat global h2 !important */
-        line-height: 1.3;
-        font-weight: 700;
-        color: var(--wujia-text-primary);
-    }
     .wujia-mexam-btn {
         height: 48px;
         border: 0;
@@ -83,11 +76,8 @@
     }
     .wujia-mexam-list { display: flex; flex-direction: column; gap: 12px; }
     .wujia-mexam-card {
+        /* D4d: dáng khung sang .wj-surface-card; giữ tag <a> vì QWeb O19 không đổi tên thẻ. */
         display: block;
-        background: #FFFFFF;
-        border: 1px solid var(--wujia-border-soft);
-        border-radius: 14px;
-        padding: 14px 16px;
         text-decoration: none;
     }
     .wujia-mexam-card-top {
@@ -218,14 +208,11 @@
 
     /* ================= Selected card (s2/s3) ================= */
     .wujia-mexam-selcard {
+        /* D4d: dáng khung sang .wj-surface-card; giữ nền tonal vì --tonal bỏ hẳn viền. */
         display: flex;
         align-items: center;
         justify-content: space-between;
-        gap: 12px;
-        background: #F8FAFC;
-        border: 1px solid var(--wujia-border-soft);
-        border-radius: 14px;
-        padding: 14px 16px;
+        background: var(--wujia-surface-tonal);
     }
     .wujia-mexam-selcard-main { flex: 1 1 auto; min-width: 0; }
     .wujia-mexam-selcard-title {
@@ -538,13 +525,9 @@
 
     /* ================= s5 — Xác nhận ================= */
     .wujia-mexam-cfcard {
-        background: #FFFFFF;
-        border: 1px solid var(--wujia-border-soft);
-        border-radius: 14px;
-        padding: 16px;
+        /* D4d: dáng khung + gap sang .wj-surface-card (--summary, gap 8). */
         display: flex;
         flex-direction: column;
-        gap: 14px;
     }
     .wujia-mpage .wujia-mexam-cftitle {
         margin: 0;
@@ -583,12 +566,6 @@
         border: 1px solid var(--wujia-border-soft);
         border-radius: 14px;
         padding: 14px 16px;
-    }
-    .wujia-mexam-rsum-title {
-        margin: 0;
-        font-size: 16px;
-        font-weight: 700;
-        color: var(--wujia-text-primary);
     }
     .wujia-mexam-rsum-loc {
         margin: 8px 0 0;
@@ -723,9 +700,26 @@
        Không sửa 4 file đó vì blast radius là toàn bộ portal; chỉ vô hiệu hoá
        trong phạm vi .wj-exam-pc. Số liệu lấy từ Figma WJ_Exam_PC v1.2. */
     .wj-exam-pc .wj-pc-card__title      { font-size: 22px !important; }
+    /* `wj-exam-pc-sectitle` CHƯA chết: còn 1 call site sống ở portal_exam.xml:398
+       ("Người tham gia" — chỗ defer chờ BA, inventory §6) ⇒ giữ nguyên 2 rule này. */
     .wj-exam-pc .wj-exam-pc-sectitle    { font-size: 20px !important; }
     .wj-exam-pc .wj-exam-pc-sectitle--sm { font-size: 18px !important; }
     .wj-exam-pc .wj-exam-pc-modal__title { font-size: 26px !important; }
+
+    /* ---------- Phân cấp trong CÙNG một card (RULE 1) ----------
+       Trước D3d: card 22px > khối con 20px > khối con nhỏ 18px. D3d hội tụ tiêu đề
+       card 22→18 (đúng) nhưng KHÔNG hạ khối con theo, nên cả hai cùng 18px và mất
+       phân cấp — bảng đo D3d vẫn Pass vì chỉ so từng số với chuẩn, không so hai số
+       VỚI NHAU. Chủ dự án chốt 2026-09-04: khối con = 16px (đã là cỡ chuẩn của
+       component, không đẻ số mới).
+       Đặc hiệu (0,4,0) + !important: rule component là (0,3,0)!important, viết ngắn
+       hơn là THUA — bẫy đặc hiệu đã trả giá 2 lần (D3e §7, D3f). */
+    .wj-exam-pc .wj-card-header.wj-exam-pc-sechead--sm .wj-card-header__title,
+    .wj-exam-pc .wj-card-header.wj-exam-pc-sechead--2 .wj-card-header__title,
+    .wj-exam-pc .wj-card-header.wj-exam-pc-slots__head .wj-card-header__title {
+        font-size: 16px !important;
+        line-height: 22px;
+    }
 
     .wj-exam-pc .wj-pc-table thead th        { font-size: 14px !important; }
     .wj-exam-pc .wj-exam-pc-res-table thead th  { font-size: 13px !important; }
@@ -762,8 +756,6 @@
     .wj-exam-pc-fc--search > .wj-pc-filter-control { padding-left: 50px; }
 
     /* ---------- Card danh sách (Figma y290) ---------- */
-    .wj-exam-pc-card { padding: 22px 24px 24px; }
-    .wj-exam-pc-card__head { margin-bottom: 25px; }
     .wj-exam-pc-card .wj-pc-card__subtitle { margin-top: 5px; }
 
     /* ---------- Bảng lịch sử đăng ký (row 68, 8 cột) ---------- */
@@ -821,10 +813,10 @@
 
     .wj-exam-pc-back { min-width: 122px; margin-bottom: 18px; }
 
-    .wj-exam-pc-dcard { padding: 20px 24px 24px; }
-    .wj-exam-pc-dhead { margin-bottom: 23px; }
     .wj-exam-pc-sectitle { font-size: 20px; }
-    .wj-exam-pc-sectitle--2 { margin-top: 28px; }
+    /* D3d: nhịp TRÊN mà class cũ từng gánh. Phải bám kèm `.wj-card-header` — rule
+       `--pc.--compact` của component là (0,2,0), một lớp đơn thua nó (bẫy D3b). */
+    .wj-card-header.wj-exam-pc-sechead--2 { margin-top: 28px; }
     .wj-exam-pc-secsub { margin-top: 7px; font-size: 13px; font-weight: 400; }
 
     /* KV grid 4 cột × 2 hàng, ô h72 (Figma y310 / y398) */
@@ -970,12 +962,10 @@
     /* ---------- Khung trang ---------- */
     .wj-exam-pc-create .wj-pc-page-header { margin-bottom: 7px; }
     .wj-exam-pc-create .wj-exam-pc-secsub { margin-bottom: 0; }
-    .wj-exam-pc-fcard { padding: 18px 24px 10px; }
     .wj-exam-pc-sumcard {
         align-self: start;
         position: sticky;
         top: var(--wj-pc-content-padding);
-        padding: 18px 24px 24px;
     }
 
     /* ---------- Field dùng chung ---------- */
@@ -989,7 +979,6 @@
         padding: 0 18px;
         font-size: 13px;
     }
-    .wj-exam-pc-fcard .wj-exam-pc-field { margin-top: 18px; }
     .wj-exam-pc-help {
         margin: 12px 0 0;
         font-size: 12px;
@@ -1001,6 +990,7 @@
         font-size: 18px;
         line-height: 22px;
     }
+    .wj-exam-pc-fcard .wj-card-header.wj-exam-pc-sechead--sm { margin-top: 16px; }
 
     /* ---------- 2. Chọn lịch thi (Figma y466 h310) ---------- */
     .wj-exam-pc-schedule {
@@ -1009,12 +999,11 @@
         gap: 16px;
         margin-top: 9px;
     }
+    /* D4c: nền tonal thay nền trắng — BA cấm thẻ trắng lồng thẻ trắng.
+       Dáng do .wj-surface-card--tonal sở hữu; đây chỉ giữ chiều cao tối thiểu. */
     .wj-exam-pc-cal,
     .wj-exam-pc-slots {
         min-height: 310px;
-        border: 1px solid var(--wj-pc-border-soft);
-        border-radius: var(--wj-pc-component-radius);
-        background: var(--wj-pc-card);
     }
 
     /* Lịch tháng */
@@ -1413,7 +1402,6 @@
         display: flex;
         flex-direction: column;
         gap: 23px;
-        margin-top: 36px;
     }
     .wj-exam-pc-sumkv { display: flex; flex-direction: column; gap: 5px; }
     .wj-exam-pc-sumkv__label {
@@ -1719,4 +1707,67 @@
 @keyframes wj-exam-pc-pulse {
     0%, 100% { opacity: 1; }
     50%      { opacity: .45; }
+}
+
+/* ==========================================================================
+   D3d · Vá bố cục màn "Đăng ký mới" ở laptop <1600px
+   --------------------------------------------------------------------------
+   Lỗi CÓ SẴN (đo trên cả bản trước migrate): `.wj-exam-pc-schedule` khai
+   `grid-template-columns: 646fr 390fr`, nhưng track `fr` mặc định có
+   `min-width: auto` ⇒ cột lịch KHÔNG chịu co dưới min-content 572px của lưới
+   ngày, nên **toàn bộ phần thiếu dồn hết sang cột "Khung giờ"**:
+
+        1920 → 389px   1600 → 235px   1520 → 178px   ≤1450 → 135px
+
+   Ở 135px chữ xuống dòng từng từ. Cùng lý do, `.wj-exam-pc-parthead` là flex
+   với `__side` chiếm cứng 640px (ô Ghi chú `width:430px` + nút) ⇒ tiêu đề trái
+   còn 59px. Trang được dựng cho 1920.
+
+   D3d không gây ra lỗi này, nhưng làm nó **vượt ngưỡng spec**: tiêu đề lên
+   18px theo chuẩn BA `CMP-CH-001` nên từ 2 dòng thành **3 dòng**, trong khi
+   spec cho tối đa 2 ⇒ phải xử ngay, không để lại thành nợ.
+
+   Cách xử: dưới 1600 thì **xếp dọc**, mỗi khối full width. KHÔNG đụng
+   `min-width` của lịch (bóp lịch = vỡ lưới 7 ngày), KHÔNG đổi số đo BA của
+   tiêu đề. Đo tại 1600 mọi thứ còn đẹp (cột 235px, tiêu đề 1 dòng) nên lấy
+   đúng 1600 làm mốc.
+   ========================================================================== */
+@media (min-width: 992px) and (max-width: 1599.98px) {
+    .wj-exam-pc-schedule { grid-template-columns: minmax(0, 1fr); }
+    /* Khi đã xếp dọc thì panel khung giờ không cần gánh chiều cao của lịch. */
+    .wj-exam-pc-slots { min-height: 0; }
+
+    /* Tiêu đề "Người tham gia" được trọn một hàng; ô Ghi chú + nút xuống hàng
+       dưới và co giãn theo bề rộng thật thay vì cố định 430px. */
+    .wj-exam-pc-parthead { flex-wrap: wrap; }
+    .wj-exam-pc-parthead__side {
+        flex: 1 1 100%;
+        justify-content: space-between;
+        gap: 16px;
+    }
+    .wj-exam-pc-notefield { flex: 1 1 auto; width: auto; }
+}
+
+/* `table-layout: fixed` vẫn tràn vài px mà hộp bọc đang `overflow: hidden`
+   ⇒ cột "Thao tác" bị CẮT CỤT. Đo ra bị cắt ở CẢ 1600 (còn 2 cột) lẫn ≤1440
+   ⇒ rule này phải phủ toàn bộ PC, không nhét trong media query xếp dọc.
+   Cuộn ngang nằm trong chính hộp, trang không cuộn ngang. */
+@media (min-width: 992px) {
+    .wj-exam-pc-tablebox { overflow-x: auto; }
+}
+
+/* Bảng người tham gia là `table-layout: fixed` với 6 cột khai theo % — tỉ lệ
+   dựng cho hộp 1050px. Hộp hẹp hơn thì cột cuối "Thao tác" (8,745%) không đủ
+   chỗ sau `padding: 0 18px` và bị CẮT CỤT. Đo mép chữ so với mép ô:
+
+        1920 → dư 3px    1700 → dư 1px    1600 → THIẾU 5px
+
+   ⇒ dải cần vá là **dưới 1700**, không phải chỉ dưới 1600 (mốc xếp dọc ở trên).
+   Trả `table-layout: auto` cho trình duyệt chia cột theo nội dung thật; từ 1700
+   trở lên giữ nguyên tỉ lệ Figma.
+
+   ⚠️ ĐÃ THỬ `min-width: 1000px` + cuộn ngang — HỎNG HƠN: bảng kéo phình cả thẻ
+   cha từ 723px lên 1002px (đo `.wj-exam-pc-schedule`). Không dùng lại. */
+@media (min-width: 992px) and (max-width: 1699.98px) {
+    .wj-exam-pc-part-table { table-layout: auto; }
 }

@@ -29,8 +29,8 @@
                 </div>
 
                 <div class="content-body">
-                    <div class="card">
-                        <div class="card-body">
+                    <div class="wj-surface-card wj-surface-card--section wj-surface-card--compact wj-surface-card--flush">
+                        <div class="wj-surface-card__body">
                             <div class="row g-2">
                                 <div class="col-md-6 col-12">
                                     <label class="small text-muted">Cửa hàng</label>
@@ -115,7 +115,7 @@
                         <!-- Nút "Quay lại" ở footer đã gỡ: chỉ MỘT nút back / màn, nằm ở
                              page header (UI-PC-BASE-006). Block này dùng chung PC+mobile
                              nên bản điện thoại cũng bớt 1 nút back trùng. -->
-                        <div class="card-footer text-end">
+                        <div class="wj-surface-card__foot text-end">
                             <form t-if="rec.state in ('draft', 'submitted') and rec.created_by_user_id.id == request.env.uid"
                                   method="post"
                                   t-attf-action="/portal/info-request/#{rec.id}/cancel"
