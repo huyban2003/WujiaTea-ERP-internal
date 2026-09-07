@@ -63,6 +63,7 @@ Extension kế thừa:
             'wujia_franchise_inspection/static/src/js/wujia_gps_field.js',
         ],
     },
+    'pre_init_hook': 'pre_init_hook',
     'installable': True,
     'application': True,
     'auto_install': False,
