@@ -156,9 +156,11 @@
                     <span class="cnt"><t t-out="len(batches)"/> chuyến</span>
                     <span class="sort">Mới nhất trước</span>
                 </div>
-                <div class="wujia-mdelivery-list">
+                <t t-call="wujia_portal_layout.wj_data_list">
+                    <t t-set="dl_variant" t-value="'detail-card'"/>
+                    <t t-set="dl_class" t-value="'wujia-mdelivery-list'"/>
                     <a t-foreach="batches" t-as="b" t-attf-href="/portal/delivery/#{b['id']}"
-                       class="wujia-mdelivery-row">
+                       class="wujia-mdelivery-row wj-data-item">
                         <span class="wujia-mdelivery-row-top">
                             <span class="wujia-mdelivery-row-headmain">
                                 <span class="wujia-mdelivery-row-label">Chuyến xe</span>
@@ -185,7 +187,7 @@
                             </span>
                         </span>
                     </a>
-                </div>
+                </t>
                 <nav t-if="m_pager and m_pager.get('page_count', 0) &gt; 1" class="wujia-mhist-pager">
                     <a t-attf-href="/portal/delivery?page=#{m_pager['page_previous']['num']}&amp;#{m_pager.get('querystring','')}">«</a>
                     <span>Trang <t t-out="m_pager['page']['num']"/> / <t t-out="m_pager['page_count']"/></span>
@@ -215,9 +217,11 @@
                 <div class="wujia-mdelivery-resulthead">
                     <span class="cnt">Đang tải dữ liệu…</span>
                 </div>
-                <div class="wujia-mdelivery-list">
+                <t t-call="wujia_portal_layout.wj_data_list">
+                    <t t-set="dl_variant" t-value="'detail-card'"/>
+                    <t t-set="dl_class" t-value="'wujia-mdelivery-list'"/>
                     <t t-foreach="[1, 2, 3]" t-as="s">
-                        <div class="wujia-mdelivery-row wujia-mdelivery-skel">
+                        <div class="wujia-mdelivery-row wujia-mdelivery-skel wj-data-item">
                             <span class="wujia-mdelivery-row-top">
                                 <span class="wujia-mdelivery-row-headmain">
                                     <span class="wujia-mdelivery-skel-bar" style="width:70px;height:10px;"/>
@@ -236,7 +240,7 @@
                             </span>
                         </div>
                     </t>
-                </div>
+                </t>
             </t>
         </div>
     </template>

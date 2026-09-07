@@ -854,6 +854,26 @@ h2, .wujia-h2 { font-size: var(--wujia-font-size-h2) !important; font-weight: 60
     border-color: var(--wujia-primary);
 }
 
+/* ---------------------------------------------------------------------------
+   D5f — variant detail-card: cùng kiến trúc hai tầng của compact-row (dáng ở
+   .wj-data-item, layout ở từng họ). Số BA: cao 96–120 · gap 8 · radius 12 ·
+   padding 12px 14px.
+   ------------------------------------------------------------------------ */
+.wj-data-list--detail-card .wj-data-item {
+    min-height: 96px;
+    padding: 12px 14px;
+    background: var(--wujia-bg-card);
+    border: 1px solid var(--wujia-border);
+    /* đè token chung --wujia-morder-radius (14) tại đây, KHÔNG sửa token */
+    border-radius: 12px;
+}
+.wj-data-list--detail-card a.wj-data-item {
+    text-decoration: none;
+}
+.wj-data-list--detail-card .wj-data-item + .wj-data-item {
+    margin-top: 8px;
+}
+
 /* Header right action icons (UI-13, Sprint 9.14, 2026-05-28) */
 .wujia-header-icon-btn {
     position: relative;

@@ -361,7 +361,7 @@ tổng `scrollHeight` **−24px** trên 44 ô, giả-heading **0/44**, outline 8
 hiển thị 43/44 giống hệt (1 ô mọc đúng "0 kết quả" theo yêu cầu BA), B4 **286/286**, bảng D3a
 chạy lại **356 phép so 0 lệch**, tab-walk 433 stop ring 16/16, font 66 tiêu đề 0 lệch;
 bắt được **1 lỗi thật**: `/portal/info-request` mất tiêu đề ở mobile do bake `ch_platform`;
-`docs/d3b-acceptance-matrix.md`) · D3c ✅ · D3d ✅ · D3e ✅ · D3f ✅ · review ✅ · **D4 ✅ KHÉP 06/09** (D4b…D4h, `UI-SURFACECARD-001` Ready for Retest + ĐÃ DEPLOY UAT) · **D5a ✅ 06/09** (kiểm kê 31 call site, `docs/d5-datalist-inventory.md`, 0 code) · **D5b ✅ 07/09** (nền `wj_data_list` + 3 call site họ `wujia-content-card-table`, 3/31, `docs/d5b-acceptance-matrix.md`) · **D5c ✅ 07/09** (họ `wj-pc-table`: purchase-history · delivery · notification, 6/31, `docs/d5c-acceptance-matrix.md`) · **D5d ✅ 07/09** (họ `li.wujia-content-card-row`: 3 khối preview `/portal` + `/portal/knowledge`, 10/31, `docs/d5d-acceptance-matrix.md`, bộ số **provisional** + 3 câu hỏi BA `docs/ba-questions-d5-datalist.md`) · **D5e ✅ 07/09** (9 call site mobile, 4 họ `mdash`/`mhist`/`mnoti`/`mknow`, 19/31, `docs/d5e-acceptance-matrix.md`) · D5f…D5h ⬜ · D6 ⬜ · R1–R5 ⬜
+`docs/d3b-acceptance-matrix.md`) · D3c ✅ · D3d ✅ · D3e ✅ · D3f ✅ · review ✅ · **D4 ✅ KHÉP 06/09** (D4b…D4h, `UI-SURFACECARD-001` Ready for Retest + ĐÃ DEPLOY UAT) · **D5a ✅ 06/09** (kiểm kê 31 call site, `docs/d5-datalist-inventory.md`, 0 code) · **D5b ✅ 07/09** (nền `wj_data_list` + 3 call site họ `wujia-content-card-table`, 3/31, `docs/d5b-acceptance-matrix.md`) · **D5c ✅ 07/09** (họ `wj-pc-table`: purchase-history · delivery · notification, 6/31, `docs/d5c-acceptance-matrix.md`) · **D5d ✅ 07/09** (họ `li.wujia-content-card-row`: 3 khối preview `/portal` + `/portal/knowledge`, 10/31, `docs/d5d-acceptance-matrix.md`, bộ số **provisional** + 3 câu hỏi BA `docs/ba-questions-d5-datalist.md`) · **D5e ✅ 07/09** (9 call site mobile, 4 họ `mdash`/`mhist`/`mnoti`/`mknow`, 19/31, `docs/d5e-acceptance-matrix.md`) · **D5f ✅ 08/09** (variant `detail-card` dựng mới + 2 call site `mreturn`/`mdelivery`, 21/31, `docs/d5f-acceptance-matrix.md`) · D5g…D5h ⬜ · D6 ⬜ · R1–R5 ⬜
 
 🚚 **D1 + D2 ĐÃ DEPLOY UAT 27/08** (`wujia_portal_layout 19.0.32.4.0` · `wujia_portal_return
 19.0.2.7.0` · `wujia_sale 19.0.4.3.0`, xác nhận XML-RPC) **+ đo lại chỉ-đọc ngay trên UAT**:
@@ -733,6 +733,28 @@ trong 10 route BA).
 6. **Đếm lại con số của chính prompt.** Prompt ghi "12 chỗ mdash không phải danh sách"; mã nguồn
    ra **10** (home 609/616/623 + 644/651/658, support 543/550/558/565). Con số nay ghim bằng test.
 
+### 🔴 Bài học D5f — đọc trước khi làm D5g
+
+1. **Tiền đề "phải bỏ gap ở container" là SAI, và bằng chứng nằm sẵn trong lượt trước.**
+   `.wujia-mknow-list { gap: 10px }` vẫn còn nguyên sau D5e mà gap đo ra đúng 8 — vì item đã nằm
+   trong `.wj-data-viewport`, không còn là con trực tiếp của container mang lớp cũ. Giữ nguyên hai
+   rule container, đo lại: đúng 6 ô đổi (2 danh sách × 3 khổ). **Trước khi sửa theo một tiền đề, tìm
+   xem lượt trước đã vô tình chứng minh nó chưa.**
+2. **Bộ chạy mutation đọc nhầm file log ⇒ báo "0 test đỏ" cho CẢ 10 phép** — bẫy L15 lần thứ hai
+   trong cụm (`wujia_core` dời log sang `<năm>/<tháng>/<ngày>.log`). Trông y hệt "guard rỗng toàn
+   tập". Cái tố giác là con số `failed=?` **không phân giải được**: harness phải phân biệt "đọc được
+   và thấy 0" với "không đọc được gì".
+3. **Một mutation làm đỏ HAI test là lỗi thiết kế test, không phải bằng chứng mạnh hơn.** Test
+   "item mang cả hai lớp" duyệt **mọi** call site nên nuốt luôn phần việc của test skeleton. Thu hẹp
+   phạm vi từng test cho trách nhiệm rời nhau, rồi chạy lại ra 1-1.
+4. **Danh sách "chỗ cần lo" dựng từ kiểm kê cũ sẽ thiếu đúng chỗ khó nhất.** Prompt (và kiểm kê D5a)
+   chỉ cảnh báo mreturn 122.3 > 120; hoá ra mreturn sửa được bằng đệm còn **mdelivery 128.98** mới là
+   chỗ không hạ được — và nó vắng mặt trong bảng kiểm kê vì lúc đó cửa hàng chỉ có **1 chuyến**.
+   Seed xong phải **đo lại** trước khi tin danh sách rủi ro.
+5. **Hẹp đệm ngang không phải lúc nào cũng đẩy chữ xuống dòng.** D5e kết luận `12px 14px` làm trang
+   nở +245; ở delivery `16px → 14px` chiều cao **không đổi một pixel**. Cùng cơ chế, kết quả ngược —
+   chỉ số đo phân biệt được, đừng mang kết luận của lượt trước sang lượt sau.
+
 ### Thứ tự lượt D5b…D5g
 
 | Lượt | Nội dung | Call site | `-u` | Vì sao xếp ở đây |
@@ -741,7 +763,7 @@ trong 10 route BA).
 | **D5c** ✅ | Bảng PC họ `wj-pc-table`: purchase-history · delivery · notification | **3** | `_layout`, `_purchase_history`, `_delivery`, `_notification` | XONG 07/09 — `th[scope]` 20/20, header 44, padding 10/16, row 58 cứng → 54–89 mềm, guard pager **tách đôi**, 12 bảng ngoài phạm vi giữ nguyên 50/58 |
 | **D5d** ✅ | List PC không phải bảng: 3 khối preview `/portal` + knowledge | **4** | `_layout`, `_base`, `_knowledge` | XONG 07/09 — variant `compact-row` đầu tiên, item 51.8 → 64 · gap 0 → 8 · radius 12 · `12px 14px`, `.wj-data-item` là chủ sở hữu duy nhất dáng, knowledge đưa Pagination vào trong DataList. Bộ số **provisional** (BA chưa có số cho danh sách PC không phải bảng) + acceptance #9 thủng ở knowledge 12 → 9 |
 | **D5e** ✅ | Mobile compact-row: mdash ×6 · mhist · mnoti · mknow | **9** | 6 module | XONG 07/09 — rule D5d **tách làm hai** (dáng chung ở `.wj-data-item`, layout ở từng họ), gap `0/10` → 8 · radius `0/14` → 12 · padding về `12px 14px` (mnoti giữ left 16 cho thanh accent), **mnoti không đổi một pixel**, hover 4 họ không đổi. Giá phải trả: Home mobile **+145/+245**, support **+271**, acceptance #9 thủng 1 ô (2 → 1 @360) — đã báo BA, không tự vá |
-| **D5f** | Mobile detail-card: mreturn · mdelivery | **2** | `_return`+`wujia_sale`, `_delivery` | mreturn 122.3 > trần 120; delivery cần seed |
+| **D5f** ✅ | Mobile detail-card: mreturn · mdelivery | **2** | `_return`+`wujia_sale`, `_delivery` | XONG 08/09 — **dựng** variant `detail-card` (0 hit trong repo trước lượt này), kiến trúc hai tầng của D5e. gap 12 → 8 · radius 14 → 12 · padding `14px`/`12px 16px` → `12px 14px`; mreturn 122.3 → **118.3** vào dải BA, mdelivery **128.98 không hạ được** ⇒ báo BA. Lượt đầu làm trang **NGẮN LẠI** (−156/−52) và **acceptance #9 không thủng ô nào**. Skeleton delivery mang luôn `wj-data-item` (3 lần `t-call`, **2** call site record) |
 | **D5g** | Công nợ PC ×2 + mobile ×2 | **4** | `_debt` | Chặn bởi dữ liệu |
 | **D5h** | Thi ×4 + Khảo sát ×2 | **6** | `_exam`, `_inspection` | Khảo sát provisional (BA acceptance #10) |
 

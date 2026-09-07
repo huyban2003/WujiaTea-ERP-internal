@@ -1,6 +1,6 @@
 # Câu hỏi gửi BA — `CMP-DL-001` DataList (`UI-DATALIST-001`, STT 126)
 
-**Gửi sau lượt D5d (2026-09-07), bổ sung câu 4 sau lượt D5e.** Bốn câu, đều đã có số đo kèm theo. Câu 1 là câu treo từ phiên
+**Gửi sau lượt D5d (2026-09-07), bổ sung câu 4 sau lượt D5e và câu 5 sau lượt D5f.** Năm câu, đều đã có số đo kèm theo. Câu 1 là câu treo từ phiên
 kiểm kê D5a; câu 2 và 3 là hai chỗ **mới lộ ra khi đo**, chưa từng nêu.
 
 Trong lúc chờ trả lời, phần đã làm vẫn chạy được trên UAT; nếu BA chốt khác, chỗ phải sửa đã được
@@ -102,6 +102,33 @@ thêm. Nếu BA muốn giữ trang ngắn, cách rẻ nhất là hạ đệm nga
 
 Xin BA chốt một trong ba: **giữ nguyên** (đổi độ dài trang lấy dáng thống nhất) · **hạ đệm ngang
 về 12px** · **cho khối preview Trang chủ một bộ số riêng**.
+
+## Câu 5 — Hàng *chuyến giao* mobile cao 129px, trần detail-card là 120 (bổ sung sau lượt D5f)
+
+Lượt D5f đưa hai danh sách mobile **nhiều metadata** về bộ số `detail-card` của BA (cao 96–120 ·
+gap 8 · radius 12 · padding `12px 14px`). Một trong hai vào đúng dải, một thì không:
+
+| Màn | Cao hàng trước | Cao hàng sau | Trần BA |
+|---|---:|---:|---:|
+| `/portal/return` | 122,3 | **118,3** ✅ | 120 |
+| `/portal/delivery` | 128,98 | **128,98** ❌ | 120 |
+
+`/portal/return` hạ được vì đệm dọc của nó đang là `14px`, thu về `12px` là đủ. `/portal/delivery`
+**đã** ở `12px` — mức thấp nhất trong dải BA — nên không còn pixel nào để cắt. Ép về 120 chỉ còn cách
+bỏ bớt nội dung của hàng, hiện gồm: nhãn *Chuyến xe* + mã chuyến · badge trạng thái · đường kẻ ·
+hai ô meta có icon (*Ngày xuất phát*, *Đơn liên quan*).
+
+Dev **không tự cắt field** (cùng loại LIMIT BA đã nghiệm thu ở D5c). Xin BA chốt một trong hai:
+**(1)** trần 120 chỉ áp cho hàng ít metadata, hàng nhiều metadata được vượt — hoặc **(2)** chỉ ra
+field nào bỏ được / đẩy sang màn chi tiết.
+
+⚠️ Số 128,98 này **chưa từng xuất hiện** trong kiểm kê ngày 25/08: lúc đó mỗi cửa hàng chỉ có **1
+chuyến giao** nên hàng này không đo được. Nó chỉ lộ ra sau khi bổ dữ liệu thử theo đúng acceptance #7
+của BA (0/1/2/10/11/50+).
+
+**Tin tốt của lượt này:** `/portal/return` **ngắn đi 156px** và `/portal/delivery` **ngắn đi 52px**
+ở mọi khổ mobile, và **acceptance #9 không thủng ô nào** (4 record đọc-không-cuộn, giữ nguyên ở cả
+hai màn, cả ba khổ) — ngược chiều với cái giá đã báo ở câu 4.
 
 ---
 

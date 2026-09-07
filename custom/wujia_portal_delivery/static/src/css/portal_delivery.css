@@ -42,7 +42,11 @@
 
     /* ---------- Batch card (list) ---------- */
     .wujia-mdelivery-list { display: flex; flex-direction: column; gap: 12px; }
-    .wujia-mdelivery-row {
+    /* D5f: dáng ở .wj-data-item (detail-card), đây chỉ còn layout của họ mdelivery. */
+    .wj-data-list--detail-card .wujia-mdelivery-row.wj-data-item {
+        display: flex; flex-direction: column; gap: 11px; color: inherit;
+    }
+    .wujia-mdelivery-row:not(.wj-data-item) {
         display: flex; flex-direction: column; gap: 11px;
         background: var(--wujia-morder-card-bg);
         border: 1px solid var(--wujia-morder-border);

@@ -597,3 +597,144 @@ class TestDataListCompactRowMobile(TransactionCase):
             css = _strip_comments(fh.read())
         self.assertIn('.wujia-mnoti-row.is-unread::before', css)
         self.assertNotIn('.wujia-mnoti-row.is-unread:not(.wj-data-item)::before', css)
+
+
+@tagged('post_install', '-at_install', 'wujia_data_list_d5')
+class TestDataListDetailCard(TransactionCase):
+    """D5f — variant `detail-card`: 2 call site record (`mreturn` · `mdelivery`)
+    + khối skeleton dùng chung dáng nhưng KHÔNG phải record."""
+
+    SITES = [
+        ('wujia_portal_return', 'portal_return_list.xml', 'wujia-mreturn-row'),
+        ('wujia_portal_delivery', 'portal_delivery.xml', 'wujia-mdelivery-row'),
+    ]
+    CSS_HO = {
+        'wujia-mreturn-row': ('wujia_portal_return', 'portal_return.css'),
+        'wujia-mdelivery-row': ('wujia_portal_delivery', 'portal_delivery.css'),
+    }
+
+    def _calls(self, module, filename):
+        root = _view(module, filename)
+        return root.xpath(
+            '//t[@t-call="wujia_portal_layout.wj_data_list"]'
+            '[t[@t-set="dl_variant"][@t-value="\'detail-card\'"]]')
+
+    def _items(self, call, ho):
+        out = []
+        for el in call.iter():
+            cls = el.get('class') or el.get('t-attf-class') or ''
+            if re.match(r'%s(\s|$)' % ho, cls):
+                out.append(cls)
+        return out
+
+    def _la_skeleton(self, call):
+        return bool(call.xpath('.//*[contains(@class, "wujia-mdelivery-skel")]'))
+
+    def _css_ho(self, ho):
+        module, filename = self.CSS_HO[ho]
+        with open(os.path.join(CUSTOM, module, 'static', 'src', 'css', filename),
+                  encoding='utf-8') as fh:
+            return fh.read()
+
+    def test_hai_call_site_record(self):
+        """2 call site RECORD. Khối skeleton cũng đi qua component nhưng không
+        phải record ⇒ đếm phải loại nó ra, nếu không inventory sai."""
+        record = 0
+        for module, filename, _ho in self.SITES:
+            calls = self._calls(module, filename)
+            self.assertTrue(calls, '%s: mất call site detail-card' % module)
+            record += len([c for c in calls if not self._la_skeleton(c)])
+        self.assertEqual(record, 2, 'số call site record của D5f đổi')
+
+    def test_item_mang_ca_hai_lop(self):
+        """Chỉ xét call site RECORD — skeleton là việc của test riêng, để mỗi
+        phép mutation làm đỏ đúng một test."""
+        for module, filename, ho in self.SITES:
+            for call in self._calls(module, filename):
+                if self._la_skeleton(call):
+                    continue
+                items = self._items(call, ho)
+                self.assertEqual(len(items), 1, '%s: mỗi danh sách đúng 1 item mẫu' % module)
+                self.assertIn('wj-data-item', items[0].split(),
+                              '%s: item thiếu wj-data-item' % module)
+
+    def test_so_ba_cua_detail_card(self):
+        body = _rule(_css('_components.css'), '.wj-data-list--detail-card .wj-data-item')
+        self.assertIsNotNone(body, 'không tìm thấy rule dáng detail-card ở tầng gốc')
+        self.assertRegex(body, r'min-height:\s*96px')       # BA 96–120
+        self.assertRegex(body, r'padding:\s*12px 14px')
+        self.assertRegex(body, r'border-radius:\s*12px')    # BA 12
+        gap = _rule(_css('_components.css'),
+                    '.wj-data-list--detail-card .wj-data-item + .wj-data-item')
+        self.assertIsNotNone(gap, 'thiếu rule gap giữa hai item')
+        self.assertRegex(gap, r'margin-top:\s*8px')         # BA gap 8
+
+    def test_mot_chu_so_huu_dang_hai_ho(self):
+        """Rule cũ chỉ được chạm hàng CHƯA migrate. Miễn trừ theo TÍNH CHẤT chứ
+        không theo tên: rule chỉ khai `color` không phải rule dáng."""
+        for ho in self.CSS_HO:
+            css = _strip_comments(self._css_ho(ho))
+            pat = re.compile(r'\.%s(?![-\w])' % ho)
+            rules = re.findall(r'([^{}]*\.%s(?![-\w])[^{}]*)\{([^{}]*)\}' % ho, css)
+            self.assertTrue(rules, 'không còn rule nào của %s — sai phép đo' % ho)
+            kiem = 0
+            for sel, body in rules:
+                khai = {d.split(':')[0].strip() for d in body.split(';') if ':' in d}
+                if khai and khai <= {'color'}:
+                    continue
+                for part in sel.split(','):
+                    if not pat.search(_chu_the(part)):
+                        continue
+                    # `:not(.wj-data-item)` cũng chứa chuỗi `.wj-data-item` (bẫy D5e #2).
+                    if '.wj-data-item' in re.sub(r':not\([^)]*\)', '', part):
+                        continue
+                    kiem += 1
+                    self.assertIn(':not(.wj-data-item)', part,
+                                  'rule cũ còn chạm item đã migrate: %s' % part.strip())
+            self.assertGreaterEqual(kiem, 1, 'quét hụt rule của %s' % ho)
+
+    def test_layout_hai_ho_nam_trong_media(self):
+        """Cả hai rule layout khai TRONG @media ⇒ `_rule()` (chỉ đọc tầng gốc) trả
+        None và guard tự chứng minh rỗng."""
+        for ho in self.CSS_HO:
+            sel = '.wj-data-list--detail-card .%s.wj-data-item' % ho
+            css = self._css_ho(ho)
+            self.assertIsNone(_rule(css, sel), '%s: rule layout phải ở trong @media' % ho)
+            body = _rule_in_media(css, sel)
+            self.assertIsNotNone(body, '%s: thiếu rule layout trong @media' % ho)
+            self.assertRegex(body, r'display:\s*flex')
+            # Dáng là việc của .wj-data-item — layout không được giành lại.
+            for cam in ('padding', 'border-radius', 'background'):
+                self.assertNotRegex(body, r'\b%s\s*:' % cam,
+                                    '%s: layout giành lại dáng (%s)' % (ho, cam))
+
+    def test_skeleton_cung_dang_nhung_khong_phai_record(self):
+        """Skeleton là placeholder của CHÍNH hàng đó ⇒ phải mang `wj-data-item` để
+        không lệch dáng lúc đang tải; nhưng nó không phải bản ghi."""
+        calls = self._calls('wujia_portal_delivery', 'portal_delivery.xml')
+        skel = [c for c in calls if self._la_skeleton(c)]
+        self.assertEqual(len(skel), 1, 'khối skeleton phải đi qua DataList')
+        self.assertTrue(skel[0].xpath('.//t[@t-foreach="[1, 2, 3]"]'),
+                        'skeleton không còn là 3 hàng giả')
+        cls = skel[0].xpath('.//div[contains(@class, "wujia-mdelivery-skel")]')[0].get('class')
+        self.assertIn('wj-data-item', cls.split(), 'skeleton lệch dáng với hàng thật')
+
+    def test_pager_hai_cho_giu_guard_page_count(self):
+        """Pager cố ý ở NGOÀI DataList lượt này (dồn về lượt dọn Pagination) —
+        nhưng guard `page_count > 1` phải còn nguyên."""
+        for module, filename, _ho in self.SITES:
+            root = _view(module, filename)
+            navs = [n for n in root.xpath('//nav[@class="wujia-mhist-pager"]')]
+            self.assertTrue(navs, '%s: mất pager mobile' % module)
+            for nav in navs:
+                cond = (nav.get('t-if') or '').replace(' ', '')
+                self.assertRegex(cond, r'page_count[^)]*\)?>1',
+                                 '%s: guard pager phải là > 1' % module)
+
+    def test_radius_khong_dung_token_chung(self):
+        """`--wujia-morder-radius` còn dùng ở 3 chỗ khác; đè radius tại rule
+        detail-card, KHÔNG sửa token."""
+        token = _rule(_css('_variables.css'), ':root')
+        self.assertRegex(token, r'--wujia-morder-radius:\s*14px')
+        body = _rule(_css('_components.css'), '.wj-data-list--detail-card .wj-data-item')
+        self.assertNotIn('--wujia-morder-radius', body)

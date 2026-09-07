@@ -2004,3 +2004,32 @@ UI-SURFACECARD-001:
 # Bảng đo: docs/d5e-acceptance-matrix.md · docs/d5e-{before,after,rule-after,hover}.json
 # CHỜ DEPLOY UAT — deploy DỒN một lượt sau khi khép cụm D5 (hàng đợi: D5b + D5c + D5d + D5e).
 # =====================================================================================
+# ------------------------------- D5f (2026-09-08) -------------------------------
+# UI-DATALIST-001 vẫn Ready for Dev (21/31 call site) ⇒ CHƯA chạy qa_sync.py.
+# Xong: 2 call site MOBILE detail-card — a.wujia-mreturn-row (/portal/return) và
+#   a.wujia-mdelivery-row (/portal/delivery). Variant `detail-card` CHƯA TỪNG có CSS trong repo
+#   (component nhận chuỗi từ D5b nhưng 0 rule) ⇒ việc đầu tiên là DỰNG nó, theo đúng kiến trúc hai
+#   tầng D5e đã tách: dáng ở `.wj-data-list--detail-card .wj-data-item`, layout ở từng họ trong
+#   @media của chính module. Rule cũ khoá bằng :not(.wj-data-item); 19 rule con BEM cố ý không khoá.
+#   Ngoại lệ có chủ đích: `a.wujia-mdelivery-row:hover{color:inherit}` không khoá — chỉ khai `color`,
+#   phải áp cho cả hàng đã lẫn chưa migrate (UAT có website_sale, a:hover giành màu chữ — bài học C6).
+# Số: gap 12 → 8 · radius 14 → 12 (đè token chung --wujia-morder-radius TẠI CHỖ, không sửa token) ·
+#   padding `14px`/`12px 16px` → `12px 14px`. mreturn 122.3 → 118.3 (VÀO dải BA 96–120).
+#   mdelivery 128.98 → 128.98 — VƯỢT trần 120, đệm dọc vốn đã 12px nên không hạ được bằng padding.
+# LƯỢT ĐẦU TIÊN của cụm D5 làm trang NGẮN LẠI: /portal/return −156, /portal/delivery −52 ở cả 3 khổ
+#   mobile (khớp số học từng pixel), PC 0 ô đổi; và acceptance #9 KHÔNG THỦNG ô nào (4 → 4).
+# Skeleton delivery: NGÃ BA đã quyết — cho nó mang luôn wj-data-item và đi qua component, vì nó là
+#   placeholder của CHÍNH hàng đó (khoá legacy sẽ làm nhảy hình lúc đang tải). ⇒ 3 lần t-call nhưng
+#   chỉ 2 call site RECORD; hai test giữ ranh giới đó, không giẫm chân nhau.
+# Hover: KHÔNG thêm rule :hover nào; đo lại getComputedStyle sau mouse.move + scroll_into_view —
+#   mreturn/mdelivery/mhist trùng nhau từng giá trị (#EAF7FD · #28A9DF · shadow) ⇒ tương tác không đổi.
+# Hồi quy: 27 bảng D5b/D5c + 13 call site D5d/D5e + 10 hàng mdash ngoài phạm vi + mexam/khảo sát/debt
+#   = 0 ô đổi. RULE 1/RULE 2 + nhịp header→body giống hệt số D5c/D5d/D5e công bố.
+# Guard: 45 test wujia_data_list_d5 (0 failed/0 error), 10 mutation — 10/10 làm đỏ ĐÚNG MỘT test,
+#   10/10 sha256 khớp sau khi hoàn tác bằng ảnh chụp byte.
+# CHỖ TREO gửi BA (ba-questions mục 5), KHÔNG tự vá: mdelivery 128.98 > trần 120 — xin BA chốt
+#   "trần chỉ áp cho hàng ít metadata" hay "chỉ ra field bỏ được". Số này chưa từng có trong kiểm kê
+#   25/08 vì lúc đó mỗi cửa hàng chỉ 1 chuyến; chỉ lộ ra sau khi seed đủ 14 chuyến.
+# Bảng đo: docs/d5f-acceptance-matrix.md · docs/d5f-{before,after,rule-after,hover}.json
+# CHỜ DEPLOY UAT — deploy DỒN một lượt sau khi khép cụm D5 (hàng đợi: D5b + D5c + D5d + D5e + D5f).
+# =====================================================================================
