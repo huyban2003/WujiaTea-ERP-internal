@@ -2,7 +2,6 @@ import io
 import csv
 import base64
 import xlsxwriter
-import imgkit
 import logging
 
 from math import gcd
@@ -15,7 +14,7 @@ from dateutil.relativedelta import relativedelta
 from odoo import models, fields, api, _
 from odoo.tools import groupby, format_amount
 from odoo.tools.safe_eval import safe_eval
-from odoo.exceptions import ValidationError
+from odoo.exceptions import ValidationError, UserError
 
 _logger = logging.getLogger(__name__)
 
@@ -1446,6 +1445,17 @@ class DashboardChart(models.Model):
         return conf, conf.domain.copy()
 
     def html_to_image(self):
+        # WUJIA 08/09/2026: nạp lười. Bản gốc `import imgkit` ở đầu file + khai
+        # external_dependencies nên KHÔNG cài được module trên máy chủ chưa có
+        # imgkit (UAT Windows), dù imgkit chỉ dùng để xuất ảnh/PDF/gửi mail.
+        try:
+            import imgkit
+        except ImportError:
+            raise UserError(_(
+                "Chức năng xuất biểu đồ ra ảnh cần thư viện imgkit và công cụ "
+                "wkhtmltoimage trên máy chủ. Hãy cài đặt rồi thử lại; phần xem "
+                "dashboard vẫn hoạt động bình thường khi chưa có."
+            ))
         chart_data = self.get_chart_data(self.chart_type, self.name)
         recordsets = {
             "chart_id": self.id,

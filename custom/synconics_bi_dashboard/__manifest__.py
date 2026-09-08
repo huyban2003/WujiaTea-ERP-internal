@@ -103,7 +103,9 @@ Overview Dashboard | Search Keywords: Odoo BI Dashboard, Synconics Dashboard, Bu
     "category": "web",
     "version": "1.0.3",
     "depends": ["web", "mail"],
-    "external_dependencies": {"python": ["imgkit"]},
+    # WUJIA 08/09/2026: bỏ khai báo phụ thuộc cứng — imgkit CHỈ dùng cho chức năng
+    # xuất biểu đồ ra ảnh; import đã chuyển thành nạp lười trong html_to_image().
+    # "external_dependencies": {"python": ["imgkit"]},
     "assets": {
         "web.assets_backend": [
             "synconics_bi_dashboard/static/src/lib/html2canvas.js",
