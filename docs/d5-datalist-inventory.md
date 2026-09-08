@@ -60,8 +60,8 @@ render record**.
 | 7 | `/portal/purchase-history` | `tr` trong `wj-pc-table` | `portal_history.xml:66` | `a.wujia-mhist-row` | `:155` | ✅ |
 | 8 | `/portal/return` | `tr` trong `wujia-content-card-table` | `portal_return_list.xml:110` | `a.wujia-mreturn-row` | `:245` | ✅ |
 | 9 | `/portal/delivery` | `tr` trong `wj-pc-dlv-table` | `portal_delivery.xml:61` | `a.wujia-mdelivery-row` | `:159` | ⚠️ 1 record |
-| 10 | `/portal/debt` hoá đơn | `tr` trong `wj-debt-pc-table` | `portal_debt.xml:406` | `div.wj-debt-inv` | `:233` | ❌ 0 record |
-| 11 | `/portal/debt` thanh toán | `tr` trong `wj-debt-pc-table` | `portal_debt.xml:647` | `div.wj-debt-pay` | `:551` | ❌ 0 record |
+| 10 | `/portal/debt` hoá đơn ✅D5g | `tr` trong `wj-debt-pc-table` | `portal_debt.xml:406` | `div.wj-debt-inv` | `:233` | ❌ 0 record |
+| 11 | `/portal/debt` thanh toán ✅D5g | `tr` trong `wj-debt-pc-table` | `portal_debt.xml:647` | `div.wj-debt-pay` | `:551` | ❌ 0 record |
 | 12 | `/portal/notification` | `tr.wj-pc-noti-row` | `portal_notification.xml:59` | `a.wujia-mnoti-row` | `:161` | ✅ |
 | 13 | `/portal/support` | `tr` trong `wujia-content-card-table` | `portal_support.xml:80` | `a.wujia-mdash-row` | `:185` | ⚠️ 1 record |
 | 14 | `/portal/exam` | `tr` trong `wj-exam-pc-list-table` | `portal_exam.xml:103` | `a.wj-surface-card--record` | `:202` | ✅ |
@@ -271,7 +271,7 @@ bằng **mutation**.
 | **D5d** | Danh sách PC **không phải bảng**: 3 khối preview `/portal` + `/portal/knowledge` (`li.wujia-content-card-row`) | **4** | `_layout`, `_base`, `_knowledge` | Preview không có pager (BA: dùng "Xem tất cả" ở CardHeader) ⇒ đừng gắn Pagination vào | Cùng họ CSS với D5b, làm liền mạch |
 | **D5e** | Mobile compact-row: `wujia-mdash-row` ×6 (5 khối `/portal` + `/portal/support`) · `mhist` · `mnoti` · `mknow` | **9** | `_layout`, `_base`, `_purchase_history`, `_notification`, `_knowledge`, `_support` | Gom gap **0/8/10/12** về 8; `wujia-mdash-row` nằm trong 6 khối Home nên đụng là đụng Home | `wujia-mhist-row` **đã đúng chuẩn sẵn** (74.3 / gap 8 / radius 12) ⇒ dùng làm mẫu, không phải đoán số |
 | **D5f** ✅ | Mobile detail-card (ngoại lệ BA): `wujia-mreturn-row` · `wujia-mdelivery-row` | **2** | `_return`+**`wujia_sale`**, `_delivery` | XONG 08/09 — dựng variant `detail-card` (chưa từng có CSS); `mreturn` 122.3 → **118.3** ✅ trong dải, `mdelivery` **128.98 vẫn vượt trần 120** (chỉ lộ ra SAU khi seed, kiểm kê cũ chỉ có 1 chuyến) ⇒ báo BA; skeleton mang luôn `wj-data-item` để không nhảy hình lúc tải | Lượt đầu tiên làm trang **ngắn lại** (−156/−52) và **không thủng ô acceptance #9 nào**. Số đo `docs/d5f-acceptance-matrix.md` |
-| **D5g** | Công nợ: `wj-debt-pc-table` ×2 + `wj-debt-inv` + `wj-debt-pay`, kèm gỡ guard `t-if="pc_invoices"` | **4** | `wujia_portal_debt` | Cần seed hoá đơn có `franchise_id`; `.wj-debt-pc` là khối PC riêng dựng ở S49 | Chặn bởi dữ liệu, không bởi kỹ thuật |
+| **D5g** ✅ | Công nợ: `wj-debt-pc-table` ×2 + `wj-debt-inv` (compact-row) + `wj-debt-pay` (detail-card), kèm sửa guard `page_count > 1` | **4** | `_layout`, `wujia_portal_debt` | XONG 08/09 — `th[scope]` 0/14 → **14/14**, header 50 → 44, row **58 cứng** → 52–55, padding `0 22px` → `10px 16px`; mobile 62 → **75,5** và 96 → **104/116**, **cả hai vào đúng dải BA**. Guard pager **tách đôi**: nút trang theo `page_count`, dòng *Tổng thanh toán* là thông tin của kỳ lọc nên giữ | Variant chọn theo **số đo sau khi seed**, không theo tên gọi. Acceptance #9 thủng **1 ô** (@360, 5→4) + hover mới xuất hiện trên `wj-debt-inv` ⇒ báo BA. Số đo `docs/d5g-acceptance-matrix.md` |
 | **D5h** | Thi & Khảo sát: `wj-exam-pc-list-table` + `mexam-course` + `mexam-rrow` + `wj-surface-card--record`; bảng PC + list mobile khảo sát | **6** | `_exam`, `_inspection` | Khảo sát **provisional** — BA acceptance #10: chỉ nghiệm thu field mapping sau khi có seed | Cuối, đúng ghi chú BA. Hai call site thi đã là `wj-surface-card` (D4) nên chỉ còn tầng list |
 | — | Kề cận ngoài 10 route: `/portal/info-request` · danh sách thành viên `/portal/franchise-information` | 3 | — | — | Ghép vào lượt nào động đúng file, hoặc một lượt dọn cuối |
 
@@ -334,7 +334,7 @@ còn mobile 4. Dev **không tự quyết** cái nào là P1/P2/P3.
 migrate call site nào thì không có gì để BA retest. Entry ledger soạn sẵn **dạng comment** cuối
 `docs/qa-issue-ledger.yaml`, **chưa** chạy `qa_sync.py`.
 
-**Tiến độ cụm: 21/31 call site trong phạm vi BA** (D5b xong 07/09 — nền `wj_data_list` +
+**Tiến độ cụm: 25/31 call site trong phạm vi BA** (D5b xong 07/09 — nền `wj_data_list` +
 `/portal` top sản phẩm · `/portal/return` · `/portal/support`, số đo `docs/d5b-acceptance-matrix.md`;
 **D5c xong 07/09** — họ `wj-pc-table`: `/portal/purchase-history` · `/portal/delivery` ·
 `/portal/notification`, số đo `docs/d5c-acceptance-matrix.md`; **D5d xong 07/09** — họ
@@ -342,7 +342,9 @@ migrate call site nào thì không có gì để BA retest. Entry ledger soạn 
 `docs/d5d-acceptance-matrix.md`; **D5e xong 07/09** — 9 call site mobile của **bốn** họ
 `mdash`/`mhist`/`mnoti`/`mknow`, số đo `docs/d5e-acceptance-matrix.md`; **D5f xong 08/09** —
 variant `detail-card` dựng mới + 2 call site `mreturn`/`mdelivery`, số đo
-`docs/d5f-acceptance-matrix.md`). Kế tiếp: **D5g**.
+`docs/d5f-acceptance-matrix.md`; **D5g xong 08/09** — 4 call site công nợ (2 bảng PC + mobile
+`wj-debt-inv` compact-row + `wj-debt-pay` detail-card), lượt **duy nhất phải sửa guard pager**
+`page_count > 1`, số đo `docs/d5g-acceptance-matrix.md`). Kế tiếp: **D5h**.
 
 **Đã đóng ở D5b, không phải đo lại:** `th[scope]` của 3 bảng này 0→100 % · header 46→44 ·
 cell padding `14px 20px`→`10px 16px` · row ≥52 · guard pager `page_count > 1` được ghim bằng test.

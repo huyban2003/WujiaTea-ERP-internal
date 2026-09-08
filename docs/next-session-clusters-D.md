@@ -361,7 +361,7 @@ tổng `scrollHeight` **−24px** trên 44 ô, giả-heading **0/44**, outline 8
 hiển thị 43/44 giống hệt (1 ô mọc đúng "0 kết quả" theo yêu cầu BA), B4 **286/286**, bảng D3a
 chạy lại **356 phép so 0 lệch**, tab-walk 433 stop ring 16/16, font 66 tiêu đề 0 lệch;
 bắt được **1 lỗi thật**: `/portal/info-request` mất tiêu đề ở mobile do bake `ch_platform`;
-`docs/d3b-acceptance-matrix.md`) · D3c ✅ · D3d ✅ · D3e ✅ · D3f ✅ · review ✅ · **D4 ✅ KHÉP 06/09** (D4b…D4h, `UI-SURFACECARD-001` Ready for Retest + ĐÃ DEPLOY UAT) · **D5a ✅ 06/09** (kiểm kê 31 call site, `docs/d5-datalist-inventory.md`, 0 code) · **D5b ✅ 07/09** (nền `wj_data_list` + 3 call site họ `wujia-content-card-table`, 3/31, `docs/d5b-acceptance-matrix.md`) · **D5c ✅ 07/09** (họ `wj-pc-table`: purchase-history · delivery · notification, 6/31, `docs/d5c-acceptance-matrix.md`) · **D5d ✅ 07/09** (họ `li.wujia-content-card-row`: 3 khối preview `/portal` + `/portal/knowledge`, 10/31, `docs/d5d-acceptance-matrix.md`, bộ số **provisional** + 3 câu hỏi BA `docs/ba-questions-d5-datalist.md`) · **D5e ✅ 07/09** (9 call site mobile, 4 họ `mdash`/`mhist`/`mnoti`/`mknow`, 19/31, `docs/d5e-acceptance-matrix.md`) · **D5f ✅ 08/09** (variant `detail-card` dựng mới + 2 call site `mreturn`/`mdelivery`, 21/31, `docs/d5f-acceptance-matrix.md`) · D5g…D5h ⬜ · D6 ⬜ · R1–R5 ⬜
+`docs/d3b-acceptance-matrix.md`) · D3c ✅ · D3d ✅ · D3e ✅ · D3f ✅ · review ✅ · **D4 ✅ KHÉP 06/09** (D4b…D4h, `UI-SURFACECARD-001` Ready for Retest + ĐÃ DEPLOY UAT) · **D5a ✅ 06/09** (kiểm kê 31 call site, `docs/d5-datalist-inventory.md`, 0 code) · **D5b ✅ 07/09** (nền `wj_data_list` + 3 call site họ `wujia-content-card-table`, 3/31, `docs/d5b-acceptance-matrix.md`) · **D5c ✅ 07/09** (họ `wj-pc-table`: purchase-history · delivery · notification, 6/31, `docs/d5c-acceptance-matrix.md`) · **D5d ✅ 07/09** (họ `li.wujia-content-card-row`: 3 khối preview `/portal` + `/portal/knowledge`, 10/31, `docs/d5d-acceptance-matrix.md`, bộ số **provisional** + 3 câu hỏi BA `docs/ba-questions-d5-datalist.md`) · **D5e ✅ 07/09** (9 call site mobile, 4 họ `mdash`/`mhist`/`mnoti`/`mknow`, 19/31, `docs/d5e-acceptance-matrix.md`) · **D5f ✅ 08/09** (variant `detail-card` dựng mới + 2 call site `mreturn`/`mdelivery`, 21/31, `docs/d5f-acceptance-matrix.md`) · **D5g ✅ 08/09** (4 call site công nợ: 2 bảng PC + mobile `wj-debt-inv` compact-row + `wj-debt-pay` detail-card, sửa guard pager `page_count > 1`, 25/31, `docs/d5g-acceptance-matrix.md`) · D5h ⬜ · D6 ⬜ · R1–R5 ⬜
 
 🚚 **D1 + D2 ĐÃ DEPLOY UAT 27/08** (`wujia_portal_layout 19.0.32.4.0` · `wujia_portal_return
 19.0.2.7.0` · `wujia_sale 19.0.4.3.0`, xác nhận XML-RPC) **+ đo lại chỉ-đọc ngay trên UAT**:
@@ -755,6 +755,40 @@ trong 10 route BA).
    nở +245; ở delivery `16px → 14px` chiều cao **không đổi một pixel**. Cùng cơ chế, kết quả ngược —
    chỉ số đo phân biệt được, đừng mang kết luận của lượt trước sang lượt sau.
 
+### 🔴 Bài học D5g — đọc trước khi làm D5h
+
+1. **Phép so trước–sau ghép theo TÊN LỚP là bộ đo tự chứng minh rỗng.** Call site nào migrate xong
+   cũng đổi khoá container (`wj-debt-invoices` → `wj-data-viewport`), nên bảng acceptance #9 **bỏ qua
+   im lặng đúng 4 call site vừa sửa** và in ra "0 ô thủng" — thật ra có 1. Ghép theo **vị trí call
+   site** (bảng thứ i / danh sách thứ i) thì lộ ra ngay. Cùng họ bẫy D5d #2: bộ đo mù đúng ở lượt cần
+   nó nhất, và cái nó in ra là "sạch".
+2. 🔴 **Lần thứ ba mất trắng một vòng mutation vì bộ ĐỌC KẾT QUẢ, không phải vì guard.** Lần này
+   không phải file log (đã vá theo D5f #2) mà là **regex**: Odoo in `FAIL: TestDataListDebt.test_x`
+   — tên lớp đứng trước tên test. Cái cứu được là **hai nguồn số độc lập in cạnh nhau**: dòng
+   `1 failed of 53` mâu thuẫn với "đỏ KHÔNG test nào". Báo cáo mutation phải luôn in cả dòng tổng kết
+   thô, đừng chỉ in danh sách test đã phân giải.
+3. **Một mutation đỏ ba test ⇒ sửa PHÉP CHỌN của test, không sửa mutation.** Test chọn call site bằng
+   "không khai `dl_variant`" nên phép thay `dl_variant` biến danh sách mobile thành "bảng thứ ba".
+   Chọn theo **cấu trúc** (`có thead` cho bảng, `có lớp item` cho mobile) là bất biến trước mọi phép
+   thay thuộc tính. Cùng bài học D5f #3, gặp lại ở dạng khác.
+4. **Môi trường lệch vì việc của người khác.** Giữa D5f và D5g, `main` nhận merge nhánh `thai` (tách
+   `wujia_franchise_inspection`) ⇒ DB đo thiếu 1 module, lệch 2 phiên bản, mà **không có dấu hiệu nào
+   trên màn hình**. So `latest_version` ↔ `__manifest__.py` của **từng** module vẫn là phép kiểm rẻ
+   nhất (bẫy D5a #4, lý do hoàn toàn mới). Sau khi đồng bộ, mốc "trước" so từng ô với `d5f-after.json`
+   ra **2027/2027 ô khớp** — đó mới là bằng chứng môi trường đúng.
+5. **Seed phải đi qua đúng cơ chế nghiệp vụ, không ghi thẳng field.** `account.payment.franchise_id`
+   là stored compute từ `reconciled_invoice_ids`; ghi tay chạy được (seed S48 làm vậy) nhưng compute
+   giành lại quyền ngay khi đối soát đổi. Dùng wizard `account.payment.register` thì log seed in ra
+   `franchise_id=1` cho **11/11** payment mà không dòng nào set field đó — **seed trở thành một phép
+   thử của seam**, không chỉ là dữ liệu. Và phải đối soát vào hoá đơn **ngoài** cửa sổ lọc, nếu không
+   tuần mở sẵn đổi và bảng "trước" vô nghĩa.
+6. **Hover phải đo lại ở MỖI họ, kết luận lượt trước không mang sang được.** Cùng một lượt cho ra ba
+   kết quả khác nhau: `wj-debt-pay` không đổi (variant detail-card không có `:hover`), `mhist`/
+   `mreturn` giữ chữ ký `:is()` (0,4,0), còn `wj-debt-inv` **mọc thêm hover** vì nó không nằm trong
+   danh sách `:is()` của `_interaction.css` nên rule compact-row của D5d không bị đè. Migrate một
+   `<div>` không bấm được vào variant có `:hover` là **thêm một gợi ý sai về khả năng bấm** — hỏi BA,
+   đừng tự quyết.
+
 ### Thứ tự lượt D5b…D5g
 
 | Lượt | Nội dung | Call site | `-u` | Vì sao xếp ở đây |
@@ -764,7 +798,7 @@ trong 10 route BA).
 | **D5d** ✅ | List PC không phải bảng: 3 khối preview `/portal` + knowledge | **4** | `_layout`, `_base`, `_knowledge` | XONG 07/09 — variant `compact-row` đầu tiên, item 51.8 → 64 · gap 0 → 8 · radius 12 · `12px 14px`, `.wj-data-item` là chủ sở hữu duy nhất dáng, knowledge đưa Pagination vào trong DataList. Bộ số **provisional** (BA chưa có số cho danh sách PC không phải bảng) + acceptance #9 thủng ở knowledge 12 → 9 |
 | **D5e** ✅ | Mobile compact-row: mdash ×6 · mhist · mnoti · mknow | **9** | 6 module | XONG 07/09 — rule D5d **tách làm hai** (dáng chung ở `.wj-data-item`, layout ở từng họ), gap `0/10` → 8 · radius `0/14` → 12 · padding về `12px 14px` (mnoti giữ left 16 cho thanh accent), **mnoti không đổi một pixel**, hover 4 họ không đổi. Giá phải trả: Home mobile **+145/+245**, support **+271**, acceptance #9 thủng 1 ô (2 → 1 @360) — đã báo BA, không tự vá |
 | **D5f** ✅ | Mobile detail-card: mreturn · mdelivery | **2** | `_return`+`wujia_sale`, `_delivery` | XONG 08/09 — **dựng** variant `detail-card` (0 hit trong repo trước lượt này), kiến trúc hai tầng của D5e. gap 12 → 8 · radius 14 → 12 · padding `14px`/`12px 16px` → `12px 14px`; mreturn 122.3 → **118.3** vào dải BA, mdelivery **128.98 không hạ được** ⇒ báo BA. Lượt đầu làm trang **NGẮN LẠI** (−156/−52) và **acceptance #9 không thủng ô nào**. Skeleton delivery mang luôn `wj-data-item` (3 lần `t-call`, **2** call site record) |
-| **D5g** | Công nợ PC ×2 + mobile ×2 | **4** | `_debt` | Chặn bởi dữ liệu |
+| **D5g** ✅ | Công nợ PC ×2 + mobile ×2 | **4** | `_layout`, `_debt` | XONG 08/09 — `th[scope]` 0/14 → **14/14**, header 50 → 44, row **58 cứng** → 52–55, padding `0 22px` → `10px 16px`. Mobile chọn variant theo **số đo sau seed**: `wj-debt-inv` 62 → **75,5** (compact-row 64–76, sát trần) · `wj-debt-pay` 96 → **104/116** (detail-card 96–120) — **cả hai vào dải, lượt này không có LIMIT chiều cao**. Lượt **duy nhất phải sửa guard pager**, và guard **tách đôi**: nút trang theo `page_count > 1`, dòng *Tổng thanh toán* là thông tin của kỳ lọc nên giữ khi 1 trang. Giá phải trả: acceptance #9 thủng **1 ô** (@360, 5 → 4) + **hover mới xuất hiện** trên `wj-debt-inv` (một `<div>` không bấm được) ⇒ cả hai đã báo BA, không tự vá |
 | **D5h** | Thi ×4 + Khảo sát ×2 | **6** | `_exam`, `_inspection` | Khảo sát provisional (BA acceptance #10) |
 
 Cộng 3+3+4+9+2+4+6 = **31**. ⚠️ `wj-pc-table` xuất hiện **15** lần trong mã nguồn nhưng chỉ

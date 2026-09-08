@@ -1,6 +1,6 @@
 # Câu hỏi gửi BA — `CMP-DL-001` DataList (`UI-DATALIST-001`, STT 126)
 
-**Gửi sau lượt D5d (2026-09-07), bổ sung câu 4 sau lượt D5e và câu 5 sau lượt D5f.** Năm câu, đều đã có số đo kèm theo. Câu 1 là câu treo từ phiên
+**Gửi sau lượt D5d (2026-09-07), bổ sung câu 4 sau lượt D5e, câu 5 sau lượt D5f và câu 6 sau lượt D5g.** Sáu câu, đều đã có số đo kèm theo. Câu 1 là câu treo từ phiên
 kiểm kê D5a; câu 2 và 3 là hai chỗ **mới lộ ra khi đo**, chưa từng nêu.
 
 Trong lúc chờ trả lời, phần đã làm vẫn chạy được trên UAT; nếu BA chốt khác, chỗ phải sửa đã được
@@ -129,6 +129,32 @@ của BA (0/1/2/10/11/50+).
 **Tin tốt của lượt này:** `/portal/return` **ngắn đi 156px** và `/portal/delivery` **ngắn đi 52px**
 ở mọi khổ mobile, và **acceptance #9 không thủng ô nào** (4 record đọc-không-cuộn, giữ nguyên ở cả
 hai màn, cả ba khổ) — ngược chiều với cái giá đã báo ở câu 4.
+
+## Câu 6 — Hàng *hoá đơn* mobile nay sáng lên khi rê chuột, mà nó không bấm được (bổ sung sau lượt D5g)
+
+Lượt D5g đưa hai danh sách của màn Công nợ về bộ số BA, **cả hai vào đúng dải** (hoá đơn 62 →
+**75,5** trong dải compact-row 64–76; thanh toán 96 → **104**, ở khổ 360 là **116**, trong dải
+detail-card 96–120). Nhưng một hệ quả **không nằm trong số đo hình học** chỉ lộ ra khi đo tương tác:
+
+| Hàng | Là thẻ gì | Hover trước | Hover sau |
+|---|---|---|---|
+| Hoá đơn (`/portal/debt`) | `<div>` — **không bấm được** | không có | **nền xanh nhạt + viền xanh** |
+| Thanh toán (`/portal/debt/payment-history`) | `<div>` — không bấm được | không có | không có |
+| Đổi trả / Lịch sử mua (mốc đối chứng) | `<a>` — bấm được | có | có (không đổi) |
+
+Hàng hoá đơn mọc thêm hover vì variant `compact-row` có sẵn một rule `:hover` dùng chung (áp cho 9
+danh sách mobile khác, phần lớn **là link**). Dev **không tự quyết**: nền đổi khi rê chuột thường
+được hiểu là "bấm được", trong khi hàng hoá đơn hiện không mở màn nào.
+
+Xin BA chốt một trong ba: **(1)** giữ nguyên — chấp nhận hover chỉ là hiệu ứng thị giác ·
+**(2)** tắt hover cho hàng không phải link · **(3)** cho hàng hoá đơn **một đường dẫn** tới chi tiết
+hoá đơn (nếu vậy xin cho biết mở màn nào).
+
+**Kèm theo — acceptance #9 thủng thêm một ô.** Lịch sử thanh toán mobile ở khổ **360**: số giao dịch
+đọc được không cần cuộn **5 → 4**. Nguyên nhân đo được là dòng *Tham chiếu: …* xuống dòng khi bề rộng
+hụt, đẩy hàng từ 104 lên 116 — vẫn **trong dải BA**, nên đây là chỗ hai yêu cầu của chính BA gặp nhau
+(giống hệt câu 3 và câu 4c). Nếu BA muốn giữ 5 dòng, cách rẻ nhất là cho phép **rút gọn mã tham
+chiếu** ở khổ hẹp.
 
 ---
 

@@ -229,10 +229,12 @@
                         </t>
                     </t>
 
-                    <div class="wj-debt-invoices">
+                    <t t-call="wujia_portal_layout.wj_data_list">
+                        <t t-set="dl_variant" t-value="'compact-row'"/>
+                        <t t-set="dl_class" t-value="'wj-debt-invoices'"/>
                         <t t-foreach="invoices" t-as="inv">
                             <t t-set="ibadge" t-value="INVOICE_BADGE[inv['status']]"/>
-                            <div t-attf-class="wj-debt-inv wj-debt-inv--#{inv['status']}">
+                            <div t-attf-class="wj-debt-inv wj-data-item wj-debt-inv--#{inv['status']}">
                                 <span class="wj-debt-inv__name" t-out="inv['name']"/>
                                 <span t-attf-class="wj-debt-badge wj-debt-badge--#{ibadge[1]} wj-debt-inv__badge"
                                       t-out="ibadge[0]"/>
@@ -254,7 +256,7 @@
                                 </span>
                             </div>
                         </t>
-                    </div>
+                    </t>
 
                     <p t-if="hidden_count" class="wj-debt-note">
                         Hiển thị <t t-out="len(invoices)"/>/<t t-out="summary['invoice_count']"/> hóa đơn
@@ -388,18 +390,35 @@
                         </t>
 
                         <t t-if="pc_invoices">
-                            <div class="wj-debt-pc-tablewrap">
-                                <table class="wj-pc-table wj-debt-pc-table">
+                            <t t-call="wujia_portal_layout.wj_data_list">
+                                <t t-set="dl_class" t-value="'wj-debt-pc-tablewrap'"/>
+                                <t t-set="dl_table_class" t-value="'wj-pc-table wj-debt-pc-table'"/>
+                                <t t-set="dl_pager">
+                                    <!-- CMP-DL-001: pager chỉ hiện khi >1 trang (kiểm kê D5a). -->
+                                    <div t-if="pc_pager['page_count'] &gt; 1" class="wj-debt-pc-pagination">
+                                        <span class="wj-debt-pc-pagination__count">
+                                            Hiển thị <t t-out="pc_pager['offset'] + 1"/>–<t t-out="pc_pager['offset'] + pc_pager['count']"/> / <t t-out="pc_pager['page_total']"/> hóa đơn
+                                        </span>
+                                        <span class="wj-debt-pc-pagination__nav">
+                                            <span class="wj-debt-pc-pagesize"><t t-out="pc_pager['page_size']"/> / trang</span>
+                                            <t t-foreach="pc_pager['pages']" t-as="pn">
+                                                <a t-attf-href="/portal/debt?week=#{summary['week_key']}&amp;page=#{pn}"
+                                                   t-attf-class="wj-debt-pc-pagebtn #{'is-active' if pn == pc_pager['page'] else ''}"
+                                                   t-out="pn"/>
+                                            </t>
+                                        </span>
+                                    </div>
+                                </t>
                                     <thead>
                                         <tr>
-                                            <th>Mã hóa đơn</th>
-                                            <th>Ngày HĐ</th>
-                                            <th>Hạn thanh toán</th>
-                                            <th class="text-end">Tổng tiền</th>
-                                            <th class="text-end">Đã thanh toán</th>
-                                            <th class="text-end">Còn phải trả</th>
-                                            <th>Trạng thái</th>
-                                            <th class="text-end">Thao tác</th>
+                                            <th scope="col">Mã hóa đơn</th>
+                                            <th scope="col">Ngày HĐ</th>
+                                            <th scope="col">Hạn thanh toán</th>
+                                            <th scope="col" class="text-end">Tổng tiền</th>
+                                            <th scope="col" class="text-end">Đã thanh toán</th>
+                                            <th scope="col" class="text-end">Còn phải trả</th>
+                                            <th scope="col">Trạng thái</th>
+                                            <th scope="col" class="text-end">Thao tác</th>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -422,22 +441,7 @@
                                             </td>
                                         </tr>
                                     </tbody>
-                                </table>
-                            </div>
-
-                            <div class="wj-debt-pc-pagination">
-                                <span class="wj-debt-pc-pagination__count">
-                                    Hiển thị <t t-out="pc_pager['offset'] + 1"/>–<t t-out="pc_pager['offset'] + pc_pager['count']"/> / <t t-out="pc_pager['page_total']"/> hóa đơn
-                                </span>
-                                <span class="wj-debt-pc-pagination__nav">
-                                    <span class="wj-debt-pc-pagesize"><t t-out="pc_pager['page_size']"/> / trang</span>
-                                    <t t-foreach="pc_pager['pages']" t-as="pn">
-                                        <a t-attf-href="/portal/debt?week=#{summary['week_key']}&amp;page=#{pn}"
-                                           t-attf-class="wj-debt-pc-pagebtn #{'is-active' if pn == pc_pager['page'] else ''}"
-                                           t-out="pn"/>
-                                    </t>
-                                </span>
-                            </div>
+                            </t>
                         </t>
 
                         <!-- Empty box trong card: empty_week (icon file) / no_debt (icon check) -->
@@ -547,9 +551,11 @@
                 </div>
 
                 <t t-else="">
-                    <div class="wj-debt-payments">
+                    <t t-call="wujia_portal_layout.wj_data_list">
+                        <t t-set="dl_variant" t-value="'detail-card'"/>
+                        <t t-set="dl_class" t-value="'wj-debt-payments'"/>
                         <t t-foreach="history['payments']" t-as="pay">
-                            <div class="wj-debt-pay">
+                            <div class="wj-debt-pay wj-data-item">
                                 <span class="wj-debt-pay__ref" t-out="pay['ref']"/>
                                 <span class="wj-debt-badge wj-debt-badge--success wj-debt-pay__badge">Đã xác nhận</span>
                                 <span class="wj-debt-pay__meta">
@@ -560,7 +566,7 @@
                                 <span class="wj-debt-pay__amount" t-out="pay['amount_label']"/>
                             </div>
                         </t>
-                    </div>
+                    </t>
                     <!-- Nhiều loại tiền = nhiều dòng tổng, không quy đổi (WJ-DEBT-004). -->
                     <t t-foreach="history['totals']" t-as="tot">
                         <p class="wj-debt-total">Tổng đã xác nhận: <t t-out="tot['label']"/></p>
@@ -631,16 +637,38 @@
                         </t>
 
                         <t t-if="pc_payments">
-                            <div class="wj-debt-pc-tablewrap">
-                                <table class="wj-pc-table wj-debt-pc-table">
+                            <t t-call="wujia_portal_layout.wj_data_list">
+                                <t t-set="dl_class" t-value="'wj-debt-pc-tablewrap'"/>
+                                <t t-set="dl_table_class" t-value="'wj-pc-table wj-debt-pc-table'"/>
+                                <t t-set="dl_pager">
+                                    <!-- Dòng tổng tiền là thông tin của kỳ lọc ⇒ hiện cả khi 1 trang. -->
+                                    <div class="wj-debt-pc-pagination">
+                                        <span t-if="pc_pager['page_count'] &gt; 1" class="wj-debt-pc-pagination__count">
+                                            Hiển thị <t t-out="pc_pager['offset'] + 1"/>–<t t-out="pc_pager['offset'] + pc_pager['count']"/> / <t t-out="pc_pager['page_total']"/> giao dịch
+                                        </span>
+                                        <span class="wj-debt-pc-pagination__right">
+                                            <span class="wj-debt-pc-pagination__total">Tổng thanh toán trong thời gian lọc:
+                                                <t t-foreach="history['totals']" t-as="tot"><t t-if="not tot_first"> • </t><t t-out="tot['label']"/></t>
+                                            </span>
+                                            <span t-if="pc_pager['page_count'] &gt; 1" class="wj-debt-pc-pagination__nav">
+                                                <span class="wj-debt-pc-pagesize"><t t-out="pc_pager['page_size']"/> / trang</span>
+                                                <t t-foreach="pc_pager['pages']" t-as="pn">
+                                                    <a t-attf-href="/portal/debt/payment-history?month=#{history['month_key']}&amp;q=#{q}&amp;page=#{pn}"
+                                                       t-attf-class="wj-debt-pc-pagebtn #{'is-active' if pn == pc_pager['page'] else ''}"
+                                                       t-out="pn"/>
+                                                </t>
+                                            </span>
+                                        </span>
+                                    </div>
+                                </t>
                                     <thead>
                                         <tr>
-                                            <th>Mã thanh toán</th>
-                                            <th>Ngày thanh toán</th>
-                                            <th>Phương thức</th>
-                                            <th>Tham chiếu</th>
-                                            <th class="text-end">Số tiền</th>
-                                            <th>Trạng thái</th>
+                                            <th scope="col">Mã thanh toán</th>
+                                            <th scope="col">Ngày thanh toán</th>
+                                            <th scope="col">Phương thức</th>
+                                            <th scope="col">Tham chiếu</th>
+                                            <th scope="col" class="text-end">Số tiền</th>
+                                            <th scope="col">Trạng thái</th>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -655,27 +683,7 @@
                                             <td><span class="wj-debt-pc-badge wj-debt-pc-badge--success">Đã xác nhận</span></td>
                                         </tr>
                                     </tbody>
-                                </table>
-                            </div>
-
-                            <div class="wj-debt-pc-pagination">
-                                <span class="wj-debt-pc-pagination__count">
-                                    Hiển thị <t t-out="pc_pager['offset'] + 1"/>–<t t-out="pc_pager['offset'] + pc_pager['count']"/> / <t t-out="pc_pager['page_total']"/> giao dịch
-                                </span>
-                                <span class="wj-debt-pc-pagination__right">
-                                    <span class="wj-debt-pc-pagination__total">Tổng thanh toán trong thời gian lọc:
-                                        <t t-foreach="history['totals']" t-as="tot"><t t-if="not tot_first"> • </t><t t-out="tot['label']"/></t>
-                                    </span>
-                                    <span class="wj-debt-pc-pagination__nav">
-                                        <span class="wj-debt-pc-pagesize"><t t-out="pc_pager['page_size']"/> / trang</span>
-                                        <t t-foreach="pc_pager['pages']" t-as="pn">
-                                            <a t-attf-href="/portal/debt/payment-history?month=#{history['month_key']}&amp;q=#{q}&amp;page=#{pn}"
-                                               t-attf-class="wj-debt-pc-pagebtn #{'is-active' if pn == pc_pager['page'] else ''}"
-                                               t-out="pn"/>
-                                        </t>
-                                    </span>
-                                </span>
-                            </div>
+                            </t>
                         </t>
 
                         <t t-else="">

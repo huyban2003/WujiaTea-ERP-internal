@@ -202,3 +202,88 @@ print(f"  → {Batch.search_count([('picking_ids.franchise_id', '=', franchise.i
 
 env.cr.commit()
 print("\n=== SEED D5 XONG ===")
+
+# ---------------------------------------------------- [6] D5g — công nợ 2 trang
+# Bảng PC lọc theo TUẦN, nên rải hoá đơn "đủ mốc" vào đúng tuần portal mở sẵn;
+# thêm ở tuần khác thì bảng vẫn ra 1 dòng (docs/d5g-acceptance-matrix.md §1).
+print(f"\n[6] Công nợ — hoá đơn trong tuần mặc định + thanh toán đã đối soát (D5g)")
+N_WEEK_INVOICE = 11   # > page_size 10 ⇒ pager PC thật sự có 2 trang
+N_PAYMENT = 11        # ⇒ /portal/debt/payment-history cũng 2 trang
+
+Debt = env['wujia.portal.debt']
+opt, _options = Debt._resolve_week(None, franchise_id=franchise.id)
+monday = opt['monday']
+print(f"  tuần mặc định: {opt['key']} ({monday} → {monday + timedelta(days=6)})")
+
+have_week = env['account.move'].search_count([
+    ('franchise_id', '=', franchise.id), ('move_type', '=', 'out_invoice'),
+    ('state', '=', 'posted'),
+    ('invoice_date', '>=', monday), ('invoice_date', '<=', monday + timedelta(days=6))])
+print(f"  hiện {have_week} hoá đơn trong tuần, cần {N_WEEK_INVOICE}")
+for i in range(max(0, N_WEEK_INVOICE - have_week)):
+    ref = f'{MARK}G-INVW-{i + 1:03d}'
+    if env['account.move'].search_count([('ref', '=', ref)]):
+        continue
+    inv_date = monday + timedelta(days=i % 7)
+    move = env['account.move'].create({
+        'move_type': 'out_invoice',
+        'partner_id': partner.id,
+        'invoice_date': inv_date,
+        'journal_id': journal.id,
+        'franchise_id': franchise.id,
+        'ref': ref,
+        'invoice_payment_term_id': False,
+        'invoice_line_ids': [(0, 0, {
+            'name': f'Nguyên liệu tuần {opt["key"]} đợt {i + 1}',
+            'quantity': 1,
+            'price_unit': 900000.0 + i * 150000,
+            'account_id': income.id,
+            'tax_ids': [(6, 0, [])],
+        })],
+    })
+    move.action_post()
+    move.invoice_date_due = inv_date + timedelta(days=3 if i % 2 else 30)
+    print(f"  [CREATE] invoice tuần {ref} ({inv_date})")
+
+# Thanh toán: KHÔNG ghi tay franchise_id (stored compute từ reconciled_invoice_ids,
+# wujia_account/models/account_payment.py:19) — đối soát thật qua wizard register.
+# Đối soát vào hoá đơn CŨ ngoài cửa sổ 6 tuần để không đổi tuần mặc định.
+have_pay = env['account.payment'].search_count([('franchise_id', '=', franchise.id)])
+print(f"  hiện {have_pay} thanh toán, cần {N_PAYMENT}")
+old_invoices = env['account.move'].search([
+    ('franchise_id', '=', franchise.id), ('move_type', '=', 'out_invoice'),
+    ('state', '=', 'posted'), ('invoice_date', '<', monday),
+    ('amount_residual', '>', 0),
+], order='invoice_date')
+bank_journal = env['account.journal'].search(
+    [('type', '=', 'bank'), ('company_id', '=', env.company.id)], limit=1)
+if not (old_invoices and bank_journal):
+    print(f"  ! bỏ qua: old_invoices={len(old_invoices)} bank_journal={bank_journal.id if bank_journal else 0}")
+else:
+    made = 0
+    for i in range(max(0, N_PAYMENT - have_pay)):
+        memo = f'{MARK}G-PAY-{i + 1:03d}'
+        if env['account.payment'].search_count([('memo', '=', memo)]):
+            continue
+        inv = old_invoices[i % len(old_invoices)]
+        if inv.amount_residual <= 0:
+            continue
+        amount = min(500000.0, inv.amount_residual)
+        wiz = env['account.payment.register'].with_context(
+            active_model='account.move', active_ids=inv.ids).create({
+                'amount': amount,
+                # Tháng HIỆN TẠI: get_payments mặc định lọc theo tháng (wujia_portal_debt.py:323).
+                'payment_date': today.replace(day=1) + timedelta(days=i % today.day),
+                'journal_id': bank_journal.id,
+                'communication': memo,
+            })
+        wiz.action_create_payments()
+        pay = env['account.payment'].search([('memo', '=', memo)], limit=1)
+        if pay:
+            made += 1
+            print(f"  [CREATE] payment {pay.name} ({pay.state}) ← {inv.name}"
+                  f" franchise_id={pay.franchise_id.id or 0}")
+env.cr.commit()
+print(f"  → {env['account.move'].search_count([('franchise_id', '=', franchise.id), ('move_type', '=', 'out_invoice'), ('state', '=', 'posted'), ('invoice_date', '>=', monday), ('invoice_date', '<=', monday + timedelta(days=6))])} hoá đơn trong tuần"
+      f" · {env['account.payment'].search_count([('franchise_id', '=', franchise.id)])} thanh toán có franchise_id")
+print("\n=== SEED D5G XONG ===")

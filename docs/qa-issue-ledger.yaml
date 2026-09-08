@@ -2033,3 +2033,44 @@ UI-SURFACECARD-001:
 # Bảng đo: docs/d5f-acceptance-matrix.md · docs/d5f-{before,after,rule-after,hover}.json
 # CHỜ DEPLOY UAT — deploy DỒN một lượt sau khi khép cụm D5 (hàng đợi: D5b + D5c + D5d + D5e + D5f).
 # =====================================================================================
+# =====================================================================================
+# ------------------------------- D5g (2026-09-08) -------------------------------
+# UI-DATALIST-001 vẫn Ready for Dev (25/31 call site) ⇒ CHƯA chạy qa_sync.py.
+# Xong: 4 call site CÔNG NỢ — 2 bảng PC (`wj-debt-pc-table`: hoá đơn 8 cột + thanh toán 6 cột) và
+#   2 danh sách mobile (`wj-debt-inv` → compact-row, `wj-debt-pay` → detail-card). Variant CHỌN THEO
+#   SỐ ĐO SAU KHI SEED, không theo tên gọi: 62 rơi vào dải compact-row 64–76, 96 rơi vào dải
+#   detail-card 96–120 — cùng kết luận với lập luận cấu trúc, nhưng số mới là căn cứ.
+# Bảng PC: th[scope] 0/14 → 14/14 · header 50 → 44 · row 58 CỨNG → 52–55 · padding `0 22px` →
+#   `10px 16px`. Đúng họ và đúng cơ chế D5c #5 (58 do `height`, không do padding).
+# GUARD PAGER — việc riêng của lượt này (kiểm kê D5a ghi debt ×2 chỉ cần "có record"): nút trang nay
+#   neo `pc_pager['page_count'] > 1`. Guard TÁCH ĐÔI ở bảng thanh toán: dòng "Tổng thanh toán trong
+#   thời gian lọc" là THÔNG TIN của kỳ lọc, không phải điều hướng ⇒ giữ khi 1 trang. Chứng minh cả
+#   hai chiều bằng URL thật: ?week=2026-W33 (1 trang) → 0 nút; mặc định (2 trang) → 2 nút.
+# Mobile: gap 6/12 → 8 · radius 16 → 12 · padding `0 16px 0 14px` → `12px 14px` · bỏ `height` cứng.
+#   wj-debt-inv 62 → 75,5 (SÁT trần 76, còn 0,5px dư địa) · wj-debt-pay 96 → 104, khổ 360 là 116.
+#   CẢ HAI VÀO DẢI BA ⇒ lượt này KHÔNG có LIMIT chiều cao (khác D5e câu 4a và D5f câu 5).
+# Container `.wj-debt-invoices{gap:6}` / `.wj-debt-payments{gap:12}` GIỮ NGUYÊN — item đã nằm trong
+#   .wj-data-viewport nên gap container không cộng vào (bài học D5f #1); đo lại ra đúng 8.
+# Token `--wj-debt-radius` (alias --wujia-card-radius) GIỮ NGUYÊN, radius 12 đến từ tầng variant.
+# SEED (scripts/seed_d5_datalist_demo.py mục [6]): 11 hoá đơn dồn vào đúng tuần `_default_week` trả
+#   về (2026-W32) ⇒ bảng PC 2 trang; 11 payment tháng hiện tại ⇒ lịch sử 2 trang. franchise_id của
+#   payment DO COMPUTE SINH RA từ đối soát thật (wizard account.payment.register), KHÔNG ghi tay như
+#   seed S48 — log in franchise_id=1 cho 11/11 mà không dòng nào set field đó ⇒ seed là phép thử của
+#   chính seam Sprint 48. Đối soát vào hoá đơn NGOÀI cửa sổ 6 tuần để không đổi tuần mở sẵn.
+# MÔI TRƯỜNG: HEAD đi tiếp 2 commit sau D5f (merge nhánh `thai`) ⇒ DB đo thiếu wujia_franchise_
+#   inspection và lệch 2 phiên bản. Đồng bộ trên BẢN SAO wujia_tea_d5g theo review-merge-thai §6;
+#   sau đó 24/24 module khớp manifest và mốc "trước" so TỪNG Ô với d5f-after.json ra 2027/2027 khớp.
+# Hồi quy: 9 route ngoài debt so từng ô = 1857/1857, 0 lệch. RULE 1/RULE 2 + nhịp header→body giống
+#   hệt số D5c/D5d/D5e/D5f công bố (0 · 14.7×10 · 16×8 · 18×39 · 22×6 · 24×3 · 8×2 · 12×33).
+# Guard: 53 test wujia_data_list_d5 (0 failed/0 error), 8 mutation — 8/8 làm đỏ ĐÚNG MỘT test,
+#   8/8 sha256 khớp sau khi hoàn tác bằng ảnh chụp byte.
+# HAI CHỖ TREO gửi BA (ba-questions câu 6), KHÔNG tự vá:
+#   (a) acceptance #9 thủng 1 ô — lịch sử thanh toán mobile @360, 5 → 4, do dòng "Tham chiếu" xuống
+#       dòng đẩy hàng 104 → 116 (vẫn trong dải BA);
+#   (b) hover MỚI XUẤT HIỆN trên wj-debt-inv — một <div> KHÔNG bấm được, do rule :hover dùng chung
+#       của variant compact-row (D5d) và vì .wj-debt-inv không nằm trong danh sách :is() của
+#       _interaction.css nên không bị đè. Gợi ý sai về khả năng bấm ⇒ xin BA chốt.
+# Bảng đo: docs/d5g-acceptance-matrix.md · docs/d5g-{before,after,rule-after,hover}.json
+# CHỜ DEPLOY UAT — deploy DỒN một lượt sau khi khép cụm D5
+#   (hàng đợi: D5b + D5c + D5d + D5e + D5f + D5g).
+# =====================================================================================

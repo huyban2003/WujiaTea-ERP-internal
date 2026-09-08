@@ -227,7 +227,8 @@
 
 /* ---------- Card hoá đơn (359×62, gap 6) ---------- */
 .wj-debt-invoices { display: flex; flex-direction: column; gap: 6px; }
-.wj-debt-inv {
+/* D5g: hàng đã migrate lấy dáng ở .wj-data-item; rule cũ chỉ còn cho hàng chưa migrate. */
+.wj-debt-inv:not(.wj-data-item) {
     display: grid;
     grid-template-columns: 1fr auto;
     align-items: center;
@@ -237,6 +238,14 @@
     padding: 0 16px 0 14px;
     background: var(--wj-debt-card-bg);
     border-radius: var(--wj-debt-radius);
+}
+/* D5g — LAYOUT của họ hoá đơn; dáng (padding/nền/viền/radius) ở tầng .wj-data-item. */
+.wj-data-list--compact-row .wj-debt-inv.wj-data-item {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    align-items: center;
+    row-gap: 4px;
+    column-gap: 8px;
 }
 .wj-debt-inv__name { font-size: 13.5px; font-weight: 700; color: var(--wj-debt-text); }
 .wj-debt-inv__badge { justify-self: end; }
@@ -287,7 +296,8 @@
 #wj-debt-hist-mbody { display: flex; flex-direction: column; gap: 12px; }
 
 .wj-debt-payments { display: flex; flex-direction: column; gap: 12px; }
-.wj-debt-pay {
+/* D5g: xem ghi chú ở .wj-debt-inv — cùng kiến trúc hai tầng. */
+.wj-debt-pay:not(.wj-data-item) {
     display: grid;
     grid-template-columns: 1fr auto;
     align-content: center;
@@ -297,6 +307,14 @@
     padding: 0 16px 0 14px;
     background: var(--wj-debt-card-bg);
     border-radius: var(--wj-debt-radius);
+}
+/* D5g — LAYOUT của họ thanh toán; dáng ở tầng .wj-data-item (variant detail-card). */
+.wj-data-list--detail-card .wj-debt-pay.wj-data-item {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    align-content: center;
+    row-gap: 5px;
+    column-gap: 8px;
 }
 .wj-debt-pay__ref { font-size: 14px; font-weight: 700; color: var(--wj-debt-text); }
 .wj-debt-pay__badge { justify-self: end; }
