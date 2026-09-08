@@ -216,6 +216,7 @@ ADR-001 odoo19 source độc lập / 002 venv conda `odoo` py3.10 / 003 PG role 
 - **QA/Task workflow (2026-07-21):** xem §12.
 - Sprint log `wujia-tea-doc.pdf` (compile `chapters/*.tex` qua `scripts/build-doc.sh`).
 - **UI-only** (button chưa cần wire, miễn layout đúng BA). **Perf-first 1500 user** (ormcache, store+index, cron). **Ask-don't-assume + Read-before-write.**
+- 🔴 **KHÔNG đụng hai module Khảo sát của anh Thái** (`wujia_portal_inspection`, `wujia_franchise_inspection`, merge từ nhánh `thai` 19/08) — lối code khác hẳn portal (Bootstrap thô, inline style, `sudo()` ở đường ghi). Mọi cụm UI/refactor **bỏ qua**, ghi `defer` kèm lý do vào bảng nghiệm thu thay vì sửa. Chỉ đụng khi chủ dự án nói rõ. (Quyết định 08/09/2026, lượt D5h; luật cũng đã ghi trong skill `wujia-start`.)
 - End session: `/wujia-end-sprint` (test → doc → PDF → ledger/qa_sync → commit → push).
 
 Slash: `/wujia-start` `/wujia-load-feature <letters>` `/wujia-save-insight` `/wujia-end-sprint` `/wujia-dashboard`.

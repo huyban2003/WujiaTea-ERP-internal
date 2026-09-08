@@ -880,3 +880,222 @@ class TestDataListDebt(TransactionCase):
             if 'wj-debt-summary__meta' in cls:
                 self.assertNotIn('wj-data-item', cls.split(),
                                  'ô tóm tắt bị gắn nhầm wj-data-item')
+
+
+@tagged('post_install', '-at_install', 'wujia_data_list_d5')
+class TestDataListExam(TransactionCase):
+    """D5h — Thi: 1 bảng PC + 3 danh sách mobile (`wujia-mexam-card` detail-card,
+    `wujia-mexam-course` detail-card, `wujia-mexam-rrow` compact-row). Variant
+    chọn theo SỐ ĐO trước khi sửa (109,25 và 116,25 → dải 96–120; 70 → dải 64–76).
+    Hai call site nằm ở MÀN CON (/portal/exam/register, /portal/exam/registration/N)
+    nên bộ đo 10 route BA không nhìn thấy — guard là chỗ duy nhất ghim chúng."""
+
+    VIEW = ('wujia_portal_exam', 'portal_exam.xml')
+
+    def _root(self):
+        return _view(*self.VIEW)
+
+    def _css(self):
+        with open(os.path.join(CUSTOM, 'wujia_portal_exam', 'static', 'src', 'css',
+                               'portal_exam.css'), encoding='utf-8') as fh:
+            return fh.read()
+
+    def _calls(self, variant=None):
+        out = []
+        for call in self._root().xpath('//t[@t-call="wujia_portal_layout.wj_data_list"]'):
+            got = call.xpath('./t[@t-set="dl_variant"]/@t-value')
+            got = got[0].strip("'") if got else None
+            if got == variant:
+                out.append(call)
+        return out
+
+    def _bang(self):
+        """Chọn theo CẤU TRÚC (có thead) — bất biến trước mọi phép thay dl_variant
+        (bài học D5g #3)."""
+        return [c for c in self._root().xpath(
+            '//t[@t-call="wujia_portal_layout.wj_data_list"]') if c.xpath('.//thead')]
+
+    def _mobile(self, ho):
+        """Quét TOKEN ở bất kỳ vị trí nào: item thi mở đầu bằng lớp wj-surface-card
+        của D4 nên `re.match` từ đầu chuỗi (cách D5g) bỏ sót đúng call site này."""
+        out = []
+        for call in self._root().xpath('//t[@t-call="wujia_portal_layout.wj_data_list"]'):
+            for el in call.iter():
+                cls = el.get('class') or el.get('t-attf-class') or ''
+                if re.search(r'(^|\s)%s(?![-\w])' % re.escape(ho), cls):
+                    out.append((call, cls))
+                    break
+        return out
+
+    def test_bon_call_site(self):
+        self.assertEqual(len(self._bang()), 1, 'bảng PC lịch sử đăng ký')
+        self.assertEqual(len(self._calls('detail-card')), 2, 'mexam-card + mexam-course')
+        self.assertEqual(len(self._calls('compact-row')), 1, 'mexam-rrow')
+
+    def test_moi_th_deu_co_scope(self):
+        """0/8 trước lượt này. Bảng `wj-exam-pc-part-table` của form nhập KHÔNG
+        nằm trong DataList nên cố ý ngoài phạm vi — ghi ở LIMIT."""
+        tong = 0
+        for call in self._bang():
+            ths = call.xpath('.//thead//th')
+            self.assertTrue(ths, 'bảng PC mất thead')
+            for th in ths:
+                self.assertEqual(th.get('scope'), 'col',
+                                 'th thiếu scope="col": %s' % (th.text or '').strip())
+            tong += len(ths)
+        self.assertEqual(tong, 8, 'số cột bảng lịch sử đăng ký đổi')
+
+    def test_item_mobile_mang_ca_hai_lop(self):
+        for ho in ('wujia-mexam-card', 'wujia-mexam-course', 'wujia-mexam-rrow'):
+            found = self._mobile(ho)
+            self.assertEqual(len(found), 1, '%s: phải đúng 1 danh sách' % ho)
+            self.assertIn('wj-data-item', found[0][1].split(),
+                          '%s: item thiếu wj-data-item' % ho)
+
+    def test_pager_guard_theo_pages(self):
+        """Key của thi là `pages` (controllers/portal.py), KHÔNG phải `page_count`
+        như debt. Trước lượt này pager hiện dù chỉ 1 trang."""
+        thay = 0
+        for call in self._bang():
+            pagers = call.xpath('./t[@t-set="dl_pager"]')
+            self.assertEqual(len(pagers), 1, 'bảng PC thi phải truyền dl_pager')
+            for nut in pagers[0].xpath('.//*[contains(@t-attf-class, "wj-pc-page-btn")]'):
+                dieu_kien = ' '.join(a.get('t-if', '') for a in nut.iterancestors())
+                self.assertIn("pc_pager['pages']", dieu_kien,
+                              'nút trang hiện mà không kiểm pc_pager[pages]')
+                thay += 1
+        self.assertGreaterEqual(thay, 2, 'không quét trúng nút trang nào — guard rỗng')
+
+    def test_o_co_trang_la_dieu_khien_khong_bi_guard(self):
+        """Tách guard như D5c/D5g: <select> cỡ trang và dòng đếm là ĐIỀU KHIỂN /
+        THÔNG TIN, phải còn khi chỉ 1 trang."""
+        kiem = 0
+        for call in self._bang():
+            for el in call.xpath('.//select | .//*[contains(@class, "wj-pc-pagination__count")]'):
+                dieu_kien = ' '.join(a.get('t-if', '') for a in el.iterancestors())
+                self.assertNotIn("pc_pager['pages']", dieu_kien,
+                                 'ô điều khiển/thông tin bị guard điều hướng nuốt')
+                kiem += 1
+        self.assertGreaterEqual(kiem, 2, 'không quét trúng ô nào — guard rỗng')
+
+    def test_mot_chu_so_huu_dang_ba_ho(self):
+        css = _strip_comments(self._css())
+        DANG = ('padding', 'background', 'border-radius', 'height')
+        kiem = 0
+        for khoi in re.finditer(r'([^{}]+)\{([^{}]*)\}', css):
+            sel, than = khoi.group(1).strip(), khoi.group(2)
+            for phan in sel.split(','):
+                chu = _chu_the(re.sub(r':not\([^)]*\)', '', phan))
+                if not re.match(r'\.(wujia-mexam-card|wujia-mexam-course|wujia-mexam-rrow)(?![-\w])', chu):
+                    continue
+                kiem += 1
+                if ':not(.wj-data-item)' in phan or '.wj-data-item' in phan:
+                    continue
+                for prop in DANG:
+                    self.assertNotRegex(
+                        than, r'(^|;)\s*%s\s*:' % prop,
+                        'rule cũ "%s" còn khai %s mà chưa khoá :not(.wj-data-item)'
+                        % (phan.strip(), prop))
+        self.assertGreaterEqual(kiem, 3, 'không quét trúng rule nào — guard rỗng')
+
+    def test_layout_hai_ho_nam_trong_media(self):
+        """Rule layout phải nằm TRONG @media của portal_exam.css (khối mobile của
+        file này bọc trong @media max-width 991.98) và không giành lại dáng."""
+        css = self._css()
+        for variant, ho in (('detail-card', 'wujia-mexam-course'),
+                            ('compact-row', 'wujia-mexam-rrow')):
+            sel = '.wj-data-list--%s .%s.wj-data-item' % (variant, ho)
+            than = _rule_in_media(css, sel)
+            self.assertIsNotNone(than, 'thiếu rule layout %s trong @media' % sel)
+            for prop in ('padding', 'background', 'border-radius', 'height', 'min-height'):
+                self.assertNotRegex(than, r'(^|;)\s*%s\s*:' % prop,
+                                    '%s giành lại dáng bằng %s' % (sel, prop))
+            self.assertRegex(than, r'display\s*:\s*flex', '%s mất layout flex' % sel)
+
+    def test_surface_card_khong_bi_sua(self):
+        """`wujia-mexam-card` mang cả wj-surface-card (D4) lẫn wj-data-item (D5).
+        D5 đè dáng bằng ĐỘ ĐẶC HIỆU tại call site — component D4 phải bất biến."""
+        css = _css('_components.css')
+        than = _rule(css, '.wj-surface-card')
+        self.assertIsNotNone(than, 'mất rule .wj-surface-card')
+        self.assertRegex(than, r'border-radius:\s*var\(--wujia-surface-radius\)',
+                         'CSS của SurfaceCard đã bị sửa ở lượt D5h')
+        found = self._mobile('wujia-mexam-card')
+        self.assertEqual(len(found), 1)
+        self.assertIn('wj-surface-card', found[0][1].split(),
+                      'item thi mất lớp wj-surface-card của D4')
+
+
+@tagged('post_install', '-at_install', 'wujia_data_list_d5')
+class TestDataListAdjacent(TransactionCase):
+    """D5h — 3 call site KỀ CẬN ngoài 10 route BA: bảng PC /portal/info-request và
+    /portal/franchise-information (bảng PC thành viên + danh sách mobile)."""
+
+    def _calls(self, module, filename, variant=None):
+        out = []
+        for call in _view(module, filename).xpath(
+                '//t[@t-call="wujia_portal_layout.wj_data_list"]'):
+            got = call.xpath('./t[@t-set="dl_variant"]/@t-value')
+            got = got[0].strip("'") if got else None
+            if got == variant:
+                out.append(call)
+        return out
+
+    def test_ba_call_site(self):
+        self.assertEqual(
+            len(self._calls('wujia_portal_info_request', 'portal_info_request_list.xml')),
+            1, 'bảng PC yêu cầu cập nhật thông tin')
+        self.assertEqual(
+            len(self._calls('wujia_portal_base', 'portal_franchise_information.xml')),
+            1, 'bảng PC thành viên cửa hàng')
+        self.assertEqual(
+            len(self._calls('wujia_portal_base', 'portal_franchise_information.xml',
+                            'compact-row')),
+            1, 'danh sách thành viên mobile')
+
+    def test_th_scope_du_muoi_hai_cot(self):
+        tong = 0
+        for module, filename in (('wujia_portal_info_request', 'portal_info_request_list.xml'),
+                                 ('wujia_portal_base', 'portal_franchise_information.xml')):
+            for call in self._calls(module, filename):
+                ths = call.xpath('.//thead//th')
+                self.assertTrue(ths, '%s: bảng mất thead' % module)
+                for th in ths:
+                    self.assertEqual(th.get('scope'), 'col',
+                                     '%s: th thiếu scope="col"' % module)
+                tong += len(ths)
+        self.assertEqual(tong, 12, 'số cột 2 bảng kề cận đổi (8 + 4)')
+
+    def test_item_mobile_mang_ca_hai_lop(self):
+        # Chọn theo CẤU TRÚC (có lớp item), không theo dl_variant — đổi variant là
+        # phép của test_ba_call_site, không được kéo test này đỏ theo (bài học D5g #3).
+        thay = 0
+        for el in _view('wujia_portal_base', 'portal_franchise_information.xml').iter():
+            cls = el.get('class') or el.get('t-attf-class') or ''
+            if re.match(r'wujia-mdash-row(?![-\w])', cls):
+                self.assertIn('wj-data-item', cls.split(),
+                              'hàng thành viên mobile thiếu wj-data-item')
+                thay += 1
+        self.assertEqual(thay, 1, 'phải đúng 1 item mẫu')
+
+    def test_pager_gia_cua_thanh_vien_da_go(self):
+        """Danh sách thành viên KHÔNG phân trang phía server: pager cũ là 3 thẻ
+        <span> cứng ("1" + "›") nên luôn hiện với đúng 1 trang — vi phạm thẳng
+        acceptance "pager chỉ hiện khi >1 trang"."""
+        root = _view('wujia_portal_base', 'portal_franchise_information.xml')
+        for el in root.iter():
+            cls = el.get('class') or el.get('t-attf-class') or ''
+            self.assertNotIn('wj-pc-page-btn', cls.split(),
+                             'nút trang cứng đã quay lại màn thông tin cửa hàng')
+
+    def test_pager_info_request_giu_guard_page_count(self):
+        """Pager của info-request vốn ĐÃ đúng (`page_count > 1`) — ghim để lượt sau
+        không nới ra, và ghi nhận nó cố ý nằm NGOÀI DataList (đúng tiền lệ D5b của
+        cùng họ `wujia-content-card-table`)."""
+        root = _view('wujia_portal_info_request', 'portal_info_request_list.xml')
+        navs = root.xpath('//nav[contains(@t-if, "page_count")]')
+        self.assertEqual(len(navs), 1, 'mất guard page_count của pager info-request')
+        self.assertIn('page_count', navs[0].get('t-if'))
+        for call in self._calls('wujia_portal_info_request', 'portal_info_request_list.xml'):
+            self.assertFalse(call.xpath('.//nav'),
+                             'pager đã bị kéo vào DataList — đổi bố cục, ngoài phạm vi lượt')

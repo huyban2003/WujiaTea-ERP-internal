@@ -1,6 +1,6 @@
 # Câu hỏi gửi BA — `CMP-DL-001` DataList (`UI-DATALIST-001`, STT 126)
 
-**Gửi sau lượt D5d (2026-09-07), bổ sung câu 4 sau lượt D5e, câu 5 sau lượt D5f và câu 6 sau lượt D5g.** Sáu câu, đều đã có số đo kèm theo. Câu 1 là câu treo từ phiên
+**Gửi sau lượt D5d (2026-09-07), bổ sung câu 4 sau lượt D5e, câu 5 sau lượt D5f, câu 6 sau lượt D5g và câu 7 sau lượt D5h (lượt khép cụm).** Bảy câu, đều đã có số đo kèm theo. Câu 1 là câu treo từ phiên
 kiểm kê D5a; câu 2 và 3 là hai chỗ **mới lộ ra khi đo**, chưa từng nêu.
 
 Trong lúc chờ trả lời, phần đã làm vẫn chạy được trên UAT; nếu BA chốt khác, chỗ phải sửa đã được
@@ -156,8 +156,56 @@ hụt, đẩy hàng từ 104 lên 116 — vẫn **trong dải BA**, nên đây l
 (giống hệt câu 3 và câu 4c). Nếu BA muốn giữ 5 dòng, cách rẻ nhất là cho phép **rút gọn mã tham
 chiếu** ở khổ hẹp.
 
+## Câu 7 — Màn *Thi*: bảng PC đọc được ít hơn 1 dòng, và một hàng mobile mọc hover dù không bấm được (bổ sung sau lượt D5h)
+
+Lượt D5h khép cụm D5 với 4 danh sách của màn Thi + 3 danh sách kề cận. **Cả 4 danh sách mobile
+vào đúng dải BA**, 3 bảng PC đủ `th[scope]` 20/20 · header 44 · padding `10px 16px`. Ba chỗ phải
+xin BA quyết:
+
+**(a) Bảng PC lịch sử đăng ký thi: hàng cao lên, viewport bớt 1 dòng.**
+
+| | Trước | Sau | Số của BA |
+|---|---:|---:|---:|
+| Chiều cao hàng | **58 cứng** (`height:58px`) | **68** (do nội dung) | row **≥52** |
+| Số phiếu đọc-không-cuộn @1440 | **8** | **7** | acceptance #9: không giảm |
+
+Hàng cao lên vì bỏ `height` cứng theo đúng bộ số DataTable — hàng này mang badge *trạng thái
+đăng ký* + badge *kết quả* + nút thao tác nên nội dung tự quyết chiều cao 68px. Đây **đúng là chỗ
+hai yêu cầu của chính BA gặp nhau**, giống hệt câu 3, câu 4c và câu 6. Xin BA chốt: **(1)** giữ
+nguyên (đúng bộ số, chấp nhận bớt 1 dòng) · **(2)** cho bảng này giữ chiều cao cố định như cũ và
+ghi ngoại lệ · **(3)** chỉ ra field bỏ được khỏi hàng.
+
+**(b) Khổ 360, thẻ phiếu thi cao tới 135,25px — trần `detail-card` là 120.** Hàng 109,25px ở khổ
+390/991 nhưng ở 360 tiêu đề xuống dòng ⇒ 135,25, và số thẻ đọc-không-cuộn **5 → 4**. Cùng loại
+LIMIT BA đã nghiệm thu ở D5c và câu 5 (`/portal/delivery` 128,98). Dev **không tự cắt field**.
+
+**(c) Hàng *người dự thi* nay sáng lên khi rê chuột, mà nó không bấm được** — ca **thứ hai** của
+đúng câu 6:
+
+| Hàng | Là thẻ gì | Hover trước | Hover sau |
+|---|---|---|---|
+| Người dự thi (`/portal/exam/registration/N`) | `<div>` — **không bấm được** | không có | **nền xanh nhạt + viền xanh** |
+| Khoá thi (`/portal/exam/register`) | `<div>` — không bấm được | không có | không có (variant `detail-card` không có `:hover`) |
+| Phiếu thi (`/portal/exam`) | `<a>` — bấm được | có | có (**không đổi** — variant không đè mất chữ ký D4) |
+
+Câu 6 hỏi cho hàng *hoá đơn*; nay có thêm hàng *người dự thi* cùng tình huống. Nếu BA chọn phương
+án **(2) tắt hover cho hàng không phải link**, xin cho biết áp cho **cả hai** — sửa một lần ở rule
+`compact-row` là xong.
+
+**Kèm theo — ba chỗ lượt này làm TỐT lên, xin BA ghi nhận khi retest:** `/portal/exam/register`
+đọc được **5 → 6** khoá thi ở cả 3 khổ mobile và trang **ngắn đi 152px**; `/portal/info-request`
+đọc được **6 → 7/8** và **9 → 10** dòng (hàng 62 → 54); màn *Thông tin cửa hàng* đã **gỡ được một
+pager giả** — 3 thẻ `<span>` cứng luôn hiện dù danh sách thành viên **không hề phân trang phía
+server**, vi phạm thẳng acceptance *"pager chỉ hiện khi >1 trang"*.
+
+**⚠️ Hai call site Khảo sát (`/portal/inspection`) KHÔNG nằm trong lượt này** — chủ dự án quyết
+08/09/2026 tạm không đụng hai module khảo sát (merge từ nhánh khác, lối code khác portal). Cụm D5
+khép ở **29/31** call site trong phạm vi BA; hai call site còn lại là **defer có chủ đích**, không
+phải sót.
+
 ---
 
-**Ghi chú thi hành:** tới khi có trả lời, `UI-DATALIST-001` vẫn `Ready for Dev` (cụm D5 chưa
-khép), và bảng nghiệm thu D5d ghi bộ số này là **provisional** — đúng cách BA đã yêu cầu cho phần
-Khảo sát ở acceptance #10.
+**Ghi chú thi hành:** cụm D5 đã khép ở lượt D5h (08/09/2026) nên `UI-DATALIST-001` chuyển
+**`Ready for Retest`** — đây là **đề xuất của Dev**, không phải BA đã chốt: toàn bộ bộ số vẫn ghi
+**`provisional`** cho tới khi có trả lời cho 7 câu trên, và mỗi hướng trả lời đều đã có số đo kèm
+sẵn nên lùi lại chỉ là **một khối CSS**. Dev **không tự đóng `Done`**.

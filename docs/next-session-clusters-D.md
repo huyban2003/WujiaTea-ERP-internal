@@ -361,7 +361,7 @@ tổng `scrollHeight` **−24px** trên 44 ô, giả-heading **0/44**, outline 8
 hiển thị 43/44 giống hệt (1 ô mọc đúng "0 kết quả" theo yêu cầu BA), B4 **286/286**, bảng D3a
 chạy lại **356 phép so 0 lệch**, tab-walk 433 stop ring 16/16, font 66 tiêu đề 0 lệch;
 bắt được **1 lỗi thật**: `/portal/info-request` mất tiêu đề ở mobile do bake `ch_platform`;
-`docs/d3b-acceptance-matrix.md`) · D3c ✅ · D3d ✅ · D3e ✅ · D3f ✅ · review ✅ · **D4 ✅ KHÉP 06/09** (D4b…D4h, `UI-SURFACECARD-001` Ready for Retest + ĐÃ DEPLOY UAT) · **D5a ✅ 06/09** (kiểm kê 31 call site, `docs/d5-datalist-inventory.md`, 0 code) · **D5b ✅ 07/09** (nền `wj_data_list` + 3 call site họ `wujia-content-card-table`, 3/31, `docs/d5b-acceptance-matrix.md`) · **D5c ✅ 07/09** (họ `wj-pc-table`: purchase-history · delivery · notification, 6/31, `docs/d5c-acceptance-matrix.md`) · **D5d ✅ 07/09** (họ `li.wujia-content-card-row`: 3 khối preview `/portal` + `/portal/knowledge`, 10/31, `docs/d5d-acceptance-matrix.md`, bộ số **provisional** + 3 câu hỏi BA `docs/ba-questions-d5-datalist.md`) · **D5e ✅ 07/09** (9 call site mobile, 4 họ `mdash`/`mhist`/`mnoti`/`mknow`, 19/31, `docs/d5e-acceptance-matrix.md`) · **D5f ✅ 08/09** (variant `detail-card` dựng mới + 2 call site `mreturn`/`mdelivery`, 21/31, `docs/d5f-acceptance-matrix.md`) · **D5g ✅ 08/09** (4 call site công nợ: 2 bảng PC + mobile `wj-debt-inv` compact-row + `wj-debt-pay` detail-card, sửa guard pager `page_count > 1`, 25/31, `docs/d5g-acceptance-matrix.md`) · D5h ⬜ · D6 ⬜ · R1–R5 ⬜
+`docs/d3b-acceptance-matrix.md`) · D3c ✅ · D3d ✅ · D3e ✅ · D3f ✅ · review ✅ · **D4 ✅ KHÉP 06/09** (D4b…D4h, `UI-SURFACECARD-001` Ready for Retest + ĐÃ DEPLOY UAT) · **D5a ✅ 06/09** (kiểm kê 31 call site, `docs/d5-datalist-inventory.md`, 0 code) · **D5b ✅ 07/09** (nền `wj_data_list` + 3 call site họ `wujia-content-card-table`, 3/31, `docs/d5b-acceptance-matrix.md`) · **D5c ✅ 07/09** (họ `wj-pc-table`: purchase-history · delivery · notification, 6/31, `docs/d5c-acceptance-matrix.md`) · **D5d ✅ 07/09** (họ `li.wujia-content-card-row`: 3 khối preview `/portal` + `/portal/knowledge`, 10/31, `docs/d5d-acceptance-matrix.md`, bộ số **provisional** + 3 câu hỏi BA `docs/ba-questions-d5-datalist.md`) · **D5e ✅ 07/09** (9 call site mobile, 4 họ `mdash`/`mhist`/`mnoti`/`mknow`, 19/31, `docs/d5e-acceptance-matrix.md`) · **D5f ✅ 08/09** (variant `detail-card` dựng mới + 2 call site `mreturn`/`mdelivery`, 21/31, `docs/d5f-acceptance-matrix.md`) · **D5g ✅ 08/09** (4 call site công nợ: 2 bảng PC + mobile `wj-debt-inv` compact-row + `wj-debt-pay` detail-card, sửa guard pager `page_count > 1`, 25/31, `docs/d5g-acceptance-matrix.md`) · **D5h ✅ 08/09 KHÉP CỤM** (Thi ×4 + kề cận ×3, Khảo sát ×2 defer theo quyết định chủ dự án, **29/31** trong phạm vi BA + 3 kề cận = 32/34, `docs/d5h-acceptance-matrix.md`, `UI-DATALIST-001` → `Ready for Retest` **provisional**) · D6 ⬜ · R1–R5 ⬜
 
 🚚 **D1 + D2 ĐÃ DEPLOY UAT 27/08** (`wujia_portal_layout 19.0.32.4.0` · `wujia_portal_return
 19.0.2.7.0` · `wujia_sale 19.0.4.3.0`, xác nhận XML-RPC) **+ đo lại chỉ-đọc ngay trên UAT**:
@@ -789,7 +789,37 @@ trong 10 route BA).
    `<div>` không bấm được vào variant có `:hover` là **thêm một gợi ý sai về khả năng bấm** — hỏi BA,
    đừng tự quyết.
 
-### Thứ tự lượt D5b…D5g
+### 🔴 Bài học D5h — đọc trước khi làm cụm sau
+
+1. **Phép chọn của test cũng là một giả định về DOM, và nó im lặng khi sai.** `_mobile()` kế thừa từ
+   D5g dùng `re.match` (neo đầu chuỗi) nên **bỏ sót đúng call site cần nó nhất**: item Thi mở đầu bằng
+   `wj-surface-card` của D4, tên họ nằm ở **giữa** chuỗi lớp. Hai test đỏ ngay lần chạy đầu — may là
+   đỏ; nếu phép chọn lỏng hơn thì nó xanh mà không kiểm gì. Mọi so tên lớp: `(^|\s)…(?![-\w])`.
+2. **Đo hover phải kiểm điểm rê có RƠI TRÚNG item không.** Rê vào **tâm** hàng ở khổ 991 thì
+   **thanh điều hướng dưới màn** che mất điểm ⇒ `elementFromPoint` trả về thanh nav ⇒ đọc ra
+   "KHÔNG ĐỔI" **sai** (`wujia-mdash-row` thật ra có hover rất rõ). Bộ đo phải thử nhiều điểm và chỉ
+   lấy số khi `el.contains(document.elementFromPoint(x,y))`. Cùng họ bẫy D5e #4, nhưng ở tầng **hình
+   học của trang** chứ không phải tầng CSS.
+3. **Bọc component xong thì bộ số "trước" cũng đổi tên, so gộp sẽ ra hàng trăm ô lệch giả.**
+   Mốc "trước" so với `d5g-after.json` báo **378 ô lệch** chỉ vì file cũ có 12 route còn lượt đo mặc
+   định 10. **Giao tập route rồi mới so** — sau đó ra `2064/2064 ô, 0 lệch`, mới là bằng chứng.
+4. **Sửa file XML lớn bằng offset dòng cứng là tự tay làm hỏng file.** Một lần sửa bảng PC Thi theo
+   số dòng đã cắt ngang khối `<form>` và nhân đôi `dl_pager`. Cứu bằng `git show HEAD:<file>` +
+   `sha256`, rồi viết lại bằng script **neo theo NỘI DUNG** và `xml.dom.minidom.parse` để kiểm.
+   (Neo nội dung cũng là điều kiện để vòng mutation chạy được: 13/13 phép đều yêu cầu neo **duy nhất**.)
+5. **Guard phát hiện lỗi nghiệp vụ thật, không chỉ lỗi dáng.** "Pager" của danh sách thành viên là
+   **3 thẻ `<span>` cứng** — không có phân trang phía server nên nó **luôn** hiện với đúng một trang.
+   Nó lọt qua 6 lượt trước vì không lượt nào **đọc** khối đó; acceptance "pager chỉ hiện khi >1 trang"
+   chỉ trở thành phép kiểm khi có người viết test cho **màn cụ thể**.
+6. **Seed đi qua cơ chế nghiệp vụ thì lỗi nghiệp vụ hiện ra ngay lúc seed, không phải lúc đo.**
+   `action_publish()` từ chối khoá thi chưa có ca (`time_slot_ids`), và `with_user(<portal>)` không
+   đọc được `ir.sequence` ⇒ phải `.sudo()` + `requester_user_id` tường minh đúng như controller. Hai
+   lỗi này chính là hai bất biến của màn — seed ghi thẳng field sẽ **giấu** cả hai.
+7. **Khi số đo lệch sau lượt, phải quy trách nhiệm được cho SEED hay CODE.** Histogram RULE 2 nhảy
+   `16×8 → 16×22`; diff **theo từng route** cho thấy chỉ `/portal/exam` đổi, đúng `(13−3)×2` tiêu đề
+   sinh ra từ phiếu đăng ký mới. Không có phép diff theo route thì con số này trông y hệt một hồi quy.
+
+### Thứ tự lượt D5b…D5h
 
 | Lượt | Nội dung | Call site | `-u` | Vì sao xếp ở đây |
 |---|---|---:|---|---|
@@ -799,9 +829,9 @@ trong 10 route BA).
 | **D5e** ✅ | Mobile compact-row: mdash ×6 · mhist · mnoti · mknow | **9** | 6 module | XONG 07/09 — rule D5d **tách làm hai** (dáng chung ở `.wj-data-item`, layout ở từng họ), gap `0/10` → 8 · radius `0/14` → 12 · padding về `12px 14px` (mnoti giữ left 16 cho thanh accent), **mnoti không đổi một pixel**, hover 4 họ không đổi. Giá phải trả: Home mobile **+145/+245**, support **+271**, acceptance #9 thủng 1 ô (2 → 1 @360) — đã báo BA, không tự vá |
 | **D5f** ✅ | Mobile detail-card: mreturn · mdelivery | **2** | `_return`+`wujia_sale`, `_delivery` | XONG 08/09 — **dựng** variant `detail-card` (0 hit trong repo trước lượt này), kiến trúc hai tầng của D5e. gap 12 → 8 · radius 14 → 12 · padding `14px`/`12px 16px` → `12px 14px`; mreturn 122.3 → **118.3** vào dải BA, mdelivery **128.98 không hạ được** ⇒ báo BA. Lượt đầu làm trang **NGẮN LẠI** (−156/−52) và **acceptance #9 không thủng ô nào**. Skeleton delivery mang luôn `wj-data-item` (3 lần `t-call`, **2** call site record) |
 | **D5g** ✅ | Công nợ PC ×2 + mobile ×2 | **4** | `_layout`, `_debt` | XONG 08/09 — `th[scope]` 0/14 → **14/14**, header 50 → 44, row **58 cứng** → 52–55, padding `0 22px` → `10px 16px`. Mobile chọn variant theo **số đo sau seed**: `wj-debt-inv` 62 → **75,5** (compact-row 64–76, sát trần) · `wj-debt-pay` 96 → **104/116** (detail-card 96–120) — **cả hai vào dải, lượt này không có LIMIT chiều cao**. Lượt **duy nhất phải sửa guard pager**, và guard **tách đôi**: nút trang theo `page_count > 1`, dòng *Tổng thanh toán* là thông tin của kỳ lọc nên giữ khi 1 trang. Giá phải trả: acceptance #9 thủng **1 ô** (@360, 5 → 4) + **hover mới xuất hiện** trên `wj-debt-inv` (một `<div>` không bấm được) ⇒ cả hai đã báo BA, không tự vá |
-| **D5h** | Thi ×4 + Khảo sát ×2 | **6** | `_exam`, `_inspection` | Khảo sát provisional (BA acceptance #10) |
+| **D5h** ✅ | Thi ×4 + **kề cận ×3** (info-request · franchise-information) — Khảo sát ×2 **DEFER** | **7** | `_layout`, `_exam`, `_base`, `_info_request` | XONG 08/09 — lượt **KHÉP** cụm D5. `th[scope]` 0/20 → **20/20**, header 50/46 → 44, padding → `10px 16px`; 4 danh sách mobile vào **đúng dải BA** (`mexam-card` 109,25 & `mexam-course` 116,25 → 108,25 ở detail-card; `mexam-rrow` 70 & `mdash-row` 66,5 ở compact-row). Guard pager thi dùng key **`pages`** (không phải `page_count`); **gỡ pager giả** ở franchise-information (3 `<span>` cứng, không hề có phân trang server ⇒ luôn hiện với 1 trang). Giao cắt D4: item thi mang **cả** `wj-surface-card` **lẫn** `wj-data-item`, D5 thắng bằng độ đặc hiệu tại rule variant, `_components.css` **không đổi một byte**. Giá phải trả: acceptance #9 thủng **2 ô** (PC 1440 8→7 vì bỏ `height:58px` cứng · mobile 360 5→4) + `mexam-rrow` **mọc hover** dù là `<div>` không bấm được ⇒ báo BA. 13/13 mutation đỏ đúng 1 test. Số đo `docs/d5h-acceptance-matrix.md` |
 
-Cộng 3+3+4+9+2+4+6 = **31**. ⚠️ `wj-pc-table` xuất hiện **15** lần trong mã nguồn nhưng chỉ
+Cộng 3+3+4+9+2+4+**7** = **32** (29 trong phạm vi BA + 3 kề cận; 2 call site Khảo sát **defer**). ⚠️ `wj-pc-table` xuất hiện **15** lần trong mã nguồn nhưng chỉ
 **5** là danh sách record — đừng lấy số lần xuất hiện của class làm số call site.
 
 **✅ Đã soạn và gửi ở D5d — `docs/ba-questions-d5-datalist.md`, ba câu:** (1) field nào được ẩn

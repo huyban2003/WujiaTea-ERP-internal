@@ -2074,3 +2074,60 @@ UI-SURFACECARD-001:
 # CHỜ DEPLOY UAT — deploy DỒN một lượt sau khi khép cụm D5
 #   (hàng đợi: D5b + D5c + D5d + D5e + D5f + D5g).
 # =====================================================================================
+
+# =====================================================================================
+# ------------------------------- D5h (2026-09-08) — KHÉP CỤM D5 -------------------------------
+# Xong 7 call site: THI ×4 (bảng PC lịch sử đăng ký + pager · mexam-card detail-card ·
+#   mexam-course detail-card · mexam-rrow compact-row) + KỀ CẬN ×3 (bảng PC /portal/info-request ·
+#   bảng PC thành viên + list mobile mdash-row ở /portal/franchise-information).
+# ⚠️ PHẠM VI ĐỔI THEO QUYẾT ĐỊNH CHỦ DỰ ÁN 08/09: 2 call site KHẢO SÁT (wujia_portal_inspection)
+#   DEFER — module merge từ nhánh `thai`, lối code khác hẳn portal. Luật thường trực đã ghi vào
+#   skill wujia-start. Cụm khép ở 29/31 trong phạm vi BA (+3 kề cận = 32/34), KHÔNG phải sót.
+# Bảng PC: th[scope] 0/20 → 20/20 · header 50/46 → 44 · padding `0 22px`/`14px 20px` → `10px 16px`.
+#   Bảng thi: bỏ height:58px cứng ⇒ hàng 68 (nội dung 3 badge + nút quyết định) — ĐẠT spec ≥52
+#   nhưng làm acceptance #9 @1440 tụt 8 → 7.
+# Mobile: cả 4 danh sách VÀO ĐÚNG DẢI BA — mexam-card 109,25 (detail-card 96–120) ·
+#   mexam-course 116,25 → 108,25 · mexam-rrow 70 (compact-row 64–76) · mdash-row 64,5 → 66,5.
+# GIAO CẮT D4: item thi mang CẢ wj-surface-card (D4) LẪN wj-data-item (D5). Gắn wj-data-item vào
+#   chính thẻ <a> đó, để D5 thắng bằng ĐỘ ĐẶC HIỆU ở rule variant (0,2,0) thay vì sửa component D4
+#   (0,1,0). Đo xác nhận D5 thắng (radius 14 → 12, padding 12px → 12px 14px) mà _components.css
+#   KHÔNG ĐỔI MỘT BYTE. Ghim bằng test_surface_card_khong_bi_sua.
+# GUARD PAGER: key của thi là `pages` (KHÔNG phải `page_count` như debt). Chứng minh CẢ HAI CHIỀU:
+#   /portal/exam (13 phiếu, 10/trang ⇒ 2 trang) giữ 2 nút; /portal/exam?limit=50 (1 trang) 1 → 0 nút.
+#   Guard TÁCH ĐÔI như D5c/D5g: dòng đếm và <select> cỡ trang là thông tin/điều khiển ⇒ GIỮ.
+# LỖI NGHIỆP VỤ THẬT tìm được: "pager" của danh sách thành viên là 3 thẻ <span> CỨNG, không hề có
+#   phân trang phía server ⇒ luôn hiện với đúng 1 trang, vi phạm thẳng acceptance. Đã gỡ nút trang
+#   ở CẢ HAI nhánh (có thành viên / rỗng), giữ ô cỡ trang. Ghim bằng test_pager_gia_cua_thanh_vien.
+# SEED (seed_d5_datalist_demo.py mục [7][8][9], đi qua CƠ CHẾ NGHIỆP VỤ): khoá thi 1 → 12
+#   (action_publish, phải có time_slot_ids; 3 khoá không ca sắp tới ⇒ is-closed do _course_meta suy)
+#   · phiếu đăng ký 3 → 13 (qua _check_booking_allowed + _lock_and_check_capacity) · yêu cầu cập
+#   nhật thông tin 0 → 24 (action_submit/start_review/approve/reject). Bộ đếm màn khác KHÔNG đổi.
+# MÔI TRƯỜNG: 24/24 module khớp manifest; HEAD a7b24a2 hơn D5g đúng 1 commit docs-only; mốc "trước"
+#   so TỪNG Ô với d5g-after.json (giao 12 route) = 2064/2064, 0 lệch.
+# Hồi quy: 9 route không đụng = 1896/1896 ô, 0 lệch — gồm /portal/inspection, xác nhận hai module
+#   của anh Thái không bị chạm. RULE 1 = 0 · tràn ngang 0 · lỗi JS 0. RULE 2 histogram 16×8 → 16×22:
+#   diff THEO TỪNG ROUTE cho thấy chỉ /portal/exam đổi ⇒ do SEED (10 phiếu mới × 2 khổ), không phải code.
+# Guard: 66 test wujia_data_list_d5 (0 failed / 0 error), 13 mutation — 13/13 làm đỏ ĐÚNG MỘT test,
+#   13/13 sha256 khớp sau khi hoàn tác bằng ảnh chụp byte (không git checkout).
+# BA CHƯA TRẢ LỜI 6 câu treo (đọc tab "5. Issue List" dòng 119 lúc bắt đầu lượt: Ready for Dev ·
+#   25/08/2026 · Ghi chú rỗng) ⇒ GIỮ NGUYÊN bộ số D5d–D5g, KHÔNG sửa gộp, ghi PROVISIONAL.
+# BỐN CHỖ TREO gửi BA (ba-questions câu 7), KHÔNG tự vá:
+#   (a) acceptance #9 thủng 2 ô ở màn Thi: PC @1440 8 → 7 · mobile @360 5 → 4;
+#   (b) khổ 360 thẻ phiếu thi cao 135,25 > trần detail-card 120 (nội dung xuống dòng);
+#   (c) mexam-rrow (một <div> KHÔNG bấm được) MỌC THÊM hover — ca thứ hai của câu 6 (wj-debt-inv);
+#   (d) 2 call site Khảo sát defer.
+#   Chiều ngược lại (báo để BA ghi nhận): /portal/exam/register 5 → 6 khoá thi và trang ngắn 152px;
+#   /portal/info-request 6 → 7/8 và 9 → 10 dòng.
+# Bảng đo: docs/d5h-acceptance-matrix.md · docs/d5h-{before,after,rule-after,hover}.json
+# ⇒ ĐỦ ĐIỀU KIỆN HANDOFF: entry THẬT bên dưới, chạy qa_sync.py --apply --only UI-DATALIST-001.
+#   Dev KHÔNG tự đóng Done — chỉ tới Ready for Retest, và ghi rõ PROVISIONAL + DEFER trong Ghi chú.
+UI-DATALIST-001:
+  sprint: "2026-09-08-D5h"
+  build_override: "Chờ deploy UAT | 08/09/2026 | Sprint 2026-09-08-D5h | wujia_portal_layout 19.0.45.0.0 · wujia_portal_exam 19.0.5.12.0 · wujia_portal_base 19.0.7.11.0 · wujia_portal_info_request 19.0.1.7.0 (+ D5b…D5g trong cùng hàng đợi) — deploy: -u wujia_portal_layout,wujia_portal_base,wujia_portal_exam,wujia_portal_info_request,wujia_portal_debt,wujia_portal_delivery,wujia_portal_notification,wujia_portal_knowledge,wujia_portal_purchase_history,wujia_portal_return,wujia_portal_support,wujia_sale"
+  url: "/portal — mọi danh sách nghiệp vụ trên Portal, cả máy tính và điện thoại (10 màn trong phạm vi BA + 2 màn kề cận)"
+  odoo_fit: "Custom"
+  fix: "Trước đây mỗi màn Portal tự dựng danh sách theo một kiểu riêng: ba mươi mốt chỗ, bảng trên máy tính thì dòng tiêu đề cao 46 hoặc 50 điểm ảnh và không ô tiêu đề nào khai rõ là tiêu đề cột nên trình đọc màn hình không hiểu, đệm ô mỗi bảng một khác, chiều cao dòng bị ép cứng nên nội dung dài bị bó; danh sách trên điện thoại thì khoảng cách giữa các thẻ chạy từ 0 đến 12 điểm ảnh và bo góc từ 0 đến 16. Nay tất cả dùng chung một khuôn danh sách duy nhất với hai dáng: bảng cho máy tính từ 992 điểm ảnh trở lên (tiêu đề 44, dòng tối thiểu 52, đệm ô 10 và 16, mọi ô tiêu đề đều khai rõ là tiêu đề cột) và thẻ cho điện thoại (thẻ gọn cao 64 đến 76 hoặc thẻ nhiều thông tin cao 96 đến 120, khoảng cách 8, bo góc 12). Làm qua bảy đợt theo từng họ màn, đợt cuối là màn Đăng ký thi cùng hai màn Yêu cầu cập nhật thông tin và Thông tin cửa hàng. Nhân đó sửa luôn hai lỗi thật: nút chuyển trang ở màn Đăng ký thi và màn Công nợ vẫn hiện khi chỉ có đúng một trang, còn ở màn Thông tin cửa hàng thì nút chuyển trang là chữ vẽ cứng trong mã màn hình chứ danh sách thành viên chưa bao giờ được phân trang — nay chỉ hiện khi thật sự có nhiều hơn một trang, riêng ô chọn số dòng mỗi trang thì giữ vì đó là ô điều khiển"
+  impact: "Toàn bộ danh sách trên Portal. Không đổi dữ liệu, không đổi quyền, không đổi luồng nghiệp vụ, không đổi chữ hiển thị. Mỗi đợt đều đo trước và sau trên bản sao cơ sở dữ liệu ở sáu khổ màn 1440, 1024, 992, 991, 390 và 360, và so từng ô với số của đợt liền trước để chắc là môi trường đúng trước khi kết luận. Các màn ngoài phạm vi mỗi đợt giữ nguyên từng số một. Nhịp tiêu đề sang thân thẻ giữ đúng 12 điểm ảnh, không màn nào cuộn ngang, không lỗi kịch bản nào trên trình duyệt. Bộ kiểm tra tự động 66 phép thử, và mỗi đợt đều chứng minh bộ kiểm tra có tác dụng bằng cách cố tình sửa sai từng chỗ rồi xác nhận đúng một phép thử đỏ lên, sau đó khôi phục nguyên vẹn theo mã kiểm tra tệp"
+  retest: "Mở Trang chủ, Lịch sử mua hàng, Đổi trả, Giao hàng, Công nợ và Lịch sử thanh toán, Thông báo, Hỗ trợ, Kiến thức, Đăng ký thi cùng hai màn con Đăng ký mới và Chi tiết phiếu, Yêu cầu cập nhật thông tin, Thông tin cửa hàng, ở máy tính 1440 và điện thoại 390. Trên máy tính mọi bảng phải cùng một dáng: dòng tiêu đề cao đều nhau, đệm ô đều nhau, dòng không bị bó khi nội dung dài. Trên điện thoại mọi danh sách phải cách nhau đều và bo góc đều. Nút chuyển trang chỉ được hiện khi danh sách thật sự có nhiều hơn một trang: ở màn Đăng ký thi hãy chọn 50 dòng mỗi trang, nút chuyển trang phải biến mất còn dòng chữ đếm số bản ghi và ô chọn số dòng vẫn còn; ở màn Thông tin cửa hàng không được còn nút chuyển trang nào. Thu màn hình về 1024, 992 và 360: không cuộn ngang, không danh sách nào vỡ. Nếu vẫn thấy dáng cũ thì tải lại trang bỏ qua bộ nhớ đệm"
+  limit: "Thứ nhất, bộ số của cả cụm vẫn là số tạm: bảy câu trong tài liệu câu hỏi gửi BA chưa có trả lời, nên xin BA xem bảy câu đó trước khi đóng, mỗi hướng trả lời đều đã có số đo kèm sẵn và lùi lại chỉ là sửa một khối giao diện. Thứ hai, hai danh sách của nhóm màn Khảo sát cố ý chưa đưa vào khuôn chung theo quyết định của chủ dự án ngày 08 tháng 09 vì nhóm màn đó viết theo lối khác, đây là hoãn có chủ đích chứ không phải bỏ sót. Thứ ba, ở màn Đăng ký thi trên máy tính khổ 1440, số phiếu nhìn thấy trong một màn giảm từ tám xuống bảy vì bỏ ép chiều cao dòng theo đúng bộ số BA; và ở điện thoại khổ 360 thẻ phiếu cao tới 135 điểm ảnh, vượt trần 120, do tiêu đề tự xuống dòng — muốn ép về trần thì phải bớt thông tin nên chờ BA chỉ định. Thứ tư, hàng người dự thi ở màn chi tiết phiếu nay sáng lên khi rê chuột dù chưa bấm mở được màn nào, giống hệt trường hợp hàng hoá đơn đã hỏi ở câu sáu, xin BA chốt một lần cho cả hai. Thứ năm, bảng nhập danh sách người dự thi trong biểu mẫu đăng ký không thuộc phạm vi vì đó là bảng nhập liệu chứ không phải danh sách bản ghi. Thứ sáu, màn Báo cáo đặt hàng đang lỗi 500 là lỗi có sẵn thuộc nhóm việc tối ưu, không thuộc đợt này"
+# =====================================================================================

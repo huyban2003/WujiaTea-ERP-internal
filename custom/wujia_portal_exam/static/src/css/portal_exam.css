@@ -175,7 +175,8 @@
 
     /* ================= s1 — Chọn khóa thi ================= */
     .wujia-mexam-courselist { display: flex; flex-direction: column; gap: 12px; }
-    .wujia-mexam-course {
+    /* D5h: dáng sang .wj-data-item của variant; rule cũ khoá lại, chỉ còn layout. */
+    .wujia-mexam-course:not(.wj-data-item) {
         display: flex;
         align-items: center;
         justify-content: space-between;
@@ -184,6 +185,12 @@
         border: 1px solid var(--wujia-border-soft);
         border-radius: 14px;
         padding: 16px;
+    }
+    .wj-data-list--detail-card .wujia-mexam-course.wj-data-item {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
     }
     .wujia-mexam-course.is-closed { opacity: 0.55; }
     .wujia-mexam-course-main { flex: 1 1 auto; min-width: 0; }
@@ -573,7 +580,8 @@
         color: var(--wujia-text-subtitle);
     }
     .wujia-mexam-rlist { display: flex; flex-direction: column; gap: 10px; }
-    .wujia-mexam-rrow {
+    /* D5h: dáng sang .wj-data-item của variant; rule cũ khoá lại, chỉ còn layout. */
+    .wujia-mexam-rrow:not(.wj-data-item) {
         display: flex;
         align-items: center;
         gap: 12px;
@@ -581,6 +589,11 @@
         border: 1px solid var(--wujia-border-soft);
         border-radius: 14px;
         padding: 12px 14px;
+    }
+    .wj-data-list--compact-row .wujia-mexam-rrow.wj-data-item {
+        display: flex;
+        align-items: center;
+        gap: 12px;
     }
     .wujia-mexam-rrow-ico {
         flex: 0 0 auto;

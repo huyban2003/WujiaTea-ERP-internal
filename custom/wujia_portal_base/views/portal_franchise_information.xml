@@ -106,13 +106,14 @@
                             <t t-set="ch_platform" t-value="'pc'"/>
                         </t>
                         <t t-if="members">
-                            <table class="wj-pc-table wj-pc-acct-members">
+                            <t t-call="wujia_portal_layout.wj_data_list">
+                                <t t-set="dl_table_class" t-value="'wj-pc-table wj-pc-acct-members'"/>
                                 <thead>
                                     <tr>
-                                        <th>Họ tên</th>
-                                        <th>Email / Số điện thoại</th>
-                                        <th>Vai trò</th>
-                                        <th>Trạng thái</th>
+                                        <th scope="col">Họ tên</th>
+                                        <th scope="col">Email / Số điện thoại</th>
+                                        <th scope="col">Vai trò</th>
+                                        <th scope="col">Trạng thái</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -129,13 +130,12 @@
                                         </td>
                                     </tr>
                                 </tbody>
-                            </table>
+                            </t>
                             <div class="wj-pc-acct-members__foot">
                                 <span class="wj-pc-acct-members__count"><t t-out="len(members)"/> thành viên</span>
+                                <!-- Danh sách thành viên KHÔNG phân trang phía server ⇒ nút trang luôn là 1 trang; bỏ theo acceptance, giữ ô cỡ trang. -->
                                 <div class="wj-pc-pagination" style="margin-top:0;">
                                     <select class="wj-pc-pagination__size"><option>10 / trang</option></select>
-                                    <span class="wj-pc-page-btn is-active">1</span>
-                                    <span class="wj-pc-page-btn is-disabled">›</span>
                                 </div>
                             </div>
                         </t>
@@ -149,8 +149,6 @@
                                 <span class="wj-pc-acct-members__count">0 thành viên</span>
                                 <div class="wj-pc-pagination" style="margin-top:0;">
                                     <select class="wj-pc-pagination__size"><option>10 / trang</option></select>
-                                    <span class="wj-pc-page-btn is-active">1</span>
-                                    <span class="wj-pc-page-btn is-disabled">›</span>
                                 </div>
                             </div>
                         </t>
@@ -267,9 +265,14 @@
                             <t t-set="ch_platform" t-value="'m'"/>
                         </t>
                     </div>
-                    <div t-if="not members" class="wj-empty-state--compact">Chưa có thành viên active.</div>
-                    <div t-else="" class="wujia-mdash-list">
-                        <div t-foreach="members" t-as="m" class="wujia-mdash-row">
+                    <t t-call="wujia_portal_layout.wj_data_list">
+                        <t t-set="dl_variant" t-value="'compact-row'"/>
+                        <t t-set="dl_class" t-value="'wujia-mdash-list'"/>
+                        <t t-set="dl_empty" t-value="not members"/>
+                        <t t-set="dl_state">
+                            <div class="wj-empty-state--compact">Chưa có thành viên active.</div>
+                        </t>
+                        <div t-foreach="members" t-as="m" class="wujia-mdash-row wj-data-item">
                             <span class="wujia-badge wujia-badge-info"
                                   t-out="role_labels.get(m.role, m.role)"/>
                             <span class="wujia-mdash-row-main">
@@ -280,7 +283,7 @@
                             <span t-if="m.active" class="wujia-badge wujia-badge-success">Active</span>
                             <span t-else="" class="wujia-badge wujia-badge-muted">Inactive</span>
                         </div>
-                    </div>
+                    </t>
                 </t>
             </div>
         </t>

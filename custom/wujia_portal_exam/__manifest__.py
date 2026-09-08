@@ -1,6 +1,6 @@
 {
     'name': 'Wujia Portal — Exam (Đào tạo / Thi)',
-    'version': '19.0.5.11.2',
+    'version': '19.0.5.12.0',
     'category': 'Wujia',
     'summary': 'Đăng ký thi nhượng quyền — backend khóa/kỳ thi + phiếu đa nhân sự + kết quả',
     'author': 'WujiaTea',

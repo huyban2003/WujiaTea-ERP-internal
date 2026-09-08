@@ -287,3 +287,140 @@ env.cr.commit()
 print(f"  → {env['account.move'].search_count([('franchise_id', '=', franchise.id), ('move_type', '=', 'out_invoice'), ('state', '=', 'posted'), ('invoice_date', '>=', monday), ('invoice_date', '<=', monday + timedelta(days=6))])} hoá đơn trong tuần"
       f" · {env['account.payment'].search_count([('franchise_id', '=', franchise.id)])} thanh toán có franchise_id")
 print("\n=== SEED D5G XONG ===")
+
+# ============================================================ [7] D5h — thi
+# DB chỉ có 1 khóa thi và mọi kỳ thi của nó đều đã quá ngày ⇒ danh sách khoá thi
+# ở /portal/exam/register có 1 item (harness bỏ qua) và mọi guard tự chứng minh
+# rỗng. Đi qua cơ chế nghiệp vụ: 'closed' là KẾT QUẢ của _course_meta() đọc
+# wujia.exam.session, KHÔNG phải cờ ghi tay (bài học D5g #5).
+N_COURSE = 12
+N_EXAM_REG = 13     # > PAGE_SIZE 10 ⇒ /portal/exam có 2 trang, guard pager thử được
+
+Course = env['wujia.exam.course']
+Session = env['wujia.exam.session']
+slots = env['wujia.exam.time.slot'].search([], order='id')
+before_course = Course.search_count([])
+before_session = Session.search_count([])
+before_reg = env['wujia.exam.registration'].search_count([])
+print(f"\n[7] Khóa thi — hiện {before_course} khóa / {before_session} kỳ thi")
+if not slots:
+    print("  ! không có ca thi nào, bỏ qua")
+else:
+    for i in range(N_COURSE):
+        cname = f'{MARK}H Khóa thi số {i + 1:02d}'
+        course = Course.search([('name', '=', cname)], limit=1)
+        if not course:
+            course = Course.create({
+                'name': cname,
+                'registration_horizon_days': 60,
+                'max_participants_per_registration': 4,
+                # action_publish() đòi >=1 ca thi ⇒ gán ngay lúc tạo.
+                'time_slot_ids': [(6, 0, slots.ids)],
+            })
+            course.action_publish()
+            print(f"  [CREATE] course {course.code} {cname} ({course.state})")
+        # 8 khóa có kỳ thi mở trong tương lai ⇒ 'Còn lịch'; 1 khóa mở nhưng hết
+        # chỗ ⇒ 'Hết chỗ'; 3 khóa không có kỳ nào sắp tới ⇒ 'Đã đóng' (is-closed).
+        if i >= N_COURSE - 3:
+            continue
+        sname_date = today + timedelta(days=10 + i)
+        if Session.search_count([('course_id', '=', course.id),
+                                 ('exam_date', '=', sname_date)]):
+            continue
+        sess = Session.create({
+            'course_id': course.id,
+            'exam_date': sname_date,
+            'time_slot_id': slots[i % len(slots)].id,
+            'location': f'Trung tâm đào tạo Wujia — phòng {i + 1}',
+            'capacity': 1 if i == N_COURSE - 4 else 40,
+            'registration_deadline': datetime.combine(
+                sname_date - timedelta(days=1), datetime.min.time()),
+        })
+        sess.action_open()
+        print(f"  [CREATE] session {sess.name} {sname_date} state={sess.state}"
+              f" capacity={sess.capacity}")
+env.cr.commit()
+
+# Phiếu đăng ký cho franchise 1: create(state='submitted') đi qua
+# _check_booking_allowed + _lock_and_check_capacity, không bơm thẳng DB.
+print(f"\n[8] Phiếu đăng ký thi — hiện"
+      f" {env['wujia.exam.registration'].search_count([('franchise_id', '=', franchise.id)])}"
+      f" cho franchise {franchise.id}, cần {N_EXAM_REG}")
+open_sessions = Session.search([
+    ('state', '=', 'open'), ('exam_date', '>=', today),
+    ('available_participant_count', '>', 4),
+], order='exam_date')
+Reg = env['wujia.exam.registration']
+if not open_sessions:
+    print("  ! không có kỳ thi mở còn chỗ, bỏ qua")
+else:
+    have_reg = Reg.search_count([('franchise_id', '=', franchise.id)])
+    for i in range(max(0, N_EXAM_REG - have_reg)):
+        note = f'{MARK}H-REG-{i + 1:03d}'
+        if Reg.search_count([('note', '=', note)]):
+            continue
+        sess = open_sessions[i % len(open_sessions)]
+        # Đúng đường của controller portal (portal.py:472): sudo() + gán
+        # requester_user_id tay — portal user không đọc được ir.sequence.
+        reg = Reg.sudo().create({
+            'session_id': sess.id,
+            'franchise_id': franchise.id,
+            'requester_user_id': owner_user.id,
+            'member_id': member.id if member else False,
+            'note': note,
+            'state': 'submitted',
+            'line_ids': [(0, 0, {
+                'employee_name': f'Nhân sự dự thi {i + 1:02d}-{j + 1}',
+                'phone': '09%08d' % (10000000 + i * 10 + j),
+                'birth_year': 1995 + (i + j) % 8,
+                'job_position': ['Pha chế', 'Thu ngân', 'Quản lý ca'][(i + j) % 3],
+            }) for j in range(1 + i % 3)],
+        })
+        if i % 3 == 0:
+            reg.action_confirm()
+        print(f"  [CREATE] reg {reg.name} state={reg.state}"
+              f" lines={len(reg.line_ids)} session={sess.name}")
+env.cr.commit()
+print(f"  → khóa thi {Course.search_count([])} (trước {before_course})"
+      f" · kỳ thi {Session.search_count([])} (trước {before_session})"
+      f" · phiếu {Reg.search_count([])} (trước {before_reg})"
+      f" · phiếu franchise {franchise.id}:"
+      f" {Reg.search_count([('franchise_id', '=', franchise.id)])}")
+
+# ================================================ [9] D5h — yêu cầu cập nhật TT
+# /portal/info-request đang 0 bản ghi ⇒ chỉ đo được empty state. PAGE_SIZE=20 nên
+# cần > 20 để pager (đã guard page_count>1 sẵn) thật sự hiện.
+N_INFO_REQ = 24
+Info = env['wujia.info.update.request']
+before_info = Info.search_count([])
+print(f"\n[9] Yêu cầu cập nhật thông tin — hiện {before_info}, cần {N_INFO_REQ}")
+info_types = ['address', 'phone', 'email', 'owner_name', 'bank_info',
+              'representative', 'other']
+for i in range(max(0, N_INFO_REQ - before_info)):
+    note = f'{MARK}H-INFO-{i + 1:03d}'
+    if Info.search_count([('note', '=', note)]):
+        continue
+    rtype = info_types[i % len(info_types)]
+    rec = Info.sudo().create({
+        'created_by_user_id': owner_user.id,
+        'franchise_id': franchise.id,
+        'request_type': rtype,
+        'field_target': 'other_field' if rtype == 'other' else False,
+        'new_value': f'Giá trị mới đợt {i + 1:02d} — {rtype}',
+        'note': note,
+        'priority': 'urgent' if i % 4 == 0 else 'normal',
+    })
+    rec.action_submit()
+    # Trải đủ 5 trạng thái để badge trong bảng không đơn điệu (acceptance #7).
+    if i % 5 == 2:
+        rec.action_start_review()
+    elif i % 5 == 3:
+        rec.action_approve()
+    elif i % 5 == 4:
+        rec.action_reject()
+    print(f"  [CREATE] info-request {rec.name} {rtype} state={rec.state}")
+env.cr.commit()
+print(f"  → yêu cầu {Info.search_count([])} (trước {before_info})"
+      f" · của franchise {franchise.id}:"
+      f" {Info.search_count([('franchise_id', '=', franchise.id)])}")
+print("\n=== SEED D5H XONG ===")
