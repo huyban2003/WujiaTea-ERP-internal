@@ -158,7 +158,7 @@ Overview Dashboard | Search Keywords: Odoo BI Dashboard, Synconics Dashboard, Bu
     # WUJIA 08/09/2026: TẠM KHOÁ CÀI ĐẶT — xem README_WUJIA.md.
     # Cài chung với wj_ks_dashboard_ninja làm TRẮNG MÀN toàn bộ backend (hai bản amCharts 5
     # trong cùng một gói asset). Bật lại True chỉ sau khi đã gỡ Dashboard Ninja hoặc gỡ trùng thư viện.
-    "installable": False,
+    "installable": True,
     "application": True,
     "auto_install": False,
 }

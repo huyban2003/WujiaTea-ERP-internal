@@ -1,7 +1,9 @@
 # Synconics BI Dashboard — ghi chú của Ngô Gia (08/09/2026)
 
 Bản gốc `synconics_bi_dashboard-19.0.1.0.3` (BA tải về, Odoo Apps, **license OPL-1**).
-Đưa vào `custom/` để đánh giá. **Hiện `installable = False`** — đọc mục 2 trước khi bật lại.
+Đưa vào `custom/` để đánh giá. **08/09/2026: đã bật `installable = True`** theo quyết định chủ dự án
+— 5 dashboard Ninja trên UAT chỉ là bản demo, chấp nhận mất. Đọc mục 2 để biết vì sao **bắt buộc
+phải gỡ Dashboard Ninja trước**.
 
 ## 1. Đã bỏ bớt khi đưa vào repo
 Xoá `static/description/img/` (26 MB), `index.html` và `chart_images/` — chỉ là trang quảng cáo
@@ -58,7 +60,23 @@ bên. Cả hai đều là OPL-1 nên sửa thư viện của bên thứ ba là v
 - **Không có gì dùng lại được cho Portal**: 100 % là backend (`web.assets_backend`), không có
   template portal, không có route `/portal`. Thư viện amCharts thì đã có sẵn ở Dashboard Ninja.
 
-## 5. Kết luận đề xuất
-Giữ mã ở đây để BA/chủ dự án xem, **chưa cài lên UAT**. Nếu muốn thử: gỡ `wj_ks_dashboard_ninja`
-+ `wj_ks_dn_advance` trên một bản sao trước, đo lại, rồi mới quyết. Bật lại bằng cách đổi
-`installable` về `True` trong `__manifest__.py`.
+## 5. Kết luận — và kết quả diễn tập 08/09/2026
+
+Chủ dự án chốt: 5 dashboard Ninja là **demo**, đổi sang Synconics.
+
+**Đã diễn tập trên bản sao `wujia_tea_bi` (cổng 8079) trước khi đụng UAT:**
+
+| Bước | Kết quả |
+|---|---|
+| Gỡ `wj_ks_dashboard_ninja` + `wj_ks_dn_advance` | 3 giây, RC=0 |
+| Cài `synconics_bi_dashboard` | 2 giây, `19.0.1.0.3 installed` |
+| Backend `/odoo/settings` | vào bình thường, **0 lỗi JS** (trước đây trắng màn) |
+| App *BI Dashboard* | mở được, hiện *My Dashboard* + *Add new Layout*, **0 lỗi JS** |
+
+⇒ xác nhận đúng chẩn đoán mục 2: **chỉ là xung đột trùng thư viện, không phải module hỏng**.
+
+**Thứ tự bắt buộc khi làm trên UAT:** gỡ Ninja **trước**, cài Synconics **sau**. Cài trước khi gỡ
+là trắng màn backend, lúc đó phải gỡ bằng dòng lệnh vì giao diện không vào được.
+
+⚠️ Gỡ Ninja là **xoá luôn dashboard đã dựng trong đó** (`ks_dashboard_ninja.board`) — không hoàn tác
+được bằng cách cài lại. Trên UAT ngày 08/09 có 5 board / 91 widget, chủ dự án xác nhận là demo.
