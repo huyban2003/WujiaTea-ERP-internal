@@ -862,14 +862,14 @@
         white-space: nowrap;
     }
 
-    /* Bảng kết quả thi — header h46/13px, row h62, cell padding 20 */
+    /* D5h.1: dáng (cao/đệm) sang .wj-data-table của component; rule cũ khoá lại. */
     .wj-exam-pc-res-table { table-layout: fixed; margin-top: 13px; }
-    .wj-exam-pc-res-table thead th {
+    .wj-exam-pc-res-table:not(.wj-data-table) thead th {
         height: 46px;
         padding: 0 20px;
-        font-size: 13px;
     }
-    .wj-exam-pc-res-table tbody td { height: 62px; padding: 0 20px; }
+    .wj-exam-pc-res-table thead th { font-size: 13px; }
+    .wj-exam-pc-res-table:not(.wj-data-table) tbody td { height: 62px; padding: 0 20px; }
     .wj-exam-pc-res-table th:nth-child(1) { width: 8.530%; }
     .wj-exam-pc-res-table th:nth-child(2) { width: 16.404%; }
     .wj-exam-pc-res-table th:nth-child(3) { width: 12.730%; }

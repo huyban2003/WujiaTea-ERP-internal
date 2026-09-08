@@ -315,3 +315,62 @@ A/B ngay trên trang (đặt lại `padding: 12px 0; gap: 0` như trước D5h):
 Đúng **cơ chế BA đã có trong câu 4b**: đệm ngang 14px hai bên làm bề rộng chữ hụt ~28px ⇒ tên dài
 kèm mã cửa hàng trong ngoặc xuống 3–4 dòng. Trên dữ liệu seed ở local hàng chỉ 66,5px nên không lộ.
 ⇒ bổ vào câu 4b của tài liệu gửi BA: nếu BA chọn **hạ đệm ngang về 12px**, màn này là ví dụ đắt nhất.
+
+---
+
+## §14. D5h.1 — vá bảng *Kết quả thi* (call site kiểm kê D5a bỏ sót)
+
+Phát hiện a của §13: `table.wj-pc-table.wj-exam-pc-res-table` (`portal_exam.xml:1037`, 7 cột) ở
+màn con `/portal/exam/registration/N` **là danh sách bản ghi** (mỗi dòng một người dự thi) nhưng
+D5a không kiểm kê ⇒ sau D5h, PC và mobile của **cùng một màn** lệch nhau. Vá ngay trong ngày.
+
+### Đo trước–sau — `/portal/exam/registration/14` (phiếu `confirmed` ⇒ `show_results` bật, 2 dòng)
+
+| Chỉ số BA | Trước | Sau | Đạt |
+|---|---|---|---|
+| `th[scope]` | **0/7** | **7/7** | ✅ |
+| Chiều cao header (44) | 50 | **44** | ✅ |
+| Đệm ô (`10px 16px`) | `0px 22px` | **`10px 16px`** | ✅ |
+| Row (≥52, mềm) | **58 cứng** (`height` trên `<td>`) | **56 mềm** (`height` trên `<tr>` + đệm thật) | ✅ |
+
+Số đo: `docs/d5h1-before.json` → `docs/d5h1-after.json` (3 khổ PC 1440/1024/992 × 1 route).
+Ba khổ mobile của chính route đó **không đổi một pixel** (21×3 · 92,75×3 · gap 6×3 · 8×3 trước và
+sau y hệt) ⇒ phần mobile đã migrate ở D5h không bị lượt này chạm vào.
+
+### Quyết định
+
+1. **Không đẻ pager.** Bảng render trọn `pc_detail['lines']`, controller không phân trang — thêm
+   pager sẽ lặp đúng lỗi *pager giả* đã gỡ ở `/portal/franchise-information` trong D5h. Ghim bằng
+   `test_bang_ket_qua_khong_de_pager_va_co_empty_state`.
+2. **Có `dl_empty` + DataState** (`not pc_detail['lines']`) — trước đây 0 dòng vẫn vẽ khung bảng rỗng.
+3. **Khoá dáng cũ bằng `:not(.wj-data-table)`** cho `height`/`padding` của `.wj-exam-pc-res-table`
+   (header 46 · row 62 · đệm 20). Giữ nguyên **không khoá**: `table-layout: fixed`, `margin-top`,
+   7 rule `th:nth-child(n){width:%}` và `font-size: 13px` — đó là **layout/typography**, không phải
+   dáng, đúng kiến trúc hai tầng của D5e/D5f. Đệm giảm 20 → 16 nên chỗ chứa chữ **rộng ra**, không
+   làm tệ thêm tình trạng tràn cột đã nêu ở §13 phát hiện b.
+
+### Guard
+
+68 test tag `wujia_data_list_d5`: **0 failed / 0 error** (66 + 2 test mới). **4 mutation, 4/4 đỏ
+đúng một test, 4/4 sha256 khớp sau khi hoàn tác bằng ảnh chụp byte:**
+
+| # | Phép thay | Test đỏ |
+|---|---|---|
+| 1 | `dl_table_class` `wj-exam-pc-res-table` → `…-res2-table` | `test_bon_call_site` |
+| 2 | bỏ `scope="col"` ở `<th>Ghi chú kết quả</th>` | `test_moi_th_deu_co_scope` |
+| 3 | `dl_empty` → `False` | `test_bang_ket_qua_khong_de_pager_va_co_empty_state` |
+| 4 | gỡ `:not(.wj-data-table)` ở rule `tbody td` | `test_bang_ket_qua_khoa_dang_cu` |
+
+Lượt đầu mutation 1 làm đỏ **hai** test vì test mới cũng chọn bảng theo tên lớp — sửa **test**
+(chọn theo cấu trúc: `thead` có đúng 7 `th`), không sửa mutation, đúng bài học D5g #3.
+
+### Hồi quy
+
+Đo lại **15 route × 6 khổ** rồi so từng ô với `docs/d5h-after.json`: **0 ô lệch**
+(`docs/d5h1-regress.json`). `/portal/exam/registration/15` không đổi vì phiếu đó chưa `confirmed`
+⇒ khối kết quả không render — đây cũng là lý do harness 10 route BA của D5h không nhìn thấy call
+site này, lặp lại **đúng bẫy D5g #1**: route trả 200 và bảng số trông sạch trong khi chỗ cần đo
+chưa từng được render.
+
+`wujia_portal_exam` `19.0.5.12.0` → **`19.0.5.13.0`**. CSS nằm trong bundle asset của module nên
+**không có `?v=` phải bump**. Deploy: `-u wujia_portal_exam`.

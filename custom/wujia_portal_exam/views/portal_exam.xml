@@ -1034,16 +1034,24 @@
                                 <t t-set="ch_platform" t-value="'pc'"/>
                                 <t t-set="ch_class" t-value="'wj-exam-pc-sechead wj-exam-pc-sechead--2'"/>
                             </t>
-                            <table class="wj-pc-table wj-exam-pc-res-table">
+                            <t t-call="wujia_portal_layout.wj_data_list">
+                                <t t-set="dl_table_class" t-value="'wj-pc-table wj-exam-pc-res-table'"/>
+                                <t t-set="dl_empty" t-value="not pc_detail['lines']"/>
+                                <t t-set="dl_state">
+                                <div class="wj-pc-empty">
+                                    <div class="wj-pc-empty__icon"><i class="feather icon-users"/></div>
+                                    <p class="wj-pc-empty__title">Chưa có người dự thi</p>
+                                </div>
+                                </t>
                                 <thead>
                                     <tr>
-                                        <th>Ảnh nhân viên</th>
-                                        <th>Họ và tên</th>
-                                        <th>Số điện thoại</th>
-                                        <th>Năm sinh</th>
-                                        <th>Chức vụ</th>
-                                        <th>Kết quả</th>
-                                        <th>Ghi chú kết quả</th>
+                                        <th scope="col">Ảnh nhân viên</th>
+                                        <th scope="col">Họ và tên</th>
+                                        <th scope="col">Số điện thoại</th>
+                                        <th scope="col">Năm sinh</th>
+                                        <th scope="col">Chức vụ</th>
+                                        <th scope="col">Kết quả</th>
+                                        <th scope="col">Ghi chú kết quả</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -1074,7 +1082,7 @@
                                         </td>
                                     </tr>
                                 </tbody>
-                            </table>
+                            </t>
                         </t>
 
                         <div t-attf-class="wj-exam-pc-banner wj-exam-pc-banner--#{pc_detail['banner_kind']}">

@@ -927,8 +927,21 @@ class TestDataListExam(TransactionCase):
                     break
         return out
 
+    def _bang_theo_lop(self, lop):
+        """Chọn bảng theo LỚP CŨ ở dl_table_class — hai bảng PC của màn Thi khác
+        nhau ở chỗ đó, còn cấu trúc (có thead) thì giống hệt."""
+        out = []
+        for call in self._bang():
+            got = call.xpath('./t[@t-set="dl_table_class"]/@t-value')
+            if got and re.search(r'(^|\s)%s(?![-\w])' % re.escape(lop), got[0]):
+                out.append(call)
+        return out
+
     def test_bon_call_site(self):
-        self.assertEqual(len(self._bang()), 1, 'bảng PC lịch sử đăng ký')
+        self.assertEqual(len(self._bang()), 2, 'bảng PC lịch sử đăng ký + bảng kết quả')
+        self.assertEqual(len(self._bang_theo_lop('wj-exam-pc-list-table')), 1)
+        self.assertEqual(len(self._bang_theo_lop('wj-exam-pc-res-table')), 1,
+                         'bảng kết quả thi (D5h.1) phải nằm trong wj_data_list')
         self.assertEqual(len(self._calls('detail-card')), 2, 'mexam-card + mexam-course')
         self.assertEqual(len(self._calls('compact-row')), 1, 'mexam-rrow')
 
@@ -943,7 +956,7 @@ class TestDataListExam(TransactionCase):
                 self.assertEqual(th.get('scope'), 'col',
                                  'th thiếu scope="col": %s' % (th.text or '').strip())
             tong += len(ths)
-        self.assertEqual(tong, 8, 'số cột bảng lịch sử đăng ký đổi')
+        self.assertEqual(tong, 15, 'số cột hai bảng PC màn Thi đổi (8 + 7)')
 
     def test_item_mobile_mang_ca_hai_lop(self):
         for ho in ('wujia-mexam-card', 'wujia-mexam-course', 'wujia-mexam-rrow'):
@@ -956,7 +969,7 @@ class TestDataListExam(TransactionCase):
         """Key của thi là `pages` (controllers/portal.py), KHÔNG phải `page_count`
         như debt. Trước lượt này pager hiện dù chỉ 1 trang."""
         thay = 0
-        for call in self._bang():
+        for call in self._bang_theo_lop('wj-exam-pc-list-table'):
             pagers = call.xpath('./t[@t-set="dl_pager"]')
             self.assertEqual(len(pagers), 1, 'bảng PC thi phải truyền dl_pager')
             for nut in pagers[0].xpath('.//*[contains(@t-attf-class, "wj-pc-page-btn")]'):
@@ -970,13 +983,50 @@ class TestDataListExam(TransactionCase):
         """Tách guard như D5c/D5g: <select> cỡ trang và dòng đếm là ĐIỀU KHIỂN /
         THÔNG TIN, phải còn khi chỉ 1 trang."""
         kiem = 0
-        for call in self._bang():
+        for call in self._bang_theo_lop('wj-exam-pc-list-table'):
             for el in call.xpath('.//select | .//*[contains(@class, "wj-pc-pagination__count")]'):
                 dieu_kien = ' '.join(a.get('t-if', '') for a in el.iterancestors())
                 self.assertNotIn("pc_pager['pages']", dieu_kien,
                                  'ô điều khiển/thông tin bị guard điều hướng nuốt')
                 kiem += 1
         self.assertGreaterEqual(kiem, 2, 'không quét trúng ô nào — guard rỗng')
+
+    def test_bang_ket_qua_khong_de_pager_va_co_empty_state(self):
+        """D5h.1 — bảng kết quả thi render trọn theo `pc_detail['lines']`, KHÔNG
+        phân trang ⇒ không được đẻ pager giả (bài học pager giả ở D5h)."""
+        # Chọn theo CẤU TRÚC (thead 7 cột) — đổi tên lớp là phép của
+        # test_bon_call_site, không được kéo test này đỏ theo (bài học D5g #3).
+        bang = [c for c in self._bang() if len(c.xpath('.//thead//th')) == 7]
+        self.assertEqual(len(bang), 1)
+        call = bang[0]
+        self.assertFalse(call.xpath('./t[@t-set="dl_pager"]'),
+                         'bảng kết quả không phân trang mà vẫn truyền dl_pager')
+        self.assertFalse(call.xpath('.//*[contains(@class, "wj-pc-page-btn")]'))
+        empty = call.xpath('./t[@t-set="dl_empty"]/@t-value')
+        self.assertEqual(len(empty), 1, 'thiếu dl_empty ⇒ 0 dòng vẫn vẽ khung bảng rỗng')
+        self.assertIn("pc_detail['lines']", empty[0])
+        self.assertTrue(call.xpath('./t[@t-set="dl_state"]//*[contains(@class, "wj-pc-empty")]'),
+                        'thiếu DataState cho bảng kết quả')
+
+    def test_bang_ket_qua_khoa_dang_cu(self):
+        """Hai tầng: `.wj-exam-pc-res-table` cũ ép cứng header 46 / row 62 / đệm 20;
+        phải khoá bằng :not(.wj-data-table) mới nhường số BA cho component."""
+        css = _strip_comments(self._css())
+        kiem = 0
+        for khoi in re.finditer(r'([^{}]+)\{([^{}]*)\}', css):
+            sel, than = khoi.group(1).strip(), khoi.group(2)
+            for phan in sel.split(','):
+                if not re.search(r'\.wj-exam-pc-res-table(?![-\w])', phan):
+                    continue
+                kiem += 1
+                if ':not(.wj-data-table)' in phan:
+                    continue
+                for prop in ('height', 'padding'):
+                    self.assertNotRegex(
+                        than, r'(^|;)\s*%s\s*:' % prop,
+                        'rule cũ "%s" còn ép %s mà chưa khoá :not(.wj-data-table)'
+                        % (phan.strip(), prop))
+        self.assertGreaterEqual(kiem, 3, 'không quét trúng rule nào — guard rỗng')
 
     def test_mot_chu_so_huu_dang_ba_ho(self):
         css = _strip_comments(self._css())

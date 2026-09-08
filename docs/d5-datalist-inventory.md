@@ -84,6 +84,12 @@ PC + `:272` mobile `wujia-mdash-row`).
 > trong wizard). Kiểm kê D5a bỏ sót vì chưa ai mở màn con trên PC. ⇒ **Tổng thật: 32 + 3 = 35**,
 > và sau D5h là **29/32** trong phạm vi BA. Bản mobile của chính màn đó (`wujia-mexam-rrow`) đã
 > migrate ở D5h nên PC/mobile đang lệch — đề xuất lượt vá **D5h.1**.
+>
+> **✅ D5h.1 đã vá 08/09/2026:** bảng *Kết quả thi* vào `wj_data_list` variant `table`
+> (`th[scope]` 0/7 → 7/7 · header 50 → **44** · đệm ô `0 22px` → **`10px 16px`** · row 58 cứng →
+> **56 mềm**), rule dáng cũ khoá bằng `:not(.wj-data-table)`. Không đẻ pager (bảng render trọn
+> theo `pc_detail['lines']`, không phân trang phía server) và có `dl_empty` + DataState.
+> ⇒ **30/32 trong phạm vi BA (+3 kề cận = 33/35)**; 2 chỗ còn lại là khảo sát, **defer có chủ ý**.
 So sánh quy mô: D3 = 103 · D4 = 384 · **D5 = 34**. Nhỏ nhất về số lượng, sâu nhất về bản chất.
 
 Phân rã 31 call site trong phạm vi — đây mới là con số dùng để chia lượt, **không phải** số lần
@@ -342,7 +348,7 @@ còn mobile 4. Dev **không tự quyết** cái nào là P1/P2/P3.
 với tư cách **đề xuất của Dev**: BA chưa trả lời 6 câu treo nên bộ số ghi rõ là **`provisional`**,
 kèm **2 call site Khảo sát defer**. Dev **không tự đóng `Done`**.
 
-**Tiến độ cụm: 29/31 call site trong phạm vi BA (32/34 kể cả kề cận)** (D5b xong 07/09 — nền `wj_data_list` +
+**Tiến độ cụm: 30/32 call site trong phạm vi BA (33/35 kể cả kề cận)** (D5b xong 07/09 — nền `wj_data_list` +
 `/portal` top sản phẩm · `/portal/return` · `/portal/support`, số đo `docs/d5b-acceptance-matrix.md`;
 **D5c xong 07/09** — họ `wj-pc-table`: `/portal/purchase-history` · `/portal/delivery` ·
 `/portal/notification`, số đo `docs/d5c-acceptance-matrix.md`; **D5d xong 07/09** — họ
@@ -353,9 +359,10 @@ variant `detail-card` dựng mới + 2 call site `mreturn`/`mdelivery`, số đo
 `docs/d5f-acceptance-matrix.md`; **D5g xong 08/09** — 4 call site công nợ (2 bảng PC + mobile
 `wj-debt-inv` compact-row + `wj-debt-pay` detail-card), lượt **duy nhất phải sửa guard pager**
 `page_count > 1`, số đo `docs/d5g-acceptance-matrix.md`; **D5h xong 08/09** — lượt KHÉP: 4 call site
-Thi + 3 call site kề cận, số đo `docs/d5h-acceptance-matrix.md`).
+Thi + 3 call site kề cận, số đo `docs/d5h-acceptance-matrix.md`; **D5h.1 xong 08/09** — vá bảng
+*Kết quả thi* mà kiểm kê D5a bỏ sót, `docs/d5h-acceptance-matrix.md` §14).
 
-**Tiến độ cụm sau D5h: 29/31 trong phạm vi BA + 3 kề cận = 32/34.** Hai call site còn lại là bảng
+**Tiến độ cụm sau D5h.1: 30/32 trong phạm vi BA + 3 kề cận = 33/35.** Hai call site còn lại là bảng
 PC và danh sách mobile của **Khảo sát** (`wujia_portal_inspection`) — **DEFER CÓ CHỦ ĐÍCH**, không
 phải sót: module merge từ nhánh `thai` có lối code khác hẳn portal (Bootstrap thô, inline style,
 `sudo()` ở đường ghi); chủ dự án quyết 08/09/2026 là mọi cụm UI bỏ qua hai module này cho tới khi
