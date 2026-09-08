@@ -121,3 +121,62 @@ python odoo-bin -c <conf> -d <db> -i wujia_franchise_inspection \
 `wujia_franchise_inspection` là **module hoàn toàn mới ⇒ bắt buộc `-i`**, restart không tự cài. Phải chạy
 **một lượt** để `pre_init_hook` đổi chủ bản ghi trước khi Odoo dọn dữ liệu cũ. Sau deploy phải đo lại
 chỉ-đọc trên chính UAT (số phiên bản + đếm phiếu khảo sát + user trong nhóm giám sát) rồi mới đánh dấu.
+
+---
+
+## 🔴 B9 · Route ghi điểm không kiểm quyền — portal user sửa được phiếu khảo sát
+
+**Người sửa: anh Thái** (bên `main` không vá hộ; sẽ kiểm chứng lại sau khi anh sửa xong).
+
+**File:** `custom/wujia_franchise_inspection/controllers/main.py`
+
+```python
+@http.route(['/franchise/inspection/do/<int:inspection_id>/save'],
+            type='json', auth='user', methods=['POST'])
+def save_inspection_survey(self, inspection_id, lines=None, ...):
+    inspection = request.env['wujia.franchise.inspection'].sudo().browse(int(inspection_id))
+    if not inspection.exists():
+        return {'success': False, 'error': 'Inspection sheet does not exist'}
+    if inspection.state in ('done', 'cancel'):
+        ...
+    # ⚠️ không có bất kỳ kiểm tra quyền nào ở đây
+```
+
+`auth='user'` trong Odoo **bao gồm portal user** (`share=True`) — tức 1500 chủ cửa hàng.
+`sudo()` **vô hiệu hoá toàn bộ ACL + `ir.rule`**. `ir.model.access.csv` của anh khai **đúng**
+(portal chỉ `read`), nhưng `sudo()` mở lại cửa.
+
+**Đã tái hiện thật** trên CSDL bản sao `wujia_tea_thai` (không đụng UAT):
+
+| Bước | Kết quả |
+|---|---|
+| Tạo user portal thuần (`is_internal_user=False`, `share=True`) | uid=75 |
+| `GET /franchise/inspection/do/1` | **404** — chỗ này có chặn ✅ |
+| `POST /franchise/inspection/do/1/save`, `is_pass=false` | **`{"success": true, "total_score": 95.0, "grade": "B"}`** |
+| Kiểm CSDL | `is_pass: t → f`, `note: '' → 'BỊ SỬA BỞI TÀI KHOẢN PORTAL'` |
+
+⇒ Chủ cửa hàng **không xem được** phiếu nhưng **sửa được điểm** phiếu chấm chính cửa hàng mình.
+Dữ liệu thử đã được khôi phục, user thử đã xoá.
+
+**Cách sửa đề nghị**
+
+```python
+def _check_can_edit(self, inspection):
+    user = request.env.user
+    if user.share:                                   # portal: cấm tuyệt đối đường ghi
+        raise AccessError(_("Bạn không có quyền chỉnh sửa phiếu khảo sát."))
+    if user.has_group('wujia_franchise_inspection.group_supervision_admin'):
+        return
+    if inspection.inspector_user_id != user:
+        raise AccessError(_("Bạn không phải người phụ trách phiếu này."))
+```
+
+Gọi ở đầu **cả 7 route `type='json'`**, không chỉ `/save`. Và **bỏ `sudo()` ở đường ghi** để
+`ir.rule` tự làm việc — có **11 chỗ `sudo()`** trong controller, **12 chỗ** trong model cần rà.
+
+**Hai điểm cùng họ:**
+* `user.id in (1, 2)` — chấm quyền admin bằng **id cứng**, nên đổi sang `has_group`.
+* Phản hồi phân biệt "phiếu không tồn tại" với "không có quyền" ⇒ cho phép dò id phiếu.
+
+**Nghiệm thu khi anh sửa xong:** lặp lại đúng 4 bước ở bảng trên, bước 3 phải trả lỗi quyền và
+dữ liệu trong CSDL **không đổi**. Báo em, em dựng lại bản sao đo giúp.
