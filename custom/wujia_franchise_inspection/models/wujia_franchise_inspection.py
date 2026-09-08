@@ -271,7 +271,7 @@ class WujiaFranchiseInspection(models.Model):
         insp_date = self.planned_date or self.submit_date or fields.Date.today()
         date_str = insp_date.strftime('%Y%m%d')
 
-        client = GoogleDriveClient()
+        client = GoogleDriveClient(env=self.env)
         try:
             res = client.upload_inspection_video(
                 video_data=video_data,

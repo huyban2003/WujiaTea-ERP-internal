@@ -1,8 +1,11 @@
+import logging
 import re
 
 from odoo import _, api, fields, models
 # pyrefly: ignore [missing-import]
 from odoo.exceptions import ValidationError
+
+_logger = logging.getLogger(__name__)
 
 
 EMAIL_RE = re.compile(r'^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$')
@@ -127,11 +130,6 @@ class WujiaFranchiseManagement(models.Model):
         help='The active member with role=owner for this store (BA spec).',
     )
 
-    supervision_user_id = fields.Many2one(
-        'res.users',
-        string='Supervisor',
-        tracking=True,
-    )
 
     document_ids = fields.One2many(
         'wujia.franchise.document',
@@ -327,7 +325,7 @@ class WujiaFranchiseManagement(models.Model):
                                 'active': True,
                             })
             except Exception as e:
-                print(f"[BOOTSTRAP CSV] Lỗi nạp res.area.csv: {e}")
+                _logger.warning("[BOOTSTRAP CSV] Lỗi nạp res.area.csv: %s", e)
 
         # 2. Nạp Cửa hàng nhượng quyền & Partner (wujia.franchise.management.csv)
         franchise_csv = os.path.join(data_dir, 'wujia.franchise.management.csv')
@@ -390,7 +388,7 @@ class WujiaFranchiseManagement(models.Model):
                         else:
                             f_rec.write(vals)
             except Exception as e:
-                print(f"[BOOTSTRAP CSV] Lỗi nạp wujia.franchise.management.csv: {e}")
+                _logger.warning("[BOOTSTRAP CSV] Lỗi nạp wujia.franchise.management.csv: %s", e)
 
         # 3. Nạp Nhân viên cửa hàng từ employee.csv và liên kết vào wujia.franchise.member theo franchise_code
         emp_csv = os.path.join(data_dir, 'employee.csv')
@@ -489,7 +487,7 @@ class WujiaFranchiseManagement(models.Model):
                             created_pairs.add((user_id, franchise_id))
 
             except Exception as e:
-                print(f"[BOOTSTRAP] Lỗi nạp employee.csv: {e}")
+                _logger.warning("[BOOTSTRAP] Lỗi nạp employee.csv: %s", e)
 
 
 class WujiaFranchiseDocument(models.Model):

@@ -19,7 +19,7 @@ class WujiaFranchiseMember(models.Model):
     _name = 'wujia.franchise.member'
     _description = 'Wujia Franchise Membership'
     _order = 'franchise_id, is_primary_owner desc, date_from desc, id desc'
-    _rec_name = 'user_id'
+    _rec_name = 'display_name'
 
     user_id = fields.Many2one(
         'res.users',
@@ -66,22 +66,36 @@ class WujiaFranchiseMember(models.Model):
     )
     phone = fields.Char(related='user_id.phone', string='Phone', readonly=True)
 
+    display_name = fields.Char(
+        compute='_compute_display_name',
+        store=True,
+        index=True,
+    )
     is_currently_valid = fields.Boolean(
         compute='_compute_is_currently_valid',
         store=True,
         index=True,
     )
 
-    @api.depends('user_id.name')
+    @api.depends('user_id.name', 'franchise_id.display_name', 'role')
     def _compute_display_name(self):
+        role_label = dict(self._fields['role']._description_selection(self.env))
         for rec in self:
-            rec.display_name = rec.user_id.name or _('Chưa có tên')
+            user_name = rec.user_id.name or _('Unnamed')
+            store_name = rec.franchise_id.display_name or ''
+            role_text = role_label.get(rec.role, '')
+            if store_name and role_text:
+                rec.display_name = f"{user_name} @ {store_name} ({role_text})"
+            elif store_name:
+                rec.display_name = f"{user_name} @ {store_name}"
+            else:
+                rec.display_name = user_name
 
     @api.model
     def _name_search(self, name, domain=None, operator='ilike', limit=None, order=None):
         domain = domain or []
         if name:
-            domain = [('user_id.name', operator, name)] + domain
+            domain = ['|', ('display_name', operator, name), ('user_id.name', operator, name)] + domain
         return super()._name_search(name, domain=domain, operator=operator, limit=limit, order=order)
 
     @api.depends('active', 'is_working', 'date_from', 'date_to')
