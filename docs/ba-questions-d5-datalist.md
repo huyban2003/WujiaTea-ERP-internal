@@ -97,6 +97,12 @@ Nở **không phải** vì gap 8 mà vì đệm ngang 14px hai bên làm bề r�
 thêm. Nếu BA muốn giữ trang ngắn, cách rẻ nhất là hạ đệm ngang về **12px** (vẫn trong dải BA
 `12–14px`) cho riêng các khối nằm trong thẻ.
 
+**Bổ sung 08/09 — đo trên UAT với dữ liệu thật, đây là ví dụ đắt nhất của cơ chế trên.** Hàng
+*thành viên cửa hàng* (`/portal/franchise-information`, khổ 390) cao **143 · 124 · 143 · 142px**,
+trong khi trước D5h là 122 · 102 · 102 · 102 — vượt xa trần compact-row 76. Lý do: tên nhân viên
+kèm mã cửa hàng trong ngoặc (*"Lê Văn Cường (NV HN-01)"*) xuống 3–4 dòng khi bề rộng hụt 28px.
+Trên dữ liệu mẫu ở máy dev hàng chỉ 66,5px nên chỗ này **chưa từng lộ ra** cho tới khi đo trên UAT.
+
 **(c) Acceptance #9 thủng đúng một ô.** `/portal` khổ **360**, khối *Thông báo mới nhất*: số dòng
 đọc được không cần cuộn **2 → 1**. Mọi ô còn lại giữ nguyên. Đây là hệ quả trực tiếp của (b).
 
@@ -197,6 +203,13 @@ Câu 6 hỏi cho hàng *hoá đơn*; nay có thêm hàng *người dự thi* cù
 đọc được **6 → 7/8** và **9 → 10** dòng (hàng 62 → 54); màn *Thông tin cửa hàng* đã **gỡ được một
 pager giả** — 3 thẻ `<span>` cứng luôn hiện dù danh sách thành viên **không hề phân trang phía
 server**, vi phạm thẳng acceptance *"pager chỉ hiện khi >1 trang"*.
+
+**Đo lại trên UAT sau khi deploy (08/09 chiều):** 4 module đúng phiên bản, 16/16 phép kiểm
+template đạt, 13 route × 6 khổ đều 200 · 0 lỗi JS · 0 tràn ngang; guard pager chứng minh trên dữ
+liệu thật (màn Đăng ký thi của HCM-01 có đúng 1 phiếu ⇒ nút trang biến mất, dòng đếm và ô cỡ trang
+vẫn còn). **Một chỗ mới lộ ra:** bảng *Kết quả thi* trên máy tính (màn chi tiết phiếu) chưa được
+đưa về khuôn chung — bản điện thoại của chính màn đó thì đã xong — nên PC và điện thoại đang lệch
+nhau; Dev đề xuất vá trong một lượt nhỏ tiếp theo.
 
 **⚠️ Hai call site Khảo sát (`/portal/inspection`) KHÔNG nằm trong lượt này** — chủ dự án quyết
 08/09/2026 tạm không đụng hai module khảo sát (merge từ nhánh khác, lối code khác portal). Cụm D5

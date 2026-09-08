@@ -236,3 +236,82 @@ từ 3 → 13 phiếu đăng ký. Nhịp header→body: `8×2 · 12×33` — **k
    `/portal/inspection` `wj-pc-table` 0/5 (defer theo mục 1) và `/portal/exam/register`
    `wj-exam-pc-part-table` 0/6 — bảng **nhập liệu** của form, không phải danh sách bản ghi.
 7. `/portal/reports/orders` trả 500 — lỗi có sẵn của cụm **R3**, không thuộc D5.
+
+---
+
+## 13. Nghiệm thu lại TRÊN UAT sau khi chủ dự án deploy (08/09/2026, chiều)
+
+`http://113.161.187.126:8019` · DB `wujia_tea_19`. Đo bằng chính bộ đo `scripts/qa/wj_datalist.py`,
+**không seed, không tạo bản ghi nào** — chỉ đặt lại mật khẩu hai user test `anh.owner` / `em.hcm`
+(được chủ dự án cho phép). Số đo: `docs/d5h-uat.json` (admin) · `docs/d5h-uat-owner.json` (HN-01) ·
+`docs/d5h-uat-hcm.json` (HCM-01).
+
+### 13.1 Bản deploy đúng bản đã làm
+
+| Module | Phiên bản trên UAT |
+|---|---|
+| `wujia_portal_layout` | **19.0.45.0.0** ✅ |
+| `wujia_portal_exam` | **19.0.5.12.0** ✅ |
+| `wujia_portal_base` | **19.0.7.11.0** ✅ |
+| `wujia_portal_info_request` | **19.0.1.7.0** ✅ |
+
+**16/16 phép kiểm template đọc thẳng từ `ir.ui.view` trên UAT đều đạt** (5 view: bọc `wj_data_list`,
+`th scope`, guard `pc_pager['pages']`, `wj-data-item` ở 4 họ, `table-responsive` đã bỏ, không còn
+`wj-pc-page-btn` cứng). CSS hai tầng cũng đã lên: 4/4 rule `:not(.wj-data-item)` + rule variant có
+mặt trong `portal_exam.css` và `_components.css` do chính máy chủ trả về.
+
+### 13.2 Số đo thật trên UAT — khớp local
+
+| Call site | UAT | Số của BA |
+|---|---|---|
+| Bảng PC thi (`/portal/exam`, HCM-01, 1 phiếu) | th **8/8** · head **44** · row **68** · pad **`10px 16px`** | ≥52 ✅ |
+| Bảng PC thành viên (`/portal/franchise-information`) | th **4/4** · head **44** · row **52** · pad **`10px 16px`** | ✅ |
+| `wujia-mexam-course` (`/portal/exam/register`, 3 khoá) | **108,25** · gap 8 · radius 12 · `12px 14px` | detail-card 96–120 ✅ |
+| `wujia-mdash-row` @991 | **66,5** · gap 8 · radius 12 · `12px 14px` | compact-row 64–76 ✅ |
+
+**Guard pager chứng minh trên dữ liệu thật:** `/portal/exam` HCM-01 có **đúng 1 phiếu** ⇒
+`pageBtns = 0` (nút trang biến mất) trong khi dòng *"Hiển thị 1–1 / 1 bản ghi"* và ô *10 / trang*
+**vẫn còn** — đúng quyết định tách guard ở mục 7.
+`/portal/franchise-information`: **0 nút trang**, chỉ còn ô cỡ trang ⇒ pager giả đã hết trên UAT.
+
+13 route × 6 khổ: **status 200 toàn bộ · 0 lỗi JS · 0 tràn ngang**. 18 bảng đo được:
+15 bảng đúng bộ số BA; 3 ô còn lại là `wj-exam-pc-part-table` — đúng LIMIT đã ghi ở mục 12.
+
+### 13.3 Ba phát hiện MỚI, chỉ lộ ra trên dữ liệu thật của UAT
+
+**(a) 🔴 Còn một bảng PC chưa migrate mà đáng lẽ thuộc phạm vi: `wj-exam-pc-res-table`**
+(*Kết quả thi*, 7 cột, màn `/portal/exam/registration/N` trên PC) — đo được `th 0/7 · head 50 ·
+row 58 · pad 0 22px`. Đây **là danh sách bản ghi** (mỗi dòng một người dự thi), khác hẳn
+`wj-exam-pc-part-table` (bảng nhập liệu). Kiểm kê D5a bỏ sót vì **chưa ai mở màn con PC** — đúng
+họ bẫy D5g #1 nhưng ở tầng kiểm kê. Trớ trêu: **bản mobile của chính màn đó (`wujia-mexam-rrow`)
+đã migrate ở lượt này**, nên PC và mobile của cùng một màn đang lệch nhau.
+⇒ Đề xuất làm một lượt vá nhỏ **D5h.1** (1 call site, cùng mẫu, ~15 phút + 1 lần deploy).
+Tổng call site thật của cụm vì thế là **35**, không phải 34.
+
+**(b) Tiêu đề cột bảng PC thi đè lên nhau — LỖI CÓ SẴN, D5h làm NHẸ ĐI.** Đo `scrollWidth` vs
+`clientWidth` từng `th`, rồi mô phỏng lại dáng cũ ngay trên trang bằng CSS để so:
+
+| | Số cột tràn chữ | *Số người* cần / có | *Trạng thái đăng ký* cần / có |
+|---|---:|---|---|
+| Dáng cũ (`0 22px`, head 50) | **3/8** | 86 / 72 | 158 / 126 |
+| **Sau D5h** (`10px 16px`) | **2/8** | 80 / 72 | 152 / 126 |
+
+Nguyên nhân là `table-layout: fixed` + bộ **% chiều rộng cột cứng** trong `portal_exam.css`
+(`th:nth-child(5) = 6,824%`, `(6) = 11,942%`) quá hẹp so với chữ tiếng Việt, cộng `white-space:
+nowrap`. Không phải hệ quả của lượt này — nhưng BA sẽ nhìn thấy khi retest nên báo trước.
+Vá rẻ: nới % của cột 5 và 6, lấy bớt từ cột *Kết quả* (199px, không tràn).
+
+**(c) Hàng thành viên mobile trên dữ liệu thật cao 143–200px, vượt trần compact-row 76.**
+A/B ngay trên trang (đặt lại `padding: 12px 0; gap: 0` như trước D5h):
+
+| Hàng | Trước | Sau | Chênh |
+|---|---:|---:|---:|
+| Nguyễn Văn Anh (chủ) | 122 | **143** | +21 |
+| Administrator | 65 | **67** | +2 |
+| Phạm Thị Dung (đa cửa hàng) | 102 | **124** | +22 |
+| Lê Văn Cường (NV HN-01) | 102 | **143** | +41 |
+| Trần Thị Bình (QL HN-01) | 102 | **142** | +40 |
+
+Đúng **cơ chế BA đã có trong câu 4b**: đệm ngang 14px hai bên làm bề rộng chữ hụt ~28px ⇒ tên dài
+kèm mã cửa hàng trong ngoặc xuống 3–4 dòng. Trên dữ liệu seed ở local hàng chỉ 66,5px nên không lộ.
+⇒ bổ vào câu 4b của tài liệu gửi BA: nếu BA chọn **hạ đệm ngang về 12px**, màn này là ví dụ đắt nhất.

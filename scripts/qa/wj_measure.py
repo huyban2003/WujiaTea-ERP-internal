@@ -130,7 +130,9 @@ def login(page, base, user, password):
     page.goto(f'{base}/web/login', wait_until='domcontentloaded')
     page.fill('input[name="login"]', user)
     page.fill('input[name="password"]', password)
-    page.click('button[type="submit"]')
+    # Enter thay vì click: trang đăng nhập UAT có thêm nút submit của ô tìm kiếm
+    # website (ẩn) nên `button[type=submit]` khớp 3 phần tử và click treo 30s.
+    page.press('input[name="password"]', 'Enter')
     page.wait_for_load_state('domcontentloaded')
 
 

@@ -76,6 +76,14 @@ render record**.
 PC + `:272` mobile `wujia-mdash-row`).
 
 **Tổng: 31 call site trong phạm vi BA + 3 call site kề cận = 34.**
+
+> **Đính chính 08/09/2026 (đo trên UAT sau D5h):** thiếu **một** call site — bảng PC *Kết quả thi*
+> `table.wj-pc-table.wj-exam-pc-res-table` (`portal_exam.xml:1037`, 7 cột) ở màn con
+> `/portal/exam/registration/N`. Nó **là danh sách bản ghi** (mỗi dòng một người dự thi) nên thuộc
+> phạm vi, khác `wj-exam-pc-part-table` (bảng nhập liệu) và `wj-exam-pc-sum-table` (bảng xác nhận
+> trong wizard). Kiểm kê D5a bỏ sót vì chưa ai mở màn con trên PC. ⇒ **Tổng thật: 32 + 3 = 35**,
+> và sau D5h là **29/32** trong phạm vi BA. Bản mobile của chính màn đó (`wujia-mexam-rrow`) đã
+> migrate ở D5h nên PC/mobile đang lệch — đề xuất lượt vá **D5h.1**.
 So sánh quy mô: D3 = 103 · D4 = 384 · **D5 = 34**. Nhỏ nhất về số lượng, sâu nhất về bản chất.
 
 Phân rã 31 call site trong phạm vi — đây mới là con số dùng để chia lượt, **không phải** số lần
