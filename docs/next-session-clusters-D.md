@@ -361,7 +361,7 @@ tổng `scrollHeight` **−24px** trên 44 ô, giả-heading **0/44**, outline 8
 hiển thị 43/44 giống hệt (1 ô mọc đúng "0 kết quả" theo yêu cầu BA), B4 **286/286**, bảng D3a
 chạy lại **356 phép so 0 lệch**, tab-walk 433 stop ring 16/16, font 66 tiêu đề 0 lệch;
 bắt được **1 lỗi thật**: `/portal/info-request` mất tiêu đề ở mobile do bake `ch_platform`;
-`docs/d3b-acceptance-matrix.md`) · D3c ✅ · D3d ✅ · D3e ✅ · D3f ✅ · review ✅ · **D4 ✅ KHÉP 06/09** (D4b…D4h, `UI-SURFACECARD-001` Ready for Retest + ĐÃ DEPLOY UAT) · **D5a ✅ 06/09** (kiểm kê 31 call site, `docs/d5-datalist-inventory.md`, 0 code) · **D5b ✅ 07/09** (nền `wj_data_list` + 3 call site họ `wujia-content-card-table`, 3/31, `docs/d5b-acceptance-matrix.md`) · **D5c ✅ 07/09** (họ `wj-pc-table`: purchase-history · delivery · notification, 6/31, `docs/d5c-acceptance-matrix.md`) · **D5d ✅ 07/09** (họ `li.wujia-content-card-row`: 3 khối preview `/portal` + `/portal/knowledge`, 10/31, `docs/d5d-acceptance-matrix.md`, bộ số **provisional** + 3 câu hỏi BA `docs/ba-questions-d5-datalist.md`) · **D5e ✅ 07/09** (9 call site mobile, 4 họ `mdash`/`mhist`/`mnoti`/`mknow`, 19/31, `docs/d5e-acceptance-matrix.md`) · **D5f ✅ 08/09** (variant `detail-card` dựng mới + 2 call site `mreturn`/`mdelivery`, 21/31, `docs/d5f-acceptance-matrix.md`) · **D5g ✅ 08/09** (4 call site công nợ: 2 bảng PC + mobile `wj-debt-inv` compact-row + `wj-debt-pay` detail-card, sửa guard pager `page_count > 1`, 25/31, `docs/d5g-acceptance-matrix.md`) · **D5h ✅ 08/09 KHÉP CỤM** (Thi ×4 + kề cận ×3, Khảo sát ×2 defer theo quyết định chủ dự án, **29/31** trong phạm vi BA + 3 kề cận = 32/34, `docs/d5h-acceptance-matrix.md`, `UI-DATALIST-001` → `Ready for Retest` **provisional**) · **D5h.1 ✅ 08/09** (vá bảng *Kết quả thi* mà kiểm kê D5a bỏ sót ⇒ **30/32** trong phạm vi BA + 3 kề cận = **33/35**, `docs/d5h-acceptance-matrix.md` §14, `wujia_portal_exam` 19.0.5.13.0 **CHỜ DEPLOY**) · D6 ⬜ · R1–R5 ⬜
+`docs/d3b-acceptance-matrix.md`) · D3c ✅ · D3d ✅ · D3e ✅ · D3f ✅ · review ✅ · **D4 ✅ KHÉP 06/09** (D4b…D4h, `UI-SURFACECARD-001` Ready for Retest + ĐÃ DEPLOY UAT) · **D5a ✅ 06/09** (kiểm kê 31 call site, `docs/d5-datalist-inventory.md`, 0 code) · **D5b ✅ 07/09** (nền `wj_data_list` + 3 call site họ `wujia-content-card-table`, 3/31, `docs/d5b-acceptance-matrix.md`) · **D5c ✅ 07/09** (họ `wj-pc-table`: purchase-history · delivery · notification, 6/31, `docs/d5c-acceptance-matrix.md`) · **D5d ✅ 07/09** (họ `li.wujia-content-card-row`: 3 khối preview `/portal` + `/portal/knowledge`, 10/31, `docs/d5d-acceptance-matrix.md`, bộ số **provisional** + 3 câu hỏi BA `docs/ba-questions-d5-datalist.md`) · **D5e ✅ 07/09** (9 call site mobile, 4 họ `mdash`/`mhist`/`mnoti`/`mknow`, 19/31, `docs/d5e-acceptance-matrix.md`) · **D5f ✅ 08/09** (variant `detail-card` dựng mới + 2 call site `mreturn`/`mdelivery`, 21/31, `docs/d5f-acceptance-matrix.md`) · **D5g ✅ 08/09** (4 call site công nợ: 2 bảng PC + mobile `wj-debt-inv` compact-row + `wj-debt-pay` detail-card, sửa guard pager `page_count > 1`, 25/31, `docs/d5g-acceptance-matrix.md`) · **D5h ✅ 08/09 KHÉP CỤM** (Thi ×4 + kề cận ×3, Khảo sát ×2 defer theo quyết định chủ dự án, **29/31** trong phạm vi BA + 3 kề cận = 32/34, `docs/d5h-acceptance-matrix.md`, `UI-DATALIST-001` → `Ready for Retest` **provisional**) · **D5h.1 ✅ 08/09** (vá bảng *Kết quả thi* mà kiểm kê D5a bỏ sót ⇒ **30/32** trong phạm vi BA + 3 kề cận = **33/35**, `docs/d5h-acceptance-matrix.md` §14, `wujia_portal_exam` 19.0.5.13.0 **CHỜ DEPLOY**) · **D5 ✅ KHÉP 08/09** (D5a…D5h.1, `UI-DATALIST-001` Ready for Retest *provisional*; **nợ D5h.2** — vá thẻ trắng lồng thẻ trắng ở 11 call site, phát hiện 09/09) · **Sprint 59 CHỐT SỔ 09/09** (chapter 72 + PDF) · D6 ⬜ (**vào bằng lượt kiểm kê D6a**) · R1–R5 ⬜
 
 🚚 **D1 + D2 ĐÃ DEPLOY UAT 27/08** (`wujia_portal_layout 19.0.32.4.0` · `wujia_portal_return
 19.0.2.7.0` · `wujia_sale 19.0.4.3.0`, xác nhận XML-RPC) **+ đo lại chỉ-đọc ngay trên UAT**:
@@ -873,6 +873,96 @@ Dev không tự quyết P1/P2/P3.
 ## D6 — Bù hàng UI trên component mới (BH-007, 008, 009) — `-u wujia_portal_return,wujia_sale`
 
 > Prompt: "làm cụm D6". Chạy **sau** D2 (fallback CJK) và D4 (SurfaceCard).
+
+🔴 **Chốt 09/09: D6 KHÔNG phải cụm chuẩn component.** D3 (CardHeader) · D4 (SurfaceCard) ·
+D5 (DataList) là ba mắt xích *dựng* component; **D6 là cụm nghiệp vụ TIÊU THỤ component** — ba
+issue UAT của màn Bù hàng, sửa bằng cách *dùng* `wj_surface_card` variant `record` +
+`wj_data_list`, không chép token tay (quyết định 25/08). Chuẩn component tiếp theo nằm ở lứa
+**D7+**: 7 issue `Ready for Dev` chưa phân cụm — `UI-STATUSBADGE-001` (128) · `UI-PAGECONTAINER-001`
+(129) · `UI-PAGINATION-001` (130) · `UI-SIDEBAR-001` (131) · `UI-BUTTON-001` (132) ·
+`UI-LISTCARD-001` (136) · `UI-FILTER-001` (139).
+
+⇒ Vào D6 bằng **lượt kiểm kê D6a**, đúng tiền lệ D3a/D4a/D5a.
+
+### D6a — kiểm kê, **0 dòng code sản phẩm** (lượt kế tiếp)
+
+> Prompt: "làm cụm D6a".
+
+Giữ issue ở `Ready for Dev` sau lượt này (lượt kiểm kê không migrate call site nào thì không có gì
+để BA retest — tiền lệ D3a/D4a/D5a). Sáu việc, theo thứ tự:
+
+1. **Đọc acceptance THẬT của ba issue.** Lấy cột `Kết quả mong muốn` của `UAT-BH-007` (STT 122) ·
+   `UAT-BH-008` (123) · `UAT-BH-009` (124) từ tab `Issue List` bằng **`export?format=csv`** (số dòng
+   tuyệt đối; đường `gviz` ăn theo filter đang bật ⇒ lệch dòng, ghi đè nhầm issue). Không nhớ lại
+   từ bản tóm tắt.
+2. **Kiểm kê call site** ở `wujia_portal_return/views/portal_return_list.xml` ·
+   `portal_return_form.xml` · `portal_return_detail.xml` (+ phần `wujia_sale` liên quan). Đếm bằng
+   **cấu trúc** như D5a (`lxml` + `t-foreach`), không bằng tên lớp — D4 đã đính chính con số ba lần
+   vì `grep` bắt tên con BEM.
+3. **Liệt kê nhánh `t-if` theo TRẠNG THÁI của màn rồi mới chọn bản ghi để đo** (bài học D5h.1: bảng
+   *Kết quả thi* ẩn sau `state == 'confirmed'` nên bộ đo báo sạch ở một phiếu chưa duyệt). Bù hàng
+   có nhiều trạng thái phê duyệt + tiến độ bù ⇒ phải seed đủ trạng thái mới đo được.
+4. **Mốc đo "trước"** bằng bộ đo trong repo `scripts/qa/` ở **6 khổ** 1440 · 1024 · 992 · 991 · 390 ·
+   360. Trước khi đo: `git diff --stat` sạch + so `latest_version` với `__manifest__.py` **từng
+   module** (bài học D4e2 #1, D5g #4).
+5. **Ba issue, ba đích đo:**
+   - **BH-007** — tên sản phẩm 2 dòng, ellipsis chỉ ở cuối dòng 2; dropdown `/portal/return/new`
+     xem được option đầy đủ + có vùng hiện tên đầy đủ sau khi chọn. **Không đổi tên SP trong Odoo.**
+     Dựa trên nền D2 (fallback CJK) cho tên song ngữ.
+   - **BH-008** — tách 2 badge đang cùng hàng: giữ **trạng thái phê duyệt** ở dòng đầu, đưa **tiến
+     độ bù** xuống dòng riêng nhãn "Tiến độ bù" (nguồn `COMPENSATION_STATUS_LABELS`). Card về
+     `CMP-SC-001` variant `record`.
+   - **BH-009** — control mobile về **44–48px** + radius token (D1 đang để 38px, đã ghi LIMIT — nợ
+     mang sang từ D1, đây là chỗ trả); ở 360px các trường chật (SL yêu cầu, Ngày sản xuất) xuống
+     1 cột; mọi label có `id/for` hoặc `aria-labelledby` (`views/portal_return_form.xml`). Đo bằng
+     harness a11y đã có (tab-walk + `forcePseudoState` cho `input[type=date]` — bẫy C8a).
+6. **Kiểm giao cắt với D4/D5 trước khi đề xuất:** màn Bù hàng đã có `wj-surface-card` (D4) và
+   `wj-data-item` variant `detail-card` (D5f, `mreturn-row` 118,3px). Ghi rõ call site nào đã
+   thuộc component nào để D6 không dựng lớp thứ ba đè lên.
+
+Sản phẩm của D6a: `docs/d6-inventory.md` (bảng call site × issue × trạng thái hiện tại) + mốc đo
+`docs/d6-before.json` + danh sách câu hỏi BA nếu có fork.
+
+### D5h.2 — nợ của cụm D5, làm cùng D6a hoặc trước D6a
+
+🔴 **Hồi quy phát hiện 09/09 từ ảnh chủ dự án gửi: thẻ trắng lồng thẻ trắng.**
+
+Acceptance của chính `CMP-SC-001` ghi *"không thẻ trắng lồng thẻ trắng"*, và D4g đo trên UAT ngày
+06/09 ra **0 lồng trắng** — tức lỗi này do D5 sinh ra, **không cần hỏi BA**, chỉ cần vá.
+
+**Cơ chế:** vỏ `.wj-surface-card` có viền + bo + đệm (`_components.css:623`); item
+`.wj-data-list--compact-row .wj-data-item` **cũng** có viền + bo 12 + nền card (`:817`, đúng chuẩn
+`UI-LISTCARD-001` "một record một card riêng"). Chỗ nào list dạng-thẻ nằm **trong** vỏ thì thành
+hai khung trắng lồng nhau, cách nhau đúng 14px đệm của `.wujia-mdash-list`.
+
+**11 call site** (đếm bằng `lxml`: `t-call` DataList có tổ tiên là `t-call` SurfaceCard **và** khai
+`dl_variant` dạng thẻ):
+
+| File | Dòng | Màn |
+|---|---:|---|
+| `wujia_portal_base/views/portal_home.xml` | 133 · 168 · 205 | 3 khối preview Trang chủ **PC** |
+| `wujia_portal_base/views/portal_home.xml` | 404 · 455 · 496 · 538 · 574 | 5 khối Trang chủ **mobile** (Thông báo — đúng khối trong ảnh — Giao hàng, Đơn hàng, Kiến thức, Đổi trả) |
+| `wujia_portal_base/views/portal_franchise_information.xml` | 268 | danh sách thành viên mobile |
+| `wujia_portal_knowledge/views/portal_knowledge.xml` | 94 | danh sách bài viết PC |
+| `wujia_portal_support/views/portal_support.xml` | 189 | danh sách ticket mobile |
+
+⚠️ **12 chỗ nested còn lại dùng variant BẢNG — nằm trong vỏ là ĐÚNG spec** (BA: *DataList nằm trong
+SurfaceCard*). Không đụng.
+
+**Đường vá đã chốt — bỏ VIỀN của vỏ, giữ item là card:**
+
+1. Thêm **đúng một** rule vào khối SurfaceCard của `_components.css` (sau base, cùng đặc hiệu
+   `(0,1,0)`):
+   ```css
+   .wj-surface-card--listwrap { border: 0; padding: 0; background: transparent; }
+   ```
+2. 11 call site thêm `wj-surface-card--listwrap` vào **`sc_class` sẵn có** — **KHÔNG gỡ `t-call`**,
+   để số phủ D4 (151/377) và kiến trúc "một chủ sở hữu dáng khung" giữ nguyên, và muốn trả viền lại
+   chỉ cần xoá một rule.
+3. Bump `wujia_portal_layout` + `?v=` (bài học deploy D4: sửa CSS nạp bằng `<link ?v=>` mà không
+   bump là BA retest trên cache cũ).
+4. Đo lại 11 màn × 2 khổ: chiều cao trang, số record trong viewport (acceptance #9), 0 tràn ngang,
+   0 lỗi JS; chạy 68 test `wujia_data_list_d5`; grep xác nhận `_components.css` **chỉ thêm 1 rule**.
 
 - **BH-007:** card `/portal/return` cho tên sản phẩm **2 dòng**, ellipsis chỉ ở cuối dòng 2;
   dropdown `/portal/return/new` phải xem được option đầy đủ + có vùng hiện tên đầy đủ sau khi

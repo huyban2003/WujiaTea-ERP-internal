@@ -374,3 +374,42 @@ chưa từng được render.
 
 `wujia_portal_exam` `19.0.5.12.0` → **`19.0.5.13.0`**. CSS nằm trong bundle asset của module nên
 **không có `?v=` phải bump**. Deploy: `-u wujia_portal_exam`.
+
+---
+
+## §15. Hồi quy phát hiện SAU khi khép cụm — thẻ trắng lồng thẻ trắng (09/09/2026)
+
+Chủ dự án gửi ảnh khối *Thông báo nổi bật* trên UAT: hai thẻ thông báo, mỗi thẻ một khung viền,
+lại nằm gọn trong một khung viền nữa. Chẩn đoán bằng đọc mã, không đoán:
+
+| | Chủ sở hữu dáng | Khai gì | Neo |
+|---|---|---|---|
+| Vỏ ngoài | `.wj-surface-card` (D4) | `background` card · `border 1px` · `border-radius` · `padding` compact | `_components.css:623` |
+| Item bên trong | `.wj-data-list--compact-row .wj-data-item` (D5d/D5e) | `background` card · `border 1px` · `border-radius: 12px` · `padding 12px 14px` | `_components.css:817` |
+
+Hai khung cách nhau đúng **14px** — đệm ngang của `.wujia-mdash-list`.
+
+**Vì sao D4g đo trên UAT ngày 06/09 ra "0 lồng trắng" mà nay lại có:** lúc đó `.wj-data-item` chưa
+có dáng thẻ; variant `compact-row` ra đời ở **D5d (07/09)**, tức lỗi do chính cụm D5 sinh ra sau
+phép đo đó. Đây là **hồi quy**, không phải hiện trạng cũ.
+
+**Không phải chỗ chờ BA.** Acceptance của `CMP-SC-001` ghi thẳng *"không thẻ trắng lồng thẻ
+trắng"*; còn `UI-LISTCARD-001` (STT 136) yêu cầu *"một record một card riêng"*. Hai câu này chỉ
+mâu thuẫn khi giữ **cả hai** khung — bỏ khung ngoài là thoả cả hai.
+
+**Phạm vi: 11 call site.** Đếm bằng `lxml`: `t-call` DataList có tổ tiên là `t-call` SurfaceCard
+**và** khai `dl_variant` dạng thẻ (`compact-row`/`detail-card`).
+
+- `wujia_portal_base/views/portal_home.xml` — 133 · 168 · 205 (PC), 404 · 455 · 496 · 538 · 574 (mobile)
+- `wujia_portal_base/views/portal_franchise_information.xml:268`
+- `wujia_portal_knowledge/views/portal_knowledge.xml:94`
+- `wujia_portal_support/views/portal_support.xml:189`
+
+23 chỗ nested tổng cộng; **12 chỗ còn lại dùng variant bảng — nằm trong vỏ là ĐÚNG spec BA**
+(*DataList nằm trong SurfaceCard*), không đụng. Con số này đếm bằng **cấu trúc XML**, không bằng
+`grep` tên lớp — cùng phương pháp đã giữ cho D5 không phải đính chính lần nào.
+
+**Đường vá** (lượt **D5h.2**, ghi ở `docs/next-session-clusters-D.md`): thêm đúng một rule
+`.wj-surface-card--listwrap { border: 0; padding: 0; background: transparent }` + gắn class vào
+`sc_class` sẵn có của 11 call site, **không gỡ `t-call`** ⇒ số phủ D4 (151/377) giữ nguyên, lùi lại
+chỉ cần xoá một rule. Cần bump `wujia_portal_layout` + `?v=` và **deploy lại** mới retest được.
