@@ -33,6 +33,14 @@ Extension kế thừa:
         'portal',
         'mail',
     ],
+    'external_dependencies': {
+        'python': [
+            'google-api-python-client',
+            'google-auth',
+            'google-auth-oauthlib',
+            'google-auth-httplib2',
+        ],
+    },
     'data': [
         'security/wujia_inspection_groups.xml',
         'security/ir.model.access.csv',
@@ -59,8 +67,10 @@ Extension kế thừa:
     'assets': {
         'web.assets_backend': [
             'wujia_franchise_inspection/static/src/css/wujia_inspection.css',
+            'wujia_franchise_inspection/static/src/css/inspection_report.css',
             'wujia_franchise_inspection/static/src/js/wujia_inspection_chart.js',
             'wujia_franchise_inspection/static/src/js/wujia_gps_field.js',
+            'wujia_franchise_inspection/static/src/js/inspection_report.js',
         ],
     },
     'pre_init_hook': 'pre_init_hook',

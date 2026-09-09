@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- List View -->
+    <record id="view_wujia_franchise_contract_list" model="ir.ui.view">
+        <field name="name">wujia.franchise.contract.list</field>
+        <field name="model">wujia.franchise.contract</field>
+        <field name="arch" type="xml">
+            <list string="Franchise Contracts" delete="false" decoration-muted="state == 'cancelled'" decoration-danger="state == 'expired'" decoration-success="state == 'effective'" decoration-info="state == 'draft'">
+                <field name="name"/>
+                <field name="franchise_id"/>
+                <field name="start_date"/>
+                <field name="end_date"/>
+                <field name="state" widget="badge"/>
+                <field name="active" widget="boolean_toggle"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- Form View -->
+    <record id="view_wujia_franchise_contract_form" model="ir.ui.view">
+        <field name="name">wujia.franchise.contract.form</field>
+        <field name="model">wujia.franchise.contract</field>
+        <field name="arch" type="xml">
+            <form string="Franchise Contract" delete="false">
+                <header>
+                    <button name="action_confirm" string="Confirm" type="object" class="btn-primary" invisible="state != 'draft'"/>
+                    <button name="action_cancel" string="Cancel Contract" type="object" class="btn-secondary" invisible="state == 'cancelled'" confirm="Are you sure you want to cancel this contract?"/>
+                    <button name="action_draft" string="Reset to Draft" type="object" class="btn-secondary" invisible="state != 'cancelled'"/>
+                    <field name="state" widget="statusbar" statusbar_visible="draft,effective,expired,cancelled"/>
+                </header>
+                <sheet>
+                    <div class="oe_title">
+                        <h1>
+                            <field name="name" placeholder="Contract Number (e.g. FC/2026/0001)..." readonly="state not in ('draft', 'cancelled')"/>
+                        </h1>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="franchise_id" readonly="state not in ('draft', 'cancelled')"/>
+                            <field name="start_date" readonly="state not in ('draft', 'cancelled')"/>
+                            <field name="end_date" readonly="state not in ('draft', 'cancelled')"/>
+                        </group>
+                        <group>
+                            <field name="active" readonly="state in ('effective', 'expired')"/>
+                            <field name="attachment_ids" widget="many2many_binary" readonly="state not in ('draft', 'cancelled')"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="Notes" name="notes_page">
+                            <field name="note" placeholder="Enter internal contract notes..." readonly="state not in ('draft', 'cancelled')"/>
+                        </page>
+                    </notebook>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <!-- Search View -->
+    <record id="view_wujia_franchise_contract_search" model="ir.ui.view">
+        <field name="name">wujia.franchise.contract.search</field>
+        <field name="model">wujia.franchise.contract</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="name"/>
+                <field name="franchise_id"/>
+                <separator/>
+                <filter string="Effective" name="effective" domain="[('state', '=', 'effective')]"/>
+                <filter string="Expired" name="expired" domain="[('state', '=', 'expired')]"/>
+                <filter string="Draft" name="draft" domain="[('state', '=', 'draft')]"/>
+                <separator/>
+                <filter string="Archived" name="inactive" domain="[('active', '=', False)]"/>
+                <separator/>
+                <filter string="Franchise Store" name="group_franchise" context="{'group_by': 'franchise_id'}"/>
+                <filter string="Status" name="group_state" context="{'group_by': 'state'}"/>
+            </search>
+        </field>
+    </record>
+
+    <!-- Action -->
+    <record id="action_wujia_franchise_contract" model="ir.actions.act_window">
+        <field name="name">Franchise Contracts</field>
+        <field name="res_model">wujia.franchise.contract</field>
+        <field name="view_mode">list,form</field>
+        <field name="search_view_id" ref="view_wujia_franchise_contract_search"/>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Create your first franchise contract!
+            </p>
+            <p>
+                Manage contract history for each franchise store.
+            </p>
+        </field>
+    </record>
+</odoo>
