@@ -1,0 +1,150 @@
+\chapter{Sprint 59 --- Cụm D5 DataList \texttt{CMP-DL-001} (2026-09-06 $\to$ 2026-09-08)}
+
+\emph{Chapter này gộp tám lượt của một cụm giao diện duy nhất: dựng component
+\texttt{wj\_data\_list} rồi dời dáng danh sách của mọi màn Portal về một chủ sở hữu. Số đo từng
+lượt nằm ở \texttt{docs/d5\{b,c,d,e,f,g,h\}-acceptance-matrix.md}; kiểm kê ở
+\texttt{docs/d5-datalist-inventory.md}; bảy câu treo gửi BA ở
+\texttt{docs/ba-questions-d5-datalist.md}.}
+
+\section{Bối cảnh}
+
+Issue \texttt{UI-DATALIST-001} (STT 126), spec \texttt{CMP-DL-001} tab \emph{UI Component} dòng 36,
+Status \texttt{BA Confirmed}. Mắt xích thứ tư của bộ component chung, sau \texttt{CMP-PG-001} (B3),
+\texttt{CMP-SH-001} (C8), \texttt{CMP-CH-001} (D3) và \texttt{CMP-SC-001} (D4).
+
+Điều làm D5 khác hẳn ba cụm trước: D3 đổi cỡ chữ \emph{trong} thẻ, D4 đổi \emph{khung} thẻ --- cả
+hai thuần CSS, markup gần như đứng yên. D5 đụng \textbf{cấu trúc}
+(\texttt{table/thead/tbody/th[scope]}), \textbf{trạng thái dữ liệu} (loading/empty/no-result/error),
+\textbf{điều kiện hiện pager}, và ràng buộc PC $\leftrightarrow$ mobile chung một nguồn
+field/count/filter/sort. Ít call site hơn D4 nhưng mỗi call site sâu hơn.
+
+Khoảng cách với spec, đo được ở sáu khổ trước khi bắt đầu: \texttt{th[scope]} \textbf{0/21} lượt đo
+--- yêu cầu ngữ nghĩa của BA vỡ 100\%; header bảng 46 hoặc 50 (BA 44); đệm ô \texttt{0 22px} hoặc
+\texttt{14px 20px} (BA \texttt{10px 16px}); dòng thấp nhất 45px (BA sàn 52); mobile khoảng cách
+thẻ chạy từ 0 đến 12 và bo góc từ 0 đến 16.
+
+\section{Kiểm kê: đếm bằng cấu trúc, không bằng tên lớp}
+
+D4 phải đính chính con số \textbf{ba lần trong cùng một cụm} (51$\to$50, 36$\to$7, 24$\to$4), cả ba
+cùng một nguyên nhân: \texttt{grep} bắt luôn tên con BEM. D5a tránh hẳn đường đó bằng một phép thử
+cấu trúc: một khối \emph{là} DataList khi nó render tập record nghiệp vụ lặp lại và người dùng đọc
+nó để chọn ra một record. Cách đếm: \texttt{lxml} lấy mọi element mang \texttt{t-foreach}, lần
+xuống element thật đầu tiên khi vòng lặp gắn trên \texttt{<t>} --- 133 vòng lặp thô, lọc còn
+\textbf{31 call site} trong 10 màn BA cộng 3 màn kề cận. Hệ quả cùng họ:
+\texttt{wj-pc-table} xuất hiện \textbf{15} lần trong mã nguồn nhưng chỉ \textbf{5} là danh sách
+record.
+
+\section{Tám lượt, một khuôn}
+
+\begin{itemize}
+\item \textbf{D5a} 06/09 --- kiểm kê, 0 dòng code sản phẩm; giữ issue ở \texttt{Ready for Dev} theo
+  tiền lệ D3a/D4a (lượt không migrate call site nào thì không có gì để BA retest).
+\item \textbf{D5b} 07/09 --- dựng nền \texttt{wj\_data\_list} (DataViewport / DataItem / DataState /
+  slot Pagination) + 3 call site họ \texttt{wujia-content-card-table}. \texttt{th[scope]}
+  0/19 $\to$ 19/19, header 46 $\to$ 44, đệm \texttt{14px 20px} $\to$ \texttt{10px 16px}.
+\item \textbf{D5c} 07/09 --- 3 bảng PC họ \texttt{wj-pc-table}. Dòng \textbf{58 cứng} $\to$ 54--89
+  mềm; guard pager \textbf{tách đôi} lần đầu (nút trang theo số trang, dòng đếm là thông tin nên giữ).
+\item \textbf{D5d} 07/09 --- 4 danh sách PC \emph{không phải bảng}; dựng variant
+  \texttt{compact-row}, \texttt{.wj-data-item} thành chủ sở hữu duy nhất của dáng item.
+\item \textbf{D5e} 07/09 --- 9 danh sách mobile, 4 họ. Rule của D5d \textbf{tách làm hai}: dáng
+  chung ở \texttt{.wj-data-item}, layout ở từng họ. gap \texttt{0/10} $\to$ 8, radius
+  \texttt{0/14} $\to$ 12.
+\item \textbf{D5f} 08/09 --- dựng variant \texttt{detail-card} (0 hit trong repo trước lượt này) +
+  2 call site. Lượt đầu làm trang \emph{ngắn lại} ($-156/-52$) và không thủng ô acceptance nào.
+\item \textbf{D5g} 08/09 --- Công nợ, 2 bảng PC + 2 danh sách mobile. \texttt{th[scope]}
+  0/14 $\to$ 14/14; chọn variant theo \emph{số đo sau seed} chứ không theo cảm tính.
+\item \textbf{D5h} 08/09 --- lượt \textbf{khép}: Thi $\times$4 + kề cận $\times$3.
+  \texttt{th[scope]} 0/20 $\to$ 20/20; bốn danh sách mobile vào đúng dải BA.
+  \textbf{D5h.1} cùng ngày vá bảng \emph{Kết quả thi} mà kiểm kê bỏ sót.
+\end{itemize}
+
+Cộng $3+3+4+9+2+4+7+1 = \mathbf{33}$ call site: \textbf{30/32} trong phạm vi BA (2 call site Khảo
+sát \textbf{defer có chủ đích}) cộng 3 màn kề cận.
+
+\section{Luật chung của cụm --- đúc từ tám lượt}
+
+\begin{enumerate}
+\item \textbf{Kiến trúc hai tầng.} Dáng (nền, viền, bo, đệm, khoảng cách) thuộc về
+  \texttt{.wj-data-item} của variant; layout (flex/grid, thứ tự vùng, \texttt{table-layout},
+  \texttt{th:nth-child\{width\}}, cỡ chữ) thuộc về từng họ. Khoá nhầm nhóm sau là làm vỡ tỉ lệ cột.
+\item \textbf{Giao cắt với D4 giải bằng độ đặc hiệu, không bằng cách sửa component kia.} Item màn
+  Thi mang \emph{cả} \texttt{wj-surface-card} (0,1,0) \emph{lẫn} \texttt{wj-data-item}; gắn
+  \texttt{wj-data-item} vào chính thẻ \texttt{<a>} đó để rule variant thắng ở (0,2,0). Đo xác nhận
+  D5 thắng (radius 14 $\to$ 12) mà \texttt{\_components.css} của D4 \textbf{không đổi một byte}.
+\item \textbf{Phép so trước--sau ghép theo tên lớp là bộ đo tự chứng minh rỗng.} Call site nào
+  migrate xong cũng đổi khoá container, nên bảng acceptance bỏ qua \emph{im lặng} đúng những call
+  site vừa sửa rồi in ra ``0 ô thủng''. Ghép theo \textbf{vị trí} call site thì lộ ra ngay.
+\item \textbf{Giao tập route rồi mới so.} Mốc ``trước'' so với file ``sau'' của lượt trước báo 378
+  ô lệch chỉ vì hai lượt đo khác số route; giao tập xong ra \texttt{2064/2064 ô, 0 lệch} --- đó mới
+  là bằng chứng môi trường đúng.
+\item \textbf{So \texttt{latest\_version} với \texttt{\_\_manifest\_\_.py} của từng module trước mỗi
+  lượt đo.} Giữa D5f và D5g, \texttt{main} nhận merge nhánh \texttt{thai} $\Rightarrow$ DB đo thiếu
+  một module, lệch hai phiên bản, mà không có dấu hiệu nào trên màn hình.
+\item \textbf{Phép chọn của test là một giả định về DOM, và nó im lặng khi sai.}
+  \texttt{re.match} neo đầu chuỗi bỏ sót đúng call site cần nó nhất (tên họ nằm giữa chuỗi lớp sau
+  \texttt{wj-surface-card}). Mọi so tên lớp phải là \texttt{(\^{}|\textbackslash s)\ldots(?![-\textbackslash w])}.
+\item \textbf{Sửa file XML lớn bằng offset dòng cứng là tự tay làm hỏng file.} Một lần sửa theo số
+  dòng đã cắt ngang khối \texttt{<form>}. Neo theo \textbf{nội dung} + \texttt{minidom.parse} để
+  kiểm --- và neo nội dung cũng là điều kiện để vòng đột biến chạy được.
+\item \textbf{Seed phải đi qua cơ chế nghiệp vụ, không ghi thẳng field.} Làm vậy thì lỗi nghiệp vụ
+  hiện ra ngay lúc seed: \texttt{action\_publish()} từ chối khoá thi chưa có ca; user portal không
+  đọc được \texttt{ir.sequence}. Ghi thẳng field sẽ \emph{giấu} cả hai.
+\item \textbf{Khi số đo lệch sau lượt, phải quy được trách nhiệm cho SEED hay CODE.} Histogram nhảy
+  $16\times8 \to 16\times22$; diff theo \emph{từng route} cho thấy chỉ một route đổi, đúng
+  $(13-3)\times2$ tiêu đề sinh từ phiếu đăng ký mới --- không có phép diff theo route thì con số này
+  trông y hệt một hồi quy.
+\end{enumerate}
+
+\section{Hai lỗi nghiệp vụ thật, tìm được nhờ guard}
+
+Cụm đặt ra để dọn dáng, nhưng phép kiểm ``pager chỉ hiện khi thật sự có hơn một trang'' bắt được
+hai lỗi chức năng:
+
+\begin{enumerate}
+\item \textbf{Pager giả ở \texttt{/portal/franchise-information}}: ba thẻ \texttt{<span>} vẽ cứng
+  trong màn hình --- danh sách thành viên \emph{chưa bao giờ} được phân trang phía máy chủ, nên nút
+  trang luôn hiện với đúng một trang. Lọt qua sáu lượt trước vì không lượt nào \emph{đọc} khối đó.
+\item \textbf{Nút trang hiện với một trang} ở màn Thi và màn Công nợ. Khoá của hai màn khác nhau
+  (\texttt{pages} với \texttt{page\_count}) --- đọc controller trước khi truyền \texttt{dl\_pager},
+  đừng chép guard của màn trước.
+\end{enumerate}
+
+Cả ba chỗ đều chứng minh \textbf{hai chiều}: dữ liệu nhiều trang thì nút còn, một trang thì nút
+biến mất trong khi dòng đếm và ô chọn cỡ trang vẫn còn.
+
+\section{Guard}
+
+68 test tag \texttt{wujia\_data\_list\_d5}, 0 failed / 0 error. Mỗi lượt đều chứng minh bộ test có
+tác dụng bằng đột biến: D5h 13/13 và D5h.1 4/4 phép thay đều làm đỏ \textbf{đúng một} test, và
+sha256 khớp sau khi hoàn tác bằng ảnh chụp byte (không \texttt{git checkout}).
+
+Ba lượt liên tiếp mất một vòng đột biến vì \emph{bộ đọc kết quả}, không phải vì guard: lần thì file
+log, lần thì regex không lường được Odoo in \texttt{FAIL: TestLop.test\_x}. Cái cứu được là
+\textbf{hai nguồn số độc lập in cạnh nhau} --- dòng \texttt{1 failed of 53} mâu thuẫn với ``đỏ
+KHÔNG test nào''. Báo cáo đột biến phải luôn in cả dòng tổng kết thô.
+
+\section{Trạng thái cuối sprint}
+
+\begin{itemize}
+\item Cụm D5 \textbf{khép} ở 30/32 call site trong phạm vi BA (+3 kề cận). Hai call site Khảo sát
+  \texttt{defer} theo quyết định chủ dự án 08/09: \texttt{wujia\_portal\_inspection} và
+  \texttt{wujia\_franchise\_inspection} viết theo lối khác hẳn portal; luật thường trực đã ghi vào
+  skill \texttt{wujia-start}.
+\item Sheet: \texttt{UI-DATALIST-001} $\to$ \textbf{\texttt{Ready for Retest}} kèm chữ
+  \emph{provisional}. Dev không set \texttt{Done}.
+\item \textbf{Hàng đợi deploy:} \texttt{wujia\_portal\_exam} \texttt{19.0.5.13.0} (phần D5h.1) ---
+  các lượt D5b$\to$D5h đã lên UAT 08/09 và đã nghiệm thu lại chỉ-đọc trên chính máy chủ (4/4 module
+  đúng phiên bản, 16/16 phép kiểm template đọc từ \texttt{ir.ui.view}, 13 route $\times$ 6 khổ đều
+  200, 0 lỗi JS, 0 tràn ngang).
+\item \textbf{9 LIMIT} ghi vào ledger và gửi BA; bảy câu trong
+  \texttt{docs/ba-questions-d5-datalist.md} chưa có trả lời nên bộ số cả cụm là tạm.
+\item \textbf{Hồi quy phát hiện sau khi khép cụm (09/09):} spec \texttt{CMP-SC-001} cấm
+  ``thẻ trắng lồng thẻ trắng'', và D4g đo trên UAT ngày 06/09 ra \emph{0 lồng trắng}. Nhưng
+  variant \texttt{compact-row}/\texttt{detail-card} của D5 cho item viền + bo, trong khi
+  \textbf{11 call site} có danh sách dạng thẻ nằm \emph{trong} vỏ \texttt{wj-surface-card}
+  $\Rightarrow$ hai khung trắng lồng nhau. Đường vá và danh sách 11 chỗ ghi ở lượt \textbf{D5h.2}
+  trong \texttt{docs/next-session-clusters-D.md}.
+\item Cụm kế: \textbf{D6 --- Bù hàng} (\texttt{UAT-BH-007/008/009}). Khác D3/D4/D5, D6 không phải
+  cụm chuẩn component mà là cụm nghiệp vụ \emph{tiêu thụ} component; bắt đầu bằng lượt kiểm kê
+  \textbf{D6a}. Chuẩn component tiếp theo nằm ở lứa D7+.
+\end{itemize}
