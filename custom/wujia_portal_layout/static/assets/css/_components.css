@@ -639,6 +639,13 @@ h2, .wujia-h2 { font-size: var(--wujia-font-size-h2) !important; font-weight: 60
 .wj-surface-card--flush {
     padding: 0;
 }
+/* D5h.2: vỏ chỉ bọc danh sách dạng thẻ ⇒ nhường khung cho item, khỏi lồng hai khung
+   trắng (BA CMP-SC-001). (0,2,0) để thắng lớp cũ của call site bất kể thứ tự file. */
+.wj-surface-card.wj-surface-card--listwrap {
+    padding: 0;
+    background: transparent;
+    border: 0;
+}
 /* Vùng phụ lồng trong card: nền tonal, không viền, không bóng (BA D4c). */
 .wj-surface-card--tonal {
     background: var(--wujia-surface-tonal);
@@ -852,6 +859,18 @@ h2, .wujia-h2 { font-size: var(--wujia-font-size-h2) !important; font-weight: 60
 .wj-data-list--compact-row .wj-data-item:hover {
     background: rgba(40, 169, 223, 0.04);
     border-color: var(--wujia-primary);
+}
+/* D5h.2: compact-row nằm TRONG vỏ có viền (vỏ còn ôm cả CardHeader) ⇒ item trả về dáng
+   dòng ngăn bằng kẻ, vỏ là khung duy nhất. Số lấy từ .wujia-content-card-row trước D5d. */
+.wj-data-list--compact-row.wj-data-list--inset .wj-data-item {
+    padding: 12px 0;
+    background: transparent;
+    border: 0;
+    border-radius: 0;
+}
+.wj-data-list--compact-row.wj-data-list--inset .wj-data-item + .wj-data-item {
+    margin-top: 0;
+    border-top: 1px solid var(--wujia-border);
 }
 
 /* ---------------------------------------------------------------------------

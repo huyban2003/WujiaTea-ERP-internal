@@ -409,7 +409,52 @@ mâu thuẫn khi giữ **cả hai** khung — bỏ khung ngoài là thoả cả 
 (*DataList nằm trong SurfaceCard*), không đụng. Con số này đếm bằng **cấu trúc XML**, không bằng
 `grep` tên lớp — cùng phương pháp đã giữ cho D5 không phải đính chính lần nào.
 
-**Đường vá** (lượt **D5h.2**, ghi ở `docs/next-session-clusters-D.md`): thêm đúng một rule
-`.wj-surface-card--listwrap { border: 0; padding: 0; background: transparent }` + gắn class vào
-`sc_class` sẵn có của 11 call site, **không gỡ `t-call`** ⇒ số phủ D4 (151/377) giữ nguyên, lùi lại
-chỉ cần xoá một rule. Cần bump `wujia_portal_layout` + `?v=` và **deploy lại** mới retest được.
+### Bản vá D5h.2 — ĐÃ LÀM trong cùng phiên 09/09
+
+11 call site **không cùng một dạng**, nên một rule không đủ; phân loại bằng `lxml` theo câu hỏi
+*vỏ có ôm CardHeader không*:
+
+| Nhóm | Số chỗ | Tình thế | Cách vá |
+|---|---|---|---|
+| A | 6 | tiêu đề nằm **ngoài** vỏ ⇒ vỏ chỉ để bọc danh sách | vỏ nhường khung: `sc_class` **+ `wj-surface-card--listwrap`** |
+| B | 5 | vỏ **ôm cả CardHeader** ⇒ gỡ vỏ là mất tiêu đề | giữ vỏ, **làm phẳng item**: `dl_class` **+ `wj-data-list--inset`** |
+
+Hai rule mới trong `_components.css`, **không sửa byte nào của rule cũ** — đúng luật D5: xung đột
+D4×D5 phân xử bằng **độ đặc hiệu** (0,2,0), không ai đi sửa component của người kia.
+
+```css
+.wj-surface-card.wj-surface-card--listwrap { padding: 0; background: transparent; border: 0; }
+.wj-data-list--compact-row.wj-data-list--inset .wj-data-item {
+    padding: 12px 0; background: transparent; border: 0; border-radius: 0; }
+.wj-data-list--compact-row.wj-data-list--inset .wj-data-item + .wj-data-item {
+    margin-top: 0; border-top: 1px solid var(--wujia-border); }
+```
+
+`12px 0` + kẻ `1px` lấy **nguyên số của `.wujia-content-card-row` trước D5d** — trả dòng về đúng
+dáng nó vốn có, không bịa số mới.
+
+**Guard mới, vào repo:** `scripts/qa/wj_nesting.py`. Bộ đo `wj_datalist.py` đo *dáng* từng phần tử
+nên **mù với quan hệ lồng nhau** — chính vì thế hồi quy này lọt. Guard hỏi đúng một câu: có vỏ
+`.wj-surface-card` đang vẽ khung nào chứa `.wj-data-item` cũng đang vẽ khung không.
+
+⚠️ Bẫy đã sập một lần: lượt chạy đầu đếm "khung" = *có viền bất kỳ*, nên **nét kẻ ngăn dòng**
+`border-top` bị tính là khung và báo động giả đúng **n−1** lần mỗi danh sách. Định nghĩa siết lại:
+khung = **có nền** hoặc **viền ≥3 cạnh** hoặc **có viền + bo góc**. Nét kẻ đơn không phải khung.
+
+**Đo trước/sau trên DB `wujia_tea_d5h2`** (port 8074, 7 route × 3 khổ 1440/991/390):
+
+| Phép | Trước | Sau |
+|---|---|---|
+| Chỗ thẻ lồng thẻ | **18** | **0** |
+| Số record thấy được | — | **không màn nào đổi** |
+| Tràn ngang · lỗi JS | 0 · 0 | 0 · 0 |
+| Bảng (18 bảng, header 44, padding 10/16) | đạt | **y hệt, không xê dịch** |
+| Chiều cao trang | — | ngắn lại 8–231px ở đúng 15 ô bị ảnh hưởng |
+
+Item cũ có **nền + 4 viền + bo 12** nên vẫn tính là khung dưới định nghĩa siết ⇒ con số **18** của
+mốc "trước" không đổi khi siết, không cần đo lại.
+
+**Test:** `--test-tags wujia_data_list_d5` → **0 failed, 0 error / 68 tests**.
+
+**Deploy:** `wujia_portal_layout` **19.0.46.0.0**, `_components.css?v=1280`. Chủ dự án phải deploy
+lại rồi BA mới retest được.

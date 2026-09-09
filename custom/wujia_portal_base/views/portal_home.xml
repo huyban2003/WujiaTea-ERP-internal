@@ -132,6 +132,7 @@
                             </t>
                             <t t-call="wujia_portal_layout.wj_data_list">
                                 <t t-set="dl_variant" t-value="'compact-row'"/>
+                                <t t-set="dl_class" t-value="'wj-data-list--inset'"/>
                                 <t t-set="dl_empty" t-value="not latest_notifications"/>
                                 <t t-set="dl_state">
                                     <div class="wujia-content-card-empty">Chưa có thông báo nào.</div>
@@ -167,6 +168,7 @@
                             </t>
                             <t t-call="wujia_portal_layout.wj_data_list">
                                 <t t-set="dl_variant" t-value="'compact-row'"/>
+                                <t t-set="dl_class" t-value="'wj-data-list--inset'"/>
                                 <t t-set="dl_empty" t-value="not recent_orders"/>
                                 <t t-set="dl_state">
                                     <div class="wujia-content-card-empty">Chưa có đơn hàng nào.</div>
@@ -204,6 +206,7 @@
                             </t>
                             <t t-call="wujia_portal_layout.wj_data_list">
                                 <t t-set="dl_variant" t-value="'compact-row'"/>
+                                <t t-set="dl_class" t-value="'wj-data-list--inset'"/>
                                 <t t-set="dl_empty" t-value="not latest_returns"/>
                                 <t t-set="dl_state">
                                     <div class="wujia-content-card-empty">Chưa có yêu cầu nào.</div>
@@ -400,7 +403,7 @@
                             <t t-call="wujia_portal_layout.wj_surface_card" t-else="">
                                 <t t-set="sc_variant" t-value="'section'"/>
                                 <t t-set="sc_body" t-value="'flush'"/>
-                                <t t-set="sc_class" t-value="'wujia-mdash-card wujia-mdash-list'"/>
+                                <t t-set="sc_class" t-value="'wujia-mdash-card wujia-mdash-list wj-surface-card--listwrap'"/>
                                 <t t-call="wujia_portal_layout.wj_data_list">
                                     <t t-set="dl_variant" t-value="'compact-row'"/>
                                     <t t-foreach="latest_notifications" t-as="noti">
@@ -451,7 +454,7 @@
                             <t t-call="wujia_portal_layout.wj_surface_card" t-else="">
                                 <t t-set="sc_variant" t-value="'section'"/>
                                 <t t-set="sc_body" t-value="'flush'"/>
-                                <t t-set="sc_class" t-value="'wujia-mdash-card wujia-mdash-list'"/>
+                                <t t-set="sc_class" t-value="'wujia-mdash-card wujia-mdash-list wj-surface-card--listwrap'"/>
                                 <t t-call="wujia_portal_layout.wj_data_list">
                                     <t t-set="dl_variant" t-value="'compact-row'"/>
                                     <t t-foreach="m_upcoming_batches" t-as="it">
@@ -492,7 +495,7 @@
                             <t t-call="wujia_portal_layout.wj_surface_card" t-else="">
                                 <t t-set="sc_variant" t-value="'section'"/>
                                 <t t-set="sc_body" t-value="'flush'"/>
-                                <t t-set="sc_class" t-value="'wujia-mdash-card wujia-mdash-list'"/>
+                                <t t-set="sc_class" t-value="'wujia-mdash-card wujia-mdash-list wj-surface-card--listwrap'"/>
                                 <t t-call="wujia_portal_layout.wj_data_list">
                                     <t t-set="dl_variant" t-value="'compact-row'"/>
                                     <t t-foreach="recent_orders" t-as="o">
@@ -534,7 +537,7 @@
                             <t t-call="wujia_portal_layout.wj_surface_card" t-else="">
                                 <t t-set="sc_variant" t-value="'section'"/>
                                 <t t-set="sc_body" t-value="'flush'"/>
-                                <t t-set="sc_class" t-value="'wujia-mdash-card wujia-mdash-list'"/>
+                                <t t-set="sc_class" t-value="'wujia-mdash-card wujia-mdash-list wj-surface-card--listwrap'"/>
                                 <t t-call="wujia_portal_layout.wj_data_list">
                                     <t t-set="dl_variant" t-value="'compact-row'"/>
                                     <t t-foreach="articles" t-as="art">
@@ -570,7 +573,7 @@
                             <t t-call="wujia_portal_layout.wj_surface_card" t-else="">
                                 <t t-set="sc_variant" t-value="'section'"/>
                                 <t t-set="sc_body" t-value="'flush'"/>
-                                <t t-set="sc_class" t-value="'wujia-mdash-card wujia-mdash-list'"/>
+                                <t t-set="sc_class" t-value="'wujia-mdash-card wujia-mdash-list wj-surface-card--listwrap'"/>
                                 <t t-call="wujia_portal_layout.wj_data_list">
                                     <t t-set="dl_variant" t-value="'compact-row'"/>
                                     <t t-foreach="latest_returns" t-as="r">

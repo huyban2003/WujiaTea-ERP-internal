@@ -361,7 +361,7 @@ tổng `scrollHeight` **−24px** trên 44 ô, giả-heading **0/44**, outline 8
 hiển thị 43/44 giống hệt (1 ô mọc đúng "0 kết quả" theo yêu cầu BA), B4 **286/286**, bảng D3a
 chạy lại **356 phép so 0 lệch**, tab-walk 433 stop ring 16/16, font 66 tiêu đề 0 lệch;
 bắt được **1 lỗi thật**: `/portal/info-request` mất tiêu đề ở mobile do bake `ch_platform`;
-`docs/d3b-acceptance-matrix.md`) · D3c ✅ · D3d ✅ · D3e ✅ · D3f ✅ · review ✅ · **D4 ✅ KHÉP 06/09** (D4b…D4h, `UI-SURFACECARD-001` Ready for Retest + ĐÃ DEPLOY UAT) · **D5a ✅ 06/09** (kiểm kê 31 call site, `docs/d5-datalist-inventory.md`, 0 code) · **D5b ✅ 07/09** (nền `wj_data_list` + 3 call site họ `wujia-content-card-table`, 3/31, `docs/d5b-acceptance-matrix.md`) · **D5c ✅ 07/09** (họ `wj-pc-table`: purchase-history · delivery · notification, 6/31, `docs/d5c-acceptance-matrix.md`) · **D5d ✅ 07/09** (họ `li.wujia-content-card-row`: 3 khối preview `/portal` + `/portal/knowledge`, 10/31, `docs/d5d-acceptance-matrix.md`, bộ số **provisional** + 3 câu hỏi BA `docs/ba-questions-d5-datalist.md`) · **D5e ✅ 07/09** (9 call site mobile, 4 họ `mdash`/`mhist`/`mnoti`/`mknow`, 19/31, `docs/d5e-acceptance-matrix.md`) · **D5f ✅ 08/09** (variant `detail-card` dựng mới + 2 call site `mreturn`/`mdelivery`, 21/31, `docs/d5f-acceptance-matrix.md`) · **D5g ✅ 08/09** (4 call site công nợ: 2 bảng PC + mobile `wj-debt-inv` compact-row + `wj-debt-pay` detail-card, sửa guard pager `page_count > 1`, 25/31, `docs/d5g-acceptance-matrix.md`) · **D5h ✅ 08/09 KHÉP CỤM** (Thi ×4 + kề cận ×3, Khảo sát ×2 defer theo quyết định chủ dự án, **29/31** trong phạm vi BA + 3 kề cận = 32/34, `docs/d5h-acceptance-matrix.md`, `UI-DATALIST-001` → `Ready for Retest` **provisional**) · **D5h.1 ✅ 08/09** (vá bảng *Kết quả thi* mà kiểm kê D5a bỏ sót ⇒ **30/32** trong phạm vi BA + 3 kề cận = **33/35**, `docs/d5h-acceptance-matrix.md` §14, `wujia_portal_exam` 19.0.5.13.0 **CHỜ DEPLOY**) · **D5 ✅ KHÉP 08/09** (D5a…D5h.1, `UI-DATALIST-001` Ready for Retest *provisional*; **nợ D5h.2** — vá thẻ trắng lồng thẻ trắng ở 11 call site, phát hiện 09/09) · **Sprint 59 CHỐT SỔ 09/09** (chapter 72 + PDF) · D6 ⬜ (**vào bằng lượt kiểm kê D6a**) · R1–R5 ⬜
+`docs/d3b-acceptance-matrix.md`) · D3c ✅ · D3d ✅ · D3e ✅ · D3f ✅ · review ✅ · **D4 ✅ KHÉP 06/09** (D4b…D4h, `UI-SURFACECARD-001` Ready for Retest + ĐÃ DEPLOY UAT) · **D5a ✅ 06/09** (kiểm kê 31 call site, `docs/d5-datalist-inventory.md`, 0 code) · **D5b ✅ 07/09** (nền `wj_data_list` + 3 call site họ `wujia-content-card-table`, 3/31, `docs/d5b-acceptance-matrix.md`) · **D5c ✅ 07/09** (họ `wj-pc-table`: purchase-history · delivery · notification, 6/31, `docs/d5c-acceptance-matrix.md`) · **D5d ✅ 07/09** (họ `li.wujia-content-card-row`: 3 khối preview `/portal` + `/portal/knowledge`, 10/31, `docs/d5d-acceptance-matrix.md`, bộ số **provisional** + 3 câu hỏi BA `docs/ba-questions-d5-datalist.md`) · **D5e ✅ 07/09** (9 call site mobile, 4 họ `mdash`/`mhist`/`mnoti`/`mknow`, 19/31, `docs/d5e-acceptance-matrix.md`) · **D5f ✅ 08/09** (variant `detail-card` dựng mới + 2 call site `mreturn`/`mdelivery`, 21/31, `docs/d5f-acceptance-matrix.md`) · **D5g ✅ 08/09** (4 call site công nợ: 2 bảng PC + mobile `wj-debt-inv` compact-row + `wj-debt-pay` detail-card, sửa guard pager `page_count > 1`, 25/31, `docs/d5g-acceptance-matrix.md`) · **D5h ✅ 08/09 KHÉP CỤM** (Thi ×4 + kề cận ×3, Khảo sát ×2 defer theo quyết định chủ dự án, **29/31** trong phạm vi BA + 3 kề cận = 32/34, `docs/d5h-acceptance-matrix.md`, `UI-DATALIST-001` → `Ready for Retest` **provisional**) · **D5h.1 ✅ 08/09** (vá bảng *Kết quả thi* mà kiểm kê D5a bỏ sót ⇒ **30/32** trong phạm vi BA + 3 kề cận = **33/35**, `docs/d5h-acceptance-matrix.md` §14, `wujia_portal_exam` 19.0.5.13.0 **CHỜ DEPLOY**) · **D5 ✅ KHÉP 08/09** (D5a…D5h.1, `UI-DATALIST-001` Ready for Retest *provisional*; **D5h.2 ✅ 09/09** — vá thẻ trắng lồng thẻ trắng ở 11 call site, đo 18→0 chỗ lồng, `wujia_portal_layout` 19.0.46.0.0 **CHỜ DEPLOY**) · **Sprint 59 CHỐT SỔ 09/09** (chapter 72 + PDF) · D6 ⬜ (**vào bằng lượt kiểm kê D6a**) · R1–R5 ⬜
 
 🚚 **D1 + D2 ĐÃ DEPLOY UAT 27/08** (`wujia_portal_layout 19.0.32.4.0` · `wujia_portal_return
 19.0.2.7.0` · `wujia_sale 19.0.4.3.0`, xác nhận XML-RPC) **+ đo lại chỉ-đọc ngay trên UAT**:
@@ -923,7 +923,7 @@ Giữ issue ở `Ready for Dev` sau lượt này (lượt kiểm kê không migr
 Sản phẩm của D6a: `docs/d6-inventory.md` (bảng call site × issue × trạng thái hiện tại) + mốc đo
 `docs/d6-before.json` + danh sách câu hỏi BA nếu có fork.
 
-### D5h.2 — nợ của cụm D5, làm cùng D6a hoặc trước D6a
+### D5h.2 — ✅ ĐÃ VÁ 09/09/2026 (chờ chủ dự án deploy để BA retest)
 
 🔴 **Hồi quy phát hiện 09/09 từ ảnh chủ dự án gửi: thẻ trắng lồng thẻ trắng.**
 
@@ -949,20 +949,33 @@ hai khung trắng lồng nhau, cách nhau đúng 14px đệm của `.wujia-mdash
 ⚠️ **12 chỗ nested còn lại dùng variant BẢNG — nằm trong vỏ là ĐÚNG spec** (BA: *DataList nằm trong
 SurfaceCard*). Không đụng.
 
-**Đường vá đã chốt — bỏ VIỀN của vỏ, giữ item là card:**
+**Đã làm, không còn là kế hoạch.** 11 call site hoá ra **hai dạng**, phân loại bằng `lxml` theo câu
+hỏi *vỏ có ôm CardHeader không*:
 
-1. Thêm **đúng một** rule vào khối SurfaceCard của `_components.css` (sau base, cùng đặc hiệu
-   `(0,1,0)`):
-   ```css
-   .wj-surface-card--listwrap { border: 0; padding: 0; background: transparent; }
-   ```
-2. 11 call site thêm `wj-surface-card--listwrap` vào **`sc_class` sẵn có** — **KHÔNG gỡ `t-call`**,
-   để số phủ D4 (151/377) và kiến trúc "một chủ sở hữu dáng khung" giữ nguyên, và muốn trả viền lại
-   chỉ cần xoá một rule.
-3. Bump `wujia_portal_layout` + `?v=` (bài học deploy D4: sửa CSS nạp bằng `<link ?v=>` mà không
-   bump là BA retest trên cache cũ).
-4. Đo lại 11 màn × 2 khổ: chiều cao trang, số record trong viewport (acceptance #9), 0 tràn ngang,
-   0 lỗi JS; chạy 68 test `wujia_data_list_d5`; grep xác nhận `_components.css` **chỉ thêm 1 rule**.
+| Nhóm | Chỗ | Vá thế nào |
+|---|---|---|
+| **A** (6) | `portal_home.xml` 403 · 454 · 495 · 537 · 573 · `portal_support.xml:188` | tiêu đề nằm **ngoài** vỏ ⇒ `sc_class` **+ `wj-surface-card--listwrap`**, vỏ nhường khung cho item |
+| **B** (5) | `portal_home.xml` 133 · 168 · 205 · `portal_knowledge.xml:94` · `portal_franchise_information.xml:270` | vỏ **ôm cả CardHeader**, gỡ vỏ là mất tiêu đề ⇒ `dl_class` **+ `wj-data-list--inset`**, giữ vỏ và **làm phẳng item** về dáng dòng kẻ ngăn |
+
+⚠️ Bẫy suýt sập: `'wujia-mdash-card wujia-mdash-list'` xuất hiện **7 lần** trong `portal_home.xml`,
+nhưng 2 lần (dòng 608, 643) là vỏ ôm **dòng tĩnh, không có DataList**. Thay chuỗi hàng loạt là hỏng
+2 chỗ vô can — phải suy dòng bằng `lxml` rồi sửa đúng dòng đó.
+
+Ba rule mới trong `_components.css`, **không sửa byte nào của rule cũ** (độ đặc hiệu `(0,2,0)` thắng
+lớp cũ của call site bất kể thứ tự file); số `12px 0` + kẻ `1px` lấy nguyên của
+`.wujia-content-card-row` **trước D5d** — trả dòng về dáng nó vốn có.
+
+**Guard mới vào repo: `scripts/qa/wj_nesting.py`.** `wj_datalist.py` đo *dáng*, mù với *quan hệ lồng
+nhau* — đó là lý do hồi quy lọt. Guard đếm: vỏ đang vẽ khung mà chứa item cũng đang vẽ khung.
+Định nghĩa "khung" phải siết: **có nền** hoặc **viền ≥3 cạnh** hoặc **có viền + bo góc** — lượt đầu
+tính cả nét kẻ ngăn dòng nên báo động giả đúng n−1 lần mỗi danh sách.
+
+**Số đo (DB `wujia_tea_d5h2`, 7 route × 3 khổ):** chỗ lồng khung **18 → 0**; không màn nào đổi số
+record; 0 tràn ngang; 0 lỗi JS; 18 bảng giữ nguyên header 44 và padding 10/16; trang ngắn lại
+8–231px ở đúng 15 ô bị ảnh hưởng. Test `wujia_data_list_d5`: **0 failed, 0 error / 68**.
+
+**Deploy:** `wujia_portal_layout` **19.0.46.0.0** + `_components.css?v=1280`. Chưa deploy thì BA
+retest trên cache cũ, vẫn thấy lỗi.
 
 - **BH-007:** card `/portal/return` cho tên sản phẩm **2 dòng**, ellipsis chỉ ở cuối dòng 2;
   dropdown `/portal/return/new` phải xem được option đầy đủ + có vùng hiện tên đầy đủ sau khi

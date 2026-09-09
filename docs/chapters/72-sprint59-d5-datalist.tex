@@ -142,9 +142,71 @@ KHÔNG test nào''. Báo cáo đột biến phải luôn in cả dòng tổng k�
   ``thẻ trắng lồng thẻ trắng'', và D4g đo trên UAT ngày 06/09 ra \emph{0 lồng trắng}. Nhưng
   variant \texttt{compact-row}/\texttt{detail-card} của D5 cho item viền + bo, trong khi
   \textbf{11 call site} có danh sách dạng thẻ nằm \emph{trong} vỏ \texttt{wj-surface-card}
-  $\Rightarrow$ hai khung trắng lồng nhau. Đường vá và danh sách 11 chỗ ghi ở lượt \textbf{D5h.2}
-  trong \texttt{docs/next-session-clusters-D.md}.
+  $\Rightarrow$ hai khung trắng lồng nhau. \textbf{Đã vá ngay trong ngày ở lượt D5h.2}
+  (mục dưới).
 \item Cụm kế: \textbf{D6 --- Bù hàng} (\texttt{UAT-BH-007/008/009}). Khác D3/D4/D5, D6 không phải
   cụm chuẩn component mà là cụm nghiệp vụ \emph{tiêu thụ} component; bắt đầu bằng lượt kiểm kê
   \textbf{D6a}. Chuẩn component tiếp theo nằm ở lứa D7+.
 \end{itemize}
+
+\section{D5h.2 --- vá hồi quy ``thẻ trắng lồng thẻ trắng'' (09/09)}
+
+Chủ dự án gửi một tấm ảnh khối \emph{Thông báo nổi bật}: hai thẻ thông báo, mỗi thẻ một khung, lại
+nằm gọn trong một khung nữa. Đây là hồi quy \emph{của chính cụm này} --- D4g đo UAT ngày 06/09 ra
+0 lồng trắng, còn variant \texttt{compact-row} ra đời ở D5d ngày 07/09.
+
+\subsection*{11 chỗ, hai dạng --- và cái bẫy của phép thay hàng loạt}
+
+Phản xạ đầu tiên là ``thêm một class vào 11 chỗ''. Sai hai lần. Thứ nhất, chuỗi
+\texttt{'wujia-mdash-card wujia-mdash-list'} xuất hiện \textbf{7} lần trong
+\texttt{portal\_home.xml} nhưng 2 lần trong đó là vỏ ôm \emph{dòng tĩnh}, không có DataList nào ---
+thay hàng loạt là hỏng hai chỗ vô can. Phải suy dòng bằng \texttt{lxml} rồi sửa đúng dòng đó, đúng
+cách kiểm kê đã dùng suốt cụm.
+
+Thứ hai, chính phép suy bằng \texttt{lxml} lộ ra 11 chỗ \textbf{không đồng dạng}. Câu hỏi phân loại
+là \emph{vỏ có ôm CardHeader không}:
+
+\begin{itemize}
+\item \textbf{Nhóm A (6 chỗ)} --- tiêu đề nằm ngoài vỏ, vỏ chỉ để bọc danh sách. Vỏ nhường khung:
+  thêm \texttt{wj-surface-card--listwrap} vào \texttt{sc\_class}.
+\item \textbf{Nhóm B (5 chỗ)} --- vỏ ôm cả CardHeader, gỡ vỏ là mất tiêu đề. Giữ vỏ, \emph{làm
+  phẳng item}: thêm \texttt{wj-data-list--inset} vào \texttt{dl\_class}, item trở lại dáng dòng ngăn
+  nhau bằng nét kẻ. Số \texttt{12px 0} và nét kẻ 1px lấy nguyên của
+  \texttt{.wujia-content-card-row} \emph{trước} D5d --- trả dòng về đúng dáng nó vốn có, không bịa
+  số mới.
+\end{itemize}
+
+Ba rule mới, \textbf{không sửa một byte nào của rule cũ}: xung đột D4$\times$D5 vẫn phân xử bằng độ
+đặc hiệu $(0,2,0)$ --- đúng luật số 4 của cụm.
+
+\subsection*{Guard mù thì hồi quy lọt}
+
+Bộ đo \texttt{wj\_datalist.py} đo \emph{dáng} của từng phần tử: chiều cao dòng, đệm ô, cỡ chữ. Nó
+không có khái niệm \emph{ai nằm trong ai}. Vì thế nó đo cụm D5 sạch bong suốt tám lượt trong khi
+mắt người nhìn một cái là thấy sai. Bài học không phải ``đo kỹ hơn'' mà là \textbf{đo đúng thứ mà
+lời hứa nói tới}: BA hứa ``không thẻ trắng lồng thẻ trắng'' --- một mệnh đề về \emph{quan hệ} ---
+nên phải có một phép đo về quan hệ. \texttt{scripts/qa/wj\_nesting.py} vào repo để hỏi đúng câu đó.
+
+Và guard mới cũng suýt nói dối ngay lượt đầu: nó định nghĩa ``đang vẽ khung'' = \emph{có viền bất
+kỳ}, nên sau khi vá, nét kẻ \texttt{border-top} ngăn hai dòng bị tính là một khung và guard báo còn
+6 chỗ lồng --- đúng bằng $n-1$ mỗi danh sách. Chính con số $n-1$ tố cáo lỗi của phép đếm chứ không
+phải lỗi của bản vá. Định nghĩa siết lại: khung = \textbf{có nền}, hoặc \textbf{viền $\ge$ 3 cạnh},
+hoặc \textbf{có viền kèm bo góc}. Một nét kẻ không phải một cái khung.
+
+\subsection*{Số đo}
+
+Trên DB đo riêng \texttt{wujia\_tea\_d5h2} (bản sao của DB đã mang trạng thái HEAD, kiểm từng module
+\texttt{latest\_version} khớp \texttt{\_\_manifest\_\_.py} trước khi đo), 7 route $\times$ 3 khổ:
+
+\begin{itemize}
+\item Chỗ thẻ lồng thẻ: \textbf{18 $\to$ 0}.
+\item Không màn nào giảm số record nhìn thấy; 0 tràn ngang; 0 lỗi JS.
+\item 18 bảng giữ nguyên từng con số (header 44, đệm ô 10/16, \texttt{th[scope]} 18/18).
+\item Chiều cao trang ngắn lại 8--231px ở đúng 15 ô bị ảnh hưởng --- đúng phần đệm thừa, không hơn.
+\item \texttt{--test-tags wujia\_data\_list\_d5}: \textbf{0 failed, 0 error / 68 tests}.
+\end{itemize}
+
+Mốc ``trước'' đo bằng cách \texttt{git stash} chính bản vá rồi chạy lại trên cùng DB, cùng port,
+cùng bộ route --- A/B trên một nền, không so hai máy.
+
+Deploy: \texttt{wujia\_portal\_layout} \textbf{19.0.46.0.0} + \texttt{\_components.css?v=1280}.

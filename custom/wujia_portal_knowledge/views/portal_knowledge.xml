@@ -93,6 +93,7 @@
                             </t>
                             <t t-call="wujia_portal_layout.wj_data_list">
                                 <t t-set="dl_variant" t-value="'compact-row'"/>
+                                <t t-set="dl_class" t-value="'wj-data-list--inset'"/>
                                 <t t-set="dl_empty" t-value="not articles"/>
                                 <t t-set="dl_state">
                                     <div class="wujia-empty-state">

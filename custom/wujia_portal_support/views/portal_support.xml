@@ -185,7 +185,7 @@
                     <t t-call="wujia_portal_layout.wj_surface_card" t-else="">
                         <t t-set="sc_variant" t-value="'section'"/>
                         <t t-set="sc_body" t-value="'flush'"/>
-                        <t t-set="sc_class" t-value="'wujia-mdash-card wujia-mdash-list'"/>
+                        <t t-set="sc_class" t-value="'wujia-mdash-card wujia-mdash-list wj-surface-card--listwrap'"/>
                         <t t-call="wujia_portal_layout.wj_data_list">
                             <t t-set="dl_variant" t-value="'compact-row'"/>
                             <a t-foreach="tickets" t-as="tk" t-attf-href="/portal/support/#{tk.id}"
