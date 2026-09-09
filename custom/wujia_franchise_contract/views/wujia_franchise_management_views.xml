@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_wujia_franchise_management_form_inherit_contract" model="ir.ui.view">
+        <field name="name">wujia.franchise.management.form.inherit.contract</field>
+        <field name="model">wujia.franchise.management</field>
+        <field name="inherit_id" ref="wujia_franchise.view_franchise_management_form" />
+        <field name="arch" type="xml">
+            <!-- Add Smart Button Contracts -->
+            <div name="button_box" position="inside">
+                <button name="action_view_contracts" type="object" class="oe_stat_button"
+                    icon="fa-file-text-o">
+                    <field name="contract_count" widget="statinfo" string="Contracts" />
+                </button>
+            </div>
+
+            <!-- Set contract dates to read-only on Store form -->
+            <xpath expr="//field[@name='franchise_start_date']" position="attributes">
+                <attribute name="readonly">1</attribute>
+            </xpath>
+            <xpath expr="//field[@name='franchise_end_date']" position="attributes">
+                <attribute name="readonly">1</attribute>
+            </xpath>
+
+            <!-- Add Tab Franchise Contracts inside notebook -->
+            <notebook position="inside">
+                <page string="Franchise Contracts" name="contracts_page">
+                    <group>
+                        <group string="Current Contract Information">
+                            <field name="current_contract_id" readonly="1" />
+                            <field name="franchise_start_date" readonly="1" />
+                            <field name="franchise_end_date" readonly="1" />
+                            <field name="remaining_days" />
+                            <field name="is_expired" widget="boolean_toggle" />
+                        </group>
+                    </group>
+                    <field name="contract_ids" context="{'default_franchise_id': id}">
+                        <list string="Contracts History" delete="false" decoration-muted="state == 'cancelled'"
+                            decoration-danger="state == 'expired'"
+                            decoration-success="state == 'effective'"
+                            decoration-info="state == 'draft'">
+                            <field name="name" />
+                            <field name="start_date" />
+                            <field name="end_date" />
+                            <field name="state" widget="badge" />
+                            <field name="active" widget="boolean_toggle" />
+                        </list>
+                    </field>
+                </page>
+            </notebook>
+        </field>
+    </record>
+</odoo>
