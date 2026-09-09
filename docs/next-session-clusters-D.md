@@ -974,8 +974,11 @@ tính cả nét kẻ ngăn dòng nên báo động giả đúng n−1 lần mỗ
 record; 0 tràn ngang; 0 lỗi JS; 18 bảng giữ nguyên header 44 và padding 10/16; trang ngắn lại
 8–231px ở đúng 15 ô bị ảnh hưởng. Test `wujia_data_list_d5`: **0 failed, 0 error / 68**.
 
-**Deploy:** `wujia_portal_layout` **19.0.46.0.0** + `_components.css?v=1280`. Chưa deploy thì BA
-retest trên cache cũ, vẫn thấy lỗi.
+**Deploy:** `-u wujia_portal_layout,wujia_portal_base,wujia_portal_knowledge,wujia_portal_support`
+(19.0.46.0.0 · 19.0.7.12.0 · 19.0.3.13.0 · 19.0.3.17.0, `_components.css?v=1280`).
+⚠️ **Bẫy đã sập ngay hôm đó:** CSS là file tĩnh nên pull code là có ngay, nhưng **class nằm trong
+XML** — không `-u` 3 module call site thì DOM không mang `listwrap`/`inset` và card vẫn lồng. Đo
+trên UAT sau khi pull mà chưa `-u`: `?v=1270`, 0 `listwrap`, 0 `inset`, card y nguyên.
 
 - **BH-007:** card `/portal/return` cho tên sản phẩm **2 dòng**, ellipsis chỉ ở cuối dòng 2;
   dropdown `/portal/return/new` phải xem được option đầy đủ + có vùng hiện tên đầy đủ sau khi

@@ -456,5 +456,8 @@ mốc "trước" không đổi khi siết, không cần đo lại.
 
 **Test:** `--test-tags wujia_data_list_d5` → **0 failed, 0 error / 68 tests**.
 
-**Deploy:** `wujia_portal_layout` **19.0.46.0.0**, `_components.css?v=1280`. Chủ dự án phải deploy
-lại rồi BA mới retest được.
+**Deploy:** `-u wujia_portal_layout,wujia_portal_base,wujia_portal_knowledge,wujia_portal_support`
+— 19.0.46.0.0 · 19.0.7.12.0 · 19.0.3.13.0 · 19.0.3.17.0, `_components.css?v=1280`.
+⚠️ Pull code thôi là **chưa đủ**: CSS tĩnh có ngay nhưng class nằm trong XML, không `-u` 3 module
+call site thì DOM không mang `listwrap`/`inset`. Đo trên UAT ngay sau khi pull mà chưa `-u`:
+`?v=1270`, 0 `listwrap`, 0 `inset`.
