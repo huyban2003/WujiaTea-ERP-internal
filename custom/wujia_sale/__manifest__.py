@@ -28,6 +28,7 @@ wujia.product.category: danh mục portal (thay product.public.category, không 
     'license': 'LGPL-3',
     'depends': [
         'sale',
+        'sale_stock',
         'stock',
         'stock_picking_batch',
         'wujia_franchise',

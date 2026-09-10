@@ -4,95 +4,129 @@
     <record id="view_order_form_wujia" model="ir.ui.view">
         <field name="name">sale.order.form.wujia</field>
         <field name="model">sale.order</field>
-        <field name="inherit_id" ref="sale.view_order_form"/>
+        <field name="inherit_id" ref="sale.view_order_form" />
         <field name="arch" type="xml">
             <xpath expr="//field[@name='partner_id']" position="after">
-                <field name="is_portal_order" readonly="1"/>
-                <field name="is_return_order" readonly="1" optional="show"/>
+                <field name="is_portal_order" readonly="1" />
+                <field name="is_return_order" readonly="1" optional="show" />
                 <field name="franchise_id"
-                       options="{'no_create': True}"
-                       required="is_portal_order"/>
+                    options="{'no_create': True}"
+                    required="is_portal_order" />
                 <field name="franchise_partner_id"
-                       options="{'no_create': True}"
-                       required="is_portal_order"/>
-                <field name="area_id" readonly="1" optional="show"/>
-                <field name="batch_id" readonly="1" optional="show"/>
+                    options="{'no_create': True}"
+                    required="is_portal_order" />
+                <field name="area_id" readonly="1" optional="show" />
+                <field name="batch_id" readonly="1" optional="show" />
             </xpath>
 
             <xpath expr="//notebook" position="inside">
                 <page string="Wujia Portal" name="wujia_portal_info"
-                      invisible="not portal_requester_user_id and not is_portal_order">
+                    invisible="not portal_requester_user_id and not is_portal_order">
                     <group>
                         <group string="Created by (audit trail)">
-                            <field name="portal_requester_user_id"/>
-                            <field name="portal_member_id"/>
+                            <field name="portal_requester_user_id" />
+                            <field name="portal_member_id" />
                         </group>
                         <group string="Delivery (override)">
-                            <field name="portal_delivery_street"/>
-                            <field name="portal_delivery_phone"/>
-                            <field name="portal_note"/>
+                            <field name="portal_delivery_street" />
+                            <field name="portal_delivery_phone" />
+                            <field name="portal_note" />
                         </group>
                     </group>
                 </page>
                 <page string="Weight" name="wujia_weight_info">
                     <group>
                         <group>
-                            <field name="total_planned_weight" widget="float"/>
+                            <field name="total_planned_weight" widget="float" />
                         </group>
                     </group>
                 </page>
             </xpath>
 
             <xpath expr="//list/field[@name='product_uom_qty']" position="after">
-                <field name="weight_per_unit" optional="hide"/>
-                <field name="planned_weight" optional="hide"/>
-                <field name="wujia_is_gift" optional="show" readonly="1"/>
+                <field name="weight_per_unit" optional="hide" />
+                <field name="planned_weight" optional="hide" />
+                <field name="wujia_is_gift" optional="show" readonly="1" />
             </xpath>
         </field>
     </record>
 
+    <!-- Inherited Wujia Sales Orders List View (Priority 99, Inherits sale.sale_order_tree) -->
     <record id="view_order_tree_wujia" model="ir.ui.view">
-        <field name="name">sale.order.list.wujia</field>
+        <field name="name">sale.order.list.inherit.wujia</field>
         <field name="model">sale.order</field>
-        <field name="inherit_id" ref="sale.view_order_tree"/>
+        <field name="inherit_id" ref="sale.sale_order_tree" />
+        <field name="priority">20</field>
         <field name="arch" type="xml">
+            <xpath expr="//field[@name='date_order']" position="before">
+                <field name="create_date" widget="datetime" readonly="1" optional="show" />
+            </xpath>
             <xpath expr="//field[@name='partner_id']" position="after">
-                <field name="is_portal_order" optional="hide"/>
-                <field name="is_return_order" optional="hide"/>
-                <field name="franchise_id" optional="show"/>
-                <field name="area_id" optional="hide"/>
-                <field name="portal_requester_user_id" optional="hide"/>
-                <field name="total_planned_weight" optional="hide" sum="Total"/>
-                <field name="batch_id" optional="hide"/>
+                <field name="franchise_id" optional="show" />
+                <field name="area_id" optional="show" />
+                <field name="is_portal_order" widget="boolean" optional="show" />
+                <field name="is_return_order" widget="boolean" optional="show" />
+                <field name="total_planned_weight" sum="Total Weight" optional="show" />
+                <field name="batch_id" optional="show" />
             </xpath>
         </field>
     </record>
 
+    <!-- Action Window for Wujia Sales Orders -->
+    <record id="action_wujia_sale_orders" model="ir.actions.act_window">
+        <field name="name">Wujia Sales Orders</field>
+        <field name="res_model">sale.order</field>
+        <field name="view_mode">list,form</field>
+        <field name="search_view_id" ref="sale.view_sales_order_filter" />
+        <field name="context">{}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Create a new sales order!
+            </p>
+            <p>
+                Manage franchise orders, portal requests, and compensation deliveries.
+            </p>
+        </field>
+    </record>
+
+    <!-- Menu Item for Wujia Sales Orders -->
+    <menuitem id="menu_wujia_sale_orders"
+        name="Wujia Sales Orders"
+        parent="sale.sale_order_menu"
+        action="action_wujia_sale_orders"
+        sequence="2" />
+
+    <!-- Inherited Wujia Sales Orders Search View -->
     <record id="view_sales_order_filter_wujia" model="ir.ui.view">
         <field name="name">sale.order.filter.wujia</field>
         <field name="model">sale.order</field>
-        <field name="inherit_id" ref="sale.view_sales_order_filter"/>
+        <field name="inherit_id" ref="sale.view_sales_order_filter" />
+        <field name="priority">99</field>
         <field name="arch" type="xml">
             <xpath expr="//search" position="inside">
-                <field name="franchise_id"/>
-                <field name="franchise_partner_id"/>
-                <field name="area_id"/>
-                <field name="portal_requester_user_id"/>
-                <field name="batch_id"/>
-                <separator/>
+                <field name="franchise_id" />
+                <field name="franchise_partner_id" />
+                <field name="area_id" />
+                <field name="portal_requester_user_id" />
+                <field name="batch_id" />
+                <separator />
                 <filter string="Portal order" name="filter_portal_only"
-                        domain="[('is_portal_order', '=', True)]"/>
+                    domain="[('is_portal_order', '=', True)]" />
                 <filter string="Compensation orders" name="filter_return_order"
-                        domain="[('is_return_order', '=', True)]"/>
+                    domain="[('is_return_order', '=', True)]" />
+                <filter string="Manual orders" name="filter_manual_order"
+                    domain="[('is_portal_order', '=', False), ('is_return_order', '=', False)]" />
+                <filter string="No batch" name="filter_no_batch"
+                    domain="[('batch_id', '=', False)]" />
                 <filter string="Has a batch" name="filter_has_batch"
-                        domain="[('batch_id', '!=', False)]"/>
-                <separator/>
+                    domain="[('batch_id', '!=', False)]" />
+                <separator />
                 <filter string="By store" name="group_franchise"
-                        context="{'group_by': 'franchise_id'}"/>
+                    context="{'group_by': 'franchise_id'}" />
                 <filter string="By area" name="group_area"
-                        context="{'group_by': 'area_id'}"/>
+                    context="{'group_by': 'area_id'}" />
                 <filter string="Theo batch" name="group_batch"
-                        context="{'group_by': 'batch_id'}"/>
+                    context="{'group_by': 'batch_id'}" />
             </xpath>
         </field>
     </record>
