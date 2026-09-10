@@ -945,7 +945,28 @@ Sản phẩm của D6a: `docs/d6-inventory.md` (bảng call site × issue × tr�
 `web.assets_frontend` nên **không cần bump `?v=`** — nhưng lớp `wujia-mreturn-row-progress` nằm
 trong **XML**, không `-u` thì DOM không mang lớp mới (đúng bài học deploy 10/09 của D5h.2).
 
-### D6c — màn form `/portal/return/new` (lượt kế tiếp)
+### D6c — ✅ XONG 10/09/2026 (màn form) — **CHỜ DEPLOY** ⇒ CỤM D6 KHÉP
+
+→ `docs/d6c-acceptance-matrix.md`. `UAT-BH-009` **`Ready for Retest`**; `UAT-BH-007` nay đủ **cả
+hai nửa** (card D6b + dropdown D6c) nên cũng **`Ready for Retest`** — `qa_sync --apply` 10/09,
+verify lại bằng CSV. Chủ dự án chốt 3 fork: giữ `<select>` (chỉ thêm vùng tên đầy đủ) · control
+48px + radius token · chuẩn hoá **mọi trang trừ nhóm giám sát**.
+
+Kiểm kê bằng guard mới `scripts/qa/wj_formcontrol.py` lộ ra portal có **ba họ control**, nên
+KHÔNG quét rộng `.app-content` (24/44 chỗ đang cố ý lệch) mà khoá bằng **một lớp `wj-mform`** trên
+thẻ `<form>` + **một** rule chung. Nhóm giám sát dùng `.wj-inspection-container` ⇒ tự nằm ngoài,
+**0 dòng miễn trừ**. Số đo: dưới ngưỡng chạm **64 → 0**, thiếu nhãn **58 → 18**, 20 control của 3
+form **30,4/35,9 → 48** và radius **5,25 → 12**, ô lọc 8 màn **38/28 → 44**. Hồi quy 78 ô: 16 ô đổi
+(đều do ô lọc cao lên), **0 ô ở PC**, 0 ô mất record. 11 test + 11 mutation.
+
+⚠️ **Deploy:** `git pull` rồi **`-u wujia_portal_layout,wujia_portal_return,wujia_portal_support,wujia_portal_info_request`**
+(layout **19.0.47.0.0** · return **19.0.3.1.0** · support **19.0.3.18.0** · info_request
+**19.0.1.8.0**, `?v=1280 → 1281`). Lần deploy này **gánh cả D6b** vì D6b chưa từng lên UAT.
+
+**Còn treo, đề nghị BA mở issue riêng:** 18 ô tìm kiếm/lọc của 8 màn danh sách chưa có tên cho
+trình đọc màn hình (chỉ có placeholder).
+
+### ~~D6c — màn form `/portal/return/new` (kế hoạch)~~
 
 > Prompt: "làm cụm D6c".
 
