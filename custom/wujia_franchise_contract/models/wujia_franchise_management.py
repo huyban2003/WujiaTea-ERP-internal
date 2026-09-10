@@ -28,6 +28,7 @@ class WujiaFranchiseManagement(models.Model):
         compute='_compute_contract_dates',
         store=True,
         readonly=True,
+        required=False,
         tracking=True,
     )
     franchise_end_date = fields.Date(
@@ -35,6 +36,7 @@ class WujiaFranchiseManagement(models.Model):
         compute='_compute_contract_dates',
         store=True,
         readonly=True,
+        required=False,
         tracking=True,
     )
 
@@ -88,20 +90,23 @@ class WujiaFranchiseManagement(models.Model):
             return
 
         Contract = self.env['wujia.franchise.contract']
+        today = fields.Date.context_today(self)
         # Pure ORM search: fetch all stores including inactive ones
         stores = self.with_context(active_test=False).search([])
         for store in stores:
             # ORM check: create at most 1 contract if store has legacy dates and no contracts
             if not store.contract_ids and (store.franchise_start_date or store.franchise_end_date):
-                start = store.franchise_start_date or fields.Date.today()
+                start = store.franchise_start_date or today
                 end = store.franchise_end_date or (start + timedelta(days=365))
                 if end < start:
                     end = start + timedelta(days=365)
+                state = 'expired' if end < today else 'effective'
                 Contract.create({
                     'name': f'HD-{store.code or store.id}',
                     'franchise_id': store.id,
                     'start_date': start,
                     'end_date': end,
+                    'state': state,
                 })
 
         # Set system parameter flag so this migration never runs again
