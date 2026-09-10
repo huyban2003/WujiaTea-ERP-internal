@@ -1,0 +1,315 @@
+\chapter{Sprint 60 --- Cụm D6 Bù hàng \texttt{UAT-BH-007/008/009} (2026-09-10)}
+
+\emph{Chapter này gộp bốn lượt của một cụm nghiệp vụ: màn Bù hàng --- danh sách, form, và lượt
+khép sổ. Khác ba cụm trước, D6 \textbf{không dựng} component nào; nó \textbf{tiêu thụ} bộ
+component đã có và chỉ sửa phân cấp bên trong. Kiểm kê ở \texttt{docs/d6-inventory.md}; số đo
+từng lượt ở \texttt{docs/d6\{b,c\}-acceptance-matrix.md}; hai văn bản gửi BA ở hai tệp
+\texttt{docs/ba-notice-d6-*.md}.}
+
+\section{Bối cảnh}
+
+Ba issue của BA trên tab \emph{5. Issue List}: \texttt{UAT-BH-007} (tên sản phẩm bị cắt, cảm giác
+font rời rạc), \texttt{UAT-BH-008} (hai badge trạng thái đứng lẫn nhau, card thiếu thứ bậc),
+\texttt{UAT-BH-009} (form chạm khó ở 360px, trình đọc màn hình không đọc được tên trường).
+
+Điểm khác biệt của cụm này nằm ngay ở kiểm kê. D3 dựng \texttt{CMP-CH-001}, D4 dựng
+\texttt{CMP-SC-001}, D5 dựng \texttt{CMP-DL-001} --- ba cụm \emph{dựng}. Đếm bằng \texttt{lxml}
+trên ba file của màn Bù hàng cho \textbf{37 call site component} và \textbf{0 chỗ dựng khung tay}:
+
+\begin{center}
+\begin{tabular}{lrrrrrr}
+\hline
+File & CardHeader & SurfaceCard & DataList & PageHeader & SectionHeader & Khung tay \\
+\hline
+\texttt{portal\_return\_list.xml}   & 1  & 1  & 2 & 2 & 1 & \textbf{0} \\
+\texttt{portal\_return\_form.xml}   & 4  & 4  & 0 & 2 & 0 & \textbf{0} \\
+\texttt{portal\_return\_detail.xml} & 10 & 8  & 0 & 2 & 0 & \textbf{0} \\
+\hline
+\textbf{Tổng} & \textbf{15} & \textbf{13} & \textbf{2} & \textbf{6} & \textbf{1} & \textbf{0} \\
+\hline
+\end{tabular}
+\end{center}
+
+Màn Bù hàng đã đi hết qua component. Việc còn lại của D6 là sửa \emph{phân cấp bên trong}, và
+tuyệt đối không dựng thêm lớp vỏ thứ ba đè lên.
+
+\subsection*{Fork SC $\leftrightarrow$ DL --- chữ trong sheet đã lạc hậu}
+
+Sheet \texttt{BH-008} ghi \emph{``card về \texttt{CMP-SC-001} variant record''}. Nhưng D5f đã đưa
+chính card đó về \texttt{wj\_data\_list} variant \texttt{detail-card}, và D5h.2 (09/09) vừa vá xong
+hồi quy \emph{thẻ trắng lồng thẻ trắng}. Bọc thêm một \texttt{wj\_surface\_card} quanh mỗi record
+là \textbf{tái tạo đúng hồi quy vừa vá hôm trước}. Chủ dự án chốt 10/09: giữ theo fix mới nhất,
+card ở lại \texttt{detail-card}, ghi thành LIMIT trong ledger. Đây là lần đầu trong bộ component
+mà một câu chữ của spec bị chính lịch sử sửa lỗi của dự án phủ quyết --- và cách xử đúng là
+\emph{hỏi rồi ghi LIMIT}, không phải im lặng làm theo chữ.
+
+\section{D6a --- kiểm kê, và ba chặn dữ liệu suýt tạo ra một bảng Pass rỗng}
+
+Lượt kiểm kê không migrate call site nào nên ba issue giữ \texttt{Ready for Dev} (tiền lệ
+D3a/D4a/D5a). Giá trị thật của lượt này là ba phát hiện về \emph{dữ liệu}, mà nếu bỏ qua thì mọi
+con số của cả cụm đều vô nghĩa:
+
+\begin{enumerate}
+\item \textbf{35/35 phiếu bù hàng có \texttt{product\_id} rỗng.} Field là related + store
+  \textbf{readonly} suy từ \texttt{sale\_order\_line\_id}; seed D5 ghi thẳng \texttt{product\_id}
+  nên ORM bỏ qua và tính lại ra \texttt{False}. Card rơi vào nhánh fallback
+  \texttt{issue\_type\_id.name} --- đo tên sản phẩm hoá ra là \emph{đo nhầm ô}.
+\item \textbf{Không tên nào đủ dài để tràn.} Tên dài nhất toàn DB 25 ký tự
+  (``Topping Phô Mai Macchiato''), 0 tên CJK --- \texttt{white-space:nowrap} chưa từng cắt lần nào.
+\item \textbf{3/4 biến thể badge ``Tiến độ bù'' không có bản ghi.} DB chỉ có duy nhất một phiếu
+  \texttt{partial}.
+\end{enumerate}
+
+Gỡ bằng \texttt{scripts/seed\_d6\_return\_demo.py}: 3 sản phẩm mốc dài 17/39/91 ký tự có CJK,
+10 phiếu phủ \textbf{4/4} \texttt{compensation\_status}, lái bằng allocation thật
+(\texttt{allocated\_qty}, \texttt{delivered\_qty}) chứ không ghi thẳng field computed --- đúng bài
+học vừa rút ra ở chặn (1).
+
+Cùng lượt, hai lỗi \emph{công cụ} lộ ra và đã vá vào repo. \texttt{wj\_measure.py} in ra bảng đo
+\textbf{giả} khi login hỏng: mật khẩu mặc định sai, 78/78 ô redirect về \texttt{/web/login}, mọi ô
+trả \texttt{h=900 · card=1 · rec=0}, script vẫn ghi file và in đường dẫn như thường. Và bundle
+\texttt{web.assets\_frontend.min.css} trả 500 trên mọi DB copy vì bản sao không có filestore ---
+toàn bộ CSS module không nạp, nhưng \texttt{\_variables/\_components} đi qua \texttt{<link ?v=>}
+nên \emph{vẫn} chạy, bảng đo vẫn xanh, chỉ ảnh chụp mới tố cáo. Cả hai đều là biến thể của cùng
+một bệnh: \textbf{cờ sạch không đồng nghĩa với đo được}.
+
+\section{D6b --- card danh sách mobile}
+
+\texttt{UAT-BH-008} trọn + nửa card của \texttt{UAT-BH-007}. Sửa đúng \textbf{2 file sản phẩm}
+(\texttt{views/portal\_return\_list.xml} khối mobile + \texttt{static/src/css/portal\_return.css}),
+\texttt{wujia\_portal\_return} \texttt{19.0.2.13.0} $\to$ \textbf{19.0.3.0.0}.
+
+\begin{itemize}
+\item Dòng đầu chỉ còn mã phiếu + badge \emph{trạng thái phê duyệt}; badge \emph{tiến độ bù} tách
+  sang dòng riêng có nhãn ``Tiến độ bù''. Nhãn lấy từ \texttt{COMPENSATION\_STATUS\_LABELS} đã có
+  sẵn trong qcontext --- tái dùng, không khai lại.
+\item \texttt{.wujia-mreturn-row-meta}: \texttt{flex; gap:18px} $\to$ \texttt{grid; 1fr 1fr; gap:8px}.
+  \texttt{flex} cho ô thứ hai trôi theo độ dài ô thứ nhất, nên đo được \emph{hai} bố cục khác nhau
+  trên cùng một danh sách.
+\item Tên sản phẩm: \texttt{nowrap} $\to$ \texttt{-webkit-line-clamp: 2} +
+  \texttt{overflow-wrap: anywhere} --- vế sau vì tên Trung không có dấu cách, không có điểm ngắt.
+\item \textbf{Không} khai lại stack font CJK: đã nằm trên \texttt{--wujia-font-family} từ D2. Khai
+  lại chính là nguồn của cảm giác ``font rời rạc'' mà BH-007 phàn nàn. Có test khoá điều này.
+\end{itemize}
+
+\subsection*{Guard mới \texttt{wj\_returncard.py} --- vì hai guard cũ mù với phân cấp bên trong card}
+
+\texttt{wj\_datalist.py} đo \emph{dáng}, \texttt{wj\_nesting.py} đo \emph{lồng nhau}; cả hai không
+có câu hỏi nào về trật tự thông tin \emph{bên trong} một card --- đúng loại lỗ đã để lọt hồi quy
+D5h.2. Guard mới hỏi ba câu: tên sản phẩm mấy dòng và có bị cắt ngay dòng 1 không; hai badge có
+cùng hàng không; hai ô metadata có thẳng cột không.
+
+\begin{center}
+\begin{tabular}{rrrrrrr}
+\hline
+Khổ & card & cắt dòng 1 & cặp badge & badge cùng hàng & bố cục metadata & vi phạm \\
+\hline
+991 & 20 $\to$ 20 & 0 $\to$ 0 & 5 $\to$ 5 & \textbf{5 $\to$ 0} & \textbf{2 $\to$ 1} & 6 $\to$ \textbf{0} \\
+390 & 20 $\to$ 20 & \textbf{8 $\to$ 0} & 5 $\to$ 5 & \textbf{5 $\to$ 0} & \textbf{2 $\to$ 1} & 14 $\to$ \textbf{0} \\
+360 & 20 $\to$ 20 & \textbf{8 $\to$ 0} & 5 $\to$ 5 & \textbf{5 $\to$ 0} & \textbf{2 $\to$ 1} & 14 $\to$ \textbf{0} \\
+\hline
+\multicolumn{6}{r}{\textbf{TỔNG}} & \textbf{34 $\to$ 0} \\
+\hline
+\end{tabular}
+\end{center}
+
+\textbf{Không phải Pass rỗng:} mẫu đo giữ nguyên --- 20 card, 20 tên sản phẩm, 5 cặp badge ở cả hai
+lượt. Guard vẫn nhìn thấy đúng chừng ấy đối tượng, chỉ phán quyết đổi.
+
+Hồi quy toàn portal: 13 route $\times$ 6 khổ = 78 ô, \textbf{3 ô đổi}, cả ba đều là
+\texttt{/portal/return} mobile, \textbf{0 ô ở PC}, \textbf{0 ô mất record}. Trang cao thêm
+194--321px là hệ quả trực tiếp của việc BA yêu cầu thêm một dòng và cho tên xuống hai dòng, không
+phải tác dụng phụ. 7 test + 7 phép mutation, mỗi phép phá làm đỏ đúng test tương ứng.
+
+\section{D6c --- form, và vì sao phạm vi rộng hơn hai issue}
+
+\texttt{UAT-BH-009} trọn + nửa dropdown của \texttt{UAT-BH-007}. Chủ dự án chốt 10/09: chuẩn hoá
+control \emph{mọi trang, trừ nhóm giám sát}. Kiểm kê bằng guard mới
+\texttt{scripts/qa/wj\_formcontrol.py} cho thấy portal có \textbf{ba họ control}, không phải một:
+20 control Bootstrap thô trong 3 form (cao 30,4/35,9 · radius 5,25 · \textbf{0/20} có nhãn nối);
+ô lọc có dáng riêng (pill 38, select \texttt{-sm} 28); và nhóm đã đạt chuẩn (44--54).
+
+Vì thế \textbf{không} dùng rule quét rộng \texttt{.app-content .form-control}: 24/44 control đang
+\emph{cố ý} lệch, quét rộng là đè hết rồi phải viết năm rule miễn trừ. Cách chọn: \textbf{một lớp
+\texttt{wj-mform} trên thẻ \texttt{<form>}} + \textbf{một} rule chung. Hệ quả đẹp nhất của lựa chọn
+này: hai module giám sát của anh Thái dùng \texttt{.wj-inspection-container}, tự nằm ngoài
+\texttt{wj-mform} --- \textbf{0 dòng miễn trừ} phải viết cho họ.
+
+\begin{itemize}
+\item Rule chung \texttt{@media (max-width: 991.98px) .wj-mform .form-control/.form-select}:
+  \texttt{min-height: 48px} (đúng chiều cao \texttt{.wujia-mreturn-btn-*} đã có) +
+  \texttt{border-radius: var(--wujia-surface-tonal-radius)} --- lấy \emph{token}, không số cứng;
+  textarea 96.
+\item \texttt{for}/\texttt{id} cho \textbf{mọi} nhãn ở cả hai khối PC và mobile. Hai khối render
+  \emph{đồng thời} và chỉ ẩn bằng \texttt{d-none}, nên trùng \texttt{id} là hỏng cả \texttt{for}.
+\item Ô lọc: pill/select/search 38 $\to$ 44, select \texttt{-sm} 28 $\to$ 44 --- \emph{chỉ} chiều
+  cao; radius và typography của FilterBar chờ spec \texttt{UI-FILTER-001}.
+\item BH-007 nửa dropdown: thêm vùng \texttt{.wj-return-line-full} dưới ô chọn sản phẩm, in nhãn
+  \textbf{nguyên văn} từ controller, wrap tự do, kèm \texttt{title} + \texttt{aria-describedby}.
+  \texttt{<select>} cắt theo bề rộng ô là hành vi của trình duyệt --- không dựng combobox thay thế
+  (chồng lấn \texttt{UI-BUTTON-001}/\texttt{UI-FILTER-001} chưa có spec).
+\end{itemize}
+
+Số đo, 19 route $\times$ \{390, 360\}: control đo được 80 $\to$ 80 (mẫu không đổi); dưới ngưỡng
+chạm \textbf{64 $\to$ 0}; chiều cao 20 control của 3 form \texttt{30,4/35,9} $\to$
+\textbf{48}$\times$15 + \textbf{96}$\times$4; radius \textbf{5,25 $\to$ 12} cả 20; vùng chạm ô lọc
+\texttt{28,1/38} $\to$ \textbf{44}$\times$18. Tab-walk \texttt{/portal/return/new} ở 390px:
+\textbf{9/9} control dừng đúng thứ tự, đọc được tên, có vòng focus. Vùng tên đầy đủ đo với tên 73
+ký tự có CJK: hiện đủ 73/73 ở cả 390 · 360 · 1440, 0 tràn ngang.
+
+Hồi quy: 16/78 ô đổi, \textbf{0 ô ở PC}, \textbf{0 ô mất record} --- tất cả là hệ quả trực tiếp của
+việc nâng ô lọc 38 $\to$ 44. \texttt{wj\_returncard.py} giữ 0 vi phạm (thành quả D6b không bị đụng).
+11 test mới + 11 phép mutation.
+
+\section{D6d --- lượt khép sổ}
+
+\subsection*{Hai bài học mutation}
+
+Mutation testing lần này bắt được \emph{hai loại lỗi khác nhau}, và phân biệt được chúng mới là
+điều đáng ghi:
+
+\begin{itemize}
+\item \textbf{Assert lỏng thật (M9).} \texttt{assertIn('opt.dataset.full = l.label', js)} vẫn khớp
+  khi code bị phá thành \texttt{l.label.slice(0, 20)} --- chuỗi cũ là \textbf{tiền tố} của chuỗi
+  mới. Guard rỗng thật. Siết thành chuỗi có dấu chấm phẩy + cấm \texttt{slice} trong thân hàm.
+\item \textbf{Phép phá sai (M5).} Chuỗi \texttt{border-radius: var(--wujia-surface-tonal-radius);}
+  có ở \textbf{hai} chỗ trong \texttt{\_components.css}; \texttt{replace(..., 1)} sửa nhầm rule
+  khác. Mutation không ăn, nhưng guard \emph{không} rỗng.
+\end{itemize}
+
+Hai ca trông giống hệt nhau trên màn hình --- ``phá mà test vẫn xanh'' --- nhưng kết luận ngược
+nhau hoàn toàn. Từ lượt này, hàm mutation \textbf{tự assert rằng chuỗi đã thay đổi thật} trước khi
+chạy test; không có bước đó thì mọi kết luận ``guard rỗng'' đều không đáng tin.
+
+\subsection*{Lần thứ tư liên tiếp ``tưởng đã lên UAT''}
+
+D6d mở đầu bằng phép kiểm deploy hai bằng chứng độc lập, và \textbf{trượt cả hai}: XML-RPC
+\texttt{latest\_version} trên UAT trả \texttt{wujia\_portal\_layout} 19.0.46.0.0 (kỳ vọng 47),
+\texttt{wujia\_portal\_return} 19.0.2.13.0 (kỳ vọng 19.0.3.1.0); DOM \texttt{/portal/return/new}
+đếm \texttt{?v=1280} (kỳ vọng 1281), \texttt{wj-mform} \textbf{0} (kỳ vọng 3),
+\texttt{wj-ret-m-line-full} \textbf{0}.
+
+Nhưng chủ dự án nhớ đúng: UAT \emph{có} chạy \texttt{-u} hôm 10/09.
+\texttt{ir.module.module.write\_date} của toàn bộ module portal = \texttt{2026-09-10 06:34 UTC} =
+\textbf{13:34} giờ VN. Đối chiếu \texttt{git log}: commit D6b lúc \textbf{21:52}, commit D6c lúc
+\textbf{22:38}. \textbf{Deploy đi trước commit tám tiếng.} UAT không hỏng, không sai --- nó chỉ
+đang gánh đúng bản D5h.2 và cần thêm một lượt \texttt{-u} nữa sau khi pull.
+
+Đây là biến thể \emph{mới} của một bẫy đã trả giá bốn lượt liên tiếp:
+
+\begin{center}
+\begin{tabular}{ll}
+\hline
+Lượt & Vì sao ``đã deploy'' mà UAT không đổi \\
+\hline
+D3c   & quên \texttt{git push} \\
+D4f   & server chưa \texttt{fetch} \\
+D5h.2 & \texttt{pull} mà không \texttt{-u} \\
+D6    & \texttt{-u} đúng, nhưng \textbf{chạy sớm hơn commit} \\
+\hline
+\end{tabular}
+\end{center}
+
+Kết luận đưa vào luật chung: phép kiểm hai bằng chứng phải là bước \textbf{mở đầu} mỗi lượt soi,
+không phải bước cuối; và nó phải so \texttt{write\_date} với \textbf{giờ commit}, không chỉ so số
+phiên bản với manifest. Ba lượt trước chỉ so phiên bản nên không bắt được biến thể thứ tư này.
+
+\subsection*{Hai đề nghị mở issue riêng, gửi BA}
+
+\begin{itemize}
+\item \textbf{Ô lọc chưa có tên cho trình đọc màn hình} --- \texttt{ba-notice-d6-filter-labels.md}.
+  Con số ``18 thiếu nhãn'' còn lại sau D6c thực chất là \textbf{9 ô thật $\times$ 2 khổ đo}, trải
+  trên 8 màn danh sách: 7 ô tìm kiếm chỉ có placeholder (biến mất ngay khi gõ ký tự đầu) và 2
+  select đã có nhãn nhìn thấy được nhưng chưa nối. Có sẵn khuôn đúng để chép ở
+  \texttt{portal\_return\_list.xml:190}. Ngoài phạm vi BH-009 (là \emph{form}).
+\item \textbf{4 test \texttt{wujia\_card\_header\_d3} đỏ sẵn trên \texttt{main}} ---
+  \texttt{ba-notice-d6-cardheader-tests-red.md}. Chứng minh bằng run đối chứng \texttt{git stash -u}
+  (4 failed / 204 khi bỏ hết thay đổi D6). Cả bốn là \textbf{nợ test, không phải lỗi sản phẩm}:
+  chúng khoá tên lớp Bootstrap mà D4f đã gỡ, khoá vị trí class mà D4 đã dời vào \texttt{sc\_class},
+  khoá \texttt{.card-body} mà D4f đã đổi thành \texttt{.wj-surface-card\_\_body}, và đòi một
+  \texttt{margin-top} mà D4e2 \emph{cố ý} xoá để nhịp PC hội tụ về 12.
+\end{itemize}
+
+\section{D6d (tiếp) --- soi lại trên chính UAT sau deploy}
+
+Bảng đo đầy đủ: \texttt{docs/d6d-uat-measure.md}.
+
+\subsection*{Cổng mở --- hai bằng chứng độc lập}
+
+Bốn lượt liên tiếp trước đó đã trả giá vì tin ``đã chạy lệnh rồi'', nên bước đầu không phải là đo
+mà là chứng minh deploy ăn thật. (a) \texttt{ir.module.module} qua XML-RPC trả đủ bốn số phiên bản
+đích, và \texttt{write\_date} \textbf{16:24 UTC = 23:24 giờ VN} --- muộn hơn commit \texttt{c202734}
+(22:38 VN) 46 phút, nên loại được đúng biến thể của lượt D6 là deploy chạy \emph{sớm hơn} commit,
+số phiên bản trùng mà mã nguồn thì cũ. (b) DOM \texttt{/portal/return/new} có \texttt{?v=1281},
+có \texttt{id="wj-ret-m-line-full"}, có thẻ \texttt{form.wj-mform}. Đính chính bảng giao việc: ba
+thẻ \texttt{wj-mform} nằm ở \emph{ba trang} chứ không phải ba thẻ trên một trang; đã đo đủ cả ba.
+
+\subsection*{Ba số đo, và hai lần suýt đo trúng mẫu rỗng}
+
+\texttt{wj\_formcontrol} khớp tuyệt đối bảng D6c: 20 control của ba biểu mẫu ra
+\textbf{48$\times$15 · 96$\times$4 · 101,6}, radius \textbf{12$\times$20}, dưới ngưỡng chạm
+\textbf{0}, hai ô lọc \texttt{/portal/info-request} \textbf{28 $\to$ 44}. \texttt{wj\_returncard}
+\textbf{0 vi phạm} với \texttt{lineClamp = 2} trên 7/7 thẻ và hai cặp nhãn cách nhau
+\textbf{35px}. \texttt{wj\_measure}: \textbf{0 tràn ngang · 0 lỗi JS · 0 màn mất record}.
+
+Hai chỗ suýt cho ra bảng Pass rỗng, cùng một họ bài học với D6a:
+
+\begin{enumerate}
+\item \textbf{Sai phạm vi quét.} Chạy \texttt{wj\_formcontrol} với mặc định
+  \texttt{--scope .wujia-mpage} chỉ ra 52 control (bảng D6c là 80), và \texttt{/portal/info-request/new}
+  --- chính là biểu mẫu thứ ba mang lớp \texttt{wj-mform} --- ra \textbf{0 control}. Đúng phát hiện
+  gốc của D6c: portal có ba họ vỏ. Nới thành \texttt{--scope body} ra 82, khớp mẫu.
+\item \textbf{Sai tài khoản đo.} Trên UAT chỉ 2/13 phiếu bù hàng có
+  \texttt{resolution\_type='compensation'}, và \emph{cả hai đều thuộc HCM-01}. Nhãn tiến độ bù chỉ
+  render ở nhánh đó, nên đo bằng \texttt{anh.owner} (HN-01) sẽ ra \textbf{0 cặp nhãn} mà cờ vẫn
+  sạch. Đo bằng \texttt{em.hcm} mới có 2 cặp thật.
+\end{enumerate}
+
+\subsection*{Ba cờ HIERARCHY --- và cách chứng minh nó không phải của mình}
+
+\texttt{wj\_measure} trả \textbf{3} cờ \texttt{HIERARCHY} trong khi bảng D6C local là 0. Lượt UAT
+này gánh hai luồng (cụm D6 + quà tặng \texttt{wujia\_sale} + nhánh \texttt{thai} đợt 4) nên không
+được kết luận vội theo cả hai chiều. Truy ra cả ba cờ là \emph{một chỗ duy nhất}:
+\texttt{/portal/delivery} ở ba khổ PC, chữ trạng thái rỗng ``Không có chuyến giao'' cỡ 28 lớn hơn
+tiêu đề card cỡ 22. Ba bằng chứng độc lập cho thấy nó có sẵn: hai commit D6 \textbf{không đụng
+file nào} của \texttt{wujia\_portal\_delivery}; \emph{cùng route, cùng bản build, đổi tài khoản
+thì hết cờ} --- \texttt{em.hcm} (có chuyến giao) ra 0 ở cả năm khổ, tức cờ chỉ hiện ở nhánh trống
+dữ liệu; và chữ đó có từ \texttt{f507ba0}, commit dựng màn giao hàng PC. Đề nghị gộp vào lứa D7+.
+
+\section{Luật chung của cụm}
+
+\begin{enumerate}
+\item \textbf{Cụm tiêu thụ component thì không được dựng lớp vỏ thứ ba.} Kiểm kê ra 0 chỗ dựng
+  khung tay là tín hiệu \emph{dừng lại}, không phải tín hiệu rảnh tay.
+\item \textbf{Chữ trong spec có thể đã bị lịch sử sửa lỗi của chính dự án phủ quyết.} Gặp fork thì
+  hỏi rồi ghi LIMIT, đừng làm theo chữ.
+\item \textbf{Chuẩn hoá bằng một lớp opt-in, không bằng một selector quét rộng.} Một lớp
+  \texttt{wj-mform} + một rule = 0 dòng miễn trừ; quét rộng \texttt{.form-control} = 5 dòng miễn trừ
+  và một hàng rào phải bảo trì mãi.
+\item \textbf{Trước khi đo, kiểm dữ liệu có đủ để đo không.} Ba chặn của D6a (field readonly, tên
+  quá ngắn, thiếu biến thể) đều làm bảng đo xanh mà vô nghĩa.
+\item \textbf{Mutation phải tự chứng minh nó đã phá được thật} trước khi được quyền kết luận guard rỗng.
+\item \textbf{Kiểm deploy bằng hai bằng chứng độc lập là bước mở đầu}, và phải so với \emph{giờ
+  commit} chứ không chỉ số phiên bản.
+\end{enumerate}
+
+\section{Trạng thái cuối sprint}
+
+\begin{itemize}
+\item \texttt{UAT-BH-007} · \texttt{UAT-BH-008} · \texttt{UAT-BH-009}: code xong, test xanh,
+  \textbf{ĐÃ DEPLOY UAT 10/09/2026}, đã đo lại chỉ-đọc trên chính máy chủ và đánh dấu lên sheet
+  (dòng tuyệt đối 115/116/117, cột Build/Deploy ghi trọn từ \texttt{build\_override} của ledger,
+  giữ nguyên \texttt{Ready for Retest} --- Dev không tự đóng \texttt{Done}). Hàng đợi deploy
+  \textbf{TRỐNG}.
+\item Phiên bản đích: \texttt{wujia\_portal\_layout} \textbf{19.0.47.0.0} ·
+  \texttt{wujia\_portal\_return} \textbf{19.0.3.1.0} · \texttt{wujia\_portal\_support}
+  \textbf{19.0.3.18.0} · \texttt{wujia\_portal\_info\_request} \textbf{19.0.1.8.0} ·
+  \texttt{\_components.css?v=1281}.
+\item Guard mới vào repo: \texttt{scripts/qa/wj\_returncard.py} (phân cấp bên trong card) và
+  \texttt{scripts/qa/wj\_formcontrol.py} (ngưỡng chạm, nhãn nối, radius của control).
+\item LIMIT ghi ledger: card Bù hàng dùng DataList \texttt{detail-card} thay vì chữ ``SurfaceCard
+  variant record'' trong sheet.
+\item Còn treo, đề xuất gộp vào lứa D7+: \texttt{portal\_return\_detail.xml:188} (bảng đơn bù PC)
+  và \texttt{:344} (\texttt{wujia-mreturn-so-row} mobile) --- hai danh sách chưa qua
+  \texttt{wj\_data\_list}, kiểm kê D5a không đếm tới; cùng hai đề nghị mở issue riêng ở trên.
+\end{itemize}
