@@ -478,3 +478,88 @@ msgstr ""
 #: code:addons/wujia_sale/models/sale_order.py:0
 msgid "Đơn '%s' từ portal phải có partner cửa hàng (franchise_partner_id)."
 msgstr ""
+
+#. module: wujia_sale
+#: model:ir.model,name:wujia_sale.model_wujia_sale_order_gift_wizard
+msgid "Add Bulk Gift Products to Sales Orders"
+msgstr "Thêm hàng loạt sản phẩm tặng vào đơn bán hàng"
+
+#. module: wujia_sale
+#: model:ir.actions.act_window,name:wujia_sale.action_wujia_sale_order_gift_wizard
+#: model_terms:ir.ui.view,arch_db:wujia_sale.view_wujia_sale_order_gift_wizard_form
+msgid "Add Gift Products"
+msgstr "Thêm sản phẩm tặng"
+
+#. module: wujia_sale
+#: model_terms:ir.ui.view,arch_db:wujia_sale.view_wujia_sale_order_gift_wizard_form
+msgid "Confirm"
+msgstr "Xác nhận"
+
+#. module: wujia_sale
+#: model_terms:ir.ui.view,arch_db:wujia_sale.view_wujia_sale_order_gift_wizard_form
+msgid "Cancel"
+msgstr "Hủy"
+
+#. module: wujia_sale
+#: model:ir.model.fields,field_description:wujia_sale.field_sale_order_line__wujia_is_gift
+#: model:ir.model.fields,field_description:wujia_sale.field_wujia_sale_order_gift_wizard__product_id
+msgid "Gift Product"
+msgstr "Sản phẩm tặng"
+
+#. module: wujia_sale
+#: model:ir.model.fields,field_description:wujia_sale.field_sale_order_line__wujia_is_gift
+msgid "Is Gift"
+msgstr "Là quà tặng"
+
+#. module: wujia_sale
+#: model:ir.model.fields,field_description:wujia_sale.field_wujia_sale_order_gift_wizard__quantity
+msgid "Quantity"
+msgstr "Số lượng"
+
+#. module: wujia_sale
+#: model:ir.model.fields,field_description:wujia_sale.field_wujia_sale_order_gift_wizard__uom_id
+msgid "Unit of Measure"
+msgstr "Đơn vị tính"
+
+#. module: wujia_sale
+#. odoo-python
+#: code:addons/wujia_sale/wizards/wujia_sale_order_gift_wizard.py:0
+msgid "Only Sales Managers are allowed to add gift products in bulk."
+msgstr "Chỉ Quản trị viên Bán hàng mới có quyền thêm hàng loạt sản phẩm tặng."
+
+#. module: wujia_sale
+#. odoo-python
+#: code:addons/wujia_sale/wizards/wujia_sale_order_gift_wizard.py:0
+msgid "Quantity must be greater than zero."
+msgstr "Số lượng phải lớn hơn 0."
+
+#. module: wujia_sale
+#. odoo-python
+#: code:addons/wujia_sale/wizards/wujia_sale_order_gift_wizard.py:0
+msgid "Please select an active, saleable product."
+msgstr "Vui lòng chọn sản phẩm đang hoạt động và được phép bán."
+
+#. module: wujia_sale
+#. odoo-python
+#: code:addons/wujia_sale/wizards/wujia_sale_order_gift_wizard.py:0
+msgid "Please select at least one sales order."
+msgstr "Vui lòng chọn ít nhất một đơn bán hàng."
+
+#. module: wujia_sale
+#. odoo-python
+#: code:addons/wujia_sale/wizards/wujia_sale_order_gift_wizard.py:0
+msgid "No sales orders found to process."
+msgstr "Không tìm thấy đơn bán hàng nào để xử lý."
+
+#. module: wujia_sale
+#. odoo-python
+#: code:addons/wujia_sale/wizards/wujia_sale_order_gift_wizard.py:0
+msgid "Selected list contains sales orders that are already confirmed or no longer in Draft status. Please select only Draft orders: %s"
+msgstr "Danh sách đã chọn có SO đã được xác nhận hoặc không còn ở trạng thái Nháp. Vui lòng chỉ chọn các SO Nháp: %s"
+
+#. module: wujia_sale
+#. odoo-python
+#: code:addons/wujia_sale/wizards/wujia_sale_order_gift_wizard.py:0
+msgid "Added gift product: <b>%s</b> — Quantity: <b>%s %s</b> (Unit price: 0)."
+msgstr "Đã thêm sản phẩm tặng: <b>%s</b> — Số lượng: <b>%s %s</b> (Đơn giá: 0 đ)."
+

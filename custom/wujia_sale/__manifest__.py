@@ -1,6 +1,6 @@
 {
     'name': 'Wujia Sale',
-    'version': '19.0.4.3.0',
+    'version': '19.0.4.4.0',
     'category': 'Wujia',
     'summary': 'Sale order extension cho cửa hàng nhượng quyền + tính khối lượng',
     'author': 'WujiaTea',
@@ -37,6 +37,7 @@ wujia.product.category: danh mục portal (thay product.public.category, không 
         'security/wujia_sale_rules.xml',
         'views/sale_order_views.xml',
         'views/product_template_views.xml',
+        'views/wujia_sale_order_gift_wizard_views.xml',
     ],
     'installable': True,
     'application': False,
