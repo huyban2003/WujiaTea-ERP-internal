@@ -40,15 +40,35 @@
     .wujia-mreturn-row-body { flex: 1 1 auto; min-width: 0; display: flex; flex-direction: column; gap: 8px; }
     .wujia-mreturn-row-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
     .wujia-mreturn-row-code { font-size: 15px; font-weight: 700; color: var(--wujia-morder-text); }
+    /* UAT-BH-007: trước đây `nowrap` + ellipsis ⇒ cắt ngay giữa DÒNG 1 (đo 10/09:
+       8/20 card ở 390 và 360). BA đòi tối đa 2 dòng, `…` chỉ ở cuối dòng 2.
+       Fallback CJK cho tên song ngữ KHÔNG khai ở đây — đã nằm trên
+       `--wujia-font-family` từ D2 (WJ-PORTAL-UI-002), khai lại là dựng stack thứ hai. */
     .wujia-mreturn-row-product {
         font-size: 14px; color: var(--wujia-morder-text);
-        overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+        display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2;
+        overflow: hidden; text-overflow: ellipsis;
+        /* Tên Trung dài không có dấu cách ⇒ không có điểm ngắt, sẽ đẩy card tràn ngang. */
+        overflow-wrap: anywhere;
     }
     .wujia-mreturn-row-divider { height: 1px; background: var(--wujia-morder-divider); }
-    .wujia-mreturn-row-meta { display: flex; gap: 18px; font-size: 13px; }
+    /* UAT-BH-008: `flex` ⇒ ô thứ hai trôi theo độ dài ô thứ nhất ('Đơn gốc —' vs
+       'Đơn gốc S00086'), đo được 2 bố cục left khác nhau (31,122) và (31,165).
+       Grid 1fr 1fr cho hai cột thẳng hàng giữa mọi card — cùng khuôn với
+       `.wujia-mreturn-grid2` ngay dưới, không dựng khuôn mới. */
+    .wujia-mreturn-row-meta {
+        display: grid; grid-template-columns: 1fr 1fr; gap: 8px; font-size: 13px;
+    }
+    .wujia-mreturn-row-metacell { min-width: 0; }
     .wujia-mreturn-row-metacell .lbl { color: var(--wujia-morder-text-sub); margin-right: 4px; }
     .wujia-mreturn-row-metacell .val { color: var(--wujia-morder-text); font-weight: 600; }
     .wujia-mreturn-row-chevron { flex: 0 0 auto; font-size: 20px; color: var(--wujia-morder-text-muted); }
+    /* UAT-BH-008: dòng riêng cho tiến độ bù. Nhãn mượn đúng cỡ/màu của
+       `.wujia-mreturn-row-metacell .lbl` để card chỉ có MỘT kiểu nhãn phụ. */
+    .wujia-mreturn-row-progress {
+        display: flex; align-items: center; gap: 6px; font-size: 13px;
+    }
+    .wujia-mreturn-row-progress .lbl { color: var(--wujia-morder-text-sub); }
 
     /* FormScreen */
     .wujia-mreturn-banner {

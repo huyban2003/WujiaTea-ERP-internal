@@ -361,7 +361,7 @@ tổng `scrollHeight` **−24px** trên 44 ô, giả-heading **0/44**, outline 8
 hiển thị 43/44 giống hệt (1 ô mọc đúng "0 kết quả" theo yêu cầu BA), B4 **286/286**, bảng D3a
 chạy lại **356 phép so 0 lệch**, tab-walk 433 stop ring 16/16, font 66 tiêu đề 0 lệch;
 bắt được **1 lỗi thật**: `/portal/info-request` mất tiêu đề ở mobile do bake `ch_platform`;
-`docs/d3b-acceptance-matrix.md`) · D3c ✅ · D3d ✅ · D3e ✅ · D3f ✅ · review ✅ · **D4 ✅ KHÉP 06/09** (D4b…D4h, `UI-SURFACECARD-001` Ready for Retest + ĐÃ DEPLOY UAT) · **D5a ✅ 06/09** (kiểm kê 31 call site, `docs/d5-datalist-inventory.md`, 0 code) · **D5b ✅ 07/09** (nền `wj_data_list` + 3 call site họ `wujia-content-card-table`, 3/31, `docs/d5b-acceptance-matrix.md`) · **D5c ✅ 07/09** (họ `wj-pc-table`: purchase-history · delivery · notification, 6/31, `docs/d5c-acceptance-matrix.md`) · **D5d ✅ 07/09** (họ `li.wujia-content-card-row`: 3 khối preview `/portal` + `/portal/knowledge`, 10/31, `docs/d5d-acceptance-matrix.md`, bộ số **provisional** + 3 câu hỏi BA `docs/ba-questions-d5-datalist.md`) · **D5e ✅ 07/09** (9 call site mobile, 4 họ `mdash`/`mhist`/`mnoti`/`mknow`, 19/31, `docs/d5e-acceptance-matrix.md`) · **D5f ✅ 08/09** (variant `detail-card` dựng mới + 2 call site `mreturn`/`mdelivery`, 21/31, `docs/d5f-acceptance-matrix.md`) · **D5g ✅ 08/09** (4 call site công nợ: 2 bảng PC + mobile `wj-debt-inv` compact-row + `wj-debt-pay` detail-card, sửa guard pager `page_count > 1`, 25/31, `docs/d5g-acceptance-matrix.md`) · **D5h ✅ 08/09 KHÉP CỤM** (Thi ×4 + kề cận ×3, Khảo sát ×2 defer theo quyết định chủ dự án, **29/31** trong phạm vi BA + 3 kề cận = 32/34, `docs/d5h-acceptance-matrix.md`, `UI-DATALIST-001` → `Ready for Retest` **provisional**) · **D5h.1 ✅ 08/09** (vá bảng *Kết quả thi* mà kiểm kê D5a bỏ sót ⇒ **30/32** trong phạm vi BA + 3 kề cận = **33/35**, `docs/d5h-acceptance-matrix.md` §14, `wujia_portal_exam` 19.0.5.13.0 **CHỜ DEPLOY**) · **D5 ✅ KHÉP 08/09** (D5a…D5h.1, `UI-DATALIST-001` Ready for Retest *provisional*; **D5h.2 ✅ 09/09** — vá thẻ trắng lồng thẻ trắng ở 11 call site, đo 18→0 chỗ lồng, `wujia_portal_layout` 19.0.46.0.0 **CHỜ DEPLOY**) · **Sprint 59 CHỐT SỔ 09/09** (chapter 72 + PDF) · D6 ⬜ (**vào bằng lượt kiểm kê D6a**) · R1–R5 ⬜
+`docs/d3b-acceptance-matrix.md`) · D3c ✅ · D3d ✅ · D3e ✅ · D3f ✅ · review ✅ · **D4 ✅ KHÉP 06/09** (D4b…D4h, `UI-SURFACECARD-001` Ready for Retest + ĐÃ DEPLOY UAT) · **D5a ✅ 06/09** (kiểm kê 31 call site, `docs/d5-datalist-inventory.md`, 0 code) · **D5b ✅ 07/09** (nền `wj_data_list` + 3 call site họ `wujia-content-card-table`, 3/31, `docs/d5b-acceptance-matrix.md`) · **D5c ✅ 07/09** (họ `wj-pc-table`: purchase-history · delivery · notification, 6/31, `docs/d5c-acceptance-matrix.md`) · **D5d ✅ 07/09** (họ `li.wujia-content-card-row`: 3 khối preview `/portal` + `/portal/knowledge`, 10/31, `docs/d5d-acceptance-matrix.md`, bộ số **provisional** + 3 câu hỏi BA `docs/ba-questions-d5-datalist.md`) · **D5e ✅ 07/09** (9 call site mobile, 4 họ `mdash`/`mhist`/`mnoti`/`mknow`, 19/31, `docs/d5e-acceptance-matrix.md`) · **D5f ✅ 08/09** (variant `detail-card` dựng mới + 2 call site `mreturn`/`mdelivery`, 21/31, `docs/d5f-acceptance-matrix.md`) · **D5g ✅ 08/09** (4 call site công nợ: 2 bảng PC + mobile `wj-debt-inv` compact-row + `wj-debt-pay` detail-card, sửa guard pager `page_count > 1`, 25/31, `docs/d5g-acceptance-matrix.md`) · **D5h ✅ 08/09 KHÉP CỤM** (Thi ×4 + kề cận ×3, Khảo sát ×2 defer theo quyết định chủ dự án, **29/31** trong phạm vi BA + 3 kề cận = 32/34, `docs/d5h-acceptance-matrix.md`, `UI-DATALIST-001` → `Ready for Retest` **provisional**) · **D5h.1 ✅ 08/09** (vá bảng *Kết quả thi* mà kiểm kê D5a bỏ sót ⇒ **30/32** trong phạm vi BA + 3 kề cận = **33/35**, `docs/d5h-acceptance-matrix.md` §14, `wujia_portal_exam` 19.0.5.13.0 **CHỜ DEPLOY**) · **D5 ✅ KHÉP 08/09** (D5a…D5h.1, `UI-DATALIST-001` Ready for Retest *provisional*; **D5h.2 ✅ 09/09** — vá thẻ trắng lồng thẻ trắng ở 11 call site, đo 18→0 chỗ lồng, `wujia_portal_layout` 19.0.46.0.0 **CHỜ DEPLOY**) · **Sprint 59 CHỐT SỔ 09/09** (chapter 72 + PDF) · **D6a ✅ 10/09** (kiểm kê 37 call site component / 0 khung dựng tay, seed ma trận + mốc đo, 0 code — `docs/d6-inventory.md`) · **D6b ✅ 10/09** (màn danh sách: `UAT-BH-008` → `Ready for Retest`, nửa card của `UAT-BH-007`; guard `wj_returncard.py` 34 → 0; `wujia_portal_return` 19.0.3.0.0 **CHỜ DEPLOY** — `docs/d6b-acceptance-matrix.md`) · D6c ⬜ (màn form) · R1–R5 ⬜
 
 🚚 **D1 + D2 ĐÃ DEPLOY UAT 27/08** (`wujia_portal_layout 19.0.32.4.0` · `wujia_portal_return
 19.0.2.7.0` · `wujia_sale 19.0.4.3.0`, xác nhận XML-RPC) **+ đo lại chỉ-đọc ngay trên UAT**:
@@ -884,7 +884,7 @@ issue UAT của màn Bù hàng, sửa bằng cách *dùng* `wj_surface_card` var
 
 ⇒ Vào D6 bằng **lượt kiểm kê D6a**, đúng tiền lệ D3a/D4a/D5a.
 
-### D6a — kiểm kê, **0 dòng code sản phẩm** (lượt kế tiếp)
+### ~~D6a — kiểm kê (kế hoạch)~~ ✅ ĐÃ CHẠY 10/09 — kết quả ở khối D6a bên dưới
 
 > Prompt: "làm cụm D6a".
 
@@ -922,6 +922,80 @@ Giữ issue ở `Ready for Dev` sau lượt này (lượt kiểm kê không migr
 
 Sản phẩm của D6a: `docs/d6-inventory.md` (bảng call site × issue × trạng thái hiện tại) + mốc đo
 `docs/d6-before.json` + danh sách câu hỏi BA nếu có fork.
+
+### D6a — ✅ XONG 10/09/2026 (kiểm kê, 0 dòng code sản phẩm)
+
+→ `docs/d6-inventory.md`. Ba kết luận đổi cách làm phần còn lại:
+
+1. **37 call site component / 0 chỗ dựng khung tay** trên cả 3 file view ⇒ D6 xác nhận là cụm
+   *tiêu thụ* component, chỉ còn việc sửa **phân cấp bên trong**.
+2. **BH-007 khoanh gọn về 1 chỗ ở card** — bảng PC không in tên sản phẩm; chi tiết PC và mobile
+   in tên nhưng không có `nowrap` ⇒ wrap tự do, không cắt.
+3. **Ba chặn dữ liệu + hai bẫy công cụ** đã gỡ (seed `product_id` rỗng vì related-store readonly;
+   không có tên đủ dài; 1/4 biến thể badge · `wj_measure.py` in bảng đo giả khi login hỏng; bundle
+   CSS 500 trên mọi DB copy thiếu filestore). Xem §3 và §4 của file kiểm kê.
+
+### D6b — ✅ XONG 10/09/2026 (màn danh sách mobile) — **CHỜ DEPLOY**
+
+→ `docs/d6b-acceptance-matrix.md`. `UAT-BH-008` **`Ready for Retest`** (sheet dòng 116, đã
+`qa_sync --apply` 10/09); `UAT-BH-007` **giữ `Ready for Dev`** vì mới xong nửa card.
+`wujia_portal_return` **19.0.3.0.0**. Guard mới `scripts/qa/wj_returncard.py`: **34 → 0** vi phạm.
+
+⚠️ **Deploy:** `git pull` rồi **`-u wujia_portal_return`**. CSS của module đi qua bundle
+`web.assets_frontend` nên **không cần bump `?v=`** — nhưng lớp `wujia-mreturn-row-progress` nằm
+trong **XML**, không `-u` thì DOM không mang lớp mới (đúng bài học deploy 10/09 của D5h.2).
+
+### D6c — màn form `/portal/return/new` (lượt kế tiếp)
+
+> Prompt: "làm cụm D6c".
+
+Đóng nốt **`UAT-BH-009` trọn** + **nửa dropdown còn lại của `UAT-BH-007`**. Một file sản phẩm là
+chính: `wujia_portal_return/views/portal_return_form.xml` (+ `static/src/js/portal_return.js` cho
+phần dropdown, + `portal_return.css`).
+
+**Đọc trước, đừng làm lại:** `docs/d6-inventory.md` (kiểm kê + ba chặn dữ liệu) và
+`docs/d6b-acceptance-matrix.md` (§6 hai bẫy công cụ). Nền đo đã sẵn:
+
+- DB `wujia_tea_d6` + `scripts/seed_d6_return_demo.py` (3 sản phẩm 17/39/**91** ký tự có CJK).
+  Nếu dựng DB copy mới: **xoá `ir_attachment` url `/web/assets/%` rồi restart**, không thì bundle
+  CSS 500 và mọi bảng đo vẫn xanh trong khi trang không có dáng.
+- Mật khẩu portal là **`wujia@test123`** (đã thành mặc định của `wj_measure.py`).
+- Mốc "trước" của **toàn portal** là `docs/d6-before.json` — nhưng nó đo ở trạng thái **trước
+  D6b**, nên D6c phải chụp mốc mới sau khi xác nhận DB đã `-u` lên 19.0.3.0.0.
+- HttpCase của module cần **`--db-filter '^<db>$'`**, thiếu là đỏ 4 test oan (gotcha Sprint 48).
+
+**Việc, theo thứ tự:**
+
+1. **BH-009 · nhãn ↔ ô nhập.** Đo được ở D6a: **0/14 label có `for`**, 0 control có `id`.
+   Thêm `id` cho từng control và `for` cho nhãn tương ứng — làm ở **cả hai khối** PC (`form-label`)
+   và mobile (`wujia-mticket-label`). ⚠️ `id` phải **duy nhất trên trang**: hai khối PC/mobile
+   render **đồng thời** (chỉ ẩn bằng `d-none`/`d-lg-none`), nên trùng `id` là hỏng cả `for`. Đặt
+   tiền tố khác nhau cho hai khối. Đo bằng harness a11y có sẵn (`scripts/ba_spec/g_a11y_verify.py`,
+   tab-walk + `forcePseudoState` cho `input[type=date]` — bẫy C8a).
+2. **BH-009 · touch target 44–48px + radius token.** Control mobile đang **38px** (nợ LIMIT mang
+   từ D1 sang, đây là chỗ trả). ⚠️ **38px là con số dùng chung** — `_components.css` có 6 chỗ
+   `height: 38px`; sửa ở đó là đụng 8 module ⇒ **hỏi trước**, và nếu làm thì **bắt buộc bump `?v=`**.
+   Cách an toàn: đặt delta **trong phạm vi `.wujia-mreturn`** ở `portal_return.css`, đúng tiền lệ
+   dòng 19–24 của chính file đó.
+3. **BH-009 · 360px trường chật xuống 1 cột.** `.wujia-mreturn-grid2` (`portal_return.css:60`)
+   đang cứng `1fr 1fr` cho cặp *SL yêu cầu* + *Ngày sản xuất*; ô ngày tháng không co được nữa
+   dưới 360. Thêm `@media (max-width: 360px)` cho **riêng** lớp đó.
+4. **BH-007 · nửa dropdown.** Hai vế BA đòi: (a) *xem được option đầy đủ khi mở* — `<select>`
+   gốc cắt option theo bề rộng ô, cần chốt cách làm; (b) *có vùng hiện tên đầy đủ sau khi chọn* —
+   `select.wj-return-line` được JS dựng option từ `order_lines_json`
+   (`static/src/js/portal_return.js:32-45`), nên thêm một dòng hiện `l.label` đầy đủ dưới ô chọn
+   là đủ, **không cần đổi dữ liệu**. **Không đổi tên sản phẩm trong Odoo.**
+   ⚠️ **Fork phải hỏi trước khi code:** vế (a) có thể phải thay `<select>` bằng combobox tự dựng —
+   đó là dựng control mới, không phải sửa phân cấp, và đụng `UI-FILTER-001`/`UI-BUTTON-001` của
+   lứa D7+. Hỏi chủ dự án chọn: giữ `<select>` + chỉ làm vế (b) và ghi LIMIT, hay dựng combobox.
+5. **Nghiệm thu:** mở rộng `scripts/qa/wj_returncard.py` (hoặc thêm `wj_returnform.py`) đo
+   chiều cao control + `for/id` + số cột ở 360; `wj_measure.py --diff` với mốc mới; test tag
+   `wujia_return_d6` mở rộng + **mutation từng phép**; đối chiếu `Kết quả mong muốn` của cả
+   BH-009 và BH-007 ≥90% rồi mới ghi ledger. **BH-007 chỉ được handoff khi CẢ HAI nửa xong.**
+
+**Nợ có sẵn phát hiện ở D6b, KHÔNG thuộc D6c:** 4 test `wujia_card_header_d3` đỏ trên chính `main`
+(chứng minh bằng run đối chứng `git stash -u`) — xem `docs/d6b-acceptance-matrix.md` §5. Đề nghị
+mở issue riêng.
 
 ### D5h.2 — ✅ ĐÃ VÁ 09/09/2026 (chờ chủ dự án deploy để BA retest)
 

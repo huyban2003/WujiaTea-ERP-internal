@@ -134,6 +134,15 @@ def login(page, base, user, password):
     # website (ẩn) nên `button[type=submit]` khớp 3 phần tử và click treo 30s.
     page.press('input[name="password"]', 'Enter')
     page.wait_for_load_state('domcontentloaded')
+    # Login hỏng thì MỌI route redirect về /web/login, mà `_measure` vẫn trả
+    # h=900 · card=1 · rec=0 và script vẫn ghi file như thường ⇒ đúng bẫy
+    # "Pass rỗng" (luật D4 #3). Dừng ngay tại đây, đừng để ra bảng đo giả.
+    # (10/09/2026: mặc định `demo123` sai với DB seed, mật khẩu là
+    # `wujia@test123` — 78/78 ô redirect mà vẫn in "→ before.json".)
+    if '/web/login' in page.url:
+        raise SystemExit(
+            'ĐĂNG NHẬP HỎNG cho %r — mọi số đo sau đây sẽ là Pass rỗng. '
+            'Kiểm --password (DB seed dùng wujia@test123).' % user)
 
 
 def run(args):
@@ -239,7 +248,7 @@ def main():
     # KHÔNG có mặc định: chạy bằng admin cho 0 bề mặt portal mà vẫn báo "xong"
     # — bẫy "Pass rỗng" đã ghi ở luật D4 #3.
     ap.add_argument('--portal-login', help='BẮT BUỘC khi đo, ví dụ anh.owner')
-    ap.add_argument('--password', default='demo123')
+    ap.add_argument('--password', default='wujia@test123')
     ap.add_argument('--routes', nargs='*', default=ROUTES)
     ap.add_argument('--breakpoints', nargs='*', type=int, default=BREAKPOINTS)
     ap.add_argument('--out', default='wj_measure.json')
