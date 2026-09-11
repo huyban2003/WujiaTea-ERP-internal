@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo noupdate="1">
+
+    <!-- Sequence for Employee Code -->
+    <record id="seq_wujia_franchise_employee" model="ir.sequence">
+        <field name="name">Franchise Employee Sequence</field>
+        <field name="code">wujia.franchise.employee</field>
+        <field name="prefix">EMP</field>
+        <field name="padding">5</field>
+        <field name="number_next">1</field>
+        <field name="number_increment">1</field>
+    </record>
+
+    <!-- Sequence for Expense Number -->
+    <record id="seq_wujia_franchise_expense" model="ir.sequence">
+        <field name="name">Franchise Expense Sequence</field>
+        <field name="code">wujia.franchise.expense</field>
+        <field name="prefix">EXP/%(year)s/</field>
+        <field name="padding">5</field>
+        <field name="number_next">1</field>
+        <field name="number_increment">1</field>
+    </record>
+
+    <!-- Sequence for Revenue Number -->
+    <record id="seq_wujia_franchise_revenue" model="ir.sequence">
+        <field name="name">Franchise Revenue Sequence</field>
+        <field name="code">wujia.franchise.revenue</field>
+        <field name="prefix">REV/%(year)s/</field>
+        <field name="padding">5</field>
+        <field name="number_next">1</field>
+        <field name="number_increment">1</field>
+    </record>
+
+</odoo>

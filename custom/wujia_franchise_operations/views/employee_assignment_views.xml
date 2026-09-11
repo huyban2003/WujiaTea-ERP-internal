@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="view_wujia_franchise_employee_assignment_list" model="ir.ui.view">
+        <field name="name">wujia.franchise.employee.assignment.list</field>
+        <field name="model">wujia.franchise.employee.assignment</field>
+        <field name="arch" type="xml">
+            <list string="Employee Assignments">
+                <field name="employee_id"/>
+                <field name="franchise_id"/>
+                <field name="job_position"/>
+                <field name="date_from"/>
+                <field name="date_to"/>
+                <field name="is_primary" widget="boolean"/>
+                <field name="state" widget="badge"
+                       decoration-info="state == 'scheduled'"
+                       decoration-success="state == 'working'"
+                       decoration-warning="state == 'suspended'"
+                       decoration-muted="state == 'ended'"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_wujia_franchise_employee_assignment_form" model="ir.ui.view">
+        <field name="name">wujia.franchise.employee.assignment.form</field>
+        <field name="model">wujia.franchise.employee.assignment</field>
+        <field name="arch" type="xml">
+            <form string="Employee Assignment">
+                <sheet>
+                    <group>
+                        <group string="Assignment Details">
+                            <field name="employee_id"/>
+                            <field name="franchise_id"/>
+                            <field name="job_position"/>
+                            <field name="is_primary" widget="boolean"/>
+                        </group>
+                        <group string="Duration &amp; Status">
+                            <field name="date_from"/>
+                            <field name="date_to"/>
+                            <field name="state" widget="radio"/>
+                            <field name="active" widget="boolean"/>
+                        </group>
+                    </group>
+                    <group string="Remarks">
+                        <field name="note" placeholder="Assignment notes or transfer reasons..."/>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_wujia_franchise_employee_assignment_search" model="ir.ui.view">
+        <field name="name">wujia.franchise.employee.assignment.search</field>
+        <field name="model">wujia.franchise.employee.assignment</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="employee_id"/>
+                <field name="franchise_id"/>
+                <field name="job_position"/>
+                <filter string="Scheduled" name="filter_scheduled" domain="[('state', '=', 'scheduled')]"/>
+                <filter string="Working" name="filter_working" domain="[('state', '=', 'working')]"/>
+                <filter string="Primary Assignment" name="filter_primary" domain="[('is_primary', '=', True)]"/>
+                <separator/>
+                <filter string="Store" name="group_store" context="{'group_by': 'franchise_id'}"/>
+                <filter string="Employee" name="group_employee" context="{'group_by': 'employee_id'}"/>
+                <filter string="Status" name="group_state" context="{'group_by': 'state'}"/>
+            </search>
+        </field>
+    </record>
+
+    <record id="action_wujia_franchise_employee_assignment" model="ir.actions.act_window">
+        <field name="name">Store Assignments</field>
+        <field name="res_model">wujia.franchise.employee.assignment</field>
+        <field name="view_mode">list,form</field>
+        <field name="search_view_id" ref="view_wujia_franchise_employee_assignment_search"/>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Assign an employee to a franchise store!
+            </p>
+        </field>
+    </record>
+
+</odoo>

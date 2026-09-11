@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo noupdate="1">
+
+    <record id="shift_template_morning" model="wujia.franchise.shift.template">
+        <field name="name">Morning Shift (06:30 - 14:30)</field>
+        <field name="code">MORNING</field>
+        <field name="start_time">6.5</field>
+        <field name="end_time">14.5</field>
+        <field name="break_minutes">30</field>
+        <field name="sequence">10</field>
+    </record>
+
+    <record id="shift_template_afternoon" model="wujia.franchise.shift.template">
+        <field name="name">Afternoon Shift (14:30 - 22:30)</field>
+        <field name="code">AFTERNOON</field>
+        <field name="start_time">14.5</field>
+        <field name="end_time">22.5</field>
+        <field name="break_minutes">30</field>
+        <field name="sequence">20</field>
+    </record>
+
+    <record id="shift_template_full" model="wujia.franchise.shift.template">
+        <field name="name">Admin Shift (08:00 - 17:00)</field>
+        <field name="code">ADMIN</field>
+        <field name="start_time">8.0</field>
+        <field name="end_time">17.0</field>
+        <field name="break_minutes">60</field>
+        <field name="sequence">30</field>
+    </record>
+
+</odoo>

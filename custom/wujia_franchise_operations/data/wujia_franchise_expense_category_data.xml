@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo noupdate="1">
+
+    <record id="expense_cat_elec" model="wujia.franchise.expense.category">
+        <field name="name">Electricity Expense</field>
+        <field name="code">ELEC</field>
+        <field name="expense_type">operating</field>
+        <field name="sequence">10</field>
+    </record>
+
+    <record id="expense_cat_water" model="wujia.franchise.expense.category">
+        <field name="name">Water Expense</field>
+        <field name="code">WATER</field>
+        <field name="expense_type">operating</field>
+        <field name="sequence">20</field>
+    </record>
+
+    <record id="expense_cat_ice" model="wujia.franchise.expense.category">
+        <field name="name">Ice Purchase</field>
+        <field name="code">ICE</field>
+        <field name="expense_type">operating</field>
+        <field name="sequence">30</field>
+    </record>
+
+    <record id="expense_cat_repair" model="wujia.franchise.expense.category">
+        <field name="name">Equipment Repair &amp; Maintenance</field>
+        <field name="code">REPAIR</field>
+        <field name="expense_type">operating</field>
+        <field name="sequence">40</field>
+    </record>
+
+    <record id="expense_cat_other" model="wujia.franchise.expense.category">
+        <field name="name">Other Store Expense</field>
+        <field name="code">OTHER</field>
+        <field name="expense_type">other</field>
+        <field name="sequence">50</field>
+    </record>
+
+</odoo>

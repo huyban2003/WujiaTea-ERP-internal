@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- Top-level Operations Menu under Franchise Management (Top Header) -->
+    <menuitem id="menu_wujia_franchise_operations_root"
+              name="Store Operations"
+              parent="wujia_franchise.menu_wujia_root"
+              sequence="40"/>
+
+    <!-- Submenus under Store Operations -->
+    <menuitem id="menu_wujia_franchise_staffing_root"
+              name="Store Staffing"
+              parent="menu_wujia_franchise_operations_root"
+              sequence="10"/>
+
+    <menuitem id="menu_wujia_franchise_scheduling_root"
+              name="Work Scheduling"
+              parent="menu_wujia_franchise_operations_root"
+              sequence="20"/>
+
+    <menuitem id="menu_wujia_franchise_finance_root"
+              name="Store Finances"
+              parent="menu_wujia_franchise_operations_root"
+              sequence="30"/>
+
+    <!-- Top-level Configuration Menu under Franchise Configuration -->
+    <menuitem id="menu_wujia_franchise_config_root"
+              name="Operations Config"
+              parent="wujia_franchise.menu_wujia_config_root"
+              sequence="30"/>
+</odoo>

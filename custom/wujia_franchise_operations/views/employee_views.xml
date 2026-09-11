@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="view_wujia_franchise_employee_list" model="ir.ui.view">
+        <field name="name">wujia.franchise.employee.list</field>
+        <field name="model">wujia.franchise.employee</field>
+        <field name="arch" type="xml">
+            <list string="Franchise Employees">
+                <field name="code" readonly="1" decoration-bf="1"/>
+                <field name="name"/>
+                <field name="phone"/>
+                <field name="email"/>
+                <field name="primary_franchise_id"/>
+                <field name="active" widget="boolean" optional="hide"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_wujia_franchise_employee_form" model="ir.ui.view">
+        <field name="name">wujia.franchise.employee.form</field>
+        <field name="model">wujia.franchise.employee</field>
+        <field name="arch" type="xml">
+            <form string="Franchise Employee">
+                <sheet>
+                    <field name="image_1920" widget="image" class="oe_avatar" options="{'zoom': true}"/>
+                    <div class="oe_title">
+                        <h1>
+                            <field name="code" readonly="1"/>
+                        </h1>
+                        <label for="name" class="oe_edit_only"/>
+                        <h2>
+                            <field name="name" placeholder="Full Employee Name..."/>
+                        </h2>
+                    </div>
+                    <group>
+                        <group string="Contact Info">
+                            <field name="phone"/>
+                            <field name="email"/>
+                        </group>
+                        <group string="Current Status">
+                            <field name="primary_franchise_id" readonly="1"/>
+                            <field name="active" widget="boolean"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="Store Assignments" name="assignments">
+                            <field name="assignment_ids">
+                                <list string="Assignments" editable="bottom">
+                                    <field name="franchise_id"/>
+                                    <field name="job_position"/>
+                                    <field name="date_from"/>
+                                    <field name="date_to"/>
+                                    <field name="is_primary" widget="boolean"/>
+                                    <field name="state" widget="badge"
+                                           decoration-success="state == 'working'"
+                                           decoration-warning="state == 'suspended'"
+                                           decoration-muted="state == 'ended'"/>
+                                </list>
+                            </field>
+                        </page>
+                        <page string="Internal Notes" name="notes">
+                            <field name="note" placeholder="Internal remarks regarding performance, training, or employment..."/>
+                        </page>
+                    </notebook>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_wujia_franchise_employee_search" model="ir.ui.view">
+        <field name="name">wujia.franchise.employee.search</field>
+        <field name="model">wujia.franchise.employee</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="name" string="Employee" filter_domain="['|', ('name', 'ilike', self), ('code', 'ilike', self)]"/>
+                <field name="phone"/>
+                <field name="email"/>
+                <field name="primary_franchise_id"/>
+                <separator/>
+                <filter string="Archived" name="filter_archived" domain="[('active', '=', False)]"/>
+                <separator/>
+                <filter string="Primary Store" name="group_primary_store" context="{'group_by': 'primary_franchise_id'}"/>
+            </search>
+        </field>
+    </record>
+
+    <record id="action_wujia_franchise_employee" model="ir.actions.act_window">
+        <field name="name">Employees</field>
+        <field name="res_model">wujia.franchise.employee</field>
+        <field name="view_mode">list,form</field>
+        <field name="search_view_id" ref="view_wujia_franchise_employee_search"/>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Create a new franchise employee profile!
+            </p>
+        </field>
+    </record>
+
+    <menuitem id="menu_wujia_franchise_employee"
+              name="Employees"
+              parent="menu_wujia_franchise_staffing_root"
+              action="action_wujia_franchise_employee"
+              sequence="10"/>
+
+</odoo>

@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="view_wujia_franchise_shift_template_list" model="ir.ui.view">
+        <field name="name">wujia.franchise.shift.template.list</field>
+        <field name="model">wujia.franchise.shift.template</field>
+        <field name="arch" type="xml">
+            <list string="Shift Templates">
+                <field name="sequence" widget="handle"/>
+                <field name="code" decoration-bf="1"/>
+                <field name="name"/>
+                <field name="franchise_id" optional="show"/>
+                <field name="start_time" widget="float_time"/>
+                <field name="end_time" widget="float_time"/>
+                <field name="break_minutes"/>
+                <field name="planned_hours"/>
+                <field name="active" widget="boolean" optional="hide"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_wujia_franchise_shift_template_form" model="ir.ui.view">
+        <field name="name">wujia.franchise.shift.template.form</field>
+        <field name="model">wujia.franchise.shift.template</field>
+        <field name="arch" type="xml">
+            <form string="Shift Template">
+                <sheet>
+                    <div class="oe_title">
+                        <label for="name" class="oe_edit_only"/>
+                        <h1>
+                            <field name="name" placeholder="e.g. Morning Shift (06:30 - 14:30)"/>
+                        </h1>
+                    </div>
+                    <group>
+                        <group string="Shift Identifiers">
+                            <field name="code" placeholder="e.g. MORNING"/>
+                            <field name="sequence"/>
+                            <field name="franchise_id" placeholder="Leave empty for global template"/>
+                        </group>
+                        <group string="Timing &amp; Hours">
+                            <field name="start_time" widget="float_time"/>
+                            <field name="end_time" widget="float_time"/>
+                            <field name="break_minutes"/>
+                            <field name="planned_hours"/>
+                            <field name="active" widget="boolean"/>
+                        </group>
+                    </group>
+                    <group string="Description">
+                        <field name="description" placeholder="Internal instructions for this shift template..."/>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_wujia_franchise_shift_template_search" model="ir.ui.view">
+        <field name="name">wujia.franchise.shift.template.search</field>
+        <field name="model">wujia.franchise.shift.template</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="name" filter_domain="['|', ('name', 'ilike', self), ('code', 'ilike', self)]"/>
+                <field name="franchise_id"/>
+                <separator/>
+                <filter string="Global Templates" name="filter_global" domain="[('franchise_id', '=', False)]"/>
+                <filter string="Store Specific" name="filter_store_specific" domain="[('franchise_id', '!=', False)]"/>
+            </search>
+        </field>
+    </record>
+
+    <record id="action_wujia_franchise_shift_template" model="ir.actions.act_window">
+        <field name="name">Shift Templates</field>
+        <field name="res_model">wujia.franchise.shift.template</field>
+        <field name="view_mode">list,form</field>
+        <field name="search_view_id" ref="view_wujia_franchise_shift_template_search"/>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Define a new shift template!
+            </p>
+        </field>
+    </record>
+
+    <menuitem id="menu_wujia_franchise_shift_template"
+              name="Shift Templates"
+              parent="menu_wujia_franchise_scheduling_root"
+              action="action_wujia_franchise_shift_template"
+              sequence="20"/>
+
+</odoo>

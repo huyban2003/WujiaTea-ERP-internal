@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="res_groups_privilege_franchise_operations" model="res.groups.privilege">
+        <field name="name">Wujia Franchise Operations</field>
+        <field name="category_id" ref="wujia_franchise.module_category_wujia"/>
+        <field name="sequence">25</field>
+    </record>
+
+    <!-- User Group -->
+    <record id="group_franchise_operations_user" model="res.groups">
+        <field name="name">User</field>
+        <field name="sequence">10</field>
+        <field name="privilege_id" ref="res_groups_privilege_franchise_operations"/>
+        <field name="comment">Can view and draft employee assignments, schedules, expenses, and revenues.</field>
+    </record>
+
+    <!-- Manager Group -->
+    <record id="group_franchise_operations_manager" model="res.groups">
+        <field name="name">Manager</field>
+        <field name="sequence">20</field>
+        <field name="privilege_id" ref="res_groups_privilege_franchise_operations"/>
+        <field name="implied_ids" eval="[(4, ref('group_franchise_operations_user'))]"/>
+        <field name="user_ids" eval="[(4, ref('base.user_admin'))]"/>
+        <field name="comment">Full operational management: confirm/cancel records and manage configuration templates.</field>
+    </record>
+
+    <!-- Rule for Employee Assignment -->
+    <record id="rule_franchise_employee_assignment_multi_company" model="ir.rule">
+        <field name="name">Franchise Employee Assignment Multi-Company / Global Rule</field>
+        <field name="model_id" ref="model_wujia_franchise_employee_assignment"/>
+        <field name="domain_force">[(1, '=', 1)]</field>
+    </record>
+
+    <!-- Rule for Work Schedule -->
+    <record id="rule_franchise_work_schedule_global" model="ir.rule">
+        <field name="name">Franchise Work Schedule Global Rule</field>
+        <field name="model_id" ref="model_wujia_franchise_work_schedule"/>
+        <field name="domain_force">[(1, '=', 1)]</field>
+    </record>
+
+    <!-- Rule for Expense -->
+    <record id="rule_franchise_expense_global" model="ir.rule">
+        <field name="name">Franchise Expense Global Rule</field>
+        <field name="model_id" ref="model_wujia_franchise_expense"/>
+        <field name="domain_force">[(1, '=', 1)]</field>
+    </record>
+
+    <!-- Rule for Revenue -->
+    <record id="rule_franchise_revenue_global" model="ir.rule">
+        <field name="name">Franchise Revenue Global Rule</field>
+        <field name="model_id" ref="model_wujia_franchise_revenue"/>
+        <field name="domain_force">[(1, '=', 1)]</field>
+    </record>
+
+</odoo>
