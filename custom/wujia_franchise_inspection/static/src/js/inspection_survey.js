@@ -9,13 +9,13 @@
   }
 
   function escapeHtml(str) {
-    if (!str) return "";
+    if (!str) return '';
     return String(str)
-      .replace(/&/g, "&amp;")
-      .replace(/</g, "&lt;")
-      .replace(/>/g, "&gt;")
-      .replace(/"/g, "&quot;")
-      .replace(/'/g, "&#039;");
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#039;');
   }
 
   document.addEventListener("DOMContentLoaded", function () {
@@ -38,21 +38,15 @@
 
     cleanExamTextareas();
 
-    function safeParseArray(val) {
+        function safeParseArray(val) {
       if (!val) return [];
       if (Array.isArray(val)) return val;
-      if (typeof val === "string") {
+      if (typeof val === 'string') {
         try {
           return JSON.parse(val);
         } catch (e) {
           try {
-            return JSON.parse(
-              val
-                .replace(/'/g, '"')
-                .replace(/None/g, "null")
-                .replace(/True/g, "true")
-                .replace(/False/g, "false"),
-            );
+            return JSON.parse(val.replace(/'/g, '"').replace(/None/g, 'null').replace(/True/g, 'true').replace(/False/g, 'false'));
           } catch (e2) {
             return [];
           }
@@ -62,27 +56,18 @@
     }
 
     // Format submitted exam row into green / red dashed inline answers (portal inspection style)
-    function renderSubmittedExamRow(
-      row,
-      userAnswers,
-      correctAnswers,
-      isCorrect,
-    ) {
+    function renderSubmittedExamRow(row, userAnswers, correctAnswers, isCorrect) {
       const titleEl = row.querySelector(".exam-quest-title");
       if (!titleEl) return;
-
-      const originalText =
-        row.dataset.originalQuestion || titleEl.textContent || "";
+      
+      const originalText = row.dataset.originalQuestion || titleEl.textContent || "";
       row.dataset.originalQuestion = originalText;
 
       const parsedCorrect = safeParseArray(correctAnswers);
 
       let blankIndex = 0;
       const formattedHtml = originalText.replace(/_{2,}/g, function (match) {
-        const uAns =
-          userAnswers && userAnswers[blankIndex] !== undefined
-            ? String(userAnswers[blankIndex]).trim()
-            : "";
+        const uAns = (userAnswers && userAnswers[blankIndex] !== undefined) ? String(userAnswers[blankIndex]).trim() : "";
         let blankIsCorrect = false;
 
         const correctForBlank = parsedCorrect[blankIndex];
@@ -92,22 +77,13 @@
               const cStr = String(c).trim().toLowerCase();
               const uStr = uAns.toLowerCase();
               if (!uStr) return false;
-              return (
-                cStr === uStr ||
-                (cStr.replace(/[^\w\d]/g, "") ===
-                  uStr.replace(/[^\w\d]/g, "") &&
-                  uStr.replace(/[^\w\d]/g, "") !== "")
-              );
+              return cStr === uStr || (cStr.replace(/[^\w\d]/g, '') === uStr.replace(/[^\w\d]/g, '') && uStr.replace(/[^\w\d]/g, '') !== '');
             });
           } else {
             const cStr = String(correctForBlank).trim().toLowerCase();
             const uStr = uAns.toLowerCase();
             if (uStr) {
-              blankIsCorrect =
-                cStr === uStr ||
-                (cStr.replace(/[^\w\d]/g, "") ===
-                  uStr.replace(/[^\w\d]/g, "") &&
-                  uStr.replace(/[^\w\d]/g, "") !== "");
+              blankIsCorrect = (cStr === uStr || (cStr.replace(/[^\w\d]/g, '') === uStr.replace(/[^\w\d]/g, '') && uStr.replace(/[^\w\d]/g, '') !== ''));
             }
           }
         } else if (isCorrect && uAns) {
@@ -117,17 +93,9 @@
         const displayAns = uAns || "...";
         blankIndex++;
         if (blankIsCorrect) {
-          return (
-            '<span style="color: #16a34a; font-weight: bold; text-decoration: none; border-bottom: 2px dashed #16a34a; padding: 0 4px; margin: 0 4px;">' +
-            escapeHtml(displayAns) +
-            "</span>"
-          );
+          return '<span style="color: #16a34a; font-weight: bold; text-decoration: none; border-bottom: 2px dashed #16a34a; padding: 0 4px; margin: 0 4px;">' + escapeHtml(displayAns) + '</span>';
         } else {
-          return (
-            '<span style="color: #dc2626; font-weight: bold; text-decoration: line-through; border-bottom: 2px dashed #dc2626; padding: 0 4px; margin: 0 4px;">' +
-            escapeHtml(displayAns) +
-            "</span>"
-          );
+          return '<span style="color: #dc2626; font-weight: bold; text-decoration: line-through; border-bottom: 2px dashed #dc2626; padding: 0 4px; margin: 0 4px;">' + escapeHtml(displayAns) + '</span>';
         }
       });
 
@@ -153,9 +121,9 @@
         let ansList = [];
         if (existingAns) {
           if (existingAns.includes("\n")) {
-            ansList = existingAns.split("\n").map((s) => s.trim());
+            ansList = existingAns.split("\n").map(s => s.trim());
           } else {
-            ansList = existingAns.split(/[\n,;]+/).map((s) => s.trim());
+            ansList = existingAns.split(/[\n,;]+/).map(s => s.trim());
           }
         }
 
@@ -170,10 +138,7 @@
         // Replace underscores with input fields
         let blankIndex = 0;
         const html = originalText.replace(blankRegex, function (match) {
-          const val =
-            ansList[blankIndex] !== undefined
-              ? escapeHtml(ansList[blankIndex])
-              : "";
+          const val = ansList[blankIndex] !== undefined ? escapeHtml(ansList[blankIndex]) : "";
           const inputHtml = `<input type="text" class="exam-blank-input" data-blank-index="${blankIndex}" value="${val}" placeholder="..." autocomplete="off" />`;
           blankIndex++;
           return inputHtml;
@@ -210,6 +175,7 @@
 
     initExamBlankInputs();
 
+
     // Clean when focus or input on textareas
     document.querySelectorAll(".exam-ans").forEach(function (el) {
       el.addEventListener("focus", function () {
@@ -245,9 +211,7 @@
       // Render Correct / Incorrect results directly in question text (portal style)
       document.querySelectorAll(".exam-row").forEach(function (row) {
         const rowId = parseInt(row.dataset.id);
-        const res =
-          (examResults && (examResults[rowId] || examResults[String(rowId)])) ||
-          null;
+        const res = (examResults && (examResults[rowId] || examResults[String(rowId)])) || null;
         let isCorrect = false;
         let point = 0;
         let correctAnswers = [];
@@ -282,9 +246,9 @@
         let userAnswers = [];
         if (ansRaw) {
           if (ansRaw.includes("\n")) {
-            userAnswers = ansRaw.split("\n").map((s) => s.trim());
+            userAnswers = ansRaw.split("\n").map(s => s.trim());
           } else {
-            userAnswers = ansRaw.split(/[\n,;]+/).map((s) => s.trim());
+            userAnswers = ansRaw.split(/[\n,;]+/).map(s => s.trim());
           }
         }
         renderSubmittedExamRow(row, userAnswers, correctAnswers, isCorrect);
@@ -385,9 +349,7 @@
       switchTab("exam");
     } else if (
       savedTab &&
-      ["checklist", "exam", "notes", "revenue", "confirmation"].includes(
-        savedTab,
-      )
+      ["checklist", "exam", "notes", "revenue", "confirmation"].includes(savedTab)
     ) {
       switchTab(savedTab);
     }
@@ -431,15 +393,23 @@
       chk.addEventListener("change", updatePresentCount);
     });
 
-    // Toast notifications
+    // Toast notifications (Fixed overlay & smooth transition)
+    let toastTimeout = null;
     function showToast(msg, isError) {
       const t = document.getElementById("toast");
       if (!t) return;
-      t.innerText = msg;
-      t.style.background = isError ? "#ef4444" : "#3b82f6";
-      t.style.display = "block";
-      setTimeout(function () {
-        t.style.display = "none";
+      if (toastTimeout) clearTimeout(toastTimeout);
+      
+      const translatedMsg = _t(msg, msg);
+      t.className = isError ? "show toast-error" : "show toast-success";
+      t.innerHTML = (isError ? '<i class="fa fa-circle-exclamation me-1" style="color: #fca5a5;"></i>' : '<i class="fa fa-circle-check me-1" style="color: #4ade80;"></i>') + `<span>${escapeHtml(translatedMsg)}</span>`;
+      t.style.display = "inline-flex";
+      
+      toastTimeout = setTimeout(function () {
+        t.classList.remove("show");
+        setTimeout(function() {
+          t.style.display = "none";
+        }, 250);
       }, 3500);
     }
 
@@ -760,9 +730,7 @@
         exam_lines: examLines,
         test_employee_name: empName,
         tenure: empTenure,
-        store_appearance_issues: document.getElementById(
-          "storeAppearanceIssues",
-        )
+        store_appearance_issues: document.getElementById("storeAppearanceIssues")
           ? document.getElementById("storeAppearanceIssues").value
           : "",
         confirmed_member_id: confirmedMemberId,
@@ -929,6 +897,7 @@
       }
     }
 
+
     const btnFinishSurvey = document.getElementById("btnFinishSurvey");
     if (btnFinishSurvey) {
       btnFinishSurvey.addEventListener("click", function (e) {
@@ -1014,6 +983,8 @@
       });
     }
 
+
+
     function openLineDetailModal(row) {
       if (
         activeRow === row &&
@@ -1032,7 +1003,7 @@
           if (noteInd) {
             noteInd.style.display = lineModalNoteInput.value.trim()
               ? "inline-flex"
-              : "none";
+            : "none";
           }
         }
       }
@@ -1129,38 +1100,27 @@
         imgSrc = "";
       } else if (rowImgB64 && rowImgB64.length > 20) {
         imgSrc = rowImgB64;
-      } else if (
-        existingImg &&
-        existingImg.src &&
-        existingImg.src.length > 20
-      ) {
+      } else if (existingImg && existingImg.src && existingImg.src.length > 20) {
         imgSrc = existingImg.src;
       }
 
       if (imgSrc) {
         if (lineModalImgPreview) lineModalImgPreview.src = imgSrc;
         if (lineModalImgContainer) lineModalImgContainer.style.display = "flex";
-        if (lineModalUploadDropzone)
-          lineModalUploadDropzone.style.display = "none";
+        if (lineModalUploadDropzone) lineModalUploadDropzone.style.display = "none";
       } else {
         if (lineModalImgPreview) lineModalImgPreview.src = "";
         if (lineModalImgContainer) lineModalImgContainer.style.display = "none";
         if (lineModalUploadDropzone) {
-          lineModalUploadDropzone.style.display = isInspectionClosed
-            ? "none"
-            : "block";
+          lineModalUploadDropzone.style.display = isInspectionClosed ? "none" : "block";
         }
       }
 
       if (lineModalBtnChangePhoto) {
-        lineModalBtnChangePhoto.style.display = isInspectionClosed
-          ? "none"
-          : "inline-flex";
+        lineModalBtnChangePhoto.style.display = isInspectionClosed ? "none" : "inline-flex";
       }
       if (lineModalBtnDeletePhoto) {
-        lineModalBtnDeletePhoto.style.display = isInspectionClosed
-          ? "none"
-          : "inline-flex";
+        lineModalBtnDeletePhoto.style.display = isInspectionClosed ? "none" : "inline-flex";
       }
 
       // Evaluation Checkbox
@@ -1238,7 +1198,9 @@
           }
           const noteInd = activeRow.querySelector(".note-indicator");
           if (noteInd) {
-            noteInd.style.display = this.value.trim() ? "inline-flex" : "none";
+            noteInd.style.display = this.value.trim()
+              ? "inline-flex"
+            : "none";
           }
         }
       });
@@ -1255,9 +1217,7 @@
         noteInput.value = lineModalNoteInput.value;
         const noteInd = activeRow.querySelector(".note-indicator");
         if (noteInd) {
-          noteInd.style.display = lineModalNoteInput.value.trim()
-            ? "inline-flex"
-            : "none";
+          noteInd.style.display = lineModalNoteInput.value.trim() ? "inline-flex" : "none";
         }
       }
       const fileInput = activeRow.querySelector(".line-file");
@@ -1292,8 +1252,7 @@
 
         if (lineModalImgPreview) lineModalImgPreview.src = "";
         if (lineModalImgContainer) lineModalImgContainer.style.display = "none";
-        if (lineModalUploadDropzone)
-          lineModalUploadDropzone.style.display = "block";
+        if (lineModalUploadDropzone) lineModalUploadDropzone.style.display = "block";
       });
     }
     // Image Lightbox Viewer Setup (Available globally on window)
@@ -1365,13 +1324,8 @@
       lineModalPrevEvidenceWrap.addEventListener("click", function (e) {
         e.stopPropagation();
         if (lineModalPrevEvidenceImg && lineModalPrevEvidenceImg.src) {
-          const note = lineModalPrevNote
-            ? lineModalPrevNote.textContent.trim()
-            : "";
-          const cap =
-            note && note !== "-"
-              ? `Ghi chú đợt trước: ${note}`
-              : "Ảnh bằng chứng đợt trước";
+          const note = lineModalPrevNote ? lineModalPrevNote.textContent.trim() : "";
+          const cap = note && note !== "-" ? `Ghi chú đợt trước: ${note}` : "Ảnh bằng chứng đợt trước";
           openImageLightbox(lineModalPrevEvidenceImg.src, cap);
         }
       });
@@ -1382,12 +1336,8 @@
       lineModalImgPreviewWrap.addEventListener("click", function (e) {
         e.stopPropagation();
         if (lineModalImgPreview && lineModalImgPreview.src) {
-          const note = lineModalNoteInput
-            ? lineModalNoteInput.value.trim()
-            : "";
-          const cap = note
-            ? `Ghi chú vi phạm: ${note}`
-            : "Ảnh bằng chứng vi phạm";
+          const note = lineModalNoteInput ? lineModalNoteInput.value.trim() : "";
+          const cap = note ? `Ghi chú vi phạm: ${note}` : "Ảnh bằng chứng vi phạm";
           openImageLightbox(lineModalImgPreview.src, cap);
         }
       });
@@ -1430,12 +1380,9 @@
                 triggerBtn.style.display = "none";
               }
               if (activeRow === row) {
-                if (lineModalImgPreview)
-                  lineModalImgPreview.src = compressedB64;
-                if (lineModalImgContainer)
-                  lineModalImgContainer.style.display = "flex";
-                if (lineModalUploadDropzone)
-                  lineModalUploadDropzone.style.display = "none";
+                if (lineModalImgPreview) lineModalImgPreview.src = compressedB64;
+                if (lineModalImgContainer) lineModalImgContainer.style.display = "flex";
+                if (lineModalUploadDropzone) lineModalUploadDropzone.style.display = "none";
               }
             } catch (err) {
               console.error("Loi nen anh:", err);
@@ -1469,6 +1416,72 @@
     const attendanceEmptyState = document.getElementById(
       "attendanceEmptyState",
     );
+
+    function refreshConfirmedMemberSelect(storeMembers) {
+      const select = document.getElementById("confirmedMemberSelect");
+      if (!select) return;
+
+      const currentVal = select.value;
+      const roleLabels = {
+        staff: _t("label:wujia.franchise.inspection_survey:role_staff", "Staff"),
+        manager: _t("label:wujia.franchise.inspection_survey:role_manager", "Manager"),
+        owner: _t("label:wujia.franchise.inspection_survey:role_owner", "Store Owner")
+      };
+      const placeholderText = _t("label:wujia.franchise.inspection_survey:placeholder_select_store_manager", "--- Select Store Manager ---");
+
+      if (Array.isArray(storeMembers)) {
+        let html = `<option value="">${escapeHtml(placeholderText)}</option>`;
+        storeMembers.forEach(function (m) {
+          const roleText = roleLabels[m.role] || roleLabels.staff;
+          const phoneText = m.phone ? (" - " + m.phone) : "";
+          const label = m.name + " (" + roleText + ")" + phoneText;
+          const isSelected = (String(m.id) === String(currentVal)) ? 'selected="selected"' : '';
+          html += `<option value="${m.id}" ${isSelected}>${escapeHtml(label)}</option>`;
+        });
+        select.innerHTML = html;
+        if (currentVal) {
+          select.value = currentVal;
+        }
+      }
+    }
+
+    function updateOrAddConfirmedMemberOption(member) {
+      if (!member || !member.id) return;
+      const select = document.getElementById("confirmedMemberSelect");
+      if (!select) return;
+
+      const roleLabels = {
+        staff: _t("label:wujia.franchise.inspection_survey:role_staff", "Staff"),
+        manager: _t("label:wujia.franchise.inspection_survey:role_manager", "Manager"),
+        owner: _t("label:wujia.franchise.inspection_survey:role_owner", "Store Owner")
+      };
+      const roleText = roleLabels[member.role] || roleLabels.staff;
+      const phoneText = member.phone ? (" - " + member.phone) : "";
+      const label = member.name + " (" + roleText + ")" + phoneText;
+
+      let existingOpt = select.querySelector('option[value="' + member.id + '"]');
+      if (existingOpt) {
+        existingOpt.textContent = label;
+      } else {
+        const opt = document.createElement("option");
+        opt.value = member.id;
+        opt.textContent = label;
+        select.appendChild(opt);
+      }
+    }
+
+    function removeConfirmedMemberOption(memberId) {
+      if (!memberId) return;
+      const select = document.getElementById("confirmedMemberSelect");
+      if (!select) return;
+      const opt = select.querySelector('option[value="' + memberId + '"]');
+      if (opt) {
+        if (select.value === String(memberId)) {
+          select.value = "";
+        }
+        opt.remove();
+      }
+    }
 
     function openAddStaffModal() {
       if (newStaffName) newStaffName.value = "";
@@ -1514,16 +1527,10 @@
         btnAddStaffSubmit.style.pointerEvents = "none";
         btnAddStaffSubmit.innerHTML = `<i class="fa fa-spinner fa-spin me-1"></i> ${_t("label:wujia.franchise.inspection_survey:btn_adding_staff", "Đang thêm...")}`;
 
-        const saveLoadingOverlay =
-          document.getElementById("saveLoadingOverlay");
+        const saveLoadingOverlay = document.getElementById("saveLoadingOverlay");
         if (saveLoadingOverlay) {
-          const loadingTextEl =
-            saveLoadingOverlay.querySelector("div:nth-child(2)");
-          if (loadingTextEl)
-            loadingTextEl.innerText = _t(
-              "label:wujia.franchise.inspection_survey:loading_adding_staff",
-              "Đang thêm nhân viên...",
-            );
+          const loadingTextEl = saveLoadingOverlay.querySelector("div:nth-child(2)");
+          if (loadingTextEl) loadingTextEl.innerText = _t("label:wujia.franchise.inspection_survey:loading_adding_staff", "Đang thêm nhân viên...");
           saveLoadingOverlay.style.display = "flex";
         }
 
@@ -1558,18 +1565,9 @@
             tr.style.borderBottom = "1px solid #f1f5f9";
 
             const roleLabels = {
-              staff: _t(
-                "label:wujia.franchise.inspection_survey:role_staff",
-                "Staff",
-              ),
-              manager: _t(
-                "label:wujia.franchise.inspection_survey:role_manager",
-                "Manager",
-              ),
-              owner: _t(
-                "label:wujia.franchise.inspection_survey:role_owner",
-                "Store Owner",
-              ),
+              staff: _t("label:wujia.franchise.inspection_survey:role_staff", "Staff"),
+              manager: _t("label:wujia.franchise.inspection_survey:role_manager", "Manager"),
+              owner: _t("label:wujia.franchise.inspection_survey:role_owner", "Store Owner")
             };
 
             tr.innerHTML = `
@@ -1577,7 +1575,7 @@
                   <input type="text" class="att-name-input note-input" style="padding: 6px 8px; font-size: 13px; font-weight: 600; width: 100%; min-width: 120px;"
                       value="${escapeHtml(newLine.employee_name)}"
                       placeholder="Enter employee name..." />
-                  <input type="hidden" class="att-phone-input" value="${escapeHtml(newLine.phone || "")}" />
+                  <input type="hidden" class="att-phone-input" value="${escapeHtml(newLine.phone || '')}" />
               </td>
               <td style="padding: 8px 6px;">
                   <select class="att-role-select note-input" style="padding: 6px 4px; font-size: 12px; width: 100%;">
@@ -1609,8 +1607,12 @@
               attendanceTbody.appendChild(tr);
             }
             bindAttendanceRowEvents(tr);
-            if (attendanceEmptyState)
-              attendanceEmptyState.style.display = "none";
+            if (data.result.store_members) {
+              refreshConfirmedMemberSelect(data.result.store_members);
+            } else if (data.result.member) {
+              updateOrAddConfirmedMemberOption(data.result.member);
+            }
+            if (attendanceEmptyState) attendanceEmptyState.style.display = "none";
             updatePresentCount();
             showToast(
               _t(
@@ -1700,6 +1702,12 @@
               if (btnDeact && data.result.member_id)
                 btnDeact.style.display = "inline-flex";
 
+              if (data.result.store_members) {
+                refreshConfirmedMemberSelect(data.result.store_members);
+              } else if (data.result.member) {
+                updateOrAddConfirmedMemberOption(data.result.member);
+              }
+
               // 2. Lưu luôn toàn bộ các tiêu chí khảo sát, điểm danh, diện mạo mà không lưu/khóa bài kiểm tra
               await saveSurveyDraft();
 
@@ -1740,16 +1748,10 @@
           btnDeactMember.innerHTML = '<i class="fa fa-spinner fa-spin"></i>';
           const lineId = row.dataset.id;
 
-          const saveLoadingOverlay =
-            document.getElementById("saveLoadingOverlay");
+          const saveLoadingOverlay = document.getElementById("saveLoadingOverlay");
           if (saveLoadingOverlay) {
-            const loadingTextEl =
-              saveLoadingOverlay.querySelector("div:nth-child(2)");
-            if (loadingTextEl)
-              loadingTextEl.innerText = _t(
-                "label:wujia.franchise.inspection_survey:loading_deactivating",
-                "Đang xử lý ngưng việc...",
-              );
+            const loadingTextEl = saveLoadingOverlay.querySelector("div:nth-child(2)");
+            if (loadingTextEl) loadingTextEl.innerText = _t("label:wujia.franchise.inspection_survey:loading_deactivating", "Đang xử lý ngưng việc...");
             saveLoadingOverlay.style.display = "flex";
           }
 
@@ -1773,6 +1775,14 @@
             );
             const data = await res.json();
             if (data.result && data.result.success) {
+              if (data.result.store_members) {
+                refreshConfirmedMemberSelect(data.result.store_members);
+              } else {
+                const memIdToRemove = data.result.member_id || row.dataset.memberId;
+                if (memIdToRemove) {
+                  removeConfirmedMemberOption(memIdToRemove);
+                }
+              }
               row.remove();
               updatePresentCount();
               const remainingRows = attendanceTbody
@@ -1865,14 +1875,10 @@
         if (signModal) signModal.style.display = "none";
       }
 
-      if (btnOpenSignModal)
-        btnOpenSignModal.addEventListener("click", openModal);
-      if (sigPreviewContainer)
-        sigPreviewContainer.addEventListener("click", openModal);
-      if (btnCloseSignModal)
-        btnCloseSignModal.addEventListener("click", closeModal);
-      if (btnCancelSignModal)
-        btnCancelSignModal.addEventListener("click", closeModal);
+      if (btnOpenSignModal) btnOpenSignModal.addEventListener("click", openModal);
+      if (sigPreviewContainer) sigPreviewContainer.addEventListener("click", openModal);
+      if (btnCloseSignModal) btnCloseSignModal.addEventListener("click", closeModal);
+      if (btnCancelSignModal) btnCancelSignModal.addEventListener("click", closeModal);
 
       function getPos(e) {
         const rect = sigCanvas.getBoundingClientRect();
@@ -1886,8 +1892,8 @@
           clientY = e.changedTouches[0].clientY;
         }
 
-        const scaleX = rect.width > 0 ? sigCanvas.width / rect.width : 1;
-        const scaleY = rect.height > 0 ? sigCanvas.height / rect.height : 1;
+        const scaleX = rect.width > 0 ? (sigCanvas.width / rect.width) : 1;
+        const scaleY = rect.height > 0 ? (sigCanvas.height / rect.height) : 1;
 
         return {
           x: (clientX - rect.left) * scaleX,
@@ -1941,7 +1947,7 @@
         outCanvas.width = w;
         outCanvas.height = h;
         const outCtx = outCanvas.getContext("2d");
-
+        
         // Scale content by 92% and center to guarantee zero edge cropping
         const scale = 0.92;
         const offX = (w * (1 - scale)) / 2;
@@ -1953,10 +1959,7 @@
       if (btnSaveSignModal) {
         btnSaveSignModal.addEventListener("click", function () {
           if (!hasDrawn) {
-            showCustomAlert(
-              "Thông báo",
-              "Vui lòng vẽ chữ ký trước khi đồng ý!",
-            );
+            showCustomAlert("Thông báo", "Vui lòng vẽ chữ ký trước khi đồng ý!");
             return;
           }
           const dataUrl = exportSafePaddedCanvas(sigCanvas);
@@ -1966,15 +1969,11 @@
             signaturePreviewImg.style.display = "block";
           }
           if (sigEmptyPrompt) sigEmptyPrompt.style.display = "none";
-          if (btnClearSignature)
-            btnClearSignature.style.display = "inline-flex";
+          if (btnClearSignature) btnClearSignature.style.display = "inline-flex";
           if (sigStatusBadge) sigStatusBadge.style.display = "inline-block";
           if (sigDateText) sigDateText.innerText = "Vừa ký (chưa lưu)";
           closeModal();
-          showToast(
-            "Đã ghi nhận chữ ký! Hãy bấm nút 'Lưu' để hoàn tất.",
-            false,
-          );
+          showToast("Đã ghi nhận chữ ký! Hãy bấm nút 'Lưu' để hoàn tất.", false);
         });
       }
 
@@ -2013,11 +2012,10 @@
 
       const revVal = parseFloat(revInp.value) || 0;
       const now = new Date();
-      let y = now.getFullYear(),
-        m = now.getMonth() + 1;
+      let y = now.getFullYear(), m = now.getMonth() + 1;
       if (yearSel && monthSel) {
         y = parseInt(yearSel.value) || now.getFullYear();
-        m = parseInt(monthSel.value) || now.getMonth() + 1;
+        m = parseInt(monthSel.value) || (now.getMonth() + 1);
       }
       const days = getDaysInMonth(y, m);
       if (days > 0 && revVal > 0) {
@@ -2033,10 +2031,8 @@
       const revInp = row.querySelector(".rev-amount-input");
       const delBtn = row.querySelector(".btn-delete-rev-row");
 
-      if (monthSel)
-        monthSel.addEventListener("change", () => calculateRowAvg(row));
-      if (yearSel)
-        yearSel.addEventListener("change", () => calculateRowAvg(row));
+      if (monthSel) monthSel.addEventListener("change", () => calculateRowAvg(row));
+      if (yearSel) yearSel.addEventListener("change", () => calculateRowAvg(row));
       if (revInp) revInp.addEventListener("input", () => calculateRowAvg(row));
 
       if (delBtn) {
@@ -2059,14 +2055,13 @@
         .forEach(bindRevenueRowEvents);
     }
 
-    function getMonthOptionsHtml(selectedMonth) {
+        function getMonthOptionsHtml(selectedMonth) {
       const existingSelect = document.querySelector(".rev-month-sel");
       if (existingSelect && existingSelect.options.length > 0) {
         let html = "";
         for (let i = 0; i < existingSelect.options.length; i++) {
           const opt = existingSelect.options[i];
-          const isSel =
-            opt.value === selectedMonth ? 'selected="selected"' : "";
+          const isSel = (opt.value === selectedMonth) ? 'selected="selected"' : "";
           html += `<option value="${opt.value}" ${isSel}>${opt.text}</option>`;
         }
         return html;
@@ -2074,7 +2069,7 @@
       let html = "";
       for (let i = 1; i <= 12; i++) {
         const val = String(i).padStart(2, "0");
-        const isSel = val === selectedMonth ? 'selected="selected"' : "";
+        const isSel = (val === selectedMonth) ? 'selected="selected"' : "";
         html += `<option value="${val}" ${isSel}>${val}</option>`;
       }
       return html;
@@ -2086,8 +2081,7 @@
         let html = "";
         for (let i = 0; i < existingSelect.options.length; i++) {
           const opt = existingSelect.options[i];
-          const isSel =
-            opt.value === String(selectedYear) ? 'selected="selected"' : "";
+          const isSel = (opt.value === String(selectedYear)) ? 'selected="selected"' : "";
           html += `<option value="${opt.value}" ${isSel}>${opt.text}</option>`;
         }
         return html;
@@ -2095,10 +2089,7 @@
       const curY = new Date().getFullYear();
       let html = "";
       for (let y = curY - 3; y <= curY + 2; y++) {
-        const isSel =
-          String(y) === String(selectedYear || curY)
-            ? 'selected="selected"'
-            : "";
+        const isSel = (String(y) === String(selectedYear || curY)) ? 'selected="selected"' : "";
         html += `<option value="${y}" ${isSel}>${y}</option>`;
       }
       return html;
@@ -2109,24 +2100,20 @@
       btnSyncPosApp.addEventListener("click", async function () {
         const origHtml = btnSyncPosApp.innerHTML;
         btnSyncPosApp.disabled = true;
-        btnSyncPosApp.innerHTML =
-          '<i class="fa fa-spinner fa-spin me-1"></i> Đang đồng bộ...';
+        btnSyncPosApp.innerHTML = '<i class="fa fa-spinner fa-spin me-1"></i> Đang đồng bộ...';
         try {
-          const res = await fetch(
-            `/franchise/inspection/do/${inspectionId}/sync_posapp`,
-            {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({ jsonrpc: "2.0", params: {} }),
-            },
-          );
+          const res = await fetch(`/franchise/inspection/do/${inspectionId}/sync_posapp`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ jsonrpc: "2.0", params: {} })
+          });
           const data = await res.json();
           if (data.result && data.result.success) {
             const fetchedLines = data.result.report_lines || [];
             if (revenueTbody) {
               revenueTbody.innerHTML = "";
               if (revenueEmptyState) revenueEmptyState.style.display = "none";
-
+              
               fetchedLines.forEach((item) => {
                 const tr = document.createElement("tr");
                 tr.className = "revenue-row";
@@ -2173,16 +2160,9 @@
                 bindRevenueRowEvents(tr);
               });
             }
-            showToast(
-              data.result.message ||
-                "Đã lấy số liệu từ PosApp. Bấm Lưu kết quả để lưu lại.",
-              false,
-            );
+            showToast(data.result.message || "Đã lấy số liệu từ PosApp. Bấm Lưu kết quả để lưu lại.", false);
           } else {
-            showToast(
-              (data.result && data.result.error) || "Lỗi đồng bộ PosApp",
-              true,
-            );
+            showToast((data.result && data.result.error) || "Lỗi đồng bộ PosApp", true);
           }
         } catch (err) {
           showToast("Lỗi kết nối khi đồng bộ PosApp", true);

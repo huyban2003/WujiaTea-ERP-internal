@@ -271,7 +271,7 @@ class WujiaFranchiseInspection(models.Model):
         insp_date = self.planned_date or self.submit_date or fields.Date.today()
         date_str = insp_date.strftime('%Y%m%d')
 
-        client = GoogleDriveClient(env=self.env)
+        client = GoogleDriveClient()
         try:
             res = client.upload_inspection_video(
                 video_data=video_data,
@@ -2297,19 +2297,33 @@ class WujiaFranchiseInspectionAttendanceLine(models.Model):
                     'phone': self.phone or '',
                 }
                 if portal_group:
-                    user_vals['group_ids'] = [(6, 0, [portal_group.id])]
+                    groups_field = 'groups_id' if 'groups_id' in self.env['res.users']._fields else 'group_ids'
+                    user_vals[groups_field] = [(6, 0, [portal_group.id])]
                 users = self.env['res.users'].sudo().create(user_vals)
             
-            # Tạo member mới
-            new_member = self.env['wujia.franchise.member'].sudo().create({
-                'franchise_id': store_id,
-                'user_id': users.id,
-                'role': self.role or 'staff',
-                'is_pass': self.is_pass,
-                'is_working': True,
-                'active': True,
-            })
-            self.write({'member_id': new_member.id})
+            # Check if member already exists in this franchise store
+            existing_member = self.env['wujia.franchise.member'].sudo().search([
+                ('franchise_id', '=', store_id),
+                ('user_id', '=', users.id),
+            ], limit=1)
+            if existing_member:
+                existing_member.write({
+                    'role': self.role or 'staff',
+                    'is_working': True,
+                    'active': True,
+                })
+                self.write({'member_id': existing_member.id})
+            else:
+                # Tạo member mới
+                new_member = self.env['wujia.franchise.member'].sudo().create({
+                    'franchise_id': store_id,
+                    'user_id': users.id,
+                    'role': self.role or 'staff',
+                    'is_pass': self.is_pass,
+                    'is_working': True,
+                    'active': True,
+                })
+                self.write({'member_id': new_member.id})
 
         return True
 

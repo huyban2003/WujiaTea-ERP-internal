@@ -35,6 +35,25 @@ def get_survey_translations(lang):
     return trans_map
 
 
+def _get_store_members_data(inspection):
+    if not inspection or not inspection.franchise_id:
+        return []
+    members = request.env['wujia.franchise.member'].sudo().search([
+        ('franchise_id', '=', inspection.franchise_id.id),
+        ('active', '=', True),
+        ('is_working', '=', True),
+    ], order='role, id')
+    return [
+        {
+            'id': m.id,
+            'name': m.user_id.name if m.user_id else (m.display_name or ''),
+            'role': m.role or 'staff',
+            'phone': (m.phone or (m.user_id.phone if m.user_id else '') or '').strip(),
+        }
+        for m in members
+    ]
+
+
 class WujiaFranchiseInspectionWebController(http.Controller):
 
     @http.route(['/franchise/inspection/do/<int:inspection_id>'], type='http', auth='user', website=True, sitemap=False)
@@ -403,6 +422,11 @@ class WujiaFranchiseInspectionWebController(http.Controller):
                     att_vals['note'] = note
                 if att_vals:
                     att.write(att_vals)
+                if not att.member_id and (att.employee_name or emp_name):
+                    try:
+                        att.action_save_to_member()
+                    except Exception:
+                        pass
 
         # Cập nhật các dòng báo cáo doanh thu 3 tháng (report_lines)
         if report_lines is not None:
@@ -466,6 +490,7 @@ class WujiaFranchiseInspectionWebController(http.Controller):
             'grade': inspection.grade_id.name if inspection.grade_id else '',
             'state': inspection.state,
             'exam_results': exam_results,
+            'store_members': _get_store_members_data(inspection),
         }
 
     @http.route(['/franchise/inspection/do/<int:inspection_id>/attendance/add'], type='json', auth='user', methods=['POST'])
@@ -486,18 +511,35 @@ class WujiaFranchiseInspectionWebController(http.Controller):
             'note': (note or '').strip(),
             'is_present': bool(is_present),
         })
+        try:
+            new_line.action_save_to_member()
+        except Exception:
+            pass
+        
+        member = new_line.member_id
+        member_id = member.id if member else False
+        member_name = member.user_id.name if (member and member.user_id) else (member.display_name if member else new_line.employee_name)
+        member_role = member.role if member else (new_line.role or 'staff')
+        member_phone = (new_line.phone or (member.phone if member else '') or '').strip()
         
         return {
             'success': True,
             'line': {
                 'id': new_line.id,
-                'member_id': False,
+                'member_id': member_id,
                 'employee_name': new_line.employee_name,
                 'role': new_line.role,
                 'phone': new_line.phone or '',
                 'is_present': new_line.is_present,
                 'note': new_line.note or '',
             },
+            'member': {
+                'id': member_id,
+                'name': member_name,
+                'role': member_role,
+                'phone': member_phone,
+            } if member_id else None,
+            'store_members': _get_store_members_data(inspection),
             'present_count': inspection.present_count,
         }
 
@@ -516,9 +558,17 @@ class WujiaFranchiseInspectionWebController(http.Controller):
             
         try:
             line.action_save_to_member()
+            member = line.member_id
             return {
                 'success': True,
-                'member_id': line.member_id.id if line.member_id else False,
+                'member_id': member.id if member else False,
+                'member': {
+                    'id': member.id,
+                    'name': member.user_id.name if (member and member.user_id) else (member.display_name if member else line.employee_name),
+                    'role': member.role if member else (line.role or 'staff'),
+                    'phone': line.phone or (member.phone if member else ''),
+                } if member else None,
+                'store_members': _get_store_members_data(line.inspection_id),
             }
         except Exception as e:
             return {'success': False, 'error': str(e)}
@@ -529,10 +579,16 @@ class WujiaFranchiseInspectionWebController(http.Controller):
         if not line.exists() or line.inspection_id.id != int(inspection_id):
             return {'success': False, 'error': 'Dòng điểm danh không tồn tại!'}
         
+        member_id = line.member_id.id if line.member_id else False
         try:
             inspection = line.inspection_id
             line.action_deactivate_member()
-            return {'success': True, 'present_count': inspection.present_count}
+            return {
+                'success': True,
+                'member_id': member_id,
+                'store_members': _get_store_members_data(inspection),
+                'present_count': inspection.present_count,
+            }
         except Exception as e:
             return {'success': False, 'error': str(e)}
 
