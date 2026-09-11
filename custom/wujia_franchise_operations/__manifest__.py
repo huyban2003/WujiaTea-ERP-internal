@@ -15,7 +15,6 @@ Provides internal management for franchise store operations:
 - Smart buttons on Franchise Store Master form
     """,
     'author': 'WujiaTea ERP Team',
-    'website': 'https://wujiatea.internal',
     'license': 'LGPL-3',
     'depends': [
         'base',
