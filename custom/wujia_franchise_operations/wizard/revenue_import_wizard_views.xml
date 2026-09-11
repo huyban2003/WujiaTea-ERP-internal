@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="view_wujia_franchise_revenue_import_wizard_form" model="ir.ui.view">
+        <field name="name">wujia.franchise.revenue.import.wizard.form</field>
+        <field name="model">wujia.franchise.revenue.import.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Import Daily Store Revenues">
+                <sheet>
+                    <group>
+                        <group string="File Selection">
+                            <field name="data_file" filename="file_name"/>
+                            <field name="file_name" invisible="1"/>
+                            <field name="default_franchise_id"/>
+                        </group>
+                    </group>
+                    <div class="text-muted">
+                        <p><strong>Supported formats:</strong> Excel (.xlsx, .xls) and CSV (.csv).</p>
+                        <p><strong>Column sequence:</strong> Store Code/Name (Col 1), Business Date (Col 2), Amount (Col 3), Remarks (Col 4).</p>
+                        <p><em>Note: If Store Code is empty, Default Store will be used. Rows with existing revenue for the same date will be skipped.</em></p>
+                    </div>
+                </sheet>
+                <footer>
+                    <button name="action_import" string="Import Data" type="object" class="btn-primary"/>
+                    <button string="Cancel" class="btn-secondary" special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_wujia_franchise_revenue_import_wizard" model="ir.actions.act_window">
+        <field name="name">Import Revenue File</field>
+        <field name="res_model">wujia.franchise.revenue.import.wizard</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+    </record>
+
+</odoo>

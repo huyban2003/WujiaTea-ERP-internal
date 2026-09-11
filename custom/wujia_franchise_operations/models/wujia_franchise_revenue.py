@@ -48,8 +48,8 @@ class WujiaFranchiseRevenue(models.Model):
         default=lambda self: self.env.company.currency_id.id,
     )
     source = fields.Selection([
-        ('manual', 'Manual Entry (HQ Admin)'),
-        ('import', 'Batch File Import (Excel/CSV)'),
+        ('manual', 'Manual'),
+        ('import', 'Import (Excel/CSV)'),
     ], string='Entry Source', required=True, default='manual', tracking=True)
 
     source_reference = fields.Char(

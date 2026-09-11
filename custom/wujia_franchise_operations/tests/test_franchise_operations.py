@@ -192,6 +192,24 @@ class TestFranchiseOperations(TransactionCase):
         rev_zero.action_confirm()
         self.assertEqual(rev_zero.state, 'confirmed')
 
+    def test_10_revenue_import_wizard(self):
+        """Test AC12: Import daily revenue via CSV/Excel wizard with auto source detection."""
+        import base64
+        csv_data = "Store Code,Business Date,Amount,Note\nHCM-OPS-01,2026-09-25,5000000,Test CSV Import Row 1\nHCM-OPS-02,2026-09-25,6000000,Test CSV Import Row 2\n"
+        encoded = base64.b64encode(csv_data.encode('utf-8'))
+
+        wizard = self.env['wujia.franchise.revenue.import.wizard'].create({
+            'data_file': encoded,
+            'file_name': 'test_revenue_data.csv',
+            'default_franchise_id': self.store1.id,
+        })
+        action = wizard.action_import()
+        self.assertEqual(action.get('type'), 'ir.actions.client')
+
+        imported = self.Revenue.search([('source_reference', '=', 'test_revenue_data.csv')])
+        self.assertEqual(len(imported), 2)
+        self.assertTrue(all(r.source == 'csv' for r in imported))
+
     def test_07_store_master_smart_button_counts(self):
         """Test Store Master smart buttons count computation."""
         assign = self.Assignment.create({

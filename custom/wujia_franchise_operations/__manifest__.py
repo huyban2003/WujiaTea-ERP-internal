@@ -34,6 +34,7 @@ Provides internal management for franchise store operations:
         'views/work_schedule_views.xml',
         'views/expense_category_views.xml',
         'views/expense_views.xml',
+        'wizard/revenue_import_wizard_views.xml',
         'views/revenue_views.xml',
         'views/wujia_franchise_management_views.xml',
     ],
