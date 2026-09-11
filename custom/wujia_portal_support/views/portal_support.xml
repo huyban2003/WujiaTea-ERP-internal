@@ -319,7 +319,7 @@
                 </t>
 
                 <form method="post" action="/portal/support/new" enctype="multipart/form-data"
-                      data-wj-dirty-guard="1">
+                      class="wj-mform" data-wj-dirty-guard="1">
                     <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
                     <t t-call="wujia_portal_layout.wj_surface_card">
                         <t t-set="sc_variant" t-value="'section'"/>
@@ -330,20 +330,20 @@
                             <t t-set="ch_platform" t-value="'m'"/>
                         </t>
 
-                        <label class="wujia-mticket-label">Loại yêu cầu</label>
-                        <select name="category_id" class="form-select mb-3" required="required">
+                        <label class="wujia-mticket-label" for="wj-sup-m-category">Loại yêu cầu</label>
+                        <select id="wj-sup-m-category" name="category_id" class="form-select mb-3" required="required">
                             <option value="">Chọn loại yêu cầu</option>
                             <t t-foreach="categories" t-as="c">
                                 <option t-att-value="c.id" t-out="c.name"/>
                             </t>
                         </select>
 
-                        <label class="wujia-mticket-label">Tiêu đề</label>
-                        <input type="text" name="title" class="form-control mb-3" required="required"
+                        <label class="wujia-mticket-label" for="wj-sup-m-title">Tiêu đề</label>
+                        <input type="text" id="wj-sup-m-title" name="title" class="form-control mb-3" required="required"
                                placeholder="Nhập tiêu đề ngắn gọn"/>
 
-                        <label class="wujia-mticket-label">Nội dung chi tiết</label>
-                        <textarea name="description" rows="4" class="form-control mb-3"
+                        <label class="wujia-mticket-label" for="wj-sup-m-description">Nội dung chi tiết</label>
+                        <textarea id="wj-sup-m-description" name="description" rows="4" class="form-control mb-3"
                                   placeholder="Mô tả vấn đề cần hỗ trợ, thời điểm phát sinh và mã chứng từ liên quan nếu có."/>
 
                         <label class="wujia-mticket-label">Mức độ ưu tiên</label>
@@ -363,7 +363,8 @@
 
                         <label class="wujia-mticket-label">Tệp đính kèm</label>
                         <p class="wujia-mticket-hint">Thêm ảnh / file lỗi — PNG, JPG, PDF — tối đa 5 tệp</p>
-                        <input type="file" name="attachments" class="form-control mb-1"
+                        <input type="file" id="wj-sup-m-attachments" name="attachments" class="form-control mb-1"
+                               aria-label="Tệp đính kèm"
                                multiple="multiple" accept=".png,.jpg,.jpeg,.pdf"/>
 
                         <!-- Cửa hàng: 1 franchise → hidden; nhiều → select -->
@@ -371,8 +372,8 @@
                             <input type="hidden" name="franchise_id" t-att-value="franchises[0].id"/>
                         </t>
                         <t t-elif="franchises">
-                            <label class="wujia-mticket-label mt-3">Cửa hàng</label>
-                            <select name="franchise_id" class="form-select" required="required">
+                            <label class="wujia-mticket-label mt-3" for="wj-sup-m-franchise">Cửa hàng</label>
+                            <select id="wj-sup-m-franchise" name="franchise_id" class="form-select" required="required">
                                 <t t-foreach="franchises" t-as="f">
                                     <option t-att-value="f.id" t-out="f.name"/>
                                 </t>

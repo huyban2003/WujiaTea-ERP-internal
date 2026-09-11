@@ -32,6 +32,17 @@
             const lineSel = form && form.querySelector("select.wj-return-line");
             if (!lineSel) return;
 
+            const full = form.querySelector(".wj-return-line-full");
+
+            // `<select>` cắt tên theo bề rộng ô ⇒ in lại tên đầy đủ ở vùng dưới.
+            function showFull() {
+                if (!full) return;
+                const label = lineSel.selectedOptions.length ? lineSel.selectedOptions[0].dataset.full : "";
+                full.textContent = label || "";
+                full.hidden = !label;
+                lineSel.title = label || "";
+            }
+
             function refill() {
                 const lines = lineMap[orderSel.value] || [];
                 lineSel.innerHTML = "";
@@ -43,10 +54,13 @@
                     const opt = document.createElement("option");
                     opt.value = l.id;
                     opt.textContent = l.label;
+                    opt.dataset.full = l.label;
                     lineSel.appendChild(opt);
                 });
+                showFull();
             }
             orderSel.addEventListener("change", refill);
+            lineSel.addEventListener("change", showFull);
             if (orderSel.value) refill();
         });
     });

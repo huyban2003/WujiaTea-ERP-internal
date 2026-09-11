@@ -25,12 +25,12 @@
                     </div>
 
                     <form method="post" action="/portal/info-request/new"
-                          enctype="multipart/form-data" class="wj-surface-card wj-surface-card--section wj-surface-card--compact wj-surface-card--flush" id="info-request-form">
+                          enctype="multipart/form-data" class="wj-surface-card wj-surface-card--section wj-surface-card--compact wj-surface-card--flush wj-mform" id="info-request-form">
                         <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
                         <div class="wj-surface-card__body">
                             <div class="row g-2">
                                 <div class="col-md-6 col-12">
-                                    <label class="form-label">Cửa hàng <span class="text-danger">*</span></label>
+                                    <label class="form-label" for="info-franchise-id">Cửa hàng <span class="text-danger">*</span></label>
                                     <select name="franchise_id" id="info-franchise-id"
                                             class="form-select" required="required">
                                         <option value="">— Chọn cửa hàng —</option>
@@ -42,7 +42,7 @@
                                     </select>
                                 </div>
                                 <div class="col-md-6 col-12">
-                                    <label class="form-label">Loại thông tin <span class="text-danger">*</span></label>
+                                    <label class="form-label" for="info-request-type">Loại thông tin <span class="text-danger">*</span></label>
                                     <select name="request_type" id="info-request-type"
                                             class="form-select" required="required">
                                         <option value="">— Chọn loại —</option>
@@ -56,15 +56,15 @@
 
                                 <div class="col-md-6 col-12" id="info-field-target-wrap"
                                      t-att-style="'' if values.get('request_type') == 'other' else 'display:none;'">
-                                    <label class="form-label">Tên field kỹ thuật (khi chọn "Khác")</label>
+                                    <label class="form-label" for="info-field-target">Tên field kỹ thuật (khi chọn "Khác")</label>
                                     <input type="text" name="field_target" id="info-field-target"
                                            class="form-control"
                                            placeholder="vd: tax_code, website, ..."
                                            t-att-value="values.get('field_target') or ''"/>
                                 </div>
                                 <div class="col-md-6 col-12">
-                                    <label class="form-label">Mức độ</label>
-                                    <select name="priority" class="form-select">
+                                    <label class="form-label" for="info-priority">Mức độ</label>
+                                    <select id="info-priority" name="priority" class="form-select">
                                         <option value="normal"
                                                 t-att-selected="'selected' if values.get('priority', 'normal') == 'normal' else None">
                                             Bình thường
@@ -77,7 +77,7 @@
                                 </div>
 
                                 <div class="col-12">
-                                    <label class="form-label">Giá trị hiện tại</label>
+                                    <label class="form-label" for="info-old-value">Giá trị hiện tại</label>
                                     <textarea id="info-old-value" rows="2"
                                               class="form-control bg-light"
                                               readonly="readonly"
@@ -85,23 +85,23 @@
                                 </div>
 
                                 <div class="col-12">
-                                    <label class="form-label">Giá trị mới <span class="text-danger">*</span></label>
-                                    <textarea name="new_value" rows="3" class="form-control"
+                                    <label class="form-label" for="info-new-value">Giá trị mới <span class="text-danger">*</span></label>
+                                    <textarea id="info-new-value" name="new_value" rows="3" class="form-control"
                                               required="required"
                                               placeholder="Nhập giá trị mới cần cập nhật..."
                                               t-out="values.get('new_value') or ''"/>
                                 </div>
 
                                 <div class="col-12">
-                                    <label class="form-label">Ghi chú</label>
-                                    <textarea name="note" rows="3" class="form-control"
+                                    <label class="form-label" for="info-note">Ghi chú</label>
+                                    <textarea id="info-note" name="note" rows="3" class="form-control"
                                               placeholder="Lý do, ngữ cảnh thêm cho HQ duyệt..."
                                               t-out="values.get('note') or ''"/>
                                 </div>
 
                                 <div class="col-12">
-                                    <label class="form-label">Minh chứng (tuỳ chọn)</label>
-                                    <input type="file" name="attachments" class="form-control"
+                                    <label class="form-label" for="info-attachments">Minh chứng (tuỳ chọn)</label>
+                                    <input type="file" id="info-attachments" name="attachments" class="form-control"
                                            multiple="multiple"/>
                                     <small class="text-muted">PDF / JPG / PNG, tối đa 5MB/file, tối đa 6 file.</small>
                                 </div>

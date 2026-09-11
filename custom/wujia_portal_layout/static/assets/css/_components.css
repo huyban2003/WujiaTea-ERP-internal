@@ -3442,3 +3442,26 @@ a.wujia-mhome-kpi:active { opacity: 0.85; }
    `.wujia-content-card-table` vẫn cần 16px ở ca không có header. Đính chính D4b: chỉ còn
    6 call site bảng, cả 6 nằm trong card của D4b — không phải 31 như ghi lúc D3. */
 .wj-card-header + .wujia-content-card-table:not(.wj-data-table) { margin-top: 0; }
+
+/* UAT-BH-009 — form mobile: control chạm được + bo góc cùng token với card/nút.
+   Khoá bằng lớp `wj-mform` trên thẻ <form> chứ không quét mọi `.form-control`:
+   ô lọc (38), ô ngày trong pill, select kỳ công nợ (54) và nhóm giám sát đều có
+   dáng riêng cố ý, quét rộng là đè hết. Form mới chỉ cần gắn lớp này. */
+@media (max-width: 991.98px) {
+    .wj-mform .form-control,
+    .wj-mform .form-select {
+        min-height: 48px;
+        border-radius: var(--wujia-surface-tonal-radius);
+    }
+    .wj-mform textarea.form-control { min-height: 96px; }
+
+    /* Cùng issue, phần bộ lọc: pill 38 → 44 (BA touch min). Chỉ chiều cao —
+       radius/typography của FilterBar chờ spec `UI-FILTER-001`. */
+    .wj-filter-date,
+    .wj-filter-select { height: 44px; }
+    .wj-filter-search-field input,
+    .wj-filter-search-btn { height: 44px; }
+    .wj-filter-search-btn { width: 44px; }
+    form.row .form-select-sm,
+    form.row .form-control-sm { min-height: 44px; }
+}
