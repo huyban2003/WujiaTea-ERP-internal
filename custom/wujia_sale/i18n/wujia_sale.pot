@@ -6,8 +6,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 19.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-08-01 19:33+0000\n"
-"PO-Revision-Date: 2026-08-01 19:33+0000\n"
+"POT-Creation-Date: 2026-09-12 19:48+0000\n"
+"PO-Revision-Date: 2026-09-12 19:48+0000\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "MIME-Version: 1.0\n"
@@ -37,6 +37,24 @@ msgid "Active"
 msgstr ""
 
 #. module: wujia_sale
+#: model:ir.model,name:wujia_sale.model_wujia_sale_order_gift_wizard
+msgid "Add Bulk Gift Products to Sales Orders"
+msgstr ""
+
+#. module: wujia_sale
+#: model:ir.actions.act_window,name:wujia_sale.action_wujia_sale_order_gift_wizard
+#: model_terms:ir.ui.view,arch_db:wujia_sale.view_wujia_sale_order_gift_wizard_form
+msgid "Add Gift Products"
+msgstr ""
+
+#. module: wujia_sale
+#. odoo-python
+#: code:addons/wujia_sale/wizards/wujia_sale_order_gift_wizard.py:0
+msgid ""
+"Added gift product: <b>%s</b> — Quantity: <b>%s %s</b> (Unit price: 0)."
+msgstr ""
+
+#. module: wujia_sale
 #: model:ir.model.fields,field_description:wujia_sale.field_sale_order__area_id
 msgid "Area"
 msgstr ""
@@ -60,7 +78,32 @@ msgstr ""
 
 #. module: wujia_sale
 #: model_terms:ir.ui.view,arch_db:wujia_sale.view_sales_order_filter_wujia
+msgid "By batch"
+msgstr ""
+
+#. module: wujia_sale
+#: model_terms:ir.ui.view,arch_db:wujia_sale.view_sales_order_filter_wujia
+msgid "By status"
+msgstr ""
+
+#. module: wujia_sale
+#: model_terms:ir.ui.view,arch_db:wujia_sale.view_sales_order_filter_wujia
 msgid "By store"
+msgstr ""
+
+#. module: wujia_sale
+#: model_terms:ir.ui.view,arch_db:wujia_sale.view_sales_order_filter_wujia
+msgid "By warehouse"
+msgstr ""
+
+#. module: wujia_sale
+#: model_terms:ir.ui.view,arch_db:wujia_sale.view_wujia_sale_order_gift_wizard_form
+msgid "Cancel"
+msgstr ""
+
+#. module: wujia_sale
+#: model_terms:ir.ui.view,arch_db:wujia_sale.view_sales_order_filter_wujia
+msgid "Cancelled orders"
 msgstr ""
 
 #. module: wujia_sale
@@ -74,13 +117,39 @@ msgid "Chinese name"
 msgstr ""
 
 #. module: wujia_sale
+#: model_terms:ir.ui.view,arch_db:wujia_sale.view_order_tree_wujia
+msgid "Compensation"
+msgstr ""
+
+#. module: wujia_sale
 #: model:ir.model.fields,field_description:wujia_sale.field_sale_order__is_return_order
 #: model_terms:ir.ui.view,arch_db:wujia_sale.view_sales_order_filter_wujia
 msgid "Compensation orders"
 msgstr ""
 
 #. module: wujia_sale
+#: model_terms:ir.ui.view,arch_db:wujia_sale.view_wujia_sale_order_gift_wizard_form
+msgid "Confirm"
+msgstr ""
+
+#. module: wujia_sale
+#: model_terms:ir.ui.view,arch_db:wujia_sale.view_order_tree_wujia
+msgid "Confirmation Date"
+msgstr ""
+
+#. module: wujia_sale
+#: model_terms:ir.ui.view,arch_db:wujia_sale.view_sales_order_filter_wujia
+msgid "Confirmed orders"
+msgstr ""
+
+#. module: wujia_sale
+#: model_terms:ir.actions.act_window,help:wujia_sale.action_wujia_sale_orders
+msgid "Create a new sales order!"
+msgstr ""
+
+#. module: wujia_sale
 #: model:ir.model.fields,field_description:wujia_sale.field_wujia_product_category__create_uid
+#: model:ir.model.fields,field_description:wujia_sale.field_wujia_sale_order_gift_wizard__create_uid
 msgid "Created by"
 msgstr ""
 
@@ -96,7 +165,13 @@ msgstr ""
 
 #. module: wujia_sale
 #: model:ir.model.fields,field_description:wujia_sale.field_wujia_product_category__create_date
+#: model:ir.model.fields,field_description:wujia_sale.field_wujia_sale_order_gift_wizard__create_date
 msgid "Created on"
+msgstr ""
+
+#. module: wujia_sale
+#: model:ir.model.fields,help:wujia_sale.field_wujia_sale_order_gift_wizard__uom_id
+msgid "Default unit of measure used for all stock operations."
 msgstr ""
 
 #. module: wujia_sale
@@ -134,6 +209,7 @@ msgstr ""
 #: model:ir.model.fields,field_description:wujia_sale.field_stock_picking__display_name
 #: model:ir.model.fields,field_description:wujia_sale.field_stock_picking_batch__display_name
 #: model:ir.model.fields,field_description:wujia_sale.field_wujia_product_category__display_name
+#: model:ir.model.fields,field_description:wujia_sale.field_wujia_sale_order_gift_wizard__display_name
 msgid "Display Name"
 msgstr ""
 
@@ -145,8 +221,18 @@ msgid ""
 msgstr ""
 
 #. module: wujia_sale
+#: model_terms:ir.ui.view,arch_db:wujia_sale.view_sales_order_filter_wujia
+msgid "Draft orders"
+msgstr ""
+
+#. module: wujia_sale
 #: model:ir.model.fields,field_description:wujia_sale.field_sale_order__franchise_id
 msgid "Franchise store"
+msgstr ""
+
+#. module: wujia_sale
+#: model:ir.model.fields,field_description:wujia_sale.field_wujia_sale_order_gift_wizard__product_id
+msgid "Gift Product"
 msgstr ""
 
 #. module: wujia_sale
@@ -162,17 +248,40 @@ msgstr ""
 #: model:ir.model.fields,field_description:wujia_sale.field_stock_picking__id
 #: model:ir.model.fields,field_description:wujia_sale.field_stock_picking_batch__id
 #: model:ir.model.fields,field_description:wujia_sale.field_wujia_product_category__id
+#: model:ir.model.fields,field_description:wujia_sale.field_wujia_sale_order_gift_wizard__id
 msgid "ID"
 msgstr ""
 
 #. module: wujia_sale
+#: model:ir.model.fields,help:wujia_sale.field_sale_order_line__wujia_is_gift
+msgid "Indicates whether this order line is a free gift product."
+msgstr ""
+
+#. module: wujia_sale
+#: model:ir.model.fields,field_description:wujia_sale.field_sale_order_line__wujia_is_gift
+msgid "Is Gift"
+msgstr ""
+
+#. module: wujia_sale
 #: model:ir.model.fields,field_description:wujia_sale.field_wujia_product_category__write_uid
+#: model:ir.model.fields,field_description:wujia_sale.field_wujia_sale_order_gift_wizard__write_uid
 msgid "Last Updated by"
 msgstr ""
 
 #. module: wujia_sale
 #: model:ir.model.fields,field_description:wujia_sale.field_wujia_product_category__write_date
+#: model:ir.model.fields,field_description:wujia_sale.field_wujia_sale_order_gift_wizard__write_date
 msgid "Last Updated on"
+msgstr ""
+
+#. module: wujia_sale
+#: model_terms:ir.actions.act_window,help:wujia_sale.action_wujia_sale_orders
+msgid "Manage franchise orders, portal requests, and compensation deliveries."
+msgstr ""
+
+#. module: wujia_sale
+#: model_terms:ir.ui.view,arch_db:wujia_sale.view_sales_order_filter_wujia
+msgid "Manual orders"
 msgstr ""
 
 #. module: wujia_sale
@@ -208,6 +317,28 @@ msgstr ""
 #. module: wujia_sale
 #: model:ir.model.fields,field_description:wujia_sale.field_product_product__min_qty
 msgid "Minimum quantity"
+msgstr ""
+
+#. module: wujia_sale
+#: model_terms:ir.ui.view,arch_db:wujia_sale.view_sales_order_filter_wujia
+msgid "No batch"
+msgstr ""
+
+#. module: wujia_sale
+#. odoo-python
+#: code:addons/wujia_sale/wizards/wujia_sale_order_gift_wizard.py:0
+msgid "No sales orders found to process."
+msgstr ""
+
+#. module: wujia_sale
+#. odoo-python
+#: code:addons/wujia_sale/wizards/wujia_sale_order_gift_wizard.py:0
+msgid "Only Sales Managers are allowed to add gift products in bulk."
+msgstr ""
+
+#. module: wujia_sale
+#: model_terms:ir.ui.view,arch_db:wujia_sale.view_order_tree_wujia
+msgid "Order Date"
 msgstr ""
 
 #. module: wujia_sale
@@ -247,6 +378,23 @@ msgid "Planned weight"
 msgstr ""
 
 #. module: wujia_sale
+#. odoo-python
+#: code:addons/wujia_sale/wizards/wujia_sale_order_gift_wizard.py:0
+msgid "Please select an active, saleable product."
+msgstr ""
+
+#. module: wujia_sale
+#. odoo-python
+#: code:addons/wujia_sale/wizards/wujia_sale_order_gift_wizard.py:0
+msgid "Please select at least one sales order."
+msgstr ""
+
+#. module: wujia_sale
+#: model_terms:ir.ui.view,arch_db:wujia_sale.view_order_tree_wujia
+msgid "Portal"
+msgstr ""
+
+#. module: wujia_sale
 #: model:ir.actions.act_window,name:wujia_sale.action_wujia_product_category
 #: model:ir.model.fields,field_description:wujia_sale.field_product_product__public_categ_id
 #: model:ir.ui.menu,name:wujia_sale.menu_wujia_product_category
@@ -280,8 +428,24 @@ msgid "Published on portal"
 msgstr ""
 
 #. module: wujia_sale
+#: model:ir.model.fields,field_description:wujia_sale.field_wujia_sale_order_gift_wizard__quantity
+msgid "Quantity"
+msgstr ""
+
+#. module: wujia_sale
 #: model_terms:ir.ui.view,arch_db:wujia_sale.view_product_product_form_wujia
 msgid "Quantity limits per order"
+msgstr ""
+
+#. module: wujia_sale
+#. odoo-python
+#: code:addons/wujia_sale/wizards/wujia_sale_order_gift_wizard.py:0
+msgid "Quantity must be greater than zero."
+msgstr ""
+
+#. module: wujia_sale
+#: model:ir.model.fields,help:wujia_sale.field_wujia_sale_order_gift_wizard__quantity
+msgid "Quantity of the gift product to add to each sales order."
 msgstr ""
 
 #. module: wujia_sale
@@ -292,6 +456,24 @@ msgstr ""
 #. module: wujia_sale
 #: model:ir.model,name:wujia_sale.model_sale_order_line
 msgid "Sales Order Line"
+msgstr ""
+
+#. module: wujia_sale
+#: model:ir.model.fields,help:wujia_sale.field_wujia_sale_order_gift_wizard__product_id
+msgid "Select an active, saleable product to be gifted."
+msgstr ""
+
+#. module: wujia_sale
+#. odoo-python
+#: code:addons/wujia_sale/wizards/wujia_sale_order_gift_wizard.py:0
+msgid ""
+"Selected list contains sales orders that are already confirmed or no longer "
+"in Draft status. Please select only Draft orders: %s"
+msgstr ""
+
+#. module: wujia_sale
+#: model_terms:ir.ui.view,arch_db:wujia_sale.view_sales_order_filter_wujia
+msgid "Sent orders"
 msgstr ""
 
 #. module: wujia_sale
@@ -331,7 +513,9 @@ msgstr ""
 
 #. module: wujia_sale
 #: model:ir.model.fields,help:wujia_sale.field_sale_order__franchise_id
-msgid "Store owning the order — required when is_portal_order=True."
+msgid ""
+"Store owning the order — required when is_portal_order=True. Derived from "
+"partner_id when the partner maps to exactly one store."
 msgstr ""
 
 #. module: wujia_sale
@@ -391,13 +575,8 @@ msgid ""
 msgstr ""
 
 #. module: wujia_sale
-#: model_terms:ir.ui.view,arch_db:wujia_sale.view_sales_order_filter_wujia
-msgid "Theo batch"
-msgstr ""
-
-#. module: wujia_sale
 #: model_terms:ir.ui.view,arch_db:wujia_sale.view_order_tree_wujia
-msgid "Total"
+msgid "Total Planned Weight"
 msgstr ""
 
 #. module: wujia_sale
@@ -434,6 +613,11 @@ msgid ""
 msgstr ""
 
 #. module: wujia_sale
+#: model:ir.model.fields,field_description:wujia_sale.field_wujia_sale_order_gift_wizard__uom_id
+msgid "Unit of Measure"
+msgstr ""
+
+#. module: wujia_sale
 #. odoo-python
 #: code:addons/wujia_sale/models/sale_order.py:0
 msgid "User '%s' không có membership active trong cửa hàng '%s'."
@@ -459,6 +643,12 @@ msgstr ""
 #. module: wujia_sale
 #: model:ir.model,name:wujia_sale.model_wujia_product_category
 msgid "Wujia Portal Product Category"
+msgstr ""
+
+#. module: wujia_sale
+#: model:ir.actions.act_window,name:wujia_sale.action_wujia_sale_orders
+#: model:ir.ui.menu,name:wujia_sale.menu_wujia_sale_orders
+msgid "Wujia Sales Orders"
 msgstr ""
 
 #. module: wujia_sale

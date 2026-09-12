@@ -61,8 +61,28 @@ msgstr "Theo khu vực"
 
 #. module: wujia_sale
 #: model_terms:ir.ui.view,arch_db:wujia_sale.view_sales_order_filter_wujia
+msgid "By batch"
+msgstr "Theo batch"
+
+#. module: wujia_sale
+#: model_terms:ir.ui.view,arch_db:wujia_sale.view_sales_order_filter_wujia
+msgid "By status"
+msgstr "Theo trạng thái"
+
+#. module: wujia_sale
+#: model_terms:ir.ui.view,arch_db:wujia_sale.view_sales_order_filter_wujia
 msgid "By store"
 msgstr "Theo cửa hàng"
+
+#. module: wujia_sale
+#: model_terms:ir.ui.view,arch_db:wujia_sale.view_sales_order_filter_wujia
+msgid "By warehouse"
+msgstr "Theo kho"
+
+#. module: wujia_sale
+#: model_terms:ir.ui.view,arch_db:wujia_sale.view_sales_order_filter_wujia
+msgid "Cancelled orders"
+msgstr "Đơn đã hủy"
 
 #. module: wujia_sale
 #: model:ir.model.fields,field_description:wujia_sale.field_wujia_product_category__name
@@ -75,10 +95,25 @@ msgid "Chinese name"
 msgstr "Tên tiếng Hoa"
 
 #. module: wujia_sale
+#: model_terms:ir.ui.view,arch_db:wujia_sale.view_order_tree_wujia
+msgid "Compensation"
+msgstr "Đơn bù"
+
+#. module: wujia_sale
 #: model:ir.model.fields,field_description:wujia_sale.field_sale_order__is_return_order
 #: model_terms:ir.ui.view,arch_db:wujia_sale.view_sales_order_filter_wujia
 msgid "Compensation orders"
 msgstr "Đơn bù hàng"
+
+#. module: wujia_sale
+#: model_terms:ir.ui.view,arch_db:wujia_sale.view_order_tree_wujia
+msgid "Confirmation Date"
+msgstr "Ngày xác nhận"
+
+#. module: wujia_sale
+#: model_terms:ir.ui.view,arch_db:wujia_sale.view_sales_order_filter_wujia
+msgid "Confirmed orders"
+msgstr "Đơn đã xác nhận"
 
 #. module: wujia_sale
 #: model:ir.model.fields,field_description:wujia_sale.field_wujia_product_category__create_uid
@@ -146,6 +181,11 @@ msgid ""
 msgstr "Hiển thị dưới tên sản phẩm trên portal. User nhập tay, không dịch tự động."
 
 #. module: wujia_sale
+#: model_terms:ir.ui.view,arch_db:wujia_sale.view_sales_order_filter_wujia
+msgid "Draft orders"
+msgstr "Đơn nháp"
+
+#. module: wujia_sale
 #: model:ir.model.fields,field_description:wujia_sale.field_sale_order__franchise_id
 msgid "Franchise store"
 msgstr "Cửa hàng nhượng quyền"
@@ -191,6 +231,11 @@ msgid ""
 msgstr "Đánh dấu đơn được tạo từ portal (phân biệt với đơn admin tạo manual)."
 
 #. module: wujia_sale
+#: model_terms:ir.ui.view,arch_db:wujia_sale.view_sales_order_filter_wujia
+msgid "Manual orders"
+msgstr "Đơn thủ công"
+
+#. module: wujia_sale
 #: model:ir.model.fields,field_description:wujia_sale.field_product_product__max_qty
 msgid "Maximum quantity"
 msgstr "Số lượng tối đa"
@@ -210,6 +255,11 @@ msgstr "Số lượng đặt tối thiểu. Bước tăng/giảm trên portal = 
 #: model:ir.model.fields,field_description:wujia_sale.field_product_product__min_qty
 msgid "Minimum quantity"
 msgstr "Số lượng tối thiểu"
+
+#. module: wujia_sale
+#: model_terms:ir.ui.view,arch_db:wujia_sale.view_sales_order_filter_wujia
+msgid "No batch"
+msgstr "Chưa có batch"
 
 #. module: wujia_sale
 #: model:ir.model.fields,field_description:wujia_sale.field_sale_order__portal_note
@@ -246,6 +296,11 @@ msgstr "Partner đại diện cửa hàng nhượng quyền sở hữu đơn —
 #: model:ir.model.fields,field_description:wujia_sale.field_stock_picking_batch__planned_weight
 msgid "Planned weight"
 msgstr "Khối lượng dự kiến"
+
+#. module: wujia_sale
+#: model_terms:ir.ui.view,arch_db:wujia_sale.view_order_tree_wujia
+msgid "Portal"
+msgstr "Đơn Portal"
 
 #. module: wujia_sale
 #: model:ir.actions.act_window,name:wujia_sale.action_wujia_product_category
@@ -294,6 +349,11 @@ msgstr ""
 #: model:ir.model,name:wujia_sale.model_sale_order_line
 msgid "Sales Order Line"
 msgstr ""
+
+#. module: wujia_sale
+#: model_terms:ir.ui.view,arch_db:wujia_sale.view_sales_order_filter_wujia
+msgid "Sent orders"
+msgstr "Đơn đã gửi"
 
 #. module: wujia_sale
 #: model:ir.model.fields,field_description:wujia_sale.field_wujia_product_category__sequence
@@ -421,6 +481,11 @@ msgid ""
 "Total planned weight of the delivery order = sum(move_ids.planned_weight). "
 "This is the authoritative source for planning batches/trips."
 msgstr "Tổng khối lượng dự kiến của phiếu xuất = sum(move_ids.planned_weight). Đây là nguồn chính để sắp batch/chuyến xe."
+
+#. module: wujia_sale
+#: model_terms:ir.ui.view,arch_db:wujia_sale.view_order_tree_wujia
+msgid "Total Planned Weight"
+msgstr "Tổng khối lượng dự kiến"
 
 #. module: wujia_sale
 #: model:ir.model,name:wujia_sale.model_stock_picking
@@ -670,5 +735,4 @@ msgstr "Ngày đặt hàng"
 #: model_terms:ir.ui.view,arch_db:wujia_sale.view_wujia_sale_order_search
 msgid "Group By"
 msgstr "Nhóm theo"
-
 
