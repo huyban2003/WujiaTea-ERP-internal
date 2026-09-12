@@ -1361,3 +1361,85 @@ R5 quyết định giữ hay bỏ layer utility class.
 
 **Cuối lứa:** chapter `.tex` + rebuild PDF qua `scripts/build-doc.sh`, rồi `/wujia-end-sprint`.
 Đừng đề xuất end sprint khi chưa đóng hết cụm D.
+
+---
+
+## 📌 BÀN GIAO cho phiên sau (chốt 11/09/2026 — sau khi D6 khép + merge `thai` vòng 4)
+
+### ✅ Cụm D đã HẾT VIỆC phía Dev
+
+Tra sheet bằng `issue_queue.py` ngày 11/09:
+
+| Cụm | Issue | Trạng thái sheet |
+|---|---|---|
+| D1 | `UAT-BH-003/005/006` | **Done** |
+| D1 | `UAT-BH-001` | Ready for Retest |
+| D2 | `WJ-PORTAL-UI-002` | **Done** |
+| **D3** | **`UI-CARDHEADER-001`** | 🔴 **Need Clarification** — *chưa đóng* |
+| D4 | `UI-SURFACECARD-001` | Ready for Retest |
+| D5 | `UI-DATALIST-001` | Ready for Retest |
+| D6 | `UAT-BH-007/008/009` | Ready for Retest |
+
+⇒ **Còn đúng 1 issue chưa đóng: `UI-CARDHEADER-001`** (phủ 95/105 call site), và nó **chặn ở
+BA chứ không chặn ở Dev** — BA đã chuyển `Need Clarification`, Dev đã gửi văn bản gộp 5 câu
+hỏi (`docs/ba-questions-ui-cardheader-001.md`) và đang chờ trả lời. 5 issue kia ở
+`Ready for Retest` ⇒ việc của BA/tester.
+
+### 🔴 Nợ kỹ thuật MỚI phát hiện 11/09 — 4 test D3 đỏ trên DB có cài khảo sát
+
+Khi chạy hồi quy cho merge vòng 4 trên DB **có cài `wujia_franchise_inspection`**, 4 test của
+`wujia_portal_layout::test_d3_card_header` đỏ:
+
+- `TestCardHeaderCallSites.test_bootstrap_card_header_wrapper_class_is_kept`
+- `TestCardHeaderCallSites.test_store_name_became_subtitle_not_a_second_heading`
+- `TestCardHeaderD3eLayout.test_return_sublabels_keep_their_own_shape`
+- `TestCardHeaderD3Review.test_exam_summary_card_keeps_the_rhythm_of_its_neighbour`
+
+**Có sẵn, KHÔNG do merge** — run đối chứng ở `7bb20a1` ra đúng 4 fail này. Lý do cả cụm D3–D6
+không thấy: **DB dev `wujia_tea_19` đang để `wujia_franchise_inspection` `uninstalled`**, còn
+UAT thì **có cài**. ⇒ **Bài học cho mọi cụm sau: đo hồi quy trên DB có trạng thái module GIỐNG
+UAT, đừng tin DB dev.** Nên xử lý trước khi mở cụm D7.
+
+### 🆕 Lứa D7+ — 9 issue `Ready for Dev`, CHƯA phân cụm
+
+Mục "🆕 6 issue BA vừa đổ lên" ở trên đã lạc hậu: BA thêm 3 issue nữa (STT 135, 136, 139).
+
+| STT | ID | Nội dung | Ghi chú |
+|---|---|---|---|
+| 128 | `UI-STATUSBADGE-001` | StatusBadge: `wujia-badge` ↔ `wj-pc-badge` | |
+| 129 | `UI-PAGECONTAINER-001` | PageContainer: gutter/breakpoint/background | ⚠ Owner sheet lệch |
+| 130 | `UI-PAGINATION-001` | Pagination nhiều implementation theo route | ⚠ Owner sheet lệch |
+| 131 | `UI-SIDEBAR-001` | Sidebar 300px + cấu trúc menu | ⚠ Owner sheet lệch |
+| 132 | `UI-BUTTON-001` | Button: height/radius/typo/semantic | ⚠ Owner sheet lệch |
+| 133 | `UI-MOB-HOME-004` | KPI CÔNG NỢ mobile ngắt 2 dòng | việc nhỏ |
+| 135 | `WJ-FRANCHISE-004` | Hợp đồng nhiều kỳ (schema change) | **nghiệp vụ**, không phải UI |
+| 136 | `UI-LISTCARD-001` | ListCard: 1 record 1 card | |
+| 139 | `UI-FILTER-001` | Filter: control/spacing/nhãn | |
+
+### Prompt gõ vào phiên sau
+
+> `/wujia-start`
+> Cụm D đã hết việc phía Dev (chỉ còn `UI-CARDHEADER-001` chờ BA). Làm **phiên phân cụm
+> D7+ — 0 dòng code**, đúng khuôn phiên phân cụm C1–C10 (14/08) và lứa D (25/08), cả hai
+> đều chạy trơn sau đó.
+>
+> 1. Chạy `issue_queue.py --dev` lấy danh sách sống (đừng tin bảng trong doc — con số
+>    doc bàn giao đã sai **3 lần** ở D3c/D3d/D4e).
+> 2. Với **từng** issue, `grep` source thật để tìm **GỐC RỄ**, không đọc mô tả BA rồi suy:
+>    BA đặt tên class/model **lý tưởng hoá** khác source. Đếm call site bằng **cấu trúc**
+>    (lxml + `t-foreach`/tổ tiên DOM) chứ **không bằng tên class** — D5 đếm theo cấu trúc
+>    nên 0 lần đính chính, D4 đếm theo tên class nên đính chính 3 lần.
+> 3. Chia cụm **theo gốc rễ chung, KHÔNG theo màn** (BA cấm variant theo route) và theo
+>    **blast radius tăng dần** — họ riêng trước, lớp Bootstrap dùng chung sau cùng (luật D4).
+> 4. Tách riêng `WJ-FRANCHISE-004`: đây là **schema change nghiệp vụ** (tách kỳ hợp đồng khỏi
+>    `wujia.franchise.management`), có migration ⇒ **không** nhét vào cụm UI, phải soạn câu
+>    hỏi BA trước khi code.
+> 5. Xác minh 4 issue có cờ `⚠ Owner=BA/Tester (sheet lệch)` — hỏi BA xem Dev có được nhận
+>    không, đừng tự nhận.
+> 6. Trước khi mở cụm đầu tiên, **xử lý nợ 4 test D3 đỏ** nêu ở mục trên (đo trên DB có cài
+>    `wujia_franchise_inspection` để giống UAT).
+> 7. Ra sản phẩm: `docs/next-session-clusters-D7.md` — mỗi cụm 1 khối prompt + bảng call site
+>    + ràng buộc đo được, theo đúng khuôn file này.
+>
+> Đọc trước: §13 chuẩn nghiệm thu ≥90%, §10 bài học, các mục "🔴 Bài học D5x/D6x" trong file
+> này, và `docs/merge-thai-round4-review.md` (3 lỗi đang chờ anh Thái vá).
