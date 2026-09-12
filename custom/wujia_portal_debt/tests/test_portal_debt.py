@@ -208,6 +208,9 @@ class TestPortalDebtWired(TransactionCase):
     def test_bank_info_picks_smallest_sequence_enabled(self):
         Bank = self.env['res.partner.bank']
         partner = self.company.partner_id
+        # Như test kế bên: DB giống UAT có thể đã bật sẵn 1 TK portal, và nếu nó cùng
+        # `sequence` thì `id` nhỏ hơn thắng ⇒ tắt trước cho tất định.
+        Bank.search([('id', 'in', self.company.bank_ids.ids)]).portal_payment_enabled = False
         Bank.create({'acc_number': 'ACC-DISABLED', 'partner_id': partner.id,
                      'sequence': 1, 'portal_payment_enabled': False})
         Bank.create({'acc_number': 'ACC-WIN', 'partner_id': partner.id,
@@ -526,6 +529,8 @@ class TestPortalDebtAccess(HttpCase):
 
     def test_pay_page_with_bank_has_both_shells_and_copy(self):
         """WJ-DEBT-003/005: mobile d-lg-none + khối PC, nút copy có ô phản hồi."""
+        self.env['res.partner.bank'].search(
+            [('id', 'in', self.env.company.bank_ids.ids)]).portal_payment_enabled = False
         self.env['res.partner.bank'].create({
             'acc_number': 'C3-ACC-0001', 'partner_id': self.env.company.partner_id.id,
             'acc_holder_name': 'NGO GIA C3', 'sequence': 1, 'portal_payment_enabled': True})
@@ -540,6 +545,8 @@ class TestPortalDebtAccess(HttpCase):
 
     def test_no_qr_markup_left(self):
         """WJ-DEBT-008: gỡ hẳn khối QR ở cả trang pay và modal PC."""
+        self.env['res.partner.bank'].search(
+            [('id', 'in', self.env.company.bank_ids.ids)]).portal_payment_enabled = False
         self.env['res.partner.bank'].create({
             'acc_number': 'C3-ACC-0002', 'partner_id': self.env.company.partner_id.id,
             'sequence': 1, 'portal_payment_enabled': True})
@@ -563,3 +570,45 @@ class TestPortalDebtAccess(HttpCase):
             res = self.url_open(url, timeout=30)
             self.assertEqual(res.status_code, 200)
             self.assertIn('wj-debt', res.text)
+
+
+@tagged('post_install', '-at_install', 'wujia_debt')
+class TestShortAmountSigned(TransactionCase):
+    """UI-MOB-HOME-004 — ô KPI Công nợ rộng ~64px ở 360px, chuỗi in ra phải NGẮN.
+
+    Số âm (trả thừa / credit note) từng rớt qua cả hai bậc rút gọn nên in nguyên
+    `-72449 $` rồi bị bẻ thành `-7244` / `9 $` trên ảnh BA. Guard giữ QUAN HỆ: mọi số
+    tiền, dấu nào, độ lớn nào, đều ra chuỗi ≤ 7 ký tự.
+    """
+
+    def _f(self, amount):
+        from odoo.addons.wujia_portal_debt.models.wujia_portal_debt import _short_amount
+        return _short_amount(amount, '$')
+
+    def test_negative_amounts_are_shortened_like_positive_ones(self):
+        for value, expected in ((-72449, '-72k'), (-1000, '-1k'),
+                                (-12650000, '-12,7tr'), (-2500000000, '-2,5tỷ')):
+            with self.subTest(value=value):
+                self.assertEqual(self._f(value), expected)
+                self.assertEqual(self._f(-value), expected.lstrip('-'))
+
+    def test_worst_case_string_stays_short_enough_for_the_tile(self):
+        # BA yêu cầu retest đúng giá trị này; 64px ở cỡ chữ chung 22px ≈ 7 ký tự.
+        self.assertEqual(self._f(-999999999), '-1tỷ')
+        for value in (-999999999, 999999999, -2500000000, -12650000, -999, 0):
+            with self.subTest(value=value):
+                self.assertLessEqual(len(self._f(value)), 7)
+
+    def test_currency_symbol_only_on_the_unabbreviated_tier(self):
+        self.assertEqual(self._f(0), '0 $')
+        self.assertEqual(self._f(-999), '-999 $')
+        for value in (1000, -1000, 10 ** 6, -10 ** 9):
+            with self.subTest(value=value):
+                self.assertNotIn('$', self._f(value))
+
+    def test_tier_boundaries_do_not_print_a_full_next_tier(self):
+        # Làm tròn 1 chữ số đẩy 999.999.999 thành '1000' ⇒ phải lên bậc, không in '1000tr'.
+        self.assertEqual(self._f(999949999), '999,9tr')
+        self.assertEqual(self._f(999950000), '1tỷ')
+        self.assertEqual(self._f(999999), '999k')
+        self.assertEqual(self._f(10 ** 6), '1tr')
