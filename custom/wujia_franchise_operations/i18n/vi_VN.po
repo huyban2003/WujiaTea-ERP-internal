@@ -333,8 +333,28 @@ msgstr "Doanh thu khai báo"
 
 #. module: wujia_franchise_operations
 #: model:ir.model.fields,field_description:wujia_franchise_operations.field_wujia_franchise_revenue__source
-msgid "Source"
+msgid "Entry Source"
 msgstr "Nguồn doanh thu"
+
+#. module: wujia_franchise_operations
+#: model:ir.model.fields.selection,name:wujia_franchise_operations.selection__wujia_franchise_revenue__source__excel
+msgid "Excel File (.xlsx, .xls)"
+msgstr "File Excel (.xlsx, .xls)"
+
+#. module: wujia_franchise_operations
+#: model:ir.model.fields.selection,name:wujia_franchise_operations.selection__wujia_franchise_revenue__source__csv
+msgid "CSV File (.csv)"
+msgstr "File CSV (.csv)"
+
+#. module: wujia_franchise_operations
+#: model:ir.model.fields.selection,name:wujia_franchise_operations.selection__wujia_franchise_revenue__source__manual
+msgid "Manual Entry"
+msgstr "Nhập thủ công"
+
+#. module: wujia_franchise_operations
+#: model:ir.model.fields.selection,name:wujia_franchise_operations.selection__wujia_franchise_revenue__source__pos
+msgid "POS System Sync"
+msgstr "Đồng bộ từ POS"
 
 #. module: wujia_franchise_operations
 #: model:ir.model.fields,field_description:wujia_franchise_operations.field_wujia_franchise_revenue__source_reference
@@ -647,8 +667,102 @@ msgid "Import Revenue File"
 msgstr "Nhập từ File Doanh thu"
 
 #. module: wujia_franchise_operations
+#. module: wujia_franchise_operations
 #: model_terms:ir.ui.view,arch_db:wujia_franchise_operations.view_wujia_franchise_revenue_import_wizard_form
 msgid "Import Daily Store Revenues"
 msgstr "Nhập Doanh thu Cửa hàng từ File"
+
+#. module: wujia_franchise_operations
+#: model:ir.model.fields,field_description:wujia_franchise_operations.field_wujia_franchise_revenue__import_file
+msgid "Revenue File"
+msgstr "Tệp Doanh thu"
+
+#. module: wujia_franchise_operations
+#: code:custom/wujia_franchise_operations/models/wujia_franchise_revenue.py:0
+msgid "Please upload a revenue file when entry source is 'Import (Excel/CSV)'."
+msgstr "Vui lòng đính kèm tệp doanh thu khi nguồn nhập là 'Nhập từ tệp (Excel/CSV)'."
+
+#. module: wujia_franchise_operations
+#: code:custom/wujia_franchise_operations/models/wujia_franchise_revenue.py:0
+msgid "Please upload a revenue file before calculating revenue."
+msgstr "Vui lòng tải lên tệp doanh thu trước khi tính toán doanh thu."
+
+#. module: wujia_franchise_operations
+#: code:custom/wujia_franchise_operations/models/wujia_franchise_revenue.py:0
+#: model:ir.actions.act_window,name:wujia_franchise_operations.action_wujia_franchise_revenue_compute_wizard
+#: model_terms:ir.ui.view,arch_db:wujia_franchise_operations.view_wujia_franchise_revenue_compute_wizard_form
+msgid "Auto Calculate Revenue from File"
+msgstr "Tự động tính Doanh thu từ Tệp"
+
+#. module: wujia_franchise_operations
+#: model_terms:ir.ui.view,arch_db:wujia_franchise_operations.view_wujia_franchise_revenue_form
+msgid "Auto Calculate from File"
+msgstr "Tự động tính từ tệp"
+
+#. module: wujia_franchise_operations
+#: model:ir.model,name:wujia_franchise_operations.model_wujia_franchise_revenue_compute_wizard
+msgid "Auto Calculate Revenue from File Wizard"
+msgstr "Cửa sổ Tự động tính Doanh thu từ Tệp"
+
+#. module: wujia_franchise_operations
+#: model:ir.model.fields,field_description:wujia_franchise_operations.field_wujia_franchise_revenue_compute_wizard__has_header
+msgid "First Row is Header"
+msgstr "Dòng đầu tiên là Tiêu đề cột"
+
+#. module: wujia_franchise_operations
+#: model:ir.model.fields,field_description:wujia_franchise_operations.field_wujia_franchise_revenue_compute_wizard__column_index
+msgid "Column to Sum"
+msgstr "Cột cần tính tổng"
+
+#. module: wujia_franchise_operations
+#: model:ir.model.fields,field_description:wujia_franchise_operations.field_wujia_franchise_revenue_compute_wizard__row_count
+msgid "Valid Rows Summed"
+msgstr "Số dòng hợp lệ đã cộng"
+
+#. module: wujia_franchise_operations
+#: model:ir.model.fields,field_description:wujia_franchise_operations.field_wujia_franchise_revenue_compute_wizard__calculated_sum
+msgid "Calculated Total Revenue"
+msgstr "Tổng Doanh thu tính được"
+
+#. module: wujia_franchise_operations
+#: model_terms:ir.ui.view,arch_db:wujia_franchise_operations.view_wujia_franchise_revenue_compute_wizard_form
+msgid "Apply Sum to Declared Revenue"
+msgstr "Áp dụng tổng vào Doanh thu đã khai báo"
+
+#. module: wujia_franchise_operations
+#: model_terms:ir.ui.view,arch_db:wujia_franchise_operations.view_wujia_franchise_revenue_compute_wizard_form
+msgid "Instructions: Select the column from your uploaded file that contains the revenue amount. The system will sum all numerical values across rows."
+msgstr "Hướng dẫn: Chọn cột từ tệp tải lên chứa số tiền doanh thu. Hệ thống sẽ tự động tính tổng tất cả giá trị số trên các dòng."
+
+#. module: wujia_franchise_operations
+#: code:custom/wujia_franchise_operations/wizard/wujia_franchise_revenue_compute_wizard.py:0
+msgid "Column %s: %s"
+msgstr "Cột %s: %s"
+
+#. module: wujia_franchise_operations
+#: code:custom/wujia_franchise_operations/wizard/wujia_franchise_revenue_compute_wizard.py:0
+msgid "Column %s"
+msgstr "Cột %s"
+
+#. module: wujia_franchise_operations
+#: code:custom/wujia_franchise_operations/wizard/wujia_franchise_revenue_compute_wizard.py:0
+msgid "Revenue Calculated"
+msgstr "Đã tính Doanh thu"
+
+#. module: wujia_franchise_operations
+#: code:custom/wujia_franchise_operations/wizard/wujia_franchise_revenue_compute_wizard.py:0
+msgid "Updated revenue to %s from %d rows in file."
+msgstr "Đã cập nhật doanh thu thành %s từ %d dòng trong tệp."
+
+#. module: wujia_franchise_operations
+#: code:custom/wujia_franchise_operations/wizard/wujia_franchise_revenue_compute_wizard.py:0
+msgid "No revenue record linked to this wizard."
+msgstr "Không tìm thấy bản ghi doanh thu liên kết với cửa sổ này."
+
+#. module: wujia_franchise_operations
+#: code:custom/wujia_franchise_operations/wizard/wujia_franchise_revenue_compute_wizard.py:0
+msgid "Could not parse file. Supported formats: .csv, .xlsx, .xls."
+msgstr "Không thể đọc tệp dữ liệu. Định dạng hỗ trợ: .csv, .xlsx, .xls."
+
 
 

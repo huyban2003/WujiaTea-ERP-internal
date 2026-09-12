@@ -210,6 +210,75 @@ class TestFranchiseOperations(TransactionCase):
         self.assertEqual(len(imported), 2)
         self.assertTrue(all(r.source == 'csv' for r in imported))
 
+    def test_11_revenue_manual_vs_import_constraints(self):
+        """Test that manual revenue allows no file, but import revenue requires file."""
+        import base64
+        # Manual without file: should succeed
+        manual_rev = self.Revenue.create({
+            'franchise_id': self.store1.id,
+            'business_date': date(2026, 9, 26),
+            'amount': 3500000.0,
+            'source': 'manual',
+        })
+        self.assertEqual(manual_rev.state, 'draft')
+        self.assertFalse(manual_rev.import_file)
+
+        # Import without file: should raise ValidationError
+        with self.assertRaises(ValidationError):
+            self.Revenue.create({
+                'franchise_id': self.store2.id,
+                'business_date': date(2026, 9, 26),
+                'amount': 4000000.0,
+                'source': 'import',
+                'import_file': False,
+            })
+
+        # Import with file: should succeed
+        csv_data = "Item,Qty,Price,Total\nMilk Tea,10,30000,300000\nFruit Tea,20,35000,700000\n"
+        encoded = base64.b64encode(csv_data.encode('utf-8'))
+        import_rev = self.Revenue.create({
+            'franchise_id': self.store2.id,
+            'business_date': date(2026, 9, 26),
+            'amount': 1000000.0,
+            'source': 'import',
+            'import_file': encoded,
+            'import_file_name': 'pos_orders.csv',
+        })
+        self.assertEqual(import_rev.state, 'draft')
+        self.assertTrue(bool(import_rev.import_file))
+
+    def test_12_revenue_compute_wizard_sum(self):
+        """Test optional wizard auto calculation and column sum from uploaded file."""
+        import base64
+        csv_data = "Order,Date,Revenue,Notes\nORD01,2026-09-27,1500000,Table 1\nORD02,2026-09-27,2500000,Table 2\nORD03,2026-09-27,1000000,Delivery\n"
+        encoded = base64.b64encode(csv_data.encode('utf-8'))
+
+        rev = self.Revenue.create({
+            'franchise_id': self.store1.id,
+            'business_date': date(2026, 9, 27),
+            'source': 'import',
+            'import_file': encoded,
+            'import_file_name': 'daily_sales.csv',
+        })
+
+        # Create wizard linked to rev
+        wizard = self.env['wujia.franchise.revenue.compute.wizard'].with_context(
+            default_revenue_id=rev.id
+        ).create({
+            'revenue_id': rev.id,
+            'column_index': '2', # 3rd column: Revenue
+            'has_header': True,
+        })
+
+        # Check calculated sum (1500000 + 2500000 + 1000000 = 5000000)
+        self.assertEqual(wizard.row_count, 3)
+        self.assertEqual(wizard.calculated_sum, 5000000.0)
+
+        # Apply sum
+        wizard.action_apply_sum()
+        self.assertEqual(rev.amount, 5000000.0)
+
+
     def test_07_store_master_smart_button_counts(self):
         """Test Store Master smart buttons count computation."""
         assign = self.Assignment.create({

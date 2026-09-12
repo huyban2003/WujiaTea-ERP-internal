@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="view_wujia_franchise_revenue_compute_wizard_form" model="ir.ui.view">
+        <field name="name">wujia.franchise.revenue.compute.wizard.form</field>
+        <field name="model">wujia.franchise.revenue.compute.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Auto Calculate Revenue from File">
+                <sheet>
+                    <group>
+                        <group string="File &amp; Column Selection">
+                            <field name="revenue_id" invisible="1" />
+                            <field name="file_name" readonly="1" />
+                            <field name="has_header" />
+                            <field name="column_index" />
+                        </group>
+                        <group string="Calculation Result">
+                            <field name="currency_id" invisible="1" />
+                            <field name="row_count" readonly="1" />
+                            <field name="calculated_sum" widget="monetary" decoration-bf="1" readonly="1" />
+                        </group>
+                    </group>
+                    <div class="text-muted">
+                        <p><strong>Instructions:</strong> Select the column from your uploaded file that contains the revenue amount. The system will sum all numerical values across rows.</p>
+                    </div>
+                </sheet>
+                <footer>
+                    <button name="action_apply_sum" string="Apply Sum to Declared Revenue" type="object" class="btn-primary" />
+                    <button string="Cancel" class="btn-secondary" special="cancel" />
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_wujia_franchise_revenue_compute_wizard" model="ir.actions.act_window">
+        <field name="name">Calculate Revenue from File</field>
+        <field name="res_model">wujia.franchise.revenue.compute.wizard</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+    </record>
+
+</odoo>

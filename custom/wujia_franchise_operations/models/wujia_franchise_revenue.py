@@ -52,6 +52,13 @@ class WujiaFranchiseRevenue(models.Model):
         ('import', 'Import (Excel/CSV)'),
     ], string='Entry Source', required=True, default='manual', tracking=True)
 
+    import_file = fields.Binary(
+        string='Revenue File',
+        tracking=True,
+        help='Upload Excel (.xlsx, .xls) or CSV (.csv) file for revenue declaration.',
+    )
+    import_file_name = fields.Char(string='File Name')
+
     source_reference = fields.Char(
         string='Source Reference',
         help='Reference file name or import session ID for audit trail.',
@@ -105,6 +112,12 @@ class WujiaFranchiseRevenue(models.Model):
                     duplicate.name,
                 ))
 
+    @api.constrains('source', 'import_file')
+    def _check_import_file_required(self):
+        for rec in self:
+            if rec.source == 'import' and not rec.import_file:
+                raise ValidationError(_("Please upload a revenue file when entry source is 'Import (Excel/CSV)'."))
+
     @api.model_create_multi
     def create(self, vals_list):
         for vals in vals_list:
@@ -133,3 +146,18 @@ class WujiaFranchiseRevenue(models.Model):
                 'confirmed_by_id': False,
                 'confirmed_date': False,
             })
+
+    def action_open_compute_wizard(self):
+        self.ensure_one()
+        if not self.import_file:
+            raise ValidationError(_("Please upload a revenue file before calculating revenue."))
+        return {
+            'name': _("Auto Calculate Revenue from File"),
+            'type': 'ir.actions.act_window',
+            'res_model': 'wujia.franchise.revenue.compute.wizard',
+            'view_mode': 'form',
+            'target': 'new',
+            'context': {
+                'default_revenue_id': self.id,
+            },
+        }
