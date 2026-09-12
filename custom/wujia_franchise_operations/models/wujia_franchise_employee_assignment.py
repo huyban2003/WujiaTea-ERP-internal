@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from odoo import api, fields, models, _
+from odoo import api, fields, models, tools, _
 from odoo.exceptions import ValidationError
 
 
@@ -7,6 +7,17 @@ class WujiaFranchiseEmployeeAssignment(models.Model):
     _name = 'wujia.franchise.employee.assignment'
     _description = 'Franchise Employee Store Assignment'
     _order = 'date_from desc, id desc'
+
+    def _auto_init(self):
+        super()._auto_init()
+        # Composite Index for Primary Active Employee Assignment
+        tools.create_index(
+            self._cr,
+            'idx_emp_assignment_emp_store_primary',
+            self._table,
+            ['employee_id', 'is_primary', 'state'],
+        )
+
 
     employee_id = fields.Many2one(
         'wujia.franchise.employee',

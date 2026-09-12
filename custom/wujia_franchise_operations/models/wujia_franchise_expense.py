@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from odoo import api, fields, models, _
+from odoo import api, fields, models, tools, _
 from odoo.exceptions import ValidationError
 
 
@@ -8,6 +8,17 @@ class WujiaFranchiseExpense(models.Model):
     _description = 'Franchise Store Operating Expense'
     _inherit = ['mail.thread', 'mail.activity.mixin']
     _order = 'expense_date desc, id desc'
+
+    def _auto_init(self):
+        super()._auto_init()
+        # Composite Index for Expense Audit (Store + Category + Date)
+        tools.create_index(
+            self._cr,
+            'idx_franchise_expense_store_cat_date',
+            self._table,
+            ['franchise_id', 'category_id', 'expense_date desc'],
+        )
+
 
     name = fields.Char(
         string='Expense Number',

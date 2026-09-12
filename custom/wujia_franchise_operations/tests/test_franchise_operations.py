@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 from datetime import date, timedelta
+from odoo import tools
 from odoo.fields import Date
 from odoo.exceptions import ValidationError
 from odoo.tests.common import TransactionCase, tagged
@@ -349,3 +350,19 @@ class TestFranchiseOperations(TransactionCase):
         self.assertEqual(action['context'].get('search_default_filter_this_week'), 1)
         smallest_store = self.env['wujia.franchise.management'].search([('active', '=', True)], order='id asc', limit=1)
         self.assertEqual(action['context'].get('search_default_franchise_id'), smallest_store.id)
+
+    def test_13_composite_indexes_exist(self):
+        """Test that all 5 PostgreSQL composite indexes are created and exist in database."""
+        indexes_to_check = [
+            'idx_wujia_revenue_store_date_state',
+            'idx_work_schedule_store_date_state',
+            'idx_work_schedule_emp_date',
+            'idx_franchise_expense_store_cat_date',
+            'idx_emp_assignment_emp_store_primary',
+        ]
+        for idx_name in indexes_to_check:
+            self.assertTrue(
+                tools.index_exists(self.env.cr, idx_name),
+                f"Composite index '{idx_name}' was not created in PostgreSQL database.",
+            )
+

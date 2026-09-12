@@ -2,7 +2,7 @@
 from datetime import datetime, timedelta
 import pytz
 
-from odoo import api, fields, models, _
+from odoo import api, fields, models, tools, _
 from odoo.exceptions import ValidationError
 
 
@@ -11,6 +11,24 @@ class WujiaFranchiseWorkSchedule(models.Model):
     _description = 'Franchise Store Work Schedule'
     _inherit = ['mail.thread', 'mail.activity.mixin']
     _order = 'work_date desc, planned_start desc, id desc'
+
+    def _auto_init(self):
+        super()._auto_init()
+        # Composite Index 1: Store calendar query by Store + Date + State
+        tools.create_index(
+            self._cr,
+            'idx_work_schedule_store_date_state',
+            self._table,
+            ['franchise_id', 'work_date desc', 'state'],
+        )
+        # Composite Index 2: Employee personal roster query by Employee + Date
+        tools.create_index(
+            self._cr,
+            'idx_work_schedule_emp_date',
+            self._table,
+            ['employee_id', 'work_date desc'],
+        )
+
 
     name = fields.Char(
         string='Schedule Name',

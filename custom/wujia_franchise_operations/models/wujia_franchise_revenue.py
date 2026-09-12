@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from odoo import api, fields, models, _
+from odoo import api, fields, models, tools, _
 from odoo.exceptions import ValidationError
 
 
@@ -8,6 +8,16 @@ class WujiaFranchiseRevenue(models.Model):
     _description = 'Franchise Store Daily Declared Revenue'
     _inherit = ['mail.thread', 'mail.activity.mixin']
     _order = 'business_date desc, id desc'
+
+    def _auto_init(self):
+        super()._auto_init()
+        tools.create_index(
+            self._cr,
+            'idx_wujia_revenue_store_date_state',
+            self._table,
+            ['franchise_id', 'business_date desc', 'state'],
+        )
+
 
     name = fields.Char(
         string='Revenue Record Number',
