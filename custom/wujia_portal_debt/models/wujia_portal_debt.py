@@ -81,17 +81,31 @@ def _end_of_month(day):
     return first_next_month - timedelta(days=1)
 
 
+def _one_decimal(value):
+    """12.65 → '12,7'; 1.0 → '1' — cắt đuôi '.0' trước khi đổi dấu thập phân."""
+    text = '%.1f' % value
+    return (text[:-2] if text.endswith('.0') else text).replace('.', ',')
+
+
 def _short_amount(amount, symbol=''):
     """Tiền rút gọn cho tile KPI Home (ô hẹp, 4 tile/hàng): 12.650.000 → '12,7tr'.
 
-    Ký hiệu truyền từ ngoài (currency của công ty), không hardcode '₫' — cùng luật
-    với cụm D: portal không được tự quyết đơn vị tiền."""
+    Bậc tính theo TRỊ TUYỆT ĐỐI rồi gắn lại dấu: số âm (trả thừa / credit note) trước
+    đây rớt qua cả hai bậc nên in nguyên '-72449 $' và bị bẻ xuống 2 dòng ở ô hẹp
+    (UI-MOB-HOME-004). Ký hiệu truyền từ ngoài (currency của công ty), không hardcode
+    '₫' — cùng luật với cụm D: portal không được tự quyết đơn vị tiền."""
     amount = amount or 0
-    if amount >= 1000000:
-        return ('%.1f' % (amount / 1000000.0)).replace('.', ',').replace(',0', '') + 'tr'
-    if amount >= 1000:
-        return '%dk' % (amount // 1000)
-    return ('%d %s' % (amount, symbol)).strip()
+    sign = '-' if amount < 0 else ''
+    value = abs(amount)
+    if value >= 10 ** 9:
+        return sign + _one_decimal(value / 1000000000.0) + 'tỷ'
+    if value >= 1000000:
+        text = _one_decimal(value / 1000000.0)
+        # 999.999.999 làm tròn một chữ số thành '1000' ⇒ lên bậc, khỏi in '1000tr'.
+        return sign + ('1tỷ' if text == '1000' else text + 'tr')
+    if value >= 1000:
+        return '%s%dk' % (sign, value // 1000)
+    return ('%s%d %s' % (sign, value, symbol)).strip()
 
 
 def _week_label(monday):

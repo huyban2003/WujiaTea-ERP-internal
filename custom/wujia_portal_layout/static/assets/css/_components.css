@@ -1116,7 +1116,10 @@ h2, .wujia-h2 { font-size: var(--wujia-font-size-h2) !important; font-weight: 60
     font-weight: 700;
     line-height: 1.1;
     color: #FFFFFF;
-    overflow-wrap: anywhere;   /* ô Công nợ in số tiền (wujia_portal_debt) */
+    /* UI-MOB-HOME-004: số tiền KHÔNG được bẻ giữa chữ số ("-72449 $" → "-7244"/"9 $");
+       chuỗi dài đã rút gọn ở nguồn (`_short_amount`) nên nowrap là đủ, không tràn. */
+    white-space: nowrap;
+    font-variant-numeric: tabular-nums;
 }
 /* ≤380px: bù đúng vài px còn thiếu để 4 nhãn vẫn trọn trên MỘT dòng (đo 360px:
    "Thông báo" cần 59 trong 57). Giảm khoảng cách chữ + padding, không giảm cỡ chữ. */

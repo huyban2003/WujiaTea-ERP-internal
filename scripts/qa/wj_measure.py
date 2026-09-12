@@ -127,6 +127,19 @@ PROBE = r"""
 
 
 def login(page, base, user, password):
+    # Có DB mà form /web/login mang `d-none` (theme Vuexy ẩn form chuẩn) ⇒ `fill` treo
+    # đủ 30s rồi mới báo lỗi. Form portal `/portal/login` luôn hiện, dùng trước.
+    page.goto(f'{base}/portal/login', wait_until='domcontentloaded')
+    if page.locator('#wj-auth-login').count():
+        page.fill('#wj-auth-login', user)
+        page.fill('#wj-auth-password', password)
+        page.press('#wj-auth-password', 'Enter')
+        page.wait_for_load_state('domcontentloaded')
+        if '/portal/login' in page.url:
+            raise SystemExit(
+                'ĐĂNG NHẬP HỎNG cho %r — mọi số đo sau đây sẽ là Pass rỗng. '
+                'Kiểm --password (DB seed dùng wujia@test123).' % user)
+        return
     page.goto(f'{base}/web/login', wait_until='domcontentloaded')
     page.fill('input[name="login"]', user)
     page.fill('input[name="password"]', password)

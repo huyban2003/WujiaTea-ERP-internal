@@ -318,12 +318,13 @@ class TestCardHeaderCallSites(TransactionCase):
         block = css.split('.wj-card-header__title {', 1)[1].split('\n}', 1)[0]
         self.assertIn('color: var(--wujia-text-primary) !important', block)
 
-    def test_bootstrap_card_header_wrapper_class_is_kept(self):
-        # Component KHÔNG tự khai padding ⇒ 4 card Bootstrap của /portal/support/<id> phải
-        # giữ class `card-header` (nguồn padding + border-bottom), nếu không header dính
-        # sát mép card. Cùng lý do phải kèm biến thể flush.
+    def test_header_keeps_the_class_that_pays_its_padding(self):
+        # Component KHÔNG tự khai padding ⇒ 4 header của /portal/support/<id> phải giữ lớp
+        # vỏ cấp padding, nếu không header dính sát mép card. D4e2 (3d83af2) đổi nguồn đó
+        # từ `card-header` của Bootstrap sang `wj-surface-card__head`; quan hệ không đổi.
         arch = self._arch('wujia_portal_support.portal_support_detail')
-        self.assertEqual(arch.count("'card-header wj-card-header--flush'"), 4)
+        self.assertEqual(arch.count("'wj-surface-card__head wj-card-header--flush'"), 4)
+        self.assertNotIn("'card-header wj-card-header--flush'", arch)
 
     def test_store_name_became_subtitle_not_a_second_heading(self):
         # Chủ dự án chốt 02/09: mobile xếp giống bản PC cùng card (tiêu đề → dòng phụ →
@@ -333,7 +334,9 @@ class TestCardHeaderCallSites(TransactionCase):
             '<div>%s</div>' % self._arch('wujia_portal_base.portal_franchise_information'))
         subs = root.xpath('.//t[@t-set="ch_subtitle"][@t-value="franchise.name or \'—\'"]')
         self.assertEqual(len(subs), 1)
-        card = root.xpath('.//div[contains(@class,"wujia-mdash-card")]'
+        # D4e2 thay `div.wujia-mdash-card` bằng `t-call wj_surface_card` + slot `sc_class`.
+        card = root.xpath('.//t[@t-call="wujia_portal_layout.wj_surface_card"]'
+                          '[t[@t-set="sc_class"][@t-value="\'wujia-mdash-card\'"]]'
                           '[t[@t-call="wujia_portal_layout.wj_card_header"]]'
                           '[div[@class="wujia-maccount-badgerow"]]')
         self.assertEqual(len(card), 1, 'card "Cửa hàng nhượng quyền" phải còn nguyên')
@@ -393,7 +396,7 @@ class TestCardHeaderD3eLayout(TransactionCase):
         # vẫn y nguyên: nhãn phụ .875rem < tiêu đề card 18px.
         self.assertRegex(
             css,
-            r'\.card-body > \.wj-card-header\.wj-return-sublabel'
+            r'\.wj-surface-card__body > \.wj-card-header\.wj-return-sublabel'
             r'\s+\.wj-card-header__title\s*\{[^}]*color:')
         self.assertEqual(arch.count('wj-card-header--sublabel'), 4)
 
@@ -683,11 +686,14 @@ class TestCardHeaderD3Review(TransactionCase):
                     self.assertNotRegex(css, r'\.%s([^-_a-zA-Z0-9]|$)' % re.escape(cls))
 
     def test_exam_summary_card_keeps_the_rhythm_of_its_neighbour(self):
-        # Bốn card một trang phải cùng nhịp header->body; 36px là DRIFT của riêng nó.
-        css = self._read(self.EXAM)
-        m = re.search(r'\.wj-exam-pc-sumlist\s*\{[^}]*margin-top:\s*(\d+)px', css)
-        self.assertTrue(m, 'không tìm thấy margin-top của .wj-exam-pc-sumlist')
-        self.assertEqual(m.group(1), '18')
+        # Bốn card một trang phải cùng nhịp header→body. D3 chốt con số ở chính file exam
+        # (36 → 18px); D4e2 (3d83af2) chuyển quyền giữ nhịp sang `.wj-surface-card__body`
+        # nên exam phải KHÔNG còn khai margin — khai lại là đúng loại drift cũ.
+        block = re.search(r'\.wj-exam-pc-sumlist\s*\{([^}]*)\}', self._read(self.EXAM))
+        self.assertTrue(block, 'không tìm thấy rule .wj-exam-pc-sumlist')
+        self.assertNotRegex(block.group(1), r'margin(-top)?\s*:')
+        self.assertRegex(self._read(self.COMPONENTS),
+                         r'\.wj-surface-card__body\s*\{[^}]*padding:')
 
 
 def _contrast(fg, bg):
