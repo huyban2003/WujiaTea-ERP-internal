@@ -39,7 +39,10 @@ wujia.product.category: danh mục portal (thay product.public.category, không 
         'views/sale_order_views.xml',
         'views/product_template_views.xml',
         'views/wujia_sale_order_gift_wizard_views.xml',
+        'views/stock_location_views.xml',
+        'views/wujia_sale_supply_demand_report_views.xml',
     ],
+
     'installable': True,
     'application': False,
     'auto_install': False,
