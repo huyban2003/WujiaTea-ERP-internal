@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- List View -->
+    <record id="view_wujia_sale_supply_demand_report_tree" model="ir.ui.view">
+        <field name="name">wujia.sale.supply.demand.report.tree</field>
+        <field name="model">wujia.sale.supply.demand.report</field>
+        <field name="arch" type="xml">
+            <list string="Delivery Stock Demand Report" create="false" edit="false" delete="false"
+                  decoration-danger="warning_status == 'warning'">
+                <field name="default_code"/>
+                <field name="product_id"/>
+                <field name="categ_id"/>
+                <field name="qty_ordered" sum="Total Ordered"/>
+                <field name="qty_available"/>
+                <field name="qty_shortage" sum="Total Shortage"/>
+                <field name="price_unit"/>
+                <field name="amount_total" sum="Grand Total"/>
+                <field name="warning_status" widget="badge"
+                       decoration-danger="warning_status == 'warning'"
+                       decoration-success="warning_status == 'ok'"/>
+                <field name="date_order" optional="show"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- Pivot View -->
+    <record id="view_wujia_sale_supply_demand_report_pivot" model="ir.ui.view">
+        <field name="name">wujia.sale.supply.demand.report.pivot</field>
+        <field name="model">wujia.sale.supply.demand.report</field>
+        <field name="arch" type="xml">
+            <pivot string="Supply and Demand Analysis">
+                <field name="categ_id" type="row"/>
+                <field name="product_id" type="row"/>
+                <field name="qty_ordered" type="measure"/>
+                <field name="qty_available" type="measure"/>
+                <field name="qty_shortage" type="measure"/>
+                <field name="amount_total" type="measure"/>
+            </pivot>
+        </field>
+    </record>
+
+    <!-- Graph View -->
+    <record id="view_wujia_sale_supply_demand_report_graph" model="ir.ui.view">
+        <field name="name">wujia.sale.supply.demand.report.graph</field>
+        <field name="model">wujia.sale.supply.demand.report</field>
+        <field name="arch" type="xml">
+            <graph string="Supply and Demand Graph" type="bar">
+                <field name="product_id"/>
+                <field name="qty_ordered" type="measure"/>
+                <field name="qty_available" type="measure"/>
+            </graph>
+        </field>
+    </record>
+
+    <!-- Search View -->
+    <record id="view_wujia_sale_supply_demand_report_search" model="ir.ui.view">
+        <field name="name">wujia.sale.supply.demand.report.search</field>
+        <field name="model">wujia.sale.supply.demand.report</field>
+        <field name="arch" type="xml">
+            <search string="Search Supply &amp; Demand Report">
+                <field name="default_code"/>
+                <field name="product_id"/>
+                <field name="categ_id"/>
+                <filter string="This Month" name="filter_this_month"
+                        domain="[('date_order', '&gt;=', context_today().strftime('%Y-%m-01'))]"/>
+                <separator/>
+                <filter string="Ordered Qty &gt; 0" name="filter_qty_ordered" domain="[('qty_ordered', '>', 0)]"/>
+                <filter string="Stock Shortage Warning" name="filter_warning" domain="[('warning_status', '=', 'warning')]"/>
+                <separator/>
+                <filter string="Product Category" name="group_categ_id" context="{'group_by': 'categ_id'}"/>
+                <filter string="Order Date" name="group_date_order" context="{'group_by': 'date_order'}"/>
+                <filter string="Warning Status" name="group_warning_status" context="{'group_by': 'warning_status'}"/>
+            </search>
+        </field>
+    </record>
+
+    <!-- Action -->
+    <record id="action_wujia_sale_supply_demand_report" model="ir.actions.act_window">
+        <field name="name">Delivery Stock Demand Report</field>
+        <field name="res_model">wujia.sale.supply.demand.report</field>
+        <field name="view_mode">list,pivot,graph</field>
+
+        <field name="context">{}</field>
+        <field name="search_view_id" ref="view_wujia_sale_supply_demand_report_search"/>
+    </record>
+
+    <!-- Menuitem -->
+    <menuitem id="menu_wujia_sale_supply_demand_report"
+              name="Delivery Stock Demand Report"
+              parent="sale.menu_sale_report"
+              action="action_wujia_sale_supply_demand_report"
+              sequence="20"/>
+</odoo>

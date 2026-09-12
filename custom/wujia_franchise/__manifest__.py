@@ -40,6 +40,7 @@ Extension chuẩn:
         'views/franchise_onboarding_wizard_views.xml',
         'views/res_partner_views.xml',
         'views/res_users_views.xml',
+        'views/res_config_settings_views.xml',
         'views/wujia_franchise_menu.xml',
         'data/ir_cron_data.xml',
         'data/wujia_franchise_bootstrap.xml',

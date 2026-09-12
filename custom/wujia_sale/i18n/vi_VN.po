@@ -732,7 +732,132 @@ msgid "Order Date"
 msgstr "Ngày đặt hàng"
 
 #. module: wujia_sale
-#: model_terms:ir.ui.view,arch_db:wujia_sale.view_wujia_sale_order_search
-msgid "Group By"
-msgstr "Nhóm theo"
+#: model:ir.model.fields,field_description:wujia_sale.field_stock_location__is_export
+msgid "Export Location"
+msgstr "Kho xuất hàng"
 
+#. module: wujia_sale
+#: model:ir.model.fields,help:wujia_sale.field_stock_location__is_export
+msgid "Check this box if this location is used for export/franchise delivery fulfillment."
+msgstr "Tích chọn nếu địa điểm này được dùng làm kho xuất giao hàng nhượng quyền."
+
+#. module: wujia_sale
+#: model:ir.model,name:wujia_sale.model_wujia_sale_supply_demand_report
+msgid "Wujia Export Warehouse Supply and Demand Report"
+msgstr "Báo cáo nhu cầu đặt hàng & khả năng cung ứng kho xuất Ngô Gia"
+
+#. module: wujia_sale
+#: model:ir.model.fields,field_description:wujia_sale.field_wujia_sale_supply_demand_report__default_code
+#: model_terms:ir.ui.view,arch_db:wujia_sale.view_wujia_sale_supply_demand_report_tree
+msgid "Product Code"
+msgstr "Mã sản phẩm"
+
+#. module: wujia_sale
+#: model:ir.model.fields,field_description:wujia_sale.field_wujia_sale_supply_demand_report__categ_id
+#: model_terms:ir.ui.view,arch_db:wujia_sale.view_wujia_sale_supply_demand_report_search
+msgid "Product Category"
+msgstr "Danh mục sản phẩm"
+
+#. module: wujia_sale
+#: model:ir.model.fields,field_description:wujia_sale.field_wujia_sale_supply_demand_report__qty_ordered
+msgid "Ordered Quantity"
+msgstr "Số lượng đặt hàng"
+
+#. module: wujia_sale
+#: model:ir.model.fields,field_description:wujia_sale.field_wujia_sale_supply_demand_report__qty_available
+msgid "Available Quantity"
+msgstr "Số lượng có sẵn"
+
+#. module: wujia_sale
+#: model:ir.model.fields,field_description:wujia_sale.field_wujia_sale_supply_demand_report__qty_shortage
+msgid "Shortage Quantity"
+msgstr "Số lượng còn thiếu"
+
+#. module: wujia_sale
+#: model:ir.model.fields,field_description:wujia_sale.field_wujia_sale_supply_demand_report__price_unit
+msgid "Unit Price"
+msgstr "Đơn giá"
+
+#. module: wujia_sale
+#: model:ir.model.fields,field_description:wujia_sale.field_wujia_sale_supply_demand_report__product_id
+msgid "Product"
+msgstr "Sản phẩm"
+
+#. module: wujia_sale
+#: model:ir.model.fields,field_description:wujia_sale.field_wujia_sale_supply_demand_report__product_tmpl_id
+msgid "Product Template"
+msgstr "Mẫu sản phẩm"
+
+#. module: wujia_sale
+#: model:ir.model.fields,field_description:wujia_sale.field_wujia_sale_supply_demand_report__amount_total
+msgid "Total Amount"
+msgstr "Tổng tiền"
+
+#. module: wujia_sale
+#: model:ir.model.fields,field_description:wujia_sale.field_wujia_sale_supply_demand_report__date_order
+msgid "Order Date"
+msgstr "Ngày đặt hàng"
+
+#. module: wujia_sale
+#: model:ir.model.fields,field_description:wujia_sale.field_wujia_sale_supply_demand_report__warning_status
+#: model_terms:ir.ui.view,arch_db:wujia_sale.view_wujia_sale_supply_demand_report_search
+msgid "Warning Status"
+msgstr "Cảnh báo"
+
+#. module: wujia_sale
+#: selection:wujia.sale.supply.demand.report,warning_status:0
+msgid "Sufficient Stock"
+msgstr "Đủ hàng"
+
+#. module: wujia_sale
+#: selection:wujia.sale.supply.demand.report,warning_status:0
+#: model_terms:ir.ui.view,arch_db:wujia_sale.view_wujia_sale_supply_demand_report_search
+msgid "Stock Shortage Warning"
+msgstr "Thiếu hàng"
+
+#. module: wujia_sale
+#: model:ir.actions.act_window,name:wujia_sale.action_wujia_sale_supply_demand_report
+#: model:ir.ui.menu,name:wujia_sale.menu_wujia_sale_supply_demand_report
+#: model_terms:ir.ui.view,arch_db:wujia_sale.view_wujia_sale_supply_demand_report_tree
+msgid "Delivery Stock Demand Report"
+msgstr "Báo cáo tồn kho giao hàng"
+
+#. module: wujia_sale
+#: model_terms:ir.ui.view,arch_db:wujia_sale.view_wujia_sale_supply_demand_report_search
+msgid "Ordered Qty > 0"
+msgstr "Số lượng đặt hàng > 0"
+
+#. module: wujia_sale
+#: model_terms:ir.ui.view,arch_db:wujia_sale.view_sales_order_filter_wujia
+msgid "By batch"
+msgstr "Theo chuyến xe"
+
+#. module: wujia_sale
+#: model_terms:ir.ui.view,arch_db:wujia_sale.view_wujia_sale_supply_demand_report_search
+msgid "This Month"
+msgstr "Tháng này"
+
+#. module: wujia_sale
+#: model_terms:ir.ui.view,arch_db:wujia_sale.view_wujia_sale_supply_demand_report_tree
+msgid "Total Ordered"
+msgstr "Tổng đặt hàng"
+
+#. module: wujia_sale
+#: model_terms:ir.ui.view,arch_db:wujia_sale.view_wujia_sale_supply_demand_report_tree
+msgid "Total Shortage"
+msgstr "Tổng thiếu hàng"
+
+#. module: wujia_sale
+#: model_terms:ir.ui.view,arch_db:wujia_sale.view_wujia_sale_supply_demand_report_tree
+msgid "Grand Total"
+msgstr "Tổng giá trị"
+
+#. module: wujia_sale
+#: model_terms:ir.ui.view,arch_db:wujia_sale.view_wujia_sale_supply_demand_report_pivot
+msgid "Supply and Demand Analysis"
+msgstr "Phân tích cung cầu"
+
+#. module: wujia_sale
+#: model_terms:ir.ui.view,arch_db:wujia_sale.view_wujia_sale_supply_demand_report_graph
+msgid "Supply and Demand Graph"
+msgstr "Biểu đồ cung cầu"
