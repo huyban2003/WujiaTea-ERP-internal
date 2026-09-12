@@ -322,6 +322,8 @@ msgstr "Đơn từ Portal"
 
 #. module: wujia_sale
 #: model:ir.model.fields,field_description:wujia_sale.field_wujia_product_category__product_ids
+#: model_terms:ir.ui.view,arch_db:wujia_sale.view_wujia_sale_order_search
+#: model:ir.model.fields,field_description:wujia_sale.field_wujia_sale_supply_demand_report__product_id
 msgid "Product"
 msgstr "Sản phẩm"
 
@@ -648,6 +650,7 @@ msgstr "Tổng khối lượng"
 
 #. module: wujia_sale
 #: model_terms:ir.ui.view,arch_db:wujia_sale.view_wujia_sale_order_tree
+#: model:ir.model.fields,field_description:wujia_sale.field_wujia_sale_supply_demand_report__amount_total
 msgid "Total Amount"
 msgstr "Tổng tiền"
 
@@ -660,11 +663,6 @@ msgstr "Tìm kiếm đơn hàng Ngô Gia"
 #: model_terms:ir.ui.view,arch_db:wujia_sale.view_wujia_sale_order_search
 msgid "Order"
 msgstr "Đơn hàng"
-
-#. module: wujia_sale
-#: model_terms:ir.ui.view,arch_db:wujia_sale.view_wujia_sale_order_search
-msgid "Product"
-msgstr "Sản phẩm"
 
 #. module: wujia_sale
 #: model_terms:ir.ui.view,arch_db:wujia_sale.view_wujia_sale_order_search
@@ -728,6 +726,7 @@ msgstr "Khách hàng"
 
 #. module: wujia_sale
 #: model_terms:ir.ui.view,arch_db:wujia_sale.view_wujia_sale_order_search
+#: model:ir.model.fields,field_description:wujia_sale.field_wujia_sale_supply_demand_report__date_order
 msgid "Order Date"
 msgstr "Ngày đặt hàng"
 
@@ -779,24 +778,9 @@ msgid "Unit Price"
 msgstr "Đơn giá"
 
 #. module: wujia_sale
-#: model:ir.model.fields,field_description:wujia_sale.field_wujia_sale_supply_demand_report__product_id
-msgid "Product"
-msgstr "Sản phẩm"
-
-#. module: wujia_sale
 #: model:ir.model.fields,field_description:wujia_sale.field_wujia_sale_supply_demand_report__product_tmpl_id
 msgid "Product Template"
 msgstr "Mẫu sản phẩm"
-
-#. module: wujia_sale
-#: model:ir.model.fields,field_description:wujia_sale.field_wujia_sale_supply_demand_report__amount_total
-msgid "Total Amount"
-msgstr "Tổng tiền"
-
-#. module: wujia_sale
-#: model:ir.model.fields,field_description:wujia_sale.field_wujia_sale_supply_demand_report__date_order
-msgid "Order Date"
-msgstr "Ngày đặt hàng"
 
 #. module: wujia_sale
 #: model:ir.model.fields,field_description:wujia_sale.field_wujia_sale_supply_demand_report__warning_status
@@ -826,11 +810,6 @@ msgstr "Báo cáo tồn kho giao hàng"
 #: model_terms:ir.ui.view,arch_db:wujia_sale.view_wujia_sale_supply_demand_report_search
 msgid "Ordered Qty > 0"
 msgstr "Số lượng đặt hàng > 0"
-
-#. module: wujia_sale
-#: model_terms:ir.ui.view,arch_db:wujia_sale.view_sales_order_filter_wujia
-msgid "By batch"
-msgstr "Theo chuyến xe"
 
 #. module: wujia_sale
 #: model_terms:ir.ui.view,arch_db:wujia_sale.view_wujia_sale_supply_demand_report_search
