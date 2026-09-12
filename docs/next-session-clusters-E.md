@@ -166,6 +166,19 @@ sẵn có trước khi tạo bank test, thay vì tin vào `sequence` (ties → `
 (thiếu tiêu đề thì dừng, không ghi theo index cũ). Đọc tab cũng có bẫy: `gviz?sheet=ISSUE HISTORY` sai
 tên thì Google **im lặng trả tab đầu tiên**; tên thật `7. ISSUE HISTORY` (đã ghi vào `sheet_io.py`).
 
+**9. Soi UAT sau khi anh báo "deploy rồi" ⇒ deploy CHƯA vào — và LIMIT tôi vừa viết cũng sai một ý.**
+Kiểm 3 tầng chứ không tin lời: `ir.module.module` qua XML-RPC còn `wujia_portal_layout 19.0.47.0.0`
++ `wujia_portal_debt 19.0.4.5.0`; tải thẳng `_components.css` từ UAT thấy vẫn `overflow-wrap: anywhere`,
+`Last-Modified: 10/09 15:59`, `Server: Werkzeug` (không proxy ⇒ không phải cache); trang vẫn nhả
+`?v=1281`. ⇒ `git pull` chưa tới thư mục mà service đang chạy (nếu pull rồi mà quên restart thì tệp
+CSS tĩnh **đã** mới, vì Odoo đọc thẳng từ đĩa). **Luật:** "đã deploy" phải xác minh bằng *phiên bản
+mô đun trong DB* **và** *`Last-Modified` của tệp tĩnh*, không bằng mắt nhìn trang.
+Đo chỉ-đọc tại chỗ (`scratchpad/e1_uat_check.py`) còn cho một thứ quý hơn: **UAT CÓ cửa hàng âm công
+nợ** — `[HCM-01] TP HCM Quận 1` đang `-72449 $`, bẻ thành `-7244`/`9 $`, **trùng từng ký tự với ảnh
+BA**. Tức LIMIT tôi viết ("UAT không có cửa hàng nào đang âm nên không đo được ở đó") là **sai**; đã
+sửa lại ledger + ô Ghi chú trên sheet, và đổi RETEST sang chỉ đích danh cửa hàng đó cho BA.
+**Luật:** đừng suy ra "UAT không có dữ liệu ca đó" từ việc DB dev không có — mở UAT ra xem.
+
 **Số đo nghiệm thu (7/7 PASS, DB copy có cài khảo sát, cổng 8078):** 4 tile 1 hàng ở 360/390/391 ·
 cùng font `20px/700/22px` @360 và `22px/700/24.2px` @390-391 · Công nợ **1 dòng** (2 phép đo độc lập)
 với cả `-72449` và `-999999999` · text rộng nhất 48,56/63px (không tràn, `overflowX=False` 9/9) ·
