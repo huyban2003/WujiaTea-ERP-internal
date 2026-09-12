@@ -129,6 +129,35 @@ Nhân tiện chuẩn hoá nốt 1 chỗ lệch quy ước: nhóm `group_batch` t
 `string="Theo batch"` trong XML, nay về `"By batch"` + dòng dịch, đúng lối English-trong-code +
 `.po` của module này.
 
+### 7b. Diễn biến sau khi merge `origin/main` (13/09) — `.pot` bị **xoá**, và đó là lời giải tốt hơn
+
+Merge `origin/main` (`dac6fb1`, 4 commit của anh Thái) vào `main` phơi ra mặt còn lại của cùng cái bẫy:
+
+* `c64de50` (*Báo cáo cung cầu kho xuất*) thêm ~30 msgid mới vào `vi_VN.po` **và xoá luôn**
+  `custom/wujia_sale/i18n/wujia_sale.pot`.
+* Nếu lượt merge **giữ** `.pot` xuất ngày 12/09 thì đúng ~30 dòng dịch mới đó rơi vào ô obsolete
+  và bị bỏ qua im lặng — tức là mình vừa thoát bẫy cho nhãn của mình thì lại đặt bẫy cho nhãn của
+  người khác.
+* **Quyết định: nhận xoá.** Không có `.pot` ⇒ `PoFileReader` không gọi `pofile.merge()` ⇒ **toàn
+  bộ** entry trong `.po` được nạp, của cả hai phía. Đây là trạng thái **bền** hơn "giữ `.pot` và
+  nhớ xuất lại mỗi lần" vì nó không phụ thuộc trí nhớ của người commit sau.
+* Xung đột `vi_VN.po` giải theo hướng **giữ cả hai phía** (12 msgid E9a + ~30 msgid báo cáo), gộp
+  5 block trùng msgid (`Product`, `Total Amount`, `Order Date`, `By batch`) thành một entry và
+  hợp nhất các dòng `#:`. `msgfmt -c` sạch, còn **148 entry**.
+* `By batch`: hai phía dịch khác nhau (`Theo batch` của E9a ↔ `Theo chuyến xe` của upstream). Giữ
+  **`Theo batch`** cho khớp từ vựng đã có sẵn trong chính module: `No batch` → "Chưa có batch",
+  `Has a batch` → "Đã có batch", `Batch` → "Batch".
+* Xung đột `views/sale_order_views.xml`: thay đổi duy nhất của upstream trong file này là đổi nhãn
+  `"Theo batch"` → `"By batch"` — bản E9a đã có sẵn nhãn đó, nên giữ nguyên phía E9a, không mất gì.
+
+**Chạy lại test trên cây đã merge** (`wujia_tea_e9a`, `-u wujia_sale --test-tags /wujia_sale,/wujia_portal_sale`):
+**31 test · 0 failed · 1 error**. Error duy nhất là test **mới của upstream**
+`test_wujia_supply_demand_report.py:40` — `setUpClass` tạo `stock.quant` cho sản phẩm không khai
+`is_storable=True`, Odoo 19 mặc định thành `consu` nên chặn
+(`ValidationError: Quants cannot be created for consumables or services.`). Đỏ này **độc lập với
+E9a** (E9a không đụng product/quant/stock) và thuộc phần việc đang làm dở của anh Thái ⇒ **báo, không
+sửa hộ**. Cả 6 test E9a chạy đủ và xanh sau merge.
+
 ## 8. Còn treo / LIMIT
 
 1. **`fulfillment_route_id` không tồn tại** (`grep` = 0 trên toàn `custom/`) ⇒ bỏ cột "Tuyến cung

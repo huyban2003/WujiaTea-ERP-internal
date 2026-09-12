@@ -23,7 +23,7 @@ và viết mục "🔴 Bài học E&lt;n&gt;" ngay dưới khối prompt (tiền
 | Lượt | Issue (STT) | Module `-u` | Trạng thái |
 |---|---|---|---|
 | E1 | `UI-MOB-HOME-004` (133) + nợ 4 test D3 | `wujia_portal_layout` + `wujia_portal_debt` | ✅ 12/09 · `9354618` |
-| E9a | `WJ-SALE-002` (138) | `wujia_sale` | ✅ 12/09 · `65c04c8` |
+| E9a | `WJ-SALE-002` (138) | `wujia_sale` | ✅ 12/09 · `65c04c8` (merge upstream `ea9e5a6`) |
 | E9b | `WJ-FRANCHISE-004` (135) | `wujia_franchise` + **`-i wujia_franchise_contract`** | ☐ |
 | E2 | `UI-STATUSBADGE-001` (128) | `wujia_portal_layout` + 10 module portal | ☐ |
 | E3 | `UI-PAGINATION-001` (130) | `wujia_portal_layout` + 9 module | ☐ |
@@ -263,6 +263,21 @@ không thấy thêm record. Hồi quy: test `wujia_sale` + `wujia_portal_sale` 0
 6. Bản sao DB dùng để chụp màn phải **copy kèm filestore** và **xoá attachment gói giao diện**
    (`DELETE FROM ir_attachment WHERE url LIKE '/web/assets/%'`), nếu không backend trả 500 cho cả
    ba gói và Playwright chỉ thấy trang trắng.
+7. **Hệ quả của bài học 4 khi merge:** vòng merge `origin/main` ngày 13/09 cho thấy `.pot` xuất tay
+   là **con dao hai lưỡi** — anh Thái thêm ~30 msgid cho *Báo cáo cung cầu kho xuất* mà `.pot` E9a
+   (xuất 12/09) chưa có, nên nếu giữ `.pot` thì đúng ~30 dòng dịch đó bị nuốt im lặng. Anh Thái đã
+   **xoá** `custom/wujia_sale/i18n/wujia_sale.pot` ở `c64de50`; lượt merge **nhận xoá**: không có
+   `.pot` ⇒ `PoFileReader` bỏ qua bước merge ⇒ **mọi** entry trong `.po` được nạp. Kết luận cho lứa
+   E còn lại: **một là không giữ `.pot`, hai là bắt buộc xuất lại `.pot` trong CÙNG commit với mọi
+   lần thêm nhãn** — giữ `.pot` cũ là tệ nhất trong ba lựa chọn. Các module còn `.pot`
+   (`wujia_franchise`, `wujia_franchise_inspection`, `wujia_portal_knowledge`,
+   `wujia_portal_support`) đang mang đúng bẫy này, cần rà ở một lượt riêng.
+8. **Lỗi upstream ghi nhận, KHÔNG tự sửa:** `custom/wujia_sale/tests/test_wujia_supply_demand_report.py:40`
+   (`setUpClass`) tạo `stock.quant` cho sản phẩm không khai `is_storable=True` ⇒ Odoo 19 mặc định
+   `consu` ⇒ `ValidationError: Quants cannot be created for consumables or services.` Đây là test
+   **mới của anh Thái** ở `c64de50`, đỏ độc lập với E9a (E9a không đụng product/quant). Sau merge:
+   `wujia_sale` + `wujia_portal_sale` = **31 test, 0 failed, 1 error**, error duy nhất là ca này.
+   Để anh Thái sửa (một dòng `'is_storable': True` ở cả hai `Product.create`) — báo, không sửa hộ.
 
 
 ## E9b — Hợp đồng nhượng quyền nhiều kỳ (`WJ-FRANCHISE-004`, STT 135) — `-u wujia_franchise` + `-i wujia_franchise_contract`
