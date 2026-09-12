@@ -179,6 +179,23 @@ BA**. Tức LIMIT tôi viết ("UAT không có cửa hàng nào đang âm nên k
 sửa lại ledger + ô Ghi chú trên sheet, và đổi RETEST sang chỉ đích danh cửa hàng đó cho BA.
 **Luật:** đừng suy ra "UAT không có dữ liệu ca đó" từ việc DB dev không có — mở UAT ra xem.
 
+**10. Deploy thật + nâng cấp mô đun tay, đo lại trên UAT ⇒ PASS.** Vòng 2: `git pull` đã tới
+(`_components.css` trên UAT `Last-Modified 12/09 03:38`, đã có `nowrap`) nhưng **mô đun vẫn 47.0.0 /
+4.5.0** ⇒ template còn nhả `?v=1281`. Đây là trạng thái "pull rồi, chưa `-u`" — phân biệt được với
+"chưa pull" bằng đúng `Last-Modified` của tệp tĩnh. Nâng cấp tay qua XML-RPC
+`ir.module.module.button_immediate_upgrade([700, 667])` (8,5s, trả `ir.actions.act_url`), sau đó 16
+mô đun portal đều `installed` (`wujia_portal_remediation` `uninstalled` là có sẵn, không phải do lượt
+này). Đo lại trên UAT, `[HCM-01]` âm 72.449: **`-72k`, 1 dòng, cả 3 khổ**; `ws=nowrap`,
+`ovw=normal`, `fvn=tabular-nums`; hero height **216,19 → 194,19** @360 và **198,47 → 174,28**
+@390/391 (thấp đi đúng 1 dòng); `overflowX=0`; 0 JS error. Soi thêm `/portal/debt`: vẫn in **đủ số**
+`72.450,00 $` — rút gọn không lây sang màn phải in đủ.
+
+**11. IMPACT tôi viết rộng hơn sự thật.** Tôi ghi "khay Thêm của thanh dưới cũng đổi vì dùng chung
+hàm". Đọc lại `bottomnav_inherit.xml:30` thì khay đó chỉ `t-out` **`overdue_count`**, còn
+`remaining_label` của `get_shell_badge()` **không template nào render**. ⇒ bề mặt đổi thật sự **chỉ
+có 1**. Đã sửa ledger + ô Ghi chú. **Luật:** "hai chỗ dùng chung hàm" chưa đủ để kết luận hai bề mặt
+đổi — phải `grep` xem khoá trả về đó có được render không.
+
 **Số đo nghiệm thu (7/7 PASS, DB copy có cài khảo sát, cổng 8078):** 4 tile 1 hàng ở 360/390/391 ·
 cùng font `20px/700/22px` @360 và `22px/700/24.2px` @390-391 · Công nợ **1 dòng** (2 phép đo độc lập)
 với cả `-72449` và `-999999999` · text rộng nhất 48,56/63px (không tràn, `overflowX=False` 9/9) ·
