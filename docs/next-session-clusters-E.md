@@ -23,7 +23,7 @@ và viết mục "🔴 Bài học E&lt;n&gt;" ngay dưới khối prompt (tiền
 | Lượt | Issue (STT) | Module `-u` | Trạng thái |
 |---|---|---|---|
 | E1 | `UI-MOB-HOME-004` (133) + nợ 4 test D3 | `wujia_portal_layout` + `wujia_portal_debt` | ✅ 12/09 · `9354618` |
-| E9a | `WJ-SALE-002` (138) | `wujia_sale` | ☐ |
+| E9a | `WJ-SALE-002` (138) | `wujia_sale` | ✅ 12/09 · `65c04c8` |
 | E9b | `WJ-FRANCHISE-004` (135) | `wujia_franchise` + **`-i wujia_franchise_contract`** | ☐ |
 | E2 | `UI-STATUSBADGE-001` (128) | `wujia_portal_layout` + 10 module portal | ☐ |
 | E3 | `UI-PAGINATION-001` (130) | `wujia_portal_layout` + 9 module | ☐ |
@@ -235,6 +235,35 @@ không thấy thêm record. Hồi quy: test `wujia_sale` + `wujia_portal_sale` 0
 **Ledger:** `WJ-SALE-002` → `Ready for Retest`; bump `wujia_sale`.
 
 ---
+
+### 🔴 Bài học E9a (làm 12/09/2026, `65c04c8`, `Ready for Retest`, **chờ deploy UAT**)
+
+1. **`mode primary` là lời giải cho mâu thuẫn "kế thừa" ↔ "không ảnh hưởng action khác"** — bản
+   phân cụm 12/09 định dựng `<list>` độc lập, nhưng primary vừa giữ đúng chữ của BA vừa thừa
+   hưởng những thứ vô hình mà bản dựng tay dễ quên: `currency_id` (widget monetary cần),
+   `message_needaction`, `decoration-muted` đơn huỷ, nút header *Create Invoices*. Tiền lệ nằm
+   ngay trong core: `sale.sale_order_view_search_inherit_sale`.
+2. **Cột `optional="hide"` không render ⇒ thứ tự nhìn thấy chỉ phụ thuộc cột đang hiện.** Nhờ
+   vậy ra đúng 13 cột theo thứ tự BA mà **không cần `position="move"`** một lần nào — chỉ chèn
+   field + đổi thuộc tính `optional`.
+3. **Mutation "gỡ một dòng XML" có thể là phép phá RỖNG** (họ D6c M5, biến thể mới): bỏ dòng
+   `<field name="mode">primary</field>` ra khỏi bản ghi thì Odoo **không ghi lại** cột đó, giá trị
+   cũ trong DB còn nguyên ⇒ 0 test đỏ mà guard vẫn tốt. Phải phá bằng **giá trị đối lập**
+   (`extension`) mới đo được. `assert s != before` không cứu được ca này vì file *có* đổi — chỗ
+   không đổi là **cơ sở dữ liệu**.
+4. **Thêm msgid vào `vi_VN.po` là chưa đủ.** `PoFileReader` (`odoo/tools/translate.py`) gọi
+   `pofile.merge(<module>.pot)`; `polib.merge` đánh **obsolete** mọi entry vắng mặt trong `.pot`
+   và `__iter__` bỏ qua entry obsolete — **im lặng tuyệt đối, không một dòng log**. `.pot` của
+   `wujia_sale` đứng im từ 11/08 nên menu *Đơn hàng Ngô Gia* tuy đã có dòng dịch vẫn chưa bao giờ
+   ra tiếng Việt trên UAT. Cách đúng: `odoo-bin i18n export -c <conf> -d <db> -o <path> <module>`
+   rồi ghi đè `.pot`; sau đó `-u <module>` **không cần** `--i18n-overwrite`. Bẫy này áp cho **mọi
+   module** — lứa E còn lại ai thêm nhãn mới đều phải xuất lại `.pot`.
+5. **Lấy cột hiển thị phải đo trên arch ĐÃ hợp nhất** (`get_view`), không đọc `arch_base` của bản
+   ghi — bản ghi primary chỉ chứa phần chèn thêm, đọc thẳng là thấy 5 field thay vì 13.
+6. Bản sao DB dùng để chụp màn phải **copy kèm filestore** và **xoá attachment gói giao diện**
+   (`DELETE FROM ir_attachment WHERE url LIKE '/web/assets/%'`), nếu không backend trả 500 cho cả
+   ba gói và Playwright chỉ thấy trang trắng.
+
 
 ## E9b — Hợp đồng nhượng quyền nhiều kỳ (`WJ-FRANCHISE-004`, STT 135) — `-u wujia_franchise` + `-i wujia_franchise_contract`
 
