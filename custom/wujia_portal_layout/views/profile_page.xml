@@ -26,7 +26,7 @@
                             <p class="wj-pc-acct-headcard__sub" t-out="profile.email or user.login"/>
                             <div class="wj-pc-acct-headcard__chips">
                                 <span t-if="role_label" class="wj-pc-badge wj-pc-badge--confirmed" t-out="role_label"/>
-                                <span class="wj-pc-badge wj-pc-badge--done">Đang hoạt động</span>
+                                <span class="wj-status-badge wj-status-badge--success">Đang hoạt động</span>
                             </div>
                         </div>
                         <div class="wj-pc-acct-headcard__box">
@@ -76,7 +76,7 @@
                             <div class="wj-pc-acct-field">
                                 <span class="wj-pc-acct-field__label">Trạng thái tài khoản</span>
                                 <span class="wj-pc-acct-field__value wj-pc-acct-field__value--chip">
-                                    <span class="wj-pc-badge wj-pc-badge--done">Đang hoạt động</span>
+                                    <span class="wj-status-badge wj-status-badge--success">Đang hoạt động</span>
                                 </span>
                             </div>
                         </div>
@@ -110,7 +110,7 @@
                                 <span class="wujia-maccount-name" t-out="user.name"/>
                                 <span class="wujia-maccount-login" t-out="user.login"/>
                             </div>
-                            <span class="wujia-badge wujia-badge-success">Active</span>
+                            <span class="wj-status-badge wj-status-badge--success">Active</span>
                         </div>
                         <div class="wujia-maccount-kvlist">
                             <div class="wujia-maccount-kv">

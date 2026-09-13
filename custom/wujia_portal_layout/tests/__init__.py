@@ -4,3 +4,4 @@ from . import test_d3_card_header
 from . import test_d4_surface_card
 from . import test_d5_data_list
 from . import test_e1_home_kpi
+from . import test_e2_status_badge

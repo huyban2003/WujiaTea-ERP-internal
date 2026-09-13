@@ -44,6 +44,7 @@ from odoo.addons.wujia_portal_base.controllers.utils import (
     portal_money,
     portal_tax_mapper,
     rate_limit,
+    status_badge_for,
 )
 # Nhãn trạng thái SO dùng CHUNG với trang Lịch sử đặt hàng — không nhân bản dict
 # (draft → 'Chờ xác nhận'); màn kết quả và trang lịch sử phải luôn nói giống nhau.
@@ -1010,6 +1011,7 @@ class WujiaPortalSale(http.Controller):
             'order_has_tax': bool(order.currency_id.compare_amounts(order.amount_tax, 0.0)),
             'order_state_label': label,
             'order_status_type': status_type,
+            'order_status_badge': status_badge_for(label),  # CMP-SB-001
             **self._order_window_context(franchise),
         })
 

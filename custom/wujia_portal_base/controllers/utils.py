@@ -385,22 +385,76 @@ ROLE_RANK = {'staff': 1, 'manager': 2, 'owner': 3}
 # Sprint 13). Nhãn theo Figma; nguồn state thật, chỉ nhãn là mobile-riêng.
 # ---------------------------------------------------------------------------
 
-MOBILE_ORDER_BADGES = {
-    'draft':  ('Nháp', 'wujia-badge-muted'),
-    'sent':   ('Đã gửi', 'wujia-badge-info'),
-    'sale':   ('Đã xác nhận', 'wujia-badge-success'),
-    'done':   ('Hoàn tất', 'wujia-badge-success'),
-    'cancel': ('Đã hủy', 'wujia-badge-danger'),
+# ---------------------------------------------------------------------------
+# StatusBadge CMP-SB-001 (cụm E2) — NGUỒN DUY NHẤT của variant badge trạng thái
+# ---------------------------------------------------------------------------
+#
+# Trước E2 mỗi màn tự chọn class: cùng "Đã xác nhận" ra xanh lá ở mobile
+# (wujia-badge-success) và xanh dương ở PC (wj-pc-badge--confirmed) — đúng lỗi
+# BA nêu ở UI-STATUSBADGE-001. Nay map NHÃN → variant, PC/mobile dùng chung.
+#
+# BA giao mapping cho Dev ("Dev cần lập mapping theo trạng thái thực tế từng
+# module", ô RỦI RO của spec). Nhãn nào BA đã nêu thì theo ĐÚNG BA, kể cả khi
+# "Sắp giao" và "Đang giao" cùng ra processing trên /portal/delivery — BA cho
+# phép phân biệt bằng CHỮ ("không truyền đạt trạng thái chỉ bằng màu").
+
+STATUS_BADGE_BASE = 'wj-status-badge'
+STATUS_BADGE_VARIANTS = ('neutral', 'info', 'pending', 'processing',
+                         'success', 'danger', 'feedback')
+
+# Nhãn hiển thị (đúng chữ trên màn) → variant.
+STATUS_VARIANT_BY_LABEL = {
+    # neutral — chưa bắt đầu
+    'Nháp': 'neutral', 'Chưa bắt đầu': 'neutral', 'Đã đóng': 'neutral',
+    # info — mới / đã xác nhận (BA khoá: "Đã xác nhận" phải info)
+    'Mới': 'info', 'Đã xác nhận': 'info',
+    # pending — đang chờ một bên khác
+    'Chờ xác nhận': 'pending', 'Chờ xử lý': 'pending', 'Chưa xử lý': 'pending',
+    'Đã gửi': 'pending', 'Chờ duyệt': 'pending',
+    # processing — đang chạy ("Chuẩn bị giao" là ví dụ BA ghi thẳng ở bậc này)
+    'Chuẩn bị giao': 'processing', 'Sắp giao': 'processing',
+    'Đang xử lý': 'processing', 'Đang giao': 'processing', 'Đang xét': 'processing',
+    'Đã lên đơn bù': 'processing', 'Đang bù một phần': 'processing',
+    # success — xong
+    'Đã duyệt': 'success', 'Đã giao': 'success', 'Đã giao xong': 'success',
+    'Hoàn tất': 'success', 'Hoàn thành': 'success', 'Đã bù đủ': 'success',
+    'Đã giải quyết': 'success', 'Đạt': 'success', 'Đang hoạt động': 'success',
+    # danger — hỏng / dừng
+    'Từ chối': 'danger', 'Đã hủy': 'danger', 'Đã huỷ': 'danger',
+    'Hủy chuyến': 'danger', 'Quá hạn': 'danger', 'Không đạt': 'danger',
+    # feedback — cần người dùng làm gì đó
+    'Có phản hồi': 'feedback', 'Cần bổ sung': 'feedback',
 }
 
-# Figma 2474:187/197: "Đang giao"=info cyan / "Chuẩn bị giao"=muted.
+
+def status_badge(variant):
+    """'wj-status-badge--info' — variant lạ rơi về neutral, không bao giờ ra rỗng."""
+    if variant not in STATUS_BADGE_VARIANTS:
+        variant = 'neutral'
+    return '%s--%s' % (STATUS_BADGE_BASE, variant)
+
+
+def status_badge_for(label, default='neutral'):
+    """Class modifier theo NHÃN hiển thị — dùng khi màn chưa có key ngữ nghĩa."""
+    return status_badge(STATUS_VARIANT_BY_LABEL.get(label, default))
+
+
+MOBILE_ORDER_BADGES = {
+    'draft':  ('Nháp', status_badge('neutral')),
+    'sent':   ('Đã gửi', status_badge('pending')),
+    'sale':   ('Đã xác nhận', status_badge('info')),
+    'done':   ('Hoàn tất', status_badge('success')),
+    'cancel': ('Đã hủy', status_badge('danger')),
+}
+
+# CMP-SB-001: cả hai bậc giao hàng đều là processing theo ví dụ BA.
 MOBILE_BATCH_BADGES = {
-    'draft':      ('Chuẩn bị giao', 'wujia-badge-muted'),
-    'assigned':   ('Chuẩn bị giao', 'wujia-badge-muted'),
-    'loading':    ('Chuẩn bị giao', 'wujia-badge-muted'),
-    'delivering': ('Đang giao', 'wujia-badge-info'),
-    'done':       ('Đã giao xong', 'wujia-badge-success'),
-    'cancelled':  ('Hủy chuyến', 'wujia-badge-danger'),
+    'draft':      ('Chuẩn bị giao', status_badge('processing')),
+    'assigned':   ('Chuẩn bị giao', status_badge('processing')),
+    'loading':    ('Chuẩn bị giao', status_badge('processing')),
+    'delivering': ('Đang giao', status_badge('processing')),
+    'done':       ('Đã giao xong', status_badge('success')),
+    'cancelled':  ('Hủy chuyến', status_badge('danger')),
 }
 
 # Sprint 17 — nhãn MOBILE cho "Yêu cầu đổi trả gần đây" (Figma 2474:206/213:
@@ -408,14 +462,14 @@ MOBILE_BATCH_BADGES = {
 # về đây để Home (section gộp Sprint 16) + delivery dùng chung. UI-only, TÁCH
 # STATE_LABELS desktop của wujia_portal_return; nguồn state thật wujia.return.request.
 MOBILE_RETURN_BADGES = {
-    'draft':      ('Nháp', 'wujia-badge-muted'),
-    'submitted':  ('Chờ xử lý', 'wujia-badge-info'),
-    'reviewing':  ('Đang xét', 'wujia-badge-warning'),
-    'approved':   ('Đã duyệt', 'wujia-badge-success'),
-    'processing': ('Đang xử lý', 'wujia-badge-warning'),
-    'done':       ('Hoàn thành', 'wujia-badge-success'),
-    'rejected':   ('Từ chối', 'wujia-badge-danger'),
-    'cancelled':  ('Đã huỷ', 'wujia-badge-muted'),
+    'draft':      ('Nháp', status_badge('neutral')),
+    'submitted':  ('Chờ xử lý', status_badge('pending')),
+    'reviewing':  ('Đang xét', status_badge('processing')),
+    'approved':   ('Đã duyệt', status_badge('success')),
+    'processing': ('Đang xử lý', status_badge('processing')),
+    'done':       ('Hoàn thành', status_badge('success')),
+    'rejected':   ('Từ chối', status_badge('danger')),
+    'cancelled':  ('Đã huỷ', status_badge('danger')),
 }
 
 # Sprint 17 — nhãn MOBILE cho ticket hỗ trợ (Figma Mobile_Ticket). UI-only,
@@ -423,12 +477,12 @@ MOBILE_RETURN_BADGES = {
 # 'waiting_customer'="Có phản hồi" (mobile/Figma) ≠ desktop "Chờ phản hồi" —
 # drift chủ đích, đối chiếu BA. Nguồn state thật wujia.support.ticket.state.
 MOBILE_TICKET_BADGES = {
-    'new':              ('Mới', 'wujia-badge-info'),
-    'in_progress':      ('Đang xử lý', 'wujia-badge-warning'),
-    'waiting_customer': ('Có phản hồi', 'wujia-badge-info'),
-    'resolved':         ('Đã giải quyết', 'wujia-badge-success'),
-    'closed':           ('Đã đóng', 'wujia-badge-muted'),
-    'cancelled':        ('Đã huỷ', 'wujia-badge-danger'),
+    'new':              ('Mới', status_badge('info')),
+    'in_progress':      ('Đang xử lý', status_badge('processing')),
+    'waiting_customer': ('Có phản hồi', status_badge('feedback')),
+    'resolved':         ('Đã giải quyết', status_badge('success')),
+    'closed':           ('Đã đóng', status_badge('neutral')),
+    'cancelled':        ('Đã huỷ', status_badge('danger')),
 }
 
 VI_WEEKDAYS = {0: 'Thứ 2', 1: 'Thứ 3', 2: 'Thứ 4', 3: 'Thứ 5',
@@ -543,7 +597,7 @@ def get_upcoming_batches(franchise_ids, limit=2):
             'order_names': format_order_names(orders.mapped('name')),
             'total': sum(orders.mapped('amount_total')),
             'badge': MOBILE_BATCH_BADGES.get(
-                batch.delivery_batch_status, ('Chuẩn bị giao', 'wujia-badge-muted'),
+                batch.delivery_batch_status, ('Chuẩn bị giao', status_badge('processing')),
             ),
         })
     return {'items': items, 'undelivered_count': count_undelivered_orders(franchise_ids)}

@@ -14,6 +14,7 @@ from odoo.addons.wujia_portal_base.controllers.utils import (
     batch_franchise_domain, departure_label, departure_value, format_order_names,
     group_counts, local_day_range_utc, own_pickings, page_numbers, portal_tz,
     to_local_dt,
+    status_badge,
 )
 
 _logger = logging.getLogger(__name__)
@@ -37,17 +38,18 @@ def _ics_dt(dt):
 
 PAGE_SIZE = 20
 
-# Batch badge (label, css-modifier) theo delivery_batch_status.
-# Mobile → .wujia-mdelivery-badge--*  |  PC desktop → .wj-pc-badge--dlv-*
+# Batch badge (label, class modifier) theo delivery_batch_status.
+# E2 CMP-SB-001: PC và mobile dùng CHUNG variant, hết hai họ .wujia-mdelivery-badge--*
+# và .wj-pc-badge--dlv-*. Variant theo ĐÚNG bậc BA ghi ("Chuẩn bị giao" = processing).
 MOBILE_BATCH_BADGE = {
-    'draft': ('Sắp giao', 'soon'),
-    'assigned': ('Sắp giao', 'soon'),
-    'loading': ('Sắp giao', 'soon'),
-    'delivering': ('Đang giao', 'going'),
-    'done': ('Đã giao', 'done'),
-    'cancelled': ('Đã hủy', 'muted'),
+    'draft': ('Sắp giao', status_badge('processing')),
+    'assigned': ('Sắp giao', status_badge('processing')),
+    'loading': ('Sắp giao', status_badge('processing')),
+    'delivering': ('Đang giao', status_badge('processing')),
+    'done': ('Đã giao', status_badge('success')),
+    'cancelled': ('Đã hủy', status_badge('danger')),
 }
-PC_BATCH_BADGE = MOBILE_BATCH_BADGE  # cùng label/nhóm; PC dùng class wj-pc-badge--dlv-<modifier>
+PC_BATCH_BADGE = MOBILE_BATCH_BADGE  # một nguồn cho cả hai khổ
 
 # Chip lọc (Tất cả/Sắp giao/Đang giao/Đã giao) → nhóm delivery_batch_status.
 BATCH_STATUS_GROUP = {
@@ -151,7 +153,7 @@ class WujiaPortalDelivery(http.Controller):
             for b in recs:
                 own = own_pickings(b, franchise_ids)
                 label, modifier = MOBILE_BATCH_BADGE.get(
-                    b.delivery_batch_status, (b.delivery_batch_status or '—', 'muted'))
+                    b.delivery_batch_status, (b.delivery_batch_status or '—', status_badge('neutral')))
                 v = b.vehicle_id
                 vehicle_str = ('%s · %s' % (v.name, v.driver_name)) if v and v.driver_name else (v.name if v else '—')
                 upd = b.actual_departure or b.write_date
@@ -255,7 +257,7 @@ class WujiaPortalDelivery(http.Controller):
             row['qty'] += mv.product_uom_qty or 0.0
 
         label, modifier = MOBILE_BATCH_BADGE.get(
-            batch.delivery_batch_status, (batch.delivery_batch_status or '—', 'muted'))
+            batch.delivery_batch_status, (batch.delivery_batch_status or '—', status_badge('neutral')))
         updated = batch.actual_departure or batch.write_date
         tz = portal_tz()
 

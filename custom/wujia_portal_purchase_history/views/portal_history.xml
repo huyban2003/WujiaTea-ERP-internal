@@ -8,10 +8,7 @@
          'mbody' (list/empty + pager mobile). Trang đầy đủ t-call từng mảnh đúng chỗ;
          /portal/purchase-history/results trả cả 7 để JS thay tại chỗ. -->
     <template id="portal_history_results_part" name="Wujia Portal — History Results Part">
-        <!-- status_type → badge CSS. Controller trả status_type ngữ nghĩa, template map sang
-             hệ badge riêng (PC / mobile) — logic/label đã tập trung ở controller. -->
-        <t t-set="pc_badge" t-value="{'pending': 'wj-pc-badge--pending', 'sent': 'wj-pc-badge--sent', 'confirmed': 'wj-pc-badge--confirmed', 'transit': 'wj-pc-badge--transit', 'done': 'wj-pc-badge--done'}"/>
-        <t t-set="mobile_badge" t-value="{'pending': 'wujia-badge-muted', 'sent': 'wujia-badge-info', 'confirmed': 'wujia-badge-success', 'transit': 'wujia-badge-warning', 'done': 'wujia-badge-success'}"/>
+        <!-- CMP-SB-001: variant badge do controller trả ở khoá 'badge' (một nguồn PC+mobile). -->
 
         <!-- Lỗi khoảng ngày báo tại FilterBar, KHÔNG dùng empty state (WJ-PH-007) -->
         <p t-if="part == 'pcerr'" id="wj-hist-pcerr" class="wj-filter-error" role="alert"
@@ -76,7 +73,7 @@
                         <td class="text-end wj-pc-td--amount" t-out="money(r['amount_total'], r['currency_symbol'], r['currency_decimals'])"/>
                         <td t-out="r['batch_name'] or 'Chưa giao'"/>
                         <td>
-                            <span t-attf-class="wj-pc-badge #{pc_badge.get(r['status_type'], 'wj-pc-badge--pending')}" t-out="r['state_label']"/>
+                            <span t-attf-class="wj-status-badge #{r['badge']}" t-out="r['state_label']"/>
                         </td>
                     </tr>
                 </tbody>
@@ -167,7 +164,7 @@
                                   t-out="r['create_date'] and r['create_date'].strftime('%H:%M · %d/%m/%Y') or ''"/>
                         </span>
                         <span class="wujia-mhist-row-side">
-                            <span t-attf-class="wujia-badge #{mobile_badge.get(r['status_type'], 'wujia-badge-muted')}" t-out="r['state_label']"/>
+                            <span t-attf-class="wj-status-badge #{r['badge']}" t-out="r['state_label']"/>
                             <span class="wujia-mhist-row-amount"
                                   t-out="money(r['amount_total'], r['currency_symbol'], r['currency_decimals'])"/>
                         </span>
@@ -342,8 +339,6 @@
     <template id="portal_history_detail" name="Wujia Portal — Purchase History Detail">
         <t t-call="wujia_portal_layout.app_layout">
             <t t-set="title" t-value="detail and detail['header']['name'] or 'Chi tiết đơn hàng'"/>
-            <t t-set="pc_badge" t-value="{'pending': 'wj-pc-badge--pending', 'sent': 'wj-pc-badge--sent', 'confirmed': 'wj-pc-badge--confirmed', 'transit': 'wj-pc-badge--transit', 'done': 'wj-pc-badge--done'}"/>
-            <t t-set="mobile_badge" t-value="{'pending': 'wujia-badge-muted', 'sent': 'wujia-badge-info', 'confirmed': 'wujia-badge-success', 'transit': 'wujia-badge-warning', 'done': 'wujia-badge-success'}"/>
             <div class="content-wrapper">
 
                 <!-- Không tìm thấy / không có quyền — cùng 1 message (không lộ tồn tại) -->
@@ -405,7 +400,7 @@
                                     <t t-set="ch_variant" t-value="'regular'"/>
                                     <t t-set="ch_class" t-value="'wj-card-header--flush'"/>
                                     <t t-set="ch_meta">
-                                        <span t-attf-class="wj-pc-badge #{pc_badge.get(h['status_type'], 'wj-pc-badge--pending')}" t-out="h['state_label']"/>
+                                        <span t-attf-class="wj-status-badge #{h['badge']}" t-out="h['state_label']"/>
                                     </t>
                                 </t>
                                 <!-- Dòng meta CỐ Ý ở lại là nội dung card, KHÔNG làm ch_subtitle:
@@ -536,7 +531,7 @@
                         <div class="wujia-mhist-summary">
                             <div class="wujia-mhist-summary-top">
                                 <span class="wujia-mhist-summary-code" t-out="h['name']"/>
-                                <span t-attf-class="wujia-badge #{mobile_badge.get(h['status_type'], 'wujia-badge-muted')}" t-out="h['state_label']"/>
+                                <span t-attf-class="wj-status-badge #{h['badge']}" t-out="h['state_label']"/>
                             </div>
                             <div class="wujia-mhist-summary-bottom">
                                 <span class="wujia-mhist-summary-date"

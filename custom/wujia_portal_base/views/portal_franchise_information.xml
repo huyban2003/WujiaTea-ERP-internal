@@ -45,7 +45,7 @@
                         </h2>
                         <p class="wj-pc-acct-headcard__sub wj-pc-acct-headcard__sub--sm">Cửa hàng nhượng quyền đang thao tác trên portal</p>
                         <div class="wj-pc-acct-headcard__chips">
-                            <span t-attf-class="wj-pc-badge #{franchise.status == 'active' and 'wj-pc-badge--done' or 'wj-pc-badge--warn'}" t-out="status_label"/>
+                            <span t-attf-class="wj-status-badge #{franchise.status == 'active' and 'wj-status-badge--success' or 'wj-status-badge--pending'}" t-out="status_label"/>
                             <span t-if="franchise.area_id" class="wj-pc-badge wj-pc-badge--area">Khu vực <t t-out="franchise.area_id.name"/></span>
                         </div>
                     </div>
@@ -86,7 +86,7 @@
                         <div class="wj-pc-acct-field">
                             <span class="wj-pc-acct-field__label">Trạng thái nhượng quyền</span>
                             <span class="wj-pc-acct-field__value wj-pc-acct-field__value--chip">
-                                <span t-attf-class="wj-pc-badge #{franchise.status == 'active' and 'wj-pc-badge--done' or 'wj-pc-badge--warn'}" t-out="status_label"/>
+                                <span t-attf-class="wj-status-badge #{franchise.status == 'active' and 'wj-status-badge--success' or 'wj-status-badge--pending'}" t-out="status_label"/>
                             </span>
                         </div>
                         <div class="wj-pc-acct-field">
@@ -125,8 +125,8 @@
                                                   t-out="role_labels.get(m.role, m.role)"/>
                                         </td>
                                         <td>
-                                            <span t-if="m.active" class="wj-pc-badge wj-pc-badge--done">Đang hoạt động</span>
-                                            <span t-else="" class="wj-pc-badge wj-pc-badge--warn">Tạm khóa</span>
+                                            <span t-if="m.active" class="wj-status-badge wj-status-badge--success">Đang hoạt động</span>
+                                            <span t-else="" class="wj-status-badge wj-status-badge--pending">Tạm khóa</span>
                                         </td>
                                     </tr>
                                 </tbody>
@@ -197,7 +197,7 @@
                     </t>
                     <div class="wujia-maccount-badgerow">
                         <span class="wujia-badge wujia-badge-info" t-out="franchise.code or '—'"/>
-                        <span class="wujia-badge wujia-badge-success"
+                        <span t-attf-class="wj-status-badge #{franchise.status == 'active' and 'wj-status-badge--success' or 'wj-status-badge--pending'}"
                               t-out="status_labels.get(franchise.status, franchise.status)"/>
                     </div>
                     <p class="wujia-maccount-store-sub"
@@ -246,7 +246,7 @@
                         <div class="wujia-maccount-kv">
                             <span class="wujia-maccount-kv-key">Còn lại</span>
                             <span class="wujia-maccount-kv-val">
-                                <span t-if="franchise.is_expired" class="wujia-badge wujia-badge-danger">Đã hết hạn</span>
+                                <span t-if="franchise.is_expired" class="wj-status-badge wj-status-badge--danger">Đã hết hạn</span>
                                 <t t-else=""><t t-out="franchise.remaining_days"/> ngày</t>
                             </span>
                         </div>
@@ -280,8 +280,8 @@
                                 <span class="wujia-mdash-row-sub"
                                       t-out="(m.user_id.login or '—') + ' · ' + (m.user_id.partner_id.email or '—')"/>
                             </span>
-                            <span t-if="m.active" class="wujia-badge wujia-badge-success">Active</span>
-                            <span t-else="" class="wujia-badge wujia-badge-muted">Inactive</span>
+                            <span t-if="m.active" class="wj-status-badge wj-status-badge--success">Active</span>
+                            <span t-else="" class="wj-status-badge wj-status-badge--neutral">Inactive</span>
                         </div>
                     </t>
                 </t>

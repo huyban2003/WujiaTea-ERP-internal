@@ -77,8 +77,7 @@
                         <div class="wujia-mres-info-row">
                             <dt class="wujia-mres-info-label">Trạng thái</dt>
                             <dd class="wujia-mres-info-value">
-                                <!-- status_type dùng chung với trang Lịch sử (draft = Chờ xác nhận). -->
-                                <span t-attf-class="wujia-mres-badge wujia-mres-badge--#{order_status_type}"
+                                <span t-attf-class="wj-status-badge #{order_status_badge}"
                                       t-out="order_state_label"/>
                             </dd>
                         </div>

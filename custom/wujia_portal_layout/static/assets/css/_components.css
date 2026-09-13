@@ -129,6 +129,35 @@ h2, .wujia-h2 { font-size: var(--wujia-font-size-h2) !important; font-weight: 60
     min-height: var(--wujia-btn-height);
 }
 
+/* ---------- StatusBadge CMP-SB-001 (cụm E2) ----------
+   MỘT class nền cho cả PC lẫn mobile — BA cấm biến thể theo route/breakpoint.
+   Đặt ở tầng dùng chung (_components.css nạp trước _pc_components.css). */
+.wj-status-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    height: var(--wj-sb-h);
+    min-width: var(--wj-sb-min-w);
+    padding: 0 14px;
+    border: 0;
+    border-radius: var(--wj-sb-radius);
+    box-shadow: none;
+    font-size: 13px;
+    font-weight: 600;
+    line-height: 1;
+    white-space: nowrap;
+    text-align: center;
+    background: var(--wj-sb-neutral-bg);
+    color: var(--wj-sb-neutral-fg);
+}
+.wj-status-badge--neutral    { background: var(--wj-sb-neutral-bg);    color: var(--wj-sb-neutral-fg); }
+.wj-status-badge--info       { background: var(--wj-sb-info-bg);       color: var(--wj-sb-info-fg); }
+.wj-status-badge--pending    { background: var(--wj-sb-pending-bg);    color: var(--wj-sb-pending-fg); }
+.wj-status-badge--processing { background: var(--wj-sb-processing-bg); color: var(--wj-sb-processing-fg); }
+.wj-status-badge--success    { background: var(--wj-sb-success-bg);    color: var(--wj-sb-success-fg); }
+.wj-status-badge--danger     { background: var(--wj-sb-danger-bg);     color: var(--wj-sb-danger-fg); }
+.wj-status-badge--feedback   { background: var(--wj-sb-feedback-bg);   color: var(--wj-sb-feedback-fg); }
+
 /* ---------- UI-13: Soft status badges ---------- */
 .wujia-badge {
     display: inline-block;
@@ -754,7 +783,8 @@ h2, .wujia-h2 { font-size: var(--wujia-font-size-h2) !important; font-weight: 60
 .wujia-content-card-table:not(.wj-data-table) th.text-center {
     text-align: center;
 }
-.wujia-content-card-table:not(.wj-data-table) .wujia-badge {
+.wujia-content-card-table:not(.wj-data-table) .wujia-badge,
+.wujia-content-card-table:not(.wj-data-table) .wj-status-badge {
     white-space: nowrap;
 }
 
@@ -811,7 +841,8 @@ h2, .wujia-h2 { font-size: var(--wujia-font-size-h2) !important; font-weight: 60
 .wj-data-table th.text-center {
     text-align: center;
 }
-.wj-data-table .wujia-badge {
+.wj-data-table .wujia-badge,
+.wj-data-table .wj-status-badge {
     white-space: nowrap;
 }
 
@@ -2724,7 +2755,8 @@ a.wujia-mhome-kpi:active { opacity: 0.85; }
        hưởng luôn hover/pressed/focus của _interaction.css (C6). */
     .wujia-mdash-row.is-stacked:not(.wj-data-item) { align-items: flex-start; }
     .wujia-mdash-row.is-stacked .wujia-mdash-row-main { gap: 4px; }
-    .wujia-mdash-row.is-stacked .wujia-badge { align-self: flex-start; }
+    .wujia-mdash-row.is-stacked .wujia-badge,
+    .wujia-mdash-row.is-stacked .wj-status-badge { align-self: flex-start; }
 
     .wujia-mdash-tile {
         flex: 0 0 auto;
@@ -2797,7 +2829,8 @@ a.wujia-mhome-kpi:active { opacity: 0.85; }
     }
     .wujia-mdash-row-sub.is-xs { font-size: 11px; }
 
-        .wujia-mdash-row .wujia-badge { flex: 0 0 auto; white-space: nowrap; }
+        .wujia-mdash-row .wujia-badge,
+        .wujia-mdash-row .wj-status-badge { flex: 0 0 auto; white-space: nowrap; }
 
 /* Sprint 17 — Mobile Ticket Hỗ trợ (Figma Mobile_Ticket) — List/Create/Detail… */
 @media (max-width: 991.98px) {
@@ -2949,7 +2982,8 @@ a.wujia-mhome-kpi:active { opacity: 0.85; }
         font-size: 13px;
         color: var(--wujia-morder-text-sub);
     }
-    .wujia-maccount-head .wujia-badge { flex: 0 0 auto; align-self: flex-start; }
+    .wujia-maccount-head .wujia-badge,
+    .wujia-maccount-head .wj-status-badge { flex: 0 0 auto; align-self: flex-start; }
 
     /* ---------- Key-value list (ngang: nhãn trái / giá trị phải) ---------- */
     .wujia-maccount-kvlist { display: flex; flex-direction: column; }
@@ -2975,12 +3009,16 @@ a.wujia-mhome-kpi:active { opacity: 0.85; }
         text-align: right;
         word-break: break-word;
     }
-    .wujia-maccount-kv-val .wujia-badge { vertical-align: middle; }
+    .wujia-maccount-kv-val .wujia-badge,
+    .wujia-maccount-kv-val .wj-status-badge { vertical-align: middle; }
 
     /* ---------- Store card (màn 02) ---------- */
     .wujia-maccount-badgerow {
         display: flex;
         flex-wrap: wrap;
+        /* `stretch` mặc định kéo chip mã cửa hàng (ngoài phạm vi CMP-SB-001) cao
+           theo StatusBadge 28px — kiểm chéo E2 bắt được 26,8 → 28. */
+        align-items: center;
         gap: 8px;
         margin-bottom: 10px;
     }

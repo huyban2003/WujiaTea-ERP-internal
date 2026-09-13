@@ -69,7 +69,7 @@
                                 <span t-if="b['departure_actual']" class="wj-count-meta"> (thực tế)</span>
                             </td>
                             <td t-out="b['orders']"/>
-                            <td><span t-attf-class="wj-pc-badge wj-pc-badge--dlv-#{b['pc_modifier']}" t-out="b['pc_label']"/></td>
+                            <td><span t-attf-class="wj-status-badge #{b['pc_modifier']}" t-out="b['pc_label']"/></td>
                             <td t-out="b['vehicle']"/>
                             <td t-out="b['plate']"/>
                             <td class="wj-pc-td--muted" t-out="b['updated']"/>
@@ -166,7 +166,7 @@
                                 <span class="wujia-mdelivery-row-label">Chuyến xe</span>
                                 <span class="wujia-mdelivery-row-id" t-out="b['name']"/>
                             </span>
-                            <span t-attf-class="wujia-mdelivery-badge wujia-mdelivery-badge--#{b['modifier']}"
+                            <span t-attf-class="wj-status-badge #{b['modifier']}"
                                   t-out="b['label']"/>
                         </span>
                         <span class="wujia-mdelivery-row-divider"/>
@@ -393,7 +393,7 @@
                             <t t-set="ch_platform" t-value="'pc'"/>
                             <t t-set="ch_class" t-value="'wj-card-header--flush'"/>
                             <t t-set="ch_meta">
-                                <span t-attf-class="wj-pc-badge wj-pc-badge--dlv-#{pc_badge[1]}" t-out="pc_badge[0]"/>
+                                <span t-attf-class="wj-status-badge #{pc_badge[1]}" t-out="pc_badge[0]"/>
                             </t>
                         </t>
                     </div>
@@ -532,7 +532,7 @@
                     <t t-set="sc_class" t-value="'wujia-mdash-card'"/>
                     <div class="wujia-mdelivery-inf-top">
                         <span class="wujia-mdelivery-row-label">Chuyến xe</span>
-                        <span t-attf-class="wujia-mdelivery-badge wujia-mdelivery-badge--#{m_badge[1]}" t-out="m_badge[0]"/>
+                        <span t-attf-class="wj-status-badge #{m_badge[1]}" t-out="m_badge[0]"/>
                     </div>
                     <div class="wujia-mdelivery-inf-id" t-out="batch.name"/>
                     <div class="wujia-mdelivery-row-divider"/>

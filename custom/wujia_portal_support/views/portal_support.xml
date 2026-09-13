@@ -196,8 +196,8 @@
                                     <span t-if="tk.category_id" class="wujia-mticket-tag" t-out="tk.category_id.name"/>
                                 </span>
                                 <span class="wujia-mticket-rowside">
-                                    <t t-set="lbl" t-value="m_ticket_badges.get(tk.state, (tk.state, 'wujia-badge-muted'))"/>
-                                    <span t-attf-class="wujia-badge #{lbl[1]}" t-out="lbl[0]"/>
+                                    <t t-set="lbl" t-value="m_ticket_badges.get(tk.state, (tk.state, 'wj-status-badge--neutral'))"/>
+                                    <span t-attf-class="wj-status-badge #{lbl[1]}" t-out="lbl[0]"/>
                                     <span class="wujia-mdash-row-sub"
                                           t-out="tk.create_date and tk.create_date.strftime('%d/%m') or ''"/>
                                 </span>
@@ -530,8 +530,8 @@
                     <t t-set="sc_class" t-value="'wujia-mdash-card'"/>
                     <div class="d-flex align-items-center justify-content-between mb-2">
                         <span class="wujia-mdash-row-sub is-primary" t-out="ticket.name"/>
-                        <t t-set="lbl" t-value="m_ticket_badges.get(ticket.state, (ticket.state, 'wujia-badge-muted'))"/>
-                        <span t-attf-class="wujia-badge #{lbl[1]}" t-out="lbl[0]"/>
+                        <t t-set="lbl" t-value="m_ticket_badges.get(ticket.state, (ticket.state, 'wj-status-badge--neutral'))"/>
+                        <span t-attf-class="wj-status-badge #{lbl[1]}" t-out="lbl[0]"/>
                     </div>
                     <p class="wujia-mdash-row-title mb-0" style="white-space:normal;" t-out="ticket.title"/>
                 </t>

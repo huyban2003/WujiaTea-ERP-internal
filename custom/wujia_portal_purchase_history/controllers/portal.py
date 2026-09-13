@@ -9,6 +9,7 @@ from odoo.addons.wujia_portal_base.controllers.portal import get_active_franchis
 from odoo.addons.wujia_portal_base.controllers.utils import (
     local_day_range_utc, page_numbers, portal_line_price_vals, portal_money,
     portal_tax_mapper, portal_tz, to_local_dt,
+    status_badge_for,
 )
 
 
@@ -122,6 +123,9 @@ def _history_row_vals(order, line_count_map, batch_status_labels, tz):
         'date_order': to_local_dt(order.date_order, tz),
         'state_label': label,
         'status_type': status_type,
+        # CMP-SB-001: variant lấy từ NHÃN qua map dùng chung — PC và mobile
+        # cùng một giá trị, hết cảnh "Đã xác nhận" xanh lá ở mobile / xanh dương ở PC.
+        'badge': status_badge_for(label),
         'amount_total': order.amount_total,
         'currency_symbol': order.currency_id.symbol or '',
         'currency_decimals': order.currency_id.decimal_places or 0,
@@ -172,6 +176,9 @@ def _history_detail_vals(order, batch_status_labels, tz):
         'date_order': to_local_dt(order.date_order, tz),
         'state_label': label,
         'status_type': status_type,
+        # CMP-SB-001: variant lấy từ NHÃN qua map dùng chung — PC và mobile
+        # cùng một giá trị, hết cảnh "Đã xác nhận" xanh lá ở mobile / xanh dương ở PC.
+        'badge': status_badge_for(label),
         'amount_total': order.amount_total,
         'currency_symbol': order.currency_id.symbol or '',
         'currency_decimals': order.currency_id.decimal_places or 0,

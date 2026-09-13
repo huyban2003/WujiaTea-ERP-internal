@@ -25,7 +25,8 @@ và viết mục "🔴 Bài học E&lt;n&gt;" ngay dưới khối prompt (tiền
 | E1 | `UI-MOB-HOME-004` (133) + nợ 4 test D3 | `wujia_portal_layout` + `wujia_portal_debt` | ✅ 12/09 · `9354618` |
 | E9a | `WJ-SALE-002` (138) | `wujia_sale` | ✅ 12/09 · `65c04c8` (merge upstream `ea9e5a6`) |
 | E9b | `WJ-FRANCHISE-004` (135) | `wujia_franchise` + **`-u wujia_franchise_contract`** (UAT đã cài sẵn bản cũ) | ✅ 13/09 |
-| E2 | `UI-STATUSBADGE-001` (128) | `wujia_portal_layout` + 10 module portal | ☐ |
+| E2a | `UI-STATUSBADGE-001` (128) — nền component + nhóm màn BA audit | `wujia_portal_layout`, `_base`, `_purchase_history`, `_delivery`, `_sale`, `_support` | ✅ 13/09 · `eb10937` · 114→77 call site cũ, 65 call site mới |
+| E2b | `UI-STATUSBADGE-001` (128) — 7 màn còn lại + 3 override lệch spec + đóng issue | `notification`, `exam`, `return`, `debt`, `knowledge`, `info_request`, `support` | ☐ (kiểm kê sẵn ở `docs/e2-statusbadge-inventory.md`) |
 | E3 | `UI-PAGINATION-001` (130) | `wujia_portal_layout` + 9 module | ☐ |
 | E4 | `UI-FILTER-001` (139) | `wujia_portal_layout` + 9 module | ☐ |
 | E5 | `UI-LISTCARD-001` (136) | `wujia_portal_layout` + 8 module | ☐ |
@@ -399,6 +400,24 @@ grep -rn "badge" custom/wujia_portal_*/controllers/*.py | grep -oE "['\"][a-z_-]
 **Ràng buộc đo được:** 100% badge trạng thái trong scope là `.wj-status-badge` (inspection defer ghi số) ·
 28/84/14/14/13-600 · 0 xuống dòng, 0 ellipsis, 0 tràn ngang 5 khổ · "Đã xác nhận" info · contrast AA ·
 5 họ ngoài phạm vi 0 đổi · test 0 đỏ trên DB có khảo sát.
+
+### 🔴 Bài học E2a (13/09)
+
+1. **Sửa ở Python, không ở CSS.** Lỗi BA nêu nằm ở `utils.py` `'sale': (…, 'wujia-badge-success')`.
+   Đổi 1 dòng map là PC + mobile hết lệch cùng lúc; nếu chữa bằng CSS thì mỗi màn phải chữa một lần.
+2. **Đếm thật trước khi nhận lượt.** File này ghi "110 + 75"; đếm bằng `lxml` ra **114 element / 8 họ**,
+   trong đó 21 là defer hoặc họ BA loại ⇒ chia E2a/E2b là đúng.
+3. **Badge mới cao hơn badge cũ ⇒ hàng flex xung quanh bị kéo.** `.wujia-maccount-badgerow` để
+   `align-items: stretch`, chip mã cửa hàng (ngoài phạm vi) phình 26,8 → 28. Chỉ SB-3 (kiểm chéo họ
+   ngoài phạm vi) bắt được — số đo của chính component vẫn Pass sạch.
+4. **Restart KHÔNG nạp lại XML.** Một lượt đo cho ra badge vai trò mang class `wj-status-badge--info`
+   trong khi file ghi `wj-pc-badge--confirmed`: arch trong DB cũ hơn file. Mọi lần đo phải đi sau `-u`,
+   không chỉ sau restart, nếu không sẽ điều tra nhầm một "hồi quy" không có thật.
+5. **Danh sách OUT phải neo theo container.** `.wj-pc-badge--confirmed` vừa là RoleBadge (profile,
+   thành viên) vừa là StatusBadge (purchase-history) — không neo thì migrate đúng cũng báo đỏ.
+6. **Spec BA tự mâu thuẫn thì hỏi, đừng tự chỉnh.** Vừa đòi WCAG AA vừa đưa 7 cặp hex mà 5 cặp đo
+   dưới 4.5. Chủ dự án chốt: **theo hex BA**, ghi LIMIT + gửi câu hỏi. Cũng vậy với mapping —
+   nhãn nào BA đã nêu thì theo đúng bậc BA, kể cả khi hai nhãn cạnh nhau trùng màu.
 
 ---
 

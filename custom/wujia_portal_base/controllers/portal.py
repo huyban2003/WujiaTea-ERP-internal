@@ -6,6 +6,7 @@ from odoo.addons.portal.controllers.portal import CustomerPortal
 from odoo.addons.wujia_portal_base.controllers.utils import (
     MOBILE_ORDER_BADGES,
     MOBILE_RETURN_BADGES,
+    status_badge,
     fmt_local_dt,
     get_upcoming_batches,
     portal_money,
@@ -167,6 +168,7 @@ class WujiaPortal(CustomerPortal):
             'm_undelivered_count': upcoming['undelivered_count'],
             'm_order_badges': MOBILE_ORDER_BADGES,
             'm_return_badges': MOBILE_RETURN_BADGES,
+            'wj_badge_default': status_badge('neutral'),
             'articles': articles,
             'm_hotline': request.env.company.sudo().phone or '',
             'title': _('Trang chủ - Portal'),
