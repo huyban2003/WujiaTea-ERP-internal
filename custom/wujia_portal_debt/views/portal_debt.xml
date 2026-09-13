@@ -169,7 +169,7 @@
                                 <t t-set="ch_class"
                                    t-value="'wj-card-header--flush wj-debt-summary__hb'"/>
                                 <t t-set="ch_meta">
-                                    <span t-attf-class="wj-debt-badge wj-debt-badge--#{sbadge[1]}"
+                                    <span t-attf-class="wj-status-badge #{sbadge[1]}"
                                           t-out="sbadge[0]"/>
                                 </t>
                             </t>
@@ -236,7 +236,7 @@
                             <t t-set="ibadge" t-value="INVOICE_BADGE[inv['status']]"/>
                             <div t-attf-class="wj-debt-inv wj-data-item wj-debt-inv--#{inv['status']}">
                                 <span class="wj-debt-inv__name" t-out="inv['name']"/>
-                                <span t-attf-class="wj-debt-badge wj-debt-badge--#{ibadge[1]} wj-debt-inv__badge"
+                                <span t-attf-class="wj-status-badge #{ibadge[1]} wj-debt-inv__badge"
                                       t-out="ibadge[0]"/>
                                 <span class="wj-debt-inv__meta">
                                     <t t-if="inv['status'] == 'paid' and summary['confirmed_date']">Đã xác nhận •
@@ -274,10 +274,8 @@
             <div class="content-wrapper d-none d-lg-block wj-debt-pc">
                 <!-- Nhãn state dùng chung với mobile (STATE_BADGE) + 2 biến thể riêng PC. -->
                 <t t-set="PC_STATE_BADGE" t-value="dict(STATE_BADGE,
-                    empty_week=('Không phát sinh', 'muted'),
-                    no_debt=('Không có công nợ', 'success'))"/>
-                <t t-set="PC_INV_TONE" t-value="{'overdue': 'danger', 'unpaid': 'warn',
-                    'partial': 'info', 'credit': 'info', 'paid': 'success'}"/>
+                    empty_week=('Không phát sinh', 'wj-status-badge--neutral'),
+                    no_debt=('Không có công nợ', 'wj-status-badge--success'))"/>
 
                 <t t-call="wujia_portal_layout.wj_page_header">
                     <t t-set="ph_platform" t-value="'pc'"/>
@@ -350,7 +348,7 @@
                             </div>
                         </div>
                         <div class="wj-debt-pc-summary__side">
-                            <span t-attf-class="wj-debt-pc-badge wj-debt-pc-badge--#{sb[1]}" t-out="sb[0]"/>
+                            <span t-attf-class="wj-status-badge #{sb[1]}" t-out="sb[0]"/>
                             <span class="wj-debt-pc-summary__meta">
                                 <t t-if="pc_state == 'outstanding'">
                                     <t t-out="summary['invoice_count']"/> hóa đơn • <t t-out="summary['overdue_count']"/> hóa đơn quá hạn
@@ -431,8 +429,7 @@
                                             <td class="text-end wj-debt-pc-td--paid" t-out="vnd(inv['paid'])"/>
                                             <td class="text-end wj-pc-td--amount" t-out="vnd(inv['remaining'])"/>
                                             <td>
-                                                <span t-attf-class="wj-debt-pc-badge wj-debt-pc-badge--#{PC_INV_TONE[inv['status']]}"
-                                                      t-out="ib[0]"/>
+                                                <span t-attf-class="wj-status-badge #{ib[1]}" t-out="ib[0]"/>
                                             </td>
                                             <td class="text-end">
                                                 <button type="button" class="wj-debt-pc-pdf" data-wj-debt="pdf">
@@ -478,7 +475,7 @@
                                 <span class="wj-debt-pc-modal__amount-label">Số tiền cần chuyển</span>
                                 <span class="wj-debt-pc-modal__amount-value" t-out="vnd(summary['amount_due'])"/>
                             </div>
-                            <span class="wj-debt-pc-badge wj-debt-pc-badge--warn">Cần thanh toán</span>
+                            <span class="wj-status-badge wj-status-badge--pending">Cần thanh toán</span>
                         </div>
 
                         <div class="wj-debt-pc-modal__body">
@@ -557,7 +554,7 @@
                         <t t-foreach="history['payments']" t-as="pay">
                             <div class="wj-debt-pay wj-data-item">
                                 <span class="wj-debt-pay__ref" t-out="pay['ref']"/>
-                                <span class="wj-debt-badge wj-debt-badge--success wj-debt-pay__badge">Đã xác nhận</span>
+                                <span class="wj-status-badge wj-status-badge--info wj-debt-pay__badge">Đã xác nhận</span>
                                 <span class="wj-debt-pay__meta">
                                     <t t-out="pay['date'].strftime('%d/%m/%Y')"/>
                                     <t t-out="pay['time']"/> • <t t-out="pay['method']"/>
@@ -680,7 +677,7 @@
                                             <td t-out="pay['method']"/>
                                             <td class="wj-pc-td--muted" t-out="pay['trace'] or '—'"/>
                                             <td class="text-end wj-pc-td--amount" t-out="pay['amount_label']"/>
-                                            <td><span class="wj-debt-pc-badge wj-debt-pc-badge--success">Đã xác nhận</span></td>
+                                            <td><span class="wj-status-badge wj-status-badge--info">Đã xác nhận</span></td>
                                         </tr>
                                     </tbody>
                             </t>
@@ -795,7 +792,7 @@
                             <span class="wj-debt-pc-modal__amount-label">Số tiền cần chuyển • tuần <t t-out="summary['week_label']"/></span>
                             <span class="wj-debt-pc-modal__amount-value" t-out="vnd(summary['amount_due'])"/>
                         </div>
-                        <span class="wj-debt-pc-badge wj-debt-pc-badge--warn">Cần thanh toán</span>
+                        <span class="wj-status-badge wj-status-badge--pending">Cần thanh toán</span>
                     </div>
                     <t t-call="wujia_portal_debt.wj_debt_pc_bank_block"/>
                     <div class="wj-debt-pc-modal__actions">

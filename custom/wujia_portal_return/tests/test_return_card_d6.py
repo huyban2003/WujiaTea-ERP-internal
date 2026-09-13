@@ -91,7 +91,7 @@ class TestReturnCardD6(TransactionCase):
         `COMPENSATION_STATUS_LABELS` truyền qua qcontext. Hardcode thì đổi nhãn ở
         controller mà card vẫn in nhãn cũ."""
         prog = self.row.xpath('.//span[@class="wujia-mreturn-row-progress"]')[0]
-        badge = prog.xpath('.//span[contains(@t-attf-class, "wujia-badge")]')
+        badge = prog.xpath('.//span[contains(@t-attf-class, "wj-status-badge")]')
         self.assertEqual(len(badge), 1)
         self.assertIn('clbl', badge[0].get('t-out') or '',
                       'badge tiến độ bù phải in từ biến clbl')

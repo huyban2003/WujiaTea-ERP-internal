@@ -25,6 +25,8 @@ from odoo.addons.wujia_portal_base.controllers.utils import (
     fmt_local_dt,
     local_day_range_utc,
     portal_tz,
+    status_badge,
+    status_badge_for,
 )
 
 _logger = logging.getLogger(__name__)
@@ -45,17 +47,17 @@ MAX_VIDEOS = 1
 MAX_VIDEO_MB = 10
 MAX_TOTAL_MB = 30
 
-# Trạng thái portal thấy (label + badge class).
-STATE_LABELS = {
-    'draft': ('Nháp', 'wujia-badge-muted'),
-    'submitted': ('Đã gửi', 'wujia-badge-info'),
-    'reviewing': ('Đang xử lý', 'wujia-badge-warning'),
-    'approved': ('Đã duyệt', 'wujia-badge-success'),
-    'processing': ('Đang xử lý', 'wujia-badge-warning'),
-    'done': ('Hoàn tất', 'wujia-badge-success'),
-    'rejected': ('Từ chối', 'wujia-badge-danger'),
-    'cancelled': ('Đã huỷ', 'wujia-badge-muted'),
-}
+# Trạng thái portal thấy (label + badge class); variant lấy từ nguồn chung CMP-SB-001.
+STATE_LABELS = {k: (v, status_badge_for(v)) for k, v in {
+    'draft': 'Nháp',
+    'submitted': 'Đã gửi',
+    'reviewing': 'Đang xử lý',
+    'approved': 'Đã duyệt',
+    'processing': 'Đang xử lý',
+    'done': 'Hoàn tất',
+    'rejected': 'Từ chối',
+    'cancelled': 'Đã huỷ',
+}.items()}
 
 # Phương án xử lý HQ chốt khi duyệt.
 RESOLUTION_LABELS = {
@@ -66,12 +68,12 @@ RESOLUTION_LABELS = {
 }
 
 # Tình trạng bù hàng (label + badge class) — hiển thị tiến độ bù cho cửa hàng.
-COMPENSATION_STATUS_LABELS = {
-    'none': ('Chưa xử lý', 'wujia-badge-muted'),
-    'allocated': ('Đã lên đơn bù', 'wujia-badge-info'),
-    'partial': ('Đang bù một phần', 'wujia-badge-warning'),
-    'done': ('Đã bù đủ', 'wujia-badge-success'),
-}
+COMPENSATION_STATUS_LABELS = {k: (v, status_badge_for(v)) for k, v in {
+    'none': 'Chưa xử lý',
+    'allocated': 'Đã lên đơn bù',
+    'partial': 'Đang bù một phần',
+    'done': 'Đã bù đủ',
+}.items()}
 
 
 # Bộ lọc trạng thái portal (UAT-BH-006) — nguồn DUY NHẤT cho dropdown PC + mobile.
@@ -118,7 +120,7 @@ def state_label(rr):
     """
     if rr.state == 'processing' and rr.compensation_status == 'partial':
         return COMPENSATION_STATUS_LABELS['partial']
-    return STATE_LABELS.get(rr.state, (rr.state, 'wujia-badge-muted'))
+    return STATE_LABELS.get(rr.state, (rr.state, status_badge('neutral')))
 
 
 class WujiaPortalReturn(http.Controller):
@@ -433,7 +435,7 @@ class WujiaPortalReturn(http.Controller):
                             if approved > 0 else 0,
             'status': COMPENSATION_STATUS_LABELS.get(
                 rr.compensation_status,
-                (rr.compensation_status or '—', 'wujia-badge-muted')),
+                (rr.compensation_status or '—', status_badge('neutral'))),
             'approval_note': rr.approval_note or '',
             # BA STT3 #12: SO bù bị huỷ thì quyền lợi đóng lại, cửa hàng phải tạo
             # yêu cầu mới — báo rõ thay vì để trang trông như đang chờ giao.

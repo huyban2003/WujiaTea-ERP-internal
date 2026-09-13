@@ -25,8 +25,8 @@ và viết mục "🔴 Bài học E&lt;n&gt;" ngay dưới khối prompt (tiền
 | E1 | `UI-MOB-HOME-004` (133) + nợ 4 test D3 | `wujia_portal_layout` + `wujia_portal_debt` | ✅ 12/09 · `9354618` |
 | E9a | `WJ-SALE-002` (138) | `wujia_sale` | ✅ 12/09 · `65c04c8` (merge upstream `ea9e5a6`) |
 | E9b | `WJ-FRANCHISE-004` (135) | `wujia_franchise` + **`-u wujia_franchise_contract`** (UAT đã cài sẵn bản cũ) | ✅ 13/09 |
-| E2a | `UI-STATUSBADGE-001` (128) — nền component + nhóm màn BA audit | `wujia_portal_layout`, `_base`, `_purchase_history`, `_delivery`, `_sale`, `_support` | ✅ 13/09 · `fa2ed9c` · 114→77 call site cũ, 65 call site mới |
-| E2b | `UI-STATUSBADGE-001` (128) — 7 màn còn lại + 3 override lệch spec + đóng issue | `notification`, `exam`, `return`, `debt`, `knowledge`, `info_request`, `support` | ☐ (kiểm kê sẵn ở `docs/e2-statusbadge-inventory.md`) |
+| E2a | `UI-STATUSBADGE-001` (128) — nền component + nhóm màn BA audit | `wujia_portal_layout`, `_base`, `_purchase_history`, `_delivery`, `_sale`, `_support` | ✅ 13/09 · `fa2ed9c` · 114→75 call site cũ, 37 call site mới (đếm theo phần tử) |
+| E2b | `UI-STATUSBADGE-001` (128) — 7 màn còn lại + 3 override lệch spec + đóng issue | `notification`, `exam`, `return`, `debt`, `knowledge`, `info_request`, `support` | ✅ 13/09 · 75→38 call site cũ, 37→74 mới · `Ready for Retest` · nghiệm thu ở `docs/e2b-acceptance-matrix.md` |
 | E3 | `UI-PAGINATION-001` (130) | `wujia_portal_layout` + 9 module | ☐ |
 | E4 | `UI-FILTER-001` (139) | `wujia_portal_layout` + 9 module | ☐ |
 | E5 | `UI-LISTCARD-001` (136) | `wujia_portal_layout` + 8 module | ☐ |
@@ -420,6 +420,23 @@ grep -rn "badge" custom/wujia_portal_*/controllers/*.py | grep -oE "['\"][a-z_-]
    (đạt AA)** — vế nào của BA cũng còn. Test phải khoá **hai chiều** (nền đúng hex + chữ ≥4,5 +
    lệch hue ≤12°), nếu không thì lần sau ai đó đổi bừa màu vẫn xanh. Với mapping thì ngược lại:
    nhãn nào BA đã nêu thì theo đúng bậc BA, kể cả khi hai nhãn cạnh nhau trùng màu.
+
+### 🔴 Bài học E2b (13/09)
+
+1. **Clone DB bằng `createdb -T` không chép filestore.** Hàng `ir_attachment` của bundle JS trỏ vào
+   file không có thật ⇒ `/web/assets/…frontend.min.js` trả **500**, toàn bộ JS frontend chết mà
+   `pageerror` vẫn 0 (script không tải thì không có lỗi để bắt). Biểu hiện: một route KHÔNG đụng tới
+   lệch chiều cao giữa hai mốc. Xử: `delete from ir_attachment where url like '/web/assets/%'`.
+   Đo hồi quy mà thấy route lạ đổi số thì nghi môi trường trước khi nghi mã.
+2. **`grep -c` đếm DÒNG, không đếm lần xuất hiện.** Khoá số call site trong test phải đếm theo
+   PHẦN TỬ mang class (`lxml`), vì một phần tử fallback chứa tên lớp hai lần.
+3. **Số đo Pass hết vẫn phải xem ảnh.** Ô bảng Thi PC có `text-overflow: ellipsis`; badge mới vừa khít
+   nhưng text node trắng phía sau vẫn vẽ ra dấu "…". Không guard hình học nào bắt được — chỉ ảnh.
+   Ngược đời: badge cũ rộng 118px **đang bị cắt mất 8px** mà không ai thấy vì ellipsis không vẽ cho
+   phần tử inline-flex.
+4. **Override lệch spec không mặc nhiên phải gỡ.** Ba override của E2a nêu: hai cái ở Thông báo sau
+   khi migrate chỉ còn chạm chip BA LOẠI ⇒ gỡ là đổi thứ BA không yêu cầu đổi. Đọc lại phạm vi rồi
+   mới quyết, đừng làm theo danh sách cũ.
 
 ---
 

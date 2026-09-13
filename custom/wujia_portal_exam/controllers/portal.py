@@ -32,7 +32,11 @@ from odoo.tools.image import image_process
 from odoo.addons.wujia_portal_base.controllers.portal import (
     get_active_franchise_id,
 )
-from odoo.addons.wujia_portal_base.controllers.utils import page_numbers
+from odoo.addons.wujia_portal_base.controllers.utils import (
+    page_numbers,
+    status_badge,
+    status_badge_for,
+)
 from odoo.addons.wujia_portal_exam.models.wujia_exam_registration_line import (
     PHONE_RE,
 )
@@ -48,28 +52,28 @@ PHOTO_MIMES = ('image/jpeg', 'image/jpg', 'image/png')
 _WEEKDAYS_VN = ['Thứ 2', 'Thứ 3', 'Thứ 4', 'Thứ 5', 'Thứ 6', 'Thứ 7', 'Chủ nhật']
 
 # Nhãn hiển thị — key trùng state của registration (mobile).
-M_REG_BADGE = {
-    'submitted': ('Chờ duyệt', 'wujia-badge-warning'),
-    'confirmed': ('Đã đăng ký', 'wujia-badge-info'),
-    'rejected': ('Từ chối', 'wujia-badge-danger'),
-    'cancelled': ('Đã hủy', 'wujia-badge-muted'),
-}
+M_REG_BADGE = {k: (v, status_badge_for(v)) for k, v in {
+    'submitted': 'Chờ duyệt',
+    'confirmed': 'Đã đăng ký',
+    'rejected': 'Từ chối',
+    'cancelled': 'Đã hủy',
+}.items()}
 
 # PC — dùng lại nhãn Figma WJ_Exam_PC (badge riêng cho trạng thái đăng ký).
-PC_REG_STATES = {
-    'submitted': ('Chờ xác nhận', 'wj-pc-badge--transit'),
-    'confirmed': ('Đã đăng ký', 'wj-pc-badge--sent'),
-    'rejected': ('Từ chối', 'wj-pc-badge--cancel'),
-    'cancelled': ('Đã hủy', 'wj-pc-badge--pending'),
-}
+PC_REG_STATES = {k: (v, status_badge_for(v)) for k, v in {
+    'submitted': 'Chờ xác nhận',
+    'confirmed': 'Đã đăng ký',
+    'rejected': 'Từ chối',
+    'cancelled': 'Đã hủy',
+}.items()}
 
 # Trạng thái công bố kết quả — LUÔN là badge riêng với trạng thái đăng ký.
-PC_PUBLISH_STATES = {
-    'published': ('Đã công bố', 'wj-pc-badge--done'),
-    'unpublished': ('Chưa công bố', 'wj-pc-badge--pending'),
-    'none': ('Chưa có', 'wj-pc-badge--pending'),
-    'na': ('Không áp dụng', 'wj-pc-badge--pending'),
-}
+PC_PUBLISH_STATES = {k: (v, status_badge_for(v)) for k, v in {
+    'published': 'Đã công bố',
+    'unpublished': 'Chưa công bố',
+    'none': 'Chưa có',
+    'na': 'Không áp dụng',
+}.items()}
 
 # --------------------------------------------------------------------------- #
 # Helpers
@@ -354,13 +358,12 @@ class WujiaPortalExam(http.Controller):
         m_courses = []
         for c in courses:
             meta = _course_meta(c)
+            cstatus = ('Còn lịch' if not meta['closed']
+                       else 'Hết chỗ' if meta['full'] else 'Đã đóng')
             m_courses.append({
                 'course_id': c.id, 'title': c.name, 'meta': meta['meta'],
-                'status': ('Còn lịch' if not meta['closed']
-                           else 'Hết chỗ' if meta['full'] else 'Đã đóng'),
-                'badge': ('wujia-badge-info' if not meta['closed']
-                          else 'wujia-badge-warning' if meta['full']
-                          else 'wujia-badge-muted'),
+                'status': cstatus,
+                'badge': status_badge_for(cstatus),
                 'closed': meta['closed'],
             })
         selected = courses.browse(int(course_id)) if course_id else courses[:1]
@@ -530,9 +533,9 @@ def _empty_pager(size=PAGE_SIZE):
 def _m_list_item(reg):
     label, kind = _result_summary(reg)
     if reg.session_id.results_published:
-        status, badge, meta = 'Có kết quả', 'wujia-badge-success', _m_result_meta(reg)
+        status, badge, meta = 'Có kết quả', status_badge('success'), _m_result_meta(reg)
     else:
-        status, badge = M_REG_BADGE.get(reg.state, (reg.state, 'wujia-badge-muted'))
+        status, badge = M_REG_BADGE.get(reg.state, (reg.state, status_badge('neutral')))
         meta = '%d nhân sự' % reg.participant_count
     return {
         'title': reg.course_id.name or reg.session_id.name,
@@ -581,9 +584,9 @@ def _reg_lines(reg, published):
 def _m_detail(reg):
     """Chi tiết cho mobile — state-aware (thay demo DEMO_RESULT có 'điểm')."""
     published = reg.session_id.results_published
-    status, badge = M_REG_BADGE.get(reg.state, (reg.state, 'wujia-badge-muted'))
+    status, badge = M_REG_BADGE.get(reg.state, (reg.state, status_badge('neutral')))
     if published:
-        status, badge = 'Có kết quả', 'wujia-badge-success'
+        status, badge = 'Có kết quả', status_badge('success')
     reason = ''
     if reg.state == 'rejected':
         reason = reg.reject_reason or ''

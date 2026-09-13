@@ -25,7 +25,7 @@ from datetime import date, timedelta
 from odoo import api, fields, models
 from odoo.tools import float_compare, float_is_zero
 
-from odoo.addons.wujia_portal_base.controllers.utils import portal_money
+from odoo.addons.wujia_portal_base.controllers.utils import portal_money, status_badge_for
 
 # Số tuần / kỳ đổ vào dropdown bộ lọc (kỳ hiện tại + 5 kỳ trước).
 WEEK_CHOICES = 6
@@ -34,23 +34,23 @@ MONTH_CHOICES = 6
 # Mặc định hiển thị 2 hoá đơn, phần còn lại bung bằng `?all=1` (Figma: "Hiển thị 2/4 hóa đơn").
 INVOICE_PREVIEW = 2
 
-# Nhãn + tone badge cho state tổng (Figma 02/03/04).
-STATE_BADGE = {
-    'outstanding': ('Có quá hạn', 'danger'),
-    'partial': ('Thanh toán một phần', 'info'),
-    'unpaid': ('Chưa thanh toán', 'warn'),
-    'credit': ('Dư có', 'info'),
-    'paid': ('Đã thanh toán', 'success'),
-}
+# Nhãn + variant badge cho state tổng (Figma 02/03/04); variant từ nguồn chung CMP-SB-001.
+STATE_BADGE = {k: (v, status_badge_for(v)) for k, v in {
+    'outstanding': 'Có quá hạn',
+    'partial': 'Thanh toán một phần',
+    'unpaid': 'Chưa thanh toán',
+    'credit': 'Dư có',
+    'paid': 'Đã thanh toán',
+}.items()}
 
-# Nhãn + tone badge cho từng hoá đơn.
-INVOICE_BADGE = {
-    'overdue': ('Quá hạn', 'danger'),
-    'unpaid': ('Chưa thanh toán', 'warn'),
-    'partial': ('Một phần', 'info'),
-    'credit': ('Giấy báo có', 'info'),
-    'paid': ('Đã thanh toán', 'success'),
-}
+# Nhãn + variant badge cho từng hoá đơn.
+INVOICE_BADGE = {k: (v, status_badge_for(v)) for k, v in {
+    'overdue': 'Quá hạn',
+    'unpaid': 'Chưa thanh toán',
+    'partial': 'Một phần',
+    'credit': 'Giấy báo có',
+    'paid': 'Đã thanh toán',
+}.items()}
 
 # Chứng từ công nợ khách hàng của cửa hàng: hoá đơn + credit note đã ghi sổ.
 _DEBT_MOVE_TYPES = ('out_invoice', 'out_refund')

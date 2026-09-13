@@ -475,7 +475,7 @@ class TestCardHeaderD3f(TransactionCase):
         self.assertRegex(css, r'\.wj-debt-summary__head\s*\{[^}]*height:\s*15px')
         self.assertRegex(
             css,
-            r'\.wj-debt-summary__head \.wj-debt-badge\s*\{[^}]*position:\s*absolute')
+            r'\.wj-debt-summary__head \.wj-status-badge\s*\{[^}]*position:\s*absolute')
 
     def test_debt_summary_label_stays_11px(self):
         # Cần `.wj-debt-summary__head` phía trước để thắng biến thể (0,3,0) của

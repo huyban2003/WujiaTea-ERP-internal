@@ -30,6 +30,9 @@ from wj_measure import login  # noqa: E402  (nguồn duy nhất cho đường đ
 ROUTES = [
     '/portal', '/portal/purchase-history', '/portal/delivery',
     '/portal/franchise-information', '/portal/profile',
+    # E2b
+    '/portal/notification', '/portal/exam', '/portal/return', '/portal/debt',
+    '/portal/knowledge', '/portal/info-request', '/portal/support',
 ]
 BREAKPOINTS = [1440, 1024, 992, 991, 390, 360]
 
@@ -48,7 +51,17 @@ SEL_OUT = ('.wujia-store-role-badge, .wujia-header-badge, .wj-filter-chip, '
            '.wj-pc-acct-headcard__chips .wj-pc-badge--confirmed, '
            '.wj-pc-acct-field__value .wj-pc-badge--confirmed, '
            '.wujia-maccount-badgerow .wujia-badge-info, '
-           '.wujia-mdash-row-tags .wujia-badge')
+           '.wujia-mdash-row-tags .wujia-badge, '
+           # E2b: priority/loại/đính kèm của Thông báo + Category của Kiến thức
+           # + priority của Hỗ trợ và Yêu cầu cập nhật — BA loại khỏi StatusBadge.
+           # `:not(--muted)` loại đúng badge "Đã hết hiệu lực" — đó là TRẠNG THÁI
+           # (thuộc phạm vi migrate), các chip còn lại của hàng là priority/đính kèm.
+           '.wujia-mnoti-row-tags .wujia-badge:not(.wujia-badge-muted), '
+           '.wujia-mnoti-detail-badges .wujia-badge:not(.wujia-badge-muted), '
+           '.wj-pc-noti-popup__item-tags .wj-pc-badge, '
+           '.wj-pc-noti-detail-badgerow .wj-pc-badge, '
+           '.wujia-mknow-badges .wujia-badge, '
+           '.wujia-mknow-row-content .wujia-badge')
 
 SPEC = {'h': 28.0, 'min_w': 84.0, 'pad': '0px 14px', 'radius': 14.0,
         'font': 13.0, 'weight': '600'}

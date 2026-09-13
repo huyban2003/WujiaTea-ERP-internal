@@ -3,11 +3,15 @@
 Đếm bằng **cấu trúc** (`lxml`, mọi thuộc tính `class` / `t-attf-class` / `t-att-class`),
 không grep tên lớp trần. Script: scratchpad `e2/inv.py`. Mốc: 13/09/2026.
 
-| Mốc | Call site còn mang họ badge cũ |
-|---|---|
-| Trước E2a | **114** (8 họ / 16 file) |
-| Sau E2a | **77** |
-| Call site component mới `.wj-status-badge` | **65** (9 file) |
+| Mốc | Call site họ cũ | Call site component `.wj-status-badge` |
+|---|---|---|
+| Trước E2a | **114** (8 họ / 16 file) | 0 |
+| Sau E2a | **75** | **37** |
+| Sau E2b | **38** | **74** (11 module) |
+
+Con số "77 / ≈56" ở bản trước là đếm theo CHUỖI (gộp cả dict literal trong controller và
+tên lớp con BEM). Đếm lại theo PHẦN TỬ mang class thì mốc sau E2a là **75**, và trong đó
+chỉ **37** là StatusBadge thật — phần còn lại là họ BA loại hoặc Khảo sát.
 
 ## 1. Bảng mapping nguồn (sau E2a) — `wujia_portal_base/controllers/utils.py`
 
@@ -45,22 +49,23 @@ Một nguồn duy nhất cho PC lẫn mobile: `STATUS_VARIANT_BY_LABEL` + `statu
 `wj-filter-chip` · `wujia-mknow-badges` (Category) · `wujia-mexam-stepbadge` (Step) ·
 `noti_badge_cls` ở `portal_home.xml:148,417` (loại thông báo = CategoryBadge) · `.badge*` Bootstrap.
 
-## 3. Còn lại cho E2b — 77 call site
+## 3. E2b đã làm — migrate 37, còn 38
 
-| Module | Còn | Ghi chú |
-|---|---|---|
-| wujia_portal_notification | 14 | + 2 override lệch spec (`portal_notification.css:104` 11px/3px 8px; `:429` height auto) |
-| wujia_portal_exam | 13 | + override `portal_exam.css:796` min-width 118 |
-| wujia_portal_return | 10 | map `COMPENSATION_STATUS_LABELS` kéo về nguồn chung |
-| **wujia_portal_inspection** | **9** | 🚫 **defer** — module khảo sát, luật 08/09 cấm đụng |
-| wujia_portal_knowledge | 8 | phần lớn là CategoryBadge → chỉ lọc badge trạng thái thật |
-| wujia_portal_debt | 8 | 2 họ riêng `wj-debt-badge` / `wj-debt-pc-badge` |
-| wujia_portal_base | 6 | 2 = notification type (loại), 2 = `wujia-badge-info` mã cửa hàng (loại), 2 = role (loại) |
-| wujia_portal_info_request | 4 | |
-| wujia_portal_support | 3 | 3 site còn lại (2 site dùng map chung đã migrate ở E2a) |
-| wujia_portal_layout | 2 | RoleBadge trong `profile_page` — loại |
+| Module | Đã migrate | Còn họ cũ | Ghi chú |
+|---|---|---|---|
+| wujia_portal_exam | 11 | 0 | gỡ 5 override ép dáng; ô bảng PC hết cắt badge |
+| wujia_portal_debt | 8 | 0 | xoá hẳn hai họ `wj-debt-badge` / `wj-debt-pc-badge` |
+| wujia_portal_return | 8 | 2 | 2 còn lại = phương án xử lý (Category, BA loại) |
+| wujia_portal_notification | 6 | 8 | 8 còn lại = ưu tiên · loại · đếm · đính kèm (BA loại) |
+| wujia_portal_support | 2 | 1 | 1 còn lại = chip ưu tiên (BA loại) |
+| wujia_portal_info_request | 2 | 2 | 2 còn lại = chip ưu tiên (BA loại) |
+| **wujia_portal_inspection** | 0 | **9** | 🚫 **defer** — module khảo sát, luật 08/09 cấm đụng |
+| wujia_portal_knowledge | 0 | 8 | toàn bộ là Category/Alert — BA loại, không đụng |
+| wujia_portal_base | 0 | 6 | loại thông báo · mã cửa hàng · Role — BA loại |
+| wujia_portal_layout | 0 | 2 | RoleBadge trong `profile_page` — BA loại |
 
-⇒ Phần **thật sự phải migrate ở E2b ≈ 56 call site**; 21 còn lại là defer (9) hoặc họ BA loại (12).
+⇒ **38 call site họ cũ còn lại = 9 defer (Khảo sát) + 29 BA loại**. Không còn StatusBadge
+thật nào nằm ngoài component ⇒ điều kiện đóng `UI-STATUSBADGE-001` đã đủ.
 
 ## 4. LIMIT
 `.wj-pc-badge` **không xoá được**: `wujia_portal_inspection` dùng 9 chỗ (+ `wujia_franchise_inspection`),

@@ -25,16 +25,6 @@
 @media (max-width: 991.98px) {
 
     /* ---------- Shared ---------- */
-    .wujia-mexam-card-badge,
-    .wujia-mexam-course-badge,
-    .wujia-mexam-rrow-badge {
-        font-size: 11.5px;
-        font-weight: 600;
-        padding: 3px 10px;
-        border-radius: 999px;
-        white-space: nowrap;
-        line-height: 1.5;
-    }
     .wujia-mexam-btn {
         height: 48px;
         border: 0;
@@ -785,22 +775,9 @@
     .wj-exam-pc-list-table .wj-pc-td--code { font-weight: 700; }
     .wj-exam-pc-list-table .wj-pc-td--muted { font-weight: 400; }
     .wj-exam-pc-list-table td { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .wj-exam-pc-list-table td.wj-exam-pc-td--badge { text-overflow: clip; }
     .wj-exam-pc-th--center,
     .wj-exam-pc-td--center { text-align: center; }
-
-    /* Badge trạng thái đăng ký — Figma 12/700, ô rộng tối thiểu 118.
-       padding 16 chứ không phải 26: cột "Trạng thái đăng ký" rộng 180 (Figma 182),
-       trừ padding ô 2×22 còn 136px. Với padding 26 thì nhãn dài nhất
-       ("Chờ xác nhận") ra 141px → tràn, và `td` có text-overflow:ellipsis
-       nên vẽ thêm dấu "…" bên ngoài viên badge. */
-    .wj-exam-pc .wj-pc-badge {
-        min-width: 118px;
-        max-width: 100%;
-        padding: 0 16px;
-        justify-content: center;
-        font-size: 12px;
-        font-weight: 700;
-    }
 
     /* Cột kết quả: có kết quả = 13/700 đậm · chưa có = 13/400 nhạt */
     .wj-exam-pc-result { font-size: 13px; }
@@ -819,10 +796,7 @@
        05_ResultDetail (4891:1565) + 06_DetailVariants (4891:2635)
        ====================================================================== */
     .wj-exam-pc-detail .wj-pc-page-header { margin-bottom: 7px; }
-    /* Scope `.wj-exam-pc` bắt buộc: `.wj-exam-pc .wj-pc-badge` (0,2,0) đặt min-width 118
-       nằm sau trong file, nên (0,1,0) ở đây sẽ thua và badge header co lại còn 118. */
-    .wj-exam-pc .wj-exam-pc-hbadge { min-width: 176px; margin-top: 8px; }
-    .wj-exam-pc .wj-exam-pc-pbadge { min-width: 128px; }
+    .wj-exam-pc .wj-pc-page-header__actions .wj-status-badge { margin-top: 8px; }
 
     .wj-exam-pc-back { min-width: 122px; margin-bottom: 18px; }
 
@@ -879,7 +853,6 @@
     .wj-exam-pc-res-table th:nth-child(7) { width: 29.922%; }
     .wj-exam-pc-td--name { font-weight: 700; }
     .wj-exam-pc-res-table .wj-pc-td--muted { font-weight: 400; }
-    .wj-exam-pc-rbadge { min-width: 88px; }
     .wj-exam-pc-note { font-size: 13px; color: var(--wj-pc-text); }
     .wj-exam-pc-note--empty { color: var(--wj-pc-subtle); }
 

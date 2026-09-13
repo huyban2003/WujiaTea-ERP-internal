@@ -8,20 +8,21 @@ from odoo.addons.wujia_portal_base.controllers.portal import (
 )
 from odoo.addons.wujia_portal_base.controllers.utils import (
     MOBILE_TICKET_BADGES,
+    status_badge_for,
 )
 
 
 PAGE_SIZE = 20
 
 # Display labels for portal templates — keys map to ticket.state values.
-STATE_LABELS = {
-    'new': ('Mới', 'wujia-badge-info'),
-    'in_progress': ('Đang xử lý', 'wujia-badge-warning'),
-    'waiting_customer': ('Chờ phản hồi', 'wujia-badge-warning'),
-    'resolved': ('Đã giải quyết', 'wujia-badge-success'),
-    'closed': ('Đã đóng', 'wujia-badge-muted'),
-    'cancelled': ('Đã huỷ', 'wujia-badge-danger'),
-}
+STATE_LABELS = {k: (v, status_badge_for(v)) for k, v in {
+    'new': 'Mới',
+    'in_progress': 'Đang xử lý',
+    'waiting_customer': 'Chờ phản hồi',
+    'resolved': 'Đã giải quyết',
+    'closed': 'Đã đóng',
+    'cancelled': 'Đã huỷ',
+}.items()}
 
 PRIORITY_LABELS = {
     'normal': ('Bình thường', 'wujia-badge-muted'),

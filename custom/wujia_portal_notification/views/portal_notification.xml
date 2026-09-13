@@ -80,9 +80,9 @@
                             </td>
                             <td class="wj-pc-td--muted" t-out="wj_dt(n.published_date, '%d/%m/%Y') or '—'"/>
                             <td>
-                                <span t-if="not is_read" class="wj-pc-badge wj-pc-badge--cancel">Chưa đọc</span>
-                                <span t-else="" class="wj-pc-badge wj-pc-badge--pending">Đã đọc</span>
-                                <span t-if="n.is_expired" class="wj-pc-badge wj-pc-badge--confirmed">Đã hết hiệu lực</span>
+                                <span t-if="not is_read" class="wj-status-badge wj-status-badge--info">Chưa đọc</span>
+                                <span t-else="" class="wj-status-badge wj-status-badge--neutral">Đã đọc</span>
+                                <span t-if="n.is_expired" class="wj-status-badge wj-status-badge--neutral">Đã hết hiệu lực</span>
                             </td>
                             <td class="text-end">
                                 <a t-attf-href="/portal/notification/#{n.id}" class="wj-pc-link">Xem</a>
@@ -187,7 +187,7 @@
                                     <span t-if="ptag" t-attf-class="wujia-badge #{ptag[1]}">
                                         <i t-attf-class="feather #{ptag[2]}"/><t t-out="ptag[0]"/>
                                     </span>
-                                    <span t-if="n.is_expired" class="wujia-badge wujia-badge-muted">
+                                    <span t-if="n.is_expired" class="wj-status-badge wj-status-badge--neutral">
                                         <i class="feather icon-clock"/>Đã hết hiệu lực
                                     </span>
                                     <span t-if="n.attachment_ids" class="wujia-badge wujia-badge-info">
@@ -378,7 +378,7 @@
                         <div class="wj-pc-noti-detail-badgerow">
                             <span t-if="dptag" t-attf-class="wj-pc-badge #{dptag[1]}" t-out="dptag[0]"/>
                             <span t-if="noti.type_id" class="wj-pc-badge wj-pc-badge--confirmed" t-out="noti.type_id.name"/>
-                            <span t-if="noti.is_expired" class="wj-pc-badge wj-pc-badge--pending">Đã hết hiệu lực</span>
+                            <span t-if="noti.is_expired" class="wj-status-badge wj-status-badge--neutral">Đã hết hiệu lực</span>
                         </div>
                         <h2 class="wj-pc-noti-detail-title" t-out="noti.name"/>
                         <p t-if="noti.priority == 'urgent'" class="wj-pc-noti-urgent-sub">
@@ -476,7 +476,7 @@
                         <span t-if="dptag" t-attf-class="wujia-badge #{dptag[1]}">
                             <i t-attf-class="feather #{dptag[2]}"/><t t-out="dptag[0]"/>
                         </span>
-                        <span t-if="noti.is_expired" class="wujia-badge wujia-badge-muted">
+                        <span t-if="noti.is_expired" class="wj-status-badge wj-status-badge--neutral">
                             <i class="feather icon-clock"/>Đã hết hiệu lực
                         </span>
                         <span t-if="noti.attachment_ids" class="wujia-badge wujia-badge-info">

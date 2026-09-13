@@ -84,22 +84,6 @@
 }
 .wj-debt-filter__go { position: absolute; right: 40px; top: 12px; }
 
-/* ---------- Badge (26 cao, 4 tone) ---------- */
-.wj-debt-badge {
-    display: inline-flex;
-    align-items: center;
-    height: 26px;
-    padding: 0 10px;
-    border-radius: 13px;
-    font-size: 12px;
-    font-weight: 700;
-    white-space: nowrap;
-}
-.wj-debt-badge--danger  { background: var(--wj-debt-danger-bg);  color: var(--wj-debt-danger); }
-.wj-debt-badge--warn    { background: var(--wj-debt-warn-bg);    color: var(--wj-debt-warn); }
-.wj-debt-badge--info    { background: var(--wj-debt-info-bg);    color: var(--wj-debt-info); }
-.wj-debt-badge--success { background: var(--wj-debt-success-bg); color: var(--wj-debt-success); }
-
 /* ---------- Card tổng (359×142) ---------- */
 .wj-debt-summary {
     display: flex;
@@ -119,7 +103,7 @@
     align-items: flex-start;
     height: 15px;
 }
-.wj-debt-summary__head .wj-debt-badge { position: absolute; top: 2px; right: 0; }
+.wj-debt-summary__head .wj-status-badge { position: absolute; top: 2px; right: 0; }
 .wj-debt-summary__label {
     font-size: 11px;
     font-weight: 700;
@@ -552,24 +536,6 @@
 }
 .wj-debt-pc-summary__meta { font-size: 13px; font-weight: 500; color: var(--wj-pc-muted); }
 .wj-debt-pc-cta { margin-top: 4px; }
-
-/* ---------- Badge tone (pill 28, 5 tone) ---------- */
-.wj-debt-pc-badge {
-    display: inline-flex;
-    align-items: center;
-    height: 28px;
-    padding: 0 14px;
-    border-radius: 14px;
-    font-size: 13px;
-    font-weight: 600;
-    line-height: 1;
-    white-space: nowrap;
-}
-.wj-debt-pc-badge--danger  { background: var(--wj-pc-red-soft);    color: var(--wj-pc-red); }
-.wj-debt-pc-badge--warn    { background: var(--wj-pc-yellow-soft); color: var(--wj-debt-pc-warn-text); }
-.wj-debt-pc-badge--info    { background: var(--wj-pc-blue-bg);     color: var(--wj-pc-blue); }
-.wj-debt-pc-badge--success { background: var(--wj-pc-green-soft);  color: var(--wj-pc-green); }
-.wj-debt-pc-badge--muted   { background: var(--wj-pc-gray-soft);   color: var(--wj-pc-muted); }
 
 /* ---------- Bảng hoá đơn / thanh toán ---------- */
 .wj-debt-pc-tablewrap { overflow-x: auto; }   /* ≤1366: bảng cuộn ngang, không tràn trang */

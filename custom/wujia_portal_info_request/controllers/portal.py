@@ -25,6 +25,7 @@ from odoo.addons.wujia_portal_base.controllers.portal import (
 from odoo.addons.wujia_portal_base.controllers.utils import (
     DEFAULT_DOC_MIME,
     attach_files_to_record,
+    status_badge_for,
 )
 from odoo.addons.wujia_portal_info_request.models.wujia_info_update_request import (
     REQUEST_TYPE, REQUEST_TYPE_FIELD_MAP, STATE,
@@ -48,13 +49,13 @@ REQUEST_TYPE_LABELS = {
 }
 REQUEST_TYPE_OPTIONS = [(code, REQUEST_TYPE_LABELS[code]) for code, _label in REQUEST_TYPE]
 
-STATE_LABELS = {
-    'draft': ('Nháp', 'wujia-badge-muted'),
-    'submitted': ('Đã gửi', 'wujia-badge-info'),
-    'reviewing': ('Đang xem', 'wujia-badge-warning'),
-    'approved': ('Đã duyệt', 'wujia-badge-success'),
-    'rejected': ('Từ chối', 'wujia-badge-danger'),
-}
+STATE_LABELS = {k: (v, status_badge_for(v)) for k, v in {
+    'draft': 'Nháp',
+    'submitted': 'Đã gửi',
+    'reviewing': 'Đang xem',
+    'approved': 'Đã duyệt',
+    'rejected': 'Từ chối',
+}.items()}
 
 
 class WujiaPortalInfoRequest(http.Controller):

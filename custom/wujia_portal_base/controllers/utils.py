@@ -404,26 +404,33 @@ STATUS_BADGE_VARIANTS = ('neutral', 'info', 'pending', 'processing',
 
 # Nhãn hiển thị (đúng chữ trên màn) → variant.
 STATUS_VARIANT_BY_LABEL = {
-    # neutral — chưa bắt đầu
+    # neutral — chưa bắt đầu / đã khép, không cần chú ý
     'Nháp': 'neutral', 'Chưa bắt đầu': 'neutral', 'Đã đóng': 'neutral',
+    'Đã đọc': 'neutral', 'Đã hết hiệu lực': 'neutral', 'Chưa công bố': 'neutral',
+    'Chưa có': 'neutral', 'Không áp dụng': 'neutral',
     # info — mới / đã xác nhận (BA khoá: "Đã xác nhận" phải info)
-    'Mới': 'info', 'Đã xác nhận': 'info',
+    'Mới': 'info', 'Đã xác nhận': 'info', 'Đã đăng ký': 'info', 'Chưa đọc': 'info',
+    'Còn lịch': 'info', 'Dư có': 'info', 'Giấy báo có': 'info',
     # pending — đang chờ một bên khác
     'Chờ xác nhận': 'pending', 'Chờ xử lý': 'pending', 'Chưa xử lý': 'pending',
-    'Đã gửi': 'pending', 'Chờ duyệt': 'pending',
+    'Đã gửi': 'pending', 'Chờ duyệt': 'pending', 'Chờ kết quả': 'pending',
+    'Chưa có kết quả': 'pending', 'Hết chỗ': 'pending', 'Chưa thanh toán': 'pending',
     # processing — đang chạy ("Chuẩn bị giao" là ví dụ BA ghi thẳng ở bậc này)
     'Chuẩn bị giao': 'processing', 'Sắp giao': 'processing',
     'Đang xử lý': 'processing', 'Đang giao': 'processing', 'Đang xét': 'processing',
     'Đã lên đơn bù': 'processing', 'Đang bù một phần': 'processing',
+    'Đang xem': 'processing', 'Thanh toán một phần': 'processing', 'Một phần': 'processing',
     # success — xong
     'Đã duyệt': 'success', 'Đã giao': 'success', 'Đã giao xong': 'success',
     'Hoàn tất': 'success', 'Hoàn thành': 'success', 'Đã bù đủ': 'success',
     'Đã giải quyết': 'success', 'Đạt': 'success', 'Đang hoạt động': 'success',
+    'Đã công bố': 'success', 'Có kết quả': 'success', 'Đã thanh toán': 'success',
     # danger — hỏng / dừng
     'Từ chối': 'danger', 'Đã hủy': 'danger', 'Đã huỷ': 'danger',
     'Hủy chuyến': 'danger', 'Quá hạn': 'danger', 'Không đạt': 'danger',
+    'Có quá hạn': 'danger',
     # feedback — cần người dùng làm gì đó
-    'Có phản hồi': 'feedback', 'Cần bổ sung': 'feedback',
+    'Có phản hồi': 'feedback', 'Cần bổ sung': 'feedback', 'Chờ phản hồi': 'feedback',
 }
 
 
