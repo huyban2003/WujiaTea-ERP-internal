@@ -25,7 +25,7 @@ và viết mục "🔴 Bài học E&lt;n&gt;" ngay dưới khối prompt (tiền
 | E1 | `UI-MOB-HOME-004` (133) + nợ 4 test D3 | `wujia_portal_layout` + `wujia_portal_debt` | ✅ 12/09 · `9354618` |
 | E9a | `WJ-SALE-002` (138) | `wujia_sale` | ✅ 12/09 · `65c04c8` (merge upstream `ea9e5a6`) |
 | E9b | `WJ-FRANCHISE-004` (135) | `wujia_franchise` + **`-u wujia_franchise_contract`** (UAT đã cài sẵn bản cũ) | ✅ 13/09 |
-| E2a | `UI-STATUSBADGE-001` (128) — nền component + nhóm màn BA audit | `wujia_portal_layout`, `_base`, `_purchase_history`, `_delivery`, `_sale`, `_support` | ✅ 13/09 · `eb10937` · 114→77 call site cũ, 65 call site mới |
+| E2a | `UI-STATUSBADGE-001` (128) — nền component + nhóm màn BA audit | `wujia_portal_layout`, `_base`, `_purchase_history`, `_delivery`, `_sale`, `_support` | ✅ 13/09 · `fa2ed9c` · 114→77 call site cũ, 65 call site mới |
 | E2b | `UI-STATUSBADGE-001` (128) — 7 màn còn lại + 3 override lệch spec + đóng issue | `notification`, `exam`, `return`, `debt`, `knowledge`, `info_request`, `support` | ☐ (kiểm kê sẵn ở `docs/e2-statusbadge-inventory.md`) |
 | E3 | `UI-PAGINATION-001` (130) | `wujia_portal_layout` + 9 module | ☐ |
 | E4 | `UI-FILTER-001` (139) | `wujia_portal_layout` + 9 module | ☐ |
