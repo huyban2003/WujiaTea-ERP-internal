@@ -217,7 +217,7 @@ class WujiaFranchiseOnboardingWizard(models.TransientModel):
 
     def _create_franchise(self):
         self.ensure_one()
-        return self.env['wujia.franchise.management'].sudo().create({
+        vals = {
             'code': self.code.strip(),
             'name': self.name.strip(),
             'status': 'draft',
@@ -225,11 +225,20 @@ class WujiaFranchiseOnboardingWizard(models.TransientModel):
             'state_id': self.state_id.id,
             'address': self.address,
             'opening_date': self.opening_date,
-            'franchise_start_date': self.franchise_start_date,
-            'franchise_end_date': self.franchise_end_date,
             'phone': self.phone,
             'email': self.email,
-        })
+        }
+        if not self._wj_contracts_enabled():
+            vals['franchise_start_date'] = self.franchise_start_date
+            vals['franchise_end_date'] = self.franchise_end_date
+        franchise = self.env['wujia.franchise.management'].sudo().create(vals)
+        if self._wj_contracts_enabled():
+            franchise._wj_ensure_contract(self.franchise_start_date, self.franchise_end_date)
+        return franchise
+
+    def _wj_contracts_enabled(self):
+        """wujia_franchise_contract is an optional add-on; it owns the dates once installed."""
+        return 'wujia.franchise.contract' in self.env
 
     def _resolve_store_partner(self):
         self.ensure_one()

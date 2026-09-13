@@ -1,6 +1,6 @@
 {
     'name': 'Wujia Franchise Contract',
-    'version': '19.0.1.0.0',
+    'version': '19.0.2.0.0',
     'category': 'Wujia',
     'summary': 'Quản lý hợp đồng nhượng quyền theo Store',
     'author': 'WujiaTea',
@@ -21,6 +21,7 @@ Module mở rộng độc lập cho phân hệ nhượng quyền Wujia:
         'security/wujia_franchise_contract_groups.xml',
         'security/ir.model.access.csv',
         'data/ir_sequence_data.xml',
+        'data/ir_cron_data.xml',
         'views/wujia_franchise_contract_views.xml',
         'views/wujia_franchise_management_views.xml',
         'views/wujia_franchise_contract_menu.xml',

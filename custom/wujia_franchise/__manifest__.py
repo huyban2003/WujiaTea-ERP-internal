@@ -1,6 +1,6 @@
 {
     'name': 'Wujia Franchise',
-    'version': '19.0.5.0.0',
+    'version': '19.0.6.0.0',
     'category': 'Wujia',
     'summary': 'Quản lý cửa hàng nhượng quyền + membership user portal',
     'author': 'WujiaTea',

@@ -283,14 +283,19 @@ class WujiaFranchiseManagement(models.Model):
 
     @api.model
     def _cron_check_expired(self):
-        """Tự động set status='expired' khi đến hạn (ir.cron daily)."""
-        today = fields.Date.context_today(self)
-        expired = self.search([
-            ('franchise_end_date', '<', today),
+        """Cảnh báo HQ ngày hợp đồng vừa hết hạn — KHÔNG đụng status/portal_locked (WJ-FRANCHISE-004)."""
+        just_expired = self.search([
+            ('franchise_end_date', '=', fields.Date.subtract(fields.Date.context_today(self), days=1)),
             ('status', 'not in', ['expired', 'closed']),
             ('active', '=', True),
         ])
-        expired.write({'status': 'expired'})
+        for rec in just_expired:
+            rec.message_post(body=_(
+                "Franchise contract of store %(store)s expired on %(date)s. "
+                "The store is NOT locked — renew the contract to keep the records tidy.",
+                store=rec.display_name, date=rec.franchise_end_date,
+            ))
+        return len(just_expired)
 
 
 
@@ -376,17 +381,21 @@ class WujiaFranchiseManagement(models.Model):
                             'partner_id': partner_id,
                             'phone': row.get('phone', '').strip(),
                             'address': row.get('address', '').strip(),
-                            'franchise_start_date': start_str or fields.Date.today(),
-                            'franchise_end_date': end_str or None,
                             'status': row.get('status', 'active').strip() or 'active',
                             'portal_locked': bool(int(row.get('portal_locked', '0'))),
                             'invoiced': bool(int(row.get('invoiced', '0'))),
                             'description': row.get('description', ''),
                         }
+                        contracts_on = 'wujia.franchise.contract' in self.env
+                        if not contracts_on:
+                            vals['franchise_start_date'] = start_str or fields.Date.today()
+                            vals['franchise_end_date'] = end_str or None
                         if not f_rec:
-                            self.create(vals)
+                            f_rec = self.create(vals)
                         else:
                             f_rec.write(vals)
+                        if contracts_on:
+                            f_rec._wj_ensure_contract(start_str or fields.Date.today(), end_str or None)
             except Exception as e:
                 _logger.warning("[BOOTSTRAP CSV] Lỗi nạp wujia.franchise.management.csv: %s", e)
 

@@ -23,31 +23,31 @@
         <field name="arch" type="xml">
             <form string="Franchise Contract" delete="false">
                 <header>
-                    <button name="action_confirm" string="Confirm" type="object" class="btn-primary" invisible="state != 'draft'"/>
-                    <button name="action_cancel" string="Cancel Contract" type="object" class="btn-secondary" invisible="state == 'cancelled'" confirm="Are you sure you want to cancel this contract?"/>
-                    <button name="action_draft" string="Reset to Draft" type="object" class="btn-secondary" invisible="state != 'cancelled'"/>
+                    <button name="action_cancel" string="Cancel Contract" type="object" class="btn-secondary" invisible="is_cancelled" confirm="Are you sure you want to cancel this contract?"/>
+                    <button name="action_restore" string="Restore Contract" type="object" class="btn-secondary" invisible="not is_cancelled"/>
+                    <field name="is_cancelled" invisible="1"/>
                     <field name="state" widget="statusbar" statusbar_visible="draft,effective,expired,cancelled"/>
                 </header>
                 <sheet>
                     <div class="oe_title">
                         <h1>
-                            <field name="name" placeholder="Contract Number (e.g. FC/2026/0001)..." readonly="state not in ('draft', 'cancelled')"/>
+                            <field name="name" placeholder="Contract Number (e.g. FC/2026/0001)..."/>
                         </h1>
                     </div>
                     <group>
                         <group>
-                            <field name="franchise_id" readonly="state not in ('draft', 'cancelled')"/>
-                            <field name="start_date" readonly="state not in ('draft', 'cancelled')"/>
-                            <field name="end_date" readonly="state not in ('draft', 'cancelled')"/>
+                            <field name="franchise_id"/>
+                            <field name="start_date"/>
+                            <field name="end_date"/>
                         </group>
                         <group>
-                            <field name="active" readonly="state in ('effective', 'expired')"/>
-                            <field name="attachment_ids" widget="many2many_binary" readonly="state not in ('draft', 'cancelled')"/>
+                            <field name="active"/>
+                            <field name="attachment_ids" widget="many2many_binary"/>
                         </group>
                     </group>
                     <notebook>
                         <page string="Notes" name="notes_page">
-                            <field name="note" placeholder="Enter internal contract notes..." readonly="state not in ('draft', 'cancelled')"/>
+                            <field name="note" placeholder="Enter internal contract notes..."/>
                         </page>
                     </notebook>
                 </sheet>

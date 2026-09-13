@@ -234,9 +234,9 @@
         </field>
     </record>
 
-    <!-- Cron tự động set status='expired' mỗi ngày -->
+    <!-- Cron cảnh báo hợp đồng vừa hết hạn — không đổi status (WJ-FRANCHISE-004) -->
     <record id="ir_cron_check_franchise_expired" model="ir.cron">
-        <field name="name">Wujia: Auto-expire franchise contract</field>
+        <field name="name">Wujia: Warn about expired franchise contract</field>
         <field name="model_id" ref="model_wujia_franchise_management" />
         <field name="state">code</field>
         <field name="code">model._cron_check_expired()</field>

@@ -24,7 +24,7 @@ và viết mục "🔴 Bài học E&lt;n&gt;" ngay dưới khối prompt (tiền
 |---|---|---|---|
 | E1 | `UI-MOB-HOME-004` (133) + nợ 4 test D3 | `wujia_portal_layout` + `wujia_portal_debt` | ✅ 12/09 · `9354618` |
 | E9a | `WJ-SALE-002` (138) | `wujia_sale` | ✅ 12/09 · `65c04c8` (merge upstream `ea9e5a6`) |
-| E9b | `WJ-FRANCHISE-004` (135) | `wujia_franchise` + **`-i wujia_franchise_contract`** | ☐ |
+| E9b | `WJ-FRANCHISE-004` (135) | `wujia_franchise` + **`-u wujia_franchise_contract`** (UAT đã cài sẵn bản cũ) | ✅ 13/09 |
 | E2 | `UI-STATUSBADGE-001` (128) | `wujia_portal_layout` + 10 module portal | ☐ |
 | E3 | `UI-PAGINATION-001` (130) | `wujia_portal_layout` + 9 module | ☐ |
 | E4 | `UI-FILTER-001` (139) | `wujia_portal_layout` + 9 module | ☐ |
@@ -313,6 +313,36 @@ test. Cài là hỏng onboarding + test.
 
 **Ledger:** `WJ-FRANCHISE-004` → `Ready for Retest`; cột Build/Deploy ghi rõ **`-i wujia_franchise_contract`**
 + bump `wujia_franchise`.
+
+### 🔴 Bài học E9b (13/09/2026)
+
+1. **`-i` hay `-u` phải ĐO trên máy chủ, đừng suy từ git.** Kế hoạch ghi `-i wujia_franchise_contract`
+   vì `main` chưa từng cài. Đo XML-RPC UAT ra **`installed`, `19.0.1.0.0`** — chủ dự án đã tự cài
+   bản của anh Thái từ 09/09. Sai một chữ này là mất nguyên đường migration: `-i` trên module đã cài
+   **không chạy lại** `post_init_hook`, còn `migrations/<ver>/` thì chỉ chạy khi `-u`.
+2. **Đổi field thường → stored computed là XOÁ dữ liệu cũ trước khi hook chạy.** `post_init_hook` đọc
+   `store.franchise_start_date` qua ORM sẽ thấy `False`. Phải `cr.execute` đọc **thẳng cột**, và đọc
+   **TRƯỚC mọi lệnh ORM** (kể cả `ir.config_parameter.get_param`) vì bất kỳ lệnh nào cũng có thể flush
+   compute đè lên cột.
+3. **Cột `state` cũ mang thông tin không tái tạo được từ ngày.** `cancelled` là quyết định của người,
+   không suy ra từ `start/end`. Chuyển `state` sang computed mà không có `pre-migrate` **đắp cột
+   `is_cancelled` từ `state` cũ** là im lặng bỏ huỷ. Rehearsal nâng cấp bắt được — test không bắt được,
+   vì test luôn chạy trên schema mới.
+4. **Recompute dây chuyền không tự lan trong migration.** `post-migrate` ép tính `current_contract_id`
+   là chưa đủ: `franchise_start/end_date` phụ thuộc nó vẫn giữ giá trị cũ. Phải `add_to_compute` +
+   `flush_recordset` cho **cả ba** field theo đúng thứ tự.
+5. **`migrate()` ở build Odoo 19 này bắt buộc chữ ký `(cr, version)`.** Viết `(env, version)` là
+   `TypeError` giữa lúc nâng cấp — registry hỏng, DB kẹt nửa chừng.
+6. **`assertRaises` trần là assert rỗng (họ L8, lần thứ hai).** `test_03` bắt `ValidationError` và
+   **pass cả khi gỡ hẳn guard `end ≥ start`** — mutation M6 ra 0 đỏ mới lộ. `@api.constrains` chạy lúc
+   flush nên một ngoại lệ khác đã lấp chỗ. Vá: `assertRaisesRegex` + `flush_all()` trong khối.
+   Mutation M12 cũng sống sót vì **không có test nào** canh "HĐ đã huỷ không được làm HĐ hiện hành".
+7. **Code chết không lộ ra bằng đọc diff.** `_cron_update_contract_states` của bản cũ trông hoàn chỉnh
+   nhưng `data/` **không có record `ir.cron` nào** ⇒ chưa từng chạy, `expired` chưa từng tự lên.
+   Kiểm bằng `grep -rn "ir.cron" <module>/`, đừng tin tên hàm.
+8. **Luật "đo hồi quy trên DB giống UAT" cứu một lần nữa, nhưng đồng hồ cũng là biến.** Đỏ thứ 6
+   (`TestWujiaOrderView.test_06`) do khung giờ đặt hàng 10:00–04:00, mốc chạy 03:56 lọt, lượt sau 04:01
+   rớt. Chỉ **run đối chứng trên chính DB mốc cùng thời điểm** mới phân biệt được với hồi quy thật.
 
 ---
 
