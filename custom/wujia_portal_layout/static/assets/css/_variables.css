@@ -109,23 +109,24 @@
     --wj-pc-gray-soft:        #F3F4F6;
 
     /* ---------- StatusBadge CMP-SB-001 (BA Confirmed 26/08/2026) ----------
-       7 variant ngữ nghĩa, dùng CHUNG cho PC lẫn mobile. Hex lấy thẳng từ
-       spec BA; info #168FC2 KHÁC --wujia-primary #28A9DF (chỗ đạt AA). */
+       7 variant ngữ nghĩa, dùng CHUNG cho PC lẫn mobile. NỀN đúng hex BA.
+       CHỮ: 5/7 hex BA đo dưới WCAG AA 4.5 (chính spec BA đòi AA) ⇒ làm đậm
+       tối thiểu, giữ nguyên tông; hex gốc BA ghi ngay sau mỗi dòng. */
     --wj-sb-h:               28px;
     --wj-sb-min-w:           84px;
     --wj-sb-radius:          14px;
     --wj-sb-neutral-bg:      #F3F4F6;
-    --wj-sb-neutral-fg:      #6B7280;
+    --wj-sb-neutral-fg:      #6A707E;   /* BA #6B7280 · 4,39 */
     --wj-sb-info-bg:         #EAF7FD;
-    --wj-sb-info-fg:         #168FC2;
+    --wj-sb-info-fg:         #1378A3;   /* BA #168FC2 · 3,35 */
     --wj-sb-pending-bg:      #FFF7E6;
-    --wj-sb-pending-fg:      #D97706;
+    --wj-sb-pending-fg:      #AC5E05;   /* BA #D97706 · 2,99 */
     --wj-sb-processing-bg:   #FEF3C7;
     --wj-sb-processing-fg:   #B45309;
     --wj-sb-success-bg:      #EAF8EF;
-    --wj-sb-success-fg:      #16A34A;
+    --wj-sb-success-fg:      #11813B;   /* BA #16A34A · 3,01 */
     --wj-sb-danger-bg:       #FEECEC;
-    --wj-sb-danger-fg:       #DC2626;
+    --wj-sb-danger-fg:       #D52222;   /* BA #DC2626 · 4,24 */
     --wj-sb-feedback-bg:     #F3E8FF;
     --wj-sb-feedback-fg:     #7C3AED;
 

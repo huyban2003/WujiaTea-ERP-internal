@@ -415,8 +415,10 @@ grep -rn "badge" custom/wujia_portal_*/controllers/*.py | grep -oE "['\"][a-z_-]
    không chỉ sau restart, nếu không sẽ điều tra nhầm một "hồi quy" không có thật.
 5. **Danh sách OUT phải neo theo container.** `.wj-pc-badge--confirmed` vừa là RoleBadge (profile,
    thành viên) vừa là StatusBadge (purchase-history) — không neo thì migrate đúng cũng báo đỏ.
-6. **Spec BA tự mâu thuẫn thì hỏi, đừng tự chỉnh.** Vừa đòi WCAG AA vừa đưa 7 cặp hex mà 5 cặp đo
-   dưới 4.5. Chủ dự án chốt: **theo hex BA**, ghi LIMIT + gửi câu hỏi. Cũng vậy với mapping —
+6. **Spec BA tự mâu thuẫn thì tách ra mà xử, đừng chọn bừa một vế.** Vừa đòi WCAG AA vừa đưa 7 cặp hex
+   mà 5 cặp đo dưới 4.5. Cách giải: **nền = hex BA (nhận diện), chữ = làm đậm tối thiểu cùng tông
+   (đạt AA)** — vế nào của BA cũng còn. Test phải khoá **hai chiều** (nền đúng hex + chữ ≥4,5 +
+   lệch hue ≤12°), nếu không thì lần sau ai đó đổi bừa màu vẫn xanh. Với mapping thì ngược lại:
    nhãn nào BA đã nêu thì theo đúng bậc BA, kể cả khi hai nhãn cạnh nhau trùng màu.
 
 ---

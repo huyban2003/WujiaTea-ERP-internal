@@ -7,6 +7,7 @@ BA khoá bốn quan hệ, mỗi cái một test:
   4. Năm họ BA loại (Role · Count · FilterChip · Category · Alert) không bị kéo theo.
 """
 
+import colorsys
 import os
 import re
 
@@ -26,13 +27,35 @@ from odoo.tests.common import TransactionCase
 
 CSS = 'wujia_portal_layout/static/assets/css/_components.css'
 VARS = 'wujia_portal_layout/static/assets/css/_variables.css'
-# Hex BA chốt ở tab UI Component dòng 37 — sai một mã là sai spec.
+# Hex BA chốt ở tab UI Component dòng 37. NỀN giữ nguyên; CHỮ 5/7 mã của BA đo
+# dưới AA 4.5 nên đã làm đậm tối thiểu — test dưới khoá nền + ngưỡng AA + tông.
 BA_TOKENS = {
     'neutral': ('#F3F4F6', '#6B7280'), 'info': ('#EAF7FD', '#168FC2'),
     'pending': ('#FFF7E6', '#D97706'), 'processing': ('#FEF3C7', '#B45309'),
     'success': ('#EAF8EF', '#16A34A'), 'danger': ('#FEECEC', '#DC2626'),
     'feedback': ('#F3E8FF', '#7C3AED'),
 }
+
+
+def _rgb(h):
+    return tuple(int(h[i:i + 2], 16) for i in (1, 3, 5))
+
+
+def _contrast(fg, bg):
+    def lum(h):
+        out = 0
+        for c, w in zip(_rgb(h), (0.2126, 0.7152, 0.0722)):
+            c /= 255.0
+            out += w * (c / 12.92 if c <= 0.04045 else ((c + 0.055) / 1.055) ** 2.4)
+        return out
+    a, b = sorted((lum(fg), lum(bg)), reverse=True)
+    return (a + 0.05) / (b + 0.05)
+
+
+def _hue_gap(a, b):
+    ha, hb = (colorsys.rgb_to_hls(*[c / 255.0 for c in _rgb(x)])[0] * 360 for x in (a, b))
+    d = abs(ha - hb) % 360
+    return min(d, 360 - d)
 
 
 @tagged('post_install', '-at_install', 'wujia_status_badge_e2')
@@ -62,11 +85,21 @@ class TestStatusBadgeIsOneComponent(TransactionCase):
         self.assertRegex(body, r'border:\s*0')
         self.assertRegex(body, r'box-shadow:\s*none')
 
-    def test_tokens_match_the_hex_ba_signed_off(self):
+    def test_tokens_keep_ba_background_and_reach_wcag_aa(self):
+        """Nền = hex BA. Chữ: AA 4.5 (13px không phải chữ lớn) + giữ tông của BA."""
         css = self._read(VARS)
-        for variant, (bg, fg) in BA_TOKENS.items():
+        for variant, (bg, ba_fg) in BA_TOKENS.items():
             self.assertRegex(css, r'--wj-sb-%s-bg:\s*%s;' % (variant, bg))
-            self.assertRegex(css, r'--wj-sb-%s-fg:\s*%s;' % (variant, fg))
+            m = re.search(r'--wj-sb-%s-fg:\s*(#[0-9A-Fa-f]{6});' % variant, css)
+            self.assertTrue(m, 'thiếu token chữ %s' % variant)
+            fg = m.group(1)
+            self.assertGreaterEqual(
+                round(_contrast(fg, bg), 2), 4.5,
+                '%s: %s trên %s chỉ %.2f — dưới WCAG AA' % (variant, fg, bg, _contrast(fg, bg)))
+            self.assertLessEqual(
+                _hue_gap(fg, ba_fg), 12,
+                '%s: %s lệch tông khỏi hex BA %s — chỉ được làm đậm, không đổi màu'
+                % (variant, fg, ba_fg))
         for name, value in (('h', '28px'), ('min-w', '84px'), ('radius', '14px')):
             self.assertRegex(css, r'--wj-sb-%s:\s*%s;' % (name, value))
 
