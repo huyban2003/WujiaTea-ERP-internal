@@ -19,10 +19,10 @@
         <!-- Meta PageHeader (CMP-PG-001 matrix: "{tổng số đơn} đơn") — slot AJAX riêng để
              lọc xong vẫn thay được số. -->
         <span t-if="part == 'pccount'" id="wj-hist-pccount" class="wj-page-header__meta">
-            <t t-out="pager.get('page_total', len(rows))"/> đơn
+            <t t-out="(pgn or {}).get('total_items', len(rows))"/> đơn
         </span>
         <span t-if="part == 'mcount'" id="wj-hist-mcount" class="wj-page-header__meta">
-            <t t-out="pager.get('page_total', len(rows))"/> đơn
+            <t t-out="(pgn or {}).get('total_items', len(rows))"/> đơn
         </span>
 
         <!-- ===== PC: card bảng danh sách đơn ===== -->
@@ -36,7 +36,7 @@
                 <t t-set="ch_level" t-value="3"/>
                 <t t-set="ch_platform" t-value="'pc'"/>
                 <t t-set="ch_meta">
-                    <span class="wj-pc-card__count"><t t-out="pager.get('page_total', len(rows))"/> bản ghi</span>
+                    <span class="wj-pc-card__count"><t t-out="(pgn or {}).get('total_items', len(rows))"/> bản ghi</span>
                 </t>
             </t>
 
@@ -78,46 +78,7 @@
                     </tr>
                 </tbody>
             </t>
-
-            <!-- Pagination: count trái, page-size + Trước [n] Sau phải.
-                 Ẩn cả khối khi ≤10 bản ghi (BA cho phép); ngưỡng là option nhỏ
-                 nhất, không phải page_size đang chọn — chọn 50 mà còn 20 bản ghi
-                 thì vẫn phải bấm về 10 được (UI-PC-BASE-005). -->
-            <div t-if="rows and pager['page_total'] &gt; 10" class="wj-pc-pagination">
-                <span class="wj-pc-pagination__count">
-                    Hiển thị <t t-out="pager['offset'] + 1"/>–<t t-out="pager['offset'] + pager['count']"/> / <t t-out="pager['page_total']"/> bản ghi
-                </span>
-                <!-- Đổi số dòng/trang = submit thật, giữ bộ lọc, quay về trang 1 -->
-                <form method="get" action="/portal/purchase-history" class="wj-pc-pagination__size-form">
-                    <input type="hidden" name="q" t-att-value="q"/>
-                    <input type="hidden" name="date_from" t-att-value="date_from"/>
-                    <input type="hidden" name="date_to" t-att-value="date_to"/>
-                    <input type="hidden" name="state" t-att-value="state"/>
-                    <select name="page_size" class="wj-pc-pagination__size"
-                            aria-label="Số dòng mỗi trang" onchange="this.form.requestSubmit()">
-                        <t t-foreach="page_size_options" t-as="ps">
-                            <option t-att-value="ps"
-                                    t-att-selected="'selected' if page_size == ps else None">
-                                <t t-out="ps"/> / trang
-                            </option>
-                        </t>
-                    </select>
-                </form>
-                <!-- BA CMP-DL-001: điều hướng trang chỉ khi >1 trang; ô chọn số dòng/trang ở trên giữ guard riêng của UI-PC-BASE-005. -->
-                <t t-if="pager['page_count'] &gt; 1">
-                    <a t-attf-href="/portal/purchase-history?page=#{pager['page_previous']['num']}&amp;#{pager['querystring'] or ''}"
-                       t-attf-class="wj-pc-page-btn #{'is-disabled' if pager['page']['num'] &lt;= 1 else ''}">Trước</a>
-                    <t t-foreach="pager['page_nums']" t-as="pn">
-                        <span t-if="pn == '…'" class="wj-pc-page-btn">…</span>
-                        <a t-else=""
-                           t-attf-href="/portal/purchase-history?page=#{pn}&amp;#{pager['querystring'] or ''}"
-                           t-attf-class="wj-pc-page-btn #{'is-active' if pn == pager['page']['num'] else ''}"
-                           t-out="pn"/>
-                    </t>
-                    <a t-attf-href="/portal/purchase-history?page=#{pager['page_next']['num']}&amp;#{pager['querystring'] or ''}"
-                       t-attf-class="wj-pc-page-btn #{'is-disabled' if pager['page']['num'] &gt;= pager['page_count'] else ''}">Sau</a>
-                </t>
-            </div>
+            <t t-if="rows" t-call="wujia_portal_layout.wj_pagination"/>
         </t>
 
         <!-- ===== Mobile: chip preset (nằm trong form lọc) ===== -->
@@ -171,12 +132,7 @@
                     </a>
             </t>
 
-            <!-- Pager -->
-            <nav t-if="pager and pager.get('page_count', 0) &gt; 1" class="wujia-mhist-pager">
-                <a t-attf-href="/portal/purchase-history?page=#{pager['page_previous']['num']}&amp;#{pager['querystring'] or ''}">«</a>
-                <span>Trang <t t-out="pager['page']['num']"/> / <t t-out="pager['page_count']"/></span>
-                <a t-attf-href="/portal/purchase-history?page=#{pager['page_next']['num']}&amp;#{pager['querystring'] or ''}">»</a>
-            </nav>
+            <t t-call="wujia_portal_layout.wj_pagination"/>
         </div>
     </template>
 

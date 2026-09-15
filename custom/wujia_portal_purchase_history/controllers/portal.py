@@ -7,7 +7,7 @@ from odoo.http import request
 
 from odoo.addons.wujia_portal_base.controllers.portal import get_active_franchise_id
 from odoo.addons.wujia_portal_base.controllers.utils import (
-    local_day_range_utc, page_numbers, portal_line_price_vals, portal_money,
+    build_pager, local_day_range_utc, portal_line_price_vals, portal_money,
     portal_tax_mapper, portal_tz, to_local_dt,
     status_badge_for,
 )
@@ -239,7 +239,7 @@ class WujiaPortalHistory(http.Controller):
 
         fid = get_active_franchise_id()
         if not fid:
-            return dict(base_ctx, no_store=True, error=ERR_NO_STORE, rows=[], pager={})
+            return dict(base_ctx, no_store=True, error=ERR_NO_STORE, rows=[], pgn=None)
 
         # Preset shortcut → khoảng create_date.
         today = date.today()
@@ -256,7 +256,7 @@ class WujiaPortalHistory(http.Controller):
         # WJ-PH-007 — khoảng ngày đảo ngược: không chạy query, giữ nguyên 2 ô đã nhập,
         # báo lỗi TẠI FilterBar (empty state "Chưa có đơn hàng" làm người dùng tưởng hết dữ liệu).
         if df and dt and df > dt:
-            return dict(base_ctx, no_store=False, error='', rows=[], pager={},
+            return dict(base_ctx, no_store=False, error='', rows=[], pgn=None,
                         date_from=date_from, date_to=date_to, state=state, preset=preset,
                         q=q, filter_error=ERR_DATE_RANGE)
 
@@ -302,19 +302,11 @@ class WujiaPortalHistory(http.Controller):
         batch_status_labels = self._batch_status_labels()
         rows = [_history_row_vals(o, line_count_map, batch_status_labels, tz) for o in orders]
 
-        last_page = max(1, (total + page_size - 1) // page_size)
-        pager = {
-            'page': {'num': page},
-            'page_count': last_page, 'page_total': total,
-            'page_previous': {'num': max(1, page - 1)},
-            'page_next': {'num': min(last_page, page + 1)},
-            'page_nums': page_numbers(page, last_page),
-            'offset': offset, 'count': len(rows),
-            'querystring': self._qs(date_from=date_from, date_to=date_to, state=state, q=q,
-                                    page_size=page_size if page_size != PAGE_SIZE else ''),
-        }
+        pgn = build_pager(total, page, page_size, path='/portal/purchase-history',
+                          item_label='bản ghi', page_size_options=PAGE_SIZE_OPTIONS,
+                          size_param='page_size')
 
-        return dict(base_ctx, no_store=False, error='', rows=rows, pager=pager,
+        return dict(base_ctx, no_store=False, error='', rows=rows, pgn=pgn,
                     date_from=date_from, date_to=date_to, state=state, preset=preset, q=q,
                     page_size=page_size)
 
@@ -377,5 +369,3 @@ class WujiaPortalHistory(http.Controller):
             ('state', '!=', 'cancel'),
         ], limit=1)
 
-    def _qs(self, **kw):
-        return '&'.join(f'{k}={v}' for k, v in kw.items() if v)

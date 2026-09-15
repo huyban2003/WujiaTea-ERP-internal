@@ -221,8 +221,9 @@ class TestDataListCallSites(TransactionCase):
             self.assertEqual(khong_scope, [], '%s: th thiếu scope' % module)
 
     def test_pager_chi_hien_khi_nhieu_hon_mot_trang(self):
-        for module, filename in [('wujia_portal_return', 'portal_return_list.xml'),
-                                 ('wujia_portal_support', 'portal_support.xml')]:
+        # E3a: support đã về `wj_pagination`, guard >1 trang nay nằm trong component
+        # (test_e3_pagination). Return còn họ cũ tới lượt E3b.
+        for module, filename in [('wujia_portal_return', 'portal_return_list.xml')]:
             root = _view(module, filename)
             navs = root.xpath('//nav[.//ul[contains(@class, "wujia-pagination")]]')
             self.assertTrue(navs, '%s: không thấy khối pager' % module)
@@ -283,8 +284,8 @@ class TestDataListPcTable(TransactionCase):
     def test_pager_dieu_huong_guard_page_count(self):
         """BA: điều hướng trang chỉ khi >1 trang. Ô chọn số dòng/trang là khối khác
         (UI-PC-BASE-005) nên guard `> 10` của nó KHÔNG bị coi là vi phạm."""
+        # E3a: history đã về `wj_pagination`, guard >1 trang nay ở trong component.
         cases = [
-            ('wujia_portal_purchase_history', 'portal_history.xml', '/portal/purchase-history'),
             ('wujia_portal_notification', 'portal_notification.xml', '/portal/notification'),
         ]
         for module, filename, route in cases:

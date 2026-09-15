@@ -8,6 +8,7 @@ from odoo.addons.wujia_portal_base.controllers.portal import (
 )
 from odoo.addons.wujia_portal_base.controllers.utils import (
     MOBILE_TICKET_BADGES,
+    build_pager,
     status_badge_for,
 )
 
@@ -62,20 +63,10 @@ class WujiaPortalSupport(http.Controller):
         tickets = Ticket.search(
             domain, limit=PAGE_SIZE, offset=offset, order='create_date desc',
         )
-        last_page = max(1, (total + PAGE_SIZE - 1) // PAGE_SIZE)
-        qs_parts = []
-        if state:
-            qs_parts.append(f'state={state}')
-        if q:
-            qs_parts.append(f'q={q}')
-        pager = {
-            'page': {'num': page}, 'page_count': last_page,
-            'page_previous': {'num': max(1, page - 1)},
-            'page_next': {'num': min(last_page, page + 1)},
-            'querystring': '&'.join(qs_parts),
-        }
+        pgn = build_pager(total, page, PAGE_SIZE, path='/portal/support',
+                          item_label='yêu cầu')
         return request.render('wujia_portal_support.portal_support_list', {
-            'tickets': tickets, 'pager': pager,
+            'tickets': tickets, 'pgn': pgn,
             'state_labels': STATE_LABELS,
             'priority_labels': PRIORITY_LABELS,
             'm_ticket_badges': MOBILE_TICKET_BADGES,

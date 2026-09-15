@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- WJ_Pagination — CMP-PGNT-001. Một markup, hai bố cục bằng CSS:
+         >=992 desktopFull (count + page-size + số trang) · <992 mobileCompact
+         (Trước + "Trang x / y" + Sau). Props: `pgn` = utils.build_pager(). -->
+    <template id="wj_pagination" name="Wujia — Pagination">
+        <t t-set="pgn_sizes" t-value="(pgn or {}).get('page_size_options') or []"/>
+        <t t-set="pgn_show_size"
+           t-value="bool(pgn_sizes) and pgn['total_items'] &gt; min(pgn_sizes)"/>
+        <nav t-if="pgn and (pgn['total_pages'] &gt; 1 or pgn_show_size)"
+             t-attf-class="wj-pagination#{' is-navless' if pgn['total_pages'] &lt;= 1 else ''}"
+             aria-label="Phân trang">
+            <span class="wj-pagination__count">
+                Hiển thị <t t-out="pgn['from_']"/>–<t t-out="pgn['to']"/>
+                / <t t-out="pgn['total_items']"/> <t t-out="pgn['item_label']"/>
+            </span>
+
+            <form t-if="pgn_show_size" method="get" t-att-action="pgn['base_url']"
+                  class="wj-pagination__size-form">
+                <input t-foreach="pgn['hidden']" t-as="h" type="hidden"
+                       t-att-name="h[0]" t-att-value="h[1]"/>
+                <select t-att-name="pgn['size_param']" class="wj-pagination__size"
+                        aria-label="Số dòng mỗi trang"
+                        onchange="this.form.requestSubmit()">
+                    <option t-foreach="pgn_sizes" t-as="ps" t-att-value="ps"
+                            t-att-selected="'selected' if ps == pgn['page_size'] else None">
+                        <t t-out="ps"/> / trang
+                    </option>
+                </select>
+            </form>
+
+            <div t-if="pgn['total_pages'] &gt; 1" class="wj-pagination__nav">
+                <t t-set="pgn_first" t-value="pgn['page'] &lt;= 1"/>
+                <t t-set="pgn_last" t-value="pgn['page'] &gt;= pgn['total_pages']"/>
+                <span t-if="pgn_first" class="wj-pagination__btn is-disabled"
+                      aria-disabled="true">
+                    <span class="wj-pagination__chev" aria-hidden="true">‹</span>
+                    <span class="wj-pagination__label">Trang trước</span>
+                </span>
+                <a t-else="" t-att-href="pgn['prev_url']" class="wj-pagination__btn">
+                    <span class="wj-pagination__chev" aria-hidden="true">‹</span>
+                    <span class="wj-pagination__label">Trang trước</span>
+                </a>
+
+                <span class="wj-pagination__pages">
+                    <t t-foreach="pgn['numbers']" t-as="pn">
+                        <span t-if="pn == '…'" class="wj-pagination__gap"
+                              aria-hidden="true">…</span>
+                        <span t-elif="pn == pgn['page']"
+                              class="wj-pagination__btn is-active" aria-current="page"
+                              t-out="pn"/>
+                        <a t-else="" class="wj-pagination__btn"
+                           t-att-href="pgn['urls'][pn]" t-out="pn"/>
+                    </t>
+                </span>
+                <span class="wj-pagination__status">
+                    Trang <t t-out="pgn['page']"/> / <t t-out="pgn['total_pages']"/>
+                </span>
+
+                <span t-if="pgn_last" class="wj-pagination__btn is-disabled"
+                      aria-disabled="true">
+                    <span class="wj-pagination__label">Trang sau</span>
+                    <span class="wj-pagination__chev" aria-hidden="true">›</span>
+                </span>
+                <a t-else="" t-att-href="pgn['next_url']" class="wj-pagination__btn">
+                    <span class="wj-pagination__label">Trang sau</span>
+                    <span class="wj-pagination__chev" aria-hidden="true">›</span>
+                </a>
+            </div>
+        </nav>
+    </template>
+</odoo>

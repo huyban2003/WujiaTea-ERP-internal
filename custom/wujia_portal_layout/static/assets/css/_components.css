@@ -568,7 +568,8 @@ h2, .wujia-h2 { font-size: var(--wujia-font-size-h2) !important; font-weight: 60
 /* Content Card (UI-12, Sprint 9.13, 2026-05-27) */
 /* D4b: dáng khung chuyển sang .wj-surface-card (xem chú thích ở .wujia-kpi-card). */
 .wujia-content-card {
-    height: 100%;
+    /* min-height, không height: khoá 100% làm bảng dài tràn khỏi card và đè lên pager. */
+    min-height: 100%;
     display: flex;
     flex-direction: column;
 }
@@ -3505,4 +3506,138 @@ a.wujia-mhome-kpi:active { opacity: 0.85; }
     .wj-filter-search-btn { width: 44px; }
     form.row .form-select-sm,
     form.row .form-control-sm { min-height: 44px; }
+}
+
+/* ===== CMP-PGNT-001 Pagination — một markup, hai bố cục =================== */
+.wj-pagination {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: var(--wj-pgn-gap);
+    width: 100%;
+    margin-top: 16px;
+}
+
+.wj-pagination__count,
+.wj-pagination__size-form,
+.wj-pagination__pages { display: none; }
+
+/* Mobile ẩn count + page-size ⇒ khối chỉ còn ô chọn số dòng là rỗng: ẩn hẳn,
+   không để khoảng trắng (CMP-PGNT-001 mục 3). */
+.wj-pagination.is-navless { display: none; }
+
+.wj-pagination__nav {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--wj-pgn-gap);
+}
+
+.wj-pagination__btn {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    min-width: var(--wj-pgn-size);
+    height: var(--wj-pgn-size);
+    padding: 0 8px;
+    border: 1px solid var(--wujia-border);
+    border-radius: var(--wj-pgn-radius);
+    background: #FFFFFF;
+    color: var(--wujia-text-secondary);
+    font-size: 14px;
+    line-height: 20px;
+    font-weight: 600;
+    text-decoration: none;
+}
+
+/* Vùng chạm 44 mà KHÔNG nở visual 36 (BA cấm tăng chiều cao danh sách). */
+.wj-pagination__btn::before {
+    content: "";
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 100%;
+    height: var(--wj-pgn-touch);
+    min-width: var(--wj-pgn-touch);
+    transform: translate(-50%, -50%);
+}
+
+.wj-pagination__btn.is-active {
+    background: var(--wujia-primary);
+    border-color: var(--wujia-primary);
+    color: #FFFFFF;
+}
+
+.wj-pagination__btn.is-disabled {
+    background: var(--wujia-surface-tonal);
+    border-color: var(--wujia-border);
+    color: var(--wj-pgn-disabled-fg);
+    pointer-events: none;
+}
+
+.wj-pagination__chev { font-size: 16px; line-height: 1; }
+
+.wj-pagination__label {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    margin: -1px;
+    padding: 0;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+}
+
+.wj-pagination__gap {
+    min-width: var(--wj-pgn-size);
+    text-align: center;
+    color: var(--wj-pgn-disabled-fg);
+}
+
+.wj-pagination__status {
+    font-size: 14px;
+    line-height: 20px;
+    font-weight: 600;
+    color: var(--wujia-text-secondary);
+    white-space: nowrap;
+}
+
+@media (min-width: 992px) {
+    .wj-pagination.is-navless { display: flex; }
+    .wj-pagination {
+        justify-content: space-between;
+        gap: 12px;
+    }
+    .wj-pagination__count {
+        display: inline;
+        font-size: 14px;
+        line-height: 20px;
+        color: var(--wujia-text-muted);
+        margin-right: auto;
+    }
+    .wj-pagination__size-form { display: inline-flex; }
+    .wj-pagination__size {
+        height: var(--wj-pgn-size);
+        padding: 0 10px;
+        border: 1px solid var(--wujia-border);
+        border-radius: var(--wj-pgn-radius);
+        background: #FFFFFF;
+        color: var(--wujia-text-secondary);
+        font-size: 14px;
+        font-weight: 600;
+    }
+    .wj-pagination__pages {
+        display: inline-flex;
+        align-items: center;
+        gap: var(--wj-pgn-gap);
+    }
+    .wj-pagination__status { display: none; }
+    .wj-pagination__btn::before { display: none; }
+    .wj-pagination__btn:not(.is-disabled):not(.is-active):hover {
+        background: var(--wujia-primary-soft);
+        border-color: var(--wujia-primary);
+    }
 }

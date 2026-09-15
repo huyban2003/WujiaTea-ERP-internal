@@ -8,6 +8,7 @@ import functools
 import logging
 import time
 from datetime import date, datetime, time as dt_time
+from urllib.parse import urlencode
 
 import pytz
 from werkzeug.exceptions import Forbidden, TooManyRequests
@@ -222,50 +223,72 @@ def attach_files_to_record(
 # Pagination helper
 # ---------------------------------------------------------------------------
 
-def paginate(model, domain, page=1, page_size=20, order='id desc',
-             max_page=500):
-    """Trả về (records, pager_dict). Tránh OFFSET deep — cap max_page.
+ELLIPSIS = '…'
 
-    Performance: với page > max_page, raise hoặc return empty thay vì
-    OFFSET 10000+ (PostgreSQL phải scan trước).
 
-    Returns:
-        (records, pager) where pager = {
-            'page': int, 'page_count': int, 'page_total': int,
-            'page_previous': int, 'page_next': int,
-            'offset': int, 'limit': int,
-        }
+def build_pager(total, page, page_size, *, path=None, item_label='bản ghi',
+                page_size_options=(), size_param='page_size', extra_drop=()):
+    """Nguồn DUY NHẤT của mọi pager portal (CMP-PGNT-001).
+
+    Query-string lấy từ request hiện tại trừ `page` nên bộ lọc/sort/keyword không
+    bao giờ rơi khi đổi trang — thay cho 6 cách nối tay trước đây.
     """
-    try:
-        page = max(1, int(page))
-    except (TypeError, ValueError):
-        page = 1
-    page = min(page, max_page)
     try:
         page_size = max(1, min(int(page_size), 100))
     except (TypeError, ValueError):
         page_size = 20
+    try:
+        page = max(1, int(page))
+    except (TypeError, ValueError):
+        page = 1
 
-    Model = model if hasattr(model, 'search_count') else request.env[model]
-    total = Model.search_count(domain)
-    last_page = max(1, (total + page_size - 1) // page_size)
-    page = min(page, last_page)
+    total = max(0, int(total or 0))
+    total_pages = max(1, (total + page_size - 1) // page_size)
+    page = min(page, total_pages)
     offset = (page - 1) * page_size
-    records = Model.search(domain, limit=page_size, offset=offset, order=order)
 
-    return records, {
+    base = path or (request.httprequest.path if request else '')
+    params = _pager_params(extra_drop)
+    numbers = page_numbers(page, total_pages)
+
+    def url(num):
+        qs = urlencode(params + [('page', num)])
+        return '%s?%s' % (base, qs) if qs else base
+
+    return {
         'page': page,
-        'page_count': last_page,
-        'page_total': total,
-        'page_previous': max(1, page - 1),
-        'page_next': min(last_page, page + 1),
+        'total_pages': total_pages,
+        'total_items': total,
+        'page_size': page_size,
+        'page_size_options': list(page_size_options),
+        'size_param': size_param,
         'offset': offset,
-        'limit': page_size,
+        'from_': offset + 1 if total else 0,
+        'to': min(offset + page_size, total),
+        'numbers': numbers,
+        'item_label': item_label,
+        'urls': {n: url(n) for n in numbers if n != ELLIPSIS},
+        'prev_url': url(max(1, page - 1)),
+        'next_url': url(min(total_pages, page + 1)),
+        'base_url': base,
+        'hidden': [(k, v) for k, v in params if k != size_param],
     }
 
 
+_PAGER_DROP = ('page', 'notice', 'csrf_token')
+
+
+def _pager_params(extra_drop=()):
+    """Param hiện tại (giữ thứ tự, giữ giá trị lặp) trừ page + nhiễu một lần."""
+    if not request:
+        return []
+    drop = set(_PAGER_DROP) | set(extra_drop)
+    return [(k, v) for k, v in request.httprequest.args.items(multi=True)
+            if k not in drop and v not in ('', None)]
+
+
 def page_numbers(current, last, edge=1, around=1):
-    """Windowed page list cho numbered pager: [1, '…', 4, 5, 6, '…', 20]."""
+    """Windowed page list cho numbered pager: [1, ELLIPSIS, 4, 5, 6, ELLIPSIS, 20]."""
     if last < 1:
         return []
     keep = set(range(1, edge + 1)) | set(range(last - edge + 1, last + 1))
@@ -274,7 +297,7 @@ def page_numbers(current, last, edge=1, around=1):
     result, prev = [], 0
     for p in pages:
         if prev and p - prev > 1:
-            result.append('…')
+            result.append(ELLIPSIS)
         result.append(p)
         prev = p
     return result

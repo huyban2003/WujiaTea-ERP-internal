@@ -106,21 +106,7 @@
                     </t>
                     </t>
 
-                    <nav t-if="pager and pager.get('page_count', 0) &gt; 1" class="mt-2">
-                        <ul class="pagination wujia-pagination justify-content-center mb-0">
-                            <li class="page-item">
-                                <a class="page-link"
-                                   t-attf-href="/portal/support?page=#{pager['page_previous']['num']}&amp;#{pager.get('querystring','')}">«</a>
-                            </li>
-                            <li class="page-item active">
-                                <span class="page-link"><t t-out="pager['page']['num']"/> / <t t-out="pager['page_count']"/></span>
-                            </li>
-                            <li class="page-item">
-                                <a class="page-link"
-                                   t-attf-href="/portal/support?page=#{pager['page_next']['num']}&amp;#{pager.get('querystring','')}">»</a>
-                            </li>
-                        </ul>
-                    </nav>
+                    <t t-call="wujia_portal_layout.wj_pagination"/>
                     </div>
                 </div>
             </div>
@@ -205,21 +191,7 @@
                         </t>
                     </t>
 
-                    <nav t-if="pager and pager.get('page_count', 0) &gt; 1">
-                        <ul class="pagination wujia-pagination justify-content-center mb-0">
-                            <li class="page-item">
-                                <a class="page-link"
-                                   t-attf-href="/portal/support?page=#{pager['page_previous']['num']}&amp;#{pager.get('querystring','')}">«</a>
-                            </li>
-                            <li class="page-item active">
-                                <span class="page-link"><t t-out="pager['page']['num']"/> / <t t-out="pager['page_count']"/></span>
-                            </li>
-                            <li class="page-item">
-                                <a class="page-link"
-                                   t-attf-href="/portal/support?page=#{pager['page_next']['num']}&amp;#{pager.get('querystring','')}">»</a>
-                            </li>
-                        </ul>
-                    </nav>
+                    <t t-call="wujia_portal_layout.wj_pagination"/>
                     </div>
                 </t>
             </div>
