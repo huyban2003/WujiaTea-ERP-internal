@@ -85,8 +85,11 @@ JS = r"""
       label: nav.getAttribute('aria-label'),
       // Gap BA nói là gap GIỮA CÁC NÚT (khối __nav), không phải gap của vỏ
       // ngoài vốn chia count | page-size | nav.
-      gap: parseFloat(getComputedStyle(
-        nav.querySelector('.wj-pagination__nav') || nav).gap) || 0,
+      // Một trang mà vẫn còn ô cỡ trang thì KHÔNG có khối __nav; đo vỏ ngoài
+      // (12px chia count | page-size) là báo động giả — trả null để bỏ qua.
+      gap: nav.querySelector('.wj-pagination__nav')
+        ? parseFloat(getComputedStyle(nav.querySelector('.wj-pagination__nav')).gap) || 0
+        : null,
       btns: btns.map(btn),
       links,
       countShown: !!(count && vis(count)),
@@ -111,7 +114,10 @@ def _qs(url):
     """Bộ lọc trong URL, bỏ `page`. URL không có '?' thì KHÔNG có param —
     `split('?')[-1]` trả nguyên đường dẫn ⇒ báo động giả (vá 15/09)."""
     query = url.split('?', 1)[1] if '?' in url else ''
-    return sorted(p for p in query.split('&') if p and not p.startswith('page='))
+    # Param rỗng không mang bộ lọc nào — `build_pager` bỏ nó, giữ lại khi so là
+    # báo oan "rơi bộ lọc" (vá 15/09, lượt E3b).
+    return sorted(p for p in query.split('&')
+                  if p and not p.startswith('page=') and not p.endswith('='))
 
 
 def judge(data, width):
@@ -121,7 +127,7 @@ def judge(data, width):
     for nav in data['navs']:
         if nav['label'] != 'Phân trang':
             bad.append(f"nav thiếu nhãn (aria-label={nav['label']!r})")
-        if abs(nav['gap'] - SPEC['gap']) > 0.5:
+        if nav['gap'] is not None and abs(nav['gap'] - SPEC['gap']) > 0.5:
             bad.append(f"gap {nav['gap']} ≠ 8")
         if nav['current'] > 1:
             bad.append(f"{nav['current']} nút mang aria-current cùng lúc")

@@ -21,9 +21,12 @@ from odoo.addons.wujia_portal_base.controllers.portal import (
     get_active_franchise_ids_filter,
 )
 from odoo.addons.wujia_portal_base.controllers.utils import (
+    PAGE_SIZE_OPTIONS,
     attach_files_to_record,
+    build_pager,
     fmt_local_dt,
     local_day_range_utc,
+    parse_page_size,
     portal_tz,
     status_badge,
     status_badge_for,
@@ -32,7 +35,6 @@ from odoo.addons.wujia_portal_base.controllers.utils import (
 _logger = logging.getLogger(__name__)
 
 PAGE_SIZE = 20
-MAX_PAGE_SIZE = 100
 
 # Chỉ đơn đã xác nhận trong 10 ngày mới tạo được yêu cầu (BA STT3 #4).
 ORDER_WINDOW_DAYS = 10
@@ -158,26 +160,17 @@ class WujiaPortalReturn(http.Controller):
             domain.append(('request_date', '<=', utc_to))
 
         page = self._parse_int(page, 1, minimum=1)
-        size = self._parse_int(page_size, PAGE_SIZE, minimum=1, maximum=MAX_PAGE_SIZE)
+        size = parse_page_size(page_size, PAGE_SIZE)
         Model = request.env['wujia.return.request'].sudo()
         total = Model.search_count(domain)
-        last_page = max(1, (total + size - 1) // size)
-        page = min(page, last_page)
+        pgn = build_pager(total, page, size, path='/portal/return',
+                          item_label='yêu cầu',
+                          page_size_options=PAGE_SIZE_OPTIONS)
+        page = pgn['page']
         returns = Model.search(domain, limit=size, offset=(page - 1) * size,
                                order='request_date desc')
-        pager = {
-            'page': {'num': page}, 'page_count': last_page,
-            'page_previous': {'num': max(1, page - 1)},
-            'page_next': {'num': min(last_page, page + 1)},
-            'querystring': '&'.join(
-                f'{k}={v}' for k, v in
-                [('state', state), ('date_from', date_from), ('date_to', date_to),
-                 ('q', q), ('page_size', size if size != PAGE_SIZE else '')]
-                if v
-            ),
-        }
         return request.render('wujia_portal_return.portal_return_list', self._list_ctx(
-            returns=returns, pager=pager, state=state, date_from=date_from,
+            returns=returns, pgn=pgn, state=state, date_from=date_from,
             date_to=date_to, q=q, notice=notice, total=total,
         ))
 
@@ -286,7 +279,7 @@ class WujiaPortalReturn(http.Controller):
 
     def _list_ctx(self, **kw):
         ctx = {
-            'no_franchise': False, 'returns': [], 'pager': {}, 'total': 0,
+            'no_franchise': False, 'returns': [], 'pgn': None, 'total': 0,
             'state_labels': STATE_LABELS, 'wj_state_label': state_label,
             'comp_status_labels': COMPENSATION_STATUS_LABELS,
             'filter_options': FILTER_OPTIONS,

@@ -68,9 +68,81 @@ for i in range(have, TARGET_ARTICLES):
         'content': '<p>Bản ghi seed cho phép đo phân trang E3.</p>',
         'publish_date': (now - timedelta(days=i)).date(),
         'active': True,
+        # Thiếu `published` là portal không thấy ⇒ lọc theo từ khoá ra 0 dòng,
+        # pager không render và bảng đo thành "Pass rỗng".
+        'state': 'published',
     })
 print('  Kiến thức: %d → %d bài mang dấu %s'
       % (have, max(have, TARGET_ARTICLES), MARK))
 
 env.cr.commit()
 print('=== XONG ===')
+
+# ------------------------------------------------- E3b: 5 màn còn lại
+# Nhân bản bản ghi có sẵn thay vì dựng tay: mọi trường bắt buộc (UoM, loại lỗi,
+# giờ mở hộp…) đã đúng, chỉ đổi mốc thời gian để thứ tự trang ổn định.
+TARGET_E3B = 45
+
+
+def _clone(model, domain, target, vals_fn, label):
+    Model = env[model]
+    src = Model.search(domain, limit=1)
+    if not src:
+        print('  %s: không có bản ghi mẫu → bỏ qua' % label)
+        return
+    have = Model.search_count(domain)
+    for i in range(have, target):
+        src.copy(vals_fn(i))
+    print('  %s: %d → %d' % (label, have, Model.search_count(domain)))
+
+
+# `state` là copy=False ⇒ bản sao rơi về `draft` và portal KHÔNG thấy (pager rỗng).
+_clone('wujia.notification', [('id', '!=', 0)], TARGET_E3B,
+       lambda i: {'name': '%s Thông báo mẫu số %02d' % (MARK, i + 1),
+                  'published_date': now - timedelta(days=i),
+                  'state': 'published'},
+       'Thông báo')
+
+_clone('wujia.return.request', [('franchise_id', '=', franchise.id)], TARGET_E3B,
+       lambda i: {'request_date': now - timedelta(days=i)}, 'Đổi trả')
+
+_clone('wujia.info.update.request', [('franchise_id', '=', franchise.id)], TARGET_E3B,
+       lambda i: {'request_date': now - timedelta(days=i)}, 'Yêu cầu thông tin')
+
+# Chuyến giao: mỗi chuyến cần picking riêng của chính cửa hàng (khuôn seed D5).
+Picking, Batch = env['stock.picking'], env['stock.picking.batch']
+src_pick = Picking.search([('franchise_id', '=', franchise.id)], limit=1)
+bdom = [('picking_ids.franchise_id', '=', franchise.id)]
+have = Batch.search_count(bdom)
+if not src_pick:
+    print('  Chuyến giao: không có picking mẫu → bỏ qua')
+else:
+    for i in range(have, TARGET_E3B):
+        origin = '%s-DLV-%03d' % (MARK, i + 1)
+        if Picking.search_count([('origin', '=', origin)]):
+            continue
+        pick = src_pick.copy({'origin': origin, 'franchise_id': franchise.id})
+        Batch.create({'picking_ids': [(6, 0, pick.ids)],
+                      'planned_departure': now - timedelta(days=i, hours=3)})
+    print('  Chuyến giao: %d → %d' % (have, Batch.search_count(bdom)))
+
+# Thành viên cửa hàng: mỗi thành viên một user portal (ràng buộc 1 user/cửa hàng).
+Member = env['wujia.franchise.member']
+mdom = [('franchise_id', '=', franchise.id), ('is_currently_valid', '=', True)]
+have = Member.search_count(mdom)
+group_portal = env.ref('base.group_portal')
+for i in range(have, 25):
+    login = 'seed.e3.%02d@wujiatea.test' % (i + 1)
+    user = env['res.users'].search([('login', '=', login)], limit=1)
+    if not user:
+        user = env['res.users'].with_context(no_reset_password=True).create({
+            'name': '%s Thành viên %02d' % (MARK, i + 1),
+            'login': login, 'email': login,
+            'group_ids': [(6, 0, [group_portal.id])],
+        })
+    Member.create({'franchise_id': franchise.id, 'user_id': user.id,
+                   'role': 'staff'})
+print('  Thành viên: %d → %d' % (have, Member.search_count(mdom)))
+
+env.cr.commit()
+print('=== XONG E3b ===')

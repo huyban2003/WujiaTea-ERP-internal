@@ -9,20 +9,20 @@ Script: `scratchpad/e3_inventory.py` · ngày đo: 2026-09-15 · cây mã `8c458
 
 | File | Dòng | Thẻ | Họ class | Lượt |
 |---|---|---|---|---|
-| `wujia_portal_base/views/portal_franchise_information.xml` | 137, 150 | `div` | `wj-pc-pagination` | **E3b — gỡ hẳn** |
-| `wujia_portal_purchase_history/views/portal_history.xml` | 86 | `div` | `wj-pc-pagination` | E3a |
-| | 175 | `nav` | `wujia-mhist-pager` | E3a |
-| `wujia_portal_support/views/portal_support.xml` | 110 | `ul` | `pagination wujia-pagination` | E3a |
-| | 209 | `ul` | `pagination wujia-pagination` | E3b |
-| `wujia_portal_notification/views/portal_notification.xml` | 98 | `div` | `wj-pc-pagination` | E3b |
-| | 208 | `div` | `wujia-mnoti-pager` | E3b |
-| `wujia_portal_delivery/views/portal_delivery.xml` | 84 | `div` | `wj-pc-pagination` | E3b |
-| | 191 | `nav` | `wujia-mhist-pager` | E3b |
-| `wujia_portal_knowledge/views/portal_knowledge.xml` | 106 | `ul` | `pagination wujia-pagination` | E3b |
-| | 268 | `nav` | `wujia-mknow-pager` | E3b |
-| `wujia_portal_return/views/portal_return_list.xml` | 139 | `ul` | `pagination wujia-pagination` | E3b |
-| | 290 | `nav` | `wujia-mhist-pager` | E3b |
-| `wujia_portal_info_request/views/portal_info_request_list.xml` | 131 | `ul` | `pagination wujia-pagination` | E3b |
+| `wujia_portal_base/views/portal_franchise_information.xml` | 137, 150 | `div` | `wj-pc-pagination` | ✅ E3b — phân trang thật |
+| `wujia_portal_purchase_history/views/portal_history.xml` | 86 | `div` | `wj-pc-pagination` | ✅ E3a |
+| | 175 | `nav` | `wujia-mhist-pager` | ✅ E3a |
+| `wujia_portal_support/views/portal_support.xml` | 110 | `ul` | `pagination wujia-pagination` | ✅ E3a |
+| | 209 | `ul` | `pagination wujia-pagination` | ✅ E3b |
+| `wujia_portal_notification/views/portal_notification.xml` | 98 | `div` | `wj-pc-pagination` | ✅ E3b |
+| | 208 | `div` | `wujia-mnoti-pager` | ✅ E3b |
+| `wujia_portal_delivery/views/portal_delivery.xml` | 84 | `div` | `wj-pc-pagination` | ✅ E3b |
+| | 191 | `nav` | `wujia-mhist-pager` | ✅ E3b |
+| `wujia_portal_knowledge/views/portal_knowledge.xml` | 106 | `ul` | `pagination wujia-pagination` | ✅ E3b |
+| | 268 | `nav` | `wujia-mknow-pager` | ✅ E3b |
+| `wujia_portal_return/views/portal_return_list.xml` | 139 | `ul` | `pagination wujia-pagination` | ✅ E3b |
+| | 290 | `nav` | `wujia-mhist-pager` | ✅ E3b |
+| `wujia_portal_info_request/views/portal_info_request_list.xml` | 131 | `ul` | `pagination wujia-pagination` | ✅ E3b |
 | `wujia_portal_exam/views/portal_exam.xml` | 97 | `div` | `wj-pc-pagination wj-exam-pc-pagination` | E3c |
 | `wujia_portal_debt/views/portal_debt.xml` | 396, 642 | `div` | `wj-debt-pc-pagination` | E3c |
 | `wujia_portal_sale/views/portal_order_catalog.xml` | 78 | `nav` | `wj-pc-pagination wj-pc-order-pager` | E3c |
@@ -64,3 +64,13 @@ làm mất filter" — và info-request là ca vi phạm thật (rơi `q`, `date
    `build_pager(size_param=...)`.
 4. Template `wj_pagination` chỉ đọc dict chuẩn; **một markup**, hai bố cục bằng CSS
    (`≥992` desktopFull / `<992` mobileCompact) — không render hai khối rồi `d-none` (bẫy id trùng D6c).
+
+## Tiến độ (cập nhật 15/09/2026, sau lượt E3b)
+
+| Lượt | Trạng thái | Bảng nghiệm thu |
+|---|---|---|
+| E3a — nền `build_pager` + component + 2 route mẫu | ✅ `b9c50cc` | `docs/e3a-acceptance-matrix.md` |
+| E3b — 5 màn còn lại + ô cỡ trang thật + phân trang thành viên | ✅ 15/09 | `docs/e3b-acceptance-matrix.md` |
+| E3c — thi, công nợ ×2, catalog, `pc_preview`, xoá 10 họ CSS cũ | ⏳ | sẽ là `docs/e3-acceptance-matrix.md` (đóng issue) |
+
+**Còn lại đúng 5 khối / 4 file** (đều nằm trong E3c) + module Khảo sát `defer`.

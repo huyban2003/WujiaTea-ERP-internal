@@ -225,6 +225,17 @@ def attach_files_to_record(
 
 ELLIPSIS = '…'
 
+PAGE_SIZE_OPTIONS = (10, 20, 50)
+
+
+def parse_page_size(value, default, options=PAGE_SIZE_OPTIONS):
+    """Cỡ trang chỉ nhận giá trị có trong ô chọn; rác hoặc thiếu → mặc định route."""
+    try:
+        size = int(value)
+    except (TypeError, ValueError):
+        return default
+    return size if size in options else default
+
 
 def build_pager(total, page, page_size, *, path=None, item_label='bản ghi',
                 page_size_options=(), size_param='page_size', extra_drop=()):

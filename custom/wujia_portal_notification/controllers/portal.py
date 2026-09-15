@@ -10,6 +10,7 @@ from odoo.addons.wujia_portal_base.controllers.portal import (
     get_active_franchise_ids_filter,
 )
 from odoo.addons.wujia_portal_base.controllers.utils import (
+    build_pager,
     fmt_local_dt,
     local_day_range_utc,
     portal_tz,
@@ -212,23 +213,12 @@ class WujiaPortalNotification(http.Controller):
 
         types = request.env['wujia.notification.type'].sudo().search(
             [('active', '=', True)], order='sequence')
-        last_page = max(1, (total + lim - 1) // lim)
-        querystring = '&'.join(
-            f'{k}={v}' for k, v in
-            [('tab', tab), ('type_id', tid or ''), ('keyword', keyword),
-             ('read_status', read_status), ('unread', unread or ''),
-             ('date_from', date_from or ''), ('date_to', date_to or ''),
-             ('priority', priority or ''), ('limit', lim)] if v
-        )
-        pager = {
-            'page': {'num': page}, 'page_count': last_page,
-            'page_previous': {'num': max(1, page - 1)},
-            'page_next': {'num': min(last_page, page + 1)},
-            'querystring': querystring,
-        }
+        pgn = build_pager(total, page, lim, path='/portal/notification',
+                          item_label='thông báo',
+                          page_size_options=ALLOWED_LIMITS, size_param='limit')
         return {
             'notifications': notifications,
-            'read_ids': read_ids, 'types': types, 'pager': pager,
+            'read_ids': read_ids, 'types': types, 'pgn': pgn,
             'type_id': tid, 'keyword': keyword, 'tab': tab,
             'total': total, 'cnt_unread': cnt_unread,
             'unread': '1' if read_status == 'unread' else '',

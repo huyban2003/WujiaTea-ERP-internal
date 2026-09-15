@@ -127,21 +127,7 @@
                     </t>
                     </t>
 
-                    <nav t-if="pager and pager.get('page_count', 0) &gt; 1" class="mt-2">
-                        <ul class="pagination wujia-pagination justify-content-center mb-0">
-                            <li class="page-item" t-att-class="'disabled' if pager['page']['num'] &lt;= 1 else ''">
-                                <a class="page-link" t-attf-href="?page=#{pager['page_previous']['num']}&amp;state=#{state}&amp;request_type=#{request_type}">«</a>
-                            </li>
-                            <li class="page-item disabled">
-                                <span class="page-link">
-                                    <t t-out="pager['page']['num']"/> / <t t-out="pager['page_count']"/>
-                                </span>
-                            </li>
-                            <li class="page-item" t-att-class="'disabled' if pager['page']['num'] &gt;= pager['page_count'] else ''">
-                                <a class="page-link" t-attf-href="?page=#{pager['page_next']['num']}&amp;state=#{state}&amp;request_type=#{request_type}">»</a>
-                            </li>
-                        </ul>
-                    </nav>
+                    <t t-call="wujia_portal_layout.wj_pagination"/>
                     </div>
                 </div>
             </div>

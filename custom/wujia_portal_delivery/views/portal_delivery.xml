@@ -81,24 +81,7 @@
                     </tbody>
                 </t>
 
-                <div t-if="m_pager and m_pager.get('page_count', 0) &gt; 1" class="wj-pc-pagination">
-                    <span class="wj-pc-pagination__count">
-                        Hiển thị <t t-out="m_pager['offset'] + 1"/>–<t t-out="m_pager['offset'] + m_pager['count']"/>
-                        / <t t-out="m_pager['page_total']"/> chuyến
-                    </span>
-                    <select class="wj-pc-pagination__size" disabled="disabled"><option>10 / trang</option></select>
-                    <a t-attf-href="/portal/delivery?page=#{m_pager['page_previous']['num']}&amp;#{m_pager['querystring'] or ''}"
-                       t-attf-class="wj-pc-page-btn #{'is-disabled' if m_pager['page']['num'] &lt;= 1 else ''}">‹</a>
-                    <t t-foreach="m_pager['page_nums']" t-as="pn">
-                        <span t-if="pn == '…'" class="wj-pc-page-btn">…</span>
-                        <a t-else=""
-                           t-attf-href="/portal/delivery?page=#{pn}&amp;#{m_pager['querystring'] or ''}"
-                           t-attf-class="wj-pc-page-btn #{'is-active' if pn == m_pager['page']['num'] else ''}"
-                           t-out="pn"/>
-                    </t>
-                    <a t-attf-href="/portal/delivery?page=#{m_pager['page_next']['num']}&amp;#{m_pager['querystring'] or ''}"
-                       t-attf-class="wj-pc-page-btn #{'is-disabled' if m_pager['page']['num'] &gt;= m_pager['page_count'] else ''}">›</a>
-                </div>
+                <t t-call="wujia_portal_layout.wj_pagination"/>
             </t>
 
             <!-- STATE: loading (skeleton) -->
@@ -129,7 +112,7 @@
                 <span class="wj-pc-dlv-inner__icon wj-pc-dlv-inner__icon--error"><i class="feather icon-alert-circle"/></span>
                 <h3 class="wj-pc-dlv-inner__title">Không tải được dữ liệu giao hàng</h3>
                 <p class="wj-pc-dlv-inner__sub">Vui lòng thử tải lại hoặc kiểm tra kết nối.</p>
-                <a t-attf-href="/portal/delivery?#{m_pager.get('querystring','') if m_pager else ''}"
+                <a href="/portal/delivery"
                    class="wj-pc-btn wj-pc-btn--primary"><i class="feather icon-refresh-cw"/>Tải lại</a>
             </div>
         </t>
@@ -188,11 +171,7 @@
                         </span>
                     </a>
                 </t>
-                <nav t-if="m_pager and m_pager.get('page_count', 0) &gt; 1" class="wujia-mhist-pager">
-                    <a t-attf-href="/portal/delivery?page=#{m_pager['page_previous']['num']}&amp;#{m_pager.get('querystring','')}">«</a>
-                    <span>Trang <t t-out="m_pager['page']['num']"/> / <t t-out="m_pager['page_count']"/></span>
-                    <a t-attf-href="/portal/delivery?page=#{m_pager['page_next']['num']}&amp;#{m_pager.get('querystring','')}">»</a>
-                </nav>
+                <t t-call="wujia_portal_layout.wj_pagination"/>
             </t>
 
             <!-- STATE: empty (no-data chung Figma 4788:974 — lọc rỗng → Xóa lọc) -->

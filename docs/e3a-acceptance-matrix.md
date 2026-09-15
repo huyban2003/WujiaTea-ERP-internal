@@ -75,8 +75,11 @@ oan "link trang rơi bộ lọc" 6 ô); `gap` đọc nhầm ở flex ngoài (12p
 
 ## 6. Còn lại của cụm
 
-- **E3b**: thông báo, giao hàng, kiến thức, đổi trả, yêu cầu thông tin (PC+mobile), hỗ trợ mobile;
-  **gỡ hẳn** 2 pager giả ở `portal_franchise_information.xml:137,150`; chuẩn hoá `m_pager` của giao hàng.
+- **E3b** — ✅ xong 15/09, xem `docs/e3b-acceptance-matrix.md`: thông báo, giao hàng, kiến thức,
+  đổi trả, yêu cầu thông tin (PC+mobile) đã qua component; 2 pager giả ở
+  `portal_franchise_information.xml` được thay bằng **phân trang server-side thật**; ô số dòng/trang
+  chạy thật ở cả 4 màn chưa có, qua một đường đọc chung `parse_page_size()`.
+  (Hỗ trợ mobile thực ra đã migrate ngay trong E3a, kiểm kê ghi nhầm lượt.)
 - **E3c**: thi, công nợ ×2, catalog, `pc_preview`; xoá 10 họ CSS cũ + test chống tái phát;
   `defer` module Khảo sát; nghiệm thu 12 tiêu chí × 5 viewport → `docs/e3-acceptance-matrix.md`;
   ledger → `qa_sync.py` → `Ready for Retest`.

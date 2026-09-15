@@ -5,11 +5,17 @@ from werkzeug.exceptions import Forbidden
 from odoo import fields, http
 from odoo.http import request
 
-from odoo.addons.wujia_portal_base.controllers.utils import fmt_local_dt
+from odoo.addons.wujia_portal_base.controllers.utils import (
+    build_pager,
+    fmt_local_dt,
+    parse_page_size,
+)
 
 _logger = logging.getLogger(__name__)
 
 PAGE_SIZE = 12
+# Lưới bài viết 3 cột nên bậc cỡ trang là bội của 12, không dùng bậc 10/20/50 chung.
+PAGE_SIZE_OPTIONS = (12, 24, 48)
 NOTICES = ('category_gone', 'tag_gone', 'article_gone')
 
 
@@ -50,7 +56,7 @@ class WujiaPortalKnowledge(http.Controller):
 
     @http.route(['/portal/knowledge'], type='http', auth='user', sitemap=False)
     def portal_knowledge_list(self, page=1, category_id=None, tag_id=None,
-                              keyword='', notice=None, **kw):
+                              keyword='', notice=None, page_size=None, **kw):
         Article = request.env['wujia.knowledge.article'].sudo()
         Category = request.env['wujia.knowledge.category'].sudo()
         Tag = request.env['wujia.knowledge.tag'].sudo()
@@ -79,31 +85,22 @@ class WujiaPortalKnowledge(http.Controller):
             page = max(1, int(page))
         except (TypeError, ValueError):
             page = 1
-        offset = (page - 1) * PAGE_SIZE
+        size = parse_page_size(page_size, PAGE_SIZE, PAGE_SIZE_OPTIONS)
+        offset = (page - 1) * size
         total = Article.search_count(domain)
         articles = Article.search(
-            domain, limit=PAGE_SIZE, offset=offset,
+            domain, limit=size, offset=offset,
             order='sequence, publish_date desc, id desc',
         )
 
         categories = Category.search([('active', '=', True)], order='sequence, name')
         tags = Tag.search([('active', '=', True)], order='name')
-        last_page = max(1, (total + PAGE_SIZE - 1) // PAGE_SIZE)
-        pager = {
-            'page': {'num': page}, 'page_count': last_page,
-            'page_previous': {'num': max(1, page - 1)},
-            'page_next': {'num': min(last_page, page + 1)},
-            'querystring': '&'.join(
-                f'{k}={v}' for k, v in [
-                    ('category_id', category.id or ''),
-                    ('tag_id', tag.id or ''),
-                    ('keyword', keyword),
-                ] if v
-            ),
-        }
+        pgn = build_pager(total, page, size, path='/portal/knowledge',
+                          item_label='bài viết',
+                          page_size_options=PAGE_SIZE_OPTIONS)
         return request.render('wujia_portal_knowledge.portal_knowledge_list', {
             'articles': articles, 'categories': categories, 'tags': tags,
-            'pager': pager, 'keyword': keyword,
+            'pgn': pgn, 'keyword': keyword,
             'category_id': category.id or None, 'tag_id': tag.id or None,
             'current_category': category or None,
             'current_tag': tag or None,

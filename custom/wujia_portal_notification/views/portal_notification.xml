@@ -92,46 +92,7 @@
                 </tbody>
             </t>
 
-            <!-- Pagination — pager keys của notification: page/page_count/page_previous/page_next.
-                 Ẩn cả khối khi ≤10 thông báo (BA cho phép); ngưỡng là option nhỏ nhất,
-                 không phải page_size đang chọn (UI-PC-BASE-005). -->
-            <div t-if="notifications and pager and total &gt; 10" class="wj-pc-pagination">
-                <span class="wj-pc-pagination__count">
-                    Hiển thị <t t-out="(pager['page']['num'] - 1) * page_size + 1"/>–<t t-out="min(pager['page']['num'] * page_size, total)"/> / <t t-out="total"/> thông báo
-                </span>
-                <!-- Đổi số dòng/trang = submit thật, giữ bộ lọc, quay về trang 1 -->
-                <form method="get" action="/portal/notification" class="wj-pc-pagination__size-form">
-                    <input type="hidden" name="keyword" t-att-value="keyword or ''"/>
-                    <input type="hidden" name="type_id" t-att-value="type_id or ''"/>
-                    <input type="hidden" name="read_status" t-att-value="read_status or ''"/>
-                    <input type="hidden" name="unread" t-att-value="unread or ''"/>
-                    <input type="hidden" name="date_from" t-att-value="date_from or ''"/>
-                    <input type="hidden" name="date_to" t-att-value="date_to or ''"/>
-                    <input type="hidden" name="priority" t-att-value="priority or ''"/>
-                    <input type="hidden" name="tab" t-att-value="tab or ''"/>
-                    <select name="limit" class="wj-pc-pagination__size"
-                            aria-label="Số dòng mỗi trang" onchange="this.form.requestSubmit()">
-                        <t t-foreach="[10, 20, 50]" t-as="ps">
-                            <option t-att-value="ps"
-                                    t-att-selected="'selected' if page_size == ps else None">
-                                <t t-out="ps"/> / trang
-                            </option>
-                        </t>
-                    </select>
-                </form>
-                <!-- BA CMP-DL-001: điều hướng trang chỉ khi >1 trang; ô chọn số dòng/trang ở trên giữ guard riêng của UI-PC-BASE-005. -->
-                <t t-if="pager['page_count'] &gt; 1">
-                    <a t-attf-href="/portal/notification?page=#{pager['page_previous']['num']}&amp;#{pager.get('querystring','')}"
-                       t-attf-class="wj-pc-page-btn #{'is-disabled' if pager['page']['num'] &lt;= 1 else ''}">Trước</a>
-                    <t t-foreach="range(1, pager['page_count'] + 1)" t-as="pn">
-                        <a t-attf-href="/portal/notification?page=#{pn}&amp;#{pager.get('querystring','')}"
-                           t-attf-class="wj-pc-page-btn #{'is-active' if pn == pager['page']['num'] else ''}"
-                           t-out="pn"/>
-                    </t>
-                    <a t-attf-href="/portal/notification?page=#{pager['page_next']['num']}&amp;#{pager.get('querystring','')}"
-                       t-attf-class="wj-pc-page-btn #{'is-disabled' if pager['page']['num'] &gt;= pager['page_count'] else ''}">Sau</a>
-                </t>
-            </div>
+            <t t-call="wujia_portal_layout.wj_pagination"/>
         </t>
 
         <!-- Meta PageHeader (CMP-PG-001 matrix: "{chưa đọc} chưa đọc"). Vẫn là slot AJAX
@@ -204,16 +165,7 @@
                     </t>
             </t>
 
-            <!-- Pager gọn -->
-            <div t-if="pager and pager.get('page_count', 0) &gt; 1" class="wujia-mnoti-pager">
-                <a t-if="pager['page']['num'] &gt; 1"
-                   t-attf-href="/portal/notification?page=#{pager['page_previous']['num']}&amp;#{pager.get('querystring','')}"
-                   class="wujia-mnoti-pager-btn">‹</a>
-                <span>Trang <t t-out="pager['page']['num']"/>/<t t-out="pager['page_count']"/></span>
-                <a t-if="pager['page']['num'] &lt; pager['page_count']"
-                   t-attf-href="/portal/notification?page=#{pager['page_next']['num']}&amp;#{pager.get('querystring','')}"
-                   class="wujia-mnoti-pager-btn">›</a>
-            </div>
+            <t t-call="wujia_portal_layout.wj_pagination"/>
         </div>
 
     </template>

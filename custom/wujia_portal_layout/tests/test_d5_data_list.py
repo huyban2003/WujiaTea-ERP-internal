@@ -221,18 +221,17 @@ class TestDataListCallSites(TransactionCase):
             self.assertEqual(khong_scope, [], '%s: th thiếu scope' % module)
 
     def test_pager_chi_hien_khi_nhieu_hon_mot_trang(self):
-        # E3a: support đã về `wj_pagination`, guard >1 trang nay nằm trong component
-        # (test_e3_pagination). Return còn họ cũ tới lượt E3b.
-        for module, filename in [('wujia_portal_return', 'portal_return_list.xml')]:
+        # E3b: mọi call site đã về `wj_pagination`; guard ">1 trang" nay nằm trong
+        # component (test_e3_pagination), nên ở đây ghim "không ai tự dựng lại pager".
+        for module, filename, _n in self.CALL_SITES:
             root = _view(module, filename)
-            navs = root.xpath('//nav[.//ul[contains(@class, "wujia-pagination")]]')
-            self.assertTrue(navs, '%s: không thấy khối pager' % module)
-            for nav in navs:
-                cond = nav.get('t-if') or ''
-                self.assertIn('page_count', cond,
-                              '%s: pager không guard theo page_count' % module)
-                self.assertRegex(cond.replace(' ', ''), r'page_count[^)]*\)?>1',
-                                 '%s: guard pager phải là > 1' % module)
+            self.assertFalse(
+                root.xpath('//nav[.//ul[contains(@class, "wujia-pagination")]]'),
+                '%s: pager cũ quay lại' % module)
+            for el in root.iter():
+                cls = el.get('class') or el.get('t-attf-class') or ''
+                self.assertNotIn('wj-pc-page-btn', cls.split(),
+                                 '%s: nút trang cũ quay lại' % module)
 
     def test_home_preview_khong_gan_pagination(self):
         """BA: preview dashboard dùng "Xem tất cả" ở CardHeader, KHÔNG pager.
@@ -281,32 +280,18 @@ class TestDataListPcTable(TransactionCase):
         self.assertRegex(var, r'--wj-pc-table-header-h:\s*50px')
         self.assertRegex(var, r'--wj-pc-table-row-h:\s*58px')
 
-    def test_pager_dieu_huong_guard_page_count(self):
-        """BA: điều hướng trang chỉ khi >1 trang. Ô chọn số dòng/trang là khối khác
-        (UI-PC-BASE-005) nên guard `> 10` của nó KHÔNG bị coi là vi phạm."""
-        # E3a: history đã về `wj_pagination`, guard >1 trang nay ở trong component.
-        cases = [
-            ('wujia_portal_notification', 'portal_notification.xml', '/portal/notification'),
-        ]
-        for module, filename, route in cases:
+    def test_pager_bang_pc_di_qua_component(self):
+        """E3b: bảng PC của thông báo và giao hàng phân trang bằng `wj_pagination`
+        (guard ">1 trang" ở trong component), không còn khối `wj-pc-pagination`."""
+        for module, filename in [
+                ('wujia_portal_notification', 'portal_notification.xml'),
+                ('wujia_portal_delivery', 'portal_delivery.xml')]:
             root = _view(module, filename)
-            nav = root.xpath('//a[contains(@t-attf-class, "wj-pc-page-btn")]')
-            self.assertTrue(nav, '%s: không thấy nút phân trang' % module)
-            for a in nav:
-                conds = [e.get('t-if') or '' for e in a.iterancestors() if e.get('t-if')]
-                self.assertTrue(
-                    any(re.search(r'page_count[^)]*\)?\s*>\s*1', c.replace('&gt;', '>'))
-                        for c in conds),
-                    '%s: nút phân trang không guard page_count > 1' % module)
-
-    def test_pager_delivery_khong_hien_khi_mot_trang(self):
-        root = _view('wujia_portal_delivery', 'portal_delivery.xml')
-        blocks = root.xpath('//div[@class="wj-pc-pagination"]')
-        self.assertTrue(blocks)
-        for b in blocks:
-            cond = (b.get('t-if') or '').replace('&gt;', '>').replace(' ', '')
-            self.assertRegex(cond, r'page_count[^)]*\)?>1',
-                             'delivery: pager vẫn hiện khi chỉ có 1 trang')
+            self.assertFalse(root.xpath('//div[@class="wj-pc-pagination"]'),
+                             '%s: khối pager cũ quay lại' % module)
+            self.assertTrue(
+                root.xpath('//t[@t-call="wujia_portal_layout.wj_pagination"]'),
+                '%s: mất pager PC' % module)
 
     def test_noti_giu_lop_va_id_cu(self):
         """`wj-pc-noti-row` KHÔNG có rule CSS nào — dáng đến hoàn toàn từ wj-pc-table,
@@ -426,10 +411,9 @@ class TestDataListCompactRow(TransactionCase):
         và khối PC không còn nav nào nằm ngoài."""
         root = _view('wujia_portal_knowledge', 'portal_knowledge.xml')
         call = self._compact_calls('wujia_portal_knowledge', 'portal_knowledge.xml')[0]
-        navs = call.xpath('./t[@t-set="dl_pager"]//nav')
-        self.assertEqual(len(navs), 1, 'pager phải nằm trong dl_pager')
-        cond = (navs[0].get('t-if') or '').replace(' ', '')
-        self.assertRegex(cond, r'page_count[^)]*\)?>1', 'guard pager phải là > 1')
+        calls = call.xpath(
+            './t[@t-set="dl_pager"]//t[@t-call="wujia_portal_layout.wj_pagination"]')
+        self.assertEqual(len(calls), 1, 'pager phải nằm trong dl_pager')
         pc = root.xpath('//div[@id="wj-know-pc-body"]')[0]
         ngoai = [n for n in pc.xpath('.//nav')
                  if not n.xpath('ancestor::t[@t-set="dl_pager"]')]
@@ -720,17 +704,15 @@ class TestDataListDetailCard(TransactionCase):
         cls = skel[0].xpath('.//div[contains(@class, "wujia-mdelivery-skel")]')[0].get('class')
         self.assertIn('wj-data-item', cls.split(), 'skeleton lệch dáng với hàng thật')
 
-    def test_pager_hai_cho_giu_guard_page_count(self):
-        """Pager cố ý ở NGOÀI DataList lượt này (dồn về lượt dọn Pagination) —
-        nhưng guard `page_count > 1` phải còn nguyên."""
+    def test_pager_hai_cho_di_qua_component(self):
+        """E3b: hai pager mobile này về `wj_pagination`; họ `wujia-mhist-pager` đi hẳn."""
         for module, filename, _ho in self.SITES:
             root = _view(module, filename)
-            navs = [n for n in root.xpath('//nav[@class="wujia-mhist-pager"]')]
-            self.assertTrue(navs, '%s: mất pager mobile' % module)
-            for nav in navs:
-                cond = (nav.get('t-if') or '').replace(' ', '')
-                self.assertRegex(cond, r'page_count[^)]*\)?>1',
-                                 '%s: guard pager phải là > 1' % module)
+            self.assertFalse(root.xpath('//nav[@class="wujia-mhist-pager"]'),
+                             '%s: pager mobile cũ quay lại' % module)
+            self.assertTrue(
+                root.xpath('//t[@t-call="wujia_portal_layout.wj_pagination"]'),
+                '%s: mất pager mobile' % module)
 
     def test_radius_khong_dung_token_chung(self):
         """`--wujia-morder-radius` còn dùng ở 3 chỗ khác; đè radius tại rule
@@ -1129,24 +1111,27 @@ class TestDataListAdjacent(TransactionCase):
                 thay += 1
         self.assertEqual(thay, 1, 'phải đúng 1 item mẫu')
 
-    def test_pager_gia_cua_thanh_vien_da_go(self):
-        """Danh sách thành viên KHÔNG phân trang phía server: pager cũ là 3 thẻ
-        <span> cứng ("1" + "›") nên luôn hiện với đúng 1 trang — vi phạm thẳng
-        acceptance "pager chỉ hiện khi >1 trang"."""
+    def test_pager_thanh_vien_la_component_that(self):
+        """Pager cũ ở đây là ô `10 / trang` trơ với 0 nút trang, luôn hiện dù chỉ 1
+        trang. E3b: phân trang THẬT phía server, dựng bằng component."""
         root = _view('wujia_portal_base', 'portal_franchise_information.xml')
         for el in root.iter():
             cls = el.get('class') or el.get('t-attf-class') or ''
             self.assertNotIn('wj-pc-page-btn', cls.split(),
                              'nút trang cứng đã quay lại màn thông tin cửa hàng')
+            self.assertNotIn('wj-pc-pagination', cls.split(),
+                             'khối pager giả đã quay lại màn thông tin cửa hàng')
+        self.assertEqual(
+            len(root.xpath('//t[@t-call="wujia_portal_layout.wj_pagination"]')), 2,
+            'phân trang thành viên phải có ở cả bảng PC lẫn danh sách mobile')
 
-    def test_pager_info_request_giu_guard_page_count(self):
-        """Pager của info-request vốn ĐÃ đúng (`page_count > 1`) — ghim để lượt sau
-        không nới ra, và ghi nhận nó cố ý nằm NGOÀI DataList (đúng tiền lệ D5b của
-        cùng họ `wujia-content-card-table`)."""
+    def test_pager_info_request_di_qua_component(self):
+        """E3b: pager về `wj_pagination` và vẫn cố ý nằm NGOÀI DataList (tiền lệ D5b
+        của cùng họ `wujia-content-card-table`)."""
         root = _view('wujia_portal_info_request', 'portal_info_request_list.xml')
-        navs = root.xpath('//nav[contains(@t-if, "page_count")]')
-        self.assertEqual(len(navs), 1, 'mất guard page_count của pager info-request')
-        self.assertIn('page_count', navs[0].get('t-if'))
+        calls = root.xpath('//t[@t-call="wujia_portal_layout.wj_pagination"]')
+        self.assertEqual(len(calls), 1, 'mất pager của info-request')
         for call in self._calls('wujia_portal_info_request', 'portal_info_request_list.xml'):
-            self.assertFalse(call.xpath('.//nav'),
-                             'pager đã bị kéo vào DataList — đổi bố cục, ngoài phạm vi lượt')
+            self.assertFalse(
+                call.xpath('.//t[@t-call="wujia_portal_layout.wj_pagination"]'),
+                'pager đã bị kéo vào DataList — đổi bố cục, ngoài phạm vi lượt')

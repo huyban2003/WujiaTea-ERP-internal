@@ -1,4 +1,4 @@
-"""E3a — CMP-PGNT-001 Pagination: hợp đồng của `build_pager` + `wj_pagination`.
+"""E3a/E3b — CMP-PGNT-001 Pagination: hợp đồng của `build_pager` + `wj_pagination`.
 
 Bám cột `Kết quả mong muốn` của `UI-PAGINATION-001` (STT 130): một component chung,
 ẩn khi `totalPages <= 1`, giữ filter khi đổi trang, token 36/10/8 + chạm 44, a11y
@@ -11,7 +11,9 @@ from lxml import etree, html
 
 from odoo.tests import TransactionCase, tagged
 
-from odoo.addons.wujia_portal_base.controllers.utils import ELLIPSIS, build_pager
+from odoo.addons.wujia_portal_base.controllers.utils import (
+    ELLIPSIS, build_pager, parse_page_size,
+)
 
 TMPL = 'wujia_portal_layout.wj_pagination'
 HERE = os.path.dirname(__file__)
@@ -171,9 +173,16 @@ class TestPaginationCallSites(TransactionCase):
     MIGRATED = [
         ('wujia_portal_purchase_history', 'portal_history.xml', 2),
         ('wujia_portal_support', 'portal_support.xml', 2),
+        # E3b
+        ('wujia_portal_notification', 'portal_notification.xml', 2),
+        ('wujia_portal_delivery', 'portal_delivery.xml', 2),
+        ('wujia_portal_knowledge', 'portal_knowledge.xml', 2),
+        ('wujia_portal_return', 'portal_return_list.xml', 2),
+        ('wujia_portal_info_request', 'portal_info_request_list.xml', 1),
+        ('wujia_portal_base', 'portal_franchise_information.xml', 2),
     ]
     LEGACY = ('wj-pc-pagination', 'wujia-mhist-pager', 'wujia-pagination',
-              'wj-pc-page-btn')
+              'wj-pc-page-btn', 'wujia-mknow-pager', 'wujia-mnoti-pager')
 
     def test_call_site_di_qua_component(self):
         for module, filename, n in self.MIGRATED:
@@ -217,3 +226,67 @@ class TestPaginationTokens(TransactionCase):
         body = _css('_components.css').split('.wujia-content-card {')[1].split('}')[0]
         self.assertIn('min-height: 100%;', body)
         self.assertNotRegex(body, r'(?<!min-)height:\s*100%')
+
+
+@tagged('post_install', '-at_install', 'wujia_pagination_e3')
+class TestPageSizeParam(TransactionCase):
+    """Cỡ trang: một đường đọc chung, chỉ nhận giá trị có trong ô chọn."""
+
+    def test_rac_va_thieu_ve_mac_dinh_cua_route(self):
+        for value in (None, '', 'abc', '0', '-5', '7', '1000'):
+            self.assertEqual(parse_page_size(value, 20), 20, 'rác: %r' % value)
+
+    def test_gia_tri_trong_o_chon_thi_nhan(self):
+        self.assertEqual(parse_page_size('50', 20), 50)
+        self.assertEqual(parse_page_size(10, 20), 10)
+
+    def test_bac_rieng_cua_tung_man(self):
+        """Kiến thức là lưới 3 cột nên bậc là bội của 12 — bậc chung 10/20/50 sẽ làm
+        mặc định 12 rơi ra ngoài ô chọn (ô select không có mục nào được chọn)."""
+        self.assertEqual(parse_page_size('24', 12, (12, 24, 48)), 24)
+        self.assertEqual(parse_page_size('20', 12, (12, 24, 48)), 12)
+        # Neo vào chính controller, không chỉ vào hàm: đổi bậc ở đó phải làm đỏ test này.
+        from odoo.addons.wujia_portal_knowledge.controllers import portal as kn
+        self.assertEqual(kn.PAGE_SIZE, 12)
+        self.assertIn(kn.PAGE_SIZE, kn.PAGE_SIZE_OPTIONS, 'mặc định rơi ngoài ô chọn')
+        self.assertTrue(all(o % kn.PAGE_SIZE == 0 for o in kn.PAGE_SIZE_OPTIONS),
+                        'bậc Kiến thức phải là bội của 12 cho lưới 3 cột')
+
+
+@tagged('post_install', '-at_install', 'wujia_pagination_e3')
+class TestPaginationE3bCallSites(TransactionCase):
+    """Ba rủi ro riêng của E3b — mỗi cái từng là lỗi thật trên màn đang sửa."""
+
+    E3B = [
+        ('wujia_portal_notification', 'portal_notification.xml'),
+        ('wujia_portal_delivery', 'portal_delivery.xml'),
+        ('wujia_portal_knowledge', 'portal_knowledge.xml'),
+        ('wujia_portal_return', 'portal_return_list.xml'),
+        ('wujia_portal_info_request', 'portal_info_request_list.xml'),
+        ('wujia_portal_base', 'portal_franchise_information.xml'),
+    ]
+
+    def test_khong_con_link_trang_tu_noi_tay(self):
+        """Ca BA nêu: info-request tự nối `?page=&state=&request_type=` nên đổi trang
+        là rơi `q`/`date_from`/`date_to`. URL trang nay chỉ đến từ `build_pager`."""
+        for module, filename in self.E3B:
+            raw = etree.tostring(_view(module, filename), encoding='unicode')
+            self.assertNotIn('?page=', raw, '%s: còn tự nối link trang' % module)
+            self.assertNotIn('page_previous', raw, '%s: còn pager dict cũ' % module)
+
+    def test_chu_tiem_khong_lay_tu_trang_dang_xem(self):
+        """Phân trang đẩy chủ tiệm sang trang 2 ⇒ lọc trên `members` là mất tên
+        người phụ trách ngay khi cửa hàng có hơn 10 thành viên."""
+        root = _view('wujia_portal_base', 'portal_franchise_information.xml')
+        owner = root.xpath('//t[@t-set="owner_member"]')[0].get('t-value')
+        self.assertEqual(owner, 'franchise.main_owner_member_id')
+
+    def test_dong_dem_thanh_vien_la_tong_that(self):
+        """`len(members)` sau phân trang chỉ còn số dòng của trang đang xem."""
+        root = _view('wujia_portal_base', 'portal_franchise_information.xml')
+        raw = etree.tostring(root, encoding='unicode')
+        self.assertNotIn('len(members)', raw, 'dòng đếm vẫn theo trang')
+        # Tổng thật do component in ("Hiển thị 1–10 / N thành viên"), không đếm lại.
+        foot = root.xpath('//div[@class="wj-pc-acct-members__foot"]'
+                          '/t[@t-call="wujia_portal_layout.wj_pagination"]')
+        self.assertEqual(len(foot), 1, 'chân bảng thành viên không gọi component')

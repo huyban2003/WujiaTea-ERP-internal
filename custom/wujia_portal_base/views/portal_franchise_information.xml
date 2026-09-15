@@ -10,7 +10,8 @@
             <!-- ===== Desktop (>=992px) — Figma wujia_pc_02/03/04_store_info_v3.
                  3 trạng thái theo membership.role + số lượng members. ===== -->
             <t t-set="is_owner_manager" t-value="membership and membership.role in ('owner', 'manager')"/>
-            <t t-set="owner_member" t-value="members.filtered(lambda m: m.role == 'owner')[:1]"/>
+            <!-- Chủ tiệm lấy từ franchise, KHÔNG lọc trên `members`: phân trang đẩy chủ tiệm sang trang sau. -->
+            <t t-set="owner_member" t-value="franchise.main_owner_member_id"/>
             <t t-set="nguoi_phu_trach"
                t-value="(owner_member.user_id.name if owner_member else False) or franchise.partner_id.name or '—'"/>
             <t t-set="status_label"
@@ -132,11 +133,8 @@
                                 </tbody>
                             </t>
                             <div class="wj-pc-acct-members__foot">
-                                <span class="wj-pc-acct-members__count"><t t-out="len(members)"/> thành viên</span>
-                                <!-- Danh sách thành viên KHÔNG phân trang phía server ⇒ nút trang luôn là 1 trang; bỏ theo acceptance, giữ ô cỡ trang. -->
-                                <div class="wj-pc-pagination" style="margin-top:0;">
-                                    <select class="wj-pc-pagination__size"><option>10 / trang</option></select>
-                                </div>
+                                <!-- Không lặp nhãn đếm: component đã in "Hiển thị 1–10 / N thành viên". -->
+                                <t t-call="wujia_portal_layout.wj_pagination"/>
                             </div>
                         </t>
                         <t t-else="">
@@ -147,9 +145,6 @@
                             </div>
                             <div class="wj-pc-acct-members__foot">
                                 <span class="wj-pc-acct-members__count">0 thành viên</span>
-                                <div class="wj-pc-pagination" style="margin-top:0;">
-                                    <select class="wj-pc-pagination__size"><option>10 / trang</option></select>
-                                </div>
                             </div>
                         </t>
                     </t>
@@ -271,6 +266,9 @@
                         <t t-set="dl_empty" t-value="not members"/>
                         <t t-set="dl_state">
                             <div class="wj-empty-state--compact">Chưa có thành viên active.</div>
+                        </t>
+                        <t t-set="dl_pager">
+                            <t t-call="wujia_portal_layout.wj_pagination"/>
                         </t>
                         <div t-foreach="members" t-as="m" class="wujia-mdash-row wj-data-item">
                             <span class="wujia-badge wujia-badge-info"

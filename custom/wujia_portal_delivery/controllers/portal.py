@@ -11,8 +11,10 @@ from odoo.addons.wujia_portal_base.controllers.portal import (
     get_active_franchise_ids_filter,
 )
 from odoo.addons.wujia_portal_base.controllers.utils import (
-    batch_franchise_domain, departure_label, departure_value, format_order_names,
-    group_counts, local_day_range_utc, own_pickings, page_numbers, portal_tz,
+    PAGE_SIZE_OPTIONS,
+    batch_franchise_domain, build_pager, departure_label, departure_value,
+    format_order_names,
+    group_counts, local_day_range_utc, own_pickings, parse_page_size, portal_tz,
     to_local_dt,
     status_badge,
 )
@@ -106,13 +108,14 @@ def _related_orders(pickings):
 
 class WujiaPortalDelivery(http.Controller):
 
-    def _delivery_list_values(self, page=1, bs='', date_from='', date_to='', q='', **kw):
+    def _delivery_list_values(self, page=1, bs='', date_from='', date_to='', q='',
+                              page_size=None, **kw):
         """Context danh sách chuyến — dùng chung cho trang đầy đủ và fragment AJAX."""
         franchise_ids = get_active_franchise_ids_filter()
         if not franchise_ids:
             return {
                 'no_franchise': True, 'batches': [], 'view_state': 'empty',
-                'm_pager': {}, 'chip_counts': {},
+                'pgn': None, 'chip_counts': {},
                 'date_from': '', 'date_to': '', 'bs': '', 'q': '',
                 'chip_qs': '',
             }
@@ -121,12 +124,13 @@ class WujiaPortalDelivery(http.Controller):
             page = max(1, int(page))
         except (TypeError, ValueError):
             page = 1
-        offset = (page - 1) * PAGE_SIZE
+        size = parse_page_size(page_size, PAGE_SIZE)
+        offset = (page - 1) * size
         q = (q or '').strip()
         tz = portal_tz()
 
         # Batch-centric (1 thẻ = 1 chuyến xe) — nuôi cả desktop (Figma 4766) + mobile (4731).
-        batches, m_pager, chip_counts, view_state = [], {}, {}, 'list'
+        batches, pgn, chip_counts, view_state = [], None, {}, 'list'
         try:
             Batch = request.env['stock.picking.batch'].sudo()
             base_domain = batch_franchise_domain(franchise_ids)
@@ -148,7 +152,7 @@ class WujiaPortalDelivery(http.Controller):
             if bs in BATCH_STATUS_GROUP:
                 bdomain.append(('delivery_batch_status', 'in', BATCH_STATUS_GROUP[bs]))
             total = Batch.search_count(bdomain)
-            recs = Batch.search(bdomain, limit=PAGE_SIZE, offset=offset,
+            recs = Batch.search(bdomain, limit=size, offset=offset,
                                 order='planned_departure desc, id desc')
             for b in recs:
                 own = own_pickings(b, franchise_ids)
@@ -173,20 +177,9 @@ class WujiaPortalDelivery(http.Controller):
                     'plate': (v.license_plate if v and v.license_plate else '—'),
                     'updated': _hhmm(upd, tz),
                 })
-            last_page = max(1, (total + PAGE_SIZE - 1) // PAGE_SIZE)
-            m_pager = {
-                'page': {'num': page}, 'page_count': last_page, 'page_total': total,
-                'page_previous': {'num': max(1, page - 1)},
-                'page_next': {'num': min(last_page, page + 1)},
-                'page_nums': page_numbers(page, last_page),
-                'offset': offset, 'count': len(batches),
-                'querystring': '&'.join(p for p in (
-                    f'bs={bs}' if bs else '',
-                    f'date_from={date_from}' if date_from else '',
-                    f'date_to={date_to}' if date_to else '',
-                    f'q={q}' if q else '',
-                ) if p),
-            }
+            pgn = build_pager(total, page, size, path='/portal/delivery',
+                              item_label='chuyến',
+                              page_size_options=PAGE_SIZE_OPTIONS)
             if not batches:
                 view_state = 'empty'
         except Exception:
@@ -204,7 +197,7 @@ class WujiaPortalDelivery(http.Controller):
             ('q', q), ('date_from', date_from), ('date_to', date_to)) if v}
         return {
             'no_franchise': False,
-            'batches': batches, 'view_state': view_state, 'm_pager': m_pager,
+            'batches': batches, 'view_state': view_state, 'pgn': pgn,
             'chip_counts': chip_counts,
             'date_from': date_from, 'date_to': date_to, 'bs': bs, 'q': q,
             'chip_qs': ('&' + urlencode(extra)) if extra else '',

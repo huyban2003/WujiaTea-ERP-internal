@@ -6,9 +6,12 @@ from odoo.addons.portal.controllers.portal import CustomerPortal
 from odoo.addons.wujia_portal_base.controllers.utils import (
     MOBILE_ORDER_BADGES,
     MOBILE_RETURN_BADGES,
+    PAGE_SIZE_OPTIONS,
+    build_pager,
     status_badge,
     fmt_local_dt,
     get_upcoming_batches,
+    parse_page_size,
     portal_money,
 )
 
@@ -37,6 +40,8 @@ ACTIVE_FRANCHISE_COOKIE_MAX_AGE = 30 * 24 * 3600  # 30 ngày
 # Số bản ghi MỌI block preview của Home hiển thị (WJ-HOME-006). Một hằng cho cả
 # 5 nguồn để không lệch nhau lần nữa; danh sách đầy đủ nằm sau "Xem tất cả".
 HOME_PREVIEW_LIMIT = 2
+
+MEMBER_PAGE_SIZE = 10
 
 
 # ----------------------------------------------------------------------
@@ -553,16 +558,22 @@ class WujiaPortal(CustomerPortal):
                 'title': _('Thông tin cửa hàng'),
                 'franchise': franchise,
             })
-        members = request.env['wujia.franchise.member'].sudo().search([
-            ('franchise_id', '=', fid),
-            ('is_currently_valid', '=', True),
-        ])
+        Member = request.env['wujia.franchise.member'].sudo()
+        mdomain = [('franchise_id', '=', fid), ('is_currently_valid', '=', True)]
+        pgn = build_pager(Member.search_count(mdomain), kw.get('page', 1),
+                          parse_page_size(kw.get('page_size'), MEMBER_PAGE_SIZE),
+                          path='/portal/franchise-information',
+                          item_label='thành viên',
+                          page_size_options=PAGE_SIZE_OPTIONS)
+        members = Member.search(mdomain, limit=pgn['page_size'],
+                                offset=pgn['offset'], order='role, id')
         return request.render('wujia_portal_base.portal_franchise_information', {
             'title': _('Thông tin cửa hàng'),
             'page_name': 'franchise_information',
             'franchise': franchise,
             'membership': membership_sudo,
             'members': members,
+            'pgn': pgn,
             'role_labels': ROLE_LABELS,
             'status_labels': FRANCHISE_STATUS_LABELS,
         })

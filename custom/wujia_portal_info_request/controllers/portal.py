@@ -24,7 +24,10 @@ from odoo.addons.wujia_portal_base.controllers.portal import (
 )
 from odoo.addons.wujia_portal_base.controllers.utils import (
     DEFAULT_DOC_MIME,
+    PAGE_SIZE_OPTIONS,
     attach_files_to_record,
+    build_pager,
+    parse_page_size,
     status_badge_for,
 )
 from odoo.addons.wujia_portal_info_request.models.wujia_info_update_request import (
@@ -61,12 +64,13 @@ STATE_LABELS = {k: (v, status_badge_for(v)) for k, v in {
 class WujiaPortalInfoRequest(http.Controller):
 
     @http.route(['/portal/info-request'], type='http', auth='user', sitemap=False)
-    def portal_info_request_list(self, page=1, state='', request_type='', **kw):
+    def portal_info_request_list(self, page=1, state='', request_type='',
+                                 page_size=None, **kw):
         franchise_ids = get_active_franchise_ids_filter()
         if not franchise_ids:
             return request.render(
                 'wujia_portal_info_request.portal_info_request_list',
-                {'requests': [], 'pager': {}, 'state_labels': STATE_LABELS,
+                {'requests': [], 'pgn': None, 'state_labels': STATE_LABELS,
                  'no_franchise': True, 'state': '', 'request_type': '',
                  'request_type_options': REQUEST_TYPE_OPTIONS},
             )
@@ -80,20 +84,18 @@ class WujiaPortalInfoRequest(http.Controller):
             page = max(1, int(page))
         except (TypeError, ValueError):
             page = 1
-        offset = (page - 1) * PAGE_SIZE
+        size = parse_page_size(page_size, PAGE_SIZE)
         total = Model.search_count(domain)
-        recs = Model.search(domain, limit=PAGE_SIZE, offset=offset,
+        pgn = build_pager(total, page, size, path='/portal/info-request',
+                          item_label='yêu cầu',
+                          page_size_options=PAGE_SIZE_OPTIONS)
+        recs = Model.search(domain, limit=size, offset=pgn['offset'],
                             order='request_date desc')
-        last_page = max(1, (total + PAGE_SIZE - 1) // PAGE_SIZE)
         return request.render(
             'wujia_portal_info_request.portal_info_request_list',
             {
                 'requests': recs,
-                'pager': {
-                    'page': {'num': page}, 'page_count': last_page,
-                    'page_previous': {'num': max(1, page - 1)},
-                    'page_next': {'num': min(last_page, page + 1)},
-                },
+                'pgn': pgn,
                 'state_labels': STATE_LABELS,
                 'no_franchise': False,
                 'state': state, 'request_type': request_type,
