@@ -23,10 +23,10 @@ Script: `scratchpad/e3_inventory.py` · ngày đo: 2026-09-15 · cây mã `8c458
 | `wujia_portal_return/views/portal_return_list.xml` | 139 | `ul` | `pagination wujia-pagination` | ✅ E3b |
 | | 290 | `nav` | `wujia-mhist-pager` | ✅ E3b |
 | `wujia_portal_info_request/views/portal_info_request_list.xml` | 131 | `ul` | `pagination wujia-pagination` | ✅ E3b |
-| `wujia_portal_exam/views/portal_exam.xml` | 97 | `div` | `wj-pc-pagination wj-exam-pc-pagination` | E3c |
-| `wujia_portal_debt/views/portal_debt.xml` | 396, 642 | `div` | `wj-debt-pc-pagination` | E3c |
-| `wujia_portal_sale/views/portal_order_catalog.xml` | 78 | `nav` | `wj-pc-pagination wj-pc-order-pager` | E3c |
-| `wujia_portal_layout/views/pc_preview.xml` | 164 | `div` | `wj-pc-pagination` | E3c |
+| `wujia_portal_exam/views/portal_exam.xml` | 97 | `div` | `wj-pc-pagination wj-exam-pc-pagination` | ✅ E3c (+ pager mobile MỚI) |
+| `wujia_portal_debt/views/portal_debt.xml` | 396, 642 | `div` | `wj-debt-pc-pagination` | ✅ E3c (+ ô cỡ trang thật) |
+| `wujia_portal_sale/views/portal_order_catalog.xml` | 78 | `nav` | `wj-pc-pagination wj-pc-order-pager` | ✅ E3c (+ pager mobile MỚI, bậc 24/48/96) |
+| `wujia_portal_layout/views/pc_preview.xml` | 164 | `div` | `wj-pc-pagination` | ✅ E3c |
 | `wujia_portal_inspection/views/portal_inspection_list_templates.xml` | 115 (+ 6 `page-nav-btn` 260–276) | `div` | `wj-pc-pagination`, `page-nav-btn` | **defer** (luật 08/09) |
 
 ## 2. Gốc rễ thật — `paginate()` là CODE CHẾT
@@ -65,12 +65,18 @@ làm mất filter" — và info-request là ca vi phạm thật (rơi `q`, `date
 4. Template `wj_pagination` chỉ đọc dict chuẩn; **một markup**, hai bố cục bằng CSS
    (`≥992` desktopFull / `<992` mobileCompact) — không render hai khối rồi `d-none` (bẫy id trùng D6c).
 
-## Tiến độ (cập nhật 15/09/2026, sau lượt E3b)
+## Tiến độ (cập nhật 16/09/2026, cụm ĐÃ KHÉP)
 
 | Lượt | Trạng thái | Bảng nghiệm thu |
 |---|---|---|
 | E3a — nền `build_pager` + component + 2 route mẫu | ✅ `b9c50cc` | `docs/e3a-acceptance-matrix.md` |
-| E3b — 5 màn còn lại + ô cỡ trang thật + phân trang thành viên | ✅ 15/09 | `docs/e3b-acceptance-matrix.md` |
-| E3c — thi, công nợ ×2, catalog, `pc_preview`, xoá 10 họ CSS cũ | ⏳ | sẽ là `docs/e3-acceptance-matrix.md` (đóng issue) |
+| E3b — 5 màn còn lại + ô cỡ trang thật + phân trang thành viên | ✅ `41bbfd5` | `docs/e3b-acceptance-matrix.md` |
+| E3c — thi, công nợ ×2, catalog, `pc_preview`, xoá 10 họ CSS cũ | ✅ 16/09 | `docs/e3-acceptance-matrix.md` (**đóng issue**) |
 
-**Còn lại đúng 5 khối / 4 file** (đều nằm trong E3c) + module Khảo sát `defer`.
+**Còn 0 khối tự dựng pager** trong portal. Ngoài 20 call site của kiểm kê, E3c thêm **2 khối pager
+mobile hoàn toàn mới** (Thi, Đặt hàng) — hai màn này server đã cắt trang từ lâu nhưng giao diện điện
+thoại không có nút trang nào, người dùng không sang được trang 2.
+
+Riêng `wujia_portal_inspection` giữ **defer** (luật 08/09): 1 khối `wj-pc-pagination` + 6 `page-nav-btn`.
+Hai họ CSS của nó **không xoá mà thu hẹp selector vào `.wj-inspection-pc`** để màn Khảo sát không đổi
+dáng — "không đụng module khảo sát" gồm cả không làm hỏng gián tiếp.

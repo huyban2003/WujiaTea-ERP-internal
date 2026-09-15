@@ -160,16 +160,8 @@
                                 </tr>
                             </tbody>
                         </table>
-                        <!-- Pagination -->
-                        <div class="wj-pc-pagination">
-                            <span class="wj-pc-pagination__count">Hiển thị 1–5 / 128 bản ghi</span>
-                            <select class="wj-pc-pagination__size"><option>10 / trang</option></select>
-                            <a href="#" class="wj-pc-page-btn">‹</a>
-                            <a href="#" class="wj-pc-page-btn is-active">1</a>
-                            <a href="#" class="wj-pc-page-btn">2</a>
-                            <a href="#" class="wj-pc-page-btn">3</a>
-                            <a href="#" class="wj-pc-page-btn">›</a>
-                        </div>
+                        <!-- Pagination — component thật CMP-PGNT-001 (pgn do controller dựng) -->
+                        <t t-call="wujia_portal_layout.wj_pagination"/>
                     </t>
 
                     <!-- Form fields -->

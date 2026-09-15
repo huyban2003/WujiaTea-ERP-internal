@@ -1,4 +1,4 @@
-"""E3a/E3b — CMP-PGNT-001 Pagination: hợp đồng của `build_pager` + `wj_pagination`.
+"""E3a/E3b/E3c — CMP-PGNT-001 Pagination: hợp đồng `build_pager` + `wj_pagination`.
 
 Bám cột `Kết quả mong muốn` của `UI-PAGINATION-001` (STT 130): một component chung,
 ẩn khi `totalPages <= 1`, giữ filter khi đổi trang, token 36/10/8 + chạm 44, a11y
@@ -180,9 +180,16 @@ class TestPaginationCallSites(TransactionCase):
         ('wujia_portal_return', 'portal_return_list.xml', 2),
         ('wujia_portal_info_request', 'portal_info_request_list.xml', 1),
         ('wujia_portal_base', 'portal_franchise_information.xml', 2),
+        # E3c — 5 khối cuối của kiểm kê + 2 khối mobile vốn thiếu hẳn pager
+        ('wujia_portal_exam', 'portal_exam.xml', 2),
+        ('wujia_portal_debt', 'portal_debt.xml', 2),
+        ('wujia_portal_sale', 'portal_order_catalog.xml', 2),
+        ('wujia_portal_layout', 'pc_preview.xml', 1),
     ]
     LEGACY = ('wj-pc-pagination', 'wujia-mhist-pager', 'wujia-pagination',
-              'wj-pc-page-btn', 'wujia-mknow-pager', 'wujia-mnoti-pager')
+              'wj-pc-page-btn', 'wujia-mknow-pager', 'wujia-mnoti-pager',
+              'wj-exam-pc-pagination', 'wj-pc-order-pager', 'wj-debt-pc-pagination',
+              'wj-debt-pc-pagebtn', 'wj-debt-pc-pagesize')
 
     def test_call_site_di_qua_component(self):
         for module, filename, n in self.MIGRATED:
@@ -290,3 +297,98 @@ class TestPaginationE3bCallSites(TransactionCase):
         foot = root.xpath('//div[@class="wj-pc-acct-members__foot"]'
                           '/t[@t-call="wujia_portal_layout.wj_pagination"]')
         self.assertEqual(len(foot), 1, 'chân bảng thành viên không gọi component')
+
+
+@tagged('post_install', '-at_install', 'wujia_pagination_e3')
+class TestPaginationE3cCallSites(TransactionCase):
+    """Lượt cuối: 10 họ pager theo route đi hẳn khỏi portal, chỉ nhóm Khảo sát giữ
+    lại (defer, luật 08/09) và phải nằm trong đúng vỏ của nó."""
+
+    # Họ cũ + file CSS từng khai dáng cho chúng. Đọc THẲNG file: một call site đi
+    # rồi mà rule dáng còn ở lại là nợ kỹ thuật vô hình (không test nào bắt).
+    CSS_FILES = [
+        ('wujia_portal_layout', 'static/assets/css/_components.css'),
+        ('wujia_portal_layout', 'static/assets/css/_pc_components.css'),
+        ('wujia_portal_layout', 'static/assets/css/_interaction.css'),
+        ('wujia_portal_layout', 'static/assets/css/_variables.css'),
+        ('wujia_portal_exam', 'static/src/css/portal_exam.css'),
+        ('wujia_portal_debt', 'static/src/css/portal_debt.css'),
+        ('wujia_portal_notification', 'static/src/css/portal_notification.css'),
+        ('wujia_portal_sale', 'static/src/css/portal_order.css'),
+    ]
+    LEGACY = TestPaginationCallSites.LEGACY
+
+    def _file(self, module, relpath):
+        with open(os.path.join(CUSTOM, module, *relpath.split('/')),
+                  encoding='utf-8') as fh:
+            return re.sub(r'/\*.*?\*/', '', fh.read(), flags=re.S)
+
+    def test_khong_con_dang_cua_ho_cu_trong_css(self):
+        """Trừ đúng một ngoại lệ: rule thu hẹp vào `.wj-inspection-pc` để nhóm Khảo
+        sát (defer) giữ nguyên dáng — thu hẹp chứ không còn là dáng dùng chung."""
+        for module, relpath in self.CSS_FILES:
+            css = self._file(module, relpath)
+            for dong in css.split('\n'):
+                if '{' not in dong and ',' not in dong:
+                    continue
+                for ho in self.LEGACY:
+                    if ho in dong:
+                        self.assertIn('.wj-inspection-pc', dong,
+                                      '%s: còn khai dáng cho họ cũ %s' % (relpath, ho))
+
+    def test_o_co_trang_cong_no_la_dieu_khien_that(self):
+        """Trước E3c là nhãn tĩnh `10 / trang` bấm không được (họ lỗi "pager giả"
+        mà D5 từng bắt) ⇒ nay phải là bậc thật đi qua `parse_page_size`."""
+        from odoo.addons.wujia_portal_debt.controllers import portal as debt
+        self.assertEqual(debt._PC_PAGE_SIZE, 10)
+        self.assertIn(debt._PC_PAGE_SIZE, debt._PC_PAGE_SIZES,
+                      'mặc định rơi ngoài ô chọn')
+        self.assertEqual(parse_page_size('50', debt._PC_PAGE_SIZE, debt._PC_PAGE_SIZES), 50)
+
+    def test_bac_co_trang_catalog_la_boi_cua_mac_dinh(self):
+        """Lưới sản phẩm: bậc không phải bội của 24 sẽ làm vỡ hàng cuối."""
+        from odoo.addons.wujia_portal_sale.controllers import portal as sale
+        self.assertEqual(sale.PAGE_SIZE, 24)
+        self.assertIn(sale.PAGE_SIZE, sale.PAGE_SIZE_OPTIONS)
+        self.assertTrue(all(o % sale.PAGE_SIZE == 0 for o in sale.PAGE_SIZE_OPTIONS))
+
+    def test_hai_man_mobile_co_pager(self):
+        """Lỗi nghiệp vụ thật lộ ra khi kiểm kê: server cắt trang mà khối mobile của
+        Thi và Đặt hàng không có nút trang nào ⇒ không xem được từ trang 2."""
+        for module, filename, slot_id in (
+                ('wujia_portal_exam', 'portal_exam.xml', 'wj-exam-mbody'),
+                ('wujia_portal_sale', 'portal_order_catalog.xml', 'wj-ord-mbody')):
+            root = _view(module, filename)
+            khoi = root.xpath('//div[@id="%s"]' % slot_id)
+            self.assertEqual(len(khoi), 1, '%s: không thấy khối mobile' % module)
+            self.assertTrue(
+                khoi[0].xpath('.//t[@t-call="wujia_portal_layout.wj_pagination"]'),
+                '%s: khối mobile vẫn không có pager' % module)
+
+    def test_dong_tong_ky_loc_khong_bi_pager_nuot(self):
+        """Tổng thanh toán là thông tin của KỲ LỌC ⇒ phải hiện cả khi 1 trang, nên
+        nằm ngoài component (component tự ẩn khi total_pages <= 1)."""
+        root = _view('wujia_portal_debt', 'portal_debt.xml')
+        tong = root.xpath('//*[contains(@class, "wj-debt-pc-histfoot__total")]')
+        self.assertEqual(len(tong), 1, 'mất dòng tổng của kỳ lọc')
+        self.assertFalse(
+            tong[0].xpath('ancestor::t[@t-call="wujia_portal_layout.wj_pagination"]'),
+            'dòng tổng bị kéo vào trong pager ⇒ 1 trang là mất')
+
+    def test_khong_con_link_trang_tu_noi_tay(self):
+        """Ba controller cuối từng tự nối query-string (exam `querystring`, debt
+        `?week=&page=`, catalog `_fallback_pager`) — nguồn của lỗi rơi bộ lọc."""
+        for module, filename in (
+                ('wujia_portal_exam', 'portal_exam.xml'),
+                ('wujia_portal_debt', 'portal_debt.xml'),
+                ('wujia_portal_sale', 'portal_order_catalog.xml')):
+            raw = etree.tostring(_view(module, filename), encoding='unicode')
+            self.assertNotIn('?page=', raw, '%s: còn tự nối link trang' % module)
+            self.assertNotIn('page_previous', raw, '%s: còn pager dict cũ' % module)
+            self.assertNotIn('querystring', raw, '%s: còn biến querystring' % module)
+        for module in ('wujia_portal_exam', 'wujia_portal_debt', 'wujia_portal_sale'):
+            with open(os.path.join(CUSTOM, module, 'controllers', 'portal.py'),
+                      encoding='utf-8') as fh:
+                py = fh.read()
+            self.assertNotIn('_fallback_pager', py, '%s: còn pager tự chế' % module)
+            self.assertIn('build_pager', py, '%s: không đi qua nguồn chung' % module)

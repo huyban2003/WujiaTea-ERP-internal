@@ -73,22 +73,8 @@
                 </t>
             </t>
 
-            <!-- Pager (numbered — wj-pc) -->
-            <nav t-if="pager and pager.get('page_count', 0) &gt; 1"
-                 aria-label="pagination" class="wj-pc-pagination wj-pc-order-pager">
-                <span class="wj-pc-pagination__count">
-                    Hiển thị
-                    <t t-out="(pager['page']['num'] - 1) * page_size + 1"/>–<t t-out="(pager['page']['num'] - 1) * page_size + len(products)"/>
-                    / <t t-out="product_count"/> sản phẩm
-                </span>
-                <a t-att-href="pager['page_previous']['url']" class="wj-pc-page-btn">‹</a>
-                <t t-foreach="pager.get('pages', [])" t-as="pg">
-                    <a t-att-href="pg['url']"
-                       t-attf-class="wj-pc-page-btn #{'is-active' if pg['num'] == pager['page']['num'] else ''}"
-                       t-out="pg['num']"/>
-                </t>
-                <a t-att-href="pager['page_next']['url']" class="wj-pc-page-btn">›</a>
-            </nav>
+            <!-- Pager chung CMP-PGNT-001 (nằm trong #wj-ord-pc ⇒ đổi trang không reload) -->
+            <t t-call="wujia_portal_layout.wj_pagination"/>
         </div>
 
         <!-- Meta PageHeader (CMP-PG-001) — H1 nay do shared wj_page_header dựng; giữ nguyên
@@ -181,6 +167,10 @@
                     </t>
                 </div>
             </t>
+
+            <!-- Trước E3c mobile không có nút trang nào dù server vẫn cắt 24 SP/trang
+                 ⇒ người dùng điện thoại không xem được sản phẩm từ trang 2. -->
+            <t t-call="wujia_portal_layout.wj_pagination"/>
 
         </div>
 

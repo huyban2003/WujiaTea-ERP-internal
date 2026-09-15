@@ -33,7 +33,8 @@ from odoo.addons.wujia_portal_base.controllers.portal import (
     get_active_franchise_id,
 )
 from odoo.addons.wujia_portal_base.controllers.utils import (
-    page_numbers,
+    build_pager,
+    parse_page_size,
     status_badge,
     status_badge_for,
 )
@@ -289,13 +290,9 @@ class WujiaPortalExam(http.Controller):
                              date_from='', date_to='', limit=None, **kw):
         fid = get_active_franchise_id()
         Reg = request.env['wujia.exam.registration'].sudo()
-        try:
-            size = int(limit)
-        except (TypeError, ValueError):
-            size = PAGE_SIZE
-        if size not in PAGE_SIZES:                  # whitelist: ?limit=100000 không kéo cả bảng
-            size = PAGE_SIZE
-        m_items, pc_regs, pager = [], [], _empty_pager(size)
+        # whitelist ?limit: giá trị ngoài ô chọn (?limit=100000) rơi về mặc định route.
+        size = parse_page_size(limit, PAGE_SIZE, PAGE_SIZES)
+        m_items, pc_regs, total = [], [], 0
         if fid:
             domain = [('franchise_id', '=', fid)]
             if state in M_REG_BADGE:
@@ -315,34 +312,23 @@ class WujiaPortalExam(http.Controller):
             if dt:
                 domain.append(('request_date', '<=', fields.Datetime.to_string(
                     _local_day_start(dt) + timedelta(days=1))))
-            try:
-                page = max(1, int(page))
-            except (TypeError, ValueError):
-                page = 1
             total = Reg.search_count(domain)
-            pages = max(1, (total + size - 1) // size)
-            page = min(page, pages)                 # ?page=99 → trang cuối, không rơi ra rỗng
-            offset = (page - 1) * size
-            regs = Reg.search(domain, limit=size, offset=offset,
+        # Một nguồn duy nhất cho số trang: build_pager kẹp ?page=99 về trang cuối
+        # nên lát cắt bên dưới không bao giờ rơi ra trang rỗng.
+        pgn = build_pager(total, page, size, path='/portal/exam',
+                          item_label='bản ghi', page_size_options=PAGE_SIZES,
+                          size_param='limit')
+        if total:
+            regs = Reg.search(domain, limit=pgn['page_size'],
+                              offset=pgn['offset'],
                               order='request_date desc, id desc')
             for reg in regs:
                 m_items.append(_m_list_item(reg))
                 pc_regs.append(_pc_list_item(reg))
-            pager = {'from': offset + 1 if total else 0,
-                     'to': min(offset + size, total), 'total': total,
-                     'size': size, 'page': page, 'pages': pages,
-                     'numbers': page_numbers(page, pages)}
-        # querystring giữ bộ lọc khi chuyển trang (link pager nối thêm &page=N).
-        querystring = '&'.join(
-            '%s=%s' % (k, v) for k, v in
-            [('state', state), ('result', result), ('q', q),
-             ('date_from', date_from), ('date_to', date_to),
-             ('limit', size if size != PAGE_SIZE else '')] if v
-        )
         return request.render('wujia_portal_exam.portal_exam_schedule', {
             'm_exam_items': m_items,
             'pc_regs': pc_regs, 'pc_reg_states': PC_REG_STATES,
-            'pc_pager': pager, 'querystring': querystring,
+            'pgn': pgn,
             'f_state': state, 'f_result': result, 'f_q': q,
         })
 
@@ -525,11 +511,6 @@ class WujiaPortalExam(http.Controller):
 # --------------------------------------------------------------------------- #
 # Mappers (record → dict template) — key trùng field thật.
 # --------------------------------------------------------------------------- #
-def _empty_pager(size=PAGE_SIZE):
-    return {'from': 0, 'to': 0, 'total': 0, 'size': size,
-            'page': 1, 'pages': 1, 'numbers': [1]}
-
-
 def _m_list_item(reg):
     label, kind = _result_summary(reg)
     if reg.session_id.results_published:

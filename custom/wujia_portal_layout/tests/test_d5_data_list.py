@@ -794,19 +794,23 @@ class TestDataListDebt(TransactionCase):
             self.assertIn('wj-data-item', found[0][1].split(),
                           '%s: item thiếu wj-data-item' % ho)
 
-    def test_pager_hai_bang_guard_page_count(self):
-        """Vi phạm kiểm kê D5a: debt ×2 chỉ cần `có record` là hiện pager. Nút
-        điều hướng phải neo vào `page_count > 1`."""
+    def test_pager_hai_bang_di_qua_component(self):
+        """Vi phạm kiểm kê D5a (debt ×2 chỉ cần `có record` là hiện pager) nay được
+        chặn ở TRONG component: E3c bỏ họ `wj-debt-pc-pagebtn`, guard ">1 trang" nằm
+        ở `wj_pagination` (test_e3_pagination). Ở đây ghim: không ai dựng lại pager."""
         thay = 0
         for call in self._bang():
             pagers = call.xpath('./t[@t-set="dl_pager"]')
             self.assertEqual(len(pagers), 1, 'bảng PC công nợ phải truyền dl_pager')
-            for nut in pagers[0].xpath('.//*[contains(@t-attf-class, "wj-debt-pc-pagebtn")]'):
-                dieu_kien = ' '.join(a.get('t-if', '') for a in nut.iterancestors())
-                self.assertIn('page_count', dieu_kien,
-                              'nút trang hiện mà không kiểm page_count')
-                thay += 1
-        self.assertGreaterEqual(thay, 2, 'không quét trúng nút trang nào — guard rỗng')
+            self.assertEqual(
+                len(pagers[0].xpath('.//t[@t-call="wujia_portal_layout.wj_pagination"]')), 1,
+                'bảng PC công nợ không gọi component pager')
+            self.assertFalse(
+                pagers[0].xpath('.//*[contains(@t-attf-class, "pagebtn")]'
+                                ' | .//*[contains(@class, "pagebtn")]'),
+                'nút trang cũ quay lại màn công nợ')
+            thay += 1
+        self.assertGreaterEqual(thay, 2, 'không quét trúng bảng nào — guard rỗng')
 
     def test_mot_chu_so_huu_dang_hai_ho(self):
         """Sau migrate, dáng (padding/nền/radius/height) chỉ được khai ở tầng
@@ -948,31 +952,20 @@ class TestDataListExam(TransactionCase):
             self.assertIn('wj-data-item', found[0][1].split(),
                           '%s: item thiếu wj-data-item' % ho)
 
-    def test_pager_guard_theo_pages(self):
-        """Key của thi là `pages` (controllers/portal.py), KHÔNG phải `page_count`
-        như debt. Trước lượt này pager hiện dù chỉ 1 trang."""
+    def test_pager_di_qua_component(self):
+        """Trước D5 pager màn Thi hiện dù chỉ 1 trang; E3c đưa cả guard đó vào
+        component nên ở đây chỉ ghim: bảng PC thi phân trang bằng `wj_pagination`."""
         thay = 0
         for call in self._bang_theo_lop('wj-exam-pc-list-table'):
             pagers = call.xpath('./t[@t-set="dl_pager"]')
             self.assertEqual(len(pagers), 1, 'bảng PC thi phải truyền dl_pager')
-            for nut in pagers[0].xpath('.//*[contains(@t-attf-class, "wj-pc-page-btn")]'):
-                dieu_kien = ' '.join(a.get('t-if', '') for a in nut.iterancestors())
-                self.assertIn("pc_pager['pages']", dieu_kien,
-                              'nút trang hiện mà không kiểm pc_pager[pages]')
-                thay += 1
-        self.assertGreaterEqual(thay, 2, 'không quét trúng nút trang nào — guard rỗng')
-
-    def test_o_co_trang_la_dieu_khien_khong_bi_guard(self):
-        """Tách guard như D5c/D5g: <select> cỡ trang và dòng đếm là ĐIỀU KHIỂN /
-        THÔNG TIN, phải còn khi chỉ 1 trang."""
-        kiem = 0
-        for call in self._bang_theo_lop('wj-exam-pc-list-table'):
-            for el in call.xpath('.//select | .//*[contains(@class, "wj-pc-pagination__count")]'):
-                dieu_kien = ' '.join(a.get('t-if', '') for a in el.iterancestors())
-                self.assertNotIn("pc_pager['pages']", dieu_kien,
-                                 'ô điều khiển/thông tin bị guard điều hướng nuốt')
-                kiem += 1
-        self.assertGreaterEqual(kiem, 2, 'không quét trúng ô nào — guard rỗng')
+            self.assertEqual(
+                len(pagers[0].xpath('.//t[@t-call="wujia_portal_layout.wj_pagination"]')), 1,
+                'bảng PC thi không gọi component pager')
+            self.assertFalse(pagers[0].xpath('.//*[contains(@t-attf-class, "wj-pc-page-btn")]'),
+                             'nút trang cũ quay lại màn thi')
+            thay += 1
+        self.assertGreaterEqual(thay, 1, 'không quét trúng bảng nào — guard rỗng')
 
     def test_bang_ket_qua_khong_de_pager_va_co_empty_state(self):
         """D5h.1 — bảng kết quả thi render trọn theo `pc_detail['lines']`, KHÔNG
@@ -984,7 +977,8 @@ class TestDataListExam(TransactionCase):
         call = bang[0]
         self.assertFalse(call.xpath('./t[@t-set="dl_pager"]'),
                          'bảng kết quả không phân trang mà vẫn truyền dl_pager')
-        self.assertFalse(call.xpath('.//*[contains(@class, "wj-pc-page-btn")]'))
+        self.assertFalse(call.xpath('.//t[@t-call="wujia_portal_layout.wj_pagination"]'
+                                    ' | .//*[contains(@class, "wj-pagination")]'))
         empty = call.xpath('./t[@t-set="dl_empty"]/@t-value')
         self.assertEqual(len(empty), 1, 'thiếu dl_empty ⇒ 0 dòng vẫn vẽ khung bảng rỗng')
         self.assertIn("pc_detail['lines']", empty[0])

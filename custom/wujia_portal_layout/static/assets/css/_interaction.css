@@ -50,6 +50,9 @@ textarea:not([disabled]):not([readonly]):focus-visible {
 
 
 /* ============ 3. Bề mặt trung tính: hover + pressed ===================== */
+/* Pager KHÔNG có mặt trong ba danh sách dưới: `.wj-pagination__btn` tự khai hover/
+   pressed/disabled trong `_components.css` (CMP-PGNT-001). Hai họ pager cũ đã đi hết,
+   chỉ còn nhóm Khảo sát (defer) nên giữ đúng phạm vi `.wj-inspection-pc`. */
 /* Danh sách lấy từ kiểm kê bằng máy 22 route × 2 breakpoint. Chỉ gồm bề mặt
    trắng/trong suốt đóng vai card / row / menu / tab / pagination / chip-chưa-chọn
    / icon-button. Nút primary-CTA, chip ĐANG chọn và action trên thanh header tối
@@ -63,8 +66,7 @@ textarea:not([disabled]):not([readonly]):focus-visible {
     .wujia-mreturn-row, .wj-debt-actionrow, .wujia-kpi-card-link,
     /* menu / tab / pagination */
     .wj-pc-acct-nav__item:not(.is-active), .wj-debt-pc-tab:not(.is-active),
-    .wj-pc-page-btn:not(.is-active):not(.is-disabled),
-    .wj-debt-pc-pagebtn:not(.is-active), .page-link,
+    .wj-inspection-pc .wj-pc-page-btn:not(.is-active):not(.is-disabled), .page-link,
     .wujia-store-mobile-strip--clickable,
     /* chip chưa chọn */
     .wj-filter-chip:not(.is-active), .wj-pc-dlv-chip:not(.is-active),
@@ -88,8 +90,7 @@ textarea:not([disabled]):not([readonly]):focus-visible {
         .wujia-mhist-row, .wujia-mknow-feat, .wujia-mknow-row, .wujia-mnoti-row,
         .wujia-mreturn-row, .wj-debt-actionrow, .wujia-kpi-card-link,
         .wj-pc-acct-nav__item:not(.is-active), .wj-debt-pc-tab:not(.is-active),
-        .wj-pc-page-btn:not(.is-active):not(.is-disabled),
-        .wj-debt-pc-pagebtn:not(.is-active), .page-link,
+        .wj-inspection-pc .wj-pc-page-btn:not(.is-active):not(.is-disabled), .page-link,
         .wujia-store-mobile-strip--clickable,
         .wj-filter-chip:not(.is-active), .wj-pc-dlv-chip:not(.is-active),
         .wj-pc-btn--secondary, .wj-page-header__back, .wujia-mreturn-btn-cancel,
@@ -112,8 +113,7 @@ textarea:not([disabled]):not([readonly]):focus-visible {
     .wujia-mhist-row, .wujia-mknow-feat, .wujia-mknow-row, .wujia-mnoti-row,
     .wujia-mreturn-row, .wj-debt-actionrow, .wujia-kpi-card-link,
     .wj-pc-acct-nav__item:not(.is-active), .wj-debt-pc-tab:not(.is-active),
-    .wj-pc-page-btn:not(.is-active):not(.is-disabled),
-    .wj-debt-pc-pagebtn:not(.is-active), .page-link,
+    .wj-inspection-pc .wj-pc-page-btn:not(.is-active):not(.is-disabled), .page-link,
     .wujia-store-mobile-strip--clickable,
     .wj-filter-chip:not(.is-active), .wj-pc-dlv-chip:not(.is-active),
     .wj-pc-btn--secondary, .wj-page-header__back, .wujia-mreturn-btn-cancel,

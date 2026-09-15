@@ -561,34 +561,14 @@
 .wj-debt-pc-pdf i { font-size: 15px; }
 
 /* ---------- Pagination footer ---------- */
-.wj-debt-pc-pagination {
+/* Chân bảng lịch sử thanh toán: dòng tổng của KỲ LỌC, hiện cả khi chỉ 1 trang nên
+   không thuộc pager (pager chung `wj-pagination` tự ẩn khi <=1 trang). */
+.wj-debt-pc-histfoot {
     display: flex;
-    align-items: center;
-    justify-content: space-between;
-    flex-wrap: wrap;
-    gap: 16px;
+    justify-content: flex-end;
     margin-top: 18px;
 }
-.wj-debt-pc-pagination__count { font-size: 14px; font-weight: 500; color: var(--wj-pc-muted); }
-.wj-debt-pc-pagination__right { display: flex; flex-direction: column; align-items: flex-end; gap: 8px; }
-.wj-debt-pc-pagination__total { font-size: 14px; font-weight: 600; color: var(--wj-pc-text); }
-.wj-debt-pc-pagination__nav { display: flex; align-items: center; gap: 8px; }
-.wj-debt-pc-pagesize {
-    display: inline-flex; align-items: center;
-    height: 36px; padding: 0 12px;
-    border: 1px solid var(--wj-pc-border); border-radius: 10px;
-    font-size: 13px; font-weight: 600; color: var(--wj-pc-text);
-}
-.wj-debt-pc-pagebtn {
-    display: inline-flex; align-items: center; justify-content: center;
-    min-width: 36px; height: 36px; padding: 0 8px;
-    border: 1px solid var(--wj-pc-border); border-radius: 10px;
-    background: var(--wj-pc-card);
-    font-size: 14px; font-weight: 700; color: var(--wj-pc-muted);
-    text-decoration: none;
-}
-.wj-debt-pc-pagebtn.is-active { background: var(--wj-pc-primary); border-color: var(--wj-pc-primary); color: #fff; }
-.wj-debt-pc-pagebtn:hover:not(.is-active) { border-color: var(--wj-pc-primary); color: var(--wj-pc-primary); }
+.wj-debt-pc-histfoot__total { font-size: 14px; font-weight: 600; color: var(--wj-pc-text); }
 
 /* ---------- Empty box trong card (empty_week xanh dương / no_debt xanh lá) ---------- */
 .wj-debt-pc-emptybox {

@@ -970,42 +970,6 @@ h2, .wujia-h2 { font-size: var(--wujia-font-size-h2) !important; font-weight: 60
     color: #FFFFFF !important;
 }
 
-/* ---------- Sprint 9.13b (2026-05-27): pagination clean override ---------- */
-.pagination.wujia-pagination {
-    gap: 4px;
-}
-.pagination.wujia-pagination .page-item {
-    border-radius: 6px !important;
-}
-.pagination.wujia-pagination .page-link {
-    border-radius: 6px !important;
-    border: 1px solid var(--wujia-border);
-    color: var(--wujia-text-secondary);
-    padding: 6px 12px;
-    min-width: 36px;
-    text-align: center;
-    background: var(--wujia-bg-card);
-    line-height: 1.4;
-}
-.pagination.wujia-pagination .page-item.active .page-link {
-    background: var(--wujia-primary);
-    border-color: var(--wujia-primary);
-    color: #FFFFFF;
-    font-weight: 600;
-}
-.pagination.wujia-pagination .page-item.disabled .page-link {
-    opacity: 0.5;
-    cursor: not-allowed;
-}
-.pagination.wujia-pagination .page-link:hover {
-    background: var(--wujia-bg-page);
-    color: var(--wujia-primary);
-}
-.pagination.wujia-pagination .page-item.active .page-link:hover {
-    background: var(--wujia-primary);
-    color: #FFFFFF;
-}
-
 /* ---------- Navbar logo (mobile, Sprint 10 — Figma) ---------- */
 .wujia-navbar-logo {
     display: flex;
@@ -2202,35 +2166,6 @@ a.wujia-mhome-kpi:active { opacity: 0.85; }
     font-weight: 700;
     color: var(--wujia-morder-text);
     white-space: nowrap;
-}
-
-/* Pager — share style với mobile Kiến thức (Sprint 15: group selector, */
-.wujia-mhist-pager,
-.wujia-mknow-pager {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 12px;
-    margin-top: 14px;
-}
-.wujia-mhist-pager span,
-.wujia-mknow-pager span {
-    font-size: 14px;
-    color: var(--wujia-morder-text-sub);
-}
-.wujia-mhist-pager a,
-.wujia-mknow-pager a {
-    width: 38px;
-    height: 38px;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    border: 1px solid var(--wujia-morder-border);
-    border-radius: 10px;
-    background: var(--wujia-morder-card-bg);
-    color: var(--wujia-morder-primary);
-    font-weight: 700;
-    text-decoration: none;
 }
 
 /* ====================== DETAIL ====================== */

@@ -731,14 +731,13 @@
 
     .wj-exam-pc label  { padding-left: 0; }
     .wj-exam-pc select { padding: 0 18px !important; }
-    .wj-exam-pc .wj-pc-pagination__size {
+    /* Trung hoà `.wj-exam-pc select { padding: 0 18px !important }` ngay trên cho ô cỡ
+       trang của pager chung — không ép dáng khác, chỉ trả lại đệm của component. */
+    .wj-exam-pc .wj-pagination__size {
         flex: 0 0 auto;
         width: auto;
-        min-width: 88px;
         padding: 0 12px !important;
-        text-align: center;
     }
-    .wj-exam-pc .wj-pc-pagination__count { white-space: nowrap; }
 
     /* ---------- Bộ lọc nhanh (Figma y178 h88) ----------
        Từ UI-PC-BASE-003: card 88px do .wj-pc-filterbar lo (23/42/23), bỏ dòng
@@ -785,9 +784,10 @@
     .wj-exam-pc-result--mixed { font-weight: 700; color: var(--wj-pc-text); }
     .wj-exam-pc-result--muted { font-weight: 400; color: var(--wj-pc-subtle); }
 
-    /* ---------- Pagination (Figma y878) ---------- */
-    .wj-exam-pc-pagination { margin-top: 30px; padding: 0 14px 0 24px; }
-    .wj-exam-pc-pagination .wj-pc-pagination__size { font-weight: 700; }
+    /* ---------- Pagination ----------
+       E3c: dáng pager về component chung `.wj-pagination` (CMP-PGNT-001). Chỉ giữ
+       đệm trái/phải theo Figma y878 của màn Thi, không ép lại kích thước nút. */
+    .wj-exam-pc .wj-pagination { padding: 0 14px 0 24px; }
 }
 
 @media (min-width: 992px) {

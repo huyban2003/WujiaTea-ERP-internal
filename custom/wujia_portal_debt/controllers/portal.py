@@ -16,7 +16,9 @@ from odoo.addons.wujia_portal_base.controllers.portal import (
     get_active_franchise_id,
     get_max_role_in_franchises,
 )
-from odoo.addons.wujia_portal_base.controllers.utils import portal_money
+from odoo.addons.wujia_portal_base.controllers.utils import (
+    build_pager, parse_page_size, portal_money,
+)
 
 from ..models.wujia_portal_debt import INVOICE_BADGE, INVOICE_PREVIEW, STATE_BADGE
 
@@ -53,29 +55,20 @@ def _parse_date(value):
 # Số dòng/trang bảng PC (Figma "10 / trang"). Chỉ dùng cho khối desktop —
 # mobile giữ nguyên cơ chế preview 2 + ?all=1.
 _PC_PAGE_SIZE = 10
+_PC_PAGE_SIZES = (10, 20, 50)
 
 
-def _pc_paginate(items, page, page_size=_PC_PAGE_SIZE):
-    """Slice phân trang cho bảng PC (STT10). Trả (slice, pager). `page` là query param
-    người dùng sửa tay → không bao giờ raise, kẹp trong [1, page_count]."""
-    total = len(items)
-    page_count = max(1, (total + page_size - 1) // page_size)
-    try:
-        page = int(page or 1)
-    except (TypeError, ValueError):
-        page = 1
-    page = max(1, min(page, page_count))
-    offset = (page - 1) * page_size
-    page_items = items[offset:offset + page_size]
-    return page_items, {
-        'page': page,
-        'page_count': page_count,
-        'page_total': total,
-        'offset': offset,
-        'count': len(page_items),
-        'page_size': page_size,
-        'pages': list(range(1, page_count + 1)),   # dựng sẵn cho t-foreach (khỏi range() trong QWeb)
-    }
+def _pc_paginate(items, page, page_size=None, *, path, item_label):
+    """Slice phân trang cho bảng PC (STT10). Trả (slice, pgn) với `pgn` là dict chuẩn
+    của `build_pager` — cùng một nguồn với mọi pager portal khác (CMP-PGNT-001).
+
+    Công nợ tính trên list đã dựng sẵn trong RAM (không phải search ORM) nên chỉ mượn
+    phần phép toán + dựng URL của `build_pager` rồi tự cắt lát.
+    """
+    size = parse_page_size(page_size, _PC_PAGE_SIZE, _PC_PAGE_SIZES)
+    pgn = build_pager(len(items), page, size, path=path, item_label=item_label,
+                      page_size_options=_PC_PAGE_SIZES, size_param='page_size')
+    return items[pgn['offset']:pgn['offset'] + pgn['page_size']], pgn
 
 
 def _store_label(franchise_id):
@@ -90,7 +83,8 @@ def _store_label(franchise_id):
 class WujiaPortalDebt(http.Controller):
 
     @http.route(['/portal/debt'], type='http', auth='user', sitemap=False)
-    def portal_debt(self, week=None, all=None, page=None, notice=None, **kw):
+    def portal_debt(self, week=None, all=None, page=None, page_size=None,
+                    notice=None, **kw):
         """Overview — Mobile: 4 biến thể theo `state`. PC (STT10): 5 biến thể
         (empty tách 'empty_week'/'no_debt' theo rule 10c/10d) + bảng phân trang + modal QR."""
         franchise_id = get_active_franchise_id()
@@ -106,7 +100,8 @@ class WujiaPortalDebt(http.Controller):
         pc_state = summary['state']
         if pc_state == 'empty':
             pc_state = debt._empty_substate(franchise_id)
-        pc_invoices, pc_pager = _pc_paginate(summary['invoices'], page)
+        pc_invoices, pgn = _pc_paginate(summary['invoices'], page, page_size,
+                                        path='/portal/debt', item_label='hóa đơn')
         # Modal QR: chỉ dựng dữ liệu chuyển khoản khi còn số phải trả (CTA hiện).
         bank = (debt.get_bank_info(franchise_id, summary['remaining'], summary['week_number'])
                 if summary['remaining'] > 0 else None)
@@ -122,7 +117,7 @@ class WujiaPortalDebt(http.Controller):
             # PC extras — khối desktop mới, mobile block không tham chiếu:
             'pc_state': pc_state,
             'pc_invoices': pc_invoices,
-            'pc_pager': pc_pager,
+            'pgn': pgn,
             'store_label': _store_label(franchise_id),
             'bank': bank,
             'active_tab': 'debt',
@@ -131,7 +126,7 @@ class WujiaPortalDebt(http.Controller):
 
     @http.route(['/portal/debt/payment-history'], type='http', auth='user', sitemap=False)
     def portal_debt_payment_history(self, month=None, date_from=None, date_to=None,
-                                    q=None, page=None, **kw):
+                                    q=None, page=None, page_size=None, **kw):
         """Màn 06 — các khoản Ngô Gia đã xác nhận trong kỳ. PC (STT10): thêm ô tìm
         kiếm (`q`) + bảng phân trang. `history['totals']` = tổng TOÀN kỳ đã lọc, tách
         theo từng loại tiền (WJ-DEBT-004)."""
@@ -143,14 +138,16 @@ class WujiaPortalDebt(http.Controller):
             franchise_id, month=month,
             date_from=_parse_date(date_from), date_to=_parse_date(date_to),
             keyword=q)
-        pc_payments, pc_pager = _pc_paginate(history['payments'], page)
+        pc_payments, pgn = _pc_paginate(history['payments'], page, page_size,
+                                        path='/portal/debt/payment-history',
+                                        item_label='giao dịch')
         return request.render('wujia_portal_debt.portal_debt_payment_history', {
             'history': history,
             'no_store': not franchise_id,
             'vnd': _money_fn(history['currency_symbol'], history['currency_decimals']),
             # PC extras:
             'pc_payments': pc_payments,
-            'pc_pager': pc_pager,
+            'pgn': pgn,
             'q': q or '',
             'store_label': _store_label(franchise_id),
             'active_tab': 'history',

@@ -197,38 +197,28 @@
 .wj-pc-link { color: var(--wj-pc-primary); font-weight: 700; text-decoration: none; }
 .wj-pc-link:hover { text-decoration: underline; }
 
-/* ---------- Pagination (numbered, 36×36) — SVG TablePagination ---------- */
-.wj-pc-pagination {
+/* ---------- Pagination CŨ — CHỈ còn nhóm Khảo sát dùng (defer, luật 08/09) ----------
+   Mọi màn portal đã về component chung `.wj-pagination` (CMP-PGNT-001, E3c). Hai họ dưới
+   đây được THU HẸP vào vỏ `.wj-inspection-pc` để giữ nguyên dáng màn Khảo sát mà không
+   còn là dáng dùng chung; xoá hẳn khi nhóm Khảo sát migrate. */
+.wj-inspection-pc .wj-pc-pagination {
     display: flex;
     align-items: center;
     gap: 8px;
     margin-top: 16px;
 }
-.wj-pc-pagination__count {
+.wj-inspection-pc .wj-pc-pagination__count {
     font-size: 14px;
     font-weight: 500;
     color: var(--wj-pc-muted);
     margin-right: auto;
 }
-/* Bọc select trong form riêng để submit thật; trung hoà `form { margin-bottom: 15px }`
-   của shell (tag-level, L4) — không thì hàng pagination bị đội cao. */
-.wj-pc-pagination__size-form { display: flex; margin: 0; }
-.wj-pc-pagination__size {
-    height: var(--wj-pc-pagebtn);
-    padding: 0 12px;
-    border: 1px solid var(--wj-pc-border);
-    border-radius: var(--wj-pc-input-radius);
-    background: var(--wj-pc-card);
-    font-size: 13px;
-    font-weight: 600;
-    color: var(--wj-pc-text);
-}
-.wj-pc-page-btn {
+.wj-inspection-pc .wj-pc-page-btn {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    min-width: var(--wj-pc-pagebtn);
-    height: var(--wj-pc-pagebtn);
+    min-width: 36px;
+    height: 36px;
     padding: 0 8px;
     border: 1px solid var(--wj-pc-border);
     border-radius: var(--wj-pc-input-radius);
@@ -238,13 +228,16 @@
     color: var(--wj-pc-muted);
     text-decoration: none;
 }
-.wj-pc-page-btn.is-active {
+.wj-inspection-pc .wj-pc-page-btn.is-active {
     background: var(--wj-pc-primary);
     border-color: var(--wj-pc-primary);
     color: #fff;
 }
-.wj-pc-page-btn.is-disabled { opacity: .45; pointer-events: none; }
-.wj-pc-page-btn:hover:not(.is-active):not(.is-disabled) { border-color: var(--wj-pc-primary); color: var(--wj-pc-primary); }
+.wj-inspection-pc .wj-pc-page-btn.is-disabled { opacity: .45; pointer-events: none; }
+.wj-inspection-pc .wj-pc-page-btn:hover:not(.is-active):not(.is-disabled) {
+    border-color: var(--wj-pc-primary);
+    color: var(--wj-pc-primary);
+}
 
 /* ---------- Form field (label + input/select/textarea h42) — SVG FormField_Set ---------- */
 .wj-pc-field { display: flex; flex-direction: column; gap: 8px; }

@@ -25,7 +25,6 @@ Routes:
 """
 import logging
 from collections import defaultdict
-from urllib.parse import urlencode
 
 import psycopg2
 from psycopg2 import errors as pg_errors
@@ -40,6 +39,8 @@ from odoo.addons.wujia_portal_base.controllers.portal import (
     get_active_franchise_id,
 )
 from odoo.addons.wujia_portal_base.controllers.utils import (
+    build_pager,
+    parse_page_size,
     portal_line_price_vals,
     portal_money,
     portal_tax_mapper,
@@ -54,6 +55,8 @@ _logger = logging.getLogger(__name__)
 
 
 PAGE_SIZE = 24
+# Bậc ô "n / trang" của catalog — bội của 24 để lưới sản phẩm không vỡ hàng.
+PAGE_SIZE_OPTIONS = (24, 48, 96)
 
 # Bảng mã lỗi BA (chat "Controller Product + Cart" FINAL) + mã legacy còn lưu hành.
 ERROR_MESSAGES = {
@@ -427,14 +430,15 @@ class WujiaPortalSale(http.Controller):
         }
 
     # ------------------------------------------------------------------ catalog
-    def _catalog_values(self, page=1, category_id=None, keyword='', **kw):
+    def _catalog_values(self, page=1, category_id=None, keyword='', page_size=None,
+                        **kw):
         """Context catalog — dùng chung cho trang đầy đủ và fragment AJAX."""
         if not request.env.user._get_accessible_franchise_ids():
             return {
                 'money': portal_money,
                 'no_franchise': True, 'products': [], 'categories': [],
                 'cart': False, 'cart_state': None, 'price_map': {},
-                'pager': {}, 'keyword': '', 'category_id': None,
+                'pgn': None, 'keyword': '', 'category_id': None,
             }
         fid, gate_error = self._store_gate()
         franchise = self._get_franchise(fid) if fid else None
@@ -451,13 +455,15 @@ class WujiaPortalSale(http.Controller):
         if cat_id:
             domain.append(('public_categ_id', '=', cat_id))
 
-        try:
-            page = max(1, int(page))
-        except (TypeError, ValueError):
-            page = 1
-        offset = (page - 1) * PAGE_SIZE
+        size = parse_page_size(page_size, PAGE_SIZE, PAGE_SIZE_OPTIONS)
         total = Product.search_count(domain)
-        products = Product.search(domain, limit=PAGE_SIZE, offset=offset, order='name asc')
+        # Một nguồn duy nhất cho số trang + URL trang (CMP-PGNT-001): query-string lấy
+        # từ request nên đổi trang giữ nguyên keyword/danh mục.
+        pgn = build_pager(total, page, size, path='/portal/order',
+                          item_label='sản phẩm', page_size_options=PAGE_SIZE_OPTIONS,
+                          size_param='page_size')
+        products = Product.search(domain, limit=pgn['page_size'],
+                                  offset=pgn['offset'], order='name asc')
 
         # Chỉ trả danh mục đang có sản phẩm public (BA row 3) — 1 read_group + 1 search.
         cat_groups = Product._read_group(
@@ -475,8 +481,6 @@ class WujiaPortalSale(http.Controller):
         cart = self._get_store_cart(fid) if fid else False
         cart_state = self._cart_state(cart, franchise)
 
-        pager = self._fallback_pager(total, page, keyword, cat_id)
-
         msgs = self._resolve_messages(kw)
         return {
             'money': portal_money,
@@ -487,9 +491,8 @@ class WujiaPortalSale(http.Controller):
             'categories': categories,
             'cart': cart,
             'cart_state': cart_state,
-            'pager': pager,
+            'pgn': pgn,
             'product_count': total,
-            'page_size': PAGE_SIZE,
             'keyword': keyword,
             'category_id': cat_id,
             'message': msgs['message'],
@@ -1042,25 +1045,3 @@ class WujiaPortalSale(http.Controller):
             'next_window_name': (nxt or {}).get('name') or '',
             **self._order_window_context(franchise),
         })
-
-    # ============================================================== pager
-    def _fallback_pager(self, total, page, keyword='', cat_id=None):
-        last = max(1, (total + PAGE_SIZE - 1) // PAGE_SIZE)
-
-        def _u(n):
-            args = {'page': n}
-            if keyword:
-                args['keyword'] = keyword
-            if cat_id:
-                args['category_id'] = cat_id
-            return '/portal/order?' + urlencode(args)
-
-        return {
-            'page': {'num': page, 'url': _u(page)},
-            'page_count': last, 'page_total': total,
-            'page_first': {'num': 1, 'url': _u(1)},
-            'page_last': {'num': last, 'url': _u(last)},
-            'page_previous': {'num': max(1, page - 1), 'url': _u(max(1, page - 1))},
-            'page_next': {'num': min(last, page + 1), 'url': _u(min(last, page + 1))},
-            'pages': [{'num': n, 'url': _u(n)} for n in range(1, last + 1)],
-        }

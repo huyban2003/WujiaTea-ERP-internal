@@ -392,20 +392,10 @@
                                 <t t-set="dl_class" t-value="'wj-debt-pc-tablewrap'"/>
                                 <t t-set="dl_table_class" t-value="'wj-pc-table wj-debt-pc-table'"/>
                                 <t t-set="dl_pager">
-                                    <!-- CMP-DL-001: pager chỉ hiện khi >1 trang (kiểm kê D5a). -->
-                                    <div t-if="pc_pager['page_count'] &gt; 1" class="wj-debt-pc-pagination">
-                                        <span class="wj-debt-pc-pagination__count">
-                                            Hiển thị <t t-out="pc_pager['offset'] + 1"/>–<t t-out="pc_pager['offset'] + pc_pager['count']"/> / <t t-out="pc_pager['page_total']"/> hóa đơn
-                                        </span>
-                                        <span class="wj-debt-pc-pagination__nav">
-                                            <span class="wj-debt-pc-pagesize"><t t-out="pc_pager['page_size']"/> / trang</span>
-                                            <t t-foreach="pc_pager['pages']" t-as="pn">
-                                                <a t-attf-href="/portal/debt?week=#{summary['week_key']}&amp;page=#{pn}"
-                                                   t-attf-class="wj-debt-pc-pagebtn #{'is-active' if pn == pc_pager['page'] else ''}"
-                                                   t-out="pn"/>
-                                            </t>
-                                        </span>
-                                    </div>
+                                    <!-- CMP-PGNT-001: pager chung (guard ">1 trang" nằm trong
+                                         component). Ô cỡ trang trước đây là nhãn tĩnh "10 / trang"
+                                         không bấm được ⇒ nay là ô chọn chạy thật 10/20/50. -->
+                                    <t t-call="wujia_portal_layout.wj_pagination"/>
                                 </t>
                                     <thead>
                                         <tr>
@@ -638,25 +628,14 @@
                                 <t t-set="dl_class" t-value="'wj-debt-pc-tablewrap'"/>
                                 <t t-set="dl_table_class" t-value="'wj-pc-table wj-debt-pc-table'"/>
                                 <t t-set="dl_pager">
-                                    <!-- Dòng tổng tiền là thông tin của kỳ lọc ⇒ hiện cả khi 1 trang. -->
-                                    <div class="wj-debt-pc-pagination">
-                                        <span t-if="pc_pager['page_count'] &gt; 1" class="wj-debt-pc-pagination__count">
-                                            Hiển thị <t t-out="pc_pager['offset'] + 1"/>–<t t-out="pc_pager['offset'] + pc_pager['count']"/> / <t t-out="pc_pager['page_total']"/> giao dịch
-                                        </span>
-                                        <span class="wj-debt-pc-pagination__right">
-                                            <span class="wj-debt-pc-pagination__total">Tổng thanh toán trong thời gian lọc:
-                                                <t t-foreach="history['totals']" t-as="tot"><t t-if="not tot_first"> • </t><t t-out="tot['label']"/></t>
-                                            </span>
-                                            <span t-if="pc_pager['page_count'] &gt; 1" class="wj-debt-pc-pagination__nav">
-                                                <span class="wj-debt-pc-pagesize"><t t-out="pc_pager['page_size']"/> / trang</span>
-                                                <t t-foreach="pc_pager['pages']" t-as="pn">
-                                                    <a t-attf-href="/portal/debt/payment-history?month=#{history['month_key']}&amp;q=#{q}&amp;page=#{pn}"
-                                                       t-attf-class="wj-debt-pc-pagebtn #{'is-active' if pn == pc_pager['page'] else ''}"
-                                                       t-out="pn"/>
-                                                </t>
-                                            </span>
-                                        </span>
+                                    <!-- Dòng tổng tiền là thông tin của kỳ lọc ⇒ hiện cả khi 1 trang,
+                                         nên nằm NGOÀI component (component tự ẩn khi 1 trang). -->
+                                    <div class="wj-debt-pc-histfoot">
+                                        <!-- `&#160;` chứ không phải dấu cách thường: QWeb nuốt khoảng
+                                             trắng đầu dòng nên trước E3c chuỗi dính liền "lọc:9.450.000". -->
+                                        <span class="wj-debt-pc-histfoot__total">Tổng thanh toán trong thời gian lọc:&#160;<t t-foreach="history['totals']" t-as="tot"><t t-if="not tot_first"> • </t><t t-out="tot['label']"/></t></span>
                                     </div>
+                                    <t t-call="wujia_portal_layout.wj_pagination"/>
                                 </t>
                                     <thead>
                                         <tr>

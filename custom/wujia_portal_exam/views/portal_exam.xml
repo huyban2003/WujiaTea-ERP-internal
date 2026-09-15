@@ -92,43 +92,9 @@
                             </div>
                             </t>
                             <t t-set="dl_pager">
-                                <!-- Pager là link thật (trước đây là <span> nên phân trang không chạy).
-                                     Nằm trong #wj-exam-pc-body ⇒ wj_ajax_list.js tự bắt, không reload. -->
-                                <div t-if="pc_regs" class="wj-pc-pagination wj-exam-pc-pagination">
-                                    <span class="wj-pc-pagination__count">
-                                        Hiển thị <t t-out="pc_pager['from']"/>–<t t-out="pc_pager['to']"/> /
-                                        <t t-out="pc_pager['total']"/> bản ghi
-                                    </span>
-                                    <form method="get" action="/portal/exam" class="d-inline">
-                                        <input type="hidden" name="state" t-att-value="f_state or ''"/>
-                                        <input type="hidden" name="result" t-att-value="f_result or ''"/>
-                                        <input type="hidden" name="q" t-att-value="f_q or ''"/>
-                                        <!-- requestSubmit (KHÔNG submit()): submit() bỏ qua listener
-                                             'submit' nên wj_ajax_list.js không bắt, trang lại reload. -->
-                                        <select class="wj-pc-pagination__size" name="limit"
-                                                onchange="this.form.requestSubmit()">
-                                            <t t-foreach="[10, 20, 50]" t-as="sz">
-                                                <option t-att-value="sz"
-                                                        t-att-selected="'selected' if sz == pc_pager['size'] else None">
-                                                    <t t-out="sz"/> / trang
-                                                </option>
-                                            </t>
-                                        </select>
-                                    </form>
-                                    <!-- Nút trang = điều hướng ⇒ guard pages&gt;1; select cỡ trang là điều khiển nên giữ. -->
-                                    <t t-if="pc_pager['pages'] &gt; 1">
-                                        <a t-attf-href="/portal/exam?page=#{max(1, pc_pager['page'] - 1)}#{'&amp;' + querystring if querystring else ''}"
-                                           t-attf-class="wj-pc-page-btn #{'is-disabled' if pc_pager['page'] &lt;= 1 else ''}">‹</a>
-                                        <t t-foreach="pc_pager['numbers']" t-as="p">
-                                            <span t-if="p == '…'" class="wj-pc-page-btn">…</span>
-                                            <a t-else="" t-attf-href="/portal/exam?page=#{p}#{'&amp;' + querystring if querystring else ''}"
-                                               t-attf-class="wj-pc-page-btn #{'is-active' if p == pc_pager['page'] else ''}"
-                                               t-out="p"/>
-                                        </t>
-                                        <a t-attf-href="/portal/exam?page=#{min(pc_pager['pages'], pc_pager['page'] + 1)}#{'&amp;' + querystring if querystring else ''}"
-                                           t-attf-class="wj-pc-page-btn #{'is-disabled' if pc_pager['page'] &gt;= pc_pager['pages'] else ''}">›</a>
-                                    </t>
-                                </div>
+                                <!-- CMP-PGNT-001: pager chung. Nằm trong #wj-exam-pc-body ⇒
+                                     wj_ajax_list.js tự bắt link + form cỡ trang, không reload. -->
+                                <t t-call="wujia_portal_layout.wj_pagination"/>
                             </t>
                                 <thead>
                                     <tr>
@@ -174,7 +140,7 @@
                     <t t-set="ph_variant" t-value="'title'"/>
                     <t t-set="ph_title">Đăng ký thi</t>
                 </t>
-                <p class="wj-count-meta" id="wj-exam-mcount"><t t-out="pc_pager['total']"/> đăng ký trong cửa hàng hiện tại</p>
+                <p class="wj-count-meta" id="wj-exam-mcount"><t t-out="pgn['total_items']"/> đăng ký trong cửa hàng hiện tại</p>
 
                 <!-- Filter canonical 04-DateRangeOnly (Figma 4785:862) — demo UI-only (Phase 2 wire) -->
                 <t t-call="wujia_portal_layout.wj_surface_card">
@@ -233,6 +199,11 @@
                             <span t-out="item['meta']"/>
                         </p>
                     </a>
+                    <t t-set="dl_pager">
+                        <!-- Danh sách mobile dùng chung lát cắt phân trang của PC nhưng trước
+                             E3c không có nút trang nào ⇒ không xem được phiếu từ trang 2. -->
+                        <t t-call="wujia_portal_layout.wj_pagination"/>
+                    </t>
                 </t>
                 </div>
 
