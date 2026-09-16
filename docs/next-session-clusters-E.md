@@ -27,8 +27,8 @@ và viết mục "🔴 Bài học E&lt;n&gt;" ngay dưới khối prompt (tiền
 | E9b | `WJ-FRANCHISE-004` (135) | `wujia_franchise` + **`-u wujia_franchise_contract`** (UAT đã cài sẵn bản cũ) | ✅ 13/09 |
 | E2a | `UI-STATUSBADGE-001` (128) — nền component + nhóm màn BA audit | `wujia_portal_layout`, `_base`, `_purchase_history`, `_delivery`, `_sale`, `_support` | ✅ 13/09 · `fa2ed9c` · 114→75 call site cũ, 37 call site mới (đếm theo phần tử) |
 | E2b | `UI-STATUSBADGE-001` (128) — 7 màn còn lại + 3 override lệch spec + đóng issue | `notification`, `exam`, `return`, `debt`, `knowledge`, `info_request`, `support` | ✅ 13/09 · 75→38 call site cũ, 37→74 mới · `Ready for Retest` · nghiệm thu ở `docs/e2b-acceptance-matrix.md` |
-| E3 | `UI-PAGINATION-001` (130) | `wujia_portal_layout` + 9 module | ☐ |
-| E4 | `UI-FILTER-001` (139) | `wujia_portal_layout` + 9 module | ☐ |
+| E3a/b/c | `UI-PAGINATION-001` (130) | `wujia_portal_layout` + 9 module | ✅ 16/09 · `9e2ceda`+`41bbfd5`+`ad2ec8b` · 21 khối → 0 pager tự dựng · `Ready for Retest` · **ĐÃ DEPLOY UAT 16/09**, đo lại trên chính máy chủ: `docs/e3-uat-measure.md` |
+| E4a/E4b/E4c | `UI-FILTER-001` (139) | `wujia_portal_layout` + 9 module | ☐ — chia 3 lượt, xem §E4 |
 | E5 | `UI-LISTCARD-001` (136) | `wujia_portal_layout` + 8 module | ☐ |
 | E6a / E6b | `UI-BUTTON-001` (132) | `wujia_portal_layout` + 13 module | ☐ |
 | E7a / E7b | `UI-PAGECONTAINER-001` (129) | `wujia_portal_layout` + mọi module portal | ☐ |
@@ -535,6 +535,22 @@ grep -rhoE 'class="[^"]*"' custom/wujia_portal_*/views/ | grep -oE '\b[a-z0-9_-]
 
 **Ràng buộc đo được:** FB-10 12 ô · PC control 42 cùng hàng/wrap · mobile r14/p12/g8, chip 32 (search
 theo Q1) · inventory điều kiện trước = sau · ngày ngược có lỗi ở 4 màn có ngày · 8 khổ 0 tràn.
+
+### Chia 3 lượt (chốt 16/09/2026)
+
+Quy mô đếm lại được: **22 form GET · 14 họ class · 26 file** — ngang E3 (21 khối / 14 file → 3 lượt),
+lại nặng hơn vì có **lỗi nghiệp vụ phải tái hiện bằng UI trước khi vá**. Một lượt là quá tải.
+
+| Lượt | Phạm vi | Đóng issue? |
+|---|---|---|
+| **E4a** | Kiểm kê theo **cấu trúc** (`lxml`, không grep thô — bài học D4e đính chính 3 lần): mỗi màn × viewport ghi rõ tên param, kiểu control, có ngày/chip/select không ⇒ đây chính là acceptance **FB-10 "điều kiện trước = sau"**, phải chụp TRƯỚC khi sửa byte nào. Dựng `wj_filter_bar` + sub-component trong `wujia_portal_layout`, migrate **2 route mẫu BA**: PC `purchase-history:234`, mobile `delivery:334`. | ❌ |
+| **E4b** | Phủ hết call site: 4 màn PC Bootstrap `row g-2` (support · knowledge · return · info-request, control 28–32 → 42) + căn hàng delivery + `wj-debt-pc-filter` (**giữ week selector**) + toàn bộ mobile còn lại (history · notification · support · knowledge · return · order · report · exam · debt). Xoá họ class cũ — chỗ nào Khảo sát còn dùng thì **thu hẹp selector vào `.wj-inspection-pc`, KHÔNG xoá** (bẫy E3c). | ❌ |
+| **E4c** | Wiring + guard + đóng issue. **Tái hiện bằng Playwright trước, đọc controller sau**: ngày ngược ở delivery/exam trả empty thay vì báo lỗi; mobile exam ngày chưa áp dụng. Vá 4 màn có ngày (tái dùng `wj-filter-error`), đổi lọc → về trang 1, phân trang giữ lọc (dùng `build_pager` của E3 — đã là nguồn duy nhất). Guard `scripts/qa/wj_filterbar.py` (mở rộng `wj_formcontrol.py` của D6c) + HTTP test `from > to` → 200 + thông báo, không 0 record. Nghiệm thu ≥90% → ledger → `qa_sync.py`. | ✅ |
+
+**Vì sao cắt ở đúng hai chỗ đó:** E4a/E4b cắt theo *blast radius* (nền + 2 mẫu, rồi mới nhân ra 20 call
+site) — y hệt B3a/B3b, C8a/C8b, E2a/E2b. E4b/E4c cắt theo *loại rủi ro*: E4b thuần dáng, đo bằng
+computed style; E4c đụng **hành vi lọc**, phải có bước tái hiện lỗi + test HTTP, và chỉ lượt này mới
+được `qa_sync.py`.
 
 ---
 
