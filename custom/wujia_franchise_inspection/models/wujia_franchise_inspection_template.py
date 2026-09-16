@@ -31,10 +31,10 @@ class WujiaFranchiseInspectionCategory(models.Model):
     def _init_default_categories(self):
         """Khởi tạo các Danh mục tiêu chí mặc định nếu chưa tồn tại trong DB."""
         default_categories = [
-            {'name': 'Gìn giữ hình ảnh ngoại quan cửa hàng / 店鋪外觀形象保持', 'sequence': 10},
-            {'name': 'Yêu cầu giữ gìn các thiết bị / 各設備維護要求', 'sequence': 20},
-            {'name': 'Yêu cầu tiêu chuẩn cơ bản / 基本規範要求', 'sequence': 30},
-            {'name': 'Những hạng mục vi phạm nghiêm trọng (vi phạm 1 hạng mục bất kỳ sẽ bị trừ trực tiếp 6 điểm) / 任何一項嚴重違規,就直接扣六分', 'sequence': 40, 'is_severe': True},
+            {'name': 'Store Appearance & Exterior Maintenance / 店鋪外觀形象保持', 'sequence': 10},
+            {'name': 'Equipment Maintenance Requirements / 各設備維護要求', 'sequence': 20},
+            {'name': 'Basic Standard Requirements / 基本規範要求', 'sequence': 30},
+            {'name': 'Critical Violations (Direct 6-point deduction) / 任何一項嚴重違規,就直接扣六分', 'sequence': 40, 'is_severe': True},
         ]
         for cat_data in default_categories:
             existing = self.search([('name', '=', cat_data['name'])], limit=1)
@@ -175,8 +175,8 @@ class WujiaFranchiseInspectionTemplate(models.Model):
             'type': 'ir.actions.client',
             'tag': 'display_notification',
             'params': {
-                'title': _('Nâng cấp phiên bản thành công / Version Updated'),
-                'message': _('Đã lưu trữ phiên bản cũ (%s) và nâng bản hiện tại lên %s (Giữ nguyên toàn bộ ID tiêu chí).') % (old_version, new_version),
+                'title': _('Version Updated Successfully'),
+                'message': _('Archived old version (%s) and upgraded current version to %s (all criteria IDs preserved).') % (old_version, new_version),
                 'type': 'success',
                 'sticky': False,
             }
@@ -187,11 +187,11 @@ class WujiaFranchiseInspectionTemplate(models.Model):
         self.ensure_one()
         if self.state in ('active', 'archived'):
             raise ValidationError(_(
-                'Không thể nhập tiêu chí cho Mẫu ở trạng thái "%s"!\n'
-                'Vui lòng nhấn "Tạo phiên bản mới" hoặc "Chuyển về Dự thảo" để chỉnh sửa tiêu chí.'
+                'Cannot import criteria for Template in status "%s"!\n'
+                'Please click "Create New Version" or "Set to Draft" to edit criteria.'
             ) % (self.state))
         return {
-            'name': _('Nhập tiêu chí từ Excel / Import Criteria'),
+            'name': _('Import Criteria from Excel'),
             'type': 'ir.actions.act_window',
             'res_model': 'wujia.franchise.inspection.template.import.wizard',
             'view_mode': 'form',
@@ -358,7 +358,7 @@ class WujiaFranchiseInspectionTemplate(models.Model):
         Category = self.env['wujia.franchise.inspection.category']
 
         template = self.create({
-            'name': 'Khảo sát cửa hàng nhượng quyền',
+            'name': 'Franchise Store Inspection Survey',
             'code': 'MM01',
             'state': 'draft',
             'version': 'v1.0',
@@ -490,20 +490,20 @@ class WujiaFranchiseInspectionTemplateImportWizard(models.TransientModel):
 
     template_id = fields.Many2one(
         'wujia.franchise.inspection.template',
-        string='Mẫu khảo sát',
+        string='Inspection Template',
         required=True,
         ondelete='cascade',
     )
     file_data = fields.Binary(string='File Excel (.xlsx)', required=True)
-    file_name = fields.Char(string='Tên file', default='criteria_import.xlsx')
+    file_name = fields.Char(string='File Name', default='criteria_import.xlsx')
     import_mode = fields.Selection([
-        ('replace', 'Xóa cũ và thay thế toàn bộ (Replace all existing criteria)'),
-        ('append', 'Thêm tiếp vào danh sách hiện tại (Append to current list)'),
-    ], string='Chế độ nhập', default='replace', required=True)
+        ('replace', 'Replace all existing criteria'),
+        ('append', 'Append to current list'),
+    ], string='Import Mode', default='replace', required=True)
     auto_create_category = fields.Boolean(
-        string='Tự động tạo Danh mục nếu chưa có',
+        string='Auto-create Category if not exists',
         default=True,
-        help='Nếu tên Danh mục trong file Excel chưa tồn tại trong hệ thống, hệ thống sẽ tự động tạo mới.'
+        help='If the category name in Excel does not exist, it will be automatically created.'
     )
 
     def action_download_sample_excel(self):
@@ -513,26 +513,26 @@ class WujiaFranchiseInspectionTemplateImportWizard(models.TransientModel):
     def action_import_excel(self):
         self.ensure_one()
         if not self.file_data:
-            raise ValidationError(_('Vui lòng chọn file Excel để nhập!'))
+            raise ValidationError(_('Please select an Excel file to import!'))
 
         if self.file_name and not self.file_name.lower().endswith(('.xlsx', '.xlsm')):
-            raise ValidationError(_('Chỉ hỗ trợ file Excel định dạng .xlsx hoặc .xlsm!'))
+            raise ValidationError(_('Only .xlsx or .xlsm Excel files are supported!'))
 
         if self.template_id.state in ('active', 'archived'):
             raise ValidationError(_(
-                'Mẫu khảo sát "%s" đang ở trạng thái "%s" không thể chỉnh sửa tiêu chí!\n'
-                'Vui lòng bấm "Tạo phiên bản mới" hoặc "Chuyển về Dự thảo".'
+                'Inspection template "%s" in status "%s" cannot be edited!\n'
+                'Please click "Create New Version" or "Set to Draft".'
             ) % (self.template_id.name, self.template_id.state))
 
         try:
             file_bytes = base64.b64decode(self.file_data)
             wb = openpyxl.load_workbook(io.BytesIO(file_bytes), data_only=True)
         except Exception as e:
-            raise ValidationError(_('Không thể đọc file Excel. Lỗi: %s') % str(e))
+            raise ValidationError(_('Cannot read Excel file. Error: %s') % str(e))
 
         ws = wb.active
         if not ws:
-            raise ValidationError(_('File Excel không có trang tính (sheet) nào!'))
+            raise ValidationError(_('The Excel file contains no worksheets!'))
 
         Category = self.env['wujia.franchise.inspection.category']
         category_cache = {}
@@ -667,7 +667,7 @@ class WujiaFranchiseInspectionTemplateImportWizard(models.TransientModel):
             row_count += 1
 
         if not parsed_rows:
-            raise ValidationError(_('Không tìm thấy dòng dữ liệu tiêu chí hợp lệ nào trong file Excel!'))
+            raise ValidationError(_('No valid criteria data rows found in the Excel file!'))
 
         # Lập chỉ mục các dòng tiêu chí đang có trong Template hiện tại
         existing_lines = self.template_id.line_ids
@@ -725,9 +725,9 @@ class WujiaFranchiseInspectionTemplateImportWizard(models.TransientModel):
             'type': 'ir.actions.client',
             'tag': 'display_notification',
             'params': {
-                'title': _('Nhập Excel Thành Công / Success'),
+                'title': _('Excel Import Successful'),
                 'message': _(
-                    'Đã xử lý %d dòng: Cập nhật & Giữ nguyên ID (%d dòng trùng mã), Tạo mới (%d dòng mới).'
+                    'Processed %d rows: Updated & preserved IDs (%d matched code), Created (%d new rows).'
                 ) % (row_count, updated_count, created_count),
                 'type': 'success',
                 'sticky': False,

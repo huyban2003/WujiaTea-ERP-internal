@@ -143,7 +143,7 @@ export class WujiaGpsField extends Component {
 
                 const now = new Date();
                 const timeStr = now.toLocaleTimeString("vi-VN", { hour: "2-digit", minute: "2-digit", second: "2-digit" });
-                const infoText = `GPS: ${lat.toFixed(6)}, ${lng.toFixed(6)} (±${accuracy}m) lúc ${timeStr}`;
+                const infoText = `GPS: ${lat.toFixed(6)}, ${lng.toFixed(6)} (±${accuracy}m) at ${timeStr}`;
 
                 try {
                     // 1. Update form record state

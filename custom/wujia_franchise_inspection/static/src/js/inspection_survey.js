@@ -279,7 +279,7 @@
         submitBtn.innerHTML =
           '<i class="fa fa-lock"></i> ' +
           _t(
-            "label:wujia.franchise.inspection_survey:status_completed",
+            "Completed",
             "Completed &amp; Locked",
           );
         submitBtn.style.background = "#64748b";
@@ -464,7 +464,7 @@
           } catch (err) {
             alert(
               _t(
-                "label:wujia.franchise.inspection_survey:no_prev_data",
+                "No previous inspection data available for this criterion.",
                 "No previous inspection data available for this criterion.",
               ),
             );
@@ -472,7 +472,7 @@
         } else {
           alert(
             _t(
-              "label:wujia.franchise.inspection_survey:no_prev_data",
+              "No previous inspection data available for this criterion.",
               "No previous inspection data available for this criterion.",
             ),
           );
@@ -790,7 +790,7 @@
       if (!isExamSubmitted && !empName) {
         showCustomAlert(
           _t(
-            "label:wujia.franchise.inspection_survey:alert_msg_input_employee",
+            "Please enter Tested Employee name!",
             "Please enter Tested Employee name before saving!",
           ),
           function () {
@@ -821,7 +821,7 @@
         btnFinishSurvey.disabled = true;
         btnFinishSurvey.style.pointerEvents = "none";
         btnFinishSurvey.style.opacity = "0.75";
-        btnFinishSurvey.innerHTML = `<i class="fa fa-spinner fa-spin me-2"></i> ${_t("label:wujia.franchise.inspection_survey:label_saving", "Đang lưu...")}`;
+        btnFinishSurvey.innerHTML = `<i class="fa fa-spinner fa-spin me-2"></i> ${_t("Saving...", "Saving...")}`;
       }
 
       const payload = collectSurveyPayload(true);
@@ -843,7 +843,7 @@
         if (data.result && data.result.success) {
           showToast(
             _t(
-              "label:wujia.franchise.inspection_survey:toast_saved",
+              "Results saved successfully!",
               "Results saved successfully!",
             ),
             false,
@@ -871,7 +871,7 @@
             data.result
               ? data.result.error
               : _t(
-                  "label:wujia.franchise.inspection_survey:toast_error",
+                  "An error occurred while saving!",
                   "An error occurred while saving!",
                 ),
           );
@@ -879,7 +879,7 @@
       } catch (err) {
         showToast(
           _t(
-            "label:wujia.franchise.inspection_survey:toast_network_error",
+            "Server connection error!",
             "Server connection error!",
           ),
           true,
@@ -1034,7 +1034,7 @@
             prevData.has_note ||
             (noteText &&
               noteText !== "No violation note" &&
-              noteText !== "Chưa có ghi chú" &&
+              noteText !== "No violation note" && noteText !== "Chưa có ghi chú" &&
               noteText !== "-");
           if (hasNote && noteText) {
             lineModalPrevNote.innerHTML = `
@@ -1047,7 +1047,7 @@
             lineModalPrevNote.innerHTML =
               '<span style="color: #94a3b8; font-style: italic;">' +
               _t(
-                "label:wujia.franchise.inspection_survey:no_prev_note",
+                "No previous violation notes recorded.",
                 "No violation note",
               ) +
               "</span>";
@@ -1065,7 +1065,7 @@
           lineModalPrevNote.innerHTML =
             '<span style="color: #94a3b8; font-style: italic;">' +
             _t(
-              "label:wujia.franchise.inspection_survey:no_prev_data",
+              "No previous inspection data available for this criterion.",
               "No previous inspection data",
             ) +
             "</span>";
@@ -1078,7 +1078,7 @@
         lineModalPrevNote.innerHTML =
           '<span style="color: #94a3b8; font-style: italic;">' +
           _t(
-            "label:wujia.franchise.inspection_survey:no_prev_data",
+            "No previous inspection data available for this criterion.",
             "No previous inspection data",
           ) +
           "</span>";
@@ -1129,8 +1129,8 @@
         lineModalCheck.checked = lineChk.checked;
         lineModalCheck.disabled = isInspectionClosed;
         lineModalCheckStatus.innerText = lineChk.checked
-          ? _t("label:wujia.franchise.inspection_survey:badge_pass", "Pass")
-          : _t("label:wujia.franchise.inspection_survey:badge_fail", "Fail");
+          ? _t("Pass", "Pass")
+          : _t("Fail", "Fail");
         lineModalCheckStatus.style.color = lineChk.checked
           ? "#15803d"
           : "#ef4444";
@@ -1182,8 +1182,8 @@
     if (lineModalCheck) {
       lineModalCheck.addEventListener("change", function () {
         lineModalCheckStatus.innerText = this.checked
-          ? _t("label:wujia.franchise.inspection_survey:badge_pass", "Pass")
-          : _t("label:wujia.franchise.inspection_survey:badge_fail", "Fail");
+          ? _t("Pass", "Pass")
+          : _t("Fail", "Fail");
         lineModalCheckStatus.style.color = this.checked ? "#15803d" : "#ef4444";
       });
     }
@@ -1325,7 +1325,7 @@
         e.stopPropagation();
         if (lineModalPrevEvidenceImg && lineModalPrevEvidenceImg.src) {
           const note = lineModalPrevNote ? lineModalPrevNote.textContent.trim() : "";
-          const cap = note && note !== "-" ? `Ghi chú đợt trước: ${note}` : "Ảnh bằng chứng đợt trước";
+          const cap = note && note !== "-" ? `Previous Note: ${note}` : "Previous Evidence Photo";
           openImageLightbox(lineModalPrevEvidenceImg.src, cap);
         }
       });
@@ -1337,7 +1337,7 @@
         e.stopPropagation();
         if (lineModalImgPreview && lineModalImgPreview.src) {
           const note = lineModalNoteInput ? lineModalNoteInput.value.trim() : "";
-          const cap = note ? `Ghi chú vi phạm: ${note}` : "Ảnh bằng chứng vi phạm";
+          const cap = note ? `Violation Note: ${note}` : "Violation Evidence Photo";
           openImageLightbox(lineModalImgPreview.src, cap);
         }
       });
@@ -1423,11 +1423,11 @@
 
       const currentVal = select.value;
       const roleLabels = {
-        staff: _t("label:wujia.franchise.inspection_survey:role_staff", "Staff"),
-        manager: _t("label:wujia.franchise.inspection_survey:role_manager", "Manager"),
-        owner: _t("label:wujia.franchise.inspection_survey:role_owner", "Store Owner")
+        staff: _t("Staff", "Staff"),
+        manager: _t("Manager", "Manager"),
+        owner: _t("Store Owner", "Store Owner")
       };
-      const placeholderText = _t("label:wujia.franchise.inspection_survey:placeholder_select_store_manager", "--- Select Store Manager ---");
+      const placeholderText = _t("--- Select Store Manager ---", "--- Select Store Manager ---");
 
       if (Array.isArray(storeMembers)) {
         let html = `<option value="">${escapeHtml(placeholderText)}</option>`;
@@ -1451,9 +1451,9 @@
       if (!select) return;
 
       const roleLabels = {
-        staff: _t("label:wujia.franchise.inspection_survey:role_staff", "Staff"),
-        manager: _t("label:wujia.franchise.inspection_survey:role_manager", "Manager"),
-        owner: _t("label:wujia.franchise.inspection_survey:role_owner", "Store Owner")
+        staff: _t("Staff", "Staff"),
+        manager: _t("Manager", "Manager"),
+        owner: _t("Store Owner", "Store Owner")
       };
       const roleText = roleLabels[member.role] || roleLabels.staff;
       const phoneText = member.phone ? (" - " + member.phone) : "";
@@ -1508,12 +1508,12 @@
         if (!name) {
           showCustomAlert(
             _t(
-              "label:wujia.franchise.inspection_survey:alert_title",
-              "Thông báo",
+              "Notice",
+              "Notice",
             ),
             _t(
-              "label:wujia.franchise.inspection_survey:alert_msg_input_employee",
-              "Vui lòng nhập Họ và tên nhân viên!",
+              "Please enter Tested Employee name!",
+              "Please enter staff full name!",
             ),
           );
           return;
@@ -1525,12 +1525,12 @@
         const origAddStaffHtml = btnAddStaffSubmit.innerHTML;
         btnAddStaffSubmit.disabled = true;
         btnAddStaffSubmit.style.pointerEvents = "none";
-        btnAddStaffSubmit.innerHTML = `<i class="fa fa-spinner fa-spin me-1"></i> ${_t("label:wujia.franchise.inspection_survey:btn_adding_staff", "Đang thêm...")}`;
+        btnAddStaffSubmit.innerHTML = `<i class="fa fa-spinner fa-spin me-1"></i> ${_t("Adding...", "Adding...")}`;
 
         const saveLoadingOverlay = document.getElementById("saveLoadingOverlay");
         if (saveLoadingOverlay) {
           const loadingTextEl = saveLoadingOverlay.querySelector("div:nth-child(2)");
-          if (loadingTextEl) loadingTextEl.innerText = _t("label:wujia.franchise.inspection_survey:loading_adding_staff", "Đang thêm nhân viên...");
+          if (loadingTextEl) loadingTextEl.innerText = _t("Adding employee...", "Adding employee...");
           saveLoadingOverlay.style.display = "flex";
         }
 
@@ -1565,9 +1565,9 @@
             tr.style.borderBottom = "1px solid #f1f5f9";
 
             const roleLabels = {
-              staff: _t("label:wujia.franchise.inspection_survey:role_staff", "Staff"),
-              manager: _t("label:wujia.franchise.inspection_survey:role_manager", "Manager"),
-              owner: _t("label:wujia.franchise.inspection_survey:role_owner", "Store Owner")
+              staff: _t("Staff", "Staff"),
+              manager: _t("Manager", "Manager"),
+              owner: _t("Store Owner", "Store Owner")
             };
 
             tr.innerHTML = `
@@ -1592,11 +1592,11 @@
               <td style="padding: 8px 6px; text-align: center; white-space: nowrap;">
                   <div class="att-actions-wrap">
                       <button type="button" class="btn-att-action btn-save-member"
-                          title="${_t("label:wujia.franchise.inspection_survey:btn_save_member", "Save or update to Franchise Members")}">
+                          title="${_t("Save or update to Franchise Members", "Save or update to Franchise Members")}">
                           <i class="fa fa-arrow-right"></i>
                       </button>
                       <button type="button" class="btn-att-action btn-deactivate-member"
-                          title="${_t("label:wujia.franchise.inspection_survey:btn_deactivate_member", "Mark employee as resigned (is_working = False)")}"
+                          title="${_t("Mark employee as resigned (is_working = False)", "Mark employee as resigned (is_working = False)")}"
                           style="${newLine.member_id ? "" : "display: none;"}">
                           <i class="fa fa-circle-info"></i>
                       </button>
@@ -1616,8 +1616,8 @@
             updatePresentCount();
             showToast(
               _t(
-                "label:wujia.franchise.inspection_survey:toast_staff_added",
-                "Đã thêm nhân viên vào danh sách thành công!",
+                "Employee added to list successfully!",
+                "Staff member added successfully!",
               ),
               false,
             );
@@ -1660,12 +1660,12 @@
           if (!name) {
             showCustomAlert(
               _t(
-                "label:wujia.franchise.inspection_survey:alert_title",
-                "Thông báo",
+                "Notice",
+                "Notice",
               ),
               _t(
-                "label:wujia.franchise.inspection_survey:alert_msg_input_employee",
-                "Vui lòng nhập Tên nhân viên trước khi lưu!",
+                "Please enter Tested Employee name!",
+                "Please enter staff name before saving!",
               ),
             );
             btnSaveMember.disabled = false;
@@ -1713,8 +1713,8 @@
 
               showToast(
                 _t(
-                  "label:wujia.franchise.inspection_survey:toast_member_and_progress_saved",
-                  "Đã lưu thành viên và lưu toàn bộ tiêu chí khảo sát thành công!",
+                  "Member and all survey progress saved successfully!",
+                  "Staff member and survey criteria saved successfully!",
                 ),
                 false,
               );
@@ -1738,8 +1738,8 @@
       if (btnDeactMember) {
         btnDeactMember.addEventListener("click", async function () {
           const confirmMsg = _t(
-            "label:wujia.franchise.inspection_survey:confirm_deactivate",
-            "Bạn có chắc chắn nhân viên này đã nghỉ việc (is_working = False)? Dòng này sẽ được loại bỏ khỏi đợt khảo sát.",
+            "Are you sure this employee has resigned (is_working = False)? This row will be removed from the survey.",
+            "Are you sure this employee has left the job (is_working = False)? This row will be removed from the inspection survey.",
           );
           if (!confirm(confirmMsg)) return;
 
@@ -1751,7 +1751,7 @@
           const saveLoadingOverlay = document.getElementById("saveLoadingOverlay");
           if (saveLoadingOverlay) {
             const loadingTextEl = saveLoadingOverlay.querySelector("div:nth-child(2)");
-            if (loadingTextEl) loadingTextEl.innerText = _t("label:wujia.franchise.inspection_survey:loading_deactivating", "Đang xử lý ngưng việc...");
+            if (loadingTextEl) loadingTextEl.innerText = _t("Processing resignation...", "Processing resignation...");
             saveLoadingOverlay.style.display = "flex";
           }
 
@@ -1793,8 +1793,8 @@
               }
               showToast(
                 _t(
-                  "label:wujia.franchise.inspection_survey:toast_member_deactivated",
-                  "Đã cập nhật trạng thái nghỉ việc cho nhân viên!",
+                  "Employee resignation status updated successfully!",
+                  "Employee resignation status updated successfully!",
                 ),
                 false,
               );
@@ -1959,7 +1959,7 @@
       if (btnSaveSignModal) {
         btnSaveSignModal.addEventListener("click", function () {
           if (!hasDrawn) {
-            showCustomAlert("Thông báo", "Vui lòng vẽ chữ ký trước khi đồng ý!");
+            showCustomAlert(_t("Notice", "Notice"), _t("Please draw signature before confirming!", "Please draw signature before confirming!"));
             return;
           }
           const dataUrl = exportSafePaddedCanvas(sigCanvas);
@@ -1971,9 +1971,9 @@
           if (sigEmptyPrompt) sigEmptyPrompt.style.display = "none";
           if (btnClearSignature) btnClearSignature.style.display = "inline-flex";
           if (sigStatusBadge) sigStatusBadge.style.display = "inline-block";
-          if (sigDateText) sigDateText.innerText = "Vừa ký (chưa lưu)";
+          if (sigDateText) sigDateText.innerText = _t("Just signed (not saved)", "Just signed (not saved)");
           closeModal();
-          showToast("Đã ghi nhận chữ ký! Hãy bấm nút 'Lưu' để hoàn tất.", false);
+          showToast(_t("Signature recorded! Click Save to complete.", "Signature recorded! Click Save to complete."), false);
         });
       }
 
@@ -1987,7 +1987,7 @@
           if (sigEmptyPrompt) sigEmptyPrompt.style.display = "block";
           if (btnClearSignature) btnClearSignature.style.display = "none";
           if (sigStatusBadge) sigStatusBadge.style.display = "none";
-          showToast("Đã xóa chữ ký. Hãy bấm nút 'Lưu' để cập nhật.", false);
+          showToast(_t("Signature cleared. Click Save to update.", "Signature cleared. Click Save to update."), false);
         });
       }
     }
@@ -2100,7 +2100,7 @@
       btnSyncPosApp.addEventListener("click", async function () {
         const origHtml = btnSyncPosApp.innerHTML;
         btnSyncPosApp.disabled = true;
-        btnSyncPosApp.innerHTML = '<i class="fa fa-spinner fa-spin me-1"></i> Đang đồng bộ...';
+        btnSyncPosApp.innerHTML = `<i class="fa fa-spinner fa-spin me-1"></i> ${_t("Syncing...", "Syncing...")}`;
         try {
           const res = await fetch(`/franchise/inspection/do/${inspectionId}/sync_posapp`, {
             method: "POST",
@@ -2151,7 +2151,7 @@
                     </div>
                   </td>
                   <td style="padding: 8px 4px; text-align: center;">
-                    <button type="button" class="btn btn-sm text-danger btn-delete-rev-row" style="background: transparent; border: none; font-size: 14px; cursor: pointer;" title="Xóa dòng">
+                    <button type="button" class="btn btn-sm text-danger btn-delete-rev-row" style="background: transparent; border: none; font-size: 14px; cursor: pointer;" title="Delete Row">
                       <i class="fa fa-trash-can"></i>
                     </button>
                   </td>
@@ -2160,12 +2160,12 @@
                 bindRevenueRowEvents(tr);
               });
             }
-            showToast(data.result.message || "Đã lấy số liệu từ PosApp. Bấm Lưu kết quả để lưu lại.", false);
+            showToast(data.result.message || _t("Synced from PosApp successfully. Click Save to record.", "Synced from PosApp successfully. Click Save to record."), false);
           } else {
-            showToast((data.result && data.result.error) || "Lỗi đồng bộ PosApp", true);
+            showToast((data.result && data.result.error) || _t("PosApp sync error", "PosApp sync error"), true);
           }
         } catch (err) {
-          showToast("Lỗi kết nối khi đồng bộ PosApp", true);
+          showToast(_t("Connection error during PosApp sync", "Connection error during PosApp sync"), true);
         } finally {
           btnSyncPosApp.disabled = false;
           btnSyncPosApp.innerHTML = origHtml;
@@ -2218,7 +2218,7 @@
             </div>
           </td>
           <td style="padding: 8px 4px; text-align: center;">
-            <button type="button" class="btn btn-sm text-danger btn-delete-rev-row" style="background: transparent; border: none; font-size: 14px; cursor: pointer;" title="Xóa dòng">
+            <button type="button" class="btn btn-sm text-danger btn-delete-rev-row" style="background: transparent; border: none; font-size: 14px; cursor: pointer;" title="Delete Row">
               <i class="fa fa-trash-can"></i>
             </button>
           </td>

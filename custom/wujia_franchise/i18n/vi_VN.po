@@ -24,9 +24,7 @@ msgstr "Tạo hồ sơ cửa hàng nhượng quyền đầu tiên"
 msgid ""
 "The store record holds the franchise contract: start/end date, area, primary owner,\n"
 "                status..."
-msgstr ""
-"Hồ sơ cửa hàng lưu trữ hợp đồng nhượng quyền: ngày bắt đầu/kết thúc, khu "
-"vực, chủ sở hữu chính, trạng thái..."
+msgstr "Hồ sơ cửa hàng lưu trữ hợp đồng nhượng quyền: ngày bắt đầu/kết thúc, khu vực, chủ sở hữu chính, trạng thái..."
 
 #. module: wujia_franchise
 #: model:ir.actions.act_window,name:wujia_franchise.action_wujia_franchise_member
@@ -40,12 +38,8 @@ msgstr "Tạo tư cách thành viên mới"
 
 #. module: wujia_franchise
 #: model_terms:ir.actions.act_window,help:wujia_franchise.action_wujia_franchise_member
-msgid ""
-"Each membership links a portal user to a franchise store with a specific "
-"role (Owner / Manager / Staff)."
-msgstr ""
-"Mỗi tư cách thành viên liên kết một người dùng Portal với cửa hàng nhượng "
-"quyền theo vai trò cụ thể (Chủ sở hữu / Quản lý / Nhân viên)."
+msgid "Each membership links a portal user to a franchise store with a specific role (Owner / Manager / Staff)."
+msgstr "Mỗi tư cách thành viên liên kết một người dùng Portal với cửa hàng nhượng quyền theo vai trò cụ thể (Chủ sở hữu / Quản lý / Nhân viên)."
 
 #. module: wujia_franchise
 #: model:ir.actions.server,name:wujia_franchise.ir_cron_check_franchise_expired_ir_actions_server
@@ -114,46 +108,8 @@ msgstr "Là cửa hàng nhượng quyền"
 
 #. module: wujia_franchise
 #: model:ir.model.fields,help:wujia_franchise.field_res_partner__is_franchise
-msgid ""
-"TRUE when the partner is used as the contact of at least one "
-"wujia.franchise.management."
-msgstr ""
-"ĐÚNG khi đối tác được dùng làm liên hệ của ít nhất một cửa hàng nhượng quyền"
-" Wujia."
-
-#. module: wujia_franchise
-#: model:ir.model.fields,field_description:wujia_franchise.field_res_users__display_name
-msgid "Display Name"
-msgstr "Tên hiển thị"
-
-#. module: wujia_franchise
-#: model:ir.model.fields,field_description:wujia_franchise.field_res_users__franchise_count
-msgid "Store count"
-msgstr "Số lượng cửa hàng"
-
-#. module: wujia_franchise
-#: model:ir.model.fields,field_description:wujia_franchise.field_res_users__franchise_ids
-msgid "Franchise store"
-msgstr "Cửa hàng nhượng quyền"
-
-#. module: wujia_franchise
-#: model:ir.model.fields,field_description:wujia_franchise.field_res_users__id
-msgid "ID"
-msgstr "ID"
-
-#. module: wujia_franchise
-#: model:ir.model.fields,field_description:wujia_franchise.field_res_users__is_franchise
-msgid "Is a franchise store"
-msgstr "Là cửa hàng nhượng quyền"
-
-#. module: wujia_franchise
-#: model:ir.model.fields,help:wujia_franchise.field_res_users__is_franchise
-msgid ""
-"TRUE when the partner is used as the contact of at least one "
-"wujia.franchise.management."
-msgstr ""
-"ĐÚNG khi đối tác được dùng làm liên hệ của ít nhất một cửa hàng nhượng quyền"
-" Wujia."
+msgid "TRUE when the partner is used as the contact of at least one wujia.franchise.management."
+msgstr "ĐÚNG khi đối tác được dùng làm liên hệ của ít nhất một cửa hàng nhượng quyền Wujia."
 
 #. module: wujia_franchise
 #: model:ir.model.fields,field_description:wujia_franchise.field_res_users__member_count
@@ -176,11 +132,6 @@ msgid "Created by"
 msgstr "Người tạo"
 
 #. module: wujia_franchise
-#: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_document__display_name
-msgid "Display Name"
-msgstr "Tên hiển thị"
-
-#. module: wujia_franchise
 #: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_document__file
 msgid "Download"
 msgstr "Tải xuống"
@@ -189,11 +140,6 @@ msgstr "Tải xuống"
 #: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_document__franchise_id
 msgid "Franchise Store"
 msgstr "Cửa hàng nhượng quyền"
-
-#. module: wujia_franchise
-#: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_document__id
-msgid "ID"
-msgstr "ID"
 
 #. module: wujia_franchise
 #: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_document__name
@@ -330,9 +276,7 @@ msgstr "Số lần liên tiếp đạt loại C"
 
 #. module: wujia_franchise
 #: model:ir.model.fields,help:wujia_franchise.field_wujia_franchise_management__consecutive_c_count
-msgid ""
-"Number of consecutive completed inspections with grade C from the latest "
-"round."
+msgid "Number of consecutive completed inspections with grade C from the latest round."
 msgstr "Số đợt giám sát hoàn thành liên tiếp đạt loại C tính từ đợt gần nhất."
 
 #. module: wujia_franchise
@@ -342,12 +286,8 @@ msgstr "Số lần liên tiếp đạt loại C/D"
 
 #. module: wujia_franchise
 #: model:ir.model.fields,help:wujia_franchise.field_wujia_franchise_management__consecutive_cd_count
-msgid ""
-"Consecutive count of grade C if latest is C, or consecutive count of grade D"
-" if latest is D."
-msgstr ""
-"Số đợt liên tiếp đạt loại C (nếu gần nhất là C) hoặc loại D (nếu gần nhất là"
-" D)."
+msgid "Consecutive count of grade C if latest is C, or consecutive count of grade D if latest is D."
+msgstr "Số đợt liên tiếp đạt loại C (nếu gần nhất là C) hoặc loại D (nếu gần nhất là D)."
 
 #. module: wujia_franchise
 #: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_management__consecutive_d_count
@@ -356,20 +296,8 @@ msgstr "Số lần liên tiếp đạt loại D"
 
 #. module: wujia_franchise
 #: model:ir.model.fields,help:wujia_franchise.field_wujia_franchise_management__consecutive_d_count
-msgid ""
-"Number of consecutive completed inspections with grade D from the latest "
-"round."
+msgid "Number of consecutive completed inspections with grade D from the latest round."
 msgstr "Số đợt giám sát hoàn thành liên tiếp đạt loại D tính từ đợt gần nhất."
-
-#. module: wujia_franchise
-#: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_management__create_date
-msgid "Created on"
-msgstr "Ngày tạo"
-
-#. module: wujia_franchise
-#: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_management__create_uid
-msgid "Created by"
-msgstr "Người tạo"
 
 #. module: wujia_franchise
 #: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_management__description
@@ -380,11 +308,6 @@ msgstr "Mô tả vận hành"
 #: model:ir.model.fields,help:wujia_franchise.field_wujia_franchise_management__description
 msgid "Operating notes: delivery, loading bans, parking bans..."
 msgstr "Ghi chú vận hành: giao hàng, cấm dừng đỗ, cấm tải..."
-
-#. module: wujia_franchise
-#: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_management__display_name
-msgid "Display Name"
-msgstr "Tên hiển thị"
 
 #. module: wujia_franchise
 #: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_management__document_ids
@@ -399,9 +322,7 @@ msgstr "Phân công giám sát"
 #. module: wujia_franchise
 #: model:ir.model.fields,help:wujia_franchise.field_wujia_franchise_management__effective_supervision_user_id
 msgid "Franchise supervisor. If not assigned, defaults to Area Manager."
-msgstr ""
-"Nhân viên giám sát nhượng quyền. Nếu để trống sẽ mặc định theo Quản lý khu "
-"vực."
+msgstr "Nhân viên giám sát nhượng quyền. Nếu để trống sẽ mặc định theo Quản lý khu vực."
 
 #. module: wujia_franchise
 #: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_management__email
@@ -427,11 +348,6 @@ msgstr "Đường dẫn Google Map"
 #: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_management__has_message
 msgid "Has Message"
 msgstr "Có tin nhắn"
-
-#. module: wujia_franchise
-#: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_management__id
-msgid "ID"
-msgstr "ID"
 
 #. module: wujia_franchise
 #: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_management__inspection_chart_data
@@ -481,9 +397,7 @@ msgstr "Chủ sở hữu chính"
 #. module: wujia_franchise
 #: model:ir.model.fields,help:wujia_franchise.field_wujia_franchise_management__main_owner_member_id
 msgid "The active member with role=owner for this store (BA spec)."
-msgstr ""
-"Thành viên đang hoạt động với vai trò Chủ sở hữu cho cửa hàng này (Theo đặc "
-"tả BA)."
+msgstr "Thành viên đang hoạt động với vai trò Chủ sở hữu cho cửa hàng này (Theo đặc tả BA)."
 
 #. module: wujia_franchise
 #: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_management__member_count
@@ -529,11 +443,6 @@ msgstr "Số lượng tin nhắn bị lỗi gửi"
 #: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_management__message_has_sms_error
 msgid "SMS Delivery error"
 msgstr "Lỗi gửi SMS"
-
-#. module: wujia_franchise
-#: model:ir.model.fields,help:wujia_franchise.field_wujia_franchise_management__message_has_sms_error
-msgid "If checked, some messages have a delivery error."
-msgstr "Nếu chọn, một số tin nhắn gặp lỗi khi gửi."
 
 #. module: wujia_franchise
 #: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_management__message_ids
@@ -592,12 +501,8 @@ msgstr "Ngày khảo sát kế tiếp"
 
 #. module: wujia_franchise
 #: model:ir.model.fields,help:wujia_franchise.field_wujia_franchise_management__next_supervision_date
-msgid ""
-"Nearest upcoming inspection date (>= today), excluding past and cancelled "
-"schedules."
-msgstr ""
-"Ngày giám sát sắp tới gần nhất (>= hôm nay), loại trừ các lịch đã qua hoặc "
-"đã hủy."
+msgid "Nearest upcoming inspection date (>= today), excluding past and cancelled schedules."
+msgstr "Ngày giám sát sắp tới gần nhất (>= hôm nay), loại trừ các lịch đã qua hoặc đã hủy."
 
 #. module: wujia_franchise
 #: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_management__note
@@ -616,12 +521,8 @@ msgstr "Đối tác"
 
 #. module: wujia_franchise
 #: model:ir.model.fields,help:wujia_franchise.field_wujia_franchise_management__partner_id
-msgid ""
-"Link to the res.partner representing the store — the transactional entity "
-"for sale.order, account.move, membership."
-msgstr ""
-"Liên kết với Đối tác đại diện cho cửa hàng — thực thể giao dịch cho đơn bán "
-"hàng, hóa đơn, thành viên."
+msgid "Link to the res.partner representing the store — the transactional entity for sale.order, account.move, membership."
+msgstr "Liên kết với Đối tác đại diện cho cửa hàng — thực thể giao dịch cho đơn bán hàng, hóa đơn, thành viên."
 
 #. module: wujia_franchise
 #: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_management__phone
@@ -636,9 +537,7 @@ msgstr "Đã khóa Portal"
 #. module: wujia_franchise
 #: model:ir.model.fields,help:wujia_franchise.field_wujia_franchise_management__portal_locked
 msgid "Block every portal access of this store (e.g. contract breach)."
-msgstr ""
-"Khóa toàn bộ quyền truy cập Portal của cửa hàng này (ví dụ: vi phạm hợp "
-"đồng)."
+msgstr "Khóa toàn bộ quyền truy cập Portal của cửa hàng này (ví dụ: vi phạm hợp đồng)."
 
 #. module: wujia_franchise
 #: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_management__remaining_days
@@ -671,31 +570,6 @@ msgid "Website communication history"
 msgstr "Lịch sử trao đổi trên Website"
 
 #. module: wujia_franchise
-#: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_management__write_date
-msgid "Last Updated on"
-msgstr "Cập nhật lần cuối vào"
-
-#. module: wujia_franchise
-#: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_management__write_uid
-msgid "Last Updated by"
-msgstr "Cập nhật lần cuối bởi"
-
-#. module: wujia_franchise
-#: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_member__active
-msgid "Active"
-msgstr "Đang hoạt động"
-
-#. module: wujia_franchise
-#: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_member__create_date
-msgid "Created on"
-msgstr "Ngày tạo"
-
-#. module: wujia_franchise
-#: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_member__create_uid
-msgid "Created by"
-msgstr "Người tạo"
-
-#. module: wujia_franchise
 #: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_member__date_from
 msgid "Valid from"
 msgstr "Hiệu lực từ ngày"
@@ -704,21 +578,6 @@ msgstr "Hiệu lực từ ngày"
 #: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_member__date_to
 msgid "Valid until"
 msgstr "Có hiệu lực đến"
-
-#. module: wujia_franchise
-#: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_member__display_name
-msgid "Display Name"
-msgstr "Tên hiển thị"
-
-#. module: wujia_franchise
-#: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_member__franchise_id
-msgid "Franchise store"
-msgstr "Cửa hàng nhượng quyền"
-
-#. module: wujia_franchise
-#: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_member__id
-msgid "ID"
-msgstr "ID"
 
 #. module: wujia_franchise
 #: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_member__is_currently_valid
@@ -731,18 +590,9 @@ msgid "Passed Exam"
 msgstr "Đã thi đậu"
 
 #. module: wujia_franchise
-#: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_member__is_primary_owner
-msgid "Primary owner"
-msgstr "Chủ sở hữu chính"
-
-#. module: wujia_franchise
 #: model:ir.model.fields,help:wujia_franchise.field_wujia_franchise_member__is_primary_owner
-msgid ""
-"Marks the primary owner of the store. Each store has exactly one primary "
-"owner."
-msgstr ""
-"Đánh dấu chủ sở hữu chính của cửa hàng. Mỗi cửa hàng có duy nhất 1 chủ sở "
-"hữu chính."
+msgid "Marks the primary owner of the store. Each store has exactly one primary owner."
+msgstr "Đánh dấu chủ sở hữu chính của cửa hàng. Mỗi cửa hàng có duy nhất 1 chủ sở hữu chính."
 
 #. module: wujia_franchise
 #: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_member__is_working
@@ -750,34 +600,9 @@ msgid "Is Working"
 msgstr "Đang làm việc"
 
 #. module: wujia_franchise
-#: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_member__phone
-msgid "Phone"
-msgstr "Số điện thoại"
-
-#. module: wujia_franchise
 #: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_member__role
 msgid "Role"
 msgstr "Vai trò"
-
-#. module: wujia_franchise
-#: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_member__user_id
-msgid "User"
-msgstr "Người dùng"
-
-#. module: wujia_franchise
-#: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_member__write_date
-msgid "Last Updated on"
-msgstr "Cập nhật lần cuối vào"
-
-#. module: wujia_franchise
-#: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_member__write_uid
-msgid "Last Updated by"
-msgstr "Cập nhật lần cuối bởi"
-
-#. module: wujia_franchise
-#: model:ir.model.fields.selection,name:wujia_franchise.selection__wujia_franchise_management__status__active
-msgid "Active"
-msgstr "Đang hoạt động"
 
 #. module: wujia_franchise
 #: model:ir.model.fields.selection,name:wujia_franchise.selection__wujia_franchise_management__status__closed
@@ -845,11 +670,6 @@ msgid "Wards / Communes"
 msgstr "Phường / Xã"
 
 #. module: wujia_franchise
-#: model:ir.ui.menu,name:wujia_franchise.menu_wujia_franchise_management
-msgid "Franchise Management"
-msgstr "Quản lý nhượng quyền"
-
-#. module: wujia_franchise
 #: model:ir.ui.menu,name:wujia_franchise.menu_wujia_franchise_member
 msgid "Franchise Members"
 msgstr "Thành viên nhượng quyền"
@@ -858,11 +678,6 @@ msgstr "Thành viên nhượng quyền"
 #: model:ir.ui.menu,name:wujia_franchise.menu_wujia_operation_root
 msgid "Operations"
 msgstr "Vận hành"
-
-#. module: wujia_franchise
-#: model:ir.ui.menu,name:wujia_franchise.menu_wujia_root
-msgid "Franchise Management"
-msgstr "Quản lý nhượng quyền"
 
 #. module: wujia_franchise
 #: model_terms:ir.ui.view,arch_db:wujia_franchise.view_franchise_management_form
@@ -882,19 +697,7 @@ msgstr "Đóng cửa hàng"
 #. module: wujia_franchise
 #: model_terms:ir.ui.view,arch_db:wujia_franchise.view_franchise_management_form
 msgid "Closing this store blocks every portal access. Continue?"
-msgstr ""
-"Đóng cửa hàng này sẽ khóa toàn bộ quyền truy cập Portal. Bạn có muốn tiếp "
-"tục?"
-
-#. module: wujia_franchise
-#: model_terms:ir.ui.view,arch_db:wujia_franchise.view_franchise_management_form
-msgid "Members"
-msgstr "Thành viên"
-
-#. module: wujia_franchise
-#: model_terms:ir.ui.view,arch_db:wujia_franchise.view_franchise_management_form
-msgid "Expired"
-msgstr "Hết hạn hợp đồng"
+msgstr "Đóng cửa hàng này sẽ khóa toàn bộ quyền truy cập Portal. Bạn có muốn tiếp tục?"
 
 #. module: wujia_franchise
 #: model_terms:ir.ui.view,arch_db:wujia_franchise.view_franchise_management_form
@@ -928,31 +731,6 @@ msgstr "Để trống sẽ mặc định theo Quản lý khu vực"
 
 #. module: wujia_franchise
 #: model_terms:ir.ui.view,arch_db:wujia_franchise.view_franchise_management_form
-msgid "Area Manager"
-msgstr "Quản lý khu vực"
-
-#. module: wujia_franchise
-#: model_terms:ir.ui.view,arch_db:wujia_franchise.view_franchise_management_form
-msgid "Assigned Supervisor"
-msgstr "Phân công giám sát"
-
-#. module: wujia_franchise
-#: model_terms:ir.ui.view,arch_db:wujia_franchise.view_franchise_management_form
-msgid "Latest Inspection Date"
-msgstr "Ngày khảo sát gần nhất"
-
-#. module: wujia_franchise
-#: model_terms:ir.ui.view,arch_db:wujia_franchise.view_franchise_management_form
-msgid "Latest Inspection Score"
-msgstr "Điểm giám sát gần nhất"
-
-#. module: wujia_franchise
-#: model_terms:ir.ui.view,arch_db:wujia_franchise.view_franchise_management_form
-msgid "Latest Inspection Grade"
-msgstr "Xếp loại giám sát gần nhất"
-
-#. module: wujia_franchise
-#: model_terms:ir.ui.view,arch_db:wujia_franchise.view_franchise_management_form
 msgid "Latest Inspection"
 msgstr "Đợt giám sát gần nhất"
 
@@ -963,33 +741,8 @@ msgstr "Khu vực & Địa chỉ"
 
 #. module: wujia_franchise
 #: model_terms:ir.ui.view,arch_db:wujia_franchise.view_franchise_management_form
-msgid "Contact"
-msgstr "Thông tin liên hệ"
-
-#. module: wujia_franchise
-#: model_terms:ir.ui.view,arch_db:wujia_franchise.view_franchise_management_form
 msgid "Control flags"
 msgstr "Trạng thái kiểm soát"
-
-#. module: wujia_franchise
-#: model_terms:ir.ui.view,arch_db:wujia_franchise.view_franchise_management_form
-msgid "Operating notes: delivery, loading bans, parking bans..."
-msgstr "Ghi chú vận hành: giao hàng, cấm dừng đỗ, cấm tải..."
-
-#. module: wujia_franchise
-#: model_terms:ir.ui.view,arch_db:wujia_franchise.view_franchise_management_form
-msgid "Operating description"
-msgstr "Mô tả vận hành"
-
-#. module: wujia_franchise
-#: model_terms:ir.ui.view,arch_db:wujia_franchise.view_franchise_management_form
-msgid "Document Name"
-msgstr "Tên tài liệu"
-
-#. module: wujia_franchise
-#: model_terms:ir.ui.view,arch_db:wujia_franchise.view_franchise_management_form
-msgid "Download"
-msgstr "Tải xuống"
 
 #. module: wujia_franchise
 #: model_terms:ir.ui.view,arch_db:wujia_franchise.view_franchise_management_form
@@ -998,23 +751,8 @@ msgstr "Ngày tạo"
 
 #. module: wujia_franchise
 #: model_terms:ir.ui.view,arch_db:wujia_franchise.view_franchise_management_form
-msgid "Documents"
-msgstr "Tài liệu đính kèm"
-
-#. module: wujia_franchise
-#: model_terms:ir.ui.view,arch_db:wujia_franchise.view_franchise_management_form
 msgid "Report"
 msgstr "Báo cáo"
-
-#. module: wujia_franchise
-#: model_terms:ir.ui.view,arch_db:wujia_franchise.view_franchise_management_form
-msgid "Internal note"
-msgstr "Ghi chú nội bộ"
-
-#. module: wujia_franchise
-#: model_terms:ir.ui.view,arch_db:wujia_franchise.view_franchise_management_form
-msgid "Franchise store"
-msgstr "Cửa hàng nhượng quyền"
 
 #. module: wujia_franchise
 #: model_terms:ir.ui.view,arch_db:wujia_franchise.view_franchise_management_kanban
@@ -1030,16 +768,6 @@ msgstr "ngày"
 #: model_terms:ir.ui.view,arch_db:wujia_franchise.view_franchise_management_kanban
 msgid "Members:"
 msgstr "Thành viên:"
-
-#. module: wujia_franchise
-#: model_terms:ir.ui.view,arch_db:wujia_franchise.view_franchise_management_list
-msgid "Assigned Supervisor"
-msgstr "Phân công giám sát"
-
-#. module: wujia_franchise
-#: model_terms:ir.ui.view,arch_db:wujia_franchise.view_franchise_management_list
-msgid "Latest Inspection Date"
-msgstr "Ngày khảo sát gần nhất"
 
 #. module: wujia_franchise
 #: model_terms:ir.ui.view,arch_db:wujia_franchise.view_franchise_management_list
@@ -1065,16 +793,6 @@ msgstr "Danh sách cửa hàng nhượng quyền"
 #: model_terms:ir.ui.view,arch_db:wujia_franchise.view_franchise_management_search
 msgid "My Assigned Stores"
 msgstr "Cửa hàng tôi phụ trách"
-
-#. module: wujia_franchise
-#: model_terms:ir.ui.view,arch_db:wujia_franchise.view_franchise_management_search
-msgid "Active"
-msgstr "Đang hoạt động"
-
-#. module: wujia_franchise
-#: model_terms:ir.ui.view,arch_db:wujia_franchise.view_franchise_management_search
-msgid "Contract expired"
-msgstr "Hợp đồng đã hết hạn"
 
 #. module: wujia_franchise
 #: model_terms:ir.ui.view,arch_db:wujia_franchise.view_franchise_management_search
@@ -1107,44 +825,14 @@ msgid "Archived"
 msgstr "Đã lưu trữ"
 
 #. module: wujia_franchise
-#: model_terms:ir.ui.view,arch_db:wujia_franchise.view_franchise_management_search
-msgid "Area"
-msgstr "Khu vực"
-
-#. module: wujia_franchise
-#: model_terms:ir.ui.view,arch_db:wujia_franchise.view_franchise_management_search
-msgid "Status"
-msgstr "Trạng thái"
-
-#. module: wujia_franchise
 #: model_terms:ir.ui.view,arch_db:wujia_franchise.view_partner_form_franchise
 msgid "Store"
 msgstr "Cửa hàng"
 
 #. module: wujia_franchise
-#: model_terms:ir.ui.view,arch_db:wujia_franchise.view_res_partner_filter_franchise
-msgid "Is a franchise store"
-msgstr "Là cửa hàng nhượng quyền"
-
-#. module: wujia_franchise
-#: model_terms:ir.ui.view,arch_db:wujia_franchise.view_users_form_franchise
-msgid "Franchise Members"
-msgstr "Thành viên nhượng quyền"
-
-#. module: wujia_franchise
-#: model_terms:ir.ui.view,arch_db:wujia_franchise.view_wujia_franchise_member_form
-msgid "Archived"
-msgstr "Đã lưu trữ"
-
-#. module: wujia_franchise
 #: model_terms:ir.ui.view,arch_db:wujia_franchise.view_wujia_franchise_member_form
 msgid "Franchise Membership"
 msgstr "Thành viên nhượng quyền"
-
-#. module: wujia_franchise
-#: model_terms:ir.ui.view,arch_db:wujia_franchise.view_wujia_franchise_member_list
-msgid "Franchise Memberships"
-msgstr "Danh sách thành viên nhượng quyền"
 
 #. module: wujia_franchise
 #: model_terms:ir.ui.view,arch_db:wujia_franchise.view_wujia_franchise_member_search
@@ -1167,41 +855,6 @@ msgid "Store owner"
 msgstr "Chủ cửa hàng"
 
 #. module: wujia_franchise
-#: model_terms:ir.ui.view,arch_db:wujia_franchise.view_wujia_franchise_member_search
-msgid "Manager"
-msgstr "Quản lý"
-
-#. module: wujia_franchise
-#: model_terms:ir.ui.view,arch_db:wujia_franchise.view_wujia_franchise_member_search
-msgid "Staff"
-msgstr "Nhân viên"
-
-#. module: wujia_franchise
-#: model_terms:ir.ui.view,arch_db:wujia_franchise.view_wujia_franchise_member_search
-msgid "Passed Exam"
-msgstr "Đã thi đậu"
-
-#. module: wujia_franchise
-#: model_terms:ir.ui.view,arch_db:wujia_franchise.view_wujia_franchise_member_search
-msgid "Archived"
-msgstr "Đã lưu trữ"
-
-#. module: wujia_franchise
-#: model_terms:ir.ui.view,arch_db:wujia_franchise.view_wujia_franchise_member_search
-msgid "Store"
-msgstr "Cửa hàng"
-
-#. module: wujia_franchise
-#: model_terms:ir.ui.view,arch_db:wujia_franchise.view_wujia_franchise_member_search
-msgid "User"
-msgstr "Người dùng"
-
-#. module: wujia_franchise
-#: model_terms:ir.ui.view,arch_db:wujia_franchise.view_wujia_franchise_member_search
-msgid "Role"
-msgstr "Vai trò"
-
-#. module: wujia_franchise
 #: model:res.groups,name:wujia_franchise.group_franchise_manager
 msgid "Administrator"
 msgstr "Quản trị viên"
@@ -1210,11 +863,6 @@ msgstr "Quản trị viên"
 #: model:res.groups,comment:wujia_franchise.group_franchise_manager
 msgid "Manage stores, create/delete memberships."
 msgstr "Quản lý cửa hàng, tạo/xóa tư cách thành viên."
-
-#. module: wujia_franchise
-#: model:res.groups,name:wujia_franchise.group_franchise_user
-msgid "User"
-msgstr "Người dùng"
 
 #. module: wujia_franchise
 #: model:res.groups,comment:wujia_franchise.group_franchise_user
@@ -1253,12 +901,8 @@ msgstr "Chưa có dữ liệu lịch sử!"
 #. module: wujia_franchise
 #: code:addons/wujia_franchise/static/src/js/wujia_inspection_chart.js:113
 #, odoo-javascript, odoo-python
-msgid ""
-"Please select a Supervision Template or this store has no "
-"completed/remediation inspection sheets yet."
-msgstr ""
-"Vui lòng chọn Mẫu giám sát hoặc cửa hàng này chưa có phiếu giám sát nào hoàn"
-" thành/khắc phục."
+msgid "Please select a Supervision Template or this store has no completed/remediation inspection sheets yet."
+msgstr "Vui lòng chọn Mẫu giám sát hoặc cửa hàng này chưa có phiếu giám sát nào hoàn thành/khắc phục."
 
 #. module: wujia_franchise
 #: code:addons/wujia_franchise/static/src/js/wujia_inspection_chart.js:270
@@ -1293,8 +937,7 @@ msgstr "Chưa có tọa độ GPS"
 #. module: wujia_franchise
 #: code:addons/wujia_franchise/static/src/js/wujia_gps_field.js:85
 #, odoo-javascript, odoo-python
-msgid ""
-"Click to request permission and acquire GPS coordinates from browser/device"
+msgid "Click to request permission and acquire GPS coordinates from browser/device"
 msgstr "Bấm để cấp quyền và lấy tọa độ GPS từ trình duyệt/thiết bị"
 
 #. module: wujia_franchise
@@ -1336,21 +979,14 @@ msgstr "Không thể lấy tọa độ GPS."
 #. module: wujia_franchise
 #: code:addons/wujia_franchise/static/src/js/wujia_gps_field.js:190
 #, odoo-javascript, odoo-python
-msgid ""
-"You denied access to location. Please grant Location permission in your "
-"browser address bar!"
-msgstr ""
-"Bạn đã từ chối quyền truy cập vị trí. Vui lòng cấp quyền Vị trí trên thanh "
-"địa chỉ trình duyệt!"
+msgid "You denied access to location. Please grant Location permission in your browser address bar!"
+msgstr "Bạn đã từ chối quyền truy cập vị trí. Vui lòng cấp quyền Vị trí trên thanh địa chỉ trình duyệt!"
 
 #. module: wujia_franchise
 #: code:addons/wujia_franchise/static/src/js/wujia_gps_field.js:193
 #, odoo-javascript, odoo-python
-msgid ""
-"Location information is currently unavailable. Please enable GPS and network"
-" connection!"
-msgstr ""
-"Thông tin vị trí hiện không khả dụng. Vui lòng bật GPS và kết nối mạng!"
+msgid "Location information is currently unavailable. Please enable GPS and network connection!"
+msgstr "Thông tin vị trí hiện không khả dụng. Vui lòng bật GPS và kết nối mạng!"
 
 #. module: wujia_franchise
 #: code:addons/wujia_franchise/static/src/js/wujia_gps_field.js:196
@@ -1361,18 +997,8 @@ msgstr "Yêu cầu GPS đã hết thời gian. Vui lòng thử lại!"
 #. module: wujia_franchise
 #: code:addons/wujia_franchise/static/src/js/wujia_gps_field.js:208
 #, odoo-javascript, odoo-python
-msgid ""
-"No GPS coordinates to open Google Maps! Please click 'Get Current Location' "
-"first."
-msgstr ""
-"Không có tọa độ GPS để mở Google Maps! Vui lòng bấm 'Lấy vị trí hiện tại' "
-"trước."
-
-#. module: wujia_franchise
-#: code:addons/wujia_franchise/static/src/js/wujia_gps_field.js:219
-#, odoo-javascript, odoo-python
-msgid "GPS Location"
-msgstr "Vị trí GPS"
+msgid "No GPS coordinates to open Google Maps! Please click 'Get Current Location' first."
+msgstr "Không có tọa độ GPS để mở Google Maps! Vui lòng bấm 'Lấy vị trí hiện tại' trước."
 
 #. module: wujia_franchise
 #: code:addons/wujia_franchise/models/wujia_franchise_management.py:233
@@ -1381,35 +1007,10 @@ msgid "New Franchise"
 msgstr "Cửa hàng nhượng quyền mới"
 
 #. module: wujia_franchise
-#: code:addons/wujia_franchise/models/wujia_franchise_management.py:388
-#, odoo-javascript, odoo-python
-msgid "Supervision Score History (Last 10 Rounds)"
-msgstr "Lịch sử điểm giám sát (10 đợt gần nhất)"
-
-#. module: wujia_franchise
-#: code:addons/wujia_franchise/models/wujia_franchise_management.py:389
-#, odoo-javascript, odoo-python
-msgid "Score per Round"
-msgstr "Điểm từng đợt"
-
-#. module: wujia_franchise
-#: code:addons/wujia_franchise/models/wujia_franchise_management.py:390
-#, odoo-javascript, odoo-python
-msgid "Average Score"
-msgstr "Điểm trung bình"
-
-#. module: wujia_franchise
-#: code:addons/wujia_franchise/models/wujia_franchise_management.py:391
-#, odoo-javascript, odoo-python
-msgid "No Historical Data Yet!"
-msgstr "Chưa có dữ liệu lịch sử!"
-
-#. module: wujia_franchise
 #: code:addons/wujia_franchise/models/wujia_franchise_management.py:392
 #, odoo-javascript, odoo-python
 msgid "This store has no completed/remediation inspection sheets yet."
-msgstr ""
-"Cửa hàng này chưa có phiếu giám sát nào hoàn thành hoặc đang khắc phục."
+msgstr "Cửa hàng này chưa có phiếu giám sát nào hoàn thành hoặc đang khắc phục."
 
 #. module: wujia_franchise
 #: code:addons/wujia_franchise/models/wujia_franchise_management.py:404
@@ -1426,12 +1027,8 @@ msgstr "Email '%s' không hợp lệ."
 #. module: wujia_franchise
 #: code:addons/wujia_franchise/models/wujia_franchise_management.py:418
 #, odoo-javascript, odoo-python
-msgid ""
-"Active store '%s' must have an associated Partner for sales "
-"orders/invoicing."
-msgstr ""
-"Cửa hàng đang hoạt động '%s' bắt buộc phải gắn với một Đối tác để tạo đơn "
-"bán hàng/hóa đơn."
+msgid "Active store '%s' must have an associated Partner for sales orders/invoicing."
+msgstr "Cửa hàng đang hoạt động '%s' bắt buộc phải gắn với một Đối tác để tạo đơn bán hàng/hóa đơn."
 
 #. module: wujia_franchise
 #: code:addons/wujia_franchise/models/wujia_franchise_management.py:436
@@ -1460,12 +1057,8 @@ msgstr "Chủ sở hữu chính bắt buộc phải có vai trò = Chủ sở h�
 #. module: wujia_franchise
 #: code:addons/wujia_franchise/models/wujia_franchise_member.py:116
 #, odoo-javascript, odoo-python
-msgid ""
-"Store '%s' already has a main owner. Please deactivate previous owner "
-"membership first."
-msgstr ""
-"Cửa hàng '%s' đã có chủ sở hữu chính. Vui lòng ngưng kích hoạt quyền chủ sở "
-"hữu cũ trước."
+msgid "Store '%s' already has a main owner. Please deactivate previous owner membership first."
+msgstr "Cửa hàng '%s' đã có chủ sở hữu chính. Vui lòng ngưng kích hoạt quyền chủ sở hữu cũ trước."
 
 #. module: wujia_franchise
 #: code:addons/wujia_franchise/models/wujia_franchise_member.py:133
@@ -1500,21 +1093,6 @@ msgstr ""
 #, odoo-javascript, odoo-python
 msgid "Franchise Stores of %s"
 msgstr "Các cửa hàng nhượng quyền của %s"
-
-#. module: wujia_franchise
-#: model_terms:ir.ui.view,arch_db:wujia_franchise.all
-msgid "Franchise Management"
-msgstr "Quản lý nhượng quyền"
-
-#. module: wujia_franchise
-#: model_terms:ir.ui.view,arch_db:wujia_franchise.all
-msgid "Operations"
-msgstr "Vận hành"
-
-#. module: wujia_franchise
-#: model_terms:ir.ui.view,arch_db:wujia_franchise.all
-msgid "Franchise Members"
-msgstr "Thành viên nhượng quyền"
 
 #. module: wujia_franchise
 #: model_terms:ir.ui.view,arch_db:wujia_franchise.all
@@ -1588,33 +1166,8 @@ msgstr "Phân tích tiêu chí vi phạm"
 
 #. module: wujia_franchise
 #: model_terms:ir.ui.view,arch_db:wujia_franchise.all
-msgid "Configuration"
-msgstr "Cấu hình"
-
-#. module: wujia_franchise
-#: model_terms:ir.ui.view,arch_db:wujia_franchise.all
-msgid "Area Management"
-msgstr "Quản lý khu vực"
-
-#. module: wujia_franchise
-#: model_terms:ir.ui.view,arch_db:wujia_franchise.all
-msgid "Areas"
-msgstr "Khu vực"
-
-#. module: wujia_franchise
-#: model_terms:ir.ui.view,arch_db:wujia_franchise.all
-msgid "Provinces / Cities"
-msgstr "Tỉnh / Thành phố"
-
-#. module: wujia_franchise
-#: model_terms:ir.ui.view,arch_db:wujia_franchise.all
 msgid "Wards"
 msgstr "Phường / Xã"
-
-#. module: wujia_franchise
-#: model_terms:ir.ui.view,arch_db:wujia_franchise.all
-msgid "Draft"
-msgstr "Dự thảo"
 
 #. module: wujia_franchise
 #: model_terms:ir.ui.view,arch_db:wujia_franchise.all
@@ -1640,31 +1193,6 @@ msgstr "Đã hủy"
 #: model_terms:ir.ui.view,arch_db:wujia_franchise.all
 msgid "Cancel"
 msgstr "Hủy bỏ"
-
-#. module: wujia_franchise
-#: model_terms:ir.ui.view,arch_db:wujia_franchise.all
-msgid "Active"
-msgstr "Đang hoạt động"
-
-#. module: wujia_franchise
-#: model_terms:ir.ui.view,arch_db:wujia_franchise.all
-msgid "Expired"
-msgstr "Hết hạn hợp đồng"
-
-#. module: wujia_franchise
-#: model_terms:ir.ui.view,arch_db:wujia_franchise.all
-msgid "Locked"
-msgstr "Tạm khóa"
-
-#. module: wujia_franchise
-#: model_terms:ir.ui.view,arch_db:wujia_franchise.all
-msgid "Closed"
-msgstr "Đã đóng cửa"
-
-#. module: wujia_franchise
-#: model_terms:ir.ui.view,arch_db:wujia_franchise.all
-msgid "Invoiced"
-msgstr "Đã xuất hóa đơn"
 
 #. module: wujia_franchise
 #: model_terms:ir.ui.view,arch_db:wujia_franchise.all
@@ -1695,16 +1223,6 @@ msgstr "Lỗi"
 #: model_terms:ir.ui.view,arch_db:wujia_franchise.all
 msgid "Owner"
 msgstr "Chủ tiệm"
-
-#. module: wujia_franchise
-#: model_terms:ir.ui.view,arch_db:wujia_franchise.all
-msgid "Manager"
-msgstr "Quản lý"
-
-#. module: wujia_franchise
-#: model_terms:ir.ui.view,arch_db:wujia_franchise.all
-msgid "Staff"
-msgstr "Nhân viên"
 
 #. module: wujia_franchise
 #: model_terms:ir.ui.view,arch_db:wujia_franchise.all
@@ -1793,16 +1311,6 @@ msgstr "Ngày giám sát"
 
 #. module: wujia_franchise
 #: model_terms:ir.ui.view,arch_db:wujia_franchise.all
-msgid "Latest Score"
-msgstr "Điểm mới nhất"
-
-#. module: wujia_franchise
-#: model_terms:ir.ui.view,arch_db:wujia_franchise.all
-msgid "Latest Grade"
-msgstr "Loại đánh giá mới nhất"
-
-#. module: wujia_franchise
-#: model_terms:ir.ui.view,arch_db:wujia_franchise.all
 msgid "Inspection Name"
 msgstr "Tên phiếu giám sát"
 
@@ -1810,16 +1318,6 @@ msgstr "Tên phiếu giám sát"
 #: model_terms:ir.ui.view,arch_db:wujia_franchise.all
 msgid "Inspector"
 msgstr "Giám sát viên"
-
-#. module: wujia_franchise
-#: model_terms:ir.ui.view,arch_db:wujia_franchise.all
-msgid "Supervisor"
-msgstr "Nhân viên giám sát"
-
-#. module: wujia_franchise
-#: model_terms:ir.ui.view,arch_db:wujia_franchise.all
-msgid "Store"
-msgstr "Cửa hàng"
 
 #. module: wujia_franchise
 #: model_terms:ir.ui.view,arch_db:wujia_franchise.all
@@ -1845,11 +1343,6 @@ msgstr "Điện thoại cửa hàng"
 #: model_terms:ir.ui.view,arch_db:wujia_franchise.all
 msgid "Store Email"
 msgstr "Email cửa hàng"
-
-#. module: wujia_franchise
-#: model_terms:ir.ui.view,arch_db:wujia_franchise.all
-msgid "Partner"
-msgstr "Đối tác"
 
 #. module: wujia_franchise
 #: model_terms:ir.ui.view,arch_db:wujia_franchise.all
@@ -1888,11 +1381,6 @@ msgstr "Chủ sở hữu chính"
 
 #. module: wujia_franchise
 #: model_terms:ir.ui.view,arch_db:wujia_franchise.all
-msgid "Latest Inspection Date"
-msgstr "Ngày khảo sát gần nhất"
-
-#. module: wujia_franchise
-#: model_terms:ir.ui.view,arch_db:wujia_franchise.all
 msgid "Total Score"
 msgstr "Tổng điểm"
 
@@ -1900,16 +1388,6 @@ msgstr "Tổng điểm"
 #: model_terms:ir.ui.view,arch_db:wujia_franchise.all
 msgid "Grade"
 msgstr "Xếp loại"
-
-#. module: wujia_franchise
-#: model_terms:ir.ui.view,arch_db:wujia_franchise.all
-msgid "Passed Exam"
-msgstr "Đã thi đậu"
-
-#. module: wujia_franchise
-#: model_terms:ir.ui.view,arch_db:wujia_franchise.all
-msgid "Is Working"
-msgstr "Đang làm việc"
 
 #. module: wujia_franchise
 #: model_terms:ir.ui.view,arch_db:wujia_franchise.all
@@ -1958,11 +1436,6 @@ msgstr "Video minh chứng"
 
 #. module: wujia_franchise
 #: model_terms:ir.ui.view,arch_db:wujia_franchise.all
-msgid "GPS Location"
-msgstr "Vị trí GPS"
-
-#. module: wujia_franchise
-#: model_terms:ir.ui.view,arch_db:wujia_franchise.all
 msgid "Map"
 msgstr "Bản đồ"
 
@@ -1988,23 +1461,8 @@ msgstr "Check-in GPS"
 
 #. module: wujia_franchise
 #: model_terms:ir.ui.view,arch_db:wujia_franchise.all
-msgid "Status"
-msgstr "Trạng thái"
-
-#. module: wujia_franchise
-#: model_terms:ir.ui.view,arch_db:wujia_franchise.all
 msgid "Notes"
 msgstr "Ghi chú"
-
-#. module: wujia_franchise
-#: model_terms:ir.ui.view,arch_db:wujia_franchise.all
-msgid "Address"
-msgstr "Địa chỉ"
-
-#. module: wujia_franchise
-#: model_terms:ir.ui.view,arch_db:wujia_franchise.all
-msgid "Phone"
-msgstr "Số điện thoại"
 
 #. module: wujia_franchise
 #: model_terms:ir.ui.view,arch_db:wujia_franchise.all
@@ -2018,23 +1476,8 @@ msgstr "Mã"
 
 #. module: wujia_franchise
 #: model_terms:ir.ui.view,arch_db:wujia_franchise.all
-msgid "Role"
-msgstr "Vai trò"
-
-#. module: wujia_franchise
-#: model_terms:ir.ui.view,arch_db:wujia_franchise.all
-msgid "Members"
-msgstr "Thành viên"
-
-#. module: wujia_franchise
-#: model_terms:ir.ui.view,arch_db:wujia_franchise.all
 msgid "Attendance"
 msgstr "Điểm danh"
-
-#. module: wujia_franchise
-#: model_terms:ir.ui.view,arch_db:wujia_franchise.all
-msgid "Next Inspection Date"
-msgstr "Ngày khảo sát kế tiếp"
 
 #. module: wujia_franchise
 #: model_terms:ir.ui.view,arch_db:wujia_franchise.all
@@ -2055,31 +1498,6 @@ msgstr "Hoàn thành"
 #: model_terms:ir.ui.view,arch_db:wujia_franchise.all
 msgid "Reset to Draft"
 msgstr "Đặt lại dự thảo"
-
-#. module: wujia_franchise
-#: model_terms:ir.ui.view,arch_db:wujia_franchise.all
-msgid "Re-acquire GPS"
-msgstr "Cập nhật lại GPS"
-
-#. module: wujia_franchise
-#: model_terms:ir.ui.view,arch_db:wujia_franchise.all
-msgid "View on Google Maps"
-msgstr "Xem trên Google Maps"
-
-#. module: wujia_franchise
-#: model_terms:ir.ui.view,arch_db:wujia_franchise.all
-msgid "Get Current Location (GPS)"
-msgstr "Lấy vị trí hiện tại (GPS)"
-
-#. module: wujia_franchise
-#: model_terms:ir.ui.view,arch_db:wujia_franchise.all
-msgid "Locating GPS..."
-msgstr "Đang định vị GPS..."
-
-#. module: wujia_franchise
-#: model_terms:ir.ui.view,arch_db:wujia_franchise.all
-msgid "No GPS coordinates recorded"
-msgstr "Chưa có tọa độ GPS"
 
 #. module: wujia_franchise
 #: model_terms:ir.ui.view,arch_db:wujia_franchise.all
@@ -2130,308 +1548,3 @@ msgstr "Phiếu giám sát nhượng quyền"
 #: model_terms:ir.ui.view,arch_db:wujia_franchise.all
 msgid "Franchise Inspection Report"
 msgstr "Báo cáo Khảo sát Giám sát"
-
-#. module: wujia_franchise
-#. odoo-python
-#: model:ir.actions.act_window,name:wujia_franchise.action_franchise_onboarding_wizard
-#: model_terms:ir.ui.view,arch_db:wujia_franchise.view_franchise_onboarding_wizard_form
-#: model:ir.ui.menu,name:wujia_franchise.menu_wujia_franchise_onboarding
-#: code:addons/wujia_franchise/models/wujia_franchise_management.py:0
-msgid "Store onboarding"
-msgstr "Onboarding cửa hàng"
-
-#. module: wujia_franchise
-#. odoo-python
-#: model_terms:ir.ui.view,arch_db:wujia_franchise.view_franchise_management_form
-#: code:addons/wujia_franchise/models/wujia_franchise_management.py:0
-#: model:ir.model.fields.selection,name:wujia_franchise.selection__wujia_franchise_onboarding_wizard__mode__member
-msgid "Add store users"
-msgstr "Thêm người dùng cửa hàng"
-
-#. module: wujia_franchise
-#: model_terms:ir.ui.view,arch_db:wujia_franchise.view_franchise_onboarding_wizard_form
-msgid "Store information"
-msgstr "THÔNG TIN CỬA HÀNG"
-
-#. module: wujia_franchise
-#: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_onboarding_wizard__member_line_ids
-msgid "Store users"
-msgstr "Người dùng cửa hàng"
-
-#. module: wujia_franchise
-#: model_terms:ir.ui.view,arch_db:wujia_franchise.view_franchise_onboarding_wizard_form
-msgid "Confirm"
-msgstr "Xác nhận"
-
-#. module: wujia_franchise
-#: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_onboarding_wizard__mode
-msgid "Mode"
-msgstr "Chế độ"
-
-#. module: wujia_franchise
-#: model:ir.model.fields.selection,name:wujia_franchise.selection__wujia_franchise_onboarding_wizard__mode__store
-msgid "New store"
-msgstr "Cửa hàng mới"
-
-#. module: wujia_franchise
-#: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_onboarding_wizard__phone
-msgid "Store phone"
-msgstr "SĐT cửa hàng"
-
-#. module: wujia_franchise
-#: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_onboarding_wizard__email
-msgid "Store email"
-msgstr "Email cửa hàng"
-
-#. module: wujia_franchise
-#: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_onboarding_wizard__partner_mode
-msgid "Store Partner"
-msgstr "Đối tác cửa hàng"
-
-#. module: wujia_franchise
-#: model_terms:ir.ui.view,arch_db:wujia_franchise.view_franchise_onboarding_wizard_form
-msgid "Store Partner details"
-msgstr "ĐỐI TÁC CỬA HÀNG"
-
-#. module: wujia_franchise
-#: model_terms:ir.ui.view,arch_db:wujia_franchise.view_franchise_onboarding_wizard_form
-msgid "Store user list"
-msgstr "NGƯỜI DÙNG CỬA HÀNG"
-
-#. module: wujia_franchise
-#: model:ir.model.fields.selection,name:wujia_franchise.selection__wujia_franchise_onboarding_wizard__partner_mode__new
-msgid "Create a new Store Partner"
-msgstr "Tạo đối tác cửa hàng mới"
-
-#. module: wujia_franchise
-#: model:ir.model.fields.selection,name:wujia_franchise.selection__wujia_franchise_onboarding_wizard__partner_mode__existing
-msgid "Link an existing Partner"
-msgstr "Gắn đối tác đã có"
-
-#. module: wujia_franchise
-#: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_onboarding_wizard__partner_id
-msgid "Existing Partner"
-msgstr "Đối tác đã có"
-
-#. module: wujia_franchise
-#: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_onboarding_wizard__partner_name
-msgid "Partner name"
-msgstr "Tên đối tác"
-
-#. module: wujia_franchise
-#: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_onboarding_wizard__partner_phone
-msgid "Partner phone"
-msgstr "SĐT đối tác"
-
-#. module: wujia_franchise
-#: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_onboarding_wizard__partner_email
-msgid "Partner email"
-msgstr "Email đối tác"
-
-#. module: wujia_franchise
-#: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_onboarding_wizard__partner_vat
-msgid "Tax ID"
-msgstr "Mã số thuế"
-
-#. module: wujia_franchise
-#: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_onboarding_wizard__partner_street
-msgid "Partner address"
-msgstr "Địa chỉ đối tác"
-
-#. module: wujia_franchise
-#: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_onboarding_wizard__duplicate_partner_ids
-msgid "Possible duplicates"
-msgstr "Đối tác có thể bị trùng"
-
-#. module: wujia_franchise
-#: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_onboarding_wizard__duplicate_ack
-msgid "I checked the list above, create a new Partner anyway"
-msgstr "Tôi đã xem danh sách trên, vẫn tạo đối tác mới"
-
-#. module: wujia_franchise
-#: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_onboarding_wizard__partner_warning
-msgid "Partner warning"
-msgstr "Cảnh báo đối tác"
-
-#. module: wujia_franchise
-#: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_onboarding_member_line__user_mode
-msgid "Portal user"
-msgstr "Tài khoản portal"
-
-#. module: wujia_franchise
-#: model:ir.model.fields.selection,name:wujia_franchise.selection__wujia_franchise_onboarding_member_line__user_mode__new
-msgid "Create a new Portal User"
-msgstr "Tạo tài khoản portal mới"
-
-#. module: wujia_franchise
-#: model:ir.model.fields.selection,name:wujia_franchise.selection__wujia_franchise_onboarding_member_line__user_mode__existing
-msgid "Use an existing Portal User"
-msgstr "Dùng tài khoản portal đã có"
-
-#. module: wujia_franchise
-#: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_onboarding_member_line__user_id
-msgid "Existing user"
-msgstr "Tài khoản đã có"
-
-#. module: wujia_franchise
-#: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_onboarding_member_line__user_name
-msgid "Full name"
-msgstr "Họ và tên"
-
-#. module: wujia_franchise
-#: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_onboarding_member_line__user_login
-msgid "Login (email)"
-msgstr "Tên đăng nhập (email)"
-
-#. module: wujia_franchise
-#: model:ir.model,name:wujia_franchise.model_wujia_franchise_onboarding_wizard
-msgid "Franchise store onboarding"
-msgstr "Onboarding cửa hàng nhượng quyền"
-
-#. module: wujia_franchise
-#. odoo-python
-#: code:addons/wujia_franchise/wizards/franchise_onboarding_wizard.py:0
-msgid "Only HQ (Wujia Franchise / Administrator) may run store onboarding."
-msgstr "Chỉ tài khoản văn phòng (Wujia Franchise / Quản trị) mới được chạy onboarding cửa hàng."
-
-#. module: wujia_franchise
-#. odoo-python
-#: code:addons/wujia_franchise/wizards/franchise_onboarding_wizard.py:0
-msgid "Store code and store name are required."
-msgstr "Bắt buộc nhập mã cửa hàng và tên cửa hàng."
-
-#. module: wujia_franchise
-#. odoo-python
-#: code:addons/wujia_franchise/wizards/franchise_onboarding_wizard.py:0
-msgid "Franchise end date is required."
-msgstr "Bắt buộc nhập ngày hết hạn nhượng quyền."
-
-#. module: wujia_franchise
-#. odoo-python
-#: code:addons/wujia_franchise/wizards/franchise_onboarding_wizard.py:0
-msgid "Store code '%(code)s' already exists (%(store)s)."
-msgstr "Mã cửa hàng '%(code)s' đã tồn tại (%(store)s)."
-
-#. module: wujia_franchise
-#. odoo-python
-#: code:addons/wujia_franchise/wizards/franchise_onboarding_wizard.py:0
-msgid "Please select the store to add users to."
-msgstr "Vui lòng chọn cửa hàng cần thêm người dùng."
-
-#. module: wujia_franchise
-#. odoo-python
-#: code:addons/wujia_franchise/wizards/franchise_onboarding_wizard.py:0
-msgid "Please select the Partner to link."
-msgstr "Vui lòng chọn đối tác cần gắn."
-
-#. module: wujia_franchise
-#. odoo-python
-#: code:addons/wujia_franchise/wizards/franchise_onboarding_wizard.py:0
-msgid "Partner '%s' is archived."
-msgstr "Đối tác '%s' đang bị lưu trữ."
-
-#. module: wujia_franchise
-#. odoo-python
-#: code:addons/wujia_franchise/wizards/franchise_onboarding_wizard.py:0
-msgid "Please enter the name of the new Store Partner."
-msgstr "Vui lòng nhập tên đối tác cửa hàng mới."
-
-#. module: wujia_franchise
-#. odoo-python
-#: code:addons/wujia_franchise/wizards/franchise_onboarding_wizard.py:0
-msgid "Please add at least one store user."
-msgstr "Vui lòng thêm ít nhất một người dùng cửa hàng."
-
-#. module: wujia_franchise
-#. odoo-python
-#: code:addons/wujia_franchise/wizards/franchise_onboarding_wizard.py:0
-msgid "The same login is used twice in this form: %s"
-msgstr "Cùng một tên đăng nhập bị nhập hai lần trong phiếu này: %s"
-
-#. module: wujia_franchise
-#. odoo-python
-#: code:addons/wujia_franchise/wizards/franchise_onboarding_wizard.py:0
-msgid "A store may only have one primary owner."
-msgstr "Mỗi cửa hàng chỉ được có một chủ chính."
-
-#. module: wujia_franchise
-#. odoo-python
-#: code:addons/wujia_franchise/wizards/franchise_onboarding_wizard.py:0
-msgid "The primary owner must have the Owner role."
-msgstr "Chủ chính bắt buộc phải có vai trò Chủ tiệm."
-
-#. module: wujia_franchise
-#. odoo-python
-#: code:addons/wujia_franchise/wizards/franchise_onboarding_wizard.py:0
-msgid "Please select the existing portal user."
-msgstr "Vui lòng chọn tài khoản portal đã có."
-
-#. module: wujia_franchise
-#. odoo-python
-#: code:addons/wujia_franchise/wizards/franchise_onboarding_wizard.py:0
-msgid "User '%s' is archived. Restore it first, or create a new portal user."
-msgstr "Tài khoản '%s' đang bị lưu trữ. Hãy khôi phục trước, hoặc tạo tài khoản portal mới."
-
-#. module: wujia_franchise
-#. odoo-python
-#: code:addons/wujia_franchise/wizards/franchise_onboarding_wizard.py:0
-msgid "User '%s' is not a Portal User. Onboarding never changes user types."
-msgstr "Tài khoản '%s' không phải tài khoản portal. Onboarding không bao giờ đổi loại tài khoản."
-
-#. module: wujia_franchise
-#. odoo-python
-#: code:addons/wujia_franchise/wizards/franchise_onboarding_wizard.py:0
-msgid "User '%(login)s' already has an active membership in store '%(store)s'."
-msgstr "Tài khoản '%(login)s' đã có phân công còn hiệu lực tại cửa hàng '%(store)s'."
-
-#. module: wujia_franchise
-#. odoo-python
-#: code:addons/wujia_franchise/wizards/franchise_onboarding_wizard.py:0
-msgid "Full name and login are required for a new portal user."
-msgstr "Tài khoản portal mới bắt buộc có họ tên và tên đăng nhập."
-
-#. module: wujia_franchise
-#. odoo-python
-#: code:addons/wujia_franchise/wizards/franchise_onboarding_wizard.py:0
-msgid "Partner '%(partner)s' is already linked to %(count)s stores: %(stores)s."
-msgstr "Đối tác '%(partner)s' đang gắn với %(count)s cửa hàng: %(stores)s."
-
-#. module: wujia_franchise
-#. odoo-python
-#: code:addons/wujia_franchise/wizards/franchise_onboarding_wizard.py:0
-msgid "Partner '%(partner)s' is already the Store Partner of '%(store)s'."
-msgstr "Đối tác '%(partner)s' đang là đối tác của cửa hàng '%(store)s'."
-
-#. module: wujia_franchise
-#. odoo-python
-#: code:addons/wujia_franchise/models/wujia_franchise_management.py:0
-msgid "a Store Partner"
-msgstr "một đối tác cửa hàng"
-
-#. module: wujia_franchise
-#. odoo-python
-#: code:addons/wujia_franchise/models/wujia_franchise_management.py:0
-msgid "at least one valid Owner membership"
-msgstr "ít nhất một chủ tiệm còn hiệu lực"
-
-#. module: wujia_franchise
-#: code:addons/wujia_franchise/models/wujia_franchise_member.py:0
-msgid "Unnamed"
-msgstr "Chưa có tên"
-
-#. module: wujia_franchise
-#: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_management__franchise_start_date
-msgid "Franchise Start Date"
-msgstr "Ngày bắt đầu nhượng quyền"
-
-#. module: wujia_franchise
-#: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_management__franchise_end_date
-msgid "Franchise End Date"
-msgstr "Ngày kết thúc nhượng quyền"
-
-#. module: wujia_franchise
-#: model_terms:ir.ui.view,arch_db:wujia_franchise.res_config_settings_view_form_wujia_franchise
-msgid "Franchise Store"
-msgstr "Cửa hàng nhượng quyền"
-
-

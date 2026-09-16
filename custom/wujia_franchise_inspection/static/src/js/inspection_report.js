@@ -5,50 +5,11 @@
 (function () {
   "use strict";
 
-  let allTranslations = {};
-
-  function initTranslations() {
-    try {
-      const rawEl = document.getElementById("reportTransJson");
-      if (rawEl) {
-        allTranslations = JSON.parse(rawEl.textContent || "{}");
-      }
-    } catch (e) {
-      console.error("Failed to parse report translations JSON:", e);
-    }
-  }
-
-  function applyLanguage(lang) {
-    initTranslations();
-    const dict = allTranslations[lang];
-    if (!dict) {
-      console.warn("No dictionary found for language:", lang);
-      return;
-    }
-
-    document.querySelectorAll("[data-i18n]").forEach((el) => {
-      const key = el.getAttribute("data-i18n");
-      if (dict[key]) {
-        el.innerHTML = dict[key];
-      }
-    });
-
-    applyDynamicTitle();
-  }
-
   function getFormattedPdfName() {
     const storeEl = document.querySelector(".store-name-sub");
     const dateEl = document.querySelector(".report-date-text strong");
-    const selLang = document.getElementById("selReportLang");
-    const curLang = selLang ? selLang.value : "vi_VN";
 
     let reportPrefix = "Báo cáo Khảo sát Giám sát";
-    if (curLang === "zh_CN" || (curLang && curLang.includes("zh"))) {
-      reportPrefix = "加盟門市督導報告";
-    } else if (curLang === "th_TH" || (curLang && curLang.includes("th"))) {
-      reportPrefix = "รายงานการตรวจประเมินร้านสาขา";
-    }
-
     let storeCode = "";
     if (storeEl) {
       const rawText = storeEl.innerText.trim();
@@ -91,7 +52,6 @@
   }
 
   function setupEvents() {
-    initTranslations();
     applyDynamicTitle();
 
     window.addEventListener("beforeprint", function () {
@@ -105,14 +65,6 @@
         maskUrl();
         applyDynamicTitle();
         window.print();
-      };
-    }
-
-    const selLang = document.getElementById("selReportLang");
-    if (selLang) {
-      selLang.onchange = function () {
-        const langVal = this.value;
-        applyLanguage(langVal);
       };
     }
   }

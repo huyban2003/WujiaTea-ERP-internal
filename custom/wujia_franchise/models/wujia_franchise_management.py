@@ -1,11 +1,8 @@
-import logging
 import re
 
 from odoo import _, api, fields, models
 # pyrefly: ignore [missing-import]
 from odoo.exceptions import ValidationError
-
-_logger = logging.getLogger(__name__)
 
 
 EMAIL_RE = re.compile(r'^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$')
@@ -110,7 +107,7 @@ class WujiaFranchiseManagement(models.Model):
         ],
         string='Status',
         required=True,
-        default='draft',
+        default='active',
         tracking=True,
     )
 
@@ -130,6 +127,11 @@ class WujiaFranchiseManagement(models.Model):
         help='The active member with role=owner for this store (BA spec).',
     )
 
+    supervision_user_id = fields.Many2one(
+        'res.users',
+        string='Supervisor',
+        tracking=True,
+    )
 
     document_ids = fields.One2many(
         'wujia.franchise.document',
@@ -232,44 +234,10 @@ class WujiaFranchiseManagement(models.Model):
             'context': {'default_franchise_id': self.id},
         }
 
-    def _onboarding_action(self, mode):
-        self.ensure_one()
-        action = self.env['ir.actions.act_window']._for_xml_id(
-            'wujia_franchise.action_franchise_onboarding_wizard'
-        )
-        action['name'] = _("Add store users") if mode == 'member' else _("Store onboarding")
-        action['context'] = {
-            'default_franchise_id': self.id,
-            'default_mode': mode,
-            'default_partner_mode': 'existing' if self.partner_id else 'new',
-        }
-        return action
-
-    def action_open_onboarding(self):
-        return self._onboarding_action('store')
-
-    def action_open_add_members(self):
-        return self._onboarding_action('member')
-
     def action_set_active(self):
         for rec in self:
-            rec._assert_ready_to_activate()
             rec.status = 'active'
             rec.portal_locked = False
-
-    def _assert_ready_to_activate(self):
-        self.ensure_one()
-        missing = []
-        if not self.partner_id:
-            missing.append(_("a Store Partner"))
-        if not self.main_owner_member_id:
-            missing.append(_("at least one valid Owner membership"))
-        if missing:
-            raise ValidationError(_(
-                "Store '%(store)s' cannot be activated yet — it still needs %(missing)s. "
-                "Run store onboarding to complete it; the store stays in Draft meanwhile.",
-                store=self.display_name, missing=', '.join(missing),
-            ))
 
     def action_lock_portal(self):
         for rec in self:
@@ -325,7 +293,7 @@ class WujiaFranchiseManagement(models.Model):
                                 'active': True,
                             })
             except Exception as e:
-                _logger.warning("[BOOTSTRAP CSV] Lỗi nạp res.area.csv: %s", e)
+                print(f"[BOOTSTRAP CSV] Lỗi nạp res.area.csv: {e}")
 
         # 2. Nạp Cửa hàng nhượng quyền & Partner (wujia.franchise.management.csv)
         franchise_csv = os.path.join(data_dir, 'wujia.franchise.management.csv')
@@ -388,7 +356,7 @@ class WujiaFranchiseManagement(models.Model):
                         else:
                             f_rec.write(vals)
             except Exception as e:
-                _logger.warning("[BOOTSTRAP CSV] Lỗi nạp wujia.franchise.management.csv: %s", e)
+                print(f"[BOOTSTRAP CSV] Lỗi nạp wujia.franchise.management.csv: {e}")
 
         # 3. Nạp Nhân viên cửa hàng từ employee.csv và liên kết vào wujia.franchise.member theo franchise_code
         emp_csv = os.path.join(data_dir, 'employee.csv')
@@ -487,7 +455,7 @@ class WujiaFranchiseManagement(models.Model):
                             created_pairs.add((user_id, franchise_id))
 
             except Exception as e:
-                _logger.warning("[BOOTSTRAP] Lỗi nạp employee.csv: %s", e)
+                print(f"[BOOTSTRAP] Lỗi nạp employee.csv: {e}")
 
 
 class WujiaFranchiseDocument(models.Model):

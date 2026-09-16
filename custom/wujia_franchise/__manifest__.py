@@ -1,8 +1,8 @@
 {
     'name': 'Wujia Franchise',
-    'version': '19.0.5.0.0',
+    'version': '19.0.3.0.0',
     'category': 'Wujia',
-    'summary': 'Quản lý cửa hàng nhượng quyền + membership user portal',
+    'summary': 'Franchise store management and membership portal',
     'author': 'WujiaTea',
     'description': """
 Module hợp nhất 2 phân hệ chính của nhượng quyền (BA spec mục A):
@@ -37,10 +37,8 @@ Extension chuẩn:
         'security/wujia_franchise_rules.xml',
         'views/wujia_franchise_management_views.xml',
         'views/wujia_franchise_member_views.xml',
-        'views/franchise_onboarding_wizard_views.xml',
         'views/res_partner_views.xml',
         'views/res_users_views.xml',
-        'views/res_config_settings_views.xml',
         'views/wujia_franchise_menu.xml',
         'data/ir_cron_data.xml',
         'data/wujia_franchise_bootstrap.xml',

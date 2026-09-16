@@ -1,12 +1,12 @@
 # -*- coding: utf-8 -*-
 {
-    'name': 'Wujia Franchise — Store Inspection (Khảo sát & Giám sát)',
+    'name': 'Wujia Franchise — Store Inspection',
     'version': '19.0.1.0.0',
     'category': 'Wujia',
-    'summary': 'Phân hệ mở rộng quản lý khảo sát, giám sát cửa hàng, chấm điểm và đánh giá',
+    'summary': 'Store inspection, supervision, quality scoring, and evaluation module for franchise system',
     'author': 'WujiaTea',
     'description': """
-Phân hệ quản lý khảo sát & giám sát cửa hàng nhượng quyền:
+Franchise Store Inspection & Supervision Management:
 
 1. wujia.franchise.inspection — phiếu khảo sát & đánh giá chất lượng:
    - Chấm điểm theo tiêu chí/nhóm, tính tổng điểm và tự động xếp loại (grade).
@@ -33,14 +33,6 @@ Extension kế thừa:
         'portal',
         'mail',
     ],
-    'external_dependencies': {
-        'python': [
-            'google-api-python-client',
-            'google-auth',
-            'google-auth-oauthlib',
-            'google-auth-httplib2',
-        ],
-    },
     'data': [
         'security/wujia_inspection_groups.xml',
         'security/ir.model.access.csv',
@@ -67,13 +59,10 @@ Extension kế thừa:
     'assets': {
         'web.assets_backend': [
             'wujia_franchise_inspection/static/src/css/wujia_inspection.css',
-            'wujia_franchise_inspection/static/src/css/inspection_report.css',
             'wujia_franchise_inspection/static/src/js/wujia_inspection_chart.js',
             'wujia_franchise_inspection/static/src/js/wujia_gps_field.js',
-            'wujia_franchise_inspection/static/src/js/inspection_report.js',
         ],
     },
-    'pre_init_hook': 'pre_init_hook',
     'installable': True,
     'application': True,
     'auto_install': False,

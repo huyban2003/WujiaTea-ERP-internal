@@ -77,8 +77,8 @@ class ResPartner(models.Model):
         return {'warning': {
             'title': _('Partner linked to multiple stores'),
             'message': _(
-                "Partner '%(partner)s' đang gắn với %(count)s cửa hàng: %(stores)s.\n"
-                "Hệ thống không tự chọn — vui lòng chọn cửa hàng nhượng quyền thủ công.",
+                "Partner '%(partner)s' is linked with %(count)s franchise stores: %(stores)s.\n"
+                "The system cannot select automatically — please select franchise store manually.",
                 partner=self.display_name,
                 count=len(franchises),
                 stores=', '.join(franchises.mapped('display_name')),
@@ -102,7 +102,7 @@ class ResPartner(models.Model):
                 store=expected.display_name,
             ))
         raise UserError(_(
-            "Chứng từ '%(doc)s' đang gắn cửa hàng '%(current)s' nhưng partner "
+            "Document '%(doc)s' is linked with store '%(current)s' but partner "
             "'%(partner)s' thuộc cửa hàng '%(store)s'.\n"
             "Hãy sửa lại cho khớp rồi thao tác lại.",
             doc=doc_label, current=franchise.display_name,
