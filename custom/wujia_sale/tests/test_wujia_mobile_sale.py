@@ -3,7 +3,7 @@ from odoo.tests.common import TransactionCase
 
 
 class TestWujiaMobileSale(TransactionCase):
-    """Automated unit tests for wujia_mobile_sale module."""
+    """Automated unit tests for wujia_sale mobile enhancements."""
 
     @classmethod
     def setUpClass(cls):
