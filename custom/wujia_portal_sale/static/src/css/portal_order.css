@@ -684,7 +684,7 @@
    trung hoà TRONG scope, không sửa file shared. Cùng giá trị với neutralizer chung
    của UI-PC-BASE-003 để hai rule không đá nhau. */
 .wj-pc-order-filter select.wj-pc-filter-control {
-    padding: 0 16px !important; cursor: pointer;
+    padding: 0 16px !important;
 }
 
 /* ---- Product card + table (cyan headers per Figma) ---- */
@@ -848,19 +848,7 @@
     background: #FEE2E2; border-color: #FECACA; color: #DC2626;
 }
 
-/* WJ-ORD-019: focus-visible ring ≥2px cho mọi control tương tác của trang đặt
-   hàng PC (bàn phím Tab thấy rõ ô đang focus). Màu ring đổi brand #28A9DF →
-   --wujia-cta #0F7CA8: WCAG 2.2 đòi non-text/focus indicator ≥3:1 với nền, brand
-   trên nền trắng chỉ ~2.6:1. */
-.wj-pc-order-add:focus-visible,
-.wj-pc-cart-step:focus-visible,
-.wj-pc-cart-del:focus-visible,
-.wj-pc-cart-submit:focus-visible,
-.wj-pc-order-filter .wj-pc-filter-control:focus-visible,
-.wj-pc-cart-note:focus-visible {
-    outline: 2px solid var(--wujia-cta);
-    outline-offset: 2px;
-}
+/* WJ-ORD-019: vòng focus ≥2px màu --wujia-cta do rule chung `_interaction.css` §2 lo (F4 gỡ bản trùng ở đây). */
 
 /* WJ-ORD-014: trang chi tiết SP — ở mobile ảnh chiếm cả màn đẩy giá/quy tắc/CTA
    xuống dưới first viewport. Giới hạn cao ảnh ~240px + căn giữa để nội dung mua
@@ -915,14 +903,13 @@
 /* Icon giỏ hàng 72×72 (Figma 5028:747-752) — override background shared
    .wj-empty-state-icon (0,2,0 thắng base 0,1,0). var() không dùng được trong
    data-URI → hex nằm trong SVG (đúng precedent _components.css:349). */
+/* F4(c): hình minh hoạ giỏ hàng là NỘI DUNG, không phải dáng component. */
 .wj-empty-state-icon.wujia-mcart-empty-icon {
     width: 72px;
     height: 72px;
     margin-bottom: 6px;
     background: url("data:image/svg+xml,%3Csvg width='72' height='72' viewBox='0 0 72 72' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Ccircle cx='36' cy='36' r='36' fill='%23EAF7FD'/%3E%3Cpath d='M19 25h4l3 18h20l3-13H27' stroke='%2328A9DF' stroke-width='2.6' stroke-linecap='round' stroke-linejoin='round'/%3E%3Cpath d='M30 34h19' stroke='%23B8DDEA' stroke-width='2' stroke-linecap='round'/%3E%3Ccircle cx='30' cy='50' r='3.2' fill='%2328A9DF'/%3E%3Ccircle cx='46' cy='50' r='3.2' fill='%2328A9DF'/%3E%3C/svg%3E") center/contain no-repeat;
 }
-/* Title 20px (Figma 5028:755) — scope 3 lớp thắng .wj-empty-state .wj-empty-state-title (0,2,0) */
-.wj-empty-state.wujia-mcart-empty-card .wj-empty-state-title { font-size: 20px; }
 /* CTA "Chọn sản phẩm" cao 42px, chữ 15px (Figma 5028:758/759) vs shared 40/14 */
 .wujia-mcart-empty-cta { height: 42px; font-size: 15px; margin-top: 10px; }
 

@@ -123,3 +123,31 @@ rồi đánh ✅ ở bảng Trạng thái §2 `docs/next-session-clusters-F.md`.
   mutation cho 5 guard D4 đã trỏ lại; log test do `wujia_core` chuyển vào `<logfile dir>/<năm>/<tháng>/`.
 - Phiên kế: F4 — duyệt 41 rule đổi dáng + danh sách `:is()` (dừng giữa phiên xin duyệt).
 
+
+## F4 — Duyệt rule module viết đè component chung · 17/09/2026 · Mac
+- Kết quả: ✅ xong
+- Đã làm: bước 1 lập `docs/f4-override-review.md` (44 rule, tắt từng rule trong trình duyệt + 30 ảnh `docs/f4-img/`), chủ dự
+  án duyệt: (b) theo đề xuất không cần báo BA · hover một màu primary-soft · dọn toàn bộ `:is()` · eyebrow. Bước 2: xoá 13 rule
+  chết + rule chết mknow + 14 rule lệch về chuẩn; biến thể layout mới `wujia-badge--sm`, `wj-pc-badge--sm`,
+  `wj-card-header--eyebrow`; sửa component (tiêu đề trang PC 800 thật sự áp, con trỏ select lọc, màu chữ hàng `<a>`
+  detail-card); Công nợ "THÔNG TIN CHUYỂN KHOẢN" SectionHeader → CardHeader eyebrow; `_interaction.css` liệt kê theo
+  component + class đánh dấu `wj-state-surface` ở XML (không còn tên màn), nhóm Khảo sát tách rule riêng, gạch chân dùng
+  `wj-richtext`; bỏ hover rgba .04 của compact-row. 8 rule giữ có comment `F4(c)`.
+- Commit: xem git log — refactor(F4)
+- Deploy: chưa — `-u wujia_portal_layout,wujia_portal_base,wujia_portal_debt,wujia_portal_delivery,wujia_portal_exam,
+  wujia_portal_knowledge,wujia_portal_notification,wujia_portal_purchase_history,wujia_portal_report,wujia_portal_return,
+  wujia_portal_sale,wujia_portal_support` (layout 19.0.51.0.4 · `?v=` components 1296 / pc_components 1295 / interaction 1293;
+  11 module còn lại +1 patch)
+- Số đo: css_owner --overrides đổi dáng **44 → 9** (cả 9 là loại giữ có ghi chú) · cstyle mốc 2 lượt ổn định (A: 1 dòng
+  Kiến thức lệch 0.36px đồng hồ; B: 0) → sau sửa chỉ khác đúng bảng §8 review · hover/active ép trên MỌI phần tử ứng viên
+  (script mới `scratchpad hovall.py`): 0 mất/thừa, chỉ `wj-debt-inv` + `wujia-mexam-rrow` (div không bấm được) mất hover ·
+  B4 286/286 · suite 12 module **537/537** (có 6 test mới `wujia_f4`).
+- Lệch plan / quyết định mới: **exam727 (a) → (c) nợ FR-B** — Vuexy `table th{16px !important}` thắng cỡ 14 của component ở
+  mọi bảng PC 8 màn (kể cả Khảo sát); sửa ở component = đổi 8 màn, chưa duyệt. Sửa component tiêu đề trang PC làm **Khảo
+  sát PC** tiêu đề 700→800 (đúng số component). Hàng `<a>` Đổi trả + thẻ Thi mobile chữ thừa kế #243742→#111827. Nhãn chuyển
+  khoản cao +2.5px (thẻ vẫn 150px). cstyle khoá phần tử theo class ⇒ thêm class marker phải chuẩn hoá khoá khi so (cd2.py).
+  7 guard cũ (C8/D3/D5) sửa theo rule/call site đã xoá.
+- Nợ để lại (FR-B): (1) cỡ đầu bảng PC 16 vs 14; (2) bề mặt không bấm được vẫn có hover qua marker để giữ 0 khác —
+  `wujia-mdash-card` ×33 (card thông tin), hàng `div.wujia-mdash-row` Home/Hỗ trợ/Thông tin cửa hàng, skeleton giao hàng,
+  `div.wujia-mhome-kpi`.
+- Phiên kế: ★FR-B — review toàn khối B (F2+F3+F4), prompt §3 "Prompt phiên review ★".

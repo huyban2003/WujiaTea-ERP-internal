@@ -1,6 +1,6 @@
 {
     'name': 'Wujia Portal — Sale (Catalog + Cart)',
-    'version': '19.0.4.17.1',
+    'version': '19.0.4.17.2',
     'category': 'Wujia',
     'summary': 'Trang đặt hàng portal — catalog + giỏ hàng chung theo cửa hàng (BA controller mapping)',
     'author': 'WujiaTea',

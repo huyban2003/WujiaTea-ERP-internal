@@ -74,13 +74,13 @@
                             <div class="wujia-mcart-row-controls">
                                 <div class="wujia-mcart-stepper">
                                     <button type="button"
-                                            class="wujia-mcart-step wujia-mcart-step-minus"
+                                            class="wujia-mcart-step wujia-mcart-step-minus wj-state-surface"
                                             t-att-data-line-id="line['line_id']">−</button>
                                     <span class="wujia-mcart-step-qty"
                                           t-att-data-line-id="line['line_id']"
                                           t-out="line['qty']"/>
                                     <button type="button"
-                                            class="wujia-mcart-step wujia-mcart-step-plus"
+                                            class="wujia-mcart-step wujia-mcart-step-plus wj-state-surface"
                                             t-att-data-line-id="line['line_id']">+</button>
                                 </div>
                                 <div class="wujia-mcart-row-amount">
@@ -91,7 +91,7 @@
                                 </div>
                             </div>
                         </div>
-                        <button type="button" class="wujia-mcart-del"
+                        <button type="button" class="wujia-mcart-del wj-state-surface"
                                 t-att-data-line-id="line['line_id']">
                             <i class="feather icon-trash-2"/>
                         </button>

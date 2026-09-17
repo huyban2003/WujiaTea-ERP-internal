@@ -32,13 +32,13 @@
                 <!-- Chips số đếm (clickable filter, luôn hiện màu status) -->
                 <div t-if="view_state == 'list'" class="wj-pc-dlv-chips">
                     <a t-attf-href="/portal/delivery?bs=#{_dq}"
-                       t-attf-class="wj-pc-dlv-chip wj-pc-dlv-chip--going #{'is-active' if not bs else ''}">Tất cả <t t-out="chip_counts.get('all', 0)"/></a>
+                       t-attf-class="wj-pc-dlv-chip wj-state-surface wj-pc-dlv-chip--going #{'is-active' if not bs else ''}">Tất cả <t t-out="chip_counts.get('all', 0)"/></a>
                     <a t-attf-href="/portal/delivery?bs=going#{_dq}"
-                       t-attf-class="wj-pc-dlv-chip wj-pc-dlv-chip--going #{'is-active' if bs == 'going' else ''}">Đang giao <t t-out="chip_counts.get('going', 0)"/></a>
+                       t-attf-class="wj-pc-dlv-chip wj-state-surface wj-pc-dlv-chip--going #{'is-active' if bs == 'going' else ''}">Đang giao <t t-out="chip_counts.get('going', 0)"/></a>
                     <a t-attf-href="/portal/delivery?bs=soon#{_dq}"
-                       t-attf-class="wj-pc-dlv-chip wj-pc-dlv-chip--soon #{'is-active' if bs == 'soon' else ''}">Sắp giao <t t-out="chip_counts.get('soon', 0)"/></a>
+                       t-attf-class="wj-pc-dlv-chip wj-state-surface wj-pc-dlv-chip--soon #{'is-active' if bs == 'soon' else ''}">Sắp giao <t t-out="chip_counts.get('soon', 0)"/></a>
                     <a t-attf-href="/portal/delivery?bs=done#{_dq}"
-                       t-attf-class="wj-pc-dlv-chip wj-pc-dlv-chip--done #{'is-active' if bs == 'done' else ''}">Đã giao <t t-out="chip_counts.get('done', 0)"/></a>
+                       t-attf-class="wj-pc-dlv-chip wj-state-surface wj-pc-dlv-chip--done #{'is-active' if bs == 'done' else ''}">Đã giao <t t-out="chip_counts.get('done', 0)"/></a>
                 </div>
             </div>
 
@@ -200,7 +200,7 @@
                     <t t-set="dl_variant" t-value="'detail-card'"/>
                     <t t-set="dl_class" t-value="'wujia-mdelivery-list'"/>
                     <t t-foreach="[1, 2, 3]" t-as="s">
-                        <div class="wujia-mdelivery-row wujia-mdelivery-skel wj-data-item">
+                        <div class="wujia-mdelivery-row wujia-mdelivery-skel wj-data-item wj-state-surface">
                             <span class="wujia-mdelivery-row-top">
                                 <span class="wujia-mdelivery-row-headmain">
                                     <span class="wujia-mdelivery-skel-bar" style="width:70px;height:10px;"/>
@@ -498,7 +498,7 @@
                 <!-- Batch info -->
                 <t t-call="wujia_portal_layout.wj_surface_card">
                     <t t-set="sc_variant" t-value="'section'"/>
-                    <t t-set="sc_class" t-value="'wujia-mdash-card'"/>
+                    <t t-set="sc_class" t-value="'wujia-mdash-card wj-state-surface'"/>
                     <div class="wujia-mdelivery-inf-top">
                         <span class="wujia-mdelivery-row-label">Chuyến xe</span>
                         <span t-attf-class="wj-status-badge #{m_badge[1]}" t-out="m_badge[0]"/>
@@ -519,7 +519,7 @@
                 <div class="wujia-mdelivery-sectiontop">Thông tin chuyến</div>
                 <t t-call="wujia_portal_layout.wj_surface_card">
                     <t t-set="sc_variant" t-value="'section'"/>
-                    <t t-set="sc_class" t-value="'wujia-mdash-card'"/>
+                    <t t-set="sc_class" t-value="'wujia-mdash-card wj-state-surface'"/>
                     <div class="wujia-mdelivery-inforow">
                         <span class="lbl">Đơn liên quan</span>
                         <span class="val" t-out="m_orders"/>

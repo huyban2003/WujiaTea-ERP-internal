@@ -14,7 +14,7 @@
             <!-- get_home_debt_kpi (KHÔNG phải get_shell_badge): thêm 1 count để phân biệt
                  "chưa có dữ liệu" (—) với 0đ thật — chỉ chạy ở Home, xem docstring. -->
             <t t-set="_debt_kpi" t-value="request.env['wujia.portal.debt'].get_home_debt_kpi()"/>
-            <a href="/portal/debt" class="wujia-mhome-kpi">
+            <a href="/portal/debt" class="wujia-mhome-kpi wj-state-surface">
                 <span class="wujia-mhome-kpi-label">Công nợ</span>
                 <span class="wujia-mhome-kpi-value" t-out="_debt_kpi['remaining_label']"/>
             </a>

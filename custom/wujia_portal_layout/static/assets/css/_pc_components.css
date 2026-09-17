@@ -54,6 +54,8 @@
 .wj-pc-badge--done    { background: var(--wj-pc-green-soft);  color: var(--wj-pc-green); }
 .wj-pc-badge--pending { background: var(--wj-pc-gray-soft);   color: var(--wj-pc-muted); }
 .wj-pc-badge--cancel  { background: var(--wj-pc-red-soft);    color: var(--wj-pc-red); }
+/* F4 — chip gọn (~20px) cho danh sách dày, vd popup chuông thông báo. */
+.wj-pc-badge--sm { height: auto; padding: 3px 8px; font-size: 11px; line-height: 1.35; }
 
 /* ---------- Page header (title 30/800 + breadcrumb + actions) — SVG PageHeader ---------- */
 .wj-pc-page-header {
@@ -72,6 +74,9 @@
     margin: 0;
     line-height: 1.2;
 }
+/* F4: `.content-wrapper h1{font-weight:700 !important}` là (0,1,1) — thắng rule trên (0,1,0)
+   ⇒ bám thêm vỏ để số 800 đã khai thật sự áp. */
+.wj-pc-page-header .wj-pc-page-header__title { font-weight: 800 !important; }
 .wj-pc-page-header__crumb {
     font-size: 14px;
     font-weight: 500;
@@ -247,6 +252,7 @@
    trong phạm vi component, không sửa file shell (L4). */
 select.wj-pc-control,
 select.wj-pc-filter-control { padding: 0 16px !important; }
+select.wj-pc-filter-control { cursor: pointer; }
 .wj-pc-control {
     height: var(--wj-pc-input-h);
     border: 1px solid var(--wj-pc-border);

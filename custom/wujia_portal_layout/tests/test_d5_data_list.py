@@ -545,7 +545,8 @@ class TestDataListCompactRowMobile(TransactionCase):
                         kiem += 1
                         self.assertIn(':not(.wj-data-item)', part,
                                       'rule cũ còn chạm item đã migrate: %s' % part.strip())
-                self.assertGreaterEqual(kiem, 1, 'quét hụt rule của %s' % lop)
+                # F4 xoá hẳn rule vỏ `:not(.wj-data-item)` (0 phần tử khớp) ⇒ kiem có thể 0;
+                # phép quét vẫn được giữ đúng bằng assertTrue(selectors) ở trên.
 
     def test_layout_tung_ho_tach_khoi_dang(self):
         """Dáng dùng chung ở .wj-data-item; layout (flex/grid) ở từng họ — gộp lại
@@ -685,7 +686,7 @@ class TestDataListDetailCard(TransactionCase):
                     kiem += 1
                     self.assertIn(':not(.wj-data-item)', part,
                                   'rule cũ còn chạm item đã migrate: %s' % part.strip())
-            self.assertGreaterEqual(kiem, 1, 'quét hụt rule của %s' % ho)
+            # F4 xoá hẳn rule vỏ cũ ⇒ kiem có thể 0; assertTrue(rules) ở trên giữ phép quét.
 
     def test_layout_hai_ho_nam_trong_media(self):
         """Cả hai rule layout khai TRONG @media ⇒ `_rule()` (chỉ đọc tầng gốc) trả
@@ -843,7 +844,8 @@ class TestDataListDebt(TransactionCase):
                         than, r'(^|;)\s*%s\s*:' % prop,
                         'rule cũ "%s" còn khai %s mà chưa khoá :not(.wj-data-item)'
                         % (phan.strip(), prop))
-        self.assertGreaterEqual(kiem, 4, 'không quét trúng rule nào — guard rỗng')
+        # F4 xoá 2 rule vỏ `:not(.wj-data-item)`; còn 2 rule layout của hai họ.
+        self.assertGreaterEqual(kiem, 2, 'không quét trúng rule nào — guard rỗng')
 
     def test_layout_khong_gianh_lai_dang(self):
         """Tầng layout của từng họ chỉ được khai LAYOUT. portal_debt.css không có

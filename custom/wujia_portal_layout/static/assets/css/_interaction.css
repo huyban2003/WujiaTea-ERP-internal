@@ -19,11 +19,11 @@ a:not(.wj-link):active {
 }
 
 /* Chữ chạy do người dùng nhập (bài kiến thức, bong bóng chat) và inline text
-   link thật thì VẪN gạch chân. Cùng specificity (0,2,1) với rule trên nên bắt
+   link thật thì VẪN gạch chân. Vùng chữ tự do đánh dấu bằng class `wj-richtext` (F4). Cùng specificity (0,2,1) với rule trên nên bắt
    buộc đứng sau. */
-:is(.article-content, .wujia-mknow-body, .wujia-mticket-bubble) a,
-:is(.article-content, .wujia-mknow-body, .wujia-mticket-bubble) a:hover,
-:is(.article-content, .wujia-mknow-body, .wujia-mticket-bubble) a:focus,
+.wj-richtext a,
+.wj-richtext a:hover,
+.wj-richtext a:focus,
 a.wj-link:hover,
 a.wj-pc-link:hover {
     text-decoration: underline;
@@ -53,30 +53,22 @@ textarea:not([disabled]):not([readonly]):focus-visible {
 /* Pager KHÔNG có mặt trong ba danh sách dưới: `.wj-pagination__btn` tự khai hover/
    pressed/disabled trong `_components.css` (CMP-PGNT-001). Hai họ pager cũ đã đi hết,
    chỉ còn nhóm Khảo sát (defer) nên giữ đúng phạm vi `.wj-inspection-pc`. */
-/* Danh sách lấy từ kiểm kê bằng máy 22 route × 2 breakpoint. Chỉ gồm bề mặt
+/* F4: danh sách theo COMPONENT, không theo tên màn. Bề mặt riêng màn chưa có component
+   (thẻ KPI Home, tab/chip/nút bước giỏ…) gắn class đánh dấu `wj-state-surface` ở XML của
+   module. `:not(.is-disabled)` đệm đặc hiệu về (0,3,0) như trước F4 — đo bằng cstyle, không suy luận.
+   Nhóm Khảo sát (`.wj-inspection-pc .wj-pc-page-btn`) tách rule riêng ở cuối khối.
+   Danh sách gốc lấy từ kiểm kê bằng máy 22 route × 2 breakpoint. Chỉ gồm bề mặt
    trắng/trong suốt đóng vai card / row / menu / tab / pagination / chip-chưa-chọn
    / icon-button. Nút primary-CTA, chip ĐANG chọn và action trên thanh header tối
    giữ nguyên trạng thái đã thiết kế theo Figma. */
 
 :is(
-    /* card + row */
-    .wujia-mhome-kpi, .wujia-mhome-action,
-    .wujia-mdash-card, .wujia-mdash-row, .wujia-mdelivery-row, .wujia-mexam-card,
-    .wujia-mhist-row, .wujia-mknow-feat, .wujia-mknow-row, .wujia-mnoti-row,
-    .wujia-mreturn-row, .wj-debt-actionrow, .wujia-kpi-card-link,
-    /* menu / tab / pagination */
-    .wj-pc-acct-nav__item:not(.is-active), .wj-debt-pc-tab:not(.is-active),
-    .wj-inspection-pc .wj-pc-page-btn:not(.is-active):not(.is-disabled), .page-link,
-    .wujia-store-mobile-strip--clickable,
-    /* chip chưa chọn */
-    .wj-filter-chip:not(.is-active), .wj-pc-dlv-chip:not(.is-active),
-    /* nút phụ + icon button */
-    .wj-pc-btn--secondary, .wj-page-header__back, .wujia-mreturn-btn-cancel,
-    .wj-pc-acct-eye, .wujia-maccount-eye, .wj-pc-cart-step, .wj-pc-cart-del,
-    .wujia-mcart-step, .wujia-mcart-del, .wujia-morder-mstep, .wujia-morder-row-add,
-    .wj-filter-search-btn, .wujia-morder-search-btn, .wj-exam-pc-navbtn,
-    .wj-debt-pc-pdf
-) {
+    a.wj-data-item, .wj-state-surface:not(.is-active),
+    .wj-pc-acct-nav__item:not(.is-active), .page-link,
+    .wj-filter-chip:not(.is-active), .wj-filter-search-btn,
+    .wj-pc-btn--secondary, .wj-page-header__back,
+    .wj-pc-acct-eye, .wujia-maccount-eye
+):not(.is-disabled) {
     transition: background-color var(--wujia-state-transition),
                 border-color var(--wujia-state-transition),
                 box-shadow var(--wujia-state-transition);
@@ -85,20 +77,12 @@ textarea:not([disabled]):not([readonly]):focus-visible {
 
 @media (hover: hover) and (pointer: fine) {
     :is(
-        .wujia-mhome-kpi, .wujia-mhome-action,
-        .wujia-mdash-card, .wujia-mdash-row, .wujia-mdelivery-row, .wujia-mexam-card,
-        .wujia-mhist-row, .wujia-mknow-feat, .wujia-mknow-row, .wujia-mnoti-row,
-        .wujia-mreturn-row, .wj-debt-actionrow, .wujia-kpi-card-link,
-        .wj-pc-acct-nav__item:not(.is-active), .wj-debt-pc-tab:not(.is-active),
-        .wj-inspection-pc .wj-pc-page-btn:not(.is-active):not(.is-disabled), .page-link,
-        .wujia-store-mobile-strip--clickable,
-        .wj-filter-chip:not(.is-active), .wj-pc-dlv-chip:not(.is-active),
-        .wj-pc-btn--secondary, .wj-page-header__back, .wujia-mreturn-btn-cancel,
-        .wj-pc-acct-eye, .wujia-maccount-eye, .wj-pc-cart-step, .wj-pc-cart-del,
-        .wujia-mcart-step, .wujia-mcart-del, .wujia-morder-mstep, .wujia-morder-row-add,
-        .wj-filter-search-btn, .wujia-morder-search-btn, .wj-exam-pc-navbtn,
-        .wj-debt-pc-pdf
-    ):hover {
+    a.wj-data-item, .wj-state-surface:not(.is-active),
+    .wj-pc-acct-nav__item:not(.is-active), .page-link,
+    .wj-filter-chip:not(.is-active), .wj-filter-search-btn,
+    .wj-pc-btn--secondary, .wj-page-header__back,
+    .wj-pc-acct-eye, .wujia-maccount-eye
+):not(.is-disabled):hover {
         background-color: var(--wujia-primary-soft);
         border-color: var(--wujia-primary);
         box-shadow: var(--wujia-hover-shadow);
@@ -108,20 +92,32 @@ textarea:not([disabled]):not([readonly]):focus-visible {
 /* Pressed — không bọc media query để thiết bị chạm cũng có phản hồi. Không
    shadow: chạm là trạng thái tức thời, đổi nền/viền là đủ. */
 :is(
-    .wujia-mhome-kpi, .wujia-mhome-action,
-    .wujia-mdash-card, .wujia-mdash-row, .wujia-mdelivery-row, .wujia-mexam-card,
-    .wujia-mhist-row, .wujia-mknow-feat, .wujia-mknow-row, .wujia-mnoti-row,
-    .wujia-mreturn-row, .wj-debt-actionrow, .wujia-kpi-card-link,
-    .wj-pc-acct-nav__item:not(.is-active), .wj-debt-pc-tab:not(.is-active),
-    .wj-inspection-pc .wj-pc-page-btn:not(.is-active):not(.is-disabled), .page-link,
-    .wujia-store-mobile-strip--clickable,
-    .wj-filter-chip:not(.is-active), .wj-pc-dlv-chip:not(.is-active),
-    .wj-pc-btn--secondary, .wj-page-header__back, .wujia-mreturn-btn-cancel,
-    .wj-pc-acct-eye, .wujia-maccount-eye, .wj-pc-cart-step, .wj-pc-cart-del,
-    .wujia-mcart-step, .wujia-mcart-del, .wujia-morder-mstep, .wujia-morder-row-add,
-    .wj-filter-search-btn, .wujia-morder-search-btn, .wj-exam-pc-navbtn,
-    .wj-debt-pc-pdf
-):active {
+    a.wj-data-item, .wj-state-surface:not(.is-active),
+    .wj-pc-acct-nav__item:not(.is-active), .page-link,
+    .wj-filter-chip:not(.is-active), .wj-filter-search-btn,
+    .wj-pc-btn--secondary, .wj-page-header__back,
+    .wj-pc-acct-eye, .wujia-maccount-eye
+):not(.is-disabled):active {
+    background-color: var(--wujia-primary-light);
+    border-color: var(--wujia-primary);
+}
+
+
+/* Pager cũ nhóm Khảo sát (defer) — tách khỏi danh sách trên để không kéo đặc hiệu cả khối. */
+.wj-inspection-pc .wj-pc-page-btn:not(.is-active):not(.is-disabled) {
+    transition: background-color var(--wujia-state-transition),
+                border-color var(--wujia-state-transition),
+                box-shadow var(--wujia-state-transition);
+    -webkit-tap-highlight-color: transparent;
+}
+@media (hover: hover) and (pointer: fine) {
+    .wj-inspection-pc .wj-pc-page-btn:not(.is-active):not(.is-disabled):hover {
+        background-color: var(--wujia-primary-soft);
+        border-color: var(--wujia-primary);
+        box-shadow: var(--wujia-hover-shadow);
+    }
+}
+.wj-inspection-pc .wj-pc-page-btn:not(.is-active):not(.is-disabled):active {
     background-color: var(--wujia-primary-light);
     border-color: var(--wujia-primary);
 }

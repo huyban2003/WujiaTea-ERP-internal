@@ -211,18 +211,6 @@
 
 /* ---------- Card hoá đơn (359×62, gap 6) ---------- */
 .wj-debt-invoices { display: flex; flex-direction: column; gap: 6px; }
-/* D5g: hàng đã migrate lấy dáng ở .wj-data-item; rule cũ chỉ còn cho hàng chưa migrate. */
-.wj-debt-inv:not(.wj-data-item) {
-    display: grid;
-    grid-template-columns: 1fr auto;
-    align-items: center;
-    row-gap: 4px;
-    column-gap: 8px;
-    height: 62px;
-    padding: 0 16px 0 14px;
-    background: var(--wj-debt-card-bg);
-    border-radius: var(--wj-debt-radius);
-}
 /* D5g — LAYOUT của họ hoá đơn; dáng (padding/nền/viền/radius) ở tầng .wj-data-item. */
 .wj-data-list--compact-row .wj-debt-inv.wj-data-item {
     display: grid;
@@ -243,10 +231,6 @@
 
 /* ---------- Empty state (359×224) ---------- */
 .wj-debt-empty { min-height: 224px; justify-content: center; padding: 22px 18px; }
-.wj-debt-empty .wj-empty-state-icon { width: 68px; height: 68px; margin-bottom: 9px; background: var(--wj-debt-soft); }
-.wj-debt-empty .wj-empty-state-icon > i { font-size: 27px; }
-.wj-debt-empty .wj-empty-state-title { font-size: 19px; }
-.wj-debt-empty .wj-empty-state-sub { font-size: 12.5px; }
 
 /* ---------- 06 — Banner + card thanh toán ---------- */
 .wj-debt-banner {
@@ -280,18 +264,6 @@
 #wj-debt-hist-mbody { display: flex; flex-direction: column; gap: 12px; }
 
 .wj-debt-payments { display: flex; flex-direction: column; gap: 12px; }
-/* D5g: xem ghi chú ở .wj-debt-inv — cùng kiến trúc hai tầng. */
-.wj-debt-pay:not(.wj-data-item) {
-    display: grid;
-    grid-template-columns: 1fr auto;
-    align-content: center;
-    row-gap: 5px;
-    column-gap: 8px;
-    height: 96px;
-    padding: 0 16px 0 14px;
-    background: var(--wj-debt-card-bg);
-    border-radius: var(--wj-debt-radius);
-}
 /* D5g — LAYOUT của họ thanh toán; dáng ở tầng .wj-data-item (variant detail-card). */
 .wj-data-list--detail-card .wj-debt-pay.wj-data-item {
     display: grid;
@@ -340,15 +312,7 @@
     background: var(--wj-debt-card-bg);
     border-radius: var(--wj-debt-radius);
 }
-/* Tiêu đề khối này đi qua CMP-SH-001 (C8b) nhưng giữ dáng nhãn: thẻ cao cố định 150px,
-   ép 20/28 của component là tràn. Chờ BA chốt đây là tiêu đề thẻ hay tiêu đề khối. */
-.wj-debt-bank .wj-section-header { margin-bottom: 8px; }
-.wj-debt-bank .wj-section-header__title {
-    font-size: 11px !important;
-    line-height: normal;
-    letter-spacing: 0.02em;
-    color: var(--wj-debt-muted);
-}
+/* F4: nhãn "THÔNG TIN CHUYỂN KHOẢN" nằm TRONG thẻ ⇒ CardHeader biến thể `--eyebrow` (layout). */
 .wj-debt-bank__row { display: flex; align-items: center; gap: 8px; min-height: 26px; }
 .wj-debt-bank__label { flex: 0 0 auto; font-size: 12px; font-weight: 400; color: var(--wj-debt-muted); }
 .wj-debt-bank__value {
@@ -699,6 +663,7 @@
 }
 
 /* ---------- CMP-CH-001 (D3f) ---------- */
+/* F4(c): giữ — ngoại lệ màu warn-strong đã ghi ở đầu file (Figma S43, hộp 52px). */
 /* Nhãn cảnh báo trong hộp hint cao 52px của Figma S43: cỡ 11.5px là THIẾT KẾ
    (hộp chỉ 52px, lấy 18px của component là vỡ), nên giữ bằng rule scope.
    Cần `.wj-debt-hint` phía trước để thắng rule biến thể (0,3,0) của component ở
@@ -718,10 +683,4 @@
     height: 15px;
     align-items: flex-start;
 }
-.wj-debt-summary__head .wj-card-header.wj-debt-summary__hb .wj-card-header__title {
-    font-size: 11px !important;
-    font-weight: 700;
-    line-height: 1.5;              /* = 16.5px, đúng bằng dáng cũ */
-    letter-spacing: .02em;
-    color: var(--wj-debt-muted) !important;
-}
+/* F4: dáng nhãn 11px viết hoa = biến thể chung `wj-card-header--eyebrow` (layout). */

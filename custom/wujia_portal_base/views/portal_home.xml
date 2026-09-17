@@ -32,7 +32,7 @@
                                 <t t-call="wujia_portal_layout.wj_surface_card">
                                     <t t-set="sc_variant" t-value="'summary'"/>
                                     <t t-set="sc_href" t-value="'/portal/notification'"/>
-                                    <t t-set="sc_link_class" t-value="'wujia-kpi-card-link'"/>
+                                    <t t-set="sc_link_class" t-value="'wujia-kpi-card-link wj-state-surface'"/>
                                     <t t-set="sc_class" t-value="'wujia-kpi-card'"/>
                                     <div class="wujia-kpi-icon wujia-kpi-icon-primary">
                                         <i class="fa fa-bell"/>
@@ -53,7 +53,7 @@
                                 <t t-call="wujia_portal_layout.wj_surface_card">
                                     <t t-set="sc_variant" t-value="'summary'"/>
                                     <t t-set="sc_href" t-value="'/portal/purchase-history'"/>
-                                    <t t-set="sc_link_class" t-value="'wujia-kpi-card-link'"/>
+                                    <t t-set="sc_link_class" t-value="'wujia-kpi-card-link wj-state-surface'"/>
                                     <t t-set="sc_class" t-value="'wujia-kpi-card'"/>
                                     <div class="wujia-kpi-icon wujia-kpi-icon-info">
                                         <i class="fa fa-shopping-cart"/>
@@ -74,7 +74,7 @@
                                 <t t-call="wujia_portal_layout.wj_surface_card">
                                     <t t-set="sc_variant" t-value="'summary'"/>
                                     <t t-set="sc_href" t-value="'/portal/purchase-history'"/>
-                                    <t t-set="sc_link_class" t-value="'wujia-kpi-card-link'"/>
+                                    <t t-set="sc_link_class" t-value="'wujia-kpi-card-link wj-state-surface'"/>
                                     <t t-set="sc_class" t-value="'wujia-kpi-card'"/>
                                     <div class="wujia-kpi-icon wujia-kpi-icon-warning">
                                         <i class="fa fa-clock-o"/>
@@ -95,7 +95,7 @@
                                 <t t-call="wujia_portal_layout.wj_surface_card">
                                     <t t-set="sc_variant" t-value="'summary'"/>
                                     <t t-set="sc_href" t-value="'/portal/return'"/>
-                                    <t t-set="sc_link_class" t-value="'wujia-kpi-card-link'"/>
+                                    <t t-set="sc_link_class" t-value="'wujia-kpi-card-link wj-state-surface'"/>
                                     <t t-set="sc_class" t-value="'wujia-kpi-card'"/>
                                     <div class="wujia-kpi-icon wujia-kpi-icon-danger">
                                         <i class="fa fa-undo"/>
@@ -299,15 +299,15 @@
                             </div>
                             <!-- 4 KPI nhúng (Đơn hàng / Thông báo / Đổi trả / Công nợ) -->
                             <div class="wujia-mhome-hero-kpis">
-                                <a href="/portal/purchase-history" class="wujia-mhome-kpi">
+                                <a href="/portal/purchase-history" class="wujia-mhome-kpi wj-state-surface">
                                     <span class="wujia-mhome-kpi-label">Đơn hàng</span>
                                     <span class="wujia-mhome-kpi-value" t-out="recent_orders_count or 0"/>
                                 </a>
-                                <a href="/portal/notification" class="wujia-mhome-kpi">
+                                <a href="/portal/notification" class="wujia-mhome-kpi wj-state-surface">
                                     <span class="wujia-mhome-kpi-label">Thông báo</span>
                                     <span class="wujia-mhome-kpi-value" t-out="unread_count or 0"/>
                                 </a>
-                                <a href="/portal/return" class="wujia-mhome-kpi">
+                                <a href="/portal/return" class="wujia-mhome-kpi wj-state-surface">
                                     <span class="wujia-mhome-kpi-label">Đổi trả</span>
                                     <span class="wujia-mhome-kpi-value" t-out="return_requests_count or 0"/>
                                 </a>
@@ -315,7 +315,7 @@
                                      inherit thay bằng link + số thật). Không có nguồn ⇒ "—" chứ
                                      KHÔNG in 0đ: 0 là một giá trị kế toán, thiếu dữ liệu thì không
                                      được hiểu thành đã trả hết (STT11 acceptance #5). -->
-                                <div class="wujia-mhome-kpi">
+                                <div class="wujia-mhome-kpi wj-state-surface">
                                     <span class="wujia-mhome-kpi-label">Công nợ</span>
                                     <span class="wujia-mhome-kpi-value">—</span>
                                 </div>
@@ -357,27 +357,27 @@
                                 <t t-set="sh_platform" t-value="'m'"/>
                             </t>
                             <div class="wujia-mhome-actions-grid">
-                                <a href="/portal/order" class="wujia-mhome-action">
+                                <a href="/portal/order" class="wujia-mhome-action wj-state-surface">
                                     <span class="wujia-mhome-action-icon"><i class="feather icon-shopping-cart"/></span>
                                     <span class="wujia-mhome-action-label">Đặt hàng</span>
                                 </a>
-                                <a href="/portal/purchase-history" class="wujia-mhome-action">
+                                <a href="/portal/purchase-history" class="wujia-mhome-action wj-state-surface">
                                     <span class="wujia-mhome-action-icon"><i class="feather icon-clock"/></span>
                                     <span class="wujia-mhome-action-label">Lịch sử đặt hàng</span>
                                 </a>
-                                <a href="/portal/delivery" class="wujia-mhome-action">
+                                <a href="/portal/delivery" class="wujia-mhome-action wj-state-surface">
                                     <span class="wujia-mhome-action-icon"><i class="feather icon-truck"/></span>
                                     <span class="wujia-mhome-action-label">Giao hàng</span>
                                 </a>
-                                <a href="/portal/return" class="wujia-mhome-action">
+                                <a href="/portal/return" class="wujia-mhome-action wj-state-surface">
                                     <span class="wujia-mhome-action-icon"><i class="feather icon-corner-up-left"/></span>
                                     <span class="wujia-mhome-action-label">Đổi trả</span>
                                 </a>
-                                <a href="/portal/knowledge" class="wujia-mhome-action">
+                                <a href="/portal/knowledge" class="wujia-mhome-action wj-state-surface">
                                     <span class="wujia-mhome-action-icon"><i class="feather icon-book"/></span>
                                     <span class="wujia-mhome-action-label">Kiến thức</span>
                                 </a>
-                                <a href="/portal/support" class="wujia-mhome-action">
+                                <a href="/portal/support" class="wujia-mhome-action wj-state-surface">
                                     <span class="wujia-mhome-action-icon"><i class="feather icon-life-buoy"/></span>
                                     <span class="wujia-mhome-action-label">Hỗ trợ</span>
                                 </a>
@@ -403,7 +403,7 @@
                             <t t-call="wujia_portal_layout.wj_surface_card" t-else="">
                                 <t t-set="sc_variant" t-value="'section'"/>
                                 <t t-set="sc_body" t-value="'flush'"/>
-                                <t t-set="sc_class" t-value="'wujia-mdash-card wujia-mdash-list wj-surface-card--listwrap'"/>
+                                <t t-set="sc_class" t-value="'wujia-mdash-card wujia-mdash-list wj-surface-card--listwrap wj-state-surface'"/>
                                 <t t-call="wujia_portal_layout.wj_data_list">
                                     <t t-set="dl_variant" t-value="'compact-row'"/>
                                     <t t-foreach="latest_notifications" t-as="noti">
@@ -454,7 +454,7 @@
                             <t t-call="wujia_portal_layout.wj_surface_card" t-else="">
                                 <t t-set="sc_variant" t-value="'section'"/>
                                 <t t-set="sc_body" t-value="'flush'"/>
-                                <t t-set="sc_class" t-value="'wujia-mdash-card wujia-mdash-list wj-surface-card--listwrap'"/>
+                                <t t-set="sc_class" t-value="'wujia-mdash-card wujia-mdash-list wj-surface-card--listwrap wj-state-surface'"/>
                                 <t t-call="wujia_portal_layout.wj_data_list">
                                     <t t-set="dl_variant" t-value="'compact-row'"/>
                                     <t t-foreach="m_upcoming_batches" t-as="it">
@@ -495,7 +495,7 @@
                             <t t-call="wujia_portal_layout.wj_surface_card" t-else="">
                                 <t t-set="sc_variant" t-value="'section'"/>
                                 <t t-set="sc_body" t-value="'flush'"/>
-                                <t t-set="sc_class" t-value="'wujia-mdash-card wujia-mdash-list wj-surface-card--listwrap'"/>
+                                <t t-set="sc_class" t-value="'wujia-mdash-card wujia-mdash-list wj-surface-card--listwrap wj-state-surface'"/>
                                 <t t-call="wujia_portal_layout.wj_data_list">
                                     <t t-set="dl_variant" t-value="'compact-row'"/>
                                     <t t-foreach="recent_orders" t-as="o">
@@ -537,7 +537,7 @@
                             <t t-call="wujia_portal_layout.wj_surface_card" t-else="">
                                 <t t-set="sc_variant" t-value="'section'"/>
                                 <t t-set="sc_body" t-value="'flush'"/>
-                                <t t-set="sc_class" t-value="'wujia-mdash-card wujia-mdash-list wj-surface-card--listwrap'"/>
+                                <t t-set="sc_class" t-value="'wujia-mdash-card wujia-mdash-list wj-surface-card--listwrap wj-state-surface'"/>
                                 <t t-call="wujia_portal_layout.wj_data_list">
                                     <t t-set="dl_variant" t-value="'compact-row'"/>
                                     <t t-foreach="articles" t-as="art">
@@ -573,7 +573,7 @@
                             <t t-call="wujia_portal_layout.wj_surface_card" t-else="">
                                 <t t-set="sc_variant" t-value="'section'"/>
                                 <t t-set="sc_body" t-value="'flush'"/>
-                                <t t-set="sc_class" t-value="'wujia-mdash-card wujia-mdash-list wj-surface-card--listwrap'"/>
+                                <t t-set="sc_class" t-value="'wujia-mdash-card wujia-mdash-list wj-surface-card--listwrap wj-state-surface'"/>
                                 <t t-call="wujia_portal_layout.wj_data_list">
                                     <t t-set="dl_variant" t-value="'compact-row'"/>
                                     <t t-foreach="latest_returns" t-as="r">
@@ -608,22 +608,22 @@
                             <t t-call="wujia_portal_layout.wj_surface_card">
                                 <t t-set="sc_variant" t-value="'section'"/>
                                 <t t-set="sc_body" t-value="'flush'"/>
-                                <t t-set="sc_class" t-value="'wujia-mdash-card wujia-mdash-list'"/>
-                                <a href="/portal/support/new" class="wujia-mdash-row">
+                                <t t-set="sc_class" t-value="'wujia-mdash-card wujia-mdash-list wj-state-surface'"/>
+                                <a href="/portal/support/new" class="wujia-mdash-row wj-state-surface">
                                     <span class="wujia-mdash-tile"><i class="feather icon-headphones"/></span>
                                     <span class="wujia-mdash-row-main">
                                         <span class="wujia-mdash-row-title is-sm">Tạo yêu cầu hỗ trợ</span>
                                         <span class="wujia-mdash-row-sub">Gửi yêu cầu và theo dõi phản hồi</span>
                                     </span>
                                 </a>
-                                <a t-attf-href="tel:#{m_hotline or ''}" class="wujia-mdash-row">
+                                <a t-attf-href="tel:#{m_hotline or ''}" class="wujia-mdash-row wj-state-surface">
                                     <span class="wujia-mdash-tile"><i class="feather icon-phone-call"/></span>
                                     <span class="wujia-mdash-row-main">
                                         <span class="wujia-mdash-row-title is-sm">Gọi hotline</span>
                                         <span class="wujia-mdash-row-sub is-primary" t-out="m_hotline or '—'"/>
                                     </span>
                                 </a>
-                                <a href="#" class="wujia-mdash-row">
+                                <a href="#" class="wujia-mdash-row wj-state-surface">
                                     <span class="wujia-mdash-tile"><i class="feather icon-message-circle"/></span>
                                     <span class="wujia-mdash-row-main">
                                         <span class="wujia-mdash-row-title is-sm">Chat với chúng tôi</span>
@@ -643,22 +643,22 @@
                             <t t-call="wujia_portal_layout.wj_surface_card">
                                 <t t-set="sc_variant" t-value="'section'"/>
                                 <t t-set="sc_body" t-value="'flush'"/>
-                                <t t-set="sc_class" t-value="'wujia-mdash-card wujia-mdash-list'"/>
-                                <div class="wujia-mdash-row">
+                                <t t-set="sc_class" t-value="'wujia-mdash-card wujia-mdash-list wj-state-surface'"/>
+                                <div class="wujia-mdash-row wj-state-surface">
                                     <span class="wujia-mdash-ico"><i class="feather icon-map-pin"/></span>
                                     <span class="wujia-mdash-row-main">
                                         <span class="wujia-mdash-row-sub">Địa chỉ</span>
                                         <span class="wujia-mdash-row-sub is-strong" t-out="active_franchise.address or '—'"/>
                                     </span>
                                 </div>
-                                <div class="wujia-mdash-row">
+                                <div class="wujia-mdash-row wj-state-surface">
                                     <span class="wujia-mdash-ico"><i class="feather icon-phone"/></span>
                                     <span class="wujia-mdash-row-main">
                                         <span class="wujia-mdash-row-sub">Điện thoại</span>
                                         <span class="wujia-mdash-row-sub is-strong" t-out="active_franchise.phone or '—'"/>
                                     </span>
                                 </div>
-                                <div class="wujia-mdash-row">
+                                <div class="wujia-mdash-row wj-state-surface">
                                     <span class="wujia-mdash-ico"><i class="feather icon-user"/></span>
                                     <span class="wujia-mdash-row-main">
                                         <span class="wujia-mdash-row-sub">Người phụ trách</span>

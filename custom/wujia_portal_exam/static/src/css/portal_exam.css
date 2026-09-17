@@ -165,17 +165,6 @@
 
     /* ================= s1 — Chọn khóa thi ================= */
     .wujia-mexam-courselist { display: flex; flex-direction: column; gap: 12px; }
-    /* D5h: dáng sang .wj-data-item của variant; rule cũ khoá lại, chỉ còn layout. */
-    .wujia-mexam-course:not(.wj-data-item) {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        gap: 12px;
-        background: #FFFFFF;
-        border: 1px solid var(--wujia-border-soft);
-        border-radius: 14px;
-        padding: 16px;
-    }
     .wj-data-list--detail-card .wujia-mexam-course.wj-data-item {
         display: flex;
         align-items: center;
@@ -570,16 +559,6 @@
         color: var(--wujia-text-subtitle);
     }
     .wujia-mexam-rlist { display: flex; flex-direction: column; gap: 10px; }
-    /* D5h: dáng sang .wj-data-item của variant; rule cũ khoá lại, chỉ còn layout. */
-    .wujia-mexam-rrow:not(.wj-data-item) {
-        display: flex;
-        align-items: center;
-        gap: 12px;
-        background: #FFFFFF;
-        border: 1px solid var(--wujia-border-soft);
-        border-radius: 14px;
-        padding: 12px 14px;
-    }
     .wj-data-list--compact-row .wujia-mexam-rrow.wj-data-item {
         display: flex;
         align-items: center;
@@ -684,14 +663,6 @@
 
     /* ---------- Chung ---------- */
     .wj-exam-pc .wj-pc-page-header { margin-bottom: 25px; }
-    .wj-exam-pc .wj-pc-page-header__title {
-        /* !important để thắng `h1 {font-size … !important}` (_components.css) và
-           `.content-wrapper h1 {font-weight:700 !important}` (_wujia_theme.css) */
-        font-size: 30px !important;
-        font-weight: 800 !important;   /* UI-PC-BASE-002 */
-    }
-    .wj-exam-pc .wj-pc-page-header__crumb { font-weight: 400; }
-    .wj-exam-pc .wj-pc-btn { font-weight: 700; }
 
     /* ---------- Trung hoà 4 rule global của shell Vuexy ----------
        Các rule dưới đây được ghi đè bằng !important vì shell đặt !important ở
@@ -702,7 +673,6 @@
          bootstrap-extended   label          padding-left: .2rem
        Không sửa 4 file đó vì blast radius là toàn bộ portal; chỉ vô hiệu hoá
        trong phạm vi .wj-exam-pc. Số liệu lấy từ Figma WJ_Exam_PC v1.2. */
-    .wj-exam-pc .wj-pc-card__title      { font-size: 22px !important; }
     /* `wj-exam-pc-sectitle` CHƯA chết: còn 1 call site sống ở portal_exam.xml:398
        ("Người tham gia" — chỗ defer chờ BA, inventory §6) ⇒ giữ nguyên 2 rule này. */
     .wj-exam-pc .wj-exam-pc-sectitle    { font-size: 20px !important; }
@@ -717,6 +687,7 @@
        component, không đẻ số mới).
        Đặc hiệu (0,4,0) + !important: rule component là (0,3,0)!important, viết ngắn
        hơn là THUA — bẫy đặc hiệu đã trả giá 2 lần (D3e §7, D3f). */
+    /* F4(c): giữ — chủ dự án chốt 04/09; màn thứ 2 cần thì nâng thành biến thể CardHeader. */
     .wj-exam-pc .wj-card-header.wj-exam-pc-sechead--sm .wj-card-header__title,
     .wj-exam-pc .wj-card-header.wj-exam-pc-sechead--2 .wj-card-header__title,
     .wj-exam-pc .wj-card-header.wj-exam-pc-slots__head .wj-card-header__title {
@@ -724,6 +695,8 @@
         line-height: 22px;
     }
 
+    /* F4(c) nợ FR-B: Vuexy `table th{16px !important}` nuốt cỡ 14 của component ở MỌI bảng PC
+       (đo 17/09: 8 màn đang 16px, gồm Khảo sát). Sửa ở component là đổi 8 màn ⇒ để FR-B quyết. */
     .wj-exam-pc .wj-pc-table thead th        { font-size: 14px !important; }
     .wj-exam-pc .wj-exam-pc-res-table thead th  { font-size: 13px !important; }
     .wj-exam-pc .wj-exam-pc-part-table thead th,
@@ -771,8 +744,6 @@
     .wj-exam-pc-list-table th:nth-child(6) { width: 11.942%; }
     .wj-exam-pc-list-table th:nth-child(7) { width: 18.766%; }
     .wj-exam-pc-list-table th:nth-child(8) { width: 10.236%; }
-    .wj-exam-pc-list-table .wj-pc-td--code { font-weight: 700; }
-    .wj-exam-pc-list-table .wj-pc-td--muted { font-weight: 400; }
     .wj-exam-pc-list-table td { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
     .wj-exam-pc-list-table td.wj-exam-pc-td--badge { text-overflow: clip; }
     .wj-exam-pc-th--center,
@@ -852,7 +823,6 @@
     .wj-exam-pc-res-table th:nth-child(6) { width: 11.417%; }
     .wj-exam-pc-res-table th:nth-child(7) { width: 29.922%; }
     .wj-exam-pc-td--name { font-weight: 700; }
-    .wj-exam-pc-res-table .wj-pc-td--muted { font-weight: 400; }
     .wj-exam-pc-note { font-size: 13px; color: var(--wj-pc-text); }
     .wj-exam-pc-note--empty { color: var(--wj-pc-subtle); }
 
@@ -1313,9 +1283,9 @@
         border-radius: var(--wj-pc-component-radius);
         overflow: hidden;
     }
+    /* F4(c): bảng trong hộp viền + overflow:hidden ⇒ bo góc đầu bảng thành góc lõm. */
     .wj-exam-pc-tablebox .wj-pc-table thead th:first-child,
     .wj-exam-pc-tablebox .wj-pc-table thead th:last-child { border-radius: 0; }
-    .wj-exam-pc-tablebox .wj-pc-table tbody tr:last-child td { border-bottom: 0; }
 
     .wj-exam-pc-part-table { table-layout: fixed; }
     .wj-exam-pc-part-table thead th {
@@ -1335,7 +1305,6 @@
     .wj-exam-pc-part-table th:nth-child(4) { width: 11.027%; }
     .wj-exam-pc-part-table th:nth-child(5) { width: 25.095%; }
     .wj-exam-pc-part-table th:nth-child(6) { width: 8.745%; }
-    .wj-exam-pc-part-table .wj-pc-td--muted { font-weight: 400; }
     .wj-exam-pc-part-table .wj-exam-pc-avatar { width: 38px; height: 38px; }
 
     .wj-exam-pc-photo { display: inline-flex; align-items: center; gap: 8px; }
@@ -1655,7 +1624,6 @@
     .wj-exam-pc-sum-table th:nth-child(2) { width: 29.703%; }
     .wj-exam-pc-sum-table th:nth-child(3) { width: 26.238%; }
     .wj-exam-pc-sum-table th:nth-child(4) { width: 36.634%; }
-    .wj-exam-pc-sum-table .wj-pc-td--muted { font-weight: 400; }
     .wj-exam-pc-avatar--sm { width: 28px; height: 28px; border-radius: 8px; }
     .wj-exam-pc-avatar--sm i { font-size: 14px; }
 

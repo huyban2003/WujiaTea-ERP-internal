@@ -114,7 +114,8 @@ class TestSectionHeaderCallSites(TransactionCase):
         # C8b
         'wujia_portal_debt.portal_debt_overview': 1,
         'wujia_portal_debt.portal_debt_payment_history': 1,
-        'wujia_portal_debt.portal_debt_pay': 1,
+        # F4: nhãn "THÔNG TIN CHUYỂN KHOẢN" nằm trong thẻ ⇒ sang CardHeader --eyebrow.
+        'wujia_portal_debt.portal_debt_pay': 0,
         'wujia_portal_exam.portal_exam_register': 1,
         'wujia_portal_exam.portal_exam_registration_detail': 1,
         'wujia_portal_return.portal_return_list': 1,

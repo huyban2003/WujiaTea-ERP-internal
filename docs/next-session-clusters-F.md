@@ -136,7 +136,7 @@ F6–F13 là backend/controller — không chặn component, nhưng chặn mobil
 | F1 | C1 + C2(return) | support, base, info_request, layout, return | Thấp | ✅ 17/09 |
 | F2 | CSS 8 màn nhỏ ra khỏi layout (62 nhóm) | layout, knowledge, purchase_history, support, notification | Thấp | ✅ 17/09 |
 | F3 | CSS Đặt hàng (55) + Home/KPI (56) | layout, sale, base | TB | ✅ 17/09 |
-| F4 | Duyệt 41 rule đổi dáng (dừng giữa phiên xin duyệt) | layout + 7 module | TB | ☐ |
+| F4 | Duyệt 41 rule đổi dáng (dừng giữa phiên xin duyệt) | layout + 7 module | TB | ✅ 17/09 |
 | **FR-B** | **Review toàn khối B (F2–F4)** | 0 hoặc vá nhỏ | — | ☐ |
 | F5 | Menu đăng ký theo module, test layout dùng fixture, redirect về module | layout + ~12 module | TB | ☐ |
 | **FR-A3** | **Review cổng F (F0–F5) → quyết mở lại Issue List** | 0 hoặc vá nhỏ | — | ☐ |

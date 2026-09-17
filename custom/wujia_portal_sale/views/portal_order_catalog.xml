@@ -149,17 +149,17 @@
                                  t-att-data-min-qty="product.min_qty or 1"
                                  t-att-data-max-qty="str(product.max_qty or 0)"
                                  t-attf-data-qty="#{in_cart}">
-                                <button type="button" class="wujia-morder-row-add wujia-morder-add-btn"
+                                <button type="button" class="wujia-morder-row-add wujia-morder-add-btn wj-state-surface"
                                         t-att-aria-label="'Thêm ' + product.name + ' vào giỏ'">
                                     <i class="feather icon-shopping-cart"/>
                                 </button>
                                 <div class="wujia-morder-mstepper" role="group"
                                      t-att-aria-label="'Điều chỉnh số lượng ' + product.name">
-                                    <button type="button" class="wujia-morder-mstep wujia-morder-mstep-minus"
+                                    <button type="button" class="wujia-morder-mstep wujia-morder-mstep-minus wj-state-surface"
                                             t-att-aria-label="'Giảm ' + product.name">−</button>
                                     <span class="wujia-morder-mstep-qty" aria-live="polite"
                                           t-att-aria-label="'Số lượng ' + product.name" t-out="in_cart"/>
-                                    <button type="button" class="wujia-morder-mstep wujia-morder-mstep-plus"
+                                    <button type="button" class="wujia-morder-mstep wujia-morder-mstep-plus wj-state-surface"
                                             t-att-aria-label="'Tăng ' + product.name">+</button>
                                 </div>
                             </div>
@@ -317,7 +317,7 @@
                             </div>
                             <input t-if="category_id" type="hidden" name="category_id"
                                    t-att-value="category_id"/>
-                            <button type="submit" class="wujia-morder-search-btn" aria-label="Tìm sản phẩm">
+                            <button type="submit" class="wujia-morder-search-btn wj-state-surface" aria-label="Tìm sản phẩm">
                                 <i class="feather icon-search"/>
                             </button>
                         </form>

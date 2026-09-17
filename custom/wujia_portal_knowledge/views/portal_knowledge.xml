@@ -197,7 +197,7 @@
                             <span class="wujia-mknow-sechead-sub">Ưu tiên đọc</span>
                         </div>
                         <t t-foreach="m_featured" t-as="art">
-                            <a t-attf-href="/portal/knowledge/#{art.slug}" class="wujia-mknow-feat">
+                            <a t-attf-href="/portal/knowledge/#{art.slug}" class="wujia-mknow-feat wj-state-surface">
                                 <span class="wujia-mknow-tile"><i class="feather icon-save"/></span>
                                 <span class="wujia-mknow-feat-main">
                                     <span class="wujia-mknow-row-title" t-out="art.name"/>
@@ -283,7 +283,7 @@
                                         <span class="ms-3"><i class="fa fa-clock me-1"/><t t-out="wj_dt(article.publish_date, '%d/%m/%Y %H:%M')"/></span>
                                         <span class="ms-3"><i class="fa fa-eye me-1"/><t t-out="article.view_count or 0"/> lượt xem</span>
                                     </p>
-                                    <div class="article-content" t-out="article.content"/>
+                                    <div class="article-content wj-richtext" t-out="article.content"/>
                                 </div>
                             </article>
                         </div>
@@ -356,7 +356,7 @@
                         <t t-set="ch_platform" t-value="'m'"/>
                     </t>
                     <p t-if="article.summary" class="wujia-mknow-lead" t-out="article.summary"/>
-                    <div class="wujia-mknow-body" t-out="article.content"/>
+                    <div class="wujia-mknow-body wj-richtext" t-out="article.content"/>
 
                     <t t-if="article.attachment_ids">
                         <t t-call="wujia_portal_layout.wj_card_header">

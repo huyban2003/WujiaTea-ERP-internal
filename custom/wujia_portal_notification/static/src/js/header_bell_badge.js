@@ -76,11 +76,11 @@
             var tone = TYPE_TONE[n.type_code] || TYPE_TONE.GEN;
             var ptagCls = PRIORITY_CLASS[n.priority] || PRIORITY_CLASS.normal;
             var ptag = n.priority_label
-                ? '<span class="wj-pc-badge ' + ptagCls + '">' + escHtml(n.priority_label) + "</span>"
+                ? '<span class="wj-pc-badge wj-pc-badge--sm ' + ptagCls + '">' + escHtml(n.priority_label) + "</span>"
                 : "";
             var meta = escHtml(n.type_name) + (n.dispatch_number ? " • " + escHtml(n.dispatch_number) : "");
             var fileChip = n.has_file
-                ? '<span class="wj-pc-badge wj-pc-badge--confirmed">Có file</span>' : "";
+                ? '<span class="wj-pc-badge wj-pc-badge--sm wj-pc-badge--confirmed">Có file</span>' : "";
             var dot = n.is_read ? "" : '<span class="wj-pc-noti-popup__item-dot"></span>';
             return '<a href="' + n.url + '" class="wj-pc-noti-popup__item' +
                 (n.is_read ? "" : " wj-pc-noti-popup__item--unread") + '">' +

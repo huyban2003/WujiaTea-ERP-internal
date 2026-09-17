@@ -177,6 +177,9 @@ h2, .wujia-h2 { font-size: var(--wujia-font-size-h2) !important; font-weight: 60
 .wujia-badge-danger  { background-color: var(--wujia-danger-bg);  color: var(--wujia-danger);  }
 .wujia-badge-info    { background-color: var(--wujia-primary-soft); color: var(--wujia-primary-dark); }
 .wujia-badge-muted   { background-color: var(--wujia-muted-bg);   color: var(--wujia-text-muted); }
+/* F4 — icon trong badge nhỏ hơn chữ một bậc; `--sm` = badge nhãn phụ trong hàng (Figma 11px). */
+.wujia-badge i { font-size: 11px; }
+.wujia-badge--sm { font-size: 11px; padding: 3px 8px; }
 
 /* Auto-upgrade legacy state-* badges so old templates pick up the new look */
 .state-badge {
@@ -788,10 +791,6 @@ h2, .wujia-h2 { font-size: var(--wujia-font-size-h2) !important; font-weight: 60
 .wj-data-list--compact-row .wj-data-item + .wj-data-item {
     margin-top: 8px;
 }
-.wj-data-list--compact-row .wj-data-item:hover {
-    background: rgba(40, 169, 223, 0.04);
-    border-color: var(--wujia-primary);
-}
 /* D5h.2: compact-row nằm TRONG vỏ có viền (vỏ còn ôm cả CardHeader) ⇒ item trả về dáng
    dòng ngăn bằng kẻ, vỏ là khung duy nhất. Số lấy từ .wujia-content-card-row trước D5d. */
 .wj-data-list--compact-row.wj-data-list--inset .wj-data-item {
@@ -820,6 +819,7 @@ h2, .wujia-h2 { font-size: var(--wujia-font-size-h2) !important; font-weight: 60
 }
 .wj-data-list--detail-card a.wj-data-item {
     text-decoration: none;
+    color: inherit;
 }
 .wj-data-list--detail-card .wj-data-item + .wj-data-item {
     margin-top: 8px;
@@ -1322,11 +1322,6 @@ a.wujia-mhome-kpi:active { opacity: 0.85; }
         gap: var(--wujia-mshell-content-gap);
         padding: var(--wujia-mcontent-top) var(--wujia-mshell-content-pad-x) 0;
     }
-}
-
-/* Sprint 15 — Mobile KIẾN THỨC: CSS màn ở portal_knowledge.css (F2); rule dưới đang THUA margin của CardHeader compact, dời đi là thắng ⇒ giữ tới F4 */
-@media (max-width: 991.98px) {
-    .wujia-mknow-article > .wj-card-header { margin-top: 16px; }
 }
 
     /* ---------- Section: titlerow + content ---------- */
@@ -1958,6 +1953,18 @@ a.wujia-mhome-kpi:active { opacity: 0.85; }
     line-height: 1.2;
 }
 .wj-card-header--sublabel { margin: 0 0 .5rem; }
+/* --- Nhãn đầu thẻ viết hoa nhỏ (eyebrow, F4) ---
+   Thẻ số liệu cao cố định (Công nợ: tổng "CÒN PHẢI TRẢ", "THÔNG TIN CHUYỂN KHOẢN"): nhãn
+   11px/700 màu phụ thay cho tiêu đề 16px. Đặc hiệu (0,4,0) cùng lý do `--sublabel`. */
+.wj-card-header.wj-card-header--any.wj-card-header--eyebrow .wj-card-header__title,
+.wj-card-header.wj-card-header--m.wj-card-header--eyebrow .wj-card-header__title,
+.wj-card-header.wj-card-header--pc.wj-card-header--eyebrow .wj-card-header__title {
+    font-size: 11px !important;
+    font-weight: 700;
+    line-height: 1.5;
+    letter-spacing: .02em;
+    color: var(--wujia-text-subtitle) !important;
+}
 
 .wj-card-header--flush { margin-top: 0; margin-bottom: 0; }
 .wj-card-header--m.wj-card-header--flush,

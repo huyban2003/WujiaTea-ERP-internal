@@ -44,14 +44,7 @@
     .wujia-mdelivery-list { display: flex; flex-direction: column; gap: 12px; }
     /* D5f: dáng ở .wj-data-item (detail-card), đây chỉ còn layout của họ mdelivery. */
     .wj-data-list--detail-card .wujia-mdelivery-row.wj-data-item {
-        display: flex; flex-direction: column; gap: 11px; color: inherit;
-    }
-    .wujia-mdelivery-row:not(.wj-data-item) {
         display: flex; flex-direction: column; gap: 11px;
-        background: var(--wujia-morder-card-bg);
-        border: 1px solid var(--wujia-morder-border);
-        border-radius: var(--wujia-morder-radius);
-        padding: 12px 16px; text-decoration: none; color: inherit;
     }
     a.wujia-mdelivery-row:hover { color: inherit; }
     .wujia-mdelivery-row-top {
@@ -178,10 +171,6 @@
     --wj-pc-dlv-skel-bar: #CBD5E1;
     --wj-pc-dlv-skel-alt: #FCFDFF;   /* hàng skeleton xen kẽ */
 }
-
-/* Figma title 32px + breadcrumb trên title (scoped, house dùng 26px + crumb dưới) */
-.wujia-dlv-pc .wj-pc-page-header__title { font-size: 32px; margin: 0; }
-.wujia-dlv-pc .wj-pc-page-header__crumb { margin: 0 0 6px; }
 
 /* ---- Badge biến thể delivery (hex Figma khác --transit/--done) ---- */
 .wj-pc-badge--dlv-going { background: var(--wj-pc-dlv-going-bg); color: var(--wj-pc-dlv-going-fg); }

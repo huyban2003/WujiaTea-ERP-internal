@@ -336,7 +336,7 @@ class TestCardHeaderCallSites(TransactionCase):
         self.assertEqual(len(subs), 1)
         # D4e2 thay `div.wujia-mdash-card` bằng `t-call wj_surface_card` + slot `sc_class`.
         card = root.xpath('.//t[@t-call="wujia_portal_layout.wj_surface_card"]'
-                          '[t[@t-set="sc_class"][@t-value="\'wujia-mdash-card\'"]]'
+                          '[t[@t-set="sc_class"][@t-value="\'wujia-mdash-card wj-state-surface\'"]]'
                           '[t[@t-call="wujia_portal_layout.wj_card_header"]]'
                           '[div[@class="wujia-maccount-badgerow"]]')
         self.assertEqual(len(card), 1, 'card "Cửa hàng nhượng quyền" phải còn nguyên')
@@ -394,9 +394,14 @@ class TestCardHeaderD3eLayout(TransactionCase):
         # Cỡ chữ đã về modifier dùng chung `wj-card-header--sublabel` (D3 REVIEW
         # 2026-09-04) — ở lại file module đúng phần MÀU riêng. Quan hệ được giữ
         # vẫn y nguyên: nhãn phụ .875rem < tiêu đề card 18px.
-        self.assertRegex(
+        # F4: màu thường cũng về modifier chung; module chỉ còn màu danger (ngữ nghĩa).
+        self.assertNotRegex(
             css,
             r'\.wj-surface-card__body > \.wj-card-header\.wj-return-sublabel'
+            r'\s+\.wj-card-header__title\s*\{')
+        self.assertRegex(
+            css,
+            r'\.wj-card-header\.wj-return-sublabel--danger'
             r'\s+\.wj-card-header__title\s*\{[^}]*color:')
         self.assertEqual(arch.count('wj-card-header--sublabel'), 4)
 
@@ -444,7 +449,7 @@ class TestCardHeaderD3f(TransactionCase):
     CALL_SITES = {
         'wujia_portal_debt.portal_debt_overview': 2,          # __head S43 + "Hóa đơn trong tuần"
         'wujia_portal_debt.portal_debt_payment_history': 1,
-        'wujia_portal_debt.portal_debt_pay': 1,               # nhãn hint 11.5px
+        'wujia_portal_debt.portal_debt_pay': 2,               # nhãn hint 11.5px + bank eyebrow (F4)
         'wujia_portal_inspection.portal_inspection_detail': 4,
         'wujia_portal_inspection.portal_inspection_remediation_form': 2,
     }
@@ -477,13 +482,23 @@ class TestCardHeaderD3f(TransactionCase):
             css,
             r'\.wj-debt-summary__head \.wj-status-badge\s*\{[^}]*position:\s*absolute')
 
-    def test_debt_summary_label_stays_11px(self):
-        # Cần `.wj-debt-summary__head` phía trước để thắng biến thể (0,3,0) của
-        # component, và !important vì component đặt font-size !important.
-        self.assertRegex(
-            self._css('wujia_portal_debt', 'portal_debt.css'),
-            r'\.wj-debt-summary__head \.wj-card-header\.wj-debt-summary__hb'
-            r'\s+\.wj-card-header__title\s*\{[^}]*font-size:\s*11px\s*!important')
+    def test_debt_card_labels_use_the_eyebrow_variant(self):
+        # F4: nhãn 11px viết hoa trong thẻ số liệu (tổng "CÒN PHẢI TRẢ" + "THÔNG TIN
+        # CHUYỂN KHOẢN") về biến thể chung `wj-card-header--eyebrow`; module không
+        # còn tự khai cỡ chữ tiêu đề.
+        path = os.path.join(os.path.dirname(__file__), '..', '..', 'wujia_portal_debt',
+                            'views', 'portal_debt.xml')
+        with open(path, encoding='utf-8') as fh:
+            xml = fh.read()
+        self.assertIn("'wj-card-header--flush wj-card-header--eyebrow wj-debt-summary__hb'", xml)
+        bank = xml[xml.index('<section class="wj-debt-bank">'):]
+        bank = bank[:bank.index('</section>')]
+        self.assertIn('wujia_portal_layout.wj_card_header', bank)
+        self.assertNotIn('wj_section_header', bank)
+        self.assertIn("'wj-card-header--eyebrow'", bank)
+        css = self._css('wujia_portal_debt', 'portal_debt.css')
+        self.assertNotRegex(css, r'wj-debt-summary__hb\s+\.wj-card-header__title\s*\{')
+        self.assertNotIn('.wj-debt-bank .wj-section-header', css)
 
     def test_debt_hint_label_stays_smaller_than_card_title(self):
         # Hộp hint chỉ cao 52px; lấy 18px của component là tràn.
@@ -627,9 +642,9 @@ class TestCardHeaderD3Review(TransactionCase):
             r'\s+\.wj-card-header__title,\s*'
             r'\.wj-exam-pc \.wj-card-header\.wj-exam-pc-slots__head'
             r'\s+\.wj-card-header__title\s*\{[^}]*font-size:\s*16px\s*!important')
-        # 16px phải NHỎ HƠN 18px của tiêu đề card exam (đang khai ngay trên nó).
-        self.assertRegex(css, r'\.wj-exam-pc \.wj-pc-card__title\s*\{'
-                              r'[^}]*font-size:\s*22px\s*!important')
+        # F4: rule `.wj-exam-pc .wj-pc-card__title{22px}` đã xoá — 0 phần tử khớp (exam
+        # không còn `wj-pc-card__title`); tiêu đề card là CardHeader 18px > 16px ở trên.
+        self.assertNotIn('.wj-exam-pc .wj-pc-card__title', css)
 
     def test_exam_sectitle_rules_survive_because_a_call_site_is_still_live(self):
         # `wj-exam-pc-sectitle` CHƯA chết: còn 1 call site ở portal_exam.xml

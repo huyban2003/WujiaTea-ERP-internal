@@ -34,7 +34,7 @@
 
     <!-- WJ_Debt_PaymentHistoryAction_MVP_v31 (359×54) — dùng ở cả 4 biến thể 02-05. -->
     <template id="wj_debt_history_row" name="Wujia Debt — Payment history row (component)">
-        <a href="/portal/debt/payment-history" class="wj-debt-actionrow">
+        <a href="/portal/debt/payment-history" class="wj-debt-actionrow wj-state-surface">
             <span class="wj-debt-actionrow__icon"><i class="feather icon-clock"/></span>
             <span class="wj-debt-actionrow__text">
                 <span class="wj-debt-actionrow__title">Lịch sử thanh toán</span>
@@ -49,10 +49,10 @@
     <template id="wj_debt_pc_tabs" name="Wujia Debt — PC tab strip (component)">
         <div class="wj-debt-pc-tabs" role="tablist">
             <a href="/portal/debt" role="tab"
-               t-attf-class="wj-debt-pc-tab #{active_tab == 'debt' and 'is-active' or ''}"
+               t-attf-class="wj-debt-pc-tab wj-state-surface #{active_tab == 'debt' and 'is-active' or ''}"
                t-att-aria-selected="'true' if active_tab == 'debt' else 'false'">Công nợ</a>
             <a href="/portal/debt/payment-history" role="tab"
-               t-attf-class="wj-debt-pc-tab #{active_tab == 'history' and 'is-active' or ''}"
+               t-attf-class="wj-debt-pc-tab wj-state-surface #{active_tab == 'history' and 'is-active' or ''}"
                t-att-aria-selected="'true' if active_tab == 'history' else 'false'">Lịch sử thanh toán</a>
         </div>
     </template>
@@ -167,7 +167,7 @@
                                 <t t-set="ch_level" t-value="3"/>
                                 <t t-set="ch_platform" t-value="'m'"/>
                                 <t t-set="ch_class"
-                                   t-value="'wj-card-header--flush wj-debt-summary__hb'"/>
+                                   t-value="'wj-card-header--flush wj-card-header--eyebrow wj-debt-summary__hb'"/>
                                 <t t-set="ch_meta">
                                     <span t-attf-class="wj-status-badge #{sbadge[1]}"
                                           t-out="sbadge[0]"/>
@@ -422,7 +422,7 @@
                                                 <span t-attf-class="wj-status-badge #{ib[1]}" t-out="ib[0]"/>
                                             </td>
                                             <td class="text-end">
-                                                <button type="button" class="wj-debt-pc-pdf" data-wj-debt="pdf">
+                                                <button type="button" class="wj-debt-pc-pdf wj-state-surface" data-wj-debt="pdf">
                                                     <i class="feather icon-download"/> PDF
                                                 </button>
                                             </td>
@@ -698,13 +698,12 @@
 
                 <t t-if="bank['configured']">
                     <section class="wj-debt-bank">
-                        <!-- CMP-SH-001 nhưng khối này là thẻ cao cố định 150px ⇒ tắt nhịp
-                             bằng modifier flush, dáng nhãn giữ ở portal_debt.css (LIMIT chờ BA). -->
-                        <t t-call="wujia_portal_layout.wj_section_header">
-                            <t t-set="sh_title">THÔNG TIN CHUYỂN KHOẢN</t>
-                            <t t-set="sh_level" t-value="2"/>
-                            <t t-set="sh_platform" t-value="'m'"/>
-                            <t t-set="sh_class" t-value="'wj-section-header--flush'"/>
+                        <!-- F4: nhãn nằm TRONG thẻ cao cố định 150px ⇒ CardHeader biến thể eyebrow. -->
+                        <t t-call="wujia_portal_layout.wj_card_header">
+                            <t t-set="ch_title">THÔNG TIN CHUYỂN KHOẢN</t>
+                            <t t-set="ch_level" t-value="2"/>
+                            <t t-set="ch_platform" t-value="'m'"/>
+                            <t t-set="ch_class" t-value="'wj-card-header--eyebrow'"/>
                         </t>
                         <div class="wj-debt-bank__row">
                             <span class="wj-debt-bank__label">Ngân hàng</span>

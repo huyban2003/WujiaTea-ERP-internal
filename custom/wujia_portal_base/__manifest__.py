@@ -1,6 +1,6 @@
 {
     'name': 'Wujia Portal Base',
-    'version': '19.0.7.17.2',
+    'version': '19.0.7.17.3',
     'category': 'Wujia',
     'summary': 'Portal layer cho cửa hàng nhượng quyền — dashboard, franchise profile, store picker, real-time updates',
     'author': 'WujiaTea',

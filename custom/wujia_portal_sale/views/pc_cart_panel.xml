@@ -66,17 +66,17 @@
                                     t-out="money(line['unit_price_tax_included'], cart_state['currency_symbol'], cart_state['currency_decimals'])"/>
                                 <td class="text-center">
                                     <div class="wj-pc-stepper">
-                                        <button type="button" class="wj-pc-cart-step" data-action="dec"
+                                        <button type="button" class="wj-pc-cart-step wj-state-surface" data-action="dec"
                                                 t-att-data-line-id="line['line_id']" aria-label="Giảm">−</button>
                                         <span class="wj-pc-cart-qty" t-out="line['qty']"/>
-                                        <button type="button" class="wj-pc-cart-step" data-action="inc"
+                                        <button type="button" class="wj-pc-cart-step wj-state-surface" data-action="inc"
                                                 t-att-data-line-id="line['line_id']" aria-label="Tăng">+</button>
                                     </div>
                                 </td>
                                 <td class="text-end wj-pc-cart-subtotal"
                                     t-out="money(line['line_total_tax_included'], cart_state['currency_symbol'], cart_state['currency_decimals'])"/>
                                 <td class="text-center">
-                                    <button type="button" class="wj-pc-cart-del"
+                                    <button type="button" class="wj-pc-cart-del wj-state-surface"
                                             t-att-data-line-id="line['line_id']" aria-label="Xoá">
                                         <i class="feather icon-trash-2"/>
                                     </button>

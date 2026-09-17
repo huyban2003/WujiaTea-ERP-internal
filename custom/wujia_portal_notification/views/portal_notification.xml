@@ -145,13 +145,13 @@
                                     <t t-out="n.type_id.name"/><t t-if="n.dispatch_number"> • <t t-out="n.dispatch_number"/></t>
                                 </span>
                                 <span class="wujia-mnoti-row-tags">
-                                    <span t-if="ptag" t-attf-class="wujia-badge #{ptag[1]}">
+                                    <span t-if="ptag" t-attf-class="wujia-badge wujia-badge--sm #{ptag[1]}">
                                         <i t-attf-class="feather #{ptag[2]}"/><t t-out="ptag[0]"/>
                                     </span>
                                     <span t-if="n.is_expired" class="wj-status-badge wj-status-badge--neutral">
                                         <i class="feather icon-clock"/>Đã hết hiệu lực
                                     </span>
-                                    <span t-if="n.attachment_ids" class="wujia-badge wujia-badge-info">
+                                    <span t-if="n.attachment_ids" class="wujia-badge wujia-badge--sm wujia-badge-info">
                                         <i class="feather icon-paperclip"/>Có file
                                     </span>
                                 </span>

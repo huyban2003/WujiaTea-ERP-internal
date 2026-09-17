@@ -25,7 +25,6 @@
 @media (max-width: 991.98px) {
     /* Title + count nay do shared PageHeader lo (CMP-PG-001) — 3 class riêng đã gỡ. */
     .wujia-mnoti-chips { margin: 2px 0; }
-    .wujia-mnoti .wj-filter-chip { font-size: 12px; }   /* Figma 4651:655 — chip label 12 (base 13) */
     /* Search = Compact filter bar Figma (input 30px, không phải 42px của mknow chuẩn).
        D4d: gỡ override .wujia-mnoti .wujia-mknow-card — đo lúc chạy ra 0 phần tử khớp. */
     .wujia-mnoti .wujia-mknow-search-input { height: 30px; font-size: 13px; border-radius: 8px; padding: 0 12px 0 34px; }
@@ -41,19 +40,6 @@
         align-items: stretch;
         gap: 12px;
         padding-left: 16px;
-        overflow: hidden;
-    }
-    .wujia-mnoti-row:not(.wj-data-item) {
-        position: relative;
-        display: flex;
-        align-items: stretch;
-        gap: 12px;
-        min-height: 76px;
-        padding: 12px 14px 12px 16px;
-        background: var(--wujia-morder-card-bg);
-        border: 1px solid var(--wujia-morder-border);
-        border-radius: 12px;
-        text-decoration: none;
         overflow: hidden;
     }
     .wujia-mnoti-row.is-unread::before {
@@ -105,9 +91,6 @@
     .wujia-mnoti-row-tags { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin-top: 2px; }
     .wujia-mnoti-row-tags .wujia-badge,
     .wujia-mnoti-detail-badges .wujia-badge { display: inline-flex; align-items: center; gap: 4px; }
-    .wujia-mnoti-row-tags .wujia-badge { font-size: 11px; padding: 3px 8px; }   /* Figma badge 11px */
-    .wujia-mnoti-row-tags .wujia-badge i,
-    .wujia-mnoti-detail-badges .wujia-badge i { font-size: 11px; }
     .wujia-mnoti-row-side {
         flex: 0 0 auto;
         display: flex;
@@ -248,6 +231,7 @@
    Thanh cyan dùng box-shadow inset trên ô đầu — KHÔNG dùng tr::before
    (pseudo trên <tr> bị table layout coi như 1 cell phụ → đẩy lệch cả hàng, tràn viền). */
 .wj-pc-noti-table tbody tr:nth-child(even) { background: #FCFCFD; }
+/* F4(c): giá trị = hover component, chỉ trả lại chỗ zebra của chính module nuốt. */
 /* D5c: zebra (0,2,2) nuốt hover của .wj-data-table (0,2,2) ở row chẵn — nâng độ đặc hiệu. */
 .wj-data-table.wj-pc-noti-table tbody tr:hover { background: rgba(40, 169, 223, 0.04); }
 .wj-pc-noti-row--unread td:first-child { box-shadow: inset 4px 0 0 var(--wj-pc-primary); }
@@ -408,8 +392,6 @@
 }
 .wj-pc-noti-popup__item-meta { font-size: 12px; color: var(--wj-pc-muted); }
 .wj-pc-noti-popup__item-tags { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 3px; }
-/* Chip popup gọn (Figma ~20px) — base wj-pc-badge cao 28px làm badge đội xuống */
-.wj-pc-noti-popup__item-tags .wj-pc-badge { height: auto; padding: 3px 8px; font-size: 11px; font-weight: 600; line-height: 1.35; }
 .wj-pc-noti-popup__item-side {
     flex: 0 0 auto; align-self: stretch;
     display: flex; flex-direction: column; align-items: flex-end; gap: 8px;
