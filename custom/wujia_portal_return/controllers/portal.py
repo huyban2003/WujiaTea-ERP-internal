@@ -17,6 +17,7 @@ from odoo.exceptions import ValidationError
 from odoo.http import request
 from odoo.tools.mimetypes import guess_mimetype
 
+from odoo.addons.wujia_portal_return.models.wujia_return_request import MIN_IMAGES_BEFORE_SEND
 from odoo.addons.wujia_portal_base.controllers.portal import (
     get_active_franchise_ids_filter,
 )
@@ -42,7 +43,7 @@ ORDER_WINDOW_DAYS = 10
 # Minh chứng (BA STT3 #7). Kiểm bằng MIME THẬT (sniff nội dung), không tin header.
 IMAGE_MIME = ('image/jpeg', 'image/jpg', 'image/png')
 VIDEO_MIME = ('video/mp4', 'video/quicktime')
-MIN_IMAGES = 3
+MIN_IMAGES = MIN_IMAGES_BEFORE_SEND
 MAX_IMAGES = 5
 MAX_IMAGE_MB = 5
 MAX_VIDEOS = 1
@@ -209,7 +210,11 @@ class WujiaPortalReturn(http.Controller):
             return self._render_form(error=str(e), prefill=post)
 
         if action == 'send':
-            rr.sudo().write({'state': 'submitted'})
+            try:
+                rr.action_submit()
+            except ValidationError as e:
+                rr.sudo().unlink()
+                return self._render_form(error=str(e), prefill=post)
         return request.redirect(f'/portal/return/{rr.id}?message=created')
 
     @http.route(['/portal/return/<int:request_id>'], type='http',

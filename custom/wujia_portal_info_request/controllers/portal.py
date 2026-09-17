@@ -11,11 +11,12 @@ Role gate: chỉ Owner/Manager mới được tạo (BA spec — gửi cập nh�
 là quyết định cấp shop, không phải Staff).
 """
 import logging
+from urllib.parse import quote
 
 from werkzeug.exceptions import Forbidden
 
 from odoo import _, fields, http
-from odoo.exceptions import ValidationError
+from odoo.exceptions import UserError, ValidationError
 from odoo.http import request
 
 from odoo.addons.wujia_portal_base.controllers.portal import (
@@ -128,9 +129,13 @@ class WujiaPortalInfoRequest(http.Controller):
 
         try:
             rec = request.env['wujia.info.update.request'].sudo().create(vals)
-        except Exception as e:
-            _logger.exception('Info request create failed')
+        except (ValidationError, UserError) as e:
             return self._render_form(error=str(e), prefill=post)
+        except Exception:
+            _logger.exception('Info request create failed')
+            return self._render_form(
+                error=_("Không thể gửi yêu cầu. Vui lòng kiểm tra lại thông tin và thử lại."),
+                prefill=post)
 
         files = request.httprequest.files.getlist('attachments')
         try:
@@ -182,7 +187,7 @@ class WujiaPortalInfoRequest(http.Controller):
             rec.action_cancel()
         except ValidationError as e:
             return request.redirect(
-                f'/portal/info-request/{rec.id}?message=' + str(e)
+                f'/portal/info-request/{rec.id}?message=' + quote(str(e))
             )
         return request.redirect(
             f'/portal/info-request/{rec.id}?message=cancelled'

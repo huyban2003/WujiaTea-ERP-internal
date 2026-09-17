@@ -1,13 +1,16 @@
 from werkzeug.exceptions import Forbidden, NotFound
 
 from odoo import http
+from odoo.exceptions import ValidationError
 from odoo.http import request
 
 from odoo.addons.wujia_portal_base.controllers.portal import (
     get_active_franchise_ids_filter,
 )
 from odoo.addons.wujia_portal_base.controllers.utils import (
+    DEFAULT_DOC_MIME,
     MOBILE_TICKET_BADGES,
+    attach_files_to_record,
     build_pager,
     status_badge_for,
 )
@@ -90,8 +93,11 @@ class WujiaPortalSupport(http.Controller):
     @http.route(['/portal/support/new'], type='http', auth='user', sitemap=False,
                 methods=['POST'], csrf=True)
     def portal_support_create(self, **post):
-        franchise_id = int(post.get('franchise_id') or 0)
-        category_id = int(post.get('category_id') or 0)
+        try:
+            franchise_id = int(post.get('franchise_id') or 0)
+            category_id = int(post.get('category_id') or 0)
+        except (TypeError, ValueError):
+            return request.redirect('/portal/support/new?error=invalid_input')
         priority = post.get('priority', 'normal')
         # Accept both 'title' (new) and 'subject' (legacy) form keys.
         title = (post.get('title') or post.get('subject') or '').strip()
@@ -105,6 +111,9 @@ class WujiaPortalSupport(http.Controller):
         if franchise_id not in franchise_ids:
             return request.redirect('/portal/support/new?error=invalid_franchise')
 
+        if not _categories().filtered(lambda c: c.id == category_id):
+            return request.redirect('/portal/support/new?error=invalid_input')
+
         if priority not in ('normal', 'urgent'):
             priority = 'normal'
 
@@ -117,17 +126,14 @@ class WujiaPortalSupport(http.Controller):
             'priority': priority,
         })
 
-        files = request.httprequest.files.getlist('attachments')
-        for f in files:
-            if f and f.filename:
-                data = f.read()
-                if data:
-                    request.env['ir.attachment'].sudo().create({
-                        'name': f.filename,
-                        'datas': data,
-                        'res_model': 'wujia.support.ticket',
-                        'res_id': ticket.id,
-                    })
+        try:
+            attach_files_to_record(
+                ticket, request.httprequest.files.getlist('attachments'),
+                allowed_mime=DEFAULT_DOC_MIME, max_size_mb=5, max_count=6,
+            )
+        except ValidationError:
+            ticket.unlink()
+            return request.redirect('/portal/support/new?error=invalid_attachment')
 
         return request.redirect(f'/portal/support/{ticket.id}')
 

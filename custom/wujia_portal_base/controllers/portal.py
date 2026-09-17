@@ -3,6 +3,7 @@ from datetime import timedelta
 from odoo import _, fields, http
 from odoo.http import request
 from odoo.addons.portal.controllers.portal import CustomerPortal
+from odoo.addons.wujia_portal_layout.controllers.utils import safe_local_path
 from odoo.addons.wujia_portal_base.controllers.utils import (
     MOBILE_ORDER_BADGES,
     MOBILE_RETURN_BADGES,
@@ -403,7 +404,7 @@ class WujiaPortal(CustomerPortal):
         if fid not in accessible:
             return request.redirect('/portal')
 
-        target = redirect if (redirect or '').startswith('/') else '/portal'
+        target = safe_local_path(redirect)
         response = request.redirect(target)
         response.set_cookie(
             ACTIVE_FRANCHISE_COOKIE,

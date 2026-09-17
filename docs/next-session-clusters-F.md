@@ -9,7 +9,7 @@
 
 **KHÔNG đụng** (code anh Thái): `wujia_franchise`, `wujia_franchise_contract`,
 `wujia_franchise_inspection`, `wujia_franchise_operations`, `wujia_portal_inspection`,
-`wujia_mobile_core`. Chỗ nào chuẩn hoá chạm tới phần dùng chung với nhóm Khảo sát
+`wujia_mobile_core`, `wujia_mobile_franchise`, `wujia_mobile_franchise_inspection`, `wujia_mobile_sale`. Chỗ nào chuẩn hoá chạm tới phần dùng chung với nhóm Khảo sát
 (vd class `wj-inspection-pc`, selector dùng chung) ⇒ **thu hẹp selector, không xoá; không chắc thì
 dừng hỏi chủ dự án**.
 
@@ -87,14 +87,20 @@ route mới quên lọc là lộ dữ liệu ⇒ khi tách phân hệ, đưa dom
 (tăng view qua `action_increment_view`), exam photo (lọc theo cửa hàng), sale submitted (guard đúng
 store), 0 `csrf=False`, rate-limit ở cart add/note.
 
-### D. Phát hiện ngoài phạm vi — cần chủ dự án + anh Thái chốt (KHÔNG tự sửa)
+### D. Phát hiện ngoài phạm vi — ✅ ĐÃ GIẢI (anh Thái, merge `c80a6e2`, xác nhận phiên F1 17/09)
 
-Commit anh Thái 17/09 (`67c42a0`…`4896ac1`) làm **ngược hướng ADR-027**:
-`wujia_franchise`, `wujia_franchise_inspection` **và `wujia_sale`** giờ depend `wujia_mobile_core`;
-`sale.order` kế thừa `wujia.mobile.mixin` + 2 field compute mobile; view mobile nằm trong module
-nghiệp vụ. Theo ADR-027: nghiệp vụ không depend khung kênh ⇒ view/field mobile nên ở
-`wujia_mobile_sale` / `wujia_mobile_franchise` (`auto_install`). **`wujia_sale` là module chung** ⇒
-cần thống nhất với anh Thái trước khi tách phân hệ (F7+) hay làm mobile tiếp. Không chặn F0–F6.
+Trước: commit anh Thái 17/09 (`67c42a0`…`4896ac1`) cho `wujia_franchise`, `wujia_franchise_inspection`,
+`wujia_sale` depend `wujia_mobile_core` + `sale.order` kế thừa `wujia.mobile.mixin` — ngược ADR-027.
+
+Nay (đọc manifest HEAD): 3 module nghiệp vụ **không còn** depend `wujia_mobile_core`; mixin/field mobile gỡ khỏi
+`wujia_sale/models/sale_order.py`; view mobile dời sang 3 module ghép mới `wujia_mobile_franchise`
+(franchise + mobile_core) · `wujia_mobile_franchise_inspection` · `wujia_mobile_sale` (sale, wujia_sale, mobile_core).
+`wujia_mobile_core` depend `base, web`. `check_layers.py`: 4 → **1** vi phạm (chỉ còn `portal_order_window` R4, xử lý F7).
+
+Còn lệch nhỏ, chỉ báo anh Thái (không chặn F7):
+- 3 module `wujia_mobile_*` đang `auto_install: False` — ADR-027 đề xuất `True` để tự cài khi đủ nghiệp vụ + khung.
+- `wujia_franchise/tests/__init__.py` còn `from . import test_wujia_franchise_mobile` (file đã xoá) ⇒ chạy test không
+  `-u` chết import. Mọi phiên F chạy test phải kèm `-u` module cần test.
 
 ---
 
@@ -108,7 +114,7 @@ CỔNG F (bắt buộc trước khi mở lại Issue List)
                                    ▼
   MỞ LẠI ISSUE LIST: E4b → E4c → E5 → E6a/b → E7a/b → E8 (+ đề xuất BA cụm EmptyState)
 
-NHÁNH SAU CỔNG (xen kẽ Issue, ~1 phiên/tuần; F7+ chờ mục D chốt)
+NHÁNH SAU CỔNG (xen kẽ Issue, ~1 phiên/tuần; mục D đã giải 17/09 — F7 không còn bị chặn)
   F6 Sale controller mỏng
   F7 pilot order_window → ★FR-P review pilot
   → F8 info_request → F9 knowledge → F10 support → F11 announcement → F12a/b exam → F13a/b return
@@ -127,7 +133,7 @@ F6–F13 là backend/controller — không chặn component, nhưng chặn mobil
 | Phiên | Nội dung | Module `-u` | Rủi ro | Trạng thái |
 |---|---|---|---|---|
 | F0 | Script đo sở hữu CSS + check tầng + mốc ảnh/B4 | 0 | Thấp | ✅ 17/09 |
-| F1 | C1 + C2(return) | support, base, info_request, layout, return | Thấp | ☐ |
+| F1 | C1 + C2(return) | support, base, info_request, layout, return | Thấp | ✅ 17/09 |
 | F2 | CSS 8 màn nhỏ ra khỏi layout (62 nhóm) | layout + 8 module | Thấp | ☐ |
 | F3 | CSS Đặt hàng (55) + Home/KPI (56) | layout, sale, base | TB | ☐ |
 | F4 | Duyệt 41 rule đổi dáng (dừng giữa phiên xin duyệt) | layout + 7 module | TB | ☐ |
@@ -285,8 +291,8 @@ như WJ-ORD-002 + controller portal_sale giảm ≥300 dòng. Không đổi resp
 ### Prompt F7 — Pilot tách `order_window`
 
 ```text
-Làm phiên F7 (ADR-027 §Quy trình tách, chapter 74). Điều kiện: mục D của
-docs/next-session-clusters-F.md đã chốt với anh Thái. Khuôn: custom/wujia_franchise_inspection/hooks.py.
+Làm phiên F7 (ADR-027 §Quy trình tách, chapter 74). Điều kiện: FR-A3 xong (mục D đã giải,
+merge c80a6e2). Khuôn: custom/wujia_franchise_inspection/hooks.py.
 Tạo wujia_order_window (nghiệp vụ, depend wujia_sale) nhận model wujia.order.window + kế thừa
 sale.order, view/menu/ACL/data từ wujia_portal_order_window. pre_init_hook đổi chủ ir_model_data
 (model_*, field_*, xmlid view/menu/access). wujia_portal_order_window: nếu không còn gì ⇒ để module

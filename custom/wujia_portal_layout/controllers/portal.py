@@ -9,13 +9,15 @@ Routes:
 import base64
 import logging
 import re
-from urllib.parse import urlparse
+from urllib.parse import quote, urlparse
 
 from werkzeug.exceptions import Forbidden, NotFound
 
 from odoo import _, http
 from odoo.exceptions import AccessDenied, UserError, ValidationError
 from odoo.http import request
+
+from .utils import safe_local_path
 
 _logger = logging.getLogger(__name__)
 
@@ -117,7 +119,7 @@ class WujiaPortalLayout(http.Controller):
         try:
             partner.sudo().write(vals)
         except (UserError, ValidationError) as e:
-            return request.redirect('/portal/profile?error=' + str(e))
+            return request.redirect('/portal/profile?error=' + quote(str(e)))
 
         # Avatar upload — optional. Size + MIME validation backend.
         avatar = request.httprequest.files.get('avatar')
@@ -229,10 +231,6 @@ class WujiaPortalLayout(http.Controller):
                 request.session[PRE_LOGIN_LANG] = lang.code
             else:
                 request.env.user.sudo().lang = lang.code
-        target = '/portal'
-        ref = request.httprequest.referrer
-        if ref:
-            parts = urlparse(ref)
-            if parts.netloc == urlparse(request.httprequest.url).netloc and parts.path.startswith('/'):
-                target = parts.path + (('?' + parts.query) if parts.query else '')
+        target = safe_local_path(request.httprequest.referrer,
+                                 host=urlparse(request.httprequest.url).netloc)
         return request.redirect(target)

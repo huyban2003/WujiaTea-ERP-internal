@@ -12,7 +12,7 @@ from datetime import timedelta
 
 from werkzeug.datastructures import FileStorage
 
-from odoo import fields
+from odoo import fields, http
 from odoo.tests import tagged
 from odoo.tests.common import HttpCase, TransactionCase
 from odoo.exceptions import ValidationError
@@ -410,3 +410,20 @@ class TestPortalRoutes(HttpCase, ReturnFixture):
         # page_size là số hợp lệ và có trần — giá trị rác không được làm nổ trang.
         self.assertEqual(self.url_open('/portal/return?page_size=abc').status_code, 200)
         self.assertEqual(self.url_open('/portal/return?page=99999').status_code, 200)
+
+    def test_send_from_portal_goes_through_action_submit(self):
+        self._login_portal()
+        line = self.order_ok.order_line[0]
+        res = self.url_open('/portal/return/new', data={
+            'franchise_id': self.franchise.id, 'sale_order_id': self.order_ok.id,
+            'sale_order_line_id': line.id, 'issue_type_id': self.issue_type.id,
+            'request_qty': '3', 'opening_datetime': '2026-09-01T08:00',
+            'action': 'send', 'note': 'F1 send',
+            'csrf_token': http.Request.csrf_token(self),
+        }, files=[('images', (f'p{i}.jpg', JPEG, 'image/jpeg')) for i in range(MIN_IMAGES)],
+            allow_redirects=False)
+        rr = self.env['wujia.return.request'].search(
+            [('note', '=', 'F1 send')], limit=1)
+        self.assertTrue(rr, res.text[:500])
+        self.assertEqual(rr.state, 'submitted')
+        self.assertIn('Yêu cầu đã được gửi', ' '.join(rr.message_ids.mapped('body')))

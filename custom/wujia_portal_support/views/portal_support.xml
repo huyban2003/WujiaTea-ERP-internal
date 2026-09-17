@@ -359,6 +359,12 @@
                     <p t-if="error == 'invalid_franchise'" class="text-danger small mt-2 mb-0">
                         Cửa hàng không hợp lệ.
                     </p>
+                    <p t-if="error == 'invalid_input'" class="text-danger small mt-2 mb-0">
+                        Dữ liệu gửi lên không hợp lệ.
+                    </p>
+                    <p t-if="error == 'invalid_attachment'" class="text-danger small mt-2 mb-0">
+                        Tệp đính kèm chỉ nhận ảnh hoặc PDF, tối đa 6 tệp, mỗi tệp ≤ 5MB.
+                    </p>
 
                     <button type="submit" class="btn btn-primary w-100 mt-3">Gửi yêu cầu hỗ trợ</button>
                 </form>
