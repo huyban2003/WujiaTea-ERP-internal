@@ -58,8 +58,9 @@ class TestWujiaMobileSale(TransactionCase):
                 self.assertEqual(order.mobile_card_title, 'Wujia Store 01 - Nguyen Trai')
 
     def test_03_action_wujia_sale_orders_view_mode(self):
-        """Verify action_wujia_sale_orders has kanban mode enabled."""
+        """Verify action_wujia_sale_orders defaults to list on desktop and kanban on mobile."""
         action = self.env.ref('wujia_sale.action_wujia_sale_orders', raise_if_not_found=False)
         if action:
             self.assertIn('kanban', action.view_mode, "Action must include 'kanban' in view_mode.")
-            self.assertTrue(action.view_mode.startswith('kanban'), "Action should prioritize 'kanban' view_mode.")
+            self.assertTrue(action.view_mode.startswith('list'), "Action should prioritize 'list' view_mode for desktop.")
+            self.assertFalse(action.view_id, "Action view_id must not be hardcoded to kanban.")
