@@ -1,0 +1,70 @@
+% ADR-027 bản độc lập — build: lualatex adr-017-module-layering.tex (2 lần)
+\documentclass[11pt,a4paper]{report}
+
+% --- Unicode + Vietnamese support (lualatex + fontspec) ---
+\usepackage{fontspec}
+\setmainfont{Lato}
+\setsansfont{Lato}
+\setmonofont{DejaVu Sans Mono}[Scale=0.9]
+
+% --- Layout ---
+\usepackage[margin=2.5cm]{geometry}
+\usepackage{parskip}
+\setlength{\parindent}{0pt}
+
+% --- Tables, lists ---
+\usepackage{booktabs}
+\usepackage{longtable}
+\usepackage{array}
+\usepackage{tabularx}
+\usepackage{enumitem}
+\usepackage{tikz}
+\usetikzlibrary{positioning,fit,arrows.meta,backgrounds,calc}
+
+% --- Code listings ---
+\usepackage{listings}
+\usepackage{xcolor}
+\definecolor{codebg}{RGB}{245,245,250}
+\definecolor{codekw}{RGB}{0,0,180}
+\definecolor{codestr}{RGB}{120,80,30}
+\definecolor{codecmt}{RGB}{120,120,120}
+\lstset{
+    basicstyle=\ttfamily\small,
+    backgroundcolor=\color{codebg},
+    breaklines=true,
+    breakatwhitespace=true,
+    keywordstyle=\color{codekw}\bfseries,
+    stringstyle=\color{codestr},
+    commentstyle=\color{codecmt}\itshape,
+    showstringspaces=false,
+    columns=fullflexible,
+    frame=single,
+    framesep=4pt,
+    rulecolor=\color{black!15},
+    xleftmargin=8pt,
+    xrightmargin=4pt,
+    aboveskip=8pt,
+    belowskip=8pt,
+}
+\lstdefinestyle{python}{language=Python}
+\lstdefinestyle{xml}{language=XML, morekeywords={t-out,t-set,t-call,t-if,t-foreach,t-as,t-att-value,t-attf-href}}
+\lstdefinestyle{shell}{basicstyle=\ttfamily\small}
+
+% --- Hyperlinks + bookmarks ---
+\usepackage{hyperref}
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue!50!black,
+    urlcolor=blue!60!black,
+    pdftitle={WujiaTea ADR-027 — Kiến trúc tầng module},
+    pdfauthor={WujiaTea Dev Team},
+}
+
+\title{\vspace{1cm}\textbf{WujiaTea Odoo 19}\\[0.3cm]\large ADR-027 --- Kiến trúc tầng module \& Mobile core\\[0.2cm]\large Đề xuất để BA / chủ dự án chốt}
+\author{Dev Team \\ \texttt{huyban.han@gmail.com}}
+\date{2026-09-17}
+\begin{document}
+\maketitle
+\tableofcontents
+\include{chapters/74-adr027-module-layering}
+\end{document}

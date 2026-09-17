@@ -1,0 +1,271 @@
+% Hình của ADR-027 — \input từ 74-adr027-module-layering.tex
+\tikzset{
+  a27box/.style={draw=black!60, rounded corners=2pt, font=\ttfamily\scriptsize, inner sep=3pt, align=center, fill=white},
+  a27new/.style={a27box, dashed, draw=blue!70!black, fill=blue!7},
+  a27mv/.style={a27box, dashed, draw=orange!80!black, fill=orange!12},
+  a27bad/.style={a27box, draw=red!70!black, fill=red!8},
+  a27dep/.style={-{Stealth[length=5pt]}, thick, draw=black!55},
+  a27badep/.style={-{Stealth[length=5pt]}, thick, draw=red!70!black},
+  a27band/.style={rounded corners=4pt, draw=none, fill=#1},
+  a27lbl/.style={anchor=east, align=right, font=\sffamily\scriptsize\bfseries},
+  a27mdl/.style={draw=black!55, fill=white, rounded corners=1pt, font=\ttfamily\tiny, inner sep=2pt, minimum width=2.9cm},
+  a27hub/.style={a27mdl, fill=yellow!30, very thick, font=\ttfamily\scriptsize\bfseries},
+  a27ext/.style={a27mdl, dashed, fill=black!3},
+  a27grp/.style={draw=#1!70!black, fill=#1!6, rounded corners=3pt, inner sep=5pt},
+  a27gl/.style={anchor=south west, font=\sffamily\tiny\bfseries, inner sep=1pt},
+  a27rel/.style={-{Stealth[length=3.5pt]}, draw=black!55},
+  a27xrel/.style={-{Stealth[length=5pt]}, draw=orange!80!black, thick},
+}
+
+\newcommand{\adrLayerFigure}{%
+\begin{figure}[!htbp]
+\centering
+\resizebox{\textwidth}{!}{%
+\begin{tikzpicture}[x=1cm,y=1cm]
+  \fill[a27band=black!6]  (0,0)   rectangle (19.5,1.0);
+  \fill[a27band=green!7]  (0,1.4) rectangle (19.5,2.2);
+  \fill[a27band=green!12] (0,2.6) rectangle (12.4,6.0);
+  \fill[a27band=blue!6]   (12.8,2.6) rectangle (19.5,6.0);
+  \fill[a27band=blue!10]  (0,6.4) rectangle (19.5,9.6);
+  \node[a27lbl] at (-0.2,0.5)  {L0\\Odoo + bên thứ 3};
+  \node[a27lbl] at (-0.2,1.8)  {L1\\Nền};
+  \node[a27lbl] at (-0.2,4.3)  {L2\\Nghiệp vụ | khung kênh\\(cùng cấp)};
+  \node[a27lbl] at (-0.2,8.0)  {L3\\Module ghép\\(a: nền · b: phân hệ)};
+
+  \node[a27box, minimum width=17cm] at (9.75,0.5)
+    {Odoo 19 (base · web · mail · portal · sale · stock · account) \ \ | \ \ muk\_web\_theme \ \ | \ \ bên thứ 3};
+  \node[a27box] (core) at (2.5,1.8) {wujia\_core {\sffamily\tiny area, ward}};
+  \node[a27new] (uicore) at (6.6,1.8) {ui\_core {\sffamily\tiny chỉ tạo khi 2 kênh cần}};
+  \node[a27new] (plat) at (11.0,1.8) {*\_core {\sffamily\tiny security · approval · job · audit}};
+
+  \foreach \x/\n in {0.9/franchise, 2.45/\_contract, 4.0/\_inspection, 5.55/\_operations,
+                     7.1/sale, 8.65/fleet, 10.2/delivery, 11.75/account}
+    \node[a27box, font=\ttfamily\tiny, minimum height=0.6cm, inner sep=2pt] at (\x,5.0) {\n};
+  \node[font=\sffamily\tiny, anchor=north west] at (0.2,5.95) {nghiệp vụ đang sạch};
+  \foreach \x/\n in {0.95/order\\\_window, 2.75/info\\\_request, 4.55/knowledge, 6.35/support, 8.15/announce-\\ment, 9.95/exam, 11.65/return}
+    \node[a27mv, minimum height=0.8cm] at (\x,3.4) {\n};
+  \node[font=\sffamily\tiny, text=orange!80!black, anchor=south west] at (0.2,2.62) {tách ra khỏi wujia\_portal\_<x>};
+
+  \node[a27box] (play) at (14.5,4.3) {portal\_layout\\{\sffamily\tiny Vuexy · assets\_frontend}};
+  \node[a27new] (mcore) at (17.7,4.3) {mobile\_core\\{\sffamily\tiny MuK · assets\_backend}};
+  \node[font=\sffamily\tiny\bfseries, anchor=north west] at (13.0,5.95) {khung kênh (không biết nghiệp vụ)};
+  \draw[black!50, dashed, thick] (12.6,2.7) -- (12.6,5.9);
+
+  \node[a27box] (pbase) at (9.0,7.2) {portal\_base\\{\sffamily\tiny nền ghép portal: store · Home · bus}};
+  \node[font=\sffamily\tiny\bfseries, anchor=east, text=blue!50!black] at (pbase.west) {L3a\ };
+  \node[font=\sffamily\tiny\bfseries, anchor=south west, text=blue!50!black] at (0.2,9.1) {L3b};
+  \node[a27box, minimum width=6cm] (px) at (4.2,8.8)
+    {portal\_<x> \quad controller + QWeb\\{\sffamily\tiny sale · debt · delivery · exam · return · \ldots}};
+  \node[a27new, minimum width=4.2cm] (mx) at (17.2,8.8)
+    {mobile\_<x> \quad auto\_install\\{\sffamily\tiny chỉ tạo khi có view riêng}};
+
+  \draw[a27dep] (px.east) -| (pbase.north);
+  \draw[a27dep] (2.0,8.25) -- (2.0,6.02);
+  \draw[a27dep] (pbase.south) -- (9.0,6.02);
+  \draw[a27dep] (pbase.east) -| (play.north);
+  \draw[a27dep] (mx.south -| mcore) -- (mcore.north);
+  \draw[a27dep] (mx.west) -| (11.9,6.02);
+  \draw[a27dep] (play.south) -- (14.5,1.02);
+  \draw[a27dep] (mcore.south) -- (17.7,1.02);
+  \draw[a27dep] (2.5,2.6) -- (core.north);
+  \draw[a27dep] (core.south) -- (2.5,1.02);
+
+  \node[a27box, anchor=west] at (0,-0.7) {hiện có};
+  \node[a27mv, anchor=west] at (1.6,-0.7) {tách ra};
+  \node[a27new, anchor=west] at (3.1,-0.7) {tạo mới};
+  \node[font=\sffamily\scriptsize, anchor=west] at (4.8,-0.7)
+    {Mũi tên $=$ \texttt{depends}, chỉ đi xuống. Bỏ tiền tố \texttt{wujia\_}. Nghiệp vụ và khung kênh không depend nhau; portal\_* và mobile\_* không depend chéo.};
+\end{tikzpicture}}
+\caption{ADR-027 --- bốn tầng module: nghiệp vụ và khung kênh cùng cấp, chỉ module ghép mới thấy cả hai.}
+\label{fig:adr27-layers}
+\end{figure}}
+
+\newcommand{\adrWhyFigure}{%
+\begin{figure}[htbp]
+\centering
+\resizebox{0.92\textwidth}{!}{%
+\begin{tikzpicture}[x=1cm,y=1cm, node distance=0.55cm]
+  \node[font=\sffamily\small\bfseries] at (2.2,1.0) {Hiện tại};
+  \node[a27new] (m1) at (2.2,0) {wujia\_mobile\_exam};
+  \node[a27bad, below=of m1] (p1) {wujia\_portal\_exam\\{\sffamily\tiny model thi + view backend + QWeb}};
+  \node[a27bad, below=of p1] (b1) {wujia\_portal\_base};
+  \node[a27bad, below=of b1] (l1) {wujia\_portal\_layout\\{\sffamily\tiny web.assets\_frontend}};
+  \node[a27box, right=0.5cm of b1] (s1) {wujia\_sale};
+  \draw[a27badep] (m1) -- (p1);
+  \draw[a27badep] (p1) -- (b1);
+  \draw[a27badep] (b1) -- (l1);
+  \draw[a27badep] (b1) -- (s1);
+  \node[font=\sffamily\scriptsize, text=red!70!black, align=center, below=0.3cm of l1]
+    {mobile kéo theo cả portal\\không tách repo được};
+
+  \node[font=\sffamily\small\bfseries] at (11.9,1.0) {Sau khi tách};
+  \node[a27new] (m2) at (10.1,0) {wujia\_mobile\_exam};
+  \node[a27box] (p2) at (13.7,0) {wujia\_portal\_exam\\{\sffamily\tiny controller + QWeb}};
+  \node[a27mv] (d2) at (11.9,-2.2) {wujia\_exam\\{\sffamily\tiny model + view backend + quyền}};
+  \node[a27new] (c2) at (8.4,-2.2) {wujia\_mobile\_core};
+  \node[a27box] (b2) at (15.4,-2.2) {wujia\_portal\_base};
+  \node[a27box] (f2) at (11.9,-4.2) {wujia\_franchise};
+  \draw[a27dep] (m2) -- (d2);
+  \draw[a27dep] (m2) -- (c2);
+  \draw[a27dep] (p2) -- (d2);
+  \draw[a27dep] (p2) -- (b2);
+  \draw[a27dep] (d2) -- (f2);
+  \node[font=\sffamily\scriptsize, text=green!40!black, align=center] at (11.9,-5.3)
+    {mobile và portal chỉ gặp nhau ở tầng nghiệp vụ};
+\end{tikzpicture}}
+\caption{Vì sao phải tách nghiệp vụ khỏi module portal --- ví dụ phân hệ Đăng ký thi.}
+\label{fig:adr27-why}
+\end{figure}}
+
+\newcommand{\adrErdFigure}{%
+\begin{figure}[!htbp]
+\centering
+\resizebox{!}{0.92\textheight}{%
+\begin{tikzpicture}[x=1cm,y=1cm, node distance=2pt]
+  % ---- wujia_franchise (hub)
+  \node[a27mdl] (fdoc) at (0,1.0) {franchise.document};
+  \node[a27hub, below=6pt of fdoc] (hub) {franchise.management};
+  \node[a27mdl, below=6pt of hub] (fmem) {franchise.member};
+  \begin{scope}[on background layer]\node[a27grp=green, fit=(fdoc)(hub)(fmem)] (Gfr) {};\end{scope}
+  \node[a27gl] at (Gfr.north west) {wujia\_franchise};
+  \draw[a27rel] (fdoc) -- (hub);
+  \draw[a27rel] (fmem) -- (hub);
+
+  % ---- wujia_core
+  \node[a27mdl] (area) at (0,6.0) {res.area};
+  \node[a27mdl, below=of area] (ward) {res.ward};
+  \begin{scope}[on background layer]\node[a27grp=green, fit=(area)(ward)] (Gco) {};\end{scope}
+  \node[a27gl] at (Gco.north west) {wujia\_core};
+
+  % ---- contract
+  \node[a27mdl] (ctr) at (-5.2,6.0) {franchise.contract};
+  \begin{scope}[on background layer]\node[a27grp=green, fit=(ctr)] (Gct) {};\end{scope}
+  \node[a27gl] at (Gct.north west) {wujia\_franchise\_contract};
+
+  % ---- account
+  \node[a27ext] (mv) at (5.2,6.0) {account.move*};
+  \node[a27ext, below=of mv] (pay) {account.payment*};
+  \begin{scope}[on background layer]\node[a27grp=green, fit=(mv)(pay)] (Gac) {};\end{scope}
+  \node[a27gl] at (Gac.north west) {wujia\_account};
+
+  % ---- operations
+  \node[a27mdl] (emp) at (-5.2,2.2) {franchise.employee};
+  \node[a27mdl, below=of emp] (asg) {employee.assignment};
+  \node[a27mdl, below=of asg] (wsch) {work.schedule};
+  \node[a27mdl, below=of wsch] (shift) {shift.template};
+  \node[a27mdl, below=of shift] (rev) {franchise.revenue};
+  \node[a27mdl, below=of rev] (exp) {franchise.expense};
+  \begin{scope}[on background layer]\node[a27grp=green, fit=(emp)(exp)] (Gop) {};\end{scope}
+  \node[a27gl] at (Gop.north west) {wujia\_franchise\_operations};
+  \draw[a27rel] (asg.west) to[bend left=40] (emp.west);
+  \draw[a27rel] (wsch.west) to[bend left=40] (asg.west);
+
+  % ---- inspection
+  \node[a27mdl] (ins) at (5.2,2.2) {franchise.inspection};
+  \node[a27mdl, below=of ins] (insl) {inspection.line};
+  \node[a27mdl, below=of insl] (tpl) {inspection.template};
+  \node[a27mdl, below=of tpl] (grd) {inspection.grade};
+  \node[a27mdl, below=of grd] (sch) {supervision.schedule};
+  \begin{scope}[on background layer]\node[a27grp=green, fit=(ins)(sch)] (Gin) {};\end{scope}
+  \node[a27gl] at (Gin.north west) {wujia\_franchise\_inspection};
+  \draw[a27rel] (insl.east) to[bend right=40] (ins.east);
+  \draw[a27rel] (sch.east) to[bend right=40] (grd.east);
+
+  % ---- sale / delivery / fleet
+  \node[a27ext] (so) at (-5.2,-4.2) {sale.order*};
+  \node[a27mdl, below=of so] (pcat) {product.category};
+  \node[a27mdl, below=of pcat] (sdr) {supply.demand.report};
+  \begin{scope}[on background layer]\node[a27grp=green, fit=(so)(sdr)] (Gsa) {};\end{scope}
+  \node[a27gl] at (Gsa.north west) {wujia\_sale};
+
+  \node[a27ext] (batch) at (0,-4.2) {stock.picking.batch*};
+  \node[a27ext, below=of batch] (pick) {stock.picking*};
+  \begin{scope}[on background layer]\node[a27grp=green, fit=(batch)(pick)] (Gde) {};\end{scope}
+  \node[a27gl] at (Gde.north west) {wujia\_delivery};
+
+  \node[a27mdl] (fl) at (5.2,-4.2) {fleet.management};
+  \node[a27mdl, below=of fl] (prov) {fleet.provider};
+  \node[a27mdl, below=of prov] (ftype) {fleet.type};
+  \node[a27mdl, below=of ftype] (fpl) {fleet.pricelist};
+  \begin{scope}[on background layer]\node[a27grp=green, fit=(fl)(fpl)] (Gfl) {};\end{scope}
+  \node[a27gl] at (Gfl.north west) {wujia\_fleet};
+  \draw[a27rel] (batch) -- (fl);
+  \draw[a27rel] (so) -- (batch);
+
+  % ---- phân hệ tách ra (L2 mới)
+  \node[a27mdl] (ow) at (-5.2,-8.6) {order.window};
+  \begin{scope}[on background layer]\node[a27grp=orange, fit=(ow)] (Gow) {};\end{scope}
+  \node[a27gl] at (Gow.north west) {wujia\_order\_window};
+
+  \node[a27mdl] (ir) at (0,-8.6) {info.update.request};
+  \begin{scope}[on background layer]\node[a27grp=orange, fit=(ir)] (Gir) {};\end{scope}
+  \node[a27gl] at (Gir.north west) {wujia\_info\_request};
+
+  \node[a27mdl] (art) at (5.2,-8.6) {knowledge.article};
+  \node[a27mdl, below=of art] (kcat) {knowledge.category};
+  \node[a27mdl, below=of kcat] (ktag) {knowledge.tag};
+  \begin{scope}[on background layer]\node[a27grp=orange, fit=(art)(ktag)] (Gkn) {};\end{scope}
+  \node[a27gl] at (Gkn.north west) {wujia\_knowledge};
+  \draw[a27rel] (art.east) to[bend right=40] (kcat.east);
+
+  \node[a27mdl] (tk) at (-5.2,-11.4) {support.ticket};
+  \node[a27mdl, below=of tk] (tcat) {support.category};
+  \begin{scope}[on background layer]\node[a27grp=orange, fit=(tk)(tcat)] (Gsu) {};\end{scope}
+  \node[a27gl] at (Gsu.north west) {wujia\_support};
+
+  \node[a27mdl] (nt) at (0,-11.4) {notification};
+  \node[a27mdl, below=of nt] (nrd) {notification.read};
+  \node[a27mdl, below=of nrd] (ntyp) {notification.type};
+  \begin{scope}[on background layer]\node[a27grp=orange, fit=(nt)(ntyp)] (Gno) {};\end{scope}
+  \node[a27gl] at (Gno.north west) {wujia\_announcement {\tiny(giữ \_name wujia.notification)}};
+  \draw[a27rel] (nrd.west) to[bend left=40] (nt.west);
+
+  \node[a27mdl] (reg) at (5.2,-11.4) {exam.registration};
+  \node[a27mdl, below=of reg] (regl) {registration.line};
+  \node[a27mdl, below=of regl] (ses) {exam.session};
+  \node[a27mdl, below=of ses] (crs) {exam.course};
+  \node[a27mdl, below=of crs] (slot) {exam.time.slot};
+  \begin{scope}[on background layer]\node[a27grp=orange, fit=(reg)(slot)] (Gex) {};\end{scope}
+  \node[a27gl] at (Gex.north west) {wujia\_exam};
+  \draw[a27rel] (regl.east) to[bend right=40] (reg.east);
+  \draw[a27rel] (ses.east) to[bend right=40] (crs.east);
+
+  \node[a27mdl] (rr) at (-5.2,-15.0) {return.request};
+  \node[a27mdl, below=of rr] (alloc) {compensation.allocation};
+  \node[a27mdl, below=of alloc] (itype) {return.issue.type};
+  \begin{scope}[on background layer]\node[a27grp=orange, fit=(rr)(itype)] (Gre) {};\end{scope}
+  \node[a27gl] at (Gre.north west) {wujia\_return};
+  \draw[a27rel] (alloc.west) to[bend left=40] (rr.west);
+
+  % ---- model riêng của kênh portal (L4)
+  \node[a27mdl] (cart) at (5.2,-18.2) {portal.cart (+line)};
+  \node[a27mdl, below=of cart] (debt) {portal.debt (abstract)};
+  \begin{scope}[on background layer]\node[a27grp=blue, fit=(cart)(debt)] (Gpo) {};\end{scope}
+  \node[a27gl] at (Gpo.north west) {L4 · model riêng của portal};
+
+  % ---- quan hệ xuyên module (franchise_id / area_id / sale_order_id)
+  \draw[a27rel] (Gfr.north) -- (Gco.south);
+  \draw[a27rel] (Gct.south east) -- (hub.north west);
+  \draw[a27rel] (Gac.south west) -- (hub.north east);
+  \draw[a27rel] (Gop.east) -- (hub.west);
+  \draw[a27rel] (Gin.west) -- (hub.east);
+  \draw[a27rel] (Gsa.north) -- node[font=\sffamily\tiny, fill=white, inner sep=1pt, pos=0.55]{franchise\_id} (Gfr.south west);
+  \draw[a27rel] (Gde.north) -- node[font=\sffamily\tiny, fill=white, inner sep=1pt]{franchise\_id} (Gfr.south);
+  \node[draw=orange!80!black, dashed, thick, rounded corners=5pt, inner sep=9pt, fit=(Gow)(Gkn)(Gre)(Gex)] (Gmv) {};
+  \draw[a27xrel] (Gmv.north -| -2.9,0) -- (-2.9,0.2) -- (Gfr.west |- 0,0.2)
+     node[pos=0.4, font=\sffamily\tiny, fill=white, inner sep=1pt, rotate=90]{franchise\_id (trừ knowledge)};
+  \draw[a27xrel] (Gmv.north -| -6.3,0) -- (Gsa.south -| -6.3,0)
+     node[midway, font=\sffamily\tiny, fill=white, inner sep=1pt, rotate=90]{sale\_order\_id};
+  \node[font=\sffamily\scriptsize, align=left, anchor=north west, text width=8.8cm] at (-7.2,-17.4)
+    {\textbf{Đọc hình.} Hộp xanh lá $=$ module nghiệp vụ đang sạch; cam $=$ phân hệ tách ra khỏi
+     \texttt{wujia\_portal\_<x>}; xanh dương $=$ model riêng của kênh. Nền vàng là \emph{hub}
+     \texttt{wujia.franchise.management}. Model có \texttt{*} là model Odoo được kế thừa. Mũi tên
+     đen $=$ Many2one. Khung cam đứt nét gom 7 phân hệ tách ra; hai mũi tên cam là \textbf{quan hệ gộp}: mọi phân
+     hệ trong khung có \texttt{franchise\_id} $\rightarrow$ hub (trừ knowledge); \texttt{support},
+     \texttt{return} trỏ \texttt{sale.order} và \texttt{stock.picking.batch};
+     \texttt{order\_window} trỏ \texttt{res.area}; \texttt{exam}, \texttt{notification.read}
+     trỏ thêm \texttt{franchise.member}.};
+\end{tikzpicture}}
+\caption{Phác thảo ERD theo module đích --- model chính và quan hệ Many2one then chốt (đo từ source \texttt{12750a2}).}
+\label{fig:adr27-erd}
+\end{figure}}

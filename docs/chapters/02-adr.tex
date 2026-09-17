@@ -139,4 +139,8 @@ Mỗi quyết định lớn ghi 1 mục. BA muốn thay đổi → mở PR sửa
     \item[$-$] Mất khả năng cài/uninstall riêng "hồ sơ hợp đồng". Đánh giá: không quan trọng vì cả 2 model đều phải có để chạy nghiệp vụ portal.
 \end{itemize}
 
+\section{ADR-027: Kiến trúc tầng module \& Mobile core (\emph{đề xuất 2026-09-17})}
+
+\textbf{Tóm tắt:} 4 tầng (Odoo $\rightarrow$ \texttt{wujia\_core} $\rightarrow$ nghiệp vụ \emph{cùng cấp} khung kênh portal/mobile $\rightarrow$ module ghép), mũi tên chỉ đi xuống; nghiệp vụ và khung kênh không depend nhau; hai kênh không depend chéo; \texttt{wujia\_portal\_base} là L3a (nền ghép portal, cấm thêm depend), \texttt{portal\_<x>}/\texttt{mobile\_<x>} là L3b. \texttt{wujia\_mobile\_core} depend \texttt{web} $+$ \texttt{muk\_web\_theme}. Cầu nối \texttt{wujia\_mobile\_<x>} dạng \texttt{auto\_install}. Tách dần nghiệp vụ khỏi 7 module \texttt{wujia\_portal\_*}. Chi tiết: Chapter ADR-027.
+
 % ===========================================================================

@@ -1,0 +1,438 @@
+\chapter{ADR-027 --- Kiến trúc tầng module \& Mobile core (2026-09-17)}
+\input{chapters/74-adr027-figures}
+\sloppy
+
+\emph{Chapter này là một \textbf{quyết định kiến trúc đề xuất}, chưa có dòng code nghiệp vụ nào.
+Nó trả lời câu hỏi của BA và chủ dự án: muốn dựng \emph{mobile core} cho backend ERP thì
+module phải phụ thuộc nhau thế nào, để sau này tách Wujia thành các folder/repo riêng như
+beesuite mà không bị kéo ngược lên portal. Mọi con số trong chapter đo trên \texttt{main}
+\texttt{12750a2} (sau khi pull 109 commit) và trên UAT chỉ-đọc qua XML-RPC.}
+
+\section{Bối cảnh --- vì sao phải chốt trước khi viết module mobile đầu tiên}
+
+Khi mở backend ERP trên điện thoại (ví dụ view kanban), thao tác vẫn là kiểu máy tính: dựa
+vào \emph{hover}, không có trạng thái chạm, không có chọn bản ghi như một app mobile. BA đề
+xuất dựng \textbf{một mobile core dùng chung}: chỉ sửa CSS/JS của backend, không đụng portal,
+không đụng controller.
+
+Chủ dự án nêu ra đúng chỗ đáng lo. Nếu mỗi phân hệ có một module mobile
+(\texttt{wujia\_mobile\_sale}, \texttt{wujia\_mobile\_franchise}\ldots) thì module đó phải depend
+cả mobile core lẫn phân hệ nghiệp vụ. Nếu phân hệ nghiệp vụ lại đang depend portal, thì
+\emph{mobile bị kéo ngược lên portal}. Hai kênh dính vào nhau, và không tách repo được nữa.
+
+Quyết định dependency là loại quyết định \textbf{rất đắt để sửa về sau}: đổi chủ một model giữa
+hai module trên DB đang chạy phải viết migration \texttt{ir\_model\_data} (xem \S\ref{sec:adr27-xmlid}).
+Vì vậy phải chốt trước.
+
+\section{Hiện trạng --- bản đồ phụ thuộc thật}
+
+\subsection*{Tên gọi dễ nhầm}
+
+\begin{itemize}
+\item \textbf{Không có module \texttt{wujia\_base}.} \texttt{base} là module lõi của Odoo. Cái
+  hay được gọi tắt là ``base'' là \texttt{wujia\_portal\_base}, tức lõi của portal.
+\item \texttt{wujia\_core} rất mỏng: chỉ 2 model master data \texttt{res.area} (khu vực) và
+  \texttt{res.ward} (phường), depend \texttt{base, mail, contacts}.
+\item \texttt{wujia\_franchise} depend module \texttt{portal} \emph{của Odoo}. Đó là để có nhóm
+  \texttt{base.group\_portal} viết ACL/rule, \textbf{không phải} depend portal Vuexy của Wujia.
+\end{itemize}
+
+\subsection*{Xếp 26 module Wujia vào tầng (đo từ \texttt{\_\_manifest\_\_.py})}
+
+\begin{center}
+\small
+\begin{tabularx}{\textwidth}{lX}
+\toprule
+\textbf{Nhóm} & \textbf{Module} \\
+\midrule
+Nền Wujia & \texttt{wujia\_core} \\
+Nghiệp vụ sạch & \texttt{wujia\_franchise}, \texttt{wujia\_franchise\_contract},
+  \texttt{wujia\_franchise\_inspection}, \texttt{wujia\_franchise\_operations},
+  \texttt{wujia\_sale}, \texttt{wujia\_fleet}, \texttt{wujia\_delivery}, \texttt{wujia\_account} \\
+Khung portal & \texttt{wujia\_portal\_layout} (chỉ depend \texttt{base, web, auth\_signup}),
+  \texttt{wujia\_portal\_base} (depend \texttt{wujia\_sale} + layout) \\
+Portal thuần (controller + QWeb) & \texttt{portal\_debt}, \texttt{portal\_delivery},
+  \texttt{portal\_inspection}, \texttt{portal\_purchase\_history}, \texttt{portal\_report},
+  \texttt{portal\_sale} \\
+\textbf{``Portal'' nhưng ôm nghiệp vụ} & \texttt{portal\_order\_window}, \texttt{portal\_info\_request},
+  \texttt{portal\_knowledge}, \texttt{portal\_support}, \texttt{portal\_notification},
+  \texttt{portal\_exam}, \texttt{portal\_return} \\
+Workstream riêng & \texttt{wj\_ks\_dashboard\_ninja}, \texttt{wj\_ks\_dn\_advance} \\
+\bottomrule
+\end{tabularx}
+\end{center}
+
+Bên thứ ba nằm cùng \texttt{custom/} (kế toán \texttt{om\_*}/\texttt{eh\_*},
+\texttt{auditlog}, \texttt{base\_user\_role}, \texttt{purchase\_request}, \texttt{mcp\_server},
+\texttt{legion\_enterprise\_theme}\ldots) và theme backend MuK trong \texttt{themes/} được
+coi là tầng Odoo.
+
+\subsection*{Chẩn đoán}
+
+\paragraph{(a) Chỗ chủ dự án lo lại đang sạch.} Không module nghiệp vụ nào
+(\texttt{core}, \texttt{franchise*}, \texttt{sale}, \texttt{fleet}, \texttt{delivery},
+\texttt{account}) depend bất kỳ \texttt{wujia\_portal\_*} nào. Do đó
+\texttt{wujia\_mobile\_franchise} $=$ mobile core $+$ \texttt{wujia\_franchise}
+\textbf{không kéo theo portal}.
+
+\paragraph{(b) Chỗ hỏng thật: 7 module ``portal'' đang ôm nghiệp vụ backend.} Chúng định nghĩa
+model, view backend, menu, nhóm quyền, sequence. Tức là \emph{nghiệp vụ nằm trong kênh}.
+
+\begin{center}
+\footnotesize
+\begin{tabular}{lrrrrl}
+\toprule
+Module & xmlid & Dòng model & Dòng ACL & Sequence & Model sở hữu \\
+\midrule
+\texttt{portal\_order\_window}  & 7  & 291  & 3  & 0 & order.window (+SO) \\
+\texttt{portal\_info\_request}  & 13 & 175  & 3  & 1 & info.update.request \\
+\texttt{portal\_knowledge}      & 20 & 250  & 7  & 1 & article / category / tag \\
+\texttt{portal\_support}        & 26 & 310  & 5  & 1 & ticket / category \\
+\texttt{portal\_notification}   & 29 & 566  & 10 & 1 & notification / read / type \\
+\texttt{portal\_exam}           & 35 & 646  & 13 & 1 & 5 model thi \\
+\texttt{portal\_return}         & 32 & 1108 & 12 & 1 & return, compensation (+SO/picking) \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+Hệ quả cụ thể: muốn cho HQ duyệt \emph{Đăng ký thi} trên điện thoại thì
+\texttt{wujia\_mobile\_exam} buộc phải depend \texttt{wujia\_portal\_exam}, kéo theo
+\texttt{wujia\_portal\_base}, \texttt{wujia\_portal\_layout}, \texttt{wujia\_sale} và cả bundle
+\texttt{web.assets\_frontend}. Khi tách repo cũng không có cách nào để nghiệp vụ thi nằm ngoài
+folder portal (Hình~\ref{fig:adr27-why}).
+
+\adrWhyFigure
+
+\paragraph{(c) Ba điểm lệch nhỏ hơn, ghi lại cho đủ.}
+\begin{enumerate}
+\item \texttt{wujia\_portal\_base} đọc \emph{mềm} model của module nó không depend
+  (\texttt{request.env.get('wujia.knowledge.article')}, \texttt{'wujia.notification.read'}\ldots)
+  để dựng Home. Không lỗi khi thiếu module, nhưng lõi portal đang ``biết'' tên model của nghiệp vụ.
+\item Test component của \texttt{wujia\_portal\_layout} (\texttt{test\_d3/d4/e2b/c8\ldots})
+  tham chiếu template của \texttt{portal\_exam}, \texttt{portal\_return}\ldots\ Tầng khung đang
+  test ngược lên tầng trên.
+\item \texttt{wujia\_franchise\_inspection} chứa một trang web cho người đi khảo sát
+  (\texttt{/franchise/inspection/do}, \texttt{auth='user'}) cùng CSS/JS backend. Đây là một màn
+  \emph{kênh} nằm trong module nghiệp vụ, và cũng là ứng viên tự nhiên nhất cho mobile.
+\end{enumerate}
+
+\paragraph{(d) Hai bundle CSS vốn đã tách sẵn.} Portal nạp vào \texttt{web.assets\_frontend}, backend
+nạp vào \texttt{web.assets\_backend}. Theme backend đang chạy trên UAT là
+\texttt{muk\_web\_theme} 19.0.1.4.4 (\texttt{legion\_enterprise\_theme} có trong repo nhưng
+\emph{uninstalled}). Nên ``mobile core chỉ sửa CSS backend, không ảnh hưởng portal'' là khả thi
+về kỹ thuật.
+
+\paragraph{(e) Đã có tiền lệ tách module thành công.} Đợt tách \texttt{wujia\_franchise}
+$\rightarrow$ \texttt{\_contract}/\texttt{\_inspection}/\texttt{\_operations} dùng
+\texttt{pre\_init\_hook} đổi chủ \texttt{ir\_model\_data}
+(\texttt{wujia\_franchise\_inspection/hooks.py}), và \textbf{đã cài trên UAT}
+(\texttt{wujia\_franchise\_inspection} 19.0.1.0.0 \emph{installed}). Quy trình đề xuất ở dưới
+chính là quy trình đó, chuẩn hoá lại.
+
+\section{Quyết định --- 4 tầng, mũi tên chỉ đi xuống}
+
+\textbf{Nói ngắn:} nghiệp vụ (\texttt{wujia\_exam}\ldots) và khung giao diện
+(\texttt{portal\_layout}, \texttt{mobile\_core}) là \textbf{hai thứ ngang hàng, không biết nhau}.
+Chỉ module ghép ở tầng trên (\texttt{portal\_exam}, \texttt{mobile\_exam}) mới depend cả hai.
+Sơ đồ ở Hình~\ref{fig:adr27-layers}.
+
+\begin{itemize}
+\item \textbf{L0} Odoo + bên thứ 3 (\texttt{base, web, sale, stock, account, portal, muk\_web\_theme, om\_*}\ldots).
+\item \textbf{L1} nền: \texttt{wujia\_core}; platform \texttt{wujia\_security/approval/job/audit/\ldots\_core} và \texttt{wujia\_ui\_core} --- \textbf{chỉ tạo khi thật sự có ít nhất 2 nơi cần} (xem \S\ref{sec:adr27-ba}).
+\item \textbf{L2} gồm hai nhóm \textbf{cùng cấp}:
+  \begin{itemize}
+  \item nghiệp vụ: 8 module đang sạch + 7 phân hệ tách ra (\texttt{wujia\_order\_window}, \texttt{\_info\_request}, \texttt{\_knowledge}, \texttt{\_support}, \texttt{\_announcement}, \texttt{\_exam}, \texttt{\_return});
+  \item khung kênh: \texttt{wujia\_portal\_layout} \quad|\quad \texttt{wujia\_mobile\_core}.
+  \end{itemize}
+\item \textbf{L3} module ghép, chia hai bậc:
+  \begin{itemize}
+  \item \textbf{L3a} \texttt{wujia\_portal\_base} --- nền ghép của nhánh portal (``tầng 2.5'');
+  \item \textbf{L3b} \texttt{wujia\_portal\_<x>} \quad|\quad \texttt{wujia\_mobile\_<x>}.
+  \end{itemize}
+\end{itemize}
+
+\adrLayerFigure
+
+\subsection{Bốn luật dependency}
+
+\begin{enumerate}
+\item \textbf{Nghiệp vụ không depend khung kênh hay module ghép.} Nghiệp vụ không biết portal hay
+  mobile tồn tại. Model, view backend, menu, nhóm quyền, ACL, ir.rule (kể cả rule cho
+  \texttt{group\_portal}), sequence, cron \textbf{đều ở nghiệp vụ}.
+\item \textbf{Khung kênh không depend nghiệp vụ.} \texttt{wujia\_portal\_layout} chỉ depend
+  \texttt{base, web, auth\_signup} (đúng như code hiện tại); \texttt{wujia\_mobile\_core} chỉ depend
+  \texttt{web, muk\_web\_theme}. Cả hai phải bê sang dự án khác được.
+\item \textbf{Hai kênh không depend chéo.} \texttt{wujia\_mobile\_*} không depend
+  \texttt{wujia\_portal\_*} và ngược lại. Thứ gì cả hai cần chung thì mới tạo \texttt{wujia\_ui\_core}.
+\item \textbf{Module ghép chỉ chứa phần kênh.} Portal: controller, QWeb, frontend asset. Mobile:
+  backend asset, view inherit tối thiểu. \textbf{Không định nghĩa model nghiệp vụ ở đây.} Model thuần
+  phục vụ kênh được ở lại, ví dụ giỏ hàng \texttt{wujia.portal.cart}, seam \texttt{wujia.portal.debt}.
+\end{enumerate}
+
+\subsection{\texttt{wujia\_portal\_base} --- nền của nhánh portal (ngoại lệ có ghi nhận)}
+
+\texttt{wujia\_portal\_base} là \texttt{portal\_layout} + cửa hàng + Home, nên nó đứng
+ở \textbf{L3a --- bậc dưới của tầng ghép}, không phải khung kênh. Mọi \texttt{wujia\_portal\_<x>} depend nó.
+
+\begin{itemize}
+\item \textbf{Giữ depend \texttt{wujia\_franchise} + \texttt{wujia\_sale}.} Portal Wujia là kênh đặt
+  hàng của cửa hàng: không có cảnh chạy portal mà thiếu cửa hàng hay thiếu bán hàng.
+\item \textbf{Luật L3a/L3b} (kiểm bằng \texttt{check\_layers.py}): mọi \texttt{wujia\_portal\_<x>}
+  phải depend \texttt{wujia\_portal\_base}; \texttt{wujia\_portal\_base} không được depend bất kỳ
+  \texttt{wujia\_portal\_<x>} nào.
+\item \textbf{Cấm thêm depend nghiệp vụ mới.} Phân hệ khác chỉ được đọc mềm (\texttt{request.env.get(\ldots)}) như hiện tại.
+\item \textbf{Không tách Home ra từng module lúc này.} Home vừa gom về một chỗ (C7, E1). Rải khối Home
+  ra nhiều module qua xpath làm thứ tự khối phụ thuộc thứ tự cài, dễ vỡ mà không được gì.
+\item \textbf{Mobile không cần module tương đương.} Backend đã có record rule lo quyền dữ liệu, nên
+  \texttt{mobile\_core} giữ được thuần. Nếu sau này mobile cần chọn cửa hàng thì làm
+  \texttt{wujia\_mobile\_franchise} ở tầng ghép.
+\end{itemize}
+
+\subsection{Vì sao chọn cấu trúc này}
+
+\begin{itemize}
+\item \textbf{Đúng cách Odoo tự tổ chức}: \texttt{sale} (nghiệp vụ), \texttt{website\_sale}
+  (kênh web), \texttt{sale\_stock} (cầu nối). Ai quen Odoo đọc là hiểu, không cần học quy ước riêng.
+\item \textbf{Tách repo chỉ là cắt theo tầng}: \texttt{wujia-core/} (L1+L2),
+  \texttt{wujia-portal/} (khung + ghép portal), \texttt{wujia-mobile/} (khung + ghép mobile). Mỗi folder là
+  một mục \texttt{addons\_path}. Hai khung chung chung (\texttt{portal\_layout},
+  \texttt{mobile\_core}) còn có thể lên kho dùng chung beesuite.
+\item \textbf{Cài theo nhu cầu}: môi trường không cần portal chỉ cài L1 + nghiệp vụ (+ mobile), backend
+  vẫn đủ.
+\item \textbf{Luật đọc được bằng máy}: chỉ cần đọc \texttt{\_\_manifest\_\_.py} là kiểm được. Sẽ
+  có script \texttt{scripts/qa/check\_layers.py} báo vi phạm, để luật không chỉ nằm trên giấy.
+\end{itemize}
+
+\subsection{Phương án đã cân nhắc và loại}
+
+\begin{description}
+\item[Giữ nguyên, chỉ áp luật cho module mới.] Loại. Mobile cho thi, thông báo, hỗ trợ, đổi trả
+  gần như chắc chắn sẽ cần (HQ duyệt trên điện thoại). Đến lúc đó hoặc phá luật 3, hoặc tách giữa
+  lúc đang làm tính năng, tức là trả giá gấp đôi.
+\item[Tách cả 7 phân hệ trong một đợt.] Loại. 7 lần đổi chủ xmlid trên UAT có dữ liệu thật trong
+  một lệnh deploy thì hỏng không bisect được. Sai một xmlid là mất nhóm quyền hoặc sequence một
+  cách \emph{im lặng}. Bài học D3c/D4: lỗi deploy chỉ lộ khi đo.
+\item[Mọi phân hệ luôn đủ bộ 3 module.] Loại. Module rỗng làm phình danh sách mà không đem lại gì.
+\end{description}
+
+\section{Mobile core --- phụ thuộc và phạm vi}
+
+\textbf{Quyết định:} \texttt{wujia\_mobile\_core} depend \texttt{web} $+$ \texttt{muk\_web\_theme},
+\textbf{không} depend \texttt{wujia\_core}.
+
+\begin{itemize}
+\item \texttt{wujia\_core} chỉ có bảng khu vực/phường. CSS mobile không dùng tới. Depend vào đó
+  thì mobile core thành ``của Wujia'', không tái dùng được, và phá luật 3.
+\item \texttt{muk\_web\_theme} là nền backend \emph{đang thật sự render} (appsbar, chatter,
+  dialog). CSS mobile viết đè lên DOM của MuK, nên phải nạp \emph{sau} MuK. Không depend thì thứ
+  tự nạp asset không được bảo đảm, và rule sẽ thua đúng kiểu bẫy C6/D3 (rule nạp sau thắng).
+\item Nếu sau này đổi theme backend (ví dụ sang \texttt{legion\_enterprise\_theme}), chỉ một mình
+  mobile core phải sửa. Không phân hệ nào bị kéo theo.
+\end{itemize}
+
+\textbf{Nội dung:} chỉ bundle \texttt{web.assets\_backend}, bọc trong breakpoint mobile.
+\begin{itemize}
+\item Trạng thái chạm \texttt{:active} thay cho \texttt{:hover}; vùng chạm tối thiểu 44px.
+\item Chọn bản ghi trên kanban/list theo kiểu app (chạm giữ / ô chọn hiện rõ).
+\item Áp cho các view \emph{chung}: kanban, list, form, control panel, search panel, dialog,
+  chatter. Dự kiến gánh phần lớn nhu cầu.
+\item \textbf{Không} model Python, \textbf{không} controller, \textbf{không} chạm
+  \texttt{web.assets\_frontend}. Portal không thể bị ảnh hưởng.
+\end{itemize}
+
+\section{Module cầu nối \texttt{wujia\_mobile\_<x>} --- \texttt{auto\_install}, chỉ tạo khi có nội dung}
+
+\textbf{Cầu nối là gì.} Module nhỏ chỉ để nối hai module đã có. Odoo có \texttt{sale\_stock}:
+depend \texttt{['sale', 'stock']} và khai \texttt{auto\_install: True}. Nghĩa là khi DB
+\textbf{đã có đủ} \texttt{sale} lẫn \texttt{stock} thì Odoo \textbf{tự cài}
+\texttt{sale\_stock}, không ai phải nhớ. Áp vào Wujia:
+
+\begin{lstlisting}[style=python]
+# wujia_mobile_franchise_inspection/__manifest__.py
+'depends': ['wujia_mobile_core', 'wujia_franchise_inspection'],
+'auto_install': True,
+'assets': {'web.assets_backend': [...]},
+\end{lstlisting}
+
+\textbf{Khi nào tạo.} Chỉ khi CSS/view \textbf{nhắc tới model hoặc view cụ thể của một phân hệ}.
+Ví dụ phiếu khảo sát cửa hàng, hay form duyệt đổi trả nhiều cột. Còn view chung đã đẹp nhờ mobile
+core thì \emph{không tạo}. Một selector kiểu \texttt{.o\_wujia\_inspection\_*} nằm trong mobile
+core là dấu hiệu phải tách ra cầu nối.
+
+Tính đối xứng nằm ở \textbf{luật đặt tên} (\texttt{wujia\_<x>} / \texttt{wujia\_portal\_<x>} /
+\texttt{wujia\_mobile\_<x>}), không nằm ở việc lúc nào cũng phải có đủ ba module.
+
+\section{Phác thảo ERD theo module đích}
+
+Hình~\ref{fig:adr27-erd} xếp model chính vào \emph{module mà nó sẽ thuộc về} sau khi tách, cùng
+quan hệ Many2one then chốt. Danh sách đo bằng AST trên \texttt{custom/*/models} (không đoán theo
+tên). Ba điều đọc ra từ hình:
+
+\begin{enumerate}
+\item \textbf{Mọi đường đều dẫn về \texttt{wujia.franchise.management}.} Đây là hub. Nên
+  \texttt{wujia\_franchise} phải đứng thấp nhất trong L2, và mọi phân hệ khác depend nó chứ không
+  có chiều ngược lại.
+\item \textbf{Quan hệ ngược thì dùng kế thừa từ module trên.} \texttt{wujia\_franchise\_contract}
+  thêm \texttt{current\_contract\_id} vào management, \texttt{\_inspection} thêm
+  \texttt{latest\_inspection\_id}. Hub không phải biết hai module đó. Đây là cách tránh vòng lặp
+  phụ thuộc mà ADR-015 từng vướng, và là khuôn cho mọi phân hệ tách ra.
+\item \textbf{Depends của phân hệ tách ra suy thẳng từ quan hệ}: \texttt{wujia\_return},
+  \texttt{wujia\_support} $\rightarrow$ \texttt{wujia\_sale} (\texttt{sale.order},
+  \texttt{stock.picking.batch}); \texttt{wujia\_order\_window} $\rightarrow$ \texttt{wujia\_sale}
+  $+$ \texttt{wujia\_core}; \texttt{wujia\_exam}, \texttt{wujia\_announcement},
+  \texttt{wujia\_info\_request} $\rightarrow$ \texttt{wujia\_franchise};
+  \texttt{wujia\_knowledge} không có Many2one nào sang Wujia, chỉ cần \texttt{mail} (hiện depend
+  \texttt{wujia\_franchise} có lẽ vì quyền, sẽ kiểm lúc tách).
+\end{enumerate}
+
+\adrErdFigure
+
+\section{Quy trình tách một phân hệ ra khỏi module portal}
+\label{sec:adr27-xmlid}
+
+\textbf{Điều gì làm nó nguy hiểm.} Bảng DB \emph{không} đổi, vì tên bảng lấy từ \texttt{\_name}
+chứ không lấy từ tên module. Cái nguy hiểm là \texttt{ir\_model\_data}: mọi view, menu, nhóm quyền,
+rule, ACL, sequence, \texttt{ir.model}, \texttt{ir.model.fields} đang ghi
+\texttt{module='wujia\_portal\_<x>'}. Nếu chỉ chuyển file, lúc \texttt{-u} Odoo sẽ tạo \emph{bản
+sao} dưới tên module mới, rồi \texttt{\_process\_end} \textbf{dọn bản cũ}. Hệ quả: user rơi khỏi
+nhóm quyền, rule biến mất, sequence mã phiếu chạy lại từ đầu, tệ nhất là rơi dòng
+\texttt{ir.model}.
+
+\textbf{Các bước} (khuôn \texttt{wujia\_franchise\_inspection/hooks.py}):
+\begin{enumerate}
+\item Tạo \texttt{wujia\_<x>}: chuyển \texttt{models/}, view backend, menu, \texttt{security/},
+  \texttt{data/} (sequence, cron), test model, và phần \texttt{i18n/vi\_VN.po} tương ứng.
+\item \textbf{Model dính chặt nhau đi cùng một module} (One2many $\leftrightarrow$ Many2one hai
+  chiều). Chiều ngược sang module khác thì thêm bằng \texttt{\_inherit} ở module phía trên (bài
+  học ADR-015).
+\item \texttt{wujia\_portal\_<x>} giữ controller, QWeb, asset; thêm depends
+  \texttt{wujia\_<x>}; bump version.
+\item \texttt{pre\_init\_hook} của \texttt{wujia\_<x>} đổi cột \texttt{module} cho danh sách xmlid
+  đã chuyển và cho \texttt{model\_*}/\texttt{field\_*}/\texttt{constraint\_*}. Chạy ở
+  \texttt{pre\_init\_hook} vì Odoo \emph{không} chạy migration script ở lần cài đầu.
+\item Sửa tham chiếu \texttt{wujia\_portal\_<x>.group\_\ldots} ở module khác (đo được 0--4 file
+  mỗi phân hệ, phần lớn là test của \texttt{wujia\_portal\_layout}).
+\item Deploy một lệnh: \texttt{-i wujia\_<x> -u wujia\_portal\_<x>}.
+\end{enumerate}
+
+\textbf{Kiểm bằng số, trước và sau, trên DB copy cô lập} (không đụng \texttt{wujia\_tea\_19}):
+số bản ghi từng model; số user trong từng nhóm quyền; \texttt{number\_next} của sequence; số
+menu/action/rule; \texttt{ir\_model\_data} của module cũ chỉ còn phần kênh. Mọi con số phải khớp
+tuyệt đối. Test cũ xanh y hệt, có run đối chứng (bài học Sprint 57).
+
+\section{Lộ trình}
+
+\begin{center}
+\small
+\begin{tabularx}{\textwidth}{rlX}
+\toprule
+\# & Phiên & Lý do thứ tự \\
+\midrule
+P1 & Dựng \texttt{wujia\_mobile\_core} & Không phụ thuộc việc tách, chạy song song được. Cần BA chốt màn ưu tiên. \\
+P2 & Tách \texttt{order\_window} (pilot) & 7 xmlid, 0 nhóm quyền, 0 tham chiếu ngoài. Thực chất chỉ bỏ chữ ``portal''. Quy trình mà có lỗi thì lộ ở đây với giá rẻ nhất. \\
+P3 & \texttt{info\_request} & 13 xmlid, 0 nhóm quyền. \\
+P4 & \texttt{knowledge} & 20 xmlid, có 1 cron. \\
+P5 & \texttt{support} & 26 xmlid, nhiều depends (\texttt{sale}, \texttt{stock\_picking\_batch}, \texttt{sales\_team}). \\
+P6 & \texttt{announcement} & Tách từ \texttt{portal\_notification}. 2 nhóm quyền, sequence ANN, ir.rule theo cửa hàng. Giữ \texttt{\_name} \texttt{wujia.notification} (không đổi tên bảng). \\
+P7 & \texttt{exam} & 2 nhóm quyền, 5 model. \\
+P8 & \texttt{return} & Lớn nhất: 1108 dòng model, kế thừa SO/picking, hook picking, wizard SO 0đ FIFO. Để cuối, khi quy trình đã chín. \\
+\bottomrule
+\end{tabularx}
+\end{center}
+
+Nếu BA cần mobile cho một phân hệ sớm thì \textbf{đẩy phân hệ đó lên}. Riêng pilot
+\texttt{order\_window} vẫn đi trước vì nó rẻ. Ba điểm lệch nhỏ ở mục (c) được dọn kèm phiên
+tách phân hệ tương ứng, không mở phiên riêng.
+
+\section{Đối chiếu với bảng BA ``0. Kiến trúc module''}
+\label{sec:adr27-ba}
+
+BA có một bảng kiến trúc ở đầu tab \emph{1. Model/ Field} (dòng 1--21). Đã đọc từng dòng và đối
+chiếu với manifest trong code (\texttt{12750a2}) và trạng thái cài trên UAT.
+
+\subsection*{BA đang chia thế nào}
+
+Hai cấp. \textbf{Tầng 1} gom ba loại khác nhau: platform core dùng chung (\texttt{ui, mobile,
+security, approval, notification, document, integration, job, audit}), nghiệp vụ
+(\texttt{franchise, sale, fleet, delivery}) và lõi kênh/báo cáo (\texttt{portal\_base, report}).
+\textbf{Tầng 2} là module con ``\,$\hookrightarrow$ thuộc'' một module Tầng 1.
+
+\subsection*{Kết luận: khung theo ADR-027, lấy thêm 4 ý từ BA}
+
+Khung tầng giữ nguyên, vì bảng BA không tách platform / nghiệp vụ / kênh nên không đặt được
+luật ai được depend ai, tức không giữ được hai kênh tách nhau. Bốn ý \textbf{lấy vào}:
+
+\begin{enumerate}
+\item \textbf{Tầng platform core nằm ngang} dưới nghiệp vụ (đã thêm vào L1). Điều kiện: chỉ tạo khi
+  có ít nhất 2 phân hệ cần, và \textbf{bọc module đã cài trên UAT} thay vì viết lại:
+  \texttt{queue\_job} (job), \texttt{auditlog} (audit), \texttt{dynamic\_approval\_workflow} +
+  \texttt{eh\_account\_approval} (duyệt).
+\item \textbf{\texttt{wujia\_ui\_core}}: chỗ để portal và mobile dùng chung giao diện mà không depend
+  nhau (đã thêm vào luật 2).
+\item \textbf{Ký hiệu ``$\hookrightarrow$ thuộc module X''} cho module con, dễ đọc với BA. Ví dụ
+  \texttt{franchise\_contract/\_inspection/\_operations} $\hookrightarrow$ \texttt{franchise};
+  \texttt{portal\_<x>} $\hookrightarrow$ \texttt{portal\_base}; \texttt{mobile\_<x>}
+  $\hookrightarrow$ \texttt{mobile\_core}.
+\item \textbf{Đổi tên phân hệ thông báo khi tách thành \texttt{wujia\_announcement}}, vì BA đã dành
+  tên \texttt{notification\_core} cho nền tảng gửi thông báo (sự kiện + kênh). Chỉ đổi tên
+  \emph{module}; \texttt{\_name} vẫn là \texttt{wujia.notification} để không phải đổi tên bảng.
+\end{enumerate}
+
+\subsection*{Chỗ ADR-027 khác BA}
+
+\begin{itemize}
+\item BA xếp \texttt{portal\_return} là ``Tầng 2 --- thuộc Portal'' với mô tả gồm cả \emph{duyệt/xử
+  lý}. ADR-027 tách phần duyệt/xử lý xuống \texttt{wujia\_return} (L2). Đây là \textbf{câu hỏi số 6}
+  bên dưới.
+\item BA ghi \texttt{mobile\_core} depend \texttt{wujia\_core + web}. ADR-027 dùng \texttt{web +
+  muk\_web\_theme} (+ \texttt{ui\_core}); chỉ thêm \texttt{wujia\_core} khi mobile cần cấu hình
+  Wujia thật.
+\end{itemize}
+
+\subsection*{Bảng BA lệch với code --- nhờ BA sửa lại}
+
+\begin{center}
+\footnotesize
+\begin{tabularx}{\textwidth}{>{\raggedright\arraybackslash}p{4.6cm}>{\raggedright\arraybackslash}X}
+\toprule
+\textbf{BA ghi} & \textbf{Thực tế (code \texttt{12750a2} / UAT)} \\
+\midrule
+\texttt{wujia\_report} ``Đã xây dựng'' & Không tồn tại. Báo cáo nằm ở \texttt{wujia\_portal\_report}, \texttt{wujia.sale.supply.demand.report}, Dashboard Ninja. \\
+\texttt{wujia\_delivery\_cost} ``Đã xây dựng'' & Không tồn tại. Cước nằm trong \texttt{wujia\_fleet} (bảng giá) và \texttt{wujia\_delivery}. \\
+\texttt{wujia\_fleet} depend Odoo \texttt{fleet} & Không depend; \texttt{fleet} uninstalled trên UAT. Code depend \texttt{wujia\_core, wujia\_franchise, mail}. \\
+\texttt{wujia\_delivery} depend \texttt{core, sale, franchise} & Code depend \texttt{wujia\_fleet, wujia\_sale, stock\_picking\_batch}. \\
+\texttt{wujia\_sale} depend \texttt{core, franchise, sale\_management} & Code depend \texttt{sale, sale\_stock, stock, stock\_picking\_batch, wujia\_franchise}. \\
+\texttt{portal\_base} depend \texttt{core, portal, website} & Code depend \texttt{wujia\_sale, wujia\_portal\_layout, portal, bus}. \texttt{portal\_layout} không có trong bảng. \\
+\texttt{approval\_core} depend \texttt{wujia\_workflow\_core} & Module \texttt{wujia\_workflow\_core} không có dòng nào trong bảng. \\
+(không có) & \texttt{wujia\_account}, \texttt{wujia\_franchise\_contract/\_inspection/\_operations}, 13 module \texttt{wujia\_portal\_*} khác, \texttt{portal\_order\_window}. \\
+\bottomrule
+\end{tabularx}
+\end{center}
+
+Theo quy tắc đã chốt từ Sprint 41, Dev \textbf{không ghi vào tài liệu BA}; bảng trên gửi BA tự sửa.
+
+\section{Câu hỏi cần BA / chủ dự án chốt}
+
+\begin{enumerate}
+\item \textbf{Ai dùng backend trên điện thoại?} HQ duyệt, giám sát khu vực đi cửa hàng, kho, tài xế?
+\item \textbf{3--5 màn ưu tiên đầu tiên} cho mobile core (kanban nào, form nào)? Câu trả lời
+  quyết định phân hệ nào tách sớm.
+\item \textbf{Có cần chọn nhiều bản ghi trên kanban mobile} (thao tác hàng loạt) không, hay chỉ
+  cần chạm mở?
+\item \textbf{Theme backend chốt là MuK?} \texttt{legion\_enterprise\_theme} đang nằm trong repo
+  nhưng chưa cài. Nếu có ý định đổi thì phải chốt trước P1.
+\item \textbf{Màn khảo sát \texttt{/franchise/inspection/do}}: dùng chủ yếu trên điện thoại? Nếu
+  đúng, đây là ứng viên cầu nối mobile đầu tiên.
+\item \textbf{Module \texttt{wujia\_portal\_<x>} còn được chứa phần duyệt/xử lý nghiệp vụ không?}
+  Bảng BA đang xếp \texttt{portal\_return} như vậy; ADR-027 đề xuất đưa xuống \texttt{wujia\_return}.
+  Phải chốt trước khi tách 7 phân hệ.
+\item \textbf{BA sửa bảng ``0. Kiến trúc module''} theo mục đối chiếu \S\ref{sec:adr27-ba}.
+\end{enumerate}
+
+\section{Kết quả nghiệp vụ của phiên}
+
+Chưa có thay đổi nào tới người dùng. Kết quả là \textbf{một bản đồ và một bộ luật}: biết chính xác
+module nào đang nằm sai chỗ (7 module portal ôm nghiệp vụ), biết rằng nỗi lo ``mobile bị kéo lên
+portal'' \emph{không} áp dụng cho franchise/sale/fleet/delivery/account, và có một lộ trình tách
+từng bước với cách kiểm bằng số. Tiền lệ tách \texttt{wujia\_franchise} đã chạy trên UAT cho thấy
+quy trình khả thi.

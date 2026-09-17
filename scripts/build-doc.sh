@@ -5,7 +5,7 @@
 # giữ nguyên longtable/lstlisting style đẹp hơn.
 set -euo pipefail
 
-DOCS_DIR="/home/huyban/odoo-dev/WujiaTea/docs"
+DOCS_DIR="${DOCS_DIR:-$(cd "$(dirname "$0")/../docs" && pwd)}"
 TEX_FILE="wujia-tea-doc.tex"
 PDF_FILE="${TEX_FILE%.tex}.pdf"
 
