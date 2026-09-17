@@ -76,23 +76,12 @@
     <!-- Update Action Window: Desktop defaults to List (sequence 1), Mobile auto-switches to Kanban (sequence 2) -->
     <record id="wujia_franchise_inspection.action_wujia_franchise_inspection" model="ir.actions.act_window">
         <field name="view_mode">list,kanban,form</field>
-        <field name="view_id" eval="False"/>
-    </record>
-
-    <!-- Desktop Default: Sequence 1 = List View -->
-    <record id="action_wujia_franchise_inspection_view_tree" model="ir.actions.act_window.view">
-        <field name="sequence" eval="1"/>
-        <field name="view_mode">list</field>
-        <field name="view_id" ref="wujia_franchise_inspection.view_wujia_franchise_inspection_list"/>
-        <field name="act_window_id" ref="wujia_franchise_inspection.action_wujia_franchise_inspection"/>
-    </record>
-
-    <!-- Mobile Default: Sequence 2 = Kanban Card View -->
-    <record id="action_wujia_franchise_inspection_view_kanban" model="ir.actions.act_window.view">
-        <field name="sequence" eval="2"/>
-        <field name="view_mode">kanban</field>
-        <field name="view_id" ref="view_wujia_franchise_inspection_kanban_mobile"/>
-        <field name="act_window_id" ref="wujia_franchise_inspection.action_wujia_franchise_inspection"/>
+        <field name="view_ids" eval="[
+            (5, 0, 0),
+            (0, 0, {'view_mode': 'list', 'view_id': ref('wujia_franchise_inspection.view_wujia_franchise_inspection_list'), 'sequence': 1}),
+            (0, 0, {'view_mode': 'kanban', 'view_id': ref('view_wujia_franchise_inspection_kanban_mobile'), 'sequence': 2}),
+            (0, 0, {'view_mode': 'form', 'view_id': ref('wujia_franchise_inspection.view_wujia_franchise_inspection_form'), 'sequence': 3})
+        ]" />
     </record>
 
 </odoo>

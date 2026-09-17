@@ -96,23 +96,12 @@
     <!-- Update Wujia Sales Orders Window Action: Desktop defaults to List (sequence 1), Mobile auto-switches to Kanban (sequence 2) -->
     <record id="wujia_sale.action_wujia_sale_orders" model="ir.actions.act_window">
         <field name="view_mode">list,kanban,form</field>
-        <field name="view_id" eval="False" />
-    </record>
-
-    <!-- Desktop Default: Sequence 1 = List View -->
-    <record id="action_wujia_sale_orders_view_list" model="ir.actions.act_window.view">
-        <field name="sequence" eval="1"/>
-        <field name="view_mode">list</field>
-        <field name="view_id" ref="wujia_sale.view_order_tree_wujia"/>
-        <field name="act_window_id" ref="wujia_sale.action_wujia_sale_orders"/>
-    </record>
-
-    <!-- Mobile Default: Sequence 2 = Kanban Card View -->
-    <record id="action_wujia_sale_order_view_kanban" model="ir.actions.act_window.view">
-        <field name="sequence" eval="2"/>
-        <field name="view_mode">kanban</field>
-        <field name="view_id" ref="view_sale_order_kanban_wujia_mobile"/>
-        <field name="act_window_id" ref="wujia_sale.action_wujia_sale_orders"/>
+        <field name="view_ids" eval="[
+            (5, 0, 0),
+            (0, 0, {'view_mode': 'list', 'view_id': ref('wujia_sale.view_order_tree_wujia'), 'sequence': 1}),
+            (0, 0, {'view_mode': 'kanban', 'view_id': ref('view_sale_order_kanban_wujia_mobile'), 'sequence': 2}),
+            (0, 0, {'view_mode': 'form', 'view_id': ref('sale.view_order_form'), 'sequence': 3})
+        ]" />
     </record>
 
 </odoo>
