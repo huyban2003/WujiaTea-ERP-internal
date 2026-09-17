@@ -38,8 +38,8 @@ không biết màn nào của Wujia).
 
 | # | Vấn đề | Số đo | Mức | Xử lý ở |
 |---|---|---|---|---|
-| B1 | **CSS của từng màn nằm trong `portal_layout`** | 380 nhóm class, ~176 là của 1 màn (Home/KPI 56 · Đặt hàng 55 · Kiến thức 23 · Công nợ 17 · Đổi trả 11 · Info 5 · lẻ 9); 54 nhóm định nghĩa ở **cả** layout lẫn module | Cao | F2, F3 |
-| B2 | Module viết đè component chung, loại **đổi dáng** | exam 10 · debt 7 · delivery 3 · notification 3 · return 3 · sale 3 · support 1 = **30 rule** (Phụ lục B) | TB | F4 |
+| B1 | **CSS của từng màn nằm trong `portal_layout`** | 380 nhóm class, **193** là của 1 màn (Đặt hàng 78 · Home/KPI 49 · Kiến thức 23 · Lịch sử 19 · Hỗ trợ 7 · Khảo sát 4 (Thái) · debt/exam/return 3 · delivery/notification 2) — đếm F0 bằng `css_owner.py`; 54 nhóm định nghĩa ở **cả** layout lẫn module | Cao | F2, F3 |
+| B2 | Module viết đè component chung, loại **đổi dáng** | exam 15 · debt 9 · notification 6 · sale 4 · delivery 3 · return 3 · report 1 = **41 rule** (Phụ lục B, đếm F0) | TB | F4 |
 | B3 | Component chưa có template, viết class tay | EmptyState ~124 · `wj-pc-btn` ~64 | Đúng tiến độ | E5–E8 + cụm EmptyState (sau cổng) |
 | — | **Đúng chuẩn** | PageHeader 24 file · CardHeader 19 · SurfaceCard 18 · DataList 11 · Pagination 11 · SectionHeader 8 · FilterBar 2 (E4a) | | |
 
@@ -103,7 +103,7 @@ cần thống nhất với anh Thái trước khi tách phân hệ (F7+) hay là
 ```
 CỔNG F (bắt buộc trước khi mở lại Issue List)
   F0 Công cụ + mốc đo ─► F1 Controller vá an toàn ─► F2 CSS màn nhỏ ─► F3 CSS Đặt hàng + Home
-  ─► F4 Duyệt 30 rule đè ─► ★FR-B review khối B ─► F5 Khung thuần ─► ★FR-A3 review cổng
+  ─► F4 Duyệt 41 rule đè ─► ★FR-B review khối B ─► F5 Khung thuần ─► ★FR-A3 review cổng
                                    │
                                    ▼
   MỞ LẠI ISSUE LIST: E4b → E4c → E5 → E6a/b → E7a/b → E8 (+ đề xuất BA cụm EmptyState)
@@ -126,11 +126,11 @@ F6–F13 là backend/controller — không chặn component, nhưng chặn mobil
 
 | Phiên | Nội dung | Module `-u` | Rủi ro | Trạng thái |
 |---|---|---|---|---|
-| F0 | Script đo sở hữu CSS + check tầng + mốc ảnh/B4 | 0 | Thấp | ☐ |
+| F0 | Script đo sở hữu CSS + check tầng + mốc ảnh/B4 | 0 | Thấp | ✅ 17/09 |
 | F1 | C1 + C2(return) | support, base, info_request, layout, return | Thấp | ☐ |
-| F2 | CSS 8 màn nhỏ ra khỏi layout (~70 nhóm) | layout + 8 module | Thấp | ☐ |
+| F2 | CSS 8 màn nhỏ ra khỏi layout (62 nhóm) | layout + 8 module | Thấp | ☐ |
 | F3 | CSS Đặt hàng (55) + Home/KPI (56) | layout, sale, base | TB | ☐ |
-| F4 | Duyệt 30 rule đổi dáng (dừng giữa phiên xin duyệt) | layout + 7 module | TB | ☐ |
+| F4 | Duyệt 41 rule đổi dáng (dừng giữa phiên xin duyệt) | layout + 7 module | TB | ☐ |
 | **FR-B** | **Review toàn khối B (F2–F4)** | 0 hoặc vá nhỏ | — | ☐ |
 | F5 | Menu đăng ký theo module, test layout dùng fixture, redirect về module | layout + ~12 module | TB | ☐ |
 | **FR-A3** | **Review cổng F (F0–F5) → quyết mở lại Issue List** | 0 hoặc vá nhỏ | — | ☐ |
@@ -158,7 +158,7 @@ Làm phiên F0 cụm chuẩn hoá (docs/next-session-clusters-F.md). Issue List 
 Đọc trước: docs/next-session-clusters-F.md §0–§2, scripts/qa/README.md, docs/refactor-plan.md §LUẬT.
 
 Mục tiêu: có công cụ + mốc đo để F1–F5 chứng minh "trước = sau" bằng máy.
-1. scripts/qa/wj_css_owner.py (thay heuristic scratchpad):
+1. scripts/qa/css_owner.py (thay heuristic scratchpad):
    --layout-domain: liệt kê nhóm class (gốc BEM) trong wujia_portal_layout/static/assets/css/_*.css
    kèm file:dòng, gắn module ứng viên theo map tên; đánh dấu class ĐÃ dùng ở ≥2 module portal
    (đếm bằng lxml trên views/*.xml, không grep trần) ⇒ đó là component, GIỮ ở layout.
@@ -179,6 +179,8 @@ Cuối phiên: ghi mục vào docs/f-progress.md (theo mẫu) + ✅ bảng Trạ
 
 ```text
 Làm phiên F1 (docs/next-session-clusters-F.md §1.C1, §1.C2). Điều kiện: F0 xong (có baseline).
+Môi trường (F0): DB wujia_f0 port 8099 giống UAT — lệnh bật + bẫy ở docs/f0-baseline.md §1; suite đối chứng
+10 module portal = 520/520; mốc wj_measure ở docs/f0-baseline/measure_{anh,em}.json (so bằng --diff).
 
 Sửa đúng 6 điểm, không mở rộng:
 1. portal_support create (:92–133): parse int an toàn → redirect error=invalid_input; category phải
@@ -203,27 +205,27 @@ portal có dòng "Yêu cầu đã được gửi". Bump version module bị đ�
 Làm phiên F2 (docs/next-session-clusters-F.md §1.B1, Phụ lục A). Điều kiện: F0 xong.
 
 Chuyển CSS riêng của màn từ wujia_portal_layout/static/assets/css/_components.css,
-_interaction.css, _pc_components.css về file CSS của module: knowledge (23), debt (17),
-return (11), info_request (5), delivery (3), exam (2), notification (2), report (2).
+_interaction.css, _pc_components.css về file CSS của module (số đếm F0): knowledge (23), purchase_history (19),
+support (7), debt (3), exam (3), return (3), delivery (2), notification (2). Khảo sát (4) là của anh Thái — để yên.
 Luật:
-- Chạy scripts/qa/wj_css_owner.py --layout-domain trước; class dùng ở ≥2 module = component, GIỮ.
+- Chạy scripts/qa/css_owner.py --layout-domain trước; class dùng ở ≥2 module = component, GIỮ.
 - CHỈ DI CHUYỂN, không sửa giá trị. Giữ thứ tự cascade: file module phải nạp SAU layout
   (kiểm assets.xml / manifest; module chưa có file CSS thì tạo và khai báo đúng bundle/link + ?v=).
 - Selector dùng chung trong :is() hover ở _interaction.css: tách phần của màn ra, không làm đứt
   phần còn lại. Dính wj-inspection-pc ⇒ để yên.
 - Semantic diff CSS (mẫu phiên 23/08): tập rule MẤT ở layout = tập rule THÊM ở module, 0 khác.
 Nghiệm thu: semantic diff khớp tuyệt đối; wj_measure --diff với baseline F0 = 0 thay đổi computed
-style/chiều cao/số record ở 5 khổ; ảnh chụp 2 khổ mỗi màn giống; B4 286/286; wj_css_owner báo 0
+style/chiều cao/số record ở 5 khổ; ảnh chụp 2 khổ mỗi màn giống; B4 286/286; css_owner báo 0
 nhóm của 8 màn này còn ở layout. Bump ?v= + version mọi module bị đụng.
 ```
 
 ### Prompt F3 — CSS Đặt hàng + Home ra khỏi `portal_layout`
 
 ```text
-Làm phiên F3 (docs/next-session-clusters-F.md Phụ lục A: portal_sale 55, portal_base 56).
+Làm phiên F3 (docs/next-session-clusters-F.md Phụ lục A: portal_sale 78, portal_base 49).
 Điều kiện: F2 xong. Quy trình y hệt F2 (chỉ di chuyển, semantic diff, wj_measure --diff, ảnh).
 Lưu ý riêng:
-- wujia-kpi-* đã được E1 dùng làm KPI chung? Kiểm bằng wj_css_owner (≥2 module) — là component thì
+- wujia-kpi-* đã được E1 dùng làm KPI chung? Kiểm bằng css_owner (≥2 module) — là component thì
   GIỮ ở layout và ghi lại; chỉ chuyển wujia-home-*, wujia-mdash-*, store strip của portal_base.
 - Đặt hàng có realtime/JS đọc class (wujia-mcart-*, morder-*): grep static/src JS trước, không đổi tên class.
 - ProductCard/giỏ là vùng WJ-ORD-001/002/021/023 đã QA: đo thêm luồng thêm giỏ → bước → gửi đơn
@@ -231,18 +233,18 @@ Lưu ý riêng:
 Nghiệm thu như F2 + luồng giỏ hàng chạy đúng ở 390 và 1440. _components.css giảm tương ứng.
 ```
 
-### Prompt F4 — Duyệt 30 rule viết đè component
+### Prompt F4 — Duyệt 41 rule viết đè component
 
 ```text
 Làm phiên F4 (docs/next-session-clusters-F.md §1.B2, Phụ lục B). Điều kiện: F2, F3 xong.
 
-Bước 1 (không sửa code): với mỗi rule trong Phụ lục B (đếm lại bằng wj_css_owner --overrides),
+Bước 1 (không sửa code): với mỗi rule trong Phụ lục B (đếm lại bằng css_owner --overrides),
 tra ledger/acceptance xem có issue nào đóng dấu dáng đó; chụp ảnh component đó ở màn gốc vs màn đè.
 Phân 3 loại: (a) nên thành biến thể chuẩn trong layout (vd wj-card-header--sm) vì ≥2 màn cần;
 (b) lệch vô lý → bỏ, về dáng chuẩn; (c) BA đã duyệt riêng → giữ, ghi chú.
 Viết bảng vào docs/f4-override-review.md rồi DỪNG, hỏi chủ dự án duyệt bảng (có ảnh).
 Bước 2 (sau khi duyệt): áp (a) và (b). Loại (b) có đổi giao diện ⇒ ghi rõ trong bảng để báo BA.
-Nghiệm thu: wj_css_owner --overrides chỉ còn loại "chỉ bố cục" + loại (c) có ghi chú;
+Nghiệm thu: css_owner --overrides chỉ còn loại "chỉ bố cục" + loại (c) có ghi chú;
 wj_measure --diff chỉ khác đúng các màn trong bảng; test component layout xanh.
 ```
 
@@ -317,7 +319,7 @@ không còn write state/create kèm hệ quả.
 Làm phiên review <khối> (docs/next-session-clusters-F.md §2). KHÔNG làm tính năng mới.
 Phạm vi: FR-B = F2+F3+F4 · FR-A3 = cả cổng F0–F5 · FR-P = F7 · FR-A = F1, F6, F7–F13.
 1. Soi lại bằng máy trên DB copy giống UAT (luật E #1), so với baseline F0:
-   - FR-B: wj_css_owner --layout-domain/--overrides (0 nhóm màn ở layout, override chỉ còn loại giữ);
+   - FR-B: css_owner --layout-domain/--overrides (0 nhóm màn ở layout, override chỉ còn loại giữ);
      wj_measure --diff 5 khổ + ẢNH CHỤP mọi route 2 khổ, xem bằng mắt từng cặp (số Pass vẫn có thể
      giấu vỡ — bài học D3e); B4 286/286; các danh sách :is() hover ở _interaction.css không đứt.
    - FR-A3: như FR-B + menu PC/mobile theo 2 vai trò + test layout chạy độc lập + check_layers.
@@ -337,16 +339,20 @@ FR-A3 riêng: kết luận "mở lại Issue List được chưa"; nếu đượ
 
 ## Phụ lục A — Nhóm class của từng màn đang nằm trong `portal_layout`
 
-Đếm 17/09 theo tên class (heuristic). Dòng là vị trí khai báo đầu, có thể lệch vài dòng — F0 dựng
-`wj_css_owner.py` để đếm lại chính xác. Class dùng ở ≥2 module ⇒ component, giữ ở layout.
+Đếm lại 17/09 (phiên F0) bằng `scripts/qa/css_owner.py --layout-domain` — thay bản heuristic tên class.
+Nhóm = gốc BEM (bỏ `__x`, `--x`); chủ = module dùng thật (view lxml + JS + controller). Tổng **380 nhóm**
+(khớp heuristic), trong đó **193 của 1 màn** · 88 component · 84 khung layout tự dùng · 15 orphan.
+Lệch so với bản heuristic 176: heuristic gán theo tên (cả họ `wujia-msheet-*` → debt) còn script theo nơi
+dùng thật (`wujia-msheet-item*` dùng ở debt + Khảo sát ⇒ component; `wujia-msheet`/`-title` chỉ layout ⇒ khung;
+`wujia-msheet-open` exam bật ⇒ exam — F2 soi lại vì đây là cờ body của bottom sheet chung); heuristic bỏ sót
+nhóm chỉ có con BEM trong view. Đếm lại: `python3 scripts/qa/css_owner.py --layout-domain` (python env Odoo, cần lxml).
 
-### → `wujia_portal_sale` — 55 nhóm
+### → `wujia_portal_sale` — 78
 
-- `wj-pc-cart-del` — _interaction.css:110, _interaction.css:61, _interaction.css:87
-- `wj-pc-cart-step` — _interaction.css:110, _interaction.css:61, _interaction.css:87
-- `wj-pc-order-head` — _pc_components.css:347, _pc_components.css:358, _pc_components.css:359, _pc_components.css:360 (+3)
+- `wj-pc-cart-del` — _interaction.css:61, _interaction.css:87, _interaction.css:110
+- `wj-pc-cart-step` — _interaction.css:61, _interaction.css:87, _interaction.css:110
 - `wujia-mcart` — _components.css:1689
-- `wujia-mcart-del` — _components.css:1790, _components.css:1805, _interaction.css:110, _interaction.css:61 (+1)
+- `wujia-mcart-del` — _components.css:1790, _components.css:1805, _interaction.css:61, _interaction.css:87 (+1)
 - `wujia-mcart-grand` — _components.css:1861
 - `wujia-mcart-note` — _components.css:1817, _components.css:1829
 - `wujia-mcart-note-label` — _components.css:1810
@@ -361,7 +367,7 @@ FR-A3 riêng: kết luận "mở lại Issue List được chưa"; nếu đượ
 - `wujia-mcart-row-name` — _components.css:1725
 - `wujia-mcart-row-thumb` — _components.css:1707
 - `wujia-mcart-scroll` — _components.css:1692
-- `wujia-mcart-step` — _components.css:1756, _components.css:1769, _interaction.css:110, _interaction.css:61 (+1)
+- `wujia-mcart-step` — _components.css:1756, _components.css:1769, _interaction.css:61, _interaction.css:87 (+1)
 - `wujia-mcart-step-qty` — _components.css:1770
 - `wujia-mcart-stepper` — _components.css:1746
 - `wujia-mcart-submit` — _components.css:1862, _components.css:1873, _components.css:1874
@@ -380,11 +386,11 @@ FR-A3 riêng: kết luận "mở lại Issue List được chưa"; nếu đượ
 - `wujia-morder-floatbar-sub` — _components.css:1673
 - `wujia-morder-floatbar-title` — _components.css:1672
 - `wujia-morder-list` — _components.css:1484
-- `wujia-morder-mstep` — _components.css:1613, _components.css:1626, _interaction.css:110, _interaction.css:61 (+1)
+- `wujia-morder-mstep` — _components.css:1613, _components.css:1626, _interaction.css:61, _interaction.css:87 (+1)
 - `wujia-morder-mstep-qty` — _components.css:1627
 - `wujia-morder-mstepper` — _components.css:1603, _components.css:1605, _components.css:1606
 - `wujia-morder-row` — _components.css:1491
-- `wujia-morder-row-add` — _components.css:1564, _components.css:1580, _components.css:1581, _interaction.css:110 (+2)
+- `wujia-morder-row-add` — _components.css:1564, _components.css:1580, _components.css:1581, _interaction.css:61 (+2)
 - `wujia-morder-row-meta` — _components.css:1543
 - `wujia-morder-row-name` — _components.css:1530
 - `wujia-morder-row-price` — _components.css:1557
@@ -394,93 +400,43 @@ FR-A3 riêng: kết luận "mở lại Issue List được chưa"; nếu đượ
 - `wujia-morder-row-thumb-img` — _components.css:1519
 - `wujia-morder-row-thumb-ph` — _components.css:1525
 - `wujia-morder-search` — _components.css:1429
-- `wujia-morder-search-btn` — _components.css:1435, _components.css:1449, _interaction.css:110, _interaction.css:61 (+1)
+- `wujia-morder-search-btn` — _components.css:1435, _components.css:1449, _interaction.css:61, _interaction.css:87 (+1)
 - `wujia-morder-search-input` — _components.css:1450, _components.css:1456, _components.css:1465, _components.css:1475
 - `wujia-morder-warnbar` — _components.css:1404, _components.css:1416, _components.css:1419, _components.css:1423
+- `wujia-mres` — _components.css:1946, _components.css:1977
+- `wujia-mres-card` — _components.css:1947
+- `wujia-mres-cta` — _components.css:2079, _components.css:2092, _components.css:2093, _components.css:2094 (+2)
+- `wujia-mres-icon` — _components.css:1952, _components.css:1961, _components.css:1962, _components.css:1973 (+1)
+- `wujia-mres-icon-inner` — _components.css:1963, _components.css:1973, _components.css:1974
+- `wujia-mres-info` — _components.css:1994
+- `wujia-mres-info-label` — _components.css:2012
+- `wujia-mres-info-row` — _components.css:2002, _components.css:2011
+- `wujia-mres-info-value` — _components.css:2018, _components.css:2025
+- `wujia-mres-note` — _components.css:2043, _components.css:2052, _components.css:2056, _components.css:2075
+- `wujia-mres-note-body` — _components.css:2072
+- `wujia-mres-note-dot` — _components.css:2057
+- `wujia-mres-note-icon` — _components.css:2071
+- `wujia-mres-note-label` — _components.css:2073, _components.css:2075
+- `wujia-mres-note-text` — _components.css:2074
+- `wujia-mres-note-value` — _components.css:2076
+- `wujia-mres-sub` — _components.css:1984
+- `wujia-mres-sub-line` — _components.css:1991
+- `wujia-mres-title` — _components.css:1977
+- `wujia-msubmit` — _components.css:1881, _components.css:1891
+- `wujia-msubmit-card` — _components.css:1892
+- `wujia-msubmit-spinner` — _components.css:1906, _components.css:1913, _components.css:1929
+- `wujia-msubmit-sub` — _components.css:1937
+- `wujia-msubmit-title` — _components.css:1931
 
-### → `wujia_portal_debt` — 17 nhóm
+### → `wujia_portal_base` — 49
 
-- `wj-debt-actionrow` — _interaction.css:110, _interaction.css:61, _interaction.css:87
-- `wj-debt-pc-pdf` — _interaction.css:110, _interaction.css:61, _interaction.css:87
-- `wj-debt-pc-tab` — _interaction.css:110, _interaction.css:61, _interaction.css:87
-- `wujia-msheet` — _components.css:2289, _components.css:2304
-- `wujia-msheet-backdrop` — _components.css:2273, _components.css:2285
-- `wujia-msheet-close` — _components.css:2318, _components.css:2333
-- `wujia-msheet-handle` — _components.css:2311
-- `wujia-msheet-item` — _components.css:2352, _components.css:2361
-- `wujia-msheet-item-chevron` — _components.css:2396
-- `wujia-msheet-item-icon` — _components.css:2364, _components.css:2375
-- `wujia-msheet-item-sub` — _components.css:2391
-- `wujia-msheet-item-text` — _components.css:2379
-- `wujia-msheet-item-title` — _components.css:2386
-- `wujia-msheet-list` — _components.css:2349
-- `wujia-msheet-open` — _components.css:2270
-- `wujia-msheet-subtitle` — _components.css:2343
-- `wujia-msheet-title` — _components.css:2337
-
-### → `wujia_portal_delivery` — 3 nhóm
-
-- `wj-pc-dlv-chip` — _interaction.css:110, _interaction.css:61, _interaction.css:87
-- `wujia-mdelivery-row` — _interaction.css:110, _interaction.css:61, _interaction.css:87
-- `wujia-store-mobile-strip` — _interaction.css:110, _interaction.css:61, _interaction.css:87
-
-### → `wujia_portal_return` — 11 nhóm
-
-- `wujia-mreturn-btn-cancel` — _interaction.css:110, _interaction.css:61, _interaction.css:87
-- `wujia-mreturn-row` — _interaction.css:110, _interaction.css:61, _interaction.css:87
-- `wujia-mticket-bubble` — _components.css:2820, _components.css:2828, _components.css:2829, _components.css:2835 (+2)
-- `wujia-mticket-bubble-meta` — _components.css:2842, _components.css:2847, _components.css:2848
-- `wujia-mticket-hint` — _components.css:2785
-- `wujia-mticket-label` — _components.css:2773
-- `wujia-mticket-reply` — _components.css:2850
-- `wujia-mticket-reply-input` — _components.css:2857, _components.css:2868
-- `wujia-mticket-rowside` — _components.css:2791
-- `wujia-mticket-tag` — _components.css:2801
-- `wujia-mticket-thread` — _components.css:2813
-
-### → `wujia_portal_exam` — 2 nhóm
-
-- `wj-exam-pc-navbtn` — _interaction.css:110, _interaction.css:61, _interaction.css:87
-- `wujia-mexam-card` — _interaction.css:110, _interaction.css:61, _interaction.css:87
-
-### → `wujia_portal_notification` — 2 nhóm
-
-- `wj-pc-noti-head-actions` — _pc_components.css:439
-- `wujia-mnoti-row` — _interaction.css:110, _interaction.css:61, _interaction.css:87
-
-### → `wujia_portal_knowledge` — 23 nhóm
-
-- `wujia-mknow-article` — _components.css:2564
-- `wujia-mknow-article-title` — _components.css:2549
-- `wujia-mknow-att` — _components.css:2612, _components.css:2624
-- `wujia-mknow-att-main` — _components.css:2625
-- `wujia-mknow-att-name` — _components.css:2632
-- `wujia-mknow-att-sub` — _components.css:2640
-- `wujia-mknow-badges` — _components.css:2536
-- `wujia-mknow-body` — _components.css:2573, _components.css:2579, _components.css:2580, _components.css:2585 (+6)
-- `wujia-mknow-date` — _components.css:2542
-- `wujia-mknow-feat` — _components.css:2465, _components.css:2478, _interaction.css:110, _interaction.css:61 (+1)
-- `wujia-mknow-feat-main` — _components.css:2488
-- `wujia-mknow-lead` — _components.css:2567
-- `wujia-mknow-list` — _components.css:2496
-- `wujia-mknow-meta` — _components.css:2559
-- `wujia-mknow-row` — _components.css:2502, _components.css:2507, _interaction.css:110, _interaction.css:61 (+1)
-- `wujia-mknow-row-foot` — _components.css:2530
-- `wujia-mknow-row-main` — _components.css:2517
-- `wujia-mknow-row-title` — _components.css:2524
-- `wujia-mknow-sechead` — _components.css:2414
-- `wujia-mknow-sechead-pill` — _components.css:2438
-- `wujia-mknow-sechead-sub` — _components.css:2434
-- `wujia-mknow-sechead-title` — _components.css:2429
-- `wujia-mknow-tile` — _components.css:2451, _components.css:2463
-
-### → `wujia_portal_report` — 2 nhóm
-
-- `wj-pc-metric-card` — _pc_components.css:137, _pc_components.css:143, _pc_components.css:153, _pc_components.css:154 (+5)
-- `wj-pc-metric-grid` — _pc_components.css:126
-
-### → `wujia_portal_base` — 56 nhóm
-
+- `wj-empty-state-body` — _components.css:456
+- `wj-pc-acct-field` — _pc_account.css:85, _pc_account.css:89, _pc_account.css:90, _pc_account.css:91
+- `wj-pc-acct-headcard` — _pc_account.css:54, _pc_account.css:57, _pc_account.css:58, _pc_account.css:63 (+9)
+- `wj-pc-acct-kv-grid` — _pc_account.css:83, _pc_account.css:84
+- `wj-pc-acct-members` — _pc_account.css:105, _pc_account.css:106, _pc_account.css:107, _pc_account.css:108 (+1)
+- `wj-pc-acct-staff` — _pc_account.css:115, _pc_account.css:116, _pc_account.css:121, _pc_account.css:122 (+2)
+- `wujia-content-card-empty` — _components.css:631
 - `wujia-home-wrapper` — _components.css:1011
 - `wujia-kpi-arrow` — _components.css:550
 - `wujia-kpi-card` — _components.css:484, _components.css:490
@@ -495,80 +451,169 @@ FR-A3 riêng: kết luận "mở lại Issue List được chưa"; nếu đượ
 - `wujia-kpi-label` — _components.css:530
 - `wujia-kpi-separator` — _components.css:515
 - `wujia-kpi-value` — _components.css:536
+- `wujia-maccount-badgerow` — _components.css:2952
+- `wujia-maccount-kv` — _components.css:2926, _components.css:2933
+- `wujia-maccount-kv-key` — _components.css:2934
+- `wujia-maccount-kv-val` — _components.css:2939, _components.css:2948
+- `wujia-maccount-kvlist` — _components.css:2925
 - `wujia-maccount-store-sub` — _components.css:2961
-- `wujia-mdash-card` — _components.css:2668, _components.css:2675, _interaction.css:110, _interaction.css:61 (+1)
-- `wujia-mdash-ico` — _components.css:2713
-- `wujia-mdash-link` — _components.css:2659
-- `wujia-mdash-list` — _components.css:2677
-- `wujia-mdash-row` — _components.css:2679, _components.css:2687, _components.css:2688, _components.css:2689 (+8)
-- `wujia-mdash-row-main` — _components.css:2693, _components.css:2722
-- `wujia-mdash-row-sub` — _components.css:2754, _components.css:2758, _components.css:2762, _components.css:2766
-- `wujia-mdash-row-title` — _components.css:2729, _components.css:2737, _components.css:2738, _components.css:2739 (+1)
-- `wujia-mdash-sec` — _components.css:2647
+- `wujia-mdash-sec` — _components.css:2648
 - `wujia-mdash-tile` — _components.css:2697, _components.css:2708, _components.css:2709
-- `wujia-mdash-titlerow` — _components.css:2653
-- `wujia-mhome` — _components.css:1002, _components.css:2746, _wujia_theme.css:453
-- `wujia-mhome-action` — _components.css:1192, _components.css:1205, _components.css:1206, _interaction.css:110 (+2)
+- `wujia-mhome` — _components.css:1002, _components.css:2748, _wujia_theme.css:454
+- `wujia-mhome-action` — _components.css:1192, _components.css:1205, _components.css:1206, _interaction.css:61 (+2)
 - `wujia-mhome-action-icon` — _components.css:1207, _components.css:1217
 - `wujia-mhome-action-label` — _components.css:1222
 - `wujia-mhome-actions-grid` — _components.css:1187
-- `wujia-mhome-bottomnav` — _components.css:1234
 - `wujia-mhome-hero` — _components.css:1018
 - `wujia-mhome-hero-addr` — _components.css:1058
 - `wujia-mhome-hero-area` — _components.css:1064
-- `wujia-mhome-hero-kpis` — _components.css:1082
 - `wujia-mhome-hero-label` — _components.css:1043, _components.css:1050
 - `wujia-mhome-hero-left` — _components.css:1031
 - `wujia-mhome-hero-right` — _components.css:1035, _components.css:1050
 - `wujia-mhome-hero-store` — _components.css:1051
 - `wujia-mhome-hero-top` — _components.css:1025
-- `wujia-mhome-kpi` — _components.css:1087, _components.css:1095, _components.css:1123, _components.css:1127 (+3)
-- `wujia-mhome-kpi-label` — _components.css:1100, _components.css:1124
-- `wujia-mhome-kpi-value` — _components.css:1110, _components.css:1125
-- `wujia-mhome-nav-badge` — _components.css:1281
-- `wujia-mhome-nav-item` — _components.css:1248, _components.css:1264, _components.css:1274, _components.css:1277
-- `wujia-mhome-nav-label` — _components.css:1268, _components.css:1277
 - `wujia-mhome-role-badge` — _components.css:1070
 - `wujia-mhome-window` — _components.css:1130
 - `wujia-mhome-window-caption` — _components.css:1172
-- `wujia-mhome-window-head` — _components.css:1136
 - `wujia-mhome-window-progress` — _components.css:1160
 - `wujia-mhome-window-progress-bar` — _components.css:1167
 - `wujia-mhome-window-status` — _components.css:1148, _components.css:1153, _components.css:1154, _components.css:1155 (+1)
-- `wujia-mhome-window-title` — _components.css:1142
-- `wujia-store-banner` — _wujia_theme.css:349
+- `wujia-store-mobile-strip` — _interaction.css:61, _interaction.css:87, _interaction.css:110
 
-### → `wujia_portal_info_request` — 5 nhóm
+### → `wujia_portal_knowledge` — 23
 
-- `wujia-badge-info` — _components.css:178
-- `wujia-mres-info` — _components.css:1994
-- `wujia-mres-info-label` — _components.css:2012
-- `wujia-mres-info-row` — _components.css:2002, _components.css:2011
-- `wujia-mres-info-value` — _components.css:2018, _components.css:2025
+- `wujia-mknow-article` — _components.css:2566
+- `wujia-mknow-article-title` — _components.css:2552
+- `wujia-mknow-att` — _components.css:2613, _components.css:2624
+- `wujia-mknow-att-main` — _components.css:2625
+- `wujia-mknow-att-name` — _components.css:2632
+- `wujia-mknow-att-sub` — _components.css:2640
+- `wujia-mknow-badges` — _components.css:2536
+- `wujia-mknow-body` — _components.css:2574, _components.css:2579, _components.css:2580, _components.css:2585 (+6)
+- `wujia-mknow-date` — _components.css:2542
+- `wujia-mknow-feat` — _components.css:2466, _components.css:2478, _interaction.css:61, _interaction.css:87 (+1)
+- `wujia-mknow-feat-main` — _components.css:2488
+- `wujia-mknow-lead` — _components.css:2567
+- `wujia-mknow-list` — _components.css:2497
+- `wujia-mknow-meta` — _components.css:2559
+- `wujia-mknow-row` — _components.css:2502, _components.css:2507, _interaction.css:61, _interaction.css:87 (+1)
+- `wujia-mknow-row-foot` — _components.css:2530
+- `wujia-mknow-row-main` — _components.css:2517
+- `wujia-mknow-row-title` — _components.css:2524
+- `wujia-mknow-sechead` — _components.css:2422
+- `wujia-mknow-sechead-pill` — _components.css:2438
+- `wujia-mknow-sechead-sub` — _components.css:2434
+- `wujia-mknow-sechead-title` — _components.css:2429
+- `wujia-mknow-tile` — _components.css:2452, _components.css:2463
+
+### → `wujia_portal_purchase_history` — 19
+
+- `wujia-mhist-card` — _components.css:2205
+- `wujia-mhist-list` — _components.css:2125
+- `wujia-mhist-prod` — _components.css:2236, _components.css:2244
+- `wujia-mhist-prod-amount` — _components.css:2260
+- `wujia-mhist-prod-main` — _components.css:2245
+- `wujia-mhist-prod-name` — _components.css:2251
+- `wujia-mhist-prod-spec` — _components.css:2256
+- `wujia-mhist-row` — _components.css:882, _components.css:2130, _interaction.css:61, _interaction.css:87 (+1)
+- `wujia-mhist-row-amount` — _components.css:2164
+- `wujia-mhist-row-code` — _components.css:2148
+- `wujia-mhist-row-date` — _components.css:2153
+- `wujia-mhist-row-main` — _components.css:2142
+- `wujia-mhist-row-side` — _components.css:2157
+- `wujia-mhist-summary` — _components.css:2173
+- `wujia-mhist-summary-amount` — _components.css:2197
+- `wujia-mhist-summary-bottom` — _components.css:2180, _components.css:2187
+- `wujia-mhist-summary-code` — _components.css:2188
+- `wujia-mhist-summary-date` — _components.css:2193
+- `wujia-mhist-summary-top` — _components.css:2180
+
+### → `wujia_portal_support` — 7
+
+- `wujia-mticket-bubble` — _components.css:2820, _components.css:2828, _components.css:2829, _components.css:2835 (+2)
+- `wujia-mticket-bubble-meta` — _components.css:2842, _components.css:2847, _components.css:2848
+- `wujia-mticket-reply` — _components.css:2851
+- `wujia-mticket-reply-input` — _components.css:2857, _components.css:2868
+- `wujia-mticket-rowside` — _components.css:2792
+- `wujia-mticket-tag` — _components.css:2801
+- `wujia-mticket-thread` — _components.css:2814
+
+### → `wujia_portal_inspection` (code anh Thái — KHÔNG dời, chỉ ghi nhận) — 4
+
+- `wj-inspection-pc` — _interaction.css:61, _interaction.css:87, _interaction.css:110, _pc_components.css:204 (+5)
+- `wj-pc-page-btn` — _interaction.css:61, _interaction.css:87, _interaction.css:110, _pc_components.css:216 (+3)
+- `wj-pc-pagination` — _pc_components.css:204, _pc_components.css:210
+- `wj-surface-card-link` — _components.css:686
+
+### → `wujia_portal_debt` — 3
+
+- `wj-debt-actionrow` — _interaction.css:61, _interaction.css:87, _interaction.css:110
+- `wj-debt-pc-pdf` — _interaction.css:61, _interaction.css:87, _interaction.css:110
+- `wj-debt-pc-tab` — _interaction.css:61, _interaction.css:87, _interaction.css:110
+
+### → `wujia_portal_exam` — 3
+
+- `wj-exam-pc-navbtn` — _interaction.css:61, _interaction.css:87, _interaction.css:110
+- `wujia-mexam-card` — _interaction.css:61, _interaction.css:87, _interaction.css:110
+- `wujia-msheet-open` — _components.css:2270
+
+### → `wujia_portal_return` — 3
+
+- `wj-filter-select` — _components.css:336, _components.css:3437, _components.css:3634, _pc_components.css:512
+- `wujia-mreturn-btn-cancel` — _interaction.css:61, _interaction.css:87, _interaction.css:110
+- `wujia-mreturn-row` — _interaction.css:61, _interaction.css:87, _interaction.css:110
+
+### → `wujia_portal_delivery` — 2
+
+- `wj-pc-dlv-chip` — _interaction.css:61, _interaction.css:87, _interaction.css:110
+- `wujia-mdelivery-row` — _interaction.css:61, _interaction.css:87, _interaction.css:110
+
+### → `wujia_portal_notification` — 2
+
+- `wj-pc-noti-head-actions` — _pc_components.css:441
+- `wujia-mnoti-row` — _interaction.css:61, _interaction.css:87, _interaction.css:110
 
 ---
 
-## Phụ lục B — Rule trong module portal viết đè component chung, loại "đổi dáng" (đếm 17/09)
+## Phụ lục B — Rule trong module portal viết đè component chung, loại "đổi dáng"
 
-Loại "chỉ bố cục" (margin/padding/gap/flex/width/position…) không liệt kê — mặc định giữ.
+Đếm lại 17/09 (phiên F0) bằng `scripts/qa/css_owner.py --overrides` — **41 rule** (bản heuristic ghi 30;
+chủ dự án chốt dùng số mới). Chỉ tính khi **phần tử đích** của selector mang class component/khung
+(`.wj-pc-table thead th` tính, `.wujia-mpage .wujia-mexam-title` không). Lệch: +14 rule đè lên tên con BEM
+heuristic bỏ sót (`wj-empty-state-title`, `wj-pc-td--muted`, `wj-pc-metric-card__value`, `wujia-badge`…);
+−3 rule heuristic tính nhầm là đổi dáng nhưng chỉ đổi bố cục (`portal_debt.css:227,296` column/row-gap,
+`portal_support.css:2` min-height). "Chỉ bố cục" không liệt kê — mặc định giữ.
 
-### `wujia_portal_debt` — 7 rule
+| Module | Đổi dáng | Chỉ bố cục |
+|---|---|---|
+| `wujia_portal_debt` | 9 | 11 |
+| `wujia_portal_delivery` | 3 | 1 |
+| `wujia_portal_exam` | 15 | 18 |
+| `wujia_portal_notification` | 6 | 5 |
+| `wujia_portal_report` | 1 | 1 |
+| `wujia_portal_return` | 3 | 2 |
+| `wujia_portal_sale` | 4 | 1 |
+| `wujia_portal_support` | 0 | 1 |
 
-- `portal_debt.css:215` `.wj-debt-inv:not(.wj-data-item)` — đổi: background, border-radius, column-gap, row-gap
-- `portal_debt.css:227` `.wj-data-list--compact-row .wj-debt-inv.wj-data-item` — đổi: column-gap, row-gap
-- `portal_debt.css:284` `.wj-debt-pay:not(.wj-data-item)` — đổi: background, border-radius, column-gap, row-gap
-- `portal_debt.css:296` `.wj-data-list--detail-card .wj-debt-pay.wj-data-item` — đổi: column-gap, row-gap
+### `wujia_portal_debt` — 9 rule đổi dáng
+
+- `portal_debt.css:215` `.wj-debt-inv:not(.wj-data-item)` — đổi: background, border-radius
+- `portal_debt.css:246` `.wj-debt-empty .wj-empty-state-icon` — đổi: background
+- `portal_debt.css:247` `.wj-debt-empty .wj-empty-state-icon > i` — đổi: font-size
+- `portal_debt.css:248` `.wj-debt-empty .wj-empty-state-title` — đổi: font-size
+- `portal_debt.css:249` `.wj-debt-empty .wj-empty-state-sub` — đổi: font-size
+- `portal_debt.css:284` `.wj-debt-pay:not(.wj-data-item)` — đổi: background, border-radius
 - `portal_debt.css:346` `.wj-debt-bank .wj-section-header__title` — đổi: color, font-size, letter-spacing, line-height
 - `portal_debt.css:707` `.wj-debt-hint .wj-card-header.wj-debt-hint-head .wj-card-header__title` — đổi: color, font-size, line-height
 - `portal_debt.css:721` `.wj-debt-summary__head .wj-card-header.wj-debt-summary__hb .wj-card-header__title` — đổi: color, font-size, font-weight, letter-spacing, line-height
 
-### `wujia_portal_delivery` — 3 rule
+### `wujia_portal_delivery` — 3 rule đổi dáng
 
 - `portal_delivery.css:46` `.wj-data-list--detail-card .wujia-mdelivery-row.wj-data-item` — đổi: color
 - `portal_delivery.css:49` `.wujia-mdelivery-row:not(.wj-data-item)` — đổi: background, border, border-radius, color, text-decoration
 - `portal_delivery.css:183` `.wujia-dlv-pc .wj-pc-page-header__title` — đổi: font-size
 
-### `wujia_portal_exam` — 10 rule
+### `wujia_portal_exam` — 15 rule đổi dáng
 
 - `portal_exam.css:169` `.wujia-mexam-course:not(.wj-data-item)` — đổi: background, border, border-radius
 - `portal_exam.css:574` `.wujia-mexam-rrow:not(.wj-data-item)` — đổi: background, border, border-radius
@@ -576,30 +621,38 @@ Loại "chỉ bố cục" (margin/padding/gap/flex/width/position…) không li�
 - `portal_exam.css:693` `.wj-exam-pc .wj-pc-page-header__crumb` — đổi: font-weight
 - `portal_exam.css:694` `.wj-exam-pc .wj-pc-btn` — đổi: font-weight
 - `portal_exam.css:705` `.wj-exam-pc .wj-pc-card__title` — đổi: font-size
-- `portal_exam.css:720` `.wj-exam-pc .wj-card-header.wj-exam-pc-sechead--sm .wj-card-header__title, .wj-exam-pc .wj` — đổi: font-size, line-height
+- `portal_exam.css:720` `.wj-exam-pc .wj-card-header.wj-exam-pc-sechead--sm .wj-card-header__title, .wj-exam-pc .wj…` — đổi: font-size, line-height
 - `portal_exam.css:727` `.wj-exam-pc .wj-pc-table thead th` — đổi: font-size
-- `portal_exam.css:1316` `.wj-exam-pc-tablebox .wj-pc-table thead th:first-child, .wj-exam-pc-tablebox .wj-pc-table ` — đổi: border-radius
+- `portal_exam.css:774` `.wj-exam-pc-list-table .wj-pc-td--code` — đổi: font-weight
+- `portal_exam.css:775` `.wj-exam-pc-list-table .wj-pc-td--muted` — đổi: font-weight
+- `portal_exam.css:855` `.wj-exam-pc-res-table .wj-pc-td--muted` — đổi: font-weight
+- `portal_exam.css:1316` `.wj-exam-pc-tablebox .wj-pc-table thead th:first-child, .wj-exam-pc-tablebox .wj-pc-table …` — đổi: border-radius
 - `portal_exam.css:1318` `.wj-exam-pc-tablebox .wj-pc-table tbody tr:last-child td` — đổi: border-bottom
+- `portal_exam.css:1338` `.wj-exam-pc-part-table .wj-pc-td--muted` — đổi: font-weight
+- `portal_exam.css:1658` `.wj-exam-pc-sum-table .wj-pc-td--muted` — đổi: font-weight
 
-### `wujia_portal_notification` — 3 rule
+### `wujia_portal_notification` — 6 rule đổi dáng
 
-- `portal_notification.css:42` `.wujia-mnoti-row:not(.wj-data-item)` — đổi: background, border, border-radius, min-height, text-decoration
+- `portal_notification.css:24` `.wujia-mnoti .wj-filter-chip` — đổi: font-size
+- `portal_notification.css:42` `.wujia-mnoti-row:not(.wj-data-item)` — đổi: background, border, border-radius, text-decoration
+- `portal_notification.css:104` `.wujia-mnoti-row-tags .wujia-badge` — đổi: font-size
+- `portal_notification.css:105` `.wujia-mnoti-row-tags .wujia-badge i, .wujia-mnoti-detail-badges .wujia-badge i` — đổi: font-size
 - `portal_notification.css:248` `.wj-data-table.wj-pc-noti-table tbody tr:hover` — đổi: background
 - `portal_notification.css:408` `.wj-pc-noti-popup__item-tags .wj-pc-badge` — đổi: font-size, font-weight, line-height
 
-### `wujia_portal_return` — 3 rule
+### `wujia_portal_report` — 1 rule đổi dáng
+
+- `portal_report.css:88` `.wj-rep-pcmetrics .wj-pc-metric-card__value` — đổi: font-size
+
+### `wujia_portal_return` — 3 rule đổi dáng
 
 - `portal_return.css:33` `.wujia-mreturn-row:not(.wj-data-item)` — đổi: background, border, border-radius, text-decoration
 - `portal_return.css:134` `.wj-surface-card__body > .wj-card-header.wj-return-sublabel .wj-card-header__title` — đổi: color
 - `portal_return.css:137` `.wj-surface-card__body > .wj-card-header.wj-return-sublabel--danger .wj-card-header__title` — đổi: color
 
-### `wujia_portal_sale` — 3 rule
+### `wujia_portal_sale` — 4 rule đổi dáng
 
 - `portal_order.css:37` `.wj-pc-order-filter select.wj-pc-filter-control` — đổi: cursor
-- `portal_order.css:206` `.wj-pc-order-add:focus-visible, .wj-pc-cart-step:focus-visible, .wj-pc-cart-del:focus-visi` — đổi: outline, outline-offset
+- `portal_order.css:206` `.wj-pc-order-add:focus-visible, .wj-pc-cart-step:focus-visible, .wj-pc-cart-del:focus-visi…` — đổi: outline, outline-offset
+- `portal_order.css:269` `.wj-empty-state-icon.wujia-mcart-empty-icon` — đổi: background
 - `portal_order.css:276` `.wj-empty-state.wujia-mcart-empty-card .wj-empty-state-title` — đổi: font-size
-
-### `wujia_portal_support` — 1 rule
-
-- `portal_support.css:2` `.support-chatter .wj-surface-card__body` — đổi: min-height
-

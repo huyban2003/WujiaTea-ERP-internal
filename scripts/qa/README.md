@@ -76,3 +76,33 @@ Chỉ quét **13 route danh sách**. Các bảng nghiệm thu D3/D4 cũ có thê
 (`/portal/support/<id>`, `/portal/order/product/<id>`, `/portal/exam/register`…) nên tổng
 số bề mặt **không so thẳng được** với chúng: mốc 05/09 ở đây là **127 bề mặt / 65 ô**,
 còn `d4d-acceptance-matrix.md` ghi 225. Truyền `--routes` để thêm route chi tiết khi cần.
+
+## `css_owner.py` (cụm F)
+
+```
+python3 scripts/qa/css_owner.py --layout-domain --overrides --json out.json
+python3 scripts/qa/css_owner.py --who wujia-msheet-item
+```
+
+Cần `lxml` (chạy bằng python env Odoo). Hai câu hỏi:
+
+- `--layout-domain`: mỗi **nhóm class gốc BEM** (bỏ `__x`, `--x`) khai trong
+  `wujia_portal_layout/static/assets/css/_*.css` đang được **module nào dùng** (view XML qua
+  lxml, JS `static/src`, chuỗi Python `controllers/`). ≥2 module ⇒ `component` (giữ layout) ·
+  1 module ⇒ CSS của màn đó (F2/F3 dời ra) · chỉ layout ⇒ `khung` · không ai ⇒ `orphan`.
+- `--overrides`: rule trong module portal (trừ Khảo sát) mà **phần tử đích** của selector mang
+  class component/khung, tách "bố cục" (margin/padding/gap/flex/grid/kích thước/vị trí/display)
+  và "đổi dáng" (phần còn lại). Class chỉ ở tổ tiên (`.wujia-mpage .x`) là ngữ cảnh, không tính.
+
+Bẫy đã trả giá khi dựng (F0): đếm từng class lẻ ra 253 "CSS màn" thay vì 193 nhóm; tính cả
+component ở tổ tiên ra 46 rule đè thay vì 41.
+
+## `check_layers.py` (ADR-027)
+
+```
+python3 scripts/qa/check_layers.py            # báo cáo, exit 0
+python3 scripts/qa/check_layers.py --strict   # exit 1 nếu vi phạm — bật sau khi mục D chốt
+```
+
+Đọc `__manifest__.py` của `custom/wujia_*`, bảng tầng khai tay trong script (module mới chưa
+khai ⇒ báo "chưa phân tầng", không đoán theo tên cho tầng L1/L2). Luật R1–R5 theo chapter 74.
