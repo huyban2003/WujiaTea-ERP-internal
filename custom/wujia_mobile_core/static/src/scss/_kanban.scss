@@ -102,6 +102,15 @@
         padding:
             var(--wj-mobile-card-padding-y)
             var(--wj-mobile-card-padding-x);
+        box-sizing: border-box;
+        width: 100%;
+        overflow: hidden;
+
+        /* Đảm bảo flexbox container con không bị đẩy tràn ra ngoài */
+        .d-flex {
+            min-width: 0;
+            max-width: 100%;
+        }
     }
 
     /* Mã chứng từ: SO, PO, phiếu kho... */
@@ -133,20 +142,27 @@
         display: inline-flex !important;
         align-items: center !important;
         gap: 4px;
+        flex: 1 1 auto;
         min-width: 0;
         color: var(--wj-mobile-text-muted);
         font-size: 11px;
         line-height: 1.2;
+        margin: 0 !important;
+        padding: 0 !important;
         overflow: hidden;
         text-overflow: ellipsis;
         white-space: nowrap !important;
 
-        .o_field_widget {
+        .o_field_widget, span, div {
             display: inline-flex !important;
             align-items: center !important;
             margin-bottom: 0 !important;
+            margin-top: 0 !important;
+            padding: 0 !important;
             width: auto !important;
             white-space: nowrap !important;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
 
         i {
@@ -163,11 +179,12 @@
         font-weight: 700;
         line-height: 1.2;
         white-space: nowrap;
+        text-align: right;
     }
 
     /* Dòng giá trị phụ: khối lượng kg, số lượng phụ... */
     .wj_mobile_card__subvalue {
-        display: inline-flex !important;
+        display: flex !important;
         align-items: center !important;
         justify-content: flex-end !important;
         gap: 3px !important;
@@ -178,7 +195,8 @@
         white-space: nowrap !important;
         line-height: 1.2;
         margin-top: 2px;
-        width: 100%;
+        max-width: 100%;
+        overflow: hidden;
 
         .o_field_widget, span {
             display: inline !important;

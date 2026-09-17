@@ -27,6 +27,7 @@ Extension chuẩn:
     'license': 'LGPL-3',
     'depends': [
         'wujia_core',
+        'wujia_mobile_core',
         'contacts',
         'portal',
         'mail',
@@ -36,6 +37,7 @@ Extension chuẩn:
         'security/ir.model.access.csv',
         'security/wujia_franchise_rules.xml',
         'views/wujia_franchise_management_views.xml',
+        'views/wujia_franchise_management_mobile_views.xml',
         'views/wujia_franchise_member_views.xml',
         'views/res_partner_views.xml',
         'views/res_users_views.xml',

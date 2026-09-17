@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- Mobile Kanban View for Store Inspections / Surveys -->
+    <record id="view_wujia_franchise_inspection_kanban_mobile" model="ir.ui.view">
+        <field name="name">wujia.franchise.inspection.kanban.mobile</field>
+        <field name="model">wujia.franchise.inspection</field>
+        <field name="priority">30</field>
+        <field name="arch" type="xml">
+            <kanban class="wj_mobile_kanban" sample="1">
+                <field name="name"/>
+                <field name="franchise_id"/>
+                <field name="planned_date"/>
+                <field name="total_score"/>
+                <field name="grade_id"/>
+                <field name="state"/>
+                <field name="inspector_user_id"/>
+                <templates>
+                    <t t-name="card">
+                        <div class="wj_mobile_card">
+                            <!-- Row 1: Inspection Sheet Name + State Badge -->
+                            <div class="d-flex align-items-center justify-content-between mb-1">
+                                <span class="wj_mobile_card__code">
+                                    <field name="name"/>
+                                </span>
+                                <span t-attf-class="wj_mobile_badge #{
+                                    record.state.raw_value == 'done' and 'wj_mobile_badge--success' or
+                                    record.state.raw_value == 'need_remediation' and 'wj_mobile_badge--warning' or
+                                    record.state.raw_value == 'in_progress' and 'wj_mobile_badge--info' or
+                                    record.state.raw_value == 'cancel' and 'wj_mobile_badge--danger' or
+                                    'wj_mobile_badge--neutral'
+                                }">
+                                    <field name="state"/>
+                                </span>
+                            </div>
+
+                            <!-- Row 2: Store Name (Title) -->
+                            <div class="wj_mobile_card__title mb-1">
+                                <field name="franchise_id"/>
+                            </div>
+
+                            <!-- Row 3: Info Footer (Row 3a: Planned Date & Score; Row 3b: Inspector & Grade) -->
+                            <div class="pt-2 border-top overflow-hidden">
+                                <div class="d-flex align-items-center justify-content-between mb-1 overflow-hidden">
+                                    <span class="wj_mobile_card__meta text-nowrap me-2 overflow-hidden text-truncate">
+                                        <t t-if="record.planned_date.raw_value">
+                                            <i class="fa fa-calendar-check-o me-1" title="Planned Date"/>
+                                            <field name="planned_date" widget="date"/>
+                                        </t>
+                                    </span>
+                                    <span class="wj_mobile_card__value font-weight-bold text-nowrap flex-shrink-0 ms-auto" style="color: #111827;">
+                                        <field name="total_score" widget="float"/>
+                                    </span>
+                                </div>
+                                <div class="d-flex align-items-center justify-content-between overflow-hidden">
+                                    <span class="wj_mobile_card__meta text-nowrap me-2 overflow-hidden text-truncate">
+                                        <t t-if="record.inspector_user_id.raw_value">
+                                            <i class="fa fa-user-o me-1" title="Inspector"/>
+                                            <field name="inspector_user_id"/>
+                                        </t>
+                                    </span>
+                                    <span class="wj_mobile_card__subvalue text-nowrap flex-shrink-0 ms-auto">
+                                        <t t-if="record.grade_id.raw_value">
+                                            Grade: <field name="grade_id"/>
+                                        </t>
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                    </t>
+                </templates>
+            </kanban>
+        </field>
+    </record>
+
+    <!-- Update Action Window: Desktop defaults to List (sequence 1), Mobile auto-switches to Kanban (sequence 2) -->
+    <record id="wujia_franchise_inspection.action_wujia_franchise_inspection" model="ir.actions.act_window">
+        <field name="view_mode">list,kanban,form</field>
+        <field name="view_id" eval="False"/>
+    </record>
+
+    <!-- Desktop Default: Sequence 1 = List View -->
+    <record id="action_wujia_franchise_inspection_view_tree" model="ir.actions.act_window.view">
+        <field name="sequence" eval="1"/>
+        <field name="view_mode">list</field>
+        <field name="view_id" ref="wujia_franchise_inspection.view_wujia_franchise_inspection_list"/>
+        <field name="act_window_id" ref="wujia_franchise_inspection.action_wujia_franchise_inspection"/>
+    </record>
+
+    <!-- Mobile Default: Sequence 2 = Kanban Card View -->
+    <record id="action_wujia_franchise_inspection_view_kanban" model="ir.actions.act_window.view">
+        <field name="sequence" eval="2"/>
+        <field name="view_mode">kanban</field>
+        <field name="view_id" ref="view_wujia_franchise_inspection_kanban_mobile"/>
+        <field name="act_window_id" ref="wujia_franchise_inspection.action_wujia_franchise_inspection"/>
+    </record>
+
+</odoo>
