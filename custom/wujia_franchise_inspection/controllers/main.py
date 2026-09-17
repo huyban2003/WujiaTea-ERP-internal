@@ -1,3 +1,6 @@
+# pyrefly: ignore [missing-import]
+import jwt
+import time
 # -*- coding: utf-8 -*-
 import json
 import base64
@@ -711,3 +714,137 @@ class WujiaFranchiseInspectionWebController(http.Controller):
         inspection = line.inspection_id
         line.unlink()
         return {'success': True, 'present_count': inspection.present_count}
+
+    @http.route(['/wujia_franchise_inspection/overview_embed'], type='http', auth='user', website=False)
+    def overview_embed(self, **kwargs):
+        metabase_secret_key = request.env['ir.config_parameter'].sudo().get_param(
+            'wujia_franchise_inspection.metabase_secret_key',
+            'd20e524da43c303ce61909b07d4a69910af93cfc11e0e643d9eaa925f26582dc'
+        ) or 'd20e524da43c303ce61909b07d4a69910af93cfc11e0e643d9eaa925f26582dc'
+        metabase_secret_key = metabase_secret_key.strip()
+
+        metabase_instance_url = request.env['ir.config_parameter'].sudo().get_param(
+            'wujia_franchise_inspection.metabase_instance_url',
+            'https://bi-wujia.tipscode.io'
+        ) or 'https://bi-wujia.tipscode.io'
+        metabase_instance_url = metabase_instance_url.strip().rstrip('/')
+
+        if metabase_instance_url.startswith('http://'):
+            metabase_instance_url = 'https://' + metabase_instance_url[7:]
+
+        dashboard_id_val = request.env['ir.config_parameter'].sudo().get_param(
+            'wujia_franchise_inspection.metabase_dashboard_id',
+            '2'
+        )
+        try:
+            dashboard_id = int(str(dashboard_id_val).strip())
+        except (ValueError, TypeError):
+            dashboard_id = 2
+
+        now = round(time.time())
+        payload = {
+            "resource": {"dashboard": dashboard_id},
+            "params": {},
+            "iat": now,
+            "exp": now + (60 * 60),  # 60 minute expiration
+            "_embedding_params": {
+                "ng%C3%A0y": "enabled",
+                "m%C3%A3_c%E1%BB%ADa_h%C3%A0n": "enabled",
+                "c%C6%B0a_h%C3%A0ng": "enabled"
+            }
+        }
+        
+        token = ""
+        if jwt:
+            try:
+                token = jwt.encode(payload, metabase_secret_key, algorithm="HS256")
+                if isinstance(token, bytes):
+                    token = token.decode('utf-8')
+            except Exception as e:
+                token = ""
+
+        html_content = f"""<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+    <meta http-equiv="Pragma" content="no-cache" />
+    <meta http-equiv="Expires" content="0" />
+    <title>Wujia Overview</title>
+    <style>
+        * {{
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }}
+        html, body {{
+            width: 100%;
+            height: 100%;
+            min-height: 100vh;
+            background-color: #111827;
+            overflow-x: hidden;
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+        }}
+        metabase-dashboard {{
+            width: 100% !important;
+            height: 100% !important;
+            min-height: 100vh !important;
+            display: block !important;
+        }}
+        iframe[data-metabase-embed="true"],
+        metabase-dashboard iframe {{
+            width: 100% !important;
+            height: 100% !important;
+            min-height: 100vh !important;
+            border: none !important;
+            display: block !important;
+        }}
+    </style>
+    <script defer src="{metabase_instance_url}/app/embed.js"></script>
+    <script>
+    function defineMetabaseConfig(config) {{
+      window.metabaseConfig = config;
+    }}
+    </script>
+    <script>
+      defineMetabaseConfig({{
+        "theme": {{
+          "preset": "dark"
+        }},
+        "isGuest": true,
+        "instanceUrl": "{metabase_instance_url}"
+      }});
+    </script>
+</head>
+<body>
+    <metabase-dashboard 
+        token="{token}" 
+        with-title="true" 
+        with-downloads="true">
+    </metabase-dashboard>
+    <script>
+        function overrideIframeHeight() {{
+            const iframe = document.querySelector('iframe[data-metabase-embed="true"]') || document.querySelector('metabase-dashboard iframe');
+            if (iframe) {{
+                iframe.style.setProperty('min-height', '100vh', 'important');
+                iframe.style.setProperty('height', '100%', 'important');
+            }}
+        }}
+        setInterval(overrideIframeHeight, 250);
+        document.addEventListener('DOMContentLoaded', overrideIframeHeight);
+        window.addEventListener('load', overrideIframeHeight);
+    </script>
+</body>
+</html>"""
+        return request.make_response(
+            html_content,
+            headers=[
+                ('Content-Type', 'text/html; charset=utf-8'),
+                ('Cache-Control', 'no-cache, no-store, must-revalidate'),
+                ('Pragma', 'no-cache'),
+                ('Expires', '0'),
+                ('X-Frame-Options', 'SAMEORIGIN'),
+            ]
+        )

@@ -49,6 +49,33 @@
                             </div>
                         </setting>
                     </block>
+                                    <block title="Metabase BI Overview Settings" id="wujia_inspection_metabase_settings">
+                        <setting id="wujia_inspection_metabase_setting"
+                            string="Metabase Dashboard Embed"
+                            help="Configure Metabase instance URL, dashboard ID, and JWT Secret Key for the Overview page in Reporting.">
+                            <div class="content-group">
+                                <div class="row mb-2">
+                                    <label for="metabase_instance_url" string="Metabase URL:" class="col-lg-4 o_light_label fw-bold"/>
+                                    <div class="col-lg-8">
+                                        <field name="metabase_instance_url" placeholder="https://bi-wujia.tipscode.io"/>
+                                    </div>
+                                </div>
+                                <div class="row mb-2">
+                                    <label for="metabase_dashboard_id" string="Dashboard ID:" class="col-lg-4 o_light_label fw-bold"/>
+                                    <div class="col-lg-8">
+                                        <field name="metabase_dashboard_id"/>
+                                    </div>
+                                </div>
+                                <div class="row mb-2">
+                                    <label for="metabase_secret_key" string="Secret Key:" class="col-lg-4 o_light_label fw-bold"/>
+                                    <div class="col-lg-8">
+                                        <field name="metabase_secret_key" password="True" placeholder="Secret Key for JWT HS256 signing"/>
+                                        <div class="text-muted small">Hex Secret Key from Metabase Admin &gt; Embedding &gt; Embedding in other applications.</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </setting>
+                    </block>
                 </app>
             </xpath>
         </field>

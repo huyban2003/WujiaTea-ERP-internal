@@ -1,0 +1,48 @@
+// ============================================================================
+// Wujia Mobile Core — Standardized Badges & Status Indicators
+// ============================================================================
+
+@import "variables";
+
+.o_wujia_mb_badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 10px;
+  border-radius: $wujia-radius-pill;
+  font-size: 11px;
+  font-weight: 600;
+  line-height: 1.2;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+
+  &.bg-wujia-success {
+    background-color: $wujia-success-bg;
+    color: $wujia-success;
+  }
+
+  &.bg-wujia-warning {
+    background-color: $wujia-warning-bg;
+    color: #856404;
+  }
+
+  &.bg-wujia-danger {
+    background-color: $wujia-danger-bg;
+    color: $wujia-danger;
+  }
+
+  &.bg-wujia-info {
+    background-color: $wujia-info-bg;
+    color: #055160;
+  }
+
+  &.bg-wujia-secondary {
+    background-color: $wujia-border-color;
+    color: $wujia-text-dark;
+  }
+
+  &.bg-wujia-muted {
+    background-color: #f1f3f5;
+    color: $wujia-muted;
+  }
+}

@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<templates id="template" xml:space="preserve">
+
+    <!-- Reusable QWeb Template: Mobile Empty State -->
+    <t t-name="wujia_mobile_core.empty_state">
+        <div class="o_wujia_mb_empty_state">
+            <div class="o_wujia_mb_empty_icon">
+                <i t-attf-class="fa #{icon or 'fa-inbox'}"/>
+            </div>
+            <div class="o_wujia_mb_empty_title">
+                <t t-out="title or 'No records found'"/>
+            </div>
+            <div class="o_wujia_mb_empty_text">
+                <t t-out="text or 'There are no items to display right now.'"/>
+            </div>
+        </div>
+    </t>
+
+    <!-- Reusable QWeb Template: Mobile Card Section Wrapper -->
+    <t t-name="wujia_mobile_core.card_section">
+        <div class="o_wujia_mb_card_section mb-3">
+            <t t-if="section_title">
+                <div class="o_wujia_mb_card_section_title fw-bold text-muted mb-2 text-uppercase fs-7">
+                    <t t-out="section_title"/>
+                </div>
+            </t>
+            <div class="o_wujia_mb_card_section_body bg-white p-3 rounded shadow-sm border">
+                <t t-out="0"/>
+            </div>
+        </div>
+    </t>
+
+    <!-- Reusable QWeb Template: Mobile Loading Skeleton Placeholder -->
+    <t t-name="wujia_mobile_core.loading_skeleton">
+        <div class="o_wujia_mb_skeleton_container p-2">
+            <div class="o_wujia_mb_skeleton o_wujia_mb_skeleton_card"/>
+            <div class="o_wujia_mb_skeleton o_wujia_mb_skeleton_card"/>
+            <div class="o_wujia_mb_skeleton o_wujia_mb_skeleton_card"/>
+        </div>
+    </t>
+
+</templates>

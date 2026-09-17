@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<templates id="template" xml:space="preserve">
+
+    <t t-name="wujia_mobile_core.WujiaMobileEmptyState">
+        <div class="o_wujia_mb_empty_state">
+            <div class="o_wujia_mb_empty_icon">
+                <i t-attf-class="fa #{props.icon}"/>
+            </div>
+            <div class="o_wujia_mb_empty_title">
+                <t t-out="props.title"/>
+            </div>
+            <div class="o_wujia_mb_empty_text">
+                <t t-out="props.text"/>
+            </div>
+        </div>
+    </t>
+
+</templates>

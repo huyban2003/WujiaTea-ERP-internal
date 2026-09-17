@@ -1,0 +1,35 @@
+// ============================================================================
+// Wujia Mobile Core — Empty State Layout
+// ============================================================================
+
+@import "variables";
+
+.o_wujia_mb_empty_state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: $wujia-space-5 $wujia-space-4;
+  text-align: center;
+  min-height: 220px;
+
+  .o_wujia_mb_empty_icon {
+    font-size: 48px;
+    color: $wujia-muted;
+    margin-bottom: $wujia-space-3;
+  }
+
+  .o_wujia_mb_empty_title {
+    font-size: 16px;
+    font-weight: 600;
+    color: $wujia-text-dark;
+    margin-bottom: $wujia-space-1;
+  }
+
+  .o_wujia_mb_empty_text {
+    font-size: 13px;
+    color: $wujia-text-muted;
+    max-width: 280px;
+    margin-bottom: $wujia-space-4;
+  }
+}
