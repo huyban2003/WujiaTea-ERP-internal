@@ -32,13 +32,11 @@ wujia.product.category: danh mục portal (thay product.public.category, không 
         'stock',
         'stock_picking_batch',
         'wujia_franchise',
-        'wujia_mobile_core',
     ],
     'data': [
         'security/ir.model.access.csv',
         'security/wujia_sale_rules.xml',
         'views/sale_order_views.xml',
-        'views/sale_order_mobile_views.xml',
         'views/product_template_views.xml',
         'views/wujia_sale_order_gift_wizard_views.xml',
         'views/stock_location_views.xml',

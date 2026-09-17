@@ -29,7 +29,6 @@ Extension kế thừa:
     'depends': [
         'wujia_franchise',
         'wujia_core',
-        'wujia_mobile_core',
         'contacts',
         'portal',
         'mail',
@@ -44,7 +43,6 @@ Extension kế thừa:
         'views/wujia_franchise_inspection_question_views.xml',
         'views/wujia_franchise_inspection_grade_views.xml',
         'views/wujia_franchise_inspection.xml',
-        'views/wujia_franchise_inspection_mobile_views.xml',
         'views/wujia_franchise_inspection_report_templates.xml',
         'views/inspection_survey_web_templates.xml',
         'views/wujia_franchise_inspection_history_views.xml',
