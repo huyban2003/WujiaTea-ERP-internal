@@ -27,12 +27,21 @@
     --wj-mobile-card-padding-y: 8px;
     --wj-mobile-card-padding-x: 10px;
 
+    /* View container & Renderer: Loại bỏ khoảng thụt lề/padding mặc định quá lớn của Odoo */
+    padding: 6px 8px !important;
+
+    .o_kanban_renderer.o_kanban_ungrouped,
+    .o_kanban_renderer {
+        padding: 0 !important;
+        gap: var(--wj-mobile-card-spacing, 6px) !important;
+    }
+
     /*
      * Kanban record
      * Không áp dụng cho ghost record của Odoo.
      */
     .o_kanban_record:not(.o_kanban_ghost) {
-        margin-bottom: var(--wj-mobile-card-spacing);
+        margin: 0 !important;
         padding: 0 !important;
         border: 1px solid var(--wj-mobile-border);
         border-radius: var(--wj-mobile-card-radius);
@@ -121,13 +130,29 @@
 
     /* Thông tin phụ: ngày, kho, người phụ trách... */
     .wj_mobile_card__meta {
+        display: inline-flex !important;
+        align-items: center !important;
+        gap: 4px;
         min-width: 0;
         color: var(--wj-mobile-text-muted);
         font-size: 11px;
         line-height: 1.2;
         overflow: hidden;
         text-overflow: ellipsis;
-        white-space: nowrap;
+        white-space: nowrap !important;
+
+        .o_field_widget {
+            display: inline-flex !important;
+            align-items: center !important;
+            margin-bottom: 0 !important;
+            width: auto !important;
+            white-space: nowrap !important;
+        }
+
+        i {
+            display: inline-block;
+            flex-shrink: 0;
+        }
     }
 
     /* Giá trị nổi bật: tổng tiền, số lượng... */
@@ -138,6 +163,28 @@
         font-weight: 700;
         line-height: 1.2;
         white-space: nowrap;
+    }
+
+    /* Dòng giá trị phụ: khối lượng kg, số lượng phụ... */
+    .wj_mobile_card__subvalue {
+        display: inline-flex !important;
+        align-items: center !important;
+        justify-content: flex-end !important;
+        gap: 3px !important;
+        flex: 0 0 auto;
+        font-size: 11px;
+        color: var(--wj-mobile-text-muted);
+        text-align: right;
+        white-space: nowrap !important;
+        line-height: 1.2;
+        margin-top: 2px;
+        width: 100%;
+
+        .o_field_widget, span {
+            display: inline !important;
+            width: auto !important;
+            white-space: nowrap !important;
+        }
     }
 
     /* Badge dùng chung */
