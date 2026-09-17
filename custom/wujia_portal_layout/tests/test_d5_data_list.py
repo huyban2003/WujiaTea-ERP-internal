@@ -22,6 +22,11 @@ def _css(name):
         return fh.read()
 
 
+def _mod_css(module, name):
+    with open(os.path.join(CUSTOM, module, 'static', 'src', 'css', name), encoding='utf-8') as fh:
+        return fh.read()
+
+
 def _strip_comments(css):
     return re.sub(r'/\*.*?\*/', '', css, flags=re.S)
 
@@ -514,8 +519,11 @@ class TestDataListCompactRowMobile(TransactionCase):
     def test_mot_chu_so_huu_dang_bon_ho(self):
         """Rule cũ chỉ được chạm hàng CHƯA migrate. Xét compound CUỐI của mỗi
         selector (rule của lớp con và ::before là biến thể ô, cố ý giữ)."""
-        for filename, ho in ((os.path.join(CSS_DIR, '_components.css'),
-                              ('wujia-mdash-row', 'wujia-mhist-row', 'wujia-mknow-row')),
+        for filename, ho in ((os.path.join(CSS_DIR, '_components.css'), ('wujia-mdash-row',)),
+                             (os.path.join(CUSTOM, 'wujia_portal_purchase_history', 'static', 'src',
+                                           'css', 'portal_history.css'), ('wujia-mhist-row',)),
+                             (os.path.join(CUSTOM, 'wujia_portal_knowledge', 'static', 'src',
+                                           'css', 'portal_knowledge.css'), ('wujia-mknow-row',)),
                              (os.path.join(CUSTOM, 'wujia_portal_notification', 'static', 'src',
                                            'css', 'portal_notification.css'),
                               ('wujia-mnoti-row',))):
@@ -547,9 +555,10 @@ class TestDataListCompactRowMobile(TransactionCase):
         self.assertIsNotNone(dang)
         self.assertNotIn('display: grid', dang, 'dáng chung không được mang layout')
         self.assertNotIn('grid-template-columns', dang)
-        for sel in ('.wj-data-list--compact-row .wujia-mdash-row.wj-data-item',
-                    '.wj-data-list--compact-row .wujia-mhist-row.wj-data-item'):
-            body = _rule(css, sel)
+        hist = _mod_css('wujia_portal_purchase_history', 'portal_history.css')
+        for src, sel in ((css, '.wj-data-list--compact-row .wujia-mdash-row.wj-data-item'),
+                         (hist, '.wj-data-list--compact-row .wujia-mhist-row.wj-data-item')):
+            body = _rule(src, sel)
             self.assertIsNotNone(body, 'thiếu rule layout: %s' % sel)
             self.assertRegex(body, r'display:\s*flex')
         pc = _rule(css, '.wj-data-list--compact-row .wujia-content-card-row.wj-data-item')
@@ -559,7 +568,7 @@ class TestDataListCompactRowMobile(TransactionCase):
     def test_layout_hai_ho_nam_trong_media(self):
         """mknow và mnoti khai trong @media ⇒ phải đọc bằng _rule_in_media, gọi
         _rule sẽ trả None và assert thành guard chứng-minh-rỗng."""
-        css = _css('_components.css')
+        css = _mod_css('wujia_portal_knowledge', 'portal_knowledge.css')
         sel = '.wj-data-list--compact-row .wujia-mknow-row.wj-data-item'
         self.assertIsNone(_rule(css, sel), 'rule mknow không còn trong @media?')
         body = _rule_in_media(css, sel)

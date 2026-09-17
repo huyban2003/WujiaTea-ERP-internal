@@ -335,7 +335,10 @@ class TestSurfaceCardD4d(TransactionCase):
     # --- chủ sở hữu DUY NHẤT của dáng khung -------------------------------
 
     def test_shared_mobile_families_no_longer_declare_shape(self):
-        css = _css('_components.css')
+        # F2: rule mhist/mknow dời về module chủ ⇒ đọc cả hai file.
+        css = (_css('_components.css')
+               + _mod_css('wujia_portal_purchase_history', 'portal_history.css')
+               + _mod_css('wujia_portal_knowledge', 'portal_knowledge.css'))
         for sel in self.SHARED:
             for body in _rules_anywhere(css, sel):
                 for prop in self.OWNED:
@@ -390,7 +393,10 @@ class TestSurfaceCardD4d(TransactionCase):
     def test_knowledge_article_no_longer_overrides_padding(self):
         # .wujia-mknow-article{padding:16px} từng ĐÈ compact 14 của card — đo được
         # 16 ở /portal/knowledge/<slug>. Kiểm kê D4a ghi p14, đó là số của rule gốc.
-        for body in _rules_anywhere(_css('_components.css'), '.wujia-mknow-article'):
+        bodies = _rules_anywhere(_css('_components.css')
+                                 + _mod_css('wujia_portal_knowledge', 'portal_knowledge.css'),
+                                 '.wujia-mknow-article')
+        for body in bodies:
             self.assertFalse(_declares(body, 'padding'))
 
     # --- những thứ CỐ Ý giữ lại -------------------------------------------
@@ -398,7 +404,8 @@ class TestSurfaceCardD4d(TransactionCase):
     def test_non_shape_rules_survive(self):
         keep = (
             (_css('_components.css'), '.wujia-mres-card', 'max-width'),
-            (_css('_components.css'), '.wujia-mhist-card', 'margin-bottom'),
+            (_mod_css('wujia_portal_purchase_history', 'portal_history.css'),
+             '.wujia-mhist-card', 'margin-bottom'),
             (_css('_components.css'), '.wujia-mdash-card', 'display'),
             (_mod_css('wujia_portal_delivery', 'portal_delivery.css'),
              '.wujia-mdelivery-prodcard', 'overflow'),

@@ -134,7 +134,7 @@ F6–F13 là backend/controller — không chặn component, nhưng chặn mobil
 |---|---|---|---|---|
 | F0 | Script đo sở hữu CSS + check tầng + mốc ảnh/B4 | 0 | Thấp | ✅ 17/09 |
 | F1 | C1 + C2(return) | support, base, info_request, layout, return | Thấp | ✅ 17/09 |
-| F2 | CSS 8 màn nhỏ ra khỏi layout (62 nhóm) | layout + 8 module | Thấp | ☐ |
+| F2 | CSS 8 màn nhỏ ra khỏi layout (62 nhóm) | layout, knowledge, purchase_history, support, notification | Thấp | ✅ 17/09 |
 | F3 | CSS Đặt hàng (55) + Home/KPI (56) | layout, sale, base | TB | ☐ |
 | F4 | Duyệt 41 rule đổi dáng (dừng giữa phiên xin duyệt) | layout + 7 module | TB | ☐ |
 | **FR-B** | **Review toàn khối B (F2–F4)** | 0 hoặc vá nhỏ | — | ☐ |
@@ -229,14 +229,33 @@ nhóm của 8 màn này còn ở layout. Bump ?v= + version mọi module bị đ
 
 ```text
 Làm phiên F3 (docs/next-session-clusters-F.md Phụ lục A: portal_sale 78, portal_base 49).
-Điều kiện: F2 xong. Quy trình y hệt F2 (chỉ di chuyển, semantic diff, wj_measure --diff, ảnh).
-Lưu ý riêng:
-- wujia-kpi-* đã được E1 dùng làm KPI chung? Kiểm bằng css_owner (≥2 module) — là component thì
-  GIỮ ở layout và ghi lại; chỉ chuyển wujia-home-*, wujia-mdash-*, store strip của portal_base.
+Điều kiện: F2 xong (docs/f-progress.md mục F2). DB wujia_f0 port 8099 như F2; suite đối chứng 534/534.
+Chạy test luôn kèm -u module cần test.
+
+Công cụ dựng ở F2: scripts/qa/css_move/ (README) — plan → apply → semdiff → cstyle/cdiff.
+Quy trình (bài học F2, bắt buộc):
+1. css_owner --layout-domain trước. Tự grep lại nhóm "của 1 màn" trước khi dời: script gán nhầm chủ khi
+   class bật bằng JS của layout (F2: wujia-msheet-open) hoặc nằm trong component layout (wj-filter-select) ⇒ GIỮ.
+2. KHÔNG tách class khỏi các danh sách :is() ở _interaction.css (hover/active/transition dòng 61/87/110,
+   gạch chân dòng 24): độ đặc hiệu :is() = đối số mạnh nhất (0,4,0 do wj-inspection-pc) ⇒ tách ra là tụt,
+   thua rule khác (vd hover .wj-data-list--compact-row .wj-data-item). Để nguyên cho F4.
+3. Bundle web.assets_frontend nạp SAU mọi <link> layout ⇒ rule dời có thể lật cascade (cả với rule layout
+   đứng sau, kể cả shorthand margin/padding/border). Static check của plan.py KHÔNG đủ ⇒ phải đo:
+   cstyle.py 2 lần trước khi sửa (ổn định 0 khác) → sửa → xoá ir_attachment /web/assets/% + restart →
+   cstyle.py → cdiff = 0. Rule nào lật thì trả về layout đúng chỗ, comment 1 dòng, ghi nợ F4.
+4. semdiff khớp tuyệt đối; test đọc thẳng _components.css phải trỏ sang file module (không để guard rỗng —
+   nhưng guard "vắng mặt" thì rỗng là đúng, đừng thêm assertTrue).
+5. wj_measure lệch chiều cao ⇒ run đối chứng CSS HEAD cùng route trước khi kết luận (F2: em.hcm /portal
+   +16, /portal/order −20 là dữ liệu trôi, có cả trên code trước F2 — F3 đụng đúng 2 màn này, đối chứng
+   NGAY đầu phiên để lấy mốc mới thay F0 cho 2 route đó).
+Lưu ý riêng F3:
+- wujia-kpi-* / wujia-kpi-card-link nằm trong :is() hover ⇒ phần đó giữ; chỉ dời rule thường.
 - Đặt hàng có realtime/JS đọc class (wujia-mcart-*, morder-*): grep static/src JS trước, không đổi tên class.
-- ProductCard/giỏ là vùng WJ-ORD-001/002/021/023 đã QA: đo thêm luồng thêm giỏ → bước → gửi đơn
-  trên DB copy (không gửi đơn thật trên UAT).
-Nghiệm thu như F2 + luồng giỏ hàng chạy đúng ở 390 và 1440. _components.css giảm tương ứng.
+- ProductCard/giỏ là vùng WJ-ORD-001/002/021/023 đã QA: đo thêm luồng thêm giỏ → bước → gửi đơn trên
+  DB copy (không gửi đơn thật trên UAT). cstyle ACC/PREF: /portal, /portal/order (+ giỏ), 390 + 1440, 2 tài khoản.
+Nghiệm thu như F2: semdiff tuyệt đối · cdiff 0 · wj_measure --diff 0 (sau đối chứng) · ảnh 2 khổ chỉ lệch dữ liệu ·
+B4 286/286 · suite 534/534 · css_owner 0 nhóm sale/base ngoài danh sách giữ lại có giải trình.
+Bump ?v= + version module bị đụng. Không commit/push/deploy khi chưa được yêu cầu. Cuối phiên ghi f-progress + ✅ §2 + §5.
 ```
 
 ### Prompt F4 — Duyệt 41 rule viết đè component
@@ -249,6 +268,10 @@ tra ledger/acceptance xem có issue nào đóng dấu dáng đó; chụp ảnh c
 Phân 3 loại: (a) nên thành biến thể chuẩn trong layout (vd wj-card-header--sm) vì ≥2 màn cần;
 (b) lệch vô lý → bỏ, về dáng chuẩn; (c) BA đã duyệt riêng → giữ, ghi chú.
 Viết bảng vào docs/f4-override-review.md rồi DỪNG, hỏi chủ dự án duyệt bảng (có ảnh).
+Thêm vào bảng 2 món F2 để lại: (1) các danh sách :is() ở _interaction.css (hover/active/transition + gạch
+chân) liệt kê tên màn — đề xuất hover theo component (wj-data-item/…) thay vì tên màn, và chốt 1 màu hover
+vì .wj-data-list--compact-row .wj-data-item:hover (rgba .04) đang THUA :is() (primary-soft); (2)
+.wujia-mknow-article > .wj-card-header{margin-top:16px} giữ ở layout — rule chết (thua CardHeader compact).
 Bước 2 (sau khi duyệt): áp (a) và (b). Loại (b) có đổi giao diện ⇒ ghi rõ trong bảng để báo BA.
 Nghiệm thu: css_owner --overrides chỉ còn loại "chỉ bố cục" + loại (c) có ghi chú;
 wj_measure --diff chỉ khác đúng các màn trong bảng; test component layout xanh.

@@ -1,4 +1,123 @@
 /* WujiaTea Portal — Purchase History */
+
+/* F2: dời từ portal_layout _components.css:882 */
+.wj-data-list--compact-row .wujia-mhist-row.wj-data-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+}
+.wujia-mhist-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+.wujia-mhist-row:not(.wj-data-item) {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    min-height: 54px;
+    padding: 10px 14px;
+    background: var(--wujia-morder-card-bg);
+    border: 1px solid var(--wujia-morder-divider);
+    border-radius: 12px;
+    text-decoration: none;
+}
+.wujia-mhist-row-main {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    min-width: 0;
+}
+.wujia-mhist-row-code {
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--wujia-morder-text);
+}
+.wujia-mhist-row-date {
+    font-size: 11.5px;
+    color: var(--wujia-morder-text-sub);
+}
+.wujia-mhist-row-side {
+    flex: 0 0 auto;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 6px;
+}
+.wujia-mhist-row-amount {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--wujia-morder-text);
+    white-space: nowrap;
+}
+.wujia-mhist-summary {
+    background: var(--wujia-morder-card-bg);
+    border: 1px solid var(--wujia-morder-border);
+    border-radius: var(--wujia-morder-radius);
+    padding: 16px;
+    margin-bottom: 14px;
+}
+.wujia-mhist-summary-top,
+.wujia-mhist-summary-bottom {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+}
+.wujia-mhist-summary-bottom { margin-top: 8px; align-items: baseline; }
+.wujia-mhist-summary-code {
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--wujia-morder-text);
+}
+.wujia-mhist-summary-date {
+    font-size: 13px;
+    color: var(--wujia-morder-text-sub);
+}
+.wujia-mhist-summary-amount {
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--wujia-morder-text);
+    white-space: nowrap;
+}
+.wujia-mhist-card {
+    /* D4d: dáng khung sang .wj-surface-card; margin là nhịp danh sách, giữ lại. */
+    margin-bottom: 14px;
+}
+.wujia-mhist-prod {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 10px 0;
+    border-top: 1px solid var(--wujia-morder-divider);
+}
+.wujia-mhist-prod:first-of-type { border-top: 0; padding-top: 0; }
+.wujia-mhist-prod-main {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    min-width: 0;
+}
+.wujia-mhist-prod-name {
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--wujia-morder-text);
+}
+.wujia-mhist-prod-spec {
+    font-size: 12px;
+    color: var(--wujia-morder-text-sub);
+}
+.wujia-mhist-prod-amount {
+    flex: 0 0 auto;
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--wujia-morder-text);
+    white-space: nowrap;
+}
+
 .state-step { padding: 8px 4px; border-radius: 6px; position: relative; }
 .state-step-pending .state-badge { opacity: 0.4; }
 .state-step-active .state-badge { opacity: 1; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }

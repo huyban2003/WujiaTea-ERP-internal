@@ -674,7 +674,11 @@ class TestCardHeaderD3Review(TransactionCase):
                 'wujia_portal_layout/static/assets/css/_pc_components.css',
                 'wujia_portal_sale/static/src/css/portal_order.css',
                 'wujia_portal_delivery/static/src/css/portal_delivery.css',
-                'wujia_portal_notification/static/src/css/portal_notification.css')
+                'wujia_portal_notification/static/src/css/portal_notification.css',
+                # F2: CSS mhist/mknow/mticket dời khỏi _components.css
+                'wujia_portal_purchase_history/static/src/css/portal_history.css',
+                'wujia_portal_knowledge/static/src/css/portal_knowledge.css',
+                'wujia_portal_support/static/src/css/portal_support.css')
 
     def test_dead_card_header_classes_stay_deleted(self):
         # Chúng đã hết call site sau khi D3 migrate 95 chỗ; để lại là mỗi phiên sau
