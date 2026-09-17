@@ -114,12 +114,12 @@
                             <field name="video_drive_file_id" invisible="1" />
                             <field name="video_filename" invisible="1" />
 
-                            <label for="video_url" string="Link Video (Google Drive)" />
+                            <label for="video_url" string="Video Link (Google Drive)" />
                             <div class="o_row">
                                 <field name="video_url" widget="url" placeholder="https://drive.google.com/file/d/..." />
-                                <button name="action_open_drive_video" type="object" string="Xem Video" class="btn btn-sm btn-outline-primary ms-2" icon="fa-external-link" invisible="not video_url" />
+                                <button name="action_open_drive_video" type="object" string="View Video" class="btn btn-sm btn-outline-primary ms-2" icon="fa-external-link" invisible="not video_url" />
                             </div>
-                            <field name="video" string="Đính kèm Video (Tùy chọn)" widget="binary" filename="video_filename" />
+                            <field name="video" string="Attach Video (Optional)" widget="binary" filename="video_filename" />
 
                         </group>
                         <group string="Timeline &amp; History">
@@ -369,7 +369,7 @@
                                 nolabel="1" class="w-100 d-block" />
                             <div class="d-flex justify-content-between align-items-center mt-4 mb-2">
                                 <separator string="3-Month Revenue Detail" class="m-0" />
-                                <button name="action_sync_posapp_revenue" string="Đồng bộ doanh thu PosApp"
+                                <button name="action_sync_posapp_revenue" string="Sync PosApp Revenue"
                                     type="object" class="btn btn-sm btn-outline-primary" icon="fa-refresh"
                                     invisible="state in ('done', 'cancel')" />
                             </div>
@@ -377,12 +377,12 @@
                                 readonly="state in ('done', 'cancel')">
                                 <list editable="bottom">
                                     <field name="sequence" widget="handle" />
-                                    <field name="date_month" widget="wujia_month_year" string="Tháng / Năm" />
-                                    <field name="revenue" string="Doanh thu" />
-                                    <field name="revenue_avg" string="Doanh thu TB ngày" />
-                                    <field name="percent_goods" string="Tỉ lệ hàng hóa (%)" />
-                                    <field name="total_app_sale" string="Tổng đơn hàng Mini App" />
-                                    <field name="percent_app_sale" string="Tỷ lệ đặt app (%)" />
+                                    <field name="date_month" widget="wujia_month_year" string="Month / Year" />
+                                    <field name="revenue" string="Revenue" />
+                                    <field name="revenue_avg" string="Daily Avg Revenue" />
+                                    <field name="percent_goods" string="Goods Ratio (%)" />
+                                    <field name="total_app_sale" string="Total Mini App Orders" />
+                                    <field name="percent_app_sale" string="App Orders Ratio (%)" />
                                 </list>
                             </field>
                         </page>

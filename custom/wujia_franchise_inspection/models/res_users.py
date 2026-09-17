@@ -6,10 +6,10 @@ class ResUsers(models.Model):
     _inherit = 'res.users'
 
     inspection_signature = fields.Binary(
-        string='Chữ ký giám sát / Chữ ký số',
+        string='Inspection Signature / Digital Signature',
         attachment=True,
         copy=False,
-        help='Chữ ký mẫu dùng để ký xác nhận trên các phiếu khảo sát & giám sát.'
+        help='Default signature used for store inspection & supervision sheets.'
     )
 
     @property

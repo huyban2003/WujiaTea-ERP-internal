@@ -1,8 +1,12 @@
+# pyrefly: ignore [missing-import]
+import jwt
+import time
 # -*- coding: utf-8 -*-
 import json
 import base64
 import csv
 import os
+import re
 from odoo import http, fields, _
 from markupsafe import Markup
 # pyrefly: ignore [missing-import]
@@ -15,25 +19,131 @@ CSV_PATH = os.path.join(os.path.dirname(__file__), '..', 'data', 'wujia_franchis
 _SURVEY_LANG_COL = (('zh', 'CN'), ('cn', 'CN'), ('th', 'TH'), ('vi', 'VN'), ('vn', 'VN'))
 
 
-def get_survey_translations(lang):
-    low = (lang or '').lower()
-    col = next((c for p, c in _SURVEY_LANG_COL if p in low), 'VN')
-    trans_map = {}
-    if os.path.exists(CSV_PATH):
-        with open(CSV_PATH, 'r', encoding='utf-8') as f:
-            reader = csv.DictReader(f)
-            for row in reader:
-                opt = (row.get('option') or '').strip()
-                k = (row.get('key') or '').strip()
-                v = (row.get(col) or '').strip()
-                if not v:
-                    v = (row.get('VN') or '').strip()
-                if opt and v:
-                    trans_map[opt] = v
-                if k and v:
-                    trans_map[k] = v
-    return trans_map
 
+def _extract_lang_content(text, lang='zh_TW'):
+    if not text:
+        return text
+    is_zh = any(p in (lang or '').lower() for p in ('zh', 'cn', 'tw'))
+    is_vi = any(p in (lang or '').lower() for p in ('vi', 'vn'))
+    has_chinese = bool(re.search(r'[一-龥]', text))
+    if not has_chinese:
+        return text
+
+    # Case 1: Section header with ' / '
+    if ' / ' in text:
+        parts = text.split(' / ')
+        if is_zh:
+            zh_parts = [p.strip() for p in parts if re.search(r'[一-龥]', p)]
+            if zh_parts:
+                return " / ".join(zh_parts)
+        elif is_vi:
+            vi_parts = [p.strip() for p in parts if not re.search(r'[一-龥]', p)]
+            if vi_parts:
+                return " / ".join(vi_parts)
+
+    # Case 2: Multiline with \n
+    if '\n' in text:
+        lines = [l.strip() for l in text.split('\n') if l.strip()]
+        if is_zh:
+            zh_lines = [l for l in lines if re.search(r'[一-龥]', l)]
+            if zh_lines:
+                return "\n".join(zh_lines)
+        elif is_vi:
+            vi_lines = [l for l in lines if not re.search(r'[一-龥]', l)]
+            if vi_lines:
+                return "\n".join(vi_lines)
+
+    return text
+
+
+class _SmartTranslationDict(dict):
+    def __init__(self, raw_dict):
+        super().__init__(raw_dict)
+        self._lower_map = {}
+        for k, v in raw_dict.items():
+            self._lower_map[k.lower()] = v
+            self._lower_map[k.lower().replace('&amp;', '&')] = v
+            self._lower_map[k.lower().replace('&', '&amp;')] = v
+
+    def get(self, key, default=None):
+        if key in self:
+            return self[key]
+        clean_k = key.replace('&amp;', '&')
+        if clean_k in self:
+            return self[clean_k]
+        low = key.lower()
+        if low in self._lower_map:
+            return self._lower_map[low]
+        low_clean = clean_k.lower()
+        if low_clean in self._lower_map:
+            return self._lower_map[low_clean]
+        return default if default is not None else key
+
+_SURVEY_PO_CACHE = {}
+
+def get_survey_translations(lang):
+    """Load UI translations directly from i18n/*.po files."""
+    low = (lang or '').lower()
+    if any(p in low for p in ('tw', 'hk', 'hant')):
+        po_name = 'zh_TW.po'
+    elif any(p in low for p in ('zh', 'cn', 'hans')):
+        po_name = 'zh_TW.po' if 'tw' in low else 'zh_CN.po'
+    elif any(p in low for p in ('th',)):
+        po_name = 'th_TH.po'
+    elif any(p in low for p in ('vi', 'vn')):
+        po_name = 'vi_VN.po'
+    else:
+        return {}
+
+    if po_name in _SURVEY_PO_CACHE:
+        return _SmartTranslationDict(_SURVEY_PO_CACHE[po_name])
+
+    po_path = os.path.join(os.path.dirname(__file__), '..', 'i18n', po_name)
+    if not os.path.exists(po_path):
+        return {}
+
+    trans = {}
+    try:
+        with open(po_path, 'r', encoding='utf-8') as f:
+            content = f.read()
+
+        import re
+        blocks = re.split(r'\n\s*\n', content)
+        for b in blocks:
+            lines = b.strip().split('\n')
+            msgid_lines = []
+            msgstr_lines = []
+            mode = None
+            for line in lines:
+                if line.startswith('msgid '):
+                    mode = 'msgid'
+                    msgid_lines.append(line[6:].strip())
+                elif line.startswith('msgstr '):
+                    mode = 'msgstr'
+                    msgstr_lines.append(line[7:].strip())
+                elif line.startswith('"') and mode == 'msgid':
+                    msgid_lines.append(line.strip())
+                elif line.startswith('"') and mode == 'msgstr':
+                    msgstr_lines.append(line.strip())
+
+            def unquote(lst):
+                res = ""
+                for s in lst:
+                    if s.startswith('"') and s.endswith('"'):
+                        s = s[1:-1]
+                    res += s.replace('\\"', '"').replace('\\n', '\n')
+                return res
+
+            msgid = unquote(msgid_lines)
+            msgstr = unquote(msgstr_lines)
+            if msgid and msgstr:
+                trans[msgid] = msgstr
+
+        _SURVEY_PO_CACHE[po_name] = trans
+    except Exception:
+        pass
+
+    return _SmartTranslationDict(trans)
 
 def _get_store_members_data(inspection):
     if not inspection or not inspection.franchise_id:
@@ -69,6 +179,12 @@ class WujiaFranchiseInspectionWebController(http.Controller):
         if not is_admin and inspection.inspector_user_id and inspection.inspector_user_id.id != user.id:
             if not user.has_group('base.group_user'):
                 return request.not_found()
+
+        user_lang = request.env.user.lang or request.context.get('lang') or 'zh_TW'
+        trans_map = get_survey_translations(user_lang)
+
+        def _t(key, default=''):
+            return trans_map.get(key, default or key)
 
         lines_rec = inspection.line_ids
 
@@ -110,7 +226,7 @@ class WujiaFranchiseInspectionWebController(http.Controller):
                 'id': line.id,
                 'sequence': line.sequence,
                 'display_type': line.display_type,
-                'content': line.content_snapshot or '',
+                'content': _extract_lang_content(line.content_snapshot or '', user_lang),
                 'criterion_type': crit_type,
                 'is_important': is_important,
                 'is_pass': line.is_pass,
@@ -173,11 +289,7 @@ class WujiaFranchiseInspectionWebController(http.Controller):
         is_inspection_closed = (inspection.state in ('done', 'cancel'))
         is_exam_submitted = bool(inspection.is_exam_submitted)
 
-        user_lang = kwargs.get('lang') or request.params.get('lang') or request.env.user.lang or request.context.get('lang') or 'vi_VN'
-        trans_map = get_survey_translations(user_lang)
 
-        def _t(key, default=''):
-            return trans_map.get(key, default or key)
 
         grades_data = [
             {
@@ -246,7 +358,7 @@ class WujiaFranchiseInspectionWebController(http.Controller):
                 if any(x in user_lang.lower() for x in ('zh', 'cn')) else (
                     [('01', 'ม.ค. (01)'), ('02', 'ก.พ. (02)'), ('03', 'มี.ค. (03)'), ('04', 'เม.ย. (04)'), ('05', 'พ.ค. (05)'), ('06', 'มิ.ย. (06)'), ('07', 'ก.ค. (07)'), ('08', 'ส.ค. (08)'), ('09', 'ก.ย. (09)'), ('10', 'ต.ค. (10)'), ('11', 'พ.ย. (11)'), ('12', 'ธ.ค. (12)')]
                     if 'th' in user_lang.lower() else
-                    [('01', 'Tháng 01'), ('02', 'Tháng 02'), ('03', 'Tháng 03'), ('04', 'Tháng 04'), ('05', 'Tháng 05'), ('06', 'Tháng 06'), ('07', 'Tháng 07'), ('08', 'Tháng 08'), ('09', 'Tháng 09'), ('10', 'Tháng 10'), ('11', 'Tháng 11'), ('12', 'Tháng 12')]
+                    [('01', 'January'), ('02', 'February'), ('03', 'March'), ('04', 'April'), ('05', 'May'), ('06', 'June'), ('07', 'July'), ('08', 'August'), ('09', 'September'), ('10', 'October'), ('11', 'November'), ('12', 'December')]
                 )
             ),
             'years_list': [str(y) for y in range(2023, 2031)],
@@ -268,6 +380,7 @@ class WujiaFranchiseInspectionWebController(http.Controller):
             ],
             'present_count': inspection.present_count,
             'passed_count': len(passed_members),
+            'user_lang': user_lang,
             't': trans_map,
             'tj': Markup(json.dumps(trans_map, ensure_ascii=False)),
             'trans_dict': trans_map,
@@ -302,7 +415,7 @@ class WujiaFranchiseInspectionWebController(http.Controller):
             return {
                 'success': True,
                 'report_lines': lines_data,
-                'message': 'Đã đồng bộ doanh thu từ PosApp thành công!'
+                'message': 'PosApp revenue synchronized successfully!'
             }
         except Exception as e:
             return {'success': False, 'error': str(e)}
@@ -347,7 +460,7 @@ class WujiaFranchiseInspectionWebController(http.Controller):
             emp_name_clean = (test_employee_name or '').strip()
             if finish:
                 if not emp_name_clean:
-                    return {'success': False, 'error': 'Vui lòng nhập Họ và tên Nhân viên được kiểm tra trước khi lưu!'}
+                    return {'success': False, 'error': 'Please enter staff name before saving!'}
 
                 insp_vals['test_employee_name'] = emp_name_clean
                 if tenure is not None:
@@ -497,11 +610,11 @@ class WujiaFranchiseInspectionWebController(http.Controller):
     def add_attendance_line(self, inspection_id, employee_name, role='staff', phone='', note='', is_present=True, **kwargs):
         inspection = request.env['wujia.franchise.inspection'].sudo().browse(int(inspection_id))
         if not inspection.exists() or inspection.state in ('done', 'cancel'):
-            return {'success': False, 'error': 'Phiếu khảo sát đã khóa hoặc không tồn tại!'}
+            return {'success': False, 'error': 'Inspection survey is locked or does not exist!'}
         
         emp_name = (employee_name or '').strip()
         if not emp_name:
-            return {'success': False, 'error': 'Vui lòng nhập Họ và tên nhân viên!'}
+            return {'success': False, 'error': 'Please enter staff full name!'}
         
         new_line = request.env['wujia.franchise.inspection.attendance.line'].sudo().create({
             'inspection_id': inspection.id,
@@ -547,7 +660,7 @@ class WujiaFranchiseInspectionWebController(http.Controller):
     def save_attendance_to_member(self, inspection_id, line_id, employee_name=None, role=None, phone=None, **kwargs):
         line = request.env['wujia.franchise.inspection.attendance.line'].sudo().browse(int(line_id))
         if not line.exists() or line.inspection_id.id != int(inspection_id):
-            return {'success': False, 'error': 'Dòng điểm danh không tồn tại!'}
+            return {'success': False, 'error': 'Attendance line does not exist!'}
         
         if employee_name:
             line.employee_name = employee_name.strip()
@@ -577,7 +690,7 @@ class WujiaFranchiseInspectionWebController(http.Controller):
     def deactivate_attendance_member(self, inspection_id, line_id, **kwargs):
         line = request.env['wujia.franchise.inspection.attendance.line'].sudo().browse(int(line_id))
         if not line.exists() or line.inspection_id.id != int(inspection_id):
-            return {'success': False, 'error': 'Dòng điểm danh không tồn tại!'}
+            return {'success': False, 'error': 'Attendance line does not exist!'}
         
         member_id = line.member_id.id if line.member_id else False
         try:
@@ -596,8 +709,142 @@ class WujiaFranchiseInspectionWebController(http.Controller):
     def delete_attendance_line(self, inspection_id, line_id, **kwargs):
         line = request.env['wujia.franchise.inspection.attendance.line'].sudo().browse(int(line_id))
         if not line.exists() or line.inspection_id.id != int(inspection_id):
-            return {'success': False, 'error': 'Dòng điểm danh không tồn tại!'}
+            return {'success': False, 'error': 'Attendance line does not exist!'}
         
         inspection = line.inspection_id
         line.unlink()
         return {'success': True, 'present_count': inspection.present_count}
+
+    @http.route(['/wujia_franchise_inspection/overview_embed'], type='http', auth='user', website=False)
+    def overview_embed(self, **kwargs):
+        metabase_secret_key = request.env['ir.config_parameter'].sudo().get_param(
+            'wujia_franchise_inspection.metabase_secret_key',
+            'd20e524da43c303ce61909b07d4a69910af93cfc11e0e643d9eaa925f26582dc'
+        ) or 'd20e524da43c303ce61909b07d4a69910af93cfc11e0e643d9eaa925f26582dc'
+        metabase_secret_key = metabase_secret_key.strip()
+
+        metabase_instance_url = request.env['ir.config_parameter'].sudo().get_param(
+            'wujia_franchise_inspection.metabase_instance_url',
+            'https://bi-wujia.tipscode.io'
+        ) or 'https://bi-wujia.tipscode.io'
+        metabase_instance_url = metabase_instance_url.strip().rstrip('/')
+
+        if metabase_instance_url.startswith('http://'):
+            metabase_instance_url = 'https://' + metabase_instance_url[7:]
+
+        dashboard_id_val = request.env['ir.config_parameter'].sudo().get_param(
+            'wujia_franchise_inspection.metabase_dashboard_id',
+            '2'
+        )
+        try:
+            dashboard_id = int(str(dashboard_id_val).strip())
+        except (ValueError, TypeError):
+            dashboard_id = 2
+
+        now = round(time.time())
+        payload = {
+            "resource": {"dashboard": dashboard_id},
+            "params": {},
+            "iat": now,
+            "exp": now + (60 * 60),  # 60 minute expiration
+            "_embedding_params": {
+                "ng%C3%A0y": "enabled",
+                "m%C3%A3_c%E1%BB%ADa_h%C3%A0n": "enabled",
+                "c%C6%B0a_h%C3%A0ng": "enabled"
+            }
+        }
+        
+        token = ""
+        if jwt:
+            try:
+                token = jwt.encode(payload, metabase_secret_key, algorithm="HS256")
+                if isinstance(token, bytes):
+                    token = token.decode('utf-8')
+            except Exception as e:
+                token = ""
+
+        html_content = f"""<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+    <meta http-equiv="Pragma" content="no-cache" />
+    <meta http-equiv="Expires" content="0" />
+    <title>Wujia Overview</title>
+    <style>
+        * {{
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }}
+        html, body {{
+            width: 100%;
+            height: 100%;
+            min-height: 100vh;
+            background-color: #111827;
+            overflow-x: hidden;
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+        }}
+        metabase-dashboard {{
+            width: 100% !important;
+            height: 100% !important;
+            min-height: 100vh !important;
+            display: block !important;
+        }}
+        iframe[data-metabase-embed="true"],
+        metabase-dashboard iframe {{
+            width: 100% !important;
+            height: 100% !important;
+            min-height: 100vh !important;
+            border: none !important;
+            display: block !important;
+        }}
+    </style>
+    <script defer src="{metabase_instance_url}/app/embed.js"></script>
+    <script>
+    function defineMetabaseConfig(config) {{
+      window.metabaseConfig = config;
+    }}
+    </script>
+    <script>
+      defineMetabaseConfig({{
+        "theme": {{
+          "preset": "dark"
+        }},
+        "isGuest": true,
+        "instanceUrl": "{metabase_instance_url}"
+      }});
+    </script>
+</head>
+<body>
+    <metabase-dashboard 
+        token="{token}" 
+        with-title="true" 
+        with-downloads="true">
+    </metabase-dashboard>
+    <script>
+        function overrideIframeHeight() {{
+            const iframe = document.querySelector('iframe[data-metabase-embed="true"]') || document.querySelector('metabase-dashboard iframe');
+            if (iframe) {{
+                iframe.style.setProperty('min-height', '100vh', 'important');
+                iframe.style.setProperty('height', '100%', 'important');
+            }}
+        }}
+        setInterval(overrideIframeHeight, 250);
+        document.addEventListener('DOMContentLoaded', overrideIframeHeight);
+        window.addEventListener('load', overrideIframeHeight);
+    </script>
+</body>
+</html>"""
+        return request.make_response(
+            html_content,
+            headers=[
+                ('Content-Type', 'text/html; charset=utf-8'),
+                ('Cache-Control', 'no-cache, no-store, must-revalidate'),
+                ('Pragma', 'no-cache'),
+                ('Expires', '0'),
+                ('X-Frame-Options', 'SAMEORIGIN'),
+            ]
+        )

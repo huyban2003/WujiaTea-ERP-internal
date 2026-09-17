@@ -94,14 +94,14 @@
             <form string="Historical Criterion Details" create="false" edit="false" delete="false">
                 <sheet>
                     <group>
-                        <group string="THÔNG TIN TIÊU CHÍ">
+                        <group string="CRITERION INFORMATION">
                             <field name="inspection_id" readonly="1" options="{'no_open': True}" />
                             <field name="franchise_id" readonly="1" options="{'no_open': True}" />
                             <field name="planned_date" readonly="1" />
                             <field name="category_id" readonly="1" options="{'no_open': True}" />
                             <field name="content_snapshot" readonly="1" />
                         </group>
-                        <group string="KẾT QUẢ &amp; BẰNG CHỨNG">
+                        <group string="RESULTS &amp; EVIDENCE">
                             <field name="criterion_type_snapshot" readonly="1" widget="badge"
                                 decoration-danger="criterion_type_snapshot == 'critical'"
                                 decoration-info="criterion_type_snapshot == 'normal'" />
@@ -112,7 +112,7 @@
                             <field name="note" readonly="1" />
                         </group>
                     </group>
-                    <group string="BẰNG CHỨNG &amp; KHẮC PHỤC">
+                    <group string="EVIDENCE &amp; REMEDIATION">
                         <group string="Violation Evidence (Inspection)">
                             <field name="evidence_image" widget="image"
                                 options="{'size': [200, 200]}" readonly="1" nolabel="1" />

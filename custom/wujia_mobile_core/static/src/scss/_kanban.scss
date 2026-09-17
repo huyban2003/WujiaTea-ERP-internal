@@ -1,0 +1,261 @@
+// ============================================================================
+// Wujia Mobile Core — Standardized Mobile Kanban Component (`.wj_mobile_kanban`)
+// ============================================================================
+
+/*
+ * Wujia Mobile Kanban
+ *
+ * Cách sử dụng:
+ * <kanban class="wj_mobile_kanban">
+ */
+
+.wj_mobile_kanban {
+    /* Design tokens */
+    --wj-mobile-primary: #00aeef;
+    --wj-mobile-primary-dark: #008fc5;
+    --wj-mobile-primary-soft: #eefaff;
+    --wj-mobile-primary-hover: #f8fdff;
+    --wj-mobile-primary-active: #e6f7fd;
+
+    --wj-mobile-text: #1f2937;
+    --wj-mobile-text-strong: #111827;
+    --wj-mobile-text-muted: #6b7280;
+    --wj-mobile-border: #e5e7eb;
+
+    --wj-mobile-card-radius: 9px;
+    --wj-mobile-card-spacing: 6px;
+    --wj-mobile-card-padding-y: 8px;
+    --wj-mobile-card-padding-x: 10px;
+
+    /* View container & Renderer: Loại bỏ khoảng thụt lề/padding mặc định quá lớn của Odoo */
+    padding: 6px 8px !important;
+
+    .o_kanban_renderer.o_kanban_ungrouped,
+    .o_kanban_renderer {
+        padding: 0 !important;
+        gap: var(--wj-mobile-card-spacing, 6px) !important;
+    }
+
+    /*
+     * Kanban record
+     * Không áp dụng cho ghost record của Odoo.
+     */
+    .o_kanban_record:not(.o_kanban_ghost) {
+        margin: 0 !important;
+        padding: 0 !important;
+        border: 1px solid var(--wj-mobile-border);
+        border-radius: var(--wj-mobile-card-radius);
+        background-color: #fff;
+        box-shadow: none;
+        overflow: hidden;
+        transition:
+            transform 120ms ease,
+            border-color 120ms ease,
+            background-color 120ms ease;
+
+        /* Hiệu ứng khi chạm */
+        &:active {
+            border-color: var(--wj-mobile-primary-dark);
+            background-color: var(--wj-mobile-primary-active);
+            box-shadow: none;
+            transform: scale(0.99);
+        }
+
+        /* Record đã được tích chọn */
+        &.o_record_selected {
+            border-color: var(--wj-mobile-primary) !important;
+            background-color: var(--wj-mobile-primary-soft) !important;
+            box-shadow: none !important;
+            transform: none;
+
+            &:active {
+                border-color: var(--wj-mobile-primary-dark) !important;
+                background-color: var(
+                    --wj-mobile-primary-active
+                ) !important;
+                transform: scale(0.99);
+            }
+        }
+    }
+
+    /* Hover chỉ dành cho thiết bị hỗ trợ chuột */
+    @media (hover: hover) {
+        .o_kanban_record:not(.o_kanban_ghost):hover {
+            border-color: var(--wj-mobile-primary);
+            background-color: var(--wj-mobile-primary-hover);
+            box-shadow: none;
+            transform: translateY(-1px);
+        }
+
+        .o_kanban_record.o_record_selected:hover {
+            border-color: var(--wj-mobile-primary-dark) !important;
+            background-color: var(
+                --wj-mobile-primary-active
+            ) !important;
+            box-shadow: none !important;
+            transform: none;
+        }
+    }
+
+    /* Nội dung card */
+    .wj_mobile_card {
+        padding:
+            var(--wj-mobile-card-padding-y)
+            var(--wj-mobile-card-padding-x);
+        box-sizing: border-box;
+        width: 100%;
+        overflow: hidden;
+
+        /* Đảm bảo flexbox container con không bị đẩy tràn ra ngoài */
+        .d-flex {
+            min-width: 0;
+            max-width: 100%;
+        }
+    }
+
+    /* Mã chứng từ: SO, PO, phiếu kho... */
+    .wj_mobile_card__code {
+        min-width: 0;
+        color: var(--wj-mobile-primary-dark);
+        font-size: 15px;
+        font-weight: 700;
+        line-height: 1.2;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    /* Nội dung chính: khách hàng, nhà cung cấp... */
+    .wj_mobile_card__title {
+        min-width: 0;
+        color: var(--wj-mobile-text);
+        font-size: 13px;
+        font-weight: 600;
+        line-height: 1.25;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    /* Thông tin phụ: ngày, kho, người phụ trách... */
+    .wj_mobile_card__meta {
+        display: inline-flex !important;
+        align-items: center !important;
+        gap: 4px;
+        flex: 1 1 auto;
+        min-width: 0;
+        color: var(--wj-mobile-text-muted);
+        font-size: 11px;
+        line-height: 1.2;
+        margin: 0 !important;
+        padding: 0 !important;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap !important;
+
+        .o_field_widget, span, div {
+            display: inline-flex !important;
+            align-items: center !important;
+            margin-bottom: 0 !important;
+            margin-top: 0 !important;
+            padding: 0 !important;
+            width: auto !important;
+            white-space: nowrap !important;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        i {
+            display: inline-block;
+            flex-shrink: 0;
+        }
+    }
+
+    /* Giá trị nổi bật: tổng tiền, số lượng... */
+    .wj_mobile_card__value {
+        flex: 0 0 auto;
+        color: var(--wj-mobile-text-strong);
+        font-size: 14px;
+        font-weight: 700;
+        line-height: 1.2;
+        white-space: nowrap;
+        text-align: right;
+    }
+
+    /* Dòng giá trị phụ: khối lượng kg, số lượng phụ... */
+    .wj_mobile_card__subvalue {
+        display: flex !important;
+        align-items: center !important;
+        justify-content: flex-end !important;
+        gap: 3px !important;
+        flex: 0 0 auto;
+        font-size: 11px;
+        color: var(--wj-mobile-text-muted);
+        text-align: right;
+        white-space: nowrap !important;
+        line-height: 1.2;
+        margin-top: 2px;
+        max-width: 100%;
+        overflow: hidden;
+
+        .o_field_widget, span {
+            display: inline !important;
+            width: auto !important;
+            white-space: nowrap !important;
+        }
+    }
+
+    /* Badge dùng chung */
+    .wj_mobile_badge {
+        display: inline-flex;
+        flex: 0 0 auto;
+        align-items: center;
+        max-width: 45%;
+        padding: 2px 7px;
+        border-radius: 999px;
+        font-size: 10px;
+        font-weight: 600;
+        line-height: 1.4;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    /* Badge trung tính */
+    .wj_mobile_badge--neutral {
+        color: #4b5563;
+        background-color: #f3f4f6;
+    }
+
+    /* Badge thông tin */
+    .wj_mobile_badge--info {
+        color: #036987;
+        background-color: #e6f7fd;
+    }
+
+    /* Badge cảnh báo */
+    .wj_mobile_badge--warning {
+        color: #92400e;
+        background-color: #fef3c7;
+    }
+
+    /* Badge thành công */
+    .wj_mobile_badge--success {
+        color: #00845f;
+        background-color: #dcfce7;
+    }
+
+    /* Badge lỗi/hủy */
+    .wj_mobile_badge--danger {
+        color: #d71920;
+        background-color: #fee2e2;
+    }
+
+    /* Mobile */
+    @media (max-width: 767.98px) {
+        .o_kanban_record:not(.o_kanban_ghost) {
+            width: 100% !important;
+            margin: 0 0 var(--wj-mobile-card-spacing) !important;
+        }
+    }
+}

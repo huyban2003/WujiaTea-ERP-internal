@@ -137,9 +137,9 @@ class WujiaFranchiseInspection(models.Model):
     )
     # Video Fields (Google Drive Storage)
     video = fields.Binary(
-        string='Video Minh Chứng',
+        string='Evidence Video',
         attachment=False,
-        help='Chọn file video để tự động tải lên Google Drive (không lưu trên server).',
+        help='Select video file to automatically upload to Google Drive (not stored on server).',
     )
     video_filename = fields.Char(
         string='Video File Name',
@@ -149,18 +149,18 @@ class WujiaFranchiseInspection(models.Model):
         string='Google Drive Video URL',
         copy=False,
         tracking=True,
-        help='Đường dẫn xem trực tiếp video khảo sát trên Google Drive.',
+        help='Direct URL to view the inspection video on Google Drive.',
     )
     video_drive_file_id = fields.Char(
         string='Google Drive File ID',
         copy=False,
     )
     video_upload_state = fields.Selection([
-        ('not_uploaded', 'Chưa có Video'),
-        ('uploading', 'Đang tải lên Drive...'),
-        ('uploaded', 'Đã lưu trên Google Drive'),
-        ('error', 'Lỗi tải lên Google Drive')
-    ], string='Trạng thái Video', default='not_uploaded', copy=False, tracking=True)
+        ('not_uploaded', 'No Video'),
+        ('uploading', 'Uploading to Drive...'),
+        ('uploaded', 'Uploaded to Google Drive'),
+        ('error', 'Google Drive Upload Error')
+    ], string='Video Status', default='not_uploaded', copy=False, tracking=True)
 
     is_google_drive_enabled = fields.Boolean(
         string='Is Google Drive Enabled',
@@ -239,7 +239,7 @@ class WujiaFranchiseInspection(models.Model):
         """Mở vị trí tọa độ GPS trên Google Maps."""
         self.ensure_one()
         if not (self.latitude or self.longitude):
-            raise UserError(_('Chưa có thông tin tọa độ GPS! Vui lòng bấm "Lấy vị trí GPS" trước.'))
+            raise UserError(_('GPS coordinates are missing! Please click "Get GPS Location" first.'))
         return {
             'type': 'ir.actions.act_url',
             'url': f"https://www.google.com/maps?q={self.latitude},{self.longitude}",
@@ -296,7 +296,7 @@ class WujiaFranchiseInspection(models.Model):
         """Mở link xem video trực tiếp trên Google Drive trong tab mới."""
         self.ensure_one()
         if not self.video_url:
-            raise UserError(_("Phiếu khảo sát này chưa có link video trên Google Drive!"))
+            raise UserError(_("This inspection survey does not have a Google Drive video link yet!"))
         return {
             'type': 'ir.actions.act_url',
             'url': self.video_url,
@@ -362,7 +362,7 @@ class WujiaFranchiseInspection(models.Model):
     store_appearance_issues = fields.Text(
         string='Store Appearance Issues & Key Remediations',
         tracking=True,
-        help='店鋪觀感不良敘述 與 待改善之重點缺失項目 / Ghi nhận ngoại quan kém và các lỗi trọng điểm cần khắc phục',
+        help='Store poor appearance description & key deficiencies to be improved',
     )
     previous_store_appearance_issues = fields.Text(
         string='Previous Inspection Notes',
@@ -638,8 +638,8 @@ class WujiaFranchiseInspection(models.Model):
                 continue
             if rec.planned_date and rec.planned_date > today:
                 raise ValidationError(_(
-                    "Không thể tạo hoặc lưu phiếu khảo sát cho ngày trong tương lai (%s)!\n"
-                    "Ngày khảo sát chưa đến (Hôm nay: %s). Bạn có thể tạo Lịch giám sát trước."
+                    "Cannot create or save inspection survey for a future date (%s)!\n"
+                    "Inspection date has not arrived yet (Today: %s). You can create a Supervision Schedule in advance."
                 ) % (rec.planned_date.strftime('%d/%m/%Y'), today.strftime('%d/%m/%Y')))
             
             if rec.franchise_id and rec.planned_date:
@@ -651,8 +651,8 @@ class WujiaFranchiseInspection(models.Model):
                 ], limit=1)
                 if duplicate:
                     raise ValidationError(_(
-                        "Trong 1 ngày (%s), mỗi cửa hàng '%s' chỉ được phép có tối đa 1 phiếu khảo sát!\n"
-                        "Đã có phiếu khảo sát (%s) trong ngày này."
+                        "On the same date (%s), each store '%s' is only allowed to have at most 1 inspection survey!\n"
+                        "An inspection survey (%s) already exists for this date."
                     ) % (rec.planned_date.strftime('%d/%m/%Y'), rec.franchise_id.name, duplicate.name))
 
 
@@ -1007,12 +1007,12 @@ class WujiaFranchiseInspection(models.Model):
 
                     if req_note and not line.note:
                         raise ValidationError(_(
-                            'Tiêu chí "%s" được đánh giá KHÔNG ĐẠT và yêu cầu phải có GHI CHÚ vi phạm!\nVui lòng nhập ghi chú trước khi tiếp tục.'
+                            'Criterion "%s" failed and requires a VIOLATION NOTE!\nPlease enter a note before proceeding.'
                         ) % criterion_name)
                     
                     if req_evidence and not line.evidence_image:
                         raise ValidationError(_(
-                            'Tiêu chí "%s" được đánh giá KHÔNG ĐẠT và yêu cầu phải có HÌNH ẢNH BẰNG CHỨNG!\nVui lòng tải ảnh bằng chứng lên trước khi tiếp tục.'
+                            'Criterion "%s" failed and requires EVIDENCE IMAGE!\nPlease upload evidence photo before proceeding.'
                         ) % criterion_name)
 
     def _validate_exam_lines(self):
@@ -1023,8 +1023,8 @@ class WujiaFranchiseInspection(models.Model):
         for rec in self:
             if rec.exam_line_ids and not rec.is_exam_submitted:
                 raise ValidationError(_(
-                    'Bài kiểm tra nhân viên chưa được nộp!\n'
-                    'Vui lòng chuyển sang tab "Bài kiểm tra nhân viên" và bấm nút "Nộp bài kiểm tra" trước khi thực hiện Hoàn thành.'
+                    'Staff exam has not been submitted!\n'
+                    'Please switch to the "Staff Exam" tab and click "Submit Exam" before completing.'
                 ))
 
     def action_need_remediation(self):
@@ -1104,7 +1104,7 @@ class WujiaFranchiseInspection(models.Model):
         """
         self.ensure_one()
         if not self.franchise_id or not self.franchise_id.code:
-            raise UserError(_("Cửa hàng chưa có mã cửa hàng (Store Code) để đồng bộ PosApp!"))
+            raise UserError(_("Franchise store has no Store Code configured for PosApp synchronization!"))
 
         shop_code = (self.franchise_id.code or '').strip()
         ref_date = self.planned_date or fields.Date.context_today(self)
@@ -1129,10 +1129,10 @@ class WujiaFranchiseInspection(models.Model):
                 max_workers=min(3, len(date_ranges))
             )
         except Exception as e:
-            raise UserError(_("Lỗi khi kết nối đến PosApp API: %s") % str(e))
+            raise UserError(_("Error connecting to PosApp API: %s") % str(e))
 
         if not result_groups:
-            raise UserError(_("Không lấy được dữ liệu doanh thu từ PosApp cho cửa hàng '%s'. Vui lòng kiểm tra lại kết nối hoặc mã cửa hàng!") % shop_code)
+            raise UserError(_("Could not retrieve revenue data from PosApp for store '%s'. Please check your connection or store code!") % shop_code)
 
         # Sắp xếp các tháng theo thứ tự thời gian tăng dần
         result_groups = sorted(result_groups, key=lambda x: x.get('date', ''))
@@ -1199,8 +1199,8 @@ class WujiaFranchiseInspection(models.Model):
             self.env.user.partner_id,
             'simple_notification',
             {
-                'title': _('Đồng bộ PosApp thành công'),
-                'message': _("Đã nạp thành công %s tháng doanh thu từ PosApp!") % len(lines_data),
+                'title': _('PosApp Sync Successful'),
+                'message': _("Successfully loaded %s months of revenue data from PosApp!") % len(lines_data),
                 'type': 'success',
                 'sticky': False,
             }
@@ -1456,7 +1456,7 @@ class WujiaFranchiseInspection(models.Model):
         action = (self.env.ref('wujia_franchise_inspection.action_report_franchise_inspection', raise_if_not_found=False) or self.env.ref('wujia_franchise.action_report_franchise_inspection')).report_action(self)
         store_code = self.franchise_id.code or self.franchise_id.name or ''
         plan_date = self.planned_date.strftime('%d-%m-%Y') if self.planned_date else ''
-        custom_name = f"Báo cáo Khảo sát Giám sát [{store_code}] [{plan_date}]"
+        custom_name = f"Franchise Inspection Report [{store_code}] [{plan_date}]"
         action['name'] = custom_name
         action['display_name'] = custom_name
         return action
@@ -1496,7 +1496,7 @@ class WujiaFranchiseInspectionLine(models.Model):
     display_type = fields.Selection([
         ('section', 'Section'),
         ('line', 'Line'),
-    ], default='line', help="Trường kỹ thuật phân nhóm danh mục section header")
+    ], default='line', help="Technical field to group section headers")
 
     content_snapshot = fields.Text(
         string='Checklist Content',
@@ -1950,7 +1950,7 @@ class WujiaFranchiseInspectionReportLine(models.Model):
     )
 
     percent_app_sale = fields.Float(
-        string='% App Orders',
+        string='App Orders Ratio (%)',
     )
 
     # RELATION
@@ -1989,7 +1989,7 @@ class WujiaFranchiseInspectionExamLine(models.Model):
     _order = 'sequence, id'
 
     sequence = fields.Integer(
-        string='Thứ tự',
+        string='Sequence',
         default=10,
     )
 
@@ -2209,7 +2209,7 @@ class WujiaFranchiseInspectionAttendanceLine(models.Model):
         ('attendance', 'Attendance'),
         ('passed', 'Passed Exam'),
     ], string='Line Type', required=True, default='attendance',
-        help='Phân loại dòng: điểm danh có mặt hoặc nhân viên đã thi đậu.')
+        help='Line classification: present attendance or passed certified staff.')
 
     inspection_id = fields.Many2one(
         'wujia.franchise.inspection',
@@ -2223,7 +2223,7 @@ class WujiaFranchiseInspectionAttendanceLine(models.Model):
         'wujia.franchise.member',
         string='Store Member',
         ondelete='set null',
-        help='Liên kết tới thành viên cửa hàng.',
+        help='Link to store franchise member.',
     )
 
     employee_name = fields.Char(
@@ -2242,13 +2242,13 @@ class WujiaFranchiseInspectionAttendanceLine(models.Model):
     is_present = fields.Boolean(
         string='Present',
         default=True,
-        help='Nhân viên có mặt tại cửa hàng trong buổi khảo sát.',
+        help='Staff present at the store during inspection.',
     )
 
     is_pass = fields.Boolean(
         string='Passed Exam',
         default=False,
-        help='Nhân viên đã vượt qua kỳ thi chứng nhận.',
+        help='Staff has passed certification exam.',
     )
 
     note = fields.Char(string='Note')

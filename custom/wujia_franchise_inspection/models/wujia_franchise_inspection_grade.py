@@ -54,10 +54,10 @@ class WujiaFranchiseInspectionGrade(models.Model):
     def _init_default_grades(self):
         """Tạo các xếp hạng mặc định (A, B, C, D) nếu chưa tồn tại trong database."""
         default_grades = [
-            {'name': 'A', 'min_score': 96.0, 'max_score': 100.0, 'sequence': 1, 'color': 10, 'description': 'Xuất sắc'},
-            {'name': 'B', 'min_score': 83.0, 'max_score': 95.99, 'sequence': 2, 'color': 2, 'description': 'Tốt'},
-            {'name': 'C', 'min_score': 70.0, 'max_score': 82.99, 'sequence': 3, 'color': 3, 'description': 'Trung bình'},
-            {'name': 'D', 'min_score': 0.0, 'max_score': 69.99, 'sequence': 4, 'color': 1, 'description': 'Yếu'},
+            {'name': 'A', 'min_score': 96.0, 'max_score': 100.0, 'sequence': 1, 'color': 10, 'description': 'Excellent'},
+            {'name': 'B', 'min_score': 83.0, 'max_score': 95.99, 'sequence': 2, 'color': 2, 'description': 'Good'},
+            {'name': 'C', 'min_score': 70.0, 'max_score': 82.99, 'sequence': 3, 'color': 3, 'description': 'Average'},
+            {'name': 'D', 'min_score': 0.0, 'max_score': 69.99, 'sequence': 4, 'color': 1, 'description': 'Poor'},
         ]
         for grade_data in default_grades:
             existing = self.with_context(active_test=False).search([('name', '=', grade_data['name'])], limit=1)
@@ -95,8 +95,8 @@ class WujiaFranchiseInspectionGrade(models.Model):
             overlapping = self.search(domain, limit=1)
             if overlapping and overlapping.id != rec_id:
                 raise ValidationError(
-                    _('Khoảng điểm [%(min)s - %(max)s] của hạng "%(name)s" bị chồng lấn '
-                      'với hạng "%(other)s" [%(other_min)s - %(other_max)s]!',
+                    _('Score range [%(min)s - %(max)s] of grade "%(name)s" overlaps '
+                      'with grade "%(other)s" [%(other_min)s - %(other_max)s]!',
                       min=record.min_score,
                       max=record.max_score,
                       name=record.name,

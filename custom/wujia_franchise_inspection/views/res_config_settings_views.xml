@@ -4,59 +4,88 @@
         <field name="name">res.config.settings.view.form.wujia.inspection</field>
         <field name="model">res.config.settings</field>
         <field name="priority" eval="70"/>
-        <field name="inherit_id" ref="wujia_franchise.res_config_settings_view_form_wujia_franchise"/>
+        <field name="inherit_id" ref="base.res_config_settings_view_form"/>
         <field name="arch" type="xml">
-            <xpath expr="//app[@name='wujia_franchise']" position="inside">
-                <block title="Store Inspection" id="wujia_inspection_google_drive_settings">
-                    <setting id="wujia_inspection_google_drive_setting"
-                        string="Enable Google Drive Video"
-                        help="Automatically upload video evidence to Google Drive (wujia media / [Store Code] / ks[YYYYMMDD].mp4) to save server storage.">
-                        <field name="wujia_inspection_use_google_drive"/>
+            <xpath expr="//form" position="inside">
+                <app data-string="Franchise Inspection" string="Franchise Inspection" name="wujia_franchise_inspection">
+                    <block title="Inspection Video Storage (Google Drive)" id="wujia_inspection_google_drive_settings">
+                        <setting id="wujia_inspection_google_drive_setting"
+                            string="Enable Google Drive Video"
+                            help="Automatically upload evidence videos to Google Drive (wujia media / [Store Code] / ks[YYYYMMDD].mp4) to save server storage.">
+                            <field name="wujia_inspection_use_google_drive"/>
 
-                        <div class="content-group mt-3" invisible="not wujia_inspection_use_google_drive">
-                            <div class="alert alert-info py-2 mb-3">
-                                <i class="fa fa-info-circle me-1"/>
-                                <strong>Status: </strong>
-                                <field name="google_drive_status_message" class="d-inline fw-bold text-dark"/>
-                            </div>
+                            <div class="content-group mt-3" invisible="not wujia_inspection_use_google_drive">
+                                <div class="alert alert-info py-2 mb-3">
+                                    <i class="fa fa-info-circle me-1"/>
+                                    <strong>Status: </strong>
+                                    <field name="google_drive_status_message" class="d-inline fw-bold text-dark"/>
+                                </div>
 
-                            <div class="row mb-2">
-                                <label for="google_drive_credentials_file" string="Upload credentials.json:" class="col-lg-4 o_light_label fw-bold"/>
-                                <div class="col-lg-8">
-                                    <field name="google_drive_credentials_filename" invisible="1"/>
-                                    <field name="google_drive_credentials_file" filename="google_drive_credentials_filename" widget="binary"/>
-                                    <div class="text-muted small">OAuth 2.0 Client or Service Account key downloaded from Google Cloud Console.</div>
+                                <div class="row mb-2">
+                                    <label for="google_drive_credentials_file" string="Upload credentials.json:" class="col-lg-4 o_light_label fw-bold"/>
+                                    <div class="col-lg-8">
+                                        <field name="google_drive_credentials_filename" invisible="1"/>
+                                        <field name="google_drive_credentials_file" filename="google_drive_credentials_filename" widget="binary"/>
+                                        <div class="text-muted small">OAuth 2.0 Client configuration file downloaded from Google Cloud Console.</div>
+                                    </div>
+                                </div>
+
+                                <div class="row mb-2">
+                                    <label for="google_drive_token_file" string="Upload token.json:" class="col-lg-4 o_light_label fw-bold"/>
+                                    <div class="col-lg-8">
+                                        <field name="google_drive_token_filename" invisible="1"/>
+                                        <field name="google_drive_token_file" filename="google_drive_token_filename" widget="binary"/>
+                                        <div class="text-muted small">File storing Access / Refresh Token authorized for Google Drive.</div>
+                                    </div>
+                                </div>
+
+                                <div class="mt-3">
+                                    <button name="action_test_google_drive_connection"
+                                        type="object"
+                                        string="Test Google Drive Connection"
+                                        class="btn btn-outline-primary btn-sm"
+                                        icon="fa-cloud-upload"/>
                                 </div>
                             </div>
-
-                            <div class="row mb-2">
-                                <label for="google_drive_token_file" string="Upload token.json:" class="col-lg-4 o_light_label fw-bold"/>
-                                <div class="col-lg-8">
-                                    <field name="google_drive_token_filename" invisible="1"/>
-                                    <field name="google_drive_token_file" filename="google_drive_token_filename" widget="binary"/>
-                                    <div class="text-muted small">Token file containing authorized access / refresh tokens for Drive.</div>
+                        </setting>
+                    </block>
+                                    <block title="Metabase BI Overview Settings" id="wujia_inspection_metabase_settings">
+                        <setting id="wujia_inspection_metabase_setting"
+                            string="Metabase Dashboard Embed"
+                            help="Configure Metabase instance URL, dashboard ID, and JWT Secret Key for the Overview page in Reporting.">
+                            <div class="content-group">
+                                <div class="row mb-2">
+                                    <label for="metabase_instance_url" string="Metabase URL:" class="col-lg-4 o_light_label fw-bold"/>
+                                    <div class="col-lg-8">
+                                        <field name="metabase_instance_url" placeholder="https://bi-wujia.tipscode.io"/>
+                                    </div>
+                                </div>
+                                <div class="row mb-2">
+                                    <label for="metabase_dashboard_id" string="Dashboard ID:" class="col-lg-4 o_light_label fw-bold"/>
+                                    <div class="col-lg-8">
+                                        <field name="metabase_dashboard_id"/>
+                                    </div>
+                                </div>
+                                <div class="row mb-2">
+                                    <label for="metabase_secret_key" string="Secret Key:" class="col-lg-4 o_light_label fw-bold"/>
+                                    <div class="col-lg-8">
+                                        <field name="metabase_secret_key" password="True" placeholder="Secret Key for JWT HS256 signing"/>
+                                        <div class="text-muted small">Hex Secret Key from Metabase Admin &gt; Embedding &gt; Embedding in other applications.</div>
+                                    </div>
                                 </div>
                             </div>
-
-                            <div class="mt-3">
-                                <button name="action_test_google_drive_connection"
-                                    type="object"
-                                    string="Test Google Drive Connection"
-                                    class="btn btn-outline-primary btn-sm"
-                                    icon="fa-cloud-upload"/>
-                            </div>
-                        </div>
-                    </setting>
-                </block>
+                        </setting>
+                    </block>
+                </app>
             </xpath>
         </field>
     </record>
 
     <record id="action_wujia_inspection_config_settings" model="ir.actions.act_window">
-        <field name="name">Settings &amp; Google Drive</field>
+        <field name="name">Inspection &amp; Google Drive Settings</field>
         <field name="res_model">res.config.settings</field>
         <field name="view_mode">form</field>
         <field name="target">current</field>
-        <field name="context">{'module': 'wujia_franchise'}</field>
+        <field name="context">{'module': 'wujia_franchise_inspection'}</field>
     </record>
 </odoo>

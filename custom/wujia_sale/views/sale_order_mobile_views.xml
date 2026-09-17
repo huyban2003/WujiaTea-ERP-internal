@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- Mobile Kanban View for Sales Orders -->
+    <record id="view_sale_order_kanban_wujia_mobile" model="ir.ui.view">
+        <field name="name">sale.order.kanban.wujia.mobile</field>
+        <field name="model">sale.order</field>
+        <field name="priority">25</field>
+        <field name="arch" type="xml">
+            <kanban class="wj_mobile_kanban" sample="1">
+                <field name="name" />
+                <field name="partner_id" />
+                <field name="franchise_id" />
+                <field name="area_id" />
+                <field name="date_order" />
+                <field name="amount_total" />
+                <field name="total_planned_weight" />
+                <field name="currency_id" />
+                <field name="state" />
+                <field name="is_portal_order" />
+                <field name="is_return_order" />
+                <field name="mobile_badge_class" />
+                <field name="mobile_card_title" />
+                <templates>
+                    <t t-name="card">
+                        <div class="wj_mobile_card">
+                            <!-- Top Row: Document Reference and Status Badge -->
+                            <div class="d-flex align-items-center justify-content-between mb-1">
+                                <span class="wj_mobile_card__code">
+                                    <field name="name" />
+                                </span>
+                                <span
+                                    t-attf-class="wj_mobile_badge #{record.mobile_badge_class.raw_value or 'wj_mobile_badge--neutral'}">
+                                    <field name="state" />
+                                </span>
+                            </div>
+
+                            <!-- Title Row: Primary Store or Customer Name -->
+                            <div class="wj_mobile_card__title mb-2">
+                                <field name="mobile_card_title" />
+                            </div>
+
+                            <!-- Footer Row: Calendar Icon & Date on Left, Total Amount and Weight on Right -->
+                            <div class="d-flex align-items-end justify-content-between pt-1">
+                                <span class="wj_mobile_card__meta text-nowrap"
+                                    style="white-space: nowrap !important;">
+                                    <i class="fa fa-calendar-o me-1" title="Order Date" />
+                                    <field name="date_order" widget="date" />
+                                    <t t-if="record.is_portal_order.raw_value">
+                                        <span class="badge bg-light text-primary ms-1">Portal</span>
+                                    </t>
+                                    <t t-if="record.is_return_order.raw_value">
+                                        <span class="badge bg-light text-danger ms-1">Return</span>
+                                    </t>
+                                </span>
+                                <div class="text-end text-nowrap ms-2">
+                                    <span class="wj_mobile_card__value font-weight-bold"
+                                        style="color: #111827;">
+                                        <field name="amount_total" widget="monetary" />
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                    </t>
+                </templates>
+            </kanban>
+        </field>
+    </record>
+
+    <!-- Mobile Form View Enhancements for Sales Orders -->
+    <record id="view_sale_order_form_wujia_mobile" model="ir.ui.view">
+        <field name="name">sale.order.form.inherit.wujia.mobile</field>
+        <field name="model">sale.order</field>
+        <field name="inherit_id" ref="sale.view_order_form" />
+        <field name="priority">35</field>
+        <field name="arch" type="xml">
+            <!-- Mobile Sticky Bottom Action Bar -->
+            <xpath expr="//sheet" position="before">
+                <div class="o_wujia_mb_sticky_actions d-mb-flex d-none">
+                    <button name="action_confirm" id="action_confirm_mobile"
+                        string="Confirm" class="btn btn-primary" type="object"
+                        context="{'validate_analytic': True}"
+                        invisible="state != 'sent'" />
+                    <button name="action_confirm" id="action_confirm_mobile_draft"
+                        string="Confirm" class="btn btn-primary" type="object"
+                        context="{'validate_analytic': True}"
+                        invisible="state != 'draft'" />
+                    <button name="action_cancel" type="object" string="Cancel"
+                        class="btn btn-outline-secondary"
+                        invisible="state not in ['draft', 'sent', 'sale']" />
+                </div>
+            </xpath>
+        </field>
+    </record>
+
+    <!-- Update Wujia Sales Orders Window Action: Desktop defaults to List (sequence 1), Mobile auto-switches to Kanban (sequence 2) -->
+    <record id="wujia_sale.action_wujia_sale_orders" model="ir.actions.act_window">
+        <field name="view_mode">list,kanban,form</field>
+        <field name="view_id" eval="False" />
+    </record>
+
+    <!-- Desktop Default: Sequence 1 = List View -->
+    <record id="action_wujia_sale_order_view_tree" model="ir.actions.act_window.view">
+        <field name="sequence" eval="1"/>
+        <field name="view_mode">list</field>
+        <field name="view_id" ref="wujia_sale.view_order_tree_wujia"/>
+        <field name="act_window_id" ref="wujia_sale.action_wujia_sale_orders"/>
+    </record>
+
+    <!-- Mobile Default: Sequence 2 = Kanban Card View -->
+    <record id="action_wujia_sale_order_view_kanban" model="ir.actions.act_window.view">
+        <field name="sequence" eval="2"/>
+        <field name="view_mode">kanban</field>
+        <field name="view_id" ref="view_sale_order_kanban_wujia_mobile"/>
+        <field name="act_window_id" ref="wujia_sale.action_wujia_sale_orders"/>
+    </record>
+
+</odoo>

@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- Mobile Kanban View for Franchise Store Master -->
+    <record id="view_wujia_franchise_management_kanban_mobile" model="ir.ui.view">
+        <field name="name">wujia.franchise.management.kanban.mobile</field>
+        <field name="model">wujia.franchise.management</field>
+        <field name="priority">30</field>
+        <field name="arch" type="xml">
+            <kanban class="wj_mobile_kanban" sample="1">
+                <field name="code" />
+                <field name="name" />
+                <field name="display_name" />
+                <field name="area_id" />
+                <field name="franchise_start_date" />
+                <field name="franchise_end_date" />
+                <field name="remaining_days" />
+                <field name="member_count" />
+                <field name="status" />
+                <templates>
+                    <t t-name="card">
+                        <div class="wj_mobile_card">
+                            <!-- Row 1: Store Code + Status Badge -->
+                            <div class="d-flex align-items-center justify-content-between mb-1">
+                                <span class="wj_mobile_card__code">
+                                    <field name="code" />
+                                </span>
+                                <span
+                                    t-attf-class="wj_mobile_badge #{
+                                    record.status.raw_value == 'active' and 'wj_mobile_badge--success' or
+                                    record.status.raw_value == 'draft' and 'wj_mobile_badge--warning' or
+                                    record.status.raw_value in ['locked', 'expired'] and 'wj_mobile_badge--danger' or
+                                    'wj_mobile_badge--neutral'
+                                }">
+                                    <field name="status" />
+                                </span>
+                            </div>
+
+                            <!-- Row 2: Display Name (Title) -->
+                            <div class="wj_mobile_card__title mb-1">
+                                <field name="display_name" />
+                            </div>
+
+                            <!-- Row 3: Info Footer (Row 3a: Expiration Date & Remaining Days; Row 3b: Area & Member Count) -->
+                            <div class="pt-2 border-top overflow-hidden">
+                                <div class="d-flex align-items-center justify-content-between mb-1 overflow-hidden">
+                                    <span class="wj_mobile_card__meta text-nowrap me-2 overflow-hidden text-truncate">
+                                        <t t-if="record.franchise_end_date.raw_value">
+                                            <i class="fa fa-calendar me-1" title="Contract Expiration" />
+                                            <field name="franchise_end_date" widget="date" />
+                                        </t>
+                                    </span>
+                                    <span class="wj_mobile_card__value text-primary font-weight-bold text-nowrap flex-shrink-0 ms-auto">
+                                        <t t-esc="record.remaining_days.value" /> days left
+                                    </span>
+                                </div>
+                                <div class="d-flex align-items-center justify-content-between overflow-hidden">
+                                    <span class="wj_mobile_card__meta text-nowrap me-2 overflow-hidden text-truncate">
+                                        <t t-if="record.area_id.raw_value">
+                                            <i class="fa fa-map-marker me-1" title="Area" />
+                                            <field name="area_id" />
+                                        </t>
+                                    </span>
+                                    <span class="wj_mobile_card__subvalue text-nowrap flex-shrink-0 ms-auto">
+                                        <i class="fa fa-users me-1" title="Members" />
+                                        <field name="member_count" /> members
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                    </t>
+                </templates>
+            </kanban>
+        </field>
+    </record>
+
+    <!-- Update Action Window: Desktop defaults to List (sequence 1), Mobile auto-switches to Kanban
+    (sequence 2) -->
+    <record id="wujia_franchise.action_franchise_management" model="ir.actions.act_window">
+        <field name="view_mode">list,kanban,form</field>
+        <field name="view_id" eval="False" />
+    </record>
+
+    <!-- Desktop Default: Sequence 1 = List View -->
+    <record id="action_wujia_franchise_management_view_tree" model="ir.actions.act_window.view">
+        <field name="sequence" eval="1" />
+        <field name="view_mode">list</field>
+        <field name="view_id" ref="wujia_franchise.view_franchise_management_list" />
+        <field name="act_window_id" ref="wujia_franchise.action_franchise_management" />
+    </record>
+
+    <!-- Mobile Default: Sequence 2 = Kanban Card View -->
+    <record id="action_wujia_franchise_management_view_kanban" model="ir.actions.act_window.view">
+        <field name="sequence" eval="2" />
+        <field name="view_mode">kanban</field>
+        <field name="view_id" ref="view_wujia_franchise_management_kanban_mobile" />
+        <field name="act_window_id" ref="wujia_franchise.action_franchise_management" />
+    </record>
+
+</odoo>

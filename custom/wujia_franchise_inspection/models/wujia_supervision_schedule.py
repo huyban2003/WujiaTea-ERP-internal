@@ -101,8 +101,8 @@ class WujiaSupervisionSchedule(models.Model):
                 ], limit=1)
                 if duplicate:
                     raise ValidationError(_(
-                        "Trong 1 ngày (%s), mỗi cửa hàng '%s' chỉ được phép có tối đa 1 lịch giám sát!\n"
-                        "Đã có lịch giám sát (%s) trong ngày này."
+                        "On the same date (%s), each store '%s' is only allowed to have at most 1 supervision schedule!\n"
+                        "A supervision schedule (%s) already exists for this date."
                     ) % (rec.date.strftime('%d/%m/%Y'), rec.store_id.name, duplicate.name))
 
 

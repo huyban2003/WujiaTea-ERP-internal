@@ -1,0 +1,62 @@
+// ============================================================================
+// Wujia Mobile Core — Header, Action Bar & Navigation Standard
+// ============================================================================
+
+
+.o_wujia_mb_header {
+  background-color: $wujia-bg-surface;
+  border-bottom: 1px solid $wujia-border-color;
+  padding: $wujia-space-3 $wujia-space-4;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  .o_wujia_mb_header_title {
+    font-size: 17px;
+    font-weight: 700;
+    color: $wujia-primary;
+    margin: 0;
+  }
+}
+
+.o_wujia_mb_action_bar {
+  display: flex;
+  align-items: center;
+  gap: $wujia-space-2;
+  padding: $wujia-space-2 $wujia-space-3;
+  background-color: $wujia-bg-surface;
+  border-bottom: 1px solid $wujia-border-color;
+  overflow-x: auto;
+  white-space: nowrap;
+  -webkit-overflow-scrolling: touch;
+
+  .btn {
+    @include wujia-touch-target(38px);
+    font-size: 13px;
+    font-weight: 500;
+    border-radius: $wujia-radius-pill;
+    padding: 0 $wujia-space-3;
+  }
+}
+
+// Sticky Bottom Action Bar for Mobile View
+.o_wujia_mb_sticky_actions {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background-color: $wujia-bg-surface;
+  border-top: 1px solid $wujia-border-color;
+  padding: $wujia-space-2 $wujia-space-3;
+  display: flex;
+  gap: $wujia-space-2;
+  z-index: 1020;
+  box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.06);
+
+  .btn {
+    flex: 1;
+    @include wujia-touch-target(44px);
+    font-weight: 600;
+    border-radius: $wujia-radius-md;
+  }
+}

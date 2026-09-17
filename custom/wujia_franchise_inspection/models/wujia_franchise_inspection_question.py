@@ -22,7 +22,7 @@ class WujiaFranchiseInspectionQuestion(models.Model):
     correct_answers = fields.Json(
         string='Correct Answers (JSON)',
         default=False,
-        help='Mảng JSON chứa đáp án cho từng vị trí trống ____. Ví dụ: [["500", "500ml"], ["10", "10 phút"]]'
+        help='JSON array containing answers for each blank ____. Example: [["500", "500ml"], ["10", "10 min"]]'
     )
     
     # Giao diện nhập liệu thân thiện cho người dùng

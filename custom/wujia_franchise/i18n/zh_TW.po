@@ -1,0 +1,3207 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+# 	* wujia_franchise
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 19.0\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-09-16 02:30+0000\n"
+"PO-Revision-Date: 2026-09-16 02:30+0000\n"
+"Last-Translator: \n"
+"Language: zh_TW\n"
+"Language-Team: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+
+#. module: wujia_franchise
+#: model_terms:ir.ui.view,arch_db:wujia_franchise.all
+msgid "Franchise Management"
+msgstr "加盟管理"
+
+#. module: wujia_franchise
+#: model_terms:ir.actions.act_window,help:wujia_franchise.action_franchise_management
+msgid "Create the first franchise store record"
+msgstr "Create the first 加盟門市 record"
+
+#. module: wujia_franchise
+#: model_terms:ir.actions.act_window,help:wujia_franchise.action_franchise_management
+msgid ""
+"The store record holds the franchise contract: start/end date, area, primary owner,\n"
+"                status..."
+msgstr ""
+"The 門市 record holds the 加盟 contract: start/end 日期, area, primary 店主,\n"
+"                狀態...\n"
+
+#. module: wujia_franchise
+#: model:ir.actions.act_window,name:wujia_franchise.action_wujia_franchise_member
+msgid "Franchise Member"
+msgstr "加盟 Member"
+
+#. module: wujia_franchise
+#: model_terms:ir.actions.act_window,help:wujia_franchise.action_wujia_franchise_member
+msgid "Create a new membership"
+msgstr "Create a new 人員ship"
+
+#. module: wujia_franchise
+#: model_terms:ir.actions.act_window,help:wujia_franchise.action_wujia_franchise_member
+msgid "Each membership links a portal user to a franchise store with a specific role (Owner / Manager / Staff)."
+msgstr "Each membership links a portal user to a franchise store with a specific role (Owner / 店長 / Staff)."
+
+#. module: wujia_franchise
+#: model:ir.actions.server,name:wujia_franchise.ir_cron_check_franchise_expired_ir_actions_server
+msgid "Wujia: Auto-expire franchise contract"
+msgstr "Wujia: Auto-expire 加盟 contract"
+
+#. module: wujia_franchise
+#: model:ir.actions.server,name:wujia_franchise.ir_cron_recompute_franchise_member_validity_ir_actions_server
+msgid "Wujia: Recompute franchise member is_currently_valid"
+msgstr "Wujia: Recompute 加盟 人員 is_currently_valid"
+
+#. module: wujia_franchise
+#: model_terms:ir.ui.view,arch_db:wujia_franchise.view_franchise_management_form
+msgid "Contact"
+msgstr "Contact"
+
+#. module: wujia_franchise
+#: model:res.groups,name:wujia_franchise.group_franchise_user
+msgid "User"
+msgstr "使用者"
+
+#. module: wujia_franchise
+#: model:ir.model,name:wujia_franchise.model_wujia_franchise_document
+msgid "Franchise Store Document"
+msgstr "Franchise 門市 Document"
+
+#. module: wujia_franchise
+#: model:ir.model,name:wujia_franchise.model_wujia_franchise_management
+msgid "Wujia Franchise Management"
+msgstr "Wujia 加盟 Management"
+
+#. module: wujia_franchise
+#: model:ir.model,name:wujia_franchise.model_wujia_franchise_member
+msgid "Wujia Franchise Membership"
+msgstr "Wujia 加盟 Membership"
+
+#. module: wujia_franchise
+#: model:ir.model.constraint,message:wujia_franchise.constraint_wujia_franchise_management_code_uniq
+msgid "Store code must be unique."
+msgstr "門市 code must be unique."
+
+#. module: wujia_franchise
+#: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_member__display_name
+msgid "Display Name"
+msgstr "顯示名稱"
+
+#. module: wujia_franchise
+#: model:ir.model.fields,field_description:wujia_franchise.field_res_users__franchise_count
+msgid "Store count"
+msgstr "門市 count"
+
+#. module: wujia_franchise
+#: model_terms:ir.ui.view,arch_db:wujia_franchise.view_franchise_management_form
+msgid "Franchise store"
+msgstr "加盟 store"
+
+#. module: wujia_franchise
+#: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_member__id
+msgid "ID"
+msgstr "ID"
+
+#. module: wujia_franchise
+#: model_terms:ir.ui.view,arch_db:wujia_franchise.view_res_partner_filter_franchise
+msgid "Is a franchise store"
+msgstr "Is a 加盟門市"
+
+#. module: wujia_franchise
+#: model:ir.model.fields,help:wujia_franchise.field_res_users__is_franchise
+msgid "TRUE when the partner is used as the contact of at least one wujia.franchise.management."
+msgstr "TRUE when the partner is used as the contact of at least one wujia.加盟.management."
+
+#. module: wujia_franchise
+#: model:ir.model.fields,field_description:wujia_franchise.field_res_users__member_count
+msgid "Membership count"
+msgstr "人員ship count"
+
+#. module: wujia_franchise
+#: model_terms:ir.ui.view,arch_db:wujia_franchise.view_wujia_franchise_member_list
+msgid "Franchise Memberships"
+msgstr "加盟 Memberships"
+
+#. module: wujia_franchise
+#: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_member__create_date
+msgid "Created on"
+msgstr "建立於"
+
+#. module: wujia_franchise
+#: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_member__create_uid
+msgid "Created by"
+msgstr "建立者"
+
+#. module: wujia_franchise
+#: model_terms:ir.ui.view,arch_db:wujia_franchise.view_franchise_management_form
+msgid "Download"
+msgstr "Download"
+
+#. module: wujia_franchise
+#: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_document__franchise_id
+msgid "Franchise Store"
+msgstr "加盟門市"
+
+#. module: wujia_franchise
+#: model_terms:ir.ui.view,arch_db:wujia_franchise.view_franchise_management_form
+msgid "Document Name"
+msgstr "Document Name"
+
+#. module: wujia_franchise
+#: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_member__write_date
+msgid "Last Updated on"
+msgstr "最後更新時間"
+
+#. module: wujia_franchise
+#: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_member__write_uid
+msgid "Last Updated by"
+msgstr "最後更新者"
+
+#. module: wujia_franchise
+#: model_terms:ir.ui.view,arch_db:wujia_franchise.all
+msgid "Active"
+msgstr "已啟用"
+
+#. module: wujia_franchise
+#: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_management__activity_date_deadline
+msgid "Next Activity Deadline"
+msgstr "下次 Activity Deadline"
+
+#. module: wujia_franchise
+#: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_management__activity_exception_decoration
+msgid "Activity Exception Decoration"
+msgstr "活動異常標示"
+
+#. module: wujia_franchise
+#: model:ir.model.fields,help:wujia_franchise.field_wujia_franchise_management__activity_exception_decoration
+msgid "Type of the exception activity on record."
+msgstr "Type of the exception activity on record."
+
+#. module: wujia_franchise
+#: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_management__activity_exception_icon
+msgid "Icon"
+msgstr "Icon"
+
+#. module: wujia_franchise
+#: model:ir.model.fields,help:wujia_franchise.field_wujia_franchise_management__activity_exception_icon
+msgid "Icon to indicate an exception activity."
+msgstr "Icon to indicate an exception activity."
+
+#. module: wujia_franchise
+#: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_management__activity_ids
+msgid "Activities"
+msgstr "活動記錄"
+
+#. module: wujia_franchise
+#: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_management__activity_state
+msgid "Activity State"
+msgstr "活動狀態"
+
+#. module: wujia_franchise
+#: model:ir.model.fields,help:wujia_franchise.field_wujia_franchise_management__activity_state
+msgid ""
+"Status based on activities\n"
+"Overdue: Due date is already passed\n"
+"Today: Activity date is today\n"
+"Planned: Future activities."
+msgstr ""
+"狀態 based on activities\n"
+"Overdue: Due 日期 is already passed\n"
+"Today: Activity 日期 is today\n"
+"Planned: Future activities.\n"
+
+#. module: wujia_franchise
+#: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_management__activity_summary
+msgid "Next Activity Summary"
+msgstr "下次 Activity Summary"
+
+#. module: wujia_franchise
+#: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_management__activity_type_icon
+msgid "Activity Type Icon"
+msgstr "活動類型圖示"
+
+#. module: wujia_franchise
+#: model:ir.model.fields,help:wujia_franchise.field_wujia_franchise_management__activity_type_icon
+msgid "Font awesome icon e.g. fa-tasks"
+msgstr "Font awesome icon e.g. fa-tasks"
+
+#. module: wujia_franchise
+#: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_management__activity_type_id
+msgid "Next Activity Type"
+msgstr "下次 Activity Type"
+
+#. module: wujia_franchise
+#: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_management__activity_user_id
+msgid "Responsible User"
+msgstr "Responsible 使用者"
+
+#. module: wujia_franchise
+#: model_terms:ir.ui.view,arch_db:wujia_franchise.all
+msgid "Address"
+msgstr "地址"
+
+#. module: wujia_franchise
+#: model_terms:ir.ui.view,arch_db:wujia_franchise.view_franchise_management_search
+msgid "Area"
+msgstr "區域"
+
+#. module: wujia_franchise
+#: model_terms:ir.ui.view,arch_db:wujia_franchise.view_franchise_management_form
+msgid "Area Manager"
+msgstr "Area 店長"
+
+#. module: wujia_franchise
+#: model:ir.model.fields,help:wujia_franchise.field_wujia_franchise_management__area_manager_user_id
+msgid "Person responsible for running this area."
+msgstr "Person responsible for running this area."
+
+#. module: wujia_franchise
+#: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_management__area_name
+msgid "Area name"
+msgstr "Area name"
+
+#. module: wujia_franchise
+#: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_management__code
+msgid "Store code"
+msgstr "門市代碼"
+
+#. module: wujia_franchise
+#: model:ir.model.fields,help:wujia_franchise.field_wujia_franchise_management__code
+msgid "Franchise store code, e.g. H010 or HN-01."
+msgstr "加盟 store code, e.g. H010 or HN-01."
+
+#. module: wujia_franchise
+#: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_management__consecutive_c_count
+msgid "Consecutive C Count"
+msgstr "Consecutive C Count"
+
+#. module: wujia_franchise
+#: model:ir.model.fields,help:wujia_franchise.field_wujia_franchise_management__consecutive_c_count
+msgid "Number of consecutive completed inspections with grade C from the latest round."
+msgstr "Number of consecutive 已完成 巡檢s with 等級 C from the latest round."
+
+#. module: wujia_franchise
+#: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_management__consecutive_cd_count
+msgid "Consecutive C/D Count"
+msgstr "Consecutive C/D Count"
+
+#. module: wujia_franchise
+#: model:ir.model.fields,help:wujia_franchise.field_wujia_franchise_management__consecutive_cd_count
+msgid "Consecutive count of grade C if latest is C, or consecutive count of grade D if latest is D."
+msgstr "Consecutive count of 等級 C if latest is C, or consecutive count of 等級 D if latest is D."
+
+#. module: wujia_franchise
+#: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_management__consecutive_d_count
+msgid "Consecutive D Count"
+msgstr "Consecutive D Count"
+
+#. module: wujia_franchise
+#: model:ir.model.fields,help:wujia_franchise.field_wujia_franchise_management__consecutive_d_count
+msgid "Number of consecutive completed inspections with grade D from the latest round."
+msgstr "Number of consecutive 已完成 巡檢s with 等級 D from the latest round."
+
+#. module: wujia_franchise
+#: model_terms:ir.ui.view,arch_db:wujia_franchise.view_franchise_management_form
+msgid "Operating description"
+msgstr "Operating 說明"
+
+#. module: wujia_franchise
+#: model_terms:ir.ui.view,arch_db:wujia_franchise.view_franchise_management_form
+msgid "Operating notes: delivery, loading bans, parking bans..."
+msgstr "Operating 備註: delivery, loading bans, parking bans..."
+
+#. module: wujia_franchise
+#: model_terms:ir.ui.view,arch_db:wujia_franchise.view_franchise_management_form
+msgid "Documents"
+msgstr "Documents"
+
+#. module: wujia_franchise
+#: model_terms:ir.ui.view,arch_db:wujia_franchise.view_franchise_management_list
+msgid "Assigned Supervisor"
+msgstr "指派督導人員"
+
+#. module: wujia_franchise
+#: model:ir.model.fields,help:wujia_franchise.field_wujia_franchise_management__effective_supervision_user_id
+msgid "Franchise supervisor. If not assigned, defaults to Area Manager."
+msgstr "加盟 supervisor. If not assigned, defaults to Area Manager."
+
+#. module: wujia_franchise
+#: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_management__email
+msgid "Email"
+msgstr "電子郵件"
+
+#. module: wujia_franchise
+#: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_management__franchise_end_date
+msgid "Franchise end date"
+msgstr "加盟結束日"
+
+#. module: wujia_franchise
+#: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_management__franchise_start_date
+msgid "Franchise start date"
+msgstr "加盟開始日"
+
+#. module: wujia_franchise
+#: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_management__google_map_url
+msgid "Google Map URL"
+msgstr "Google Map URL"
+
+#. module: wujia_franchise
+#: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_management__has_message
+msgid "Has Message"
+msgstr "Has Message"
+
+#. module: wujia_franchise
+#: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_management__inspection_chart_data
+msgid "Inspection Chart Data"
+msgstr "巡檢 Chart Data"
+
+#. module: wujia_franchise
+#: model_terms:ir.ui.view,arch_db:wujia_franchise.all
+msgid "Invoiced"
+msgstr "已開立發票"
+
+#. module: wujia_franchise
+#: model:ir.model.fields,help:wujia_franchise.field_wujia_franchise_management__invoiced
+msgid "Flag tracking whether the related invoices have been issued."
+msgstr "Flag tracking whether the related invoices have been issued."
+
+#. module: wujia_franchise
+#: model_terms:ir.ui.view,arch_db:wujia_franchise.view_franchise_management_search
+msgid "Contract expired"
+msgstr "Contract expired"
+
+#. module: wujia_franchise
+#: model_terms:ir.ui.view,arch_db:wujia_franchise.view_franchise_management_form
+msgid "Latest Inspection Grade"
+msgstr "Latest 巡檢 Grade"
+
+#. module: wujia_franchise
+#: model_terms:ir.ui.view,arch_db:wujia_franchise.all
+msgid "Latest Inspection Date"
+msgstr "最新評核日期"
+
+#. module: wujia_franchise
+#: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_management__latest_inspection_id
+msgid "Latest Inspection Sheet"
+msgstr "Latest 巡檢 Sheet"
+
+#. module: wujia_franchise
+#: model_terms:ir.ui.view,arch_db:wujia_franchise.view_franchise_management_form
+msgid "Latest Inspection Score"
+msgstr "Latest 巡檢 Score"
+
+#. module: wujia_franchise
+#: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_member__is_primary_owner
+msgid "Primary owner"
+msgstr "主要負責人"
+
+#. module: wujia_franchise
+#: model:ir.model.fields,help:wujia_franchise.field_wujia_franchise_management__main_owner_member_id
+msgid "The active member with role=owner for this store (BA spec)."
+msgstr "The 已啟用 人員 with role=店主 for this 門市 (BA spec)."
+
+#. module: wujia_franchise
+#: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_management__member_count
+msgid "Member count"
+msgstr "人員數"
+
+#. module: wujia_franchise
+#: model_terms:ir.ui.view,arch_db:wujia_franchise.all
+msgid "Members"
+msgstr "人員列表"
+
+#. module: wujia_franchise
+#: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_management__message_attachment_count
+msgid "Attachment Count"
+msgstr "附件數量"
+
+#. module: wujia_franchise
+#: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_management__message_follower_ids
+msgid "Followers"
+msgstr "關注者"
+
+#. module: wujia_franchise
+#: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_management__message_has_error
+msgid "Message Delivery error"
+msgstr "訊息發送錯誤"
+
+#. module: wujia_franchise
+#: model:ir.model.fields,help:wujia_franchise.field_wujia_franchise_management__message_has_sms_error
+msgid "If checked, some messages have a delivery error."
+msgstr "If checked, some messages have a delivery error."
+
+#. module: wujia_franchise
+#: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_management__message_has_error_counter
+msgid "Number of errors"
+msgstr "Number of errors"
+
+#. module: wujia_franchise
+#: model:ir.model.fields,help:wujia_franchise.field_wujia_franchise_management__message_has_error_counter
+msgid "Number of messages with delivery error"
+msgstr "Number of messages with delivery error"
+
+#. module: wujia_franchise
+#: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_management__message_has_sms_error
+msgid "SMS Delivery error"
+msgstr "SMS Delivery error"
+
+#. module: wujia_franchise
+#: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_management__message_ids
+msgid "Messages"
+msgstr "訊息記錄"
+
+#. module: wujia_franchise
+#: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_management__message_is_follower
+msgid "Is Follower"
+msgstr "Is Follower"
+
+#. module: wujia_franchise
+#: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_management__message_needaction
+msgid "Action Needed"
+msgstr "需要處理"
+
+#. module: wujia_franchise
+#: model:ir.model.fields,help:wujia_franchise.field_wujia_franchise_management__message_needaction
+msgid "If checked, new messages require your attention."
+msgstr "If checked, new messages require your attention."
+
+#. module: wujia_franchise
+#: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_management__message_needaction_counter
+msgid "Number of Actions"
+msgstr "Number of Actions"
+
+#. module: wujia_franchise
+#: model:ir.model.fields,help:wujia_franchise.field_wujia_franchise_management__message_needaction_counter
+msgid "Number of messages requiring action"
+msgstr "Number of messages requiring action"
+
+#. module: wujia_franchise
+#: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_management__message_partner_ids
+msgid "Followers (Partners)"
+msgstr "關注者 (夥伴)"
+
+#. module: wujia_franchise
+#: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_management__my_activity_date_deadline
+msgid "My Activity Deadline"
+msgstr "My Activity Deadline"
+
+#. module: wujia_franchise
+#: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_management__name
+msgid "Store name"
+msgstr "門市名稱"
+
+#. module: wujia_franchise
+#: model:ir.model.fields,help:wujia_franchise.field_wujia_franchise_management__name
+msgid "Display name, e.g. \"[H010] 219 Vinh Vien store\"."
+msgstr "Display name, e.g. \"[H010] 219 Vinh Vien 門市\"."
+
+#. module: wujia_franchise
+#: model_terms:ir.ui.view,arch_db:wujia_franchise.all
+msgid "Next Inspection Date"
+msgstr "下次巡檢日期"
+
+#. module: wujia_franchise
+#: model:ir.model.fields,help:wujia_franchise.field_wujia_franchise_management__next_supervision_date
+msgid "Nearest upcoming inspection date (>= today), excluding past and cancelled schedules."
+msgstr "Nearest upcoming 巡檢 日期 (>= today), excluding past and cancelled 排程s."
+
+#. module: wujia_franchise
+#: model_terms:ir.ui.view,arch_db:wujia_franchise.view_franchise_management_form
+msgid "Internal note"
+msgstr "Internal 備註"
+
+#. module: wujia_franchise
+#: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_management__opening_date
+msgid "Opening date"
+msgstr "開幕日期"
+
+#. module: wujia_franchise
+#: model_terms:ir.ui.view,arch_db:wujia_franchise.all
+msgid "Partner"
+msgstr "合作夥伴"
+
+#. module: wujia_franchise
+#: model:ir.model.fields,help:wujia_franchise.field_wujia_franchise_management__partner_id
+msgid "Link to the res.partner representing the store — the transactional entity for sale.order, account.move, membership."
+msgstr "Link to the res.partner representing the 門市 — the transactional entity for sale.order, account.move, 人員ship."
+
+#. module: wujia_franchise
+#: model_terms:ir.ui.view,arch_db:wujia_franchise.all
+msgid "Phone"
+msgstr "電話"
+
+#. module: wujia_franchise
+#: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_management__portal_locked
+msgid "Portal locked"
+msgstr "Portal locked"
+
+#. module: wujia_franchise
+#: model:ir.model.fields,help:wujia_franchise.field_wujia_franchise_management__portal_locked
+msgid "Block every portal access of this store (e.g. contract breach)."
+msgstr "Block every portal access of this 門市 (e.g. contract breach)."
+
+#. module: wujia_franchise
+#: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_management__remaining_days
+msgid "Days remaining"
+msgstr "Days remaining"
+
+#. module: wujia_franchise
+#: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_management__state_id
+msgid "Province"
+msgstr "Province"
+
+#. module: wujia_franchise
+#: model_terms:ir.ui.view,arch_db:wujia_franchise.all
+msgid "Status"
+msgstr "狀態"
+
+#. module: wujia_franchise
+#: model_terms:ir.ui.view,arch_db:wujia_franchise.all
+msgid "Supervisor"
+msgstr "督導人員"
+
+#. module: wujia_franchise
+#: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_management__website_message_ids
+msgid "Website Messages"
+msgstr "Website Messages"
+
+#. module: wujia_franchise
+#: model:ir.model.fields,help:wujia_franchise.field_wujia_franchise_management__website_message_ids
+msgid "Website communication history"
+msgstr "Website communication 歷史"
+
+#. module: wujia_franchise
+#: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_member__date_from
+msgid "Valid from"
+msgstr "Valid from"
+
+#. module: wujia_franchise
+#: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_member__date_to
+msgid "Valid until"
+msgstr "Valid until"
+
+#. module: wujia_franchise
+#: model:ir.model.fields,field_description:wujia_franchise.field_wujia_franchise_member__is_currently_valid
+msgid "Is Currently Valid"
+msgstr "Is 當前ly Valid"
+
+#. module: wujia_franchise
+#: model_terms:ir.ui.view,arch_db:wujia_franchise.all
+msgid "Passed Exam"
+msgstr "通過測驗"
+
+#. module: wujia_franchise
+#: model:ir.model.fields,help:wujia_franchise.field_wujia_franchise_member__is_primary_owner
+msgid "Marks the primary owner of the store. Each store has exactly one primary owner."
+msgstr "Marks the primary 店主 of the 門市. Each 門市 has exactly one primary 店主."
+
+#. module: wujia_franchise
+#: model_terms:ir.ui.view,arch_db:wujia_franchise.all
+msgid "Is Working"
+msgstr "在職中"
+
+#. module: wujia_franchise
+#: model_terms:ir.ui.view,arch_db:wujia_franchise.all
+msgid "Role"
+msgstr "角色"
+
+#. module: wujia_franchise
+#: model_terms:ir.ui.view,arch_db:wujia_franchise.all
+msgid "Closed"
+msgstr "已結業"
+
+#. module: wujia_franchise
+#: model_terms:ir.ui.view,arch_db:wujia_franchise.all
+msgid "Draft"
+msgstr "草稿"
+
+#. module: wujia_franchise
+#: model_terms:ir.ui.view,arch_db:wujia_franchise.all
+msgid "Expired"
+msgstr "合約到期"
+
+#. module: wujia_franchise
+#: model_terms:ir.ui.view,arch_db:wujia_franchise.all
+msgid "Locked"
+msgstr "暫時鎖定"
+
+#. module: wujia_franchise
+#: model_terms:ir.ui.view,arch_db:wujia_franchise.all
+msgid "Manager"
+msgstr "店長"
+
+#. module: wujia_franchise
+#: model_terms:ir.ui.view,arch_db:wujia_franchise.all
+msgid "Staff"
+msgstr "店員"
+
+#. module: wujia_franchise
+#: model:ir.module.category,name:wujia_franchise.module_category_wujia
+msgid "Wujia"
+msgstr "Wujia"
+
+#. module: wujia_franchise
+#: model:ir.module.category,description:wujia_franchise.module_category_wujia
+msgid "Wujia ERP customizations"
+msgstr "Wujia ERP customizations"
+
+#. module: wujia_franchise
+#: model_terms:ir.ui.view,arch_db:wujia_franchise.all
+msgid "Areas"
+msgstr "營運區域"
+
+#. module: wujia_franchise
+#: model_terms:ir.ui.view,arch_db:wujia_franchise.all
+msgid "Area Management"
+msgstr "區域劃分管理"
+
+#. module: wujia_franchise
+#: model_terms:ir.ui.view,arch_db:wujia_franchise.all
+msgid "Configuration"
+msgstr "系統設定"
+
+#. module: wujia_franchise
+#: model_terms:ir.ui.view,arch_db:wujia_franchise.all
+msgid "Provinces / Cities"
+msgstr "省／市"
+
+#. module: wujia_franchise
+#: model:ir.ui.menu,name:wujia_franchise.menu_wujia_config_ward
+msgid "Wards / Communes"
+msgstr "Wards / Communes"
+
+#. module: wujia_franchise
+#: model_terms:ir.ui.view,arch_db:wujia_franchise.all
+msgid "Franchise Members"
+msgstr "加盟成員管理"
+
+#. module: wujia_franchise
+#: model_terms:ir.ui.view,arch_db:wujia_franchise.all
+msgid "Operations"
+msgstr "營運作業"
+
+#. module: wujia_franchise
+#: model_terms:ir.ui.view,arch_db:wujia_franchise.view_franchise_management_form
+msgid "Activate"
+msgstr "啟用"
+
+#. module: wujia_franchise
+#: model_terms:ir.ui.view,arch_db:wujia_franchise.view_franchise_management_form
+msgid "Lock portal"
+msgstr "Lock portal"
+
+#. module: wujia_franchise
+#: model_terms:ir.ui.view,arch_db:wujia_franchise.view_franchise_management_form
+msgid "Close store"
+msgstr "Close 門市"
+
+#. module: wujia_franchise
+#: model_terms:ir.ui.view,arch_db:wujia_franchise.view_franchise_management_form
+msgid "Closing this store blocks every portal access. Continue?"
+msgstr "Closing this 門市 blocks every portal access. Continue?"
+
+#. module: wujia_franchise
+#: model_terms:ir.ui.view,arch_db:wujia_franchise.view_franchise_management_form
+msgid "Portal Locked"
+msgstr "Portal Locked"
+
+#. module: wujia_franchise
+#: model_terms:ir.ui.view,arch_db:wujia_franchise.view_franchise_management_form
+msgid "H010"
+msgstr "H010"
+
+#. module: wujia_franchise
+#: model_terms:ir.ui.view,arch_db:wujia_franchise.view_franchise_management_form
+msgid "e.g. 219 Vinh Vien store"
+msgstr "e.g. 219 Vinh Vien 門市"
+
+#. module: wujia_franchise
+#: model_terms:ir.ui.view,arch_db:wujia_franchise.view_franchise_management_form
+msgid "Identification"
+msgstr "Identification"
+
+#. module: wujia_franchise
+#: model_terms:ir.ui.view,arch_db:wujia_franchise.view_franchise_management_form
+msgid "Contract"
+msgstr "Contract"
+
+#. module: wujia_franchise
+#: model_terms:ir.ui.view,arch_db:wujia_franchise.view_franchise_management_form
+msgid "Leave empty to default to Area Manager"
+msgstr "Leave empty to default to Area 店長"
+
+#. module: wujia_franchise
+#: model_terms:ir.ui.view,arch_db:wujia_franchise.view_franchise_management_form
+msgid "Latest Inspection"
+msgstr "Latest 巡檢"
+
+#. module: wujia_franchise
+#: model_terms:ir.ui.view,arch_db:wujia_franchise.view_franchise_management_form
+msgid "Area & Address"
+msgstr "區域與地址"
+
+#. module: wujia_franchise
+#: model_terms:ir.ui.view,arch_db:wujia_franchise.view_franchise_management_form
+msgid "Control flags"
+msgstr "Control flags"
+
+#. module: wujia_franchise
+#: model_terms:ir.ui.view,arch_db:wujia_franchise.view_franchise_management_form
+msgid "Created On"
+msgstr "Created On"
+
+#. module: wujia_franchise
+#: model_terms:ir.ui.view,arch_db:wujia_franchise.view_franchise_management_form
+msgid "Report"
+msgstr "報告"
+
+#. module: wujia_franchise
+#: model_terms:ir.ui.view,arch_db:wujia_franchise.view_franchise_management_kanban
+msgid "Remaining:"
+msgstr "Remaining:"
+
+#. module: wujia_franchise
+#: model_terms:ir.ui.view,arch_db:wujia_franchise.view_franchise_management_kanban
+msgid "days"
+msgstr "days"
+
+#. module: wujia_franchise
+#: model_terms:ir.ui.view,arch_db:wujia_franchise.view_franchise_management_kanban
+msgid "Members:"
+msgstr "人員s:"
+
+#. module: wujia_franchise
+#: model_terms:ir.ui.view,arch_db:wujia_franchise.all
+msgid "Latest Score"
+msgstr "最新評核分數"
+
+#. module: wujia_franchise
+#: model_terms:ir.ui.view,arch_db:wujia_franchise.all
+msgid "Latest Grade"
+msgstr "最新評核等級"
+
+#. module: wujia_franchise
+#: model_terms:ir.ui.view,arch_db:wujia_franchise.view_franchise_management_list
+msgid "Consecutive C/D"
+msgstr "Consecutive C/D"
+
+#. module: wujia_franchise
+#: model_terms:ir.ui.view,arch_db:wujia_franchise.view_franchise_management_list
+msgid "Franchise Stores"
+msgstr "加盟門市列表"
+
+#. module: wujia_franchise
+#: model_terms:ir.ui.view,arch_db:wujia_franchise.view_franchise_management_search
+msgid "My Assigned Stores"
+msgstr "My Assigned 門市s"
+
+#. module: wujia_franchise
+#: model_terms:ir.ui.view,arch_db:wujia_franchise.view_franchise_management_search
+msgid "Portal access blocked"
+msgstr "Portal access blocked"
+
+#. module: wujia_franchise
+#: model_terms:ir.ui.view,arch_db:wujia_franchise.view_franchise_management_search
+msgid "Expiring soon (within 30 days)"
+msgstr "Expiring soon (within 30 days)"
+
+#. module: wujia_franchise
+#: model_terms:ir.ui.view,arch_db:wujia_franchise.view_franchise_management_search
+msgid "Needs Supervision (Grade C / D)"
+msgstr "Needs 巡檢督導 (Grade C / D)"
+
+#. module: wujia_franchise
+#: model_terms:ir.ui.view,arch_db:wujia_franchise.view_franchise_management_search
+msgid "Latest Grade C"
+msgstr "Latest 等級 C"
+
+#. module: wujia_franchise
+#: model_terms:ir.ui.view,arch_db:wujia_franchise.view_franchise_management_search
+msgid "Latest Grade D"
+msgstr "Latest 等級 D"
+
+#. module: wujia_franchise
+#: model_terms:ir.ui.view,arch_db:wujia_franchise.view_wujia_franchise_member_search
+msgid "Archived"
+msgstr "已封存"
+
+#. module: wujia_franchise
+#: model_terms:ir.ui.view,arch_db:wujia_franchise.all
+msgid "Store"
+msgstr "門市"
+
+#. module: wujia_franchise
+#: model_terms:ir.ui.view,arch_db:wujia_franchise.view_wujia_franchise_member_form
+msgid "Franchise Membership"
+msgstr "加盟 Membership"
+
+#. module: wujia_franchise
+#: model_terms:ir.ui.view,arch_db:wujia_franchise.view_wujia_franchise_member_search
+msgid "Currently valid"
+msgstr "當前ly valid"
+
+#. module: wujia_franchise
+#: model_terms:ir.ui.view,arch_db:wujia_franchise.view_wujia_franchise_member_search
+msgid "Currently Working"
+msgstr "當前ly Working"
+
+#. module: wujia_franchise
+#: model_terms:ir.ui.view,arch_db:wujia_franchise.view_wujia_franchise_member_search
+msgid "Resigned / Not Working"
+msgstr "Resigned / Not Working"
+
+#. module: wujia_franchise
+#: model_terms:ir.ui.view,arch_db:wujia_franchise.view_wujia_franchise_member_search
+msgid "Store owner"
+msgstr "門市 owner"
+
+#. module: wujia_franchise
+#: model:res.groups,name:wujia_franchise.group_franchise_manager
+msgid "Administrator"
+msgstr "系統管理員"
+
+#. module: wujia_franchise
+#: model:res.groups,comment:wujia_franchise.group_franchise_manager
+msgid "Manage stores, create/delete memberships."
+msgstr "Manage 門市s, create/delete 人員ships."
+
+#. module: wujia_franchise
+#: model:res.groups,comment:wujia_franchise.group_franchise_user
+msgid "View store and membership data."
+msgstr "View 門市 and 人員ship data."
+
+#. module: wujia_franchise
+#: model:res.groups.privilege,name:wujia_franchise.res_groups_privilege_franchise
+msgid "Wujia Franchise"
+msgstr "Wujia 加盟"
+
+#. module: wujia_franchise
+#: code:addons/wujia_franchise/models/wujia_franchise_management.py:388
+#, odoo-javascript, odoo-python
+msgid "Supervision Score History (Last 10 Rounds)"
+msgstr "巡檢督導 Score History (Last 10 Rounds)"
+
+#. module: wujia_franchise
+#: code:addons/wujia_franchise/models/wujia_franchise_management.py:389
+#, odoo-javascript, odoo-python
+msgid "Score per Round"
+msgstr "得分 per Round"
+
+#. module: wujia_franchise
+#: code:addons/wujia_franchise/models/wujia_franchise_management.py:390
+#, odoo-javascript, odoo-python
+msgid "Average Score"
+msgstr "平均分數"
+
+#. module: wujia_franchise
+#: code:addons/wujia_franchise/models/wujia_franchise_management.py:391
+#, odoo-javascript, odoo-python
+msgid "No Historical Data Yet!"
+msgstr "No Historical Data Yet!"
+
+#. module: wujia_franchise
+#: code:addons/wujia_franchise/static/src/js/wujia_inspection_chart.js:113
+#, odoo-javascript, odoo-python
+msgid "Please select a Supervision Template or this store has no completed/remediation inspection sheets yet."
+msgstr "Please select a Supervision 範本 or this store has no completed/remediation inspection sheets yet."
+
+#. module: wujia_franchise
+#: code:addons/wujia_franchise/static/src/js/wujia_inspection_chart.js:270
+#, odoo-javascript, odoo-python
+msgid "Month / Year"
+msgstr "Month / Year"
+
+#. module: wujia_franchise
+#: model_terms:ir.ui.view,arch_db:wujia_franchise.all
+msgid "GPS Location"
+msgstr "GPS 位置"
+
+#. module: wujia_franchise
+#: model_terms:ir.ui.view,arch_db:wujia_franchise.all
+msgid "View on Google Maps"
+msgstr "在Google地圖查看"
+
+#. module: wujia_franchise
+#: code:addons/wujia_franchise/static/src/js/wujia_gps_field.js:77
+#, odoo-javascript, odoo-python
+msgid "Open location on Google Maps"
+msgstr "在 Google 地圖上開啟位置"
+
+#. module: wujia_franchise
+#: model_terms:ir.ui.view,arch_db:wujia_franchise.all
+msgid "No GPS coordinates recorded"
+msgstr "未記錄GPS座標"
+
+#. module: wujia_franchise
+#: code:addons/wujia_franchise/static/src/js/wujia_gps_field.js:85
+#, odoo-javascript, odoo-python
+msgid "Click to request permission and acquire GPS coordinates from browser/device"
+msgstr "點擊授權並從瀏覽器/裝置獲取 GPS 座標"
+
+#. module: wujia_franchise
+#: model_terms:ir.ui.view,arch_db:wujia_franchise.all
+msgid "Locating GPS..."
+msgstr "正在獲取GPS定位..."
+
+#. module: wujia_franchise
+#: model_terms:ir.ui.view,arch_db:wujia_franchise.all
+msgid "Re-acquire GPS"
+msgstr "重新獲取GPS"
+
+#. module: wujia_franchise
+#: model_terms:ir.ui.view,arch_db:wujia_franchise.all
+msgid "Get Current Location (GPS)"
+msgstr "獲取當前位置(GPS)"
+
+#. module: wujia_franchise
+#: code:addons/wujia_franchise/static/src/js/wujia_gps_field.js:124
+#, odoo-javascript, odoo-python
+msgid "Your browser does not support Geolocation (GPS)!"
+msgstr "Your browser does not support Geolocation (GPS)!"
+
+#. module: wujia_franchise
+#: code:addons/wujia_franchise/static/src/js/wujia_gps_field.js:177
+#, odoo-javascript, odoo-python
+msgid "GPS location acquired and saved successfully: %s, %s (Accuracy: ±%sm)"
+msgstr "GPS location acquired and saved successfully: %s, %s (Accuracy: ±%sm)"
+
+#. module: wujia_franchise
+#: code:addons/wujia_franchise/static/src/js/wujia_gps_field.js:187
+#, odoo-javascript, odoo-python
+msgid "Unable to acquire GPS location."
+msgstr "Unable to acquire GPS location."
+
+#. module: wujia_franchise
+#: code:addons/wujia_franchise/static/src/js/wujia_gps_field.js:190
+#, odoo-javascript, odoo-python
+msgid "You denied access to location. Please grant Location permission in your browser address bar!"
+msgstr "You denied access to location. Please grant Location permission in your browser address bar!"
+
+#. module: wujia_franchise
+#: code:addons/wujia_franchise/static/src/js/wujia_gps_field.js:193
+#, odoo-javascript, odoo-python
+msgid "Location information is currently unavailable. Please enable GPS and network connection!"
+msgstr "Location information is currently unavailable. Please enable GPS and network connection!"
+
+#. module: wujia_franchise
+#: code:addons/wujia_franchise/static/src/js/wujia_gps_field.js:196
+#, odoo-javascript, odoo-python
+msgid "GPS request timed out. Please try again!"
+msgstr "GPS request timed out. Please try again!"
+
+#. module: wujia_franchise
+#: code:addons/wujia_franchise/static/src/js/wujia_gps_field.js:208
+#, odoo-javascript, odoo-python
+msgid "No GPS coordinates to open Google Maps! Please click 'Get Current Location' first."
+msgstr "No GPS coordinates to open Google Maps! Please click 'Get 當前 Location' first."
+
+#. module: wujia_franchise
+#: code:addons/wujia_franchise/models/wujia_franchise_management.py:233
+#, odoo-javascript, odoo-python
+msgid "New Franchise"
+msgstr "New 加盟"
+
+#. module: wujia_franchise
+#: code:addons/wujia_franchise/models/wujia_franchise_management.py:392
+#, odoo-javascript, odoo-python
+msgid "This store has no completed/remediation inspection sheets yet."
+msgstr "This 門市 has no 已完成/改善 巡檢表s yet."
+
+#. module: wujia_franchise
+#: code:addons/wujia_franchise/models/wujia_franchise_management.py:404
+#, odoo-javascript, odoo-python
+msgid "Franchise end date must be >= start date."
+msgstr "加盟 end date must be >= start date."
+
+#. module: wujia_franchise
+#: code:addons/wujia_franchise/models/wujia_franchise_management.py:411
+#, odoo-javascript, odoo-python
+msgid "Email '%s' is invalid."
+msgstr "Email '%s' is invalid."
+
+#. module: wujia_franchise
+#: code:addons/wujia_franchise/models/wujia_franchise_management.py:418
+#, odoo-javascript, odoo-python
+msgid "Active store '%s' must have an associated Partner for sales orders/invoicing."
+msgstr "已啟用 store '%s' must have an associated Partner for sales orders/invoicing."
+
+#. module: wujia_franchise
+#: code:addons/wujia_franchise/models/wujia_franchise_management.py:436
+#, odoo-javascript, odoo-python
+msgid "Members of %s"
+msgstr "人員s of %s"
+
+#. module: wujia_franchise
+#: code:addons/wujia_franchise/models/wujia_franchise_management.py:692
+#, odoo-javascript, odoo-python
+msgid "Document"
+msgstr "Document"
+
+#. module: wujia_franchise
+#: code:addons/wujia_franchise/models/wujia_franchise_member.py:99
+#, odoo-javascript, odoo-python
+msgid "End date must be >= start date."
+msgstr "End 日期 must be >= start 日期."
+
+#. module: wujia_franchise
+#: code:addons/wujia_franchise/models/wujia_franchise_member.py:107
+#, odoo-javascript, odoo-python
+msgid "Main owner must have role = Owner."
+msgstr "Main owner must have role = 店主."
+
+#. module: wujia_franchise
+#: code:addons/wujia_franchise/models/wujia_franchise_member.py:116
+#, odoo-javascript, odoo-python
+msgid "Store '%s' already has a main owner. Please deactivate previous owner membership first."
+msgstr "門市 '%s' already has a main owner. Please deactivate previous owner membership first."
+
+#. module: wujia_franchise
+#: code:addons/wujia_franchise/models/wujia_franchise_member.py:133
+#, odoo-javascript, odoo-python
+msgid "User '%s' already has an active membership in store '%s'."
+msgstr "使用者 '%s' already has an active membership in store '%s'."
+
+#. module: wujia_franchise
+#: code:addons/wujia_franchise/models/res_users.py:52
+#, odoo-javascript, odoo-python
+msgid "Franchise Memberships of %s"
+msgstr "加盟 Memberships of %s"
+
+#. module: wujia_franchise
+#: code:addons/wujia_franchise/models/res_partner.py:78
+#, odoo-javascript, odoo-python
+msgid "Partner linked to multiple stores"
+msgstr "Partner linked to multiple 門市s"
+
+#. module: wujia_franchise
+#: code:addons/wujia_franchise/models/res_partner.py:100
+#, odoo-javascript, odoo-python
+msgid ""
+"Document '%(doc)s' has no franchise store specified.\n"
+"Partner '%(partner)s' belongs to store '%(store)s' — please fill the Franchise Store field and retry."
+msgstr ""
+"Document '%(doc)s' has no franchise store specified.\n"
+"Partner '%(partner)s' belongs to store '%(store)s' — please fill the 加盟門市 field and retry.\n"
+
+#. module: wujia_franchise
+#: code:addons/wujia_franchise/models/res_partner.py:116
+#, odoo-javascript, odoo-python
+msgid "Franchise Stores of %s"
+msgstr "Franchise 門市s of %s"
+
+#. module: wujia_franchise
+#: model_terms:ir.ui.view,arch_db:wujia_franchise.all
+msgid "Store Supervision"
+msgstr "門市督導管理"
+
+#. module: wujia_franchise
+#: model_terms:ir.ui.view,arch_db:wujia_franchise.all
+msgid "Inspection Sheets"
+msgstr "巡檢表列表"
+
+#. module: wujia_franchise
+#: model_terms:ir.ui.view,arch_db:wujia_franchise.all
+msgid "Supervision Schedules"
+msgstr "巡檢排程清單"
+
+#. module: wujia_franchise
+#: model_terms:ir.ui.view,arch_db:wujia_franchise.all
+msgid "Stores Needing Inspection"
+msgstr "待督導門店"
+
+#. module: wujia_franchise
+#: model_terms:ir.ui.view,arch_db:wujia_franchise.all
+msgid "Pending Remediation"
+msgstr "待改善追蹤"
+
+#. module: wujia_franchise
+#: model_terms:ir.ui.view,arch_db:wujia_franchise.all
+msgid "Supervision History"
+msgstr "督導歷史紀錄"
+
+#. module: wujia_franchise
+#: model_terms:ir.ui.view,arch_db:wujia_franchise.all
+msgid "Supervision Configuration"
+msgstr "督導系統設定"
+
+#. module: wujia_franchise
+#: model_terms:ir.ui.view,arch_db:wujia_franchise.all
+msgid "Inspection Templates"
+msgstr "巡檢範本清單"
+
+#. module: wujia_franchise
+#: model_terms:ir.ui.view,arch_db:wujia_franchise.all
+msgid "Inspection Categories"
+msgstr "評核項目分類"
+
+#. module: wujia_franchise
+#: model_terms:ir.ui.view,arch_db:wujia_franchise.all
+msgid "Question Library"
+msgstr "考題題庫"
+
+#. module: wujia_franchise
+#: model_terms:ir.ui.view,arch_db:wujia_franchise.all
+msgid "Inspection Grades"
+msgstr "評核等級"
+
+#. module: wujia_franchise
+#: model_terms:ir.ui.view,arch_db:wujia_franchise.all
+msgid "Reporting"
+msgstr "統計報表"
+
+#. module: wujia_franchise
+#: model_terms:ir.ui.view,arch_db:wujia_franchise.all
+msgid "Inspection Results Analysis"
+msgstr "督導結果分析"
+
+#. module: wujia_franchise
+#: model_terms:ir.ui.view,arch_db:wujia_franchise.all
+msgid "Violation Criteria Analysis"
+msgstr "違規項目分析"
+
+#. module: wujia_franchise
+#: model_terms:ir.ui.view,arch_db:wujia_franchise.all
+msgid "Wards"
+msgstr "坊／社"
+
+#. module: wujia_franchise
+#: model_terms:ir.ui.view,arch_db:wujia_franchise.all
+msgid "In Progress"
+msgstr "進行中"
+
+#. module: wujia_franchise
+#: model_terms:ir.ui.view,arch_db:wujia_franchise.all
+msgid "Done"
+msgstr "已完成"
+
+#. module: wujia_franchise
+#: model_terms:ir.ui.view,arch_db:wujia_franchise.all
+msgid "Need Remediation"
+msgstr "待改善"
+
+#. module: wujia_franchise
+#: model_terms:ir.ui.view,arch_db:wujia_franchise.all
+msgid "Cancelled"
+msgstr "已取消"
+
+#. module: wujia_franchise
+#: model_terms:ir.ui.view,arch_db:wujia_franchise.all
+msgid "Cancel"
+msgstr "取消"
+
+#. module: wujia_franchise
+#: model_terms:ir.ui.view,arch_db:wujia_franchise.all
+msgid "Overdue"
+msgstr "逾期"
+
+#. module: wujia_franchise
+#: model_terms:ir.ui.view,arch_db:wujia_franchise.all
+msgid "Today"
+msgstr "今日"
+
+#. module: wujia_franchise
+#: model_terms:ir.ui.view,arch_db:wujia_franchise.all
+msgid "Planned"
+msgstr "已排程"
+
+#. module: wujia_franchise
+#: model_terms:ir.ui.view,arch_db:wujia_franchise.all
+msgid "Alert"
+msgstr "警告"
+
+#. module: wujia_franchise
+#: model_terms:ir.ui.view,arch_db:wujia_franchise.all
+msgid "Error"
+msgstr "錯誤"
+
+#. module: wujia_franchise
+#: model_terms:ir.ui.view,arch_db:wujia_franchise.all
+msgid "Owner"
+msgstr "店主 / 加盟商"
+
+#. module: wujia_franchise
+#: model_terms:ir.ui.view,arch_db:wujia_franchise.all
+msgid "Store & Inspector Information"
+msgstr "門店及督導人員資訊"
+
+#. module: wujia_franchise
+#: model_terms:ir.ui.view,arch_db:wujia_franchise.all
+msgid "Address & Contact"
+msgstr "地址與聯絡方式"
+
+#. module: wujia_franchise
+#: model_terms:ir.ui.view,arch_db:wujia_franchise.all
+msgid "Location"
+msgstr "位置"
+
+#. module: wujia_franchise
+#: model_terms:ir.ui.view,arch_db:wujia_franchise.all
+msgid "Schedule Date & Latest Inspection Result"
+msgstr "督導日期與最新評核結果"
+
+#. module: wujia_franchise
+#: model_terms:ir.ui.view,arch_db:wujia_franchise.all
+msgid "Store Information"
+msgstr "門店資訊"
+
+#. module: wujia_franchise
+#: model_terms:ir.ui.view,arch_db:wujia_franchise.all
+msgid "Timeline & History"
+msgstr "進度與歷程"
+
+#. module: wujia_franchise
+#: model_terms:ir.ui.view,arch_db:wujia_franchise.all
+msgid "GPS Check-in & Location"
+msgstr "GPS簽到與位置"
+
+#. module: wujia_franchise
+#: model_terms:ir.ui.view,arch_db:wujia_franchise.all
+msgid "Tested Employee Information"
+msgstr "受測員工資訊"
+
+#. module: wujia_franchise
+#: model_terms:ir.ui.view,arch_db:wujia_franchise.all
+msgid "Next Inspection Plan"
+msgstr "下次督導計畫"
+
+#. module: wujia_franchise
+#: model_terms:ir.ui.view,arch_db:wujia_franchise.all
+msgid "Notes & Remediation"
+msgstr "備註與改善"
+
+#. module: wujia_franchise
+#: model_terms:ir.ui.view,arch_db:wujia_franchise.all
+msgid "3 Months Revenue"
+msgstr "近3個月營業額"
+
+#. module: wujia_franchise
+#: model_terms:ir.ui.view,arch_db:wujia_franchise.all
+msgid "Confirmation & Attendance"
+msgstr "確認與簽核"
+
+#. module: wujia_franchise
+#: model_terms:ir.ui.view,arch_db:wujia_franchise.all
+msgid "Store Appearance Issues & Key Remediations"
+msgstr "門容外觀不佳及重大缺失改善記錄"
+
+#. module: wujia_franchise
+#: model_terms:ir.ui.view,arch_db:wujia_franchise.all
+msgid "3 MONTHS DETAILED REVENUE REPORT"
+msgstr "近3個月營業額詳細報告"
+
+#. module: wujia_franchise
+#: model_terms:ir.ui.view,arch_db:wujia_franchise.all
+msgid "Schedule Title"
+msgstr "督導日程標題"
+
+#. module: wujia_franchise
+#: model_terms:ir.ui.view,arch_db:wujia_franchise.all
+msgid "Scheduled Date"
+msgstr "預計督導日期"
+
+#. module: wujia_franchise
+#: model_terms:ir.ui.view,arch_db:wujia_franchise.all
+msgid "Schedule Date"
+msgstr "排程日期"
+
+#. module: wujia_franchise
+#: model_terms:ir.ui.view,arch_db:wujia_franchise.all
+msgid "Inspection Name"
+msgstr "巡檢名稱"
+
+#. module: wujia_franchise
+#: model_terms:ir.ui.view,arch_db:wujia_franchise.all
+msgid "Inspector"
+msgstr "督導人員 / 巡檢人員"
+
+#. module: wujia_franchise
+#: model_terms:ir.ui.view,arch_db:wujia_franchise.all
+msgid "Store Code"
+msgstr "門市代碼"
+
+#. module: wujia_franchise
+#: model_terms:ir.ui.view,arch_db:wujia_franchise.all
+msgid "Store Name"
+msgstr "門市名稱"
+
+#. module: wujia_franchise
+#: model_terms:ir.ui.view,arch_db:wujia_franchise.all
+msgid "Store Address"
+msgstr "門市地址"
+
+#. module: wujia_franchise
+#: model_terms:ir.ui.view,arch_db:wujia_franchise.all
+msgid "Store Phone"
+msgstr "門市電話"
+
+#. module: wujia_franchise
+#: model_terms:ir.ui.view,arch_db:wujia_franchise.all
+msgid "Store Email"
+msgstr "門市電子信箱"
+
+#. module: wujia_franchise
+#: model_terms:ir.ui.view,arch_db:wujia_franchise.all
+msgid "Opening Date"
+msgstr "開幕日期"
+
+#. module: wujia_franchise
+#: model_terms:ir.ui.view,arch_db:wujia_franchise.all
+msgid "Franchise Start Date"
+msgstr "加盟開始日"
+
+#. module: wujia_franchise
+#: model_terms:ir.ui.view,arch_db:wujia_franchise.all
+msgid "Franchise End Date"
+msgstr "加盟結束日"
+
+#. module: wujia_franchise
+#: model_terms:ir.ui.view,arch_db:wujia_franchise.all
+msgid "Franchise Expiration Date"
+msgstr "合約到期日"
+
+#. module: wujia_franchise
+#: model_terms:ir.ui.view,arch_db:wujia_franchise.all
+msgid "Remaining Days"
+msgstr "剩餘天數"
+
+#. module: wujia_franchise
+#: model_terms:ir.ui.view,arch_db:wujia_franchise.all
+msgid "Member Count"
+msgstr "人員數"
+
+#. module: wujia_franchise
+#: model_terms:ir.ui.view,arch_db:wujia_franchise.all
+msgid "Primary Owner"
+msgstr "主要負責人"
+
+#. module: wujia_franchise
+#: model_terms:ir.ui.view,arch_db:wujia_franchise.all
+msgid "Total Score"
+msgstr "總評分"
+
+#. module: wujia_franchise
+#: model_terms:ir.ui.view,arch_db:wujia_franchise.all
+msgid "Grade"
+msgstr "評級"
+
+#. module: wujia_franchise
+#: model_terms:ir.ui.view,arch_db:wujia_franchise.all
+msgid "Planned Date"
+msgstr "預計日期"
+
+#. module: wujia_franchise
+#: model_terms:ir.ui.view,arch_db:wujia_franchise.all
+msgid "Confirmation Date"
+msgstr "確認日期"
+
+#. module: wujia_franchise
+#: model_terms:ir.ui.view,arch_db:wujia_franchise.all
+msgid "Previous Inspection"
+msgstr "上次評核"
+
+#. module: wujia_franchise
+#: model_terms:ir.ui.view,arch_db:wujia_franchise.all
+msgid "Previous Inspection Notes"
+msgstr "上次督導缺失記錄"
+
+#. module: wujia_franchise
+#: model_terms:ir.ui.view,arch_db:wujia_franchise.all
+msgid "Latitude"
+msgstr "緯度"
+
+#. module: wujia_franchise
+#: model_terms:ir.ui.view,arch_db:wujia_franchise.all
+msgid "Longitude"
+msgstr "經度"
+
+#. module: wujia_franchise
+#: model_terms:ir.ui.view,arch_db:wujia_franchise.all
+msgid "Check-in Time"
+msgstr "GPS簽到時間"
+
+#. module: wujia_franchise
+#: model_terms:ir.ui.view,arch_db:wujia_franchise.all
+msgid "Job Title"
+msgstr "工作標題"
+
+#. module: wujia_franchise
+#: model_terms:ir.ui.view,arch_db:wujia_franchise.all
+msgid "Video"
+msgstr "影片"
+
+#. module: wujia_franchise
+#: model_terms:ir.ui.view,arch_db:wujia_franchise.all
+msgid "Map"
+msgstr "地圖"
+
+#. module: wujia_franchise
+#: model_terms:ir.ui.view,arch_db:wujia_franchise.all
+msgid "Open Google Maps"
+msgstr "在Google地圖查看"
+
+#. module: wujia_franchise
+#: model_terms:ir.ui.view,arch_db:wujia_franchise.all
+msgid "Google Maps Located"
+msgstr "Google地圖已定位"
+
+#. module: wujia_franchise
+#: model_terms:ir.ui.view,arch_db:wujia_franchise.all
+msgid "Located"
+msgstr "已定位"
+
+#. module: wujia_franchise
+#: model_terms:ir.ui.view,arch_db:wujia_franchise.all
+msgid "Check-in GPS"
+msgstr "GPS簽到"
+
+#. module: wujia_franchise
+#: model_terms:ir.ui.view,arch_db:wujia_franchise.all
+msgid "Notes"
+msgstr "備註"
+
+#. module: wujia_franchise
+#: model_terms:ir.ui.view,arch_db:wujia_franchise.all
+msgid "Name"
+msgstr "名稱"
+
+#. module: wujia_franchise
+#: model_terms:ir.ui.view,arch_db:wujia_franchise.all
+msgid "Code"
+msgstr "代碼"
+
+#. module: wujia_franchise
+#: model_terms:ir.ui.view,arch_db:wujia_franchise.all
+msgid "Attendance"
+msgstr "出勤簽到"
+
+#. module: wujia_franchise
+#: model_terms:ir.ui.view,arch_db:wujia_franchise.all
+msgid "Next Supervision Schedule"
+msgstr "下次巡檢排程"
+
+#. module: wujia_franchise
+#: model_terms:ir.ui.view,arch_db:wujia_franchise.all
+msgid "Start Inspection"
+msgstr "開始巡檢"
+
+#. module: wujia_franchise
+#: model_terms:ir.ui.view,arch_db:wujia_franchise.all
+msgid "Mark Done"
+msgstr "完成"
+
+#. module: wujia_franchise
+#: model_terms:ir.ui.view,arch_db:wujia_franchise.all
+msgid "Reset to Draft"
+msgstr "重設為草稿"
+
+#. module: wujia_franchise
+#: model_terms:ir.ui.view,arch_db:wujia_franchise.all
+msgid "Add a line"
+msgstr "新增資料列"
+
+#. module: wujia_franchise
+#: model_terms:ir.ui.view,arch_db:wujia_franchise.all
+msgid "Export Criteria Excel"
+msgstr "匯出評核標準Excel"
+
+#. module: wujia_franchise
+#: model_terms:ir.ui.view,arch_db:wujia_franchise.all
+msgid "Import from Excel"
+msgstr "從Excel匯入"
+
+#. module: wujia_franchise
+#: model_terms:ir.ui.view,arch_db:wujia_franchise.all
+msgid "Download Template"
+msgstr "下載範本"
+
+#. module: wujia_franchise
+#: model_terms:ir.ui.view,arch_db:wujia_franchise.all
+msgid "Import Inspection Criteria from Excel"
+msgstr "從Excel匯入督導評核項目"
+
+#. module: wujia_franchise
+#: model_terms:ir.ui.view,arch_db:wujia_franchise.all
+msgid "Import Data"
+msgstr "匯入資料"
+
+#. module: wujia_franchise
+#: model_terms:ir.ui.view,arch_db:wujia_franchise.all
+msgid "Download Excel Template"
+msgstr "下載Excel範本"
+
+#. module: wujia_franchise
+#: model_terms:ir.ui.view,arch_db:wujia_franchise.all
+msgid "Franchise Inspections"
+msgstr "加盟門市督導表"
+
+#. module: wujia_franchise
+#: model_terms:ir.ui.view,arch_db:wujia_franchise.all
+msgid "Franchise Inspection"
+msgstr "加盟門市巡檢"
+
+#. module: wujia_franchise
+#: model_terms:ir.ui.view,arch_db:wujia_franchise.all
+msgid "Franchise Inspection Report"
+msgstr "加盟門市督導評核報告"
+
+#. module: wujia_franchise_inspection
+msgid "Inspection Template"
+msgstr "巡檢範本"
+
+#. module: wujia_franchise_inspection
+msgid "Supervision Schedule"
+msgstr "巡檢排程"
+
+#. module: wujia_franchise_inspection
+msgid "Link Video (Google Drive)"
+msgstr "Google Drive 影片連結"
+
+#. module: wujia_franchise_inspection
+msgid "Xem Video"
+msgstr "查看影片"
+
+#. module: wujia_franchise_inspection
+msgid "Attach Video (Optional)"
+msgstr "附加影片（選填）"
+
+#. module: wujia_franchise_inspection
+msgid "GPS簽到與位置"
+msgstr "GPS 簽到與位置"
+
+#. module: wujia_franchise_inspection
+msgid "進度與歷程"
+msgstr "進度與歷程"
+
+#. module: wujia_franchise_inspection
+msgid "預計日期"
+msgstr "預計日期"
+
+#. module: wujia_franchise_inspection
+msgid "確認日期"
+msgstr "確認日期"
+
+#. module: wujia_franchise_inspection
+msgid "上次評核"
+msgstr "上次評核"
+
+#. module: wujia_franchise_inspection
+msgid "督導人員"
+msgstr "督導人員"
+
+#. module: wujia_franchise_inspection
+msgid "Add a section"
+msgstr "新增分組標題"
+
+#. module: wujia_franchise_inspection
+msgid "Add detailed schedule notes or instructions here..."
+msgstr "在此處新增詳細排程備註或說明..."
+
+#. module: wujia_franchise_inspection
+msgid "Address &amp; Contact"
+msgstr "地址與聯絡方式"
+
+#. module: wujia_franchise_inspection
+msgid "Answers have been locked. Scoring result:"
+msgstr "答案已鎖定。評分結果："
+
+#. module: wujia_franchise_inspection
+msgid "Archive"
+msgstr "封存"
+
+#. module: wujia_franchise_inspection
+msgid "Are you sure you want to deactivate this employee (active = False)? The employee remains saved in the system history."
+msgstr "您確定要停用該員工（active = False）嗎？該員工資訊仍會保留於系統歷史記錄中。"
+
+#. module: wujia_franchise_inspection
+msgid "Area &amp; Address"
+msgstr "區域與地址"
+
+#. module: wujia_franchise_inspection
+msgid "Badge color index"
+msgstr "標籤顏色索引"
+
+#. module: wujia_franchise_inspection
+msgid "EVIDENCE &amp; REMEDIATION"
+msgstr "佐證照片與缺失改善"
+
+#. module: wujia_franchise_inspection
+msgid "CSS Class for Content"
+msgstr "內容 CSS 類別"
+
+#. module: wujia_franchise_inspection
+msgid "Cannot add new criteria to an Active or Archived template!"
+msgstr "無法在「已啟用」或「已封存」的範本中新增評分標準！"
+
+#. module: wujia_franchise_inspection
+msgid "Cannot change Inspection Name (%s) once created!"
+msgstr "巡檢名稱 (%s) 建立後不可變更！"
+
+#. module: wujia_franchise_inspection
+msgid "Cannot complete inspection! There are still %s violation criteria not marked Done."
+msgstr "無法完成巡檢！仍有 %s 項違規條目未標記為「已完成」。"
+
+#. module: wujia_franchise_inspection
+msgid "Cannot delete criteria of an Active or Archived template!"
+msgstr "無法刪除「已啟用」或「已封存」範本的評分標準！"
+
+#. module: wujia_franchise_inspection
+msgid "Cannot modify criteria of an Active or Archived template!"
+msgstr "無法修改「已啟用」或「已封存」範本的評分標準！"
+
+#. module: wujia_franchise_inspection
+msgid "Category"
+msgstr "類別"
+
+#. module: wujia_franchise_inspection
+msgid "Category (Legacy)"
+msgstr "類別 (舊版)"
+
+#. module: wujia_franchise_inspection
+msgid "Category Code"
+msgstr "類別代碼"
+
+#. module: wujia_franchise_inspection
+msgid "Category Name"
+msgstr "類別名稱"
+
+#. module: wujia_franchise_inspection
+msgid "Checklist Max Score"
+msgstr "檢查表最高分數"
+
+#. module: wujia_franchise_inspection
+msgid "GPS coordinates are missing! Please click \"Get GPS Location\" first."
+msgstr "缺少 GPS 座標資訊！請先點擊「獲取 GPS 位置」。"
+
+#. module: wujia_franchise_inspection
+msgid "Unnamed"
+msgstr "未命名"
+
+#. module: wujia_franchise_inspection
+msgid "City / Province"
+msgstr "縣市 / 省份"
+
+#. module: wujia_franchise_inspection
+msgid "Click 'Get Location' to acquire GPS coordinates"
+msgstr "點擊「獲取位置」以取得 GPS 座標"
+
+#. module: wujia_franchise_inspection
+msgid "Click to preview larger image"
+msgstr "點擊預覽大圖"
+
+#. module: wujia_franchise_inspection
+msgid "Close"
+msgstr "關閉"
+
+#. module: wujia_franchise_inspection
+msgid "Comments / Violation Notes"
+msgstr "說明 / 違規備註"
+
+#. module: wujia_franchise_inspection
+msgid "Company"
+msgstr "公司"
+
+#. module: wujia_franchise_inspection
+msgid "Completed"
+msgstr "已完成"
+
+#. module: wujia_franchise_inspection
+msgid "Completed Date"
+msgstr "完成日期"
+
+#. module: wujia_franchise_inspection
+msgid "Completion Rate"
+msgstr "完成率"
+
+#. module: wujia_franchise_inspection
+msgid "Confirm"
+msgstr "確認"
+
+#. module: wujia_franchise_inspection
+msgid "Confirm Date"
+msgstr "確認日期"
+
+#. module: wujia_franchise_inspection
+msgid "Created Standard Criteria"
+msgstr "已建立標準條目"
+
+#. module: wujia_franchise_inspection
+msgid "Criteria"
+msgstr "評分標準"
+
+#. module: wujia_franchise_inspection
+msgid "Criteria Count"
+msgstr "評分標準數量"
+
+#. module: wujia_franchise_inspection
+msgid "Criteria List"
+msgstr "評分標準清單"
+
+#. module: wujia_franchise_inspection
+msgid "Criteria Name"
+msgstr "評分標準名稱"
+
+#. module: wujia_franchise_inspection
+msgid "Current Inspection Grade"
+msgstr "當前巡檢等級"
+
+#. module: wujia_franchise_inspection
+msgid "Current Status"
+msgstr "當前狀態"
+
+#. module: wujia_franchise_inspection
+msgid "Custom Module for Wujia Franchise Inspection"
+msgstr "伍家加盟門市巡檢自訂模組"
+
+#. module: wujia_franchise_inspection
+msgid "Custom Module for Wujia Franchise Management"
+msgstr "伍家加盟門市管理自訂模組"
+
+#. module: wujia_franchise_inspection
+msgid "Date"
+msgstr "日期"
+
+#. module: wujia_franchise_inspection
+msgid "Deactivate"
+msgstr "停用"
+
+#. module: wujia_franchise_inspection
+msgid "Description"
+msgstr "描述 / 說明"
+
+#. module: wujia_franchise_inspection
+msgid "Details"
+msgstr "明細"
+
+#. module: wujia_franchise_inspection
+msgid "District"
+msgstr "鄉鎮市區"
+
+#. module: wujia_franchise_inspection
+msgid "Duration"
+msgstr "時長"
+
+#. module: wujia_franchise_inspection
+msgid "Employee"
+msgstr "員工"
+
+#. module: wujia_franchise_inspection
+msgid "Employee Exam"
+msgstr "員工測驗"
+
+#. module: wujia_franchise_inspection
+msgid "Employee List"
+msgstr "員工清單"
+
+#. module: wujia_franchise_inspection
+msgid "Employees"
+msgstr "員工列表"
+
+#. module: wujia_franchise_inspection
+msgid "End Date"
+msgstr "結束日期"
+
+#. module: wujia_franchise_inspection
+msgid "Evaluated"
+msgstr "已評估"
+
+#. module: wujia_franchise_inspection
+msgid "Evaluation"
+msgstr "評估"
+
+#. module: wujia_franchise_inspection
+msgid "Evidence"
+msgstr "佐證照片"
+
+#. module: wujia_franchise_inspection
+msgid "Evidence Image"
+msgstr "佐證照片"
+
+#. module: wujia_franchise_inspection
+msgid "Evidence Photo"
+msgstr "佐證照片"
+
+#. module: wujia_franchise_inspection
+msgid "Evidence Photo (Optional)"
+msgstr "佐證照片 (選填)"
+
+#. module: wujia_franchise_inspection
+msgid "Evidence Photo / Remediation Image"
+msgstr "佐證照片 / 改善照片"
+
+#. module: wujia_franchise_inspection
+msgid "Exam"
+msgstr "測驗"
+
+#. module: wujia_franchise_inspection
+msgid "Exam Answers"
+msgstr "測驗答案"
+
+#. module: wujia_franchise_inspection
+msgid "Exam Questions"
+msgstr "測驗試題"
+
+#. module: wujia_franchise_inspection
+msgid "Exam Result"
+msgstr "測驗結果"
+
+#. module: wujia_franchise_inspection
+msgid "Exam Score"
+msgstr "測驗評分"
+
+#. module: wujia_franchise_inspection
+msgid "Exam Status"
+msgstr "測驗狀態"
+
+#. module: wujia_franchise_inspection
+msgid "Export Excel"
+msgstr "匯出 Excel"
+
+#. module: wujia_franchise_inspection
+msgid "Failed"
+msgstr "不合格"
+
+#. module: wujia_franchise_inspection
+msgid "Franchise"
+msgstr "加盟"
+
+#. module: wujia_franchise_inspection
+msgid "Franchise Store Inspection"
+msgstr "加盟門市巡檢"
+
+#. module: wujia_franchise_inspection
+msgid "Franchise Store Inspection Sheet"
+msgstr "加盟門市巡檢表"
+
+#. module: wujia_franchise_inspection
+msgid "Franchise Store Inspection Template"
+msgstr "加盟門市巡檢範本"
+
+#. module: wujia_franchise_inspection
+msgid "Franchise Store Name"
+msgstr "加盟門市名稱"
+
+#. module: wujia_franchise_inspection
+msgid "GPS Coordinates"
+msgstr "GPS 座標"
+
+#. module: wujia_franchise_inspection
+msgid "General Information"
+msgstr "基本資訊"
+
+#. module: wujia_franchise_inspection
+msgid "Grade A"
+msgstr "等級 A"
+
+#. module: wujia_franchise_inspection
+msgid "Grade B"
+msgstr "等級 B"
+
+#. module: wujia_franchise_inspection
+msgid "Grade C"
+msgstr "等級 C"
+
+#. module: wujia_franchise_inspection
+msgid "Grade D"
+msgstr "等級 D"
+
+#. module: wujia_franchise_inspection
+msgid "Grade F"
+msgstr "等級 F"
+
+#. module: wujia_franchise_inspection
+msgid "Grade Ranks"
+msgstr "等級劃分"
+
+#. module: wujia_franchise_inspection
+msgid "Image"
+msgstr "照片"
+
+#. module: wujia_franchise_inspection
+msgid "Image Details"
+msgstr "照片明細"
+
+#. module: wujia_franchise_inspection
+msgid "Import"
+msgstr "匯入"
+
+#. module: wujia_franchise_inspection
+msgid "Import Criteria"
+msgstr "匯入評分標準"
+
+#. module: wujia_franchise_inspection
+msgid "Import Excel"
+msgstr "匯入 Excel"
+
+#. module: wujia_franchise_inspection
+msgid "Inspection"
+msgstr "巡檢"
+
+#. module: wujia_franchise_inspection
+msgid "Inspection Date"
+msgstr "巡檢日期"
+
+#. module: wujia_franchise_inspection
+msgid "Inspection History"
+msgstr "巡檢歷史"
+
+#. module: wujia_franchise_inspection
+msgid "Inspection Info"
+msgstr "巡檢資訊"
+
+#. module: wujia_franchise_inspection
+msgid "Inspection List"
+msgstr "巡檢列表"
+
+#. module: wujia_franchise_inspection
+msgid "Inspection Notes"
+msgstr "巡檢備註"
+
+#. module: wujia_franchise_inspection
+msgid "Inspection Period"
+msgstr "巡檢週期"
+
+#. module: wujia_franchise_inspection
+msgid "Inspection Report"
+msgstr "巡檢報告"
+
+#. module: wujia_franchise_inspection
+msgid "Inspection Result"
+msgstr "巡檢結果"
+
+#. module: wujia_franchise_inspection
+msgid "Inspection Results"
+msgstr "巡檢結果"
+
+#. module: wujia_franchise_inspection
+msgid "Inspection Schedule"
+msgstr "巡檢排程"
+
+#. module: wujia_franchise_inspection
+msgid "Inspection Score"
+msgstr "巡檢得分"
+
+#. module: wujia_franchise_inspection
+msgid "Inspection Sheet"
+msgstr "巡檢表"
+
+#. module: wujia_franchise_inspection
+msgid "Inspection Status"
+msgstr "巡檢狀態"
+
+#. module: wujia_franchise_inspection
+msgid "Inspections"
+msgstr "巡檢列表"
+
+#. module: wujia_franchise_inspection
+msgid "Inspector Name"
+msgstr "巡檢人員姓名"
+
+#. module: wujia_franchise_inspection
+msgid "Inspectors"
+msgstr "巡檢人員列表"
+
+#. module: wujia_franchise_inspection
+msgid "Is Active"
+msgstr "是否啟用"
+
+#. module: wujia_franchise_inspection
+msgid "Is Required"
+msgstr "是否必填"
+
+#. module: wujia_franchise_inspection
+msgid "Item"
+msgstr "條目"
+
+#. module: wujia_franchise_inspection
+msgid "Item Name"
+msgstr "條目名稱"
+
+#. module: wujia_franchise_inspection
+msgid "Key Remediation"
+msgstr "重點改善"
+
+#. module: wujia_franchise_inspection
+msgid "Last Inspection Date"
+msgstr "上次巡檢日期"
+
+#. module: wujia_franchise_inspection
+msgid "Last Inspection Grade"
+msgstr "上次巡檢等級"
+
+#. module: wujia_franchise_inspection
+msgid "Last Inspection Score"
+msgstr "上次巡檢得分"
+
+#. module: wujia_franchise_inspection
+msgid "Link Video"
+msgstr "影片連結"
+
+#. module: wujia_franchise_inspection
+msgid "List"
+msgstr "清單"
+
+#. module: wujia_franchise_inspection
+msgid "Max Score"
+msgstr "最高滿分"
+
+#. module: wujia_franchise_inspection
+msgid "Member"
+msgstr "人員 / 成員"
+
+#. module: wujia_franchise_inspection
+msgid "No."
+msgstr "編號"
+
+#. module: wujia_franchise_inspection
+msgid "Note"
+msgstr "備註"
+
+#. module: wujia_franchise_inspection
+msgid "Open Location"
+msgstr "開啟位置"
+
+#. module: wujia_franchise_inspection
+msgid "Operational Efficiency"
+msgstr "營運效率"
+
+#. module: wujia_franchise_inspection
+msgid "PDF Report"
+msgstr "PDF 報告"
+
+#. module: wujia_franchise_inspection
+msgid "Passed"
+msgstr "合格"
+
+#. module: wujia_franchise_inspection
+msgid "Passing Score"
+msgstr "合格分數"
+
+#. module: wujia_franchise_inspection
+msgid "Penalties"
+msgstr "懲處條款"
+
+#. module: wujia_franchise_inspection
+msgid "Penalty Amount"
+msgstr "罰款金額"
+
+#. module: wujia_franchise_inspection
+msgid "Period"
+msgstr "週期"
+
+#. module: wujia_franchise_inspection
+msgid "Photo"
+msgstr "照片"
+
+#. module: wujia_franchise_inspection
+msgid "Photo Evidence"
+msgstr "照片佐證"
+
+#. module: wujia_franchise_inspection
+msgid "Plan Date"
+msgstr "預計日期"
+
+#. module: wujia_franchise_inspection
+msgid "Point"
+msgstr "分數"
+
+#. module: wujia_franchise_inspection
+msgid "Points"
+msgstr "分數"
+
+#. module: wujia_franchise_inspection
+msgid "PosApp Store Code"
+msgstr "PosApp 門市代碼"
+
+#. module: wujia_franchise_inspection
+msgid "Print / Export PDF"
+msgstr "列印 / 匯出 PDF"
+
+#. module: wujia_franchise_inspection
+msgid "Progress"
+msgstr "進度"
+
+#. module: wujia_franchise_inspection
+msgid "Quality Control"
+msgstr "品質管制"
+
+#. module: wujia_franchise_inspection
+msgid "Quantity"
+msgstr "數量"
+
+#. module: wujia_franchise_inspection
+msgid "Question"
+msgstr "試題"
+
+#. module: wujia_franchise_inspection
+msgid "Question Type"
+msgstr "試題類型"
+
+#. module: wujia_franchise_inspection
+msgid "Questions"
+msgstr "試題列表"
+
+#. module: wujia_franchise_inspection
+msgid "Reason"
+msgstr "原因"
+
+#. module: wujia_franchise_inspection
+msgid "Ref"
+msgstr "參考編號"
+
+#. module: wujia_franchise_inspection
+msgid "Reference"
+msgstr "編號 / 參考"
+
+#. module: wujia_franchise_inspection
+msgid "Remediation"
+msgstr "改善措施"
+
+#. module: wujia_franchise_inspection
+msgid "Remediation History"
+msgstr "改善歷史"
+
+#. module: wujia_franchise_inspection
+msgid "Remediation Status"
+msgstr "改善狀態"
+
+#. module: wujia_franchise_inspection
+msgid "Remarks"
+msgstr "備註"
+
+#. module: wujia_franchise_inspection
+msgid "Requirement"
+msgstr "要求"
+
+#. module: wujia_franchise_inspection
+msgid "Result"
+msgstr "結果"
+
+#. module: wujia_franchise_inspection
+msgid "Results"
+msgstr "結果"
+
+#. module: wujia_franchise_inspection
+msgid "Score"
+msgstr "得分"
+
+#. module: wujia_franchise_inspection
+msgid "Score (%)"
+msgstr "得分率 (%)"
+
+#. module: wujia_franchise_inspection
+msgid "Score Rate"
+msgstr "得分率"
+
+#. module: wujia_franchise_inspection
+msgid "Scoring"
+msgstr "計分"
+
+#. module: wujia_franchise_inspection
+msgid "Search"
+msgstr "搜尋"
+
+#. module: wujia_franchise_inspection
+msgid "Search Inspection Templates"
+msgstr "搜尋巡檢範本"
+
+#. module: wujia_franchise_inspection
+msgid "Search Inspections"
+msgstr "搜尋巡檢表"
+
+#. module: wujia_franchise_inspection
+msgid "Search Supervision Schedules"
+msgstr "搜尋巡檢排程"
+
+#. module: wujia_franchise_inspection
+msgid "Section"
+msgstr "分組標題"
+
+#. module: wujia_franchise_inspection
+msgid "Sequence"
+msgstr "序號"
+
+#. module: wujia_franchise_inspection
+msgid "Store Hygiene"
+msgstr "門市衛生"
+
+#. module: wujia_franchise_inspection
+msgid "Store Manager"
+msgstr "店長"
+
+#. module: wujia_franchise_inspection
+msgid "Store Owner"
+msgstr "店東"
+
+#. module: wujia_franchise_inspection
+msgid "Store Supervision Schedule"
+msgstr "門市巡檢排程"
+
+#. module: wujia_franchise_inspection
+msgid "Template"
+msgstr "範本"
+
+#. module: wujia_franchise_inspection
+msgid "Template Name"
+msgstr "範本名稱"
+
+#. module: wujia_franchise_inspection
+msgid "Template Version"
+msgstr "範本版本"
+
+#. module: wujia_franchise_inspection
+msgid "Title"
+msgstr "標題"
+
+#. module: wujia_franchise_inspection
+msgid "Total Points"
+msgstr "總分"
+
+#. module: wujia_franchise_inspection
+msgid "Type"
+msgstr "類型"
+
+#. module: wujia_franchise_inspection
+msgid "URL"
+msgstr "網址"
+
+#. module: wujia_franchise_inspection
+msgid "Value"
+msgstr "數值"
+
+#. module: wujia_franchise_inspection
+msgid "Vendor"
+msgstr "廠商"
+
+#. module: wujia_franchise_inspection
+msgid "Version"
+msgstr "版本"
+
+#. module: wujia_franchise_inspection
+msgid "Video Link"
+msgstr "影片連結"
+
+#. module: wujia_franchise_inspection
+msgid "Video URL"
+msgstr "影片網址"
+
+#. module: wujia_franchise_inspection
+msgid "View Video"
+msgstr "查看影片"
+
+#. module: wujia_franchise_inspection
+msgid "Violation"
+msgstr "違規"
+
+#. module: wujia_franchise_inspection
+msgid "Violation Count"
+msgstr "違規項數"
+
+#. module: wujia_franchise_inspection
+msgid "Violation Note"
+msgstr "違規備註"
+
+#. module: wujia_franchise_inspection
+msgid "Violation Notes"
+msgstr "違規備註"
+
+#. module: wujia_franchise_inspection
+msgid "Violations"
+msgstr "違規項目"
+
+#. module: wujia_franchise_inspection
+msgid "Ward"
+msgstr "村里"
+
+#. module: wujia_franchise_inspection
+msgid "Weight"
+msgstr "權重"
+
+#. module: wujia_franchise_inspection
+msgid "Weight (%)"
+msgstr "權重 (%)"
+
+#. module: wujia_franchise_inspection
+msgid "Workplace Safety"
+msgstr "職場安全"
+
+#. module: wujia_franchise_inspection
+msgid "Zip"
+msgstr "郵遞區號"
+
+#. module: wujia_franchise_inspection
+msgid "Actions"
+msgstr "操作"
+
+#. module: wujia_franchise_inspection
+msgid "App Orders"
+msgstr "App 訂單"
+
+#. module: wujia_franchise_inspection
+msgid "Apply"
+msgstr "套用"
+
+#. module: wujia_franchise_inspection
+msgid "Comments"
+msgstr "說明 / 評語"
+
+#. module: wujia_franchise_inspection
+msgid "Dashboard"
+msgstr "儀表板"
+
+#. module: wujia_franchise_inspection
+msgid "Delete"
+msgstr "刪除"
+
+#. module: wujia_franchise_inspection
+msgid "Edit"
+msgstr "編輯"
+
+#. module: wujia_franchise_inspection
+msgid "Export"
+msgstr "匯出"
+
+#. module: wujia_franchise_inspection
+msgid "Followers (Journals)"
+msgstr "關注者 (日誌)"
+
+#. module: wujia_franchise_inspection
+msgid "Group By"
+msgstr "分組依據"
+
+#. module: wujia_franchise_inspection
+msgid "Save"
+msgstr "儲存"
+
+#. module: wujia_franchise_inspection
+msgid "Start Date"
+msgstr "開始日期"
+
+#. module: wujia_franchise_inspection
+msgid "State"
+msgstr "狀態"
+
+#. module: wujia_franchise_inspection
+msgid ""
+"500, 500ml\n"
+"10, 10 minutes\n"
+"85, 85-90"
+msgstr ""
+"500, 500ml\n"
+"10, 10 minutes\n"
+"85, 85-90\n"
+
+#. module: wujia_franchise_inspection
+msgid "<span class=\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\"
+msgstr "<span class=\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\"
+
+#. module: wujia_franchise_inspection
+msgid "<span style=\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\"
+msgstr "<span style=\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\"
+
+#. module: wujia_franchise_inspection
+msgid "CH-VD-01"
+msgstr "CH-VD-01"
+
+#. module: wujia_franchise_inspection
+msgid "Click to open signature pad"
+msgstr "點擊開啟簽名板"
+
+#. module: wujia_franchise_inspection
+msgid "Color"
+msgstr "顏色"
+
+#. module: wujia_franchise_inspection
+msgid "Configure grade levels (A, B, C, D...) based on score ranges."
+msgstr "根據分數區間設定等級 (A, B, C, D...)。"
+
+#. module: wujia_franchise_inspection
+msgid "Confirmation"
+msgstr "確認"
+
+#. module: wujia_franchise_inspection
+msgid "Correct Answer"
+msgstr "正確答案"
+
+#. module: wujia_franchise_inspection
+msgid "Correct Answer Configuration"
+msgstr "正確答案設定"
+
+#. module: wujia_franchise_inspection
+msgid "Correct Answer List"
+msgstr "正確答案清單"
+
+#. module: wujia_franchise_inspection
+msgid "Correct Answers"
+msgstr "正確答案"
+
+#. module: wujia_franchise_inspection
+msgid "Correct Answers (1 Line per Blank)"
+msgstr "正確答案 (每空格一列)"
+
+#. module: wujia_franchise_inspection
+msgid "Correct Answers (JSON)"
+msgstr "正確答案 (JSON)"
+
+#. module: wujia_franchise_inspection
+msgid "Create New Version"
+msgstr "建立新版本"
+
+#. module: wujia_franchise_inspection
+msgid "Create Next Supervision Schedule"
+msgstr "Create Next Supervision 排程"
+
+#. module: wujia_franchise_inspection
+msgid "Create a new inspection category / group!"
+msgstr "建立新的巡檢類別 / 分組！"
+
+#. module: wujia_franchise_inspection
+msgid "Create a new inspection question for the library!"
+msgstr "建立新的巡檢題目至題庫！"
+
+#. module: wujia_franchise_inspection
+msgid "Create a new inspection sheet!"
+msgstr "建立新的巡檢表！"
+
+#. module: wujia_franchise_inspection
+msgid "Create a new inspection template for the franchise store system!"
+msgstr "為加盟門市系統建立新的巡檢範本！"
+
+#. module: wujia_franchise_inspection
+msgid "Create the first inspection grade configuration!"
+msgstr "建立第一個巡檢等級設定！"
+
+#. module: wujia_franchise_inspection
+msgid "Criterion"
+msgstr "評分標準"
+
+#. module: wujia_franchise_inspection
+msgid "Criterion Category"
+msgstr "Criterion 類別"
+
+#. module: wujia_franchise_inspection
+msgid "Criterion Code"
+msgstr "評分標準代碼"
+
+#. module: wujia_franchise_inspection
+msgid "Criterion Line"
+msgstr "評分標準資料列"
+
+#. module: wujia_franchise_inspection
+msgid "Criterion Type"
+msgstr "評分標準類型"
+
+#. module: wujia_franchise_inspection
+msgid "Critical / Knockout"
+msgstr "Critical / Knockout"
+
+#. module: wujia_franchise_inspection
+msgid "Current Inspection Notes (To remediate)"
+msgstr "Current 巡檢 Notes (To remediate)"
+
+#. module: wujia_franchise_inspection
+msgid "Deactivate this employee (active = False)"
+msgstr "Deactivate this 員工 (已啟用 = False)"
+
+#. module: wujia_franchise_inspection
+msgid "Deduction Score"
+msgstr "Deduction 得分"
+
+#. module: wujia_franchise_inspection
+msgid "Delete line"
+msgstr "Delete line"
+
+#. module: wujia_franchise_inspection
+msgid "Display Type"
+msgstr "Display Type"
+
+#. module: wujia_franchise_inspection
+msgid "Display name, e.g. \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\"
+msgstr "Display name, e.g. \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\"
+
+#. module: wujia_franchise_inspection
+msgid "Effective Date"
+msgstr "Effective 日期"
+
+#. module: wujia_franchise_inspection
+msgid "Employee Name"
+msgstr "員工 Name"
+
+#. module: wujia_franchise_inspection
+msgid "Employees enter answers into the \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\"
+msgstr "員工s enter answers into the \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\"
+
+#. module: wujia_franchise_inspection
+msgid "Enter employee answer..."
+msgstr "Enter 員工 answer..."
+
+#. module: wujia_franchise_inspection
+msgid "Enter employee name..."
+msgstr "Enter 員工 name..."
+
+#. module: wujia_franchise_inspection
+msgid "Enter full name..."
+msgstr "Enter full name..."
+
+#. module: wujia_franchise_inspection
+msgid "Enter poor store appearance details and key issues to improve for this inspection..."
+msgstr "Enter poor 門市 appearance 明細 and key issues to improve for this 巡檢..."
+
+#. module: wujia_franchise_inspection
+msgid "Enter question content (Use ____ to represent blank fill-in positions)"
+msgstr "Enter 試題 content (Use ____ to represent blank fill-in positions)"
+
+#. module: wujia_franchise_inspection
+msgid "Evidence Photo (Inspection)"
+msgstr "Evidence Photo (巡檢)"
+
+#. module: wujia_franchise_inspection
+msgid "Exam Max Score"
+msgstr "Exam Max 得分"
+
+#. module: wujia_franchise_inspection
+msgid "Exam Submitted"
+msgstr "Exam Submitted"
+
+#. module: wujia_franchise_inspection
+msgid "Exam Submitted Date"
+msgstr "Exam Submitted 日期"
+
+#. module: wujia_franchise_inspection
+msgid "Exam Submitted!"
+msgstr "Exam Submitted!"
+
+#. module: wujia_franchise_inspection
+msgid "Example: Jasmine Green Tea has ____cc tea broth, brewed for ____ minutes at ____°C."
+msgstr "Example: Jasmine Green Tea has ____cc tea broth, brewed for ____ minutes at ____°C."
+
+#. module: wujia_franchise_inspection
+msgid "File Excel (.xlsx)"
+msgstr "File Excel (.xlsx)"
+
+#. module: wujia_franchise_inspection
+msgid "GPS coordinates and accuracy information"
+msgstr "GPS coordinates and accuracy information"
+
+#. module: wujia_franchise_inspection
+msgid "GPS location record time"
+msgstr "GPS location record time"
+
+#. module: wujia_franchise_inspection
+msgid "Google Maps Location"
+msgstr "Google 地圖 Location"
+
+#. module: wujia_franchise_inspection
+msgid "Google Maps URL"
+msgstr "Google 地圖 URL"
+
+#. module: wujia_franchise_inspection
+msgid "Google Maps URL is not set!"
+msgstr "Google 地圖 URL is not set!"
+
+#. module: wujia_franchise_inspection
+msgid "Grade Information"
+msgstr "等級 Information"
+
+#. module: wujia_franchise_inspection
+msgid "Grade \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\"
+msgstr "等級 \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\"
+
+#. module: wujia_franchise_inspection
+msgid "Grade name, e.g.: A, B, C, D"
+msgstr "等級 name, e.g.: A, B, C, D"
+
+#. module: wujia_franchise_inspection
+msgid "Historical Criterion Details"
+msgstr "Historical 評分標準 明細"
+
+#. module: wujia_franchise_inspection
+msgid ""
+"If the question has 1 blank (____): Enter acceptable correct answers\n"
+"                                (separated by commas ;)."
+msgstr ""
+"If the 試題 has 1 blank (____): Enter acceptable correct answers\n"
+"                                (separated by commas ;).\n"
+
+#. module: wujia_franchise_inspection
+msgid ""
+"If the question has multiple blanks (____): Enter each blank on 1\n"
+"                                separate line in order."
+msgstr ""
+"If the 試題 has multiple blanks (____): Enter each blank on 1\n"
+"                                separate line in order.\n"
+
+#. module: wujia_franchise_inspection
+msgid "Import Inspection Criteria Wizard"
+msgstr "Import 巡檢 Criteria Wizard"
+
+#. module: wujia_franchise_inspection
+msgid "Inspection Category"
+msgstr "巡檢 Category"
+
+#. module: wujia_franchise_inspection
+msgid "Inspection Category / Group"
+msgstr "巡檢 Category / Group"
+
+#. module: wujia_franchise_inspection
+msgid "Inspection Count"
+msgstr "巡檢 Count"
+
+#. module: wujia_franchise_inspection
+msgid "Inspection Criteria"
+msgstr "巡檢評分標準"
+
+#. module: wujia_franchise_inspection
+msgid "Inspection Criterion"
+msgstr "巡檢 Criterion"
+
+#. module: wujia_franchise_inspection
+msgid "Inspection Details"
+msgstr "巡檢 Details"
+
+#. module: wujia_franchise_inspection
+msgid "Inspection Grade"
+msgstr "巡檢評級"
+
+#. module: wujia_franchise_inspection
+msgid "Inspection Grade Configuration"
+msgstr "巡檢 Grade Configuration"
+
+#. module: wujia_franchise_inspection
+msgid "Inspection Line Detail"
+msgstr "巡檢 Line Detail"
+
+#. module: wujia_franchise_inspection
+msgid "Inspection Question"
+msgstr "巡檢 Question"
+
+#. module: wujia_franchise_inspection
+msgid "Inspection Question Library"
+msgstr "巡檢題庫"
+
+#. module: wujia_franchise_inspection
+msgid "Inspection Questions"
+msgstr "巡檢 Questions"
+
+#. module: wujia_franchise_inspection
+msgid "Inspection Staff Attendance / Passed Line"
+msgstr "巡檢 Staff Attendance / Passed Line"
+
+#. module: wujia_franchise_inspection
+msgid "Inspection Template Line"
+msgstr "巡檢 Template Line"
+
+#. module: wujia_franchise_inspection
+msgid "Inspection template \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\"
+msgstr "巡檢 template \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\"
+
+#. module: wujia_franchise_inspection
+msgid "Instructions:"
+msgstr "Instructions:"
+
+#. module: wujia_franchise_inspection
+msgid "Is Correct"
+msgstr "Is Correct"
+
+#. module: wujia_franchise_inspection
+msgid "Latitude coordinate of inspection"
+msgstr "Latitude coordinate of 巡檢"
+
+#. module: wujia_franchise_inspection
+msgid "Line"
+msgstr "Line"
+
+#. module: wujia_franchise_inspection
+msgid "Line Type"
+msgstr "Line Type"
+
+#. module: wujia_franchise_inspection
+msgid "Link to open inspection location on Google Maps"
+msgstr "Link to open inspection location on Google 地圖"
+
+#. module: wujia_franchise_inspection
+msgid "List of certified passed employees belonging to the store."
+msgstr "List of certified passed 員工s belonging to the 門市."
+
+#. module: wujia_franchise_inspection
+msgid "List of employees present during inspection."
+msgstr "List of 員工s present during 巡檢."
+
+#. module: wujia_franchise_inspection
+msgid "Longitude coordinate of inspection"
+msgstr "Longitude coordinate of 巡檢"
+
+#. module: wujia_franchise_inspection
+msgid "Maximum Score"
+msgstr "Maximum 得分"
+
+#. module: wujia_franchise_inspection
+msgid "Maximum score for this grade (inclusive)"
+msgstr "Maximum 得分 for this 等級 (inclusive)"
+
+#. module: wujia_franchise_inspection
+msgid "Minimum Score"
+msgstr "Minimum 得分"
+
+#. module: wujia_franchise_inspection
+msgid "Minimum score to achieve this grade (inclusive)"
+msgstr "Minimum 得分 to achieve this 等級 (inclusive)"
+
+#. module: wujia_franchise_inspection
+msgid "My Inspections"
+msgstr "My 巡檢s"
+
+#. module: wujia_franchise_inspection
+msgid "My Schedules"
+msgstr "My 排程s"
+
+#. module: wujia_franchise_inspection
+msgid "New Question"
+msgstr "New 試題"
+
+#. module: wujia_franchise_inspection
+msgid "No Category Selected"
+msgstr "No 類別 Selected"
+
+#. module: wujia_franchise_inspection
+msgid "No historical data found for this criterion in previous inspection!"
+msgstr "No historical data found for this 評分標準 in previous 巡檢!"
+
+#. module: wujia_franchise_inspection
+msgid "No inspections pending remediation!"
+msgstr "No 巡檢s pending 改善!"
+
+#. module: wujia_franchise_inspection
+msgid "No notes from previous inspection..."
+msgstr "No 備註 from previous 巡檢..."
+
+#. module: wujia_franchise_inspection
+msgid "Normal"
+msgstr "Normal"
+
+#. module: wujia_franchise_inspection
+msgid "Note..."
+msgstr "備註..."
+
+#. module: wujia_franchise_inspection
+msgid "Note:"
+msgstr "備註:"
+
+#. module: wujia_franchise_inspection
+msgid "Number of employees present at the store."
+msgstr "Number of 員工s present at the 門市."
+
+#. module: wujia_franchise_inspection
+msgid "Only Draft templates can be deleted!"
+msgstr "Only 草稿 templates can be deleted!"
+
+#. module: wujia_franchise_inspection
+msgid "Pass Count"
+msgstr "Pass Count"
+
+#. module: wujia_franchise_inspection
+msgid "Passed (Pass)"
+msgstr "Passed (Pass)"
+
+#. module: wujia_franchise_inspection
+msgid "Passed Criteria (Pass)"
+msgstr "Passed 評分標準 (Pass)"
+
+#. module: wujia_franchise_inspection
+msgid "Passed Exam Staff"
+msgstr "Passed Exam Staff"
+
+#. module: wujia_franchise_inspection
+msgid "Passed Staff"
+msgstr "Passed Staff"
+
+#. module: wujia_franchise_inspection
+msgid "Passed Staff Count"
+msgstr "Passed Staff Count"
+
+#. module: wujia_franchise_inspection
+msgid "Passed Staff:"
+msgstr "Passed Staff:"
+
+#. module: wujia_franchise_inspection
+msgid "Phone Number..."
+msgstr "Phone Number..."
+
+#. module: wujia_franchise_inspection
+msgid "Photo showing results after store completed remediation."
+msgstr "照片 showing results after store completed remediation."
+
+#. module: wujia_franchise_inspection
+msgid "Planned Day"
+msgstr "計畫ned Day"
+
+#. module: wujia_franchise_inspection
+msgid "Planned Month"
+msgstr "計畫ned Month"
+
+#. module: wujia_franchise_inspection
+msgid "Please click \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\"
+msgstr "Please click \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\"
+
+#. module: wujia_franchise_inspection
+msgid "Please enter Employee Name before saving!"
+msgstr "Please enter 員工 Name before saving!"
+
+#. module: wujia_franchise_inspection
+msgid "Please select a Franchise Store first!"
+msgstr "Please select a Franchise 門市 first!"
+
+#. module: wujia_franchise_inspection
+msgid "Please select a date in \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\"
+msgstr "Please select a date in \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\"
+
+#. module: wujia_franchise_inspection
+msgid "Present Staff"
+msgstr "Present Staff"
+
+#. module: wujia_franchise_inspection
+msgid "Present:"
+msgstr "Present:"
+
+#. module: wujia_franchise_inspection
+msgid "Previous Criterion: %s"
+msgstr "Previous 評分標準: %s"
+
+#. module: wujia_franchise_inspection
+msgid "Previous Deduction Score"
+msgstr "Previous Deduction 得分"
+
+#. module: wujia_franchise_inspection
+msgid "Previous Inspection Notes (Most Recent)"
+msgstr "Previous 巡檢 Notes (Most Recent)"
+
+#. module: wujia_franchise_inspection
+msgid "Previous Line"
+msgstr "Previous Line"
+
+#. module: wujia_franchise_inspection
+msgid "Previous Result"
+msgstr "Previous 結果"
+
+#. module: wujia_franchise_inspection
+msgid "Question Code"
+msgstr "試題 Code"
+
+#. module: wujia_franchise_inspection
+msgid "Question Content"
+msgstr "試題 Content"
+
+#. module: wujia_franchise_inspection
+msgid "Question Text"
+msgstr "試題 Text"
+
+#. module: wujia_franchise_inspection
+msgid "Question content. Use ____ to represent blanks to fill."
+msgstr "試題 content. Use ____ to represent blanks to fill."
+
+#. module: wujia_franchise_inspection
+msgid "Remediated"
+msgstr "Remediated"
+
+#. module: wujia_franchise_inspection
+msgid "Remediation Note (Store)"
+msgstr "Remediation Note (門市)"
+
+#. module: wujia_franchise_inspection
+msgid "Remediation Photo"
+msgstr "改善後照片"
+
+#. module: wujia_franchise_inspection
+msgid "Remediation Photo (Store)"
+msgstr "Remediation Photo (門市)"
+
+#. module: wujia_franchise_inspection
+msgid "Remediation notes / feedback submitted by store via Portal."
+msgstr "改善 notes / feedback submitted by store via Portal."
+
+#. module: wujia_franchise_inspection
+msgid "Require Evidence If Fail"
+msgstr "Require 佐證 If Fail"
+
+#. module: wujia_franchise_inspection
+msgid "Require Evidence Snapshot"
+msgstr "Require 佐證 Snapshot"
+
+#. module: wujia_franchise_inspection
+msgid "Require Note If Fail"
+msgstr "Require 備註 If Fail"
+
+#. module: wujia_franchise_inspection
+msgid "Require Note Snapshot"
+msgstr "Require 備註 Snapshot"
+
+#. module: wujia_franchise_inspection
+msgid "Result (Pass / Fail)"
+msgstr "結果 (Pass / Fail)"
+
+#. module: wujia_franchise_inspection
+msgid "Save Question"
+msgstr "Save 試題"
+
+#. module: wujia_franchise_inspection
+msgid "Save or update this member to Store Membership"
+msgstr "Save or update this member to 門市 Membership"
+
+#. module: wujia_franchise_inspection
+msgid "Schedule title/code (%s) cannot be changed once an inspection sheet has been created!"
+msgstr "排程 title/code (%s) cannot be changed once an inspection sheet has been created!"
+
+#. module: wujia_franchise_inspection
+msgid "Score Range"
+msgstr "得分 Range"
+
+#. module: wujia_franchise_inspection
+msgid "Score calculated from blank fill-in exam questions."
+msgstr "得分 calculated from blank fill-in exam questions."
+
+#. module: wujia_franchise_inspection
+msgid "Score obtained when answering this question correctly."
+msgstr "得分 obtained when answering this question correctly."
+
+#. module: wujia_franchise_inspection
+msgid "Scoring Configuration"
+msgstr "Scoring Configuration"
+
+#. module: wujia_franchise_inspection
+msgid "Search Inspection Questions"
+msgstr "Search 巡檢 Questions"
+
+#. module: wujia_franchise_inspection
+msgid "Search Violation Criteria"
+msgstr "Search 違規 Criteria"
+
+#. module: wujia_franchise_inspection
+msgid "Section Category"
+msgstr "Section 類別"
+
+#. module: wujia_franchise_inspection
+msgid "Section Header"
+msgstr "分組標題"
+
+#. module: wujia_franchise_inspection
+msgid "Severe Violation"
+msgstr "Severe 違規"
+
+#. module: wujia_franchise_inspection
+msgid "Short description for this grade"
+msgstr "Short 說明 for this 等級"
+
+#. module: wujia_franchise_inspection
+msgid "Signature Date"
+msgstr "Signature 日期"
+
+#. module: wujia_franchise_inspection
+msgid "Staff Attendance"
+msgstr "Staff Attendance"
+
+#. module: wujia_franchise_inspection
+msgid "Staff Exam Inspection Line"
+msgstr "Staff Exam 巡檢 Line"
+
+#. module: wujia_franchise_inspection
+msgid "Staff Exam Lines"
+msgstr "Staff Exam Lines"
+
+#. module: wujia_franchise_inspection
+msgid "Staff Exam Score"
+msgstr "Staff Exam 得分"
+
+#. module: wujia_franchise_inspection
+msgid "Store Manager Confirmation"
+msgstr "門市 Manager Confirmation"
+
+#. module: wujia_franchise_inspection
+msgid "Store Manager Confirmer"
+msgstr "門市 Manager Confirmer"
+
+#. module: wujia_franchise_inspection
+msgid "Store Member"
+msgstr "門市 Member"
+
+#. module: wujia_franchise_inspection
+msgid "Store Staff Present at Inspection"
+msgstr "Store Staff Present at 巡檢"
+
+#. module: wujia_franchise_inspection
+msgid "Store appearance issues and key remediations from previous inspection"
+msgstr "門市 appearance issues and key remediations from previous inspection"
+
+#. module: wujia_franchise_inspection
+msgid "Store employee taking the exam (not required to be a system user)."
+msgstr "門市 employee taking the exam (not required to be a system user)."
+
+#. module: wujia_franchise_inspection
+msgid "Stores with latest inspection grade C or D needing supervision!"
+msgstr "門市s with latest inspection grade C or D needing supervision!"
+
+#. module: wujia_franchise_inspection
+msgid "Submission Date"
+msgstr "Submission 日期"
+
+#. module: wujia_franchise_inspection
+msgid "Submit Exam"
+msgstr "提交測驗"
+
+#. module: wujia_franchise_inspection
+msgid "Summary report analyzing store supervision scores over time!"
+msgstr "Summary report analyzing 門市 巡檢督導 得分s over time!"
+
+#. module: wujia_franchise_inspection
+msgid "Supervision Calendar"
+msgstr "巡檢督導 Calendar"
+
+#. module: wujia_franchise_inspection
+msgid "System Confirmation"
+msgstr "System 確認"
+
+#. module: wujia_franchise_inspection
+msgid "System Confirmer"
+msgstr "System Confirmer"
+
+#. module: wujia_franchise_inspection
+msgid "TEMPLATE-INSP-01"
+msgstr "範本-INSP-01"
+
+#. module: wujia_franchise_inspection
+msgid "Template Code"
+msgstr "範本 Code"
+
+#. module: wujia_franchise_inspection
+msgid "Template Criterion"
+msgstr "範本 Criterion"
+
+#. module: wujia_franchise_inspection
+msgid "The inspection must be 'In Progress' to submit the staff exam!"
+msgstr "The 巡檢 must be 'In Progress' to submit the staff exam!"
+
+#. module: wujia_franchise_inspection
+msgid "Total Max Score"
+msgstr "Total Max 得分"
+
+#. module: wujia_franchise_inspection
+msgid "Total Score = Checklist Score + Staff Exam Score."
+msgstr "Total 得分 = Checklist 得分 + Staff Exam 得分."
+
+#. module: wujia_franchise_inspection
+msgid "Total number of passed employees."
+msgstr "總計 number of passed employees."
+
+#. module: wujia_franchise_inspection
+msgid "Undefined Criterion"
+msgstr "Undefined 評分標準"
+
+#. module: wujia_franchise_inspection
+msgid "Unnamed Criterion"
+msgstr "Unnamed 評分標準"
+
+#. module: wujia_franchise_inspection
+msgid "View Previous Inspection Line"
+msgstr "View Previous 巡檢 Line"
+
+#. module: wujia_franchise_inspection
+msgid "View supervision history!"
+msgstr "View 巡檢督導 歷史!"
+
+#. module: wujia_franchise_inspection
+msgid "Violation Evidence (Inspection)"
+msgstr "Violation Evidence (巡檢)"
+
+#. module: wujia_franchise_inspection
+msgid "Violation Note (Admin)"
+msgstr "違規 Note (Admin)"
+
+#. module: wujia_franchise_inspection
+msgid "Violation criteria analysis report on completed inspection sheets!"
+msgstr "違規 criteria analysis report on completed inspection sheets!"
+
+#. module: wujia_franchise_inspection
+msgid "Violation evidence photo captured during inspection."
+msgstr "違規 evidence photo captured during inspection."
+
+#. module: wujia_franchise_inspection
+msgid "Working tenure of the tested employee (e.g. 1 year, 6 months, 2 years)."
+msgstr "Working tenure of the tested 員工 (e.g. 1 year, 6 months, 2 years)."
+
+#. module: wujia_franchise_inspection
+msgid "WujiaTea ERP —"
+msgstr "WujiaTea ERP —"
+
+#. module: wujia_franchise_inspection
+msgid "e.g. Store Hygiene & Quality Inspection Template 2026"
+msgstr "e.g. Store Hygiene & Quality 巡檢 Template 2026"
+
+#. module: wujia_franchise_inspection
+msgid "Please enter Tested Employee name!"
+msgstr "Please enter Tested Employee name!"
+
+#. module: wujia_franchise_inspection
+msgid "Notice"
+msgstr "通知"
+
+#. module: wujia_franchise_inspection
+msgid "Fail"
+msgstr "不合格"
+
+#. module: wujia_franchise_inspection
+msgid "Pass"
+msgstr "合格"
+
+#. module: wujia_franchise_inspection
+msgid "Adding..."
+msgstr "新增中..."
+
+#. module: wujia_franchise_inspection
+msgid "Are you sure this employee has resigned (is_working = False)? This row will be removed from the survey."
+msgstr "確定標記此員工為離職 (在職=否)？該行將自本次評核移除。"
+
+#. module: wujia_franchise_inspection
+msgid "Saving..."
+msgstr "儲存中..."
+
+#. module: wujia_franchise_inspection
+msgid "Adding employee..."
+msgstr "正在新增員工..."
+
+#. module: wujia_franchise_inspection
+msgid "No previous inspection data available for this criterion."
+msgstr "此項目尚無前次評核數據。"
+
+#. module: wujia_franchise_inspection
+msgid "No previous violation notes recorded."
+msgstr "前次無缺失備註記錄。"
+
+#. module: wujia_franchise_inspection
+msgid "An error occurred while saving!"
+msgstr "儲存時發生錯誤！"
+
+#. module: wujia_franchise_inspection
+msgid "Server connection error!"
+msgstr "伺服器連線錯誤！"
+
+#. module: wujia_franchise_inspection
+msgid "Results saved successfully!"
+msgstr "評核結果儲存成功！"
+
+#. module: wujia_franchise_inspection
+msgid "points"
+msgstr "分數"
+
+#. module: wujia_franchise_inspection
+msgid "🇻🇳 Vietnamese"
+msgstr "🇻🇳 越南文"
+
+#. module: wujia_franchise_inspection
+msgid "📌 Instructions for entering correct answers:"
+msgstr "📌 Instructions for entering correct answers:"
