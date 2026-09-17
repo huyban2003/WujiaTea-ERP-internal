@@ -3,6 +3,8 @@ sys.path.insert(0, sys.argv[1])
 from cssparse import *
 ROOT='/Users/huyban2003/odoo-dev/WujiaTea'
 rep=open(sys.argv[2]).read()
+import os
+CFG=json.load(open(os.environ['CSSMOVE_CFG'])) if os.environ.get('CSSMOVE_CFG') else {}
 owners={}
 cur=None
 for line in rep.splitlines():
@@ -14,6 +16,8 @@ for line in rep.splitlines():
 TARGET={'wujia_portal_knowledge','wujia_portal_purchase_history','wujia_portal_support','wujia_portal_notification',
         'wujia_portal_debt','wujia_portal_exam','wujia_portal_return','wujia_portal_delivery'}
 KEEP={'wujia-msheet-open','wj-filter-select','wj-inspection-pc','wj-pc-page-btn'}
+TARGET=set(CFG.get('TARGET',TARGET)); KEEP|=set(CFG.get('KEEP',[]))
+OUT=CFG.get('OUT',sys.argv[1]+'/moves.json')
 files=['_components.css','_pc_components.css','_pc_account.css','_interaction.css']
 D=ROOT+'/custom/wujia_portal_layout/static/assets/css/'
 moves=[]; mixed=[]
@@ -54,4 +58,4 @@ for m in moves:
         if inter and props:
             print('CASCADE?',m['file'],m['line'],m['sel'][:60],'<->',r['file'],r['line'],r['sel'][:80],sorted(props))
             m.setdefault('conf',[]).append((r['file'],r['line'],r['sel'][:80],sorted(props)))
-json.dump([dict(conf=m.get('conf'),file=m['file'],line=m['line'],start=m['start'],end=m['end'],sel=m['sel'],media=m['media'],owner=m['owner']) for m in moves],open(sys.argv[1]+'/moves.json','w'),ensure_ascii=False,indent=1)
+json.dump([dict(conf=m.get('conf'),file=m['file'],line=m['line'],start=m['start'],end=m['end'],sel=m['sel'],media=m['media'],owner=m['owner']) for m in moves],open(OUT,'w'),ensure_ascii=False,indent=1)

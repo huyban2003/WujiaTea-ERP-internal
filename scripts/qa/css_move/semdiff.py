@@ -7,6 +7,8 @@ M=['custom/wujia_portal_knowledge/static/src/css/portal_knowledge.css','custom/w
    'custom/wujia_portal_support/static/src/css/portal_support.css','custom/wujia_portal_notification/static/src/css/portal_notification.css',
    'custom/wujia_portal_debt/static/src/css/portal_debt.css','custom/wujia_portal_exam/static/src/css/portal_exam.css',
    'custom/wujia_portal_return/static/src/css/portal_return.css','custom/wujia_portal_delivery/static/src/css/portal_delivery.css']
+import os, json
+if os.environ.get('CSSMOVE_CFG'): M=M+[x for x in json.load(open(os.environ['CSSMOVE_CFG'])).get('M',[]) if x not in M]
 from collections import Counter
 def atoms(text):
     c=Counter()

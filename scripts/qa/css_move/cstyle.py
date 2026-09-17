@@ -1,11 +1,13 @@
 """Dump FULL computed style (+ :hover/:active forced) of elements whose class hits screen groups."""
-import json, sys, asyncio
+import json, sys, asyncio, os
 from playwright.async_api import async_playwright
 BASE='http://127.0.0.1:8099'
 ACC={'anh.owner':['/portal/knowledge','/portal/knowledge/pha-tr-earl-grey-size-l','/portal/purchase-history','/portal/purchase-history/12',
       '/portal/support','/portal/support/15','/portal/support/new','/portal/notification','/portal/notification/1'],
      'em.hcm':['/portal/knowledge','/portal/purchase-history','/portal/support','/portal/support/67','/portal/notification']}
 PREF=['wujia-mknow','wujia-mhist','wujia-mticket','wj-pc-noti-head-actions']
+CFG=json.load(open(os.environ['CSSMOVE_CFG'])) if os.environ.get('CSSMOVE_CFG') else {}
+ACC=CFG.get('ACC',ACC); PREF=CFG.get('PREF',PREF); SETUP=CFG.get('SETUP',{}); TEARDOWN=CFG.get('TEARDOWN',{})
 JS='''(pref)=>{const out={};const els=[...document.querySelectorAll('*')].filter(e=>{const c=(e.getAttribute('class')||'');return pref.some(p=>c.includes(p))});
 const sub=[];for(const e of els){sub.push(e);for(const k of e.querySelectorAll('*'))sub.push(k)}
 const uniq=[...new Set(sub)];
@@ -23,8 +25,12 @@ async def main(tag):
                 pg=await ctx.new_page()
                 await pg.goto(BASE+'/web/login'); await pg.fill('input[name=login]',login); await pg.fill('input[name=password]','wujia@test123')
                 await pg.click('button[type=submit]'); await pg.wait_for_load_state('networkidle')
+                for u,prm in SETUP.get(login,[]):
+                    await pg.evaluate('([u,p])=>fetch(u,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({jsonrpc:"2.0",method:"call",params:p})}).then(r=>r.json())',[u,prm])
                 for r in routes:
-                    await pg.goto(BASE+r); await pg.wait_for_load_state('networkidle'); await pg.wait_for_timeout(300)
+                    await pg.goto(BASE+r)
+                    try: await pg.wait_for_load_state('networkidle',timeout=8000); await pg.wait_for_timeout(300)
+                    except Exception: await pg.wait_for_timeout(1500)
                     key=f'{login}@{w}{r}'
                     res[key]=await pg.evaluate(JS,PREF)
                     # forced hover/active on first element of each prefix
@@ -40,6 +46,8 @@ async def main(tag):
                                 res[key][f'FORCE{st[0]}|{p}|{ix}']={x['name']:x['value'] for x in cs['computedStyle']}
                             await cdp.send('CSS.forcePseudoState',{'nodeId':nid,'forcedPseudoClasses':[]})
                     print(key,len(res[key]),file=sys.stderr)
+                for u,prm in TEARDOWN.get(login,[]):
+                    await pg.evaluate('([u,p])=>fetch(u,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({jsonrpc:"2.0",method:"call",params:p})}).then(r=>r.json())',[u,prm])
                 await ctx.close()
         await b.close()
     json.dump(res,open(tag,'w'))

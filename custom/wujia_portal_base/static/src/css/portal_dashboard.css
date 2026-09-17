@@ -3,6 +3,274 @@
    Sprint 9.12 (2026-05-27): removed .stat-card* — migrated to .wujia-kpi-card
    in wujia_portal_layout/_components.css (UI-11). */
 
+/* F3: dời từ portal_layout _components.css:475 */
+.wujia-kpi-card-link {
+    display: block;
+    height: 100%;   /* .row đã stretch cột; <a> phải chuyền chiều cao xuống card */
+    text-decoration: none !important;
+    color: inherit;
+}
+.wujia-kpi-card {
+    display: flex;
+    align-items: center;
+    height: 100%;   /* 4 thẻ cùng hàng cao bằng nhau, thay cho min-height BA cấm */
+    transition: transform 0.15s ease, border-color 0.15s ease;
+}
+.wujia-kpi-card-link:hover .wujia-kpi-card,
+.wujia-kpi-card:hover {
+    /* BA: không shadow. Affordance wholeCard giữ bằng nhấc 2px + đậm viền. */
+    transform: translateY(-2px);
+    border-color: var(--wujia-primary);
+}
+.wujia-kpi-icon {
+    flex-shrink: 0;
+    width: var(--wujia-kpi-icon-size);
+    height: var(--wujia-kpi-icon-size);
+    border-radius: var(--wujia-kpi-icon-radius);
+    background: var(--wujia-kpi-icon-bg);
+    color: #FFFFFF;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: var(--wujia-kpi-icon-font);
+    line-height: 1;
+}
+.wujia-kpi-icon-primary { background: var(--wujia-primary); }
+.wujia-kpi-icon-warning { background: var(--wujia-warning); }
+.wujia-kpi-icon-danger  { background: var(--wujia-danger); }
+.wujia-kpi-icon-info    { background: var(--wujia-primary-dark); }
+.wujia-kpi-separator {
+    flex-shrink: 0;
+    width: 1px;
+    height: var(--wujia-kpi-separator-height);
+    background: var(--wujia-kpi-separator-color);
+}
+.wujia-kpi-content {
+    flex: 1 1 auto;          /* UI-14: giãn đầy → chevron neo mép phải (margin-left:auto) */
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 2px;
+}
+.wujia-kpi-label {
+    font-size: 14px;
+    color: var(--wujia-text-secondary);
+    margin: 0;
+    line-height: 1.3;
+}
+.wujia-kpi-value {
+    font-size: 28px;
+    font-weight: 700;
+    color: var(--wujia-text-primary);
+    margin: 0;
+    line-height: 1.2;
+}
+.wujia-kpi-desc {
+    font-size: 12px;
+    color: var(--wujia-text-secondary);
+    margin: 0;
+    line-height: 1.4;
+}
+.wujia-kpi-arrow {
+    flex-shrink: 0;
+    margin-left: auto;      /* UI-14: neo chevron về mép phải làm affordance "xem chi tiết" */
+    color: var(--wujia-text-secondary);
+    font-size: 18px;        /* UI-14: nhỏ lại cho cân */
+}
+/* F3: dời từ portal_layout _components.css:559 */
+@media (max-width: 991.98px) {
+    .wujia-kpi-card-link {
+        display: block;
+        margin-bottom: 12px;
+    }
+    .row > [class*="col-"]:last-child .wujia-kpi-card-link {
+        margin-bottom: 0;
+    }
+}
+/* F3: dời từ portal_layout _components.css:996 */
+.wujia-mhome {
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+    padding: 16px;
+}
+/* F3: dời từ portal_layout _components.css:1005 */
+@media (max-width: 991.98px) {
+    html body .content .content-wrapper.wujia-home-wrapper {
+        padding-left: 0;
+        padding-right: 0;
+    }
+}
+/* F3: dời từ portal_layout _components.css:1012 */
+.wujia-mhome-hero {
+    background: var(--wujia-mhome-hero-grad);
+    border-radius: 16px;
+    padding: 18px 16px 14px;
+    color: #FFFFFF;
+}
+.wujia-mhome-hero-top {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 12px;
+}
+.wujia-mhome-hero-left {
+    flex: 1 1 auto;
+    min-width: 0;
+}
+.wujia-mhome-hero-right {
+    flex-shrink: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;   /* Figma: Vai trò + badge canh TRÁI với nhau (x≈281) */
+    gap: 8px;
+    text-align: left;
+}
+.wujia-mhome-hero-label {
+    margin: 0 0 8px;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    color: var(--wujia-mhome-hero-label);
+}
+.wujia-mhome-hero-right .wujia-mhome-hero-label { margin: 0; }
+.wujia-mhome-hero-store {
+    margin: 0;
+    font-size: 17px;
+    font-weight: 700;
+    line-height: 1.3;
+    color: #FFFFFF;
+}
+.wujia-mhome-hero-addr {
+    margin: 2px 0 0;
+    font-size: 14px;
+    font-weight: 400;
+    color: rgba(255, 255, 255, 0.9);
+}
+.wujia-mhome-hero-area {
+    margin: 2px 0 0;
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--wujia-mhome-hero-area);
+}
+.wujia-mhome-role-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 3px 12px;
+    border-radius: 999px;
+    background: var(--wujia-success);
+    color: #FFFFFF;
+    font-size: 12px;
+    font-weight: 700;
+    line-height: 1;
+}
+.wujia-mhome-window {
+    background: var(--wujia-bg-card);
+    border: 1px solid var(--wujia-mhome-card-border);
+    border-radius: 14px;
+    padding: 14px 16px;
+}
+.wujia-mhome-window-status {
+    font-size: 14px;
+    font-weight: 700;
+    white-space: nowrap;
+}
+.wujia-mhome-window-status.is-open    { color: var(--wujia-success); }
+.wujia-mhome-window-status.is-closed  { color: var(--wujia-danger); }
+.wujia-mhome-window-status.is-always  { color: var(--wujia-success); }
+.wujia-mhome-window-status small {
+    color: var(--wujia-text-subtitle);
+    font-weight: 400;
+}
+.wujia-mhome-window-progress {
+    height: 6px;
+    margin: 10px 0 8px;
+    border-radius: 999px;
+    background: var(--wujia-mhome-progress-track);
+    overflow: hidden;
+}
+.wujia-mhome-window-progress-bar {
+    height: 100%;
+    border-radius: 999px;
+    background: var(--wujia-mhome-progress-fill);
+}
+.wujia-mhome-window-caption {
+    margin: 0;
+    font-size: 12px;
+    font-weight: 400;
+    color: var(--wujia-text-subtitle);
+}
+.wujia-mhome-actions-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+}
+.wujia-mhome-action {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 8px;
+    padding-left: 9px;
+    height: 58px;
+    border-radius: 12px;
+    background: var(--wujia-mhome-action-bg);
+    border: 1px solid var(--wujia-mhome-action-border);
+    color: var(--wujia-text-primary);
+    text-decoration: none;
+}
+.wujia-mhome-action:hover  { opacity: 0.92; }
+.wujia-mhome-action:active { opacity: 0.82; }
+.wujia-mhome-action-icon {
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    background: var(--wujia-mhome-action-icon-bg);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+.wujia-mhome-action-icon i {
+    font-size: 16px;
+    line-height: 1;
+    color: var(--wujia-primary);
+}
+.wujia-mhome-action-label {
+    font-size: 12px;
+    font-weight: 700;
+    line-height: 1.3;
+    color: var(--wujia-text-primary);
+}
+.wujia-mdash-sec {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+    }
+.wujia-mdash-tile {
+        flex: 0 0 auto;
+        width: 40px;
+        height: 40px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 10px;
+        background: var(--wujia-mdash-tile-bg);
+        color: var(--wujia-morder-primary);
+    }
+.wujia-mdash-tile i { font-size: 18px; line-height: 1; }
+.wujia-mdash-tile.is-danger {
+        background: var(--wujia-mdash-tile-danger-bg);
+        color: var(--wujia-danger);
+    }
+.wujia-mhome .wujia-mdash-row-title.is-sm {
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+    }
+
+
 .dashboard-list .list-group-item { border-left: none; border-right: none; border-color: var(--wujia-border); }
 .dashboard-list-link { color: var(--wujia-text-primary); text-decoration: none; }
 .dashboard-list-link:hover { color: var(--wujia-primary); }

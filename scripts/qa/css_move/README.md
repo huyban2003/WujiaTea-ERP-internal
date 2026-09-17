@@ -6,3 +6,6 @@
 4. `cstyle.py out.json` (TRƯỚC khi sửa + SAU) rồi `cdiff.py before.json after.json` — full computed style + ép :hover/:active/:focus,
    cần server 8099. Sửa ACC/PREF theo màn. **Xoá `ir_attachment` url `/web/assets/%` + restart** trước lượt SAU (bundle cache cũ).
 Chạy `cstyle.py` 2 lần trước khi sửa để chắc đo ổn định (0 khác).
+
+F3: cấu hình phiên qua `CSSMOVE_CFG=cfg.json` (TARGET, KEEP, OUT, TAG, MODCSS, M, ACC, PREF, SETUP = lệnh JSON dựng giỏ sau đăng nhập);
+`CDIFF_IGNORE='<regex phần tử>'` bỏ qua width/origin chạy theo đồng hồ.

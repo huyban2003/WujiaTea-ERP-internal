@@ -81,7 +81,7 @@ rồi đánh ✅ ở bảng Trạng thái §2 `docs/next-session-clusters-F.md`.
   `_components.css`/`_pc_components.css` lên đầu file CSS module (module đã có file trong `web.assets_frontend`, nạp sau layout);
   dọn comment mồ côi; 4 guard test đọc thẳng `_components.css` trỏ sang file module (d3 DEAD_CSS, d4, d5). Bộ công cụ
   `scripts/qa/css_move/` (plan/apply/semdiff/cstyle/cdiff).
-- Commit: chưa commit
+- Commit: `dab6f4c` (đã push — ghi chú sửa ở phiên F3)
 - Deploy: chưa — `-u wujia_portal_layout,wujia_portal_knowledge,wujia_portal_purchase_history,wujia_portal_support,wujia_portal_notification`
   (layout 19.0.51.0.2 · knowledge 19.0.3.14.1 · purchase_history 19.0.3.12.1 · support 19.0.3.21.2 · notification 19.0.2.14.1; `?v=1294`)
 - Số đo: semdiff 309/309 khớp · cstyle full computed style + ép :hover/:active/:focus 2550 phần tử × 28 lượt (2 tài khoản × 390/1440)
@@ -97,4 +97,29 @@ rồi đánh ✅ ở bảng Trạng thái §2 `docs/next-session-clusters-F.md`.
   Bẫy môi trường: bundle cache cũ sau sửa CSS ⇒ xoá `ir_attachment` `/web/assets/%` + restart; deploy UAT `-u` + restart là đủ.
   Mốc F0 em.hcm `/portal` + `/portal/order` đã trôi — F3 lấy mốc mới đầu phiên.
 - Phiên kế: F3 — prompt đã viết lại ở `next-session-clusters-F.md` §3 (quy trình cstyle đo cascade bắt buộc).
+
+## F3 — CSS Đặt hàng + Home ra khỏi `portal_layout` · 17/09/2026 · Mac
+- Kết quả: ✅ xong
+- Đã làm: dời 160 rule từ `_components.css` lên đầu file CSS module — Đặt hàng 111 (+ `@keyframes wujia-msubmit-spin`)
+  → `wujia_portal_sale/static/src/css/portal_order.css`, Home 49 → `wujia_portal_base/static/src/css/portal_dashboard.css`;
+  gỡ 3 `@media {}` rỗng + comment mồ côi do chính lượt dời để lại (2 `@media` rỗng có từ trước giữ nguyên). 5 chỗ
+  `test_d4_surface_card.py` đọc CSS trỏ sang file module. Bộ `scripts/qa/css_move/` nhận cấu hình `CSSMOVE_CFG` (TARGET/KEEP/
+  MODCSS/ACC/PREF/SETUP), `cstyle` chịu được trang long-polling (Đặt hàng không bao giờ `networkidle`), `cdiff` có
+  `CDIFF_IGNORE` cho hình học chạy theo đồng hồ (thanh tiến độ khung giờ).
+- Commit: chưa commit
+- Deploy: chưa — `-u wujia_portal_layout,wujia_portal_sale,wujia_portal_base`
+  (layout 19.0.51.0.3 · sale 19.0.4.17.1 · base 19.0.7.17.2; `_components.css?v=1295`)
+- Số đo: semdiff 711/711 khớp · cstyle 7030 phần tử × 20 lượt (2 tài khoản × 390/1440 × `/portal`, `/portal/order`, giỏ có 2 dòng,
+  `/portal/order/submitted/<id>`, `/portal/order/rejected`) + ép hover/active/focus = **0 khác** (2 lượt sau) · wj_measure
+  anh 130 ô 0 lệch, em 1 ô `/portal`@360 −25 = đồng hồ (cùng code đo lại 3 lần ra 2772 = mốc) · 0 mất record · 0 tràn · 0 lỗi JS ·
+  ảnh chỉ lệch đồng hồ khung giờ/shimmer logo/thanh tải · B4 286/286 · suite 12 module 534/534 · css_owner nhóm 1 màn 149→46
+  (sale 78→7, base 49→17).
+- Lệch plan / quyết định mới: GIỮ ở layout, có giải trình — `wj-pc-acct-*` + `wujia-maccount-*` (view layout profile/đổi mật khẩu
+  dùng chung), `wj-empty-state-body` (biến thể `--row` của EmptyState), `wujia-content-card-empty` (họ content-card),
+  `.content-wrapper > .wujia-mhome` (`_wujia_theme.css`), 10 nhóm chỉ còn trong `:is()` `_interaction.css` → F4. Mốc wj_measure
+  lấy mới đầu phiên (F0 đã trôi ở `/portal` + `/portal/order` trên code chưa sửa). Luồng giỏ đo bằng dựng giỏ qua
+  `/portal/order/cart/add` + trang kết quả của đơn có sẵn — KHÔNG gửi đơn thật để giữ dữ liệu mốc.
+- Nợ để lại: comment trong module mới chỉ ghi nguồn dời (comment nghiệp vụ gốc không đi theo rule — như F2); chưa chạy
+  mutation cho 5 guard D4 đã trỏ lại; log test do `wujia_core` chuyển vào `<logfile dir>/<năm>/<tháng>/`.
+- Phiên kế: F4 — duyệt 41 rule đổi dáng + danh sách `:is()` (dừng giữa phiên xin duyệt).
 

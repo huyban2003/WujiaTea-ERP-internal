@@ -144,7 +144,8 @@ class TestSurfaceCardComponent(TransactionCase):
                 self.assertNotIn('height', str(self._root(**kw).get('style') or ''))
 
     def test_kpi_card_no_longer_locks_height(self):
-        body = _rule(_css('_components.css'), '.wujia-kpi-card')
+        # F3: CSS Home dời về wujia_portal_base.
+        body = _rule(_mod_css('wujia_portal_base', 'portal_dashboard.css'), '.wujia-kpi-card')
         self.assertIsNotNone(body)
         self.assertNotIn('min-height', body)
 
@@ -176,14 +177,14 @@ class TestSurfaceCardComponent(TransactionCase):
 
     def test_hover_of_whole_card_drops_the_shadow_too(self):
         # wholeCard: bỏ shadow mặc định mà giữ shadow hover là vẫn còn shadow.
-        css = _css('_components.css')
+        css = _mod_css('wujia_portal_base', 'portal_dashboard.css')
         i = css.index('.wujia-kpi-card-link:hover .wujia-kpi-card')
         self.assertNotIn('box-shadow', css[i:css.index('}', i)])
 
     def test_legacy_families_no_longer_declare_surface_shape(self):
         # Hai rule cùng đặc hiệu cùng khai padding thì thắng thua do thứ tự
         # nguồn — chủ sở hữu phải là DUY NHẤT.
-        css = _css('_components.css')
+        css = _css('_components.css') + _mod_css('wujia_portal_base', 'portal_dashboard.css')
         for sel in ('.wujia-kpi-card', '.wujia-content-card'):
             with self.subTest(sel=sel):
                 body = _rule(css, sel)
@@ -338,7 +339,9 @@ class TestSurfaceCardD4d(TransactionCase):
         # F2: rule mhist/mknow dời về module chủ ⇒ đọc cả hai file.
         css = (_css('_components.css')
                + _mod_css('wujia_portal_purchase_history', 'portal_history.css')
-               + _mod_css('wujia_portal_knowledge', 'portal_knowledge.css'))
+               + _mod_css('wujia_portal_knowledge', 'portal_knowledge.css')
+               + _mod_css('wujia_portal_sale', 'portal_order.css')
+               + _mod_css('wujia_portal_base', 'portal_dashboard.css'))
         for sel in self.SHARED:
             for body in _rules_anywhere(css, sel):
                 for prop in self.OWNED:
@@ -403,7 +406,7 @@ class TestSurfaceCardD4d(TransactionCase):
 
     def test_non_shape_rules_survive(self):
         keep = (
-            (_css('_components.css'), '.wujia-mres-card', 'max-width'),
+            (_mod_css('wujia_portal_sale', 'portal_order.css'), '.wujia-mres-card', 'max-width'),
             (_mod_css('wujia_portal_purchase_history', 'portal_history.css'),
              '.wujia-mhist-card', 'margin-bottom'),
             (_css('_components.css'), '.wujia-mdash-card', 'display'),

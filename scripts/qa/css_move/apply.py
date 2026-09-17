@@ -1,10 +1,14 @@
 import json, re, sys
 sys.path.insert(0, sys.argv[1])
-moves=json.load(open(sys.argv[1]+'/moves.json'))
+import os
+CFG=json.load(open(os.environ['CSSMOVE_CFG'])) if os.environ.get('CSSMOVE_CFG') else {}
+moves=json.load(open(CFG.get('OUT',sys.argv[1]+'/moves.json')))
+TAG=CFG.get('TAG','F2')
 ROOT='/Users/huyban2003/odoo-dev/WujiaTea/custom/'
 D=ROOT+'wujia_portal_layout/static/assets/css/'
 MODCSS={'wujia_portal_knowledge':'static/src/css/portal_knowledge.css','wujia_portal_purchase_history':'static/src/css/portal_history.css',
         'wujia_portal_support':'static/src/css/portal_support.css','wujia_portal_notification':'static/src/css/portal_notification.css'}
+MODCSS.update(CFG.get('MODCSS',{}))
 byfile={}
 for m in moves: byfile.setdefault(m['file'],[]).append(m)
 chunks={}  # owner -> list of (file, media tuple, text)
@@ -28,7 +32,7 @@ for owner,items in chunks.items():
         key=(f,media)
         if key!=cur:
             if cur and cur[1]: out.append('}\n')
-            out.append(f'/* F2: dời từ portal_layout {f}:{line} */\n')
+            out.append(f'/* {TAG}: dời từ portal_layout {f}:{line} */\n')
             if media: out.append(media[0]+' {\n')
             cur=key
         ind='    ' if media else ''
