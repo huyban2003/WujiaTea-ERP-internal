@@ -148,6 +148,9 @@ Mỗi phiên: dán **sau `/wujia-start`**. Nhắc lại cho mọi phiên: *Issue
 Step 2b đề xuất issue; không đụng module anh Thái (§0); code ít, comment ≤1 dòng; chưa được yêu cầu
 thì không commit/push/deploy.*
 
+**Kết thúc MỌI phiên (kể cả dừng giữa chừng):** thêm 1 mục vào `docs/f-progress.md` theo mẫu
+(kết quả, commit, số đo, nợ, phiên kế) + đánh ✅/◐ bảng §2. Prompt F1–F13 không nhắc lại nhưng vẫn áp dụng.
+
 ### Prompt F0 — Công cụ đo + mốc trước chuẩn hoá
 
 ```text
@@ -169,7 +172,7 @@ Mục tiêu: có công cụ + mốc đo để F1–F5 chứng minh "trước = s
    + b4_regression.py + test các module portal. Ghi lệnh + số vào docs/f0-baseline.md.
 Nghiệm thu: 2 script chạy được, khớp Phụ lục ±; baseline có mẫu khác 0 ở mọi route.
 Dừng hỏi nếu: DB copy không dựng được, hoặc số lệch Phụ lục >10%.
-Cuối phiên: cập nhật bảng Trạng thái §2 + compact summary §5.
+Cuối phiên: ghi mục vào docs/f-progress.md (theo mẫu) + ✅ bảng Trạng thái §2 + compact summary §5.
 ```
 
 ### Prompt F1 — Controller: vá an toàn + gọi đúng workflow
@@ -325,7 +328,7 @@ Phạm vi: FR-B = F2+F3+F4 · FR-A3 = cả cổng F0–F5 · FR-P = F7 · FR-A =
    selector đụng nhầm nhóm Khảo sát.
 3. Lỗi sót nhỏ (<30 dòng, không đổi hành vi) ⇒ sửa + test; lớn hơn ⇒ ghi nợ, KHÔNG sửa trong phiên.
 4. Ghi docs/f-review-<khối>.md: bảng kiểm Pass/Fail kèm lệnh chạy lại, ảnh đáng chú ý, nợ còn lại,
-   bài học cho khối sau. Cập nhật §2 Trạng thái + compact summary §5.
+   bài học cho khối sau. Ghi mục vào docs/f-progress.md + ✅ §2 Trạng thái + compact summary §5.
 FR-A3 riêng: kết luận "mở lại Issue List được chưa"; nếu được, ghi thứ tự E4b → E4c → E5 → E6 → E7
 → E8 và soạn đề xuất gửi BA mở cụm EmptyState (~124 chỗ viết tay).
 ```
