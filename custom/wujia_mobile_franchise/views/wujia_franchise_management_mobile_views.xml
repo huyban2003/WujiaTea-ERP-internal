@@ -74,7 +74,120 @@
         </field>
     </record>
 
-    <!-- Update Action Window: Desktop defaults to List (sequence 1), Mobile auto-switches to Kanban (sequence 2) -->
+    <!-- Mobile Kanban View for Operational Areas -->
+    <record id="view_res_area_kanban_mobile" model="ir.ui.view">
+        <field name="name">res.area.kanban.mobile</field>
+        <field name="model">res.area</field>
+        <field name="priority">30</field>
+        <field name="arch" type="xml">
+            <kanban class="wj_mobile_kanban" sample="1">
+                <field name="code"/>
+                <field name="name"/>
+                <field name="manager_user_id"/>
+                <templates>
+                    <t t-name="card">
+                        <div class="wj_mobile_card">
+                            <div class="d-flex align-items-center justify-content-between mb-1">
+                                <span class="wj_mobile_card__code">
+                                    <field name="code"/>
+                                </span>
+                            </div>
+                            <div class="wj_mobile_card__title mb-1">
+                                <field name="name"/>
+                            </div>
+                            <div class="pt-2 border-top overflow-hidden">
+                                <span class="wj_mobile_card__meta text-nowrap">
+                                    <t t-if="record.manager_user_id.raw_value">
+                                        <i class="fa fa-user me-1" title="Manager"/>
+                                        <field name="manager_user_id"/>
+                                    </t>
+                                </span>
+                            </div>
+                        </div>
+                    </t>
+                </templates>
+            </kanban>
+        </field>
+    </record>
+
+    <!-- Mobile Kanban View for Wards / Communes -->
+    <record id="view_res_ward_kanban_mobile" model="ir.ui.view">
+        <field name="name">res.ward.kanban.mobile</field>
+        <field name="model">res.ward</field>
+        <field name="priority">30</field>
+        <field name="arch" type="xml">
+            <kanban class="wj_mobile_kanban" sample="1">
+                <field name="code"/>
+                <field name="name"/>
+                <field name="state_id"/>
+                <templates>
+                    <t t-name="card">
+                        <div class="wj_mobile_card">
+                            <div class="d-flex align-items-center justify-content-between mb-1">
+                                <span class="wj_mobile_card__code">
+                                    <field name="code"/>
+                                </span>
+                            </div>
+                            <div class="wj_mobile_card__title mb-1">
+                                <field name="name"/>
+                            </div>
+                            <div class="pt-2 border-top overflow-hidden">
+                                <span class="wj_mobile_card__meta text-nowrap">
+                                    <t t-if="record.state_id.raw_value">
+                                        <i class="fa fa-map-marker me-1" title="Province"/>
+                                        <field name="state_id"/>
+                                    </t>
+                                </span>
+                            </div>
+                        </div>
+                    </t>
+                </templates>
+            </kanban>
+        </field>
+    </record>
+
+    <!-- Mobile Kanban View for Franchise Members -->
+    <record id="view_wujia_franchise_member_kanban_mobile" model="ir.ui.view">
+        <field name="name">wujia.franchise.member.kanban.mobile</field>
+        <field name="model">wujia.franchise.member</field>
+        <field name="priority">30</field>
+        <field name="arch" type="xml">
+            <kanban class="wj_mobile_kanban" sample="1">
+                <field name="user_id"/>
+                <field name="franchise_id"/>
+                <field name="role"/>
+                <field name="is_currently_valid"/>
+                <templates>
+                    <t t-name="card">
+                        <div class="wj_mobile_card">
+                            <div class="d-flex align-items-center justify-content-between mb-1">
+                                <span class="wj_mobile_card__code">
+                                    Role: <field name="role"/>
+                                </span>
+                                <span t-attf-class="wj_mobile_badge #{
+                                    record.is_currently_valid.raw_value and 'wj_mobile_badge--success' or 'wj_mobile_badge--neutral'
+                                }">
+                                    <t t-if="record.is_currently_valid.raw_value">Valid</t>
+                                    <t t-else="">Invalid</t>
+                                </span>
+                            </div>
+                            <div class="wj_mobile_card__title mb-1">
+                                <field name="user_id"/>
+                            </div>
+                            <div class="pt-2 border-top overflow-hidden">
+                                <span class="wj_mobile_card__meta text-nowrap">
+                                    <i class="fa fa-store me-1" title="Store"/>
+                                    <field name="franchise_id"/>
+                                </span>
+                            </div>
+                        </div>
+                    </t>
+                </templates>
+            </kanban>
+        </field>
+    </record>
+
+    <!-- Update Action Window for Store Master -->
     <record id="wujia_franchise.action_franchise_management" model="ir.actions.act_window">
         <field name="view_mode">list,kanban,form</field>
         <field name="view_ids" eval="[
@@ -82,6 +195,39 @@
             (0, 0, {'view_mode': 'list', 'view_id': ref('wujia_franchise.view_franchise_management_list'), 'sequence': 1}),
             (0, 0, {'view_mode': 'kanban', 'view_id': ref('view_wujia_franchise_management_kanban_mobile'), 'sequence': 2}),
             (0, 0, {'view_mode': 'form', 'view_id': ref('wujia_franchise.view_franchise_management_form'), 'sequence': 3})
+        ]" />
+    </record>
+
+    <!-- Update Action Window for Operational Areas -->
+    <record id="wujia_core.action_res_area" model="ir.actions.act_window">
+        <field name="view_mode">list,kanban,form</field>
+        <field name="view_ids" eval="[
+            (5, 0, 0),
+            (0, 0, {'view_mode': 'list', 'view_id': ref('wujia_core.view_res_area_list'), 'sequence': 1}),
+            (0, 0, {'view_mode': 'kanban', 'view_id': ref('view_res_area_kanban_mobile'), 'sequence': 2}),
+            (0, 0, {'view_mode': 'form', 'view_id': ref('wujia_core.view_res_area_form'), 'sequence': 3})
+        ]" />
+    </record>
+
+    <!-- Update Action Window for Wards / Communes -->
+    <record id="wujia_core.action_res_ward" model="ir.actions.act_window">
+        <field name="view_mode">list,kanban,form</field>
+        <field name="view_ids" eval="[
+            (5, 0, 0),
+            (0, 0, {'view_mode': 'list', 'view_id': ref('wujia_core.view_res_ward_list'), 'sequence': 1}),
+            (0, 0, {'view_mode': 'kanban', 'view_id': ref('view_res_ward_kanban_mobile'), 'sequence': 2}),
+            (0, 0, {'view_mode': 'form', 'view_id': ref('wujia_core.view_res_ward_form'), 'sequence': 3})
+        ]" />
+    </record>
+
+    <!-- Update Action Window for Franchise Members -->
+    <record id="wujia_franchise.action_wujia_franchise_member" model="ir.actions.act_window">
+        <field name="view_mode">list,kanban,form</field>
+        <field name="view_ids" eval="[
+            (5, 0, 0),
+            (0, 0, {'view_mode': 'list', 'view_id': ref('wujia_franchise.view_wujia_franchise_member_list'), 'sequence': 1}),
+            (0, 0, {'view_mode': 'kanban', 'view_id': ref('view_wujia_franchise_member_kanban_mobile'), 'sequence': 2}),
+            (0, 0, {'view_mode': 'form', 'view_id': ref('wujia_franchise.view_wujia_franchise_member_form'), 'sequence': 3})
         ]" />
     </record>
 

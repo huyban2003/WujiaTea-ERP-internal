@@ -151,6 +151,11 @@
         <field name="name">Wujia Sales Orders</field>
         <field name="res_model">sale.order</field>
         <field name="view_mode">list,form</field>
+        <field name="view_ids" eval="[
+            (5, 0, 0),
+            (0, 0, {'view_mode': 'list', 'view_id': ref('view_order_tree_wujia'), 'sequence': 1}),
+            (0, 0, {'view_mode': 'form', 'view_id': ref('sale.view_order_form'), 'sequence': 2})
+        ]" />
         <field name="search_view_id" ref="view_sales_order_filter_wujia" />
         <field name="context">{}</field>
         <field name="help" type="html">
@@ -161,20 +166,6 @@
                 Manage franchise orders, portal requests, and compensation deliveries.
             </p>
         </field>
-    </record>
-
-    <record id="action_wujia_sale_orders_view_list" model="ir.actions.act_window.view">
-        <field name="sequence" eval="1" />
-        <field name="view_mode">list</field>
-        <field name="view_id" ref="view_order_tree_wujia" />
-        <field name="act_window_id" ref="action_wujia_sale_orders" />
-    </record>
-
-    <record id="action_wujia_sale_orders_view_form" model="ir.actions.act_window.view">
-        <field name="sequence" eval="2" />
-        <field name="view_mode">form</field>
-        <field name="view_id" ref="sale.view_order_form" />
-        <field name="act_window_id" ref="action_wujia_sale_orders" />
     </record>
 
     <!-- Menu Item for Wujia Sales Orders -->

@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- Mobile Kanban View for Franchise Contracts -->
+    <record id="view_wujia_franchise_contract_kanban_mobile" model="ir.ui.view">
+        <field name="name">wujia.franchise.contract.kanban.mobile</field>
+        <field name="model">wujia.franchise.contract</field>
+        <field name="priority">30</field>
+        <field name="arch" type="xml">
+            <kanban class="wj_mobile_kanban" sample="1">
+                <field name="name"/>
+                <field name="franchise_id"/>
+                <field name="start_date"/>
+                <field name="end_date"/>
+                <field name="state"/>
+                <field name="active"/>
+                <templates>
+                    <t t-name="card">
+                        <div class="wj_mobile_card">
+                            <!-- Row 1: Contract Number + State Badge -->
+                            <div class="d-flex align-items-center justify-content-between mb-1">
+                                <span class="wj_mobile_card__code">
+                                    <field name="name"/>
+                                </span>
+                                <span t-attf-class="wj_mobile_badge #{
+                                    record.state.raw_value == 'effective' and 'wj_mobile_badge--success' or
+                                    record.state.raw_value == 'draft' and 'wj_mobile_badge--info' or
+                                    record.state.raw_value == 'expired' and 'wj_mobile_badge--danger' or
+                                    record.state.raw_value == 'cancelled' and 'wj_mobile_badge--neutral' or
+                                    'wj_mobile_badge--neutral'
+                                }">
+                                    <field name="state"/>
+                                </span>
+                            </div>
+
+                            <!-- Row 2: Store Name (Title) -->
+                            <div class="wj_mobile_card__title mb-1">
+                                <field name="franchise_id"/>
+                            </div>
+
+                            <!-- Row 3: Dates & Active Status -->
+                            <div class="pt-2 border-top overflow-hidden">
+                                <div class="d-flex align-items-center justify-content-between mb-1 overflow-hidden">
+                                    <span class="wj_mobile_card__meta text-nowrap me-2 overflow-hidden text-truncate">
+                                        <t t-if="record.start_date.raw_value">
+                                            <i class="fa fa-calendar me-1" title="Start Date"/>
+                                            <field name="start_date" widget="date"/>
+                                        </t>
+                                        <t t-if="record.end_date.raw_value">
+                                             - <field name="end_date" widget="date"/>
+                                        </t>
+                                    </span>
+                                    <span class="wj_mobile_card__value font-weight-bold text-nowrap flex-shrink-0 ms-auto" style="color: #111827;">
+                                        <t t-if="record.active.raw_value">Active</t>
+                                        <t t-else="">Archived</t>
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                    </t>
+                </templates>
+            </kanban>
+        </field>
+    </record>
+
+    <!-- Update Action Window: Desktop defaults to List (sequence 1), Mobile auto-switches to Kanban (sequence 2) -->
+    <record id="wujia_franchise_contract.action_wujia_franchise_contract" model="ir.actions.act_window">
+        <field name="view_mode">list,kanban,form</field>
+        <field name="view_ids" eval="[
+            (5, 0, 0),
+            (0, 0, {'view_mode': 'list', 'view_id': ref('wujia_franchise_contract.view_wujia_franchise_contract_list'), 'sequence': 1}),
+            (0, 0, {'view_mode': 'kanban', 'view_id': ref('view_wujia_franchise_contract_kanban_mobile'), 'sequence': 2}),
+            (0, 0, {'view_mode': 'form', 'view_id': ref('wujia_franchise_contract.view_wujia_franchise_contract_form'), 'sequence': 3})
+        ]" />
+    </record>
+
+</odoo>
