@@ -481,3 +481,52 @@ input[type="file"].wj-pc-control { height: auto; min-height: var(--wj-pc-input-h
 .wj-card-header--pc > .wj-card-header__control { min-height: 40px; }
 .wj-card-header--pc.wj-card-header--divider { padding-bottom: 12px; }
 .wj-card-header--pc.wj-card-header--flush { margin: 0; }
+
+/* ===== FilterBar CMP-FB-001 (E4a) — cùng markup với mobile, hình học PC =====
+   Component dùng một họ class; khối này map sang token PC (control 42, card 88). */
+.wj-pc-filterbar .wj-filter-search {
+    flex: 1 1 200px;
+    min-width: 180px;
+    gap: 0;
+}
+.wj-pc-filterbar label.wj-filter-search-field { min-height: 0; }
+.wj-pc-filterbar label.wj-filter-search-field input {
+    height: var(--wj-pc-input-h);
+    border: 1px solid var(--wj-pc-border);
+    border-radius: var(--wj-pc-input-radius);
+    background: var(--wj-pc-card);
+    padding: 0 14px 0 34px;
+    font-size: 14px;
+    font-weight: 400;
+    color: var(--wj-pc-text);
+}
+.wj-pc-filterbar .wj-filter-search-field input::placeholder {
+    font-size: 14px;
+    font-weight: 400;
+    color: var(--wj-pc-subtle);
+}
+.wj-pc-filterbar .wj-filter-search-field > i { font-size: 14px; }
+.wj-pc-filterbar .wj-filter-dates { flex: 0 1 auto; gap: 8px; }
+.wj-pc-filterbar .wj-filter-date--hit { min-height: 0; flex: 0 1 158px; }
+.wj-pc-filterbar .wj-filter-selectwrap { min-height: 0; flex: 0 1 190px; }
+.wj-pc-filterbar .wj-filter-date__box,
+.wj-pc-filterbar .wj-filter-selectwrap > .wj-filter-select {
+    height: var(--wj-pc-input-h);
+    border: 1px solid var(--wj-pc-border);
+    border-radius: var(--wj-pc-input-radius);
+    background: var(--wj-pc-card);
+    padding: 0 14px;
+    font-size: 14px;
+    font-weight: 400;
+    color: var(--wj-pc-text);
+}
+.wj-pc-filterbar .wj-filter-date__box input {
+    font-size: 14px;
+    font-weight: 400;
+    color: var(--wj-pc-text);
+}
+.wj-pc-filterbar .wj-filter-date__label {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--wj-pc-subtle);
+}

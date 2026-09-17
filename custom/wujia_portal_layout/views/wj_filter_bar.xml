@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- WJ_FilterBar — CMP-FB-001. Một template, hai bố cục theo fb_platform:
+         'pc' = card trắng 88px một hàng (mẫu BA Lịch sử đặt hàng), 'm' = card
+         r14/p12/g8 (mẫu BA Giao hàng). Thứ tự FB-02/FB-03: search → ngày →
+         select → hành động. Slot thô fb_hidden/fb_chips/fb_error giữ nguyên
+         cơ chế AJAX + query hiện có (FB-07). -->
+    <template id="wj_filter_bar" name="Wujia — Filter Bar component">
+        <t t-set="_fb_pc" t-value="fb_platform == 'pc'"/>
+        <t t-set="_fb_shell"
+           t-value="'wj-pc-filterbar' if _fb_pc else 'wj-surface-card wj-surface-card--summary wj-surface-card--compact wj-surface-card--padded wj-filter-card'"/>
+        <form method="get" t-att-action="fb_action" t-att-id="fb_id"
+              t-attf-class="#{_fb_shell} #{fb_class or ''}">
+            <t t-if="fb_hidden" t-out="fb_hidden"/>
+            <div t-attf-class="#{'wj-pc-filterbar__row' if _fb_pc else 'wj-filter-row'}">
+
+                <div t-if="fb_search" class="wj-filter-search">
+                    <label class="wj-filter-search-field">
+                        <i class="feather icon-search"/>
+                        <input type="text" t-att-name="fb_search['name']"
+                               t-att-value="fb_search.get('value') or ''"
+                               t-att-placeholder="fb_search.get('placeholder')"
+                               t-att-aria-label="fb_search.get('label') or 'Tìm kiếm'"/>
+                    </label>
+                    <button t-if="not _fb_pc" type="submit" class="wj-filter-search-btn"
+                            t-att-aria-label="fb_submit_label or 'Tìm kiếm'">
+                        <i class="feather icon-search"/>
+                    </button>
+                </div>
+
+                <!-- FB-05: nhãn "Từ"/"Đến" nằm TRONG pill nên vẫn đọc được sau khi chọn ngày. -->
+                <div t-if="fb_dates" class="wj-filter-dates">
+                    <t t-foreach="[('from', 'Từ'), ('to', 'Đến')]" t-as="fbd">
+                        <span t-if="fbd[0] == 'to'" class="wj-filter-date-sep">–</span>
+                        <label class="wj-filter-date wj-filter-date--hit">
+                            <span class="wj-filter-date__box">
+                                <i class="feather icon-calendar"/>
+                                <span class="wj-filter-date__label" t-out="fbd[1]"/>
+                                <input type="date"
+                                       t-att-name="fb_dates.get(fbd[0] + '_name') or ('date_' + fbd[0])"
+                                       t-att-value="fb_dates.get(fbd[0]) or ''"
+                                       t-att-aria-label="fbd[1] + ' ngày'"
+                                       t-att-max="(fb_dates.get('to') or None) if fbd[0] == 'from' and fb_dates.get('clamp') else None"
+                                       t-att-min="(fb_dates.get('from') or None) if fbd[0] == 'to' and fb_dates.get('clamp') else None"/>
+                            </span>
+                        </label>
+                    </t>
+                </div>
+
+                <t t-foreach="fb_selects or []" t-as="fbs">
+                    <label class="wj-filter-selectwrap">
+                        <select t-att-name="fbs['name']" class="wj-filter-select"
+                                t-att-aria-label="fbs.get('label') or fbs.get('all_label')"
+                                t-att-onchange="'this.form.requestSubmit()' if fbs.get('auto') else None">
+                            <option value="" t-out="fbs.get('all_label') or 'Tất cả'"/>
+                            <option t-foreach="fbs.get('options') or []" t-as="fbo"
+                                    t-att-value="fbo[0]"
+                                    t-att-selected="'selected' if str(fbs.get('value') or '') == str(fbo[0]) else None"
+                                    t-out="fbo[1]"/>
+                        </select>
+                    </label>
+                </t>
+
+                <t t-if="fb_extra" t-out="fb_extra"/>
+
+                <span t-if="_fb_pc or not fb_search" class="wj-filter-actions wj-pc-filterbar__actions">
+                    <!-- FB-03: mobile không có reset trong Filter, chỉ PC. -->
+                    <a t-if="fb_reset_url and _fb_pc" t-att-href="fb_reset_url" data-wj-nav="1"
+                       class="wj-pc-btn wj-pc-btn--secondary"
+                       t-out="fb_reset_label or 'Xóa lọc'"/>
+                    <button type="submit"
+                            t-attf-class="#{'wj-pc-btn wj-pc-btn--primary' if _fb_pc else 'wj-filter-search-btn wj-filter-search-btn--wide'}">
+                        <i class="feather icon-search"/>
+                        <span t-out="fb_submit_label or 'Tìm kiếm'"/>
+                    </button>
+                </span>
+            </div>
+
+            <t t-if="fb_error" t-out="fb_error"/>
+            <t t-if="fb_chips" t-out="fb_chips"/>
+        </form>
+    </template>
+</odoo>

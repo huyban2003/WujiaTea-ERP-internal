@@ -265,7 +265,7 @@ h2, .wujia-h2 { font-size: var(--wujia-font-size-h2) !important; font-weight: 60
     margin-bottom: 16px;
 }
 /* Search row: field (flex) + cyan button 38×38 */
-.wj-filter-search { display: flex; gap: 10px; }
+.wj-filter-search { display: flex; gap: 8px; }
 .wj-filter-search-field { position: relative; flex: 1 1 auto; display: flex; align-items: center; }
 .wj-filter-search-field > i {
     position: absolute;
@@ -3575,4 +3575,83 @@ a.wujia-mhome-kpi:active { opacity: 0.85; }
         background: var(--wujia-primary-soft);
         border-color: var(--wujia-primary);
     }
+}
+
+/* ===== FilterBar CMP-FB-001 (E4a) — dáng của component wj_filter_bar =====
+   Ô lọc: hộp nhìn thấy 38 (FB-03), vùng chạm 44 do wrapper (Q1 12/09). Họ class
+   cũ chưa migrate giữ nguyên 44 của D6c tới lượt E4b. */
+.wj-filter-row {
+    display: flex;
+    flex-direction: column;
+    gap: var(--wujia-surface-gap);
+}
+.wj-filter-date--hit,
+.wj-filter-selectwrap {
+    display: flex;
+    align-items: center;
+    flex: 1 1 0;
+    min-width: 0;
+    height: auto;
+    min-height: 44px;
+    border: 0;
+    background: transparent;
+    padding: 0;
+}
+.wj-filter-date__box {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    width: 100%;
+    height: 38px;
+    border: 1px solid var(--wujia-border);
+    border-radius: 10px;
+    background: var(--wujia-filter-field-bg);
+    padding: 0 10px;
+}
+.wj-filter-date__box > i {
+    flex: 0 0 auto;
+    font-size: 15px;
+    color: var(--wujia-text-muted);
+}
+.wj-filter-date__label {
+    flex: 0 0 auto;
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--wujia-text-muted);
+}
+.wj-filter-date__box input {
+    flex: 1 1 auto;
+    min-width: 0;
+    width: 100%;
+    border: 0;
+    background: transparent;
+    padding: 0;
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--wujia-morder-text);
+}
+.wj-filter-date__box input:focus { outline: none; }
+.wj-filter-selectwrap > .wj-filter-select { height: 38px; }
+label.wj-filter-search-field { min-height: 44px; }
+label.wj-filter-search-field input { height: 38px; }
+.wj-filter-search > label.wj-filter-search-field + .wj-filter-search-btn {
+    position: relative;
+    height: 38px;
+    width: 38px;
+}
+.wj-filter-search > label.wj-filter-search-field + .wj-filter-search-btn::before {
+    content: "";
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: 44px;
+    height: 44px;
+    transform: translate(-50%, -50%);
+}
+.wj-filter-search-btn--wide {
+    width: auto;
+    gap: 6px;
+    padding: 0 16px;
+    font-size: 13px;
+    font-weight: 700;
 }

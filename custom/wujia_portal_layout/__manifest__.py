@@ -1,6 +1,6 @@
 {
     'name': 'Wujia Portal Layout',
-    'version': '19.0.50.0.0',
+    'version': '19.0.51.0.0',
     'category': 'Wujia',
     'summary': 'Custom Vuexy-style portal layout (independent from Odoo /my)',
     'description': 'Standalone portal layout for WujiaTea — fully replicates the v14 portal '
@@ -18,6 +18,7 @@
         'views/wj_surface_card.xml',
         'views/wj_data_list.xml',
         'views/wj_pagination.xml',
+        'views/wj_filter_bar.xml',
         'views/pc_account_shell.xml',
         'views/pc_sidenav.xml',
         'views/mobile_header.xml',

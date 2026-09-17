@@ -21,6 +21,7 @@ nằm ngoài phạm vi đo, đúng quyết định 08/09.
 """
 import argparse
 import json
+import os
 import sys
 
 ROUTES = [
@@ -135,13 +136,11 @@ def main():
     with sync_playwright() as pw:
         browser = pw.chromium.launch()
         page = browser.new_context(viewport={'width': 390, 'height': 900}).new_page()
-        page.goto(f'{args.base}/web/login', wait_until='domcontentloaded')
-        page.fill('input[name="login"]', args.portal_login)
-        page.fill('input[name="password"]', args.password)
-        page.press('input[name="password"]', 'Enter')
-        page.wait_for_load_state('domcontentloaded')
-        if '/web/login' in page.url:
-            sys.exit(f'ĐĂNG NHẬP HỎNG cho {args.portal_login!r} — mọi số đo sẽ là Pass rỗng.')
+        # Form /web/login mang `d-none` trên theme Vuexy ⇒ fill treo 30s; dùng
+        # chung login() của wj_measure (thử /portal/login trước).
+        sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+        from wj_measure import login
+        login(page, args.base, args.portal_login, args.password)
 
         for w in args.breakpoints:
             page.set_viewport_size({'width': w, 'height': 900})

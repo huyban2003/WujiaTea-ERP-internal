@@ -7,3 +7,4 @@ from . import test_e1_home_kpi
 from . import test_e2_status_badge
 from . import test_e2b_status_badge
 from . import test_e3_pagination
+from . import test_e4_filter_bar

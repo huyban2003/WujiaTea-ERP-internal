@@ -88,24 +88,18 @@
                     </div>
 
                     <!-- Filter bar -->
-                    <h5 style="margin:24px 0 12px;color:#6B7280;">Filter bar (inputs h38)</h5>
-                    <div class="wj-pc-filterbar">
-                        <h3 class="wj-pc-filterbar__title">Bộ lọc nhanh</h3>
-                        <div class="wj-pc-filterbar__row">
-                            <select class="wj-pc-filter-control" style="max-width:210px;">
-                                <option>Trạng thái</option>
-                            </select>
-                            <span class="wj-pc-filterbar__grow">
-                                <input type="text" class="wj-pc-filter-control" placeholder="Tìm theo mã đơn, tên sản phẩm, nội dung..."/>
-                            </span>
-                            <input type="text" class="wj-pc-filter-control" placeholder="Từ ngày" style="max-width:190px;"/>
-                            <input type="text" class="wj-pc-filter-control" placeholder="Đến ngày" style="max-width:190px;"/>
-                            <span class="wj-pc-filterbar__actions">
-                                <a href="#" class="wj-pc-btn wj-pc-btn--secondary">Reset</a>
-                                <a href="#" class="wj-pc-btn wj-pc-btn--primary">Tìm</a>
-                            </span>
-                        </div>
-                    </div>
+                    <h5 style="margin:24px 0 12px;color:#6B7280;">Filter bar (CMP-FB-001 · control h42)</h5>
+                    <t t-call="wujia_portal_layout.wj_filter_bar">
+                        <t t-set="fb_platform" t-value="'pc'"/>
+                        <t t-set="fb_action" t-value="'/portal/pc-preview'"/>
+                        <t t-set="fb_search"
+                           t-value="{'name': 'q', 'placeholder': 'Tìm theo mã đơn, tên sản phẩm, nội dung...'}"/>
+                        <t t-set="fb_dates" t-value="{'from': '', 'to': ''}"/>
+                        <t t-set="fb_selects"
+                           t-value="[{'name': 'state', 'all_label': 'Trạng thái',
+                                      'options': [('draft', 'Nháp'), ('sale', 'Đã xác nhận')]}]"/>
+                        <t t-set="fb_reset_url" t-value="'/portal/pc-preview'"/>
+                    </t>
 
                     <!-- Data table -->
                     <h5 style="margin:24px 0 12px;color:#6B7280;">Data table (header 50 · row 58)</h5>
