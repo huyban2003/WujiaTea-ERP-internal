@@ -94,7 +94,7 @@ Ba cần gạt còn lại, đều là quyết định BA/thiết kế (chưa là
 
 - **G1 — dòng danh sách 2–3 dòng chữ → 1 dòng** (bỏ/ghép dòng phụ ngày giờ, badge về cùng hàng).
   Ước tính −250…350px trên Home, và ăn theo mọi màn danh sách. Lệch Figma nhiều nhất.
-- **G2 — khung cố định 235px = 26% màn hình** (header 104 · dải cửa hàng 48 · thanh dưới 83, con số
+- **G2 — khung cố định 235px = 26% màn hình · CHỦ DỰ ÁN ĐÃ CHỐT LÀM, phiên sau** (header 104 · dải cửa hàng 48 · thanh dưới 83, con số
   Figma "Mobile Shell FINAL"). Ẩn header khi cuộn xuống, hoặc hạ header 104→72, cho lại ~30–50px
   nội dung mỗi màn — **đây là cần gạt đúng nhất với câu "một màn hình thấy nhiều hơn"**.
 - **G3 — cỡ chữ/line-height mobile** (tiêu đề dòng 14px/21). Hạ 1px line-height × ~30 dòng ≈ −30px.

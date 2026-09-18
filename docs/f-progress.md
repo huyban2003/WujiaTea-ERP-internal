@@ -393,6 +393,14 @@ rồi đánh ✅ ở bảng Trạng thái §2 `docs/next-session-clusters-F.md`.
     **G2** khung cố định đang chiếm **235px = 26% màn hình** (header 104 + dải cửa hàng 48 + thanh dưới 83)
     → hạ header 104→72 và/hoặc ẩn header khi cuộn, lấy lại 30–50px MỖI MÀN cho mọi trang.
     **G3** cỡ chữ/line-height (rẻ nhưng chạm accessibility).
-- Phiên kế: theo lộ trình là **E4b** (Issue List đã mở lại sau FR-A3). Nếu chủ dự án muốn làm tiếp
-  chuyện "màn hình thấy nhiều hơn" thì chen một phiên **G2 trước G1** (G2 không đụng nội dung, blast
-  radius nhỏ, hiệu quả trên MỌI trang; G1 phải hỏi BA vì đổi cấu trúc dòng).
+- **VIỆC CHỐT CHO PHIÊN SAU (chủ dự án giao cuối phiên 18/09, kèm ảnh header mobile):**
+  **G2 — hạ chiều cao thanh điều hướng trên cùng của mobile.** Nguyên văn: *"cái navigation này phải
+  hẹp cái height lại"*. Hiện `--wujia-mheader-height: 104px` (`_variables.css`), cộng dải cửa hàng 48
+  + thanh dưới 83 = **235px = 26% màn hình 900px** không dùng để hiển thị nội dung. Việc cần làm:
+  hạ header 104→~72 (logo 116×44 và 3 nút tròn 38 phải co theo, kiểm vùng chạm ≥44), cân nhắc ẩn
+  header khi cuộn xuống. Lấy lại 30–50px MỖI MÀN cho **mọi trang**, không đụng nội dung.
+  Lệch Figma "Mobile Shell FINAL (header 104 / strip 48 / footer 83)" ⇒ ghi FYI cho BA cùng dòng
+  lệch nhịp dọc của phiên này. Mốc đo trước/sau: `wj_measure` + đếm "khối/dòng thấy trọn màn đầu"
+  (script đã dùng ở phiên này, chép lại từ `docs/mobile-rhythm-acceptance.md` §2 phép đo 5–6).
+- Phiên kế: **G2** (theo yêu cầu trên). Sau G2 mới quay lại **E4b** của Issue List; G1 (rút dòng danh
+  sách về 1 dòng) chỉ làm khi BA đồng ý vì đổi cấu trúc dòng.
