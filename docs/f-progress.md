@@ -416,7 +416,7 @@ rồi đánh ✅ ở bảng Trạng thái §2 `docs/next-session-clusters-F.md`.
   - Trả nợ cũ tiện thể: vùng chạm 3 nút header **38 → 44** bằng `::before` 44×44, hộp nhìn thấy vẫn 38.
   - Guard mới `wujia_portal_layout/tests/test_g2_mobile_header.py` (7 test) — đặt ở KHUNG, không ở
     `portal_base`: header là component của chính khung và sau F5b khung phải tự chạy một mình.
-- Commit: `<điền sau khi commit>`
+- Commit: `7873175`
 - Deploy: chưa (nếp cụm F: commit + push `main`, deploy tay riêng)
 - Số đo: header 72 cả 10 ô · mốc đầu nội dung **152 → 120** · `wj_measure` mobile **−32,0px × 16 ô**,
   PC **0 ô lệch**, 0 ô mất record (Báo cáo 14 → 16 record) · dòng thấy trọn màn đầu Kiến thức @390
