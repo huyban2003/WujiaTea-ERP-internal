@@ -410,5 +410,11 @@ html { font-size: 14px; }
         --wujia-mcontent-top:        10px;
         --wujia-m-sechead-mt:        6px;
         --wujia-m-sechead-mb:        4px;
+
+        /* Header mobile 72 thay cho 104: khung cố định chiếm 26% màn hình 900px,
+           trong đó header là phần lấy lại được mà không đụng nội dung. Logo 116x44
+           vẫn lọt (chừa 14px trên/dưới). Khai ở khối mobile — header chỉ hiện
+           <992px nên PC không đọc tới. */
+        --wujia-mheader-height:      72px;
     }
 }

@@ -74,7 +74,7 @@ không còn rule bù trừ âm. Mutation đã phá đủ 5 hướng, cả 5 đ�
 | Khung giờ đặt hàng | 97 |
 | Hành động nhanh (6 ô) | 164 |
 | 7 khối danh sách (mỗi khối = tiêu đề 28 + thẻ 186…282) | ~1690 |
-| Khung cố định (header 104 + dải cửa hàng 48 + thanh dưới 83) | 235 |
+| Khung: header 104 + dải cửa hàng 48 (trong luồng, ở đầu trang) + thanh dưới 83 (fixed) | 235 |
 
 **8 dòng danh sách trên Home cao tổng 698px**, và đo từng dòng ra 66 · 67 · 86 · 94 · 113 — tức
 **phần lớn dòng CAO HƠN `min-height` 64 vì nội dung 2–3 dòng chữ**, không phải vì đệm. Thử nghiệm
@@ -94,9 +94,12 @@ Ba cần gạt còn lại, đều là quyết định BA/thiết kế (chưa là
 
 - **G1 — dòng danh sách 2–3 dòng chữ → 1 dòng** (bỏ/ghép dòng phụ ngày giờ, badge về cùng hàng).
   Ước tính −250…350px trên Home, và ăn theo mọi màn danh sách. Lệch Figma nhiều nhất.
-- **G2 — khung cố định 235px = 26% màn hình · CHỦ DỰ ÁN ĐÃ CHỐT LÀM, phiên sau** (header 104 · dải cửa hàng 48 · thanh dưới 83, con số
-  Figma "Mobile Shell FINAL"). Ẩn header khi cuộn xuống, hoặc hạ header 104→72, cho lại ~30–50px
-  nội dung mỗi màn — **đây là cần gạt đúng nhất với câu "một màn hình thấy nhiều hơn"**.
+- **G2 — hạ header mobile 104 → 72 · ĐÃ LÀM 18/09**, xem `docs/g2-header-acceptance.md`. Mọi trang
+  mobile ngắn đi đúng 32px, mốc đầu nội dung 152 → 120, PC 0 ô lệch, vùng chạm nút header 38 → 44.
+  **Đính chính của phiên G2**: mục này từng ghi "khung cố định 235px"; đo lại thì **chỉ thanh dưới 83
+  mới thật sự `position: fixed`** — header và dải cửa hàng nằm trong luồng, chiếm chỗ ở ĐẦU trang rồi
+  trôi đi khi cuộn. Kéo theo: hạ header LÀ làm ngắn trang thật 32px (câu "co khung không đổi chiều
+  cao trang" ở trên là sai), và không phải vá mốc đầu nội dung.
 - **G3 — cỡ chữ/line-height mobile** (tiêu đề dòng 14px/21). Hạ 1px line-height × ~30 dòng ≈ −30px.
   Rẻ nhưng chạm accessibility, cần BA duyệt.
 

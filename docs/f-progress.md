@@ -404,3 +404,39 @@ rồi đánh ✅ ở bảng Trạng thái §2 `docs/next-session-clusters-F.md`.
   (script đã dùng ở phiên này, chép lại từ `docs/mobile-rhythm-acceptance.md` §2 phép đo 5–6).
 - Phiên kế: **G2** (theo yêu cầu trên). Sau G2 mới quay lại **E4b** của Issue List; G1 (rút dòng danh
   sách về 1 dòng) chỉ làm khi BA đồng ý vì đổi cấu trúc dòng.
+
+## G2 — Hạ chiều cao header mobile 104 → 72 · 18/09/2026 · Mac
+- Kết quả: ✅ đạt. Việc chủ dự án giao trực tiếp cuối phiên trước (*"cái navigation này phải hẹp cái
+  height lại"*), ngoài lộ trình cụm F. Phạm vi chốt: CHỈ header; dải cửa hàng 48 và thanh dưới 83 để sau.
+- Đã làm:
+  - `--wujia-mheader-height` **104 → 72**, khai trong khối `@media (max-width:991.98px)` của
+    `_variables.css` (PC không đọc tới ⇒ khỏi phải chứng minh bất biến).
+  - Gỡ neo tuyệt đối `.wujia-mheader-actions { align-self: flex-start; margin-top: 39px }` — con số 39
+    chỉ đúng với header 104, giữ lại là cụm nút tràn khỏi header.
+  - Trả nợ cũ tiện thể: vùng chạm 3 nút header **38 → 44** bằng `::before` 44×44, hộp nhìn thấy vẫn 38.
+  - Guard mới `wujia_portal_layout/tests/test_g2_mobile_header.py` (7 test) — đặt ở KHUNG, không ở
+    `portal_base`: header là component của chính khung và sau F5b khung phải tự chạy một mình.
+- Commit: `<điền sau khi commit>`
+- Deploy: chưa (nếp cụm F: commit + push `main`, deploy tay riêng)
+- Số đo: header 72 cả 10 ô · mốc đầu nội dung **152 → 120** · `wj_measure` mobile **−32,0px × 16 ô**,
+  PC **0 ô lệch**, 0 ô mất record (Báo cáo 14 → 16 record) · dòng thấy trọn màn đầu Kiến thức @390
+  3 → 4 · bấm thật 4/4 (bấm cao hơn hộp 38 đúng 2px vẫn mở dropdown ⇒ pseudo ăn thật) · 0 tràn ngang ·
+  0 lỗi JS · HIERARCHY 3 → 3 · suite **586/586** · DB trắng chỉ cài khung **0 failed / 1 error có sẵn**
+  · mutation **5/5 đỏ** · `check_layers` 2 R7 có sẵn.
+- Bẫy gặp:
+  - **`::after` của nút header đã bị dành để tắt caret Bootstrap** (`.dropdown-toggle::after{display:none}`).
+    Viết vùng chạm vào `::after` là mất vùng chạm ở đúng 2/3 nút, im lặng. Đã chuyển sang `::before` và
+    có guard riêng khoá bẫy này.
+  - **Bộ đo của chính mình cũng phải soi**: probe đầu đọc mỗi `::after` nên báo "chạm 38" trong khi code
+    đã đúng — suýt đi sửa code lành.
+- Đính chính số của phiên trước (đã sửa thẳng vào `mobile-rhythm-acceptance.md` §4): **chỉ thanh dưới
+  83 mới thật sự `position: fixed`**; header + dải cửa hàng nằm TRONG luồng, chiếm 152px ở đầu trang
+  rồi trôi đi khi cuộn. Không có "235px khoá cứng mỗi màn". Đổi lại, hạ header LÀ làm ngắn trang thật
+  32px, và không phải vá mốc đầu nội dung (`--wujia-mcontent-top` giữ 10, y=120 = 72+48+10 tự ra).
+- Nợ để lại:
+  - **Chưa gửi BA dòng FYI** — gộp 2 khoản: header 104→72 và nhịp dọc của phiên trước (gap 14→8,
+    mép trên 16→10, tiêu đề nhóm 16/8→6/4), đều lệch Figma *Mobile Shell FINAL* / RESP-MOB-SHELL-003.
+  - **G1** (dòng danh sách 2–3 dòng → 1 dòng) và **G3** (cỡ chữ/line-height) chờ BA.
+  - Muốn lấy thêm chỗ ở MỌI vị trí cuộn thì phải đụng **thanh dưới 83** — thứ duy nhất thật sự cố định.
+- Phiên kế: **E4b** — phủ hết call site FilterBar (`UI-FILTER-001`, E4a đã làm nền `12750a2`), quay lại
+  hàng đợi Issue List đã mở lại sau FR-A3.
