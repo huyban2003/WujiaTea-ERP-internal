@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- Mobile Kanban View for Expense Categories -->
+    <record id="view_wujia_franchise_expense_category_kanban_mobile" model="ir.ui.view">
+        <field name="name">wujia.franchise.expense.category.kanban.mobile</field>
+        <field name="model">wujia.franchise.expense.category</field>
+        <field name="priority">25</field>
+        <field name="arch" type="xml">
+            <kanban class="wj_mobile_kanban" sample="1">
+                <field name="code"/>
+                <field name="name"/>
+                <field name="expense_type"/>
+                <templates>
+                    <t t-name="card">
+                        <div class="wj_mobile_card">
+                            <!-- Row 1: Code + Expense Type Badge -->
+                            <div class="d-flex align-items-center justify-content-between mb-1">
+                                <span class="wj_mobile_card__code">
+                                    <field name="code"/>
+                                </span>
+                                <span class="wj_mobile_badge wj_mobile_badge--info">
+                                    <field name="expense_type"/>
+                                </span>
+                            </div>
+
+                            <!-- Row 2: Title (Category Name) -->
+                            <div class="wj_mobile_card__title mb-1">
+                                <field name="name"/>
+                            </div>
+                        </div>
+                    </t>
+                </templates>
+            </kanban>
+        </field>
+    </record>
+
+    <!-- Dual-Device View Mode on Action Window -->
+    <record id="wujia_franchise_operations.action_wujia_franchise_expense_category" model="ir.actions.act_window">
+        <field name="view_mode">list,kanban,form</field>
+        <field name="view_ids" eval="[
+            (5, 0, 0),
+            (0, 0, {'view_mode': 'list', 'view_id': ref('wujia_franchise_operations.view_wujia_franchise_expense_category_list'), 'sequence': 1}),
+            (0, 0, {'view_mode': 'kanban', 'view_id': ref('view_wujia_franchise_expense_category_kanban_mobile'), 'sequence': 2}),
+            (0, 0, {'view_mode': 'form', 'view_id': ref('wujia_franchise_operations.view_wujia_franchise_expense_category_form'), 'sequence': 3})
+        ]"/>
+    </record>
+
+</odoo>
