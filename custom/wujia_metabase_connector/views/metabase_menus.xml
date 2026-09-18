@@ -1,36 +1,23 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-    <!-- Top-level Metabase BI App Menu -->
+    <!-- Metabase BI Menu inside Settings (Cài đặt) -->
     <menuitem id="menu_metabase_root"
         name="Metabase BI"
-        web_icon="wujia_metabase_connector,static/description/icon.png"
-        groups="group_metabase_user"
-        sequence="45"/>
-
-    <!-- Dashboards Sub-Menu -->
-    <menuitem id="menu_metabase_dashboards_user"
-        name="Dashboards"
-        parent="menu_metabase_root"
-        action="action_metabase_dashboard"
-        groups="group_metabase_user"
-        sequence="10"/>
-
-    <!-- Configuration Sub-Menu -->
-    <menuitem id="menu_metabase_config"
-        name="Configuration"
-        parent="menu_metabase_root"
+        parent="base.menu_administration"
         groups="group_metabase_manager"
-        sequence="90"/>
+        sequence="10"/>
 
     <menuitem id="menu_metabase_instance"
         name="Metabase Instances"
-        parent="menu_metabase_config"
+        parent="menu_metabase_root"
         action="action_metabase_instance"
+        groups="group_metabase_manager"
         sequence="10"/>
 
     <menuitem id="menu_metabase_dashboard_config"
         name="Manage Dashboards"
-        parent="menu_metabase_config"
+        parent="menu_metabase_root"
         action="action_metabase_dashboard"
+        groups="group_metabase_manager"
         sequence="20"/>
 </odoo>

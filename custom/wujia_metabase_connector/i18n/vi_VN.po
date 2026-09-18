@@ -53,6 +53,15 @@ msgstr "Metabase BI"
 
 #. module: wujia_metabase_connector
 #: model:ir.ui.menu,name:wujia_metabase_connector.menu_metabase_instance
+msgid "Metabase Instances"
+msgstr "Cấu hình Server Metabase"
+
+#. module: wujia_metabase_connector
+#: model:ir.ui.menu,name:wujia_metabase_connector.menu_metabase_dashboard_config
+msgid "Manage Dashboards"
+msgstr "Quản lý Dashboard"
+
+#. module: wujia_metabase_connector
 #: model:ir.actions.act_window,name:wujia_metabase_connector.action_metabase_instance
 msgid "Instances"
 msgstr "Cấu hình Server Metabase"
@@ -64,94 +73,94 @@ msgid "Dashboards"
 msgstr "Danh sách Dashboard BI"
 
 #. module: wujia_metabase_connector
-#: field:metabase.instance,name:0
+#: model:ir.model.fields,field_description:wujia_metabase_connector.field_metabase_instance__name
 msgid "Connection Name"
 msgstr "Tên kết nối"
 
 #. module: wujia_metabase_connector
-#: field:metabase.instance,base_url:0
+#: model:ir.model.fields,field_description:wujia_metabase_connector.field_metabase_instance__base_url
 msgid "Metabase Server Base URL"
 msgstr "Địa chỉ Server Metabase (Base URL)"
 
 #. module: wujia_metabase_connector
-#: field:metabase.instance,embedding_secret:0
+#: model:ir.model.fields,field_description:wujia_metabase_connector.field_metabase_instance__embedding_secret
 msgid "JWT Embedding Secret Key"
 msgstr "Mã bí mật JWT (Secret Key)"
 
 #. module: wujia_metabase_connector
-#: field:metabase.instance,token_expiry_minutes:0
+#: model:ir.model.fields,field_description:wujia_metabase_connector.field_metabase_instance__token_expiry_minutes
 msgid "Token Expiry (Minutes)"
 msgstr "Thời hạn Token (Phút)"
 
 #. module: wujia_metabase_connector
-#: field:metabase.instance,company_ids:0
-#: field:metabase.dashboard,company_ids:0
+#: model:ir.model.fields,field_description:wujia_metabase_connector.field_metabase_instance__company_ids
+#: model:ir.model.fields,field_description:wujia_metabase_connector.field_metabase_dashboard__company_ids
 msgid "Allowed Companies"
 msgstr "Công ty được phép"
 
 #. module: wujia_metabase_connector
-#: field:metabase.instance,dashboard_ids:0
+#: model:ir.model.fields,field_description:wujia_metabase_connector.field_metabase_instance__dashboard_ids
 msgid "Dashboards"
 msgstr "Các Dashboard thuộc Instance"
 
 #. module: wujia_metabase_connector
-#: field:metabase.dashboard,name:0
+#: model:ir.model.fields,field_description:wujia_metabase_connector.field_metabase_dashboard__name
 msgid "Dashboard Name"
 msgstr "Tên Dashboard"
 
 #. module: wujia_metabase_connector
-#: field:metabase.dashboard,instance_id:0
+#: model:ir.model.fields,field_description:wujia_metabase_connector.field_metabase_dashboard__instance_id
 msgid "Metabase Instance"
 msgstr "Server Instance Metabase"
 
 #. module: wujia_metabase_connector
-#: field:metabase.dashboard,dashboard_id:0
+#: model:ir.model.fields,field_description:wujia_metabase_connector.field_metabase_dashboard__dashboard_id
 msgid "Metabase Dashboard ID"
 msgstr "ID Dashboard Metabase"
 
 #. module: wujia_metabase_connector
-#: field:metabase.dashboard,sequence:0
+#: model:ir.model.fields,field_description:wujia_metabase_connector.field_metabase_dashboard__sequence
 msgid "Sequence"
 msgstr "Thứ tự"
 
 #. module: wujia_metabase_connector
-#: field:metabase.dashboard,active:0
-#: field:metabase.instance,active:0
+#: model:ir.model.fields,field_description:wujia_metabase_connector.field_metabase_dashboard__active
+#: model:ir.model.fields,field_description:wujia_metabase_connector.field_metabase_instance__active
 msgid "Active"
 msgstr "Đang hoạt động"
 
 #. module: wujia_metabase_connector
-#: field:metabase.dashboard,group_ids:0
+#: model:ir.model.fields,field_description:wujia_metabase_connector.field_metabase_dashboard__group_ids
 msgid "Allowed Security Groups"
 msgstr "Nhóm quyền được phép truy cập"
 
 #. module: wujia_metabase_connector
-#: field:metabase.dashboard,height:0
+#: model:ir.model.fields,field_description:wujia_metabase_connector.field_metabase_dashboard__height
 msgid "Iframe Height (px)"
 msgstr "Chiều cao Iframe (px)"
 
 #. module: wujia_metabase_connector
-#: field:metabase.dashboard,allow_download:0
+#: model:ir.model.fields,field_description:wujia_metabase_connector.field_metabase_dashboard__allow_download
 msgid "Allow Downloads"
 msgstr "Cho phép tải dữ liệu"
 
 #. module: wujia_metabase_connector
-#: field:metabase.dashboard,description:0
+#: model:ir.model.fields,field_description:wujia_metabase_connector.field_metabase_dashboard__description
 msgid "Description"
 msgstr "Mô tả"
 
 #. module: wujia_metabase_connector
-#: field:metabase.dashboard,show_under_menu_id:0
+#: model:ir.model.fields,field_description:wujia_metabase_connector.field_metabase_dashboard__show_under_menu_id
 msgid "Show Under Menu"
 msgstr "Hiển thị bên dưới Menu"
 
 #. module: wujia_metabase_connector
-#: field:metabase.dashboard,menu_id:0
+#: model:ir.model.fields,field_description:wujia_metabase_connector.field_metabase_dashboard__menu_id
 msgid "Generated Menu"
 msgstr "Menu tự động sinh"
 
 #. module: wujia_metabase_connector
-#: field:metabase.dashboard,action_id:0
+#: model:ir.model.fields,field_description:wujia_metabase_connector.field_metabase_dashboard__action_id
 msgid "Generated Action"
 msgstr "Action tự động sinh"
 
