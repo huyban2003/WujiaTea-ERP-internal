@@ -421,7 +421,7 @@ rồi đánh ✅ ở bảng Trạng thái §2 `docs/next-session-clusters-F.md`.
 - Số đo: header 72 cả 10 ô · mốc đầu nội dung **152 → 120** · `wj_measure` mobile **−32,0px × 16 ô**,
   PC **0 ô lệch**, 0 ô mất record (Báo cáo 14 → 16 record) · dòng thấy trọn màn đầu Kiến thức @390
   3 → 4 · bấm thật 4/4 (bấm cao hơn hộp 38 đúng 2px vẫn mở dropdown ⇒ pseudo ăn thật) · 0 tràn ngang ·
-  0 lỗi JS · HIERARCHY 3 → 3 · suite **586/586** · DB trắng chỉ cài khung **0 failed / 1 error có sẵn**
+  0 lỗi JS · HIERARCHY 3 → 3 · suite **586/586** · DB trắng chỉ cài khung **0 failed / 1 error** (`test_fra3_layer_guard`, **nợ có sẵn thuộc F6**, không phải do phiên nào trong cụm gây ra)
   · mutation **5/5 đỏ** · `check_layers` 2 R7 có sẵn.
 - Bẫy gặp:
   - **`::after` của nút header đã bị dành để tắt caret Bootstrap** (`.dropdown-toggle::after{display:none}`).

@@ -56,13 +56,18 @@ không còn rule bù trừ âm. Mutation đã phá đủ 5 hướng, cả 5 đ�
 2. **Gom `padding` vào rule chung là cộng dồn hai lần** — trang dựng trong `.content-wrapper` đã
    được wrapper cấp pad-top; Home còn bị mất lề ngang 16 (vì `.wujia-home-wrapper` cố ý bỏ pad
    ngang). Rule chung nay CHỈ cấp nhịp; padding vẫn là chuyện riêng từng trang.
-3. **Guard D4d khoá `margin-bottom` của `.wujia-mhist-card`** như "không phải dáng khung nên giữ".
+3. **Một pseudo, hai chủ** (bài học G2, ghi ở đây vì cùng vùng mobile shell): `::after` của
+   `.wujia-mheader-action` đã bị dành để tắt caret Bootstrap. Viết vùng chạm 44 vào đó là mất vùng
+   chạm ở 2/3 nút, không báo gì. Trước khi dùng một pseudo để nới vùng chạm, phải grep xem nó đã có
+   chủ chưa. Kèm theo: **bộ đo chỉ đọc một pseudo sẽ ra số sai** và suýt làm sửa code lành — đo vùng
+   chạm phải đọc cả `::before` lẫn `::after`.
+4. **Guard D4d khoá `margin-bottom` của `.wujia-mhist-card`** như "không phải dáng khung nên giữ".
    Nay nhịp giữa các thẻ là của trang, không của thẻ ⇒ đã sửa test kèm lý do, không phải nới guard.
-4. **Server đang chạy DB `wujia_f0`** (mốc F0 sót lại) khiến `/portal` trả 500 và bộ đo ra bảng
+5. **Server đang chạy DB `wujia_f0`** (mốc F0 sót lại) khiến `/portal` trả 500 và bộ đo ra bảng
    "Pass rỗng" toàn 900px. Luôn kiểm DB của tiến trình đang nghe cổng trước khi tin số đo.
-5. **1 error trên DB trắng chỉ cài khung** (`test_fra3_layer_guard`, 130 test) — đã chạy **đối chứng
-   bằng `git stash`**: lỗi y hệt khi chưa có thay đổi của phiên này ⇒ nợ có sẵn của FR-A3, không phải
-   do phiên này gây ra.
+6. **1 error trên DB trắng chỉ cài khung** (`test_fra3_layer_guard`, 130 test) — đã chạy **đối chứng
+   bằng `git stash`**: lỗi y hệt khi chưa có thay đổi của phiên này ⇒ **nợ có sẵn thuộc F6**
+   (self-test `portal_base`); FR-A3 là phiên phát hiện, không phải phiên gây ra.
 
 ## 4. Vì sao −30% không đạt được bằng khoảng trắng (số đo, không phải phỏng đoán)
 

@@ -41,7 +41,7 @@ Ba ghi chú về cách làm:
 | 10 | HIERARCHY | không thêm mới | 3 → **3** (nợ có sẵn FR-A3) | ✅ |
 | 11 | Ảnh 4 route mobile | header cân, không vỡ | logo + 3 nút cùng hàng canh giữa | ✅ |
 | 12 | Suite portal 14 module | 0 đỏ | **586/586** (579 + 7 guard mới) | ✅ |
-| 13 | DB trắng chỉ cài `wujia_portal_layout` | 0 đỏ ngoài nợ cũ | **0 failed / 1 error** = `test_fra3_layer_guard` có sẵn từ FR-A3 | ✅ |
+| 13 | DB trắng chỉ cài `wujia_portal_layout` | 0 đỏ ngoài nợ cũ | **0 failed / 1 error** = `test_fra3_layer_guard::test_avatar_of_other_user_is_forbidden_not_500`, **nợ có sẵn thuộc F6** (self-test `portal_base`) — FR-A3 chỉ là phiên phát hiện, không phải phiên gây ra | ✅ |
 | 14 | Mutation | mỗi phép phá ≥1 test đỏ | **5/5 đỏ** | ✅ |
 | 15 | `check_layers` | không thêm vi phạm | **2 R7** `_wj_ensure_contract` (code anh Thái, có sẵn) | ✅ |
 
