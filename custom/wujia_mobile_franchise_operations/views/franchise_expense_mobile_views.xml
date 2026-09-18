@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- Mobile Kanban View for Operating Expenses -->
+    <record id="view_wujia_franchise_expense_kanban_mobile" model="ir.ui.view">
+        <field name="name">wujia.franchise.expense.kanban.mobile</field>
+        <field name="model">wujia.franchise.expense</field>
+        <field name="priority">25</field>
+        <field name="arch" type="xml">
+            <kanban class="wj_mobile_kanban" sample="1">
+                <field name="name"/>
+                <field name="franchise_id"/>
+                <field name="expense_date"/>
+                <field name="category_id"/>
+                <field name="amount"/>
+                <field name="currency_id"/>
+                <field name="description"/>
+                <field name="state"/>
+                <templates>
+                    <t t-name="card">
+                        <div class="wj_mobile_card">
+                            <!-- Row 1: Code + Status Badge -->
+                            <div class="d-flex align-items-center justify-content-between mb-1">
+                                <span class="wj_mobile_card__code">
+                                    <field name="name"/>
+                                </span>
+                                <span t-attf-class="wj_mobile_badge #{
+                                    record.state.raw_value == 'confirmed' and 'wj_mobile_badge--success' or
+                                    record.state.raw_value == 'draft' and 'wj_mobile_badge--warning' or
+                                    record.state.raw_value == 'cancelled' and 'wj_mobile_badge--danger' or
+                                    'wj_mobile_badge--neutral'
+                                }">
+                                    <field name="state"/>
+                                </span>
+                            </div>
+
+                            <!-- Row 2: Title (Category Name) -->
+                            <div class="wj_mobile_card__title mb-1">
+                                <field name="category_id"/>
+                            </div>
+
+                            <!-- Row 3: Expense Date & Store -->
+                            <div class="d-flex align-items-center justify-content-between mb-1">
+                                <span class="wj_mobile_card__meta text-nowrap">
+                                    <i class="fa fa-calendar me-1" title="Expense Date"/>
+                                    <field name="expense_date" widget="date"/>
+                                </span>
+                                <span class="wj_mobile_card__meta text-nowrap text-muted text-truncate ms-2">
+                                    <i class="fa fa-map-marker me-1" title="Store"/>
+                                    <field name="franchise_id"/>
+                                </span>
+                            </div>
+
+                            <!-- Row 4: Description + Amount -->
+                            <div class="d-flex align-items-end justify-content-between pt-2 border-top">
+                                <span class="wj_mobile_card__meta text-nowrap text-truncate me-2">
+                                    <field name="description"/>
+                                </span>
+                                <div class="text-end text-nowrap ms-2">
+                                    <span class="wj_mobile_card__value text-danger font-weight-bold">
+                                        <field name="amount" widget="monetary"/>
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                    </t>
+                </templates>
+            </kanban>
+        </field>
+    </record>
+
+    <!-- Dual-Device View Mode on Action Window -->
+    <record id="wujia_franchise_operations.action_wujia_franchise_expense" model="ir.actions.act_window">
+        <field name="view_mode">list,kanban,pivot,graph,form</field>
+        <field name="view_ids" eval="[
+            (5, 0, 0),
+            (0, 0, {'view_mode': 'list', 'view_id': ref('wujia_franchise_operations.view_wujia_franchise_expense_list'), 'sequence': 1}),
+            (0, 0, {'view_mode': 'kanban', 'view_id': ref('view_wujia_franchise_expense_kanban_mobile'), 'sequence': 2}),
+            (0, 0, {'view_mode': 'pivot', 'view_id': ref('wujia_franchise_operations.view_wujia_franchise_expense_pivot'), 'sequence': 3}),
+            (0, 0, {'view_mode': 'graph', 'view_id': ref('wujia_franchise_operations.view_wujia_franchise_expense_graph'), 'sequence': 4}),
+            (0, 0, {'view_mode': 'form', 'view_id': ref('wujia_franchise_operations.view_wujia_franchise_expense_form'), 'sequence': 5})
+        ]"/>
+    </record>
+
+</odoo>
