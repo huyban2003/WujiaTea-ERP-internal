@@ -32,9 +32,13 @@ class TestSupervisionSchedule(TransactionCase):
             'manager_user_id': cls.area_manager.id,
         })
 
+        cls.partner = cls.env['res.partner'].create({
+            'name': 'Store Sched 01 Partner',
+        })
         cls.store = cls.Franchise.create({
             'code': 'STORE-SCHED-01',
             'name': 'Store Sched 01',
+            'partner_id': cls.partner.id,
             'area_id': cls.area.id,
             'supervision_user_id': cls.inspector.id,
             'status': 'active',
@@ -57,7 +61,7 @@ class TestSupervisionSchedule(TransactionCase):
             'store_id': self.store.id,
             'user_id': self.inspector.id,
             'date': today,
-            'state': 'confirmed',
+            'state': 'scheduled',
         })
         self.store._compute_nearest_schedule_date()
         self.assertEqual(self.store.nearest_supervision_schedule_date, today)

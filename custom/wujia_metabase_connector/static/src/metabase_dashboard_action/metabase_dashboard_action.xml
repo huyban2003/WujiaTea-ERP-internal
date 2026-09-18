@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+    <t t-name="wujia_metabase_connector.MetabaseDashboardClientActionTemplate">
+        <div class="h-100 w-100 d-flex flex-column bg-100 overflow-hidden">
+            <t t-if="state.loading">
+                <div class="d-flex align-items-center justify-content-center h-100">
+                    <div class="spinner-border text-primary me-2" role="status"/>
+                    <span class="text-muted fw-bold">Loading Metabase BI Dashboard...</span>
+                </div>
+            </t>
+            <t t-elif="state.embedUrl">
+                <iframe t-att-src="state.embedUrl"
+                        class="w-100 h-100 border-0 flex-grow-1"
+                        allowtransparency="true"
+                        allowfullscreen="true"/>
+            </t>
+            <t t-else="">
+                <div class="container mt-5">
+                    <div class="alert alert-danger shadow-sm rounded-3 p-4">
+                        <h4 class="alert-heading fw-bold mb-2">
+                            <i class="fa fa-exclamation-triangle me-2"/>
+                            <t t-esc="state.errorTitle"/>
+                        </h4>
+                        <p class="mb-0"><t t-esc="state.errorMessage"/></p>
+                    </div>
+                </div>
+            </t>
+        </div>
+    </t>
+</templates>

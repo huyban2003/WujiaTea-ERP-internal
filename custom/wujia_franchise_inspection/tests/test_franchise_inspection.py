@@ -17,9 +17,13 @@ class TestFranchiseInspection(TransactionCase):
         cls.Grade = cls.env['wujia.franchise.inspection.grade']
 
         # 1. Tạo Cửa hàng
+        cls.partner = cls.env['res.partner'].create({
+            'name': 'Test Store 01 Partner',
+        })
         cls.store = cls.Franchise.create({
             'code': 'TEST-STORE-01',
             'name': 'Test Store 01',
+            'partner_id': cls.partner.id,
             'status': 'active',
         })
 
@@ -47,7 +51,6 @@ class TestFranchiseInspection(TransactionCase):
         cls.template = cls.Template.create({
             'name': 'Mẫu kiểm tra vệ sinh chuẩn',
             'code': 'TPL-TEST-01',
-            'active': True,
             'line_ids': [
                 (0, 0, {
                     'category_id': cls.category.id,

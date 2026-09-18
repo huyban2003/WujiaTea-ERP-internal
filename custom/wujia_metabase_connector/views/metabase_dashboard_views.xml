@@ -1,0 +1,142 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Standalone List View -->
+    <record id="view_metabase_dashboard_list" model="ir.ui.view">
+        <field name="name">metabase.dashboard.list</field>
+        <field name="model">metabase.dashboard</field>
+        <field name="arch" type="xml">
+            <list string="Metabase Dashboards" sample="1">
+                <field name="sequence" widget="handle"/>
+                <field name="name"/>
+                <field name="instance_id"/>
+                <field name="dashboard_id"/>
+                <field name="show_under_menu_id"/>
+                <field name="allow_download"/>
+                <field name="company_ids" widget="many2many_tags"/>
+                <field name="group_ids" widget="many2many_tags"/>
+                <field name="active" widget="boolean_toggle"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- Standalone Form View -->
+    <record id="view_metabase_dashboard_form" model="ir.ui.view">
+        <field name="name">metabase.dashboard.form</field>
+        <field name="model">metabase.dashboard</field>
+        <field name="arch" type="xml">
+            <form string="Metabase Dashboard">
+                <sheet>
+                    <widget name="web_ribbon" title="Archived" bg_color="text-bg-danger" invisible="active"/>
+                    <div class="oe_title">
+                        <label for="name" class="oe_edit_only"/>
+                        <h1>
+                            <field name="name" placeholder="e.g. Supervision Overview"/>
+                        </h1>
+                    </div>
+                    <group>
+                        <group string="Metabase Connection">
+                            <field name="instance_id" options="{'no_create': True}"/>
+                            <field name="dashboard_id"/>
+                            <field name="sequence"/>
+                            <field name="active"/>
+                        </group>
+                        <group string="Navigation &amp; Menu">
+                            <field name="show_under_menu_id" options="{'no_create': True}"/>
+                            <field name="menu_id" readonly="1"/>
+                            <field name="action_id" readonly="1"/>
+                        </group>
+                    </group>
+                    <group>
+                        <group string="Display &amp; Features">
+                            <field name="allow_download"/>
+                        </group>
+                        <group string="Security &amp; Restrictions">
+                            <field name="company_ids" widget="many2many_tags" options="{'no_create': True}"/>
+                            <field name="group_ids" widget="many2many_tags" options="{'no_create': True}"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="Description &amp; Notes" name="description">
+                            <field name="description" placeholder="Add notes or description for this dashboard..."/>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- Standalone Search View -->
+    <record id="view_metabase_dashboard_search" model="ir.ui.view">
+        <field name="name">metabase.dashboard.search</field>
+        <field name="model">metabase.dashboard</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="name"/>
+                <field name="instance_id"/>
+                <field name="dashboard_id"/>
+                <field name="show_under_menu_id"/>
+                <separator/>
+                <filter string="Active" name="active" domain="[('active', '=', True)]"/>
+                <filter string="Archived" name="inactive" domain="[('active', '=', False)]"/>
+                <separator/>
+                <filter string="Metabase Instance" name="group_instance" context="{'group_by': 'instance_id'}"/>
+                <filter string="Parent Menu" name="group_menu" context="{'group_by': 'show_under_menu_id'}"/>
+            </search>
+        </field>
+    </record>
+
+    <!-- Standalone Mobile Kanban View -->
+    <record id="view_metabase_dashboard_kanban" model="ir.ui.view">
+        <field name="name">metabase.dashboard.kanban</field>
+        <field name="model">metabase.dashboard</field>
+        <field name="arch" type="xml">
+            <kanban class="wj_mobile_kanban" sample="1">
+                <field name="name"/>
+                <field name="instance_id"/>
+                <field name="dashboard_id"/>
+                <field name="show_under_menu_id"/>
+                <field name="active"/>
+                <templates>
+                    <t t-name="card">
+                        <div class="wj_mobile_card">
+                            <div class="d-flex align-items-center justify-content-between mb-1">
+                                <span class="wj_mobile_card__code">
+                                    ID: <field name="dashboard_id"/>
+                                </span>
+                                <span t-attf-class="wj_mobile_badge #{record.active.raw_value and 'wj_mobile_badge--success' or 'wj_mobile_badge--danger'}">
+                                    <field name="active" widget="boolean_state"/>
+                                </span>
+                            </div>
+                            <div class="wj_mobile_card__title mb-1">
+                                <field name="name"/>
+                            </div>
+                            <div class="d-flex align-items-end justify-content-between pt-2 border-top">
+                                <span class="wj_mobile_card__meta text-nowrap">
+                                    <i class="fa fa-server me-1"/>
+                                    <field name="instance_id"/>
+                                </span>
+                                <span class="wj_mobile_card__subvalue text-nowrap">
+                                    <field name="show_under_menu_id"/>
+                                </span>
+                            </div>
+                        </div>
+                    </t>
+                </templates>
+            </kanban>
+        </field>
+    </record>
+
+    <!-- Window Action -->
+    <record id="action_metabase_dashboard" model="ir.actions.act_window">
+        <field name="name">Metabase Dashboards</field>
+        <field name="res_model">metabase.dashboard</field>
+        <field name="view_mode">list,kanban,form</field>
+        <field name="search_view_id" ref="view_metabase_dashboard_search"/>
+        <field name="view_ids" eval="[
+            (5, 0, 0),
+            (0, 0, {'view_mode': 'list', 'view_id': ref('view_metabase_dashboard_list'), 'sequence': 1}),
+            (0, 0, {'view_mode': 'kanban', 'view_id': ref('view_metabase_dashboard_kanban'), 'sequence': 2}),
+            (0, 0, {'view_mode': 'form', 'view_id': ref('view_metabase_dashboard_form'), 'sequence': 3})
+        ]"/>
+    </record>
+</odoo>

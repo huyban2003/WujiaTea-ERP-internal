@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <template id="embed_iframe_page" name="Metabase Dashboard Embed Iframe">
+        <t t-call="web.layout">
+            <t t-set="head">
+                <style>
+                    html, body {
+                        width: 100%;
+                        height: 100%;
+                        margin: 0;
+                        padding: 0;
+                        overflow: hidden;
+                        background-color: #f8f9fa;
+                    }
+                    .wj_metabase_container {
+                        width: 100%;
+                        height: 100vh;
+                        display: flex;
+                        flex-direction: column;
+                    }
+                    .wj_metabase_iframe {
+                        width: 100%;
+                        height: 100%;
+                        border: none;
+                        flex-grow: 1;
+                    }
+                </style>
+            </t>
+            <div class="wj_metabase_container">
+                <iframe t-att-src="embed_url"
+                        class="wj_metabase_iframe"
+                        frameborder="0"
+                        allowtransparency="true"
+                        allowfullscreen="true"/>
+            </div>
+        </t>
+    </template>
+
+    <template id="embed_error_page" name="Metabase Embed Error">
+        <t t-call="web.layout">
+            <div class="container mt-5">
+                <div class="alert alert-danger shadow-sm rounded-3 p-4">
+                    <h4 class="alert-heading fw-bold mb-2">
+                        <i class="fa fa-exclamation-triangle me-2"/>
+                        <t t-esc="error_title"/>
+                    </h4>
+                    <p class="mb-0"><t t-esc="error_message"/></p>
+                </div>
+            </div>
+        </t>
+    </template>
+</odoo>

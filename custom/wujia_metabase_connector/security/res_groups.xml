@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="module_category_metabase_connector" model="ir.module.category">
+        <field name="name">Metabase BI Connector</field>
+        <field name="description">Metabase BI Dashboard Integration and Management</field>
+        <field name="sequence">25</field>
+    </record>
+
+    <record id="res_groups_privilege_metabase_connector" model="res.groups.privilege">
+        <field name="name">Metabase BI Connector Privileges</field>
+        <field name="category_id" ref="module_category_metabase_connector"/>
+        <field name="sequence">10</field>
+    </record>
+
+    <record id="group_metabase_user" model="res.groups">
+        <field name="name">User</field>
+        <field name="privilege_id" ref="res_groups_privilege_metabase_connector"/>
+        <field name="implied_ids" eval="[(4, ref('base.group_user'))]"/>
+    </record>
+
+    <record id="group_metabase_manager" model="res.groups">
+        <field name="name">Manager</field>
+        <field name="privilege_id" ref="res_groups_privilege_metabase_connector"/>
+        <field name="implied_ids" eval="[(4, ref('group_metabase_user'))]"/>
+        <field name="user_ids" eval="[(4, ref('base.user_admin'))]"/>
+    </record>
+</odoo>
