@@ -5,8 +5,8 @@ from . import test_d4_surface_card
 from . import test_d5_data_list
 from . import test_e1_home_kpi
 from . import test_e2_status_badge
-from . import test_e2b_status_badge
 from . import test_e3_pagination
 from . import test_e4_filter_bar
 from . import test_f1_controller_safety
 from . import test_f4_overrides
+from . import test_f5_frame_routes

@@ -1,0 +1,40 @@
+"""D3d — `portal_exam_wizard.js` đọc tiêu đề khoá thi để chép sang thẻ "đã chọn".
+
+F5b dời khỏi `wujia_portal_layout`: guard này kiểm chính màn Đăng ký thi.
+"""
+import os
+
+from odoo.tests import TransactionCase, tagged
+
+
+@tagged('post_install', '-at_install', 'wujia_card_header_d3')
+class TestCardHeaderExamJsContract(TransactionCase):
+    """D3d — `portal_exam_wizard.js` đọc tiêu đề khoá thi để chép sang thẻ "đã chọn".
+
+    Migrate đổi tên class tiêu đề mà quên sửa JS thì KHÔNG có lỗi, không đỏ build:
+    tên khoá thi chỉ âm thầm biến mất khỏi bước 2 và 3 (đã chứng minh bằng mutation).
+    """
+
+    def _js(self):
+        path = os.path.join(os.path.dirname(__file__), '..',
+                            'static', 'src', 'js', 'portal_exam_wizard.js')
+        with open(path, encoding='utf-8') as fh:
+            return fh.read()
+
+    def test_wizard_reads_component_title_not_retired_class(self):
+        js = self._js()
+        self.assertIn("card.querySelector('.wj-card-header__title')", js)
+        for retired in ("'.wujia-mexam-course-title'", "'.wujia-mexam-selcard-title'"):
+            self.assertNotIn(retired, js)
+
+    def test_wizard_still_scopes_selected_card_title_to_that_card(self):
+        # Bám `.wj-card-header__title` trần là quét TRÚNG mọi header khác của wizard
+        # (bước 1 + bước 4) rồi ghi đè tên chúng.
+        self.assertIn(".wujia-mexam-selcard .wj-card-header__title", self._js())
+
+    def test_person_head_left_untouched_pending_ba(self):
+        # 2 vùng trailing (badge "Bắt buộc" + nút xoá) > tối đa MỘT của spec ⇒ defer;
+        # và JS clone chính khối này làm template, đọc `.wujia-mexam-person-name`.
+        arch = self.env.ref('wujia_portal_exam.portal_exam_register').arch_db
+        self.assertIn('wujia-mexam-person-name', arch)
+        self.assertIn("querySelector('.wujia-mexam-person-name')", self._js())

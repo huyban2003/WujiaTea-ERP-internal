@@ -38,7 +38,9 @@ class TestSetLangRoute(HttpCase):
 
     def setUp(self):
         super().setUp()
+        # Tự bật ngôn ngữ mình kiểm: DB chỉ cài khung không có sẵn vi_VN.
         self.env['res.lang']._activate_lang('th_TH')
+        self.env['res.lang']._activate_lang('vi_VN')
         self.env.cr.flush()
 
     def test_guest_can_switch_without_account_write(self):

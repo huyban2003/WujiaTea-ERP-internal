@@ -4,6 +4,8 @@ E2a khoá component + nhóm màn BA chụp ảnh. E2b khoá nốt thông báo ·
 trả hàng · công nợ · yêu cầu thông tin · hỗ trợ, và khoá hai chiều:
 badge trạng thái phải về component, chip BA loại (ưu tiên · loại · đếm ·
 tệp đính kèm · phương án xử lý) phải Ở NGUYÊN họ cũ.
+
+F5b dời khỏi `wujia_portal_layout`: cả bộ này đọc map + view của 6 module nghiệp vụ.
 """
 
 import os
@@ -17,8 +19,6 @@ from odoo.addons.wujia_portal_base.controllers.utils import (
 )
 from odoo.tests import tagged
 from odoo.tests.common import TransactionCase
-
-CSS = 'wujia_portal_layout/static/assets/css/_components.css'
 
 # Bậc BA chốt cho nhãn mới của E2b (tab UI Component + spec CMP-SB-001).
 BA_LABEL_VARIANT = {

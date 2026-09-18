@@ -1,6 +1,6 @@
 {
     'name': 'Wujia Portal — Exam (Đào tạo / Thi)',
-    'version': '19.0.5.15.1',
+    'version': '19.0.5.15.4',
     'category': 'Wujia',
     'summary': 'Đăng ký thi nhượng quyền — backend khóa/kỳ thi + phiếu đa nhân sự + kết quả',
     'author': 'WujiaTea',
@@ -12,6 +12,7 @@
         'security/wujia_exam_rules.xml',
         'data/ir_sequence_data.xml',
         'views/backend_exam_time_slot_views.xml',
+        'views/bottomnav_inherit.xml',
         'views/backend_exam_course_views.xml',
         'views/backend_exam_session_views.xml',
         'views/backend_exam_registration_views.xml',

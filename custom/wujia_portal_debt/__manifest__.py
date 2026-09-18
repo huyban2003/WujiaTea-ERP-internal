@@ -1,6 +1,6 @@
 {
     'name': 'Wujia Portal — Công nợ & thanh toán',
-    'version': '19.0.4.8.1',
+    'version': '19.0.4.8.3',
     'category': 'Wujia',
     'summary': 'Công nợ theo tuần, lịch sử thanh toán và màn chuyển khoản (portal mobile + PC)',
     'description': """
@@ -25,6 +25,7 @@ thêm ``keyword``) + controller thêm context PC — KHÔNG đổi field/rule/mi
     'depends': ['wujia_portal_base', 'wujia_account'],
     'data': [
         'views/portal_debt.xml',
+        'views/sidenav_inherit.xml',
         'views/bottomnav_inherit.xml',
         'views/home_kpi_inherit.xml',
     ],

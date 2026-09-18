@@ -137,9 +137,10 @@ F6–F13 là backend/controller — không chặn component, nhưng chặn mobil
 | F2 | CSS 8 màn nhỏ ra khỏi layout (62 nhóm) | layout, knowledge, purchase_history, support, notification | Thấp | ✅ 17/09 |
 | F3 | CSS Đặt hàng (55) + Home/KPI (56) | layout, sale, base | TB | ✅ 17/09 |
 | F4 | Duyệt 41 rule đổi dáng (dừng giữa phiên xin duyệt) | layout + 7 module | TB | ✅ 17/09 |
-| **FR-B** | **Review toàn khối B (F2–F4)** | 0 hoặc vá nhỏ | — | ☐ |
-| F5 | Menu đăng ký theo module, test layout dùng fixture, redirect về module | layout + ~12 module | TB | ☐ |
-| **FR-A3** | **Review cổng F (F0–F5) → quyết mở lại Issue List** | 0 hoặc vá nhỏ | — | ☐ |
+| **FR-B** | **Review toàn khối B (F2–F4)** | 0 hoặc vá nhỏ | — | ✅ 18/09 — `docs/f-review-B.md` |
+| F5a | Menu về module sở hữu route + redirect legacy + vá điểm mù mốc đo | layout + 13 module | TB | ✅ 18/09 — `docs/f5a-acceptance-matrix.md` |
+| F5b | Dời test cross-module của layout về module sở hữu màn (đếm lại bằng máy: **236 test / 517 assert**, không phải 94/215) | layout + 15 module | TB | ✅ 18/09 — `docs/f5b-acceptance-matrix.md` · `docs/f5b-test-inventory.md` |
+| **FR-A3** | **Review cổng F (F0–F5b) → quyết mở lại Issue List** | 0 hoặc vá nhỏ | — | ☐ |
 | F6 | Sale: luật số lượng 1 nguồn, giỏ + submit về model | sale, wujia_sale | Cao | ☐ |
 | F7 | Pilot tách order_window | order_window, portal_sale | Cao | ☐ |
 | **FR-P** | **Review pilot trước khi nhân quy trình** | 0 | — | ☐ |
@@ -277,11 +278,82 @@ Nghiệm thu: css_owner --overrides chỉ còn loại "chỉ bố cục" + loạ
 wj_measure --diff chỉ khác đúng các màn trong bảng; test component layout xanh.
 ```
 
-### Prompt F5 — Khung `portal_layout` thuần
+### Prompt F5b — Dời test cross-module của `portal_layout` về module sở hữu màn
 
 ```text
-Làm phiên F5 (docs/next-session-clusters-F.md §1.A3). Điều kiện: F0–F4 xong. Đọc thêm §E8 của
-docs/next-session-clusters-E.md (Sidebar) để thiết kế không chặn E8.
+Làm phiên F5b (docs/next-session-clusters-F.md §2, dòng F5b). Điều kiện: F5a ✅
+(docs/f5a-acceptance-matrix.md + mục F5a trong docs/f-progress.md — đọc cả hai trước khi làm).
+KHÔNG làm tính năng mới, KHÔNG đổi 1 pixel. DB wujia_f0 port 8099 (conf như F4/F5a);
+chạy test luôn kèm -u module cần test.
+
+Vì sao: wujia_portal_layout là KHUNG KÊNH (ADR-027 L2) nhưng tests của nó đang đọc template của
+12 module nghiệp vụ ⇒ sửa một màn làm đỏ test của khung, và test khung không chạy nổi trên DB chỉ
+cài portal_layout. F5a đã gỡ xong phần menu; phần test là chỗ cuối cùng khung còn "biết màn".
+
+0. ĐẾM LẠI BẰNG MÁY TRƯỚC KHI DỜI (đừng tin số chép tay, kể cả số dưới đây):
+   quét AST custom/wujia_portal_layout/tests/*.py, đếm test function nào có nhắc
+   "wujia_portal_<module khác>" và số assert của chúng. Số của F5a (18/09):
+   329 test / 716 assert tổng, trong đó 94 test / 215 assert là cross-module, tập trung ở
+   test_d4_surface_card (32), test_d5_data_list (18), test_d3_card_header (16), test_e3_pagination (8),
+   test_f4_overrides (6), test_e2b_status_badge (5), test_e4_filter_bar (4), test_e2/test_c8 (2 mỗi file),
+   test_e1_home_kpi (1). Ghi bảng "file → test → module bị đọc" vào docs/f5b-test-inventory.md.
+
+1. Phân loại từng test cross-module thành 3 nhóm, ghi rõ nhóm trong bảng:
+   a. Test THÀNH PHẦN của khung (kiểm chính component wj_*) đang mượn template module khác làm ví dụ
+      ⇒ ở lại layout nhưng đổi sang TEMPLATE MẪU viết trong chính tests của layout (fixture), không
+      đọc module khác nữa.
+   b. Test MÀN THẬT (kiểm một màn nghiệp vụ dùng component đúng cách) ⇒ chuyển nguyên về module của màn.
+   c. Test QUÉT NHIỀU MODULE cùng một hàm (vd "mọi màn đều dùng wj_data_list") ⇒ về wujia_portal_base
+      (L3a) — chốt với chủ dự án ở phiên F5a, KHÔNG cắt nhỏ hàm thành 12 hàm.
+
+2. Dời thật: giữ nguyên nội dung assert, chỉ đổi chỗ ở + tag. Tổng số assert sau khi dời phải
+   KHÔNG GIẢM (đếm lại bằng đúng script ở bước 0 và in ra con số trước/sau).
+
+3. Nghiệm thu bắt buộc:
+   - Test của wujia_portal_layout chạy được trên DB CHỈ CÀI portal_layout: tạo DB mới
+     (vd wujia_f5b), -i wujia_portal_layout --test-enable, 0 failed 0 error. Đây là phép đo
+     quyết định — không có nó thì coi như chưa làm.
+   - Suite 12 module portal trên wujia_f0 kèm -u: ≥ 571/571 (số của F5a), 0 failed 0 error.
+   - b4_regression 286/286. check_layers: R1–R5 đúng 1 vi phạm cũ (order_window, F7), R6 = 0.
+   - nav_dump + wj_measure so mốc docs/f5-baseline/: 0 lệch (phiên này không đụng view, nếu lệch
+     là đã làm sai thứ gì đó).
+   - Mutation cho mọi guard bị đổi đường dẫn/nội dung: phá → đỏ, hoàn tác → xanh.
+
+Luật của cụm F (bắt buộc):
+- Đổi dáng ⇒ hỏi chủ dự án TRƯỚC, kèm ảnh. Lỗi nhỏ <30 dòng không đổi hành vi ⇒ sửa + đo lại.
+- Phiên nào đổi đường dẫn hoặc nội dung guard đọc thẳng CSS/XML thì CÙNG PHIÊN phải chạy mutation.
+- Không tin con số chép tay trong nhật ký phiên trước — đếm lại bằng máy.
+- Sửa file bằng script Python phải mở với newline='' (style.css dùng CRLF).
+- zsh KHÔNG tách chuỗi khi không ngoặc: dùng ${=R} cho danh sách route.
+- Mọi module bị đụng bump version (F5b không sửa CSS ⇒ không đụng ?v=).
+- Không đụng code anh Thái (wujia_franchise*, wujia_portal_inspection, wujia_mobile_*).
+- Dừng server bằng PID lấy từ ps -eo pid,args (KHÔNG pkill -f — sẽ giết cả PID wujia_tea_19).
+- KHÔNG dùng `git checkout <file>` để hoàn tác mutation khi cây làm việc còn thay đổi chưa commit
+  (F5a đã cắn: mất sạch sửa trong file đó). Dùng bản sao .bak, và xoá __pycache__ sau khi hoàn tác
+  file .py (mv/cp giữ mtime cũ ⇒ Python dùng lại bytecode của bản đã phá).
+- Không commit/push/deploy khi chưa được yêu cầu.
+
+Cuối phiên: ghi mục vào docs/f-progress.md (theo mẫu) + ✅ §2 Trạng thái + compact summary §5 +
+trình bày 1 vòng nghiệp vụ.
+
+Dừng hỏi nếu: một test cross-module không quy được về nhóm a/b/c (vd kiểm quan hệ giữa 2 module
+nghiệp vụ, không liên quan khung) — không đoán chỗ ở mới.
+```
+
+### Prompt F5 — Khung `portal_layout` thuần (F5a ✅ 18/09 — giữ lại để tra cứu)
+
+```text
+Làm phiên F5 (docs/next-session-clusters-F.md §1.A3). Điều kiện: FR-B ✅ (docs/f-review-B.md).
+Đọc thêm §E8 của docs/next-session-clusters-E.md (Sidebar) để thiết kế không chặn E8.
+KHÔNG làm tính năng mới. DB wujia_f0 port 8099 (conf như F4); chạy test luôn kèm -u module cần test.
+
+0. TRƯỚC KHI ĐO BẤT CỨ THỨ GÌ — vá điểm mù của mốc F0 (nợ FR-B để lại):
+   - Liệt kê MỌI @http.route của portal (grep custom/wujia_portal_*/controllers/), đối chiếu
+     docs/f0-baseline/measure_{anh,em}.txt. Bổ sung route còn thiếu — đã biết chắc thiếu
+     /portal/franchise-information; FR-B lọt 4 lỗi vì màn này chưa bao giờ được đo.
+   - Thêm cho mỗi màn danh sách 1 route ép ra TRẠNG THÁI RỖNG (?q=<chuỗi vô nghĩa>): trạng thái
+     rỗng không bao giờ xuất hiện trên DB seed nên mọi phép đo đều mù (nợ (c) của FR-B).
+   - Chụp lại mốc với danh sách route đầy đủ TRƯỚC khi sửa code, để có cái mà so.
 
 1. Menu: pc_sidenav (10 link), mobile_bottomnav (11), mobile_header (7) đang ghi cứng route Wujia.
    Layout chỉ giữ khung + slot; mục menu do module sở hữu route chèn vào (xpath vào slot có
@@ -290,8 +362,29 @@ docs/next-session-clusters-E.md (Sidebar) để thiết kế không chặn E8.
 2. Test: 9/10 file tests của portal_layout gọi template module khác → template mẫu viết trong
    tests của layout; test trên màn thật chuyển về module của màn. Tổng số assert không giảm.
 3. redirects.py: route cũ return/exam/purchase_history chuyển về đúng module.
+
 Nghiệm thu: layout test chạy được trên DB chỉ cài portal_layout; wj_measure --diff = 0 trên menu
-(PC + mobile, user owner và staff); check_layers không báo layout biết route Wujia.
+(PC + mobile, 2 tài khoản anh.owner và em.hcm); check_layers không báo layout biết route Wujia;
+suite 543/543 (số của FR-B) không giảm; B4 286/286.
+
+Luật của cụm F (bắt buộc, rút từ FR-B):
+- Đổi dáng ⇒ hỏi chủ dự án TRƯỚC, kèm ảnh. Lỗi nhỏ <30 dòng không đổi hành vi ⇒ sửa + đo lại.
+- Phiên nào đổi đường dẫn hoặc nội dung guard đọc thẳng CSS/XML thì CÙNG PHIÊN phải chạy mutation
+  chứng minh guard còn đỏ khi phá. Guard mới cũng phải mutation.
+- Không tin con số chép tay trong nhật ký phiên trước — đếm lại bằng máy (FR-B bắt 3 số sai của F4).
+- Sửa file bằng script Python phải mở với newline='' (style.css dùng CRLF; đọc-ghi mặc định biến
+  274 dòng thành LF, diff phình từ 5 lên 550 dòng).
+- zsh KHÔNG tách chuỗi khi không ngoặc: dùng ${=R} cho danh sách route.
+- Sửa CSS xong phải DELETE FROM ir_attachment WHERE url LIKE '/web/assets/%' rồi restart, nếu không
+  đo trên bundle cũ.
+- Mọi file CSS của layout sửa phải bump ?v= trong assets.xml; mọi module bị đụng bump version.
+- Không đụng code anh Thái (wujia_franchise*, wujia_portal_inspection, wujia_mobile_*).
+- Dừng server bằng PID lấy từ ps -eo pid,args (KHÔNG pkill -f — sẽ giết cả PID 42199 wujia_tea_19).
+- Không commit/push/deploy khi chưa được yêu cầu.
+
+Cuối phiên: ghi mục vào docs/f-progress.md (theo mẫu) + ✅ §2 Trạng thái + compact summary §5 +
+trình bày 1 vòng nghiệp vụ.
+
 Dừng hỏi nếu: mục menu có điều kiện hiển thị theo quyền nằm trong layout (không đoán).
 ```
 

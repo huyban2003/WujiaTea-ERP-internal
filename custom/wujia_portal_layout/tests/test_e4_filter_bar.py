@@ -4,6 +4,10 @@ Bám cột `Kết quả mong muốn` của `UI-FILTER-001` (STT 139): một comp
 PC control 42 / mobile visual 38 + chạm 44, nhãn "Tìm kiếm"/"Xóa lọc", nhãn ngày
 đọc được sau khi chọn (FB-05), không thêm/bớt điều kiện giữa PC và mobile (FB-10),
 mobile không có reset (FB-03).
+
+Call site của 2 route mẫu đã dời sang `wujia_portal_base/tests/test_scan_e4_filter_bar.py`
+ở F5b — khung chỉ giữ hợp đồng template + CSS của chính nó (gallery `pc_preview` là
+trang của khung).
 """
 import os
 import re
@@ -207,36 +211,7 @@ class TestFilterBarTemplate(TransactionCase):
 
 @tagged('post_install', '-at_install', 'wujia_filter_e4')
 class TestFilterBarCallSites(TransactionCase):
-    """FB-09 mục 1–2: hai route mẫu BA phải gọi component, không tự dựng lại."""
-
-    def test_pc_lich_su_dat_hang_goi_component_va_giu_page_size(self):
-        root = _view('wujia_portal_purchase_history', 'portal_history.xml')
-        calls = root.xpath('.//t[@t-call="wujia_portal_layout.wj_filter_bar"]')
-        self.assertEqual(len(calls), 1)
-        # WJ-PH-008: mất hidden page_size là người dùng phải chọn lại số dòng.
-        self.assertEqual(
-            len(calls[0].xpath('.//input[@name="page_size"][@type="hidden"]')), 1)
-
-    def test_mobile_giao_hang_goi_component_giu_id_va_hidden_bs(self):
-        root = _view('wujia_portal_delivery', 'portal_delivery.xml')
-        calls = root.xpath('.//t[@t-call="wujia_portal_layout.wj_filter_bar"]')
-        self.assertEqual(len(calls), 1)
-        call = calls[0]
-        self.assertEqual(
-            call.xpath('.//t[@t-set="fb_id"]')[0].get('t-value'), "'wj-dlv-mform'")
-        bs = call.xpath('.//input[@name="bs"][@id="wj-dlv-bs"]')
-        self.assertEqual(len(bs), 1)
-        self.assertNotIn('t-if', bs[0].attrib)
-
-    def test_hai_man_mau_khong_con_tu_dung_thanh_loc(self):
-        for mod, fn, old in (
-                ('wujia_portal_purchase_history', 'portal_history.xml',
-                 'wj-pc-filterbar'),
-                ('wujia_portal_delivery', 'portal_delivery.xml', 'wj-filter-card')):
-            root = _view(mod, fn)
-            forms = [f for f in root.iter('form')
-                     if old in (f.get('class') or '')]
-            self.assertEqual(forms, [], f'{fn}: còn form tự dựng {old}')
+    """FB-09: trang gallery của chính khung không được là nguồn dáng thứ hai."""
 
     def test_gallery_pc_preview_khong_la_nguon_dang_thu_hai(self):
         root = _view('wujia_portal_layout', 'pc_preview.xml')
@@ -286,12 +261,3 @@ class TestFilterBarCss(TransactionCase):
         self.assertIn('height: var(--wj-pc-input-h)',
                       _block(css, '.wj-pc-filterbar label.wj-filter-search-field input'))
         self.assertNotIn('#', blk)
-
-    def test_khong_con_inline_style_o_thanh_loc_hai_man_mau(self):
-        for mod, fn in (('wujia_portal_purchase_history', 'portal_history.xml'),
-                        ('wujia_portal_delivery', 'portal_delivery.xml'),
-                        ('wujia_portal_layout', 'pc_preview.xml')):
-            root = _view(mod, fn)
-            for call in root.xpath('.//t[@t-call="wujia_portal_layout.wj_filter_bar"]'):
-                self.assertEqual(call.xpath('.//*[@style]'), [],
-                                 f'{fn}: còn inline style trong thanh lọc')

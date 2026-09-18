@@ -4,12 +4,12 @@
 hai quan hệ: cả 4 giá trị dùng CHUNG một khai báo cỡ chữ (cấm giảm riêng ô Công nợ), và
 số tiền phải trọn một dòng. `overflow-wrap: anywhere` của C7 chính là thứ cho phép bẻ
 `-72449 $` thành `-7244` / `9 $`; chuỗi dài nay đã rút gọn ở nguồn (`_short_amount`).
+
+Call site của màn Home đã dời sang `wujia_portal_base/tests/test_home_kpi_e1.py` ở F5b.
 """
 
 import os
 import re
-
-from lxml import html
 
 from odoo.tests import tagged
 from odoo.tests.common import TransactionCase
@@ -18,10 +18,10 @@ from odoo.tests.common import TransactionCase
 @tagged('post_install', '-at_install', 'wujia_home_kpi_e1')
 class TestHomeKpiValueStaysOnOneLine(TransactionCase):
 
-    CSS = 'wujia_portal_layout/static/assets/css/_components.css'
+    CSS = '_components.css'
 
-    def _read(self, rel):
-        path = os.path.join(os.path.dirname(__file__), '..', '..', rel)
+    def _read(self, name):
+        path = os.path.join(os.path.dirname(__file__), '..', 'static', 'assets', 'css', name)
         with open(path, encoding='utf-8') as fh:
             return fh.read()
 
@@ -51,14 +51,3 @@ class TestHomeKpiValueStaysOnOneLine(TransactionCase):
         for selector, _body in owners:
             self.assertEqual(selector.strip().rstrip(), '.wujia-mhome-kpi-value',
                              'không được nhắm riêng ô nào (BA cấm giảm riêng Công nợ)')
-
-    def test_four_tiles_still_one_row_with_the_same_value_class(self):
-        arch = self.env.ref('wujia_portal_base.portal_home_page').arch_db
-        root = html.fromstring('<div>%s</div>' % arch)
-        row = root.xpath('.//div[@class="wujia-mhome-hero-kpis"]')
-        self.assertEqual(len(row), 1)
-        tiles = row[0].xpath('./*[contains(@class,"wujia-mhome-kpi")]')
-        self.assertEqual(len(tiles), 4)
-        for tile in tiles:
-            self.assertEqual(
-                len(tile.xpath('.//span[@class="wujia-mhome-kpi-value"]')), 1)

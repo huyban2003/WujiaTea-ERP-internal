@@ -141,7 +141,7 @@ rồi đánh ✅ ở bảng Trạng thái §2 `docs/next-session-clusters-F.md`.
 - Số đo: css_owner --overrides đổi dáng **44 → 9** (cả 9 là loại giữ có ghi chú) · cstyle mốc 2 lượt ổn định (A: 1 dòng
   Kiến thức lệch 0.36px đồng hồ; B: 0) → sau sửa chỉ khác đúng bảng §8 review · hover/active ép trên MỌI phần tử ứng viên
   (script mới `scratchpad hovall.py`): 0 mất/thừa, chỉ `wj-debt-inv` + `wujia-mexam-rrow` (div không bấm được) mất hover ·
-  B4 286/286 · suite 12 module **537/537** (có 6 test mới `wujia_f4`).
+  B4 286/286 · suite 12 module **540/540** (có 6 test mới `wujia_f4`; số 537 ghi ở phiên F4 là sai, FR-B đếm lại: 534 trước F4 + 6 = 540).
 - Lệch plan / quyết định mới: **exam727 (a) → (c) nợ FR-B** — Vuexy `table th{16px !important}` thắng cỡ 14 của component ở
   mọi bảng PC 8 màn (kể cả Khảo sát); sửa ở component = đổi 8 màn, chưa duyệt. Sửa component tiêu đề trang PC làm **Khảo
   sát PC** tiêu đề 700→800 (đúng số component). Hàng `<a>` Đổi trả + thẻ Thi mobile chữ thừa kế #243742→#111827. Nhãn chuyển
@@ -151,3 +151,153 @@ rồi đánh ✅ ở bảng Trạng thái §2 `docs/next-session-clusters-F.md`.
   `wujia-mdash-card` ×33 (card thông tin), hàng `div.wujia-mdash-row` Home/Hỗ trợ/Thông tin cửa hàng, skeleton giao hàng,
   `div.wujia-mhome-kpi`.
 - Phiên kế: ★FR-B — review toàn khối B (F2+F3+F4), prompt §3 "Prompt phiên review ★".
+
+## ★FR-B — Review toàn khối B (F2+F3+F4) · 18/09/2026 · Mac
+- Kết quả: ✅ xong — khối B đạt (0 lỗi mới), **và sửa luôn 2 khoản nợ F4** theo chốt của chủ dự án.
+- Đã làm:
+  - Đo **đi suốt F0 → `52c7650`** lần đầu; xem **205 cặp ảnh** trước/sau bằng mắt.
+  - Chứng minh độc lập "dời CSS là phép giữ nguyên": nguyên tử CSS 282 file, F2+F3 **121902 → 121902, 0/0**.
+  - **Trả nợ F3**: mutation 5 guard D4 → **5/5 đỏ**.
+  - **Nợ (a)** — tìm ra gốc rễ khác chẩn đoán của F4: không phải Vuexy mà là `table th{16px!important}`
+    trong `style.css`, **có từ commit đầu dự án**. Gỡ hẳn luật đó; Đặt hàng 13→14; bảng thô Đổi trả cho
+    class riêng `wj-return-ptable` + 14px; **xoá 4 rule `!important` của F4(c)** ở màn Thi (chỉ tồn tại để
+    chống luật chung). Kết quả **16/17 bảng = 14px** (bảng kết quả Thi vốn 13px, cố ý).
+  - **Nợ (b)** — rút luật từ template `wj_surface_card` (có `sc_href` ⇒ `<a>`; không ⇒ `<div>` thuần)
+    rồi **gỡ marker ở 40 chỗ** (27 qua `sc_class` + 13 trên `<div>`), 0 dòng CSS bị đụng.
+  - **Nợ (c)** — ép hiện trạng thái rỗng Công nợ bằng `?q=zzzkhongcogi`: sau F4 **khớp chuẩn component,
+    không phải lỗi**; chỉ cần BA biết khi retest.
+  - Thêm **3 guard mới** + mutation từng cái (3/3 đỏ, hoàn tác xanh): cấm marker ở `sc_class`, cấm marker
+    trên thẻ không bấm được, cấm luật quét theo thẻ cho đầu bảng.
+  - Dọn 3 việc nhỏ: sửa 537→540 trong doc F4 · bỏ số dòng đã lệch ở 12 comment "dời từ" · xoá 2 `@media`
+    rỗng + 5 comment mồ côi (chứng minh **0 nguyên tử CSS thay đổi**).
+- Commit: **chưa commit** (không được yêu cầu).
+- Deploy: chưa — `-u wujia_portal_layout,wujia_portal_base,wujia_portal_sale,wujia_portal_return,
+  wujia_portal_delivery,wujia_portal_support,wujia_portal_exam,wujia_portal_notification,
+  wujia_portal_purchase_history,wujia_portal_knowledge` (layout `19.0.51.0.7`, `?v=` `_components.css`
+  **1297** · `style.css` **1300**).
+- Số đo: suite **543/543** (540 + 3 guard mới), 0 failed 0 error · B4 **286/286** · `css_owner
+  --layout-domain` 20 nhóm cả 20 trong danh sách giữ · `--overrides` 9 rule cả 9 có `F4(c)` ·
+  `check_layers` 1 vi phạm đã biết (order_window, F7) · hover: **0 chỗ không bấm được còn marker**,
+  110 chỗ mất hover **100% là `<div>`**, 0 chỗ bấm được bị mất, 0 chỗ thừa · đầu bảng PC **16/17 = 14px** ·
+  `wj_measure` vs F0: 8 ô lệch, **cả 8 là hệ quả của sửa 14px**, chứng minh bằng A/B tiêm lại luật cũ
+  (Hỗ trợ @992 hàng 89→72px × 20 hàng = −340px; Yêu cầu thông tin −51px = 3 hàng × 17px) · bump
+  version/`?v=` 0 sót · 0 selector đụng Khảo sát ngoài ca đã duyệt.
+- Lệch plan / quyết định mới:
+  - **Bắt 3 con số sai trong nhật ký F4**: suite 537 → **540**; nợ (a) "8 màn" → **14/17 bảng**;
+    nợ (b) "×33" → **40 chỗ trong XML** (`wujia-mhome-kpi` phần lớn là `<a>` bấm được).
+  - Chủ dự án chốt (a) = **14px theo chuẩn thiết kế**, (b) = **gỡ hết**.
+  - 2 guard cũ phải sửa theo: `test_screen_surfaces_carry_the_marker` 4→3 (ô KPI Công nợ là `<div>`);
+    `test_d3_card_header.test_store_name_became_subtitle...` bỏ chuỗi marker khỏi xpath.
+- Nợ để lại:
+  - **Bổ sung `/portal/franchise-information` (và rà toàn bộ `@http.route`) vào danh sách route đo** —
+    màn này KHÔNG có trong mốc F0 nên 4 chỗ hover sai lọt qua cả F4 lẫn vòng soi tay của FR-B.
+  - Mỗi màn cần **1 route ép ra trạng thái rỗng** trong danh sách đo (bài học từ nợ (c)).
+  - Bảng kết quả Thi giữ 13px (cố ý) — BA xác nhận khi retest nếu muốn đồng bộ 14.
+- Phiên kế: **F5** — khung thuần (menu, test, redirect). Cần biết trước: (1) rà danh sách route đo
+  trước khi đo gì; (2) phiên nào đổi đường dẫn/nội dung guard đọc CSS-XML thì **cùng phiên** chạy
+  mutation; (3) zsh dùng `${=R}` tách route; (4) sửa file bằng script Python phải mở `newline=''`.
+
+---
+
+## F5a — Khung `portal_layout` thuần: menu về module + redirect + vá điểm mù mốc đo (18/09/2026)
+
+- Phạm vi: mục 0 (mốc đo) + mục 1 (menu) + mục 3 (redirect) của phiên F5. **Mục 2 (dời 94 test
+  cross-module / 215 assert của layout về module) tách sang F5b** — chốt với chủ dự án đầu phiên.
+- Làm được:
+  - **Vá điểm mù mốc đo trước khi sửa dòng code nào**: kiểm kê **97 `@http.route`/13 module** bằng máy
+    (`docs/f5-route-inventory.md`), mốc F0 chỉ đo 30 route → mốc F5a đo **46 (anh.owner) + 28 (em.hcm)**,
+    thêm `/portal/franchise-information` + **11 route ép trạng thái rỗng** (đọc controller tìm tham số
+    chắc ra rỗng, không đoán `?q=`). Mốc mới lộ ngay **4 lỗi HIERARCHY cũ chỉ thấy ở trạng thái rỗng**
+    + 1 ở `/portal/exam/register` (tồn tại từ trước F5a, ghi nợ, không sửa trong phiên này).
+  - **Công cụ mới `scripts/qa/nav_dump.py`**: đổ ra danh sách CÓ THỨ TỰ của mọi link điều hướng
+    (sidebar PC · bottom-nav · sheet "Thêm" · header mobile · navbar PC) theo route × khổ × tài khoản —
+    thứ `wj_measure` không đo được. Đây là bằng chứng chính của mục 1.
+  - **Menu về đúng module sở hữu route**: xoá `pc_sidenav.xml` (`layout_sidenav_figma` priority 99
+    `position="replace"` — 10 link cứng); khung còn `<ul>` + 2 tiêu đề nhóm có `id` làm neo + mục
+    Tài khoản (route của chính khung). 9 module khai mục sidebar, 4 tab + 7 dòng sheet, 2 mục header
+    mobile, 2 mục PC (navbar dropdown + shell Tài khoản) — tổng **24 mục điều hướng đổi chủ**.
+  - **Redirect legacy** 3 route v14 về đúng module đích (301 giữ nguyên); `redirects.py` của khung xoá.
+  - **Guard mới + mutation**: `check_layers.py` thêm **R6 "khung không biết route Wujia"**;
+    `test_f5_frame_routes` (arch trong DB), `test_f5_menu_ownership` (danh sách vàng 11 mục + quyền sở
+    hữu qua `ir.model.data` + active theo route + nút "Thêm"), 9 test module, 3 test 301 → **+28 test**.
+- Commit: **chưa commit** (không được yêu cầu). Deploy: chưa.
+- Số đo: `nav_dump` **0 lệch** về href/nhãn/icon/active/thứ tự (chỉ thêm thuộc tính `id` cho 2 tiêu đề
+  nhóm làm neo) · `wj_measure` **0 ô lệch, 0 ô mất record** · ảnh **136/148 giống hệt**, 12 ảnh còn lại
+  là đồng hồ đếm ngược / lượt xem / pha hoạt hình biểu đồ · suite **571/571** (543 + 28), 0 failed 0 error ·
+  B4 **286/286** · `check_layers` R6 **0**, vi phạm cũ vẫn đúng 1 (order_window, F7) · mutation **5/5 đỏ,
+  hoàn tác xanh** · `ir.ui.view` mồ côi sau `-u`: **0** · bump version **13 module**, 0 sót (không sửa CSS
+  ⇒ không đụng `?v=`). Chi tiết: `docs/f5a-acceptance-matrix.md`.
+- Lệch plan / quyết định mới:
+  - **Đính chính plan §1.A3**: `pc_sidenav_inspection` của anh Thái có priority **101** > 99 nên mục
+    "Khảo sát" VẪN hiện — sidebar PC thật đang có **11 mục**, không phải 10. Câu hỏi "cho hiện mục Khảo
+    sát?" hoá ra vô nghĩa (nó đang hiện sẵn) ⇒ nghiệm thu chặt hơn: diff = 0 kể cả mục đó.
+  - **`<li>` phải nằm trong ARCH, không sinh lúc render**: bản đầu dùng component sinh cả `<li>` bằng
+    `t-att-id` ⇒ neo `//li[@id='nav_item_exam']` của anh Thái không tìm thấy gì, mọi trang 500. Khuôn
+    cuối: module viết thẳng `<li id=... t-attf-class=...>`, thân mục gọi component của khung.
+  - **Nút "Thêm" phải dùng CỜ, không dùng danh sách tiền tố**: tab Trang chủ khớp tuyệt đối `/portal`,
+    nếu góp `/portal` vào danh sách tiền tố thì mọi route con đều "khớp" ⇒ "Thêm" không bao giờ sáng.
+  - **Xoá view khỏi data file là chưa đủ**: Odoo dọn record mồ côi ở CUỐI lượt nạp nên 6 view chết vẫn
+    bị validate giữa chừng và làm **gãy `-u`**. Phải xoá bằng `migrations/<version>/pre-*.py` (5 module).
+  - Sửa nhỏ kèm đo lại: `pc_preview.xml` trỏ form về route không tồn tại `/portal/pc-preview`
+    (route thật `/portal/_pc-preview`).
+  - Không đụng 1 dòng code anh Thái; 2 inherit của anh (sidebar Khảo sát, dòng sheet Khảo sát) còn
+    nguyên vị trí, chứng minh bằng `nav_dump`.
+- Nợ để lại:
+  - **F5b**: dời test cross-module của `wujia_portal_layout` về module sở hữu màn; guard nhiều module
+    về `wujia_portal_base`; tổng số assert không được giảm.
+  - **4 lỗi HIERARCHY ở trạng thái rỗng + 1 ở `/portal/exam/register`** (có từ trước F5a) — vá ở phiên
+    dọn màn tương ứng hoặc gộp vào cụm EmptyState.
+  - Bẫy đã cắn, ghi lại cho phiên sau: (1) **không `git checkout <file>`** để hoàn tác mutation khi cây
+    còn thay đổi chưa commit — mất sạch sửa trong file đó; (2) khôi phục `.py` bằng `mv/cp` giữ `mtime`
+    ⇒ Python dùng lại `__pycache__` của bản đã phá, phải `rm -rf __pycache__` trước khi chạy lại.
+- Phiên kế: **F5b** — dời test cross-module (prompt ở `docs/next-session-clusters-F.md` §3).
+
+---
+
+## F5b — Test của khung về đúng chủ: `portal_layout` hết biết màn nghiệp vụ (18/09/2026)
+
+- Phạm vi: mục 2 của phiên F5 (tách ra từ F5a). **Không tính năng mới, không đổi 1 pixel.**
+- Làm được:
+  - **Kiểm kê bằng máy trước khi dời** — công cụ mới `scripts/qa/test_ownership.py` (AST): mỗi hàm test
+    → file · class · số assert · module bị đọc · đọc DB hay đọc đĩa. Kết quả: khung có **329 test /
+    711 assert**, trong đó **236 test / 517 assert** là cross-module (94 đọc thẳng trong thân hàm +
+    142 thừa kế hằng cấp class như `CALL_SITES`). Bảng đầy đủ: `docs/f5b-test-inventory.md`.
+  - **Phân loại từng TEST (không phải từng class)** thành a/b/c + nhóm bàn giao, rồi dời thật:
+    **a** 40 test ở lại khung nhưng đổi sang **fixture dựng trong chính tests của khung** ·
+    **b** 24 test về module sở hữu màn (Công nợ, Đăng ký thi, Home) ·
+    **c** 155 test quét-nhiều-module về `wujia_portal_base` (L3a), **giữ nguyên một hàm, không cắt thành 12** ·
+    **BG** 17 test của màn Khảo sát gom vào `portal_base/tests/test_handover_inspection.py` để nhóm Khảo
+    sát dời về — không ghi một dòng nào vào code anh Thái (chủ dự án chốt: *"cái nào của Khảo sát thì bên
+    Khảo sát tự sửa"*).
+  - **Helper dùng chung `portal_base/tests/css_probe.py`** thay vì chép ba bản cho debt/exam.
+  - **Khung nay cài được một mình**: `wujia_portal_layout` thêm `depends` thiếu `http_routing`.
+- Commit: F5a + F5b (tách 2 commit), push `main`. Deploy UAT: **không** (chưa được yêu cầu).
+- Số đo (chi tiết `docs/f5b-acceptance-matrix.md`):
+  - **Phép đo quyết định — DB `wujia_f5b` tạo mới, CHỈ cài `wujia_portal_layout`: 0 failed, 0 error /
+    129 test.** Trước phiên này con số đó là *không chạy nổi*.
+  - Suite 15 module portal trên `wujia_f0` kèm `-u`: **572/572**, 0 failed 0 error (F5a 571 + 1).
+  - Assert **không giảm**: toàn hệ 1548 → **1549** (khung 711 → 261; 15 file mới giữ 451).
+    Khung: **cross-module 236 → 0**.
+  - B4 **286/286** · `check_layers` R1–R5 đúng 1 vi phạm cũ (`order_window`, chờ F7), **R6 = 0**.
+  - `wj_measure --diff` **0 lệch, 0 ô mất record**; `nav_dump --diff` chỉ còn dư âm F5a (thuộc tính `id`
+    của 2 `<li>` tiêu đề menu), href/nhãn/thứ tự/active/badge khớp tuyệt đối.
+  - Mutation **5/5** đỏ khi phá, xanh khi hoàn tác. Bump version 4 module, 0 sót.
+- Lệch plan / quyết định mới:
+  - **Số cross thật là 236, không phải 94**: plan đếm hẹp (chỉ thân hàm). Một test nằm trong class có
+    `CALL_SITES` liệt kê 12 module cũng là cross. Đếm lại bằng máy mới ra đúng.
+  - **Công cụ đếm phải bỏ docstring**: sau khi dời, khung vẫn báo 115 test cross — vì câu *"đã dời sang
+    `wujia_portal_base`"* trong mô tả bị tính là phụ thuộc. Đếm cả docstring là tự lừa mình.
+  - **Phép đo quyết định bắt được 2 lỗi thật** mà suite 572 test trên `wujia_f0` không bao giờ thấy:
+    (1) khung inherit `http_routing.404` mà không khai `http_routing` — trên DB đủ module nó có sẵn nhờ
+    module khác; (2) `test_c10_lang` giả định `vi_VN` bật sẵn ⇒ nay tự `_activate_lang` trong `setUp`.
+  - **Test khung không được import `portal_base`**: bản phân trang cũ mượn `build_pager` — thay bằng
+    fixture dict viết trong chính tests của khung, và mutation M5 (phá `aria-label` của template) chứng
+    minh fixture thật sự render template chứ không assert vào không khí.
+  - Guard màn Khảo sát **không mutation** (phải sửa CSS của anh Thái mới phá được — luật cụm F cấm);
+    thay bằng kiểm dương 14/14 đường dẫn tĩnh trỏ tới file có thật.
+- Nợ để lại:
+  - `portal_base/tests/test_handover_inspection.py` — **anh Thái dời trọn file về
+    `wujia_portal_inspection/tests/`**, nội dung assert giữ nguyên.
+  - 4 lỗi HIERARCHY ở trạng thái rỗng + 1 ở `/portal/exam/register` (từ trước F5a) — vẫn còn.
+  - Dư âm F5a trong mốc đo: 2 thuộc tính `id` trên tiêu đề menu ⇒ nên chụp lại baseline ở phiên FR-A3.
+- Phiên kế: **FR-A3** — review cổng khối A/B, kết luận có mở lại Issue List hay không.
