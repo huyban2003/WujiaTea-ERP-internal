@@ -12,21 +12,7 @@ _logger = logging.getLogger(__name__)
 class ResConfigSettings(models.TransientModel):
     _inherit = 'res.config.settings'
 
-    metabase_instance_url = fields.Char(
-        string='Metabase Instance URL',
-        config_parameter='wujia_franchise_inspection.metabase_instance_url',
-        default='https://bi-wujia.tipscode.io',
-    )
-    metabase_dashboard_id = fields.Integer(
-        string='Metabase Dashboard ID',
-        config_parameter='wujia_franchise_inspection.metabase_dashboard_id',
-        default=2,
-    )
-    metabase_secret_key = fields.Char(
-        string='Metabase Secret Key',
-        config_parameter='wujia_franchise_inspection.metabase_secret_key',
-        default='d20e524da43c303ce61909b07d4a69910af93cfc11e0e643d9eaa925f26582dc',
-    )
+
 
 
     wujia_inspection_use_google_drive = fields.Boolean(

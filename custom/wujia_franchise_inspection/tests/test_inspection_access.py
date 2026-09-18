@@ -22,7 +22,7 @@ class TestInspectionAccess(TransactionCase):
             'name': 'Portal User Test',
             'login': 'portal.user.test@example.com',
             'email': 'portal.user.test@example.com',
-            'groups_id': [(6, 0, [cls.portal_group.id])],
+            'group_ids': [(6, 0, [cls.portal_group.id])],
         })
 
         # Inspector user
@@ -30,20 +30,24 @@ class TestInspectionAccess(TransactionCase):
             'name': 'Inspector User Test',
             'login': 'inspector.user.test@example.com',
             'email': 'inspector.user.test@example.com',
-            'groups_id': [(6, 0, [cls.inspector_group.id, cls.env.ref('base.group_user').id])],
+            'group_ids': [(6, 0, [cls.inspector_group.id, cls.env.ref('base.group_user').id])],
         })
 
         # Cửa hàng và phiếu mẫu
+        cls.partner = cls.env['res.partner'].create({
+            'name': 'Access Test Store Partner',
+        })
         cls.store = cls.Franchise.create({
             'code': 'ACC-STORE-01',
             'name': 'Access Test Store',
+            'partner_id': cls.partner.id,
             'supervision_user_id': cls.inspector_user.id,
             'status': 'active',
         })
 
         cls.inspection = cls.Inspection.create({
             'franchise_id': cls.store.id,
-            'user_id': cls.inspector_user.id,
+            'inspector_user_id': cls.inspector_user.id,
             'state': 'draft',
         })
 
@@ -59,7 +63,7 @@ class TestInspectionAccess(TransactionCase):
         """Inspector được phép tạo và đọc phiếu khảo sát."""
         insp = self.Inspection.with_user(self.inspector_user).create({
             'franchise_id': self.store.id,
-            'user_id': self.inspector_user.id,
+            'inspector_user_id': self.inspector_user.id,
             'state': 'draft',
         })
         self.assertTrue(insp.id)

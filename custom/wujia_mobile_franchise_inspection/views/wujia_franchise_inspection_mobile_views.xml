@@ -73,7 +73,225 @@
         </field>
     </record>
 
-    <!-- Update Action Window: Desktop defaults to List (sequence 1), Mobile auto-switches to Kanban (sequence 2) -->
+    <!-- Mobile Kanban View for Supervision Schedules -->
+    <record id="view_wujia_supervision_schedule_kanban_mobile" model="ir.ui.view">
+        <field name="name">wujia.supervision.schedule.kanban.mobile</field>
+        <field name="model">wujia.supervision.schedule</field>
+        <field name="priority">30</field>
+        <field name="arch" type="xml">
+            <kanban class="wj_mobile_kanban" sample="1">
+                <field name="name"/>
+                <field name="store_id"/>
+                <field name="user_id"/>
+                <field name="date"/>
+                <field name="state"/>
+                <templates>
+                    <t t-name="card">
+                        <div class="wj_mobile_card">
+                            <!-- Row 1: Schedule Title + State Badge -->
+                            <div class="d-flex align-items-center justify-content-between mb-1">
+                                <span class="wj_mobile_card__code">
+                                    <field name="name"/>
+                                </span>
+                                <span t-attf-class="wj_mobile_badge #{
+                                    record.state.raw_value == 'done' and 'wj_mobile_badge--success' or
+                                    record.state.raw_value == 'in_progress' and 'wj_mobile_badge--warning' or
+                                    record.state.raw_value == 'draft' and 'wj_mobile_badge--info' or
+                                    record.state.raw_value == 'cancel' and 'wj_mobile_badge--danger' or
+                                    'wj_mobile_badge--neutral'
+                                }">
+                                    <field name="state"/>
+                                </span>
+                            </div>
+
+                            <!-- Row 2: Store Name (Title) -->
+                            <div class="wj_mobile_card__title mb-1">
+                                <field name="store_id"/>
+                            </div>
+
+                            <!-- Row 3: Scheduled Date & Inspector -->
+                            <div class="pt-2 border-top overflow-hidden">
+                                <div class="d-flex align-items-center justify-content-between mb-1 overflow-hidden">
+                                    <span class="wj_mobile_card__meta text-nowrap me-2 overflow-hidden text-truncate">
+                                        <t t-if="record.date.raw_value">
+                                            <i class="fa fa-calendar me-1" title="Scheduled Date"/>
+                                            <field name="date" widget="date"/>
+                                        </t>
+                                    </span>
+                                    <span class="wj_mobile_card__meta text-nowrap flex-shrink-0 ms-auto">
+                                        <t t-if="record.user_id.raw_value">
+                                            <i class="fa fa-user-o me-1" title="Inspector"/>
+                                            <field name="user_id"/>
+                                        </t>
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                    </t>
+                </templates>
+            </kanban>
+        </field>
+    </record>
+
+    <!-- Mobile Kanban View for Inspection Templates -->
+    <record id="view_wujia_franchise_inspection_template_kanban_mobile" model="ir.ui.view">
+        <field name="name">wujia.franchise.inspection.template.kanban.mobile</field>
+        <field name="model">wujia.franchise.inspection.template</field>
+        <field name="priority">30</field>
+        <field name="arch" type="xml">
+            <kanban class="wj_mobile_kanban" sample="1">
+                <field name="name"/>
+                <field name="code"/>
+                <field name="version"/>
+                <field name="effective_date"/>
+                <field name="total_max_score"/>
+                <field name="state"/>
+                <templates>
+                    <t t-name="card">
+                        <div class="wj_mobile_card">
+                            <div class="d-flex align-items-center justify-content-between mb-1">
+                                <span class="wj_mobile_card__code">
+                                    <field name="code"/> (v<field name="version"/>)
+                                </span>
+                                <span t-attf-class="wj_mobile_badge #{
+                                    record.state.raw_value == 'active' and 'wj_mobile_badge--success' or
+                                    record.state.raw_value == 'draft' and 'wj_mobile_badge--warning' or
+                                    record.state.raw_value == 'archived' and 'wj_mobile_badge--neutral' or
+                                    'wj_mobile_badge--neutral'
+                                }">
+                                    <field name="state"/>
+                                </span>
+                            </div>
+                            <div class="wj_mobile_card__title mb-1">
+                                <field name="name"/>
+                            </div>
+                            <div class="pt-2 border-top overflow-hidden">
+                                <div class="d-flex align-items-center justify-content-between overflow-hidden">
+                                    <span class="wj_mobile_card__meta text-nowrap me-2 overflow-hidden text-truncate">
+                                        <t t-if="record.effective_date.raw_value">
+                                            <i class="fa fa-calendar me-1" title="Effective Date"/>
+                                            <field name="effective_date" widget="date"/>
+                                        </t>
+                                    </span>
+                                    <span class="wj_mobile_card__value font-weight-bold text-nowrap flex-shrink-0 ms-auto" style="color: #111827;">
+                                        <field name="total_max_score"/> pts
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                    </t>
+                </templates>
+            </kanban>
+        </field>
+    </record>
+
+    <!-- Mobile Kanban View for Inspection Categories -->
+    <record id="view_wujia_franchise_inspection_category_kanban_mobile" model="ir.ui.view">
+        <field name="name">wujia.franchise.inspection.category.kanban.mobile</field>
+        <field name="model">wujia.franchise.inspection.category</field>
+        <field name="priority">30</field>
+        <field name="arch" type="xml">
+            <kanban class="wj_mobile_kanban" sample="1">
+                <field name="name"/>
+                <field name="sequence"/>
+                <field name="active"/>
+                <templates>
+                    <t t-name="card">
+                        <div class="wj_mobile_card">
+                            <div class="d-flex align-items-center justify-content-between mb-1">
+                                <span class="wj_mobile_card__code">
+                                    Seq: <field name="sequence"/>
+                                </span>
+                                <span t-attf-class="wj_mobile_badge #{
+                                    record.active.raw_value and 'wj_mobile_badge--success' or 'wj_mobile_badge--neutral'
+                                }">
+                                    <t t-if="record.active.raw_value">Active</t>
+                                    <t t-else="">Inactive</t>
+                                </span>
+                            </div>
+                            <div class="wj_mobile_card__title mb-1">
+                                <field name="name"/>
+                            </div>
+                        </div>
+                    </t>
+                </templates>
+            </kanban>
+        </field>
+    </record>
+
+    <!-- Mobile Kanban View for Question Library -->
+    <record id="view_wujia_franchise_inspection_question_kanban_mobile" model="ir.ui.view">
+        <field name="name">wujia.franchise.inspection.question.kanban.mobile</field>
+        <field name="model">wujia.franchise.inspection.question</field>
+        <field name="priority">30</field>
+        <field name="arch" type="xml">
+            <kanban class="wj_mobile_kanban" sample="1">
+                <field name="code"/>
+                <field name="question_text"/>
+                <field name="score"/>
+                <field name="active"/>
+                <templates>
+                    <t t-name="card">
+                        <div class="wj_mobile_card">
+                            <div class="d-flex align-items-center justify-content-between mb-1">
+                                <span class="wj_mobile_card__code">
+                                    <field name="code"/>
+                                </span>
+                                <span t-attf-class="wj_mobile_badge #{
+                                    record.active.raw_value and 'wj_mobile_badge--success' or 'wj_mobile_badge--neutral'
+                                }">
+                                    <t t-if="record.active.raw_value">Active</t>
+                                    <t t-else="">Inactive</t>
+                                </span>
+                            </div>
+                            <div class="wj_mobile_card__title mb-1">
+                                <field name="question_text"/>
+                            </div>
+                            <div class="pt-2 border-top text-end overflow-hidden">
+                                <span class="wj_mobile_card__value font-weight-bold text-nowrap" style="color: #111827;">
+                                    Score: <field name="score"/> pts
+                                </span>
+                            </div>
+                        </div>
+                    </t>
+                </templates>
+            </kanban>
+        </field>
+    </record>
+
+    <!-- Mobile Kanban View for Inspection Grades -->
+    <record id="view_wujia_franchise_inspection_grade_kanban_mobile" model="ir.ui.view">
+        <field name="name">wujia.franchise.inspection.grade.kanban.mobile</field>
+        <field name="model">wujia.franchise.inspection.grade</field>
+        <field name="priority">30</field>
+        <field name="arch" type="xml">
+            <kanban class="wj_mobile_kanban" sample="1">
+                <field name="name"/>
+                <field name="min_score"/>
+                <field name="max_score"/>
+                <field name="description"/>
+                <templates>
+                    <t t-name="card">
+                        <div class="wj_mobile_card">
+                            <div class="d-flex align-items-center justify-content-between mb-1">
+                                <span class="wj_mobile_card__code font-weight-bold fs-5">
+                                    Grade <field name="name"/>
+                                </span>
+                                <span class="wj_mobile_badge wj_mobile_badge--info">
+                                    Score: <field name="min_score"/> - <field name="max_score"/>
+                                </span>
+                            </div>
+                            <div class="wj_mobile_card__meta mb-1">
+                                <field name="description"/>
+                            </div>
+                        </div>
+                    </t>
+                </templates>
+            </kanban>
+        </field>
+    </record>
+
+    <!-- Update Action Window for Store Inspection Sheets -->
     <record id="wujia_franchise_inspection.action_wujia_franchise_inspection" model="ir.actions.act_window">
         <field name="view_mode">list,kanban,form</field>
         <field name="view_ids" eval="[
@@ -81,6 +299,95 @@
             (0, 0, {'view_mode': 'list', 'view_id': ref('wujia_franchise_inspection.view_wujia_franchise_inspection_list'), 'sequence': 1}),
             (0, 0, {'view_mode': 'kanban', 'view_id': ref('view_wujia_franchise_inspection_kanban_mobile'), 'sequence': 2}),
             (0, 0, {'view_mode': 'form', 'view_id': ref('wujia_franchise_inspection.view_wujia_franchise_inspection_form'), 'sequence': 3})
+        ]" />
+    </record>
+
+    <!-- Update Action Window for Supervision Schedules -->
+    <record id="wujia_franchise_inspection.action_wujia_supervision_schedule" model="ir.actions.act_window">
+        <field name="view_mode">calendar,list,kanban,form</field>
+        <field name="view_ids" eval="[
+            (5, 0, 0),
+            (0, 0, {'view_mode': 'calendar', 'view_id': ref('wujia_franchise_inspection.view_wujia_supervision_schedule_calendar'), 'sequence': 1}),
+            (0, 0, {'view_mode': 'list', 'view_id': ref('wujia_franchise_inspection.view_wujia_supervision_schedule_tree'), 'sequence': 2}),
+            (0, 0, {'view_mode': 'kanban', 'view_id': ref('view_wujia_supervision_schedule_kanban_mobile'), 'sequence': 3}),
+            (0, 0, {'view_mode': 'form', 'view_id': ref('wujia_franchise_inspection.view_wujia_supervision_schedule_form'), 'sequence': 4})
+        ]" />
+    </record>
+
+    <!-- Update Action Window for Stores Needing Inspection -->
+    <record id="wujia_franchise_inspection.action_franchise_needed_inspection" model="ir.actions.act_window">
+        <field name="view_mode">list,kanban,form</field>
+        <field name="view_ids" eval="[
+            (5, 0, 0),
+            (0, 0, {'view_mode': 'list', 'view_id': ref('wujia_franchise.view_franchise_management_list'), 'sequence': 1}),
+            (0, 0, {'view_mode': 'kanban', 'view_id': ref('wujia_mobile_franchise.view_wujia_franchise_management_kanban_mobile'), 'sequence': 2}),
+            (0, 0, {'view_mode': 'form', 'view_id': ref('wujia_franchise.view_franchise_management_form'), 'sequence': 3})
+        ]" />
+    </record>
+
+    <!-- Update Action Window for Pending Remediation -->
+    <record id="wujia_franchise_inspection.action_wujia_franchise_inspection_remediation" model="ir.actions.act_window">
+        <field name="view_mode">list,kanban,form</field>
+        <field name="view_ids" eval="[
+            (5, 0, 0),
+            (0, 0, {'view_mode': 'list', 'view_id': ref('wujia_franchise_inspection.view_wujia_franchise_inspection_list'), 'sequence': 1}),
+            (0, 0, {'view_mode': 'kanban', 'view_id': ref('view_wujia_franchise_inspection_kanban_mobile'), 'sequence': 2}),
+            (0, 0, {'view_mode': 'form', 'view_id': ref('wujia_franchise_inspection.view_wujia_franchise_inspection_form'), 'sequence': 3})
+        ]" />
+    </record>
+
+    <!-- Update Action Window for Supervision History -->
+    <record id="wujia_franchise_inspection.action_wujia_franchise_inspection_history" model="ir.actions.act_window">
+        <field name="view_mode">list,kanban,form</field>
+        <field name="view_ids" eval="[
+            (5, 0, 0),
+            (0, 0, {'view_mode': 'list', 'view_id': ref('wujia_franchise_inspection.view_wujia_franchise_inspection_list'), 'sequence': 1}),
+            (0, 0, {'view_mode': 'kanban', 'view_id': ref('view_wujia_franchise_inspection_kanban_mobile'), 'sequence': 2}),
+            (0, 0, {'view_mode': 'form', 'view_id': ref('wujia_franchise_inspection.view_wujia_franchise_inspection_form'), 'sequence': 3})
+        ]" />
+    </record>
+
+    <!-- Update Action Window for Inspection Templates -->
+    <record id="wujia_franchise_inspection.action_wujia_franchise_inspection_template" model="ir.actions.act_window">
+        <field name="view_mode">list,kanban,form</field>
+        <field name="view_ids" eval="[
+            (5, 0, 0),
+            (0, 0, {'view_mode': 'list', 'view_id': ref('wujia_franchise_inspection.view_wujia_franchise_inspection_template_tree'), 'sequence': 1}),
+            (0, 0, {'view_mode': 'kanban', 'view_id': ref('view_wujia_franchise_inspection_template_kanban_mobile'), 'sequence': 2}),
+            (0, 0, {'view_mode': 'form', 'view_id': ref('wujia_franchise_inspection.view_wujia_franchise_inspection_template_form'), 'sequence': 3})
+        ]" />
+    </record>
+
+    <!-- Update Action Window for Inspection Categories -->
+    <record id="wujia_franchise_inspection.action_wujia_franchise_inspection_category" model="ir.actions.act_window">
+        <field name="view_mode">list,kanban,form</field>
+        <field name="view_ids" eval="[
+            (5, 0, 0),
+            (0, 0, {'view_mode': 'list', 'view_id': ref('wujia_franchise_inspection.view_wujia_franchise_inspection_category_tree'), 'sequence': 1}),
+            (0, 0, {'view_mode': 'kanban', 'view_id': ref('view_wujia_franchise_inspection_category_kanban_mobile'), 'sequence': 2}),
+            (0, 0, {'view_mode': 'form', 'view_id': ref('wujia_franchise_inspection.view_wujia_franchise_inspection_category_form'), 'sequence': 3})
+        ]" />
+    </record>
+
+    <!-- Update Action Window for Question Library -->
+    <record id="wujia_franchise_inspection.action_wujia_franchise_inspection_question" model="ir.actions.act_window">
+        <field name="view_mode">list,kanban,form</field>
+        <field name="view_ids" eval="[
+            (5, 0, 0),
+            (0, 0, {'view_mode': 'list', 'view_id': ref('wujia_franchise_inspection.view_wujia_franchise_inspection_question_tree'), 'sequence': 1}),
+            (0, 0, {'view_mode': 'kanban', 'view_id': ref('view_wujia_franchise_inspection_question_kanban_mobile'), 'sequence': 2}),
+            (0, 0, {'view_mode': 'form', 'view_id': ref('wujia_franchise_inspection.view_wujia_franchise_inspection_question_form'), 'sequence': 3})
+        ]" />
+    </record>
+
+    <!-- Update Action Window for Inspection Grades -->
+    <record id="wujia_franchise_inspection.action_wujia_franchise_inspection_grade" model="ir.actions.act_window">
+        <field name="view_mode">list,kanban,form</field>
+        <field name="view_ids" eval="[
+            (5, 0, 0),
+            (0, 0, {'view_mode': 'list', 'view_id': ref('wujia_franchise_inspection.view_wujia_franchise_inspection_grade_list'), 'sequence': 1}),
+            (0, 0, {'view_mode': 'kanban', 'view_id': ref('view_wujia_franchise_inspection_grade_kanban_mobile'), 'sequence': 2}),
+            (0, 0, {'view_mode': 'form', 'view_id': ref('wujia_franchise_inspection.view_wujia_franchise_inspection_grade_form'), 'sequence': 3})
         ]" />
     </record>
 
