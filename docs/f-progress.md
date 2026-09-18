@@ -301,3 +301,56 @@ rồi đánh ✅ ở bảng Trạng thái §2 `docs/next-session-clusters-F.md`.
   - 4 lỗi HIERARCHY ở trạng thái rỗng + 1 ở `/portal/exam/register` (từ trước F5a) — vẫn còn.
   - Dư âm F5a trong mốc đo: 2 thuộc tính `id` trên tiêu đề menu ⇒ nên chụp lại baseline ở phiên FR-A3.
 - Phiên kế: **FR-A3** — review cổng khối A/B, kết luận có mở lại Issue List hay không.
+
+## ★FR-A3 — Review cổng cụm F (F0→F5b): mở lại Issue List (18/09/2026 · Mac)
+
+- Mục tiêu: lần ĐẦU đo đi suốt **mốc F0 → HEAD `33240c0`** (FR-B mới đo tới `52c7650`; F5a/F5b đo bằng
+  mốc F5 riêng) rồi kết luận có mở lại Issue List hay không. Không làm tính năng.
+- Chốt đầu phiên của chủ dự án: commit + push, **KHÔNG deploy UAT** · sửa lỗi HIERARCHY trạng thái rỗng
+  nếu < 30 dòng · độ phủ đo **đầy đủ** (bộ F0 26+15 route × 5 khổ + bộ F5 46+28 route × 2 khổ + ảnh).
+- **Kết luận: cổng ĐẠT — mở lại Issue List**, thứ tự E4b → E4c → E5 → E6 → E7 → E8.
+- Làm được:
+  - **25 phép đo Pass** (`docs/f-review-A3.md` §2). Suite **574/574** · phép đo quyết định (DB trắng chỉ
+    cài khung) **129/129** · B4 **286/286** · `wj_measure` mốc F5 → HEAD **0 lệch** · ảnh 148 cặp **0
+    khác biệt chưa duyệt** · `nav_dump` chỉ còn dư âm `id` (184+112, **100%**) và **đã chụp lại mốc**.
+  - **Mutation xuyên khối 10/10** — trả nợ mutation cho F1 (3 guard an toàn, chưa phá lại từ 17/09),
+    FR-B (2), F5a (2), F5b (1) + 2 guard mới của phiên.
+  - **Bắt được 2 lỗi TẦNG thật, có từ trước cụm F, chưa công cụ nào thấy**: `portal_base` (L3a) gọi
+    `_is_within_order_window`/`_user_now_hours` của `portal_order_window` (L3b) ⇒ Home **500** khi cài
+    riêng; `portal_layout` (khung) gọi `_get_accessible_franchise_ids` của `wujia_franchise` (nghiệp vụ)
+    ⇒ ACL ảnh **500**. Vá bằng **guard `hasattr`/`getattr`** (không thêm depend — thêm là vi phạm R2/R5
+    thật), + 2 test giả lập module tắt bằng descriptor ném `AttributeError`.
+  - **`check_layers` có luật R7 mới**: quét AST tìm lời gọi method của module không depend mà không có
+    guard. Đây là vá cho chỗ mù của chính công cụ (R1–R5 chỉ đọc manifest). Chạy 2,5s.
+  - **5/6 "lỗi" HIERARCHY trạng thái rỗng là thước đo báo nhầm**: khối rỗng căn giữa (icon + tiêu đề) và
+    tiêu đề bản ghi ở trang chi tiết không phải "nhãn phụ". Chứng minh bằng ảnh, ghi vào bảng đã duyệt,
+    **không sửa pixel**. Chỉ 1 lỗi thật: `wj-exam-pc-sectitle--sm` 18 → **16px** (áp chốt 04/09 "khối con
+    trong card = 16px" — 3 anh em của nó đã 16px từ F4, sót đúng chỗ này).
+  - Mốc mới `docs/fra3-baseline/` (4 measure + 2 nav + 4 route + check_layers) — sạch, hết dư âm F5a.
+- Lệch số so với nhật ký (đếm lại bằng máy — bài học #2 của FR-B):
+
+  | Nhật ký | Máy |
+  |---|---|
+  | `check_layers` 1 vi phạm | **2** (thêm R3 chéo kênh `wujia_mobile_portal_info_request`) |
+  | css_owner nhóm 1 màn ở layout: 20 | **26** (F5a dời markup menu ⇒ đổi quy kết, KHÔNG có CSS mới) |
+  | css_owner rule đổi dáng: 9 | **8** (FR-B đã xoá 1) |
+  | EmptyState "~124 chỗ viết tay" | **92 viết tay / 124 đã dùng component** |
+
+- Nợ để lại:
+  - **`wujia_portal_base` không tự test được một mình** (41 failed / 81 error trên DB chỉ có base): 6 file
+    test quét cả cổng, 2 trong số đó có **từ trước cụm F** ⇒ đúng thiết kế, không phải F5b gây ra. Cần
+    gắn nhãn `portal_suite` hoặc tự bỏ qua khi module chủ chưa cài ⇒ **F6**, > 30 dòng.
+  - **148 dòng comment nhắc mã phiên** trong 14 module portal (chủ dự án đã nhắc 2 lần về việc hạn chế
+    comment). Đề xuất luật: *comment nói VÌ SAO, không nói PHIÊN NÀO*.
+  - Cụm **EmptyState**: 92 chỗ viết tay, 6 họ class, **3 cỡ tiêu đề** (28/20/18) — đã soạn 3 câu hỏi
+    chốt cho BA trong `docs/f-review-A3.md` §7.
+  - Báo anh Thái 8 mục (§8): test `__init__` import file đã xoá · file bàn giao màn Khảo sát · R3 chéo
+    kênh · `auto_install` · **R7: `_wj_ensure_contract` 2 chỗ** · view `res.config.settings` cũ gây
+    `ParseError` khi deploy · `wujia_metabase_connector` chưa phân tầng · `origin/thai` 2 commit chưa merge.
+- Bài học:
+  - **Chỗ mù của công cụ là chỗ lỗi trốn.** 2 lỗi 500 sống qua 7 phiên vì `check_layers` chỉ đọc manifest.
+  - **Cài module một mình** là phép đo rẻ nhất mà mạnh nhất — 2 lỗi tầng + 1 khoản nợ đều từ 1 lệnh.
+  - **Máy báo lỗi ≠ có lỗi**: tin 5 ô HIERARCHY mà sửa là phá một thiết kế Figma đã duyệt.
+  - **Tên module trong chuỗi thông báo lỗi cũng bị tính là phụ thuộc chéo** — `test_ownership` bắt ngay;
+    đưa tên module vào docstring, đừng đưa vào code.
+- Phiên kế: **E4b** — phủ hết call site FilterBar (`UI-FILTER-001`, E4a đã làm nền ở `12750a2`).

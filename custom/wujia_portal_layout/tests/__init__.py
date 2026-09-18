@@ -10,3 +10,4 @@ from . import test_e4_filter_bar
 from . import test_f1_controller_safety
 from . import test_f4_overrides
 from . import test_f5_frame_routes
+from . import test_fra3_layer_guard

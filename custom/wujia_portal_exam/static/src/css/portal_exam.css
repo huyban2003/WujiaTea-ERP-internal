@@ -674,9 +674,11 @@
        Không sửa 4 file đó vì blast radius là toàn bộ portal; chỉ vô hiệu hoá
        trong phạm vi .wj-exam-pc. Số liệu lấy từ Figma WJ_Exam_PC v1.2. */
     /* `wj-exam-pc-sectitle` CHƯA chết: còn 1 call site sống ở portal_exam.xml:398
-       ("Người tham gia" — chỗ defer chờ BA, inventory §6) ⇒ giữ nguyên 2 rule này. */
+       ("Người tham gia" — chỗ defer chờ BA, inventory §6) ⇒ giữ nguyên 2 rule này.
+       FR-A3: `--sm` 18→16px — khối con bằng đúng tiêu đề card (18px) là vi phạm
+       RULE 1, áp chốt 04/09 "khối con = 16px" như 3 anh em `--2`/`--sm`/`slots__head`. */
     .wj-exam-pc .wj-exam-pc-sectitle    { font-size: 20px !important; }
-    .wj-exam-pc .wj-exam-pc-sectitle--sm { font-size: 18px !important; }
+    .wj-exam-pc .wj-exam-pc-sectitle--sm { font-size: 16px !important; }
     .wj-exam-pc .wj-exam-pc-modal__title { font-size: 26px !important; }
 
     /* ---------- Phân cấp trong CÙNG một card (RULE 1) ----------
@@ -940,7 +942,7 @@
     }
     .wj-exam-pc-sectitle--sm {
         margin: 16px 0 0;
-        font-size: 18px;
+        font-size: 16px;
         line-height: 22px;
     }
     .wj-exam-pc-fcard .wj-card-header.wj-exam-pc-sechead--sm { margin-top: 16px; }

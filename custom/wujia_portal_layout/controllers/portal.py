@@ -152,7 +152,10 @@ class WujiaPortalLayout(http.Controller):
 
         # ACL: self luôn OK, còn lại phải share franchise.
         if target.id != request.env.uid:
-            accessible_fids = set(request.env.user._get_accessible_franchise_ids())
+            # ADR-027 R2: khung không depend nghiệp vụ. `wujia_franchise` tắt ⇒ không
+            # ai ngoài chính chủ xem được ảnh (đóng, không 500).
+            _get_fids = getattr(request.env.user, '_get_accessible_franchise_ids', None)
+            accessible_fids = set(_get_fids()) if _get_fids else set()
             target_fids = set(
                 target.mapped('member_ids.franchise_id.id')
             ) if 'member_ids' in target._fields else set()

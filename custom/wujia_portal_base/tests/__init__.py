@@ -13,3 +13,4 @@ from . import test_scan_d3_card_header
 from . import test_handover_inspection
 from . import test_scan_d4_surface_card
 from . import test_scan_d5_data_list
+from . import test_fra3_layer_guard

@@ -113,6 +113,25 @@ ADR-001 odoo19 source độc lập / 002 venv conda `odoo` py3.10 / 003 PG role 
 
 ## §5 wujia-current-status
 
+**State (2026-09-18 · phiên ★FR-A3) — CỔNG CỤM F ĐẠT, **ISSUE LIST MỞ LẠI**; đã commit + push `main`, CHƯA deploy UAT.**
+Lần đầu đo **đi suốt mốc F0 → HEAD**: 25 phép đo Pass (`docs/f-review-A3.md` §2) — suite **574/574** ·
+DB trắng chỉ cài khung **129/129** · B4 **286/286** · mốc F5 → HEAD **0 ô lệch** (F5a/F5b không đụng
+pixel nào) · ảnh **148 cặp, 0 khác biệt chưa duyệt** · `nav_dump` chỉ còn dư âm `id` 2 `<li>` tiêu đề
+(**đã chụp lại mốc** `docs/fra3-baseline/`) · **mutation xuyên khối 10/10** (trả nợ F1/FR-B/F5a/F5b).
+**Bắt được 2 lỗi tầng thật có từ trước cụm F**: `portal_base` (L3a) gọi `_is_within_order_window` của
+`portal_order_window` (L3b) ⇒ Home 500 khi cài riêng; **khung `portal_layout` gọi
+`_get_accessible_franchise_ids` của `wujia_franchise`** ⇒ ACL ảnh 500 — vá bằng guard `hasattr`/`getattr`
+(KHÔNG thêm depend) + 2 test giả lập module tắt. Thêm **luật R7** cho `check_layers` (quét AST tìm gọi
+chéo tầng lúc chạy — chỗ mù của R1–R5 vốn chỉ đọc manifest). **5/6 "lỗi" HIERARCHY trạng thái rỗng là
+thước đo báo nhầm** (khối rỗng căn giữa / tiêu đề bản ghi không phải nhãn phụ) — chứng minh bằng ảnh,
+không sửa pixel; chỉ 1 lỗi thật: `wj-exam-pc-sectitle--sm` 18→**16px**. 4 con số nhật ký sai so với máy
+(check_layers 1→**2** · css_owner 20→**26** và 9→**8** · EmptyState "~124 viết tay" → **92 viết tay /
+124 đã dùng component**). Bump: layout `19.0.51.0.10` · base `19.0.7.17.8` · exam `19.0.5.15.5`.
+Nợ: `portal_base` không tự test một mình (41 fail/81 error — đúng thiết kế, gắn nhãn `portal_suite` ở
+**F6**) · **148 dòng comment nhắc mã phiên** · cụm **EmptyState** (92 chỗ, 6 họ class, 3 cỡ tiêu đề —
+3 câu hỏi đã soạn cho BA) · 8 mục báo anh Thái. **Phiên kế: E4b** — phủ hết call site FilterBar
+(`UI-FILTER-001`; E4a đã làm nền `12750a2`), rồi E4c → E5 → E6 → E7 → E8.
+
 **State (2026-09-18 · phiên F5b) — KHUNG `portal_layout` ĐÃ THUẦN: menu + test đều về đúng chủ; F5a+F5b đã commit & push `main`, CHƯA deploy UAT.** F5b dời **236 test / 517 assert** cross-module ra khỏi khung (a 40 ở lại khung trên fixture tự dựng · b 24 về module sở hữu màn · c 155 về `wujia_portal_base` giữ nguyên một hàm · 17 guard màn Khảo sát vào file **bàn giao** `portal_base/tests/test_handover_inspection.py` cho anh Thái dời về). **Phép đo quyết định: DB `wujia_f5b` chỉ cài `portal_layout` → 0 failed 0 error / 129 test.** Assert 1548 → **1549** (không giảm); khung cross **236 → 0**; suite **572/572**; B4 286/286; `check_layers` R6 = 0 và R1–R5 đúng 1 vi phạm cũ (`order_window`, chờ F7); `wj_measure`/`nav_dump` 0 lệch; mutation 5/5. Phiên kế: **★FR-A3** — review cổng F0–F5b, quyết có mở lại Issue List hay không. Chi tiết `docs/f5b-acceptance-matrix.md` + `docs/f5b-test-inventory.md`.
 
 **State (2026-09-18 · phiên F5a) — MENU VỀ MODULE SỞ HỮU ROUTE.** Mục 0+1+3 của F5

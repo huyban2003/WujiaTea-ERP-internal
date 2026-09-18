@@ -119,6 +119,80 @@ def check_frame_routes():
     return out
 
 
+def _py_files(mod):
+    for f in sorted((CUSTOM / mod).rglob('*.py')):
+        if 'tests' in f.relative_to(CUSTOM / mod).parts or '__pycache__' in f.parts:
+            continue
+        yield f
+
+
+def _method_owners():
+    """Tên method → các module wujia_* định nghĩa nó (bỏ tests/)."""
+    out = {}
+    for mod in sorted(p.name for p in CUSTOM.glob('wujia_*') if p.is_dir()):
+        for f in _py_files(mod):
+            try:
+                tree = ast.parse(f.read_text(encoding='utf-8'))
+            except SyntaxError:
+                continue
+            for n in ast.walk(tree):
+                if isinstance(n, ast.FunctionDef):
+                    out.setdefault(n.name, set()).add(mod)
+    return out
+
+
+def _in_odoo_core(name):
+    """Method trùng tên với method của Odoo/addons ⇒ không kết luận được, bỏ qua."""
+    pat = re.compile(rf'^\s*def {re.escape(name)}\s*\(', re.M)
+    for base in (ROOT / 'odoo19' / 'odoo', ROOT / 'odoo19' / 'addons'):
+        if not base.is_dir():
+            continue
+        for f in base.rglob('*.py'):
+            try:
+                if pat.search(f.read_text(encoding='utf-8', errors='ignore')):
+                    return True
+            except OSError:
+                continue
+    return False
+
+
+def check_runtime_calls(deps):
+    """R7 — gọi method của module KHÔNG depend thì phải có guard (FR-A3).
+
+    `check_layers` vốn chỉ đọc `__manifest__.py`, nên một call chéo tầng lúc chạy đi lọt:
+    `portal_base` (L3a) gọi `_is_within_order_window` của `portal_order_window` (L3b) và
+    `portal_layout` (khung) gọi `_get_accessible_franchise_ids` của `wujia_franchise`
+    (nghiệp vụ) — cài module một mình là `AttributeError` → 500. Không cấm gọi (thêm
+    depend mới là vi phạm R2/R5 thật sự), chỉ đòi `hasattr`/`getattr` bọc quanh.
+    """
+    owners, core_cache, out = _method_owners(), {}, []
+    for mod in sorted(deps):
+        allowed = closure(mod, deps) | {mod}
+        for f in _py_files(mod):
+            src = f.read_text(encoding='utf-8')
+            try:
+                tree = ast.parse(src)
+            except SyntaxError:
+                continue
+            guards = {m.group(1) for m in re.finditer(r"(?:hasattr|getattr)\([^,]+,\s*'(_[A-Za-z0-9_]+)'", src)}
+            for n in ast.walk(tree):
+                if not (isinstance(n, ast.Call) and isinstance(n.func, ast.Attribute)):
+                    continue
+                name = n.func.attr
+                if not name.startswith('_') or name in guards:
+                    continue
+                foreign = owners.get(name, set()) - allowed
+                if not foreign or (owners.get(name, set()) & allowed):
+                    continue
+                if name not in core_cache:
+                    core_cache[name] = _in_odoo_core(name)
+                if core_cache[name]:
+                    continue
+                out.append({'module': mod, 'file': str(f.relative_to(ROOT)), 'line': n.lineno,
+                            'method': name, 'owner_module': ', '.join(sorted(foreign))})
+    return out
+
+
 def check(deps):
     violations, unknown = [], []
     for mod, direct in deps.items():
@@ -175,11 +249,19 @@ def main():
         for v in frame:
             print(f"| `{v['file']}` | {v['line']} | `{v['route']}` |")
 
+    calls = check_runtime_calls(deps)
+    print(f'\n# R7 — gọi method module không depend mà KHÔNG có guard: {len(calls)} vi phạm')
+    if calls:
+        print('\n| Module | File:dòng | Method | Chủ method |\n|---|---|---|---|')
+        for v in calls:
+            print(f"| `{v['module']}` | `{v['file']}`:{v['line']} | `{v['method']}` | `{v['owner_module']}` |")
+
     if args.json:
         pathlib.Path(args.json).write_text(json.dumps(
-            {'violations': violations, 'unknown': unknown, 'frame_routes': frame},
+            {'violations': violations, 'unknown': unknown, 'frame_routes': frame,
+             'runtime_calls': calls},
             ensure_ascii=False, indent=2))
-    return 1 if args.strict and (violations or unknown or frame) else 0
+    return 1 if args.strict and (violations or unknown or frame or calls) else 0
 
 
 if __name__ == '__main__':
