@@ -1,7 +1,7 @@
 /* WujiaTea Portal — Order page. Sprint 4.3: BA palette tokens. */
 
 @keyframes wujia-msubmit-spin { to { transform: rotate(360deg); } }
-/* F3: dời từ portal_layout _components.css:1394 */
+/* F3: dời từ portal_layout _components.css */
 .wujia-morder { padding-bottom: calc(150px + env(safe-area-inset-bottom, 0px)); }
 .wujia-morder-warnbar {
     display: flex;
@@ -486,11 +486,11 @@
     border-radius: 50%;
     animation: wujia-msubmit-spin .8s linear infinite;
 }
-/* F3: dời từ portal_layout _components.css:1923 */
+/* F3: dời từ portal_layout _components.css */
 @media (prefers-reduced-motion: reduce) {
     .wujia-msubmit-spinner::after { animation: none; }
 }
-/* F3: dời từ portal_layout _components.css:1925 */
+/* F3: dời từ portal_layout _components.css */
 .wujia-msubmit-title {
     margin: 14px 0 8px;
     font-size: 20px;
@@ -691,8 +691,9 @@
 .wj-pc-order-cardhead { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; }
 .wj-pc-order-cardtitle { font-size: 18px; font-weight: 700; color: var(--wj-pc-text); margin: 0; }
 .wj-pc-order-table { width: 100%; border-collapse: collapse; }
+/* FR-B(a): 13 -> 14 cho khớp chuẩn đầu bảng PC (trước bị `table th{16px!important}` ép nên 13 không bao giờ ăn). */
 .wj-pc-order-table thead th {
-    text-align: left; font-size: 13px; font-weight: 700; color: var(--wj-pc-primary);
+    text-align: left; font-size: 14px; font-weight: 700; color: var(--wj-pc-primary);
     padding: 10px 12px; border-bottom: 1px solid var(--wj-pc-border-soft); white-space: nowrap;
 }
 .wj-pc-order-table thead th.text-end { text-align: right; }

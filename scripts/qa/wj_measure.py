@@ -186,10 +186,11 @@ def run(args):
                 data['status'] = resp.status if resp else None
                 # Redirect ngầm vẫn trả 200 — "Pass rỗng" biến tướng, phải ghi lại.
                 data['landed'] = re.sub(r'^https?://[^/]+', '', page.url)
-                data['redirected'] = data['landed'].split('?')[0] != route
+                # Route mang query (đo trạng thái rỗng, F5a) ⇒ so phần đường dẫn hai bên.
+                data['redirected'] = data['landed'].split('?')[0] != route.split('?')[0]
                 data['jsErrors'] = errors[before:]
                 if args.screenshots:
-                    name = route.strip('/').replace('/', '_') or 'root'
+                    name = re.sub(r'[?&=]', '-', route.strip('/').replace('/', '_')) or 'root'
                     shot = shots / f'{name}@{w}.png'
                     page.screenshot(path=str(shot), full_page=True)
                     data['shot'] = str(shot)

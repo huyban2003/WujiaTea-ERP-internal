@@ -181,7 +181,7 @@
                 <!-- Card: Cửa hàng nhượng quyền -->
                 <t t-call="wujia_portal_layout.wj_surface_card">
                     <t t-set="sc_variant" t-value="'section'"/>
-                    <t t-set="sc_class" t-value="'wujia-mdash-card wj-state-surface'"/>
+                    <t t-set="sc_class" t-value="'wujia-mdash-card'"/>
                     <!-- Tên cửa hàng lên làm dòng phụ của tiêu đề (chủ dự án chốt 02/09) ⇒ mobile
                          xếp giống bản PC cùng card: tiêu đề → dòng phụ → badge. -->
                     <t t-call="wujia_portal_layout.wj_card_header">
@@ -221,7 +221,7 @@
                 <!-- Card: Hợp đồng nhượng quyền -->
                 <t t-call="wujia_portal_layout.wj_surface_card">
                     <t t-set="sc_variant" t-value="'section'"/>
-                    <t t-set="sc_class" t-value="'wujia-mdash-card wj-state-surface'"/>
+                    <t t-set="sc_class" t-value="'wujia-mdash-card'"/>
                     <t t-call="wujia_portal_layout.wj_card_header">
                         <t t-set="ch_title">Hợp đồng nhượng quyền</t>
                         <t t-set="ch_level" t-value="2"/>
@@ -252,7 +252,7 @@
                 <t t-call="wujia_portal_layout.wj_surface_card">
                     <t t-set="sc_variant" t-value="'section'"/>
                     <t t-set="sc_body" t-value="'flush'"/>
-                    <t t-set="sc_class" t-value="'wujia-mdash-card wj-state-surface'"/>
+                    <t t-set="sc_class" t-value="'wujia-mdash-card'"/>
                     <div class="wj-surface-headpad">
                         <t t-call="wujia_portal_layout.wj_card_header">
                             <t t-set="ch_title">Thành viên cửa hàng</t>
@@ -270,7 +270,7 @@
                         <t t-set="dl_pager">
                             <t t-call="wujia_portal_layout.wj_pagination"/>
                         </t>
-                        <div t-foreach="members" t-as="m" class="wujia-mdash-row wj-data-item wj-state-surface">
+                        <div t-foreach="members" t-as="m" class="wujia-mdash-row wj-data-item">
                             <span class="wujia-badge wujia-badge-info"
                                   t-out="role_labels.get(m.role, m.role)"/>
                             <span class="wujia-mdash-row-main">
@@ -308,17 +308,5 @@
         </t>
     </template>
 
-    <!-- Inject menu link into sidenav -->
-    <template id="sidenav_franchise_information"
-              inherit_id="wujia_portal_layout.layout_sidenav" priority="20">
-        <xpath expr="//li[@id='nav_item_home']" position="after">
-            <li class="nav-item" id="nav_item_franchise_information">
-                <a href="/portal/franchise-information" class="text-black">
-                    <i class="feather icon-info" aria-hidden="true"/>
-                    <span class="menu-title">Thông tin nhượng quyền</span>
-                </a>
-            </li>
-        </xpath>
-    </template>
 
 </odoo>

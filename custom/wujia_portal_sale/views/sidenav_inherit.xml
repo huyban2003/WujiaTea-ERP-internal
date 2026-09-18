@@ -1,16 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
 
+    <!-- F5a — mục sidebar của màn do CHÍNH module sở hữu route khai; khung
+         (wujia_portal_layout) chỉ giữ tiêu đề nhóm làm neo. Gỡ module này ⇒ mục biến mất. -->
     <template id="layout_sidenav_order"
               inherit_id="wujia_portal_layout.layout_sidenav"
               priority="20"
               name="Wujia Sidenav — Đặt hàng">
-        <xpath expr="//ul[@id='main-menu-navigation']" position="inside">
-            <li class="nav-item" id="nav_item_order">
-                <a href="/portal/order" class="text-black">
-                    <i class="feather icon-shopping-cart" aria-hidden="true"/>
-                    <span class="menu-title">Đặt hàng</span>
-                </a>
+        <xpath expr="//li[@id='nav_header_utils']" position="before">
+            <li t-attf-class="nav-item #{_p.startswith('/portal/order') and 'active' or ''}" id="nav_item_order">
+                <t t-call="wujia_portal_layout.wj_nav_item">
+                    <t t-set="ni_href" t-value="'/portal/order'"/>
+                    <t t-set="ni_icon" t-value="'feather icon-shopping-cart'"/>
+                    <t t-set="ni_label">Đặt hàng</t>
+                </t>
             </li>
         </xpath>
     </template>

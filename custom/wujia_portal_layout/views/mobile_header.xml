@@ -46,20 +46,7 @@
                     </div>
                 </div>
 
-                <!-- Cart shortcut → giỏ hiện tại. Badge dùng lại .wujia-header-cart-count. -->
-                <a class="wujia-mheader-action" href="/portal/order/cart" aria-label="Giỏ hàng">
-                    <!-- UI-04: SVG stroke 2.4 round thay icon font Feather (nét mảnh hơn
-                         source). Pattern y hệt .wujia-menu-svg dưới đây, chỉ khác stroke. -->
-                    <svg class="wujia-mheader-action-svg" xmlns="http://www.w3.org/2000/svg"
-                         viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"
-                         stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                        <circle cx="9" cy="21" r="1"/>
-                        <circle cx="20" cy="21" r="1"/>
-                        <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/>
-                    </svg>
-                    <!-- WJ-ORD-020: `hidden` thay cho việc render sẵn "0" rồi trông chờ CSS ẩn. -->
-                    <span class="wujia-header-badge wujia-header-cart-count" hidden="hidden"/>
-                </a>
+                <!-- F5a: nút giỏ hàng do wujia_portal_sale chèn vào đây (neo: .dropdown-user). -->
 
                 <!-- Avatar (dropdown profile / change-password / logout, như desktop). -->
                 <div class="dropdown dropdown-user wujia-mheader-action-wrap">
@@ -94,19 +81,7 @@
                             <i class="feather icon-user"/>
                             Thông tin tài khoản
                         </a>
-                        <a class="dropdown-item" href="/portal/franchise-information">
-                            <!-- toà nhà / cửa hàng — feather subset thiếu glyph 'building' → inline SVG (line-style khớp feather). -->
-                            <svg class="wujia-menu-svg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"
-                                 fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                                 stroke-linejoin="round" aria-hidden="true">
-                                <rect x="4" y="2" width="16" height="20" rx="2" ry="2"/>
-                                <path d="M9 22v-4h6v4"/>
-                                <path d="M8 6h.01"/><path d="M12 6h.01"/><path d="M16 6h.01"/>
-                                <path d="M8 10h.01"/><path d="M12 10h.01"/><path d="M16 10h.01"/>
-                                <path d="M8 14h.01"/><path d="M12 14h.01"/><path d="M16 14h.01"/>
-                            </svg>
-                            Thông tin cửa hàng
-                        </a>
+                        <!-- F5a: mục "Thông tin cửa hàng" do wujia_portal_base chèn (neo: /portal/change-password). -->
                         <a class="dropdown-item" href="/portal/change-password">
                             <!-- chìa khoá — feather subset thiếu glyph 'key' → inline SVG (feather key path). -->
                             <svg class="wujia-menu-svg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"

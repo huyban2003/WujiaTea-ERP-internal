@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- F5a — mục "Thông tin cửa hàng" trong dropdown avatar mobile: route
+         /portal/franchise-information là của module này. Giữ nguyên inline SVG
+         (feather subset thiếu glyph 'building'). -->
+    <template id="mobile_header_franchise_information"
+              inherit_id="wujia_portal_layout.mobile_header"
+              priority="20"
+              name="Wujia Mobile Header — Thông tin cửa hàng">
+        <xpath expr="//a[@href='/portal/change-password']" position="before">
+            <a class="dropdown-item" href="/portal/franchise-information">
+                <svg class="wujia-menu-svg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"
+                     fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                     stroke-linejoin="round" aria-hidden="true">
+                    <rect x="4" y="2" width="16" height="20" rx="2" ry="2"/>
+                    <path d="M9 22v-4h6v4"/>
+                    <path d="M8 6h.01"/><path d="M12 6h.01"/><path d="M16 6h.01"/>
+                    <path d="M8 10h.01"/><path d="M12 10h.01"/><path d="M16 10h.01"/>
+                    <path d="M8 14h.01"/><path d="M12 14h.01"/><path d="M16 14h.01"/>
+                </svg>
+                Thông tin cửa hàng
+            </a>
+        </xpath>
+    </template>
+
+</odoo>

@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- F5a — Lịch sử đặt hàng không có tab riêng ở bottom-nav; nó làm SÁNG tab
+         "Đặt hàng" (hành vi từ Sprint 11). Khai tiền tố của mình vào biến chung,
+         priority 15 để chạy TRƯỚC tab Đặt hàng (20). Gỡ module này ⇒ hết sáng. -->
+    <template id="mobile_bottomnav_history_alias"
+              inherit_id="wujia_portal_layout.mobile_bottomnav"
+              priority="15"
+              name="Wujia Mobile — Lịch sử đặt hàng sáng tab Đặt hàng">
+        <xpath expr="//button[@data-wujia-more='toggle']" position="before">
+            <t t-set="_bnav_order_extra"
+               t-value="(_bnav_order_extra or []) + ['/portal/purchase-history']"/>
+        </xpath>
+    </template>
+
+</odoo>

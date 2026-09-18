@@ -200,7 +200,7 @@
                     <t t-set="dl_variant" t-value="'detail-card'"/>
                     <t t-set="dl_class" t-value="'wujia-mdelivery-list'"/>
                     <t t-foreach="[1, 2, 3]" t-as="s">
-                        <div class="wujia-mdelivery-row wujia-mdelivery-skel wj-data-item wj-state-surface">
+                        <div class="wujia-mdelivery-row wujia-mdelivery-skel wj-data-item">
                             <span class="wujia-mdelivery-row-top">
                                 <span class="wujia-mdelivery-row-headmain">
                                     <span class="wujia-mdelivery-skel-bar" style="width:70px;height:10px;"/>
@@ -498,7 +498,7 @@
                 <!-- Batch info -->
                 <t t-call="wujia_portal_layout.wj_surface_card">
                     <t t-set="sc_variant" t-value="'section'"/>
-                    <t t-set="sc_class" t-value="'wujia-mdash-card wj-state-surface'"/>
+                    <t t-set="sc_class" t-value="'wujia-mdash-card'"/>
                     <div class="wujia-mdelivery-inf-top">
                         <span class="wujia-mdelivery-row-label">Chuyến xe</span>
                         <span t-attf-class="wj-status-badge #{m_badge[1]}" t-out="m_badge[0]"/>
@@ -519,7 +519,7 @@
                 <div class="wujia-mdelivery-sectiontop">Thông tin chuyến</div>
                 <t t-call="wujia_portal_layout.wj_surface_card">
                     <t t-set="sc_variant" t-value="'section'"/>
-                    <t t-set="sc_class" t-value="'wujia-mdash-card wj-state-surface'"/>
+                    <t t-set="sc_class" t-value="'wujia-mdash-card'"/>
                     <div class="wujia-mdelivery-inforow">
                         <span class="lbl">Đơn liên quan</span>
                         <span class="val" t-out="m_orders"/>

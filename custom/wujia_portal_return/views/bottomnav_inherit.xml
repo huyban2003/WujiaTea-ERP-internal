@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- F5a — dòng sheet "Thêm" của màn này. -->
+    <template id="mobile_bottomnav_return"
+              inherit_id="wujia_portal_layout.mobile_bottomnav"
+              priority="20"
+              name="Wujia Mobile — sheet Thêm: Đổi trả / Bù hàng">
+        <xpath expr="//a[@href='/portal/profile']" position="before">
+            <t t-call="wujia_portal_layout.wj_msheet_item">
+                <t t-set="mi_href" t-value="'/portal/return'"/>
+                <t t-set="mi_icon" t-value="'feather icon-corner-up-left'"/>
+                <t t-set="mi_title">Đổi trả / Bù hàng</t>
+                <t t-set="mi_sub">Gửi và theo dõi yêu cầu xử lý sản phẩm</t>
+            </t>
+        </xpath>
+    </template>
+
+</odoo>

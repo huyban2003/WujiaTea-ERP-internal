@@ -695,12 +695,9 @@
         line-height: 22px;
     }
 
-    /* F4(c) nợ FR-B: Vuexy `table th{16px !important}` nuốt cỡ 14 của component ở MỌI bảng PC
-       (đo 17/09: 8 màn đang 16px, gồm Khảo sát). Sửa ở component là đổi 8 màn ⇒ để FR-B quyết. */
-    .wj-exam-pc .wj-pc-table thead th        { font-size: 14px !important; }
-    .wj-exam-pc .wj-exam-pc-res-table thead th  { font-size: 13px !important; }
-    .wj-exam-pc .wj-exam-pc-part-table thead th,
-    .wj-exam-pc .wj-exam-pc-sum-table thead th  { font-size: 12px !important; }
+    /* FR-B(a) 18/09: đã xoá 4 rule `!important` của F4(c). Chúng chỉ tồn tại để chống luật quét
+       chung `table th{16px!important}` của layout — luật đó nay đã gỡ, nên mỗi bảng tự ăn cỡ
+       khai ở luật thường: .wj-data-table 14 · res-table 13 (dòng ~816) · part/sum 12 (~1291, ~1612). */
 
     .wj-exam-pc label  { padding-left: 0; }
     .wj-exam-pc select { padding: 0 18px !important; }

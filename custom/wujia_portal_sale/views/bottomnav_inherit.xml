@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- F5a — tab bottom-nav của màn này; khung chỉ giữ nút "Thêm" làm neo. -->
+    <template id="mobile_bottomnav_order"
+              inherit_id="wujia_portal_layout.mobile_bottomnav"
+              priority="20"
+              name="Wujia Mobile — tab Đặt hàng">
+        <xpath expr="//button[@data-wujia-more='toggle']" position="before">
+            <!-- Màn khác cũng làm tab này sáng (Lịch sử đặt hàng) tự khai vào
+                 _bnav_order_extra ở priority nhỏ hơn — sale không cần biết route của họ. -->
+            <t t-set="_bn_on" t-value="[p for p in (['/portal/order'] + (_bnav_order_extra or [])) if _bnav_path.startswith(p)]"/>
+            <t t-set="_bnav_hit" t-value="_bnav_hit or bool(_bn_on)"/>
+            <t t-call="wujia_portal_layout.wj_bnav_item">
+                <t t-set="bn_active" t-value="_bn_on"/>
+                <t t-set="bn_href" t-value="'/portal/order'"/>
+                <t t-set="bn_icon" t-value="'feather icon-shopping-cart'"/>
+                <t t-set="bn_label">Đặt hàng</t>
+            </t>
+        </xpath>
+    </template>
+
+</odoo>

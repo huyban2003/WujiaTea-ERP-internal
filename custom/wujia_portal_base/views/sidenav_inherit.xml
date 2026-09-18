@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- F5a — mục sidebar của màn do CHÍNH module sở hữu route khai; khung
+         (wujia_portal_layout) chỉ giữ tiêu đề nhóm làm neo. Gỡ module này ⇒ mục biến mất. -->
+    <template id="layout_sidenav_home"
+              inherit_id="wujia_portal_layout.layout_sidenav"
+              priority="10"
+              name="Wujia Sidenav — Trang chủ">
+        <xpath expr="//li[@id='nav_header_utils']" position="before">
+            <!-- /portal/franchise-information là route của base ⇒ base tự khai nó vào
+                 vùng sáng của mục "Tài khoản", layout không cần biết đường dẫn này. -->
+            <t t-set="_nav_acct_extra"
+               t-value="(_nav_acct_extra or []) + ['/portal/franchise-information']"/>
+            <li t-attf-class="nav-item #{_p == '/portal' and 'active' or ''}" id="nav_item_home">
+                <t t-call="wujia_portal_layout.wj_nav_item">
+                    <t t-set="ni_href" t-value="'/portal'"/>
+                    <t t-set="ni_icon" t-value="'feather icon-home'"/>
+                    <t t-set="ni_label">Trang chủ</t>
+                    <!-- Mọi route portal đều bắt đầu bằng /portal ⇒ mục này khớp TUYỆT ĐỐI. -->
+                </t>
+            </li>
+        </xpath>
+    </template>
+
+</odoo>

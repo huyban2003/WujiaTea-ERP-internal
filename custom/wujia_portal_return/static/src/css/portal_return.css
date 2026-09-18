@@ -136,3 +136,8 @@
     color: var(--wujia-morder-text-sub, #6B7280);
     overflow-wrap: anywhere;
 }
+
+/* FR-B(a): bảng sản phẩm ở chi tiết Đổi trả dùng <table> thô nên không có luật đầu bảng
+   riêng; trước đây cỡ 16px là do luật quét chung `table th{16px!important}` của layout.
+   Gỡ luật đó ⇒ khai cỡ chuẩn 14px tại chỗ, không mượn selector của layout. */
+.wj-return-ptable thead th { font-size: 14px; }

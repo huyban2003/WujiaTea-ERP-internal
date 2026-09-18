@@ -1,6 +1,6 @@
 {
     'name': 'Wujia Portal — Sale (Catalog + Cart)',
-    'version': '19.0.4.17.2',
+    'version': '19.0.4.17.5',
     'category': 'Wujia',
     'summary': 'Trang đặt hàng portal — catalog + giỏ hàng chung theo cửa hàng (BA controller mapping)',
     'author': 'WujiaTea',
@@ -14,6 +14,8 @@
     'data': [
         'security/ir.model.access.csv',
         'views/sidenav_inherit.xml',
+        'views/mheader_inherit.xml',
+        'views/bottomnav_inherit.xml',
         'views/header_cart_inherit.xml',
         'views/pc_cart_panel.xml',
         'views/portal_order_catalog.xml',

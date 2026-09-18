@@ -91,14 +91,14 @@
                     <h5 style="margin:24px 0 12px;color:#6B7280;">Filter bar (CMP-FB-001 · control h42)</h5>
                     <t t-call="wujia_portal_layout.wj_filter_bar">
                         <t t-set="fb_platform" t-value="'pc'"/>
-                        <t t-set="fb_action" t-value="'/portal/pc-preview'"/>
+                        <t t-set="fb_action" t-value="'/portal/_pc-preview'"/>
                         <t t-set="fb_search"
                            t-value="{'name': 'q', 'placeholder': 'Tìm theo mã đơn, tên sản phẩm, nội dung...'}"/>
                         <t t-set="fb_dates" t-value="{'from': '', 'to': ''}"/>
                         <t t-set="fb_selects"
                            t-value="[{'name': 'state', 'all_label': 'Trạng thái',
                                       'options': [('draft', 'Nháp'), ('sale', 'Đã xác nhận')]}]"/>
-                        <t t-set="fb_reset_url" t-value="'/portal/pc-preview'"/>
+                        <t t-set="fb_reset_url" t-value="'/portal/_pc-preview'"/>
                     </t>
 
                     <!-- Data table -->

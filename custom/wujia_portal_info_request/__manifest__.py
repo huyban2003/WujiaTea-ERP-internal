@@ -1,6 +1,6 @@
 {
     'name': 'Wujia Portal — Info Update Request',
-    'version': '19.0.1.10.1',
+    'version': '19.0.1.10.2',
     'category': 'Wujia',
     'summary': 'Cửa hàng nhượng quyền gửi yêu cầu cập nhật thông tin '
                '(địa chỉ, SĐT, người đại diện...) — HQ duyệt qua chatter.',
@@ -15,7 +15,6 @@
         'views/portal_info_request_form.xml',
         'views/portal_info_request_detail.xml',
         'views/info_request_backend.xml',
-        'views/sidenav_inherit.xml',
     ],
     'installable': True,
     'application': False,

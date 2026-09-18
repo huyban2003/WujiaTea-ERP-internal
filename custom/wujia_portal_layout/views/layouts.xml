@@ -123,18 +123,9 @@
                                             <i class="feather icon-user"/>
                                             Thông tin tài khoản
                                         </a>
-                                        <a t-attf-class="dropdown-item #{cur_path == '/portal/franchise-information' and 'is-active' or ''}"
-                                           href="/portal/franchise-information">
-                                            <svg class="wujia-menu-svg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"
-                                                 fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                                                 stroke-linejoin="round" aria-hidden="true">
-                                                <rect x="4" y="2" width="16" height="20" rx="2" ry="2"/>
-                                                <path d="M9 22v-4h6v4"/>
-                                                <path d="M8 6h.01"/><path d="M12 6h.01"/><path d="M16 6h.01"/>
-                                                <path d="M8 10h.01"/><path d="M12 10h.01"/><path d="M16 10h.01"/>
-                                            </svg>
-                                            Thông tin cửa hàng
-                                        </a>
+                                        <!-- F5a: mục "Thông tin cửa hàng" là route của
+                                             wujia_portal_base ⇒ module đó tự chèn vào đây
+                                             (trước mục Đổi mật khẩu). Khung không biết route. -->
                                         <a t-attf-class="dropdown-item #{cur_path == '/portal/change-password' and 'is-active' or ''}"
                                            href="/portal/change-password">
                                             <i class="feather icon-lock"/>
@@ -178,14 +169,24 @@
 
                 <div class="shadow-bottom"/>
                 <div class="main-menu-content " >
+                    <!-- F5a: khung chỉ giữ 2 tiêu đề nhóm làm NEO kế thừa; mục menu do
+                         module sở hữu route chèn vào (`position="before"` tiêu đề TIỆN ÍCH,
+                         thứ tự theo priority của inherit). Mục Tài khoản ở lại đây vì
+                         /portal/profile và /portal/change-password là route của chính khung.
+                         `_p` đặt một lần ở đây để mọi mục dùng chung (mục tự khai điều kiện
+                         sáng theo route của mình — khung không biết route nghiệp vụ). -->
+                    <t t-set="_p" t-value="request.httprequest.path or ''"/>
                     <ul class="navigation navigation-main" id="main-menu-navigation"
                         data-menu="menu-navigation" >
-                        <li class="navigation-header wujia-nav-header"><span>MENU CHÍNH</span></li>
-                        <li class="nav-item" id="nav_item_home">
-                            <a href="/portal">
-                                <i class="feather icon-home" aria-hidden="true"></i>
-                                <span class="menu-title">Home</span>
-                            </a>
+                        <li class="navigation-header wujia-nav-header" id="nav_header_main"><span>MENU CHÍNH</span></li>
+                        <li class="navigation-header wujia-nav-header" id="nav_header_utils"><span>TIỆN ÍCH</span></li>
+                        <li t-attf-class="nav-item #{_p in (['/portal/profile', '/portal/change-password'] + (_nav_acct_extra or [])) and 'active' or ''}"
+                            id="nav_item_account">
+                            <t t-call="wujia_portal_layout.wj_nav_item">
+                                <t t-set="ni_href" t-value="'/portal/profile'"/>
+                                <t t-set="ni_icon" t-value="'feather icon-user'"/>
+                                <t t-set="ni_label">Tài khoản</t>
+                            </t>
                         </li>
                         <t t-out="0"/>
                     </ul>

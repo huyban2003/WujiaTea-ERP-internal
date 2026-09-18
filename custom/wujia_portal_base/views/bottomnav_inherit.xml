@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- F5a — tab bottom-nav của màn này; khung chỉ giữ nút "Thêm" làm neo. -->
+    <template id="mobile_bottomnav_home"
+              inherit_id="wujia_portal_layout.mobile_bottomnav"
+              priority="10"
+              name="Wujia Mobile — tab Trang chủ">
+        <xpath expr="//button[@data-wujia-more='toggle']" position="before">
+            <t t-set="_bn_on" t-value="_bnav_path == '/portal'"/>
+            <t t-set="_bnav_hit" t-value="_bnav_hit or bool(_bn_on)"/>
+            <t t-call="wujia_portal_layout.wj_bnav_item">
+                <t t-set="bn_active" t-value="_bn_on"/>
+                <t t-set="bn_href" t-value="'/portal'"/>
+                <t t-set="bn_icon" t-value="'feather icon-home'"/>
+                <t t-set="bn_label">Trang chủ</t>
+            </t>
+        </xpath>
+    </template>
+
+    <!-- F5a — dòng sheet "Thêm" của màn này. -->
+    <template id="mobile_bottomnav_franchise_information"
+              inherit_id="wujia_portal_layout.mobile_bottomnav"
+              priority="45"
+              name="Wujia Mobile — sheet Thêm: Hồ sơ cửa hàng">
+        <xpath expr="//a[@href='/portal/profile']" position="before">
+            <t t-call="wujia_portal_layout.wj_msheet_item">
+                <t t-set="mi_href" t-value="'/portal/franchise-information'"/>
+                <t t-set="mi_icon" t-value="'feather icon-home'"/>
+                <t t-set="mi_title">Hồ sơ cửa hàng</t>
+                <t t-set="mi_sub">Thông tin nhượng quyền và cửa hàng</t>
+            </t>
+        </xpath>
+    </template>
+
+</odoo>

@@ -18,6 +18,7 @@ import argparse
 import ast
 import json
 import pathlib
+import re
 import sys
 
 ROOT = pathlib.Path(__file__).resolve().parents[2]
@@ -79,6 +80,45 @@ def closure(name, deps, seen=None):
     return seen
 
 
+
+FRAME_MODULE = 'wujia_portal_layout'
+ROUTE_RE = re.compile(r"/portal(?:/[A-Za-z0-9_\-]+)*")
+OWN_ROUTE_RE = re.compile(r"@http\.route\(\s*\[?\s*(['\"])(/portal[^'\"]*)\1")
+
+
+def frame_own_routes():
+    """Route do CHÍNH khung khai bằng @http.route (bỏ phần converter <...>)."""
+    own = {'/portal'}
+    for py in sorted((CUSTOM / FRAME_MODULE / 'controllers').glob('*.py')):
+        for _q, route in OWN_ROUTE_RE.findall(py.read_text(encoding='utf-8')):
+            own.add(route.split('<')[0].rstrip('/') or '/portal')
+    return own
+
+
+def check_frame_routes():
+    """R6 — khung kênh KHÔNG được biết route của màn nghiệp vụ (cụm F, phiên F5a).
+
+    Quét views/ + controllers/ của wujia_portal_layout: mọi đường dẫn /portal/... không
+    phải route của chính khung là vi phạm ⇒ mục menu/link đó phải do module sở hữu route
+    chèn vào bằng inherit. Không quét CSS/JS: ở đó /portal chỉ nằm trong chú thích.
+    """
+    own = frame_own_routes()
+    out = []
+    root = CUSTOM / FRAME_MODULE
+    for f in sorted(list((root / 'views').glob('*.xml')) + list((root / 'controllers').glob('*.py'))):
+        for i, line in enumerate(f.read_text(encoding='utf-8').split('\n'), 1):
+            if line.lstrip().startswith(('<!--', '#')):
+                continue
+            for route in ROUTE_RE.findall(line):
+                route = route.rstrip('/')
+                if route in own or any(route.startswith(o + '/') for o in own if o != '/portal'):
+                    continue
+                if route == '/portal':
+                    continue
+                out.append({'file': str(f.relative_to(ROOT)), 'line': i, 'route': route})
+    return out
+
+
 def check(deps):
     violations, unknown = [], []
     for mod, direct in deps.items():
@@ -128,9 +168,18 @@ def main():
     print('\n| Module | Depend | Luật | Chủ code | Ghi chú |\n|---|---|---|---|---|')
     for v in violations:
         print(f"| `{v['module']}` | `{v['depends']}` | {v['rule']} | {v['owner']} | {v['note']} |")
+    frame = check_frame_routes()
+    print(f'\n# R6 — khung {FRAME_MODULE} biết route Wujia: {len(frame)} vi phạm')
+    if frame:
+        print('\n| File | Dòng | Route |\n|---|---|---|')
+        for v in frame:
+            print(f"| `{v['file']}` | {v['line']} | `{v['route']}` |")
+
     if args.json:
-        pathlib.Path(args.json).write_text(json.dumps({'violations': violations, 'unknown': unknown}, ensure_ascii=False, indent=2))
-    return 1 if args.strict and (violations or unknown) else 0
+        pathlib.Path(args.json).write_text(json.dumps(
+            {'violations': violations, 'unknown': unknown, 'frame_routes': frame},
+            ensure_ascii=False, indent=2))
+    return 1 if args.strict and (violations or unknown or frame) else 0
 
 
 if __name__ == '__main__':

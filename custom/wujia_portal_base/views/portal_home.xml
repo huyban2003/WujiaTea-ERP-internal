@@ -315,7 +315,7 @@
                                      inherit thay bằng link + số thật). Không có nguồn ⇒ "—" chứ
                                      KHÔNG in 0đ: 0 là một giá trị kế toán, thiếu dữ liệu thì không
                                      được hiểu thành đã trả hết (STT11 acceptance #5). -->
-                                <div class="wujia-mhome-kpi wj-state-surface">
+                                <div class="wujia-mhome-kpi">
                                     <span class="wujia-mhome-kpi-label">Công nợ</span>
                                     <span class="wujia-mhome-kpi-value">—</span>
                                 </div>
@@ -403,7 +403,7 @@
                             <t t-call="wujia_portal_layout.wj_surface_card" t-else="">
                                 <t t-set="sc_variant" t-value="'section'"/>
                                 <t t-set="sc_body" t-value="'flush'"/>
-                                <t t-set="sc_class" t-value="'wujia-mdash-card wujia-mdash-list wj-surface-card--listwrap wj-state-surface'"/>
+                                <t t-set="sc_class" t-value="'wujia-mdash-card wujia-mdash-list wj-surface-card--listwrap'"/>
                                 <t t-call="wujia_portal_layout.wj_data_list">
                                     <t t-set="dl_variant" t-value="'compact-row'"/>
                                     <t t-foreach="latest_notifications" t-as="noti">
@@ -454,7 +454,7 @@
                             <t t-call="wujia_portal_layout.wj_surface_card" t-else="">
                                 <t t-set="sc_variant" t-value="'section'"/>
                                 <t t-set="sc_body" t-value="'flush'"/>
-                                <t t-set="sc_class" t-value="'wujia-mdash-card wujia-mdash-list wj-surface-card--listwrap wj-state-surface'"/>
+                                <t t-set="sc_class" t-value="'wujia-mdash-card wujia-mdash-list wj-surface-card--listwrap'"/>
                                 <t t-call="wujia_portal_layout.wj_data_list">
                                     <t t-set="dl_variant" t-value="'compact-row'"/>
                                     <t t-foreach="m_upcoming_batches" t-as="it">
@@ -495,7 +495,7 @@
                             <t t-call="wujia_portal_layout.wj_surface_card" t-else="">
                                 <t t-set="sc_variant" t-value="'section'"/>
                                 <t t-set="sc_body" t-value="'flush'"/>
-                                <t t-set="sc_class" t-value="'wujia-mdash-card wujia-mdash-list wj-surface-card--listwrap wj-state-surface'"/>
+                                <t t-set="sc_class" t-value="'wujia-mdash-card wujia-mdash-list wj-surface-card--listwrap'"/>
                                 <t t-call="wujia_portal_layout.wj_data_list">
                                     <t t-set="dl_variant" t-value="'compact-row'"/>
                                     <t t-foreach="recent_orders" t-as="o">
@@ -537,7 +537,7 @@
                             <t t-call="wujia_portal_layout.wj_surface_card" t-else="">
                                 <t t-set="sc_variant" t-value="'section'"/>
                                 <t t-set="sc_body" t-value="'flush'"/>
-                                <t t-set="sc_class" t-value="'wujia-mdash-card wujia-mdash-list wj-surface-card--listwrap wj-state-surface'"/>
+                                <t t-set="sc_class" t-value="'wujia-mdash-card wujia-mdash-list wj-surface-card--listwrap'"/>
                                 <t t-call="wujia_portal_layout.wj_data_list">
                                     <t t-set="dl_variant" t-value="'compact-row'"/>
                                     <t t-foreach="articles" t-as="art">
@@ -573,7 +573,7 @@
                             <t t-call="wujia_portal_layout.wj_surface_card" t-else="">
                                 <t t-set="sc_variant" t-value="'section'"/>
                                 <t t-set="sc_body" t-value="'flush'"/>
-                                <t t-set="sc_class" t-value="'wujia-mdash-card wujia-mdash-list wj-surface-card--listwrap wj-state-surface'"/>
+                                <t t-set="sc_class" t-value="'wujia-mdash-card wujia-mdash-list wj-surface-card--listwrap'"/>
                                 <t t-call="wujia_portal_layout.wj_data_list">
                                     <t t-set="dl_variant" t-value="'compact-row'"/>
                                     <t t-foreach="latest_returns" t-as="r">
@@ -608,7 +608,7 @@
                             <t t-call="wujia_portal_layout.wj_surface_card">
                                 <t t-set="sc_variant" t-value="'section'"/>
                                 <t t-set="sc_body" t-value="'flush'"/>
-                                <t t-set="sc_class" t-value="'wujia-mdash-card wujia-mdash-list wj-state-surface'"/>
+                                <t t-set="sc_class" t-value="'wujia-mdash-card wujia-mdash-list'"/>
                                 <a href="/portal/support/new" class="wujia-mdash-row wj-state-surface">
                                     <span class="wujia-mdash-tile"><i class="feather icon-headphones"/></span>
                                     <span class="wujia-mdash-row-main">
@@ -643,22 +643,22 @@
                             <t t-call="wujia_portal_layout.wj_surface_card">
                                 <t t-set="sc_variant" t-value="'section'"/>
                                 <t t-set="sc_body" t-value="'flush'"/>
-                                <t t-set="sc_class" t-value="'wujia-mdash-card wujia-mdash-list wj-state-surface'"/>
-                                <div class="wujia-mdash-row wj-state-surface">
+                                <t t-set="sc_class" t-value="'wujia-mdash-card wujia-mdash-list'"/>
+                                <div class="wujia-mdash-row">
                                     <span class="wujia-mdash-ico"><i class="feather icon-map-pin"/></span>
                                     <span class="wujia-mdash-row-main">
                                         <span class="wujia-mdash-row-sub">Địa chỉ</span>
                                         <span class="wujia-mdash-row-sub is-strong" t-out="active_franchise.address or '—'"/>
                                     </span>
                                 </div>
-                                <div class="wujia-mdash-row wj-state-surface">
+                                <div class="wujia-mdash-row">
                                     <span class="wujia-mdash-ico"><i class="feather icon-phone"/></span>
                                     <span class="wujia-mdash-row-main">
                                         <span class="wujia-mdash-row-sub">Điện thoại</span>
                                         <span class="wujia-mdash-row-sub is-strong" t-out="active_franchise.phone or '—'"/>
                                     </span>
                                 </div>
-                                <div class="wujia-mdash-row wj-state-surface">
+                                <div class="wujia-mdash-row">
                                     <span class="wujia-mdash-ico"><i class="feather icon-user"/></span>
                                     <span class="wujia-mdash-row-main">
                                         <span class="wujia-mdash-row-sub">Người phụ trách</span>

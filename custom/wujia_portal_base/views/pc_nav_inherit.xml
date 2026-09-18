@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- F5a — /portal/franchise-information là route của wujia_portal_base, nên MỌI
+         chỗ điều hướng tới nó đều do module này chèn, kể cả hai chỗ trên khổ PC:
+         dropdown avatar ở navbar và thẻ nav trái của shell Tài khoản.
+         Gỡ wujia_portal_base ⇒ hai mục biến mất, khung không gãy. -->
+
+    <template id="navbar_franchise_information"
+              inherit_id="wujia_portal_layout.layout_top_navbar"
+              priority="20"
+              name="Wujia PC Navbar — Thông tin cửa hàng">
+        <xpath expr="//div[hasclass('wj-pc-acct-menu')]/a[@href='/portal/change-password']"
+               position="before">
+            <a t-attf-class="dropdown-item #{cur_path == '/portal/franchise-information' and 'is-active' or ''}"
+               href="/portal/franchise-information">
+                <svg class="wujia-menu-svg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"
+                     fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                     stroke-linejoin="round" aria-hidden="true">
+                    <rect x="4" y="2" width="16" height="20" rx="2" ry="2"/>
+                    <path d="M9 22v-4h6v4"/>
+                    <path d="M8 6h.01"/><path d="M12 6h.01"/><path d="M16 6h.01"/>
+                    <path d="M8 10h.01"/><path d="M12 10h.01"/><path d="M16 10h.01"/>
+                </svg>
+                Thông tin cửa hàng
+            </a>
+        </xpath>
+    </template>
+
+    <template id="pc_account_nav_franchise_information"
+              inherit_id="wujia_portal_layout.pc_account_layout"
+              priority="20"
+              name="Wujia PC Tài khoản — mục Thông tin cửa hàng">
+        <xpath expr="//nav[hasclass('wj-pc-acct-nav__list')]/a[@href='/portal/change-password']"
+               position="before">
+            <a href="/portal/franchise-information"
+               t-attf-class="wj-pc-acct-nav__item #{acct_page == 'store' and 'is-active' or ''}">
+                <svg class="wujia-menu-svg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"
+                     fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                     stroke-linejoin="round" aria-hidden="true" style="width:18px;height:18px;">
+                    <rect x="4" y="2" width="16" height="20" rx="2" ry="2"/>
+                    <path d="M9 22v-4h6v4"/>
+                    <path d="M8 6h.01"/><path d="M12 6h.01"/><path d="M16 6h.01"/>
+                    <path d="M8 10h.01"/><path d="M12 10h.01"/><path d="M16 10h.01"/>
+                    <path d="M8 14h.01"/><path d="M12 14h.01"/><path d="M16 14h.01"/>
+                </svg>
+                <span>Thông tin cửa hàng</span>
+            </a>
+        </xpath>
+    </template>
+
+</odoo>

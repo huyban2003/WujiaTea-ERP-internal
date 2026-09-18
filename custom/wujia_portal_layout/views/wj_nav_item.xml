@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <!-- F5a — khung chỉ giữ MẪU mục menu; route + nhãn + icon do module sở hữu
+             màn truyền vào (ADR-027: khung kênh không biết màn nghiệp vụ).
+             Active tính TẠI SERVER, một chỗ duy nhất (UI-PC-BASE-012). -->
+
+        <!-- THÂN mục sidebar PC (a + icon + nhãn). <li> nằm ở module sở hữu route:
+             xpath kế thừa làm việc trên ARCH, nên `id` của <li> phải có thật trong arch
+             (wujia_portal_inspection.pc_sidenav_inspection xpath //li[@id='nav_item_exam']),
+             không thể sinh ra lúc render bằng t-att-id. Lớp `active` cũng ở <li> — module
+             tự khai điều kiện theo route của mình, dùng biến `_p` layout đặt sẵn. -->
+        <template id="wj_nav_item" name="Wujia — thân mục sidebar PC">
+            <a t-att-href="ni_href">
+                <i t-attf-class="#{ni_icon}" aria-hidden="true"/>
+                <span class="menu-title"><t t-out="ni_label"/></span>
+            </a>
+        </template>
+
+        <!-- Tab bottom-nav mobile. Module tính sẵn `bn_active` (một điều kiện duy
+             nhất cho cả tab và cờ _bnav_hit của nút "Thêm") rồi truyền vào đây. -->
+        <template id="wj_bnav_item" name="Wujia — tab bottom-nav mobile">
+            <a t-att-href="bn_href"
+               t-attf-class="wujia-mhome-nav-item #{bn_active and 'is-active' or ''}">
+                <i t-attf-class="#{bn_icon}"/>
+                <t t-out="0"/>
+                <span class="wujia-mhome-nav-label"><t t-out="bn_label"/></span>
+            </a>
+        </template>
+
+        <!-- Dòng trong sheet "Thêm chức năng". Nội dung t-call = badge trong tiêu đề. -->
+        <template id="wj_msheet_item" name="Wujia — dòng sheet Thêm">
+            <a t-att-href="mi_href" t-attf-class="wujia-msheet-item #{mi_class or ''}">
+                <span class="wujia-msheet-item-icon"><i t-attf-class="#{mi_icon}"/></span>
+                <span class="wujia-msheet-item-text">
+                    <span class="wujia-msheet-item-title"><t t-out="mi_title"/><t t-out="0"/></span>
+                    <span class="wujia-msheet-item-sub"><t t-out="mi_sub"/></span>
+                </span>
+                <i class="feather icon-chevron-right wujia-msheet-item-chevron"/>
+            </a>
+        </template>
+    </data>
+</odoo>

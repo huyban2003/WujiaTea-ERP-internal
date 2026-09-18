@@ -1,19 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
 
+    <!-- F5a — mục sidebar của màn do CHÍNH module sở hữu route khai; khung
+         (wujia_portal_layout) chỉ giữ tiêu đề nhóm làm neo. Gỡ module này ⇒ mục biến mất. -->
     <template id="layout_sidenav_exam"
               inherit_id="wujia_portal_layout.layout_sidenav"
-              priority="40"
-              name="Wujia Sidenav — Đào tạo (dropdown)">
-        <xpath expr="//ul[@id='main-menu-navigation']" position="inside">
-            <li class="nav-item has-sub" id="nav_item_exam">
-                <a href="#" class="text-black">
-                    <i class="feather icon-award" aria-hidden="true"/>
-                    <span class="menu-title">Đào tạo</span>
-                </a>
-                <ul class="menu-content">
-                    <li><a href="/portal/exam"><i class="feather icon-calendar me-1"/>Đăng ký thi</a></li>
-                </ul>
+              priority="65"
+              name="Wujia Sidenav — Đăng ký thi">
+        <xpath expr="//li[@id='nav_header_utils']" position="before">
+            <li t-attf-class="nav-item #{_p.startswith('/portal/exam') and 'active' or ''}" id="nav_item_exam">
+                <t t-call="wujia_portal_layout.wj_nav_item">
+                    <t t-set="ni_href" t-value="'/portal/exam'"/>
+                    <t t-set="ni_icon" t-value="'feather icon-edit'"/>
+                    <t t-set="ni_label">Đăng ký thi</t>
+                </t>
             </li>
         </xpath>
     </template>

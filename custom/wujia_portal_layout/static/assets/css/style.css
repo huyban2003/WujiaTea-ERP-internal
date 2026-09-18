@@ -149,9 +149,11 @@ html body .content.app-content .content-overlay {
     }
 }
 
-table th {
-    font-size: 16px!important;
-}
+
+/* FR-B(a) 18/09: đã gỡ `table th { font-size: 16px!important }` (có từ commit đầu).
+   Luật quét chung đó thắng mọi component nên 14/17 bảng PC hiển thị 16px, và khai báo
+   riêng của từng màn (Đặt hàng 13px) không bao giờ ăn. Nay mỗi bảng theo component của
+   nó: .wj-data-table thead th = 14px. ĐỪNG thêm lại luật quét theo thẻ ở đây. */
 
 .color-balance {
     color: var(--wujia-primary);
