@@ -1300,12 +1300,27 @@ a.wujia-mhome-kpi:active { opacity: 0.85; }
         color: var(--wujia-msheet-chevron);
     }
 
-    /* BlankShell content wrapper — chuẩn content area cho trang mobile MỚI.
-       RESP-MOB-SHELL-003: top-pad = token chung (không còn giá trị riêng từng trang). */
-    .wujia-mpage {
+    /* Khung nhịp dọc cho MỌI trang mobile — một rule, một token.
+       Trước đây mỗi trang một giá trị (mpage 14 · Home 18 · Công nợ 12 · Báo cáo 12,
+       còn Đặt hàng/Giỏ/Lịch sử dàn con bằng margin-bottom 10..16) nên hạ token ở một
+       nơi thì 6 trang không đổi. Nay mọi wrapper trang ăn chung token mobile.
+       Thêm trang mới: thêm lớp vào danh sách này, đừng khai gap riêng
+       (test guard test_mobile_rhythm.py sẽ báo đỏ nếu khai riêng). */
+    .wujia-mpage,
+    .wujia-mhome,
+    .wujia-morder,
+    .wujia-mcart,
+    .wujia-mhist,
+    .wujia-mhist-detail,
+    .wujia-mreport,
+    .wj-debt {
         display: flex;
         flex-direction: column;
         gap: var(--wujia-mshell-content-gap);
+    }
+    /* Padding KHÔNG gom vào rule trên: trang dựng trong .content-wrapper đã được
+       wrapper cấp pad-top (_wujia_theme.css), gom vào đây là cộng dồn hai lần. */
+    .wujia-mpage {
         padding: var(--wujia-mcontent-top) var(--wujia-mshell-content-pad-x) 0;
     }
 }
@@ -1687,9 +1702,17 @@ a.wujia-mhome-kpi:active { opacity: 0.85; }
 
 /* Mobile modifier (CMP-PG-001) — 1 hàng cao 52 = pad 12 + title 28 + pad 12; x do container. */
 .wj-page-header--m { padding: 12px 0; margin: 0 0 8px; min-height: 52px; }
-/* Gap header → nội dung đầu = 8 (spec). .wujia-mpage có gap chung 14 cho MỌI trang mobile
-   nên bù -6 tại đây thay vì đổi token dùng chung. */
-.wujia-mpage > .wj-page-header--m { margin-bottom: -6px; }
+/* Gap header → nội dung đầu = 8 (spec CMP-PG-001). Gap chung của trang mobile nay ĐÚNG
+   bằng 8 ⇒ ba rule bù trừ cũ (mpage -6, công nợ -4, báo cáo -4) hết lý do tồn tại, đã gỡ;
+   chỉ cần bỏ margin-bottom để gap là nguồn duy nhất. */
+.wujia-mpage > .wj-page-header--m,
+.wujia-mhome > .wj-page-header--m,
+.wujia-morder > .wj-page-header--m,
+.wujia-mcart > .wj-page-header--m,
+.wujia-mhist > .wj-page-header--m,
+.wujia-mhist-detail > .wj-page-header--m,
+.wujia-mreport > .wj-page-header--m,
+.wj-debt > .wj-page-header--m { margin-bottom: 0; }
 /* !important để thắng global `h1 { font-size: … !important }` (_components.css gotcha #13) */
 .wj-page-header--m .wj-page-header__title { font-size: 22px !important; line-height: 28px; }
 /* Meta căn phải cùng hàng với title; hết chỗ thì flex-wrap đẩy xuống dưới (spec RESPONSIVE) */
@@ -1773,7 +1796,11 @@ a.wujia-mhome-kpi:active { opacity: 0.85; }
 
 /* Mobile (--m) + không khai nền tảng (--any): title 20/28/800, nhịp 16 trước / 8 sau. */
 .wj-section-header--m,
-.wj-section-header--any { margin: 16px 0 8px; column-gap: 12px; row-gap: 4px; }
+.wj-section-header--any {
+    margin: var(--wujia-m-sechead-mt) 0 var(--wujia-m-sechead-mb);
+    column-gap: 12px;
+    row-gap: 4px;
+}
 /* !important để thắng global `h2 { font-size: … !important }` (_components.css:6) */
 .wj-section-header--m .wj-section-header__title,
 .wj-section-header--any .wj-section-header__title {

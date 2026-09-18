@@ -245,7 +245,13 @@
     --wujia-page-content-top: 24px;
     /* RESP-MOB-SHELL-003: mốc đầu nội dung mobile — dải cửa hàng kết y=152 → content y=168.
        MỘT giá trị cho MỌI trang mobile; đừng đặt padding-top riêng cho từng trang nữa. */
+    /* Giá trị THẬT dùng trên mobile nằm ở khối @media cuối file (nhịp dọc
+       mobile gom một chỗ); hai dòng dưới chỉ còn là mặc định dự phòng. */
     --wujia-mcontent-top:     16px;
+    /* Nhịp quanh tiêu đề nhóm. Rule .wj-section-header--m/--any nằm NGOÀI @media nên
+       PC cũng đọc token này — giữ đúng 16/8 cũ ở đây, mobile hạ xuống ở khối @media. */
+    --wujia-m-sechead-mt:     16px;
+    --wujia-m-sechead-mb:     8px;
     --wujia-page-title-gap:   14px;
     --wujia-kpi-content-gap:  22px;
 
@@ -393,5 +399,16 @@ html { font-size: 14px; }
         --wujia-surface-pad-regular: 14px;
         --wujia-surface-gap:         8px;
         --wujia-kpi-icon-size:       52px;
+
+        /* ---------- Nhịp dọc mobile — MỘT nguồn cho MỌI trang ----------
+           BA yêu cầu một màn hình điện thoại chứa được nhiều thông tin hơn.
+           Bốn giá trị dưới đây là toàn bộ khoảng cách cấp trang trên mobile:
+           khe giữa các khối, mép trên nội dung, và nhịp quanh tiêu đề nhóm.
+           Đặt trong khối mobile nên PC (>=992px) không thể bị ảnh hưởng —
+           khỏi phải chứng minh bằng phép đo. */
+        --wujia-mshell-content-gap:  8px;
+        --wujia-mcontent-top:        10px;
+        --wujia-m-sechead-mt:        6px;
+        --wujia-m-sechead-mb:        4px;
     }
 }

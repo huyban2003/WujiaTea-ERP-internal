@@ -45,7 +45,6 @@
     border: 1px solid var(--wujia-morder-border);
     border-radius: var(--wujia-morder-radius);
     padding: 16px;
-    margin-bottom: 14px;
 }
 .wujia-mhist-summary-top,
 .wujia-mhist-summary-bottom {
@@ -70,10 +69,8 @@
     color: var(--wujia-morder-text);
     white-space: nowrap;
 }
-.wujia-mhist-card {
-    /* D4d: dáng khung sang .wj-surface-card; margin là nhịp danh sách, giữ lại. */
-    margin-bottom: 14px;
-}
+/* D4d: dáng khung sang .wj-surface-card. Nhịp giữa các thẻ nay là gap chung của
+   trang mobile — bỏ margin riêng để chỉ còn một nguồn khoảng cách. */
 .wujia-mhist-prod {
     display: flex;
     align-items: flex-start;

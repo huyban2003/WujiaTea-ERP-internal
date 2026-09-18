@@ -203,10 +203,8 @@
 /* ===================== MOBILE (dưới 992px) ===================== */
 
 @media (max-width: 991.98px) {
-    /* Mockup: các khối cách nhau 12 (BlankShell dùng 14). Luật bù -6px của
-       CMP-PG-001 tính theo gap 14, gap 12 thì phải bù -4 để giữ đúng 8. */
-    .wujia-mreport { gap: 12px; }
-    .wujia-mreport > .wj-page-header--m { margin-bottom: -4px; }
+    /* Nhịp dọc + bù header lấy từ rule chung mọi trang mobile (_components.css):
+       gap chung đúng 8 nên không còn giá trị riêng lẫn rule bù. */
 
     .wj-rep-mbody {
         display: flex;

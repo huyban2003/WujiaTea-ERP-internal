@@ -29,18 +29,16 @@
     --wj-debt-soft:         var(--wujia-primary-soft);
     --wj-debt-divider:      var(--wujia-mshell-border);
 
-    display: flex;
-    flex-direction: column;
-    gap: 12px;                       /* Figma: mọi khối cách nhau 12 */
-    padding: 15px 16px 0;            /* shell header hết ở y=152, content top y=167 */
+    /* Nhịp dọc (flex column + gap) lấy từ rule chung mọi trang mobile trong
+       portal_layout/_components.css; ở đây chỉ còn lề riêng của trang. */
+    padding: var(--wujia-mcontent-top) var(--wujia-mshell-content-pad-x) 0;
 }
 
 /* ---------- Header ---------- */
 /* S53-B3b: header trang công nợ đã dùng chung CMP-PG-001 (22/28/700, cao 52).
    Gỡ override 26px + .wj-debt-header/-__count (hand-roll cũ, không còn markup). */
-/* CMP-PG-001: gap PageHeader → nội dung đầu = 8px. .wj-debt là flex column gap 12
-   (không phải .wujia-mpage gap 14) ⇒ bù -4 để tổng đúng 8. */
-.wj-debt > .wj-page-header--m { margin-bottom: -4px; }
+/* CMP-PG-001: gap PageHeader → nội dung đầu = 8px. Gap chung mobile nay đúng 8 ⇒ rule
+   bù -4 đã gỡ (xem _components.css). */
 /* S54-B4: nút 42×42 nay là chuẩn CMP-BPH-001 ở base ⇒ gỡ override kích thước,
    chỉ giữ mép trên y=160 và khoảng cách 14 theo Figma công nợ. */
 .wj-debt--back { padding-top: 8px; }

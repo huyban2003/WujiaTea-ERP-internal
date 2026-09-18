@@ -284,8 +284,9 @@ class TestSurfaceCardD4d(TransactionCase):
     def test_non_shape_rules_survive(self):
         keep = (
             (_mod_css('wujia_portal_sale', 'portal_order.css'), '.wujia-mres-card', 'max-width'),
-            (_mod_css('wujia_portal_purchase_history', 'portal_history.css'),
-             '.wujia-mhist-card', 'margin-bottom'),
+            # .wujia-mhist-card KHÔNG còn trong danh sách này: nhịp giữa các thẻ nay do
+            # gap chung của trang mobile cấp (một nguồn duy nhất cho mọi trang), nên
+            # margin-bottom riêng của nó bị gỡ — cộng dồn với gap là lỗi, không phải nhịp.
             (_css('_components.css'), '.wujia-mdash-card', 'display'),
             (_mod_css('wujia_portal_delivery', 'portal_delivery.css'),
              '.wujia-mdelivery-prodcard', 'overflow'),

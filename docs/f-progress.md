@@ -354,3 +354,45 @@ rồi đánh ✅ ở bảng Trạng thái §2 `docs/next-session-clusters-F.md`.
   - **Tên module trong chuỗi thông báo lỗi cũng bị tính là phụ thuộc chéo** — `test_ownership` bắt ngay;
     đưa tên module vào docstring, đừng đưa vào code.
 - Phiên kế: **E4b** — phủ hết call site FilterBar (`UI-FILTER-001`, E4a đã làm nền ở `12750a2`).
+
+## Nhịp dọc mobile — nén khoảng cách + gom về một token · 18/09/2026 · Mac
+- Kết quả: ◐ dở — **phần chuẩn hoá xong**, **chỉ tiêu −30…35% KHÔNG đạt (−8%)**, dừng theo chốt của
+  chủ dự án (hết giờ) để làm tiếp ở phiên sau.
+- Ngoài lộ trình cụm F: việc BA/chủ dự án giao trực tiếp từ ảnh chụp Home mobile ("khoảng trống giữa
+  các thành phần quá lớn"). Không đụng Issue List.
+- Đã làm:
+  - Nhịp dọc mobile nay khai ở **đúng một chỗ** (khối `:root` trong `@media (max-width:991.98px)` của
+    `_variables.css`): gap 14→**8**, mép trên 16→**10**, tiêu đề nhóm 16/8→**6/4** qua token mới
+    `--wujia-m-sechead-mt/mb`.
+  - Kéo **8 trang lạc chuẩn** về một rule chung: Home (gap 18) · Công nợ (12) · Báo cáo (12) ·
+    Đặt hàng/Giỏ/Lịch sử (dàn con bằng `margin-bottom` 10/14/16 — gỡ 5 margin).
+  - **Gỡ 3 rule bù trừ âm** cho PageHeader (−6 mpage, −4 công nợ, −4 báo cáo): gap chung nay đúng 8px
+    của CMP-PG-001 nên chúng hết lý do tồn tại. Đo lại: **7/7 route ra đúng 8px**.
+  - Guard mới `wujia_portal_base/tests/test_mobile_rhythm.py` (5 test) + sửa 1 guard D4d đã lỗi thời.
+- Commit: `<điền sau khi commit>`
+- Deploy: chưa (theo chốt: commit + push `main`, KHÔNG deploy UAT)
+- Số đo: Home @390 **2613→2405 (−8,0%)** · @360 −7,9% · khoảng trắng trước tiêu đề nhóm **34→14px**
+  · khối thấy trọn màn đầu 3→**4**, dòng 1→**2** (Thông báo 4→**5**) · **0 ô mất record** ·
+  PC 1440/1024/992 **0 ô lệch** · 0 tràn ngang · 0 lỗi JS · suite **579/579** (574+5 mới) ·
+  mutation **5/5 đỏ** · `check_layers` 2 vi phạm R7 **có sẵn** (của anh Thái, FR-A3 đã ghi).
+- Lệch plan / quyết định mới:
+  - **Chỉ tiêu −30…35% là bất khả thi bằng khoảng trắng** — chứng minh bằng thực nghiệm tiêm CSS:
+    ép cả đệm thẻ, gap mục, `min-height` dòng xuống 48 (phá chuẩn D5) cũng chỉ ra **−12,9%**.
+    Gốc: 8 dòng danh sách trên Home cao tổng **698px**, từng dòng 66/67/86/94/113 ⇒ **cao vì 2–3 dòng
+    CHỮ, không vì đệm**. Trang dài do nội dung.
+  - Rule chung **chỉ cấp nhịp, KHÔNG cấp padding**: trang dựng trong `.content-wrapper` đã được wrapper
+    cấp pad-top (gom vào là cộng dồn), Home còn mất lề ngang vì `.wujia-home-wrapper` cố ý bỏ pad ngang.
+  - Lệch Figma RESP-MOB-SHELL-003 — chủ dự án chốt "BA kêu mà, Figma tương đối thôi", chỉ cần 1 dòng FYI.
+- Nợ để lại:
+  - **Chưa gửi BA dòng FYI** về lệch Figma (gap 14→8, top 16→10, tiêu đề nhóm 16/8→6/4).
+  - **1 error trên DB trắng chỉ cài khung** (`test_fra3_layer_guard`, 130 test) — đã chạy đối chứng
+    `git stash`: **có sẵn từ FR-A3**, không phải phiên này. Cần xử ở F6 cùng nợ `portal_base`.
+  - Hai cần gạt để thật sự tới −30%, **chưa làm, chờ chốt** (chi tiết + số ước tính ở
+    `docs/mobile-rhythm-acceptance.md` §4):
+    **G1** dòng danh sách 2–3 dòng → 1 dòng (−250…350px Home, ăn theo mọi màn danh sách, lệch Figma nhiều);
+    **G2** khung cố định đang chiếm **235px = 26% màn hình** (header 104 + dải cửa hàng 48 + thanh dưới 83)
+    → hạ header 104→72 và/hoặc ẩn header khi cuộn, lấy lại 30–50px MỖI MÀN cho mọi trang.
+    **G3** cỡ chữ/line-height (rẻ nhưng chạm accessibility).
+- Phiên kế: theo lộ trình là **E4b** (Issue List đã mở lại sau FR-A3). Nếu chủ dự án muốn làm tiếp
+  chuyện "màn hình thấy nhiều hơn" thì chen một phiên **G2 trước G1** (G2 không đụng nội dung, blast
+  radius nhỏ, hiệu quả trên MỌI trang; G1 phải hỏi BA vì đổi cấu trúc dòng).
