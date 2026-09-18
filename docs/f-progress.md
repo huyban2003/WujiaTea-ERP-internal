@@ -417,7 +417,11 @@ rồi đánh ✅ ở bảng Trạng thái §2 `docs/next-session-clusters-F.md`.
   - Guard mới `wujia_portal_layout/tests/test_g2_mobile_header.py` (7 test) — đặt ở KHUNG, không ở
     `portal_base`: header là component của chính khung và sau F5b khung phải tự chạy một mình.
 - Commit: `7873175`
-- Deploy: chưa (nếp cụm F: commit + push `main`, deploy tay riêng)
+- Deploy: **ĐÃ DEPLOY UAT 18/09/2026** — chủ dự án deploy; `wujia_portal_layout` trên UAT ra đúng
+  **19.0.51.0.12** và view mang `?v=1294`/`1299` ⇒ restart tự upgrade, không cần `-u`. Đo lại chỉ-đọc
+  trên chính máy chủ: header **72** cả 10 ô, dải 48, mốc nội dung **120**, chạm **44**, bấm thật 3/3,
+  0 tràn ngang, 0 lỗi JS. Bẫy khi đo: 3 nút báo "BỊ CHE" là do popup chọn cửa hàng của tài khoản
+  admin (`#wujiaStoreOverlay`), không liên quan G2.
 - Số đo: header 72 cả 10 ô · mốc đầu nội dung **152 → 120** · `wj_measure` mobile **−32,0px × 16 ô**,
   PC **0 ô lệch**, 0 ô mất record (Báo cáo 14 → 16 record) · dòng thấy trọn màn đầu Kiến thức @390
   3 → 4 · bấm thật 4/4 (bấm cao hơn hộp 38 đúng 2px vẫn mở dropdown ⇒ pseudo ăn thật) · 0 tràn ngang ·

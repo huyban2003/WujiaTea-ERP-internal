@@ -65,9 +65,31 @@ thường (`.wujia-mheader` chỉ có `display/height/padding/background`). Hệ
 
 Đã sửa lại §4 của `mobile-rhythm-acceptance.md` cho khớp.
 
-## 4. Còn treo
+## 4. Đo lại trên UAT sau khi deploy (18/09/2026, chỉ đọc)
 
-- Chưa deploy UAT (nếp cụm F: commit + push, deploy tay riêng).
+Chủ dự án đã deploy. Kiểm trước khi đo: `wujia_portal_layout` trên UAT = **19.0.51.0.12** (đúng bản
+của phiên này) và view đã mang `?v=1294` / `?v=1299` ⇒ **restart đã upgrade module sẵn, không cần `-u`**.
+
+| Phép đo trên UAT | Kết quả | |
+|---|---|---|
+| Chiều cao header, 5 route × 390/360 | **72** cả 10 | ✅ |
+| Dải cửa hàng · mốc đầu nội dung | 48 · **120** (= 72+48+10, khớp máy dev) | ✅ |
+| Nút header | nhìn thấy 38 · **chạm 44** | ✅ |
+| Bấm thật: mép ngoài hộp 38, avatar, logo | 3/3 — bấm cao hơn hộp đúng 2px vẫn mở dropdown | ✅ |
+| Header PC (≥992) | ẩn, chiều cao 0 | ✅ |
+| Tràn ngang · lỗi JS | **0 · 0** trên cả 390/360/1440 | ✅ |
+| Ảnh header UAT (logo thật, cờ, giỏ có badge, avatar) | cân trong 72px, không cắt xén | ✅ |
+
+**Một cái bẫy khi đo, không phải lỗi:** lượt đo đầu báo cả 3 nút "BỊ CHE". Thủ phạm là
+`#wujiaStoreOverlay` — popup *"Bạn thuộc nhiều cửa hàng, vui lòng chọn cửa hàng đang thao tác"* phủ
+kín màn vì **tài khoản admin chưa chọn cửa hàng**, hoàn toàn không liên quan G2. Chọn một cửa hàng
+(chỉ ghi cookie `wujia_active_franchise_id`, `portal.py:38` — không đụng DB) là đo lại bình thường.
+Người dùng thật chỉ thuộc một cửa hàng nên không gặp popup này.
+
+## 5. Còn treo
+
+- **ĐÃ DEPLOY UAT 18/09/2026** (chủ dự án deploy; module tự upgrade khi restart, đã xác nhận version
+  + `?v=` + số đo trên chính máy chủ).
 - **Một dòng FYI cho BA, gộp 2 khoản**: lệch Figma *Mobile Shell FINAL* (header 104 → **72**) và lệch
   nhịp dọc của phiên trước (gap 14→8, mép trên 16→10, tiêu đề nhóm 16/8→6/4). Chủ dự án đã chốt
   "Figma tương đối thôi" ⇒ không chặn, chỉ báo để BA cập nhật lại Figma.
