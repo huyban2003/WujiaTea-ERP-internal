@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- Mobile Kanban View for Exam Sessions -->
+    <record id="view_wujia_exam_session_kanban_mobile" model="ir.ui.view">
+        <field name="name">wujia.exam.session.kanban.mobile</field>
+        <field name="model">wujia.exam.session</field>
+        <field name="priority">25</field>
+        <field name="arch" type="xml">
+            <kanban class="wj_mobile_kanban" sample="1">
+                <field name="name"/>
+                <field name="course_id"/>
+                <field name="exam_date"/>
+                <field name="time_slot_id"/>
+                <field name="location"/>
+                <field name="capacity"/>
+                <field name="reserved_participant_count"/>
+                <field name="available_participant_count"/>
+                <field name="state"/>
+                <templates>
+                    <t t-name="card">
+                        <div class="wj_mobile_card">
+                            <!-- Row 1: Session Code + Status Badge -->
+                            <div class="d-flex align-items-center justify-content-between mb-1">
+                                <span class="wj_mobile_card__code">
+                                    <field name="name"/>
+                                </span>
+                                <span t-attf-class="wj_mobile_badge #{
+                                    record.state.raw_value == 'done' and 'wj_mobile_badge--success' or
+                                    record.state.raw_value == 'open' and 'wj_mobile_badge--info' or
+                                    record.state.raw_value == 'draft' and 'wj_mobile_badge--warning' or
+                                    record.state.raw_value == 'cancelled' and 'wj_mobile_badge--danger' or
+                                    'wj_mobile_badge--neutral'
+                                }">
+                                    <field name="state"/>
+                                </span>
+                            </div>
+
+                            <!-- Row 2: Title (Course Name) -->
+                            <div class="wj_mobile_card__title mb-1">
+                                <field name="course_id"/>
+                            </div>
+
+                            <!-- Row 3: Exam Date & Time Slot -->
+                            <div class="d-flex align-items-center justify-content-between mb-1">
+                                <span class="wj_mobile_card__meta text-nowrap">
+                                    <i class="fa fa-calendar me-1" title="Exam Date"/>
+                                    <field name="exam_date" widget="date"/>
+                                </span>
+                                <span class="wj_mobile_card__meta text-nowrap text-muted">
+                                    <i class="fa fa-clock-o me-1" title="Time Slot"/>
+                                    <field name="time_slot_id"/>
+                                </span>
+                            </div>
+
+                            <!-- Row 4: Location + Capacity / Seats Left -->
+                            <div class="d-flex align-items-end justify-content-between pt-2 border-top">
+                                <span class="wj_mobile_card__meta text-nowrap text-truncate me-2">
+                                    <i class="fa fa-map-marker me-1" title="Location"/>
+                                    <field name="location"/>
+                                </span>
+                                <div class="text-end text-nowrap ms-2">
+                                    <span class="wj_mobile_card__value text-primary font-weight-bold">
+                                        <field name="available_participant_count"/> seats left
+                                    </span>
+                                    <div class="wj_mobile_card__subvalue text-nowrap">
+                                        <field name="reserved_participant_count"/> / <field name="capacity"/> booked
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </t>
+                </templates>
+            </kanban>
+        </field>
+    </record>
+
+    <!-- Dual-Device View Mode on Action Window -->
+    <record id="wujia_portal_exam.action_wujia_exam_session" model="ir.actions.act_window">
+        <field name="view_mode">list,kanban,form</field>
+        <field name="view_ids" eval="[
+            (5, 0, 0),
+            (0, 0, {'view_mode': 'list', 'view_id': ref('wujia_portal_exam.view_wujia_exam_session_list'), 'sequence': 1}),
+            (0, 0, {'view_mode': 'kanban', 'view_id': ref('view_wujia_exam_session_kanban_mobile'), 'sequence': 2}),
+            (0, 0, {'view_mode': 'form', 'view_id': ref('wujia_portal_exam.view_wujia_exam_session_form'), 'sequence': 3})
+        ]"/>
+    </record>
+
+</odoo>
