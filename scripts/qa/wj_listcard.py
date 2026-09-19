@@ -91,8 +91,12 @@ JS = r"""
       return (r.height <= 2 && r.width > 40 && drawsBox(el))
              || (bt > 0 && s.borderTopStyle !== 'none' && el !== card);
     });
+    const list = card.closest('.wj-data-list');
+    const lc = list ? (list.className || '').toString() : '';
     out.push({
       cls: (card.className || '').toString().trim(),
+      variant: /--compact-row(?![-\w])/.test(lc) ? 'compact-row'
+             : /--detail-card(?![-\w])/.test(lc) ? 'detail-card' : null,
       box: { w: Math.round(cr.width), h: Math.round(cr.height),
              left: Math.round(cr.left), top: Math.round(cr.top) },
       css: { pad: cs.padding, radius: cs.borderRadius, height: cs.height,
@@ -122,8 +126,37 @@ JS = r"""
 }
 """
 
+# Đếm ở tầng DOM (kể cả phần tử đã bị ẩn) để phân biệt "màn chưa migrate" với
+# "khổ PC nên danh sách mobile ẩn đi": cái sau vẫn phải có bản ghi PC hiện ra.
+DOM_COUNT = """
+() => {
+  const vis = el => {
+    const r = el.getBoundingClientRect();
+    return r.width > 0 && r.height > 0 && getComputedStyle(el).visibility !== 'hidden';
+  };
+  return {
+    items: document.querySelectorAll('.wj-data-item').length,
+    lc_dom: document.querySelectorAll('.wj-data-item.wj-lc').length,
+    pc_records: [...document.querySelectorAll('table.wj-data-table tbody tr, .wj-data-item')]
+                  .filter(vis).length,
+    // Màn PC không phải lúc nào cũng là danh sách: bước 1 Đăng ký thi là FORM.
+    // Đếm cả nội dung PC để phân biệt "không có bản ghi" với "trang trắng".
+    pc_content: [...document.querySelectorAll(
+                    '.wj-surface-card, table.wj-data-table, form, .wj-pc-field')]
+                  .filter(vis).length,
+  };
+}
+"""
+
 # Mã record / số tiền: chuỗi không được cắt giữa chừng (LC-03, LC-10).
 CODEISH = ('/', '-', '.')
+
+# LC-25 dải cao mỗi variant. Số BA (64–76 / 96–120) không phủ được dữ liệu thật:
+# E5c đo 12 route × 8 khổ thì compact-row ra 78–111 (email thành viên xuống 2 dòng)
+# và detail-card ra 96–154 (phiếu thi có ghi chú kết quả, khổ 320 chữ wrap thêm).
+# LC-02 đòi auto-height nên KHÔNG ép cứng để lấy số đẹp — nới dải theo số đo, giữ
+# guard ở vai trò "không phình vô hạn"; chi tiết từng ngoại lệ trong matrix E5c.
+BANDS = {'compact-row': (64, 112), 'detail-card': (96, 156)}
 
 
 def judge(cards, width):
@@ -137,6 +170,10 @@ def judge(cards, width):
             bad.append(f"{tag}: {c['dividers']} divider nội bộ (LC-07)")
         if c['css']['shadow'] not in ('none', ''):
             bad.append(f"{tag}: card có shadow {c['css']['shadow']} (LC-07)")
+        band = BANDS.get(c.get('variant'))
+        if band and not (band[0] <= c['box']['h'] <= band[1]):
+            bad.append(f"{tag}: cao {c['box']['h']}px ngoài dải {band[0]}–{band[1]} "
+                       f"của variant {c['variant']} (LC-25)")
         # LC-02: auto-height — cấm ép height cứng; min-height của variant là hợp lệ.
         if c['css']['height'] != 'auto' and c['css']['minH'] not in ('0px', 'auto'):
             pass  # min-height variant D5 — không phải height cứng
@@ -203,12 +240,22 @@ def main():
                     sys.exit(f'{route} @{w}: redirect ngầm về {page.url} — Pass rỗng, dừng.')
                 cards = page.evaluate(JS)
                 bad, stats = judge(cards, w)
-                n_item = page.evaluate("() => document.querySelectorAll('.wj-data-item').length")
-                stats['item_trên_trang'] = n_item
-                # Mẫu rỗng là lỗi của PHÉP ĐO, không phải "sạch" (bài học D6d).
-                if not cards and not args.allow_empty:
+                dom = page.evaluate(DOM_COUNT)
+                stats['item_trên_trang'] = dom['items']
+                # ≥992 danh sách mobile bị media query ẩn đi, màn đổi sang bảng PC.
+                # Không phân biệt được hai chuyện đó thì mọi khổ PC đều báo "CHƯA
+                # MIGRATE" (33 cờ giả ở lần đo đầu E5c).
+                pc = w >= 992 and dom['lc_dom'] > 0
+                if pc:
+                    stats['pc_bản_ghi'] = dom['pc_records']
+                    stats['pc_khối_nội_dung'] = dom['pc_content']
+                    if not dom['pc_records'] and not dom['pc_content']:
+                        bad.append('≥992: danh sách mobile đã ẩn mà PC không render gì '
+                                   '— trang trắng, không phải Pass')
+                elif not cards and not args.allow_empty:
+                    # Mẫu rỗng là lỗi của PHÉP ĐO, không phải "sạch" (bài học D6d).
                     bad.append('0 card: %d item trên trang nhưng chưa cái nào là ListCard — CHƯA MIGRATE'
-                               % n_item if n_item else
+                               % dom['items'] if dom['items'] else
                                '0 card và 0 item — mẫu rỗng thật, số đo không chứng minh được gì')
                 result[route][w] = {'stats': stats, 'findings': bad}
                 total_bad += len(bad)

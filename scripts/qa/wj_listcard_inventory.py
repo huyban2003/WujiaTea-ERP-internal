@@ -106,6 +106,24 @@ PROBE = r"""
       html: z.outerHTML.replace(/\s+/g, ' ').trim(),
     });
   });
+  // Màn không có danh sách nào (Đặt hàng) thì chữ ký vùng là RỖNG — so hai mốc
+  // rỗng luôn bằng nhau, tức "trước = sau" ở đó không chứng minh gì (E5b2 ghi
+  // nhận). Lấy chữ ký CẢ VÙNG NỘI DUNG, trừ những chỗ vốn đổi theo phiên.
+  if (!out.regions.length) {
+    const main = document.querySelector('.wujia-mpage, .content-wrapper, .app-content');
+    if (main && vis(main)) {
+      const c = main.cloneNode(true);
+      // Biểu đồ dựng bằng JS (ApexCharts) có id ngẫu nhiên + toạ độ theo hoạt hình
+      // ⇒ không bao giờ trùng byte giữa hai lượt; bỏ ra khỏi chữ ký.
+      c.querySelectorAll('[data-wj-volatile], .wj-cart-count, .wujia-mheader-badge, time,'
+                       + ' .apexcharts-canvas, canvas, .resize-triggers, .resize-sensor')
+       .forEach(e => e.remove());
+      out.regions.push({
+        cls: 'WHOLE:' + (main.className || '').toString().trim(),
+        html: c.outerHTML.replace(/\s+/g, ' ').trim(),
+      });
+    }
+  }
 
   // Nhịp G2: đáy thẻ lọc → đỉnh PHẦN TỬ KẾ TIẾP (đo tới danh sách thì dính cả
   // count-meta/section-header xen giữa, ra 52/55/70 và che mất con số thật 24).
@@ -206,10 +224,15 @@ def diff(old, new, frozen):
             if len(prev.get('items', [])) != len(data.get('items', [])):
                 rows.append((route, w, 'LỆCH SỐ RECORD',
                              f"{len(prev.get('items', []))} → {len(data.get('items', []))}"))
-            if any(route.startswith(f) for f in frozen):
+            # So KHỚP ĐÚNG route, không theo tiền tố: `--frozen /portal` mà so tiền tố
+            # thì mọi route portal đều bị coi là đóng băng.
+            if route.split('?')[0] in {f.split('?')[0] for f in frozen}:
                 pa = [r['sha'] for r in prev.get('regions', [])]
                 pb = [r['sha'] for r in data.get('regions', [])]
-                if pa != pb:
+                if not pa and not pb:
+                    rows.append((route, w, 'MỐC RỖNG',
+                                 'route đóng băng không có vùng nào để so — phép đo vô nghĩa'))
+                elif pa != pb:
                     rows.append((route, w, 'DOM ĐỔI', 'vùng phải bất biến đã đổi byte'))
             if data.get('scroll_x', 0) > 0:
                 rows.append((route, w, 'TRÀN NGANG', str(data['scroll_x'])))

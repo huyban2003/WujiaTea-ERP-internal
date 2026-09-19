@@ -231,7 +231,7 @@ class TestDataListCompactRow(TransactionCase):
         body = _rule(_css('_components.css'), '.wj-data-list--compact-row .wj-data-item')
         self.assertIsNotNone(body, 'không tìm thấy rule item ở tầng gốc')
         self.assertRegex(body, r'min-height:\s*64px')       # BA 64–76
-        self.assertRegex(body, r'padding:\s*12px 14px')     # BA 10–12px 12–14px
+        self.assertRegex(body, r'padding:\s*12px;')         # LC-07 (E5c: bỏ 14 ngang)
         self.assertRegex(body, r'border-radius:\s*12px')    # BA 12
         gap = _rule(_css('_components.css'),
                     '.wj-data-list--compact-row .wj-data-item + .wj-data-item')
@@ -429,7 +429,7 @@ class TestDataListDetailCard(TransactionCase):
         body = _rule(_css('_components.css'), '.wj-data-list--detail-card .wj-data-item')
         self.assertIsNotNone(body, 'không tìm thấy rule dáng detail-card ở tầng gốc')
         self.assertRegex(body, r'min-height:\s*96px')       # BA 96–120
-        self.assertRegex(body, r'padding:\s*12px 14px')
+        self.assertRegex(body, r'padding:\s*12px;')         # LC-07 (E5c: bỏ 14 ngang)
         self.assertRegex(body, r'border-radius:\s*12px')    # BA 12
         gap = _rule(_css('_components.css'),
                     '.wj-data-list--detail-card .wj-data-item + .wj-data-item')

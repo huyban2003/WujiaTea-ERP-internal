@@ -267,7 +267,8 @@ h2, .wujia-h2 { font-size: var(--wujia-font-size-h2) !important; font-weight: 60
     /* D4d: dáng khung + gap sang .wj-surface-card; -2px của chips bù gap 10 nên gỡ theo. */
     display: flex;
     flex-direction: column;
-    margin-bottom: 16px;
+    /* E5c/G2: khung trang đã cho một nhịp (gap), thêm đúng một nhịp nữa = 16 (BA). */
+    margin-bottom: var(--wujia-mshell-content-gap);
 }
 /* Search row: field (flex) + cyan button 38×38 */
 .wj-filter-search { display: flex; align-items: center; gap: 8px; }
@@ -756,13 +757,13 @@ h2, .wujia-h2 { font-size: var(--wujia-font-size-h2) !important; font-weight: 60
 
 /* ---------------------------------------------------------------------------
    D5d — variant compact-row: .wj-data-item là chủ sở hữu DUY NHẤT dáng item.
-   Số BA: cao 64–76 · gap 8 · radius 12 · padding 10–12px 12–14px. Cách dựng
+   Số BA: cao 64–76 · gap 8 · radius 12 · đệm 12 (LC-07, E5c). Cách dựng
    (item là card có viền, gap giữa hai item) lấy từ .wujia-mhist-row — mẫu duy
    nhất D5a §7 công nhận là đã đúng chuẩn compact-row.
    ------------------------------------------------------------------------ */
 .wj-data-list--compact-row .wj-data-item {
     min-height: 64px;
-    padding: 12px 14px;
+    padding: 12px;
     background: var(--wujia-bg-card);
     border: 1px solid var(--wujia-border);
     border-radius: 12px;
@@ -805,11 +806,11 @@ h2, .wujia-h2 { font-size: var(--wujia-font-size-h2) !important; font-weight: 60
 /* ---------------------------------------------------------------------------
    D5f — variant detail-card: cùng kiến trúc hai tầng của compact-row (dáng ở
    .wj-data-item, layout ở từng họ). Số BA: cao 96–120 · gap 8 · radius 12 ·
-   padding 12px 14px.
+   đệm 12 (LC-07, E5c).
    ------------------------------------------------------------------------ */
 .wj-data-list--detail-card .wj-data-item {
     min-height: 96px;
-    padding: 12px 14px;
+    padding: 12px;
     background: var(--wujia-bg-card);
     border: 1px solid var(--wujia-border);
     /* đè token chung --wujia-morder-radius (14) tại đây, KHÔNG sửa token */
@@ -956,6 +957,10 @@ h2, .wujia-h2 { font-size: var(--wujia-font-size-h2) !important; font-weight: 60
     font-weight: 600;
     color: var(--wujia-primary);
     text-decoration: none;
+    /* E5c: vùng chạm 44 bằng đệm + lề âm nên không đội cao/rộng card (a11y ≥44). */
+    display: inline-block;
+    padding: 12px 4px;
+    margin: -12px -4px;
 }
 
 /* Header right action icons (UI-13, Sprint 9.14, 2026-05-28) */

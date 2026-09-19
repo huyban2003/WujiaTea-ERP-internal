@@ -155,3 +155,49 @@ class TestListCardTemplate(TransactionCase):
         blk = _block(css, '.wj-lc__state')
         self.assertRegex(blk, r'margin-left:\s*auto')
         self.assertRegex(blk, r'text-align:\s*right')
+
+    # ------------------------------------------------------------------
+    # E5c — nhịp và bề ngang: số của TRANG, không phải của card (LC-07/LC-08)
+    # ------------------------------------------------------------------
+    def test_dem_item_la_12_deu_bon_phia(self):
+        """LC-07: đệm 12. 14 ngang trước đây là để bù gutter 16 — gutter nay 12."""
+        css = _css('_components.css')
+        for variant in ('compact-row', 'detail-card'):
+            blk = _block(css, '.wj-data-list--%s .wj-data-item' % variant)
+            self.assertRegex(blk, r'padding:\s*12px;',
+                             'variant %s phải đệm 12 đều bốn phía' % variant)
+
+    def test_listcard_khong_tu_them_gutter(self):
+        """LC-08: gutter là việc của TRANG. Component không được khai margin ngang."""
+        css = _css('_components.css')
+        for sel in ('.wj-data-item.wj-lc', '.wj-lc__head', '.wj-lc__body'):
+            blk = _block(css, sel)
+            self.assertNotRegex(blk, r'margin-(left|right|inline)',
+                                '%s tự thêm lề ngang — gutter phải do trang cấp' % sel)
+
+    def test_nhip_loc_bang_hai_nhip_trang(self):
+        """G2: thanh lọc → nội dung kế = 16 = gap trang (8) + đúng một nhịp nữa.
+
+        Khai bằng TOKEN chứ không phải 8px cứng: trang đổi nhịp thì thanh lọc đổi
+        theo, khỏi phải nhớ hai con số ở hai nơi.
+        """
+        blk = _block(_css('_components.css'), '.wj-filter-card')
+        self.assertRegex(blk, r'margin-bottom:\s*var\(--wujia-mshell-content-gap\)')
+
+    def test_token_gutter_bang_12(self):
+        """LC-08 (BA Q2): gutter danh sách mobile 12, khai ở khối mobile của token."""
+        css = _css('_variables.css')
+        m = re.search(r'@media \(max-width: 991\.98px\)(.*)$', css, re.S)
+        self.assertTrue(m)
+        self.assertRegex(css, r'--wujia-mshell-content-pad-x:\s*12px')
+
+    def test_link_hanh_dong_du_vung_cham(self):
+        """A11y ≥44: chữ "Chọn" chỉ cao 21 — nới bằng đệm, bù lề âm để card không cao thêm."""
+        blk = _block(_css('_components.css'), '.wj-lc__link')
+        self.assertRegex(blk, r'display:\s*inline-(block|flex)',
+                         'inline thường không ăn đệm dọc nên vùng chạm không nới được')
+        pad = re.search(r'padding:\s*(\d+)px\s+(\d+)px', blk)
+        mar = re.search(r'margin:\s*-(\d+)px\s+-(\d+)px', blk)
+        self.assertTrue(pad and mar, 'thiếu cặp đệm + lề âm cho vùng chạm')
+        self.assertGreaterEqual(int(pad.group(1)) * 2 + 20, 44, 'vùng chạm dọc < 44')
+        self.assertEqual(pad.groups(), mar.groups(), 'lề âm phải bù đúng đệm')

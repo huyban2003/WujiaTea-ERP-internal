@@ -47,6 +47,25 @@ def _declares(body, prop):
     return re.search(r'(^|;)\s*%s\s*:' % re.escape(prop), body) is not None
 
 
+def _media_block(css, header):
+    """Thân của một @media, cắt bằng ĐẾM NGOẶC. Cắt bằng regex `\n}` thì dừng ở
+    rule đầu tiên khép ở đầu dòng, nên bỏ sót phần còn lại của khối."""
+    i = css.find(header)
+    if i < 0:
+        return ''
+    j = css.index('{', i)
+    depth, k = 0, j
+    while k < len(css):
+        if css[k] == '{':
+            depth += 1
+        elif css[k] == '}':
+            depth -= 1
+            if depth == 0:
+                return css[j + 1:k]
+        k += 1
+    return ''
+
+
 def _module_css():
     """Mọi file CSS của portal, TRỪ phần của anh Thái (không đụng code nhóm Khảo sát)."""
     out = []
@@ -124,3 +143,46 @@ class TestMobileRhythmSingleSource(TransactionCase):
                 if re.search(r'margin-bottom:\s*-\d', body):
                     hits.append('%s: %s' % (path, sel.strip()[:56]))
         self.assertFalse(hits, 'còn rule bù trừ âm cho PageHeader:\n  ' + '\n  '.join(hits))
+
+    # ------------------------------------------------------------------
+    # E5c — gutter NGANG cũng phải một nguồn (LC-08). Trước phiên này nhịp dọc đã
+    # về token còn lề ngang thì không: trang BlankShell ăn token (16), còn Đặt
+    # hàng/Lịch sử ăn 16,8px của Vuexy qua .content-wrapper ⇒ lệch 5px giữa các màn.
+    # ------------------------------------------------------------------
+    def test_token_gutter_khai_o_khoi_mobile(self):
+        css = _nocomment(_read('wujia_portal_layout', 'static', 'assets', 'css', '_variables.css'))
+        block = re.search(r'@media \(max-width: 991\.98px\)\s*\{\s*:root\s*\{(.*?)\}', css, re.S)
+        self.assertTrue(block, 'không tìm thấy khối :root mobile')
+        self.assertRegex(css, r'--wujia-mshell-content-pad-x:\s*12px',
+                         'gutter danh sách mobile phải là 12 (LC-08, BA Q2)')
+
+    def test_wrapper_lay_gutter_tu_token(self):
+        """`.content-wrapper` là lề ngang của MỌI trang mobile dựng trong wrapper."""
+        css = _nocomment(_read('wujia_portal_layout', 'static', 'assets', 'css', '_wujia_theme.css'))
+        # Chỉ khối mobile: PC có rule riêng 24px của UI-PC-BASE-001.
+        block = _media_block(css, '@media (max-width: 991.98px)')
+        self.assertTrue(block, 'không tìm thấy khối mobile của _wujia_theme.css')
+        hits = [body for sel, body in _rules(block)
+                if 'content-wrapper' in sel and _declares(body, 'padding-left')]
+        self.assertTrue(hits, 'không còn rule cấp lề ngang cho content-wrapper')
+        for body in hits:
+            self.assertIn('var(--wujia-mshell-content-pad-x)', body,
+                          'lề ngang wrapper phải lấy từ token, không gõ số')
+            self.assertNotIn('!important', body,
+                             'có !important thì trang tự bỏ lề (Home) không thắng được nữa')
+
+    def test_khong_trang_nao_go_so_gutter_rieng(self):
+        """Wrapper trang mobile không được tự gõ số lề ngang — phải qua token."""
+        hits = []
+        for path, css in _module_css():
+            for sel, body in _rules(css):
+                for cls in PAGE_WRAPPERS:
+                    if not re.search(r'\.%s\s*(,|\{|$)' % re.escape(cls), sel.strip() + '{'):
+                        continue
+                    for prop in ('padding', 'padding-left', 'padding-right', 'padding-inline'):
+                        m = re.search(r'(?<![-\w])%s:\s*([^;]+);' % prop, body)
+                        if m and re.search(r'\d+px', m.group(1)) \
+                                and 'var(--wujia-mshell-content-pad-x)' not in m.group(1):
+                            hits.append('%s: %s { %s: %s }'
+                                        % (path, sel.strip()[:40], prop, m.group(1).strip()))
+        self.assertFalse(hits, 'trang mobile tự gõ số lề ngang:\n  ' + '\n  '.join(hits))
