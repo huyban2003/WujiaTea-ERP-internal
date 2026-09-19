@@ -785,3 +785,44 @@ rồi đánh ✅ ở bảng Trạng thái §2 `docs/next-session-clusters-F.md`.
   hoá đơn 2 hàng phụ **80px** — rơi vào khe giữa 76 và 96).
 - Chốt phiên: **issue CHƯA đóng** — `UI-LISTCARD-001` ghi ledger + `Ready for Retest` ở **cuối E5c**.
   **Không tự deploy UAT.** Prompt phiên kế: `docs/prompt-e5c.md`.
+
+## E5c — ListCard `CMP-LC-001`: nhịp + bề ngang, regression 8 khổ, **đóng issue** (19/09/2026 · Mac)
+- Kết quả: ✅ xong — `UI-LISTCARD-001` (STT 136, dòng 129) → **Ready for Retest**, khép cụm **E5**.
+- Chốt đầu phiên của chủ dự án: **Dev tự quyết, ít hỏi BA lại, làm nốt cho chuẩn chỉnh mọi màn** ·
+  2 câu hỏi BA treo giải theo đề xuất của chủ dự án · codex-review phạm vi **toàn cụm E5**.
+- Đã làm:
+  - **Nhịp *thanh lọc → nội dung* 24 → 16** ở **8 route** (7 route theo prompt + `/portal/reports/orders`),
+    sửa **một chỗ** ở khung và khai bằng **token** (`margin-bottom: var(--wujia-mshell-content-gap)`)
+    nên 8 + 8 = 16 không còn là hai con số nằm hai nơi.
+  - **Đệm item `12px 14px` → `12px`** (LC-07) và **gutter trang 16 → 12** (LC-08, BA Q2) bằng token
+    `--wujia-mshell-content-pad-x`, không vá theo màn.
+  - **Vá lệch 5px giữa hai họ màn**: `/portal/purchase-history`, `/portal/order` render trong
+    `.content-wrapper` của Vuexy (16,8px) còn màn BlankShell ăn token ⇒ thêm **1 rule ở khung** cho
+    wrapper lấy chính token đó (không `!important` để Home còn tự bỏ lề được). Sau đó **mọi** màn
+    mobile — kể cả `/portal/inspection` của anh Thái — đo đúng **12/12**, 0 tràn ngang.
+  - **Vùng chạm nút “Chọn”** (màn đăng ký thi) 37×21 → **45×45** bằng cặp đệm + lề âm nên **card
+    không cao thêm một pixel**. Đã chứng minh lỗi **có từ E5b2**, không do phiên này.
+  - **Vá mốc đóng băng rỗng** `/portal/order`: route không có vùng danh sách nay lấy chữ ký **cả
+    trang** (loại canvas/ApexCharts/`.resize-triggers`/đồng hồ) + báo `MỐC RỖNG`; khớp route đóng
+    băng đổi từ tiền tố sang **khớp đúng**.
+  - **Guard mạnh thêm**: `wj_listcard.py` đọc **variant** và kiểm dải cao theo variant; ở ≥992 đếm
+    DOM thật thay vì báo sai “CHƯA MIGRATE” (**33 báo sai** biến mất).
+- Số đo: `wj_listcard` **12 route × 8 khổ = 96 ô, 0 vi phạm** · inventory **16 route × 2 khổ, 194
+  record, 0 vấn đề** (kể cả chữ ký đóng băng) · `wj_nesting` 0 · `wj_datalist` gap 8 đúng chuẩn ·
+  `wj_measure` **0 HIERARCHY / 0 tràn / 0 lỗi JS / 0 redirect** · suite **686 tests, 0 failed,
+  0 error** · mutation **10/10** (+2 mũi cấp công cụ) · `check_layers` **3 R1–R5 + 2 R7 có sẵn**.
+- Commit: xem cuối phiên (1 commit code+test, 1 commit docs).
+- Deploy: **chưa** — anh Huy deploy UAT.
+- Lệch plan / quyết định mới:
+  - Dải cao variant **không** lấy số đề xuất E5b2 (64–84 / 96–150) mà lấy **số đo thật 96 ô**:
+    `compact-row` **64–112** · `detail-card` **96–156**. Hai dải nay **chồng nhau** ⇒ chiều cao
+    không còn phân biệt variant, phân biệt bằng class. FYI cho BA.
+  - **GIỮ** ô icon `.wj-lc__tile` 32×32 (ngoại lệ có chủ đích với LC-06/LC-07): nó là ô **tín hiệu
+    trạng thái**, bỏ thì Thông báo mất màu theo loại.
+  - `/portal/franchise-information` đo gutter **27** = 12 (trang) + 14 (đệm trong SurfaceCard) + 1
+    (viền) — phạm vi `UI-SURFACECARD-001`, ghi nhận, không sửa ở E5c.
+- Nợ để lại: `LC-20` Khảo sát defer vĩnh viễn (code anh Thái) · `LC-27` chỉ ghi nhận · `LC-23` Home
+  preview giữ grouped rows · `/portal/debt` còn 1 dấu hiệu **có từ trước**: card cuối chạm mép thanh
+  cố định (còn 125px đuôi cuộn nên chưa che bản ghi) — để cụm sticky/EmptyState xử.
+- Phiên kế: theo `docs/next-session-clusters-F.md` §2 — **E6 · E7 · E8** + đề xuất cụm EmptyState;
+  việc cần biết trước: cụm E5 đã khép, ListCard là nguồn chuẩn cho mọi danh sách mobile.
