@@ -30,7 +30,7 @@ và viết mục "🔴 Bài học E&lt;n&gt;" ngay dưới khối prompt (tiền
 | E3a/b/c | `UI-PAGINATION-001` (130) | `wujia_portal_layout` + 9 module | ✅ 16/09 · `9e2ceda`+`41bbfd5`+`ad2ec8b` · 21 khối → 0 pager tự dựng · `Ready for Retest` · **ĐÃ DEPLOY UAT 16/09**, đo lại trên chính máy chủ: `docs/e3-uat-measure.md` |
 | E4a/E4b/E4c | `UI-FILTER-001` (139) | `wujia_portal_layout` + 9 module | ☐ — chia 3 lượt, xem §E4 |
 | E5 | `UI-LISTCARD-001` (136) | `wujia_portal_layout` + 8 module | ☐ |
-| E6a / E6b | `UI-BUTTON-001` (132) | `wujia_portal_layout` + 13 module | ☐ |
+| E6a / E6b / E6c | `UI-BUTTON-001` (132) | `wujia_portal_layout` + 13 module | **E6a ✅ 20/09** — atom + thước đo `wj_button.py` + 21 call site (Hỗ trợ · Bù hàng · Thông báo), nghiệm thu `docs/e6a-acceptance-matrix.md`; E6b (10 route + màn auth) ☐ · E6c (màn Thi + đóng issue) ☐ |
 | E7a / E7b | `UI-PAGECONTAINER-001` (129) | `wujia_portal_layout` + mọi module portal | ☐ |
 | E8 | `UI-SIDEBAR-001` (131) | `wujia_portal_layout` + 12 module có `sidenav_inherit` | ☐ |
 

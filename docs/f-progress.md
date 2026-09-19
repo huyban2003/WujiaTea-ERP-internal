@@ -833,3 +833,63 @@ rồi đánh ✅ ở bảng Trạng thái §2 `docs/next-session-clusters-F.md`.
   `pass` ⇒ thay bằng dấu hiệu thật `scrollHeight > clientHeight`; (4) inventory không kiểm
   `final_url` ⇒ thêm cờ `CHUYỂN HƯỚNG`. Cả 4 đều đã chứng minh bằng phép phá có kiểm soát.
   Suite sau khi vá: **687 tests, 0 đỏ**; `wj_listcard` vẫn **0 vi phạm**.
+
+## E6a — Button `CMP-BTN-001`: atom + thước đo + 3 route mẫu (20/09/2026 · Mac)
+- Kết quả: ✅ xong lượt E6a — `UI-BUTTON-001` (STT 132, dòng 125) **vẫn mở**, đóng ở E6c.
+- Chốt đầu phiên của chủ dự án: chia **3 lượt** E6a → E6b → E6c · **màn auth migrate luôn cho đồng
+  bộ** (lệch scope BA vốn chỉ liệt 13 route portal, làm ở E6b, ghi IMPACT) · cuối phiên **commit +
+  push `main`, KHÔNG deploy UAT, issue vẫn mở**.
+- Đã làm:
+  - **Atom `wj-btn` / `wj-iconbtn`** ở khung: 5 variant + 3 bậc size, số lấy nguyên văn spec BA
+    (PC 32/40/46 · mobile 36/44/48 · radius 8/12 · typo 13/18/600 · 14/20/700 · 15/22/700), khai
+    bằng token `--wj-btn-*` nên PC/mobile chỉ là một khối `@media`. Vùng chạm 44 của bậc `sm` làm
+    bằng **pseudo-element** nên visual vẫn 36 (khuôn đã dùng ở E4a cho ô lọc).
+  - **Template `wj_button` + `wj_icon_button`** (2 nhánh vì QWeb 19 không đặt được tên thẻ động):
+    có `btn_href` ⇒ `<a>`, không ⇒ `<button>`; `wj_icon_button` gắn `aria-label` **và** `title`.
+  - **`wujia_button_loading.js`**: bắt `submit` ở pha capture, khoá form, gắn `is-loading` cho nút
+    vừa bấm và `is-disabled` cho nút anh em, dọn lại khi `pageshow` (bfcache).
+  - **21 call site / 5 file / 3 module** về atom (Hỗ trợ · Bù hàng · Thông báo) — phủ đủ **3 họ cũ**
+    (`wj-pc-btn`, Bootstrap `btn*`, class lẻ `wujia-mreturn-btn-*`) đúng mục đích "3 route mẫu".
+  - **Thước đo mới `scripts/qa/wj_button.py`**: mỗi route × khổ đo computed size/radius/typo, hộp
+    chạm **kể cả pseudo**, variant, đếm Primary theo vùng hành động, **tab-walk thật** + focus ring,
+    `disabled` không được nhận focus, và `is-loading` không được đổi bề rộng.
+- Số đo: guard **9 route × 5 khổ = 45 ô, 0 vi phạm · 0 lỗi JS**; zoom 200% (khổ CSS 720/512) **10 ô,
+  0 vi phạm**; **144 atom** đo được đúng 6 con số của BA, hộp chạm nhỏ nhất **72×48**; tab-walk 144
+  nút **0 thiếu ring / 0 disabled còn focus**; 24 nút loading giữ **nguyên** bề rộng · `wj_measure`
+  **0 tràn / 0 lỗi JS / 0 redirect / 0 HIERARCHY** · `wj_listcard` 0 · `wj_nesting` 0 · `wj_datalist`
+  gap 8 · `b4_regression` **286/286** · suite **708 tests, 0 đỏ** (mốc E5c 687, +21 test mới) ·
+  mutation **7/7** · `check_layers` **3 R1–R5 + 2 R7 có sẵn**.
+- Commit: xem cuối phiên. Deploy: **chưa** (E6c gộp một lần).
+- Lệch plan / quyết định mới:
+  - **Nút của FilterBar là boundary**, không phải họ cũ: FB-08 cho Filter giữ 42/38/32 và **ưu tiên
+    hơn** size mặc định của CMP-BTN-001 ⇒ thước đo loại cả `wj-filter*`/`wj-pc-filterbar*` (trước khi
+    sửa là 18 báo nhầm).
+  - **Hover viền theo WJ-PORTAL-UI-001 (`#28A9DF`)**, không theo `#BFE8F7` của BA — C6 đã chốt
+    interaction state dùng chung. `--ghost` cố ý không nằm trong danh sách bề mặt của
+    `_interaction.css` để không khai hai nơi cùng độ đặc hiệu.
+  - **Test quét call site đặt ở `wujia_portal_base`** (khuôn mọi `test_scan_*` có sẵn, một sổ
+    `MIGRATED` dùng chung) thay vì 3 file rời từng module như plan ghi — để E6b khỏi nhân bản logic
+    đếm/so token 13 lần.
+  - Hai màn danh sách trước dùng hai variant khác nhau cho **cùng vai trò** nút xem hàng
+    (`--outline` vs `--secondary`) ⇒ thống nhất `--secondary`.
+- Bẫy trong phiên:
+  - Thước đo đọc variant chỉ theo `wj-btn--` nên **120 icon button ra `null`** ⇒ luật "≤1 Primary"
+    hụt đúng nhóm đông nhất; đã dò cả `wj-iconbtn--` và thêm mã `VARIANT` cho atom không variant.
+  - Regex `([^{}]+)\{([^}]*)\}` **nuốt cả rule con** nên rule trong `@media` không bao giờ được thấy
+    (test vùng chạm xanh giả) ⇒ phải cấm luôn `{` trong thân.
+  - Helper `_block()` của E5 tìm theo `selector + "{"`, **không thấy selector nằm trong danh sách**
+    (`.wj-btn, .wj-iconbtn { … }`) ⇒ viết lại theo token đã tách dấu phẩy.
+  - Cờ "Pass rỗng" ban đầu kêu cả khi màn **vốn không có nút hành động** ở khổ hẹp ⇒ siết lại: chỉ
+    kêu khi có action mà 0 atom; đã chứng minh cờ vẫn bắt được bằng cách thêm `/portal/delivery`
+    (chưa migrate) vào sổ `MIGRATED`.
+  - **16 ô `b4_regression` đỏ là id cố định đã cũ**, không phải hồi quy: 4 route chi tiết redirect
+    về danh sách vì `anh.owner` không còn thấy bản ghi (cả route của module E6a **không** đụng tới);
+    đo lại bằng id có thật của `em.hcm` ⇒ **286/286**.
+- Nợ để lại: gạch 12 của BA (retest 13 route, nhãn dài, submit lặp trên máy chủ) · **112 call site**
+  còn lại (E6b 10 route + màn auth · E6c màn Thi + nút dựng bằng JS) · nút icon của header shell
+  (`wujia-header-icon-btn`, 40×40, mọi route) để E6b làm một lần · `.wj-pc-btn` giữ cho Khảo sát =
+  **LIMIT** (có test canh chiều ngược lại).
+- Phiên kế: **E6b** — 10 route portal còn lại + màn auth (login/đổi mật khẩu/quên mật khẩu); việc
+  cần biết trước: ma trận nghiệm thu `docs/e6a-acceptance-matrix.md`, sổ `MIGRATED` ở
+  `custom/wujia_portal_base/tests/test_scan_e6_button.py`, và màn danh sách mobile **vốn 0 nút hành
+  động** nên đừng đọc con số "mobile 40 action" của BA theo nghĩa đen.
