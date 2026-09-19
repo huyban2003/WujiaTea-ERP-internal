@@ -42,18 +42,9 @@
         .wujia-mreturn-grid2 { grid-template-columns: 1fr; }
     }
     .wujia-mreturn-cta { display: flex; gap: 10px; margin-top: 4px; }
-    .wujia-mreturn-btn-cancel,
-    .wujia-mreturn-btn-submit {
-        height: 48px; display: inline-flex; align-items: center; justify-content: center;
-        border-radius: 12px; font-size: 15px; font-weight: 700; text-decoration: none; border: 0;
-    }
-    .wujia-mreturn-btn-cancel {
-        flex: 0 0 auto; padding: 0 22px;
-        background: var(--wujia-morder-card-bg); color: var(--wujia-morder-text);
-        border: 1px solid var(--wujia-morder-border);
-    }
-    .wujia-mreturn-btn-submit { flex: 1 1 auto; background: var(--wujia-morder-primary); color: #FFFFFF; }
-    .wujia-mreturn-btn-submit:active { background: var(--wujia-morder-primary-dark); }
+    /* E6a: dáng nút về atom CMP-BTN-001; màn chỉ còn giữ tỉ lệ co giãn. */
+    .wujia-mreturn-cta > .wj-btn { flex: 1 1 auto; }
+    .wujia-mreturn-cta > .wj-btn--secondary { flex: 0 0 auto; }
 
     /* DetailScreen */
     .wujia-mreturn-summary-meta {

@@ -109,7 +109,8 @@
                                         </t>
                                     </td>
                                     <td class="text-end">
-                                        <a t-attf-href="/portal/return/#{rr.id}" class="btn btn-sm btn-outline-primary">
+                                        <a t-attf-href="/portal/return/#{rr.id}" class="wj-iconbtn wj-iconbtn--sm wj-iconbtn--secondary"
+                                           aria-label="Xem yêu cầu" title="Xem yêu cầu">
                                             <i class="fa fa-eye"/>
                                         </a>
                                     </td>
@@ -172,7 +173,7 @@
                             <p class="wj-empty-state-title">Không có yêu cầu</p>
                             <p class="wj-empty-state-sub">Cửa hàng chưa gửi yêu cầu đổi trả nào.</p>
                             <p class="wj-empty-state-sub">Yêu cầu mới sẽ xuất hiện tại đây khi được tạo.</p>
-                            <a href="/portal/return/new" class="wj-empty-state-btn">
+                            <a href="/portal/return/new" class="wj-btn wj-btn--primary">
                                 <i class="feather icon-plus"/> Tạo yêu cầu mới
                             </a>
                         </div>
@@ -193,7 +194,7 @@
                             <p class="wj-empty-state-title">Không tìm thấy kết quả</p>
                             <p class="wj-empty-state-sub">Không có yêu cầu khớp bộ lọc hiện tại.</p>
                             <p class="wj-empty-state-sub">Thử đổi từ khóa hoặc xóa điều kiện tìm kiếm.</p>
-                            <a href="/portal/return" class="wj-empty-state-btn">Xóa lọc</a>
+                            <a href="/portal/return" class="wj-btn wj-btn--secondary">Xóa lọc</a>
                         </div>
 
                         <!-- Danh sách yêu cầu (ReturnCard) -->

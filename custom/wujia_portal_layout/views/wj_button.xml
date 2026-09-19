@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- WJ_Button / WJ_IconButton — atom hành động chung (BA CMP-BTN-001, dòng 40
+         tab `UI Component`, BA Confirmed 26/08/2026).
+
+         Vì sao có hai template chứ không một: QWeb Odoo 19 không đặt được TÊN THẺ
+         động (xem ir_qweb.py:1705), mà BA đòi "action tại chỗ dùng button thật,
+         điều hướng dùng link thật" ⇒ có `btn_href` thì nhánh <a>, không thì <button>.
+
+         btn_variant  primary (mặc định) | secondary | outline | danger | ghost
+         btn_size     md (mặc định) | sm | lg
+         btn_block    True ⇒ chiếm trọn bề ngang (BA cho phép ở mobile)
+         btn_label    chuỗi/markup — nhãn nút
+         btn_icon     chuỗi class icon, vd 'feather icon-plus'
+         btn_href     có ⇒ render <a href>; không ⇒ <button>
+         btn_type     button | submit (mặc định submit cho nhánh <button>)
+         btn_class    class thêm của call site (chỉ bố cục, không đổi dáng)
+         btn_attrs    dict thuộc tính thô (name, value, id, data-*) cho <button>
+
+         Call site có thuộc tính lạ (onclick, t-attf-href động nhiều mảnh) được
+         phép viết thẳng class `.wj-btn` — hợp đồng nằm ở CLASS, template chỉ là
+         lối tắt cho trường hợp thường. Test quét call site canh cả hai lối. -->
+    <template id="wj_button" name="Wujia — Button component">
+        <t t-set="_wjb" t-value="'wj-btn wj-btn--%s%s%s %s' % (
+            btn_variant or 'primary',
+            btn_size and btn_size != 'md' and ' wj-btn--' + btn_size or '',
+            btn_block and ' wj-btn--block' or '',
+            btn_class or '')"/>
+        <a t-if="btn_href" t-att-href="btn_href" t-att-class="_wjb.strip()"
+           t-att-aria-label="btn_aria_label" t-att="btn_attrs or {}">
+            <i t-if="btn_icon" t-att-class="btn_icon"/>
+            <t t-out="btn_label"/>
+        </a>
+        <button t-else="" t-att-type="btn_type or 'submit'" t-att-class="_wjb.strip()"
+                t-att-aria-label="btn_aria_label" t-att="btn_attrs or {}">
+            <i t-if="btn_icon" t-att-class="btn_icon"/>
+            <t t-out="btn_label"/>
+        </button>
+    </template>
+
+    <!-- Icon-only. `btn_aria_label` là BẮT BUỘC (BA acceptance #6: IconButton phải
+         có accessible name); test quét call site bắt chỗ nào quên. -->
+    <template id="wj_icon_button" name="Wujia — Icon Button component">
+        <t t-set="_wjib" t-value="'wj-iconbtn wj-iconbtn--%s%s %s' % (
+            btn_variant or 'secondary',
+            btn_size == 'sm' and ' wj-iconbtn--sm' or '',
+            btn_class or '')"/>
+        <a t-if="btn_href" t-att-href="btn_href" t-att-class="_wjib.strip()"
+           t-att-aria-label="btn_aria_label" t-att-title="btn_aria_label"
+           t-att="btn_attrs or {}">
+            <i t-att-class="btn_icon"/>
+        </a>
+        <button t-else="" t-att-type="btn_type or 'button'" t-att-class="_wjib.strip()"
+                t-att-aria-label="btn_aria_label" t-att-title="btn_aria_label"
+                t-att="btn_attrs or {}">
+            <i t-att-class="btn_icon"/>
+        </button>
+    </template>
+</odoo>

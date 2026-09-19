@@ -73,7 +73,8 @@ class TestF4InteractionCallSites(TransactionCase):
             (('wujia_portal_sale', 'views', 'pc_cart_panel.xml'), 'wj-state-surface', 3),
             (('wujia_portal_sale', 'views', 'portal_order_cart.xml'), 'wj-state-surface', 3),
             (('wujia_portal_sale', 'views', 'portal_order_catalog.xml'), 'wj-state-surface', 4),
-            (('wujia_portal_return', 'views', 'portal_return_form.xml'), 'wujia-mreturn-btn-cancel wj-state-surface', 1),
+            # E6a: nút Hủy mobile của Đổi trả đã về `.wj-btn--secondary` — variant đó
+            # nằm thẳng trong danh sách bề mặt của _interaction.css nên không cần marker.
             (('wujia_portal_base', 'views', 'store_picker_navbar.xml'), 'wujia-store-mobile-strip--clickable wj-state-surface', 1),
         )
         for parts, needle, n in sites:

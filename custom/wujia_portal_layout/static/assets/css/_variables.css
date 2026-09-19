@@ -184,6 +184,21 @@
     --wujia-btn-height-secondary: 38px;
     --wujia-btn-radius:           8px;
 
+    /* ---------- Button CMP-BTN-001 (E6a) — số PC; mobile ở khối @media cuối file.
+       Nguồn: tab `UI Component` dòng 40, BA Confirmed 26/08/2026. Hover/pressed
+       dùng --wujia-cta (#0F7CA8) đã có, không đẻ token trùng nghĩa. ---------- */
+    --wj-btn-h-sm:      32px;
+    --wj-btn-h-md:      40px;
+    --wj-btn-h-lg:      46px;
+    --wj-btn-icon-sm:   32px;
+    --wj-btn-icon-md:   40px;
+    --wj-btn-pad-sm:    12px;
+    --wj-btn-pad-md:    16px;
+    --wj-btn-pad-lg:    20px;
+    --wj-btn-radius-sm: 8px;
+    --wj-btn-radius:    12px;
+    --wj-btn-danger:    #DC2626;
+
     /* ---------- Navbar pill (Current Store badge on cyan navbar) ---------- */
     --wujia-navbar-pill-bg:       rgba(255, 255, 255, 0.18);
     --wujia-navbar-pill-bg-hover: rgba(255, 255, 255, 0.28);
@@ -416,5 +431,13 @@ html { font-size: 14px; }
            vẫn lọt (chừa 14px trên/dưới). Khai ở khối mobile — header chỉ hiện
            <992px nên PC không đọc tới. */
         --wujia-mheader-height:      72px;
+
+        /* Button CMP-BTN-001: mobile cao hơn PC một bậc (36/44/48). Vùng chạm 44
+           của bậc `sm` do pseudo lo, không phình visual. */
+        --wj-btn-h-sm:    36px;
+        --wj-btn-h-md:    44px;
+        --wj-btn-h-lg:    48px;
+        --wj-btn-icon-sm: 36px;
+        --wj-btn-icon-md: 44px;
     }
 }

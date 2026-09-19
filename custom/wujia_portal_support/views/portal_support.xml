@@ -83,8 +83,9 @@
                                     <span t-attf-class="wj-status-badge #{lbl[1]}" t-out="lbl[0]"/>
                                 </td>
                                 <td class="text-end">
-                                    <a t-attf-href="/portal/support/#{t.id}" class="btn btn-sm btn-primary">
-                                        <i class="fa fa-eye" title="View"/>
+                                    <a t-attf-href="/portal/support/#{t.id}" class="wj-iconbtn wj-iconbtn--sm wj-iconbtn--secondary"
+                                       aria-label="Xem ticket" title="Xem ticket">
+                                        <i class="fa fa-eye"/>
                                     </a>
                                 </td>
                             </tr>
@@ -117,7 +118,7 @@
                         <p class="wj-empty-state-title">Chưa có yêu cầu hỗ trợ</p>
                         <p class="wj-empty-state-sub">Hiện chưa có ticket nào để hiển thị.</p>
                         <p class="wj-empty-state-sub">Tạo ticket đầu tiên để Wujia tiếp nhận xử lý.</p>
-                        <a href="/portal/support/new" class="wj-empty-state-btn">
+                        <a href="/portal/support/new" class="wj-btn wj-btn--primary">
                             <i class="feather icon-plus"/> Tạo ticket
                         </a>
                     </div>
@@ -153,7 +154,7 @@
                         <p class="wj-empty-state-title">Không tìm thấy ticket</p>
                         <p class="wj-empty-state-sub">Không có ticket khớp bộ lọc hiện tại.</p>
                         <p class="wj-empty-state-sub">Thử đổi từ khóa hoặc bỏ bộ lọc.</p>
-                        <a href="/portal/support" class="wj-empty-state-btn">Xóa lọc</a>
+                        <a href="/portal/support" class="wj-btn wj-btn--secondary">Xóa lọc</a>
                     </div>
                     <t t-call="wujia_portal_layout.wj_surface_card" t-else="">
                         <t t-set="sc_variant" t-value="'section'"/>
@@ -266,8 +267,8 @@
                             </div>
                         </div>
                         <div class="wj-pc-form-actions">
-                            <a href="/portal/support" class="wj-pc-btn wj-pc-btn--secondary">Hủy</a>
-                            <button type="submit" class="wj-pc-btn wj-pc-btn--primary">
+                            <a href="/portal/support" class="wj-btn wj-btn--secondary">Hủy</a>
+                            <button type="submit" class="wj-btn wj-btn--primary">
                                 <i class="fa fa-paper-plane" title="Send"/>Gửi yêu cầu
                             </button>
                         </div>
@@ -362,7 +363,7 @@
                         Tệp đính kèm chỉ nhận ảnh hoặc PDF, tối đa 6 tệp, mỗi tệp ≤ 5MB.
                     </p>
 
-                    <button type="submit" class="btn btn-primary w-100 mt-3">Gửi yêu cầu hỗ trợ</button>
+                    <button type="submit" class="wj-btn wj-btn--primary wj-btn--block mt-3">Gửi yêu cầu hỗ trợ</button>
                 </form>
             </div>
             <!-- /mobile -->
@@ -441,8 +442,8 @@
                                         <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
                                         <textarea name="body" rows="3" class="form-control mb-2"
                                                   placeholder="Trả lời cho HQ..." required="required"/>
-                                        <button type="submit" class="btn btn-primary btn-sm">
-                                            <i class="fa fa-paper-plane me-1" title="Send"/>Gửi
+                                        <button type="submit" class="wj-btn wj-btn--primary wj-btn--sm">
+                                            <i class="fa fa-paper-plane"/>Gửi
                                         </button>
                                     </form>
                                 </div>
@@ -584,8 +585,8 @@
                     <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
                     <textarea name="body" class="wujia-mticket-reply-input mb-2"
                               placeholder="Nhập phản hồi thêm..." required="required"/>
-                    <button type="submit" class="btn btn-primary w-100">
-                        <i class="feather icon-send me-1"/>Gửi
+                    <button type="submit" class="wj-btn wj-btn--primary wj-btn--block">
+                        <i class="feather icon-send"/>Gửi
                     </button>
                 </form>
             </div>

@@ -2409,3 +2409,170 @@ label.wj-filter-search-field input { height: 38px; }
     font-size: 13px;
     font-weight: 700;
 }
+
+/* ===== Button CMP-BTN-001 (E6a) — atom dùng chung PC + mobile ===============
+   Số nguyên văn spec BA `UI Component` dòng 40 (BA Confirmed 26/08/2026):
+   cao 32/40/46 (PC) · 36/44/48 (mobile), vùng chạm >=44 · radius 8 (sm) /
+   12 (md, lg) · typo 13/18/600 · 14/20/700 · 15/22/700.
+   `.wj-pc-btn` cố ý KHÔNG bị đụng: nhóm Khảo sát còn dùng (LIMIT của cụm E6). */
+.wj-btn,
+.wj-iconbtn {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid transparent;
+    background: transparent;
+    font-family: var(--wujia-font-family);
+    text-decoration: none;
+    cursor: pointer;
+    transition: background-color var(--wujia-state-transition),
+                border-color var(--wujia-state-transition),
+                color var(--wujia-state-transition);
+}
+.wj-btn {
+    gap: 8px;
+    height: var(--wj-btn-h-md);
+    padding: 0 var(--wj-btn-pad-md);
+    border-radius: var(--wj-btn-radius);
+    font-size: 14px;
+    line-height: 20px;
+    font-weight: 700;
+    white-space: nowrap;
+}
+.wj-btn--sm {
+    height: var(--wj-btn-h-sm);
+    padding: 0 var(--wj-btn-pad-sm);
+    border-radius: var(--wj-btn-radius-sm);
+    font-size: 13px;
+    line-height: 18px;
+    font-weight: 600;
+}
+.wj-btn--lg {
+    height: var(--wj-btn-h-lg);
+    padding: 0 var(--wj-btn-pad-lg);
+    font-size: 15px;
+    line-height: 22px;
+}
+/* BA: "Mobile cho phép full-width khi action area yêu cầu". */
+.wj-btn--block { width: 100%; }
+.wj-btn > i,
+.wj-iconbtn > i { line-height: 1; margin: 0; }
+
+.wj-iconbtn {
+    width: var(--wj-btn-icon-md);
+    height: var(--wj-btn-icon-md);
+    padding: 0;
+    border-radius: var(--wj-btn-radius);
+    font-size: 16px;
+    line-height: 1;
+}
+.wj-iconbtn--sm {
+    width: var(--wj-btn-icon-sm);
+    height: var(--wj-btn-icon-sm);
+    border-radius: var(--wj-btn-radius-sm);
+    font-size: 14px;
+}
+
+/* Variant — BA cho Secondary và Outline cùng viền/chữ, chỉ khác nền. */
+.wj-btn--primary,
+.wj-iconbtn--primary {
+    background: var(--wujia-primary);
+    border-color: var(--wujia-primary);
+    color: #FFFFFF;
+}
+.wj-btn--secondary,
+.wj-iconbtn--secondary {
+    background: #FFFFFF;
+    border-color: var(--wujia-border);
+    color: var(--wujia-text-secondary);
+}
+.wj-btn--outline,
+.wj-iconbtn--outline {
+    background: transparent;
+    border-color: var(--wujia-border);
+    color: var(--wujia-text-secondary);
+}
+.wj-btn--danger,
+.wj-iconbtn--danger {
+    background: var(--wj-btn-danger);
+    border-color: var(--wj-btn-danger);
+    color: #FFFFFF;
+}
+.wj-btn--ghost,
+.wj-iconbtn--ghost {
+    background: transparent;
+    color: var(--wujia-primary);
+}
+
+/* Hover/pressed của variant NỀN ĐẬM khai tại đây; variant nền trung tính đi theo
+   danh sách bề mặt của `_interaction.css` (C6) — không viết lại lần hai. */
+@media (hover: hover) and (pointer: fine) {
+    .wj-btn--primary:not(:disabled):hover,
+    .wj-iconbtn--primary:not(:disabled):hover {
+        background: var(--wujia-cta);
+        border-color: var(--wujia-cta);
+        color: #FFFFFF;
+    }
+    .wj-btn--danger:not(:disabled):hover,
+    .wj-iconbtn--danger:not(:disabled):hover { filter: brightness(.95); color: #FFFFFF; }
+    .wj-btn--ghost:not(:disabled):hover,
+    .wj-iconbtn--ghost:not(:disabled):hover { background: var(--wujia-primary-soft); }
+}
+.wj-btn--primary:not(:disabled):active,
+.wj-iconbtn--primary:not(:disabled):active {
+    background: var(--wujia-cta);
+    border-color: var(--wujia-cta);
+}
+
+/* Disabled: vẫn đọc được nhãn, không bấm được, không nhận focus (thẻ mang
+   thuộc tính `disabled` thật — semantic, không phải class trang trí). */
+.wj-btn:disabled,
+.wj-iconbtn:disabled,
+.wj-btn.is-disabled,
+.wj-iconbtn.is-disabled { opacity: .55; pointer-events: none; }
+
+/* Loading: giữ NGUYÊN bề rộng — nhãn tàng hình tại chỗ, spinner vẽ đè lên. */
+.wj-btn.is-loading,
+.wj-iconbtn.is-loading { color: transparent; pointer-events: none; }
+.wj-btn.is-loading::after,
+.wj-iconbtn.is-loading::after {
+    content: "";
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: 16px;
+    height: 16px;
+    margin: -8px 0 0 -8px;
+    border: 2px solid rgba(17, 24, 39, .25);
+    border-top-color: var(--wujia-text-secondary);
+    border-radius: 50%;
+    animation: wj-btn-spin .6s linear infinite;
+}
+.wj-btn--primary.is-loading::after,
+.wj-btn--danger.is-loading::after,
+.wj-iconbtn--primary.is-loading::after,
+.wj-iconbtn--danger.is-loading::after {
+    border-color: rgba(255, 255, 255, .45);
+    border-top-color: #FFFFFF;
+}
+@keyframes wj-btn-spin { to { transform: rotate(360deg); } }
+
+/* Vùng chạm 44 cho bậc `sm` trên mobile — pseudo phủ ra ngoài, visual giữ 36
+   (cùng cách đã dùng cho nút tìm của FilterBar ở E4a). */
+@media (max-width: 991.98px) {
+    .wj-btn--sm::before,
+    .wj-iconbtn--sm::before {
+        content: "";
+        position: absolute;
+        left: 50%;
+        top: 50%;
+        width: 100%;
+        min-width: 44px;
+        height: 44px;
+        transform: translate(-50%, -50%);
+    }
+}
+
+/* CTA của EmptyState: bố cục do EmptyState giữ, dáng do atom giữ. */
+.wj-empty-state > .wj-btn { margin-top: 11px; min-width: 147px; }

@@ -252,7 +252,8 @@
     overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
 }
 .wj-pc-noti-attach-meta { font-size: 12px; color: var(--wj-pc-muted); }
-.wj-pc-noti-attach-dl { flex: 0 0 auto; height: 36px; padding: 0 14px; font-size: 13px; }
+/* E6a: cao/chữ về bậc `sm` của atom; màn chỉ giữ việc không co. */
+.wj-pc-noti-attach-dl { flex: 0 0 auto; }
 
 /* ---- Type tone (popup icons; classes injected by JS) ---- */
 .wj-pc-noti-type--cyan { background: var(--wujia-primary-soft); color: var(--wujia-primary); }
@@ -333,4 +334,4 @@
 .wj-pc-noti-popup__item-date {
     margin-top: auto; font-size: 11px; color: var(--wj-pc-subtle); white-space: nowrap;
 }
-.wj-pc-noti-popup__all { width: 100%; justify-content: center; }
+/* E6a: bề ngang trọn hàng nay là variant `--block` của atom. */

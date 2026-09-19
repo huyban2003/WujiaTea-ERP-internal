@@ -39,7 +39,7 @@
                 <t t-set="ch_control">
                     <div class="wj-pc-noti-head-actions wj-card-header__control">
                         <span t-if="cnt_unread" class="wj-pc-badge wj-pc-badge--cancel"><t t-out="cnt_unread"/> chưa đọc</span>
-                        <button type="button" id="wj-noti-bulk-read" class="wj-pc-btn wj-pc-btn--primary">
+                        <button type="button" id="wj-noti-bulk-read" class="wj-btn wj-btn--primary">
                             <i class="feather icon-check-circle"/>Đánh dấu đã đọc
                         </button>
                     </div>
@@ -129,8 +129,8 @@
                 <p class="wj-empty-state-title">Chưa có thông báo</p>
                 <p class="wj-empty-state-sub">Hiện chưa có thông báo nào để hiển thị.</p>
                 <p class="wj-empty-state-sub">Thông báo từ HQ sẽ hiển thị tại đây khi có.</p>
-                <a t-if="keyword or unread" href="/portal/notification" class="wj-empty-state-btn">Xóa lọc</a>
-                <button t-else="" type="button" class="wj-empty-state-btn" onclick="window.location.reload()">Tải lại</button>
+                <a t-if="keyword or unread" href="/portal/notification" class="wj-btn wj-btn--secondary">Xóa lọc</a>
+                <button t-else="" type="button" class="wj-btn wj-btn--secondary" onclick="window.location.reload()">Tải lại</button>
             </div>
             <t t-call="wujia_portal_layout.wj_data_list" t-else="">
                 <t t-set="dl_variant" t-value="'detail-card'"/>
@@ -389,7 +389,7 @@
                                             </span>
                                         </div>
                                         <a t-attf-href="/portal/notification/#{noti.id}/attachment/#{att.id}"
-                                           class="wj-pc-btn wj-pc-btn--primary wj-pc-noti-attach-dl">
+                                           class="wj-btn wj-btn--sm wj-btn--primary wj-pc-noti-attach-dl">
                                             <i class="feather icon-download"/>Tải xuống
                                         </a>
                                     </div>
