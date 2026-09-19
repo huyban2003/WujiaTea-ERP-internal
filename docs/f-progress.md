@@ -497,3 +497,59 @@ rồi đánh ✅ ở bảng Trạng thái §2 `docs/next-session-clusters-F.md`.
     select; bộ điều kiện y nguyên. Ghi ra để retest không tưởng là mất/thêm ô.
 - Phiên kế: **E4b2** — toàn bộ thanh lọc mobile. Prompt sẵn: `docs/prompt-e4b2.md` (đã ghi rõ G2 hạ
   header mobile 104→72 nên mốc cao trang mobile phải chụp lại, kèm bảng mốc sau E4b1).
+
+## E4b2 — FilterBar `CMP-FB-001`: phủ hết call site **mobile** · 19/09/2026 · Mac
+- Kết quả: ✅ xong — **13/13 tiêu chí**. `UI-FILTER-001` (STT 139) **CHƯA đóng** (đóng ở E4c);
+  không chạy `qa_sync.py`, không đổi sheet, không tự deploy UAT.
+- Đã làm:
+  - **6 thanh lọc mobile vào component**: Lịch sử · Thông báo · Hỗ trợ · Kiến thức · Đổi trả ·
+    **Báo cáo** (Báo cáo vào hẳn component theo chốt "làm chuẩn chỉ hẳn" của chủ dự án).
+  - **Biến thể BA 04-DateRangeOnly** thêm vào component: màn **chỉ có ngày** thì nút tìm nằm **cùng
+    hàng** với 2 ô ngày. Không có nó thì thẻ Báo cáo phình 72 → 116 (thêm hẳn một hàng nút).
+  - **Đặt hàng mobile** giữ dáng hàng trần (bọc card là đổi thiết kế màn) nhưng kéo hình học về
+    chuẩn: ô tìm + nút **44/r12 → 38/r10**, vùng chạm giữ 44 (ô tìm bọc `<label>`, nút `::before`).
+  - **Công nợ mobile 0 byte** — component riêng đã duyệt Figma v31 (FB-09 item 9), đo lại để chứng
+    minh không hồi quy.
+  - **Màn Thi mobile cố ý để nguyên**: chủ dự án chốt *"làm chuẩn, phiên này không ổn thì phiên sau,
+    miễn giải quyết tới nơi"* ⇒ E4c **migrate + wire ngày một thể**, không đẻ knob tạm trong
+    component. Có test ghi nợ.
+  - Dọn CSS: xoá họ `.wj-rep-mfilter*` (52 dòng) · **thu hẹp** khối 44px của D6c về `.wujia-mexam`
+    (màn Thi còn dùng — xoá là đẻ vi phạm vùng chạm ở chính màn ta không đụng) · giữ `.wj-mform` 48
+    (chuẩn form BH-009, khác chuẩn ô lọc).
+  - 20 test mới (13 `portal_base` quét chéo + 7 `portal_layout` hợp đồng component — đúng F5b).
+- Commit: _(điền khi push)_
+- Deploy: **chưa** — lệnh `-u` gộp 9 module ghi ở `docs/e4b2-acceptance-matrix.md` §9.
+- Số đo: **FB-10 render-diff 13 route × 6 khổ = 78 ô, 0 lệch** · ô lọc mobile **38 nhìn thấy /
+  44 vùng chạm** ở cả 3 loại control, thẻ **r14 / p12 / gap 8** ở 6/6 màn · **0 tràn ngang**
+  @360/390/430 · `wj_formcontrol --scope body` **82 control · vi phạm 14 → 4** (4 ô còn lại là
+  select PC 42 của info-request, **có y hệt ở run đối chứng**) · `wj_measure --diff` 13 route × 5 khổ
+  **0 tràn ngang · 0 lỗi JS · 0 mất record**, đúng **1 ô lệch** (Báo cáo mobile **+14**) · **PC không
+  đổi 1 pixel** · suite **0 failed / 0 error / 621 test** · DB trắng **0 failed / 1 error / 149**
+  (`test_fra3_layer_guard`, nợ F6) · mutation **20/20 đỏ đúng guard** · `check_layers` 3 R1–R5 +
+  2 R7 **có sẵn**.
+- Bẫy gặp:
+  - **Harness mutation bị dừng giữa chừng để lại file đã phá trong cây mã** (`wj-sup-mchips2`), suite
+    lần sau đỏ. Đã vá: `atexit` + `SIGTERM`/`SIGINT` phục hồi. **Không bắt `SIGHUP`** — `nohup` đang
+    vô hiệu nó, bắt lại là tự chết khi shell thoát (dính đúng một lần).
+  - **Mũi phá `str.replace(old, new, 1)` ăn vào call site PC** (PC và mobile cùng file) ⇒ 3 mũi đỏ
+    nhầm test của lượt trước. Thêm cờ `[m]` → thay ở lần xuất hiện **cuối**.
+  - **Mũi phá phải giữ XML hợp lệ**: đổi `<label>` thành `<div>` làm lệch thẻ đóng ⇒ `-u` fail, không
+    có dòng tổng kết, harness báo "run hỏng" (đúng như thiết kế).
+  - **`closest('a, b, c')` trả tổ tiên gần nhất khớp BẤT KỲ selector nào — và khớp cả chính nó** ⇒
+    hai công cụ đo báo vùng chạm 38 thay vì 44. Vá cả `wj_filterbar_inventory.py` lẫn
+    `wj_formcontrol.py`; nếu tin máy thì đã đi "sửa" đúng chỗ vừa làm đúng.
+  - **zsh không tách từ khi expand biến** ⇒ `--routes $R` gửi một chuỗi khổng lồ, script vẫn chạy
+    "xong" với 1 route giả. Dùng mảng `R=(…)` + `"${R[@]}"`, luôn đếm route trong JSON trước khi tin.
+  - **`-u` cả `wujia_core`/`wujia_franchise` làm suite chết ngay khi nạp test** (`wujia_franchise/
+    tests/__init__.py` import file đã xoá — nợ phía anh Thái). Suite của lượt chạy trên 9 module đụng.
+- Nợ / phải nói với BA:
+  - **Báo cáo mobile cao thêm 14px**: thẻ lọc thấp đi 2 (72 → 70) nhưng thẻ chuẩn có
+    `margin-bottom: 16px` còn thanh cũ cố ý để 0 ⇒ −2 + 16 = +14. Giá của việc dùng **chung một vỏ**.
+  - **Nợ nhịp G2**: `.wj-filter-card` cộng 16px lên trên `gap` 8px của khung trang ⇒ *lọc → danh
+    sách* thành 24px ở **cả 7 màn**. Nợ có từ **E4a**, gỡ là đổi nhịp 7 màn cùng lúc ⇒ để **cụm nhịp
+    E5**, đã ghi vào `docs/prompt-e4c.md`.
+  - **Đổi trả đổi thứ tự** ô lọc sang chuẩn tìm → ngày → select (bộ điều kiện y nguyên);
+    **Báo cáo** đổi nhãn `Tìm` thành nút kính lúp có `aria-label="Tìm kiếm"`; **Đặt hàng** ô tìm nhỏ
+    lại còn 38 nhưng vùng bấm vẫn 44.
+- Phiên kế: **E4c** — wiring ngày + màn Thi mobile (migrate **và** wire một thể) + guard + **đóng
+  issue**. Prompt sẵn: `docs/prompt-e4c.md`.

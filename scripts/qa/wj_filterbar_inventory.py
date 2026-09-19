@@ -267,7 +267,11 @@ RENDER_JS = r"""
               .filter(vis).map(e => Math.round(e.getBoundingClientRect().top))).size,
       ctl: [...f.querySelectorAll('input:not([type=hidden]), select')].filter(vis).map(e => {
         const b = e.getBoundingClientRect();
-        const box = e.closest('label, .wj-filter-search-field, .wj-filter-date__box') || e;
+        // Vùng chạm = WRAPPER <label> (Q1: hộp 38 nằm trong label 44). `closest` với
+        // danh sách selector trả về TỔ TIÊN GẦN NHẤT khớp bất kỳ cái nào — với ô ngày
+        // đó là `__box` 38, nên phải hỏi <label> trước, nếu không số chạm báo thiếu.
+        const box = e.closest('label')
+                 || e.closest('.wj-filter-search-field, .wj-filter-date__box') || e;
         const bb = box.getBoundingClientRect();
         return {n: e.name, h: Math.round(b.height * 100) / 100,
                 hit: Math.round(bb.height * 100) / 100,
@@ -297,7 +301,9 @@ def render_scan(args):
                 page.goto('%s%s' % (args.base, route), wait_until='load')
                 page.wait_for_timeout(args.settle)
                 landed = page.url.split(args.base)[-1].split('?')[0]
-                if landed.rstrip('/') != route.rstrip('/'):
+                # Route có thể mang sẵn query (ép màn ra khỏi trạng thái rỗng) —
+                # so phần path, nếu không mọi route như vậy đều bị báo 'redirect'.
+                if landed.rstrip('/') != route.split('?')[0].rstrip('/'):
                     out.setdefault(route, {})['%s' % w] = 'redirect:%s' % landed
                     continue
                 out.setdefault(route, {})['%s' % w] = page.evaluate(RENDER_JS)

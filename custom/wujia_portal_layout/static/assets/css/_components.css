@@ -268,7 +268,7 @@ h2, .wujia-h2 { font-size: var(--wujia-font-size-h2) !important; font-weight: 60
     margin-bottom: 16px;
 }
 /* Search row: field (flex) + cyan button 38×38 */
-.wj-filter-search { display: flex; gap: 8px; }
+.wj-filter-search { display: flex; align-items: center; gap: 8px; }
 .wj-filter-search-field { position: relative; flex: 1 1 auto; display: flex; align-items: center; }
 .wj-filter-search-field > i {
     position: absolute;
@@ -2037,15 +2037,10 @@ a.wujia-mhome-kpi:active { opacity: 0.85; }
     }
     .wj-mform textarea.form-control { min-height: 96px; }
 
-    /* Cùng issue, phần bộ lọc: pill 38 → 44 (BA touch min). Chỉ chiều cao —
-       radius/typography của FilterBar chờ spec `UI-FILTER-001`. */
-    .wj-filter-date,
-    .wj-filter-select { height: 44px; }
-    .wj-filter-search-field input,
-    .wj-filter-search-btn { height: 44px; }
-    .wj-filter-search-btn { width: 44px; }
-    form.row .form-select-sm,
-    form.row .form-control-sm { min-height: 44px; }
+    /* E4b2: luật 44 của D6c thu về khối demo màn Thi (chưa nối, E4c đưa vào component). */
+    .wujia-mexam .wj-filter-date,
+    .wujia-mexam .wj-filter-search-btn { height: 44px; }
+    .wujia-mexam .wj-filter-search-btn { width: 44px; }
 }
 
 /* ===== CMP-PGNT-001 Pagination — một markup, hai bố cục =================== */
@@ -2239,12 +2234,14 @@ a.wujia-mhome-kpi:active { opacity: 0.85; }
 .wj-filter-selectwrap > .wj-filter-select { height: 38px; }
 label.wj-filter-search-field { min-height: 44px; }
 label.wj-filter-search-field input { height: 38px; }
-.wj-filter-search > label.wj-filter-search-field + .wj-filter-search-btn {
+.wj-filter-search > label.wj-filter-search-field + .wj-filter-search-btn,
+.wj-filter-dates--compact > .wj-filter-search-btn {
     position: relative;
     height: 38px;
     width: 38px;
 }
-.wj-filter-search > label.wj-filter-search-field + .wj-filter-search-btn::before {
+.wj-filter-search > label.wj-filter-search-field + .wj-filter-search-btn::before,
+.wj-filter-dates--compact > .wj-filter-search-btn::before {
     content: "";
     position: absolute;
     left: 50%;

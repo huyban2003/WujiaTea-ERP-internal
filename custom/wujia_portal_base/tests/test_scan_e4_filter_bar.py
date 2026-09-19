@@ -38,7 +38,10 @@ class TestFilterBarCallSites(TransactionCase):
     def test_pc_lich_su_dat_hang_goi_component_va_giu_page_size(self):
         root = _view('wujia_portal_purchase_history', 'portal_history.xml')
         calls = root.xpath('.//t[@t-call="wujia_portal_layout.wj_filter_bar"]')
-        self.assertEqual(len(calls), 1)
+        # E4b2 thêm call site mobile cùng view ⇒ lọc đúng cái PC.
+        self.assertEqual(len(calls), 2)
+        calls = [c for c in calls
+                 if c.xpath('.//t[@t-set="fb_platform"]')[0].get('t-value') == "'pc'"]
         # WJ-PH-008: mất hidden page_size là người dùng phải chọn lại số dòng.
         self.assertEqual(
             len(calls[0].xpath('.//input[@name="page_size"][@type="hidden"]')), 1)
@@ -213,3 +216,150 @@ class TestFilterBarLegacyCssNarrowed(TransactionCase):
         css = _css('wujia_portal_layout',
                    'static/assets/css/_pc_components.css')
         self.assertIn('.wj-pc-filterbar--dense', css)
+
+
+# --------------------------------------------------------------------------
+# E4b2 — thanh lọc MOBILE về component. Màn Thi cố ý ở lại: khối ngày của nó
+# chưa nối, E4c đưa vào component ĐỒNG THỜI với wiring (chốt của chủ dự án).
+# --------------------------------------------------------------------------
+
+M_CALL_SITES = [
+    ('wujia_portal_purchase_history', 'portal_history.xml',
+     {'page_size', 'q', 'date_from', 'date_to'}),
+    ('wujia_portal_notification', 'portal_notification.xml', {'unread', 'keyword'}),
+    ('wujia_portal_support', 'portal_support.xml', {'state', 'q'}),
+    ('wujia_portal_knowledge', 'portal_knowledge.xml', {'keyword'}),
+    ('wujia_portal_return', 'portal_return_list.xml',
+     {'q', 'state', 'date_from', 'date_to'}),
+    ('wujia_portal_report', 'portal_report_orders.xml', {'date_from', 'date_to'}),
+]
+
+# id khối chip/lỗi mà `wj_ajax_list.js` thay theo id — mất id là mất AJAX mà
+# không màn nào báo lỗi (chỉ nháy cả trang).
+AJAX_SLOTS = {
+    'wujia_portal_support': ['wj-sup-mchips'],
+    'wujia_portal_knowledge': ['wj-know-mchips'],
+}
+
+
+def _m_call(root):
+    for call in root.xpath('.//t[@t-call="wujia_portal_layout.wj_filter_bar"]'):
+        plat = call.xpath('.//t[@t-set="fb_platform"]')
+        if plat and plat[0].get('t-value') == "'m'":
+            return call
+    return None
+
+
+@tagged('post_install', '-at_install', 'wujia_filter_e4')
+class TestFilterBarMobileCallSitesE4b2(TransactionCase):
+    """E4b2: thanh lọc mobile cũng là MỘT component, bộ điều kiện y nguyên."""
+
+    def test_sau_man_mobile_deu_goi_component(self):
+        for module, fn, _names in M_CALL_SITES:
+            self.assertIsNotNone(_m_call(_view(module, fn)),
+                                 '%s: thanh lọc mobile chưa gọi wj_filter_bar' % fn)
+
+    def test_giu_nguyen_bo_dieu_kien_loc_mobile(self):
+        """FB-10 bản tĩnh — bản render đo bằng wj_filterbar_inventory.py."""
+        for module, fn, names in M_CALL_SITES:
+            call = _m_call(_view(module, fn))
+            self.assertEqual(_names_of(call), names,
+                             '%s: bộ điều kiện lọc mobile lệch' % fn)
+
+    def test_khong_con_thanh_loc_mobile_tu_dung(self):
+        for module, fn, _names in M_CALL_SITES:
+            root = _view(module, fn)
+            for form in root.iter('form'):
+                cls = form.get('class') or ''
+                self.assertNotIn('wj-filter-card', cls,
+                                 '%s: còn thanh lọc mobile tự dựng' % fn)
+                self.assertNotIn('wj-rep-mfilter', cls,
+                                 '%s: còn thanh lọc mobile tự dựng' % fn)
+
+    def test_chip_giu_id_slot_ajax_khi_vao_slot_tho(self):
+        """Chip nằm trong `fb_chips`; mất id là `wj_ajax_list.js` hết chỗ thay."""
+        for module, ids in AJAX_SLOTS.items():
+            fn = dict((m, f) for m, f, _n in M_CALL_SITES)[module]
+            call = _m_call(_view(module, fn))
+            chips = call.xpath('.//t[@t-set="fb_chips"]')
+            self.assertTrue(chips, '%s: chip không còn đi qua slot fb_chips' % fn)
+            for slot_id in ids:
+                self.assertTrue(chips[0].xpath('.//*[@id="%s"]' % slot_id),
+                                '%s: mất id %s ⇒ mất AJAX' % (fn, slot_id))
+
+    def test_chip_va_loi_dung_part_template_van_nam_trong_slot(self):
+        """Lịch sử/Thông báo render chip bằng part template — phải nằm trong slot,
+        ra ngoài form là chip rơi khỏi vùng lọc và AJAX thay hụt."""
+        for module, fn, slot, part in (
+                ('wujia_portal_purchase_history', 'portal_history.xml',
+                 'fb_error', 'merr'),
+                ('wujia_portal_purchase_history', 'portal_history.xml',
+                 'fb_chips', 'mchips'),
+                ('wujia_portal_notification', 'portal_notification.xml',
+                 'fb_chips', 'mchips')):
+            call = _m_call(_view(module, fn))
+            node = call.xpath('.//t[@t-set="%s"]' % slot)
+            self.assertTrue(node, '%s: thiếu slot %s' % (fn, slot))
+            xp = './/t[@t-set="part"][@t-value="\'%s\'"]' % part
+            self.assertTrue(node[0].xpath(xp),
+                            '%s: slot %s không gọi part %s' % (fn, slot, part))
+
+    def test_lich_su_giu_kep_ngay_tu_den(self):
+        """`clamp` chính là max/min của markup cũ — mất là chọn được ngày ngược."""
+        call = _m_call(_view('wujia_portal_purchase_history', 'portal_history.xml'))
+        dates = call.xpath('.//t[@t-set="fb_dates"]')[0].get('t-value')
+        self.assertIn("'clamp': True", dates)
+
+    def test_doi_tra_giu_select_tu_submit(self):
+        call = _m_call(_view('wujia_portal_return', 'portal_return_list.xml'))
+        sel = call.xpath('.//t[@t-set="fb_selects"]')[0].get('t-value')
+        self.assertIn("'auto': True", sel)
+        self.assertIn('filter_options', sel)
+
+    def test_bao_cao_khong_con_ho_class_rieng(self):
+        raw = _raw('wujia_portal_report', 'portal_report_orders.xml')
+        self.assertNotIn('wj-rep-mfilter', raw)
+        css = _css('wujia_portal_report', 'static/src/css/portal_report.css')
+        self.assertNotIn('wj-rep-mfilter', css)
+
+    def test_nhan_nut_mobile_khong_bi_de(self):
+        for module, fn, _names in M_CALL_SITES:
+            call = _m_call(_view(module, fn))
+            self.assertEqual(call.xpath('.//t[@t-set="fb_submit_label"]'), [],
+                             '%s: đè nhãn nút, phải dùng mặc định "Tìm kiếm"' % fn)
+
+
+@tagged('post_install', '-at_install', 'wujia_filter_e4')
+class TestFilterBarMobileLeftovers(TransactionCase):
+    """Hai chỗ CỐ Ý không vào component + luật 44 cũ phải thu hẹp."""
+
+    def test_dat_hang_giu_thanh_rieng_nhung_ve_chuan_38_44(self):
+        raw = _raw('wujia_portal_sale', 'portal_order_catalog.xml')
+        # Ô tìm phải bọc <label>: div thì bấm vào lề 44 không focus được ô 38.
+        self.assertIn('<label class="wujia-morder-search-input">', raw)
+        css = _css('wujia_portal_sale', 'static/src/css/portal_order.css')
+        btn = css[css.index('.wujia-morder-search-btn {'):]
+        btn = btn[:btn.index('}')]
+        self.assertIn('width: 38px', btn)
+        self.assertIn('border-radius: 10px', btn)
+        self.assertIn('.wujia-morder-search-btn::before', css)
+        self.assertIn('min-height: 44px', css)
+
+    def test_cong_no_giu_component_rieng_theo_fb09(self):
+        """FB-09 mục 9 + Figma v31: Công nợ có thanh lọc riêng đã duyệt — 0 byte."""
+        raw = _raw('wujia_portal_debt', 'portal_debt.xml')
+        self.assertIn('wj_debt_filter', raw)
+        self.assertNotIn('wujia_portal_layout.wj_filter_bar', raw)
+
+    def test_man_thi_mobile_con_nguyen_cho_e4c(self):
+        """Nợ có chủ: E4c đưa khối này vào component CÙNG LÚC với wiring ngày."""
+        root = _view('wujia_portal_exam', 'portal_exam.xml')
+        demo = root.xpath('.//t[@t-set="sc_class"][@t-value="\'wj-filter-card\'"]')
+        self.assertEqual(len(demo), 1, 'khối demo màn Thi đã đổi — phải kèm wiring E4c')
+        self.assertIsNone(_m_call(root), 'màn Thi mobile vào component sớm hơn wiring')
+
+    def test_khong_dung_module_anh_thai(self):
+        raw = _raw('wujia_portal_inspection',
+                   'portal_inspection_list_templates.xml')
+        self.assertNotIn('wj_filter_bar', raw)
+        self.assertNotIn('wj-filter-card', raw)

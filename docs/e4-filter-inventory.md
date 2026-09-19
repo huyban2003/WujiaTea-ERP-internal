@@ -82,13 +82,18 @@ trước/sau từng màn”*. Bảng §1 là ảnh chụp **TRƯỚC** khi sửa
 | support:24 · knowledge:36 · return:38 · info-request:34 (PC Bootstrap) | **E4b1** | ✅ |
 | delivery:267 · notification:208 · exam:31 · report:176 · order:237 (PC `wj-pc-filterbar`) | **E4b1** | ✅ |
 | debt:293 · debt:580 (PC, giữ week/month) | **E4b1** | ✅ không cần sửa — đã 42px, nhãn `Xem`/`Tìm kiếm` đúng FB-02/FB-09 |
-| history:241 · notification:257 · support:127 · knowledge:146 · return:142 · exam:126 (mobile `wj-filter-card`) | **E4b2** | ☐ |
-| report:35 · order:300 · debt:17 (mobile lẻ) | **E4b2** | ☐ |
+| history · notification · support · knowledge · return (mobile `wj-filter-card`) | **E4b2** | ✅ |
+| report:35 (mobile lẻ → vào hẳn component, biến thể BA 04-DateRangeOnly) | **E4b2** | ✅ |
+| order:300 (mobile lẻ) | **E4b2** | ✅ giữ dáng hàng trần, kéo hình học về **38 + chạm 44 + r10** |
+| debt:17 (mobile lẻ, 2 call site) | **E4b2** | ✅ **0 byte** — component riêng đã duyệt Figma v31, FB-09 item 9 |
+| exam:130 (mobile, demo chưa wire) | **E4c** | ☐ — chốt 19/09: **migrate + wire một thể**, không đẻ knob tạm |
 | wiring ngày 4 màn + về trang 1 + guard | E4c | ☐ |
 | 2 call site Khảo sát | — | **defer** (luật 08/09) |
 
 **Nghiệm thu lượt E4a:** `docs/e4a-acceptance-matrix.md` (26/26 tiêu chí · 21/21 mũi mutation).
 **Nghiệm thu lượt E4b1 (PC):** `docs/e4b1-acceptance-matrix.md` · prompt lượt mobile: `docs/prompt-e4b2.md`.
+**Nghiệm thu lượt E4b2 (mobile):** `docs/e4b2-acceptance-matrix.md` (13/13 tiêu chí · FB-10 78 ô
+**0 lệch** · mutation 20/20) · prompt lượt cuối: `docs/prompt-e4c.md`.
 
 ## 5. Đo lại sau khi migrate: dùng chế độ render, không dùng bản tĩnh
 

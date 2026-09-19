@@ -115,7 +115,7 @@ class TestFilterBarTemplate(TransactionCase):
             root.xpath('.//*[contains(@class, "wj-filter-actions")]'), [])
 
     def test_mobile_khong_co_reset_ca_khi_man_khong_co_o_tim(self):
-        """Màn mobile không có ô tìm vẫn render hàng hành động — reset vẫn phải vắng."""
+        """Màn mobile không có ô tìm vẫn đúng 1 nút submit — reset vẫn phải vắng."""
         root = self._mobile(fb_search='False')
         self.assertEqual(len(root.xpath('.//button[@type="submit"]')), 1)
         self.assertEqual(root.xpath('.//a'), [])
@@ -238,20 +238,19 @@ class TestFilterBarCss(TransactionCase):
 
     def test_nut_tim_38_co_vung_cham_44_bang_pseudo(self):
         css = _css('_components.css')
-        visible = _block(
-            css, '.wj-filter-search > label.wj-filter-search-field + '
-                 '.wj-filter-search-btn')
+        box = ('.wj-filter-search > label.wj-filter-search-field + '
+               '.wj-filter-search-btn,\n'
+               '.wj-filter-dates--compact > .wj-filter-search-btn')
+        visible = _block(css, box)
         self.assertIn('height: 38px', visible)
         self.assertIn('width: 38px', visible)
-        pseudo = _block(
-            css, '.wj-filter-search > label.wj-filter-search-field + '
-                 '.wj-filter-search-btn::before')
+        pseudo = _block(css, box.replace(',\n', '::before,\n') + '::before')
         self.assertIn('width: 44px', pseudo)
         self.assertIn('height: 44px', pseudo)
 
     def test_gap_hang_loc_mobile_la_8(self):
-        css = _css('_components.css')
-        self.assertIn('.wj-filter-search { display: flex; gap: 8px; }', css)
+        self.assertIn('gap: 8px',
+                      _block(_css('_components.css'), '.wj-filter-search'))
 
     def test_control_pc_cao_42_bang_token_chung(self):
         css = _css('_pc_components.css')
@@ -309,3 +308,73 @@ class TestFilterBarE4b1Contract(TransactionCase):
         blk = _block(_css('_pc_components.css'),
                      '.wj-pc-filterbar select.wj-filter-select')
         self.assertIn('!important', blk)
+
+
+@tagged('post_install', '-at_install', 'wujia_filter_e4')
+class TestFilterBarE4b2MobileContract(TransactionCase):
+    """E4b2 — hợp đồng khi nhân component ra 6 thanh lọc mobile."""
+
+    _render = TestFilterBarTemplate._render
+    _mobile = TestFilterBarTemplate._mobile
+
+    def test_man_chi_co_ngay_thi_nut_tim_nam_cung_hang_ngay(self):
+        """Biến thể BA 04-DateRangeOnly: thêm hàng nút riêng là thẻ cao thêm 44px."""
+        root = self._mobile(fb_search='False')
+        row = root.xpath('.//*[contains(@class, "wj-filter-dates--compact")]')
+        self.assertEqual(len(row), 1)
+        self.assertEqual(len(row[0].xpath('./button[@type="submit"]')), 1)
+        self.assertEqual(root.xpath('.//*[contains(@class, "wj-filter-actions")]'), [])
+
+    def test_co_o_tim_thi_hang_ngay_khong_bi_ep_compact(self):
+        root = self._mobile()
+        self.assertEqual(
+            root.xpath('.//*[contains(@class, "wj-filter-dates--compact")]'), [])
+
+    def test_nut_tim_cung_hang_van_co_ten_doc_duoc(self):
+        """Nút chỉ có icon — thiếu aria-label là trình đọc màn hình đọc rỗng."""
+        btn = self._mobile(fb_search='False').xpath('.//button[@type="submit"]')[0]
+        self.assertEqual(btn.get('aria-label'), 'Tìm kiếm')
+        self.assertEqual(btn.text_content().strip(), '')
+
+    def test_ba_loai_o_loc_deu_la_hop_38_trong_vung_cham_44(self):
+        """Q1 (12/09): nhìn thấy 38, chạm 44 — wrapper giữ 44, hộp giữ 38."""
+        css = _css('_components.css')
+        for wrap in ('.wj-filter-date--hit,\n.wj-filter-selectwrap',):
+            self.assertIn('min-height: 44px', _block(css, wrap))
+        self.assertIn('height: 38px', _block(css, '.wj-filter-date__box'))
+        self.assertIn('height: 38px',
+                      _block(css, '.wj-filter-selectwrap > .wj-filter-select'))
+        self.assertIn('min-height: 44px', _block(css, 'label.wj-filter-search-field'))
+        self.assertIn('height: 38px', _block(css, 'label.wj-filter-search-field input'))
+
+    def test_hang_o_tim_can_giua_theo_chieu_doc(self):
+        """Nút 38 cạnh wrapper 44: thiếu căn giữa là nút lệch lên 3px mọi màn."""
+        self.assertIn('align-items: center', _block(_css('_components.css'),
+                                                    '.wj-filter-search'))
+
+    def test_the_loc_mobile_giu_nhip_r14_p12_g8(self):
+        """Thẻ lọc mượn .wj-surface-card ⇒ nhịp mobile phải là token, không số cứng."""
+        blk = _block(_css('_components.css'), '.wj-surface-card')
+        self.assertIn('var(--wujia-surface-radius)', blk)
+        self.assertIn('var(--wujia-surface-pad-compact)', blk)
+        var = _css('_variables.css')
+        m = var[var.index('@media (max-width: 991.98px)'):]
+        for token, px in (('--wujia-surface-radius', '14px'),
+                          ('--wujia-surface-pad-compact', '12px'),
+                          ('--wujia-surface-gap', '8px')):
+            self.assertIn(px, re.search(r'%s:\s*\S+' % token, m).group(0))
+
+    def test_luat_44_cua_d6c_chi_con_o_man_thi_con_chuan_form_48_giu_nguyen(self):
+        """D6c quét rộng .wj-filter-* = 44; Q1 thay bằng 38+44 ⇒ thu về màn Thi.
+
+        `.wj-mform` 48 là chuẩn form BH-009, khác chuẩn ô lọc — gỡ nhầm là hỏng
+        mọi form nhập mobile.
+        """
+        css = _css('_components.css')
+        self.assertIn('.wujia-mexam .wj-filter-date', css)
+        for line in css.splitlines():
+            head = line.strip()
+            if head.startswith('.wj-filter-date,') or head.startswith('.wj-filter-select,'):
+                self.fail('luật 44 quét rộng còn sống: %s' % head)
+        self.assertIn('min-height: 48px', _block(css, '.wj-mform .form-control,'
+                                                      '\n    .wj-mform .form-select'))

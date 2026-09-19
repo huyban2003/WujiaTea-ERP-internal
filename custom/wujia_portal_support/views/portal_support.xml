@@ -124,26 +124,27 @@
                 </t>
                 <t t-else="">
                     <!-- Filter canonical 01-ChipSlide (Figma 4785:562) — search q + hidden state -->
-                    <form method="get" action="/portal/support" class="wj-surface-card wj-surface-card--summary wj-surface-card--compact wj-surface-card--padded wj-filter-card">
-                        <input type="hidden" name="state" t-att-value="state or ''"/>
-                        <div class="wj-filter-search">
-                            <div class="wj-filter-search-field">
-                                <i class="feather icon-search"/>
-                                <input type="text" name="q" placeholder="Tìm mã / tiêu đề ticket" t-att-value="q or ''"/>
+                    <t t-call="wujia_portal_layout.wj_filter_bar">
+                        <t t-set="fb_platform" t-value="'m'"/>
+                        <t t-set="fb_action" t-value="'/portal/support'"/>
+                        <t t-set="fb_search"
+                           t-value="{'name': 'q', 'value': q or '', 'placeholder': 'Tìm mã / tiêu đề ticket'}"/>
+                        <t t-set="fb_hidden">
+                            <input type="hidden" name="state" t-att-value="state or ''"/>
+                        </t>
+                        <t t-set="fb_chips">
+                            <div class="wj-filter-chips" id="wj-sup-mchips">
+                                <a href="/portal/support"
+                                   t-attf-class="wj-filter-chip #{'is-active' if not state else ''}">Tất cả</a>
+                                <a href="/portal/support?state=new"
+                                   t-attf-class="wj-filter-chip #{'is-active' if state == 'new' else ''}">Mới</a>
+                                <a href="/portal/support?state=in_progress"
+                                   t-attf-class="wj-filter-chip #{'is-active' if state == 'in_progress' else ''}">Đang xử lý</a>
+                                <a href="/portal/support?state=waiting_customer"
+                                   t-attf-class="wj-filter-chip #{'is-active' if state == 'waiting_customer' else ''}">Có phản hồi</a>
                             </div>
-                            <button type="submit" class="wj-filter-search-btn"><i class="feather icon-search"/></button>
-                        </div>
-                        <div class="wj-filter-chips" id="wj-sup-mchips">
-                            <a href="/portal/support"
-                               t-attf-class="wj-filter-chip #{'is-active' if not state else ''}">Tất cả</a>
-                            <a href="/portal/support?state=new"
-                               t-attf-class="wj-filter-chip #{'is-active' if state == 'new' else ''}">Mới</a>
-                            <a href="/portal/support?state=in_progress"
-                               t-attf-class="wj-filter-chip #{'is-active' if state == 'in_progress' else ''}">Đang xử lý</a>
-                            <a href="/portal/support?state=waiting_customer"
-                               t-attf-class="wj-filter-chip #{'is-active' if state == 'waiting_customer' else ''}">Có phản hồi</a>
-                        </div>
-                    </form>
+                        </t>
+                    </t>
 
                     <div id="wj-sup-mbody" class="wj-ajax-slot">
                     <!-- Không tìm thấy — no-data card (lọc rỗng → Xóa lọc) -->

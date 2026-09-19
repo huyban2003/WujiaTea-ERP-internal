@@ -143,24 +143,23 @@
                 <p class="wj-count-meta wj-count-meta--primary" id="wj-know-mcount"><t t-out="len(articles)"/> bài viết</p>
 
                 <!-- Filter canonical 01-ChipSlide (Figma 4785:562) — keyword + category chips -->
-                <form method="get" action="/portal/knowledge" class="wj-surface-card wj-surface-card--summary wj-surface-card--compact wj-surface-card--padded wj-filter-card">
-                    <div class="wj-filter-search">
-                        <div class="wj-filter-search-field">
-                            <i class="feather icon-search"/>
-                            <input type="text" name="keyword" placeholder="Tìm kiếm bài viết..." t-att-value="keyword"/>
+                <t t-call="wujia_portal_layout.wj_filter_bar">
+                    <t t-set="fb_platform" t-value="'m'"/>
+                    <t t-set="fb_action" t-value="'/portal/knowledge'"/>
+                    <t t-set="fb_search"
+                       t-value="{'name': 'keyword', 'value': keyword, 'placeholder': 'Tìm kiếm bài viết...'}"/>
+                    <t t-set="fb_chips">
+                        <div class="wj-filter-chips" id="wj-know-mchips">
+                            <a href="/portal/knowledge"
+                               t-attf-class="wj-filter-chip#{'' if category_id else ' is-active'}">Tất cả</a>
+                            <t t-foreach="categories" t-as="cat">
+                                <a t-attf-href="/portal/knowledge?category_id=#{cat.id}"
+                                   t-attf-class="wj-filter-chip#{' is-active' if category_id == cat.id else ''}"
+                                   t-out="cat.name"/>
+                            </t>
                         </div>
-                        <button type="submit" class="wj-filter-search-btn"><i class="feather icon-search"/></button>
-                    </div>
-                    <div class="wj-filter-chips" id="wj-know-mchips">
-                        <a href="/portal/knowledge"
-                           t-attf-class="wj-filter-chip#{'' if category_id else ' is-active'}">Tất cả</a>
-                        <t t-foreach="categories" t-as="cat">
-                            <a t-attf-href="/portal/knowledge?category_id=#{cat.id}"
-                               t-attf-class="wj-filter-chip#{' is-active' if category_id == cat.id else ''}"
-                               t-out="cat.name"/>
-                        </t>
-                    </div>
-                </form>
+                    </t>
+                </t>
 
                 <div id="wj-know-mbody" class="wj-ajax-slot">
                 <div t-if="not articles" class="wj-empty-state wj-empty-state--rich">

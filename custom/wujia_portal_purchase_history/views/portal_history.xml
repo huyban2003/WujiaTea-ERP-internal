@@ -238,35 +238,27 @@
 
                     <t t-else="">
                         <!-- Filter canonical 03-Advanced -->
-                        <form method="get" action="/portal/purchase-history" class="wj-surface-card wj-surface-card--summary wj-surface-card--compact wj-surface-card--padded wj-filter-card">
-                            <input type="hidden" name="page_size" t-att-value="page_size"/>
-                            <div class="wj-filter-search">
-                                <div class="wj-filter-search-field">
-                                    <i class="feather icon-search"/>
-                                    <input type="text" name="q" t-att-value="q" placeholder="Tìm theo mã đơn"/>
-                                </div>
-                                <button type="submit" class="wj-filter-search-btn"><i class="feather icon-search"/></button>
-                            </div>
-                            <div class="wj-filter-dates">
-                                <label class="wj-filter-date">
-                                    <i class="feather icon-calendar"/>
-                                    <input type="date" name="date_from" t-att-value="date_from"
-                                           t-att-max="date_to or None"/>
-                                </label>
-                                <span class="wj-filter-date-sep">–</span>
-                                <label class="wj-filter-date">
-                                    <i class="feather icon-calendar"/>
-                                    <input type="date" name="date_to" t-att-value="date_to"
-                                           t-att-min="date_from or None"/>
-                                </label>
-                            </div>
-                            <t t-call="wujia_portal_purchase_history.portal_history_results_part">
-                                <t t-set="part" t-value="'merr'"/>
+                        <t t-call="wujia_portal_layout.wj_filter_bar">
+                            <t t-set="fb_platform" t-value="'m'"/>
+                            <t t-set="fb_action" t-value="'/portal/purchase-history'"/>
+                            <t t-set="fb_search"
+                               t-value="{'name': 'q', 'value': q, 'placeholder': 'Tìm theo mã đơn'}"/>
+                            <t t-set="fb_dates"
+                               t-value="{'from': date_from, 'to': date_to, 'clamp': True}"/>
+                            <t t-set="fb_hidden">
+                                <input type="hidden" name="page_size" t-att-value="page_size"/>
                             </t>
-                            <t t-call="wujia_portal_purchase_history.portal_history_results_part">
-                                <t t-set="part" t-value="'mchips'"/>
+                            <t t-set="fb_error">
+                                <t t-call="wujia_portal_purchase_history.portal_history_results_part">
+                                    <t t-set="part" t-value="'merr'"/>
+                                </t>
                             </t>
-                        </form>
+                            <t t-set="fb_chips">
+                                <t t-call="wujia_portal_purchase_history.portal_history_results_part">
+                                    <t t-set="part" t-value="'mchips'"/>
+                                </t>
+                            </t>
+                        </t>
 
                         <t t-call="wujia_portal_purchase_history.portal_history_results_part">
                             <t t-set="part" t-value="'mbody'"/>

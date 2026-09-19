@@ -7,6 +7,8 @@
          cơ chế AJAX + query hiện có (FB-07). -->
     <template id="wj_filter_bar" name="Wujia — Filter Bar component">
         <t t-set="_fb_pc" t-value="fb_platform == 'pc'"/>
+        <!-- Biến thể BA 04-DateRangeOnly: mobile chỉ có ngày ⇒ nút tìm nằm CÙNG hàng. -->
+        <t t-set="_fb_inline_go" t-value="not _fb_pc and not fb_search and fb_dates"/>
         <t t-set="_fb_shell"
            t-value="'wj-pc-filterbar' if _fb_pc else 'wj-surface-card wj-surface-card--summary wj-surface-card--compact wj-surface-card--padded wj-filter-card'"/>
         <form method="get" t-att-action="fb_action" t-att-id="fb_id"
@@ -29,7 +31,8 @@
                 </div>
 
                 <!-- FB-05: nhãn "Từ"/"Đến" nằm TRONG pill nên vẫn đọc được sau khi chọn ngày. -->
-                <div t-if="fb_dates" class="wj-filter-dates">
+                <div t-if="fb_dates"
+                     t-attf-class="wj-filter-dates#{' wj-filter-dates--compact' if _fb_inline_go else ''}">
                     <t t-foreach="[('from', 'Từ'), ('to', 'Đến')]" t-as="fbd">
                         <span t-if="fbd[0] == 'to'" class="wj-filter-date-sep">–</span>
                         <label class="wj-filter-date wj-filter-date--hit">
@@ -46,6 +49,10 @@
                             </span>
                         </label>
                     </t>
+                    <button t-if="_fb_inline_go" type="submit" class="wj-filter-search-btn"
+                            t-att-aria-label="fb_submit_label or 'Tìm kiếm'">
+                        <i class="feather icon-search"/>
+                    </button>
                 </div>
 
                 <t t-foreach="fb_selects or []" t-as="fbs">
@@ -64,7 +71,8 @@
 
                 <t t-if="fb_extra" t-out="fb_extra"/>
 
-                <span t-if="_fb_pc or not fb_search" class="wj-filter-actions wj-pc-filterbar__actions">
+                <span t-if="_fb_pc or not (fb_search or _fb_inline_go)"
+                      class="wj-filter-actions wj-pc-filterbar__actions">
                     <!-- FB-03: mobile không có reset trong Filter, chỉ PC. -->
                     <a t-if="fb_reset_url and _fb_pc" t-att-href="fb_reset_url" data-wj-nav="1"
                        class="wj-pc-btn wj-pc-btn--secondary"

@@ -254,20 +254,21 @@
                 </t>
 
                 <!-- Filter canonical 01-ChipSlide (Figma 4785:562) — keyword + chips (hidden unread) -->
-                <form method="get" action="/portal/notification" class="wj-surface-card wj-surface-card--summary wj-surface-card--compact wj-surface-card--padded wj-filter-card">
-                    <input type="hidden" name="unread" t-att-value="unread or ''"/>
-                    <div class="wj-filter-search">
-                        <div class="wj-filter-search-field">
-                            <i class="feather icon-search"/>
-                            <input type="text" name="keyword" placeholder="Tìm mã / tiêu đề" t-att-value="keyword or ''"/>
-                        </div>
-                        <button type="submit" class="wj-filter-search-btn"><i class="feather icon-search"/></button>
-                    </div>
-                    <!-- Tất cả / Chưa đọc / Quan trọng / Cần làm — đều functional (keys BA) -->
-                    <t t-call="wujia_portal_notification.portal_notification_results_part">
-                        <t t-set="part" t-value="'mchips'"/>
+                <t t-call="wujia_portal_layout.wj_filter_bar">
+                    <t t-set="fb_platform" t-value="'m'"/>
+                    <t t-set="fb_action" t-value="'/portal/notification'"/>
+                    <t t-set="fb_search"
+                       t-value="{'name': 'keyword', 'value': keyword or '', 'placeholder': 'Tìm mã / tiêu đề'}"/>
+                    <t t-set="fb_hidden">
+                        <input type="hidden" name="unread" t-att-value="unread or ''"/>
                     </t>
-                </form>
+                    <!-- Tất cả / Chưa đọc / Quan trọng / Cần làm — đều functional (keys BA) -->
+                    <t t-set="fb_chips">
+                        <t t-call="wujia_portal_notification.portal_notification_results_part">
+                            <t t-set="part" t-value="'mchips'"/>
+                        </t>
+                    </t>
+                </t>
 
                 <t t-call="wujia_portal_notification.portal_notification_results_part">
                     <t t-set="part" t-value="'mbody'"/>

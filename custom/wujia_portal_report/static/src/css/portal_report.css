@@ -170,58 +170,6 @@
         gap: 12px;
     }
 
-    /* FilterBar 358x72: 2 ô 112x48 + nút Tìm 94x48 */
-    .wj-rep-mfilter {
-        display: flex;
-        align-items: center;
-        gap: 8px;
-        /* shell có form { margin-bottom: 15px } tag-level → phá gap 12 của .wujia-mpage */
-        margin-bottom: 0;
-        padding: 12px;
-        background: var(--wujia-bg-card);
-        border-radius: var(--wujia-card-radius);
-    }
-    .wj-rep-mfilter__field {
-        flex: 1 1 112px;
-        min-width: 0;
-        height: 48px;
-        padding: 5px 10px 0;
-        border: 1px solid var(--wj-pc-border-soft);
-        border-radius: 10px;
-        background: var(--wj-pc-table-header-bg);
-    }
-    .wj-rep-mfilter__label {
-        display: block;
-        font-size: 11px;
-        line-height: 14px;
-        color: var(--wujia-text-subtitle);
-    }
-    .wj-rep-mfilter__input {
-        width: 100%;
-        height: 22px;
-        padding: 0;
-        border: 0;
-        background: transparent;
-        font-size: 14px;
-        font-weight: 500;
-        color: var(--wujia-text-primary);
-    }
-    .wj-rep-mfilter__input:focus { outline: none; }
-    .wj-rep-mfilter__go {
-        flex: 0 0 94px;
-        height: 48px;
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        gap: 6px;
-        border: 0;
-        border-radius: 10px;
-        background: var(--wujia-primary);
-        color: #fff;
-        font-size: 15px;
-        font-weight: 700;
-    }
-
     /* KPI 2 cột, card 175x86, thanh màu 28x4 ở đỉnh */
     .wj-rep-mkpi-grid {
         display: grid;

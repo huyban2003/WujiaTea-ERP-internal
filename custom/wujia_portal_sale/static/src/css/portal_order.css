@@ -25,14 +25,17 @@
 }
 .wujia-morder-search {
     display: flex;
+    align-items: center;     /* nút 38 căn giữa hàng 44 của ô tìm */
     gap: 8px;                /* FUNC-MOB-ORDER-006: chừa chỗ nút Tìm bên phải */
 }
 .wujia-morder-search-btn {
+    /* E4b2: về chuẩn ô lọc — hộp nhìn thấy 38, vùng chạm 44 bằng ::before (Q1 12/09). */
+    position: relative;
     flex: 0 0 auto;
-    width: 44px;
-    height: 44px;
+    width: 38px;
+    height: 38px;
     border: 0;
-    border-radius: 12px;
+    border-radius: 10px;
     background: var(--wujia-morder-primary);
     color: #FFFFFF;
     font-size: 18px;
@@ -42,11 +45,21 @@
     cursor: pointer;
 }
 .wujia-morder-search-btn:active { background: var(--wujia-morder-primary-dark); }
+.wujia-morder-search-btn::before {
+    content: "";
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: 44px;
+    height: 44px;
+    transform: translate(-50%, -50%);
+}
 .wujia-morder-search-input {
     position: relative;
     flex: 1 1 auto;
     display: flex;
     align-items: center;
+    min-height: 44px;
 }
 .wujia-morder-search-input i {
     position: absolute;
@@ -59,9 +72,9 @@
 }
 .wujia-morder-search-input input {
     width: 100%;
-    height: 44px;        /* UI-MOB-ORDER-004: chuẩn hoá cao 44 (khớp mobile action token) */
+    height: 38px;        /* E4b2: chuẩn ô lọc 38; vùng chạm 44 do wrapper .wujia-morder-search-input. */
     border: 1px solid var(--wujia-morder-border);
-    border-radius: 12px;
+    border-radius: 10px;
     background: #F9FAFB;  /* Figma search field bg */
     padding: 0 12px 0 36px;
     font-size: 14px;

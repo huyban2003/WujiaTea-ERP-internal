@@ -74,7 +74,13 @@ JS = r"""
           .map(c => Math.round(c.getBoundingClientRect().left)));
         cols = lefts.size;
       }
-      const hit = el.closest('label, .wj-filter-date, .wj-filter-select') || el;
+      // `closest` khớp CẢ chính nó: select.wj-filter-select tự khớp ⇒ đo 38 thay vì
+      // wrapper 44. Tìm wrapper từ cha trở lên (E4b2).
+      const up = el.parentElement;
+      const hit = el.closest('label')
+        || (up && up.closest('.wj-filter-date--hit, .wj-filter-selectwrap,'
+                             + ' .wj-filter-date, .wj-filter-select'))
+        || el;
       out.push({
         inForm: !!el.closest('.wj-mform'),
         hitH: Math.round(hit.getBoundingClientRect().height * 100) / 100,

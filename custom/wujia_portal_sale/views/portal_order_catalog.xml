@@ -298,11 +298,11 @@
                         <!-- Search box — FUNC-MOB-ORDER-006: nút "Tìm" hiện rõ (không
                              chỉ dựa Enter bàn phím ảo; nhiều bàn phím không có nút Go). -->
                         <form method="get" action="/portal/order" class="wujia-morder-search">
-                            <div class="wujia-morder-search-input">
+                            <label class="wujia-morder-search-input">
                                 <i class="feather icon-search"/>
                                 <input type="text" name="keyword" placeholder="Nhập tên sản phẩm cần tìm"
                                        t-att-value="keyword"/>
-                            </div>
+                            </label>
                             <input t-if="category_id" type="hidden" name="category_id"
                                    t-att-value="category_id"/>
                             <button type="submit" class="wujia-morder-search-btn wj-state-surface" aria-label="Tìm sản phẩm">
