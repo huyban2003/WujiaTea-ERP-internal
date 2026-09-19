@@ -255,25 +255,7 @@
     overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
 }
 
-/* ---- List: filter bar — 5 control 1 hàng, card 88px (UI-PC-BASE-003).
-   Nhãn từng field đã bỏ (đi vào aria-label/option đầu) để card đúng 88px. ---- */
-.wj-pc-noti-filter-row {
-    display: grid;
-    grid-template-columns: minmax(240px, 1fr) 190px 170px 150px 150px max-content;
-    align-items: center;
-    gap: 12px;
-}
-.wj-pc-noti-field { display: flex; flex-direction: column; min-width: 0; }
-.wj-pc-noti-field .wj-pc-filter-control { width: 100%; }
-/* reset base flex:1 1 280px → trong field (flex-column) 280px sẽ thành CHIỀU CAO */
-.wj-pc-noti-field .wj-pc-filter-search { display: block; width: 100%; flex: 0 0 auto; }
-.wj-pc-noti-filter-actions { display: flex; gap: 10px; align-items: center; }
-/* Desktop hẹp (≥992 nhưng <1400): xuống hàng gọn thay vì tràn ngang */
-@media (max-width: 1399.98px) {
-    .wj-pc-noti-filter-row { grid-template-columns: repeat(4, 1fr); }
-    .wj-pc-noti-field--grow { grid-column: 1 / -1; }
-    .wj-pc-noti-filter-actions { grid-column: 1 / -1; justify-content: flex-end; }
-}
+/* E4b1: thanh lọc về component CMP-FB-001 ⇒ họ .wj-pc-noti-filter* đã xoá. */
 .wj-pc-noti-chips { margin: 12px 0; flex-wrap: wrap; }
 
 /* ---- Form: side panels / badge row / title / body ---- */

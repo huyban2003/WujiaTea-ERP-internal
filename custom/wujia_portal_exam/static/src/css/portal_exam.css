@@ -714,20 +714,7 @@
     /* ---------- Bộ lọc nhanh (Figma y178 h88) ----------
        Từ UI-PC-BASE-003: card 88px do .wj-pc-filterbar lo (23/42/23), bỏ dòng
        tiêu đề; ở đây chỉ giữ padding ngang 24 + gap 14 riêng của exam. */
-    .wj-exam-pc-filterbar { padding-left: 24px; padding-right: 24px; }
-    .wj-exam-pc-filterbar .wj-pc-filterbar__row {
-        align-items: center;   /* control và nút cùng h42 → canh giữa */
-        gap: 14px;
-    }
-    /* Figma KHÔNG đẩy nút sang phải: nút chạy tiếp sau ô "Đến ngày". */
-    .wj-exam-pc-filterbar .wj-pc-filterbar__actions { margin-left: 0; gap: 14px; }
-    .wj-exam-pc-filterbar .wj-pc-btn { min-width: 96px; padding: 0 16px; }
-    .wj-exam-pc-filterbar .wj-pc-filter-control { padding: 0 18px; }
-    .wj-exam-pc-fc--sel    { flex: 0 0 174px; width: 174px; }
-    .wj-exam-pc-fc--date   { flex: 0 0 164px; width: 164px; }
-    .wj-exam-pc-fc--search { flex: 0 0 392px; width: 392px; }
-    .wj-exam-pc-fc--search > i { left: 18px; }
-    .wj-exam-pc-fc--search > .wj-pc-filter-control { padding-left: 50px; }
+    /* E4b1: thanh lọc về component CMP-FB-001 ⇒ họ .wj-exam-pc-fc--* đã xoá. */
 
     /* ---------- Card danh sách (Figma y290) ---------- */
     .wj-exam-pc-card .wj-pc-card__subtitle { margin-top: 5px; }

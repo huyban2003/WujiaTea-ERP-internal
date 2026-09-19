@@ -444,3 +444,56 @@ rồi đánh ✅ ở bảng Trạng thái §2 `docs/next-session-clusters-F.md`.
   - Muốn lấy thêm chỗ ở MỌI vị trí cuộn thì phải đụng **thanh dưới 83** — thứ duy nhất thật sự cố định.
 - Phiên kế: **E4b** — phủ hết call site FilterBar (`UI-FILTER-001`, E4a đã làm nền `12750a2`), quay lại
   hàng đợi Issue List đã mở lại sau FR-A3.
+
+## E4b1 — FilterBar `CMP-FB-001`: phủ hết call site PC · 19/09/2026 · Mac
+- Kết quả: ✅ đạt **16/16** tiêu chí. Lượt đầu quay lại hàng đợi **Issue List** sau cổng ★FR-A3.
+  `UI-FILTER-001` (STT 139) **CHƯA đóng** — đóng ở E4c; không chạy `qa_sync.py`, không đổi sheet.
+  Chủ dự án chốt 2 việc đầu phiên: (1) **cắt đôi E4b** → E4b1 PC / E4b2 mobile; (2) 5 màn "nhóm 2"
+  (giao hàng · thông báo · thi · báo cáo · đặt hàng) **migrate hẳn vào component**, không chỉ căn lề.
+- Đã làm:
+  - **9 call site PC** về `wujia_portal_layout.wj_filter_bar`: support · knowledge · return ·
+    info_request (4 màn Bootstrap `row g-2`) + delivery · notification · exam · report · order.
+  - Component thêm đúng **một** knob: `fb_dates={'kind':'text'}` — màn Thi còn ô ngày dạng chữ,
+    E4c mới wire; ép `type=date` sớm là tự sửa lỗi BA nêu bằng cách giấu nó.
+  - Biến thể `--dense` (flex-basis hẹp hơn) cho 2 thanh **5–6 control** (notification · exam) —
+    không có nó thì notification 88 → 142 ở 1440, tức là lượt chuẩn hoá làm xấu đi màn đang đạt.
+  - Dọn CSS bản địa 4 module (`portal_notification`/`portal_report`/`portal_exam`/`portal_order`);
+    2 họ class mà **Khảo sát của anh Thái còn dùng** thì **thu hẹp vào `.wj-inspection-pc`**, không
+    xoá (bẫy E3c), kèm test chặn.
+  - **Dựng lại + commit công cụ kiểm kê**: `scripts/qa/wj_filterbar_inventory.py` (bản E4a để ở
+    `scratchpad/e4/`, thư mục đã mất). Thêm **chế độ render** đọc DOM thật — sau migrate thì quét
+    `lxml` không còn đọc được điều kiện nằm trong component, bản tĩnh một mình là **mù**.
+  - **Công nợ PC không sửa byte nào**: đo ra đã đúng chuẩn (42px, nhãn `Xem`/`Tìm kiếm` hợp
+    FB-02/FB-09 item 9). Ghi rõ trong matrix thay vì sửa cho có.
+  - 21 test mới (16 `portal_base` quét chéo module + 5 `portal_layout` hợp đồng component) — đúng
+    luật sở hữu F5b.
+- Commit: (xem commit ngay dưới entry này)
+- Deploy: **chưa** — không tự deploy UAT. Lệnh `-u` gộp ghi ở `docs/e4b1-acceptance-matrix.md` §5.
+- Số đo: **FB-10 0/48 ô lệch bộ điều kiện** (12 route × 4 khổ, chế độ render) · control PC
+  **26.7–28.1 → 42** ở 4 màn nhóm 1, **50 → 42** ở báo cáo, baseline `2 → 1` ở return + exam ·
+  card 88 ở cả 9 màn (delivery **142 → 88**, exam **144 → 88**) · `wj_formcontrol --scope body`
+  **101 control / vi phạm 88 → 75** · `wj_measure` 13 route × 5 khổ **0 tràn ngang · 0 lỗi JS ·
+  0 redirect** · suite **0 failed / 0 error / 601 test** · DB trắng **0 failed / 1 error**
+  (`test_fra3_layer_guard`, nợ F6) · mutation **11/11 đỏ đúng guard** · `check_layers` 3 R1–R5 +
+  2 R7 **có sẵn**, không thêm.
+- Bẫy gặp:
+  - **`log_level=warn` nuốt dòng tổng kết test.** `odoo.tests.result` chỉ ghi ERROR khi CÓ lỗi; suite
+    xanh thì dòng "0 failed…" là INFO nên biến mất ⇒ mất 3 lần chạy lại vì tưởng test không chạy.
+    Luôn thêm `--log-handler "odoo.tests.result:INFO"`.
+  - **Harness mutation đọc stdout là đọc nhầm chỗ**: Odoo ghi `FAIL:` vào logfile, mà `wujia_core`
+    còn dời logfile sang `<thư mục>/<năm>/<tháng>/<ngày>.log`. Phải đọc theo glob + chặn cứng
+    "không thấy dòng tổng kết ⇒ run hỏng, KHÔNG phải 0 đỏ".
+  - **Tách tên test cắt trước `test_`** bắt trúng tên logger (`tests.test_scan_e4_filter_bar`) nên
+    11/11 mũi báo "SAI" oan. Phải cắt **sau** nhãn `FAIL:`/`ERROR:`.
+  - **Cắt XML theo chỉ số anchor** làm hỏng `portal_order_catalog.xml` (chuỗi kết thúc lặp lại) —
+    phải `git checkout` rồi cắt lại theo dòng tường minh.
+- Nợ / phải nói với BA:
+  - **Kiến thức PC mất 1 record trong khung** (30→29 @1440) và cao thêm 42px; Báo cáo 80 → 88. Lý do:
+    thanh lọc cũ của Kiến thức chỉ cao 39px, nay về chuẩn control 42 / card 88 của chính BA. Muốn giữ
+    record thì phải đổi **chuẩn**, không phải đổi riêng màn.
+  - **Nút "Xóa lọc" của Thông báo** chuyển từ reload cả trang sang link `data-wj-nav` (AJAX) — cùng
+    URL đích, cố ý thống nhất theo component.
+  - 3 màn (exam · notification · return) **đổi thứ tự hiển thị** ô lọc sang chuẩn search → ngày →
+    select; bộ điều kiện y nguyên. Ghi ra để retest không tưởng là mất/thêm ô.
+- Phiên kế: **E4b2** — toàn bộ thanh lọc mobile. Prompt sẵn: `docs/prompt-e4b2.md` (đã ghi rõ G2 hạ
+  header mobile 104→72 nên mốc cao trang mobile phải chụp lại, kèm bảng mốc sau E4b1).

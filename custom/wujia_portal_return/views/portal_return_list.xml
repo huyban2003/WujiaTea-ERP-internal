@@ -33,45 +33,22 @@
 
                 <div t-if="not no_franchise" class="content-body">
                     <!-- Filter -->
-                    <div class="wj-surface-card wj-surface-card--section wj-surface-card--compact wj-surface-card--flush mb-2">
-                        <div class="wj-surface-card__body p-2">
-                            <form method="get" action="/portal/return" class="row g-2 align-items-center">
-                                <div class="col-md-3 col-12">
-                                    <label for="wj-ret-state-pc" class="small text-muted mb-1">Trạng thái</label>
-                                    <select id="wj-ret-state-pc" name="state" class="form-select form-select-sm">
-                                        <option value="" t-out="filter_all_label"/>
-                                        <t t-foreach="filter_options" t-as="opt">
-                                            <option t-att-value="opt[0]"
-                                                    t-att-selected="'selected' if state == opt[0] else None"
-                                                    t-out="opt[1]"/>
-                                        </t>
-                                    </select>
-                                </div>
-                                <!-- UAT-BH-005: PC trước đây thiếu ô từ khoá dù controller đã nhận `q`. -->
-                                <div class="col-md-3 col-12">
-                                    <label for="wj-ret-q-pc" class="small text-muted mb-1">Từ khoá</label>
-                                    <input id="wj-ret-q-pc" type="text" name="q"
-                                           class="form-control form-control-sm"
-                                           placeholder="Mã YC / mã đơn / sản phẩm"
-                                           t-att-value="q or ''"/>
-                                </div>
-                                <div class="col-md-2 col-6">
-                                    <label for="wj-ret-from-pc" class="small text-muted mb-1">Từ ngày</label>
-                                    <input id="wj-ret-from-pc" type="date" name="date_from" class="form-control form-control-sm" t-att-value="date_from"/>
-                                </div>
-                                <div class="col-md-2 col-6">
-                                    <label for="wj-ret-to-pc" class="small text-muted mb-1">Đến ngày</label>
-                                    <input id="wj-ret-to-pc" type="date" name="date_to" class="form-control form-control-sm" t-att-value="date_to"/>
-                                </div>
-                                <div class="col-md-2 col-12 text-end">
-                                    <label class="small text-muted mb-1 d-block">&#160;</label>
-                                    <button type="submit" class="btn btn-primary btn-sm">
-                                        <i class="fa fa-search"/> Lọc
-                                    </button>
-                                </div>
-                            </form>
-                        </div>
-                    </div>
+                    <t t-call="wujia_portal_layout.wj_filter_bar">
+                        <t t-set="fb_platform" t-value="'pc'"/>
+                        <t t-set="fb_action" t-value="'/portal/return'"/>
+                        <!-- UAT-BH-005: PC trước đây thiếu ô từ khoá dù controller đã nhận `q`. -->
+                        <t t-set="fb_search"
+                           t-value="{'name': 'q', 'value': q or '',
+                                     'placeholder': 'Mã YC / mã đơn / sản phẩm',
+                                     'label': 'Từ khoá'}"/>
+                        <t t-set="fb_dates"
+                           t-value="{'from': date_from, 'to': date_to, 'clamp': True}"/>
+                        <t t-set="fb_selects"
+                           t-value="[{'name': 'state', 'value': state,
+                                      'label': 'Trạng thái',
+                                      'all_label': filter_all_label,
+                                      'options': filter_options}]"/>
+                    </t>
 
                     <!-- Vùng swap AJAX: bảng + pager (bộ lọc ngoài, JS đồng bộ theo URL). -->
                     <div id="wj-ret-pc">

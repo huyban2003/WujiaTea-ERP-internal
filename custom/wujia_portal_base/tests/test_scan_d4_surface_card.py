@@ -583,6 +583,15 @@ class TestSurfaceCardD4f(TransactionCase):
                 with self.subTest(key=key, old=old):
                     self.assertNotIn(old, arch)
 
+    # E4b1: thanh lọc PC của 3 màn này vốn là vỏ --section dựng tay, nay gọi
+    # component CMP-FB-001 ⇒ view không còn vỏ nào. Ghi tên ra đây để hướng
+    # ngược lại (ai dựng tay trở lại) vẫn đỏ.
+    NO_SECTION_SHELL = {
+        'wujia_portal_support.portal_support_list',
+        'wujia_portal_return.portal_return_list',
+        'wujia_portal_info_request.portal_info_request_list',
+    }
+
     def test_call_sites_bake_all_four_shell_classes(self):
         # ĐẾM chứ không `in`: một call site rơi mất --flush mà call site khác
         # cùng view còn giữ thì phép `in` vẫn xanh — đột biến D4f #3 đã lọt.
@@ -591,7 +600,10 @@ class TestSurfaceCardD4f(TransactionCase):
             arch = self._arch(key)
             with self.subTest(key=key):
                 n = arch.count('wj-surface-card wj-surface-card--section')
-                self.assertGreaterEqual(n, 1)
+                if key in self.NO_SECTION_SHELL:
+                    self.assertEqual(n, 0)
+                else:
+                    self.assertGreaterEqual(n, 1)
                 self.assertEqual(arch.count(full), n)
 
     def test_module_own_classes_survive_next_to_the_shell(self):

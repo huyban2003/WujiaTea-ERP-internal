@@ -27,46 +27,28 @@
                     <t t-set="ph_can_create" t-value="True"/>
                 </t>
                 <div class="content-body">
-                    <!-- Bộ lọc nhanh — UI-only, chưa wire query (Figma y178 h88) -->
-                    <form method="get" action="/portal/exam" class="wj-pc-filterbar wj-exam-pc-filterbar">
-                        <!-- Card 88px: control 1 hàng, không dòng tiêu đề (UI-PC-BASE-003) -->
-                        <div class="wj-pc-filterbar__row">
-                            <!-- t-att-selected/value: giữ bộ lọc khi F5 hoặc chuyển trang
-                                 (trước đây control luôn về mặc định dù URL có tham số). -->
-                            <select name="state" class="wj-pc-filter-control wj-exam-pc-fc--sel">
-                                <option value="">Trạng thái</option>
-                                <t t-foreach="pc_reg_states.items()" t-as="st">
-                                    <option t-att-value="st[0]"
-                                            t-att-selected="'selected' if st[0] == f_state else None">
-                                        <t t-out="st[1][0]"/>
-                                    </option>
-                                </t>
-                            </select>
-                            <select name="result" class="wj-pc-filter-control wj-exam-pc-fc--sel">
-                                <option value="">Kết quả</option>
-                                <option value="published"
-                                        t-att-selected="'selected' if f_result == 'published' else None">Đã công bố</option>
-                                <option value="unpublished"
-                                        t-att-selected="'selected' if f_result == 'unpublished' else None">Chưa công bố</option>
-                            </select>
-                            <span class="wj-pc-filter-search wj-exam-pc-fc--search">
-                                <i class="feather icon-search"/>
-                                <input type="text" name="q" placeholder="Tìm mã phiếu, khóa thi..."
-                                       class="wj-pc-filter-control" t-att-value="f_q or ''"/>
-                            </span>
-                            <input type="text" name="date_from" placeholder="Từ ngày"
-                                   class="wj-pc-filter-control wj-exam-pc-fc--date"/>
-                            <input type="text" name="date_to" placeholder="Đến ngày"
-                                   class="wj-pc-filter-control wj-exam-pc-fc--date"/>
-                            <span class="wj-pc-filterbar__actions">
-                                <!-- data-wj-nav: nút nằm NGOÀI vùng swap nên phải khai để
-                                     wj_ajax_list.js nhận, nếu không "Đặt lại" reload cả trang. -->
-                                <a href="/portal/exam" data-wj-nav="1"
-                                   class="wj-pc-btn wj-pc-btn--secondary">Đặt lại</a>
-                                <button type="submit" class="wj-pc-btn wj-pc-btn--primary">Tìm kiếm</button>
-                            </span>
-                        </div>
-                    </form>
+                    <!-- Bộ lọc — component CMP-FB-001. t-att-selected/value: giữ bộ lọc
+                         khi F5 hoặc chuyển trang. Ô ngày còn dạng chữ, E4c mới wire. -->
+                    <t t-call="wujia_portal_layout.wj_filter_bar">
+                        <t t-set="fb_platform" t-value="'pc'"/>
+                        <t t-set="fb_action" t-value="'/portal/exam'"/>
+                        <t t-set="fb_class" t-value="'wj-pc-filterbar--dense'"/>
+                        <t t-set="fb_search"
+                           t-value="{'name': 'q', 'value': f_q or '',
+                                     'placeholder': 'Tìm mã phiếu, khóa thi...'}"/>
+                        <t t-set="fb_dates" t-value="{'kind': 'text'}"/>
+                        <t t-set="fb_selects"
+                           t-value="[{'name': 'state', 'value': f_state,
+                                      'label': 'Trạng thái',
+                                      'all_label': 'Trạng thái',
+                                      'options': [(st[0], st[1][0]) for st in pc_reg_states.items()]},
+                                     {'name': 'result', 'value': f_result,
+                                      'label': 'Kết quả',
+                                      'all_label': 'Kết quả',
+                                      'options': [('published', 'Đã công bố'),
+                                                  ('unpublished', 'Chưa công bố')]}]"/>
+                        <t t-set="fb_reset_url" t-value="'/portal/exam'"/>
+                    </t>
 
                     <t t-call="wujia_portal_layout.wj_surface_card">
                         <t t-set="sc_class" t-value="'wj-pc-card wj-exam-pc-card'"/>

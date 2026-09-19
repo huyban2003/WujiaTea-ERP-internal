@@ -30,23 +30,13 @@
                 </t>
                 <div class="content-body">
                     <t t-call="wujia_portal_knowledge.portal_knowledge_notice"/>
-                    <!-- Search bar -->
-                    <div class="wj-surface-card wj-surface-card--section wj-surface-card--compact wj-surface-card--flush mb-2">
-                        <div class="wj-surface-card__body p-2">
-                            <form method="get" action="/portal/knowledge" class="row g-2">
-                                <div class="col-md-8 col-12">
-                                    <input type="text" name="keyword" class="form-control form-control-sm"
-                                           placeholder="Tìm bài viết..."
-                                           t-att-value="keyword"/>
-                                </div>
-                                <div class="col-md-4 col-12 text-end">
-                                    <button type="submit" class="btn btn-primary btn-sm me-1">
-                                        <i class="fa fa-search"/>
-                                    </button>
-                                </div>
-                            </form>
-                        </div>
-                    </div>
+                    <t t-call="wujia_portal_layout.wj_filter_bar">
+                        <t t-set="fb_platform" t-value="'pc'"/>
+                        <t t-set="fb_action" t-value="'/portal/knowledge'"/>
+                        <t t-set="fb_search"
+                           t-value="{'name': 'keyword', 'value': keyword,
+                                     'placeholder': 'Tìm bài viết...'}"/>
+                    </t>
 
                     <div class="row">
                         <!-- Category nav -->

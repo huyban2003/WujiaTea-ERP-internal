@@ -19,29 +19,15 @@
                     <t t-set="ph_can_create" t-value="True"/>
                 </t>
                 <div class="content-body">
-                    <div class="wj-surface-card wj-surface-card--section wj-surface-card--compact wj-surface-card--flush mb-2">
-                        <div class="wj-surface-card__body p-2">
-                            <form method="get" action="/portal/support" class="row g-2">
-                                <div class="col-md-3 col-12">
-                                    <label class="small text-muted mb-1">Trạng thái</label>
-                                    <select name="state" class="form-select form-select-sm">
-                                        <option value="">— Tất cả —</option>
-                                        <t t-foreach="state_labels.items()" t-as="kv">
-                                            <option t-att-value="kv[0]"
-                                                    t-att-selected="'selected' if state == kv[0] else None"
-                                                    t-out="kv[1][0]"/>
-                                        </t>
-                                    </select>
-                                </div>
-                                <div class="col-md-9 col-12 text-end">
-                                    <label class="small text-muted mb-1 d-block">&#160;</label>
-                                    <button class="btn btn-primary btn-sm" type="submit">
-                                        <i class="fa fa-search" title="Search"/> Lọc
-                                    </button>
-                                </div>
-                            </form>
-                        </div>
-                    </div>
+                    <t t-call="wujia_portal_layout.wj_filter_bar">
+                        <t t-set="fb_platform" t-value="'pc'"/>
+                        <t t-set="fb_action" t-value="'/portal/support'"/>
+                        <t t-set="fb_selects"
+                           t-value="[{'name': 'state', 'value': state,
+                                      'label': 'Trạng thái',
+                                      'all_label': 'Tất cả trạng thái',
+                                      'options': [(kv[0], kv[1][0]) for kv in state_labels.items()]}]"/>
+                    </t>
 
                     <!-- Vùng swap AJAX: card + pager (bộ lọc nằm ngoài, JS đồng bộ theo URL). -->
                     <div id="wj-sup-pc">

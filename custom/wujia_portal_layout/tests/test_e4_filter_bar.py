@@ -261,3 +261,51 @@ class TestFilterBarCss(TransactionCase):
         self.assertIn('height: var(--wj-pc-input-h)',
                       _block(css, '.wj-pc-filterbar label.wj-filter-search-field input'))
         self.assertNotIn('#', blk)
+
+
+@tagged('post_install', '-at_install', 'wujia_filter_e4')
+class TestFilterBarE4b1Contract(TransactionCase):
+    """E4b1 — hai điểm hợp đồng mới khi nhân component ra 9 thanh lọc PC."""
+
+    _render = TestFilterBarTemplate._render
+    _pc = TestFilterBarTemplate._pc
+
+    def test_o_ngay_mac_dinh_la_type_date(self):
+        doc = self._pc()
+        kinds = [i.get('type') for i in doc.xpath('//input[starts-with(@name, "date_")]')]
+        self.assertEqual(kinds, ['date', 'date'])
+
+    def test_kind_text_giu_duoc_o_ngay_dang_chu_cua_man_thi(self):
+        """Màn Thi còn ô ngày dạng chữ; đổi sớm sang date là đổi hành vi lọc (E4c)."""
+        doc = self._pc(fb_dates="{'kind': 'text'}")
+        kinds = [i.get('type') for i in doc.xpath('//input[starts-with(@name, "date_")]')]
+        self.assertEqual(kinds, ['text', 'text'])
+        # Nhãn "Từ"/"Đến" vẫn đọc được (FB-05) dù ô là chữ.
+        self.assertEqual(
+            [s.text for s in doc.xpath('//span[@class="wj-filter-date__label"]')],
+            ['Từ', 'Đến'])
+
+    def test_fb_class_di_thang_vao_vo_form(self):
+        doc = self._pc(fb_class="'wj-pc-filterbar--dense'")
+        cls = doc.xpath('//form')[0].get('class')
+        self.assertIn('wj-pc-filterbar', cls)
+        self.assertIn('wj-pc-filterbar--dense', cls)
+
+    def test_dense_hep_hon_mac_dinh_o_ca_ba_loai_control(self):
+        css = _css('_pc_components.css')
+        for sel, wider in (
+                ('.wj-pc-filterbar--dense .wj-filter-search',
+                 '.wj-pc-filterbar .wj-filter-search'),
+                ('.wj-pc-filterbar--dense .wj-filter-date--hit',
+                 '.wj-pc-filterbar .wj-filter-date--hit'),
+                ('.wj-pc-filterbar--dense .wj-filter-selectwrap',
+                 '.wj-pc-filterbar .wj-filter-selectwrap')):
+            px = lambda blk: int(re.search(r'flex:[^;]*?(\d+)px', blk).group(1))
+            self.assertLess(px(_block(css, sel)), px(_block(css, wider)),
+                            '%s phải hẹp hơn mặc định' % sel)
+
+    def test_select_pc_trung_hoa_padding_important_cua_shell(self):
+        """dashboard.css có `select { padding: 5px !important }` — rule thường thua."""
+        blk = _block(_css('_pc_components.css'),
+                     '.wj-pc-filterbar select.wj-filter-select')
+        self.assertIn('!important', blk)

@@ -36,7 +36,8 @@
                             <span class="wj-filter-date__box">
                                 <i class="feather icon-calendar"/>
                                 <span class="wj-filter-date__label" t-out="fbd[1]"/>
-                                <input type="date"
+                                <!-- kind='text': màn Thi còn ô ngày dạng chữ, E4c mới wire. -->
+                                <input t-att-type="fb_dates.get('kind') or 'date'"
                                        t-att-name="fb_dates.get(fbd[0] + '_name') or ('date_' + fbd[0])"
                                        t-att-value="fb_dates.get(fbd[0]) or ''"
                                        t-att-aria-label="fbd[1] + ' ngày'"

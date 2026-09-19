@@ -172,26 +172,15 @@
                     Theo dõi đơn hàng, doanh thu và sản phẩm của cửa hàng.
                 </p>
 
-                <form method="get" action="/portal/reports/orders"
-                      class="wj-pc-filterbar wj-rep-pcfilter">
-                    <div class="wj-rep-pcfilter__row">
-                        <label class="wj-rep-pcfilter__field">
-                            <span class="wj-rep-pcfilter__label">Từ ngày</span>
-                            <input type="date" name="date_from"
-                                   class="wj-rep-pcfilter__input" t-att-value="date_from"/>
-                        </label>
-                        <label class="wj-rep-pcfilter__field">
-                            <span class="wj-rep-pcfilter__label">Đến ngày</span>
-                            <input type="date" name="date_to"
-                                   class="wj-rep-pcfilter__input" t-att-value="date_to"/>
-                        </label>
-                        <div class="wj-rep-pcfilter__actions">
-                            <button type="submit" class="wj-pc-btn wj-pc-btn--primary">Áp dụng</button>
-                            <a href="/portal/reports/orders" data-wj-nav="1"
-                               class="wj-pc-btn wj-pc-btn--secondary">Đặt lại</a>
-                        </div>
-                    </div>
-                </form>
+                <t t-call="wujia_portal_layout.wj_filter_bar">
+                    <t t-set="fb_platform" t-value="'pc'"/>
+                    <t t-set="fb_action" t-value="'/portal/reports/orders'"/>
+                    <!-- Nhịp dọc riêng của trang báo cáo (14 thay vì 24). -->
+                    <t t-set="fb_class" t-value="'wj-rep-pcfilter'"/>
+                    <t t-set="fb_dates"
+                       t-value="{'from': date_from, 'to': date_to, 'clamp': True}"/>
+                    <t t-set="fb_reset_url" t-value="'/portal/reports/orders'"/>
+                </t>
 
                 <div id="wj-rep-pc-body">
                     <div class="wj-pc-metric-grid wj-rep-pcmetrics">

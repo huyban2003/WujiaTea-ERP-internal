@@ -5,11 +5,11 @@
 con BEM nên đếm ra 36 trong khi sự thật là 7, phải đính chính ba lần; E3 đếm bằng cấu trúc nên không
 đính chính lần nào.
 
-Script: `scratchpad/e4/e4_inventory.py` · ngày đo: 2026-09-17 · cây mã `018cf6c`.
+Script: `scripts/qa/wj_filterbar_inventory.py` (E4b1 dựng lại, đã commit) · ngày đo bảng §1: 2026-09-17 · cây mã `018cf6c`.
 
 ```
-python3 scratchpad/e4/e4_inventory.py          # bản chi tiết từng control
-python3 scratchpad/e4/e4_inventory.py --md     # đúng bảng §1 dưới đây
+python3 scripts/qa/wj_filterbar_inventory.py          # bản chi tiết từng control
+python3 scripts/qa/wj_filterbar_inventory.py --md     # đúng bảng §1 dưới đây
 ```
 
 Đây là **chân lý của acceptance FB-10** — *“không tự thêm/bớt điều kiện giữa PC/mobile; ghi inventory
@@ -79,12 +79,25 @@ trước/sau từng màn”*. Bảng §1 là ảnh chụp **TRƯỚC** khi sửa
 | `portal_history.xml:187` (PC mẫu BA) | E4a | ✅ |
 | `portal_delivery.xml:313` (mobile mẫu BA) | E4a | ✅ |
 | `pc_preview.xml:92` (gallery, `div` không form) | E4a | ✅ |
-| support:24 · knowledge:36 · return:38 · info-request:34 (PC Bootstrap) | E4b | ☐ |
-| delivery:267 · notification:208 · exam:31 · report:176 · order:237 (PC `wj-pc-filterbar`) | E4b | ☐ |
-| debt:293 · debt:580 (PC, giữ week/month) | E4b | ☐ |
-| history:253 · notification:276 · support:141 · knowledge:156 · return:165 (mobile `wj-filter-card`) | E4b | ☐ |
-| report:35 · order:312 · debt:17 (mobile lẻ) | E4b | ☐ |
+| support:24 · knowledge:36 · return:38 · info-request:34 (PC Bootstrap) | **E4b1** | ✅ |
+| delivery:267 · notification:208 · exam:31 · report:176 · order:237 (PC `wj-pc-filterbar`) | **E4b1** | ✅ |
+| debt:293 · debt:580 (PC, giữ week/month) | **E4b1** | ✅ không cần sửa — đã 42px, nhãn `Xem`/`Tìm kiếm` đúng FB-02/FB-09 |
+| history:241 · notification:257 · support:127 · knowledge:146 · return:142 · exam:126 (mobile `wj-filter-card`) | **E4b2** | ☐ |
+| report:35 · order:300 · debt:17 (mobile lẻ) | **E4b2** | ☐ |
 | wiring ngày 4 màn + về trang 1 + guard | E4c | ☐ |
 | 2 call site Khảo sát | — | **defer** (luật 08/09) |
 
 **Nghiệm thu lượt E4a:** `docs/e4a-acceptance-matrix.md` (26/26 tiêu chí · 21/21 mũi mutation).
+**Nghiệm thu lượt E4b1 (PC):** `docs/e4b1-acceptance-matrix.md` · prompt lượt mobile: `docs/prompt-e4b2.md`.
+
+## 5. Đo lại sau khi migrate: dùng chế độ render, không dùng bản tĩnh
+
+Từ E4b1, điều kiện lọc **nằm trong component** nên quét `lxml` không còn đọc được từng `name` ở call
+site. Script đã commit: `scripts/qa/wj_filterbar_inventory.py` (E4a để ở `scratchpad/e4/`, mất luôn).
+
+```
+python3 scripts/qa/wj_filterbar_inventory.py --md                       # bảng tĩnh §1
+python3 scripts/qa/wj_filterbar_inventory.py --base http://127.0.0.1:8090 \
+        --portal-login em.hcm --json out.json                           # chụp DOM thật
+python3 scripts/qa/wj_filterbar_inventory.py --base … --diff before.json # so trước/sau
+```

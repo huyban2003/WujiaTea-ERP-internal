@@ -230,35 +230,23 @@
                         <div class="wj-pc-order-grid">
                             <!-- LEFT: catalog -->
                             <div class="wj-pc-order-main">
-                                <!-- WJ-ORD-023: filter dùng khung chung wj-pc-filterbar (card trắng,
-                                     3 control một hàng) thay layout rời — select cũ không khai width
-                                     nên ăn `select{width:100%}` của shell dashboard.css → wrap 3 hàng. -->
-                                <form method="get" action="/portal/order"
-                                      class="wj-pc-filterbar wj-pc-order-filter">
-                                    <div class="wj-pc-filterbar__row">
-                                        <span class="wj-pc-filter-search wj-pc-filterbar__grow">
-                                            <i class="feather icon-search"/>
-                                            <input type="text" name="keyword"
-                                                   placeholder="Tìm theo tên sản phẩm, mã hàng..."
-                                                   class="wj-pc-filter-control"
-                                                   t-att-value="keyword"/>
-                                        </span>
-                                        <select name="category_id" class="wj-pc-filter-control"
-                                                style="max-width:220px;" onchange="this.form.requestSubmit()">
-                                            <option value="">Tất cả danh mục</option>
-                                            <t t-foreach="categories" t-as="cat">
-                                                <option t-att-value="cat.id"
-                                                        t-att-selected="'selected' if category_id == cat.id else None"
-                                                        t-out="cat.name"/>
-                                            </t>
-                                        </select>
-                                        <span class="wj-pc-filterbar__actions">
-                                            <button type="submit" class="wj-pc-btn wj-pc-btn--primary">
-                                                <i class="feather icon-search"/> Tìm
-                                            </button>
-                                        </span>
-                                    </div>
-                                </form>
+                                <!-- WJ-ORD-023 (E4b1: về component CMP-FB-001) — select cũ
+                                     không khai width nên ăn `select{width:100%}` của shell
+                                     dashboard.css → wrap 3 hàng. -->
+                                <t t-call="wujia_portal_layout.wj_filter_bar">
+                                    <t t-set="fb_platform" t-value="'pc'"/>
+                                    <t t-set="fb_action" t-value="'/portal/order'"/>
+                                    <t t-set="fb_class" t-value="'wj-pc-order-filter'"/>
+                                    <t t-set="fb_search"
+                                       t-value="{'name': 'keyword', 'value': keyword,
+                                                 'placeholder': 'Tìm theo tên sản phẩm, mã hàng...'}"/>
+                                    <t t-set="fb_selects"
+                                       t-value="[{'name': 'category_id', 'value': category_id,
+                                                  'label': 'Danh mục',
+                                                  'all_label': 'Tất cả danh mục',
+                                                  'auto': True,
+                                                  'options': [(c.id, c.name) for c in categories]}]"/>
+                                </t>
 
                                 <t t-call="wujia_portal_sale.portal_order_catalog_results_part">
                                     <t t-set="part" t-value="'pc'"/>

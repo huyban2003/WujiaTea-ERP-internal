@@ -676,14 +676,8 @@
    Khung + control dùng .wj-pc-filterbar / .wj-pc-filter-* chung ở _pc_components.css;
    dưới đây chỉ là delta của trang Đặt hàng. Control 42px là số của Figma 4600:2 —
    bỏ được khi H1/UI-PC-BASE-003 chuẩn hoá --wj-pc-filter-input-h. */
+/* E4b1: thanh lọc về component CMP-FB-001; ở đây chỉ còn nhịp dọc của trang. */
 .wj-pc-order-filter { margin-bottom: 16px; }
-.wj-pc-order-filter .wj-pc-filter-control { height: 42px; }
-/* Shell dashboard.css có `select, textarea { padding: 5px !important }` (tag-level) →
-   trung hoà TRONG scope, không sửa file shared. Cùng giá trị với neutralizer chung
-   của UI-PC-BASE-003 để hai rule không đá nhau. */
-.wj-pc-order-filter select.wj-pc-filter-control {
-    padding: 0 16px !important;
-}
 
 /* ---- Product card + table (cyan headers per Figma) ---- */
 .wj-pc-order-cardhead { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; }
