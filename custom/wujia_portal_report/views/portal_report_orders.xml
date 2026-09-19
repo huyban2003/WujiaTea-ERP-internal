@@ -15,7 +15,8 @@
             <t t-set="title">Báo cáo đặt hàng</t>
             <t t-call="wujia_portal_base.wj_ajax_list_config">
                 <t t-set="wjl_path" t-value="'/portal/reports/orders'"/>
-                <t t-set="wjl_slots" t-value="'wj-rep-pc-body,wj-rep-m-body'"/>
+                <t t-set="wjl_slots"
+                   t-value="'wj-rep-pcerr,wj-rep-pc-body,wj-rep-merr,wj-rep-m-body'"/>
             </t>
 
             <!-- Nhãn trạng thái nào có mặt trong kỳ (dùng chung cho donut PC và
@@ -35,7 +36,13 @@
                 <t t-call="wujia_portal_layout.wj_filter_bar">
                     <t t-set="fb_platform" t-value="'m'"/>
                     <t t-set="fb_action" t-value="'/portal/reports/orders'"/>
-                    <t t-set="fb_dates" t-value="{'from': date_from, 'to': date_to}"/>
+                    <t t-set="fb_dates"
+                       t-value="{'from': date_from, 'to': date_to}"/>
+                    <t t-set="fb_error">
+                        <p id="wj-rep-merr" class="wj-filter-error" role="alert"
+                           t-att-hidden="None if filter_error else 'hidden'"
+                           t-out="filter_error"/>
+                    </t>
                 </t>
 
                 <div id="wj-rep-m-body" class="wj-rep-mbody">
@@ -167,8 +174,13 @@
                     <!-- Nhịp dọc riêng của trang báo cáo (14 thay vì 24). -->
                     <t t-set="fb_class" t-value="'wj-rep-pcfilter'"/>
                     <t t-set="fb_dates"
-                       t-value="{'from': date_from, 'to': date_to, 'clamp': True}"/>
+                       t-value="{'from': date_from, 'to': date_to}"/>
                     <t t-set="fb_reset_url" t-value="'/portal/reports/orders'"/>
+                    <t t-set="fb_error">
+                        <p id="wj-rep-pcerr" class="wj-filter-error" role="alert"
+                           t-att-hidden="None if filter_error else 'hidden'"
+                           t-out="filter_error"/>
+                    </t>
                 </t>
 
                 <div id="wj-rep-pc-body">

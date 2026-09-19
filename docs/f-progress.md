@@ -553,3 +553,45 @@ rồi đánh ✅ ở bảng Trạng thái §2 `docs/next-session-clusters-F.md`.
     lại còn 38 nhưng vùng bấm vẫn 44.
 - Phiên kế: **E4c** — wiring ngày + màn Thi mobile (migrate **và** wire một thể) + guard + **đóng
   issue**. Prompt sẵn: `docs/prompt-e4c.md`.
+
+## E4c — FilterBar `CMP-FB-001`: hành vi lọc + ĐÓNG `UI-FILTER-001` (19/09/2026 · Mac)
+
+- Mục tiêu: lượt cuối cụm E4. E4a/E4b1/E4b2 lo **dáng**; E4c lo **hành vi lọc** rồi đưa issue về
+  `Ready for Retest` (Dev không đặt `Done`). Chốt đầu phiên của chủ dự án: làm xong viết luôn
+  `docs/prompt-e5.md`, commit + push `main`, **không tự deploy UAT**.
+- **Đo trước khi đọc mã** (guard mới `scripts/qa/wj_filterbar.py`) và bảng trong prompt hoá ra **sai**:
+  Thông báo ghi ✅ nhưng thật ra tính `date_error` rồi **không view nào in ra**, và vẫn trả **toàn bộ**
+  danh sách (10 bản ghi) khi ngày ngược; Đổi trả báo ở **banner đầu trang**, gộp chung với lỗi sai định
+  dạng. **5/6 màn im lặng**.
+- Làm được:
+  - **Một nguồn duy nhất** `ERR_DATE_RANGE` + `date_range_error()` ở `wujia_portal_base` (L3a, không
+    thêm depend); 6 màn cùng gọi. Trước đó 2 câu chữ khác nhau cho cùng một lỗi.
+  - **Một khuôn hiển thị**: `<p class="wj-filter-error" role="alert">` qua slot `fb_error`, id nằm
+    trong `wjl_slots`, màn có fragment in cả 2 mảnh. CSS dời về `wujia_portal_layout` (`?v=1303`).
+  - **Màn Thi mobile**: khối dựng tay (2 ô ngày **không có `name`**) → component, **migrate + wire một
+    thể** đúng chốt 19/09. Đo ra lọc thật: 10 → 0 bản ghi theo khoảng.
+  - **Báo cáo** bỏ tự kẹp im lặng; ngày ngược ⇒ KPI 0 + chart rỗng **cùng bộ khoá** với nhánh thường
+    (thiếu khoá là JS biểu đồ vẽ hỏng im lặng).
+  - Gỡ **2 knob mồ côi** của component: `kind='text'` và **`clamp`** (xem bẫy dưới).
+  - Guard 4 mục + **12 mũi mutation**; 6 file test mới (5 module + quét chéo `portal_base`).
+- Số đo: FB-10 render 78 ô ⇒ **3 ô lệch, đều là màn Thi mobile cố ý** · ngày ngược **6/6 báo, 0 im
+  lặng** · về trang 1 **5/5** · sang trang giữ lọc **5/5 (6/6 link)** · ngày lọc thật **5 màn có số
+  đổi** · `wj_measure` 65 ô **0 lệch** · suite **648/0** · `check_layers` 3 R1–R5 + 2 R7 **có sẵn**.
+- Bẫy gặp:
+  - **`clamp` chặn IM LẶNG cú dời khoảng ngày về trước.** Guard bắt màn Báo cáo "gửi đi không có
+    ngày"; truy ra `min`/`max` do `clamp` sinh ra làm trình duyệt **từ chối submit** khi người dùng
+    chọn khoảng sớm hơn khoảng đang lọc — không request, không thông điệp. Có ở **mọi** màn ngay khi
+    đã lọc một lần. Đã gỡ `clamp` khỏi component + 6 call site; 2 test cũ khẳng định `clamp` đổi
+    thành test khẳng định **không màn nào kẹp lại**.
+  - **DB đo có 0 phiếu thi, 0 chuyến giao** ⇒ mục "ngày hợp lệ lọc đúng" không chứng minh được. Phải
+    gieo (`scripts/seed_e4c_dates_demo.py`) rồi mới đo — nếu không lại là một bảng "Pass rỗng".
+  - **`cls.session` trong `HttpCase` đè phiên HTTP** ⇒ `authenticate()` nổ `'... has no attribute
+    sid'`. Đặt tên `cls.exam_session`.
+  - **`--routes`/`--widths` phải khớp hệt lúc chụp mốc**, nếu không `--diff` in ra 31 "lệch" toàn là
+    ô không đo (`sau=None`) — suýt tưởng hồi quy.
+  - Mũi phá phải khớp **đúng thụt lề** của file đích; sai một dấu cách là harness báo "phép phá không
+    ăn" (đúng như thiết kế, nhưng tốn một vòng chạy).
+- Nợ mang sang: **nhịp G2** (`.wj-filter-card` +16px chồng `gap` 8 ⇒ *lọc → danh sách* 24px ở 7 màn)
+  — đã ghi thành việc bắt buộc của **E5** trong `docs/prompt-e5.md`.
+- Phiên kế: **E5** — ListCard `CMP-LC-001` (`UI-LISTCARD-001`, STT 136, dòng tuyệt đối 129).
+  Prompt sẵn: `docs/prompt-e5.md`.

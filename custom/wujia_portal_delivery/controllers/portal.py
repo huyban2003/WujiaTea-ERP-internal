@@ -12,8 +12,8 @@ from odoo.addons.wujia_portal_base.controllers.portal import (
 )
 from odoo.addons.wujia_portal_base.controllers.utils import (
     PAGE_SIZE_OPTIONS,
-    batch_franchise_domain, build_pager, departure_label, departure_value,
-    format_order_names,
+    batch_franchise_domain, build_pager, date_range_error, departure_label,
+    departure_value, format_order_names,
     group_counts, local_day_range_utc, own_pickings, parse_page_size, portal_tz,
     to_local_dt,
     status_badge,
@@ -117,7 +117,7 @@ class WujiaPortalDelivery(http.Controller):
                 'no_franchise': True, 'batches': [], 'view_state': 'empty',
                 'pgn': None, 'chip_counts': {},
                 'date_from': '', 'date_to': '', 'bs': '', 'q': '',
-                'chip_qs': '',
+                'chip_qs': '', 'filter_error': '',
             }
 
         try:
@@ -128,6 +128,18 @@ class WujiaPortalDelivery(http.Controller):
         offset = (page - 1) * size
         q = (q or '').strip()
         tz = portal_tz()
+
+        # Ngày ngược: không chạy query, giữ nguyên 2 ô đã nhập, báo TẠI thanh lọc.
+        # Nếu cứ chạy thì domain vô nghiệm ⇒ empty state "chưa có chuyến nào",
+        # người dùng tưởng hết dữ liệu (cùng lỗi WJ-PH-007 bên Lịch sử đặt hàng).
+        filter_error = date_range_error(date_from, date_to)
+        if filter_error:
+            return {
+                'no_franchise': False, 'batches': [], 'view_state': 'empty',
+                'pgn': None, 'chip_counts': {},
+                'date_from': date_from, 'date_to': date_to, 'bs': bs, 'q': q,
+                'chip_qs': '', 'filter_error': filter_error,
+            }
 
         # Batch-centric (1 thẻ = 1 chuyến xe) — nuôi cả desktop (Figma 4766) + mobile (4731).
         batches, pgn, chip_counts, view_state = [], None, {}, 'list'
@@ -201,6 +213,7 @@ class WujiaPortalDelivery(http.Controller):
             'chip_counts': chip_counts,
             'date_from': date_from, 'date_to': date_to, 'bs': bs, 'q': q,
             'chip_qs': ('&' + urlencode(extra)) if extra else '',
+            'filter_error': '',
         }
 
     @http.route(['/portal/delivery'], type='http', auth='user', sitemap=False)

@@ -25,6 +25,23 @@ def _raw(module, filename):
         return fh.read()
 
 
+def _ctrl(module):
+    with open(os.path.join(CUSTOM, module, 'controllers', 'portal.py'),
+              encoding='utf-8') as fh:
+        return fh.read()
+
+
+# Sáu màn có ô ngày — E4c bắt chúng dùng CHUNG một thông điệp, một chỗ hiển thị.
+_DATE_VIEWS = (
+    ('wujia_portal_purchase_history', 'portal_history.xml'),
+    ('wujia_portal_delivery', 'portal_delivery.xml'),
+    ('wujia_portal_notification', 'portal_notification.xml'),
+    ('wujia_portal_return', 'portal_return_list.xml'),
+    ('wujia_portal_exam', 'portal_exam.xml'),
+    ('wujia_portal_report', 'portal_report_orders.xml'),
+)
+
+
 def _css(module, relpath):
     with open(os.path.join(CUSTOM, module, *relpath.split('/')),
               encoding='utf-8') as fh:
@@ -185,11 +202,11 @@ class TestFilterBarPcCallSitesE4b1(TransactionCase):
             self.assertTrue(cls and 'wj-pc-filterbar--dense' in cls[0].get('t-value'),
                             '%s: thiếu wj-pc-filterbar--dense' % fn)
 
-    def test_man_thi_giu_o_ngay_dang_chu_cho_e4c(self):
-        """E4c mới đổi sang type=date + wire; đổi sớm là lệch FB-10 của lượt này."""
-        call = _pc_call(_view('wujia_portal_exam', 'portal_exam.xml'))
-        dates = call.xpath('.//t[@t-set="fb_dates"]')[0].get('t-value')
-        self.assertIn("'kind': 'text'", dates)
+    def test_man_thi_dung_o_ngay_that_ca_hai_kho(self):
+        """E4c: ô chữ tự gõ không ai kiểm được định dạng — cả hai khổ về type=date,
+        knob `kind` đã gỡ khỏi component nên đặt lại là render ra thừa."""
+        raw = _raw('wujia_portal_exam', 'portal_exam.xml')
+        self.assertNotIn("'kind'", raw)
 
 
 @tagged('post_install', '-at_install', 'wujia_filter_e4')
@@ -304,11 +321,12 @@ class TestFilterBarMobileCallSitesE4b2(TransactionCase):
             self.assertTrue(node[0].xpath(xp),
                             '%s: slot %s không gọi part %s' % (fn, slot, part))
 
-    def test_lich_su_giu_kep_ngay_tu_den(self):
-        """`clamp` chính là max/min của markup cũ — mất là chọn được ngày ngược."""
-        call = _m_call(_view('wujia_portal_purchase_history', 'portal_history.xml'))
-        dates = call.xpath('.//t[@t-set="fb_dates"]')[0].get('t-value')
-        self.assertIn("'clamp': True", dates)
+    def test_khong_man_nao_kep_lai_khoang_ngay(self):
+        """Kẹp min/max chặn IM LẶNG cú dời khoảng về trước — đã gỡ ở E4c,
+        màn nào đặt lại là tái sinh đúng lỗi vừa sửa."""
+        for module, fn in _DATE_VIEWS:
+            self.assertNotIn("'clamp'", _raw(module, fn),
+                             '%s: đặt lại kẹp ngày' % fn)
 
     def test_doi_tra_giu_select_tu_submit(self):
         call = _m_call(_view('wujia_portal_return', 'portal_return_list.xml'))
@@ -351,15 +369,86 @@ class TestFilterBarMobileLeftovers(TransactionCase):
         self.assertIn('wj_debt_filter', raw)
         self.assertNotIn('wujia_portal_layout.wj_filter_bar', raw)
 
-    def test_man_thi_mobile_con_nguyen_cho_e4c(self):
-        """Nợ có chủ: E4c đưa khối này vào component CÙNG LÚC với wiring ngày."""
+    def test_man_thi_mobile_da_vao_component_kem_wiring(self):
+        """E4c: khối dựng tay của màn Thi có 2 ô ngày KHÔNG `name` nên bấm tìm
+        không gửi gì — vào component là phải kèm `fb_action` + `fb_dates`."""
         root = _view('wujia_portal_exam', 'portal_exam.xml')
-        demo = root.xpath('.//t[@t-set="sc_class"][@t-value="\'wj-filter-card\'"]')
-        self.assertEqual(len(demo), 1, 'khối demo màn Thi đã đổi — phải kèm wiring E4c')
-        self.assertIsNone(_m_call(root), 'màn Thi mobile vào component sớm hơn wiring')
+        call = _m_call(root)
+        self.assertIsNotNone(call, 'màn Thi mobile chưa gọi wj_filter_bar')
+        act = call.xpath('.//t[@t-set="fb_action"]')
+        self.assertTrue(act and act[0].get('t-value') == "'/portal/exam'")
+        self.assertTrue(call.xpath('.//t[@t-set="fb_dates"]'), 'thiếu ô ngày')
+        raw = _raw('wujia_portal_exam', 'portal_exam.xml')
+        self.assertNotIn("t-value=\"'wj-filter-card'\"", raw,
+                         'còn sót khối dựng tay')
 
     def test_khong_dung_module_anh_thai(self):
         raw = _raw('wujia_portal_inspection',
                    'portal_inspection_list_templates.xml')
         self.assertNotIn('wj_filter_bar', raw)
         self.assertNotIn('wj-filter-card', raw)
+
+
+@tagged('post_install', '-at_install', 'wujia_filter_e4')
+class TestKhoangNgayNguocE4c(TransactionCase):
+    """E4c: sáu màn có ngày nói CÙNG một câu, ở CÙNG một chỗ — trong thanh lọc."""
+
+    def test_sau_man_deu_lay_thong_diep_tu_nguon_chung(self):
+        """Trước E4c mỗi màn một câu chữ, có màn tính rồi không in ra đâu cả."""
+        for module, _fn in _DATE_VIEWS:
+            src = _ctrl(module)
+            self.assertIn('date_range_error', src,
+                          '%s: không dùng nguồn chung' % module)
+            self.assertNotIn("'Từ ngày không được lớn hơn", src,
+                             '%s: còn câu chữ riêng' % module)
+
+    def test_moi_man_bao_loi_ngay_trong_thanh_loc(self):
+        """`fb_error` = báo TẠI thanh lọc; banner đầu trang là chỗ khác."""
+        for module, fn in _DATE_VIEWS:
+            raw = _raw(module, fn)
+            self.assertIn('class="wj-filter-error" role="alert"', raw,
+                          '%s: thiếu ô báo lỗi chuẩn' % fn)
+            self.assertIn("t-att-hidden=\"None if filter_error else 'hidden'\"", raw,
+                          '%s: ô lỗi không luôn hiện diện' % fn)
+            self.assertGreaterEqual(
+                len(_view(module, fn).xpath('.//t[@t-set="fb_error"]')), 2,
+                '%s: thiếu slot fb_error cho một trong hai khổ' % fn)
+
+    def test_id_o_bao_loi_deu_nam_trong_wjl_slots(self):
+        """Thiếu id trong `wjl_slots`: lọc lại bằng AJAX giữ nguyên lỗi cũ."""
+        for module, fn in _DATE_VIEWS:
+            raw = _raw(module, fn)
+            slots = re.search(r'wjl_slots"\s*\n?\s*t-value="\'([^\']+)\'', raw)
+            self.assertTrue(slots, '%s: không tìm thấy wjl_slots' % fn)
+            declared = slots.group(1).split(',')
+            for eid in re.findall(r'id="([a-z0-9-]*err)"', raw):
+                self.assertIn(eid, declared, '%s: %s ngoài wjl_slots' % (fn, eid))
+
+    def test_man_co_fragment_phai_in_ca_hai_manh_loi(self):
+        """Giao hàng/Thông báo thay bằng fragment: thiếu part là rơi tải lại trang.
+
+        Phải soi ĐÚNG template fragment — cắt chuỗi từ `wjl_fragment` trở đi là
+        soi nhầm phần trang đầy đủ, part vẫn còn ở call site nên guard mù.
+        """
+        for module, fn in (('wujia_portal_delivery', 'portal_delivery.xml'),
+                           ('wujia_portal_notification', 'portal_notification.xml')):
+            root = _view(module, fn)
+            frag = [t for t in root.xpath('.//template')
+                    if (t.get('id') or '').endswith('_results')]
+            self.assertEqual(len(frag), 1, '%s: không thấy template fragment' % fn)
+            parts = {n.get('t-value') for n in frag[0].xpath('.//t[@t-set="part"]')}
+            parts |= set(frag[0].xpath('.//t[@t-foreach]/@t-foreach'))
+            blob = ' '.join(p or '' for p in parts)
+            for part in ("'pcerr'", "'merr'"):
+                self.assertIn(part, blob, '%s: fragment thiếu %s' % (fn, part))
+
+    def test_css_bao_loi_o_dung_chu_layout(self):
+        """6 màn dùng chung ⇒ CSS về `wujia_portal_layout` (luật F2/F3 css_owner)."""
+        # Phải khớp CẢ dấu `{`: '.wj-filter-error' là tiền tố của mọi tên đổi đi
+        # ('.wj-filter-error-x') nên assert lỏng sẽ xanh cả khi rule đã mất.
+        self.assertIn('.wj-filter-error {',
+                      _css('wujia_portal_layout',
+                           'static/assets/css/_components.css'))
+        self.assertNotIn('.wj-filter-error {',
+                         _css('wujia_portal_purchase_history',
+                              'static/src/css/portal_history.css'))

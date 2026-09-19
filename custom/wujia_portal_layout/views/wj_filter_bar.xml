@@ -36,16 +36,15 @@
                     <t t-foreach="[('from', 'Từ'), ('to', 'Đến')]" t-as="fbd">
                         <span t-if="fbd[0] == 'to'" class="wj-filter-date-sep">–</span>
                         <label class="wj-filter-date wj-filter-date--hit">
+                            <!-- Không kẹp min/max: kẹp thì lịch chặn IM LẶNG cú dời
+                                 khoảng về trước, ngày ngược đã có thông điệp (E4c). -->
                             <span class="wj-filter-date__box">
                                 <i class="feather icon-calendar"/>
                                 <span class="wj-filter-date__label" t-out="fbd[1]"/>
-                                <!-- kind='text': màn Thi còn ô ngày dạng chữ, E4c mới wire. -->
-                                <input t-att-type="fb_dates.get('kind') or 'date'"
+                                <input type="date"
                                        t-att-name="fb_dates.get(fbd[0] + '_name') or ('date_' + fbd[0])"
                                        t-att-value="fb_dates.get(fbd[0]) or ''"
-                                       t-att-aria-label="fbd[1] + ' ngày'"
-                                       t-att-max="(fb_dates.get('to') or None) if fbd[0] == 'from' and fb_dates.get('clamp') else None"
-                                       t-att-min="(fb_dates.get('from') or None) if fbd[0] == 'to' and fb_dates.get('clamp') else None"/>
+                                       t-att-aria-label="fbd[1] + ' ngày'"/>
                             </span>
                         </label>
                     </t>

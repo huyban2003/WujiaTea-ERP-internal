@@ -12,7 +12,7 @@
             }.get(notice)"/>
             <t t-call="wujia_portal_base.wj_ajax_list_config">
                 <t t-set="wjl_path" t-value="'/portal/return'"/>
-                <t t-set="wjl_slots" t-value="'wj-ret-pc,wj-ret-mbody'"/>
+                <t t-set="wjl_slots" t-value="'wj-ret-pcerr,wj-ret-pc,wj-ret-merr,wj-ret-mbody'"/>
             </t>
 
             <!-- Desktop ≥992px — giữ nguyên, bọc d-none d-lg-block (S20) -->
@@ -42,12 +42,18 @@
                                      'placeholder': 'Mã YC / mã đơn / sản phẩm',
                                      'label': 'Từ khoá'}"/>
                         <t t-set="fb_dates"
-                           t-value="{'from': date_from, 'to': date_to, 'clamp': True}"/>
+                           t-value="{'from': date_from, 'to': date_to}"/>
                         <t t-set="fb_selects"
                            t-value="[{'name': 'state', 'value': state,
                                       'label': 'Trạng thái',
                                       'all_label': filter_all_label,
                                       'options': filter_options}]"/>
+                        <!-- Luôn render, rỗng thì `hidden`: JS thay khối theo id. -->
+                        <t t-set="fb_error">
+                            <p id="wj-ret-pcerr" class="wj-filter-error" role="alert"
+                               t-att-hidden="None if filter_error else 'hidden'"
+                               t-out="filter_error"/>
+                        </t>
                     </t>
 
                     <!-- Vùng swap AJAX: bảng + pager (bộ lọc ngoài, JS đồng bộ theo URL). -->
@@ -151,6 +157,11 @@
                            t-value="[{'name': 'state', 'value': state, 'auto': True,
                                       'label': 'Lọc theo trạng thái',
                                       'all_label': filter_all_label, 'options': filter_options}]"/>
+                        <t t-set="fb_error">
+                            <p id="wj-ret-merr" class="wj-filter-error" role="alert"
+                               t-att-hidden="None if filter_error else 'hidden'"
+                               t-out="filter_error"/>
+                        </t>
                     </t>
 
                     <div id="wj-ret-mbody" class="wj-ajax-slot">

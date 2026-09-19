@@ -11,6 +11,13 @@
             <t t-set="WJ_ICON" t-value="{'URG': 'icon-alert-triangle', 'GEN': 'icon-bell', 'PROMO': 'icon-gift', 'SYS': 'icon-settings', 'OTH': 'icon-info'}"/>
             <t t-set="WJ_PTAG" t-value="{'urgent': ('Cần làm', 'wujia-badge-success', 'icon-check-circle'), 'important': ('Quan trọng', 'wujia-badge-warning', 'icon-alert-triangle'), 'normal': ('Thông thường', 'wujia-badge-info', 'icon-info')}"/>
 
+        <!-- Lỗi khoảng ngày báo tại FilterBar (E4c). Luôn render, rỗng thì `hidden`:
+             JS thay khối theo id, thiếu id là cả màn rơi về tải lại trang. -->
+        <p t-if="part == 'pcerr'" id="wj-noti-pcerr" class="wj-filter-error" role="alert"
+           t-att-hidden="None if filter_error else 'hidden'" t-out="filter_error"/>
+        <p t-if="part == 'merr'" id="wj-noti-merr" class="wj-filter-error" role="alert"
+           t-att-hidden="None if filter_error else 'hidden'" t-out="filter_error"/>
+
         <div t-if="part == 'pcchips'" id="wj-noti-pcchips" class="wj-filter-chips wj-pc-noti-chips">
             <a t-attf-href="/portal/notification#{('?keyword=' + keyword) if keyword else ''}"
                t-attf-class="wj-filter-chip #{'is-active' if not unread and not priority else ''}">Tất cả</a>
@@ -173,7 +180,7 @@
     <!-- Fragment AJAX: cả 5 mảnh, JS thay từng khối theo id. -->
     <template id="portal_notification_results" name="Wujia Portal — Notification Results Fragment">
         <div>
-            <t t-foreach="['pcchips', 'pccount', 'pc', 'mcount', 'mchips', 'mbody']" t-as="pt">
+            <t t-foreach="['pcerr', 'pcchips', 'pccount', 'pc', 'merr', 'mcount', 'mchips', 'mbody']" t-as="pt">
                 <t t-call="wujia_portal_notification.portal_notification_results_part">
                     <t t-set="part" t-value="pt"/>
                 </t>
@@ -187,7 +194,7 @@
             <t t-call="wujia_portal_base.wj_ajax_list_config">
                 <t t-set="wjl_path" t-value="'/portal/notification'"/>
                 <t t-set="wjl_slots"
-                   t-value="'wj-noti-pcchips,wj-noti-pccount,wj-noti-pc,wj-noti-mcount,wj-noti-mchips,wj-noti-mbody'"/>
+                   t-value="'wj-noti-pcerr,wj-noti-pcchips,wj-noti-pccount,wj-noti-pc,wj-noti-merr,wj-noti-mcount,wj-noti-mchips,wj-noti-mbody'"/>
                 <t t-set="wjl_fragment" t-value="'/portal/notification/results'"/>
             </t>
             <!-- Desktop ≥992px — Figma PC_Notification_List (4683:101) -->
@@ -213,7 +220,7 @@
                        t-value="{'name': 'keyword', 'value': keyword or '',
                                  'placeholder': 'Nhập tiêu đề, mã thông báo...'}"/>
                     <t t-set="fb_dates"
-                       t-value="{'from': date_from or '', 'to': date_to or '', 'clamp': True}"/>
+                       t-value="{'from': date_from or '', 'to': date_to or ''}"/>
                     <t t-set="fb_selects"
                        t-value="[{'name': 'type_id', 'value': type_id,
                                   'label': 'Loại thông báo',
@@ -226,6 +233,11 @@
                     <t t-set="fb_reset_url" t-value="'/portal/notification'"/>
                     <t t-set="fb_hidden">
                         <input type="hidden" name="tab" t-att-value="tab"/>
+                    </t>
+                    <t t-set="fb_error">
+                        <t t-call="wujia_portal_notification.portal_notification_results_part">
+                            <t t-set="part" t-value="'pcerr'"/>
+                        </t>
                     </t>
                 </t>
 
@@ -261,6 +273,13 @@
                        t-value="{'name': 'keyword', 'value': keyword or '', 'placeholder': 'Tìm mã / tiêu đề'}"/>
                     <t t-set="fb_hidden">
                         <input type="hidden" name="unread" t-att-value="unread or ''"/>
+                    </t>
+                    <!-- Thanh mobile không có ô ngày, nhưng lọc ngày vẫn tới được qua
+                         URL (link lưu sẵn) ⇒ vẫn phải báo, nếu không lại im lặng. -->
+                    <t t-set="fb_error">
+                        <t t-call="wujia_portal_notification.portal_notification_results_part">
+                            <t t-set="part" t-value="'merr'"/>
+                        </t>
                     </t>
                     <!-- Tất cả / Chưa đọc / Quan trọng / Cần làm — đều functional (keys BA) -->
                     <t t-set="fb_chips">

@@ -189,7 +189,7 @@
                             <t t-set="fb_search"
                                t-value="{'name': 'q', 'value': q, 'placeholder': 'Tìm theo mã đơn'}"/>
                             <t t-set="fb_dates"
-                               t-value="{'from': date_from, 'to': date_to, 'clamp': True}"/>
+                               t-value="{'from': date_from, 'to': date_to}"/>
                             <t t-set="fb_selects"
                                t-value="[{'name': 'state', 'value': state,
                                           'all_label': 'Tất cả trạng thái',
@@ -244,7 +244,7 @@
                             <t t-set="fb_search"
                                t-value="{'name': 'q', 'value': q, 'placeholder': 'Tìm theo mã đơn'}"/>
                             <t t-set="fb_dates"
-                               t-value="{'from': date_from, 'to': date_to, 'clamp': True}"/>
+                               t-value="{'from': date_from, 'to': date_to}"/>
                             <t t-set="fb_hidden">
                                 <input type="hidden" name="page_size" t-att-value="page_size"/>
                             </t>

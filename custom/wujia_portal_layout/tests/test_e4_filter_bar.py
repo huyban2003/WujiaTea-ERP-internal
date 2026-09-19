@@ -166,15 +166,15 @@ class TestFilterBarTemplate(TransactionCase):
             for h in hit:
                 self.assertEqual(len(h.xpath('./span[@class="wj-filter-date__box"]')), 1)
 
-    def test_chi_kep_min_max_khi_man_yeu_cau(self):
-        root = self._pc(fb_dates="{'from': '2026-09-01', 'to': '2026-09-30',"
-                                 " 'clamp': True}")
-        self.assertEqual(root.xpath('.//input[@name="date_from"]')[0].get('max'),
-                         '2026-09-30')
-        self.assertEqual(root.xpath('.//input[@name="date_to"]')[0].get('min'),
-                         '2026-09-01')
-        plain = self._pc()
-        self.assertIsNone(plain.xpath('.//input[@name="date_from"]')[0].get('max'))
+    def test_khong_bao_gio_kep_min_max_o_ngay(self):
+        """Kẹp min/max thì trình duyệt chặn im lặng cú dời khoảng về trước:
+        đang lọc 08/2026, gõ 01/2026 là nút tìm bấm không ăn, không một lời
+        giải thích. Ngày ngược nay đã có thông điệp ở `fb_error` (E4c)."""
+        root = self._pc(fb_dates="{'from': '2026-09-01', 'to': '2026-09-30'}")
+        for name in ('date_from', 'date_to'):
+            el = root.xpath('.//input[@name="%s"]' % name)[0]
+            self.assertIsNone(el.get('max'), '%s còn max' % name)
+            self.assertIsNone(el.get('min'), '%s còn min' % name)
 
     def test_khong_truyen_ngay_thi_khong_render_o_ngay(self):
         root = self._pc(fb_dates='False')
@@ -208,6 +208,17 @@ class TestFilterBarTemplate(TransactionCase):
         self.assertEqual(len(form.xpath('.//a[@class="wj-filter-chip"]')), 1)
         self.assertEqual(len(form.xpath('./p[@class="wj-filter-error"]')), 1)
 
+    def test_o_bao_loi_nam_duoi_hang_dieu_khien_trong_cung_form(self):
+        """E4c: thông điệp phải ở TRONG thanh lọc — ra ngoài form là banner,
+        đúng kiểu cũ của Đổi trả mà lượt này gom lại."""
+        root = self._mobile(slots={'fb_error': '<p id="x" class="wj-filter-error"/>'})
+        form = root.xpath('.//form')[0]
+        kids = [k.tag + (k.get('class') or '') for k in form]
+        self.assertTrue(any('wj-filter-row' in k for k in kids))
+        self.assertLess(
+            next(i for i, k in enumerate(kids) if 'wj-filter-row' in k),
+            next(i for i, k in enumerate(kids) if 'wj-filter-error' in k))
+
 
 @tagged('post_install', '-at_install', 'wujia_filter_e4')
 class TestFilterBarCallSites(TransactionCase):
@@ -225,6 +236,12 @@ class TestFilterBarCallSites(TransactionCase):
 @tagged('post_install', '-at_install', 'wujia_filter_e4')
 class TestFilterBarCss(TransactionCase):
     """Token đo được của FB-02/FB-03 phải nằm ở CSS component, không rải theo màn."""
+
+    def test_o_bao_loi_la_css_cua_khung_va_dung_token(self):
+        """6 màn dùng chung ⇒ CSS về khung (F2/F3); màu phải là token, không hex."""
+        block = _block(_css('_components.css'), '.wj-filter-error')
+        self.assertIn('var(--wujia-danger', block)
+        self.assertNotRegex(block, r'#[0-9a-fA-F]{3,8}\b')
 
     def test_hop_nhin_thay_38_va_vung_cham_44(self):
         css = _css('_components.css')
@@ -274,15 +291,6 @@ class TestFilterBarE4b1Contract(TransactionCase):
         kinds = [i.get('type') for i in doc.xpath('//input[starts-with(@name, "date_")]')]
         self.assertEqual(kinds, ['date', 'date'])
 
-    def test_kind_text_giu_duoc_o_ngay_dang_chu_cua_man_thi(self):
-        """Màn Thi còn ô ngày dạng chữ; đổi sớm sang date là đổi hành vi lọc (E4c)."""
-        doc = self._pc(fb_dates="{'kind': 'text'}")
-        kinds = [i.get('type') for i in doc.xpath('//input[starts-with(@name, "date_")]')]
-        self.assertEqual(kinds, ['text', 'text'])
-        # Nhãn "Từ"/"Đến" vẫn đọc được (FB-05) dù ô là chữ.
-        self.assertEqual(
-            [s.text for s in doc.xpath('//span[@class="wj-filter-date__label"]')],
-            ['Từ', 'Đến'])
 
     def test_fb_class_di_thang_vao_vo_form(self):
         doc = self._pc(fb_class="'wj-pc-filterbar--dense'")

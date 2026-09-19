@@ -7,8 +7,8 @@ from odoo.http import request
 
 from odoo.addons.wujia_portal_base.controllers.portal import get_active_franchise_id
 from odoo.addons.wujia_portal_base.controllers.utils import (
-    build_pager, local_day_range_utc, portal_line_price_vals, portal_money,
-    portal_tax_mapper, portal_tz, to_local_dt,
+    build_pager, date_range_error, local_day_range_utc,
+    portal_line_price_vals, portal_money, portal_tax_mapper, portal_tz, to_local_dt,
     status_badge_for,
 )
 
@@ -54,7 +54,6 @@ BACKEND_REQUESTER_LABEL = 'Ngô Gia tạo đơn'
 
 ERR_NO_STORE = 'Không xác định được cửa hàng đang thao tác. Vui lòng chọn lại cửa hàng.'
 ERR_NOT_FOUND = 'Không tìm thấy đơn hàng hoặc bạn không có quyền xem đơn hàng này.'
-ERR_DATE_RANGE = 'Từ ngày không được lớn hơn Đến ngày'
 
 
 def _parse_date(value):
@@ -255,10 +254,11 @@ class WujiaPortalHistory(http.Controller):
 
         # WJ-PH-007 — khoảng ngày đảo ngược: không chạy query, giữ nguyên 2 ô đã nhập,
         # báo lỗi TẠI FilterBar (empty state "Chưa có đơn hàng" làm người dùng tưởng hết dữ liệu).
-        if df and dt and df > dt:
+        filter_error = date_range_error(df, dt)
+        if filter_error:
             return dict(base_ctx, no_store=False, error='', rows=[], pgn=None,
                         date_from=date_from, date_to=date_to, state=state, preset=preset,
-                        q=q, filter_error=ERR_DATE_RANGE)
+                        q=q, filter_error=filter_error)
 
         tz = portal_tz()
 

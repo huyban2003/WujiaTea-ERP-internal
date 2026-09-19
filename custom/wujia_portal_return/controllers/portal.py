@@ -25,6 +25,7 @@ from odoo.addons.wujia_portal_base.controllers.utils import (
     PAGE_SIZE_OPTIONS,
     attach_files_to_record,
     build_pager,
+    date_range_error,
     fmt_local_dt,
     local_day_range_utc,
     parse_page_size,
@@ -149,10 +150,18 @@ class WujiaPortalReturn(http.Controller):
                        ('product_id.default_code', 'ilike', q)]
 
         df, dt_ = self._parse_date(date_from), self._parse_date(date_to)
-        if (date_from and not df) or (date_to and not dt_) or (df and dt_ and df > dt_):
+        # Sai định dạng = hỏng cả URL, giữ banner đầu trang như cũ.
+        if (date_from and not df) or (date_to and not dt_):
             return request.render('wujia_portal_return.portal_return_list',
                                   self._list_ctx(notice='bad_filter', state=state, q=q,
                                                  date_from=date_from, date_to=date_to))
+        # Ngày ngược = lỗi của chính ô lọc ⇒ báo TẠI thanh lọc, cùng khuôn 5 màn kia.
+        filter_error = date_range_error(df, dt_)
+        if filter_error:
+            return request.render('wujia_portal_return.portal_return_list',
+                                  self._list_ctx(state=state, q=q, date_from=date_from,
+                                                 date_to=date_to,
+                                                 filter_error=filter_error))
         # Khoảng ngày theo giờ địa phương (Odoo lưu naive UTC → lệch −7h nếu so thẳng).
         utc_from, utc_to = local_day_range_utc(df, dt_, portal_tz())
         if utc_from:
@@ -290,6 +299,7 @@ class WujiaPortalReturn(http.Controller):
             'filter_options': FILTER_OPTIONS,
             'filter_all_label': FILTER_ALL_LABEL,
             'state': '', 'date_from': '', 'date_to': '', 'q': '', 'notice': '',
+            'filter_error': '',
             'wj_dt': fmt_local_dt,
         }
         ctx.update(kw)

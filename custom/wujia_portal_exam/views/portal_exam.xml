@@ -7,7 +7,8 @@
             <t t-set="title">Lịch thi</t>
             <t t-call="wujia_portal_base.wj_ajax_list_config">
                 <t t-set="wjl_path" t-value="'/portal/exam'"/>
-                <t t-set="wjl_slots" t-value="'wj-exam-pc-body,wj-exam-mcount,wj-exam-mbody'"/>
+                <t t-set="wjl_slots"
+                   t-value="'wj-exam-pcerr,wj-exam-pc-body,wj-exam-merr,wj-exam-mcount,wj-exam-mbody'"/>
             </t>
             <!-- ===== PC ≥992px — Figma WJ_Exam_PC v1.2 · 01_List (4891:1714) =====
                  UI-only demo (parity với nhánh mobile): dữ liệu từ PC_REGS trong
@@ -36,7 +37,8 @@
                         <t t-set="fb_search"
                            t-value="{'name': 'q', 'value': f_q or '',
                                      'placeholder': 'Tìm mã phiếu, khóa thi...'}"/>
-                        <t t-set="fb_dates" t-value="{'kind': 'text'}"/>
+                        <t t-set="fb_dates"
+                           t-value="{'from': f_date_from, 'to': f_date_to}"/>
                         <t t-set="fb_selects"
                            t-value="[{'name': 'state', 'value': f_state,
                                       'label': 'Trạng thái',
@@ -48,6 +50,11 @@
                                       'options': [('published', 'Đã công bố'),
                                                   ('unpublished', 'Chưa công bố')]}]"/>
                         <t t-set="fb_reset_url" t-value="'/portal/exam'"/>
+                        <t t-set="fb_error">
+                            <p id="wj-exam-pcerr" class="wj-filter-error" role="alert"
+                               t-att-hidden="None if filter_error else 'hidden'"
+                               t-out="filter_error"/>
+                        </t>
                     </t>
 
                     <t t-call="wujia_portal_layout.wj_surface_card">
@@ -124,22 +131,22 @@
                 </t>
                 <p class="wj-count-meta" id="wj-exam-mcount"><t t-out="pgn['total_items']"/> đăng ký trong cửa hàng hiện tại</p>
 
-                <!-- Filter canonical 04-DateRangeOnly (Figma 4785:862) — demo UI-only (Phase 2 wire) -->
-                <t t-call="wujia_portal_layout.wj_surface_card">
-                    <t t-set="sc_variant" t-value="'summary'"/>
-                    <t t-set="sc_class" t-value="'wj-filter-card'"/>
-                    <div class="wj-filter-dates wj-filter-dates--compact">
-                        <label class="wj-filter-date">
-                            <i class="feather icon-calendar"/>
-                            <input type="date"/>
-                        </label>
-                        <span class="wj-filter-date-sep">–</span>
-                        <label class="wj-filter-date">
-                            <i class="feather icon-calendar"/>
-                            <input type="date"/>
-                        </label>
-                        <button type="button" class="wj-filter-search-btn"><i class="feather icon-search"/></button>
-                    </div>
+                <!-- Filter canonical 04-DateRangeOnly (Figma 4785:862) — E4c: khối dựng tay
+                     trước đây có 2 ô ngày KHÔNG `name` nên bấm tìm không gửi gì. -->
+                <t t-call="wujia_portal_layout.wj_filter_bar">
+                    <t t-set="fb_platform" t-value="'m'"/>
+                    <t t-set="fb_action" t-value="'/portal/exam'"/>
+                    <t t-set="fb_dates"
+                       t-value="{'from': f_date_from, 'to': f_date_to}"/>
+                    <!-- Giữ cỡ trang đang chọn khi lọc, đừng bắt chọn lại (WJ-PH-008). -->
+                    <t t-set="fb_hidden">
+                        <input type="hidden" name="limit" t-att-value="pgn['page_size']"/>
+                    </t>
+                    <t t-set="fb_error">
+                        <p id="wj-exam-merr" class="wj-filter-error" role="alert"
+                           t-att-hidden="None if filter_error else 'hidden'"
+                           t-out="filter_error"/>
+                    </t>
                 </t>
 
                 <div id="wj-exam-mbody" class="wj-ajax-slot">

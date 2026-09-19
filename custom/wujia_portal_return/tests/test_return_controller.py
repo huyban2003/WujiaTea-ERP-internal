@@ -396,10 +396,15 @@ class TestPortalRoutes(HttpCase, ReturnFixture):
         self.assertIn('HQ duyệt 20kg', body)
 
     def test_bad_date_range_returns_friendly_message(self):
+        """E4c tách hai loại lỗi: ngày NGƯỢC báo tại thanh lọc (cùng câu chữ với
+        5 màn kia), ngày SAI ĐỊNH DẠNG vẫn là lỗi cấp trang ở banner."""
         self._login_portal()
-        body = self.url_open(
+        nguoc = self.url_open(
             '/portal/return?date_from=2026-12-31&date_to=2026-01-01').text
-        self.assertIn('Bộ lọc không hợp lệ', body)
+        self.assertIn('Từ ngày không được lớn hơn Đến ngày', nguoc)
+        self.assertNotIn('Bộ lọc không hợp lệ', nguoc)
+        hong = self.url_open('/portal/return?date_from=31/12/2026').text
+        self.assertIn('Bộ lọc không hợp lệ', hong)
 
     def test_keyword_and_pagination(self):
         self._login_portal()

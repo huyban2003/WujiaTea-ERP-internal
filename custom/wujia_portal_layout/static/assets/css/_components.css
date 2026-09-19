@@ -304,6 +304,16 @@ h2, .wujia-h2 { font-size: var(--wujia-font-size-h2) !important; font-weight: 60
     cursor: pointer;
 }
 .wj-filter-search-btn:active { background: var(--wujia-primary-dark); }
+/* Lỗi bộ lọc — báo TẠI thanh lọc, không dùng empty state (E4c gom 6 màn) */
+.wj-filter-error {
+    margin: 8px 0 0;
+    padding: 8px 12px;
+    border-radius: 8px;
+    background: var(--wujia-danger-bg);
+    color: var(--wujia-danger);
+    font-size: 13px;
+    font-weight: 500;
+}
 /* Date range: two pills + dash (145×38 mỗi pill ở 02/03; 132 + btn ở 04) */
 .wj-filter-dates { display: flex; align-items: center; gap: 8px; }
 .wj-filter-date {

@@ -8,6 +8,14 @@
     <template id="portal_delivery_results_part" name="Wujia Portal — Delivery Results Part">
         <t t-set="_dq" t-value="chip_qs or ''"/>
 
+        <!-- Lỗi khoảng ngày báo tại FilterBar, KHÔNG dùng empty state (E4c).
+             Luôn render (rỗng thì `hidden`) vì JS thay khối theo id: thiếu id là
+             `swap` trả false rồi cả màn rơi về tải lại trang. -->
+        <p t-if="part == 'pcerr'" id="wj-dlv-pcerr" class="wj-filter-error" role="alert"
+           t-att-hidden="None if filter_error else 'hidden'" t-out="filter_error"/>
+        <p t-if="part == 'merr'" id="wj-dlv-merr" class="wj-filter-error" role="alert"
+           t-att-hidden="None if filter_error else 'hidden'" t-out="filter_error"/>
+
         <!-- ===== PC: card danh sách (head + chips + states + pager) ===== -->
         <t t-call="wujia_portal_layout.wj_surface_card" t-if="part == 'pc'">
             <t t-set="sc_class" t-value="'wj-pc-card'"/>
@@ -228,6 +236,12 @@
     <template id="portal_delivery_results" name="Wujia Portal — Delivery Results Fragment">
         <div t-if="not no_franchise">
             <t t-call="wujia_portal_delivery.portal_delivery_results_part">
+                <t t-set="part" t-value="'pcerr'"/>
+            </t>
+            <t t-call="wujia_portal_delivery.portal_delivery_results_part">
+                <t t-set="part" t-value="'merr'"/>
+            </t>
+            <t t-call="wujia_portal_delivery.portal_delivery_results_part">
                 <t t-set="part" t-value="'pc'"/>
             </t>
             <t t-call="wujia_portal_delivery.portal_delivery_results_part">
@@ -245,7 +259,8 @@
             <t t-set="title">Theo dõi giao hàng</t>
             <t t-call="wujia_portal_base.wj_ajax_list_config">
                 <t t-set="wjl_path" t-value="'/portal/delivery'"/>
-                <t t-set="wjl_slots" t-value="'wj-dlv-pc-card,wj-dlv-mchips,wj-dlv-mbody'"/>
+                <t t-set="wjl_slots"
+                   t-value="'wj-dlv-pcerr,wj-dlv-pc-card,wj-dlv-merr,wj-dlv-mchips,wj-dlv-mbody'"/>
                 <t t-set="wjl_fragment" t-value="'/portal/delivery/results'"/>
             </t>
             <!-- Desktop ≥992px — PC Giao hàng, batch-centric (Figma 4766:860). -->
@@ -271,7 +286,7 @@
                            t-value="{'name': 'q', 'value': q,
                                      'placeholder': 'Tìm mã chuyến / mã SO'}"/>
                         <t t-set="fb_dates"
-                           t-value="{'from': date_from, 'to': date_to, 'clamp': True}"/>
+                           t-value="{'from': date_from, 'to': date_to}"/>
                         <t t-set="fb_selects"
                            t-value="[{'name': 'bs', 'value': bs,
                                       'label': 'Trạng thái',
@@ -280,6 +295,11 @@
                                                   ('soon', 'Sắp giao'),
                                                   ('done', 'Đã giao')]}]"/>
                         <t t-set="fb_reset_url" t-value="'/portal/delivery'"/>
+                        <t t-set="fb_error">
+                            <t t-call="wujia_portal_delivery.portal_delivery_results_part">
+                                <t t-set="part" t-value="'pcerr'"/>
+                            </t>
+                        </t>
                     </t>
 
                     <t t-call="wujia_portal_delivery.portal_delivery_results_part">
@@ -312,6 +332,11 @@
                         <!-- Luôn render (kể cả rỗng) để JS đồng bộ khi bấm chip AJAX. -->
                         <t t-set="fb_hidden">
                             <input type="hidden" name="bs" id="wj-dlv-bs" t-att-value="bs or ''"/>
+                        </t>
+                        <t t-set="fb_error">
+                            <t t-call="wujia_portal_delivery.portal_delivery_results_part">
+                                <t t-set="part" t-value="'merr'"/>
+                            </t>
                         </t>
                         <t t-set="fb_chips">
                             <t t-call="wujia_portal_delivery.portal_delivery_results_part">
