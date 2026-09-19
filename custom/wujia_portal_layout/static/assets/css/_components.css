@@ -847,13 +847,20 @@ h2, .wujia-h2 { font-size: var(--wujia-font-size-h2) !important; font-weight: 60
     gap: 2px 8px;
     min-width: 0;
 }
+/* Tên tự do dài tối đa 2 dòng (mã/số ngắn không bao giờ chạm ngưỡng này ⇒ LC-03
+   vẫn giữ: không cắt mã). */
 .wj-lc__name {
+    flex: 1 1 0%;
     min-width: 0;
     font-size: 15px;
     font-weight: 600;
     line-height: 20px;
     color: var(--wujia-text-primary);
     overflow-wrap: anywhere;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+    overflow: hidden;
 }
 /* LC-04: hẹp quá thì badge xuống hàng CĂN PHẢI, không chồng lên tên. */
 .wj-lc__state {
@@ -861,19 +868,26 @@ h2, .wujia-h2 { font-size: var(--wujia-font-size-h2) !important; font-weight: 60
     margin-left: auto;
     text-align: right;
 }
+/* Lưới 2 cột: hàng thường chiếm cả hàng, hàng `--inline` đứng một cột. Cột phải
+   rộng theo nội dung ⇒ vị trí cột KHÔNG trôi giữa các card (UAT-BH-008). */
 .wj-lc__body {
-    display: flex;
-    flex-direction: column;
-    gap: 6px;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 6px 16px;
 }
 .wj-lc__row {
     display: flex;
+    grid-column: 1 / -1;
     flex-wrap: wrap;
     align-items: baseline;
     gap: 2px 6px;
     min-width: 0;
     font-size: 13px;
     line-height: 18px;
+}
+/* LC-05: hai trường NGẮN đứng chung một hàng, mỗi trường một cột. */
+.wj-lc__row--inline {
+    grid-column: auto;
 }
 /* LC-05: trường dài chiếm cả hàng, nhãn nằm trên giá trị. */
 .wj-lc__row--full {
@@ -892,10 +906,39 @@ h2, .wujia-h2 { font-size: var(--wujia-font-size-h2) !important; font-weight: 60
     line-height: 1;
     color: var(--wujia-primary);
 }
+/* Ô icon phân loại đứng trước tên (Thông báo, Kiến thức) — CHỜ BA chốt LC-06. */
+.wj-lc__tile {
+    flex: 0 0 auto;
+    align-self: center;
+    width: 32px;
+    height: 32px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 9px;
+    font-size: 15px;
+}
+/* Chữ số cùng bề rộng: cột phải của lưới rộng theo ngày/tiền ⇒ không tabular thì
+   mỗi card lệch vài px (đo được ở UAT-BH-008). */
 .wj-lc__value {
     min-width: 0;
     color: var(--wujia-text-secondary);
     overflow-wrap: anywhere;
+    font-variant-numeric: tabular-nums;
+}
+/* UAT-BH-007: giá trị dài (tên sản phẩm) tối đa 2 dòng, `…` ở cuối dòng 2. */
+.wj-lc__row--clamp2 .wj-lc__value {
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+/* Metadata phụ đứng cạnh badge ở đầu card (ngày, lượt xem). */
+.wj-lc__meta {
+    color: var(--wujia-text-subtitle);
+    font-size: 13px;
+    white-space: nowrap;
 }
 .wj-lc__value--strong {
     font-weight: 600;

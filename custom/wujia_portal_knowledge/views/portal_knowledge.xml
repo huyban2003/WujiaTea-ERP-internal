@@ -98,19 +98,25 @@
                                     <t t-foreach="articles" t-as="art">
                                         <t t-set="badge_cls" t-value="{'mandatory': 'wujia-badge-danger', 'important': 'wujia-badge-warning', 'new': 'wujia-badge-info'}.get(art.portal_badge, '')"/>
                                         <t t-set="badge_lbl" t-value="{'mandatory': 'Bắt buộc', 'important': 'Quan trọng', 'new': 'Mới'}.get(art.portal_badge, '')"/>
-                                        <li class="wj-data-item wujia-content-card-row">
-                                            <span class="wujia-content-card-row-bullet"/>
-                                            <div class="wujia-content-card-row-content">
-                                                <a t-attf-href="/portal/knowledge/#{art.slug}">
-                                                    <t t-out="art.name"/>
-                                                </a>
-                                                <span t-if="art.category_id" class="wujia-badge wujia-badge-muted ms-1" t-out="art.category_id.name"/>
-                                                <span t-if="badge_lbl" t-attf-class="wujia-badge #{badge_cls} ms-1" t-out="badge_lbl"/>
-                                            </div>
-                                            <span class="wujia-content-card-row-date">
-                                                <t t-out="wj_dt(art.publish_date, '%d/%m/%Y')"/>
-                                                · <i class="fa fa-eye"/> <t t-out="art.view_count or 0"/>
-                                            </span>
+                                        <li class="wj-data-item wj-lc">
+                                            <t t-call="wujia_portal_layout.wj_list_card">
+                                                <t t-set="lc_prefix">
+                                                    <span class="wujia-know-bullet"/>
+                                                </t>
+                                                <t t-set="lc_name">
+                                                    <a t-attf-href="/portal/knowledge/#{art.slug}">
+                                                        <t t-out="art.name"/>
+                                                    </a>
+                                                </t>
+                                                <t t-set="lc_state">
+                                                    <span t-if="art.category_id" class="wujia-badge wujia-badge-muted" t-out="art.category_id.name"/>
+                                                    <span t-if="badge_lbl" t-attf-class="wujia-badge #{badge_cls}" t-out="badge_lbl"/>
+                                                    <span class="wj-lc__meta">
+                                                        <t t-out="wj_dt(art.publish_date, '%d/%m/%Y')"/>
+                                                        · <i class="fa fa-eye"/> <t t-out="art.view_count or 0"/>
+                                                    </span>
+                                                </t>
+                                            </t>
                                         </li>
                                     </t>
                                 </ul>
@@ -189,7 +195,7 @@
                             <a t-attf-href="/portal/knowledge/#{art.slug}" class="wujia-mknow-feat wj-state-surface">
                                 <span class="wujia-mknow-tile"><i class="feather icon-save"/></span>
                                 <span class="wujia-mknow-feat-main">
-                                    <span class="wujia-mknow-row-title" t-out="art.name"/>
+                                    <span class="wujia-mknow-feat-title" t-out="art.name"/>
                                     <span class="wujia-mknow-badges">
                                         <span t-if="m_badge_lbl.get(art.portal_badge)"
                                               t-attf-class="wujia-badge #{m_badge_cls.get(art.portal_badge)}"
@@ -197,7 +203,7 @@
                                         <span t-if="art.category_id" class="wujia-badge wujia-badge-info"
                                               t-out="art.category_id.name"/>
                                     </span>
-                                    <span class="wujia-mknow-date">
+                                    <span class="wujia-mknow-feat-date">
                                         Cập nhật <t t-out="wj_dt(art.publish_date, '%d/%m/%Y')"/>
                                     </span>
                                 </span>
@@ -211,26 +217,27 @@
                         <span class="wujia-mknow-sechead-pill">Mới nhất</span>
                     </div>
                     <t t-call="wujia_portal_layout.wj_data_list">
-                        <t t-set="dl_variant" t-value="'compact-row'"/>
-                        <t t-set="dl_class" t-value="'wujia-mknow-list'"/>
+                        <t t-set="dl_variant" t-value="'detail-card'"/>
                             <t t-foreach="m_rest" t-as="art">
-                                <a t-attf-href="/portal/knowledge/#{art.slug}" class="wujia-mknow-row wj-data-item">
-                                    <span class="wujia-mknow-tile"><i class="feather icon-file-text"/></span>
-                                    <span class="wujia-mknow-row-main">
-                                        <span class="wujia-mknow-row-title" t-out="art.name"/>
-                                        <span class="wujia-mknow-row-foot">
-                                            <span class="wujia-mknow-badges">
-                                                <span t-if="m_badge_lbl.get(art.portal_badge)"
-                                                      t-attf-class="wujia-badge #{m_badge_cls.get(art.portal_badge)}"
-                                                      t-out="m_badge_lbl.get(art.portal_badge)"/>
-                                                <span t-if="art.category_id" class="wujia-badge wujia-badge-info"
-                                                      t-out="art.category_id.name"/>
-                                            </span>
-                                            <span class="wujia-mknow-date">
-                                                Cập nhật <t t-out="wj_dt(art.publish_date, '%d/%m/%Y')"/>
-                                            </span>
-                                        </span>
-                                    </span>
+                                <a t-attf-href="/portal/knowledge/#{art.slug}" class="wj-data-item wj-lc">
+                                    <t t-call="wujia_portal_layout.wj_list_card">
+                                        <t t-set="lc_prefix">
+                                            <span class="wj-lc__tile wujia-know-tile-tone"><i class="feather icon-file-text"/></span>
+                                        </t>
+                                        <t t-set="lc_name" t-value="art.name"/>
+                                        <t t-set="lc_state">
+                                            <span t-if="m_badge_lbl.get(art.portal_badge)"
+                                                  t-attf-class="wujia-badge #{m_badge_cls.get(art.portal_badge)}"
+                                                  t-out="m_badge_lbl.get(art.portal_badge)"/>
+                                            <span t-if="art.category_id" class="wujia-badge wujia-badge-info"
+                                                  t-out="art.category_id.name"/>
+                                        </t>
+                                        <t t-set="lc_rows">
+                                            <t t-call="wujia_portal_layout.wj_list_card_row">
+                                                <t t-set="lcr_value">Cập nhật <t t-out="wj_dt(art.publish_date, '%d/%m/%Y')"/></t>
+                                            </t>
+                                        </t>
+                                    </t>
                                 </a>
                             </t>
                     </t>

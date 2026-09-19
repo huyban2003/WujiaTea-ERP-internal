@@ -135,8 +135,17 @@ class TestStatusBadgeRemainder(TransactionCase):
 
     # --- 6. badge 28px không được kéo chip bên cạnh -------------------------
     def test_notification_rows_do_not_stretch_the_excluded_chips(self):
+        # E5b1: hàng chip của danh sách mobile đã về ruột ListCard ⇒ luật "không
+        # stretch" của hàng đó nay do component giữ (kiểm ngay dưới), ở đây còn
+        # hai khối chip của trang chi tiết.
+        lc = self._read('wujia_portal_layout/static/assets/css/_components.css')
+        for selector in ('.wj-lc__head', '.wj-lc__row'):
+            m = re.search(r'(?<![\w.-])' + re.escape(selector) + r'\s*\{([^}]*)\}', lc)
+            self.assertTrue(m, 'không tìm thấy rule %s' % selector)
+            self.assertNotRegex(m.group(1), r'align-items:\s*stretch',
+                                '%s để stretch ⇒ chip bị kéo cao theo badge' % selector)
         css = self._read('wujia_portal_notification/static/src/css/portal_notification.css')
-        for selector in ('.wujia-mnoti-row-tags', '.wujia-mnoti-detail-badges',
+        for selector in ('.wujia-mnoti-detail-badges',
                          '.wj-pc-noti-detail-badgerow'):
             m = re.search(r'(?<![\w.-])' + re.escape(selector) + r'\s*\{([^}]*)\}', css)
             self.assertTrue(m, 'không tìm thấy rule %s' % selector)

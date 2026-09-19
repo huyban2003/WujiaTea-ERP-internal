@@ -202,41 +202,42 @@
                             <t t-set="dl_variant" t-value="'detail-card'"/>
                             <t t-set="dl_class" t-value="'wujia-mreturn-list'"/>
                             <a t-foreach="returns" t-as="rr" t-attf-href="/portal/return/#{rr.id}"
-                               class="wujia-mreturn-row wj-data-item">
-                                <span class="wujia-mreturn-row-body">
-                                    <!-- BH-008: dòng đầu CHỈ mã phiếu + trạng thái phê duyệt.
-                                         Tiến độ bù tách xuống dòng riêng bên dưới, có nhãn,
-                                         để hai trạng thái khác nghĩa không đứng lẫn nhau. -->
-                                    <span class="wujia-mreturn-row-head">
-                                        <span class="wujia-mreturn-row-code" t-out="rr.name"/>
-                                        <span class="wujia-mreturn-row-badges">
-                                            <t t-set="lbl" t-value="wj_state_label(rr)"/>
-                                            <span t-attf-class="wj-status-badge #{lbl[1]}" t-out="lbl[0]"/>
-                                        </span>
-                                    </span>
-                                    <t t-if="rr.resolution_type == 'compensation'">
-                                        <t t-set="clbl" t-value="comp_status_labels.get(rr.compensation_status, ('', 'wujia-badge-muted'))"/>
-                                        <span t-if="clbl[0]" class="wujia-mreturn-row-progress">
-                                            <span class="lbl">Tiến độ bù</span>
-                                            <span t-attf-class="wj-status-badge #{clbl[1]}" t-out="clbl[0]"/>
-                                        </span>
+                               class="wj-data-item wj-lc">
+                                <t t-call="wujia_portal_layout.wj_list_card">
+                                    <t t-set="lc_name" t-value="rr.name"/>
+                                    <t t-set="lc_state">
+                                        <t t-set="lbl" t-value="wj_state_label(rr)"/>
+                                        <span t-attf-class="wj-status-badge wj-status-badge--compact #{lbl[1]}" t-out="lbl[0]"/>
                                     </t>
-                                    <span class="wujia-mreturn-row-product"
-                                          t-out="rr.product_id.display_name or rr.issue_type_id.name or '—'"/>
-                                    <span class="wujia-mreturn-row-divider"/>
-                                    <span class="wujia-mreturn-row-meta">
-                                        <span class="wujia-mreturn-row-metacell">
-                                            <span class="lbl">Đơn gốc</span>
-                                            <span class="val" t-out="rr.sale_order_id.name or '—'"/>
-                                        </span>
-                                        <span class="wujia-mreturn-row-metacell">
-                                            <span class="lbl">Ngày YC</span>
-                                            <span class="val"
-                                                  t-out="wj_dt(rr.request_date, '%d/%m') or '—'"/>
-                                        </span>
-                                    </span>
-                                </span>
-                                <i class="feather icon-chevron-right wujia-mreturn-row-chevron"/>
+                                    <t t-set="lc_rows">
+                                        <t t-if="rr.resolution_type == 'compensation'">
+                                            <t t-set="clbl" t-value="comp_status_labels.get(rr.compensation_status, ('', 'wujia-badge-muted'))"/>
+                                            <t t-if="clbl[0]" t-call="wujia_portal_layout.wj_list_card_row">
+                                                <t t-set="lcr_label">Tiến độ bù</t>
+                                                <t t-set="lcr_value">
+                                                    <span t-attf-class="wj-status-badge wj-status-badge--compact #{clbl[1]}" t-out="clbl[0]"/>
+                                                </t>
+                                            </t>
+                                        </t>
+                                        <t t-call="wujia_portal_layout.wj_list_card_row">
+                                            <t t-set="lcr_full" t-value="True"/>
+                                            <t t-set="lcr_class" t-value="'wj-lc__row--clamp2'"/>
+                                            <t t-set="lcr_value"
+                                               t-value="rr.product_id.display_name or rr.issue_type_id.name or '—'"/>
+                                        </t>
+                                        <t t-call="wujia_portal_layout.wj_list_card_row">
+                                            <t t-set="lcr_class" t-value="'wj-lc__row--inline'"/>
+                                            <t t-set="lcr_label">Đơn gốc</t>
+                                            <t t-set="lcr_value" t-value="rr.sale_order_id.name or '—'"/>
+                                        </t>
+                                        <t t-call="wujia_portal_layout.wj_list_card_row">
+                                            <t t-set="lcr_class" t-value="'wj-lc__row--inline'"/>
+                                            <t t-set="lcr_label">Ngày yêu cầu</t>
+                                            <t t-set="lcr_value"
+                                               t-value="wj_dt(rr.request_date, '%d/%m/%Y') or '—'"/>
+                                        </t>
+                                    </t>
+                                </t>
                             </a>
                         </t>
                         </t>

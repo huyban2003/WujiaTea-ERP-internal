@@ -30,6 +30,11 @@ BREAKPOINTS = [320, 360, 390, 430, 991]
 ROUTES = [
     '/portal/purchase-history',
     '/portal/delivery',
+    '/portal/notification',
+    '/portal/support',
+    '/portal/return',
+    '/portal/knowledge',
+    '/portal/franchise-information',
 ]
 
 JS = r"""
@@ -58,15 +63,21 @@ JS = r"""
     const cr = card.getBoundingClientRect();
     const cs = getComputedStyle(card);
     const name = card.querySelector('.wj-lc__name');
-    const badge = card.querySelector('.wj-lc__state .wj-status-badge, .wj-lc__state .wujia-badge');
+    const badge = card.querySelector('.wj-lc__state .wj-status-badge')
+               || card.querySelector('.wj-lc__state .wujia-badge');
     const rows = [...card.querySelectorAll('.wj-lc__row')].filter(vis);
     // Khung lồng trong khung: phần tử con nào cũng đang vẽ khung riêng.
+    // Badge/chip và ô icon của component KHÔNG phải khung con: chúng có nền
+    // theo thiết kế, và cỡ/bo của chúng do CMP-SB-001 / `.wj-lc__tile` khoá.
+    const mien = el => el.classList.contains('wj-status-badge')
+                    || el.classList.contains('wujia-badge')
+                    || el.classList.contains('wj-lc__tile')
+                    || el.tagName === 'IMG' || el.tagName === 'I';
     const inner = [...card.querySelectorAll('*')].filter(
-      el => vis(el) && drawsBox(el) && !el.classList.contains('wj-status-badge')
-                    && !el.classList.contains('wujia-badge')
-                    && el.tagName !== 'IMG' && el.tagName !== 'I');
+      el => vis(el) && drawsBox(el) && !mien(el));
     // Divider nội bộ = phần tử rỗng cao 1px hoặc border-top trên hàng phụ.
     const dividers = [...card.querySelectorAll('*')].filter(el => {
+      if (mien(el)) return false;
       const s = getComputedStyle(el);
       const r = el.getBoundingClientRect();
       const bt = parseFloat(s.borderTopWidth) || 0;
@@ -85,6 +96,7 @@ JS = r"""
                      right: Math.round(name.getBoundingClientRect().right - cr.left),
                      clipped: clipped(name) } : null,
       badge: badge ? { text: badge.textContent.trim(),
+                       kind: badge.classList.contains('wj-status-badge') ? 'status' : 'chip',
                        font: px(getComputedStyle(badge).fontSize),
                        top: Math.round(badge.getBoundingClientRect().top - cr.top),
                        left: Math.round(badge.getBoundingClientRect().left - cr.left),
@@ -133,7 +145,9 @@ def judge(cards, width):
             n_badge += 1
             if b['clipped']:
                 bad.append(f"{tag}: badge bị cắt chữ (LC-04)")
-            if b['font'] != 12:
+            # Cỡ 12 là của CMP-SB-001; chip phân loại/ưu tiên BA loại khỏi chuẩn
+            # badge (E2b) nên chỉ soi vị trí, không soi cỡ chữ.
+            if b['kind'] == 'status' and b['font'] != 12:
                 bad.append(f"{tag}: badge {b['font']}px, chuẩn ListCard là 12 (LC-04)")
             nm = c['name']
             if nm:

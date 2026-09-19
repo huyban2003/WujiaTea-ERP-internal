@@ -22,13 +22,35 @@ from odoo.addons.wujia_portal_base.tests.css_probe import (
 TMPL = 'wujia_portal_layout.wj_list_card'
 ROW = 'wujia_portal_layout.wj_list_card_row'
 
-# (module, file view, số call site record, họ class cũ phải biến mất, file CSS module)
+# (module, file view, số call site record, họ RIÊNG phải biến mất, file CSS module,
+#  họ DÙNG CHUNG chỉ phải rời khỏi item đã migrate)
+# Vì sao hai loại họ: `wujia-mdash-row` (Home 50 chỗ) và `wujia-content-card-row`
+# (Home) còn sống ở màn khác ⇒ xoá rule của chúng là vỡ Home. Với họ dùng chung,
+# luật thu hẹp lại: KHÔNG còn nằm trong cây con của item đã migrate.
 MIGRATED = [
     ('wujia_portal_purchase_history', 'portal_history.xml', 1,
-     ('wujia-mhist-row',), 'portal_history.css'),
+     ('wujia-mhist-row',), 'portal_history.css', ()),
     ('wujia_portal_delivery', 'portal_delivery.xml', 1,
      ('wujia-mdelivery-row-top', 'wujia-mdelivery-row-headmain', 'wujia-mdelivery-row-id',
-      'wujia-mdelivery-row-cols', 'wujia-mdelivery-row-colval'), 'portal_delivery.css'),
+      'wujia-mdelivery-row-cols', 'wujia-mdelivery-row-colval'), 'portal_delivery.css', ()),
+    ('wujia_portal_notification', 'portal_notification.xml', 1,
+     ('wujia-mnoti-list', 'wujia-mnoti-row', 'wujia-mnoti-row-icon', 'wujia-mnoti-row-main',
+      'wujia-mnoti-row-title', 'wujia-mnoti-row-source', 'wujia-mnoti-row-tags',
+      'wujia-mnoti-row-side', 'wujia-mnoti-row-dot', 'wujia-mnoti-row-date'),
+     'portal_notification.css', ()),
+    ('wujia_portal_support', 'portal_support.xml', 1,
+     ('wujia-mticket-rowside', 'wujia-mticket-tag'), 'portal_support.css',
+     ('wujia-mdash-row',)),
+    ('wujia_portal_return', 'portal_return_list.xml', 1,
+     ('wujia-mreturn-row-body', 'wujia-mreturn-row-product', 'wujia-mreturn-row-divider',
+      'wujia-mreturn-row-meta', 'wujia-mreturn-row-metacell', 'wujia-mreturn-row-chevron',
+      'wujia-mreturn-row-progress', 'wujia-mreturn-row-badges'), 'portal_return.css', ()),
+    ('wujia_portal_knowledge', 'portal_knowledge.xml', 2,
+     ('wujia-mknow-list', 'wujia-mknow-row-main', 'wujia-mknow-row-title',
+      'wujia-mknow-row-foot', 'wujia-mknow-date'), 'portal_knowledge.css',
+     ('wujia-content-card-row',)),
+    ('wujia_portal_base', 'portal_franchise_information.xml', 1,
+     (), 'portal_dashboard.css', ('wujia-mdash-row',)),
 ]
 
 # Màn giữ nguyên grouped rows theo LC-23 — E5 KHÔNG được đụng.
@@ -52,14 +74,14 @@ class TestListCardCallSites(TransactionCase):
         return out
 
     def test_moi_man_da_migrate_deu_goi_component(self):
-        for module, filename, n, _cu, _css in MIGRATED:
+        for module, filename, n, _cu, _css, _chung in MIGRATED:
             calls = self._calls(module, filename)
             self.assertEqual(len(calls), n,
                              '%s: số call site ListCard đổi' % module)
 
     def test_item_mang_ca_hai_lop(self):
         """Neo TOKEN ĐỨNG ĐẦU: `contains()` khớp cả `wj-lc__name` (bẫy D5c #3)."""
-        for module, filename, _n, _cu, _css in MIGRATED:
+        for module, filename, _n, _cu, _css, _chung in MIGRATED:
             items = self._items(module, filename)
             self.assertTrue(items, '%s: không còn item nào mang wj-lc' % module)
             for _el, cls in items:
@@ -69,7 +91,7 @@ class TestListCardCallSites(TransactionCase):
     def test_khong_con_ho_class_cu(self):
         """Hai bộ dáng cùng sống là nguồn của mọi hồi quy specificity đã trả giá
         ở D3/D4 — nên họ cũ phải mất ở CẢ view lẫn CSS."""
-        for module, filename, _n, cu, css_file in MIGRATED:
+        for module, filename, _n, cu, css_file, _chung in MIGRATED:
             with open(os.path.join(CUSTOM, module, 'views', filename), encoding='utf-8') as fh:
                 view = fh.read()
             css = _strip_comments(_mod_css(module, css_file))
@@ -78,8 +100,26 @@ class TestListCardCallSites(TransactionCase):
                 self.assertNotRegex(css, r'\.%s(?![-\w])' % ho,
                                     '%s: họ cũ %s còn rule CSS' % (module, ho))
 
+    def test_ho_dung_chung_roi_khoi_item_da_migrate(self):
+        """Họ dùng chung vẫn sống ở màn khác, nhưng item đã migrate không được
+        còn dính — nếu dính thì hai bộ dáng lại đè nhau đúng chỗ vừa dọn."""
+        for module, filename, _n, _cu, _css, chung in MIGRATED:
+            if not chung:
+                continue
+            for el, _cls in self._items(module, filename):
+                for node in el.iter():
+                    cls = (node.get('class') or '') + ' ' + (node.get('t-attf-class') or '')
+                    for ho in chung:
+                        self.assertNotIn(ho, cls,
+                                         '%s: item đã migrate còn mang họ chung %s'
+                                         % (module, ho))
+
     def test_khong_css_anatomy_theo_route(self):
-        """LC-24: một implementation — module không được tự khai lại `.wj-lc*`."""
+        """LC-24: một implementation — module không được tự khai lại `.wj-lc*`.
+
+        Miễn trừ theo TÍNH CHẤT (tiền lệ D5f): rule chỉ đổi MÀU cho một trạng thái
+        riêng của màn (Thông báo tô đậm tên khi chưa đọc) không phải rule dáng —
+        cấm nó là mất dấu chưa đọc, mà dáng thì vẫn nguyên ở khung."""
         thay = []
         for root, _dirs, files in os.walk(CUSTOM):
             if '/static/' not in root or not root.endswith('css'):
@@ -90,15 +130,19 @@ class TestListCardCallSites(TransactionCase):
                 if not fn.endswith('.css'):
                     continue
                 css = _strip_comments(open(os.path.join(root, fn), encoding='utf-8').read())
-                for sel, _body in re.findall(r'([^{}]+)\{([^}]*)\}', css):
-                    if re.search(r'\.wj-lc(?![-\w])|\.wj-lc__', sel):
-                        thay.append('%s → %s' % (fn, sel.strip()[:60]))
+                for sel, body in re.findall(r'([^{}]+)\{([^}]*)\}', css):
+                    if not re.search(r'\.wj-lc(?![-\w])|\.wj-lc__', sel):
+                        continue
+                    khai = {d.split(':')[0].strip() for d in body.split(';') if ':' in d}
+                    if khai and khai <= {'color'} and '.wujia-' in sel:
+                        continue
+                    thay.append('%s → %s' % (fn, sel.strip()[:60]))
         self.assertEqual(thay, [], 'anatomy ListCard bị khai lại ngoài khung')
 
     def test_hang_phu_dung_khuon_chung(self):
         """LC-05: hàng phụ phải đi qua `wj_list_card_row`, không viết span tay —
         viết tay là cách nhãn/giá trị lệch cỡ chữ giữa các màn."""
-        for module, filename, _n, _cu, _css in MIGRATED:
+        for module, filename, _n, _cu, _css, _chung in MIGRATED:
             root = _view(module, filename)
             rows = root.xpath('//t[@t-call="%s"]' % ROW)
             self.assertTrue(rows, '%s: không hàng phụ nào dùng khuôn chung' % module)

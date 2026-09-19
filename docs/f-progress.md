@@ -648,3 +648,55 @@ rồi đánh ✅ ở bảng Trạng thái §2 `docs/next-session-clusters-F.md`.
   ×2 (LC-21, retest bằng role được phép). Chi tiết: `docs/e5a-acceptance-matrix.md` + kế hoạch cụm E5.
 - Chốt phiên: **issue CHƯA đóng** — `UI-LISTCARD-001` chỉ ghi ledger + `Ready for Retest` ở **cuối
   E5c**, khi đủ 22 call site + regression 8 khổ. **Không tự deploy UAT.**
+
+## E5b1 — ListCard `CMP-LC-001`: 6 call site rủi ro thấp (19/09/2026 · Mac)
+
+- Chốt đầu phiên của chủ dự án: **chẻ E5b thành E5b1 / E5b2** (tiền lệ E4b1/E4b2) · **Kiến thức
+  migrate cả PC lẫn mobile** ("cải tiến hết", PC riêng mobile riêng) · **CardHeader lồng trong item
+  Thi sẽ thay bằng đầu ListCard** (ghi sẵn cho E5b2) · **giữ icon trang trí, đưa vào slot `lc_prefix`**
+  chứ không tự xoá thứ BA đang thấy — kèm một câu hỏi cho BA ở cuối phiên.
+- Sửa lại con số của nhật ký E5a: còn **11 call site** chứ không phải 9 (đếm theo call site, không
+  theo route); Kiến thức ở PC là **card list**, không phải bảng ⇒ không vướng luật "bảng PC 0 byte DOM".
+- Làm được:
+  - **6 call site** về `.wj-lc`: Thông báo (LC-16, giữ dấu chưa đọc) · Hỗ trợ (LC-18) · Bù hàng
+    (LC-15, **"Ngày yêu cầu" đủ năm**, bỏ divider + chevron) · Kiến thức **mobile + PC** (LC-17) ·
+    Thành viên cửa hàng (LC-18).
+  - **Khung học được 3 điều mới** (`_components.css` `?v=1306 → 1311`): tên card `flex: 1 1 0` + clamp
+    2 dòng · thân card thành **lưới 2 cột** `minmax(0,1fr) auto` để "trường ngắn cùng hàng" mà không
+    đẻ slot mới (dùng lại `lcr_class`) · `tabular-nums` cho giá trị.
+  - **Sổ `MIGRATED` có khái niệm "họ dùng chung"**: `wujia-mdash-row` (Home 50 chỗ) và
+    `wujia-content-card-row` (Home) **không được** xoá khỏi CSS ⇒ luật thu hẹp thành *"không còn nằm
+    trong cây con của item đã migrate"*.
+  - Test mới/đổi chủ: `test_e5b_list_card_read_state.py` ở **chính module Thông báo** (dấu chưa đọc là
+    hành vi riêng) · D6b/BH-007/BH-008 của Bù hàng neo lại vào anatomy ListCard + `test_nhan_ngay_
+    yeu_cau_du_nam` · D5e còn 5 call site Home, D5f bỏ sổ họ riêng · E2b đo "chip không bị kéo cao"
+    ở khung thay vì ở màn.
+- Số đo: inventory DIFF 13 route × 2 khổ = **3 dòng, cả 3 là món LC-15 của Bù hàng**, 5 route kia
+  **0/0** · guard `wj_listcard` **0 vi phạm** (7 route × 5 khổ, +1440 cho Kiến thức) · **10/10 mũi
+  mutation đỏ đúng guard của nó** · `wj_returncard` **0 vi phạm**, 1 bố cục metadata (trước khi có
+  `tabular-nums` là **5**) · `wj_nesting` **0** · `wj_measure` 0 tràn/0 lỗi JS/0 redirect · Home chữ
+  ký DOM **trước = sau** ở cả @390 lẫn @1440 · suite **567 tests, 0 failed, 0 error** ·
+  `check_layers` 3 R1–R5 + 2 R7 **có sẵn**.
+- Bẫy gặp:
+  - **Card phình 100 → 150px** không phải do nội dung mà do `.wj-lc__name` **rớt xuống dòng dưới ô
+    icon** (lead `flex-wrap`). Sửa ở khung một chỗ, 3 màn cùng thấp lại.
+  - **Gỡ CSS theo họ làm chết markup khác**: bài Nổi bật + trang chi tiết Kiến thức dùng chung
+    `.wujia-mknow-row-title` / `.wujia-mknow-date` với danh sách. Bắt được bằng một lượt quét *"class
+    còn trong view mà không còn rule CSS"* — **nên làm mặc định sau mỗi lượt gỡ CSS**.
+  - **`wj_returncard.py` Pass rỗng**: 51/51 phiếu trong DB đo có `resolution_type` rỗng ⇒ nhánh "Tiến
+    độ bù" không bao giờ render. Gieo `seed_d6_return_demo.py` + đo bằng `anh.owner` mới có 5 cặp badge.
+  - **Cột phải của lưới lệch 1–7px giữa các card** vì chữ số không cùng bề rộng — guard bắt đúng
+    (5 bố cục metadata), `tabular-nums` mới về 1.
+  - Hai lớp hook chết (`wujia-mnoti-list`, `wujia-mknow-list`): gap nay là việc của DataList ⇒ bỏ
+    `dl_class` thay vì để tên lớp không có rule.
+- Nợ mang sang: **E5b2** Thi ×3 + Công nợ ×2 (gieo trước, thay CardHeader lồng, giữ JS hook
+  `data-exam-*`) · **nhịp G2** 24→16 ở 7 route (E5c) · **padding item `12px 14px`** vs LC-07 (E5c, đi
+  chung gutter LC-08) · **LC-20 defer vĩnh viễn** · **LC-27** lệch dữ liệu · **mẫu một chiều**: cả 10
+  thông báo của `em.hcm` đều chưa đọc ⇒ chưa đối chiếu được card đã đọc bằng trình duyệt.
+- Hỏi BA (ghi trong `docs/e5b1-acceptance-matrix.md`): (1) ô icon phân loại 32×32 trong card — giữ hay
+  bỏ theo đúng chữ LC-06/LC-07? (2) dải cao `detail-card` 96–120 — bản ghi Bù hàng có tiến độ bù +
+  tên 2 dòng đo **122–156px**, siết trường hay công nhận dải rộng hơn?
+- Phiên kế: **E5b2** — Thi ×3 (LC-19) + Công nợ ×2 (LC-21). Chi tiết:
+  `docs/e5b1-acceptance-matrix.md` §"Còn treo".
+- Chốt phiên: **issue CHƯA đóng** — `UI-LISTCARD-001` ghi ledger + `Ready for Retest` ở **cuối E5c**.
+  **Không tự deploy UAT.**

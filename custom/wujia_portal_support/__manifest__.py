@@ -1,6 +1,6 @@
 {
     'name': 'Wujia Portal — Support Tickets',
-    'version': '19.0.3.23.0',
+    'version': '19.0.3.23.2',
     'category': 'Wujia',
     'summary': 'Yêu cầu hỗ trợ từ cửa hàng nhượng quyền — backend + portal',
     'author': 'WujiaTea',

@@ -31,9 +31,10 @@ COMP_LABELS = ['Chưa xử lý', 'Đã lên đơn bù', 'Đang bù một phần'
 JS = r"""
 (compLabels) => {
   const out = [];
-  document.querySelectorAll('.wujia-mreturn-row.wj-data-item').forEach((row) => {
-    const code = row.querySelector('.wujia-mreturn-row-code');
-    const prod = row.querySelector('.wujia-mreturn-row-product');
+  // E5b1: ruột card về CMP-LC-001 ⇒ neo vào anatomy chung, không vào họ mreturn.
+  document.querySelectorAll('.wj-data-item.wj-lc').forEach((row) => {
+    const code = row.querySelector('.wj-lc__name');
+    const prod = row.querySelector('.wj-lc__row--clamp2 .wj-lc__value');
     let product = null;
     if (prod) {
       const cs = getComputedStyle(prod);
@@ -52,7 +53,7 @@ JS = r"""
         lineClamp: cs.webkitLineClamp || cs.lineClamp || 'none',
       };
     }
-    const badges = [...row.querySelectorAll('.wujia-badge')].map((b) => {
+    const badges = [...row.querySelectorAll('.wujia-badge, .wj-status-badge')].map((b) => {
       const r = b.getBoundingClientRect();
       const label = (b.textContent || '').trim();
       return {
@@ -62,9 +63,10 @@ JS = r"""
         h: Math.round(r.height),
       };
     });
-    const cells = [...row.querySelectorAll('.wujia-mreturn-row-metacell')].map((c) => {
+    const cells = [...row.querySelectorAll('.wj-lc__row--inline')].map((c) => {
       const r = c.getBoundingClientRect();
-      return { left: Math.round(r.left), label: (c.querySelector('.lbl') || {}).textContent };
+      return { left: Math.round(r.left),
+               label: (c.querySelector('.wj-lc__label') || {}).textContent };
     });
     out.push({ code: code ? code.textContent.trim() : null, product, badges, cells });
   });

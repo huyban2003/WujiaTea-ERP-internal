@@ -133,8 +133,7 @@
                 <button t-else="" type="button" class="wj-empty-state-btn" onclick="window.location.reload()">Tải lại</button>
             </div>
             <t t-call="wujia_portal_layout.wj_data_list" t-else="">
-                <t t-set="dl_variant" t-value="'compact-row'"/>
-                <t t-set="dl_class" t-value="'wujia-mnoti-list'"/>
+                <t t-set="dl_variant" t-value="'detail-card'"/>
                     <t t-foreach="notifications" t-as="n">
                         <t t-set="is_read" t-value="n.id in read_ids"/>
                         <!-- UI tạm: icon/màu theo loại + badge theo độ ưu tiên (derive field sẵn có; BA/controller tinh chỉnh sau) -->
@@ -142,32 +141,39 @@
                         <t t-set="ticon" t-value="WJ_ICON.get(n.type_id.code, 'icon-bell')"/>
                         <t t-set="ptag" t-value="WJ_PTAG.get(n.priority)"/>
                         <a t-attf-href="/portal/notification/#{n.id}"
-                           t-attf-class="wujia-mnoti-row wj-data-item #{'' if is_read else 'is-unread'}">
-                            <span t-attf-class="wujia-mnoti-row-icon wujia-mnoti-tone-#{tone}">
-                                <i t-attf-class="feather #{ticon}"/>
-                            </span>
-                            <span class="wujia-mnoti-row-main">
-                                <span class="wujia-mnoti-row-title" t-out="n.name"/>
-                                <span class="wujia-mnoti-row-source">
-                                    <t t-out="n.type_id.name"/><t t-if="n.dispatch_number"> • <t t-out="n.dispatch_number"/></t>
-                                </span>
-                                <span class="wujia-mnoti-row-tags">
+                           t-attf-class="wj-data-item wj-lc #{'' if is_read else 'wujia-mnoti-unread'}">
+                            <t t-call="wujia_portal_layout.wj_list_card">
+                                <t t-set="lc_prefix">
+                                    <span t-attf-class="wj-lc__tile wujia-mnoti-tone-#{tone}">
+                                        <i t-attf-class="feather #{ticon}"/>
+                                    </span>
+                                </t>
+                                <t t-set="lc_name" t-value="n.name"/>
+                                <t t-set="lc_state">
+                                    <span t-if="not is_read" class="wujia-mnoti-dot"/>
                                     <span t-if="ptag" t-attf-class="wujia-badge wujia-badge--sm #{ptag[1]}">
                                         <i t-attf-class="feather #{ptag[2]}"/><t t-out="ptag[0]"/>
                                     </span>
-                                    <span t-if="n.is_expired" class="wj-status-badge wj-status-badge--neutral">
-                                        <i class="feather icon-clock"/>Đã hết hiệu lực
-                                    </span>
-                                    <span t-if="n.attachment_ids" class="wujia-badge wujia-badge--sm wujia-badge-info">
-                                        <i class="feather icon-paperclip"/>Có file
-                                    </span>
-                                </span>
-                            </span>
-                            <span class="wujia-mnoti-row-side">
-                                <span t-if="not is_read" class="wujia-mnoti-row-dot"/>
-                                <span class="wujia-mnoti-row-date"
-                                      t-out="wj_dt(n.published_date, '%d/%m/%Y · %H:%M')"/>
-                            </span>
+                                </t>
+                                <t t-set="lc_rows">
+                                    <t t-call="wujia_portal_layout.wj_list_card_row">
+                                        <t t-set="lcr_value">
+                                            <t t-out="n.type_id.name"/><t t-if="n.dispatch_number"> • <t t-out="n.dispatch_number"/></t>
+                                        </t>
+                                    </t>
+                                    <t t-call="wujia_portal_layout.wj_list_card_row">
+                                        <t t-set="lcr_value">
+                                            <span t-if="n.is_expired" class="wj-status-badge wj-status-badge--neutral wj-status-badge--compact">
+                                                <i class="feather icon-clock"/>Đã hết hiệu lực
+                                            </span>
+                                            <span t-if="n.attachment_ids" class="wujia-badge wujia-badge--sm wujia-badge-info">
+                                                <i class="feather icon-paperclip"/>Có file
+                                            </span>
+                                            <span class="wj-lc__meta" t-out="wj_dt(n.published_date, '%d/%m/%Y · %H:%M')"/>
+                                        </t>
+                                    </t>
+                                </t>
+                            </t>
                         </a>
                     </t>
             </t>
