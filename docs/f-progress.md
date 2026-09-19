@@ -467,7 +467,7 @@ rồi đánh ✅ ở bảng Trạng thái §2 `docs/next-session-clusters-F.md`.
     FB-02/FB-09 item 9). Ghi rõ trong matrix thay vì sửa cho có.
   - 21 test mới (16 `portal_base` quét chéo module + 5 `portal_layout` hợp đồng component) — đúng
     luật sở hữu F5b.
-- Commit: (xem commit ngay dưới entry này)
+- Commit: `131d948`
 - Deploy: **chưa** — không tự deploy UAT. Lệnh `-u` gộp ghi ở `docs/e4b1-acceptance-matrix.md` §5.
 - Số đo: **FB-10 0/48 ô lệch bộ điều kiện** (12 route × 4 khổ, chế độ render) · control PC
   **26.7–28.1 → 42** ở 4 màn nhóm 1, **50 → 42** ở báo cáo, baseline `2 → 1` ở return + exam ·
