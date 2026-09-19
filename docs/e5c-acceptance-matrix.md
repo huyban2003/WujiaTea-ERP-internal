@@ -223,20 +223,27 @@ trong khung** — nó là *chấm tín hiệu*. Đo lại: **0 vi phạm**. Suit
 
 ## Đo lại trên UAT sau khi deploy (19/09/2026, chỉ đọc, tài khoản admin)
 
-`scratchpad/e5c/uat_check.py` — 10 route ở khổ 390 trên `http://113.161.187.126:8019`:
+`scratchpad/e5c/uat_full.py` — **14 route × 5 khổ** (320 · 390 · 430 · 991 · 1440) trên
+`http://113.161.187.126:8019`: **42 ô đạt · 0 ô lệch · 0 lỗi JS**; 28 ô còn lại là **danh sách
+rỗng** (admin không gắn cửa hàng nên Lịch sử mua hàng · Thi · Công nợ · Đặt hàng không có bản ghi)
+nên không kết luận, đánh dấu riêng chứ không tính là Pass.
 
 | Phép đo | Kết quả trên UAT |
 |---|---|
-| Nhịp lọc → nội dung | **16** ở cả 6 màn có thanh lọc (Thông báo · Hỗ trợ · Đổi trả · Kiến thức · Thi · Giao hàng) |
-| Gutter item | **12/12** ở mọi màn có bản ghi |
+| Nhịp lọc → nội dung | **16** ở mọi màn có thanh lọc (Thông báo · Hỗ trợ · Đổi trả · Kiến thức · Thi · Giao hàng) |
+| Gutter item (≤991) | **12/12** ở mọi màn có bản ghi |
 | Đệm item | **`12px`** |
-| Gutter khung trang (`.content-wrapper`) | **12/12** ở `/portal/order`, `/portal/purchase-history`, `/portal/notification` và cả `/portal/inspection` (màn của anh Thái) |
+| Gutter khung trang | **12/12** ở `/portal/order`, `/portal/purchase-history`, `/portal/notification` và cả `/portal/inspection` (màn của anh Thái) |
+| Vùng chạm ≥44 (≤991) | **0 chỗ thiếu** |
 | Tràn ngang · lỗi JS | **0 · 0** |
+| Bản vá chấm "chưa đọc" | có mặt trong bảng kiểu dáng của máy chủ: `display: inline-block` |
 
-Hai thứ **không** kiểm được bằng tài khoản admin vì admin không gắn cửa hàng nên các danh sách
-Lịch sử mua hàng · Đặt hàng · Công nợ · Thi đều rỗng: **chấm "chưa đọc"** và **vùng chạm nút
-“Chọn”**. Hai món này đã đo bằng trình duyệt trên DB local (8×8 và 45×45) — xin BA xác nhận lại
-bằng tài khoản cửa hàng khi retest.
+Luật chạm 44 **chỉ áp cho khổ ≤991** (ngón tay); ở 1440 các link chữ của Kiến thức cao 19px là
+đích **chuột**, không phải vi phạm — lần chạy đầu tool chưa phân biệt nên báo nhầm 1 ô, đã sửa.
+
+Hai thứ **không** kiểm được bằng tài khoản admin (danh sách rỗng): **chấm "chưa đọc" hiển thị
+thật** và **vùng chạm nút “Chọn”** ở bước 1 màn đăng ký thi. Cả hai đã đo bằng trình duyệt trên DB
+local (8×8 và 45×45) — xin BA xác nhận bằng tài khoản cửa hàng khi retest.
 
 ## Trạng thái issue
 
