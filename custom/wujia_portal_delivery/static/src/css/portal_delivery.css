@@ -42,34 +42,14 @@
 
     /* ---------- Batch card (list) ---------- */
     .wujia-mdelivery-list { display: flex; flex-direction: column; gap: 12px; }
-    /* D5f: dáng ở .wj-data-item (detail-card), đây chỉ còn layout của họ mdelivery. */
-    .wj-data-list--detail-card .wujia-mdelivery-row.wj-data-item {
-        display: flex; flex-direction: column; gap: 11px;
-    }
-    a.wujia-mdelivery-row:hover { color: inherit; }
-    .wujia-mdelivery-row-top {
-        display: flex; align-items: flex-start; justify-content: space-between; gap: 8px;
-    }
-    .wujia-mdelivery-row-headmain { display: flex; flex-direction: column; gap: 5px; min-width: 0; }
     .wujia-mdelivery-row-label { font-size: 10.8px; font-weight: 700; color: var(--wujia-morder-text-sub); }
-    .wujia-mdelivery-row-id {
-        font-size: 14.5px; font-weight: 700; color: var(--wujia-morder-text);
-        overflow: hidden; text-overflow: ellipsis;
-    }
     .wujia-mdelivery-row-divider { height: 1px; background: var(--wujia-morder-divider); }
-    .wujia-mdelivery-row-cols { display: flex; gap: 8px; }
-    .wujia-mdelivery-row-col { flex: 1 1 0; display: flex; align-items: flex-start; gap: 8px; min-width: 0; }
     .wujia-mdelivery-row-colicon {
         flex: 0 0 auto; font-size: 16px; line-height: 1;
         color: var(--wujia-morder-primary); margin-top: 1px;
     }
     .wujia-mdelivery-row-colbody { display: flex; flex-direction: column; gap: 3px; min-width: 0; }
     .wujia-mdelivery-row-collabel { font-size: 10.5px; font-weight: 700; color: var(--wujia-morder-text-sub); }
-    .wujia-mdelivery-row-colval {
-        font-size: 12.2px; font-weight: 700; color: var(--wujia-morder-text);
-        overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
-    }
-
     /* ---------- Status badge ---------- */
     .wujia-mdelivery-badge {
         flex: 0 0 auto; display: inline-flex; align-items: center; justify-content: center;
@@ -87,8 +67,6 @@
     .wujia-mdelivery-skel-bar {
         display: inline-block; background: var(--wujia-mdelivery-skel); border-radius: 6px;
     }
-    .wujia-mdelivery-skel .wujia-mdelivery-row-headmain { gap: 9px; }
-
     /* ---------- Detail: header (back circle + titles) ---------- */
     .wujia-mdelivery-detail-head { display: flex; align-items: flex-start; gap: 12px; }
     .wujia-mdelivery-detail-titles { display: flex; flex-direction: column; gap: 4px; min-width: 0; }

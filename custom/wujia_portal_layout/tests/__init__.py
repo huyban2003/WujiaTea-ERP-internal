@@ -12,3 +12,4 @@ from . import test_g2_mobile_header
 from . import test_f4_overrides
 from . import test_f5_frame_routes
 from . import test_fra3_layer_guard
+from . import test_e5_list_card

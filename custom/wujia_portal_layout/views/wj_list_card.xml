@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- WJ_ListCard — RUỘT của một record trên trang danh sách (BA CMP-LC-001, LC-01…LC-32).
+
+         Ranh giới với hàng xóm: dáng NGOÀI (viền, bo, đệm, gap giữa card) vẫn là
+         `.wj-data-item` của CMP-DL-001 (D5); vỏ là `wj_surface_card`; badge là
+         CMP-SB-001. Ở đây CHỈ có anatomy bên trong: tên trái + trạng thái phải,
+         rồi 2–3 hàng phụ cột linh hoạt.
+
+         Thẻ của item do CALL SITE giữ (phải là <a> khi cả card mở chi tiết — QWeb
+         Odoo 19 không đặt được tên thẻ động, xem ir_qweb.py:1705), và call site
+         gắn `wj-data-item wj-lc`. Component không bọc thêm lớp <div> nào.
+
+         lc_name      markup/chuỗi — tên hoặc mã record (trái trên)
+         lc_prefix    markup thô — mảnh đứng TRƯỚC tên trên cùng hàng (vd mã ticket)
+         lc_state     markup thô — badge trạng thái (phải trên); thiếu thì bỏ hẳn hàng
+         lc_rows      markup thô — các hàng phụ, dựng bằng wj_list_card_row
+         lc_actions   markup thô — control riêng; LC-11 cấm interactive lồng nhau -->
+    <template id="wj_list_card" name="Wujia — List Card component">
+        <span class="wj-lc__head">
+            <span class="wj-lc__lead">
+                <t t-if="lc_prefix" t-out="lc_prefix"/>
+                <span class="wj-lc__name" t-out="lc_name"/>
+            </span>
+            <t t-if="lc_state">
+                <span class="wj-lc__state" t-out="lc_state"/>
+            </t>
+        </span>
+        <t t-if="lc_rows">
+            <span class="wj-lc__body" t-out="lc_rows"/>
+        </t>
+        <t t-if="lc_actions">
+            <span class="wj-lc__actions" t-out="lc_actions"/>
+        </t>
+    </template>
+
+    <!-- Một hàng phụ. `lcr_label` thiếu ⇒ hàng chỉ có giá trị (LC-05: nhãn:giá trị
+         cùng dòng khi vừa; trường dài chiếm cả hàng bằng lcr_full). -->
+    <template id="wj_list_card_row" name="Wujia — List Card meta row">
+        <span t-attf-class="wj-lc__row#{' wj-lc__row--full' if lcr_full else ''} #{lcr_class or ''}">
+            <t t-if="lcr_label">
+                <span class="wj-lc__label" t-out="lcr_label"/>
+            </t>
+            <span t-attf-class="wj-lc__value#{' wj-lc__value--strong' if lcr_strong else ''}"
+                  t-out="lcr_value"/>
+        </span>
+    </template>
+</odoo>

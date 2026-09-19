@@ -273,14 +273,15 @@ class TestDataListCompactRowMobile(TransactionCase):
     """D5e — 9 call site mobile (mdash ×6 · mhist · mnoti · mknow): một chủ sở hữu
     dáng cho CẢ BỐN họ, layout riêng từng họ, và bộ số BA của compact-row."""
 
+    # E5: Lịch sử đặt hàng đã rời họ riêng sang CMP-LC-001 (`.wj-lc`, detail-card)
+    # ⇒ ra khỏi bảng này; hợp đồng của nó nằm ở test_scan_e5_list_card.py.
     MOBILE_SITES = [
         ('wujia_portal_base', 'portal_home.xml', 5),
         ('wujia_portal_support', 'portal_support.xml', 1),
-        ('wujia_portal_purchase_history', 'portal_history.xml', 1),
         ('wujia_portal_notification', 'portal_notification.xml', 1),
         ('wujia_portal_knowledge', 'portal_knowledge.xml', 1),
     ]
-    HO = ('wujia-mdash-row', 'wujia-mhist-row', 'wujia-mnoti-row', 'wujia-mknow-row')
+    HO = ('wujia-mdash-row', 'wujia-mnoti-row', 'wujia-mknow-row')
 
     def _mobile_calls(self, module, filename):
         """Call site compact-row KHÔNG phải của D5d (D5d dùng ul.wujia-content-card-body)."""
@@ -304,7 +305,7 @@ class TestDataListCompactRowMobile(TransactionCase):
             calls = self._mobile_calls(module, filename)
             self.assertEqual(len(calls), n, '%s: số call site mobile đổi' % module)
             tong += len(calls)
-        self.assertEqual(tong, 9, 'D5e phủ đúng 9 call site')
+        self.assertEqual(tong, 8, 'D5e còn 8 call site (Lịch sử đặt hàng sang E5)')
 
     def test_item_mang_ca_hai_lop(self):
         """Neo TOKEN ĐỨNG ĐẦU — `contains()` khớp cả tên con BEM (bẫy D5c #3)."""
@@ -340,8 +341,6 @@ class TestDataListCompactRowMobile(TransactionCase):
         """Rule cũ chỉ được chạm hàng CHƯA migrate. Xét compound CUỐI của mỗi
         selector (rule của lớp con và ::before là biến thể ô, cố ý giữ)."""
         for filename, ho in ((os.path.join(CSS_DIR, '_components.css'), ('wujia-mdash-row',)),
-                             (os.path.join(CUSTOM, 'wujia_portal_purchase_history', 'static', 'src',
-                                           'css', 'portal_history.css'), ('wujia-mhist-row',)),
                              (os.path.join(CUSTOM, 'wujia_portal_knowledge', 'static', 'src',
                                            'css', 'portal_knowledge.css'), ('wujia-mknow-row',)),
                              (os.path.join(CUSTOM, 'wujia_portal_notification', 'static', 'src',
@@ -376,9 +375,7 @@ class TestDataListCompactRowMobile(TransactionCase):
         self.assertIsNotNone(dang)
         self.assertNotIn('display: grid', dang, 'dáng chung không được mang layout')
         self.assertNotIn('grid-template-columns', dang)
-        hist = _mod_css('wujia_portal_purchase_history', 'portal_history.css')
-        for src, sel in ((css, '.wj-data-list--compact-row .wujia-mdash-row.wj-data-item'),
-                         (hist, '.wj-data-list--compact-row .wujia-mhist-row.wj-data-item')):
+        for src, sel in ((css, '.wj-data-list--compact-row .wujia-mdash-row.wj-data-item'),):
             body = _rule(src, sel)
             self.assertIsNotNone(body, 'thiếu rule layout: %s' % sel)
             self.assertRegex(body, r'display:\s*flex')
@@ -416,16 +413,15 @@ class TestDataListCompactRowMobile(TransactionCase):
 
 @tagged('post_install', '-at_install', 'wujia_data_list_d5')
 class TestDataListDetailCard(TransactionCase):
-    """D5f — variant `detail-card`: 2 call site record (`mreturn` · `mdelivery`)
-    + khối skeleton dùng chung dáng nhưng KHÔNG phải record."""
+    """D5f — variant `detail-card`: call site record còn lại của D5 (`mreturn`).
+    Skeleton của Giao hàng đã sang `.wj-lc` cùng lượt E5."""
 
+    # E5: Giao hàng (record + skeleton) đã sang CMP-LC-001 ⇒ chỉ còn Bù hàng ở đây.
     SITES = [
         ('wujia_portal_return', 'portal_return_list.xml', 'wujia-mreturn-row'),
-        ('wujia_portal_delivery', 'portal_delivery.xml', 'wujia-mdelivery-row'),
     ]
     CSS_HO = {
         'wujia-mreturn-row': ('wujia_portal_return', 'portal_return.css'),
-        'wujia-mdelivery-row': ('wujia_portal_delivery', 'portal_delivery.css'),
     }
 
     def _calls(self, module, filename):
@@ -459,7 +455,7 @@ class TestDataListDetailCard(TransactionCase):
             calls = self._calls(module, filename)
             self.assertTrue(calls, '%s: mất call site detail-card' % module)
             record += len([c for c in calls if not self._la_skeleton(c)])
-        self.assertEqual(record, 2, 'số call site record của D5f đổi')
+        self.assertEqual(record, 1, 'D5f còn 1 call site record (Giao hàng sang E5)')
 
     def test_item_mang_ca_hai_lop(self):
         """Chỉ xét call site RECORD — skeleton là việc của test riêng, để mỗi

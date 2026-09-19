@@ -150,6 +150,8 @@ h2, .wujia-h2 { font-size: var(--wujia-font-size-h2) !important; font-weight: 60
     background: var(--wj-sb-neutral-bg);
     color: var(--wj-sb-neutral-fg);
 }
+/* LC-04/LC-25: trong ListCard badge dùng chữ 12 — modifier CHUNG, không CSS theo route. */
+.wj-status-badge--compact    { font-size: 12px; }
 .wj-status-badge--neutral    { background: var(--wj-sb-neutral-bg);    color: var(--wj-sb-neutral-fg); }
 .wj-status-badge--info       { background: var(--wj-sb-info-bg);       color: var(--wj-sb-info-fg); }
 .wj-status-badge--pending    { background: var(--wj-sb-pending-bg);    color: var(--wj-sb-pending-fg); }
@@ -819,6 +821,91 @@ h2, .wujia-h2 { font-size: var(--wujia-font-size-h2) !important; font-weight: 60
 }
 .wj-data-list--detail-card .wj-data-item + .wj-data-item {
     margin-top: 8px;
+}
+
+/* ---------------------------------------------------------------------------
+   E5 — CMP-LC-001 ListCard: RUỘT của một record. Dáng NGOÀI (viền/bo/đệm/gap)
+   vẫn của `.wj-data-item` ở trên; đây chỉ là anatomy. Số BA LC-07/LC-25:
+   header–body 8 · gap hàng 6–8 · title 15–16/600 · metadata 13–14 · badge 12 ·
+   không divider/shadow/icon trang trí bên trong card.
+   ------------------------------------------------------------------------ */
+.wj-data-item.wj-lc {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+.wj-lc__head {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 8px;
+}
+.wj-lc__lead {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 2px 8px;
+    min-width: 0;
+}
+.wj-lc__name {
+    min-width: 0;
+    font-size: 15px;
+    font-weight: 600;
+    line-height: 20px;
+    color: var(--wujia-text-primary);
+    overflow-wrap: anywhere;
+}
+/* LC-04: hẹp quá thì badge xuống hàng CĂN PHẢI, không chồng lên tên. */
+.wj-lc__state {
+    flex: 0 0 auto;
+    margin-left: auto;
+    text-align: right;
+}
+.wj-lc__body {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+.wj-lc__row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 2px 6px;
+    min-width: 0;
+    font-size: 13px;
+    line-height: 18px;
+}
+/* LC-05: trường dài chiếm cả hàng, nhãn nằm trên giá trị. */
+.wj-lc__row--full {
+    flex-direction: column;
+    gap: 2px;
+}
+.wj-lc__label {
+    flex: 0 0 auto;
+    color: var(--wujia-text-muted);
+}
+/* LC-06: icon phụ 16–18px, chỉ khi hữu ích — không icon trang trí lớn trước tên. */
+.wj-lc__icon {
+    flex: 0 0 auto;
+    margin-right: 4px;
+    font-size: 16px;
+    line-height: 1;
+    color: var(--wujia-primary);
+}
+.wj-lc__value {
+    min-width: 0;
+    color: var(--wujia-text-secondary);
+    overflow-wrap: anywhere;
+}
+.wj-lc__value--strong {
+    font-weight: 600;
+    color: var(--wujia-text-primary);
+}
+.wj-lc__actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
 }
 
 /* Header right action icons (UI-13, Sprint 9.14, 2026-05-28) */

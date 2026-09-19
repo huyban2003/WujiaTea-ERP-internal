@@ -15,3 +15,4 @@ from . import test_scan_d4_surface_card
 from . import test_scan_d5_data_list
 from . import test_fra3_layer_guard
 from . import test_mobile_rhythm
+from . import test_scan_e5_list_card

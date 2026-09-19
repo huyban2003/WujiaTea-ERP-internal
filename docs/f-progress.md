@@ -598,3 +598,53 @@ rồi đánh ✅ ở bảng Trạng thái §2 `docs/next-session-clusters-F.md`.
 - Chốt phiên: commit **`faa76f5`** đã push `main`; ledger `UI-FILTER-001` + `qa_sync --apply` ⇒ sheet
   dòng tuyệt đối **132** (STT 139) về **`Ready for Retest`**, Owner `BA/Tester`, cột Build ghi rõ
   **CHƯA lên UAT** (chủ dự án tự deploy). Lệnh `-u` gộp 12 module nằm ở `docs/e4c-acceptance-matrix.md` §8.
+
+## E5a — ListCard `CMP-LC-001`: component + 2 route mẫu (19/09/2026 · Mac)
+
+- Chốt đầu phiên của chủ dự án: **chẻ E5 thành E5a / E5b / E5c** (như E4 chẻ a/b1/b2/c), và
+  **LC-22 ProductCard token-only "fix luôn"** — xếp vào E5c, chụp mốc `wj_measure` riêng cho
+  `/portal/order` để lùi được độc lập. E5a = inventory + component + 2 route mẫu + guard.
+- **Đo trước khi đụng mã**, và hiện trạng tệ hơn bảng trong prompt: **22 call site** thật, **14 họ
+  class item** khác nhau, mỗi module tự dựng ruột. D5 đã chuẩn hoá **dáng NGOÀI** (`.wj-data-item`),
+  cái chưa ai làm là **anatomy BÊN TRONG** — đúng phạm vi E5.
+- Làm được:
+  - **Component** `wujia_portal_layout/views/wj_list_card.xml` — 2 template (`wj_list_card` +
+    `wj_list_card_row`), dùng lại khuôn slot của `wj_data_list.xml`, **không JS mới**. Thẻ item vẫn ở
+    call site vì QWeb **không có** directive đổi tên thẻ động (`ir_qweb.py:1705`) ⇒ `<a>`/href từng
+    route giữ nguyên.
+  - **Badge 12px = modifier DÙNG CHUNG** `.wj-status-badge--compact` (chỉ khai `font-size`), **không**
+    CSS theo route; guard E2 nới đúng một khe hẹp cho modifier này, kèm chú thích LC-25.
+  - **2 route mẫu**: history (`wujia-mhist-row`, 6 rule) và delivery (`wujia-mdelivery-row`, 9 rule)
+    về `.wj-lc`; bỏ nhãn thừa "Chuyến xe" + divider nội bộ (LC-14), thêm nhãn "Ngày đặt"/"Tổng tiền"
+    (LC-13). **Giá trị mất/thêm = 0/0** ở cả hai.
+  - **2 công cụ mới**: `wj_listcard_inventory.py` (kiểm kê trường, `--diff` **tách nhãn khỏi giá trị**
+    nên đổi nhãn theo BA không bị đếm nhầm là "thêm trường") và `wj_listcard.py` (guard anatomy
+    LC-01/03/04/07/10).
+  - **18 test mới**: 12 hợp đồng component ở `portal_layout`, 6 quét chéo ở `portal_base` theo sổ
+    đăng ký `MIGRATED`/`GIU_NGUYEN` — thêm route ở E5b chỉ cần thêm một dòng vào sổ.
+- Số đo: guard **0/10 ô** có vi phạm trên 2 route × 5 khổ · **đỏ đúng 7/7** route chưa migrate ·
+  `wj_nesting` **0** khung lồng khung · `wj_datalist` **0** vi phạm · Home chữ ký DOM **trước = sau**
+  (`fd881c9f4245`) · suite **433 tests, 0 failed, 0 error** · `check_layers` 3 R1–R5 + 2 R7 **có sẵn**.
+- Bẫy gặp:
+  - **Đo nhịp sai mốc**: *lọc → danh sách* ra 52/55/70 vì count-meta/section-header xen giữa. Đổi sang
+    *lọc → phần tử anh em kế tiếp nhìn thấy được* mới lộ đúng **24px ở 7 route** — nợ G2 vẫn nguyên,
+    trả ở E5c.
+  - **3 công cụ QA mặc định `--base 127.0.0.1:8019`** (`wj_nesting`, `wj_datalist`, `wj_measure`) —
+    đúng cổng bị cấm đụng, và lần chạy đầu đã lấy số từ **DB khác** (delivery item=0 trong khi thật là
+    20). Đổi mặc định cả 3 về **8090**. Ai đọc số cũ của các cụm trước nên soi lại cột `base` trong JSON.
+  - **Guard sạch ngay lần đầu** ⇒ phải chứng minh nó cắn: 11/11 ca `judge()` tổng hợp + mũi CSS thật
+    (badge 12→13px ⇒ **20 vi phạm**, hoàn nguyên ⇒ **0**).
+  - **Đổi ruột làm card cao lên 80 → 104px** ⇒ khai `compact-row` (64–76) thành **khai sai dáng**,
+    guard D5 đỏ đúng. Chuyển call site sang `detail-card` và sửa bảng trong `test_scan_d5_data_list.py`.
+  - **Skeleton hợp lệ viết tay `wj-lc__row`** (thanh xám, không nhãn/giá trị) ⇒ luật "cấm hàng phụ viết
+    tay" phải hạ xuống "cấm **nhãn/giá trị** viết tay".
+  - Test đọc CSS bằng `selector + ' {'` trượt vì rule canh cột → regex `\s*\{`.
+- Nợ mang sang: **nhịp G2** 24→16 ở 7 route (E5c) · **padding item `12px 14px`** vs LC-07 ghi 12, đi
+  chung món gutter LC-08 (E5c, **không** sửa lẻ) · **mẫu mỏng** `/portal/debt` 1 và
+  `/portal/exam/register` 1 ⇒ phải gieo trước khi kết luận (E5b) · **LC-20 defer vĩnh viễn** (code anh
+  Thái) · **LC-27** lệch dữ liệu — chỉ ghi nhận, không tự sửa mapping.
+- Phiên kế: **E5b** — phủ 9 call site còn lại theo thứ tự rủi ro tăng dần: thông báo (LC-16) → hỗ trợ
+  (LC-18) → đổi trả (LC-15) → kiến thức ×2 (LC-17) → thông tin nhượng quyền → thi ×3 (LC-19) → công nợ
+  ×2 (LC-21, retest bằng role được phép). Chi tiết: `docs/e5a-acceptance-matrix.md` + kế hoạch cụm E5.
+- Chốt phiên: **issue CHƯA đóng** — `UI-LISTCARD-001` chỉ ghi ledger + `Ready for Retest` ở **cuối
+  E5c**, khi đủ 22 call site + regression 8 khổ. **Không tự deploy UAT.**
