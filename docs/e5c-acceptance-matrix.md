@@ -19,7 +19,7 @@ rỗng, rồi ghi sổ đóng issue.
 | 4 | Field inventory trước/sau | 0 trường mất, 0 lệch số record | ✅ 16 route × 2 khổ, **194 record, 0 vấn đề** |
 | 5 | Chữ ký DOM đóng băng | trước = sau | ✅ Home · bảng PC · `/portal/order` (chữ ký **cả trang** mới) |
 | 6 | `wj_nesting` · `wj_datalist` · `wj_measure` | 0 / 0 / 0 tràn · 0 lỗi JS | ✅ 0 / 0 / 0 tràn ngang · 0 lỗi JS · 0 record mất |
-| 7 | Suite kèm `-u` | 0 đỏ (mốc E5b2 653) | ✅ **686 tests, 0 failed, 0 error** |
+| 7 | Suite kèm `-u` | 0 đỏ (mốc E5b2 653) | ✅ **687 tests, 0 failed, 0 error** |
 | 8 | `check_layers.py` | đúng 3 R1–R5 + 2 R7 có sẵn | ✅ 3 + 2, không thêm |
 | 9 | Mutation | mỗi mũi đỏ đúng guard của nó | ✅ **10/10** + 2 mũi cấp công cụ |
 | 10 | Đối chiếu `Kết quả mong muốn` STT 136 | **≥90%** | ✅ **23/24 gạch = 95,8%** (xem §Đối chiếu) |
@@ -205,6 +205,21 @@ wujia_portal_info_request \
   --test-enable --log-handler "odoo.tests.result:INFO" --stop-after-init
 # đọc kết quả ở logs/<năm>/<tháng>/<ngày>.log, không đọc stdout
 ```
+
+## Soi mã đối kháng (Codex) — phạm vi **toàn cụm E5** (`cf6d2b0^..HEAD`)
+
+4 finding, thẩm định lại từng cái trên mã thật:
+
+| # | Finding | Phán quyết | Xử lý |
+|---|---|---|---|
+| P1 | Lệnh deploy chỉ nâng 2 mô đun, trong khi cụm E5 sửa view nằm trong DB của **8 mô đun** nữa; Odoo không nạp lại XML của mô đun phụ thuộc khi chỉ nâng mô đun nền ⇒ UAT sẽ có CSS mới mà thẻ cũ | **THẬT** — `git diff --name-only cf6d2b0^..HEAD -- '*.xml'` đúng **10 mô đun** | Sửa `build_override` trong ledger thành **10 mô đun** và ghi lại ô Build/Deploy của dòng 129 |
+| P2 | Chấm "chưa đọc" `.wujia-mnoti-dot` là `<span>` rỗng **inline** trong `.wj-lc__state` (không phải flex) ⇒ `width/height` không ăn, chấm 0px | **THẬT** — đo trình duyệt: `[0, 19, 'inline']` ×7, và class này **ra đời ở E5b1** nên chấm **chưa từng hiện** | `display: inline-block` + `vertical-align: middle`; đo lại **8×8 inline-block**; +1 test ở `wujia_portal_notification`; bump `19.0.2.18.0` |
+| P2 | Nhánh LC-02 của `wj_listcard.py` chỉ có `pass` ⇒ chiều cao ép cứng lọt lưới; `height` tính toán luôn ra px nên không dùng để kết tội | **THẬT** | Thay bằng dấu hiệu **thật**: `scrollHeight > clientHeight` ⇒ "nội dung bị bó". Chứng minh: ép `height: 70px` cả hai variant ⇒ **10 finding LC-02**; gỡ ra ⇒ 0 |
+| P2 | `wj_listcard_inventory.py` ghi `final_url` nhưng **không kiểm**: hai lượt cùng đậu ở trang đăng nhập/lỗi vẫn "giống nhau" ⇒ Pass rỗng | **THẬT** | Thêm cờ `redirected` + dòng `CHUYỂN HƯỚNG` trong `diff()`. Chứng minh: `--routes /odoo` (đá về `/my`) ⇒ **1 vấn đề CHUYỂN HƯỚNG** |
+
+Phát sinh khi vá P2 thứ hai: chấm 8×8 nay có ô thật nên `wj_listcard` tính nó là "khung con trong
+card" (**35 vi phạm LC-01 giả**). Sửa ở đúng tầng khái niệm: **phần tử ≤ 12px không thể là khung
+trong khung** — nó là *chấm tín hiệu*. Đo lại: **0 vi phạm**. Suite sau khi vá: **687 tests, 0 đỏ**.
 
 ## Trạng thái issue
 

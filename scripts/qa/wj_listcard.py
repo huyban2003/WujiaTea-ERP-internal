@@ -76,10 +76,14 @@ JS = r"""
     // Khung lồng trong khung: phần tử con nào cũng đang vẽ khung riêng.
     // Badge/chip và ô icon của component KHÔNG phải khung con: chúng có nền
     // theo thiết kế, và cỡ/bo của chúng do CMP-SB-001 / `.wj-lc__tile` khoá.
+    // Chấm tín hiệu <=12px không thể là "khung trong khung" — nó là dấu chấm.
+    const cham = el => { const r = el.getBoundingClientRect();
+                         return r.width <= 12 && r.height <= 12; };
     const mien = el => el.classList.contains('wj-status-badge')
                     || el.classList.contains('wujia-badge')
                     || el.classList.contains('wj-lc__tile')
-                    || el.tagName === 'IMG' || el.tagName === 'I';
+                    || el.tagName === 'IMG' || el.tagName === 'I'
+                    || cham(el);
     const inner = [...card.querySelectorAll('*')].filter(
       el => vis(el) && drawsBox(el) && !mien(el));
     // Divider nội bộ = phần tử rỗng cao 1px hoặc border-top trên hàng phụ.
@@ -101,6 +105,7 @@ JS = r"""
              left: Math.round(cr.left), top: Math.round(cr.top) },
       css: { pad: cs.padding, radius: cs.borderRadius, height: cs.height,
              minH: cs.minHeight, shadow: cs.boxShadow },
+      fit: { scroll: card.scrollHeight, client: card.clientHeight },
       name: name ? { text: name.textContent.trim(),
                      top: Math.round(name.getBoundingClientRect().top - cr.top),
                      left: Math.round(name.getBoundingClientRect().left - cr.left),
@@ -174,9 +179,12 @@ def judge(cards, width):
         if band and not (band[0] <= c['box']['h'] <= band[1]):
             bad.append(f"{tag}: cao {c['box']['h']}px ngoài dải {band[0]}–{band[1]} "
                        f"của variant {c['variant']} (LC-25)")
-        # LC-02: auto-height — cấm ép height cứng; min-height của variant là hợp lệ.
-        if c['css']['height'] != 'auto' and c['css']['minH'] not in ('0px', 'auto'):
-            pass  # min-height variant D5 — không phải height cứng
+        # LC-02: auto-height. `height` tính toán luôn ra px nên không dùng nó để
+        # kết tội được; dấu hiệu THẬT của chiều cao ép cứng là nội dung bị bó lại.
+        fit = c.get('fit') or {}
+        if fit.get('scroll', 0) > fit.get('client', 0) + 1:
+            bad.append(f"{tag}: nội dung cao {fit['scroll']}px bị bó trong "
+                       f"{fit['client']}px — chiều cao ép cứng (LC-02)")
         if c['name'] and c['name']['clipped']:
             n_clip += 1
             bad.append(f"{tag}: tên/mã bị cắt (ellipsis) — LC-03")

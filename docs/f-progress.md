@@ -826,3 +826,10 @@ rồi đánh ✅ ở bảng Trạng thái §2 `docs/next-session-clusters-F.md`.
   cố định (còn 125px đuôi cuộn nên chưa che bản ghi) — để cụm sticky/EmptyState xử.
 - Phiên kế: theo `docs/next-session-clusters-F.md` §2 — **E6 · E7 · E8** + đề xuất cụm EmptyState;
   việc cần biết trước: cụm E5 đã khép, ListCard là nguồn chuẩn cho mọi danh sách mobile.
+- Soi mã đối kháng (Codex, toàn cụm E5 `cf6d2b0^..HEAD`) cuối phiên: **4 finding, 4 đều THẬT** —
+  (1) lệnh deploy thiếu 8 mô đun có view nằm trong DB ⇒ sửa ledger + ô Build/Deploy thành **10 mô
+  đun**; (2) chấm "chưa đọc" màn Thông báo là span inline nên **đo 0px, chưa từng hiện** kể từ E5b1
+  ⇒ vá + test + bump `wujia_portal_notification` 19.0.2.18.0; (3) nhánh LC-02 của guard chỉ có
+  `pass` ⇒ thay bằng dấu hiệu thật `scrollHeight > clientHeight`; (4) inventory không kiểm
+  `final_url` ⇒ thêm cờ `CHUYỂN HƯỚNG`. Cả 4 đều đã chứng minh bằng phép phá có kiểm soát.
+  Suite sau khi vá: **687 tests, 0 đỏ**; `wj_listcard` vẫn **0 vi phạm**.

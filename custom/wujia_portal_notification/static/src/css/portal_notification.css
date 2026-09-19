@@ -43,6 +43,9 @@
     }
     .wujia-mnoti-unread .wj-lc__name { color: var(--wujia-morder-text); }
     .wujia-mnoti-dot {
+        /* E5c: span rỗng trong .wj-lc__state là inline ⇒ w/h không ăn, chấm mất tích. */
+        display: inline-block;
+        vertical-align: middle;
         width: 8px; height: 8px;
         border-radius: 50%;
         background: var(--wujia-morder-primary);

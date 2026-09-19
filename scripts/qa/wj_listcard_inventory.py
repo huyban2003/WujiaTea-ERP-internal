@@ -23,6 +23,7 @@ import hashlib
 import json
 import pathlib
 import sys
+from urllib.parse import urlsplit
 
 sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent))
 from wj_datalist import login  # noqa: E402
@@ -179,6 +180,10 @@ def run(args):
                 data = page.evaluate(PROBE)
                 data['status'] = resp.status if resp else None
                 data['final_url'] = page.url
+                # Đăng nhập rơi / route đổi chỗ ⇒ hai lượt cùng đậu ở trang lỗi vẫn
+                # "giống nhau" ⇒ Pass rỗng. Ghi lệch ngay ở đây để diff() tố cáo.
+                data['redirected'] = (
+                    urlsplit(page.url).path.rstrip('/') != urlsplit(route).path.rstrip('/'))
                 data['js_errors'] = js_errors[before:]
                 data['scroll_x'] = page.evaluate(
                     '() => document.documentElement.scrollWidth - document.documentElement.clientWidth')
@@ -234,6 +239,10 @@ def diff(old, new, frozen):
                                  'route đóng băng không có vùng nào để so — phép đo vô nghĩa'))
                 elif pa != pb:
                     rows.append((route, w, 'DOM ĐỔI', 'vùng phải bất biến đã đổi byte'))
+            if data.get('redirected'):
+                rows.append((route, w, 'CHUYỂN HƯỚNG',
+                             'đậu ở %s — số đo của route này vô nghĩa'
+                             % data.get('final_url', '?')))
             if data.get('scroll_x', 0) > 0:
                 rows.append((route, w, 'TRÀN NGANG', str(data['scroll_x'])))
             if data.get('js_errors'):

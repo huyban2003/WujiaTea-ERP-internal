@@ -58,3 +58,11 @@ class TestNotificationReadStateE5b(TransactionCase):
         for cam in ('padding', 'border-radius', 'min-height'):
             self.assertNotRegex(body, r'\b%s\s*:' % cam,
                                 'trạng thái chưa đọc giành lại dáng (%s)' % cam)
+
+    def test_cham_chua_doc_co_o_chiem_cho(self):
+        """E5c: `.wj-lc__state` không phải flex, nên span rỗng là inline ⇒ w/h bị bỏ
+        qua và chấm đo được 0px. Phải tự khai ô chiếm chỗ."""
+        css = _css()
+        body = re.search(r'\.wujia-mnoti-dot\s*\{([^}]*)\}', css).group(1)
+        self.assertRegex(body, r'display:\s*(inline-block|inline-flex|flex|block)',
+                         'chấm chưa đọc còn là inline — không hiện ra dù khai w/h')
