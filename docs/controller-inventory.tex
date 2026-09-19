@@ -1,0 +1,665 @@
+% Kiểm kê controller WujiaTea — build: lualatex controller-inventory.tex (2 lần)
+\documentclass[11pt,a4paper]{report}
+
+\usepackage{fontspec}
+\setmainfont{Noto Sans}
+\setsansfont{Noto Sans}
+\setmonofont{DejaVu Sans Mono}[Scale=0.85]
+
+\usepackage[margin=2cm]{geometry}
+\usepackage{parskip}
+\setlength{\parindent}{0pt}
+
+\usepackage{booktabs}
+\usepackage{longtable}
+\usepackage{array}
+\usepackage{tabularx}
+\usepackage{enumitem}
+\usepackage{xcolor}
+\usepackage{colortbl}
+\newcolumntype{L}[1]{>{\raggedright\arraybackslash}p{#1}}
+
+\definecolor{hdrbg}{RGB}{238,242,248}
+\definecolor{okc}{RGB}{21,128,61}
+\definecolor{partc}{RGB}{180,110,10}
+\definecolor{noc}{RGB}{185,28,28}
+\definecolor{greyc}{RGB}{110,110,110}
+
+\newcommand{\ok}{\textcolor{okc}{\textbf{ĐÃ CÓ}}}
+\newcommand{\pt}{\textcolor{partc}{\textbf{MỘT PHẦN}}}
+\newcommand{\no}{\textcolor{noc}{\textbf{CHƯA CÓ}}}
+\newcommand{\rt}[1]{{\ttfamily\footnotesize #1}}
+
+\usepackage{hyperref}
+\hypersetup{
+    colorlinks=true, linkcolor=blue!50!black, urlcolor=blue!60!black,
+    pdftitle={WujiaTea — Kiểm kê Controller Portal},
+    pdfauthor={WujiaTea Dev},
+}
+
+\title{\textbf{WujiaTea — Kiểm kê Controller Portal}\\[4pt]
+\large Hiện đã có controller nào · thuộc phân hệ nào · làm chức năng gì\\[2pt]
+\large Đối chiếu với tab \textit{3. Controller} (CT-0xx) của BA}
+\author{Dev · Odoo 19}
+\date{19/09/2026}
+
+\sloppy
+\begin{document}
+\maketitle
+\tableofcontents
+
+\chapter{Tài liệu này trả lời gì}
+
+BA cần biết \textbf{portal hiện đã có sẵn những controller nào} để lên task tiếp mà không
+trùng với thứ đã làm. Tài liệu trả lời đúng ba câu:
+
+\begin{enumerate}[leftmargin=*]
+  \item Có bao nhiêu controller, nằm ở module nào, đường dẫn nào — chương 2 và 3.
+  \item Mỗi controller làm \textbf{chức năng nghiệp vụ} gì — chương 3.
+  \item Mỗi mục \textbf{CT-0xx} trong tab \textit{3. Controller} của BA \textbf{đã có code hay
+        chưa} — chương 5. Đây là chương BA cần nhất: tab CT là \textbf{bản phân tích},
+        không phải trạng thái code.
+\end{enumerate}
+
+\section{Số liệu chụp ở đâu, lúc nào}
+
+\begin{itemize}[leftmargin=*]
+  \item \textbf{Mã nguồn}: nhánh \rt{main}, commit \rt{916aa63} (phiên E5b1), ngày 19/09/2026.
+  \item \textbf{Cách đếm}: đọc cây cú pháp Python (AST) bằng
+        \rt{scripts/qa/controller\_inventory.py}, không dùng tìm chuỗi — tìm chuỗi đếm nhầm cả
+        chú thích. Dữ liệu thô: \rt{docs/controller-inventory/routes.json}.
+  \item \textbf{Máy chủ UAT}: đọc chỉ-đọc qua XML-RPC (\rt{113.161.187.126:8019}, DB
+        \rt{wujia\_tea\_19}) lúc 19/09/2026 — không ghi gì lên máy chủ.
+  \item \textbf{Tab BA}: \textit{3. Controller} của Google Sheet \textit{Internal ERP Master
+        Plan\_Update}, đọc ngày 19/09/2026.
+\end{itemize}
+
+\section{Con số tổng}
+
+\begin{center}
+\begin{tabular}{lr}
+\toprule
+\textbf{Hạng mục} & \textbf{Số} \\
+\midrule
+Hàm controller có khai đường dẫn (\rt{@http.route}) & \textbf{103} \\
+Đường dẫn (một hàm có thể khai nhiều đường dẫn) & 106 \\
+Lớp controller & 21 \\
+Tệp controller & 23 \\
+\quad trong đó có đường dẫn & 21 \\
+Module có controller & 16 \\
+\midrule
+Mục CT-0xx của BA (CT-001…CT-071) & \textbf{71} \\
+\quad trong đó \ok & \textbf{56} \\
+\quad trong đó \pt & \textbf{6} \\
+\quad trong đó \no & \textbf{9} \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\textbf{Lưu ý về tab CT}: tab có 73 dòng mang tiền tố \rt{CT-}, nhưng 2 dòng cuối
+(\rt{CT-024. Lấy danh sách đơn hàng} và \rt{CT-025. Lấy chi tiết đơn hàng}) là
+\textbf{dòng chữ thừa nằm dưới bảng}, không có nội dung ở các cột khác — đã bỏ qua khi đếm.
+Nhờ BA xoá hoặc xác nhận.
+
+\section{Đọc bảng thế nào}
+
+\begin{itemize}[leftmargin=*]
+  \item \textbf{Loại}: \rt{http} = trả về trang HTML hoặc tệp; \rt{json}/\rt{jsonrpc} = gọi
+        ngầm từ trình duyệt (AJAX), người dùng không gõ được đường dẫn này.
+  \item \textbf{Quyền}: \rt{user} = phải đăng nhập; \rt{public} = không cần (chỉ dùng cho màn
+        đăng nhập, quên mật khẩu và các chuyển hướng cũ).
+  \item Đường dẫn dạng \rt{<int:id>} nghĩa là có mã bản ghi trong URL.
+  \item \textbf{Mọi} màn danh sách đều lọc theo \textbf{cửa hàng đang chọn} — đây là luật
+        chung của portal, không nhắc lại ở từng dòng.
+\end{itemize}
+
+\chapter{Tổng quan theo module}
+
+Cột \textit{UAT} so phiên bản module trong mã nguồn với phiên bản đang chạy thật trên máy chủ
+UAT. Lệch nghĩa là code đã có nhưng \textbf{chưa lên máy chủ} — BA retest thì chưa thấy.
+
+\begin{center}
+\small
+\begin{tabular}{@{}llrll@{}}
+\toprule
+\textbf{Module} & \textbf{Phân hệ} & \textbf{Route} & \textbf{Bản mã nguồn} & \textbf{Trên UAT} \\
+\midrule
+\rt{wujia\_portal\_layout} & Khung + đăng nhập & 11 & 19.0.55.0.2 & \textcolor{partc}{19.0.54.0.0} \\
+\rt{wujia\_portal\_base} & Trang chủ + cửa hàng & 14 & 19.0.7.19.1 & \textcolor{partc}{19.0.7.18.0} \\
+\rt{wujia\_portal\_sale} & Đặt hàng & 14 & 19.0.4.19.0 & 19.0.4.19.0 \\
+\rt{wujia\_portal\_purchase\_history} & Lịch sử đặt hàng & 5 & 19.0.3.15.0 & \textcolor{partc}{19.0.3.14.0} \\
+\rt{wujia\_portal\_delivery} & Giao hàng & 4 & 19.0.3.17.0 & \textcolor{partc}{19.0.3.16.0} \\
+\rt{wujia\_portal\_return} & Đổi trả / bù hàng & 5 & 19.0.3.6.2 & \textcolor{partc}{19.0.3.6.0} \\
+\rt{wujia\_portal\_exam} & Đăng ký thi & 8 & 19.0.5.17.0 & 19.0.5.17.0 \\
+\rt{wujia\_portal\_knowledge} & Kiến thức & 4 & 19.0.3.16.2 & \textcolor{partc}{19.0.3.16.0} \\
+\rt{wujia\_portal\_notification} & Thông báo & 8 & 19.0.2.17.1 & \textcolor{partc}{19.0.2.17.0} \\
+\rt{wujia\_portal\_support} & Hỗ trợ & 6 & 19.0.3.23.2 & \textcolor{partc}{19.0.3.23.0} \\
+\rt{wujia\_portal\_debt} & Công nợ & 3 & 19.0.4.8.4 & 19.0.4.8.4 \\
+\rt{wujia\_portal\_report} & Báo cáo & 2 & 19.0.2.4.0 & 19.0.2.4.0 \\
+\rt{wujia\_portal\_info\_request} & Yêu cầu cập nhật TT & 5 & 19.0.1.11.0 & 19.0.1.11.0 \\
+\rt{wujia\_portal\_inspection} & Khảo sát (portal) & 5 & 19.0.1.5.0 & 19.0.1.5.0 \\
+\rt{wujia\_franchise\_inspection} & Khảo sát (người đi chấm) & 7 & 19.0.1.0.0 & 19.0.1.0.0 \\
+\rt{wujia\_metabase\_connector} & BI nhúng & 2 & 19.0.1.0.0 & 19.0.1.0.0 \\
+\midrule
+\rt{wujia\_portal\_order\_window} & Khung giờ đặt hàng & 0 & 19.0.2.2.0 & 19.0.2.2.0 \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\textbf{Tám module lệch} là phần việc của hai phiên E5a + E5b1 (chuẩn hoá thẻ danh sách) làm
+ngày 19/09 nhưng \textbf{chưa deploy}. Lệch ở đây là \textbf{giao diện}, không phải chức năng:
+không có đường dẫn nào mới, không có hành vi nào mất.
+
+\section{Module không có controller}
+
+\begin{itemize}[leftmargin=*]
+  \item \rt{wujia\_portal\_order\_window} — có màn cấu hình trong backend và luật kiểm khung
+        giờ, nhưng portal gọi luật đó \textbf{qua controller đặt hàng}, không có đường dẫn riêng.
+  \item \textbf{Bảy module \rt{wujia\_mobile\_*}} (\rt{\_core}, \rt{\_franchise},
+        \rt{\_franchise\_contract}, \rt{\_franchise\_inspection}, \rt{\_franchise\_operations},
+        \rt{\_portal\_exam}, \rt{\_portal\_info\_request}, \rt{\_sale}) — đây là \textbf{giao diện
+        backend Odoo thu nhỏ cho điện thoại}, dùng lại màn hình sẵn có của Odoo nên
+        \textbf{không có controller nào}. Đừng nhầm chúng với portal.
+  \item Các module nghiệp vụ \rt{wujia\_core}, \rt{wujia\_sale}, \rt{wujia\_fleet},
+        \rt{wujia\_delivery}, \rt{wujia\_account}, \rt{wujia\_franchise},
+        \rt{wujia\_franchise\_contract}, \rt{wujia\_franchise\_operations} — chỉ có dữ liệu và
+        màn backend, không có controller. Portal đọc dữ liệu của chúng qua controller portal.
+\end{itemize}
+
+\chapter{Chi tiết theo phân hệ}
+
+\section{Khung portal, đăng nhập, tài khoản --- \rt{wujia\_portal\_layout} (11)}
+
+{\small
+\begin{longtable}{@{}L{5.4cm}L{1.5cm}L{7.5cm}@{}}
+\toprule
+\textbf{Đường dẫn} & \textbf{Loại} & \textbf{Chức năng} \\
+\midrule
+\endhead
+\rt{/portal/login} & http/public & Màn đăng nhập portal (thay màn đăng nhập mặc định của Odoo). \\
+\rt{/portal/logout} & http/public & Thoát phiên, quay về màn đăng nhập. \\
+\rt{/portal/redirect} & http & Sau khi đăng nhập: nhân viên nội bộ vào \rt{/odoo}, người nhượng quyền vào \rt{/portal}. \\
+\rt{/portal/forgot-pass} & http/public & Quên mật khẩu — gửi email đặt lại. Chặn spam 10 lần/giờ/IP, không tiết lộ email có tồn tại hay không. \\
+\rt{/portal/reset\_password} & http/public & Đặt mật khẩu mới bằng liên kết trong email (tối thiểu 8 ký tự). \\
+\rt{/portal/profile} & http & Trang hồ sơ cá nhân: tên, email, điện thoại, địa chỉ, cửa hàng và vai trò hiện tại. \\
+\rt{/portal/profile/update} & http POST & Lưu hồ sơ + ảnh đại diện. Có kiểm định dạng điện thoại, chống bấm gửi hai lần. \\
+\rt{/portal/profile/avatar/<user\_id>} & http & Trả ảnh đại diện. Chỉ xem được ảnh của chính mình hoặc người cùng cửa hàng. \\
+\rt{/portal/change-password} & http & Đổi mật khẩu (nhập mật khẩu cũ). \\
+\rt{/portal/set-lang/<mã>} & http/public & Đổi ngôn ngữ portal, dùng được cả khi chưa đăng nhập. \\
+\rt{/portal/\_pc-preview} & http & Trang mẫu các thành phần giao diện — \textbf{chỉ nhân viên nội bộ}, công cụ của Dev. \\
+\bottomrule
+\end{longtable}}
+
+\section{Trang chủ, cửa hàng, thành viên --- \rt{wujia\_portal\_base} (14)}
+
+{\small
+\begin{longtable}{@{}L{5.4cm}L{1.5cm}L{7.5cm}@{}}
+\toprule
+\textbf{Đường dẫn} & \textbf{Loại} & \textbf{Chức năng} \\
+\midrule
+\endhead
+\rt{/portal} & http & \textbf{Trang chủ}: cửa hàng + vai trò, khung giờ đặt hàng, các con số tổng quan (thông báo chưa đọc, đơn gần đây, yêu cầu đổi trả, công nợ), danh sách đơn mới nhất, bài viết, hotline. \\
+\rt{/portal/franchise/switch} & http POST & Đổi cửa hàng đang làm việc. Chỉ nhận cửa hàng người dùng có quyền; lưu bằng \textbf{cookie}. \\
+\rt{/portal/franchise/clear} & http POST & Bỏ chọn cửa hàng hiện tại. \\
+\rt{/portal/franchise-information} & http & Trang thông tin cửa hàng đang chọn + danh sách thành viên. Cửa hàng bị khoá hoặc ngừng hoạt động thì hiện màn chặn. \\
+\rt{/portal/franchises} & http & Danh sách các cửa hàng người dùng thuộc về. \\
+\rt{/portal/franchises/<id>} & http & Chi tiết một cửa hàng + thành viên đang hiệu lực. \\
+\rt{/portal/franchises/<id>/profile} & http & Hồ sơ cửa hàng (bản đầy đủ). \\
+\rt{/my/franchises} & http & Bản trong giao diện portal chuẩn của Odoo — danh sách cửa hàng. \\
+\rt{/my/franchises/<id>} & http & Bản Odoo chuẩn — chi tiết cửa hàng. \\
+\rt{/my/franchises/<id>/members} & jsonrpc & Trả danh sách thành viên cho JavaScript. \\
+\rt{/my/branches}, \rt{/my/branches/<id>} & http & Chuyển hướng 301 từ đường dẫn cũ sang \rt{/my/franchises...}. \\
+\rt{/portal/branches}, \rt{/portal/branches/<id>} & http & Chuyển hướng 301 từ đường dẫn cũ sang \rt{/portal/franchises...}. \\
+\bottomrule
+\end{longtable}}
+
+\section{Đặt hàng --- \rt{wujia\_portal\_sale} (14)}
+
+{\small
+\begin{longtable}{@{}L{5.4cm}L{1.5cm}L{7.5cm}@{}}
+\toprule
+\textbf{Đường dẫn} & \textbf{Loại} & \textbf{Chức năng} \\
+\midrule
+\endhead
+\rt{/portal/order} & http & Danh mục sản phẩm đặt hàng: lọc theo nhóm hàng, tìm theo tên, phân trang, giá theo bảng giá của cửa hàng, trạng thái khung giờ đặt hàng. \\
+\rt{/portal/order/results} & http & Phần kết quả của trang trên, để lọc không phải tải lại cả trang. \\
+\rt{/portal/order/product/<id>} & http & Chi tiết một sản phẩm + sản phẩm cùng nhóm. Sản phẩm không còn bán thì quay về danh mục kèm thông báo. \\
+\rt{/portal/order/cart} & http & Giỏ hàng của cửa hàng (giỏ dùng chung cho cả cửa hàng, lưu trong hệ thống chứ không phải trên máy người dùng). \\
+\rt{/portal/order/cart/add} & json POST & Thêm sản phẩm vào giỏ. Kiểm số lượng tối thiểu và bước nhảy. \\
+\rt{/portal/order/cart/update} & json POST & Sửa số lượng một dòng. Dòng đã bị người khác xoá thì trả trạng thái mới, không báo lỗi. \\
+\rt{/portal/order/cart/step} & json POST & Tăng/giảm đúng một bước. Cộng trực tiếp trong cơ sở dữ liệu để hai người cùng bấm không ghi đè nhau. \\
+\rt{/portal/order/cart/remove} & json POST & Xoá một dòng khỏi giỏ. \\
+\rt{/portal/order/cart/count} & json & Số dòng và tổng số lượng trong giỏ — cho con số trên biểu tượng giỏ. \\
+\rt{/portal/order/cart/note} & json POST & Ghi chú cho đơn (tối đa 1000 ký tự). \\
+\rt{/portal/order/cart/fragment} & json & Trả lại nội dung giỏ để đồng bộ khi người khác cùng cửa hàng vừa sửa giỏ. \\
+\rt{/portal/order/submit} & http POST & \textbf{Gửi đơn}: kiểm khung giờ, khoá giỏ chống gửi trùng, tạo đơn bán trong Odoo rồi xoá giỏ. \\
+\rt{/portal/order/submitted/<id>} & http & Màn \textit{Đặt hàng thành công} — mã đơn, trạng thái, nội dung đơn thật. \\
+\rt{/portal/order/rejected} & http & Màn \textit{Không gửi được đơn} khi ngoài khung giờ — báo khung giờ kế tiếp. \\
+\bottomrule
+\end{longtable}}
+
+\section{Lịch sử đặt hàng --- \rt{wujia\_portal\_purchase\_history} (5)}
+
+{\small
+\begin{longtable}{@{}L{5.4cm}L{1.5cm}L{7.5cm}@{}}
+\toprule
+\textbf{Đường dẫn} & \textbf{Loại} & \textbf{Chức năng} \\
+\midrule
+\endhead
+\rt{/portal/purchase-history} & http & Danh sách đơn đã đặt: lọc theo trạng thái, khoảng ngày, từ khoá; phân trang. \\
+\rt{/portal/purchase-history/results} & http & Phần kết quả cho lọc không tải lại trang. \\
+\rt{/portal/purchase-history/<id>} & http & Chi tiết đơn: sản phẩm, số lượng, tiền, trạng thái giao. Đơn của cửa hàng khác và đơn không tồn tại báo giống nhau (chống dò mã). \\
+\rt{/portal/purchase-history/<id>.pdf} & http & Tải hoá đơn bán hàng dạng PDF. \\
+\rt{/portal/purchase\_history} & http & Chuyển hướng 301 từ đường dẫn cũ (bản v14). \\
+\bottomrule
+\end{longtable}}
+
+\section{Giao hàng --- \rt{wujia\_portal\_delivery} (4)}
+
+{\small
+\begin{longtable}{@{}L{5.4cm}L{1.5cm}L{7.5cm}@{}}
+\toprule
+\textbf{Đường dẫn} & \textbf{Loại} & \textbf{Chức năng} \\
+\midrule
+\endhead
+\rt{/portal/delivery} & http & Danh sách chuyến giao tới cửa hàng: lọc theo trạng thái và từ khoá. \\
+\rt{/portal/delivery/results} & http & Phần kết quả cho lọc không tải lại trang. \\
+\rt{/portal/delivery/<id>} & http & Chi tiết chuyến: ngày giao, trạng thái, xe/nhà xe, danh sách hàng gộp theo sản phẩm. \\
+\rt{/portal/delivery/<id>.ics} & http & Tải lịch giao hàng để nạp vào Google/Outlook Calendar. \\
+\bottomrule
+\end{longtable}}
+
+\section{Đổi trả / bù hàng --- \rt{wujia\_portal\_return} (5)}
+
+{\small
+\begin{longtable}{@{}L{5.4cm}L{1.5cm}L{7.5cm}@{}}
+\toprule
+\textbf{Đường dẫn} & \textbf{Loại} & \textbf{Chức năng} \\
+\midrule
+\endhead
+\rt{/portal/return} & http & Danh sách yêu cầu đổi trả: lọc trạng thái, ngày, tìm theo mã yêu cầu / mã đơn / chuyến / sản phẩm. \\
+\rt{/portal/return/new} & http & Tạo yêu cầu: chọn \textbf{đơn đã xác nhận trong 10 ngày}, chọn 1 sản phẩm, nêu lý do, đính kèm ảnh (bắt buộc) và video. Lưu nháp hoặc gửi ngay. \\
+\rt{/portal/return/<id>} & http & Chi tiết yêu cầu: trạng thái xử lý, hướng giải quyết, tiến độ bù hàng. \\
+\rt{/portal/return/<id>/}\allowbreak\rt{attachment/<id>} & http & Tải ảnh/video đã đính kèm (chỉ người thuộc cửa hàng đó). \\
+\rt{/portal/return-request-list} & http & Chuyển hướng 301 từ đường dẫn cũ. \\
+\bottomrule
+\end{longtable}}
+
+\section{Đăng ký thi --- \rt{wujia\_portal\_exam} (8)}
+
+{\small
+\begin{longtable}{@{}L{5.4cm}L{1.5cm}L{7.5cm}@{}}
+\toprule
+\textbf{Đường dẫn} & \textbf{Loại} & \textbf{Chức năng} \\
+\midrule
+\endhead
+\rt{/portal/exam} & http & Danh sách phiếu đăng ký thi của cửa hàng: lọc trạng thái, kết quả, khoảng ngày, từ khoá. \\
+\rt{/portal/exam/register} & http & Màn đăng ký: danh sách khoá thi đang mở, lịch theo tháng, khung giờ còn chỗ. \\
+\rt{/portal/exam/calendar} & json POST & Trả lịch thi của một khoá theo tháng (cho phần chọn ngày). \\
+\rt{/portal/exam/slots} & json POST & Trả các khung giờ còn chỗ của một ngày. \\
+\rt{/portal/exam/register} & json POST & \textbf{Gửi đăng ký}: danh sách người dự thi, kiểm còn chỗ và số người tối đa mỗi phiếu. \\
+\rt{/portal/exam/registration/<id>} & http & Chi tiết phiếu: người dự thi, khung giờ, trạng thái, \textbf{kết quả} (chỉ hiện khi đã công bố). \\
+\rt{/portal/exam/line/<id>/photo} & http & Trả ảnh người dự thi (chỉ phiếu của cửa hàng đang chọn). \\
+\rt{/portal/exam-registration} & http & Chuyển hướng 301 từ đường dẫn cũ. \\
+\bottomrule
+\end{longtable}}
+
+\section{Kiến thức --- \rt{wujia\_portal\_knowledge} (4)}
+
+{\small
+\begin{longtable}{@{}L{5.4cm}L{1.5cm}L{7.5cm}@{}}
+\toprule
+\textbf{Đường dẫn} & \textbf{Loại} & \textbf{Chức năng} \\
+\midrule
+\endhead
+\rt{/portal/knowledge} & http & Danh sách bài viết đã đăng: lọc theo danh mục, thẻ, từ khoá; phân trang. \\
+\rt{/portal/knowledge/<slug>} & http & Đọc bài viết + bài cùng danh mục. \textbf{Tăng lượt xem} của bài. \\
+\rt{/portal/knowledge/<slug>/}\allowbreak\rt{attachment/<id>} & http & Tải tệp đính kèm của bài viết. \\
+\rt{/portal/knowledge/search} & json & Gợi ý khi gõ tìm kiếm (tối đa 20 kết quả). \\
+\bottomrule
+\end{longtable}}
+
+\section{Thông báo --- \rt{wujia\_portal\_notification} (8)}
+
+{\small
+\begin{longtable}{@{}L{5.4cm}L{1.5cm}L{7.5cm}@{}}
+\toprule
+\textbf{Đường dẫn} & \textbf{Loại} & \textbf{Chức năng} \\
+\midrule
+\endhead
+\rt{/portal/notification} & http & Danh sách thông báo còn hiệu lực của cửa hàng: lọc và phân trang. \\
+\rt{/portal/notification/results} & http & Phần kết quả cho lọc không tải lại trang. \\
+\rt{/portal/notification/<id>} & http & Xem nội dung thông báo; \textbf{tự ghi nhận đã đọc} theo người dùng + cửa hàng. Mở lại thông báo đã hết hiệu lực từ lịch sử vẫn được. \\
+\rt{/portal/notification/recent} & json & Nội dung cho chuông ở đầu trang: 5 thông báo mới nhất + số chưa đọc. \\
+\rt{/portal/notification/unread-count} & json & Chỉ trả số chưa đọc — cho con số trên chuông. \\
+\rt{/portal/notification/mark-all-read} & json POST & Đánh dấu đã đọc toàn bộ thông báo còn hiệu lực. \\
+\rt{/portal/notification/mark-read} & json POST & Đánh dấu đã đọc theo danh sách mã. \\
+\rt{/portal/notification/<id>/}\allowbreak\rt{attachment/<id>} & http & Tải tệp đính kèm, có kiểm tệp đó đúng thuộc thông báo đó. \\
+\bottomrule
+\end{longtable}}
+
+\section{Hỗ trợ / ticket --- \rt{wujia\_portal\_support} (6)}
+
+{\small
+\begin{longtable}{@{}L{5.4cm}L{1.5cm}L{7.5cm}@{}}
+\toprule
+\textbf{Đường dẫn} & \textbf{Loại} & \textbf{Chức năng} \\
+\midrule
+\endhead
+\rt{/portal/support} & http & Danh sách phiếu hỗ trợ \textbf{do chính người dùng tạo}: lọc trạng thái, tìm theo mã hoặc tiêu đề. \\
+\rt{/portal/support/new} & http GET & Biểu mẫu tạo phiếu: chọn cửa hàng, nhóm vấn đề, mức ưu tiên. \\
+\rt{/portal/support/new} & http POST & Tạo phiếu. Đính kèm chỉ nhận ảnh/PDF, mỗi tệp $\leq$ 5MB, tối đa 6 tệp. \\
+\rt{/portal/support/<id>} & http & Chi tiết phiếu + toàn bộ trao đổi. \\
+\rt{/portal/support/<id>/reply} & http POST & Gửi phản hồi vào phiếu (ghi vào dòng trao đổi chuẩn của Odoo). \\
+\rt{/portal/support/<id>/}\allowbreak\rt{attachment/<id>} & http & Tải tệp đính kèm — chỉ người tạo phiếu. \\
+\bottomrule
+\end{longtable}}
+
+\section{Công nợ --- \rt{wujia\_portal\_debt} (3)}
+
+{\small
+\begin{longtable}{@{}L{5.4cm}L{1.5cm}L{7.5cm}@{}}
+\toprule
+\textbf{Đường dẫn} & \textbf{Loại} & \textbf{Chức năng} \\
+\midrule
+\endhead
+\rt{/portal/debt} & http & Tổng quan công nợ theo tuần: tổng nợ, đã trả, còn lại; danh sách hoá đơn trong kỳ. \textbf{Chỉ Chủ / Quản lý}. \\
+\rt{/portal/debt/payment-history} & http & Các khoản Ngô Gia đã xác nhận: lọc theo tháng, khoảng ngày, từ khoá; tổng theo từng loại tiền. \\
+\rt{/portal/debt/pay} & http & Thông tin chuyển khoản cho số còn phải trả. Hết nợ thì quay về trang công nợ kèm thông báo. \\
+\bottomrule
+\end{longtable}}
+
+\section{Báo cáo --- \rt{wujia\_portal\_report} (2)}
+
+{\small
+\begin{longtable}{@{}L{5.4cm}L{1.5cm}L{7.5cm}@{}}
+\toprule
+\textbf{Đường dẫn} & \textbf{Loại} & \textbf{Chức năng} \\
+\midrule
+\endhead
+\rt{/portal/reports/orders} & http & Báo cáo đặt hàng theo khoảng ngày: các chỉ số tổng, biểu đồ, bảng chi tiết. \textbf{Chỉ Chủ / Quản lý}. \\
+\rt{/portal/reports/orders/}\allowbreak\rt{export.xlsx} & http & Tải Excel: 1 sheet chỉ số + 1 sheet chi tiết. \\
+\bottomrule
+\end{longtable}}
+
+\section{Yêu cầu cập nhật thông tin --- \rt{wujia\_portal\_info\_request} (5)}
+
+{\small
+\begin{longtable}{@{}L{5.4cm}L{1.5cm}L{7.5cm}@{}}
+\toprule
+\textbf{Đường dẫn} & \textbf{Loại} & \textbf{Chức năng} \\
+\midrule
+\endhead
+\rt{/portal/info-request} & http & Danh sách yêu cầu sửa thông tin cửa hàng đã gửi: lọc trạng thái và loại yêu cầu. \\
+\rt{/portal/info-request/new} & http & Tạo yêu cầu (\textbf{chỉ Chủ / Quản lý}) — chọn loại thông tin, hệ thống hiện giá trị hiện tại, nhập giá trị đề nghị. \\
+\rt{/portal/info-request/<id>} & http & Chi tiết yêu cầu + kết quả duyệt của trụ sở. \\
+\rt{/portal/info-request/<id>/cancel} & http POST & Người gửi tự huỷ yêu cầu. \\
+\rt{/portal/info-request/franchise/<id>/values} & json & Trả giá trị hiện tại của trường đang xin sửa (điền sẵn vào biểu mẫu). \\
+\bottomrule
+\end{longtable}}
+
+\section{Khảo sát cửa hàng --- 12 route (phần của anh Thái)}
+
+\textbf{Dev portal không sửa nhóm này.} Ghi ra đây để BA thấy bức tranh đủ.
+
+{\small
+\begin{longtable}{@{}L{5.4cm}L{1.5cm}L{7.5cm}@{}}
+\toprule
+\textbf{Đường dẫn} & \textbf{Loại} & \textbf{Chức năng} \\
+\midrule
+\endhead
+\multicolumn{3}{@{}l}{\textit{\rt{wujia\_portal\_inspection} — phía cửa hàng xem và khắc phục (5)}} \\
+\rt{/portal/inspection} & http & Danh sách phiếu khảo sát của cửa hàng: theo tab, khoảng ngày, tìm kiếm. \\
+\rt{/portal/inspection/ajax} & http & Phần kết quả cho lọc không tải lại trang. \\
+\rt{/portal/inspection/detail/<id>} & http & Chi tiết phiếu + các tiêu chí không đạt cần khắc phục. \\
+\rt{/portal/inspection/}\allowbreak\rt{remediation/<id>} & http & Màn gửi khắc phục cho một tiêu chí (kèm 2 đường dẫn cũ \rt{/portal/remediation...}). \\
+\rt{/portal/inspection/}\allowbreak\rt{remediation/submit} & http POST & Gửi nội dung + ảnh khắc phục. \\
+\midrule
+\multicolumn{3}{@{}l}{\textit{\rt{wujia\_franchise\_inspection} — phía người đi chấm, trên nền web (7)}} \\
+\rt{/franchise/inspection/do/<id>} & http & Màn chấm khảo sát tại cửa hàng. \\
+\rt{.../sync\_posapp} & json POST & Lấy dữ liệu doanh thu từ POS App vào phiếu. \\
+\rt{.../save} & json POST & Lưu toàn bộ phiếu chấm: tiêu chí, bài thi, chấm công, chữ ký. \\
+\rt{.../attendance/add} & json POST & Thêm một dòng nhân sự có mặt. \\
+\rt{.../attendance/save\_member} & json POST & Lưu dòng nhân sự thành thành viên cửa hàng. \\
+\rt{.../attendance/deactivate\_member} & json POST & Ngưng hiệu lực một thành viên. \\
+\rt{.../attendance/delete\_line} & json POST & Xoá một dòng chấm công. \\
+\bottomrule
+\end{longtable}}
+
+\section{BI nhúng --- \rt{wujia\_metabase\_connector} (2)}
+
+{\small
+\begin{longtable}{@{}L{5.4cm}L{1.5cm}L{7.5cm}@{}}
+\toprule
+\textbf{Đường dẫn} & \textbf{Loại} & \textbf{Chức năng} \\
+\midrule
+\endhead
+\rt{/metabase/embed/<id>} & http & Nhúng một dashboard Metabase vào Odoo (kiểm quyền theo công ty). \\
+\rt{/metabase/embed\_url/<id>} & http & Trả đường dẫn nhúng đã ký cho JavaScript. \\
+\bottomrule
+\end{longtable}}
+
+\chapter{Nhóm đường dẫn không phải màn hình}
+
+Trong 103 đường dẫn, không phải cái nào cũng là một trang để BA bấm vào xem. Phân loại:
+
+\begin{center}
+\small
+\begin{tabular}{@{}lrL{8.6cm}@{}}
+\toprule
+\textbf{Loại} & \textbf{Số} & \textbf{Ý nghĩa với BA} \\
+\midrule
+Trang xem được & 44 & Có trong menu hoặc mở từ một trang khác. \\
+Gọi ngầm (\rt{json}) & 17 & JavaScript gọi, không gõ URL được. Lỗi ở đây hiện ra dưới dạng "bấm không ăn". \\
+Mảnh kết quả lọc & 6 & \rt{.../results}, \rt{/inspection/ajax} — phần danh sách được thay khi lọc. \\
+Chỉ nhận POST & 9 & Nút gửi biểu mẫu. \\
+Tải tệp & 7 & PDF hoá đơn, Excel báo cáo, ICS lịch giao, ảnh và tệp đính kèm. \\
+Chuyển hướng 301 & 9 & Đường dẫn cũ thời v14 — giữ để liên kết cũ không chết. \\
+Công cụ Dev & 1 & \rt{/portal/\_pc-preview}. \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\chapter{Đối chiếu với tab \textit{3. Controller} của BA}
+
+\textbf{Cách đọc}: \ok{} = có code đang chạy, cột cuối trỏ tới đường dẫn thật ·
+\pt{} = có nhưng thiếu một phần, đã ghi rõ thiếu gì · \no{} = chưa có dòng code nào.
+
+Khớp theo \textbf{hành vi}, không khớp theo tên model: BA đặt tên model theo hướng lý tưởng,
+mã nguồn có tên khác (ví dụ BA ghi \rt{franchise.support.ticket}, mã nguồn là
+\rt{wujia.support.ticket}). Những chỗ lệch tên đều ghi ở cột ghi chú.
+
+\section{Bảng đối chiếu 71 mục}
+
+{\small
+\begin{longtable}{@{}L{1.2cm}L{4.2cm}L{1.9cm}L{7.6cm}@{}}
+\toprule
+\textbf{CT} & \textbf{Chức năng (BA)} & \textbf{Trạng thái} & \textbf{Ở đâu trong code / ghi chú} \\
+\midrule
+\endhead
+CT-001 & Đăng nhập portal & \ok & \rt{/portal/login}, \rt{/portal/logout}. Dùng tài khoản người dùng Odoo. \textbf{Có thêm} quên/đặt lại mật khẩu (không có trong spec). \\
+CT-002 & Xác định user hiện tại & \ok & Không phải một đường dẫn riêng — làm trong hàm dùng chung của \rt{wujia\_portal\_base}; mọi trang gọi. \\
+CT-003 & Chọn cửa hàng làm việc & \ok & \rt{/portal/franchise/switch}, \rt{/portal/franchise/clear}. \textbf{Lệch spec}: lưu bằng \textbf{cookie}, không phải session — nhờ BA xác nhận cách hiểu. \\
+CT-004 & Lấy cửa hàng hiện tại & \ok & Hàm dùng chung + \rt{/portal/franchise-information}. \\
+CT-005 & Hiển thị thông tin tài khoản & \ok & \rt{/portal/profile}, ảnh qua \rt{/portal/profile/avatar/<id>}. \\
+CT-006 & Cập nhật thông tin tài khoản & \ok & \rt{/portal/profile/update} — sửa được: họ tên, email, điện thoại, địa chỉ, ảnh. Các trường khác chỉ xem. \\
+CT-007 & Đổi mật khẩu & \ok & \rt{/portal/change-password} (controller riêng, tối thiểu 8 ký tự). \\
+CT-008 & Thông tin cửa hàng nhượng quyền & \ok & \rt{/portal/franchise-information}, \rt{/portal/franchises/<id>}. \\
+CT-009 & Danh sách thành viên cửa hàng & \ok & Trong 2 trang trên + \rt{/my/franchises/<id>/members}. \textbf{Cần BA chốt}: hiện Nhân viên cũng xem được — spec còn để ngỏ. \\
+CT-010 & Dữ liệu tổng quan Home & \ok & \rt{/portal}. Mọi con số lọc theo cửa hàng đang chọn. \\
+CT-011 & Thông báo mới nhất ở Home & \ok & \rt{/portal} + \rt{/portal/notification/recent}. \\
+CT-012 & Đơn hàng gần đây & \ok & \rt{/portal}. \\
+CT-013 & Yêu cầu đổi trả gần đây & \ok & \rt{/portal}. Model thật: \rt{wujia.return.request}. \\
+CT-014 & Công nợ tóm tắt & \ok & \rt{/portal}. \textbf{Lưu ý nguồn dữ liệu} — xem mục \ref{sec:luuy}. \\
+CT-015 & Danh sách sản phẩm & \ok & \rt{/portal/order} — lọc theo còn hiệu lực + được đăng lên portal. \\
+CT-016 & Danh mục sản phẩm & \ok & Dùng \textbf{danh mục riêng} \rt{wujia.product.category}, không dùng danh mục chuẩn của Odoo. \\
+CT-017 & Chi tiết sản phẩm & \ok & \rt{/portal/order/product/<id>} — giá theo bảng giá cửa hàng, đơn vị tính, ảnh, mô tả. Không hiện tồn kho. \\
+CT-018 & Kiểm tra điều kiện đặt & \ok & Kiểm cả ở giỏ và khi tạo đơn: tối thiểu, bước nhảy, tối đa (0 = không giới hạn). \\
+CT-019 & Khung giờ đặt hàng chung & \ok & Kiểm trong \rt{/portal/order/submit} và hiển thị ở \rt{/portal/order}. \\
+CT-020 & Khung giờ theo khu vực & \ok & \rt{wujia\_portal\_order\_window} — riêng theo khu vực, không có thì rơi về cấu hình chung. Module này \textbf{không có controller riêng}. \\
+CT-021 & Lưu giỏ hàng & \ok & \textbf{Chốt}: giỏ lưu ở \textbf{backend} (\rt{wujia.portal.cart}), dùng chung cho cả cửa hàng — không phải session. 6 đường dẫn \rt{/portal/order/cart/*}. \\
+CT-022 & Tạo đơn hàng xuống Odoo & \ok & \rt{/portal/order/submit}. \\
+CT-023 & Trả kết quả đặt hàng & \ok & \rt{/portal/order/submitted/<id>} và \rt{/portal/order/rejected}. \\
+CT-024 & Danh sách đơn hàng & \ok & \rt{/portal/purchase-history}. \\
+CT-025 & Chi tiết đơn hàng & \ok & \rt{/portal/purchase-history/<id>}. \textbf{Có làm} trang chi tiết, thêm cả tải PDF. \\
+CT-026 & Danh sách chuyến giao & \ok & \rt{/portal/delivery}. Model chính: \rt{stock.picking.batch}. \\
+CT-027 & Chi tiết giao hàng & \ok & \rt{/portal/delivery/<id>} + tải lịch \rt{.ics}. \\
+CT-028 & Theo dõi trạng thái giao & \ok & Hai đường dẫn trên; cửa hàng chỉ xem. \\
+CT-029 & Tạo yêu cầu đổi trả & \ok & \rt{/portal/return/new}. \textbf{Chốt}: bắt buộc chọn từ đơn cũ. \\
+CT-030 & DS đơn/sản phẩm được đổi trả & \ok & Trong biểu mẫu trên — điều kiện: đơn \textbf{đã xác nhận trong 10 ngày}. \\
+CT-031 & Lịch sử yêu cầu đổi trả & \ok & \rt{/portal/return}. \\
+CT-032 & Chi tiết yêu cầu đổi trả & \ok & \rt{/portal/return/<id>}. \textbf{Lệch spec}: mỗi yêu cầu \textbf{một sản phẩm}, không có bảng dòng \rt{...request.line} như BA ghi. \\
+CT-033 & Danh sách lịch thi & \ok & \rt{/portal/exam/register} — dạng lịch theo tháng + khung giờ. \\
+CT-034 & Đăng ký thi & \ok & \rt{/portal/exam/register} (gửi) — kiểm còn chỗ và số người tối đa mỗi phiếu. \\
+CT-035 & Lịch sử đăng ký & \ok & \rt{/portal/exam}. \\
+CT-036 & Kết quả thi & \ok & Trong \rt{/portal/exam/registration/<id>} — chỉ hiện khi đã công bố. \\
+CT-037 & Danh sách bài viết & \ok & \rt{/portal/knowledge}. \\
+CT-038 & Danh mục / thẻ bài viết & \ok & Cùng trang trên + \rt{/portal/knowledge/search}. \\
+CT-039 & Chi tiết bài viết & \ok & \rt{/portal/knowledge/<slug>} + tải tệp đính kèm. \\
+CT-040 & Ghi nhận lượt xem/đã đọc & \pt & Có \textbf{đếm lượt xem} của bài. \textbf{Chưa} ghi "người nào đã đọc bài nào" — BA đánh ưu tiên Thấp, chưa làm. \\
+CT-041 & Danh sách thông báo & \ok & \rt{/portal/notification}. \\
+CT-042 & Thông báo trên chuông & \ok & \rt{/portal/notification/recent} + \rt{/unread-count}. \\
+CT-043 & Đánh dấu đã đọc & \ok & Tự ghi khi mở + \rt{/mark-read} + \rt{/mark-all-read}. Ghi theo \textbf{người dùng và cửa hàng}. \\
+CT-044 & Chi tiết thông báo & \ok & \rt{/portal/notification/<id>} + tệp đính kèm. \\
+CT-045 & Tạo ticket hỗ trợ & \ok & \rt{/portal/support/new}. \textbf{Lệch tên}: model là \rt{wujia.support.ticket}. \\
+CT-046 & Danh sách ticket & \ok & \rt{/portal/support}. \textbf{Lưu ý}: hiện lọc theo \textbf{người tạo}, không phải theo cửa hàng — xem mục \ref{sec:luuy}. \\
+CT-047 & Chi tiết ticket & \ok & \rt{/portal/support/<id>}. \\
+CT-048 & Gửi phản hồi trong ticket & \ok & \rt{/portal/support/<id>/reply}. \textbf{Lệch spec}: dùng dòng trao đổi chuẩn của Odoo (\rt{mail.message}), không tạo model message riêng — quyết định kiến trúc ADR-016. \\
+CT-049 & Lịch sử trao đổi ticket & \ok & Hiện trong trang chi tiết, xếp theo thời gian. \\
+CT-050 & Tổng quan công nợ & \ok & \rt{/portal/debt}. Chỉ Chủ/Quản lý. Xem mục \ref{sec:luuy} về nguồn dữ liệu. \\
+CT-051 & Danh sách hoá đơn công nợ & \ok & \rt{/portal/debt}. \\
+CT-052 & Lọc theo kỳ công nợ & \ok & \rt{/portal/debt?week=...} — kỳ theo \textbf{tuần}. \\
+CT-053 & Tải PDF công nợ & \no & Không có đường dẫn nào. Cần BA chốt: PDF gộp cả kỳ hay từng hoá đơn. \\
+CT-054 & Lịch sử thanh toán & \ok & \rt{/portal/debt/payment-history} — tổng tách theo từng loại tiền. \\
+CT-055 & QR thanh toán & \pt & \rt{/portal/debt/pay} có \textbf{số tài khoản + nội dung chuyển khoản thật}; \textbf{ảnh QR còn treo} chờ BA chốt QR tĩnh hay động. \\
+CT-056 & Danh sách báo cáo portal & \no & Chỉ có đúng \textbf{một} báo cáo (đặt hàng), chưa có màn liệt kê báo cáo. \\
+CT-057 & Dữ liệu báo cáo theo bộ lọc & \ok & \rt{/portal/reports/orders} — lọc theo khoảng ngày. \\
+CT-058 & Export báo cáo & \ok & \rt{/portal/reports/orders/}\allowbreak\rt{export.xlsx}. Chỉ Chủ/Quản lý. \\
+CT-059 & Danh sách nhân viên cửa hàng & \ok & \rt{/portal/franchise-information} — model \rt{wujia.franchise.member}. \\
+CT-060 & Tạo/cập nhật nhân viên & \pt & Portal \textbf{không sửa trực tiếp}; gửi yêu cầu qua \rt{/portal/info-request/new} rồi trụ sở duyệt. Cần BA chốt đây có phải cách muốn không. \\
+CT-061 & Danh sách ca làm & \no & Chưa có. \\
+CT-062 & Đăng ký lịch/ca làm & \no & Chưa có. \\
+CT-063 & Lấy lịch làm việc & \no & Chưa có. \\
+CT-064 & Ghi nhận chấm công & \no & Chưa có \textbf{trên portal}. Có chấm công \textbf{trong phiếu khảo sát} (người đi chấm ghi ai có mặt) — khác nghiệp vụ. \\
+CT-065 & Tạo yêu cầu nghỉ phép & \no & Chưa có. \\
+CT-066 & Ghi nhận chi phí phát sinh & \no & Chưa có. \\
+CT-067 & Lịch sử chi phí phát sinh & \no & Chưa có. \\
+CT-068 & Upload file/ảnh & \ok & Có ở đổi trả (ảnh + video), hỗ trợ (ảnh/PDF $\leq$5MB, $\leq$6 tệp), khắc phục khảo sát. \textbf{Chưa dùng chung một hàm} cho cả ba. \\
+CT-069 & Lấy cấu hình portal & \pt & Có \textbf{hotline} (lấy từ điện thoại công ty) và \textbf{đổi ngôn ngữ}. \textbf{Chưa có} chính sách / thông tin liên hệ / logo cấu hình được. \\
+CT-070 & Kiểm tra quyền truy cập menu & \pt & Menu ẩn/hiện theo vai trò ngay khi dựng trang, và mỗi trang tự chặn (ví dụ Báo cáo, Công nợ chỉ Chủ/Quản lý). \textbf{Không có} một đường dẫn trả về danh sách menu như spec mô tả. \\
+CT-071 & Trả thông báo lỗi chuẩn & \pt & Đặt hàng có bộ mã lỗi thống nhất; lỗi khoảng ngày vừa gom về một nguồn (phiên E4c). \textbf{Chưa} thống nhất toàn portal. \\
+\bottomrule
+\end{longtable}}
+
+\section{Đã có trong code nhưng BA chưa có mục CT nào}
+
+Đây là phần \textbf{ngược lại}: code có, spec chưa mô tả. BA cân nhắc bổ sung vào tab
+\textit{3. Controller} để sau này không ai tưởng là thiếu.
+
+\begin{center}
+\small
+\begin{tabular}{@{}L{5.8cm}L{9.2cm}@{}}
+\toprule
+\textbf{Đường dẫn / nhóm} & \textbf{Vì sao nên có mục CT} \\
+\midrule
+\rt{/portal/forgot-pass}, \rt{/portal/reset\_password} & Quên và đặt lại mật khẩu — nghiệp vụ thật, người dùng chắc chắn cần. \\
+\rt{/portal/set-lang/<mã>} & Đổi ngôn ngữ (Việt / Thái) — đã chạy. \\
+\rt{/portal/purchase-history/<id>.pdf} & Tải PDF \textbf{đơn hàng} (khác CT-053 là PDF công nợ). \\
+\rt{/portal/delivery/<id>.ics} & Tải lịch giao hàng vào Google/Outlook Calendar. \\
+6 nhóm \rt{.../results} & Lọc không tải lại trang — quyết định kỹ thuật, nhưng ảnh hưởng cách test. \\
+\rt{/portal/order/cart/fragment} & Đồng bộ giỏ khi hai người cùng cửa hàng sửa giỏ cùng lúc. \\
+\rt{/portal/exam/line/<id>/photo} & Ảnh người dự thi. \\
+\rt{/portal/profile/avatar/<id>} & Ảnh đại diện có kiểm quyền. \\
+9 chuyển hướng 301 & Đường dẫn cũ thời v14 — nếu BA còn tài liệu cũ ghi URL cũ thì vẫn vào được. \\
+12 route \textbf{Khảo sát cửa hàng} & Cả phân hệ khảo sát không có mục CT nào. \\
+2 route \textbf{Metabase} & Nhúng dashboard BI. \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\chapter{Điều BA cần biết khi lên task}
+
+\section{Cái gì đang có trên máy chủ, cái gì chưa}
+
+Tám module đang lệch giữa mã nguồn và UAT (bảng chương 2) là \textbf{giao diện} của hai phiên
+E5a + E5b1 ngày 19/09, \textbf{chưa deploy}. Không có đường dẫn mới, không mất chức năng nào.
+Khi BA test trên UAT mà thấy thẻ danh sách chưa giống thiết kế mới thì đó là lý do.
+
+\section{Bảy điểm cần BA xác nhận}
+\label{sec:luuy}
+
+\begin{enumerate}[leftmargin=*]
+  \item \textbf{Nguồn dữ liệu công nợ} (CT-014, CT-050, CT-051). Màn công nợ đang lấy số qua
+        một lớp trung gian, \textbf{chưa nối thẳng vào hoá đơn kế toán} (\rt{account.move}) như
+        spec ghi. Giao diện và cách lọc đã đúng; phần nối dữ liệu thật là một task riêng, cần
+        kế toán chốt cách tính kỳ.
+  \item \textbf{Ticket hỗ trợ lọc theo người tạo, không theo cửa hàng} (CT-046). Spec ghi "các
+        ticket của cửa hàng". Hiện Chủ cửa hàng \textbf{không} thấy ticket do nhân viên mình
+        gửi. Cần BA chốt — đổi được, nhưng là đổi phạm vi xem.
+  \item \textbf{Thành viên cửa hàng: Nhân viên có được xem không} (CT-009) — spec để ngỏ, code
+        đang cho xem.
+  \item \textbf{Lưu cửa hàng đang chọn bằng cookie}, không phải session (CT-003) — khác chữ
+        trong spec; hệ quả thực tế: đóng trình duyệt mở lại vẫn nhớ cửa hàng.
+  \item \textbf{Đổi trả một sản phẩm mỗi yêu cầu} (CT-032) — spec ghi có bảng dòng sản phẩm.
+  \item \textbf{QR thanh toán} (CT-055) — còn chờ BA chốt QR tĩnh hay động theo số tiền.
+  \item \textbf{Hai dòng thừa cuối tab CT} (\rt{CT-024. ...}, \rt{CT-025. ...}) — nhờ BA xoá.
+\end{enumerate}
+
+\section{Phân hệ chưa có gì: vận hành nội bộ cửa hàng}
+
+Bảy mục \textbf{CT-061 … CT-067} (ca làm, lịch làm việc, chấm công, nghỉ phép, chi phí phát
+sinh) \textbf{chưa có một dòng code nào}. BA đánh ưu tiên Thấp cho cả bảy. Nếu muốn làm thì đây
+là một phân hệ mới, không phải sửa cái có sẵn.
+
+\section{Controller sắp đổi chỗ --- nhưng đường dẫn giữ nguyên}
+
+Dev đang chạy chương trình chuẩn hoá (cụm F). Các phiên F6–F13 sẽ \textbf{tách controller sang
+module khác} cho đúng kiến trúc tầng ADR-027:
+
+\begin{center}
+\small
+\begin{tabular}{@{}llL{7.2cm}@{}}
+\toprule
+\textbf{Phiên} & \textbf{Đụng vào} & \textbf{Việc} \\
+\midrule
+F6 & \rt{wujia\_portal\_sale} & Đưa luật số lượng và việc tạo đơn từ controller xuống model. \\
+F7 & \rt{wujia\_portal\_order\_window} & Tách phần nghiệp vụ khung giờ ra module riêng (làm mẫu). \\
+F8–F13 & 6 module portal còn ôm nghiệp vụ & Tách tương tự: yêu cầu thông tin, kiến thức, hỗ trợ, thông báo, thi, đổi trả. \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\textbf{Điều quan trọng với BA}: \textbf{đường dẫn URL không đổi, chức năng không đổi}. Chỉ
+đổi chỗ đặt mã nguồn. BA \textbf{không cần} lên task cho việc này, và cũng không nên lên task
+"viết lại" các controller đó — Dev đang làm.
+
+\appendix
+\chapter{Phụ lục --- module bên thứ ba}
+
+Các module này có controller nhưng \textbf{không thuộc nghiệp vụ Wujia}, BA không cần lên task:
+
+\begin{center}
+\small
+\begin{tabular}{@{}llL{8.4cm}@{}}
+\toprule
+\textbf{Module} & \textbf{Số tệp} & \textbf{Là gì} \\
+\midrule
+\rt{mcp\_server} & 14 & Cổng cho công cụ AI kết nối vào Odoo (hạ tầng Dev). \\
+\rt{wj\_ks\_dashboard\_ninja} & 4 & Thư viện dashboard mua ngoài — xuất biểu đồ, danh sách. \\
+\rt{login\_as\_any\_user} & 1 & Tiện ích quản trị: đăng nhập thay người dùng để kiểm tra. \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\chapter{Phụ lục --- cách dựng lại tài liệu này}
+
+\begin{enumerate}[leftmargin=*]
+  \item \rt{python3 scripts/qa/controller\_inventory.py -{}-json docs/controller-inventory/routes.json}
+  \item Đọc UAT chỉ-đọc: XML-RPC \rt{ir.module.module} trên \rt{wujia\_tea\_19}.
+  \item Đọc tab BA: \rt{sheet\_io.read\_values('3. Controller')}.
+  \item \rt{lualatex controller-inventory.tex} (chạy 2 lần cho mục lục).
+\end{enumerate}
+
+Số liệu chốt ở commit \rt{916aa63}. Mã nguồn đổi thì chạy lại bước 1 để biết chênh bao nhiêu.
+
+\end{document}

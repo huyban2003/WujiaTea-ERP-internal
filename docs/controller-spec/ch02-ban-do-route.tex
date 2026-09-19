@@ -1,0 +1,178 @@
+\chapter{Bản đồ đường dẫn}
+
+Portal hiện có \textbf{104 đường dẫn} trong \textbf{16 mô-đun}. Bảng này là mục lục tra cứu: mỗi đường dẫn nằm ở chương nào trong tài liệu. Cột \emph{Kiểu} phân biệt \emph{Trang} (người dùng nhìn thấy, gõ được trên thanh địa chỉ) với \emph{Gọi ngầm} (trình duyệt gọi khi bấm nút, không phải màn riêng).
+
+\section{Chương 3 --- Đặt hàng}
+\footnotesize
+\begin{longtable}{L{7.0cm}L{1.8cm}L{6.0cm}}
+\rowcolor{hdrbg}\textbf{Đường dẫn} & \textbf{Kiểu} & \textbf{Làm gì}\\ \midrule
+\endfirsthead
+\rowcolor{hdrbg}\textbf{Đường dẫn} & \textbf{Kiểu} & \textbf{Làm gì}\\ \midrule
+\endhead
+\rt{/portal/order} & Trang & Danh sách sản phẩm đặt hàng\\
+\rt{/portal/order/cart} & Trang & Màn giỏ hàng của cửa hàng\\
+\rt{/portal/order/cart/add} & Gọi ngầm & Thêm sản phẩm vào giỏ\\
+\rt{/portal/order/cart/count} & Gọi ngầm & Số hiển thị trên biểu tượng giỏ\\
+\rt{/portal/order/cart/fragment} & Gọi ngầm & Lấy lại toàn bộ giỏ khi người cùng cửa hàng vừa sửa\\
+\rt{/portal/order/cart/note} & Gọi ngầm & Lưu ghi chú đơn hàng (dùng chung cả cửa hàng)\\
+\rt{/portal/order/cart/remove} & Gọi ngầm & Xoá một dòng khỏi giỏ\\
+\rt{/portal/order/cart/step} & Gọi ngầm & Bấm + / − tăng giảm đúng một bước\\
+\rt{/portal/order/cart/update} & Gọi ngầm & Gõ thẳng số lượng cho một dòng\\
+\rt{/portal/order/product/<int:product_id>} & Trang & Chi tiết một sản phẩm\\
+\rt{/portal/order/rejected} & Trang & Màn Không thể gửi đơn — ngoài khung giờ\\
+\rt{/portal/order/results} & Trang & Phần kết quả khi lọc / tìm kiếm (không tải lại trang)\\
+\rt{/portal/order/submit} & Trang & Gửi đơn — tạo đơn hàng nháp trong ERP\\
+\rt{/portal/order/submitted/<int:order_id>} & Trang & Màn Đặt hàng thành công (điện thoại)\\
+\end{longtable}
+\normalsize
+
+\section{Chương 4 --- Khung portal + Trang chủ}
+\footnotesize
+\begin{longtable}{L{7.0cm}L{1.8cm}L{6.0cm}}
+\rowcolor{hdrbg}\textbf{Đường dẫn} & \textbf{Kiểu} & \textbf{Làm gì}\\ \midrule
+\endfirsthead
+\rowcolor{hdrbg}\textbf{Đường dẫn} & \textbf{Kiểu} & \textbf{Làm gì}\\ \midrule
+\endhead
+\rt{/my/branches} & Trang & ---\\
+\rt{/my/branches/<int:branch_id>} & Trang & ---\\
+\rt{/my/franchises} & Trang & ---\\
+\rt{/my/franchises/<int:franchise_id>} & Trang & ---\\
+\rt{/my/franchises/<int:franchise_id>/members} & jsonrpc & ---\\
+\rt{/portal} & Trang & ---\\
+\rt{/portal/_pc-preview} & Trang & ---\\
+\rt{/portal/branches} & Trang & ---\\
+\rt{/portal/branches/<int:branch_id>} & Trang & ---\\
+\rt{/portal/change-password} & Trang & ---\\
+\rt{/portal/forgot-pass} & Trang & ---\\
+\rt{/portal/franchise-information} & Trang & ---\\
+\rt{/portal/franchise/clear} & Trang & ---\\
+\rt{/portal/franchise/switch} & Trang & ---\\
+\rt{/portal/franchises} & Trang & ---\\
+\rt{/portal/franchises/<int:franchise_id>} & Trang & ---\\
+\rt{/portal/franchises/<int:franchise_id>/profile} & Trang & ---\\
+\rt{/portal/login} & Trang & ---\\
+\rt{/portal/logout} & Trang & ---\\
+\rt{/portal/profile} & Trang & ---\\
+\rt{/portal/profile/avatar/<int:user_id>} & Trang & ---\\
+\rt{/portal/profile/update} & Trang & ---\\
+\rt{/portal/redirect} & Trang & ---\\
+\rt{/portal/reset_password} & Trang & ---\\
+\rt{/portal/set-lang/<string:lang_code>} & Trang & ---\\
+\end{longtable}
+\normalsize
+
+\section{Chương 5 --- Lịch sử mua · Giao hàng · Báo cáo}
+\footnotesize
+\begin{longtable}{L{7.0cm}L{1.8cm}L{6.0cm}}
+\rowcolor{hdrbg}\textbf{Đường dẫn} & \textbf{Kiểu} & \textbf{Làm gì}\\ \midrule
+\endfirsthead
+\rowcolor{hdrbg}\textbf{Đường dẫn} & \textbf{Kiểu} & \textbf{Làm gì}\\ \midrule
+\endhead
+\rt{/portal/delivery} & Trang & ---\\
+\rt{/portal/delivery/<int:batch_id>} & Trang & ---\\
+\rt{/portal/delivery/<int:batch_id>.ics} & Trang & ---\\
+\rt{/portal/delivery/results} & Trang & ---\\
+\rt{/portal/purchase-history} & Trang & ---\\
+\rt{/portal/purchase-history/<int:order_id>} & Trang & ---\\
+\rt{/portal/purchase-history/<int:order_id>.pdf} & Trang & ---\\
+\rt{/portal/purchase-history/results} & Trang & ---\\
+\rt{/portal/purchase_history} & Trang & ---\\
+\rt{/portal/reports/orders} & Trang & ---\\
+\rt{/portal/reports/orders/export.xlsx} & Trang & ---\\
+\end{longtable}
+\normalsize
+
+\section{Chương 6 --- Công nợ · Đổi trả}
+\footnotesize
+\begin{longtable}{L{7.0cm}L{1.8cm}L{6.0cm}}
+\rowcolor{hdrbg}\textbf{Đường dẫn} & \textbf{Kiểu} & \textbf{Làm gì}\\ \midrule
+\endfirsthead
+\rowcolor{hdrbg}\textbf{Đường dẫn} & \textbf{Kiểu} & \textbf{Làm gì}\\ \midrule
+\endhead
+\rt{/portal/debt} & Trang & ---\\
+\rt{/portal/debt/pay} & Trang & ---\\
+\rt{/portal/debt/payment-history} & Trang & ---\\
+\rt{/portal/return} & Trang & ---\\
+\rt{/portal/return-request-list} & Trang & ---\\
+\rt{/portal/return/<int:request_id>} & Trang & ---\\
+\rt{/portal/return/<int:request_id>/attachment/<int:att_id>} & Trang & ---\\
+\rt{/portal/return/new} & Trang & ---\\
+\end{longtable}
+\normalsize
+
+\section{Chương 7 --- Hỗ trợ · Yêu cầu thông tin · Kiến thức · Thông báo}
+\footnotesize
+\begin{longtable}{L{7.0cm}L{1.8cm}L{6.0cm}}
+\rowcolor{hdrbg}\textbf{Đường dẫn} & \textbf{Kiểu} & \textbf{Làm gì}\\ \midrule
+\endfirsthead
+\rowcolor{hdrbg}\textbf{Đường dẫn} & \textbf{Kiểu} & \textbf{Làm gì}\\ \midrule
+\endhead
+\rt{/portal/info-request} & Trang & ---\\
+\rt{/portal/info-request/<int:req_id>} & Trang & ---\\
+\rt{/portal/info-request/<int:req_id>/cancel} & Trang & ---\\
+\rt{/portal/info-request/franchise/<int:fid>/values} & Gọi ngầm & ---\\
+\rt{/portal/info-request/new} & Trang & ---\\
+\rt{/portal/knowledge} & Trang & ---\\
+\rt{/portal/knowledge/<string:slug>} & Trang & ---\\
+\rt{/portal/knowledge/<string:slug>/attachment/<int:att_id>} & Trang & ---\\
+\rt{/portal/knowledge/search} & Gọi ngầm & ---\\
+\rt{/portal/notification} & Trang & ---\\
+\rt{/portal/notification/<int:notification_id>} & Trang & ---\\
+\rt{/portal/notification/<int:notification_id>/attachment/<int:attachment_id>} & Trang & ---\\
+\rt{/portal/notification/mark-all-read} & Gọi ngầm & ---\\
+\rt{/portal/notification/mark-read} & Gọi ngầm & ---\\
+\rt{/portal/notification/recent} & Gọi ngầm & ---\\
+\rt{/portal/notification/results} & Trang & ---\\
+\rt{/portal/notification/unread-count} & Gọi ngầm & ---\\
+\rt{/portal/support} & Trang & ---\\
+\rt{/portal/support/<int:ticket_id>} & Trang & ---\\
+\rt{/portal/support/<int:ticket_id>/attachment/<int:att_id>} & Trang & ---\\
+\rt{/portal/support/<int:ticket_id>/reply} & Trang & ---\\
+\rt{/portal/support/new} & Trang & ---\\
+\end{longtable}
+\normalsize
+
+\section{Chương 8 --- Đăng ký thi}
+\footnotesize
+\begin{longtable}{L{7.0cm}L{1.8cm}L{6.0cm}}
+\rowcolor{hdrbg}\textbf{Đường dẫn} & \textbf{Kiểu} & \textbf{Làm gì}\\ \midrule
+\endfirsthead
+\rowcolor{hdrbg}\textbf{Đường dẫn} & \textbf{Kiểu} & \textbf{Làm gì}\\ \midrule
+\endhead
+\rt{/portal/exam} & Trang & ---\\
+\rt{/portal/exam-registration} & Trang & ---\\
+\rt{/portal/exam/calendar} & Gọi ngầm & ---\\
+\rt{/portal/exam/line/<int:line_id>/photo} & Trang & ---\\
+\rt{/portal/exam/register} & Trang & ---\\
+\rt{/portal/exam/registration/<int:reg_id>} & Trang & ---\\
+\rt{/portal/exam/slots} & Gọi ngầm & ---\\
+\end{longtable}
+\normalsize
+
+\section{Chương 9 --- Khảo sát cửa hàng · Metabase}
+\footnotesize
+\begin{longtable}{L{7.0cm}L{1.8cm}L{6.0cm}}
+\rowcolor{hdrbg}\textbf{Đường dẫn} & \textbf{Kiểu} & \textbf{Làm gì}\\ \midrule
+\endfirsthead
+\rowcolor{hdrbg}\textbf{Đường dẫn} & \textbf{Kiểu} & \textbf{Làm gì}\\ \midrule
+\endhead
+\rt{/franchise/inspection/do/<int:inspection_id>} & Trang & ---\\
+\rt{/franchise/inspection/do/<int:inspection_id>/attendance/add} & Gọi ngầm & ---\\
+\rt{/franchise/inspection/do/<int:inspection_id>/attendance/deactivate_member} & Gọi ngầm & ---\\
+\rt{/franchise/inspection/do/<int:inspection_id>/attendance/delete_line} & Gọi ngầm & ---\\
+\rt{/franchise/inspection/do/<int:inspection_id>/attendance/save_member} & Gọi ngầm & ---\\
+\rt{/franchise/inspection/do/<int:inspection_id>/save} & Gọi ngầm & ---\\
+\rt{/franchise/inspection/do/<int:inspection_id>/sync_posapp} & Gọi ngầm & ---\\
+\rt{/metabase/embed/<int:dashboard_id>} & Trang & ---\\
+\rt{/metabase/embed_url/<int:dashboard_id>} & Trang & ---\\
+\rt{/portal/inspection} & Trang & ---\\
+\rt{/portal/inspection/ajax} & Trang & ---\\
+\rt{/portal/inspection/detail/<int:inspection_id>} & Trang & ---\\
+\rt{/portal/inspection/remediation/<int:line_id>} & Trang & ---\\
+\rt{/portal/inspection/remediation/submit} & Trang & ---\\
+\rt{/portal/remediation} & Trang & ---\\
+\rt{/portal/remediation/<int:line_id>} & Trang & ---\\
+\rt{/portal/remediation/submit} & Trang & ---\\
+\end{longtable}
+\normalsize
+

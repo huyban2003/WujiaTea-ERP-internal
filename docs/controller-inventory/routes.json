@@ -1,0 +1,2461 @@
+{
+  "root": "/Users/huyban2003/odoo-dev/WujiaTea",
+  "total_routes": 103,
+  "total_paths": 106,
+  "total_classes": 21,
+  "files_with_routes": [
+    "custom/wujia_franchise_inspection/controllers/main.py",
+    "custom/wujia_metabase_connector/controllers/main.py",
+    "custom/wujia_portal_base/controllers/portal.py",
+    "custom/wujia_portal_debt/controllers/portal.py",
+    "custom/wujia_portal_delivery/controllers/portal.py",
+    "custom/wujia_portal_exam/controllers/legacy_redirects.py",
+    "custom/wujia_portal_exam/controllers/portal.py",
+    "custom/wujia_portal_info_request/controllers/portal.py",
+    "custom/wujia_portal_inspection/controllers/portal.py",
+    "custom/wujia_portal_knowledge/controllers/portal.py",
+    "custom/wujia_portal_layout/controllers/auth.py",
+    "custom/wujia_portal_layout/controllers/pc_preview.py",
+    "custom/wujia_portal_layout/controllers/portal.py",
+    "custom/wujia_portal_notification/controllers/portal.py",
+    "custom/wujia_portal_purchase_history/controllers/legacy_redirects.py",
+    "custom/wujia_portal_purchase_history/controllers/portal.py",
+    "custom/wujia_portal_report/controllers/portal.py",
+    "custom/wujia_portal_return/controllers/legacy_redirects.py",
+    "custom/wujia_portal_return/controllers/portal.py",
+    "custom/wujia_portal_sale/controllers/portal.py",
+    "custom/wujia_portal_support/controllers/portal.py"
+  ],
+  "files_without_routes": [
+    "custom/wujia_portal_base/controllers/utils.py",
+    "custom/wujia_portal_layout/controllers/utils.py"
+  ],
+  "classes": [
+    "wujia_franchise_inspection.WujiaFranchiseInspectionWebController",
+    "wujia_metabase_connector.MetabaseEmbedController",
+    "wujia_portal_base.WujiaPortal",
+    "wujia_portal_debt.WujiaPortalDebt",
+    "wujia_portal_delivery.WujiaPortalDelivery",
+    "wujia_portal_exam.WujiaExamLegacyRedirects",
+    "wujia_portal_exam.WujiaPortalExam",
+    "wujia_portal_info_request.WujiaPortalInfoRequest",
+    "wujia_portal_inspection.WujiaPortalInspectionController",
+    "wujia_portal_knowledge.WujiaPortalKnowledge",
+    "wujia_portal_layout.WujiaAuthController",
+    "wujia_portal_layout.WujiaPcPreview",
+    "wujia_portal_layout.WujiaPortalLayout",
+    "wujia_portal_notification.WujiaPortalNotification",
+    "wujia_portal_purchase_history.WujiaPurchaseHistoryLegacyRedirects",
+    "wujia_portal_purchase_history.WujiaPortalHistory",
+    "wujia_portal_report.WujiaPortalReport",
+    "wujia_portal_return.WujiaReturnLegacyRedirects",
+    "wujia_portal_return.WujiaPortalReturn",
+    "wujia_portal_sale.WujiaPortalSale",
+    "wujia_portal_support.WujiaPortalSupport"
+  ],
+  "routes": [
+    {
+      "module": "wujia_franchise_inspection",
+      "file": "custom/wujia_franchise_inspection/controllers/main.py",
+      "line": 167,
+      "class": "WujiaFranchiseInspectionWebController",
+      "bases": [
+        "http.Controller"
+      ],
+      "method": "do_inspection_survey",
+      "paths": [
+        "/franchise/inspection/do/<int:inspection_id>"
+      ],
+      "type": "http",
+      "auth": "user",
+      "methods": null,
+      "csrf": null,
+      "website": true,
+      "sitemap": false,
+      "doc": "",
+      "models": [
+        "wujia.franchise.inspection",
+        "wujia.franchise.member",
+        "wujia.franchise.inspection.grade"
+      ]
+    },
+    {
+      "module": "wujia_franchise_inspection",
+      "file": "custom/wujia_franchise_inspection/controllers/main.py",
+      "line": 391,
+      "class": "WujiaFranchiseInspectionWebController",
+      "bases": [
+        "http.Controller"
+      ],
+      "method": "sync_posapp_revenue",
+      "paths": [
+        "/franchise/inspection/do/<int:inspection_id>/sync_posapp"
+      ],
+      "type": "json",
+      "auth": "user",
+      "methods": [
+        "POST"
+      ],
+      "csrf": null,
+      "website": null,
+      "sitemap": null,
+      "doc": "",
+      "models": [
+        "wujia.franchise.inspection"
+      ]
+    },
+    {
+      "module": "wujia_franchise_inspection",
+      "file": "custom/wujia_franchise_inspection/controllers/main.py",
+      "line": 421,
+      "class": "WujiaFranchiseInspectionWebController",
+      "bases": [
+        "http.Controller"
+      ],
+      "method": "save_inspection_survey",
+      "paths": [
+        "/franchise/inspection/do/<int:inspection_id>/save"
+      ],
+      "type": "json",
+      "auth": "user",
+      "methods": [
+        "POST"
+      ],
+      "csrf": null,
+      "website": null,
+      "sitemap": null,
+      "doc": "",
+      "models": [
+        "wujia.franchise.inspection",
+        "wujia.franchise.inspection.report.line"
+      ]
+    },
+    {
+      "module": "wujia_franchise_inspection",
+      "file": "custom/wujia_franchise_inspection/controllers/main.py",
+      "line": 607,
+      "class": "WujiaFranchiseInspectionWebController",
+      "bases": [
+        "http.Controller"
+      ],
+      "method": "add_attendance_line",
+      "paths": [
+        "/franchise/inspection/do/<int:inspection_id>/attendance/add"
+      ],
+      "type": "json",
+      "auth": "user",
+      "methods": [
+        "POST"
+      ],
+      "csrf": null,
+      "website": null,
+      "sitemap": null,
+      "doc": "",
+      "models": [
+        "wujia.franchise.inspection",
+        "wujia.franchise.inspection.attendance.line"
+      ]
+    },
+    {
+      "module": "wujia_franchise_inspection",
+      "file": "custom/wujia_franchise_inspection/controllers/main.py",
+      "line": 657,
+      "class": "WujiaFranchiseInspectionWebController",
+      "bases": [
+        "http.Controller"
+      ],
+      "method": "save_attendance_to_member",
+      "paths": [
+        "/franchise/inspection/do/<int:inspection_id>/attendance/save_member"
+      ],
+      "type": "json",
+      "auth": "user",
+      "methods": [
+        "POST"
+      ],
+      "csrf": null,
+      "website": null,
+      "sitemap": null,
+      "doc": "",
+      "models": [
+        "wujia.franchise.inspection.attendance.line"
+      ]
+    },
+    {
+      "module": "wujia_franchise_inspection",
+      "file": "custom/wujia_franchise_inspection/controllers/main.py",
+      "line": 687,
+      "class": "WujiaFranchiseInspectionWebController",
+      "bases": [
+        "http.Controller"
+      ],
+      "method": "deactivate_attendance_member",
+      "paths": [
+        "/franchise/inspection/do/<int:inspection_id>/attendance/deactivate_member"
+      ],
+      "type": "json",
+      "auth": "user",
+      "methods": [
+        "POST"
+      ],
+      "csrf": null,
+      "website": null,
+      "sitemap": null,
+      "doc": "",
+      "models": [
+        "wujia.franchise.inspection.attendance.line"
+      ]
+    },
+    {
+      "module": "wujia_franchise_inspection",
+      "file": "custom/wujia_franchise_inspection/controllers/main.py",
+      "line": 706,
+      "class": "WujiaFranchiseInspectionWebController",
+      "bases": [
+        "http.Controller"
+      ],
+      "method": "delete_attendance_line",
+      "paths": [
+        "/franchise/inspection/do/<int:inspection_id>/attendance/delete_line"
+      ],
+      "type": "json",
+      "auth": "user",
+      "methods": [
+        "POST"
+      ],
+      "csrf": null,
+      "website": null,
+      "sitemap": null,
+      "doc": "",
+      "models": [
+        "wujia.franchise.inspection.attendance.line"
+      ]
+    },
+    {
+      "module": "wujia_metabase_connector",
+      "file": "custom/wujia_metabase_connector/controllers/main.py",
+      "line": 18,
+      "class": "MetabaseEmbedController",
+      "bases": [
+        "http.Controller"
+      ],
+      "method": "embed_dashboard",
+      "paths": [
+        "/metabase/embed/<int:dashboard_id>"
+      ],
+      "type": "http",
+      "auth": "user",
+      "methods": null,
+      "csrf": null,
+      "website": false,
+      "sitemap": null,
+      "doc": "",
+      "models": [
+        "metabase.dashboard"
+      ]
+    },
+    {
+      "module": "wujia_metabase_connector",
+      "file": "custom/wujia_metabase_connector/controllers/main.py",
+      "line": 96,
+      "class": "MetabaseEmbedController",
+      "bases": [
+        "http.Controller"
+      ],
+      "method": "embed_dashboard_url",
+      "paths": [
+        "/metabase/embed_url/<int:dashboard_id>"
+      ],
+      "type": "http",
+      "auth": "user",
+      "methods": null,
+      "csrf": null,
+      "website": false,
+      "sitemap": null,
+      "doc": "",
+      "models": [
+        "metabase.dashboard"
+      ]
+    },
+    {
+      "module": "wujia_portal_base",
+      "file": "custom/wujia_portal_base/controllers/portal.py",
+      "line": 131,
+      "class": "WujiaPortal",
+      "bases": [
+        "CustomerPortal"
+      ],
+      "method": "portal_home",
+      "paths": [
+        "/portal"
+      ],
+      "type": "http",
+      "auth": "user",
+      "methods": null,
+      "csrf": null,
+      "website": false,
+      "sitemap": false,
+      "doc": "",
+      "models": [
+        "wujia.franchise.management",
+        "wujia.franchise.member"
+      ]
+    },
+    {
+      "module": "wujia_portal_base",
+      "file": "custom/wujia_portal_base/controllers/portal.py",
+      "line": 402,
+      "class": "WujiaPortal",
+      "bases": [
+        "CustomerPortal"
+      ],
+      "method": "portal_franchise_switch",
+      "paths": [
+        "/portal/franchise/switch"
+      ],
+      "type": "http",
+      "auth": "user",
+      "methods": [
+        "POST"
+      ],
+      "csrf": true,
+      "website": false,
+      "sitemap": false,
+      "doc": "Set cookie active franchise. Validate user có quyền trước khi set.",
+      "models": []
+    },
+    {
+      "module": "wujia_portal_base",
+      "file": "custom/wujia_portal_base/controllers/portal.py",
+      "line": 425,
+      "class": "WujiaPortal",
+      "bases": [
+        "CustomerPortal"
+      ],
+      "method": "portal_franchise_clear",
+      "paths": [
+        "/portal/franchise/clear"
+      ],
+      "type": "http",
+      "auth": "user",
+      "methods": [
+        "POST"
+      ],
+      "csrf": true,
+      "website": false,
+      "sitemap": false,
+      "doc": "",
+      "models": []
+    },
+    {
+      "module": "wujia_portal_base",
+      "file": "custom/wujia_portal_base/controllers/portal.py",
+      "line": 446,
+      "class": "WujiaPortal",
+      "bases": [
+        "CustomerPortal"
+      ],
+      "method": "wujia_portal_franchise_profile",
+      "paths": [
+        "/portal/franchises/<int:franchise_id>/profile"
+      ],
+      "type": "http",
+      "auth": "user",
+      "methods": null,
+      "csrf": null,
+      "website": null,
+      "sitemap": false,
+      "doc": "",
+      "models": []
+    },
+    {
+      "module": "wujia_portal_base",
+      "file": "custom/wujia_portal_base/controllers/portal.py",
+      "line": 465,
+      "class": "WujiaPortal",
+      "bases": [
+        "CustomerPortal"
+      ],
+      "method": "portal_my_franchises",
+      "paths": [
+        "/my/franchises"
+      ],
+      "type": "http",
+      "auth": "user",
+      "methods": null,
+      "csrf": null,
+      "website": true,
+      "sitemap": null,
+      "doc": "",
+      "models": []
+    },
+    {
+      "module": "wujia_portal_base",
+      "file": "custom/wujia_portal_base/controllers/portal.py",
+      "line": 474,
+      "class": "WujiaPortal",
+      "bases": [
+        "CustomerPortal"
+      ],
+      "method": "wujia_portal_franchises",
+      "paths": [
+        "/portal/franchises"
+      ],
+      "type": "http",
+      "auth": "user",
+      "methods": null,
+      "csrf": null,
+      "website": null,
+      "sitemap": false,
+      "doc": "",
+      "models": []
+    },
+    {
+      "module": "wujia_portal_base",
+      "file": "custom/wujia_portal_base/controllers/portal.py",
+      "line": 483,
+      "class": "WujiaPortal",
+      "bases": [
+        "CustomerPortal"
+      ],
+      "method": "wujia_portal_franchise_detail",
+      "paths": [
+        "/portal/franchises/<int:franchise_id>"
+      ],
+      "type": "http",
+      "auth": "user",
+      "methods": null,
+      "csrf": null,
+      "website": null,
+      "sitemap": false,
+      "doc": "",
+      "models": [
+        "wujia.franchise.member"
+      ]
+    },
+    {
+      "module": "wujia_portal_base",
+      "file": "custom/wujia_portal_base/controllers/portal.py",
+      "line": 501,
+      "class": "WujiaPortal",
+      "bases": [
+        "CustomerPortal"
+      ],
+      "method": "portal_my_franchise_detail",
+      "paths": [
+        "/my/franchises/<int:franchise_id>"
+      ],
+      "type": "http",
+      "auth": "user",
+      "methods": null,
+      "csrf": null,
+      "website": true,
+      "sitemap": null,
+      "doc": "",
+      "models": [
+        "wujia.franchise.member"
+      ]
+    },
+    {
+      "module": "wujia_portal_base",
+      "file": "custom/wujia_portal_base/controllers/portal.py",
+      "line": 520,
+      "class": "WujiaPortal",
+      "bases": [
+        "CustomerPortal"
+      ],
+      "method": "portal_franchise_members_json",
+      "paths": [
+        "/my/franchises/<int:franchise_id>/members"
+      ],
+      "type": "jsonrpc",
+      "auth": "user",
+      "methods": null,
+      "csrf": null,
+      "website": null,
+      "sitemap": null,
+      "doc": "",
+      "models": [
+        "wujia.franchise.member"
+      ]
+    },
+    {
+      "module": "wujia_portal_base",
+      "file": "custom/wujia_portal_base/controllers/portal.py",
+      "line": 552,
+      "class": "WujiaPortal",
+      "bases": [
+        "CustomerPortal"
+      ],
+      "method": "portal_franchise_information",
+      "paths": [
+        "/portal/franchise-information"
+      ],
+      "type": "http",
+      "auth": "user",
+      "methods": null,
+      "csrf": null,
+      "website": false,
+      "sitemap": false,
+      "doc": "",
+      "models": [
+        "wujia.franchise.member"
+      ]
+    },
+    {
+      "module": "wujia_portal_base",
+      "file": "custom/wujia_portal_base/controllers/portal.py",
+      "line": 591,
+      "class": "WujiaPortal",
+      "bases": [
+        "CustomerPortal"
+      ],
+      "method": "_redirect_my_branches",
+      "paths": [
+        "/my/branches"
+      ],
+      "type": "http",
+      "auth": "user",
+      "methods": null,
+      "csrf": null,
+      "website": null,
+      "sitemap": false,
+      "doc": "",
+      "models": []
+    },
+    {
+      "module": "wujia_portal_base",
+      "file": "custom/wujia_portal_base/controllers/portal.py",
+      "line": 595,
+      "class": "WujiaPortal",
+      "bases": [
+        "CustomerPortal"
+      ],
+      "method": "_redirect_my_branch_detail",
+      "paths": [
+        "/my/branches/<int:branch_id>"
+      ],
+      "type": "http",
+      "auth": "user",
+      "methods": null,
+      "csrf": null,
+      "website": null,
+      "sitemap": false,
+      "doc": "",
+      "models": []
+    },
+    {
+      "module": "wujia_portal_base",
+      "file": "custom/wujia_portal_base/controllers/portal.py",
+      "line": 599,
+      "class": "WujiaPortal",
+      "bases": [
+        "CustomerPortal"
+      ],
+      "method": "_redirect_portal_branches",
+      "paths": [
+        "/portal/branches"
+      ],
+      "type": "http",
+      "auth": "user",
+      "methods": null,
+      "csrf": null,
+      "website": null,
+      "sitemap": false,
+      "doc": "",
+      "models": []
+    },
+    {
+      "module": "wujia_portal_base",
+      "file": "custom/wujia_portal_base/controllers/portal.py",
+      "line": 604,
+      "class": "WujiaPortal",
+      "bases": [
+        "CustomerPortal"
+      ],
+      "method": "_redirect_portal_branch_detail",
+      "paths": [
+        "/portal/branches/<int:branch_id>"
+      ],
+      "type": "http",
+      "auth": "user",
+      "methods": null,
+      "csrf": null,
+      "website": null,
+      "sitemap": false,
+      "doc": "",
+      "models": []
+    },
+    {
+      "module": "wujia_portal_debt",
+      "file": "custom/wujia_portal_debt/controllers/portal.py",
+      "line": 86,
+      "class": "WujiaPortalDebt",
+      "bases": [
+        "http.Controller"
+      ],
+      "method": "portal_debt",
+      "paths": [
+        "/portal/debt"
+      ],
+      "type": "http",
+      "auth": "user",
+      "methods": null,
+      "csrf": null,
+      "website": null,
+      "sitemap": false,
+      "doc": "Overview — Mobile: 4 biến thể theo `state`. PC (STT10): 5 biến thể",
+      "models": [
+        "wujia.portal.debt"
+      ]
+    },
+    {
+      "module": "wujia_portal_debt",
+      "file": "custom/wujia_portal_debt/controllers/portal.py",
+      "line": 128,
+      "class": "WujiaPortalDebt",
+      "bases": [
+        "http.Controller"
+      ],
+      "method": "portal_debt_payment_history",
+      "paths": [
+        "/portal/debt/payment-history"
+      ],
+      "type": "http",
+      "auth": "user",
+      "methods": null,
+      "csrf": null,
+      "website": null,
+      "sitemap": false,
+      "doc": "Màn 06 — các khoản Ngô Gia đã xác nhận trong kỳ. PC (STT10): thêm ô tìm",
+      "models": [
+        "wujia.portal.debt"
+      ]
+    },
+    {
+      "module": "wujia_portal_debt",
+      "file": "custom/wujia_portal_debt/controllers/portal.py",
+      "line": 157,
+      "class": "WujiaPortalDebt",
+      "bases": [
+        "http.Controller"
+      ],
+      "method": "portal_debt_pay",
+      "paths": [
+        "/portal/debt/pay"
+      ],
+      "type": "http",
+      "auth": "user",
+      "methods": null,
+      "csrf": null,
+      "website": null,
+      "sitemap": false,
+      "doc": "Màn 07 — QR + thông tin chuyển khoản (STK thật; ảnh QR defer, chờ BA chốt).",
+      "models": [
+        "wujia.portal.debt"
+      ]
+    },
+    {
+      "module": "wujia_portal_delivery",
+      "file": "custom/wujia_portal_delivery/controllers/portal.py",
+      "line": 220,
+      "class": "WujiaPortalDelivery",
+      "bases": [
+        "http.Controller"
+      ],
+      "method": "portal_delivery_list",
+      "paths": [
+        "/portal/delivery"
+      ],
+      "type": "http",
+      "auth": "user",
+      "methods": null,
+      "csrf": null,
+      "website": null,
+      "sitemap": false,
+      "doc": "",
+      "models": []
+    },
+    {
+      "module": "wujia_portal_delivery",
+      "file": "custom/wujia_portal_delivery/controllers/portal.py",
+      "line": 225,
+      "class": "WujiaPortalDelivery",
+      "bases": [
+        "http.Controller"
+      ],
+      "method": "portal_delivery_results",
+      "paths": [
+        "/portal/delivery/results"
+      ],
+      "type": "http",
+      "auth": "user",
+      "methods": null,
+      "csrf": null,
+      "website": null,
+      "sitemap": false,
+      "doc": "Fragment 3 khối kết quả (chips + list + pager) cho lọc AJAX.",
+      "models": []
+    },
+    {
+      "module": "wujia_portal_delivery",
+      "file": "custom/wujia_portal_delivery/controllers/portal.py",
+      "line": 235,
+      "class": "WujiaPortalDelivery",
+      "bases": [
+        "http.Controller"
+      ],
+      "method": "portal_delivery_detail",
+      "paths": [
+        "/portal/delivery/<int:batch_id>"
+      ],
+      "type": "http",
+      "auth": "user",
+      "methods": null,
+      "csrf": null,
+      "website": null,
+      "sitemap": false,
+      "doc": "",
+      "models": [
+        "stock.picking.batch"
+      ]
+    },
+    {
+      "module": "wujia_portal_delivery",
+      "file": "custom/wujia_portal_delivery/controllers/portal.py",
+      "line": 320,
+      "class": "WujiaPortalDelivery",
+      "bases": [
+        "http.Controller"
+      ],
+      "method": "portal_delivery_ics",
+      "paths": [
+        "/portal/delivery/<int:batch_id>.ics"
+      ],
+      "type": "http",
+      "auth": "user",
+      "methods": null,
+      "csrf": null,
+      "website": null,
+      "sitemap": false,
+      "doc": "Export lịch giao hàng dạng ICS — import vào Google/Outlook calendar.",
+      "models": [
+        "stock.picking.batch"
+      ]
+    },
+    {
+      "module": "wujia_portal_exam",
+      "file": "custom/wujia_portal_exam/controllers/legacy_redirects.py",
+      "line": 18,
+      "class": "WujiaExamLegacyRedirects",
+      "bases": [
+        "http.Controller"
+      ],
+      "method": "legacy_exam_registration",
+      "paths": [
+        "/portal/exam-registration"
+      ],
+      "type": "http",
+      "auth": "public",
+      "methods": null,
+      "csrf": null,
+      "website": null,
+      "sitemap": false,
+      "doc": "",
+      "models": []
+    },
+    {
+      "module": "wujia_portal_exam",
+      "file": "custom/wujia_portal_exam/controllers/portal.py",
+      "line": 290,
+      "class": "WujiaPortalExam",
+      "bases": [
+        "http.Controller"
+      ],
+      "method": "portal_exam_schedule",
+      "paths": [
+        "/portal/exam"
+      ],
+      "type": "http",
+      "auth": "user",
+      "methods": null,
+      "csrf": null,
+      "website": null,
+      "sitemap": false,
+      "doc": "",
+      "models": [
+        "wujia.exam.registration"
+      ]
+    },
+    {
+      "module": "wujia_portal_exam",
+      "file": "custom/wujia_portal_exam/controllers/portal.py",
+      "line": 344,
+      "class": "WujiaPortalExam",
+      "bases": [
+        "http.Controller"
+      ],
+      "method": "portal_exam_register_flow",
+      "paths": [
+        "/portal/exam/register"
+      ],
+      "type": "http",
+      "auth": "user",
+      "methods": null,
+      "csrf": null,
+      "website": null,
+      "sitemap": false,
+      "doc": "",
+      "models": [
+        "wujia.franchise.management"
+      ]
+    },
+    {
+      "module": "wujia_portal_exam",
+      "file": "custom/wujia_portal_exam/controllers/portal.py",
+      "line": 403,
+      "class": "WujiaPortalExam",
+      "bases": [
+        "http.Controller"
+      ],
+      "method": "portal_exam_calendar",
+      "paths": [
+        "/portal/exam/calendar"
+      ],
+      "type": "json",
+      "auth": "user",
+      "methods": [
+        "POST"
+      ],
+      "csrf": null,
+      "website": null,
+      "sitemap": null,
+      "doc": "",
+      "models": []
+    },
+    {
+      "module": "wujia_portal_exam",
+      "file": "custom/wujia_portal_exam/controllers/portal.py",
+      "line": 418,
+      "class": "WujiaPortalExam",
+      "bases": [
+        "http.Controller"
+      ],
+      "method": "portal_exam_slots",
+      "paths": [
+        "/portal/exam/slots"
+      ],
+      "type": "json",
+      "auth": "user",
+      "methods": [
+        "POST"
+      ],
+      "csrf": null,
+      "website": null,
+      "sitemap": null,
+      "doc": "",
+      "models": []
+    },
+    {
+      "module": "wujia_portal_exam",
+      "file": "custom/wujia_portal_exam/controllers/portal.py",
+      "line": 432,
+      "class": "WujiaPortalExam",
+      "bases": [
+        "http.Controller"
+      ],
+      "method": "portal_exam_register",
+      "paths": [
+        "/portal/exam/register"
+      ],
+      "type": "json",
+      "auth": "user",
+      "methods": [
+        "POST"
+      ],
+      "csrf": null,
+      "website": null,
+      "sitemap": null,
+      "doc": "",
+      "models": [
+        "wujia.exam.session",
+        "wujia.franchise.member",
+        "wujia.exam.registration"
+      ]
+    },
+    {
+      "module": "wujia_portal_exam",
+      "file": "custom/wujia_portal_exam/controllers/portal.py",
+      "line": 484,
+      "class": "WujiaPortalExam",
+      "bases": [
+        "http.Controller"
+      ],
+      "method": "portal_exam_registration_detail",
+      "paths": [
+        "/portal/exam/registration/<int:reg_id>"
+      ],
+      "type": "http",
+      "auth": "user",
+      "methods": null,
+      "csrf": null,
+      "website": null,
+      "sitemap": false,
+      "doc": "",
+      "models": [
+        "wujia.exam.registration"
+      ]
+    },
+    {
+      "module": "wujia_portal_exam",
+      "file": "custom/wujia_portal_exam/controllers/portal.py",
+      "line": 503,
+      "class": "WujiaPortalExam",
+      "bases": [
+        "http.Controller"
+      ],
+      "method": "portal_exam_line_photo",
+      "paths": [
+        "/portal/exam/line/<int:line_id>/photo"
+      ],
+      "type": "http",
+      "auth": "user",
+      "methods": null,
+      "csrf": null,
+      "website": null,
+      "sitemap": false,
+      "doc": "Stream ảnh thí sinh — ACL: line phải thuộc phiếu current store.",
+      "models": [
+        "wujia.exam.registration.line",
+        "ir.binary"
+      ]
+    },
+    {
+      "module": "wujia_portal_info_request",
+      "file": "custom/wujia_portal_info_request/controllers/portal.py",
+      "line": 68,
+      "class": "WujiaPortalInfoRequest",
+      "bases": [
+        "http.Controller"
+      ],
+      "method": "portal_info_request_list",
+      "paths": [
+        "/portal/info-request"
+      ],
+      "type": "http",
+      "auth": "user",
+      "methods": null,
+      "csrf": null,
+      "website": null,
+      "sitemap": false,
+      "doc": "",
+      "models": [
+        "wujia.info.update.request"
+      ]
+    },
+    {
+      "module": "wujia_portal_info_request",
+      "file": "custom/wujia_portal_info_request/controllers/portal.py",
+      "line": 109,
+      "class": "WujiaPortalInfoRequest",
+      "bases": [
+        "http.Controller"
+      ],
+      "method": "portal_info_request_new",
+      "paths": [
+        "/portal/info-request/new"
+      ],
+      "type": "http",
+      "auth": "user",
+      "methods": [
+        "GET",
+        "POST"
+      ],
+      "csrf": true,
+      "website": null,
+      "sitemap": false,
+      "doc": "",
+      "models": [
+        "wujia.info.update.request"
+      ]
+    },
+    {
+      "module": "wujia_portal_info_request",
+      "file": "custom/wujia_portal_info_request/controllers/portal.py",
+      "line": 160,
+      "class": "WujiaPortalInfoRequest",
+      "bases": [
+        "http.Controller"
+      ],
+      "method": "portal_info_request_detail",
+      "paths": [
+        "/portal/info-request/<int:req_id>"
+      ],
+      "type": "http",
+      "auth": "user",
+      "methods": null,
+      "csrf": null,
+      "website": null,
+      "sitemap": false,
+      "doc": "",
+      "models": [
+        "wujia.info.update.request"
+      ]
+    },
+    {
+      "module": "wujia_portal_info_request",
+      "file": "custom/wujia_portal_info_request/controllers/portal.py",
+      "line": 177,
+      "class": "WujiaPortalInfoRequest",
+      "bases": [
+        "http.Controller"
+      ],
+      "method": "portal_info_request_cancel",
+      "paths": [
+        "/portal/info-request/<int:req_id>/cancel"
+      ],
+      "type": "http",
+      "auth": "user",
+      "methods": [
+        "POST"
+      ],
+      "csrf": true,
+      "website": null,
+      "sitemap": false,
+      "doc": "",
+      "models": [
+        "wujia.info.update.request"
+      ]
+    },
+    {
+      "module": "wujia_portal_info_request",
+      "file": "custom/wujia_portal_info_request/controllers/portal.py",
+      "line": 198,
+      "class": "WujiaPortalInfoRequest",
+      "bases": [
+        "http.Controller"
+      ],
+      "method": "portal_info_request_get_current",
+      "paths": [
+        "/portal/info-request/franchise/<int:fid>/values"
+      ],
+      "type": "json",
+      "auth": "user",
+      "methods": [
+        "POST",
+        "GET"
+      ],
+      "csrf": null,
+      "website": null,
+      "sitemap": null,
+      "doc": "AJAX: trả giá trị hiện tại trên franchise theo request_type.",
+      "models": [
+        "wujia.franchise.management"
+      ]
+    },
+    {
+      "module": "wujia_portal_inspection",
+      "file": "custom/wujia_portal_inspection/controllers/portal.py",
+      "line": 181,
+      "class": "WujiaPortalInspectionController",
+      "bases": [
+        "http.Controller"
+      ],
+      "method": "portal_inspection_list",
+      "paths": [
+        "/portal/inspection"
+      ],
+      "type": "http",
+      "auth": "user",
+      "methods": null,
+      "csrf": null,
+      "website": true,
+      "sitemap": null,
+      "doc": "",
+      "models": []
+    },
+    {
+      "module": "wujia_portal_inspection",
+      "file": "custom/wujia_portal_inspection/controllers/portal.py",
+      "line": 186,
+      "class": "WujiaPortalInspectionController",
+      "bases": [
+        "http.Controller"
+      ],
+      "method": "portal_inspection_list_ajax",
+      "paths": [
+        "/portal/inspection/ajax"
+      ],
+      "type": "http",
+      "auth": "user",
+      "methods": null,
+      "csrf": null,
+      "website": true,
+      "sitemap": null,
+      "doc": "Return only the content fragment as JSON for SPA-like navigation.",
+      "models": [
+        "ir.qweb"
+      ]
+    },
+    {
+      "module": "wujia_portal_inspection",
+      "file": "custom/wujia_portal_inspection/controllers/portal.py",
+      "line": 199,
+      "class": "WujiaPortalInspectionController",
+      "bases": [
+        "http.Controller"
+      ],
+      "method": "portal_inspection_detail",
+      "paths": [
+        "/portal/inspection/detail/<int:inspection_id>"
+      ],
+      "type": "http",
+      "auth": "user",
+      "methods": null,
+      "csrf": null,
+      "website": true,
+      "sitemap": null,
+      "doc": "",
+      "models": [
+        "wujia.franchise.inspection"
+      ]
+    },
+    {
+      "module": "wujia_portal_inspection",
+      "file": "custom/wujia_portal_inspection/controllers/portal.py",
+      "line": 342,
+      "class": "WujiaPortalInspectionController",
+      "bases": [
+        "http.Controller"
+      ],
+      "method": "portal_inspection_remediation",
+      "paths": [
+        "/portal/inspection/remediation/<int:line_id>",
+        "/portal/remediation/<int:line_id>",
+        "/portal/remediation"
+      ],
+      "type": "http",
+      "auth": "user",
+      "methods": null,
+      "csrf": null,
+      "website": true,
+      "sitemap": null,
+      "doc": "",
+      "models": [
+        "wujia.franchise.inspection.line"
+      ]
+    },
+    {
+      "module": "wujia_portal_inspection",
+      "file": "custom/wujia_portal_inspection/controllers/portal.py",
+      "line": 394,
+      "class": "WujiaPortalInspectionController",
+      "bases": [
+        "http.Controller"
+      ],
+      "method": "portal_inspection_remediation_submit",
+      "paths": [
+        "/portal/inspection/remediation/submit",
+        "/portal/remediation/submit"
+      ],
+      "type": "http",
+      "auth": "user",
+      "methods": [
+        "POST"
+      ],
+      "csrf": true,
+      "website": true,
+      "sitemap": null,
+      "doc": "",
+      "models": [
+        "wujia.franchise.inspection.line"
+      ]
+    },
+    {
+      "module": "wujia_portal_knowledge",
+      "file": "custom/wujia_portal_knowledge/controllers/portal.py",
+      "line": 58,
+      "class": "WujiaPortalKnowledge",
+      "bases": [
+        "http.Controller"
+      ],
+      "method": "portal_knowledge_list",
+      "paths": [
+        "/portal/knowledge"
+      ],
+      "type": "http",
+      "auth": "user",
+      "methods": null,
+      "csrf": null,
+      "website": null,
+      "sitemap": false,
+      "doc": "",
+      "models": [
+        "wujia.knowledge.article",
+        "wujia.knowledge.category",
+        "wujia.knowledge.tag"
+      ]
+    },
+    {
+      "module": "wujia_portal_knowledge",
+      "file": "custom/wujia_portal_knowledge/controllers/portal.py",
+      "line": 113,
+      "class": "WujiaPortalKnowledge",
+      "bases": [
+        "http.Controller"
+      ],
+      "method": "portal_knowledge_detail",
+      "paths": [
+        "/portal/knowledge/<string:slug>"
+      ],
+      "type": "http",
+      "auth": "user",
+      "methods": null,
+      "csrf": null,
+      "website": null,
+      "sitemap": false,
+      "doc": "",
+      "models": [
+        "wujia.knowledge.article"
+      ]
+    },
+    {
+      "module": "wujia_portal_knowledge",
+      "file": "custom/wujia_portal_knowledge/controllers/portal.py",
+      "line": 130,
+      "class": "WujiaPortalKnowledge",
+      "bases": [
+        "http.Controller"
+      ],
+      "method": "portal_knowledge_attachment_download",
+      "paths": [
+        "/portal/knowledge/<string:slug>/attachment/<int:att_id>"
+      ],
+      "type": "http",
+      "auth": "user",
+      "methods": null,
+      "csrf": null,
+      "website": null,
+      "sitemap": false,
+      "doc": "Stream attachment bài viết (Sprint 15 — mobile bấm tải thật).",
+      "models": [
+        "ir.attachment",
+        "wujia.knowledge.article",
+        "ir.binary"
+      ]
+    },
+    {
+      "module": "wujia_portal_knowledge",
+      "file": "custom/wujia_portal_knowledge/controllers/portal.py",
+      "line": 158,
+      "class": "WujiaPortalKnowledge",
+      "bases": [
+        "http.Controller"
+      ],
+      "method": "portal_knowledge_search_ajax",
+      "paths": [
+        "/portal/knowledge/search"
+      ],
+      "type": "json",
+      "auth": "user",
+      "methods": [
+        "POST",
+        "GET"
+      ],
+      "csrf": null,
+      "website": null,
+      "sitemap": null,
+      "doc": "Search-as-you-type — debounce client-side 300ms.",
+      "models": [
+        "wujia.knowledge.article"
+      ]
+    },
+    {
+      "module": "wujia_portal_layout",
+      "file": "custom/wujia_portal_layout/controllers/auth.py",
+      "line": 30,
+      "class": "WujiaAuthController",
+      "bases": [
+        "AuthSignupHome"
+      ],
+      "method": "portal_login",
+      "paths": [
+        "/portal/login"
+      ],
+      "type": "http",
+      "auth": "public",
+      "methods": null,
+      "csrf": null,
+      "website": null,
+      "sitemap": false,
+      "doc": "",
+      "models": []
+    },
+    {
+      "module": "wujia_portal_layout",
+      "file": "custom/wujia_portal_layout/controllers/auth.py",
+      "line": 74,
+      "class": "WujiaAuthController",
+      "bases": [
+        "AuthSignupHome"
+      ],
+      "method": "portal_logout",
+      "paths": [
+        "/portal/logout"
+      ],
+      "type": "http",
+      "auth": "public",
+      "methods": null,
+      "csrf": null,
+      "website": null,
+      "sitemap": false,
+      "doc": "",
+      "models": []
+    },
+    {
+      "module": "wujia_portal_layout",
+      "file": "custom/wujia_portal_layout/controllers/auth.py",
+      "line": 79,
+      "class": "WujiaAuthController",
+      "bases": [
+        "AuthSignupHome"
+      ],
+      "method": "portal_post_login_redirect",
+      "paths": [
+        "/portal/redirect"
+      ],
+      "type": "http",
+      "auth": "user",
+      "methods": null,
+      "csrf": null,
+      "website": null,
+      "sitemap": false,
+      "doc": "",
+      "models": []
+    },
+    {
+      "module": "wujia_portal_layout",
+      "file": "custom/wujia_portal_layout/controllers/auth.py",
+      "line": 90,
+      "class": "WujiaAuthController",
+      "bases": [
+        "AuthSignupHome"
+      ],
+      "method": "portal_forgot_password",
+      "paths": [
+        "/portal/forgot-pass"
+      ],
+      "type": "http",
+      "auth": "public",
+      "methods": [
+        "GET",
+        "POST"
+      ],
+      "csrf": true,
+      "website": null,
+      "sitemap": false,
+      "doc": "",
+      "models": [
+        "res.users"
+      ]
+    },
+    {
+      "module": "wujia_portal_layout",
+      "file": "custom/wujia_portal_layout/controllers/auth.py",
+      "line": 125,
+      "class": "WujiaAuthController",
+      "bases": [
+        "AuthSignupHome"
+      ],
+      "method": "portal_reset_password",
+      "paths": [
+        "/portal/reset_password"
+      ],
+      "type": "http",
+      "auth": "public",
+      "methods": [
+        "GET",
+        "POST"
+      ],
+      "csrf": true,
+      "website": null,
+      "sitemap": false,
+      "doc": "",
+      "models": []
+    },
+    {
+      "module": "wujia_portal_layout",
+      "file": "custom/wujia_portal_layout/controllers/pc_preview.py",
+      "line": 15,
+      "class": "WujiaPcPreview",
+      "bases": [
+        "http.Controller"
+      ],
+      "method": "pc_preview",
+      "paths": [
+        "/portal/_pc-preview"
+      ],
+      "type": "http",
+      "auth": "user",
+      "methods": null,
+      "csrf": null,
+      "website": false,
+      "sitemap": false,
+      "doc": "",
+      "models": []
+    },
+    {
+      "module": "wujia_portal_layout",
+      "file": "custom/wujia_portal_layout/controllers/portal.py",
+      "line": 78,
+      "class": "WujiaPortalLayout",
+      "bases": [
+        "http.Controller"
+      ],
+      "method": "portal_profile",
+      "paths": [
+        "/portal/profile"
+      ],
+      "type": "http",
+      "auth": "user",
+      "methods": null,
+      "csrf": null,
+      "website": false,
+      "sitemap": false,
+      "doc": "",
+      "models": []
+    },
+    {
+      "module": "wujia_portal_layout",
+      "file": "custom/wujia_portal_layout/controllers/portal.py",
+      "line": 94,
+      "class": "WujiaPortalLayout",
+      "bases": [
+        "http.Controller"
+      ],
+      "method": "portal_profile_update",
+      "paths": [
+        "/portal/profile/update"
+      ],
+      "type": "http",
+      "auth": "user",
+      "methods": [
+        "POST"
+      ],
+      "csrf": true,
+      "website": false,
+      "sitemap": false,
+      "doc": "Validate + persist partner fields + optional avatar upload.",
+      "models": []
+    },
+    {
+      "module": "wujia_portal_layout",
+      "file": "custom/wujia_portal_layout/controllers/portal.py",
+      "line": 143,
+      "class": "WujiaPortalLayout",
+      "bases": [
+        "http.Controller"
+      ],
+      "method": "portal_profile_avatar",
+      "paths": [
+        "/portal/profile/avatar/<int:user_id>"
+      ],
+      "type": "http",
+      "auth": "user",
+      "methods": null,
+      "csrf": null,
+      "website": false,
+      "sitemap": false,
+      "doc": "Serve avatar ảnh với ACL theo accessible franchise.",
+      "models": [
+        "res.users",
+        "ir.binary"
+      ]
+    },
+    {
+      "module": "wujia_portal_layout",
+      "file": "custom/wujia_portal_layout/controllers/portal.py",
+      "line": 176,
+      "class": "WujiaPortalLayout",
+      "bases": [
+        "http.Controller"
+      ],
+      "method": "portal_change_password",
+      "paths": [
+        "/portal/change-password"
+      ],
+      "type": "http",
+      "auth": "user",
+      "methods": [
+        "GET",
+        "POST"
+      ],
+      "csrf": true,
+      "website": false,
+      "sitemap": false,
+      "doc": "",
+      "models": [
+        "res.users"
+      ]
+    },
+    {
+      "module": "wujia_portal_layout",
+      "file": "custom/wujia_portal_layout/controllers/portal.py",
+      "line": 221,
+      "class": "WujiaPortalLayout",
+      "bases": [
+        "http.Controller"
+      ],
+      "method": "portal_set_lang",
+      "paths": [
+        "/portal/set-lang/<string:lang_code>"
+      ],
+      "type": "http",
+      "auth": "public",
+      "methods": null,
+      "csrf": null,
+      "website": false,
+      "sitemap": false,
+      "doc": "Đổi ngôn ngữ portal. Thay route /website/lang/* của module website —",
+      "models": [
+        "res.lang"
+      ]
+    },
+    {
+      "module": "wujia_portal_notification",
+      "file": "custom/wujia_portal_notification/controllers/portal.py",
+      "line": 265,
+      "class": "WujiaPortalNotification",
+      "bases": [
+        "http.Controller"
+      ],
+      "method": "portal_notification_list",
+      "paths": [
+        "/portal/notification"
+      ],
+      "type": "http",
+      "auth": "user",
+      "methods": null,
+      "csrf": null,
+      "website": null,
+      "sitemap": false,
+      "doc": "",
+      "models": []
+    },
+    {
+      "module": "wujia_portal_notification",
+      "file": "custom/wujia_portal_notification/controllers/portal.py",
+      "line": 270,
+      "class": "WujiaPortalNotification",
+      "bases": [
+        "http.Controller"
+      ],
+      "method": "portal_notification_results",
+      "paths": [
+        "/portal/notification/results"
+      ],
+      "type": "http",
+      "auth": "user",
+      "methods": null,
+      "csrf": null,
+      "website": null,
+      "sitemap": false,
+      "doc": "Fragment các khối kết quả cho lọc AJAX — cùng context, bỏ shell portal.",
+      "models": []
+    },
+    {
+      "module": "wujia_portal_notification",
+      "file": "custom/wujia_portal_notification/controllers/portal.py",
+      "line": 277,
+      "class": "WujiaPortalNotification",
+      "bases": [
+        "http.Controller"
+      ],
+      "method": "portal_notification_detail",
+      "paths": [
+        "/portal/notification/<int:notification_id>"
+      ],
+      "type": "http",
+      "auth": "user",
+      "methods": null,
+      "csrf": null,
+      "website": null,
+      "sitemap": false,
+      "doc": "",
+      "models": [
+        "wujia.notification",
+        "wujia.notification.read"
+      ]
+    },
+    {
+      "module": "wujia_portal_notification",
+      "file": "custom/wujia_portal_notification/controllers/portal.py",
+      "line": 315,
+      "class": "WujiaPortalNotification",
+      "bases": [
+        "http.Controller"
+      ],
+      "method": "portal_notification_recent",
+      "paths": [
+        "/portal/notification/recent"
+      ],
+      "type": "json",
+      "auth": "user",
+      "methods": [
+        "POST",
+        "GET"
+      ],
+      "csrf": null,
+      "website": null,
+      "sitemap": null,
+      "doc": "Popup chuông header — 5 thông báo CÒN HIỆU LỰC gần nhất + đếm chưa đọc.",
+      "models": [
+        "wujia.notification"
+      ]
+    },
+    {
+      "module": "wujia_portal_notification",
+      "file": "custom/wujia_portal_notification/controllers/portal.py",
+      "line": 344,
+      "class": "WujiaPortalNotification",
+      "bases": [
+        "http.Controller"
+      ],
+      "method": "portal_notification_mark_all_read",
+      "paths": [
+        "/portal/notification/mark-all-read"
+      ],
+      "type": "json",
+      "auth": "user",
+      "methods": [
+        "POST"
+      ],
+      "csrf": null,
+      "website": null,
+      "sitemap": null,
+      "doc": "BA row 6 — đánh dấu TẤT CẢ thông báo còn hiệu lực chưa đọc của user tại cửa hàng",
+      "models": [
+        "wujia.notification",
+        "wujia.notification.read"
+      ]
+    },
+    {
+      "module": "wujia_portal_notification",
+      "file": "custom/wujia_portal_notification/controllers/portal.py",
+      "line": 374,
+      "class": "WujiaPortalNotification",
+      "bases": [
+        "http.Controller"
+      ],
+      "method": "portal_notification_mark_read",
+      "paths": [
+        "/portal/notification/mark-read"
+      ],
+      "type": "json",
+      "auth": "user",
+      "methods": [
+        "POST"
+      ],
+      "csrf": null,
+      "website": null,
+      "sitemap": null,
+      "doc": "Bulk mark-read theo ids (back-compat). Idempotent — unique (noti,user,store).",
+      "models": [
+        "wujia.notification",
+        "wujia.notification.read"
+      ]
+    },
+    {
+      "module": "wujia_portal_notification",
+      "file": "custom/wujia_portal_notification/controllers/portal.py",
+      "line": 408,
+      "class": "WujiaPortalNotification",
+      "bases": [
+        "http.Controller"
+      ],
+      "method": "portal_notification_unread_count",
+      "paths": [
+        "/portal/notification/unread-count"
+      ],
+      "type": "json",
+      "auth": "user",
+      "methods": [
+        "POST",
+        "GET"
+      ],
+      "csrf": null,
+      "website": null,
+      "sitemap": null,
+      "doc": "Badge realtime — thông báo còn hiệu lực chưa đọc của user tại cửa hàng hiện tại.",
+      "models": []
+    },
+    {
+      "module": "wujia_portal_notification",
+      "file": "custom/wujia_portal_notification/controllers/portal.py",
+      "line": 416,
+      "class": "WujiaPortalNotification",
+      "bases": [
+        "http.Controller"
+      ],
+      "method": "portal_notification_attachment",
+      "paths": [
+        "/portal/notification/<int:notification_id>/attachment/<int:attachment_id>"
+      ],
+      "type": "http",
+      "auth": "user",
+      "methods": null,
+      "csrf": null,
+      "website": null,
+      "sitemap": false,
+      "doc": "BA row 7 — tải file đính kèm CÓ kiểm quyền: thông báo phải accessible + attachment",
+      "models": [
+        "wujia.notification",
+        "ir.attachment",
+        "ir.binary"
+      ]
+    },
+    {
+      "module": "wujia_portal_purchase_history",
+      "file": "custom/wujia_portal_purchase_history/controllers/legacy_redirects.py",
+      "line": 18,
+      "class": "WujiaPurchaseHistoryLegacyRedirects",
+      "bases": [
+        "http.Controller"
+      ],
+      "method": "legacy_purchase_history",
+      "paths": [
+        "/portal/purchase_history"
+      ],
+      "type": "http",
+      "auth": "public",
+      "methods": null,
+      "csrf": null,
+      "website": null,
+      "sitemap": false,
+      "doc": "",
+      "models": []
+    },
+    {
+      "module": "wujia_portal_purchase_history",
+      "file": "custom/wujia_portal_purchase_history/controllers/portal.py",
+      "line": 314,
+      "class": "WujiaPortalHistory",
+      "bases": [
+        "http.Controller"
+      ],
+      "method": "portal_history_list",
+      "paths": [
+        "/portal/purchase-history"
+      ],
+      "type": "http",
+      "auth": "user",
+      "methods": null,
+      "csrf": null,
+      "website": null,
+      "sitemap": false,
+      "doc": "",
+      "models": []
+    },
+    {
+      "module": "wujia_portal_purchase_history",
+      "file": "custom/wujia_portal_purchase_history/controllers/portal.py",
+      "line": 319,
+      "class": "WujiaPortalHistory",
+      "bases": [
+        "http.Controller"
+      ],
+      "method": "portal_history_results",
+      "paths": [
+        "/portal/purchase-history/results"
+      ],
+      "type": "http",
+      "auth": "user",
+      "methods": null,
+      "csrf": null,
+      "website": null,
+      "sitemap": false,
+      "doc": "Fragment các khối kết quả cho lọc AJAX — cùng context, bỏ shell portal.",
+      "models": []
+    },
+    {
+      "module": "wujia_portal_purchase_history",
+      "file": "custom/wujia_portal_purchase_history/controllers/portal.py",
+      "line": 326,
+      "class": "WujiaPortalHistory",
+      "bases": [
+        "http.Controller"
+      ],
+      "method": "portal_history_detail",
+      "paths": [
+        "/portal/purchase-history/<int:order_id>"
+      ],
+      "type": "http",
+      "auth": "user",
+      "methods": null,
+      "csrf": null,
+      "website": null,
+      "sitemap": false,
+      "doc": "",
+      "models": []
+    },
+    {
+      "module": "wujia_portal_purchase_history",
+      "file": "custom/wujia_portal_purchase_history/controllers/portal.py",
+      "line": 340,
+      "class": "WujiaPortalHistory",
+      "bases": [
+        "http.Controller"
+      ],
+      "method": "portal_history_download_pdf",
+      "paths": [
+        "/portal/purchase-history/<int:order_id>.pdf"
+      ],
+      "type": "http",
+      "auth": "user",
+      "methods": null,
+      "csrf": null,
+      "website": null,
+      "sitemap": false,
+      "doc": "Render hóa đơn PDF qua Odoo native report engine.",
+      "models": []
+    },
+    {
+      "module": "wujia_portal_report",
+      "file": "custom/wujia_portal_report/controllers/portal.py",
+      "line": 75,
+      "class": "WujiaPortalReport",
+      "bases": [
+        "http.Controller"
+      ],
+      "method": "portal_report_orders",
+      "paths": [
+        "/portal/reports/orders"
+      ],
+      "type": "http",
+      "auth": "user",
+      "methods": null,
+      "csrf": null,
+      "website": null,
+      "sitemap": false,
+      "doc": "",
+      "models": [
+        "sale.order",
+        "sale.order.line"
+      ]
+    },
+    {
+      "module": "wujia_portal_report",
+      "file": "custom/wujia_portal_report/controllers/portal.py",
+      "line": 221,
+      "class": "WujiaPortalReport",
+      "bases": [
+        "http.Controller"
+      ],
+      "method": "portal_report_export_xlsx",
+      "paths": [
+        "/portal/reports/orders/export.xlsx"
+      ],
+      "type": "http",
+      "auth": "user",
+      "methods": null,
+      "csrf": null,
+      "website": null,
+      "sitemap": false,
+      "doc": "Export báo cáo đặt hàng ra XLSX — 1 sheet KPI + 1 sheet detail.",
+      "models": [
+        "sale.order"
+      ]
+    },
+    {
+      "module": "wujia_portal_return",
+      "file": "custom/wujia_portal_return/controllers/legacy_redirects.py",
+      "line": 18,
+      "class": "WujiaReturnLegacyRedirects",
+      "bases": [
+        "http.Controller"
+      ],
+      "method": "legacy_return_list",
+      "paths": [
+        "/portal/return-request-list"
+      ],
+      "type": "http",
+      "auth": "public",
+      "methods": null,
+      "csrf": null,
+      "website": null,
+      "sitemap": false,
+      "doc": "",
+      "models": []
+    },
+    {
+      "module": "wujia_portal_return",
+      "file": "custom/wujia_portal_return/controllers/portal.py",
+      "line": 133,
+      "class": "WujiaPortalReturn",
+      "bases": [
+        "http.Controller"
+      ],
+      "method": "portal_return_list",
+      "paths": [
+        "/portal/return"
+      ],
+      "type": "http",
+      "auth": "user",
+      "methods": null,
+      "csrf": null,
+      "website": null,
+      "sitemap": false,
+      "doc": "",
+      "models": [
+        "wujia.return.request"
+      ]
+    },
+    {
+      "module": "wujia_portal_return",
+      "file": "custom/wujia_portal_return/controllers/portal.py",
+      "line": 189,
+      "class": "WujiaPortalReturn",
+      "bases": [
+        "http.Controller"
+      ],
+      "method": "portal_return_new",
+      "paths": [
+        "/portal/return/new"
+      ],
+      "type": "http",
+      "auth": "user",
+      "methods": [
+        "GET",
+        "POST"
+      ],
+      "csrf": true,
+      "website": null,
+      "sitemap": false,
+      "doc": "",
+      "models": [
+        "wujia.return.request"
+      ]
+    },
+    {
+      "module": "wujia_portal_return",
+      "file": "custom/wujia_portal_return/controllers/portal.py",
+      "line": 231,
+      "class": "WujiaPortalReturn",
+      "bases": [
+        "http.Controller"
+      ],
+      "method": "portal_return_detail",
+      "paths": [
+        "/portal/return/<int:request_id>"
+      ],
+      "type": "http",
+      "auth": "user",
+      "methods": null,
+      "csrf": null,
+      "website": null,
+      "sitemap": false,
+      "doc": "",
+      "models": [
+        "wujia.return.request"
+      ]
+    },
+    {
+      "module": "wujia_portal_return",
+      "file": "custom/wujia_portal_return/controllers/portal.py",
+      "line": 253,
+      "class": "WujiaPortalReturn",
+      "bases": [
+        "http.Controller"
+      ],
+      "method": "portal_return_attachment_download",
+      "paths": [
+        "/portal/return/<int:request_id>/attachment/<int:att_id>"
+      ],
+      "type": "http",
+      "auth": "user",
+      "methods": null,
+      "csrf": null,
+      "website": null,
+      "sitemap": false,
+      "doc": "Stream attachment — ACL: chỉ user truy cập franchise của RR.",
+      "models": [
+        "wujia.return.request",
+        "ir.binary",
+        "ir.attachment"
+      ]
+    },
+    {
+      "module": "wujia_portal_sale",
+      "file": "custom/wujia_portal_sale/controllers/portal.py",
+      "line": 377,
+      "class": "WujiaPortalSale",
+      "bases": [
+        "http.Controller"
+      ],
+      "method": "portal_order_cart_fragment",
+      "paths": [
+        "/portal/order/cart/fragment"
+      ],
+      "type": "json",
+      "auth": "user",
+      "methods": null,
+      "csrf": null,
+      "website": null,
+      "sitemap": null,
+      "doc": "State + partial giỏ hiện tại cho client reconcile (bus event / sau mutation).",
+      "models": []
+    },
+    {
+      "module": "wujia_portal_sale",
+      "file": "custom/wujia_portal_sale/controllers/portal.py",
+      "line": 504,
+      "class": "WujiaPortalSale",
+      "bases": [
+        "http.Controller"
+      ],
+      "method": "portal_order_catalog",
+      "paths": [
+        "/portal/order"
+      ],
+      "type": "http",
+      "auth": "user",
+      "methods": null,
+      "csrf": null,
+      "website": null,
+      "sitemap": false,
+      "doc": "",
+      "models": []
+    },
+    {
+      "module": "wujia_portal_sale",
+      "file": "custom/wujia_portal_sale/controllers/portal.py",
+      "line": 509,
+      "class": "WujiaPortalSale",
+      "bases": [
+        "http.Controller"
+      ],
+      "method": "portal_order_catalog_results",
+      "paths": [
+        "/portal/order/results"
+      ],
+      "type": "http",
+      "auth": "user",
+      "methods": null,
+      "csrf": null,
+      "website": null,
+      "sitemap": false,
+      "doc": "Fragment các khối kết quả cho lọc AJAX — cùng context, bỏ shell portal.",
+      "models": []
+    },
+    {
+      "module": "wujia_portal_sale",
+      "file": "custom/wujia_portal_sale/controllers/portal.py",
+      "line": 517,
+      "class": "WujiaPortalSale",
+      "bases": [
+        "http.Controller"
+      ],
+      "method": "portal_order_product_detail",
+      "paths": [
+        "/portal/order/product/<int:product_id>"
+      ],
+      "type": "http",
+      "auth": "user",
+      "methods": null,
+      "csrf": null,
+      "website": null,
+      "sitemap": false,
+      "doc": "",
+      "models": [
+        "product.product"
+      ]
+    },
+    {
+      "module": "wujia_portal_sale",
+      "file": "custom/wujia_portal_sale/controllers/portal.py",
+      "line": 545,
+      "class": "WujiaPortalSale",
+      "bases": [
+        "http.Controller"
+      ],
+      "method": "portal_order_cart_view",
+      "paths": [
+        "/portal/order/cart"
+      ],
+      "type": "http",
+      "auth": "user",
+      "methods": null,
+      "csrf": null,
+      "website": null,
+      "sitemap": false,
+      "doc": "",
+      "models": []
+    },
+    {
+      "module": "wujia_portal_sale",
+      "file": "custom/wujia_portal_sale/controllers/portal.py",
+      "line": 567,
+      "class": "WujiaPortalSale",
+      "bases": [
+        "http.Controller"
+      ],
+      "method": "portal_cart_add",
+      "paths": [
+        "/portal/order/cart/add"
+      ],
+      "type": "json",
+      "auth": "user",
+      "methods": [
+        "POST"
+      ],
+      "csrf": null,
+      "website": null,
+      "sitemap": null,
+      "doc": "",
+      "models": [
+        "wujia.portal.cart.line",
+        "product.product"
+      ]
+    },
+    {
+      "module": "wujia_portal_sale",
+      "file": "custom/wujia_portal_sale/controllers/portal.py",
+      "line": 651,
+      "class": "WujiaPortalSale",
+      "bases": [
+        "http.Controller"
+      ],
+      "method": "portal_cart_update_qty",
+      "paths": [
+        "/portal/order/cart/update"
+      ],
+      "type": "json",
+      "auth": "user",
+      "methods": [
+        "POST"
+      ],
+      "csrf": null,
+      "website": null,
+      "sitemap": null,
+      "doc": "",
+      "models": []
+    },
+    {
+      "module": "wujia_portal_sale",
+      "file": "custom/wujia_portal_sale/controllers/portal.py",
+      "line": 698,
+      "class": "WujiaPortalSale",
+      "bases": [
+        "http.Controller"
+      ],
+      "method": "portal_cart_step",
+      "paths": [
+        "/portal/order/cart/step"
+      ],
+      "type": "json",
+      "auth": "user",
+      "methods": [
+        "POST"
+      ],
+      "csrf": null,
+      "website": null,
+      "sitemap": null,
+      "doc": "Tăng/giảm ĐÚNG 1 bước NGUYÊN TỬ (WJ-ORD-002 — tránh lost update).",
+      "models": [
+        "wujia.portal.cart.line"
+      ]
+    },
+    {
+      "module": "wujia_portal_sale",
+      "file": "custom/wujia_portal_sale/controllers/portal.py",
+      "line": 786,
+      "class": "WujiaPortalSale",
+      "bases": [
+        "http.Controller"
+      ],
+      "method": "portal_cart_remove",
+      "paths": [
+        "/portal/order/cart/remove"
+      ],
+      "type": "json",
+      "auth": "user",
+      "methods": [
+        "POST"
+      ],
+      "csrf": null,
+      "website": null,
+      "sitemap": null,
+      "doc": "",
+      "models": []
+    },
+    {
+      "module": "wujia_portal_sale",
+      "file": "custom/wujia_portal_sale/controllers/portal.py",
+      "line": 806,
+      "class": "WujiaPortalSale",
+      "bases": [
+        "http.Controller"
+      ],
+      "method": "portal_cart_count",
+      "paths": [
+        "/portal/order/cart/count"
+      ],
+      "type": "json",
+      "auth": "user",
+      "methods": [
+        "GET",
+        "POST"
+      ],
+      "csrf": null,
+      "website": null,
+      "sitemap": null,
+      "doc": "",
+      "models": [
+        "wujia.portal.cart.line"
+      ]
+    },
+    {
+      "module": "wujia_portal_sale",
+      "file": "custom/wujia_portal_sale/controllers/portal.py",
+      "line": 823,
+      "class": "WujiaPortalSale",
+      "bases": [
+        "http.Controller"
+      ],
+      "method": "portal_cart_note",
+      "paths": [
+        "/portal/order/cart/note"
+      ],
+      "type": "json",
+      "auth": "user",
+      "methods": [
+        "POST"
+      ],
+      "csrf": null,
+      "website": null,
+      "sitemap": null,
+      "doc": "",
+      "models": []
+    },
+    {
+      "module": "wujia_portal_sale",
+      "file": "custom/wujia_portal_sale/controllers/portal.py",
+      "line": 841,
+      "class": "WujiaPortalSale",
+      "bases": [
+        "http.Controller"
+      ],
+      "method": "portal_order_submit",
+      "paths": [
+        "/portal/order/submit"
+      ],
+      "type": "http",
+      "auth": "user",
+      "methods": [
+        "POST"
+      ],
+      "csrf": true,
+      "website": null,
+      "sitemap": false,
+      "doc": "",
+      "models": [
+        "sale.order",
+        "res.config.settings",
+        "wujia.franchise.member",
+        "wujia.portal.cart.line"
+      ]
+    },
+    {
+      "module": "wujia_portal_sale",
+      "file": "custom/wujia_portal_sale/controllers/portal.py",
+      "line": 980,
+      "class": "WujiaPortalSale",
+      "bases": [
+        "http.Controller"
+      ],
+      "method": "portal_order_submitted",
+      "paths": [
+        "/portal/order/submitted/<int:order_id>"
+      ],
+      "type": "http",
+      "auth": "user",
+      "methods": null,
+      "csrf": null,
+      "website": null,
+      "sitemap": false,
+      "doc": "Màn \"Đặt hàng thành công\" — dữ liệu THẬT từ SO vừa tạo (không phải số Figma).",
+      "models": [
+        "sale.order"
+      ]
+    },
+    {
+      "module": "wujia_portal_sale",
+      "file": "custom/wujia_portal_sale/controllers/portal.py",
+      "line": 1022,
+      "class": "WujiaPortalSale",
+      "bases": [
+        "http.Controller"
+      ],
+      "method": "portal_order_rejected",
+      "paths": [
+        "/portal/order/rejected"
+      ],
+      "type": "http",
+      "auth": "user",
+      "methods": null,
+      "csrf": null,
+      "website": null,
+      "sitemap": false,
+      "doc": "Màn \"Không thể gửi đơn\" — hiện chỉ dùng cho ORDER_TIME_CLOSED.",
+      "models": [
+        "res.config.settings"
+      ]
+    },
+    {
+      "module": "wujia_portal_support",
+      "file": "custom/wujia_portal_support/controllers/portal.py",
+      "line": 46,
+      "class": "WujiaPortalSupport",
+      "bases": [
+        "http.Controller"
+      ],
+      "method": "portal_support_list",
+      "paths": [
+        "/portal/support"
+      ],
+      "type": "http",
+      "auth": "user",
+      "methods": null,
+      "csrf": null,
+      "website": null,
+      "sitemap": false,
+      "doc": "",
+      "models": [
+        "wujia.support.ticket"
+      ]
+    },
+    {
+      "module": "wujia_portal_support",
+      "file": "custom/wujia_portal_support/controllers/portal.py",
+      "line": 82,
+      "class": "WujiaPortalSupport",
+      "bases": [
+        "http.Controller"
+      ],
+      "method": "portal_support_new",
+      "paths": [
+        "/portal/support/new"
+      ],
+      "type": "http",
+      "auth": "user",
+      "methods": [
+        "GET"
+      ],
+      "csrf": null,
+      "website": null,
+      "sitemap": false,
+      "doc": "",
+      "models": [
+        "wujia.franchise.management"
+      ]
+    },
+    {
+      "module": "wujia_portal_support",
+      "file": "custom/wujia_portal_support/controllers/portal.py",
+      "line": 95,
+      "class": "WujiaPortalSupport",
+      "bases": [
+        "http.Controller"
+      ],
+      "method": "portal_support_create",
+      "paths": [
+        "/portal/support/new"
+      ],
+      "type": "http",
+      "auth": "user",
+      "methods": [
+        "POST"
+      ],
+      "csrf": true,
+      "website": null,
+      "sitemap": false,
+      "doc": "",
+      "models": [
+        "wujia.support.ticket"
+      ]
+    },
+    {
+      "module": "wujia_portal_support",
+      "file": "custom/wujia_portal_support/controllers/portal.py",
+      "line": 142,
+      "class": "WujiaPortalSupport",
+      "bases": [
+        "http.Controller"
+      ],
+      "method": "portal_support_detail",
+      "paths": [
+        "/portal/support/<int:ticket_id>"
+      ],
+      "type": "http",
+      "auth": "user",
+      "methods": null,
+      "csrf": null,
+      "website": null,
+      "sitemap": false,
+      "doc": "",
+      "models": [
+        "wujia.support.ticket"
+      ]
+    },
+    {
+      "module": "wujia_portal_support",
+      "file": "custom/wujia_portal_support/controllers/portal.py",
+      "line": 160,
+      "class": "WujiaPortalSupport",
+      "bases": [
+        "http.Controller"
+      ],
+      "method": "portal_support_reply",
+      "paths": [
+        "/portal/support/<int:ticket_id>/reply"
+      ],
+      "type": "http",
+      "auth": "user",
+      "methods": [
+        "POST"
+      ],
+      "csrf": true,
+      "website": null,
+      "sitemap": false,
+      "doc": "",
+      "models": [
+        "wujia.support.ticket"
+      ]
+    },
+    {
+      "module": "wujia_portal_support",
+      "file": "custom/wujia_portal_support/controllers/portal.py",
+      "line": 179,
+      "class": "WujiaPortalSupport",
+      "bases": [
+        "http.Controller"
+      ],
+      "method": "portal_support_attachment_download",
+      "paths": [
+        "/portal/support/<int:ticket_id>/attachment/<int:att_id>"
+      ],
+      "type": "http",
+      "auth": "user",
+      "methods": null,
+      "csrf": null,
+      "website": null,
+      "sitemap": false,
+      "doc": "Stream attachment với ACL: chỉ owner ticket được tải.",
+      "models": [
+        "ir.attachment",
+        "wujia.support.ticket",
+        "ir.binary"
+      ]
+    }
+  ]
+}

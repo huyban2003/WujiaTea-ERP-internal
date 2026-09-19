@@ -1,0 +1,117 @@
+% Đặc tả chi tiết controller Portal WujiaTea — build:
+%   cd docs && lualatex controller-spec-detail.tex && lualatex controller-spec-detail.tex
+% (KHÔNG qua scripts/build-doc.sh — đây là tài liệu độc lập, không thuộc master 300 trang)
+\documentclass[11pt,a4paper]{report}
+
+\usepackage{fontspec}
+\setmainfont{Noto Sans}
+\setsansfont{Noto Sans}
+\setmonofont{DejaVu Sans Mono}[Scale=0.82]
+
+\usepackage[margin=2cm]{geometry}
+\usepackage{parskip}
+\setlength{\parindent}{0pt}
+
+\usepackage{booktabs}
+\usepackage{longtable}
+\usepackage{array}
+\usepackage{tabularx}
+\usepackage{enumitem}
+\usepackage{xcolor}
+\usepackage{colortbl}
+\usepackage{mdframed}
+\newcolumntype{L}[1]{>{\raggedright\arraybackslash}p{#1}}
+
+\definecolor{hdrbg}{RGB}{238,242,248}
+\definecolor{askbg}{RGB}{255,247,230}
+\definecolor{askln}{RGB}{217,119,6}
+\definecolor{okc}{RGB}{21,128,61}
+\definecolor{partc}{RGB}{180,110,10}
+\definecolor{noc}{RGB}{185,28,28}
+\definecolor{greyc}{RGB}{110,110,110}
+
+% --- ký hiệu dùng chung -------------------------------------------------------
+% \rt{} dùng \nolinkurl: gõ thẳng is_public_portal / <int:id> không cần escape,
+% và đường dẫn dài tự ngắt dòng ở dấu / _ thay vì tràn ra lề (bẫy build đầu tiên).
+\newcommand{\rt}[1]{{\footnotesize\nolinkurl{#1}}}
+\newcommand{\uat}[1]{\textcolor{okc}{\textbf{#1}}}         % số đo thật trên UAT
+\newcommand{\ok}{\textcolor{okc}{\textbf{ĐÃ CÓ}}}
+\newcommand{\pt}{\textcolor{partc}{\textbf{MỘT PHẦN}}}
+\newcommand{\no}{\textcolor{noc}{\textbf{CHƯA CÓ}}}
+\newcommand{\note}[1]{\textcolor{greyc}{\small #1}}
+
+% --- khuôn "phiếu màn": 7 mục cố định, không màn nào được thiếu ---------------
+\newcommand{\screen}[2]{\section{#1}\nopagebreak\par\rt{#2}\par\medskip}
+\newcommand{\mvao}{\subsection*{1. Vào màn bằng đâu}}
+\newcommand{\mai}{\subsection*{2. Ai xem được gì}}
+\newcommand{\mhien}{\subsection*{3. Màn hiện gì --- lấy ở đâu, lọc điều kiện gì}}
+\newcommand{\mloc}{\subsection*{4. Người dùng lọc / nhập được gì}}
+\newcommand{\mkiem}[1]{\subsection*{5. Bấm \emph{#1} thì hệ thống kiểm gì}}
+\newcommand{\mghi}{\subsection*{6. Ghi gì vào hệ thống}}
+\newcommand{\mhoi}{\subsection*{7. Điểm cần BA xác nhận}}
+
+% khối câu hỏi cho BA
+\newenvironment{ask}
+  {\begin{mdframed}[backgroundcolor=askbg,linecolor=askln,linewidth=0.8pt,
+      innertopmargin=6pt,innerbottommargin=6pt,skipabove=6pt,skipbelow=6pt]}
+  {\end{mdframed}}
+
+% bảng "màn hiện gì"
+\newenvironment{hienbang}
+  {\par\footnotesize\begin{longtable}{L{2.4cm}L{2.7cm}L{5.6cm}L{1.9cm}L{1.9cm}}
+   \rowcolor{hdrbg}\textbf{Khối trên màn} & \textbf{Lấy từ bảng} &
+   \textbf{Điều kiện lọc} & \textbf{Sắp xếp / số dòng} & \textbf{Thực tế UAT}\\ \midrule
+   \endfirsthead
+   \rowcolor{hdrbg}\textbf{Khối trên màn} & \textbf{Lấy từ bảng} &
+   \textbf{Điều kiện lọc} & \textbf{Sắp xếp / số dòng} & \textbf{Thực tế UAT}\\ \midrule
+   \endhead}
+  {\end{longtable}\par}
+
+% bảng "kiểm gì theo thứ tự"
+\newenvironment{kiembang}
+  {\par\footnotesize\begin{longtable}{L{0.5cm}L{7.0cm}L{7.2cm}}
+   \rowcolor{hdrbg}\textbf{\#} & \textbf{Điều kiện phải đạt} &
+   \textbf{Không đạt thì người dùng thấy gì}\\ \midrule
+   \endfirsthead
+   \rowcolor{hdrbg}\textbf{\#} & \textbf{Điều kiện phải đạt} &
+   \textbf{Không đạt thì người dùng thấy gì}\\ \midrule
+   \endhead}
+  {\end{longtable}\par}
+
+\usepackage{url}
+\usepackage{hyperref}
+\hypersetup{
+    colorlinks=true, linkcolor=blue!50!black, urlcolor=blue!60!black,
+    pdftitle={WujiaTea — Đặc tả chi tiết controller Portal},
+    pdfauthor={WujiaTea Dev},
+}
+
+\title{\textbf{WujiaTea --- Đặc tả chi tiết Controller Portal}\\[4pt]
+\large Mỗi màn: hiện gì theo điều kiện nào · ai xem được gì\\[2pt]
+\large bấm nút thì kiểm gì · ghi gì vào hệ thống · thực tế trên UAT đang ra sao}
+\author{Dev · Odoo 19}
+\date{20/09/2026}
+
+% số trang 3 chữ số trong mục lục cần ô rộng hơn mặc định
+\makeatletter
+\renewcommand{\@pnumwidth}{2.2em}
+\renewcommand{\@tocrmarg}{3.2em}
+\makeatother
+
+\sloppy
+\begin{document}
+\maketitle
+\tableofcontents
+
+\include{controller-spec/ch01-doc-nhu-the-nao}
+\include{controller-spec/ch02-ban-do-route}
+\include{controller-spec/ch03-dat-hang}
+\include{controller-spec/ch04-khung-trang-chu}
+\include{controller-spec/ch05-lichsu-giaohang-baocao}
+\include{controller-spec/ch06-congno-doitra}
+\include{controller-spec/ch07-hotro-kienthuc-thongbao}
+\include{controller-spec/ch08-dang-ky-thi}
+\include{controller-spec/ch09-khao-sat-metabase}
+\include{controller-spec/ch10-tong-hop}
+
+\end{document}

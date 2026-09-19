@@ -1,0 +1,944 @@
+\chapter{Khung portal --- Đăng nhập, Trang chủ, Cửa hàng}
+
+Chương này gồm \textbf{25 đường dẫn} gom thành \textbf{13 màn}, nằm trong hai mô-đun:
+
+\begin{itemize}[leftmargin=*,itemsep=1pt]
+  \item \rt{wujia_portal_layout} (11 đường dẫn) --- \emph{cái khung}: đăng nhập, quên và đổi
+        mật khẩu, hồ sơ cá nhân, đổi ngôn ngữ. Phần này cố ý \textbf{không biết gì} về cửa
+        hàng, đơn hàng hay công nợ, để màn đăng nhập vẫn chạy được kể cả khi các phân hệ
+        nghiệp vụ chưa bật.
+  \item \rt{wujia_portal_base} (14 đường dẫn) --- \emph{cái nền ghép}: Trang chủ tổng hợp số
+        liệu từ các phân hệ, việc chọn cửa hàng đang làm việc, và các màn thông tin cửa hàng.
+\end{itemize}
+
+\textbf{Năm nguyên tắc chi phối toàn bộ portal}, mô tả một lần ở đây, các chương sau chỉ trỏ về:
+
+\begin{enumerate}[leftmargin=*]
+  \item \textbf{Cửa hàng đang làm việc nằm trong cookie, không nằm trong tài khoản.} Trình duyệt
+        giữ \rt{wujia_active_franchise_id} trong \textbf{30 ngày}. Mỗi lần mở trang, hệ thống
+        kiểm lại: cửa hàng trong cookie có nằm trong danh sách cửa hàng tài khoản còn hiệu lực
+        không --- không thì coi như chưa chọn. Ai chỉ thuộc \textbf{một} cửa hàng thì hệ thống
+        tự chọn, không hỏi. Hệ quả: đổi máy hoặc xoá dữ liệu trình duyệt là phải chọn lại.
+  \item \textbf{Chưa chọn cửa hàng thì dữ liệu là TỔNG của mọi cửa hàng.} Đây là điểm dễ hiểu
+        nhầm nhất. Với người thuộc nhiều cửa hàng mà chưa bấm chọn, hệ thống \emph{không} chặn,
+        mà lấy dữ liệu của \textbf{tất cả} cửa hàng họ thuộc. Trang chủ vì thế có thể hiện con
+        số cộng gộp của 3 cửa hàng.
+  \item \textbf{Vai trò có ba bậc: Nhân viên $<$ Quản lý $<$ Chủ tiệm.} Bậc dùng để so sánh
+        ``ít nhất phải là\ldots''. Một tài khoản thuộc nhiều cửa hàng thì vai trò được lấy là
+        \textbf{bậc cao nhất} trong các cửa hàng đang xét. Rất nhiều màn hiện nay \emph{không}
+        phân biệt vai trò --- chỗ nào có phân biệt sẽ được nói rõ ở mục 2 của màn đó.
+  \item \textbf{Hầu hết dữ liệu được đọc bằng quyền hệ thống.} Nghĩa là phân quyền chuẩn của
+        Odoo bị bỏ qua, và việc ``ai thấy gì'' \textbf{hoàn toàn} do điều kiện lọc trong từng
+        màn quyết định. Nếu một điều kiện lọc viết thiếu, dữ liệu cửa hàng khác sẽ lọt ra --- đó
+        là lý do tài liệu này liệt kê từng điều kiện một.
+  \item \textbf{Giờ hiển thị đổi theo múi giờ của TÀI KHOẢN.} Hệ thống lưu giờ chuẩn quốc tế,
+        khi hiện lên mới quy đổi theo ô \emph{Múi giờ} trong tài khoản người dùng; ô trống thì
+        dùng \emph{Asia/Ho\_Chi\_Minh}. Không phải theo cửa hàng, cũng không phải theo khu vực.
+\end{enumerate}
+
+\section{Màn Đăng nhập}
+\rt{/portal/login} · \rt{/portal/logout} · \rt{/portal/redirect}
+\medskip
+
+\mvao
+
+Là màn đầu tiên. Mọi đường dẫn portal khi chưa đăng nhập đều bị đẩy về đây.
+\rt{/portal/logout} là nút Đăng xuất; \rt{/portal/redirect} \textbf{không phải màn}, mà là
+trạm trung chuyển ngay sau khi đăng nhập thành công.
+
+\mai
+
+\begin{itemize}[leftmargin=*]
+  \item Màn này \textbf{không yêu cầu đăng nhập} (đương nhiên). Đã đăng nhập rồi mà mở lại
+        \rt{/portal/login} thì bị đẩy thẳng qua trạm trung chuyển.
+  \item Trạm trung chuyển phân luồng theo \textbf{loại tài khoản}: tài khoản \emph{nội bộ}
+        (nhân sự Ngô Gia) đi vào giao diện quản trị \rt{/odoo}; tài khoản \emph{cửa hàng} đi
+        vào \rt{/portal}. Trên UAT: \uat{1} tài khoản nội bộ, \uat{6} tài khoản cửa hàng.
+  \item Nếu địa chỉ gọi tới có kèm tham số ``sau khi vào thì đi đâu'', hệ thống đi theo tham số
+        đó \textbf{trước}, không qua trạm phân luồng.
+\end{itemize}
+
+\mhien
+
+\begin{hienbang}
+Ô tài khoản, ô mật khẩu &
+  \rt{res.users} &
+  Không truy vấn gì lúc hiện màn. Ô tài khoản được điền sẵn nếu phiên trước có ghi nhận. &
+  --- & \uat{7} tài khoản đang có \\ \addlinespace
+Nút đổi ngôn ngữ &
+  \rt{res.lang} &
+  Chỉ ngôn ngữ \textbf{đang bật} (\rt{active = true}) &
+  --- & \uat{3} ngôn ngữ: Tiếng Việt, English, Thai \\
+\end{hienbang}
+
+\mloc
+
+Hai ô: \emph{tài khoản} (chính là email đăng nhập) và \emph{mật khẩu}. Người chưa đăng nhập
+vẫn đổi được ngôn ngữ ngay tại màn này --- lựa chọn đó được nhớ tạm và \textbf{ghi vào tài
+khoản} ngay sau khi đăng nhập thành công.
+
+\mkiem{Đăng nhập}
+
+\begin{kiembang}
+1 & Xác định đúng cơ sở dữ liệu cần đăng nhập &
+    Máy chủ chỉ có một cơ sở dữ liệu nên bước này luôn qua \\
+2 & Tài khoản và mật khẩu khớp &
+    ``Wrong login/password''. Hệ thống \textbf{không} nói rõ sai tài khoản hay sai mật khẩu \\
+3 & Tài khoản còn hoạt động &
+    Thông báo do Odoo sinh ra (ví dụ tài khoản đã bị tắt) \\
+\end{kiembang}
+
+\textbf{Đáng lưu ý:} màn đăng nhập \textbf{không} có cơ chế giới hạn số lần thử của riêng
+portal --- chỉ màn \emph{Quên mật khẩu} mới có (10 lần/giờ/địa chỉ mạng). Xem mục 7.
+
+\mghi
+
+\begin{itemize}[leftmargin=*]
+  \item Mở một \emph{phiên làm việc} cho tài khoản. Không tạo bản ghi nghiệp vụ nào.
+  \item Nếu người dùng đã đổi ngôn ngữ ở màn đăng nhập, hệ thống \textbf{ghi ngôn ngữ đó vào
+        tài khoản} (\rt{res.users.lang}) --- đây là lần duy nhất màn đăng nhập ghi dữ liệu.
+  \item Đăng xuất: đóng phiên, quay về màn đăng nhập. \textbf{Không} xoá cookie cửa hàng đang
+        chọn --- lần sau đăng nhập lại vẫn còn nguyên cửa hàng cũ, kể cả khi người đăng nhập
+        là tài khoản khác trên cùng máy (hệ thống vẫn kiểm lại quyền nên không lộ dữ liệu, chỉ
+        là cửa hàng hiển thị có thể không như mong đợi).
+\end{itemize}
+
+\mhoi
+
+\begin{ask}
+\begin{enumerate}[leftmargin=*]
+  \item \textbf{Chưa chặn thử mật khẩu hàng loạt ở màn đăng nhập.} Màn \emph{Quên mật khẩu} đã
+        có chặn 10 lần/giờ/địa chỉ mạng, nhưng màn đăng nhập thì chưa. Anh có muốn đặt luật
+        tương tự (ví dụ khoá tạm 5 phút sau 10 lần sai) không, và thông báo hiển thị thế nào?
+  \item \textbf{Đăng xuất không xoá cửa hàng đang chọn.} Máy dùng chung ở cửa hàng, người sau
+        đăng nhập sẽ thấy tên cửa hàng của người trước cho tới khi bấm đổi. Có cần xoá khi
+        đăng xuất không?
+\end{enumerate}
+\end{ask}
+
+\section{Màn Quên mật khẩu}
+\rt{/portal/forgot-pass}
+\medskip
+
+\mvao
+
+Liên kết ``Quên mật khẩu?'' ngay dưới ô mật khẩu ở màn đăng nhập.
+
+\mai
+
+Không cần đăng nhập. Ai cũng mở được.
+
+\mhien
+
+Một ô nhập \emph{email}, một nút gửi. Không hiển thị dữ liệu nào từ hệ thống.
+
+\mloc
+
+Chỉ ô email.
+
+\mkiem{Gửi yêu cầu}
+
+\begin{kiembang}
+1 & Địa chỉ mạng chưa gửi quá \textbf{10 lần trong 1 giờ} &
+    ``Quá nhiều yêu cầu. Vui lòng thử lại sau.'' \\
+2 & Có nhập email &
+    ``Vui lòng nhập email.'' \\
+3 & \emph{(không kiểm email có tồn tại hay không --- xem giải thích dưới)} &
+    --- \\
+\end{kiembang}
+
+\textbf{Cố ý không báo email có tồn tại hay không.} Dù email đúng hay sai, người dùng luôn nhận
+đúng một câu: \emph{``Nếu email tồn tại trong hệ thống, hướng dẫn đặt lại mật khẩu đã được gửi
+tới hộp thư của bạn.''} Đây là chủ đích --- nếu báo ``email không tồn tại'' thì kẻ xấu có thể
+dò ra danh sách email đang dùng hệ thống. Lỗi thật (email không có, hoặc máy chủ thư chưa cấu
+hình) chỉ được ghi vào nhật ký hệ thống cho kỹ thuật xem.
+
+\mghi
+
+Sinh một \textbf{mã dùng một lần} gắn vào tài khoản và gửi email chứa liên kết đặt lại. Nếu
+máy chủ gửi thư chưa được cấu hình thì \textbf{không có gì được gửi đi} nhưng người dùng vẫn
+thấy câu thông báo thành công.
+
+\mhoi
+
+\begin{ask}
+Vì màn luôn báo thành công, người dùng nhập nhầm email sẽ ngồi chờ một email không bao giờ tới,
+và Ngô Gia cũng không biết. Anh muốn giữ nguyên (an toàn hơn), hay thêm dòng hướng dẫn kiểu
+``không nhận được sau 5 phút, vui lòng liên hệ hotline\ldots''?
+\end{ask}
+
+\section{Màn Đặt lại mật khẩu}
+\rt{/portal/reset_password}
+\medskip
+
+\mvao
+
+Bấm liên kết trong email đặt lại mật khẩu. Liên kết có kèm \textbf{mã dùng một lần}.
+
+\mai
+
+Không cần đăng nhập, nhưng \textbf{bắt buộc có mã hợp lệ}. Vào thẳng đường dẫn mà không có mã
+thì bị đẩy về màn đăng nhập. Mã hết hạn hoặc đã dùng cũng bị đẩy về.
+
+\mhien
+
+Tên tài khoản (lấy ra từ chính mã), ô \emph{mật khẩu mới}, ô \emph{nhập lại mật khẩu}.
+
+\mloc
+
+Hai ô mật khẩu.
+
+\mkiem{Đặt lại mật khẩu}
+
+\begin{kiembang}
+1 & Liên kết có mã & Đẩy về màn đăng nhập \\
+2 & Hai ô mật khẩu khớp nhau & ``Mật khẩu xác nhận không khớp.'' \\
+3 & Mật khẩu \textbf{tối thiểu 8 ký tự} & ``Mật khẩu tối thiểu 8 ký tự.'' \\
+\end{kiembang}
+
+\textbf{Chỉ có luật độ dài 8 ký tự} --- không bắt buộc chữ hoa, chữ số hay ký tự đặc biệt.
+
+\mghi
+
+Ghi mật khẩu mới vào tài khoản, huỷ hiệu lực của mã, rồi đưa người dùng về màn đăng nhập kèm
+thông báo thành công. \textbf{Không} tự đăng nhập hộ.
+
+\mhoi
+
+\begin{ask}
+Luật mật khẩu hiện chỉ là ``từ 8 ký tự''. Anh có yêu cầu thêm (hoa/số/ký tự đặc biệt, không
+trùng mật khẩu cũ, buộc đổi sau N tháng) không? Lưu ý luật này phải áp \textbf{đồng thời} cho
+màn Đổi mật khẩu ở mục 4.7.
+\end{ask}
+
+\section{Màn Trang chủ}
+\rt{/portal}
+\medskip
+
+\mvao
+
+Vào thẳng sau khi đăng nhập, hoặc bấm biểu tượng nhà trên thanh điều hướng.
+
+\mai
+
+\begin{itemize}[leftmargin=*]
+  \item Phải đăng nhập.
+  \item \textbf{Phạm vi dữ liệu}: nếu đã chọn cửa hàng thì \textbf{chỉ} cửa hàng đó; chưa chọn
+        thì \textbf{cộng gộp mọi cửa hàng} tài khoản thuộc. Trên UAT có \uat{2}/7 tài khoản
+        thuộc nhiều hơn một cửa hàng (một tài khoản 3 cửa hàng, một tài khoản 2 cửa hàng), nên
+        hiện tượng cộng gộp này BA test bằng hai tài khoản đó.
+  \item Tài khoản \textbf{không thuộc cửa hàng nào}: mọi con số về 0, mọi danh sách rỗng ---
+        màn vẫn mở được, không báo lỗi.
+  \item \textbf{Hộp chọn cửa hàng} tự bật lên khi tài khoản thuộc \textbf{từ 2 cửa hàng trở
+        lên} \emph{và} cookie đang trống.
+  \item \textbf{Vai trò không giới hạn gì ở màn này} --- Nhân viên nhìn thấy đúng bằng Chủ tiệm,
+        kể cả các con số về đơn hàng và đổi trả.
+  \item Toàn bộ số liệu đọc bằng quyền hệ thống; giới hạn duy nhất là điều kiện
+        \rt{franchise_id} trong bảng dưới.
+\end{itemize}
+
+\mhien
+
+\textbf{Bốn thẻ số liệu} ở đầu màn:
+
+\begin{hienbang}
+Thẻ \emph{Thông báo chưa đọc} &
+  \rt{wujia.notification} trừ đi \rt{wujia.notification.read} &
+  Số thông báo đã công bố (\rt{is_published_portal = true}) gửi cho \textbf{mọi cửa hàng}
+  (\rt{franchise_ids} trống) \textbf{hoặc} đúng cửa hàng đang xét; rồi \textbf{trừ} đi số lượt
+  người này đã đánh dấu đọc. Không âm. &
+  --- &
+  \uat{2} thông báo đã công bố, cả \uat{2} đều gửi toàn hệ \\ \addlinespace
+Thẻ \emph{Đơn hàng 30 ngày} &
+  \rt{sale.order} &
+  Đơn của cửa hàng đang xét, ngày đặt trong \textbf{30 ngày} gần nhất, trạng thái khác
+  \emph{Đã huỷ}. &
+  --- &
+  \uat{31} đơn chưa huỷ trên toàn hệ \\ \addlinespace
+Thẻ \emph{Đơn chờ xác nhận} &
+  \rt{sale.order} &
+  Đơn của cửa hàng đang xét, trạng thái \emph{Nháp} hoặc \emph{Đã gửi}
+  (\rt{state in ('draft','sent')}). Không giới hạn thời gian. &
+  --- &
+  \uat{17} đơn \\ \addlinespace
+Thẻ \emph{Yêu cầu đổi trả đang mở} &
+  \rt{wujia.return.request} &
+  Yêu cầu của cửa hàng đang xét, trạng thái \emph{Đã gửi}, \emph{Đang xử lý} hoặc
+  \emph{Đã duyệt} (\rt{state in ('submitted','processing','approved')}). &
+  --- &
+  \uat{7} yêu cầu \\
+\end{hienbang}
+
+\textbf{Các khối danh sách} bên dưới --- mọi khối đều cắt ở \textbf{2 dòng}, xem đầy đủ phải
+bấm ``Xem tất cả'':
+
+\begin{hienbang}
+Thông báo mới nhất &
+  \rt{wujia.notification} &
+  Đã công bố \textbf{và} (gửi toàn hệ \textbf{hoặc} đúng cửa hàng đang xét) &
+  Ngày công bố mới nhất trước; 2 dòng &
+  \uat{2} thông báo \\ \addlinespace
+Đơn hàng gần đây &
+  \rt{sale.order} &
+  Đơn của cửa hàng đang xét, trạng thái khác \emph{Đã huỷ} &
+  Ngày đặt mới nhất trước; 2 dòng &
+  \uat{31} đơn \\ \addlinespace
+Yêu cầu đổi trả gần đây &
+  \rt{wujia.return.request} &
+  Của cửa hàng đang xét, \textbf{loại bỏ} \emph{Từ chối} và \emph{Đã huỷ}
+  (\rt{state not in ('rejected','cancelled')}) --- lưu ý bộ trạng thái này
+  \textbf{khác} bộ của thẻ số ở trên. &
+  Ngày gửi mới nhất trước; 2 dòng &
+  \uat{12} yêu cầu lọt bộ lọc này \\ \addlinespace
+Sản phẩm đặt nhiều nhất &
+  \rt{sale.order.line} &
+  Dòng hàng thuộc đơn của cửa hàng đang xét, đơn đã \emph{Xác nhận} hoặc \emph{Hoàn tất}
+  (\rt{state in ('sale','done')}), ngày đặt trong \textbf{90 ngày}. Gộp theo sản phẩm, cộng số
+  lượng và thành tiền. &
+  Số lượng nhiều nhất trước; 5 dòng &
+  --- \\ \addlinespace
+Giao hàng sắp tới \note{(bản điện thoại)} &
+  \rt{stock.picking.batch} &
+  Chuyến có phiếu giao thuộc cửa hàng đang xét, trạng thái \textbf{chưa hoàn thành}, và (khởi
+  hành từ đầu hôm nay trở đi \textbf{hoặc} chưa đặt lịch \textbf{hoặc} đang bốc/đang chạy). &
+  Giờ khởi hành sớm nhất trước; 2 dòng &
+  \uat{1} chuyến chưa hoàn thành \\ \addlinespace
+Bài kiến thức \note{(bản điện thoại)} &
+  \rt{wujia.knowledge.article} &
+  Đã công bố lên portal. \textbf{Không} lọc theo cửa hàng --- mọi cửa hàng thấy như nhau. &
+  Ngày công bố mới nhất trước; 2 dòng &
+  \uat{21} bài \\ \addlinespace
+Dải chào ở đầu màn \note{(bản điện thoại)} &
+  \rt{wujia.franchise.management} + \rt{wujia.franchise.member} &
+  Tên cửa hàng đang chọn và vai trò của chính người đang xem tại cửa hàng đó. Chưa chọn cửa
+  hàng thì để trống. &
+  --- &
+  \uat{4} cửa hàng, \uat{10} thành viên còn hiệu lực \\ \addlinespace
+Dải khung giờ đặt hàng \note{(bản điện thoại)} &
+  \rt{wujia.order.window} + tham số chung &
+  Theo \textbf{khu vực của cửa hàng đang chọn}. Ba trạng thái: \emph{Đặt hàng 24/7} (khung giờ
+  tắt), \emph{Đang mở} kèm thời gian còn lại, \emph{Đã đóng} kèm giờ mở lại. Luật đầy đủ ở
+  \textbf{mục 3.7}. &
+  --- &
+  \uat{1} khung riêng / 2 khu vực \\
+\end{hienbang}
+
+\textbf{Ký hiệu tiền trên Trang chủ.} Số tiền gộp từ các đơn (bảng \emph{Sản phẩm đặt nhiều
+nhất}, tổng tiền chuyến giao) mang ký hiệu tiền tệ \textbf{của chính các đơn đó} --- lấy từ bảng
+giá gắn với khách hàng của cửa hàng, không phải tiền tệ của công ty. Nếu các đơn được gộp lại
+đang dùng \textbf{nhiều loại tiền khác nhau} thì con số cộng gộp vốn đã vô nghĩa, hệ thống rơi
+về tiền tệ công ty.
+
+\mloc
+
+Trang chủ \textbf{không có bộ lọc}. Thứ duy nhất người dùng đổi được là \emph{cửa hàng đang làm
+việc} (mục 4.5) --- đổi cửa hàng thì toàn bộ số liệu trên màn đổi theo.
+
+\mkiem{một thẻ số hoặc ``Xem tất cả''}
+
+Không kiểm gì --- đây chỉ là liên kết sang màn danh sách của phân hệ tương ứng.
+
+\mghi
+
+\textbf{Trang chủ không ghi gì vào hệ thống.} Mở màn bao nhiêu lần cũng không tạo, không sửa
+bản ghi nào; kể cả khối Thông báo cũng không tự đánh dấu là đã đọc.
+
+\mhoi
+
+\begin{ask}
+\begin{enumerate}[leftmargin=*]
+  \item \textbf{Số ``Thông báo chưa đọc'' ở Trang chủ có thể lệch với số trên màn Thông báo.}
+        Ba khác biệt trong cách đếm: (a) Trang chủ \textbf{không} loại thông báo \emph{đã hết
+        hiệu lực}, màn Thông báo thì có; (b) Trang chủ \textbf{không} loại thông báo có ngày
+        công bố ở tương lai; (c) Trang chủ trừ \textbf{mọi} lượt đánh dấu đọc của người đó,
+        trong khi trạng thái đọc được lưu \textbf{theo từng cửa hàng} --- người làm ở 2 cửa hàng
+        đọc cùng một thông báo ở cả hai nơi sẽ bị trừ 2. Trên UAT tài khoản
+        \emph{Administrator} thuộc 2 cửa hàng và đang có \uat{3} lượt đọc trên \uat{2} thông
+        báo, nên con số bị kẹp về 0. Anh chốt giúp: lấy cách đếm của màn Thông báo làm chuẩn
+        cho cả Trang chủ, đúng không?
+  \item \textbf{Thẻ ``Đổi trả đang mở'' bỏ sót trạng thái \emph{Đang xét}.} Trạng thái
+        \rt{reviewing} có thật trong hệ thống nhưng không nằm trong bộ đếm
+        (\rt{submitted}, \rt{processing}, \rt{approved}). Trên UAT hiện chưa có yêu cầu nào ở
+        trạng thái này nên chưa ai thấy. Có phải \emph{Đang xét} cũng là ``đang mở'' không?
+  \item \textbf{Thẻ số và danh sách bên dưới dùng hai bộ trạng thái khác nhau.} Thẻ đếm
+        \emph{Đã gửi + Đang xử lý + Đã duyệt}; danh sách hiện \emph{mọi trạng thái trừ Từ chối
+        và Đã huỷ} --- nghĩa là danh sách \textbf{có} cả phiếu \emph{Nháp} và \emph{Hoàn thành}
+        mà thẻ không đếm. Trên UAT: thẻ ra \uat{7}, danh sách lọc ra \uat{12}. Anh muốn thống
+        nhất theo bộ nào?
+  \item \textbf{Mọi khối danh sách chỉ hiện 2 dòng.} Con số 2 đang cố định trong code, không
+        cấu hình được. Trên màn hình máy tính rộng, 2 dòng trông khá trống. Anh muốn giữ 2, hay
+        đổi (ví dụ 5 dòng cho máy tính, 2 dòng cho điện thoại)?
+  \item \textbf{Chưa chọn cửa hàng thì các con số là tổng của mọi cửa hàng.} Người quản lý nhiều
+        cửa hàng mở Trang chủ lần đầu sẽ thấy số cộng gộp mà không có nhãn nào nói điều đó. Anh
+        muốn (a) giữ nguyên nhưng thêm dòng ``Đang xem: tất cả 3 cửa hàng'', hay (b) bắt buộc
+        chọn cửa hàng mới cho xem số?
+  \item \textbf{Khối ``Bài kiến thức'' không lọc theo cửa hàng.} Mọi cửa hàng thấy chung
+        \uat{21} bài. Nếu sau này có tài liệu riêng theo khu vực/cấp cửa hàng thì cần bổ sung
+        điều kiện lọc --- anh xác nhận trước mắt là dùng chung?
+\end{enumerate}
+\end{ask}
+
+\section{Chọn cửa hàng đang làm việc}
+\rt{/portal/franchise/switch} · \rt{/portal/franchise/clear}
+\medskip
+
+\mvao
+
+Bấm tên cửa hàng trên thanh trên cùng, hoặc chọn trong hộp tự bật ở Trang chủ. Hai đường dẫn
+này \textbf{không phải màn} --- chúng chỉ nhận lệnh rồi đưa người dùng quay lại trang cũ.
+
+\mai
+
+Phải đăng nhập. Chỉ chọn được cửa hàng mà tài khoản đang có thành viên \textbf{còn hiệu lực}.
+
+\mhien
+
+Danh sách cửa hàng trong hộp chọn lấy từ \rt{wujia.franchise.management}, giới hạn đúng những
+cửa hàng tài khoản thuộc về.
+
+\mloc
+
+Người dùng chọn đúng một cửa hàng, hoặc bấm ``Bỏ chọn''.
+
+\mkiem{Chọn cửa hàng}
+
+\begin{kiembang}
+1 & Mã cửa hàng gửi lên là số & Đưa về Trang chủ, không đổi gì \\
+2 & Mã đó nằm trong danh sách cửa hàng tài khoản còn hiệu lực &
+    Đưa về Trang chủ, \textbf{không có thông báo lỗi} --- người dùng chỉ thấy cửa hàng không
+    đổi \\
+3 & Địa chỉ quay lại phải là \textbf{đường dẫn nội bộ} &
+    Địa chỉ trỏ ra ngoài (trang web khác) bị thay bằng \rt{/portal}; đây là lớp chặn chuyển
+    hướng sang trang giả mạo \\
+\end{kiembang}
+
+\mghi
+
+\begin{itemize}[leftmargin=*]
+  \item Ghi \textbf{cookie} \rt{wujia_active_franchise_id} trên máy người dùng, hạn \textbf{30
+        ngày}. \emph{Không} ghi gì vào cơ sở dữ liệu --- đây là lý do đổi máy là mất lựa chọn.
+  \item ``Bỏ chọn'' xoá cookie và đưa về Trang chủ.
+  \item Cookie \textbf{đọc được bằng mã trình duyệt} (có chủ đích, để hiện tên cửa hàng ở thanh
+        trên mà không phải hỏi máy chủ).
+\end{itemize}
+
+\mhoi
+
+\begin{ask}
+\begin{enumerate}[leftmargin=*]
+  \item \textbf{Chọn cửa hàng không được phép thì im lặng.} Người dùng bấm vào cửa hàng vừa bị
+        gỡ quyền sẽ chỉ thấy trang tải lại mà không đổi gì, không có câu nào giải thích. Anh
+        muốn thêm thông báo ``Bạn không còn quyền tại cửa hàng này'' không?
+  \item \textbf{Cửa hàng đang chọn lưu trên trình duyệt.} Dùng máy khác, trình duyệt ẩn danh
+        hoặc xoá dữ liệu duyệt web là phải chọn lại từ đầu. Anh xác nhận chấp nhận cách này,
+        hay muốn nhớ theo tài khoản (lưu vào hồ sơ người dùng)?
+\end{enumerate}
+\end{ask}
+
+\section{Màn Hồ sơ cá nhân}
+\rt{/portal/profile} · \rt{/portal/profile/update} · \rt{/portal/profile/avatar/<int:user_id>}
+\medskip
+
+\mvao
+
+Bấm ảnh đại diện ở góc trên bên phải $\rightarrow$ \emph{Hồ sơ}.
+\rt{/portal/profile/update} là hành động Lưu; \rt{/portal/profile/avatar/<id>} là đường dẫn
+\textbf{trả về ảnh đại diện} --- mọi chỗ trong portal hiện ảnh người dùng đều gọi qua đây.
+
+\mai
+
+\begin{itemize}[leftmargin=*]
+  \item Phải đăng nhập. Mỗi người chỉ xem và sửa \textbf{hồ sơ của chính mình} --- không có
+        đường dẫn nào cho xem hồ sơ người khác.
+  \item \textbf{Ảnh đại diện thì khác}: xem được ảnh của \textbf{chính mình}, và ảnh của bất kỳ
+        ai \textbf{cùng thuộc một cửa hàng} với mình. Người ngoài cửa hàng bị từ chối. Với dữ
+        liệu UAT, tài khoản thuộc cửa hàng Cầu Giấy thấy được ảnh của \uat{5} người cùng cửa hàng
+        đó (kể cả chính mình).
+  \item Khối ``Cửa hàng / Vai trò'' trên màn chỉ hiện khi \textbf{đã chọn được cửa hàng}; người
+        nhiều cửa hàng chưa chọn thì hai dòng này hiện dấu ``---''.
+\end{itemize}
+
+\mhien
+
+\begin{hienbang}
+Họ tên, email liên hệ, điện thoại, địa chỉ &
+  \rt{res.partner} (liên hệ gắn với tài khoản) &
+  Chính liên hệ của người đang đăng nhập &
+  --- & --- \\ \addlinespace
+Ảnh đại diện &
+  \rt{res.users} &
+  Bản ảnh cỡ 256 điểm ảnh. Trình duyệt được phép giữ lại \textbf{5 phút} nên đổi ảnh xong có
+  thể phải tải lại trang mới thấy. &
+  --- & --- \\ \addlinespace
+Cửa hàng + Vai trò &
+  \rt{wujia.franchise.member} &
+  Thành viên \textbf{còn hiệu lực} của người này tại cửa hàng đang chọn. Chưa chọn và thuộc
+  nhiều cửa hàng $\rightarrow$ để trống. &
+  --- &
+  \uat{10} thành viên còn hiệu lực (\uat{3} Chủ tiệm, \uat{3} Quản lý, \uat{4} Nhân viên) \\
+\end{hienbang}
+
+\mloc
+
+Bốn ô nhập: \emph{họ tên}, \emph{email}, \emph{điện thoại}, \emph{địa chỉ}; và một ô chọn ảnh.
+
+\mkiem{Lưu}
+
+\begin{kiembang}
+1 & Họ tên không được trống & ``Họ tên không được trống'' \\
+2 & Điện thoại (nếu có nhập) đúng khuôn: 7--20 ký tự, chỉ số và các dấu \rt{+ ( ) . -} và
+    khoảng trắng & ``Số điện thoại không hợp lệ'' \\
+3 & \emph{(ảnh, nếu có chọn)} kích thước không quá \textbf{2MB} & ``Ảnh đại diện vượt quá 2MB'' \\
+4 & \emph{(ảnh)} định dạng thuộc \textbf{PNG, JPEG, WEBP} & ``Định dạng ảnh không hỗ trợ'' \\
+\end{kiembang}
+
+\textbf{Email không bị kiểm khuôn} ở tầng này --- việc kiểm do Odoo làm khi ghi; sai thì hiện
+thông báo do Odoo sinh ra.
+
+\mghi
+
+\begin{itemize}[leftmargin=*]
+  \item Ghi \emph{họ tên}, \emph{điện thoại}, \emph{địa chỉ} vào liên hệ của tài khoản.
+  \item \textbf{Email chỉ ghi vào liên hệ, KHÔNG đổi email đăng nhập.} Người dùng sửa email ở
+        đây rồi lần sau vẫn phải đăng nhập bằng email cũ. Mỗi lần sửa đều được ghi vào nhật ký
+        hệ thống.
+  \item Ảnh (nếu có) ghi vào tài khoản ở cỡ gốc; Odoo tự sinh các cỡ nhỏ.
+  \item Lưu xong hệ thống \textbf{chuyển hướng} về lại màn hồ sơ kèm câu ``Cập nhật thành công''
+        --- cách này để bấm F5 không lưu lại lần nữa.
+\end{itemize}
+
+\mhoi
+
+\begin{ask}
+\begin{enumerate}[leftmargin=*]
+  \item \textbf{Sửa email ở Hồ sơ không đổi được email đăng nhập} --- đây là điểm gần như chắc
+        chắn gây hiểu nhầm. Anh muốn (a) đổi nhãn ô thành ``Email liên hệ'' và ghi chú rõ, hay
+        (b) cho đổi luôn email đăng nhập (phải có bước xác nhận qua email mới)?
+  \item \textbf{Ai cùng cửa hàng đều xem được ảnh đại diện của nhau.} Xác nhận đúng ý anh chứ?
+  \item \textbf{Hồ sơ chưa cho sửa gì khác} --- không có ngày sinh, không có chức danh, không
+        có liên kết tới hồ sơ nhân sự. Anh cần thêm trường nào không?
+\end{enumerate}
+\end{ask}
+
+\section{Màn Đổi mật khẩu}
+\rt{/portal/change-password}
+\medskip
+
+\mvao
+
+Bấm ảnh đại diện góc trên bên phải $\rightarrow$ \emph{Đổi mật khẩu}.
+
+\mai
+
+Phải đăng nhập. Chỉ đổi được mật khẩu của chính mình. Không có đường dẫn nào cho Chủ tiệm đặt
+lại mật khẩu cho nhân viên --- việc đó phải làm trong giao diện quản trị.
+
+\mhien
+
+Ba ô mật khẩu, kèm khối ``Cửa hàng / Vai trò'' giống màn Hồ sơ.
+
+\mloc
+
+\emph{Mật khẩu hiện tại}, \emph{mật khẩu mới}, \emph{nhập lại mật khẩu mới}.
+
+\mkiem{Đổi mật khẩu}
+
+\begin{kiembang}
+1 & Có nhập cả mật khẩu cũ và mật khẩu mới & ``Vui lòng nhập đầy đủ.'' \\
+2 & Hai ô mật khẩu mới khớp nhau & ``Mật khẩu xác nhận không khớp với mật khẩu mới.'' \\
+3 & Mật khẩu mới \textbf{tối thiểu 8 ký tự} & ``Mật khẩu mới tối thiểu 8 ký tự.'' \\
+4 & Mật khẩu mới \textbf{khác} mật khẩu cũ & ``Mật khẩu mới phải khác mật khẩu cũ.'' \\
+5 & Mật khẩu hiện tại \textbf{đúng} &
+    ``Mật khẩu hiện tại không đúng. Vui lòng kiểm tra lại.'' \\
+\end{kiembang}
+
+Lưu ý thứ tự: hệ thống chỉ kiểm mật khẩu cũ ở \textbf{bước cuối}, sau khi mật khẩu mới đã qua
+hết các luật khuôn dạng.
+
+\mghi
+
+Ghi mật khẩu mới vào tài khoản. \textbf{Phiên đang mở vẫn giữ nguyên} --- người dùng không bị
+đăng xuất, và các thiết bị khác đang đăng nhập cũng không bị đẩy ra.
+
+\mhoi
+
+\begin{ask}
+\begin{enumerate}[leftmargin=*]
+  \item \textbf{Đổi mật khẩu không đăng xuất các thiết bị khác.} Nếu ai đó đổi mật khẩu vì nghi
+        bị lộ, thiết bị của kẻ kia \textbf{vẫn đang đăng nhập}. Anh có muốn đóng mọi phiên khác
+        khi đổi mật khẩu không?
+  \item Luật mật khẩu ở đây (8 ký tự, khác mật khẩu cũ) \textbf{không giống hoàn toàn} màn Đặt
+        lại mật khẩu qua email (chỉ 8 ký tự, không kiểm khác cũ). Cần thống nhất --- anh chốt
+        bộ luật chung.
+\end{enumerate}
+\end{ask}
+
+\section{Đổi ngôn ngữ}
+\rt{/portal/set-lang/<string:lang_code>}
+\medskip
+
+\mvao
+
+Nút cờ/ngôn ngữ trên thanh trên cùng và ở màn đăng nhập. Không phải màn --- bấm xong quay lại
+đúng trang đang đứng.
+
+\mai
+
+\textbf{Không cần đăng nhập} --- có chủ đích, để khách đổi được ngôn ngữ ngay ở màn đăng nhập.
+
+\mhien
+
+Danh sách ngôn ngữ lấy từ \rt{res.lang} với điều kiện \rt{active = true}. Trên UAT đang bật
+\uat{3} ngôn ngữ: Tiếng Việt, English (US), Thai.
+
+\mloc
+
+Chọn một ngôn ngữ.
+
+\mkiem{một ngôn ngữ}
+
+\begin{kiembang}
+1 & Mã ngôn ngữ có trong danh sách \textbf{đang bật} &
+    Không đổi gì, vẫn quay lại trang cũ (im lặng bỏ qua) \\
+2 & Địa chỉ quay lại là \textbf{đường dẫn nội bộ cùng máy chủ} &
+    Bị thay bằng \rt{/portal} --- lớp chặn chuyển hướng sang trang giả mạo \\
+\end{kiembang}
+
+\mghi
+
+\begin{itemize}[leftmargin=*]
+  \item Cập nhật ngôn ngữ cho \textbf{phiên làm việc hiện tại} (có hiệu lực ngay ở trang kế).
+  \item \textbf{Đã đăng nhập} $\rightarrow$ ghi luôn vào tài khoản (\rt{res.users.lang}), nên
+        lần sau đăng nhập vẫn giữ ngôn ngữ đó.
+  \item \textbf{Chưa đăng nhập} $\rightarrow$ chỉ nhớ tạm trong phiên, và được ghi vào tài
+        khoản ngay sau khi đăng nhập thành công.
+\end{itemize}
+
+\mhoi
+
+\begin{ask}
+Portal đang bật \uat{3} ngôn ngữ, nghĩa là nút đổi ngôn ngữ hiện đủ 3 lựa chọn. Nếu bản dịch
+tiếng Anh/tiếng Thái chưa đầy đủ thì người dùng chọn vào sẽ thấy màn lẫn lộn hai thứ tiếng. Anh
+muốn tạm tắt bớt ngôn ngữ chưa dịch xong không?
+\end{ask}
+
+\section{Màn Danh sách cửa hàng của tôi}
+\rt{/portal/franchises} · \rt{/my/franchises}
+\medskip
+
+\mvao
+
+Menu tài khoản $\rightarrow$ \emph{Cửa hàng của tôi}. Hai đường dẫn cho \textbf{cùng một nội
+dung}: bản \rt{/portal/\ldots} dùng giao diện Vuexy của dự án, bản \rt{/my/\ldots} dùng giao
+diện portal mặc định của Odoo. Xem mục 7.
+
+\mai
+
+Phải đăng nhập. Chỉ hiện những cửa hàng mà tài khoản có thành viên \textbf{còn hiệu lực}.
+Vai trò không giới hạn gì --- Nhân viên cũng thấy đủ.
+
+\mhien
+
+\begin{hienbang}
+Danh sách cửa hàng &
+  \rt{wujia.franchise.member} $\rightarrow$ \rt{wujia.franchise.management} &
+  Thành viên của chính người đang đăng nhập, \rt{is_currently_valid = true}. ``Còn hiệu lực''
+  nghĩa là: bản ghi chưa lưu trữ \textbf{và} đang làm việc \textbf{và} hôm nay nằm trong khoảng
+  \emph{từ ngày} -- \emph{đến ngày}. &
+  Theo thứ tự mặc định của bảng thành viên (cửa hàng, chủ chính trước, ngày bắt đầu mới trước)
+  &
+  \uat{10} bản ghi thành viên, \uat{0} bản hết hiệu lực \\ \addlinespace
+Nhãn vai trò trên từng dòng &
+  \rt{wujia.franchise.member.role} &
+  \emph{Chủ tiệm} / \emph{Quản lý} / \emph{Nhân viên} &
+  --- &
+  \uat{3} / \uat{3} / \uat{4} \\
+\end{hienbang}
+
+\mloc
+
+Không có bộ lọc, không phân trang. Một người thuộc bao nhiêu cửa hàng thì hiện bấy nhiêu dòng
+(nhiều nhất trên UAT là \uat{3}).
+
+\mkiem{một cửa hàng}
+
+Không kiểm gì --- sang màn chi tiết.
+
+\mghi
+
+Không ghi gì.
+
+\mhoi
+
+\begin{ask}
+\textbf{Đang có hai bộ màn song song cho cùng một nội dung}: \rt{/portal/franchises} (giao diện
+Vuexy) và \rt{/my/franchises} (giao diện Odoo mặc định), tương tự ở màn chi tiết. Hai bộ này lấy
+cùng dữ liệu nhưng khác giao diện, và \textbf{không} có liên kết nào trong portal trỏ tới bộ
+\rt{/my/\ldots}. Anh cho biết: giữ cả hai (bộ \rt{/my/} để nhân sự Ngô Gia đối chiếu), hay gỡ
+hẳn bộ \rt{/my/}? \note{Gỡ thì cần giữ chuyển hướng để liên kết cũ không chết.}
+\end{ask}
+
+\section{Màn Chi tiết cửa hàng}
+\rt{/portal/franchises/<int:franchise_id>} · \rt{/my/franchises/<int:franchise_id>} ·
+\rt{/portal/franchises/<int:franchise_id>/profile} ·
+\rt{/my/franchises/<int:franchise_id>/members}
+\medskip
+
+\mvao
+
+Bấm một dòng ở màn Danh sách cửa hàng. Đường dẫn thứ ba (\rt{/profile}) là bản \emph{hồ sơ đầy
+đủ} của cửa hàng; đường dẫn thứ tư \textbf{không phải màn} mà là nguồn dữ liệu danh sách thành
+viên cho giao diện gọi ngầm.
+
+\mai
+
+\begin{itemize}[leftmargin=*]
+  \item Phải đăng nhập \textbf{và} có thành viên còn hiệu lực tại \textbf{đúng} cửa hàng đó.
+        Không đạt $\rightarrow$ bị đưa về danh sách cửa hàng, \textbf{không báo lỗi} (cố ý
+        không cho biết cửa hàng đó có tồn tại hay không).
+  \item \textbf{Đây là điểm quan trọng về quyền riêng tư}: bước kiểm ở trên chỉ hỏi ``bạn có
+        thuộc cửa hàng này không''. Sau khi qua được, danh sách \textbf{tất cả thành viên} của
+        cửa hàng được đọc bằng quyền hệ thống. Nghĩa là \textbf{Nhân viên cũng xem được đầy đủ
+        danh sách đồng nghiệp}, gồm tên, vai trò, số điện thoại, ngày bắt đầu và ngày kết thúc.
+        Xem mục 7.
+  \item Vai trò \textbf{không} giới hạn gì trong màn này.
+\end{itemize}
+
+\mhien
+
+\begin{hienbang}
+Khối thông tin cửa hàng &
+  \rt{wujia.franchise.management} &
+  Đúng cửa hàng được mở &
+  --- &
+  \uat{4} cửa hàng, cả \uat{4} đều \emph{Đang hoạt động} \\ \addlinespace
+Khối thành viên &
+  \rt{wujia.franchise.member} &
+  Mọi thành viên của cửa hàng đó, \rt{is_currently_valid = true}. \textbf{Không} lọc theo người
+  đang xem. &
+  Theo thứ tự mặc định của bảng &
+  Cầu Giấy \uat{5} người · TP HCM Quận 1 \uat{3} · Đống Đa \uat{1} · TEST \uat{1} \\ \addlinespace
+Trạng thái cửa hàng &
+  \rt{wujia.franchise.management.status} &
+  Nhãn tiếng Việt cố định trong portal: \emph{Nháp} / \emph{Đang hoạt động} / \emph{Khoá} /
+  \emph{Đã đóng} / \emph{Hết hạn} &
+  --- &
+  \uat{4}/4 \emph{Đang hoạt động} \\ \addlinespace
+Hồ sơ đầy đủ \note{(đường dẫn /profile)} &
+  \rt{wujia.franchise.management} + \rt{wujia.franchise.member} &
+  Thêm các thông tin hợp đồng, khu vực, ngày bắt đầu/kết thúc nhượng quyền --- vẫn chỉ của cửa
+  hàng người dùng thuộc về &
+  --- & --- \\
+\end{hienbang}
+
+\mloc
+
+Không có bộ lọc, không phân trang trên các màn này (khác với màn \emph{Thông tin cửa hàng} ở
+mục 4.11 --- màn đó \textbf{có} phân trang).
+
+\mkiem{một liên kết}
+
+Không kiểm gì.
+
+\mghi
+
+Không ghi gì.
+
+\mhoi
+
+\begin{ask}
+\begin{enumerate}[leftmargin=*]
+  \item \textbf{Nhân viên xem được đầy đủ danh sách đồng nghiệp}, kèm số điện thoại và ngày
+        hiệu lực. Anh xác nhận đúng mong muốn, hay muốn giới hạn: chỉ \emph{Chủ tiệm} và
+        \emph{Quản lý} thấy đủ, còn \emph{Nhân viên} chỉ thấy tên và vai trò?
+  \item \textbf{Bốn đường dẫn cho ba màn gần giống nhau.} \rt{/portal/franchises/<id>},
+        \rt{/my/franchises/<id>} và \rt{/portal/franchises/<id>/profile} hiển thị phần lớn cùng
+        thông tin, cộng thêm màn \emph{Thông tin cửa hàng} ở mục 4.11 nữa là \textbf{bốn} chỗ
+        xem thông tin cửa hàng. Anh chốt giúp giữ lại \textbf{một} màn chính là màn nào; các
+        đường dẫn còn lại sẽ chuyển hướng về đó.
+\end{enumerate}
+\end{ask}
+
+\section{Màn Thông tin cửa hàng}
+\rt{/portal/franchise-information}
+\medskip
+
+\mvao
+
+Menu \emph{Thông tin cửa hàng} trên thanh điều hướng. Màn này luôn nói về \textbf{cửa hàng đang
+chọn}, không nhận mã cửa hàng trên đường dẫn.
+
+\mai
+
+\begin{itemize}[leftmargin=*]
+  \item Phải đăng nhập \textbf{và} đã chọn được cửa hàng. Chưa chọn $\rightarrow$ bị đưa về
+        Trang chủ.
+  \item Phải có thành viên còn hiệu lực tại cửa hàng đó.
+  \item \textbf{Cổng chặn cứng}: cửa hàng \emph{bị khoá portal} (\rt{portal_locked = true})
+        hoặc \textbf{không} ở trạng thái \emph{Đang hoạt động} (\rt{status != 'active'})
+        $\rightarrow$ hiện màn ``bị khoá'' thay cho nội dung. Trên UAT hiện \uat{0} cửa hàng bị
+        khoá và \uat{0} cửa hàng ngoài trạng thái \emph{Đang hoạt động}, nên \textbf{nhánh này
+        chưa từng được kiểm thử bằng dữ liệu thật}.
+  \item Vai trò không giới hạn gì.
+\end{itemize}
+
+\mhien
+
+\begin{hienbang}
+Khối hồ sơ cửa hàng &
+  \rt{wujia.franchise.management} &
+  Cửa hàng đang chọn &
+  --- & --- \\ \addlinespace
+Khối thành viên &
+  \rt{wujia.franchise.member} &
+  Thành viên của cửa hàng đang chọn, \rt{is_currently_valid = true} &
+  Theo \textbf{vai trò} rồi mã bản ghi; \textbf{10} người mỗi trang &
+  Cầu Giấy \uat{5} người --- chưa cửa hàng nào chạm ngưỡng phân trang \\ \addlinespace
+Khối thành viên của chính tôi &
+  \rt{wujia.franchise.member} &
+  Bản ghi thành viên của người đang xem tại cửa hàng này &
+  --- & --- \\
+\end{hienbang}
+
+\mloc
+
+\begin{itemize}[leftmargin=*]
+  \item \textbf{Số người mỗi trang} --- chỉ nhận \textbf{10, 20, 50}; gửi số khác thì lặng lẽ
+        dùng 10.
+  \item \textbf{Trang} --- vượt quá trang cuối thì tự kéo về trang cuối.
+\end{itemize}
+
+\mkiem{---}
+
+Màn \textbf{chỉ xem}, không có nút ghi nào. Việc đề nghị sửa thông tin cửa hàng nằm ở phân hệ
+\emph{Yêu cầu thông tin} (chương 7).
+
+\mghi
+
+Không ghi gì.
+
+\mhoi
+
+\begin{ask}
+\begin{enumerate}[leftmargin=*]
+  \item \textbf{Sắp xếp thành viên theo vai trò đang là thứ tự chữ cái của mã trạng thái}
+        (\rt{manager} $\rightarrow$ \rt{owner} $\rightarrow$ \rt{staff}), tức ra \emph{Quản lý
+        $\rightarrow$ Chủ tiệm $\rightarrow$ Nhân viên} --- không phải thứ tự cấp bậc. Anh muốn
+        đổi thành \emph{Chủ tiệm $\rightarrow$ Quản lý $\rightarrow$ Nhân viên} không?
+  \item \textbf{Nhánh ``cửa hàng bị khoá'' chưa có dữ liệu để test.} Nếu anh muốn nghiệm thu
+        nhánh này, cần Ngô Gia khoá thử một cửa hàng trên UAT --- em không tự đổi dữ liệu.
+\end{enumerate}
+\end{ask}
+
+\section{Bốn đường dẫn cũ đã đổi tên}
+\rt{/my/branches} · \rt{/my/branches/<int:branch_id>} · \rt{/portal/branches} ·
+\rt{/portal/branches/<int:branch_id>}
+\medskip
+
+Trước đây cửa hàng nhượng quyền được gọi là ``branch''. Khi đổi sang ``franchise'', bốn đường
+dẫn cũ được \textbf{giữ lại làm đường chuyển hướng vĩnh viễn} sang đường dẫn mới tương ứng, để
+liên kết cũ (trong email, tin nhắn, dấu trang của người dùng) không bị chết.
+
+Bốn đường dẫn này \textbf{không hiện màn nào}, không đọc và không ghi dữ liệu. BA không cần lên
+task cho chúng; chỉ cần biết là chúng tồn tại khi nhìn danh sách đường dẫn.
+
+\section{Trang xem trước bộ giao diện}
+\rt{/portal/_pc-preview}
+\medskip
+
+Trang \textbf{dành riêng cho đội phát triển}: bày sẵn mọi thành phần giao diện (nút, thẻ, bảng,
+phân trang, nhãn trạng thái) để đối chiếu với bản thiết kế. \textbf{Chỉ nhân sự nội bộ mở
+được} --- tài khoản cửa hàng vào sẽ bị đưa về Trang chủ. Không có liên kết nào trong portal trỏ
+tới trang này, và nó không đọc dữ liệu nghiệp vụ nào.
+
+\section{Quy ước dùng chung toàn portal}
+\label{sec:quy-uoc-chung}
+
+Những quy tắc dưới đây được viết \textbf{một lần duy nhất} trong mã nguồn và mọi màn của mọi
+phân hệ đều dùng chung. Các chương sau sẽ trỏ về mục này thay vì lặp lại.
+
+\subsection*{Phân trang}
+
+\begin{itemize}[leftmargin=*]
+  \item Số bản ghi mỗi trang \textbf{chỉ nhận đúng các giá trị có trong ô chọn} của màn đó
+        (thường là 10 / 20 / 50, riêng màn Đặt hàng là 24 / 48 / 96). Gửi số khác --- kể cả sửa
+        tay trên thanh địa chỉ --- thì hệ thống lặng lẽ dùng giá trị mặc định, \textbf{không
+        báo lỗi}. Trần cứng là 100 bản ghi/trang.
+  \item Số trang vượt quá trang cuối thì \textbf{tự kéo về trang cuối}.
+  \item \textbf{Đổi trang luôn giữ nguyên mọi bộ lọc}: từ khoá, khoảng ngày, trạng thái đang
+        chọn đều được mang theo. Đây là lý do các màn không còn hiện tượng ``bấm trang 2 là mất
+        bộ lọc''.
+  \item Thanh phân trang hiện dạng \emph{1 \ldots 4 5 6 \ldots 20} --- luôn có trang đầu, trang
+        cuối, và một trang liền kề mỗi bên.
+\end{itemize}
+
+\subsection*{Ngày giờ và múi giờ}
+
+\begin{itemize}[leftmargin=*]
+  \item Hệ thống lưu giờ chuẩn quốc tế; khi hiện lên mới quy đổi theo ô \emph{Múi giờ} của
+        \textbf{tài khoản người dùng}. Ô trống thì dùng \emph{Asia/Ho\_Chi\_Minh}. Múi giờ ghi
+        sai (giá trị lạ) cũng rơi về mặc định chứ \textbf{không} làm lỗi trang.
+  \item Trên UAT: \uat{1} tài khoản để trống múi giờ, \uat{6} tài khoản đặt giá trị khác
+        \emph{Asia/Ho\_Chi\_Minh} --- cụ thể \emph{Asia/Saigon} (4 tài khoản) và
+        \emph{Asia/Bangkok} (2 tài khoản). Cả ba giá trị này hiện đều là UTC+7 nên chưa gây
+        lệch giờ; nhưng nếu sau này có người dùng ở múi giờ khác thì \textbf{mọi màn lọc theo
+        ngày sẽ lệch theo tài khoản đó}, không theo cửa hàng.
+  \item \textbf{Lọc theo khoảng ngày} được quy đổi đúng biên: ``từ ngày X'' tính từ 00:00 giờ
+        địa phương, ``đến ngày Y'' tính hết 23:59:59 giờ địa phương.
+  \item Khoảng ngày ngược (\emph{Từ ngày} sau \emph{Đến ngày}) dùng chung một câu báo trên mọi
+        màn: \emph{``Từ ngày không được lớn hơn Đến ngày''}. Ngày sai định dạng thì tuỳ màn:
+        có màn coi như bỏ lọc, có màn báo riêng.
+\end{itemize}
+
+\subsection*{Định dạng tiền}
+
+\begin{itemize}[leftmargin=*]
+  \item Một chỗ duy nhất sinh ra chuỗi tiền cho cả portal. Tiền Việt hiện dạng
+        \emph{48.000 đ} (không phần lẻ, nhóm nghìn bằng dấu chấm); tiền có phần lẻ hiện dạng
+        \emph{10.990,99 \$} --- số chữ số lẻ và ký hiệu đều lấy theo \textbf{loại tiền của
+        chứng từ}, không cố định trong giao diện.
+  \item Với các con số \textbf{cộng gộp nhiều đơn}, ký hiệu tiền lấy theo loại tiền của chính
+        các đơn đó; trộn nhiều loại tiền thì rơi về tiền tệ công ty (và con số gộp khi đó vốn
+        đã không có ý nghĩa).
+\end{itemize}
+
+\subsection*{Nhãn trạng thái (màu badge)}
+
+\begin{itemize}[leftmargin=*]
+  \item Màu của nhãn trạng thái \textbf{do chữ trên nhãn quyết định}, không do từng màn tự
+        chọn --- nên cùng một chữ (ví dụ \emph{Đã xác nhận}) ra cùng một màu ở mọi màn, trên cả
+        máy tính lẫn điện thoại. Đây là kết quả xử lý lỗi \emph{UI-STATUSBADGE-001}.
+  \item Bảy bậc màu: \emph{trung tính} (chưa bắt đầu / đã khép lại) · \emph{thông tin} (mới, đã
+        xác nhận) · \emph{chờ} (đang chờ bên khác) · \emph{đang chạy} · \emph{thành công} ·
+        \emph{hỏng/dừng} · \emph{cần bạn làm gì đó}.
+  \item Nhãn lạ chưa nằm trong bảng thì ra màu trung tính, \textbf{không bao giờ mất nhãn}.
+  \item \textbf{Bản điện thoại có một số nhãn khác bản máy tính} theo đúng thiết kế đã duyệt ---
+        ví dụ ticket hỗ trợ ở trạng thái chờ khách trả lời: điện thoại ghi \emph{``Có phản
+        hồi''}, máy tính ghi \emph{``Chờ phản hồi''}. Đây là khác biệt \textbf{có chủ đích}
+        theo bản thiết kế, xem mục 7 chương 7.
+\end{itemize}
+
+\subsection*{Tệp đính kèm}
+
+\begin{itemize}[leftmargin=*]
+  \item Mọi màn cho tải tệp lên (đổi trả, hỗ trợ, yêu cầu thông tin) dùng chung một bộ luật:
+        tối đa \textbf{10 tệp}, mỗi tệp tối đa \textbf{5MB}, và \textbf{định dạng được kiểm ở
+        máy chủ} chứ không tin khai báo của trình duyệt. Màn ảnh chỉ nhận PNG/JPEG/WEBP; màn tài
+        liệu nhận thêm PDF.
+  \item Tên tệp được làm sạch trước khi lưu (chống tên tệp độc hại).
+  \item \textbf{Xem lại tệp đã tải lên}: hệ thống kiểm người xem có thuộc cửa hàng của chứng từ
+        gốc không; không thuộc thì từ chối.
+\end{itemize}
+
+\subsection*{Vai trò}
+
+Thang bậc \emph{Nhân viên (1) $<$ Quản lý (2) $<$ Chủ tiệm (3)}. Chỗ nào yêu cầu ``ít nhất
+Quản lý'' thì Chủ tiệm đương nhiên qua. Người thuộc nhiều cửa hàng thì lấy \textbf{bậc cao
+nhất}. Không đủ bậc $\rightarrow$ hệ thống từ chối thẳng với mã lỗi ``không có quyền'', không
+phải chuyển hướng êm.
+
+\subsection*{Giới hạn số lần gọi}
+
+Chỉ \textbf{một} chỗ trong portal đang đặt giới hạn: màn \emph{Quên mật khẩu} --- 10 lần/giờ cho
+mỗi địa chỉ mạng. Bộ đếm nằm trong bộ nhớ của tiến trình máy chủ, nghĩa là khởi động lại máy chủ
+là bộ đếm về 0.

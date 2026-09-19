@@ -893,3 +893,76 @@ rồi đánh ✅ ở bảng Trạng thái §2 `docs/next-session-clusters-F.md`.
   cần biết trước: ma trận nghiệm thu `docs/e6a-acceptance-matrix.md`, sổ `MIGRATED` ở
   `custom/wujia_portal_base/tests/test_scan_e6_button.py`, và màn danh sách mobile **vốn 0 nút hành
   động** nên đừng đọc con số "mobile 40 action" của BA theo nghĩa đen.
+
+## DOC-CTRL-2 — Đặc tả chi tiết controller cho BA (20/09/2026 · Mac)
+- Kết quả: ✅ xong — `docs/controller-spec-detail.pdf` **110 trang / 10 chương**, mô tả **104/104
+  đường dẫn** của **16 mô-đun**, gom thành **67 phiếu màn**. Phiên tài liệu: **0 file dưới
+  `custom/`**, **0 lệnh ghi lên UAT**.
+- Gốc yêu cầu: BA phản hồi bản kiểm kê 20 trang (DOC-CTRL 19/09) là "còn chung chung" — cần biết
+  *màn sản phẩm đang lọc điều kiện gì, nút Đặt hàng đang check gì, danh mục portal lấy theo field
+  nào*. Chủ dự án chốt: **cả 16 module có controller** (gồm Khảo sát của anh Thái + Metabase, chỉ
+  ĐỌC) · **có** số thật trên UAT theo từng điều kiện lọc · tài liệu **MỚI** chia chương theo phân
+  hệ · có mục **"ai xem được gì"** mỗi màn · **viết hết rồi giao một lần** · **không dán code Python
+  vào file BA**.
+- Đã làm:
+  - **Khuôn "phiếu màn" 7 mục khoá từ chương 3**, không màn nào được thiếu: vào màn bằng đâu · ai
+    xem được gì · màn hiện gì (bảng: khối · bảng dữ liệu · điều kiện lọc · sắp xếp · **thực tế
+    UAT**) · người dùng lọc/nhập được gì · bấm nút thì kiểm gì (bảng **đúng thứ tự mã chạy**) · ghi
+    gì vào hệ thống · điểm cần BA xác nhận (khung vàng).
+  - **10 chương**: 1 cách đọc + bản đồ chương · 2 bản đồ 104 đường dẫn (máy sinh) · 3 Đặt hàng ·
+    4 Khung portal + Trang chủ + quy ước dùng chung · 5 Lịch sử mua · Giao hàng · Báo cáo ·
+    6 Công nợ · Đổi trả · 7 Hỗ trợ · Yêu cầu thông tin · Kiến thức · Thông báo · 8 Đăng ký thi ·
+    9 Khảo sát (Thái) + Metabase · **10 Tổng hợp**.
+  - **Chương 10** là thứ BA cần nhất: đối chiếu CT-001…CT-071 cập nhật (**56 ĐÃ CÓ · 6 MỘT PHẦN ·
+    9 CHƯA CÓ**, nói rõ "một phần" thiếu luật nào) · 12 nhóm route có mã mà tab CT chưa mô tả ·
+    **bảng 157 điểm cần BA chốt** gom từ mục 7 của mọi màn, phân 7 nhóm (PV/VT/NC/SL/DL/TB/CH) ·
+    mục "BA đừng lên task viết lại".
+  - **Bộ công cụ `scripts/qa/`** (đọc AST, không grep): `controller_spec.py` trích domain/ORM
+    call/template/redirect/chuỗi kiểm · `uat_domain_probe.py` đếm thật qua XML-RPC **chặn cứng mọi
+    method ghi** · `controller_spec_tex.py` sinh chương 2 · **`controller_spec_check.py` mới** kiểm
+    chứng trước khi giao.
+- Số đo: **147 phép đếm** trên UAT `wujia_tea_19` (chụp 20/09 01:18) · kiểm chứng
+  `controller_spec_check.py`: phủ đường dẫn **104/104**, khuôn phiếu màn **67/67 đủ 7 khối**,
+  **245 chỗ** dùng số UAT · build `lualatex` ×2: **110 trang, 0 hộp tràn, 0 ký tự thiếu**.
+- Ba đính chính so với bản 19/09 (đã ghi ngay đầu chương 10):
+  - **"Công nợ chưa nối `account.move`" KHÔNG còn đúng** — màn đang đọc hoá đơn và phiếu thu thật;
+    điều cần chốt bây giờ là **cách tính kỳ và quy đổi tiền**, không phải nối dữ liệu.
+  - **"Chưa dùng chung một hàm tải tệp" đúng một nửa** — thực tế **ba mức**: Đổi trả đọc nội dung
+    thật của tệp · Hỗ trợ + Yêu cầu thông tin dùng chung một hàm nhưng chỉ tin lời khai trình duyệt ·
+    Khắc phục khảo sát **không kiểm gì**.
+  - **104 đường dẫn, không phải 103** — 2 đường dẫn có hai hàm (`/portal/exam/register`,
+    `/portal/support/new`).
+- Phát hiện đáng giá nhất (đều có số UAT kèm theo):
+  - **Bốn cách hiểu "cửa hàng đang xem"** cùng tồn tại trong portal (bắt buộc chọn · cộng tất cả khi
+    chưa chọn · luôn gộp · không phân biệt) và **ba cách chặn vai trò** khác nhau ⇒ gom thành **2
+    quyết định** cho BA thay vì 25 câu hỏi lẻ.
+  - **Ba phân hệ hiện không dùng được trên UAT vì thiếu dữ liệu**: Đổi trả **0 đơn** lọt cửa sổ 10
+    ngày · Đăng ký thi **0 kỳ** đăng ký được (2 kỳ mở đều đã qua ngày thi) · Hỗ trợ **0 phiếu** do
+    tài khoản cửa hàng thật tạo.
+  - Công nợ: Home và màn Công nợ là **hai phép tính khác nhau** (ô tổng lưu sẵn, tiền công ty, mọi
+    thời điểm ↔ tiền gốc chứng từ, một tuần) — giống nhau trên UAT chỉ vì **chưa cấu hình tỉ giá**.
+  - Đổi trả: phiếu nháp là **ngõ cụt** (lưu được, không đường dẫn nào gửi được — 3 phiếu kẹt trên
+    UAT) · **video tải lên không bao giờ hiện lại**.
+  - `/portal/info-request/franchise/<id>/values` với loại "Khác" trả về **bất kỳ trường nào** của hồ
+    sơ cửa hàng và **không kiểm vai trò** ⇒ Nhân viên đọc được số mà màn Công nợ đã chặn họ.
+  - Chương 9 (mã anh Thái): **gửi khắc phục và lưu bài khảo sát không kiểm người gửi**; bảng
+    Metabase **không khai nhóm quyền** nên ai đăng nhập cũng xem được.
+- Lệch plan / quyết định mới:
+  - Plan ước 110–140 trang, ra **110** — vì viết bằng lời nghiệp vụ, không dán mã.
+  - Thêm chương kiểm chứng `controller_spec_check.py` (plan chưa có) để phép kiểm "phủ route" và
+    "đủ 7 mục" chạy được bằng máy thay vì đếm tay.
+  - Chương 2 (bản đồ route) **máy sinh lại mỗi lần thêm nhãn** — đã chạy lại 4 lần trong phiên.
+- Bẫy trong phiên:
+  - `probes.json` **trùng khoá** (`tb_toanhe`, `tb_daxem`, `kt_congbo`… đã có từ lượt Trang chủ) ⇒
+    script dừng trước khi ghi, không để lại trạng thái dở; phải bỏ khoá trùng rồi chạy lại.
+  - Chữ **`đ` đặt trong công thức toán** của LaTeX ⇒ lỗi build; phải viết "ký hiệu đồng Việt Nam".
+  - Mục lục có **số trang 3 chữ số** ⇒ 9 hộp tràn; nới `\@pnumwidth`.
+  - `execute_kw` của Odoo 19 nhận **`args = [domain]`**, truyền lồng thêm một lớp là
+    `Domain() invalid item`.
+- Nợ để lại: bản `controller-inventory.pdf` 20 trang **giữ nguyên** làm mục lục tổng · 4 con số UAT
+  đo riêng (47 đơn · 60 ngày cửa sổ · 65 lượt xem · 86 điểm khảo sát) không nằm trong bảng đếm nên
+  script chỉ cảnh báo, kiểm bằng mắt · **Q144/Q145/Q148/Q149/Q156** (mã anh Thái) dev phải trao đổi
+  trực tiếp, chưa nói.
+- Phiên kế: theo bảng §2 `docs/next-session-clusters-F.md` — cụm F tiếp tục. Việc cần biết trước:
+  42 điểm nhóm **CH** trong chương 10 chính là danh sách chuẩn hoá cụm F đã có bằng chứng số, dùng
+  thẳng được làm đầu vào; và **BA không lên task cho nhóm CH**.

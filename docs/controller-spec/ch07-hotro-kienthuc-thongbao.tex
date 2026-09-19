@@ -1,0 +1,1189 @@
+\chapter{Hỗ trợ --- Yêu cầu thông tin --- Kiến thức --- Thông báo}
+
+Chương này gồm \textbf{22 đường dẫn} gom thành \textbf{19 mục}, thuộc bốn mô-đun:
+\rt{wujia_portal_support} (5), \rt{wujia_portal_info_request} (5),
+\rt{wujia_portal_knowledge} (4), \rt{wujia_portal_notification} (8).
+
+\textbf{Bốn điểm cần biết trước khi đọc:}
+
+\begin{enumerate}[leftmargin=*]
+  \item \textbf{Phiếu Hỗ trợ lọc theo NGƯỜI TẠO, không theo cửa hàng.} Đây là phân hệ duy nhất
+        trong portal làm như vậy. Đồng nghiệp cùng cửa hàng \textbf{không thấy} phiếu của nhau;
+        Chủ tiệm \textbf{không thấy} phiếu nhân viên mình gửi. Trong khi đó Yêu cầu thông tin
+        (ngay chương này) lại lọc theo cửa hàng nên cả cửa hàng cùng thấy. Hai phân hệ giống
+        nhau về hình thức nhưng ngược nhau về phạm vi.
+  \item \textbf{Kiến thức không phân biệt cửa hàng và không phân biệt vai trò.} Mọi tài khoản
+        portal thấy đúng cùng một tập bài viết. Đây là phân hệ duy nhất như vậy.
+  \item \textbf{Thông báo ghi ``đã đọc'' theo bộ ba người + thông báo + cửa hàng.} Cùng một
+        người, đọc ở cửa hàng A rồi bấm sang cửa hàng B thì thông báo đó \textbf{lại thành chưa
+        đọc}. UAT hiện có \uat{6} dấu đã đọc cũ \textbf{chưa gắn cửa hàng} (dữ liệu trước khi đổi
+        cách ghi) --- những dấu này không khớp với bất kỳ cửa hàng nào.
+  \item \textbf{Yêu cầu cập nhật thông tin chưa từng được dùng.} UAT có \uat{0} bản ghi. Mọi mô
+        tả trong phần đó là đọc từ mã nguồn, chưa có số thật để đối chiếu.
+\end{enumerate}
+
+Quy ước chung toàn portal xem mục~\ref{sec:quy-uoc-chung}.
+
+% =============================================================================
+\section{Màn Danh sách phiếu hỗ trợ}
+\rt{/portal/support}
+\medskip
+
+\mvao
+
+Mục \emph{Hỗ trợ} trên thanh điều hướng. Tham số: \rt{page}, \rt{state}, \rt{q}.
+
+\mai
+
+\begin{itemize}[leftmargin=*]
+  \item Phải đăng nhập. \textbf{Không chặn vai trò.}
+  \item Chỉ thấy phiếu \textbf{do chính tài khoản mình tạo} (\rt{created_by_id = tôi}).
+        \textbf{Không} lọc theo cửa hàng --- nghĩa là người rời cửa hàng vẫn thấy phiếu cũ của
+        mình, còn người mới vào cửa hàng không thấy gì.
+  \item Phiếu bị Ngô Gia tắt cờ hiện trên portal thì \textbf{biến mất hoàn toàn}, kể cả với
+        người đã tạo ra nó.
+  \item Thực tế UAT: \uat{15} phiếu, \uat{0} phiếu do tài khoản cửa hàng thật tạo --- toàn bộ
+        do tài khoản nội bộ tạo. Vì vậy \textbf{mọi tài khoản cửa hàng trên UAT đều mở ra màn
+        rỗng}, và bản chụp màn hình phải làm bằng tài khoản Administrator.
+\end{itemize}
+
+\mhien
+
+\begin{hienbang}
+Danh sách phiếu &
+  \rt{wujia.support.ticket} &
+  Phiếu do tôi tạo, còn bật cờ hiện trên portal, và \textbf{không phải phiếu đã huỷ}
+  (\rt{state != 'cancelled'}) &
+  Ngày tạo mới nhất trước; \textbf{20} phiếu mỗi trang, \textbf{cố định} &
+  \uat{15} phiếu toàn hệ, \uat{2} đã huỷ (bị giấu) \\ \addlinespace
+Huy hiệu trạng thái &
+  \rt{state} &
+  Sáu nhãn: \emph{Mới} · \emph{Đang xử lý} · \emph{Chờ phản hồi} · \emph{Đã giải quyết} ·
+  \emph{Đã đóng} · \emph{Đã huỷ} (nhãn cuối chỉ gặp ở màn chi tiết) &
+  --- &
+  \uat{4} Mới · \uat{3} Đang xử lý · \uat{1} Chờ phản hồi · \uat{3} Đã giải quyết ·
+  \uat{2} Đã đóng \\ \addlinespace
+Huy hiệu mức độ &
+  \rt{priority} &
+  Hai mức: \emph{Bình thường} và \emph{Khẩn} &
+  --- &
+  \uat{4}/15 phiếu đánh dấu Khẩn \\ \addlinespace
+Cột danh mục &
+  \rt{wujia.support.category} &
+  Danh mục do Ngô Gia cấu hình &
+  --- &
+  \uat{7} danh mục đang bật \\
+\end{hienbang}
+
+\mloc
+
+\begin{itemize}[leftmargin=*]
+  \item \textbf{Trạng thái} --- một trong sáu nhãn; giá trị lạ bị bỏ qua.
+  \item \textbf{Từ khoá} --- khớp một phần theo \textbf{mã phiếu} hoặc \textbf{tiêu đề}. Không
+        tìm trong nội dung mô tả, không tìm trong các lời nhắn.
+  \item \textbf{Không có bộ lọc ngày} và \textbf{không đổi được số dòng mỗi trang} --- khác mọi
+        màn danh sách khác trong portal.
+\end{itemize}
+
+\mkiem{Tạo phiếu}
+
+Không kiểm gì ở màn danh sách.
+
+\mghi
+
+\textbf{Không ghi gì.}
+
+\mhoi
+
+\begin{ask}
+\begin{enumerate}[leftmargin=*]
+  \item \textbf{Phiếu chỉ người tạo mới thấy.} Nhân viên nghỉ việc thì phiếu đi theo tài khoản
+        đó; Chủ tiệm không nắm được cửa hàng mình đã gửi những gì. Anh muốn đổi sang
+        \textbf{lọc theo cửa hàng} như các phân hệ còn lại không? Đây là điểm đã nêu ở bản tài
+        liệu cũ và tới nay chưa chốt.
+  \item \textbf{Không có bộ lọc ngày và cỡ trang cố định 20} --- lệch với năm màn danh sách
+        khác. Có cần đồng bộ không?
+  \item \textbf{Phiếu Đã huỷ bị giấu khỏi danh sách nhưng màn chi tiết vẫn mở được} nếu còn giữ
+        đường dẫn. UAT có \uat{2} phiếu như vậy.
+\end{enumerate}
+\end{ask}
+
+% =============================================================================
+\section{Màn Tạo phiếu hỗ trợ}
+\rt{/portal/support/new}
+\medskip
+
+\mvao
+
+Nút \emph{Tạo phiếu} ở màn danh sách. Cùng một đường dẫn dùng cho cả mở form lẫn gửi form.
+
+\mai
+
+Phải đăng nhập và \textbf{truy cập được ít nhất một cửa hàng}; không thì bị đưa thẳng về danh
+sách (không có thông báo gì). Không chặn vai trò.
+
+\mhien
+
+\begin{hienbang}
+Ô \emph{Cửa hàng} &
+  \rt{wujia.franchise.management} &
+  Mọi cửa hàng tôi truy cập được &
+  --- & --- \\ \addlinespace
+Ô \emph{Danh mục} &
+  \rt{wujia.support.category} &
+  Danh mục đang bật (\rt{active = true}) &
+  Theo số thứ tự, rồi tên &
+  \uat{7} danh mục \\ \addlinespace
+Ô \emph{Mức độ} &
+  --- &
+  Hai lựa chọn: \emph{Bình thường} (mặc định) và \emph{Khẩn} &
+  --- & --- \\ \addlinespace
+Khối tệp đính kèm &
+  \rt{ir.attachment} &
+  Tối đa \textbf{6 tệp}, mỗi tệp $\leq$ \textbf{5 MB}; chỉ nhận PNG, JPEG, WEBP, PDF &
+  --- & --- \\
+\end{hienbang}
+
+\mloc
+
+\begin{itemize}[leftmargin=*]
+  \item \textbf{Tiêu đề} --- bắt buộc. Hệ thống nhận cả tên ô cũ (\rt{subject}) lẫn tên ô mới
+        (\rt{title}) để không làm hỏng liên kết cũ.
+  \item \textbf{Mô tả} --- không bắt buộc, không giới hạn độ dài ở tầng portal.
+  \item \textbf{Mức độ} --- giá trị lạ tự hạ về \emph{Bình thường}.
+\end{itemize}
+
+\mkiem{Gửi phiếu}
+
+\begin{kiembang}
+1 & Cửa hàng và danh mục gửi lên là số & Quay lại form kèm mã lỗi \rt{invalid_input} \\
+2 & Có tiêu đề, có cửa hàng, có danh mục & Quay lại form kèm \rt{missing_fields} \\
+3 & Cửa hàng \textbf{nằm trong danh sách của tôi} & Quay lại form kèm \rt{invalid_franchise} \\
+4 & Danh mục còn đang bật & Quay lại form kèm \rt{invalid_input} \\
+5 & Tệp đính kèm đúng số lượng, dung lượng, định dạng &
+    Phiếu vừa tạo \textbf{bị xoá hẳn}, quay lại form kèm \rt{invalid_attachment} \\
+\end{kiembang}
+
+Bốn bước đầu chạy \textbf{trước} khi ghi; bước 5 chạy \textbf{sau} khi đã ghi phiếu, nên hệ
+thống phải xoá lại phiếu. Các mã lỗi trên được trả về dưới dạng tham số trên thanh địa chỉ và
+màn dịch ra câu tiếng Việt.
+
+\mghi
+
+\begin{itemize}[leftmargin=*]
+  \item Tạo một phiếu \rt{wujia.support.ticket}, mã tự sinh (UAT đang ở \emph{WJ-TK/26/00016}),
+        trạng thái \textbf{Mới}, cờ hiện trên portal \textbf{bật sẵn}.
+  \item Người tạo = người đang đăng nhập; cửa hàng = cửa hàng chọn trong form.
+  \item Tạo các bản ghi tệp đính kèm gắn vào phiếu.
+  \item \textbf{Không} gửi email, \textbf{không} tạo việc cần làm cho ai. Phiếu chỉ hiện trong
+        ERP để Ngô Gia tự vào xem.
+\end{itemize}
+
+\mhoi
+
+\begin{ask}
+\begin{enumerate}[leftmargin=*]
+  \item \textbf{Định dạng tệp chỉ kiểm theo lời khai của trình duyệt}, không đọc nội dung thật
+        --- khác với màn Đổi trả (chương 6) đã đọc nội dung. Đây là mục đã nằm trong danh sách
+        chuẩn hoá F1 của dev; ghi ở đây để BA biết, không cần ra task riêng.
+  \item \textbf{Gửi phiếu xong không ai được báo.} Không email, không thông báo trong ERP. Ngô
+        Gia phải chủ động mở danh sách. Anh có muốn gắn thông báo cho người phụ trách không?
+  \item \textbf{Chưa có giới hạn số phiếu gửi trong ngày} --- một tài khoản bấm liên tục sẽ tạo
+        liên tục.
+\end{enumerate}
+\end{ask}
+
+% =============================================================================
+\section{Màn Chi tiết phiếu hỗ trợ}
+\rt{/portal/support/<int:ticket_id>}
+\medskip
+
+\mvao
+
+Bấm một dòng ở màn danh sách, hoặc được đưa tới ngay sau khi tạo phiếu.
+
+\mai
+
+Phiếu phải \textbf{do chính tôi tạo} và \textbf{còn bật cờ hiện trên portal}. Sai thì bị đưa về
+danh sách, không có thông báo. \textbf{Lưu ý}: màn này \textbf{không} loại phiếu đã huỷ --- phiếu
+huỷ bị giấu ở danh sách nhưng vẫn mở được bằng đường dẫn.
+
+\mhien
+
+\begin{hienbang}
+Đầu phiếu &
+  \rt{wujia.support.ticket} &
+  Mã phiếu, tiêu đề, danh mục, mức độ, trạng thái, cửa hàng, ngày tạo &
+  --- & --- \\ \addlinespace
+Nội dung &
+  \rt{description} &
+  Mô tả người dùng gõ lúc tạo &
+  --- & --- \\ \addlinespace
+Khối trao đổi &
+  \rt{mail.message} &
+  \textbf{Mọi lời nhắn} trên phiếu (loại bỏ các dòng nhật ký hệ thống). Nghĩa là lời Ngô Gia gõ
+  vào ô trao đổi trong ERP \textbf{hiện thẳng} cho cửa hàng. Ô \emph{Ghi chú nội bộ} thì không. &
+  Cũ trước, mới sau &
+  --- \\ \addlinespace
+Tệp đính kèm &
+  \rt{ir.attachment} &
+  Tệp gắn vào phiếu, tải qua đường dẫn có kiểm quyền &
+  --- &
+  \uat{1} tệp trên toàn bộ 15 phiếu \\
+\end{hienbang}
+
+\mloc
+
+Chỉ một ô: khung soạn lời nhắn.
+
+\mkiem{Gửi lời nhắn}
+
+Xem mục kế tiếp.
+
+\mghi
+
+Mở màn \textbf{không ghi gì}.
+
+\mhoi
+
+\begin{ask}
+\begin{enumerate}[leftmargin=*]
+  \item \textbf{Ranh giới nội bộ / công khai nằm ở chỗ nhân sự Ngô Gia chọn ô nào.} Gõ vào ô
+        trao đổi thì cửa hàng đọc được; muốn ghi riêng phải dùng ô \emph{Ghi chú nội bộ} hoặc
+        chức năng ghi chú. Cần dặn lại đội vận hành điểm này.
+  \item \textbf{Phiếu Đã đóng / Đã huỷ vẫn nhận được lời nhắn mới} --- không có chốt chặn theo
+        trạng thái.
+\end{enumerate}
+\end{ask}
+
+% =============================================================================
+\section{Gửi lời nhắn vào phiếu hỗ trợ}
+\rt{/portal/support/<int:ticket_id>/reply}
+\medskip
+
+\mvao
+
+Không phải màn --- là hành động của nút \emph{Gửi} trong khung trao đổi ở màn chi tiết.
+
+\mai
+
+Cùng điều kiện với màn chi tiết: phiếu do tôi tạo và còn hiện trên portal.
+
+\mhien
+
+Không hiện gì --- xong việc thì quay lại chính màn chi tiết.
+
+\mloc
+
+Đúng một ô nội dung. \textbf{Không} đính kèm được tệp trong lời nhắn.
+
+\mkiem{Gửi}
+
+\begin{kiembang}
+1 & Phiếu tồn tại, do tôi tạo, còn hiện trên portal & Đưa về danh sách \\
+2 & Nội dung \textbf{không rỗng} sau khi bỏ khoảng trắng &
+    \textbf{Không báo lỗi} --- lặng lẽ quay về màn chi tiết, không ghi gì \\
+\end{kiembang}
+
+\mghi
+
+\begin{itemize}[leftmargin=*]
+  \item Ghi một lời nhắn vào phiếu, \textbf{đứng tên chính người dùng} (không phải tên hệ
+        thống), loại \emph{bình luận} nên Ngô Gia nhận được trong ERP.
+  \item Việc ghi lời nhắn \textbf{kích hoạt phép tính thời gian phản hồi} của phiếu --- dùng
+        cho báo cáo nội bộ.
+  \item \textbf{Không} đổi trạng thái phiếu. Phiếu đang \emph{Chờ phản hồi} mà cửa hàng trả lời
+        thì vẫn nằm nguyên ở \emph{Chờ phản hồi} cho tới khi Ngô Gia tự đổi.
+\end{itemize}
+
+\mhoi
+
+\begin{ask}
+\begin{enumerate}[leftmargin=*]
+  \item \textbf{Trả lời không tự đổi trạng thái.} Anh có muốn phiếu \emph{Chờ phản hồi} tự về
+        \emph{Đang xử lý} khi cửa hàng trả lời không?
+  \item \textbf{Không đính kèm được ảnh trong lời nhắn} --- cửa hàng muốn gửi thêm ảnh chụp
+        phải mở phiếu mới.
+\end{enumerate}
+\end{ask}
+
+% =============================================================================
+\section{Tải tệp đính kèm của phiếu hỗ trợ}
+\rt{/portal/support/<int:ticket_id>/attachment/<int:att_id>}
+\medskip
+
+\mvao
+
+Bấm tên tệp ở màn chi tiết.
+
+\mai
+
+\begin{kiembang}
+1 & Phiếu tồn tại, do tôi tạo, còn hiện trên portal & Báo không tìm thấy \\
+2 & Tệp \textbf{thuộc đúng phiếu đó} &
+    Từ chối truy cập --- không mượn được đường dẫn này để đọc tệp khác trong hệ thống \\
+\end{kiembang}
+
+\mhien
+
+Trả về tệp ở chế độ \textbf{tải xuống} (khác Đổi trả --- bên đó mở thẳng trong trình duyệt).
+
+\mloc
+
+Không có.
+
+\mkiem{tên tệp}
+
+Xem bảng trên.
+
+\mghi
+
+\textbf{Không ghi gì.}
+
+\mhoi
+
+\begin{ask}
+Không có điểm cần chốt.
+\end{ask}
+
+% =============================================================================
+\section{Màn Danh sách yêu cầu cập nhật thông tin}
+\rt{/portal/info-request}
+\medskip
+
+\mvao
+
+Mục \emph{Yêu cầu cập nhật thông tin} trên thanh điều hướng. Tham số: \rt{page},
+\rt{state}, \rt{request_type}, \rt{page_size}.
+
+\mai
+
+\begin{itemize}[leftmargin=*]
+  \item Phải đăng nhập. \textbf{Màn danh sách không chặn vai trò} --- Nhân viên xem được;
+        chỉ màn \emph{tạo} mới chặn.
+  \item Phạm vi là \textbf{mọi cửa hàng tôi truy cập được}, không lọc theo người tạo --- ngược
+        hẳn với phân hệ Hỗ trợ ở đầu chương.
+  \item Không truy cập được cửa hàng nào thì màn rỗng.
+\end{itemize}
+
+\mhien
+
+\begin{hienbang}
+Danh sách yêu cầu &
+  \rt{wujia.info.update.request} &
+  Yêu cầu thuộc mọi cửa hàng của tôi &
+  Ngày tạo mới nhất trước; \textbf{20} yêu cầu mỗi trang (10/20/50) &
+  \uat{0} bản ghi --- phân hệ chưa được dùng lần nào \\ \addlinespace
+Huy hiệu trạng thái &
+  \rt{state} &
+  Năm nhãn: \emph{Nháp} · \emph{Đã gửi} · \emph{Đang xem} · \emph{Đã duyệt} · \emph{Từ chối}.
+  \textbf{Không có} nhãn ``Đã huỷ''. &
+  --- & --- \\ \addlinespace
+Cột loại thông tin &
+  \rt{request_type} &
+  Bảy loại cố định trong mã nguồn: Địa chỉ · Số điện thoại · Email · Tên chủ cửa hàng ·
+  Thông tin ngân hàng · Người đại diện · Khác &
+  --- & --- \\
+\end{hienbang}
+
+\mloc
+
+Lọc theo \textbf{trạng thái} và \textbf{loại thông tin}; giá trị lạ bị bỏ qua. Số dòng mỗi
+trang 10/20/50. \textbf{Không} có ô tìm kiếm, \textbf{không} có bộ lọc ngày.
+
+\mkiem{Tạo yêu cầu}
+
+Xem màn kế tiếp.
+
+\mghi
+
+\textbf{Không ghi gì.}
+
+\mhoi
+
+\begin{ask}
+\begin{enumerate}[leftmargin=*]
+  \item \textbf{Nhân viên xem được mọi yêu cầu của cửa hàng} (kể cả yêu cầu đổi thông tin ngân
+        hàng) nhưng \textbf{không tạo được}. Đúng ý anh chứ?
+  \item \textbf{Không có nhãn ``Đã huỷ''} --- yêu cầu người dùng tự huỷ sẽ hiện thành
+        \emph{Từ chối}; xem mục Huỷ yêu cầu bên dưới.
+  \item \textbf{Bảy loại thông tin đang cố định trong mã nguồn}, muốn thêm loại phải sửa mã.
+        Anh xác nhận danh sách này đủ.
+\end{enumerate}
+\end{ask}
+
+% =============================================================================
+\section{Màn Tạo yêu cầu cập nhật thông tin}
+\rt{/portal/info-request/new}
+\medskip
+
+\mvao
+
+Nút \emph{Tạo yêu cầu} ở màn danh sách. Cùng đường dẫn cho cả mở form lẫn gửi form.
+
+\mai
+
+\begin{itemize}[leftmargin=*]
+  \item Phải truy cập được ít nhất một cửa hàng.
+  \item \textbf{Chỉ Chủ tiệm / Quản lý}. Nhân viên nhận \textbf{trang lỗi 403 thô của máy chủ},
+        \textbf{không} phải trang thông báo thân thiện như phân hệ Công nợ. Hai phân hệ cùng
+        chặn vai trò nhưng chặn ra hai kiểu khác nhau.
+  \item Vai trò xét theo \textbf{mức cao nhất trên MỌI cửa hàng} của tài khoản --- giống màn Báo
+        cáo (chương 5), khác Công nợ (chương 6, xét tại cửa hàng đang chọn).
+\end{itemize}
+
+\mhien
+
+\begin{hienbang}
+Ô \emph{Cửa hàng} &
+  \rt{wujia.franchise.management} &
+  Mọi cửa hàng tôi truy cập được &
+  --- & --- \\ \addlinespace
+Ô \emph{Loại thông tin} &
+  --- &
+  Bảy loại cố định &
+  Theo thứ tự khai trong mã &
+  --- \\ \addlinespace
+Ô \emph{Giá trị hiện tại} &
+  \rt{wujia.franchise.management} &
+  Đọc thẳng từ cửa hàng theo loại thông tin đang chọn; gọi ngầm mỗi lần đổi ô
+  (xem mục \emph{Lấy giá trị hiện tại}) &
+  --- & --- \\ \addlinespace
+Khối tệp đính kèm &
+  \rt{ir.attachment} &
+  Tối đa \textbf{6 tệp}, mỗi tệp $\leq$ \textbf{5 MB}; PNG, JPEG, WEBP, PDF &
+  --- & --- \\
+\end{hienbang}
+
+\mloc
+
+\begin{itemize}[leftmargin=*]
+  \item \textbf{Giá trị mới} --- bắt buộc, cắt còn 5.000 ký tự.
+  \item \textbf{Tên trường cần đổi} --- chỉ hiện khi chọn loại \emph{Khác}; bắt buộc khi đó.
+        Đây là \textbf{tên kỹ thuật} của trường, không phải tên tiếng Việt.
+  \item \textbf{Ghi chú} --- cắt còn 2.000 ký tự.
+  \item \textbf{Mức độ} --- Bình thường / Khẩn; giá trị lạ hạ về Bình thường.
+  \item \textbf{Hai nút}: \emph{Lưu nháp} và \emph{Gửi}.
+\end{itemize}
+
+\mkiem{Gửi yêu cầu}
+
+\begin{kiembang}
+1 & Truy cập được ít nhất một cửa hàng & Đưa về danh sách \\
+2 & Vai trò Chủ tiệm / Quản lý (tính trên mọi cửa hàng) & Trang lỗi 403 của máy chủ \\
+3 & Cửa hàng gửi lên là số và nằm trong danh sách của tôi &
+    ``Cửa hàng không hợp lệ.'' / ``Cửa hàng không truy cập được.'' \\
+4 & Loại thông tin nằm trong bảy loại & ``Loại thông tin không hợp lệ.'' \\
+5 & Có nhập giá trị mới & ``Vui lòng nhập giá trị mới.'' \\
+6 & Chọn \emph{Khác} thì phải nhập tên trường & ``Khi chọn 'Khác' phải nhập tên field.'' \\
+7 & Ghi được bản ghi &
+    ``Không thể gửi yêu cầu. Vui lòng kiểm tra lại thông tin và thử lại.'' \\
+8 & Tệp đính kèm hợp lệ & Bản ghi vừa tạo \textbf{bị xoá hẳn}, quay lại form \\
+\end{kiembang}
+
+\mghi
+
+\begin{itemize}[leftmargin=*]
+  \item Tạo một bản ghi \rt{wujia.info.update.request}, mã tự sinh, trạng thái \textbf{Nháp}.
+  \item Bấm \emph{Gửi} thì chuyển sang \textbf{Đã gửi}, ghi mốc thời gian gửi và một dòng vào
+        khung trao đổi của bản ghi.
+  \item \textbf{Không} sửa gì trên hồ sơ cửa hàng --- đây chỉ là đề nghị.
+\end{itemize}
+
+\mhoi
+
+\begin{ask}
+\begin{enumerate}[leftmargin=*]
+  \item \textbf{Quyền xét trên mọi cửa hàng nhưng gửi được cho từng cửa hàng.} Một người là
+        Quản lý cửa hàng A và Nhân viên cửa hàng B vẫn gửi được yêu cầu đổi thông tin
+        \textbf{của cửa hàng B}. Anh muốn siết theo đúng cửa hàng như Công nợ không?
+  \item \textbf{Nhân viên bị chặn bằng trang lỗi kỹ thuật 403}, không phải trang thông báo.
+        Cần làm giống Công nợ.
+  \item \textbf{Loại ``Khác'' bắt người dùng gõ tên kỹ thuật của trường} --- không ai ngoài dev
+        biết gõ gì. Anh muốn đổi thành ô mô tả tự do không?
+  \item \textbf{Duyệt yêu cầu KHÔNG tự cập nhật hồ sơ cửa hàng.} Bấm duyệt chỉ đổi trạng thái;
+        nhân sự Ngô Gia vẫn phải tự vào sửa tay. Anh xác nhận giữ vậy, hay muốn duyệt là áp
+        luôn?
+  \item \textbf{Phiếu nháp ở đây gửi được} (khác Đổi trả) --- nhưng chỉ khi tạo lại từ đầu; màn
+        chi tiết cũng không có nút gửi. Cần rà lại cho thống nhất.
+\end{enumerate}
+\end{ask}
+
+% =============================================================================
+\section{Màn Chi tiết yêu cầu cập nhật thông tin}
+\rt{/portal/info-request/<int:req_id>}
+\medskip
+
+\mvao
+
+Bấm một dòng ở màn danh sách, hoặc sau khi tạo xong.
+
+\mai
+
+Yêu cầu phải thuộc \textbf{một trong các cửa hàng của tôi} --- \textbf{không} đòi phải là người
+tạo. Sai thì về danh sách. Không chặn vai trò.
+
+\mhien
+
+\begin{hienbang}
+Đầu yêu cầu &
+  \rt{wujia.info.update.request} &
+  Mã, cửa hàng, loại thông tin, trạng thái, mức độ, ngày tạo, ngày gửi &
+  --- & --- \\ \addlinespace
+Giá trị cũ &
+  \rt{wujia.franchise.management} &
+  \textbf{Đọc lại từ cửa hàng ngay lúc mở màn} --- không phải ảnh chụp lúc gửi. Ngô Gia sửa hồ
+  sơ xong thì ô ``giá trị cũ'' của yêu cầu cũ \textbf{đổi theo}, và trông như cũ đã bằng mới. &
+  --- & --- \\ \addlinespace
+Giá trị mới &
+  \rt{new_value} &
+  Chữ người dùng đã gõ &
+  --- & --- \\ \addlinespace
+Tệp đính kèm · lý do từ chối &
+  \rt{ir.attachment} · \rt{refuse_reason} &
+  Tệp minh chứng và lý do khi bị từ chối &
+  --- & --- \\
+\end{hienbang}
+
+\mloc
+
+Không có ô lọc.
+
+\mkiem{Huỷ yêu cầu}
+
+Xem mục kế tiếp.
+
+\mghi
+
+Mở màn \textbf{không ghi gì}.
+
+\mhoi
+
+\begin{ask}
+\textbf{``Giá trị cũ'' không phải ảnh chụp.} Mô tả trong mã nguồn ghi là ảnh chụp lúc mở form,
+nhưng thực tế nó đọc lại mỗi lần mở màn. Sau khi Ngô Gia áp thay đổi, hồ sơ lịch sử không còn
+cho biết trước đó là gì. Anh có cần lưu lại giá trị cũ thật không?
+\end{ask}
+
+% =============================================================================
+\section{Huỷ yêu cầu cập nhật thông tin}
+\rt{/portal/info-request/<int:req_id>/cancel}
+\medskip
+
+\mvao
+
+Nút \emph{Huỷ} ở màn chi tiết.
+
+\mai
+
+Yêu cầu phải thuộc cửa hàng của tôi \textbf{và do chính tôi tạo}. Người khác cùng cửa hàng xem
+được nhưng không huỷ được.
+
+\mhien
+
+Không hiện gì --- quay về màn chi tiết kèm băng thông báo.
+
+\mloc
+
+Không có ô nhập.
+
+\mkiem{Huỷ}
+
+\begin{kiembang}
+1 & Yêu cầu thuộc cửa hàng của tôi và do tôi tạo & Đưa về danh sách \\
+2 & Trạng thái đang là \emph{Nháp} hoặc \emph{Đã gửi} &
+    Băng báo ``Chỉ có thể huỷ yêu cầu ở trạng thái Nháp/Đã gửi.'' \\
+\end{kiembang}
+
+\mghi
+
+Chuyển trạng thái sang \textbf{Từ chối} và ghi lý do \emph{``User huỷ''}.
+
+\mhoi
+
+\begin{ask}
+\textbf{Huỷ và bị từ chối trông giống nhau.} Hệ thống không có trạng thái \emph{Đã huỷ} nên
+yêu cầu tự huỷ hiện đúng huy hiệu đỏ \emph{Từ chối} như khi Ngô Gia từ chối; chỉ khác dòng lý
+do. Anh muốn tách thành trạng thái riêng không?
+\end{ask}
+
+% =============================================================================
+\section{Lấy giá trị hiện tại của cửa hàng}
+\rt{/portal/info-request/franchise/<int:fid>/values}
+\medskip
+
+\mvao
+
+Không phải màn --- gọi ngầm từ form tạo yêu cầu mỗi lần người dùng đổi ô \emph{Loại thông tin},
+để điền ô \emph{Giá trị hiện tại}.
+
+\mai
+
+Chỉ kiểm \textbf{một điều}: cửa hàng phải nằm trong danh sách tôi truy cập được.
+\textbf{Không kiểm vai trò} --- khác với màn tạo yêu cầu vốn chỉ cho Chủ tiệm / Quản lý.
+
+\mhien
+
+Trả về đúng một giá trị: nội dung của trường tương ứng trên hồ sơ cửa hàng. Bốn loại thông tin
+có sẵn ánh xạ (Địa chỉ, Số điện thoại, Email, Tên chủ cửa hàng); loại \emph{Khác} thì lấy theo
+\textbf{tên trường người gọi truyền lên}.
+
+\mloc
+
+Hai tham số: loại thông tin và tên trường.
+
+\mkiem{gọi}
+
+\begin{kiembang}
+1 & Cửa hàng nằm trong danh sách của tôi & Trả mã \rt{forbidden} \\
+2 & Cửa hàng còn tồn tại & Trả mã \rt{not_found} \\
+3 & Tên trường có thật trên hồ sơ cửa hàng & Trả chuỗi rỗng \\
+\end{kiembang}
+
+\mghi
+
+\textbf{Không ghi gì.}
+
+\mhoi
+
+\begin{ask}
+\textbf{Đường dẫn này đọc được BẤT KỲ trường nào của hồ sơ cửa hàng}, chỉ cần biết tên kỹ thuật
+--- vì loại \emph{Khác} nhận thẳng tên trường do người gọi truyền lên và không có danh sách
+trường cho phép. Nó lại \textbf{không kiểm vai trò}, nên một Nhân viên đọc được cả những số mà
+màn Công nợ đã chặn họ (ví dụ số dư công nợ lưu trên hồ sơ cửa hàng). Dev sẽ đưa vào đợt chuẩn
+hoá F1 --- ghi ở đây để BA nắm, \textbf{không cần lên task riêng}.
+\end{ask}
+
+% =============================================================================
+\section{Màn Danh sách bài viết kiến thức}
+\rt{/portal/knowledge}
+\medskip
+
+\mvao
+
+Mục \emph{Kiến thức} trên thanh điều hướng. Tham số: \rt{page}, \rt{category_id},
+\rt{tag_id}, \rt{keyword}, \rt{page_size}, \rt{notice}.
+
+\mai
+
+\begin{itemize}[leftmargin=*]
+  \item Chỉ cần \textbf{đăng nhập}. Không cần chọn cửa hàng, \textbf{không} chặn vai trò,
+        \textbf{không} lọc theo cửa hàng.
+  \item Mọi tài khoản portal thấy \textbf{đúng cùng một tập bài viết} --- phân hệ duy nhất
+        trong portal như vậy.
+\end{itemize}
+
+\mhien
+
+\begin{hienbang}
+Lưới bài viết &
+  \rt{wujia.knowledge.article} &
+  Bài \textbf{đang hiện trên portal} (đã phát hành, chưa lưu trữ, chưa hết hạn hiệu lực)
+  \textbf{và} đã tới ngày phát hành (\rt{publish_date} rỗng hoặc đã qua) &
+  Số thứ tự, rồi ngày phát hành mới nhất; \textbf{12} bài mỗi trang (12/24/48) &
+  \uat{21}/27 bài đang hiện \\ \addlinespace
+Trạng thái bài không hiện &
+  \rt{state} &
+  \uat{3} bài còn nháp · \uat{1} bài đã lưu trữ · \uat{2} bài \textbf{đã phát hành nhưng quá
+  hạn hiệu lực} &
+  --- &
+  \uat{23} bài ở trạng thái đã phát hành \\ \addlinespace
+Cột danh mục &
+  \rt{wujia.knowledge.category} &
+  Danh mục đang bật &
+  Số thứ tự, rồi tên &
+  \uat{9} danh mục --- trong đó có \textbf{tên trùng nhau} \\ \addlinespace
+Khối thẻ &
+  \rt{wujia.knowledge.tag} &
+  Thẻ đang bật &
+  Theo tên &
+  \uat{6} thẻ \\ \addlinespace
+Lượt xem &
+  \rt{view_count} &
+  Đếm mỗi lần mở màn chi tiết &
+  --- &
+  Bài cao nhất \uat{65} lượt \\
+\end{hienbang}
+
+\mloc
+
+\begin{itemize}[leftmargin=*]
+  \item \textbf{Từ khoá} --- khớp một phần theo \textbf{tiêu đề}, \textbf{tóm tắt} hoặc
+        \textbf{toàn văn nội dung}. Đây là ô tìm sâu nhất trong portal.
+  \item \textbf{Danh mục} và \textbf{Thẻ} --- chọn một cái mỗi loại. Nếu danh mục hay thẻ vừa bị
+        Ngô Gia lưu trữ (hoặc số gửi lên không đọc được) thì màn \textbf{quay về danh sách gốc}
+        kèm băng báo ``danh mục/thẻ không còn'' --- cố ý không im lặng bỏ lọc.
+  \item \textbf{Số bài mỗi trang} --- \textbf{12, 24, 48} (bội của 3 cho lưới 3 cột), khác bậc
+        10/20/50 của các màn khác.
+\end{itemize}
+
+\mkiem{một bài viết}
+
+Không kiểm gì ở màn danh sách.
+
+\mghi
+
+\textbf{Không ghi gì.}
+
+\mhoi
+
+\begin{ask}
+\begin{enumerate}[leftmargin=*]
+  \item \textbf{Kiến thức không phân biệt cửa hàng và vai trò.} Mọi nhân viên của mọi cửa hàng
+        đọc được mọi bài. Nếu sau này có tài liệu chỉ dành cho Chủ tiệm thì phải làm thêm.
+  \item \textbf{Danh mục đang trùng tên trên UAT} --- \emph{Vận hành} và \emph{Sản phẩm} mỗi cái
+        xuất hiện hai lần (hai bản ghi khác nhau). Thanh lọc bên trái vì thế hiện hai dòng
+        giống hệt. Cần dọn dữ liệu.
+  \item \textbf{Bài hết hạn không biến mất ngay.} Cờ ``đang hiện'' được lưu sẵn và chỉ tính lại
+        bằng tác vụ nền chạy hằng ngày, nên bài đặt hạn 10 giờ sáng vẫn đọc được tới lần chạy
+        kế tiếp. Anh chấp nhận độ trễ này chứ?
+  \item \textbf{Lượt xem đếm mỗi lần mở}, không chống bấm lặp --- một người bấm lại 10 lần thì
+        cộng 10. Con số \uat{65} lượt trên UAT nên hiểu theo nghĩa đó.
+\end{enumerate}
+\end{ask}
+
+% =============================================================================
+\section{Màn Chi tiết bài viết}
+\rt{/portal/knowledge/<string:slug>}
+\medskip
+
+\mvao
+
+Bấm một thẻ bài ở màn danh sách, hoặc từ khối \emph{Kiến thức} trên Trang chủ, hoặc từ ô gợi ý
+tìm kiếm. Đường dẫn dùng \textbf{tên rút gọn} của bài chứ không dùng số --- ví dụ
+\rt{/portal/knowledge/checklist-mo-cua-hang-buoi-sang}.
+
+\mai
+
+Bài phải \textbf{đang hiện trên portal} và đã tới ngày phát hành. Không thoả --- kể cả khi tên
+rút gọn gõ sai --- thì về danh sách kèm băng ``bài viết không còn''.
+
+\mhien
+
+\begin{hienbang}
+Nội dung bài &
+  \rt{wujia.knowledge.article} &
+  Tiêu đề, tóm tắt, ngày phát hành, danh mục, thẻ, toàn văn nội dung &
+  --- & --- \\ \addlinespace
+Tệp đính kèm &
+  \rt{ir.attachment} &
+  Tệp gắn vào bài, tải qua đường dẫn có kiểm quyền &
+  --- & --- \\ \addlinespace
+Bài liên quan &
+  \rt{wujia.knowledge.article} &
+  Bài \textbf{cùng danh mục}, đang hiện, trừ chính bài đang đọc &
+  Ngày phát hành mới nhất; \textbf{tối đa 4} bài &
+  --- \\
+\end{hienbang}
+
+\mloc
+
+Không có ô lọc.
+
+\mkiem{một bài liên quan}
+
+Không kiểm gì --- mở sang màn chi tiết của bài đó, và màn đó kiểm lại từ đầu.
+
+\mghi
+
+\textbf{Có ghi} --- đây là màn chỉ-đọc duy nhất trong portal có ghi dữ liệu: mỗi lần mở,
+\textbf{lượt xem của bài cộng thêm 1}. Phép cộng chạy thẳng dưới cơ sở dữ liệu nên hai người mở
+cùng lúc không ghi đè nhau. Không ghi ai đã đọc bài --- \textbf{không có} khái niệm ``đã đọc''
+cho Kiến thức.
+
+\mhoi
+
+\begin{ask}
+\begin{enumerate}[leftmargin=*]
+  \item \textbf{Không biết ai đã đọc bài nào.} Nếu Ngô Gia cần chắc rằng cửa hàng đã đọc tài
+        liệu bắt buộc thì phải làm thêm phần xác nhận đã đọc.
+  \item \textbf{Đường dẫn dùng tên rút gọn.} Đổi tiêu đề bài \textbf{không} đổi tên rút gọn, nên
+        liên kết cũ vẫn sống --- nhưng tên rút gọn sẽ không còn khớp tiêu đề.
+\end{enumerate}
+\end{ask}
+
+% =============================================================================
+\section{Tải tệp đính kèm của bài viết}
+\rt{/portal/knowledge/<string:slug>/attachment/<int:att_id>}
+\medskip
+
+\mvao
+
+Bấm tên tệp ở màn chi tiết bài.
+
+\mai
+
+\begin{kiembang}
+1 & Bài đang hiện trên portal & Về danh sách kèm băng ``bài viết không còn'' \\
+2 & Tệp thuộc đúng bài đó & Từ chối truy cập \\
+\end{kiembang}
+
+Ở đây \textbf{cố ý không} kiểm theo cửa hàng --- kiến thức là tài liệu chung cho mọi tài khoản
+portal.
+
+\mhien
+
+Trả về tệp ở chế độ \textbf{tải xuống}.
+
+\mloc
+
+Không có.
+
+\mkiem{tên tệp}
+
+Xem bảng trên.
+
+\mghi
+
+\textbf{Không ghi gì} --- tải tệp không cộng lượt xem.
+
+\mhoi
+
+\begin{ask}
+Không có điểm cần chốt.
+\end{ask}
+
+% =============================================================================
+\section{Gợi ý tìm kiếm kiến thức}
+\rt{/portal/knowledge/search}
+\medskip
+
+\mvao
+
+Không phải màn --- gọi ngầm khi người dùng đang gõ trong ô tìm kiếm, sau khi ngừng gõ khoảng
+0,3 giây.
+
+\mai
+
+Chỉ cần đăng nhập. Cùng phạm vi với màn danh sách: mọi bài đang hiện.
+
+\mhien
+
+Trả về danh sách gợi ý, mỗi dòng gồm tiêu đề, danh mục và đường dẫn tới bài. Tìm theo tiêu đề,
+tóm tắt và toàn văn nội dung.
+
+\mloc
+
+\begin{itemize}[leftmargin=*]
+  \item \textbf{Từ khoá} --- \textbf{dưới 2 ký tự thì không gọi}, trả về rỗng.
+  \item \textbf{Số gợi ý} --- mặc định 10, tối đa \textbf{20}; số lạ tự về 10.
+\end{itemize}
+
+\mkiem{gõ phím}
+
+Không kiểm gì ngoài độ dài từ khoá.
+
+\mghi
+
+\textbf{Không ghi gì} --- gợi ý không cộng lượt xem.
+
+\mhoi
+
+\begin{ask}
+\textbf{Chưa có giới hạn số lần gọi.} Gõ nhanh và liên tục sẽ tạo nhiều truy vấn tìm toàn văn;
+với 1.500 tài khoản cần theo dõi khi chạy thật.
+\end{ask}
+
+% =============================================================================
+\section{Màn Danh sách thông báo}
+\rt{/portal/notification} · \rt{/portal/notification/results}
+\medskip
+
+\mvao
+
+Mục \emph{Thông báo} trên thanh điều hướng, hoặc dòng \emph{Xem tất cả} trong hộp chuông.
+Đường dẫn \rt{/results} không phải màn riêng --- là phần kết quả gọi ngầm khi đổi bộ lọc.
+Tham số: \rt{page}, \rt{limit}, \rt{type_id}, \rt{keyword}, \rt{priority},
+\rt{read_status} (hoặc \rt{unread} kiểu cũ), \rt{date_from}, \rt{date_to}.
+
+\mai
+
+\begin{itemize}[leftmargin=*]
+  \item Phải đăng nhập. \textbf{Không chặn vai trò.}
+  \item Thấy thông báo \textbf{gửi toàn hệ} \emph{hoặc} \textbf{gửi đích danh một trong các cửa
+        hàng của tôi}. Chưa chọn cửa hàng thì vẫn thấy phần gửi toàn hệ.
+  \item Danh sách là \textbf{lịch sử}: gồm cả thông báo \textbf{đã hết hiệu lực} (hộp chuông thì
+        không).
+  \item Thực tế UAT: \uat{3} thông báo, \uat{2} đang phát hành --- cả hai đều gửi toàn hệ;
+        \uat{0} thông báo gửi đích danh cửa hàng đang hiện ra portal. Nghĩa là luật lọc theo
+        cửa hàng \textbf{chưa được dữ liệu UAT kiểm chứng}.
+\end{itemize}
+
+\mhien
+
+\begin{hienbang}
+Danh sách thông báo &
+  \rt{wujia.notification} &
+  Đã phát hành ra portal (\rt{is_published_portal = true}), \textbf{đã tới giờ phát hành},
+  và đúng đối tượng nhận &
+  \textbf{Ghim lên đầu}, rồi ngày phát hành mới nhất; \textbf{10} thông báo mỗi trang
+  (10/20/50) &
+  \uat{2} đang phát hành · \uat{1} chưa phát hành · \uat{0} được ghim \\ \addlinespace
+Huy hiệu loại &
+  \rt{wujia.notification.type} &
+  Năm loại kèm màu riêng: Khẩn cấp · Thông báo chung · Khuyến mãi · Hệ thống · Khác &
+  Theo số thứ tự &
+  \uat{5} loại đang bật \\ \addlinespace
+Huy hiệu mức độ &
+  \rt{priority} &
+  Ba nhãn: \emph{Thông thường} · \emph{Quan trọng} · \emph{Cần làm} &
+  --- & --- \\ \addlinespace
+Dấu đã đọc &
+  \rt{wujia.notification.read} &
+  Đánh dấu theo bộ ba \textbf{người + thông báo + cửa hàng đang chọn}. Chưa chọn cửa hàng thì
+  bỏ điều kiện cửa hàng khi tra. &
+  --- &
+  \uat{6} dấu cũ chưa gắn cửa hàng \\ \addlinespace
+Huy hiệu hết hiệu lực &
+  \rt{expired_date} &
+  Thông báo quá hạn vẫn nằm trong danh sách nhưng được đánh dấu riêng &
+  --- &
+  \uat{0} thông báo đã hết hiệu lực \\
+\end{hienbang}
+
+\mloc
+
+\begin{itemize}[leftmargin=*]
+  \item \textbf{Từ khoá} --- tiêu đề, \textbf{số công văn}, hoặc tóm tắt.
+  \item \textbf{Loại} và \textbf{Mức độ} --- mỗi thứ chọn một; giá trị lạ bị bỏ qua.
+  \item \textbf{Trạng thái đọc} --- \emph{Tất cả} / \emph{Đã đọc} / \emph{Chưa đọc}. Chọn
+        \emph{Chưa đọc} thì hệ thống \textbf{tự loại luôn thông báo đã hết hiệu lực} --- quá hạn
+        không bị tính là còn nợ đọc.
+  \item \textbf{Khoảng ngày} --- lọc theo \emph{ngày phát hành}, quy đổi đúng múi giờ tài khoản.
+        Ngày ngược thì \textbf{chặn truy vấn}, giữ chữ đã gõ và báo tại thanh lọc --- cố ý không
+        bỏ lọc rồi trả về toàn bộ.
+  \item \textbf{Số dòng mỗi trang} --- 10, 20, 50.
+\end{itemize}
+
+\mkiem{một thông báo}
+
+Không kiểm gì ở danh sách.
+
+\mghi
+
+\textbf{Không ghi gì} --- xem danh sách không đánh dấu đã đọc.
+
+\mhoi
+
+\begin{ask}
+\begin{enumerate}[leftmargin=*]
+  \item \textbf{``Đã đọc'' tính theo từng cửa hàng.} Người phụ trách 3 cửa hàng phải đọc cùng
+        một thông báo toàn hệ \textbf{ba lần} mới sạch chuông. Anh muốn giữ vậy, hay đọc một
+        lần là xong cho mọi cửa hàng?
+  \item \uat{6} dấu đã đọc cũ \textbf{chưa gắn cửa hàng} nên không khớp cửa hàng nào --- chúng
+        chỉ có tác dụng khi người dùng \textbf{chưa chọn} cửa hàng. Cần dọn dữ liệu.
+  \item \textbf{Thẻ đếm chưa đọc trên Trang chủ tính khác màn này} --- Trang chủ bỏ qua điều
+        kiện hết hiệu lực và điều kiện đã tới giờ phát hành, lại trừ \textbf{mọi} dấu đã đọc.
+        Đây là chênh lệch đã nêu ở chương 4; nhắc lại để BA gom vào một quyết định.
+  \item \textbf{UAT chưa có thông báo gửi đích danh cửa hàng nào đang phát hành} --- cần dựng ca
+        mẫu trước khi nghiệm thu phần lọc theo cửa hàng.
+\end{enumerate}
+\end{ask}
+
+% =============================================================================
+\section{Màn Chi tiết thông báo}
+\rt{/portal/notification/<int:notification_id>}
+\medskip
+
+\mvao
+
+Bấm một dòng ở danh sách hoặc một dòng trong hộp chuông.
+
+\mai
+
+Thông báo phải \textbf{đã phát hành, đã tới giờ, đúng đối tượng nhận}. Thông báo
+\textbf{đã hết hiệu lực vẫn mở được} --- cố ý, để tra lại lịch sử. Không thoả thì về danh sách.
+
+\mhien
+
+\begin{hienbang}
+Nội dung &
+  \rt{wujia.notification} &
+  Tiêu đề, số công văn, loại, mức độ, ngày phát hành, toàn văn nội dung &
+  --- & --- \\ \addlinespace
+Tệp đính kèm &
+  \rt{ir.attachment} &
+  Tệp gắn vào thông báo, tải qua đường dẫn có kiểm quyền &
+  --- &
+  \uat{0}/3 thông báo có tệp \\ \addlinespace
+Ghi chú nội bộ &
+  --- &
+  \textbf{Không hiện} --- ô ghi chú của Ngô Gia không ra portal &
+  --- & --- \\
+\end{hienbang}
+
+\mloc
+
+Không có ô lọc.
+
+\mkiem{mở màn}
+
+\begin{kiembang}
+1 & Thông báo đã phát hành, đã tới giờ, đúng đối tượng & Về danh sách \\
+2 & Đã chọn được cửa hàng &
+    \textbf{Vẫn cho đọc nội dung}, chỉ \textbf{không ghi} dấu đã đọc --- tránh tạo dấu không
+    gắn cửa hàng nào \\
+\end{kiembang}
+
+\mghi
+
+\begin{itemize}[leftmargin=*]
+  \item Lần đầu mở tại một cửa hàng: tạo một dấu đã đọc cho bộ ba \textbf{người + thông báo +
+        cửa hàng}, ghi cả \emph{lần đọc đầu} và \emph{lần mở gần nhất}.
+  \item Mở lại: \textbf{chỉ cập nhật lần mở gần nhất}, giữ nguyên lần đọc đầu.
+  \item Chưa chọn cửa hàng: \textbf{không ghi gì}, và chuông vẫn coi là chưa đọc.
+\end{itemize}
+
+\mhoi
+
+\begin{ask}
+\textbf{Mở thông báo khi chưa chọn cửa hàng thì không được tính là đã đọc} --- người dùng đọc
+xong vẫn thấy chuông báo đỏ. Cần nói rõ trên màn hay tự chọn cửa hàng giúp họ?
+\end{ask}
+
+% =============================================================================
+\section{Hộp chuông trên đầu trang}
+\rt{/portal/notification/recent} · \rt{/portal/notification/unread-count}
+\medskip
+
+\mvao
+
+Không phải màn --- hai đường dẫn phục vụ biểu tượng chuông có mặt trên \textbf{mọi trang}
+portal: một cái nạp nội dung khi bấm mở, một cái chỉ trả về con số trên chuông.
+
+\mai
+
+Phải đăng nhập. Phạm vi giống màn danh sách, nhưng \textbf{chỉ thông báo còn hiệu lực} --- quá
+hạn thì rụng khỏi chuông dù vẫn nằm trong lịch sử.
+
+\mhien
+
+\begin{hienbang}
+Danh sách trong hộp &
+  \rt{wujia.notification} &
+  Thông báo \textbf{còn hiệu lực} đúng đối tượng nhận &
+  Ghim lên đầu, rồi mới nhất; \textbf{đúng 5} dòng &
+  \uat{2} thông báo còn hiệu lực trên UAT \\ \addlinespace
+Số trên chuông &
+  \rt{wujia.notification.read} &
+  \textbf{Số thông báo còn hiệu lực trừ đi số dấu đã đọc} của tôi tại cửa hàng đang chọn; sàn ở
+  0 &
+  --- &
+  Toàn hệ có \uat{18} dấu đã đọc, trong đó \uat{6} dấu chưa gắn cửa hàng \\
+\end{hienbang}
+
+Hai đường dẫn này chạy trên mọi trang nên được viết để \textbf{chỉ đếm, không kéo dữ liệu về} ---
+điều kiện ``còn hiệu lực'' được đẩy xuống thành câu hỏi phụ trong cơ sở dữ liệu thay vì nạp
+danh sách mã ra rồi so ở tầng ứng dụng.
+
+\mloc
+
+Không có ô nhập.
+
+\mkiem{mở chuông}
+
+Không kiểm gì ngoài đăng nhập.
+
+\mghi
+
+\textbf{Không ghi gì} --- mở chuông không đánh dấu đã đọc.
+
+\mhoi
+
+\begin{ask}
+\textbf{Hộp chuông cố định 5 dòng} và không có nút ``xem thêm'' trong hộp --- phải sang màn danh
+sách. Anh xác nhận.
+\end{ask}
+
+% =============================================================================
+\section{Đánh dấu đã đọc}
+\rt{/portal/notification/mark-all-read} · \rt{/portal/notification/mark-read}
+\medskip
+
+\mvao
+
+Nút \emph{Đánh dấu tất cả đã đọc} trong hộp chuông (đường dẫn thứ nhất); đường dẫn thứ hai giữ
+lại cho các màn cũ gửi lên một danh sách mã cụ thể.
+
+\mai
+
+Phải đăng nhập \textbf{và phải đang chọn một cửa hàng}. Chưa chọn thì cả hai trả về lỗi
+\emph{``Vui lòng chọn cửa hàng trước khi thao tác''} và \textbf{không ghi gì}.
+
+\mhien
+
+Không hiện gì --- trả về số dấu vừa tạo và số chưa đọc còn lại.
+
+\mloc
+
+Đường dẫn thứ hai nhận một danh sách mã thông báo; mã không đọc được thì trả lỗi
+\rt{invalid_ids}.
+
+\mkiem{Đánh dấu tất cả đã đọc}
+
+\begin{kiembang}
+1 & Đang chọn một cửa hàng & ``Vui lòng chọn cửa hàng trước khi thao tác.'' \\
+2 & (đường dẫn thứ hai) Mã gửi lên đều là số & \rt{invalid_ids} \\
+3 & (đường dẫn thứ hai) Thông báo \textbf{đúng đối tượng nhận} &
+    Mã lạ bị \textbf{lặng lẽ bỏ qua} --- không báo lỗi, không đánh dấu \\
+\end{kiembang}
+
+\mghi
+
+\begin{itemize}[leftmargin=*]
+  \item \textbf{Đánh dấu tất cả}: tạo dấu đã đọc cho \textbf{mọi thông báo còn hiệu lực} chưa
+        có dấu, tại \textbf{cửa hàng đang chọn}. \textbf{Không} ghi mốc ``lần mở gần nhất'' ---
+        người dùng chưa thực sự mở nội dung.
+  \item \textbf{Đánh dấu theo danh sách}: cùng cách, nhưng có ghi cả mốc lần mở.
+  \item Cả hai đều \textbf{chạy lại được nhiều lần không sinh trùng} --- bộ ba người + thông báo
+        + cửa hàng là duy nhất.
+  \item \textbf{Chỉ đánh dấu cho cửa hàng đang chọn}: người ba cửa hàng bấm \emph{tất cả} vẫn
+        còn chuông đỏ ở hai cửa hàng kia.
+\end{itemize}
+
+\mhoi
+
+\begin{ask}
+\textbf{``Đánh dấu tất cả'' không phải là tất cả} --- chỉ là tất cả \emph{tại cửa hàng đang
+chọn} và chỉ những thông báo \emph{còn hiệu lực}. Nhãn nút nên nói rõ điều đó.
+\end{ask}
+
+% =============================================================================
+\section{Tải tệp đính kèm của thông báo}
+\rt{/portal/notification/<int:notification_id>/attachment/<int:attachment_id>}
+\medskip
+
+\mvao
+
+Bấm tên tệp ở màn chi tiết thông báo.
+
+\mai
+
+\begin{kiembang}
+1 & Thông báo đã phát hành, đã tới giờ, \textbf{đúng đối tượng nhận của tôi} & Báo không tìm thấy \\
+2 & Tệp thuộc đúng thông báo đó &
+    Từ chối truy cập --- đây chính là lý do portal không dùng đường dẫn tải tệp mặc định của
+    Odoo, vì đường dẫn đó chỉ cần biết số tệp là tải được \\
+\end{kiembang}
+
+\mhien
+
+Trả về tệp ở chế độ \textbf{tải xuống}.
+
+\mloc
+
+Không có.
+
+\mkiem{tên tệp}
+
+Xem bảng trên.
+
+\mghi
+
+\textbf{Không ghi gì.}
+
+\mhoi
+
+\begin{ask}
+Không có điểm cần chốt.
+\end{ask}

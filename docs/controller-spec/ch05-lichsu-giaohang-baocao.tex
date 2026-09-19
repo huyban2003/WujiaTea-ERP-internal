@@ -1,0 +1,615 @@
+\chapter{Lịch sử mua hàng --- Giao hàng --- Báo cáo}
+
+Chương này gồm \textbf{11 đường dẫn} gom thành \textbf{8 màn}, thuộc ba mô-đun:
+\rt{wujia_portal_purchase_history} (5), \rt{wujia_portal_delivery} (4),
+\rt{wujia_portal_report} (2). Ba phân hệ này đều \textbf{chỉ đọc} --- không màn nào tạo hay sửa
+dữ liệu nghiệp vụ, trừ việc sinh tệp tải về.
+
+\textbf{Ba điểm cần biết trước khi đọc:}
+
+\begin{enumerate}[leftmargin=*]
+  \item \textbf{Ba phân hệ xác định ``cửa hàng đang xem'' theo hai cách khác nhau.} Lịch sử mua
+        hàng \textbf{bắt buộc} phải chọn được cửa hàng, chưa chọn thì báo lỗi và không hiện gì.
+        Giao hàng và Báo cáo thì \textbf{cộng gộp mọi cửa hàng} khi chưa chọn. Đây là khác biệt
+        có thật trong code, không phải mô tả nhầm --- xem mục 7 của màn Lịch sử.
+  \item \textbf{Trạng thái đơn mà cửa hàng nhìn thấy là trạng thái GỘP.} Odoo chỉ có bốn trạng
+        thái đơn (\emph{Nháp}, \emph{Đã gửi}, \emph{Đã xác nhận}, \emph{Đã huỷ}). Portal thêm
+        hai nhãn \emph{Đang giao} và \emph{Hoàn tất} \textbf{suy ra từ chuyến giao} và cho đè
+        lên nhãn \emph{Đã xác nhận}. Đây là phương án (a) chủ dự án chốt 03/08: cửa hàng chỉ
+        nhìn một cột trạng thái duy nhất.
+  \item \textbf{Đơn Đã huỷ bị giấu khỏi phân hệ Lịch sử.} Trên UAT hiện có \uat{16} đơn đã huỷ
+        trên tổng \uat{47} --- tức \textbf{một phần ba số đơn không xuất hiện} ở màn Lịch sử.
+        Nhưng chúng \textbf{vẫn có} trong tệp Excel của phân hệ Báo cáo. Xem mục 7 màn Báo cáo.
+\end{enumerate}
+
+\section{Màn Lịch sử mua hàng}
+\rt{/portal/purchase-history} · \rt{/portal/purchase-history/results}
+\medskip
+
+\mvao
+
+Mục \emph{Lịch sử mua hàng} trên thanh điều hướng. Đường dẫn \rt{/results} không phải màn
+riêng --- đó là phần kết quả được gọi ngầm khi người dùng đổi bộ lọc, để không phải tải lại cả
+trang. Hai đường dẫn dùng chung một bộ dữ liệu nên mọi luật dưới đây đúng cho cả hai.
+
+Ngoài ra có \textbf{một đường dẫn cũ} \rt{/portal/purchase_history} (gạch dưới, từ bản v14) được
+giữ lại để chuyển hướng vĩnh viễn sang đường dẫn mới --- liên kết cũ trong email hay dấu trang
+của cửa hàng không bị chết.
+
+\mai
+
+\begin{itemize}[leftmargin=*]
+  \item Phải đăng nhập \textbf{và phải chọn được cửa hàng}. Chưa chọn (tài khoản nhiều cửa hàng
+        chưa bấm chọn) $\rightarrow$ màn hiện đúng một dòng:
+        \emph{``Không xác định được cửa hàng đang thao tác. Vui lòng chọn lại cửa hàng.''} và
+        \textbf{không chạy truy vấn nào}.
+  \item Chỉ thấy đơn của \textbf{đúng một cửa hàng} đang chọn --- khác với Trang chủ (cộng gộp)
+        và khác với Giao hàng / Báo cáo.
+  \item \textbf{Vai trò không giới hạn gì}: Nhân viên xem được toàn bộ lịch sử đơn và số tiền
+        của cửa hàng, ngang Chủ tiệm.
+  \item Đọc bằng quyền hệ thống; giới hạn duy nhất là điều kiện \rt{franchise_id} trong bảng
+        dưới.
+\end{itemize}
+
+\mhien
+
+\begin{hienbang}
+Bảng đơn hàng &
+  \rt{sale.order} &
+  Đơn của \textbf{đúng cửa hàng đang chọn} và \textbf{không phải đơn huỷ}
+  (\rt{state != 'cancel'}). Lấy \textbf{cả} đơn đặt qua portal lẫn đơn Ngô Gia tạo hộ trong
+  ERP. &
+  \emph{Ngày tạo} mới nhất trước; 10 đơn/trang &
+  Cầu Giấy \uat{8} · Đống Đa \uat{5} · TP HCM Q1 \uat{18} · TEST \uat{0} \\ \addlinespace
+Cột \emph{Trạng thái} &
+  \rt{sale.order.state} + \rt{stock.picking.batch.delivery_batch_status} &
+  Năm nhãn: \emph{Chờ xác nhận} (nháp), \emph{Đã gửi}, \emph{Đã xác nhận}, và hai nhãn đè từ
+  chuyến giao: \emph{Đang giao}, \emph{Hoàn tất}. Đơn đã xác nhận mà chuyến đang chạy thì hiện
+  \emph{Đang giao}; chuyến đã xong thì hiện \emph{Hoàn tất}. &
+  --- &
+  \uat{17} Chờ xác nhận · \uat{0} Đã gửi · \uat{14} Đã xác nhận \\ \addlinespace
+Cột \emph{Số dòng sản phẩm} &
+  \rt{sale.order.line} &
+  Đếm dòng hàng thật, \textbf{bỏ} dòng tiêu đề/ghi chú &
+  --- & --- \\ \addlinespace
+Cột \emph{Người đặt} &
+  \rt{sale.order.portal_requester_user_id} &
+  Đơn đặt qua portal $\rightarrow$ tên người bấm gửi. Đơn Ngô Gia tạo trong ERP $\rightarrow$
+  nhãn cố định \emph{``Ngô Gia tạo đơn''}; \textbf{cố ý không} lộ tên nhân sự nội bộ. &
+  --- &
+  \uat{23} đơn portal / \uat{24} đơn tạo từ ERP \\ \addlinespace
+Cột \emph{Chuyến giao} &
+  \rt{stock.picking.batch} &
+  Mã chuyến và trạng thái chuyến (nhãn tiếng Việt cố định trong portal, không đổi theo ngôn
+  ngữ người dùng) &
+  --- &
+  \uat{3}/47 đơn đã được xếp chuyến \\ \addlinespace
+Cột \emph{Tổng tiền} &
+  \rt{sale.order.amount_total} &
+  Đọc thẳng số Odoo đã tính. Ký hiệu tiền lấy theo \textbf{loại tiền của chính đơn}. &
+  --- &
+  \uat{47}/47 đơn đang ghi bằng \textbf{USD} \\
+\end{hienbang}
+
+\mloc
+
+\begin{itemize}[leftmargin=*]
+  \item \textbf{Từ khoá} --- chỉ tìm theo \textbf{mã đơn}, khớp một phần, không phân biệt hoa
+        thường. Không tìm theo tên sản phẩm, không tìm theo người đặt.
+  \item \textbf{Khoảng ngày} --- lọc theo \emph{ngày tạo đơn}, quy đổi đúng theo múi giờ tài
+        khoản (``từ ngày X'' tính từ 00:00 giờ địa phương). Khoảng ngày \textbf{ngược} thì
+        \textbf{không chạy truy vấn}, giữ nguyên hai ô đã nhập và báo ngay tại thanh lọc
+        \emph{``Từ ngày không được lớn hơn Đến ngày''} --- cố ý không để màn rơi vào trạng thái
+        ``Chưa có đơn hàng'' làm người dùng tưởng mất dữ liệu.
+  \item \textbf{Nút nhanh} --- \emph{Tháng này} / \emph{Tháng trước} tự điền hai ô ngày và
+        \textbf{ghi đè} ngày người dùng vừa gõ.
+  \item \textbf{Trạng thái} --- một nhãn tại một thời điểm, chọn trong đúng năm nhãn kể trên.
+        Giá trị lạ bị bỏ qua (coi như không lọc).
+  \item \textbf{Số đơn mỗi trang} --- chỉ nhận \textbf{10, 20, 50}; số khác thì lặng lẽ dùng 10.
+\end{itemize}
+
+\mkiem{một dòng đơn}
+
+Không kiểm gì ở màn danh sách --- sang màn chi tiết, và màn chi tiết \textbf{kiểm lại quyền từ
+đầu} (xem màn sau).
+
+\mghi
+
+\textbf{Không ghi gì.} Màn chỉ đọc.
+
+\mhoi
+
+\begin{ask}
+\begin{enumerate}[leftmargin=*]
+  \item \textbf{Ba phân hệ hiểu ``cửa hàng đang xem'' khác nhau.} Lịch sử mua hàng bắt buộc
+        chọn cửa hàng; Giao hàng và Báo cáo thì cộng gộp mọi cửa hàng khi chưa chọn; Trang chủ
+        cũng cộng gộp. Người quản lý 3 cửa hàng vì vậy thấy Trang chủ báo 31 đơn nhưng màn Lịch
+        sử lại báo lỗi ``chưa chọn cửa hàng''. Anh chốt giúp một cách thống nhất cho cả portal.
+  \item \textbf{Đơn Đã huỷ bị giấu hoàn toàn.} Trên UAT là \uat{16}/47 đơn. Cửa hàng không có
+        cách nào tra lại đơn mình đã bị huỷ, kể cả khi biết mã đơn. Anh muốn (a) giữ nguyên,
+        (b) thêm một nhãn lọc \emph{Đã huỷ} để tra khi cần?
+  \item \textbf{Tìm kiếm chỉ theo mã đơn.} Cửa hàng thường nhớ ``đơn có món Hồng Trà'' chứ ít
+        khi nhớ mã. Có cần tìm theo tên sản phẩm trong đơn không?
+  \item \textbf{Nhân viên xem được toàn bộ số tiền các đơn.} Xác nhận đúng ý anh chứ, hay muốn
+        giới hạn cột \emph{Tổng tiền} cho Chủ tiệm/Quản lý?
+\end{enumerate}
+\end{ask}
+
+\section{Màn Chi tiết đơn hàng}
+\rt{/portal/purchase-history/<int:order_id>}
+\medskip
+
+\mvao
+
+Bấm một dòng ở màn Lịch sử mua hàng. Trên máy tính, đây cũng là nơi người dùng được đưa tới
+ngay sau khi gửi đơn thành công (xem mục 3.4).
+
+\mai
+
+Phải đăng nhập, đã chọn cửa hàng, và đơn phải \textbf{thuộc đúng cửa hàng đó} và
+\textbf{không phải đơn huỷ}. \textbf{Quyền được kiểm lại từ đầu ở mỗi lần mở}, không tin việc
+người dùng vừa bấm từ danh sách --- chống trường hợp sửa số đơn trên thanh địa chỉ để xem đơn
+cửa hàng khác. Sai điều kiện thì hiện đúng một câu: \emph{``Không tìm thấy đơn hàng hoặc bạn
+không có quyền xem đơn hàng này.''} --- cùng một câu cho cả hai trường hợp, \textbf{cố ý không}
+cho biết đơn đó có tồn tại hay không.
+
+\mhien
+
+\begin{hienbang}
+Khối đầu đơn &
+  \rt{sale.order} &
+  Mã đơn, ngày tạo, ngày đặt, trạng thái (gộp như màn danh sách), tổng tiền, mã + tên cửa hàng,
+  người đặt, số dòng sản phẩm &
+  --- & --- \\ \addlinespace
+Khối chuyến giao &
+  \rt{stock.picking.batch} &
+  Chỉ hiện khi đơn \textbf{đã được xếp chuyến}: mã chuyến, trạng thái chuyến, giờ khởi hành
+  (\textbf{thực tế} nếu đã đi, chưa đi thì \textbf{dự kiến}), ghi chú giao hàng &
+  --- &
+  \uat{3}/47 đơn có chuyến $\Rightarrow$ đa số đơn không có khối này \\ \addlinespace
+Bảng dòng sản phẩm &
+  \rt{sale.order.line} &
+  Dòng hàng thật của đơn, \textbf{bỏ} dòng tiêu đề/ghi chú. Mỗi dòng: tên sản phẩm, quy cách
+  đóng gói, đơn vị tính, số lượng, chiết khấu, \textbf{đơn giá đã gồm thuế}, thành tiền. &
+  Theo thứ tự dòng trong đơn &
+  --- \\ \addlinespace
+Ghi chú đơn &
+  \rt{sale.order.portal_note} &
+  Ghi chú người dùng đã gõ ở giỏ hàng lúc gửi đơn &
+  --- & --- \\
+\end{hienbang}
+
+\textbf{Về con số đơn giá:} đơn giá hiển thị được tính lại qua bộ tính thuế của Odoo cho
+\textbf{đúng một đơn vị}, \textbf{không} lấy thành tiền chia cho số lượng. Phép chia đó chỉ
+đúng khi thuế là phần trăm thuần --- sai với thuế cố định, sai khi một dòng chịu nhiều thuế, và
+sai khi làm tròn ở loại tiền có phần lẻ. Thành tiền thì đọc thẳng số của Odoo.
+
+\mloc
+
+Không có bộ lọc.
+
+\mkiem{Tải PDF}
+
+Xem màn tiếp theo.
+
+\mghi
+
+Không ghi gì.
+
+\mhoi
+
+\begin{ask}
+Màn chi tiết \textbf{không hiện lịch sử thay đổi} của đơn --- cửa hàng không thấy được đơn bị
+sửa số lượng hay bị đổi giá lúc nào, do ai. Anh có cần một khối ``Nhật ký đơn'' không?
+\end{ask}
+
+\section{Tải đơn hàng dạng PDF}
+\rt{/portal/purchase-history/<int:order_id>.pdf}
+\medskip
+
+\mvao
+
+Nút \emph{Tải PDF} ở màn chi tiết đơn.
+
+\mai
+
+Cùng điều kiện với màn chi tiết: đúng cửa hàng đang chọn, không phải đơn huỷ. Không đạt thì trả
+về lỗi \emph{không tìm thấy} chứ không chuyển hướng.
+
+\mhien
+
+Không phải màn --- trả thẳng về tệp PDF, tên tệp là mã đơn.
+
+\mloc
+
+Không có tham số nào.
+
+\mkiem{Tải PDF}
+
+\begin{kiembang}
+1 & Đã chọn được cửa hàng & Lỗi \emph{không tìm thấy} \\
+2 & Đơn thuộc đúng cửa hàng đang chọn và chưa huỷ & Lỗi \emph{không tìm thấy} \\
+3 & Mẫu in đơn hàng của Odoo còn tồn tại trong hệ thống & Lỗi \emph{không tìm thấy} \\
+\end{kiembang}
+
+\mghi
+
+Không ghi gì vào dữ liệu nghiệp vụ.
+
+\mhoi
+
+\begin{ask}
+\textbf{Tệp PDF đang dùng mẫu in Báo giá/Đơn bán mặc định của Odoo}, chưa phải mẫu có nhận diện
+Wujia Tea (logo, thông tin công ty, điều khoản). Anh có muốn đặt mẫu riêng cho cửa hàng nhượng
+quyền không --- và nếu có thì PDF nên hiện những mục gì?
+\end{ask}
+
+\section{Màn Theo dõi giao hàng}
+\rt{/portal/delivery} · \rt{/portal/delivery/results}
+\medskip
+
+\mvao
+
+Mục \emph{Giao hàng} trên thanh điều hướng. Đường dẫn \rt{/results} là phần kết quả gọi ngầm khi
+bấm chip lọc hoặc đổi bộ lọc.
+
+\mai
+
+\begin{itemize}[leftmargin=*]
+  \item Phải đăng nhập. \textbf{Chưa chọn cửa hàng thì vẫn xem được} --- lấy chuyến của
+        \textbf{mọi} cửa hàng tài khoản thuộc (khác hẳn màn Lịch sử mua hàng).
+  \item Tài khoản không thuộc cửa hàng nào $\rightarrow$ màn trống, không báo lỗi.
+  \item Một chuyến xe có thể chở hàng cho \textbf{nhiều cửa hàng}. Màn chỉ hiện \textbf{phần
+        phiếu giao thuộc cửa hàng của người xem}; phiếu của cửa hàng khác trong cùng chuyến
+        \textbf{không} hiện.
+  \item Vai trò không giới hạn gì.
+\end{itemize}
+
+\mhien
+
+\begin{hienbang}
+Danh sách chuyến &
+  \rt{stock.picking.batch} &
+  Chuyến có phiếu giao thuộc cửa hàng đang xét --- nhận theo \textbf{hai đường}: phiếu gắn
+  thẳng cửa hàng, \textbf{hoặc} phiếu gắn đơn hàng của cửa hàng. &
+  \emph{Giờ khởi hành dự kiến} muộn nhất trước; 20 chuyến mỗi trang &
+  \uat{3} chuyến toàn hệ, \uat{2} chuyến có cửa hàng nhìn thấy (một chuyến chở chung TP HCM
+  Q1 + Đống Đa); Cầu Giấy \uat{0} \\ \addlinespace
+Chip lọc trạng thái &
+  \rt{stock.picking.batch.delivery_batch_status} &
+  Bốn chip: \emph{Tất cả} / \emph{Sắp giao} (nháp, đã gán xe, đang chất hàng) / \emph{Đang giao}
+  / \emph{Đã giao}. Số trên chip đếm trên \textbf{chính tập đã lọc} theo ngày và từ khoá, nên
+  chọn một chip không làm các chip khác về 0. &
+  --- &
+  \uat{1} nháp · \uat{1} đã giao · \uat{1} huỷ chuyến \\ \addlinespace
+Giờ khởi hành trên thẻ &
+  \rt{stock.picking.batch} &
+  Đã xuất phát thì hiện \textbf{giờ thực tế} kèm nhãn \emph{Xuất phát (thực tế)}; chưa đi thì
+  hiện \textbf{giờ dự kiến} kèm nhãn \emph{Xuất phát (dự kiến)}. &
+  --- & --- \\ \addlinespace
+Xe và tài xế &
+  \rt{stock.picking.batch.vehicle_id} &
+  Tên xe, tên tài xế, biển số. Thiếu thì hiện dấu ``---''. &
+  --- & --- \\ \addlinespace
+Đơn liên quan trên thẻ &
+  \rt{sale.order} &
+  Mã các đơn thuộc cửa hàng người xem trong chuyến đó, rút gọn dạng \emph{S00035, S00036 +3} &
+  --- & --- \\
+\end{hienbang}
+
+\textbf{Lưu ý về chip ``Huỷ chuyến'':} trạng thái \emph{Hủy chuyến} \textbf{không có chip
+riêng}. Chuyến bị huỷ vẫn nằm trong danh sách khi chọn \emph{Tất cả}, nhưng không lọc riêng
+được. Trên UAT đang có \uat{1} chuyến như vậy.
+
+\mloc
+
+\begin{itemize}[leftmargin=*]
+  \item \textbf{Từ khoá} --- tìm theo \textbf{mã chuyến} \textbf{hoặc} \textbf{mã đơn hàng}
+        trong chuyến.
+  \item \textbf{Khoảng ngày} --- lọc theo \emph{giờ khởi hành dự kiến}, quy đổi theo múi giờ
+        tài khoản. Ngày ngược $\rightarrow$ không chạy truy vấn, báo tại thanh lọc.
+        \textbf{Lưu ý}: chuyến \textbf{chưa đặt lịch khởi hành} sẽ bị loại khỏi kết quả khi
+        dùng bộ lọc ngày.
+  \item \textbf{Chip trạng thái} --- một chip tại một thời điểm.
+  \item \textbf{Số chuyến mỗi trang} --- chỉ nhận \textbf{10, 20, 50}; mặc định 20.
+  \item Có tham số kỹ thuật \rt{_preview} dùng để đội phát triển xem thử bốn trạng thái màn
+        (đang tải / lỗi / rỗng / có dữ liệu). \textbf{Không} phải chức năng nghiệp vụ, BA không
+        cần lên task.
+\end{itemize}
+
+\mkiem{một chuyến}
+
+Không kiểm gì ở danh sách --- sang màn chi tiết, và màn đó kiểm lại quyền.
+
+\mghi
+
+Không ghi gì.
+
+\mhoi
+
+\begin{ask}
+\begin{enumerate}[leftmargin=*]
+  \item \textbf{Cửa hàng đông đơn nhất lại không có chuyến nào.} Trên UAT, Cầu Giấy có \uat{8}
+        đơn nhưng \uat{0} chuyến giao; cả hệ thống mới \uat{3}/47 đơn được xếp chuyến. Nghĩa là
+        màn Giao hàng gần như trống với phần lớn cửa hàng. Đây là do dữ liệu UAT chưa đủ, hay
+        nghiệp vụ thật cũng chỉ một phần đơn đi qua chuyến?
+  \item \textbf{Chuyến chưa đặt lịch bị mất khi lọc theo ngày.} Người dùng lọc ``tháng này'' sẽ
+        không thấy chuyến chưa có giờ khởi hành, dù chúng đang chờ giao. Anh muốn giữ nguyên
+        hay luôn hiện chúng?
+  \item \textbf{Không lọc riêng được chuyến bị huỷ.} Có cần thêm chip \emph{Huỷ chuyến} không?
+\end{enumerate}
+\end{ask}
+
+\section{Màn Chi tiết chuyến giao}
+\rt{/portal/delivery/<int:batch_id>}
+\medskip
+
+\mvao
+
+Bấm một thẻ chuyến ở màn Theo dõi giao hàng.
+
+\mai
+
+\begin{itemize}[leftmargin=*]
+  \item Phải đăng nhập và thuộc ít nhất một cửa hàng.
+  \item Chuyến phải có \textbf{phiếu giao gắn thẳng cửa hàng} của người xem. Không đạt thì
+        \textbf{đưa về màn danh sách}, không báo lỗi.
+  \item \textbf{Điều kiện này HẸP HƠN màn danh sách}: danh sách nhận chuyến theo \emph{hai}
+        đường (phiếu gắn cửa hàng \textbf{hoặc} phiếu gắn đơn của cửa hàng), còn chi tiết chỉ
+        nhận \emph{một} đường. Về lý thuyết có thể xảy ra trường hợp chuyến hiện ở danh sách
+        nhưng bấm vào lại bị đẩy về. Trên UAT hiện \textbf{chưa} xảy ra (cả hai cách đều ra
+        \uat{2} chuyến), nhưng đang có \uat{1}/18 phiếu giao chưa gắn cửa hàng --- đúng loại dữ
+        liệu sẽ kích hoạt lệch này. Xem mục 7.
+\end{itemize}
+
+\mhien
+
+\begin{hienbang}
+Khối đầu chuyến &
+  \rt{stock.picking.batch} &
+  Mã chuyến, trạng thái, giờ khởi hành (thực tế hoặc dự kiến), giờ cập nhật gần nhất, tên cửa
+  hàng, kho xuất hàng &
+  --- & --- \\ \addlinespace
+Thanh tiến trình 3 bước &
+  \rt{stock.picking.batch.delivery_batch_status} &
+  \emph{Đã xuất phát} $\rightarrow$ \emph{Đang giao} $\rightarrow$ \emph{Đã giao xong}. Bước
+  được tô sáng suy ra từ trạng thái chuyến và giờ khởi hành thực tế. &
+  --- & --- \\ \addlinespace
+Danh sách sản phẩm trong chuyến &
+  \rt{stock.move} &
+  Gộp theo sản phẩm, cộng số lượng --- \textbf{chỉ} phần thuộc phiếu giao của cửa hàng người
+  xem &
+  Theo thứ tự gặp &
+  --- \\ \addlinespace
+Mã đơn liên quan &
+  \rt{sale.order} &
+  Các đơn của cửa hàng người xem nằm trong chuyến &
+  --- & --- \\
+\end{hienbang}
+
+\textbf{Về giờ ở thanh tiến trình:} hai mốc \emph{Đang giao} và \emph{Đã giao xong} hiện
+\textbf{giờ cập nhật bản ghi gần nhất}, không phải giờ nghiệp vụ thật của từng bước --- hệ thống
+hiện chưa lưu riêng ``giờ bắt đầu giao'' và ``giờ giao xong''. Xem mục 7.
+
+\mloc
+
+Không có bộ lọc.
+
+\mkiem{Thêm vào lịch}
+
+Xem màn tiếp theo.
+
+\mghi
+
+Không ghi gì.
+
+\mhoi
+
+\begin{ask}
+\begin{enumerate}[leftmargin=*]
+  \item \textbf{Điều kiện xem chi tiết hẹp hơn điều kiện hiện ở danh sách.} Nên sửa cho giống
+        nhau --- em ghi nhận là việc kỹ thuật, không cần BA quyết, chỉ báo để anh biết có một
+        đường dẫn sẽ được vá ở cụm F.
+  \item \textbf{Chưa có giờ thật cho hai bước cuối.} Thanh tiến trình đang mượn ``giờ sửa bản
+        ghi'' để hiển thị. Nếu anh cần cửa hàng thấy đúng \emph{mấy giờ xe bắt đầu giao} và
+        \emph{mấy giờ giao xong} thì phải bổ sung hai trường ở phân hệ giao vận --- đây là
+        thay đổi có khối lượng, cần anh xác nhận trước.
+\end{enumerate}
+\end{ask}
+
+\section{Tải lịch giao hàng vào ứng dụng lịch}
+\rt{/portal/delivery/<int:batch_id>.ics}
+\medskip
+
+\mvao
+
+Nút \emph{Thêm vào lịch} ở màn chi tiết chuyến. Tệp tải về mở được bằng Google Calendar,
+Outlook, Lịch của iPhone.
+
+\mai
+
+Cùng điều kiện với màn chi tiết chuyến. Không đạt thì trả lỗi \emph{không tìm thấy}.
+
+\mhien
+
+Không phải màn. Tệp lịch chứa: tiêu đề \emph{``Giao hàng + mã chuyến''}, mô tả liệt kê các
+phiếu giao, địa điểm là tên các cửa hàng nhận hàng.
+
+\mloc
+
+Không có tham số nào.
+
+\mkiem{Thêm vào lịch}
+
+\begin{kiembang}
+1 & Tài khoản thuộc ít nhất một cửa hàng & Lỗi \emph{không tìm thấy} \\
+2 & Chuyến có phiếu giao gắn cửa hàng của người xem & Lỗi \emph{không tìm thấy} \\
+\end{kiembang}
+
+\mghi
+
+Không ghi gì.
+
+\mhoi
+
+\begin{ask}
+\textbf{Giờ trong tệp lịch lấy từ một trường khác với giờ hiển thị trên màn.} Màn hiện
+\emph{giờ khởi hành} (thực tế hoặc dự kiến), còn tệp lịch lấy \emph{ngày giờ dự kiến của phiếu
+giao} và mặc định kéo dài \textbf{2 tiếng}. Hai con số này có thể lệch nhau. Anh chốt: sự kiện
+trong lịch nên bắt đầu lúc nào và kéo dài bao lâu?
+\end{ask}
+
+\section{Màn Báo cáo đặt hàng}
+\rt{/portal/reports/orders}
+\medskip
+
+\mvao
+
+Mục \emph{Báo cáo} trên thanh điều hướng. \textbf{Nhân viên không nhìn thấy mục này} và vào
+thẳng đường dẫn cũng bị đẩy về Trang chủ.
+
+\mai
+
+\begin{itemize}[leftmargin=*]
+  \item Phải đăng nhập và thuộc ít nhất một cửa hàng.
+  \item \textbf{Phải là Chủ tiệm hoặc Quản lý.} Nhân viên $\rightarrow$ đẩy về Trang chủ, không
+        thông báo. Trên UAT có \uat{4}/10 bản ghi thành viên là Nhân viên.
+  \item \textbf{Cách xét vai trò ở đây rộng hơn phạm vi dữ liệu}: hệ thống lấy vai trò
+        \textbf{cao nhất trên MỌI cửa hàng} tài khoản thuộc, rồi cho xem số liệu của
+        \textbf{cửa hàng đang chọn}. Nghĩa là người chỉ là Nhân viên ở cửa hàng A nhưng là Quản
+        lý ở cửa hàng B vẫn xem được báo cáo của cửa hàng A. Trên UAT có đúng \uat{1} tài khoản
+        rơi vào tình huống này (Quản lý ở Đống Đa, Nhân viên ở Cầu Giấy và TP HCM Q1). Xem mục 7.
+  \item Chưa chọn cửa hàng $\rightarrow$ \textbf{cộng gộp mọi cửa hàng} tài khoản thuộc.
+\end{itemize}
+
+\mhien
+
+\begin{hienbang}
+4 thẻ số liệu &
+  \rt{sale.order} &
+  Trong khoảng ngày đang lọc, của cửa hàng đang xét: \emph{Tổng số đơn} và \emph{Tổng doanh
+  thu} (\textbf{loại} đơn huỷ), \emph{Đơn đã huỷ}, \emph{Đơn hoàn thành}. &
+  --- &
+  \uat{31} đơn không huỷ · \uat{16} đơn huỷ · \uat{0} đơn ``hoàn thành'' \\ \addlinespace
+Biểu đồ cột theo tháng &
+  \rt{sale.order} &
+  Số đơn và doanh thu theo từng tháng, \textbf{loại} đơn huỷ. Khoảng luôn được nới ra
+  \textbf{ít nhất 12 tháng gần nhất} để biểu đồ không trống, kể cả khi người dùng lọc một
+  khoảng ngắn. &
+  Theo tháng tăng dần &
+  --- \\ \addlinespace
+Bảng Top 10 sản phẩm &
+  \rt{sale.order.line} &
+  Dòng hàng thuộc đơn \textbf{đã xác nhận} của cửa hàng đang xét, trong khoảng ngày. Gộp theo
+  sản phẩm, cộng số lượng và thành tiền. &
+  Số lượng nhiều nhất trước; 10 dòng &
+  --- \\ \addlinespace
+Biểu đồ tròn + bảng phân bố trạng thái &
+  \rt{sale.order} &
+  Đếm đơn theo từng trạng thái kèm tỷ lệ \%. \textbf{Có tính} cả đơn huỷ. &
+  --- &
+  \uat{17} Nháp · \uat{0} Đã gửi · \uat{14} Đã xác nhận · \uat{0} Hoàn thành · \uat{16} Đã huỷ \\
+\end{hienbang}
+
+\mloc
+
+Hai ô \emph{Từ ngày} / \emph{Đến ngày}, lọc theo \emph{ngày đặt hàng}. Bỏ trống thì mặc định là
+\textbf{từ 01/01 năm nay đến hôm nay}. Ngày ngược $\rightarrow$ giữ nguyên chữ đã gõ, báo tại
+thanh lọc, mọi số liệu và biểu đồ về rỗng.
+
+\mkiem{Tải Excel}
+
+Xem màn tiếp theo.
+
+\mghi
+
+Không ghi gì.
+
+\mhoi
+
+\begin{ask}
+\begin{enumerate}[leftmargin=*]
+  \item \textbf{Thẻ ``Đơn hoàn thành'' luôn bằng 0.} Odoo 19 chỉ có bốn trạng thái đơn
+        (\emph{Nháp}, \emph{Đã gửi}, \emph{Đã xác nhận}, \emph{Đã huỷ}) --- \textbf{không có}
+        trạng thái \emph{Hoàn thành}. Thẻ này và lát ``Hoàn thành'' trên biểu đồ tròn vì vậy
+        không bao giờ có số. Anh muốn (a) bỏ thẻ, hay (b) định nghĩa lại ``hoàn thành'' = đơn
+        đã xác nhận và chuyến giao đã xong (giống nhãn \emph{Hoàn tất} ở màn Lịch sử)?
+  \item \textbf{Số tiền trên báo cáo đang dán sai ký hiệu tiền tệ.} Màn Báo cáo định dạng mọi
+        số tiền theo \textbf{loại tiền của công ty}, trong khi màn Lịch sử mua hàng dùng
+        \textbf{loại tiền của từng đơn}. Trên UAT, công ty đang để \textbf{VND} còn cả
+        \uat{47}/47 đơn ghi bằng \textbf{USD} --- nghĩa là báo cáo đang hiện \emph{con số USD
+        kèm ký hiệu ₫}. Đây đúng loại lỗi WJ-ORD-025 đã xử lý ở phân hệ Đặt hàng. Em đề xuất
+        sửa theo hướng dùng loại tiền của đơn; anh xác nhận giúp.
+  \item \textbf{Bộ lọc ngày của Báo cáo không quy đổi múi giờ}, khác với màn Lịch sử mua hàng
+        và Giao hàng (hai màn này đã quy đổi). Hệ quả: chọn cùng một khoảng ngày, hai màn có thể
+        ra số đơn khác nhau ở hai ngày biên. Đây là lỗi kỹ thuật cần vá --- em báo để anh biết,
+        không cần BA quyết.
+  \item \textbf{Vai trò được xét trên mọi cửa hàng, nhưng dữ liệu chỉ của cửa hàng đang chọn.}
+        Người là Quản lý ở một cửa hàng đọc được báo cáo doanh thu của cửa hàng mà họ chỉ là
+        Nhân viên. Anh muốn siết theo đúng cửa hàng đang xem không?
+  \item \textbf{Biểu đồ luôn nới ra 12 tháng} kể cả khi người dùng lọc một tuần --- nên con số
+        trên biểu đồ không khớp bốn thẻ số liệu phía trên. Anh muốn biểu đồ bám đúng khoảng
+        lọc, hay giữ nguyên và ghi chú ``12 tháng gần nhất''?
+\end{enumerate}
+\end{ask}
+
+\section{Tải báo cáo dạng Excel}
+\rt{/portal/reports/orders/export.xlsx}
+\medskip
+
+\mvao
+
+Nút \emph{Xuất Excel} ở màn Báo cáo.
+
+\mai
+
+Phải là Chủ tiệm hoặc Quản lý --- nhưng \textbf{xét theo cửa hàng đang chọn}, không phải theo
+mọi cửa hàng như màn Báo cáo. Nghĩa là có trường hợp \textbf{xem được màn nhưng bấm xuất Excel
+thì bị đẩy về Trang chủ} mà không có lời giải thích nào. Xem mục 7.
+
+\mhien
+
+Không phải màn --- trả về tệp Excel một trang tính tên \emph{Orders}, tên tệp kèm khoảng ngày.
+Bảy cột: \emph{Mã đơn}, \emph{Ngày đặt}, \emph{Cửa hàng}, \emph{Khách hàng}, \emph{Trạng thái},
+\emph{Số dòng}, \emph{Tổng tiền}.
+
+\mloc
+
+Nhận cùng hai ô ngày với màn Báo cáo. Khác ở chỗ: khoảng ngày ngược \textbf{không báo lỗi} mà
+bị lặng lẽ kéo về đúng một ngày.
+
+\mkiem{Xuất Excel}
+
+\begin{kiembang}
+1 & Tài khoản thuộc ít nhất một cửa hàng & Đưa về Trang chủ \\
+2 & Vai trò tại \textbf{cửa hàng đang chọn} là Chủ tiệm hoặc Quản lý &
+    Đưa về Trang chủ, không thông báo \\
+\end{kiembang}
+
+\mghi
+
+Không ghi gì.
+
+\mhoi
+
+\begin{ask}
+\begin{enumerate}[leftmargin=*]
+  \item \textbf{Tệp Excel chứa cả đơn đã huỷ, màn hình thì không.} Người dùng đối chiếu hai bên
+        sẽ thấy lệch \uat{16} đơn trên dữ liệu UAT. Anh chốt: tệp Excel nên có hay không có đơn
+        huỷ?
+  \item \textbf{Cột \emph{Số dòng} trong Excel đếm cả dòng tiêu đề/ghi chú}, còn màn hình chỉ
+        đếm dòng sản phẩm thật. Hai nơi sẽ ra số khác nhau với đơn có dòng ghi chú.
+  \item \textbf{Cột \emph{Tổng tiền} trong Excel là số trần, không kèm loại tiền} --- với dữ
+        liệu USD/VND lẫn lộn như hiện nay thì người đọc không biết đơn vị. Nên thêm một cột
+        \emph{Loại tiền}, anh đồng ý chứ?
+  \item \textbf{Điều kiện vai trò của nút Xuất khác của màn} (đã nêu ở mục 2). Cần thống nhất
+        theo cách anh chốt ở câu 4 mục 5.8.
+\end{enumerate}
+\end{ask}
+
+\section{Đường dẫn cũ của Lịch sử mua hàng}
+\rt{/portal/purchase_history}
+\medskip
+
+Đường dẫn thời bản v14 (viết gạch dưới), được giữ lại làm chuyển hướng vĩnh viễn sang
+\rt{/portal/purchase-history}. Không hiện màn, không đọc dữ liệu. BA không cần lên task.

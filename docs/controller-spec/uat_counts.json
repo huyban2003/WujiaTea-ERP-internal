@@ -1,0 +1,1041 @@
+{
+  "url": "http://113.161.187.126:8019",
+  "db": "wujia_tea_19",
+  "measured_at": "2026-09-20 01:18",
+  "probes": [
+    {
+      "key": "sp_tong",
+      "model": "product.product",
+      "domain": "[]",
+      "label": "Tổng sản phẩm trong hệ thống",
+      "count": 8
+    },
+    {
+      "key": "sp_ban",
+      "model": "product.product",
+      "domain": "[('sale_ok','=',True)]",
+      "label": "Sản phẩm bán được (sale_ok)",
+      "count": 7
+    },
+    {
+      "key": "sp_portal",
+      "model": "product.product",
+      "domain": "[('is_public_portal','=',True),('active','=',True)]",
+      "label": "Sản phẩm HIỆN trên màn Đặt hàng",
+      "count": 5
+    },
+    {
+      "key": "sp_portal_luutru",
+      "model": "product.product",
+      "domain": "[('is_public_portal','=',True),('active','=',False)]",
+      "label": "Bật cờ portal nhưng đã lưu trữ (không hiện)",
+      "count": 0
+    },
+    {
+      "key": "sp_portal_khong_dm",
+      "model": "product.product",
+      "domain": "[('is_public_portal','=',True),('active','=',True),('public_categ_id','=',False)]",
+      "label": "Hiện trên portal nhưng CHƯA gán danh mục portal",
+      "count": 2
+    },
+    {
+      "key": "sp_portal_min0",
+      "model": "product.product",
+      "domain": "[('is_public_portal','=',True),('active','=',True),('min_qty','<=',0)]",
+      "label": "Hiện trên portal nhưng chưa cấu hình số lượng tối thiểu",
+      "count": 0
+    },
+    {
+      "key": "sp_portal_comax",
+      "model": "product.product",
+      "domain": "[('is_public_portal','=',True),('active','=',True),('max_qty','>',0)]",
+      "label": "Có chặn số lượng tối đa",
+      "count": 0
+    },
+    {
+      "key": "dm_tong",
+      "model": "wujia.product.category",
+      "domain": "[]",
+      "label": "Danh mục portal đang hoạt động",
+      "count": 2
+    },
+    {
+      "key": "dm_luutru",
+      "model": "wujia.product.category",
+      "domain": "[('active','=',False)]",
+      "label": "Danh mục portal đã lưu trữ",
+      "count": 0
+    },
+    {
+      "key": "gio_tong",
+      "model": "wujia.portal.cart",
+      "domain": "[]",
+      "label": "Giỏ hàng (mỗi cửa hàng tối đa 1)",
+      "count": 2
+    },
+    {
+      "key": "gio_dong",
+      "model": "wujia.portal.cart.line",
+      "domain": "[]",
+      "label": "Dòng sản phẩm đang nằm trong các giỏ",
+      "count": 6
+    },
+    {
+      "key": "ch_tong",
+      "model": "wujia.franchise.management",
+      "domain": "[]",
+      "label": "Cửa hàng",
+      "count": 4
+    },
+    {
+      "key": "ch_khoa",
+      "model": "wujia.franchise.management",
+      "domain": "[('portal_locked','=',True)]",
+      "label": "Cửa hàng đang bị khoá đặt hàng",
+      "count": 0
+    },
+    {
+      "key": "ch_khong_partner",
+      "model": "wujia.franchise.management",
+      "domain": "[('partner_id','=',False)]",
+      "label": "Cửa hàng chưa gắn khách hàng (không gửi đơn được)",
+      "count": 0
+    },
+    {
+      "key": "ch_khong_kv",
+      "model": "wujia.franchise.management",
+      "domain": "[('area_id','=',False)]",
+      "label": "Cửa hàng chưa gắn khu vực (rơi về khung giờ chung)",
+      "count": 0
+    },
+    {
+      "key": "kg_tong",
+      "model": "wujia.order.window",
+      "domain": "[('active','=',True)]",
+      "label": "Khung giờ đặt hàng theo khu vực",
+      "count": 1
+    },
+    {
+      "key": "kg_quadem",
+      "model": "wujia.order.window",
+      "domain": "[('active','=',True),('is_overnight','=',True)]",
+      "label": "Khung giờ vắt qua nửa đêm",
+      "count": 0
+    },
+    {
+      "key": "so_portal",
+      "model": "sale.order",
+      "domain": "[('is_portal_order','=',True)]",
+      "label": "Đơn đặt từ portal",
+      "count": 23
+    },
+    {
+      "key": "so_portal_nhap",
+      "model": "sale.order",
+      "domain": "[('is_portal_order','=',True),('state','in',['draft','sent'])]",
+      "label": "Đơn portal đang ở trạng thái nháp/đã gửi",
+      "count": 3
+    },
+    {
+      "key": "so_khac",
+      "model": "sale.order",
+      "domain": "[('is_portal_order','=',False)]",
+      "label": "Đơn tạo từ backend (không qua portal)",
+      "count": 24
+    },
+    {
+      "key": "tv_hieuluc",
+      "model": "wujia.franchise.member",
+      "domain": "[('is_currently_valid','=',True)]",
+      "label": "Thành viên cửa hàng còn hiệu lực",
+      "count": 10
+    },
+    {
+      "key": "tv_tong",
+      "model": "wujia.franchise.member",
+      "domain": "[]",
+      "label": "Tổng bản ghi thành viên cửa hàng",
+      "count": 10
+    },
+    {
+      "key": "nd_portal",
+      "model": "res.users",
+      "domain": "[('share','=',True)]",
+      "label": "Tài khoản portal (người dùng ngoài)",
+      "count": 6
+    },
+    {
+      "key": "nd_noibo",
+      "model": "res.users",
+      "domain": "[('share','=',False)]",
+      "label": "Tài khoản nội bộ (vào /odoo)",
+      "count": 1
+    },
+    {
+      "key": "nd_tz_trong",
+      "model": "res.users",
+      "domain": "[('tz','=',False)]",
+      "label": "Tài khoản chưa đặt múi giờ",
+      "count": 1
+    },
+    {
+      "key": "nd_tz_khac",
+      "model": "res.users",
+      "domain": "[('tz','!=',False),('tz','!=','Asia/Ho_Chi_Minh')]",
+      "label": "Tài khoản đặt múi giờ khác Asia/Ho_Chi_Minh",
+      "count": 6
+    },
+    {
+      "key": "ch_hoatdong",
+      "model": "wujia.franchise.management",
+      "domain": "[('status','=','active')]",
+      "label": "Cửa hàng trạng thái Đang hoạt động",
+      "count": 4
+    },
+    {
+      "key": "ch_khong_hoatdong",
+      "model": "wujia.franchise.management",
+      "domain": "[('status','!=','active')]",
+      "label": "Cửa hàng KHÔNG ở trạng thái Đang hoạt động",
+      "count": 0
+    },
+    {
+      "key": "tv_chu",
+      "model": "wujia.franchise.member",
+      "domain": "[('is_currently_valid','=',True),('role','=','owner')]",
+      "label": "Thành viên còn hiệu lực vai trò Chủ tiệm",
+      "count": 3
+    },
+    {
+      "key": "tv_ql",
+      "model": "wujia.franchise.member",
+      "domain": "[('is_currently_valid','=',True),('role','=','manager')]",
+      "label": "Thành viên còn hiệu lực vai trò Quản lý",
+      "count": 3
+    },
+    {
+      "key": "tv_nv",
+      "model": "wujia.franchise.member",
+      "domain": "[('is_currently_valid','=',True),('role','=','staff')]",
+      "label": "Thành viên còn hiệu lực vai trò Nhân viên",
+      "count": 4
+    },
+    {
+      "key": "tv_het_hieuluc",
+      "model": "wujia.franchise.member",
+      "domain": "[('is_currently_valid','=',False)]",
+      "label": "Thành viên hết hiệu lực (nghỉ / hết hạn / tắt)",
+      "count": 0
+    },
+    {
+      "key": "tb_congbo",
+      "model": "wujia.notification",
+      "domain": "[('is_published_portal','=',True)]",
+      "label": "Thông báo đã công bố lên portal",
+      "count": 2
+    },
+    {
+      "key": "tb_toanhe",
+      "model": "wujia.notification",
+      "domain": "[('is_published_portal','=',True),('franchise_ids','=',False)]",
+      "label": "Thông báo công bố cho MỌI cửa hàng",
+      "count": 2
+    },
+    {
+      "key": "tb_daxem",
+      "model": "wujia.notification.read",
+      "domain": "[]",
+      "label": "Lượt đánh dấu đã đọc thông báo",
+      "count": 18
+    },
+    {
+      "key": "dt_dangmo",
+      "model": "wujia.return.request",
+      "domain": "[('state','in',['submitted','processing','approved'])]",
+      "label": "Yêu cầu đổi trả đang mở (thẻ số 4 Trang chủ)",
+      "count": 7
+    },
+    {
+      "key": "kt_congbo",
+      "model": "wujia.knowledge.article",
+      "domain": "[('is_published_portal','=',True)]",
+      "label": "Bài kiến thức đã công bố (khối Trang chủ)",
+      "count": 21
+    },
+    {
+      "key": "lang_bat",
+      "model": "res.lang",
+      "domain": "[('active','=',True)]",
+      "label": "Ngôn ngữ đang bật (nút đổi ngôn ngữ)",
+      "count": 3
+    },
+    {
+      "key": "chuyen_chuaxong",
+      "model": "stock.picking.batch",
+      "domain": "[('delivery_batch_status','in',['draft','assigned','loading','delivering'])]",
+      "label": "Chuyến giao chưa hoàn thành",
+      "count": 1
+    },
+    {
+      "key": "so_cho_duyet",
+      "model": "sale.order",
+      "domain": "[('state','in',['draft','sent'])]",
+      "label": "Đơn đang chờ xác nhận (thẻ số 3 Trang chủ)",
+      "count": 17
+    },
+    {
+      "key": "so_khong_huy",
+      "model": "sale.order",
+      "domain": "[('state','!=','cancel')]",
+      "label": "Đơn chưa huỷ (nguồn thẻ Đơn 30 ngày)",
+      "count": 31
+    },
+    {
+      "key": "so_huy",
+      "model": "sale.order",
+      "domain": "[('state','=','cancel')]",
+      "label": "Đơn Đã huỷ (bị loại khỏi Lịch sử mua hàng)",
+      "count": 16
+    },
+    {
+      "key": "so_nhap",
+      "model": "sale.order",
+      "domain": "[('state','=','draft')]",
+      "label": "Đơn trạng thái Nháp",
+      "count": 17
+    },
+    {
+      "key": "so_dagui",
+      "model": "sale.order",
+      "domain": "[('state','=','sent')]",
+      "label": "Đơn trạng thái Đã gửi",
+      "count": 0
+    },
+    {
+      "key": "so_xacnhan",
+      "model": "sale.order",
+      "domain": "[('state','=','sale')]",
+      "label": "Đơn trạng thái Đã xác nhận",
+      "count": 14
+    },
+    {
+      "key": "so_hoantat",
+      "model": "sale.order",
+      "domain": "[('state','=','done')]",
+      "label": "Đơn trạng thái Hoàn thành (trạng thái này KHÔNG tồn tại trong Odoo 19)",
+      "count": 0
+    },
+    {
+      "key": "so_co_lo",
+      "model": "sale.order",
+      "domain": "[('batch_id','!=',False)]",
+      "label": "Đơn đã được xếp vào chuyến giao",
+      "count": 3
+    },
+    {
+      "key": "lo_tong",
+      "model": "stock.picking.batch",
+      "domain": "[]",
+      "label": "Chuyến giao hàng",
+      "count": 3
+    },
+    {
+      "key": "lo_dagiao",
+      "model": "stock.picking.batch",
+      "domain": "[('delivery_batch_status','=','done')]",
+      "label": "Chuyến đã giao xong",
+      "count": 1
+    },
+    {
+      "key": "lo_huy",
+      "model": "stock.picking.batch",
+      "domain": "[('delivery_batch_status','=','cancelled')]",
+      "label": "Chuyến bị huỷ",
+      "count": 1
+    },
+    {
+      "key": "pk_khong_ch",
+      "model": "stock.picking",
+      "domain": "[('franchise_id','=',False)]",
+      "label": "Phiếu giao chưa gắn cửa hàng",
+      "count": 1
+    },
+    {
+      "key": "pk_tong",
+      "model": "stock.picking",
+      "domain": "[]",
+      "label": "Tổng phiếu giao",
+      "count": 18
+    },
+    {
+      "key": "cn_ct_tong",
+      "model": "account.move",
+      "domain": "[('move_type','in',['out_invoice','out_refund'])]",
+      "label": "Hoá đơn + giấy báo có của khách (mọi trạng thái)",
+      "count": 12
+    },
+    {
+      "key": "cn_ct_ghiso",
+      "model": "account.move",
+      "domain": "[('move_type','in',['out_invoice','out_refund']),('state','=','posted')]",
+      "label": "Chứng từ ĐÃ ghi sổ — chỉ nhóm này lên màn Công nợ",
+      "count": 6
+    },
+    {
+      "key": "cn_ct_chuaghiso",
+      "model": "account.move",
+      "domain": "[('move_type','in',['out_invoice','out_refund']),('state','!=','posted')]",
+      "label": "Chứng từ chưa ghi sổ (nháp/huỷ) — portal KHÔNG thấy",
+      "count": 6
+    },
+    {
+      "key": "cn_hd_ghiso",
+      "model": "account.move",
+      "domain": "[('move_type','=','out_invoice'),('state','=','posted')]",
+      "label": "Hoá đơn bán đã ghi sổ",
+      "count": 4
+    },
+    {
+      "key": "cn_gbc_ghiso",
+      "model": "account.move",
+      "domain": "[('move_type','=','out_refund'),('state','=','posted')]",
+      "label": "Giấy báo có đã ghi sổ (trừ vào nợ)",
+      "count": 2
+    },
+    {
+      "key": "cn_ct_khong_ch",
+      "model": "account.move",
+      "domain": "[('move_type','in',['out_invoice','out_refund']),('state','=','posted'),('franchise_id','=',False)]",
+      "label": "Chứng từ ghi sổ chưa gắn cửa hàng — không cửa hàng nào thấy",
+      "count": 0
+    },
+    {
+      "key": "cn_ct_hcm",
+      "model": "account.move",
+      "domain": "[('move_type','in',['out_invoice','out_refund']),('state','=','posted'),('franchise_id.code','=','HCM-01')]",
+      "label": "Chứng từ ghi sổ của TP HCM Quận 1",
+      "count": 6
+    },
+    {
+      "key": "cn_ct_trong_6tuan",
+      "model": "account.move",
+      "domain": "[('move_type','in',['out_invoice','out_refund']),('state','=','posted'),('invoice_date','>=','2026-08-10'),('invoice_date','<=','2026-09-20')]",
+      "label": "Chứng từ nằm trong 6 tuần dropdown (10/08 – 20/09/2026)",
+      "note": "Khung 6 tuần tính tại ngày chụp 20/09/2026",
+      "count": 5
+    },
+    {
+      "key": "cn_ct_ngoai_6tuan",
+      "model": "account.move",
+      "domain": "[('move_type','in',['out_invoice','out_refund']),('state','=','posted'),('invoice_date','<','2026-08-10')]",
+      "label": "Chứng từ CŨ HƠN 6 tuần — dropdown không chọn tới được",
+      "note": "Khung 6 tuần tính tại ngày chụp 20/09/2026",
+      "count": 1
+    },
+    {
+      "key": "cn_hd_quahan",
+      "model": "account.move",
+      "domain": "[('move_type','=','out_invoice'),('state','=','posted'),('invoice_date_due','<','2026-09-20'),('amount_residual','>',0)]",
+      "label": "Hoá đơn quá hạn còn dư nợ",
+      "note": "So với ngày chụp 20/09/2026",
+      "count": 1
+    },
+    {
+      "key": "cn_tt_tong",
+      "model": "account.payment",
+      "domain": "[]",
+      "label": "Phiếu thanh toán trong hệ thống",
+      "count": 6
+    },
+    {
+      "key": "cn_tt_xacnhan",
+      "model": "account.payment",
+      "domain": "[('state','in',['in_process','paid'])]",
+      "label": "Thanh toán ĐÃ xác nhận — chỉ nhóm này lên màn Lịch sử",
+      "count": 5
+    },
+    {
+      "key": "cn_tt_khong_ch",
+      "model": "account.payment",
+      "domain": "[('franchise_id','=',False)]",
+      "label": "Thanh toán chưa gắn cửa hàng — không cửa hàng nào thấy",
+      "count": 1
+    },
+    {
+      "key": "cn_tt_ky_hientai",
+      "model": "account.payment",
+      "domain": "[('state','in',['in_process','paid']),('date','>=','2026-09-01'),('date','<=','2026-09-30')]",
+      "label": "Thanh toán trong kỳ mở sẵn (tháng 09/2026)",
+      "count": 0
+    },
+    {
+      "key": "cn_tt_thang8",
+      "model": "account.payment",
+      "domain": "[('state','in',['in_process','paid']),('date','>=','2026-08-01'),('date','<=','2026-08-31')]",
+      "label": "Thanh toán tháng 08/2026 (phải đổi kỳ mới thấy)",
+      "count": 5
+    },
+    {
+      "key": "cn_tk_tong",
+      "model": "res.partner.bank",
+      "domain": "[]",
+      "label": "Tài khoản ngân hàng khai trong hệ thống",
+      "count": 1
+    },
+    {
+      "key": "cn_tk_portal",
+      "model": "res.partner.bank",
+      "domain": "[('portal_payment_enabled','=',True)]",
+      "label": "Tài khoản BẬT nhận tiền qua portal",
+      "count": 1
+    },
+    {
+      "key": "cn_ch_con_no",
+      "model": "wujia.franchise.management",
+      "domain": "[('portal_debt_remaining','>',0)]",
+      "label": "Cửa hàng có số dư nợ dương ở ô tổng (Home/badge)",
+      "count": 0
+    },
+    {
+      "key": "cn_ch_quahan",
+      "model": "wujia.franchise.management",
+      "domain": "[('portal_overdue_invoice_count','>',0)]",
+      "label": "Cửa hàng có hoá đơn quá hạn ở ô tổng",
+      "count": 1
+    },
+    {
+      "key": "dt_tong",
+      "model": "wujia.return.request",
+      "domain": "[]",
+      "label": "Yêu cầu đổi trả / bù hàng",
+      "count": 14
+    },
+    {
+      "key": "dt_nhap",
+      "model": "wujia.return.request",
+      "domain": "[('state','=','draft')]",
+      "label": "Lọc “Nháp”",
+      "count": 3
+    },
+    {
+      "key": "dt_dagui",
+      "model": "wujia.return.request",
+      "domain": "[('state','=','submitted')]",
+      "label": "Lọc “Đã gửi”",
+      "count": 2
+    },
+    {
+      "key": "dt_dangxuly",
+      "model": "wujia.return.request",
+      "domain": "[('state','in',['reviewing','processing']),'!',('compensation_status','=','partial')]",
+      "label": "Lọc “Đang xử lý” (gộp 2 trạng thái, bỏ phần đang bù dở)",
+      "count": 0
+    },
+    {
+      "key": "dt_daduyet",
+      "model": "wujia.return.request",
+      "domain": "[('state','=','approved')]",
+      "label": "Lọc “Đã duyệt”",
+      "count": 5
+    },
+    {
+      "key": "dt_bu_motphan",
+      "model": "wujia.return.request",
+      "domain": "[('state','=','processing'),('compensation_status','=','partial')]",
+      "label": "Lọc “Đang bù một phần” (trạng thái ghép, không có trong bảng)",
+      "count": 0
+    },
+    {
+      "key": "dt_hoantat",
+      "model": "wujia.return.request",
+      "domain": "[('state','=','done')]",
+      "label": "Lọc “Hoàn tất”",
+      "count": 2
+    },
+    {
+      "key": "dt_tuchoi",
+      "model": "wujia.return.request",
+      "domain": "[('state','=','rejected')]",
+      "label": "Lọc “Từ chối”",
+      "count": 2
+    },
+    {
+      "key": "dt_dahuy",
+      "model": "wujia.return.request",
+      "domain": "[('state','=','cancelled')]",
+      "label": "Lọc “Đã huỷ”",
+      "count": 0
+    },
+    {
+      "key": "dt_co_don",
+      "model": "wujia.return.request",
+      "domain": "[('sale_order_id','!=',False)]",
+      "label": "Yêu cầu có gắn đơn hàng gốc",
+      "count": 4
+    },
+    {
+      "key": "dt_khong_don",
+      "model": "wujia.return.request",
+      "domain": "[('sale_order_id','=',False)]",
+      "label": "Yêu cầu KHÔNG gắn đơn gốc (dữ liệu demo nhập thẳng backend)",
+      "count": 10
+    },
+    {
+      "key": "dt_co_anh",
+      "model": "wujia.return.request",
+      "domain": "[('image_attachment_ids','!=',False)]",
+      "label": "Yêu cầu có đính ảnh minh chứng",
+      "count": 1
+    },
+    {
+      "key": "dt_loailoi",
+      "model": "wujia.return.issue.type",
+      "domain": "[('active','=',True)]",
+      "label": "Loại lỗi đang bật cho người dùng chọn",
+      "count": 5
+    },
+    {
+      "key": "dt_phanbo",
+      "model": "wujia.compensation.allocation",
+      "domain": "[]",
+      "label": "Bản ghi phân bổ bù hàng (nguồn của thanh tiến độ)",
+      "count": 0
+    },
+    {
+      "key": "dt_sp_bu",
+      "model": "product.product",
+      "domain": "[('compensation_enabled','=',True)]",
+      "label": "Sản phẩm ĐÃ cấu hình chính sách bù",
+      "count": 2
+    },
+    {
+      "key": "dt_sp_portal_bu",
+      "model": "product.product",
+      "domain": "[('is_public_portal','=',True),('active','=',True),('compensation_enabled','=',True)]",
+      "label": "Sản phẩm vừa hiện trên portal vừa cấu hình bù",
+      "count": 1
+    },
+    {
+      "key": "dt_sp_portal_chuabu",
+      "model": "product.product",
+      "domain": "[('is_public_portal','=',True),('active','=',True),('compensation_enabled','=',False)]",
+      "label": "Sản phẩm hiện trên portal nhưng CHƯA cấu hình bù — gửi yêu cầu sẽ bị chặn",
+      "count": 4
+    },
+    {
+      "key": "dt_don_xacnhan",
+      "model": "sale.order",
+      "domain": "[('state','in',['sale','done'])]",
+      "label": "Đơn đã xác nhận (mọi thời điểm)",
+      "count": 14
+    },
+    {
+      "key": "dt_don_dukieu",
+      "model": "sale.order",
+      "domain": "[('state','in',['sale','done']),('date_order','>=','2026-09-10 00:00:00')]",
+      "label": "Đơn đủ điều kiện làm căn cứ (đã xác nhận trong 10 ngày)",
+      "note": "Mốc 10 ngày tính tại ngày chụp 20/09/2026",
+      "count": 0
+    },
+    {
+      "key": "ht_tong",
+      "model": "wujia.support.ticket",
+      "domain": "[]",
+      "label": "Phiếu hỗ trợ trong hệ thống",
+      "count": 15
+    },
+    {
+      "key": "ht_hien_portal",
+      "model": "wujia.support.ticket",
+      "domain": "[('portal_visible','=',True)]",
+      "label": "Phiếu đang bật cờ hiện trên portal",
+      "count": 15
+    },
+    {
+      "key": "ht_an_portal",
+      "model": "wujia.support.ticket",
+      "domain": "[('portal_visible','=',False)]",
+      "label": "Phiếu bị HQ tắt cờ — biến mất khỏi portal",
+      "count": 0
+    },
+    {
+      "key": "ht_do_cuahang",
+      "model": "wujia.support.ticket",
+      "domain": "[('created_by_id.share','=',True)]",
+      "label": "Phiếu do tài khoản cửa hàng thật tạo",
+      "count": 0
+    },
+    {
+      "key": "ht_do_noibo",
+      "model": "wujia.support.ticket",
+      "domain": "[('created_by_id.share','=',False)]",
+      "label": "Phiếu do tài khoản nội bộ tạo (không cửa hàng nào thấy)",
+      "count": 15
+    },
+    {
+      "key": "ht_moi",
+      "model": "wujia.support.ticket",
+      "domain": "[('state','=','new')]",
+      "label": "Phiếu hỗ trợ trạng thái Mới",
+      "count": 4
+    },
+    {
+      "key": "ht_dangxuly",
+      "model": "wujia.support.ticket",
+      "domain": "[('state','=','in_progress')]",
+      "label": "Phiếu hỗ trợ Đang xử lý",
+      "count": 3
+    },
+    {
+      "key": "ht_chophanhoi",
+      "model": "wujia.support.ticket",
+      "domain": "[('state','=','waiting_customer')]",
+      "label": "Phiếu hỗ trợ Chờ phản hồi",
+      "count": 1
+    },
+    {
+      "key": "ht_giaiquyet",
+      "model": "wujia.support.ticket",
+      "domain": "[('state','=','resolved')]",
+      "label": "Phiếu hỗ trợ Đã giải quyết",
+      "count": 3
+    },
+    {
+      "key": "ht_dadong",
+      "model": "wujia.support.ticket",
+      "domain": "[('state','=','closed')]",
+      "label": "Phiếu hỗ trợ Đã đóng",
+      "count": 2
+    },
+    {
+      "key": "ht_dahuy",
+      "model": "wujia.support.ticket",
+      "domain": "[('state','=','cancelled')]",
+      "label": "Phiếu hỗ trợ Đã huỷ — danh sách giấu, chi tiết vẫn mở được",
+      "count": 2
+    },
+    {
+      "key": "ht_khan",
+      "model": "wujia.support.ticket",
+      "domain": "[('priority','=','urgent')]",
+      "label": "Phiếu đánh dấu Khẩn",
+      "count": 4
+    },
+    {
+      "key": "ht_danhmuc",
+      "model": "wujia.support.category",
+      "domain": "[('active','=',True)]",
+      "label": "Danh mục hỗ trợ đang bật",
+      "count": 7
+    },
+    {
+      "key": "yc_tong",
+      "model": "wujia.info.update.request",
+      "domain": "[]",
+      "label": "Yêu cầu cập nhật thông tin cửa hàng",
+      "count": 0
+    },
+    {
+      "key": "kt_tong",
+      "model": "wujia.knowledge.article",
+      "domain": "[]",
+      "label": "Bài viết kiến thức trong hệ thống",
+      "count": 27
+    },
+    {
+      "key": "kt_daphathanh",
+      "model": "wujia.knowledge.article",
+      "domain": "[('state','=','published')]",
+      "label": "Bài ở trạng thái Đã phát hành",
+      "count": 23
+    },
+    {
+      "key": "kt_phathanh_nhung_an",
+      "model": "wujia.knowledge.article",
+      "domain": "[('state','=','published'),('is_published_portal','=',False)]",
+      "label": "Đã phát hành nhưng KHÔNG hiện (đã quá hạn hiệu lực)",
+      "count": 2
+    },
+    {
+      "key": "kt_nhap",
+      "model": "wujia.knowledge.article",
+      "domain": "[('state','=','draft')]",
+      "label": "Bài còn nháp",
+      "count": 3
+    },
+    {
+      "key": "kt_luutru",
+      "model": "wujia.knowledge.article",
+      "domain": "[('state','=','archived')]",
+      "label": "Bài đã lưu trữ",
+      "count": 1
+    },
+    {
+      "key": "kt_co_hethan",
+      "model": "wujia.knowledge.article",
+      "domain": "[('expired_date','!=',False)]",
+      "label": "Bài có đặt hạn hiệu lực",
+      "count": 2
+    },
+    {
+      "key": "kt_danhmuc",
+      "model": "wujia.knowledge.category",
+      "domain": "[('active','=',True)]",
+      "label": "Danh mục kiến thức đang bật",
+      "count": 9
+    },
+    {
+      "key": "kt_the",
+      "model": "wujia.knowledge.tag",
+      "domain": "[('active','=',True)]",
+      "label": "Thẻ kiến thức đang bật",
+      "count": 6
+    },
+    {
+      "key": "tb_tong",
+      "model": "wujia.notification",
+      "domain": "[]",
+      "label": "Thông báo trong hệ thống",
+      "count": 3
+    },
+    {
+      "key": "tb_chuaphat",
+      "model": "wujia.notification",
+      "domain": "[('is_published_portal','=',False)]",
+      "label": "Thông báo chưa phát hành / đã thu hồi",
+      "count": 1
+    },
+    {
+      "key": "tb_chidinh",
+      "model": "wujia.notification",
+      "domain": "[('is_published_portal','=',True),('franchise_ids','!=',False)]",
+      "label": "Thông báo chỉ gửi một số cửa hàng",
+      "count": 0
+    },
+    {
+      "key": "tb_hethieuluc",
+      "model": "wujia.notification",
+      "domain": "[('is_published_portal','=',True),('expired_date','!=',False),('expired_date','<','2026-09-20 00:00:00')]",
+      "label": "Thông báo đã hết hiệu lực (còn trong lịch sử, mất khỏi chuông)",
+      "note": "So với ngày chụp 20/09/2026",
+      "count": 0
+    },
+    {
+      "key": "tb_ghim",
+      "model": "wujia.notification",
+      "domain": "[('is_pinned','=',True)]",
+      "label": "Thông báo được ghim lên đầu",
+      "count": 0
+    },
+    {
+      "key": "tb_loai",
+      "model": "wujia.notification.type",
+      "domain": "[('active','=',True)]",
+      "label": "Loại thông báo đang bật",
+      "count": 5
+    },
+    {
+      "key": "tb_dadoc_khong_ch",
+      "model": "wujia.notification.read",
+      "domain": "[('franchise_id','=',False)]",
+      "label": "Dấu đã đọc cũ chưa gắn cửa hàng",
+      "count": 6
+    },
+    {
+      "key": "dk_tong",
+      "model": "wujia.exam.registration",
+      "domain": "[]",
+      "label": "Phiếu đăng ký thi trong hệ thống",
+      "count": 1
+    },
+    {
+      "key": "dk_chodyet",
+      "model": "wujia.exam.registration",
+      "domain": "[('state','=','submitted')]",
+      "label": "Phiếu Chờ duyệt",
+      "count": 0
+    },
+    {
+      "key": "dk_dadangky",
+      "model": "wujia.exam.registration",
+      "domain": "[('state','=','confirmed')]",
+      "label": "Phiếu đã được Ngô Gia xác nhận",
+      "count": 1
+    },
+    {
+      "key": "dk_tuchoi",
+      "model": "wujia.exam.registration",
+      "domain": "[('state','=','rejected')]",
+      "label": "Phiếu bị từ chối",
+      "count": 0
+    },
+    {
+      "key": "dk_dahuy",
+      "model": "wujia.exam.registration",
+      "domain": "[('state','=','cancelled')]",
+      "label": "Phiếu bị huỷ (chỉ Ngô Gia huỷ được)",
+      "count": 0
+    },
+    {
+      "key": "dk_nguoi",
+      "model": "wujia.exam.registration.line",
+      "domain": "[]",
+      "label": "Tổng lượt người dự thi đã đăng ký",
+      "count": 1
+    },
+    {
+      "key": "dk_nguoi_coanh",
+      "model": "wujia.exam.registration.line",
+      "domain": "[('image_1920','!=',False)]",
+      "label": "Người dự thi có ảnh",
+      "count": 0
+    },
+    {
+      "key": "dk_ketqua_dat",
+      "model": "wujia.exam.registration.line",
+      "domain": "[('result','=','passed')]",
+      "label": "Người dự thi kết quả Đạt",
+      "count": 1
+    },
+    {
+      "key": "dk_ketqua_truot",
+      "model": "wujia.exam.registration.line",
+      "domain": "[('result','=','failed')]",
+      "label": "Người dự thi Không đạt",
+      "count": 0
+    },
+    {
+      "key": "dk_ketqua_chua",
+      "model": "wujia.exam.registration.line",
+      "domain": "[('result','=','pending')]",
+      "label": "Người dự thi chưa có kết quả",
+      "count": 0
+    },
+    {
+      "key": "dk_khoa",
+      "model": "wujia.exam.course",
+      "domain": "[]",
+      "label": "Khóa thi trong hệ thống",
+      "count": 3
+    },
+    {
+      "key": "dk_khoa_phathanh",
+      "model": "wujia.exam.course",
+      "domain": "[('state','=','published'),('active','=',True)]",
+      "label": "Khóa thi đã phát hành — portal mới thấy",
+      "count": 3
+    },
+    {
+      "key": "dk_ky",
+      "model": "wujia.exam.session",
+      "domain": "[]",
+      "label": "Kỳ thi (ca thi cụ thể) trong hệ thống",
+      "count": 3
+    },
+    {
+      "key": "dk_ky_mo",
+      "model": "wujia.exam.session",
+      "domain": "[('state','=','open')]",
+      "label": "Kỳ thi đang mở đăng ký",
+      "count": 2
+    },
+    {
+      "key": "dk_ky_congbo",
+      "model": "wujia.exam.session",
+      "domain": "[('results_published','=',True)]",
+      "label": "Kỳ thi đã công bố kết quả",
+      "count": 1
+    },
+    {
+      "key": "dk_ky_huy",
+      "model": "wujia.exam.session",
+      "domain": "[('state','=','cancelled')]",
+      "label": "Kỳ thi bị huỷ — lịch không hiện",
+      "count": 0
+    },
+    {
+      "key": "dk_ca",
+      "model": "wujia.exam.time.slot",
+      "domain": "[('active','=',True)]",
+      "label": "Ca thi (khung giờ) đang bật",
+      "count": 3
+    },
+    {
+      "key": "ks_tong",
+      "model": "wujia.franchise.inspection",
+      "domain": "[]",
+      "label": "Phiếu khảo sát trong hệ thống",
+      "count": 1
+    },
+    {
+      "key": "ks_nhap",
+      "model": "wujia.franchise.inspection",
+      "domain": "[('state','=','draft')]",
+      "label": "Phiếu khảo sát còn nháp — portal không thấy",
+      "count": 0
+    },
+    {
+      "key": "ks_chophanhoi",
+      "model": "wujia.franchise.inspection",
+      "domain": "[('state','=','need_remediation')]",
+      "label": "Phiếu Chờ phản hồi — cửa hàng phải khắc phục",
+      "count": 1
+    },
+    {
+      "key": "ks_hoanthanh",
+      "model": "wujia.franchise.inspection",
+      "domain": "[('state','=','done')]",
+      "label": "Phiếu Hoàn thành",
+      "count": 0
+    },
+    {
+      "key": "ks_portal_thay",
+      "model": "wujia.franchise.inspection",
+      "domain": "[('state','in',('need_remediation','done'))]",
+      "label": "Phiếu portal nhìn thấy được",
+      "count": 1
+    },
+    {
+      "key": "ks_dong",
+      "model": "wujia.franchise.inspection.line",
+      "domain": "[('display_type','=','line')]",
+      "label": "Dòng tiêu chí khảo sát",
+      "count": 4
+    },
+    {
+      "key": "ks_dong_truot",
+      "model": "wujia.franchise.inspection.line",
+      "domain": "[('display_type','=','line'),('is_pass','=',False)]",
+      "label": "Tiêu chí KHÔNG đạt — phải khắc phục",
+      "count": 2
+    },
+    {
+      "key": "ks_dong_dakhacphuc",
+      "model": "wujia.franchise.inspection.line",
+      "domain": "[('remediation_state','=','remediated')]",
+      "label": "Tiêu chí cửa hàng đã gửi khắc phục",
+      "count": 0
+    },
+    {
+      "key": "ks_diemdanh",
+      "model": "wujia.franchise.inspection.attendance.line",
+      "domain": "[]",
+      "label": "Dòng điểm danh nhân sự trong phiếu khảo sát",
+      "count": 0
+    },
+    {
+      "key": "mb_dashboard",
+      "model": "metabase.dashboard",
+      "domain": "[]",
+      "label": "Bảng Metabase khai báo trong hệ thống",
+      "count": 1
+    },
+    {
+      "key": "mb_dashboard_bat",
+      "model": "metabase.dashboard",
+      "domain": "[('active','=',True)]",
+      "label": "Bảng Metabase đang bật",
+      "count": 1
+    }
+  ]
+}

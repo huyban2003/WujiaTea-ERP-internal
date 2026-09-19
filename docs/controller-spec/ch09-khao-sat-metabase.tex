@@ -1,0 +1,642 @@
+\chapter{Khảo sát cửa hàng --- Metabase}
+
+Chương này gồm \textbf{17 đường dẫn} còn lại, chia ba phần:
+
+\begin{itemize}[leftmargin=*]
+  \item \textbf{Phần A --- phía cửa hàng} (\rt{wujia_portal_inspection}, 8 đường dẫn): cửa hàng
+        xem kết quả khảo sát và gửi khắc phục.
+  \item \textbf{Phần B --- phía người đi khảo sát} (\rt{wujia_franchise_inspection}, 7 đường
+        dẫn): màn nhân sự Ngô Gia dùng khi xuống cửa hàng chấm điểm. \textbf{Không phải màn
+        portal của cửa hàng}, nhưng chạy trên cùng máy chủ và cùng đường dẫn web nên đưa vào
+        đây cho đủ bản đồ.
+  \item \textbf{Phần C --- Metabase} (\rt{wujia_metabase_connector}, 2 đường dẫn): nhúng bảng
+        số liệu từ hệ thống báo cáo ngoài.
+\end{itemize}
+
+\textbf{Lưu ý về quyền sở hữu mã:} toàn bộ chương này là mã của anh Thái. Phiên tài liệu chỉ
+\textbf{đọc để mô tả}, không sửa một dòng nào. Những điểm dev thấy cần bàn được ghi trong khung
+vàng như mọi chương khác --- BA đọc để nắm, phần xử lý dev sẽ trao đổi trực tiếp với anh Thái.
+
+\textbf{Ba điểm cần biết trước khi đọc:}
+
+\begin{enumerate}[leftmargin=*]
+  \item \textbf{Phần A phạm vi là MỌI cửa hàng tôi truy cập được} --- không phải cửa hàng đang
+        chọn. Đây là cách làm giống Đổi trả, khác Đăng ký thi và Công nợ.
+  \item \textbf{Điểm hiện trên portal được tính lại bằng công thức riêng của portal}, không lấy
+        thẳng điểm đã chốt trong ERP --- xem mục Màn chi tiết. Hai nơi có thể ra hai con số.
+  \item \textbf{Phần B và phần C chỉ kiểm ``đã đăng nhập'' ở phần lớn đường dẫn} --- chi tiết
+        ghi trong từng mục.
+\end{enumerate}
+
+Số thật trên UAT: \uat{1} phiếu khảo sát (cửa hàng \emph{TP HCM Quận 1}, ngày 01/09, trạng thái
+\emph{Chờ phản hồi}, điểm 86, xếp loại B), \uat{4} dòng tiêu chí trong đó \uat{2} không đạt,
+\uat{0} tiêu chí đã được cửa hàng gửi khắc phục, \uat{0} dòng điểm danh, \uat{1} bảng Metabase.
+
+% =============================================================================
+\section{Màn Danh sách phiếu khảo sát}
+\rt{/portal/inspection} · \rt{/portal/inspection/ajax}
+\medskip
+
+\mvao
+
+Mục \emph{Khảo sát} trên thanh điều hướng. Đường dẫn \rt{/ajax} không phải màn riêng --- là
+phần kết quả gọi ngầm khi đổi thẻ hoặc lọc. Tham số: \rt{tab}, \rt{date_from}, \rt{date_to},
+\rt{search}, \rt{page}.
+
+\mai
+
+\begin{itemize}[leftmargin=*]
+  \item Phải đăng nhập. \textbf{Không chặn vai trò.}
+  \item Thấy phiếu của \textbf{mọi cửa hàng tôi truy cập được}.
+  \item Không truy cập được cửa hàng nào thì \textbf{không thấy phiếu nào} --- điều kiện lọc cố
+        ý để rỗng thay vì bỏ qua, nên không có kẽ hở xem nhầm cửa hàng khác.
+  \item \textbf{Chỉ thấy phiếu đã chấm xong}: trạng thái \emph{Chờ phản hồi} hoặc
+        \emph{Hoàn thành}. Phiếu người khảo sát đang làm dở (còn nháp) portal không thấy.
+\end{itemize}
+
+\mhien
+
+\begin{hienbang}
+Danh sách phiếu &
+  \rt{wujia.franchise.inspection} &
+  Phiếu thuộc cửa hàng của tôi, trạng thái \emph{Chờ phản hồi} hoặc \emph{Hoàn thành} &
+  Ngày khảo sát mới nhất trước; \textbf{5} phiếu mỗi trang, \textbf{cố định} &
+  \uat{1} phiếu · \uat{0} phiếu nháp \\ \addlinespace
+Huy hiệu trạng thái &
+  \rt{state} &
+  Hai nhãn: \emph{Chờ phản hồi} (vàng) và \emph{Hoàn thành} (xanh) &
+  --- &
+  \uat{1} Chờ phản hồi \\ \addlinespace
+Điểm và xếp loại &
+  \rt{total_score} · \rt{wujia.franchise.inspection.grade} &
+  Điểm tổng của phiếu; xếp loại lấy từ phiếu, nếu phiếu chưa gắn xếp loại thì
+  \textbf{tra lại theo thang điểm} &
+  --- &
+  \uat{86} điểm, loại B \\ \addlinespace
+Số tiêu chí đạt / không đạt &
+  \rt{wujia.franchise.inspection.line} &
+  Đếm các dòng tiêu chí; \emph{không đạt} = dòng bị đánh trượt &
+  --- &
+  \uat{2}/4 tiêu chí không đạt \\ \addlinespace
+Nút \emph{Gửi khắc phục} &
+  --- &
+  Chỉ hiện khi phiếu đang \emph{Chờ phản hồi} và còn tiêu chí trượt \textbf{chưa gửi khắc
+  phục}; nút trỏ thẳng tới tiêu chí đầu tiên còn thiếu &
+  --- & --- \\ \addlinespace
+Tên phiếu &
+  \rt{name} &
+  Phiếu đặt tên chung chung (\emph{``Khảo sát cửa hàng nhượng quyền''}) thì màn \textbf{tự đổi}
+  thành \emph{``Lần dd/mm/yyyy''} cho dễ phân biệt &
+  --- & --- \\
+\end{hienbang}
+
+\mloc
+
+\begin{itemize}[leftmargin=*]
+  \item \textbf{Ba thẻ}: \emph{Tất cả} · \emph{Chờ phản hồi} · \emph{Hoàn thành}.
+  \item \textbf{Từ khoá} --- khớp một phần theo \textbf{tên phiếu}, \textbf{tên cửa hàng} hoặc
+        \textbf{mã cửa hàng}.
+  \item \textbf{Khoảng ngày} --- lọc theo \textbf{ngày khảo sát}; nhận cả dạng
+        \emph{dd/mm/yyyy} lẫn \emph{yyyy-mm-dd}.
+  \item \textbf{Không đổi được số dòng mỗi trang} --- cố định 5.
+\end{itemize}
+
+\mkiem{một phiếu}
+
+Không kiểm gì ở danh sách.
+
+\mghi
+
+\textbf{Không ghi gì.}
+
+\mhoi
+
+\begin{ask}
+\begin{enumerate}[leftmargin=*]
+  \item \textbf{Gõ ngày ngược thì màn hiện rỗng, không báo gì} --- khác năm màn khác trong
+        portal (Giao hàng, Báo cáo, Thông báo, Đăng ký thi, Lịch sử mua) vốn giữ hai ô đã gõ và
+        báo tại thanh lọc. Anh có muốn đồng bộ không?
+  \item \textbf{Cỡ trang cố định 5} --- nhỏ hơn hẳn các màn khác (10 hoặc 12) và không đổi được.
+  \item \textbf{Phiếu còn nháp portal không thấy} --- đúng ý anh chứ? (Nghĩa là cửa hàng chỉ
+        biết kết quả sau khi người khảo sát bấm hoàn tất.)
+\end{enumerate}
+\end{ask}
+
+% =============================================================================
+\section{Màn Chi tiết phiếu khảo sát}
+\rt{/portal/inspection/detail/<int:inspection_id>}
+\medskip
+
+\mvao
+
+Bấm một phiếu ở màn danh sách.
+
+\mai
+
+\begin{kiembang}
+1 & Phiếu tồn tại & Về danh sách \\
+2 & Trạng thái là \emph{Chờ phản hồi} hoặc \emph{Hoàn thành} & Về danh sách \\
+3 & Phiếu thuộc \textbf{một trong các cửa hàng của tôi} & Về danh sách \\
+\end{kiembang}
+
+Cả ba trường hợp đều đưa về danh sách \textbf{không có thông báo}.
+
+\mhien
+
+\begin{hienbang}
+Đầu phiếu &
+  \rt{wujia.franchise.inspection} &
+  Mã cửa hàng, ngày khảo sát, điểm tổng, xếp loại &
+  --- &
+  \uat{86}/100, loại B \\ \addlinespace
+Bảng tóm tắt danh mục &
+  \rt{wujia.franchise.inspection.line} &
+  Mỗi danh mục một dòng. Danh mục thường hiện \emph{điểm đạt / điểm tối đa}; danh mục
+  \textbf{vi phạm nghiêm trọng} hiện \textbf{số lỗi} thay cho điểm. &
+  Theo thứ tự trong phiếu & --- \\ \addlinespace
+Danh sách tiêu chí &
+  \rt{wujia.franchise.inspection.line} &
+  Nội dung tiêu chí, đạt hay không, điểm trừ, ghi chú của người khảo sát, ảnh hiện trường,
+  ghi chú khắc phục và ảnh khắc phục của cửa hàng &
+  Theo thứ tự trong phiếu &
+  \uat{4} tiêu chí \\ \addlinespace
+Nút \emph{Gửi khắc phục} &
+  --- &
+  Chỉ hiện khi phiếu đang \emph{Chờ phản hồi} và còn tiêu chí trượt chưa phản hồi &
+  --- & --- \\
+\end{hienbang}
+
+\textbf{Điểm trên màn này được tính lại tại chỗ, không lấy điểm đã chốt trong ERP.} Cách tính
+của portal: mỗi tiêu chí đạt được cộng số điểm bằng \textbf{điểm trừ của chính nó}; tiêu chí
+\textbf{không khai điểm trừ thì được tính là 4 điểm}; và số điểm trừ lẻ bị \textbf{cắt phần
+thập phân} (2,5 thành 2). Cột \emph{điểm tối đa} của mỗi danh mục cũng cộng theo cách đó, còn
+\textbf{tổng điểm tối đa của phiếu luôn ghi cứng là 100}.
+
+\textbf{Cách nhận biết ``vi phạm nghiêm trọng''} là \textbf{dò chữ}: hệ thống tìm cụm chữ
+\emph{``nghiêm trọng''} trong tên danh mục hoặc trong nội dung tiêu chí. Đổi cách đặt tên danh
+mục là cách nhận biết này hỏng.
+
+\mloc
+
+Không có ô lọc.
+
+\mkiem{Gửi khắc phục}
+
+Xem hai mục kế tiếp.
+
+\mghi
+
+Mở màn \textbf{không ghi gì}.
+
+\mhoi
+
+\begin{ask}
+\begin{enumerate}[leftmargin=*]
+  \item \textbf{Điểm trên portal và điểm trong ERP có thể lệch nhau} --- portal tự cộng lại
+        theo quy ước riêng (tiêu chí không khai điểm trừ tính 4 điểm, điểm lẻ bị cắt phần thập
+        phân), trong khi ERP dùng công thức chấm điểm của phiếu. Anh cần chốt: portal hiện đúng
+        con số ERP, hay giữ cách tính riêng này?
+  \item \textbf{Tổng điểm tối đa ghi cứng 100} --- bộ tiêu chí nào có thang khác 100 sẽ hiện
+        sai tỉ lệ.
+  \item \textbf{``Vi phạm nghiêm trọng'' nhận biết bằng cách dò chữ ``nghiêm trọng''} thay vì
+        dùng cờ đánh dấu. Anh có muốn Ngô Gia đánh dấu hẳn một cờ trong danh mục không?
+  \item \textbf{Có vài giá trị mẫu còn sót trong màn} --- phiếu thiếu mã cửa hàng, thiếu ngày
+        hoặc thiếu điểm thì màn hiện giá trị mẫu (mã \emph{HN\_ST042}, ngày \emph{15/05/2024},
+        điểm \emph{85}, loại \emph{B+}) thay vì để trống. Dev sẽ trao đổi với anh Thái, BA
+        không cần lên task.
+\end{enumerate}
+\end{ask}
+
+% =============================================================================
+\section{Màn Gửi khắc phục cho một tiêu chí}
+\rt{/portal/inspection/remediation/<int:line_id>} ·
+\rt{/portal/remediation/<int:line_id>} · \rt{/portal/remediation}
+\medskip
+
+\mvao
+
+Nút \emph{Gửi khắc phục} ở màn danh sách hoặc màn chi tiết. Ba đường dẫn cùng một màn:
+đường dẫn đầy đủ, đường dẫn rút gọn, và \textbf{đường dẫn thiếu mã tiêu chí} --- gõ
+\rt{/portal/remediation} không kèm số thì bị đưa về danh sách.
+
+\mai
+
+\begin{kiembang}
+1 & Có mã tiêu chí & Về danh sách \\
+2 & Tiêu chí tồn tại và thuộc một phiếu khảo sát có thật & Về danh sách \\
+3 & Phiếu thuộc \textbf{một trong các cửa hàng của tôi} & Về danh sách \\
+\end{kiembang}
+
+\mhien
+
+\begin{hienbang}
+Thông tin tiêu chí &
+  \rt{wujia.franchise.inspection.line} &
+  Tên danh mục, mã tiêu chí, nội dung tiêu chí, \textbf{ghi chú của người khảo sát} &
+  --- & --- \\ \addlinespace
+Ảnh hiện trường &
+  \rt{evidence_image} &
+  Ảnh người khảo sát chụp lúc chấm --- tải qua đường dẫn ảnh chuẩn của hệ thống, có kiểm quyền
+  theo cửa hàng &
+  --- & --- \\ \addlinespace
+Mốc thời gian &
+  \rt{create_date} &
+  Giờ và ngày \textbf{tạo phiếu khảo sát} --- không phải ngày khảo sát ghi trong phiếu &
+  --- & --- \\
+\end{hienbang}
+
+\mloc
+
+Hai ô: \textbf{ghi chú khắc phục} và \textbf{ảnh minh chứng} (chụp hoặc chọn từ máy).
+
+\mkiem{Gửi}
+
+Xem mục kế tiếp.
+
+\mghi
+
+Mở màn \textbf{không ghi gì}.
+
+\mhoi
+
+\begin{ask}
+\textbf{Mốc thời gian trên màn là giờ tạo phiếu, không phải ngày khảo sát} --- hai con số này
+lệch nhau khi người khảo sát tạo phiếu trước rồi vài hôm sau mới đi. Nên đổi sang ngày khảo sát.
+\end{ask}
+
+% =============================================================================
+\section{Gửi nội dung khắc phục}
+\rt{/portal/inspection/remediation/submit} · \rt{/portal/remediation/submit}
+\medskip
+
+\mvao
+
+Không phải màn --- nút \emph{Gửi} ở màn khắc phục. Hai đường dẫn dẫn tới cùng một việc.
+
+\mai
+
+Chỉ kiểm \textbf{đã đăng nhập}. \textbf{Không} kiểm tiêu chí có thuộc cửa hàng của người gửi
+hay không --- khác hẳn màn hiển thị ngay trên, vốn kiểm đủ ba lớp.
+
+\mhien
+
+Không hiện màn --- trả về câu báo thành công kèm đường dẫn quay lại màn chi tiết.
+
+\mloc
+
+Hai ô như mục trên. Ảnh nhận được ở \textbf{bốn dạng} khác nhau (tệp tải lên, chuỗi ảnh nhúng,
+chuỗi mã hoá, dữ liệu nhị phân) --- viết vậy để cả bản điện thoại lẫn bản máy tính dùng chung
+một đường dẫn.
+
+\mkiem{Gửi}
+
+\begin{kiembang}
+1 & Có mã tiêu chí & ``Thiếu ID tiêu chí.'' \\
+2 & Tiêu chí tồn tại & ``Tiêu chí không tồn tại.'' \\
+3 & Tiêu chí \textbf{bắt buộc ảnh} thì phải có ảnh (ảnh mới hoặc ảnh đã gửi trước đó) &
+    ``Tiêu chí này yêu cầu bắt buộc phải có ảnh minh chứng.'' \\
+4 & Phải có \textbf{ít nhất} ghi chú hoặc ảnh &
+    ``Vui lòng nhập ghi chú khắc phục hoặc tải lên ảnh minh chứng trước khi gửi.'' \\
+\end{kiembang}
+
+\mghi
+
+\begin{itemize}[leftmargin=*]
+  \item Ghi \textbf{ghi chú khắc phục} và \textbf{ảnh khắc phục} lên dòng tiêu chí.
+  \item Đổi trạng thái khắc phục của \textbf{riêng dòng đó} sang \emph{Đã khắc phục}.
+  \item \textbf{Không} đổi trạng thái của cả phiếu --- phiếu vẫn ở \emph{Chờ phản hồi} cho tới
+        khi Ngô Gia tự chuyển. Cửa hàng gửi khắc phục đủ cả bốn tiêu chí thì phiếu vẫn hiện
+        \emph{Chờ phản hồi}.
+  \item \textbf{Không} báo cho ai --- không email, không việc cần làm.
+\end{itemize}
+
+\mhoi
+
+\begin{ask}
+\begin{enumerate}[leftmargin=*]
+  \item \textbf{Đường dẫn gửi khắc phục không kiểm cửa hàng.} Người đăng nhập bất kỳ, nếu biết
+        mã của một dòng tiêu chí, có thể ghi ghi chú và ảnh lên tiêu chí của cửa hàng khác.
+        Đây là điểm dev sẽ trao đổi với anh Thái --- \textbf{BA không cần lên task}, nhưng cần
+        biết vì nó ảnh hưởng tới câu ``ai xem được gì''.
+  \item \textbf{Ảnh khắc phục không kiểm định dạng, không kiểm dung lượng} --- khác hẳn Đổi trả
+        (chương 6) và Đăng ký thi (chương 8). Cùng nhóm với điểm trên.
+  \item \textbf{Gửi khắc phục xong phiếu vẫn ``Chờ phản hồi''} và không ai được báo. Anh muốn
+        phiếu tự chuyển trạng thái khi mọi tiêu chí trượt đã có phản hồi không?
+  \item \textbf{Gửi rồi vẫn gửi lại được} --- lần gửi sau đè lên lần trước, không lưu lịch sử.
+\end{enumerate}
+\end{ask}
+
+% =============================================================================
+\section{Màn Làm khảo sát tại cửa hàng}
+\rt{/franchise/inspection/do/<int:inspection_id>}
+\medskip
+
+\mvao
+
+Nhân sự Ngô Gia mở từ phiếu khảo sát trong ERP khi xuống cửa hàng. \textbf{Không nằm trên thanh
+điều hướng của portal cửa hàng.}
+
+\mai
+
+\begin{itemize}[leftmargin=*]
+  \item Phải đăng nhập.
+  \item Mở được nếu là \textbf{quản trị hệ thống}, là \textbf{người được giao khảo sát}, hoặc
+        là \textbf{bất kỳ nhân sự nội bộ nào}.
+  \item \textbf{Phiếu chưa giao cho ai thì không kiểm gì} --- bất kỳ tài khoản đăng nhập nào
+        cũng mở được, kể cả tài khoản cửa hàng. Ghi lại ở khung vàng bên dưới.
+\end{itemize}
+
+\mhien
+
+\begin{hienbang}
+Danh sách tiêu chí &
+  \rt{wujia.franchise.inspection.line} &
+  Toàn bộ dòng của phiếu, chia theo danh mục, kèm điểm trừ và các cờ ``bắt buộc ghi chú'' /
+  ``bắt buộc ảnh'' &
+  Theo thứ tự trong phiếu &
+  \uat{4} tiêu chí \\ \addlinespace
+Kết quả lần khảo sát trước &
+  \rt{previous_line_id} &
+  Với mỗi tiêu chí: lần trước đạt hay trượt, ghi chú và ảnh lần trước, tên người khảo sát lần
+  trước &
+  --- & --- \\ \addlinespace
+Bài kiểm tra nhân viên &
+  \rt{exam_line_ids} &
+  Câu hỏi kiểm tra kiến thức cho nhân viên được chọn &
+  --- & --- \\ \addlinespace
+Bảng điểm danh &
+  \rt{...attendance.line} &
+  Nhân sự có mặt lúc khảo sát &
+  --- &
+  \uat{0} dòng \\ \addlinespace
+Báo cáo doanh thu 3 tháng &
+  \rt{report_line_ids} &
+  Doanh thu, doanh thu bình quân, tỉ lệ hàng hoá, doanh số qua ứng dụng &
+  --- & --- \\ \addlinespace
+Ngôn ngữ nội dung &
+  --- &
+  Nội dung tiêu chí lưu \textbf{song ngữ trong cùng một ô}; màn \textbf{tự tách} phần tiếng
+  Trung hoặc tiếng Việt theo ngôn ngữ tài khoản &
+  --- & --- \\
+\end{hienbang}
+
+\mloc
+
+Chấm đạt / không đạt từng tiêu chí, nhập ghi chú, chụp ảnh hiện trường, trả lời bài kiểm tra,
+điểm danh nhân sự, ký tên.
+
+\mkiem{Lưu}
+
+Xem mục kế tiếp.
+
+\mghi
+
+Mở màn \textbf{không ghi gì}.
+
+\mhoi
+
+\begin{ask}
+\textbf{Phiếu chưa giao cho người khảo sát nào thì ai đăng nhập cũng mở được màn này}, kể cả
+tài khoản cửa hàng --- và màn này hiện cả kết quả lần trước lẫn bài kiểm tra. Dev sẽ trao đổi
+với anh Thái; BA chỉ cần biết để trả lời khi cửa hàng hỏi.
+\end{ask}
+
+% =============================================================================
+\section{Lưu bài khảo sát}
+\rt{/franchise/inspection/do/<int:inspection_id>/save}
+\medskip
+
+\mvao
+
+Không phải màn --- nút \emph{Lưu tạm} và nút \emph{Hoàn tất} ở màn làm khảo sát.
+
+\mai
+
+Chỉ kiểm \textbf{đã đăng nhập} và phiếu chưa khoá. \textbf{Không} kiểm người gửi có phải người
+được giao khảo sát hay không.
+
+\mhien
+
+Trả về điểm vừa tính lại, xếp loại, trạng thái phiếu và kết quả bài kiểm tra.
+
+\mloc
+
+Nhận cả gói: các dòng tiêu chí, bài kiểm tra, tên nhân viên được kiểm, thâm niên, tình trạng
+mặt bằng, người xác nhận, bảng điểm danh, ảnh chữ ký, báo cáo doanh thu.
+
+\mkiem{Hoàn tất}
+
+\begin{kiembang}
+1 & Phiếu tồn tại & ``Inspection sheet does not exist'' \\
+2 & Phiếu \textbf{chưa hoàn tất, chưa bị huỷ} &
+    ``Inspection sheet is already completed or cancelled and cannot be edited!'' \\
+3 & Bấm \emph{Hoàn tất} thì phải có \textbf{tên nhân viên được kiểm} &
+    ``Please enter staff name before saving!'' \\
+\end{kiembang}
+
+Bấm \emph{Lưu tạm} thì bỏ qua bước 3 và \textbf{không khoá bài kiểm tra}; bấm \emph{Hoàn tất}
+thì bài kiểm tra bị chốt, không sửa lại được.
+
+\mghi
+
+\begin{itemize}[leftmargin=*]
+  \item Ghi từng dòng tiêu chí --- \textbf{chỉ ghi dòng thật sự thay đổi}, so sánh trước khi
+        ghi để không đụng dữ liệu thừa.
+  \item Chấm bài kiểm tra và ghi điểm từng câu.
+  \item Ghi bảng điểm danh; nhân sự mới trong bảng điểm danh \textbf{được tạo thành thành viên
+        cửa hàng} luôn.
+  \item Ghi lại bảng doanh thu 3 tháng --- dòng không còn gửi lên thì \textbf{bị xoá}.
+  \item Tính lại điểm phần tiêu chí, điểm bài kiểm tra, điểm tổng và xếp loại.
+  \item \textbf{Có tiêu chí trượt thì phiếu tự chuyển từ nháp sang \emph{Chờ phản hồi}} ---
+        đây chính là lúc phiếu hiện ra trên portal cửa hàng.
+\end{itemize}
+
+\mhoi
+
+\begin{ask}
+\begin{enumerate}[leftmargin=*]
+  \item \textbf{Đường dẫn lưu không kiểm người gửi.} Bất kỳ tài khoản đăng nhập nào biết mã
+        phiếu đều ghi được điểm, ghi chú, chữ ký và bảng điểm danh lên phiếu đang mở. Cùng nhóm
+        với hai điểm trên --- dev trao đổi với anh Thái.
+  \item \textbf{Điểm danh tự tạo thành viên cửa hàng.} Gõ nhầm tên là sinh một thành viên mới
+        trong hồ sơ cửa hàng. Anh có muốn bước xác nhận trước khi tạo không?
+  \item \textbf{Phiếu tự chuyển sang Chờ phản hồi ngay khi lưu có tiêu chí trượt} --- kể cả khi
+        người khảo sát mới chỉ \emph{lưu tạm}. Cửa hàng sẽ thấy phiếu trước khi người khảo sát
+        làm xong.
+\end{enumerate}
+\end{ask}
+
+% =============================================================================
+\section{Kéo doanh thu từ PosApp}
+\rt{/franchise/inspection/do/<int:inspection_id>/sync_posapp}
+\medskip
+
+\mvao
+
+Không phải màn --- nút đồng bộ trong phần báo cáo doanh thu ở màn làm khảo sát.
+
+\mai
+
+Chỉ kiểm đã đăng nhập và phiếu chưa khoá.
+
+\mhien
+
+Trả về ba dòng doanh thu vừa kéo về để màn vẽ lại bảng.
+
+\mloc
+
+Không có ô nhập --- bấm là chạy.
+
+\mkiem{Đồng bộ}
+
+\begin{kiembang}
+1 & Phiếu tồn tại & ``Inspection sheet does not exist'' \\
+2 & Phiếu chưa hoàn tất, chưa bị huỷ &
+    ``Inspection sheet is already completed or cancelled!'' \\
+3 & Gọi được sang PosApp & Trả về nguyên văn câu lỗi kỹ thuật của hệ thống \\
+\end{kiembang}
+
+\mghi
+
+\textbf{Xoá sạch bảng doanh thu cũ rồi ghi lại bảng mới} --- số nhân sự gõ tay trước đó mất
+hết, không hỏi lại.
+
+\mhoi
+
+\begin{ask}
+\begin{enumerate}[leftmargin=*]
+  \item \textbf{Bấm đồng bộ là xoá sạch số đã gõ tay}, không có bước xác nhận. Anh có muốn hỏi
+        lại trước khi ghi đè không?
+  \item \textbf{Lỗi kết nối hiện nguyên văn câu lỗi kỹ thuật} --- cùng nhóm chuẩn hoá thông báo
+        lỗi mà dev đang làm.
+\end{enumerate}
+\end{ask}
+
+% =============================================================================
+\section{Bảng điểm danh nhân sự}
+\rt{.../attendance/add} · \rt{.../attendance/save_member} ·
+\rt{.../attendance/deactivate_member} · \rt{.../attendance/delete_line}
+\medskip
+
+\mvao
+
+Không phải màn --- bốn nút trong bảng điểm danh ở màn làm khảo sát: thêm dòng, lưu dòng thành
+thành viên cửa hàng, ngưng hiệu lực thành viên, xoá dòng.
+
+\mai
+
+Chỉ kiểm \textbf{đã đăng nhập}. Ba đường dẫn sau còn kiểm dòng điểm danh \textbf{đúng thuộc
+phiếu ghi trên đường dẫn} --- nên không mượn được để sửa dòng của phiếu khác.
+
+\mhien
+
+Mỗi lần gọi đều trả về \textbf{bảng nhân sự của cửa hàng} và \textbf{số người có mặt} để màn
+cập nhật ngay.
+
+\mloc
+
+Họ tên (bắt buộc khi thêm), vai trò, số điện thoại, ghi chú, có mặt hay không.
+
+\mkiem{Thêm nhân sự}
+
+\begin{kiembang}
+1 & Phiếu tồn tại và chưa hoàn tất / chưa bị huỷ &
+    ``Inspection survey is locked or does not exist!'' \\
+2 & Có họ tên & ``Please enter staff full name!'' \\
+3 & (ba nút còn lại) Dòng điểm danh tồn tại và thuộc đúng phiếu &
+    ``Attendance line does not exist!'' \\
+\end{kiembang}
+
+\mghi
+
+\begin{itemize}[leftmargin=*]
+  \item \textbf{Thêm}: tạo dòng điểm danh, rồi \textbf{tự tạo thành viên cửa hàng} cho người đó
+        --- tạo không được thì bỏ qua, dòng điểm danh vẫn còn.
+  \item \textbf{Lưu thành thành viên}: sửa tên, vai trò, điện thoại trên dòng rồi tạo hoặc cập
+        nhật thành viên cửa hàng tương ứng.
+  \item \textbf{Ngưng hiệu lực}: tắt hiệu lực thành viên cửa hàng --- \textbf{đây là thao tác
+        sửa hồ sơ cửa hàng từ màn khảo sát}.
+  \item \textbf{Xoá dòng}: xoá hẳn dòng điểm danh; thành viên cửa hàng đã tạo \textbf{vẫn còn}.
+\end{itemize}
+
+\mhoi
+
+\begin{ask}
+\begin{enumerate}[leftmargin=*]
+  \item \textbf{Màn khảo sát sửa được hồ sơ nhân sự của cửa hàng} --- thêm thành viên, ngưng
+        hiệu lực thành viên. Anh xác nhận cho phép; nếu không thì cần tách quyền.
+  \item \textbf{Xoá dòng điểm danh không gỡ thành viên đã tạo} --- gõ nhầm rồi xoá dòng thì
+        người đó vẫn nằm trong danh sách nhân sự cửa hàng.
+\end{enumerate}
+\end{ask}
+
+% =============================================================================
+\section{Bảng số liệu Metabase}
+\rt{/metabase/embed/<int:dashboard_id>} · \rt{/metabase/embed_url/<int:dashboard_id>}
+\medskip
+
+\mvao
+
+Không nằm trên thanh điều hướng portal. Đường dẫn thứ nhất mở trang có khung nhúng; đường dẫn
+thứ hai chỉ trả về địa chỉ nhúng cho màn khác tự gắn vào.
+
+\mai
+
+\begin{kiembang}
+1 & Đã đăng nhập & Trang đăng nhập \\
+2 & Bảng tồn tại và đang bật & Báo không tìm thấy \\
+3 & Bảng cho phép \textbf{công ty} hiện tại &
+    Trang báo ``Access Denied'' kèm tên công ty \\
+4 & \textbf{Nếu bảng có khai nhóm quyền}: tôi thuộc một trong các nhóm đó (hoặc là quản trị) &
+    Trang báo ``Access Denied'' \\
+5 & Có khai máy chủ Metabase và máy chủ đang bật & Trang báo ``Configuration Error'' \\
+6 & Máy chủ có thư viện ký chữ ký số & Trang báo ``System Error'' \\
+\end{kiembang}
+
+\textbf{Bước 4 chỉ chạy khi bảng có khai nhóm quyền.} Bảng \textbf{không khai nhóm nào} thì bỏ
+qua hoàn toàn --- mọi tài khoản đăng nhập đều xem được. Trên UAT, bảng duy nhất
+(\emph{``Báo cáo nhượng quyền''}) \textbf{không khai nhóm nào}.
+
+\mhien
+
+\begin{hienbang}
+Khung nhúng &
+  \rt{metabase.dashboard} &
+  Bảng số liệu nằm trên máy chủ Metabase ngoài, gọi qua một chữ ký số có hạn &
+  --- &
+  \uat{1} bảng, đang bật \\ \addlinespace
+Hạn của chữ ký &
+  \rt{token_expiry_minutes} &
+  Mặc định \textbf{10 phút}; hết hạn thì khung nhúng báo lỗi, phải tải lại trang &
+  --- & --- \\ \addlinespace
+Chiều cao khung &
+  \rt{height} &
+  Theo cấu hình của bảng, mặc định 800 &
+  --- & --- \\
+\end{hienbang}
+
+\mloc
+
+Không có ô lọc --- mọi thao tác lọc diễn ra bên trong khung Metabase, hệ thống này không can
+thiệp. \textbf{Không truyền tham số lọc nào sang Metabase} --- nghĩa là bảng số liệu
+\textbf{không tự giới hạn theo cửa hàng của người xem}.
+
+\mkiem{mở bảng}
+
+Xem bảng ở mục \emph{Ai xem được gì}.
+
+\mghi
+
+\textbf{Không ghi gì.}
+
+\mhoi
+
+\begin{ask}
+\begin{enumerate}[leftmargin=*]
+  \item \textbf{Bảng không khai nhóm quyền thì ai đăng nhập cũng xem được} --- kể cả tài khoản
+        cửa hàng. Bảng duy nhất trên UAT đang ở trạng thái đó. Nếu định mở Metabase cho cửa
+        hàng thì phải khai nhóm trước.
+  \item \textbf{Không truyền cửa hàng sang Metabase} --- người xem thấy số liệu toàn hệ, không
+        phải số liệu cửa hàng mình. Anh xác nhận đây là bảng dành cho nội bộ Ngô Gia.
+\end{enumerate}
+\end{ask}

@@ -1,0 +1,98 @@
+\chapter{Đọc tài liệu này thế nào}
+
+\section{Tài liệu này khác bản trước ở chỗ nào}
+
+Bản kiểm kê 20 trang giao ngày 19/09 trả lời câu \emph{``portal đã có những controller nào''}.
+Tài liệu này trả lời câu tiếp theo, cụ thể hơn: \textbf{mỗi màn đang chạy luật gì}.
+
+Với mỗi màn, tài liệu nói đủ bảy điều --- luôn đúng thứ tự này, không màn nào thiếu:
+
+\begin{enumerate}[leftmargin=*,itemsep=1pt]
+  \item \textbf{Vào màn bằng đâu} --- đường dẫn, vào từ menu nào, kèm những đường dẫn gọi ngầm.
+  \item \textbf{Ai xem được gì} --- cần đăng nhập/chọn cửa hàng chưa, vai trò nào vào được, thấy
+        dữ liệu của cửa hàng nào.
+  \item \textbf{Màn hiện gì} --- từng khối lấy từ bảng nào, \textbf{lọc theo điều kiện gì}, sắp
+        xếp ra sao, mỗi trang bao nhiêu dòng, và \textbf{thực tế trên UAT đang có bao nhiêu bản
+        ghi} thoả điều kiện đó.
+  \item \textbf{Người dùng lọc / nhập được gì} --- ô tìm kiếm tìm theo trường nào, giá trị lạ thì
+        hệ thống xử lý sao.
+  \item \textbf{Bấm nút thì kiểm gì} --- liệt kê \textbf{đúng thứ tự} các điều kiện hệ thống
+        kiểm, và không đạt thì người dùng thấy câu gì.
+  \item \textbf{Ghi gì vào hệ thống} --- tạo/sửa bản ghi nào, trạng thái nào, ai đứng tên.
+  \item \textbf{Điểm cần BA xác nhận} --- chỗ hệ thống đang làm theo một giả định, chỗ dữ liệu
+        thật đang lệch cấu hình, chỗ cần anh chốt trước khi lên task.
+\end{enumerate}
+
+Mục 7 in trên \textbf{nền vàng} để dễ tìm; toàn bộ mục 7 của mọi màn được gom lại ở chương cuối.
+
+\section{Quy ước ký hiệu}
+
+\begin{itemize}[leftmargin=*]
+  \item \rt{chữ máy} --- tên bảng dữ liệu, tên trường, đường dẫn, đúng như trong hệ thống. Viết
+        ra để anh đối chiếu được với tab \emph{1. Model/ Field} và để Dev tìm đúng chỗ.
+  \item \uat{Số xanh} --- số bản ghi \textbf{thật} đang có trên máy chủ UAT tại thời điểm chụp.
+  \item ``Cửa hàng'' = một bản ghi \rt{wujia.franchise.management}; ``thành viên'' =
+        \rt{wujia.franchise.member} (một tài khoản gắn vào một cửa hàng với một vai trò).
+  \item Vai trò trong portal chỉ có ba mức: \textbf{Chủ cửa hàng} > \textbf{Quản lý} >
+        \textbf{Nhân viên}.
+\end{itemize}
+
+\section{Số liệu lấy ở đâu, lúc nào}
+
+\begin{itemize}[leftmargin=*]
+  \item \textbf{Luật nghiệp vụ}: đọc trực tiếp mã nguồn nhánh \rt{main} --- 23 tệp controller
+        (\textbf{7.347 dòng}) cộng phần mã nghiệp vụ mà chúng gọi tới. Phần liệt kê đường dẫn,
+        điều kiện lọc, chuỗi kiểm được \textbf{máy trích bằng cách đọc cây cú pháp}
+        (\rt{scripts/qa/controller_spec.py}), không dùng tìm chuỗi --- tìm chuỗi đếm nhầm cả
+        chú thích. Phần diễn giải nghiệp vụ do người đọc mã viết; máy không đoán được ý nghiệp vụ.
+  \item \textbf{Số thực tế}: đọc \textbf{chỉ-đọc} máy chủ UAT \rt{113.161.187.126:8019}, cơ sở
+        dữ liệu \rt{wujia_tea_19}, bằng \rt{scripts/qa/uat_domain_probe.py}. Script chặn cứng
+        mọi lệnh ghi --- phiên làm tài liệu không đụng một bản ghi nào của anh.
+  \item \textbf{Ngày chụp}: 20/09/2026.
+\end{itemize}
+
+\begin{ask}
+\textbf{Lưu ý quan trọng khi đọc các con số:} UAT đang là môi trường \textbf{dữ liệu mẫu mỏng}
+--- 8 sản phẩm, 4 cửa hàng, 7 tài khoản, 47 đơn hàng. Vì vậy con số trong tài liệu dùng để
+\textbf{soi cấu hình} (\emph{bao nhiêu sản phẩm đang bật cờ hiện trên portal}, \emph{khu vực nào
+chưa cấu hình khung giờ}), \textbf{không} dùng để suy ra tải thật khi lên production.
+\end{ask}
+
+\section{Bản đồ chương --- tìm nhanh}
+
+Tài liệu mô tả đủ \textbf{104/104 đường dẫn} của \textbf{16 mô-đun}, gom thành \textbf{67 phiếu
+màn}. Nếu chỉ cần tra một phân hệ, vào thẳng chương của nó:
+
+{\footnotesize
+\begin{center}
+\begin{tabular}{@{}L{1.3cm}L{6.4cm}L{7.3cm}@{}}
+\toprule
+\textbf{Chương} & \textbf{Phân hệ} & \textbf{Gồm}\\
+\midrule
+2 & Bản đồ 104 đường dẫn & Bảng tra: đường dẫn nào thuộc mô-đun nào, làm gì. \\
+3 & Đặt hàng & Sản phẩm, danh mục, giỏ hàng, gửi đơn, khung giờ đặt hàng. \\
+4 & Khung portal · Trang chủ & Đăng nhập, chọn cửa hàng, hồ sơ, Trang chủ, thông tin cửa hàng, \textbf{quy ước dùng chung}. \\
+5 & Lịch sử mua · Giao hàng · Báo cáo & Đơn đã đặt, chuyến giao, báo cáo đặt hàng và tệp Excel. \\
+6 & Công nợ · Đổi trả · Bù hàng & Công nợ theo tuần, lịch sử thanh toán, chuyển khoản, yêu cầu đổi trả. \\
+7 & Hỗ trợ · Yêu cầu thông tin · Kiến thức · Thông báo & Bốn phân hệ nhẹ, dùng chung nhiều quy ước. \\
+8 & Đăng ký thi & Lịch thi, khung giờ, gửi phiếu, kết quả. \\
+9 & Khảo sát · Metabase & Phía cửa hàng và phía người đi khảo sát; nhúng bảng số liệu. \\
+10 & \textbf{Tổng hợp} & Đối chiếu CT-001…CT-071, \textbf{157 điểm cần anh chốt}, việc BA không cần lên task. \\
+\bottomrule
+\end{tabular}
+\end{center}}
+
+\textbf{Nếu chỉ có 15 phút}: đọc chương 10 trước --- ba bảng đầu của chương đó đã đủ để lên
+task. Các chương 3--9 là phần tra cứu khi cần biết chi tiết một màn.
+
+\section{Ba điều nên biết trước khi lên task}
+
+\begin{enumerate}[leftmargin=*]
+  \item \textbf{Đường dẫn sẽ không đổi.} Các đợt chuẩn hoá sắp tới có dời mã nguồn của một số
+        màn sang mô-đun khác, nhưng \textbf{đường dẫn và hành vi giữ nguyên}. Anh không cần lên
+        task ``viết lại'' những controller đó.
+  \item \textbf{Có màn chưa có dòng mã nào.} Chương cuối liệt kê các mục \rt{CT-0xx} trong tab
+        \emph{3. Controller} chưa có code --- đó mới là chỗ cần task mới.
+  \item \textbf{Có mã đang chạy mà tab CT chưa mô tả.} Cũng liệt kê ở chương cuối, để anh bổ
+        sung spec cho khớp thực tế.
+\end{enumerate}
