@@ -37,8 +37,9 @@ class TestCardHeaderCallSites(TransactionCase):
         'wujia_portal_info_request.portal_info_request_list': 1,
         'wujia_portal_return.portal_return_list': 1,
         # D3d — màn Đăng ký thi (PC + wizard mobile)
-        'wujia_portal_exam.portal_exam_schedule': 2,
-        'wujia_portal_exam.portal_exam_register': 9,
+        # E5b2: đầu card danh sách nay là .wj-lc__head của ListCard, không CardHeader.
+        'wujia_portal_exam.portal_exam_schedule': 1,
+        'wujia_portal_exam.portal_exam_register': 8,
         'wujia_portal_exam.portal_exam_registration_detail': 3,
         # D3e — chi tiết bù hàng + lịch sử đặt hàng
         'wujia_portal_return.portal_return_detail': 15,

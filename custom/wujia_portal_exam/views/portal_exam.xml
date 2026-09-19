@@ -152,7 +152,6 @@
                 <div id="wj-exam-mbody" class="wj-ajax-slot">
                 <t t-call="wujia_portal_layout.wj_data_list">
                     <t t-set="dl_variant" t-value="'detail-card'"/>
-                    <t t-set="dl_class" t-value="'wujia-mexam-list'"/>
                     <t t-set="dl_empty" t-value="not m_exam_items"/>
                     <t t-set="dl_state">
                         <!-- Empty: chưa có đăng ký (no-data chung Figma 4788:974) -->
@@ -167,26 +166,31 @@
                         </div>
                     </t>
                     <a t-foreach="m_exam_items" t-as="item" t-att-href="item['link']"
-                       class="wj-surface-card wj-surface-card--record wj-surface-card--compact wj-surface-card--padded wujia-mexam-card wj-data-item">
-                        <div class="wujia-mexam-card-top">
-                            <t t-call="wujia_portal_layout.wj_card_header">
-                                <t t-set="ch_title" t-value="item['title']"/>
-                                <t t-set="ch_platform" t-value="'m'"/>
-                                <t t-set="ch_class" t-value="'wj-card-header--flush'"/>
-                                <t t-set="ch_meta">
-                                    <span t-attf-class="wj-status-badge #{item['badge']}"
-                                          t-out="item['status']"/>
+                       class="wj-data-item wj-lc">
+                        <t t-call="wujia_portal_layout.wj_list_card">
+                            <t t-set="lc_name" t-value="item['title']"/>
+                            <t t-set="lc_state">
+                                <span t-attf-class="wj-status-badge wj-status-badge--compact #{item['badge']}"
+                                      t-out="item['status']"/>
+                            </t>
+                            <t t-set="lc_rows">
+                                <t t-call="wujia_portal_layout.wj_list_card_row">
+                                    <t t-set="lcr_label">
+                                        <i class="feather icon-calendar wj-lc__icon"/>
+                                        Lịch thi
+                                    </t>
+                                    <t t-set="lcr_value" t-value="item['date_label']"/>
+                                </t>
+                                <t t-call="wujia_portal_layout.wj_list_card_row">
+                                    <!-- Nhãn chỉ có icon: meta tự mang chữ ('1 nhân sự' /
+                                         '1 đạt • 1 không đạt'), thêm chữ nữa là nói hai lần. -->
+                                    <t t-set="lcr_label">
+                                        <i class="feather icon-user wj-lc__icon"/>
+                                    </t>
+                                    <t t-set="lcr_value" t-value="item['meta']"/>
                                 </t>
                             </t>
-                        </div>
-                        <p class="wujia-mexam-card-line">
-                            <i class="feather icon-calendar"/>
-                            <span t-out="item['date_label']"/>
-                        </p>
-                        <p class="wujia-mexam-card-line">
-                            <i class="feather icon-user"/>
-                            <span t-out="item['meta']"/>
-                        </p>
+                        </t>
                     </a>
                     <t t-set="dl_pager">
                         <!-- Danh sách mobile dùng chung lát cắt phân trang của PC nhưng trước
@@ -657,23 +661,30 @@
                     </div>
                     <t t-call="wujia_portal_layout.wj_data_list">
                         <t t-set="dl_variant" t-value="'detail-card'"/>
-                        <t t-set="dl_class" t-value="'wujia-mexam-courselist'"/>
                         <t t-foreach="courses" t-as="c">
-                            <div t-attf-class="wujia-mexam-course wj-data-item #{c['closed'] and 'is-closed' or ''}"
+                            <div t-attf-class="wujia-mexam-course wj-data-item wj-lc #{c['closed'] and 'is-closed' or ''}"
                                  t-att-data-exam-closed="c['closed'] and '1' or '0'"
                                  t-att-data-exam-course-id="c['course_id']">
-                                <div class="wujia-mexam-course-main">
-                                    <t t-call="wujia_portal_layout.wj_card_header">
-                                        <t t-set="ch_title" t-value="c['title']"/>
-                                        <t t-set="ch_platform" t-value="'m'"/>
-                                        <t t-set="ch_class" t-value="'wj-card-header--flush'"/>
+                                <t t-call="wujia_portal_layout.wj_list_card">
+                                    <t t-set="lc_name" t-value="c['title']"/>
+                                    <t t-set="lc_state">
+                                        <span t-attf-class="wj-status-badge wj-status-badge--compact #{c['badge']}"
+                                              t-out="c['status']"/>
                                     </t>
-                                    <p class="wujia-mexam-course-meta" t-out="c['meta']"/>
-                                    <span t-attf-class="wj-status-badge #{c['badge']}"
-                                          t-out="c['status']"/>
-                                </div>
-                                <a t-if="not c['closed']" href="#"
-                                   class="wujia-mexam-course-choose" data-exam-goto="2">Chọn</a>
+                                    <t t-set="lc_rows">
+                                        <t t-call="wujia_portal_layout.wj_list_card_row">
+                                            <!-- JS bước 1 chép meta sang thẻ 'đã chọn' ⇒ neo bằng
+                                                 lớp hành vi `js-`, không bám tên lớp trình bày. -->
+                                            <t t-set="lcr_class" t-value="'js-exam-course-meta'"/>
+                                            <t t-set="lcr_value" t-value="c['meta']"/>
+                                        </t>
+                                    </t>
+                                    <t t-set="lc_actions">
+                                        <a t-if="not c['closed']" href="#"
+                                           class="wj-lc__link" data-exam-choose="1"
+                                           data-exam-goto="2">Chọn</a>
+                                    </t>
+                                </t>
                             </div>
                         </t>
                     </t>
@@ -1106,25 +1117,38 @@
                     <t t-set="sh_platform" t-value="'m'"/>
                 </t>
                 <t t-call="wujia_portal_layout.wj_data_list">
-                    <t t-set="dl_variant" t-value="'compact-row'"/>
-                    <t t-set="dl_class" t-value="'wujia-mexam-rlist'"/>
+                    <!-- E5b2: ruột ListCard (tên + badge + 1–2 hàng phụ) đo 92–146px,
+                         ra khỏi dải compact-row 64–76 ⇒ khai đúng dáng đang có. -->
+                    <t t-set="dl_variant" t-value="'detail-card'"/>
                     <t t-foreach="reg_view['people']" t-as="p">
-                        <div class="wujia-mexam-rrow wj-data-item">
-                            <span t-attf-class="wujia-mexam-rrow-ico #{p['result'] == 'passed' and 'is-pass' or (p['result'] == 'failed' and 'is-fail' or 'is-idle')}">
-                                <i t-attf-class="feather #{p['result'] == 'passed' and 'icon-check' or (p['result'] == 'failed' and 'icon-x' or 'icon-user')}"/>
-                            </span>
-                            <div class="wujia-mexam-rrow-main">
-                                <span class="wujia-mexam-rrow-name" t-out="p['employee_name']"/>
-                                <span class="wujia-mexam-rrow-meta">
-                                    <t t-out="p['job_position'] or '—'"/> • <t t-out="p['phone']"/>
-                                </span>
-                                <span t-if="p['result_note']" class="wujia-mexam-rrow-note" t-out="p['result_note']"/>
-                            </div>
-                            <t t-if="reg_view['is_published']">
-                                <span t-attf-class="wj-status-badge #{p['result'] == 'passed' and 'wj-status-badge--success' or 'wj-status-badge--danger'}"
-                                      t-out="p['result'] == 'passed' and 'Đạt' or 'Không đạt'"/>
+                        <div class="wujia-mexam-rrow wj-data-item wj-lc">
+                            <t t-call="wujia_portal_layout.wj_list_card">
+                                <t t-set="lc_prefix">
+                                    <span t-attf-class="wj-lc__tile wujia-mexam-rrow-ico #{p['result'] == 'passed' and 'is-pass' or (p['result'] == 'failed' and 'is-fail' or 'is-idle')}">
+                                        <i t-attf-class="feather #{p['result'] == 'passed' and 'icon-check' or (p['result'] == 'failed' and 'icon-x' or 'icon-user')}"/>
+                                    </span>
+                                </t>
+                                <t t-set="lc_name" t-value="p['employee_name']"/>
+                                <t t-set="lc_state">
+                                    <t t-if="reg_view['is_published']">
+                                        <span t-attf-class="wj-status-badge wj-status-badge--compact #{p['result'] == 'passed' and 'wj-status-badge--success' or 'wj-status-badge--danger'}"
+                                              t-out="p['result'] == 'passed' and 'Đạt' or 'Không đạt'"/>
+                                    </t>
+                                    <span t-else="" class="wj-status-badge wj-status-badge--compact wj-status-badge--pending">Chờ kết quả</span>
+                                </t>
+                                <t t-set="lc_rows">
+                                    <t t-call="wujia_portal_layout.wj_list_card_row">
+                                        <t t-set="lcr_value">
+                                            <t t-out="p['job_position'] or '—'"/> • <t t-out="p['phone']"/>
+                                        </t>
+                                    </t>
+                                    <t t-call="wujia_portal_layout.wj_list_card_row" t-if="p['result_note']">
+                                        <t t-set="lcr_full" t-value="True"/>
+                                        <t t-set="lcr_label">Ghi chú kết quả</t>
+                                        <t t-set="lcr_value" t-value="p['result_note']"/>
+                                    </t>
+                                </t>
                             </t>
-                            <span t-else="" class="wj-status-badge wj-status-badge--pending">Chờ kết quả</span>
                         </div>
                     </t>
                 </t>

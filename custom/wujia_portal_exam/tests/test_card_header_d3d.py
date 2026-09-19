@@ -22,8 +22,11 @@ class TestCardHeaderExamJsContract(TransactionCase):
             return fh.read()
 
     def test_wizard_reads_component_title_not_retired_class(self):
+        """E5b2 đổi NGUỒN chứ không đổi ĐÍCH: card khoá thi ở bước 1 nay là
+        ListCard (tên ở `.wj-lc__name`), thẻ "đã chọn" vẫn là `wj_card_header`.
+        Đọc nhầm nguồn thì bước 2 hiện tiêu đề RỖNG — chính guard này bắt được."""
         js = self._js()
-        self.assertIn("card.querySelector('.wj-card-header__title')", js)
+        self.assertIn("card.querySelector('.wj-lc__name')", js)
         for retired in ("'.wujia-mexam-course-title'", "'.wujia-mexam-selcard-title'"):
             self.assertNotIn(retired, js)
 

@@ -207,22 +207,10 @@
 
 /* Section header dùng chung CMP-SH-001 (C8b) — bộ class .wj-debt-section* đã gỡ. */
 
-/* ---------- Card hoá đơn (359×62, gap 6) ---------- */
-.wj-debt-invoices { display: flex; flex-direction: column; gap: 6px; }
-/* D5g — LAYOUT của họ hoá đơn; dáng (padding/nền/viền/radius) ở tầng .wj-data-item. */
-.wj-data-list--compact-row .wj-debt-inv.wj-data-item {
-    display: grid;
-    grid-template-columns: 1fr auto;
-    align-items: center;
-    row-gap: 4px;
-    column-gap: 8px;
-}
-.wj-debt-inv__name { font-size: 13.5px; font-weight: 700; color: var(--wj-debt-text); }
-.wj-debt-inv__badge { justify-self: end; }
-.wj-debt-inv__meta { font-size: 10.5px; font-weight: 400; color: var(--wj-debt-muted); }
-.wj-debt-inv__amount { justify-self: end; font-size: 13px; font-weight: 700; color: var(--wj-debt-text); }
-.wj-debt-inv--overdue .wj-debt-inv__amount { color: var(--wj-debt-danger); }
-.wj-debt-inv--paid .wj-debt-inv__amount { color: var(--wj-debt-success); }
+/* ---------- Card hoá đơn — anatomy dùng chung CMP-LC-001 (E5b2) ----------
+   Còn lại ở màn: MÀU của số tiền theo trạng thái chứng từ (quá hạn đỏ / đã trả xanh). */
+.wj-debt-inv--overdue .wj-lc__value--strong { color: var(--wj-debt-danger); }
+.wj-debt-inv--paid .wj-lc__value--strong { color: var(--wj-debt-success); }
 
 .wj-debt-note { margin: 0; text-align: center; font-size: 11px; font-weight: 400; color: var(--wj-debt-muted); }
 .wj-debt-note a { color: var(--wj-debt-muted); }
@@ -261,20 +249,6 @@
    do CMP-SH-001 lo (16/8), bỏ margin-top 12 riêng của C3 để debt tính nhịp y hệt mọi trang. */
 #wj-debt-hist-mbody { display: flex; flex-direction: column; gap: 12px; }
 
-.wj-debt-payments { display: flex; flex-direction: column; gap: 12px; }
-/* D5g — LAYOUT của họ thanh toán; dáng ở tầng .wj-data-item (variant detail-card). */
-.wj-data-list--detail-card .wj-debt-pay.wj-data-item {
-    display: grid;
-    grid-template-columns: 1fr auto;
-    align-content: center;
-    row-gap: 5px;
-    column-gap: 8px;
-}
-.wj-debt-pay__ref { font-size: 14px; font-weight: 700; color: var(--wj-debt-text); }
-.wj-debt-pay__badge { justify-self: end; }
-.wj-debt-pay__meta { grid-column: 1 / -1; font-size: 12px; font-weight: 400; color: var(--wj-debt-muted); }
-.wj-debt-pay__trace { font-size: 12px; font-weight: 400; color: var(--wj-debt-muted); }
-.wj-debt-pay__amount { justify-self: end; font-size: 16px; font-weight: 700; color: var(--wj-debt-text); }
 .wj-debt-total { margin: 0; text-align: right; font-size: 12px; font-weight: 400; color: var(--wj-debt-muted); }
 
 /* ---------- 07 — Số tiền / ngân hàng / nhắc (khối QR đã gỡ, WJ-DEBT-008) ---------- */

@@ -231,29 +231,40 @@
 
                     <t t-call="wujia_portal_layout.wj_data_list">
                         <t t-set="dl_variant" t-value="'compact-row'"/>
-                        <t t-set="dl_class" t-value="'wj-debt-invoices'"/>
                         <t t-foreach="invoices" t-as="inv">
                             <t t-set="ibadge" t-value="INVOICE_BADGE[inv['status']]"/>
-                            <div t-attf-class="wj-debt-inv wj-data-item wj-debt-inv--#{inv['status']}">
-                                <span class="wj-debt-inv__name" t-out="inv['name']"/>
-                                <span t-attf-class="wj-status-badge #{ibadge[1]} wj-debt-inv__badge"
-                                      t-out="ibadge[0]"/>
-                                <span class="wj-debt-inv__meta">
-                                    <t t-if="inv['status'] == 'paid' and summary['confirmed_date']">Đã xác nhận •
-                                        <t t-out="summary['confirmed_date'].strftime('%d/%m/%Y')"/>
+                            <div t-attf-class="wj-debt-inv wj-data-item wj-lc wj-debt-inv--#{inv['status']}">
+                                <t t-call="wujia_portal_layout.wj_list_card">
+                                    <t t-set="lc_name" t-value="inv['name']"/>
+                                    <t t-set="lc_state">
+                                        <span t-attf-class="wj-status-badge wj-status-badge--compact #{ibadge[1]}"
+                                              t-out="ibadge[0]"/>
                                     </t>
-                                    <t t-elif="inv['status'] == 'credit'">Giấy báo có •
-                                        <t t-out="inv['date'].strftime('%d/%m')"/>
+                                    <t t-set="lc_rows">
+                                        <t t-call="wujia_portal_layout.wj_list_card_row">
+                                            <t t-set="lcr_class" t-value="'wj-lc__row--inline'"/>
+                                            <t t-set="lcr_value">
+                                                <t t-if="inv['status'] == 'paid' and summary['confirmed_date']">Đã xác nhận •
+                                                    <t t-out="summary['confirmed_date'].strftime('%d/%m/%Y')"/>
+                                                </t>
+                                                <t t-elif="inv['status'] == 'credit'">Giấy báo có •
+                                                    <t t-out="inv['date'].strftime('%d/%m')"/>
+                                                </t>
+                                                <t t-else="">HĐ <t t-out="inv['date'].strftime('%d/%m')"/> •
+                                                    Hạn <t t-out="inv['due'].strftime('%d/%m')"/>
+                                                </t>
+                                            </t>
+                                        </t>
+                                        <t t-call="wujia_portal_layout.wj_list_card_row">
+                                            <t t-set="lcr_class" t-value="'wj-lc__row--inline'"/>
+                                            <t t-set="lcr_strong" t-value="True"/>
+                                            <t t-set="lcr_label"
+                                               t-value="'Đã trả' if inv['status'] == 'paid' else ('Được trừ' if inv['status'] == 'credit' else 'Còn lại')"/>
+                                            <t t-set="lcr_value"
+                                               t-value="vnd(-inv['amount']) if inv['status'] == 'credit' else vnd(inv['amount'])"/>
+                                        </t>
                                     </t>
-                                    <t t-else="">HĐ <t t-out="inv['date'].strftime('%d/%m')"/> •
-                                        Hạn <t t-out="inv['due'].strftime('%d/%m')"/>
-                                    </t>
-                                </span>
-                                <span class="wj-debt-inv__amount">
-                                    <t t-if="inv['status'] == 'paid'">Đã trả <t t-out="vnd(inv['amount'])"/></t>
-                                    <t t-elif="inv['status'] == 'credit'">Được trừ <t t-out="vnd(-inv['amount'])"/></t>
-                                    <t t-else="">Còn <t t-out="vnd(inv['amount'])"/></t>
-                                </span>
+                                </t>
                             </div>
                         </t>
                     </t>
@@ -540,17 +551,33 @@
                 <t t-else="">
                     <t t-call="wujia_portal_layout.wj_data_list">
                         <t t-set="dl_variant" t-value="'detail-card'"/>
-                        <t t-set="dl_class" t-value="'wj-debt-payments'"/>
                         <t t-foreach="history['payments']" t-as="pay">
-                            <div class="wj-debt-pay wj-data-item">
-                                <span class="wj-debt-pay__ref" t-out="pay['ref']"/>
-                                <span class="wj-status-badge wj-status-badge--info wj-debt-pay__badge">Đã xác nhận</span>
-                                <span class="wj-debt-pay__meta">
-                                    <t t-out="pay['date'].strftime('%d/%m/%Y')"/>
-                                    <t t-out="pay['time']"/> • <t t-out="pay['method']"/>
-                                </span>
-                                <span class="wj-debt-pay__trace">Tham chiếu: <t t-out="pay['trace']"/></span>
-                                <span class="wj-debt-pay__amount" t-out="pay['amount_label']"/>
+                            <div class="wj-debt-pay wj-data-item wj-lc">
+                                <t t-call="wujia_portal_layout.wj_list_card">
+                                    <t t-set="lc_name" t-value="pay['ref']"/>
+                                    <t t-set="lc_state">
+                                        <span class="wj-status-badge wj-status-badge--compact wj-status-badge--info">Đã xác nhận</span>
+                                    </t>
+                                    <t t-set="lc_rows">
+                                        <t t-call="wujia_portal_layout.wj_list_card_row">
+                                            <t t-set="lcr_value">
+                                                <t t-out="pay['date'].strftime('%d/%m/%Y')"/>
+                                                <t t-out="pay['time']"/> • <t t-out="pay['method']"/>
+                                            </t>
+                                        </t>
+                                        <t t-call="wujia_portal_layout.wj_list_card_row">
+                                            <t t-set="lcr_class" t-value="'wj-lc__row--inline'"/>
+                                            <t t-set="lcr_label">Tham chiếu</t>
+                                            <t t-set="lcr_value" t-value="pay['trace']"/>
+                                        </t>
+                                        <t t-call="wujia_portal_layout.wj_list_card_row">
+                                            <t t-set="lcr_class" t-value="'wj-lc__row--inline'"/>
+                                            <t t-set="lcr_strong" t-value="True"/>
+                                            <t t-set="lcr_label">Số tiền</t>
+                                            <t t-set="lcr_value" t-value="pay['amount_label']"/>
+                                        </t>
+                                    </t>
+                                </t>
                             </div>
                         </t>
                     </t>

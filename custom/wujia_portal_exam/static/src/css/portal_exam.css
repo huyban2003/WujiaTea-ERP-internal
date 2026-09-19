@@ -64,24 +64,12 @@
         font-size: 13px;
         color: var(--wujia-text-subtitle);
     }
-    .wujia-mexam-list { display: flex; flex-direction: column; gap: 12px; }
-    .wujia-mexam-card {
-        /* D4d: dáng khung sang .wj-surface-card; giữ tag <a> vì QWeb O19 không đổi tên thẻ. */
-        display: block;
-        text-decoration: none;
-    }
     .wujia-mexam-card-top {
         display: flex;
         align-items: flex-start;
         justify-content: space-between;
         gap: 10px;
         margin-bottom: 10px;
-    }
-    .wujia-mexam-card-title {
-        margin: 0;
-        font-size: 16px;
-        font-weight: 700;
-        color: var(--wujia-text-primary);
     }
     .wujia-mexam-card-line {
         display: flex;
@@ -164,33 +152,7 @@
     .wujia-mexam-chips { margin: 0; }
 
     /* ================= s1 — Chọn khóa thi ================= */
-    .wujia-mexam-courselist { display: flex; flex-direction: column; gap: 12px; }
-    .wj-data-list--detail-card .wujia-mexam-course.wj-data-item {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        gap: 12px;
-    }
     .wujia-mexam-course.is-closed { opacity: 0.55; }
-    .wujia-mexam-course-main { flex: 1 1 auto; min-width: 0; }
-    .wujia-mexam-course-title {
-        margin: 0;
-        font-size: 16px;
-        font-weight: 700;
-        color: var(--wujia-text-primary);
-    }
-    .wujia-mexam-course-meta {
-        margin: 4px 0 10px;
-        font-size: 13px;
-        color: var(--wujia-text-subtitle);
-    }
-    .wujia-mexam-course-choose {
-        flex: 0 0 auto;
-        font-size: 14px;
-        font-weight: 600;
-        color: var(--wujia-primary);
-        text-decoration: none;
-    }
 
     /* ================= Selected card (s2/s3) ================= */
     .wujia-mexam-selcard {
@@ -558,41 +520,11 @@
         font-size: 13px;
         color: var(--wujia-text-subtitle);
     }
-    .wujia-mexam-rlist { display: flex; flex-direction: column; gap: 10px; }
-    .wj-data-list--compact-row .wujia-mexam-rrow.wj-data-item {
-        display: flex;
-        align-items: center;
-        gap: 12px;
-    }
-    .wujia-mexam-rrow-ico {
-        flex: 0 0 auto;
-        width: 26px;
-        height: 26px;
-        border-radius: 50%;
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        color: #FFFFFF;
-    }
-    .wujia-mexam-rrow-ico i { font-size: 15px; }
+    /* Hình học ô icon là của .wj-lc__tile (khung); ở đây chỉ còn màu trạng thái. */
+    .wujia-mexam-rrow-ico { color: #FFFFFF; }
     .wujia-mexam-rrow-ico.is-pass { background: var(--wujia-success); }
     .wujia-mexam-rrow-ico.is-fail { background: var(--wujia-danger); }
-    .wujia-mexam-rrow-main { flex: 1 1 auto; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
-    .wujia-mexam-rrow-name {
-        font-size: 15px;
-        font-weight: 700;
-        color: var(--wujia-text-primary);
-    }
-    .wujia-mexam-rrow-meta {
-        font-size: 13px;
-        color: var(--wujia-text-subtitle);
-    }
     .wujia-mexam-rrow-ico.is-idle { background: var(--wujia-mexam-cal-muted); }
-    .wujia-mexam-rrow-note {
-        font-size: 12.5px;
-        color: var(--wujia-text-subtitle);
-        margin-top: 2px;
-    }
     .wujia-mexam-rnote { margin-top: 0; }
     .wujia-mexam-rnote--warn {
         color: var(--wujia-danger);

@@ -51,6 +51,19 @@ MIGRATED = [
      ('wujia-content-card-row',)),
     ('wujia_portal_base', 'portal_franchise_information.xml', 1,
      (), 'portal_dashboard.css', ('wujia-mdash-row',)),
+    # E5b2 — Thi ×3. `wujia-mexam-card-top`/`-card-line` KHÔNG nằm trong danh sách
+    # phải biến mất: khối tóm tắt phiếu (không phải danh sách) vẫn dùng chúng.
+    ('wujia_portal_exam', 'portal_exam.xml', 3,
+     ('wujia-mexam-list', 'wujia-mexam-card', 'wujia-mexam-card-title',
+      'wujia-mexam-courselist', 'wujia-mexam-course-main', 'wujia-mexam-course-title',
+      'wujia-mexam-course-meta', 'wujia-mexam-course-choose', 'wujia-mexam-rlist',
+      'wujia-mexam-rrow-main', 'wujia-mexam-rrow-name', 'wujia-mexam-rrow-meta',
+      'wujia-mexam-rrow-note'), 'portal_exam.css', ()),
+    ('wujia_portal_debt', 'portal_debt.xml', 2,
+     ('wj-debt-invoices', 'wj-debt-payments', 'wj-debt-inv__name', 'wj-debt-inv__badge',
+      'wj-debt-inv__meta', 'wj-debt-inv__amount', 'wj-debt-pay__ref', 'wj-debt-pay__badge',
+      'wj-debt-pay__meta', 'wj-debt-pay__trace', 'wj-debt-pay__amount'),
+     'portal_debt.css', ()),
 ]
 
 # Màn giữ nguyên grouped rows theo LC-23 — E5 KHÔNG được đụng.
@@ -80,10 +93,17 @@ class TestListCardCallSites(TransactionCase):
                              '%s: số call site ListCard đổi' % module)
 
     def test_item_mang_ca_hai_lop(self):
-        """Neo TOKEN ĐỨNG ĐẦU: `contains()` khớp cả `wj-lc__name` (bẫy D5c #3)."""
-        for module, filename, _n, _cu, _css, _chung in MIGRATED:
+        """Neo TOKEN ĐỨNG ĐẦU: `contains()` khớp cả `wj-lc__name` (bẫy D5c #3).
+
+        Đếm >= SỐ CALL SITE, không phải "có ít nhất một": màn nhiều danh sách
+        (Thi 3, Công nợ 2, Kiến thức 2) mà rơi mất lớp ở một chỗ thì phép đếm
+        "có item nào không" vẫn xanh — mũi mutation M1 của E5b2 lọt đúng kiểu đó.
+        Dấu >= là vì Giao hàng có thêm item skeleton lúc tải."""
+        for module, filename, n, _cu, _css, _chung in MIGRATED:
             items = self._items(module, filename)
-            self.assertTrue(items, '%s: không còn item nào mang wj-lc' % module)
+            self.assertGreaterEqual(
+                len(items), n,
+                '%s: %d call site nhưng chỉ %d item mang wj-lc' % (module, n, len(items)))
             for _el, cls in items:
                 self.assertIn('wj-data-item', cls.split(),
                               '%s: item thiếu wj-data-item (dáng ngoài của D5)' % module)
@@ -96,8 +116,11 @@ class TestListCardCallSites(TransactionCase):
                 view = fh.read()
             css = _strip_comments(_mod_css(module, css_file))
             for ho in cu:
-                self.assertNotIn(ho, view, '%s: họ cũ %s còn trong view' % (module, ho))
-                self.assertNotRegex(css, r'\.%s(?![-\w])' % ho,
+                # So theo TOKEN class, không phải chuỗi con: `wujia-mexam-card` là
+                # tiền tố của `wujia-mexam-card-top` (bẫy tên con BEM, bài học D4e).
+                self.assertNotRegex(view, r'%s(?![-\w])' % re.escape(ho),
+                                    '%s: họ cũ %s còn trong view' % (module, ho))
+                self.assertNotRegex(css, r'\.%s(?![-\w])' % re.escape(ho),
                                     '%s: họ cũ %s còn rule CSS' % (module, ho))
 
     def test_ho_dung_chung_roi_khoi_item_da_migrate(self):
@@ -134,7 +157,11 @@ class TestListCardCallSites(TransactionCase):
                     if not re.search(r'\.wj-lc(?![-\w])|\.wj-lc__', sel):
                         continue
                     khai = {d.split(':')[0].strip() for d in body.split(';') if ':' in d}
-                    if khai and khai <= {'color'} and '.wujia-' in sel:
+                    # Điều kiện thật là "được BỌC bởi một lớp trạng thái của màn",
+                    # không phải "tên lớp bắt đầu bằng .wujia-" (Công nợ dùng
+                    # .wj-debt-inv--overdue, vẫn đúng tính chất được miễn trừ).
+                    ngoai_khung = re.sub(r'\.wj-lc(__[\w-]+)?(--[\w-]+)?', '', sel)
+                    if khai and khai <= {'color'} and '.' in ngoai_khung:
                         continue
                     thay.append('%s → %s' % (fn, sel.strip()[:60]))
         self.assertEqual(thay, [], 'anatomy ListCard bị khai lại ngoài khung')

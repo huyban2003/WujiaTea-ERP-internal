@@ -19,9 +19,11 @@ TMPL = 'wujia_portal_layout.wj_data_list'
 
 @tagged('post_install', '-at_install', 'wujia_data_list_d5')
 class TestDataListExam(TransactionCase):
-    """D5h — Thi: 1 bảng PC + 3 danh sách mobile (`wujia-mexam-card` detail-card,
-    `wujia-mexam-course` detail-card, `wujia-mexam-rrow` compact-row). Variant
-    chọn theo SỐ ĐO trước khi sửa (109,25 và 116,25 → dải 96–120; 70 → dải 64–76).
+    """D5h — Thi: 1 bảng PC + 3 danh sách mobile, cả ba nay dùng ruột ListCard
+    (E5b2) nên item mang `wj-lc`; dáng NGOÀI vẫn là việc của D5.
+    Variant chọn theo SỐ ĐO: lịch thi 104 và khoá thi 96–109 → dải 96–120;
+    danh sách nhân sự đo LẠI sau E5b2 là 92–146, ra khỏi dải compact-row 64–76
+    ⇒ khai `detail-card`.
     Hai call site nằm ở MÀN CON (/portal/exam/register, /portal/exam/registration/N)
     nên bộ đo 10 route BA không nhìn thấy — guard là chỗ duy nhất ghim chúng."""
 
@@ -77,8 +79,10 @@ class TestDataListExam(TransactionCase):
         self.assertEqual(len(self._bang_theo_lop('wj-exam-pc-list-table')), 1)
         self.assertEqual(len(self._bang_theo_lop('wj-exam-pc-res-table')), 1,
                          'bảng kết quả thi (D5h.1) phải nằm trong wj_data_list')
-        self.assertEqual(len(self._calls('detail-card')), 2, 'mexam-card + mexam-course')
-        self.assertEqual(len(self._calls('compact-row')), 1, 'mexam-rrow')
+        self.assertEqual(len(self._calls('detail-card')), 3,
+                         'lịch thi + khoá thi + danh sách nhân sự')
+        self.assertEqual(len(self._calls('compact-row')), 0,
+                         'E5b2: không còn danh sách nào của màn Thi ở dải 64–76')
 
     def test_moi_th_deu_co_scope(self):
         """0/8 trước lượt này. Bảng `wj-exam-pc-part-table` của form nhập KHÔNG
@@ -94,11 +98,12 @@ class TestDataListExam(TransactionCase):
         self.assertEqual(tong, 15, 'số cột hai bảng PC màn Thi đổi (8 + 7)')
 
     def test_item_mobile_mang_ca_hai_lop(self):
-        for ho in ('wujia-mexam-card', 'wujia-mexam-course', 'wujia-mexam-rrow'):
-            found = self._mobile(ho)
-            self.assertEqual(len(found), 1, '%s: phải đúng 1 danh sách' % ho)
-            self.assertIn('wj-data-item', found[0][1].split(),
-                          '%s: item thiếu wj-data-item' % ho)
+        """E5b2: neo theo `wj-lc` — hai trong ba họ cũ đã retire, chỉ còn
+        `wujia-mexam-course`/`-rrow` sống như lớp TRẠNG THÁI (is-closed, màu ô icon)."""
+        found = self._mobile('wj-lc')
+        self.assertEqual(len(found), 3, 'phải đúng 3 danh sách mobile dùng ListCard')
+        for _call, cls in found:
+            self.assertIn('wj-data-item', cls.split(), 'item thiếu wj-data-item')
 
     def test_pager_di_qua_component(self):
         """Trước D5 pager màn Thi hiện dù chỉ 1 trang; E3c đưa cả guard đó vào
@@ -153,49 +158,42 @@ class TestDataListExam(TransactionCase):
                         % (phan.strip(), prop))
         self.assertGreaterEqual(kiem, 3, 'không quét trúng rule nào — guard rỗng')
 
-    def test_mot_chu_so_huu_dang_ba_ho(self):
+    def test_mot_chu_so_huu_dang_item(self):
+        """E5b2: ba họ ruột đã retire (sổ đăng ký E5 canh), chỉ còn
+        `wujia-mexam-course`/`-rrow` sống như lớp TRẠNG THÁI ⇒ cấm khai lại dáng."""
         css = _strip_comments(self._css())
-        DANG = ('padding', 'background', 'border-radius', 'height')
+        DANG = ('padding', 'background', 'border-radius', 'height', 'display')
         kiem = 0
         for khoi in re.finditer(r'([^{}]+)\{([^{}]*)\}', css):
             sel, than = khoi.group(1).strip(), khoi.group(2)
             for phan in sel.split(','):
                 chu = _chu_the(re.sub(r':not\([^)]*\)', '', phan))
-                if not re.match(r'\.(wujia-mexam-card|wujia-mexam-course|wujia-mexam-rrow)(?![-\w])', chu):
+                if not re.match(r'\.(wujia-mexam-course|wujia-mexam-rrow)(?![-\w])', chu):
                     continue
                 kiem += 1
-                if ':not(.wj-data-item)' in phan or '.wj-data-item' in phan:
-                    continue
                 for prop in DANG:
                     self.assertNotRegex(
                         than, r'(^|;)\s*%s\s*:' % prop,
-                        'rule cũ "%s" còn khai %s mà chưa khoá :not(.wj-data-item)'
-                        % (phan.strip(), prop))
-        self.assertGreaterEqual(kiem, 3, 'không quét trúng rule nào — guard rỗng')
+                        'rule "%s" giành lại dáng item bằng %s' % (phan.strip(), prop))
+        self.assertGreaterEqual(kiem, 1, 'không quét trúng rule nào — guard rỗng')
 
-    def test_layout_hai_ho_nam_trong_media(self):
-        """Rule layout phải nằm TRONG @media của portal_exam.css (khối mobile của
-        file này bọc trong @media max-width 991.98) và không giành lại dáng."""
-        css = self._css()
-        for variant, ho in (('detail-card', 'wujia-mexam-course'),
-                            ('compact-row', 'wujia-mexam-rrow')):
-            sel = '.wj-data-list--%s .%s.wj-data-item' % (variant, ho)
-            than = _rule_in_media(css, sel)
-            self.assertIsNotNone(than, 'thiếu rule layout %s trong @media' % sel)
-            for prop in ('padding', 'background', 'border-radius', 'height', 'min-height'):
-                self.assertNotRegex(than, r'(^|;)\s*%s\s*:' % prop,
-                                    '%s giành lại dáng bằng %s' % (sel, prop))
-            self.assertRegex(than, r'display\s*:\s*flex', '%s mất layout flex' % sel)
+    def test_khong_con_rule_layout_rieng_cho_item(self):
+        """E5b2 đảo chiều test cũ: layout bên trong item nay là của ListCard ⇒ màn
+        KHÔNG được khai lại rule layout cho item, nếu không hai bộ dáng lại đè nhau."""
+        css = _strip_comments(self._css())
+        for ho in ('wujia-mexam-course', 'wujia-mexam-rrow'):
+            for variant in ('detail-card', 'compact-row'):
+                sel = '.wj-data-list--%s .%s.wj-data-item' % (variant, ho)
+                self.assertIsNone(_rule_in_media(css, sel),
+                                  '%s: rule layout riêng quay lại' % sel)
 
     def test_surface_card_khong_bi_sua(self):
-        """`wujia-mexam-card` mang cả wj-surface-card (D4) lẫn wj-data-item (D5).
-        D5 đè dáng bằng ĐỘ ĐẶC HIỆU tại call site — component D4 phải bất biến."""
+        """E5b2: item màn Thi rời `wj-surface-card` — dáng ngoài nay do D5
+        detail-card lo một mình. Component D4 vẫn phải bất biến."""
         css = _css('_components.css')
         than = _rule(css, '.wj-surface-card')
         self.assertIsNotNone(than, 'mất rule .wj-surface-card')
         self.assertRegex(than, r'border-radius:\s*var\(--wujia-surface-radius\)',
                          'CSS của SurfaceCard đã bị sửa ở lượt D5h')
-        found = self._mobile('wujia-mexam-card')
-        self.assertEqual(len(found), 1)
-        self.assertIn('wj-surface-card', found[0][1].split(),
-                      'item thi mất lớp wj-surface-card của D4')
+        self.assertEqual(self._mobile('wj-surface-card'), [],
+                         'item màn Thi lại mang hai chủ dáng (D4 + D5)')

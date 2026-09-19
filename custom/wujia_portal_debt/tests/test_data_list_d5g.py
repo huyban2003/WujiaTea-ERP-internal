@@ -21,7 +21,9 @@ TMPL = 'wujia_portal_layout.wj_data_list'
 class TestDataListDebt(TransactionCase):
     """D5g — Công nợ: 2 bảng PC + 2 danh sách mobile (`wj-debt-inv` compact-row,
     `wj-debt-pay` detail-card). Variant chọn theo SỐ ĐO trước khi sửa (62 → dải
-    64–76; 96 → dải 96–120), không theo tên gọi."""
+    64–76; 96 → dải 96–120), không theo tên gọi.
+    E5b2: ruột hai danh sách chuyển sang ListCard ⇒ hai họ cũ chỉ còn là lớp
+    TRẠNG THÁI (tô màu số tiền theo quá hạn/đã trả); dáng NGOÀI vẫn là việc D5."""
 
     VIEW = ('wujia_portal_debt', 'portal_debt.xml')
 
@@ -106,44 +108,33 @@ class TestDataListDebt(TransactionCase):
             thay += 1
         self.assertGreaterEqual(thay, 2, 'không quét trúng bảng nào — guard rỗng')
 
-    def test_mot_chu_so_huu_dang_hai_ho(self):
-        """Sau migrate, dáng (padding/nền/radius/height) chỉ được khai ở tầng
-        `.wj-data-item`. Rule cũ phải bị khoá bằng `:not(.wj-data-item)`."""
+    def test_hai_ho_cu_chi_con_to_mau(self):
+        """E5b2 siết chặt hơn bản cũ: hai họ không chỉ nhường dáng cho
+        `.wj-data-item` mà nhường cả ruột cho ListCard — rule nào còn nhắc tới
+        chúng thì chỉ được khai `color` (trạng thái quá hạn/đã trả)."""
         css = _strip_comments(self._css())
-        DANG = ('padding', 'background', 'border-radius', 'height')
         kiem = 0
         for khoi in re.finditer(r'([^{}]+)\{([^{}]*)\}', css):
             sel, than = khoi.group(1).strip(), khoi.group(2)
             for phan in sel.split(','):
-                # Bóc :not(...) TRƯỚC khi xét, nếu không điều kiện tự chứa
-                # '.wj-data-item' và guard xanh rỗng (bẫy D5e #2).
-                chu = _chu_the(re.sub(r':not\([^)]*\)', '', phan))
-                if not re.match(r'\.(wj-debt-inv|wj-debt-pay)(?![-\w])', chu):
+                # Phải nuốt cả modifier `--overdue`/`--paid`, nếu không lookahead
+                # chặn ngay dấu gạch và guard xanh rỗng (0 rule quét trúng).
+                if not re.search(r'\.(wj-debt-inv|wj-debt-pay)(--[\w-]+)?(?![-\w])', phan):
                     continue
                 kiem += 1
-                if ':not(.wj-data-item)' in phan or '.wj-data-item' in phan:
-                    continue
-                for prop in DANG:
-                    self.assertNotRegex(
-                        than, r'(^|;)\s*%s\s*:' % prop,
-                        'rule cũ "%s" còn khai %s mà chưa khoá :not(.wj-data-item)'
-                        % (phan.strip(), prop))
-        # F4 xoá 2 rule vỏ `:not(.wj-data-item)`; còn 2 rule layout của hai họ.
+                khai = {d.split(':')[0].strip() for d in than.split(';') if ':' in d}
+                self.assertTrue(khai <= {'color'},
+                                'rule "%s" khai ngoài color: %s'
+                                % (phan.strip(), sorted(khai - {'color'})))
         self.assertGreaterEqual(kiem, 2, 'không quét trúng rule nào — guard rỗng')
 
-    def test_layout_khong_gianh_lai_dang(self):
-        """Tầng layout của từng họ chỉ được khai LAYOUT. portal_debt.css không có
-        @media cho mobile (khối mobile ẩn bằng d-lg-none ở XML) nên phạm vi đến từ
-        chính lớp variant — khác D5e/D5f, phải kiểm ở tầng gốc."""
+    def test_khong_con_rule_layout_rieng_cho_item(self):
+        """Đảo chiều test layout cũ: bố cục bên trong item nay do ListCard giữ,
+        màn khai lại rule layout là hai bộ dáng lại đè nhau đúng chỗ vừa dọn."""
         css = self._css()
         for variant, ho in (('compact-row', 'wj-debt-inv'), ('detail-card', 'wj-debt-pay')):
             sel = '.wj-data-list--%s .%s.wj-data-item' % (variant, ho)
-            than = _rule(css, sel)
-            self.assertIsNotNone(than, 'thiếu rule layout %s' % sel)
-            for prop in ('padding', 'background', 'border-radius', 'height', 'min-height'):
-                self.assertNotRegex(than, r'(^|;)\s*%s\s*:' % prop,
-                                    '%s giành lại dáng bằng %s' % (sel, prop))
-            self.assertRegex(than, r'display\s*:\s*grid', '%s mất layout grid' % sel)
+            self.assertIsNone(_rule(css, sel), '%s: rule layout riêng quay lại' % sel)
 
     def test_radius_khong_dung_token_chung(self):
         """Radius 12 của variant phải đè TẠI rule variant; token dùng chung

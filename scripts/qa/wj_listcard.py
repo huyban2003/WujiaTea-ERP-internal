@@ -35,6 +35,13 @@ ROUTES = [
     '/portal/return',
     '/portal/knowledge',
     '/portal/franchise-information',
+    # E5b2 — Thi ×3 + Công nợ ×2. Công nợ phải đo qua `?all=1`: màn mặc định chỉ
+    # xem trước 2 hoá đơn (INVOICE_PREVIEW) nên không đủ 3 nhánh nhãn tiền.
+    '/portal/exam',
+    '/portal/exam/register',
+    '/portal/exam/registration/9',
+    '/portal/debt?all=1',
+    '/portal/debt/payment-history',
 ]
 
 JS = r"""

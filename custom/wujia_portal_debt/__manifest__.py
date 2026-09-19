@@ -1,6 +1,6 @@
 {
     'name': 'Wujia Portal — Công nợ & thanh toán',
-    'version': '19.0.4.8.4',
+    'version': '19.0.4.9.0',
     'category': 'Wujia',
     'summary': 'Công nợ theo tuần, lịch sử thanh toán và màn chuyển khoản (portal mobile + PC)',
     'description': """

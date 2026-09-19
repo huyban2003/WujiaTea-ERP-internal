@@ -700,3 +700,88 @@ rồi đánh ✅ ở bảng Trạng thái §2 `docs/next-session-clusters-F.md`.
   `docs/e5b1-acceptance-matrix.md` §"Còn treo".
 - Chốt phiên: **issue CHƯA đóng** — `UI-LISTCARD-001` ghi ledger + `Ready for Retest` ở **cuối E5c**.
   **Không tự deploy UAT.**
+
+## DOC-CTRL — Kiểm kê controller cho BA (19/09/2026 · Mac)
+
+- Phiên **tài liệu**, không phải phiên F. **0 dòng code nghiệp vụ**: `git status` chỉ có `docs/` +
+  `scripts/qa/`, **0 file dưới `custom/`**.
+- Yêu cầu gốc (chủ dự án chuyển từ BA): *"cần check code và server xem đã có những controller nào,
+  ở phân hệ nào, chức năng gì — để BA còn lên task tiếp"*, ra **`.tex` → PDF**. Chốt thêm:
+  phạm vi `wujia_*`, **có** đối chiếu UAT (chỉ-đọc), PDF **độc lập** (không nhét vào master 300
+  trang), và **ghi mỗi controller ứng với mục `CT-0xx` nào** + mục CT nào chưa có code.
+- Làm:
+  - `scripts/qa/controller_inventory.py` (**mới**, không tiền tố `wj_` theo luật F0) — duyệt **AST**,
+    không grep. Mỗi hàm có `@http.route` xuất: module · file · dòng · class · bases · method · paths ·
+    type · auth · methods · csrf · website/sitemap · docstring dòng đầu · model `env[...]` dùng trong
+    thân. Ra `docs/controller-inventory/routes.json`.
+  - Đọc UAT **chỉ-đọc** qua XML-RPC (`ir.module.module`) → cột "Trên UAT".
+  - Đọc tab `3. Controller` bằng `sheet_io.read_values` → `docs/controller-inventory/ba_ct.json`.
+  - Đọc tay 21 file controller để viết cột **chức năng nghiệp vụ** (máy sinh metadata, không sinh
+    được nghiệp vụ).
+  - `docs/controller-inventory.tex` → `controller-inventory.pdf` (**20 trang**, `lualatex` ×2,
+    **không** qua `build-doc.sh`).
+- Số đo chốt: **103 route · 106 path · 21 class · 23 file** (21 có route + 2 helper) · **16 module**
+  có controller. CT: **71 mục thật** (CT-001…CT-071) = **56 ĐÃ CÓ · 6 MỘT PHẦN · 9 CHƯA CÓ**.
+- Bẫy gặp:
+  - **Đếm class sai 19 vs 20**: `WujiaPortal(CustomerPortal)` và `WujiaAuthController(AuthSignupHome)`
+    có base **không chứa chữ "Controller"**. Sửa: nhận diện controller bằng **"có route"**, không bằng
+    tên base ⇒ **21 class**. (Số route chưa bao giờ sai — chỉ class.)
+  - **DB trên UAT là `wujia_tea_19`**, không phải `wujia_tea` — xác minh bằng `/xmlrpc/2/db` `list()`
+    sau khi authenticate báo `database does not exist`. Traceback cũng lộ UAT chạy **Windows**
+    (`D:\wujia-tea\odoo19`).
+  - **Plan đếm bằng mắt sai**: plan ghi 17 file / 15 module / 20 class / 73 CT; máy đếm ra
+    **23 / 16 / 21 / 71**. Hai dòng `CT-024.`/`CT-025.` cuối tab là **chữ thừa dưới bảng**, không
+    phải mục.
+  - Macro `\part` **trùng lệnh sectioning của LaTeX** ⇒ 100 lỗi `Misplaced \cr`. Đổi thành `\pt`.
+  - Font **Lato không có trên máy này** ⇒ preamble ADR-027 chép sang phải đổi `\setmainfont`
+    sang **Noto Sans**.
+- Việc có ích cho BA (chương 6 của PDF): 8 module đang **lệch repo↔UAT** = E5a + E5b1 chưa deploy
+  (chỉ giao diện, không mất chức năng) · **7 điểm cần BA xác nhận** (nguồn dữ liệu công nợ chưa nối
+  `account.move` · ticket lọc theo **người tạo** chứ không theo cửa hàng · thành viên: Nhân viên có
+  được xem không · cửa hàng lưu bằng **cookie** không phải session · đổi trả **1 sản phẩm/yêu cầu** ·
+  QR thanh toán · 2 dòng thừa cuối tab) · **CT-061…CT-067** (ca làm, chấm công, nghỉ phép, chi phí)
+  **chưa có dòng code nào** · **F6–F13 sẽ dời controller sang module khác nhưng URL không đổi** ⇒ BA
+  **đừng lên task viết lại** các controller đó.
+- Nợ mang sang: **11 nhóm route đã có code mà tab CT chưa mô tả** (quên/đặt lại mật khẩu, đổi ngôn
+  ngữ, PDF đơn hàng, `.ics` giao hàng, 6 nhánh `.../results`, đồng bộ giỏ, 2 ảnh, 9 redirect 301, 12
+  route Khảo sát, 2 route Metabase) — chờ BA bổ sung spec.
+- Phiên kế: **E5b2** — Thi ×3 (LC-19) + Công nợ ×2 (LC-21), không đổi (phiên này không lấn lộ trình F).
+- Chốt phiên: **không deploy**, **không đụng Issue List**, **không ghi sheet**.
+
+## E5b2 — ListCard `CMP-LC-001`: 5 call site cuối, khép cụm E5b (19/09/2026 · Mac)
+
+- Chốt đầu phiên của chủ dự án: **wizard "Chọn khóa thi" có migrate**, nút "Chọn" vào slot
+  `lc_actions` · **tiền tách nhãn** ra `lcr_label` (`Còn lại` / `Đã trả` / `Được trừ`), số là giá trị
+  đậm · chốt lượt **commit + push `main`, KHÔNG deploy UAT, issue vẫn mở** (đóng ở E5c).
+- Làm được:
+  - **5 call site cuối** về `.wj-lc`: `/portal/exam` · `/portal/exam/register` bước 1 ·
+    `/portal/exam/registration/<id>` · `/portal/debt` · `/portal/debt/payment-history`.
+    ⇒ **22/22 call site** của `UI-LISTCARD-001` đã về component, khép **E5b**.
+  - Gỡ **100 dòng CSS** anatomy theo màn (Thi 70 · Công nợ 30). Giữ có chủ đích
+    `wujia-mexam-card-top`/`-card-line` (khối tóm tắt phiếu, **không phải** danh sách); thu hẹp
+    `portal_debt.css` còn **2 rule màu** bám đúng `.wj-lc__value--strong`.
+  - Khung chỉ thêm **1 rule** `.wj-lc__link` (`?v=1311 → 1312`) — không màn nào khai `.wj-lc*` riêng.
+  - **Gieo dữ liệu trước khi đo** (`scripts/seed_e5b2_demo.py`, LOCAL-ONLY, idempotent): 2 khoá thi
+    Còn lịch/Đã đóng · phiếu đã công bố có Đạt + Không đạt + ghi chú · tuần mặc định có quá hạn/giấy
+    báo có/đã trả · 3 thông báo **đã đọc** (trả nợ "mẫu một chiều" của E5b1).
+  - Test: 2 file **mới** đúng chủ (`wujia_portal_exam/tests/test_list_card_e5b2.py` 6 test ·
+    `wujia_portal_debt/tests/test_list_card_e5b2.py` 5 test); sổ `MIGRATED` 7 → **9**; **đảo chiều**
+    2 test layout D5g/D5h (bố cục trong item nay là của ListCard ⇒ **cấm** màn khai lại).
+- Số đo: inventory DIFF 14 route × 2 khổ = **13 dòng, tất cả là món tách nhãn đã chốt**, 0 lệch số
+  record · `wj_listcard` **12 route × 5 khổ, 0 vi phạm** · `wj_nesting` 0 · `wj_datalist` 0 ·
+  `wj_measure` 0 tràn/0 lỗi JS/0 redirect · Home + 7 route chưa migrate + **bảng PC của cả 5 màn vừa
+  sửa** giữ **nguyên chữ ký DOM** · wizard 4 bước chạy thật PASS · **14/14 mũi mutation** · suite
+  **653 tests, 0 failed, 0 error** · `check_layers` 3 R1–R5 + 2 R7 **có sẵn**.
+- Ba bài học ghi lại:
+  1. **Guard markup không thay được chạy thật**: JS wizard đọc `.wj-card-header__title` của card khoá
+     thi — sau migrate card không còn header nên bước 2 hiện **tiêu đề rỗng**. Phép đo trình duyệt
+     bắt được; test D3d của màn cũng đỏ đúng chỗ.
+  2. **Sổ đăng ký đếm "có ít nhất một" là guard yếu**: mũi M1 bỏ `wj-lc` ở một trong ba call site của
+     Thi mà sổ vẫn xanh ⇒ siết thành **đếm >= số call site**.
+  3. **Bẫy tên con BEM lại xuất hiện**: `assertNotIn('wujia-mexam-card', view)` khớp
+     `wujia-mexam-card-top`; so theo **token** (`(?![-\w])`) mới đúng.
+- Còn treo → `docs/e5b2-acceptance-matrix.md` §"Còn treo sang E5c" + **2 câu hỏi BA** (ô icon
+  `.wj-lc__tile`; **dải cao hai variant không còn phủ hết thực tế**: nhân sự có ghi chú **146px**,
+  hoá đơn 2 hàng phụ **80px** — rơi vào khe giữa 76 và 96).
+- Chốt phiên: **issue CHƯA đóng** — `UI-LISTCARD-001` ghi ledger + `Ready for Retest` ở **cuối E5c**.
+  **Không tự deploy UAT.** Prompt phiên kế: `docs/prompt-e5c.md`.

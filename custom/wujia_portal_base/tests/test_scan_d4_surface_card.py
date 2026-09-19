@@ -230,7 +230,7 @@ class TestSurfaceCardD4d(TransactionCase):
     def test_module_owned_families_no_longer_declare_shape(self):
         for module, name, sels in (
                 ('wujia_portal_exam', 'portal_exam.css',
-                 ('.wujia-mexam-card', '.wujia-mexam-cfcard')),
+                 ('.wujia-mexam-cfcard',)),
                 ('wujia_portal_notification', 'portal_notification.css',
                  ('.wujia-mnoti-detail-card',)),
                 ('wujia_portal_delivery', 'portal_delivery.css',
@@ -330,8 +330,9 @@ class TestSurfaceCardD4d(TransactionCase):
         # 6 <form method="get"> lọc, 1 <article> landmark, 1 <a> wholeCard và 1
         # <div role="status"> — t-call sinh <div> trơn nên sẽ nuốt mất tag/thuộc
         # tính. Giữ tag, thêm thẳng class (cách D4c đã chốt).
+        # E5b2: card lịch thi rời khỏi SurfaceCard — dáng ngoài nay do D5
+        # (.wj-data-list--detail-card .wj-data-item) lo, nên bỏ khỏi bảng này.
         for key, tag in (('wujia_portal_knowledge.portal_knowledge_detail', '<article'),
-                         ('wujia_portal_exam.portal_exam_schedule', '<a'),
                          ('wujia_portal_sale.mres_shell', 'role="status"')):
             view = self.env['ir.ui.view'].search([('key', '=', key)], limit=1)
             with self.subTest(key=key):
