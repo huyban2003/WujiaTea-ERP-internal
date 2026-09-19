@@ -221,6 +221,23 @@ Phát sinh khi vá P2 thứ hai: chấm 8×8 nay có ô thật nên `wj_listcard
 card" (**35 vi phạm LC-01 giả**). Sửa ở đúng tầng khái niệm: **phần tử ≤ 12px không thể là khung
 trong khung** — nó là *chấm tín hiệu*. Đo lại: **0 vi phạm**. Suite sau khi vá: **687 tests, 0 đỏ**.
 
+## Đo lại trên UAT sau khi deploy (19/09/2026, chỉ đọc, tài khoản admin)
+
+`scratchpad/e5c/uat_check.py` — 10 route ở khổ 390 trên `http://113.161.187.126:8019`:
+
+| Phép đo | Kết quả trên UAT |
+|---|---|
+| Nhịp lọc → nội dung | **16** ở cả 6 màn có thanh lọc (Thông báo · Hỗ trợ · Đổi trả · Kiến thức · Thi · Giao hàng) |
+| Gutter item | **12/12** ở mọi màn có bản ghi |
+| Đệm item | **`12px`** |
+| Gutter khung trang (`.content-wrapper`) | **12/12** ở `/portal/order`, `/portal/purchase-history`, `/portal/notification` và cả `/portal/inspection` (màn của anh Thái) |
+| Tràn ngang · lỗi JS | **0 · 0** |
+
+Hai thứ **không** kiểm được bằng tài khoản admin vì admin không gắn cửa hàng nên các danh sách
+Lịch sử mua hàng · Đặt hàng · Công nợ · Thi đều rỗng: **chấm "chưa đọc"** và **vùng chạm nút
+“Chọn”**. Hai món này đã đo bằng trình duyệt trên DB local (8×8 và 45×45) — xin BA xác nhận lại
+bằng tài khoản cửa hàng khi retest.
+
 ## Trạng thái issue
 
 `UI-LISTCARD-001` → **`Ready for Retest`**, Build/Deploy *Chờ deploy UAT*. Dev **không** đặt `Done`,
