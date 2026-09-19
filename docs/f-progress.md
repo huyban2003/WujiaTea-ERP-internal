@@ -595,3 +595,6 @@ rồi đánh ✅ ở bảng Trạng thái §2 `docs/next-session-clusters-F.md`.
   — đã ghi thành việc bắt buộc của **E5** trong `docs/prompt-e5.md`.
 - Phiên kế: **E5** — ListCard `CMP-LC-001` (`UI-LISTCARD-001`, STT 136, dòng tuyệt đối 129).
   Prompt sẵn: `docs/prompt-e5.md`.
+- Chốt phiên: commit **`faa76f5`** đã push `main`; ledger `UI-FILTER-001` + `qa_sync --apply` ⇒ sheet
+  dòng tuyệt đối **132** (STT 139) về **`Ready for Retest`**, Owner `BA/Tester`, cột Build ghi rõ
+  **CHƯA lên UAT** (chủ dự án tự deploy). Lệnh `-u` gộp 12 module nằm ở `docs/e4c-acceptance-matrix.md` §8.
