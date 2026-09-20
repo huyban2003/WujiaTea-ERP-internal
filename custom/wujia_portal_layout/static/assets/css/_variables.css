@@ -329,6 +329,13 @@
 
     /* ---------- Mobile Filter canonical (Figma 4785:498 — wj-filter-*) ---------- */
     --wujia-filter-field-bg:     #F8FAFC;   /* search / date pill fill */
+    /* Chiều cao nút TRONG thanh lọc — FB-08 giữ 42/38/32 và nói rõ ưu tiên hơn
+       size mặc định của CMP-BTN-001 (40/44). Khai ở đây để nút lọc của mọi màn
+       đọc cùng một nguồn, kể cả 3 màn tự dựng thanh lọc (Công nợ PC/mobile,
+       Đặt hàng mobile) mà E4 đã đo và ký duyệt. */
+    --wj-filter-btn-h-pc:        42px;
+    --wj-filter-btn-h-m:         38px;
+    --wj-filter-btn-h-sm:        32px;
 
     /* ---------- Mobile Shell FINAL (header 104 / strip 48 / footer 83) ---------- */
     --wujia-mshell-primary:            #28A9DF;

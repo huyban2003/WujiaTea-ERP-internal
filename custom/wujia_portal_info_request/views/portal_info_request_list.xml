@@ -98,7 +98,9 @@
                                         <span t-attf-class="wj-status-badge #{lbl[1]}" t-out="lbl[0]"/>
                                     </td>
                                     <td class="text-end">
-                                        <a t-attf-href="/portal/info-request/#{rec.id}" class="btn btn-sm btn-outline-primary">
+                                        <a t-attf-href="/portal/info-request/#{rec.id}"
+                                           class="wj-iconbtn wj-iconbtn--secondary wj-iconbtn--sm"
+                                           aria-label="Xem chi tiết yêu cầu" title="Xem chi tiết yêu cầu">
                                             <i class="fa fa-eye"/>
                                         </a>
                                     </td>

@@ -966,3 +966,50 @@ rồi đánh ✅ ở bảng Trạng thái §2 `docs/next-session-clusters-F.md`.
 - Phiên kế: theo bảng §2 `docs/next-session-clusters-F.md` — cụm F tiếp tục. Việc cần biết trước:
   42 điểm nhóm **CH** trong chương 10 chính là danh sách chuẩn hoá cụm F đã có bằng chứng số, dùng
   thẳng được làm đầu vào; và **BA không lên task cho nhóm CH**.
+
+## E6b1 — Button `CMP-BTN-001`: nghiệp vụ còn lại + Công nợ + luật ranh giới thanh lọc (20/09/2026 · Mac)
+- Kết quả: ✅ xong lượt E6b1 — `UI-BUTTON-001` (STT 132, dòng 125) **vẫn mở**, đóng ở E6c.
+- Chốt đầu phiên của chủ dự án: chia E6b thành **E6b1** (nghiệp vụ + Công nợ) → **E6b2** (Đặt hàng/giỏ
+  + màn auth, submit 50→46) · nhóm "nửa boundary" **xử lý nhiều nhất có thể** · atom Primary đổi sang
+  **#0F7CA8** thay vì #28A9DF của BA (giữ chuẩn a11y, sửa một chỗ) · cuối phiên **commit + push `main`,
+  KHÔNG deploy UAT**, issue vẫn mở.
+- Đã làm:
+  - **32 call site / 11 file / 7 module** về atom: Giao hàng 6 · Thư viện 3 · Yêu cầu thông tin 5 ·
+    Lịch sử mua 2 · Nền portal 5 (store picker, danh sách/hồ sơ cửa hàng) · **Công nợ 10**.
+  - **Luật ranh giới thanh lọc** — trả lời câu "làm sao đồng bộ": cùng file `portal_debt.xml`, cùng
+    class `wj-pc-btn--primary` vừa là nút lọc (giữ 42 theo FB-08) vừa là nút hành động (về 40 theo
+    CMP-BTN-001) ⇒ đồng bộ theo **ngữ cảnh** ở 4 tầng: token hoá 42/38/32 · CSS khai theo ngữ cảnh
+    (`.wj-debt-pc-filter .wj-pc-btn`) · thước đo nhận diện theo **tổ tiên DOM** thay vì tiền tố class ·
+    **test bắt chéo hai chiều** (không nút lọc nào được mang atom · từng khối CSS nút lọc phải đọc token).
+  - **Vá 8 lỗi a11y thật**: 4 nút sao chép công nợ, 2 nút đóng modal, 2 nút xem chi tiết nay có
+    `aria-label` tiếng Việt; 2 nút icon navbar (chuông, giỏ) cũng được đặt tên dù giữ boundary.
+  - **Sửa bẫy "Pass rỗng" của chính thước đo** (phần nặng nhất phiên): lần đo đầu xanh nhưng **6/9
+    route trong sổ ra 0 nút** — sổ ghi sai route (`/portal/franchise-information` render template
+    khác), nút chỉ dựng ở khối rỗng, bảng yêu cầu **0 bản ghi**, màn lịch sử thanh toán vốn không có
+    nút. Sửa cả sổ lẫn luật: route trong sổ mà không dựng nổi nút nào ⇒ **vi phạm**; so route bằng
+    chuỗi đầy đủ; so URL sau khi giải mã `%`; **màn chi tiết dò lúc chạy** từ trang danh sách.
+  - **`scratchpad/e6b1/overlay_probe.py`**: 5 call site nằm trong lớp phủ (store picker, modal thanh
+    toán) không route nào thấy vì mặc định ẩn ⇒ probe mở lớp phủ rồi đo bằng đúng PROBE của thước đo.
+- Số đo: thước đo **18 route × 5 khổ, 0 vi phạm · 0 lỗi JS**, **278 ô atom** đúng 6 con số BA (PC 32/40,
+  mobile 36/44/48, radius 8/12, chạm mobile nhỏ nhất 44); zoom 200% (720/512) **0 vi phạm**; lớp phủ
+  **0 vi phạm** · suite **714 tests, 0 đỏ** (mốc E6a 708, +6 test mới) · mutation **8/8 mũi đỏ đúng
+  guard** · `wj_filterbar` **ĐẠT** · `wj_measure` 0 tràn/0 lỗi JS/0 redirect/0 HIERARCHY · `wj_listcard`
+  0 · `wj_nesting` 0 · `b4_regression` **286/286** · `check_layers` 3 R1–R5 + 2 R7 **có sẵn, không thêm**.
+- Lệch plan / quyết định mới:
+  - **LIMIT** nút icon navbar (chuông + giỏ) **là boundary** — plan định migrate, đo ra 96 vi phạm:
+    `_pc_account.css` cố ý cho hai nút 40×40 bo 20 nền kính để thắng padding `.nav-link` của Vuexy.
+    Cùng loại BottomNavigation mà BA đã liệt boundary ⇒ giữ nguyên, ghim bằng test.
+  - **LIMIT** `/my/franchises` dùng khung `portal.portal_layout` của Odoo, CSS design system không nạp
+    ở đó nên atom ra **nút trần** ⇒ trả lại Bootstrap; bản Vuexy `/portal/franchises` mới là atom.
+  - **IMPACT** atom Primary `#28A9DF` → `#0F7CA8` (BA ghi màu trượt WCAG AA 2.68; #0F7CA8 = 4.7 và đã
+    là CTA portal từ Sprint 38) — **ảnh hưởng ngược 21 call site của E6a**, đã chụp lại đối chiếu:
+    chỉ màn có nút Primary đổi, 2 màn danh sách giống hệt từng byte.
+  - Số call site **32** chứ không phải 34 của plan (trừ 2 nút navbar); Công nợ **10/13** chứ không 11.
+  - `btn-outline-danger` → `wj-btn--danger` đặc (BA không có bậc outline-danger).
+  - Sửa 2 sổ của cụm khác cho khớp: F4 bỏ dòng `wj-debt-pc-pdf wj-state-surface` (nút đã về
+    `--secondary`, variant nằm sẵn trong danh sách bề mặt) · E4 đổi ghim `38px` cứng sang ghim **token**.
+- Nợ để lại: **E6b2** Đặt hàng/giỏ (25 action) + màn auth (submit 50→46) · **E6c** màn Thi + gạch 12
+  của BA + **một lần deploy UAT** rồi đóng issue · sổ thước đo còn 2 route phụ thuộc dữ liệu mẫu.
+- Phiên kế: **E6b2** — việc cần biết trước: `/portal/order` có 25 action và **JS dựng nút giỏ**, phải
+  grep `querySelector` trước khi đổi class; màn auth nằm ngoài vỏ portal nên kiểm CSS có nạp không
+  (bài học `/my/franchises` phiên này).

@@ -22,6 +22,7 @@ là vi phạm: đó là cách chặn bảng "Pass rỗng" đã trả giá ở D4
 """
 import argparse
 import json
+from urllib.parse import unquote
 import os
 import sys
 
@@ -31,16 +32,77 @@ from wj_measure import login  # noqa: E402
 BREAKPOINTS = [360, 390, 992, 1024, 1440]
 
 # Route ĐÃ migrate sang atom — cộng dồn qua E6a → E6b → E6c.
+# Route ở đây phải THỰC SỰ dựng call site đã migrate. Biến thể `?q=…` là cố ý:
+# khối rỗng ("Xóa lọc" / "Tải lại") chỉ dựng khi bộ lọc không khớp gì, đo route
+# trần thì màn có dữ liệu và bảng ra 0 nút — đúng bẫy "Pass rỗng" của D4/E5c.
+NO_MATCH = 'zzzq-khong-khop'
 MIGRATED = [
+    # E6a
     '/portal/support',
     '/portal/support/new',
     '/portal/return',
     '/portal/return/new',
     '/portal/notification',
+    # E6b1
+    '/portal/delivery',
+    '/portal/delivery?q=' + NO_MATCH,
+    '/portal/knowledge?keyword=' + NO_MATCH,
+    '@knowledge_detail',
+    '/portal/info-request',
+    '@info_request_detail',
+    '/portal/info-request/new',
+    '/portal/purchase-history?q=' + NO_MATCH,
+    '/portal/debt',
+    '/portal/debt/pay',
+    '/portal/franchises',
+    '/portal/franchises/3/profile',
 ]
 
-# Route đo kèm để bắt hồi quy (chưa migrate: chỉ in kiểm kê, không tính vi phạm).
-WATCH = ['/portal', '/portal/purchase-history', '/portal/delivery', '/portal/knowledge']
+# Route đo kèm để bắt hồi quy (chưa migrate hoặc không có nút hành động nào:
+# chỉ in kiểm kê, không tính vi phạm).
+WATCH = [
+    '/portal',
+    # /my/franchises dựng bằng khung portal gốc Odoo (`portal.portal_layout`),
+    # CSS design system không nạp ở đó ⇒ boundary, chỉ kiểm kê.
+    '/my/franchises',
+    '/portal/knowledge',
+    '/portal/purchase-history',
+    '/portal/debt/payment-history',
+    '/portal/franchise-information',
+    '/portal/order',
+    '/portal/order/cart',
+]
+
+# Màn chi tiết phụ thuộc dữ liệu (slug bài viết, id yêu cầu). Ghi cứng vào sổ thì
+# sổ chết theo bộ dữ liệu mẫu — E6b1 đã dính đúng thế: slug ghi cứng trỏ vào bài
+# đã lưu trữ, route chuyển hướng, bảng ra "Pass rỗng". Dò từ trang danh sách.
+DYNAMIC = {
+    '@knowledge_detail': ('/portal/knowledge', '/portal/knowledge/'),
+    '@info_request_detail': ('/portal/info-request', '/portal/info-request/'),
+}
+
+
+def resolve_dynamic(page, base, routes):
+    """Thay placeholder bằng URL thật; không dò ra thì giữ nguyên để báo lỗi to."""
+    for key, (list_route, prefix) in DYNAMIC.items():
+        if key not in routes and key not in MIGRATED:
+            continue
+        page.goto(base + list_route, wait_until='load')
+        page.wait_for_timeout(300)
+        hrefs = page.eval_on_selector_all(
+            'a[href^="%s"]' % prefix, 'els => els.map(e => e.getAttribute("href"))')
+        hit = next((h for h in hrefs
+                    if h and '?' not in h and '/attachment/' not in h
+                    and not h.rstrip('/').endswith('/new')
+                    and h.rstrip('/') != prefix.rstrip('/')), None)
+        if not hit:
+            print('!! %s: không dò được màn chi tiết từ %s' % (key, list_route))
+            continue
+        for seq in (MIGRATED, routes):
+            if key in seq:
+                seq[seq.index(key)] = hit
+        print('   %s → %s' % (key, hit))
+
 
 PROBE = r"""
 (args) => {
@@ -58,9 +120,22 @@ PROBE = r"""
                     'wj-filter', 'wj-pc-filterbar', 'wujia-mcart-step', 'wujia-morder-mstep',
                     'wj-pc-cart-step', 'wj-pc-stepper', 'wujia-mcart-stepper',
                     'wujia-morder-mstepper', 'wj-page-header__back',
+                    'wujia-header-icon', 'wj-pc-navactions',
                     'wj-inspection', 'wujia-minspection'];
   const clsOf = el => (el.className || '').toString().split(/\s+/).filter(Boolean);
+  // E6b1: nhận theo NGỮ CẢNH, không theo tên họ class. Trong cùng một màn Công
+  // nợ, `wj-pc-btn--primary` vừa là nút *Tìm kiếm* của thanh lọc (FB-08 giữ 42)
+  // vừa là nút *Thanh toán số còn lại* (CMP-BTN-001 về 40): tên class không
+  // phân biệt được hai vai trò, chỗ đứng trong cây DOM thì có.
+  const inFilter = el => {
+    for (let n = el; n && n.nodeType === 1; n = n.parentElement) {
+      if (clsOf(n).some(c => /(^|-)filter(-|$)/.test(c) || /(^|-)search$/.test(c))) return true;
+      if (n.tagName === 'FORM' && /filter|search/i.test(n.className || '')) return true;
+    }
+    return false;
+  };
   const isBoundary = el => {
+    if (inFilter(el)) return true;
     for (let n = el; n && n.nodeType === 1; n = n.parentElement) {
       if (clsOf(n).some(c => BOUNDARY.some(b => c === b || c.startsWith(b + '-')))) return true;
     }
@@ -270,16 +345,17 @@ def run(args):
         errors = []
         page.on('pageerror', lambda e: errors.append(str(e)))
         login(page, args.base, args.portal_login, args.password)
+        resolve_dynamic(page, args.base, args.routes)
 
         for route in args.routes:
             result['routes'][route] = {}
-            migrated = route.split('?')[0] in MIGRATED
+            migrated = route in MIGRATED
             for w in args.breakpoints:
                 page.set_viewport_size({'width': w, 'height': 900})
                 resp = page.goto(args.base + route, wait_until='load')
                 page.wait_for_timeout(args.settle)
-                landed = page.url.split(args.base)[-1].split('?')[0]
-                if landed.rstrip('/') != route.split('?')[0].rstrip('/'):
+                landed = unquote(page.url.split(args.base)[-1].split('?')[0])
+                if landed.rstrip('/') != unquote(route.split('?')[0]).rstrip('/'):
                     print('!! %-28s @%-5d CHUYỂN HƯỚNG → %s' % (route, w, landed))
                     result['routes'][route][str(w)] = {'redirect': landed}
                     total_bad += 1
@@ -305,14 +381,26 @@ def run(args):
                     print('      · %-13s %s' % (code, msg))
         browser.close()
 
+    co_desktop = any(int(w) >= 992 for w in args.breakpoints)
     for route, by_w in result['routes'].items():
-        if route.split('?')[0] not in MIGRATED:
+        if route not in MIGRATED:
             continue
         # Chỉ là Pass rỗng khi route CÓ action mà không khổ nào ra atom; màn danh
         # sách ở khổ hẹp vốn 0 nút hành động nên "0 atom" ở đó là đúng, không phải lỗi.
         co_action = any(d.get('items') for d in by_w.values())
         co_atom = any(sum(1 for i in d.get('items', []) if i['atom']) for d in by_w.values())
-        if co_action and not co_atom:
+        if not co_action:
+            # Route ghi trong sổ mà KHÔNG dựng nổi một nút hành động nào: hoặc sổ ghi
+            # sai route, hoặc dữ liệu mẫu rỗng. Cả hai đều khiến bảng "Pass" vô nghĩa.
+            # Chỉ kết luận khi lượt đo CÓ khổ desktop: màn danh sách vốn không có nút
+            # hành động ở khổ hẹp, chạy riêng 720/512 mà tính vi phạm là báo oan.
+            if not co_desktop:
+                print('   %-28s bỏ qua (lượt đo không có khổ ≥992)' % route)
+                continue
+            print('!! %-28s KHÔNG CÓ NÚT HÀNH ĐỘNG NÀO (sổ MIGRATED sai route / thiếu dữ liệu mẫu)'
+                  % route)
+            total_bad += 1
+        elif not co_atom:
             print('!! %-28s KHÔNG CÓ ATOM Ở BẤT KỲ KHỔ NÀO (bảng Pass rỗng)' % route)
             total_bad += 1
     result['jsErrors'] = errors

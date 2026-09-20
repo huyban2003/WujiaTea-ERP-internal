@@ -358,7 +358,11 @@ class TestFilterBarMobileLeftovers(TransactionCase):
         css = _css('wujia_portal_sale', 'static/src/css/portal_order.css')
         btn = css[css.index('.wujia-morder-search-btn {'):]
         btn = btn[:btn.index('}')]
-        self.assertIn('width: 38px', btn)
+        # E6b1: 38 không còn viết cứng ở đây mà đọc token chung của thanh lọc, để
+        # đổi FB-08 một chỗ là cả 21 thanh theo. Con số vẫn được ghim — ở token.
+        self.assertIn('width: var(--wj-filter-btn-h-m)', btn)
+        tokens = _css('wujia_portal_layout', 'static/assets/css/_variables.css')
+        self.assertRegex(tokens, r'--wj-filter-btn-h-m:\s*38px')
         self.assertIn('border-radius: 10px', btn)
         self.assertIn('.wujia-morder-search-btn::before', css)
         self.assertIn('min-height: 44px', css)

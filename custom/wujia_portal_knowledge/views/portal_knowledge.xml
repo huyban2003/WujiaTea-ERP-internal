@@ -173,8 +173,8 @@
                     <p class="wj-empty-state-title">Chưa có bài viết</p>
                     <p class="wj-empty-state-sub">Hiện chưa có bài viết nào để hiển thị.</p>
                     <p class="wj-empty-state-sub">Nội dung mới sẽ xuất hiện tại đây khi được cập nhật.</p>
-                    <a t-if="keyword or category_id" href="/portal/knowledge" class="wj-empty-state-btn">Xóa lọc</a>
-                    <button t-else="" type="button" class="wj-empty-state-btn" onclick="window.location.reload()">Tải lại</button>
+                    <a t-if="keyword or category_id" href="/portal/knowledge" class="wj-btn wj-btn--secondary">Xóa lọc</a>
+                    <button t-else="" type="button" class="wj-btn wj-btn--primary" onclick="window.location.reload()">Tải lại</button>
                 </div>
                 <t t-else="">
                     <t t-set="m_featured" t-value="articles.filtered(lambda a: a.portal_badge in ('important', 'mandatory'))[:1]"/>
@@ -306,7 +306,7 @@
                     </div>
 
                     <div class="mt-2">
-                        <a href="/portal/knowledge" class="btn btn-secondary">
+                        <a href="/portal/knowledge" class="wj-btn wj-btn--secondary">
                             <i class="fa fa-arrow-left me-1"/>Về thư viện
                         </a>
                     </div>

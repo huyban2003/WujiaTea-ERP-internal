@@ -72,8 +72,11 @@
                             <t t-out="m.date_to or 'Không giới hạn'"/>
                         </td>
                         <td class="text-end">
+                            <!-- BOUNDARY E6b1: trang này dựng bằng `portal.portal_layout` (khung
+                                 Odoo gốc) nên CSS design system không nạp — atom ở đây sẽ trần.
+                                 Bản Vuexy của cùng danh sách là /portal/franchises. -->
                             <a t-attf-href="/my/franchises/#{m.franchise_id.id}"
-                               class="btn btn-sm wj-cta-btn">Vào cửa hàng</a>
+                               class="btn btn-sm btn-primary">Vào cửa hàng</a>
                         </td>
                     </tr>
                 </tbody>

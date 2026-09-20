@@ -66,7 +66,8 @@ class TestF4InteractionCallSites(TransactionCase):
             (('wujia_portal_base', 'views', 'portal_home.xml'), 'wujia-kpi-card-link wj-state-surface', 4),
             (('wujia_portal_debt', 'views', 'portal_debt.xml'), 'wj-debt-pc-tab wj-state-surface', 2),
             (('wujia_portal_debt', 'views', 'portal_debt.xml'), 'wj-debt-actionrow wj-state-surface', 1),
-            (('wujia_portal_debt', 'views', 'portal_debt.xml'), 'wj-debt-pc-pdf wj-state-surface', 1),
+            # E6b1: nút PDF công nợ đã về `.wj-btn--secondary` — variant nằm sẵn trong
+            # danh sách bề mặt của _interaction.css nên không cần marker (tiền lệ E6a).
             (('wujia_portal_delivery', 'views', 'portal_delivery.xml'), 'wj-pc-dlv-chip wj-state-surface', 4),
             (('wujia_portal_knowledge', 'views', 'portal_knowledge.xml'), 'wujia-mknow-feat wj-state-surface', 1),
             (('wujia_portal_exam', 'views', 'portal_exam.xml'), 'wj-exam-pc-navbtn wj-state-surface', 2),

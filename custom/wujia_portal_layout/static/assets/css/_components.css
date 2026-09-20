@@ -232,7 +232,7 @@ h2, .wujia-h2 { font-size: var(--wujia-font-size-h2) !important; font-weight: 60
     flex: 0 0 auto;
     display: inline-flex;
     align-items: center;
-    height: 32px;
+    height: var(--wj-filter-btn-h-sm);
     padding: 0 14px;
     border: 1px solid var(--wujia-morder-border);
     border-radius: 999px;
@@ -294,8 +294,8 @@ h2, .wujia-h2 { font-size: var(--wujia-font-size-h2) !important; font-weight: 60
 .wj-filter-search-field input:focus { outline: none; border-color: var(--wujia-primary); }
 .wj-filter-search-btn {
     flex: 0 0 auto;
-    width: 38px;
-    height: 38px;
+    width: var(--wj-filter-btn-h-m);
+    height: var(--wj-filter-btn-h-m);
     border: 0;
     border-radius: 10px;
     background: var(--wujia-primary);
@@ -325,7 +325,7 @@ h2, .wujia-h2 { font-size: var(--wujia-font-size-h2) !important; font-weight: 60
     display: flex;
     align-items: center;
     gap: 8px;
-    height: 38px;
+    height: var(--wj-filter-btn-h-m);
     border: 1px solid var(--wujia-border);
     border-radius: 10px;
     background: var(--wujia-filter-field-bg);
@@ -963,7 +963,12 @@ h2, .wujia-h2 { font-size: var(--wujia-font-size-h2) !important; font-weight: 60
     margin: -12px -4px;
 }
 
-/* Header right action icons (UI-13, Sprint 9.14, 2026-05-28) */
+/* Header right action icons (UI-13, Sprint 9.14, 2026-05-28).
+   BOUNDARY của cụm E6 (đo ra ở E6b1, xem `_pc_account.css` @≥1200): đây KHÔNG
+   phải IconButton của BA mà là nút của thanh điều hướng — tròn 40 (bo 20), nền
+   kính trên navbar màu. Kéo về atom thì hoặc mất dáng Figma của navbar, hoặc
+   phải khai đè lại cao/bo/nền — tức module giành dáng, đúng thứ cụm E6 cấm.
+   Cùng loại với BottomNavigation mà BA đã liệt là boundary. */
 .wujia-header-icon-btn {
     position: relative;
     display: inline-flex;
@@ -2410,6 +2415,11 @@ label.wj-filter-search-field input { height: 38px; }
     font-weight: 700;
 }
 
+/* FB-08: nút trong thanh lọc giữ chiều cao của Filter và ưu tiên hơn size mặc
+   định của CMP-BTN-001. Khai theo NGỮ CẢNH (trong thanh lọc) chứ không theo tên
+   họ class — `.wj-pc-btn` còn phục vụ màn Khảo sát. */
+.wj-pc-filterbar__actions .wj-pc-btn { height: var(--wj-filter-btn-h-pc); }
+
 /* ===== Button CMP-BTN-001 (E6a) — atom dùng chung PC + mobile ===============
    Số nguyên văn spec BA `UI Component` dòng 40 (BA Confirmed 26/08/2026):
    cao 32/40/46 (PC) · 36/44/48 (mobile), vùng chạm >=44 · radius 8 (sm) /
@@ -2475,10 +2485,14 @@ label.wj-filter-search-field input { height: 38px; }
 }
 
 /* Variant — BA cho Secondary và Outline cùng viền/chữ, chỉ khác nền. */
+/* Nền Primary dùng --wujia-cta (#0F7CA8) chứ không phải #28A9DF của spec BA:
+   #28A9DF + chữ trắng = 2.68, trượt WCAG AA; Sprint 38 đã chuyển CTA portal sang
+   #0F7CA8 (4.7) theo đúng một issue a11y của chính BA. Chủ dự án chốt 20/09 giữ
+   chuẩn a11y và sửa tại MỘT chỗ này thay vì đẻ ngoại lệ cho từng màn. */
 .wj-btn--primary,
 .wj-iconbtn--primary {
-    background: var(--wujia-primary);
-    border-color: var(--wujia-primary);
+    background: var(--wujia-cta);
+    border-color: var(--wujia-cta);
     color: #FFFFFF;
 }
 .wj-btn--secondary,
@@ -2510,8 +2524,8 @@ label.wj-filter-search-field input { height: 38px; }
 @media (hover: hover) and (pointer: fine) {
     .wj-btn--primary:not(:disabled):hover,
     .wj-iconbtn--primary:not(:disabled):hover {
-        background: var(--wujia-cta);
-        border-color: var(--wujia-cta);
+        background: var(--wujia-cta-dark);
+        border-color: var(--wujia-cta-dark);
         color: #FFFFFF;
     }
     .wj-btn--danger:not(:disabled):hover,
@@ -2521,8 +2535,8 @@ label.wj-filter-search-field input { height: 38px; }
 }
 .wj-btn--primary:not(:disabled):active,
 .wj-iconbtn--primary:not(:disabled):active {
-    background: var(--wujia-cta);
-    border-color: var(--wujia-cta);
+    background: var(--wujia-cta-dark);
+    border-color: var(--wujia-cta-dark);
 }
 
 /* Disabled: vẫn đọc được nhãn, không bấm được, không nhận focus (thẻ mang

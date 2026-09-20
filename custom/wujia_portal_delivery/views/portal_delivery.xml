@@ -83,7 +83,7 @@
                             <td class="wj-pc-td--muted" t-out="b['updated']"/>
                             <td class="text-end">
                                 <a t-attf-href="/portal/delivery/#{b['id']}"
-                                   class="wj-pc-btn wj-pc-btn--secondary wj-pc-dlv-btn-xem">Xem</a>
+                                   class="wj-btn wj-btn--secondary wj-btn--sm">Xem</a>
                             </td>
                         </tr>
                     </tbody>
@@ -112,7 +112,7 @@
                 <span class="wj-pc-dlv-inner__icon"><i class="feather icon-truck"/></span>
                 <h3 class="wj-pc-dlv-inner__title">Không có chuyến giao</h3>
                 <p class="wj-pc-dlv-inner__sub">Không tìm thấy chuyến giao trong khoảng ngày đã chọn.</p>
-                <a href="/portal/delivery" class="wj-pc-btn wj-pc-btn--primary">Đổi bộ lọc</a>
+                <a href="/portal/delivery" class="wj-btn wj-btn--secondary">Đổi bộ lọc</a>
             </div>
 
             <!-- STATE: error -->
@@ -121,7 +121,7 @@
                 <h3 class="wj-pc-dlv-inner__title">Không tải được dữ liệu giao hàng</h3>
                 <p class="wj-pc-dlv-inner__sub">Vui lòng thử tải lại hoặc kiểm tra kết nối.</p>
                 <a href="/portal/delivery"
-                   class="wj-pc-btn wj-pc-btn--primary"><i class="feather icon-refresh-cw"/>Tải lại</a>
+                   class="wj-btn wj-btn--primary"><i class="feather icon-refresh-cw"/>Tải lại</a>
             </div>
         </t>
 
@@ -186,7 +186,7 @@
                 <p class="wj-empty-state-title">Không có chuyến giao</p>
                 <p class="wj-empty-state-sub">Không tìm thấy chuyến giao trong khoảng ngày đã chọn.</p>
                 <p class="wj-empty-state-sub">Hãy đổi bộ lọc hoặc kiểm tra lại sau.</p>
-                <a href="/portal/delivery" class="wj-empty-state-btn">Xóa lọc</a>
+                <a href="/portal/delivery" class="wj-btn wj-btn--secondary">Xóa lọc</a>
             </div>
 
             <!-- STATE: error (semantic — giữ icon cảnh báo qua dual-mode) -->
@@ -194,7 +194,7 @@
                 <span class="wj-empty-state-icon wujia-mdelivery-icon-danger"><i class="feather icon-alert-triangle"/></span>
                 <p class="wj-empty-state-title">Không tải được dữ liệu</p>
                 <p class="wj-empty-state-sub">Vui lòng kiểm tra kết nối hoặc thử tải lại.</p>
-                <button type="button" class="wj-empty-state-btn" onclick="window.location.reload()">Tải lại</button>
+                <button type="button" class="wj-btn wj-btn--primary" onclick="window.location.reload()">Tải lại</button>
             </div>
 
             <!-- STATE: loading (skeleton — UI-only, QA ?_preview=loading) -->
@@ -468,14 +468,14 @@
                 <!-- Products -->
                 <t t-call="wujia_portal_layout.wj_surface_card">
                     <t t-set="sc_class" t-value="'wj-pc-card'"/>
-                    <!-- Nút "Tải danh sách" đi vào slot `control` (bề mặt bấm nhìn thấy được,
-                         giữ nguyên class wj-pc-btn) chứ không phải `action` dạng chữ. -->
+                    <!-- Nút "Tải danh sách" đi vào slot `control` (bề mặt bấm nhìn thấy
+                         được) chứ không phải `action` dạng chữ. -->
                     <t t-call="wujia_portal_layout.wj_card_header">
                         <t t-set="ch_title">Sản phẩm trong chuyến</t>
                         <t t-set="ch_subtitle">Dạng bảng để đối chiếu nhanh tên sản phẩm, số lượng và đơn vị tính.</t>
                         <t t-set="ch_platform" t-value="'pc'"/>
                         <t t-set="ch_control">
-                            <a href="#" class="wj-pc-btn wj-pc-btn--secondary wj-card-header__control"><i class="feather icon-download"/>Tải danh sách</a>
+                            <a href="#" class="wj-btn wj-btn--secondary wj-btn--sm wj-card-header__control"><i class="feather icon-download"/>Tải danh sách</a>
                         </t>
                     </t>
                     <table class="wj-pc-table wj-pc-dlv-table">

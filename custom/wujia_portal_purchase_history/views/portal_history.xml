@@ -111,8 +111,8 @@
                 <p class="wj-empty-state-title">Chưa có đơn hàng</p>
                 <p class="wj-empty-state-sub">Hiện chưa có đơn hàng nào để hiển thị.</p>
                 <p class="wj-empty-state-sub">Đơn mới sẽ xuất hiện tại đây khi được cập nhật.</p>
-                <a t-if="mhist_filtered" href="/portal/purchase-history" class="wj-empty-state-btn">Xóa lọc</a>
-                <button t-else="" type="button" class="wj-empty-state-btn" onclick="window.location.reload()">Tải lại</button>
+                <a t-if="mhist_filtered" href="/portal/purchase-history" class="wj-btn wj-btn--secondary">Xóa lọc</a>
+                <button t-else="" type="button" class="wj-btn wj-btn--primary" onclick="window.location.reload()">Tải lại</button>
             </div>
             <t t-call="wujia_portal_layout.wj_data_list" t-if="rows">
                 <!-- E5: ruột thành header + 2 hàng phụ ⇒ đúng dáng detail-card (96–120). -->

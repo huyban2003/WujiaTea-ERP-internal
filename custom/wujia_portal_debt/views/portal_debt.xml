@@ -74,14 +74,14 @@
             <div class="wj-debt-pc-bank__row">
                 <span class="wj-debt-pc-bank__label">Số tài khoản</span>
                 <span class="wj-debt-pc-bank__value" t-out="bank['account']"/>
-                <button type="button" class="wj-debt-pc-copy" data-wj-debt="copy"
+                <button type="button" class="wj-iconbtn wj-iconbtn--secondary wj-iconbtn--sm wj-debt-pc-copy" data-wj-debt="copy"
                         t-att-data-wj-debt-value="bank['account']"
                         aria-label="Sao chép số tài khoản"><i class="feather icon-copy"/></button>
             </div>
             <div class="wj-debt-pc-bank__row">
                 <span class="wj-debt-pc-bank__label">Nội dung chuyển khoản</span>
                 <span class="wj-debt-pc-bank__value" t-out="bank['memo']"/>
-                <button type="button" class="wj-debt-pc-copy" data-wj-debt="copy"
+                <button type="button" class="wj-iconbtn wj-iconbtn--secondary wj-iconbtn--sm wj-debt-pc-copy" data-wj-debt="copy"
                         t-att-data-wj-debt-value="bank['memo']"
                         aria-label="Sao chép nội dung chuyển khoản"><i class="feather icon-copy"/></button>
             </div>
@@ -208,7 +208,7 @@
                     <!-- CTA chỉ có khi còn nợ. Frame 04 (đã trả hết) KHÔNG có nút này. -->
                     <a t-if="summary['amount_due'] &gt; 0"
                        t-attf-href="/portal/debt/pay?week=#{summary['week_key']}"
-                       class="wj-debt-cta">Thanh toán</a>
+                       class="wj-btn wj-btn--primary wj-btn--block wj-debt-cta">Thanh toán</a>
 
                     <t t-call="wujia_portal_debt.wj_debt_history_row"/>
 
@@ -381,7 +381,7 @@
                                 <t t-else="">Hiện tại cửa hàng không có khoản cần thanh toán</t>
                             </span>
                             <button t-if="summary['amount_due'] &gt; 0 and bank" type="button"
-                                    class="wj-pc-btn wj-pc-btn--primary wj-debt-pc-cta"
+                                    class="wj-btn wj-btn--primary wj-debt-pc-cta"
                                     data-wj-debt="open-pay">Thanh toán số còn lại</button>
                         </div>
                     </section>
@@ -433,7 +433,7 @@
                                                 <span t-attf-class="wj-status-badge #{ib[1]}" t-out="ib[0]"/>
                                             </td>
                                             <td class="text-end">
-                                                <button type="button" class="wj-debt-pc-pdf wj-state-surface" data-wj-debt="pdf">
+                                                <button type="button" class="wj-btn wj-btn--secondary wj-btn--sm" data-wj-debt="pdf">
                                                     <i class="feather icon-download"/> PDF
                                                 </button>
                                             </td>
@@ -466,8 +466,9 @@
                      data-wj-debt-modal="pay" hidden="hidden">
                     <div class="wj-pc-modal__panel wj-debt-pc-modal__panel" role="dialog"
                          aria-modal="true" aria-label="Thanh toán công nợ">
-                        <button type="button" class="wj-debt-pc-modal__close" data-wj-debt="close-pay"
-                                aria-label="Đóng"><i class="feather icon-x"/></button>
+                        <button type="button" class="wj-iconbtn wj-iconbtn--ghost wj-iconbtn--sm wj-debt-pc-modal__close"
+                                data-wj-debt="close-pay"
+                                aria-label="Đóng" title="Đóng"><i class="feather icon-x"/></button>
                         <h2 class="wj-pc-modal__title">Thanh toán công nợ</h2>
                         <p class="wj-debt-pc-modal__sub">Tuần hóa đơn <t t-out="summary['week_label']"/></p>
 
@@ -484,7 +485,7 @@
                         </div>
 
                         <div class="wj-debt-pc-modal__actions">
-                            <button type="button" class="wj-pc-btn wj-pc-btn--secondary" data-wj-debt="close-pay">Đóng</button>
+                            <button type="button" class="wj-btn wj-btn--secondary" data-wj-debt="close-pay">Đóng</button>
                         </div>
                     </div>
                 </div>
@@ -743,7 +744,7 @@
                         <div class="wj-debt-bank__row">
                             <span class="wj-debt-bank__label">Số tài khoản</span>
                             <span class="wj-debt-bank__value" t-out="bank['account']"/>
-                            <button type="button" class="wj-debt-copy" data-wj-debt="copy"
+                            <button type="button" class="wj-iconbtn wj-iconbtn--secondary wj-iconbtn--sm wj-debt-copy" data-wj-debt="copy"
                                     t-att-data-wj-debt-value="bank['account']"
                                     aria-label="Sao chép số tài khoản">
                                 <i class="feather icon-copy"/>
@@ -752,7 +753,7 @@
                         <div class="wj-debt-bank__row">
                             <span class="wj-debt-bank__label">Nội dung</span>
                             <span class="wj-debt-bank__value" t-out="bank['memo']"/>
-                            <button type="button" class="wj-debt-copy" data-wj-debt="copy"
+                            <button type="button" class="wj-iconbtn wj-iconbtn--secondary wj-iconbtn--sm wj-debt-copy" data-wj-debt="copy"
                                     t-att-data-wj-debt-value="bank['memo']"
                                     aria-label="Sao chép nội dung chuyển khoản">
                                 <i class="feather icon-copy"/>
@@ -802,7 +803,7 @@
                     <t t-call="wujia_portal_debt.wj_debt_pc_bank_block"/>
                     <div class="wj-debt-pc-modal__actions">
                         <a t-attf-href="/portal/debt?week=#{summary['week_key']}"
-                           class="wj-pc-btn wj-pc-btn--secondary">Về trang công nợ</a>
+                           class="wj-btn wj-btn--secondary">Về trang công nợ</a>
                     </div>
                 </t>
             </div>
