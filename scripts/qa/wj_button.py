@@ -56,6 +56,24 @@ MIGRATED = [
     '/portal/debt/pay',
     '/portal/franchises',
     '/portal/franchises/3/profile',
+    # E6b2
+    '/portal/order',
+    '/portal/order/cart',
+    '@product_detail',
+    '/portal/change-password',
+]
+
+# Màn auth: KHÔNG đăng nhập mới dựng được, nên đo ở một context riêng (E6b2).
+# Chỉ liệt route CÓ controller render — `signup`/`login_totp`/`forgot_pass_back`
+# không controller nào render (template chết), ghim bằng test render QWeb.
+ANON = [
+    '/portal/login',
+    # ⚠ `/portal/forgot-pass` bị `rate_limit(10, 3600)` chặn theo IP (auth.py:89).
+    # Đo 5 khổ = 5 lượt, chạy thước đo 2 lần trong một giờ là HẾT hạn mức và
+    # trang trả 429 — trước khi vá, bảng chỉ báo "không có nút hành động" nên rất
+    # dễ tưởng sổ ghi sai route. Bộ đếm nằm trong RAM ⇒ khởi động lại server là
+    # sạch. Muốn đo lại nhiều lần thì restart, đừng nới hạn mức.
+    '/portal/forgot-pass',
 ]
 
 # Route đo kèm để bắt hồi quy (chưa migrate hoặc không có nút hành động nào:
@@ -69,8 +87,6 @@ WATCH = [
     '/portal/purchase-history',
     '/portal/debt/payment-history',
     '/portal/franchise-information',
-    '/portal/order',
-    '/portal/order/cart',
 ]
 
 # Màn chi tiết phụ thuộc dữ liệu (slug bài viết, id yêu cầu). Ghi cứng vào sổ thì
@@ -79,6 +95,7 @@ WATCH = [
 DYNAMIC = {
     '@knowledge_detail': ('/portal/knowledge', '/portal/knowledge/'),
     '@info_request_detail': ('/portal/info-request', '/portal/info-request/'),
+    '@product_detail': ('/portal/order', '/portal/order/product/'),
 }
 
 
@@ -120,6 +137,11 @@ PROBE = r"""
                     'wj-filter', 'wj-pc-filterbar', 'wujia-mcart-step', 'wujia-morder-mstep',
                     'wj-pc-cart-step', 'wj-pc-stepper', 'wujia-mcart-stepper',
                     'wujia-morder-mstepper', 'wj-page-header__back',
+                    // E6b2: nút thêm-vào-giỏ theo hàng là MỘT THỂ với stepper (đổi
+                    // dáng theo trạng thái giỏ bằng JS) + thanh nổi "Xem giỏ" cùng
+                    // loại BottomNavigation — chủ dự án chốt 21/09 giữ boundary.
+                    'wujia-morder-row-add', 'wujia-morder-add-btn', 'wj-pc-order-add',
+                    'wujia-morder-floatbar',
                     'wujia-header-icon', 'wj-pc-navactions',
                     'wj-inspection', 'wujia-minspection'];
   const clsOf = el => (el.className || '').toString().split(/\s+/).filter(Boolean);
@@ -363,6 +385,9 @@ def run(args):
                 data = page.evaluate(PROBE, {'loading': bool(args.loading)})
                 kb = keyboard_probe(page) if args.keyboard else None
                 bad = check(route, w, data, migrated)
+                if resp is not None and resp.status != 200:
+                    bad.insert(0, ('HTTP %d' % resp.status,
+                                   'trang không trả 200 — mọi số đo bên dưới vô nghĩa'))
                 if kb:
                     if kb['noRing']:
                         bad.append(('FOCUS', '%d nút không nhận focus/không có ring: %s'
@@ -379,11 +404,49 @@ def run(args):
                       % ('OK ' if not bad else '!! ', route, w, len(data['items']), atoms, len(bad)))
                 for code, msg in bad:
                     print('      · %-13s %s' % (code, msg))
+
+        # Màn auth: context sạch, KHÔNG đăng nhập (đăng nhập rồi thì /portal/login
+        # chuyển hướng về /portal và bảng ra rỗng — đúng bẫy "Pass rỗng").
+        if args.anon:
+            actx = browser.new_context(viewport={'width': 1440, 'height': 900})
+            apage = actx.new_page()
+            apage.on('pageerror', lambda e: errors.append(str(e)))
+            for route in ANON:
+                result['routes'][route] = {}
+                for w in args.breakpoints:
+                    apage.set_viewport_size({'width': w, 'height': 900})
+                    resp = apage.goto(args.base + route, wait_until='load')
+                    apage.wait_for_timeout(args.settle)
+                    landed = unquote(apage.url.split(args.base)[-1].split('?')[0])
+                    if landed.rstrip('/') != route.rstrip('/'):
+                        print('!! %-28s @%-5d CHUYỂN HƯỚNG → %s' % (route, w, landed))
+                        result['routes'][route][str(w)] = {'redirect': landed}
+                        total_bad += 1
+                        continue
+                    data = apage.evaluate(PROBE, {'loading': bool(args.loading)})
+                    kb = keyboard_probe(apage) if args.keyboard else None
+                    bad = check(route, w, data, True)
+                    if resp is not None and resp.status != 200:
+                        bad.insert(0, ('HTTP %d' % resp.status,
+                                       'trang không trả 200 — mọi số đo bên dưới vô nghĩa'))
+                    if kb and kb['noRing']:
+                        bad.append(('FOCUS', '%d nút không nhận focus/không có ring: %s'
+                                    % (len(kb['noRing']), ', '.join(kb['noRing'][:3]))))
+                    data['violations'] = bad
+                    result['routes'][route][str(w)] = data
+                    total_bad += len(bad)
+                    atoms = sum(1 for i in data['items'] if i['atom'])
+                    print('%s%-28s @%-5d action=%-3d atom=%-3d vi phạm=%d  [ẩn danh]'
+                          % ('OK ' if not bad else '!! ', route, w, len(data['items']),
+                             atoms, len(bad)))
+                    for code, msg in bad:
+                        print('      · %-13s %s' % (code, msg))
+            actx.close()
         browser.close()
 
     co_desktop = any(int(w) >= 992 for w in args.breakpoints)
     for route, by_w in result['routes'].items():
-        if route not in MIGRATED:
+        if route not in MIGRATED and route not in ANON:
             continue
         # Chỉ là Pass rỗng khi route CÓ action mà không khổ nào ra atom; màn danh
         # sách ở khổ hẹp vốn 0 nút hành động nên "0 atom" ở đó là đúng, không phải lỗi.
@@ -419,6 +482,8 @@ def main():
     ap.add_argument('--portal-login', default='em.hcm')
     ap.add_argument('--password', default='wujia@test123')
     ap.add_argument('--routes', nargs='*', default=MIGRATED + WATCH)
+    ap.add_argument('--no-anon', dest='anon', action='store_false',
+                    help='bỏ qua màn auth (mặc định có đo)')
     ap.add_argument('--breakpoints', nargs='*', type=int, default=BREAKPOINTS)
     ap.add_argument('--settle', type=int, default=450)
     ap.add_argument('--keyboard', action='store_true', default=True)

@@ -299,23 +299,9 @@ html body.wj-auth-body {
 }
 .wj-auth-link:hover { color: var(--wujia-primary-dark); text-decoration: none; }
 
-.wj-auth-submit {
-    display: block;
-    width: 100%;
-    height: 50px;
-    margin-top: 21px;               /* 614 − 593(=576+17) */
-    border: 0;
-    border-radius: var(--wujia-btn-radius);
-    background: var(--wujia-primary);
-    font-family: inherit;
-    font-size: 14.5px;
-    font-weight: 700;
-    color: #fff;
-    cursor: pointer;
-    transition: background .15s ease;
-}
-.wj-auth-submit:hover { background: var(--wujia-primary-dark); }
-.wj-auth-submit:disabled { opacity: .6; cursor: default; }
+/* E6b2: dáng về atom .wj-btn--primary --lg --block (46 PC / 48 mobile theo
+   CMP-BTN-001). Chỉ nhịp dọc Figma S39 ở lại đây. */
+.wj-auth-submit { margin-top: 21px; }
 /* Forgot: nút nằm ngay sau field (không có hàng "Quên mật khẩu?") → 537 − 503. */
 .wj-auth-field + .wj-auth-submit { margin-top: 34px; }
 
@@ -494,7 +480,7 @@ html body.wj-auth-body {
     .wj-auth-helper { margin-top: 18.5px; }
     .wj-auth-link { font-size: 13.5px; line-height: 16px; }
 
-    .wj-auth-submit { height: 48px; margin-top: 20.5px; }
+    .wj-auth-submit { margin-top: 20.5px; }
     .wj-auth-field + .wj-auth-submit { margin-top: 30px; }
     .wj-auth-back { margin-top: 26.5px; font-size: 13.5px; }
 

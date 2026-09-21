@@ -61,6 +61,24 @@ MIGRATED = [
     # `-pc-copy`/`-pc-modal__close` ở lại làm hook bố cục (dáng đã gỡ khỏi CSS).
     ('wujia_portal_debt', 'portal_debt.xml', 5, 5,
      ('wj-debt-pc-pdf',), 'portal_debt.css'),
+    # --- E6b2: Đặt hàng/giỏ. `wujia-mcart-del`/`-submit`/`-empty-cta`,
+    # `wj-pc-cart-del`/`-submit` và `btn-add-cart-detail` Ở LẠI làm móc JS/bố cục
+    # (dáng đã gỡ khỏi portal_order.css) nên không nằm trong danh sách họ cũ.
+    ('wujia_portal_sale', 'portal_order_cart.xml', 2, 1,
+     ('wj-empty-state-btn',), 'portal_order.css'),
+    ('wujia_portal_sale', 'pc_cart_panel.xml', 2, 1,
+     ('wj-pc-btn', 'wj-pc-btn--secondary'), 'portal_order.css'),
+    ('wujia_portal_sale', 'portal_order_product_detail.xml', 2, 0,
+     ('wj-cta-btn', 'btn-outline-secondary'), 'portal_order.css'),
+    # --- E6b2: màn auth (CSS ở wujia_portal_layout/static/assets/css ⇒ None,
+    # kiểm riêng bằng TestDangAuthVeAtom bên dưới).
+    ('wujia_portal_layout', 'login_page.xml', 6, 0,
+     ('btn-primary', 'btn-outline-primary', 'btn-block'), None),
+    ('wujia_portal_layout', 'forgot_pass.xml', 2, 0,
+     ('btn-primary', 'btn-outline-primary', 'btn-block'), None),
+    ('wujia_portal_layout', 'change_password_page.xml', 3, 0,
+     ('wj-pc-btn', 'wj-pc-btn--primary', 'wj-pc-btn--secondary',
+      'wj-pc-btn--disabled', 'btn-primary'), None),
 ]
 
 VARIANT = ('primary', 'secondary', 'outline', 'danger', 'ghost')
@@ -258,3 +276,138 @@ class TestKhungPortalGocLaBoundary(TransactionCase):
         view = _view('wujia_portal_base', 'portal_franchises_in_layout.xml')
         self.assertTrue(_atoms(view, 'wj-btn'))
 
+
+
+# E6b2 — màn Đặt hàng: bốn nhóm giữ boundary theo chốt chủ dự án 21/09. Ghim cả
+# hai chiều: chúng không được mang atom, và atom không được mọc vào trong chúng.
+BOUNDARY_ORDER = (
+    ('wujia_portal_sale', 'portal_order_catalog.xml',
+     ('wj-pc-order-add', 'wujia-morder-row-add', 'wujia-morder-mstep',
+      'wujia-morder-search-btn', 'wujia-morder-floatbar-btn')),
+    ('wujia_portal_sale', 'portal_order_cart.xml', ('wujia-mcart-step',)),
+    ('wujia_portal_sale', 'pc_cart_panel.xml', ('wj-pc-cart-step',)),
+)
+
+# Lớp mà JS đang bắt. Chúng ở lại view SAU khi dáng đã về atom — đổi tên ở một
+# phía là giỏ hàng chết lặng (không lỗi JS, chỉ là nút bấm không làm gì).
+MOC_JS = (
+    ('btn-add-cart-detail', 'portal_order_product_detail.xml', 'portal_order.js'),
+    ('wujia-mcart-submit', 'portal_order_cart.xml', 'portal_order.js'),
+)
+
+
+@tagged('post_install', '-at_install', 'wujia_button_e6')
+class TestBoundaryManDatHang(TransactionCase):
+    """Nút thêm-vào-giỏ theo hàng đổi dáng theo trạng thái giỏ bằng JS, cùng một
+    thể với QuantityStepper mà BA đã liệt boundary; nút tìm thuộc FB-08; thanh
+    nổi "Xem giỏ" cùng loại BottomNavigation."""
+
+    def test_nhom_boundary_khong_mang_atom(self):
+        for module, filename, nhom in BOUNDARY_ORDER:
+            root = _view(module, filename)
+            for el in root.iter():
+                cls = ((el.get('class') or '') + ' '
+                       + (el.get('t-attf-class') or '')).split()
+                for moc in nhom:
+                    if moc in cls:
+                        self.assertNotIn(
+                            'wj-btn', cls,
+                            '%s: %s bị kéo về atom — mất dáng theo trạng thái giỏ'
+                            % (filename, moc))
+                        self.assertNotIn('wj-iconbtn', cls, '%s: %s' % (filename, moc))
+
+    def test_nhom_boundary_van_giu_dang_rieng(self):
+        """Chiều ngược: ngày nào các nhóm này hết dáng riêng thì test đỏ để nhắc
+        gỡ boundary, đừng để LIMIT sống mãi bằng quán tính."""
+        css = _strip_comments(_mod_css('wujia_portal_sale', 'portal_order.css'))
+        for moc in ('wj-pc-order-add', 'wujia-morder-row-add', 'wujia-morder-mstep'):
+            self.assertRegex(css, r'\.%s(?![-\w])' % moc,
+                             '%s hết rule riêng ⇒ xem lại boundary' % moc)
+
+
+@tagged('post_install', '-at_install', 'wujia_button_e6')
+class TestMocJsGioHang(TransactionCase):
+    """Dáng về atom nhưng móc JS phải còn ở CẢ hai phía."""
+
+    def test_moc_con_du_hai_phia(self):
+        for moc, view_file, js_file in MOC_JS:
+            view = open(os.path.join(CUSTOM, 'wujia_portal_sale', 'views', view_file),
+                        encoding='utf-8').read()
+            js = open(os.path.join(CUSTOM, 'wujia_portal_sale', 'static', 'src', 'js',
+                                   js_file), encoding='utf-8').read()
+            self.assertRegex(view, r'%s(?![-\w])' % re.escape(moc),
+                             '%s: mất móc %s, JS không còn bắt được nút' % (view_file, moc))
+            self.assertIn(moc, js, '%s: JS không còn bắt %s' % (js_file, moc))
+
+    def test_moc_js_chi_la_moc_khong_con_dang(self):
+        """Móc mà vẫn khai dáng thì lại là hai bộ dáng cùng sống."""
+        css = _strip_comments(_mod_css('wujia_portal_sale', 'portal_order.css'))
+        cam = ('height', 'border-radius', 'background', 'font-size', 'font-weight')
+        for sel, body in re.findall(r'([^{}]+)\{([^{}]*)\}', css):
+            if not re.search(r'\.(wujia-mcart-(submit|del|empty-cta)|wj-pc-cart-(submit|del))'
+                             r'(?![-\w])', sel):
+                continue
+            khai = {d.split(':')[0].strip() for d in body.split(';') if ':' in d}
+            xau = sorted(k for k in khai if any(k == c or k.startswith(c + '-') for c in cam))
+            self.assertFalse(xau, 'móc %s còn khai dáng: %s' % (sel.strip(), ', '.join(xau)))
+
+    def test_ghost_tu_khai_trang_thai_nhan(self):
+        """Nút xóa dòng giỏ bỏ marker `wj-state-surface` (F4) ⇒ atom phải tự có hover + nhấn."""
+        css = _strip_comments(_css('_components.css'))
+        for trang_thai in (':hover', ':active'):
+            self.assertRegex(css, r'\.wj-iconbtn--ghost:not\(:disabled\)%s' % trang_thai,
+                             'ghost mất trạng thái %s, nút xóa giỏ không còn phản hồi' % trang_thai)
+
+
+# E6b2 — ba template auth KHÔNG controller nào render (`wujia_portal_layout/
+# controllers/auth.py` chỉ render login · forgot_pass · reset_pass). Chúng vẫn
+# được migrate cho đồng bộ, nhưng KHÔNG có bằng chứng đo bằng trình duyệt ⇒ ghim
+# lại đúng sự thật đó: ngày nào có controller render, test đỏ để bắt đi đo thật.
+AUTH_CHET = ('wujia_portal_layout.signup',
+             'wujia_portal_layout.login_totp',
+             'wujia_portal_layout.forgot_pass_back')
+
+
+@tagged('post_install', '-at_install', 'wujia_button_e6')
+class TestDangAuthVeAtom(TransactionCase):
+
+    def test_khung_khong_con_khai_dang_nut_auth(self):
+        """`_auth.css` nạp SAU `_components.css` nên mọi khai dáng còn sót ở đây
+        đều THẮNG atom — đúng cơ chế đã làm nút auth cao 50 thay vì 46."""
+        cam = ('height', 'border-radius', 'background', 'font-size', 'font-weight',
+               'border', 'color')
+        for ten, moc in (('_auth.css', 'wj-auth-submit'),
+                         ('_components.css', 'wujia-maccount-submit'),
+                         ('_pc_account.css', 'wj-pc-acct-pw-actions')):
+            css = _strip_comments(_css(ten))
+            for sel, body in re.findall(r'([^{}]+)\{([^{}]*)\}', css):
+                if not re.search(r'\.%s(?![-\w])' % moc, sel):
+                    continue
+                khai = {d.split(':')[0].strip() for d in body.split(';') if ':' in d}
+                xau = sorted(k for k in khai
+                             if any(k == c or k.startswith(c + '-') for c in cam))
+                self.assertFalse(xau, '%s: %s giành dáng của atom (%s)'
+                                 % (ten, sel.strip(), ', '.join(xau)))
+
+    def test_trang_thai_disabled_dung_cua_atom(self):
+        self.assertNotRegex(_strip_comments(_css('_pc_account.css')),
+                            r'\.wj-pc-btn--disabled(?![-\w])',
+                            'họ disabled cũ còn sống song song .is-disabled của atom')
+
+    def test_template_auth_chet_van_chua_ai_render(self):
+        goi = []
+        for root, _dirs, files in os.walk(CUSTOM):
+            # Chỉ mã chạy thật mới tính; file test có nhắc tên template (kể cả
+            # chính danh sách này) không phải là "đã nối controller".
+            if os.sep + 'tests' in root:
+                continue
+            for fn in files:
+                if not fn.endswith('.py'):
+                    continue
+                txt = open(os.path.join(root, fn), encoding='utf-8').read()
+                for xmlid in AUTH_CHET:
+                    if xmlid in txt:
+                        goi.append('%s → %s' % (fn, xmlid))
+        self.assertFalse(
+            goi, 'template auth đã được nối controller: phải đo bằng trình duyệt '
+                 'rồi bỏ khỏi AUTH_CHET — %s' % ', '.join(goi))

@@ -372,22 +372,8 @@
     color: var(--wujia-morder-text);
     white-space: nowrap;
 }
-.wujia-mcart-del {
-    flex: 0 0 auto;
-    /* WJ-ORD-011: vùng chạm xoá 36×36 (trước 28×28) */
-    width: 36px;
-    height: 36px;
-    border: 1px solid var(--wujia-morder-border);
-    border-radius: 8px;
-    background: #F8FAFC;
-    color: var(--wujia-morder-text-muted);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 16px;
-    cursor: pointer;
-}
-.wujia-mcart-del:active { color: var(--wujia-morder-warn-text); }
+/* E6b2: dáng về atom .wj-iconbtn; ở lại đúng một dòng bố cục trong hàng flex. */
+.wujia-mcart-del { flex: 0 0 auto; }
 .wujia-mcart-noteblock { margin: 10px 0 4px; }
 .wujia-mcart-note-label {
     display: block;
@@ -439,19 +425,6 @@
 }
 .wujia-mcart-summary-line.muted { font-size: 13px; color: var(--wujia-morder-text-sub); margin-top: 2px; }
 .wujia-mcart-grand { font-size: 18px; font-weight: 700; color: var(--wujia-morder-text); }
-.wujia-mcart-submit {
-    width: 100%;
-    height: 46px;
-    border: 0;
-    border-radius: 10px;
-    background: var(--wujia-morder-primary);
-    color: #FFFFFF;
-    font-size: 14px;
-    font-weight: 700;
-    cursor: pointer;
-}
-.wujia-mcart-submit:active { background: var(--wujia-morder-primary-dark); }
-.wujia-mcart-submit:disabled { opacity: 0.55; cursor: not-allowed; }
 .wujia-msubmit {
     display: none;
     position: fixed;
@@ -795,12 +768,7 @@
 .wj-pc-cart-qty { min-width: 26px; text-align: center; font-weight: 700; font-size: 13px; color: var(--wj-pc-primary); }
 
 /* remove — WJ-ORD-011: 34×34 (trước 28) để chạm dễ hơn */
-.wj-pc-cart-del {
-    width: 34px; height: 34px; border: 0; background: transparent; color: var(--wj-pc-muted);
-    border-radius: 8px; cursor: pointer; display: inline-flex; align-items: center; justify-content: center;
-    transition: background-color .15s, color .15s;
-}
-.wj-pc-cart-del:hover { background: var(--wj-pc-red-soft); color: var(--wj-pc-danger); }
+/* E6b2: dáng nút xoá dòng về atom .wj-iconbtn--ghost --sm. */
 
 /* note + totals + submit */
 .wj-pc-cart-foot { margin-top: 14px; }
@@ -818,23 +786,12 @@
 .wj-pc-cart-total-qty { font-size: 14px; color: var(--wj-pc-text); font-weight: 600; }
 .wj-pc-cart-total-label--grand { font-size: 16px; font-weight: 700; color: var(--wj-pc-text); }
 .wj-pc-cart-grand { font-size: 18px; font-weight: 800; color: var(--wj-pc-primary); }
-/* WJ-ORD-012: nút chữ-trắng-trên-nền dùng token CTA đậm (--wujia-cta #0F7CA8 =
-   4.71:1 với trắng, đạt AA); brand #28A9DF chỉ 2.69:1 nên KHÔNG dùng cho nút
-   có chữ trắng. Accent/icon vẫn brand. */
-.wj-pc-cart-submit {
-    width: 100%; height: 46px; border: 0; border-radius: 12px; cursor: pointer;
-    background: var(--wujia-cta); color: #fff; font-size: 15px; font-weight: 700;
-    display: inline-flex; align-items: center; justify-content: center; gap: 8px;
-    transition: background-color .15s;
-}
-.wj-pc-cart-submit:hover { background: var(--wujia-cta-dark); }
-.wj-pc-cart-submit:disabled { background: var(--wj-pc-subtle, #9AA0A6); cursor: not-allowed; opacity: .85; }
+/* E6b2: dáng nút gửi đơn về atom .wj-btn--primary --lg --block (giữ WJ-ORD-012:
+   atom Primary đã là --wujia-cta #0F7CA8, đạt AA với chữ trắng). */
 .wj-pc-cart-submit-hint { margin: 8px 0 0; font-size: 12px; color: var(--wj-pc-danger, #DC2626); text-align: center; }
 
-/* WJ-ORD-012: nút "Thêm vào giỏ" ở trang chi tiết nay dùng class chung
-   .wj-cta-btn (_components.css) — khối override .btn-add-cart-detail.btn-primary
-   cũ đã gỡ: nó không có !important nên luôn thua .btn-primary của _components.css,
-   đó mới là lý do nút vẫn ra #28A9DF chứ không phải "CSS bất lực". */
+/* E6b2: nút "Thêm vào giỏ" ở trang chi tiết về atom .wj-btn--primary; họ
+   .wj-cta-btn hết người dùng nên đã gỡ khỏi _components.css. */
 
 /* ============================================================================
    Batch B (Sprint 2026-07-22-B) — a11y + responsive fixes.
@@ -916,8 +873,8 @@
     margin-bottom: 6px;
     background: url("data:image/svg+xml,%3Csvg width='72' height='72' viewBox='0 0 72 72' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Ccircle cx='36' cy='36' r='36' fill='%23EAF7FD'/%3E%3Cpath d='M19 25h4l3 18h20l3-13H27' stroke='%2328A9DF' stroke-width='2.6' stroke-linecap='round' stroke-linejoin='round'/%3E%3Cpath d='M30 34h19' stroke='%23B8DDEA' stroke-width='2' stroke-linecap='round'/%3E%3Ccircle cx='30' cy='50' r='3.2' fill='%2328A9DF'/%3E%3Ccircle cx='46' cy='50' r='3.2' fill='%2328A9DF'/%3E%3C/svg%3E") center/contain no-repeat;
 }
-/* CTA "Chọn sản phẩm" cao 42px, chữ 15px (Figma 5028:758/759) vs shared 40/14 */
-.wujia-mcart-empty-cta { height: 42px; font-size: 15px; margin-top: 10px; }
+/* E6b2: cỡ theo bậc lg của atom; chỉ khoảng cách là của màn. */
+.wujia-mcart-empty-cta { margin-top: 10px; }
 
 /* ============================================================================
    Cụm G (2026-08-04) — a11y: vùng chạm + focus ring mobile.
@@ -930,8 +887,7 @@
    .wujia-morder-row vẫn 58px và .wujia-mcart-row vẫn 76px. */
 .wujia-morder-row-add::after,
 .wujia-morder-mstep::after,
-.wujia-mcart-step::after,
-.wujia-mcart-del::after {
+.wujia-mcart-step::after {
     content: "";
     position: absolute;
     left: 50%;
@@ -942,8 +898,7 @@
     min-width: 44px;
 }
 .wujia-morder-mstep,
-.wujia-mcart-step,
-.wujia-mcart-del { position: relative; }
+.wujia-mcart-step { position: relative; }
 
 /* Bẫy: 2 stepper có overflow:hidden để bo góc → sẽ CẮT MẤT ::after (hit-area
    không nở). Mở overflow và bo góc bằng chính nút đầu/cuối. */

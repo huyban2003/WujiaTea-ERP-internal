@@ -71,8 +71,10 @@ class TestF4InteractionCallSites(TransactionCase):
             (('wujia_portal_delivery', 'views', 'portal_delivery.xml'), 'wj-pc-dlv-chip wj-state-surface', 4),
             (('wujia_portal_knowledge', 'views', 'portal_knowledge.xml'), 'wujia-mknow-feat wj-state-surface', 1),
             (('wujia_portal_exam', 'views', 'portal_exam.xml'), 'wj-exam-pc-navbtn wj-state-surface', 2),
-            (('wujia_portal_sale', 'views', 'pc_cart_panel.xml'), 'wj-state-surface', 3),
-            (('wujia_portal_sale', 'views', 'portal_order_cart.xml'), 'wj-state-surface', 3),
+            # E6b2: 3 -> 2. Nút xóa dòng giỏ đã về `.wj-iconbtn--ghost`; atom tự khai
+            # hover + nhấn (_components.css) nên không cần marker. Còn lại là nút bước.
+            (('wujia_portal_sale', 'views', 'pc_cart_panel.xml'), 'wj-state-surface', 2),
+            (('wujia_portal_sale', 'views', 'portal_order_cart.xml'), 'wj-state-surface', 2),
             (('wujia_portal_sale', 'views', 'portal_order_catalog.xml'), 'wj-state-surface', 4),
             # E6a: nút Hủy mobile của Đổi trả đã về `.wj-btn--secondary` — variant đó
             # nằm thẳng trong danh sách bề mặt của _interaction.css nên không cần marker.

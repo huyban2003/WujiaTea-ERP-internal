@@ -1013,3 +1013,52 @@ rồi đánh ✅ ở bảng Trạng thái §2 `docs/next-session-clusters-F.md`.
 - Phiên kế: **E6b2** — việc cần biết trước: `/portal/order` có 25 action và **JS dựng nút giỏ**, phải
   grep `querySelector` trước khi đổi class; màn auth nằm ngoài vỏ portal nên kiểm CSS có nạp không
   (bài học `/my/franchises` phiên này).
+
+## E6b2 — Button `CMP-BTN-001`: màn Đặt hàng/giỏ + toàn bộ màn auth (21/09/2026 · Mac)
+- Kết quả: ✅ xong lượt E6b2 — `UI-BUTTON-001` (STT 132, dòng 125) **vẫn mở**, đóng ở E6c.
+  Nghiệm thu đầy đủ: `docs/e6b2-acceptance-matrix.md`.
+- Chốt đầu phiên của chủ dự án: **auth migrate hết, kể cả khối legacy tiếng Anh** · nút thêm-vào-giỏ
+  theo hàng **là boundary** cùng thể với stepper · cuối phiên **commit + push `main`, KHÔNG deploy UAT**,
+  issue vẫn mở (E6c gộp một lần deploy).
+- Đã làm:
+  - **19 call site / 6 file / 2 module** về atom: giỏ mobile 3 · panel giỏ PC 3 · chi tiết sản phẩm 2 ·
+    `login_page.xml` 6 (đăng nhập · 2FA · quên MK · đặt lại MK · 2 nút khối đăng ký) · `forgot_pass.xml` 2 ·
+    đổi mật khẩu 3. Plan ghi 20 — đếm nhầm cặp Hủy/Lưu PC.
+  - **Xoá hẳn họ `wj-cta-btn`** (31 dòng `_components.css`): sau E6b1 chỉ còn đúng một người dùng.
+  - **Luật móc JS** (kế thừa E6b1): grep ra đúng **2** tên JS bám (`btn-add-cart-detail`,
+    `wujia-mcart-submit`) ⇒ giữ tên, **gỡ sạch khai dáng**; 4 tên còn lại không ai bắt ⇒ chỉ giữ bố cục.
+    Test ghim cả hai vế: móc còn đủ hai phía **và** móc không được khai `height/radius/background/font-*`.
+  - **Thước đo đo được màn chưa đăng nhập**: thêm danh sách `ANON` chạy trong context trình duyệt sạch
+    sau vòng chính (+ cờ `--no-anon`), và **in mã HTTP** khi trang không trả 200.
+  - **Vá a11y**: 2 nút xóa dòng giỏ (mobile + PC) nay có `aria-label`/`title` tiếng Việt.
+- Số đo: thước đo **29 route × 5 khổ, 0 vi phạm · 0 lỗi JS**, **338 ô atom** (PC 32×219 / 40×57 / 46×12;
+  mobile 36×8 / 44×30 / 48×12; radius 8×227 / 12×111; chạm mobile nhỏ nhất **44**); zoom 200% (720/512)
+  **0 vi phạm**; trạng thái giỏ rỗng đo riêng bằng `anh.owner` **4 action / 4 atom / 0 vi phạm** · suite
+  **722 tests, 0 đỏ** (mốc E6b1 714, +8 test mới) · mutation **11/11 mũi đỏ đúng guard** · `wj_filterbar`
+  **ĐẠT** · `wj_measure` 0 tràn/0 lỗi JS/0 HIERARCHY · `wj_listcard` 0 · `wj_nesting` 0 · `b4_regression`
+  **286/286** · `check_layers` 3 R1–R5 + 2 R7 **có sẵn, không thêm**.
+- Lệch plan / quyết định mới:
+  - **IMPACT 1** submit màn auth PC **50 → 46** (bậc `lg` của BA), mobile giữ **48**. Nhịp dọc Figma S39
+    giữ nguyên: `.wj-auth-submit` chỉ còn `margin-top` 21 / 20.5px.
+  - **IMPACT 2** nút *Lưu mật khẩu* mobile **46 → 48** (46 là số PC dùng nhầm cho mobile).
+  - **Cơ chế đã giữ nút auth ở 50px**: `_auth.css` nạp **SAU** `_components.css` nên mọi khai dáng sót lại
+    đều thắng atom. Màn auth **có** nạp design system (`login_layout` → `asset_frontend`) ⇒ không phải
+    bẫy `/my/franchises` của E6b1, không cần đụng asset bundle.
+  - **LIMIT** ba template auth `signup`, `login_totp`, `forgot_pass_back` **không controller nào render** —
+    vẫn migrate cho đồng bộ nhưng **không có bằng chứng đo bằng trình duyệt**; ghim bằng test: ngày nào
+    có controller render, test đỏ để bắt đi đo thật.
+  - **Variant `ghost` tự khai trạng thái nhấn**, không mượn marker `wj-state-surface` của F4 (danh sách bề
+    mặt `_interaction.css` hover thêm viền + bóng, sai dáng nút icon trong hàng). F4 đếm marker ở 2 file giỏ
+    **3 → 2**, đúng tiền lệ E6b1 với nút PDF công nợ.
+  - **`/portal/forgot-pass` có `rate_limit` 10 lần/giờ theo IP** (`auth.py:89`) — đo lặp là **HTTP 429**, và
+    thước đo cũ báo nhầm thành "không có nút hành động nào". Bộ đếm trong RAM, khởi động lại server là sạch.
+  - **Bẫy "Pass rỗng" phiên bản trạng thái**: nút *Gửi đơn*/*Xóa dòng* chỉ có khi giỏ **có hàng**, CTA
+    *Chọn sản phẩm* chỉ có khi giỏ **rỗng** ⇒ phải đo bằng **hai tài khoản**.
+- **Phát hiện ngoài phạm vi (chưa sửa)**: `/portal/login` **tràn ngang 74px** ở khổ 390 (`scrollWidth` 464),
+  do `.wj-auth__decor--1` (mép phải 479px) + cụm đổi ngôn ngữ. Ảnh **trước/sau giống hệt** ⇒ lỗi có sẵn,
+  không do E6b2; cụm auth đang **KHÓA THIẾT KẾ S39** nên cần duyệt trước khi động.
+- Nợ để lại: **E6c** màn Thi (30 nút XML + nút dựng bằng JS) + gạch **12** của BA + **một lần deploy UAT**
+  rồi đóng issue, kèm quyết định về tràn ngang màn đăng nhập · 3 template auth chết · cụm **EmptyState**.
+- Phiên kế: **E6c** — việc cần biết trước: màn Thi có nút **dựng bằng JS** (không grep XML là đủ);
+  deploy UAT phải gộp `-u` của cả E6a + E6b1 + E6b2; trước khi đo lại màn auth trên máy chủ nhớ
+  `rate_limit` 10 lần/giờ.

@@ -30,7 +30,7 @@
                 <p class="wj-empty-state-title">Giỏ hàng đang trống</p>
                 <p class="wj-empty-state-sub">Bạn chưa chọn sản phẩm nào.</p>
                 <p class="wj-empty-state-sub">Hãy thêm sản phẩm để tạo đơn đặt hàng.</p>
-                <a href="/portal/order" class="wj-empty-state-btn wujia-mcart-empty-cta">Chọn sản phẩm</a>
+                <a href="/portal/order" class="wj-btn wj-btn--primary wj-btn--lg wj-btn--block wujia-mcart-empty-cta">Chọn sản phẩm</a>
             </div>
         </div>
 
@@ -91,7 +91,8 @@
                                 </div>
                             </div>
                         </div>
-                        <button type="button" class="wujia-mcart-del wj-state-surface"
+                        <button type="button" class="wj-iconbtn wj-iconbtn--ghost wujia-mcart-del"
+                                aria-label="Xóa sản phẩm khỏi giỏ" title="Xóa sản phẩm khỏi giỏ"
                                 t-att-data-line-id="line['line_id']">
                             <i class="feather icon-trash-2"/>
                         </button>
@@ -139,7 +140,7 @@
                         </div>
                     </div>
                     <!-- WJ-ORD-006: ngoài giờ → disable + hint (server chặn ORDER_TIME_CLOSED) -->
-                    <button type="submit" class="wujia-mcart-submit"
+                    <button type="submit" class="wj-btn wj-btn--primary wj-btn--lg wj-btn--block wujia-mcart-submit"
                             t-att-disabled="'disabled' if (order_window_enabled and not order_window_open) else None">Gửi đơn đặt hàng</button>
                     <p t-if="order_window_enabled and not order_window_open" class="wujia-mcart-submit-hint">
                         Ngoài khung giờ — gửi lại lúc <t t-out="order_window_reopen"/>.
