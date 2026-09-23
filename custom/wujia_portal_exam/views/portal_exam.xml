@@ -160,7 +160,7 @@
                             <p class="wj-empty-state-title">Chưa có đăng ký thi</p>
                             <p class="wj-empty-state-sub">Hiện chưa có đăng ký nào để hiển thị.</p>
                             <p class="wj-empty-state-sub">Tạo đăng ký mới để bắt đầu.</p>
-                            <a href="/portal/exam/register" class="wj-empty-state-btn">
+                            <a href="/portal/exam/register" class="wj-btn wj-btn--primary">
                                 <i class="feather icon-plus"/> Đăng ký mới
                             </a>
                         </div>
@@ -227,7 +227,7 @@
                     </div>
                 </div>
                 <div class="content-body">
-                    <a href="/portal/exam" class="wj-pc-btn wj-pc-btn--secondary wj-exam-pc-back">
+                    <a href="/portal/exam" class="wj-btn wj-btn--secondary wj-exam-pc-back">
                         <i class="feather icon-chevron-left"/>Quay lại
                     </a>
 
@@ -279,8 +279,8 @@
                                     <div class="wj-exam-pc-cal__head">
                                         <span class="wj-exam-pc-cal__label" t-out="calendar['label']"/>
                                         <span class="wj-exam-pc-cal__nav">
-                                            <button type="button" class="wj-exam-pc-navbtn wj-state-surface" data-wj-exam-month="prev">‹</button>
-                                            <button type="button" class="wj-exam-pc-navbtn wj-state-surface" data-wj-exam-month="next">›</button>
+                                            <button type="button" class="wj-iconbtn wj-iconbtn--secondary wj-iconbtn--sm" data-wj-exam-month="prev" aria-label="Tháng trước"><i class="feather icon-chevron-left"/></button>
+                                            <button type="button" class="wj-iconbtn wj-iconbtn--secondary wj-iconbtn--sm" data-wj-exam-month="next" aria-label="Tháng sau"><i class="feather icon-chevron-right"/></button>
                                         </span>
                                     </div>
                                     <div class="wj-exam-pc-legend">
@@ -347,7 +347,7 @@
                                     <!-- 07_UIStates · 3. Ngày không có ca / chưa chọn ngày -->
                                     <div class="wj-exam-pc-panel-empty" data-wj-exam-slot-empty="1">
                                         <p class="wj-exam-pc-panel-empty__title" data-wj-exam-slot-empty-title="1">Chọn một ngày có lịch để xem khung giờ.</p>
-                                        <button type="button" class="wj-pc-btn wj-pc-btn--secondary wj-exam-pc-panel-empty__btn"
+                                        <button type="button" class="wj-btn wj-btn--secondary wj-exam-pc-panel-empty__btn"
                                                 data-wj-exam-pick-other-day="1" hidden="hidden">Chọn ngày khác</button>
                                     </div>
                                     <p class="wj-exam-pc-slots__foot">Hạn đăng ký: <t t-out="pc_summary['registration_deadline']"/></p>
@@ -361,7 +361,7 @@
                                     <p class="wj-exam-pc-alert__title">Ca thi không còn đủ 2 chỗ.</p>
                                     <p class="wj-exam-pc-alert__text">Danh sách người và ảnh vẫn được giữ lại.</p>
                                 </div>
-                                <button type="button" class="wj-pc-btn wj-pc-btn--secondary wj-exam-pc-alert__btn"
+                                <button type="button" class="wj-btn wj-btn--secondary wj-exam-pc-alert__btn"
                                         data-wj-exam-pick-other-slot="1">Chọn khung giờ khác</button>
                             </div>
                             <!-- 07_UIStates · 8. Gửi thành công -->
@@ -371,7 +371,7 @@
                                     <p class="wj-exam-pc-alert__title">Đã gửi yêu cầu đăng ký</p>
                                     <p class="wj-exam-pc-alert__text">Vui lòng chờ Ngô Gia xác nhận.</p>
                                 </div>
-                                <a href="/portal/exam" class="wj-pc-btn wj-pc-btn--secondary wj-exam-pc-alert__btn">Xem chi tiết</a>
+                                <a href="/portal/exam" class="wj-btn wj-btn--secondary wj-exam-pc-alert__btn">Xem chi tiết</a>
                             </div>
 
                             <!-- 3. Người tham gia -->
@@ -387,7 +387,7 @@
                                                class="wj-pc-control wj-exam-pc-control wj-exam-pc-control--note"
                                                t-att-value="pc_summary['note']"/>
                                     </div>
-                                    <button type="button" class="wj-pc-btn wj-pc-btn--secondary wj-exam-pc-addbtn"
+                                    <button type="button" class="wj-btn wj-btn--secondary wj-exam-pc-addbtn"
                                             data-wj-exam-open="participant">
                                         <i class="feather icon-plus"/>Thêm người
                                     </button>
@@ -421,7 +421,7 @@
                             <div class="wj-exam-pc-submitrow">
                                 <!-- 07_UIStates · 6. Đang gửi yêu cầu -->
                                 <p class="wj-exam-pc-sendhint" data-wj-exam-send-hint="1" hidden="hidden">Không đóng hoặc gửi lại biểu mẫu.</p>
-                                <button type="button" class="wj-pc-btn wj-pc-btn--primary wj-exam-pc-checkbtn"
+                                <button type="button" class="wj-btn wj-btn--primary wj-exam-pc-checkbtn"
                                         data-wj-exam-check="1">Kiểm tra thông tin</button>
                             </div>
                         </t>
@@ -489,7 +489,7 @@
                 <div class="wj-pc-modal__backdrop wj-exam-pc-modal" data-wj-exam-modal="participant" hidden="hidden">
                     <div class="wj-pc-modal__panel wj-exam-pc-modal__panel wj-exam-pc-modal__panel--part"
                          role="dialog" aria-modal="true" aria-label="Thêm người đăng ký">
-                        <button type="button" class="wj-exam-pc-modal__close" data-wj-exam-close="1" aria-label="Đóng">
+                        <button type="button" class="wj-iconbtn wj-iconbtn--ghost wj-iconbtn--sm wj-exam-pc-modal__close" data-wj-exam-close="1" aria-label="Đóng">
                             <i class="feather icon-x"/>
                         </button>
                         <h2 class="wj-pc-modal__title wj-exam-pc-modal__title">Thêm người đăng ký</h2>
@@ -531,8 +531,8 @@
                                 <p class="wj-exam-pc-photobox__title">Ảnh đã được chọn</p>
                                 <p class="wj-exam-pc-photobox__file">anh-nguyen-van-an.jpg · JPG</p>
                                 <div class="wj-exam-pc-photobox__row">
-                                    <button type="button" class="wj-pc-btn wj-pc-btn--secondary wj-exam-pc-photobtn">Thay ảnh</button>
-                                    <button type="button" class="wj-pc-btn wj-pc-btn--secondary wj-exam-pc-photobtn wj-exam-pc-photobtn--del">Xóa ảnh</button>
+                                    <button type="button" class="wj-btn wj-btn--secondary wj-exam-pc-photobtn">Thay ảnh</button>
+                                    <button type="button" class="wj-btn wj-btn--secondary wj-exam-pc-photobtn wj-exam-pc-photobtn--del">Xóa ảnh</button>
                                     <span class="wj-exam-pc-photobox__drop">
                                         <span class="wj-exam-pc-photobox__droptitle">Hoặc kéo thả ảnh mới</span>
                                         <span class="wj-exam-pc-photobox__hint">JPG, PNG · giới hạn theo hệ thống</span>
@@ -551,10 +551,10 @@
                         </div>
 
                         <div class="wj-pc-modal__divider wj-exam-pc-modal__divider"/>
-                        <div class="wj-pc-modal__actions wj-exam-pc-modal__actions">
-                            <button type="button" class="wj-pc-btn wj-pc-btn--secondary wj-exam-pc-mbtn"
+                        <div class="wj-pc-modal__actions wj-exam-pc-modal__actions" data-wj-action-area="modal">
+                            <button type="button" class="wj-btn wj-btn--secondary wj-exam-pc-mbtn"
                                     data-wj-exam-close="1">Hủy</button>
-                            <button type="button" class="wj-pc-btn wj-pc-btn--primary wj-exam-pc-mbtn wj-exam-pc-mbtn--add"
+                            <button type="button" class="wj-btn wj-btn--primary wj-exam-pc-mbtn wj-exam-pc-mbtn--add"
                                     data-wj-exam-part-save="1">Thêm người</button>
                         </div>
                     </div>
@@ -564,7 +564,7 @@
                 <div class="wj-pc-modal__backdrop wj-exam-pc-modal" data-wj-exam-modal="submit" hidden="hidden">
                     <div class="wj-pc-modal__panel wj-exam-pc-modal__panel wj-exam-pc-modal__panel--submit"
                          role="dialog" aria-modal="true" aria-label="Gửi yêu cầu đăng ký">
-                        <button type="button" class="wj-exam-pc-modal__close" data-wj-exam-close="1" aria-label="Đóng">
+                        <button type="button" class="wj-iconbtn wj-iconbtn--ghost wj-iconbtn--sm wj-exam-pc-modal__close" data-wj-exam-close="1" aria-label="Đóng">
                             <i class="feather icon-x"/>
                         </button>
                         <h2 class="wj-pc-modal__title wj-exam-pc-modal__title">Gửi yêu cầu đăng ký</h2>
@@ -626,11 +626,11 @@
                         </div>
 
                         <div class="wj-pc-modal__divider wj-exam-pc-modal__divider"/>
-                        <div class="wj-pc-modal__actions wj-exam-pc-modal__actions">
-                            <button type="button" class="wj-pc-btn wj-pc-btn--secondary wj-exam-pc-mbtn wj-exam-pc-mbtn--back"
+                        <div class="wj-pc-modal__actions wj-exam-pc-modal__actions" data-wj-action-area="modal">
+                            <button type="button" class="wj-btn wj-btn--secondary wj-exam-pc-mbtn wj-exam-pc-mbtn--back"
                                     data-wj-exam-close="1">Quay lại chỉnh sửa</button>
-                            <button type="button" class="wj-pc-btn wj-pc-btn--primary wj-exam-pc-mbtn wj-exam-pc-mbtn--send"
-                                    data-wj-exam-send="1" data-wj-exam-busy-label="Đang gửi yêu cầu...">Gửi yêu cầu</button>
+                            <button type="button" class="wj-btn wj-btn--primary wj-exam-pc-mbtn wj-exam-pc-mbtn--send"
+                                    data-wj-exam-send="1">Gửi yêu cầu</button>
                         </div>
                     </div>
                 </div>
@@ -642,7 +642,7 @@
                 <!-- STEP 1: Chọn khóa thi -->
                 <section data-exam-step="1" class="wujia-mexam-panel">
                     <div class="wujia-mexam-head">
-                        <a href="/portal/exam" class="wujia-mexam-back">
+                        <a href="/portal/exam" class="wujia-mexam-back" aria-label="Quay lại">
                             <i class="feather icon-chevron-left"/>
                         </a>
                         <div class="wujia-mexam-head-main">
@@ -693,7 +693,7 @@
                 <!-- STEP 2: Chọn lịch thi (calendar + popup khung giờ) -->
                 <section data-exam-step="2" class="wujia-mexam-panel" hidden="hidden">
                     <div class="wujia-mexam-head">
-                        <a href="#" class="wujia-mexam-back" data-exam-goto="1">
+                        <a href="#" class="wujia-mexam-back" data-exam-goto="1" aria-label="Quay lại">
                             <i class="feather icon-chevron-left"/>
                         </a>
                         <div class="wujia-mexam-head-main">
@@ -724,11 +724,11 @@
                             <span class="wujia-mexam-leg is-off"><i class="wujia-mexam-leg-dot"/>Không lịch</span>
                         </div>
                         <div class="wujia-mexam-cal-nav">
-                            <button type="button" class="wujia-mexam-cal-navbtn" data-exam-cal-month="prev">
+                            <button type="button" class="wj-iconbtn wj-iconbtn--ghost wj-iconbtn--sm" data-exam-cal-month="prev" aria-label="Tháng trước">
                                 <i class="feather icon-chevron-left"/>
                             </button>
                             <span class="wujia-mexam-cal-month" data-exam-cal-label="1" t-out="calendar['label']"/>
-                            <button type="button" class="wujia-mexam-cal-navbtn" data-exam-cal-month="next">
+                            <button type="button" class="wj-iconbtn wj-iconbtn--ghost wj-iconbtn--sm" data-exam-cal-month="next" aria-label="Tháng sau">
                                 <i class="feather icon-chevron-right"/>
                             </button>
                         </div>
@@ -767,7 +767,7 @@
                 <!-- STEP 3: Nhập nhân sự -->
                 <section data-exam-step="3" class="wujia-mexam-panel" hidden="hidden">
                     <div class="wujia-mexam-head">
-                        <a href="#" class="wujia-mexam-back" data-exam-goto="2">
+                        <a href="#" class="wujia-mexam-back" data-exam-goto="2" aria-label="Quay lại">
                             <i class="feather icon-chevron-left"/>
                         </a>
                         <div class="wujia-mexam-head-main">
@@ -804,7 +804,7 @@
                             <div class="wujia-mexam-person-head">
                                 <span class="wujia-mexam-person-name">Nhân sự 1</span>
                                 <span class="wujia-mexam-person-req" data-exam-person-req="1">Bắt buộc</span>
-                                <button type="button" class="wujia-mexam-person-del" data-exam-person-del="1" hidden="hidden">
+                                <button type="button" class="wj-iconbtn wj-iconbtn--ghost wj-iconbtn--sm" data-exam-person-del="1" aria-label="Xóa nhân sự" hidden="hidden">
                                     <i class="feather icon-trash-2"/>
                                 </button>
                             </div>
@@ -827,17 +827,17 @@
                     </div>
 
                     <div class="wujia-mexam-wfooter">
-                        <button type="button" class="wujia-mexam-btn wujia-mexam-btn-outline" data-exam-add-person="1">
+                        <button type="button" class="wj-btn wj-btn--secondary wj-btn--lg" data-exam-add-person="1">
                             <i class="feather icon-plus"/><span>Thêm người</span>
                         </button>
-                        <button type="button" class="wujia-mexam-btn wujia-mexam-btn-primary" data-exam-goto="4">Tiếp tục</button>
+                        <button type="button" class="wj-btn wj-btn--primary wj-btn--lg" data-exam-goto="4">Tiếp tục</button>
                     </div>
                 </section>
 
                 <!-- STEP 4: Xác nhận đăng ký -->
                 <section data-exam-step="4" class="wujia-mexam-panel" hidden="hidden">
                     <div class="wujia-mexam-head">
-                        <a href="#" class="wujia-mexam-back" data-exam-goto="3">
+                        <a href="#" class="wujia-mexam-back" data-exam-goto="3" aria-label="Quay lại">
                             <i class="feather icon-chevron-left"/>
                         </a>
                         <div class="wujia-mexam-head-main">
@@ -895,8 +895,8 @@
                     </div>
 
                     <div class="wujia-mexam-wfooter">
-                        <button type="button" class="wujia-mexam-btn wujia-mexam-btn-outline" data-exam-goto="3">Quay lại</button>
-                        <button type="button" class="wujia-mexam-btn wujia-mexam-btn-primary" data-exam-submit="1">Xác nhận đăng ký</button>
+                        <button type="button" class="wj-btn wj-btn--secondary wj-btn--lg" data-exam-goto="3">Quay lại</button>
+                        <button type="button" class="wj-btn wj-btn--primary wj-btn--lg" data-exam-submit="1">Xác nhận đăng ký</button>
                     </div>
                 </section>
 
@@ -912,8 +912,8 @@
                         <p class="wujia-mexam-slot-empty" data-exam-slot-loading="1">Đang tải khung giờ…</p>
                     </div>
                     <div class="wujia-mexam-sheet-actions">
-                        <button type="button" class="wujia-mexam-btn wujia-mexam-btn-outline" data-exam-slot-close="1">Đóng</button>
-                        <button type="button" class="wujia-mexam-btn wujia-mexam-btn-primary" data-exam-slot-confirm="1" disabled="disabled">Xác nhận khung giờ</button>
+                        <button type="button" class="wj-btn wj-btn--secondary wj-btn--lg" data-exam-slot-close="1">Đóng</button>
+                        <button type="button" class="wj-btn wj-btn--primary wj-btn--lg" data-exam-slot-confirm="1" disabled="disabled">Xác nhận khung giờ</button>
                     </div>
                 </div>
             </div>
@@ -943,7 +943,7 @@
                     </div>
                 </div>
                 <div class="content-body">
-                    <a href="/portal/exam" class="wj-pc-btn wj-pc-btn--secondary wj-exam-pc-back">
+                    <a href="/portal/exam" class="wj-btn wj-btn--secondary wj-exam-pc-back">
                         <i class="feather icon-chevron-left"/>Quay lại
                     </a>
 
@@ -1160,7 +1160,7 @@
 
                 <a t-if="reg_view['is_published'] or reg_view['state'] in ('rejected', 'cancelled')"
                    href="/portal/exam/register"
-                   class="wujia-mexam-btn wujia-mexam-btn-primary wujia-mexam-rcta">Đăng ký thi mới</a>
+                   class="wj-btn wj-btn--primary wj-btn--lg wj-btn--block wujia-mexam-rcta">Đăng ký thi mới</a>
             </div>
         </t>
     </template>

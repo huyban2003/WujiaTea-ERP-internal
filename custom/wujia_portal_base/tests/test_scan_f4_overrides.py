@@ -70,7 +70,8 @@ class TestF4InteractionCallSites(TransactionCase):
             # danh sách bề mặt của _interaction.css nên không cần marker (tiền lệ E6a).
             (('wujia_portal_delivery', 'views', 'portal_delivery.xml'), 'wj-pc-dlv-chip wj-state-surface', 4),
             (('wujia_portal_knowledge', 'views', 'portal_knowledge.xml'), 'wujia-mknow-feat wj-state-surface', 1),
-            (('wujia_portal_exam', 'views', 'portal_exam.xml'), 'wj-exam-pc-navbtn wj-state-surface', 2),
+            # E6c: 2 nút đổi tháng màn Thi về `.wj-iconbtn--secondary` (có sẵn trong danh sách bề mặt).
+            (('wujia_portal_exam', 'views', 'portal_exam.xml'), 'wj-state-surface', 0),
             # E6b2: 3 -> 2. Nút xóa dòng giỏ đã về `.wj-iconbtn--ghost`; atom tự khai
             # hover + nhấn (_components.css) nên không cần marker. Còn lại là nút bước.
             (('wujia_portal_sale', 'views', 'pc_cart_panel.xml'), 'wj-state-surface', 2),

@@ -24,6 +24,14 @@
           .then(function (j) { return j.result || {}; });
     }
 
+    /* Loading của atom Button: giữ bề rộng, khoá bấm lặp khi request chưa về. */
+    function setBusy(btn, on) {
+        if (!btn) { return; }
+        btn.disabled = on;
+        btn.classList.toggle('is-loading', on);
+        btn.setAttribute('aria-busy', on ? 'true' : 'false');
+    }
+
     function init() {
         var wizard = document.querySelector('.wujia-mexam-wizard');
         if (!wizard) { return; }
@@ -482,8 +490,7 @@
                     showStep(3);
                     return;
                 }
-                submit.disabled = true;
-                submit.textContent = 'Đang gửi…';
+                setBusy(submit, true);
                 jsonRpc('/portal/exam/register', {
                     session_id: chosen.sessionId,
                     participants: participants,
@@ -492,13 +499,11 @@
                         window.location = res.redirect;
                         return;
                     }
-                    submit.disabled = false;
-                    submit.textContent = 'Xác nhận đăng ký';
+                    setBusy(submit, false);
                     showSubmitErr((res && res.message) ||
                         'Không gửi được yêu cầu. Vui lòng thử lại.');
                 }).catch(function () {
-                    submit.disabled = false;
-                    submit.textContent = 'Xác nhận đăng ký';
+                    setBusy(submit, false);
                     showSubmitErr('Có lỗi kết nối. Vui lòng thử lại.');
                 });
                 return;

@@ -14,6 +14,8 @@ E6b/E6c thêm màn chỉ bằng cách thêm một dòng vào MIGRATED.
 import os
 import re
 
+from lxml import etree
+
 from odoo.tests import TransactionCase, tagged
 
 from odoo.addons.wujia_portal_base.tests.css_probe import (
@@ -79,6 +81,13 @@ MIGRATED = [
     ('wujia_portal_layout', 'change_password_page.xml', 3, 0,
      ('wj-pc-btn', 'wj-pc-btn--primary', 'wj-pc-btn--secondary',
       'wj-pc-btn--disabled', 'btn-primary'), None),
+    # --- E6c: màn Thi. Ô ngày/khung giờ/FAB/nút lùi wizard là boundary đọc token
+    # (test riêng ở wujia_portal_exam/tests/test_button_e6c.py).
+    ('wujia_portal_exam', 'portal_exam.xml', 21, 7,
+     ('wj-pc-btn', 'wj-pc-btn--primary', 'wj-pc-btn--secondary', 'wujia-mexam-btn',
+      'wujia-mexam-btn-primary', 'wujia-mexam-btn-outline', 'wj-empty-state-btn',
+      'wj-exam-pc-navbtn', 'wujia-mexam-cal-navbtn', 'wujia-mexam-person-del'),
+     'portal_exam.css'),
 ]
 
 VARIANT = ('primary', 'secondary', 'outline', 'danger', 'ghost')
@@ -167,6 +176,46 @@ class TestButtonCallSites(TransactionCase):
                     if xau:
                         thay.append('%s: %s { %s }' % (fn, sel.strip(), ', '.join(xau)))
         self.assertFalse(thay, 'module giành dáng của atom:\n' + '\n'.join(thay))
+
+    def test_class_di_kem_atom_khong_gianh_dang(self):
+        """E6c M8: class đứng CÙNG phần tử với atom (`wj-exam-pc-back`) cũng không được khai dáng."""
+        atom = re.compile(r'^wj-(icon)?btn(--[\w-]+)?$')
+        cam = ('height', 'border-radius', 'background', 'border', 'font-size',
+               'font-weight', 'padding', 'color')
+        kem = set()
+        for root, _dirs, files in os.walk(CUSTOM):
+            if not os.path.relpath(root, CUSTOM).startswith('wujia_portal'):
+                continue
+            for fn in files:
+                path = os.path.join(root, fn)
+                if fn.endswith('.xml') and os.sep + 'views' in root:
+                    classes = [((el.get('class') or '') + ' ' + (el.get('t-attf-class') or '')).split()
+                               for el in etree.parse(path).iter() if isinstance(el.tag, str)]
+                elif fn.endswith('.js') and os.sep + 'static' + os.sep in path:
+                    classes = [c.split() for c in re.findall(r'class="([^"]*wj-(?:icon)?btn[^"]*)"',
+                                                             open(path, encoding='utf-8').read())]
+                else:
+                    continue
+                for cls in classes:
+                    if any(atom.match(c) for c in cls):
+                        kem |= {c for c in cls if not atom.match(c) and re.match(r'^[a-z][\w-]*$', c)}
+        thay = []
+        for root, _dirs, files in os.walk(CUSTOM):
+            if '/static/' not in root or os.sep + 'wujia_portal_layout' + os.sep in root:
+                continue
+            for fn in (f for f in files if f.endswith('.css')):
+                css = _strip_comments(open(os.path.join(root, fn), encoding='utf-8').read())
+                for sel, body in re.findall(r'([^{}@]+)\{([^{}]*)\}', css):
+                    for s in sel.split(','):
+                        cuoi = re.split(r'[\s>+~]+', s.strip())[-1]
+                        if '.is-' in cuoi or not set(re.findall(r'\.([\w-]+)', cuoi)) & kem:
+                            continue
+                        khai = {d.split(':')[0].strip() for d in body.split(';') if ':' in d}
+                        xau = sorted(k for k in khai if any(k == c or k.startswith(c + '-') for c in cam))
+                        if xau:
+                            thay.append('%s: %s { %s }' % (fn, s.strip(), ', '.join(xau)))
+        self.assertTrue(kem, 'không gom được class đi kèm atom — test rỗng')
+        self.assertFalse(thay, 'class đi kèm atom giành dáng:\n' + '\n'.join(thay))
 
     def test_ho_cu_cua_khao_sat_khong_bi_dung(self):
         """LIMIT E6: `wujia_portal_inspection` (code anh Thái) còn dùng `.wj-pc-btn`

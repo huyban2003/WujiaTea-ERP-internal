@@ -1062,3 +1062,44 @@ rồi đánh ✅ ở bảng Trạng thái §2 `docs/next-session-clusters-F.md`.
 - Phiên kế: **E6c** — việc cần biết trước: màn Thi có nút **dựng bằng JS** (không grep XML là đủ);
   deploy UAT phải gộp `-u` của cả E6a + E6b1 + E6b2; trước khi đo lại màn auth trên máy chủ nhớ
   `rate_limit` 10 lần/giờ.
+
+## E6c — Button `CMP-BTN-001`: màn Thi + gạch 12 + khép `UI-BUTTON-001` (23/09/2026 · Mac)
+- Kết quả: ✅ xong lượt cuối cụm E6 — code + doc **đã push `main`**, **chờ chủ dự án deploy UAT** rồi mới
+  `qa_sync` đưa `UI-BUTTON-001` (STT 132, dòng 125) sang Ready for Retest. Nghiệm thu: `docs/e6c-acceptance-matrix.md`.
+- Chốt đầu phiên của chủ dự án: ô ngày/khung giờ/FAB/nút lùi wizard màn Thi **là boundary nhưng đọc token
+  `--wj-btn-*`** (để sau này đổi token một chỗ là theo) · **vá tràn ngang màn đăng nhập** (IMPACT) ·
+  **commit + push `main`, anh tự deploy**.
+- Đã làm:
+  - **30 call site màn Thi** về atom: 21 `.wj-btn` + 7 `.wj-iconbtn` trong `portal_exam.xml`, 2 `.wj-iconbtn`
+    dựng bằng JS (sửa/xóa dòng người thi). Xoá hẳn họ `wujia-mexam-btn*`, `wj-exam-pc-navbtn`,
+    `wj-exam-pc-iconbtn`, `wujia-mexam-cal-navbtn`, `wujia-mexam-person-del`.
+  - **Boundary đọc token**: 5 khối CSS (ô ngày PC/mobile, ô khung giờ PC/mobile, FAB) bỏ số px cứng; trạng
+    thái *đang chọn* dùng `--wujia-cta` như primary của atom.
+  - Gửi đăng ký (PC + wizard mobile) dùng `setBusy()` = `.is-loading` của atom thay kiểu đổi chữ.
+  - **Màn đăng nhập hết tràn ngang** 464 → 390: gốc là **tên ngôn ngữ** (thêm ở `WJ-LANG-001`) nhét vào pill 72px
+    của Figma, bóp cờ còn 3px và đẩy chữ ra ngoài mép; ở điện thoại nay ẩn mắt tên ngôn ngữ (trình đọc màn hình
+    vẫn đọc), cờ đủ 20px, bỏ caret Bootstrap trùng; `overflow-x` trên `.wj-auth` giữ làm lưới an toàn.
+  - **Guard mới** `test_class_di_kem_atom_khong_gianh_dang` (sổ chung portal_base): class đứng cùng phần tử với
+    atom cũng không được khai dáng — mũi M8 lần đầu lọt qua guard cũ.
+  - Gạch 12: `scratchpad/e6c/bullet12.py` — 13 route × nhãn dài VI/EN/ZH × 3 khổ, submit lặp (form + fetch,
+    không gửi thật), Enter/Space.
+- Số đo: `wj_button` **32 route × 5 khổ, 0 vi phạm · 0 lỗi JS**, **358 ô atom** (PC 32×225 / 40×69 / 46×12;
+  mobile 36×8 / 44×30 / 48×14; radius 8×233 / 12×125); zoom 200% **0 vi phạm**; từng trạng thái màn Thi
+  (`exam_states.py`) **0 vi phạm** · suite **729 tests, 0 đỏ** (mốc E6b2 722, +7) · mutation **10/10** ·
+  `wj_measure` trước/sau (stash) **0 dòng khác** · `wj_filterbar` **ĐẠT** · `wj_listcard` 0 · `wj_nesting` 0 ·
+  `b4_regression` **286/286** · `check_layers` 2 R7 có sẵn, không thêm · gạch 12: submit lặp **1 request**
+  giữ bề rộng (form 136,6px · fetch 174px), bàn phím **28/28**.
+- Lệch plan / quyết định mới:
+  - **2 LIMIT nhãn dài**: nút *Xem* trong dòng bảng PC (Giao hàng, Công nợ) làm bảng cuộn ngang **bên trong**
+    khung bảng — hành vi DataTable, trang không cuộn; nhãn EN 44 ký tự ở nút full-width khổ 360 dư 6px — BA chốt
+    "một dòng, không giảm font" nên đặt quy ước nhãn ≤ 40 ký tự Latin.
+  - **IMPACT**: FAB `#28A9DF` → `#0F7CA8`; ô ngày mobile 38 → 36; ô ngày PC bo 6 → 8; ô khung giờ mobile ~51 → 48;
+    nút đóng modal về ghost 32px (đồng bộ Công nợ/chọn cửa hàng); nút đổi tháng PC 32×28 → 32×32.
+  - **LIMIT** nút lùi wizard mobile chạm 28×30 — thuộc BackPageHeader (`UI-BACKPAGEHEADER-001`), không đổi dáng ở E6.
+- **Bài học môi trường đo**: `wj_filterbar` báo CHƯA ĐẠT, chạy lại trên HEAD (stash E6c) **y hệt** ⇒ không do E6c.
+  Gốc: `wj_ajax_list.js` lọc bằng `fetch` + `pushState`, server đang `--dev=xml` nên một lượt lọc mất 3,1 giây,
+  quá thời gian chờ của thước đo. **Đo giao diện luôn dùng server không `--dev=xml`** (cần nạp view thì `-u` rồi
+  khởi động lại).
+- Nợ để lại: **deploy UAT** (lệnh `-u` gộp 12 module trong matrix) → đo lại chỉ-đọc trên UAT → `qa_sync.py
+  --dry-run` → `--apply`; nút lùi wizard 28×30 (BackPageHeader); cụm **EmptyState**; 3 template auth chết (E6b2).
+- Phiên kế: sau khi UAT xác nhận E6 ⇒ **E7a** PageContainer `CMP-PC-001` (`UI-PAGECONTAINER-001`, STT 129).

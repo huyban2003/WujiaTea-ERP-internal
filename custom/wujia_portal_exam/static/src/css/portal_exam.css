@@ -24,32 +24,6 @@
 
 @media (max-width: 991.98px) {
 
-    /* ---------- Shared ---------- */
-    .wujia-mexam-btn {
-        height: 48px;
-        border: 0;
-        border-radius: 12px;
-        font-size: 15px;
-        font-weight: 700;
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        gap: 6px;
-        cursor: pointer;
-        text-decoration: none;
-    }
-    .wujia-mexam-btn i { font-size: 17px; line-height: 1; }
-    .wujia-mexam-btn-primary {
-        background: var(--wujia-primary);
-        color: #FFFFFF;
-    }
-    .wujia-mexam-btn-primary:disabled { opacity: 0.45; }
-    .wujia-mexam-btn-outline {
-        background: #FFFFFF;
-        border: 1.5px solid var(--wujia-primary);
-        color: var(--wujia-primary);
-    }
-
     /* ================= s0 — Danh sách đăng ký ================= */
     .wujia-mexam-head-list { display: flex; flex-direction: column; gap: 4px; }
     .wujia-mpage .wujia-mexam-title {
@@ -92,14 +66,15 @@
         display: inline-flex;
         align-items: center;
         gap: 6px;
-        padding: 12px 20px;
-        border-radius: 999px;
-        background: var(--wujia-primary);
+        height: var(--wj-btn-h-md);
+        padding: 0 var(--wj-btn-pad-lg);
+        border-radius: var(--wj-pc-pill-radius);
+        background: var(--wujia-cta);
         color: #FFFFFF;
         font-size: 14px;
         font-weight: 600;
         text-decoration: none;
-        box-shadow: 0 6px 18px rgba(40, 169, 223, 0.4);
+        box-shadow: 0 6px 18px rgba(15, 124, 168, 0.35);
     }
     .wujia-mexam-fab i { font-size: 18px; }
 
@@ -218,17 +193,6 @@
         justify-content: space-between;
         margin-bottom: 10px;
     }
-    .wujia-mexam-cal-navbtn {
-        width: 30px;
-        height: 30px;
-        border: 0;
-        background: transparent;
-        color: var(--wujia-text-secondary);
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-    }
-    .wujia-mexam-cal-navbtn i { font-size: 18px; }
     .wujia-mexam-cal-month {
         font-size: 16px;
         font-weight: 700;
@@ -251,8 +215,8 @@
         align-items: center;
         justify-content: center;
         justify-self: center;
-        width: 38px;
-        height: 38px;
+        width: var(--wj-btn-icon-sm);
+        height: var(--wj-btn-icon-sm);
         font-size: 14px;
         color: var(--wujia-text-secondary);
         background: transparent;
@@ -279,7 +243,8 @@
         background: var(--wujia-primary);
     }
     .wujia-mexam-cal-day.is-available.is-selected {
-        background: var(--wujia-primary);
+        border-color: var(--wujia-cta);
+        background: var(--wujia-cta);
         color: #FFFFFF;
     }
     .wujia-mexam-cal-day.is-available.is-selected .wujia-mexam-cal-daydot { background: #FFFFFF; }
@@ -349,9 +314,10 @@
         align-items: center;
         gap: 12px;
         width: 100%;
-        padding: 13px 14px;
+        min-height: var(--wj-btn-h-lg);
+        padding: 0 14px;
         border: 1.5px solid var(--wujia-border-soft);
-        border-radius: 12px;
+        border-radius: var(--wj-btn-radius);
         background: #FFFFFF;
         text-align: left;
         cursor: pointer;
@@ -384,8 +350,8 @@
         background: var(--wujia-mexam-slot-sel-bg);
     }
     .wujia-mexam-slot.is-selected .wujia-mexam-slot-radio {
-        background: var(--wujia-primary);
-        border-color: var(--wujia-primary);
+        background: var(--wujia-cta);
+        border-color: var(--wujia-cta);
     }
     .wujia-mexam-slot.is-selected .wujia-mexam-slot-radio i { opacity: 1; }
     .wujia-mexam-slot.is-disabled { cursor: not-allowed; }
@@ -397,7 +363,7 @@
         gap: 12px;
         margin-top: 18px;
     }
-    .wujia-mexam-sheet-actions .wujia-mexam-btn { flex: 1 1 0; }
+    .wujia-mexam-sheet-actions > * { flex: 1 1 0; }
 
     /* ================= s4 — Nhập nhân sự ================= */
     .wujia-mexam-personlist { display: flex; flex-direction: column; gap: 12px; }
@@ -430,14 +396,6 @@
         color: var(--wujia-primary);
         text-decoration: none;
     }
-    .wujia-mexam-person-del {
-        border: 0;
-        background: transparent;
-        color: var(--wujia-mexam-cal-muted);
-        padding: 0;
-        display: inline-flex;
-    }
-    .wujia-mexam-person-del i { font-size: 18px; }
     .wujia-mexam-person-body {
         margin-top: 14px;
         display: flex;
@@ -469,7 +427,7 @@
         margin-top: auto;
         padding: 8px 0 4px;
     }
-    .wujia-mexam-wfooter .wujia-mexam-btn { flex: 1 1 0; }
+    .wujia-mexam-wfooter > * { flex: 1 1 0; }
 
     /* ================= s5 — Xác nhận ================= */
     .wujia-mexam-cfcard {
@@ -531,7 +489,7 @@
         background: #FEF2F2;
         border-color: #FEDEDE;
     }
-    .wujia-mexam-rcta { width: 100%; margin-top: 4px; }
+    .wujia-mexam-rcta { margin-top: 4px; }
 
     /* ---- Sprint 45 wire: khung giờ động + ảnh + lỗi inline ---- */
     .wujia-mexam-slot-empty {
@@ -893,26 +851,6 @@
         color: var(--wj-pc-text);
     }
     .wj-exam-pc-cal__nav { display: inline-flex; gap: 10px; }
-    .wj-exam-pc-navbtn {
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        width: 32px;
-        height: 28px;
-        padding: 0;
-        border: 1px solid var(--wj-pc-border);
-        border-radius: 8px;
-        background: var(--wj-pc-card);
-        font-size: 18px;
-        font-weight: 700;
-        line-height: 1;
-        color: var(--wj-pc-muted);
-        cursor: pointer;
-    }
-    .wj-exam-pc-navbtn:hover {
-        border-color: var(--wj-pc-primary);
-        color: var(--wj-pc-primary);
-    }
 
     .wj-exam-pc-legend {
         display: flex;
@@ -955,10 +893,10 @@
         display: flex;
         align-items: center;
         justify-content: center;
-        height: 32px;
+        height: var(--wj-btn-h-sm);
         padding: 0;
         border: 1px solid transparent;
-        border-radius: 6px;
+        border-radius: var(--wj-btn-radius-sm);
         background: transparent;
         font-size: 12px;
         font-weight: 400;
@@ -989,8 +927,8 @@
         color: var(--wj-pc-primary);
     }
     .wj-exam-pc-day.is-selected {
-        border-color: var(--wj-pc-primary);
-        background: var(--wj-pc-primary);
+        border-color: var(--wujia-cta);
+        background: var(--wujia-cta);
         font-weight: 700;
         color: var(--wj-pc-card);
     }
@@ -1065,10 +1003,10 @@
     .wj-exam-pc-slot {
         display: flex;
         align-items: center;
-        height: 58px;
+        min-height: calc(var(--wj-btn-h-lg) + 12px);
         padding: 0 7px 0 12px;
         border: 2px solid var(--wj-exam-pc-bd-muted);
-        border-radius: var(--wj-pc-component-radius);
+        border-radius: var(--wj-btn-radius);
         background: var(--wj-pc-table-header-bg);
         text-align: left;
         cursor: pointer;
@@ -1115,7 +1053,7 @@
         color: var(--wj-pc-primary);
     }
     .wj-exam-pc-slot.is-selected {
-        border-color: var(--wj-pc-primary);
+        border-color: var(--wujia-cta);
         background: var(--wj-exam-pc-tint);
     }
     .wj-exam-pc-slot.is-selected .wj-exam-pc-slot__check { visibility: visible; }
@@ -1240,19 +1178,7 @@
     }
     .wj-exam-pc-photo__tag--empty { color: var(--wj-pc-subtle); }
 
-    .wj-exam-pc-rowacts { display: inline-flex; align-items: center; gap: 26px; }
-    .wj-exam-pc-iconbtn {
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        padding: 0;
-        border: 0;
-        background: transparent;
-        font-size: 16px;
-        color: var(--wj-pc-primary);
-        cursor: pointer;
-    }
-    .wj-exam-pc-iconbtn--muted { color: var(--wj-pc-subtle); }
+    .wj-exam-pc-rowacts { display: inline-flex; align-items: center; gap: 8px; }
 
     .wj-exam-pc-submitrow {
         display: flex;
@@ -1356,18 +1282,8 @@
     .wj-exam-pc-modal__panel--submit { width: 880px; padding: 20px 36px 6px; }
     .wj-exam-pc-modal__close {
         position: absolute;
-        top: 22px;
-        right: 30px;
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        padding: 0;
-        border: 0;
-        background: transparent;
-        font-size: 24px;
-        line-height: 1;
-        color: var(--wj-pc-subtle);
-        cursor: pointer;
+        top: 18px;
+        right: 26px;
     }
     .wj-exam-pc-modal__title {
         margin: 0;

@@ -61,6 +61,10 @@ MIGRATED = [
     '/portal/order/cart',
     '@product_detail',
     '/portal/change-password',
+    # E6c — màn Thi. Nút wizard mobile + modal PC nằm trong bước/lớp phủ ẩn:
+    # đo bằng scratchpad/e6c/exam_states.py (mở từng bước rồi chạy PROBE này).
+    '/portal/exam/register',
+    '@exam_detail',
 ]
 
 # Màn auth: KHÔNG đăng nhập mới dựng được, nên đo ở một context riêng (E6b2).
@@ -87,6 +91,8 @@ WATCH = [
     '/portal/purchase-history',
     '/portal/debt/payment-history',
     '/portal/franchise-information',
+    # Danh sách Thi: PC chỉ có link chữ, mobile chỉ có FAB (boundary).
+    '/portal/exam',
 ]
 
 # Màn chi tiết phụ thuộc dữ liệu (slug bài viết, id yêu cầu). Ghi cứng vào sổ thì
@@ -96,6 +102,7 @@ DYNAMIC = {
     '@knowledge_detail': ('/portal/knowledge', '/portal/knowledge/'),
     '@info_request_detail': ('/portal/info-request', '/portal/info-request/'),
     '@product_detail': ('/portal/order', '/portal/order/product/'),
+    '@exam_detail': ('/portal/exam', '/portal/exam/registration/'),
 }
 
 
@@ -143,6 +150,11 @@ PROBE = r"""
                     'wujia-morder-row-add', 'wujia-morder-add-btn', 'wj-pc-order-add',
                     'wujia-morder-floatbar',
                     'wujia-header-icon', 'wj-pc-navactions',
+                    // E6c: ô ngày/khung giờ là control chọn, FAB cùng loại
+                    // BottomNavigation, nút lùi wizard là BackPageHeader — boundary
+                    // nhưng đọc token --wj-btn-* (chốt chủ dự án 23/09).
+                    'wj-exam-pc-day', 'wj-exam-pc-slot', 'wujia-mexam-cal-day',
+                    'wujia-mexam-slot', 'wujia-mexam-fab', 'wujia-mexam-back',
                     'wj-inspection', 'wujia-minspection'];
   const clsOf = el => (el.className || '').toString().split(/\s+/).filter(Boolean);
   // E6b1: nhận theo NGỮ CẢNH, không theo tên họ class. Trong cùng một màn Công
@@ -265,7 +277,9 @@ TOL = 0.6
 # Họ nút cũ — còn thấy ở route đã migrate là chưa dọn sạch.
 LEGACY = ('wj-pc-btn', 'btn-primary', 'btn-secondary', 'btn-outline', 'btn-sm', 'btn-xs',
           'btn-success', 'btn-danger', 'btn-light', 'btn-block', 'wujia-mexam-btn',
-          'wj-cta-btn', 'wujia-mreturn-btn', 'btn-add-cart', 'wujia-morder-add-btn')
+          'wj-cta-btn', 'wujia-mreturn-btn', 'btn-add-cart', 'wujia-morder-add-btn',
+          'wj-empty-state-btn', 'wj-exam-pc-navbtn', 'wj-exam-pc-iconbtn',
+          'wujia-mexam-cal-navbtn', 'wujia-mexam-person-del')
 
 
 def check(route, width, data, migrated):
@@ -339,6 +353,9 @@ def keyboard_probe(page, items_selector='.wj-btn, .wj-iconbtn'):
       document.querySelectorAll(sel).forEach(el => {
         const r = el.getBoundingClientRect();
         if (!r.width || !r.height) return;
+        // Lớp phủ đóng bằng visibility:hidden (bottom-sheet) vẫn có hộp nhưng
+        // không nhận focus — đúng hành vi, không phải thiếu ring (E6c).
+        if (getComputedStyle(el).visibility === 'hidden') return;
         out.n += 1;
         const dis = el.disabled === true;
         el.focus();
