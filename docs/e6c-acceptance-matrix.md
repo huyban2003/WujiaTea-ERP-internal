@@ -203,3 +203,21 @@ $PY scratchpad/e6a/b4_emhcm.py
 $PY scripts/qa/check_layers.py
 $PY scratchpad/e6c/mutations.py
 ```
+
+## Retest UAT 24/09/2026 (chỉ đọc)
+
+Deploy xác nhận: 12/12 module khớp phiên bản mã; login phục vụ `_auth.css?v=1172`. Mọi script chạy qua
+`scratchpad/e6c/uat_guard.py` — **0 POST phải chặn**. Kết quả trong `scratchpad/e6c/uat/`.
+
+| Hạng mục | Kết quả UAT |
+|---|---|
+| `wj_button` 5 khổ + 720/512 (em.hcm + anh.owner) | 30 màn, 175 lượt atom, **0 vi phạm nút**, 0 lỗi JS |
+| Trạng thái ẩn màn Thi | 0 vi phạm |
+| Login 360/390/1440 (`/portal/login`, `/web/login`, `/web/reset_password`) | scrollWidth = viewport |
+| Submit lặp (form / fetch màn Thi) | 1 request, giữ bề rộng 136,5 / 174, mở lại sau lỗi |
+| Bàn phím Enter/Space | 18/18 |
+| Nhãn dài | 60 lượt, 5 ghi nhận — đều thuộc LIMIT 1 và LIMIT 2 |
+
+Không đo được trên UAT (thiếu dữ liệu, đã đo local): màn chi tiết yêu cầu thông tin (UAT 0 bản ghi
+`wujia.info.update.request`), nút trong bảng `/portal/debt` và `/portal/debt/pay` (hai tài khoản thử không có
+công nợ). `/portal/forgot-pass` 2 khổ trả 429 do `rate_limit` của chính lượt đo — 3 khổ còn lại đạt.

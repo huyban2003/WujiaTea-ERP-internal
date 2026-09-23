@@ -1100,6 +1100,14 @@ rồi đánh ✅ ở bảng Trạng thái §2 `docs/next-session-clusters-F.md`.
   Gốc: `wj_ajax_list.js` lọc bằng `fetch` + `pushState`, server đang `--dev=xml` nên một lượt lọc mất 3,1 giây,
   quá thời gian chờ của thước đo. **Đo giao diện luôn dùng server không `--dev=xml`** (cần nạp view thì `-u` rồi
   khởi động lại).
-- Nợ để lại: **deploy UAT** (lệnh `-u` gộp 12 module trong matrix) → đo lại chỉ-đọc trên UAT → `qa_sync.py
-  --dry-run` → `--apply`; nút lùi wizard 28×30 (BackPageHeader); cụm **EmptyState**; 3 template auth chết (E6b2).
+- **Retest UAT 24/09** (anh deploy; 12/12 module khớp `latest_version` qua XML-RPC chỉ-đọc). Chạy qua
+  `scratchpad/e6c/uat_guard.py` (chặn mọi POST ngoài login + 4 route chỉ-đọc; **0 POST phải chặn**):
+  `wj_button` **30 màn × 5 khổ + zoom 200%, 175 lượt atom, 0 vi phạm nút · 0 lỗi JS** (PC 32/40/46, mobile
+  36/44/48, radius 8/12) · trạng thái màn Thi **0** · login 360/390/1440 hết cuộn ngang (3 route) · submit lặp
+  1 request giữ bề rộng (136,5 / 174) · bàn phím **18/18** · nhãn dài: 5 ghi nhận đều thuộc 2 LIMIT cũ.
+  Vi phạm tổng là môi trường: UAT chưa có `wujia.info.update.request` nào + em.hcm/anh.owner không có công nợ
+  (màn chi tiết YC thông tin, `/portal/debt*` chỉ đo được local — ghi LIMIT); `/portal/forgot-pass` trả 429 vì
+  chính các lượt đo chạm `rate_limit` 10/giờ. `wj_button` dò màn động hụt thì giữ placeholder ⇒ trên UAT phải
+  truyền `--routes` bỏ placeholder đó. `qa_sync` UI-BUTTON-001 → **Ready for Retest**.
+- Nợ để lại: nút lùi wizard 28×30 (BackPageHeader); cụm **EmptyState**; 3 template auth chết (E6b2).
 - Phiên kế: sau khi UAT xác nhận E6 ⇒ **E7a** PageContainer `CMP-PC-001` (`UI-PAGECONTAINER-001`, STT 129).
