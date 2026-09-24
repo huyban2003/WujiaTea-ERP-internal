@@ -53,6 +53,13 @@ class TestStatusBadgeMapsAndCallSites(TransactionCase):
                     bare = selector.strip().startswith('.wj-status-badge')
                     if bare and '--' not in selector and ' ' not in selector.strip():
                         continue
+                    # LC-25 (BA 06/09): ListCard được dùng badge chữ 12 qua MỘT
+                    # modifier chung. Miễn trừ hẹp: chỉ `--compact`, chỉ font-size.
+                    if selector.strip() == '.wj-status-badge--compact':
+                        khai = {d.split(':')[0].strip()
+                                for d in body.split(';') if ':' in d}
+                        if khai == {'font-size'}:
+                            continue
                     if shape.search(body):
                         offenders.append('%s → %s' % (os.path.basename(path), selector.strip()))
         self.assertEqual(offenders, [], 'dáng badge bị ghi đè theo route/breakpoint')

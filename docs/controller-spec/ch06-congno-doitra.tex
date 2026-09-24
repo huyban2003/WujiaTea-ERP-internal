@@ -1,0 +1,741 @@
+\chapter{Công nợ --- Đổi trả · Bù hàng}
+
+Chương này gồm \textbf{8 đường dẫn} gom thành \textbf{7 màn} cộng một đường dẫn cũ, thuộc hai
+mô-đun: \rt{wujia_portal_debt} (3) và \rt{wujia_portal_return} (5).
+
+\textbf{Bốn điểm cần biết trước khi đọc:}
+
+\begin{enumerate}[leftmargin=*]
+  \item \textbf{Hai phân hệ trong cùng một chương hiểu ``cửa hàng'' ngược nhau.} Công nợ chỉ
+        làm việc với \textbf{đúng một cửa hàng đang chọn}; chưa chọn thì màn rỗng. Đổi trả thì
+        \textbf{gộp mọi cửa hàng} tài khoản truy cập được --- một tài khoản ba cửa hàng mở màn
+        Đổi trả sẽ thấy lẫn phiếu của cả ba. Cùng với ba kiểu đã nêu ở chương trước, portal
+        hiện có \textbf{bốn cách} xác định ``cửa hàng đang xem''.
+  \item \textbf{Công nợ là phân hệ chặn theo vai trò chặt nhất.} Nhân viên \textbf{không vào
+        được cả ba màn} công nợ --- không phải ẩn số liệu, mà là một trang ``không có quyền''
+        riêng. Và vai trò được xét tại \textbf{đúng cửa hàng đang chọn}, khác với Báo cáo
+        (chương 5) xét vai trò cao nhất trên mọi cửa hàng.
+  \item \textbf{Trên UAT chỉ 1 trong 4 cửa hàng có chứng từ kế toán.} Toàn bộ \uat{6} chứng từ
+        đã ghi sổ đều thuộc \emph{TP HCM Quận 1}. Ba cửa hàng còn lại mở màn Công nợ lúc nào
+        cũng thấy trạng thái rỗng --- đó là do dữ liệu, không phải do luật lọc sai.
+  \item \textbf{Phiếu đổi trả lưu nháp là ngõ cụt.} Màn tạo yêu cầu trên máy tính có nút
+        \emph{Lưu nháp}, nhưng portal \textbf{không có đường nào} để gửi một phiếu nháp đã lưu:
+        màn chi tiết chỉ đọc, không có nút gửi. UAT đang có \uat{3} phiếu nháp nằm vĩnh viễn ở
+        đó. Xem mục 7 của màn Tạo yêu cầu.
+\end{enumerate}
+
+Quy ước chung toàn portal (phân trang, định dạng ngày giờ và tiền, huy hiệu trạng thái, vai
+trò, đính kèm) đã viết một lần ở mục~\ref{sec:quy-uoc-chung}; chương này chỉ nói phần khác
+biệt.
+
+% =============================================================================
+\section{Màn Công nợ theo tuần}
+\rt{/portal/debt}
+\medskip
+
+\mvao
+
+Mục \emph{Công nợ} trên thanh điều hướng bên trái (máy tính) hoặc dòng \emph{Công nợ \& thanh
+toán} trong bảng \emph{Thêm} (điện thoại). Màn nhận các tham số trên thanh địa chỉ:
+\rt{week} (tuần đang xem), \rt{all} (điện thoại: bung hết hoá đơn), \rt{page} ·
+\rt{page_size} (phân trang bảng máy tính), \rt{notice} (băng thông báo khi vừa bị đẩy về từ
+màn chuyển khoản).
+
+\mai
+
+\begin{itemize}[leftmargin=*]
+  \item Phải đăng nhập.
+  \item \textbf{Chỉ Chủ tiệm và Quản lý}. Nhân viên mở màn này sẽ nhận một \textbf{trang thông
+        báo không có quyền} --- không phải lỗi hệ thống, và không lộ bất kỳ con số nào.
+  \item Vai trò được xét tại \textbf{đúng cửa hàng đang chọn}. Một người vừa là Quản lý cửa
+        hàng A vừa là Nhân viên cửa hàng B: đang chọn A thì vào được, bấm đổi sang B thì chính
+        tài khoản đó bị chặn. Trên UAT có đúng \uat{1} tài khoản như vậy (Phạm Thị Dung ---
+        Quản lý \emph{Đống Đa}, Nhân viên \emph{TP HCM Quận 1} và \emph{Cầu Giấy}).
+  \item \textbf{Chưa chọn cửa hàng thì không bị chặn.} Không có cửa hàng thì không có vai trò
+        để xét, nên hệ thống cho vào và hiện trạng thái rỗng ``chưa chọn cửa hàng''. Nghĩa là
+        một Nhân viên nhiều cửa hàng chưa bấm chọn vẫn mở được màn --- chỉ là không thấy số.
+  \item Số liệu đọc bằng quyền hệ thống; giới hạn duy nhất là \rt{franchise_id} bằng đúng cửa
+        hàng đang chọn.
+  \item Thực tế UAT: \uat{4} cửa hàng, \uat{10} lượt tham gia, trong đó \uat{6} lượt đạt Chủ
+        tiệm/Quản lý. Nhưng chỉ \emph{TP HCM Quận 1} có chứng từ, nên rốt cuộc chỉ \uat{2} tài
+        khoản thực sự nhìn thấy số: chủ cửa hàng đó và Administrator (Quản lý cùng cửa hàng).
+\end{itemize}
+
+\mhien
+
+\begin{hienbang}
+Ô chọn tuần &
+  --- (máy tự sinh) &
+  \textbf{6 tuần}: tuần hiện tại và 5 tuần trước, tính từ thứ Hai. Nhãn dạng
+  \emph{``10/08 -- 16/08/2026''}. Tuần cũ hơn \textbf{không chọn tới được}. &
+  Mới nhất trước &
+  Tại ngày chụp: từ 14/09 lùi về 10/08/2026 \\ \addlinespace
+Tuần mở sẵn &
+  \rt{account.move} &
+  Thứ tự ưu tiên: (1) tuần \textbf{quá hạn cũ nhất còn dư nợ}; (2) nếu không có, tuần liền
+  trước nếu tuần đó có chứng từ; (3) nếu vẫn không, tuần hiện tại. &
+  --- &
+  TP HCM Q1 mở sẵn tuần \uat{10/08 -- 16/08} \\ \addlinespace
+Thẻ tổng của tuần &
+  \rt{account.move} &
+  Hoá đơn bán và giấy báo có \textbf{đã ghi sổ} (\rt{state = posted},
+  \rt{move_type in (out_invoice, out_refund)}) của cửa hàng, có \textbf{ngày hoá đơn} rơi vào
+  thứ Hai--Chủ nhật của tuần. Giấy báo có \textbf{trừ} vào tổng. Chứng từ nháp không tính. &
+  Ngày hoá đơn, rồi số thứ tự &
+  \uat{6} chứng từ ghi sổ / \uat{6} chứng từ còn nháp \\ \addlinespace
+Số \emph{Còn phải trả} &
+  \rt{account.move.amount_residual} &
+  Tổng số dư ròng, \textbf{cắt sàn ở 0}: âm thì đưa sang ô \emph{Dư có}. Không bao giờ in số
+  nợ âm. &
+  --- &
+  Tuần 10/08: còn phải trả \uat{0} · dư có \uat{\$72.448,85} \\ \addlinespace
+Trạng thái tuần &
+  suy từ số dư &
+  Năm nhãn, xét theo thứ tự: hết dư $\rightarrow$ \emph{Đã thanh toán}; dư âm $\rightarrow$
+  \emph{Dư có}; có hoá đơn quá hạn $\rightarrow$ \emph{Có quá hạn}; trả được một phần
+  $\rightarrow$ \emph{Thanh toán một phần}; còn lại \emph{Chưa thanh toán}. &
+  --- &
+  Tuần 10/08 hiện \emph{Dư có} \\ \addlinespace
+Hạn thanh toán &
+  máy tự tính &
+  Thứ Hai của tuần \textbf{cộng 10 ngày} --- tức thứ Năm tuần kế. Không đọc hạn ghi trên hoá
+  đơn. &
+  --- &
+  Tuần 10/08 $\Rightarrow$ hạn \uat{20/08/2026} \\ \addlinespace
+Bảng hoá đơn (máy tính) &
+  \rt{account.move} &
+  Mỗi dòng: số chứng từ, ngày, hạn, trạng thái, \textbf{tổng}, \textbf{đã trả}, \textbf{còn
+  phải trả}. Giấy báo có in số âm. &
+  \textbf{10} dòng mỗi trang &
+  Tuần 10/08 có \uat{5} chứng từ \\ \addlinespace
+Khối hoá đơn (điện thoại) &
+  \rt{account.move} &
+  Chỉ \textbf{2 hoá đơn} đầu kèm dòng ``còn \emph{n} hoá đơn''; bung hết bằng \rt{?all=1}. &
+  --- & --- \\ \addlinespace
+Trạng thái từng hoá đơn &
+  suy từ số dư &
+  \emph{Đã thanh toán} (hết dư, hoặc kế toán đã đánh dấu tất toán) · \emph{Giấy báo có} ·
+  \emph{Quá hạn} · \emph{Một phần} (đã trả được ít nhất một đồng) · \emph{Chưa thanh toán}. &
+  --- &
+  Tuần 10/08: \uat{3} Đã thanh toán · \uat{1} Giấy báo có · \uat{1} Quá hạn \\ \addlinespace
+Hộp chuyển khoản &
+  \rt{res.partner.bank} &
+  Chỉ dựng khi \textbf{còn phải trả lớn hơn 0}. Lấy tài khoản của công ty có bật cờ nhận tiền
+  qua portal, số thứ tự nhỏ nhất. &
+  --- &
+  \uat{1}/1 tài khoản đã bật cờ \\
+\end{hienbang}
+
+\textbf{Về loại tiền:} ký hiệu tiền lấy theo \textbf{loại tiền của chính các chứng từ trong
+tuần}; tuần trộn nhiều loại tiền thì lùi về tiền công ty. Trên UAT toàn bộ chứng từ ghi bằng
+USD nên màn hiển thị \$ --- đúng, khác với màn Báo cáo (chương 5) đang in ký hiệu đồng Việt Nam cho số
+USD.
+
+\mloc
+
+\begin{itemize}[leftmargin=*]
+  \item \textbf{Tuần} --- chọn trong đúng 6 khoá tuần kể trên. Gõ khoá lạ trên thanh địa chỉ
+        thì \textbf{không báo lỗi}, hệ thống lặng lẽ quay về tuần mặc định.
+  \item \textbf{Bung hết hoá đơn} (điện thoại) --- \rt{?all=1}; giá trị khác coi như không bung.
+  \item \textbf{Số dòng mỗi trang} (máy tính) --- chỉ nhận \textbf{10, 20, 50}.
+  \item \textbf{Băng thông báo} --- chỉ chấp nhận đúng một giá trị \rt{no_due}; mọi chuỗi khác
+        bị bỏ qua, nên không ai nhét được câu chữ tuỳ ý vào trang qua thanh địa chỉ.
+\end{itemize}
+
+\mkiem{Thanh toán}
+
+\begin{kiembang}
+1 & Đã chọn được cửa hàng & Màn rỗng ``chưa chọn cửa hàng'', nút không hiện \\
+2 & Vai trò tại cửa hàng đó là Chủ tiệm hoặc Quản lý & Trang ``không có quyền'' \\
+3 & Tuần đang xem \textbf{còn phải trả lớn hơn 0} &
+    Bị đẩy về chính màn này kèm băng báo không còn khoản phải trả --- \textbf{không} in số âm,
+    \textbf{không} dựng mã QR \\
+4 & Công ty đã khai tài khoản nhận tiền bật cho portal &
+    Màn chuyển khoản hiện thông báo chưa cấu hình, không hiện ô số tài khoản trống \\
+\end{kiembang}
+
+\mghi
+
+\textbf{Không ghi gì.} Xem số tài khoản hay mở mã QR \textbf{không tạo phiếu thanh toán}, không
+đánh dấu hoá đơn. Nội dung chuyển khoản do máy chủ tự sinh từ mã cửa hàng, số tuần và số tiền
+--- \textbf{không tin} số tiền trình duyệt gửi lên.
+
+\mhoi
+
+\begin{ask}
+\begin{enumerate}[leftmargin=*]
+  \item \textbf{Số công nợ ở Trang chủ và số ở màn này là hai phép tính khác nhau.} Thẻ Trang
+        chủ và huy hiệu đọc \textbf{ô tổng lưu sẵn} trên cửa hàng: tính bằng \textbf{tiền công
+        ty}, \textbf{không giới hạn tuần}, cập nhật bằng tác vụ nền hằng ngày. Màn này tính
+        trực tiếp bằng \textbf{tiền của chứng từ} và \textbf{chỉ trong một tuần}. UAT chưa khai
+        tỷ giá nên hai số đang trùng nhau; khi khai tỷ giá thật, hai chỗ sẽ ra hai con số khác
+        nhau cho cùng một cửa hàng.
+  \item \textbf{Dropdown chỉ 6 tuần.} UAT có \uat{1} hoá đơn ngày 05/08/2026 nằm ngoài khung
+        --- cửa hàng \textbf{không có cách nào} xem lại. Anh muốn giữ 6 tuần, hay thêm ô chọn
+        khoảng ngày tự do?
+  \item \textbf{``Dư có'' đè lên ``Có quá hạn''.} Tuần 10/08 của TP HCM Q1 có một hoá đơn quá
+        hạn \$1,15 nhưng thẻ tuần hiện \emph{Dư có} vì giấy báo có lớn hơn, và nút Thanh toán
+        biến mất. Cửa hàng nhìn vào tưởng không còn gì phải xử lý. Anh chốt giúp: quá hạn có
+        được ưu tiên hiện không?
+  \item \textbf{Trạng thái rỗng nói ``không còn công nợ''.} Câu này dựa trên ô tổng lưu sẵn có
+        lớn hơn 0 hay không. TP HCM Q1 đang có ô tổng \textbf{âm}, nên mọi tuần không có chứng
+        từ đều báo ``không còn công nợ'' --- trong khi vẫn còn một hoá đơn quá hạn.
+  \item \textbf{Hạn thanh toán do portal tự tính} (thứ Hai + 10 ngày), \textbf{không} đọc hạn
+        ghi trên hoá đơn. UAT có hoá đơn hạn 12/08 trong khi portal nói hạn tuần là 20/08.
+        Lấy theo cái nào?
+  \item \textbf{Tuần mở sẵn} = tuần quá hạn cũ nhất còn dư. Anh xác nhận cách mở này.
+  \item \textbf{Ảnh mã QR vẫn đang treo} --- hiện chỉ có số tài khoản và nội dung chuyển khoản.
+        Anh chốt giúp: mã QR tĩnh dán sẵn hay mã động sinh theo số tiền từng tuần?
+  \item \textbf{Nhân viên bị chặn khỏi toàn bộ phân hệ Công nợ.} Xác nhận đúng ý anh.
+\end{enumerate}
+\end{ask}
+
+% =============================================================================
+\section{Màn Lịch sử thanh toán}
+\rt{/portal/debt/payment-history}
+\medskip
+
+\mvao
+
+Thẻ \emph{Lịch sử thanh toán} ngay trong phân hệ Công nợ. Tham số: \rt{month} (kỳ),
+\rt{q} (tìm kiếm), \rt{page} · \rt{page_size}. Ngoài ra còn nhận \rt{date_from} ·
+\rt{date_to} nhưng giao diện \textbf{chưa có ô nào} sinh ra hai tham số này.
+
+\mai
+
+Giống hệt màn Công nợ: chỉ Chủ tiệm / Quản lý của \textbf{đúng cửa hàng đang chọn}; Nhân viên
+nhận trang không có quyền; chưa chọn cửa hàng thì vào được nhưng rỗng.
+
+\mhien
+
+\begin{hienbang}
+Ô chọn kỳ &
+  --- (máy tự sinh) &
+  \textbf{6 kỳ}, mỗi kỳ là \textbf{trọn một tháng}: tháng hiện tại và 5 tháng trước. Nhãn
+  \emph{``01/09 -- 30/09/2026''}. &
+  Mới nhất trước &
+  Tại ngày chụp: 09/2026 lùi về 04/2026 \\ \addlinespace
+Bảng giao dịch &
+  \rt{account.payment} &
+  Phiếu thanh toán của cửa hàng \textbf{đã được xác nhận}
+  (\rt{state in (in_process, paid)}), có \textbf{ngày thanh toán} nằm trong kỳ. Phiếu nháp,
+  huỷ, từ chối \textbf{không hiện}. &
+  Ngày mới nhất trước; \textbf{10} dòng mỗi trang &
+  \uat{5}/6 phiếu đã xác nhận \\ \addlinespace
+Cột \emph{Số tiền} &
+  \rt{account.payment.amount} &
+  Tiền cửa hàng trả vào hiện số dương; \textbf{tiền Ngô Gia chi ngược trả lại} hiện
+  \textbf{số âm}, để không bị cộng nhầm vào phần đã trả. Ký hiệu tiền lấy theo
+  \textbf{từng giao dịch}. &
+  --- &
+  UAT chưa có giao dịch chi ngược \\ \addlinespace
+Cột \emph{Giờ} &
+  \rt{create_date} &
+  Ngày thanh toán trong kế toán \textbf{không có giờ}, nên giờ hiển thị lấy từ
+  \textbf{lúc phiếu được tạo}, đổi theo múi giờ tài khoản. Hai mốc này có thể lệch nhau. &
+  --- & --- \\ \addlinespace
+Khối tổng kỳ &
+  \rt{account.payment} &
+  Tổng \textbf{toàn kỳ} (không phải tổng trang đang xem), \textbf{tách riêng từng loại tiền}
+  --- \textbf{không quy đổi tỷ giá}, không cộng gộp số khác loại tiền. &
+  --- &
+  Kỳ 08/2026 ra \textbf{2 dòng}: \uat{4} giao dịch USD + \uat{1} giao dịch VND \\
+\end{hienbang}
+
+\mloc
+
+\begin{itemize}[leftmargin=*]
+  \item \textbf{Kỳ} --- chọn trong 6 kỳ; khoá lạ thì lặng lẽ về tháng hiện tại.
+  \item \textbf{Tìm kiếm} --- khớp một phần theo \textbf{mã phiếu} hoặc \textbf{nội dung
+        thanh toán}. Không tìm theo số tiền, không tìm theo số hoá đơn được gán.
+  \item \textbf{Khoảng ngày} (gọi thẳng qua thanh địa chỉ) --- nếu từ ngày lớn hơn đến ngày thì
+        hệ thống \textbf{tự hoán đổi hai đầu} rồi chạy tiếp, \textbf{không báo lỗi}. Khác hẳn
+        năm màn còn lại của portal (Lịch sử, Giao hàng, Báo cáo, Đổi trả) --- những màn đó dừng
+        lại và báo tại thanh lọc.
+  \item \textbf{Số dòng mỗi trang} --- 10, 20, 50.
+\end{itemize}
+
+\mkiem{một dòng giao dịch}
+
+Không có hành động nào --- bảng chỉ đọc, không mở màn chi tiết.
+
+\mghi
+
+\textbf{Không ghi gì.}
+
+\mhoi
+
+\begin{ask}
+\begin{enumerate}[leftmargin=*]
+  \item \textbf{Kỳ mở sẵn là tháng hiện tại, và trên UAT tháng đó rỗng.} Toàn bộ \uat{5} giao
+        dịch nằm ở tháng 08/2026, còn tháng 09 có \uat{0} $\Rightarrow$ cửa hàng mở màn ra thấy
+        trắng, phải tự nghĩ đến việc đổi kỳ. Anh muốn mặc định mở \textbf{kỳ gần nhất có giao
+        dịch} không?
+  \item \textbf{Ngày ngược thì tự hoán đổi} thay vì báo lỗi --- lệch với bốn màn lọc khác.
+        Thống nhất theo cách nào?
+  \item \textbf{Tổng tách theo loại tiền, không quy đổi.} Kỳ 08/2026 trên UAT hiện hai dòng
+        tổng. Anh xác nhận đây là cách trình bày muốn giữ.
+  \item \uat{1}/6 phiếu thanh toán trên UAT \textbf{chưa gắn cửa hàng} nên không cửa hàng nào
+        thấy. Cần chặn ở khâu kế toán không?
+\end{enumerate}
+\end{ask}
+
+% =============================================================================
+\section{Màn Chuyển khoản}
+\rt{/portal/debt/pay}
+\medskip
+
+\mvao
+
+Nút \emph{Thanh toán} ở màn Công nợ. Nhận tham số \rt{week} để biết đang trả cho tuần nào.
+
+\mai
+
+Như hai màn trên: chỉ Chủ tiệm / Quản lý của cửa hàng đang chọn.
+
+\mhien
+
+\begin{hienbang}
+Khối số tiền &
+  \rt{account.move} &
+  Số \emph{còn phải trả} của tuần đang chọn --- tính lại tại chỗ, không tin số trình duyệt
+  gửi lên &
+  --- &
+  Tuần mặc định của TP HCM Q1 đang bằng \uat{0} \\ \addlinespace
+Khối tài khoản &
+  \rt{res.partner.bank} &
+  Tài khoản của công ty có bật cờ nhận tiền qua portal, số thứ tự nhỏ nhất: tên ngân hàng,
+  chủ tài khoản, số tài khoản &
+  --- &
+  \uat{1} tài khoản (Vietcombank -- NGO GIA UAT DEBT) \\ \addlinespace
+Nội dung chuyển khoản &
+  máy tự sinh &
+  \textbf{Mã cửa hàng + K + số tuần + số tiền} (làm tròn xuống, không bao giờ âm). Ví dụ
+  tuần 10/08 là tuần ISO 33 $\Rightarrow$ \emph{HCM-01 K33 ...} &
+  --- & --- \\ \addlinespace
+Ảnh mã QR &
+  \textbf{chưa có} &
+  Đang chờ BA chốt loại mã (tĩnh hay động). Màn hiện số tài khoản và nội dung, không có ảnh. &
+  --- & --- \\
+\end{hienbang}
+
+\mloc
+
+Không có ô nhập nào. Chỉ tham số \rt{week}; khoá lạ thì về tuần mặc định.
+
+\mkiem{vào màn này}
+
+\begin{kiembang}
+1 & Đã chọn được cửa hàng & Trạng thái rỗng \\
+2 & Vai trò Chủ tiệm / Quản lý tại cửa hàng đó & Trang ``không có quyền'' \\
+3 & Tuần còn phải trả lớn hơn 0 &
+    Quay về màn Công nợ đúng tuần đó kèm băng báo không còn khoản phải trả.
+    \textbf{Trên UAT đây là nhánh luôn xảy ra}: tuần mặc định đang dư có \\
+4 & Có tài khoản ngân hàng bật portal & Màn báo chưa cấu hình thay vì hiện ô trống \\
+\end{kiembang}
+
+\mghi
+
+\textbf{Không ghi gì.} Đây là màn hướng dẫn chuyển khoản, không phải cổng thanh toán --- hệ
+thống không tạo phiếu thu, không đánh dấu hoá đơn, không gọi sang ngân hàng.
+
+\mhoi
+
+\begin{ask}
+\begin{enumerate}[leftmargin=*]
+  \item \textbf{Ảnh mã QR} --- điểm treo lâu nhất của phân hệ. Mã tĩnh (dán sẵn một ảnh cho mọi
+        cửa hàng) hay mã động (sinh theo số tiền và nội dung từng tuần)?
+  \item \textbf{Nội dung chuyển khoản làm tròn xuống} về số nguyên. Với tiền USD có phần lẻ
+        (UAT đang có hoá đơn \$1,15) thì nội dung sẽ ghi \emph{1} --- lệch số thật. Cần giữ
+        phần lẻ không?
+  \item \textbf{Sau khi cửa hàng chuyển khoản thì portal không biết gì} --- phải đợi kế toán
+        Ngô Gia ghi nhận rồi tác vụ nền cập nhật lại. Cửa hàng có cần chỗ báo ``tôi đã chuyển''
+        kèm ảnh chụp màn hình không?
+\end{enumerate}
+\end{ask}
+
+% =============================================================================
+\section{Màn Danh sách yêu cầu đổi trả · bù hàng}
+\rt{/portal/return}
+\medskip
+
+\mvao
+
+Dòng \emph{Đổi trả / Bù hàng} trong bảng \emph{Thêm} (điện thoại); trên Trang chủ có một thẻ số
+liệu và một khối danh sách cùng trỏ vào đây. Tiêu đề màn ghi là \emph{Bù hàng}.
+
+\mai
+
+\begin{itemize}[leftmargin=*]
+  \item Phải đăng nhập. \textbf{Không chặn vai trò} --- Nhân viên xem và tạo yêu cầu bình
+        thường, ngang Chủ tiệm.
+  \item Phạm vi là \textbf{mọi cửa hàng tài khoản truy cập được}, \textbf{không} phải cửa hàng
+        đang chọn. Người phụ trách ba cửa hàng thấy phiếu của cả ba trộn chung một danh sách,
+        và không có bộ lọc theo cửa hàng.
+  \item Không truy cập được cửa hàng nào thì màn hiện trạng thái rỗng.
+  \item Dữ liệu đọc bằng quyền hệ thống. Hệ thống \textbf{có} khai một luật giới hạn cho người
+        dùng portal (chỉ thấy phiếu của các cửa hàng mình tham gia) nhưng luật đó không được
+        dùng tới ở màn này; điều kiện lọc trong bảng dưới cho ra đúng cùng kết quả.
+\end{itemize}
+
+\mhien
+
+\begin{hienbang}
+Danh sách phiếu &
+  \rt{wujia.return.request} &
+  Phiếu thuộc \textbf{mọi cửa hàng của tôi} (\rt{franchise_id in ...}). Không loại trạng
+  thái nào --- kể cả nháp, từ chối, đã huỷ. &
+  Ngày tạo mới nhất trước; \textbf{20} phiếu mỗi trang &
+  \uat{14} phiếu: Cầu Giấy \uat{5} · Đống Đa \uat{2} · TP HCM Q1 \uat{7} \\ \addlinespace
+Huy hiệu trạng thái &
+  \rt{state} + tiến độ bù &
+  Tám nhãn, trong đó hai nhãn là \textbf{ghép}: \emph{Đang xử lý} gộp hai trạng thái
+  (\emph{đang xét} và \emph{đang thực hiện}); \emph{Đang bù một phần} \textbf{không phải một
+  trạng thái} mà là ``đang thực hiện + đã bù được một phần''. &
+  --- &
+  \uat{3} Nháp · \uat{2} Đã gửi · \uat{5} Đã duyệt · \uat{2} Hoàn tất · \uat{2} Từ chối \\ \addlinespace
+Cột sản phẩm &
+  \rt{sale.order.line} &
+  Sản phẩm của \textbf{dòng} trên đơn gốc --- mỗi phiếu đúng \textbf{một} sản phẩm &
+  --- &
+  \uat{10}/14 phiếu chưa gắn đơn gốc nên cột này trống \\ \addlinespace
+Cột đơn gốc · chuyến &
+  \rt{sale.order} · \rt{stock.picking.batch} &
+  Mã đơn đặt hàng và mã chuyến giao lấy theo đơn đó &
+  --- &
+  \uat{4}/14 phiếu có đơn gốc \\ \addlinespace
+Ảnh minh chứng &
+  \rt{ir.attachment} &
+  Số ảnh đã đính kèm phiếu &
+  --- &
+  \uat{1}/14 phiếu có ảnh (3 ảnh) \\
+\end{hienbang}
+
+\mloc
+
+\begin{itemize}[leftmargin=*]
+  \item \textbf{Trạng thái} --- 8 nhãn kể trên, mặc định \emph{``-- Tất cả trạng thái --''}.
+        Giá trị lạ bị bỏ qua.
+  \item \textbf{Từ khoá} --- rộng nhất trong portal: khớp một phần theo \textbf{mã yêu cầu},
+        \textbf{mã đơn gốc}, \textbf{mã chuyến giao}, \textbf{tên sản phẩm} hoặc \textbf{mã
+        sản phẩm}.
+  \item \textbf{Khoảng ngày} --- lọc theo \emph{ngày tạo yêu cầu}, quy đổi đúng múi giờ tài
+        khoản. Ngày gõ sai định dạng $\rightarrow$ băng báo ở đầu trang; ngày ngược
+        $\rightarrow$ báo ngay tại thanh lọc và \textbf{không chạy truy vấn}.
+  \item \textbf{Số phiếu mỗi trang} --- 10, 20, 50; mặc định \textbf{20}.
+\end{itemize}
+
+\mkiem{Tạo yêu cầu}
+
+Không kiểm gì ở màn danh sách --- sang màn tạo yêu cầu, và màn đó kiểm lại toàn bộ từ đầu.
+
+\mghi
+
+\textbf{Không ghi gì.} Màn chỉ đọc.
+
+\mhoi
+
+\begin{ask}
+\begin{enumerate}[leftmargin=*]
+  \item \textbf{Danh sách gộp mọi cửa hàng mà không có bộ lọc cửa hàng}, cũng không có cột cửa
+        hàng trên bảng. Người phụ trách nhiều cửa hàng khó biết phiếu nào của đâu.
+  \item \textbf{Nhãn ``Nháp'' có trong bộ lọc} dù phiếu nháp không gửi được từ portal (xem màn
+        sau).
+  \item \uat{10}/14 phiếu trên UAT là dữ liệu mẫu nhập thẳng trong ERP, thiếu đơn gốc, sản phẩm
+        và loại lỗi --- nếu cần bản chụp màn hình sạch để trình bày thì phải dọn trước.
+\end{enumerate}
+\end{ask}
+
+% =============================================================================
+\section{Màn Tạo yêu cầu đổi trả · bù hàng}
+\rt{/portal/return/new}
+\medskip
+
+\mvao
+
+Nút \emph{Tạo yêu cầu} ở màn danh sách. Cùng một đường dẫn phục vụ cả việc mở form (mở trang)
+lẫn việc gửi form (bấm nút).
+
+\mai
+
+Phải đăng nhập và truy cập được ít nhất một cửa hàng; không thì bị đưa về danh sách kèm băng
+báo chưa chọn cửa hàng. \textbf{Không chặn vai trò}.
+
+\mhien
+
+\begin{hienbang}
+Ô \emph{Cửa hàng} &
+  \rt{wujia.franchise.management} &
+  \textbf{Mọi cửa hàng tôi truy cập được}. Chỉ có một cửa hàng thì ô này ẩn đi và gài sẵn. &
+  --- &
+  Administrator thấy \uat{2} cửa hàng \\ \addlinespace
+Ô \emph{Loại lỗi} &
+  \rt{wujia.return.issue.type} &
+  Các loại lỗi \textbf{đang bật} (\rt{active = true}) &
+  Theo số thứ tự cấu hình &
+  \uat{5} loại: Hỏng bao bì · Sai sản phẩm · Hết hạn/cận date · Thiếu số lượng · Lỗi khác \\ \addlinespace
+Ô \emph{Đơn hàng gốc} &
+  \rt{sale.order} &
+  Đơn \textbf{đã xác nhận} (\rt{state in (sale, done)}) của \textbf{mọi cửa hàng của tôi}, có
+  \textbf{ngày đặt trong 10 ngày} trở lại. \textbf{Không} lọc lại theo cửa hàng vừa chọn ở ô
+  bên cạnh. &
+  Ngày đặt mới nhất trước &
+  \uat{0} đơn tại ngày chụp --- đơn xác nhận gần nhất là 05/09, đã 15 ngày \\ \addlinespace
+Ô \emph{Sản phẩm} &
+  \rt{sale.order.line} &
+  Các dòng hàng của đơn vừa chọn. Máy chủ dựng sẵn danh sách dòng hàng của \textbf{tất cả} đơn
+  đủ điều kiện rồi nhúng vào trang, nên đổi đơn là đổi danh sách ngay, không phải gọi lại. &
+  Theo thứ tự dòng trong đơn &
+  --- \\ \addlinespace
+Khối minh chứng &
+  \rt{ir.attachment} &
+  \textbf{3--5 ảnh} JPG/PNG, mỗi ảnh $\leq$ 5 MB; \textbf{tối đa 1 video} MP4/MOV
+  $\leq$ 10 MB; tổng toàn bộ $\leq$ 30 MB &
+  --- & --- \\
+\end{hienbang}
+
+\mloc
+
+\begin{itemize}[leftmargin=*]
+  \item \textbf{Số lượng yêu cầu} --- số thực lớn hơn 0 (khác màn Đặt hàng: ở đây \textbf{cho
+        phép số lẻ}, không có bước nhảy, không có trần).
+  \item \textbf{Thời gian mở hàng} --- \textbf{bắt buộc}, ô chọn ngày kèm giờ. Hệ thống nhận ba
+        kiểu ghi ngày giờ; không đọc được thì báo lỗi và giữ lại những gì đã nhập.
+  \item \textbf{Ngày sản xuất} --- không bắt buộc.
+  \item \textbf{Ghi chú} --- cắt còn 5.000 ký tự, phần dư bị bỏ lặng lẽ.
+  \item \textbf{Hai nút gửi khác nhau giữa hai nền tảng}: máy tính có \emph{Lưu nháp} và
+        \emph{Gửi yêu cầu}; điện thoại \textbf{chỉ có} \emph{Gửi}.
+\end{itemize}
+
+\mkiem{Gửi yêu cầu}
+
+\begin{kiembang}
+1 & Truy cập được ít nhất một cửa hàng & Đưa về danh sách kèm băng báo chưa chọn cửa hàng \\
+2 & Cửa hàng gửi lên là số và \textbf{nằm trong danh sách của tôi} &
+    ``Cửa hàng không truy cập được.'' \\
+3 & Có chọn đơn gốc và sản phẩm, cả hai là số &
+    ``Vui lòng chọn đơn hàng gốc và sản phẩm.'' / ``Đơn hàng / sản phẩm không hợp lệ.'' \\
+4 & Đơn đó \textbf{vẫn đủ điều kiện} --- kiểm lại ở máy chủ: đúng cửa hàng vừa chọn, đã xác
+    nhận, trong 10 ngày &
+    ``Đơn hàng không hợp lệ hoặc đã quá thời hạn 10 ngày.'' \\
+5 & Dòng sản phẩm thuộc \textbf{đúng đơn đó} &
+    ``Sản phẩm phải thuộc đơn hàng gốc của cửa hàng.'' \\
+6 & Sản phẩm \textbf{đã được cấu hình chính sách bù hàng} (bật cờ bù, có đơn vị khai hao hụt,
+    và tỷ lệ quy đổi hợp lệ) &
+    ``Sản phẩm chưa được cấu hình chính sách bù hàng. Vui lòng liên hệ Ngô Gia.'' ---
+    trên UAT \uat{4}/5 sản phẩm portal rơi vào nhánh này \\
+7 & Loại lỗi còn bật & ``Vui lòng chọn loại lỗi.'' \\
+8 & Số lượng lớn hơn 0 & ``Số lượng yêu cầu phải lớn hơn 0.'' \\
+9 & Thời gian mở hàng đọc được & ``Vui lòng nhập thời gian mở hàng hợp lệ.'' \\
+10 & Số ảnh trong khoảng \textbf{3--5} &
+    ``Cần tải từ 3 đến 5 ảnh minh chứng.'' --- bấm \emph{Lưu nháp} thì \textbf{bỏ qua mức tối
+    thiểu}, vẫn chặn mức tối đa \\
+11 & Nhiều nhất 1 video & ``Chỉ được tải tối đa 1 video minh chứng.'' \\
+12 & Mỗi tệp \textbf{đúng định dạng thật} và đúng dung lượng &
+    ``Tệp không đúng định dạng hoặc vượt quá dung lượng cho phép.'' --- cùng một câu cho cả hai
+    lý do, cố ý không cho biết đã sai cái nào \\
+13 & Tổng dung lượng $\leq$ 30 MB & ``Tổng dung lượng minh chứng không được vượt quá 30 MB.'' \\
+14 & Ghi được phiếu &
+    ``Không thể gửi yêu cầu. Vui lòng kiểm tra lại thông tin và thử lại.'' ---
+    \textbf{không} lộ chi tiết kỹ thuật ra màn \\
+15 & Gắn được tệp vào phiếu &
+    Phiếu vừa tạo \textbf{bị xoá hẳn}, quay lại form kèm lỗi --- không để lại phiếu rỗng \\
+16 & (chỉ khi bấm Gửi) Đủ \textbf{3 ảnh} lúc chuyển sang \emph{Đã gửi} &
+    Phiếu \textbf{bị xoá hẳn}, quay lại form \\
+\end{kiembang}
+
+\textbf{Về bước 12:} hệ thống đọc \textbf{nội dung thật} của tệp để biết đó là ảnh hay video,
+không tin đuôi tệp và không tin loại tệp trình duyệt khai. Đổi tên một tệp bất kỳ thành
+\rt{.jpg} không qua được bước này.
+
+\mghi
+
+\begin{itemize}[leftmargin=*]
+  \item Tạo \textbf{một} bản ghi yêu cầu (\rt{wujia.return.request}), mã tự sinh theo dãy số
+        (UAT đang ở \emph{RTN/26/00004}).
+  \item Trạng thái ban đầu luôn là \textbf{Nháp}; bấm \emph{Gửi} thì hệ thống chuyển tiếp sang
+        \textbf{Đã gửi} và ghi một dòng \emph{``Yêu cầu đã được gửi''} vào nhật ký trao đổi của
+        phiếu.
+  \item Người tạo = người đang đăng nhập; ngày tạo = lúc bấm nút. Cửa hàng ghi trên phiếu là
+        cửa hàng chọn trong form, \textbf{không} phải cửa hàng đang chọn ở cookie.
+  \item Đơn vị tính dùng để khai hao hụt lấy theo \textbf{cấu hình bù của sản phẩm}; sản phẩm
+        chưa khai thì lùi về đơn vị ghi trên đơn gốc.
+  \item Tạo các bản ghi tệp đính kèm, tách riêng nhóm ảnh và nhóm video.
+  \item \textbf{Không} tạo đơn hàng, \textbf{không} động vào kho, \textbf{không} gửi email.
+  \item Bất kỳ bước nào sau khi tạo mà hỏng thì phiếu bị \textbf{xoá hẳn} --- hệ thống không để
+        lại phiếu mồ côi hay tệp mồ côi.
+\end{itemize}
+
+\mhoi
+
+\begin{ask}
+\begin{enumerate}[leftmargin=*]
+  \item \textbf{Cửa sổ 10 ngày đang làm màn này không dùng được.} Mốc tính từ \emph{ngày đặt}
+        của đơn đã xác nhận, đếm \textbf{theo giờ} chứ không theo ngày. Trên UAT có \uat{14} đơn
+        đã xác nhận nhưng \uat{0} đơn lọt cửa sổ (đơn gần nhất 05/09, cách 15 ngày)
+        $\Rightarrow$ \textbf{không ai tạo được yêu cầu nào}, ô chọn đơn trống kèm dòng đỏ.
+        Anh chốt giúp: giữ 10 ngày hay nới ra, và tính từ ngày đặt hay ngày \textbf{giao hàng}?
+  \item \textbf{Ô chọn đơn không lọc theo cửa hàng ở ô bên cạnh.} Người nhiều cửa hàng chọn
+        lệch cặp cửa hàng--đơn sẽ nhận câu ``Đơn hàng không hợp lệ hoặc đã quá thời hạn 10
+        ngày'' --- câu này \textbf{nói sai nguyên nhân}.
+  \item \textbf{Phiếu nháp là ngõ cụt.} Máy tính có nút \emph{Lưu nháp}, nhưng portal không có
+        chỗ nào gửi phiếu nháp đã lưu: màn chi tiết chỉ đọc. UAT đang có \uat{3} phiếu kẹt.
+        Anh muốn (a) bỏ nút Lưu nháp, hay (b) thêm nút \emph{Gửi} ở màn chi tiết?
+  \item \textbf{Điện thoại không có nút Lưu nháp} --- hai nền tảng khác luật cho cùng một việc.
+  \item \textbf{Sản phẩm chưa cấu hình bù thì chặn cả đổi và trả}, dù hai phương án đó không
+        cần chính sách bù. Trên UAT \uat{4}/5 sản phẩm đang hiện trên màn Đặt hàng rơi vào đây
+        --- cửa hàng đặt được nhưng không khiếu nại được.
+  \item \textbf{Mỗi phiếu đúng một sản phẩm.} Một đơn hỏng ba mặt hàng phải làm ba phiếu, mỗi
+        phiếu tự chụp đủ 3 ảnh. Anh xác nhận giữ nguyên.
+  \item \textbf{Video tải lên không bao giờ hiện lại cho cửa hàng.} Hệ thống nhận, kiểm và lưu
+        video, nhân sự Ngô Gia xem được trong ERP, nhưng màn chi tiết trên portal chỉ hiện ảnh.
+        Cửa hàng không có cách nào xem lại video mình vừa gửi.
+  \item \textbf{Cửa hàng không sửa và không huỷ được phiếu sau khi gửi} --- portal không có nút
+        nào cho việc đó.
+\end{enumerate}
+\end{ask}
+
+% =============================================================================
+\section{Màn Chi tiết yêu cầu}
+\rt{/portal/return/<int:request_id>}
+\medskip
+
+\mvao
+
+Bấm một phiếu ở màn danh sách; hoặc được đưa tới ngay sau khi tạo yêu cầu thành công (kèm băng
+báo vừa tạo xong).
+
+\mai
+
+Phiếu phải thuộc \textbf{một trong các cửa hàng của tôi}. Không thoả thì bị đưa về danh sách
+kèm băng \emph{không tìm thấy} --- \textbf{cùng một câu} cho cả trường hợp phiếu không tồn tại
+lẫn trường hợp phiếu của cửa hàng khác, cố ý không cho dò số phiếu.
+
+\mhien
+
+\begin{hienbang}
+Đầu phiếu &
+  \rt{wujia.return.request} &
+  Mã yêu cầu, ngày tạo, cửa hàng, huy hiệu trạng thái (tám nhãn như màn danh sách) &
+  --- & --- \\ \addlinespace
+Khối nội dung &
+  \rt{wujia.return.request} &
+  Loại lỗi, thời gian mở hàng, ngày sản xuất, số lượng yêu cầu, ghi chú của cửa hàng &
+  --- & --- \\ \addlinespace
+Khối minh chứng &
+  \rt{ir.attachment} &
+  \textbf{Chỉ ảnh}; mỗi ảnh mở bằng đường dẫn tải riêng của phiếu. Video \textbf{không} hiện. &
+  --- &
+  \uat{1}/14 phiếu có ảnh \\ \addlinespace
+Khối phản hồi &
+  \rt{reject_reason} · \rt{approval_note} &
+  \textbf{Lý do từ chối} khi bị từ chối, hoặc \textbf{ghi chú duyệt} khi đã duyệt. Ghi chú nội
+  bộ của Ngô Gia \textbf{không} lộ ra portal. Chưa có gì thì ghi ``chưa có phản hồi''. &
+  --- & --- \\ \addlinespace
+Khối tiến độ bù &
+  \rt{wujia.compensation.allocation} &
+  Chỉ hiện khi Ngô Gia \textbf{đã chốt phương án}. Với phương án \emph{Bù hàng}: số lượng
+  duyệt, đã lên đơn, đã bù, còn thiếu, thanh phần trăm (\textbf{chặn trần 100\%}), và danh sách
+  đơn bù kèm nhãn giao hàng. &
+  --- &
+  \uat{0} bản ghi phân bổ $\Rightarrow$ khối luôn trống, kể cả \uat{3} phiếu đã chốt phương án
+  bù \\ \addlinespace
+Nhãn giao của đơn bù &
+  \rt{stock.picking} &
+  Năm nhãn: \emph{Chưa tạo phiếu giao} · \emph{Chưa giao} · \emph{Đã giao n/m phiếu} ·
+  \emph{Đã giao đủ} · \emph{Đơn bù đã bị hủy} &
+  --- & --- \\
+\end{hienbang}
+
+Khi \textbf{mọi đơn bù đều đã bị huỷ}, màn hiện thêm một cảnh báo riêng --- để cửa hàng biết
+quyền lợi đã đóng lại và phải tạo yêu cầu mới, thay vì ngồi chờ hàng.
+
+\mloc
+
+Không có ô lọc hay ô nhập nào.
+
+\mkiem{bất kỳ nút nào}
+
+Màn \textbf{chỉ đọc} --- không có nút nào ghi dữ liệu. Duy nhất các ảnh minh chứng là liên kết
+mở sang đường dẫn tải (màn sau).
+
+\mghi
+
+\textbf{Không ghi gì.}
+
+\mhoi
+
+\begin{ask}
+\begin{enumerate}[leftmargin=*]
+  \item \textbf{Cửa hàng không có nút nào ở màn này} --- không gửi được phiếu nháp, không huỷ,
+        không bổ sung ảnh, không trả lời lại Ngô Gia. Anh muốn thêm gì trước khi chạy thật?
+  \item \textbf{Thanh tiến độ bù chưa chạy được trên UAT} vì chưa có bản ghi phân bổ nào. Cần
+        dựng một ca mẫu (duyệt $\rightarrow$ lên đơn bù $\rightarrow$ giao một phần) để nghiệm
+        thu đúng nhãn \emph{Đang bù một phần}.
+  \item \textbf{Thanh phần trăm bị chặn trần 100\%} --- bù dư hơn số duyệt vẫn hiện đúng 100\%.
+\end{enumerate}
+\end{ask}
+
+% =============================================================================
+\section{Xem · tải minh chứng}
+\rt{/portal/return/<int:request_id>/attachment/<int:att_id>}
+\medskip
+
+\mvao
+
+Không phải màn --- đây là đường dẫn trả về chính tệp ảnh, gọi ngầm khi màn chi tiết hiện ảnh
+thu nhỏ, và mở ra tab mới khi người dùng bấm vào ảnh.
+
+\mai
+
+Ba lớp kiểm, theo thứ tự:
+
+\begin{kiembang}
+1 & Truy cập được ít nhất một cửa hàng & Từ chối truy cập \\
+2 & Phiếu tồn tại và thuộc \textbf{cửa hàng của tôi} & Báo không tìm thấy \\
+3 & Tệp \textbf{thuộc đúng phiếu đó} (nằm trong nhóm ảnh hoặc nhóm video của phiếu) &
+    Từ chối truy cập --- \textbf{không} cho mượn đường dẫn này để đọc tệp bất kỳ trong hệ thống \\
+4 & Tệp còn tồn tại & Báo không tìm thấy \\
+\end{kiembang}
+
+\mhien
+
+Trả về đúng nội dung tệp, đặt chế độ \textbf{xem thẳng trong trình duyệt} chứ không ép tải
+xuống. Video được phép đi qua đường dẫn này nhưng \textbf{không màn nào trỏ tới} --- xem mục 7
+màn Tạo yêu cầu.
+
+\mloc
+
+Không có.
+
+\mkiem{một ảnh}
+
+Xem bảng ba lớp ở trên.
+
+\mghi
+
+\textbf{Không ghi gì.}
+
+\mhoi
+
+\begin{ask}
+Ảnh minh chứng đi qua đường dẫn có kiểm quyền nên \textbf{không} đọc được nếu chỉ có số tệp.
+Không có điểm nào cần BA chốt ở đường dẫn này.
+\end{ask}
+
+% =============================================================================
+\section{Đường dẫn cũ của phân hệ Đổi trả}
+\rt{/portal/return-request-list}
+\medskip
+
+Đường dẫn từ bản v14, được giữ lại để chuyển hướng \textbf{vĩnh viễn} sang \rt{/portal/return}.
+Khoảng 1.500 tài khoản nhượng quyền có thể còn dấu trang hoặc email cũ trỏ vào đó.
+
+Đường dẫn này \textbf{không đòi đăng nhập} --- ai mở cũng được chuyển hướng, rồi mới bị màn
+đích đòi đăng nhập. Đây là cố ý: chuyển hướng trước, hỏi đăng nhập sau, để người dùng không
+mất đường dẫn đích sau khi đăng nhập xong.
+
+\begin{ask}
+Không có điểm cần chốt --- nhưng nếu BA muốn khai tử đường dẫn cũ sau một mốc thời gian nào đó
+thì cho biết mốc, dev sẽ gỡ.
+\end{ask}

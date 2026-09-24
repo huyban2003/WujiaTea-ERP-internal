@@ -74,14 +74,14 @@
             <div class="wj-debt-pc-bank__row">
                 <span class="wj-debt-pc-bank__label">Số tài khoản</span>
                 <span class="wj-debt-pc-bank__value" t-out="bank['account']"/>
-                <button type="button" class="wj-debt-pc-copy" data-wj-debt="copy"
+                <button type="button" class="wj-iconbtn wj-iconbtn--secondary wj-iconbtn--sm wj-debt-pc-copy" data-wj-debt="copy"
                         t-att-data-wj-debt-value="bank['account']"
                         aria-label="Sao chép số tài khoản"><i class="feather icon-copy"/></button>
             </div>
             <div class="wj-debt-pc-bank__row">
                 <span class="wj-debt-pc-bank__label">Nội dung chuyển khoản</span>
                 <span class="wj-debt-pc-bank__value" t-out="bank['memo']"/>
-                <button type="button" class="wj-debt-pc-copy" data-wj-debt="copy"
+                <button type="button" class="wj-iconbtn wj-iconbtn--secondary wj-iconbtn--sm wj-debt-pc-copy" data-wj-debt="copy"
                         t-att-data-wj-debt-value="bank['memo']"
                         aria-label="Sao chép nội dung chuyển khoản"><i class="feather icon-copy"/></button>
             </div>
@@ -208,7 +208,7 @@
                     <!-- CTA chỉ có khi còn nợ. Frame 04 (đã trả hết) KHÔNG có nút này. -->
                     <a t-if="summary['amount_due'] &gt; 0"
                        t-attf-href="/portal/debt/pay?week=#{summary['week_key']}"
-                       class="wj-debt-cta">Thanh toán</a>
+                       class="wj-btn wj-btn--primary wj-btn--block wj-debt-cta">Thanh toán</a>
 
                     <t t-call="wujia_portal_debt.wj_debt_history_row"/>
 
@@ -231,29 +231,40 @@
 
                     <t t-call="wujia_portal_layout.wj_data_list">
                         <t t-set="dl_variant" t-value="'compact-row'"/>
-                        <t t-set="dl_class" t-value="'wj-debt-invoices'"/>
                         <t t-foreach="invoices" t-as="inv">
                             <t t-set="ibadge" t-value="INVOICE_BADGE[inv['status']]"/>
-                            <div t-attf-class="wj-debt-inv wj-data-item wj-debt-inv--#{inv['status']}">
-                                <span class="wj-debt-inv__name" t-out="inv['name']"/>
-                                <span t-attf-class="wj-status-badge #{ibadge[1]} wj-debt-inv__badge"
-                                      t-out="ibadge[0]"/>
-                                <span class="wj-debt-inv__meta">
-                                    <t t-if="inv['status'] == 'paid' and summary['confirmed_date']">Đã xác nhận •
-                                        <t t-out="summary['confirmed_date'].strftime('%d/%m/%Y')"/>
+                            <div t-attf-class="wj-debt-inv wj-data-item wj-lc wj-debt-inv--#{inv['status']}">
+                                <t t-call="wujia_portal_layout.wj_list_card">
+                                    <t t-set="lc_name" t-value="inv['name']"/>
+                                    <t t-set="lc_state">
+                                        <span t-attf-class="wj-status-badge wj-status-badge--compact #{ibadge[1]}"
+                                              t-out="ibadge[0]"/>
                                     </t>
-                                    <t t-elif="inv['status'] == 'credit'">Giấy báo có •
-                                        <t t-out="inv['date'].strftime('%d/%m')"/>
+                                    <t t-set="lc_rows">
+                                        <t t-call="wujia_portal_layout.wj_list_card_row">
+                                            <t t-set="lcr_class" t-value="'wj-lc__row--inline'"/>
+                                            <t t-set="lcr_value">
+                                                <t t-if="inv['status'] == 'paid' and summary['confirmed_date']">Đã xác nhận •
+                                                    <t t-out="summary['confirmed_date'].strftime('%d/%m/%Y')"/>
+                                                </t>
+                                                <t t-elif="inv['status'] == 'credit'">Giấy báo có •
+                                                    <t t-out="inv['date'].strftime('%d/%m')"/>
+                                                </t>
+                                                <t t-else="">HĐ <t t-out="inv['date'].strftime('%d/%m')"/> •
+                                                    Hạn <t t-out="inv['due'].strftime('%d/%m')"/>
+                                                </t>
+                                            </t>
+                                        </t>
+                                        <t t-call="wujia_portal_layout.wj_list_card_row">
+                                            <t t-set="lcr_class" t-value="'wj-lc__row--inline'"/>
+                                            <t t-set="lcr_strong" t-value="True"/>
+                                            <t t-set="lcr_label"
+                                               t-value="'Đã trả' if inv['status'] == 'paid' else ('Được trừ' if inv['status'] == 'credit' else 'Còn lại')"/>
+                                            <t t-set="lcr_value"
+                                               t-value="vnd(-inv['amount']) if inv['status'] == 'credit' else vnd(inv['amount'])"/>
+                                        </t>
                                     </t>
-                                    <t t-else="">HĐ <t t-out="inv['date'].strftime('%d/%m')"/> •
-                                        Hạn <t t-out="inv['due'].strftime('%d/%m')"/>
-                                    </t>
-                                </span>
-                                <span class="wj-debt-inv__amount">
-                                    <t t-if="inv['status'] == 'paid'">Đã trả <t t-out="vnd(inv['amount'])"/></t>
-                                    <t t-elif="inv['status'] == 'credit'">Được trừ <t t-out="vnd(-inv['amount'])"/></t>
-                                    <t t-else="">Còn <t t-out="vnd(inv['amount'])"/></t>
-                                </span>
+                                </t>
                             </div>
                         </t>
                     </t>
@@ -370,7 +381,7 @@
                                 <t t-else="">Hiện tại cửa hàng không có khoản cần thanh toán</t>
                             </span>
                             <button t-if="summary['amount_due'] &gt; 0 and bank" type="button"
-                                    class="wj-pc-btn wj-pc-btn--primary wj-debt-pc-cta"
+                                    class="wj-btn wj-btn--primary wj-debt-pc-cta"
                                     data-wj-debt="open-pay">Thanh toán số còn lại</button>
                         </div>
                     </section>
@@ -422,7 +433,7 @@
                                                 <span t-attf-class="wj-status-badge #{ib[1]}" t-out="ib[0]"/>
                                             </td>
                                             <td class="text-end">
-                                                <button type="button" class="wj-debt-pc-pdf wj-state-surface" data-wj-debt="pdf">
+                                                <button type="button" class="wj-btn wj-btn--secondary wj-btn--sm" data-wj-debt="pdf">
                                                     <i class="feather icon-download"/> PDF
                                                 </button>
                                             </td>
@@ -455,8 +466,9 @@
                      data-wj-debt-modal="pay" hidden="hidden">
                     <div class="wj-pc-modal__panel wj-debt-pc-modal__panel" role="dialog"
                          aria-modal="true" aria-label="Thanh toán công nợ">
-                        <button type="button" class="wj-debt-pc-modal__close" data-wj-debt="close-pay"
-                                aria-label="Đóng"><i class="feather icon-x"/></button>
+                        <button type="button" class="wj-iconbtn wj-iconbtn--ghost wj-iconbtn--sm wj-debt-pc-modal__close"
+                                data-wj-debt="close-pay"
+                                aria-label="Đóng" title="Đóng"><i class="feather icon-x"/></button>
                         <h2 class="wj-pc-modal__title">Thanh toán công nợ</h2>
                         <p class="wj-debt-pc-modal__sub">Tuần hóa đơn <t t-out="summary['week_label']"/></p>
 
@@ -473,7 +485,7 @@
                         </div>
 
                         <div class="wj-debt-pc-modal__actions">
-                            <button type="button" class="wj-pc-btn wj-pc-btn--secondary" data-wj-debt="close-pay">Đóng</button>
+                            <button type="button" class="wj-btn wj-btn--secondary" data-wj-debt="close-pay">Đóng</button>
                         </div>
                     </div>
                 </div>
@@ -540,17 +552,33 @@
                 <t t-else="">
                     <t t-call="wujia_portal_layout.wj_data_list">
                         <t t-set="dl_variant" t-value="'detail-card'"/>
-                        <t t-set="dl_class" t-value="'wj-debt-payments'"/>
                         <t t-foreach="history['payments']" t-as="pay">
-                            <div class="wj-debt-pay wj-data-item">
-                                <span class="wj-debt-pay__ref" t-out="pay['ref']"/>
-                                <span class="wj-status-badge wj-status-badge--info wj-debt-pay__badge">Đã xác nhận</span>
-                                <span class="wj-debt-pay__meta">
-                                    <t t-out="pay['date'].strftime('%d/%m/%Y')"/>
-                                    <t t-out="pay['time']"/> • <t t-out="pay['method']"/>
-                                </span>
-                                <span class="wj-debt-pay__trace">Tham chiếu: <t t-out="pay['trace']"/></span>
-                                <span class="wj-debt-pay__amount" t-out="pay['amount_label']"/>
+                            <div class="wj-debt-pay wj-data-item wj-lc">
+                                <t t-call="wujia_portal_layout.wj_list_card">
+                                    <t t-set="lc_name" t-value="pay['ref']"/>
+                                    <t t-set="lc_state">
+                                        <span class="wj-status-badge wj-status-badge--compact wj-status-badge--info">Đã xác nhận</span>
+                                    </t>
+                                    <t t-set="lc_rows">
+                                        <t t-call="wujia_portal_layout.wj_list_card_row">
+                                            <t t-set="lcr_value">
+                                                <t t-out="pay['date'].strftime('%d/%m/%Y')"/>
+                                                <t t-out="pay['time']"/> • <t t-out="pay['method']"/>
+                                            </t>
+                                        </t>
+                                        <t t-call="wujia_portal_layout.wj_list_card_row">
+                                            <t t-set="lcr_class" t-value="'wj-lc__row--inline'"/>
+                                            <t t-set="lcr_label">Tham chiếu</t>
+                                            <t t-set="lcr_value" t-value="pay['trace']"/>
+                                        </t>
+                                        <t t-call="wujia_portal_layout.wj_list_card_row">
+                                            <t t-set="lcr_class" t-value="'wj-lc__row--inline'"/>
+                                            <t t-set="lcr_strong" t-value="True"/>
+                                            <t t-set="lcr_label">Số tiền</t>
+                                            <t t-set="lcr_value" t-value="pay['amount_label']"/>
+                                        </t>
+                                    </t>
+                                </t>
                             </div>
                         </t>
                     </t>
@@ -716,7 +744,7 @@
                         <div class="wj-debt-bank__row">
                             <span class="wj-debt-bank__label">Số tài khoản</span>
                             <span class="wj-debt-bank__value" t-out="bank['account']"/>
-                            <button type="button" class="wj-debt-copy" data-wj-debt="copy"
+                            <button type="button" class="wj-iconbtn wj-iconbtn--secondary wj-iconbtn--sm wj-debt-copy" data-wj-debt="copy"
                                     t-att-data-wj-debt-value="bank['account']"
                                     aria-label="Sao chép số tài khoản">
                                 <i class="feather icon-copy"/>
@@ -725,7 +753,7 @@
                         <div class="wj-debt-bank__row">
                             <span class="wj-debt-bank__label">Nội dung</span>
                             <span class="wj-debt-bank__value" t-out="bank['memo']"/>
-                            <button type="button" class="wj-debt-copy" data-wj-debt="copy"
+                            <button type="button" class="wj-iconbtn wj-iconbtn--secondary wj-iconbtn--sm wj-debt-copy" data-wj-debt="copy"
                                     t-att-data-wj-debt-value="bank['memo']"
                                     aria-label="Sao chép nội dung chuyển khoản">
                                 <i class="feather icon-copy"/>
@@ -775,7 +803,7 @@
                     <t t-call="wujia_portal_debt.wj_debt_pc_bank_block"/>
                     <div class="wj-debt-pc-modal__actions">
                         <a t-attf-href="/portal/debt?week=#{summary['week_key']}"
-                           class="wj-pc-btn wj-pc-btn--secondary">Về trang công nợ</a>
+                           class="wj-btn wj-btn--secondary">Về trang công nợ</a>
                     </div>
                 </t>
             </div>

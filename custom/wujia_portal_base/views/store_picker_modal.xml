@@ -17,8 +17,9 @@
                     </span>
                     <!-- Nút đóng chỉ hiện khi user đã pick (không bắt buộc) -->
                     <button t-if="not _wujia_must_pick" type="button"
-                            class="wujia-store-close" data-action="close-store-picker"
-                            aria-label="Đóng">×</button>
+                            class="wj-iconbtn wj-iconbtn--ghost wj-iconbtn--sm wujia-store-close"
+                            data-action="close-store-picker"
+                            aria-label="Đóng" title="Đóng"><i class="feather icon-x"/></button>
                 </div>
                 <form action="/portal/franchise/switch" method="POST"
                       class="wujia-store-form">
@@ -61,9 +62,9 @@
                     </div>
                     <div class="wujia-store-footer">
                         <button t-if="not _wujia_must_pick" type="button"
-                                class="btn btn-outline-secondary me-2"
+                                class="wj-btn wj-btn--secondary me-2"
                                 data-action="close-store-picker">Hủy</button>
-                        <button type="submit" class="btn wj-cta-btn">
+                        <button type="submit" class="wj-btn wj-btn--primary">
                             <i class="fa fa-check me-1"/>
                             <t t-if="_wujia_must_pick">Xác nhận</t>
                             <t t-else="">Đổi cửa hàng</t>
@@ -97,12 +98,10 @@
                 border-radius: 12px 12px 0 0;
                 display: flex; align-items: center; justify-content: space-between;
             }
-            .wujia-store-close {
-                background: transparent; border: none; color: #fff;
-                font-size: 1.6rem; line-height: 1; cursor: pointer; padding: 0 6px;
-                opacity: 0.85;
-            }
-            .wujia-store-close:hover { opacity: 1; }
+            /* Hook ngữ cảnh: nút × nằm trên header nền primary ⇒ chỉ đổi MÀU,
+               dáng (32×32, bo 8) do atom `wj-iconbtn` giữ. */
+            .wujia-store-close { color: #fff; opacity: 0.85; }
+            .wujia-store-close:hover { color: #fff; opacity: 1; background: rgba(255, 255, 255, 0.16); }
             .wujia-store-body { padding: 20px; }
             .wujia-store-intro { color: var(--wujia-text-secondary); margin-bottom: 16px; line-height: 1.5; }
             .wujia-store-list { display: flex; flex-direction: column; gap: 8px; }

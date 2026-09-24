@@ -1,5 +1,9 @@
 # Prompt phiên E4b — FilterBar `CMP-FB-001`, phủ hết call site
 
+> **⚠️ ĐÃ TÁCH ĐÔI 19/09/2026** — chủ dự án chốt cắt E4b thành **E4b1 (PC, đã xong:
+> `docs/e4b1-acceptance-matrix.md`)** và **E4b2 (mobile, prompt: `docs/prompt-e4b2.md`)**.
+> File này giữ lại làm hồ sơ phạm vi gốc; **đừng dán nguyên nó cho phiên mới**.
+
 > Dán khối dưới đây sau `/wujia-start`. **Điều kiện tiên quyết: E4a đã xong** (component
 > `wj_filter_bar` + sub-component đã dựng, 2 route mẫu đã migrate, kiểm kê FB-10 đã chụp ở
 > `docs/e4-filter-inventory.md`). Chưa có E4a thì dừng, làm E4a trước.

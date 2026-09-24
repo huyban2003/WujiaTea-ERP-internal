@@ -184,6 +184,21 @@
     --wujia-btn-height-secondary: 38px;
     --wujia-btn-radius:           8px;
 
+    /* ---------- Button CMP-BTN-001 (E6a) — số PC; mobile ở khối @media cuối file.
+       Nguồn: tab `UI Component` dòng 40, BA Confirmed 26/08/2026. Hover/pressed
+       dùng --wujia-cta (#0F7CA8) đã có, không đẻ token trùng nghĩa. ---------- */
+    --wj-btn-h-sm:      32px;
+    --wj-btn-h-md:      40px;
+    --wj-btn-h-lg:      46px;
+    --wj-btn-icon-sm:   32px;
+    --wj-btn-icon-md:   40px;
+    --wj-btn-pad-sm:    12px;
+    --wj-btn-pad-md:    16px;
+    --wj-btn-pad-lg:    20px;
+    --wj-btn-radius-sm: 8px;
+    --wj-btn-radius:    12px;
+    --wj-btn-danger:    #DC2626;
+
     /* ---------- Navbar pill (Current Store badge on cyan navbar) ---------- */
     --wujia-navbar-pill-bg:       rgba(255, 255, 255, 0.18);
     --wujia-navbar-pill-bg-hover: rgba(255, 255, 255, 0.28);
@@ -245,7 +260,13 @@
     --wujia-page-content-top: 24px;
     /* RESP-MOB-SHELL-003: mốc đầu nội dung mobile — dải cửa hàng kết y=152 → content y=168.
        MỘT giá trị cho MỌI trang mobile; đừng đặt padding-top riêng cho từng trang nữa. */
+    /* Giá trị THẬT dùng trên mobile nằm ở khối @media cuối file (nhịp dọc
+       mobile gom một chỗ); hai dòng dưới chỉ còn là mặc định dự phòng. */
     --wujia-mcontent-top:     16px;
+    /* Nhịp quanh tiêu đề nhóm. Rule .wj-section-header--m/--any nằm NGOÀI @media nên
+       PC cũng đọc token này — giữ đúng 16/8 cũ ở đây, mobile hạ xuống ở khối @media. */
+    --wujia-m-sechead-mt:     16px;
+    --wujia-m-sechead-mb:     8px;
     --wujia-page-title-gap:   14px;
     --wujia-kpi-content-gap:  22px;
 
@@ -308,13 +329,20 @@
 
     /* ---------- Mobile Filter canonical (Figma 4785:498 — wj-filter-*) ---------- */
     --wujia-filter-field-bg:     #F8FAFC;   /* search / date pill fill */
+    /* Chiều cao nút TRONG thanh lọc — FB-08 giữ 42/38/32 và nói rõ ưu tiên hơn
+       size mặc định của CMP-BTN-001 (40/44). Khai ở đây để nút lọc của mọi màn
+       đọc cùng một nguồn, kể cả 3 màn tự dựng thanh lọc (Công nợ PC/mobile,
+       Đặt hàng mobile) mà E4 đã đo và ký duyệt. */
+    --wj-filter-btn-h-pc:        42px;
+    --wj-filter-btn-h-m:         38px;
+    --wj-filter-btn-h-sm:        32px;
 
     /* ---------- Mobile Shell FINAL (header 104 / strip 48 / footer 83) ---------- */
     --wujia-mshell-primary:            #28A9DF;
     --wujia-mshell-bg:                 #F3F6F8;
     --wujia-mshell-surface:            #FFFFFF;
     --wujia-mshell-border:             #EEF2F5;
-    --wujia-mshell-content-pad-x:      16px;
+    --wujia-mshell-content-pad-x:      12px;   /* E5c LC-08: gutter danh sách 12 (BA Q2) */
     --wujia-mshell-content-pad-bottom: 96px;
     --wujia-mshell-content-gap:        14px;
 
@@ -393,5 +421,30 @@ html { font-size: 14px; }
         --wujia-surface-pad-regular: 14px;
         --wujia-surface-gap:         8px;
         --wujia-kpi-icon-size:       52px;
+
+        /* ---------- Nhịp dọc mobile — MỘT nguồn cho MỌI trang ----------
+           BA yêu cầu một màn hình điện thoại chứa được nhiều thông tin hơn.
+           Bốn giá trị dưới đây là toàn bộ khoảng cách cấp trang trên mobile:
+           khe giữa các khối, mép trên nội dung, và nhịp quanh tiêu đề nhóm.
+           Đặt trong khối mobile nên PC (>=992px) không thể bị ảnh hưởng —
+           khỏi phải chứng minh bằng phép đo. */
+        --wujia-mshell-content-gap:  8px;
+        --wujia-mcontent-top:        10px;
+        --wujia-m-sechead-mt:        6px;
+        --wujia-m-sechead-mb:        4px;
+
+        /* Header mobile 72 thay cho 104: khung cố định chiếm 26% màn hình 900px,
+           trong đó header là phần lấy lại được mà không đụng nội dung. Logo 116x44
+           vẫn lọt (chừa 14px trên/dưới). Khai ở khối mobile — header chỉ hiện
+           <992px nên PC không đọc tới. */
+        --wujia-mheader-height:      72px;
+
+        /* Button CMP-BTN-001: mobile cao hơn PC một bậc (36/44/48). Vùng chạm 44
+           của bậc `sm` do pseudo lo, không phình visual. */
+        --wj-btn-h-sm:    36px;
+        --wj-btn-h-md:    44px;
+        --wj-btn-h-lg:    48px;
+        --wj-btn-icon-sm: 36px;
+        --wj-btn-icon-md: 44px;
     }
 }

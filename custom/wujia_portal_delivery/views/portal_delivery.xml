@@ -8,6 +8,14 @@
     <template id="portal_delivery_results_part" name="Wujia Portal — Delivery Results Part">
         <t t-set="_dq" t-value="chip_qs or ''"/>
 
+        <!-- Lỗi khoảng ngày báo tại FilterBar, KHÔNG dùng empty state (E4c).
+             Luôn render (rỗng thì `hidden`) vì JS thay khối theo id: thiếu id là
+             `swap` trả false rồi cả màn rơi về tải lại trang. -->
+        <p t-if="part == 'pcerr'" id="wj-dlv-pcerr" class="wj-filter-error" role="alert"
+           t-att-hidden="None if filter_error else 'hidden'" t-out="filter_error"/>
+        <p t-if="part == 'merr'" id="wj-dlv-merr" class="wj-filter-error" role="alert"
+           t-att-hidden="None if filter_error else 'hidden'" t-out="filter_error"/>
+
         <!-- ===== PC: card danh sách (head + chips + states + pager) ===== -->
         <t t-call="wujia_portal_layout.wj_surface_card" t-if="part == 'pc'">
             <t t-set="sc_class" t-value="'wj-pc-card'"/>
@@ -75,7 +83,7 @@
                             <td class="wj-pc-td--muted" t-out="b['updated']"/>
                             <td class="text-end">
                                 <a t-attf-href="/portal/delivery/#{b['id']}"
-                                   class="wj-pc-btn wj-pc-btn--secondary wj-pc-dlv-btn-xem">Xem</a>
+                                   class="wj-btn wj-btn--secondary wj-btn--sm">Xem</a>
                             </td>
                         </tr>
                     </tbody>
@@ -104,7 +112,7 @@
                 <span class="wj-pc-dlv-inner__icon"><i class="feather icon-truck"/></span>
                 <h3 class="wj-pc-dlv-inner__title">Không có chuyến giao</h3>
                 <p class="wj-pc-dlv-inner__sub">Không tìm thấy chuyến giao trong khoảng ngày đã chọn.</p>
-                <a href="/portal/delivery" class="wj-pc-btn wj-pc-btn--primary">Đổi bộ lọc</a>
+                <a href="/portal/delivery" class="wj-btn wj-btn--secondary">Đổi bộ lọc</a>
             </div>
 
             <!-- STATE: error -->
@@ -113,7 +121,7 @@
                 <h3 class="wj-pc-dlv-inner__title">Không tải được dữ liệu giao hàng</h3>
                 <p class="wj-pc-dlv-inner__sub">Vui lòng thử tải lại hoặc kiểm tra kết nối.</p>
                 <a href="/portal/delivery"
-                   class="wj-pc-btn wj-pc-btn--primary"><i class="feather icon-refresh-cw"/>Tải lại</a>
+                   class="wj-btn wj-btn--primary"><i class="feather icon-refresh-cw"/>Tải lại</a>
             </div>
         </t>
 
@@ -143,32 +151,30 @@
                     <t t-set="dl_variant" t-value="'detail-card'"/>
                     <t t-set="dl_class" t-value="'wujia-mdelivery-list'"/>
                     <a t-foreach="batches" t-as="b" t-attf-href="/portal/delivery/#{b['id']}"
-                       class="wujia-mdelivery-row wj-data-item">
-                        <span class="wujia-mdelivery-row-top">
-                            <span class="wujia-mdelivery-row-headmain">
-                                <span class="wujia-mdelivery-row-label">Chuyến xe</span>
-                                <span class="wujia-mdelivery-row-id" t-out="b['name']"/>
-                            </span>
-                            <span t-attf-class="wj-status-badge #{b['modifier']}"
-                                  t-out="b['label']"/>
-                        </span>
-                        <span class="wujia-mdelivery-row-divider"/>
-                        <span class="wujia-mdelivery-row-cols">
-                            <span class="wujia-mdelivery-row-col">
-                                <i class="feather icon-calendar wujia-mdelivery-row-colicon"/>
-                                <span class="wujia-mdelivery-row-colbody">
-                                    <span class="wujia-mdelivery-row-collabel" t-out="b['departure_label']"/>
-                                    <span class="wujia-mdelivery-row-colval" t-out="b['departure']"/>
-                                </span>
-                            </span>
-                            <span class="wujia-mdelivery-row-col">
-                                <i class="feather icon-file-text wujia-mdelivery-row-colicon"/>
-                                <span class="wujia-mdelivery-row-colbody">
-                                    <span class="wujia-mdelivery-row-collabel">Đơn liên quan</span>
-                                    <span class="wujia-mdelivery-row-colval" t-out="b['orders']"/>
-                                </span>
-                            </span>
-                        </span>
+                       class="wj-data-item wj-lc">
+                        <t t-call="wujia_portal_layout.wj_list_card">
+                            <t t-set="lc_name" t-value="b['name']"/>
+                            <t t-set="lc_state">
+                                <span t-attf-class="wj-status-badge wj-status-badge--compact #{b['modifier']}"
+                                      t-out="b['label']"/>
+                            </t>
+                            <t t-set="lc_rows">
+                                <t t-call="wujia_portal_layout.wj_list_card_row">
+                                    <t t-set="lcr_label">
+                                        <i class="feather icon-calendar wj-lc__icon"/>
+                                        <t t-out="b['departure_label']"/>
+                                    </t>
+                                    <t t-set="lcr_value" t-value="b['departure'] or '—'"/>
+                                </t>
+                                <t t-call="wujia_portal_layout.wj_list_card_row">
+                                    <t t-set="lcr_label">
+                                        <i class="feather icon-file-text wj-lc__icon"/>
+                                        Đơn liên quan
+                                    </t>
+                                    <t t-set="lcr_value" t-value="b['orders'] or '—'"/>
+                                </t>
+                            </t>
+                        </t>
                     </a>
                 </t>
                 <t t-call="wujia_portal_layout.wj_pagination"/>
@@ -180,7 +186,7 @@
                 <p class="wj-empty-state-title">Không có chuyến giao</p>
                 <p class="wj-empty-state-sub">Không tìm thấy chuyến giao trong khoảng ngày đã chọn.</p>
                 <p class="wj-empty-state-sub">Hãy đổi bộ lọc hoặc kiểm tra lại sau.</p>
-                <a href="/portal/delivery" class="wj-empty-state-btn">Xóa lọc</a>
+                <a href="/portal/delivery" class="wj-btn wj-btn--secondary">Xóa lọc</a>
             </div>
 
             <!-- STATE: error (semantic — giữ icon cảnh báo qua dual-mode) -->
@@ -188,7 +194,7 @@
                 <span class="wj-empty-state-icon wujia-mdelivery-icon-danger"><i class="feather icon-alert-triangle"/></span>
                 <p class="wj-empty-state-title">Không tải được dữ liệu</p>
                 <p class="wj-empty-state-sub">Vui lòng kiểm tra kết nối hoặc thử tải lại.</p>
-                <button type="button" class="wj-empty-state-btn" onclick="window.location.reload()">Tải lại</button>
+                <button type="button" class="wj-btn wj-btn--primary" onclick="window.location.reload()">Tải lại</button>
             </div>
 
             <!-- STATE: loading (skeleton — UI-only, QA ?_preview=loading) -->
@@ -200,20 +206,20 @@
                     <t t-set="dl_variant" t-value="'detail-card'"/>
                     <t t-set="dl_class" t-value="'wujia-mdelivery-list'"/>
                     <t t-foreach="[1, 2, 3]" t-as="s">
-                        <div class="wujia-mdelivery-row wujia-mdelivery-skel wj-data-item">
-                            <span class="wujia-mdelivery-row-top">
-                                <span class="wujia-mdelivery-row-headmain">
-                                    <span class="wujia-mdelivery-skel-bar" style="width:70px;height:10px;"/>
+                        <div class="wj-data-item wj-lc wujia-mdelivery-skel">
+                            <span class="wj-lc__head">
+                                <span class="wj-lc__lead">
                                     <span class="wujia-mdelivery-skel-bar" style="width:170px;height:14px;"/>
                                 </span>
-                                <span class="wujia-mdelivery-skel-bar" style="width:88px;height:24px;border-radius:8px;"/>
+                                <span class="wj-lc__state">
+                                    <span class="wujia-mdelivery-skel-bar" style="width:88px;height:24px;border-radius:8px;"/>
+                                </span>
                             </span>
-                            <span class="wujia-mdelivery-row-divider"/>
-                            <span class="wujia-mdelivery-row-cols">
-                                <span class="wujia-mdelivery-row-col">
+                            <span class="wj-lc__body">
+                                <span class="wj-lc__row">
                                     <span class="wujia-mdelivery-skel-bar" style="width:96px;height:12px;"/>
                                 </span>
-                                <span class="wujia-mdelivery-row-col">
+                                <span class="wj-lc__row">
                                     <span class="wujia-mdelivery-skel-bar" style="width:112px;height:12px;"/>
                                 </span>
                             </span>
@@ -227,6 +233,12 @@
     <!-- Fragment AJAX: cả 3 mảnh, JS thay từng khối theo id. -->
     <template id="portal_delivery_results" name="Wujia Portal — Delivery Results Fragment">
         <div t-if="not no_franchise">
+            <t t-call="wujia_portal_delivery.portal_delivery_results_part">
+                <t t-set="part" t-value="'pcerr'"/>
+            </t>
+            <t t-call="wujia_portal_delivery.portal_delivery_results_part">
+                <t t-set="part" t-value="'merr'"/>
+            </t>
             <t t-call="wujia_portal_delivery.portal_delivery_results_part">
                 <t t-set="part" t-value="'pc'"/>
             </t>
@@ -245,7 +257,8 @@
             <t t-set="title">Theo dõi giao hàng</t>
             <t t-call="wujia_portal_base.wj_ajax_list_config">
                 <t t-set="wjl_path" t-value="'/portal/delivery'"/>
-                <t t-set="wjl_slots" t-value="'wj-dlv-pc-card,wj-dlv-mchips,wj-dlv-mbody'"/>
+                <t t-set="wjl_slots"
+                   t-value="'wj-dlv-pcerr,wj-dlv-pc-card,wj-dlv-merr,wj-dlv-mchips,wj-dlv-mbody'"/>
                 <t t-set="wjl_fragment" t-value="'/portal/delivery/results'"/>
             </t>
             <!-- Desktop ≥992px — PC Giao hàng, batch-centric (Figma 4766:860). -->
@@ -263,31 +276,29 @@
                 </div>
 
                 <t t-else="">
-                    <!-- Bộ lọc: search mã chuyến/SO + 2 date + trạng thái + Xóa lọc/Tìm -->
-                    <form method="get" action="/portal/delivery" class="wj-pc-filterbar">
-                        <div class="wj-pc-filterbar__row">
-                            <span class="wj-pc-filter-search wj-pc-filterbar__grow">
-                                <i class="feather icon-search"/>
-                                <input type="text" name="q" t-att-value="q"
-                                       placeholder="Tìm mã chuyến / mã SO" class="wj-pc-filter-control"/>
-                            </span>
-                            <input type="date" name="date_from" t-att-value="date_from"
-                                   class="wj-pc-filter-control" style="max-width:180px;"/>
-                            <input type="date" name="date_to" t-att-value="date_to"
-                                   class="wj-pc-filter-control" style="max-width:180px;"/>
-                            <select name="bs" class="wj-pc-filter-control" style="max-width:200px;">
-                                <option value="">Tất cả trạng thái</option>
-                                <option value="going" t-att-selected="'selected' if bs == 'going' else None">Đang giao</option>
-                                <option value="soon" t-att-selected="'selected' if bs == 'soon' else None">Sắp giao</option>
-                                <option value="done" t-att-selected="'selected' if bs == 'done' else None">Đã giao</option>
-                            </select>
-                            <span class="wj-pc-filterbar__actions">
-                                <a href="/portal/delivery" data-wj-nav="1"
-                                   class="wj-pc-btn wj-pc-btn--secondary">Xóa lọc</a>
-                                <button type="submit" class="wj-pc-btn wj-pc-btn--primary"><i class="feather icon-search"/>Tìm</button>
-                            </span>
-                        </div>
-                    </form>
+                    <!-- Bộ lọc: search mã chuyến/SO + 2 date + trạng thái + Xóa lọc/Tìm kiếm -->
+                    <t t-call="wujia_portal_layout.wj_filter_bar">
+                        <t t-set="fb_platform" t-value="'pc'"/>
+                        <t t-set="fb_action" t-value="'/portal/delivery'"/>
+                        <t t-set="fb_search"
+                           t-value="{'name': 'q', 'value': q,
+                                     'placeholder': 'Tìm mã chuyến / mã SO'}"/>
+                        <t t-set="fb_dates"
+                           t-value="{'from': date_from, 'to': date_to}"/>
+                        <t t-set="fb_selects"
+                           t-value="[{'name': 'bs', 'value': bs,
+                                      'label': 'Trạng thái',
+                                      'all_label': 'Tất cả trạng thái',
+                                      'options': [('going', 'Đang giao'),
+                                                  ('soon', 'Sắp giao'),
+                                                  ('done', 'Đã giao')]}]"/>
+                        <t t-set="fb_reset_url" t-value="'/portal/delivery'"/>
+                        <t t-set="fb_error">
+                            <t t-call="wujia_portal_delivery.portal_delivery_results_part">
+                                <t t-set="part" t-value="'pcerr'"/>
+                            </t>
+                        </t>
+                    </t>
 
                     <t t-call="wujia_portal_delivery.portal_delivery_results_part">
                         <t t-set="part" t-value="'pc'"/>
@@ -319,6 +330,11 @@
                         <!-- Luôn render (kể cả rỗng) để JS đồng bộ khi bấm chip AJAX. -->
                         <t t-set="fb_hidden">
                             <input type="hidden" name="bs" id="wj-dlv-bs" t-att-value="bs or ''"/>
+                        </t>
+                        <t t-set="fb_error">
+                            <t t-call="wujia_portal_delivery.portal_delivery_results_part">
+                                <t t-set="part" t-value="'merr'"/>
+                            </t>
                         </t>
                         <t t-set="fb_chips">
                             <t t-call="wujia_portal_delivery.portal_delivery_results_part">
@@ -452,14 +468,14 @@
                 <!-- Products -->
                 <t t-call="wujia_portal_layout.wj_surface_card">
                     <t t-set="sc_class" t-value="'wj-pc-card'"/>
-                    <!-- Nút "Tải danh sách" đi vào slot `control` (bề mặt bấm nhìn thấy được,
-                         giữ nguyên class wj-pc-btn) chứ không phải `action` dạng chữ. -->
+                    <!-- Nút "Tải danh sách" đi vào slot `control` (bề mặt bấm nhìn thấy
+                         được) chứ không phải `action` dạng chữ. -->
                     <t t-call="wujia_portal_layout.wj_card_header">
                         <t t-set="ch_title">Sản phẩm trong chuyến</t>
                         <t t-set="ch_subtitle">Dạng bảng để đối chiếu nhanh tên sản phẩm, số lượng và đơn vị tính.</t>
                         <t t-set="ch_platform" t-value="'pc'"/>
                         <t t-set="ch_control">
-                            <a href="#" class="wj-pc-btn wj-pc-btn--secondary wj-card-header__control"><i class="feather icon-download"/>Tải danh sách</a>
+                            <a href="#" class="wj-btn wj-btn--secondary wj-btn--sm wj-card-header__control"><i class="feather icon-download"/>Tải danh sách</a>
                         </t>
                     </t>
                     <table class="wj-pc-table wj-pc-dlv-table">

@@ -8,6 +8,9 @@ from . import test_e2_status_badge
 from . import test_e3_pagination
 from . import test_e4_filter_bar
 from . import test_f1_controller_safety
+from . import test_g2_mobile_header
 from . import test_f4_overrides
 from . import test_f5_frame_routes
 from . import test_fra3_layer_guard
+from . import test_e5_list_card
+from . import test_e6_button

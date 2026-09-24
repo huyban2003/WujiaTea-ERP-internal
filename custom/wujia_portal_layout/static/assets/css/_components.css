@@ -73,36 +73,8 @@ h2, .wujia-h2 { font-size: var(--wujia-font-size-h2) !important; font-weight: 60
     color: #FFFFFF !important;
 }
 
-/* WJ-ORD-012 — CTA chữ-trắng-trên-nền. Brand #28A9DF với chữ trắng chỉ 2.68:1
-   (trượt WCAG AA), nên MỌI nút có chữ trắng dùng token --wujia-cta #0F7CA8
-   (4.71:1). Class riêng, KHÔNG đụng .btn-primary (Bootstrap dùng chung portal). */
-.wj-cta-btn {
-    background-color: var(--wujia-cta) !important;
-    border-color: var(--wujia-cta) !important;
-    color: #FFFFFF !important;
-}
-.wj-cta-btn:hover,
-.wj-cta-btn:active {
-    background-color: var(--wujia-cta-dark) !important;
-    border-color: var(--wujia-cta-dark) !important;
-    color: #FFFFFF !important;
-}
-.wj-cta-btn:focus-visible {
-    background-color: var(--wujia-cta) !important;
-    color: #FFFFFF !important;
-    outline: 2px solid var(--wujia-cta) !important;
-    outline-offset: 2px;
-}
-.wj-cta-btn:disabled,
-.wj-cta-btn[disabled] {
-    /* #6B7280 nền + chữ trắng = 4.83:1. Bootstrap .btn:disabled hạ opacity .65
-       làm nền nhạt còn ~2.5:1 → ép opacity 1, phân biệt disabled bằng MÀU. */
-    background-color: var(--wujia-text-subtitle) !important;
-    border-color: var(--wujia-text-subtitle) !important;
-    color: #FFFFFF !important;
-    opacity: 1 !important;
-    cursor: not-allowed;
-}
+/* E6b2: họ .wj-cta-btn đã gỡ — call site cuối (chi tiết sản phẩm) về atom
+   .wj-btn--primary, vốn dùng cùng token --wujia-cta. */
 
 /* Secondary: white bg + gray border + h=38 (gom 3 alias cho consistency) */
 .btn-secondary,
@@ -150,6 +122,8 @@ h2, .wujia-h2 { font-size: var(--wujia-font-size-h2) !important; font-weight: 60
     background: var(--wj-sb-neutral-bg);
     color: var(--wj-sb-neutral-fg);
 }
+/* LC-04/LC-25: trong ListCard badge dùng chữ 12 — modifier CHUNG, không CSS theo route. */
+.wj-status-badge--compact    { font-size: 12px; }
 .wj-status-badge--neutral    { background: var(--wj-sb-neutral-bg);    color: var(--wj-sb-neutral-fg); }
 .wj-status-badge--info       { background: var(--wj-sb-info-bg);       color: var(--wj-sb-info-fg); }
 .wj-status-badge--pending    { background: var(--wj-sb-pending-bg);    color: var(--wj-sb-pending-fg); }
@@ -230,7 +204,7 @@ h2, .wujia-h2 { font-size: var(--wujia-font-size-h2) !important; font-weight: 60
     flex: 0 0 auto;
     display: inline-flex;
     align-items: center;
-    height: 32px;
+    height: var(--wj-filter-btn-h-sm);
     padding: 0 14px;
     border: 1px solid var(--wujia-morder-border);
     border-radius: 999px;
@@ -265,10 +239,11 @@ h2, .wujia-h2 { font-size: var(--wujia-font-size-h2) !important; font-weight: 60
     /* D4d: dáng khung + gap sang .wj-surface-card; -2px của chips bù gap 10 nên gỡ theo. */
     display: flex;
     flex-direction: column;
-    margin-bottom: 16px;
+    /* E5c/G2: khung trang đã cho một nhịp (gap), thêm đúng một nhịp nữa = 16 (BA). */
+    margin-bottom: var(--wujia-mshell-content-gap);
 }
 /* Search row: field (flex) + cyan button 38×38 */
-.wj-filter-search { display: flex; gap: 8px; }
+.wj-filter-search { display: flex; align-items: center; gap: 8px; }
 .wj-filter-search-field { position: relative; flex: 1 1 auto; display: flex; align-items: center; }
 .wj-filter-search-field > i {
     position: absolute;
@@ -291,8 +266,8 @@ h2, .wujia-h2 { font-size: var(--wujia-font-size-h2) !important; font-weight: 60
 .wj-filter-search-field input:focus { outline: none; border-color: var(--wujia-primary); }
 .wj-filter-search-btn {
     flex: 0 0 auto;
-    width: 38px;
-    height: 38px;
+    width: var(--wj-filter-btn-h-m);
+    height: var(--wj-filter-btn-h-m);
     border: 0;
     border-radius: 10px;
     background: var(--wujia-primary);
@@ -304,6 +279,16 @@ h2, .wujia-h2 { font-size: var(--wujia-font-size-h2) !important; font-weight: 60
     cursor: pointer;
 }
 .wj-filter-search-btn:active { background: var(--wujia-primary-dark); }
+/* Lỗi bộ lọc — báo TẠI thanh lọc, không dùng empty state (E4c gom 6 màn) */
+.wj-filter-error {
+    margin: 8px 0 0;
+    padding: 8px 12px;
+    border-radius: 8px;
+    background: var(--wujia-danger-bg);
+    color: var(--wujia-danger);
+    font-size: 13px;
+    font-weight: 500;
+}
 /* Date range: two pills + dash (145×38 mỗi pill ở 02/03; 132 + btn ở 04) */
 .wj-filter-dates { display: flex; align-items: center; gap: 8px; }
 .wj-filter-date {
@@ -312,7 +297,7 @@ h2, .wujia-h2 { font-size: var(--wujia-font-size-h2) !important; font-weight: 60
     display: flex;
     align-items: center;
     gap: 8px;
-    height: 38px;
+    height: var(--wj-filter-btn-h-m);
     border: 1px solid var(--wujia-border);
     border-radius: 10px;
     background: var(--wujia-filter-field-bg);
@@ -744,13 +729,13 @@ h2, .wujia-h2 { font-size: var(--wujia-font-size-h2) !important; font-weight: 60
 
 /* ---------------------------------------------------------------------------
    D5d — variant compact-row: .wj-data-item là chủ sở hữu DUY NHẤT dáng item.
-   Số BA: cao 64–76 · gap 8 · radius 12 · padding 10–12px 12–14px. Cách dựng
+   Số BA: cao 64–76 · gap 8 · radius 12 · đệm 12 (LC-07, E5c). Cách dựng
    (item là card có viền, gap giữa hai item) lấy từ .wujia-mhist-row — mẫu duy
    nhất D5a §7 công nhận là đã đúng chuẩn compact-row.
    ------------------------------------------------------------------------ */
 .wj-data-list--compact-row .wj-data-item {
     min-height: 64px;
-    padding: 12px 14px;
+    padding: 12px;
     background: var(--wujia-bg-card);
     border: 1px solid var(--wujia-border);
     border-radius: 12px;
@@ -793,11 +778,11 @@ h2, .wujia-h2 { font-size: var(--wujia-font-size-h2) !important; font-weight: 60
 /* ---------------------------------------------------------------------------
    D5f — variant detail-card: cùng kiến trúc hai tầng của compact-row (dáng ở
    .wj-data-item, layout ở từng họ). Số BA: cao 96–120 · gap 8 · radius 12 ·
-   padding 12px 14px.
+   đệm 12 (LC-07, E5c).
    ------------------------------------------------------------------------ */
 .wj-data-list--detail-card .wj-data-item {
     min-height: 96px;
-    padding: 12px 14px;
+    padding: 12px;
     background: var(--wujia-bg-card);
     border: 1px solid var(--wujia-border);
     /* đè token chung --wujia-morder-radius (14) tại đây, KHÔNG sửa token */
@@ -811,7 +796,151 @@ h2, .wujia-h2 { font-size: var(--wujia-font-size-h2) !important; font-weight: 60
     margin-top: 8px;
 }
 
-/* Header right action icons (UI-13, Sprint 9.14, 2026-05-28) */
+/* ---------------------------------------------------------------------------
+   E5 — CMP-LC-001 ListCard: RUỘT của một record. Dáng NGOÀI (viền/bo/đệm/gap)
+   vẫn của `.wj-data-item` ở trên; đây chỉ là anatomy. Số BA LC-07/LC-25:
+   header–body 8 · gap hàng 6–8 · title 15–16/600 · metadata 13–14 · badge 12 ·
+   không divider/shadow/icon trang trí bên trong card.
+   ------------------------------------------------------------------------ */
+.wj-data-item.wj-lc {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+.wj-lc__head {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 8px;
+}
+.wj-lc__lead {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 2px 8px;
+    min-width: 0;
+}
+/* Tên tự do dài tối đa 2 dòng (mã/số ngắn không bao giờ chạm ngưỡng này ⇒ LC-03
+   vẫn giữ: không cắt mã). */
+.wj-lc__name {
+    flex: 1 1 0%;
+    min-width: 0;
+    font-size: 15px;
+    font-weight: 600;
+    line-height: 20px;
+    color: var(--wujia-text-primary);
+    overflow-wrap: anywhere;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+    overflow: hidden;
+}
+/* LC-04: hẹp quá thì badge xuống hàng CĂN PHẢI, không chồng lên tên. */
+.wj-lc__state {
+    flex: 0 0 auto;
+    margin-left: auto;
+    text-align: right;
+}
+/* Lưới 2 cột: hàng thường chiếm cả hàng, hàng `--inline` đứng một cột. Cột phải
+   rộng theo nội dung ⇒ vị trí cột KHÔNG trôi giữa các card (UAT-BH-008). */
+.wj-lc__body {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 6px 16px;
+}
+.wj-lc__row {
+    display: flex;
+    grid-column: 1 / -1;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 2px 6px;
+    min-width: 0;
+    font-size: 13px;
+    line-height: 18px;
+}
+/* LC-05: hai trường NGẮN đứng chung một hàng, mỗi trường một cột. */
+.wj-lc__row--inline {
+    grid-column: auto;
+}
+/* LC-05: trường dài chiếm cả hàng, nhãn nằm trên giá trị. */
+.wj-lc__row--full {
+    flex-direction: column;
+    gap: 2px;
+}
+.wj-lc__label {
+    flex: 0 0 auto;
+    color: var(--wujia-text-muted);
+}
+/* LC-06: icon phụ 16–18px, chỉ khi hữu ích — không icon trang trí lớn trước tên. */
+.wj-lc__icon {
+    flex: 0 0 auto;
+    margin-right: 4px;
+    font-size: 16px;
+    line-height: 1;
+    color: var(--wujia-primary);
+}
+/* Ô icon phân loại đứng trước tên (Thông báo, Kiến thức) — CHỜ BA chốt LC-06. */
+.wj-lc__tile {
+    flex: 0 0 auto;
+    align-self: center;
+    width: 32px;
+    height: 32px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 9px;
+    font-size: 15px;
+}
+/* Chữ số cùng bề rộng: cột phải của lưới rộng theo ngày/tiền ⇒ không tabular thì
+   mỗi card lệch vài px (đo được ở UAT-BH-008). */
+.wj-lc__value {
+    min-width: 0;
+    color: var(--wujia-text-secondary);
+    overflow-wrap: anywhere;
+    font-variant-numeric: tabular-nums;
+}
+/* UAT-BH-007: giá trị dài (tên sản phẩm) tối đa 2 dòng, `…` ở cuối dòng 2. */
+.wj-lc__row--clamp2 .wj-lc__value {
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+/* Metadata phụ đứng cạnh badge ở đầu card (ngày, lượt xem). */
+.wj-lc__meta {
+    color: var(--wujia-text-subtitle);
+    font-size: 13px;
+    white-space: nowrap;
+}
+.wj-lc__value--strong {
+    font-weight: 600;
+    color: var(--wujia-text-primary);
+}
+.wj-lc__actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
+}
+/* Link hành động trong card (LC-11: control riêng, không lồng interactive). */
+.wj-lc__link {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--wujia-primary);
+    text-decoration: none;
+    /* E5c: vùng chạm 44 bằng đệm + lề âm nên không đội cao/rộng card (a11y ≥44). */
+    display: inline-block;
+    padding: 12px 4px;
+    margin: -12px -4px;
+}
+
+/* Header right action icons (UI-13, Sprint 9.14, 2026-05-28).
+   BOUNDARY của cụm E6 (đo ra ở E6b1, xem `_pc_account.css` @≥1200): đây KHÔNG
+   phải IconButton của BA mà là nút của thanh điều hướng — tròn 40 (bo 20), nền
+   kính trên navbar màu. Kéo về atom thì hoặc mất dáng Figma của navbar, hoặc
+   phải khai đè lại cao/bo/nền — tức module giành dáng, đúng thứ cụm E6 cấm.
+   Cùng loại với BottomNavigation mà BA đã liệt là boundary. */
 .wujia-header-icon-btn {
     position: relative;
     display: inline-flex;
@@ -1044,10 +1173,8 @@ a.wujia-mhome-kpi:active { opacity: 0.85; }
     display: flex;
     align-items: center;
     gap: var(--wujia-mheader-action-gap);
-    /* UI-04: Blank Shell neo cụm nút ở y=39..77, không canh giữa header 104
-       (canh giữa ra y=33). Logo VẪN canh giữa — chỉ cụm này thoát ra. */
-    align-self: flex-start;
-    margin-top: 39px;
+    /* Canh giữa theo chiều cao header. Neo cứng y=39 của Blank Shell chỉ đúng với
+       header 104; header nay do token cấp nên mọi giá trị neo tuyệt đối đều sai. */
     margin-right: 1px;   /* tâm x 248/302/356 → 247/301/355 */
 }
 .wujia-mheader-action-wrap {
@@ -1067,6 +1194,17 @@ a.wujia-mhome-kpi:active { opacity: 0.85; }
     text-decoration: none;
     padding: 0;
     flex: 0 0 auto;
+}
+/* Vùng bấm 44 trong khi hộp nhìn thấy giữ 38 của BA. Dùng ::before vì ::after của
+   các nút này đã bị dành để tắt caret Bootstrap (.dropdown-toggle). */
+.wujia-mheader-action::before {
+    content: "";
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 44px;
+    height: 44px;
+    transform: translate(-50%, -50%);
 }
 .wujia-mheader-action:hover,
 .wujia-mheader-action:focus {
@@ -1300,12 +1438,27 @@ a.wujia-mhome-kpi:active { opacity: 0.85; }
         color: var(--wujia-msheet-chevron);
     }
 
-    /* BlankShell content wrapper — chuẩn content area cho trang mobile MỚI.
-       RESP-MOB-SHELL-003: top-pad = token chung (không còn giá trị riêng từng trang). */
-    .wujia-mpage {
+    /* Khung nhịp dọc cho MỌI trang mobile — một rule, một token.
+       Trước đây mỗi trang một giá trị (mpage 14 · Home 18 · Công nợ 12 · Báo cáo 12,
+       còn Đặt hàng/Giỏ/Lịch sử dàn con bằng margin-bottom 10..16) nên hạ token ở một
+       nơi thì 6 trang không đổi. Nay mọi wrapper trang ăn chung token mobile.
+       Thêm trang mới: thêm lớp vào danh sách này, đừng khai gap riêng
+       (test guard test_mobile_rhythm.py sẽ báo đỏ nếu khai riêng). */
+    .wujia-mpage,
+    .wujia-mhome,
+    .wujia-morder,
+    .wujia-mcart,
+    .wujia-mhist,
+    .wujia-mhist-detail,
+    .wujia-mreport,
+    .wj-debt {
         display: flex;
         flex-direction: column;
         gap: var(--wujia-mshell-content-gap);
+    }
+    /* Padding KHÔNG gom vào rule trên: trang dựng trong .content-wrapper đã được
+       wrapper cấp pad-top (_wujia_theme.css), gom vào đây là cộng dồn hai lần. */
+    .wujia-mpage {
         padding: var(--wujia-mcontent-top) var(--wujia-mshell-content-pad-x) 0;
     }
 }
@@ -1562,7 +1715,8 @@ a.wujia-mhome-kpi:active { opacity: 0.85; }
     }
     .wujia-maccount-eye.is-active { color: var(--wujia-morder-primary); }
     .wujia-maccount-eye i { font-size: 17px; line-height: 1; }
-    .wujia-maccount-submit { height: 46px; font-weight: 700; margin-top: 2px; }
+    /* E6b2: cỡ theo bậc lg của atom (48). */
+    .wujia-maccount-submit { margin-top: 2px; }
 
     /* ---------- Flash alert ---------- */
     .wujia-maccount-alert {
@@ -1687,9 +1841,17 @@ a.wujia-mhome-kpi:active { opacity: 0.85; }
 
 /* Mobile modifier (CMP-PG-001) — 1 hàng cao 52 = pad 12 + title 28 + pad 12; x do container. */
 .wj-page-header--m { padding: 12px 0; margin: 0 0 8px; min-height: 52px; }
-/* Gap header → nội dung đầu = 8 (spec). .wujia-mpage có gap chung 14 cho MỌI trang mobile
-   nên bù -6 tại đây thay vì đổi token dùng chung. */
-.wujia-mpage > .wj-page-header--m { margin-bottom: -6px; }
+/* Gap header → nội dung đầu = 8 (spec CMP-PG-001). Gap chung của trang mobile nay ĐÚNG
+   bằng 8 ⇒ ba rule bù trừ cũ (mpage -6, công nợ -4, báo cáo -4) hết lý do tồn tại, đã gỡ;
+   chỉ cần bỏ margin-bottom để gap là nguồn duy nhất. */
+.wujia-mpage > .wj-page-header--m,
+.wujia-mhome > .wj-page-header--m,
+.wujia-morder > .wj-page-header--m,
+.wujia-mcart > .wj-page-header--m,
+.wujia-mhist > .wj-page-header--m,
+.wujia-mhist-detail > .wj-page-header--m,
+.wujia-mreport > .wj-page-header--m,
+.wj-debt > .wj-page-header--m { margin-bottom: 0; }
 /* !important để thắng global `h1 { font-size: … !important }` (_components.css gotcha #13) */
 .wj-page-header--m .wj-page-header__title { font-size: 22px !important; line-height: 28px; }
 /* Meta căn phải cùng hàng với title; hết chỗ thì flex-wrap đẩy xuống dưới (spec RESPONSIVE) */
@@ -1773,7 +1935,11 @@ a.wujia-mhome-kpi:active { opacity: 0.85; }
 
 /* Mobile (--m) + không khai nền tảng (--any): title 20/28/800, nhịp 16 trước / 8 sau. */
 .wj-section-header--m,
-.wj-section-header--any { margin: 16px 0 8px; column-gap: 12px; row-gap: 4px; }
+.wj-section-header--any {
+    margin: var(--wujia-m-sechead-mt) 0 var(--wujia-m-sechead-mb);
+    column-gap: 12px;
+    row-gap: 4px;
+}
 /* !important để thắng global `h2 { font-size: … !important }` (_components.css:6) */
 .wj-section-header--m .wj-section-header__title,
 .wj-section-header--any .wj-section-header__title {
@@ -2001,15 +2167,10 @@ a.wujia-mhome-kpi:active { opacity: 0.85; }
     }
     .wj-mform textarea.form-control { min-height: 96px; }
 
-    /* Cùng issue, phần bộ lọc: pill 38 → 44 (BA touch min). Chỉ chiều cao —
-       radius/typography của FilterBar chờ spec `UI-FILTER-001`. */
-    .wj-filter-date,
-    .wj-filter-select { height: 44px; }
-    .wj-filter-search-field input,
-    .wj-filter-search-btn { height: 44px; }
-    .wj-filter-search-btn { width: 44px; }
-    form.row .form-select-sm,
-    form.row .form-control-sm { min-height: 44px; }
+    /* E4b2: luật 44 của D6c thu về khối demo màn Thi (chưa nối, E4c đưa vào component). */
+    .wujia-mexam .wj-filter-date,
+    .wujia-mexam .wj-filter-search-btn { height: 44px; }
+    .wujia-mexam .wj-filter-search-btn { width: 44px; }
 }
 
 /* ===== CMP-PGNT-001 Pagination — một markup, hai bố cục =================== */
@@ -2203,12 +2364,14 @@ a.wujia-mhome-kpi:active { opacity: 0.85; }
 .wj-filter-selectwrap > .wj-filter-select { height: 38px; }
 label.wj-filter-search-field { min-height: 44px; }
 label.wj-filter-search-field input { height: 38px; }
-.wj-filter-search > label.wj-filter-search-field + .wj-filter-search-btn {
+.wj-filter-search > label.wj-filter-search-field + .wj-filter-search-btn,
+.wj-filter-dates--compact > .wj-filter-search-btn {
     position: relative;
     height: 38px;
     width: 38px;
 }
-.wj-filter-search > label.wj-filter-search-field + .wj-filter-search-btn::before {
+.wj-filter-search > label.wj-filter-search-field + .wj-filter-search-btn::before,
+.wj-filter-dates--compact > .wj-filter-search-btn::before {
     content: "";
     position: absolute;
     left: 50%;
@@ -2224,3 +2387,183 @@ label.wj-filter-search-field input { height: 38px; }
     font-size: 13px;
     font-weight: 700;
 }
+
+/* FB-08: nút trong thanh lọc giữ chiều cao của Filter và ưu tiên hơn size mặc
+   định của CMP-BTN-001. Khai theo NGỮ CẢNH (trong thanh lọc) chứ không theo tên
+   họ class — `.wj-pc-btn` còn phục vụ màn Khảo sát. */
+.wj-pc-filterbar__actions .wj-pc-btn { height: var(--wj-filter-btn-h-pc); }
+
+/* ===== Button CMP-BTN-001 (E6a) — atom dùng chung PC + mobile ===============
+   Số nguyên văn spec BA `UI Component` dòng 40 (BA Confirmed 26/08/2026):
+   cao 32/40/46 (PC) · 36/44/48 (mobile), vùng chạm >=44 · radius 8 (sm) /
+   12 (md, lg) · typo 13/18/600 · 14/20/700 · 15/22/700.
+   `.wj-pc-btn` cố ý KHÔNG bị đụng: nhóm Khảo sát còn dùng (LIMIT của cụm E6). */
+.wj-btn,
+.wj-iconbtn {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid transparent;
+    background: transparent;
+    font-family: var(--wujia-font-family);
+    text-decoration: none;
+    cursor: pointer;
+    transition: background-color var(--wujia-state-transition),
+                border-color var(--wujia-state-transition),
+                color var(--wujia-state-transition);
+}
+.wj-btn {
+    gap: 8px;
+    height: var(--wj-btn-h-md);
+    padding: 0 var(--wj-btn-pad-md);
+    border-radius: var(--wj-btn-radius);
+    font-size: 14px;
+    line-height: 20px;
+    font-weight: 700;
+    white-space: nowrap;
+}
+.wj-btn--sm {
+    height: var(--wj-btn-h-sm);
+    padding: 0 var(--wj-btn-pad-sm);
+    border-radius: var(--wj-btn-radius-sm);
+    font-size: 13px;
+    line-height: 18px;
+    font-weight: 600;
+}
+.wj-btn--lg {
+    height: var(--wj-btn-h-lg);
+    padding: 0 var(--wj-btn-pad-lg);
+    font-size: 15px;
+    line-height: 22px;
+}
+/* BA: "Mobile cho phép full-width khi action area yêu cầu". */
+.wj-btn--block { width: 100%; }
+.wj-btn > i,
+.wj-iconbtn > i { line-height: 1; margin: 0; }
+
+.wj-iconbtn {
+    width: var(--wj-btn-icon-md);
+    height: var(--wj-btn-icon-md);
+    padding: 0;
+    border-radius: var(--wj-btn-radius);
+    font-size: 16px;
+    line-height: 1;
+}
+.wj-iconbtn--sm {
+    width: var(--wj-btn-icon-sm);
+    height: var(--wj-btn-icon-sm);
+    border-radius: var(--wj-btn-radius-sm);
+    font-size: 14px;
+}
+
+/* Variant — BA cho Secondary và Outline cùng viền/chữ, chỉ khác nền. */
+/* Nền Primary dùng --wujia-cta (#0F7CA8) chứ không phải #28A9DF của spec BA:
+   #28A9DF + chữ trắng = 2.68, trượt WCAG AA; Sprint 38 đã chuyển CTA portal sang
+   #0F7CA8 (4.7) theo đúng một issue a11y của chính BA. Chủ dự án chốt 20/09 giữ
+   chuẩn a11y và sửa tại MỘT chỗ này thay vì đẻ ngoại lệ cho từng màn. */
+.wj-btn--primary,
+.wj-iconbtn--primary {
+    background: var(--wujia-cta);
+    border-color: var(--wujia-cta);
+    color: #FFFFFF;
+}
+.wj-btn--secondary,
+.wj-iconbtn--secondary {
+    background: #FFFFFF;
+    border-color: var(--wujia-border);
+    color: var(--wujia-text-secondary);
+}
+.wj-btn--outline,
+.wj-iconbtn--outline {
+    background: transparent;
+    border-color: var(--wujia-border);
+    color: var(--wujia-text-secondary);
+}
+.wj-btn--danger,
+.wj-iconbtn--danger {
+    background: var(--wj-btn-danger);
+    border-color: var(--wj-btn-danger);
+    color: #FFFFFF;
+}
+.wj-btn--ghost,
+.wj-iconbtn--ghost {
+    background: transparent;
+    color: var(--wujia-primary);
+}
+
+/* Hover/pressed của variant NỀN ĐẬM khai tại đây; variant nền trung tính đi theo
+   danh sách bề mặt của `_interaction.css` (C6) — không viết lại lần hai. */
+@media (hover: hover) and (pointer: fine) {
+    .wj-btn--primary:not(:disabled):hover,
+    .wj-iconbtn--primary:not(:disabled):hover {
+        background: var(--wujia-cta-dark);
+        border-color: var(--wujia-cta-dark);
+        color: #FFFFFF;
+    }
+    .wj-btn--danger:not(:disabled):hover,
+    .wj-iconbtn--danger:not(:disabled):hover { filter: brightness(.95); color: #FFFFFF; }
+    .wj-btn--ghost:not(:disabled):hover,
+    .wj-iconbtn--ghost:not(:disabled):hover { background: var(--wujia-primary-soft); }
+}
+.wj-btn--primary:not(:disabled):active,
+.wj-iconbtn--primary:not(:disabled):active {
+    background: var(--wujia-cta-dark);
+    border-color: var(--wujia-cta-dark);
+}
+/* E6b2: ghost là variant nền trung tính nhưng KHÔNG vào danh sách bề mặt
+   `_interaction.css` (ở đó hover thêm viền + bóng, sai dáng nút icon trong hàng). */
+.wj-btn--ghost:not(:disabled):active,
+.wj-iconbtn--ghost:not(:disabled):active { background: var(--wujia-primary-light); }
+
+/* Disabled: vẫn đọc được nhãn, không bấm được, không nhận focus (thẻ mang
+   thuộc tính `disabled` thật — semantic, không phải class trang trí). */
+.wj-btn:disabled,
+.wj-iconbtn:disabled,
+.wj-btn.is-disabled,
+.wj-iconbtn.is-disabled { opacity: .55; pointer-events: none; }
+
+/* Loading: giữ NGUYÊN bề rộng — nhãn tàng hình tại chỗ, spinner vẽ đè lên. */
+.wj-btn.is-loading,
+.wj-iconbtn.is-loading { color: transparent; pointer-events: none; }
+.wj-btn.is-loading::after,
+.wj-iconbtn.is-loading::after {
+    content: "";
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: 16px;
+    height: 16px;
+    margin: -8px 0 0 -8px;
+    border: 2px solid rgba(17, 24, 39, .25);
+    border-top-color: var(--wujia-text-secondary);
+    border-radius: 50%;
+    animation: wj-btn-spin .6s linear infinite;
+}
+.wj-btn--primary.is-loading::after,
+.wj-btn--danger.is-loading::after,
+.wj-iconbtn--primary.is-loading::after,
+.wj-iconbtn--danger.is-loading::after {
+    border-color: rgba(255, 255, 255, .45);
+    border-top-color: #FFFFFF;
+}
+@keyframes wj-btn-spin { to { transform: rotate(360deg); } }
+
+/* Vùng chạm 44 cho bậc `sm` trên mobile — pseudo phủ ra ngoài, visual giữ 36
+   (cùng cách đã dùng cho nút tìm của FilterBar ở E4a). */
+@media (max-width: 991.98px) {
+    .wj-btn--sm::before,
+    .wj-iconbtn--sm::before {
+        content: "";
+        position: absolute;
+        left: 50%;
+        top: 50%;
+        width: 100%;
+        min-width: 44px;
+        height: 44px;
+        transform: translate(-50%, -50%);
+    }
+}
+
+/* CTA của EmptyState: bố cục do EmptyState giữ, dáng do atom giữ. */
+.wj-empty-state > .wj-btn { margin-top: 11px; min-width: 147px; }

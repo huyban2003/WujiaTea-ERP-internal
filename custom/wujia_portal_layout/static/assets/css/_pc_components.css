@@ -113,9 +113,10 @@
 }
 .wj-pc-filterbar__grow { flex: 1 1 240px; }
 .wj-pc-filterbar__actions { margin-left: auto; display: flex; gap: 12px; }
-.wj-pc-filter-control {
-    /* 42px — cùng chiều cao control với form (UI-PC-BASE-003).
-       --wj-pc-filter-input-h (38) giữ lại cho control compact riêng của exam. */
+/* E4b1: 9 thanh lọc portal đã về component CMP-FB-001; họ class này chỉ còn
+   nhóm Khảo sát dùng ⇒ THU HẸP selector, không xoá (bẫy E3c). */
+.wj-inspection-pc .wj-pc-filter-control {
+    /* 42px — cùng chiều cao control với form (UI-PC-BASE-003). */
     height: var(--wj-pc-input-h);
     border: 1px solid var(--wj-pc-border);
     border-radius: var(--wj-pc-input-radius);
@@ -125,7 +126,7 @@
     color: var(--wj-pc-text);
     width: 100%;
 }
-.wj-pc-filter-control::placeholder { color: var(--wj-pc-subtle); }
+.wj-inspection-pc .wj-pc-filter-control::placeholder { color: var(--wj-pc-subtle); }
 
 /* ---------- Metric card (h96, icon 52) — SVG MetricCard_Set ---------- */
 .wj-pc-metric-grid {
@@ -395,13 +396,13 @@ input[type="file"].wj-pc-control { height: auto; min-height: var(--wj-pc-input-h
     text-transform: uppercase; color: var(--wj-pc-subtle);
 }
 
-/* ---------- Filter search box with leading icon (Figma list filterbar) ---------- */
-.wj-pc-filter-search { position: relative; flex: 1 1 280px; }
-.wj-pc-filter-search > i {
+/* ---------- Filter search box with leading icon — chỉ còn màn Khảo sát (E4b1) ---------- */
+.wj-inspection-pc .wj-pc-filter-search { position: relative; flex: 1 1 280px; }
+.wj-inspection-pc .wj-pc-filter-search > i {
     position: absolute; left: 14px; top: 50%; transform: translateY(-50%);
     color: var(--wj-pc-subtle); font-size: 16px; pointer-events: none;
 }
-.wj-pc-filter-search > .wj-pc-filter-control { padding-left: 38px; }
+.wj-inspection-pc .wj-pc-filter-search > .wj-pc-filter-control { padding-left: 38px; }
 
 /* ---------- WJ_PageHeader — PC modifier (BA CMP-PG-001) ----------
    Base .wj-page-header ở _components.css. PC: 1 hàng cao 64 = pad 16 + title 32 + pad 16,
@@ -524,6 +525,15 @@ input[type="file"].wj-pc-control { height: auto; min-height: var(--wj-pc-input-h
     font-weight: 400;
     color: var(--wj-pc-text);
 }
+/* --dense: thanh 5 control (Thông báo, Thi) — bề rộng cơ sở hẹp hơn để vẫn 1 hàng
+   ở 1440 thay vì đẻ lại một họ class riêng cho mỗi màn. */
+.wj-pc-filterbar--dense .wj-filter-search { flex: 1 1 160px; min-width: 160px; }
+.wj-pc-filterbar--dense .wj-filter-date--hit { flex: 0 1 132px; }
+.wj-pc-filterbar--dense .wj-filter-selectwrap { flex: 0 1 162px; }
+
+/* dashboard.css có `select { padding: 5px !important }` tag-level ⇒ rule thường của
+   component không thắng; trung hoà trong phạm vi thanh lọc (L4). */
+.wj-pc-filterbar select.wj-filter-select { padding: 0 14px !important; cursor: pointer; }
 .wj-pc-filterbar .wj-filter-date__box input {
     font-size: 14px;
     font-weight: 400;

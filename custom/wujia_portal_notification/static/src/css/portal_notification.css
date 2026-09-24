@@ -31,31 +31,24 @@
     .wujia-mnoti .wujia-mknow-search-field > i { font-size: 14px; }
     .wujia-mnoti .wujia-mknow-search-btn { height: 30px; padding: 0 16px; font-size: 13px; border-radius: 8px; }
 
-    /* ---------- Notification list (card-per-row) ---------- */
-    .wujia-mnoti-list { display: flex; flex-direction: column; gap: 8px; }
-    /* D5e: dáng ở .wj-data-item; giữ padding-left 16 cho thanh accent is-unread. */
-    .wj-data-list--compact-row .wujia-mnoti-row.wj-data-item {
-        position: relative;
-        display: flex;
-        align-items: stretch;
-        gap: 12px;
-        padding-left: 16px;
-        overflow: hidden;
-    }
-    .wujia-mnoti-row.is-unread::before {
+    /* ---------- Notification list (CMP-LC-001) ---------- */
+    /* Ruột card do wj_list_card lo; ở đây chỉ còn DẤU HIỆU trạng thái đọc/chưa đọc. */
+    .wujia-mnoti-unread { position: relative; overflow: hidden; }
+    .wujia-mnoti-unread::before {
         content: "";
         position: absolute;
         left: 0; top: 0; bottom: 0;
         width: 4px;
         background: var(--wujia-morder-primary);
     }
-    .wujia-mnoti-row-icon {
-        flex: 0 0 auto;
-        width: 32px; height: 32px;
-        display: inline-flex;
-        align-items: center; justify-content: center;
-        border-radius: 9px;
-        font-size: 15px;
+    .wujia-mnoti-unread .wj-lc__name { color: var(--wujia-morder-text); }
+    .wujia-mnoti-dot {
+        /* E5c: span rỗng trong .wj-lc__state là inline ⇒ w/h không ăn, chấm mất tích. */
+        display: inline-block;
+        vertical-align: middle;
+        width: 8px; height: 8px;
+        border-radius: 50%;
+        background: var(--wujia-morder-primary);
     }
     /* Tone — icon nền mềm + chữ theo loại thông báo (dùng chung list + detail) */
     .wujia-mnoti-tone-cyan   { background: var(--wujia-primary-soft); color: var(--wujia-primary); }
@@ -64,51 +57,7 @@
     .wujia-mnoti-tone-red    { background: var(--wujia-danger-bg);    color: var(--wujia-danger); }
     .wujia-mnoti-tone-violet { background: #EEF0FF;                   color: #6366F1; }
     .wujia-mnoti-tone-gray   { background: var(--wujia-mshell-bg);    color: var(--wujia-morder-text-muted); }
-    .wujia-mnoti-row-main {
-        flex: 1 1 auto;
-        min-width: 0;
-        display: flex;
-        flex-direction: column;
-        gap: 4px;
-    }
-    /* Figma — đã đọc #374151, chưa đọc #111827, cả hai bold 700 size 15.5 */
-    .wujia-mnoti-row-title {
-        font-size: 15.5px;
-        font-weight: 700;
-        color: var(--wujia-text-secondary);
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
-    }
-    .wujia-mnoti-row.is-unread .wujia-mnoti-row-title { color: var(--wujia-morder-text); }
-    .wujia-mnoti-row-source {
-        font-size: 11.5px;
-        color: var(--wujia-morder-text-sub);
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
-    }
-    .wujia-mnoti-row-tags { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin-top: 2px; }
-    .wujia-mnoti-row-tags .wujia-badge,
     .wujia-mnoti-detail-badges .wujia-badge { display: inline-flex; align-items: center; gap: 4px; }
-    .wujia-mnoti-row-side {
-        flex: 0 0 auto;
-        display: flex;
-        flex-direction: column;
-        align-items: flex-end;
-        gap: 6px;
-    }
-    .wujia-mnoti-row-dot {
-        width: 8px; height: 8px;
-        border-radius: 50%;
-        background: var(--wujia-morder-primary);
-    }
-    .wujia-mnoti-row-date {
-        margin-top: auto;
-        font-size: 11px;
-        color: var(--wujia-morder-text-muted);
-        white-space: nowrap;
-    }
 
     /* ---------- Detail ---------- */
     .wujia-mnoti-detail-head { display: flex; align-items: center; gap: 12px; }
@@ -255,25 +204,7 @@
     overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
 }
 
-/* ---- List: filter bar — 5 control 1 hàng, card 88px (UI-PC-BASE-003).
-   Nhãn từng field đã bỏ (đi vào aria-label/option đầu) để card đúng 88px. ---- */
-.wj-pc-noti-filter-row {
-    display: grid;
-    grid-template-columns: minmax(240px, 1fr) 190px 170px 150px 150px max-content;
-    align-items: center;
-    gap: 12px;
-}
-.wj-pc-noti-field { display: flex; flex-direction: column; min-width: 0; }
-.wj-pc-noti-field .wj-pc-filter-control { width: 100%; }
-/* reset base flex:1 1 280px → trong field (flex-column) 280px sẽ thành CHIỀU CAO */
-.wj-pc-noti-field .wj-pc-filter-search { display: block; width: 100%; flex: 0 0 auto; }
-.wj-pc-noti-filter-actions { display: flex; gap: 10px; align-items: center; }
-/* Desktop hẹp (≥992 nhưng <1400): xuống hàng gọn thay vì tràn ngang */
-@media (max-width: 1399.98px) {
-    .wj-pc-noti-filter-row { grid-template-columns: repeat(4, 1fr); }
-    .wj-pc-noti-field--grow { grid-column: 1 / -1; }
-    .wj-pc-noti-filter-actions { grid-column: 1 / -1; justify-content: flex-end; }
-}
+/* E4b1: thanh lọc về component CMP-FB-001 ⇒ họ .wj-pc-noti-filter* đã xoá. */
 .wj-pc-noti-chips { margin: 12px 0; flex-wrap: wrap; }
 
 /* ---- Form: side panels / badge row / title / body ---- */
@@ -321,7 +252,8 @@
     overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
 }
 .wj-pc-noti-attach-meta { font-size: 12px; color: var(--wj-pc-muted); }
-.wj-pc-noti-attach-dl { flex: 0 0 auto; height: 36px; padding: 0 14px; font-size: 13px; }
+/* E6a: cao/chữ về bậc `sm` của atom; màn chỉ giữ việc không co. */
+.wj-pc-noti-attach-dl { flex: 0 0 auto; }
 
 /* ---- Type tone (popup icons; classes injected by JS) ---- */
 .wj-pc-noti-type--cyan { background: var(--wujia-primary-soft); color: var(--wujia-primary); }
@@ -402,4 +334,4 @@
 .wj-pc-noti-popup__item-date {
     margin-top: auto; font-size: 11px; color: var(--wj-pc-subtle); white-space: nowrap;
 }
-.wj-pc-noti-popup__all { width: 100%; justify-content: center; }
+/* E6a: bề ngang trọn hàng nay là variant `--block` của atom. */

@@ -209,7 +209,7 @@ def summarise(result):
 
 if __name__ == '__main__':
     ap = argparse.ArgumentParser()
-    ap.add_argument('--base', default='http://127.0.0.1:8019')
+    ap.add_argument('--base', default='http://127.0.0.1:8090')
     ap.add_argument('--portal-login', help='BẮT BUỘC, ví dụ anh.owner')
     ap.add_argument('--password', default='wujia@test123')
     ap.add_argument('--routes', nargs='*', default=ROUTES)

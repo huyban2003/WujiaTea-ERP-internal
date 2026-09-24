@@ -29,18 +29,16 @@
     --wj-debt-soft:         var(--wujia-primary-soft);
     --wj-debt-divider:      var(--wujia-mshell-border);
 
-    display: flex;
-    flex-direction: column;
-    gap: 12px;                       /* Figma: mọi khối cách nhau 12 */
-    padding: 15px 16px 0;            /* shell header hết ở y=152, content top y=167 */
+    /* Nhịp dọc (flex column + gap) lấy từ rule chung mọi trang mobile trong
+       portal_layout/_components.css; ở đây chỉ còn lề riêng của trang. */
+    padding: var(--wujia-mcontent-top) var(--wujia-mshell-content-pad-x) 0;
 }
 
 /* ---------- Header ---------- */
 /* S53-B3b: header trang công nợ đã dùng chung CMP-PG-001 (22/28/700, cao 52).
    Gỡ override 26px + .wj-debt-header/-__count (hand-roll cũ, không còn markup). */
-/* CMP-PG-001: gap PageHeader → nội dung đầu = 8px. .wj-debt là flex column gap 12
-   (không phải .wujia-mpage gap 14) ⇒ bù -4 để tổng đúng 8. */
-.wj-debt > .wj-page-header--m { margin-bottom: -4px; }
+/* CMP-PG-001: gap PageHeader → nội dung đầu = 8px. Gap chung mobile nay đúng 8 ⇒ rule
+   bù -4 đã gỡ (xem _components.css). */
 /* S54-B4: nút 42×42 nay là chuẩn CMP-BPH-001 ở base ⇒ gỡ override kích thước,
    chỉ giữ mép trên y=160 và khoảng cách 14 theo Figma công nợ. */
 .wj-debt--back { padding-top: 8px; }
@@ -82,7 +80,10 @@
     appearance: none;
     cursor: pointer;
 }
-.wj-debt-filter__go { position: absolute; right: 40px; top: 12px; }
+/* Thanh lọc tự dựng (E4 đã đo và ký duyệt) — chiều cao đọc chung token FB-08
+   để nút lọc của Công nợ không trôi khỏi 21 thanh lọc còn lại. */
+.wj-debt-filter__go { position: absolute; right: 40px; top: 12px; height: var(--wj-filter-btn-h-m); }
+.wj-debt-pc-filter .wj-pc-btn { height: var(--wj-filter-btn-h-pc); }
 
 /* ---------- Card tổng (359×142) ---------- */
 .wj-debt-summary {
@@ -161,23 +162,8 @@
 }
 
 /* ---------- CTA (359×44) ----------
-   Figma vẽ nền #28A9DF + chữ trắng → 2.8:1, TRƯỢT WCAG AA. Sprint 38 đã chuyển
-   CTA portal sang --wujia-cta (#0F7CA8, 4.6:1) đúng theo issue a11y của BA nên
-   giữ nguyên chuẩn đó ở đây. SAI LỆCH CÓ CHỦ ĐÍCH — chờ BA confirm. */
-.wj-debt-cta {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    height: 44px;
-    border-radius: 12px;
-    background: var(--wujia-cta);
-    color: #FFFFFF;
-    font-size: 14px;
-    font-weight: 700;
-    text-decoration: none;
-}
-.wj-debt-cta:hover,
-.wj-debt-cta:focus { background: var(--wujia-cta-dark); color: #FFFFFF; }
+   Dáng do atom `wj-btn--primary --block` giữ (44 ở mobile, bo 12). Nền #0F7CA8
+   của atom chính là chuẩn a11y mà Sprint 38 đặt ra cho CTA portal. */
 
 /* ---------- Row "Lịch sử thanh toán" (359×54) ---------- */
 .wj-debt-actionrow {
@@ -209,22 +195,10 @@
 
 /* Section header dùng chung CMP-SH-001 (C8b) — bộ class .wj-debt-section* đã gỡ. */
 
-/* ---------- Card hoá đơn (359×62, gap 6) ---------- */
-.wj-debt-invoices { display: flex; flex-direction: column; gap: 6px; }
-/* D5g — LAYOUT của họ hoá đơn; dáng (padding/nền/viền/radius) ở tầng .wj-data-item. */
-.wj-data-list--compact-row .wj-debt-inv.wj-data-item {
-    display: grid;
-    grid-template-columns: 1fr auto;
-    align-items: center;
-    row-gap: 4px;
-    column-gap: 8px;
-}
-.wj-debt-inv__name { font-size: 13.5px; font-weight: 700; color: var(--wj-debt-text); }
-.wj-debt-inv__badge { justify-self: end; }
-.wj-debt-inv__meta { font-size: 10.5px; font-weight: 400; color: var(--wj-debt-muted); }
-.wj-debt-inv__amount { justify-self: end; font-size: 13px; font-weight: 700; color: var(--wj-debt-text); }
-.wj-debt-inv--overdue .wj-debt-inv__amount { color: var(--wj-debt-danger); }
-.wj-debt-inv--paid .wj-debt-inv__amount { color: var(--wj-debt-success); }
+/* ---------- Card hoá đơn — anatomy dùng chung CMP-LC-001 (E5b2) ----------
+   Còn lại ở màn: MÀU của số tiền theo trạng thái chứng từ (quá hạn đỏ / đã trả xanh). */
+.wj-debt-inv--overdue .wj-lc__value--strong { color: var(--wj-debt-danger); }
+.wj-debt-inv--paid .wj-lc__value--strong { color: var(--wj-debt-success); }
 
 .wj-debt-note { margin: 0; text-align: center; font-size: 11px; font-weight: 400; color: var(--wj-debt-muted); }
 .wj-debt-note a { color: var(--wj-debt-muted); }
@@ -263,20 +237,6 @@
    do CMP-SH-001 lo (16/8), bỏ margin-top 12 riêng của C3 để debt tính nhịp y hệt mọi trang. */
 #wj-debt-hist-mbody { display: flex; flex-direction: column; gap: 12px; }
 
-.wj-debt-payments { display: flex; flex-direction: column; gap: 12px; }
-/* D5g — LAYOUT của họ thanh toán; dáng ở tầng .wj-data-item (variant detail-card). */
-.wj-data-list--detail-card .wj-debt-pay.wj-data-item {
-    display: grid;
-    grid-template-columns: 1fr auto;
-    align-content: center;
-    row-gap: 5px;
-    column-gap: 8px;
-}
-.wj-debt-pay__ref { font-size: 14px; font-weight: 700; color: var(--wj-debt-text); }
-.wj-debt-pay__badge { justify-self: end; }
-.wj-debt-pay__meta { grid-column: 1 / -1; font-size: 12px; font-weight: 400; color: var(--wj-debt-muted); }
-.wj-debt-pay__trace { font-size: 12px; font-weight: 400; color: var(--wj-debt-muted); }
-.wj-debt-pay__amount { justify-self: end; font-size: 16px; font-weight: 700; color: var(--wj-debt-text); }
 .wj-debt-total { margin: 0; text-align: right; font-size: 12px; font-weight: 400; color: var(--wj-debt-muted); }
 
 /* ---------- 07 — Số tiền / ngân hàng / nhắc (khối QR đã gỡ, WJ-DEBT-008) ---------- */
@@ -327,21 +287,9 @@
     white-space: nowrap;
 }
 .wj-debt-bank__value--holder { font-size: 11.5px; }
-.wj-debt-copy {
-    flex: 0 0 auto;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    width: 22px;
-    height: 22px;
-    padding: 0;
-    border: 0;
-    border-radius: 6px;
-    background: transparent;
-    color: var(--wujia-primary);
-    cursor: pointer;
-}
-.wj-debt-copy i { font-size: 14px; line-height: 1; }
+/* Hook: chỉ giữ chỗ đứng trong hàng + màu báo "đã chép". Dáng ở atom
+   `wj-iconbtn--sm` (22px cũ không đạt vùng chạm 44 mà BA nêu trong issue). */
+.wj-debt-copy { flex: 0 0 auto; }
 .wj-debt-copy.is-copied { color: var(--wj-debt-success); }
 /* Phản hồi copy (WJ-DEBT-005) — trống thì không chiếm chỗ, dùng chung mobile + PC. */
 .wj-debt-copy-msg { font-size: 12px; font-weight: 700; color: var(--wujia-success); }
@@ -507,22 +455,7 @@
 .wj-debt-pc-table th.text-end,
 .wj-debt-pc-table td.text-end { text-align: right; }
 .wj-debt-pc-td--paid { font-weight: 700; color: var(--wj-pc-green); }
-.wj-debt-pc-pdf {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    height: 32px;
-    padding: 0 12px;
-    border: 1px solid var(--wj-pc-border);
-    border-radius: 8px;
-    background: var(--wj-pc-card);
-    font-size: 13px;
-    font-weight: 600;
-    color: var(--wj-pc-muted);
-    cursor: pointer;
-}
-.wj-debt-pc-pdf:hover { border-color: var(--wj-pc-primary); color: var(--wj-pc-primary); }
-.wj-debt-pc-pdf i { font-size: 15px; }
+/* Nút PDF trong hàng bảng dùng atom `wj-btn--secondary --sm` (32/bo 8) từ E6b1. */
 
 /* ---------- Pagination footer ---------- */
 /* Chân bảng lịch sử thanh toán: dòng tổng của KỲ LỌC, hiện cả khi chỉ 1 trang nên
@@ -573,15 +506,8 @@
     max-width: calc(100vw - 48px);
     padding: 28px 32px;
 }
-.wj-debt-pc-modal__close {
-    position: absolute; top: 20px; right: 20px;
-    display: inline-flex; align-items: center; justify-content: center;
-    width: 34px; height: 34px; padding: 0;
-    border: 0; border-radius: 8px; background: transparent;
-    color: var(--wj-pc-muted); cursor: pointer;
-}
-.wj-debt-pc-modal__close:hover { background: var(--wj-pc-gray-soft); }
-.wj-debt-pc-modal__close i { font-size: 20px; }
+/* Hook: chỉ neo vị trí trong hộp thoại; dáng ở atom `wj-iconbtn--sm`. */
+.wj-debt-pc-modal__close { position: absolute; top: 20px; right: 20px; }
 .wj-debt-pc-modal__sub { margin: 0 0 16px; font-size: 14px; font-weight: 500; color: var(--wj-pc-muted); }
 .wj-debt-pc-modal__amount {
     display: flex; align-items: center; justify-content: space-between; gap: 16px;
@@ -606,15 +532,9 @@
     font-size: 14px; font-weight: 700; color: var(--wj-pc-text);
     overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
 }
-.wj-debt-pc-copy {
-    flex: 0 0 auto; display: inline-flex; align-items: center; justify-content: center;
-    width: 30px; height: 30px; padding: 0;
-    border: 1px solid var(--wj-pc-border); border-radius: 8px;
-    background: var(--wj-pc-card); color: var(--wj-pc-primary); cursor: pointer;
-}
-.wj-debt-pc-copy:hover { background: var(--wj-pc-primary-soft); }
+/* Hook: chỗ đứng trong hàng + màu báo "đã chép"; dáng ở atom `wj-iconbtn--sm`. */
+.wj-debt-pc-copy { flex: 0 0 auto; }
 .wj-debt-pc-copy.is-copied { color: var(--wj-pc-green); border-color: var(--wj-pc-green); }
-.wj-debt-pc-copy i { font-size: 15px; }
 
 .wj-debt-pc-modal__note {
     display: flex; flex-direction: column; gap: 4px;

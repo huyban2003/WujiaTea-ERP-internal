@@ -66,14 +66,19 @@ class TestF4InteractionCallSites(TransactionCase):
             (('wujia_portal_base', 'views', 'portal_home.xml'), 'wujia-kpi-card-link wj-state-surface', 4),
             (('wujia_portal_debt', 'views', 'portal_debt.xml'), 'wj-debt-pc-tab wj-state-surface', 2),
             (('wujia_portal_debt', 'views', 'portal_debt.xml'), 'wj-debt-actionrow wj-state-surface', 1),
-            (('wujia_portal_debt', 'views', 'portal_debt.xml'), 'wj-debt-pc-pdf wj-state-surface', 1),
+            # E6b1: nút PDF công nợ đã về `.wj-btn--secondary` — variant nằm sẵn trong
+            # danh sách bề mặt của _interaction.css nên không cần marker (tiền lệ E6a).
             (('wujia_portal_delivery', 'views', 'portal_delivery.xml'), 'wj-pc-dlv-chip wj-state-surface', 4),
             (('wujia_portal_knowledge', 'views', 'portal_knowledge.xml'), 'wujia-mknow-feat wj-state-surface', 1),
-            (('wujia_portal_exam', 'views', 'portal_exam.xml'), 'wj-exam-pc-navbtn wj-state-surface', 2),
-            (('wujia_portal_sale', 'views', 'pc_cart_panel.xml'), 'wj-state-surface', 3),
-            (('wujia_portal_sale', 'views', 'portal_order_cart.xml'), 'wj-state-surface', 3),
+            # E6c: 2 nút đổi tháng màn Thi về `.wj-iconbtn--secondary` (có sẵn trong danh sách bề mặt).
+            (('wujia_portal_exam', 'views', 'portal_exam.xml'), 'wj-state-surface', 0),
+            # E6b2: 3 -> 2. Nút xóa dòng giỏ đã về `.wj-iconbtn--ghost`; atom tự khai
+            # hover + nhấn (_components.css) nên không cần marker. Còn lại là nút bước.
+            (('wujia_portal_sale', 'views', 'pc_cart_panel.xml'), 'wj-state-surface', 2),
+            (('wujia_portal_sale', 'views', 'portal_order_cart.xml'), 'wj-state-surface', 2),
             (('wujia_portal_sale', 'views', 'portal_order_catalog.xml'), 'wj-state-surface', 4),
-            (('wujia_portal_return', 'views', 'portal_return_form.xml'), 'wujia-mreturn-btn-cancel wj-state-surface', 1),
+            # E6a: nút Hủy mobile của Đổi trả đã về `.wj-btn--secondary` — variant đó
+            # nằm thẳng trong danh sách bề mặt của _interaction.css nên không cần marker.
             (('wujia_portal_base', 'views', 'store_picker_navbar.xml'), 'wujia-store-mobile-strip--clickable wj-state-surface', 1),
         )
         for parts, needle, n in sites:

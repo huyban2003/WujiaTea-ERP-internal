@@ -258,7 +258,7 @@ def diff(a_path, b_path):
 
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument('--base', default='http://127.0.0.1:8019')
+    ap.add_argument('--base', default='http://127.0.0.1:8090')
     # KHÔNG có mặc định: chạy bằng admin cho 0 bề mặt portal mà vẫn báo "xong"
     # — bẫy "Pass rỗng" đã ghi ở luật D4 #3.
     ap.add_argument('--portal-login', help='BẮT BUỘC khi đo, ví dụ anh.owner')

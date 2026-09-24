@@ -12,7 +12,7 @@
             }.get(notice)"/>
             <t t-call="wujia_portal_base.wj_ajax_list_config">
                 <t t-set="wjl_path" t-value="'/portal/return'"/>
-                <t t-set="wjl_slots" t-value="'wj-ret-pc,wj-ret-mbody'"/>
+                <t t-set="wjl_slots" t-value="'wj-ret-pcerr,wj-ret-pc,wj-ret-merr,wj-ret-mbody'"/>
             </t>
 
             <!-- Desktop ≥992px — giữ nguyên, bọc d-none d-lg-block (S20) -->
@@ -33,45 +33,28 @@
 
                 <div t-if="not no_franchise" class="content-body">
                     <!-- Filter -->
-                    <div class="wj-surface-card wj-surface-card--section wj-surface-card--compact wj-surface-card--flush mb-2">
-                        <div class="wj-surface-card__body p-2">
-                            <form method="get" action="/portal/return" class="row g-2 align-items-center">
-                                <div class="col-md-3 col-12">
-                                    <label for="wj-ret-state-pc" class="small text-muted mb-1">Trạng thái</label>
-                                    <select id="wj-ret-state-pc" name="state" class="form-select form-select-sm">
-                                        <option value="" t-out="filter_all_label"/>
-                                        <t t-foreach="filter_options" t-as="opt">
-                                            <option t-att-value="opt[0]"
-                                                    t-att-selected="'selected' if state == opt[0] else None"
-                                                    t-out="opt[1]"/>
-                                        </t>
-                                    </select>
-                                </div>
-                                <!-- UAT-BH-005: PC trước đây thiếu ô từ khoá dù controller đã nhận `q`. -->
-                                <div class="col-md-3 col-12">
-                                    <label for="wj-ret-q-pc" class="small text-muted mb-1">Từ khoá</label>
-                                    <input id="wj-ret-q-pc" type="text" name="q"
-                                           class="form-control form-control-sm"
-                                           placeholder="Mã YC / mã đơn / sản phẩm"
-                                           t-att-value="q or ''"/>
-                                </div>
-                                <div class="col-md-2 col-6">
-                                    <label for="wj-ret-from-pc" class="small text-muted mb-1">Từ ngày</label>
-                                    <input id="wj-ret-from-pc" type="date" name="date_from" class="form-control form-control-sm" t-att-value="date_from"/>
-                                </div>
-                                <div class="col-md-2 col-6">
-                                    <label for="wj-ret-to-pc" class="small text-muted mb-1">Đến ngày</label>
-                                    <input id="wj-ret-to-pc" type="date" name="date_to" class="form-control form-control-sm" t-att-value="date_to"/>
-                                </div>
-                                <div class="col-md-2 col-12 text-end">
-                                    <label class="small text-muted mb-1 d-block">&#160;</label>
-                                    <button type="submit" class="btn btn-primary btn-sm">
-                                        <i class="fa fa-search"/> Lọc
-                                    </button>
-                                </div>
-                            </form>
-                        </div>
-                    </div>
+                    <t t-call="wujia_portal_layout.wj_filter_bar">
+                        <t t-set="fb_platform" t-value="'pc'"/>
+                        <t t-set="fb_action" t-value="'/portal/return'"/>
+                        <!-- UAT-BH-005: PC trước đây thiếu ô từ khoá dù controller đã nhận `q`. -->
+                        <t t-set="fb_search"
+                           t-value="{'name': 'q', 'value': q or '',
+                                     'placeholder': 'Mã YC / mã đơn / sản phẩm',
+                                     'label': 'Từ khoá'}"/>
+                        <t t-set="fb_dates"
+                           t-value="{'from': date_from, 'to': date_to}"/>
+                        <t t-set="fb_selects"
+                           t-value="[{'name': 'state', 'value': state,
+                                      'label': 'Trạng thái',
+                                      'all_label': filter_all_label,
+                                      'options': filter_options}]"/>
+                        <!-- Luôn render, rỗng thì `hidden`: JS thay khối theo id. -->
+                        <t t-set="fb_error">
+                            <p id="wj-ret-pcerr" class="wj-filter-error" role="alert"
+                               t-att-hidden="None if filter_error else 'hidden'"
+                               t-out="filter_error"/>
+                        </t>
+                    </t>
 
                     <!-- Vùng swap AJAX: bảng + pager (bộ lọc ngoài, JS đồng bộ theo URL). -->
                     <div id="wj-ret-pc">
@@ -126,7 +109,8 @@
                                         </t>
                                     </td>
                                     <td class="text-end">
-                                        <a t-attf-href="/portal/return/#{rr.id}" class="btn btn-sm btn-outline-primary">
+                                        <a t-attf-href="/portal/return/#{rr.id}" class="wj-iconbtn wj-iconbtn--sm wj-iconbtn--secondary"
+                                           aria-label="Xem yêu cầu" title="Xem yêu cầu">
                                             <i class="fa fa-eye"/>
                                         </a>
                                     </td>
@@ -162,37 +146,24 @@
 
                 <t t-else="">
                     <!-- Filter canonical 02-KeywordDateRange (Figma 4785:660) — q + dates wired sẵn -->
-                    <form method="get" action="/portal/return" class="wj-surface-card wj-surface-card--summary wj-surface-card--compact wj-surface-card--padded wj-filter-card">
-                        <div class="wj-filter-search">
-                            <div class="wj-filter-search-field">
-                                <i class="feather icon-search"/>
-                                <input type="text" name="q" placeholder="Mã YC / mã đơn / sản phẩm" t-att-value="q or ''"/>
-                            </div>
-                            <button type="submit" class="wj-filter-search-btn"><i class="feather icon-search"/></button>
-                        </div>
-                        <!-- UAT-BH-005: mobile trước đây thiếu lọc trạng thái. -->
-                        <select name="state" class="wj-filter-select"
-                                aria-label="Lọc theo trạng thái"
-                                onchange="this.form.submit()">
-                            <option value="" t-out="filter_all_label"/>
-                            <t t-foreach="filter_options" t-as="opt">
-                                <option t-att-value="opt[0]"
-                                        t-att-selected="'selected' if state == opt[0] else None"
-                                        t-out="opt[1]"/>
-                            </t>
-                        </select>
-                        <div class="wj-filter-dates">
-                            <label class="wj-filter-date">
-                                <i class="feather icon-calendar"/>
-                                <input type="date" name="date_from" t-att-value="date_from or ''"/>
-                            </label>
-                            <span class="wj-filter-date-sep">–</span>
-                            <label class="wj-filter-date">
-                                <i class="feather icon-calendar"/>
-                                <input type="date" name="date_to" t-att-value="date_to or ''"/>
-                            </label>
-                        </div>
-                    </form>
+                    <!-- UAT-BH-005: mobile trước đây thiếu lọc trạng thái. -->
+                    <t t-call="wujia_portal_layout.wj_filter_bar">
+                        <t t-set="fb_platform" t-value="'m'"/>
+                        <t t-set="fb_action" t-value="'/portal/return'"/>
+                        <t t-set="fb_search"
+                           t-value="{'name': 'q', 'value': q or '', 'placeholder': 'Mã YC / mã đơn / sản phẩm'}"/>
+                        <t t-set="fb_dates"
+                           t-value="{'from': date_from or '', 'to': date_to or ''}"/>
+                        <t t-set="fb_selects"
+                           t-value="[{'name': 'state', 'value': state, 'auto': True,
+                                      'label': 'Lọc theo trạng thái',
+                                      'all_label': filter_all_label, 'options': filter_options}]"/>
+                        <t t-set="fb_error">
+                            <p id="wj-ret-merr" class="wj-filter-error" role="alert"
+                               t-att-hidden="None if filter_error else 'hidden'"
+                               t-out="filter_error"/>
+                        </t>
+                    </t>
 
                     <div id="wj-ret-mbody" class="wj-ajax-slot">
                     <!-- Empty: chưa có YC nào (no-data thật) -->
@@ -202,7 +173,7 @@
                             <p class="wj-empty-state-title">Không có yêu cầu</p>
                             <p class="wj-empty-state-sub">Cửa hàng chưa gửi yêu cầu đổi trả nào.</p>
                             <p class="wj-empty-state-sub">Yêu cầu mới sẽ xuất hiện tại đây khi được tạo.</p>
-                            <a href="/portal/return/new" class="wj-empty-state-btn">
+                            <a href="/portal/return/new" class="wj-btn wj-btn--primary">
                                 <i class="feather icon-plus"/> Tạo yêu cầu mới
                             </a>
                         </div>
@@ -223,7 +194,7 @@
                             <p class="wj-empty-state-title">Không tìm thấy kết quả</p>
                             <p class="wj-empty-state-sub">Không có yêu cầu khớp bộ lọc hiện tại.</p>
                             <p class="wj-empty-state-sub">Thử đổi từ khóa hoặc xóa điều kiện tìm kiếm.</p>
-                            <a href="/portal/return" class="wj-empty-state-btn">Xóa lọc</a>
+                            <a href="/portal/return" class="wj-btn wj-btn--secondary">Xóa lọc</a>
                         </div>
 
                         <!-- Danh sách yêu cầu (ReturnCard) -->
@@ -232,41 +203,42 @@
                             <t t-set="dl_variant" t-value="'detail-card'"/>
                             <t t-set="dl_class" t-value="'wujia-mreturn-list'"/>
                             <a t-foreach="returns" t-as="rr" t-attf-href="/portal/return/#{rr.id}"
-                               class="wujia-mreturn-row wj-data-item">
-                                <span class="wujia-mreturn-row-body">
-                                    <!-- BH-008: dòng đầu CHỈ mã phiếu + trạng thái phê duyệt.
-                                         Tiến độ bù tách xuống dòng riêng bên dưới, có nhãn,
-                                         để hai trạng thái khác nghĩa không đứng lẫn nhau. -->
-                                    <span class="wujia-mreturn-row-head">
-                                        <span class="wujia-mreturn-row-code" t-out="rr.name"/>
-                                        <span class="wujia-mreturn-row-badges">
-                                            <t t-set="lbl" t-value="wj_state_label(rr)"/>
-                                            <span t-attf-class="wj-status-badge #{lbl[1]}" t-out="lbl[0]"/>
-                                        </span>
-                                    </span>
-                                    <t t-if="rr.resolution_type == 'compensation'">
-                                        <t t-set="clbl" t-value="comp_status_labels.get(rr.compensation_status, ('', 'wujia-badge-muted'))"/>
-                                        <span t-if="clbl[0]" class="wujia-mreturn-row-progress">
-                                            <span class="lbl">Tiến độ bù</span>
-                                            <span t-attf-class="wj-status-badge #{clbl[1]}" t-out="clbl[0]"/>
-                                        </span>
+                               class="wj-data-item wj-lc">
+                                <t t-call="wujia_portal_layout.wj_list_card">
+                                    <t t-set="lc_name" t-value="rr.name"/>
+                                    <t t-set="lc_state">
+                                        <t t-set="lbl" t-value="wj_state_label(rr)"/>
+                                        <span t-attf-class="wj-status-badge wj-status-badge--compact #{lbl[1]}" t-out="lbl[0]"/>
                                     </t>
-                                    <span class="wujia-mreturn-row-product"
-                                          t-out="rr.product_id.display_name or rr.issue_type_id.name or '—'"/>
-                                    <span class="wujia-mreturn-row-divider"/>
-                                    <span class="wujia-mreturn-row-meta">
-                                        <span class="wujia-mreturn-row-metacell">
-                                            <span class="lbl">Đơn gốc</span>
-                                            <span class="val" t-out="rr.sale_order_id.name or '—'"/>
-                                        </span>
-                                        <span class="wujia-mreturn-row-metacell">
-                                            <span class="lbl">Ngày YC</span>
-                                            <span class="val"
-                                                  t-out="wj_dt(rr.request_date, '%d/%m') or '—'"/>
-                                        </span>
-                                    </span>
-                                </span>
-                                <i class="feather icon-chevron-right wujia-mreturn-row-chevron"/>
+                                    <t t-set="lc_rows">
+                                        <t t-if="rr.resolution_type == 'compensation'">
+                                            <t t-set="clbl" t-value="comp_status_labels.get(rr.compensation_status, ('', 'wujia-badge-muted'))"/>
+                                            <t t-if="clbl[0]" t-call="wujia_portal_layout.wj_list_card_row">
+                                                <t t-set="lcr_label">Tiến độ bù</t>
+                                                <t t-set="lcr_value">
+                                                    <span t-attf-class="wj-status-badge wj-status-badge--compact #{clbl[1]}" t-out="clbl[0]"/>
+                                                </t>
+                                            </t>
+                                        </t>
+                                        <t t-call="wujia_portal_layout.wj_list_card_row">
+                                            <t t-set="lcr_full" t-value="True"/>
+                                            <t t-set="lcr_class" t-value="'wj-lc__row--clamp2'"/>
+                                            <t t-set="lcr_value"
+                                               t-value="rr.product_id.display_name or rr.issue_type_id.name or '—'"/>
+                                        </t>
+                                        <t t-call="wujia_portal_layout.wj_list_card_row">
+                                            <t t-set="lcr_class" t-value="'wj-lc__row--inline'"/>
+                                            <t t-set="lcr_label">Đơn gốc</t>
+                                            <t t-set="lcr_value" t-value="rr.sale_order_id.name or '—'"/>
+                                        </t>
+                                        <t t-call="wujia_portal_layout.wj_list_card_row">
+                                            <t t-set="lcr_class" t-value="'wj-lc__row--inline'"/>
+                                            <t t-set="lcr_label">Ngày yêu cầu</t>
+                                            <t t-set="lcr_value"
+                                               t-value="wj_dt(rr.request_date, '%d/%m/%Y') or '—'"/>
+                                        </t>
+                                    </t>
+                                </t>
                             </a>
                         </t>
                         </t>

@@ -11,6 +11,7 @@ from odoo.addons.wujia_portal_base.controllers.portal import (
 )
 from odoo.addons.wujia_portal_base.controllers.utils import (
     build_pager,
+    date_range_error,
     fmt_local_dt,
     local_day_range_utc,
     portal_tz,
@@ -27,7 +28,6 @@ ERROR_MESSAGES = {
     'SESSION_EXPIRED': 'Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.',
     'STORE_NOT_SELECTED': 'Vui lòng chọn cửa hàng trước khi thao tác.',
     'STORE_ACCESS_DENIED': 'Bạn không có quyền thao tác với cửa hàng này.',
-    'INVALID_DATE_RANGE': 'Từ ngày không được lớn hơn đến ngày.',
     'INVALID_FILTER': 'Bộ lọc không hợp lệ. Vui lòng kiểm tra lại.',
     'INVALID_PAGE_SIZE': 'Số lượng bản ghi mỗi trang không hợp lệ.',
     'ANNOUNCEMENT_NOT_AVAILABLE': 'Thông báo không tồn tại, đã bị thu hồi hoặc bạn không có quyền xem.',
@@ -143,6 +143,35 @@ class WujiaPortalNotification(http.Controller):
         read = request.env['wujia.notification.read'].sudo().search_count(dom)
         return max(0, total_eff - read)
 
+    def _empty_list_values(self, date_from, date_to, filter_error, keyword, tab,
+                           read_status, priority, type_id, limit):
+        """Ctx danh sách rỗng — dùng khi bộ lọc không hợp lệ nên không chạy query."""
+        lim = _parse_int(limit) or PAGE_SIZE
+        if lim not in ALLOWED_LIMITS:
+            lim = PAGE_SIZE
+        if read_status not in ('all', 'read', 'unread'):
+            read_status = 'all'
+        return {
+            'notifications': request.env['wujia.notification'].browse(),
+            'read_ids': [],
+            'types': request.env['wujia.notification.type'].sudo().search(
+                [('active', '=', True)], order='sequence'),
+            'pgn': build_pager(0, 1, lim, path='/portal/notification',
+                               item_label='thông báo',
+                               page_size_options=ALLOWED_LIMITS,
+                               size_param='limit'),
+            'type_id': _parse_int(type_id), 'keyword': keyword, 'tab': tab,
+            'total': 0,
+            'cnt_unread': self._unread_count(get_active_franchise_ids_filter(),
+                                             get_active_franchise_id()),
+            'unread': '1' if read_status == 'unread' else '',
+            'read_status': read_status, 'filter_error': filter_error,
+            'date_from': date_from, 'date_to': date_to, 'priority': priority,
+            'page_size': lim,
+            'PC_TYPE_TONE': PC_TYPE_TONE, 'PC_PRIORITY_TAGS': PC_PRIORITY_TAGS,
+            'wj_dt': fmt_local_dt,
+        }
+
     def _notification_list_values(self, page=1, type_id=None, keyword='',
                                   tab='recent', unread=None, read_status=None,
                                   date_from='', date_to='', priority='',
@@ -159,12 +188,15 @@ class WujiaPortalNotification(http.Controller):
         # List = lịch sử (gồm cả hết hiệu lực); badge "Đã hết hiệu lực" phân biệt.
         domain = _history_domain(franchise_ids)
 
-        # Lọc theo ngày gửi + validate date_from <= date_to.
+        # Lọc theo ngày gửi. Ngày ngược: KHÔNG bỏ lọc rồi chạy tiếp — làm vậy màn
+        # trả về TOÀN BỘ thông báo, khác hẳn khoảng người dùng đang thấy trong ô.
+        # Chặn query, giữ chữ đã gõ, báo tại thanh lọc (chuẩn chung E4c).
         df, dt = _parse_date(date_from), _parse_date(date_to)
-        date_error = ''
-        if df and dt and df > dt:
-            date_error = ERROR_MESSAGES['INVALID_DATE_RANGE']
-            df = dt = None
+        filter_error = date_range_error(df, dt)
+        if filter_error:
+            return self._empty_list_values(date_from, date_to, filter_error,
+                                           keyword, tab, read_status, priority,
+                                           type_id, limit)
         # Ngày người dùng chọn là giờ địa phương, cột published_date là UTC (WJ-NOTI-001).
         utc_from, utc_to = local_day_range_utc(df, dt, portal_tz())
         if utc_from:
@@ -222,7 +254,7 @@ class WujiaPortalNotification(http.Controller):
             'type_id': tid, 'keyword': keyword, 'tab': tab,
             'total': total, 'cnt_unread': cnt_unread,
             'unread': '1' if read_status == 'unread' else '',
-            'read_status': read_status, 'date_error': date_error,
+            'read_status': read_status, 'filter_error': '',
             'date_from': date_from, 'date_to': date_to, 'priority': priority,
             'page_size': lim,
             'PC_TYPE_TONE': PC_TYPE_TONE, 'PC_PRIORITY_TAGS': PC_PRIORITY_TAGS,

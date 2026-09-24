@@ -1,0 +1,66 @@
+"""E4c — Thông báo: khoảng ngày ngược phải nói ra, không im lặng trả rỗng.
+
+Chạy: `--test-tags wujia_filter_e4c`.
+"""
+import re
+
+from odoo.tests import tagged
+from odoo.tests.common import HttpCase
+
+from odoo.addons.wujia_portal_base.controllers.utils import ERR_DATE_RANGE
+
+REVERSED = '?date_from=2026-09-30&date_to=2026-09-01'
+
+
+@tagged('post_install', '-at_install', 'wujia_filter_e4c')
+class TestNotificationFilterDatesE4c(HttpCase):
+
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        env = cls.env
+        cls.franchise = env['wujia.franchise.management'].create({
+            'code': 'E4CN', 'name': 'E4CN store',
+            'franchise_end_date': '2030-01-01',
+            'partner_id': env['res.partner'].create({'name': 'E4CN partner'}).id,
+        })
+        cls.user = env['res.users'].create({
+            'name': 'e4c_noti', 'login': 'e4c_noti', 'password': 'e4c_noti',
+            'group_ids': [(6, 0, [env.ref('base.group_portal').id])],
+        })
+        env['wujia.franchise.member'].create({
+            'user_id': cls.user.id, 'franchise_id': cls.franchise.id,
+            'role': 'owner',
+        })
+
+    def _get(self, url):
+        self.authenticate('e4c_noti', 'e4c_noti')
+        res = self.url_open(url, timeout=30)
+        self.assertEqual(res.status_code, 200)
+        return res.text
+
+    @staticmethod
+    def _tag(html, eid):
+        return re.search(r'<p id="%s"[^>]*>' % eid, html)
+
+    def test_ngay_nguoc_bao_ngay_tai_thanh_loc(self):
+        """Không chặn thì domain vô nghiệm ⇒ empty state, người dùng tưởng hết dữ liệu."""
+        html = self._get('/portal/notification' + REVERSED)
+        self.assertIn(ERR_DATE_RANGE, html)
+        tag = self._tag(html, 'wj-noti-pcerr')
+        self.assertTrue(tag, 'thiếu ô báo lỗi wj-noti-pcerr')
+        self.assertNotIn('hidden', tag.group(0))
+
+    def test_giu_nguyen_chu_da_go(self):
+        html = self._get('/portal/notification' + REVERSED)
+        self.assertIn('value="2026-09-30"', html)
+        self.assertIn('value="2026-09-01"', html)
+
+    def test_khong_loi_thi_o_bao_van_ton_tai_nhung_an(self):
+        """Mất phần tử là JS thay khối hụt id ⇒ cả màn rơi về tải lại trang."""
+        html = self._get('/portal/notification')
+        self.assertNotIn(ERR_DATE_RANGE, html)
+        for eid in ('wj-noti-pcerr', 'wj-noti-merr'):
+            tag = self._tag(html, eid)
+            self.assertTrue(tag, 'thiếu ô báo lỗi %s' % eid)
+            self.assertIn('hidden', tag.group(0))

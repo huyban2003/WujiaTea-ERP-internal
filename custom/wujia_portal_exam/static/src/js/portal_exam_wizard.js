@@ -24,6 +24,14 @@
           .then(function (j) { return j.result || {}; });
     }
 
+    /* Loading của atom Button: giữ bề rộng, khoá bấm lặp khi request chưa về. */
+    function setBusy(btn, on) {
+        if (!btn) { return; }
+        btn.disabled = on;
+        btn.classList.toggle('is-loading', on);
+        btn.setAttribute('aria-busy', on ? 'true' : 'false');
+    }
+
     function init() {
         var wizard = document.querySelector('.wujia-mexam-wizard');
         if (!wizard) { return; }
@@ -335,10 +343,9 @@
 
         function chooseCourse(card) {
             courseId = parseInt(card.getAttribute('data-exam-course-id'), 10) || 0;
-            // Tiêu đề khoá thi + tên khoá trên thẻ "đã chọn" nay do wj_card_header
-            // dựng (D3d) ⇒ bám class component, KHÔNG bám class cũ.
-            var titleEl = card.querySelector('.wj-card-header__title');
-            var metaEl = card.querySelector('.wujia-mexam-course-meta');
+            // E5b2: tên khoá nằm ở đầu ListCard; thẻ "đã chọn" vẫn là wj_card_header.
+            var titleEl = card.querySelector('.wj-lc__name');
+            var metaEl = card.querySelector('.js-exam-course-meta .wj-lc__value');
             courseName = titleEl ? titleEl.textContent.trim() : '';
             wizard.querySelectorAll('.wujia-mexam-selcard .wj-card-header__title').forEach(function (el) {
                 el.textContent = courseName;
@@ -358,7 +365,7 @@
         wizard.addEventListener('click', function (ev) {
             var t = ev.target;
 
-            var courseChoose = t.closest('.wujia-mexam-course-choose');
+            var courseChoose = t.closest('[data-exam-choose]');
             if (courseChoose) {
                 ev.preventDefault();
                 var card = courseChoose.closest('.wujia-mexam-course');
@@ -483,8 +490,7 @@
                     showStep(3);
                     return;
                 }
-                submit.disabled = true;
-                submit.textContent = 'Đang gửi…';
+                setBusy(submit, true);
                 jsonRpc('/portal/exam/register', {
                     session_id: chosen.sessionId,
                     participants: participants,
@@ -493,13 +499,11 @@
                         window.location = res.redirect;
                         return;
                     }
-                    submit.disabled = false;
-                    submit.textContent = 'Xác nhận đăng ký';
+                    setBusy(submit, false);
                     showSubmitErr((res && res.message) ||
                         'Không gửi được yêu cầu. Vui lòng thử lại.');
                 }).catch(function () {
-                    submit.disabled = false;
-                    submit.textContent = 'Xác nhận đăng ký';
+                    setBusy(submit, false);
                     showSubmitErr('Có lỗi kết nối. Vui lòng thử lại.');
                 });
                 return;

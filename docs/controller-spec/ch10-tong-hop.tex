@@ -1,0 +1,436 @@
+\chapter{Tổng hợp --- thứ BA cần để lên task}
+
+Chương này gom lại toàn bộ kết luận của 9 chương trước thành bốn bảng tra:
+
+\begin{enumerate}[leftmargin=*]
+  \item \textbf{Đối chiếu CT-001…CT-071} --- cập nhật sau khi soi sâu, nói rõ ``một phần'' là
+        thiếu đúng luật nào.
+  \item \textbf{Code có nhưng tab CT chưa mô tả} --- để BA bổ sung.
+  \item \textbf{Toàn bộ điểm cần BA xác nhận} --- gom từ mục 7 của mọi màn, có số trang để lật
+        lại.
+  \item \textbf{Việc BA KHÔNG cần lên task} --- phần dev tự chuẩn hoá, và phần chỉ đổi chỗ mã
+        nguồn chứ không đổi đường dẫn.
+\end{enumerate}
+
+\section{Ba đính chính so với bản tài liệu 19/09}
+
+Bản kiểm kê 20 trang ngày 19/09 có ba chỗ nay đã lạc hậu hoặc cần nói lại cho đúng:
+
+\begin{enumerate}[leftmargin=*]
+  \item \textbf{``Công nợ chưa nối hoá đơn kế toán'' --- không còn đúng.} Màn Công nợ
+        \textbf{đang đọc hoá đơn thật} (\rt{account.move} đã vào sổ, loại hoá đơn bán và giảm
+        giá) và \textbf{phiếu thu thật} (\rt{account.payment}). Điều cần chốt bây giờ không
+        phải ``nối dữ liệu'' mà là \textbf{cách tính kỳ và cách quy đổi tiền} --- xem chương 6.
+  \item \textbf{``Chưa dùng chung một hàm tải tệp'' --- đúng một nửa.} Hỗ trợ và Yêu cầu thông
+        tin \textbf{đã} dùng chung một hàm (đếm tệp, giới hạn dung lượng, danh sách định dạng).
+        Đổi trả dùng hàm riêng \textbf{chặt hơn} (đọc nội dung thật của tệp). Khắc phục khảo
+        sát \textbf{không kiểm gì}. Vậy là ba mức khác nhau, không phải một.
+  \item \textbf{Số đường dẫn: 104, không phải 103.} Máy đếm lại theo cấu trúc mã nguồn cho ra
+        \textbf{104 đường dẫn} thuộc 16 mô-đun; trong đó \textbf{2 đường dẫn có hai hàm} (một
+        hàm mở màn, một hàm nhận dữ liệu gửi lên): \rt{/portal/exam/register} và
+        \rt{/portal/support/new}. Tài liệu này mô tả đủ \textbf{104/104}.
+\end{enumerate}
+
+\section{Đối chiếu CT-001…CT-071 --- bản cập nhật}
+
+Cột \emph{Đọc ở} chỉ chương mô tả chi tiết. Cột \emph{Điều chỉnh sau khi soi sâu} chỉ ghi ở
+những mục có thay đổi so với bản 19/09; để trống nghĩa là kết luận cũ vẫn đúng.
+
+{\footnotesize
+\begin{longtable}{@{}L{1.4cm}L{3.4cm}L{1.6cm}L{1.4cm}L{6.8cm}@{}}
+\rowcolor{hdrbg}\textbf{Mục CT} & \textbf{Tên} & \textbf{Trạng thái} & \textbf{Đọc ở} &
+\textbf{Điều chỉnh sau khi soi sâu}\\ \midrule \endfirsthead
+\rowcolor{hdrbg}\textbf{Mục CT} & \textbf{Tên} & \textbf{Trạng thái} & \textbf{Đọc ở} &
+\textbf{Điều chỉnh sau khi soi sâu}\\ \midrule \endhead
+CT-001 & Đăng nhập portal & \ok & ch.4 & Màn đăng nhập \textbf{chưa chặn thử mật khẩu hàng loạt}, trong khi màn Quên mật khẩu có chặn. \\
+CT-002 & Xác định user hiện tại & \ok & ch.4 & \\
+CT-003 & Chọn cửa hàng làm việc & \ok & ch.4 & Lưu bằng \textbf{cookie 30 ngày}; \textbf{đăng xuất không xoá} --- máy dùng chung ở cửa hàng giữ nguyên lựa chọn cho người sau. \\
+CT-004 & Lấy cửa hàng hiện tại & \ok & ch.4 & Có \textbf{bốn cách hiểu} ``cửa hàng đang xem'' trong portal --- xem mục \ref{sec:pham-vi}. \\
+CT-005 & Hiển thị thông tin tài khoản & \ok & ch.4 & \\
+CT-006 & Cập nhật thông tin tài khoản & \ok & ch.4 & Sửa email ở đây \textbf{không} đổi email đăng nhập. \\
+CT-007 & Đổi mật khẩu & \ok & ch.4 & \textbf{Không} đăng xuất thiết bị khác; luật mật khẩu lệch nhẹ với màn Đặt lại. \\
+CT-008 & Thông tin cửa hàng & \ok & ch.4 & Đang có \textbf{hai bộ màn song song} cho cùng nội dung (bộ Vuexy và bộ giao diện Odoo chuẩn). \\
+CT-009 & Danh sách thành viên & \ok & ch.4 & Xác nhận: Nhân viên \textbf{xem được} đủ danh sách đồng nghiệp kèm điện thoại. \\
+CT-010 & Dữ liệu tổng quan Home & \ok & ch.4 & \textbf{Chưa chọn cửa hàng thì các số là tổng mọi cửa hàng} --- không phải rỗng. \\
+CT-011 & Thông báo mới nhất ở Home & \ok & ch.4/7 & Thẻ đếm chưa đọc ở Home \textbf{tính khác} màn Thông báo. \\
+CT-012 & Đơn hàng gần đây & \ok & ch.4 & Mọi khối danh sách Home \textbf{cố định 2 dòng}. \\
+CT-013 & Yêu cầu đổi trả gần đây & \ok & ch.4 & Thẻ đếm \textbf{bỏ sót trạng thái Đang xét}. \\
+CT-014 & Công nợ tóm tắt & \ok & ch.4/6 & \textbf{Đính chính}: có đọc kế toán thật. Nhưng Home dùng \textbf{ô tổng lưu sẵn, tiền công ty, mọi thời điểm}, còn màn Công nợ tính \textbf{tiền gốc chứng từ, một tuần} --- hai số khác nhau. \\
+CT-015 & Danh sách sản phẩm & \ok & ch.3 & Điều kiện đúng như BA nêu: cờ hiện trên portal + còn hiệu lực. \\
+CT-016 & Danh mục sản phẩm & \ok & ch.3 & Dùng bảng danh mục riêng; sản phẩm \textbf{chưa gán danh mục vẫn hiện} ở ``Tất cả''. \\
+CT-017 & Chi tiết sản phẩm & \ok & ch.3 & Khối ``sản phẩm liên quan'' dựa hoàn toàn vào danh mục portal. \\
+CT-018 & Kiểm tra điều kiện đặt & \ok & ch.3 & UAT \textbf{chưa sản phẩm nào đặt trần tối đa}. \\
+CT-019 & Khung giờ đặt hàng chung & \ok & ch.3 & Giờ tính theo \textbf{múi giờ tài khoản}, không theo khu vực cửa hàng. \\
+CT-020 & Khung giờ theo khu vực & \ok & ch.3 & Khu vực Hà Nội (3/4 cửa hàng UAT) \textbf{chưa có khung riêng}. \\
+CT-021 & Lưu giỏ hàng & \ok & ch.3 & Giỏ dùng chung cả cửa hàng; \textbf{không có lịch sử}, người sau đè người trước. \\
+CT-022 & Tạo đơn hàng xuống Odoo & \ok & ch.3 & Gửi đơn lần hai trong ngày \textbf{huỷ đơn nháp cũ một cách im lặng}. \\
+CT-023 & Trả kết quả đặt hàng & \ok & ch.3 & Máy tính và điện thoại kết thúc ở \textbf{hai màn khác nhau}. \\
+CT-024 & Danh sách đơn hàng & \ok & ch.5 & Đơn \textbf{Đã huỷ bị giấu hoàn toàn} (UAT: 16/47 đơn). \\
+CT-025 & Chi tiết đơn hàng & \ok & ch.5 & Không hiện lịch sử thay đổi của đơn. \\
+CT-026 & Danh sách chuyến giao & \ok & ch.5 & Chuyến \textbf{chưa đặt lịch} biến mất khi lọc theo ngày. \\
+CT-027 & Chi tiết giao hàng & \ok & ch.5 & Điều kiện xem chi tiết \textbf{hẹp hơn} điều kiện hiện ở danh sách. \\
+CT-028 & Theo dõi trạng thái giao & \ok & ch.5 & Hai bước cuối của thanh tiến trình \textbf{chưa có giờ thật}. \\
+CT-029 & Tạo yêu cầu đổi trả & \ok & ch.6 & \\
+CT-030 & DS đơn được đổi trả & \ok & ch.6 & \textbf{UAT hiện 0 đơn lọt cửa sổ 10 ngày} --- không ai tạo được yêu cầu. Mốc tính từ \emph{ngày đặt}, không phải ngày nhận hàng. \\
+CT-031 & Lịch sử yêu cầu đổi trả & \ok & ch.6 & Gộp mọi cửa hàng, \textbf{không có cột và bộ lọc cửa hàng}. \\
+CT-032 & Chi tiết yêu cầu đổi trả & \ok & ch.6 & Xác nhận lại: một sản phẩm mỗi yêu cầu. Thêm: \textbf{video tải lên không bao giờ hiện lại}. \\
+CT-033 & Danh sách lịch thi & \ok & ch.8 & \textbf{UAT không kỳ thi nào đăng ký được} (hai kỳ mở đều đã qua ngày thi). \\
+CT-034 & Đăng ký thi & \ok & ch.8 & Phiếu \textbf{chờ duyệt đã chiếm ghế}; người dự thi gõ tay, không nối danh sách nhân sự. \\
+CT-035 & Lịch sử đăng ký & \ok & ch.8 & Chỉ thấy \textbf{cửa hàng đang chọn}. \\
+CT-036 & Kết quả thi & \ok & ch.8 & \\
+CT-037 & Danh sách bài viết & \ok & ch.7 & Kiến thức \textbf{không phân biệt cửa hàng và vai trò}. \\
+CT-038 & Danh mục / thẻ bài viết & \ok & ch.7 & UAT có \textbf{danh mục trùng tên} (Vận hành, Sản phẩm mỗi cái hai bản ghi). \\
+CT-039 & Chi tiết bài viết & \ok & ch.7 & Bài hết hạn \textbf{chỉ rụng khi tác vụ nền chạy} (hằng ngày). \\
+CT-040 & Ghi lượt xem / đã đọc & \pt & ch.7 & Vẫn đúng: có đếm lượt xem, \textbf{không} ghi ai đã đọc. Thêm: lượt xem \textbf{không chống bấm lặp}. \\
+CT-041 & Danh sách thông báo & \ok & ch.7 & UAT \textbf{chưa có thông báo gửi đích danh cửa hàng} nào đang phát hành. \\
+CT-042 & Thông báo trên chuông & \ok & ch.7 & Chuông \textbf{cố định 5 dòng}; bỏ thông báo hết hiệu lực, khác màn danh sách. \\
+CT-043 & Đánh dấu đã đọc & \ok & ch.7 & Ghi theo \textbf{người + thông báo + cửa hàng}: đọc ở cửa hàng A rồi sang B lại thành chưa đọc. UAT có \uat{6} dấu cũ chưa gắn cửa hàng. \\
+CT-044 & Chi tiết thông báo & \ok & ch.7 & Mở khi \textbf{chưa chọn cửa hàng} thì không được tính là đã đọc. \\
+CT-045 & Tạo ticket hỗ trợ & \ok & ch.7 & Gửi xong \textbf{không ai được báo}. \\
+CT-046 & Danh sách ticket & \ok & ch.7 & Xác nhận lại: lọc theo \textbf{người tạo}. Thêm số thật: UAT có \uat{15} phiếu, \uat{0} do tài khoản cửa hàng tạo. \\
+CT-047 & Chi tiết ticket & \ok & ch.7 & Phiếu \textbf{Đã huỷ} bị giấu ở danh sách nhưng chi tiết \textbf{vẫn mở được}. \\
+CT-048 & Gửi phản hồi trong ticket & \ok & ch.7 & Trả lời \textbf{không đổi trạng thái} phiếu; phiếu đã đóng vẫn nhận lời nhắn. \\
+CT-049 & Lịch sử trao đổi ticket & \ok & ch.7 & Portal hiện \textbf{mọi lời nhắn} --- nhân sự Ngô Gia phải dùng đúng ô ghi chú nội bộ nếu muốn giấu. \\
+CT-050 & Tổng quan công nợ & \ok & ch.6 & \textbf{Đính chính} như CT-014. Thêm: vai trò xét \textbf{tại cửa hàng đang chọn}; chưa chọn cửa hàng thì cổng vai trò không chạy. \\
+CT-051 & Danh sách hoá đơn công nợ & \ok & ch.6 & Trạng thái \emph{Dư có} \textbf{đè lên} \emph{Có quá hạn}, làm mất nút thanh toán. \\
+CT-052 & Lọc theo kỳ công nợ & \ok & ch.6 & Dropdown \textbf{chỉ 6 tuần} --- hoá đơn cũ hơn vĩnh viễn không chọn được. Hạn thanh toán do portal tự tính (thứ Hai + 10 ngày), \textbf{không} đọc hạn của hoá đơn. \\
+CT-053 & Tải PDF công nợ & \no & ch.6 & Vẫn chưa có. \\
+CT-054 & Lịch sử thanh toán & \ok & ch.6 & Tổng \textbf{tách theo loại tiền, không quy đổi}; kỳ mở sẵn là tháng hiện tại, trên UAT tháng đó rỗng. \\
+CT-055 & QR thanh toán & \pt & ch.6 & Vẫn treo ảnh QR. Thêm: nội dung chuyển khoản \textbf{làm tròn xuống số nguyên}. \\
+CT-056 & Danh sách báo cáo portal & \no & ch.5 & Vẫn chỉ có một báo cáo. \\
+CT-057 & Dữ liệu báo cáo theo bộ lọc & \ok & ch.5 & Thẻ \emph{Đơn hoàn thành} \textbf{luôn bằng 0}; bộ lọc ngày \textbf{không quy đổi múi giờ}; biểu đồ luôn nới ra 12 tháng. \\
+CT-058 & Export báo cáo & \ok & ch.5 & Tệp Excel \textbf{chứa cả đơn đã huỷ}, màn hình thì không --- hai bên không khớp. \\
+CT-059 & Danh sách nhân viên cửa hàng & \ok & ch.4 & Sắp xếp theo vai trò đang là thứ tự chữ cái của mã trạng thái. \\
+CT-060 & Tạo/cập nhật nhân viên & \pt & ch.7 & Vẫn đi qua yêu cầu cập nhật thông tin. Thêm hai điều: \textbf{duyệt yêu cầu KHÔNG tự sửa hồ sơ cửa hàng}, và UAT có \uat{0} yêu cầu --- phân hệ chưa từng dùng. \\
+CT-061 & Danh sách ca làm & \no & --- & Chưa có dòng mã nào. \\
+CT-062 & Đăng ký lịch / ca làm & \no & --- & Chưa có dòng mã nào. \\
+CT-063 & Lấy lịch làm việc & \no & --- & Chưa có dòng mã nào. \\
+CT-064 & Ghi nhận chấm công & \no & ch.9 & Chưa có trên portal. Có điểm danh \textbf{trong phiếu khảo sát} --- khác nghiệp vụ, và thao tác đó \textbf{sửa được hồ sơ nhân sự cửa hàng}. \\
+CT-065 & Tạo yêu cầu nghỉ phép & \no & --- & Chưa có dòng mã nào. \\
+CT-066 & Ghi nhận chi phí phát sinh & \no & --- & Chưa có dòng mã nào. \\
+CT-067 & Lịch sử chi phí phát sinh & \no & --- & Chưa có dòng mã nào. \\
+CT-068 & Upload file / ảnh & \pt & ch.6/7/9 & \textbf{Đính chính}: hiện là \textbf{ba mức} --- Đổi trả đọc nội dung thật của tệp; Hỗ trợ và Yêu cầu thông tin dùng chung một hàm, chỉ tin lời khai của trình duyệt; Khắc phục khảo sát \textbf{không kiểm gì}. \\
+CT-069 & Lấy cấu hình portal & \pt & ch.4 & Vẫn vậy. Portal đang bật \uat{3} ngôn ngữ. \\
+CT-070 & Kiểm tra quyền menu & \pt & ch.4 & Vẫn vậy. Thêm: \textbf{ba phân hệ chặn vai trò theo ba cách khác nhau} --- xem mục \ref{sec:vai-tro}. \\
+CT-071 & Trả thông báo lỗi chuẩn & \pt & mọi ch. & Vẫn chưa thống nhất. Cụ thể: \textbf{sáu màn} chặn ngày ngược và báo tại thanh lọc, \textbf{một màn} lặng lẽ đảo ngày, \textbf{một màn} trả về rỗng không nói gì. \\
+\end{longtable}}
+
+\textbf{Tổng kết: \ok{} 56 mục · \pt{} 6 mục · \no{} 9 mục} --- giữ nguyên như bản 19/09; phần
+soi sâu không làm mục nào đổi trạng thái, chỉ nói rõ hơn nội dung.
+
+\section{Code đã có nhưng tab CT chưa mô tả}
+
+Phần ngược lại: mã nguồn có, spec chưa có mục nào. BA cân nhắc bổ sung vào tab
+\textit{3. Controller} để sau này không ai tưởng là thiếu.
+
+{\footnotesize
+\begin{longtable}{@{}L{5.6cm}L{9.4cm}@{}}
+\rowcolor{hdrbg}\textbf{Đường dẫn / nhóm} & \textbf{Vì sao nên có mục CT}\\ \midrule \endfirsthead
+\rowcolor{hdrbg}\textbf{Đường dẫn / nhóm} & \textbf{Vì sao nên có mục CT}\\ \midrule \endhead
+\rt{/portal/forgot-pass} · \rt{/portal/reset_password} & Quên và đặt lại mật khẩu --- nghiệp vụ thật, 1.500 tài khoản chắc chắn cần. \\
+\rt{/portal/set-lang/<mã>} & Đổi ngôn ngữ; portal đang bật 3 ngôn ngữ. \\
+\rt{/portal/purchase-history/<id>.pdf} & Tải PDF \textbf{đơn hàng} --- khác CT-053 là PDF công nợ. Đang dùng mẫu in mặc định của Odoo. \\
+\rt{/portal/delivery/<id>.ics} & Tải lịch giao hàng vào ứng dụng lịch. \\
+6 nhóm \rt{.../results} & Lọc không tải lại trang --- quyết định kỹ thuật nhưng đổi cách viết kịch bản kiểm thử. \\
+\rt{/portal/order/cart/fragment} & Đồng bộ giỏ khi hai người cùng cửa hàng sửa cùng lúc. \\
+\rt{/portal/exam/line/<id>/photo} · \rt{/portal/profile/avatar/<id>} & Hai đường dẫn ảnh có kiểm quyền riêng. \\
+\rt{/portal/knowledge/search} & Gợi ý tìm kiếm khi đang gõ. \\
+\rt{/portal/info-request/franchise/<id>/values} & Lấy giá trị hiện tại của cửa hàng khi soạn yêu cầu --- xem điểm cần chốt số \textbf{Q58}. \\
+9 chuyển hướng 301 & Đường dẫn cũ thời v14; tài liệu cũ của BA ghi URL cũ vẫn vào được. \\
+15 đường dẫn \textbf{Khảo sát cửa hàng} & Cả phân hệ khảo sát (8 phía cửa hàng + 7 phía người đi khảo sát) không có mục CT nào. \\
+2 đường dẫn \textbf{Metabase} & Nhúng bảng số liệu BI. \\
+\end{longtable}}
+
+% =============================================================================
+\section{Bốn cách hiểu ``cửa hàng đang xem''}
+\label{sec:pham-vi}
+
+Đây là quyết định lớn nhất của tài liệu này. Cùng một người, cùng một lúc đăng nhập, nhưng bảy
+phân hệ hiểu ``cửa hàng của tôi'' theo \textbf{bốn cách khác nhau}:
+
+{\footnotesize
+\begin{longtable}{@{}L{4.6cm}L{4.2cm}L{6.2cm}@{}}
+\rowcolor{hdrbg}\textbf{Cách hiểu} & \textbf{Phân hệ dùng} & \textbf{Hệ quả người dùng thấy}\\
+\midrule \endfirsthead
+\rowcolor{hdrbg}\textbf{Cách hiểu} & \textbf{Phân hệ dùng} & \textbf{Hệ quả người dùng thấy}\\
+\midrule \endhead
+\textbf{Bắt buộc chọn một cửa hàng} --- chưa chọn thì màn rỗng &
+  Lịch sử mua hàng · Công nợ · Đăng ký thi &
+  Người phụ trách nhiều cửa hàng phải bấm đổi cửa hàng để xem từng nơi. Đăng ký thi còn báo nhầm nguyên nhân (``Chưa có đăng ký thi''). \\ \addlinespace
+\textbf{Cộng mọi cửa hàng khi chưa chọn} &
+  Trang chủ · Giao hàng · Báo cáo &
+  Chưa chọn cửa hàng thì các con số là \textbf{tổng toàn bộ} --- dễ tưởng là số của một cửa hàng. \\ \addlinespace
+\textbf{Luôn gộp mọi cửa hàng truy cập được} &
+  Đổi trả · Yêu cầu thông tin · Khảo sát &
+  Danh sách trộn nhiều cửa hàng mà \textbf{không có cột cửa hàng, không có bộ lọc cửa hàng}. \\ \addlinespace
+\textbf{Không phân biệt cửa hàng} &
+  Kiến thức · Thông báo toàn hệ · Metabase &
+  Mọi tài khoản thấy cùng một nội dung. \\
+\end{longtable}}
+
+\begin{ask}
+\textbf{Đây là một quyết định, không phải bốn.} Anh chốt giúp: portal nên theo cách nào làm
+chuẩn, và những màn nào được phép làm khác chuẩn (kèm lý do). Chốt xong dev sẽ đưa tất cả về
+một luật --- \textbf{không} cần BA lên task cho từng màn.
+\end{ask}
+
+% =============================================================================
+\section{Ba cách chặn vai trò khác nhau}
+\label{sec:vai-tro}
+
+{\footnotesize
+\begin{longtable}{@{}L{4.0cm}L{4.4cm}L{6.6cm}@{}}
+\rowcolor{hdrbg}\textbf{Phân hệ} & \textbf{Xét vai trò ở đâu} & \textbf{Không đạt thì thấy gì}\\
+\midrule \endfirsthead
+\rowcolor{hdrbg}\textbf{Phân hệ} & \textbf{Xét vai trò ở đâu} & \textbf{Không đạt thì thấy gì}\\
+\midrule \endhead
+Công nợ & Vai trò \textbf{tại cửa hàng đang chọn} & Trang thông báo thân thiện. Chưa chọn cửa hàng thì \textbf{cổng không chạy}. \\
+Báo cáo đặt hàng & Vai trò \textbf{cao nhất trên mọi cửa hàng} & Trang thông báo. Dữ liệu vẫn chỉ của cửa hàng đang chọn --- hai phạm vi lệch nhau. \\
+Yêu cầu thông tin (màn tạo) & Vai trò \textbf{cao nhất trên mọi cửa hàng} & \textbf{Trang lỗi kỹ thuật 403} của máy chủ. \\
+Mọi phân hệ còn lại & \textbf{Không chặn vai trò} & Nhân viên đặt hàng, đăng ký thi, gửi phiếu hỗ trợ, xem danh sách đồng nghiệp kèm điện thoại. \\
+\end{longtable}}
+
+\begin{ask}
+Cũng là \textbf{một} quyết định: chốt bảng ``vai trò nào làm được gì'' cho cả portal, dev áp
+một lần. Riêng \textbf{trang lỗi 403 kỹ thuật} thì dev sửa luôn, BA không cần task.
+\end{ask}
+
+% =============================================================================
+\section{Toàn bộ điểm cần BA xác nhận}
+
+Bảng dưới gom \textbf{mọi} điểm ghi ở mục 7 của từng màn. Cột \emph{Nhóm}: \textbf{PV} phạm vi
+cửa hàng · \textbf{VT} vai trò · \textbf{NC} ngõ cụt quy trình · \textbf{SL} số liệu lệch ·
+\textbf{DL} thiếu dữ liệu UAT để nghiệm thu · \textbf{TB} không ai được báo ·
+\textbf{CH} chuẩn hoá (dev tự làm, \textbf{BA không cần task}).
+
+{\footnotesize
+\begin{longtable}{@{}L{0.8cm}L{1.1cm}L{3.4cm}L{9.4cm}@{}}
+\rowcolor{hdrbg}\textbf{\#} & \textbf{Nhóm} & \textbf{Màn} & \textbf{Điểm cần chốt}\\
+\midrule \endfirsthead
+\rowcolor{hdrbg}\textbf{\#} & \textbf{Nhóm} & \textbf{Màn} & \textbf{Điểm cần chốt}\\
+\midrule \endhead
+\multicolumn{4}{@{}l}{\textbf{Chương 3 --- Đặt hàng}}\\
+Q1 & SL & Danh sách sản phẩm & Sản phẩm chưa gán danh mục vẫn hiện ở ``Tất cả'' (UAT 2/5). \\
+Q2 & PV & Danh sách sản phẩm & Chưa chọn cửa hàng thì giá hiện là giá niêm yết, không phải giá cửa hàng. \\
+Q3 & CH & Danh sách sản phẩm & Ô tìm kiếm chưa tìm theo tên tiếng Trung dù màn có hiện. \\
+Q4 & DL & Danh sách sản phẩm & UAT chưa sản phẩm nào đặt trần tối đa --- chưa nghiệm thu được luật trần. \\
+Q5 & SL & Chi tiết sản phẩm & ``Sản phẩm liên quan'' dựa hoàn toàn vào danh mục portal. \\
+Q6 & NC & Giỏ hàng & Ghi chú là của cửa hàng, không của người gửi. \\
+Q7 & NC & Giỏ hàng & Giỏ không có lịch sử --- hai người sửa chồng nhau thì người sau đè người trước. \\
+Q8 & VT & Gửi đơn hàng & Nhân viên gửi được đơn --- có cần chặn không. \\
+Q9 & NC & Gửi đơn hàng & Gửi đơn lần hai trong ngày huỷ đơn nháp cũ một cách im lặng. \\
+Q10 & --- & Gửi đơn hàng & Đơn không tự xác nhận --- xác nhận đúng thiết kế. \\
+Q11 & CH & Đặt hàng thành công & Máy tính và điện thoại kết thúc ở hai màn khác nhau. \\
+Q12 & DL & Khung giờ đặt hàng & Tên khung giờ trên UAT không khớp giờ thật. \\
+Q13 & PV & Khung giờ đặt hàng & Giờ tính theo múi giờ tài khoản, không theo khu vực cửa hàng. \\
+Q14 & DL & Khung giờ đặt hàng & Khu vực Hà Nội (3/4 cửa hàng) chưa có khung riêng. \\
+\midrule
+\multicolumn{4}{@{}l}{\textbf{Chương 4 --- Khung portal · Trang chủ}}\\
+Q15 & CH & Đăng nhập & Chưa chặn thử mật khẩu hàng loạt ở màn đăng nhập. \\
+Q16 & NC & Đăng nhập & Đăng xuất không xoá cửa hàng đang chọn --- máy dùng chung giữ lựa chọn cho người sau. \\
+Q17 & CH & Quên mật khẩu & Luôn báo thành công nên người gõ nhầm email ngồi chờ email không tới. \\
+Q18 & --- & Đặt lại mật khẩu & Luật mật khẩu chỉ ``từ 8 ký tự'' --- có cần thêm yêu cầu không. \\
+Q19 & SL & Trang chủ & Số ``Thông báo chưa đọc'' ở Trang chủ lệch với màn Thông báo. \\
+Q20 & SL & Trang chủ & Thẻ ``Đổi trả đang mở'' bỏ sót trạng thái \emph{Đang xét}. \\
+Q21 & SL & Trang chủ & Thẻ số và danh sách bên dưới dùng hai bộ trạng thái khác nhau. \\
+Q22 & CH & Trang chủ & Mọi khối danh sách cố định 2 dòng. \\
+Q23 & PV & Trang chủ & Chưa chọn cửa hàng thì các con số là tổng mọi cửa hàng. \\
+Q24 & PV & Trang chủ & Khối ``Bài kiến thức'' không lọc theo cửa hàng. \\
+Q25 & CH & Chọn cửa hàng & Chọn cửa hàng không được phép thì im lặng, không báo. \\
+Q26 & NC & Chọn cửa hàng & Cửa hàng đang chọn lưu trên trình duyệt --- máy khác phải chọn lại. \\
+Q27 & NC & Hồ sơ cá nhân & Sửa email ở Hồ sơ không đổi email đăng nhập. \\
+Q28 & VT & Hồ sơ cá nhân & Ai cùng cửa hàng đều xem được ảnh đại diện của nhau. \\
+Q29 & CH & Đổi mật khẩu & Đổi mật khẩu không đăng xuất thiết bị khác. \\
+Q30 & CH & Đổi mật khẩu & Luật mật khẩu lệch nhẹ với màn Đặt lại mật khẩu. \\
+Q31 & DL & Đổi ngôn ngữ & Portal đang bật 3 ngôn ngữ --- xác nhận có đủ bản dịch. \\
+Q32 & CH & Danh sách cửa hàng & Hai bộ màn song song cho cùng một nội dung. \\
+Q33 & VT & Chi tiết cửa hàng & Nhân viên xem được đủ danh sách đồng nghiệp kèm điện thoại. \\
+Q34 & CH & Chi tiết cửa hàng & Bốn đường dẫn cho ba màn gần giống nhau. \\
+Q35 & CH & Thông tin cửa hàng & Sắp xếp thành viên theo thứ tự chữ cái của mã trạng thái. \\
+Q36 & DL & Thông tin cửa hàng & Nhánh ``cửa hàng bị khoá'' chưa có dữ liệu để nghiệm thu. \\
+\midrule
+\multicolumn{4}{@{}l}{\textbf{Chương 5 --- Lịch sử mua · Giao hàng · Báo cáo}}\\
+Q37 & PV & Lịch sử mua hàng & Ba phân hệ hiểu ``cửa hàng đang xem'' khác nhau (xem mục \ref{sec:pham-vi}). \\
+Q38 & NC & Lịch sử mua hàng & Đơn Đã huỷ bị giấu hoàn toàn (UAT 16/47). \\
+Q39 & CH & Lịch sử mua hàng & Tìm kiếm chỉ theo mã đơn, không theo tên sản phẩm. \\
+Q40 & VT & Lịch sử mua hàng & Nhân viên xem được toàn bộ số tiền các đơn. \\
+Q41 & NC & Chi tiết đơn hàng & Không hiện lịch sử thay đổi của đơn. \\
+Q42 & CH & PDF đơn hàng & Dùng mẫu in mặc định của Odoo, chưa có nhận diện WujiaTea. \\
+Q43 & DL & Theo dõi giao hàng & Cửa hàng đông đơn nhất (Cầu Giấy, 8 đơn) không có chuyến nào. \\
+Q44 & SL & Theo dõi giao hàng & Chuyến chưa đặt lịch biến mất khi lọc theo ngày. \\
+Q45 & CH & Theo dõi giao hàng & Không lọc riêng được chuyến bị huỷ. \\
+Q46 & PV & Chi tiết chuyến giao & Điều kiện xem chi tiết hẹp hơn điều kiện hiện ở danh sách. \\
+Q47 & SL & Chi tiết chuyến giao & Hai bước cuối thanh tiến trình mượn ``giờ sửa bản ghi'', chưa có giờ thật. \\
+Q48 & SL & Tệp lịch giao hàng & Giờ trong tệp lịch lấy từ trường khác với giờ hiển thị trên màn. \\
+Q49 & SL & Báo cáo đặt hàng & Thẻ ``Đơn hoàn thành'' luôn bằng 0 (Odoo 19 không còn trạng thái đó). \\
+Q50 & SL & Báo cáo đặt hàng & Số tiền dán sai ký hiệu tiền tệ. \\
+Q51 & SL & Báo cáo đặt hàng & Bộ lọc ngày không quy đổi múi giờ, khác Lịch sử mua hàng. \\
+Q52 & VT & Báo cáo đặt hàng & Vai trò xét trên mọi cửa hàng nhưng dữ liệu chỉ của cửa hàng đang chọn. \\
+Q53 & SL & Báo cáo đặt hàng & Biểu đồ luôn nới ra 12 tháng kể cả khi lọc một tuần. \\
+Q54 & SL & Excel báo cáo & Tệp Excel chứa cả đơn đã huỷ, màn hình thì không. \\
+Q55 & SL & Excel báo cáo & Cột \emph{Số dòng} đếm cả dòng tiêu đề, màn hình thì không. \\
+Q56 & SL & Excel báo cáo & Cột \emph{Tổng tiền} là số trần, không kèm loại tiền. \\
+Q57 & VT & Excel báo cáo & Điều kiện vai trò của nút Xuất khác của màn. \\
+\midrule
+\multicolumn{4}{@{}l}{\textbf{Chương 6 --- Công nợ · Đổi trả}}\\
+Q58 & SL & Công nợ theo tuần & Số ở Trang chủ và số ở màn Công nợ là hai phép tính khác nhau. \\
+Q59 & NC & Công nợ theo tuần & Dropdown chỉ 6 tuần --- hoá đơn cũ hơn vĩnh viễn không chọn được. \\
+Q60 & SL & Công nợ theo tuần & ``Dư có'' đè lên ``Có quá hạn'', làm mất nút thanh toán. \\
+Q61 & SL & Công nợ theo tuần & Trạng thái rỗng nói ``không còn công nợ'' dù có hoá đơn quá hạn. \\
+Q62 & SL & Công nợ theo tuần & Hạn thanh toán do portal tự tính (thứ Hai + 10), không đọc hạn của hoá đơn. \\
+Q63 & --- & Công nợ theo tuần & Tuần mở sẵn = tuần quá hạn cũ nhất còn dư --- xác nhận cách mở. \\
+Q64 & VT & Công nợ theo tuần & Nhân viên bị chặn khỏi toàn bộ phân hệ Công nợ. \\
+Q65 & DL & Lịch sử thanh toán & Kỳ mở sẵn là tháng hiện tại, trên UAT tháng đó rỗng. \\
+Q66 & CH & Lịch sử thanh toán & Ngày ngược thì tự hoán đổi thay vì báo lỗi --- lệch 4 màn khác. \\
+Q67 & SL & Lịch sử thanh toán & Tổng tách theo loại tiền, không quy đổi. \\
+Q68 & DL & Lịch sử thanh toán & 1/6 phiếu thanh toán chưa gắn cửa hàng nên không ai thấy. \\
+Q69 & --- & Chuyển khoản & Ảnh mã QR: tĩnh hay động theo số tiền. \\
+Q70 & SL & Chuyển khoản & Nội dung chuyển khoản làm tròn xuống số nguyên. \\
+Q71 & TB & Chuyển khoản & Chuyển khoản xong portal không biết gì --- đợi kế toán ghi nhận. \\
+Q72 & PV & DS đổi trả & Gộp mọi cửa hàng, không có cột và bộ lọc cửa hàng. \\
+Q73 & NC & DS đổi trả & Nhãn ``Nháp'' có trong bộ lọc dù phiếu nháp không gửi được. \\
+Q74 & DL & DS đổi trả & 10/14 phiếu trên UAT là dữ liệu mẫu, thiếu đơn gốc và sản phẩm. \\
+Q75 & DL & Tạo yêu cầu đổi trả & Cửa sổ 10 ngày làm màn này \textbf{không dùng được} --- UAT 0 đơn hợp lệ. \\
+Q76 & CH & Tạo yêu cầu đổi trả & Ô chọn đơn không lọc theo cửa hàng ở ô bên cạnh --- báo lỗi gây hiểu nhầm. \\
+Q77 & NC & Tạo yêu cầu đổi trả & Phiếu nháp là ngõ cụt --- lưu được nhưng không đường dẫn nào gửi được. \\
+Q78 & CH & Tạo yêu cầu đổi trả & Điện thoại không có nút Lưu nháp --- hai nền tảng khác luật. \\
+Q79 & NC & Tạo yêu cầu đổi trả & Sản phẩm chưa cấu hình bù thì chặn cả đổi và trả. \\
+Q80 & --- & Tạo yêu cầu đổi trả & Mỗi phiếu đúng một sản phẩm. \\
+Q81 & NC & Tạo yêu cầu đổi trả & Video tải lên không bao giờ hiện lại cho cửa hàng. \\
+Q82 & NC & Tạo yêu cầu đổi trả & Không sửa, không huỷ được phiếu sau khi gửi. \\
+Q83 & NC & Chi tiết yêu cầu & Màn chi tiết không có nút nào cho cửa hàng. \\
+Q84 & DL & Chi tiết yêu cầu & Thanh tiến độ bù chưa chạy được trên UAT --- chưa có bản ghi phân bổ. \\
+Q85 & SL & Chi tiết yêu cầu & Thanh phần trăm bị chặn trần 100\% --- bù dư vẫn hiện 100\%. \\
+\midrule
+\multicolumn{4}{@{}l}{\textbf{Chương 7 --- Hỗ trợ · Yêu cầu thông tin · Kiến thức · Thông báo}}\\
+Q86 & PV & DS phiếu hỗ trợ & Phiếu chỉ người tạo mới thấy --- Chủ tiệm không thấy phiếu nhân viên. \\
+Q87 & CH & DS phiếu hỗ trợ & Không có bộ lọc ngày, cỡ trang cố định 20. \\
+Q88 & NC & DS phiếu hỗ trợ & Phiếu Đã huỷ bị giấu ở danh sách nhưng chi tiết vẫn mở được. \\
+Q89 & CH & Tạo phiếu hỗ trợ & Định dạng tệp chỉ kiểm theo lời khai của trình duyệt. \\
+Q90 & TB & Tạo phiếu hỗ trợ & Gửi phiếu xong không ai được báo. \\
+Q91 & CH & Tạo phiếu hỗ trợ & Chưa giới hạn số phiếu gửi trong ngày. \\
+Q92 & --- & Chi tiết phiếu hỗ trợ & Ranh giới nội bộ / công khai nằm ở ô nhân sự Ngô Gia chọn. \\
+Q93 & NC & Chi tiết phiếu hỗ trợ & Phiếu đã đóng / đã huỷ vẫn nhận lời nhắn mới. \\
+Q94 & NC & Gửi lời nhắn & Trả lời không tự đổi trạng thái phiếu. \\
+Q95 & NC & Gửi lời nhắn & Không đính kèm được ảnh trong lời nhắn. \\
+Q96 & VT & DS yêu cầu thông tin & Nhân viên xem được mọi yêu cầu của cửa hàng nhưng không tạo được. \\
+Q97 & NC & DS yêu cầu thông tin & Không có nhãn ``Đã huỷ'' --- tự huỷ hiện thành ``Từ chối''. \\
+Q98 & --- & DS yêu cầu thông tin & Bảy loại thông tin cố định trong mã nguồn. \\
+Q99 & VT & Tạo yêu cầu thông tin & Quyền xét trên mọi cửa hàng nhưng gửi được cho từng cửa hàng. \\
+Q100 & CH & Tạo yêu cầu thông tin & Nhân viên bị chặn bằng trang lỗi kỹ thuật 403. \\
+Q101 & CH & Tạo yêu cầu thông tin & Loại ``Khác'' bắt người dùng gõ tên kỹ thuật của trường. \\
+Q102 & NC & Tạo yêu cầu thông tin & Duyệt yêu cầu \textbf{không} tự cập nhật hồ sơ cửa hàng. \\
+Q103 & NC & Tạo yêu cầu thông tin & Phiếu nháp ở đây gửi được, khác Đổi trả --- cần thống nhất. \\
+Q104 & SL & Chi tiết yêu cầu & ``Giá trị cũ'' không phải ảnh chụp --- đọc lại mỗi lần mở màn. \\
+Q105 & CH & Huỷ yêu cầu & Huỷ và bị từ chối trông giống nhau. \\
+Q106 & CH & Lấy giá trị cửa hàng & Đường dẫn đọc được bất kỳ trường nào của hồ sơ cửa hàng, không kiểm vai trò. \\
+Q107 & VT & DS kiến thức & Kiến thức không phân biệt cửa hàng và vai trò. \\
+Q108 & DL & DS kiến thức & Danh mục trùng tên trên UAT (Vận hành ×2, Sản phẩm ×2). \\
+Q109 & SL & DS kiến thức & Bài hết hạn chỉ rụng khi tác vụ nền chạy hằng ngày. \\
+Q110 & SL & DS kiến thức & Lượt xem đếm mỗi lần mở, không chống bấm lặp. \\
+Q111 & NC & Chi tiết bài viết & Không biết ai đã đọc bài nào. \\
+Q112 & --- & Chi tiết bài viết & Đường dẫn dùng tên rút gọn; đổi tiêu đề không đổi tên rút gọn. \\
+Q113 & CH & Gợi ý tìm kiếm & Chưa giới hạn số lần gọi --- cần theo dõi với 1.500 tài khoản. \\
+Q114 & PV & DS thông báo & ``Đã đọc'' tính theo từng cửa hàng --- người 3 cửa hàng phải đọc 3 lần. \\
+Q115 & DL & DS thông báo & 6 dấu đã đọc cũ chưa gắn cửa hàng. \\
+Q116 & SL & DS thông báo & Thẻ đếm chưa đọc ở Trang chủ tính khác màn này (trùng Q19). \\
+Q117 & DL & DS thông báo & UAT chưa có thông báo gửi đích danh cửa hàng nào đang phát hành. \\
+Q118 & NC & Chi tiết thông báo & Mở khi chưa chọn cửa hàng thì không được tính là đã đọc. \\
+Q119 & CH & Hộp chuông & Cố định 5 dòng, không có ``xem thêm''. \\
+Q120 & CH & Đánh dấu đã đọc & ``Đánh dấu tất cả'' chỉ là tất cả tại cửa hàng đang chọn, còn hiệu lực. \\
+\midrule
+\multicolumn{4}{@{}l}{\textbf{Chương 8 --- Đăng ký thi}}\\
+Q121 & CH & DS đăng ký thi & Chưa chọn cửa hàng nhưng màn báo ``Chưa có đăng ký thi''. \\
+Q122 & CH & DS đăng ký thi & Cùng trạng thái, hai chữ khác nhau giữa máy tính và điện thoại. \\
+Q123 & SL & DS đăng ký thi & Huy hiệu ``Có kết quả'' đè lên trạng thái phiếu trên bản điện thoại. \\
+Q124 & PV & DS đăng ký thi & Chỉ xem được cửa hàng đang chọn dù luật dữ liệu cho phép xem mọi cửa hàng. \\
+Q125 & DL & Màn đăng ký thi & UAT không có kỳ thi nào đăng ký được. \\
+Q126 & CH & Màn đăng ký thi & Chưa chọn cửa hàng thì bị đá về danh sách không lời giải thích. \\
+Q127 & --- & Màn đăng ký thi & ``Cửa sổ 60 ngày'' đặt riêng theo từng khóa thi. \\
+Q128 & --- & Khung giờ thi & Kỳ thi đặt giới hạn người riêng, đè lên giới hạn của khóa. \\
+Q129 & NC & Gửi phiếu đăng ký & Phiếu chờ duyệt đã chiếm ghế của cửa hàng khác. \\
+Q130 & NC & Gửi phiếu đăng ký & Người dự thi gõ tay, không nối danh sách nhân sự cửa hàng. \\
+Q131 & TB & Gửi phiếu đăng ký & Gửi phiếu xong không ai được báo. \\
+Q132 & CH & Gửi phiếu đăng ký & Bản điện thoại không có bước xem lại trước khi gửi. \\
+Q133 & NC & Chi tiết phiếu thi & Portal không huỷ được phiếu. \\
+Q134 & NC & Chi tiết phiếu thi & Phiếu bị từ chối là ngõ cụt --- phải tạo lại từ đầu. \\
+Q135 & PV & Chi tiết phiếu thi & Chỉ mở được phiếu của cửa hàng đang chọn. \\
+\midrule
+\multicolumn{4}{@{}l}{\textbf{Chương 9 --- Khảo sát · Metabase} \note{(mã anh Thái --- dev trao đổi trực tiếp)}}\\
+Q136 & CH & DS khảo sát & Ngày ngược thì hiện rỗng, không báo gì. \\
+Q137 & CH & DS khảo sát & Cỡ trang cố định 5. \\
+Q138 & --- & DS khảo sát & Phiếu còn nháp portal không thấy. \\
+Q139 & SL & Chi tiết khảo sát & Điểm trên portal và điểm trong ERP có thể lệch nhau. \\
+Q140 & SL & Chi tiết khảo sát & Tổng điểm tối đa ghi cứng 100. \\
+Q141 & CH & Chi tiết khảo sát & ``Vi phạm nghiêm trọng'' nhận biết bằng cách dò chữ. \\
+Q142 & CH & Chi tiết khảo sát & Còn vài giá trị mẫu sót lại khi dữ liệu thiếu. \\
+Q143 & SL & Màn gửi khắc phục & Mốc thời gian là giờ tạo phiếu, không phải ngày khảo sát. \\
+Q144 & CH & Gửi khắc phục & Đường dẫn gửi khắc phục không kiểm cửa hàng. \\
+Q145 & CH & Gửi khắc phục & Ảnh khắc phục không kiểm định dạng, không kiểm dung lượng. \\
+Q146 & TB & Gửi khắc phục & Gửi xong phiếu vẫn ``Chờ phản hồi'', không ai được báo. \\
+Q147 & NC & Gửi khắc phục & Gửi lại đè lên lần trước, không lưu lịch sử. \\
+Q148 & CH & Màn làm khảo sát & Phiếu chưa giao cho ai thì tài khoản nào cũng mở được. \\
+Q149 & CH & Lưu bài khảo sát & Đường dẫn lưu không kiểm người gửi. \\
+Q150 & NC & Lưu bài khảo sát & Điểm danh tự tạo thành viên cửa hàng. \\
+Q151 & NC & Lưu bài khảo sát & Phiếu tự chuyển sang ``Chờ phản hồi'' ngay khi lưu tạm. \\
+Q152 & NC & Doanh thu PosApp & Bấm đồng bộ là xoá sạch số đã gõ tay, không hỏi lại. \\
+Q153 & CH & Doanh thu PosApp & Lỗi kết nối hiện nguyên văn câu lỗi kỹ thuật. \\
+Q154 & VT & Bảng điểm danh & Màn khảo sát sửa được hồ sơ nhân sự của cửa hàng. \\
+Q155 & NC & Bảng điểm danh & Xoá dòng điểm danh không gỡ thành viên đã tạo. \\
+Q156 & VT & Metabase & Bảng không khai nhóm quyền thì ai đăng nhập cũng xem được. \\
+Q157 & PV & Metabase & Không truyền cửa hàng sang Metabase --- người xem thấy số liệu toàn hệ. \\
+\end{longtable}}
+
+\textbf{Tổng: 157 điểm.} Trong đó \textbf{42 điểm nhóm CH} là việc dev tự chuẩn hoá ---
+\textbf{BA không cần lên task}. Còn lại 115 điểm cần anh chốt, nhưng \textbf{không phải 115
+quyết định}: nhóm \textbf{PV} (14 điểm) gộp về \textbf{một} quyết định ở mục \ref{sec:pham-vi},
+nhóm \textbf{VT} (11 điểm) gộp về \textbf{một} quyết định ở mục \ref{sec:vai-tro}.
+
+% =============================================================================
+\section{BA đừng lên task viết lại --- ba nhóm}
+
+\subsection*{1. Nhóm CH --- dev tự chuẩn hoá}
+
+42 điểm đánh nhóm \textbf{CH} ở bảng trên đã nằm trong kế hoạch chuẩn hoá nội bộ của dev (cụm
+F): thống nhất thông báo lỗi, thống nhất bộ lọc ngày, thống nhất cỡ trang, vá các chỗ kiểm
+thiếu khi tải tệp và khi ghi dữ liệu. BA \textbf{không cần} lên task cho từng cái --- lên task
+chỉ khiến hai bên làm trùng.
+
+\subsection*{2. Controller sắp đổi chỗ --- đường dẫn giữ nguyên}
+
+Kế hoạch F6--F13 sẽ \textbf{dời mã nguồn} của bảy phân hệ sang mô-đun khác cho đúng kiến trúc
+tầng (ADR-027). \textbf{Đường dẫn không đổi một ký tự nào}, màn không đổi, dữ liệu không đổi.
+Nếu BA thấy tên mô-đun trong tài liệu này khác với tên trong bản ghi chép sau đó, đó là lý do
+--- \textbf{không phải lỗi, không cần task}.
+
+\subsection*{3. Mã của anh Thái}
+
+Chương 9 (15 đường dẫn khảo sát + 2 đường dẫn Metabase) do anh Thái viết. Những điểm dev thấy
+cần bàn --- nhất là Q144, Q145, Q148, Q149, Q156 --- dev sẽ trao đổi trực tiếp với anh Thái.
+BA chỉ cần biết để trả lời khi cửa hàng hỏi.
+
+% =============================================================================
+\section{Phân hệ chưa có gì: vận hành nội bộ cửa hàng}
+
+Bảy mục \textbf{CT-061 … CT-067} (ca làm, lịch làm việc, chấm công, nghỉ phép, chi phí phát
+sinh) \textbf{chưa có một dòng mã nào}. BA đánh ưu tiên Thấp cho cả bảy. Nếu muốn làm thì đây
+là \textbf{một phân hệ mới}, không phải sửa cái có sẵn --- ước lượng và kế hoạch phải tính
+riêng.
+
+\section{Dữ liệu UAT cần dựng trước khi nghiệm thu}
+
+Mười lăm điểm nhóm \textbf{DL} ở bảng trên có chung một nguyên nhân: \textbf{UAT thiếu dữ liệu
+mẫu}, nên có những luật đã viết xong mà chưa ai bấm thử được. Ba chỗ nặng nhất:
+
+\begin{enumerate}[leftmargin=*]
+  \item \textbf{Đổi trả · Bù hàng} --- \uat{0} đơn hàng lọt cửa sổ 10 ngày. Không tài khoản nào
+        tạo được yêu cầu. Cần một đơn đặt trong vòng 10 ngày gần nhất.
+  \item \textbf{Đăng ký thi} --- \uat{0} kỳ thi đăng ký được (hai kỳ đang mở đều đã qua ngày
+        thi 16/08 và 25/08). Cần một kỳ thi ngày tương lai, còn ghế.
+  \item \textbf{Hỗ trợ} --- \uat{0} phiếu do tài khoản cửa hàng thật tạo; cả \uat{15} phiếu đều
+        của tài khoản nội bộ, nên mọi tài khoản cửa hàng mở ra màn rỗng.
+\end{enumerate}
+
+Ngoài ra: \uat{0} yêu cầu cập nhật thông tin từng được tạo; \uat{0} thông báo gửi đích danh cửa
+hàng đang phát hành; \uat{0} bản ghi phân bổ bù hàng; chỉ \uat{1}/4 cửa hàng có dữ liệu kế
+toán để xem Công nợ.

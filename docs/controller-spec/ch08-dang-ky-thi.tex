@@ -1,0 +1,519 @@
+\chapter{Đăng ký thi}
+
+Chương này gồm \textbf{7 đường dẫn} của mô-đun \rt{wujia_portal_exam}, gom thành \textbf{7 mục}
+(cộng một mục cho đường dẫn cũ). Một đường dẫn --- \rt{/portal/exam/register} --- \textbf{có hai
+hàm}: một hàm mở màn, một hàm nhận phiếu gửi lên; chương này tách thành hai mục vì hai việc khác
+hẳn nhau.
+
+\textbf{Bốn điểm cần biết trước khi đọc:}
+
+\begin{enumerate}[leftmargin=*]
+  \item \textbf{Trên UAT hiện KHÔNG ai đăng ký thi được.} Có \uat{3} khóa thi đã phát hành và
+        \uat{2} kỳ thi còn ở trạng thái mở, nhưng ngày thi của chúng là \textbf{16/08} và
+        \textbf{25/08} --- đã qua --- và hạn đăng ký là 09:00 chính ngày thi. Vì vậy cả ba khóa
+        đều hiện chữ \emph{``Đã đóng''} và lịch \textbf{không có ngày nào bấm được}. Giống hệt
+        tình trạng của Đổi trả ở chương 6, cần dựng dữ liệu mẫu trước khi nghiệm thu.
+  \item \textbf{Không chặn vai trò.} Nhân viên đăng ký thi được như Chủ tiệm. Đây là phân hệ
+        ghi dữ liệu duy nhất ngoài Đặt hàng không có cổng vai trò.
+  \item \textbf{Phạm vi là CỬA HÀNG ĐANG CHỌN, không phải mọi cửa hàng.} Người phụ trách nhiều
+        cửa hàng phải bấm đổi cửa hàng mới xem được phiếu của cửa hàng kia --- giống Công nợ,
+        khác Đổi trả và Yêu cầu thông tin.
+  \item \textbf{Gửi phiếu xong là chốt.} Portal không có nút sửa, không có nút huỷ, không gửi
+        lại được phiếu bị từ chối. Mọi thay đổi phải nhờ Ngô Gia làm trong ERP.
+\end{enumerate}
+
+Số thật trên UAT: \uat{1} phiếu đăng ký (của cửa hàng \emph{TP HCM Quận 1}, do Administrator
+tạo, đã được xác nhận, \uat{1} người dự thi, kết quả \emph{Đạt}), \uat{3} kỳ thi, \uat{3} ca giờ,
+\uat{0} phiếu chờ duyệt, \uat{0} phiếu bị từ chối, \uat{0} phiếu bị huỷ.
+
+% =============================================================================
+\section{Màn Danh sách phiếu đăng ký thi}
+\rt{/portal/exam}
+\medskip
+
+\mvao
+
+Mục \emph{Đăng ký thi} trên thanh điều hướng. Tham số: \rt{page}, \rt{limit}, \rt{state},
+\rt{result}, \rt{q}, \rt{date_from}, \rt{date_to}.
+
+\mai
+
+\begin{itemize}[leftmargin=*]
+  \item Phải đăng nhập. \textbf{Không chặn vai trò} --- mọi thành viên cửa hàng đều xem được.
+  \item Chỉ thấy phiếu của \textbf{cửa hàng đang chọn}. \textbf{Chưa chọn cửa hàng} thì màn
+        hiện đúng câu \emph{``Chưa có đăng ký thi''} --- \textbf{không} báo là do chưa chọn
+        cửa hàng, nên người dùng dễ tưởng cửa hàng mình chưa từng đăng ký.
+  \item Thực tế UAT: \uat{1} phiếu duy nhất, thuộc cửa hàng \emph{TP HCM Quận 1}. Ba cửa hàng
+        còn lại mở ra màn rỗng.
+\end{itemize}
+
+\mhien
+
+\begin{hienbang}
+Danh sách phiếu &
+  \rt{wujia.exam.registration} &
+  Phiếu có cửa hàng \textbf{đúng bằng cửa hàng đang chọn} &
+  Ngày nộp phiếu mới nhất trước; \textbf{10} phiếu mỗi trang (10/20/50) &
+  \uat{1} phiếu toàn hệ \\ \addlinespace
+Huy hiệu trạng thái &
+  \rt{state} &
+  Bốn nhãn: \emph{Chờ xác nhận} · \emph{Đã đăng ký} · \emph{Từ chối} · \emph{Đã hủy}.
+  Bản điện thoại gọi nhãn đầu là \emph{``Chờ duyệt''} --- \textbf{cùng một trạng thái, hai chữ
+  khác nhau trên hai giao diện}. &
+  --- &
+  \uat{1} Đã đăng ký · \uat{0} ở ba trạng thái còn lại \\ \addlinespace
+Cột kết quả &
+  \rt{wujia.exam.session} &
+  Chỉ hiện khi \textbf{kỳ thi đã công bố kết quả}; khi đó đếm \emph{n Đạt · n Không đạt} trong
+  phiếu. Chưa công bố thì ghi \emph{``Chưa công bố''}. &
+  --- &
+  \uat{1} kỳ đã công bố · \uat{1} người Đạt · \uat{0} Không đạt \\ \addlinespace
+Dòng trên bản điện thoại &
+  --- &
+  Khi đã công bố, huy hiệu đổi thành \emph{``Có kết quả''} và \textbf{đè lên} trạng thái phiếu
+  --- phiếu bị từ chối thuộc kỳ đã công bố cũng hiện \emph{``Có kết quả''} &
+  --- & --- \\
+\end{hienbang}
+
+\mloc
+
+\begin{itemize}[leftmargin=*]
+  \item \textbf{Từ khoá} --- khớp một phần theo \textbf{mã phiếu} hoặc \textbf{tên khóa thi}.
+        Không tìm theo tên thí sinh.
+  \item \textbf{Trạng thái} --- một trong bốn nhãn; giá trị lạ bị bỏ qua.
+  \item \textbf{Kết quả} --- \emph{Đã công bố} / \emph{Chưa công bố}, lọc theo cờ của
+        \textbf{kỳ thi} chứ không theo từng người.
+  \item \textbf{Khoảng ngày} --- lọc theo \textbf{ngày nộp phiếu}, quy đổi đúng múi giờ tài
+        khoản. Ngày ngược thì \textbf{chặn truy vấn}, giữ nguyên hai ô đã gõ và báo tại thanh
+        lọc --- giống Thông báo và Giao hàng, khác Công nợ (bên đó lặng lẽ đảo hai ngày).
+  \item \textbf{Số dòng mỗi trang} --- 10, 20, 50; gõ số ngoài danh sách thì tự về 10.
+\end{itemize}
+
+\mkiem{Đăng ký mới}
+
+Không kiểm gì ở màn danh sách --- mọi phép kiểm nằm ở màn đăng ký.
+
+\mghi
+
+\textbf{Không ghi gì.}
+
+\mhoi
+
+\begin{ask}
+\begin{enumerate}[leftmargin=*]
+  \item \textbf{Chưa chọn cửa hàng nhưng màn báo ``Chưa có đăng ký thi''} --- sai nguyên nhân.
+        Nên đổi thành lời nhắc chọn cửa hàng như các màn khác.
+  \item \textbf{Cùng một trạng thái, hai chữ khác nhau giữa máy tính và điện thoại}
+        (\emph{Chờ xác nhận} · \emph{Chờ duyệt}). Anh chọn một chữ để thống nhất.
+  \item \textbf{Huy hiệu ``Có kết quả'' đè lên trạng thái phiếu} trên bản điện thoại --- phiếu
+        bị từ chối hay bị huỷ nhưng thuộc kỳ đã công bố vẫn hiện \emph{Có kết quả}. Cần sửa.
+  \item \textbf{Chỉ xem được cửa hàng đang chọn}, trong khi luật dữ liệu của hệ thống cho phép
+        xem mọi cửa hàng của mình. Anh muốn gộp như Đổi trả không?
+\end{enumerate}
+\end{ask}
+
+% =============================================================================
+\section{Màn Đăng ký thi --- chọn khóa và lịch}
+\rt{/portal/exam/register} \note{(mở màn)}
+\medskip
+
+\mvao
+
+Nút \emph{Đăng ký mới} ở màn danh sách. Tham số: \rt{course_id}, \rt{year}, \rt{month}.
+
+\mai
+
+\begin{itemize}[leftmargin=*]
+  \item Phải đăng nhập \textbf{và phải đang chọn một cửa hàng} --- chưa chọn thì bị đưa thẳng
+        về danh sách, \textbf{không có thông báo}.
+  \item Không chặn vai trò.
+\end{itemize}
+
+\mhien
+
+\begin{hienbang}
+Danh sách khóa thi &
+  \rt{wujia.exam.course} &
+  Khóa \textbf{đã phát hành} và còn hiệu lực. Khóa còn nháp thì portal không thấy. &
+  Theo tên &
+  \uat{3}/3 khóa đã phát hành \\ \addlinespace
+Nhãn trạng thái khóa &
+  \rt{wujia.exam.session} &
+  \emph{``Còn lịch''} khi còn ít nhất một kỳ đăng ký được; \emph{``Hết chỗ''} khi còn kỳ trong
+  hạn nhưng hết ghế; \emph{``Đã đóng''} khi không còn kỳ nào &
+  --- &
+  Cả \uat{3} khóa đang hiện \textbf{Đã đóng} \\ \addlinespace
+Dòng mô tả khóa &
+  \rt{registration_horizon_days} &
+  \emph{``n kỳ thi $\bullet$ Trong 60 ngày tới''} --- chỉ đếm kỳ \textbf{đang mở} có ngày thi
+  \textbf{từ hôm nay} tới hết cửa sổ &
+  --- &
+  Cả 3 khóa đặt cửa sổ \uat{60} ngày; hiện đếm ra \uat{0} kỳ \\ \addlinespace
+Lịch tháng &
+  \rt{wujia.exam.session} &
+  Kỳ thi của khóa đang chọn, trong tháng đang xem, \textbf{chưa bị huỷ}. Mỗi ngày mang một
+  trong ba trạng thái: \emph{còn chỗ} · \emph{hết chỗ} · \emph{không có lịch}. &
+  Tuần bắt đầu từ Thứ 2 &
+  \uat{0} ngày bấm được \\ \addlinespace
+Bảng tóm tắt (máy tính) &
+  --- &
+  Tên khóa, tên cửa hàng đang chọn, \emph{``0 / n''} số người đã thêm trên giới hạn mỗi phiếu.
+  Ngày thi · địa điểm · hạn đăng ký để trống, do chọn khung giờ mới có. &
+  --- & --- \\
+\end{hienbang}
+
+Một ngày được coi là \textbf{còn chỗ} khi kỳ thi hôm đó \textbf{đang mở}, \textbf{chưa quá hạn
+đăng ký}, \textbf{còn ghế trống}, và ngày đó nằm trong khoảng \textbf{từ hôm nay tới hết cửa sổ
+60 ngày}. Thiếu một trong bốn điều kiện thì ngày đó không bấm được.
+
+\mloc
+
+Chọn \textbf{khóa thi} và bấm mũi tên đổi \textbf{tháng}. Chọn khóa không có trong danh sách
+đã phát hành thì màn \textbf{tự quay về khóa đầu tiên}. Gõ tháng lạ trên thanh địa chỉ có thể
+làm màn báo lỗi kỹ thuật --- số tháng chưa được kiểm.
+
+\mkiem{một ngày trên lịch}
+
+Bấm ngày chỉ mở bảng khung giờ; mọi phép kiểm thật nằm ở bước gửi phiếu.
+
+\mghi
+
+\textbf{Không ghi gì.}
+
+\mhoi
+
+\begin{ask}
+\begin{enumerate}[leftmargin=*]
+  \item \textbf{UAT không có kỳ thi nào đăng ký được} --- cần tạo ít nhất một kỳ ngày tương lai
+        để nghiệm thu được toàn bộ luồng.
+  \item \textbf{Chưa chọn cửa hàng thì bị đá về danh sách không lời giải thích.}
+  \item \textbf{Số tháng gõ trên thanh địa chỉ chưa được kiểm} --- dev sẽ đưa vào đợt chuẩn hoá,
+        không cần task riêng.
+  \item \textbf{``Cửa sổ 60 ngày'' đang đặt ở khóa thi}, mỗi khóa một giá trị. Anh xác nhận để
+        Ngô Gia tự chỉnh theo từng khóa, hay muốn chốt chung một con số?
+\end{enumerate}
+\end{ask}
+
+% =============================================================================
+\section{Lấy lịch tháng của một khóa thi}
+\rt{/portal/exam/calendar}
+\medskip
+
+\mvao
+
+Không phải màn --- gọi ngầm khi người dùng đổi khóa thi hoặc bấm mũi tên sang tháng khác.
+
+\mai
+
+Phải đăng nhập \textbf{và đang chọn cửa hàng}; chưa chọn thì trả về lời nhắc \emph{``Vui lòng
+chọn cửa hàng trước khi thao tác''}. Không chặn vai trò.
+
+\mhien
+
+Trả về ma trận tuần của tháng, mỗi ô một ngày kèm trạng thái, đúng như mô tả ở màn trên.
+
+\mloc
+
+Ba tham số: khóa thi, năm, tháng. Thiếu năm/tháng thì lấy tháng hiện tại.
+
+\mkiem{gọi}
+
+\begin{kiembang}
+1 & Đang chọn cửa hàng & ``Vui lòng chọn cửa hàng trước khi thao tác.'' \\
+2 & Khóa thi tồn tại \textbf{và đang ở trạng thái đã phát hành} & ``Khóa thi không hợp lệ.'' \\
+\end{kiembang}
+
+\textbf{Không} kiểm cửa hàng có liên quan gì tới khóa thi --- lịch thi là dữ liệu chung, cửa
+hàng nào cũng xem được như nhau.
+
+\mghi
+
+\textbf{Không ghi gì.}
+
+\mhoi
+
+\begin{ask}
+Không có điểm cần chốt.
+\end{ask}
+
+% =============================================================================
+\section{Lấy khung giờ thi của một ngày}
+\rt{/portal/exam/slots}
+\medskip
+
+\mvao
+
+Không phải màn --- gọi ngầm khi người dùng bấm một ngày còn chỗ trên lịch.
+
+\mai
+
+Giống mục trên: phải đăng nhập và đang chọn cửa hàng.
+
+\mhien
+
+\begin{hienbang}
+Danh sách khung giờ &
+  \rt{wujia.exam.session} &
+  Kỳ thi của khóa đang chọn, \textbf{đúng ngày đó}, chưa bị huỷ &
+  Theo giờ bắt đầu &
+  \uat{3} ca giờ đang bật: 08--10, 14--16, 16--17 \\ \addlinespace
+Nhãn tình trạng &
+  --- &
+  Bốn khả năng theo thứ tự xét: \emph{Đã đóng} (kỳ không còn mở) $\rightarrow$ \emph{Hết hạn}
+  (quá hạn đăng ký) $\rightarrow$ \emph{Hết chỗ} (không còn ghế) $\rightarrow$ \emph{Còn n chỗ} &
+  --- & --- \\ \addlinespace
+Thông tin kèm theo &
+  \rt{wujia.exam.session} &
+  Địa điểm, hạn đăng ký, số ghế còn, \textbf{giới hạn người mỗi phiếu} &
+  --- &
+  Kỳ 25/08 cho \uat{3} người/phiếu trong khi khóa của nó đặt \uat{2} \\
+\end{hienbang}
+
+\textbf{Giới hạn người mỗi phiếu} lấy của \textbf{kỳ thi} trước; kỳ để trống mới lấy của khóa.
+Đây là nguồn duy nhất dùng cho cả câu hướng dẫn trên màn, phép đếm hạn mức, lẫn phép kiểm lúc
+gửi --- nên ba chỗ không bao giờ lệch nhau.
+
+\mloc
+
+Hai tham số: khóa thi và ngày. Ngày nhận cả dạng \emph{2026-08-25} lẫn \emph{25/08/2026}.
+
+\mkiem{gọi}
+
+\begin{kiembang}
+1 & Đang chọn cửa hàng & ``Vui lòng chọn cửa hàng trước khi thao tác.'' \\
+2 & Khóa thi tồn tại và đã phát hành, ngày đọc được & ``Lịch thi không hợp lệ.'' \\
+\end{kiembang}
+
+\textbf{Không} kiểm ngày có nằm trong cửa sổ 60 ngày hay không --- màn lịch đã chặn từ trước
+bằng cách không cho bấm những ngày đó.
+
+\mghi
+
+\textbf{Không ghi gì.}
+
+\mhoi
+
+\begin{ask}
+\textbf{Kỳ thi đặt giới hạn người riêng, khác giới hạn của khóa.} Trên UAT kỳ 25/08 cho 3 người
+mỗi phiếu còn khóa của nó ghi 2. Anh xác nhận cách này (kỳ đè khóa) là đúng ý.
+\end{ask}
+
+% =============================================================================
+\section{Gửi phiếu đăng ký thi}
+\rt{/portal/exam/register} \note{(gửi phiếu)}
+\medskip
+
+\mvao
+
+Không phải màn --- nút \emph{Xác nhận đăng ký} ở bước cuối của màn đăng ký.
+
+\mai
+
+Phải đăng nhập và đang chọn cửa hàng. Không chặn vai trò. Cửa hàng ghi vào phiếu là
+\textbf{cửa hàng đang chọn}, không phải số mà màn gửi lên --- nên không sửa được bằng cách can
+thiệp dữ liệu gửi đi.
+
+\mhien
+
+Gửi xong thì chuyển thẳng sang màn chi tiết của phiếu vừa tạo.
+
+\mloc
+
+\begin{itemize}[leftmargin=*]
+  \item \textbf{Khung giờ} --- chọn từ bảng khung giờ.
+  \item \textbf{Danh sách người dự thi} --- mỗi người gồm \textbf{họ tên} (bắt buộc),
+        \textbf{số điện thoại} (bắt buộc), \textbf{năm sinh}, \textbf{chức vụ}, \textbf{ảnh}.
+        Người dự thi \textbf{gõ tay hoàn toàn}, không chọn từ danh sách nhân sự nào.
+  \item \textbf{Ghi chú} --- một dòng, không bắt buộc.
+  \item \textbf{Ảnh} --- chỉ nhận PNG hoặc JPEG, tối đa \textbf{5 MB} mỗi ảnh; ảnh được
+        \textbf{thu nhỏ về tối đa 1920 điểm ảnh} trước khi lưu.
+\end{itemize}
+
+\mkiem{Xác nhận đăng ký}
+
+\begin{kiembang}
+1 & Đang chọn cửa hàng & ``Vui lòng chọn cửa hàng trước khi thao tác.'' \\
+2 & Khung giờ còn tồn tại và khóa của nó đã phát hành &
+    ``Khung giờ đã thay đổi hoặc không còn. Vui lòng chọn lại lịch thi.'' \\
+3 & Có ít nhất 1 người dự thi & ``Cần ít nhất 1 người dự thi.'' \\
+4 & Số người không vượt giới hạn mỗi phiếu & ``Tối đa n người mỗi phiếu.'' \\
+5 & Mỗi người đủ họ tên và số điện thoại & ``Mỗi người dự thi cần có họ tên và số điện thoại.'' \\
+6 & Số điện thoại đúng dạng (bắt đầu 0 hoặc +84, 9--11 chữ số) &
+    ``Số điện thoại '…' không hợp lệ (vd 0901234567).'' \\
+7 & Năm sinh là số & ``Năm sinh '…' không hợp lệ.'' \\
+8 & Ảnh đúng định dạng, đúng dung lượng, không hỏng &
+    ``Ảnh nhân viên không đúng định dạng hoặc vượt dung lượng cho phép.'' /
+    ``Ảnh nhân viên không hợp lệ hoặc bị hỏng.'' \\
+9 & Kỳ thi \textbf{đang mở đăng ký} & ``Kỳ thi '…' không mở đăng ký.'' \\
+10 & \textbf{Chưa quá hạn đăng ký} & ``Kỳ thi '…' đã quá hạn đăng ký.'' \\
+11 & \textbf{Còn đủ ghế} sau khi cộng số người của phiếu này &
+    ``Kỳ thi '…' đã hết chỗ (sức chứa n, đã giữ m).'' \\
+12 & Không có phiếu khác đang được ghi cùng lúc cho kỳ này &
+    ``Hệ thống đang xử lý đăng ký khác cho kỳ thi này, vui lòng thử lại.'' \\
+\end{kiembang}
+
+Bước 9--12 là phần đáng chú ý nhất: \textbf{hệ thống khoá dòng kỳ thi lại rồi mới đếm ghế},
+nên hai cửa hàng bấm gửi cùng lúc không thể cùng chiếm chỗ cuối. Nếu kỳ thi hết chỗ ngay lúc
+đó, phiếu \textbf{không được ghi} và người dùng nhận câu báo rõ ràng thay vì lỗi kỹ thuật.
+
+Năm sinh còn bị kiểm thêm ở tầng dữ liệu: phải nằm trong khoảng \textbf{1900 đến năm hiện tại}.
+
+\mghi
+
+\begin{itemize}[leftmargin=*]
+  \item Tạo một phiếu \rt{wujia.exam.registration}, mã tự sinh dạng \emph{WJ-EXR/26/00004},
+        trạng thái \textbf{Chờ xác nhận} --- \textbf{không có trạng thái nháp}.
+  \item Người đăng ký = người đang đăng nhập; cửa hàng = cửa hàng đang chọn; hệ thống còn
+        \textbf{tự tìm tư cách thành viên} của người đó tại cửa hàng để gắn vào phiếu.
+  \item Tạo một dòng \rt{wujia.exam.registration.line} cho mỗi người dự thi, kết quả để
+        \emph{Chưa có}.
+  \item \textbf{Ghi ngay số ghế đã giữ} của kỳ thi --- phiếu chờ duyệt đã chiếm chỗ, không đợi
+        Ngô Gia xác nhận.
+  \item \textbf{Không} gửi email, \textbf{không} tạo việc cần làm. Ngô Gia phải tự vào ERP xem.
+\end{itemize}
+
+\mhoi
+
+\begin{ask}
+\begin{enumerate}[leftmargin=*]
+  \item \textbf{Phiếu chờ duyệt đã chiếm ghế.} Cửa hàng gửi phiếu rồi bỏ đó sẽ khoá chỗ của
+        cửa hàng khác cho tới khi Ngô Gia từ chối. Anh muốn giữ vậy, hay chỉ tính ghế khi đã
+        xác nhận?
+  \item \textbf{Người dự thi gõ tay hoàn toàn}, không nối với danh sách nhân sự của cửa hàng.
+        Gõ sai tên thì không có gì đối chiếu. Anh có cần nối vào danh sách thành viên cửa hàng
+        không?
+  \item \textbf{Gửi phiếu xong không ai được báo} --- giống Hỗ trợ ở chương 7.
+  \item \textbf{Không có bước xem lại trước khi gửi ở bản điện thoại} sau khi bấm xác nhận ---
+        bấm là gửi luôn.
+\end{enumerate}
+\end{ask}
+
+% =============================================================================
+\section{Màn Chi tiết phiếu đăng ký · kết quả thi}
+\rt{/portal/exam/registration/<int:reg_id>}
+\medskip
+
+\mvao
+
+Bấm một dòng ở màn danh sách, hoặc được đưa tới ngay sau khi gửi phiếu.
+
+\mai
+
+Phiếu phải thuộc \textbf{cửa hàng đang chọn}. Phiếu của cửa hàng khác --- kể cả cửa hàng mà tôi
+cũng truy cập được --- \textbf{không mở được} cho tới khi đổi sang cửa hàng đó. Sai thì về danh
+sách, không có thông báo. Không chặn vai trò.
+
+\mhien
+
+\begin{hienbang}
+Thông tin phiếu &
+  \rt{wujia.exam.registration} &
+  Mã phiếu, khóa thi, ngày giờ thi, địa điểm, cửa hàng, người đăng ký, ngày nộp, số người &
+  --- &
+  Phiếu UAT: \uat{1} người, nộp 03/08 \\ \addlinespace
+Băng thông báo theo trạng thái &
+  \rt{state} &
+  Bốn trạng thái ra bốn băng khác nhau: chờ xác nhận (nhắc portal chưa hiện kết quả) · đã xác
+  nhận · từ chối (kèm \textbf{lý do từ chối}) · đã huỷ (kèm \textbf{lý do huỷ}) &
+  --- & --- \\ \addlinespace
+Danh sách người dự thi &
+  \rt{wujia.exam.registration.line} &
+  Họ tên, điện thoại, năm sinh, chức vụ, ảnh &
+  Theo thứ tự nhập &
+  \uat{0}/1 người có ảnh \\ \addlinespace
+Cột kết quả &
+  \rt{result} &
+  \textbf{Chỉ hiện khi kỳ thi đã công bố kết quả}; chưa công bố thì mọi người đều hiện
+  \emph{Chưa có} dù Ngô Gia đã nhập điểm trong ERP &
+  --- &
+  \uat{1} người Đạt \\ \addlinespace
+Bảng kết quả (máy tính) &
+  --- &
+  Chỉ hiện khi phiếu \textbf{đã được xác nhận}. Phiếu bị từ chối hoặc bị huỷ không có bảng này. &
+  --- & --- \\ \addlinespace
+Lời nhắc thi lại &
+  --- &
+  Chỉ hiện khi đã công bố \textbf{và} thật sự có người không đạt &
+  --- & --- \\
+\end{hienbang}
+
+\mloc
+
+Không có ô lọc, không có ô nhập.
+
+\mkiem{--- }
+
+\textbf{Màn này không có nút nào ghi dữ liệu.} Không sửa, không huỷ, không gửi lại.
+
+\mghi
+
+\textbf{Không ghi gì.}
+
+\mhoi
+
+\begin{ask}
+\begin{enumerate}[leftmargin=*]
+  \item \textbf{Portal không huỷ được phiếu.} Cửa hàng đăng ký nhầm phải gọi Ngô Gia; trong
+        ERP người huỷ còn bắt buộc nhập lý do. Anh có muốn cho cửa hàng tự huỷ khi phiếu còn
+        \emph{Chờ xác nhận} không?
+  \item \textbf{Phiếu bị từ chối là ngõ cụt} --- không sửa, không gửi lại; phải tạo phiếu mới
+        từ đầu, gõ lại toàn bộ người dự thi.
+  \item \textbf{Chỉ mở được phiếu của cửa hàng đang chọn}, dù luật dữ liệu cho phép xem mọi cửa
+        hàng của mình --- cùng câu hỏi với màn danh sách.
+\end{enumerate}
+\end{ask}
+
+% =============================================================================
+\section{Ảnh thí sinh trong phiếu}
+\rt{/portal/exam/line/<int:line_id>/photo}
+\medskip
+
+\mvao
+
+Không phải màn --- là ảnh hiện trong bảng người dự thi ở màn chi tiết.
+
+\mai
+
+\begin{kiembang}
+1 & Đang chọn cửa hàng & Từ chối truy cập \\
+2 & Dòng người dự thi thuộc \textbf{cửa hàng đang chọn} & Báo không tìm thấy \\
+3 & Người đó thật sự có ảnh & Báo không tìm thấy \\
+\end{kiembang}
+
+\mhien
+
+Trả về ảnh đã thu nhỏ, kèm cơ chế đệm của trình duyệt nên mở lại không tải lại.
+
+\mloc
+
+Không có.
+
+\mkiem{ảnh}
+
+Xem bảng trên.
+
+\mghi
+
+\textbf{Không ghi gì.}
+
+\mhoi
+
+\begin{ask}
+Không có điểm cần chốt.
+\end{ask}
+
+% =============================================================================
+\section{Đường dẫn cũ của phân hệ Đăng ký thi}
+\rt{/portal/exam-registration}
+\medskip
+
+Đường dẫn của bản portal cũ (v14) được giữ lại và \textbf{chuyển hướng vĩnh viễn} sang
+\rt{/portal/exam}. Lý do giữ: khoảng 1.500 tài khoản cửa hàng có thể còn lưu liên kết cũ trong
+trình duyệt hoặc trong email Ngô Gia đã gửi.
+
+Đường dẫn này \textbf{không đòi đăng nhập} --- nó chỉ chuyển hướng; màn đích mới hỏi đăng nhập.
+\textbf{Không ghi gì.}
+
+\begin{ask}
+Không có điểm cần chốt --- đây là phần giữ tương thích, BA không cần lên task.
+\end{ask}

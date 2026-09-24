@@ -63,13 +63,13 @@
                                                t-att-step="product.min_qty or 1"
                                                t-att-value="product.min_qty or 1"/>
                                         <button type="button"
-                                                class="btn wj-cta-btn btn-add-cart-detail"
+                                                class="wj-btn wj-btn--primary btn-add-cart-detail"
                                                 t-att-data-product-id="product.id"
                                                 t-att-data-min-qty="product.min_qty or 1"
                                                 t-att-data-max-qty="str(product.max_qty or 0)">
                                             <i class="fa fa-cart-plus me-1"/>Thêm vào giỏ
                                         </button>
-                                        <a href="/portal/order/cart" class="btn btn-outline-secondary">
+                                        <a href="/portal/order/cart" class="wj-btn wj-btn--secondary">
                                             <i class="fa fa-shopping-basket me-1"/>Xem giỏ
                                         </a>
                                     </div>

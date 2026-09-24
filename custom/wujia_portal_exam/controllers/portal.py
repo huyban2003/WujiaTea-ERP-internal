@@ -34,6 +34,7 @@ from odoo.addons.wujia_portal_base.controllers.portal import (
 )
 from odoo.addons.wujia_portal_base.controllers.utils import (
     build_pager,
+    date_range_error,
     parse_page_size,
     status_badge,
     status_badge_for,
@@ -293,7 +294,10 @@ class WujiaPortalExam(http.Controller):
         # whitelist ?limit: giá trị ngoài ô chọn (?limit=100000) rơi về mặc định route.
         size = parse_page_size(limit, PAGE_SIZE, PAGE_SIZES)
         m_items, pc_regs, total = [], [], 0
-        if fid:
+        # Ngày ngược: không chạy query, giữ nguyên 2 ô đã nhập, báo TẠI thanh lọc
+        # thay vì để domain vô nghiệm rồi hiện "chưa có đăng ký thi".
+        filter_error = date_range_error(date_from, date_to)
+        if fid and not filter_error:
             domain = [('franchise_id', '=', fid)]
             if state in M_REG_BADGE:
                 domain.append(('state', '=', state))
@@ -330,6 +334,8 @@ class WujiaPortalExam(http.Controller):
             'pc_regs': pc_regs, 'pc_reg_states': PC_REG_STATES,
             'pgn': pgn,
             'f_state': state, 'f_result': result, 'f_q': q,
+            'f_date_from': date_from, 'f_date_to': date_to,
+            'filter_error': filter_error,
         })
 
     # --------------------------------------------------------------- register

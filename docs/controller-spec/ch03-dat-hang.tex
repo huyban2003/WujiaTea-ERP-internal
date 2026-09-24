@@ -1,0 +1,536 @@
+\chapter{Phân hệ Đặt hàng}
+
+Phân hệ này gồm \textbf{14 đường dẫn} gom thành \textbf{6 màn} người dùng nhìn thấy, nằm trong
+mô-đun \rt{wujia_portal_sale} (tệp \rt{controllers/portal.py}). Đây là phân hệ phức tạp nhất của
+portal: nó vừa hiển thị hàng hoá, vừa giữ giỏ, vừa sinh ra đơn hàng thật trong ERP.
+
+\textbf{Bốn nguyên tắc đang chạy}, cần nắm trước khi đọc từng màn:
+
+\begin{enumerate}[leftmargin=*]
+  \item \textbf{Giỏ hàng là của CỬA HÀNG, không phải của người dùng.} Mỗi cửa hàng có đúng một
+        giỏ (\rt{wujia.portal.cart}, ràng buộc duy nhất trên cửa hàng). Chủ, quản lý và nhân
+        viên cùng cửa hàng thao tác trên cùng một giỏ; ai sửa sau thì giá trị của người đó
+        thắng. Người khác đang mở màn giỏ sẽ thấy thay đổi \textbf{ngay lập tức} (bản tin
+        realtime theo kênh của cửa hàng).
+  \item \textbf{Giá luôn do máy chủ tính}, không tin số do trình duyệt gửi lên. Giá lấy theo
+        \emph{bảng giá} gắn với khách hàng của cửa hàng, rồi qua bộ tính thuế của Odoo. Cùng một
+        hàm dựng giá được dùng cho lưới sản phẩm, trang chi tiết, giỏ và màn kết quả --- nên
+        năm chỗ này không bao giờ lệch số.
+  \item \textbf{Đơn gửi từ portal luôn ở trạng thái Nháp}, hệ thống không tự xác nhận. Ngô Gia
+        xử lý tiếp trong ERP.
+  \item \textbf{Một cửa hàng chỉ có một đơn nháp từ portal.} Gửi đơn mới thì đơn nháp/đã gửi cũ
+        của chính cửa hàng đó bị huỷ trong cùng một lượt.
+\end{enumerate}
+
+\section{Màn Danh sách sản phẩm}
+\rt{/portal/order} · \rt{/portal/order/results}
+\medskip
+
+\mvao
+
+Vào từ mục \emph{Đặt hàng} trên thanh điều hướng (cột trái ở máy tính, thanh dưới ở điện thoại).
+Đường dẫn thứ hai \rt{/portal/order/results} \textbf{không phải màn riêng}: khi người dùng gõ
+tìm kiếm hoặc bấm danh mục, trình duyệt gọi ngầm đường dẫn này để lấy về đúng phần kết quả và
+thay tại chỗ, không tải lại cả trang. Hai đường dẫn dùng chung một bộ dữ liệu, nên mọi luật mô
+tả dưới đây đúng cho cả hai.
+
+\mai
+
+\begin{itemize}[leftmargin=*]
+  \item Phải \textbf{đăng nhập}. Khách vãng lai bị đẩy về trang đăng nhập.
+  \item Nếu tài khoản \textbf{không thuộc cửa hàng nào} còn hiệu lực, màn hiện trạng thái rỗng
+        ``chưa có cửa hàng'' --- không có sản phẩm, không có giỏ.
+  \item \textbf{Cửa hàng đang chọn} được lấy từ \emph{cookie} \rt{wujia_active_franchise_id}
+        (lưu 30 ngày trên máy người dùng), và chỉ được chấp nhận nếu cửa hàng đó nằm trong danh
+        sách cửa hàng mà tài khoản có thành viên còn hiệu lực. Ai chỉ thuộc \textbf{một} cửa
+        hàng thì hệ thống tự chọn, không hỏi.
+  \item \textbf{Vai trò không ảnh hưởng màn này}: Chủ, Quản lý hay Nhân viên đều xem và thêm vào
+        giỏ như nhau. Phân biệt vai trò chỉ xuất hiện ở các phân hệ khác (công nợ, thành viên).
+  \item Nếu \textbf{chưa chọn được cửa hàng} (tài khoản có nhiều cửa hàng mà chưa bấm chọn),
+        màn \textbf{vẫn hiện đủ sản phẩm} nhưng: giá rơi về \emph{giá niêm yết} của sản phẩm
+        thay vì giá theo bảng giá cửa hàng, giỏ hàng trống, và có dải cảnh báo
+        ``Vui lòng chọn cửa hàng trước khi đặt hàng''. Đây là điểm dễ hiểu nhầm --- xem mục 7.
+  \item Dữ liệu sản phẩm được đọc \textbf{bằng quyền hệ thống} (bỏ qua phân quyền của người
+        dùng portal). Việc giới hạn nằm hoàn toàn ở điều kiện lọc bên dưới, không dựa vào
+        quy tắc quyền của Odoo.
+\end{itemize}
+
+\mhien
+
+\begin{hienbang}
+Lưới sản phẩm &
+  \rt{product.product} &
+  Bật cờ \emph{Hiện trên portal} (\rt{is_public_portal = true}) \textbf{và} chưa lưu trữ
+  (\rt{active = true}). Có từ khoá thì thêm: tên \textbf{hoặc} mã sản phẩm chứa từ khoá. Có
+  chọn danh mục thì thêm: đúng danh mục đó. &
+  Theo tên A$\rightarrow$Z; 24 sản phẩm/trang &
+  \uat{5}/8 sản phẩm đang bật cờ \\ \addlinespace
+Bộ lọc danh mục &
+  \rt{wujia.product.category} &
+  Chỉ những danh mục \textbf{đang có ít nhất một sản phẩm hiện trên portal}. Danh mục đã lưu
+  trữ tự động không hiện. &
+  Theo \emph{Thứ tự} rồi tên &
+  \uat{2} danh mục (Trà, Topping) \\ \addlinespace
+Giá từng sản phẩm &
+  Bảng giá của khách hàng gắn với cửa hàng &
+  Lấy bảng giá ở trường \emph{Bảng giá} của khách hàng cửa hàng; chưa có bảng giá (hoặc chưa
+  chọn cửa hàng) thì dùng \emph{giá niêm yết} của sản phẩm. Số hiển thị là giá \textbf{đã gồm
+  thuế}, tính theo vị thế tài khoán của chính khách hàng đó. &
+  --- &
+  4/4 cửa hàng đều đã gắn khách hàng \\ \addlinespace
+Số trong giỏ trên mỗi thẻ &
+  \rt{wujia.portal.cart.line} &
+  Dòng thuộc giỏ của cửa hàng đang chọn. &
+  --- &
+  \uat{6} dòng trong \uat{2} giỏ \\ \addlinespace
+Dải khung giờ đặt hàng &
+  \rt{wujia.order.window} + tham số chung &
+  Theo khu vực của cửa hàng; khu vực chưa cấu hình thì rơi về khung giờ chung. Chi tiết ở
+  \textbf{mục 3.7}. &
+  --- &
+  \uat{1} khung theo khu vực / 2 khu vực \\
+\end{hienbang}
+
+\textbf{Trường nào hiện lên thẻ sản phẩm:} ảnh sản phẩm, tên (\rt{name}), tên tiếng Trung
+(\rt{name_chinese}, để trống thì không hiện dòng đó), mã (\rt{default_code}), quy cách đóng gói
+(\rt{wujia_packaging}, trống thì hiện dấu ``---''), đơn vị tính, giá đã gồm thuế, số lượng tối
+thiểu (\rt{min_qty}) dùng làm \textbf{bước tăng giảm}.
+
+\mloc
+
+\begin{itemize}[leftmargin=*]
+  \item \textbf{Ô tìm kiếm} --- tìm theo \emph{tên} hoặc \emph{mã sản phẩm}, không phân biệt hoa
+        thường, khớp một phần. \textbf{Không} tìm theo tên tiếng Trung và \textbf{không} tìm
+        theo quy cách.
+  \item \textbf{Danh mục} --- một danh mục tại một thời điểm. Giá trị lạ (không phải số) bị bỏ
+        qua, coi như không lọc.
+  \item \textbf{Số sản phẩm mỗi trang} --- chỉ nhận \textbf{24, 48, 96}; gửi số khác thì hệ
+        thống lặng lẽ dùng 24.
+  \item \textbf{Trang} --- số trang vượt quá trang cuối thì tự kéo về trang cuối, không báo lỗi.
+        Đổi trang giữ nguyên từ khoá và danh mục đang chọn.
+\end{itemize}
+
+\mkiem{Thêm vào giỏ}
+
+Nút này không tải lại trang mà gọi ngầm \rt{/portal/order/cart/add}. Thứ tự kiểm đúng như code
+đang chạy:
+
+\begin{kiembang}
+1 & Đã chọn được cửa hàng hợp lệ &
+    ``Vui lòng chọn cửa hàng trước khi đặt hàng.'' --- hoặc ``Bạn không có quyền thao tác tại
+    cửa hàng này'' / ``Tài khoản của bạn hiện không còn hiệu lực tại cửa hàng này'' nếu cookie
+    còn trỏ tới cửa hàng cũ \\
+2 & Mã sản phẩm gửi lên là số & ``Dữ liệu gửi lên không hợp lệ.'' \\
+3 & Sản phẩm còn tồn tại, chưa lưu trữ, còn bật cờ hiện trên portal &
+    ``Sản phẩm này hiện không còn được phép đặt hàng.'' \\
+4 & Sản phẩm đã cấu hình số lượng tối thiểu (\rt{min_qty > 0}) &
+    ``Sản phẩm chưa được cấu hình số lượng đặt tối thiểu. Vui lòng liên hệ Ngô Gia.'' \\
+5 & Số lượng gửi lên (nếu có) là \textbf{số nguyên} &
+    ``Số lượng của \emph{tên sản phẩm} phải là số nguyên.'' --- 1,5 bị từ chối, \textbf{không}
+    làm tròn \\
+6 & Số lượng $\geq$ tối thiểu & ``Số lượng tối thiểu của \emph{tên sản phẩm} là \emph{n}.'' \\
+7 & Số lượng là \textbf{bội số} của tối thiểu &
+    ``Số lượng của \emph{tên sản phẩm} phải tăng theo bước \emph{n}.'' \\
+8 & Số lượng $\leq$ tối đa (khi \rt{max_qty > 0}) &
+    ``Số lượng tối đa của \emph{tên sản phẩm} là \emph{n}.'' \\
+\end{kiembang}
+
+Bấm từ lưới sản phẩm thì trình duyệt \textbf{không gửi số lượng}, hệ thống tự cộng đúng một
+bước (bằng số lượng tối thiểu). Các bước 5--8 chỉ áp dụng khi người dùng gõ số tay ở trang chi
+tiết. Nếu cộng dồn vượt trần tối đa, hệ thống \textbf{cắt xuống đúng trần} và trả về cảnh báo
+chứ không báo lỗi.
+
+\mghi
+
+\begin{itemize}[leftmargin=*]
+  \item Tạo giỏ cho cửa hàng nếu chưa có, rồi \textbf{thêm hoặc cộng dồn} dòng
+        \rt{wujia.portal.cart.line} (mỗi sản phẩm một dòng duy nhất trong giỏ).
+  \item Thao tác cộng dồn chạy thẳng bằng một câu lệnh cơ sở dữ liệu nên hai người cùng bấm một
+        lúc \textbf{không mất số của nhau}.
+  \item Phát một bản tin realtime tới kênh của cửa hàng để mọi thiết bị khác đang mở giỏ tự cập
+        nhật.
+  \item Không ghi gì vào đơn hàng --- giỏ và đơn là hai thứ tách rời.
+\end{itemize}
+
+\mhoi
+
+\begin{ask}
+\begin{enumerate}[leftmargin=*]
+  \item \textbf{Sản phẩm chưa gán danh mục vẫn hiện.} Trên UAT có \uat{2}/5 sản phẩm bật cờ
+        portal nhưng bỏ trống \emph{Danh mục portal} (\emph{Hồng Trà Sữa size M},
+        \emph{Matcha Latte size M}). Chúng hiện ở danh sách chung nhưng \textbf{không bao giờ
+        xuất hiện} khi người dùng bấm lọc theo danh mục. Anh muốn (a) bắt buộc phải có danh mục
+        mới cho hiện, hay (b) thêm nhóm ``Khác''?
+  \item \textbf{Chưa chọn cửa hàng thì giá đang là giá niêm yết.} Người dùng nhiều cửa hàng, khi
+        chưa bấm chọn, vẫn thấy giá --- nhưng là giá gốc, không phải giá theo bảng giá của cửa
+        hàng. Có nên ẩn hẳn giá cho tới khi chọn cửa hàng không?
+  \item \textbf{Tìm kiếm chưa bao gồm tên tiếng Trung.} Màn có hiện \rt{name_chinese} nhưng ô
+        tìm kiếm không tìm theo trường đó. Có cần bổ sung không?
+  \item \textbf{Trên UAT chưa sản phẩm nào đặt trần tối đa} (\rt{max_qty} đều bằng 0 = không
+        giới hạn). Toàn bộ luật chặn ``số lượng tối đa'' vì vậy chưa từng chạy thật khi BA test.
+\end{enumerate}
+\end{ask}
+
+\section{Màn Chi tiết sản phẩm}
+\rt{/portal/order/product/<int:product_id>}
+\medskip
+
+\mvao
+
+Bấm vào một thẻ trong lưới sản phẩm.
+
+\mai
+
+Như màn danh sách. Riêng màn này, nếu sản phẩm \textbf{không tồn tại, đã lưu trữ, hoặc đã tắt cờ
+hiện trên portal}, người dùng bị đưa về màn danh sách kèm thông báo ``Sản phẩm này hiện không
+còn được phép đặt hàng'' --- hệ thống \textbf{cố ý không nói rõ} là sản phẩm không tồn tại hay
+người dùng không được xem, để không lộ dữ liệu.
+
+\mhien
+
+\begin{hienbang}
+Khối thông tin sản phẩm &
+  \rt{product.product} &
+  Chính sản phẩm được mở, phải đang \rt{is_public_portal = true} và \rt{active = true} &
+  --- & --- \\ \addlinespace
+Gợi ý ``sản phẩm liên quan'' &
+  \rt{product.product} &
+  Cùng \emph{danh mục portal} với sản phẩm đang xem, trừ chính nó, và cũng phải đang hiện trên
+  portal. Sản phẩm \textbf{không có danh mục} thì khối này rỗng. &
+  Theo tên A$\rightarrow$Z; tối đa 6 &
+  2/5 sản phẩm không có danh mục $\Rightarrow$ khối rỗng \\ \addlinespace
+Giá &
+  Bảng giá của cửa hàng &
+  Như màn danh sách --- cùng một hàm tính, nên hai màn luôn cùng số. &
+  --- & --- \\
+\end{hienbang}
+
+\mloc
+
+Không có bộ lọc. Người dùng chỉ gõ được \textbf{số lượng} trước khi bấm thêm vào giỏ.
+
+\mkiem{Thêm vào giỏ}
+
+Cùng đúng 8 bước kiểm của màn danh sách. Khác một điểm: ở đây trình duyệt \textbf{gửi số lượng
+tường minh}, nên các bước 5--8 (số nguyên, tối thiểu, bội số, tối đa) thực sự chạy.
+
+\mghi
+
+Giống màn danh sách.
+
+\mhoi
+
+\begin{ask}
+Khối ``sản phẩm liên quan'' đang dựa hoàn toàn vào danh mục portal. Với dữ liệu hiện tại, sản
+phẩm không có danh mục sẽ có khối này trống trơn. Anh muốn thay bằng ``sản phẩm hay đặt cùng''
+hay để nguyên?
+\end{ask}
+
+\section{Màn Giỏ hàng}
+\rt{/portal/order/cart} --- kèm 6 đường dẫn thao tác ngầm
+\medskip
+
+\mvao
+
+Bấm biểu tượng giỏ trên thanh trên cùng, hoặc nút ``Xem giỏ hàng''. Sáu đường dẫn còn lại không
+phải màn, mà là các thao tác trình duyệt gọi ngầm khi người dùng bấm nút:
+
+\begin{itemize}[leftmargin=*,itemsep=1pt]
+  \item \rt{/portal/order/cart/add} --- thêm sản phẩm (đã mô tả ở màn danh sách)
+  \item \rt{/portal/order/cart/step} --- bấm nút \emph{+} / \emph{--} (tăng giảm đúng một bước)
+  \item \rt{/portal/order/cart/update} --- gõ thẳng số lượng vào ô
+  \item \rt{/portal/order/cart/remove} --- bấm xoá dòng
+  \item \rt{/portal/order/cart/count} --- lấy số hiển thị trên biểu tượng giỏ
+  \item \rt{/portal/order/cart/note} --- lưu ghi chú đơn hàng
+  \item \rt{/portal/order/cart/fragment} --- lấy lại toàn bộ giỏ khi có người khác vừa sửa
+\end{itemize}
+
+\mai
+
+Người dùng \textbf{chưa thuộc cửa hàng nào} bị đưa thẳng về màn danh sách sản phẩm. Ngoài ra như
+màn danh sách: giỏ là giỏ chung của cửa hàng đang chọn, ai trong cửa hàng cũng sửa được, không
+phân biệt vai trò.
+
+\mhien
+
+\begin{hienbang}
+Danh sách dòng &
+  \rt{wujia.portal.cart.line} &
+  Thuộc giỏ của cửa hàng đang chọn (mỗi cửa hàng đúng một giỏ) &
+  Không phân trang &
+  \uat{6} dòng / \uat{2} giỏ \\ \addlinespace
+Đơn giá từng dòng &
+  Bảng giá của cửa hàng &
+  Tính lại \textbf{theo số lượng của chính dòng đó} --- bảng giá có bậc số lượng thì giá đổi
+  theo. Giỏ \textbf{không lưu giá}, mỗi lần mở là tính lại. &
+  --- & --- \\ \addlinespace
+Tạm tính · Thuế · Tổng thanh toán &
+  Tính tại máy chủ &
+  Cộng từ các dòng, làm tròn theo tiền tệ của bảng giá. Trình duyệt không tự cộng. &
+  --- & --- \\ \addlinespace
+Cảnh báo trên dòng &
+  Tính tại máy chủ &
+  Mỗi dòng được soi lại ba điều: sản phẩm còn được phép đặt không · đã cấu hình tối thiểu chưa ·
+  số lượng có đúng tối thiểu/bội số/tối đa không. &
+  --- & --- \\ \addlinespace
+Ghi chú đơn hàng &
+  \rt{wujia.portal.cart} trường \rt{note} &
+  Ghi chú \textbf{dùng chung cả cửa hàng}, tối đa 1000 ký tự. &
+  --- & --- \\
+\end{hienbang}
+
+\mloc
+
+Không có bộ lọc. Người dùng sửa được số lượng từng dòng và ghi chú chung.
+
+\mkiem{+ / -- / gõ số lượng / xoá}
+
+\begin{kiembang}
+1 & Đã chọn được cửa hàng hợp lệ & Thông báo như bảng ở màn danh sách \\
+2 & Dòng còn tồn tại và \textbf{thuộc đúng giỏ của cửa hàng đang chọn} &
+    \textbf{Không báo lỗi}: coi như dòng đã bị người cùng cửa hàng xoá, trả về giỏ mới nhất và
+    màn tự cập nhật \\
+3 & Sản phẩm đã cấu hình số lượng tối thiểu &
+    ``Sản phẩm chưa cấu hình số lượng tối thiểu.'' \\
+4 & Số lượng mới $\geq$ tối thiểu, đúng bội số, $\leq$ tối đa &
+    Thông báo tương ứng (tối thiểu / bước / tối đa) \\
+\end{kiembang}
+
+Hai hành vi đáng chú ý: \textbf{gõ số lượng bằng 0} hoặc \textbf{bấm ``--'' xuống dưới mức tối
+thiểu} đều \textbf{xoá dòng khỏi giỏ}, không báo lỗi. Và nút \emph{+} không cho trình duyệt gửi
+số lượng tuỳ ý --- nó chỉ gửi \emph{hướng} tăng hay giảm, máy chủ tự lấy bước --- nên hai người
+bấm cùng lúc không ghi đè nhau.
+
+\mghi
+
+\begin{itemize}[leftmargin=*]
+  \item Sửa hoặc xoá dòng trong giỏ của cửa hàng; lưu ghi chú vào giỏ.
+  \item Mỗi thay đổi phát một bản tin realtime tới kênh của cửa hàng.
+  \item Không đụng tới đơn hàng.
+\end{itemize}
+
+\mhoi
+
+\begin{ask}
+\begin{enumerate}[leftmargin=*]
+  \item \textbf{Ghi chú là của cửa hàng, không của người gửi.} Nhân viên A gõ ghi chú, nhân
+        viên B gửi đơn thì ghi chú của A đi theo đơn. Anh xác nhận đúng ý nghiệp vụ chứ?
+  \item \textbf{Giỏ không có lịch sử.} Khi hai người sửa chồng nhau, hệ thống lấy giá trị của
+        người sửa sau và không lưu lại ai đã sửa gì. Có cần nhật ký thao tác giỏ không?
+\end{enumerate}
+\end{ask}
+
+\section{Gửi đơn hàng}
+\rt{/portal/order/submit}
+\medskip
+
+\mvao
+
+Nút \emph{Gửi đơn} ở màn giỏ. Đây là đường dẫn \textbf{ghi dữ liệu thật} --- nó tạo đơn hàng
+trong ERP, nên có chống giả mạo biểu mẫu (CSRF) và chỉ nhận phương thức POST.
+
+\mai
+
+Chỉ người có thành viên còn hiệu lực tại cửa hàng đang chọn. Vai trò \textbf{không} giới hạn:
+nhân viên cũng gửi được đơn.
+
+\mhien
+
+Đường dẫn này \textbf{không hiện màn nào} --- nó chỉ nhận lệnh, ghi dữ liệu rồi chuyển hướng.
+Gửi thành công: trên điện thoại sang màn \emph{Đặt hàng thành công} (mục 3.5), trên máy tính sang
+thẳng trang chi tiết đơn ở phân hệ \emph{Lịch sử mua hàng}. Gửi hỏng: quay về màn giỏ kèm dải đỏ,
+riêng trường hợp ngoài khung giờ trên điện thoại thì sang màn \emph{Không thể gửi đơn} (mục 3.6).
+
+\mloc
+
+\textbf{Không có ô nhập nào.} Toàn bộ nội dung đơn lấy từ giỏ của cửa hàng đang chọn --- trình
+duyệt \textbf{không} gửi lên danh sách sản phẩm, số lượng hay giá. Đây là chủ đích: người dùng
+không thể can thiệp vào nội dung đơn bằng cách sửa dữ liệu gửi lên.
+
+\mkiem{Gửi đơn}
+
+Đây là chuỗi kiểm dài nhất của portal --- \textbf{11 lớp}, đúng thứ tự chạy:
+
+\begin{kiembang}
+1 & Chọn được cửa hàng hợp lệ & Về màn giỏ, dải đỏ theo từng trường hợp (chưa chọn / không có
+    quyền / hết hiệu lực) \\
+2 & Cửa hàng còn tồn tại & ``Bạn không có quyền thao tác tại cửa hàng này.'' \\
+3 & Cửa hàng \textbf{không bị khoá đặt hàng} (\rt{portal_locked}) &
+    ``Cửa hàng đang tạm khóa đặt hàng. Vui lòng liên hệ Ngô Gia.'' \\
+4 & Giỏ có ít nhất một dòng & ``Giỏ hàng chưa có sản phẩm.'' \\
+5 & \textbf{Không có người khác đang gửi đơn cùng lúc} (giỏ bị khoá trong lúc xử lý) &
+    ``Giỏ hàng đang được một người dùng khác gửi đơn. Vui lòng thử lại sau.'' \\
+6 & \textbf{Đang trong khung giờ đặt hàng} &
+    Điện thoại: chuyển sang màn riêng ``Không thể gửi đơn'' có ghi giờ mở lại. Máy tính: về giỏ
+    kèm dải ``Hiện ngoài khung giờ đặt hàng.'' \\
+7 & Mọi dòng trong giỏ đều hợp lệ (sản phẩm còn bán, số lượng đúng bước) &
+    ``Một số sản phẩm trong giỏ không còn được phép đặt'' hoặc ``Số lượng một số sản phẩm chưa
+    hợp lệ'' \\
+8 & Cửa hàng đã gắn \textbf{khách hàng} &
+    ``Cửa hàng chưa được cấu hình khách hàng đặt hàng. Vui lòng liên hệ Ngô Gia.'' \\
+9 & Đơn nháp cũ của cửa hàng \textbf{không bị khoá} &
+    ``Không thể hoàn tất đơn hàng do đơn nháp cũ chưa được xử lý.'' \\
+10 & Tạo được đơn hàng (ERP không từ chối) &
+    ``Không thể tạo đơn hàng. Vui lòng thử lại hoặc liên hệ Ngô Gia.'' \\
+11 & Huỷ được đơn nháp cũ \textbf{và} dọn được giỏ &
+    Hoàn tác toàn bộ --- kể cả đơn vừa tạo --- rồi báo lỗi. Không bao giờ để tồn tại hai đơn
+    nháp. \\
+\end{kiembang}
+
+Lớp 6 được kiểm \textbf{hai lần}: một lần ở màn, một lần nữa ngay trong ERP lúc tạo đơn. Kể cả
+khi ai đó gọi thẳng đường dẫn, đơn ngoài khung giờ vẫn bị chặn.
+
+\mghi
+
+\begin{itemize}[leftmargin=*]
+  \item \textbf{Tạo đơn} \rt{sale.order} ở trạng thái \textbf{Nháp}, đánh dấu \rt{is_portal_order},
+        gắn cửa hàng, khách hàng của cửa hàng, bảng giá tương ứng, nguồn ``Wujia Portal'',
+        người gửi và bản ghi thành viên tại thời điểm gửi.
+  \item Ghi chú của giỏ được chép sang đơn ở \textbf{hai trường}: một trường văn bản thuần cho
+        trang Lịch sử của portal, một trường ghi chú chuẩn của Odoo.
+  \item Mỗi dòng giỏ thành một dòng đơn (sản phẩm, số lượng, đơn vị tính). \textbf{Giá không
+        chép sang} --- Odoo tự tính lại theo bảng giá đã gắn, nên giá trên đơn khớp giá người
+        dùng vừa thấy.
+  \item \textbf{Huỷ} mọi đơn portal cũ của cửa hàng đang ở Nháp/Đã gửi.
+  \item \textbf{Dọn sạch} dòng và ghi chú của giỏ, rồi phát bản tin realtime.
+  \item Người đứng tên đơn là \textbf{chính tài khoản portal} đã bấm gửi.
+\end{itemize}
+
+\mhoi
+
+\begin{ask}
+\begin{enumerate}[leftmargin=*]
+  \item \textbf{Nhân viên gửi được đơn.} Hiện không phân biệt vai trò ở bước gửi. Nếu nghiệp vụ
+        muốn ``chỉ Chủ/Quản lý được gửi đơn'' thì đây là chỗ cần thêm luật.
+  \item \textbf{Huỷ đơn nháp cũ là im lặng.} Cửa hàng gửi đơn lần hai trong ngày sẽ mất đơn lần
+        một mà không có cảnh báo trước. Có cần hộp xác nhận ``đơn cũ sẽ bị huỷ'' không?
+  \item \textbf{Đơn không tự xác nhận.} Hiện Ngô Gia phải vào ERP xác nhận. Đúng như thiết kế
+        chứ, hay cần tự xác nhận trong khung giờ?
+\end{enumerate}
+\end{ask}
+
+\section{Màn Đặt hàng thành công}
+\rt{/portal/order/submitted/<int:order_id>}
+\medskip
+
+\mvao
+
+Tự chuyển tới sau khi gửi đơn thành công \textbf{trên điện thoại}. Trên máy tính, người dùng
+được đưa thẳng sang trang chi tiết đơn ở phân hệ Lịch sử mua hàng --- hai luồng khác nhau có chủ ý.
+
+\mai
+
+Chỉ xem được đơn \textbf{của chính cửa hàng đang chọn} và phải là đơn đặt qua portal. Sai điều
+kiện --- kể cả khi gõ tay số đơn của cửa hàng khác --- thì bị đưa về màn danh sách sản phẩm,
+không báo gì thêm. Đơn đã huỷ cũng bị chặn ở đây, vì màn này chỉ nói về đơn vừa gửi thành công.
+
+\mhien
+
+\begin{hienbang}
+Mã đơn, ngày giờ gửi &
+  \rt{sale.order} &
+  Đúng đơn vừa tạo; ngày giờ quy về múi giờ người dùng &
+  --- &
+  \uat{23} đơn đặt từ portal \\ \addlinespace
+Tạm tính · Thuế · Tổng &
+  \rt{sale.order} &
+  Lấy thẳng số tiền của đơn, ký hiệu tiền tệ theo chính đơn đó (không viết cứng ``đ'') &
+  --- & --- \\ \addlinespace
+Trạng thái đơn &
+  \rt{sale.order} trường \rt{state} &
+  Dùng \textbf{chung bảng nhãn} với trang Lịch sử mua hàng --- nháp hiển thị là
+  ``Chờ xác nhận''. &
+  --- &
+  \uat{3} đơn portal đang chờ xác nhận \\
+\end{hienbang}
+
+\mloc\ Không có ô nhập nào. \quad
+\mkiem{Về trang chủ / Xem chi tiết đơn}\ Hai nút trên màn chỉ là liên kết sang màn khác,
+không kiểm gì. \quad \mghi\ Không ghi gì --- màn chỉ đọc.
+
+\mhoi
+
+\begin{ask}
+Máy tính và điện thoại kết thúc ở \textbf{hai màn khác nhau} sau khi gửi đơn (máy tính sang
+trang chi tiết đơn, điện thoại ở màn xác nhận này). Anh xác nhận giữ nguyên chứ?
+\end{ask}
+
+\section{Màn Không thể gửi đơn}
+\rt{/portal/order/rejected}
+\medskip
+
+\mvao
+
+Chỉ dùng cho \textbf{một trường hợp duy nhất}: gửi đơn ngoài khung giờ, trên điện thoại. Mọi lý
+do khác đều quay về màn giỏ kèm dải cảnh báo, vì ở đó người dùng sửa được ngay. Nếu ai gõ tay
+đường dẫn với lý do lạ, hệ thống đưa về giỏ --- \textbf{không hiển thị lại chuỗi người dùng tự
+gõ}, tránh bị lợi dụng để hiện nội dung giả.
+
+\mai\ Như màn giỏ.
+
+\mhien
+
+\begin{hienbang}
+Khung giờ mở lại &
+  \rt{wujia.order.window} hoặc tham số chung &
+  Lấy khung gần nhất sắp mở; nếu bây giờ đã qua giờ mở của mọi khung thì lấy khung đầu tiên của
+  \textbf{ngày mai}. Có ghi rõ ``Hôm nay'' hay ngày cụ thể. &
+  --- &
+  Khu vực Hà Nội chưa cấu hình $\Rightarrow$ dùng khung chung 10:00--04:00 \\
+\end{hienbang}
+
+\mloc\ Không có ô nhập nào. \quad
+\mkiem{Quay lại giỏ hàng}\ Nút duy nhất trên màn chỉ là liên kết về màn giỏ, không kiểm gì.
+\quad \mghi\ Không ghi gì.
+
+\mhoi\ Không có điểm treo.
+
+\section{Khung giờ đặt hàng --- luật dùng chung}
+\label{sec:khung-gio}
+
+Đây là luật bị hỏi nhiều nhất, nên tách riêng. Hệ thống quyết định ``có đang trong giờ đặt hàng
+không'' theo \textbf{ba bậc}:
+
+\begin{enumerate}[leftmargin=*]
+  \item \textbf{Công tắc tổng}. Tham số \rt{portal_order_time_limit_enabled}. Tắt thì đặt hàng
+        \textbf{mọi lúc}, không xét gì thêm. \note{(UAT: đang BẬT)}
+  \item \textbf{Khung giờ theo khu vực}. Nếu khu vực của cửa hàng có ít nhất một khung
+        (\rt{wujia.order.window}) đang hoạt động, hệ thống chỉ xét các khung đó và cho đặt khi
+        \textbf{bất kỳ khung nào} đang mở. Một khu vực được phép có nhiều khung (sáng + chiều).
+  \item \textbf{Khung giờ chung}. Khu vực không có khung riêng thì dùng cặp tham số chung
+        \rt{portal_order_time_from} / \rt{portal_order_time_to}. \note{(UAT: 10:00--04:00)}
+\end{enumerate}
+
+Khung có giờ kết thúc \textbf{nhỏ hơn} giờ bắt đầu được hiểu là \textbf{vắt qua nửa đêm} (ví dụ
+10:00 hôm nay đến 04:00 ngày mai); màn hiển thị ghi rõ ``hôm nay'' / ``ngày mai'' kèm ``UTC+7''
+để không hiểu nhầm.
+
+\textbf{Hiện trạng trên UAT:}
+
+\begin{center}\footnotesize
+\begin{tabular}{L{3.9cm}L{3.3cm}L{3.9cm}L{3.5cm}}
+\rowcolor{hdrbg}\textbf{Cửa hàng} & \textbf{Khu vực} & \textbf{Khung giờ áp dụng} &
+  \textbf{Nguồn}\\ \midrule
+TP HCM Quận 1 (HCM-01) & TP HCM Quận 1--3 & 00:00 -- 23:50 & Khung của khu vực \\
+Cầu Giấy (HN-01) & Hà Nội Trung tâm & 10:00 -- 04:00 & Khung chung \\
+Đống Đa (HN-02) & Hà Nội Trung tâm & 10:00 -- 04:00 & Khung chung \\
+Cửa hàng TEST Issue 134 & Hà Nội Trung tâm & 10:00 -- 04:00 & Khung chung \\
+\end{tabular}
+\end{center}
+
+\mhoi
+
+\begin{ask}
+\begin{enumerate}[leftmargin=*]
+  \item \textbf{Tên khung giờ không khớp giờ thật.} Khung duy nhất trên UAT \textbf{tên là}
+        ``00:00 - 05:00'' nhưng giờ thật đang là \textbf{00:00 -- 23:50}. Tên là chữ người dùng
+        tự gõ, hệ thống không kiểm --- và chính chuỗi tên này hiện lên portal. Có cần bắt hệ
+        thống tự sinh tên theo giờ không?
+  \item \textbf{Giờ được tính theo múi giờ của TÀI KHOẢN đăng nhập}, không theo khu vực của cửa
+        hàng, trong khi dải thông báo luôn ghi ``UTC+7''. Tài khoản chưa đặt múi giờ sẽ bị tính
+        theo giờ UTC --- lệch 7 tiếng so với chữ hiển thị. Đề nghị chốt: lấy múi giờ theo
+        \textbf{khu vực cửa hàng}, hay ép mọi tài khoản portal về giờ Việt Nam?
+  \item \textbf{Khu vực Hà Nội (3/4 cửa hàng) chưa có khung riêng} nên đang chạy khung chung. BA
+        xác nhận đây là ý muốn, hay cần cấu hình khung riêng cho Hà Nội?
+\end{enumerate}
+\end{ask}

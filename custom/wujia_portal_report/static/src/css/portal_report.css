@@ -23,50 +23,8 @@
 .wj-rep-pc .wj-rep-pcmetrics,
 .wj-rep-pc .wj-rep-pcrow { margin-bottom: 14px; }
 
-/* FilterBar 78 = 14 + control 50 + 14 (component chung là 88 với control 42). */
-.wj-rep-pcfilter { padding: 14px 16px; }
-.wj-rep-pcfilter__row {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-}
-.wj-rep-pcfilter__field {
-    position: relative;
-    display: block;
-    flex: 0 0 260px;
-    height: 50px;
-    padding: 6px 14px 0;
-    border: 1px solid var(--wj-pc-border-soft);
-    border-radius: var(--wj-pc-input-radius);
-    background: var(--wj-pc-table-header-bg);
-    cursor: pointer;
-}
-.wj-rep-pcfilter__label {
-    display: block;
-    font-size: 11px;
-    line-height: 14px;
-    color: var(--wj-pc-muted);
-}
-.wj-rep-pcfilter__input {
-    width: 100%;
-    height: 22px;
-    padding: 0;
-    border: 0;
-    background: transparent;
-    font-size: 14px;
-    font-weight: 500;
-    color: var(--wj-pc-text);
-}
-.wj-rep-pcfilter__input:focus { outline: none; }
-.wj-rep-pcfilter__field:focus-within {
-    border-color: var(--wujia-primary-border-soft);
-    box-shadow: 0 0 0 2px var(--wujia-primary-soft);
-}
-.wj-rep-pcfilter__actions {
-    margin-left: auto;
-    display: flex;
-    gap: 12px;
-}
+/* E4b1: thanh lọc về component CMP-FB-001 (card 88, control 42); ở đây chỉ
+   còn nhịp dọc 14 của trang báo cáo. */
 
 /* KPI: card 266x96, icon 46 nền ĐẶC + glyph trắng (component chung: 96 cao,
    icon 52 nền nhạt + glyph màu). Thêm dòng mô tả thứ 3 mà component chưa có. */
@@ -203,67 +161,13 @@
 /* ===================== MOBILE (dưới 992px) ===================== */
 
 @media (max-width: 991.98px) {
-    /* Mockup: các khối cách nhau 12 (BlankShell dùng 14). Luật bù -6px của
-       CMP-PG-001 tính theo gap 14, gap 12 thì phải bù -4 để giữ đúng 8. */
-    .wujia-mreport { gap: 12px; }
-    .wujia-mreport > .wj-page-header--m { margin-bottom: -4px; }
+    /* Nhịp dọc + bù header lấy từ rule chung mọi trang mobile (_components.css):
+       gap chung đúng 8 nên không còn giá trị riêng lẫn rule bù. */
 
     .wj-rep-mbody {
         display: flex;
         flex-direction: column;
         gap: 12px;
-    }
-
-    /* FilterBar 358x72: 2 ô 112x48 + nút Tìm 94x48 */
-    .wj-rep-mfilter {
-        display: flex;
-        align-items: center;
-        gap: 8px;
-        /* shell có form { margin-bottom: 15px } tag-level → phá gap 12 của .wujia-mpage */
-        margin-bottom: 0;
-        padding: 12px;
-        background: var(--wujia-bg-card);
-        border-radius: var(--wujia-card-radius);
-    }
-    .wj-rep-mfilter__field {
-        flex: 1 1 112px;
-        min-width: 0;
-        height: 48px;
-        padding: 5px 10px 0;
-        border: 1px solid var(--wj-pc-border-soft);
-        border-radius: 10px;
-        background: var(--wj-pc-table-header-bg);
-    }
-    .wj-rep-mfilter__label {
-        display: block;
-        font-size: 11px;
-        line-height: 14px;
-        color: var(--wujia-text-subtitle);
-    }
-    .wj-rep-mfilter__input {
-        width: 100%;
-        height: 22px;
-        padding: 0;
-        border: 0;
-        background: transparent;
-        font-size: 14px;
-        font-weight: 500;
-        color: var(--wujia-text-primary);
-    }
-    .wj-rep-mfilter__input:focus { outline: none; }
-    .wj-rep-mfilter__go {
-        flex: 0 0 94px;
-        height: 48px;
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        gap: 6px;
-        border: 0;
-        border-radius: 10px;
-        background: var(--wujia-primary);
-        color: #fff;
-        font-size: 15px;
-        font-weight: 700;
     }
 
     /* KPI 2 cột, card 175x86, thanh màu 28x4 ở đỉnh */

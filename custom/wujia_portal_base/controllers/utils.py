@@ -83,6 +83,33 @@ def local_day_range_utc(date_from, date_to, tz):
     return _bound(date_from, dt_time.min), _bound(date_to, dt_time.max)
 
 
+# Nguồn DUY NHẤT của thông điệp khoảng ngày ngược (E4c). Trước đây mỗi màn một
+# câu chữ và một chỗ hiển thị khác nhau, có màn tính ra thông điệp rồi không
+# view nào in ra.
+ERR_DATE_RANGE = 'Từ ngày không được lớn hơn Đến ngày'
+
+
+def parse_portal_date(value):
+    """Chuỗi 'YYYY-MM-DD' của ô lọc → date, sai định dạng hoặc rỗng → None."""
+    if not value:
+        return None
+    try:
+        return datetime.strptime(value, '%Y-%m-%d').date()
+    except (TypeError, ValueError):
+        return None
+
+
+def date_range_error(date_from, date_to):
+    """Thông điệp nếu khoảng ngày ngược, chuỗi rỗng nếu hợp lệ.
+
+    Nhận chuỗi thô của ô lọc HOẶC date đã parse. Chỉ bắt ngày ngược — ngày sai
+    định dạng là việc của từng màn (có màn coi là bỏ lọc, có màn báo riêng).
+    """
+    df = date_from if isinstance(date_from, date) else parse_portal_date(date_from)
+    dt = date_to if isinstance(date_to, date) else parse_portal_date(date_to)
+    return ERR_DATE_RANGE if (df and dt and df > dt) else ''
+
+
 # ---------------------------------------------------------------------------
 # Rate limit decorator
 # ---------------------------------------------------------------------------

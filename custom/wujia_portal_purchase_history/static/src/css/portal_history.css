@@ -1,51 +1,16 @@
 /* WujiaTea Portal — Purchase History */
 
-/* F2: dời từ portal_layout _components.css */
-.wj-data-list--compact-row .wujia-mhist-row.wj-data-item {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 12px;
-}
+/* E5: ruột card về CMP-LC-001 (.wj-lc) — họ .wujia-mhist-row* đã gỡ. */
 .wujia-mhist-list {
     display: flex;
     flex-direction: column;
     gap: 8px;
-}
-.wujia-mhist-row-main {
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
-    min-width: 0;
-}
-.wujia-mhist-row-code {
-    font-size: 14px;
-    font-weight: 700;
-    color: var(--wujia-morder-text);
-}
-.wujia-mhist-row-date {
-    font-size: 11.5px;
-    color: var(--wujia-morder-text-sub);
-}
-.wujia-mhist-row-side {
-    flex: 0 0 auto;
-    display: flex;
-    flex-direction: column;
-    align-items: flex-end;
-    gap: 6px;
-}
-.wujia-mhist-row-amount {
-    font-size: 13px;
-    font-weight: 700;
-    color: var(--wujia-morder-text);
-    white-space: nowrap;
 }
 .wujia-mhist-summary {
     background: var(--wujia-morder-card-bg);
     border: 1px solid var(--wujia-morder-border);
     border-radius: var(--wujia-morder-radius);
     padding: 16px;
-    margin-bottom: 14px;
 }
 .wujia-mhist-summary-top,
 .wujia-mhist-summary-bottom {
@@ -70,10 +35,8 @@
     color: var(--wujia-morder-text);
     white-space: nowrap;
 }
-.wujia-mhist-card {
-    /* D4d: dáng khung sang .wj-surface-card; margin là nhịp danh sách, giữ lại. */
-    margin-bottom: 14px;
-}
+/* D4d: dáng khung sang .wj-surface-card. Nhịp giữa các thẻ nay là gap chung của
+   trang mobile — bỏ margin riêng để chỉ còn một nguồn khoảng cách. */
 .wujia-mhist-prod {
     display: flex;
     align-items: flex-start;
@@ -110,13 +73,3 @@
 .state-step-pending .state-badge { opacity: 0.4; }
 .state-step-active .state-badge { opacity: 1; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
 
-/* Lỗi bộ lọc — nằm TRONG FilterBar (PC + mobile), không dùng empty state (WJ-PH-007) */
-.wj-filter-error {
-    margin: 8px 0 0;
-    padding: 8px 12px;
-    border-radius: 8px;
-    background: var(--wujia-danger-bg);
-    color: var(--wujia-danger);
-    font-size: 13px;
-    font-weight: 500;
-}

@@ -20,7 +20,9 @@ from odoo.addons.wujia_portal_base.controllers.portal import (
     get_active_franchise_ids_filter,
     get_max_role_in_franchises,
 )
-from odoo.addons.wujia_portal_base.controllers.utils import portal_money
+from odoo.addons.wujia_portal_base.controllers.utils import (
+    date_range_error, portal_money,
+)
 
 
 # Màu lấy theo design system portal (2 mockup STT12 vẽ đúng bộ này), thay bộ
@@ -46,6 +48,29 @@ def _parse_date(value, fallback=None):
 
 class WujiaPortalReport(http.Controller):
 
+    def _empty_report_values(self, date_from, date_to, filter_error, max_role):
+        """Ctx báo cáo rỗng — dùng khi bộ lọc không hợp lệ nên không chạy query."""
+        currency = request.env.company.currency_id
+        money = lambda amount: portal_money(                    # noqa: E731
+            amount, currency.symbol or '', currency.decimal_places)
+        return {
+            'title': _('Báo cáo đặt hàng'),
+            'date_from': date_from, 'date_to': date_to,
+            'filter_error': filter_error,
+            'money': money, 'currency_symbol': currency.symbol or '',
+            'total_orders': 0, 'total_revenue': 0.0,
+            'cancel_orders': 0, 'done_orders': 0,
+            'top_products': [], 'state_summary': [],
+            # Cùng BỘ KHOÁ với nhánh thường, chỉ rỗng — thiếu khoá là JS biểu đồ
+            # đọc `undefined` rồi vẽ hỏng im lặng.
+            'chart_payload_json': json.dumps({
+                'months_label': [], 'months_count': [], 'months_total': [],
+                'state_label': [], 'state_count': [], 'state_color': [],
+                'currency': request.env.company.currency_id.symbol or '',
+            }),
+            'max_role': max_role,
+        }
+
     @http.route(['/portal/reports/orders'], type='http', auth='user', sitemap=False)
     def portal_report_orders(self, date_from='', date_to='', **kw):
         franchise_ids = get_active_franchise_ids_filter()
@@ -65,8 +90,14 @@ class WujiaPortalReport(http.Controller):
         today = date.today()
         df = _parse_date(date_from, fallback=date(today.year, 1, 1))
         dt = _parse_date(date_to, fallback=today)
-        if dt < df:
-            dt = df
+        # Ngày ngược: trước đây tự kẹp `dt = df` trong im lặng nên người dùng gõ
+        # một khoảng mà màn ra số liệu của ĐÚNG MỘT ngày, không lời giải thích.
+        # Nay báo tại thanh lọc, giữ nguyên chữ đã gõ, KPI + biểu đồ về rỗng.
+        filter_error = date_range_error(df, dt)
+        if filter_error:
+            return request.render('wujia_portal_report.portal_report_orders',
+                                  self._empty_report_values(
+                                      date_from, date_to, filter_error, max_role))
         df_dt = datetime.combine(df, datetime.min.time())
         dt_dt = datetime.combine(dt, datetime.max.time())
 
@@ -169,6 +200,7 @@ class WujiaPortalReport(http.Controller):
             'title': _('Báo cáo đặt hàng'),
             'date_from': df.strftime('%Y-%m-%d'),
             'date_to': dt.strftime('%Y-%m-%d'),
+            'filter_error': '',
             'money': money,
             'currency_symbol': currency.symbol or '',
             # KPIs

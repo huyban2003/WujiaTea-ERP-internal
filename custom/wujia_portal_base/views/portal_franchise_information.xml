@@ -270,16 +270,25 @@
                         <t t-set="dl_pager">
                             <t t-call="wujia_portal_layout.wj_pagination"/>
                         </t>
-                        <div t-foreach="members" t-as="m" class="wujia-mdash-row wj-data-item">
-                            <span class="wujia-badge wujia-badge-info"
-                                  t-out="role_labels.get(m.role, m.role)"/>
-                            <span class="wujia-mdash-row-main">
-                                <span class="wujia-mdash-row-title is-sm" t-out="m.user_id.name or '—'"/>
-                                <span class="wujia-mdash-row-sub"
-                                      t-out="(m.user_id.login or '—') + ' · ' + (m.user_id.partner_id.email or '—')"/>
-                            </span>
-                            <span t-if="m.active" class="wj-status-badge wj-status-badge--success">Active</span>
-                            <span t-else="" class="wj-status-badge wj-status-badge--neutral">Inactive</span>
+                        <div t-foreach="members" t-as="m" class="wj-data-item wj-lc">
+                            <t t-call="wujia_portal_layout.wj_list_card">
+                                <t t-set="lc_prefix">
+                                    <span class="wujia-badge wujia-badge-info"
+                                          t-out="role_labels.get(m.role, m.role)"/>
+                                </t>
+                                <t t-set="lc_name" t-value="m.user_id.name or '—'"/>
+                                <t t-set="lc_state">
+                                    <span t-if="m.active" class="wj-status-badge wj-status-badge--compact wj-status-badge--success">Active</span>
+                                    <span t-else="" class="wj-status-badge wj-status-badge--compact wj-status-badge--neutral">Inactive</span>
+                                </t>
+                                <t t-set="lc_rows">
+                                    <t t-call="wujia_portal_layout.wj_list_card_row">
+                                        <t t-set="lcr_full" t-value="True"/>
+                                        <t t-set="lcr_value"
+                                           t-value="(m.user_id.login or '—') + ' · ' + (m.user_id.partner_id.email or '—')"/>
+                                    </t>
+                                </t>
+                            </t>
                         </div>
                     </t>
                 </t>

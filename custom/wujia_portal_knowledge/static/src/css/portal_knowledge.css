@@ -41,7 +41,16 @@
         background: var(--wujia-mknow-tile-bg);
         color: var(--wujia-morder-primary);
     }
-    .wujia-mknow-tile i { font-size: 18px; line-height: 1; }
+    /* Trong ListCard, cỡ/bo do `.wj-lc__tile` lo ⇒ lớp này chỉ mang màu. */
+    .wujia-know-tile-tone { background: var(--wujia-mknow-tile-bg); color: var(--wujia-morder-primary); }
+    .wujia-know-bullet {
+        flex-shrink: 0;
+        width: var(--wujia-content-card-bullet-size);
+        height: var(--wujia-content-card-bullet-size);
+        border-radius: 50%;
+        background: var(--wujia-content-card-bullet-color);
+        display: inline-block;
+    }
     .wujia-mknow-feat {
         position: relative;
         display: flex;
@@ -64,41 +73,11 @@
         border-radius: 0 4px 4px 0;
         background: var(--wujia-mknow-accent);
     }
-    .wujia-mknow-feat-main {
-        flex: 1 1 auto;
-        display: flex;
-        flex-direction: column;
-        gap: 6px;
-        min-width: 0;
-    }
-    .wujia-mknow-list {
-        display: flex;
-        flex-direction: column;
-        gap: 10px;
-    }
-    .wj-data-list--compact-row .wujia-mknow-row.wj-data-item {
-        display: flex;
-        align-items: flex-start;
-        gap: 12px;
-    }
-    .wujia-mknow-row-main {
-        flex: 1 1 auto;
-        display: flex;
-        flex-direction: column;
-        gap: 6px;
-        min-width: 0;
-    }
-    .wujia-mknow-row-title {
+    .wujia-mknow-feat-title {
         font-size: 15px;
         font-weight: 700;
         line-height: 1.4;
         color: var(--wujia-morder-text);
-    }
-    .wujia-mknow-row-foot {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        gap: 8px;
     }
     .wujia-mknow-badges {
         display: flex;
@@ -106,11 +85,18 @@
         flex-wrap: wrap;
         gap: 6px;
     }
-    .wujia-mknow-date {
+    .wujia-mknow-feat-date {
         flex: 0 0 auto;
         font-size: 12px;
         color: var(--wujia-morder-text-muted);
         white-space: nowrap;
+    }
+    .wujia-mknow-feat-main {
+        flex: 1 1 auto;
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+        min-width: 0;
     }
     .wujia-mknow-article-title {
         font-size: 19px;

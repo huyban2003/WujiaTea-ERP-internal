@@ -230,7 +230,7 @@ class TestSurfaceCardD4d(TransactionCase):
     def test_module_owned_families_no_longer_declare_shape(self):
         for module, name, sels in (
                 ('wujia_portal_exam', 'portal_exam.css',
-                 ('.wujia-mexam-card', '.wujia-mexam-cfcard')),
+                 ('.wujia-mexam-cfcard',)),
                 ('wujia_portal_notification', 'portal_notification.css',
                  ('.wujia-mnoti-detail-card',)),
                 ('wujia_portal_delivery', 'portal_delivery.css',
@@ -284,8 +284,9 @@ class TestSurfaceCardD4d(TransactionCase):
     def test_non_shape_rules_survive(self):
         keep = (
             (_mod_css('wujia_portal_sale', 'portal_order.css'), '.wujia-mres-card', 'max-width'),
-            (_mod_css('wujia_portal_purchase_history', 'portal_history.css'),
-             '.wujia-mhist-card', 'margin-bottom'),
+            # .wujia-mhist-card KHÔNG còn trong danh sách này: nhịp giữa các thẻ nay do
+            # gap chung của trang mobile cấp (một nguồn duy nhất cho mọi trang), nên
+            # margin-bottom riêng của nó bị gỡ — cộng dồn với gap là lỗi, không phải nhịp.
             (_css('_components.css'), '.wujia-mdash-card', 'display'),
             (_mod_css('wujia_portal_delivery', 'portal_delivery.css'),
              '.wujia-mdelivery-prodcard', 'overflow'),
@@ -329,8 +330,9 @@ class TestSurfaceCardD4d(TransactionCase):
         # 6 <form method="get"> lọc, 1 <article> landmark, 1 <a> wholeCard và 1
         # <div role="status"> — t-call sinh <div> trơn nên sẽ nuốt mất tag/thuộc
         # tính. Giữ tag, thêm thẳng class (cách D4c đã chốt).
+        # E5b2: card lịch thi rời khỏi SurfaceCard — dáng ngoài nay do D5
+        # (.wj-data-list--detail-card .wj-data-item) lo, nên bỏ khỏi bảng này.
         for key, tag in (('wujia_portal_knowledge.portal_knowledge_detail', '<article'),
-                         ('wujia_portal_exam.portal_exam_schedule', '<a'),
                          ('wujia_portal_sale.mres_shell', 'role="status"')):
             view = self.env['ir.ui.view'].search([('key', '=', key)], limit=1)
             with self.subTest(key=key):
@@ -582,6 +584,15 @@ class TestSurfaceCardD4f(TransactionCase):
                 with self.subTest(key=key, old=old):
                     self.assertNotIn(old, arch)
 
+    # E4b1: thanh lọc PC của 3 màn này vốn là vỏ --section dựng tay, nay gọi
+    # component CMP-FB-001 ⇒ view không còn vỏ nào. Ghi tên ra đây để hướng
+    # ngược lại (ai dựng tay trở lại) vẫn đỏ.
+    NO_SECTION_SHELL = {
+        'wujia_portal_support.portal_support_list',
+        'wujia_portal_return.portal_return_list',
+        'wujia_portal_info_request.portal_info_request_list',
+    }
+
     def test_call_sites_bake_all_four_shell_classes(self):
         # ĐẾM chứ không `in`: một call site rơi mất --flush mà call site khác
         # cùng view còn giữ thì phép `in` vẫn xanh — đột biến D4f #3 đã lọt.
@@ -590,7 +601,10 @@ class TestSurfaceCardD4f(TransactionCase):
             arch = self._arch(key)
             with self.subTest(key=key):
                 n = arch.count('wj-surface-card wj-surface-card--section')
-                self.assertGreaterEqual(n, 1)
+                if key in self.NO_SECTION_SHELL:
+                    self.assertEqual(n, 0)
+                else:
+                    self.assertGreaterEqual(n, 1)
                 self.assertEqual(arch.count(full), n)
 
     def test_module_own_classes_survive_next_to_the_shell(self):

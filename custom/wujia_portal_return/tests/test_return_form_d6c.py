@@ -98,8 +98,10 @@ class TestReturnFormD6c(TransactionCase):
                       'radius phải lấy token dùng chung, không gõ số cứng')
 
     def test_o_loc_dat_nguong_cham_44(self):
-        for sel in ('.wj-filter-date,\n    .wj-filter-select',
-                    '.wj-filter-search-field input,\n    .wj-filter-search-btn'):
+        """Q1 (12/09) thay luật 44 quét rộng của D6c: hộp nhìn thấy 38, vùng chạm 44
+        nằm ở wrapper. Hợp đồng chi tiết thuộc test của khung (F5b)."""
+        for sel in ('.wj-filter-date--hit,\n.wj-filter-selectwrap',
+                    'label.wj-filter-search-field'):
             m = re.search(re.escape(sel) + r'\s*\{([^}]*)\}', self.shared)
             self.assertIsNotNone(m, f'thiếu rule chạm cho {sel}')
             self.assertIn('44px', m.group(1))

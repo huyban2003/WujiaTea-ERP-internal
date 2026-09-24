@@ -23,6 +23,14 @@
     function show(el) { if (el) { el.hidden = false; } }
     function hide(el) { if (el) { el.hidden = true; } }
 
+    /* Loading của atom Button: giữ bề rộng, khoá bấm lặp khi request chưa về. */
+    function setBusy(btn, on) {
+        if (!btn) { return; }
+        btn.disabled = on;
+        btn.classList.toggle("is-loading", on);
+        btn.setAttribute("aria-busy", on ? "true" : "false");
+    }
+
     function jsonRpc(url, params) {
         return fetch(url, {
             method: "POST",
@@ -316,9 +324,9 @@
                 + '<td class="wj-pc-td--muted"></td>'
                 + '<td class="wj-pc-td--muted"></td>'
                 + '<td><span class="wj-exam-pc-rowacts">'
-                + '<button type="button" class="wj-exam-pc-iconbtn" data-wj-exam-line-edit="1" title="Sửa">'
+                + '<button type="button" class="wj-iconbtn wj-iconbtn--ghost wj-iconbtn--sm" data-wj-exam-line-edit="1" aria-label="Sửa người tham gia">'
                 + '<i class="feather icon-edit-2"></i></button>'
-                + '<button type="button" class="wj-exam-pc-iconbtn wj-exam-pc-iconbtn--muted" data-wj-exam-line-remove="1" title="Xóa">'
+                + '<button type="button" class="wj-iconbtn wj-iconbtn--ghost wj-iconbtn--sm" data-wj-exam-line-remove="1" aria-label="Xóa người tham gia">'
                 + '<i class="feather icon-trash-2"></i></button></span></td>';
             qs(tr, ".wj-exam-pc-photo__tag").textContent = hasPhoto ? "Đã tải" : "Chưa có ảnh";
             var td = tr.querySelectorAll("td");
@@ -525,14 +533,10 @@
                 showConflict("Thiếu thông tin", "Cần khung giờ và ít nhất 1 người dự thi.");
                 return;
             }
-            var label = sendBtn ? sendBtn.textContent : "";
-            if (sendBtn) {
-                sendBtn.disabled = true;
-                sendBtn.textContent = sendBtn.dataset.wjExamBusyLabel || "Đang gửi yêu cầu...";
-            }
+            setBusy(sendBtn, true);
             show(sendHint);
             function fail(title, text) {
-                if (sendBtn) { sendBtn.disabled = false; sendBtn.textContent = label; }
+                setBusy(sendBtn, false);
                 hide(sendHint); closeModals();
                 showConflict(title, text);
             }

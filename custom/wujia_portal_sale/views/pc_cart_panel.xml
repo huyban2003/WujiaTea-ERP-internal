@@ -32,7 +32,7 @@
             <div t-if="not cs_lines" class="wj-pc-cart-empty">
                 <span class="wj-pc-cart-empty-icon"><i class="feather icon-shopping-cart"/></span>
                 <p class="wj-pc-cart-empty-text">Giỏ hàng trống</p>
-                <a href="/portal/order" class="wj-pc-btn wj-pc-btn--secondary">Tiếp tục mua hàng</a>
+                <a href="/portal/order" class="wj-btn wj-btn--secondary">Tiếp tục mua hàng</a>
             </div>
 
             <t t-else="">
@@ -76,8 +76,9 @@
                                 <td class="text-end wj-pc-cart-subtotal"
                                     t-out="money(line['line_total_tax_included'], cart_state['currency_symbol'], cart_state['currency_decimals'])"/>
                                 <td class="text-center">
-                                    <button type="button" class="wj-pc-cart-del wj-state-surface"
-                                            t-att-data-line-id="line['line_id']" aria-label="Xoá">
+                                    <button type="button" class="wj-iconbtn wj-iconbtn--ghost wj-iconbtn--sm wj-pc-cart-del"
+                                            t-att-data-line-id="line['line_id']"
+                                            aria-label="Xóa sản phẩm khỏi giỏ" title="Xóa sản phẩm khỏi giỏ">
                                         <i class="feather icon-trash-2"/>
                                     </button>
                                 </td>
@@ -119,7 +120,7 @@
                     </div>
                     <!-- WJ-ORD-006: ngoài giờ → disable submit + nêu rõ (server vẫn chặn
                          ORDER_TIME_CLOSED; disable = phản hồi sớm, giỏ vẫn sửa được). -->
-                    <button type="submit" class="wj-pc-cart-submit"
+                    <button type="submit" class="wj-btn wj-btn--primary wj-btn--lg wj-btn--block wj-pc-cart-submit"
                             t-att-disabled="'disabled' if (order_window_enabled and not order_window_open) else None">
                         <i class="feather icon-shopping-cart"/> Gửi đơn đặt hàng
                     </button>

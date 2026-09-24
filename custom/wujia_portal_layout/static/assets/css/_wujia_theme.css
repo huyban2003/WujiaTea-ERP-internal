@@ -444,6 +444,13 @@ html body .content .content-wrapper {
        (162..176). Nay: wrapper giữ toàn bộ khoảng cách, phần tử đầu của trang không
        tự cộng thêm. Trang họ .wujia-mpage nằm NGOÀI wrapper này — xem _components.css. */
     html body .content .content-wrapper { padding-top: var(--wujia-mcontent-top) !important; }
+    /* E5c/LC-08: gutter NGANG cũng về một nguồn. Trước đây wrapper giữ 16,8px của Vuexy
+       nên Đặt hàng/Lịch sử lệch 5px so với trang BlankShell (.wujia-mpage) vốn ăn token.
+       Không `!important`: trang tự bỏ lề (Home `.wujia-home-wrapper`) phải còn thắng được. */
+    html body .content .content-wrapper {
+        padding-left: var(--wujia-mshell-content-pad-x);
+        padding-right: var(--wujia-mshell-content-pad-x);
+    }
     /* margin-top của phần tử đầu trang collapse xuyên wrapper trang (.wujia-morder,
        .wujia-mcart, .wujia-mhist… không có pad/border trên) → phải triệt tận nơi.
        KHÔNG dùng :first-child: các trang này có block PC ẩn (d-none d-lg-block) đứng

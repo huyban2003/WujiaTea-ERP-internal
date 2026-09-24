@@ -21,6 +21,9 @@ HERE = os.path.dirname(__file__)
 MOD = os.path.abspath(os.path.join(HERE, '..'))
 VIEW = os.path.join(MOD, 'views', 'portal_return_list.xml')
 CSS = os.path.join(MOD, 'static', 'src', 'css', 'portal_return.css')
+# E5b1: ruột card về CMP-LC-001 ⇒ clamp 2 dòng và lưới metadata nay khai ở khung.
+LC_CSS = os.path.join(os.path.dirname(MOD), 'wujia_portal_layout', 'static', 'assets',
+                      'css', '_components.css')
 
 
 def _view():
@@ -29,6 +32,11 @@ def _view():
 
 def _css():
     with open(CSS, encoding='utf-8') as fh:
+        return fh.read()
+
+
+def _lc_css():
+    with open(LC_CSS, encoding='utf-8') as fh:
         return fh.read()
 
 
@@ -60,10 +68,10 @@ class TestReturnCardD6(TransactionCase):
 
     # ------------------------------------------------------------ BH-008
     def test_dong_dau_khong_con_badge_tien_do_bu(self):
-        """Gốc rễ BH-008: trước D6b cả hai badge nằm trong `row-badges` của
-        `row-head`. Dòng đầu chỉ được còn trạng thái phê duyệt."""
-        heads = self.row.xpath('.//span[@class="wujia-mreturn-row-head"]')
-        self.assertEqual(len(heads), 1)
+        """Gốc rễ BH-008: trước D6b cả hai badge nằm chung dòng đầu. Sau E5b1 dòng
+        đầu là slot `lc_state` của ListCard — vẫn chỉ được có trạng thái phê duyệt."""
+        heads = self.row.xpath('.//t[@t-set="lc_state"]')
+        self.assertEqual(len(heads), 1, 'card phải có đúng 1 slot trạng thái')
         head = heads[0]
         # `comp_status_labels` là nguồn DUY NHẤT của nhãn tiến độ bù ⇒ dấu vết
         # của nó bên trong dòng đầu nghĩa là badge vẫn còn ở đó.
@@ -75,22 +83,28 @@ class TestReturnCardD6(TransactionCase):
             dau_vet, 'badge tiến độ bù vẫn nằm trong dòng đầu — BH-008 chưa đạt')
 
     def test_co_dong_tien_do_bu_rieng_co_nhan(self):
-        """BA đòi rõ: dòng riêng, **nhãn "Tiến độ bù"**."""
-        progs = self.row.xpath('.//span[@class="wujia-mreturn-row-progress"]')
-        self.assertEqual(len(progs), 1, 'thiếu dòng riêng cho tiến độ bù')
-        prog = progs[0]
-        nhan = prog.xpath('.//span[@class="lbl"]')
-        self.assertEqual(len(nhan), 1, 'dòng tiến độ bù phải có đúng 1 nhãn')
-        self.assertEqual((nhan[0].text or '').strip(), 'Tiến độ bù')
-        # dòng này là anh em của row-head, không lồng vào trong nó
-        self.assertNotIn('wujia-mreturn-row-head',
-                         [c.get('class') for c in prog.iterancestors()])
+        """BA đòi rõ: dòng riêng, **nhãn "Tiến độ bù"**. Sau E5b1 dòng phụ đi qua
+        khuôn `wj_list_card_row`, nhãn nằm ở `lcr_label`."""
+        prog = self._hang_co_nhan('Tiến độ bù')
+        self.assertIsNotNone(prog, 'thiếu dòng riêng có nhãn cho tiến độ bù')
+        # dòng này nằm trong thân card (`lc_rows`), không lồng vào slot trạng thái
+        to = [a.get('t-set') for a in prog.iterancestors()]
+        self.assertIn('lc_rows', to, 'dòng tiến độ bù không nằm trong thân card')
+        self.assertNotIn('lc_state', to, 'dòng tiến độ bù chui lại vào dòng đầu')
+
+    def _hang_co_nhan(self, nhan):
+        """Hàng phụ (`wj_list_card_row`) có `lcr_label` đúng bằng `nhan`."""
+        for row in self.row.xpath('.//t[@t-call="wujia_portal_layout.wj_list_card_row"]'):
+            for lbl in row.xpath('./t[@t-set="lcr_label"]'):
+                if (lbl.text or '').strip() == nhan:
+                    return row
+        return None
 
     def test_nhan_tien_do_bu_lay_tu_hang_controller(self):
         """Không hardcode 4 nhãn: nguồn phải là `comp_status_labels`, vốn chính là
         `COMPENSATION_STATUS_LABELS` truyền qua qcontext. Hardcode thì đổi nhãn ở
         controller mà card vẫn in nhãn cũ."""
-        prog = self.row.xpath('.//span[@class="wujia-mreturn-row-progress"]')[0]
+        prog = self._hang_co_nhan('Tiến độ bù')
         badge = prog.xpath('.//span[contains(@t-attf-class, "wj-status-badge")]')
         self.assertEqual(len(badge), 1)
         self.assertIn('clbl', badge[0].get('t-out') or '',
@@ -104,21 +118,40 @@ class TestReturnCardD6(TransactionCase):
                 nhan, etree.tostring(self.row, encoding='unicode'),
                 'nhãn %r bị chép cứng vào template' % nhan)
 
+    def test_nhan_ngay_yeu_cau_du_nam(self):
+        """LC-15: nhãn đầy đủ "Ngày yêu cầu" (không viết tắt) và ngày ĐỦ NĂM —
+        `%d/%m` khiến phiếu cuối năm và đầu năm sau trông như cùng một kỳ."""
+        row = self._hang_co_nhan('Ngày yêu cầu')
+        self.assertIsNotNone(row, 'mất nhãn "Ngày yêu cầu" (LC-15)')
+        gia_tri = row.xpath('./t[@t-set="lcr_value"]/@t-value')
+        self.assertTrue(gia_tri, 'hàng ngày yêu cầu không còn giá trị')
+        self.assertIn("'%d/%m/%Y'", gia_tri[0], 'ngày yêu cầu mất phần năm')
+
     def test_metadata_hai_cot_on_dinh(self):
         """`flex` cho ô thứ hai trôi theo độ dài ô thứ nhất (đo trước D6b: 2 bố
-        cục left khác nhau). BA đòi "bố cục hai cột ổn định"."""
-        than = _rule(_css(), '.wujia-mreturn-row-meta')
-        self.assertIsNotNone(than)
-        self.assertIn('grid', than)
-        self.assertRegex(than, r'grid-template-columns:\s*1fr\s+1fr')
+        cục left khác nhau). BA đòi "bố cục hai cột ổn định" ⇒ sau E5b1 hai ô là
+        hai cột của lưới `wj-lc__body`, KHÔNG phải hai item flex co giãn."""
+        than = _rule(_lc_css(), '.wj-lc__body')
+        self.assertIsNotNone(than, 'mất rule thân ListCard')
+        self.assertRegex(than, r'display:\s*grid')
+        self.assertRegex(than, r'grid-template-columns:\s*minmax\(0, 1fr\) auto')
+        hang = [r for r in self.row.xpath(
+            './/t[@t-call="wujia_portal_layout.wj_list_card_row"]')
+            if r.xpath('./t[@t-set="lcr_class"][contains(@t-value, "wj-lc__row--inline")]')]
+        self.assertEqual(len(hang), 2, 'hai ô metadata phải nằm chung một hàng lưới')
 
     # ------------------------------------------------------------ BH-007
     def test_ten_san_pham_toi_da_hai_dong(self):
-        than = _rule(_css(), '.wujia-mreturn-row-product')
-        self.assertIsNotNone(than)
+        """E5b1: clamp 2 dòng về khung (`wj-lc__row--clamp2`), call site chỉ khai
+        dùng nó — cả hai vế đều phải còn, mất vế nào cũng là BH-007 tái phát."""
+        than = _rule(_lc_css(), '.wj-lc__row--clamp2 .wj-lc__value')
+        self.assertIsNotNone(than, 'mất rule clamp 2 dòng ở khung')
         self.assertRegex(than, r'-webkit-line-clamp:\s*2\b')
         self.assertNotIn('nowrap', than,
                          'còn `nowrap` ⇒ vẫn cắt ngay dòng 1, BH-007 chưa đạt')
+        self.assertTrue(
+            self.row.xpath('.//t[@t-set="lcr_class"][contains(@t-value, "wj-lc__row--clamp2")]'),
+            'hàng tên sản phẩm không còn khai clamp 2 dòng')
 
     def test_khong_khai_lai_stack_font(self):
         """Fallback CJK đã nằm trên `--wujia-font-family` từ D2. Khai stack thứ hai
@@ -129,14 +162,16 @@ class TestReturnCardD6(TransactionCase):
     def test_giu_nguyen_hop_dong_datalist_d5f(self):
         """D6b sửa phân cấp BÊN TRONG card, KHÔNG đụng khung — nếu không sẽ tái
         tạo hồi quy "thẻ trắng lồng thẻ trắng" mà D5h.2 vừa vá."""
-        self.assertTrue(_has_class(self.row, 'wujia-mreturn-row'))
         self.assertTrue(_has_class(self.row, 'wj-data-item'))
+        self.assertTrue(_has_class(self.row, 'wj-lc'), 'item mất ruột ListCard')
         calls = self.root.xpath(
             '//t[@t-call="wujia_portal_layout.wj_data_list"]'
             '[t[@t-set="dl_variant"][@t-value="\'detail-card\'"]]')
         self.assertEqual(len(calls), 1, 'call site DataList detail-card bị đổi')
-        than = _rule(_css(), '.wj-data-list--detail-card .wujia-mreturn-row.wj-data-item')
-        self.assertIsNotNone(than, 'mất rule layout của họ mreturn')
-        for dang in ('border', 'background', 'border-radius'):
-            self.assertNotIn(dang, than,
-                             'D6b khai lại dáng khung %r — phải để component giữ' % dang)
+        # E5b1: họ `wujia-mreturn-row*` của danh sách đã đi hẳn ⇒ module không còn
+        # rule dáng nào cho hàng; giữ luật "không khai lại dáng" bằng cách quét CSS.
+        css = _strip_comments(_css())
+        for dang in ('border-radius', 'min-height'):
+            self.assertNotRegex(
+                css, r'\.wj-lc[^{}]*\{[^}]*%s' % dang,
+                'module khai lại dáng %r của ListCard — phải để component giữ' % dang)
