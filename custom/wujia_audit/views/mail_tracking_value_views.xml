@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_mail_tracking_value_tree_wujia" model="ir.ui.view">
+        <field name="name">mail.tracking.value.list.inherit.wujia</field>
+        <field name="model">mail.tracking.value</field>
+        <field name="inherit_id" ref="mail.view_mail_tracking_value_tree"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='field_id']" position="after">
+                <field name="author_id" widget="many2one_avatar_user"/>
+                <field name="record_name" optional="show"/>
+                <field name="date" optional="show"/>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="view_mail_tracking_value_form_wujia" model="ir.ui.view">
+        <field name="name">mail.tracking.value.form.inherit.wujia</field>
+        <field name="model">mail.tracking.value</field>
+        <field name="inherit_id" ref="mail.view_mail_tracking_value_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//group[@name='field_details']" position="inside">
+                <field name="author_id" widget="many2one_avatar_user"/>
+                <field name="date"/>
+                <field name="record_name"/>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="view_mail_tracking_value_search_wujia" model="ir.ui.view">
+        <field name="name">mail.tracking.value.search.inherit.wujia</field>
+        <field name="model">mail.tracking.value</field>
+        <field name="arch" type="xml">
+            <search string="Tracking Values">
+                <field name="field_id"/>
+                <field name="author_id"/>
+                <field name="record_name"/>
+                <field name="mail_message_id"/>
+                <group>
+                    <filter string="Performed By" name="group_by_author" context="{'group_by': 'author_id'}"/>
+                    <filter string="Field" name="group_by_field" context="{'group_by': 'field_id'}"/>
+                    <filter string="Date" name="group_by_date" context="{'group_by': 'date'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+</odoo>

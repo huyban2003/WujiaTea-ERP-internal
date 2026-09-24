@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- List View -->
+    <record id="view_wujia_field_tracking_config_tree" model="ir.ui.view">
+        <field name="name">wujia.field.tracking.config.tree</field>
+        <field name="model">wujia.field.tracking.config</field>
+        <field name="arch" type="xml">
+            <list string="Dynamic Field Tracking Configurations">
+                <field name="model_id"/>
+                <field name="model_name"/>
+                <field name="tracked_count" string="Tracked Fields"/>
+                <field name="active" widget="boolean_toggle"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- Form View -->
+    <record id="view_wujia_field_tracking_config_form" model="ir.ui.view">
+        <field name="name">wujia.field.tracking.config.form</field>
+        <field name="model">wujia.field.tracking.config</field>
+        <field name="arch" type="xml">
+            <form string="Dynamic Field Tracking Configuration">
+                <header>
+                    <button name="action_fetch_model_fields"
+                            string="Fetch Model Fields"
+                            type="object"
+                            class="btn-primary"
+                            icon="fa-refresh"/>
+                    <button name="action_enable_all_tracking"
+                            string="Enable All"
+                            type="object"
+                            class="btn-outline-secondary"/>
+                    <button name="action_disable_all_tracking"
+                            string="Disable All"
+                            type="object"
+                            class="btn-outline-secondary"/>
+                </header>
+                <sheet>
+                    <div class="oe_button_box" name="button_box">
+                        <button class="oe_stat_button" type="object" name="action_fetch_model_fields" icon="fa-eye">
+                            <field name="tracked_count" widget="statinfo" string="Tracked Fields"/>
+                        </button>
+                    </div>
+                    <widget name="web_ribbon" title="Archived" bg_color="text-bg-danger" invisible="active"/>
+                    <div class="oe_title">
+                        <label for="model_id" string="Target Model"/>
+                        <h1>
+                            <field name="model_id" placeholder="e.g. Sale Order (sale.order)" options="{'no_create': True, 'no_open': True}"/>
+                        </h1>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="model_name" readonly="1"/>
+                        </group>
+                        <group>
+                            <field name="active" widget="boolean_toggle"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="Tracked Fields" name="tracked_fields">
+                            <field name="line_ids">
+                                <list string="Fields List" editable="bottom" create="false" delete="false">
+                                    <field name="is_tracked" widget="boolean_toggle" string="Tracked"/>
+                                    <field name="field_description" readonly="1"/>
+                                    <field name="field_name" readonly="1"/>
+                                    <field name="ttype" readonly="1"/>
+                                    <field name="is_code_tracked" widget="badge" decoration-info="is_code_tracked" string="In Code"/>
+                                </list>
+                            </field>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- Search View -->
+    <record id="view_wujia_field_tracking_config_search" model="ir.ui.view">
+        <field name="name">wujia.field.tracking.config.search</field>
+        <field name="model">wujia.field.tracking.config</field>
+        <field name="arch" type="xml">
+            <search string="Search Field Tracking Configurations">
+                <field name="model_id"/>
+                <field name="model_name"/>
+                <filter string="Active" name="filter_active" domain="[('active', '=', True)]"/>
+                <filter string="Archived" name="filter_inactive" domain="[('active', '=', False)]"/>
+                <separator/>
+                <filter string="Has Tracked Fields" name="filter_has_tracked" domain="[('line_ids.is_tracked', '=', True)]"/>
+            </search>
+
+        </field>
+    </record>
+
+    <!-- Action -->
+    <record id="action_wujia_field_tracking_config" model="ir.actions.act_window">
+        <field name="name">Dynamic Field Tracking</field>
+        <field name="res_model">wujia.field.tracking.config</field>
+        <field name="view_mode">list,form</field>
+        <field name="search_view_id" ref="view_wujia_field_tracking_config_search"/>
+        <field name="context">{'search_default_filter_active': 1}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Configure dynamic chatter tracking for your models!
+            </p>
+            <p>
+                Select any model that inherits from mail.thread and toggle tracking for any field on the fly without restarting Odoo.
+            </p>
+        </field>
+    </record>
+
+</odoo>
