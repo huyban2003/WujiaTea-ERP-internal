@@ -1148,8 +1148,7 @@ rồi đánh ✅ ở bảng Trạng thái §2 `docs/next-session-clusters-F.md`.
   `UI-PAGECONTAINER-001` (Ready for Retest). Cần deploy E7a+E7b cùng lượt.
 
 ## E7b — PageContainer `CMP-PC-001`: width variant + bottomInset (24–25/09/2026 · Mac)
-- Kết quả: ✅ code xong cụm E7 — **chưa commit/push** (chờ cổng duyệt; đẩy cùng E7a `8ef3081`); `UI-PAGECONTAINER-001`
-  (STT 129, dòng 122) **giữ Ready for Dev tới khi E7a+E7b lên UAT** và đo chỉ-đọc. Nghiệm thu: `docs/e7b-acceptance-matrix.md`.
+- Kết quả: ✅ khép cụm E7 — `UI-PAGECONTAINER-001` (STT 129, dòng 122) **Ready for Retest** 25/09 sau đo UAT. Nghiệm thu: `docs/e7b-acceptance-matrix.md`.
 - Đã làm:
   - `app_layout` thêm 2 công tắc cùng kiểu `pc_gutter`: `pc_width` (`standard` 1440 / `narrow` 960, fluid = không đặt) và
     `pc_bottom='sticky'`. Max-width đặt **trên chính `<main>`** (bề rộng trong + 2 gutter, căn giữa) ⇒ PageHeader cùng
@@ -1170,4 +1169,8 @@ rồi đánh ✅ ở bảng Trạng thái §2 `docs/next-session-clusters-F.md`.
 - LIMIT: Khảo sát chi tiết chưa đo sống (0 phiếu local); chiều cao thanh sticky là token khai báo; `:has()` cần Safari 15.4+.
 - Bài học: `b4_local.py` mặc định cổng 8055 — phải `--base http://127.0.0.1:8090`. Test chạy không `-u` chết ở
   `wujia_franchise/tests` (import file đã xoá) — luôn kèm `-u`. Log test bị `wujia_core` chuyển sang `<logdir>/<năm>/<tháng>/`.
-- Phiên kế: deploy E7a+E7b → đo UAT chỉ-đọc → `qa_sync` ⇒ Ready for Retest; rồi **E8** SidebarNavigation.
+- **UAT 25/09** (sau deploy, chỉ-đọc, 0 POST): 217 ô 0 vi phạm · thu gọn 0 · zoom 0 · **Khảo sát chi tiết/khắc phục đo sống
+  0** (đóng LIMIT). Commit `419f9c9` (+`8ef3081`) đã push. Ledger + `qa_sync --apply` ⇒ `UI-PAGECONTAINER-001` **Ready for Retest**.
+- Báo Thái: Khảo sát chi tiết PC có **2 tiêu đề** (`wj_page_header` + `.wj-pc-page-header` tự dựng, từ `2828171`) — thuộc PageHeader.
+- Bài học: route `wujia_portal_inspection` trên UAT chuyển `/vi/…` ⇒ đo bằng `/vi/portal/inspection…`.
+- Phiên kế: **E8** SidebarNavigation (`UI-SIDEBAR-001`).

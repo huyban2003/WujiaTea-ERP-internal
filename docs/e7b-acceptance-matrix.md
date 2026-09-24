@@ -112,8 +112,33 @@ Chỉ thêm 1 dòng `<t t-set="pc_width" t-value="'standard'"/>` vào template c
 logic). Nếu anh tạo màn mới: đặt bề rộng bằng `pc_width`, không khai `max-width` trên vỏ route — guard
 `test_khong_khai_be_rong_trang_trong_css_route` sẽ đỏ.
 
+**Phát hiện khi đo UAT (không sửa — thuộc PageHeader, code anh):** `portal_inspection_detail` gọi
+`wj_page_header` (pc + m) **và** tự dựng thêm `.wj-pc-page-header` (dòng 22–35) ⇒ PC hiện **hai** tiêu đề
+"Chi tiết giám sát" + hai nút Quay lại. Có từ `2828171` (08/08). Đề xuất bỏ khối `.wj-pc-page-header` tự
+dựng, chuyển breadcrumb vào `wj_page_header`.
+
 ## Việc sau
 
 - Chủ dự án deploy **E7a + E7b cùng lượt** (13 module `-u`) → đo UAT chỉ-đọc (`wj_pagecontainer` 31 route ×
   6 khổ + Khảo sát chi tiết) → ledger + `qa_sync` ⇒ **Ready for Retest**.
+- ~~deploy + đo UAT~~ ✅ 25/09 (mục *UAT* dưới) · ledger + `qa_sync` ⇒ Ready for Retest.
 - **E8** SidebarNavigation (`UI-SIDEBAR-001`); sau E8 phiên phân cụm STT 140–145.
+
+## UAT — đo lại chỉ-đọc sau deploy (25/09/2026)
+
+`http://113.161.187.126:8019` · `em.hcm` (HCM-01) · mọi POST chặn qua `scratchpad/e6c/uat_guard.py` — **0 lệnh phải chặn**.
+14 module portal khớp version repo (layout 19.0.56.5.0, base 19.0.7.22.0, `?v=1319`) ⇒ không cần `-u` thêm.
+
+| Lượt | Ô | Kết quả |
+|---|---|---|
+| 31 route × 7 khổ (360…1920) | 196 + 21 Khảo sát | ✅ **0 vi phạm · 0 lỗi JS** |
+| Sidebar thu gọn 992/1024/1440/1920 | 112 + Khảo sát | ✅ 0 |
+| Zoom 200% (720) | 28 + Khảo sát | ✅ 0 |
+| **Khảo sát chi tiết + khắc phục** (`KS/D3REVIEW/001`, LIMIT 1) | 14 | ✅ 0 · `standard`: 1092 @1440, **1440** @1920 |
+
+Width: narrow **960** @1440/1920 (giỏ, tạo bù hàng, tạo hỗ trợ, tạo YC thông tin); standard 1092 @1440 → **1440** @1920.
+Đáy 390: Đặt hàng — thẻ cuối kết thúc trên floatbar 18px; Giỏ — ô ghi chú kết thúc trên thanh tổng tiền ~60px.
+Ảnh: `scratchpad/e7b/uat/shots/`.
+
+Ghi chú thước đo: route `wujia_portal_inspection` trên UAT tự chuyển sang `/vi/…` (các route khác không) ⇒ lượt
+chính báo "CHUYỂN HƯỚNG" cho `/portal/inspection`; đo lại bằng `/vi/portal/inspection…` ⇒ 0. Không phải lỗi khung.
