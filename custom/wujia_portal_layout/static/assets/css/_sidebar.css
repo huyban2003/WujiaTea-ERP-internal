@@ -1,0 +1,179 @@
+/* ============================================================================
+   CMP-SN-001 SidebarNavigation (E8b, UI-SIDEBAR-001) — một chỗ cho dáng sidebar PC.
+   Phạm vi id `#wj-main-menu` để thắng rule Vuexy/legacy (style.css, vertical-menu.css)
+   mà không cần tăng specificity từng chỗ. Bề rộng + lề content đọc token ở _wujia_theme.css.
+     ≥1200     sidebar cố định 264.
+     992–1199  drawer đóng mặc định, mở bằng hamburger (wujia_sidebar.js) + backdrop.
+     <992      không hiển thị (mobile dùng bottom-nav).
+   ============================================================================ */
+
+/* ---------- Brand ---------- */
+#wj-main-menu .wj-sidebar__brand {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: flex-start !important;
+    gap: 8px;
+    width: 100% !important;
+    height: var(--wujia-sidebar-brand-h) !important;
+    margin: 0 !important;
+    padding: 12px 12px 12px 24px !important;
+    border: 0 !important;
+    box-sizing: border-box;
+    overflow: hidden;
+}
+#wj-main-menu .wj-sidebar__logo {
+    display: flex;
+    align-items: center;
+    margin: 0 !important;
+    padding: 0 !important;
+}
+#wj-main-menu .wj-sidebar__logo img {
+    display: block;
+    width: auto;
+    height: auto;
+    max-width: 160px;
+    max-height: 64px;
+    object-fit: contain;
+}
+#wj-main-menu .wj-sidebar__close {
+    display: none;
+    align-items: center;
+    justify-content: center;
+    width: 44px;
+    height: 44px;
+    margin-left: auto;
+    padding: 0;
+    border: 0;
+    border-radius: 10px;
+    background: transparent;
+    color: var(--wujia-text-secondary);
+    font-size: 20px;
+}
+#wj-main-menu .wj-sidebar__close:hover { background: var(--wujia-muted-bg); }
+
+/* ---------- Nhóm ---------- */
+#wj-main-menu .navigation > li.wujia-nav-header {
+    display: block;
+    margin: 0 !important;
+    padding: 16px 12px 6px 24px !important;
+    line-height: 16px;
+}
+#wj-main-menu .navigation > li.wujia-nav-header:first-child { padding-top: 4px !important; }
+#wj-main-menu .navigation > li.wujia-nav-header > span {
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: .04em;
+    text-transform: uppercase;
+    color: var(--wj-pc-subtle);
+}
+/* Render theo quyền: nhóm không còn mục nào thì ẩn luôn tiêu đề, không chừa khoảng trống. */
+#wj-main-menu .navigation > li.wujia-nav-header:has(+ li.wujia-nav-header),
+#wj-main-menu .navigation > li.wujia-nav-header:has(+ #nav_end),
+#wj-main-menu .navigation > #nav_end {
+    display: none !important;
+}
+
+/* ---------- Mục ---------- */
+#wj-main-menu .navigation > li:not(.wujia-nav-header) {
+    margin: 0 !important;
+    padding: 0 !important;
+}
+#wj-main-menu .navigation > li > a {
+    position: relative;
+    display: flex !important;
+    align-items: center;
+    gap: 12px;
+    height: var(--wujia-menu-item-height);
+    min-height: var(--wujia-menu-item-height);
+    margin: 2px 12px !important;
+    padding: 10px 12px !important;
+    box-sizing: border-box;
+    border-radius: 10px !important;
+    background: transparent;
+    box-shadow: none !important;
+    font-size: var(--wujia-menu-text-size) !important;
+    line-height: var(--wujia-menu-text-lh) !important;
+    font-weight: 500 !important;
+    color: var(--wujia-text-secondary) !important;
+    white-space: nowrap;
+    transition: background-color .15s, color .15s !important;
+}
+#wj-main-menu .navigation > li > a > i {
+    flex: 0 0 var(--wujia-menu-icon-size);
+    width: var(--wujia-menu-icon-size);
+    margin: 0 !important;
+    float: none !important;
+    font-size: var(--wujia-menu-icon-size) !important;
+    line-height: 1;
+    text-align: center;
+    color: inherit !important;
+}
+#wj-main-menu .navigation > li > a > i::before { font-size: var(--wujia-menu-icon-size) !important; }
+#wj-main-menu .navigation > li > a > .menu-title {
+    flex: 1 1 auto;
+    min-width: 0;
+    margin: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    font: inherit;
+    color: inherit;
+}
+/* Vuexy đẩy chữ/icon khi hover — state chỉ đổi màu, không đổi vị trí. */
+#wj-main-menu .navigation > li > a:hover > *,
+#wj-main-menu .navigation > li > a:hover { transform: none !important; }
+#wj-main-menu .navigation > li:not(.active) > a:hover {
+    background: var(--wujia-muted-bg) !important;
+}
+#wj-main-menu .navigation > li.active > a {
+    background: var(--wujia-primary-soft) !important;
+    color: var(--wujia-primary-dark) !important;
+    font-weight: 700 !important;
+}
+#wj-main-menu .navigation > li.active > a::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 10px;
+    bottom: 10px;
+    width: 3px;
+    border-radius: 0 3px 3px 0;
+    background: var(--wujia-primary-dark);
+}
+
+/* ---------- Hamburger (topbar 992–1199) ---------- */
+.wj-menu-toggle {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 44px;
+    min-height: 44px;
+    border: 0;
+    background: transparent;
+    color: #FFFFFF;   /* nằm trên nền xanh topbar, cùng màu icon giỏ/chuông */
+    cursor: pointer;
+}
+.wj-menu-toggle .ficon { color: inherit !important; }
+
+/* ---------- Drawer 992–1199 ---------- */
+@media (min-width: 992px) and (max-width: 1199.98px) {
+    body.vertical-layout #wj-main-menu {
+        width: var(--wujia-sidebar-width) !important;
+        left: calc(-1 * var(--wujia-sidebar-width)) !important;
+        z-index: 1041 !important;   /* style.css:96 đặt .main-menu 1040 !important — phải trên backdrop */
+    }
+    body.vertical-layout.menu-open #wj-main-menu {
+        opacity: 1 !important;
+        transform: translate3d(var(--wujia-sidebar-width), 0, 0) !important;
+    }
+    #wj-main-menu .wj-sidebar__close { display: inline-flex; }
+    body.menu-open .sidenav-overlay {
+        display: block !important;
+        z-index: 1040;
+    }
+}
+@media (max-width: 991.98px) {
+    #wj-main-menu { display: none !important; }
+}
+@media (max-width: 991.98px), (min-width: 1200px) {
+    .sidenav-overlay { display: none !important; }
+}

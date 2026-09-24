@@ -1,6 +1,6 @@
 {
     'name': 'Wujia Portal — Return Request',
-    'version': '19.0.3.9.0',
+    'version': '19.0.3.10.0',
     'category': 'Wujia',
     'summary': 'Bù hàng / đổi trả — portal single-product + backend admin + workflow',
     'author': 'WujiaTea',
@@ -14,6 +14,7 @@
         'data/return_issue_type_data.xml',
         'views/backend_return_request_views.xml',
         'views/bottomnav_inherit.xml',
+        'views/sidenav_inherit.xml',
         'wizards/compensation_process_wizard_views.xml',
         'views/backend_return_issue_type_views.xml',
         'views/backend_product_views.xml',

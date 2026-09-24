@@ -1,8 +1,7 @@
-"""F5a — module này sở hữu mục menu của màn mình (ADR-027: khung không biết route).
+"""CMP-SN-001 (E8b) — Thông báo KHÔNG có mục trong sidebar PC.
 
-Gỡ module ⇒ view `layout_sidenav_notification` biến mất ⇒ mục "Thông báo" biến mất khỏi sidebar.
-Danh sách vàng (thứ tự, icon, active theo route) nằm ở `wujia_portal_base`
-(`test_f5_menu_ownership.py`) vì phép kiểm đó đụng 11 module cùng lúc.
+BA: thông báo trên PC vào bằng chuông topbar (`header_bell_inherit.xml`); mobile giữ tab
+Thông báo ở bottom-nav. Guard chống việc mục PC quay lại.
 """
 from lxml import etree
 
@@ -13,18 +12,15 @@ from odoo.tests.common import TransactionCase
 @tagged('post_install', '-at_install', 'wujia_f5')
 class TestNavItemNotification(TransactionCase):
 
-    def test_item_is_declared_by_this_module(self):
-        view = self.env.ref('wujia_portal_notification.layout_sidenav_notification')
-        self.assertEqual(view.inherit_id, self.env.ref('wujia_portal_layout.layout_sidenav'))
-        arch = view.arch
-        self.assertIn('<li', arch)
-        self.assertIn('id="nav_item_notification"', arch)
-        self.assertIn('t-value="\'/portal/notification\'"', arch)
-        self.assertIn('<t t-set="ni_label">Thông báo</t>', arch)
-
-    def test_item_lands_in_the_shell(self):
-        """Mục thật sự nằm trong arch tổng của khung (xpath neo còn khớp)."""
+    def test_no_pc_sidebar_item(self):
+        self.assertFalse(self.env.ref('wujia_portal_notification.layout_sidenav_notification',
+                                      raise_if_not_found=False))
         xml = etree.tostring(
             self.env.ref('wujia_portal_layout.layout_sidenav')._get_combined_arch(),
             encoding='unicode')
-        self.assertIn('id="nav_item_notification"', xml)
+        self.assertNotIn('id="nav_item_notification"', xml)
+        self.assertNotIn("'/portal/notification'", xml)
+
+    def test_bell_and_mobile_tab_still_reach_notifications(self):
+        bell = self.env.ref('wujia_portal_notification.layout_top_navbar_bell_icon', raise_if_not_found=False)
+        self.assertTrue(bell, 'mất chuông topbar ⇒ PC không còn lối vào Thông báo')

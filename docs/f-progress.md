@@ -1199,3 +1199,33 @@ rồi đánh ✅ ở bảng Trạng thái §2 `docs/next-session-clusters-F.md`.
 - Nợ để lại: báo BA `/portal/info-request` không có lối vào nào trong UI (ngoài E8, cần issue riêng).
 - Phiên kế: **E8b** code theo §2–§3 kiểm kê. Test khoá sidebar phải sửa cùng lượt: `test_f5_nav_item.py` ×9,
   `test_f5_menu_ownership.py`, `test_f5_frame_routes.py`; chụp lại mốc `nav_dump`.
+
+## E8b — SidebarNavigation `CMP-SN-001`: sidebar PC + drawer 992–1199 (25/09/2026 · Mac)
+- Kết quả: ✅ xong lượt code. `UI-SIDEBAR-001` (STT 131) **giữ Ready for Dev** tới E8c. Nghiệm thu: `docs/e8b-acceptance-matrix.md`.
+- Cụm E8 chia **3 phiên** (chủ dự án chốt 25/09): E8a đo · **E8b sidebar PC + drawer** · E8c avatar/mobile/UAT/ledger.
+- Đã làm:
+  - Khung `layout_sidenav` chỉ còn 4 neo (`nav_header_main` / `_finance` / `_ops` / `nav_end`) — 3 nhóm BA "Chức năng chính ·
+    Tài chính & xử lý · Hỗ trợ vận hành". Gỡ nhóm Tiện ích + Tài khoản (về avatar), spacer, `mb-5`, logo 200×100, overlay trùng.
+  - 10 module sở hữu route tự khai mục (`before` neo nhóm kế): Giao hàng lên trước Lịch sử · "Công nợ & thanh toán" ·
+    **mới** "Đổi trả / Bù hàng" (return) + "Báo cáo" (report) · Thông báo rời sidebar (chuông). Quyền = điều kiện controller:
+    Công nợ theo `_debt_access`, Báo cáo theo vai trò cao nhất owner/manager — `_nav_mgr_fids` tính 1 lần/trang ở `base`.
+  - **Sửa tối thiểu file anh Thái** (`wujia_portal_inspection/views/sidenav_inherit.xml`, chủ dự án duyệt, tiền lệ E7a): neo
+    `nav_end` + `wj_nav_item`; ghi bàn giao trong matrix.
+  - `wj_nav_item` có `aria-current`. `_sidebar.css` mới giữ mọi dáng sidebar (264, brand 88, mục 44/10/12/15-22-500, bo 10 mọi
+    state, active 700 `#EAF7FD`/`#168FC2` + rail 3, hover không trượt, nhóm rỗng tự ẩn, drawer, ẩn <992).
+  - Drawer 992–1199: `my_js.js` chỉ ép mở ≥1200; `wujia_sidebar.js` mới (hamburger `<button>` đủ aria, nút Đóng, Escape,
+    backdrop, focus vào/ra). Migration `pre-10` xoá view con của `layout_sidenav` (neo cũ mất ⇒ view cũ hỏng validate).
+- Commit: local `feat(E8b)`, chưa push. Deploy: **không**.
+- Số đo: `wj_sidebar` (mới, `scripts/qa/`) **0 vi phạm** × 4 vai trò, 9 khổ, 21/21 route sáng đúng + `aria-current`, 7 route
+  ngoài sidebar sáng 0 · suite **779, 0 đỏ** (E7b 756) · mutation **14/14** · DB trắng chỉ cài khung 0 failed / 1 error (nợ F6
+  có sẵn) · `wj_pagecontainer` 0 · `wj_button` 0 · `wj_listcard` 0 · `wj_filterbar` ĐẠT · `wj_nesting` 0 · `b4` 286/286 ·
+  `check_layers` không thêm · `test_ownership` cross 0 (asserts 425 → 491) · `nav_dump` 9 route đổi mục sáng, đều chủ đích;
+  mốc mới `docs/e8b-baseline/nav_em.json`.
+- Lệch thước đo (không phải hồi quy): `wj_measure --diff` 26 ô "mất record" ở 360/390 = đúng 14 `li` sidebar cũ bị đếm
+  khi còn nằm ngoài màn; `wj_button` thêm boundary `wj-menu-toggle`/`wj-sidebar` (hamburger nay là `<button>`).
+- Bài học: đột biến ở module X mà guard ở `portal_base` ⇒ `-u X,wujia_portal_base`, không thì **0 test chạy** (Pass rỗng) ·
+  test phải kèm `--db-filter='^wujia_e4b1$'` (config lọc `wujia_tea_19` ⇒ HttpCase rơi về trang login) · `style.css:96`
+  đặt `.main-menu` z-index 1040 !important — drawer phải 1041 mới trên backdrop · focus vào drawer phải đợi hết transition.
+- LIMIT: sheet "Thêm" mobile có Báo cáo không điều kiện vai trò (E8c) · ẩn nhóm rỗng cần Safari ≥ 15.4 (`:has`).
+- Phiên kế: **E8c** — avatar dropdown 7 mục + gỡ dropdown ngôn ngữ topbar + `aria-expanded` chuông + avatar/sheet mobile
+  + tên gọi PC↔mobile + deploy E8b+E8c + đo UAT chỉ-đọc (`wj_sidebar --base` UAT) + ledger/`qa_sync` ⇒ Ready for Retest.

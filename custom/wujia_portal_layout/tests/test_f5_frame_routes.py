@@ -60,7 +60,11 @@ class TestFrameKnowsNoWujiaRoute(TransactionCase):
             self.assertFalse(self._foreign_routes(view.arch or ''), key)
 
     def test_sidenav_shell_keeps_inheritance_anchors(self):
-        """Neo cho module chèn mục: 2 tiêu đề nhóm phải có id ổn định."""
+        """Neo cho module chèn mục: 3 tiêu đề nhóm (BA, E8b) + neo đáy phải có id ổn định."""
         arch = self.env.ref('wujia_portal_layout.layout_sidenav').arch
-        for anchor in ('nav_header_main', 'nav_header_utils', 'main-menu-navigation'):
-            self.assertIn(anchor, arch)
+        for anchor in ('nav_header_main', 'nav_header_finance', 'nav_header_ops', 'nav_end',
+                       'main-menu-navigation'):
+            self.assertIn(f'id="{anchor}"', arch)
+        # Nhóm "Tiện ích" + mục Tài khoản đã gỡ (Tài khoản ở avatar, E8c).
+        for gone in ('nav_header_utils', 'nav_item_account', '/portal/profile'):
+            self.assertNotIn(gone, arch)

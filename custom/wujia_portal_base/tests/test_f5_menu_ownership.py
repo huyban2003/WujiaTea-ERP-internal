@@ -1,4 +1,4 @@
-"""F5a — danh sách vàng của menu + QUYỀN SỞ HỮU từng mục (guard nhiều module ⇒ L3a).
+"""F5a/E8b — danh sách vàng của menu + QUYỀN SỞ HỮU từng mục (guard nhiều module ⇒ L3a).
 
 Vì sao ở `wujia_portal_base`: mỗi phép kiểm ở đây đụng 9–11 module cùng lúc; cắt nhỏ
 về từng module thì không còn chỗ nào đo được THỨ TỰ và tính TOÀN VẸN của menu.
@@ -15,31 +15,43 @@ from odoo.tests import tagged
 from odoo.tests.common import HttpCase
 
 # (id của <li>, module sở hữu, href, icon, nhãn) — thứ tự đúng như sidebar PC hiển thị.
+# E8b (CMP-SN-001): 3 nhóm theo BA; Thông báo (chuông) và Tài khoản (avatar) không nằm ở sidebar.
 GOLDEN_SIDENAV = [
     ('nav_item_home', 'wujia_portal_base', '/portal', 'feather icon-home', 'Trang chủ'),
     ('nav_item_order', 'wujia_portal_sale', '/portal/order', 'feather icon-shopping-cart', 'Đặt hàng'),
-    ('nav_item_history', 'wujia_portal_purchase_history', '/portal/purchase-history', 'feather icon-clock', 'Lịch sử đặt hàng'),
     ('nav_item_delivery', 'wujia_portal_delivery', '/portal/delivery', 'feather icon-truck', 'Giao hàng'),
-    ('nav_item_debt', 'wujia_portal_debt', '/portal/debt', 'feather icon-credit-card', 'Công nợ'),
-    ('nav_item_notification', 'wujia_portal_notification', '/portal/notification', 'feather icon-bell', 'Thông báo'),
+    ('nav_item_history', 'wujia_portal_purchase_history', '/portal/purchase-history', 'feather icon-clock', 'Lịch sử đặt hàng'),
+    ('nav_item_debt', 'wujia_portal_debt', '/portal/debt', 'feather icon-credit-card', 'Công nợ & thanh toán'),
+    ('nav_item_return', 'wujia_portal_return', '/portal/return', 'feather icon-corner-up-left', 'Đổi trả / Bù hàng'),
+    ('nav_item_exam', 'wujia_portal_exam', '/portal/exam', 'feather icon-edit', 'Đăng ký thi'),
     ('nav_item_knowledge', 'wujia_portal_knowledge', '/portal/knowledge', 'feather icon-book', 'Kiến thức'),
     ('nav_item_support', 'wujia_portal_support', '/portal/support', 'feather icon-life-buoy', 'Hỗ trợ'),
-    ('nav_item_exam', 'wujia_portal_exam', '/portal/exam', 'feather icon-edit', 'Đăng ký thi'),
-    # Khảo sát: view của anh Thái (priority 101), chèn sau mục Đăng ký thi.
+    ('nav_item_report', 'wujia_portal_report', '/portal/reports/orders', 'feather icon-bar-chart-2', 'Báo cáo'),
+    # Khảo sát: view của anh Thái (priority 101), neo cuối nhóm "Hỗ trợ vận hành".
     ('nav_item_inspection', 'wujia_portal_inspection', '/portal/inspection', 'feather icon-clipboard', 'Khảo sát'),
-    # Tài khoản: /portal/profile + /portal/change-password là route của CHÍNH khung.
-    ('nav_item_account', 'wujia_portal_layout', '/portal/profile', 'feather icon-user', 'Tài khoản'),
+]
+# Thứ tự đầy đủ kèm tiêu đề nhóm.
+GOLDEN_WITH_GROUPS = [
+    'nav_header_main', 'nav_item_home', 'nav_item_order', 'nav_item_delivery', 'nav_item_history',
+    'nav_header_finance', 'nav_item_debt', 'nav_item_return',
+    'nav_header_ops', 'nav_item_exam', 'nav_item_knowledge', 'nav_item_support', 'nav_item_report',
+    'nav_item_inspection', 'nav_end',
 ]
 
-# Đường dẫn con ⇒ mục nào phải sáng.
+# Đường dẫn ⇒ mục phải sáng (None = không mục nào sáng).
 ACTIVE_CASES = [
     ('/portal', 'nav_item_home'),
     ('/portal/order', 'nav_item_order'),
     ('/portal/purchase-history', 'nav_item_history'),
-    ('/portal/profile', 'nav_item_account'),
-    # route của wujia_portal_base nhưng sáng ở mục Tài khoản của khung —
-    # base tự khai qua `_nav_acct_extra`, khung không biết đường dẫn này.
-    ('/portal/franchise-information', 'nav_item_account'),
+    ('/portal/return', 'nav_item_return'),
+    ('/portal/return/new', 'nav_item_return'),
+    ('/portal/reports/orders', 'nav_item_report'),
+    # Không có mục sidebar: Tài khoản/Hồ sơ cửa hàng ở avatar, Thông báo ở chuông,
+    # info-request thuộc Hồ sơ cửa hàng (avatar).
+    ('/portal/profile', None),
+    ('/portal/franchise-information', None),
+    ('/portal/notification', None),
+    ('/portal/info-request', None),
 ]
 
 
@@ -58,6 +70,25 @@ class TestMenuOwnership(HttpCase):
             'group_ids': [(6, 0, [env.ref('base.group_portal').id])]})
         env['wujia.franchise.member'].create({
             'user_id': cls.user.id, 'franchise_id': cls.franchise.id, 'role': 'owner'})
+        # Quyền: staff một cửa hàng; "mixed" = staff ở cửa hàng đang chọn, manager nơi khác.
+        cls.franchise2 = env['wujia.franchise.management'].create({
+            'code': 'F5MN2', 'name': 'F5 menu store 2', 'franchise_end_date': '2030-01-01',
+            'partner_id': env['res.partner'].create({'name': 'F5 menu partner 2'}).id})
+        for login, rows in (('f5_staff', [(cls.franchise, 'staff')]),
+                            ('f5_mixed', [(cls.franchise, 'staff'), (cls.franchise2, 'manager')])):
+            user = env['res.users'].create({
+                'name': login, 'login': login, 'password': login,
+                'group_ids': [(6, 0, [env.ref('base.group_portal').id])]})
+            for franchise, role in rows:
+                env['wujia.franchise.member'].create({
+                    'user_id': user.id, 'franchise_id': franchise.id, 'role': role})
+
+    def _ids(self, login, store=None):
+        self.authenticate(login, login)
+        if store:
+            self.opener.cookies.set('wujia_active_franchise_id', str(store.id))
+        html = etree.HTML(self.url_open('/portal', timeout=30).text)
+        return [li.get('id') for li in html.xpath("//ul[@id='main-menu-navigation']/li")]
 
     def _sidenav(self, route='/portal'):
         self.authenticate('f5_menu', 'f5_menu')
@@ -68,10 +99,18 @@ class TestMenuOwnership(HttpCase):
         self.assertTrue(ul, f'không thấy sidebar ở {route}')
         return ul[0]
 
+    def test_sidenav_groups_in_ba_order(self):
+        """3 nhóm BA (Chức năng chính / Tài chính & xử lý / Hỗ trợ vận hành), mục đúng nhóm."""
+        ul = self._sidenav()
+        self.assertEqual([li.get('id') for li in ul.xpath('./li')], GOLDEN_WITH_GROUPS)
+        heads = [re.sub(r'\s+', ' ', ''.join(li.itertext())).strip()
+                 for li in ul.xpath("./li[contains(@class, 'navigation-header')]")]
+        self.assertEqual(heads, ['Chức năng chính', 'Tài chính & xử lý', 'Hỗ trợ vận hành'])
+
     def test_sidenav_golden_list(self):
         """11 mục, đúng thứ tự, đúng href + icon + nhãn."""
         items = [li for li in self._sidenav().xpath('./li')
-                 if 'navigation-header' not in (li.get('class') or '')]
+                 if 'navigation-header' not in (li.get('class') or '') and li.get('id') != 'nav_end']
         self.assertEqual([li.get('id') for li in items],
                          [g[0] for g in GOLDEN_SIDENAV])
         for li, (nid, _mod, href, icon, label) in zip(items, GOLDEN_SIDENAV):
@@ -90,7 +129,7 @@ class TestMenuOwnership(HttpCase):
             owners = set()
             for view in views:
                 # Chỉ tính view TẠO ra mục; view chỉ NHẮC id trong xpath neo không phải
-                # chủ sở hữu (wujia_portal_inspection neo vào //li[@id='nav_item_exam']).
+                # chủ sở hữu.
                 if not re.search(rf'<li[^>]*id="{nid}"', (view.arch or '').replace("'", '"')):
                     continue
                 data = self.env['ir.model.data'].search(
@@ -104,7 +143,24 @@ class TestMenuOwnership(HttpCase):
             ul = self._sidenav(route)
             active = [li.get('id') for li in ul.xpath('./li')
                       if 'active' in (li.get('class') or '')]
-            self.assertEqual(active, [nid], route)
+            self.assertEqual(active, [nid] if nid else [], route)
+            # aria-current="page" đúng trên mục sáng, không mục nào khác.
+            current = [a.getparent().get('id') for a in ul.xpath("./li/a[@aria-current='page']")]
+            self.assertEqual(current, [nid] if nid else [], route)
+
+    def test_items_render_by_permission(self):
+        """Mục hiện theo quyền vào route (điều kiện controller), không chừa khoảng trống."""
+        owner = self._ids('f5_menu')
+        self.assertIn('nav_item_debt', owner)
+        self.assertIn('nav_item_report', owner)
+        staff = self._ids('f5_staff')
+        self.assertNotIn('nav_item_debt', staff)      # _debt_access: staff → không quyền
+        self.assertNotIn('nav_item_report', staff)    # report: max role phải owner/manager
+        self.assertIn('nav_item_return', staff)
+        mixed = self._ids('f5_mixed', store=self.franchise)
+        self.assertNotIn('nav_item_debt', mixed)      # staff ở cửa hàng đang chọn
+        self.assertIn('nav_item_report', mixed)       # manager ở cửa hàng khác
+        self.assertIn('nav_item_debt', self._ids('f5_mixed', store=self.franchise2))
 
     def test_bottomnav_more_button_is_active_when_no_tab_matches(self):
         """Nút "Thêm" sáng khi không tab nào sáng (hành vi Sprint 11)."""

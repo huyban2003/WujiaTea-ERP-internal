@@ -10,7 +10,7 @@
         <template id="asset_theme">
             <!-- Design tokens + Inter font load BEFORE Vuexy vendor so our :root
                  vars win. ?v= busts browser cache — bump on every CSS change. -->
-            <link rel="stylesheet" type="text/css" href="/wujia_portal_layout/static/assets/css/_variables.css?v=1319"/>
+            <link rel="stylesheet" type="text/css" href="/wujia_portal_layout/static/assets/css/_variables.css?v=1320"/>
             <link rel="stylesheet" type="text/css" href="/wujia_portal_layout/static/assets/fonts/inter/inter.css"/>
             <link rel="stylesheet" type="text/css" href="/wujia_portal_layout/static/assets/fonts/feather/iconfont.css?v=1010"/>
             <link rel="stylesheet" type="text/css" href="/wujia_portal_layout/static/assets/css/bootstrap.css"/>
@@ -78,14 +78,16 @@
             <link rel="stylesheet" type="text/css" href="/wujia_portal_layout/static/assets/css/dashboard.css?v=1010"/>
             <link rel="stylesheet" type="text/css" href="/wujia_portal_layout/static/assets/css/member_dashboard_style.css?v=1060"/>
             <!-- Wujia overrides load last so they win over Vuexy + legacy style.css. -->
-            <link rel="stylesheet" type="text/css" href="/wujia_portal_layout/static/assets/css/_wujia_theme.css?v=1319"/>
+            <link rel="stylesheet" type="text/css" href="/wujia_portal_layout/static/assets/css/_wujia_theme.css?v=1320"/>
             <link rel="stylesheet" type="text/css" href="/wujia_portal_layout/static/assets/css/_components.css?v=1318"/>
             <!-- Sprint PC-1: desktop component layer (BA pc_source_ui_v1_4). -->
-            <link rel="stylesheet" type="text/css" href="/wujia_portal_layout/static/assets/css/_pc_components.css?v=1301"/>
+            <link rel="stylesheet" type="text/css" href="/wujia_portal_layout/static/assets/css/_pc_components.css?v=1302"/>
             <!-- PC "Tài khoản" section (Figma wujia_pc_01..09_v3). -->
             <link rel="stylesheet" type="text/css" href="/wujia_portal_layout/static/assets/css/_pc_account.css?v=1201"/>
             <!-- C6: trạng thái tương tác dùng chung — phải nạp SAU cùng. -->
             <link rel="stylesheet" type="text/css" href="/wujia_portal_layout/static/assets/css/_interaction.css?v=1294"/>
+            <!-- E8b: SidebarNavigation CMP-SN-001 — sau _interaction để thắng rule Vuexy/legacy. -->
+            <link rel="stylesheet" type="text/css" href="/wujia_portal_layout/static/assets/css/_sidebar.css?v=1322"/>
         </template>
 
         <template id="tables_js">
@@ -115,9 +117,11 @@
                   → bump ?v= vì file này trước giờ không có cache-buster. -->
              <script src="/wujia_portal_layout/static/assets/js/app.js?v=1158"/>
              <script src="/wujia_portal_layout/static/assets/js/lang.js"/>
-             <script src="/wujia_portal_layout/static/assets/js/my_js.js"/>
+             <script src="/wujia_portal_layout/static/assets/js/my_js.js?v=1320"/>
              <!-- Sprint 9.6 (2026-05-25): dynamic body-class swap for responsive menu. -->
              <script src="/wujia_portal_layout/static/assets/js/wujia_responsive_menu.js?v=1010"/>
+             <!-- E8b: drawer sidebar 992–1199 (CMP-SN-001). -->
+             <script src="/wujia_portal_layout/static/assets/js/wujia_sidebar.js?v=1321"/>
              <!-- Sprint 14 (2026-06-11): "Thêm" bottom sheet toggle (Figma WJ_MoreBottom). -->
              <script src="/wujia_portal_layout/static/assets/js/wujia_mobile_more_sheet.js?v=1174"/>
              <!-- Sprint 18 (2026-06-15): password eye-toggle (Figma Mobile_Account_Info màn 03). -->

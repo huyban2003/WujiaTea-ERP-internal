@@ -6,12 +6,16 @@
                   inherit_id="wujia_portal_layout.layout_sidenav"
                   priority="101"
                   name="Wujia PC Sidenav — Khảo sát">
-            <xpath expr="//li[@id='nav_item_exam']" position="after">
-                <li t-attf-class="nav-item #{_inspection_active and 'active' or ''}" id="nav_item_inspection">
-                    <a href="/portal/inspection">
-                        <i class="feather icon-clipboard" aria-hidden="true"/>
-                        <span class="menu-title">Khảo sát</span>
-                    </a>
+            <!-- E8b (Dev portal, chủ dự án duyệt): neo cuối nhóm "Hỗ trợ vận hành" theo thứ tự BA
+                 + thân mục dùng wj_nav_item (aria-current, dáng chung). Điều kiện sáng giữ nguyên. -->
+            <xpath expr="//li[@id='nav_end']" position="before">
+                <t t-set="ni_active" t-value="_inspection_active"/>
+                <li t-attf-class="nav-item #{ni_active and 'active' or ''}" id="nav_item_inspection">
+                    <t t-call="wujia_portal_layout.wj_nav_item">
+                        <t t-set="ni_href" t-value="'/portal/inspection'"/>
+                        <t t-set="ni_icon" t-value="'feather icon-clipboard'"/>
+                        <t t-set="ni_label">Khảo sát</t>
+                    </t>
                 </li>
             </xpath>
         </template>

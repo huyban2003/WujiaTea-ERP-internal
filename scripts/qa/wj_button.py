@@ -150,6 +150,9 @@ PROBE = r"""
                     'wujia-morder-row-add', 'wujia-morder-add-btn', 'wj-pc-order-add',
                     'wujia-morder-floatbar',
                     'wujia-header-icon', 'wj-pc-navactions',
+                    // E8b: hamburger topbar + nút Đóng drawer thuộc CMP-SN-001 (shell),
+                    // cùng loại BottomNavigation — trước là <a> không class btn nên lọt khỏi SEL.
+                    'wj-menu-toggle', 'wj-sidebar',
                     // E6c: ô ngày/khung giờ là control chọn, FAB cùng loại
                     // BottomNavigation, nút lùi wizard là BackPageHeader — boundary
                     // nhưng đọc token --wj-btn-* (chốt chủ dự án 23/09).

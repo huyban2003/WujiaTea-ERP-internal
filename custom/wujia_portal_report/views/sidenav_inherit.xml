@@ -3,17 +3,17 @@
 
     <!-- CMP-SN-001 — mục sidebar PC do CHÍNH module sở hữu route khai; khung
          (wujia_portal_layout) chỉ giữ 3 tiêu đề nhóm + neo `nav_end`. Gỡ module này ⇒ mục biến mất. -->
-    <template id="layout_sidenav_exam"
+    <template id="layout_sidenav_report"
               inherit_id="wujia_portal_layout.layout_sidenav"
-              priority="60"
-              name="Wujia Sidenav — Đăng ký thi">
+              priority="66"
+              name="Wujia Sidenav — Báo cáo">
         <xpath expr="//li[@id='nav_end']" position="before">
-            <t t-set="ni_active" t-value="_p.startswith('/portal/exam')"/>
-            <li t-attf-class="nav-item #{ni_active and 'active' or ''}" id="nav_item_exam">
+            <t t-set="ni_active" t-value="_p.startswith('/portal/reports')"/>
+            <li t-if="_nav_mgr_fids" t-attf-class="nav-item #{ni_active and 'active' or ''}" id="nav_item_report">
                 <t t-call="wujia_portal_layout.wj_nav_item">
-                    <t t-set="ni_href" t-value="'/portal/exam'"/>
-                    <t t-set="ni_icon" t-value="'feather icon-edit'"/>
-                    <t t-set="ni_label">Đăng ký thi</t>
+                    <t t-set="ni_href" t-value="'/portal/reports/orders'"/>
+                    <t t-set="ni_icon" t-value="'feather icon-bar-chart-2'"/>
+                    <t t-set="ni_label">Báo cáo</t>
                 </t>
             </li>
         </xpath>

@@ -53,9 +53,10 @@
                                         </a>
                                     </li>
                                     <li class="nav-item mobile-menu d-xl-none mr-auto">
-                                        <a class="nav-link nav-menu-main menu-toggle hidden-xs" href="#">
-                                            <i class="ficon feather icon-menu" style="color: #ccc;"/>
-                                        </a>
+                                        <button type="button" class="nav-link nav-menu-main menu-toggle hidden-xs wj-menu-toggle"
+                                                aria-label="Mở menu" aria-controls="wj-main-menu" aria-expanded="false">
+                                            <i class="ficon feather icon-menu" aria-hidden="true"/>
+                                        </button>
                                     </li>
                                 </ul>
                             </div>
@@ -146,58 +147,35 @@
         </template>
 
         <template id="layout_sidenav">
-            <div class="main-menu menu-fixed menu-light menu-accordion menu-shadow"
+            <!-- CMP-SN-001 (E8b): sidebar PC 264. ≥1200 cố định; 992–1199 drawer đóng mặc định
+                 (wujia_sidebar.js); <992 không hiển thị (mobile dùng bottom-nav). -->
+            <div class="main-menu menu-fixed menu-light menu-accordion menu-shadow wj-sidebar"
+                 id="wj-main-menu" role="navigation" aria-label="Điều hướng chính"
                  data-scroll-to-active="true">
-                <div class="navbar-header mb-5">
-                    <ul class="nav navbar-nav flex-row justify-content-center">
-                        <li class="nav-item">
-                            <a class="navbar-brand  text-color-title" href="/portal">
-                                <!-- <div class="brand-logo"/> -->
-                                <img t-attf-src="data:image/png;base64,{{env.company.logo_web}}" alt="" width="200" height="100" style="object-fit: contain"/>
-
-
-
-                            </a>
-                        </li>
-                    </ul>
+                <div class="navbar-header wj-sidebar__brand">
+                    <a class="navbar-brand wj-sidebar__logo" href="/portal">
+                        <img t-attf-src="data:image/png;base64,{{env.company.logo_web}}" alt="Wujia"/>
+                    </a>
+                    <button type="button" class="wj-sidebar__close" aria-label="Đóng menu">
+                        <i class="feather icon-x" aria-hidden="true"/>
+                    </button>
                 </div>
 
-                <!-- Sprint 9.6 v5 (2026-05-25): BA UI-01/02 KHÔNG có user info
-                     trong sidebar trái. Chừa khoảng trống bằng spacer thay vì
-                     user-pic/user-info block. -->
-                <div class="sidebar-header-spacer"/>
-
-                <div class="shadow-bottom"/>
-                <div class="main-menu-content " >
-                    <!-- F5a: khung chỉ giữ 2 tiêu đề nhóm làm NEO kế thừa; mục menu do
-                         module sở hữu route chèn vào (`position="before"` tiêu đề TIỆN ÍCH,
-                         thứ tự theo priority của inherit). Mục Tài khoản ở lại đây vì
-                         /portal/profile và /portal/change-password là route của chính khung.
-                         `_p` đặt một lần ở đây để mọi mục dùng chung (mục tự khai điều kiện
-                         sáng theo route của mình — khung không biết route nghiệp vụ). -->
+                <div class="main-menu-content">
+                    <!-- Khung chỉ giữ 3 tiêu đề nhóm + neo cuối `nav_end`; mục do module sở hữu
+                         route chèn `before` neo của nhóm sau, thứ tự trong nhóm theo priority.
+                         `_p` đặt một lần để mọi mục tự khai điều kiện sáng theo route của mình. -->
                     <t t-set="_p" t-value="request.httprequest.path or ''"/>
                     <ul class="navigation navigation-main" id="main-menu-navigation"
-                        data-menu="menu-navigation" >
-                        <li class="navigation-header wujia-nav-header" id="nav_header_main"><span>MENU CHÍNH</span></li>
-                        <li class="navigation-header wujia-nav-header" id="nav_header_utils"><span>TIỆN ÍCH</span></li>
-                        <li t-attf-class="nav-item #{_p in (['/portal/profile', '/portal/change-password'] + (_nav_acct_extra or [])) and 'active' or ''}"
-                            id="nav_item_account">
-                            <t t-call="wujia_portal_layout.wj_nav_item">
-                                <t t-set="ni_href" t-value="'/portal/profile'"/>
-                                <t t-set="ni_icon" t-value="'feather icon-user'"/>
-                                <t t-set="ni_label">Tài khoản</t>
-                            </t>
-                        </li>
+                        data-menu="menu-navigation">
+                        <li class="navigation-header wujia-nav-header" id="nav_header_main"><span>Chức năng chính</span></li>
+                        <li class="navigation-header wujia-nav-header" id="nav_header_finance"><span>Tài chính &amp; xử lý</span></li>
+                        <li class="navigation-header wujia-nav-header" id="nav_header_ops"><span>Hỗ trợ vận hành</span></li>
+                        <li class="wj-sidebar__end" id="nav_end" aria-hidden="true"/>
                         <t t-out="0"/>
                     </ul>
                 </div>
-
             </div>
-            <!-- Sprint 9.6: backdrop overlay for mobile/tablet sidebar (<1200px).
-                 Vuexy app-menu.js binds click handler to .sidenav-overlay that
-                 calls menu.hide(), so DOM element existence is sufficient.
-                 CSS in components.css controls show/hide via body.menu-open. -->
-            <div class="sidenav-overlay"/>
         </template>
 
 

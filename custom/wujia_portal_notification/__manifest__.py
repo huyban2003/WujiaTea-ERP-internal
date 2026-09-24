@@ -1,6 +1,6 @@
 {
     'name': 'Wujia Portal — Notification',
-    'version': '19.0.2.22.0',
+    'version': '19.0.2.23.0',
     'category': 'Wujia',
     'summary': 'Thông báo HQ → cửa hàng nhượng quyền (portal + quản trị backend)',
     'author': 'WujiaTea',
@@ -15,7 +15,6 @@
         'views/backend_notification_views.xml',
         'views/bottomnav_inherit.xml',
         'views/backend_menu.xml',
-        'views/sidenav_inherit.xml',
         'views/header_bell_inherit.xml',
         'views/portal_notification.xml',
     ],

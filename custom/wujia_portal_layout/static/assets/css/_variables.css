@@ -138,12 +138,9 @@
     --wj-sb-feedback-fg:     #7C3AED;
 
     /* ---------- Layout dimensions ---------- */
-    --wujia-sidebar-width:  300px;
-    --wujia-sidebar-logo-h: 200px;   /* <1200px (sidebar off-canvas tablet) — giữ nguyên */
-    /* UI-PC-BASE-010: logo card PC theo WJ_PC_CoreShell_FINAL_v1 (rect 20,16,260×132).
-       Tách riêng khỏi --wujia-sidebar-logo-h để tablet 992–1199px bất biến. */
-    --wujia-sidebar-logo-h-pc:   132px;
-    --wujia-sidebar-header-gap:  12px;   /* 148 (đáy card) + 12 + 28 (margin li) = "MENU CHÍNH" y=188 */
+    /* CMP-SN-001 (E8b): sidebar PC 264, vùng brand 88, logo tối đa 160×64. */
+    --wujia-sidebar-width:  264px;
+    --wujia-sidebar-brand-h: 88px;
     --wujia-header-height:  72px;   /* Vuexy default floating-nav height */
     --wujia-header-padding: 22px;
     --wujia-card-radius:    16px;
@@ -177,7 +174,8 @@
     /* ---------- Sidebar items ---------- */
     --wujia-menu-item-height: 44px;
     --wujia-menu-icon-size:   20px;
-    --wujia-menu-text-size:   16px;
+    --wujia-menu-text-size:   15px;
+    --wujia-menu-text-lh:     22px;
 
     /* ---------- Buttons ---------- */
     --wujia-btn-height:           42px;
