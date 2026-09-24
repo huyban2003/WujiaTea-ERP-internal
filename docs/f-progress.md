@@ -1174,3 +1174,28 @@ rồi đánh ✅ ở bảng Trạng thái §2 `docs/next-session-clusters-F.md`.
 - Báo Thái: Khảo sát chi tiết PC có **2 tiêu đề** (`wj_page_header` + `.wj-pc-page-header` tự dựng, từ `2828171`) — thuộc PageHeader.
 - Bài học: route `wujia_portal_inspection` trên UAT chuyển `/vi/…` ⇒ đo bằng `/vi/portal/inspection…`.
 - Phiên kế: **E8** SidebarNavigation (`UI-SIDEBAR-001`).
+
+## E8a — SidebarNavigation `CMP-SN-001`: đo hiện trạng, 0 code (25/09/2026 · Mac)
+- Kết quả: ✅ xong lượt đo. `UI-SIDEBAR-001` (STT 131) **giữ Ready for Dev** tới E8b. Kiểm kê: `docs/e8a-sidebar-inventory.md`.
+- Đã làm: đo local (`wujia_e4b1`, 8090) + UAT chỉ-đọc (`uat_guard`), `em.hcm`, 9 khổ, 32 route. **UAT khớp local tuyệt đối.**
+  - **Width 264 chỉ cần CSS**: đổi token ⇒ `.main-menu` 264, content +36px (1140→1176), JS Vuexy không ghi đè
+    (`$.app.menu.init/change` đã no-op ở `my_js.js`).
+  - **Drawer 992–1199 kẹt mở**: gốc là `_wujiaForceMenuExpanded()` (`my_js.js:284`) ép `menu-open` ở ≥992 mỗi lần
+    load/resize; hamburger nằm dưới drawer 260px nên không bấm được; toggle/Escape/bấm ngoài đều không đóng; 0 backdrop,
+    2 `.sidenav-overlay` trùng.
+  - **Q3**: sidebar PC **không có** mục Bù hàng (plan cũ ghi có `nav_item_return` là sai) ⇒ `/portal/return*`,
+    `/portal/reports/orders`, `/portal/info-request*` không sáng mục nào; 29/32 route còn lại sáng đúng mục cha.
+  - Item: cao 44 ✓, icon 20 ✓, focus ✓; lệch: đệm `10px 15px`, gap 26, bo 8/active 4, chữ 16/400, màu active `#28A9DF`,
+    không rail, 0 `aria-current`. Brand 132px, logo 184×86. Hamburger 0 accessible name.
+  - Chuông PC đạt (badge = unread thật, popup + "Xem tất cả", Escape); avatar dropdown 4/7 mục BA; tên gọi lệch PC↔mobile ở 3 route.
+- Commit: chưa commit (chỉ doc).
+- Deploy: không.
+- Số đo: `sidebar_probe` 9 khổ × 2 môi trường 0 lệch · 0 lỗi JS · UAT 1 POST chặn (`/notification/recent`, do cú bấm chuông của thước đo).
+- Lệch plan / quyết định mới: plan ghi 12 `sidenav_inherit`, thật **10** (F5a); Bù hàng/Báo cáo là **tạo mới** mục PC,
+  không phải đổi nhãn. Dời Khảo sát xuống cuối nhóm bằng `position="move"` (Odoo 19 hỗ trợ), không sửa file anh Thái.
+- Quyết định mới: chủ dự án chốt "chuẩn hoá bám BA hết" ⇒ 5 điểm tưởng là fork đều chốt theo câu BA (§4 kiểm kê):
+  avatar đủ 7 mục + gỡ dropdown ngôn ngữ riêng (khối cửa hàng giữ cho STT 140) · quyền = điều kiện controller · info-request
+  sáng "Hồ sơ cửa hàng" trong avatar · bỏ hover trượt · <992 `display:none`.
+- Nợ để lại: báo BA `/portal/info-request` không có lối vào nào trong UI (ngoài E8, cần issue riêng).
+- Phiên kế: **E8b** code theo §2–§3 kiểm kê. Test khoá sidebar phải sửa cùng lượt: `test_f5_nav_item.py` ×9,
+  `test_f5_menu_ownership.py`, `test_f5_frame_routes.py`; chụp lại mốc `nav_dump`.
