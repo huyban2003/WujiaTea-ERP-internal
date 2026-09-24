@@ -356,6 +356,7 @@
     <!-- ============== Detail page (batch) ============== -->
     <template id="portal_delivery_detail" name="Wujia Portal — Delivery Batch Detail">
         <t t-call="wujia_portal_layout.app_layout">
+            <t t-set="pc_width" t-value="'standard'"/>
             <t t-set="title" t-value="batch.name"/>
             <!-- Desktop ≥992px — PC Chi tiết giao hàng (Figma 4766:1091). -->
             <div class="content-wrapper d-none d-lg-block wujia-dlv-pc">

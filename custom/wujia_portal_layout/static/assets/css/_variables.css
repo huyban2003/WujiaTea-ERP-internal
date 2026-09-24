@@ -275,6 +275,12 @@
     --wj-page-gutter-m:      16px;   /* <992 mặc định */
     --wj-page-gutter-m-list: var(--wujia-mshell-content-pad-x);   /* <992 màn danh sách (LC-08, BA Q2) */
     --wj-page-pad-bottom:    32px;
+    --wj-page-width-standard: 1440px;  /* bề rộng TRONG (không gồm gutter) */
+    --wj-page-width-narrow:   960px;
+    /* bottomInset stickyAction (<992): thanh hành động nằm trên bottom-nav. Thanh cao hơn
+       mặc định thì module của thanh đặt lại --wj-sticky-action-h trên container. */
+    --wj-sticky-action-h:    68px;   /* floatbar Đặt hàng: 8 cách nav + 59,5 */
+    --wj-sticky-action-gap:  16px;
 
     --wujia-sidebar-transition: transform 0.25s ease-in-out;
 

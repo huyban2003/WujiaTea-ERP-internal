@@ -5,6 +5,7 @@
     Admin + AJAX Pop-up Success) -->
     <template id="portal_inspection_remediation_form" name="Wujia Portal — Phản hồi khắc phục">
         <t t-call="wujia_portal_layout.app_layout">
+            <t t-set="pc_width" t-value="'standard'"/>
 
             <!-- Sử dụng component chuẩn wj_page_header từ wujia_portal_layout cho phần Header -->
             <t t-set="ph_platform" t-value="'pc'" />

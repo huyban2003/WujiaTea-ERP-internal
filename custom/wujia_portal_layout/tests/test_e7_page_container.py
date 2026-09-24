@@ -4,6 +4,8 @@ Bám dòng 38 tab `UI Component` (BA Confirmed 26/08/2026): PageContainer là n�
 NHẤT giữ lề ngang, lề trên/dưới và khoảng tránh top bar; gutter 24 (≥992) / 16
 (<992); đáy mobile 96 + safe area; nền trong suốt; không overflow-x:hidden.
 Lề mobile màn danh sách = 12 (LC-08, BA Q2) qua biến thể `wj-page-container--list`.
+E7b: bề rộng `standard` 1440 / `narrow` 960 (fluid = mặc định) và đáy `sticky` cho
+thanh hành động cố định trên bottom-nav.
 
 Call site (route nào bật `list`, vỏ route không tự đặt lề) nằm ở sổ quét nhiều
 module `wujia_portal_base/tests/test_scan_e7_page_container.py` (luật F5b).
@@ -166,3 +168,37 @@ class TestPageContainerFrame(TransactionCase):
         for m, s, b in _rules(_css('_components.css')):
             if '.wujia-mpage' in [p.strip() for p in s.split(',')]:
                 self.assertNotRegex(b, r'(^|;)\s*padding', s)
+
+    # ------------------------------------------------------------- E7b width
+    def test_bien_the_width_va_day_qua_co(self):
+        """`pc_width` chỉ nhận standard|narrow (fluid = không class); `pc_bottom='sticky'`."""
+        cls = self._app_layout_file().xpath('.//main')[0].get('t-attf-class')
+        self.assertIn("pc_width in ('standard', 'narrow')", cls)
+        self.assertIn("'wj-page-container--' + pc_width", cls)
+        self.assertIn("wj-page-container--sticky", cls)
+        self.assertIn("pc_bottom == 'sticky'", cls)
+
+    def test_token_width(self):
+        root = _body(_css('_variables.css'), ':root')
+        self.assertRegex(root, r'--wj-page-width-standard:\s*1440px')
+        self.assertRegex(root, r'--wj-page-width-narrow:\s*960px')
+        self.assertRegex(root, r'--wj-sticky-action-h:\s*\d+px')
+        self.assertRegex(root, r'--wj-sticky-action-gap:\s*\d+px')
+
+    def test_width_tren_chinh_container(self):
+        """Max-width nằm trên container (bề rộng trong + 2 gutter), căn giữa — PageHeader
+        nằm trong container nên cùng bề rộng với nội dung."""
+        css = _css('_wujia_theme.css')
+        for variant in ('standard', 'narrow'):
+            body = _body(css, '.wj-page-container--%s' % variant)
+            self.assertRegex(body, r'max-width:\s*calc\(var\(--wj-page-width-%s\)\s*\+\s*2\s*\*\s*'
+                                   r'var\(--wj-page-gutter\)\)' % variant, variant)
+            self.assertRegex(body, r'margin-left:\s*auto', variant)
+            self.assertRegex(body, r'margin-right:\s*auto', variant)
+            self.assertNotRegex(body, r'overflow', variant)
+        self.assertFalse(_body(css, '.wj-page-container--fluid'), 'fluid là mặc định, không có class riêng')
+
+    def test_day_sticky_mobile(self):
+        body = _body(_css('_wujia_theme.css'), '.wj-page-container--sticky', MOBILE)
+        for token in ('--wujia-mnav-total', '--wj-sticky-action-h', '--wj-sticky-action-gap'):
+            self.assertIn('var(%s)' % token, body)

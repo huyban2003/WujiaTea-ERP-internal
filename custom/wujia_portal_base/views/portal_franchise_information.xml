@@ -5,6 +5,7 @@
     <template id="portal_franchise_information"
               name="Wujia Portal — Franchise Information">
         <t t-call="wujia_portal_layout.app_layout">
+            <t t-set="pc_width" t-value="'standard'"/>
             <t t-set="title" t-value="franchise.name"/>
 
             <!-- ===== Desktop (>=992px) — Figma wujia_pc_02/03/04_store_info_v3.
@@ -300,6 +301,7 @@
     <template id="portal_franchise_information_locked"
               name="Wujia Portal — Franchise Locked">
         <t t-call="wujia_portal_layout.app_layout">
+            <t t-set="pc_width" t-value="'standard'"/>
             <t t-set="title" t-value="'Cửa hàng tạm khóa'"/>
             <div class="content-wrapper">
                 <div class="content-body">

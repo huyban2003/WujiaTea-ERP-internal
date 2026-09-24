@@ -1146,3 +1146,28 @@ rồi đánh ✅ ở bảng Trạng thái §2 `docs/next-session-clusters-F.md`.
   PC chi tiết Khảo sát có thể hiện hai tiêu đề (báo anh Thái).
 - Phiên kế: **E7b** — width variant `fluid/standard 1440/narrow 960` + `bottomInset` + đo UAT chỉ-đọc ⇒ đóng
   `UI-PAGECONTAINER-001` (Ready for Retest). Cần deploy E7a+E7b cùng lượt.
+
+## E7b — PageContainer `CMP-PC-001`: width variant + bottomInset (24–25/09/2026 · Mac)
+- Kết quả: ✅ code xong cụm E7 — **chưa commit/push** (chờ cổng duyệt; đẩy cùng E7a `8ef3081`); `UI-PAGECONTAINER-001`
+  (STT 129, dòng 122) **giữ Ready for Dev tới khi E7a+E7b lên UAT** và đo chỉ-đọc. Nghiệm thu: `docs/e7b-acceptance-matrix.md`.
+- Đã làm:
+  - `app_layout` thêm 2 công tắc cùng kiểu `pc_gutter`: `pc_width` (`standard` 1440 / `narrow` 960, fluid = không đặt) và
+    `pc_bottom='sticky'`. Max-width đặt **trên chính `<main>`** (bề rộng trong + 2 gutter, căn giữa) ⇒ PageHeader cùng
+    bề rộng nội dung, không thêm lớp DOM.
+  - Cờ theo mapping BA ở **29 template**: narrow 4 (giỏ, tạo bù hàng, tạo hỗ trợ, tạo YC thông tin), standard 25
+    (Bù hàng danh sách, Tài khoản, hồ sơ cửa hàng, mọi màn chi tiết, Khảo sát chi tiết/khắc phục…), còn lại fluid.
+  - Đáy: gỡ đáy **chồng** của Đặt hàng (`.wujia-morder` 150) và giỏ (`.wujia-mcart` nav+116); container `--sticky`
+    = nav + `--wj-sticky-action-h` (68 floatbar; giỏ khai 200 qua `:has(.wujia-mcart-summary)`) + gap 16.
+  - Gỡ `.wj-pc-cart-standalone {max-width:760}` — bề rộng trang thuộc container.
+  - Thước đo `wj_pagecontainer.py`: trục x đo từ **mép container** (narrow căn giữa), thêm **PC-8 WIDTH**, in biến thể.
+  - Guard +10: `test_e7_page_container.py` (4) + sổ `test_scan_e7_page_container.py` (6: sổ width theo mapping, cấm
+    narrow cho danh sách, cấm max-width ≥600 trong CSS route trừ 2 component, cấm route tự chừa đáy, sticky bật đúng màn).
+- Số đo: `wj_pagecontainer` 31 route × **7 khổ (thêm 1920)** 0 vi phạm · 0 lỗi JS; sidebar thu gọn 0; zoom 200% 0 ·
+  `--diff` **0 ô mật độ giảm** · narrow 960 @1024/1440/1920, standard 1440 chỉ @1920 · suite **756, 0 đỏ** (E7a 746) ·
+  mutation **10/10** · `wj_measure` 0 ô mất record · `wj_button` 0 · `wj_listcard` 0 · `wj_filterbar` ĐẠT · `wj_nesting` 0 ·
+  `b4` **286/286** · `check_layers` không thêm · `test_ownership` cross 0.
+- IMPACT: giỏ PC 760 → 960 căn giữa; 3 form tạo mới thu về 960 căn giữa ở ≥1024; Đặt hàng mobile ngắn 79px.
+- LIMIT: Khảo sát chi tiết chưa đo sống (0 phiếu local); chiều cao thanh sticky là token khai báo; `:has()` cần Safari 15.4+.
+- Bài học: `b4_local.py` mặc định cổng 8055 — phải `--base http://127.0.0.1:8090`. Test chạy không `-u` chết ở
+  `wujia_franchise/tests` (import file đã xoá) — luôn kèm `-u`. Log test bị `wujia_core` chuyển sang `<logdir>/<năm>/<tháng>/`.
+- Phiên kế: deploy E7a+E7b → đo UAT chỉ-đọc → `qa_sync` ⇒ Ready for Retest; rồi **E8** SidebarNavigation.

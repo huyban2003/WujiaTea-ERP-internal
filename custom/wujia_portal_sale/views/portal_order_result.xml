@@ -35,6 +35,7 @@
     <!-- ===================== 03 · Đặt hàng thành công ===================== -->
     <template id="portal_order_submitted" name="Wujia Portal — Order submitted (mobile)">
         <t t-call="wujia_portal_layout.app_layout">
+            <t t-set="pc_width" t-value="'standard'"/>
             <t t-set="title">Đặt hàng thành công</t>
             <div class="content-wrapper">
                 <t t-call="wujia_portal_sale.mres_shell">
@@ -97,6 +98,7 @@
     <!-- ===================== 04 · Ngoài khung giờ ===================== -->
     <template id="portal_order_rejected" name="Wujia Portal — Order rejected, outside window (mobile)">
         <t t-call="wujia_portal_layout.app_layout">
+            <t t-set="pc_width" t-value="'standard'"/>
             <t t-set="title">Không thể gửi đơn</t>
             <div class="content-wrapper">
                 <t t-call="wujia_portal_sale.mres_shell">

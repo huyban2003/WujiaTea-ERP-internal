@@ -924,6 +924,7 @@
     <!-- ============== Kết quả đăng ký — s6 (mobile, UI-only) ============== -->
     <template id="portal_exam_registration_detail" name="Wujia Portal — Exam Registration Result (mobile)">
         <t t-call="wujia_portal_layout.app_layout">
+            <t t-set="pc_width" t-value="'standard'"/>
             <t t-set="title">Kết quả đăng ký</t>
 
             <!-- ===== PC ≥992px — Figma 05_ResultDetail (4891:1565) + state matrix

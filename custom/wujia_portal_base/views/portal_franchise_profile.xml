@@ -4,6 +4,7 @@
     <!-- /portal/franchises/<id>/profile — full info + status + contract -->
     <template id="portal_franchise_profile_full" name="Wujia Portal — Franchise Profile">
         <t t-call="wujia_portal_layout.app_layout">
+            <t t-set="pc_width" t-value="'standard'"/>
             <t t-set="title" t-value="franchise.name"/>
             <div class="content-wrapper">
                 <!-- Header chung wj_page_header thay h2 Vuexy: tiêu đề 30/800 + MỘT nút back

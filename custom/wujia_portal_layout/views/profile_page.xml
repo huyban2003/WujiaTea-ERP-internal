@@ -2,6 +2,7 @@
     <data>
         <template id="wujia_portal_layout.profile_page">
             <t t-call="wujia_portal_layout.app_layout">
+                <t t-set="pc_width" t-value="'standard'"/>
                 <!-- ===== Desktop (>=992px) — Figma wujia_pc_01_account_info_v3 (read-only).
                      Profile do HQ (Ngô Gia) quản lý → chỉ hiển thị, không form sửa. ===== -->
                 <t t-set="acct_page" t-value="'profile'"/>

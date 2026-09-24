@@ -5,6 +5,7 @@
     <!-- /portal/franchises — list page -->
     <template id="portal_franchises_list" name="Wujia Portal — Franchises">
         <t t-call="wujia_portal_layout.app_layout">
+            <t t-set="pc_width" t-value="'standard'"/>
             <t t-set="title">Cửa hàng</t>
             <div class="content-wrapper">
                 <div class="content-header row mt-3">
@@ -68,6 +69,7 @@
     <!-- /portal/franchises/<id> — detail with realtime member list -->
     <template id="portal_franchise_detail" name="Wujia Portal — Franchise Detail">
         <t t-call="wujia_portal_layout.app_layout">
+            <t t-set="pc_width" t-value="'standard'"/>
             <t t-set="title" t-value="franchise.name"/>
             <div class="content-wrapper">
                 <div class="content-header row mt-3">

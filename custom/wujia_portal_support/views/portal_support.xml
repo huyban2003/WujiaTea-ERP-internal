@@ -200,6 +200,7 @@
     <!-- ============== Form ============== -->
     <template id="portal_support_form" name="Wujia Portal — Support Form">
         <t t-call="wujia_portal_layout.app_layout">
+            <t t-set="pc_width" t-value="'narrow'"/>
             <t t-set="title">Tạo yêu cầu hỗ trợ</t>
             <!-- ===== Desktop (>=992px) — GIỮ NGUYÊN, bọc d-none d-lg-block (Sprint 17) ===== -->
             <div class="content-wrapper d-none d-lg-block">
@@ -374,6 +375,7 @@
     <!-- ============== Detail ============== -->
     <template id="portal_support_detail" name="Wujia Portal — Support Detail">
         <t t-call="wujia_portal_layout.app_layout">
+            <t t-set="pc_width" t-value="'standard'"/>
             <t t-set="title" t-value="ticket.name"/>
             <!-- ===== Desktop (>=992px) — GIỮ NGUYÊN, bọc d-none d-lg-block (Sprint 17) ===== -->
             <div class="content-wrapper d-none d-lg-block">

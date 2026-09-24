@@ -254,6 +254,7 @@
     <!-- ============== Detail ============== -->
     <template id="portal_knowledge_detail" name="Wujia Portal — Knowledge Detail">
         <t t-call="wujia_portal_layout.app_layout">
+            <t t-set="pc_width" t-value="'standard'"/>
             <t t-set="title" t-value="article.name"/>
             <!-- ===== Desktop (≥992px) — GIỮ NGUYÊN ===== -->
             <div class="content-wrapper d-none d-lg-block">

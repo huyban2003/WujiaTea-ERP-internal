@@ -2,7 +2,6 @@
 
 @keyframes wujia-msubmit-spin { to { transform: rotate(360deg); } }
 /* F3: dời từ portal_layout _components.css */
-.wujia-morder { padding-bottom: calc(150px + env(safe-area-inset-bottom, 0px)); }
 .wujia-morder-warnbar {
     display: flex;
     align-items: center;
@@ -230,8 +229,8 @@
 .wujia-morder-floatbar {
     position: fixed;
     /* RESP-MOB-ORDER-003: bám lề content x=16 (trước 12px lệch grid) */
-    left: 16px;
-    right: 16px;
+    left: var(--wj-page-gutter-m);
+    right: var(--wj-page-gutter-m);
     /* Sprint 12: footer bottom-nav lên 83px (BA final) → nâng floatbar để không */
     bottom: calc(var(--wujia-mnav-total) + 8px);
     z-index: 1029;
@@ -274,7 +273,9 @@
     font-size: 13px;
     font-weight: 700;
 }
-.wujia-mcart { padding-bottom: calc(var(--wujia-mnav-total) + 116px); }
+/* Đáy chừa thanh tóm tắt giỏ thuộc PageContainer (pc_bottom='sticky'). Thanh cao 174,5
+   (3 dòng); thêm dòng Thuế + gợi ý ngoài giờ là +47 — 200 + gap 16 vẫn đủ cho ca đó. */
+.wj-page-container--sticky:has(.wujia-mcart-summary) { --wj-sticky-action-h: 200px; }
 .wujia-mcart-scroll {
     display: flex;
     flex-direction: column;
@@ -407,7 +408,7 @@
     border-top: 1px solid var(--wujia-morder-divider);
     box-shadow: 0 -3px 12px rgba(15, 23, 42, 0.08);
     /* WJ-ORD-013: chừa home-indicator (iPhone) để nút Gửi không bị che */
-    padding: 12px 16px calc(12px + env(safe-area-inset-bottom, 0px));
+    padding: 12px var(--wj-page-gutter-m) calc(12px + env(safe-area-inset-bottom, 0px));
 }
 .wujia-mcart-submit-hint {
     margin: 8px 0 0;
@@ -711,7 +712,6 @@
     background: var(--wj-pc-card); border: 1px solid var(--wj-pc-border-soft);
     border-radius: var(--wj-pc-card-radius); padding: 20px 22px;
 }
-.wj-pc-cart-standalone { max-width: 760px; }
 .wj-pc-cart-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; }
 
 /* warning bar khung giờ (Figma #FEE2E2 / #FECACA / #DC2626) */

@@ -412,7 +412,19 @@ h1.article-title {
         padding-left: var(--wj-page-gutter-m-list);
         padding-right: var(--wj-page-gutter-m-list);
     }
+    .wj-page-container--sticky {
+        padding-bottom: calc(var(--wujia-mnav-total) + var(--wj-sticky-action-h) + var(--wj-sticky-action-gap));
+    }
 }
+/* Width (E7b): max-width đặt trên chính container nên PageHeader và nội dung chung một
+   bề rộng trong. fluid = mặc định, không class. Không dùng narrow cho DataList/dashboard. */
+.wj-page-container--standard,
+.wj-page-container--narrow {
+    margin-left: auto;
+    margin-right: auto;
+}
+.wj-page-container--standard { max-width: calc(var(--wj-page-width-standard) + 2 * var(--wj-page-gutter)); }
+.wj-page-container--narrow { max-width: calc(var(--wj-page-width-narrow) + 2 * var(--wj-page-gutter)); }
 /* !important: thắng `margin-top: 6rem` + padding của Vuexy ở mọi khổ. */
 html body .content .content-wrapper {
     padding: 0 !important;

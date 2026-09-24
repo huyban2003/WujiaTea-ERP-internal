@@ -152,6 +152,8 @@
 
     <template id="portal_order_cart" name="Wujia Portal — Cart">
         <t t-call="wujia_portal_layout.app_layout">
+            <t t-set="pc_width" t-value="'narrow'"/>
+            <t t-set="pc_bottom" t-value="'sticky'"/>
             <t t-set="title">Giỏ hàng</t>
             <div class="content-wrapper">
                 <!-- Realtime cart sync root — bus channel wujia.franchise_<id> (Sprint 31). -->
@@ -170,9 +172,7 @@
                     <div t-if="error" class="alert alert-danger" role="alert"><t t-esc="error"/></div>
                     <div t-if="message" class="alert alert-success" role="status"><t t-esc="message"/></div>
 
-                    <div class="wj-pc-cart-standalone">
-                        <t t-call="wujia_portal_sale.pc_cart_panel"/>
-                    </div>
+                    <t t-call="wujia_portal_sale.pc_cart_panel"/>
                 </div>
                 <!-- /desktop wrapper -->
 

@@ -12,6 +12,12 @@
   PC-5  TRÀN     `scrollWidth == innerWidth` (không dùng overflow-x:hidden để che).
   PC-6  ĐÁY      <992: cuộn tới đáy, nội dung cuối không nằm dưới bottom-nav.
   PC-7  NỀN      container trong suốt.
+  PC-8  WIDTH    (E7b, ≥992) bề rộng trong = min(chỗ trống, 1440 standard | 960 narrow),
+                 fluid = hết chỗ trống; standard/narrow căn giữa; header + khối đầu nằm
+                 trong bề rộng trong (PageHeader không full-width riêng).
+
+Trục x đo từ mép container (không phải `.app-content`): narrow/standard căn giữa nên
+mép container dời vào trong, lề vẫn là gutter của container.
 
 Kèm kiểm kê cho so sánh trước/sau (không tính vi phạm): số record thấy trong khung
 nhìn đầu (tiêu chí 13 — mật độ không giảm), khoảng header → khối kế, padding trên/dưới.
@@ -61,6 +67,7 @@ DYNAMIC = {
 }
 
 TOL = 0.5
+WIDTH = {'standard': 1440, 'narrow': 960}
 
 
 def resolve_dynamic(page, base, routes):
@@ -103,6 +110,8 @@ PROBE = r"""
   const app = document.querySelector('.app-content');
   if (!app) return {noApp: true};
   const ar = app.getBoundingClientRect();
+  const c0 = document.querySelector('.wj-page-container');
+  const cr = c0 ? c0.getBoundingClientRect() : ar;
   const containers = [...document.querySelectorAll('.wj-page-container')];
   const nested = containers.filter(c => c.parentElement && c.parentElement.closest('.wj-page-container')).length;
 
@@ -152,7 +161,7 @@ PROBE = r"""
       !notFirstColumn(e));
     if (!el) continue;
     const r = el.getBoundingClientRect();
-    firsts[k] = {x: r2(r.left - ar.left), right: r2(ar.right - r.right), top: r2(r.top + scrollY),
+    firsts[k] = {x: r2(r.left - cr.left), right: r2(cr.right - r.right), top: r2(r.top + scrollY),
                  cls: el.className.split(/\s+/).slice(0, 2).join('.'), chain: chain(el)};
   }
   const title = [...app.querySelectorAll('.wj-page-header__title, .wj-pc-page-header__title')].find(vis);
@@ -185,8 +194,14 @@ PROBE = r"""
   const res = {
     containers: containers.length, nested,
     list: !!(containers[0] && containers[0].classList.contains('wj-page-container--list')),
+    width: !c0 ? null : (c0.classList.contains('wj-page-container--narrow') ? 'narrow'
+           : c0.classList.contains('wj-page-container--standard') ? 'standard' : 'fluid'),
+    sticky: !!(c0 && c0.classList.contains('wj-page-container--sticky')),
+    box: c0 ? {appW: r2(ar.width), left: r2(cr.left - ar.left), right: r2(ar.right - cr.right),
+               inner: r2(cr.width - parseFloat(getComputedStyle(c0).paddingLeft)
+                             - parseFloat(getComputedStyle(c0).paddingRight))} : null,
     appLeft: r2(ar.left),
-    titleX: tr ? r2(tr.left - ar.left) : null,
+    titleX: tr ? r2(tr.left - cr.left) : null,
     firsts, headerGap,
     scrollW: document.documentElement.scrollWidth, innerW: innerWidth,
     pageH: document.documentElement.scrollHeight,
@@ -241,6 +256,17 @@ def check(w, d):
     b = d.get('bottom')
     if b and b.get('clear') is not None and b['clear'] < -0.5:
         bad.append(('PC-6', 'nội dung cuối nằm dưới bottom-nav %spx' % b['clear']))
+    bx, wd = d.get('box'), d.get('width')
+    if w >= 992 and bx:
+        avail = bx['appW'] - 2 * 24
+        want_w = min(avail, WIDTH[wd]) if wd in WIDTH else avail
+        if abs(bx['inner'] - want_w) > TOL:
+            bad.append(('PC-8', '%s bề rộng trong %s (cần %s)' % (wd, bx['inner'], want_w)))
+        if abs(bx['left'] - bx['right']) > TOL:
+            bad.append(('PC-8', 'không căn giữa: trái %s phải %s' % (bx['left'], bx['right'])))
+        for k, f in d.get('firsts', {}).items():
+            if f['right'] < want - TOL:
+                bad.append(('PC-8', '%s tràn ra ngoài bề rộng trong (phải=%s)' % (k, f['right'])))
     c = d.get('container')
     if c and c['bg'] not in ('rgba(0, 0, 0, 0)', 'transparent'):
         bad.append(('PC-7', 'container có nền %s' % c['bg']))
@@ -286,9 +312,10 @@ def run(args):
                 result['routes'][route][str(w)] = d
                 total += len(bad)
                 xs = ' '.join('%s=%s' % (k[0], f['x']) for k, f in d.get('firsts', {}).items())
-                print('%s%-34s @%-5d pc=%s title=%-6s %-28s rec=%-3s vi phạm=%d'
-                      % ('OK ' if not bad else '!! ', route, w, d.get('containers'),
-                         d.get('titleX'), xs, d.get('recVisible'), len(bad)))
+                print('%s%-34s @%-5d %-8s in=%-7s title=%-6s %-28s rec=%-3s vi phạm=%d'
+                      % ('OK ' if not bad else '!! ', route, w, d.get('width'),
+                         (d.get('box') or {}).get('inner'), d.get('titleX'), xs,
+                         d.get('recVisible'), len(bad)))
                 if args.verbose:
                     for code, msg in bad:
                         print('      · %-5s %s' % (code, msg))

@@ -190,6 +190,7 @@
     <template id="portal_order_catalog" name="Wujia Portal — Order Catalog">
         <t t-call="wujia_portal_layout.app_layout">
             <t t-set="pc_gutter" t-value="'list'"/>
+            <t t-set="pc_bottom" t-value="'sticky'"/>
             <t t-set="title">Đặt hàng</t>
             <t t-call="wujia_portal_base.wj_ajax_list_config">
                 <t t-set="wjl_path" t-value="'/portal/order'"/>

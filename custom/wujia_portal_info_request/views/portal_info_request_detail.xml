@@ -3,6 +3,7 @@
 
     <template id="portal_info_request_detail" name="Wujia Portal — Info Request Detail">
         <t t-call="wujia_portal_layout.app_layout">
+            <t t-set="pc_width" t-value="'standard'"/>
             <t t-set="title">Chi tiết yêu cầu</t>
             <div class="content-wrapper">
                 <t t-call="wujia_portal_layout.wj_page_header">

@@ -3,6 +3,7 @@
 
     <template id="portal_return_detail" name="Wujia Portal — Return Detail">
         <t t-call="wujia_portal_layout.app_layout">
+            <t t-set="pc_width" t-value="'standard'"/>
             <t t-set="title" t-value="rr.name"/>
 
             <!-- Desktop ≥992px -->

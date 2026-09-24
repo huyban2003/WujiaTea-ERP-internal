@@ -709,6 +709,7 @@
     <!-- ================== 07 — Chuyển khoản (mobile <992 + PC ≥992) ================== -->
     <template id="portal_debt_pay" name="Wujia Portal — Thanh toán công nợ">
         <t t-call="wujia_portal_layout.app_layout">
+            <t t-set="pc_width" t-value="'standard'"/>
             <t t-set="title">Thanh toán công nợ</t>
 
             <!-- MOBILE — cùng shell với /portal/debt (WJ-DEBT-003). -->
@@ -817,6 +818,7 @@
          chung — KHÔNG thêm UI mới, chỉ 1 thông báo dễ hiểu thay vì 403 thô. -->
     <template id="portal_debt_no_permission" name="Wujia Portal — Công nợ không có quyền">
         <t t-call="wujia_portal_layout.app_layout">
+            <t t-set="pc_width" t-value="'standard'"/>
             <!-- Mobile -->
             <div class="wj-debt wj-mpage d-lg-none">
                 <t t-call="wujia_portal_layout.wj_page_header">

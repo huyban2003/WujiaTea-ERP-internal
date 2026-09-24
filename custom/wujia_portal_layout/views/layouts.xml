@@ -216,9 +216,12 @@
                     <t t-call="wujia_portal_layout.mobile_header"/>
                     <div class="content-overlay"/>
                     <div class="header-navbar-shadow"/>
-                    <!-- CMP-PC-001: một PageContainer cho mọi route. Route danh sách đặt
-                         pc_gutter='list' trong thân t-call (lề mobile 12 theo LC-08). -->
-                    <main t-attf-class="wj-page-container #{'wj-page-container--list' if pc_gutter == 'list' else ''}">
+                    <!-- CMP-PC-001: một PageContainer cho mọi route. Route đặt công tắc bằng
+                         t-set trong thân t-call:
+                           pc_gutter='list'                  lề mobile 12 (LC-08)
+                           pc_width='standard' | 'narrow'    bề rộng trong 1440 | 960 (mặc định fluid)
+                           pc_bottom='sticky'                chừa đáy cho thanh hành động cố định -->
+                    <main t-attf-class="wj-page-container #{'wj-page-container--list' if pc_gutter == 'list' else ''} #{'wj-page-container--' + pc_width if pc_width in ('standard', 'narrow') else ''} #{'wj-page-container--sticky' if pc_bottom == 'sticky' else ''}">
                         <t t-out="0"/>
                     </main>
                 </div>

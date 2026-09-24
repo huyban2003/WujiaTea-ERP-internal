@@ -286,6 +286,7 @@
     <!-- ============== Detail page ============== -->
     <template id="portal_history_detail" name="Wujia Portal — Purchase History Detail">
         <t t-call="wujia_portal_layout.app_layout">
+            <t t-set="pc_width" t-value="'standard'"/>
             <t t-set="title" t-value="detail and detail['header']['name'] or 'Chi tiết đơn hàng'"/>
             <div class="content-wrapper">
 

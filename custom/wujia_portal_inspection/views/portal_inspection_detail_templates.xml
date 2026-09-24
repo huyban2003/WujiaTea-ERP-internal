@@ -3,6 +3,7 @@
     <!-- Template Chi tiết giám sát (Detail View) -->
     <template id="portal_inspection_detail" name="Wujia Portal — Chi tiết phiếu khảo sát">
         <t t-call="wujia_portal_layout.app_layout">
+            <t t-set="pc_width" t-value="'standard'"/>
 
             <!-- Sử dụng component chuẩn wj_page_header từ wujia_portal_layout -->
             <t t-set="ph_platform" t-value="'pc'" />

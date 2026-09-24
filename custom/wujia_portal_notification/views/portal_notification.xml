@@ -306,6 +306,7 @@
     <!-- ============== Detail ============== -->
     <template id="portal_notification_detail" name="Wujia Portal — Notification Detail">
         <t t-call="wujia_portal_layout.app_layout">
+            <t t-set="pc_width" t-value="'standard'"/>
             <t t-set="title" t-value="noti.name"/>
             <!-- UI tạm (mobile) — map loại→icon/tone/mô tả + ưu tiên→badge; controller/BA wire sau -->
             <t t-set="WJ_TONE" t-value="{'URG': 'red', 'GEN': 'cyan', 'PROMO': 'amber', 'SYS': 'violet', 'OTH': 'green'}"/>
