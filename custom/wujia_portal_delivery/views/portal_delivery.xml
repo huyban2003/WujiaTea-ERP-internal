@@ -254,6 +254,7 @@
     <!-- ============== List page (theo picking outgoing của franchise) ============== -->
     <template id="portal_delivery_tracking" name="Wujia Portal — Delivery Tracking List">
         <t t-call="wujia_portal_layout.app_layout">
+            <t t-set="pc_gutter" t-value="'list'"/>
             <t t-set="title">Theo dõi giao hàng</t>
             <t t-call="wujia_portal_base.wj_ajax_list_config">
                 <t t-set="wjl_path" t-value="'/portal/delivery'"/>

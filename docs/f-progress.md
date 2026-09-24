@@ -1111,3 +1111,38 @@ rồi đánh ✅ ở bảng Trạng thái §2 `docs/next-session-clusters-F.md`.
   truyền `--routes` bỏ placeholder đó. `qa_sync` UI-BUTTON-001 → **Ready for Retest**.
 - Nợ để lại: nút lùi wizard 28×30 (BackPageHeader); cụm **EmptyState**; 3 template auth chết (E6b2).
 - Phiên kế: sau khi UAT xác nhận E6 ⇒ **E7a** PageContainer `CMP-PC-001` (`UI-PAGECONTAINER-001`, STT 129).
+
+## E7a — PageContainer `CMP-PC-001`: khung + gutter (24/09/2026 · Mac)
+- Kết quả: ✅ xong lượt đầu cụm E7 — code + doc **commit local, chưa push**; `UI-PAGECONTAINER-001` (STT 129,
+  dòng 122) **giữ Ready for Dev** tới E7b. Nghiệm thu: `docs/e7a-acceptance-matrix.md`.
+- Chốt đầu phiên của chủ dự án: **E7a trước, phân cụm 140–145 sau E8** (143/145 đo lại trên khung mới) ·
+  **sửa tối thiểu vỏ Khảo sát** (code anh Thái, chỉ vỏ, không logic) · **lề mobile: danh sách 12, còn lại 16**.
+- Đã làm:
+  - `app_layout` có **một** `<main class="wj-page-container">` bọc `t-out="0"`; Global Shell (header mobile,
+    sidebar, bottom-nav) nằm ngoài. 4 token `--wj-page-gutter*` / `--wj-page-pad-bottom`.
+  - `.content-wrapper` về 0 ở **mọi khổ** (mốc cũ 24px chỉ ở ≥1200 ⇒ 992–1199 rơi về Vuexy 30,8).
+    Bỏ lề `.wujia-mpage`, `.wj-debt`, `.wujia-mhome`, `.wujia-home-wrapper`, đáy 96 của `.app-content`.
+  - Biến thể `wj-page-container--list` (12) bật bằng `t-set pc_gutter='list'` ở **12 màn danh sách**.
+  - **Gốc "tiêu đề lệch 16px" của BA**: rule không phạm vi `.wj-page-header {padding 16px !important}` trong
+    `portal_inspection.css` (`ad7ffc3`, 07/08) đè PageHeader của **mọi** màn. Gỡ + guard.
+  - Khảo sát: vỏ danh sách/chi tiết/khắc phục bỏ lề ngang + nền (`py-*` giữ nhịp dọc), bỏ max-width + `min-height:100vh`.
+  - Thước đo mới `scripts/qa/wj_pagecontainer.py` (7 kiểm PC-1…PC-7, `--diff`, `--collapsed`).
+  - Guard: `wujia_portal_layout/tests/test_e7_page_container.py` (11) + sổ chung
+    `wujia_portal_base/tests/test_scan_e7_page_container.py` (6, gồm cấm class `p-*`/`px-*` trên vỏ route).
+- Số đo: `wj_pagecontainer` 31 route × 6 khổ **707 → 0 vi phạm · 0 lỗi JS**; sidebar thu gọn **0**; zoom 200%
+  **0** · suite **746 tests, 0 đỏ** (mốc E6c 729) · mutation **13/13** · `wj_measure` so E6c: 0 tràn/0 lỗi JS/
+  0 redirect/0 HIERARCHY, **0 ô mất record**, chiều cao chỉ đổi trên trục đã duyệt · `wj_button` 0 ·
+  `wj_listcard` 0 · `wj_filterbar` ĐẠT · `wj_nesting` 0 · `b4_regression` **286/286** (bản thay ID) ·
+  `check_layers` 2 R7 có sẵn, không thêm.
+- Lệch plan / quyết định mới:
+  - **LIMIT** đệm đỉnh mobile 10 (token nhịp dọc 18/09), không phải 16 của spec — đổi một token nếu BA muốn.
+  - **LIMIT** chưa có `bottomInset` cho sticky action (giỏ giữ đáy 150 riêng) ⇒ E7b.
+  - Plan ghi "Khảo sát không đụng" ⇒ chủ dự án duyệt sửa tối thiểu; bàn giao anh Thái ở matrix.
+  - `pc_account_layout` là partial trong `app_layout` ⇒ không cần vỏ riêng.
+- **Bài học đo**: `b4_regression.py` dùng ID cứng — DB local đã mất `return/12`, `notification/41`, anh.owner
+  hết giao hàng ⇒ báo 270/286 giả. Chạy lại bằng ID dò từ màn danh sách (`scratchpad/e7a/b4_local.py`).
+  Thước đo gutter phải bỏ qua lề Bootstrap `.row`/`col-*` và cột phải của lưới, không thì báo nhầm.
+- Nợ để lại: Khảo sát chi tiết/khắc phục chưa đo sống (DB local 0 phiếu) · sidebar overlay 992–1199 (E8) ·
+  PC chi tiết Khảo sát có thể hiện hai tiêu đề (báo anh Thái).
+- Phiên kế: **E7b** — width variant `fluid/standard 1440/narrow 960` + `bottomInset` + đo UAT chỉ-đọc ⇒ đóng
+  `UI-PAGECONTAINER-001` (Ready for Retest). Cần deploy E7a+E7b cùng lượt.

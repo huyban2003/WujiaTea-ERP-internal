@@ -15,6 +15,7 @@
     <!-- ============== List ============== -->
     <template id="portal_knowledge_list" name="Wujia Portal — Knowledge List">
         <t t-call="wujia_portal_layout.app_layout">
+            <t t-set="pc_gutter" t-value="'list'"/>
             <t t-set="title">Thư viện kiến thức</t>
             <t t-call="wujia_portal_base.wj_ajax_list_config">
                 <t t-set="wjl_path" t-value="'/portal/knowledge'"/>

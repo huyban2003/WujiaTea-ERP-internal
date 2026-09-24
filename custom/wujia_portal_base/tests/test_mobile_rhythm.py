@@ -156,20 +156,19 @@ class TestMobileRhythmSingleSource(TransactionCase):
         self.assertRegex(css, r'--wujia-mshell-content-pad-x:\s*12px',
                          'gutter danh sách mobile phải là 12 (LC-08, BA Q2)')
 
-    def test_wrapper_lay_gutter_tu_token(self):
-        """`.content-wrapper` là lề ngang của MỌI trang mobile dựng trong wrapper."""
+    def test_wrapper_khong_con_giu_gutter(self):
+        """E7a: lề ngang thuộc PageContainer — khối mobile không trả lề cho `.content-wrapper`.
+
+        Trước E7a guard này đòi wrapper LẤY token (E5c); nay token vẫn là nguồn của lề
+        danh sách nhưng qua `--wj-page-gutter-m-list` của container."""
         css = _nocomment(_read('wujia_portal_layout', 'static', 'assets', 'css', '_wujia_theme.css'))
-        # Chỉ khối mobile: PC có rule riêng 24px của UI-PC-BASE-001.
         block = _media_block(css, '@media (max-width: 991.98px)')
         self.assertTrue(block, 'không tìm thấy khối mobile của _wujia_theme.css')
-        hits = [body for sel, body in _rules(block)
+        hits = [sel for sel, body in _rules(block)
                 if 'content-wrapper' in sel and _declares(body, 'padding-left')]
-        self.assertTrue(hits, 'không còn rule cấp lề ngang cho content-wrapper')
-        for body in hits:
-            self.assertIn('var(--wujia-mshell-content-pad-x)', body,
-                          'lề ngang wrapper phải lấy từ token, không gõ số')
-            self.assertNotIn('!important', body,
-                             'có !important thì trang tự bỏ lề (Home) không thắng được nữa')
+        self.assertFalse(hits, 'khối mobile còn trả lề ngang cho content-wrapper: %s' % hits)
+        self.assertIn('var(--wj-page-gutter-m-list)', block,
+                      'lề danh sách mobile phải về container qua token')
 
     def test_khong_trang_nao_go_so_gutter_rieng(self):
         """Wrapper trang mobile không được tự gõ số lề ngang — phải qua token."""

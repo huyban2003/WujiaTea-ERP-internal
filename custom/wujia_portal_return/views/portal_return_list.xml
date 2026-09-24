@@ -3,6 +3,7 @@
 
     <template id="portal_return_list" name="Wujia Portal — Return List">
         <t t-call="wujia_portal_layout.app_layout">
+            <t t-set="pc_gutter" t-value="'list'"/>
             <t t-set="title">Yêu cầu đổi trả</t>
             <!-- Câu chữ ở template, key ở controller (pattern C4/WJ-KNW-002). -->
             <t t-set="notice_text" t-value="{

@@ -14,3 +14,4 @@ from . import test_f5_frame_routes
 from . import test_fra3_layer_guard
 from . import test_e5_list_card
 from . import test_e6_button
+from . import test_e7_page_container

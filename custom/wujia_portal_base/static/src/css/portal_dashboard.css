@@ -88,19 +88,9 @@
         margin-bottom: 0;
     }
 }
-/* F3: dời từ portal_layout _components.css
-   Nhịp dọc (flex column + gap) nay do rule chung của mọi trang mobile trong
-   portal_layout/_components.css cấp. Ở đây chỉ còn lề: .wujia-home-wrapper bỏ
-   pad ngang nên Home phải tự cấp, còn pad-top do content-wrapper cấp. */
+/* F3: dời từ portal_layout _components.css. Lề ngang + trên do PageContainer (E7a). */
 .wujia-mhome {
-    padding: 0 var(--wujia-mshell-content-pad-x) var(--wujia-mshell-content-pad-x);
-}
-/* F3: dời từ portal_layout _components.css */
-@media (max-width: 991.98px) {
-    html body .content .content-wrapper.wujia-home-wrapper {
-        padding-left: 0;
-        padding-right: 0;
-    }
+    padding: 0 0 var(--wujia-mshell-content-pad-x);
 }
 /* F3: dời từ portal_layout _components.css */
 .wujia-mhome-hero {

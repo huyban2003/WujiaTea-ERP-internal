@@ -102,6 +102,7 @@
     <!-- ================== 02/03/04/05 — Overview (mobile 4 biến thể + PC 5 biến thể) ================== -->
     <template id="portal_debt_overview" name="Wujia Portal — Công nợ tổng quan">
         <t t-call="wujia_portal_layout.app_layout">
+            <t t-set="pc_gutter" t-value="'list'"/>
             <t t-set="title">Công nợ &amp; thanh toán</t>
 
             <!-- ============================================================
@@ -497,6 +498,7 @@
     <!-- ================== 06 — Payment history (mobile + PC) ================== -->
     <template id="portal_debt_payment_history" name="Wujia Portal — Lịch sử thanh toán">
         <t t-call="wujia_portal_layout.app_layout">
+            <t t-set="pc_gutter" t-value="'list'"/>
             <t t-set="title">Lịch sử thanh toán</t>
             <t t-call="wujia_portal_base.wj_ajax_list_config">
                 <t t-set="wjl_path" t-value="'/portal/debt/payment-history'"/>

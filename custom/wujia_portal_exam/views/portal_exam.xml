@@ -4,6 +4,7 @@
     <!-- ============== Lịch thi ============== -->
     <template id="portal_exam_schedule" name="Wujia Portal — Exam Schedule">
         <t t-call="wujia_portal_layout.app_layout">
+            <t t-set="pc_gutter" t-value="'list'"/>
             <t t-set="title">Lịch thi</t>
             <t t-call="wujia_portal_base.wj_ajax_list_config">
                 <t t-set="wjl_path" t-value="'/portal/exam'"/>

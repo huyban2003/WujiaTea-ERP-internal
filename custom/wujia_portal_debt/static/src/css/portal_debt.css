@@ -29,9 +29,7 @@
     --wj-debt-soft:         var(--wujia-primary-soft);
     --wj-debt-divider:      var(--wujia-mshell-border);
 
-    /* Nhịp dọc (flex column + gap) lấy từ rule chung mọi trang mobile trong
-       portal_layout/_components.css; ở đây chỉ còn lề riêng của trang. */
-    padding: var(--wujia-mcontent-top) var(--wujia-mshell-content-pad-x) 0;
+    /* Nhịp dọc lấy từ rule chung mobile (_components.css); lề trang do PageContainer. */
 }
 
 /* ---------- Header ---------- */
@@ -41,7 +39,6 @@
    bù -4 đã gỡ (xem _components.css). */
 /* S54-B4: nút 42×42 nay là chuẩn CMP-BPH-001 ở base ⇒ gỡ override kích thước,
    chỉ giữ mép trên y=160 và khoảng cách 14 theo Figma công nợ. */
-.wj-debt--back { padding-top: 8px; }
 .wj-debt--back .wj-page-header__back { margin-right: 14px; }
 
 /* ---------- Filter bar (359×54) ---------- */

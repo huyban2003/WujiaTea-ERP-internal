@@ -17,3 +17,4 @@ from . import test_fra3_layer_guard
 from . import test_mobile_rhythm
 from . import test_scan_e5_list_card
 from . import test_scan_e6_button
+from . import test_scan_e7_page_container

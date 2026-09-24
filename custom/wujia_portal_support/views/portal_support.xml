@@ -4,6 +4,7 @@
     <!-- ============== List ============== -->
     <template id="portal_support_list" name="Wujia Portal — Support List">
         <t t-call="wujia_portal_layout.app_layout">
+            <t t-set="pc_gutter" t-value="'list'"/>
             <t t-set="title">Yêu cầu hỗ trợ</t>
             <t t-call="wujia_portal_base.wj_ajax_list_config">
                 <t t-set="wjl_path" t-value="'/portal/support'"/>

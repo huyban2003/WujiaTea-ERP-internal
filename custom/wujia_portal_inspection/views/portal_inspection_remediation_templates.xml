@@ -182,9 +182,9 @@
             </div>
 
             <!-- ================= Mobile <992px ================= -->
-            <div class="wj-inspection-container d-lg-none p-0 bg-light pb-5">
+            <div class="wj-inspection-container d-lg-none">
                 <form id="remediation_form_submit" action="/portal/inspection/remediation/submit"
-                    method="POST" enctype="multipart/form-data" class="p-3 d-flex flex-column gap-3">
+                    method="POST" enctype="multipart/form-data" class="py-3 d-flex flex-column gap-3">
                     <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()" />
                     <input type="hidden" name="line_id" t-att-value="line.id" />
 

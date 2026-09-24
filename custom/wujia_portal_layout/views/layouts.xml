@@ -216,7 +216,11 @@
                     <t t-call="wujia_portal_layout.mobile_header"/>
                     <div class="content-overlay"/>
                     <div class="header-navbar-shadow"/>
-                    <t t-out="0"/>
+                    <!-- CMP-PC-001: một PageContainer cho mọi route. Route danh sách đặt
+                         pc_gutter='list' trong thân t-call (lề mobile 12 theo LC-08). -->
+                    <main t-attf-class="wj-page-container #{'wj-page-container--list' if pc_gutter == 'list' else ''}">
+                        <t t-out="0"/>
+                    </main>
                 </div>
                 <!-- Sprint 11 (item 10.1): shared bottom-nav portal-wide (mobile only). -->
                 <t t-call="wujia_portal_layout.mobile_bottomnav"/>

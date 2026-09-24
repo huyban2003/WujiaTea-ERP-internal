@@ -161,6 +161,7 @@
     <!-- ============== List page ============== -->
     <template id="portal_history_list" name="Wujia Portal — Purchase History List">
         <t t-call="wujia_portal_layout.app_layout">
+            <t t-set="pc_gutter" t-value="'list'"/>
             <t t-set="title">Lịch sử đặt hàng</t>
             <t t-call="wujia_portal_base.wj_ajax_list_config">
                 <t t-set="wjl_path" t-value="'/portal/purchase-history'"/>

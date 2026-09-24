@@ -1248,10 +1248,7 @@ a.wujia-mhome-kpi:active { opacity: 0.85; }
 
 /* Sprint 11 — Mobile ĐẶT HÀNG (BA UI Component Registry v3 + Figma 2480:2) */
 
-/* Global: reserve space so fixed bottom-nav (promoted portal-wide) doesn't */
-@media (max-width: 991.98px) {
-    .app-content.content { padding-bottom: 96px; }
-}
+/* Chừa chỗ cho bottom-nav cố định: nay là padding-bottom của .wj-page-container (E7a). */
 
 /* ---------- Sprint 40 — Kết quả gửi đơn + overlay đang tạo đơn (Figma 4963:2) ----------
    Màn 02 = overlay `.wujia-msubmit` trên trang giỏ; màn 03/04 = trang riêng
@@ -1455,11 +1452,6 @@ a.wujia-mhome-kpi:active { opacity: 0.85; }
         display: flex;
         flex-direction: column;
         gap: var(--wujia-mshell-content-gap);
-    }
-    /* Padding KHÔNG gom vào rule trên: trang dựng trong .content-wrapper đã được
-       wrapper cấp pad-top (_wujia_theme.css), gom vào đây là cộng dồn hai lần. */
-    .wujia-mpage {
-        padding: var(--wujia-mcontent-top) var(--wujia-mshell-content-pad-x) 0;
     }
 }
 

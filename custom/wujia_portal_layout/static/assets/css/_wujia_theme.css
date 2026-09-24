@@ -390,20 +390,33 @@ h1.article-title {
     font-weight: 400 !important;
 }
 
-/* ---------- UI-16 Main Content Spacing (Sprint 9.16, 2026-06-02) ---------- */
-html body .content .content-wrapper {
-    padding-top: var(--wujia-page-content-top);
+/* ---------- CMP-PC-001 PageContainer (E7a) ----------
+   `<main class="wj-page-container">` (app_layout) là nơi DUY NHẤT giữ lề ngang, lề
+   trên/dưới và khoảng tránh top bar. Vỏ route (.content-wrapper Vuexy, .wujia-mpage,
+   .wj-debt) chỉ còn bố cục nghiệp vụ. Trước E7a: ≥1200 wrapper tự đặt 24, còn
+   992–1199 rơi về Vuexy components.css:67 (30,8 ngang, 84 trên) — BA đo đúng hai số này. */
+.wj-page-container {
+    display: block;
+    background: transparent;
+    padding: var(--wujia-page-content-top) var(--wj-page-gutter) var(--wj-page-pad-bottom);
 }
-/* UI-PC-BASE-001 (cụm A, 03/08): Vuexy components.css:67 để
-   `padding: calc(2.2rem - .4rem) 2.2rem 0; margin-top: 6rem` — với html{font-size:14px}
-   ra 30,8px ngang và 84px trên (BA đo đúng số này). Source: content shell y=72 (sát
-   Top Bar), padding ngang 24px → content-body x=324. */
-@media (min-width: 1200px) {
-    html body .content .content-wrapper {
-        padding-left: 24px !important;
-        padding-right: 24px !important;
-        margin-top: var(--wujia-header-height) !important;   /* 72px */
+@media (min-width: 992px) {
+    .wj-page-container { margin-top: var(--wujia-header-height); }   /* 72 = top bar */
+}
+@media (max-width: 991.98px) {
+    .wj-page-container {
+        padding: var(--wujia-mcontent-top) var(--wj-page-gutter-m)
+                 calc(var(--wujia-mshell-content-pad-bottom) + env(safe-area-inset-bottom, 0px));
     }
+    .wj-page-container--list {
+        padding-left: var(--wj-page-gutter-m-list);
+        padding-right: var(--wj-page-gutter-m-list);
+    }
+}
+/* !important: thắng `margin-top: 6rem` + padding của Vuexy ở mọi khổ. */
+html body .content .content-wrapper {
+    padding: 0 !important;
+    margin-top: 0 !important;
 }
 /* (b) title block → KPI row: margin-bottom trên .content-header (.row). */
 .content-wrapper .content-header {
@@ -429,27 +442,10 @@ html body .content .content-wrapper {
         padding-top: 0 !important;
         margin-top: 0 !important;
     }
-    /* ROOT CAUSE "trống 1 khúc dưới header" (Sprint 12 fix): Vuexy */
-    html body .content .content-wrapper {
-        margin-top: 0 !important;
-    }
     /* Mobile app background. Do NOT override content-wrapper padding here — */
     html body.vertical-layout,
     html body .app-content {
         background-color: var(--wujia-mshell-bg) !important;
-    }
-    /* RESP-MOB-SHELL-003 — MỘT mốc đầu nội dung cho mọi trang mobile dựng TRONG
-       content-wrapper (Đặt hàng/Giỏ/Lịch sử/Home/Báo cáo). Trước đây mỗi trang một
-       giá trị :has() riêng (8/8/1/0/14) cộng margin nội bộ → ra 6 mốc khác nhau
-       (162..176). Nay: wrapper giữ toàn bộ khoảng cách, phần tử đầu của trang không
-       tự cộng thêm. Trang họ .wujia-mpage nằm NGOÀI wrapper này — xem _components.css. */
-    html body .content .content-wrapper { padding-top: var(--wujia-mcontent-top) !important; }
-    /* E5c/LC-08: gutter NGANG cũng về một nguồn. Trước đây wrapper giữ 16,8px của Vuexy
-       nên Đặt hàng/Lịch sử lệch 5px so với trang BlankShell (.wujia-mpage) vốn ăn token.
-       Không `!important`: trang tự bỏ lề (Home `.wujia-home-wrapper`) phải còn thắng được. */
-    html body .content .content-wrapper {
-        padding-left: var(--wujia-mshell-content-pad-x);
-        padding-right: var(--wujia-mshell-content-pad-x);
     }
     /* margin-top của phần tử đầu trang collapse xuyên wrapper trang (.wujia-morder,
        .wujia-mcart, .wujia-mhist… không có pad/border trên) → phải triệt tận nơi.
