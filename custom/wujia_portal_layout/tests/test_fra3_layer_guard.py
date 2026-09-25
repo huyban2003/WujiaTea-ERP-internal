@@ -37,7 +37,7 @@ class TestAvatarAclWithoutFranchise(HttpCase):
         """Nghiệp vụ tắt ⇒ đóng (403), tuyệt đối không 500."""
         Users = type(self.env['res.users'])
         self.authenticate('fra3_me', 'fra3_me')
-        with patch.object(Users, '_get_accessible_franchise_ids', _Absent()):
+        with patch.object(Users, '_get_accessible_franchise_ids', _Absent(), create=True):
             res = self.url_open(f'/portal/profile/avatar/{self.other.id}', timeout=30)
         self.assertEqual(
             res.status_code, 403,

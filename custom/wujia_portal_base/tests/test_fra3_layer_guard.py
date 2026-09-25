@@ -42,8 +42,8 @@ class TestHomeWithoutOrderWindow(HttpCase):
         """Home vẫn 200 (khung giờ coi như tắt), không 500."""
         Settings = type(self.env['res.config.settings'])
         self.authenticate('fra3_ow', 'fra3_ow')
-        with patch.object(Settings, '_is_within_order_window', _Absent()), \
-             patch.object(Settings, '_user_now_hours', _Absent()):
+        with patch.object(Settings, '_is_within_order_window', _Absent(), create=True), \
+             patch.object(Settings, '_user_now_hours', _Absent(), create=True):
             res = self.url_open('/portal', timeout=30)
         self.assertEqual(
             res.status_code, 200,

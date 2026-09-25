@@ -10,6 +10,8 @@ from lxml import html
 
 from odoo.tests import TransactionCase, tagged
 
+from .common import need
+
 
 @tagged('post_install', '-at_install', 'wujia_card_header_d3')
 class TestCardHeaderCallSites(TransactionCase):
@@ -107,6 +109,7 @@ class TestCardHeaderCallSites(TransactionCase):
     SHARED_MARKUP_VIEWS = ('wujia_portal_info_request.portal_info_request_list',)
 
     def _arch(self, xmlid):
+        need(self, xmlid)
         return self.env.ref(xmlid).arch_db
 
     def test_shared_markup_views_do_not_bake_platform(self):
@@ -197,6 +200,7 @@ class TestCardHeaderD3eLayout(TransactionCase):
     """D3e — hai bẫy đã trả giá khi migrate 2 file này, khoá lại bằng test."""
 
     def _arch(self, xmlid):
+        need(self, xmlid)
         return self.env.ref(xmlid).arch_db
 
     def test_order_head_meta_stays_card_content(self):
@@ -259,6 +263,7 @@ class TestCardHeaderD3Review(TransactionCase):
             return fh.read()
 
     def _arch(self, xmlid):
+        need(self, xmlid)
         return self.env.ref(xmlid).arch_db
 
     COMPONENTS = 'wujia_portal_layout/static/assets/css/_components.css'

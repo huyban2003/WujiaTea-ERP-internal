@@ -11,6 +11,8 @@ from lxml import etree
 from odoo.tests import tagged
 from odoo.tests.common import HttpCase
 
+from .common import need_suite
+
 # Sheet "Thêm" (mobile) — cùng thứ tự các mục ngoài bottom-nav trên sidebar PC.
 GOLDEN_SHEET = [
     ('/portal/debt', 'Công nợ & thanh toán'),
@@ -150,10 +152,12 @@ class TestAccountMenuStore(HttpCase):
             self.assertNotIn(gone, hrefs)
 
     def test_sheet_owner_du_muc_dung_thu_tu(self):
+        need_suite(self)
         rows, exp = self._golden(self._page('e8c_owner'))
         self.assertEqual(rows, exp)
 
     def test_sheet_theo_quyen(self):
+        need_suite(self)
         rows, exp = self._golden(self._page('e8c_staff'),
                                  drop=('/portal/debt', '/portal/reports/orders'))
         self.assertEqual(rows, exp)

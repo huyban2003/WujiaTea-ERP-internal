@@ -1275,3 +1275,34 @@ rồi đánh ✅ ở bảng Trạng thái §2 `docs/next-session-clusters-F.md`.
 - Còn treo: 7 issue mới STT 140–146 chưa phân cụm · EmptyState · nợ F6 (portal_base tự test + 1 error DB trắng).
 - Phiên kế: **F6** — controller Đặt hàng mỏng (prompt `docs/next-session-clusters-F.md` §3 "Prompt F6"). Việc cần biết
   trước: gộp luôn nợ `portal_base` tự test một mình (nhãn `portal_suite` hoặc tự bỏ qua khi module chủ chưa cài).
+
+## F6 — Controller Đặt hàng mỏng + nợ `portal_base` tự test · 25/09/2026 · Mac
+- Kết quả: ✅ xong. Nghiệm thu: `docs/f6-acceptance-matrix.md` (11/11 ý).
+- Issue List đầu phiên: 7 issue STT 140–146 `Ready for Dev`, chưa phân cụm, reconcile 0 code — chủ dự án chọn làm F6.
+- Chủ dự án chốt: một savepoint cho cả khối gửi đơn (vá đơn mồ côi) · đúng 3 phần của prompt, báo số thật ·
+  gộp nợ `portal_base`, làm sau phần sale.
+- Đã làm:
+  - Luật số lượng min/bước/max **một nguồn** `product._portal_qty_error` (`wujia_sale`) — thêm giỏ, sửa số lượng, dòng
+    giỏ và constraint dòng đơn portal cùng gọi; mã lỗi + câu chữ giữ nguyên.
+  - Giỏ về model `wujia.portal.cart(.line)`: thêm/tăng-giảm nguyên SQL cũ; **Gửi đơn** = `action_submit_order()` (khoá
+    NOWAIT, khung giờ, dòng lỗi, huỷ báo giá cũ bằng write, tạo đơn, xoá giỏ trong **một savepoint**) → controller chỉ map
+    mã lỗi sang redirect. Controller **1047 → 862 dòng (−185)**.
+  - **Vá lỗi ẩn đơn mồ côi**: HEAD để lại đơn nháp khi tạo đơn lỗi sau khi đã insert (chứng minh bằng test đỏ trên HEAD).
+  - Lưới test đặc tả 21 test (trước đó 0 test gọi cart/submit) + `scripts/qa/cart_race.py` đua 2 phiên thật.
+  - Nợ `portal_base`: `tests/common.py` (`need`/`need_suite`/`find_view`) — test quét nhiều module tự skip khi module chủ
+    chưa cài; `patch.object(…, create=True)` ở 2 file `test_fra3_layer_guard`.
+- Commit: `feat(F6)` — xem git log (đã push `main`).
+- Deploy: chưa. Lệnh khi được yêu cầu: `-u wujia_sale,wujia_portal_sale` (base/layout chỉ đổi test — không cần `-u`).
+- Số đo: suite portal 15 module **822, 0 đỏ** (E8c 801, +21) · run đối chứng: test mới trên code HEAD chỉ đỏ test đơn mồ côi
+  · `cart_race` HEAD = F6 (JSON y hệt, NOWAIT 5/5) · mutation **10/10** · HTML 4 route + fragment giống từng byte ·
+  DB chỉ `portal_base` **39 failed + 82 error → 0/0** (274) · DB chỉ khung **225, 0 failed, 0 error** · `check_layers` không
+  thêm · `test_ownership` cross 0.
+- Lệch plan / quyết định mới: không dời `_cart_state` (chốt 2) nên −185 chứ không phải ~−240 · submit chưa có giỏ dựng giỏ
+  ảo `new()` để giữ thứ tự `branch_locked` trước `CART_EMPTY` · constraint min = 0 vẫn chặn vượt max như HEAD.
+- Bài học: server cũ phiên E4b2 còn nghe `127.0.0.1:8092` ⇒ HttpCase gửi nhầm server, 12 test đỏ giả (public/login).
+  Kiểm port bằng `lsof` trước khi chạy; chưa tắt process đó (pid 23706, không phải của phiên này).
+- Nợ để lại: 1 error có sẵn `test_wujia_supply_demand_report` (anh Thái `c64de50`) · mã `ORDER_TIME_CLOSED` lúc tạo đơn vẫn
+  bắt theo chuỗi "khung giờ" (F7 thay) · bàn giao anh Thái 4 mục (xem matrix).
+- Phiên kế: **F7** — pilot tách `order_window` khỏi `portal_sale` (luôn nhớ: `action_submit_order` gọi
+  `_is_within_order_window(area_id=…)` và bắt ValidationError "khung giờ" — chỗ nối F7 phải thay) · hoặc phân cụm 7 issue
+  STT 140–146 nếu chủ dự án ưu tiên Issue List.

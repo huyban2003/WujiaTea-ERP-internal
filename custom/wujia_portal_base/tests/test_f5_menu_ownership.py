@@ -14,6 +14,8 @@ from lxml import etree
 from odoo.tests import tagged
 from odoo.tests.common import HttpCase
 
+from .common import need_suite
+
 # (id của <li>, module sở hữu, href, icon, nhãn) — thứ tự đúng như sidebar PC hiển thị.
 # E8b (CMP-SN-001): 3 nhóm theo BA; Thông báo (chuông) và Tài khoản (avatar) không nằm ở sidebar.
 GOLDEN_SIDENAV = [
@@ -101,6 +103,7 @@ class TestMenuOwnership(HttpCase):
 
     def test_sidenav_groups_in_ba_order(self):
         """3 nhóm BA (Chức năng chính / Tài chính & xử lý / Hỗ trợ vận hành), mục đúng nhóm."""
+        need_suite(self)
         ul = self._sidenav()
         self.assertEqual([li.get('id') for li in ul.xpath('./li')], GOLDEN_WITH_GROUPS)
         heads = [re.sub(r'\s+', ' ', ''.join(li.itertext())).strip()
@@ -109,6 +112,7 @@ class TestMenuOwnership(HttpCase):
 
     def test_sidenav_golden_list(self):
         """11 mục, đúng thứ tự, đúng href + icon + nhãn."""
+        need_suite(self)
         items = [li for li in self._sidenav().xpath('./li')
                  if 'navigation-header' not in (li.get('class') or '') and li.get('id') != 'nav_end']
         self.assertEqual([li.get('id') for li in items],
@@ -123,6 +127,7 @@ class TestMenuOwnership(HttpCase):
 
     def test_every_item_belongs_to_the_module_owning_the_route(self):
         """Mục menu nằm trong view của MODULE SỞ HỮU ⇒ gỡ module là mất mục."""
+        need_suite(self)
         for nid, module, *_rest in GOLDEN_SIDENAV:
             shell = self.env.ref('wujia_portal_layout.layout_sidenav')
             views = shell + self.env['ir.ui.view'].search([('inherit_id', '=', shell.id)])
@@ -139,6 +144,7 @@ class TestMenuOwnership(HttpCase):
                              f'{nid} phải do {module} khai, đang thấy {owners}')
 
     def test_active_item_follows_the_route(self):
+        need_suite(self)
         for route, nid in ACTIVE_CASES:
             ul = self._sidenav(route)
             active = [li.get('id') for li in ul.xpath('./li')
@@ -150,6 +156,7 @@ class TestMenuOwnership(HttpCase):
 
     def test_items_render_by_permission(self):
         """Mục hiện theo quyền vào route (điều kiện controller), không chừa khoảng trống."""
+        need_suite(self)
         owner = self._ids('f5_menu')
         self.assertIn('nav_item_debt', owner)
         self.assertIn('nav_item_report', owner)
@@ -164,6 +171,7 @@ class TestMenuOwnership(HttpCase):
 
     def test_bottomnav_more_button_is_active_when_no_tab_matches(self):
         """Nút "Thêm" sáng khi không tab nào sáng (hành vi Sprint 11)."""
+        need_suite(self)
         self.authenticate('f5_menu', 'f5_menu')
         for route, more_active in (('/portal', False), ('/portal/order', False),
                                    ('/portal/support', True)):

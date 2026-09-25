@@ -26,13 +26,8 @@ Routes:
 import logging
 from collections import defaultdict
 
-import psycopg2
-from psycopg2 import errors as pg_errors
-
 from odoo import fields, http
-from odoo.exceptions import UserError, ValidationError
 from odoo.http import request
-from odoo.tools import plaintext2html
 
 from odoo.addons.wujia_portal_base.controllers.portal import (
     ACTIVE_FRANCHISE_COOKIE,
@@ -47,6 +42,7 @@ from odoo.addons.wujia_portal_base.controllers.utils import (
     rate_limit,
     status_badge_for,
 )
+from odoo.addons.wujia_portal_sale.models.wujia_portal_cart import PortalOrderError
 # Nhãn trạng thái SO dùng CHUNG với trang Lịch sử đặt hàng — không nhân bản dict
 # (draft → 'Chờ xác nhận'); màn kết quả và trang lịch sử phải luôn nói giống nhau.
 from odoo.addons.wujia_portal_purchase_history.controllers.portal import _state_meta
@@ -86,6 +82,13 @@ ERROR_MESSAGES = {
     'branch_locked': "Cửa hàng đang tạm khóa đặt hàng. Vui lòng liên hệ Ngô Gia.",
     'outside_order_window': "Hiện ngoài khung giờ đặt hàng. Vui lòng gửi đơn trong thời gian cho phép.",
     'internal_error': "Có lỗi xảy ra. Vui lòng thử lại hoặc liên hệ Ngô Gia.",
+}
+
+# Câu lỗi số lượng theo mã của `product._portal_qty_error` (thêm tên SP + ngưỡng).
+QTY_MESSAGES = {
+    'QTY_BELOW_MIN': "Số lượng tối thiểu của {name} là {limit}.",
+    'QTY_INVALID_STEP': "Số lượng của {name} phải tăng theo bước {limit}.",
+    'QTY_ABOVE_MAX': "Số lượng tối đa của {name} là {limit}.",
 }
 
 SUCCESS_MESSAGES = {
@@ -170,22 +173,13 @@ class WujiaPortalSale(http.Controller):
         return request.env['wujia.franchise.management'].sudo().browse(fid).exists()
 
     def _get_store_cart(self, fid, create=False):
-        """Giỏ chung của store — KHÔNG filter theo user (BA row 5).
+        return request.env['wujia.portal.cart'].sudo()._get_for_store(fid, create=create)
 
-        Race 2 request cùng tạo giỏ đầu tiên: unique(franchise_id) →
-        IntegrityError bọc savepoint (không savepoint = abort cả transaction),
-        thua thì search lại lấy giỏ của request thắng.
-        """
-        Cart = request.env['wujia.portal.cart'].sudo()
-        cart = Cart.search([('franchise_id', '=', fid)], limit=1)
-        if cart or not create:
-            return cart
-        try:
-            with request.env.cr.savepoint():
-                cart = Cart.create({'franchise_id': fid})
-        except psycopg2.IntegrityError:
-            cart = Cart.search([('franchise_id', '=', fid)], limit=1)
-        return cart
+    def _qty_err(self, product, error):
+        code, limit = error
+        if code == 'MIN_QTY_NOT_CONFIGURED':
+            return self._err(code)
+        return self._err(code, message=QTY_MESSAGES[code].format(name=product.name, limit=limit))
 
     def _get_store_line(self, line_id, fid):
         """Browse line, verify thuộc giỏ của store hiện tại (guard theo store)."""
@@ -250,16 +244,6 @@ class WujiaPortalSale(http.Controller):
                 result[line.id] = prices.get(line.product_id.id, line.product_id.lst_price)
         return result
 
-    def _line_invalid_reason(self, line):
-        product = line.product_id
-        if not product.active or not product.is_public_portal:
-            return 'PRODUCT_NOT_AVAILABLE'
-        if product.min_qty <= 0:
-            return 'MIN_QTY_NOT_CONFIGURED'
-        if (line.qty < product.min_qty or line.qty % product.min_qty
-                or (product.max_qty and line.qty > product.max_qty)):
-            return 'CART_QUANTITY_INVALID'
-        return None
 
     def _cart_state(self, cart, franchise):
         """Full state của giỏ — mọi mutation + cart view dùng chung (BA: FE không tự cộng)."""
@@ -281,7 +265,7 @@ class WujiaPortalSale(http.Controller):
         for line in lines:
             product = line.product_id
             unit = unit_prices.get(line.id, 0.0)
-            invalid = self._line_invalid_reason(line)
+            invalid = line._portal_invalid_reason()
             taxed = portal_line_price_vals(
                 product, unit, line.qty, currency,
                 partner=partner, company=company, taxes=taxes_of(product),
@@ -575,61 +559,30 @@ class WujiaPortalSale(http.Controller):
         product = request.env['product.product'].sudo().browse(product_id).exists()
         if not product or not product.active or not product.is_public_portal:
             return self._err('PRODUCT_NOT_AVAILABLE')
-        step = product.min_qty
-        if step <= 0:
+        if product.min_qty <= 0:
             return self._err('MIN_QTY_NOT_CONFIGURED')
-
-        # Bước tăng mặc định = min_qty (BA row 6). FE gửi qty tường minh
-        # (trang chi tiết) → phải HỢP LỆ TUYỆT ĐỐI, KHÔNG ép về bước khi sai
-        # (WJ-ORD-001): số nguyên dương, >= bước, bội số bước, <= max.
+        # FE gửi qty tường minh (trang chi tiết) → phải HỢP LỆ TUYỆT ĐỐI, không ép về bước (WJ-ORD-001).
         if qty is None or qty == '':
-            increment = step
+            increment = product.min_qty
         else:
             try:
-                fval = float(qty)  # "abc" → ValueError
+                fval = float(qty)
             except (TypeError, ValueError):
                 return self._err('invalid_input')
-            if fval != int(fval):  # "1.5" — không làm tròn, coi là sai
+            if fval != int(fval):
                 return self._err('QTY_INVALID_STEP',
                                  message=f"Số lượng của {product.name} phải là số nguyên.")
             increment = int(fval)
-            if increment < step:
-                return self._err('QTY_BELOW_MIN',
-                                 message=f"Số lượng tối thiểu của {product.name} là {step}.")
-            if increment % step:
-                return self._err('QTY_INVALID_STEP',
-                                 message=f"Số lượng của {product.name} phải tăng theo bước {step}.")
-            if product.max_qty and increment > product.max_qty:
-                return self._err('QTY_ABOVE_MAX',
-                                 message=f"Số lượng tối đa của {product.name} là {product.max_qty}.")
+            error = product._portal_qty_error(increment)
+            if error:
+                return self._qty_err(product, error)
 
         franchise = self._get_franchise(fid)
         cart = self._get_store_cart(fid, create=True)
         if not cart:
             return self._err('CART_LOAD_FAILED')
-
-        # Upsert atomic — race-safe khi nhiều user/thiết bị cùng add (giỏ chung).
-        # LEAST(cap) chặn trần max_qty ngay trong SQL; audit columns set tay
-        # vì raw INSERT không qua ORM.
-        cap = product.max_qty if product.max_qty > 0 else 2147483647
-        request.env.cr.execute(
-            """
-            INSERT INTO wujia_portal_cart_line
-                   (cart_id, product_id, qty, create_uid, create_date, write_uid, write_date)
-            VALUES (%(cart)s, %(product)s, LEAST(%(inc)s, %(cap)s),
-                    %(uid)s, now() AT TIME ZONE 'UTC', %(uid)s, now() AT TIME ZONE 'UTC')
-            ON CONFLICT (cart_id, product_id) DO UPDATE
-               SET qty = LEAST(wujia_portal_cart_line.qty + %(inc)s, %(cap)s),
-                   write_uid = %(uid)s,
-                   write_date = now() AT TIME ZONE 'UTC'
-            RETURNING id, qty
-            """,
-            {'cart': cart.id, 'product': product_id, 'inc': increment,
-             'cap': cap, 'uid': request.env.uid},
-        )
-        line_id, new_qty = request.env.cr.fetchone()
-        request.env['wujia.portal.cart.line'].sudo().invalidate_model()
-        cart.invalidate_recordset()
+        line_id, new_qty = request.env['wujia.portal.cart.line'].sudo()._portal_add(
+            cart, product, increment)
 
         state = self._cart_state(cart, franchise)
         self._publish_cart_event(fid, state, 'add')
@@ -672,18 +625,9 @@ class WujiaPortalSale(http.Controller):
             self._publish_cart_event(fid, state, 'remove')
             return {'success': True, 'removed': True,
                     'cart_count': state['line_count'], 'cart': state}
-        step = product.min_qty
-        if step <= 0:
-            return self._err('MIN_QTY_NOT_CONFIGURED')
-        if qty < step:
-            return self._err('QTY_BELOW_MIN',
-                             message=f"Số lượng tối thiểu của {product.name} là {step}.")
-        if qty % step:
-            return self._err('QTY_INVALID_STEP',
-                             message=f"Số lượng của {product.name} phải tăng theo bước {step}.")
-        if product.max_qty and qty > product.max_qty:
-            return self._err('QTY_ABOVE_MAX',
-                             message=f"Số lượng tối đa của {product.name} là {product.max_qty}.")
+        error = product._portal_qty_error(qty)
+        if error:
+            return self._qty_err(product, error)
         line.write({'qty': qty})
         state = self._cart_state(cart, franchise)
         self._publish_cart_event(fid, state, 'update')
@@ -738,43 +682,19 @@ class WujiaPortalSale(http.Controller):
             return {'success': True, 'removed': True,
                     'cart_count': state['line_count'], 'cart': state}
         product = line.product_id
-        step = product.min_qty
-        if step <= 0:
+        if product.min_qty <= 0:
             return self._err('MIN_QTY_NOT_CONFIGURED')
-        change = sign * step
-        cap = product.max_qty if product.max_qty > 0 else 2147483647
-        # Cộng delta nguyên tử; LEAST chặn trần max ngay trong SQL. Dòng bị khoá
-        # tới hết transaction nên unlink phía dưới an toàn với request song song.
-        request.env.cr.execute(
-            """
-            UPDATE wujia_portal_cart_line
-               SET qty = LEAST(qty + %(delta)s, %(cap)s),
-                   write_uid = %(uid)s,
-                   write_date = now() AT TIME ZONE 'UTC'
-             WHERE id = %(line)s
-            RETURNING qty
-            """,
-            {'delta': change, 'cap': cap, 'line': line.id, 'uid': request.env.uid},
-        )
-        row = request.env.cr.fetchone()
-        request.env['wujia.portal.cart.line'].sudo().invalidate_model()
-        cart.invalidate_recordset()
-        new_qty = row[0] if row else 0
-        removed = False
+        line_id = line.id
+        new_qty, removed = line._portal_step(sign)
         warning = None
-        if new_qty < step:
-            # Giảm xuống dưới tối thiểu → xoá dòng (đồng nhất với update qty=0).
-            line.unlink()
-            removed = True
-            cart.invalidate_recordset()
-        elif sign > 0 and product.max_qty and new_qty >= product.max_qty:
+        if not removed and sign > 0 and product.max_qty and new_qty >= product.max_qty:
             warning = 'QTY_ABOVE_MAX'
         state = self._cart_state(cart, franchise)
         self._publish_cart_event(fid, state, 'remove' if removed else 'update')
         res = {'success': True, 'removed': removed, 'qty': new_qty,
                'cart_count': state['line_count'], 'cart': state}
         if not removed:
-            res['line'] = next((l for l in state['lines'] if l['line_id'] == line.id), None)
+            res['line'] = next((l for l in state['lines'] if l['line_id'] == line_id), None)
         if warning:
             res['warning'] = warning
             res['message'] = f"Số lượng tối đa của {product.name} là {product.max_qty}."
@@ -845,119 +765,14 @@ class WujiaPortalSale(http.Controller):
         franchise = self._get_franchise(fid)
         if not franchise:
             return request.redirect('/portal/order/cart?error=STORE_ACCESS_DENIED')
-        if franchise.portal_locked:
-            return request.redirect('/portal/order/cart?error=branch_locked')
-        cart = self._get_store_cart(fid)
-        if not cart or not cart.line_ids:
-            return request.redirect('/portal/order/cart?error=CART_EMPTY')
-
-        # Khoá giỏ chung — savepoint BẮT BUỘC: LockNotAvailable nằm trong danh sách
-        # Odoo tự retry request; bọc savepoint thì exception dừng ở đây và ta trả
-        # CART_IS_PROCESSING thay vì retry 5 lần (2 user cùng bấm Gửi đơn).
-        # Row lock sống tới hết transaction (RELEASE SAVEPOINT không nhả lock);
-        # snapshot lines đọc ngay trong block để giữ đúng ý "snapshot-at-lock" —
-        # thay đổi đến sau thời điểm này rơi vào giỏ mới (BA: last-write-wins).
+        # Chưa có giỏ ⇒ giỏ ảo (không ghi DB) để model vẫn kiểm khoá cửa hàng trước giỏ rỗng.
+        cart = self._get_store_cart(fid) or request.env['wujia.portal.cart'].sudo().new({'franchise_id': fid})
         try:
-            with request.env.cr.savepoint():
-                request.env.cr.execute(
-                    "SELECT id FROM wujia_portal_cart WHERE id = %s FOR UPDATE NOWAIT",
-                    (cart.id,),
-                )
-                request.env['wujia.portal.cart.line'].sudo().invalidate_model()
-                cart.invalidate_recordset()
-                lines = cart.line_ids
-        except pg_errors.LockNotAvailable:
-            return request.redirect('/portal/order/cart?error=CART_IS_PROCESSING')
-        if not lines:
-            return request.redirect('/portal/order/cart?error=CART_EMPTY')
-
-        # Chưa cấu hình khung giờ → helper dùng default 10:00–04:00 (BA row 2:
-        # ORDER_TIME_NOT_CONFIGURED chỉ là banner cảnh báo, không chặn submit).
-        area_id = franchise.area_id.id if franchise.area_id else False
-        allowed, _w = request.env['res.config.settings'].sudo()._is_within_order_window(area_id=area_id)
-        if not allowed:
-            return self._submit_time_closed(post)
-
-        invalid_reasons = {self._line_invalid_reason(l) for l in lines} - {None}
-        if invalid_reasons:
-            code = ('CART_QUANTITY_INVALID'
-                    if invalid_reasons == {'CART_QUANTITY_INVALID'}
-                    else 'CART_HAS_INVALID_PRODUCT')
-            return request.redirect(f'/portal/order/cart?error={code}')
-
-        partner = franchise.partner_id
-        if not partner:
-            return request.redirect('/portal/order/cart?error=STORE_CUSTOMER_NOT_CONFIGURED')
-
-        # Huỷ draft/sent portal cũ = rule "1 store 1 draft" (POR-022). Check locked
-        # TRƯỚC khi tạo SO mới — fail sớm, không cần rollback (BA row 13 nguyên khối).
-        SO = request.env['sale.order'].sudo()
-        old_quotations = SO.search([
-            ('franchise_id', '=', fid),
-            ('is_portal_order', '=', True),
-            ('state', 'in', ('draft', 'sent')),
-        ])
-        if any(old_quotations.mapped('locked')):
-            _logger.warning('Portal submit blocked: locked portal quotation(s) %s (store %s)',
-                            old_quotations.filtered('locked').ids, fid)
-            return request.redirect('/portal/order/cart?error=OLD_PORTAL_QUOTATION_CANCEL_FAILED')
-
-        member = request.env['wujia.franchise.member'].sudo().find_active_membership(
-            request.env.uid, fid,
-        )
-        note_text = (post.get('portal_note') or cart.note or '').strip()[:1000]
-        so_vals = {
-            'is_portal_order': True,
-            'franchise_id': fid,
-            'franchise_partner_id': partner.id,
-            'partner_id': partner.id,
-            # Pricelist tường minh = pricelist đã dùng tính giá catalog/giỏ →
-            # price_unit SO line (Odoo tự compute) khớp giá đã hiển thị.
-            'pricelist_id': partner.property_product_pricelist.id or False,
-            # sudo() giữ env.uid → create_uid = user portal (POR-019).
-            'portal_requester_user_id': request.env.uid,
-            'portal_member_id': member.id if member else False,
-            'origin': 'Wujia Portal',
-            # Ghi 2 field: portal_note (Text — trang Lịch sử portal render field này)
-            # + note theo BA mapping. note là Html field: plaintext2html escape user
-            # input + giữ xuống dòng (bare str bị sanitize làm hỏng; Markup thô = XSS).
-            'portal_note': note_text or False,
-            'note': plaintext2html(note_text) if note_text else False,
-            'order_line': [
-                (0, 0, {
-                    'product_id': line.product_id.id,
-                    'product_uom_qty': line.qty,
-                    'product_uom_id': line.product_id.uom_id.id,
-                }) for line in lines
-            ],
-        }
-        try:
-            order = SO.create(so_vals)  # SO ở DRAFT — BA: không action_confirm
-        except ValidationError as e:
-            msg = str(e)
-            _logger.warning('Portal order create rejected (store %s): %s', fid, msg)
-            if 'khung giờ' in msg:
+            order = cart.action_submit_order(note=post.get('portal_note'))
+        except PortalOrderError as e:
+            if e.code == 'ORDER_TIME_CLOSED':
                 return self._submit_time_closed(post)
-            return request.redirect('/portal/order/cart?error=ORDER_CREATE_FAILED')
-        except (UserError, Exception):
-            _logger.exception('Portal order create failed (store %s)', fid)
-            return request.redirect('/portal/order/cart?error=ORDER_CREATE_FAILED')
-
-        # write state trực tiếp (không action_cancel): tránh cascade huỷ draft
-        # invoice + chatter storm; đã loại locked ở trên. Nguyên khối BA row 13:
-        # bất kỳ lỗi nào ở bước huỷ/clear → rollback cả SO mới vừa tạo.
-        try:
-            old_quotations.write({'state': 'cancel'})
-            still_open = old_quotations.filtered(lambda o: o.state != 'cancel')
-            if still_open:
-                raise UserError(f'cancel failed: {still_open.ids}')
-            # Clear giỏ cuối cùng, cùng transaction — commit thì thiết bị khác thấy giỏ trống.
-            lines.unlink()
-            cart.write({'note': False})
-        except Exception:
-            _logger.exception('Portal submit: cancel-old/clear-cart failed (store %s)', fid)
-            request.env.cr.rollback()
-            return request.redirect('/portal/order/cart?error=OLD_PORTAL_QUOTATION_CANCEL_FAILED')
+            return request.redirect(f'/portal/order/cart?error={e.code}')
         state = self._cart_state(cart, franchise)
         self._publish_cart_event(fid, state, 'submit')
         # Mobile → màn "Đặt hàng thành công" (Figma 4963:2 màn 03); PC giữ nguyên

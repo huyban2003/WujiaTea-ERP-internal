@@ -82,25 +82,29 @@ class SaleOrderLine(models.Model):
 
     @api.constrains('product_id', 'product_uom_qty', 'order_id')
     def _check_min_max_qty_portal(self):
-        """Validate min/step/max từ product.product — chỉ áp với đơn portal.
-        Step = min_qty (BA); max_qty = 0 nghĩa là không giới hạn."""
+        """Luật min/bước/max của đơn portal — cùng nguồn `product._portal_qty_error`."""
         for line in self:
             if not line.order_id.is_portal_order or line.wujia_is_gift:
                 continue
             product = line.product_id
             qty = line.product_uom_qty
-            if product.min_qty and qty < product.min_qty:
+            error = product._portal_qty_error(qty)
+            if error and error[0] == 'MIN_QTY_NOT_CONFIGURED':
+                error = ('QTY_ABOVE_MAX', product.max_qty) if 0 < product.max_qty < qty else None
+            if not error:
+                continue
+            code, limit = error
+            if code == 'QTY_BELOW_MIN':
                 raise ValidationError(_(
                     "Sản phẩm '%s' yêu cầu số lượng tối thiểu %s, đang đặt %s.",
-                    product.name, product.min_qty, qty,
+                    product.name, limit, qty,
                 ))
-            if product.min_qty and qty % product.min_qty:
+            if code == 'QTY_INVALID_STEP':
                 raise ValidationError(_(
                     "Số lượng của '%s' phải tăng theo bước %s, đang đặt %s.",
-                    product.name, product.min_qty, qty,
+                    product.name, limit, qty,
                 ))
-            if product.max_qty and qty > product.max_qty:
-                raise ValidationError(_(
-                    "Sản phẩm '%s' chỉ cho phép tối đa %s/đơn, đang đặt %s.",
-                    product.name, product.max_qty, qty,
-                ))
+            raise ValidationError(_(
+                "Sản phẩm '%s' chỉ cho phép tối đa %s/đơn, đang đặt %s.",
+                product.name, limit, qty,
+            ))

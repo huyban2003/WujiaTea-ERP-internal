@@ -7,12 +7,15 @@ from lxml import html
 
 from odoo.tests import TransactionCase, tagged
 
+from .common import need
+
 
 @tagged('post_install', '-at_install', 'wujia_section_header_c8')
 class TestSectionHeaderCallSites(TransactionCase):
     """Các call site C8a phải dùng component + đúng rule đếm của spec."""
 
     def _arch(self, xmlid):
+        need(self, xmlid)
         return self.env.ref(xmlid).arch_db
 
     # Header nằm trong sub-template render thật (fragment của wj_ajax_list),

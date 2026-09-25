@@ -10,6 +10,8 @@ from lxml import html
 
 from odoo.tests import TransactionCase, tagged
 
+from .common import find_view, need
+
 TMPL = 'wujia_portal_layout.wj_surface_card'
 MOD_DIR = os.path.join(os.path.dirname(__file__), '..', '..')
 CSS_DIR = os.path.join(MOD_DIR, 'wujia_portal_layout', 'static', 'assets', 'css')
@@ -189,6 +191,7 @@ class TestSurfaceCardD4c(TransactionCase):
     def test_non_div_call_sites_carry_the_owner_class(self):
         # <form> POST, <aside>, <section> không đi qua t-call được (component
         # luôn sinh <div>) ⇒ mang thẳng class chủ sở hữu, không mất landmark.
+        need(self, 'wujia_portal_support', 'wujia_portal_exam', 'wujia_portal_report')
         views = self.env['ir.ui.view'].search([
             ('key', 'in', ['wujia_portal_support.portal_support_form',
                            'wujia_portal_exam.portal_exam_register',
@@ -334,7 +337,7 @@ class TestSurfaceCardD4d(TransactionCase):
         # (.wj-data-list--detail-card .wj-data-item) lo, nên bỏ khỏi bảng này.
         for key, tag in (('wujia_portal_knowledge.portal_knowledge_detail', '<article'),
                          ('wujia_portal_sale.mres_shell', 'role="status"')):
-            view = self.env['ir.ui.view'].search([('key', '=', key)], limit=1)
+            view = find_view(self, key)
             with self.subTest(key=key):
                 self.assertTrue(view, f'không thấy view {key}')
                 self.assertIn('wj-surface-card', view.arch_db)
@@ -343,6 +346,7 @@ class TestSurfaceCardD4d(TransactionCase):
     def test_no_inline_padding_left_on_migrated_cards(self):
         # Bẫy #5: style inline thắng mọi CSS. Đã chuyển sang sc_body="flush",
         # để cả hai cùng tồn tại là mâu thuẫn im lặng.
+        need(self, 'wujia_portal_support')
         views = self.env['ir.ui.view'].search(
             [('key', 'in', ['wujia_portal_base.portal_franchise_information',
                             'wujia_portal_support.portal_support_detail'])])
@@ -408,7 +412,7 @@ class TestSurfaceCardD4e1(TransactionCase):
 
     def test_all_metric_call_sites_use_the_component(self):
         for key in self.CALL_SITES:
-            view = self.env['ir.ui.view'].search([('key', '=', key)], limit=1)
+            view = find_view(self, key)
             with self.subTest(key=key):
                 self.assertTrue(view, f'không thấy view {key}')
                 arch = view.arch_db
@@ -420,7 +424,7 @@ class TestSurfaceCardD4e1(TransactionCase):
     def test_call_sites_bake_summary_and_flush(self):
         # summary = biến thể DUY NHẤT khai gap (Luật #8); flush vì đệm dọc = 0.
         for key in self.CALL_SITES:
-            view = self.env['ir.ui.view'].search([('key', '=', key)], limit=1)
+            view = find_view(self, key)
             with self.subTest(key=key):
                 arch = view.arch_db
                 self.assertIn("'summary'", arch)
@@ -452,8 +456,7 @@ class TestSurfaceCardD4e2(TransactionCase):
         self.assertTrue(body and _declares(body[0], 'padding'))
 
     def test_rep_mcard_call_sites_carry_the_component(self):
-        view = self.env['ir.ui.view'].search(
-            [('key', '=', 'wujia_portal_report.portal_report_orders')], limit=1)
+        view = find_view(self, 'wujia_portal_report.portal_report_orders')
         self.assertTrue(view)
         arch = view.arch_db
         self.assertEqual(arch.count('wj-surface-card--flush wj-rep-mcard'), 3)
@@ -472,7 +475,7 @@ class TestSurfaceCardD4e2(TransactionCase):
     def test_inline_padding_gone_from_both_views(self):
         for key in ('wujia_portal_base.portal_franchise_information',
                     'wujia_portal_support.portal_support_detail'):
-            view = self.env['ir.ui.view'].search([('key', '=', key)], limit=1)
+            view = find_view(self, key)
             with self.subTest(key=key):
                 self.assertTrue(view, f'không thấy view {key}')
                 self.assertNotIn('padding:14px 14px 0', view.arch_db)
@@ -555,7 +558,7 @@ class TestSurfaceCardD4f(TransactionCase):
     # --- A · call site không còn token `card` -----------------------------
 
     def _arch(self, key):
-        view = self.env['ir.ui.view'].search([('key', '=', key)], limit=1)
+        view = find_view(self, key)
         self.assertTrue(view, f'không thấy view {key}')
         return view.arch_db
 

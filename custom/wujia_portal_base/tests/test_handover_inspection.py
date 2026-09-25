@@ -12,6 +12,8 @@ import re
 
 from odoo.tests import TransactionCase, tagged
 
+from .common import find_view, need
+
 INSP = 'wujia_portal_inspection/static/src/css/portal_inspection.css'
 
 
@@ -36,6 +38,7 @@ class TestInspectionCardHeader(TransactionCase):
     }
 
     def _arch(self, xmlid):
+        need(self, xmlid)
         return self.env.ref(xmlid).arch_db
 
     def _css(self, module, name):
@@ -199,7 +202,7 @@ class TestSurfaceCardD4h(TransactionCase):
     """
 
     def _arch(self, key):
-        view = self.env['ir.ui.view'].search([('key', '=', key)], limit=1)
+        view = find_view(self, key)
         self.assertTrue(view, f'không thấy view {key}')
         return view.arch_db
 
@@ -266,6 +269,7 @@ class TestSurfaceCardD4h(TransactionCase):
         self.assertNotIn('box-shadow', arch)
 
     def test_no_card_token_leaks_into_inspection_views(self):
+        need(self, 'wujia_portal_inspection')
         views = self.env['ir.ui.view'].search(
             [('key', '=like', 'wujia_portal_inspection.%')])
         self.assertTrue(views)
