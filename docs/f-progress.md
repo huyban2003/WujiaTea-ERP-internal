@@ -1353,7 +1353,7 @@ rồi đánh ✅ ở bảng Trạng thái §2 `docs/next-session-clusters-F.md`.
   - Thử tách MỘT PHẦN `info_request` trên `wujia_frp_trial`: helper 72/75 (3 dư = QWeb portal phải ở lại), 80 dòng đổi chủ,
     0 lệch thật, `number_next` giữ.
   - Chapter 74 §Quy trình tách 4 chỗ + số đo FR-P; build PDF.
-- Commit: chưa (hỏi cuối phiên) — gồm cả `f-progress.md` mục F7 (deploy) sửa local từ phiên trước.
+- Commit: `9d2a606` — `review(FR-P): review pilot F7 đạt — gỡ vỏ order_window, hook đổi chủ về wujia_core` (đã push `main`; gồm cả mục F7 deploy sửa local từ phiên trước).
 - Deploy: chưa. Khi được yêu cầu: `git pull` + `-u wujia_core,wujia_order_window` (không `--test-enable`).
 - Số đo: UAT 36 xmlid + 6 cons + 2 khung + 3 tham số + 2 menu + 2 ACL y hệt · `check_layers` 2 (Thái) · R6 0 · R7 2 (Thái) ·
   `-u` DB copy 0 ERROR · suite **834, 0 đỏ** (F7 833 + 1) · snapshot vs `f7r2/u.json` 0 lệch · DB trắng **11/11** (trước sửa
