@@ -1260,3 +1260,18 @@ rồi đánh ✅ ở bảng Trạng thái §2 `docs/next-session-clusters-F.md`.
 - UAT: `wj_sidebar` SN-1…14 0 vi phạm · `wj_pagecontainer` 0 (Khảo sát đo qua `/vi/`) · `wj_button` 0 mới (6 dòng y hệt E6c) ·
   0 POST bị chặn · 0 lỗi JS. Staff/nhiều cửa hàng không đo trên UAT (mật khẩu khác seed, không reset).
 - Phiên kế: theo `docs/next-session-clusters-F.md` (cụm E đã hết E4b→E8) — đề xuất cụm EmptyState hoặc F6 theo bảng §2.
+
+## END-SPRINT 61/62 — chốt sổ cụm E + cổng F (25/09/2026 · Mac)
+- Kết quả: ✅ xong. Phiên tài liệu, **0 file dưới `custom/`**, không deploy, không đụng sheet.
+- Đã làm: chapter `docs/chapters/75-sprint61-cluster-e-components.tex` (Sprint 61 — cụm E: E1 · E9a · E9b · E2 · E3 ·
+  E4 · E5 · E6 · E7 · E8 + phiên xen kẽ nhịp dọc / G2 / DOC-CTRL) và `76-sprint62-cluster-f-standardize.tex` (Sprint 62 —
+  cổng F0 → ★FR-A3); `\include` sau ADR-027; PDF master **301 → 312 trang**, 0 lỗi LaTeX (trong PDF đánh số 74/75).
+  Compact summary: dòng Cập nhật + §4 dòng 61/62 + §5 State mới, bỏ cảnh báo "§5 trễ". Skill `/wujia-start`: bỏ Step 2a
+  (Issue List đã mở lại từ FR-A3), cụm F ghi "cổng đã qua, nhánh sau cổng xen kẽ Issue List".
+- Commit: xem git log — `docs(multi): chapter cụm E + cụm F`
+- Deploy: không.
+- Số đo: `build-doc.sh` 312 trang · 0 `! ` trong log · 0 chữ Việt trong `\texttt` của 2 chapter mới (485 "Missing character"
+  trong log là của chapter cũ, mono DejaVu thiếu dấu tiếng Việt — có từ trước).
+- Còn treo: 7 issue mới STT 140–146 chưa phân cụm · EmptyState · nợ F6 (portal_base tự test + 1 error DB trắng).
+- Phiên kế: **F6** — controller Đặt hàng mỏng (prompt `docs/next-session-clusters-F.md` §3 "Prompt F6"). Việc cần biết
+  trước: gộp luôn nợ `portal_base` tự test một mình (nhãn `portal_suite` hoặc tự bỏ qua khi module chủ chưa cài).

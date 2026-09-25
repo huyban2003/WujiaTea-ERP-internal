@@ -1,0 +1,231 @@
+\chapter{Sprint 62 --- Cụm F: chuẩn hoá kiến trúc portal, cổng F1 $\to$ $\star$FR-A3 (2026-09-17 $\to$ 09-18)}
+
+\emph{Chapter này ghi lại cổng chuẩn hoá chen vào giữa cụm E. Ngày 17/09 chủ dự án chốt: \emph{``chuẩn hoá
+gấp hơn, làm xong mới fix issue chuẩn component''}. Issue List tạm dừng từ sau E4a, qua 8 phiên
+(F0 $\to$ $\star$FR-A3) trong hai ngày, rồi được mở lại. Cổng này \textbf{không đổi một tính năng
+nào} và gần như không đổi pixel nào. Nó chuyển code về đúng tầng theo ADR-027 (chapter ngay trước chapter Cụm E) và
+dựng công cụ để chứng minh điều đó. Kế hoạch và prompt ở \texttt{docs/next-session-clusters-F.md};
+nhật ký ở \texttt{docs/f-progress.md}; hai phiên review ở \texttt{docs/f-review-B.md} và
+\texttt{docs/f-review-A3.md}.}
+
+\section{Vì sao phải có cổng F}
+
+Review ngày 17/09 trên HEAD \texttt{4896ac1} đo ba vấn đề cấu trúc:
+\begin{description}[nosep]
+\item[A --- Chia vai trò module.] 7 module \texttt{wujia\_portal\_*} ôm cả model và backend nghiệp vụ.
+  Khung \texttt{portal\_layout} biết từng màn của Wujia: sidebar có 10 link cứng, bottom-nav 11, và 9/10
+  test của khung gọi template module khác.
+\item[B --- Component.] \textbf{193 nhóm class CSS của từng màn} nằm trong \texttt{portal\_layout} (Đặt hàng 78 ·
+  Home 49 · Kiến thức 23 · …). Ngoài ra \textbf{41 rule} ở các module viết đè dáng component chung.
+\item[C --- Controller.] 89 route. Có lỗ an toàn (upload không kiểm MIME, open redirect, lộ \texttt{str(e)}),
+  và có controller đi tắt qua workflow của model (đổi trả \texttt{write(\{'state'\})} thay vì gọi
+  \texttt{action\_submit()}).
+\end{description}
+
+Cổng là F0--F5 vì đó đúng là những gì các cụm E5--E8 sẽ đụng trực tiếp (CSS layout, override
+component, sidebar/menu). Nếu làm E trước, mỗi cụm phải sửa hai nơi rồi dọn lại lần nữa. Phần
+controller nghiệp vụ và tách phân hệ (F6--F13) không chặn component nên xếp sau cổng. Luật cụm:
+\textbf{xong mỗi khối A hoặc B phải có một phiên review toàn khối} ($\star$), không làm tính năng. Không
+đụng code anh Thái (\texttt{wujia\_franchise*}, \texttt{wujia\_portal\_inspection}, \texttt{wujia\_mobile\_*}).
+Chỗ nào dùng chung với nhóm Khảo sát thì \emph{thu hẹp selector, không xoá}.
+
+\begin{center}
+\small
+\begin{tabular}{llll}
+\toprule
+Phiên & Nội dung & Commit & Số đo chốt \\
+\midrule
+F0 & Công cụ đo + mốc & \texttt{0f44aad} & 520/520 · 205 ô ảnh \\
+F1 & Controller vá an toàn & \texttt{aebcd56} & 534/534 · mutation 11/11 \\
+F2 & CSS 8 màn nhỏ ra khỏi layout & \texttt{dab6f4c} & semdiff 309/309 \\
+F3 & CSS Đặt hàng + Home & \texttt{584e3aa} & semdiff 711/711 \\
+F4 & Duyệt rule viết đè & \texttt{52c7650} & đổi dáng 44 $\to$ 9 \\
+$\star$FR-B & Review khối B & \texttt{099a5a6} & 543/543 · 205 cặp ảnh \\
+F5a & Menu về module sở hữu route & \texttt{099a5a6} & \texttt{nav\_dump} 0 lệch · 571/571 \\
+F5b & Test của khung về đúng chủ & \texttt{33240c0} & DB trắng chỉ khung 129/129 \\
+$\star$FR-A3 & Review cổng $\Rightarrow$ mở Issue List & \texttt{e682d6d} & 25 phép đo Pass · 574/574 \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\section{F0 --- mốc đo trước chuẩn hoá}
+
+F0 không sửa dòng code module nào. Nó dựng hai công cụ báo cáo mà mọi phiên sau đều so với chúng.
+Tên công cụ không mang tiền tố \texttt{wj\_}, theo yêu cầu của chủ dự án.
+\begin{itemize}[nosep]
+\item \texttt{scripts/qa/css\_owner.py}: nhóm CSS nào của màn nào đang nằm trong layout, rule nào của
+  module đè dáng component.
+\item \texttt{scripts/qa/check\_layers.py}: luật tầng ADR-027, chỉ báo cáo.
+\end{itemize}
+DB \texttt{wujia\_f0} được dựng giống UAT (25/25 phiên bản module, có Khảo sát, \texttt{mobile\_core}, MuK). Mốc
+chụp: 205 ô × 2 tài khoản, test 520/520, B4 286/286. Số đếm bằng script thay cho số ước trong plan
+(A 176 $\to$ \textbf{193}, B 30 $\to$ \textbf{41}); chủ dự án chốt dùng số script.
+
+\section{F1 --- Controller vá an toàn và gọi đúng workflow}
+
+\begin{itemize}[nosep]
+\item \textbf{Hỗ trợ}: id rác không còn gây 500, không nhận danh mục đã lưu trữ. Đính kèm chỉ nhận ảnh/PDF
+  $\leq$5MB, $\leq$6 tệp; nếu đính kèm lỗi thì không tạo ticket.
+\item \textbf{Open redirect}: đổi cửa hàng và đổi ngôn ngữ đi qua helper \texttt{safe\_local\_path} ở
+  \texttt{portal\_layout/controllers/utils.py}. Helper đặt ở layout vì layout không depend base.
+\item \textbf{Yêu cầu thông tin}: không còn lộ thông báo lỗi nội bộ; thông báo lỗi trong query string được encode.
+\item \textbf{Đổi trả}: phiếu gửi từ portal đi qua \texttt{action\_submit()}, nên có dòng chatter
+  ``Yêu cầu đã được gửi'' như khi gửi từ backend.
+\end{itemize}
+Số đo: 534/534 (520 + 14 test mới), mutation 11/11 (có 1 mũi lượt đầu còn sống, thêm ca
+\texttt{//evil.com} mới đỏ), \texttt{wj\_measure} 0 thay đổi. \texttt{check\_layers} giảm 4 $\to$ 1 vi phạm: merge
+\texttt{c80a6e2} của anh Thái đã dời mobile sang \texttt{wujia\_mobile\_*}, nên mục D (nghiệp vụ depend
+\texttt{mobile\_core}) đã được giải.
+
+\section{F2, F3 --- CSS của từng màn ra khỏi \texttt{portal\_layout}}
+
+Khuôn chung: dời rule từ \texttt{\_components.css}/\texttt{\_pc\_components.css} lên đầu file CSS của module,
+tức là file nạp \emph{sau} layout. Mỗi lần dời phải chứng minh ``dời CSS là phép giữ nguyên'' bằng ba lớp:
+\begin{itemize}[nosep]
+\item \textbf{semdiff}: bộ (media, selector, prop, value) trước và sau khớp tuyệt đối;
+\item \textbf{cstyle}: computed style của \emph{mọi} phần tử, ép cả \texttt{:hover/:active/:focus};
+\item \texttt{wj\_measure} và ảnh chụp.
+\end{itemize}
+Bộ công cụ nằm ở \texttt{scripts/qa/css\_move/}.
+
+\textbf{F2} dời 70 rule (Kiến thức 34 · Lịch sử 21 · Hỗ trợ 14 · Thông báo 1): semdiff 309/309, cstyle
+2550 phần tử × 28 lượt, 0 khác. Không tách class khỏi \texttt{:is()} ở \texttt{\_interaction.css}, vì độ đặc
+hiệu của \texttt{:is()} bằng đối số mạnh nhất; tách ra là tụt màu hover. Việc này để F4.
+\textbf{F3} dời 160 rule (Đặt hàng 111 $\to$ \texttt{portal\_order.css}, Home 49 $\to$ \texttt{portal\_dashboard.css}):
+semdiff 711/711, cstyle 7030 phần tử × 20 lượt, 0 khác. Nhóm CSS của một màn còn nằm ở layout giảm
+149 $\to$ 46. Luồng giỏ được đo bằng cách dựng giỏ qua \texttt{/cart/add}, \emph{không gửi đơn thật}, để giữ dữ liệu mốc.
+
+\section{F4 --- Duyệt rule module viết đè component}
+
+Bảng \texttt{docs/f4-override-review.md} liệt 44 rule. Mỗi rule được tắt thử trong trình duyệt và chụp
+ảnh (30 ảnh). Phiên dừng giữa chừng để chủ dự án duyệt: hover dùng một màu \texttt{primary-soft}, dọn toàn
+bộ \texttt{:is()}, thêm biến thể eyebrow. Kết quả:
+\begin{itemize}[nosep]
+\item xoá 13 rule chết, đưa 14 rule lệch về chuẩn;
+\item thêm biến thể \texttt{wujia-badge--sm}, \texttt{wj-pc-badge--sm}, \texttt{wj-card-header--eyebrow};
+\item \texttt{\_interaction.css} liệt theo component với class đánh dấu \texttt{wj-state-surface}, không còn theo tên màn.
+\end{itemize}
+Rule đổi dáng giảm \textbf{44 $\to$ 9}; cả 9 là loại giữ lại có ghi chú. Suite 540/540. Còn hai khoản nợ chuyển
+cho FR-B: cỡ đầu bảng PC 16 so với 14, và bề mặt không bấm được vẫn có hover.
+
+\section{$\star$FR-B --- Review toàn khối B (F2 + F3 + F4)}
+
+Đây là lần đầu có một phép đo đi suốt từ F0 tới \texttt{52c7650}, kèm 205 cặp ảnh xem bằng mắt. Có một
+phép chứng minh độc lập nữa: đếm nguyên tử CSS trên 282 file, F2 + F3 cho 121902 $\to$ 121902, 0 thêm, 0 bớt.
+\begin{itemize}[nosep]
+\item \textbf{Nợ (a)}: gốc không phải Vuexy như F4 chẩn đoán, mà là \texttt{table th\{16px !important\}} trong
+  \texttt{style.css}, có \emph{từ commit đầu dự án}. Gỡ hẳn luật này, xoá luôn 4 rule \texttt{!important} chỉ để
+  chống nó. Kết quả \textbf{16/17 bảng PC = 14px}.
+\item \textbf{Nợ (b)}: rút luật từ template \texttt{wj\_surface\_card} (có \texttt{sc\_href} thì là \texttt{<a>}, không
+  thì là \texttt{<div>} thuần), rồi gỡ marker hover ở 40 chỗ. Không đụng dòng CSS nào; không chỗ bấm được
+  nào mất hover.
+\item Thêm 3 guard mới, mutation 3/3. Trả nợ mutation 5 guard D4 (5/5). Bắt 3 con số sai trong nhật ký F4
+  (537 $\to$ 540 test · ``8 màn'' $\to$ 14/17 bảng · ``×33'' $\to$ 40 chỗ).
+\end{itemize}
+Bài học: \texttt{/portal/franchise-information} không có trong danh sách route đo, nên lỗi ở màn này lọt qua cả
+F4 lẫn vòng soi tay. F5a phải vá điểm mù này trước khi đo bất cứ gì.
+
+\section{F5a --- Khung không còn biết route của Wujia}
+
+\textbf{Vá điểm mù mốc đo trước}: kiểm kê bằng máy ra 97 \texttt{@http.route} ở 13 module
+(\texttt{docs/f5-route-inventory.md}). Mốc F5 đo 46 + 28 route, gồm cả \textbf{11 route ép trạng thái rỗng}.
+Công cụ mới \texttt{scripts/qa/nav\_dump.py} đổ ra danh sách \emph{có thứ tự} mọi link điều hướng theo
+route × khổ × tài khoản, thứ mà \texttt{wj\_measure} không đo được.
+
+\textbf{Menu về module sở hữu route}: xoá \texttt{pc\_sidenav.xml} (view priority 99 \texttt{position="replace"} với
+10 link cứng). Khung chỉ còn \texttt{<ul>}, 2 tiêu đề nhóm có \texttt{id} làm neo, và mục Tài khoản. Tổng
+\textbf{24 mục điều hướng đổi chủ}. Ba redirect v14 về module đích, giữ \texttt{301}. \texttt{check\_layers} thêm
+luật \textbf{R6 ``khung không biết route Wujia''}. Số đo: \texttt{nav\_dump} 0 lệch, \texttt{wj\_measure} 0 ô lệch,
+suite 571/571.
+
+Ba bẫy đáng nhớ:
+\begin{itemize}[nosep]
+\item \texttt{<li>} phải nằm trong \emph{arch}, không được sinh lúc render. Nếu sinh lúc render thì neo xpath của
+  anh Thái không tìm thấy gì và \emph{mọi trang 500}.
+\item Nút ``Thêm'' phải dùng \emph{cờ}, không dùng danh sách tiền tố, vì \texttt{/portal} là tiền tố của mọi route.
+\item Xoá view khỏi data file phải kèm \texttt{migrations/pre-*.py}, vì Odoo chỉ dọn record mồ côi ở \emph{cuối}
+  lượt nạp.
+\end{itemize}
+Đính chính plan: sidebar PC vốn có \textbf{11 mục}. Mục Khảo sát của anh Thái có priority 101 > 99 nên không
+bị \texttt{replace} nuốt.
+
+\section{F5b --- Test của khung về đúng chủ}
+
+Công cụ AST \texttt{scripts/qa/test\_ownership.py} cho biết mỗi hàm test đọc module nào. Kết quả: khung có
+329 test / 711 assert, trong đó \textbf{236 test / 517 assert} là cross-module. Plan ghi 94 vì chỉ đếm trong
+thân hàm, bỏ sót hằng cấp class như \texttt{CALL\_SITES}. Phân loại từng test:
+\begin{itemize}[nosep]
+\item 40 test ở lại khung, chạy trên fixture tự dựng;
+\item 24 test về module sở hữu màn;
+\item 155 test quét nhiều module về \texttt{wujia\_portal\_base}, giữ nguyên một hàm;
+\item 17 guard màn Khảo sát gom vào \texttt{test\_handover\_inspection.py} để bàn giao cho anh Thái.
+\end{itemize}
+
+\textbf{Phép đo quyết định}: DB tạo mới \emph{chỉ cài} \texttt{portal\_layout} cho 0 failed / 129 test. Trước
+phiên này, phép đo đó không chạy nổi. Chính nó bắt 2 lỗi mà suite 572 test trên DB đủ module không bao giờ thấy:
+\begin{itemize}[nosep]
+\item khung inherit \texttt{http\_routing.404} mà không khai depend \texttt{http\_routing};
+\item test ngôn ngữ giả định \texttt{vi\_VN} đã bật sẵn.
+\end{itemize}
+Assert \emph{không giảm}: 1548 $\to$ 1549. Cross-module của khung giảm 236 $\to$ 0. Bẫy: công cụ đếm phải bỏ
+docstring, vì câu ``đã dời sang \texttt{portal\_base}'' trong mô tả từng bị tính là phụ thuộc.
+
+\section{$\star$FR-A3 --- Review cổng: mở lại Issue List}
+
+Lần đầu đo đi suốt mốc F0 $\to$ \texttt{33240c0} với độ phủ đầy đủ (bộ F0 26+15 route × 5 khổ, bộ F5
+46+28 route × 2 khổ, cộng ảnh). \textbf{Kết luận: cổng ĐẠT, mở lại Issue List} theo thứ tự
+E4b $\to$ E4c $\to$ E5 $\to$ E6 $\to$ E7 $\to$ E8.
+\begin{itemize}[nosep]
+\item \textbf{25 phép đo Pass}: suite 574/574 · DB trắng chỉ khung 129/129 · B4 286/286 · mốc F5 $\to$ HEAD 0 lệch ·
+  148 cặp ảnh 0 khác biệt chưa duyệt · mutation xuyên khối \textbf{10/10}. Phiên này trả nợ mutation cho
+  F1, FR-B, F5a, F5b.
+\item \textbf{2 lỗi tầng thật, có từ trước cụm F, chưa công cụ nào thấy}: \texttt{portal\_base} (L3a) gọi method
+  của \texttt{portal\_order\_window} (L3b), nên Home 500 khi cài riêng; khung gọi
+  \texttt{\_get\_accessible\_franchise\_ids} của \texttt{wujia\_franchise}, nên ảnh ACL 500. Vá bằng guard
+  \texttt{hasattr}/\texttt{getattr}, \emph{không thêm depend} (thêm depend là vi phạm tầng thật).
+\item \texttt{check\_layers} thêm luật \textbf{R7}: quét AST tìm lời gọi method của module không depend mà
+  không có guard. Đây là chỗ mù của R1--R5, vốn chỉ đọc manifest.
+\item 5/6 cờ HIERARCHY ở trạng thái rỗng là \textbf{thước đo báo nhầm} (khối rỗng căn giữa không phải
+  ``nhãn phụ''), chứng minh bằng ảnh và không sửa pixel. Chỉ 1 lỗi thật:
+  \texttt{wj-exam-pc-sectitle--sm} 18 $\to$ 16px.
+\end{itemize}
+
+\section{Tổng kết cổng F}
+
+\begin{center}
+\small
+\begin{tabular}{lrr}
+\toprule
+Chỉ số & Mốc F0 (17/09) & Sau $\star$FR-A3 (18/09) \\
+\midrule
+Nhóm CSS của 1 màn nằm trong \texttt{portal\_layout} & 193 & 26 (đều có giải trình) \\
+Rule module đổi dáng component chung & 41 & 8 \\
+Link điều hướng cứng trong khung & 28 & 0 (24 mục đổi chủ) \\
+Test cross-module trong khung & 236 & 0 \\
+DB trắng chỉ cài khung & không chạy nổi & 129/129 \\
+Suite portal & 520 & 574 \\
+Luật \texttt{check\_layers} & R1--R5 & R1--R7 \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\subsection*{Bài học}
+\begin{enumerate}
+\item \textbf{Chỗ mù của công cụ là chỗ lỗi trốn.} Hai lỗi 500 sống qua 7 phiên vì \texttt{check\_layers} chỉ đọc manifest.
+\item \textbf{Cài module một mình} là phép đo rẻ nhất mà mạnh nhất: 2 lỗi tầng và 1 khoản nợ đều lộ ra từ một lệnh.
+\item \textbf{Máy báo lỗi chưa chắc là có lỗi}: tin 5 ô HIERARCHY mà sửa là phá một thiết kế Figma đã duyệt.
+\item \textbf{Đếm lại bằng máy}: plan và nhật ký sai ít nhất 7 con số (A 176/193, B 30/41, test cross 94/236,
+  sidebar 10/11, 537/540, ``×33''/40, EmptyState 124/92). Mọi con số chốt phải do script ra.
+\end{enumerate}
+
+\subsection*{Nợ và nhánh sau cổng}
+\begin{itemize}[nosep]
+\item \texttt{wujia\_portal\_base} chưa tự test được một mình (41 failed / 81 error trên DB chỉ có base), và DB trắng
+  chỉ khung còn 1 error \texttt{test\_fra3\_layer\_guard}. Cả hai đi vào \textbf{F6}.
+\item 148 dòng comment nhắc mã phiên trong 14 module. Luật đề xuất: comment nói \emph{vì sao}, không nói \emph{phiên nào}.
+\item 8 mục cần báo anh Thái: file bàn giao Khảo sát · R3 chéo kênh · R7 \texttt{\_wj\_ensure\_contract} ·
+  \texttt{auto\_install} · test \texttt{\_\_init\_\_} import file đã xoá · …
+\item Nhánh sau cổng, chạy xen kẽ với Issue List: \textbf{F6} controller Đặt hàng mỏng (luật số lượng một nguồn,
+  giỏ và submit về model) $\to$ F7 pilot tách \texttt{order\_window} $\to$ $\star$FR-P $\to$ F8--F13 tách phân hệ
+  $\to$ $\star$FR-A.
+\end{itemize}
