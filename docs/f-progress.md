@@ -1320,8 +1320,11 @@ rồi đánh ✅ ở bảng Trạng thái §2 `docs/next-session-clusters-F.md`.
   - 10 test cho khung giờ (trước đó 0 test tạo khung giờ) + 1 test portal_sale.
   - Công cụ `scripts/qa/split_snapshot.py` (chụp + diff có `--rename`) cho F8–F13.
   - Chapter 74 §Quy trình tách viết lại theo thực tế.
-- Commit: chưa commit.
-- Deploy: chưa. Lệnh: `-i wujia_order_window -u wujia_portal_order_window,wujia_portal_sale` → đo 0 xmlid vỏ → Uninstall vỏ.
+- Commit: `6b2938d` (đã push `main`).
+- Deploy: UAT 25/09 (`-i wujia_order_window -u wujia_portal_order_window,wujia_portal_sale`). Đo chỉ-đọc qua RPC:
+  3 version đúng · 36 xmlid + 6 ràng buộc thuộc module mới, vỏ 0 · 2 khung giờ, 3 tham số, 2 menu, 2 ACL, nhãn `vi_VN`
+  giống trước deploy · form Settings + list/form khung giờ mở được · không module nào depend vỏ. **Chờ chủ dự án
+  Uninstall vỏ trên Apps** rồi đo lần cuối.
 - Số đo: 42 dòng đổi chủ (36 xmlid + 6 ràng buộc), **1 lệch có giải trình** (view Settings đổi `name` app/block), gỡ vỏ
   **0 lệch**, 0 ERROR · suite 15 module portal + `wujia_order_window` **833, 0 đỏ** (F6 822) · DB trắng chỉ module mới
   **10/10** · HTML 5 route HEAD ↔ F7 **giống từng byte**, bundle CSS/JS cùng md5 · mutation **5/5** · `check_layers`
@@ -1331,5 +1334,39 @@ rồi đánh ✅ ở bảng Trạng thái §2 `docs/next-session-clusters-F.md`.
   Hook Khảo sát không còn được nối ở manifest (`ec6d380`).
 - Nợ để lại: xoá thư mục vỏ ở FR-P (sau khi UAT gỡ) · bàn giao anh Thái 2 mục (hook Khảo sát không nối; 46 dòng
   ràng buộc Khảo sát vẫn ghi `wujia_franchise`) · 1 error có sẵn `test_wujia_supply_demand_report` (không chạy trong suite portal).
-- Phiên kế: **★FR-P** — review pilot (prompt §3 "phiên review ★"): đo lại trên UAT sau deploy (version + menu + 0 xmlid vỏ +
-  Uninstall), rà diff, xoá thư mục vỏ. Hoặc phân cụm 7 issue STT 140–146 nếu chủ dự án ưu tiên Issue List.
+- Phiên kế: **★FR-P** — review pilot (prompt §3 "phiên review ★"): xác nhận vỏ đã Uninstall trên UAT (đo lại 36 xmlid +
+  6 ràng buộc module mới), rà diff, xoá thư mục vỏ. Hoặc phân cụm 7 issue STT 140–146 nếu chủ dự án ưu tiên Issue List.
+
+## ★FR-P — Review pilot F7 · 25–26/09/2026 · Mac
+- Kết quả: ✅ xong — **ĐẠT, nhân quy trình sang F8 được** (điều kiện: chốt nợ `ref()` xmlid mobile Thái trước F8/F12).
+  Review: `docs/f-review-FR-P.md`. Chủ dự án nhấn mạnh soi tuân thủ tầng nghiệp vụ–portal–mobile: **0 vi phạm** (bảng §3).
+- Đã làm:
+  - UAT: đo trước chỉ-đọc (vỏ 0 xmlid/0 cons/0 dependents) → chủ dự án duyệt → **gỡ vỏ qua RPC** `button_immediate_uninstall`
+    (lời gọi ghi duy nhất, 6.4 s) → đo sau: 0 lệch với mốc F7 ngoài `state` vỏ.
+  - Repo: xoá `custom/wujia_portal_order_window`; `check_layers` `DEPRECATED = set()` (34 module, 2 vi phạm R3 Thái);
+    **`deploy.yml` còn `-i/-u` vỏ (F7 bỏ sót) → đổi**; bảng "tên cũ còn đâu" trong review.
+  - **Dời `migrate_ownership` về L1** `wujia_core/tools/module_split.py` (chốt) + chặn module đích không tồn tại + helper
+    **`imd_names`** suy xmlid theo model (model/field/selection/inherit/constraint/access/rule/view/action/srv/cron/tpl/seq).
+  - Sửa test `test_split_ownership`: dòng module giả (DB trắng không có dòng vỏ → F7 chỉ Pass vì vỏ còn trên đĩa) + test
+    helper phủ 36/36 xmlid F7. Comment L2 nhắc controller → bỏ.
+  - `split_snapshot.py` +7 nhóm (inherit · sel · cron · tpl · srv · attach · rule theo module).
+  - Thử tách MỘT PHẦN `info_request` trên `wujia_frp_trial`: helper 72/75 (3 dư = QWeb portal phải ở lại), 80 dòng đổi chủ,
+    0 lệch thật, `number_next` giữ.
+  - Chapter 74 §Quy trình tách 4 chỗ + số đo FR-P; build PDF.
+- Commit: chưa (hỏi cuối phiên) — gồm cả `f-progress.md` mục F7 (deploy) sửa local từ phiên trước.
+- Deploy: chưa. Khi được yêu cầu: `git pull` + `-u wujia_core,wujia_order_window` (không `--test-enable`).
+- Số đo: UAT 36 xmlid + 6 cons + 2 khung + 3 tham số + 2 menu + 2 ACL y hệt · `check_layers` 2 (Thái) · R6 0 · R7 2 (Thái) ·
+  `-u` DB copy 0 ERROR · suite **834, 0 đỏ** (F7 833 + 1) · snapshot vs `f7r2/u.json` 0 lệch · DB trắng **11/11** (trước sửa
+  1 error) · trial 80 đổi chủ / 0 lệch · mutation M3 trên helper đã dời **đỏ đúng**.
+- Lệch plan / quyết định mới: `-u wujia_core --test-enable` kéo nạp test `wujia_franchise` (import file đã xoá) → 2 lượt
+  chết 255; chỉ `-u wujia_order_window`. `ir_cron` Odoo 19 không có `name`/`model_id` (kế thừa `ir.actions.server`) — sửa cả
+  helper lẫn snapshot. Hai Bash song song dùng chung cwd → đường dẫn tuyệt đối.
+- Nợ để lại: (1) **`ref()` xmlid `wujia_portal_<x>.*` trong `wujia_mobile_portal_info_request`/`_exam` (Thái) — chốt sửa
+  nguồn hay alias `ir_model_data` trước F8/F12**; (2) dư âm tên portal trong L2 (ICP `wujia_portal.*`, field
+  `portal_order_time_*`, app/menu "Wujia Portal", xmlid view) — cần migration nếu đổi; (3) hook Khảo sát không nối + 46 cons
+  `wujia_franchise` (bàn giao Thái); (4) `test_wujia_supply_demand_report` error có sẵn.
+- Issue List (reconcile 7 issue STT 140–146): `grep custom/` + ledger = 0; `git log -S` chỉ bắt commit docs ⇒ **chưa có code**,
+  chưa phân cụm. Toàn UI: 140 badge topbar PC · 141 store switcher mobile · 142 Home PC redesign (lớn) · 143+144 mật độ
+  header/spacing `/portal/order` mobile · 145 bottom-nav 83px · 146 routing `/` → login (Suggestion).
+- Phiên kế: đề xuất **Issue List cụm nhỏ trước** (143 + 144 + 145 cùng một chủ đề "mật độ mobile", 1 phiên; 140 + 141 phiên
+  hai; 142 cần BA duyệt mockup; 146 hỏi BA) rồi **F8 `info_request`** — việc cần biết trước: chốt nợ (1) với anh Thái.

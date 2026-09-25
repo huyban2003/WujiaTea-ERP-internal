@@ -56,7 +56,7 @@ class ResConfigSettings(models.TransientModel):
             'from': _to_float(CONFIG_KEY_FROM, DEFAULT_FROM),
             'to': _to_float(CONFIG_KEY_TO, DEFAULT_TO),
             'enabled': ICP.get_param(CONFIG_KEY_ENABLED, 'True') in ('True', 'true', '1', True),
-            # False = chưa có ai lưu config → controller hiện ORDER_TIME_NOT_CONFIGURED (BA row 2).
+            # False = chưa ai lưu cấu hình chung; nơi gọi tự quyết cách báo "chưa cấu hình".
             'configured': ICP.get_param(CONFIG_KEY_FROM) not in (False, None, ''),
         }
 

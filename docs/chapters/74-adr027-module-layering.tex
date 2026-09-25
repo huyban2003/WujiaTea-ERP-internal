@@ -315,13 +315,20 @@ nhóm quyền, rule biến mất, sequence mã phiếu chạy lại từ đầu,
   học ADR-015).
 \item \texttt{hooks.py} + \texttt{'pre\_init\_hook'} \textbf{khai trong manifest và import ở
   \texttt{\_\_init\_\_.py}}. Hook khuôn Khảo sát hiện không còn được nối (gỡ khỏi manifest ở
-  \texttt{ec6d380}, 16/09), nên chép file thôi thì hook không chạy. Hàm
-  \texttt{migrate\_ownership(cr, old, new, names, models)} đổi chủ ba chỗ:
+  \texttt{ec6d380}, 16/09), nên chép file thôi thì hook không chạy. Tiện ích dùng chung nằm ở L1:
+  \texttt{from odoo.addons.wujia\_core.tools.module\_split import imd\_names, migrate\_ownership}
+  (FR-P dời từ \texttt{wujia\_order\_window/hooks.py}). \texttt{migrate\_ownership(cr, old, new,
+  names, models)} đổi chủ ba chỗ (và từ chối chạy khi \texttt{new} chưa có trong
+  \texttt{ir\_module\_module} --- không thì ràng buộc bị gán chủ NULL trong im lặng):
   \begin{itemize}
   \item \texttt{ir\_model\_data}: \texttt{names=None} chuyển \emph{tất cả} (module cũ bị rút hết,
-    như F7); tách một phần (F8+) thì truyền danh sách. Đừng quên xmlid của field trên model
-    \emph{kế thừa} (F7 có 7: \texttt{res.config.settings}, \texttt{sale.order}, kể cả
-    \texttt{display\_name}/\texttt{id}) và \texttt{model\_<model kế thừa>}.
+    như F7); tách một phần (F8+) thì \texttt{names=imd\_names(cr, old, models, extra=[menu, group,
+    dữ liệu mẫu])} --- helper suy xmlid của model/field/selection/inherit/constraint/access/rule/
+    view/action/server action/cron/mail.template/sequence gắn với \texttt{models} (kể cả model kế
+    thừa như \texttt{sale.order}, chỉ dòng do \texttt{old} sở hữu). Menu/group không có cột model
+    nên liệt kê tay qua \texttt{extra}. Luôn in phần dư \texttt{SELECT name FROM ir\_model\_data
+    WHERE module=old} trừ kết quả helper: FR-P thử trên \texttt{info\_request} ra 72/75, ba dòng dư
+    đúng là ba QWeb template portal phải ở lại; đối chứng F7 36/36.
   \item \texttt{ir\_model\_constraint} và \texttt{ir\_model\_relation}: cột \texttt{module} là
     khoá ngoài tới \texttt{ir\_module\_module}, \emph{không} nằm trong \texttt{ir\_model\_data}.
     Khuôn Khảo sát bỏ sót chỗ này. Đo mutation ở F7: bỏ bước này thì \textbf{không} mất ràng buộc
@@ -335,17 +342,31 @@ nhóm quyền, rule biến mất, sequence mã phiếu chạy lại từ đầu,
   cả hai.
 \item Sửa tham chiếu \texttt{wujia\_portal\_<x>.\ldots} ở module khác, cùng manifest và
   \texttt{import odoo.addons.wujia\_portal\_<x>} (F7: \texttt{portal\_sale} đổi depends +
-  import lớp lỗi \texttt{OrderWindowClosed}), \texttt{reseed\_full.sh/.ps1}.
+  import lớp lỗi \texttt{OrderWindowClosed}), \texttt{reseed\_full.sh/.ps1},
+  \texttt{.github/workflows/deploy.yml} (danh sách \texttt{-i}/\texttt{-u}; FR-P phát hiện F7 bỏ
+  sót). \textbf{Grep cả module mobile của anh Thái}: \texttt{wujia\_mobile\_portal\_info\_request}
+  và \texttt{\_exam} ghi đè action/\texttt{ref()} view bằng xmlid \texttt{wujia\_portal\_<x>.*} ---
+  đổi chủ xmlid xong thì \texttt{ref} ở đó gãy lúc \texttt{-u}. Chốt trước khi làm F8/F12: sửa
+  nguồn mobile (bàn giao) hay giữ xmlid cũ (dòng \texttt{ir\_model\_data} thứ hai trỏ cùng
+  \texttt{res\_id}) --- chưa quyết.
 \item \textbf{Deploy một lệnh:} \texttt{-i wujia\_<x> -u wujia\_portal\_<x>,<module tham chiếu>}.
   Đo F7: chỉ \texttt{-u wujia\_portal\_<x>} (quên \texttt{-i}) cũng tự cài module mới, và
   \texttt{update\_list} cập nhật luôn bảng phụ thuộc từ manifest mới.
 \item \textbf{Chụp mốc sau} rồi so: \texttt{split\_snapshot.py --diff trước sau --rename
   wujia\_portal\_<x>=wujia\_<x>}. Kỳ vọng \emph{chỉ cột module đổi}; mọi dòng ``LỆCH THẬT''
   phải giải trình được (F7: 1 dòng --- view Settings đổi \texttt{name} app/block theo tên module
-  mới).
+  mới). Từ FR-P snapshot đo thêm \texttt{inherit} (\texttt{ir\_model\_inherit}, Odoo 19 có xmlid
+  riêng), \texttt{sel} (giá trị selection), \texttt{cron}/\texttt{tpl}/\texttt{srv},
+  \texttt{attach}, rule theo module --- F7 không gặp vì model không kế thừa mixin, F8 gặp ngay
+  (\texttt{info\_request}: 2 inherit + 14 selection). Route controller không nằm trong DB: kiểm
+  bằng \texttt{controller\_inventory.py}.
 \item \textbf{Gỡ vỏ} (khi module cũ rút hết): đo trên DB copy trước --- \texttt{button\_immediate\_uninstall}
   rồi chụp lần ba, phải 0 lệch. Trên UAT: sau deploy, đo module cũ còn \textbf{0 xmlid} rồi
-  Uninstall một cú trên Apps; xoá thư mục khỏi repo ở phiên review (FR-P) khi mọi DB đã gỡ.
+  Uninstall một cú trên Apps (FR-P làm qua RPC \texttt{button\_immediate\_uninstall}, 6s, chụp
+  lại 0 lệch); xoá thư mục khỏi repo ở phiên review khi mọi DB đã gỡ. Dòng
+  \texttt{ir\_module\_module} của vỏ vẫn còn (\texttt{uninstalled}) trên DB đã cài, nhưng DB trắng
+  thì không --- test nào tra \texttt{id} của vỏ sẽ ngã (FR-P sửa \texttt{test\_split\_ownership}
+  dùng dòng module giả).
 \end{enumerate}
 
 \textbf{Kiểm bằng số, trước và sau, trên DB copy cô lập} (không đụng \texttt{wujia\_tea\_19}):
@@ -359,7 +380,9 @@ hoá hash asset + \texttt{registry\_hash}).
 
 \textbf{Số đo pilot F7:} 42 dòng đổi chủ (36 xmlid + 6 ràng buộc), 1 lệch có giải trình, gỡ vỏ
 0 lệch, 0 ERROR khi nâng cấp; suite 833 test 0 đỏ; DB trắng 10/10; HTML 5/5 route giống từng
-byte; mutation 5/5 đỏ.
+byte; mutation 5/5 đỏ. \textbf{FR-P (26/09):} UAT gỡ vỏ xong, đo lại 0 lệch; thư mục vỏ xoá;
+\texttt{check\_layers} 0 vi phạm phía Dev; thử tách một phần \texttt{info\_request} trên DB copy:
+80 dòng đổi chủ, 0 lệch thật, sequence giữ nguyên.
 
 \section{Lộ trình}
 

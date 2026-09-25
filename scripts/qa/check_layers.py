@@ -42,7 +42,7 @@ PENDING_SPLIT = {
 }
 
 # vỏ rỗng sau khi tách, chờ Uninstall rồi xoá thư mục — không xét luật tầng
-DEPRECATED = {'wujia_portal_order_window'}
+DEPRECATED = set()
 
 THAI = {
     'wujia_franchise', 'wujia_franchise_contract', 'wujia_franchise_inspection',
@@ -163,7 +163,7 @@ def check_runtime_calls(deps):
     """R7 — gọi method của module KHÔNG depend thì phải có guard (FR-A3).
 
     `check_layers` vốn chỉ đọc `__manifest__.py`, nên một call chéo tầng lúc chạy đi lọt:
-    `portal_base` (L3a) gọi `_is_within_order_window` của `portal_order_window` (L3b) và
+    `portal_base` (L3a) gọi `_is_within_order_window` của `wujia_order_window` (L2, cấm thêm depend) và
     `portal_layout` (khung) gọi `_get_accessible_franchise_ids` của `wujia_franchise`
     (nghiệp vụ) — cài module một mình là `AttributeError` → 500. Không cấm gọi (thêm
     depend mới là vi phạm R2/R5 thật sự), chỉ đòi `hasattr`/`getattr` bọc quanh.

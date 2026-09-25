@@ -19,6 +19,11 @@ Tách `wujia_portal_<x>` → `wujia_<x>` chỉ được phép đổi CỘT MODUL
   icp        ir_config_parameter theo tiền tố
   group      số user của mọi group dùng trong acl/rule/menu
   seq        ir_sequence theo code (number_next)
+  inherit    ir_model_inherit của model (Odoo 19 có xmlid riêng, F8+ phải chuyển)
+  sel        giá trị selection của field thuộc model (xmlid riêng)
+  cron/tpl/srv  ir_cron · mail_template · ir_act_server trỏ tới model
+  attach     số ir_attachment theo res_model
+  Route controller không nằm trong DB — kiểm bằng scripts/qa/controller_inventory.py.
 
     python3 scripts/qa/split_snapshot.py --db wujia_f7 \
         --modules wujia_portal_order_window,wujia_order_window \
@@ -103,7 +108,8 @@ def snapshot(args):
                          left join res_groups g on g.id = a.group_id where im.model in {lst(models)}"""):
         put('acl', r[0], r[1:])
     for r in q(args, f"""select json_agg(json_build_array(r.name, im.model, r.domain_force, r.active, r.global))
-                         from ir_rule r join ir_model im on im.id = r.model_id where im.model in {lst(models)}"""):
+                         from ir_rule r join ir_model im on im.id = r.model_id where im.model in {lst(models)}
+                            or r.id in (select res_id from ir_model_data where model = 'ir.rule' and module in {lst(mods)})"""):
         put('rule', r[0] or '', r[1:])
 
     menu_sql = f"""
@@ -150,6 +156,29 @@ def snapshot(args):
     for r in q(args, f"""select json_agg(json_build_array(code, number_next, prefix, padding, active))
                          from ir_sequence where code in {lst(args.seq)}"""):
         put('seq', r[0], r[1:])
+
+    # Odoo 19: inherit + selection có xmlid riêng — F7 không gặp (model không kế thừa mixin), F8+ có
+    for r in q(args, f"""select json_agg(json_build_array(im.model, p.model, pf.name))
+                         from ir_model_inherit i join ir_model im on im.id = i.model_id
+                         join ir_model p on p.id = i.parent_id left join ir_model_fields pf on pf.id = i.parent_field_id
+                         where im.model in {lst(models)}"""):
+        put('inherit', '%s<%s' % (r[0], r[1]), r[2])
+    for r in q(args, f"""select json_agg(json_build_array(f.model, f.name, s.value, s.name->>'en_US', s.name->>'vi_VN', s.sequence))
+                         from ir_model_fields_selection s join ir_model_fields f on f.id = s.field_id
+                         where f.model in {lst(models)}"""):
+        put('sel', '%s.%s=%s' % (r[0], r[1], r[2]), r[3:])
+    for group, table, flag in (('tpl', 'mail_template', 't.active'), ('srv', 'ir_act_server', 't.state')):
+        for r in q(args, f"""select json_agg(json_build_array(t.id, t.name->>'en_US', {flag}))
+                             from {table} t join ir_model im on im.id = t.model_id where im.model in {lst(models)}"""):
+            put(group, r[0], r[1:])
+    # ir_cron kế thừa ir.actions.server (Odoo 17+): tên + model nằm ở ir_act_server
+    for r in q(args, f"""select json_agg(json_build_array(t.id, a.name->>'en_US', t.active, t.interval_number, t.interval_type))
+                         from ir_cron t join ir_act_server a on a.id = t.ir_actions_server_id
+                         join ir_model im on im.id = a.model_id where im.model in {lst(models)}"""):
+        put('cron', r[0], r[1:])
+    for r in q(args, f"""select json_agg(json_build_array(res_model, n)) from
+                         (select res_model, count(*) n from ir_attachment where res_model in {lst(models)} group by 1) x"""):
+        put('attach', r[0], r[1])
     return snap
 
 
