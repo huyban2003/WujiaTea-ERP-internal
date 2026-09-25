@@ -51,7 +51,8 @@
                 <!-- Avatar (dropdown profile / change-password / logout, như desktop). -->
                 <div class="dropdown dropdown-user wujia-mheader-action-wrap">
                     <a class="wujia-mheader-action wujia-mheader-avatar dropdown-toggle" href="#"
-                       data-toggle="dropdown" aria-label="Tài khoản">
+                       data-toggle="dropdown" role="button" aria-label="Tài khoản"
+                       aria-haspopup="true" aria-expanded="false">
                         <!-- UI-04 (Sprint 34): real photo when uploaded, else generic user
                              icon (image_128 is False for portal users w/o avatar; avatar_128
                              always returns Odoo's initials placeholder so can't gate on it). -->
@@ -67,9 +68,8 @@
                             <circle cx="12" cy="7" r="4"/>
                         </svg>
                     </a>
-                    <!-- Figma Mobile_Account_Info màn 04 "Avatar menu pop-up": header
-                         (tên + email) + 4 item VN + Đăng xuất đỏ. Mobile-only (header
-                         d-lg-none); desktop dropdown (layout_top_navbar) GIỮ NGUYÊN. -->
+                    <!-- Figma Mobile_Account_Info màn 04 "Avatar menu pop-up": đầu menu (tên + email)
+                         riêng của mobile; thân menu dùng chung với PC (wj_acct_menu_items, CMP-SN-001). -->
                     <div class="dropdown-menu dropdown-menu-right wujia-mheader-menu">
                         <div class="wujia-mheader-menu-head">
                             <span class="wujia-mheader-menu-name" t-out="request.env.user.name"/>
@@ -77,25 +77,7 @@
                                   t-out="request.env.user.partner_id.email or request.env.user.login"/>
                         </div>
                         <div class="dropdown-divider"/>
-                        <a class="dropdown-item" href="/portal/profile">
-                            <i class="feather icon-user"/>
-                            Thông tin tài khoản
-                        </a>
-                        <!-- F5a: mục "Thông tin cửa hàng" do wujia_portal_base chèn (neo: /portal/change-password). -->
-                        <a class="dropdown-item" href="/portal/change-password">
-                            <!-- chìa khoá — feather subset thiếu glyph 'key' → inline SVG (feather key path). -->
-                            <svg class="wujia-menu-svg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"
-                                 fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                                 stroke-linejoin="round" aria-hidden="true">
-                                <path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4"/>
-                            </svg>
-                            Đổi mật khẩu
-                        </a>
-                        <div class="dropdown-divider"/>
-                        <a class="dropdown-item wujia-mheader-menu-logout" href="/portal/logout">
-                            <i class="feather icon-log-out"/>
-                            Đăng xuất
-                        </a>
+                        <t t-call="wujia_portal_layout.wj_acct_menu_items"/>
                     </div>
                 </div>
             </div>

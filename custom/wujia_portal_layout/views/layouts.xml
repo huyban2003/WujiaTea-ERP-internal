@@ -85,9 +85,9 @@
                                 <!-- Avatar dropdown — Figma wujia_pc_09_avatar_dropdown_v3.
                                      Active item suy từ request.httprequest.path. -->
                                 <li class="dropdown dropdown-user nav-item">
-                                    <t t-set="cur_path" t-value="request.httprequest.path"/>
                                     <a class="dropdown-toggle nav-link dropdown-user-link" href="#"
-                                       data-toggle="dropdown">
+                                       data-toggle="dropdown" role="button" aria-label="Tài khoản"
+                                       aria-haspopup="true" aria-expanded="false">
                                         <!-- UI-03 (cụm B): avatar đứng TRƯỚC tên theo source v1.5.
                                              Đảo DOM chứ không dùng `order` để thứ tự đọc màn hình
                                              khớp thứ tự nhìn thấy. -->
@@ -119,24 +119,7 @@
                                             </div>
                                         </div>
                                         <div class="dropdown-divider"/>
-                                        <a t-attf-class="dropdown-item #{cur_path == '/portal/profile' and 'is-active' or ''}"
-                                           href="/portal/profile">
-                                            <i class="feather icon-user"/>
-                                            Thông tin tài khoản
-                                        </a>
-                                        <!-- F5a: mục "Thông tin cửa hàng" là route của
-                                             wujia_portal_base ⇒ module đó tự chèn vào đây
-                                             (trước mục Đổi mật khẩu). Khung không biết route. -->
-                                        <a t-attf-class="dropdown-item #{cur_path == '/portal/change-password' and 'is-active' or ''}"
-                                           href="/portal/change-password">
-                                            <i class="feather icon-lock"/>
-                                            Đổi mật khẩu
-                                        </a>
-                                        <div class="dropdown-divider"/>
-                                        <a class="dropdown-item wj-pc-acct-menu__logout" href="/portal/logout">
-                                            <i class="feather icon-log-out"/>
-                                            Đăng xuất
-                                        </a>
+                                        <t t-call="wujia_portal_layout.wj_acct_menu_items"/>
                                     </div>
                                 </li>
                             </ul>

@@ -16,3 +16,4 @@ from . import test_e5_list_card
 from . import test_e6_button
 from . import test_e7_page_container
 from . import test_e8_sidebar
+from . import test_e8c_account_menu

@@ -1,19 +1,46 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
 
-    <!-- F5a — /portal/franchise-information là route của wujia_portal_base, nên MỌI
-         chỗ điều hướng tới nó đều do module này chèn, kể cả hai chỗ trên khổ PC:
-         dropdown avatar ở navbar và thẻ nav trái của shell Tài khoản.
-         Gỡ wujia_portal_base ⇒ hai mục biến mất, khung không gãy. -->
-
-    <template id="navbar_franchise_information"
-              inherit_id="wujia_portal_layout.layout_top_navbar"
+    <!-- CMP-SN-001 — nhóm cửa hàng trong menu avatar (một inherit cho cả PC lẫn mobile vì
+         thân menu là partial chung wj_acct_menu_items). Route /portal/franchise-information là
+         của module này nên mục "Hồ sơ cửa hàng" do module này chèn; gỡ module ⇒ nhóm biến mất,
+         khung không gãy. Biến cửa hàng/vai trò đến từ app_layout_inherit_store_picker. -->
+    <template id="acct_menu_store"
+              inherit_id="wujia_portal_layout.wj_acct_menu_items"
               priority="20"
-              name="Wujia PC Navbar — Thông tin cửa hàng">
-        <xpath expr="//div[hasclass('wj-pc-acct-menu')]/a[@href='/portal/change-password']"
-               position="before">
-            <a t-attf-class="dropdown-item #{cur_path == '/portal/franchise-information' and 'is-active' or ''}"
-               href="/portal/franchise-information">
+              name="Wujia Avatar — nhóm cửa hàng">
+        <xpath expr="//div[@data-wj-anchor='acct_store_end']" position="before">
+            <!-- info-request là màn con của Hồ sơ cửa hàng (BA: active đúng module cha). -->
+            <t t-set="_am_store_on"
+               t-value="_am_path == '/portal/franchise-information' or _am_path.startswith('/portal/info-request')"/>
+            <t t-set="_am_multi" t-value="_wujia_accessible_ids and len(_wujia_accessible_ids) &gt; 1"/>
+            <!-- Không cửa hàng nào ⇒ nhóm rỗng: không để hai divider liền nhau. -->
+            <div t-if="_wujia_active_fid or _am_multi" class="dropdown-divider"/>
+            <div t-if="_wujia_active_franchise" class="wj-acct-menu__store" role="group" aria-label="Cửa hàng hiện tại">
+                <span class="wj-acct-menu__label" aria-hidden="true">Cửa hàng hiện tại</span>
+                <span class="wj-acct-menu__store-row">
+                    <span class="wj-acct-menu__store-name">
+                        <span t-if="_wujia_active_franchise.code" class="wj-acct-menu__store-code"
+                              t-out="_wujia_active_franchise.code"/>
+                        <t t-out="_wujia_active_franchise.name or _wujia_active_franchise.display_name"/>
+                    </span>
+                    <span t-if="_wujia_active_role"
+                          t-attf-class="wujia-store-role-badge wujia-store-role-badge-#{_wujia_active_role} wj-acct-menu__role">
+                        <t t-if="_wujia_active_role == 'manager'">Manager</t>
+                        <t t-elif="_wujia_active_role == 'owner'">Owner</t>
+                        <t t-elif="_wujia_active_role == 'staff'">Staff</t>
+                    </span>
+                </span>
+            </div>
+            <!-- Modal đổi cửa hàng chỉ render khi có >1 cửa hàng (store_picker_modal) ⇒ cùng điều kiện. -->
+            <a t-if="_am_multi"
+               href="#" role="button" data-action="open-store-picker" class="dropdown-item">
+                <i class="feather icon-repeat" aria-hidden="true"/>
+                Đổi cửa hàng
+            </a>
+            <a t-if="_wujia_active_fid"
+               t-attf-class="dropdown-item #{_am_store_on and 'is-active' or ''}"
+               href="/portal/franchise-information" t-att-aria-current="'page' if _am_store_on else None">
                 <svg class="wujia-menu-svg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"
                      fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
                      stroke-linejoin="round" aria-hidden="true">
@@ -21,8 +48,9 @@
                     <path d="M9 22v-4h6v4"/>
                     <path d="M8 6h.01"/><path d="M12 6h.01"/><path d="M16 6h.01"/>
                     <path d="M8 10h.01"/><path d="M12 10h.01"/><path d="M16 10h.01"/>
+                    <path d="M8 14h.01"/><path d="M12 14h.01"/><path d="M16 14h.01"/>
                 </svg>
-                Thông tin cửa hàng
+                Hồ sơ cửa hàng
             </a>
         </xpath>
     </template>
@@ -30,7 +58,7 @@
     <template id="pc_account_nav_franchise_information"
               inherit_id="wujia_portal_layout.pc_account_layout"
               priority="20"
-              name="Wujia PC Tài khoản — mục Thông tin cửa hàng">
+              name="Wujia PC Tài khoản — mục Hồ sơ cửa hàng">
         <xpath expr="//nav[hasclass('wj-pc-acct-nav__list')]/a[@href='/portal/change-password']"
                position="before">
             <a href="/portal/franchise-information"
@@ -44,7 +72,7 @@
                     <path d="M8 10h.01"/><path d="M12 10h.01"/><path d="M16 10h.01"/>
                     <path d="M8 14h.01"/><path d="M12 14h.01"/><path d="M16 14h.01"/>
                 </svg>
-                <span>Thông tin cửa hàng</span>
+                <span>Hồ sơ cửa hàng</span>
             </a>
         </xpath>
     </template>

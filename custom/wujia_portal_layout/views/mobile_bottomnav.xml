@@ -40,20 +40,11 @@
             <div class="wujia-msheet-title">Thêm chức năng</div>
             <div class="wujia-msheet-subtitle">Các tiện ích khác cho cửa hàng</div>
             <div class="wujia-msheet-list">
-                <!-- Dòng của module chèn vào đây, trước dòng Tài khoản. -->
-                <!-- Dòng của layout (route /portal/profile là của chính layout) và là
-                     NEO cuối: module xpath `//a[@href='/portal/profile']` position="before".
-                     Giữ markup thô, không dùng wj_msheet_item, để neo là một phần tử có
-                     thuộc tính bền — neo theo vị trí (`/t[1]`) sẽ đảo ngược thứ tự khi
-                     nhiều module cùng chèn. -->
-                <a href="/portal/profile" class="wujia-msheet-item">
-                    <span class="wujia-msheet-item-icon"><i class="feather icon-user"/></span>
-                    <span class="wujia-msheet-item-text">
-                        <span class="wujia-msheet-item-title">Tài khoản / Cài đặt</span>
-                        <span class="wujia-msheet-item-sub">Hồ sơ cá nhân, mật khẩu, ngôn ngữ</span>
-                    </span>
-                    <i class="feather icon-chevron-right wujia-msheet-item-chevron"/>
-                </a>
+                <!-- CMP-SN-001: dòng của module chèn TRƯỚC neo ẩn `msheet_end`, thứ tự theo
+                     priority. Tài khoản / Hồ sơ cửa hàng nằm ở avatar, không có trong sheet (BA:
+                     tránh trùng). Neo là phần tử có id bền — neo theo vị trí (`/a[1]`) sẽ đảo thứ tự
+                     khi nhiều module cùng chèn. -->
+                <span id="msheet_end" hidden="hidden"/>
             </div>
         </div>
     </template>

@@ -197,3 +197,21 @@
 @media (max-width: 575.98px) {
     .wujia-store-mobile-strip-name { font-size: 14px; }
 }
+
+/* CMP-SN-001 — khối "Cửa hàng hiện tại" trong menu avatar (PC + mobile, acct_menu_store).
+   Chỉ đọc: mã + tên + chip vai trò (màu chip dùng lại .wujia-store-role-badge-<role>). */
+.wj-acct-menu__store { padding-bottom: 8px; }
+.wj-acct-menu__store-row {
+    display: flex; align-items: center; gap: 8px;
+    padding: 0 var(--wj-am-pad-x, 16px);
+}
+.wj-acct-menu__store-name {
+    flex: 1 1 auto; min-width: 0;
+    font-size: 14px; line-height: 20px; font-weight: 700; color: var(--wujia-text-primary);
+    display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
+}
+.wj-acct-menu__store-code { color: var(--wujia-text-subtitle); font-weight: 600; margin-right: 4px; }
+.wj-acct-menu__store .wj-acct-menu__role {
+    flex: 0 0 auto; min-height: 22px; margin-right: 0;
+    padding: 3px 8px; border-radius: 999px; font-size: 12px; line-height: 16px;
+}

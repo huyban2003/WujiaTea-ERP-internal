@@ -18,3 +18,4 @@ from . import test_mobile_rhythm
 from . import test_scan_e5_list_card
 from . import test_scan_e6_button
 from . import test_scan_e7_page_container
+from . import test_e8c_account_menu

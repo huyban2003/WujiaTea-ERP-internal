@@ -8,10 +8,6 @@
               priority="10"
               name="Wujia Sidenav — Trang chủ">
         <xpath expr="//li[@id='nav_header_finance']" position="before">
-            <!-- Id các cửa hàng user là Owner/Manager — dùng chung cho điều kiện quyền của
-                 mục Công nợ và Báo cáo (cùng nguồn membership với controller). -->
-            <t t-set="_nav_mgr_fids"
-               t-value="[m.franchise_id.id for m in request.env.user._get_active_franchise_memberships() if m.role in ('owner', 'manager')]"/>
             <t t-set="ni_active" t-value="_p == '/portal'"/>
             <li t-attf-class="nav-item #{ni_active and 'active' or ''}" id="nav_item_home">
                 <t t-call="wujia_portal_layout.wj_nav_item">

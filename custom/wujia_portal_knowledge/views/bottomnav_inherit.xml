@@ -6,7 +6,7 @@
               inherit_id="wujia_portal_layout.mobile_bottomnav"
               priority="35"
               name="Wujia Mobile — sheet Thêm: Kiến thức">
-        <xpath expr="//a[@href='/portal/profile']" position="before">
+        <xpath expr="//span[@id='msheet_end']" position="before">
             <t t-call="wujia_portal_layout.wj_msheet_item">
                 <t t-set="mi_href" t-value="'/portal/knowledge'"/>
                 <t t-set="mi_icon" t-value="'feather icon-book-open'"/>

@@ -114,16 +114,18 @@
         if (!bell || !popup) return;
         var fetched = false;
         function isDesktop() { return window.matchMedia("(min-width: 992px)").matches; }
-        function close() {
-            popup.classList.remove("is-open");
-            popup.setAttribute("aria-hidden", "true");
+        function setOpen(open) {
+            popup.classList.toggle("is-open", open);
+            popup.setAttribute("aria-hidden", open ? "false" : "true");
+            bell.setAttribute("aria-expanded", open ? "true" : "false");
         }
+        function close() { setOpen(false); }
 
         bell.addEventListener("click", function (e) {
             if (!isDesktop()) return; // mobile → let the link navigate
             e.preventDefault();
-            var open = popup.classList.toggle("is-open");
-            popup.setAttribute("aria-hidden", open ? "false" : "true");
+            var open = !popup.classList.contains("is-open");
+            setOpen(open);
             if (open && !fetched) {
                 fetched = true;
                 jsonRpc("/portal/notification/recent", {})
@@ -142,7 +144,10 @@
             }
         });
         document.addEventListener("keydown", function (e) {
-            if (e.key === "Escape" && popup.classList.contains("is-open")) close();
+            if (e.key === "Escape" && popup.classList.contains("is-open")) {
+                close();
+                bell.focus();
+            }
         });
     });
 })();

@@ -29,6 +29,11 @@
                t-value="request.env['wujia.franchise.member'].sudo().find_active_membership(request.env.user.id, _wujia_active_fid) if _wujia_active_fid else False"/>
             <t t-set="_wujia_active_role"
                t-value="_wujia_active_membership.role if _wujia_active_membership else False"/>
+            <!-- Id các cửa hàng user là Owner/Manager — điều kiện quyền của mục Công nợ và Báo
+                 cáo ở sidebar lẫn sheet "Thêm" (cùng nguồn membership với controller). Đặt ở scope
+                 app_layout để mọi t-call phía sau đọc chung, 1 lần/trang. -->
+            <t t-set="_nav_mgr_fids"
+               t-value="[m.franchise_id.id for m in request.env.user._get_active_franchise_memberships() if m.role in ('owner', 'manager')]"/>
         </xpath>
         <!-- UI-04 mobile sub-strip — full-width below navbar in app-content area.
              Hidden ≥768px via @media in store_picker.css (not Bootstrap utility,

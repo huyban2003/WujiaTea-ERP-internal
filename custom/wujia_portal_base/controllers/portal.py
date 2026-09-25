@@ -561,7 +561,7 @@ class WujiaPortal(CustomerPortal):
         # Hard gate per BA: portal_locked or status != 'active' → block
         if franchise.portal_locked or franchise.status != 'active':
             return request.render('wujia_portal_base.portal_franchise_information_locked', {
-                'title': _('Thông tin cửa hàng'),
+                'title': _('Hồ sơ cửa hàng'),
                 'franchise': franchise,
             })
         Member = request.env['wujia.franchise.member'].sudo()
@@ -574,7 +574,7 @@ class WujiaPortal(CustomerPortal):
         members = Member.search(mdomain, limit=pgn['page_size'],
                                 offset=pgn['offset'], order='role, id')
         return request.render('wujia_portal_base.portal_franchise_information', {
-            'title': _('Thông tin cửa hàng'),
+            'title': _('Hồ sơ cửa hàng'),
             'page_name': 'franchise_information',
             'franchise': franchise,
             'membership': membership_sudo,

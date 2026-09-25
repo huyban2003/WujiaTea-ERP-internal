@@ -19,7 +19,7 @@
                t-value="status_labels.get(franchise.status, franchise.status)"/>
 
             <t t-set="acct_page" t-value="'store'"/>
-            <t t-set="acct_title">Thông tin cửa hàng</t>
+            <t t-set="acct_title">Hồ sơ cửa hàng</t>
             <t t-set="acct_subtitle">Thông tin nhượng quyền theo cửa hàng đang thao tác</t>
             <t t-set="acct_store_code" t-value="franchise.code"/>
             <t t-set="acct_store_name" t-value="franchise.name"/>
@@ -176,7 +176,7 @@
                 <t t-call="wujia_portal_layout.wj_page_header">
                     <t t-set="ph_platform" t-value="'m'"/>
                     <t t-set="ph_variant" t-value="'title'"/>
-                    <t t-set="ph_title">Thông tin cửa hàng</t>
+                    <t t-set="ph_title">Hồ sơ cửa hàng</t>
                 </t>
 
                 <!-- Card: Cửa hàng nhượng quyền -->

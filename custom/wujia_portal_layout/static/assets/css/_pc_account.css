@@ -184,8 +184,9 @@
 .wj-pc-acct-menu .dropdown-item.is-active::after {
     content: ""; position: absolute; right: 0; top: 8px; bottom: 8px; width: 3px; border-radius: 3px; background: var(--wj-pc-primary);
 }
-.wj-pc-acct-menu__logout { color: #EF4444 !important; }
-.wj-pc-acct-menu__logout:hover { background: #FEF2F2 !important; color: #EF4444 !important; }
+.wj-pc-acct-menu { --wj-am-pad-x: 18px; }
+.wj-pc-acct-menu .wj-acct-menu__logout { color: #EF4444 !important; }
+.wj-pc-acct-menu .wj-acct-menu__logout:hover { background: #FEF2F2 !important; color: #EF4444 !important; }
 .wj-pc-acct-menu .dropdown-divider { margin: 0; border-color: var(--wj-pc-border-soft); }
 
 /* Avatar trigger: show name + role subtitle (Figma header).

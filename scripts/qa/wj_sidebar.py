@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Thước đo SidebarNavigation CMP-SN-001 (UI-SIDEBAR-001) — E8b.
+"""Thước đo SidebarNavigation CMP-SN-001 (UI-SIDEBAR-001) — E8b + E8c (avatar, sheet, chuông).
 
     python scripts/qa/wj_sidebar.py --base http://127.0.0.1:8090 --login em.hcm --json out.json
     python scripts/qa/wj_sidebar.py --login cuong.staff --password demo123 --role staff   # không Công nợ/Báo cáo
@@ -17,6 +17,14 @@ Kiểm (mỗi dòng lệch = 1 vi phạm, in cuối cùng; exit 1 nếu có):
   SN-7 HIDDEN   <992: sidebar display:none
   SN-8 A11Y     hamburger <button> có aria-label + aria-controls; đúng 1 .sidenav-overlay
   SN-9 OVERFLOW không tràn ngang
+  E8c (--only acct chạy riêng phần này):
+  SN-10 ACCT    menu avatar PC (1440) + mobile (390) cùng thứ tự BA: Thông tin tài khoản · Đổi mật khẩu ·
+                Ngôn ngữ · [cửa hàng/vai trò · Đổi cửa hàng (chỉ khi >1 cửa hàng) · Hồ sơ cửa hàng] · Đăng xuất;
+                nút avatar có aria-label/haspopup; nút Ngôn ngữ vẫn trên header (CMP-GH-001); chữ các mục thẳng hàng
+  SN-11 SHEET   sheet "Thêm" không có Hồ sơ cửa hàng / Tài khoản; Công nợ + Báo cáo theo quyền như sidebar
+  SN-12 BELL    chuông PC: aria-controls + aria-expanded đổi theo popup; Escape đóng + trả focus về chuông
+  SN-13 STORE   "Đổi cửa hàng" mở modal chọn cửa hàng; "Hồ sơ cửa hàng" sáng ở hồ sơ + info-request
+  SN-14 KEYS    nút avatar PC + mobile: Enter mở menu, Escape đóng, focus về nút, aria-expanded=false
 """
 import argparse
 import json
@@ -62,6 +70,167 @@ ACTIVE = [
     ('/portal/profile', None), ('/portal/change-password', None), ('/portal/franchise-information', None),
 ]
 WIDTHS = (1920, 1440, 1280, 1200, 1199, 1024, 992, 991, 390)
+
+SHEET = ['Công nợ & thanh toán', 'Đổi trả / Bù hàng', 'Đăng ký thi', 'Kiến thức', 'Hỗ trợ', 'Báo cáo', 'Khảo sát']
+
+ACCT = r"""
+(sel) => {
+  const m = document.querySelector(sel);
+  if (!m) return null;
+  const out = [];
+  const text = el => (el.innerText || el.textContent || '').trim().replace(/\s+/g, ' ');
+  const tx = a => {
+    const n = [...a.childNodes].find(c => c.nodeType === 3 && c.textContent.trim()) || a.querySelector('span');
+    if (!n) return null;
+    if (n.nodeType === 3) { const r = document.createRange(); r.selectNodeContents(n); return r.getBoundingClientRect().x; }
+    return n.getBoundingClientRect().x;
+  };
+  for (const c of m.children) {
+    if (c.classList.contains('dropdown-divider') || /menu__head|menu-head/.test(c.className)) continue;
+    if (c.classList.contains('wj-acct-menu__group')) {
+      out.push({k: 'LANG', n: c.querySelectorAll('a[href^="/portal/set-lang/"]').length,
+                cur: c.querySelectorAll('a[aria-current="true"]').length,
+                x: [...c.querySelectorAll('a')].map(tx)});
+    } else if (c.classList.contains('wj-acct-menu__store')) {
+      out.push({k: 'STORE', label: text(c)});
+    } else if (c.tagName === 'A') {
+      out.push({k: text(c), active: c.classList.contains('is-active'), cur: c.getAttribute('aria-current'),
+                action: c.dataset.action || null, x: tx(c)});
+    } else out.push({k: '?' + c.tagName + '.' + c.className});
+  }
+  return out;
+}
+"""
+
+TOGGLES = r"""
+() => {
+  const pc = document.querySelector('.wj-pc-navactions .dropdown-user-link');
+  const mo = document.querySelector('.wujia-mheader .dropdown-user > a');
+  const bell = document.querySelector('[data-wj-noti-bell]');
+  const a = el => el ? {label: el.getAttribute('aria-label'), pop: el.getAttribute('aria-haspopup'),
+                        exp: el.getAttribute('aria-expanded'), ctl: el.getAttribute('aria-controls')} : null;
+  return {pc: a(pc), mobile: a(mo), bell: a(bell),
+          langPc: !!document.querySelector('.wj-pc-navactions li.dropdown-language'),
+          langMobile: !!document.querySelector('.wujia-mheader .dropdown-language'),
+          // sheet đóng = ẩn ⇒ innerText rỗng; lấy text node trực tiếp của tiêu đề (bỏ badge đếm)
+          sheet: [...document.querySelectorAll('.wujia-msheet-list > a')].map(x => {
+            const t = x.querySelector('.wujia-msheet-item-title') || x;
+            const own = [...t.childNodes].filter(c => c.nodeType === 3).map(c => c.textContent).join('').trim();
+            return (own || (t.querySelector('span:not(.wujia-msheet-item-badge)') || t).textContent)
+                     .trim().replace(/\s+/g, ' ');
+          }),
+          focus: document.activeElement ? document.activeElement.getAttribute('data-wj-noti-bell') : null,
+          modal: !!document.querySelector('.wujia-store-overlay--show')};
+}
+"""
+
+
+def expected_acct(multi, has_store):
+    out = ['Thông tin tài khoản', 'Đổi mật khẩu', 'LANG']
+    if has_store:
+        out.append('STORE')
+        if multi:
+            out.append('Đổi cửa hàng')
+        out.append('Hồ sơ cửa hàng')
+    return out + ['Đăng xuất']
+
+
+def check_acct(v, page, base, a):
+    """SN-10…14 — menu avatar, sheet Thêm, chuông, Đổi cửa hàng, bàn phím."""
+    multi = bool(a.store)
+    res = {}
+    for w, sel, opener in ((1440, '.wj-pc-acct-menu', '.wj-pc-navactions .dropdown-user-link'),
+                           (390, '.wujia-mheader-menu', '.wujia-mheader .dropdown-user > a')):
+        page.set_viewport_size({'width': w, 'height': 900 if w > 991 else 844})
+        goto(page, base, '/portal/franchise-information', a.settle)
+        landed = page.url.replace(base, '').split('?')[0]
+        page.click(opener)
+        page.wait_for_timeout(350)
+        items = page.evaluate(ACCT, sel)
+        tg = page.evaluate(TOGGLES)
+        res[w] = {'items': items, 'toggles': tg, 'landed': landed}
+        keys = [i['k'] for i in items]
+        exp = expected_acct(multi, 'STORE' in keys or a.role != 'none')
+        if keys != exp:
+            v.append(f'SN-10 {w} thứ tự avatar {keys} ≠ {exp}')
+        lang = next((i for i in items if i['k'] == 'LANG'), None)
+        if not lang or lang['n'] < 1 or lang['cur'] != 1:
+            v.append(f'SN-10 {w} nhóm Ngôn ngữ {lang}')
+        xs = [round(i['x']) for i in items if i.get('x') and not isinstance(i['x'], list)]
+        xs += [round(x) for i in items if isinstance(i.get('x'), list) for x in i['x'] if x]
+        if xs and max(xs) - min(xs) > 1:
+            v.append(f'SN-10 {w} chữ các mục lệch hàng {sorted(set(xs))}')
+        t = tg['pc'] if w == 1440 else tg['mobile']
+        if not t or not t['label'] or t['pop'] != 'true' or t['exp'] != 'true':
+            v.append(f'SN-10 {w} nút avatar aria {t}')
+        if not (tg['langPc'] and tg['langMobile']):
+            v.append(f'SN-10 nút Ngôn ngữ trên header PC={tg["langPc"]} mobile={tg["langMobile"]}')
+        if landed.endswith('/portal/franchise-information'):
+            hs = next((i for i in items if i['k'] == 'Hồ sơ cửa hàng'), None)
+            if hs and not (hs['active'] and hs['cur'] == 'page'):
+                v.append(f'SN-13 {w} Hồ sơ cửa hàng không sáng ở route của nó {hs}')
+        page.keyboard.press('Escape')
+        page.wait_for_timeout(200)
+        # SN-14 bàn phím: Enter mở, Escape đóng + focus về nút avatar
+        page.focus(opener)
+        page.keyboard.press('Enter')
+        page.wait_for_timeout(300)
+        kb_open = page.evaluate('(s) => { const m = document.querySelector(s); return !!m && m.classList.contains("show") '
+                                '&& m.getBoundingClientRect().height > 0; }', sel)
+        page.keyboard.press('Escape')
+        page.wait_for_timeout(250)
+        kb = page.evaluate('([s, o]) => ({open: document.querySelector(s).classList.contains("show"), '
+                           'focus: document.activeElement === document.querySelector(o), '
+                           'exp: document.querySelector(o).getAttribute("aria-expanded")})', [sel, opener])
+        res[w]['keyboard'] = {'enterOpens': kb_open, **kb}
+        if not kb_open or kb['open'] or not kb['focus'] or kb['exp'] != 'false':
+            v.append(f'SN-14 {w} bàn phím avatar {res[w]["keyboard"]}')
+
+    # SN-11 sheet
+    page.set_viewport_size({'width': 390, 'height': 844})
+    goto(page, base, '/portal/order', a.settle)
+    sheet = page.evaluate(TOGGLES)['sheet']
+    res['sheet'] = sheet
+    exp = [x for x in SHEET
+           if not (x == 'Công nợ & thanh toán' and a.role in ('staff', 'mixed'))
+           and not (x == 'Báo cáo' and a.role == 'staff')
+           and not (x == 'Khảo sát' and 'Khảo sát' not in sheet)]
+    if sheet != exp:
+        v.append(f'SN-11 sheet {sheet} ≠ {exp}')
+
+    # SN-12 chuông
+    page.set_viewport_size({'width': 1440, 'height': 900})
+    goto(page, base, '/portal/order', a.settle)
+    b0 = page.evaluate(TOGGLES)['bell']
+    page.route('**/portal/notification/recent', lambda r: r.fulfill(
+        status=200, content_type='application/json',
+        body='{"jsonrpc":"2.0","id":1,"result":{"notifications":[],"total_unread":0}}'))
+    page.click('[data-wj-noti-bell]')
+    page.wait_for_timeout(300)
+    b1 = page.evaluate(TOGGLES)['bell']
+    page.keyboard.press('Escape')
+    page.wait_for_timeout(200)
+    t2 = page.evaluate(TOGGLES)
+    res['bell'] = [b0, b1, t2['bell'], t2['focus']]
+    if not b0 or b0['ctl'] != 'wj-noti-popup' or b0['exp'] != 'false' or b1['exp'] != 'true' \
+            or t2['bell']['exp'] != 'false' or t2['focus'] != '1':
+        v.append(f'SN-12 chuông {res["bell"]}')
+
+    # SN-13 Đổi cửa hàng + info-request
+    if multi:
+        page.click('.wj-pc-navactions .dropdown-user-link')
+        page.wait_for_timeout(300)
+        page.click('.wj-pc-acct-menu [data-action="open-store-picker"]')
+        page.wait_for_timeout(400)
+        if not page.evaluate(TOGGLES)['modal']:
+            v.append('SN-13 Đổi cửa hàng không mở modal')
+    goto(page, base, '/portal/info-request', a.settle)
+    if page.url.replace(base, '').split('?')[0].endswith('/portal/info-request'):
+        items = page.evaluate(ACCT, '.wj-pc-acct-menu')
+        hs = next((i for i in items if i['k'] == 'Hồ sơ cửa hàng'), None)
+        if hs and not hs['active']:
+            v.append('SN-13 info-request không sáng Hồ sơ cửa hàng')
+    return res
 
 SHELL = r"""
 () => {
@@ -190,6 +359,7 @@ def main():
     ap.add_argument('--json', default='')
     ap.add_argument('--shots', default='')
     ap.add_argument('--quick', action='store_true', help='bỏ SN-5 (32 route)')
+    ap.add_argument('--only', default='', choices=('', 'acct'), help='acct = chỉ SN-10…14 (E8c)')
     a = ap.parse_args()
     base = a.base.rstrip('/')
     v, out = [], {'base': base, 'login': a.login, 'role': a.role}
@@ -203,8 +373,9 @@ def main():
         if a.store:
             ctx.add_cookies([{'name': 'wujia_active_franchise_id', 'value': str(a.store), 'url': base}])
 
+        out['acct'] = check_acct(v, page, base, a)
         out['widths'] = {}
-        for w in WIDTHS:
+        for w in (() if a.only else WIDTHS):
             page.set_viewport_size({'width': w, 'height': 900 if w >= 992 else 844})
             goto(page, base, '/portal/order', a.settle)
             d = page.evaluate(SHELL)
@@ -236,6 +407,10 @@ def main():
                 if d['overlays'] != 1:
                     v.append(f'SN-8 có {d["overlays"]} .sidenav-overlay')
 
+        if a.only:
+            out['jsErrors'] = errs
+            br.close()
+            return finish(v, out, a, errs)
         # SN-3 thứ tự + SN-4 dáng (1440)
         page.set_viewport_size({'width': 1440, 'height': 900})
         goto(page, base, '/portal/order', a.settle)
@@ -332,6 +507,10 @@ def main():
 
         out['jsErrors'] = errs
         br.close()
+    finish(v, out, a, errs)
+
+
+def finish(v, out, a, errs):
     if errs:
         v.append(f'JS {len(errs)} lỗi: {errs[:3]}')
     out['violations'] = v

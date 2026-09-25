@@ -13,9 +13,13 @@
          Hiện `get_summary` là dict thuần (0 query). Khi wire backend thật, số quá
          hạn BẮT BUỘC là field store+index / ormcache / cron daily — không
          search_count mỗi request (1500 portal user, §7 perf-first). -->
+    <!-- CMP-SN-001: priority thấp nhất trong các dòng sheet ⇒ chèn trước neo sớm nhất ⇒ đứng đầu.
+         Hiện theo đúng điều kiện controller (_debt_access), như mục sidebar PC. -->
     <template id="mobile_bottomnav_debt" name="Wujia Mobile — Sheet Thêm: dòng Công nợ"
-              inherit_id="wujia_portal_layout.mobile_bottomnav">
-        <xpath expr="//div[hasclass('wujia-msheet-list')]/a[1]" position="before">
+              inherit_id="wujia_portal_layout.mobile_bottomnav"
+              priority="15">
+        <xpath expr="//span[@id='msheet_end']" position="before">
+          <t t-if="not _wujia_active_fid or _wujia_active_fid in (_nav_mgr_fids or [])">
             <t t-set="_debt_badge"
                t-value="request.env['wujia.portal.debt'].get_shell_badge()"/>
             <!-- Badge nằm TRONG dòng title (không phải con trực tiếp của <a>): shell chạy
@@ -35,6 +39,7 @@
                 </span>
                 <i class="feather icon-chevron-right wujia-msheet-item-chevron"/>
             </a>
+          </t>
         </xpath>
     </template>
 

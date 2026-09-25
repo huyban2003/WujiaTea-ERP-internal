@@ -1727,7 +1727,13 @@ a.wujia-mhome-kpi:active { opacity: 0.85; }
     }
 
     /* ---------- Avatar dropdown menu (màn 04) — header d-lg-none ---------- */
-    .wujia-mheader-menu { min-width: 232px; padding: 0; border-radius: 14px; overflow: hidden; }
+    /* Menu có thêm nhóm Ngôn ngữ + cửa hàng (CMP-SN-001) ⇒ giới hạn chiều cao, cuộn trong menu.
+       Bám `.dropdown` để thắng `.dropdown .dropdown-menu {min-width: 8rem}` của Vuexy (0,2,0). */
+    .dropdown .wujia-mheader-menu {
+        --wj-am-pad-x: 16px;
+        min-width: 264px; padding: 0; border-radius: 14px;
+        max-height: calc(100vh - 112px); overflow-x: hidden; overflow-y: auto;
+    }
     .wujia-mheader-menu-head {
         display: flex;
         flex-direction: column;
@@ -1761,9 +1767,28 @@ a.wujia-mhome-kpi:active { opacity: 0.85; }
         height: 17px;
         color: var(--wujia-morder-text);
     }
-    .wujia-mheader-menu-logout,
-    .wujia-mheader-menu-logout > i { color: var(--wujia-maccount-logout) !important; }
+    .wujia-mheader-menu .wj-acct-menu__logout,
+    .wujia-mheader-menu .wj-acct-menu__logout > i { color: var(--wujia-maccount-logout) !important; }
+    .wujia-mheader-menu .dropdown-item.is-active { background: var(--wujia-primary-soft); color: var(--wujia-primary-dark); }
 }
+
+/* CMP-SN-001 — thân menu avatar dùng chung PC + mobile (wj_acct_menu_items). Đệm ngang lấy từ
+   biến của từng khung menu (--wj-am-pad-x) để nhãn nhóm thẳng hàng với icon của mục. */
+/* Shell Vuexy cho <i> margin-right 7px còn <svg> thì không ⇒ chữ của mục icon font và mục icon
+   SVG lệch 7px. Khoảng cách icon→chữ đã do `gap` của từng khung menu lo. */
+.wj-pc-acct-menu .dropdown-item > i,
+.wujia-mheader-menu .dropdown-item > i { margin-right: 0; }
+.wj-acct-menu__group { padding-bottom: 4px; }
+.wj-acct-menu__label {
+    display: block;
+    padding: 10px var(--wj-am-pad-x, 16px) 4px;
+    font-size: 12px; line-height: 16px; font-weight: 600;
+    color: var(--wujia-text-subtitle);
+}
+.wj-acct-menu__lang .flag-icon { flex: 0 0 18px; width: 18px; line-height: 14px; }
+.wj-acct-menu__lang-name { flex: 1 1 auto; }
+.wj-acct-menu__lang.is-current { font-weight: 700; }
+.wj-acct-menu__check { margin-left: auto; font-size: 16px; color: var(--wujia-primary-dark); }
 
 /* ============================================================
    WJ_PageHeader — component chuẩn hoá header portal (BA CMP-PG-001)
