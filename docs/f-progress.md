@@ -1231,7 +1231,9 @@ rồi đánh ✅ ở bảng Trạng thái §2 `docs/next-session-clusters-F.md`.
   + tên gọi PC↔mobile + deploy E8b+E8c + đo UAT chỉ-đọc (`wj_sidebar --base` UAT) + ledger/`qa_sync` ⇒ Ready for Retest.
 
 ## E8c — `UI-SIDEBAR-001` avatar dropdown · sheet "Thêm" mobile · chuông (25/09/2026 · Mac)
-- Kết quả: ✅ xong lượt code + đo local. **Issue giữ Ready for Dev** tới khi deploy UAT + đo chỉ-đọc + ledger/`qa_sync`.
+- Kết quả: ✅ **xong cụm E8**. Push `main` (`078dfeb`), chủ dự án deploy UAT (lượt 2 — lượt 1 `-u` khi máy chủ chưa có
+  mã, 13/13 module vẫn bản E7b), đo UAT chỉ-đọc `em.hcm` 0 vi phạm, ledger + `qa_sync` ⇒ **`UI-SIDEBAR-001` Ready for Retest**
+  (đã đọc lại CSV đúng dòng STT 131).
   Nghiệm thu: `docs/e8c-acceptance-matrix.md` (12/12 ý "Kết quả mong muốn").
 - Chủ dự án chốt: ngôn ngữ **giữ trên header PC + mobile** (CMP-GH-001) **và** có nhóm trong avatar (huỷ chốt E8a gỡ
   dropdown topbar) · "Thông tin cửa hàng" → **"Hồ sơ cửa hàng"** ở menu + tiêu đề trang.
@@ -1242,7 +1244,7 @@ rồi đánh ✅ ở bảng Trạng thái §2 `docs/next-session-clusters-F.md`.
     info-request); xoá `mheader_inherit.xml`. `_nav_mgr_fids` dời lên `app_layout` (1 lần/trang).
   - Sheet "Thêm": bỏ Hồ sơ cửa hàng + Tài khoản/Cài đặt; neo mới `msheet_end`; Công nợ + Báo cáo theo quyền như sidebar.
   - Chuông: `aria-controls`/`aria-expanded` + JS đồng bộ, Escape trả focus. Migration `19.0.58.0.0/pre-10`.
-- Commit: local `feat(E8c)`, chưa push (kèm E8b `d354e2a`). Deploy: **chưa**.
+- Commit: `078dfeb feat(E8c)` đã push cùng E8a/E8b. Deploy UAT 25/09 09:06 (13 module đúng bản, `?v=1323`).
 - Số đo: `wj_sidebar` +SN-10…14 **0 vi phạm × 4 vai trò** (avatar PC = mobile, sheet theo quyền, chuông, Đổi cửa hàng mở
   modal, bàn phím) · suite **801, 0 đỏ** (E8b 779, +22) · mutation **13/13** · DB trắng chỉ khung 225 tests, 0 failed, 1 error
   (nợ F6 có sẵn) · `wj_pagecontainer` 0 · `wj_button` 0 · `wj_listcard` 0 · `wj_filterbar` ĐẠT · `wj_nesting` 0 · `b4` 286/286 ·
@@ -1255,6 +1257,6 @@ rồi đánh ✅ ở bảng Trạng thái §2 `docs/next-session-clusters-F.md`.
 - LIMIT: ngôn ngữ ở 2 chỗ (cố ý) · breadcrumb `/portal/franchise/<id>/profile` + thẻ Home "Thông tin cửa hàng" giữ tên ·
   báo BA: `/portal/info-request` không có lối vào UI.
 - Bàn giao anh Thái: neo sheet mới `msheet_end`; dòng Khảo sát (`position="inside"`) không cần sửa, vẫn cuối.
-- Phiên kế: push `main` (khi anh duyệt) → anh deploy UAT `-u` 13 module (layout, base, notification, debt, report, return,
-  exam, support, knowledge, sale, purchase_history, delivery, inspection) → đo UAT chỉ-đọc `wj_sidebar --base` UAT
-  (`em.hcm`) → ledger `UI-SIDEBAR-001` → `qa_sync --dry-run` → `--apply` ⇒ **Ready for Retest**.
+- UAT: `wj_sidebar` SN-1…14 0 vi phạm · `wj_pagecontainer` 0 (Khảo sát đo qua `/vi/`) · `wj_button` 0 mới (6 dòng y hệt E6c) ·
+  0 POST bị chặn · 0 lỗi JS. Staff/nhiều cửa hàng không đo trên UAT (mật khẩu khác seed, không reset).
+- Phiên kế: theo `docs/next-session-clusters-F.md` (cụm E đã hết E4b→E8) — đề xuất cụm EmptyState hoặc F6 theo bảng §2.

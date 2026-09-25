@@ -141,3 +141,22 @@ Không đụng file nào của anh trong E8c. Lưu ý khi sửa `wujia_portal_in
   menu/tiêu đề trang đã chốt).
 - Báo BA (từ E8a, vẫn mở): `/portal/info-request` không có lối vào trong UI (chỉ sáng Hồ sơ cửa hàng khi vào bằng link).
 - DB local chỉ bật English (US) ⇒ nhóm Ngôn ngữ đo được 1 dòng; test C10 có sẵn (`test_selector_renders_every_active_lang`) bật th_TH + vi_VN và kiểm đủ link từng ngôn ngữ trên trang.
+
+## Đo UAT chỉ-đọc (25/09/2026, sau deploy)
+
+`http://113.161.187.126:8019` · DB `wujia_tea_19` · `em.hcm` (owner HCM-01) · mọi POST chặn qua `scratchpad/e6c/uat_guard.py`
+— **0 lệnh phải chặn** ở mọi lượt · 0 lỗi JS.
+
+| Cổng / thước đo | Kết quả |
+|---|---|
+| Phiên bản 13 module (XML-RPC `ir.module.module`) | Lượt deploy đầu: **13/13 vẫn bản E7b** (`-u` chạy khi máy chủ chưa có mã mới) — dừng đo, báo chủ dự án. Lượt 2: **13/13 đúng bản** (layout `19.0.58.0.0`, base `19.0.7.24.0`, `write_date` 09:06) |
+| Tệp giao diện trang đang gọi | `_components.css?v=1323`, `_pc_account.css?v=1323` |
+| Dấu hiệu trong `/portal` | nhóm Ngôn ngữ trong avatar ×2 (PC + mobile) · `msheet_end` · `nav_header_finance` · `wj-menu-toggle` · `aria-controls="wj-noti-popup"`; "Tài khoản / Cài đặt" 0; "Thông tin cửa hàng" 1 = thẻ Home (LIMIT) |
+| `wj_sidebar` đầy đủ SN-1…14 | ✅ **0 vi phạm**: sidebar 264 ở 992–1920, 0 ở 991/390, không cuộn ngang 9 khổ · 14 `li` đúng thứ tự · 28 route sáng đúng · avatar PC = mobile 6 mục (Cửa hàng hiện tại "HCM-01 TP HCM Quận 1" + Owner) · sheet 7 dòng · chuông false→true→false + focus về chuông · bàn phím avatar 1440 + 390 |
+| `wj_pagecontainer` 28 route × 390/1024/1440 | ✅ 0 vi phạm; 3 dòng "chuyển hướng" = `/portal/inspection` → `/vi/…` (đã biết từ E7b) — đo lại `/vi/portal/inspection` + chi tiết `/3`: 0 vi phạm |
+| `wj_button` 29 route × 5 khổ (150 ô) | ✅ 0 vi phạm mới. 6 dòng báo = `/my/franchises` → `/vi/…` ×5 + `/portal/info-request` không có nút (dữ liệu) — **y hệt đo UAT E6c** |
+| Vai trò khác | `cuong.staff`, `dung.multi` trên UAT không dùng mật khẩu seed ⇒ không đo (không reset mật khẩu — là ghi dữ liệu). Đã đo đủ ở local cùng mã |
+
+Ledger `UI-SIDEBAR-001` → `qa_sync --only UI-SIDEBAR-001` dry-run → `--apply` (6 ô + 1 dòng History). Đọc lại bằng
+`export?format=csv`: đúng **1 dòng** có cột ID = `UI-SIDEBAR-001` (dòng sheet 124, STT 131) — Trạng thái **Ready for Retest**,
+Ngày 25/09/2026, Build/Deploy đúng nội dung; hai dòng kề (UI-PAGINATION-001, UI-BUTTON-001) không đổi.
