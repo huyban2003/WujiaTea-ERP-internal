@@ -11,6 +11,7 @@ from odoo.exceptions import ValidationError
 from odoo.tests import tagged
 from odoo.tests.common import HttpCase
 
+from odoo.addons.wujia_order_window.models.sale_order import OrderWindowClosed
 from odoo.addons.wujia_portal_base.controllers.utils import _RateLimiter
 
 OPEN = (True, {'from': 10.0, 'to': 4.0, 'enabled': True, 'configured': True,
@@ -227,6 +228,18 @@ class TestF6CartSubmit(HttpCase):
     def test_submit_window_closes_during_create(self):
         self.put(self.p_free, 3)
         self.assertEqual(self.submit([OPEN, CLOSED]), '/portal/order/cart?error=ORDER_TIME_CLOSED')
+        self.assertEqual(self.qty_of(self.p_free), 3)
+
+    def test_submit_create_error_mapped_by_class_not_text(self):
+        self.put(self.p_free, 3)
+        SO = type(self.env['sale.order'])
+        cases = [
+            (OrderWindowClosed('closed'), '/portal/order/cart?error=ORDER_TIME_CLOSED'),
+            (ValidationError('Sai khung giờ giao'), '/portal/order/cart?error=ORDER_CREATE_FAILED'),
+        ]
+        for exc, expected in cases:
+            with self.subTest(exc=exc), patch.object(SO, 'create', side_effect=exc):
+                self.assertEqual(self.submit(), expected)
         self.assertEqual(self.qty_of(self.p_free), 3)
 
     def test_submit_invalid_lines(self):

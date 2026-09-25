@@ -1,40 +1,16 @@
 {
-    'name': 'Wujia Portal Order Window',
-    'version': '19.0.2.2.0',
+    'name': 'Wujia Portal Order Window (vỏ chờ gỡ)',
+    'version': '19.0.3.0.0',
     'category': 'Wujia',
-    'summary': 'Khung giờ portal đặt hàng theo khu vực (BA Section B.5 + Model Field Mục I)',
+    'summary': 'Vỏ rỗng — nghiệp vụ đã chuyển sang wujia_order_window (F7, ADR-027)',
     'description': """
-Khung giờ portal được phép tạo sale.order, cấu hình theo khu vực.
-
-Model:
-- wujia.order.window (per-area, multi-record): khung giờ riêng cho từng res.area.
-  Một khu vực có thể có nhiều khung giờ (vd sáng + tối).
-
-Settings (fallback):
-- res.config.settings: portal_order_time_from / to (Float),
-  portal_order_time_limit_enabled (Boolean) — lưu ir.config_parameter
-  wujia_portal.* — chỉ áp dụng khi khu vực chưa cấu hình riêng.
-
-Helper:
-- res.config.settings._is_within_order_window(area_id=None):
-  ưu tiên wujia.order.window theo khu vực, fallback global,
-  handle khung qua nửa đêm, check timezone user.
-- res.config.settings._next_order_window(area_id=None):
-  read-only — khung giờ sắp tới (from/to + ngày theo tz user) cho
-  màn "ngoài khung giờ" của portal mobile.
-
-Defense in depth:
-- sale.order.create override chặn portal order ngoài khung giờ
-  (resolve area_id từ franchise_id).
+Toàn bộ model/view/menu/quyền đã chuyển sang wujia_order_window (pre_init_hook đổi chủ bản ghi).
+Module này không còn nội dung; giữ lại để DB đang cài nâng cấp được, sau đó Uninstall trên Apps.
 """,
     'author': 'WujiaTea',
     'license': 'LGPL-3',
-    'depends': ['wujia_sale'],
-    'data': [
-        'security/ir.model.access.csv',
-        'views/wujia_order_window_views.xml',
-        'views/res_config_settings_views.xml',
-    ],
+    'depends': ['wujia_order_window'],
+    'data': [],
     'installable': True,
     'application': False,
     'auto_install': False,

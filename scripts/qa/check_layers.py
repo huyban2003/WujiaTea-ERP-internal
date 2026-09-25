@@ -28,18 +28,21 @@ CORE, BIZ, FRAME, BASE, CHANNEL = 'L1 core', 'L2 nghiệp vụ', 'L2 khung', 'L3
 
 LAYER = {
     'wujia_core': CORE,
-    'wujia_sale': BIZ, 'wujia_fleet': BIZ, 'wujia_delivery': BIZ, 'wujia_account': BIZ,
+    'wujia_sale': BIZ, 'wujia_order_window': BIZ, 'wujia_fleet': BIZ, 'wujia_delivery': BIZ, 'wujia_account': BIZ,
     'wujia_franchise': BIZ, 'wujia_franchise_contract': BIZ,
     'wujia_franchise_inspection': BIZ, 'wujia_franchise_operations': BIZ,
     'wujia_portal_layout': FRAME, 'wujia_mobile_core': FRAME,
     'wujia_portal_base': BASE,
 }
 
-# 7 portal_* đang ôm model nghiệp vụ, chờ tách ở F7–F13 (plan cụm F §1.A1)
+# portal_* đang ôm model nghiệp vụ, chờ tách ở F8–F13 (plan cụm F §1.A1)
 PENDING_SPLIT = {
-    'wujia_portal_order_window', 'wujia_portal_info_request', 'wujia_portal_knowledge',
+    'wujia_portal_info_request', 'wujia_portal_knowledge',
     'wujia_portal_support', 'wujia_portal_notification', 'wujia_portal_exam', 'wujia_portal_return',
 }
+
+# vỏ rỗng sau khi tách, chờ Uninstall rồi xoá thư mục — không xét luật tầng
+DEPRECATED = {'wujia_portal_order_window'}
 
 THAI = {
     'wujia_franchise', 'wujia_franchise_contract', 'wujia_franchise_inspection',
@@ -197,6 +200,8 @@ def check(deps):
     violations, unknown = [], []
     for mod, direct in deps.items():
         lay = layer_of(mod)
+        if mod in DEPRECATED:
+            continue
         if lay is None:
             unknown.append(mod)
             continue
@@ -219,8 +224,8 @@ def check(deps):
         if lay == CHANNEL and channel_of(mod) == 'portal' and 'wujia_portal_base' not in closure(mod, deps):
             violations.append({'module': mod, 'depends': '(thiếu) wujia_portal_base', 'rule': 'R4 mọi portal_<x> depend portal_base'})
     for v in violations:
-        v['owner'] = 'Thái' if v['module'] in THAI or v['depends'] == 'wujia_mobile_core' else 'Dev portal'
-        v['note'] = 'chờ tách F7–F13' if v['module'] in PENDING_SPLIT else ('mục D, chờ chốt với anh Thái' if v['depends'] == 'wujia_mobile_core' else '')
+        v['owner'] = 'Thái' if v['module'] in THAI or v['module'].startswith('wujia_mobile_') or v['depends'] == 'wujia_mobile_core' else 'Dev portal'
+        v['note'] = 'chờ tách F8–F13' if v['module'] in PENDING_SPLIT else ('mục D, chờ chốt với anh Thái' if v['depends'] == 'wujia_mobile_core' else '')
     return violations, unknown
 
 
@@ -239,6 +244,9 @@ def main():
         print(f'{lay:16} {len(mods):2}  ' + ', '.join(mods))
     if unknown:
         print(f'\nchưa phân tầng: {", ".join(unknown)}')
+    shells = sorted(DEPRECATED & set(deps))
+    if shells:
+        print(f'vỏ chờ gỡ (không xét luật): {", ".join(shells)}')
     print('\n| Module | Depend | Luật | Chủ code | Ghi chú |\n|---|---|---|---|---|')
     for v in violations:
         print(f"| `{v['module']}` | `{v['depends']}` | {v['rule']} | {v['owner']} | {v['note']} |")

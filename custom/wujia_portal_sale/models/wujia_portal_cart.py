@@ -7,6 +7,8 @@ from odoo import api, fields, models
 from odoo.exceptions import UserError, ValidationError
 from odoo.tools import plaintext2html
 
+from odoo.addons.wujia_order_window.models.sale_order import OrderWindowClosed
+
 _logger = logging.getLogger(__name__)
 
 INT_MAX = 2147483647
@@ -169,7 +171,7 @@ class WujiaPortalCart(models.Model):
                 raise PortalOrderError('OLD_PORTAL_QUOTATION_CANCEL_FAILED') from e
             if isinstance(e, ValidationError):
                 _logger.warning('Portal order create rejected (store %s): %s', franchise.id, e)
-                if 'khung giờ' in str(e):
+                if isinstance(e, OrderWindowClosed):
                     raise PortalOrderError('ORDER_TIME_CLOSED') from e
             else:
                 _logger.exception('Portal order create failed (store %s)', franchise.id)

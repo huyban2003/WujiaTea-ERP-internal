@@ -298,27 +298,68 @@ sao} dưới tên module mới, rồi \texttt{\_process\_end} \textbf{dọn bả
 nhóm quyền, rule biến mất, sequence mã phiếu chạy lại từ đầu, tệ nhất là rơi dòng
 \texttt{ir.model}.
 
-\textbf{Các bước} (khuôn \texttt{wujia\_franchise\_inspection/hooks.py}):
+\textbf{Các bước} (đã chạy thật ở pilot F7 --- \texttt{wujia\_portal\_order\_window} $\rightarrow$
+\texttt{wujia\_order\_window}, 25/09/2026; F8--F13 làm theo đúng khuôn này):
 \begin{enumerate}
-\item Tạo \texttt{wujia\_<x>}: chuyển \texttt{models/}, view backend, menu, \texttt{security/},
-  \texttt{data/} (sequence, cron), test model, và phần \texttt{i18n/vi\_VN.po} tương ứng.
+\item \textbf{Chụp mốc trước} trên DB copy cô lập bằng \texttt{scripts/qa/split\_snapshot.py}
+  (\texttt{--modules} cũ,mới \texttt{--models} \ldots\ \texttt{--icp} \ldots\ \texttt{--seq} \ldots).
+  DB copy phải có dữ liệu thật của phân hệ; không có thì seed trước, vì bảng rỗng thì phép đo
+  Pass rỗng (bài học D6d). Nhãn dịch chỉ đo được khi DB đã bật \texttt{vi\_VN}.
+\item Tạo \texttt{wujia\_<x>} bằng \texttt{git mv}: \texttt{models/}, view backend, menu,
+  \texttt{security/}, \texttt{data/} (sequence, cron), \texttt{i18n/vi\_VN.po}. Trong
+  \texttt{.po} phải đổi cả tiền tố xmlid (\texttt{model:ir.model.fields,\ldots:wujia\_portal\_<x>.field\_\ldots}
+  $\rightarrow$ \texttt{wujia\_<x>.}), không thì bản dịch không gắn được vào xmlid mới và nhãn
+  rơi về tiếng Anh mà không có dòng log nào.
 \item \textbf{Model dính chặt nhau đi cùng một module} (One2many $\leftrightarrow$ Many2one hai
   chiều). Chiều ngược sang module khác thì thêm bằng \texttt{\_inherit} ở module phía trên (bài
   học ADR-015).
-\item \texttt{wujia\_portal\_<x>} giữ controller, QWeb, asset; thêm depends
-  \texttt{wujia\_<x>}; bump version.
-\item \texttt{pre\_init\_hook} của \texttt{wujia\_<x>} đổi cột \texttt{module} cho danh sách xmlid
-  đã chuyển và cho \texttt{model\_*}/\texttt{field\_*}/\texttt{constraint\_*}. Chạy ở
-  \texttt{pre\_init\_hook} vì Odoo \emph{không} chạy migration script ở lần cài đầu.
-\item Sửa tham chiếu \texttt{wujia\_portal\_<x>.group\_\ldots} ở module khác (đo được 0--4 file
-  mỗi phân hệ, phần lớn là test của \texttt{wujia\_portal\_layout}).
-\item Deploy một lệnh: \texttt{-i wujia\_<x> -u wujia\_portal\_<x>}.
+\item \texttt{hooks.py} + \texttt{'pre\_init\_hook'} \textbf{khai trong manifest và import ở
+  \texttt{\_\_init\_\_.py}}. Hook khuôn Khảo sát hiện không còn được nối (gỡ khỏi manifest ở
+  \texttt{ec6d380}, 16/09), nên chép file thôi thì hook không chạy. Hàm
+  \texttt{migrate\_ownership(cr, old, new, names, models)} đổi chủ ba chỗ:
+  \begin{itemize}
+  \item \texttt{ir\_model\_data}: \texttt{names=None} chuyển \emph{tất cả} (module cũ bị rút hết,
+    như F7); tách một phần (F8+) thì truyền danh sách. Đừng quên xmlid của field trên model
+    \emph{kế thừa} (F7 có 7: \texttt{res.config.settings}, \texttt{sale.order}, kể cả
+    \texttt{display\_name}/\texttt{id}) và \texttt{model\_<model kế thừa>}.
+  \item \texttt{ir\_model\_constraint} và \texttt{ir\_model\_relation}: cột \texttt{module} là
+    khoá ngoài tới \texttt{ir\_module\_module}, \emph{không} nằm trong \texttt{ir\_model\_data}.
+    Khuôn Khảo sát bỏ sót chỗ này. Đo mutation ở F7: bỏ bước này thì \textbf{không} mất ràng buộc
+    (Odoo gỡ theo xmlid, và \texttt{unlink} tự bỏ qua khi còn dòng cùng tên), nhưng module mới
+    sinh 2 dòng CHECK trùng tên và 6 dòng cũ mồ côi sau khi gỡ vỏ.
+  \end{itemize}
+  Chạy ở \texttt{pre\_init\_hook} vì Odoo \emph{không} chạy migration script ở lần cài đầu.
+\item Module cũ: còn controller/QWeb/asset thì giữ, thêm depends \texttt{wujia\_<x>}. Rút hết
+  (như F7) thì để \textbf{vỏ rỗng} (\texttt{\_\_init\_\_.py} trống, \texttt{data: []}, depends
+  mỗi \texttt{wujia\_<x>}) và thêm vào \texttt{DEPRECATED} của \texttt{check\_layers}. Bump version
+  cả hai.
+\item Sửa tham chiếu \texttt{wujia\_portal\_<x>.\ldots} ở module khác, cùng manifest và
+  \texttt{import odoo.addons.wujia\_portal\_<x>} (F7: \texttt{portal\_sale} đổi depends +
+  import lớp lỗi \texttt{OrderWindowClosed}), \texttt{reseed\_full.sh/.ps1}.
+\item \textbf{Deploy một lệnh:} \texttt{-i wujia\_<x> -u wujia\_portal\_<x>,<module tham chiếu>}.
+  Đo F7: chỉ \texttt{-u wujia\_portal\_<x>} (quên \texttt{-i}) cũng tự cài module mới, và
+  \texttt{update\_list} cập nhật luôn bảng phụ thuộc từ manifest mới.
+\item \textbf{Chụp mốc sau} rồi so: \texttt{split\_snapshot.py --diff trước sau --rename
+  wujia\_portal\_<x>=wujia\_<x>}. Kỳ vọng \emph{chỉ cột module đổi}; mọi dòng ``LỆCH THẬT''
+  phải giải trình được (F7: 1 dòng --- view Settings đổi \texttt{name} app/block theo tên module
+  mới).
+\item \textbf{Gỡ vỏ} (khi module cũ rút hết): đo trên DB copy trước --- \texttt{button\_immediate\_uninstall}
+  rồi chụp lần ba, phải 0 lệch. Trên UAT: sau deploy, đo module cũ còn \textbf{0 xmlid} rồi
+  Uninstall một cú trên Apps; xoá thư mục khỏi repo ở phiên review (FR-P) khi mọi DB đã gỡ.
 \end{enumerate}
 
 \textbf{Kiểm bằng số, trước và sau, trên DB copy cô lập} (không đụng \texttt{wujia\_tea\_19}):
-số bản ghi từng model; số user trong từng nhóm quyền; \texttt{number\_next} của sequence; số
-menu/action/rule; \texttt{ir\_model\_data} của module cũ chỉ còn phần kênh. Mọi con số phải khớp
-tuyệt đối. Test cũ xanh y hệt, có run đối chứng (bài học Sprint 57).
+\texttt{split\_snapshot} gom trong một lượt: \texttt{ir\_model\_data} theo module; số dòng + md5
+toàn bảng; cột và ràng buộc Postgres thật; \texttt{ir\_model\_constraint}/\texttt{relation} gom
+theo \emph{tên} (để dòng trùng tên hiện ra, không gộp mất); field (kiểu, nhãn en/vi); ACL; rule;
+đường dẫn menu; action; view (md5 arch); \texttt{ir\_config\_parameter}; số user mỗi nhóm quyền;
+\texttt{number\_next} của sequence. Kèm: test cũ xanh y hệt; DB trắng chỉ cài \texttt{wujia\_<x>}
+chạy được test của nó; HTML các màn liên quan HEAD $\leftrightarrow$ mới giống từng byte (chuẩn
+hoá hash asset + \texttt{registry\_hash}).
+
+\textbf{Số đo pilot F7:} 42 dòng đổi chủ (36 xmlid + 6 ràng buộc), 1 lệch có giải trình, gỡ vỏ
+0 lệch, 0 ERROR khi nâng cấp; suite 833 test 0 đỏ; DB trắng 10/10; HTML 5/5 route giống từng
+byte; mutation 5/5 đỏ.
 
 \section{Lộ trình}
 
@@ -329,7 +370,7 @@ tuyệt đối. Test cũ xanh y hệt, có run đối chứng (bài học Sprint
 \# & Phiên & Lý do thứ tự \\
 \midrule
 P1 & Dựng \texttt{wujia\_mobile\_core} & Không phụ thuộc việc tách, chạy song song được. Cần BA chốt màn ưu tiên. \\
-P2 & Tách \texttt{order\_window} (pilot) & 7 xmlid, 0 nhóm quyền, 0 tham chiếu ngoài. Thực chất chỉ bỏ chữ ``portal''. Quy trình mà có lỗi thì lộ ở đây với giá rẻ nhất. \\
+P2 & Tách \texttt{order\_window} (pilot) & \textbf{Xong F7 (25/09)}: 36 xmlid + 6 ràng buộc đổi chủ, 0 nhóm quyền; module cũ thành vỏ chờ gỡ. Lộ ra bẫy \texttt{ir\_model\_constraint} và hook khuôn không còn được nối. \\
 P3 & \texttt{info\_request} & 13 xmlid, 0 nhóm quyền. \\
 P4 & \texttt{knowledge} & 20 xmlid, có 1 cron. \\
 P5 & \texttt{support} & 26 xmlid, nhiều depends (\texttt{sale}, \texttt{stock\_picking\_batch}, \texttt{sales\_team}). \\

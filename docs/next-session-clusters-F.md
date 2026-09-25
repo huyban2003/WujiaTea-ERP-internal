@@ -142,7 +142,7 @@ F6–F13 là backend/controller — không chặn component, nhưng chặn mobil
 | F5b | Dời test cross-module của layout về module sở hữu màn (đếm lại bằng máy: **236 test / 517 assert**, không phải 94/215) | layout + 15 module | TB | ✅ 18/09 — `docs/f5b-acceptance-matrix.md` · `docs/f5b-test-inventory.md` |
 | **FR-A3** | **Review cổng F (F0–F5b) → quyết mở lại Issue List** | 3 module (vá nhỏ) | — | ✅ 18/09 — **ĐẠT, MỞ LẠI ISSUE LIST** (E4b→E8) · `docs/f-review-A3.md` |
 | F6 | Sale: luật số lượng 1 nguồn, giỏ + submit về model (+ nợ `portal_base` tự test) | sale, wujia_sale, base, layout (test) | Cao | ✅ 25/09 — `docs/f6-acceptance-matrix.md` |
-| F7 | Pilot tách order_window | order_window, portal_sale | Cao | ☐ |
+| F7 | Pilot tách order_window | order_window, portal_sale | Cao | ✅ 25/09 — `docs/f7-acceptance-matrix.md` (chưa commit/deploy) |
 | **FR-P** | **Review pilot trước khi nhân quy trình** | 0 | — | ☐ |
 | F8–F13 | Tách phân hệ + controller mỏng | theo phân hệ | Cao | ☐ |
 | **FR-A** | **Review toàn khối A + controller (F1, F6–F13)** | 0 hoặc vá nhỏ | — | ☐ |

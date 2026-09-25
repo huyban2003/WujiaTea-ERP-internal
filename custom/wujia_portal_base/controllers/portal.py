@@ -219,7 +219,7 @@ class WujiaPortal(CustomerPortal):
           - state='closed' : ngoài giờ → đỏ "Đã đóng" + mở lại lúc from_hhmm.
         """
         Settings = request.env['res.config.settings'].sudo()
-        # ADR-027 R5: L3a KHÔNG depend `wujia_portal_order_window`. Module tắt ⇒ coi
+        # ADR-027: L3a cấm thêm depend `wujia_order_window`. Module tắt ⇒ coi
         # như không đặt khung giờ, đừng để Home 500 (FR-A3 bắt được khi cài base một mình).
         if not (hasattr(Settings, '_is_within_order_window')
                 and hasattr(Settings, '_user_now_hours')):

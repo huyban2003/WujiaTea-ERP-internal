@@ -1306,3 +1306,30 @@ rồi đánh ✅ ở bảng Trạng thái §2 `docs/next-session-clusters-F.md`.
 - Phiên kế: **F7** — pilot tách `order_window` khỏi `portal_sale` (luôn nhớ: `action_submit_order` gọi
   `_is_within_order_window(area_id=…)` và bắt ValidationError "khung giờ" — chỗ nối F7 phải thay) · hoặc phân cụm 7 issue
   STT 140–146 nếu chủ dự án ưu tiên Issue List.
+
+## F7 — Pilot tách `order_window` → `wujia_order_window` · 25/09/2026 · Mac
+- Kết quả: ✅ xong. Nghiệm thu: `docs/f7-acceptance-matrix.md` (10/10 ý + mutation 5/5).
+- Chủ dự án chốt: module cũ = **vỏ rỗng** (depend mỗi `wujia_order_window`) → deploy, đo 0 xmlid → Uninstall trên Apps →
+  FR-P xoá thư mục · **vá luôn nợ F6** (bắt lỗi khung giờ theo lớp).
+- Đã làm:
+  - Module nghiệp vụ mới `wujia_order_window` (L2, depend `wujia_sale`) nhận nguyên model khung giờ, cấu hình fallback,
+    chặn đơn portal ngoài giờ, view/menu/ACL, bản dịch. `pre_init_hook` đổi chủ **toàn bộ** bản ghi của module cũ,
+    cả `ir_model_constraint`/`ir_model_relation` (khuôn Khảo sát bỏ sót).
+  - Lớp lỗi `OrderWindowClosed`; giỏ hàng bắt theo lớp → một lỗi khác có chữ "khung giờ" không còn bị báo nhầm
+    "ngoài khung giờ".
+  - 10 test cho khung giờ (trước đó 0 test tạo khung giờ) + 1 test portal_sale.
+  - Công cụ `scripts/qa/split_snapshot.py` (chụp + diff có `--rename`) cho F8–F13.
+  - Chapter 74 §Quy trình tách viết lại theo thực tế.
+- Commit: chưa commit.
+- Deploy: chưa. Lệnh: `-i wujia_order_window -u wujia_portal_order_window,wujia_portal_sale` → đo 0 xmlid vỏ → Uninstall vỏ.
+- Số đo: 42 dòng đổi chủ (36 xmlid + 6 ràng buộc), **1 lệch có giải trình** (view Settings đổi `name` app/block), gỡ vỏ
+  **0 lệch**, 0 ERROR · suite 15 module portal + `wujia_order_window` **833, 0 đỏ** (F6 822) · DB trắng chỉ module mới
+  **10/10** · HTML 5 route HEAD ↔ F7 **giống từng byte**, bundle CSS/JS cùng md5 · mutation **5/5** · `check_layers`
+  3 → 2 (R4 order_window hết; còn 2 R3 `wujia_mobile_portal_*` của anh Thái) · `test_ownership` cross 0.
+- Lệch plan / quyết định mới: plan dự đoán "không đổi chủ constraint thì gỡ vỏ DROP CHECK" — đo mutation: **không DROP**,
+  hậu quả thật là 2 dòng trùng + 6 dòng mồ côi. Hook chuyển TẤT CẢ thay vì danh sách tay (module cũ rút hết).
+  Hook Khảo sát không còn được nối ở manifest (`ec6d380`).
+- Nợ để lại: xoá thư mục vỏ ở FR-P (sau khi UAT gỡ) · bàn giao anh Thái 2 mục (hook Khảo sát không nối; 46 dòng
+  ràng buộc Khảo sát vẫn ghi `wujia_franchise`) · 1 error có sẵn `test_wujia_supply_demand_report` (không chạy trong suite portal).
+- Phiên kế: **★FR-P** — review pilot (prompt §3 "phiên review ★"): đo lại trên UAT sau deploy (version + menu + 0 xmlid vỏ +
+  Uninstall), rà diff, xoá thư mục vỏ. Hoặc phân cụm 7 issue STT 140–146 nếu chủ dự án ưu tiên Issue List.

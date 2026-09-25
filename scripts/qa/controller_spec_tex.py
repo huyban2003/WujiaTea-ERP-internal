@@ -20,7 +20,7 @@ SPEC = ROOT / 'docs' / 'controller-spec'
 CHAPTERS = [
     ('3', 'Đặt hàng', ['wujia_portal_sale']),
     ('4', 'Khung portal + Trang chủ', ['wujia_portal_layout', 'wujia_portal_base',
-                                       'wujia_portal_order_window']),
+                                       'wujia_order_window']),
     ('5', 'Lịch sử mua · Giao hàng · Báo cáo', ['wujia_portal_purchase_history',
                                                 'wujia_portal_delivery',
                                                 'wujia_portal_report']),

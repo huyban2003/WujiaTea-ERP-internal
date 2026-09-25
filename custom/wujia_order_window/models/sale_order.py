@@ -2,6 +2,10 @@ from odoo import _, api, models
 from odoo.exceptions import ValidationError
 
 
+class OrderWindowClosed(ValidationError):
+    """Đơn portal tạo ngoài khung giờ — nơi gọi bắt theo lớp, không dò câu chữ."""
+
+
 class SaleOrder(models.Model):
     _inherit = 'sale.order'
 
@@ -23,7 +27,7 @@ class SaleOrder(models.Model):
                 area_id = franchise.area_id.id if franchise.area_id else False
             allowed, window = Settings._is_within_order_window(area_id=area_id)
             if not allowed:
-                raise ValidationError(_(
+                raise OrderWindowClosed(_(
                     "Hiện chưa nằm trong khung giờ nhận đơn. "
                     "Vui lòng đặt hàng trong khung giờ %(f).2f – %(t).2f.",
                     f=window['from'], t=window['to'],
