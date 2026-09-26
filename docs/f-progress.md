@@ -1645,3 +1645,29 @@ rồi đánh ✅ ở bảng Trạng thái §2 `docs/next-session-clusters-F.md`.
   md5 khối PC lệch có thể do bản ghi mồi, không phải template.
 - Phiên kế: deploy fix debt (chủ dự án) → BA retest 126 → **Issue List cụm 140+141** (shell header/store) hoặc cụm
   143+144+145 (mật độ mobile, đo trên khung E7 trước).
+
+## END-SPRINT 63 — chốt sổ khối A kiến trúc (F6 → ★FR-A) · 26/09/2026 · Mac
+- Kết quả: ✅ xong. Phiên tài liệu, **0 file dưới `custom/`**, không deploy, không đụng sheet (ledger: `UI-DATALIST-001`
+  đã sync ở ★FR-A, không có issue mới).
+- Chủ dự án chốt: chapter mới 77 (Sprint 63) · ADR-027 **chốt** + ghi 3 ý đã bàn · smoke `-u` (không chạy lại suite).
+- Đã làm:
+  - Smoke: copy `wujia_frp` → `wujia_es63`, chạy đúng lệnh `deploy.yml` (`-u/-i` 24 module + `wujia_portal_debt`)
+    ⇒ **RC 0, 0 ERROR/Traceback**, 7 L2 installed, 0 module kẹt; 1 WARNING vô hại (`__pycache__` trong
+    `wujia_portal_return/migrations/`). DB đã drop. Suite dẫn số ★FR-A 914/0/0.
+  - Chapter `77-sprint63-cluster-f-block-a.tex`: vì sao có khối A · F6 · F7 + ★FR-P · bảng 6 module L2 (nhận gì, luật
+    nào về model) · 4 bẫy · ★FR-A · nghiệp vụ · trade-off · bài học · nợ. `\include` sau chapter 76.
+  - Chapter 74: trạng thái "đã chốt 26/09, đã áp khối A"; §addendum 3 ý (portal theo chức năng, mobile kế thừa view,
+    `auto_install` — ghi chưa áp); `wujia_announcement` → `wujia_notification` (text + hình ERD); depends 7 L2 theo
+    manifest thật; số đo F8–FR-A dời sang ch.77, giữ 2 bài học quy trình; câu BA #6 ghi "đã làm theo ADR ở F13".
+    `adr-027-module-layering.tex` đổi trang bìa (đã chốt).
+  - Compact summary: dòng Cập nhật · §3 ADR-027 đã chốt · §4 dòng 63 · §5 State END-SPRINT 63.
+    `next-session-clusters-F.md` §2: ghi chốt sổ. `~/.claude/commands/wujia-start.md`: ADR-027 đã chốt.
+- Commit: xem git log — `docs(multi): sprint 63 close-out`.
+- Deploy: không.
+- Số đo: `build-doc.sh` **312 → 321 trang**, 0 `! `; ADR PDF **12 → 15 trang**, 0 ref lỗi; 0 chữ Việt trong `\texttt` của
+  phần mới (2 chỗ `portal\_<chức năng>` đã sửa).
+- Bài học: local `wujia_tea_19` còn trước F7 ⇒ smoke khối A phải dựng từ `wujia_frp` + replay deploy; python Mac là env
+  `odoo19` (env `odoo` thiếu `rjsmin`, chết 255 trước khi nạp module).
+- Còn treo: `auto_install` áp đồng loạt 1 phiên · 7 câu hỏi BA ADR-027 · nợ ch.77 · BA retest 126.
+- Phiên kế: **Issue List cụm 140+141** (shell header PC + store switcher mobile, cùng `wujia_portal_layout`) hoặc
+  **143+144+145** (mật độ mobile, đo trên khung E7 trước).
