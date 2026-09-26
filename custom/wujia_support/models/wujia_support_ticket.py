@@ -297,16 +297,27 @@ class WujiaSupportTicket(models.Model):
                 subtype_xmlid='mail.mt_comment',
             )
 
-    def _portal_get_attachment(self, att_id):
-        """Attachment ``att_id`` nếu thuộc ticket (m2m cũ hoặc res_model/res_id), không thì rỗng."""
+    def _portal_messages(self):
+        """Trao đổi cửa hàng được xem: bình luận, bỏ ghi chú nội bộ HQ (Log note)."""
         self.ensure_one()
-        return self.env['ir.attachment'].sudo().search([
-            ('id', '=', att_id),
-            '|',
-              '&', ('res_model', '=', self._name),
-                   ('res_id', '=', self.id),
-              ('id', 'in', self.attachment_ids.ids),
-        ], limit=1)
+        return self.message_ids.filtered(
+            lambda m: m.message_type == 'comment'
+            and not m.is_internal and not m.subtype_id.internal
+        ).sorted('date')
+
+    def _portal_attachments(self):
+        """File cửa hàng được xem/tải: m2m cũ + file gắn res_model/res_id, trừ file của ghi chú nội bộ."""
+        self.ensure_one()
+        Attachment = self.env['ir.attachment'].sudo()
+        linked = Attachment.search([('res_model', '=', self._name), ('res_id', '=', self.id)])
+        public = self._portal_messages()
+        internal = (self.message_ids - public).attachment_ids
+        return (self.attachment_ids.sudo() | linked | public.attachment_ids.sudo()) - internal
+
+    def _portal_get_attachment(self, att_id):
+        """Attachment ``att_id`` nếu nằm trong ``_portal_attachments``, không thì rỗng."""
+        self.ensure_one()
+        return self._portal_attachments().filtered(lambda a: a.id == att_id)
 
     # -----------------------------------------------------------------
     # Actions

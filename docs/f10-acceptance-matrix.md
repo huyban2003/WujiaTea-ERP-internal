@@ -71,7 +71,8 @@ giữ nguyên hành vi, gom về `_portal_scope_domain` (ghi nợ hỏi BA bên 
 1. ✅ Đã deploy UAT 26/09: đo chỉ-đọc đạt. 3 version đúng. Module mới 114 xmlid (113 + `field_wujia_support_ticket__rating_ids`
    vì UAT cài `rating`, như F8/F9), portal còn 5 view. Số kế `WJ-TK` **17**, 7 danh mục + vi_VN nguyên, menu/action/rule giữ id.
    Portal PC + mobile, backend 200; `anh.owner` chỉ thấy ticket mình tạo; attachment lạ 403. Chi tiết ở `f-progress.md` mục F10, dòng Deploy.
-   Phát hiện có từ trước: chi tiết ticket chỉ hiện đính kèm m2m cũ, file tải từ portal (gắn `res_id`) không có link tải.
+   Phát hiện có từ trước: chi tiết ticket chỉ hiện đính kèm m2m cũ, file tải từ portal (gắn `res_id`) không có link tải;
+   kèm ghi chú nội bộ HQ hiện cho cửa hàng. **Đã vá** ở F10-fix (`f-progress.md`), chờ deploy.
 2. Nợ hỏi BA: portal support lọc theo **người tạo**, không theo cửa hàng — quản lý cửa hàng không thấy ticket nhân viên
    cùng cửa hàng tạo (đã nằm trong 7 điểm DOC-CTRL). Giữ nguyên tới khi BA chốt.
 3. Nợ chung: `_sql_constraints` danh mục (unique name/code) hết hiệu lực trên Odoo 19 (như F9).

@@ -20,6 +20,10 @@ class TestPortalSupportF10(SupportCommon, HttpCase):
         cls.own_file = cls._pdf(res_model=cls.mine._name, res_id=cls.mine.id)
         cls.their_file = cls._pdf('their.pdf', res_model=cls.theirs._name, res_id=cls.theirs.id)
         cls.stray = cls._pdf('stray.pdf')
+        cls.note_file = cls._pdf('note.pdf')
+        cls.mine.message_post(
+            body='F10 ghi chú nội bộ', message_type='comment',
+            subtype_xmlid='mail.mt_note', attachment_ids=[cls.note_file.id])
 
     def setUp(self):
         super().setUp()
@@ -48,6 +52,15 @@ class TestPortalSupportF10(SupportCommon, HttpCase):
         self.assertIn('Đã gửi ảnh', msg.body)
         self.assertEqual(msg.author_id, self.owner.partner_id)
         self.assertEqual(self.mine.last_response_by, 'customer')
+
+    def test_detail_lists_uploaded_files_and_hides_internal_notes(self):
+        body = self.url_open(f'/portal/support/{self.mine.id}').text
+        link = f'/portal/support/{self.mine.id}/attachment/{self.own_file.id}'
+        self.assertEqual(body.count(link), 2, 'link tải ở cả PC lẫn mobile')
+        self.assertNotIn('F10 ghi chú nội bộ', body)
+        self.assertNotIn('note.pdf', body)
+        self.assertEqual(self.url_open(
+            f'/portal/support/{self.mine.id}/attachment/{self.note_file.id}').status_code, 403)
 
     def test_attachment_download_only_serves_ticket_files(self):
         base = f'/portal/support/{self.mine.id}/attachment/'

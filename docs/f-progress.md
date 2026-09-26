@@ -1477,3 +1477,19 @@ rồi đánh ✅ ở bảng Trạng thái §2 `docs/next-session-clusters-F.md`.
   (không chạy khi `portal_base` một mình, có từ trước).
 - Phiên kế: **F11 `announcement`** (từ `portal_notification`, giữ `_name wujia.notification`, 2 nhóm quyền — phải sửa tham chiếu
   `group_*`, sequence ANN, rule theo cửa hàng; bảng badge thông báo nếu có) hoặc cụm Issue List 143 + 144 + 145 "mật độ mobile".
+
+## F10-fix — Portal hỗ trợ: file đính kèm + ghi chú nội bộ · 26/09/2026 · Mac
+
+- Nguồn: đo UAT sau deploy F10 (ticket 16 có 1 ảnh, portal không hiện link). Soi thêm ra lỗi thứ hai cùng chỗ.
+- Lỗi (có từ trước F10): (1) chi tiết ticket chỉ liệt kê `attachment_ids` m2m cũ, file cửa hàng tải lên gắn
+  `res_model/res_id` ⇒ không hiện; (2) template lọc `message_type == 'comment'` trên ticket `sudo` ⇒ **ghi chú nội bộ HQ
+  (Log note) hiện cho cửa hàng** (UAT: ticket 12 có 1 note).
+- Sửa: model `_portal_messages()` (bỏ note nội bộ) + `_portal_attachments()` (m2m + res_id + file tin công khai, trừ file
+  của note); `_portal_get_attachment` dùng chung tập đó ⇒ file của note tải về 403. Template PC dùng hai method, link đi
+  route đã chặn quyền thay `/web/content`; **mobile thêm thẻ "File đính kèm"** (chủ dự án chốt) theo DataList compact-row
+  `--inset` như Home. `wujia_support 19.0.1.0.1`, `wujia_portal_support 19.0.4.0.1`; bảng đếm CardHeader `portal_base` 5 → 6.
+- Số đo: `portal_base,portal_layout,wujia_support,portal_support` **524/0** · template cũ làm test mới đỏ (mutation) ·
+  Playwright local PC + mobile: note ẩn, trả lời HQ hiện, file hiện + tải 200, 0 tràn · `check_layers` 1 / R7 2 giữ.
+- Deploy: `-u wujia_support,wujia_portal_support` (chủ dự án).
+- Phiên kế: đo UAT (ticket 16 hiện file, ticket 12 hết note) → **F11 `announcement`** hoặc cụm Issue 143+144+145.
+

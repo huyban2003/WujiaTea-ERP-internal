@@ -1,6 +1,6 @@
 {
     'name': 'Wujia Support Tickets',
-    'version': '19.0.1.0.0',
+    'version': '19.0.1.0.1',
     'category': 'Wujia',
     'summary': 'Yêu cầu hỗ trợ từ cửa hàng nhượng quyền — HQ tiếp nhận, phân công, trả lời, đóng.',
     'description': """

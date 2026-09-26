@@ -173,3 +173,18 @@ class TestSupportTicket(SupportCommon, TransactionCase):
         self.assertEqual(t._portal_get_attachment(legacy.id), legacy)
         self.assertFalse(t._portal_get_attachment(foreign.id))
         self.assertFalse(t._portal_get_attachment(stray.id))
+
+    def test_portal_hides_internal_notes_and_their_files(self):
+        t = self._ticket()
+        upload = self._pdf('upload.pdf', res_model=t._name, res_id=t.id)
+        note_file = self._pdf('note.pdf')
+        reply_file = self._pdf('reply.pdf')
+        t.message_post(body='ghi chú HQ', message_type='comment',
+                        subtype_xmlid='mail.mt_note', attachment_ids=[note_file.id])
+        t.message_post(body='HQ trả lời', message_type='comment',
+                        subtype_xmlid='mail.mt_comment', attachment_ids=[reply_file.id])
+        bodies = ''.join(t._portal_messages().mapped('body'))
+        self.assertIn('HQ trả lời', bodies)
+        self.assertNotIn('ghi chú HQ', bodies)
+        self.assertEqual(t._portal_attachments(), upload | reply_file)
+        self.assertFalse(t._portal_get_attachment(note_file.id))

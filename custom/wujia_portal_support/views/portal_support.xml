@@ -402,15 +402,16 @@
                                     <div t-out="ticket.description or '—'"/>
                                 </div>
                             </div>
-                            <div t-if="ticket.attachment_ids" class="wj-surface-card wj-surface-card--section wj-surface-card--compact wj-surface-card--flush mb-2">
+                            <t t-set="portal_files" t-value="ticket._portal_attachments()"/>
+                            <div t-if="portal_files" class="wj-surface-card wj-surface-card--section wj-surface-card--compact wj-surface-card--flush mb-2">
                                 <t t-call="wujia_portal_layout.wj_card_header">
                                     <t t-set="ch_title">File đính kèm</t>
                                     <t t-set="ch_platform" t-value="'pc'"/>
                                     <t t-set="ch_class" t-value="'wj-surface-card__head wj-card-header--flush'"/>
                                 </t>
                                 <ul class="list-group list-group-flush">
-                                    <li t-foreach="ticket.attachment_ids" t-as="att" class="list-group-item">
-                                        <a t-attf-href="/web/content/ir.attachment/#{att.id}/datas?download=true">
+                                    <li t-foreach="portal_files" t-as="att" class="list-group-item">
+                                        <a t-attf-href="/portal/support/#{ticket.id}/attachment/#{att.id}">
                                             <i class="fa fa-paperclip me-1" title="Attachment"/><t t-out="att.name"/>
                                         </a>
                                     </li>
@@ -425,7 +426,7 @@
                                     <t t-set="ch_class" t-value="'wj-surface-card__head wj-card-header--flush'"/>
                                 </t>
                                 <div class="wj-surface-card__body">
-                                    <t t-set="comments" t-value="ticket.message_ids.filtered(lambda m: m.message_type == 'comment').sorted('date')"/>
+                                    <t t-set="comments" t-value="ticket._portal_messages()"/>
                                     <div t-if="not comments" class="wujia-empty-state">
                                         <i class="feather icon-message-square"/>
                                         <p>Chưa có trao đổi.</p>
@@ -551,8 +552,35 @@
                     </div>
                 </t>
 
+                <!-- File đính kèm -->
+                <t t-set="portal_files" t-value="ticket._portal_attachments()"/>
+                <t t-if="portal_files" t-call="wujia_portal_layout.wj_surface_card">
+                    <t t-set="sc_variant" t-value="'section'"/>
+                    <t t-set="sc_body" t-value="'flush'"/>
+                    <t t-set="sc_class" t-value="'wujia-mdash-card'"/>
+                    <div class="wj-surface-headpad">
+                        <t t-call="wujia_portal_layout.wj_card_header">
+                            <t t-set="ch_title">File đính kèm</t>
+                            <t t-set="ch_level" t-value="2"/>
+                            <t t-set="ch_platform" t-value="'m'"/>
+                            <t t-set="ch_class" t-value="'wj-card-header--flush'"/>
+                        </t>
+                    </div>
+                    <t t-call="wujia_portal_layout.wj_data_list">
+                        <t t-set="dl_variant" t-value="'compact-row'"/>
+                        <t t-set="dl_class" t-value="'wujia-mdash-list wj-data-list--inset'"/>
+                        <a t-foreach="portal_files" t-as="att" class="wujia-mdash-row wj-data-item"
+                           t-attf-href="/portal/support/#{ticket.id}/attachment/#{att.id}">
+                            <span class="wujia-mdash-tile"><i class="feather icon-paperclip"/></span>
+                            <span class="wujia-mdash-row-main">
+                                <span class="wujia-mdash-row-title is-sm" t-out="att.name"/>
+                            </span>
+                        </a>
+                    </t>
+                </t>
+
                 <!-- Lịch sử trao đổi -->
-                <t t-set="comments" t-value="ticket.message_ids.filtered(lambda m: m.message_type == 'comment').sorted('date')"/>
+                <t t-set="comments" t-value="ticket._portal_messages()"/>
                 <t t-call="wujia_portal_layout.wj_surface_card">
                     <t t-set="sc_variant" t-value="'section'"/>
                     <t t-set="sc_body" t-value="'flush'"/>

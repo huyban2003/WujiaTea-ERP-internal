@@ -1,6 +1,6 @@
 {
     'name': 'Wujia Portal — Support Tickets',
-    'version': '19.0.4.0.0',
+    'version': '19.0.4.0.1',
     'category': 'Wujia',
     'summary': 'Màn yêu cầu hỗ trợ trên portal cửa hàng — nghiệp vụ ở wujia_support (F10)',
     'author': 'WujiaTea',
