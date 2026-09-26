@@ -1633,8 +1633,11 @@ rồi đánh ✅ ở bảng Trạng thái §2 `docs/next-session-clusters-F.md`.
     8 issue mở → 4 cụm 140+141 · 143+144+145 · 142 · 146. 7 issue mới 0 dòng code.
 - Commit: `review(FR-A)` (sửa nhỏ + doc + test quét) và `fix(debt): pager + card payment-history mobile (UI-DATALIST-001)`.
 - Đã dọn: 5 DB `wujia_fra*` + filestore, worktree `scratchpad/fra/head7`, 2 server 8097/8098.
-- Deploy: **chưa**. Lệnh cho chủ dự án: `git pull` → `-u wujia_portal_debt` (+ `-u wujia_info_request` cho đồng bộ), restart cho
-  7 module chỉ đổi `.py`. Sau deploy: ledger `build_override` → ĐÃ DEPLOY, `qa_sync.py --only UI-DATALIST-001 --apply`.
+- Deploy: **đã deploy UAT 26/09** (chủ dự án, sau push `caffb33`). Đo chỉ-đọc RPC: `wujia_portal_debt 19.0.4.15.0` installed,
+  view `portal_debt_payment_history` write_date 13:31 có `t-foreach="payments"` ×2 + `dl_pager`/`wj_pagination`, 0 class cũ;
+  9 số kế sequence giữ nguyên (INF 1 · RTN 5 · CA 1 · ANN 20 · KNW 28 · WJ-TK 17 · WJ-CRS 5 · WJ-EXR 17 · WJ-EXS 6);
+  UAT có 12 giao dịch tháng 9 ở HCM-01 để BA retest. Ledger → ĐÃ DEPLOY, `qa_sync --apply` ghi 6 ô + 1 History
+  (UI-DATALIST-001 → Ready for Retest). Chưa đo browser trên UAT bằng tài khoản portal (không đăng nhập thử mật khẩu).
 - Số đo: suite **912 → 914/0/0** · DB trắng 123/0/0 · HTML 63/68 · query Δ0/17 route · mutation 7/8 (M7 giải trình) ·
   comment mã phiên còn 49 `.py` / 349 mọi file (ngoài khối A) · `_sql_constraints` 16 file (8 Dev).
 - Bài học: test quét component là hàng rào thật (CSS 1 dòng cho màn bị chặn, sửa bằng bố cục hàng chuẩn); đo với dữ liệu
