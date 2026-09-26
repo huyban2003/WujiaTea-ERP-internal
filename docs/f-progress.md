@@ -1410,8 +1410,14 @@ rồi đánh ✅ ở bảng Trạng thái §2 `docs/next-session-clusters-F.md`.
     đính kèm 200/403, Home không hiện bài hẹn giờ).
   - `split_snapshot` đọc `last_value` sequence Postgres. `check_layers`, `deploy.yml`, reseed. Chapter 74 (bẫy noupdate, số đo F9, P4).
 - Commit: `2ba8311` — `feat(F9): tách knowledge → module nghiệp vụ wujia_knowledge + controller mỏng` (đã push `main`).
-- Deploy: chưa. Lệnh: `-i wujia_knowledge -u wujia_portal_knowledge,wujia_portal_base`. UAT trước deploy (RPC chỉ-đọc): 27 bài,
-  `KNW-` số kế 28, cron khớp XML — sau deploy phải đo lại số kế 28.
+- Deploy: **UAT 26/09** (chủ dự án). Lệnh: `-i wujia_knowledge -u wujia_portal_knowledge,wujia_portal_base`. Đo chỉ-đọc (RPC + HTTP
+  `anh.owner`): 3 version đúng (`19.0.1.0.0` · `19.0.4.0.0` · `portal_base 19.0.7.25.0`) · module mới 108 xmlid (107 +
+  `field_…article__rating_ids` vì UAT cài `rating`, như F8) · portal còn 5 view · 13 cons + 2 rel đổi chủ · **`KNW-` số kế 28**
+  (27 bài, mã cao nhất `KNW-000027`) ⇒ bẫy noupdate đã chặn thật · cron 25 active, nextcall giữ · menu 305–308 + action 480–482
+  tạo 16/05 (không bị tạo lại), action list/kanban/form · nhãn + menu vi_VN còn · portal: `/portal/knowledge` (+ `?keyword`, trang 2)
+  200, category/tag/slug sai → redirect `notice=*_gone` như cũ, chi tiết 200, attachment lạ 403, JSON search 2 bài · Home 200, 2 bài
+  mới nhất đúng dự kiến. UAT không có bài hẹn giờ tương lai hay đính kèm ⇒ hai nhánh đó chỉ có bằng chứng local. Mở trang chi tiết
+  làm `view_count` bài QA-RETEST +1 (không tạo bản ghi).
 - Số đo: hook 107 imd + 13 cons + 2 rel · snapshot 122 đổi chủ **0 lệch thật** · HTML 12/12 route + JSON 2/2 giống từng byte,
   bundle cùng md5, Home lệch đúng bài hẹn giờ · suite **856, 0 đỏ** (F8 847 + 9) · test mới trên HEAD chỉ Home đỏ · DB trắng
   10/10 · mutation M2 2 đỏ, M3 2 đỏ, M1 chỉ snapshot bắt (10 lệch) · `check_layers` 1 (exam, F12) · R7 2 (Thái).
@@ -1424,5 +1430,5 @@ rồi đánh ✅ ở bảng Trạng thái §2 `docs/next-session-clusters-F.md`.
 - Nợ để lại: (1) `_sql_constraints` hết hiệu lực trên Odoo 19 — unique slug/mã bài/mã danh mục/tên tag không có trong DB (nhiều
   module cùng lỗi); (2) publish bài nháp đã có ngày hẹn thì `write` ghi đè ngày = now (hỏi BA); (3) F10–F13 có sequence thật ⇒ bỏ
   `number_next` trước khi tách (ghi ở bảng §2 + chapter 74).
-- Phiên kế: chủ dự án deploy F9 → đo UAT chỉ-đọc (số kế `KNW-` 28, 107 xmlid, Home). Sau đó **F10 `support`** (có sequence ticket,
+- Phiên kế: **F10 `support`** (có sequence ticket,
   depends `sale`/`stock_picking_batch`/`sales_team`; C1 đã vá) hoặc cụm Issue List 143 + 144 + 145 "mật độ mobile".

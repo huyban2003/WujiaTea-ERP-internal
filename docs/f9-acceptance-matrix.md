@@ -71,9 +71,9 @@ A2 (bảng badge `portal_base/utils.py`): không có bảng nào của knowledge
 
 ## Còn mở
 
-1. Deploy UAT (chủ dự án): `-i wujia_knowledge -u wujia_portal_knowledge,wujia_portal_base`. Đo sau chỉ-đọc:
-   3 version, 107 xmlid module mới (UAT có thể +1 field như F8 nếu cài `rating`), sequence số kế **28**, cron nguyên,
-   Home không có bài `publish_date` tương lai.
+1. ✅ Đã deploy UAT 26/09: đo chỉ-đọc đạt. 3 version đúng. Module mới 108 xmlid (107 + `field_wujia_knowledge_article__rating_ids`
+   vì UAT cài `rating`, như F8). Sequence số kế **28**, cron nguyên, menu/action không tạo lại. Portal + Home + JSON 200, attachment lạ
+   403. UAT không có bài hẹn giờ/đính kèm nên hai nhánh đó dựa vào test local. Chi tiết ở `f-progress.md` mục F9, dòng Deploy.
 2. Nợ ghi nhận, không sửa trong F9: `_sql_constraints` (unique slug/mã bài, mã danh mục, tên tag) **không còn hiệu lực
    trên Odoo 19** (log `Model attribute '_sql_constraints' is no longer supported`; DB không có UNIQUE) — cần đổi sang
    `models.Constraint` + kiểm dữ liệu trùng trước. Cùng lỗi ở nhiều module khác.
