@@ -28,7 +28,7 @@ CORE, BIZ, FRAME, BASE, CHANNEL = 'L1 core', 'L2 nghiệp vụ', 'L2 khung', 'L3
 
 LAYER = {
     'wujia_core': CORE,
-    'wujia_sale': BIZ, 'wujia_order_window': BIZ, 'wujia_info_request': BIZ, 'wujia_knowledge': BIZ, 'wujia_support': BIZ, 'wujia_fleet': BIZ, 'wujia_delivery': BIZ, 'wujia_account': BIZ,
+    'wujia_sale': BIZ, 'wujia_order_window': BIZ, 'wujia_info_request': BIZ, 'wujia_knowledge': BIZ, 'wujia_support': BIZ, 'wujia_notification': BIZ, 'wujia_fleet': BIZ, 'wujia_delivery': BIZ, 'wujia_account': BIZ,
     'wujia_franchise': BIZ, 'wujia_franchise_contract': BIZ,
     'wujia_franchise_inspection': BIZ, 'wujia_franchise_operations': BIZ,
     'wujia_portal_layout': FRAME, 'wujia_mobile_core': FRAME,
@@ -37,7 +37,7 @@ LAYER = {
 
 # portal_* đang ôm model nghiệp vụ, chờ tách ở F8–F13 (plan cụm F §1.A1)
 PENDING_SPLIT = {
-    'wujia_portal_notification', 'wujia_portal_exam', 'wujia_portal_return',
+    'wujia_portal_exam', 'wujia_portal_return',
 }
 
 # vỏ rỗng sau khi tách, chờ Uninstall rồi xoá thư mục — không xét luật tầng

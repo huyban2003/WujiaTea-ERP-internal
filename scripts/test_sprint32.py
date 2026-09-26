@@ -93,8 +93,8 @@ check(eff.is_expired is False, "noti không expired_date → is_expired False")
 # ---------- 4. effective vs history domain ----------
 print("\n[4] effective vs history domain")
 fids = list(owner_fids)
-eff_rows = Noti.search(N._effective_domain(fids))
-his_rows = Noti.search(N._history_domain(fids))
+eff_rows = Noti.search(Noti._portal_effective_domain(fids))
+his_rows = Noti.search(Noti._portal_history_domain(fids))
 check(eff in eff_rows and exp not in eff_rows, "effective: chứa còn-hiệu-lực, LOẠI hết hạn")
 check(exp in his_rows and eff in his_rows, "history: chứa CẢ hết hạn + còn hiệu lực")
 

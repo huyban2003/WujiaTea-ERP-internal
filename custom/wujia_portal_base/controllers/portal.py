@@ -309,21 +309,10 @@ class WujiaPortal(CustomerPortal):
         if Model is None:
             return 0
         Model = Model.sudo()
-        if kind == 'unread_count':
-            user_id = request.env.user.id
-            published_total = Model.search_count([
-                ('is_published_portal', '=', True),
-                '|', ('franchise_ids', '=', False),
-                     ('franchise_ids', 'in', list(franchise_ids)),
-            ])
-            Read = request.env.get('wujia.notification.read')
-            if Read is None:
-                return published_total
-            read_count = Read.sudo().search_count([
-                ('user_id', '=', user_id),
-                ('notification_id.is_published_portal', '=', True),
-            ])
-            return max(0, published_total - read_count)
+        if kind == 'unread_count' and hasattr(Model, '_portal_unread_count'):
+            # Cùng luật với badge chuông (F11): còn hiệu lực, chưa đọc tại cửa hàng đang chọn.
+            return Model._portal_unread_count(
+                request.env.user, franchise_ids, get_active_franchise_id())
         if kind == 'open_count':
             # BA spec: state in ('submitted','processing','approved') — KHÔNG tính draft.
             return Model.search_count([
@@ -339,12 +328,10 @@ class WujiaPortal(CustomerPortal):
         if Model is None:
             return []
         Model = Model.sudo()
-        if model_name == 'wujia.notification':
-            return Model.search([
-                ('is_published_portal', '=', True),
-                '|', ('franchise_ids', '=', False),
-                     ('franchise_ids', 'in', list(franchise_ids)),
-            ], order='published_date desc', limit=limit)
+        if model_name == 'wujia.notification' and hasattr(Model, '_portal_effective_domain'):
+            # Cùng luật với popup chuông (F11): không hiện bài hẹn giờ / hết hiệu lực.
+            return Model.search(Model._portal_effective_domain(franchise_ids),
+                                order='is_pinned desc, published_date desc', limit=limit)
         if model_name == 'wujia.return.request':
             # BA spec: loại phiếu đã huỷ / từ chối khỏi danh sách gần đây.
             return Model.search([

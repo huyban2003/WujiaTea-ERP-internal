@@ -463,3 +463,62 @@ class WujiaNotification(models.Model):
             ('notification_id', '=', self.id),
             ('user_id', '=', user_id),
         ]))
+
+    # -----------------------------------------------------------------
+    # Portal — luật dùng chung cho mọi kênh (F11). Gọi trên recordset sudo.
+    # -----------------------------------------------------------------
+    @api.model
+    def _portal_history_domain(self, franchise_ids):
+        """Lịch sử: mọi thông báo đã phát hành đúng đối tượng (gồm cả đã hết hiệu lực).
+        Broadcast (franchise_ids trống) HOẶC target đúng cửa hàng đang thao tác."""
+        ids = list(franchise_ids) if franchise_ids else [-1]
+        return [
+            ('is_published_portal', '=', True),
+            '|', ('franchise_ids', '=', False), ('franchise_ids', 'in', ids),
+            ('published_date', '<=', fields.Datetime.now()),
+        ]
+
+    @api.model
+    def _portal_effective_domain(self, franchise_ids):
+        """Còn hiệu lực: đã phát hành + chưa hết hạn — dùng cho popup, badge, đếm chưa đọc, Home."""
+        return self._portal_history_domain(franchise_ids) + [
+            '|', ('expired_date', '=', False), ('expired_date', '>=', fields.Datetime.now()),
+        ]
+
+    @api.model
+    def _portal_read_domain(self, user, franchise_id):
+        dom = [('user_id', '=', user.id)]
+        if franchise_id:
+            dom.append(('franchise_id', '=', franchise_id))
+        return dom
+
+    @api.model
+    def _portal_read_ids(self, user, notification_ids, franchise_id):
+        """1 query — id thông báo user đã đọc TẠI cửa hàng hiện tại."""
+        if not notification_ids:
+            return set()
+        dom = self._portal_read_domain(user, franchise_id) + [
+            ('notification_id', 'in', list(notification_ids))]
+        return set(self.env['wujia.notification.read'].search(dom).mapped('notification_id').ids)
+
+    @api.model
+    def _portal_unread_count(self, user, franchise_ids, franchise_id):
+        """Số thông báo còn hiệu lực CHƯA đọc của user tại cửa hàng hiện tại.
+
+        2 câu đếm, KHÔNG nạp id ra Python: badge chạy trên mọi trang portal, với 1500
+        cửa hàng thì `search(...).ids` là kéo cả bảng về mỗi request. `any` đẩy điều
+        kiện "còn hiệu lực" xuống subquery của notification_id.
+        """
+        eff_domain = self._portal_effective_domain(franchise_ids)
+        total_eff = self.search_count(eff_domain)
+        if not total_eff:
+            return 0
+        dom = self._portal_read_domain(user, franchise_id) + [
+            ('notification_id', 'any', eff_domain)]
+        return max(0, total_eff - self.env['wujia.notification.read'].search_count(dom))
+
+    def _portal_get_attachment(self, attachment_id):
+        """File đính kèm chỉ khi thuộc đúng thông báo này (đóng IDOR /web/content)."""
+        self.ensure_one()
+        return self.env['ir.attachment'].search([
+            ('id', '=', attachment_id), ('id', 'in', self.attachment_ids.ids)], limit=1)

@@ -1493,3 +1493,40 @@ rồi đánh ✅ ở bảng Trạng thái §2 `docs/next-session-clusters-F.md`.
 - Deploy: `-u wujia_support,wujia_portal_support` (chủ dự án).
 - Phiên kế: đo UAT (ticket 16 hiện file, ticket 12 hết note) → **F11 `announcement`** hoặc cụm Issue 143+144+145.
 
+## F11 — Tách `notification` → `wujia_notification` + controller mỏng · 26/09/2026 · Mac
+- Kết quả: ✅ xong. Nghiệm thu: `docs/f11-acceptance-matrix.md` (9/9).
+- Issue List: 8 `Ready for Dev` (STT 126, 140–146), reconcile 0 code. Chủ dự án chọn F11.
+- Chủ dự án chốt: tên module **`wujia_notification`**, **giữ `_name` cả 3 model** · **Home vá luôn, dùng luật chung** (KPI
+  "chưa đọc" = badge chuông, list Home bỏ bài hẹn giờ/hết hạn) · **code + commit + push `main`**, deploy để chủ dự án ·
+  4 màu nền loại thông báo trên UAT **để về theo code** (bẫy noupdate). Mobile Thái: 0 tham chiếu notification.
+- UAT đo chỉ-đọc trước (RPC): 19 thông báo, 20 dòng đã đọc, `ANN/` số kế 20, nhóm User 0 / Administrator 1, 147 xmlid.
+  5 loại: code/tên/icon khớp XML, **4/5 `bg_color` lệch** (bảng màu Sprint 4.3 còn trên UAT; XML đã đổi ở Sprint 19) ⇒ dừng hỏi.
+- Đã làm:
+  - Module L2 mới `wujia_notification` (git mv 3 model, 2 nhóm quyền + privilege, ACL, 2 rule, sequence `ANN/` bỏ
+    `number_next`, 5 loại, backend; ACL + menu đổi ref nhóm sang cục bộ; `.po` 214 mục → 159 + 55 portal). Hook
+    `imd_names(extra=[privilege, 2 nhóm, 4 menu, 5 loại])` + `migrate_ownership`.
+  - Controller mỏng: domain lịch sử/còn hiệu lực, đọc/đếm chưa đọc theo cửa hàng, đính kèm thuộc thông báo về model;
+    3 chỗ ghi "đã đọc" (chi tiết / mark-read / mark-all) → `wujia.notification.read._mark_read(opened, touch)`. 433 → 336 dòng.
+  - Home `portal_base`: KPI + list thông báo gọi luật model qua `hasattr` (không thêm depend). A2: không có bảng badge thông báo.
+  - Test: `wujia_notification` 37 (2 file test model dời + `test_portal_rules` 4 + `test_split_ownership` 2) + 5 HttpCase portal
+    (Home = badge, list Home, mở lại giữ `read_date`, mark-read chỉ id truy cập được, đính kèm 200/403/404). `check_layers`,
+    `deploy.yml`, reseed, `test_sprint32.py`.
+  - Chapter 74: đoạn F11, dòng P6, số `.po`.
+- Commit: xem `git log` — `feat(F11): tách notification → module nghiệp vụ wujia_notification + controller mỏng` (đã push `main`).
+- Deploy: **chờ chủ dự án**. Lệnh: `-i wujia_notification -u wujia_portal_notification,wujia_portal_base`. Sau deploy đo
+  chỉ-đọc: 3 version (`wujia_notification 19.0.1.0.0` · `portal_notification 19.0.3.0.0` · `portal_base 19.0.7.27.0`), module
+  mới 141 xmlid (140 + `rating_ids`), portal còn 6 view, `ANN/` số kế **20**, 4 ô màu loại đổi, KPI Home = badge chuông.
+- Số đo: hook 140 imd + 28 cons + 5 rel · snapshot 173 đổi chủ, **1 lệch có giải trình** (md5 bảng loại: `bg_color` về XML,
+  tên vi_VN tuỳ biến giữ) · HTML 3 phiên × 40 request **117/120 giống từng byte**, 3 lệch đều Home (đúng chỗ vá) · DB đã đọc
+  sau ghi giống hệt · bundle cùng md5 · suite **885, 0 đỏ** · test portal mới trên HEAD: đúng 2 đỏ (2 test Home) · DB trắng
+  37/37 · mutation **5/5** · Playwright PC 1440 + mobile 390: Home 47 = popup 47 = badge 47, 0 tràn · `check_layers` 1 (exam,
+  F12) · R7 2 (Thái).
+- Lệch plan / quyết định mới: không dời `test_notification_timezone` (dùng tiện ích `portal_base`). `migrations/` cũ của
+  portal để nguyên. Seed nháp không được có `published_date` (NOT NULL chỉ khi gửi — bỏ key).
+- Bài học: HTML trang đầy đủ có `registry_hash` đổi theo registry ⇒ phải chuẩn hoá khi so hai server. `-i` module tách
+  nạp lại data noupdate lên xmlid đổi chủ ⇒ **đo trước từng field XML trên UAT**, lệch thì hỏi (F11 là lần đầu lệch thật).
+- Nợ để lại: (1) phụ đề danh sách "còn hiệu lực" nhưng danh sách là lịch sử (có bài hết hạn, bài hết hạn chưa mở vẫn
+  "Chưa đọc") — có từ trước, hỏi BA nếu cần; (2) `is_read_by()` không còn nơi gọi — dọn ở ★FR-A; (3) `_sql_constraints`
+  chết trên Odoo 19 (nợ chung).
+- Phiên kế: **F12 `exam`** (mobile Thái `ref()` xmlid `wujia_portal_exam.*` — báo Thái trước deploy; hết vi phạm R3 cuối)
+  hoặc cụm Issue List 143 + 144 + 145 "mật độ mobile".

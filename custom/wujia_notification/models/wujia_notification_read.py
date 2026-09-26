@@ -1,4 +1,4 @@
-from odoo import fields, models
+from odoo import api, fields, models
 
 
 class WujiaNotificationRead(models.Model):
@@ -43,3 +43,32 @@ class WujiaNotificationRead(models.Model):
         '(notification_id, user_id) WHERE franchise_id IS NULL',
         'Mỗi user chỉ ghi nhận đọc 1 lần / thông báo khi chưa chọn cửa hàng.',
     )
+
+    @api.model
+    def _mark_read(self, user, franchise_id, notifications, opened=False, touch=False):
+        """Ghi "đã đọc" của user tại cửa hàng cho `notifications` — idempotent, trả số dòng tạo mới.
+
+        opened: người dùng thật sự mở nội dung ⇒ dòng mới có `last_open_date`.
+        touch: dòng đã có đổi `last_open_date` (mở lại trang chi tiết), `read_date` giữ nguyên.
+        Chưa chọn cửa hàng thì không ghi (spec F §8.11 — tránh row franchise_id NULL).
+        """
+        if not franchise_id or not notifications:
+            return 0
+        existing = self.search([
+            ('user_id', '=', user.id),
+            ('notification_id', 'in', notifications.ids),
+            ('franchise_id', '=', franchise_id),
+        ])
+        now = fields.Datetime.now()
+        if touch and existing:
+            existing.last_open_date = now
+        done = set(existing.mapped('notification_id').ids)
+        vals = [
+            dict({'notification_id': nid, 'user_id': user.id,
+                  'franchise_id': franchise_id, 'read_date': now},
+                 **({'last_open_date': now} if opened else {}))
+            for nid in notifications.ids if nid not in done
+        ]
+        if vals:
+            self.create(vals)
+        return len(vals)

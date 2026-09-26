@@ -29,7 +29,7 @@
 
 ---
 
-## §2 wujia-modules (21 active + `wujia_order_window` từ F7 + `wujia_info_request` từ F8 + `wujia_knowledge` từ F9 + `wujia_support` từ F10)
+## §2 wujia-modules (21 active + `wujia_order_window` từ F7 + `wujia_info_request` từ F8 + `wujia_knowledge` từ F9 + `wujia_support` từ F10 + `wujia_notification` từ F11)
 
 | Module | Vai trò |
 |---|---|
@@ -44,7 +44,8 @@
 | `wujia_portal_purchase_history` | `/portal/purchase-history` |
 | `wujia_portal_delivery` | `/portal/delivery` |
 | `wujia_portal_return` | `/portal/return` single-product + duyệt + `wujia.compensation.allocation` + wizard SO 0đ FIFO + hook picking (Sprint K) |
-| `wujia_portal_notification` | `/portal/notification` + **backend quản trị thông báo** (vòng đời draft/published/archived, `code` ANN/năm/số, thống kê đọc, Sprint 41) |
+| `wujia_notification` | (F11, L2) 3 model thông báo/loại/đã đọc + 2 nhóm quyền + rule + sequence `ANN/` + backend quản trị (vòng đời draft/published/archived, thống kê đọc, Sprint 41); `_portal_history_domain` / `_portal_effective_domain` (dùng chung màn Thông báo + chuông + Home) / `_portal_unread_count` (theo cửa hàng) / `_portal_get_attachment` / `wujia.notification.read._mark_read` |
+| `wujia_portal_notification` | `/portal/notification` + chuông header + nav (controller + 4 QWeb, nghiệp vụ ở `wujia_notification`) |
 | `wujia_portal_exam` | `/portal/exam` + backend Đăng ký thi (7 model, Sprint M) |
 | `wujia_knowledge` | (F9, L2) 3 model bài/danh mục/tag + backend HQ + cron hạ bài hết hạn + sequence KNW-; `_portal_visible_domain` (dùng chung màn Kiến thức + Home) / `_portal_search_domain` / `_portal_get_attachment` |
 | `wujia_portal_knowledge` | `/portal/knowledge` (controller + 3 QWeb + 2 nav, nghiệp vụ ở `wujia_knowledge`) |
@@ -118,6 +119,8 @@ ADR-001 odoo19 source độc lập / 002 venv conda `odoo` py3.10 / 003 PG role 
 ---
 
 ## §5 wujia-current-status
+
+**State (2026-09-26 · phiên F11) — TÁCH `notification` XONG; ĐÃ PUSH `main`, CHỜ DEPLOY UAT.** Module L2 mới `wujia_notification` 19.0.1.0.0 (depend `mail`, `wujia_franchise`) nhận 3 model (giữ `_name`) + **2 nhóm quyền + privilege** + ACL + 2 rule + sequence `ANN/` (bỏ `number_next`) + 5 loại + backend; hook `imd_names(extra=[privilege, 2 nhóm, 4 menu, 5 loại])` ⇒ 140 xmlid + 28 cons + 5 rel; portal `19.0.3.0.0` còn 4 QWeb (danh sách/kết quả/chi tiết) + chuông + nav, controller 433 → 336. Luật về model: domain lịch sử/còn hiệu lực, đếm chưa đọc **theo cửa hàng**, đính kèm thuộc thông báo; 3 chỗ ghi "đã đọc" → `_mark_read(opened, touch)`. **Home (`portal_base` 19.0.7.27.0) dùng luật chung** (chủ dự án chốt): KPI chưa đọc = badge chuông, list bỏ bài hẹn giờ/hết hạn. **Bẫy noupdate lệch thật lần đầu:** UAT còn 4 màu nền loại cũ (Sprint 4.3), `-i` đưa về màu XML — chủ dự án chốt theo code. Số đo: snapshot 173 đổi chủ, 1 lệch có giải trình (màu loại) · HTML 117/120 giống từng byte, 3 lệch đều Home · suite **885/0** · test portal mới trên HEAD đúng 2 đỏ (Home) · DB trắng 37/37 · mutation 5/5. Nợ: phụ đề danh sách "còn hiệu lực" lệch nội dung (có từ trước) · `is_read_by()` không còn nơi gọi. Lệnh deploy: `-i wujia_notification -u wujia_portal_notification,wujia_portal_base`. Phiên kế: **F12 `exam`** hoặc cụm Issue 143+144+145.
 
 **State (2026-09-26 · phiên F10) — TÁCH `support` XONG; PUSH `main` (`033794c`), ĐÃ DEPLOY UAT 26/09 (đo chỉ-đọc đạt: 114 xmlid, số kế WJ-TK 17, danh mục + vi_VN, id menu/action giữ).** Module L2 mới `wujia_support` 19.0.1.0.0 (depend `mail`, `wujia_franchise`, `sale`, `stock_picking_batch`, `sales_team`) nhận 2 model + ACL + 2 rule + sequence `WJ-TK/` + 7 danh mục + backend; hook `imd_names(extra=[4 menu, 7 danh mục])` ⇒ 113 xmlid + 16 cons + 1 rel; portal `19.0.4.0.0` còn 3 QWeb + 2 nav + controller 166 dòng (200 cũ). Luật về model: phạm vi (theo **người tạo**), kiểm + tạo + đính kèm một savepoint (thay `unlink`), trả lời ticket, đính kèm thuộc ticket. A2: `MOBILE_TICKET_BADGES` rời `portal_base` (19.0.7.26.0). **Bẫy noupdate dữ liệu mẫu (chapter 74 bước 2):** `-i` đưa field ghi trong XML về giá trị XML nhưng giữ bản dịch vi_VN tuỳ biến; UAT khớp XML (đo RPC trước). Số đo: snapshot 130 đổi chủ, 1 lệch có giải trình (`write_date` danh mục) · HTML 18/18 GET + 9/9 POST giống, DB sau POST giống · suite **872/0** · test portal mới trên HEAD 12/12 · DB trắng 11/11 · mutation 4/4. Nợ: hỏi BA phạm vi theo người tạo · `_sql_constraints` danh mục. Lệnh deploy: `-i wujia_support -u wujia_portal_support,wujia_portal_base`. **F10-fix** (chưa deploy, `-u wujia_support,wujia_portal_support`): chi tiết ticket portal nay hiện file cửa hàng tải lên (PC + thẻ mới mobile) và **ẩn ghi chú nội bộ HQ** vốn lộ cho cửa hàng; luật ở model `_portal_messages`/`_portal_attachments`, 524/0. Phiên kế: **F11 `announcement`** hoặc cụm Issue 143+144+145.
 
