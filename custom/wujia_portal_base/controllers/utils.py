@@ -525,20 +525,25 @@ MOBILE_BATCH_BADGES = {
     'cancelled':  ('Hủy chuyến', status_badge('danger')),
 }
 
-# Sprint 17 — nhãn MOBILE cho "Yêu cầu đổi trả gần đây" (Figma 2474:206/213:
-# "Chờ xử lý"=danger / "Đang xử lý"=warning). Chuyển từ wujia_portal_delivery
-# về đây để Home (section gộp Sprint 16) + delivery dùng chung. UI-only, TÁCH
-# STATE_LABELS desktop của wujia_portal_return; nguồn state thật wujia.return.request.
-MOBILE_RETURN_BADGES = {
-    'draft':      ('Nháp', status_badge('neutral')),
-    'submitted':  ('Chờ xử lý', status_badge('pending')),
-    'reviewing':  ('Đang xét', status_badge('processing')),
-    'approved':   ('Đã duyệt', status_badge('success')),
-    'processing': ('Đang xử lý', status_badge('processing')),
-    'done':       ('Hoàn thành', status_badge('success')),
-    'rejected':   ('Từ chối', status_badge('danger')),
-    'cancelled':  ('Đã huỷ', status_badge('danger')),
-}
+# Nhãn trạng thái đổi trả — MỘT nguồn cho Home (PC + mobile) và /portal/return (badge + bộ lọc).
+# Khoá = `wujia.return.request._portal_status_key()`; F13 gộp 3 bảng lệch chữ (màu vốn giống nhau).
+RETURN_STATUS_LABELS = {k: (v, status_badge_for(v)) for k, v in (
+    ('draft', 'Nháp'),
+    ('submitted', 'Đã gửi'),
+    ('processing', 'Đang xử lý'),
+    ('approved', 'Đã duyệt'),
+    ('partial', 'Đang bù một phần'),
+    ('done', 'Hoàn tất'),
+    ('rejected', 'Từ chối'),
+    ('cancelled', 'Đã huỷ'),
+)}
+
+
+def return_status_label(rr):
+    """(nhãn, class badge) của một yêu cầu đổi trả."""
+    key = rr._portal_status_key() if hasattr(rr, '_portal_status_key') else rr.state
+    return RETURN_STATUS_LABELS.get(key, (key, status_badge('neutral')))
+
 
 VI_WEEKDAYS = {0: 'Thứ 2', 1: 'Thứ 3', 2: 'Thứ 4', 3: 'Thứ 5',
                4: 'Thứ 6', 5: 'Thứ 7', 6: 'CN'}

@@ -6,7 +6,6 @@ from odoo.addons.portal.controllers.portal import CustomerPortal
 from odoo.addons.wujia_portal_layout.controllers.utils import safe_local_path
 from odoo.addons.wujia_portal_base.controllers.utils import (
     MOBILE_ORDER_BADGES,
-    MOBILE_RETURN_BADGES,
     PAGE_SIZE_OPTIONS,
     build_pager,
     status_badge,
@@ -14,6 +13,7 @@ from odoo.addons.wujia_portal_base.controllers.utils import (
     get_upcoming_batches,
     parse_page_size,
     portal_money,
+    return_status_label,
 )
 
 
@@ -173,7 +173,7 @@ class WujiaPortal(CustomerPortal):
             'm_upcoming_batches': upcoming['items'],
             'm_undelivered_count': upcoming['undelivered_count'],
             'm_order_badges': MOBILE_ORDER_BADGES,
-            'm_return_badges': MOBILE_RETURN_BADGES,
+            'wj_return_status': return_status_label,
             'wj_badge_default': status_badge('neutral'),
             'articles': articles,
             'm_hotline': request.env.company.sudo().phone or '',
@@ -313,12 +313,9 @@ class WujiaPortal(CustomerPortal):
             # Cùng luật với badge chuông (F11): còn hiệu lực, chưa đọc tại cửa hàng đang chọn.
             return Model._portal_unread_count(
                 request.env.user, franchise_ids, get_active_franchise_id())
-        if kind == 'open_count':
-            # BA spec: state in ('submitted','processing','approved') — KHÔNG tính draft.
-            return Model.search_count([
-                ('franchise_id', 'in', list(franchise_ids)),
-                ('state', 'in', ['submitted', 'processing', 'approved']),
-            ])
+        if kind == 'open_count' and hasattr(Model, '_portal_open_domain'):
+            # Cùng luật với /portal/return (F13): BA không tính nháp.
+            return Model.search_count(Model._portal_open_domain(franchise_ids))
         return 0
 
     def _safe_list(self, model_name, franchise_ids, limit=5):
@@ -332,12 +329,10 @@ class WujiaPortal(CustomerPortal):
             # Cùng luật với popup chuông (F11): không hiện bài hẹn giờ / hết hiệu lực.
             return Model.search(Model._portal_effective_domain(franchise_ids),
                                 order='is_pinned desc, published_date desc', limit=limit)
-        if model_name == 'wujia.return.request':
-            # BA spec: loại phiếu đã huỷ / từ chối khỏi danh sách gần đây.
-            return Model.search([
-                ('franchise_id', 'in', list(franchise_ids)),
-                ('state', 'not in', ['rejected', 'cancelled']),
-            ], order='request_date desc', limit=limit)
+        if model_name == 'wujia.return.request' and hasattr(Model, '_portal_recent_domain'):
+            # BA: danh sách gần đây bỏ phiếu đã huỷ / từ chối.
+            return Model.search(Model._portal_recent_domain(franchise_ids),
+                                order='request_date desc', limit=limit)
         return []
 
     def _top_products(self, franchise_ids, limit=5):

@@ -1,3 +1,5 @@
+from datetime import datetime, timedelta
+
 from odoo import _, api, fields, models
 from odoo.exceptions import ValidationError
 
@@ -21,6 +23,18 @@ RESOLUTION_SELECTION = [
 ]
 
 MIN_IMAGES_BEFORE_SEND = 3
+
+# Luật portal (BA STT3): đơn căn cứ trong 10 ngày (#4), minh chứng (#7).
+ORDER_WINDOW_DAYS = 10
+IMAGE_MIME = ('image/jpeg', 'image/jpg', 'image/png')
+VIDEO_MIME = ('video/mp4', 'video/quicktime')
+MAX_IMAGES = 5
+MAX_IMAGE_MB = 5
+MAX_VIDEOS = 1
+MAX_VIDEO_MB = 10
+MAX_TOTAL_MB = 30
+# Yêu cầu còn mở (Home KPI) — BA: không tính nháp.
+OPEN_STATES = ('submitted', 'processing', 'approved')
 
 
 class WujiaReturnRequest(models.Model):
@@ -336,4 +350,179 @@ class WujiaReturnRequest(models.Model):
             'res_model': 'sale.order',
             'view_mode': 'list,form',
             'domain': [('id', 'in', self.compensation_so_ids.ids)],
+        }
+
+    # ------------------------------------------------------------------
+    # Portal — luật dùng chung cho mọi kênh (F13, ADR-027)
+    # ------------------------------------------------------------------
+    @api.model
+    def _portal_scope_domain(self, franchise_ids):
+        return [('franchise_id', 'in', list(franchise_ids))]
+
+    @api.model
+    def _portal_open_domain(self, franchise_ids):
+        return self._portal_scope_domain(franchise_ids) + [('state', 'in', list(OPEN_STATES))]
+
+    @api.model
+    def _portal_recent_domain(self, franchise_ids):
+        return self._portal_scope_domain(franchise_ids) + [('state', 'not in', ['rejected', 'cancelled'])]
+
+    def _portal_status_key(self):
+        """Trạng thái portal: 'Đang xét' gộp 'Đang xử lý'; 'partial' = đang bù dở (không có trong schema)."""
+        self.ensure_one()
+        if self.state == 'processing' and self.compensation_status == 'partial':
+            return 'partial'
+        return 'processing' if self.state == 'reviewing' else self.state
+
+    @api.model
+    def _portal_status_domain(self, key):
+        if key == 'partial':
+            return [('state', '=', 'processing'), ('compensation_status', '=', 'partial')]
+        if key == 'processing':
+            return [('state', 'in', ('reviewing', 'processing')),
+                    '!', ('compensation_status', '=', 'partial')]
+        if key in dict(STATE_SELECTION) and key != 'reviewing':
+            return [('state', '=', key)]
+        return []
+
+    @api.model
+    def _portal_eligible_order_domain(self, franchise_ids):
+        """Đơn đã xác nhận trong 10 ngày; ``date_order`` = ngày xác nhận khi đã confirm."""
+        cutoff = fields.Datetime.now() - timedelta(days=ORDER_WINDOW_DAYS)
+        return [('franchise_id', 'in', list(franchise_ids)),
+                ('state', 'in', ['sale', 'done']), ('date_order', '>=', cutoff)]
+
+    @api.model
+    def _portal_check_product_config(self, product):
+        """Câu báo nếu sản phẩm chưa cấu hình bù hợp lệ (BA STT3 #6), None nếu hợp lệ."""
+        msg = _("Sản phẩm chưa được cấu hình chính sách bù hàng. Vui lòng liên hệ Ngô Gia.")
+        if not product.compensation_enabled or not product.compensation_claim_uom_id:
+            return msg
+        delivery_uom = product.compensation_delivery_uom_id
+        if product.compensation_policy == 'accumulate':
+            unit = product.compensation_unit_qty or 0.0
+            # tỷ lệ quy đổi chỉ hỗ trợ số nguyên > 0
+            if not delivery_uom or unit <= 0 or abs(unit - round(unit)) > 1e-6:
+                return msg
+        elif delivery_uom and delivery_uom != product.compensation_claim_uom_id:
+            root = self.env['wujia.compensation.process.wizard']._uom_root
+            if root(delivery_uom) != root(product.compensation_claim_uom_id):
+                return msg
+        return None
+
+    @api.model
+    def _portal_check_evidence(self, images, videos, require_min=True):
+        """``images``/``videos``: list ``(size_bytes, mime_thật)``; kênh tự đọc MIME từ nội dung."""
+        if len(images) > MAX_IMAGES or (require_min and len(images) < MIN_IMAGES_BEFORE_SEND):
+            raise ValidationError(_("Cần tải từ %(min)s đến %(max)s ảnh minh chứng.",
+                                    min=MIN_IMAGES_BEFORE_SEND, max=MAX_IMAGES))
+        if len(videos) > MAX_VIDEOS:
+            raise ValidationError(_("Chỉ được tải tối đa %s video minh chứng.", MAX_VIDEOS))
+        bad = _("Tệp không đúng định dạng hoặc vượt quá dung lượng cho phép.")
+        for files, allowed, max_mb in ((images, IMAGE_MIME, MAX_IMAGE_MB),
+                                       (videos, VIDEO_MIME, MAX_VIDEO_MB)):
+            for size, mime in files:
+                if size > max_mb * 1024 * 1024 or mime not in allowed:
+                    raise ValidationError(bad)
+        if sum(size for size, _mime in images + videos) > MAX_TOTAL_MB * 1024 * 1024:
+            raise ValidationError(_("Tổng dung lượng minh chứng không được vượt quá %s MB.", MAX_TOTAL_MB))
+
+    @api.model
+    def _portal_prepare_vals(self, post, franchise_ids):
+        """Form portal → (vals, action); kiểm lại ở server mọi thứ client sửa được."""
+        try:
+            franchise_id = int(post.get('franchise_id') or 0)
+        except (TypeError, ValueError):
+            raise ValidationError(_("Cửa hàng không hợp lệ."))
+        if franchise_id not in set(franchise_ids):
+            raise ValidationError(_("Cửa hàng không truy cập được."))
+        try:
+            order_id = int(post.get('sale_order_id') or 0)
+            line_id = int(post.get('sale_order_line_id') or 0)
+        except (TypeError, ValueError):
+            raise ValidationError(_("Đơn hàng / sản phẩm không hợp lệ."))
+        if not order_id or not line_id:
+            raise ValidationError(_("Vui lòng chọn đơn hàng gốc và sản phẩm."))
+        order = self.env['sale.order'].sudo().search(
+            self._portal_eligible_order_domain([franchise_id]) + [('id', '=', order_id)], limit=1)
+        if not order:
+            raise ValidationError(_("Đơn hàng không hợp lệ hoặc đã quá thời hạn %s ngày.", ORDER_WINDOW_DAYS))
+        line = order.order_line.filtered(lambda l: l.id == line_id)
+        if not line or not line.product_id:
+            raise ValidationError(_("Sản phẩm phải thuộc đơn hàng gốc của cửa hàng."))
+        config_error = self._portal_check_product_config(line.product_id)
+        if config_error:
+            raise ValidationError(config_error)
+        try:
+            issue_type_id = int(post.get('issue_type_id'))
+        except (TypeError, ValueError):
+            issue_type_id = 0
+        issue_type = self.env['wujia.return.issue.type'].sudo().search(
+            [('id', '=', issue_type_id), ('active', '=', True)], limit=1)
+        if not issue_type:
+            raise ValidationError(_("Vui lòng chọn loại lỗi."))
+        try:
+            request_qty = float(post.get('request_qty') or 0)
+        except (TypeError, ValueError):
+            request_qty = 0.0
+        if request_qty <= 0:
+            raise ValidationError(_("Số lượng yêu cầu phải lớn hơn 0."))
+        opening, opening_dt = post.get('opening_datetime') or '', False
+        for fmt in ('%Y-%m-%dT%H:%M', '%Y-%m-%d %H:%M:%S', '%Y-%m-%d %H:%M'):
+            try:
+                opening_dt = datetime.strptime(opening, fmt)
+                break
+            except ValueError:
+                continue
+        if not opening_dt:
+            raise ValidationError(_("Vui lòng nhập thời gian mở hàng hợp lệ."))
+        action = (post.get('action') or 'draft').strip()
+        return {
+            'franchise_id': franchise_id,
+            'sale_order_id': order_id,
+            'sale_order_line_id': line_id,
+            # ĐVT khai = Claim UoM của sản phẩm (spec K), chưa cấu hình thì ĐVT đơn gốc
+            'request_uom_id': line.product_id.compensation_claim_uom_id.id or line.product_uom_id.id,
+            'request_qty': request_qty,
+            'opening_datetime': opening_dt,
+            'production_date': post.get('production_date') or False,
+            'issue_type_id': issue_type.id,
+            'note': (post.get('note') or '').strip()[:5000],
+            'state': 'draft',
+        }, action if action in ('draft', 'send') else 'draft'
+
+    @api.model
+    def create_from_portal(self, post, franchise_ids, images=(), videos=(), attach=None):
+        """Kiểm → tạo nháp → đính kèm (``attach(rr)``) → gửi nếu ``action=send``, trong một savepoint.
+
+        ``images``/``videos`` như ``_portal_check_evidence``. Lỗi nghiệp vụ ném ``ValidationError``.
+        """
+        vals, action = self._portal_prepare_vals(post, franchise_ids)
+        self._portal_check_evidence(list(images), list(videos), require_min=action == 'send')
+        with self.env.cr.savepoint():
+            rr = self.sudo().create(vals)
+            if attach:
+                attach(rr)
+            if action == 'send':
+                rr.action_submit()
+        return rr
+
+    def _portal_compensation_view(self):
+        """Số liệu tiến độ bù cho cửa hàng (chỉ đọc); None khi HQ chưa chốt phương án."""
+        self.ensure_one()
+        if not self.resolution_type:
+            return None
+        if self.resolution_type != 'compensation':
+            return {'is_compensation': False}
+        approved, compensated = self.approved_qty or 0.0, self.compensated_qty or 0.0
+        allocations = self.allocation_ids
+        return {
+            'is_compensation': True,
+            'approved_qty': approved,
+            'allocated_qty': self.allocated_qty or 0.0,
+            'compensated_qty': compensated,
+            'remaining_qty': self.remaining_qty or 0.0,
+            'progress_pct': min(100, round(compensated / approved * 100)) if approved > 0 else 0,
+            # BA STT3 #12: SO bù bị huỷ ⇒ quyền lợi đóng, cửa hàng tạo yêu cầu mới
+            'all_cancelled': bool(allocations) and all(a.state == 'cancel' for a in allocations),
         }

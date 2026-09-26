@@ -80,8 +80,11 @@ class TestStatusBadgeRemainder(TransactionCase):
         from odoo.addons.wujia_portal_info_request.controllers.portal import (
             STATE_LABELS as INFO_STATES,
         )
+        from odoo.addons.wujia_portal_base.controllers.utils import (
+            RETURN_STATUS_LABELS as RETURN_STATES,
+        )
         from odoo.addons.wujia_portal_return.controllers.portal import (
-            COMPENSATION_STATUS_LABELS, STATE_LABELS as RETURN_STATES,
+            COMPENSATION_STATUS_LABELS,
         )
         from odoo.addons.wujia_portal_support.controllers.portal import (
             MOBILE_TICKET_BADGES, STATE_LABELS as SUPPORT_STATES,

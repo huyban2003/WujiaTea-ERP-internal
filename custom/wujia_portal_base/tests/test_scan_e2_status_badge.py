@@ -11,7 +11,7 @@ from lxml import html
 from odoo.addons.wujia_portal_base.controllers.utils import (
     MOBILE_BATCH_BADGES,
     MOBILE_ORDER_BADGES,
-    MOBILE_RETURN_BADGES,
+    RETURN_STATUS_LABELS,
     STATUS_BADGE_VARIANTS,
     status_badge,
     status_badge_for,
@@ -71,7 +71,7 @@ class TestStatusBadgeMapsAndCallSites(TransactionCase):
 
     def test_every_shared_map_emits_a_component_class(self):
         for name, mapping in (('order', MOBILE_ORDER_BADGES), ('batch', MOBILE_BATCH_BADGES),
-                              ('return', MOBILE_RETURN_BADGES)):
+                              ('return', RETURN_STATUS_LABELS)):
             for state, (label, cls) in mapping.items():
                 self.assertTrue(label, '%s/%s thiếu nhãn' % (name, state))
                 self.assertRegex(cls, r'^wj-status-badge--(%s)$' % '|'.join(STATUS_BADGE_VARIANTS),

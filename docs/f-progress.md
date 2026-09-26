@@ -1571,3 +1571,39 @@ rồi đánh ✅ ở bảng Trạng thái §2 `docs/next-session-clusters-F.md`.
   `/app-assets/data/locales/en.json` (có từ trước).
 - Phiên kế: đo UAT sau deploy F12 → **F13a `return`** (lớn nhất: 1108 dòng model, kế thừa SO/picking, hook picking, wizard
   SO 0đ FIFO) hoặc cụm Issue List 143 + 144 + 145 "mật độ mobile".
+
+## F13 — Tách `return` → `wujia_return` + controller mỏng (gộp F13a + F13b) · 26/09/2026 · Mac
+- Kết quả: ✅ xong. Nghiệm thu: `docs/f13-acceptance-matrix.md` (9/9). **Phân hệ cuối khối A — `PENDING_SPLIT` rỗng.**
+- Đầu phiên: F12 đã lên UAT (đo chỉ-đọc: `wujia_exam 19.0.1.0.0` · `mobile_portal_exam 19.0.1.0.1` installed). Chủ dự án chọn F13.
+- Chủ dự án chốt: tên **`wujia_return`**, giữ `_name` mọi model · gộp a+b, commit + push `main`, deploy để chủ dự án ·
+  A2 "chuẩn nhất": luật trạng thái về model + **một bảng nhãn** (Dev tự chốt chữ theo bảng PC, màu giữ, báo BA sau).
+- UAT đo chỉ-đọc trước (RPC): 14 phiếu, 5 loại lỗi, 0 allocation, 236 xmlid, nhóm Quản lý 1 / Người dùng 0; 2 sequence
+  noupdate khớp XML (số kế RTN 5 · CA 1), 5 loại lỗi noupdate khớp XML ⇒ không câu hỏi. Mobile Thái 0 ref ⇒ không sửa.
+- Đã làm:
+  - Module L2 mới `wujia_return` (depend `mail, wujia_sale, wujia_franchise`): git mv 6 model (gồm kế thừa SO/picking/
+    product), wizard bù 3 model, 2 nhóm + privilege, ACL, rule, 2 sequence, 5 loại lỗi, 4 view + menu backend,
+    `test_compensation_wizard_d1`; mọi ref nhóm đổi `wujia_return.` đủ tiền tố; `.po` 333 → 239 + 94 portal. Hook
+    `imd_names(extra=[privilege, 2 nhóm, 6 menu, 5 loại lỗi])` + `migrate_ownership`.
+  - Controller mỏng (588 → 357): đơn hợp lệ 10 ngày, phạm vi cửa hàng, cấu hình bù, minh chứng (controller chỉ sniff MIME
+    + đo dung lượng), parse payload, **`create_from_portal`** (savepoint thay `unlink` thủ công; đính kèm qua callback),
+    khoá trạng thái 8 bộ lọc (`_portal_status_key`/`_portal_status_domain`), tiến độ bù (`_portal_compensation_view`) về model.
+  - A2: `RETURN_STATUS_LABELS` + `return_status_label` ở `portal_base/controllers/utils.py`, thay `MOBILE_RETURN_BADGES`,
+    `STATE_LABELS` portal và dict inline trong `portal_home.xml`. Home gọi `_portal_open_domain`/`_portal_recent_domain`
+    qua `hasattr`. `portal_base 19.0.7.28.0`.
+  - Test: `wujia_return` (`test_compensation_rules`, `test_portal_rules` 7, `test_split_ownership` 3, fixture `common.py`)
+    + portal `test_return_controller` viết lại + `test_portal_return_f13` 5 HttpCase; 2 test quét badge base.
+    `check_layers` (`PENDING_SPLIT = set()`), `deploy.yml`, reseed.
+  - Chapter 74: đoạn F13, dòng P8, số `.po`.
+- Deploy: **chờ chủ dự án** (không đụng module Thái). Lệnh: `-i wujia_return -u wujia_portal_return,wujia_portal_base`.
+  Sau deploy đo chỉ-đọc: `wujia_return 19.0.1.0.0` · `portal_return 19.0.4.0.0` · `portal_base 19.0.7.28.0`, portal còn
+  5 view, số kế RTN 5 · CA 1, nhóm Quản lý 1 người, 14 phiếu, `/portal/return` 200.
+- Số đo: module mới 230 xmlid + 54 cons + 3 rel · snapshot 287 đổi chủ, 3 lệch (arch 2 view `groups` cố ý + `write_date`
+  loại lỗi) · HTML 4 phiên **298/306 giống từng byte, 2 lần**, 8 khác = nhãn Home mobile cố ý (28 nhánh gửi phiếu × 2
+  user) · DB sau ghi giống · focused 355/0 · suite **912/0/0** · test portal mới trên HEAD 4/5 (đỏ đúng test nhãn Home) ·
+  DB trắng 0 đỏ · deploy DB giống UAT exit 0 · mutation **7/7** · Playwright 16 màn 0 tràn · `check_layers` 0 vi phạm.
+- Đổi hành vi có chủ đích: Home mobile "Chờ xử lý" → "Đã gửi", "Đang xét" → "Đang xử lý", "Hoàn thành" → "Hoàn tất", phiếu
+  bù một phần hiện "Đang bù một phần" (màu giữ). Lỗi bất ngờ ở bước đính kèm/gửi giờ rollback cả phiếu.
+- Báo BA: đổi chữ Home mobile ở trên + câu hỏi KPI "đổi trả đang mở" có tính `reviewing` không (giữ luật cũ: không).
+- Bài học: test Home phải cố định `request_date` từng cặp (Home chỉ lấy 2 phiếu mới nhất ⇒ thứ tự ngẫu nhiên nếu trùng
+  giờ). Test rollback dùng `try/except`, không `assertRaises` (tự bọc savepoint — bài học F8).
+- Phiên kế: đo UAT sau deploy F13 → **★FR-A** (review lại toàn khối A F7–F13, không làm tính năng).

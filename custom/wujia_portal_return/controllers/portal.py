@@ -8,21 +8,25 @@ Routes:
 """
 import json
 import logging
-from datetime import datetime, timedelta
+from datetime import datetime
 
 from werkzeug.exceptions import Forbidden, NotFound
 
-from odoo import fields, http
+from odoo import http
 from odoo.exceptions import ValidationError
 from odoo.http import request
 from odoo.tools.mimetypes import guess_mimetype
 
-from odoo.addons.wujia_portal_return.models.wujia_return_request import MIN_IMAGES_BEFORE_SEND
+from odoo.addons.wujia_return.models.wujia_return_request import (
+    IMAGE_MIME, MAX_IMAGE_MB, MAX_IMAGES, MAX_TOTAL_MB, MAX_VIDEO_MB, MAX_VIDEOS,
+    MIN_IMAGES_BEFORE_SEND as MIN_IMAGES, ORDER_WINDOW_DAYS, VIDEO_MIME,
+)
 from odoo.addons.wujia_portal_base.controllers.portal import (
     get_active_franchise_ids_filter,
 )
 from odoo.addons.wujia_portal_base.controllers.utils import (
     PAGE_SIZE_OPTIONS,
+    RETURN_STATUS_LABELS,
     attach_files_to_record,
     build_pager,
     date_range_error,
@@ -30,6 +34,7 @@ from odoo.addons.wujia_portal_base.controllers.utils import (
     local_day_range_utc,
     parse_page_size,
     portal_tz,
+    return_status_label as state_label,
     status_badge,
     status_badge_for,
 )
@@ -37,31 +42,6 @@ from odoo.addons.wujia_portal_base.controllers.utils import (
 _logger = logging.getLogger(__name__)
 
 PAGE_SIZE = 20
-
-# Chỉ đơn đã xác nhận trong 10 ngày mới tạo được yêu cầu (BA STT3 #4).
-ORDER_WINDOW_DAYS = 10
-
-# Minh chứng (BA STT3 #7). Kiểm bằng MIME THẬT (sniff nội dung), không tin header.
-IMAGE_MIME = ('image/jpeg', 'image/jpg', 'image/png')
-VIDEO_MIME = ('video/mp4', 'video/quicktime')
-MIN_IMAGES = MIN_IMAGES_BEFORE_SEND
-MAX_IMAGES = 5
-MAX_IMAGE_MB = 5
-MAX_VIDEOS = 1
-MAX_VIDEO_MB = 10
-MAX_TOTAL_MB = 30
-
-# Trạng thái portal thấy (label + badge class); variant lấy từ nguồn chung CMP-SB-001.
-STATE_LABELS = {k: (v, status_badge_for(v)) for k, v in {
-    'draft': 'Nháp',
-    'submitted': 'Đã gửi',
-    'reviewing': 'Đang xử lý',
-    'approved': 'Đã duyệt',
-    'processing': 'Đang xử lý',
-    'done': 'Hoàn tất',
-    'rejected': 'Từ chối',
-    'cancelled': 'Đã huỷ',
-}.items()}
 
 # Phương án xử lý HQ chốt khi duyệt.
 RESOLUTION_LABELS = {
@@ -80,51 +60,11 @@ COMPENSATION_STATUS_LABELS = {k: (v, status_badge_for(v)) for k, v in {
 }.items()}
 
 
-# Bộ lọc trạng thái portal (UAT-BH-006) — nguồn DUY NHẤT cho dropdown PC + mobile.
-# Nhãn ở đây phải trùng nhãn badge trên card, nên lọc theo NHÃN chứ không theo state
-# thô: 'reviewing' và 'processing' cùng badge "Đang xử lý" ⇒ gộp; "Đang bù một phần"
-# là pseudo-state (processing + compensation_status='partial'), không có trong schema.
-# Giữ 'Nháp' vì portal cho lưu nháp nên danh sách có thật trạng thái này.
-FILTER_OPTIONS = [
-    ('draft', 'Nháp'),
-    ('submitted', 'Đã gửi'),
-    ('processing', 'Đang xử lý'),
-    ('approved', 'Đã duyệt'),
-    ('partial', 'Đang bù một phần'),
-    ('done', 'Hoàn tất'),
-    ('rejected', 'Từ chối'),
-    ('cancelled', 'Đã huỷ'),
-]
+# Bộ lọc trạng thái (UAT-BH-006): cùng nhãn với badge trên card — khoá = `_portal_status_key()`.
+FILTER_OPTIONS = [(key, label) for key, (label, _cls) in RETURN_STATUS_LABELS.items()]
 
-# Option rỗng của dropdown lọc — nguồn DUY NHẤT, y như FILTER_OPTIONS. Trước đây gõ
-# tay ở cả 2 chỗ nên PC ra "— Tất cả —" còn mobile ra "— Tất cả trạng thái —" (phát
-# hiện khi đo lại D1 trên UAT). Lấy chữ mobile vì mobile không có <label> nhìn thấy
-# được, chỉ có aria-label.
+# Option rỗng của dropdown lọc — một nguồn cho PC + mobile (mobile chỉ có aria-label).
 FILTER_ALL_LABEL = '— Tất cả trạng thái —'
-
-
-def state_filter_domain(key):
-    """Domain của một lựa chọn lọc — [] nếu key rỗng hoặc không hợp lệ."""
-    if key == 'partial':
-        return [('state', '=', 'processing'),
-                ('compensation_status', '=', 'partial')]
-    if key == 'processing':
-        return [('state', 'in', ('reviewing', 'processing')),
-                '!', ('compensation_status', '=', 'partial')]
-    if key in dict(FILTER_OPTIONS):
-        return [('state', '=', key)]
-    return []
-
-
-def state_label(rr):
-    """Nhãn trạng thái portal — 6 nhãn BA, suy từ state + tiến độ bù.
-
-    'Đang bù một phần' KHÔNG phải state trong schema: nó là `processing` +
-    `compensation_status='partial'` (BA: không đổi schema chỉ để khớp label).
-    """
-    if rr.state == 'processing' and rr.compensation_status == 'partial':
-        return COMPENSATION_STATUS_LABELS['partial']
-    return STATE_LABELS.get(rr.state, (rr.state, status_badge('neutral')))
 
 
 class WujiaPortalReturn(http.Controller):
@@ -137,8 +77,8 @@ class WujiaPortalReturn(http.Controller):
             return request.render('wujia_portal_return.portal_return_list',
                                   self._list_ctx(no_franchise=True, notice='no_store'))
 
-        domain = [('franchise_id', 'in', list(franchise_ids))]
-        domain += state_filter_domain(state)
+        Model = request.env['wujia.return.request'].sudo()
+        domain = Model._portal_scope_domain(franchise_ids) + Model._portal_status_domain(state)
         q = (q or '').strip()
         if q:
             # Action 2: mã yêu cầu · mã đơn · chuyến · tên/mã sản phẩm.
@@ -171,7 +111,6 @@ class WujiaPortalReturn(http.Controller):
 
         page = self._parse_int(page, 1, minimum=1)
         size = parse_page_size(page_size, PAGE_SIZE)
-        Model = request.env['wujia.return.request'].sudo()
         total = Model.search_count(domain)
         pgn = build_pager(total, page, size, path='/portal/return',
                           item_label='yêu cầu',
@@ -194,16 +133,13 @@ class WujiaPortalReturn(http.Controller):
         if request.httprequest.method != 'POST':
             return self._render_form()
 
-        images = request.httprequest.files.getlist('images')
-        video = request.httprequest.files.getlist('video')
+        images = self._files('images')
+        video = self._files('video')
         try:
-            vals, action = self._parse_payload(post, franchise_ids)
-            self._validate_evidence(images, video, require_min=action == 'send')
-        except ValidationError as e:
-            return self._render_form(error=str(e), prefill=post)
-
-        try:
-            rr = request.env['wujia.return.request'].sudo().create(vals)
+            rr = request.env['wujia.return.request'].create_from_portal(
+                post, franchise_ids,
+                images=[self._sniff(f) for f in images], videos=[self._sniff(f) for f in video],
+                attach=lambda rr: self._attach_evidence(rr, images, video))
         except ValidationError as e:
             return self._render_form(error=str(e), prefill=post)
         except Exception:                          # noqa: BLE001 — không lộ traceback ra portal
@@ -211,19 +147,6 @@ class WujiaPortalReturn(http.Controller):
             return self._render_form(
                 error="Không thể gửi yêu cầu. Vui lòng kiểm tra lại thông tin và thử lại.",
                 prefill=post)
-
-        try:
-            self._attach_evidence(rr, images, video)
-        except ValidationError as e:
-            rr.sudo().unlink()                     # không để phiếu/attachment mồ côi
-            return self._render_form(error=str(e), prefill=post)
-
-        if action == 'send':
-            try:
-                rr.action_submit()
-            except ValidationError as e:
-                rr.sudo().unlink()
-                return self._render_form(error=str(e), prefill=post)
         return request.redirect(f'/portal/return/{rr.id}?message=created')
 
     @http.route(['/portal/return/<int:request_id>'], type='http',
@@ -232,15 +155,12 @@ class WujiaPortalReturn(http.Controller):
         franchise_ids = get_active_franchise_ids_filter()
         if not franchise_ids:
             return request.redirect('/portal/return?notice=no_store')
-        rr = request.env['wujia.return.request'].sudo().search([
-            ('id', '=', request_id),
-            ('franchise_id', 'in', list(franchise_ids)),
-        ], limit=1)
+        rr = self._scoped(request_id, franchise_ids)
         if not rr:
             # Không phân biệt "không có" với "của cửa hàng khác" (chống dò ID).
             return request.redirect('/portal/return?notice=not_found')
         return request.render('wujia_portal_return.portal_return_detail', {
-            'rr': rr, 'state_labels': STATE_LABELS,
+            'rr': rr,
             'wj_state_label': state_label,
             'resolution_labels': RESOLUTION_LABELS,
             'comp': self._build_compensation_ctx(rr),
@@ -255,10 +175,7 @@ class WujiaPortalReturn(http.Controller):
         franchise_ids = get_active_franchise_ids_filter()
         if not franchise_ids:
             raise Forbidden()
-        rr = request.env['wujia.return.request'].sudo().search([
-            ('id', '=', request_id),
-            ('franchise_id', 'in', list(franchise_ids)),
-        ], limit=1)
+        rr = self._scoped(request_id, franchise_ids)
         if not rr:
             raise NotFound()
         allowed = set(rr.image_attachment_ids.ids) | set(rr.video_attachment_ids.ids)
@@ -294,7 +211,7 @@ class WujiaPortalReturn(http.Controller):
     def _list_ctx(self, **kw):
         ctx = {
             'no_franchise': False, 'returns': [], 'pgn': None, 'total': 0,
-            'state_labels': STATE_LABELS, 'wj_state_label': state_label,
+            'wj_state_label': state_label,
             'comp_status_labels': COMPENSATION_STATUS_LABELS,
             'filter_options': FILTER_OPTIONS,
             'filter_all_label': FILTER_ALL_LABEL,
@@ -305,37 +222,14 @@ class WujiaPortalReturn(http.Controller):
         ctx.update(kw)
         return ctx
 
-    def _eligible_order_domain(self, franchise_ids):
-        """Đơn được phép làm căn cứ: đã xác nhận, trong 10 ngày (BA STT3 #4).
+    @staticmethod
+    def _scoped(request_id, franchise_ids):
+        Model = request.env['wujia.return.request'].sudo()
+        return Model.search(Model._portal_scope_domain(franchise_ids) + [('id', '=', request_id)], limit=1)
 
-        `date_order` = ngày xác nhận với đơn đã confirm
-        (`sale.order._prepare_confirmation_values`).
-        """
-        cutoff = fields.Datetime.now() - timedelta(days=ORDER_WINDOW_DAYS)
-        return [
-            ('franchise_id', 'in', list(franchise_ids)),
-            ('state', 'in', ['sale', 'done']),
-            ('date_order', '>=', cutoff),
-        ]
-
-    def _check_compensation_config(self, product):
-        """Cấu hình bù của sản phẩm (BA STT3 #6). Trả None nếu hợp lệ."""
-        msg = ("Sản phẩm chưa được cấu hình chính sách bù hàng. "
-               "Vui lòng liên hệ Ngô Gia.")
-        if not product.compensation_enabled or not product.compensation_claim_uom_id:
-            return msg
-        delivery_uom = product.compensation_delivery_uom_id
-        if product.compensation_policy == 'accumulate':
-            unit = product.compensation_unit_qty or 0.0
-            # BA: tỷ lệ quy đổi chỉ hỗ trợ số nguyên > 0.
-            if not delivery_uom or unit <= 0 or abs(unit - round(unit)) > 1e-6:
-                return msg
-        elif delivery_uom and delivery_uom != product.compensation_claim_uom_id:
-            # exact: quy đổi qua engine UoM → phải cùng cây đơn vị.
-            root = product.env['wujia.compensation.process.wizard']._uom_root
-            if root(delivery_uom) != root(product.compensation_claim_uom_id):
-                return msg
-        return None
+    @staticmethod
+    def _files(field):
+        return [f for f in request.httprequest.files.getlist(field) if f and f.filename]
 
     @staticmethod
     def _file_size(f):
@@ -359,46 +253,19 @@ class WujiaPortalReturn(http.Controller):
             return 'video/quicktime' if brand == b'qt  ' else 'video/mp4'
         return guess_mimetype(head)
 
-    def _validate_evidence(self, images, video, require_min=True):
-        """Đếm/dung lượng/MIME thật của minh chứng (BA STT3 #7) — chạy TRƯỚC create."""
-        images = [f for f in (images or []) if f and f.filename]
-        video = [f for f in (video or []) if f and f.filename]
-        if len(images) > MAX_IMAGES or (require_min and len(images) < MIN_IMAGES):
-            raise ValidationError(
-                f"Cần tải từ {MIN_IMAGES} đến {MAX_IMAGES} ảnh minh chứng.")
-        if len(video) > MAX_VIDEOS:
-            raise ValidationError(
-                f"Chỉ được tải tối đa {MAX_VIDEOS} video minh chứng.")
+    def _sniff(self, f):
+        """(dung lượng, MIME thật) cho luật minh chứng của model.
 
-        total = 0
-        for f in images:
-            self._check_one_file(f, IMAGE_MIME, MAX_IMAGE_MB)
-            total += self._file_size(f)
-        for f in video:
-            self._check_one_file(f, VIDEO_MIME, MAX_VIDEO_MB)
-            total += self._file_size(f)
-        if total > MAX_TOTAL_MB * 1024 * 1024:
-            raise ValidationError(
-                f"Tổng dung lượng minh chứng không được vượt quá {MAX_TOTAL_MB} MB.")
-
-    def _check_one_file(self, f, allowed_mime, max_mb):
-        if self._file_size(f) > max_mb * 1024 * 1024:
-            raise ValidationError(
-                "Tệp không đúng định dạng hoặc vượt quá dung lượng cho phép.")
-        # MIME THẬT (sniff nội dung) — header trình duyệt và đuôi file đều đổi được.
+        Ghi đè header client bằng MIME thật: attachment lưu đúng loại, và
+        `attach_files_to_record` (kiểm theo header) không loại nhầm .mov mà
+        trình duyệt gửi kèm 'application/octet-stream'.
+        """
         real = self._real_mime(f)
-        if real not in allowed_mime:
-            raise ValidationError(
-                "Tệp không đúng định dạng hoặc vượt quá dung lượng cho phép.")
-        # Ghi đè header client bằng MIME thật: attachment lưu đúng loại, và
-        # `attach_files_to_record` (kiểm theo header) không loại nhầm .mov mà
-        # trình duyệt gửi kèm 'application/octet-stream'.
         f.headers['Content-Type'] = real
+        return self._file_size(f), real
 
     def _attach_evidence(self, rr, images, video):
-        """Tạo attachment sau khi đã validate — tái dùng helper chung của portal."""
-        images = [f for f in (images or []) if f and f.filename]
-        video = [f for f in (video or []) if f and f.filename]
+        """Tạo attachment sau khi model đã kiểm — tái dùng helper chung của portal."""
         vals = {}
         if images:
             atts = attach_files_to_record(
@@ -411,44 +278,23 @@ class WujiaPortalReturn(http.Controller):
                 max_size_mb=MAX_VIDEO_MB, max_count=MAX_VIDEOS)
             vals['video_attachment_ids'] = [(4, a.id) for a in atts]
         if vals:
-            rr.sudo().write(vals)
+            rr.write(vals)
 
     def _build_compensation_ctx(self, rr):
-        """Context hiển thị tiến độ bù cho cửa hàng (read-only).
-
-        Trả None khi HQ chưa chốt phương án → template ẩn card, không lộ số 0.
-        Chỉ đọc field compute đã có trên record → không đổi schema.
-        """
-        if not rr.resolution_type:
+        """Context tiến độ bù cho cửa hàng (read-only); None khi HQ chưa chốt phương án."""
+        view = rr._portal_compensation_view()
+        if view is None:
             return None
-        ctx = {
-            'resolution_label': RESOLUTION_LABELS.get(
-                rr.resolution_type, rr.resolution_type),
-            'is_compensation': rr.resolution_type == 'compensation',
-        }
+        ctx = dict(view, resolution_label=RESOLUTION_LABELS.get(rr.resolution_type, rr.resolution_type))
         if not ctx['is_compensation']:
             return ctx
-        approved = rr.approved_qty or 0.0
-        compensated = rr.compensated_qty or 0.0
-        remaining = rr.remaining_qty or 0.0
-        allocations = rr.allocation_ids
         ctx.update({
-            'approved_qty': approved,
             'approved_uom': rr.approved_uom_id.name or '',
             'product_label': rr.compensation_product_id.display_name or '—',
-            'allocated_qty': rr.allocated_qty or 0.0,
-            'compensated_qty': compensated,
-            'remaining_qty': remaining,
-            'progress_pct': min(100, round(compensated / approved * 100))
-                            if approved > 0 else 0,
             'status': COMPENSATION_STATUS_LABELS.get(
                 rr.compensation_status,
                 (rr.compensation_status or '—', status_badge('neutral'))),
             'approval_note': rr.approval_note or '',
-            # BA STT3 #12: SO bù bị huỷ thì quyền lợi đóng lại, cửa hàng phải tạo
-            # yêu cầu mới — báo rõ thay vì để trang trông như đang chờ giao.
-            'all_cancelled': bool(allocations)
-                             and all(a.state == 'cancel' for a in allocations),
             'orders': [
                 {
                     'name': so.name,
@@ -483,7 +329,8 @@ class WujiaPortalReturn(http.Controller):
         franchises = request.env['wujia.franchise.management'].sudo().browse(
             franchise_ids)
         orders = request.env['sale.order'].sudo().search(
-            self._eligible_order_domain(franchise_ids), order='date_order desc')
+            request.env['wujia.return.request']._portal_eligible_order_domain(franchise_ids),
+            order='date_order desc')
         issue_types = request.env['wujia.return.issue.type'].sudo().search(
             [('active', '=', True)])
         # Map order_id -> [{id, label}] cho cascade select sản phẩm.
@@ -500,7 +347,7 @@ class WujiaPortalReturn(http.Controller):
         return request.render('wujia_portal_return.portal_return_form', {
             'franchises': franchises, 'orders': orders,
             'order_lines_json': json.dumps(order_lines),
-            'issue_types': issue_types, 'state_labels': STATE_LABELS,
+            'issue_types': issue_types,
             'error': error, 'values': prefill or {},
             'window_days': ORDER_WINDOW_DAYS,
             'min_images': MIN_IMAGES, 'max_images': MAX_IMAGES,
@@ -508,81 +355,3 @@ class WujiaPortalReturn(http.Controller):
             'wj_dt': fmt_local_dt,
             'today': datetime.now(),
         })
-
-    def _parse_payload(self, post, accessible_fids):
-        try:
-            franchise_id = int(post.get('franchise_id') or 0)
-        except (TypeError, ValueError):
-            raise ValidationError("Cửa hàng không hợp lệ.")
-        if franchise_id not in set(accessible_fids):
-            raise ValidationError("Cửa hàng không truy cập được.")
-
-        # Đơn gốc + dòng sản phẩm (bắt buộc — SP phải thuộc đơn).
-        try:
-            sale_order_id = int(post.get('sale_order_id') or 0)
-            sale_order_line_id = int(post.get('sale_order_line_id') or 0)
-        except (TypeError, ValueError):
-            raise ValidationError("Đơn hàng / sản phẩm không hợp lệ.")
-        if not sale_order_id or not sale_order_line_id:
-            raise ValidationError("Vui lòng chọn đơn hàng gốc và sản phẩm.")
-        # Kiểm lại điều kiện đơn ở SERVER — form chỉ là gợi ý, client sửa được.
-        order = request.env['sale.order'].sudo().search(
-            self._eligible_order_domain([franchise_id])
-            + [('id', '=', sale_order_id)], limit=1)
-        if not order:
-            raise ValidationError(
-                f"Đơn hàng không hợp lệ hoặc đã quá thời hạn {ORDER_WINDOW_DAYS} ngày.")
-        line = order.order_line.filtered(lambda l: l.id == sale_order_line_id)
-        if not line or not line.product_id:
-            raise ValidationError("Sản phẩm phải thuộc đơn hàng gốc của cửa hàng.")
-
-        config_error = self._check_compensation_config(line.product_id)
-        if config_error:
-            raise ValidationError(config_error)
-
-        issue_type = request.env['wujia.return.issue.type'].sudo().search(
-            [('id', '=', self._parse_int(post.get('issue_type_id'), 0)),
-             ('active', '=', True)], limit=1)
-        if not issue_type:
-            raise ValidationError("Vui lòng chọn loại lỗi.")
-
-        try:
-            request_qty = float(post.get('request_qty') or 0)
-        except (TypeError, ValueError):
-            request_qty = 0.0
-        if request_qty <= 0:
-            raise ValidationError("Số lượng yêu cầu phải lớn hơn 0.")
-
-        opening = post.get('opening_datetime') or ''
-        opening_dt = False
-        for fmt in ('%Y-%m-%dT%H:%M', '%Y-%m-%d %H:%M:%S', '%Y-%m-%d %H:%M'):
-            try:
-                opening_dt = datetime.strptime(opening, fmt)
-                break
-            except ValueError:
-                continue
-        if not opening_dt:
-            raise ValidationError("Vui lòng nhập thời gian mở hàng hợp lệ.")
-
-        production_date = post.get('production_date') or False
-
-        action = (post.get('action') or 'draft').strip()
-        if action not in ('draft', 'send'):
-            action = 'draft'
-
-        vals = {
-            'franchise_id': franchise_id,
-            'sale_order_id': sale_order_id,
-            'sale_order_line_id': sale_order_line_id,
-            # ĐVT khai hao hụt = Claim UoM của sản phẩm (spec K dòng 1107);
-            # sản phẩm chưa cấu hình thì lùi về ĐVT đơn gốc.
-            'request_uom_id': (line.product_id.compensation_claim_uom_id.id
-                               or line.product_uom_id.id),
-            'request_qty': request_qty,
-            'opening_datetime': opening_dt,
-            'production_date': production_date,
-            'issue_type_id': issue_type.id,
-            'note': (post.get('note') or '').strip()[:5000],
-            'state': 'draft',
-        }
-        return vals, action

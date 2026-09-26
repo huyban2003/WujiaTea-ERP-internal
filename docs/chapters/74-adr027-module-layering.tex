@@ -351,7 +351,7 @@ nhóm quyền, rule biến mất, sequence mã phiếu chạy lại từ đầu,
 \item Module cũ: còn controller/QWeb/asset thì giữ, thay depends nghiệp vụ bằng
   \texttt{wujia\_<x>}, xoá \texttt{models/}, \texttt{security/}, \texttt{data/} đã rỗng. \texttt{.po}
   tách theo dòng tham chiếu \texttt{\#:} (controller + QWeb portal ở lại; một msgid dùng ở cả hai
-  phía thì ghi ở cả hai file). F8: 137 mục thành 56 portal + 81 nghiệp vụ; F9: 123 thành 26 + 97; F10: 204 thành 75 + 129; F11: 214 thành 55 + 159; F12: 393 thành 177 + 216. Rút hết
+  phía thì ghi ở cả hai file). F8: 137 mục thành 56 portal + 81 nghiệp vụ; F9: 123 thành 26 + 97; F10: 204 thành 75 + 129; F11: 214 thành 55 + 159; F12: 393 thành 177 + 216; F13: 333 thành 94 + 239. Rút hết
   (như F7) thì để \textbf{vỏ rỗng} (\texttt{\_\_init\_\_.py} trống, \texttt{data: []}, depends
   mỗi \texttt{wujia\_<x>}) và thêm vào \texttt{DEPRECATED} của \texttt{check\_layers}. Bump version
   cả hai.
@@ -468,6 +468,19 @@ $\rightarrow$ 558 dòng): luật chọn ca, lịch tháng, meta khoá, phạm vi
 chặn portal và constraint. HTML/JSON 234/234 giống từng byte (19 nhánh gửi phiếu), DB sau ghi giống hệt; suite
 897/0; mutation 6/6 luật đỏ.
 
+\textbf{F13 (26/09) --- tách một phần \texttt{return}, gộp F13a + F13b, phân hệ cuối khối A:} 6 model (giữ
+\texttt{\_name}, gồm kế thừa \texttt{sale.order}/\texttt{stock.picking}/\texttt{product.product}), wizard xử lý bù,
+2 nhóm quyền + privilege, rule, 2 sequence, 5 loại lỗi, 6 menu sang \texttt{wujia\_return} (230 xmlid + 54 ràng buộc
++ 3 quan hệ); portal còn 3 QWeb + 2 mục nav; không module mobile nào ref $\Rightarrow$ không đụng code anh Thái.
+\texttt{groups=} trong arch ghi đủ tiền tố ngay từ đầu. Snapshot 287 dòng đổi chủ, bản ghi + \texttt{last\_value}
+2 sequence + người trong nhóm giữ. Controller mỏng (588 $\rightarrow$ 357 dòng): đơn hợp lệ 10 ngày, phạm vi cửa
+hàng, cấu hình bù, minh chứng (controller chỉ sniff MIME + đo dung lượng), \texttt{create\_from\_portal} trong
+savepoint (thay \texttt{unlink} thủ công), khoá trạng thái/lọc và tiến độ bù về model. A2: một bảng nhãn
+\texttt{RETURN\_STATUS\_LABELS} ở \texttt{portal\_base} cho Home PC + mobile + \texttt{/portal/return}; Home gọi
+\texttt{\_portal\_open\_domain}/\texttt{\_portal\_recent\_domain} qua \texttt{hasattr}. HTML 298/306 giống từng byte, 8
+khác đều là nhãn Home mobile đổi có chủ đích (``Chờ xử lý'' $\rightarrow$ ``Đã gửi''\ldots, màu giữ); DB sau ghi
+giống hệt; suite 912/0; mutation 7/7 luật đỏ. \texttt{PENDING\_SPLIT} rỗng $\Rightarrow$ mở $\star$FR-A.
+
 \section{Lộ trình}
 
 \begin{center}
@@ -483,7 +496,7 @@ P4 & \texttt{knowledge} & \textbf{Xong F9 (26/09)}: tách một phần, 107 xmli
 P5 & \texttt{support} & \textbf{Xong F10 (26/09)}: tách một phần, 113 xmlid + 16 ràng buộc + 1 quan hệ đổi chủ, sequence + 7 danh mục giữ; bảng badge ticket rời \texttt{portal\_base}. \\
 P6 & \texttt{announcement} & \textbf{Xong F11 (26/09)}: tách một phần sang \texttt{wujia\_notification}, giữ \texttt{\_name}; 140 xmlid + 28 ràng buộc + 5 quan hệ đổi chủ, 2 nhóm quyền + sequence ANN giữ; Home dùng chung luật chưa đọc. \\
 P7 & \texttt{exam} & \textbf{Xong F12 (26/09)}: tách một phần sang \texttt{wujia\_exam}, giữ \texttt{\_name}; 214 xmlid + 30 ràng buộc + 1 quan hệ đổi chủ, 2 nhóm quyền + 3 sequence giữ; mobile Thái đổi ref, \texttt{check\_layers} về 0. \\
-P8 & \texttt{return} & Lớn nhất: 1108 dòng model, kế thừa SO/picking, hook picking, wizard SO 0đ FIFO. Để cuối, khi quy trình đã chín. \\
+P8 & \texttt{return} & \textbf{Xong F13 (26/09)}: tách một phần sang \texttt{wujia\_return}, giữ \texttt{\_name}; 230 xmlid + 54 ràng buộc + 3 quan hệ, 2 nhóm quyền + 2 sequence giữ; một bảng nhãn trạng thái cho Home + portal; \texttt{PENDING\_SPLIT} rỗng. \\
 \bottomrule
 \end{tabularx}
 \end{center}

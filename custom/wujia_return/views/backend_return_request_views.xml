@@ -12,23 +12,23 @@
                 <header>
                     <button name="action_start_review" type="object" string="Take in charge"
                             invisible="state != 'submitted'"
-                            groups="wujia_portal_return.group_return_manager"/>
+                            groups="wujia_return.group_return_manager"/>
                     <button name="action_approve" type="object" string="Approve request"
                             class="btn-success"
                             invisible="state not in ('submitted', 'reviewing')"
-                            groups="wujia_portal_return.group_return_manager"/>
+                            groups="wujia_return.group_return_manager"/>
                     <button name="action_reject" type="object" string="Reject"
                             class="btn-danger"
                             invisible="state in ('done', 'cancelled', 'rejected')"
                             confirm="Reject this request?"
-                            groups="wujia_portal_return.group_return_manager"/>
+                            groups="wujia_return.group_return_manager"/>
                     <button name="action_mark_done" type="object" string="Complete"
                             invisible="state != 'approved' or resolution_type == 'compensation'"
-                            groups="wujia_portal_return.group_return_manager"/>
+                            groups="wujia_return.group_return_manager"/>
                     <button name="action_cancel" type="object" string="Cancel request"
                             invisible="state in ('done', 'cancelled')"
                             confirm="Cancel this request?"
-                            groups="wujia_portal_return.group_return_manager"/>
+                            groups="wujia_return.group_return_manager"/>
                     <field name="state" widget="statusbar"
                            statusbar_visible="submitted,reviewing,approved,processing,done"/>
                 </header>

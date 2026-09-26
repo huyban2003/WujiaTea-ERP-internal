@@ -1,0 +1,4 @@
+from . import test_compensation_rules
+from . import test_compensation_wizard_d1
+from . import test_portal_rules
+from . import test_split_ownership

@@ -17,10 +17,10 @@ from odoo.exceptions import UserError
 from odoo.tests import tagged
 from odoo.tests.common import TransactionCase
 
-from .test_return_controller import ReturnFixture
+from .common import ReturnFixture
 
 WIZARD = 'wujia.compensation.process.wizard'
-VIEW = 'wujia_portal_return.view_compensation_process_wizard_form'
+VIEW = 'wujia_return.view_compensation_process_wizard_form'
 
 
 def _sent_by_client(node, vals):
