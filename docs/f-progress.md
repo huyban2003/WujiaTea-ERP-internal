@@ -1453,7 +1453,16 @@ rồi đánh ✅ ở bảng Trạng thái §2 `docs/next-session-clusters-F.md`.
   - Test: `wujia_support` 11 (model trước đó 0 test riêng) + 5 HttpCase portal. `check_layers`, `deploy.yml`, reseed.
   - Chapter 74: bẫy noupdate với dữ liệu mẫu (bước 2), số `.po`, đoạn F10, dòng P5.
 - Commit: `033794c` — `feat(F10): tách support → module nghiệp vụ wujia_support + controller mỏng` (đã push `main`).
-- Deploy: **chưa** (chủ dự án). Lệnh: `-i wujia_support -u wujia_portal_support,wujia_portal_base`.
+- Deploy: **UAT 26/09** (chủ dự án). Lệnh: `-i wujia_support -u wujia_portal_support,wujia_portal_base`. Đo chỉ-đọc (RPC +
+  Playwright, không gửi/lưu): 3 version đúng (`wujia_support 19.0.1.0.0` · `portal_support 19.0.4.0.0` · `portal_base 19.0.7.26.0`) ·
+  module mới 114 xmlid (113 + `field_…__rating_ids`, như F8/F9) · portal còn đúng 5 view · 15 ticket, số kế `WJ-TK` **17 giữ** ·
+  7 danh mục + tên vi_VN nguyên · menu 309/310, action 484/485, rule 191/192 giữ id · portal admin PC + mobile 390: list 10,
+  lọc `in_progress` 2, tìm mã 1, form mới hiện danh mục, chi tiết 200, ticket lạ → về list, 0 tràn ngang · `anh.owner` list 0
+  (không tạo ticket nào), danh mục tiếng Việt, mở ticket người khác → về list · attachment lạ 403, ticket lạ 404 · backend kanban 4,
+  list 15, form mở, 0 lỗi JS. 404 `/app-assets/data/locales/en.json` có từ trước.
+  **Phát hiện có từ trước (không thuộc F10, HTML HEAD ‖ F10 giống từng byte):** trang chi tiết chỉ liệt kê `attachment_ids`
+  (m2m cũ), còn file cửa hàng tải lên qua `attach_files_to_record` gắn bằng `res_model/res_id` ⇒ ticket 16 có 1 ảnh mà portal
+  không hiện link tải. Chờ chủ dự án chốt sửa (phiên riêng hoặc gửi BA).
 - Số đo: hook 113 imd + 16 cons + 1 rel · snapshot 130 đổi chủ, **1 lệch có giải trình** (md5 bảng danh mục: chỉ
   `write_date`) · HTML 18/18 GET giống từng byte + 9/9 POST cùng redirect + DB sau POST giống hệt, bundle cùng md5 ·
   suite **872, 0 đỏ** (F9 856 + 16) · test portal mới trên HEAD 12/12 (hành vi không đổi) · DB trắng 11/11 · mutation
@@ -1466,6 +1475,5 @@ rồi đánh ✅ ở bảng Trạng thái §2 `docs/next-session-clusters-F.md`.
 - Nợ để lại: (1) hỏi BA: portal support lọc theo **người tạo**, quản lý không thấy ticket nhân viên cùng cửa hàng;
   (2) `_sql_constraints` danh mục chết trên Odoo 19 (nợ chung); (3) `test_scan_e2b` import thẳng từng `portal_*`
   (không chạy khi `portal_base` một mình, có từ trước).
-- Phiên kế: chủ dự án deploy F10 → đo UAT chỉ-đọc (số kế `WJ-TK` 17, 7 danh mục + vi_VN, 5 view portal). Sau đó
-  **F11 `announcement`** (từ `portal_notification`, giữ `_name wujia.notification`, 2 nhóm quyền — phải sửa tham chiếu
+- Phiên kế: **F11 `announcement`** (từ `portal_notification`, giữ `_name wujia.notification`, 2 nhóm quyền — phải sửa tham chiếu
   `group_*`, sequence ANN, rule theo cửa hàng; bảng badge thông báo nếu có) hoặc cụm Issue List 143 + 144 + 145 "mật độ mobile".
