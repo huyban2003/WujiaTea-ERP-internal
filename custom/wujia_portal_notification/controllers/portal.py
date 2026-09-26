@@ -89,7 +89,7 @@ def _noti():
 
 class WujiaPortalNotification(http.Controller):
 
-    # ---- read status theo user + cửa hàng hiện tại (luật ở model, F11) ----
+    # ---- read status theo user + cửa hàng hiện tại (luật ở model) ----
     def _read_ids(self, noti_ids, franchise_id):
         return _noti()._portal_read_ids(request.env.user, noti_ids, franchise_id)
 
@@ -143,7 +143,7 @@ class WujiaPortalNotification(http.Controller):
 
         # Lọc theo ngày gửi. Ngày ngược: KHÔNG bỏ lọc rồi chạy tiếp — làm vậy màn
         # trả về TOÀN BỘ thông báo, khác hẳn khoảng người dùng đang thấy trong ô.
-        # Chặn query, giữ chữ đã gõ, báo tại thanh lọc (chuẩn chung E4c).
+        # Chặn query, giữ chữ đã gõ, báo tại thanh lọc (chuẩn chung).
         df, dt = _parse_date(date_from), _parse_date(date_to)
         filter_error = date_range_error(df, dt)
         if filter_error:

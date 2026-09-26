@@ -220,7 +220,7 @@ class WujiaPortal(CustomerPortal):
         """
         Settings = request.env['res.config.settings'].sudo()
         # ADR-027: L3a cấm thêm depend `wujia_order_window`. Module tắt ⇒ coi
-        # như không đặt khung giờ, đừng để Home 500 (FR-A3 bắt được khi cài base một mình).
+        # như không đặt khung giờ, đừng để Home 500.
         if not (hasattr(Settings, '_is_within_order_window')
                 and hasattr(Settings, '_user_now_hours')):
             return {'state': 'always'}
@@ -310,11 +310,11 @@ class WujiaPortal(CustomerPortal):
             return 0
         Model = Model.sudo()
         if kind == 'unread_count' and hasattr(Model, '_portal_unread_count'):
-            # Cùng luật với badge chuông (F11): còn hiệu lực, chưa đọc tại cửa hàng đang chọn.
+            # Cùng luật với badge chuông: còn hiệu lực, chưa đọc tại cửa hàng đang chọn.
             return Model._portal_unread_count(
                 request.env.user, franchise_ids, get_active_franchise_id())
         if kind == 'open_count' and hasattr(Model, '_portal_open_domain'):
-            # Cùng luật với /portal/return (F13): BA không tính nháp.
+            # Cùng luật với /portal/return: BA không tính nháp.
             return Model.search_count(Model._portal_open_domain(franchise_ids))
         return 0
 
@@ -326,7 +326,7 @@ class WujiaPortal(CustomerPortal):
             return []
         Model = Model.sudo()
         if model_name == 'wujia.notification' and hasattr(Model, '_portal_effective_domain'):
-            # Cùng luật với popup chuông (F11): không hiện bài hẹn giờ / hết hiệu lực.
+            # Cùng luật với popup chuông: không hiện bài hẹn giờ / hết hiệu lực.
             return Model.search(Model._portal_effective_domain(franchise_ids),
                                 order='is_pinned desc, published_date desc', limit=limit)
         if model_name == 'wujia.return.request' and hasattr(Model, '_portal_recent_domain'):

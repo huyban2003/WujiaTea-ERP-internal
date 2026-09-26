@@ -27,9 +27,8 @@ STATE_LABELS = {k: (v, status_badge_for(v)) for k, v in {
     'cancelled': 'Đã huỷ',
 }.items()}
 
-# Sprint 17 — nhãn MOBILE (Figma Mobile_Ticket), tách khỏi STATE_LABELS desktop. LƯU Ý
-# 'waiting_customer'="Có phản hồi" (mobile/Figma) ≠ desktop "Chờ phản hồi" — drift chủ đích,
-# đối chiếu BA. F10: dời từ portal_base/utils.py về module sở hữu màn (A2).
+# Nhãn MOBILE (Figma Mobile_Ticket), tách khỏi STATE_LABELS desktop. LƯU Ý
+# 'waiting_customer'="Có phản hồi" (mobile/Figma) ≠ desktop "Chờ phản hồi" — drift chủ đích, đối chiếu BA.
 MOBILE_TICKET_BADGES = {
     'new':              ('Mới', status_badge('info')),
     'in_progress':      ('Đang xử lý', status_badge('processing')),

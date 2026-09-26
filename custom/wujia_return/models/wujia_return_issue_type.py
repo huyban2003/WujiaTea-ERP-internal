@@ -1,6 +1,5 @@
 from odoo import _, api, fields, models
 from odoo.exceptions import ValidationError
-from odoo.tools import ormcache
 
 
 class WujiaReturnIssueType(models.Model):
@@ -27,15 +26,6 @@ class WujiaReturnIssueType(models.Model):
             ])
             if dup:
                 raise ValidationError(_("Mã loại lỗi '%s' đã tồn tại.", rec.code))
-
-    @ormcache()
-    def _get_active_issue_types_cached(self):
-        """Trả tuple (id, name, code) — dropdown filter. Cache toàn bộ."""
-        return tuple(
-            (rec.id, rec.name, rec.code)
-            for rec in self.sudo().search(
-                [('active', '=', True)], order='sequence, code')
-        )
 
     def write(self, vals):
         res = super().write(vals)

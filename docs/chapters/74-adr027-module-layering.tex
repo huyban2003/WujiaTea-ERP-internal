@@ -481,6 +481,17 @@ savepoint (thay \texttt{unlink} thủ công), khoá trạng thái/lọc và ti�
 khác đều là nhãn Home mobile đổi có chủ đích (``Chờ xử lý'' $\rightarrow$ ``Đã gửi''\ldots, màu giữ); DB sau ghi
 giống hệt; suite 912/0; mutation 7/7 luật đỏ. \texttt{PENDING\_SPLIT} rỗng $\Rightarrow$ mở $\star$FR-A.
 
+\textbf{$\star$FR-A (26/09) --- review toàn khối A, ĐẠT, khối A khép} (\texttt{docs/f-review-FR-A.md}): HEAD
+\texttt{164d8ec} đo cạnh đối chứng \texttt{9d2a606} cùng seed. Tầng: \texttt{check\_layers} 0 vi phạm phía Dev (R7 còn 2
+của anh Thái); 7 module L2 không controller/static/\texttt{http}/xmlid portal trong \texttt{.po}; L3b chỉ giữ 2 ngoại lệ đã
+chốt (\texttt{wujia.portal.cart}, AbstractModel \texttt{wujia.portal.debt}); 7 chỗ \texttt{portal\_base} gọi L2 đều qua
+\texttt{hasattr}. Hiệu năng: số query 17 route $\times$ 4 user giống hệt đối chứng; index đủ trên 6 bảng chính. Sạch: xoá
+4 hàm chết, \texttt{is\_read\_by}, \texttt{ormcache}/import thừa, bẫy \texttt{number\_next} sequence \texttt{INF/}, 14 comment
+mã phiên (11 file, +16 $-$112); suite 914/0. Mutation M7 (bỏ \texttt{extra} của hook) không đỏ vì \texttt{pre\_init} chỉ chạy
+lúc cài $\Rightarrow$ \texttt{split\_snapshot} là chốt duy nhất, ghi vào bước 4 quy trình. Nợ chỉ ghi: \texttt{portal\_sale}
+còn write ở update/remove/note; \texttt{\_sql\_constraints} 16 file (8 phía Dev); \texttt{auto\_install} ý \#3 chưa áp;
+7 câu hỏi BA còn treo.
+
 \section{Lộ trình}
 
 \begin{center}

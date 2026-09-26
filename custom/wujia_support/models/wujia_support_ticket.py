@@ -254,7 +254,7 @@ class WujiaSupportTicket(models.Model):
         self.sudo().write(vals)
 
     # -----------------------------------------------------------------
-    # Portal — luật dùng chung cho mọi kênh (F10, ADR-027)
+    # Portal — luật dùng chung cho mọi kênh (ADR-027)
     # -----------------------------------------------------------------
     @api.model
     def _portal_scope_domain(self, user):

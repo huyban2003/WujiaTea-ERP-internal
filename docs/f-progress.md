@@ -1610,3 +1610,35 @@ rồi đánh ✅ ở bảng Trạng thái §2 `docs/next-session-clusters-F.md`.
 - Bài học: test Home phải cố định `request_date` từng cặp (Home chỉ lấy 2 phiếu mới nhất ⇒ thứ tự ngẫu nhiên nếu trùng
   giờ). Test rollback dùng `try/except`, không `assertRaises` (tự bọc savepoint — bài học F8).
 - Phiên kế: đo UAT sau deploy F13 → **★FR-A** (review lại toàn khối A F7–F13, không làm tính năng).
+
+## ★FR-A — Review toàn khối A (F1, F6, F7–F13) · 26/09/2026 · Mac
+- Kết quả: ✅ **ĐẠT — khối A khép.** Doc: `docs/f-review-FR-A.md`. Không lệch tầng phía Dev; query/route giống hệt đối
+  chứng; sửa nhỏ theo luật ★ + fix retest-fail `UI-DATALIST-001` (chưa deploy).
+- Đầu phiên: F13 đã lên UAT (43 version khớp HEAD `164d8ec`, `wujia_support 19.0.1.0.1` = F10-fix đã lên). Chủ dự án chốt
+  3 việc: review clean/perf/cấu trúc · soi Issue List còn component nào · lệch plan chỉ ghi. Chốt thêm: sửa nhỏ <30 dòng
+  làm ngay; `UI-DATALIST-001` (History 26/09 BA retest fail) kiểm rồi sửa.
+- Đã làm:
+  - Mốc: worktree `9d2a606` (ref) ‖ HEAD; `wujia_fra` = `wujia_frp` + replay 6 đợt deploy (0 ERROR) ‖ `wujia_fra_ref`
+    cùng seed; DB trắng `-i` 7 L2 EXIT 0, test 123/0/0; snapshot 1031 đổi chủ, 12 lệch giải trình + 1 bẫy mới (`INF/`
+    `number_next`); HTML 63/68 giống từng byte (5 khác = nhãn Home F13 + fix debt); query 17 route × 4 user Δ0; nav 0;
+    wj_measure 0 mất record; Playwright 16 màn × 2 user 200/0 tràn; mutation M0–M7 (M7 `extra` hook chỉ `pre_init` ⇒ nợ);
+    `check_layers` 0 Dev (R7 Thái 2).
+  - Sửa nhỏ ★ (11 file, +16 −112): 4 hàm chết `utils.py`, `is_read_by`/`get_display_summary`, `ormcache` thừa, 3 import
+    thừa, `number_next` sequence INF, 14 comment mã phiên → 0 trong code khối A.
+  - `UI-DATALIST-001`: `/portal/debt/payment-history` mobile dùng chung lát phân trang + `wj_pagination`; card 2 dòng chỉ
+    bằng hàng chuẩn `wj_list_card_row` (CSS riêng màn bị test quét E5 chặn đúng luật — bỏ). 47 thẻ 124 → 10 thẻ 104 ở 390/360
+    (kể cả memo dài 23 ký tự như UAT); PC md5 giống ở 3 biến thể trang; +2 test; `wujia_portal_debt 19.0.4.15.0`; ledger lượt 2;
+    `qa_sync` dry-run 1 dòng — **chưa `--apply`** (chờ deploy).
+  - Issue List: 138 issue (123 Done · 8 RfD · 4 RfR · 3 NC). 17/23 component có issue; đề xuất mở mới chỉ EmptyState;
+    8 issue mở → 4 cụm 140+141 · 143+144+145 · 142 · 146. 7 issue mới 0 dòng code.
+- Commit: `review(FR-A)` (sửa nhỏ + doc + test quét) và `fix(debt): pager + card payment-history mobile (UI-DATALIST-001)`.
+- Đã dọn: 5 DB `wujia_fra*` + filestore, worktree `scratchpad/fra/head7`, 2 server 8097/8098.
+- Deploy: **chưa**. Lệnh cho chủ dự án: `git pull` → `-u wujia_portal_debt` (+ `-u wujia_info_request` cho đồng bộ), restart cho
+  7 module chỉ đổi `.py`. Sau deploy: ledger `build_override` → ĐÃ DEPLOY, `qa_sync.py --only UI-DATALIST-001 --apply`.
+- Số đo: suite **912 → 914/0/0** · DB trắng 123/0/0 · HTML 63/68 · query Δ0/17 route · mutation 7/8 (M7 giải trình) ·
+  comment mã phiên còn 49 `.py` / 349 mọi file (ngoài khối A) · `_sql_constraints` 16 file (8 Dev).
+- Bài học: test quét component là hàng rào thật (CSS 1 dòng cho màn bị chặn, sửa bằng bố cục hàng chuẩn); đo với dữ liệu
+  dài như UAT (mồi 1 bản ghi rồi xoá); DB copy không filestore phải xoá attachment `/web/assets/%` trước khi đo browser;
+  md5 khối PC lệch có thể do bản ghi mồi, không phải template.
+- Phiên kế: deploy fix debt (chủ dự án) → BA retest 126 → **Issue List cụm 140+141** (shell header/store) hoặc cụm
+  143+144+145 (mật độ mobile, đo trên khung E7 trước).

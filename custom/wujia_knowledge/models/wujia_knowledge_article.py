@@ -1,6 +1,6 @@
 import re
 
-from odoo import _, api, fields, models
+from odoo import api, fields, models
 from odoo.tools.mail import html_to_inner_content
 
 

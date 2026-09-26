@@ -353,7 +353,7 @@ class WujiaReturnRequest(models.Model):
         }
 
     # ------------------------------------------------------------------
-    # Portal — luật dùng chung cho mọi kênh (F13, ADR-027)
+    # Portal — luật dùng chung cho mọi kênh (ADR-027)
     # ------------------------------------------------------------------
     @api.model
     def _portal_scope_domain(self, franchise_ids):

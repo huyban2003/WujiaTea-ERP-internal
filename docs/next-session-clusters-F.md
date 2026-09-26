@@ -150,7 +150,7 @@ F6–F13 là backend/controller — không chặn component, nhưng chặn mobil
 | F11 | Tách một phần `notification` → `wujia_notification` (giữ `_name`, 2 nhóm quyền) + controller mỏng (`_mark_read` một nguồn); Home KPI/list dùng luật chung | notification, portal_notification, portal_base | Cao | ✅ 26/09 — `docs/f11-acceptance-matrix.md` (9/9); snapshot 173 đổi chủ, lệch duy nhất 4 màu loại (noupdate, chủ dự án chốt theo code); `bfa2bae`, đã deploy UAT 26/09 |
 | F12 | Tách một phần `exam` → `wujia_exam` (giữ `_name`, 2 nhóm quyền, 3 sequence) + controller mỏng (`register_from_portal`, max/phiếu một nguồn cả constraint); mobile Thái đổi ref | exam, portal_exam, mobile_portal_exam | Cao | ✅ 26/09 — `docs/f12-acceptance-matrix.md` (9/9); snapshot 245 đổi chủ, HTML 234/234; `check_layers` 0; `2acbd9f`, đã deploy UAT (đo 26/09) |
 | F13 | Tách một phần `return` → `wujia_return` (giữ `_name`, kế thừa SO/picking/product, wizard bù, 2 nhóm quyền, 2 sequence) + controller mỏng (`create_from_portal` savepoint); **một bảng nhãn trạng thái** Home + portal | return, portal_return, portal_base | Cao | ✅ 26/09 — `docs/f13-acceptance-matrix.md` (9/9); snapshot 287 đổi chủ, HTML 298/306 (8 = nhãn Home mobile cố ý); `PENDING_SPLIT` rỗng; `a138d21`, đã deploy UAT (đo 26/09 đạt) |
-| **FR-A** | **Review toàn khối A + controller (F1, F6–F13)** | 0 hoặc vá nhỏ | — | ☐ |
+| **FR-A** | **Review toàn khối A + controller (F1, F6–F13)** | 0 hoặc vá nhỏ | — | ✅ 26/09 — **ĐẠT, KHỐI A KHÉP** · `docs/f-review-FR-A.md` · sửa nhỏ ★ 11 file + fix `UI-DATALIST-001` (chưa deploy) · phiên kế = Issue List cụm 140+141 hoặc 143+144+145 |
 
 ---
 

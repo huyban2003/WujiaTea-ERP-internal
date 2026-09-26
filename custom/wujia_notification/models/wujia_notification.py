@@ -449,23 +449,8 @@ class WujiaNotification(models.Model):
         text = re.sub(r'<[^>]+>', ' ', html or '')
         return re.sub(r'\s+', ' ', unescape(text)).strip()
 
-    def get_display_summary(self, length=200):
-        """Portal dùng: summary HQ nhập, trống thì cắt an toàn từ content (spec F §2)."""
-        self.ensure_one()
-        if self.summary:
-            return self.summary
-        text = self._html_to_text(self.content)
-        return text[:length] + ('...' if len(text) > length else '')
-
-    def is_read_by(self, user_id):
-        self.ensure_one()
-        return bool(self.env['wujia.notification.read'].sudo().search_count([
-            ('notification_id', '=', self.id),
-            ('user_id', '=', user_id),
-        ]))
-
     # -----------------------------------------------------------------
-    # Portal — luật dùng chung cho mọi kênh (F11). Gọi trên recordset sudo.
+    # Portal — luật dùng chung cho mọi kênh. Gọi trên recordset sudo.
     # -----------------------------------------------------------------
     @api.model
     def _portal_history_domain(self, franchise_ids):

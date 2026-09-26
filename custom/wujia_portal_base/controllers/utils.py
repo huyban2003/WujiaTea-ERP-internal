@@ -15,9 +15,8 @@ from werkzeug.exceptions import Forbidden, TooManyRequests
 from werkzeug.utils import secure_filename
 
 from odoo import _
-from odoo.exceptions import UserError, ValidationError
+from odoo.exceptions import ValidationError
 from odoo.http import request
-from odoo.tools import ormcache
 
 _logger = logging.getLogger(__name__)
 
@@ -83,9 +82,7 @@ def local_day_range_utc(date_from, date_to, tz):
     return _bound(date_from, dt_time.min), _bound(date_to, dt_time.max)
 
 
-# Nguồn DUY NHẤT của thông điệp khoảng ngày ngược (E4c). Trước đây mỗi màn một
-# câu chữ và một chỗ hiển thị khác nhau, có màn tính ra thông điệp rồi không
-# view nào in ra.
+# Nguồn DUY NHẤT của thông điệp khoảng ngày ngược — mọi màn dùng chung câu chữ và chỗ hiển thị.
 ERR_DATE_RANGE = 'Từ ngày không được lớn hơn Đến ngày'
 
 
@@ -370,24 +367,6 @@ def group_counts(model, domain, field, groups=None, total_key='all'):
 
 
 # ---------------------------------------------------------------------------
-# Form re-render helper (PRG anti-pattern fallback)
-# ---------------------------------------------------------------------------
-
-def render_form_with_error(template, error, values, extra=None):
-    """Re-render form khi validation fail, giữ values user đã nhập.
-
-    Không dùng PRG vì cần giữ context error + values. PRG chỉ dùng cho
-    success path (chống F5 double-submit).
-    """
-    ctx = dict(values or {})
-    ctx['error'] = error
-    ctx['values'] = values  # cho template dùng `values.get('field')`
-    if extra:
-        ctx.update(extra)
-    return request.render(template, ctx)
-
-
-# ---------------------------------------------------------------------------
 # ACL check — accessible attachment for portal user
 # ---------------------------------------------------------------------------
 
@@ -447,12 +426,10 @@ ROLE_RANK = {'staff': 1, 'manager': 2, 'owner': 3}
 # ---------------------------------------------------------------------------
 
 # ---------------------------------------------------------------------------
-# StatusBadge CMP-SB-001 (cụm E2) — NGUỒN DUY NHẤT của variant badge trạng thái
+# StatusBadge CMP-SB-001 — NGUỒN DUY NHẤT của variant badge trạng thái
 # ---------------------------------------------------------------------------
 #
-# Trước E2 mỗi màn tự chọn class: cùng "Đã xác nhận" ra xanh lá ở mobile
-# (wujia-badge-success) và xanh dương ở PC (wj-pc-badge--confirmed) — đúng lỗi
-# BA nêu ở UI-STATUSBADGE-001. Nay map NHÃN → variant, PC/mobile dùng chung.
+# Map NHÃN → variant; PC và mobile dùng chung một class cho cùng trạng thái.
 #
 # BA giao mapping cho Dev ("Dev cần lập mapping theo trạng thái thực tế từng
 # module", ô RỦI RO của spec). Nhãn nào BA đã nêu thì theo ĐÚNG BA, kể cả khi
@@ -526,7 +503,7 @@ MOBILE_BATCH_BADGES = {
 }
 
 # Nhãn trạng thái đổi trả — MỘT nguồn cho Home (PC + mobile) và /portal/return (badge + bộ lọc).
-# Khoá = `wujia.return.request._portal_status_key()`; F13 gộp 3 bảng lệch chữ (màu vốn giống nhau).
+# Khoá = `wujia.return.request._portal_status_key()`; một bảng cho cả PC và mobile.
 RETURN_STATUS_LABELS = {k: (v, status_badge_for(v)) for k, v in (
     ('draft', 'Nháp'),
     ('submitted', 'Đã gửi'),
@@ -599,17 +576,6 @@ def departure_label(is_actual):
     return DEPARTURE_LABEL_ACTUAL if is_actual else DEPARTURE_LABEL_PLANNED
 
 
-def get_recent_orders(franchise_ids, limit=3):
-    """sale.order mới nhất của franchise — section "Đơn hàng gần đây"."""
-    Order = request.env['sale.order'].sudo()
-    if 'franchise_id' not in Order._fields or not franchise_ids:
-        return Order.browse()
-    return Order.search(
-        [('franchise_id', 'in', list(franchise_ids))],
-        order='date_order desc', limit=limit,
-    )
-
-
 def format_order_names(names, keep=2):
     """'S00035, S00036 +3' — danh sách mã đơn rút gọn."""
     names = [n for n in names if n]
@@ -679,25 +645,6 @@ def count_undelivered_orders(franchise_ids):
         '|', ('franchise_id', 'in', ids), ('sale_id.franchise_id', 'in', ids),
     ], groupby=['sale_id'])
     return len(groups)
-
-
-def require_role(min_role, franchise_id=None):
-    """Raise Forbidden nếu user không đạt role tối thiểu.
-
-    Dùng trong controller POST cho action chỉ Owner/Manager được làm.
-    """
-    from odoo.addons.wujia_portal_base.controllers.portal import (
-        get_max_role_in_franchises,
-    )
-    role = get_max_role_in_franchises(
-        [franchise_id] if franchise_id else None
-    )
-    if not role:
-        raise Forbidden(description=_('Không có quyền truy cập franchise.'))
-    if ROLE_RANK.get(role, 0) < ROLE_RANK.get(min_role, 99):
-        raise Forbidden(
-            description=_('Yêu cầu role tối thiểu: %s') % min_role
-        )
 
 
 # ---------------------------------------------------------------------------
@@ -807,24 +754,6 @@ def _compute_at(taxes, price_unit, discount, currency, qty, product, partner, co
         'price_included': included,
         'tax_amount': included - excluded,
     }
-
-
-def portal_unit_price_tax_included(product, price_unit, currency, partner=None,
-                                   discount=0.0, company=None, taxes=None):
-    """Đơn giá 1 ĐƠN VỊ sau chiết khấu, đã gồm thuế.
-
-    compute_all cho quantity=1 — KHÔNG lấy tổng dòng rồi chia cho qty: phép chia
-    sai rounding và sai hẳn khi một dòng gánh nhiều thuế (WJ-PH-005).
-
-    Returns: dict(price_excluded, price_included, tax_amount). Không thuế →
-    price_excluded == price_included (regression-safe cho sản phẩm không thuế).
-    """
-    company = company or _money_env(product, partner).company
-    currency = currency or company.currency_id
-    if taxes is None:
-        taxes = portal_product_taxes(product, partner, company)
-    return _compute_at(taxes, price_unit, discount, currency, 1.0,
-                       product, partner, company)
 
 
 def portal_line_price_vals(product, price_unit, qty, currency, partner=None,
