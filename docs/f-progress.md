@@ -1452,7 +1452,7 @@ rồi đánh ✅ ở bảng Trạng thái §2 `docs/next-session-clusters-F.md`.
     để `test_scan_e2` vẫn chạy khi `portal_base` cài một mình.
   - Test: `wujia_support` 11 (model trước đó 0 test riêng) + 5 HttpCase portal. `check_layers`, `deploy.yml`, reseed.
   - Chapter 74: bẫy noupdate với dữ liệu mẫu (bước 2), số `.po`, đoạn F10, dòng P5.
-- Commit: xem bên dưới (push `main`).
+- Commit: `033794c` — `feat(F10): tách support → module nghiệp vụ wujia_support + controller mỏng` (đã push `main`).
 - Deploy: **chưa** (chủ dự án). Lệnh: `-i wujia_support -u wujia_portal_support,wujia_portal_base`.
 - Số đo: hook 113 imd + 16 cons + 1 rel · snapshot 130 đổi chủ, **1 lệch có giải trình** (md5 bảng danh mục: chỉ
   `write_date`) · HTML 18/18 GET giống từng byte + 9/9 POST cùng redirect + DB sau POST giống hệt, bundle cùng md5 ·
