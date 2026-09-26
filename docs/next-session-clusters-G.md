@@ -28,7 +28,7 @@ mục "🔴 Bài học G&lt;n&gt;" ngay dưới khối prompt (tiền lệ D/E).
 |---|---|---|---|
 | G1 | `UI-MOB-HEADER-DENSITY-001` (143) + `UI-MOB-BOTTOMNAV-DENSITY-001` (145) → cuối phiên `WJ-ORD-MOB-SPACING-001` (144) | `wujia_portal_layout` + `wujia_portal_sale` (+ `wujia_portal_exam` nếu chỉnh offset thanh dính) | ☐ |
 | G2 | `UI-MOB-STORE-SWITCHER-001` (141) + `UI-PC-TOPBAR-REG-001` (140) | `wujia_portal_base` + `wujia_portal_sale` (+ `wujia_portal_layout` nếu sửa action circle) | ☐ |
-| G3a | `UI-PC-HOME-REDESIGN-001` (142) — khung | `wujia_portal_base` | ☐ — **chờ mockup V4** |
+| G3a | `UI-PC-HOME-REDESIGN-001` (142) — khung | `wujia_portal_base` | ☐ (mockup V4 đã có local) |
 | G3b | `UI-PC-HOME-REDESIGN-001` (142) — block + responsive, đóng issue | `wujia_portal_base` | ☐ |
 | G4 | `WJ-PORTAL-ROUTING-001` (146) | `wujia_portal_base` (+ `wujia_portal_layout` cho AC4) | ☐ |
 
@@ -133,14 +133,22 @@ chỉ ghi FYI BA ở LIMIT; không chặn phiên.
   gì là sai tín hiệu)?
 - (b) Nhãn vai trò đang in `Manager/Owner/Staff` (chuỗi Anh trong QWeb), mockup ghi "Quản lý" — kiểm bản
   dịch vi_VN có ăn không hay phải đổi chuỗi nguồn.
-- (c) Mockup 141 chỉ có trên Drive (link trong sheet) — cần file trước phiên.
+- (c) Mockup 141 (BA chốt 19/09): `docs/mockups/UI-MOB-STORE-SWITCHER-001_mockup.png` (1576×3416, Drive
+  `1kyhE0p_68wOh79hw2_Rc5mpdBri9i_4O`). Đọc từ ảnh: chip mã `HCM-01` nền xanh nhạt · tên đậm · pill "Quản lý"
+  **viền, nền trắng** · chevron-down xanh sát mép phải; vùng dưới header nền trắng/xanh rất nhạt.
+- (d) Mockup vẽ dải cửa hàng **cả trên Home**, trong khi code đang cố ý ẩn dải trên `/portal` (Sprint 10, vì hero
+  Home đã có cửa hàng + vai trò) — hỏi: bật lại trên Home theo mockup hay giữ ẩn.
+- (e) **Mâu thuẫn 140 ↔ mockup V4 (142)**: topbar của V4 vẫn vẽ pill "Quản lý" **tách ngoài** khối Cửa hàng hiện
+  tại, còn 140 đòi chip nằm **trong** khối (theo UI-01). V4 ghi "giữ nguyên topbar" ⇒ theo 140; ghi FYI BA ở LIMIT.
 
 ---
 
 ## G3 — Home PC theo mockup V4 (tách G3a / G3b)
 
-**Issue:** 142 `UI-PC-HOME-REDESIGN-001` (Medium, Redesign). **Điều kiện tiên quyết:** mockup SVG V4
-(BA duyệt 19/09) chỉ có trên Drive — chưa có bản local ⇒ chủ dự án chia sẻ/tải về trước G3a.
+**Issue:** 142 `UI-PC-HOME-REDESIGN-001` (Medium, Redesign). **Mockup V4** (BA duyệt 19/09, 1440×1019):
+`docs/mockups/Ngo-Gia-Portal-Home-PC-Mockup-V4-1440.svg` (tải 26/09 từ link trong sheet, Drive
+`1qRiQp7qB0zo1HCZ6o8ldZ6aH3A9o_JS_`). Xem nhanh: `rsvg-convert -w 1440 <svg> -o /tmp/v4.png`. Chỉ là thước
+đo — BA cấm nhúng SVG/ảnh làm màn hình.
 
 **Kết quả mong muốn (nguyên văn BA, rút gọn):** desktop 1440 bám đúng V4; topbar/sidebar giữ nguyên;
 hàng đầu chia đôi Cửa hàng hiện tại | Khung giờ đặt hàng; không block xanh đậm lớn, không Thao tác
