@@ -86,7 +86,7 @@ PC 1440 + mobile 390, 16 màn (danh sách, lọc bù một phần/đã gửi, fo
 
 ## Còn mở
 
-1. Chờ deploy UAT (chủ dự án). Lệnh: `-i wujia_return -u wujia_portal_return,wujia_portal_base` (không đụng module
+1. ✅ **Đã deploy UAT 26/09.** UAT sau deploy (26/09, chỉ-đọc): 3 version đúng · 14 phiếu (5 duyệt/2 hoàn tất/3 nháp/2 từ chối/2 đã gửi) · 5 loại lỗi · số kế RTN 5 · CA 1 · `wujia_return` 231 xmlid (230 + 1 field, như F8–F12) · portal còn 5 view · nhóm Quản lý 1 người, module cũ 0 nhóm · form backend đủ 6 nút cho Quản lý (`groups=wujia_return.`) · browser PC 1440 + mobile 390, 20 màn (danh sách, 4 lọc, form, 2 chi tiết, mã không tồn tại → `notice=not_found`, Home) 200, 0 tràn, 0 lỗi JS/HTTP; Home mobile hiện nhãn bảng chung. **ĐẠT.** Lệnh đã chạy: Lệnh: `-i wujia_return -u wujia_portal_return,wujia_portal_base` (không đụng module
    Thái). Sau deploy đo chỉ-đọc: `wujia_return 19.0.1.0.0` · `portal_return 19.0.4.0.0` · `portal_base 19.0.7.28.0`;
    portal còn 5 view; số kế `RTN` **5** · `CA` **1**; nhóm Quản lý 1 người; 14 phiếu; `/portal/return` 200.
 2. Báo BA: đổi chữ Home mobile (bảng trên) + câu hỏi `reviewing` trong KPI đang mở.

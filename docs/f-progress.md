@@ -1596,7 +1596,8 @@ rồi đánh ✅ ở bảng Trạng thái §2 `docs/next-session-clusters-F.md`.
   - Chapter 74: đoạn F13, dòng P8, số `.po`.
 - Commit: `a138d21` — `feat(F13): tách return → module nghiệp vụ wujia_return + controller mỏng` (đã push `main`).
 - Đã dọn: 8 DB đo `wujia_f13*` + filestore, worktree `scratchpad/f13/head`.
-- Deploy: **chờ chủ dự án** (không đụng module Thái). Lệnh: `-i wujia_return -u wujia_portal_return,wujia_portal_base`.
+- UAT sau deploy (26/09, chỉ-đọc): 3 version đúng · 14 phiếu (5 duyệt/2 hoàn tất/3 nháp/2 từ chối/2 đã gửi) · 5 loại lỗi · số kế RTN 5 · CA 1 · `wujia_return` 231 xmlid (230 + 1 field, như F8–F12) · portal còn 5 view · nhóm Quản lý 1 người, module cũ 0 nhóm · form backend đủ 6 nút cho Quản lý (`groups=wujia_return.`) · browser PC 1440 + mobile 390, 20 màn (danh sách, 4 lọc, form, 2 chi tiết, mã không tồn tại → `notice=not_found`, Home) 200, 0 tràn, 0 lỗi JS/HTTP; Home mobile hiện nhãn bảng chung. **ĐẠT.**
+- Deploy: **đã deploy UAT 26/09** (không đụng module Thái). Lệnh: `-i wujia_return -u wujia_portal_return,wujia_portal_base`.
   Sau deploy đo chỉ-đọc: `wujia_return 19.0.1.0.0` · `portal_return 19.0.4.0.0` · `portal_base 19.0.7.28.0`, portal còn
   5 view, số kế RTN 5 · CA 1, nhóm Quản lý 1 người, 14 phiếu, `/portal/return` 200.
 - Số đo: module mới 230 xmlid + 54 cons + 3 rel · snapshot 287 đổi chủ, 3 lệch (arch 2 view `groups` cố ý + `write_date`
