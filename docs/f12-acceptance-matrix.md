@@ -89,6 +89,7 @@ duy nhất 404 `/app-assets/data/locales/en.json` (có cả trên HEAD).
 3. Phát hiện có từ trước (không thuộc F12, HEAD cũng vậy): tiêu đề PC "Khung giờ ngày —" không điền ngày sau khi chọn.
    Ghi lại, hỏi BA nếu cần.
 4. `migrations/` cũ của portal để nguyên (đã chạy trên UAT).
+5. Đã dọn: 8 DB đo `wujia_f12*` + filestore, worktree `scratchpad/f12/head`. Commit `2acbd9f`.
 
 ## Lệnh chạy lại
 

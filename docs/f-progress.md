@@ -1552,7 +1552,8 @@ rồi đánh ✅ ở bảng Trạng thái §2 `docs/next-session-clusters-F.md`.
     (hướng dẫn tối đa, lịch/khung giờ, gửi phiếu → chi tiết + ảnh, 5 mã lỗi + rollback, cửa hàng khác 303/404).
     `check_layers`, `deploy.yml`, reseed.
   - Chapter 74: đoạn F12, dòng P7, số `.po`, bước "ref nhóm quyền đổi chủ" (bẫy groups trong arch).
-- Commit: xem `git log` — `feat(F12): tách exam → module nghiệp vụ wujia_exam + controller mỏng` (push `main`).
+- Commit: `2acbd9f` — `feat(F12): tách exam → module nghiệp vụ wujia_exam + controller mỏng` (đã push `main`).
+- Đã dọn: 8 DB đo `wujia_f12*` + filestore, worktree `scratchpad/f12/head`.
 - Deploy: **chờ chủ dự án — báo anh Thái trước** (đã sửa `wujia_mobile_portal_exam`). Lệnh:
   `-i wujia_exam -u wujia_portal_exam,wujia_mobile_portal_exam`. Sau deploy đo chỉ-đọc: 3 version (`wujia_exam 19.0.1.0.0` ·
   `portal_exam 19.0.6.0.0` · `mobile_portal_exam 19.0.1.0.1`), module mới ~216 xmlid (214 + `rating_ids`), portal còn 5 view,
